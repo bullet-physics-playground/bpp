@@ -1,7 +1,11 @@
 #declare Rad_Quality = 0;
 #declare Phot_Quality = 0;
 
-global_settings { 
+#include "stones.inc"
+#include "woods.inc"
+
+global_settings {
+  ambient_light White
   assumed_gamma 1
 
 #switch (Phot_Quality)
@@ -68,8 +72,8 @@ fog {
 }
 
 light_source {
-  <1000, 10000, -15000>
-  color rgb <1.0, 0.9, 0.78>*.5
+  <1000, 10000, 15000>
+  color rgb <255.0/ 160.0, 255.0/158.0, 255.0/154.0>*.95
 
 #switch (Phot_Quality)
 #case (1)
@@ -91,7 +95,7 @@ sphere { // sky
         [0.3 color rgb < 0.5, 0.6, 1.0 >] 
       } 
     } 
-    finish { diffuse 0 ambient 0.5 } 
+    finish { diffuse 0 ambient 0.75 } 
   } 
   scale 10000 
   hollow on 

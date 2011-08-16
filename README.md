@@ -1,14 +1,16 @@
-== INSTALL ==
+# bullet-physics-playground
 
-== install qglviewer library and headers ==
+## INSTALL
+
+### install qglviewer library and headers
 
  $ sudo apt-get install libqglviewer-qt4-dev
 
-== install glut library and headers ==
+### install glut library and headers
 
  $ sudo apt-get install freeglut3-dev
 
-== install 3ds library and headers ==
+### install 3ds library and headers
 
 On Ubuntu 10.04:
 
@@ -20,7 +22,7 @@ On Ubuntu 9.04 & Ubuntu 11.04:
  $ cd lib3ds-read-only/ && sh autogen.sh
  $ ./configure --prefix=/usr && make -j 10 && sudo make install
 
-=== build & install bullet library and headers ==
+### build & install bullet library and headers
 
 Linux:
 
@@ -32,7 +34,7 @@ Linux:
 
 MacOS & Windows: see INSTALL in bullet src directory
 
-=== build & install spacenav for 3Dconnexion's 3D input device drivers ==
+### build & install spacenav for 3Dconnexion's 3D input device drivers
 
 Space Navigator support is optional:
 
@@ -63,13 +65,13 @@ Windows:
 
  TODO
 
-== build physics ==
+## build physics
 
  $ qmake-qt4
  $ make -j 10
 
 
-== run physics ==
+## run physics
 
  $ ./physics
 
@@ -78,6 +80,6 @@ Options:
  -p generate POV-Ray output
  -s save screenshots
 
-== contact ==
+# contact
 
-Jakob Flierl <jakob.flierl@gmail.com>
+"Jakob Flierl" <jakob.flierl@gmail.com>

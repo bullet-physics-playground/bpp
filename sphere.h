@@ -9,6 +9,8 @@ class Sphere : public Object
 {
 public:
   Sphere(btScalar radius, btScalar mass);
+
+  void setRadius(btScalar radius);
   
  protected:
   virtual void renderInLocalFrame(QTextStream *s) const;

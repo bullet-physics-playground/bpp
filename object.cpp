@@ -19,9 +19,25 @@ Object::~Object()
   delete body;
 }
 
+void Object::setTexture(QString texture) {
+  mTexture = texture;
+}
+
+void Object::setScale(QString scale) {
+  mScale = scale;
+}
+
+void Object::setFinish(QString finish) {
+  mFinish = finish;
+}
+
 void Object::setMass(btScalar _mass) {
   body->setMassProps(0, btVector3(0,0,0));
   body->updateInertiaTensor();
+}
+
+void Object::setLinearVelocity(btVector3 vector) {
+  body->setLinearVelocity(vector);
 }
 
 void Object::setColor(int r, int g, int b) {
@@ -32,6 +48,10 @@ void Object::setColor(int r, int g, int b) {
 
 void Object::setColor(QColor col) {
   setColor(col.red(), col.green(), col.blue());
+}
+
+QColor Object::getColor() {
+  return QColor(color[0], color[1], color[2]);
 }
 
 void Object::setPosition(btVector3 &v) {

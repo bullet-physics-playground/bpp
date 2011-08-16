@@ -23,11 +23,29 @@ Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass)
   trans.setOrigin(btVector3(0, 0, 0));
   motionState = new btDefaultMotionState(trans);
 
-  body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
+  btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape, btVector3(mass, mass, mass));
+  bodyCI.m_friction = 5.0f;
+  bodyCI.m_restitution = 0.50f;
+  bodyCI.m_linearDamping = 0.5f;
+  bodyCI.m_angularDamping = 0.05f;
+
+  body = new btRigidBody(bodyCI);
+
+  //body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
+  //  body->SetMargin(0.05f);
 }
 
 void Cube::renderInLocalFrame(QTextStream *s) const
 {
+  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
+  GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
+  GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat no_shininess[] = { 0.0 };
+  GLfloat low_shininess[] = { 5.0 };
+  GLfloat high_shininess[] = { 100.0 };
+  GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+
   btTransform trans;
   btScalar m[16];
 
@@ -37,12 +55,27 @@ void Cube::renderInLocalFrame(QTextStream *s) const
   glPushMatrix();
   glMultMatrixf(m);
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glColor3ubv(color);
+
+  glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+  glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+  glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+
+  //  glColor3ubv(color);
+
   glutSolidCube(1.0f);
   glPopMatrix();
   
   if (s != NULL) {
-    *s << "box { <" << -lengths[0]/2.0 << ", " << -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <" << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">\n      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+    *s << "box { <" << -lengths[0]/2.0 << ", " << -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <" << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">\n";
+
+    if (mTexture == NULL) {
+      *s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+    } else {
+      *s << mTexture << endl;
+    }
+
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
     *s << "}" << endl << endl;
   }
