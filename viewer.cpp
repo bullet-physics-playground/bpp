@@ -169,12 +169,12 @@ void Viewer::addObjects() {
   add4BBox(mioSphere);
   */
 
-  for (int i = 5; i <= 25; i+=3) {
+  for (int i = 5; i <= 45; i+=3) {
     Sphere *s0 = new Sphere(i / 1.5, i*i + 10.0);
-    s0->setPosition(50.0 + i * i * 5.5, i, 20.0);
+    s0->setPosition(50.0 + i * 20.5, i, 20.0);
     s0->setColor(100, 100, 255);
     s0->setTexture("texture {T_Stone1 scale 4.0 }");
-    s0->setLinearVelocity(btVector3(-30.0f, 0.0f, 0.0f));
+    s0->setLinearVelocity(btVector3(-50.0f, 0.0f, 0.0f));
     addObject(s0, COL_SHIP, COL_WALL | COL_SHIP );
     add4BBox(s0);
   }

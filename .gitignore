@@ -2,6 +2,20 @@
 .project
 .settings
 
+roboop/bench
+roboop/demo
+roboop/demo_2dof_pd
+roboop/libnewmat.a
+roboop/libroboop.a
+roboop/rtest
+
+Makefile
+
+.moc
+.ui
+
+*.o
+
 .qglviewer.xml
 
 bin
