@@ -33,9 +33,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  qDebug() << " gui";
-
-  Gui g(NULL, savePNG, savePOV);
+  Gui g(savePNG, savePOV);
   g.show();
 
   return application.exec();

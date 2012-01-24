@@ -1,10 +1,8 @@
-#include "cmdline.h"
+#include "commandline.h"
 
 #include <QKeyEvent>
 
-CommandLine::CommandLine(QString name, QWidget *parent)
-  : QLineEdit(name, parent)
-{
+CommandLine::CommandLine(QWidget *parent) : QLineEdit(parent) {
   historyPos = -1;
   connect(this, SIGNAL(returnPressed()), this, SLOT(executed()));
 

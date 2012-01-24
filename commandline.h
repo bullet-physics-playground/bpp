@@ -9,7 +9,7 @@ class CommandLine : public QLineEdit {
  Q_OBJECT
 
  public:
-  CommandLine(QString text = "", QWidget *parent = 0);
+  CommandLine(QWidget *parent = 0);
   QList<QString>* getHistory();
 
  public slots:
@@ -19,7 +19,7 @@ class CommandLine : public QLineEdit {
   void execute(QString cmd);
 
  private:
- void keyPressEvent(QKeyEvent *e);
+  void keyPressEvent(QKeyEvent *e);
 
  private:
   QList<QString> *history;

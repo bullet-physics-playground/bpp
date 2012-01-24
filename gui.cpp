@@ -1,33 +1,65 @@
 #include "gui.h"
 
-Gui::Gui(QWidget *parent, bool savePNG, bool savePOV) : QWidget(parent) {
+#define APP_VERSION QString("v1.0.1")
+#define APP_NAME QString("physics")
+#define APP_NAME_FULL tr("Bullet Physics Playground")
+
+Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   ui.setupUi(this);
 
-  qDebug() << "gui cons";
+  // setAttribute(Qt::WA_DeleteOnClose);
+  setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
+  //  setWindowIcon(QIcon(":images/icon.png"));
 
-  m_viewer = new Viewer(this, savePNG, savePOV);
+  settings = new QSettings();
 
-  qDebug() << "viewer post cons";
+  // ui.viewer = new Viewer(this, savePNG, savePOV);
 
-  QVBoxLayout *layout = new QVBoxLayout;
-  layout->addWidget(m_viewer);
-  ui.widget->setLayout(layout);
+  //  ui.cmdline = new CommandLine(this);
+  ui.cmdline->setFocus();
 
-  m_cmdline = new CommandLine("", this);
+  connect(ui.cmdline, SIGNAL(execute(QString)), this, SLOT(command(QString)));
 
-  QVBoxLayout *layout1 = new QVBoxLayout;
-  layout1->addWidget(m_cmdline);
-  ui.lineEdit->setLayout(layout1);
-  m_cmdline->setFocus();
-
-  connect(m_cmdline, SIGNAL(execute(QString)), this, SLOT(command(QString)));
+  loadSettings();
 }
 
 #define pi (3.1415926535f)
 
-static double r2d(double radians)
-{
-  return radians * 180 / pi;
+static double r2d(double radians) { return radians * 180 / pi; }
+
+void Gui::loadSettings() {
+  settings->beginGroup("gui");
+
+  restoreGeometry(settings->value("geometry", saveGeometry() ).toByteArray());
+  restoreState(settings->value("state", saveState() ).toByteArray());
+  move(settings->value("pos", pos()).toPoint());
+  resize(settings->value("size", size()).toSize());
+
+  if ( settings->value("maximized", isMaximized() ).toBool()) {
+    showMaximized();
+  }
+
+  settings->endGroup();
+}
+
+void Gui::saveSettings() {
+  settings->beginGroup("gui");
+
+  settings->setValue("geometry", saveGeometry());
+  settings->setValue("state", saveState());
+  settings->setValue("maximized", isMaximized());
+
+  if ( !isMaximized() ) {
+    settings->setValue("pos", pos());
+    settings->setValue("size", size());
+  }
+
+  settings->endGroup();
+}
+
+void Gui::closeEvent(QCloseEvent *) {
+  // qDebug() << "Gui::closeEvent";
+  saveSettings();
 }
 
 void Gui::command(QString cmd) {
@@ -36,7 +68,7 @@ void Gui::command(QString cmd) {
 
   if (cmd.startsWith("home")) {
     log("moving into home position.");
-    m_viewer->rm->cmdHome();
+    ui.viewer->rm->cmdHome();
   } else if (cmd.startsWith("m")) {
     QStringList s = cmd.split(" ");
     double x = s.at(1).toDouble();
@@ -45,7 +77,7 @@ void Gui::command(QString cmd) {
     
     log(QString("moving to <%1, %2, %3>.").arg(x).arg(y).arg(z));
 
-    m_viewer->rm->cmdMoveTo(x, y, z);
+    ui.viewer->rm->cmdMoveTo(x, y, z);
   } else if (cmd.startsWith("?") || cmd.startsWith("help")) {
     log("available commands:");
     log(" - home ");
@@ -54,7 +86,7 @@ void Gui::command(QString cmd) {
 }
 
 void Gui::log(QString text) {
-  ui.textEdit->append(text);
+  ui.cmdlog->appendPlainText(text);
 }
 
 void Gui::updateValues() {

@@ -339,8 +339,6 @@ void Viewer::addObjects() {
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
-  loadPrefs();
-
   _savePNG = savePNG; _savePOV = savePOV; setSnapshotFormat("png");
   _simulate = false;
 
@@ -394,6 +392,8 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
+
+  loadPrefs();
 
   mio.start();
 

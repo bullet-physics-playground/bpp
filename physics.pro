@@ -1,3 +1,5 @@
+QMAKE_CXXFLAGS_DEBUG += -g3 -O0
+
 TEMPLATE = app
 TARGET = physics
 DEPENDPATH += .
@@ -24,11 +26,11 @@ LIBS += -lspnav -lqglviewer-qt4 -lglut -lGL -l3ds -lroboop -lnewmat -Lroboop
 
 SOURCES += main.cpp palette.cpp viewer.cpp object.cpp cube.cpp sphere.cpp \
            plane.cpp cylinder.cpp mesh3ds.cpp rm.cpp collisionfilter.cpp rm1.cpp \
-           cubeaxes.cpp gui.cpp cmdline.cpp dice.cpp spacenavigator.cpp spacenavigatorevent.cpp \
+           cubeaxes.cpp gui.cpp commandline.cpp dice.cpp spacenavigator.cpp spacenavigatorevent.cpp \
            SpaceNavigatorCam.cpp MidiIO.cpp MidiEvent.cpp RtMidi.cpp
 HEADERS += palette.h viewer.h   object.h   cube.h   sphere.h   \
            plane.h   cylinder.h   mesh3ds.h   rm.h   collisionfilter.h     rm1.h \
-           cubeaxes.h   gui.h cmdline.h dice.h spacenavigator.h spacenavigatorevent.cpp \
+           cubeaxes.h   gui.h commandline.h dice.h spacenavigator.h spacenavigatorevent.cpp \
            SpaceNavigatorCam.h MidiIO.h MidiEvent.h RtMidi.h
 
 FORMS   += gui.ui

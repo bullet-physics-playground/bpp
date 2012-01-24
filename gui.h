@@ -5,28 +5,29 @@
 
 #include "ui_gui.h"
 
+#include "commandline.h"
 #include "viewer.h"
 
-#include "cmdline.h"
-
-class Gui : public QWidget {
+class Gui : public QMainWindow {
  Q_OBJECT
 
  public: 
-  Gui(QWidget *parent = 0, bool savePOV = false, bool savePNG = false);
- 
+  Gui(bool savePOV = false, bool savePNG = false, QWidget *parent = 0);
 
  private slots:
   void updateValues();
   void command(QString cmd);
+  void closeEvent(QCloseEvent *);
 
  private:
+  QSettings *settings;
+
   void log(QString text);
 
-  Ui::GuiForm ui;
+  void loadSettings();
+  void saveSettings();
 
-  Viewer *m_viewer;
-  CommandLine *m_cmdline;
+  Ui::MainWindow ui;
 };
 
 #endif
