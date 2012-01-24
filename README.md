@@ -19,10 +19,10 @@
 On Ubuntu 10.04:
 
 ```
- $ sudo apt-get install lib3ds-dev
+ $ sudo apt-get -y install lib3ds-dev
 ```
 
-On Ubuntu 9.04 & Ubuntu 11.04:
+On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10:
 
 ```
  $ svn checkout http://lib3ds.googlecode.com/svn/trunk/ lib3ds-read-only
@@ -35,7 +35,7 @@ On Ubuntu 9.04 & Ubuntu 11.04:
 Linux:
 
 ```
- $ sudo apt-get install automake libtool cmake freeglut3-dev
+ $ sudo apt-get -y install automake libtool cmake freeglut3-dev
 ```
 
 ```
