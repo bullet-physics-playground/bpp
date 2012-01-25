@@ -45,6 +45,11 @@ std::ostream& operator<<(std::ostream& ostream, const QString& s) {
   return ostream;
 }
 
+std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
+  ostream << c.name().toAscii().data();
+  return ostream;
+}
+
 namespace luabind
 {
   template <>
@@ -153,6 +158,7 @@ void Viewer::luaBind(lua_State *s) {
 	 .property("r", &QColor::red, &QColor::setRed)
 	 .property("g", &QColor::green, &QColor::setGreen)
 	 .property("b", &QColor::blue, &QColor::setBlue)
+     .def(tostring(self))
 	 ];
 
   module(s)
