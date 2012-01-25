@@ -1,6 +1,6 @@
 # bullet-physics-playground
 
-![physics-00.png](https://github.com/koppi/bullet-physics-playground/raw/master/demo/physics-00.png)
+![physics-00.png](https://github.com/koppi/bullet-physics-playground/raw/master/physics-00.png)
 
 Features:
 
