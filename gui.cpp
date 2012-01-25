@@ -84,7 +84,7 @@ void Gui::loadFile(const QString &path) {
   if (editor->load(path)) {
 	setCurrentFile(path);
 	setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
-	// parseEditor();
+	parseEditor();
 	statusBar()->showMessage(tr("File loaded"), 2000);
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
@@ -237,12 +237,10 @@ void Gui::updateRecentFileActions() {
 
 void Gui::setCurrentFile(const QString &fileName) {
 
-  /*
-  if (drillFile->getFileName().isEmpty())
+  if (editor->script_filename.isEmpty())
     setWindowTitle(tr("Recent Files"));
   else
-    setWindowTitle(tr("%1 %2 - %3").arg(APP_NAME_FULL).arg(APP_VERSION).arg(strippedName(drillFile->getFileName())));
-  */
+    setWindowTitle(tr("%1 %2 - %3").arg(APP_NAME_FULL).arg(APP_VERSION).arg(strippedName(editor->script_filename)));
 
   QStringList files = settings->value("recentFileList").toStringList();
   files.removeAll(fileName);
@@ -257,6 +255,8 @@ void Gui::setCurrentFile(const QString &fileName) {
     if (mainWin)
       mainWin->updateRecentFileActions();
   }
+
+  
 }
 
 void Gui::createDock() {
@@ -325,7 +325,8 @@ void Gui::save() {
 }
 
 void Gui::saveAs() {
-  editor->saveAs(editor->script_filename);
+  editor->saveAs();
+  setCurrentFile(editor->script_filename);
 }
 
 void Gui::saveFile(const QString& path) {
