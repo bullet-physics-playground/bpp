@@ -13,7 +13,7 @@ OBJECTS_DIR = .obj
 UI_DIR = .ui
 
 CONFIG += link_pkgconfig debug
-PKGCONFIG += bullet alsa
+PKGCONFIG += bullet alsa lua5.1 luabind
 QMAKE_CXXFLAGS_WARN_ON =
 
 QT += xml opengl

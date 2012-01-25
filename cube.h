@@ -5,14 +5,20 @@
 
 #include <btBulletDynamicsCommon.h>
 
-class Cube : public Object
-{
-public:
-	Cube(btScalar width, btScalar height, btScalar depth, btScalar mass);
+class Cube : public Object {
 
-	btScalar         lengths[3];
-protected:
-	virtual void renderInLocalFrame(QTextStream *s) const;
+ public:
+  Cube(btVector3 dim, btScalar mass = 1.0);
+  Cube(btScalar width = 1.0, btScalar height = 1.0, btScalar depth = 1.0,
+	   btScalar mass = 1.0);
+  
+  btScalar         lengths[3];
+  
+  static void luaBind(lua_State *s);
+  QString toString() const;
+ protected:
+  void init(btScalar width, btScalar height, btScalar depth, btScalar mass);
+  void renderInLocalFrame(QTextStream *s) const;
 };
 
 

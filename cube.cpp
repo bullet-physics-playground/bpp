@@ -5,8 +5,17 @@
 
 using namespace std;
 
-Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass)
-{
+#include <luabind/operator.hpp>
+
+Cube::Cube(btVector3 dim, btScalar mass) {
+  init(dim.getX(), dim.getY(), dim.getZ(), mass);
+}
+
+Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass) {
+  init(width, height, depth, mass);
+}
+
+void Cube::init(btScalar width, btScalar height, btScalar depth, btScalar mass) {
   lengths[0] = width;
   lengths[1] = height;
   lengths[2] = depth;
@@ -35,8 +44,29 @@ Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass)
   //  body->SetMargin(0.05f);
 }
 
-void Cube::renderInLocalFrame(QTextStream *s) const
-{
+void Cube::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Cube,Object>("Cube")
+     .def(constructor<>())
+     .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+     .def(constructor<btVector3>())
+     .def(constructor<btVector3, btScalar>())
+	 .def(tostring(const_self))
+	 ];
+
+  Object::luaBind(s);
+}
+
+QString Cube::toString() const {
+  return QString("Cube");
+}
+
+void Cube::renderInLocalFrame(QTextStream *s) const {
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };

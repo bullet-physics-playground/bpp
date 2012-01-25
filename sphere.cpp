@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#include <luabind/operator.hpp>
+
 Sphere::Sphere(btScalar pradius, btScalar mass)
 {
   radius = pradius;
@@ -30,6 +32,32 @@ void Sphere::setRadius(btScalar pradius) {
   radius = pradius;
 
   shape = new btSphereShape(radius);
+}
+
+btScalar Sphere::getRadius() const {
+  return radius;
+}
+
+void Sphere::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Sphere,Object>("Sphere")
+     .def(constructor<>())
+     .def(constructor<btScalar>())
+     .def(constructor<btScalar, btScalar>())
+	 .property("radius", &Sphere::getRadius, &Sphere::setRadius)
+     .def(tostring(const_self))
+     ];
+
+  Object::luaBind(s);
+}
+
+QString Sphere::toString() const {
+  return QString("Sphere");
 }
 
 void Sphere::renderInLocalFrame(QTextStream *s) const

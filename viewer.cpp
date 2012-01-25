@@ -2,6 +2,8 @@
 
 #include "collisionfilter.h"
 
+#include <QColor>
+
 #include "object.h"
 #include "plane.h"
 #include "cube.h"
@@ -21,10 +23,7 @@
 
 #include <QDebug>
 
-#define G 9.81
-
 using namespace std;
-using namespace qglviewer;
 
 #define BIT(x) (1<<(x))
 
@@ -34,6 +33,159 @@ enum collisiontypes {
   COL_WALL = BIT(2), //<Collide with walls
   COL_POWERUP = BIT(3) //<Collide with powerups
 };
+
+std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
+  ostream << v.toString().toAscii().data();
+
+  return ostream;
+}
+
+std::ostream& operator<<(std::ostream& ostream, const QString& s) {
+  ostream << s.toAscii().data();
+  return ostream;
+}
+
+namespace luabind
+{
+  template <>
+    struct default_converter<QString>
+	: native_converter_base<QString>
+  {
+	static int compute_score(lua_State* L, int index) {
+	  return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
+	}
+	
+	QString from(lua_State* L, int index) {
+	  return QString(lua_tostring(L, index));
+	}
+	
+	void to(lua_State* L, QString const& x) {
+	  lua_pushstring(L, x.toAscii());
+	}
+  };
+  
+  template <>
+    struct default_converter<QString const>
+	: default_converter<QString>
+  {};
+
+  template <>
+    struct default_converter<QString const&>
+	: default_converter<QString>
+  {};
+
+  template <>
+  struct default_converter<unsigned long long>
+	: native_converter_base<unsigned long long>
+  {
+    static int compute_score(lua_State* L, int index) {
+	  return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+    }
+
+    unsigned long long from(lua_State* L, int index) {
+	  return static_cast<unsigned long long>(lua_tonumber(L, index));
+    }
+
+    void to(lua_State* L, unsigned long long value) {
+	  lua_pushnumber(L, static_cast<lua_Number>(value));
+    }
+  };
+
+  template <>
+  struct default_converter<unsigned long long const>
+	: default_converter<unsigned long long>
+  {};
+
+  template <>
+  struct default_converter<unsigned long long const&>
+	: default_converter<unsigned long long>
+  {};
+}
+  
+#include <luabind/operator.hpp>
+
+QString Viewer::toString() const {
+  return QString("Viewer");
+}
+
+void Viewer::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Viewer>("Viewer")
+     .def(constructor<>())
+     .def("add", (void(Viewer::*)(Object&))&Viewer::addObject)
+     .def(tostring(const_self))
+     ];
+
+  module(s)
+	[
+	 class_<btVector3>( "btVector3" )
+	 .def(constructor<>())
+	 .def(constructor<btScalar, btScalar, btScalar>())
+	 .property("x", &btVector3::getX, &btVector3::setX)
+	 .property("y", &btVector3::getY, &btVector3::setY)
+	 .property("z", &btVector3::getZ, &btVector3::setZ)
+	 .def( "getX", &btVector3::getX )
+	 .def( "getY", &btVector3::getY )
+	 .def( "getZ", &btVector3::getZ )
+	 .def( "setX", &btVector3::setX )
+	 .def( "setY", &btVector3::setY )
+	 .def( "setZ", &btVector3::setZ )
+	 ];
+
+  module(s)
+	[
+	 class_<btQuaternion>("btQuarternion")
+	 .def(constructor<>())
+	 .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+	 ];
+
+  module(s)
+	[
+	 class_<QColor>("QColor")
+	 .def(constructor<>())
+	 .def(constructor<int, int, int>())
+	 .def(constructor<int, int, int, int>())
+	 .property("r", &QColor::red, &QColor::setRed)
+	 .property("g", &QColor::green, &QColor::setGreen)
+	 .property("b", &QColor::blue, &QColor::setBlue)
+	 ];
+
+  module(s)
+	[
+	 class_<QString>("QString")
+	 .def(constructor<>())
+	 .def(constructor<const char *>())
+     .def(tostring(self))
+	 ];
+}
+
+void Viewer::addObject(Object& o) {
+  addObject(&o, COL_WALL, COL_WALL);
+  add4BBox(&o);
+}
+
+void Viewer::luaBindInstance(lua_State *s) {
+  using namespace luabind;
+
+  globals(s)["v"] = this;
+}
+
+void report_errors(lua_State *L, int status)
+{
+  if ( status!=0 ) {
+	std::cerr << "-- " << lua_tostring(L, -1) << std::endl;
+    lua_pop(L, 1); // remove error message
+  }
+}
+
+#define G 9.81
+
+using namespace qglviewer;
 
 namespace {
   void getAABB(const QVector<Object *>& objects, btScalar aabb[6]) {
@@ -169,6 +321,7 @@ void Viewer::addObjects() {
   add4BBox(mioSphere);
   */
 
+  /*
   for (int i = 5; i <= 45; i+=3) {
     Sphere *s0 = new Sphere(i / 1.5, i*i + 10.0);
     s0->setPosition(50.0 + i * 20.5, i, 20.0);
@@ -177,7 +330,7 @@ void Viewer::addObjects() {
     s0->setLinearVelocity(btVector3(-50.0f, 0.0f, 0.0f));
     addObject(s0, COL_SHIP, COL_WALL | COL_SHIP );
     add4BBox(s0);
-  }
+	}*/
 
   /*
   Sphere *s0 = new Sphere(8.0, 40.0);
@@ -188,6 +341,8 @@ void Viewer::addObjects() {
   add4BBox(s0);
   */
 
+
+  /*
   double r = 7.97f;
 
   for (int i = 0; i < 5; i++) {
@@ -238,7 +393,9 @@ void Viewer::addObjects() {
 	//}
       }
     }
-  }
+	}
+
+  */
   
   /*
   for (int i = 0; i < 3; i++) {
@@ -390,6 +547,37 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   kfi_.startInterpolation();
   */
 
+  // setup lua
+
+  L = lua_open();
+
+  //  luaopen_io(L); // provides io.*
+  luaL_openlibs(L);
+
+  Object::luaBind(L);
+  Sphere::luaBind(L);
+  Cube::luaBind(L);
+  Viewer::luaBind(L);
+
+  luaBindInstance(L);
+
+  QString file("test.lua");
+
+  std::cerr << "-- Loading file: " << qPrintable(file) << std::endl;
+
+  int s = luaL_loadfile(L, qPrintable(file));
+
+  if ( s==0 ) {
+	// execute Lua program
+	s = lua_pcall(L, 0, LUA_MULTRET, 0);
+  }
+
+  report_errors(L, s);
+
+  // lua_close(L);
+
+  std::cerr << std::endl;
+
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
 
@@ -500,7 +688,7 @@ void Viewer::computeBoundingBox() {
   btVector3 center = (min+max)/2.0f;
   center[3] = 0.0f;
 
-  setSceneRadius((max-min).length()*2.0);
+  setSceneRadius((max-min).length()*20.0);
   setSceneCenter((Vec)center);
 }
 

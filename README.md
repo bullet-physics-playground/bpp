@@ -1,33 +1,37 @@
 # bullet-physics-playground
 
-## INSTALL
+Demo videos created with bullet-physics-playground:
 
-### install qglviewer library and headers
+* [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ)
+* [dancing servos](http://www.youtube.com/watch?v=YBQGqMRh3c8)
+* [domino dynamics - II](http://www.youtube.com/watch?v=0QQYXvnrU1U)
+* [domino dynamics - I](http://www.youtube.com/watch?v=3Q0V185vVnE)
+* [4800 cubes - HD](http://www.youtube.com/watch?v=6r_kCF1TRAk)
 
-```
- $ sudo apt-get install libqglviewer-qt4-dev
-```
+## Install from Ubuntu PPA
 
-### install glut library and headers
-
-```
- $ sudo apt-get install freeglut3-dev
-```
-
-### install 3ds library and headers
-
-On Ubuntu 10.04:
+On Ubuntu, you cann install bullet-physics-playground from a PPA:
 
 ```
- $ sudo apt-get -y install lib3ds-dev
+$ sudo apt-addrepository -y ppa:...
+$ sudo apt-get update
+$ sudo apt-get -y install bullet-physics-playground
 ```
 
-On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10:
+## Install from source
+
+### install qglviewer, glut, 3ds, lua5.1 and luabind libs and header packages
 
 ```
- $ svn checkout http://lib3ds.googlecode.com/svn/trunk/ lib3ds-read-only
- $ cd lib3ds-read-only/ && sh autogen.sh
- $ ./configure --prefix=/usr && make -j 10 && sudo make install
+$ sudo apt-get install libqglviewer-qt4-dev freeglut3-dev lib3ds-dev libluabind-dev liblua5.1-0-dev
+```
+
+On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10 install lib3ds as follows:
+
+```
+$ svn checkout http://lib3ds.googlecode.com/svn/trunk/ lib3ds-read-only
+$ cd lib3ds-read-only/ && sh autogen.sh
+$ ./configure --prefix=/usr && make -j 10 && sudo make install
 ```
 
 ### build & install bullet library and headers
@@ -35,13 +39,13 @@ On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10:
 Linux:
 
 ```
- $ sudo apt-get -y install automake libtool cmake freeglut3-dev
+$ sudo apt-get -y install automake libtool cmake freeglut3-dev
 ```
 
 ```
- $ svn checkout http://bullet.googlecode.com/svn/trunk/ bullet-read-only
- $ cd bullet-read-only/ && sh autogen.sh
- $ ./configure --prefix=/usr && make -j 10 && sudo make install
+$ svn checkout http://bullet.googlecode.com/svn/trunk/ bullet-read-only
+$ cd bullet-read-only/ && sh autogen.sh
+$ ./configure --prefix=/usr && make -j 10 && sudo make install
 ```
 
 MacOS & Windows: see INSTALL in bullet src directory
@@ -53,63 +57,53 @@ Space Navigator support is optional:
 Linux:
 
 ```
- $ svn co https://spacenav.svn.sourceforge.net/svnroot/spacenav/trunk spacenav
- $ cd spacenav/libspnav && ./configure --prefix=/usr 
- $ make -j4 && sudo make install
+$ svn co https://spacenav.svn.sourceforge.net/svnroot/spacenav/trunk spacenav
+$ cd spacenav/libspnav && ./configure --prefix=/usr 
+$ make -j4 && sudo make install
 ```
 
 ```
- $ cd ../spnavcfg && ./configure --prefix=/usr && make -j4 && sudo make install
- $ cd ../spacenavd && ./configure --prefix=/usr && make -j4 && sudo make install
+$ cd ../spnavcfg && ./configure --prefix=/usr && make -j4 && sudo make install
+$ cd ../spacenavd && ./configure --prefix=/usr && make -j4 && sudo make install
 ```
 
 ```
- $ cd .. && sudo cp spacenavd/doc/example-spnavrc /etc/spnavrc
+$ cd .. && sudo cp spacenavd/doc/example-spnavrc /etc/spnavrc
 ```
 
 ```
- $ sudo vi /etc/spnavrc
+$ sudo vi /etc/spnavrc
 ```
 
-   and change the settings as appropriate.
+and change the settings as appropriate.
 
 ```
- $ cd spacenavd && sudo ./setup_init && cd ..
+$ cd spacenavd && sudo ./setup_init && cd ..
 ```
 
 ```
- $ sudo vi /etc/init.d/spacenavd
+$ sudo vi /etc/init.d/spacenavd
 ```
 
-   and change path from "/usr/local/bin" to "/usr/bin".
+and change path from "/usr/local/bin" to "/usr/bin".
 
 ```
- $ sudo /etc/init.d/spacenavd start
+$ sudo /etc/init.d/spacenavd start
 ```
 
-Windows:
-
- TODO
-
-## build physics
+## Build and run physics
 
 ```
- $ qmake-qt4
- $ make -j 10
+$ qmake-qt4
+$ make -j 10
+$ ./physics 
 ```
 
+physics options:
 
-## run physics
+* -p generate POV-Ray output
+* -s save screenshots
 
-```
- $ ./physics
-```
+# Authors / Copyright
 
-Options:
-
- -p generate POV-Ray output
- -s save screenshots
-
-# contact
-
-* Jakob Flierl https://github.com/koppi
+* &copyright; 2008-2012 Jakob Flierl https://github.com/koppi

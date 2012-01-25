@@ -1,6 +1,8 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
+#include "lua.hpp"
+
 #include <QGLViewer/qglviewer.h>
 #include <QGLViewer/manipulatedFrame.h>
 
@@ -20,14 +22,23 @@
 using namespace qglviewer;
 
 class Object;
+class Viewer;
+
+std::ostream& operator<<(std::ostream&, const Viewer& v);
 
 class Viewer : public QGLViewer
 {
   Q_OBJECT;
 
  public:
-  Viewer(QWidget *parent=NULL, bool savePNG=false, bool savePOV=false);
+  Viewer(QWidget *parent = NULL, bool savePNG = false, bool savePOV = false);
   ~Viewer();
+
+  void addObject(Object& o);
+
+  static void luaBind(lua_State *s);
+  void luaBindInstance(lua_State *s);
+  virtual QString toString() const;
 
  protected:
   virtual void init();
@@ -65,6 +76,7 @@ class Viewer : public QGLViewer
   QList<Object*> l[10];
 
  private:
+  lua_State *L;
 
   bool _simulate;
 
