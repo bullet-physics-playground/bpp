@@ -2,14 +2,17 @@ io.write("Hello world, from ",_VERSION,"!\n")
 
 -- io.write("Viewer: ",tostring(v),"!\n");
 
+-- col = QColor(255, 0, 0)
+-- print(col)
+
 function balls(n)
   n = n or 10
   for i = 0, n do
     io.write("shpere ",tostring(i), "\n");
-    s = Sphere(0.5)
-    s.pos = btVector3(1, 0.5, 10 + i)
+    s = Sphere(0.5, 100)
+    s.pos = btVector3(-n / 2 + i, 0.5, 10)
     s.color = QColor(0,0,255)
-    s.vel = btVector3(10, 0, 0)
+    s.vel = btVector3(0, 0, -10)
     v:add(s)
   end
 end
@@ -25,5 +28,11 @@ function tower(n)
   end
 end
 
-tower(10)
-balls(10)
+
+function demo(n)
+  n = n or 10
+  tower(n)
+  balls(n)
+end
+
+demo(10)
