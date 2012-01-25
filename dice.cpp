@@ -6,8 +6,9 @@
 
 using namespace std;
 
-Dice::Dice(btScalar width, btScalar mass)
-{
+#include <luabind/operator.hpp>
+
+Dice::Dice(btScalar width, btScalar mass) {
   lengths[0] = width;
   lengths[1] = width;
   lengths[2] = width;
@@ -27,8 +28,28 @@ Dice::Dice(btScalar width, btScalar mass)
   body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
 }
 
-void Dice::renderInLocalFrame(QTextStream *s) const
-{
+void Dice::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Dice, Object>("Dice")
+     .def(constructor<>())
+     .def(constructor<btScalar>())
+     .def(constructor<btScalar, btScalar>())
+     .def(tostring(const_self))
+     ];
+
+  Object::luaBind(s);
+}
+
+QString Dice::toString() const {
+  return QString("Dice");
+}
+
+void Dice::renderInLocalFrame(QTextStream *s) const {
   btTransform trans;
   btScalar m[16];
 

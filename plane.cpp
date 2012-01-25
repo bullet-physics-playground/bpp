@@ -5,8 +5,18 @@
 
 using namespace std;
 
-Plane::Plane(btScalar nx, btScalar ny, btScalar nz, btScalar nConst, btScalar psize)
-{
+#include <luabind/operator.hpp>
+
+Plane::Plane(btVector3 dim, btScalar nConst, btScalar psize) {
+  init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
+}
+
+Plane::Plane(btScalar nx, btScalar ny, btScalar nz,
+			 btScalar nConst, btScalar psize) {
+  init(nx, ny, nz, nConst, psize);
+}
+
+void Plane::init(btScalar nx, btScalar ny, btScalar nz, btScalar nConst, btScalar psize) {
   size = psize;
 
   shape = new btStaticPlaneShape(btVector3(nx, ny, nz), nConst);
@@ -26,6 +36,31 @@ Plane::Plane(btScalar nx, btScalar ny, btScalar nz, btScalar nConst, btScalar ps
 
 void Plane::setPigment(QString pigment) {
   mPigment = pigment;
+}
+
+void Plane::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Plane, Object>("Plane")
+     .def(constructor<>())
+     .def(constructor<btScalar>())
+     .def(constructor<btScalar, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar, btScalar, btScalar>())
+     .def(constructor<btVector3, btScalar, btScalar>())
+     .def(tostring(const_self))
+     ];
+
+  Object::luaBind(s);
+}
+
+QString Plane::toString() const {
+  return QString("Plane");
 }
 
 void Plane::renderInLocalFrame(QTextStream *s) const

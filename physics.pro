@@ -1,5 +1,13 @@
 QMAKE_CXXFLAGS_DEBUG += -g3 -O0
 
+win32 {
+  DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
+  DEFINES += BUILDDATE=\\\"$$system('echo %date%')\\\"
+} else {
+  DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
+  DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
+}
+
 TEMPLATE = app
 TARGET = physics
 DEPENDPATH += .
@@ -27,11 +35,14 @@ LIBS += -lspnav -lqglviewer-qt4 -lglut -lGL -l3ds -lroboop -lnewmat -Lroboop
 SOURCES += main.cpp palette.cpp viewer.cpp object.cpp cube.cpp sphere.cpp \
            plane.cpp cylinder.cpp mesh3ds.cpp rm.cpp collisionfilter.cpp rm1.cpp \
            cubeaxes.cpp gui.cpp commandline.cpp dice.cpp spacenavigator.cpp spacenavigatorevent.cpp \
-           SpaceNavigatorCam.cpp MidiIO.cpp MidiEvent.cpp RtMidi.cpp
+           SpaceNavigatorCam.cpp MidiIO.cpp MidiEvent.cpp RtMidi.cpp \
+           codeeditor.cpp highlighter.cpp
+
 HEADERS += palette.h viewer.h   object.h   cube.h   sphere.h   \
            plane.h   cylinder.h   mesh3ds.h   rm.h   collisionfilter.h     rm1.h \
            cubeaxes.h   gui.h commandline.h dice.h spacenavigator.h spacenavigatorevent.cpp \
-           SpaceNavigatorCam.h MidiIO.h MidiEvent.h RtMidi.h
+           SpaceNavigatorCam.h MidiIO.h MidiEvent.h RtMidi.h \
+           codeeditor.h highlighter.h
 
 FORMS   += gui.ui
 

@@ -5,14 +5,16 @@
 
 #include <btBulletDynamicsCommon.h>
 
-class Dice : public Object
-{
-public:
-  Dice(btScalar width, btScalar mass);
+class Dice : public Object {
+ public:
+  Dice(btScalar width = 1.0, btScalar mass = 1.0);
 
-	btScalar         lengths[3];
-protected:
-	virtual void renderInLocalFrame(QTextStream *s) const;
+  btScalar         lengths[3];
+
+  static void luaBind(lua_State *s);
+  QString toString() const;
+ protected:
+  virtual void renderInLocalFrame(QTextStream *s) const;
 };
 
 

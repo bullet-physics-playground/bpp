@@ -5,8 +5,21 @@
 
 using namespace std;
 
-Cylinder::Cylinder(btScalar width, btScalar height, btScalar depth, btScalar mass)
-{
+#include <luabind/operator.hpp>
+
+Cylinder::Cylinder(btVector3 dim, btScalar mass) {
+  init(dim.getX(), dim.getY(), dim.getZ(), mass);
+}
+
+Cylinder::Cylinder(btScalar width, btScalar height, btScalar depth,
+				   btScalar mass) {
+
+  init(width, height, depth, mass);
+}
+
+void Cylinder::init(btScalar width, btScalar height, btScalar depth,
+					btScalar mass) {
+
   lengths[0] = width;
   lengths[1] = height;
   lengths[2] = depth;
@@ -24,6 +37,29 @@ Cylinder::Cylinder(btScalar width, btScalar height, btScalar depth, btScalar mas
   motionState = new btDefaultMotionState(trans);
 
   body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
+}
+
+void Cylinder::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Cylinder, Object>("Cylinder")
+     .def(constructor<>())
+     .def(constructor<btVector3>())
+     .def(constructor<btVector3, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+     .def(tostring(const_self))
+     ];
+
+  Object::luaBind(s);
+}
+
+QString Cylinder::toString() const {
+  return QString("Cylinder");
 }
 
 void Cylinder::renderInLocalFrame(QTextStream *s) const

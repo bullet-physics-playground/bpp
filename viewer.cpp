@@ -153,6 +153,7 @@ void Viewer::luaBind(lua_State *s) {
 	[
 	 class_<QColor>("QColor")
 	 .def(constructor<>())
+	 .def(constructor<QString>())
 	 .def(constructor<int, int, int>())
 	 .def(constructor<int, int, int, int>())
 	 .property("r", &QColor::red, &QColor::setRed)
@@ -196,23 +197,26 @@ using namespace qglviewer;
 namespace {
   void getAABB(const QVector<Object *>& objects, btScalar aabb[6]) {
     btVector3 aabbMin, aabbMax;
-    objects[0]->body->getAabb(aabbMin, aabbMax);
-    aabb[0] = aabbMin[0];
-    aabb[1] = aabbMin[1];
-    aabb[2] = aabbMin[2];
 
-    aabb[3] = aabbMax[0];
-    aabb[4] = aabbMax[1];
-    aabb[5] = aabbMax[2];
-    
+	if (objects.size() > 0) {
+	  objects[0]->body->getAabb(aabbMin, aabbMax);
+	  aabb[0] = aabbMin[0]; aabb[1] = aabbMin[1]; aabb[2] = aabbMin[2];
+	  aabb[3] = aabbMax[0]; aabb[4] = aabbMax[1]; aabb[5] = aabbMax[2];
+	} else {
+	  aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
+	  aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
+	}
+
     foreach (Object *o, objects) {
-      btVector3 oaabbmin, oaabbmax;
-      o->body->getAabb(oaabbmin, oaabbmax);
-      for (int i = 0; i<3; ++i) {
-	aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
-	aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
-
-      }
+	  if (o->toString() != QString("Plane")) {
+		btVector3 oaabbmin, oaabbmax;
+		o->body->getAabb(oaabbmin, oaabbmax);
+		
+		for (int i = 0; i < 3; ++i) {
+		  aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
+		  aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
+		}
+	  }
     }
   }
 }
@@ -561,13 +565,17 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   luaL_openlibs(L);
 
   Object::luaBind(L);
-  Sphere::luaBind(L);
   Cube::luaBind(L);
+  Cylinder::luaBind(L);
+  Dice::luaBind(L);
+  Plane::luaBind(L);
+  Sphere::luaBind(L);
+
   Viewer::luaBind(L);
 
   luaBindInstance(L);
 
-  QString file("test.lua");
+  QString file("demo/objects.lua");
 
   std::cerr << "-- Loading file: " << qPrintable(file) << std::endl;
 
@@ -692,9 +700,11 @@ void Viewer::computeBoundingBox() {
   //btVector3 min(-30, -30, -30); 
   //btVector3 max(30, 30, 30);
   btVector3 center = (min+max)/2.0f;
+  //center[1] = 0.0f;
+  //center[2] = 0.0f;
   center[3] = 0.0f;
 
-  setSceneRadius((max-min).length()*20.0);
+  setSceneRadius((max-min).length()*5.0);
   setSceneCenter((Vec)center);
 }
 
@@ -725,16 +735,16 @@ void Viewer::init() {
 
   glDisable(GL_COLOR_MATERIAL);
 
-  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50.0);
-  GLfloat specular_color[4] = { 0.8f, 0.8f, 0.8f, 1.0 };
+  glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 25.0);
+  GLfloat specular_color[4] = { 0.38f, 0.38f, 0.38f, 0.50 };
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  specular_color);
   
-  float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
+  float light0_pos[] = {200.0, 200.0, 200.0, 0.50f};
   GLfloat ambient[] = { 0.35f, 0.35f, 0.35f };
-  GLfloat diffuse[] = { 0.3f, 0.3f, 0.5f , 1.0f};
-  GLfloat specular[] = { 0.5f, 0.5f, 0.5f , 1.0f};
+  GLfloat diffuse[] = { 0.3f, 0.3f, 0.5f , 0.50f};
+  GLfloat specular[] = { 0.5f, 0.5f, 0.5f , 0.50f};
 
-  GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 1.0 };
+  GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 0.50 };
   GLfloat local_view[] = { 0.0 };
 
   //  glEnable(GL_LIGHTING);
