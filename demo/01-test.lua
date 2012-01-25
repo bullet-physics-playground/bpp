@@ -11,7 +11,7 @@ function balls(n)
     io.write("shpere ",tostring(i), "\n");
     s = Sphere(0.5, 100)
     s.pos = btVector3(-n / 2 + i, 0.5, 10)
-    s.color = QColor(0,0,255)
+    s.col = QColor(0,0,255)
     s.vel = btVector3(0, 0, -10)
     v:add(s)
   end
@@ -23,7 +23,7 @@ function tower(n)
     io.write("cube ",tostring(i),"\n");
     c = Cube(btVector3(1, 1, 1))
     c.pos = btVector3(0, 0.5 + i, 0)
-    c.color = QColor(255, 0, 0)
+    c.col = QColor(255, 0, 0)
     v:add(c)
   end
 end

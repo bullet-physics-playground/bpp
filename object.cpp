@@ -49,9 +49,13 @@ void Object::luaBind(lua_State *s) {
      .def(constructor<>())
      .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
-	 .property("color",
+	 .property("col",
 			   (QColor(Object::*)(void))&Object::getColor,
 			   (void(Object::*)(QColor))&Object::setColor)
+
+	 .property("col",
+			   (QString(Object::*)(void))&Object::getColorString,
+			   (void(Object::*)(QString))&Object::setColorString)
 
 	 .property("pos",
 			   (btVector3(Object::*)(void))&Object::getPosition,
@@ -140,6 +144,14 @@ void Object::setColor(QColor col) {
 
 QColor Object::getColor() const {
   return QColor(color[0], color[1], color[2]);
+}
+
+void Object::setColorString(QString col) {
+  setColor(QColor(col));
+}
+
+QString Object::getColorString() const {
+  return getColor().name();
 }
 
 void Object::setPosition(btVector3 &v) {

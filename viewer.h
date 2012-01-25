@@ -26,6 +26,37 @@ class Viewer;
 
 std::ostream& operator<<(std::ostream&, const Viewer& v);
 
+namespace luabind
+{
+  template <>
+  struct default_converter<unsigned long long>
+	: native_converter_base<unsigned long long>
+  {
+    static int compute_score(lua_State* L, int index) {
+	  return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+    }
+
+    unsigned long long from(lua_State* L, int index) {
+	  return static_cast<unsigned long long>(lua_tonumber(L, index));
+    }
+
+    void to(lua_State* L, unsigned long long value) {
+	  lua_pushnumber(L, static_cast<lua_Number>(value));
+    }
+  };
+
+  template <>
+  struct default_converter<unsigned long long const>
+	: default_converter<unsigned long long>
+  {};
+
+  template <>
+  struct default_converter<unsigned long long const&>
+	: default_converter<unsigned long long>
+  {};
+
+}
+  
 class Viewer : public QGLViewer
 {
   Q_OBJECT;
