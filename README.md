@@ -1,5 +1,11 @@
 # bullet-physics-playground
 
+Features:
+
+* LUA scripting (experimental)
+* POV-Ray export (stable)
+* Midi Event handling (experimental)
+
 Demo videos created with bullet-physics-playground:
 
 * [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ)
