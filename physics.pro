@@ -46,4 +46,6 @@ HEADERS += palette.h viewer.h   object.h   cube.h   sphere.h   \
 
 FORMS   += gui.ui
 
+RESOURCES += resources.qrc
+
 QMAKE_DISTCLEAN += object_script.* .ui .moc .rcc .obj

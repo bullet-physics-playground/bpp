@@ -275,6 +275,17 @@ void Viewer::add4BBox(QList<Object *> ol) {
   }
 }
 
+void Viewer::removeObject(Object *o) {
+
+  if (_objects.contains(o)) {
+	_objects.remove(_objects.indexOf(o));
+	dynamicsWorld->removeRigidBody(o->body);
+  }
+
+  if (_all_objects.contains(o))
+	_all_objects.remove(_all_objects.indexOf(o));
+}
+
 void Viewer::addObject(Object *o, int type, int mask) {
   _objects.push_back(o);
   dynamicsWorld->addRigidBody(o->body, type, mask);
@@ -559,10 +570,12 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   // setup lua
 
-  L = lua_open();
+  L = luaL_newstate();
+  // L = lua_open();
 
   //  luaopen_io(L); // provides io.*
   luaL_openlibs(L);
+  // lua_load_environment(L);
 
   Object::luaBind(L);
   Cube::luaBind(L);
@@ -575,22 +588,9 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   luaBindInstance(L);
 
-  QString file("demo/objects.lua");
-
-  std::cerr << "-- Loading file: " << qPrintable(file) << std::endl;
-
-  int s = luaL_loadfile(L, qPrintable(file));
-
-  if ( s==0 ) {
-	// execute Lua program
-	s = lua_pcall(L, 0, LUA_MULTRET, 0);
-  }
-
-  report_errors(L, s);
-
-  // lua_close(L);
-
-  std::cerr << std::endl;
+  lua_pushlightuserdata(L, (void*)this);
+  lua_pushcclosure(L,  &Viewer::lua_print, 1);
+  lua_setglobal(L, "print");
 
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
@@ -600,6 +600,74 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   mio.start();
 
   startAnimation();
+}
+
+void Viewer::emitScriptOutput(const QString& out) {
+  emit scriptHasOutput(out);
+}
+
+int Viewer::lua_print(lua_State* L) {
+
+  Viewer* p = static_cast<Viewer*>(lua_touserdata(L, lua_upvalueindex(1)));
+
+  if (p) {
+	int n = lua_gettop(L);  /* number of arguments */
+	
+	int i;
+	lua_getglobal(L, "tostring");
+	for (i=1; i <= n; i++) {
+	  const char *s;
+	  lua_pushvalue(L, -1);  /* function to be called */
+	  lua_pushvalue(L, i);   /* value to print */
+	  lua_call(L, 1, 1);
+	  s = lua_tostring(L, -1);  /* get result */
+	  if (s == NULL)
+		return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+	  // if (i>1) p->emitScriptOutput(QString("\t"));
+	  p->emitScriptOutput(QString(s));
+	  lua_pop(L, 1);  /* pop result */
+	}
+	
+	// p->emitScriptOutput(QString("\n"));
+  } else {
+	return luaL_error(L, "stack has no thread ref", "");
+  }
+
+  return 0;
+}
+
+bool Viewer::parse(QString txt) {
+  clear();
+
+  int error = luaL_loadstring(L, txt.toAscii().constData())
+	|| lua_pcall(L, 0, LUA_MULTRET, 0);
+
+  if (error) {
+	lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+
+	if (lua_error.contains(QRegExp(tr("stopping$")))) {
+	  lua_error = tr("script stopped");
+	  qDebug() << "lua run : script stopped";
+	} else {
+	  // qDebug() << QString("lua run : %1").arg(lua_error);
+	  emit scriptHasOutput(lua_error);
+	}
+	
+	lua_pop(L, 1);  /* pop error message from the stack */
+  } else {
+	lua_error = tr("ok");
+  }
+
+  // report_errors(L, error);
+  // lua_close(L);
+
+  if (error) return false; else return true;
+}
+
+void Viewer::clear() {
+  foreach (Object *o,_objects) {
+	removeObject(o);
+  }
 }
 
 void Viewer::midiRecived(MidiEvent *me) {

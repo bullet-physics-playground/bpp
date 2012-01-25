@@ -2,6 +2,8 @@
 .project
 .settings
 
+qrc_resources.cpp
+
 roboop/bench
 roboop/demo
 roboop/demo_2dof_pd

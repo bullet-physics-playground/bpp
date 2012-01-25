@@ -1,0 +1,6 @@
+<RCC>
+  <qresource>
+    <file>demo/00-objects.lua</file>
+    <file>demo/01-test.lua</file>
+  </qresource>
+</RCC>

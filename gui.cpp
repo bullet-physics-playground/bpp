@@ -26,6 +26,9 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   connect(editor, SIGNAL(textChanged()), this, SLOT(parseEditor()));
 
+  connect(ui.viewer, SIGNAL(scriptHasOutput(QString)),
+		  this, SLOT(debug(QString)));
+
   //  ui.cmdline->setFocus();
 
   //  connect(ui.cmdline, SIGNAL(execute(QString)), this, SLOT(command(QString)));
@@ -63,7 +66,7 @@ void Gui::loadLastFile() {
   if (lastFile != "") {
     loadFile(lastFile);
   } else {
-    loadFile(":demo/00-simple.lua");
+    loadFile(":demo/00-objects.lua");
   }
 }
 
@@ -74,27 +77,24 @@ void Gui::loadFile(const QString &path) {
   settings->setValue( "lastFile", path);
   settings->endGroup();
 
-  if (file.open(QFile::ReadOnly | QFile::Text)) {
 #ifndef QT_NO_CURSOR
-	QApplication::setOverrideCursor(Qt::WaitCursor);
+  QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-	//    drillFile->setFileName(file.fileName());
 
-    editor->replaceText(file.readAll());
-    setCurrentFile(path);
-    setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
-
-	//    parseEditor();
-
-#ifndef QT_NO_CURSOR
-	QApplication::restoreOverrideCursor();
-#endif
+  if (editor->load(path)) {
+	setCurrentFile(path);
+	setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
+	// parseEditor();
 	statusBar()->showMessage(tr("File loaded"), 2000);
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
-	//    drillView->zoomFit();
+	//  drillView->zoomFit();
     statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
   }
+
+#ifndef QT_NO_CURSOR
+  QApplication::restoreOverrideCursor();
+#endif
 }
 
 void Gui::createToolBar() {
@@ -297,7 +297,7 @@ QString Gui::strippedName(const QString &fullFileName) {
 }
 
 void Gui::parseEditor() {
-
+  ui.viewer->parse(editor->toPlainText());
 }
 
 void Gui::animStarted() {
@@ -310,22 +310,26 @@ void Gui::animFinished() {
 }
 
 void Gui::debug(QString txt) {
+  debugText->appendLine(txt);
 }
 
 void Gui::newFile() {
 }
 
 void Gui::openFile(const QString& path) {
+  editor->load(path);
 }
 
 void Gui::save() {
+  editor->save();
 }
 
 void Gui::saveAs() {
+  editor->saveAs(editor->script_filename);
 }
 
-
 void Gui::saveFile(const QString& path) {
+  editor->saveAs(path);
 }
 
 void Gui::editPrefs() {
@@ -335,6 +339,7 @@ void Gui::openRecentFile() {
 }
 
 void Gui::fontChanged(const QString& family, uint size) {
+  editor->setFont(family, size);
 }
 
 #define pi (3.1415926535f)

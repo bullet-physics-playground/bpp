@@ -40,6 +40,17 @@ class Viewer : public QGLViewer
   void luaBindInstance(lua_State *s);
   virtual QString toString() const;
 
+  void emitScriptOutput(const QString&);
+  static int lua_print(lua_State*);
+ public slots:
+  bool parse(QString txt);
+  void clear();
+
+ signals:
+  void scriptFinished();
+  void scriptStopped();
+  void scriptHasOutput(const QString&);
+
  protected:
   virtual void init();
 
@@ -48,6 +59,8 @@ class Viewer : public QGLViewer
   virtual void addObjects();
 
   void addObject(Object *o, int type, int mask);
+  void removeObject(Object *o);
+
   void addObjects(QList<Object *> ol, int type, int mask);
 
   void add4BBox(Object *o);
@@ -77,6 +90,7 @@ class Viewer : public QGLViewer
 
  private:
   lua_State *L;
+  QString lua_error;
 
   bool _simulate;
 

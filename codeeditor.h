@@ -16,9 +16,8 @@ class QSize;
 
 class LineNumberArea;
 
-class CodeEditor : public QPlainTextEdit
-{
-  Q_OBJECT
+class CodeEditor : public QPlainTextEdit {
+ Q_OBJECT;
 	
  public:
   CodeEditor(QWidget *parent = 0);
@@ -26,7 +25,13 @@ class CodeEditor : public QPlainTextEdit
   void lineNumberAreaPaintEvent(QPaintEvent *event);
   int lineNumberAreaWidth();
 
+  QString script_filename;
  public slots:
+  bool save();
+  bool load(QString filename=QString());
+  bool saveAs(QString filename=QString());
+  QString scriptFile() const;
+
   void setFont(QString family, uint size);
 
   void appendLine(QString l) {
@@ -44,7 +49,13 @@ class CodeEditor : public QPlainTextEdit
 	setTextCursor(cursor);
   }
   
+ signals:
+  void scriptLoaded();
+  void scriptSaved();
+
  protected:
+  void keyPressEvent(QKeyEvent*);
+
   void set_text() {
 	QString text;
 	for (int n = 0; n < lines.size(); n++) {
@@ -75,16 +86,12 @@ class CodeEditor : public QPlainTextEdit
 };
 
 
-class LineNumberArea : public QWidget
-{
+class LineNumberArea : public QWidget {
+ Q_OBJECT;
+
  public:
- LineNumberArea(CodeEditor *editor) : QWidget(editor) {
-	codeEditor = editor;
-  }
-  
-  QSize sizeHint() const {
-	return QSize(codeEditor->lineNumberAreaWidth(), 0);
-  }
+  LineNumberArea(CodeEditor *editor) : QWidget(editor) { codeEditor = editor; }
+  QSize sizeHint() const {return QSize(codeEditor->lineNumberAreaWidth(), 0); }
   
  protected:
   void paintEvent(QPaintEvent *event) {
