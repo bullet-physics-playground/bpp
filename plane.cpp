@@ -6,6 +6,7 @@
 using namespace std;
 
 #include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
 
 Plane::Plane(btVector3 dim, btScalar nConst, btScalar psize) {
   init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
@@ -46,17 +47,15 @@ void Plane::luaBind(lua_State *s) {
   module(s)
     [
      class_<Plane, Object>("Plane")
-     .def(constructor<>())
-     .def(constructor<btScalar>())
-     .def(constructor<btScalar, btScalar>())
-     .def(constructor<btScalar, btScalar, btScalar>())
-     .def(constructor<btScalar, btScalar, btScalar, btScalar>())
-     .def(constructor<btScalar, btScalar, btScalar, btScalar, btScalar>())
-     .def(constructor<btVector3, btScalar, btScalar>())
+     .def(constructor<>(), adopt(result))
+     .def(constructor<btScalar>(), adopt(result))
+     .def(constructor<btScalar, btScalar>(), adopt(result))
+     .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
+     .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
+     .def(constructor<btScalar, btScalar, btScalar, btScalar, btScalar>(), adopt(result))
+     .def(constructor<btVector3, btScalar, btScalar>(), adopt(result))
      .def(tostring(const_self))
      ];
-
-  Object::luaBind(s);
 }
 
 QString Plane::toString() const {
@@ -65,6 +64,8 @@ QString Plane::toString() const {
 
 void Plane::renderInLocalFrame(QTextStream *s) const
 {
+
+  // qDebug() << "Plane::renderInLocalFrame";
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };

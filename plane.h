@@ -17,10 +17,10 @@ class Plane : public Object
   static void luaBind(lua_State *s);
   QString toString() const;
   
+  virtual void renderInLocalFrame(QTextStream *s) const;
  protected:
   void init(btScalar nx, btScalar ny, btScalar nz,
 			btScalar nConst, btScalar size);
-  virtual void renderInLocalFrame(QTextStream *s) const;
   
   btScalar       size;
 

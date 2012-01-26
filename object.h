@@ -100,8 +100,8 @@ class Object : public QObject {
 
   virtual QString toString() const;
 
- protected:
   virtual void renderInLocalFrame(QTextStream *s) const;
+ protected:
 	
   unsigned char color[3];
 

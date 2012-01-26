@@ -1,4 +1,5 @@
-QMAKE_CXXFLAGS_DEBUG += -g3 -O0
+# QMAKE_CXXFLAGS_DEBUG += -g3 -O0
+# CONFIG += debug
 
 win32 {
   DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
@@ -20,7 +21,7 @@ MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
 
-CONFIG += link_pkgconfig debug
+CONFIG += link_pkgconfig
 PKGCONFIG += bullet alsa lua5.1 luabind
 QMAKE_CXXFLAGS_WARN_ON =
 

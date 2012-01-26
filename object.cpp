@@ -3,6 +3,9 @@
 
 #include <QDebug>
 
+#include <boost/shared_ptr.hpp>
+#include <luabind/adopt_policy.hpp>
+
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Object& obj) {
@@ -25,12 +28,18 @@ Object::Object(QObject *parent) : QObject(parent) {
 }
 
 Object::~Object() {
-  if (shape != NULL)
+
+  qDebug() << "Object::~Object()";
+
+  if (shape != NULL) {
 	delete shape;
+	shape = NULL;
+  }
 
   if (body != NULL) {
     delete body->getMotionState();
 	delete body;
+	body = NULL;
   }
 }
 
@@ -46,7 +55,7 @@ void Object::luaBind(lua_State *s) {
   module(s)
     [
      class_<Object>("Object")
-     .def(constructor<>())
+     .def(constructor<>(), adopt(result))
      .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
 	 .property("col",
@@ -93,6 +102,8 @@ void Object::luaBind(lua_State *s) {
 
 void Object::renderInLocalFrame(QTextStream *s) const {
   Q_UNUSED(s);
+
+  qDebug() << "Object::renderInLocalFrame";
 }
 
 void Object::setTexture(QString texture) {
@@ -245,5 +256,9 @@ QString Object::getPovPhotons() const {
 
 void Object::render(QTextStream *s)
 {
-  renderInLocalFrame(s);
+
+  if (body != NULL)
+	renderInLocalFrame(s);
+  else
+	qDebug() << "body == null";
 }

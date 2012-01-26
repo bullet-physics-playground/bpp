@@ -16,9 +16,10 @@ class Cube : public Object {
   
   static void luaBind(lua_State *s);
   QString toString() const;
+
+  virtual void renderInLocalFrame(QTextStream *s) const;
  protected:
   void init(btScalar width, btScalar height, btScalar depth, btScalar mass);
-  void renderInLocalFrame(QTextStream *s) const;
 };
 
 

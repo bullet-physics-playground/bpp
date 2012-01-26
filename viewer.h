@@ -8,6 +8,9 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <QMutex>
+#include <QMutexLocker>
+
 #include <QFile>
 #include <QTextStream>
 #include <QKeyEvent>
@@ -65,7 +68,7 @@ class Viewer : public QGLViewer
   Viewer(QWidget *parent = NULL, bool savePNG = false, bool savePOV = false);
   ~Viewer();
 
-  void addObject(Object& o);
+  void addObject(Object* o);
 
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);
@@ -132,8 +135,8 @@ class Viewer : public QGLViewer
   int nbKeyFrames;
   int currentKF_;
 
-  QVector<Object*>   _objects;
-  QVector<Object*>   _all_objects; // for bounding box calculation
+  QVector<Object*>   *_objects;
+  QVector<Object*>   *_all_objects; // for bounding box calculation
   btScalar           _aabb[6];
 
   btDefaultCollisionConfiguration *collisionCfg;
@@ -152,6 +155,8 @@ class Viewer : public QGLViewer
   bool               _savePOV;
 
   MidiIO mio;
+
+  QMutex mutex;
 };
 
 #endif // VIEWER_H

@@ -51,6 +51,7 @@ std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
 }
 
 #include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
 
 QString Viewer::toString() const {
   return QString("Viewer");
@@ -65,7 +66,7 @@ void Viewer::luaBind(lua_State *s) {
     [
      class_<Viewer>("Viewer")
      .def(constructor<>())
-     .def("add", (void(Viewer::*)(Object&))&Viewer::addObject)
+     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
      .def(tostring(const_self))
      ];
 
@@ -87,9 +88,17 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
 	[
-	 class_<btQuaternion>("btQuarternion")
+	 class_<btQuaternion>("btQuaternion")
 	 .def(constructor<>())
+	 .def(constructor<btVector3, btScalar>())
 	 .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+	 ];
+
+  module(s)
+	[
+	 class_<btTransform>("btTransform")
+	 .def(constructor<>())
+	 .def(constructor<btQuaternion, btVector3>())
 	 ];
 
   module(s)
@@ -114,9 +123,9 @@ void Viewer::luaBind(lua_State *s) {
 	 ];
 }
 
-void Viewer::addObject(Object& o) {
-  addObject(&o, COL_WALL, COL_WALL);
-  add4BBox(&o);
+void Viewer::addObject(Object* o) {
+  addObject(o, COL_WALL, COL_WALL);
+  add4BBox(o);
 }
 
 void Viewer::luaBindInstance(lua_State *s) {
@@ -138,11 +147,11 @@ void report_errors(lua_State *L, int status)
 using namespace qglviewer;
 
 namespace {
-  void getAABB(const QVector<Object *>& objects, btScalar aabb[6]) {
+  void getAABB(const QVector<Object *> *objects, btScalar aabb[6]) {
     btVector3 aabbMin, aabbMax;
 
-	if (objects.size() > 0) {
-	  objects[0]->body->getAabb(aabbMin, aabbMax);
+	if (objects->size() > 0) {
+	  objects->at(0)->body->getAabb(aabbMin, aabbMax);
 	  aabb[0] = aabbMin[0]; aabb[1] = aabbMin[1]; aabb[2] = aabbMin[2];
 	  aabb[3] = aabbMax[0]; aabb[4] = aabbMax[1]; aabb[5] = aabbMax[2];
 	} else {
@@ -150,7 +159,9 @@ namespace {
 	  aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
 	}
 
-    foreach (Object *o, objects) {
+	for (int i = 0; i < objects->size(); ++i) {
+	  Object *o = objects->at(i);
+
 	  if (o->toString() != QString("Plane")) {
 		btVector3 oaabbmin, oaabbmax;
 		o->body->getAabb(oaabbmin, oaabbmax);
@@ -209,34 +220,35 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 }
 
 void Viewer::add4BBox(Object *o) {
-  _all_objects.push_back(o);
+  _all_objects->push_back(o);
 }
 
 void Viewer::add4BBox(QList<Object *> ol) {
   foreach (Object *o, ol) {
-    _all_objects.push_back(o);
+    _all_objects->push_back(o);
   }
 }
 
 void Viewer::removeObject(Object *o) {
 
-  if (_objects.contains(o)) {
-	_objects.remove(_objects.indexOf(o));
-	dynamicsWorld->removeRigidBody(o->body);
+  if (_objects->contains(o)) {
+	_objects->remove(_objects->indexOf(o));
+	if (o->body != NULL)
+	  dynamicsWorld->removeRigidBody(o->body);
   }
 
-  if (_all_objects.contains(o))
-	_all_objects.remove(_all_objects.indexOf(o));
+  if (_all_objects->contains(o))
+	_all_objects->remove(_all_objects->indexOf(o));
 }
 
 void Viewer::addObject(Object *o, int type, int mask) {
-  _objects.push_back(o);
+  _objects->push_back(o);
   dynamicsWorld->addRigidBody(o->body, type, mask);
 }
 
 void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
   foreach (Object *o, ol) {
-    _objects.push_back(o);
+    _objects->push_back(o);
     dynamicsWorld->addRigidBody(o->body, type, mask);
   }
 }
@@ -460,6 +472,11 @@ void Viewer::addObjects() {
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
+  _objects = new QVector<Object *>();
+  _all_objects = new QVector<Object *>();
+
+  L = NULL;
+
   _savePNG = savePNG; _savePOV = savePOV; setSnapshotFormat("png");
   _simulate = false;
 
@@ -511,30 +528,6 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   kfi_.startInterpolation();
   */
 
-  // setup lua
-
-  L = luaL_newstate();
-  // L = lua_open();
-
-  //  luaopen_io(L); // provides io.*
-  luaL_openlibs(L);
-  // lua_load_environment(L);
-
-  Object::luaBind(L);
-  Cube::luaBind(L);
-  Cylinder::luaBind(L);
-  Dice::luaBind(L);
-  Plane::luaBind(L);
-  Sphere::luaBind(L);
-
-  Viewer::luaBind(L);
-
-  luaBindInstance(L);
-
-  lua_pushlightuserdata(L, (void*)this);
-  lua_pushcclosure(L,  &Viewer::lua_print, 1);
-  lua_setglobal(L, "print");
-
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
 
@@ -580,7 +573,41 @@ int Viewer::lua_print(lua_State* L) {
 }
 
 bool Viewer::parse(QString txt) {
-  clear();
+  QMutexLocker locker(&mutex);
+
+  if (L != NULL) {
+	//	qDebug() << "before lua_gc";
+	clear();
+	lua_gc(L, LUA_GCCOLLECT, 0);
+	lua_close(L);
+	//	clear();
+	L = NULL;
+	//	qDebug() << "after lua_gc";
+  }
+
+  // setup lua
+
+  L = luaL_newstate();
+  // L = lua_open();
+
+  //  luaopen_io(L); // provides io.*
+  luaL_openlibs(L);
+  // lua_load_environment(L);
+
+  Object::luaBind(L);
+  Cube::luaBind(L);
+  Cylinder::luaBind(L);
+  Dice::luaBind(L);
+  Plane::luaBind(L);
+  Sphere::luaBind(L);
+
+  Viewer::luaBind(L);
+
+  luaBindInstance(L);
+
+  lua_pushlightuserdata(L, (void*)this);
+  lua_pushcclosure(L,  &Viewer::lua_print, 1);
+  lua_setglobal(L, "print");
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
 	|| lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -608,9 +635,33 @@ bool Viewer::parse(QString txt) {
 }
 
 void Viewer::clear() {
-  foreach (Object *o,_objects) {
-	removeObject(o);
+  //  qDebug() << "Viewer::clear()" << _objects->size();
+
+  for (int i = 0; i < _objects->size(); ++i) {
+	removeObject(_objects->at(i));
   }
+
+  // qDeleteAll(_objects);
+  //  qDeleteAll(_all_objects);
+
+  _objects->clear();
+
+  // remove all contact maifolds
+  int i;
+  for (i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
+	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+
+	btRigidBody* body = btRigidBody::upcast(obj);
+	if (body && body->getMotionState()) {
+	  delete body->getMotionState();
+	}
+
+	dynamicsWorld->removeCollisionObject( obj );
+
+	delete obj;
+  }
+
+  //  _objects.squeeze();
 }
 
 void Viewer::midiRecived(MidiEvent *me) {
@@ -697,8 +748,8 @@ Viewer::~Viewer() {
   delete collisionCfg;
   delete axisSweep;
 
-  //qDeleteAll(_objects);
-  qDeleteAll(_all_objects);
+  // qDeleteAll(_objects);
+  // qDeleteAll(_all_objects);
 }
 
 void Viewer::computeBoundingBox() {
@@ -733,12 +784,15 @@ void Viewer::init() {
   computeBoundingBox();
 
   // add plane after bounding box calculation
+
+  /*
   Plane *p = new Plane(0.0, 1.0, 0.0, 0.0, sceneRadius());
   p->setColor(255, 255, 255);
   p->setScale("scale 10.0");
   p->setPigment("pigment { checker color rgb <0.0,0.0,0.0>, color rgb <0.75,0.75,0.75> }");
   p->setFinish("finish { reflection 0.1 }");
   addObject(p, COL_WALL, COL_WALL | COL_SHIP);
+  */
 
   if (!restoreStateFromFile()) {
     showEntireScene();
@@ -777,6 +831,8 @@ void Viewer::init() {
 }
 
 void Viewer::draw() {
+
+  QMutexLocker locker(&mutex);
 
   float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
   float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
@@ -820,11 +876,21 @@ void Viewer::draw() {
   if (_savePOV)
     openPovFile();
 
-  foreach (Object *o,_objects) {
-    if (_savePOV)
-      o->render(_stream);
-    else
-      o->render(NULL);
+  {
+	//	qDebug() << "Viewer::draw()" << _objects->size();
+
+	for (int i = 0; i < _objects->size(); ++i) {
+	  // qDebug() << i;
+	  Object *o = _objects->at(i);
+	  //	foreach (Object *o,_objects) {
+	  
+	  if (o != NULL) {
+		if (_savePOV)
+		  o->renderInLocalFrame(_stream);
+		else
+		  o->renderInLocalFrame(NULL);
+	  }
+	}
   }
 
   if (_savePOV)
@@ -942,8 +1008,10 @@ void Viewer::animate() {
     dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
 
     int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-    for (int i=0;i<numManifolds;i++)
-      {
+
+	// qDebug() << "numManifolds" << numManifolds;
+
+    for (int i = 0; i < numManifolds; i++) {
 	btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
 	btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
 	btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
@@ -956,7 +1024,10 @@ void Viewer::animate() {
 	
 	
 	int numContacts = contactManifold->getNumContacts();
-	for (int j=0;j<numContacts;j++)
+
+	//	qDebug() << "numContacts" << numContacts;
+
+	for (int j = 0; j < numContacts; j++)
 	  {
 	    btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
