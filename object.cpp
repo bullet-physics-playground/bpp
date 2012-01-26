@@ -25,11 +25,13 @@ Object::Object(QObject *parent) : QObject(parent) {
   photons_enable = false;
   photons_reflection = false;
   photons_refraction = false;
+
+  setCollisionTypes(COL_WALL, COL_WALL);
 }
 
 Object::~Object() {
 
-  qDebug() << "Object::~Object()";
+  //  qDebug() << "Object::~Object()";
 
   if (shape != NULL) {
 	delete shape;
@@ -41,6 +43,23 @@ Object::~Object() {
 	delete body;
 	body = NULL;
   }
+}
+
+void Object::setCollisionTypes(collisiontypes col1, collisiontypes col2) {
+  this->col1 = col1;
+  this->col2 = col2;
+}
+
+collisiontypes Object::getCol1() const {
+  return col1;
+}
+
+collisiontypes Object::getCol2() const {
+  return col2;
+}
+
+QList<btTypedConstraint *> Object::getConstraints() {
+  return _constraints;
 }
 
 QString Object::toString() const {
@@ -58,7 +77,7 @@ void Object::luaBind(lua_State *s) {
      .def(constructor<>(), adopt(result))
      .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
-	 .property("col",
+	 .property("color",
 			   (QColor(Object::*)(void))&Object::getColor,
 			   (void(Object::*)(QColor))&Object::setColor)
 

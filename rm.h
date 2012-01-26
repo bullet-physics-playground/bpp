@@ -1,15 +1,18 @@
 #ifndef RM_H
 #define RM_H
 
-#include "object.h"
+#include "objects.h"
 #include "cube.h"
 #include "mesh3ds.h"
 
 #include "robot.h"
 
-class RM : public Object {
+class RM : public Objects {
  public:
   RM();
+
+  static void luaBind(lua_State *s);
+  QString toString() const;
 
   void animate();
 
@@ -33,6 +36,7 @@ class RM : public Object {
 
  protected:
   virtual void renderInLocalFrame(QTextStream *s) const;
+
  private:
 };
 

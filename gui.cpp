@@ -22,8 +22,6 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   createToolBar();
 
-  loadLastFile();
-
   connect(editor, SIGNAL(textChanged()), this, SLOT(parseEditor()));
 
   connect(ui.viewer, SIGNAL(scriptHasOutput(QString)),
@@ -34,6 +32,22 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   //  connect(ui.cmdline, SIGNAL(execute(QString)), this, SLOT(command(QString)));
 
   loadSettings();
+
+  connect(ui.viewer, SIGNAL(postDrawShot(int)), this, SLOT(postDraw(int)));
+
+  QTimer::singleShot(0, this, SLOT(loadLastFile()));
+}
+
+void Gui::postDraw(int frame) {
+  //QPixmap p = QPixmap::grabWidget(this);
+  QPixmap p = QPixmap::grabWindow(this->winId());
+
+  QString file;
+  file.sprintf("anim/w-%05d.png", frame);
+
+  qDebug() << "saving screenshot " << file;
+
+  p.save(file, "png");
 }
 
 void Gui::dragEnterEvent(QDragEnterEvent *event) {
@@ -392,6 +406,7 @@ void Gui::command(QString cmd) {
   log("> " + cmd);
   cmd = cmd.toLower();
 
+  /*
   if (cmd.startsWith("home")) {
     log("moving into home position.");
     ui.viewer->rm->cmdHome();
@@ -408,7 +423,7 @@ void Gui::command(QString cmd) {
     log("available commands:");
     log(" - home ");
     log(" - move [x][y][z] move end effector to <x,y,z>");
-  }
+	}*/
 }
 
 void Gui::log(QString text) {

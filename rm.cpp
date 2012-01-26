@@ -2,6 +2,9 @@
 
 #include <QDebug>
 
+#include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
+
 #define pi (3.1415926535f)
 
 static btScalar d2r(btScalar degrees)
@@ -24,6 +27,23 @@ static btScalar Dk[5] = {   5,     5,     5,     5,     10};
 static btScalar Ik[5] = {    0.01,   0.01,   0.01,   0.01,   0.01};
 
 static btScalar Ikmax[5]={10, 10, 30, 30, 30};
+
+void RM::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<RM,Objects>("RM")
+     .def(constructor<>(), adopt(result))
+     .def(tostring(const_self))
+     ];
+}
+
+QString RM::toString() const {
+  return QString("RM");
+}
 
 void RM::pidControl(btHingeConstraint &joint, btScalar jAngle, btScalar dAngle, int jointNum) {
 
@@ -151,12 +171,14 @@ RM::RM() {
   rm0->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm0->setColor(155,155,155);
   rm0->body->setActivationState(DISABLE_DEACTIVATION);
+  rm0->setCollisionTypes(COL_WALL, COL_NOTHING);
 
   rm1 = new Mesh3DS("rm501_1.3ds", 1.0);
   rm1->setPosition(0.0, 0.0, 0.0);
   rm1->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm1->setColor(255,155,155);
   rm1->body->setActivationState(DISABLE_DEACTIVATION);
+  rm1->setCollisionTypes(COL_WALL, COL_NOTHING);
 
   const btVector3 btPivot0( 0.0, 0.0f, 0.0f );
   btVector3 btAxis0( 0.0f, 0.0f, 1.0f );
@@ -168,6 +190,7 @@ RM::RM() {
   rm2->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm2->setColor(255,155,155);
   rm2->body->setActivationState(DISABLE_DEACTIVATION);
+  rm2->setCollisionTypes(COL_WALL, COL_NOTHING);
 
   btVector3 pivotInA1(0, 0.0, 25.0);
   btVector3 axisInA1(1,0,0);
@@ -182,6 +205,7 @@ RM::RM() {
   rm3->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm3->setColor(255,155,155);
   rm3->body->setActivationState(DISABLE_DEACTIVATION);
+  rm3->setCollisionTypes(COL_WALL, COL_NOTHING);
 
   btVector3 pivotInA2(0.0, -22, 0.0);
   btVector3 axisInA2(1, 0, 0);
@@ -194,6 +218,7 @@ RM::RM() {
   rm4->setPosition(0.0, 25.0, 22.0+17.0+3);
   rm4->setColor(200,200,255);
   rm4->body->setActivationState(DISABLE_DEACTIVATION);
+  rm4->setCollisionTypes(COL_WALL, COL_NOTHING);
 
   btVector3 pivotInA3(0.0, -15, 0.0);
   btVector3 axisInA3(1, 0, 0);
@@ -208,6 +233,7 @@ RM::RM() {
   rm5->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm5->setColor(200,200,200);
   rm5->body->setActivationState(DISABLE_DEACTIVATION);
+  rm5->setCollisionTypes(COL_WALL, COL_WALL);
 
   btTransform localA, localB;
   localA.setIdentity(); localB.setIdentity();
@@ -219,7 +245,25 @@ RM::RM() {
   btVector3 hiSliderLimit = btVector3(0,0,10);
 
   rmJoint4->setLinearUpperLimit(hiSliderLimit);
+
+  _objects.append(cube);
+
+  _objects.append(rm0);
+  _objects.append(rm1);
+  _objects.append(rm2);
+  _objects.append(rm3);
+  _objects.append(rm4);
+  _objects.append(rm5);
+
+  _constraints.append(rmJoint0);
+  _constraints.append(rmJoint1);
+  _constraints.append(rmJoint2);
+  _constraints.append(rmJoint3);
+  _constraints.append(rmJoint4);
 }
 
-void RM::renderInLocalFrame(QTextStream *) const {
+void RM::renderInLocalFrame(QTextStream *s) const {
+  for (int i = 0; i < _objects.size(); ++i) {
+	_objects.at(i)->renderInLocalFrame(s);
+  }
 }

@@ -1,5 +1,5 @@
-# QMAKE_CXXFLAGS_DEBUG += -g3 -O0
-# CONFIG += debug
+QMAKE_CXXFLAGS_DEBUG += -g3 -O0
+CONFIG += debug
 
 win32 {
   DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
@@ -37,13 +37,13 @@ SOURCES += main.cpp palette.cpp viewer.cpp object.cpp cube.cpp sphere.cpp \
            plane.cpp cylinder.cpp mesh3ds.cpp rm.cpp collisionfilter.cpp rm1.cpp \
            cubeaxes.cpp gui.cpp commandline.cpp dice.cpp spacenavigator.cpp spacenavigatorevent.cpp \
            SpaceNavigatorCam.cpp MidiIO.cpp MidiEvent.cpp RtMidi.cpp \
-           codeeditor.cpp highlighter.cpp
+           codeeditor.cpp highlighter.cpp objects.cpp
 
 HEADERS += palette.h viewer.h   object.h   cube.h   sphere.h   \
            plane.h   cylinder.h   mesh3ds.h   rm.h   collisionfilter.h     rm1.h \
            cubeaxes.h   gui.h commandline.h dice.h spacenavigator.h spacenavigatorevent.cpp \
            SpaceNavigatorCam.h MidiIO.h MidiEvent.h RtMidi.h \
-           codeeditor.h highlighter.h
+           codeeditor.h highlighter.h objects.h
 
 FORMS   += gui.ui
 

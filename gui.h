@@ -28,6 +28,7 @@ class Gui : public QMainWindow {
   void animFinished();
 
  public slots:
+  void postDraw(int);
   void debug(QString msg);
   
   void about();

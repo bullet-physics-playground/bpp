@@ -15,6 +15,15 @@ class Object;
 
 std::ostream& operator<<(std::ostream&, const Object& obj);
 
+#define BIT(x) (1<<(x))
+
+enum collisiontypes {
+  COL_NOTHING = 0, //<Collide with nothing
+  COL_SHIP = BIT(1), //<Collide with ships
+  COL_WALL = BIT(2), //<Collide with walls
+  COL_POWERUP = BIT(3) //<Collide with powerups
+};
+
 namespace luabind
 {
   template <>
@@ -101,6 +110,12 @@ class Object : public QObject {
   virtual QString toString() const;
 
   virtual void renderInLocalFrame(QTextStream *s) const;
+
+  QList<btTypedConstraint*> getConstraints();
+
+  void setCollisionTypes(collisiontypes col1, collisiontypes col2);
+  collisiontypes getCol1() const;
+  collisiontypes getCol2() const;
  protected:
 	
   unsigned char color[3];
@@ -112,6 +127,11 @@ class Object : public QObject {
   QString mTexture;
   QString mScale;
   QString mFinish;
+
+  QList<btTypedConstraint*> _constraints;
+
+  collisiontypes col1;
+  collisiontypes col2;
 };
 
 #endif // OBJECT_H

@@ -54,8 +54,6 @@ class CodeEditor : public QPlainTextEdit {
   void scriptSaved();
 
  protected:
-  void keyPressEvent(QKeyEvent*);
-
   void set_text() {
 	QString text;
 	for (int n = 0; n < lines.size(); n++) {

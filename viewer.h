@@ -16,7 +16,7 @@
 #include <QKeyEvent>
 #include <QSettings>
 
-#include "rm1.h"
+#include "rm.h"
 
 #include "MidiIO.h"
 
@@ -76,6 +76,8 @@ class Viewer : public QGLViewer
 
   void emitScriptOutput(const QString&);
   static int lua_print(lua_State*);
+
+  void addConstraints(QList<btTypedConstraint *> cons);
  public slots:
   bool parse(QString txt);
   void clear();
@@ -84,6 +86,7 @@ class Viewer : public QGLViewer
   void scriptFinished();
   void scriptStopped();
   void scriptHasOutput(const QString&);
+  void postDrawShot(int);
 
  protected:
   virtual void init();
@@ -118,7 +121,7 @@ class Viewer : public QGLViewer
   void midiRecived(MidiEvent *e);
 
  public:
-  RM1 *rm;
+  RM *rm;
 
   QList<Object*> l[10];
 

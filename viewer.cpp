@@ -5,6 +5,7 @@
 #include <QColor>
 
 #include "object.h"
+#include "objects.h"
 #include "plane.h"
 #include "cube.h"
 #include "cubeaxes.h"
@@ -24,15 +25,6 @@
 #include <QDebug>
 
 using namespace std;
-
-#define BIT(x) (1<<(x))
-
-enum collisiontypes {
-  COL_NOTHING = 0, //<Collide with nothing
-  COL_SHIP = BIT(1), //<Collide with ships
-  COL_WALL = BIT(2), //<Collide with walls
-  COL_POWERUP = BIT(3) //<Collide with powerups
-};
 
 std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
   ostream << v.toString().toAscii().data();
@@ -124,8 +116,25 @@ void Viewer::luaBind(lua_State *s) {
 }
 
 void Viewer::addObject(Object* o) {
-  addObject(o, COL_WALL, COL_WALL);
+  if (o->toString() != "RM") {
+	addObject(o, o->getCol1(), o->getCol2());
+  } else {
+	addObject(o, o->getCol1(), o->getCol2());
+	/*
+	Objects* os = static_cast<Objects*>(o);
+	addObjects(os->getObjects(), o->getCol1(), o->getCol2());
+	*/
+  }
+  
   add4BBox(o);
+
+  addConstraints(o->getConstraints());
+}
+
+void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
+  for (int i = 0; i < cons.size(); ++i) {
+	dynamicsWorld->addConstraint(cons[i], true);
+  }
 }
 
 void Viewer::luaBindInstance(lua_State *s) {
@@ -243,13 +252,19 @@ void Viewer::removeObject(Object *o) {
 
 void Viewer::addObject(Object *o, int type, int mask) {
   _objects->push_back(o);
-  dynamicsWorld->addRigidBody(o->body, type, mask);
+
+  if (o->body != NULL) {
+	dynamicsWorld->addRigidBody(o->body, type, mask);
+  }
 }
 
 void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
   foreach (Object *o, ol) {
     _objects->push_back(o);
-    dynamicsWorld->addRigidBody(o->body, type, mask);
+
+	if (o->body != NULL) {
+	  dynamicsWorld->addRigidBody(o->body, type, mask);
+	}
   }
 }
 
@@ -469,6 +484,24 @@ void Viewer::addObjects() {
   dynamicsWorld->addConstraint(rm->rmJoint3, true);
   dynamicsWorld->addConstraint(rm->rmJoint4, true);
   */
+
+  /*
+  rm = new RM();
+ 
+  addObject(rm->cube, COL_WALL, COL_NOTHING);
+  addObject(rm->rm0, COL_WALL, COL_NOTHING);
+  addObject(rm->rm1, COL_WALL, COL_NOTHING);
+  addObject(rm->rm2, COL_WALL, COL_NOTHING);
+  addObject(rm->rm3, COL_WALL, COL_NOTHING);
+  addObject(rm->rm4, COL_WALL, COL_NOTHING);
+  addObject(rm->rm5, COL_WALL, COL_WALL);
+
+  dynamicsWorld->addConstraint(rm->rmJoint0, true);
+  dynamicsWorld->addConstraint(rm->rmJoint1, true);
+  dynamicsWorld->addConstraint(rm->rmJoint2, true);
+  dynamicsWorld->addConstraint(rm->rmJoint3, true);
+  dynamicsWorld->addConstraint(rm->rmJoint4, true);
+  */
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
@@ -576,13 +609,13 @@ bool Viewer::parse(QString txt) {
   QMutexLocker locker(&mutex);
 
   if (L != NULL) {
-	//	qDebug() << "before lua_gc";
+	// qDebug() << "before lua_gc";
 	clear();
-	lua_gc(L, LUA_GCCOLLECT, 0);
-	lua_close(L);
+	//lua_gc(L, LUA_GCCOLLECT, 0);
+	// lua_close(L);
 	//	clear();
 	L = NULL;
-	//	qDebug() << "after lua_gc";
+	// qDebug() << "after lua_gc";
   }
 
   // setup lua
@@ -595,11 +628,14 @@ bool Viewer::parse(QString txt) {
   // lua_load_environment(L);
 
   Object::luaBind(L);
+  Objects::luaBind(L);
   Cube::luaBind(L);
   Cylinder::luaBind(L);
   Dice::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
+
+  RM::luaBind(L);
 
   Viewer::luaBind(L);
 
@@ -754,7 +790,7 @@ Viewer::~Viewer() {
 
 void Viewer::computeBoundingBox() {
   // Compute the bounding box
-  getAABB(_all_objects, _aabb);
+  getAABB(_objects, _aabb);
 
   btVector3 min(_aabb[0], _aabb[1], _aabb[2]); 
   btVector3 max(_aabb[3], _aabb[4], _aabb[5]);
@@ -953,7 +989,6 @@ void Viewer::postDraw() {
     // restore foregroundColor
     qglColor(foregroundColor());
   }
-
 }
 
 void Viewer::startAnimation() {
@@ -1072,6 +1107,9 @@ void Viewer::animate() {
 	
 	
       }
+
+	if (_frameNum > 10)
+	  emit postDrawShot(_frameNum);
 
     _frameNum++;
   }
