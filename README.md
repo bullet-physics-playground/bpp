@@ -10,6 +10,7 @@ Features:
 
 Demo videos created with bullet-physics-playground:
 
+* [bullet-physics-playground](http://www.youtube.com/watch?v=19OirI8yjLc) - basic LUA scripting demo
 * [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ)
 * [dancing servos](http://www.youtube.com/watch?v=YBQGqMRh3c8)
 * [domino dynamics - II](http://www.youtube.com/watch?v=0QQYXvnrU1U)
