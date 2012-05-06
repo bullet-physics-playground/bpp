@@ -19,7 +19,7 @@ Demo videos created with bullet-physics-playground:
 
 ## Install from Ubuntu PPA
 
-On Ubuntu, you cann install bullet-physics-playground from a PPA:
+On Ubuntu, you can install bullet-physics-playground from a PPA:
 
 ```
 $ sudo apt-addrepository -y ppa:...
