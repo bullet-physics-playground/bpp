@@ -32,7 +32,7 @@ $ sudo apt-get -y install bullet-physics-playground
 ### install qglviewer, glut, 3ds, lua5.1 and luabind libs and header packages
 
 ```
-$ sudo apt-get install libqglviewer-qt4-dev freeglut3-dev lib3ds-dev libluabind-dev liblua5.1-0-dev
+$ sudo apt-get -y install libqglviewer-qt4-dev freeglut3-dev lib3ds-dev libluabind-dev liblua5.1-0-dev
 ```
 
 On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10 install lib3ds as follows:
@@ -63,7 +63,13 @@ MacOS & Windows: see INSTALL in bullet src directory
 
 Space Navigator support is optional:
 
-Linux:
+On Ubuntu 11.10 install libspacenav as follows:
+
+```
+$ sudo apt-get -y install libspnav-dev
+```
+
+On Ubuntu 9.04 & Ubuntu 11.04 install libspacenav as follows:
 
 ```
 $ svn co https://spacenav.svn.sourceforge.net/svnroot/spacenav/trunk spacenav
