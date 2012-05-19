@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QDebug>
 
+#ifdef SPACENAVIGATOR
 #include <spnav.h>
 
 class SpaceNavigator : public QThread {
@@ -27,5 +28,7 @@ class SpaceNavigator : public QThread {
   bool connected;
   bool stopThread;
 };
+
+#endif
 
 #endif // SPNAV_H

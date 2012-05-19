@@ -25,12 +25,13 @@ void Objects::luaBind(lua_State *s) {
 }
 
 QList<Object *> Objects::getObjects() const {
+    return QList<Object *>(); // FIXME
 }
 
 QString Objects::toString() const {
   return QString("Objects");
 }
 
-void Objects::renderInLocalFrame(QTextStream *s) const {
+void Objects::renderInLocalFrame(QTextStream *) const {
   qDebug() << "Objects::renderInLocalFrame should not be called!";
 }

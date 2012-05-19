@@ -4,6 +4,8 @@
 
 #include <QDebug>
 
+#ifdef SPACENAVIGATOR
+
 SpaceNavigatorCam::SpaceNavigatorCam(Camera *_camera) {
   camera = _camera;
 
@@ -45,3 +47,5 @@ void SpaceNavigatorCam::moveRecived(SpaceNavigatorEvent *e) {
 void SpaceNavigatorCam::buttonRecived(SpaceNavigatorEvent *e) {
   qDebug() << "button";
 }
+
+#endif

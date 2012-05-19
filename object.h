@@ -70,21 +70,21 @@ class Object : public QObject {
   QString getColorString() const;
 
   void setPosition(btScalar x, btScalar y, btScalar z);
-  void setPosition(btVector3& v);
+  void setPosition(const btVector3& v);
 
   btVector3 getPosition() const;
 
-  void setRotation(btVector3 axis, btScalar angle);
-  void setRotation(btQuaternion rot);
+  void setRotation(const btVector3& axis, btScalar angle);
+  void setRotation(const btQuaternion& rot);
   btQuaternion getRotation() const;
 
-  void setTransform(btTransform trans);
+  void setTransform(const btTransform& trans);
   btTransform getTransform() const;
 
   void setMass(btScalar mass);
   btScalar getMass() const;
 
-  void setLinearVelocity(btVector3 vector);
+  void setLinearVelocity(const btVector3& vector);
   btVector3 getLinearVelocity() const;
 
   void setPovPhotons(bool _photons_enable = false,

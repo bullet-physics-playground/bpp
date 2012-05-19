@@ -1,8 +1,10 @@
 #include "spacenavigator.h"
 
-#include <GL/gl.h>
+#include <GL/glut.h>
 
 using namespace std;
+
+#ifdef SPACENAVIGATOR
 
 SpaceNavigator::SpaceNavigator(QObject *parent) : QThread(parent) {
   stopThread = false;
@@ -36,3 +38,5 @@ void SpaceNavigator::run() {
   
   spnav_close();
 }
+
+#endif

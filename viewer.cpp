@@ -20,6 +20,10 @@
 
 #include "SpaceNavigatorCam.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <GL/glut.h>
 
 #include <QDebug>
@@ -82,7 +86,7 @@ void Viewer::luaBind(lua_State *s) {
 	[
 	 class_<btQuaternion>("btQuaternion")
 	 .def(constructor<>())
-	 .def(constructor<btVector3, btScalar>())
+     .def(constructor<const btVector3&, btScalar>())
 	 .def(constructor<btScalar, btScalar, btScalar, btScalar>())
 	 ];
 
@@ -90,7 +94,7 @@ void Viewer::luaBind(lua_State *s) {
 	[
 	 class_<btTransform>("btTransform")
 	 .def(constructor<>())
-	 .def(constructor<btQuaternion, btVector3>())
+     .def(constructor<const btQuaternion&, const btVector3&>())
 	 ];
 
   module(s)
@@ -527,6 +531,8 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   nbKeyFrames = 10;
 
+#ifdef SPACENAVIGATOR
+
   SpaceNavigatorCam *cam = new SpaceNavigatorCam(camera());
 
   // camera()->setType(Camera::ORTHOGRAPHIC);
@@ -560,6 +566,8 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   connect(&kfi_, SIGNAL(interpolated()), SLOT(updateGL()));
   kfi_.startInterpolation();
   */
+
+#endif
 
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
@@ -792,17 +800,17 @@ void Viewer::computeBoundingBox() {
   // Compute the bounding box
   getAABB(_objects, _aabb);
 
-  btVector3 min(_aabb[0], _aabb[1], _aabb[2]); 
-  btVector3 max(_aabb[3], _aabb[4], _aabb[5]);
+  btVector3 vmin(_aabb[0], _aabb[1], _aabb[2]);
+  btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
-  //btVector3 min(-30, -30, -30); 
-  //btVector3 max(30, 30, 30);
-  btVector3 center = (min+max)/2.0f;
+  //btVector3 vmin(-30, -30, -30);
+  //btVector3 vmax(30, 30, 30);
+  btVector3 center = (vmin + vmax)/2.0f;
   //center[1] = 0.0f;
   //center[2] = 0.0f;
   center[3] = 0.0f;
 
-  setSceneRadius((max-min).length()*5.0);
+  setSceneRadius((vmax - vmin).length()*5.0);
   setSceneCenter((Vec)center);
 }
 
@@ -845,8 +853,8 @@ void Viewer::init() {
   GLfloat diffuse[] = { 0.3f, 0.3f, 0.5f , 0.50f};
   GLfloat specular[] = { 0.5f, 0.5f, 0.5f , 0.50f};
 
-  GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 0.50 };
-  GLfloat local_view[] = { 0.0 };
+  // GLfloat lmodel_ambient[] = { 0.4, 0.4, 0.4, 0.50 };
+  // GLfloat local_view[] = { 0.0 };
 
   //  glEnable(GL_LIGHTING);
 
@@ -1067,13 +1075,18 @@ void Viewer::animate() {
 	    btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
 	    btScalar age = pt.m_lifeTime;
-	    btScalar dist = pt.getDistance();
+        // btScalar dist = pt.getDistance();
 	    btScalar impulse = pt.m_appliedImpulse;
 
 	    if (age == 3 && vel > 0.1 && impulse > 5.5) {
 	      //qDebug() << "x age " << age << "vel " << vel << "impulse " << impulse;
 
-	      QString msg; msg += 144; msg += qMin((int)(49 + impulse * 0.5), 127); msg += qMin((int) (127 * impulse / 20.0), 127);
+          QString msg;
+
+          // FIXME msg += 144;
+          msg += qMin((int)(49 + impulse * 0.5), 127);
+          msg += qMin((int) (127 * impulse / 20.0), 127);
+
 	      mio.send(msg);
 
 	    } else {

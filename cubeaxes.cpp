@@ -1,5 +1,5 @@
 #include "cubeaxes.h"
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 
 #include <QDebug>
 
@@ -43,19 +43,19 @@ void CubeAxes::renderInLocalFrame(QTextStream *s) const
   glPushMatrix();
   glColor3ub(255, 0, 0);
   glRotatef(90.0, 0.0, 1.0, 0.0);
-  glutSolidCylinder(0.25, 1.0, 8, 8);
+  // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 
   glPushMatrix();
   glColor3ub(0, 255, 0);
   glRotatef(90.0, 1.0, 0.0, 0.0);
-  glutSolidCylinder(0.25, 1.0, 8, 8);
+  // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 
   glPushMatrix();
   glColor3ub(0, 0, 255);
   glRotatef(180.0, 0.0, 0.0, 1.0);
-  glutSolidCylinder(0.25, 1.0, 8, 8);
+  // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 
   glPopMatrix();

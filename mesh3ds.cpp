@@ -1,6 +1,10 @@
 #include "mesh3ds.h"
 
-#include <GL/gl.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <GL/glut.h>
 
 #include <QDebug>
 #include <assert.h>
@@ -40,7 +44,7 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
     unsigned int cnt1 = mesh->nfaces;
 
     lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
-    uint index = 0;
+    // uint index = 0;
     for (uint x=0; x<cnt1; x++) { // face
       glNormal3f(normals[cnt+x][0], normals[cnt+x][1], normals[cnt+x][2]);
       for (uint y=0; y<3; y++) { // vertex
@@ -79,7 +83,7 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
 }
 
-void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
+void Mesh3DS::renderInLocalFrame(QTextStream *) const {
   btTransform trans;
   btScalar m[16];
 

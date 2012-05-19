@@ -237,8 +237,8 @@ RM::RM() {
 
   btTransform localA, localB;
   localA.setIdentity(); localB.setIdentity();
-  localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
-  localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
+  //FIXME localA.getBasis().setEulerZYX(0,M_PI_2,0); localA.setOrigin(btVector3(btScalar(0.), btScalar(0.15), btScalar(0.)));
+  //FIXME localB.getBasis().setEulerZYX(0,M_PI_2,0); localB.setOrigin(btVector3(btScalar(0.), btScalar(-0.15), btScalar(0.)));
   rmJoint4 = new btGeneric6DofConstraint(*rm4->body, *rm5->body, localA, localB, false);
 
   btVector3 lowerSliderLimit = btVector3(0,0,-10);

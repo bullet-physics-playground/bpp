@@ -4,7 +4,7 @@
 #define APP_NAME QString("physics")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 
-Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
+Gui::Gui(bool, bool, QWidget *parent) : QMainWindow(parent) {
   ui.setupUi(this);
 
   // setAttribute(Qt::WA_DeleteOnClose);
@@ -297,11 +297,12 @@ void Gui::createDock() {
 }
 
 void Gui::about() {
-  QString txt =
-    tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) +
-    tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) +
-    tr("<p>&copy; <a href=\"mailto:jakob.flierl@gmail.com\">") +
-    tr("Jakob Flierl &lt;jakob.flierl@gmail.com&gt;</a></p>");
+    QString txt = QString(APP_NAME_FULL);
+
+    // FIXME tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
+    //      tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
+    //      tr("<p>&copy; <a href=\"mailto:jakob.flierl@gmail.com\">") + \
+    //      tr("Jakob Flierl &lt;jakob.flierl@gmail.com&gt;</a></p>");
 
   QMessageBox::about(this, tr("About"), txt);
 }
@@ -316,7 +317,8 @@ void Gui::parseEditor() {
 
 void Gui::animStarted() {
 }
-void Gui::animProgress(QString fmt, int n) {
+
+void Gui::animProgress(QString, int) {
 }
 
 void Gui::animFinished() {

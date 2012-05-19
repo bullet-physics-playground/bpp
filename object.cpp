@@ -1,5 +1,10 @@
 #include "object.h"
-#include <GL/gl.h>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <GL/glut.h>
 
 #include <QDebug>
 
@@ -85,22 +90,24 @@ void Object::luaBind(lua_State *s) {
 			   (QString(Object::*)(void))&Object::getColorString,
 			   (void(Object::*)(QString))&Object::setColorString)
 
+          /*
 	 .property("pos",
 			   (btVector3(Object::*)(void))&Object::getPosition,
-               (void(Object::*)(btVector3&))&Object::setPosition)
+               (void(Object::*)(const btVector3&))&Object::setPosition)
 
 	 .property("trans",
 			   (btTransform(Object::*)(void))&Object::getTransform,
-               (void(Object::*)(btTransform&))&Object::setTransform)
-
+               (void(Object::*)(const btTransform&))&Object::setTransform)
+*/
 	 .property("mass",
 			   (btScalar(Object::*)(void))&Object::getMass,
 			   (void(Object::*)(btScalar))&Object::setMass)
 
+          /*
 	 .property("vel",
-			   (btVector3(Object::*)(void))&Object::getLinearVelocity,
-			   (void(Object::*)(btVector3))&Object::setLinearVelocity)
-
+               (btVector3(Object::*)(void))&Object::getLinearVelocity,
+               (void(Object::*)(btVector3&))&Object::setLinearVelocity)
+*/
 	 // povray properties
 
 	 .property("texture",
@@ -154,7 +161,7 @@ void Object::setMass(btScalar _mass) {
   body->updateInertiaTensor();
 }
 
-void Object::setLinearVelocity(btVector3 vector) {
+void Object::setLinearVelocity(const btVector3 &vector) {
   body->setLinearVelocity(vector);
 }
 
@@ -184,7 +191,7 @@ QString Object::getColorString() const {
   return getColor().name();
 }
 
-void Object::setPosition(btVector3 &v) {
+void Object::setPosition(const btVector3& v) {
   setPosition(v[0], v[1], v[2]);
 }
 
@@ -204,7 +211,7 @@ btVector3 Object::getPosition() const {
   return trans.getOrigin();
 }
 
-void Object::setRotation(btVector3 axis, btScalar angle) {
+void Object::setRotation(const btVector3& axis, btScalar angle) {
   if (body != NULL) {
     btTransform trans;
     btQuaternion rot;
@@ -217,7 +224,7 @@ void Object::setRotation(btVector3 axis, btScalar angle) {
   }
 }
 
-void Object::setRotation(btQuaternion r) {
+void Object::setRotation(const btQuaternion &r) {
   if (body != NULL) {
     btTransform trans;
     body->getMotionState()->getWorldTransform(trans);
@@ -233,7 +240,7 @@ btQuaternion Object::getRotation() const {
   return trans.getRotation();
 }
 
-void Object::setTransform(btTransform trans) {
+void Object::setTransform(const btTransform &trans) {
   if (body != NULL) {
     delete body->getMotionState();
     body->setMotionState(new btDefaultMotionState(trans));

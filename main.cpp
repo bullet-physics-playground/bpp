@@ -5,6 +5,7 @@
 
 #include "viewer.h"
 
+// #include <WinGDI.h>
 #include <GL/glut.h>
 
 using namespace std;
@@ -16,8 +17,10 @@ int main(int argc, char **argv) {
   QApplication application(argc, argv);
   
   bool savePNG = false, savePOV = false;
+
+#ifdef HAS_GETOPT
   
-  opterr = 0;
+  int opterr = 0;
   int c;
   while ((c = getopt (argc, argv, "ps")) != -1) {
     switch (c) {
@@ -32,6 +35,8 @@ int main(int argc, char **argv) {
       exit(1);
     }
   }
+
+#endif
 
   Gui g(savePNG, savePOV);
   g.show();

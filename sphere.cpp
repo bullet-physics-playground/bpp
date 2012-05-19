@@ -1,4 +1,9 @@
 #include "sphere.h"
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <GL/glut.h>
 
 #include <QDebug>
@@ -66,10 +71,10 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
   GLfloat mat_diffuse[] = { 0.25, 0.25, 0.25, 0.50 };
   GLfloat mat_specular[] = { 0.50, 0.50, 0.50, 0.50 };
-  GLfloat no_shininess[] = { 10.0 };
-  GLfloat low_shininess[] = { 5.0 };
+  // GLfloat no_shininess[] = { 10.0 };
+  // GLfloat low_shininess[] = { 5.0 };
   GLfloat high_shininess[] = { 10.0 };
-  GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+  // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   btTransform trans;
   btScalar m[16];

@@ -7,6 +7,8 @@
 
 using namespace qglviewer;
 
+#ifdef SPACENAVIGATOR
+
 class SpaceNavigatorCam : public ManipulatedCameraFrame {
   Q_OBJECT;
 
@@ -23,5 +25,7 @@ class SpaceNavigatorCam : public ManipulatedCameraFrame {
 
   SpaceNavigator *sn;
 };
+
+#endif
 
 #endif

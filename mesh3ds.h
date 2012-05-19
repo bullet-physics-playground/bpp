@@ -3,7 +3,11 @@
 
 #include "mesh3ds.h"
 
-#include <GL/gl.h>
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <GL/glut.h>
 
 #include <lib3ds.h>
 #include "object.h"

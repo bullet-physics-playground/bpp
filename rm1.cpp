@@ -19,11 +19,11 @@ static btScalar r2d(btScalar radians)
 static btScalar prev_dAngle[MAX_N_JOINTS] = {0.0};//stores the last desired angle of each joint.
 static btScalar jIntErr[MAX_N_JOINTS] = {0.0};
 
-static btScalar Pk[5] = {  40,    40,    40,    40,    40};
-static btScalar Dk[5] = {   5,     5,     5,     5,     10};
-static btScalar Ik[5] = {    0.01,   0.01,   0.01,   0.01,   0.01};
+static btScalar Pk[5] = {  40.0f,    40.0f,    40.0f,    40.0f,    40.0f};
+static btScalar Dk[5] = {   5.0f,     5.0f,     5.0f,     5.0f,     10.0f};
+static btScalar Ik[5] = {    0.01f,   0.01f,   0.01f,   0.01f,   0.01f};
 
-static btScalar Ikmax[5]={10, 10, 30, 30, 30};
+static btScalar Ikmax[5]={10.0f, 10.0f, 30.0f, 30.0f, 30.0f};
 
 void RM1::pidControl(btHingeConstraint &joint, btScalar jAngle, btScalar dAngle, int jointNum) {
 
@@ -221,7 +221,7 @@ RM1::RM1() {
   cout << "\n";
   */
 
-  cube = new CubeAxes(.55, .55, .55, 0.0);
+  cube = new CubeAxes(.55f, .55f, .55f, 0.0f);
   cube->setColor(255, 255, 255);
 
   rm0 = new Cube(.75, 1.0, .75, 0.0);
@@ -229,7 +229,7 @@ RM1::RM1() {
   rm0->setColor(155,155,155);
   rm0->body->setActivationState(DISABLE_DEACTIVATION);
 
-  rm1 = new Cube(.65, 1.0, .65, 0.1);
+  rm1 = new Cube(.65f, 1.0f, .65f, 0.1f);
   rm1->setPosition(0.0, 0.5 + 1.0, 0.0);
   //  rm1->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm1->setColor(255,55,55);
@@ -240,7 +240,7 @@ RM1::RM1() {
   btVector3 btAxis0( 0.0f, 1.0f, 0.0f );
   rmJoint0 = new btHingeConstraint(*rm0->body, *rm1->body, btPivot0, btPivot1, btAxis0, btAxis0);
 
-  rm2 = new Cube(.55, .55, 2.0, 0.1);
+  rm2 = new Cube(.55f, .55f, 2.0f, 0.1f);
   rm2->setPosition(0.0, 0.5 + 1.5, 1);
   rm2->setColor(255,55,55);
   rm2->body->setActivationState(DISABLE_DEACTIVATION);
@@ -252,7 +252,7 @@ RM1::RM1() {
   rmJoint1 = new btHingeConstraint(*rm1->body, *rm2->body, pivotInA1, pivotInB1, axisInA1, axisInB1);
   //  rmJoint1->setLimit(d2r(-30), d2r(90));
 
-  rm3 = new Cube(.45, .45, 2.0, 0.01);
+  rm3 = new Cube(.45f, .45f, 2.0f, 0.01f);
   rm3->setPosition(0.0, .5 + 1.5, 3.);
   rm3->setColor(255,55,55);
   rm3->body->setActivationState(DISABLE_DEACTIVATION);
@@ -265,7 +265,7 @@ RM1::RM1() {
   //  rmJoint2->enableAngularMotor(true, 0.4, 1000);
   //  rmJoint2->setLimit(d2r(-90), d2r(0));
 
-  rm4 = new Cube(.35, .35, 0.35, 0.001);
+  rm4 = new Cube(.35f, .35f, 0.35f, 0.001f);
   rm4->setPosition(0.0, 0.5 + 1.5, 4.0);
   rm4->setColor(255,55,55);
   rm4->body->setActivationState(DISABLE_DEACTIVATION);
@@ -277,7 +277,7 @@ RM1::RM1() {
   rmJoint3 = new btHingeConstraint(*rm3->body, *rm4->body, pivotInA3, pivotInB3, axisInA3, axisInB3);
   //  rmJoint3->setLimit(d2r(-90), d2r(90));
 
-  rm5 = new Cube(.2, 1.0, .2, 0.0001);
+  rm5 = new Cube(.2f, 1.0f, .2f, 0.0001f);
   rm5->setPosition(0.0, .5 + 2.0, 4.0);
   rm5->setColor(255,255,255);
   rm5->body->setActivationState(DISABLE_DEACTIVATION);

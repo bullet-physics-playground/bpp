@@ -57,10 +57,10 @@ void Dice::renderInLocalFrame(QTextStream *s) const {
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
+  //GLfloat no_shininess[] = { 0.0 };
+  // GLfloat low_shininess[] = { 5.0 };
   GLfloat high_shininess[] = { 100.0 };
-  GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+  // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   body->getMotionState()->getWorldTransform(trans);
   trans.getOpenGLMatrix(m);

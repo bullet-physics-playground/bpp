@@ -1,5 +1,5 @@
 #include "cylinder.h"
-#include <GL/freeglut.h>
+#include <GL/glut.h>
 
 #include <QDebug>
 
@@ -7,7 +7,7 @@ using namespace std;
 
 #include <luabind/operator.hpp>
 
-Cylinder::Cylinder(btVector3 dim, btScalar mass) {
+Cylinder::Cylinder(const btVector3& dim, btScalar mass) {
   init(dim.getX(), dim.getY(), dim.getZ(), mass);
 }
 
@@ -48,8 +48,8 @@ void Cylinder::luaBind(lua_State *s) {
     [
      class_<Cylinder, Object>("Cylinder")
      .def(constructor<>())
-     .def(constructor<btVector3>())
-     .def(constructor<btVector3, btScalar>())
+     .def(constructor<const btVector3&>())
+     .def(constructor<const btVector3&, btScalar>())
      .def(constructor<btScalar, btScalar, btScalar>())
      .def(constructor<btScalar, btScalar, btScalar, btScalar>())
      .def(tostring(const_self))
@@ -74,7 +74,7 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
   glMultMatrixf(m);
   glScalef(lengths[0] * .5, lengths[1] *.5, lengths[2] *.5);
   glColor3ubv(color);
-  glutSolidCylinder(1, 1, 8, 8);
+  // FIXME glutSolidCylinder(1, 1, 8, 8);
   glPopMatrix();
 
   //TODO  

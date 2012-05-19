@@ -1,4 +1,9 @@
 #include "cube.h"
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <GL/glut.h>
 
 #include <QDebug>
@@ -8,7 +13,7 @@ using namespace std;
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Cube::Cube(btVector3 dim, btScalar mass) {
+Cube::Cube(const btVector3 &dim, btScalar mass) {
   init(dim.getX(), dim.getY(), dim.getZ(), mass);
 }
 
@@ -55,8 +60,8 @@ void Cube::luaBind(lua_State *s) {
      class_<Cube,Object>("Cube")
      .def(constructor<>(), adopt(result))
      .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
-     .def(constructor<btVector3>(), adopt(result))
-     .def(constructor<btVector3, btScalar>(), adopt(result))
+     .def(constructor<const btVector3&>(), adopt(result))
+     .def(constructor<const btVector3&, btScalar>(), adopt(result))
 	 .def(tostring(const_self))
 	 ];
 }
@@ -73,10 +78,10 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
+  // GLfloat no_shininess[] = { 0.0 };
+  // GLfloat low_shininess[] = { 5.0 };
   GLfloat high_shininess[] = { 100.0 };
-  GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+  // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   btTransform trans;
   btScalar m[16];

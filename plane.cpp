@@ -8,7 +8,7 @@ using namespace std;
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Plane::Plane(btVector3 dim, btScalar nConst, btScalar psize) {
+Plane::Plane(const btVector3 &dim, btScalar nConst, btScalar psize) {
   init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
 }
 
@@ -53,7 +53,7 @@ void Plane::luaBind(lua_State *s) {
      .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
      .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
      .def(constructor<btScalar, btScalar, btScalar, btScalar, btScalar>(), adopt(result))
-     .def(constructor<btVector3, btScalar, btScalar>(), adopt(result))
+     .def(constructor<const btVector3&, btScalar, btScalar>(), adopt(result))
      .def(tostring(const_self))
      ];
 }
@@ -71,10 +71,10 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-  GLfloat no_shininess[] = { 0.0 };
-  GLfloat low_shininess[] = { 5.0 };
+  // GLfloat no_shininess[] = { 0.0 };
+  // GLfloat low_shininess[] = { 5.0 };
   GLfloat high_shininess[] = { 100.0 };
-  GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+  // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
   btScalar planeConst = staticPlaneShape->getPlaneConstant();

@@ -7,7 +7,7 @@
 
 class Cylinder : public Object {
  public:
-  Cylinder(btVector3 dim, btScalar mass = 1.0);
+  Cylinder(const btVector3& dim, btScalar mass = 1.0);
   Cylinder(btScalar width = 1.0, btScalar height = 1.0, btScalar depth = 1.0,
 		   btScalar mass = 1.0);
 
