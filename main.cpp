@@ -11,9 +11,12 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  glutInit(&argc,argv);
+    qDebug() << "main 1\n";
+
+    glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   
+  qDebug() << "main 1\n";
   QApplication application(argc, argv);
   
   bool savePNG = false, savePOV = false;
@@ -40,6 +43,8 @@ int main(int argc, char **argv) {
 
   Gui g(savePNG, savePOV);
   g.show();
+
+  qDebug() << "main 1\n";
 
   return application.exec();
 }

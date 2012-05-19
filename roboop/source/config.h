@@ -121,7 +121,7 @@ public:
                 {
                     value = boost::lexical_cast<T>(iter->value);
                 }
-                catch (boost::bad_lexical_cast & e)
+                catch (boost::bad_lexical_cast &)
                 {
                     return false;
                 }

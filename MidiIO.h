@@ -1,6 +1,8 @@
 #ifndef MIDIIO_H
 #define MIDIIO_H
 
+#ifdef HAS_MIDI
+
 #include <QThread>
 #include <QHash>
 #include <QStringList>
@@ -52,5 +54,7 @@ class MidiIO : public QThread
 
   QHash<int, QString> mmcNames;
 };
+
+#endif
 
 #endif

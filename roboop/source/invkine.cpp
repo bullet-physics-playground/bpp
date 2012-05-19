@@ -312,7 +312,7 @@ ReturnMatrix Robot::inv_kin_rhino(const Matrix & Tobj, bool & converge)
 
         converge = true;
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -473,7 +473,7 @@ ReturnMatrix Robot::inv_kin_puma(const Matrix & Tobj, bool & converge)
 
         converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -579,7 +579,7 @@ ReturnMatrix Robot::inv_kin_schilling(const Matrix & Tobj, bool & converge)
         qout(6) = theta[6];
         converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false;
         qout = q_actual;
@@ -719,7 +719,7 @@ ReturnMatrix mRobot::inv_kin_rhino(const Matrix & Tobj, bool & converge)
 
         converge = true;
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -880,7 +880,7 @@ ReturnMatrix mRobot::inv_kin_puma(const Matrix & Tobj, bool & converge)
 
         converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -987,7 +987,7 @@ ReturnMatrix mRobot::inv_kin_schilling(const Matrix & Tobj, bool & converge)
 	
 	converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
 	converge = false;
 	qout = q_actual;
@@ -1114,7 +1114,7 @@ ReturnMatrix mRobot_min_para::inv_kin_rhino(const Matrix & Tobj, bool & converge
 
         converge = true;
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -1275,7 +1275,7 @@ ReturnMatrix mRobot_min_para::inv_kin_puma(const Matrix & Tobj, bool & converge)
 
         converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false; 
         qout = q_actual;
@@ -1383,7 +1383,7 @@ ReturnMatrix mRobot_min_para::inv_kin_schilling(const Matrix & Tobj, bool & conv
 
         converge = true; 
     }
-    catch(std::out_of_range & e)
+    catch(std::out_of_range &)
     {
         converge = false;
         qout = q_actual;

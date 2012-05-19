@@ -117,8 +117,10 @@ class Viewer : public QGLViewer
   void loadPrefs();
   void savePrefs();
 
+#ifdef HAS_MIDI
  private slots:
   void midiRecived(MidiEvent *e);
+#endif
 
  public:
   RM *rm;
@@ -157,7 +159,9 @@ class Viewer : public QGLViewer
   bool               _savePNG;
   bool               _savePOV;
 
+#ifdef HAS_MIDI
   MidiIO mio;
+#endif
 
   QMutex mutex;
 };

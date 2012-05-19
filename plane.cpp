@@ -1,4 +1,10 @@
 #include "plane.h"
+
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#include <windows.h>
+#endif
+
 #include <GL/glut.h>
 
 #include <QDebug>

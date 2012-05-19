@@ -403,7 +403,7 @@ Robot_basic::Robot_basic(const Matrix & dhinit, const bool dh_parameter,
       dp   = new ColumnVector[dof+1];
       R    = new Matrix[dof+fix+1];
    }
-   catch(bad_alloc & e)
+   catch(bad_alloc &)
    {
       cerr << "Robot_basic constructor : new ran out of memory" << endl;
       cleanUpPointers();
@@ -512,7 +512,7 @@ Robot_basic::Robot_basic(const Matrix & initrobot, const Matrix & initmotor,
       dp   = new ColumnVector[dof+1];
       R    = new Matrix[dof+fix+1];
    }
-   catch(bad_alloc & e)
+   catch(bad_alloc &)
    {
       cerr << "Robot_basic constructor : new ran out of memory" << endl;
       cleanUpPointers();
@@ -570,8 +570,8 @@ Robot_basic::Robot_basic(const Matrix & initrobot, const Matrix & initmotor,
        error("Initialisation robot and motor matrix does not have same numbers of Rows.");
 }
 
-Robot_basic::Robot_basic(const int ndof, const bool dh_parameter, 
-                         const bool min_inertial_para)
+Robot_basic::Robot_basic(const int ndof, const bool,
+                         const bool)
 /*!
   @brief Constructor.
   @param ndof: Robot degree of freedom.
@@ -618,7 +618,7 @@ Robot_basic::Robot_basic(const int ndof, const bool dh_parameter,
       dp   = new ColumnVector[dof+1];
       R    = new Matrix[dof+1];
    }
-   catch(bad_alloc & e)
+   catch(bad_alloc &)
    {
       cerr << "Robot_basic constructor : new ran out of memory" << endl;
       cleanUpPointers();
@@ -684,7 +684,7 @@ Robot_basic::Robot_basic(const Robot_basic & x)
       dp   = new ColumnVector[dof+1];
       R    = new Matrix[dof+fix+1];
    }
-   catch(bad_alloc & e)
+   catch(bad_alloc &)
    {
       cerr << "Robot_basic constructor : new ran out of memory" << endl;
       cleanUpPointers();
@@ -785,7 +785,7 @@ Robot_basic::Robot_basic(const string & filename, const string & robotName,
       dp   = new ColumnVector[dof+1];
       R    = new Matrix[dof+fix+1];
    }
-   catch(bad_alloc & e)
+   catch(bad_alloc &)
    {
       cerr << "Robot_basic constructor : new ran out of memory" << endl;
       cleanUpPointers();
@@ -950,7 +950,7 @@ Robot_basic & Robot_basic::operator=(const Robot_basic & x)
             dp    = new ColumnVector[dof+1];
             R     = new Matrix[dof+fix+1];
          }
-         catch(bad_alloc & e)
+         catch(bad_alloc &)
          {
             cerr << "Robot_basic::operator= : new ran out of memory" << endl;
             exit(1);

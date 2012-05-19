@@ -472,7 +472,7 @@ ReturnMatrix Resolved_acc::torque_cmd(Robot_basic & robot, const ColumnVector & 
                                       const ColumnVector & pdp, const ColumnVector & pd,
                                       const ColumnVector & wdp, const ColumnVector & wd,
                                       const Quaternion & quatd, const short link_pc,
-                                      const Real dt)
+                                      const Real)
 /*!
   @brief Output torque.
 

@@ -2,6 +2,8 @@
 
 #include "MidiIO.h"
 
+#ifdef HAS_MIDI
+
 #include "RtMidi.h"
 
 MidiIO::MidiIO()
@@ -187,3 +189,5 @@ QString MidiIO::getMMCName(int cmd) const
 {
   return mmcNames.value(cmd);
 }
+
+#endif

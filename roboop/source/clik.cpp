@@ -221,8 +221,8 @@ Clik & Clik::operator=(const Clik & x)
 }
 
 
-int Clik::endeff_pos_ori_err(const ColumnVector & pd, const ColumnVector & pdd,
-                             const Quaternion & qqqd, const ColumnVector & wd)
+int Clik::endeff_pos_ori_err(const ColumnVector & pd, const ColumnVector &,
+                             const Quaternion & qqqd, const ColumnVector &)
 /*!
   @brief Obtain end effector position and orientation error.
   @param pd: Desired eff position in base frame.

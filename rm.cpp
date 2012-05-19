@@ -24,7 +24,7 @@ static btScalar jIntErr[MAX_N_JOINTS] = {0.0};
 
 static btScalar Pk[5] = {  20,    20,    20,    20,    40};
 static btScalar Dk[5] = {   5,     5,     5,     5,     10};
-static btScalar Ik[5] = {    0.01,   0.01,   0.01,   0.01,   0.01};
+static btScalar Ik[5] = {    0.01f,   0.01f,   0.01f,   0.01f,   0.01f};
 
 static btScalar Ikmax[5]={10, 10, 30, 30, 30};
 
@@ -200,7 +200,7 @@ RM::RM() {
 
   rmJoint1 = new btHingeConstraint(*rm1->body, *rm2->body, pivotInA1, pivotInB1, axisInA1, axisInB1);
 
-  rm3 = new Mesh3DS("rm501_3.3ds", 0.005);
+  rm3 = new Mesh3DS("rm501_3.3ds", 0.005f);
   rm3->setPosition(0.0, 25.0, 22.5);
   rm3->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm3->setColor(255,155,155);
@@ -214,7 +214,7 @@ RM::RM() {
   btVector3 axisInB2 (1, 0, 0);
   rmJoint2 = new btHingeConstraint(*rm2->body, *rm3->body, pivotInA2, pivotInB2, axisInA2, axisInB2);
 
-  rm4 = new Cube(5.0, 5.0, 5.0, 0.001);
+  rm4 = new Cube(5.0, 5.0, 5.0, 0.001f);
   rm4->setPosition(0.0, 25.0, 22.0+17.0+3);
   rm4->setColor(200,200,255);
   rm4->body->setActivationState(DISABLE_DEACTIVATION);
@@ -228,7 +228,7 @@ RM::RM() {
 
   rmJoint3 = new btHingeConstraint(*rm3->body, *rm4->body, pivotInA3, pivotInB3, axisInA3, axisInB3);
 
-  rm5 = new Mesh3DS("rm501_4.3ds", 0.001);
+  rm5 = new Mesh3DS("rm501_4.3ds", 0.001f);
   rm5->setPosition(0.0, 25.0, 22.0+17.0+3.0);
   rm5->setRotation(btVector3(1.0, 0.0, 0.0), d2r(-90.0));
   rm5->setColor(200,200,200);

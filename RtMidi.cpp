@@ -1,3 +1,5 @@
+#ifdef HAS_MIDI
+
 /**********************************************************************/
 /*! \class RtMidi
     \brief An abstract base class for realtime MIDI input/output.
@@ -2122,3 +2124,5 @@ void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
 }
 
 #endif  // __WINDOWS_MM__
+
+#endif

@@ -3,6 +3,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#ifdef HAS_MIDI
+
 #include "MidiIO.h"
 
 class FilterCallback : public btOverlapFilterCallback {
@@ -13,5 +15,7 @@ class FilterCallback : public btOverlapFilterCallback {
  private:
   MidiIO *mio;
 };
+
+#endif
 
 #endif

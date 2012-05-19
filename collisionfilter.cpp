@@ -1,5 +1,7 @@
 #include "collisionfilter.h"
 
+#ifdef HAS_MIDI
+
 #define BIT(x) (1<<(x))
 
 enum collisiontypes {
@@ -30,4 +32,6 @@ bool FilterCallback::needBroadphaseCollision(btBroadphaseProxy* proxy0,btBroadph
   //add some additional logic here that modified 'collides'
   return collides;
 }
+
+#endif
 

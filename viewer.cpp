@@ -22,6 +22,8 @@
 
 #ifdef WIN32
 #include <windows.h>
+
+#pragma warning (disable : 4251)
 #endif
 
 #include <GL/glut.h>
@@ -155,7 +157,7 @@ void report_errors(lua_State *L, int status)
   }
 }
 
-#define G 9.81
+#define G 9.81f
 
 using namespace qglviewer;
 
@@ -522,10 +524,12 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg),
                                               axisSweep, new btSequentialImpulseConstraintSolver, collisionCfg);
 
+#ifdef HAS_MIDI
   btOverlapFilterCallback * filterCallback = new FilterCallback(&mio);
   dynamicsWorld->getPairCache()->setOverlapFilterCallback(filterCallback);
+#endif
 
-  dynamicsWorld->setGravity(btVector3(0, -G, 0));
+  dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
   _frameNum = 0;
 
@@ -569,12 +573,18 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
 #endif
 
+#ifdef HAS_MIDI
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
           this, SLOT(midiRecived(MidiEvent *)));
+#endif
 
   loadPrefs();
 
+#ifdef HAS_MIDI
+
   mio.start();
+
+#endif
 
   startAnimation();
 }
@@ -708,6 +718,7 @@ void Viewer::clear() {
   //  _objects.squeeze();
 }
 
+#ifdef HAS_MIDI
 void Viewer::midiRecived(MidiEvent *me) {
   QString m = QString(me->message);
 
@@ -734,6 +745,8 @@ void Viewer::midiRecived(MidiEvent *me) {
     //    qDebug() << cc << endl;
   }
 }
+
+#endif
 
 void Viewer::loadPrefs() {
   QSettings s;
@@ -786,7 +799,9 @@ void Viewer::closePovFile() {
 Viewer::~Viewer() {
   savePrefs();
 
+#ifdef HAS_MIDI
   mio.stop();
+#endif
 
   delete dynamicsWorld;
   delete collisionCfg;
@@ -1013,7 +1028,7 @@ void Viewer::animate() {
   static float nbSecondsByStep = 0.0004f;
   
   // Find the time elapsed between last time
-  float nbSecsElapsed = 0.08; // 25 pics/sec
+  float nbSecsElapsed = 0.08f; // 25 pics/sec
   // float nbSecsElapsed = 1.0 / 24.0;
   //  float nbSecsElapsed = _time.elapsed()/10.0f;
   
@@ -1056,10 +1071,10 @@ void Viewer::animate() {
 
     for (int i = 0; i < numManifolds; i++) {
 	btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-	btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-	btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+    // btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+    // btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
-	btScalar vel = (obA->getInterpolationLinearVelocity() - obB->getInterpolationLinearVelocity()).length();
+    // btScalar vel = (obA->getInterpolationLinearVelocity() - obB->getInterpolationLinearVelocity()).length();
 
 	//qDebug() << " velB " << obB->getInterpolationLinearVelocity().length();
 
@@ -1072,13 +1087,16 @@ void Viewer::animate() {
 
 	for (int j = 0; j < numContacts; j++)
 	  {
-	    btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
-	    btScalar age = pt.m_lifeTime;
-        // btScalar dist = pt.getDistance();
-	    btScalar impulse = pt.m_appliedImpulse;
+#ifdef HAS_MIDI
 
-	    if (age == 3 && vel > 0.1 && impulse > 5.5) {
+        btManifoldPoint& pt = contactManifold->getContactPoint(j);
+
+        btScalar age = pt.m_lifeTime;
+        btScalar dist = pt.getDistance();
+        btScalar impulse = pt.m_appliedImpulse;
+
+        if (age == 3 && vel > 0.1 && impulse > 5.5) {
 	      //qDebug() << "x age " << age << "vel " << vel << "impulse " << impulse;
 
           QString msg;
@@ -1092,6 +1110,7 @@ void Viewer::animate() {
 	    } else {
 	      //qDebug() << "- age " << age << "vel " << vel << "impulse " << impulse;
 	    }
+#endif
 
 	/*	    
 	    if (pt.getDistance()<0.f && age < 5 && age > 1)
