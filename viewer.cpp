@@ -66,7 +66,7 @@ void Viewer::luaBind(lua_State *s) {
     [
      class_<Viewer>("Viewer")
      .def(constructor<>())
-     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
+     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(luabind::result))
      .def(tostring(const_self))
      ];
 
@@ -124,6 +124,11 @@ void Viewer::luaBind(lua_State *s) {
 }
 
 void Viewer::addObject(Object* o) {
+
+  if (o == NULL) {
+	return;
+  }
+
   if (o->toString() != "RM") {
 	addObject(o, o->getCol1(), o->getCol2());
   } else {
