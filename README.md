@@ -4,7 +4,7 @@
 
 Features:
 
-* LUA scripting (experimental)
+* LUA scripting (experimental) including LUA math support.
 * POV-Ray export (stable)
 * Midi Event handling (experimental)
 
@@ -118,6 +118,16 @@ physics options:
 
 * -p generate POV-Ray output
 * -s save screenshots
+
+# LUA scripting examples
+
+* (00-objects.lua)[https://github.com/koppi/bullet-physics-playground/raw/master/demo/00-objects.lua] - basic objects.
+* (01-test.lua)[https://github.com/koppi/bullet-physics-playground/ra\
+w/master/demo/01-test.lua] - LUA syntax testing.
+* (02-domino.lua)[https://github.com/koppi/bullet-physics-playground/ra\
+w/master/demo/02-domino.lua] - function definition and loop.
+* (03-math.lua)[https://github.com/koppi/bullet-physics-playground/ra\
+w/master/demo/03-math.lua] - math functions.
 
 # Authors / Copyright
 

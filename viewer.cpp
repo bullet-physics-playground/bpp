@@ -650,6 +650,8 @@ bool Viewer::parse(QString txt) {
 
   //  luaopen_io(L); // provides io.*
   luaL_openlibs(L);
+
+  luaopen_math(L);
   // lua_load_environment(L);
 
   Object::luaBind(L);
