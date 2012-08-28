@@ -16,7 +16,7 @@ plane.col = "#111111"
 
 sphere = Sphere()
 sphere.pos = btVector3(4, 0.5, 0)
-sphere.cor = "#00ff00"
+sphere.col = "#00ff00"
 
 v:add(cube)
 v:add(cylinder)
