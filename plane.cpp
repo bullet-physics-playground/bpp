@@ -1,7 +1,10 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "plane.h"
 
 #ifdef WIN32
-#pragma warning (disable : 4251)
 #include <windows.h>
 #endif
 
@@ -102,7 +105,7 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
-  //  glColor3ubv(color);
+  glColor3ubv(color);
 
   glNormal3fv(planeNormal);
   glVertex3fv(pt0);

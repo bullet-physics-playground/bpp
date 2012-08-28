@@ -1,4 +1,4 @@
-CONFIG += debug
+#CONFIG += debug_and_release
 
 ## windows: you need:
 ##
@@ -25,7 +25,6 @@ INCLUDEPATH += roboop/newmat
 INCLUDEPATH += roboop/source
 
 win32 {
-  DEFINES += -DWIN32
   DEFINES += WIN32
 } else {
   CONFIG += link_pkgconfig link_spacenav
@@ -67,6 +66,11 @@ link_pkgconfig {
   INCLUDEPATH += $$QGL_SRC_DIR
   LIBS += -lqglviewer2
 
+## http://www.transmissionzero.co.uk/software/freeglut-devel/
+  GLUT_SRC_DIR = C:\\libs\\freeglut
+  INCLUDEPATH += $$GLUT_SRC_DIR\\include
+  LIBS += -L$$GLUT_SRC_DIR\\lib -lglut32 -lopengl32
+
   BUL_SRC_DIR = C:\\libs\\bullet-2.79\\src
   INCLUDEPATH += $$BUL_SRC_DIR
 
@@ -76,11 +80,6 @@ link_pkgconfig {
   BOOST_SRC_DIR = C:\\libs\\boost_1_47
   INCLUDEPATH += $$BOOST_SRC_DIR
   LIBS += -L$$BOOST_SRC_DIR\\lib
-
-## http://www.transmissionzero.co.uk/software/freeglut-devel/
-  GLUT_SRC_DIR = C:\\libs\\freeglut
-  INCLUDEPATH += $$GLUT_SRC_DIR\\include
-  LIBS += -L$$GLUT_SRC_DIR\\lib\\x64 -lglut32
 
 ##  lib3ds-20080909.zip from http://code.google.com/p/lib3ds/
   L3DS_SRC_DIR = C:\\libs\\lib3ds-20080909

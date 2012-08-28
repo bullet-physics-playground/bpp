@@ -1,7 +1,10 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "object.h"
 
 #ifdef WIN32
-#pragma warning (disable : 4251)
 #include <windows.h>
 #endif
 
@@ -91,7 +94,6 @@ void Object::luaBind(lua_State *s) {
 			   (QString(Object::*)(void))&Object::getColorString,
 			   (void(Object::*)(QString))&Object::setColorString)
 
-          /*
 	 .property("pos",
 			   (btVector3(Object::*)(void))&Object::getPosition,
                (void(Object::*)(const btVector3&))&Object::setPosition)
@@ -99,16 +101,15 @@ void Object::luaBind(lua_State *s) {
 	 .property("trans",
 			   (btTransform(Object::*)(void))&Object::getTransform,
                (void(Object::*)(const btTransform&))&Object::setTransform)
-*/
+
 	 .property("mass",
 			   (btScalar(Object::*)(void))&Object::getMass,
 			   (void(Object::*)(btScalar))&Object::setMass)
 
-          /*
 	 .property("vel",
                (btVector3(Object::*)(void))&Object::getLinearVelocity,
                (void(Object::*)(btVector3&))&Object::setLinearVelocity)
-*/
+
 	 // povray properties
 
 	 .property("texture",

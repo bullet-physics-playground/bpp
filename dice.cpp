@@ -1,7 +1,10 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "dice.h"
 
 #ifdef WIN32
-#pragma warning (disable : 4251)
 #include <windows.h>
 #endif
 
@@ -80,7 +83,7 @@ void Dice::renderInLocalFrame(QTextStream *s) const {
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
-  //  glColor3ubv(color);
+  glColor3ubv(color);
 
   glutSolidCube(1.0f);
   glPopMatrix();

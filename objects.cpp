@@ -1,4 +1,13 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "objects.h"
+
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 #include <GL/glut.h>
 
 #include <QDebug>

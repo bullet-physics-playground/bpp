@@ -5,8 +5,11 @@
 
 #include "viewer.h"
 
-// #include <WinGDI.h>
-#include <GL/glut.h>
+#ifdef WIN32
+// #include <windows.h>
+#endif
+
+// #include <GL/glut.h>
 
 using namespace std;
 
@@ -14,12 +17,12 @@ int main(int argc, char **argv) {
     qDebug() << "main 1\n";
 
     glutInit(&argc,argv);
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   
-  qDebug() << "main 1\n";
-  QApplication application(argc, argv);
+    qDebug() << "main 2\n";
+    QApplication application(argc, argv);
   
-  bool savePNG = false, savePOV = false;
+    bool savePNG = false, savePOV = false;
 
 #ifdef HAS_GETOPT
   

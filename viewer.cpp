@@ -1,3 +1,7 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "viewer.h"
 
 #include "collisionfilter.h"
@@ -22,8 +26,6 @@
 
 #ifdef WIN32
 #include <windows.h>
-
-#pragma warning (disable : 4251)
 #endif
 
 #include <GL/glut.h>

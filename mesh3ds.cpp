@@ -1,7 +1,10 @@
+#ifdef WIN32
+#pragma warning (disable : 4251)
+#endif
+
 #include "mesh3ds.h"
 
 #ifdef WIN32
-#pragma warning (disable : 4251)
 #include <windows.h>
 #endif
 
@@ -13,9 +16,7 @@
 #include <lib3ds.h>
 
 Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
-  Lib3dsFile *m_model = NULL;
-
-  //FIXME win32 lib3ds_file_open(filename.toAscii());
+  Lib3dsFile *m_model = lib3ds_file_open(filename.toAscii());
 
   if (!m_model) {
       qDebug() << "Unable to load " << filename;
@@ -47,7 +48,7 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
     mesh = m_model->meshes[i];
     unsigned int cnt1 = mesh->nfaces;
 
-//FIXME    lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
+	lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
     // uint index = 0;
     for (uint x=0; x<cnt1; x++) { // face
       glNormal3f(normals[cnt+x][0], normals[cnt+x][1], normals[cnt+x][2]);
