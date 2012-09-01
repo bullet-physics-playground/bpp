@@ -133,6 +133,8 @@ class Gui : public QMainWindow {
   CodeEditor *debugText;
 
   /////////////////////////////////////////////////////////////////////////////
+
+  bool savePOV, savePNG;
 };
 
 #endif

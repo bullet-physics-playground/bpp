@@ -70,6 +70,9 @@ class Viewer : public QGLViewer
   Viewer(QWidget *parent = NULL, bool savePNG = false, bool savePOV = false);
   ~Viewer();
 
+  void setSavePNG(bool png);
+  void setSavePOV(bool pov);
+
   void addObject(Object* o);
   void setCamera(::Camera* cam);
 

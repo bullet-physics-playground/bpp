@@ -600,6 +600,14 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   startAnimation();
 }
 
+void Viewer::setSavePNG(bool png) {
+  _savePNG = png;
+}
+
+void Viewer::setSavePOV(bool pov) {
+  _savePOV = pov;
+}
+
 void Viewer::emitScriptOutput(const QString& out) {
   emit scriptHasOutput(out);
 }
@@ -775,7 +783,9 @@ void Viewer::savePrefs() {
 
 void Viewer::openPovFile() {
   QString file;
-  file.sprintf("d02-%05d.pov", _frameNum);
+  file.sprintf("anim/w-%05d.pov", _frameNum);
+
+  qDebug() << "saving pov file:" << file;
 
   _file = new QFile(file);
   _file->open(QFile::WriteOnly | QFile::Truncate);
@@ -949,7 +959,7 @@ void Viewer::draw() {
     openPovFile();
 
   {
-	//	qDebug() << "Viewer::draw()" << _objects->size();
+	// qDebug() << "Number of objects:" << _objects->size();
 
 	for (int i = 0; i < _objects->size(); ++i) {
 	  // qDebug() << i;
@@ -963,10 +973,11 @@ void Viewer::draw() {
 		  o->renderInLocalFrame(NULL);
 	  }
 	}
+
   }
 
   if (_savePOV)
-    closePovFile();
+	closePovFile();
 
   // glFlush();
 

@@ -4,12 +4,15 @@
 #define APP_NAME QString("physics")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 
-Gui::Gui(bool, bool, QWidget *parent) : QMainWindow(parent) {
+Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   ui.setupUi(this);
 
   // setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
   //  setWindowIcon(QIcon(":images/icon.png"));
+
+  ui.viewer->setSavePNG(savePNG);
+  ui.viewer->setSavePOV(savePOV);
 
   setAcceptDrops(true);
 
@@ -21,6 +24,9 @@ Gui::Gui(bool, bool, QWidget *parent) : QMainWindow(parent) {
   setStatusBar( new QStatusBar(this) );
 
   createToolBar();
+
+  this->savePNG = savePNG;
+  this->savePOV = savePOV;
 
   connect(editor, SIGNAL(textChanged()), this, SLOT(parseEditor()));
 
@@ -40,14 +46,27 @@ Gui::Gui(bool, bool, QWidget *parent) : QMainWindow(parent) {
 
 void Gui::postDraw(int frame) {
   //QPixmap p = QPixmap::grabWidget(this);
-  QPixmap p = QPixmap::grabWindow(this->winId());
 
-  QString file;
-  file.sprintf("anim/w-%05d.png", frame);
+  if (savePNG) {
+	QPixmap p = QPixmap::grabWindow(this->winId());
+	
+	QString file;
+	file.sprintf("anim/w-%05d.png", frame);
+	
+	qDebug() << "saving screenshot " << file;
+	
+	p.save(file, "png");
+  }
 
-  qDebug() << "saving screenshot " << file;
-
-  p.save(file, "png");
+  /*
+  if (savePOV) {
+	QString file;
+	file.sprintf("anim/w-%05d.pov", frame);
+	
+	qDebug() << "saving povray file " << file;
+	
+	// ui.viewer-> ...
+	} */
 }
 
 void Gui::dragEnterEvent(QDragEnterEvent *event) {

@@ -27,6 +27,7 @@ INCLUDEPATH += roboop/source
 win32 {
   DEFINES += WIN32
 } else {
+  DEFINES += HAS_GETOPT
   CONFIG += link_pkgconfig link_spacenav
   QMAKE_CXXFLAGS_WARN_ON =
   QMAKE_CXXFLAGS_DEBUG += -g3 -O0
