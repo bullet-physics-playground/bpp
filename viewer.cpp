@@ -69,6 +69,9 @@ void Viewer::luaBind(lua_State *s) {
      class_<Viewer>("Viewer")
      .def(constructor<>())
      .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(luabind::result))
+	 .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
+	 .def("pre", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
+	 .def("post", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
      .def(tostring(const_self))
      ];
 
@@ -546,6 +549,9 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   nbKeyFrames = 10;
 
+  setManipulatedFrame(new ManipulatedFrame());
+  camera()->setType(Camera::PERSPECTIVE);
+
 #ifdef SPACENAVIGATOR
 
   SpaceNavigatorCam *cam = new SpaceNavigatorCam(camera());
@@ -598,6 +604,11 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 #endif
 
   startAnimation();
+}
+
+void Viewer::setCamera(Camera *cam) {
+  QGLViewer::setCamera( cam );
+  // QGLViewer::setManipulatedFrame(cam->frame());
 }
 
 void Viewer::setSavePNG(bool png) {
@@ -666,6 +677,8 @@ bool Viewer::parse(QString txt) {
   luaopen_math(L);
   // lua_load_environment(L);
 
+  Cam::luaBind(L);
+
   Object::luaBind(L);
   Objects::luaBind(L);
   Cube::luaBind(L);
@@ -673,7 +686,7 @@ bool Viewer::parse(QString txt) {
   Dice::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
-
+  
   RM::luaBind(L);
 
   Viewer::luaBind(L);
@@ -918,6 +931,16 @@ void Viewer::draw() {
 
   float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
   float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
+
+
+  if(_cb_preDraw.is_valid()) {
+	try {
+	  luabind::call_function<void>(_cb_preDraw, _frameNum);
+	} catch(const std::exception& e){
+	  std::cout << e.what() << std::endl;
+	}
+  }
+
   // Directionnal light
   glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
 
@@ -933,8 +956,10 @@ void Viewer::draw() {
   //  glEnable(GL_LIGHTING);
   //  glEnable(GL_DEPTH_TEST);
 
-  //glPushMatrix();
-  //glMultMatrixd(manipulatedFrame()->matrix());
+  if (manipulatedFrame() != NULL) {
+	glPushMatrix();
+	glMultMatrixd(manipulatedFrame()->matrix());
+  }
 
   /*
   for (int i=0; i<nbKeyFrames; ++i) {
@@ -981,11 +1006,39 @@ void Viewer::draw() {
 
   // glFlush();
 
-  // glPopMatrix();
+  if (manipulatedFrame() != NULL) {
+	glPopMatrix();
+  }
+}
+
+void Viewer::setCBPreDraw(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+	qDebug() << "A function";
+	_cb_preDraw = fn;
+  } else {
+	qDebug() << "Not a function";
+  }
+}
+
+void Viewer::setCBPostDraw(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+	qDebug() << "A function";
+	_cb_postDraw = fn;
+  } else {
+	qDebug() << "Not a function";
+  }
 }
 
 void Viewer::postDraw() {
   QGLViewer::postDraw();
+
+  if(_cb_postDraw.is_valid()) {
+	try {
+	  luabind::call_function<void>(_cb_postDraw, _frameNum);
+	} catch(const std::exception& e){
+	  std::cout << e.what() << std::endl;
+	}
+  }
 
   // Red dot when EventRecorder is active
 

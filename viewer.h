@@ -74,7 +74,7 @@ class Viewer : public QGLViewer
   void setSavePOV(bool pov);
 
   void addObject(Object* o);
-  void setCamera(::Camera* cam);
+  void setCamera(Camera* cam);
 
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);
@@ -87,6 +87,9 @@ class Viewer : public QGLViewer
  public slots:
   bool parse(QString txt);
   void clear();
+
+  void setCBPreDraw(const luabind::object &fn);
+  void setCBPostDraw(const luabind::object &fn);
 
  signals:
   void scriptFinished();
@@ -172,6 +175,9 @@ class Viewer : public QGLViewer
 #endif
 
   QMutex mutex;
+
+  luabind::object _cb_preDraw;
+  luabind::object _cb_postDraw;
 };
 
 #endif // VIEWER_H

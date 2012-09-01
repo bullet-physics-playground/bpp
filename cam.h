@@ -7,10 +7,13 @@
 #include <QObject>
 
 #include <QGLViewer/camera.h>
+// #include <QGLViewer/manipulatedCameraFrame.h>
 
 #include <btBulletDynamicsCommon.h>
 
-class Cam : public qglviewer::Camera {
+using namespace qglviewer;
+
+class Cam : public Camera {
  Q_OBJECT;
 
  public:
@@ -21,10 +24,12 @@ class Cam : public qglviewer::Camera {
 
   virtual QString toString() const;
 
-  void setPosition(btScalar x, btScalar y, btScalar z);
   void setPosition(const btVector3& v);
 
   btVector3 getPosition() const;
+
+  void setLookAt(const btVector3& v);
+  btVector3 getLookAt() const;
 
 };
 
