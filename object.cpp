@@ -110,6 +110,22 @@ void Object::luaBind(lua_State *s) {
                (btVector3(Object::*)(void))&Object::getLinearVelocity,
                (void(Object::*)(btVector3&))&Object::setLinearVelocity)
 
+	 .property("friction",
+			   (btScalar(Object::*)(void))&Object::getFriction,
+			   (void(Object::*)(btScalar))&Object::setFriction)
+
+	 .property("restitution",
+			   (btScalar(Object::*)(void))&Object::getRestitution,
+			   (void(Object::*)(btScalar))&Object::setRestitution)
+
+	 .property("damp_lin",
+			   (btScalar(Object::*)(void))&Object::getLinearDamping,
+			   (void(Object::*)(btScalar))&Object::setLinearDamping)
+
+	 .property("damp_ang",
+			   (btScalar(Object::*)(void))&Object::getAngularDamping,
+			   (void(Object::*)(btScalar))&Object::setAngularDamping)
+
 	 // povray properties
 
 	 .property("texture",
@@ -161,6 +177,42 @@ QString Object::getFinish() const {
 void Object::setMass(btScalar _mass) {
   body->setMassProps(_mass, btVector3(0,0,0));
   body->updateInertiaTensor();
+}
+
+void Object::setFriction(btScalar friction) {
+  body->setFriction(friction);
+}
+
+btScalar Object::getFriction() const {
+  return body->getFriction();
+}
+
+void Object::setRestitution(btScalar restitution) {
+  body->setRestitution(restitution);
+}
+
+btScalar Object::getRestitution() const {
+  return body->getRestitution();
+}
+
+void Object::setLinearDamping(btScalar linearDamping) {
+  body->setDamping(linearDamping, getAngularDamping());
+}
+
+void Object::setAngularDamping(btScalar angularDamping) {
+  body->setDamping(getLinearDamping(), angularDamping);
+}
+
+void Object::setDamping(btScalar linearDamping, btScalar angularDamping) {
+  body->setDamping(linearDamping, angularDamping);
+}
+
+btScalar Object::getLinearDamping() const {
+  return body->getLinearDamping();
+}
+
+btScalar Object::getAngularDamping() const {
+  return body->getAngularDamping();
 }
 
 void Object::setLinearVelocity(const btVector3 &vector) {

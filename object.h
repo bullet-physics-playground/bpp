@@ -52,6 +52,35 @@ namespace luabind
     struct default_converter<QString const&>
 	: default_converter<QString>
   {};
+
+  /*
+  template <>
+	struct default_converter<btScalar>
+	: native_converter_base<btScalar>
+	{
+	  static int compute_score(lua_State* L, int index) {
+		return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
+	  }
+
+	  btScalar from(lua_State* L, int index) {
+		return static_cast<type>(lua_tonumber(L, index));
+	  }
+
+	  void to(lua_State* L, btScalar const& value) {
+		lua_pushnumber(L, static_cast<lua_Number>(value));
+	  }
+	}
+
+  template <>
+    struct default_converter<btScalar const>
+	: default_converter<btScalar>
+  {};
+
+  template <>
+    struct default_converter<btScalar const&>
+	: default_converter<btScalar>
+	{};*/
+
 }
 
 class Object : public QObject {
@@ -83,6 +112,20 @@ class Object : public QObject {
 
   void setMass(btScalar mass);
   btScalar getMass() const;
+
+  void setFriction(btScalar friction);
+  btScalar getFriction() const;
+
+  void setRestitution(btScalar restitution);
+  btScalar getRestitution() const;
+
+  void setLinearDamping(btScalar linearDamping);
+  void setAngularDamping(btScalar angularDamping);
+
+  void setDamping(btScalar linearDamping, btScalar angularDamping);
+
+  btScalar getLinearDamping() const;
+  btScalar getAngularDamping() const;
 
   void setLinearVelocity(const btVector3& vector);
   btVector3 getLinearVelocity() const;

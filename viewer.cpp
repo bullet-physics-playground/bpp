@@ -4,6 +4,8 @@
 
 #include "viewer.h"
 
+#include "cam.h"
+
 #include "collisionfilter.h"
 
 #include <QColor>
@@ -267,6 +269,7 @@ void Viewer::addObject(Object *o, int type, int mask) {
   _objects->push_back(o);
 
   if (o->body != NULL) {
+	o->body->setActivationState(DISABLE_DEACTIVATION);
 	dynamicsWorld->addRigidBody(o->body, type, mask);
   }
 }
@@ -276,6 +279,7 @@ void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
     _objects->push_back(o);
 
 	if (o->body != NULL) {
+	  o->body->setActivationState(DISABLE_DEACTIVATION);
 	  dynamicsWorld->addRigidBody(o->body, type, mask);
 	}
   }
@@ -546,9 +550,9 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   SpaceNavigatorCam *cam = new SpaceNavigatorCam(camera());
 
-  // camera()->setType(Camera::ORTHOGRAPHIC);
-
-  //setManipulatedFrame( cam );
+  camera()->setType(Camera::ORTHOGRAPHIC);
+  
+  setManipulatedFrame( cam );
 
   //  Frame* myFrame = new Frame();
   //kfi_.setFrame(cam);

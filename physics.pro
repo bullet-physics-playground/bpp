@@ -96,82 +96,123 @@ unix:!mac {
     DEFINES += __LINUX_ALSASEQ__
 }
 
-SOURCES += main.cpp palette.cpp viewer.cpp object.cpp cube.cpp sphere.cpp \
-           plane.cpp cylinder.cpp mesh3ds.cpp rm.cpp collisionfilter.cpp rm1.cpp \
-           cubeaxes.cpp gui.cpp commandline.cpp dice.cpp spacenavigator.cpp spacenavigatorevent.cpp \
-           SpaceNavigatorCam.cpp MidiIO.cpp MidiEvent.cpp RtMidi.cpp \
-           codeeditor.cpp highlighter.cpp objects.cpp \
-    roboop/source/utils.cpp \
-    roboop/source/trajectory.cpp \
-    roboop/source/stewart.cpp \
-    roboop/source/sensitiv.cpp \
-    roboop/source/robot.cpp \
-    roboop/source/quaternion.cpp \
-    roboop/source/kinemat.cpp \
-    roboop/source/invkine.cpp \
-    roboop/source/homogen.cpp \
-    roboop/source/dynamics_sim.cpp \
-    roboop/source/dynamics.cpp \
-    roboop/source/delta_t.cpp \
-    roboop/source/controller.cpp \
-    roboop/source/control_select.cpp \
-    roboop/source/config.cpp \
-    roboop/source/comp_dqp.cpp \
-    roboop/source/comp_dq.cpp \
-    roboop/source/clik.cpp \
-    roboop/newmat/cholesky.cpp \
-    roboop/newmat/evalue.cpp \
-    roboop/newmat/fft.cpp \
-    roboop/newmat/hholder.cpp \
-    roboop/newmat/jacobi.cpp \
-    roboop/newmat/myexcept.cpp \
-    roboop/newmat/newfft.cpp \
-    roboop/newmat/newmat1.cpp \
-    roboop/newmat/newmat2.cpp \
-    roboop/newmat/newmat3.cpp \
-    roboop/newmat/newmat4.cpp \
-    roboop/newmat/newmat5.cpp \
-    roboop/newmat/newmat6.cpp \
-    roboop/newmat/newmat7.cpp \
-    roboop/newmat/newmat8.cpp \
-    roboop/newmat/newmat9.cpp \
-    roboop/newmat/newmatex.cpp \
-    roboop/newmat/newmatnl.cpp \
-    roboop/newmat/newmatrm.cpp \
-    roboop/newmat/nm_misc.cpp \
-    roboop/newmat/solution.cpp \
-    roboop/newmat/sort.cpp \
-    roboop/newmat/submat.cpp \
-    roboop/newmat/svd.cpp \
-    roboop/newmat/bandmat.cpp
+SOURCES += main.cpp \
+           palette.cpp \
+           viewer.cpp \
+           object.cpp \
+           cube.cpp \
+           sphere.cpp \
+           plane.cpp \
+           cylinder.cpp \
+           mesh3ds.cpp \
+           rm.cpp \
+           collisionfilter.cpp \
+           rm1.cpp \
+           cubeaxes.cpp \
+           gui.cpp \
+           commandline.cpp \
+           dice.cpp \
+           spacenavigator.cpp \
+           spacenavigatorevent.cpp \
+           SpaceNavigatorCam.cpp \
+           MidiIO.cpp \
+           MidiEvent.cpp \
+           RtMidi.cpp \
+           codeeditor.cpp \
+           highlighter.cpp \
+           objects.cpp \
+           roboop/source/utils.cpp \
+           roboop/source/trajectory.cpp \
+           roboop/source/stewart.cpp \
+           roboop/source/sensitiv.cpp \
+           roboop/source/robot.cpp \
+           roboop/source/quaternion.cpp \
+           roboop/source/kinemat.cpp \
+           roboop/source/invkine.cpp \
+           roboop/source/homogen.cpp \
+           roboop/source/dynamics_sim.cpp \
+           roboop/source/dynamics.cpp \
+           roboop/source/delta_t.cpp \
+           roboop/source/controller.cpp \
+           roboop/source/control_select.cpp \
+           roboop/source/config.cpp \
+           roboop/source/comp_dqp.cpp \
+           roboop/source/comp_dq.cpp \
+           roboop/source/clik.cpp \
+           roboop/newmat/cholesky.cpp \
+           roboop/newmat/evalue.cpp \
+           roboop/newmat/fft.cpp \
+           roboop/newmat/hholder.cpp \
+           roboop/newmat/jacobi.cpp \
+           roboop/newmat/myexcept.cpp \
+           roboop/newmat/newfft.cpp \
+           roboop/newmat/newmat1.cpp \
+           roboop/newmat/newmat2.cpp \
+           roboop/newmat/newmat3.cpp \
+           roboop/newmat/newmat4.cpp \
+           roboop/newmat/newmat5.cpp \
+           roboop/newmat/newmat6.cpp \
+           roboop/newmat/newmat7.cpp \
+           roboop/newmat/newmat8.cpp \
+           roboop/newmat/newmat9.cpp \
+           roboop/newmat/newmatex.cpp \
+           roboop/newmat/newmatnl.cpp \
+           roboop/newmat/newmatrm.cpp \
+           roboop/newmat/nm_misc.cpp \
+           roboop/newmat/solution.cpp \
+           roboop/newmat/sort.cpp \
+           roboop/newmat/submat.cpp \
+           roboop/newmat/svd.cpp \
+           roboop/newmat/bandmat.cpp \
+           cam.cpp
 
-HEADERS += palette.h viewer.h   object.h   cube.h   sphere.h   \
-           plane.h   cylinder.h   mesh3ds.h   rm.h   collisionfilter.h     rm1.h \
-           cubeaxes.h   gui.h commandline.h dice.h spacenavigator.h spacenavigatorevent.cpp \
-           SpaceNavigatorCam.h MidiIO.h MidiEvent.h RtMidi.h \
-           codeeditor.h highlighter.h objects.h \
-    roboop/source/utils.h \
-    roboop/source/trajectory.h \
-    roboop/source/stewart.h \
-    roboop/source/robot.h \
-    roboop/source/quaternion.h \
-    roboop/source/dynamics_sim.h \
-    roboop/source/controller.h \
-    roboop/source/control_select.h \
-    roboop/source/config.h \
-    roboop/source/clik.h \
-    roboop/newmat/controlw.h \
-    roboop/newmat/include.h \
-    roboop/newmat/myexcept.h \
-    roboop/newmat/newmat.h \
-    roboop/newmat/newmatap.h \
-    roboop/newmat/newmatio.h \
-    roboop/newmat/newmatnl.h \
-    roboop/newmat/newmatrc.h \
-    roboop/newmat/newmatrm.h \
-    roboop/newmat/precisio.h \
-    roboop/newmat/solution.h \
-    roboop/newmat/tmt.h
+HEADERS += palette.h \
+           viewer.h \
+           object.h \
+           cube.h \
+           sphere.h \
+           plane.h \
+           cylinder.h \
+           mesh3ds.h \
+           rm.h \
+           collisionfilter.h \
+           rm1.h \
+           cubeaxes.h \
+           gui.h \
+           commandline.h \
+           dice.h \
+           spacenavigator.h \
+           spacenavigatorevent.cpp \
+           SpaceNavigatorCam.h \
+           MidiIO.h \
+           MidiEvent.h \
+           RtMidi.h \
+           codeeditor.h \
+           highlighter.h \
+           objects.h \
+           roboop/source/utils.h \
+           roboop/source/trajectory.h \
+           roboop/source/stewart.h \
+           roboop/source/robot.h \
+           roboop/source/quaternion.h \
+           roboop/source/dynamics_sim.h \
+           roboop/source/controller.h \
+           roboop/source/control_select.h \
+           roboop/source/config.h \
+           roboop/source/clik.h \
+           roboop/newmat/controlw.h \
+           roboop/newmat/include.h \
+           roboop/newmat/myexcept.h \
+           roboop/newmat/newmat.h \
+           roboop/newmat/newmatap.h \
+           roboop/newmat/newmatio.h \
+           roboop/newmat/newmatnl.h \
+           roboop/newmat/newmatrc.h \
+           roboop/newmat/newmatrm.h \
+           roboop/newmat/precisio.h \
+           roboop/newmat/solution.h \
+           roboop/newmat/tmt.h \
+           cam.h
 
 FORMS   += gui.ui
 

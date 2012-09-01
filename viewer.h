@@ -16,6 +16,8 @@
 #include <QKeyEvent>
 #include <QSettings>
 
+#include "cam.h"
+
 #include "rm.h"
 
 #include "MidiIO.h"
@@ -69,6 +71,7 @@ class Viewer : public QGLViewer
   ~Viewer();
 
   void addObject(Object* o);
+  void setCamera(::Camera* cam);
 
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);
@@ -130,6 +133,8 @@ class Viewer : public QGLViewer
  private:
   lua_State *L;
   QString lua_error;
+
+  Cam *_cam;
 
   bool _simulate;
 
