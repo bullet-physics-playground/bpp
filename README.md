@@ -5,6 +5,7 @@
 Features:
 
 * LUA scripting (experimental)
+* OpenGL gui (alpha)
 * POV-Ray export (stable)
 * Midi Event handling (experimental)
 
