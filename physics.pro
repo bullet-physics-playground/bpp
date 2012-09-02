@@ -311,6 +311,9 @@ FORMS   += src/gui.ui
 
 RESOURCES += res.qrc
 
-QMAKE_DISTCLEAN += object_script.* .ui .moc .rcc .obj physics.pro.user 
-
 OTHER_FILES +=
+
+CLEAN_DIRS = object_script.* .ui .moc .rcc .obj physics.pro.user $$TARGET
+
+unix:QMAKE_DISTCLEAN += -r $$CLEAN_DIRS
+win32:QMAKE_DISTCLEAN += /s /f /q $$CLEAN_DIRS && rd /s /q $$CLEAN_DIRS
