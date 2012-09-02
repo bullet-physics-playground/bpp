@@ -16,13 +16,13 @@
 #include <QKeyEvent>
 #include <QSettings>
 
-#include "cam.h"
+#include "objects/cam.h"
 
-#include "rm.h"
+#include "objects/robots/rm.h"
 
 #include "MidiIO.h"
 
-#include "sphere.h"
+#include "objects/sphere.h"
 
 using namespace qglviewer;
 

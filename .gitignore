@@ -2,14 +2,14 @@
 .project
 .settings
 
-qrc_resources.cpp
+qrc_res.cpp
 
-roboop/bench
-roboop/demo
-roboop/demo_2dof_pd
-roboop/libnewmat.a
-roboop/libroboop.a
-roboop/rtest
+objects/robots/roboop/bench
+objects/robots/roboop/demo
+objects/robots/roboop/demo_2dof_pd
+objects/robots/roboop/libnewmat.a
+objects/robots/roboop/libroboop.a
+objects/robots/roboop/rtest
 
 Makefile
 

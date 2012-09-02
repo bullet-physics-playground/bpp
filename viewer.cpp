@@ -4,25 +4,27 @@
 
 #include "viewer.h"
 
-#include "cam.h"
-
 #include "collisionfilter.h"
 
 #include <QColor>
 
-#include "object.h"
-#include "objects.h"
-#include "plane.h"
-#include "cube.h"
-#include "cubeaxes.h"
-#include "sphere.h"
-#include "cylinder.h"
-#include "mesh3ds.h"
-#include "rm.h"
-#include "rm1.h"
+#include "objects/object.h"
+#include "objects/objects.h"
+#include "objects/plane.h"
+#include "objects/cube.h"
+#include "objects/cubeaxes.h"
+#include "objects/sphere.h"
+#include "objects/cylinder.h"
+#include "objects/mesh3ds.h"
 
-#include "palette.h"
-#include "dice.h"
+#include "objects/palette.h"
+#include "objects/dice.h"
+
+#include "objects/cam.h"
+
+
+#include "objects/robots/rm.h"
+#include "objects/robots/rm1.h"
 
 #ifdef WIN32
 #include <windows.h>

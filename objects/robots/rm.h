@@ -1,9 +1,9 @@
 #ifndef RM_H
 #define RM_H
 
-#include "objects.h"
-#include "cube.h"
-#include "mesh3ds.h"
+#include "objects/objects.h"
+#include "objects/cube.h"
+#include "objects/mesh3ds.h"
 
 #include "robot.h"
 
