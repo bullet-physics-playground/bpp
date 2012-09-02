@@ -71,9 +71,9 @@ physics options:
 * [03-math.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/03-math.lua) - math functions
 * [04-anim.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/04-anim.lua) - callback functions
 
-# Youtube needs more POV-Ray animations
+# Youtube needs more povray animations
 
-Install mplayer and mencoder:
+Install povray, mencoder and mplayer:
 
 ```
 $ sudo apt-get -y install povray povray-includes mencoder mplayer
