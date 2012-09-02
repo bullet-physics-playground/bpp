@@ -28,17 +28,13 @@ win32 {
   DEFINES += WIN32
 } else {
   DEFINES += HAS_GETOPT
-  CONFIG += link_pkgconfig link_spacenav
+  CONFIG += link_pkgconfig
   QMAKE_CXXFLAGS_WARN_ON =
   QMAKE_CXXFLAGS_DEBUG += -g3 -O0
 
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
   UI_DIR = .ui
-}
-
-link_spacenav {
-  LIBS += -lspnav
 }
 
 ## Add linked libs and paths for headers and palettes here using pkg-config.
@@ -113,9 +109,6 @@ SOURCES += main.cpp \
            gui.cpp \
            commandline.cpp \
            dice.cpp \
-           spacenavigator.cpp \
-           spacenavigatorevent.cpp \
-           SpaceNavigatorCam.cpp \
            MidiIO.cpp \
            MidiEvent.cpp \
            RtMidi.cpp \
@@ -182,9 +175,6 @@ HEADERS += palette.h \
            gui.h \
            commandline.h \
            dice.h \
-           spacenavigator.h \
-           spacenavigatorevent.cpp \
-           SpaceNavigatorCam.h \
            MidiIO.h \
            MidiEvent.h \
            RtMidi.h \

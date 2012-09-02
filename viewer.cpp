@@ -24,8 +24,6 @@
 #include "palette.h"
 #include "dice.h"
 
-#include "SpaceNavigatorCam.h"
-
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -551,44 +549,6 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   setManipulatedFrame(new ManipulatedFrame());
   camera()->setType(Camera::PERSPECTIVE);
-
-#ifdef SPACENAVIGATOR
-
-  SpaceNavigatorCam *cam = new SpaceNavigatorCam(camera());
-
-  camera()->setType(Camera::ORTHOGRAPHIC);
-  
-  setManipulatedFrame( cam );
-
-  //  Frame* myFrame = new Frame();
-  //kfi_.setFrame(cam);
-  //  kfi_.setLoopInterpolation();
-
-  /*
-  keyFrame_ = new ManipulatedFrame*[nbKeyFrames];
-
-  for (int i=0; i<nbKeyFrames; i++)
-    {
-      keyFrame_[i] = new ManipulatedFrame();
-      keyFrame_[i]->setPosition( 0.0, -5.0, 12.0 * i - 60.0);
-      kfi_.addKeyFrame(keyFrame_[i]);
-    }
-
-  currentKF_ = 0;
-
-  kfi_.setInterpolationSpeed(.33);
-  */
-
-  //  setManipulatedFrame(keyFrame_[currentKF_]);
-
-  /*
-  setMouseTracking(true);
-
-  connect(&kfi_, SIGNAL(interpolated()), SLOT(updateGL()));
-  kfi_.startInterpolation();
-  */
-
-#endif
 
 #ifdef HAS_MIDI
   connect(&mio, SIGNAL(midiRecived(MidiEvent *)),
