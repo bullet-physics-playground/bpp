@@ -4,28 +4,18 @@
 
 Features:
 
-* LUA scripting (experimental) including LUA math support.
+* LUA scripting (experimental)
 * POV-Ray export (stable)
 * Midi Event handling (experimental)
 
 Demo videos created with bullet-physics-playground:
 
 * [bullet-physics-playground](http://www.youtube.com/watch?v=19OirI8yjLc) - basic LUA scripting demo
-* [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ)
-* [dancing servos](http://www.youtube.com/watch?v=YBQGqMRh3c8)
-* [domino dynamics - II](http://www.youtube.com/watch?v=0QQYXvnrU1U)
-* [domino dynamics - I](http://www.youtube.com/watch?v=3Q0V185vVnE)
-* [4800 cubes - HD](http://www.youtube.com/watch?v=6r_kCF1TRAk)
-
-## Install from Ubuntu PPA
-
-On Ubuntu, you can install bullet-physics-playground from a PPA:
-
-```
-$ sudo apt-addrepository -y ppa:...
-$ sudo apt-get update
-$ sudo apt-get -y install bullet-physics-playground
-```
+* [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ) - falling dice
+* [dancing servos](http://www.youtube.com/watch?v=YBQGqMRh3c8) - compound objects with actuators
+* [domino dynamics - II](http://www.youtube.com/watch?v=0QQYXvnrU1U) - dominos
+* [domino dynamics - I](http://www.youtube.com/watch?v=3Q0V185vVnE) - dominos
+* [4800 cubes - HD](http://www.youtube.com/watch?v=6r_kCF1TRAk) - 1st test
 
 ## Install from source
 
@@ -59,7 +49,7 @@ $ ./configure --prefix=/usr && make -j 10 && sudo make install
 
 MacOS & Windows: see INSTALL in bullet src directory
 
-### build & install spacenav for 3Dconnexion's 3D input device drivers
+### build & install spacenav for 3Dconnexion's 3D input device drivers (optional)
 
 Space Navigator support is optional:
 
@@ -121,11 +111,12 @@ physics options:
 
 # LUA scripting examples
 
-* [00-objects.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/00-objects.lua) - basic objects.
-* [01-test.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/01-test.lua) - LUA syntax testing.
-* [02-domino.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/02-domino.lua) - function definition and loop.
-* [03-math.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/03-math.lua) - math functions.
+* [00-objects.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/00-objects.lua) - basic objects
+* [01-test.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/01-test.lua) - LUA syntax testing
+* [02-domino.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/02-domino.lua) - function definition and loop
+* [03-math.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/03-math.lua) - math functions
+* [04-anim.lua](https://github.com/koppi/bullet-physics-playground/raw/master/demo/04-anim.lua) - callback functions
 
 # Authors / Copyright
 
-* &copyright; 2008-2012 Jakob Flierl https://github.com/koppi
+* © 2008-2012 [Jakob Flierl](https://github.com/koppi)

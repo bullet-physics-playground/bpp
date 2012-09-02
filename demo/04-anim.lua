@@ -16,7 +16,7 @@ v:add(plane)
 v:pre(function(n)
   print(n)
 
-  i = n / 100 * math.pi r = 8 z = 8
+  i = n / 100 * math.pi * 2 r = 8 z = 8
 
   cam = Cam()
   cam.pos = btVector3(
@@ -26,5 +26,7 @@ v:pre(function(n)
 
   v:cam(cam)
 end)
+
+-- A v:post(function(n) end) callback function not used here.
 
 -- EOF
