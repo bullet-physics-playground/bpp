@@ -1,5 +1,8 @@
 ui_gui.h
 
+debug
+release
+
 Makefile.Debug
 Makefile.Release
 lib
