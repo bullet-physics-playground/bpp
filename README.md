@@ -29,8 +29,6 @@ Select your operating system:
 ## Run bullet-physics-playground
 
 ```
-$ qmake-qt4
-$ make -j 10
 $ ./physics 
 ```
 
