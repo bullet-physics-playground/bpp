@@ -4,12 +4,12 @@
 
 qrc_res.cpp
 
-objects/robots/roboop/bench
-objects/robots/roboop/demo
-objects/robots/roboop/demo_2dof_pd
-objects/robots/roboop/libnewmat.a
-objects/robots/roboop/libroboop.a
-objects/robots/roboop/rtest
+src/objects/robots/roboop/bench
+src/objects/robots/roboop/demo
+src/objects/robots/roboop/demo_2dof_pd
+src/objects/robots/roboop/libnewmat.a
+src/objects/robots/roboop/libroboop.a
+src/objects/robots/roboop/rtest
 
 Makefile
 

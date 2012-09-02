@@ -21,9 +21,9 @@ DEPENDPATH += .
 INCLUDEPATH += .
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
-INCLUDEPATH += objects/robots/roboop/include
-INCLUDEPATH += objects/robots/roboop/newmat
-INCLUDEPATH += objects/robots/roboop/source
+INCLUDEPATH += src/objects/robots/roboop/include
+INCLUDEPATH += src/objects/robots/roboop/newmat
+INCLUDEPATH += src/objects/robots/roboop/source
 
 win32 {
   DEFINES += WIN32
@@ -47,7 +47,7 @@ link_pkgconfig {
   message("Config using pkg-config version "$$system(pkg-config --version))
   PKGCONFIG += bullet alsa lua5.1 luabind
 
-  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds -lroboop -lnewmat -Lobjects/robots/roboop
+  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds -lroboop -lnewmat -Lsrc/objects/robots/roboop
 } else {
   message("Config not using pkg-config")
 
@@ -94,119 +94,119 @@ unix:!mac {
     DEFINES += __LINUX_ALSASEQ__
 }
 
-SOURCES += main.cpp \
-           objects/palette.cpp \
-           viewer.cpp \
-           objects/object.cpp \
-           objects/cube.cpp \
-           objects/sphere.cpp \
-           objects/plane.cpp \
-           objects/cylinder.cpp \
-           objects/mesh3ds.cpp \
-           collisionfilter.cpp \
-           objects/robots/rm.cpp \
-           objects/robots/rm1.cpp \
-           objects/cubeaxes.cpp \
-           gui.cpp \
-           commandline.cpp \
-           objects/dice.cpp \
-           MidiIO.cpp \
-           MidiEvent.cpp \
-           RtMidi.cpp \
-           codeeditor.cpp \
-           highlighter.cpp \
-           objects/objects.cpp \
-           objects/robots/roboop/source/utils.cpp \
-           objects/robots/roboop/source/trajectory.cpp \
-           objects/robots/roboop/source/stewart.cpp \
-           objects/robots/roboop/source/sensitiv.cpp \
-           objects/robots/roboop/source/robot.cpp \
-           objects/robots/roboop/source/quaternion.cpp \
-           objects/robots/roboop/source/kinemat.cpp \
-           objects/robots/roboop/source/invkine.cpp \
-           objects/robots/roboop/source/homogen.cpp \
-           objects/robots/roboop/source/dynamics_sim.cpp \
-           objects/robots/roboop/source/dynamics.cpp \
-           objects/robots/roboop/source/delta_t.cpp \
-           objects/robots/roboop/source/controller.cpp \
-           objects/robots/roboop/source/control_select.cpp \
-           objects/robots/roboop/source/config.cpp \
-           objects/robots/roboop/source/comp_dqp.cpp \
-           objects/robots/roboop/source/comp_dq.cpp \
-           objects/robots/roboop/source/clik.cpp \
-           objects/robots/roboop/newmat/cholesky.cpp \
-           objects/robots/roboop/newmat/evalue.cpp \
-           objects/robots/roboop/newmat/fft.cpp \
-           objects/robots/roboop/newmat/hholder.cpp \
-           objects/robots/roboop/newmat/jacobi.cpp \
-           objects/robots/roboop/newmat/myexcept.cpp \
-           objects/robots/roboop/newmat/newfft.cpp \
-           objects/robots/roboop/newmat/newmat1.cpp \
-           objects/robots/roboop/newmat/newmat2.cpp \
-           objects/robots/roboop/newmat/newmat3.cpp \
-           objects/robots/roboop/newmat/newmat4.cpp \
-           objects/robots/roboop/newmat/newmat5.cpp \
-           objects/robots/roboop/newmat/newmat6.cpp \
-           objects/robots/roboop/newmat/newmat7.cpp \
-           objects/robots/roboop/newmat/newmat8.cpp \
-           objects/robots/roboop/newmat/newmat9.cpp \
-           objects/robots/roboop/newmat/newmatex.cpp \
-           objects/robots/roboop/newmat/newmatnl.cpp \
-           objects/robots/roboop/newmat/newmatrm.cpp \
-           objects/robots/roboop/newmat/nm_misc.cpp \
-           objects/robots/roboop/newmat/solution.cpp \
-           objects/robots/roboop/newmat/sort.cpp \
-           objects/robots/roboop/newmat/submat.cpp \
-           objects/robots/roboop/newmat/svd.cpp \
-           objects/robots/roboop/newmat/bandmat.cpp \
-           objects/cam.cpp
+SOURCES += src/main.cpp \
+           src/objects/palette.cpp \
+           src/viewer.cpp \
+           src/objects/object.cpp \
+           src/objects/cube.cpp \
+           src/objects/sphere.cpp \
+           src/objects/plane.cpp \
+           src/objects/cylinder.cpp \
+           src/objects/mesh3ds.cpp \
+           src/collisionfilter.cpp \
+           src/objects/robots/rm.cpp \
+           src/objects/robots/rm1.cpp \
+           src/objects/cubeaxes.cpp \
+           src/gui.cpp \
+           src/commandline.cpp \
+           src/objects/dice.cpp \
+           src/MidiIO.cpp \
+           src/MidiEvent.cpp \
+           src/RtMidi.cpp \
+           src/codeeditor.cpp \
+           src/highlighter.cpp \
+           src/objects/objects.cpp \
+           src/objects/robots/roboop/source/utils.cpp \
+           src/objects/robots/roboop/source/trajectory.cpp \
+           src/objects/robots/roboop/source/stewart.cpp \
+           src/objects/robots/roboop/source/sensitiv.cpp \
+           src/objects/robots/roboop/source/robot.cpp \
+           src/objects/robots/roboop/source/quaternion.cpp \
+           src/objects/robots/roboop/source/kinemat.cpp \
+           src/objects/robots/roboop/source/invkine.cpp \
+           src/objects/robots/roboop/source/homogen.cpp \
+           src/objects/robots/roboop/source/dynamics_sim.cpp \
+           src/objects/robots/roboop/source/dynamics.cpp \
+           src/objects/robots/roboop/source/delta_t.cpp \
+           src/objects/robots/roboop/source/controller.cpp \
+           src/objects/robots/roboop/source/control_select.cpp \
+           src/objects/robots/roboop/source/config.cpp \
+           src/objects/robots/roboop/source/comp_dqp.cpp \
+           src/objects/robots/roboop/source/comp_dq.cpp \
+           src/objects/robots/roboop/source/clik.cpp \
+           src/objects/robots/roboop/newmat/cholesky.cpp \
+           src/objects/robots/roboop/newmat/evalue.cpp \
+           src/objects/robots/roboop/newmat/fft.cpp \
+           src/objects/robots/roboop/newmat/hholder.cpp \
+           src/objects/robots/roboop/newmat/jacobi.cpp \
+           src/objects/robots/roboop/newmat/myexcept.cpp \
+           src/objects/robots/roboop/newmat/newfft.cpp \
+           src/objects/robots/roboop/newmat/newmat1.cpp \
+           src/objects/robots/roboop/newmat/newmat2.cpp \
+           src/objects/robots/roboop/newmat/newmat3.cpp \
+           src/objects/robots/roboop/newmat/newmat4.cpp \
+           src/objects/robots/roboop/newmat/newmat5.cpp \
+           src/objects/robots/roboop/newmat/newmat6.cpp \
+           src/objects/robots/roboop/newmat/newmat7.cpp \
+           src/objects/robots/roboop/newmat/newmat8.cpp \
+           src/objects/robots/roboop/newmat/newmat9.cpp \
+           src/objects/robots/roboop/newmat/newmatex.cpp \
+           src/objects/robots/roboop/newmat/newmatnl.cpp \
+           src/objects/robots/roboop/newmat/newmatrm.cpp \
+           src/objects/robots/roboop/newmat/nm_misc.cpp \
+           src/objects/robots/roboop/newmat/solution.cpp \
+           src/objects/robots/roboop/newmat/sort.cpp \
+           src/objects/robots/roboop/newmat/submat.cpp \
+           src/objects/robots/roboop/newmat/svd.cpp \
+           src/objects/robots/roboop/newmat/bandmat.cpp \
+           src/objects/cam.cpp
 
-HEADERS += objects/palette.h \
-           viewer.h \
-           objects/object.h \
-           objects/cube.h \
-           objects/sphere.h \
-           objects/plane.h \
-           objects/cylinder.h \
-           objects/mesh3ds.h \
-           collisionfilter.h \
-           objects/robots/rm.h \
-           objects/robots/rm1.h \
-           objects/cubeaxes.h \
-           gui.h \
-           commandline.h \
-           objects/dice.h \
-           MidiIO.h \
-           MidiEvent.h \
-           RtMidi.h \
-           codeeditor.h \
-           highlighter.h \
-           objects/objects.h \
-           objects/robots/roboop/source/utils.h \
-           objects/robots/roboop/source/trajectory.h \
-           objects/robots/roboop/source/stewart.h \
-           objects/robots/roboop/source/robot.h \
-           objects/robots/roboop/source/quaternion.h \
-           objects/robots/roboop/source/dynamics_sim.h \
-           objects/robots/roboop/source/controller.h \
-           objects/robots/roboop/source/control_select.h \
-           objects/robots/roboop/source/config.h \
-           objects/robots/roboop/source/clik.h \
-           objects/robots/roboop/newmat/controlw.h \
-           objects/robots/roboop/newmat/include.h \
-           objects/robots/roboop/newmat/myexcept.h \
-           objects/robots/roboop/newmat/newmat.h \
-           objects/robots/roboop/newmat/newmatap.h \
-           objects/robots/roboop/newmat/newmatio.h \
-           objects/robots/roboop/newmat/newmatnl.h \
-           objects/robots/roboop/newmat/newmatrc.h \
-           objects/robots/roboop/newmat/newmatrm.h \
-           objects/robots/roboop/newmat/precisio.h \
-           objects/robots/roboop/newmat/solution.h \
-           objects/robots/roboop/newmat/tmt.h \
-           objects/cam.h
+HEADERS += src/objects/palette.h \
+           src/viewer.h \
+           src/objects/object.h \
+           src/objects/cube.h \
+           src/objects/sphere.h \
+           src/objects/plane.h \
+           src/objects/cylinder.h \
+           src/objects/mesh3ds.h \
+           src/collisionfilter.h \
+           src/objects/robots/rm.h \
+           src/objects/robots/rm1.h \
+           src/objects/cubeaxes.h \
+           src/gui.h \
+           src/commandline.h \
+           src/objects/dice.h \
+           src/MidiIO.h \
+           src/MidiEvent.h \
+           src/RtMidi.h \
+           src/codeeditor.h \
+           src/highlighter.h \
+           src/objects/objects.h \
+           src/objects/robots/roboop/source/utils.h \
+           src/objects/robots/roboop/source/trajectory.h \
+           src/objects/robots/roboop/source/stewart.h \
+           src/objects/robots/roboop/source/robot.h \
+           src/objects/robots/roboop/source/quaternion.h \
+           src/objects/robots/roboop/source/dynamics_sim.h \
+           src/objects/robots/roboop/source/controller.h \
+           src/objects/robots/roboop/source/control_select.h \
+           src/objects/robots/roboop/source/config.h \
+           src/objects/robots/roboop/source/clik.h \
+           src/objects/robots/roboop/newmat/controlw.h \
+           src/objects/robots/roboop/newmat/include.h \
+           src/objects/robots/roboop/newmat/myexcept.h \
+           src/objects/robots/roboop/newmat/newmat.h \
+           src/objects/robots/roboop/newmat/newmatap.h \
+           src/objects/robots/roboop/newmat/newmatio.h \
+           src/objects/robots/roboop/newmat/newmatnl.h \
+           src/objects/robots/roboop/newmat/newmatrc.h \
+           src/objects/robots/roboop/newmat/newmatrm.h \
+           src/objects/robots/roboop/newmat/precisio.h \
+           src/objects/robots/roboop/newmat/solution.h \
+           src/objects/robots/roboop/newmat/tmt.h \
+           src/objects/cam.h
 
-FORMS   += gui.ui
+FORMS   += src/gui.ui
 
 RESOURCES += res.qrc
 
