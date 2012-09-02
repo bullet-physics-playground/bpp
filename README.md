@@ -20,7 +20,7 @@ Demo videos created with bullet-physics-playground:
 
 ## Install from source
 
-### install qglviewer, glut, 3ds, lua5.1 and luabind libs and header packages
+### install libs and header packages
 
 ```
 $ sudo apt-get -y install libqglviewer-qt4-dev freeglut3-dev lib3ds-dev libluabind-dev liblua5.1-0-dev
@@ -39,7 +39,7 @@ $ ./configure --prefix=/usr && make -j 10 && sudo make install
 Linux:
 
 ```
-$ sudo apt-get -y install automake libtool cmake freeglut3-dev
+$ sudo apt-get -y install automake libtool cmake freeglut3-dev subversion
 ```
 
 ```
@@ -48,7 +48,7 @@ $ cd bullet-read-only/ && sh autogen.sh
 $ ./configure --prefix=/usr && make -j 10 && sudo make install
 ```
 
-MacOS & Windows: see INSTALL in bullet src directory
+MacOS & Windows: see INSTALL in bullet src directory.
 
 ## Build and run physics
 
