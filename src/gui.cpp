@@ -316,12 +316,12 @@ void Gui::createDock() {
 }
 
 void Gui::about() {
-    QString txt = QString(APP_NAME_FULL);
+    QString txt =
 
-    // FIXME tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
-    //      tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-    //      tr("<p>&copy; <a href=\"mailto:jakob.flierl@gmail.com\">") + \
-    //      tr("Jakob Flierl &lt;jakob.flierl@gmail.com&gt;</a></p>");
+    tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
+    tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
+    tr("<p>&copy; 2008-2012 <a href=\"https://github.com/koppi\">Jakob Flierl</a></p>") + \
+    tr("<p>&copy; 2012 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
   QMessageBox::about(this, tr("About"), txt);
 }
