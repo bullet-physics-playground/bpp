@@ -230,7 +230,8 @@ contains(DEFINES, STATIC_LUA) {
 contains(DEFINES, STATIC_BOOST) {
   message(Statically linking Boost)
 
-  INCLUDEPATH += lib\\boost_1_51_0
+  INCLUDEPATH += E:\\boost_1_46_1
+  LIBS += E:\\boost_1_46_1\\stage\\lib
 
   HEADERS += boost\\aligned_storage.hpp \
              boost\\bind.hpp \
