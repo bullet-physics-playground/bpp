@@ -71,6 +71,14 @@ physics options:
 * [03-math.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/03-math.lua) - math functions
 * [04-anim.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/04-anim.lua) - callback functions
 
+# Create a POV-Ray animation
+
+HOWTO create anim.avi:
+
+```
+cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
+```
+
 # Authors / Copyright
 
 * © 2008-2012 [Jakob Flierl](https://github.com/koppi)
