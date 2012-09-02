@@ -76,7 +76,7 @@ physics options:
 Install mplayer and mencoder:
 
 ```
-$ sudo apt-get -y install mencoder mplayer
+$ sudo apt-get -y install povray povray-includes mencoder mplayer
 ```
 
 Render the pov files to 1920x1080 png images and create anim.avi:
