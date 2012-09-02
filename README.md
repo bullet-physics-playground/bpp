@@ -73,7 +73,13 @@ physics options:
 
 # Youtube needs more POV-Ray animations
 
-HOWTO render the pov files to 1920x1080 png images and create anim.avi:
+Install mplayer and mencoder:
+
+```
+$ sudo apt-get -y install mencoder mplayer
+```
+
+Render the pov files to 1920x1080 png images and create anim.avi:
 
 ```
 cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
