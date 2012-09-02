@@ -1,4 +1,4 @@
-#include "collisionfilter.h"
+#include "coll.h"
 
 #ifdef HAS_MIDI
 

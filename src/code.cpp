@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "codeeditor.h"
+#include "code.h"
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent) {
   QSettings s;

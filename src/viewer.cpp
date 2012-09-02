@@ -4,7 +4,7 @@
 
 #include "viewer.h"
 
-#include "collisionfilter.h"
+#include "coll.h"
 
 #include <QColor>
 
@@ -680,6 +680,8 @@ bool Viewer::parse(QString txt) {
 
   // report_errors(L, error);
   // lua_close(L);
+
+  _frameNum = 0; // reset frames counter
 
   if (error) return false; else return true;
 }

@@ -1,4 +1,4 @@
-#include "commandline.h"
+#include "cmd.h"
 
 #include <QKeyEvent>
 

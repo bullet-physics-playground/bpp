@@ -5,8 +5,8 @@
 
 #include "ui_gui.h"
 
-#include "commandline.h"
-#include "codeeditor.h"
+#include "cmd.h"
+#include "code.h"
 #include "viewer.h"
 
 class Gui : public QMainWindow {

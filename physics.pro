@@ -18,9 +18,11 @@ win32 {
 TEMPLATE = app
 TARGET = physics
 DEPENDPATH += .
-INCLUDEPATH += .
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
+
+INCLUDEPATH += src
+
 INCLUDEPATH += src/objects/robots/roboop/include
 INCLUDEPATH += src/objects/robots/roboop/newmat
 INCLUDEPATH += src/objects/robots/roboop/source
@@ -47,7 +49,7 @@ link_pkgconfig {
   message("Config using pkg-config version "$$system(pkg-config --version))
   PKGCONFIG += bullet alsa lua5.1 luabind
 
-  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds -lroboop -lnewmat -Lsrc/objects/robots/roboop
+  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
 } else {
   message("Config not using pkg-config")
 
@@ -103,17 +105,17 @@ SOURCES += src/main.cpp \
            src/objects/plane.cpp \
            src/objects/cylinder.cpp \
            src/objects/mesh3ds.cpp \
-           src/collisionfilter.cpp \
+           src/coll.cpp \
            src/objects/robots/rm.cpp \
            src/objects/robots/rm1.cpp \
            src/objects/cubeaxes.cpp \
            src/gui.cpp \
-           src/commandline.cpp \
+           src/cmd.cpp \
            src/objects/dice.cpp \
            src/MidiIO.cpp \
            src/MidiEvent.cpp \
            src/RtMidi.cpp \
-           src/codeeditor.cpp \
+           src/code.cpp \
            src/highlighter.cpp \
            src/objects/objects.cpp \
            src/objects/robots/roboop/source/utils.cpp \
@@ -169,17 +171,17 @@ HEADERS += src/objects/palette.h \
            src/objects/plane.h \
            src/objects/cylinder.h \
            src/objects/mesh3ds.h \
-           src/collisionfilter.h \
+           src/coll.h \
            src/objects/robots/rm.h \
            src/objects/robots/rm1.h \
            src/objects/cubeaxes.h \
            src/gui.h \
-           src/commandline.h \
+           src/cmd.h \
            src/objects/dice.h \
            src/MidiIO.h \
            src/MidiEvent.h \
            src/RtMidi.h \
-           src/codeeditor.h \
+           src/code.h \
            src/highlighter.h \
            src/objects/objects.h \
            src/objects/robots/roboop/source/utils.h \
