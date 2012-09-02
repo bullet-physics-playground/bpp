@@ -18,39 +18,15 @@ Demo videos created with bullet-physics-playground:
 * [domino dynamics - I](http://www.youtube.com/watch?v=3Q0V185vVnE) - dominos
 * [4800 cubes - HD](http://www.youtube.com/watch?v=6r_kCF1TRAk) - 1st test
 
-## Install from source
+## Build bullet-physics-playground
 
-### install libs and header packages
+Select your operating system:
 
-```
-$ sudo apt-get -y install libqglviewer-qt4-dev freeglut3-dev lib3ds-dev libluabind-dev liblua5.1-0-dev
-```
+ * [Build on Linux](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Linux)
+ * [Build on Mac OSX](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Mac-OSX)
+ * [Build on Windows](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows)
 
-On Ubuntu 9.04 & Ubuntu 11.04 & Ubuntu 11.10 install lib3ds as follows:
-
-```
-$ svn checkout http://lib3ds.googlecode.com/svn/trunk/ lib3ds-read-only
-$ cd lib3ds-read-only/ && sh autogen.sh
-$ ./configure --prefix=/usr && make -j 10 && sudo make install
-```
-
-### build & install bullet library and headers
-
-Linux:
-
-```
-$ sudo apt-get -y install automake libtool cmake freeglut3-dev subversion
-```
-
-```
-$ svn checkout http://bullet.googlecode.com/svn/trunk/ bullet-read-only
-$ cd bullet-read-only/ && sh autogen.sh
-$ ./configure --prefix=/usr && make -j 10 && sudo make install
-```
-
-MacOS & Windows: see INSTALL in bullet src directory.
-
-## Build and run physics
+## Run bullet-physics-playground
 
 ```
 $ qmake-qt4
@@ -87,5 +63,5 @@ cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
 
 # Authors / Copyright
 
-* © 2008-2012 [Jakob Flierl](https://github.com/koppi) - project start
+* © 2008-2012 [Jakob Flierl](https://github.com/koppi) - code
 * © 2012 [Jaime Vives Piqueres](http://ignorancia.org/) - inspiration

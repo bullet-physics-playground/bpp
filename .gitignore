@@ -1,4 +1,12 @@
-physics.pro.user
+ui_gui.h
+
+Makefile.Debug
+Makefile.Release
+lib
+object_script.physics.Debug
+object_script.physics.Release
+
+physics.pro.user*
 
 .classpath
 .project
