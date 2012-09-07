@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef WIN32_VC90
 #pragma warning (disable : 4251)
 #endif
 
@@ -83,7 +83,7 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
   glMultMatrixf(m);
   glScalef(lengths[0] * .5, lengths[1] *.5, lengths[2] *.5);
   glColor3ubv(color);
-  glutSolidCylinder(1, 1, 8, 8);
+  // FIXME glutSolidCylinder(1, 1, 8, 8);
   glPopMatrix();
 
   //TODO  

@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef WIN32_VC90
 #pragma warning (disable : 4251)
 #endif
 
@@ -642,14 +642,16 @@ bool Viewer::parse(QString txt) {
   Cam::luaBind(L);
 
   Object::luaBind(L);
-  Objects::luaBind(L);
+//  Objects::luaBind(L);
   Cube::luaBind(L);
+  /*
   Cylinder::luaBind(L);
   Dice::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
   
   RM::luaBind(L);
+  */
 
   Viewer::luaBind(L);
 
@@ -687,7 +689,7 @@ bool Viewer::parse(QString txt) {
 }
 
 void Viewer::clear() {
-  //  qDebug() << "Viewer::clear()" << _objects->size();
+  qDebug() << "Viewer::clear()" << _objects->size();
 
   for (int i = 0; i < _objects->size(); ++i) {
 	removeObject(_objects->at(i));
@@ -735,7 +737,7 @@ void Viewer::midiRecived(MidiEvent *me) {
     if (ccNr == 0) {
       QColor c = mioSphere->getColor();
       mioSphere->setColor(cc * 2, c.green(), c.blue());
-    } else if (ccNr = 1) {
+    } else if (ccNr == 1) {
       QColor c = mioSphere->getColor();
       mioSphere->setColor(c.red(), cc * 2, c.blue());
     }
@@ -830,6 +832,8 @@ void Viewer::computeBoundingBox() {
 }
 
 void Viewer::init() {
+    qDebug() << "Viewer::init() 1";
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -887,11 +891,14 @@ void Viewer::init() {
   glEnable(GL_LIGHT1);
 
   // startAnimation();
+
+  qDebug() << "Viewer::init() end";
 }
 
 void Viewer::draw() {
+    qDebug() << "Viewer::draw() 1";
 
-  QMutexLocker locker(&mutex);
+  //QMutexLocker locker(&mutex);
 
   float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
   float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
@@ -904,6 +911,8 @@ void Viewer::draw() {
 	  std::cout << e.what() << std::endl;
 	}
   }
+
+  qDebug() << "Viewer::draw() 2";
 
   // Directionnal light
   glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
@@ -944,13 +953,17 @@ void Viewer::draw() {
 
   //  kfi_.drawPath(5, 10);
 
+  qDebug() << "Viewer::draw() 3";
+
   if (_savePOV)
     openPovFile();
 
   {
 	// qDebug() << "Number of objects:" << _objects->size();
 
-	for (int i = 0; i < _objects->size(); ++i) {
+      qDebug() << "Viewer::draw() 4";
+
+      for (int i = 0; i < _objects->size(); ++i) {
 	  // qDebug() << i;
 	  Object *o = _objects->at(i);
 	  //	foreach (Object *o,_objects) {
@@ -973,6 +986,8 @@ void Viewer::draw() {
   if (manipulatedFrame() != NULL) {
 	glPopMatrix();
   }
+
+  qDebug() << "Viewer::draw() end";
 }
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
@@ -1066,7 +1081,7 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
-  static float nbSecondsByStep = 0.0004f;
+  // static float nbSecondsByStep = 0.0004f;
   
   // Find the time elapsed between last time
   float nbSecsElapsed = 0.08f; // 25 pics/sec
@@ -1112,12 +1127,15 @@ void Viewer::animate() {
 
     for (int i = 0; i < numManifolds; i++) {
 	btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-    // btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-    // btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
 
-    // btScalar vel = (obA->getInterpolationLinearVelocity() - obB->getInterpolationLinearVelocity()).length();
+#ifdef HAS_MIDI
+    btCollisionObject const* obA = static_cast<btCollisionObject const*>(contactManifold->getBody0());
+    btCollisionObject const* obB = static_cast<btCollisionObject const*>(contactManifold->getBody1());
+
+    btScalar vel = (obA->getInterpolationLinearVelocity() - obB->getInterpolationLinearVelocity()).length();
 
 	//qDebug() << " velB " << obB->getInterpolationLinearVelocity().length();
+#endif
 
 	//	if (vel > 1.0) {
 	
@@ -1134,7 +1152,7 @@ void Viewer::animate() {
         btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
         btScalar age = pt.m_lifeTime;
-        btScalar dist = pt.getDistance();
+        // btScalar dist = pt.getDistance();
         btScalar impulse = pt.m_appliedImpulse;
 
         if (age == 3 && vel > 0.1 && impulse > 5.5) {

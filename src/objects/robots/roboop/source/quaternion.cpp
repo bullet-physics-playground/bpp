@@ -159,8 +159,8 @@ Quaternion::Quaternion(const Matrix & R)
   A positive sign has been chosen.
 */
 {
-   if( (R.Nrows() == 3) && (R.Ncols() == 3) ||
-         (R.Nrows() == 4) && (R.Ncols() == 4) )
+   if( ((R.Nrows() == 3) && (R.Ncols() == 3)) ||
+         ((R.Nrows() == 4) && (R.Ncols() == 4)) )
    {
       Real tmp = fabs(R(1,1) + R(2,2) + R(3,3) + 1);
       s_ = 0.5*sqrt(tmp);

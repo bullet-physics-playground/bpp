@@ -1,4 +1,4 @@
-#ifdef WIN32
+#ifdef WIN32_VC90
 #pragma warning (disable : 4251)
 #endif
 
@@ -76,7 +76,7 @@ QString Cube::toString() const {
 
 void Cube::renderInLocalFrame(QTextStream *s) const {
 
-  //  qDebug() << "Cube::renderInLocalFrame";
+  qDebug() << "Cube::renderInLocalFrame() ";
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
@@ -120,4 +120,6 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
     *s << "}" << endl << endl;
   }
+
+  qDebug() << "Cube::renderInLocalFrame() end";
 }

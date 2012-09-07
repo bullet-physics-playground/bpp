@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "highlighter.h"
+#include "high.h"
 
 Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
   HighlightingRule rule;

@@ -159,7 +159,7 @@ void Control_Select::set_control(const string & filename)
 	case RRA:
 	{
 	    rra = Resolved_acc(dof);
-	    Real Kvp, Kpp, Kvo, Kpo;
+        Real Kvp = 0.0, Kpp, Kvo, Kpo;
 	    conf.select("GAINS", "Kvp", Kvp);
 	    conf.select("GAINS", "Kpp", Kpp);
 	    conf.select("GAINS", "Kvo", Kvo);

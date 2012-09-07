@@ -1,6 +1,6 @@
 #include "cubeaxes.h"
 
-#ifdef WIN32
+#ifdef WIN32_VC90
 #pragma warning (disable : 4251)
 #include <windows.h>
 #endif
@@ -43,24 +43,24 @@ void CubeAxes::renderInLocalFrame(QTextStream *s) const
   glPushMatrix();
   glMultMatrixf(m);
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glColor3ubv(color);
+// FIXME  glColor3ubv(color);
   glutSolidCube(1.0f);
 
   glPushMatrix();
-  glColor3ub(255, 0, 0);
-  glRotatef(90.0, 0.0, 1.0, 0.0);
+  // FIXME glColor3ub(255, 0, 0);
+  // FIXME glRotatef(90.0, 0.0, 1.0, 0.0);
   // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 
   glPushMatrix();
-  glColor3ub(0, 255, 0);
-  glRotatef(90.0, 1.0, 0.0, 0.0);
+  // FIXME glColor3ub(0, 255, 0);
+  // FIXME glRotatef(90.0, 1.0, 0.0, 0.0);
   // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 
   glPushMatrix();
-  glColor3ub(0, 0, 255);
-  glRotatef(180.0, 0.0, 0.0, 1.0);
+  // FIXME glColor3ub(0, 0, 255);
+  // FIXME glRotatef(180.0, 0.0, 0.0, 1.0);
   // FIXME glutSolidCylinder(0.25, 1.0, 8, 8);
   glPopMatrix();
 

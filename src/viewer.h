@@ -1,7 +1,7 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-#include "lua.hpp"
+#include <lua.hpp>
 
 #include <QGLViewer/qglviewer.h>
 #include <QGLViewer/manipulatedFrame.h>
