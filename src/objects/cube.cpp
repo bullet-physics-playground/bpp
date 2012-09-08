@@ -76,7 +76,7 @@ QString Cube::toString() const {
 
 void Cube::renderInLocalFrame(QTextStream *s) const {
 
-  qDebug() << "Cube::renderInLocalFrame() ";
+  // qDebug() << "Cube::renderInLocalFrame() ";
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
@@ -121,5 +121,5 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
     *s << "}" << endl << endl;
   }
 
-  qDebug() << "Cube::renderInLocalFrame() end";
+  // qDebug() << "Cube::renderInLocalFrame() end";
 }

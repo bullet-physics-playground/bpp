@@ -10,16 +10,14 @@
 // #include <windows.h>
 #endif
 
-#include <GL/glut.h>
+#include <gl/gl.h>			// Header File For The OpenGL32 Library
+#include <gl/glu.h>			// Header File For The GLu32 Library
+#include <GL/freeglut.h>
 
 using namespace std;
 
 int main(int argc, char **argv) {
-    qDebug() << "main 1";
-    glutInit(&argc,argv);
-    qDebug() << "main 2";
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    qDebug() << "main 3";
+//    qDebug() << "Bullet Physics Playground";
 
     QApplication application(argc, argv);
   
@@ -45,10 +43,13 @@ int main(int argc, char **argv) {
 
 #endif
 
-  Gui g(savePNG, savePOV);
-  g.show();
+  Gui *g;
 
-  qDebug() << "main 4";
+  glutInit(&argc,argv);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+
+  g = new Gui(savePNG, savePOV);
+  g->show();
 
   return application.exec();
 }

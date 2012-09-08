@@ -618,6 +618,12 @@ int Viewer::lua_print(lua_State* L) {
 bool Viewer::parse(QString txt) {
   QMutexLocker locker(&mutex);
 
+  bool animStarted = animationIsStarted();
+
+  if (animStarted) {
+      stopAnimation();
+  }
+
   if (L != NULL) {
 	// qDebug() << "before lua_gc";
 	clear();
@@ -642,16 +648,14 @@ bool Viewer::parse(QString txt) {
   Cam::luaBind(L);
 
   Object::luaBind(L);
-//  Objects::luaBind(L);
+  Objects::luaBind(L);
   Cube::luaBind(L);
-  /*
   Cylinder::luaBind(L);
   Dice::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
   
-  RM::luaBind(L);
-  */
+  // RM::luaBind(L);
 
   Viewer::luaBind(L);
 
@@ -685,11 +689,15 @@ bool Viewer::parse(QString txt) {
 
   _frameNum = 0; // reset frames counter
 
+  if (animStarted) {
+      startAnimation();
+  }
+
   if (error) return false; else return true;
 }
 
 void Viewer::clear() {
-  qDebug() << "Viewer::clear()" << _objects->size();
+  // qDebug() << "Viewer::clear()" << _objects->size();
 
   for (int i = 0; i < _objects->size(); ++i) {
 	removeObject(_objects->at(i));
@@ -764,7 +772,7 @@ void Viewer::openPovFile() {
   QString file;
   file.sprintf("anim/w-%05d.pov", _frameNum);
 
-  qDebug() << "saving pov file:" << file;
+  // qDebug() << "saving pov file:" << file;
 
   _file = new QFile(file);
   _file->open(QFile::WriteOnly | QFile::Truncate);
@@ -832,7 +840,7 @@ void Viewer::computeBoundingBox() {
 }
 
 void Viewer::init() {
-    qDebug() << "Viewer::init() 1";
+    // qDebug() << "Viewer::init() 1";
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -892,11 +900,11 @@ void Viewer::init() {
 
   // startAnimation();
 
-  qDebug() << "Viewer::init() end";
+  // qDebug() << "Viewer::init() end";
 }
 
 void Viewer::draw() {
-    qDebug() << "Viewer::draw() 1";
+    // qDebug() << "Viewer::draw() 1";
 
   //QMutexLocker locker(&mutex);
 
@@ -912,7 +920,7 @@ void Viewer::draw() {
 	}
   }
 
-  qDebug() << "Viewer::draw() 2";
+  // qDebug() << "Viewer::draw() 2";
 
   // Directionnal light
   glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
@@ -953,7 +961,7 @@ void Viewer::draw() {
 
   //  kfi_.drawPath(5, 10);
 
-  qDebug() << "Viewer::draw() 3";
+  // qDebug() << "Viewer::draw() 3";
 
   if (_savePOV)
     openPovFile();
@@ -961,7 +969,7 @@ void Viewer::draw() {
   {
 	// qDebug() << "Number of objects:" << _objects->size();
 
-      qDebug() << "Viewer::draw() 4";
+      // qDebug() << "Viewer::draw() 4";
 
       for (int i = 0; i < _objects->size(); ++i) {
 	  // qDebug() << i;
@@ -987,7 +995,7 @@ void Viewer::draw() {
 	glPopMatrix();
   }
 
-  qDebug() << "Viewer::draw() end";
+  // qDebug() << "Viewer::draw() end";
 }
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {

@@ -20,7 +20,11 @@
 
 #include "objects/robots/rm.h"
 
+#ifdef HAS_MIDI
+
 #include "MidiIO.h"
+
+#endif
 
 #include "objects/sphere.h"
 

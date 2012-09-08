@@ -4,12 +4,18 @@
 
 #define pi (3.1415926535f)
 
-static btScalar d2r(btScalar degrees)
+#ifdef __GNUC__
+#define IS_NOT_USED __attribute__ ((unused))
+#else
+#define IS_NOT_USED
+#endif
+
+static btScalar IS_NOT_USED d2r(btScalar degrees)
 {
   return degrees * pi / 180;
 }
 
-static btScalar r2d(btScalar radians)
+static btScalar IS_NOT_USED r2d(btScalar radians)
 {
   return radians * 180 / pi;
 }

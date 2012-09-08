@@ -380,8 +380,6 @@ void Gui::fontChanged(const QString& family, uint size) {
 
 #define pi (3.1415926535f)
 
-static double r2d(double radians) { return radians * 180 / pi; }
-
 void Gui::loadSettings() {
   settings->beginGroup("gui");
 

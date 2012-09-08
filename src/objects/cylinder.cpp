@@ -33,7 +33,7 @@ void Cylinder::init(btScalar width, btScalar height, btScalar depth,
   lengths[1] = height;
   lengths[2] = depth;
 
-  shape = new btCylinderShape(btVector3(width * .5, height * .5, depth * .5));
+  shape = new btCylinderShape(btVector3(width, height, depth));
 
   btQuaternion qtn;
   btTransform trans;
@@ -42,7 +42,7 @@ void Cylinder::init(btScalar width, btScalar height, btScalar depth,
   trans.setIdentity();
   qtn.setEuler(0.0, 0.0, 0.0);
   trans.setRotation(qtn);
-  trans.setOrigin(btVector3(0, 0, 0));
+  trans.setOrigin(btVector3(width, height, depth)); // ????
   motionState = new btDefaultMotionState(trans);
 
   body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
@@ -81,9 +81,9 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
 
   glPushMatrix();
   glMultMatrixf(m);
-  glScalef(lengths[0] * .5, lengths[1] *.5, lengths[2] *.5);
+  glScalef(lengths[0], lengths[1], lengths[2]);
   glColor3ubv(color);
-  // FIXME glutSolidCylinder(1, 1, 8, 8);
+  glutSolidCylinder(1, 1, 16, 16);
   glPopMatrix();
 
   //TODO  

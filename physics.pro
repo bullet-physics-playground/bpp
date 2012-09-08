@@ -11,7 +11,7 @@ CONFIG *= debug_and_release
 # Windows (MinGW), Ubuntu for now.
 ###################################################################
 win32 {
-  DEFINES += HAS_MIDI
+#  DEFINES += HAS_MIDI
 
   CONFIG += link_koppi_style_win32
 } else {
@@ -78,13 +78,15 @@ link_koppi_style_win32 {
   LIBS += -L$$WIN32_DIR_DLL
 
   DEFINES += WIN32_LINK_QGLVIEWER
-  DEFINES += WIN32_LINK_GLUT
+#  DEFINES += WIN32_LINK_GLUT
   DEFINES += WIN32_LINK_LIB3DS
   DEFINES += WIN32_LINK_BULLET
   DEFINES += WIN32_LINK_LUA
   DEFINES += WIN32_LINK_LUABIND
   DEFINES += WIN32_LINK_FREEGLUT
   DEFINES += WIN32_LINK_BOOST
+
+  DEFINES += WIN32_LINK_AUTOIMPORT
 
   WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.14-win32-dll
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
@@ -229,19 +231,36 @@ unix:!mac {
       DEFINES += __LINUX_ALSASEQ__
   }
 } else {
-  DEFINES +=__WINDOWS_MM__
+  DEFINES += __WINDOWS_KS__
+
+  LIBS    += -lsetupapi -lksuser
 }
 
 # WIN32 stuff
 
-contains(DEFINES, WIN32_LINK_QGLVIEWER) {
-#  message(Statically linking QGLViewer)
+contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
+# message(Enabling auto import: This should work unless it involves constant data structures referencing symbols from auto-imported DLLs.)
+  QMAKE_LFLAGS            = -Wl,-enable-auto-import
+  QMAKE_LFLAGS_RELEASE    = -Wl,-s
+  QMAKE_LFLAGS_DEBUG      =
+}
 
-  INCLUDEPATH += $$WIN32_DIR_QGLVIEWER
+contains(DEFINES, WIN32_LINK_FREEGLUT) {
+# message(Statically linking freeglut)
 
-  # Link
+  DEFINES += FREEGLUT_STATIC
 
-  LIBS += -lQGLViewer2
+  PATH_FREEGLUT = $$WIN32_DIR_FREEGLUT
+
+  INCLUDEPATH += $$PATH_FREEGLUT\\include
+
+  # include
+
+  LIBS += -L$$PATH_FREEGLUT\\bin
+
+  # link
+
+  LIBS += -lfreeglut -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
 }
 
 contains(DEFINES, WIN32_LINK_GLUT) {
@@ -249,6 +268,13 @@ contains(DEFINES, WIN32_LINK_GLUT) {
 
   DEFINES += GLUT_NO_LIB_PRAGMA
   DEFINES += GLUT_NO_WARNING_DISABLE=1
+  DEFINES += GLUT_DISABLE_ATEXIT_HACK
+
+  DEFINES += D__GNUWIN32__
+  DEFINES += WIN32
+  DEFINES += NDEBUG
+  DEFINES += _WINDOWS
+  DEFINES += _MBCS
 
   PATH_GLUT = $$WIN32_DIR_GLUT
 
@@ -262,23 +288,17 @@ contains(DEFINES, WIN32_LINK_GLUT) {
 
   # link
 
-  LIBS += -lglut32
+  LIBS += -lglut32 -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
 }
 
-contains(DEFINES, WIN32_LINK_FREEGLUT) {
-# message(Statically linking freeglut)
+contains(DEFINES, WIN32_LINK_QGLVIEWER) {
+#  message(Statically linking QGLViewer)
 
-  PATH_FREEGLUT = $$WIN32_DIR_FREEGLUT
+  INCLUDEPATH += $$WIN32_DIR_QGLVIEWER
 
-  INCLUDEPATH += $$PATH_FREEGLUT\\include
+  # Link
 
-  # include
-
-  LIBS += -L$$PATH_FREEGLUT\\bin
-
-  # link
-
-  LIBS += -lfreeglut
+  LIBS += -lQGLViewer2
 }
 
 contains(DEFINES, WIN32_LINK_LIB3DS) {
