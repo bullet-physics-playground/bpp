@@ -10,8 +10,8 @@
 // #include <windows.h>
 #endif
 
-#include <gl/gl.h>			// Header File For The OpenGL32 Library
-#include <gl/glu.h>			// Header File For The GLu32 Library
+#include <GL/gl.h>			// Header File For The OpenGL32 Library
+#include <GL/glu.h>			// Header File For The GLu32 Library
 #include <GL/freeglut.h>
 
 using namespace std;
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
 #ifdef HAS_GETOPT
   
-  int opterr = 0;
+  // int opterr = 0;
   int c;
   while ((c = getopt (argc, argv, "ps")) != -1) {
     switch (c) {
