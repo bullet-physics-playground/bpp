@@ -68,7 +68,7 @@ void Viewer::luaBind(lua_State *s) {
     [
      class_<Viewer>("Viewer")
      .def(constructor<>())
-     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(luabind::result))
+     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
 	 .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
 	 .def("pre", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
 	 .def("post", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -208,6 +208,12 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_S :
     _simulate = !_simulate;
     break;
+  case Qt::Key_P :
+    _savePOV = !_savePOV;
+    break;
+  case Qt::Key_G :
+    _savePNG = !_savePNG;
+    break;
   case Qt::Key_Left :
     currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
     setManipulatedFrame(keyFrame_[currentKF_]);
@@ -272,7 +278,7 @@ void Viewer::addObject(Object *o, int type, int mask) {
   _objects->push_back(o);
 
   if (o->body != NULL) {
-	o->body->setActivationState(DISABLE_DEACTIVATION);
+	//o->body->setActivationState(DISABLE_DEACTIVATION);
 	dynamicsWorld->addRigidBody(o->body, type, mask);
   }
 }
@@ -282,7 +288,7 @@ void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
     _objects->push_back(o);
 
 	if (o->body != NULL) {
-	  o->body->setActivationState(DISABLE_DEACTIVATION);
+	  //o->body->setActivationState(DISABLE_DEACTIVATION);
 	  dynamicsWorld->addRigidBody(o->body, type, mask);
 	}
   }
@@ -290,238 +296,6 @@ void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
 
 void Viewer::addObjects() {
 
-  /*
-  Palette *pal = new Palette("color_ggl.gpl");
-
-  int p1 = 0;
-
-  for (int p = 1; p <= 9; p++) {
-
-    p1 += p;
-
-    for (int i = 0; i < p; i++) {
-      for (int j = 0; j < p; j++) {
-	for (int k = 0; k < p; k++) {
-	  Dice *c0 = new Dice(0.99, 0.1);
-	  c0->setPosition(10.0 + i - p / 2.0,
-			  100.0 + 0.5 + k + p*3 - p / 2.0,
-			  20.0 + j - p1 - p / 2.0);
-	  //c0->setColor(qrand() % 255, qrand() % 255, qrand() % 255);
-	  c0->setColor(pal->getRandomColor());
-	  c0->setPovPhotons(true, true, true);
-	  c0->body->setActivationState(DISABLE_DEACTIVATION);
-	  //addObject(c0, COL_WALL, COL_WALL);
-
-	  l[p].push_back(c0);
-	  add4BBox(c0);
-	}
-      }
-    }
-  }
-  */
-
-  /*
-  addObjects(l[1], COL_SHIP, COL_WALL | COL_SHIP);
-  add4BBox(l[1]);
-
-
-  mioSphere = new Sphere(4.0, 5.0);
-  mioSphere->setPosition(100.0, 20, 20.0);
-  mioSphere->setColor(255, 0, 0);
-  addObject(mioSphere, COL_SHIP, COL_WALL | COL_SHIP );
-  add4BBox(mioSphere);
-  */
-
-  /*
-  for (int i = 5; i <= 45; i+=3) {
-    Sphere *s0 = new Sphere(i / 1.5, i*i + 10.0);
-    s0->setPosition(50.0 + i * 20.5, i, 20.0);
-    s0->setColor(100, 100, 255);
-    s0->setTexture("texture {T_Stone1 scale 4.0 }");
-    s0->setLinearVelocity(btVector3(-50.0f, 0.0f, 0.0f));
-    addObject(s0, COL_SHIP, COL_WALL | COL_SHIP );
-    add4BBox(s0);
-	}*/
-
-  /*
-  Sphere *s0 = new Sphere(8.0, 40.0);
-  s0->setPosition(10.0, 120.0, 15.0);
-  s0->setColor(100, 100, 255);
-  s0->setTexture("texture {T_Stone1 scale 8.0 }");
-  addObject(s0, COL_WALL, COL_WALL);
-  add4BBox(s0);
-  */
-
-
-  /*
-  double r = 7.97f;
-
-  for (int i = 0; i < 5; i++) {
-    for (int j = 0; j < 5; j++) {
-      for (int k = 0; k < 15; k++) {
-
-	double di, dj, dk = 0.0;
-
-	double x = i * r + di;
-	double y = 2.0 + k * r + dk;
-	double z = j * r + dj;
-
-	if (j == 0) z += 2.0;
-	if (j == 4) z -= 2.0;
-
-	Cube *c0 = new Cube(7.99, 4.0, 4.0, 1.0);
-	c0->setPosition(x, y, z);
-	c0->setColor(0xff, 0xfc, 0xce);
-	c0->setTexture(" texture { T_Wood14 finish { specular 0.35 roughness 0.05 ambient 0.3 } translate x*1 rotate <15, 10, 0> translate y*2 scale 5.0 } ");
-	c0->setPovPhotons(true, true, true);
-	c0->body->setActivationState(DISABLE_DEACTIVATION);
-	addObject(c0, COL_WALL, COL_WALL | COL_SHIP);
-	add4BBox(c0);
-      }
-    }
-  }
-
-  for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 4; j++) {
-      for (int k = 0; k < 15; k++) {
-
-	double di, dj, dk = 0.0;
-
-	double x = i * r - 4.0 + di;
-	if (i == 0) x += 2.0;
-	if (i == 5) x -= 2.0;
-
-	//if (k != 9 && j != 2) {
-	Cube *c0 = new Cube(7.99, 4.0, 4.0, 1.0);
-	c0->setPosition(x, 6.0 + k * r + dk, j * r + 4.0 + dj);
-	c0->setRotation(btVector3(0, 1, 0), M_PI / 2.0);
-	c0->setColor(0xff, 0xfc, 0xce);
-	c0->setTexture(" texture { T_Wood14 finish { specular 0.35 roughness 0.05 ambient 0.3 } translate x*1 rotate <15, 10, 0> translate y*2 scale 15.0 } ");
-	c0->setPovPhotons(true, true, true);
-	c0->body->setActivationState(DISABLE_DEACTIVATION);
-	addObject(c0, COL_WALL, COL_WALL | COL_SHIP);
-	add4BBox(c0);
-	//}
-      }
-    }
-	}
-
-  */
-  
-  /*
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-      for (int k = 0; k < 30; k++) {
-	Dice *c0 = new Dice(0.99, 1.0);
-	c0->setPosition(i, 30.0 + 0.5 + k, j);
-	c0->setColor(pal->getRandomColor());
-	c0->setPovPhotons(true, true, true);
-	c0->body->setActivationState(DISABLE_DEACTIVATION);
-	addObject(c0, COL_WALL, COL_WALL);
-      }
-    }
-    }*/
-
-  /*
-  Cube *c1 = new Cube(2.0, 1.0, 1.0, 0.0);
-  c1->setPosition(1.5, 0.5, 0.0);
-  c1->setColor(255, 100, 100);
-  addObject(c1, COL_WALL, COL_WALL);
-
-  Cube *c2 = new Cube(1.0, 2.0, 1.0, 0.0);
-  c2->setPosition(0.0, 2.0, 0.0);
-  c2->setColor(100, 255, 100);
-  addObject(c2, COL_WALL, COL_WALL);
-
-  Cube *c3 = new Cube(1.0, 1.0, 2.0, 0.0);
-  c3->setPosition(0.0, 0.5, 1.5);
-  c3->setColor(100, 100, 255);
-  addObject(c3, COL_WALL, COL_WALL);
-
-  Cube *a = new Cube(1.0, 2.0, 1.0, 1.0);
-  a->setPosition(10.0, 1.0, 0.0);
-  a->setColor(100, 100, 255);
-  a->body->setActivationState(DISABLE_DEACTIVATION);
-  addObject(a, COL_WALL, COL_WALL);
-
-  Cube *b = new Cube(1.0, 1.0, 2.0, 1.0);
-  b->setPosition(10.0, 1.5, 1.5);
-  b->setColor(100, 255, 100);
-  b->body->setActivationState(DISABLE_DEACTIVATION);
-  addObject(b, COL_WALL, COL_WALL);
-
-  btVector3 pivA1(0.0, 0.5, 0.0);
-  btVector3 axisA1(.0, 0.0, 1.0);
-  btVector3 pivB1(0.0, 0.0, -1.5);
-  btVector3 axisB1(.0, 0.0, 1.0);
-
-  btHingeConstraint *j1 = new btHingeConstraint(*a->body, *b->body, pivA1, pivB1, axisA1, axisB1);
-  j1->enableAngularMotor(true, 0.5, 100);
-  dynamicsWorld->addConstraint(j1, true);
-
-  Cube *c = new Cube(1.0, 2.0, 1.0, 1.0);
-  c->setPosition(10.0, 1.5+1.5, 2.0);
-  c->setColor(100, 255, 255);
-  c->body->setActivationState(DISABLE_DEACTIVATION);
-  addObject(c, COL_WALL, COL_WALL);
-
-  btVector3 pivA2(0., 1.5, 0.5);
-  btVector3 axisA2(.0, 1.0, 0.0);
-  btVector3 pivB2(0.0, 0.0, 0.0);
-  btVector3 axisB2(.0, 1.0, 0.0);
-
-  btHingeConstraint *j2 = new btHingeConstraint(*b->body, *c->body, pivA2, pivB2, axisA2, axisB2);
-  j2->enableAngularMotor(true, 0.5, 100);
-  dynamicsWorld->addConstraint(j2, true);
-*/
-
-  /*
-  Sphere *c4 = new Sphere(.5, 1.0);
-  c4->setPosition(3.0, 3.0, 3.0);
-  c4->setColor(100, 100, 255);
-  addObject(c4, COL_WALL, COL_NOTHING); */
-
-  //Cylinder *c5 = new Cylinder(1.0, 1.0, 1.0, 1.0);
-  //c5->setPosition(5.0, 5.5, 1.5);
-  //  c5->setRotation(btVector3(1, 0, 0), 45.0);
-  //c5->setColor(100, 100, 255);
-  //addObject(c5, COL_WALL, COL_NOTHING);
-
-  /*
-  rm = new RM1();
-  addObject(rm->rm0, COL_WALL, COL_NOTHING);
-  addObject(rm->rm1, COL_WALL, COL_NOTHING);
-  addObject(rm->rm2, COL_WALL, COL_NOTHING);
-  addObject(rm->rm3, COL_WALL, COL_NOTHING);
-  addObject(rm->rm4, COL_WALL, COL_NOTHING);
-  addObject(rm->rm5, COL_WALL, COL_WALL);
-
-  addObject(rm->cube, COL_WALL, COL_NOTHING);
-
-  dynamicsWorld->addConstraint(rm->rmJoint0, true);
-  dynamicsWorld->addConstraint(rm->rmJoint1, true);
-  dynamicsWorld->addConstraint(rm->rmJoint2, true);
-  dynamicsWorld->addConstraint(rm->rmJoint3, true);
-  dynamicsWorld->addConstraint(rm->rmJoint4, true);
-  */
-
-  /*
-  rm = new RM();
- 
-  addObject(rm->cube, COL_WALL, COL_NOTHING);
-  addObject(rm->rm0, COL_WALL, COL_NOTHING);
-  addObject(rm->rm1, COL_WALL, COL_NOTHING);
-  addObject(rm->rm2, COL_WALL, COL_NOTHING);
-  addObject(rm->rm3, COL_WALL, COL_NOTHING);
-  addObject(rm->rm4, COL_WALL, COL_NOTHING);
-  addObject(rm->rm5, COL_WALL, COL_WALL);
-
-  dynamicsWorld->addConstraint(rm->rmJoint0, true);
-  dynamicsWorld->addConstraint(rm->rmJoint1, true);
-  dynamicsWorld->addConstraint(rm->rmJoint2, true);
-  dynamicsWorld->addConstraint(rm->rmJoint3, true);
-  dynamicsWorld->addConstraint(rm->rmJoint4, true);
-  */
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
@@ -534,9 +308,12 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   _simulate = false;
 
   collisionCfg = new btDefaultCollisionConfiguration();
-  axisSweep = new btAxisSweep3(btVector3(-100,-100,-100), btVector3(100,100,100), 52800);
-  dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg),
-                                              axisSweep, new btSequentialImpulseConstraintSolver, collisionCfg);
+  //axisSweep = new btAxisSweep3(btVector3(-100,-100,-100), btVector3(100,100,100), 52800);
+  //dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg), axisSweep, new btSequentialImpulseConstraintSolver, collisionCfg);
+  btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+  dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg), broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
+  btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
+  btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 
 #ifdef HAS_MIDI
   btOverlapFilterCallback * filterCallback = new FilterCallback(&mio);
@@ -651,6 +428,7 @@ bool Viewer::parse(QString txt) {
   Objects::luaBind(L);
   Cube::luaBind(L);
   Cylinder::luaBind(L);
+  Mesh3DS::luaBind(L);
   Dice::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
@@ -781,20 +559,19 @@ void Viewer::openPovFile() {
 
   *_stream << "#include \"colors.inc\"" << endl;
 
-  *_stream << "#include \"dice.inc\"" << endl;
-  *_stream << "#include \"settings.inc\"" << endl << endl;
+  //*_stream << "#include \"dice.inc\"" << endl;
+  //*_stream << "#include \"settings.inc\"" << endl << endl;
 
   Vec pos = camera()->position();
   Vec vDir = camera()->viewDirection();
 
   //  *_stream << "global_settings {assumed_gamma 1.0}" << endl;
 
-  *_stream << "camera { " << endl;
-  *_stream << "  location < 0, 0 ,0 >" << endl;
-  *_stream << "  right -16/9*x" << endl;
-  *_stream << "  look_at < " << vDir.x << ", " << vDir.y << ", " << vDir.z << "> angle 66" << endl;
-  *_stream << "  translate < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
-  *_stream << "}" << endl << endl;
+  //*_stream << "camera { " << endl;
+  //*_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl; 
+  //*_stream << "  right -image_width/image_height*x" << endl;
+  //*_stream << "  look_at < " << vDir.x << ", " << vDir.y << ", " << vDir.z << "> angle 39.6" << endl; 
+  //*_stream << "  }" << endl << endl;
 
   // *_stream << "light_source { <100,200,100> color 1 }" << endl;
   // *_stream << "light_source { <100,200,200> color 1 }" << endl << endl;
@@ -833,7 +610,7 @@ void Viewer::computeBoundingBox() {
   btVector3 center = (vmin + vmax)/2.0f;
   //center[1] = 0.0f;
   //center[2] = 0.0f;
-  center[3] = 0.0f;
+  //center[3] = 0.0f;
 
   setSceneRadius((vmax - vmin).length()*5.0);
   setSceneCenter((Vec)center);
@@ -1076,6 +853,23 @@ void Viewer::postDraw() {
     // restore foregroundColor
     qglColor(foregroundColor());
   }
+
+  if (_savePOV) {
+    startScreenCoordinatesSystem();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glPointSize(12.0);
+    glColor3f(0.0, 1.0, 1.0);
+    glBegin(GL_POINTS);
+    glVertex2i(width()-80, 20);
+    glEnd();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+    stopScreenCoordinatesSystem();
+    // restore foregroundColor
+    qglColor(foregroundColor());
+  }
+
 }
 
 void Viewer::startAnimation() {
