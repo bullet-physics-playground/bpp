@@ -42,11 +42,9 @@ void Cube::init(btScalar width, btScalar height, btScalar depth, btScalar mass) 
   trans.setOrigin(btVector3(0, 0, 0));
   motionState = new btDefaultMotionState(trans);
 
-  btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape, btVector3(mass, mass, mass));
-  bodyCI.m_friction = 5.0f;
-  bodyCI.m_restitution = 0.50f;
-  bodyCI.m_linearDamping = 0.5f;
-  bodyCI.m_angularDamping = 0.05f;
+  btVector3 inertia;
+  shape->calculateLocalInertia(mass,inertia);
+  btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape, inertia);
 
   body = new btRigidBody(bodyCI);
 
