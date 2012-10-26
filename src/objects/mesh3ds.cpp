@@ -15,6 +15,11 @@
 
 #include <lib3ds.h>
 
+using namespace std;
+
+#include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
+
 Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   Lib3dsFile *m_model = lib3ds_file_open(filename.toAscii());
 
@@ -73,7 +78,8 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   glEnd();
   glEndList();
 
-  shape = new btBvhTriangleMeshShape(trimesh, false);
+  btGImpactMeshShape *shape = new btGImpactMeshShape(trimesh);
+  shape->updateBound();
 
   btQuaternion qtn;
   btTransform trans;
@@ -85,7 +91,27 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   trans.setOrigin(btVector3(0, 0, 0));
   motionState = new btDefaultMotionState(trans);
 
-  body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
+  btVector3 inertia;
+  shape->calculateLocalInertia(mass,inertia);  
+  body = new btRigidBody(mass, motionState, shape, inertia);
+  
+}
+
+void Mesh3DS::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Mesh3DS,Object>("Mesh3DS")
+     .def(constructor<QString, btScalar>(), adopt(result))
+	 .def(tostring(const_self))
+	 ];
+}
+
+QString Mesh3DS::toString() const {
+  return QString("Mesh3DS");
 }
 
 void Mesh3DS::renderInLocalFrame(QTextStream *) const {
@@ -101,9 +127,9 @@ void Mesh3DS::renderInLocalFrame(QTextStream *) const {
   glCallList(listref);
   glPopMatrix();
 
-  /*
   if (s != NULL) {
     *s << "mesh2 {\n";
+  /*
     *s << "  vertex_vectors {\n";
     *s << "    " << count*3 << ", \n";
     for (int i = 0; i < count; i++) {
@@ -131,11 +157,11 @@ void Mesh3DS::renderInLocalFrame(QTextStream *) const {
       if (i != count - 1) *s << ", \n";
     }
     *s << "  }\n";
+  */
 
     *s << "pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
 
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
     *s << "}" << endl << endl;
   }
-  */
 }
