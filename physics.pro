@@ -49,6 +49,9 @@ link_pkgconfig {
   PKGCONFIG += bullet alsa lua5.1 luabind
 
   LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
+
+  # This one worked for me on Ubuntu 11.04 with the distro package (Jaime)
+  # LIBS += -lQGLViewer -lglut -lGL -l3ds 
 }
 
 win32-msvc* {
