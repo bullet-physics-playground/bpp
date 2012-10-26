@@ -114,7 +114,7 @@ QString Mesh3DS::toString() const {
   return QString("Mesh3DS");
 }
 
-void Mesh3DS::renderInLocalFrame(QTextStream *) const {
+void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   btTransform trans;
   btScalar m[16];
 
