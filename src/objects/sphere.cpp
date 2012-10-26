@@ -32,7 +32,9 @@ Sphere::Sphere(btScalar pradius, btScalar mass)
   trans.setOrigin(btVector3(0, 0, 0));
   motionState = new btDefaultMotionState(trans);
 
-  body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
+  btVector3 inertia;
+  shape->calculateLocalInertia(mass,inertia);
+  body = new btRigidBody(mass, motionState, shape, inertia);
 }
 
 void Sphere::setRadius(btScalar pradius) {
