@@ -175,8 +175,9 @@ QString Object::getFinish() const {
 }
 
 void Object::setMass(btScalar _mass) {
-  body->setMassProps(_mass, btVector3(0,0,0));
-  body->updateInertiaTensor();
+  btVector3 inertia;
+  shape->calculateLocalInertia(_mass,inertia);
+  body->setMassProps(_mass, inertia);
 }
 
 void Object::setFriction(btScalar friction) {
