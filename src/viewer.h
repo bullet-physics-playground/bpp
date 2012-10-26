@@ -138,7 +138,7 @@ class Viewer : public QGLViewer
  public:
   RM *rm;
 
-  QList<Object*> l[10];
+  QList<Object*> l[13];
 
  private:
   lua_State *L;
