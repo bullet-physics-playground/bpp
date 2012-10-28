@@ -9,7 +9,7 @@ Features:
 * POV-Ray export (stable)
 * Midi Event handling (experimental)
 
-Demo images and videos created with bullet-physics-playground:
+Still images and animations created with bullet-physics-playground:
 
 * [Still images](https://github.com/koppi/bullet-physics-playground/wiki/Still-images)
 * [Animations](https://github.com/koppi/bullet-physics-playground/wiki/Animations)
