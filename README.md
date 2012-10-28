@@ -9,14 +9,10 @@ Features:
 * POV-Ray export (stable)
 * Midi Event handling (experimental)
 
-Demo videos created with bullet-physics-playground:
+Demo images and videos created with bullet-physics-playground:
 
-* [bullet-physics-playground](http://www.youtube.com/watch?v=19OirI8yjLc) - basic LUA scripting demo
-* [povray fun](http://www.youtube.com/watch?v=3DLevGGYDAQ) - falling dice
-* [dancing servos](http://www.youtube.com/watch?v=YBQGqMRh3c8) - compound objects with actuators
-* [domino dynamics - II](http://www.youtube.com/watch?v=0QQYXvnrU1U) - dominos
-* [domino dynamics - I](http://www.youtube.com/watch?v=3Q0V185vVnE) - dominos
-* [4800 cubes - HD](http://www.youtube.com/watch?v=6r_kCF1TRAk) - 1st test
+* [Still images](https://github.com/koppi/bullet-physics-playground/wiki/Still-images)
+* [Animations](https://github.com/koppi/bullet-physics-playground/wiki/Animations)
 
 ## Build bullet-physics-playground
 
