@@ -132,13 +132,13 @@ void Object::luaBind(lua_State *s) {
 			   (QString(Object::*)(void))&Object::getTexture,
 			   (void(Object::*)(QString))&Object::setTexture)
 
-	 .property("finish",
-			   (QString(Object::*)(void))&Object::getFinish,
-			   (void(Object::*)(QString))&Object::setFinish)
+	 .property("pre_sdl",
+			   (QString(Object::*)(void))&Object::getPreSDL,
+			   (void(Object::*)(QString))&Object::setPreSDL)
 
-	 .property("scale",
-			   (QString(Object::*)(void))&Object::getScale,
-			   (void(Object::*)(QString))&Object::setScale)
+	 .property("post_sdl",
+			   (QString(Object::*)(void))&Object::getPostSDL,
+			   (void(Object::*)(QString))&Object::setPostSDL)
 
 	 .def(tostring(const_self))
 	 ];
@@ -158,20 +158,20 @@ QString Object::getTexture() const {
   return mTexture;
 }
 
-void Object::setScale(QString scale) {
-  mScale = scale;
+void Object::setPostSDL(QString post_sdl) {
+  mPostSDL = post_sdl;
 }
 
-QString Object::getScale() const {
-  return mScale;
+QString Object::getPostSDL() const {
+  return mPostSDL;
 }
 
-void Object::setFinish(QString finish) {
-  mFinish = finish;
+void Object::setPreSDL(QString pre_sdl) {
+  mPreSDL = pre_sdl;
 }
 
-QString Object::getFinish() const {
-  return mFinish;
+QString Object::getPreSDL() const {
+  return mPreSDL;
 }
 
 void Object::setMass(btScalar _mass) {

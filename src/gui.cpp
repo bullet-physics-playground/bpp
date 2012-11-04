@@ -51,22 +51,13 @@ void Gui::postDraw(int frame) {
 	QPixmap p = QPixmap::grabWindow(this->winId());
 	
 	QString file;
-	file.sprintf("anim/w-%05d.png", frame);
+	file.sprintf("screenshots/w-%05d.png", frame);
 	
 	qDebug() << "saving screenshot " << file;
 	
 	p.save(file, "png");
   }
 
-  /*
-  if (savePOV) {
-	QString file;
-	file.sprintf("anim/w-%05d.pov", frame);
-	
-	qDebug() << "saving povray file " << file;
-	
-	// ui.viewer-> ...
-	} */
 }
 
 void Gui::dragEnterEvent(QDragEnterEvent *event) {
@@ -97,9 +88,9 @@ void Gui::loadLastFile() {
   settings->endGroup();
 
   if (lastFile != "") {
-    loadFile(lastFile);
+    //loadFile(lastFile);
   } else {
-    loadFile(":demo/00-objects.lua");
+    //loadFile(":demo/00-objects.lua");
   }
 }
 
@@ -330,6 +321,10 @@ QString Gui::strippedName(const QString &fullFileName) {
   return QFileInfo(fullFileName).fileName();
 }
 
+QString Gui::strippedNameNoExt(const QString &fullFileName) {
+  return QFileInfo(fullFileName).baseName();
+}
+
 void Gui::parseEditor() {
   ui.viewer->parse(editor->toPlainText());
 }
@@ -353,6 +348,8 @@ void Gui::newFile() {
 
 void Gui::openFile(const QString& path) {
   editor->load(path);
+  setCurrentFile(editor->script_filename);
+  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
 }
 
 void Gui::save() {
@@ -362,10 +359,13 @@ void Gui::save() {
 void Gui::saveAs() {
   editor->saveAs();
   setCurrentFile(editor->script_filename);
+  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
 }
 
 void Gui::saveFile(const QString& path) {
   editor->saveAs(path);
+  setCurrentFile(editor->script_filename);
+  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
 }
 
 void Gui::editPrefs() {

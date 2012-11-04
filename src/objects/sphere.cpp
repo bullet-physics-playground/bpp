@@ -116,22 +116,23 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
   glutSolidSphere(1.0f, 16, 16);
   glPopMatrix();
 
-  if (s != NULL) {
-    *s << "sphere { <.0,.0,.0>, " << radius << endl;
-    
-    if (mTexture == NULL) {
-      *s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
-    } else {
-      *s << mTexture << endl;
+  if (s != NULL) {	  
+    if (mPreSDL == NULL) {	    
+      *s << "sphere { <.0,.0,.0>, " << radius << endl;    
+      if (mTexture == NULL) {
+	*s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+      } else {
+	*s << mTexture << endl;
+      }    
+    }else{	    
+      *s << mPreSDL << endl;	    
     }
-
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
-
-
-    if (mFinish != NULL) {
-      *s << mFinish << endl;
-    }
-
-    *s << "}" << endl << endl;
+    if (mPostSDL == NULL) {    
+      *s << "}" << endl << endl;	    
+    }else{	    
+      *s << mPostSDL << endl;	
+    }    
   }
+  
 }

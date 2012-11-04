@@ -47,9 +47,6 @@ void Cube::init(btScalar width, btScalar height, btScalar depth, btScalar mass) 
   btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape, inertia);
 
   body = new btRigidBody(bodyCI);
-
-  //body = new btRigidBody(mass, motionState, shape, btVector3(mass, mass, mass));
-  //  body->SetMargin(0.05f);
 }
 
 void Cube::luaBind(lua_State *s) {
@@ -107,16 +104,22 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
   glPopMatrix();
   
   if (s != NULL) {
-    *s << "box { <" << -lengths[0]/2.0 << ", " << -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <" << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">\n";
-
-    if (mTexture == NULL) {
-      *s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
-    } else {
-      *s << mTexture << endl;
-    }
-
+    if (mPreSDL == NULL) {	    
+      *s << "box { <" << -lengths[0]/2.0 << ", " << -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <" << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">\n";
+      if (mTexture == NULL) {
+        *s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+      } else {
+        *s << mTexture << endl;
+      }
+    }else{
+      *s << mPreSDL << endl;
+    }	    
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
-    *s << "}" << endl << endl;
+    if (mPostSDL == NULL) {	        
+      *s << "}" << endl << endl;
+    }else{
+      *s << mPostSDL << endl;
+    }
   }
 
   // qDebug() << "Cube::renderInLocalFrame() end";

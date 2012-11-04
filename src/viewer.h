@@ -18,14 +18,6 @@
 
 #include "objects/cam.h"
 
-#include "objects/robots/rm.h"
-
-#ifdef HAS_MIDI
-
-#include "MidiIO.h"
-
-#endif
-
 #include "objects/sphere.h"
 
 using namespace qglviewer;
@@ -83,6 +75,7 @@ class Viewer : public QGLViewer
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);
   virtual QString toString() const;
+  void setScriptName(QString sn);
 
   void emitScriptOutput(const QString&);
   static int lua_print(lua_State*);
@@ -130,13 +123,7 @@ class Viewer : public QGLViewer
   void loadPrefs();
   void savePrefs();
 
-#ifdef HAS_MIDI
- private slots:
-  void midiRecived(MidiEvent *e);
-#endif
-
  public:
-  RM *rm;
 
   QList<Object*> l[13];
 
@@ -173,10 +160,7 @@ class Viewer : public QGLViewer
 
   bool               _savePNG;
   bool               _savePOV;
-
-#ifdef HAS_MIDI
-  MidiIO mio;
-#endif
+  QString	_scriptName;
 
   QMutex mutex;
 
