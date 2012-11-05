@@ -120,6 +120,7 @@ class Gui : public QMainWindow {
   QToolBar* myToolBar;
 
   QString strippedName(const QString &fullFileName);
+  QString strippedNameNoExt(const QString &fullFileName);
 
   void log(QString text);
 

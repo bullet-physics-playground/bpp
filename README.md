@@ -7,7 +7,6 @@ Features:
 * LUA scripting (experimental)
 * OpenGL gui (alpha)
 * POV-Ray export (stable)
-* Midi Event handling (experimental)
 
 Still images and animations created with bullet-physics-playground:
 

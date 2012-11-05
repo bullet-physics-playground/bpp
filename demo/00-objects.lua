@@ -6,10 +6,6 @@ cylinder = Cylinder()
 cylinder.pos = btVector3(1, 0.5, 0)
 cylinder.col = "#00ff00"
 
-dice = Dice()
-dice.pos = btVector3(2, 0.5, 0)
-dice.col = "#0000ff"
-
 plane = Plane(0,1,0)
 plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
@@ -20,6 +16,5 @@ sphere.col = "#00ff00"
 
 v:add(cube)
 v:add(cylinder)
-v:add(dice)
 v:add(plane)
 v:add(sphere)

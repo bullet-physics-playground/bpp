@@ -139,11 +139,11 @@ class Object : public QObject {
   void setTexture(QString texture);
   QString getTexture() const;
 
-  void setFinish(QString finish);
-  QString getFinish() const;
+  void setPreSDL(QString pre_sdl);
+  QString getPreSDL() const;
 
-  void setScale(QString scale);
-  QString getScale() const;
+  void setPostSDL(QString post_sdl);
+  QString getPostSDL() const;
 
   btRigidBody      *body;
   btCollisionShape *shape;
@@ -168,8 +168,8 @@ class Object : public QObject {
   bool photons_refraction;
 
   QString mTexture;
-  QString mScale;
-  QString mFinish;
+  QString mPreSDL;
+  QString mPostSDL;
 
   QList<btTypedConstraint*> _constraints;
 

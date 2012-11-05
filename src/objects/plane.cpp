@@ -117,24 +117,23 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   glEnd();
 
   if (s != NULL) {
-    *s << "plane { <" << planeNormal[0] << ", " << planeNormal[1] << ", " << planeNormal[2] << ">, " << planeConst << "\n";
-
-    if (mTexture != NULL) {
-      *s << mTexture << endl;
-    } else if (mPigment != NULL) {
-      *s << mPigment << endl;
-    } else {
-      *s << "  pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+    if (mPreSDL == NULL) {	    
+      *s << "plane { <" << planeNormal[0] << ", " << planeNormal[1] << ", " << planeNormal[2] << ">, " << planeConst << "\n";
+      if (mTexture != NULL) {
+        *s << mTexture << endl;
+      } else if (mPigment != NULL) {
+        *s << mPigment << endl;
+      } else {
+        *s << "  pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+      }
+    }else{
+      *s << mPreSDL << endl;
     }
-
-    if (mScale != NULL) {
-      *s << mScale << endl;
+    if (mPostSDL == NULL) {	    
+      *s << "}" << endl << endl;
+    }else{
+      *s << mPostSDL << endl;
     }
-
-    if (mFinish != NULL) {
-      *s << mFinish << endl;
-    }
-
-    *s << "}" << endl << endl;
   }
+  
 }

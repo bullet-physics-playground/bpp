@@ -115,6 +115,16 @@ QString Mesh3DS::toString() const {
 }
 
 void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
+
+  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
+  GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
+  GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+  // GLfloat no_shininess[] = { 0.0 };
+  // GLfloat low_shininess[] = { 5.0 };
+  GLfloat high_shininess[] = { 100.0 };
+  // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+	
   btTransform trans;
   btScalar m[16];
 
@@ -123,13 +133,19 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
 
   glPushMatrix();
   glMultMatrixf(m);
+  glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+  glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+  glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glColor3ubv(color);
   glCallList(listref);
   glPopMatrix();
 
-  if (s != NULL) {
-    *s << "mesh2 {\n";
-  /*
+  if (s != NULL) {  
+    if (mPreSDL == NULL) {	  
+      *s << "mesh2 {\n";
+      /*
     *s << "  vertex_vectors {\n";
     *s << "    " << count*3 << ", \n";
     for (int i = 0; i < count; i++) {
@@ -157,11 +173,18 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
       if (i != count - 1) *s << ", \n";
     }
     *s << "  }\n";
-  */
-
-    *s << "pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
-
+      */
+      *s << "pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+    }else{	    
+      *s << mPreSDL << "\n";	    
+    }
     *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
-    *s << "}" << endl << endl;
+    if (mPostSDL == NULL) {    
+      *s << "}" << endl << endl;
+    }else{	    
+      *s << mPostSDL << endl << endl;	    
+    }
+	    
   }
+  
 }

@@ -11,12 +11,10 @@ CONFIG *= debug_and_release
 # Windows (MinGW), Ubuntu for now.
 ###################################################################
 win32 {
-#  DEFINES += HAS_MIDI
 
   CONFIG += link_koppi_style_win32
 } else {
   DEFINES += HAS_GETOPT
-  DEFINES += HAS_MIDI
 
   CONFIG += link_pkgconfig
 }
@@ -40,18 +38,13 @@ INCLUDEPATH += /usr/local/include/bullet
 
 INCLUDEPATH += src
 
-INCLUDEPATH += src/objects/robots/roboop/include
-INCLUDEPATH += src/objects/robots/roboop/newmat
-INCLUDEPATH += src/objects/robots/roboop/source
-
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
   PKGCONFIG += bullet alsa lua5.1 luabind
 
-  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
-
-  # This one worked for me on Ubuntu 11.04 with the distro package (Jaime)
-  # LIBS += -lQGLViewer -lglut -lGL -l3ds 
+  # the package from Ubuntu didin't work for me, so I used latest QGLViewer from their site
+  # LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
+  LIBS += -lQGLViewer -lglut -lGL -l3ds
 }
 
 win32-msvc* {
@@ -117,57 +110,10 @@ SOURCES += src/main.cpp \
            src/objects/cylinder.cpp \
            src/objects/mesh3ds.cpp \
            src/coll.cpp \
-           src/objects/robots/rm.cpp \
-           src/objects/robots/rm1.cpp \
-           src/objects/cubeaxes.cpp \
            src/gui.cpp \
            src/cmd.cpp \
-           src/objects/dice.cpp \
            src/code.cpp \
            src/objects/objects.cpp \
-           src/objects/robots/roboop/source/utils.cpp \
-           src/objects/robots/roboop/source/trajectory.cpp \
-           src/objects/robots/roboop/source/stewart.cpp \
-           src/objects/robots/roboop/source/sensitiv.cpp \
-           src/objects/robots/roboop/source/robot.cpp \
-           src/objects/robots/roboop/source/quaternion.cpp \
-           src/objects/robots/roboop/source/kinemat.cpp \
-           src/objects/robots/roboop/source/invkine.cpp \
-           src/objects/robots/roboop/source/homogen.cpp \
-           src/objects/robots/roboop/source/dynamics_sim.cpp \
-           src/objects/robots/roboop/source/dynamics.cpp \
-           src/objects/robots/roboop/source/delta_t.cpp \
-           src/objects/robots/roboop/source/controller.cpp \
-           src/objects/robots/roboop/source/control_select.cpp \
-           src/objects/robots/roboop/source/config.cpp \
-           src/objects/robots/roboop/source/comp_dqp.cpp \
-           src/objects/robots/roboop/source/comp_dq.cpp \
-           src/objects/robots/roboop/source/clik.cpp \
-           src/objects/robots/roboop/newmat/cholesky.cpp \
-           src/objects/robots/roboop/newmat/evalue.cpp \
-           src/objects/robots/roboop/newmat/fft.cpp \
-           src/objects/robots/roboop/newmat/hholder.cpp \
-           src/objects/robots/roboop/newmat/jacobi.cpp \
-           src/objects/robots/roboop/newmat/myexcept.cpp \
-           src/objects/robots/roboop/newmat/newfft.cpp \
-           src/objects/robots/roboop/newmat/newmat1.cpp \
-           src/objects/robots/roboop/newmat/newmat2.cpp \
-           src/objects/robots/roboop/newmat/newmat3.cpp \
-           src/objects/robots/roboop/newmat/newmat4.cpp \
-           src/objects/robots/roboop/newmat/newmat5.cpp \
-           src/objects/robots/roboop/newmat/newmat6.cpp \
-           src/objects/robots/roboop/newmat/newmat7.cpp \
-           src/objects/robots/roboop/newmat/newmat8.cpp \
-           src/objects/robots/roboop/newmat/newmat9.cpp \
-           src/objects/robots/roboop/newmat/newmatex.cpp \
-           src/objects/robots/roboop/newmat/newmatnl.cpp \
-           src/objects/robots/roboop/newmat/newmatrm.cpp \
-           src/objects/robots/roboop/newmat/nm_misc.cpp \
-           src/objects/robots/roboop/newmat/solution.cpp \
-           src/objects/robots/roboop/newmat/sort.cpp \
-           src/objects/robots/roboop/newmat/submat.cpp \
-           src/objects/robots/roboop/newmat/svd.cpp \
-           src/objects/robots/roboop/newmat/bandmat.cpp \
            src/objects/cam.cpp \
     src/high.cpp
 
@@ -180,64 +126,13 @@ HEADERS += src/objects/palette.h \
            src/objects/cylinder.h \
            src/objects/mesh3ds.h \
            src/coll.h \
-           src/objects/robots/rm.h \
-           src/objects/robots/rm1.h \
-           src/objects/cubeaxes.h \
            src/gui.h \
            src/cmd.h \
-           src/objects/dice.h \
            src/code.h \
            src/objects/objects.h \
-           src/objects/robots/roboop/source/utils.h \
-           src/objects/robots/roboop/source/trajectory.h \
-           src/objects/robots/roboop/source/stewart.h \
-           src/objects/robots/roboop/source/robot.h \
-           src/objects/robots/roboop/source/quaternion.h \
-           src/objects/robots/roboop/source/dynamics_sim.h \
-           src/objects/robots/roboop/source/controller.h \
-           src/objects/robots/roboop/source/control_select.h \
-           src/objects/robots/roboop/source/config.h \
-           src/objects/robots/roboop/source/clik.h \
-           src/objects/robots/roboop/newmat/controlw.h \
-           src/objects/robots/roboop/newmat/include.h \
-           src/objects/robots/roboop/newmat/myexcept.h \
-           src/objects/robots/roboop/newmat/newmat.h \
-           src/objects/robots/roboop/newmat/newmatap.h \
-           src/objects/robots/roboop/newmat/newmatio.h \
-           src/objects/robots/roboop/newmat/newmatnl.h \
-           src/objects/robots/roboop/newmat/newmatrc.h \
-           src/objects/robots/roboop/newmat/newmatrm.h \
-           src/objects/robots/roboop/newmat/precisio.h \
-           src/objects/robots/roboop/newmat/solution.h \
-           src/objects/robots/roboop/newmat/tmt.h \
            src/objects/cam.h \
     src/high.h
 
-# MIDI IO
-
-contains(DEFINES, HAS_MIDI) {
-  SRC_MIDI = src/midi
-
-  INCLUDEPATH += $$SRC_MIDI
-
-  SOURCES += $$SRC_MIDI/MidiIO.cpp \
-             $$SRC_MIDI/MidiEvent.cpp \
-             $$SRC_MIDI/RtMidi.cpp
-
-  HEADERS += $$SRC_MIDI/MidiIO.h \
-             $$SRC_MIDI/MidiEvent.h \
-             $$SRC_MIDI/RtMidi.h
-}
-
-unix:!mac {
-  contains(DEFINES, HAS_MIDI) {
-      DEFINES += __LINUX_ALSASEQ__
-  }
-} else {
-  DEFINES += __WINDOWS_KS__
-
-  LIBS    += -lsetupapi -lksuser
-}
 
 # WIN32 stuff
 
