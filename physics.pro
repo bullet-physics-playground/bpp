@@ -42,9 +42,10 @@ link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
   PKGCONFIG += bullet alsa lua5.1 luabind
 
-  # the package from Ubuntu didin't work for me, so I used latest QGLViewer from their site
-  # LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
-  LIBS += -lQGLViewer -lglut -lGL -l3ds
+  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
+  # If you se the latest QGLViewer sources from www.libqglviewer.com
+  # use the followings LIBS instead:
+  # LIBS += -lQGLViewer -lglut -lGL -l3ds
 }
 
 win32-msvc* {
