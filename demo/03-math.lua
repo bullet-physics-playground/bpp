@@ -22,7 +22,7 @@ function circle(d,r,N)
     x = math.sin(i / N * math.pi * 2) * r
     y = math.cos(i / N * math.pi * 2) * r
 
-    s = Sphere(d, 1)
+    s = Sphere(d, 1/d)
     s.pos = btVector3(x, d / 2 + 0.1,y)
     s.col = "#0000ff"
     v:add(s)
@@ -30,7 +30,7 @@ function circle(d,r,N)
 end
 
 circle(0.5,  0.0,  1)
-circle(0.25, 0.7,  3)
+circle(0.25, 0.7,  5)
 circle(0.2,  1.2,  8)
 
 v:add(plane)

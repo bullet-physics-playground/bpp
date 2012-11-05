@@ -11,7 +11,7 @@ plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 
 sphere = Sphere()
-sphere.pos = btVector3(4, 0.5, 0)
+sphere.pos = btVector3(0.5, 1.5, 0)
 sphere.col = "#00ff00"
 
 v:add(cube)

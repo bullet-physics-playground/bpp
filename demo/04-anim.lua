@@ -1,6 +1,9 @@
 --
 -- camera movement and pre callback function demo
 --
+-- Known bug: the camera animation keeps running 
+-- after loading another script
+--
 
 cube = Cube() 
 cube.pos = btVector3(0, 0.5, 0);
