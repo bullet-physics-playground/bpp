@@ -32,17 +32,12 @@ physics options:
 * -p generate POV-Ray output
 * -s save screenshots
 
-# Basic Usage HOWTO (WIP)
+# Documentation
 
-* [Basic Usage HOWTO](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)
+* [Basic Usage HOWTO (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)
+* [LUA Scripting Reference (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Scripting-Reference)
 
-# LUA scripting 
-
-## Reference (WIP)
-
-* [LUA Scripting Reference](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Scripting-Reference)
-
-## Examples
+# Examples
 
 * [00-objects.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/00-objects.lua) - basic objects
 * [01-test.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/01-test.lua) - LUA syntax testing
