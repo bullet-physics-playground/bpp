@@ -198,6 +198,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_G :
     _savePNG = !_savePNG;
     break;
+  /*
   case Qt::Key_Left :
     currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
     setManipulatedFrame(keyFrame_[currentKF_]);
@@ -208,6 +209,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     setManipulatedFrame(keyFrame_[currentKF_]);
     updateGL();
     break;
+  */
     //  case Qt::Key_Return :
     // kfi_.toggleInterpolation();
     // break;
@@ -771,8 +773,13 @@ void Viewer::animate() {
 
   if (_simulate) {
     if (_savePNG) {
-      QString file;
-      file.sprintf("d01-%05d.png", _frameNum);
+      QString file;  	
+      QString kk;  	
+      if(!_scriptName.isEmpty()){
+        file.sprintf("screenshots/%s-%05d.png", qPrintable(_scriptName), _frameNum);
+      }else{
+        file.sprintf("screenshots/no_name-%05d.png", qPrintable(_scriptName), _frameNum);
+      }
       saveSnapshot(file, true);
     }
     
