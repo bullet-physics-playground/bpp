@@ -40,7 +40,7 @@ INCLUDEPATH += src
 
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
-  PKGCONFIG += bullet alsa lua5.1 luabind
+  PKGCONFIG += bullet lua5.1 luabind
 
   LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
   # If you se the latest QGLViewer sources from www.libqglviewer.com
