@@ -40,7 +40,7 @@ physics options:
 
 ## Reference (WIP)
 
-* [LUA Scripting Reference](https://github.com/koppi/bullet-physics-playground/wiki/_new?wiki[name]=LUA%20Scripting%20Reference)
+* [LUA Scripting Reference](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Scripting-Reference)
 
 ## Examples
 
