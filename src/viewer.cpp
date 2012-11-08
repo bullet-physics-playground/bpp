@@ -486,11 +486,13 @@ void Viewer::savePrefs() {
 
 void Viewer::openPovFile() {
   QString file;  	
-  QString kk;  	
+  QDir sceneDir("export");
   if(!_scriptName.isEmpty()){
-    file.sprintf("export/%s-%05d.pov", qPrintable(_scriptName), _frameNum);
+    sceneDir.mkdir(qPrintable(_scriptName));
+    file.sprintf("export/%s/%s-%05d.pov", qPrintable(_scriptName),qPrintable(_scriptName), _frameNum);
   }else{
-    file.sprintf("export/no_name-%05d.pov", _frameNum);
+    sceneDir.mkdir("no_name");
+    file.sprintf("export/no_name/no_name-%05d.pov", _frameNum);
   }
 
   // qDebug() << "saving pov file:" << file;
@@ -802,12 +804,14 @@ void Viewer::animate() {
 
   if (_simulate) {
     if (_savePNG) {
+      QDir sceneDir("screenshots");
       QString file;  	
-      QString kk;  	
       if(!_scriptName.isEmpty()){
-        file.sprintf("screenshots/%s-%05d.png", qPrintable(_scriptName), _frameNum);
+        sceneDir.mkdir(qPrintable(_scriptName));
+        file.sprintf("screenshots/%s/%s-%05d.png", qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
       }else{
-        file.sprintf("screenshots/no_name-%05d.png", qPrintable(_scriptName), _frameNum);
+        sceneDir.mkdir("no_name");
+        file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
       }
       saveSnapshot(file, true);
     }

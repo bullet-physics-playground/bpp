@@ -12,6 +12,7 @@
 #include <QMutexLocker>
 
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
 #include <QKeyEvent>
 #include <QSettings>
