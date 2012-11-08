@@ -201,6 +201,9 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_D :
     _deactivation = !_deactivation;
     break;
+  case Qt::Key_R :
+    parse(_scriptContent);
+    break;
   /*
   case Qt::Key_Left :
     currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
@@ -377,6 +380,8 @@ int Viewer::lua_print(lua_State* L) {
 bool Viewer::parse(QString txt) {
   QMutexLocker locker(&mutex);
 
+  _scriptContent = txt;
+	
   bool animStarted = animationIsStarted();
 
   if (animStarted) {

@@ -162,6 +162,7 @@ class Viewer : public QGLViewer
   bool               _savePOV;
   bool		_deactivation;
   QString	_scriptName;
+  QString	_scriptContent;
 
   QMutex mutex;
 
