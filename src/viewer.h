@@ -160,6 +160,7 @@ class Viewer : public QGLViewer
 
   bool               _savePNG;
   bool               _savePOV;
+  bool		_deactivation;
   QString	_scriptName;
 
   QMutex mutex;

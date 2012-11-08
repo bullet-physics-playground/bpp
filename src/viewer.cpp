@@ -198,6 +198,9 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_G :
     _savePNG = !_savePNG;
     break;
+  case Qt::Key_D :
+    _deactivation = !_deactivation;
+    break;
   /*
   case Qt::Key_Left :
     currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
@@ -264,7 +267,9 @@ void Viewer::addObject(Object *o, int type, int mask) {
   _objects->push_back(o);
 
   if (o->body != NULL) {
-	//o->body->setActivationState(DISABLE_DEACTIVATION);
+	if(!_deactivation){  
+	  o->body->setActivationState(DISABLE_DEACTIVATION);
+	}
 	dynamicsWorld->addRigidBody(o->body, type, mask);
   }
 }
@@ -274,7 +279,9 @@ void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
     _objects->push_back(o);
 
 	if (o->body != NULL) {
-	  //o->body->setActivationState(DISABLE_DEACTIVATION);
+          if(!_deactivation){  
+	    o->body->setActivationState(DISABLE_DEACTIVATION);
+	  }
 	  dynamicsWorld->addRigidBody(o->body, type, mask);
 	}
   }
@@ -292,6 +299,7 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   _savePNG = savePNG; _savePOV = savePOV; setSnapshotFormat("png");
   _simulate = false;
+  _deactivation = true;
 
   collisionCfg = new btDefaultCollisionConfiguration();
   //axisSweep = new btAxisSweep3(btVector3(-100,-100,-100), btVector3(100,100,100), 52800);
@@ -744,6 +752,22 @@ void Viewer::postDraw() {
     glColor3f(0.0, 1.0, 1.0);
     glBegin(GL_POINTS);
     glVertex2i(width()-80, 20);
+    glEnd();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+    stopScreenCoordinatesSystem();
+    // restore foregroundColor
+    qglColor(foregroundColor());
+  }
+
+    if (_deactivation) {
+    startScreenCoordinatesSystem();
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glPointSize(12.0);
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_POINTS);
+    glVertex2i(width()-100, 20);
     glEnd();
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
