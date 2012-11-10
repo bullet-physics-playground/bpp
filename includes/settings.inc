@@ -1,11 +1,11 @@
 #declare Rad_Quality = 0;
 #declare Phot_Quality = 0;
 
+#include "colors.inc"
 #include "stones.inc"
 #include "woods.inc"
 
 global_settings {
-  ambient_light White
   assumed_gamma 1
 
 #switch (Phot_Quality)
@@ -62,14 +62,6 @@ global_settings {
 #end 
 
 } 
-
-fog { 
-  fog_type 2 
-  fog_alt 1.3 
-  fog_offset 0 
-  color rgb <0.2, 0.2, 0.2> 
-  distance 800 
-}
 
 light_source {
   <1000, 10000, 15000>

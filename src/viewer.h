@@ -154,10 +154,15 @@ class Viewer : public QGLViewer
   QTime              _time;
 
   QTextStream      *_stream;
+  QTextStream      *_streamMain;
+  QTextStream      *_streamINI;
 
   int              _frameNum;
+  int		   _firstFrame;
 
   QFile            *_file;
+  QFile            *_fileMain;
+  QFile            *_fileINI;
 
   bool               _savePNG;
   bool               _savePOV;
