@@ -379,6 +379,10 @@ void Gui::debug(QString txt) {
 }
 
 void Gui::newFile() {
+  editor->clear();
+  setCurrentFile(editor->script_filename);
+  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  saveAction->setEnabled(false);
 }
 
 void Gui::openFile(const QString& path) {
@@ -395,6 +399,7 @@ void Gui::saveAs() {
   editor->saveAs();
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  saveAction->setEnabled(true);
 }
 
 void Gui::saveFile(const QString& path) {

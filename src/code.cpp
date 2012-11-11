@@ -45,6 +45,14 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent) {
   connect(a, SIGNAL(triggered()), this, SLOT(saveAs()));
 }
 
+void CodeEditor::clear() {
+	
+  setPlainText("");
+  script_filename = "no_name";
+  emit scriptLoaded();
+
+}
+
 bool CodeEditor::load(QString filename) {
   if (filename.isEmpty()) {
 	filename = QString(".lua");

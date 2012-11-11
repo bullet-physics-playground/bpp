@@ -27,6 +27,7 @@ class CodeEditor : public QPlainTextEdit {
 
   QString script_filename;
  public slots:
+  void clear();
   bool save();
   bool load(QString filename=QString());
   bool saveAs(QString filename=QString());
