@@ -343,6 +343,30 @@ void Viewer::setSavePOV(bool pov) {
   _savePOV = pov;
 }
 
+void Viewer::toggleSavePNG() {
+  _savePNG = !_savePNG;
+}
+
+void Viewer::toggleSavePOV() {
+  _savePOV = !_savePOV;
+}
+
+void Viewer::toggleDeactivation() {
+  _deactivation = !_deactivation;
+}
+
+void Viewer::startSim() {
+  _simulate = true;
+}
+
+void Viewer::stopSim() {
+  _simulate = false;
+}
+
+void Viewer::restartSim() {
+  parse(_scriptContent);
+}
+
 void Viewer::setScriptName(QString sn) {
   _scriptName = sn;	
 }	

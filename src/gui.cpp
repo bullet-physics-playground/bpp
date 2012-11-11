@@ -131,8 +131,18 @@ void Gui::createToolBar() {
   myToolBar->addAction( saveAction );
   myToolBar->addAction( saveAsAction );
   myToolBar->addSeparator();
+  myToolBar->addAction( cutAction );
+  myToolBar->addAction( copyAction );
+  myToolBar->addAction( pasteAction );
+  myToolBar->addAction( prefsAction );
+  myToolBar->addSeparator();
   myToolBar->addAction( playAction );
   myToolBar->addAction( stopAction );
+  myToolBar->addAction( restartAction );
+  myToolBar->addSeparator();
+  myToolBar->addAction( povAction );
+  myToolBar->addAction( pngAction );
+  myToolBar->addAction( deactivationAction );
 
   addToolBar( myToolBar );
 }
@@ -162,17 +172,17 @@ void Gui::createActions() {
   saveAsAction->setStatusTip(tr("Save file as.."));
   connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-  cutAction = new QAction(QIcon::fromTheme("document-cut"), tr("Cu&t"), this);
+  cutAction = new QAction(QIcon::fromTheme("edit-cut"), tr("Cu&t"), this);
   cutAction->setShortcuts(QKeySequence::Cut);
   cutAction->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
   connect(cutAction, SIGNAL(triggered()), editor, SLOT(cut()));
 
-  copyAction = new QAction(QIcon::fromTheme(":document-copy"), tr("&Copy"), this);
+  copyAction = new QAction(QIcon::fromTheme("edit-copy"), tr("&Copy"), this);
   copyAction->setShortcuts(QKeySequence::Copy);
   copyAction->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
   connect(copyAction, SIGNAL(triggered()), editor, SLOT(copy()));
 
-  pasteAction = new QAction(QIcon::fromTheme("document-paste"), tr("&Paste"), this);
+  pasteAction = new QAction(QIcon::fromTheme("edit-paste"), tr("&Paste"), this);
   pasteAction->setShortcuts(QKeySequence::Paste);
   pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
   connect(pasteAction, SIGNAL(triggered()), editor, SLOT(paste()));
@@ -181,7 +191,7 @@ void Gui::createActions() {
   connect(editor, SIGNAL(copyAvailable(bool)), cutAction, SLOT(setEnabled(bool)));
   connect(editor, SIGNAL(copyAvailable(bool)), copyAction, SLOT(setEnabled(bool)));
 
-  prefsAction = new QAction(tr("&Preferences.."), this);
+  prefsAction = new QAction(QIcon::fromTheme("preferences-system"), tr("&Preferences.."), this);
   prefsAction->setShortcut(tr("Ctrl+P"));
   prefsAction->setStatusTip(tr("Edit application preferences"));
   connect(prefsAction, SIGNAL(triggered()), this, SLOT(editPrefs()));
@@ -206,6 +216,31 @@ void Gui::createActions() {
   stopAction->setShortcut(tr("Ctrl+C"));
   stopAction->setStatusTip(tr("Stop Simulation"));
   connect(stopAction, SIGNAL(triggered()), this, SLOT( stopProgram() ));
+
+  QIcon restartIcon = QIcon::fromTheme("view-refresh");
+  restartAction = new QAction(restartIcon,tr("&Restart Simulation"), this);
+  restartAction->setShortcut(tr("Ctrl+R"));
+  restartAction->setStatusTip(tr("Restart Simulation"));
+  connect(restartAction, SIGNAL(triggered()), this, SLOT( rerunProgram() ));
+
+  QIcon povIcon = QIcon("icons/povray.png");
+  povAction = new QAction(povIcon,tr("Toggle &POV export"), this);
+  povAction->setShortcut(tr("Ctrl+R"));
+  povAction->setStatusTip(tr("Toggle POV export"));
+  connect(povAction, SIGNAL(triggered()), this, SLOT( toggleExport() ));
+
+  QIcon pngIcon = QIcon::fromTheme("camera");
+  pngAction = new QAction(pngIcon,tr("Toggle PNG &screenshot saving"), this);
+  pngAction->setShortcut(tr("Ctrl+R"));
+  pngAction->setStatusTip(tr("Toggle PNG screenshot saving"));
+  connect(pngAction, SIGNAL(triggered()), this, SLOT( toggleScreenshots() ));
+
+  QIcon deactivationIcon = QIcon("icons/deactivation.png");
+  deactivationAction = new QAction(deactivationIcon,tr("Toggle &deactivation state"), this);
+  deactivationAction->setShortcut(tr("Ctrl+R"));
+  deactivationAction->setStatusTip(tr("Toggle deactivation state"));
+  connect(deactivationAction, SIGNAL(triggered()), this, SLOT( toggleDeactivationState() ));
+
   for (int i = 0; i < MAX_RECENT_FILES; ++i) {
     recentFileActions[i] = new QAction(this);
     recentFileActions[i]->setVisible(false);

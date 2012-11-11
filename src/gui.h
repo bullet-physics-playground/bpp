@@ -56,12 +56,27 @@ class Gui : public QMainWindow {
   }
 
   void runProgram() {
-    statusBar()->showMessage(tr("Running optimization..."));
-    emit play();
+    statusBar()->showMessage(tr("Running simulation..."));
+    ui.viewer->startSim();
+    //emit play();
   }
   void stopProgram() {
-    statusBar()->showMessage(tr("Stopped optimization."));
-    emit stop();
+    statusBar()->showMessage(tr("Stopped simulation."));
+    ui.viewer->stopSim();
+    //emit stop();
+  }
+  void rerunProgram() {
+    statusBar()->showMessage(tr("Running re-started simulation..."));
+    ui.viewer->restartSim();
+  }
+  void toggleExport() {
+    ui.viewer->toggleSavePOV();
+  }
+  void toggleScreenshots() {
+    ui.viewer->toggleSavePNG();
+  }
+  void toggleDeactivationState() {
+    ui.viewer->toggleDeactivation();
   }
 
   void fontChanged(const QString &family, uint size);
@@ -115,6 +130,11 @@ class Gui : public QMainWindow {
 
   QAction *playAction;
   QAction *stopAction;
+  QAction *restartAction;
+  
+  QAction *povAction;
+  QAction *pngAction;
+  QAction *deactivationAction;
 
   // toolbars
   QToolBar* myToolBar;

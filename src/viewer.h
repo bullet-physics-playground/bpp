@@ -69,6 +69,12 @@ class Viewer : public QGLViewer
 
   void setSavePNG(bool png);
   void setSavePOV(bool pov);
+  void toggleSavePOV();
+  void toggleSavePNG();
+  void toggleDeactivation();
+  void startSim();
+  void stopSim();
+  void restartSim();
 
   void addObject(Object* o);
   void setCamera(Camera* cam);
