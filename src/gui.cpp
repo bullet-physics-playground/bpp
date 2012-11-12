@@ -27,8 +27,9 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   this->savePNG = savePNG;
   this->savePOV = savePOV;
+  _fileSaved=true;
 
-  connect(editor, SIGNAL(textChanged()), this, SLOT(parseEditor()));
+  connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
   connect(ui.viewer, SIGNAL(scriptHasOutput(QString)),
 		  this, SLOT(debug(QString)));
@@ -92,6 +93,7 @@ void Gui::loadLastFile() {
   } else {
     //loadFile(":demo/00-objects.lua");
   }
+  _fileSaved=true;
 }
 
 void Gui::loadFile(const QString &path) {
@@ -110,6 +112,7 @@ void Gui::loadFile(const QString &path) {
 	setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
 	parseEditor();
 	statusBar()->showMessage(tr("File loaded"), 2000);
+        _fileSaved=true;
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
 	//  drillView->zoomFit();
@@ -360,6 +363,11 @@ QString Gui::strippedNameNoExt(const QString &fullFileName) {
   return QFileInfo(fullFileName).baseName();
 }
 
+void Gui::scriptChanged() {
+  _fileSaved=false;
+  parseEditor();
+}
+
 void Gui::parseEditor() {
   ui.viewer->parse(editor->toPlainText());
 }
@@ -389,10 +397,12 @@ void Gui::openFile(const QString& path) {
   editor->load(path);
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  _fileSaved=true;
 }
 
 void Gui::save() {
   editor->save();
+  _fileSaved=true;
 }
 
 void Gui::saveAs() {
@@ -400,12 +410,14 @@ void Gui::saveAs() {
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(true);
+  _fileSaved=true;
 }
 
 void Gui::saveFile(const QString& path) {
   editor->saveAs(path);
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  _fileSaved=true;
 }
 
 void Gui::editPrefs() {
@@ -456,9 +468,23 @@ void Gui::moveEvent(QMoveEvent *) {
 void Gui::resizeEvent(QResizeEvent *) {
 }
 
-void Gui::closeEvent(QCloseEvent *) {
+void Gui::closeEvent(QCloseEvent * event) {
   // qDebug() << "Gui::closeEvent";
-  saveSettings();
+  if(!_fileSaved){
+    event->ignore();	    
+    msgBox = new QMessageBox(this);
+    msgBox->setWindowTitle("Warning");
+    msgBox->setText("File not saved: exit anyhow?");        
+    QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
+    msgBox->exec();  
+    if ((QPushButton*)msgBox->clickedButton() == yesButton){
+      saveSettings();
+      event->accept();
+    }
+  }else{
+    saveSettings();
+  }
 }
 
 void Gui::command(QString cmd) {

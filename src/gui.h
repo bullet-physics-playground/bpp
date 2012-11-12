@@ -14,7 +14,8 @@ class Gui : public QMainWindow {
 
  public: 
   Gui(bool savePOV = false, bool savePNG = false, QWidget *parent = 0);
-
+  QMessageBox* msgBox;
+ 
  private slots:
   void updateValues();
   void command(QString cmd);
@@ -45,6 +46,8 @@ class Gui : public QMainWindow {
 
   void loadLastFile();
 
+  void scriptChanged();
+ 
   void parseEditor();
 
   // drag & drop support
@@ -90,6 +93,8 @@ class Gui : public QMainWindow {
   void createToolBar();
   void createActions();
   void createMenus();
+ 
+  bool _fileSaved;
   
   // settings
   QSettings *settings;
