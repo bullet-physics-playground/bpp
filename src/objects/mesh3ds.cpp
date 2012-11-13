@@ -24,9 +24,24 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   Lib3dsFile *m_model = lib3ds_file_open(filename.toAscii());
 
   if (!m_model) {
+	  
       qDebug() << "Unable to load " << filename;
-      return;
-  }
+  btEmptyShape *shape = new btEmptyShape();
+  btQuaternion qtn;
+  btTransform trans;
+  btDefaultMotionState *motionState;
+
+  trans.setIdentity();
+  qtn.setEuler(0.0, 0.0, 0.0);
+  trans.setRotation(qtn);
+  trans.setOrigin(btVector3(0, 0, 0));
+  motionState = new btDefaultMotionState(trans);
+
+  btVector3 inertia;
+  shape->calculateLocalInertia(mass,inertia);  
+  body = new btRigidBody(mass, motionState, shape, inertia);
+	  
+  }else{
 
   Lib3dsMesh * mesh;
   int i = 0;
@@ -94,6 +109,7 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
   btVector3 inertia;
   shape->calculateLocalInertia(mass,inertia);  
   body = new btRigidBody(mass, motionState, shape, inertia);
+  }
   
 }
 
@@ -139,7 +155,11 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glColor3ubv(color);
+  if(listref>0){
   glCallList(listref);
+  }else{
+    glutSolidCube(0.0f);
+  }
   glPopMatrix();
 
   if (s != NULL) {  
