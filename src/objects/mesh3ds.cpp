@@ -25,90 +25,89 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
 
   if (!m_model) {
 	  
-      qDebug() << "Unable to load " << filename;
-  btEmptyShape *shape = new btEmptyShape();
-  btQuaternion qtn;
-  btTransform trans;
-  btDefaultMotionState *motionState;
+    qDebug() << "Unable to load " << filename << ": using empty shape.";
+	  
+    btEmptyShape *shape = new btEmptyShape();
+    btQuaternion qtn;
+    btTransform trans;
+    btDefaultMotionState *motionState;
 
-  trans.setIdentity();
-  qtn.setEuler(0.0, 0.0, 0.0);
-  trans.setRotation(qtn);
-  trans.setOrigin(btVector3(0, 0, 0));
-  motionState = new btDefaultMotionState(trans);
+    trans.setIdentity();
+    qtn.setEuler(0.0, 0.0, 0.0);
+    trans.setRotation(qtn);
+    trans.setOrigin(btVector3(0, 0, 0));
+    motionState = new btDefaultMotionState(trans);
 
-  btVector3 inertia;
-  shape->calculateLocalInertia(mass,inertia);  
-  body = new btRigidBody(mass, motionState, shape, inertia);
+    btVector3 inertia;
+    shape->calculateLocalInertia(mass,inertia);  
+    body = new btRigidBody(mass, motionState, shape, inertia);
 	  
   }else{
 
-  Lib3dsMesh * mesh;
-  int i = 0;
-  int count = 0;
+    Lib3dsMesh * mesh;
+    int i = 0;
+    int count = 0;
 
-  btTriangleMesh* trimesh = new btTriangleMesh();
-
-  count = 0;
-  for (i = 0; i < m_model->nmeshes; i++) {
-    mesh = m_model->meshes[i];
-    count += mesh->nfaces;
-  }
-
-  int cnt = 0;
-  listref = glGenLists(1);
-  assert(listref != 0);
-
-  glNewList(listref,GL_COMPILE);
-  glBegin(GL_TRIANGLES);
-
-  float (*normals)[3] = new float[count][3];
-
-  for (i = 0; i < m_model->nmeshes; i++) {
-    mesh = m_model->meshes[i];
-    unsigned int cnt1 = mesh->nfaces;
-
-	lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
-    // uint index = 0;
-    for (uint x=0; x<cnt1; x++) { // face
-      glNormal3f(normals[cnt+x][0], normals[cnt+x][1], normals[cnt+x][2]);
-      for (uint y=0; y<3; y++) { // vertex
-	//indices[cnt+x][y] = index++;
-	uint num = mesh->faces[x].index[y];
-	glVertex3f(mesh->vertices[num][0], mesh->vertices[num][1], mesh->vertices[num][2]);
-      }
-
-      uint num1 = mesh->faces[x].index[0];
-      uint num2 = mesh->faces[x].index[1];
-      uint num3 = mesh->faces[x].index[2];
-      
-      trimesh->addTriangle(btVector3(mesh->vertices[num1][0],mesh->vertices[num1][1],mesh->vertices[num1][2]),
-			   btVector3(mesh->vertices[num2][0],mesh->vertices[num2][1],mesh->vertices[num2][2]),
-			   btVector3(mesh->vertices[num3][0],mesh->vertices[num3][1],mesh->vertices[num3][2]));
+    btTriangleMesh* trimesh = new btTriangleMesh();
+ 
+    count = 0;
+    for (i = 0; i < m_model->nmeshes; i++) {
+      mesh = m_model->meshes[i];
+      count += mesh->nfaces;
     }
 
-    cnt += cnt1;
-  }
+    int cnt = 0;
+    listref = glGenLists(1);
+    assert(listref != 0);
+
+    glNewList(listref,GL_COMPILE);
+    glBegin(GL_TRIANGLES);
+
+    float (*normals)[3] = new float[count][3];
+
+    for (i = 0; i < m_model->nmeshes; i++) {
+      mesh = m_model->meshes[i];
+      unsigned int cnt1 = mesh->nfaces;
+      lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
+      // uint index = 0;
+      for (uint x=0; x<cnt1; x++) { // face
+        glNormal3f(normals[cnt+x][0], normals[cnt+x][1], normals[cnt+x][2]);
+        for (uint y=0; y<3; y++) { // vertex
+  	  //indices[cnt+x][y] = index++;
+	  uint num = mesh->faces[x].index[y];
+	  glVertex3f(mesh->vertices[num][0], mesh->vertices[num][1], mesh->vertices[num][2]);
+        }
+        uint num1 = mesh->faces[x].index[0];
+        uint num2 = mesh->faces[x].index[1];
+        uint num3 = mesh->faces[x].index[2];    
+        trimesh->addTriangle(btVector3(mesh->vertices[num1][0],mesh->vertices[num1][1],mesh->vertices[num1][2]),
+			   btVector3(mesh->vertices[num2][0],mesh->vertices[num2][1],mesh->vertices[num2][2]),
+			   btVector3(mesh->vertices[num3][0],mesh->vertices[num3][1],mesh->vertices[num3][2]));
+      }
+
+      cnt += cnt1;
+    }
   
-  glEnd();
-  glEndList();
+    glEnd();
+    glEndList();
 
-  btGImpactMeshShape *shape = new btGImpactMeshShape(trimesh);
-  shape->updateBound();
+    btGImpactMeshShape *shape = new btGImpactMeshShape(trimesh);
+    shape->updateBound();
 
-  btQuaternion qtn;
-  btTransform trans;
-  btDefaultMotionState *motionState;
+    btQuaternion qtn;
+    btTransform trans;
+    btDefaultMotionState *motionState;
 
-  trans.setIdentity();
-  qtn.setEuler(0.0, 0.0, 0.0);
-  trans.setRotation(qtn);
-  trans.setOrigin(btVector3(0, 0, 0));
-  motionState = new btDefaultMotionState(trans);
+    trans.setIdentity();
+    qtn.setEuler(0.0, 0.0, 0.0);
+    trans.setRotation(qtn);
+    trans.setOrigin(btVector3(0, 0, 0));
+    motionState = new btDefaultMotionState(trans);
 
-  btVector3 inertia;
-  shape->calculateLocalInertia(mass,inertia);  
-  body = new btRigidBody(mass, motionState, shape, inertia);
+    btVector3 inertia;
+    shape->calculateLocalInertia(mass,inertia);  
+    body = new btRigidBody(mass, motionState, shape, inertia);
+    
   }
   
 }
@@ -156,7 +155,7 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glColor3ubv(color);
   if(listref>0){
-  glCallList(listref);
+    glCallList(listref);
   }else{
     glutSolidCube(0.0f);
   }
