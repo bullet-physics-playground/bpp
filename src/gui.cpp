@@ -5,6 +5,9 @@
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 
 Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
+  _fileSaved=true;
+  _simulationRunning=false;
+	
   ui.setupUi(this);
 
   // setAttribute(Qt::WA_DeleteOnClose);
@@ -27,8 +30,6 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   this->savePNG = savePNG;
   this->savePOV = savePOV;
-  _fileSaved=true;
-  _simulationRunning=false;
 
   connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
@@ -47,6 +48,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   connect(ui.viewer, SIGNAL(postDrawShot(int)), this, SLOT(postDraw(int)));
 
   QTimer::singleShot(0, this, SLOT(loadLastFile()));
+  newFile();
 }
 
 void Gui::toggleSimButton(bool simRunning) {
@@ -140,7 +142,6 @@ void Gui::loadLastFile() {
   } else {
     //loadFile(":demo/00-objects.lua");
   }
-  _fileSaved=true;
 }
 
 void Gui::loadFile(const QString &path) {
@@ -418,6 +419,7 @@ QString Gui::strippedNameNoExt(const QString &fullFileName) {
 }
 
 void Gui::scriptChanged() {
+  saveAction->setEnabled(true);
   _fileSaved=false;
   parseEditor();
 }
@@ -441,16 +443,40 @@ void Gui::debug(QString txt) {
 }
 
 void Gui::newFile() {
+  if(!_fileSaved){
+    msgBox = new QMessageBox(this);
+    msgBox->setWindowTitle("Warning");
+    msgBox->setText("Current file not saved: continue anyhow?");        
+    QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
+    msgBox->exec();  
+    if ((QPushButton*)msgBox->clickedButton() != yesButton){
+	return;
+    }
+  } 
   editor->clear();
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(false);
+  _fileSaved=true;
 }
 
 void Gui::openFile(const QString& path) {
+  if(!_fileSaved){
+    msgBox = new QMessageBox(this);
+    msgBox->setWindowTitle("Warning");
+    msgBox->setText("Current file not saved: continue anyhow?");        
+    QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
+    msgBox->exec();  
+    if ((QPushButton*)msgBox->clickedButton() != yesButton){
+	return;
+    }
+  } 
   editor->load(path);
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  saveAction->setEnabled(false);
   _fileSaved=true;
 }
 
