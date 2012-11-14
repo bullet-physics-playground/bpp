@@ -28,11 +28,15 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   this->savePNG = savePNG;
   this->savePOV = savePOV;
   _fileSaved=true;
+  _simulationRunning=false;
 
   connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
-  connect(ui.viewer, SIGNAL(scriptHasOutput(QString)),
-		  this, SLOT(debug(QString)));
+  connect(ui.viewer, SIGNAL(scriptHasOutput(QString)), this, SLOT(debug(QString)));
+  connect(ui.viewer, SIGNAL(simulationStateChanged(bool)), this, SLOT(toggleSimButton(bool)));
+  connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVButton(bool)));
+  connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(togglePNGButton(bool)));
+  connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivationButton(bool)));
 
   //  ui.cmdline->setFocus();
 
@@ -44,6 +48,49 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   QTimer::singleShot(0, this, SLOT(loadLastFile()));
 }
+
+void Gui::toggleSimButton(bool simRunning) {
+  if(simRunning){
+    QIcon playIcon = QIcon::fromTheme("media-playback-pause");	  
+    playAction->setIcon(playIcon);
+    playAction->setText(tr("Pause &Simulation"));
+    playAction->setShortcut(tr("Ctrl+C"));
+    playAction->setStatusTip(tr("Pause Simulation"));
+    playAction->setChecked(true);
+  }else{
+    QIcon playIcon = QIcon::fromTheme("media-playback-start");
+    playAction->setIcon(playIcon);
+    playAction->setText(tr("&Run simulation.."));
+    playAction->setShortcut(tr("Ctrl+P"));
+    playAction->setStatusTip(tr("Run Simulation"));
+    playAction->setChecked(false);
+  }
+}
+
+void Gui::togglePOVButton(bool enabledPOV) {
+  if(enabledPOV){
+    povAction->setChecked(true);
+  }else{
+    povAction->setChecked(false);
+  }
+}
+
+void Gui::togglePNGButton(bool enabledPNG) {
+  if(enabledPNG){
+    pngAction->setChecked(true);
+  }else{
+    pngAction->setChecked(false);
+  }
+}
+
+void Gui::toggleDeactivationButton(bool enabledDeactivation) {
+  if(enabledDeactivation){
+    deactivationAction->setChecked(true);
+  }else{
+    deactivationAction->setChecked(false);
+  }
+}
+
 
 void Gui::postDraw(int frame) {
   //QPixmap p = QPixmap::grabWidget(this);
@@ -140,7 +187,7 @@ void Gui::createToolBar() {
   myToolBar->addAction( prefsAction );
   myToolBar->addSeparator();
   myToolBar->addAction( playAction );
-  myToolBar->addAction( stopAction );
+  //myToolBar->addAction( stopAction );
   myToolBar->addAction( restartAction );
   myToolBar->addSeparator();
   myToolBar->addAction( povAction );
@@ -212,13 +259,16 @@ void Gui::createActions() {
   playAction = new QAction(playIcon,tr("&Run simulation.."), this);
   playAction->setShortcut(tr("Ctrl+P"));
   playAction->setStatusTip(tr("Run Simulation"));
-  connect(playAction, SIGNAL(triggered()), this, SLOT( runProgram() ));
+  playAction->setCheckable(true);
+  connect(playAction, SIGNAL(triggered()), this, SLOT( toggleSim() ));
+  //connect(playAction, SIGNAL(triggered()), this, SLOT( runProgram() ));
 
-  QIcon stopIcon = QIcon::fromTheme("media-playback-stop");
-  stopAction = new QAction(stopIcon,tr("&Stop Simulation"), this);
+  /*QIcon stopIcon = QIcon::fromTheme("media-playback-pause");
+  stopAction = new QAction(stopIcon,tr("Pause &Simulation"), this);
   stopAction->setShortcut(tr("Ctrl+C"));
-  stopAction->setStatusTip(tr("Stop Simulation"));
-  connect(stopAction, SIGNAL(triggered()), this, SLOT( stopProgram() ));
+  stopAction->setStatusTip(tr("Pause Simulation"));
+  stopAction->setCheckable(true);
+  connect(stopAction, SIGNAL(triggered()), this, SLOT( stopProgram() ));*/
 
   QIcon restartIcon = QIcon::fromTheme("view-refresh");
   restartAction = new QAction(restartIcon,tr("&Restart Simulation"), this);
@@ -230,18 +280,22 @@ void Gui::createActions() {
   povAction = new QAction(povIcon,tr("Toggle &POV export"), this);
   povAction->setShortcut(tr("Ctrl+R"));
   povAction->setStatusTip(tr("Toggle POV export"));
+  povAction->setCheckable(true);
   connect(povAction, SIGNAL(triggered()), this, SLOT( toggleExport() ));
 
   QIcon pngIcon = QIcon::fromTheme("camera");
   pngAction = new QAction(pngIcon,tr("Toggle PNG &screenshot saving"), this);
   pngAction->setShortcut(tr("Ctrl+R"));
   pngAction->setStatusTip(tr("Toggle PNG screenshot saving"));
+  pngAction->setCheckable(true);
   connect(pngAction, SIGNAL(triggered()), this, SLOT( toggleScreenshots() ));
 
   QIcon deactivationIcon = QIcon("icons/deactivation.png");
   deactivationAction = new QAction(deactivationIcon,tr("Toggle &deactivation state"), this);
   deactivationAction->setShortcut(tr("Ctrl+R"));
   deactivationAction->setStatusTip(tr("Toggle deactivation state"));
+  deactivationAction->setCheckable(true);
+  deactivationAction->setChecked(true);
   connect(deactivationAction, SIGNAL(triggered()), this, SLOT( toggleDeactivationState() ));
 
   for (int i = 0; i < MAX_RECENT_FILES; ++i) {

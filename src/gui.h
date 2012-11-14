@@ -31,6 +31,10 @@ class Gui : public QMainWindow {
  public slots:
   void postDraw(int);
   void debug(QString msg);
+  void toggleSimButton(bool);
+  void togglePOVButton(bool);
+  void togglePNGButton(bool);
+  void toggleDeactivationButton(bool);
   
   void about();
   void newFile();
@@ -63,10 +67,33 @@ class Gui : public QMainWindow {
     ui.viewer->startSim();
     //emit play();
   }
+  /*
   void stopProgram() {
     statusBar()->showMessage(tr("Stopped simulation."));
     ui.viewer->stopSim();
     //emit stop();
+  }
+  */
+  void toggleSim() {
+    if(_simulationRunning){
+    QIcon playIcon = QIcon::fromTheme("media-playback-start");
+    playAction->setIcon(playIcon);
+    playAction->setText(tr("&Run simulation.."));
+    playAction->setShortcut(tr("Ctrl+P"));
+    playAction->setStatusTip(tr("Run Simulation"));
+      statusBar()->showMessage(tr("Stopped simulation."));
+      ui.viewer->stopSim();
+      _simulationRunning=false;
+    }else{
+    QIcon playIcon = QIcon::fromTheme("media-playback-pause");	  
+    playAction->setIcon(playIcon);
+    playAction->setText(tr("Pause &Simulation"));
+    playAction->setShortcut(tr("Ctrl+C"));
+    playAction->setStatusTip(tr("Pause Simulation"));
+      statusBar()->showMessage(tr("Running simulation..."));
+      ui.viewer->startSim();
+      _simulationRunning=true;
+    }
   }
   void rerunProgram() {
     statusBar()->showMessage(tr("Running re-started simulation..."));
@@ -86,7 +113,7 @@ class Gui : public QMainWindow {
 
  signals:
   void play();
-  void stop();
+  //void stop();
 
  private:
   void createDock();
@@ -95,6 +122,7 @@ class Gui : public QMainWindow {
   void createMenus();
  
   bool _fileSaved;
+  bool _simulationRunning;
   
   // settings
   QSettings *settings;
@@ -134,7 +162,7 @@ class Gui : public QMainWindow {
   QAction *aboutAction;
 
   QAction *playAction;
-  QAction *stopAction;
+  //QAction *stopAction;
   QAction *restartAction;
   
   QAction *povAction;

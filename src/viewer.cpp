@@ -191,18 +191,22 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 
   case Qt::Key_S :
     _simulate = !_simulate;
+    emit simulationStateChanged(_simulate);
     break;
   case Qt::Key_P :
     _savePOV = !_savePOV;
     if(_savePOV){
       _firstFrame=_frameNum;
     }
+    emit POVStateChanged(_savePOV);
     break;
   case Qt::Key_G :
     _savePNG = !_savePNG;
+    emit PNGStateChanged(_savePNG);
     break;
   case Qt::Key_D :
     _deactivation = !_deactivation;
+    emit deactivationStateChanged(_deactivation);
     break;
   case Qt::Key_R :
     parse(_scriptContent);

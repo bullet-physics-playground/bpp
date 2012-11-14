@@ -94,12 +94,16 @@ class Viewer : public QGLViewer
 
   void setCBPreDraw(const luabind::object &fn);
   void setCBPostDraw(const luabind::object &fn);
-
+ 
  signals:
   void scriptFinished();
   void scriptStopped();
   void scriptHasOutput(const QString&);
   void postDrawShot(int);
+  void simulationStateChanged(bool);
+  void POVStateChanged(bool);
+  void PNGStateChanged(bool);
+  void deactivationStateChanged(bool);
 
  protected:
   virtual void init();
