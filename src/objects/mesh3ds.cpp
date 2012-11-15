@@ -27,6 +27,8 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
 	  
     qDebug() << "Unable to load " << filename << ": using empty shape.";
 	  
+    listref=0;
+	  
     btEmptyShape *shape = new btEmptyShape();
     btQuaternion qtn;
     btTransform trans;

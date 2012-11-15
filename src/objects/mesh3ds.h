@@ -24,7 +24,7 @@ class Mesh3DS : public Object {
   QString toString() const;
 
   virtual void renderInLocalFrame(QTextStream *s) const;
-
+ 
  protected:
   int listref;
   GLuint count;
