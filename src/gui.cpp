@@ -59,6 +59,7 @@ void Gui::toggleSimButton(bool simRunning) {
     playAction->setShortcut(tr("Ctrl+C"));
     playAction->setStatusTip(tr("Pause Simulation"));
     playAction->setChecked(true);
+    _simulationRunning=true;
   }else{
     QIcon playIcon = QIcon::fromTheme("media-playback-start");
     playAction->setIcon(playIcon);
@@ -66,6 +67,7 @@ void Gui::toggleSimButton(bool simRunning) {
     playAction->setShortcut(tr("Ctrl+P"));
     playAction->setStatusTip(tr("Run Simulation"));
     playAction->setChecked(false);
+    _simulationRunning=false;
   }
 }
 
@@ -482,6 +484,7 @@ void Gui::openFile(const QString& path) {
 
 void Gui::save() {
   editor->save();
+  saveAction->setEnabled(false);
   _fileSaved=true;
 }
 
@@ -497,6 +500,7 @@ void Gui::saveFile(const QString& path) {
   editor->saveAs(path);
   setCurrentFile(editor->script_filename);
   ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+  saveAction->setEnabled(false);
   _fileSaved=true;
 }
 
