@@ -83,6 +83,9 @@ void Viewer::luaBind(lua_State *s) {
 	 .def( "setX", &btVector3::setX )
 	 .def( "setY", &btVector3::setY )
 	 .def( "setZ", &btVector3::setZ )
+         .def( "absolute", &btVector3::absolute )
+         .def("angle", &btVector3::angle )
+         .def("closestAxis", &btVector3::closestAxis )
 	 ];
 
   module(s)
