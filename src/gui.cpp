@@ -279,7 +279,7 @@ void Gui::createActions() {
   restartAction->setStatusTip(tr("Restart Simulation"));
   connect(restartAction, SIGNAL(triggered()), this, SLOT( rerunProgram() ));
 
-  QIcon povIcon = QIcon("icons/povray.png");
+  QIcon povIcon = QIcon(":icons/povray.png");
   povAction = new QAction(povIcon,tr("Toggle &POV export"), this);
   povAction->setShortcut(tr("Ctrl+R"));
   povAction->setStatusTip(tr("Toggle POV export"));
@@ -293,7 +293,7 @@ void Gui::createActions() {
   pngAction->setCheckable(true);
   connect(pngAction, SIGNAL(triggered()), this, SLOT( toggleScreenshots() ));
 
-  QIcon deactivationIcon = QIcon("icons/deactivation.png");
+  QIcon deactivationIcon = QIcon(":icons/deactivation.png");
   deactivationAction = new QAction(deactivationIcon,tr("Toggle &deactivation state"), this);
   deactivationAction->setShortcut(tr("Ctrl+R"));
   deactivationAction->setStatusTip(tr("Toggle deactivation state"));
