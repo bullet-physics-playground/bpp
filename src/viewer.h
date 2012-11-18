@@ -143,6 +143,8 @@ class Viewer : public QGLViewer
   QString lua_error;
 
   Cam *_cam;
+  Vec _initialCameraPosition;
+  Quaternion _initialCameraOrientation;
 
   bool _simulate;
 

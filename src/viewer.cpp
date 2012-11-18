@@ -214,6 +214,11 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_R :
     parse(_scriptContent);
     break;
+  case Qt::Key_C :
+    camera()->setPosition(_initialCameraPosition);
+    camera()->setOrientation(_initialCameraOrientation);
+    updateGL();
+    break;    
   /*
   case Qt::Key_Left :
     currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
@@ -331,7 +336,7 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
 
   setManipulatedFrame(new ManipulatedFrame());
   camera()->setType(Camera::PERSPECTIVE);
-
+  
   loadPrefs();
 
   startAnimation();
@@ -664,6 +669,8 @@ void Viewer::init() {
   glEnable(GL_LIGHT1);
 
   // qDebug() << "Viewer::init() end";
+  _initialCameraPosition=camera()->position();
+  _initialCameraOrientation=camera()->orientation();
 }
 
 void Viewer::draw() {
