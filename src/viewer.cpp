@@ -868,26 +868,27 @@ void Viewer::animate() {
   // float nbSecsElapsed = 1.0 / 24.0;
   //  float nbSecsElapsed = _time.elapsed()/10.0f;
 
-  if (_simulate) {
-    if (_savePNG) {
-      QDir sceneDir("screenshots");
-      QString file;  	
-      if(!_scriptName.isEmpty()){
-        sceneDir.mkdir(qPrintable(_scriptName));
-        file.sprintf("screenshots/%s/%s-%05d.png", qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
-      }else{
-        sceneDir.mkdir("no_name");
-        file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
-      }
-      saveSnapshot(file, true);
+  if (_savePNG) {
+    QDir sceneDir("screenshots");
+    QString file;  	
+    if(!_scriptName.isEmpty()){
+      sceneDir.mkdir(qPrintable(_scriptName));
+      file.sprintf("screenshots/%s/%s-%05d.png", qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
+    }else{
+      sceneDir.mkdir("no_name");
+      file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
     }
+    saveSnapshot(file, true);
+  }
+    
+  if (_simulate) {
     
     dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
 
-   if (_frameNum > 10)
-     emit postDrawShot(_frameNum);
+    if (_frameNum > 10)
+      emit postDrawShot(_frameNum);
 
-    _frameNum++;
+     _frameNum++;
   }
 
   // Restart the elapsed time counter
