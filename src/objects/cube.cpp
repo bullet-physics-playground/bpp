@@ -91,6 +91,7 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
   glPushMatrix();
   glMultMatrixf(m);
   glScalef(lengths[0], lengths[1], lengths[2]);
+  glEnable(GL_RESCALE_NORMAL);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);

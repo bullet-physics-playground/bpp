@@ -75,11 +75,11 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
 {
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
-  GLfloat mat_diffuse[] = { 0.25, 0.25, 0.25, 0.50 };
-  GLfloat mat_specular[] = { 0.50, 0.50, 0.50, 0.50 };
+  GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
   // GLfloat no_shininess[] = { 10.0 };
   // GLfloat low_shininess[] = { 5.0 };
-  GLfloat high_shininess[] = { 10.0 };
+  GLfloat high_shininess[] = { 100.0 };
   // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   btTransform trans;
@@ -102,7 +102,7 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
   glMultMatrixf(m);
   
   glScalef(radius, radius, radius);
-
+  glEnable(GL_RESCALE_NORMAL);
   //  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
