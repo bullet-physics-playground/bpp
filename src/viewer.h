@@ -75,6 +75,7 @@ class Viewer : public QGLViewer
   void startSim();
   void stopSim();
   void restartSim();
+  void resetCamView();
 
   void addObject(Object* o);
   void setCamera(Camera* cam);

@@ -108,6 +108,9 @@ class Gui : public QMainWindow {
   void toggleDeactivationState() {
     ui.viewer->toggleDeactivation();
   }
+  void resetCamera() {
+    ui.viewer->resetCamView();
+  }
 
   void fontChanged(const QString &family, uint size);
 
@@ -168,6 +171,8 @@ class Gui : public QMainWindow {
   QAction *povAction;
   QAction *pngAction;
   QAction *deactivationAction;
+
+  QAction *resetAction;
 
   // toolbars
   QToolBar* myToolBar;

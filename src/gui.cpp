@@ -196,6 +196,8 @@ void Gui::createToolBar() {
   myToolBar->addAction( povAction );
   myToolBar->addAction( pngAction );
   myToolBar->addAction( deactivationAction );
+  myToolBar->addSeparator();
+  myToolBar->addAction( resetAction );
 
   addToolBar( myToolBar );
 }
@@ -300,6 +302,12 @@ void Gui::createActions() {
   deactivationAction->setCheckable(true);
   deactivationAction->setChecked(true);
   connect(deactivationAction, SIGNAL(triggered()), this, SLOT( toggleDeactivationState() ));
+
+  QIcon resetIcon = QIcon::fromTheme("go-home");
+  resetAction = new QAction(resetIcon,tr("Reset &camera view to initial state"), this);
+  resetAction->setShortcut(tr("Ctrl+R"));
+  resetAction->setStatusTip(tr("Reset camera view to initial state"));
+  connect(resetAction, SIGNAL(triggered()), this, SLOT( resetCamera() ));
 
   for (int i = 0; i < MAX_RECENT_FILES; ++i) {
     recentFileActions[i] = new QAction(this);

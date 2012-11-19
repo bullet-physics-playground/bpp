@@ -215,9 +215,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     parse(_scriptContent);
     break;
   case Qt::Key_C :
-    camera()->setPosition(_initialCameraPosition);
-    camera()->setOrientation(_initialCameraOrientation);
-    updateGL();
+    resetCamView();
     break;    
   /*
   case Qt::Key_Left :
@@ -514,6 +512,14 @@ void Viewer::clear() {
 
 	delete obj;
   }
+
+}
+
+void Viewer::resetCamView() {
+	
+    camera()->setPosition(_initialCameraPosition);
+    camera()->setOrientation(_initialCameraOrientation);
+    updateGL();
 
 }
 
