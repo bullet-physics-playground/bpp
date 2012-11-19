@@ -22,6 +22,13 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   settings = new QSettings();
 
   createDock();
+
+#ifdef WIN32_LINK_THEME
+  if (!QIcon::hasThemeIcon("document-new")) {
+    QIcon::setThemeName("humanity");
+  }
+#endif
+
   createActions();
   createMenus();
   setStatusBar( new QStatusBar(this) );

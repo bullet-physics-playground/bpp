@@ -87,6 +87,8 @@ link_koppi_style_win32 {
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
+  DEFINES += WIN32_LINK_THEME
+
   WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.14-win32-dll
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
   WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.3.17
@@ -305,6 +307,12 @@ contains(DEFINES, WIN32_LINK_BOOST) {
   LIBS += -L$$WIN32_DIR_BOOST\\stage\\lib
 
   # link ?
+}
+
+contains(DEFINES, WIN32_LINK_THEME) {
+#  message(Statically linking theme)
+
+  RESOURCES += humanity.qrc
 }
 
 ## Misc stuff
