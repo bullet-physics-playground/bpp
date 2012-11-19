@@ -102,7 +102,7 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
   glMultMatrixf(m);
   
   glScalef(radius, radius, radius);
-  glEnable(GL_RESCALE_NORMAL);
+  glEnable(GL_NORMALIZE);
   //  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);

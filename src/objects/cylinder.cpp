@@ -97,7 +97,7 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
   // translate to match Bullet cylinder origin
   glTranslated(0,0,-lengths[2]*.5);
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glEnable(GL_RESCALE_NORMAL);
+  glEnable(GL_NORMALIZE);
   
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
