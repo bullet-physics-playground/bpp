@@ -10,6 +10,11 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 	
   ui.setupUi(this);
 
+#ifdef WIN32_LINK_THEME
+  if (!QIcon::hasThemeIcon("document-new")) {
+	QIcon::setThemeName("humanity");
+#endif
+
   // setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
   //  setWindowIcon(QIcon(":images/icon.png"));
