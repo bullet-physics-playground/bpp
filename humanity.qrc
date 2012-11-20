@@ -2,9 +2,11 @@
     <qresource prefix="/icons/humanity">
         <file alias="index.theme">icons/humanity/index.theme</file>
 
+        <file alias="actions/16/go-home.svg">icons/humanity/actions/16/go-home.svg</file>
         <file alias="actions/16/zoom-best-fit.svg">icons/humanity/actions/16/zoom-best-fit.svg</file>
         <file alias="actions/16/camera.png">icons/humanity/actions/16/camera.png</file>
         
+        <file alias="actions/24/go-home.svg">icons/humanity/actions/24/go-home.svg</file>
         <file alias="actions/24/camera.png">icons/humanity/actions/24/camera.png</file>
         <file alias="actions/24/preferences-system.svg">icons/humanity/actions/24/preferences-system.svg</file>
 
@@ -21,6 +23,7 @@
         <file alias="actions/24/edit-copy.svg">icons/humanity/actions/24/edit-copy.svg</file>
         <file alias="actions/24/edit-paste.svg">icons/humanity/actions/24/edit-paste.svg</file>
 
+        <file alias="actions/48/go-home.svg">icons/humanity/actions/48/go-home.svg</file>
         <file alias="actions/48/camera.png">icons/humanity/actions/48/camera.png</file>
         <file alias="actions/48/preferences-system.svg">icons/humanity/actions/48/preferences-system.svg</file>
 
