@@ -10,6 +10,8 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 	
   ui.setupUi(this);
 
+  setMinimumSize(800, 600);
+
   // setAttribute(Qt::WA_DeleteOnClose);
   setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
   //  setWindowIcon(QIcon(":images/icon.png"));
@@ -19,7 +21,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   setAcceptDrops(true);
 
-  settings = new QSettings();
+  settings = new QSettings("koppi.me", APP_NAME);
 
   createDock();
 
