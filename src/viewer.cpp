@@ -429,7 +429,14 @@ bool Viewer::parse(QString txt) {
   if (L != NULL) {
 	// qDebug() << "before lua_gc";
 	clear();
-	L = NULL;
+
+	// invalidate function refs
+	_cb_preDraw = luabind::object();
+	_cb_postDraw = luabind::object();
+
+	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+
+	L = NULL; // probably wrong
 	// qDebug() << "after lua_gc";
   }
 
@@ -685,7 +692,7 @@ void Viewer::draw() {
   float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
   float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
 
-  if(_cb_preDraw.is_valid()) {
+  if(_cb_preDraw) {
 	try {
 	  luabind::call_function<void>(_cb_preDraw, _frameNum);
 	} catch(const std::exception& e){
@@ -753,26 +760,26 @@ void Viewer::draw() {
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-	qDebug() << "A function";
+	// qDebug() << "A function";
 	_cb_preDraw = fn;
   } else {
-	qDebug() << "Not a function";
+	// qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-	qDebug() << "A function";
+	// qDebug() << "A function";
 	_cb_postDraw = fn;
   } else {
-	qDebug() << "Not a function";
+	// qDebug() << "Not a function";
   }
 }
 
 void Viewer::postDraw() {
   QGLViewer::postDraw();
 
-  if(_cb_postDraw.is_valid()) {
+  if(_cb_postDraw) {
 	try {
 	  luabind::call_function<void>(_cb_postDraw, _frameNum);
 	} catch(const std::exception& e){
