@@ -31,6 +31,8 @@ Object::Object(QObject *parent) : QObject(parent) {
   shape = 0;
   body = 0;
 
+  setColor(0.5,0.5,0.5);
+
   photons_enable = false;
   photons_reflection = false;
   photons_refraction = false;

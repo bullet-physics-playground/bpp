@@ -12,9 +12,10 @@ plane.col = "#111111"
 
 sphere = Sphere()
 sphere.pos = btVector3(0.5, 1.5, 0)
-sphere.col = "#00ff00"
+sphere.col = "#ffff00"
 
+v:add(plane)
 v:add(cube)
 v:add(cylinder)
-v:add(plane)
 v:add(sphere)
+

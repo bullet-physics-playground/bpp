@@ -16,7 +16,7 @@ using namespace std;
 
 #include <luabind/operator.hpp>
 
-Sphere::Sphere(btScalar pradius, btScalar mass)
+Sphere::Sphere(btScalar pradius, btScalar mass) : Object()
 {
   radius = pradius;
 

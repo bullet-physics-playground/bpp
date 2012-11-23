@@ -16,12 +16,12 @@ using namespace std;
 
 #include <luabind/operator.hpp>
 
-Cylinder::Cylinder(const btVector3& dim, btScalar mass) {
+Cylinder::Cylinder(const btVector3& dim, btScalar mass) : Object() {
   init(dim.getX(), dim.getY(), dim.getZ(), mass);
 }
 
 Cylinder::Cylinder(btScalar width, btScalar height, btScalar depth,
-				   btScalar mass) {
+                   btScalar mass) : Object() {
 
   init(width, height, depth, mass);
 }

@@ -17,11 +17,11 @@ using namespace std;
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Cube::Cube(const btVector3 &dim, btScalar mass) {
+Cube::Cube(const btVector3 &dim, btScalar mass) : Object() {
   init(dim.getX(), dim.getY(), dim.getZ(), mass);
 }
 
-Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass) {
+Cube::Cube(btScalar width, btScalar height, btScalar depth, btScalar mass) : Object() {
   init(width, height, depth, mass);
 }
 

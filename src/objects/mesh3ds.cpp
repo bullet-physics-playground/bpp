@@ -20,7 +20,7 @@ using namespace std;
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Mesh3DS::Mesh3DS(QString filename, btScalar mass) {
+Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
   Lib3dsFile *m_model = lib3ds_file_open(filename.toAscii());
 
   if (!m_model) {

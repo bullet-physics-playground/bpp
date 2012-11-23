@@ -17,12 +17,12 @@ using namespace std;
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Plane::Plane(const btVector3 &dim, btScalar nConst, btScalar psize) {
+Plane::Plane(const btVector3 &dim, btScalar nConst, btScalar psize) : Object() {
   init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
 }
 
 Plane::Plane(btScalar nx, btScalar ny, btScalar nz,
-			 btScalar nConst, btScalar psize) {
+             btScalar nConst, btScalar psize) : Object() {
   init(nx, ny, nz, nConst, psize);
 }
 
@@ -97,7 +97,6 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   btVector3 pt2 = planeOrigin - vec1*vecLen;
   btVector3 pt3 = planeOrigin + vec1*vecLen;
 
-  glBegin(GL_TRIANGLES);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -106,6 +105,8 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
   glColor3ubv(color);
+
+  glBegin(GL_TRIANGLES);
 
   glNormal3fv(planeNormal);
   glVertex3fv(pt0);
