@@ -1,6 +1,6 @@
 # bullet-physics-playground
 
-![physics-00.png](https://github.com/koppi/bullet-physics-playground/raw/master/demo/02-domino.png)
+![bpp-win32-objects.png](https://github.com/koppi/bullet-physics-playground/wiki/bpp-win32-objects.png)
 
 Features:
 
@@ -66,5 +66,5 @@ cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
 
 # Authors / Copyright
 
-* © 2008-2012 [Jakob Flierl](https://github.com/koppi) - code
-* © 2012 [Jaime Vives Piqueres](http://ignorancia.org/) - inspiration
+* © 2008-2013 [Jakob Flierl](https://github.com/koppi)
+* © 2012-2013 [Jaime Vives Piqueres](http://ignorancia.org/)
