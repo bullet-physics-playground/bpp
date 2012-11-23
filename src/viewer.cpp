@@ -62,7 +62,7 @@ void Viewer::luaBind(lua_State *s) {
     [
      class_<Viewer>("Viewer")
      .def(constructor<>())
-     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
+     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(luabind::result))
 	 .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
      .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
      .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
