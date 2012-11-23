@@ -434,9 +434,9 @@ bool Viewer::parse(QString txt) {
 	_cb_preDraw = luabind::object();
 	_cb_postDraw = luabind::object();
 
-	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+    // lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
-	L = NULL; // probably wrong
+	// L = NULL; // probably wrong
 	// qDebug() << "after lua_gc";
   }
 
