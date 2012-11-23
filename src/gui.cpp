@@ -525,6 +525,10 @@ void Gui::editPrefs() {
 }
 
 void Gui::openRecentFile() {
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action) {
+    loadFile(action->data().toString());
+  }
 }
 
 void Gui::fontChanged(const QString& family, uint size) {
