@@ -95,7 +95,9 @@ class Viewer : public QGLViewer
 
   void setCBPreDraw(const luabind::object &fn);
   void setCBPostDraw(const luabind::object &fn);
- 
+  void setCBPreSim(const luabind::object &fn);
+  void setCBPostSim(const luabind::object &fn);
+
  signals:
   void scriptFinished();
   void scriptStopped();
@@ -185,8 +187,8 @@ class Viewer : public QGLViewer
 
   QMutex mutex;
 
-  luabind::object _cb_preDraw;
-  luabind::object _cb_postDraw;
+  luabind::object _cb_preDraw,_cb_postDraw;
+  luabind::object _cb_preSim,_cb_postSim;
 };
 
 #endif // VIEWER_H

@@ -1,20 +1,15 @@
---
--- camera movement and pre callback function demo
---
+-- preDraw callback demo: move cam
 
 cube = Cube() 
 cube.pos = btVector3(0, 0.5, 0);
 cube.col = "#ff0000"
-
-plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
-plane.col = "#111111"
-
 v:add(cube)
-v:add(plane)
 
-v:pre(function(n)
-  print(n)
+p = Plane(0,1,0) p.col = "#111111" 
+v:add(p)
+
+v:preDraw(function(n)
+  -- print(n)
 
   i = n / 100 * math.pi * 2 r = 8 z = 8
 
@@ -27,6 +22,8 @@ v:pre(function(n)
   v:cam(cam)
 end)
 
--- A v:post(function(n) end) callback function not used here.
+-- More callback functions:
 
--- EOF
+-- v:postDraw(function)
+-- v:preSim(function)
+-- v:postSim(function)

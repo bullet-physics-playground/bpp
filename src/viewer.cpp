@@ -64,8 +64,10 @@ void Viewer::luaBind(lua_State *s) {
      .def(constructor<>())
      .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
 	 .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
-	 .def("pre", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
-	 .def("post", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
+     .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
+     .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
+     .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
+     .def("postSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostSim, adopt(luabind::result))
      .def(tostring(const_self))
      ];
 
@@ -431,8 +433,10 @@ bool Viewer::parse(QString txt) {
 	clear();
 
 	// invalidate function refs
-	_cb_preDraw = luabind::object();
-	_cb_postDraw = luabind::object();
+    _cb_preDraw = luabind::object();
+    _cb_postDraw = luabind::object();
+    _cb_preSim = luabind::object();
+    _cb_postSim = luabind::object();
 
     // lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
@@ -760,19 +764,37 @@ void Viewer::draw() {
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-	// qDebug() << "A function";
-	_cb_preDraw = fn;
+    // qDebug() << "A function";
+    _cb_preDraw = fn;
   } else {
-	// qDebug() << "Not a function";
+    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-	// qDebug() << "A function";
-	_cb_postDraw = fn;
+    // qDebug() << "A function";
+    _cb_postDraw = fn;
   } else {
-	// qDebug() << "Not a function";
+    // qDebug() << "Not a function";
+  }
+}
+
+void Viewer::setCBPreSim(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+    // qDebug() << "A function";
+    _cb_preSim = fn;
+  } else {
+    // qDebug() << "Not a function";
+  }
+}
+
+void Viewer::setCBPostSim(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+    // qDebug() << "A function";
+    _cb_postSim = fn;
+  } else {
+    // qDebug() << "Not a function";
   }
 }
 
@@ -902,8 +924,24 @@ void Viewer::animate() {
   }
     
   if (_simulate) {
+
+    if(_cb_preSim) {
+      try {
+        luabind::call_function<void>(_cb_preSim, _frameNum);
+      } catch(const std::exception& e){
+        std::cout << e.what() << std::endl;
+      }
+    }
     
     dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
+
+    if(_cb_postSim) {
+      try {
+        luabind::call_function<void>(_cb_postSim, _frameNum);
+      } catch(const std::exception& e){
+        std::cout << e.what() << std::endl;
+      }
+    }
 
     if (_frameNum > 10)
       emit postDrawShot(_frameNum);
