@@ -139,7 +139,7 @@ class Viewer : public QGLViewer
 
  public:
 
-  QList<Object*> l[13];
+  //  QList<Object*> l[13];
 
  private:
   lua_State *L;
@@ -158,8 +158,8 @@ class Viewer : public QGLViewer
   int nbKeyFrames;
   int currentKF_;
 
-  QVector<Object*>   *_objects;
-  QVector<Object*>   *_all_objects; // for bounding box calculation
+  QList<Object*>   *_objects;
+  QList<Object*>   *_all_objects; // for bounding box calculation
   btScalar           _aabb[6];
 
   btDefaultCollisionConfiguration *collisionCfg;
@@ -189,6 +189,8 @@ class Viewer : public QGLViewer
 
   luabind::object _cb_preDraw,_cb_postDraw;
   luabind::object _cb_preSim,_cb_postSim;
+
+  bool _parsing;
 };
 
 #endif // VIEWER_H

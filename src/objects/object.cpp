@@ -28,6 +28,9 @@ std::ostream& operator<<(std::ostream& ostream, const Object& obj) {
 #include <luabind/operator.hpp>
 
 Object::Object(QObject *parent) : QObject(parent) {
+
+  // qDebug() << "Object::Object()";
+
   shape = 0;
   body = 0;
 
@@ -42,7 +45,7 @@ Object::Object(QObject *parent) : QObject(parent) {
 
 Object::~Object() {
 
-  //  qDebug() << "Object::~Object()";
+  // qDebug() << "Object::~Object()";
 
   if (shape != NULL) {
 	delete shape;
@@ -50,7 +53,6 @@ Object::~Object() {
   }
 
   if (body != NULL) {
-    delete body->getMotionState();
 	delete body;
 	body = NULL;
   }

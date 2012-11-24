@@ -62,7 +62,7 @@ void Viewer::luaBind(lua_State *s) {
     [
      class_<Viewer>("Viewer")
      .def(constructor<>())
-     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(luabind::result))
+     .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
 	 .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
      .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
      .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -128,11 +128,6 @@ void Viewer::luaBind(lua_State *s) {
 }
 
 void Viewer::addObject(Object* o) {
-
-  if (o == NULL) {
-	return;
-  }
-
   addObject(o, o->getCol1(), o->getCol2()); 
   add4BBox(o);
   addConstraints(o->getConstraints());
@@ -163,7 +158,7 @@ void report_errors(lua_State *L, int status)
 using namespace qglviewer;
 
 namespace {
-  void getAABB(const QVector<Object *> *objects, btScalar aabb[6]) {
+  void getAABB(const QList<Object *> *objects, btScalar aabb[6]) {
     btVector3 aabbMin, aabbMax;
 
 	if (objects->size() > 0) {
@@ -272,13 +267,18 @@ void Viewer::add4BBox(QList<Object *> ol) {
 void Viewer::removeObject(Object *o) {
 
   if (_objects->contains(o)) {
-	_objects->remove(_objects->indexOf(o));
+	_objects->removeAll(o);
+
 	if (o->body != NULL)
 	  dynamicsWorld->removeRigidBody(o->body);
   }
 
   if (_all_objects->contains(o))
-	_all_objects->remove(_all_objects->indexOf(o));
+	_all_objects->removeAll(o);
+
+  delete o;
+
+  // o = NULL;
 }
 
 void Viewer::addObject(Object *o, int type, int mask) {
@@ -310,8 +310,8 @@ void Viewer::addObjects() {
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
-  _objects = new QVector<Object *>();
-  _all_objects = new QVector<Object *>();
+  _objects = new QList<Object *>();
+  _all_objects = new QList<Object *>();
 
   L = NULL;
 
@@ -418,8 +418,14 @@ int Viewer::lua_print(lua_State* L) {
 }
 
 bool Viewer::parse(QString txt) {
-  QMutexLocker locker(&mutex);
+  _parsing = true;
 
+  // qDebug() << "Viewer::parse 0";
+
+  QMutexLocker locker(&mutex);
+  
+  // qDebug() << "Viewer::parse 1";
+  
   _scriptContent = txt;
 	
   bool animStarted = animationIsStarted();
@@ -429,20 +435,20 @@ bool Viewer::parse(QString txt) {
   }
 
   if (L != NULL) {
-	// qDebug() << "before lua_gc";
 	clear();
-
-	// invalidate function refs
-    _cb_preDraw = luabind::object();
-    _cb_postDraw = luabind::object();
-    _cb_preSim = luabind::object();
-    _cb_postSim = luabind::object();
-
-    // lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-
-	// L = NULL; // probably wrong
-	// qDebug() << "after lua_gc";
+	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+	lua_close(L);
   }
+  
+  // invalidate function refs
+  _cb_preDraw = luabind::object();
+  _cb_postDraw = luabind::object();
+  _cb_preSim = luabind::object();
+  _cb_postSim = luabind::object();
+  
+  // qDeleteAll(*_objects);
+  
+  // qDebug() << "after lua_gc";
 
   // setup lua
 
@@ -497,6 +503,10 @@ bool Viewer::parse(QString txt) {
       startAnimation();
   }
 
+  // qDebug() << "Viewer::parse end";
+
+  _parsing = false;
+
   if (error) return false; else return true;
 }
 
@@ -507,11 +517,8 @@ void Viewer::clear() {
 	removeObject(_objects->at(i));
   }
 
-  _objects->clear();
-
   // remove all contact maifolds
-  int i;
-  for (i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
+  for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
 	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
 
 	btRigidBody* body = btRigidBody::upcast(obj);
@@ -523,6 +530,9 @@ void Viewer::clear() {
 
 	delete obj;
   }
+
+  _objects->clear();
+  _all_objects->clear();
 
 }
 
@@ -691,7 +701,12 @@ void Viewer::init() {
 }
 
 void Viewer::draw() {
-    // qDebug() << "Viewer::draw() 1";
+
+  if (_parsing) return;
+
+  // qDebug() << "Viewer::draw() 0";
+  QMutexLocker locker(&mutex);
+  // qDebug() << "Viewer::draw() 1";
 
   float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
   float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
@@ -730,26 +745,20 @@ void Viewer::draw() {
   if (_savePOV)
     openPovFile();
 
-  {
-	// qDebug() << "Number of objects:" << _objects->size();
-
-      // qDebug() << "Viewer::draw() 4";
-
-      for (int i = 0; i < _objects->size(); ++i) {
-	  // qDebug() << i;
-	  Object *o = _objects->at(i);
-	  //	foreach (Object *o,_objects) {
-	  
-	  if (o != NULL) {
-		if (_savePOV)
-		  o->renderInLocalFrame(_stream);
-		else
-		  o->renderInLocalFrame(NULL);
-	  }
+  // qDebug() << "Number of objects:" << _objects->size();
+  
+  // qDebug() << "Viewer::draw() 4";
+  
+  // for (int i = 0; i < _objects->size(); ++i) {
+  //  Object *o = _objects->at(i);
+  foreach (Object *o, *_objects) {
+	if (_savePOV) {
+	  o->renderInLocalFrame(_stream);
+	} else {
+	  o->renderInLocalFrame(NULL);
 	}
-
   }
-
+  
   if (_savePOV)
 	closePovFile();
 
@@ -900,7 +909,7 @@ void Viewer::startAnimation() {
 
 void Viewer::stopAnimation() {
   QGLViewer::stopAnimation();
-  updateGL();
+  //  updateGL();
 }
 
 void Viewer::animate() {
