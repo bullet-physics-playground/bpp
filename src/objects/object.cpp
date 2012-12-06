@@ -144,6 +144,8 @@ void Object::luaBind(lua_State *s) {
 			   (QString(Object::*)(void))&Object::getPostSDL,
 			   (void(Object::*)(QString))&Object::setPostSDL)
 
+   .def("getRigidBody", &Object::getRigidBody)
+
 	 .def(tostring(const_self))
 	 ];
 }
@@ -226,6 +228,10 @@ void Object::setLinearVelocity(const btVector3 &vector) {
 
 btVector3 Object::getLinearVelocity() const {
   return body->getLinearVelocity();
+}
+
+btRigidBody* Object::getRigidBody() const {
+  return body;
 }
 
 void Object::setColor(int r, int g, int b) {

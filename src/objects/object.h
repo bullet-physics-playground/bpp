@@ -130,6 +130,10 @@ class Object : public QObject {
   void setLinearVelocity(const btVector3& vector);
   btVector3 getLinearVelocity() const;
 
+  btRigidBody* getRigidBody() const;
+
+  // POV-Ray properties
+
   void setPovPhotons(bool _photons_enable = false,
 		     bool _photons_reflection = false,
 		     bool _photons_refraction = false);
