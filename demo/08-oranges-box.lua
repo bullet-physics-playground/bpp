@@ -1,7 +1,6 @@
 -- ORANGES BOX 
 
 plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 v:add(plane)
 

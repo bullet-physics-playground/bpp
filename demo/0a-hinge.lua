@@ -1,4 +1,5 @@
-plane = Plane(0,1,0) plane.col = "#111111"
+plane = Plane(0,1,0)
+plane.col = "#111111"
 v:add(plane)
 
 cube = Cube(0.75,0.25,4.75,10) 

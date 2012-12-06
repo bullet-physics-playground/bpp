@@ -11,8 +11,8 @@
 -- math.tan
 
 plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
+v:add(plane)
 
 --
 -- Circle of spheres.
@@ -32,5 +32,3 @@ end
 circle(0.5,  0.0,  1)
 circle(0.25, 0.7,  5)
 circle(0.2,  1.2,  8)
-
-v:add(plane)

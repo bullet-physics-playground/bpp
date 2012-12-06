@@ -1,21 +1,17 @@
-cube = Cube() 
-cube.pos = btVector3(0, 0.5, 0);
-cube.col = "#ff0000"
+p = Plane(0,1,0)
+v:add(p)
 
-cylinder = Cylinder()
-cylinder.pos = btVector3(1, 0.5, 0)
-cylinder.col = "#00ff00"
+cu = Cube()
+cu.col = "#ff0000"
+cu.pos = btVector3(0, 0.5, 0);
+v:add(cu)
 
-plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
-plane.col = "#111111"
+cy = Cylinder()
+cy.col = "#00ff00"
+cy.pos = btVector3(1, 0.5, 0)
+v:add(cy)
 
-sphere = Sphere()
-sphere.pos = btVector3(0.5, 1.5, 0)
-sphere.col = "#ffff00"
-
-v:add(plane)
-v:add(cube)
-v:add(cylinder)
-v:add(sphere)
-
+sp = Sphere()
+sp.col = "#ffff00"
+sp.pos = btVector3(0.5, 1.5, 0)
+v:add(sp)

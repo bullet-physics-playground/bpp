@@ -1,7 +1,5 @@
 io.write("Hello world, from ",_VERSION,"!\n")
 
--- io.write("Viewer: ",tostring(v),"!\n");
-
 function balls(n)
   n = n or 10
   for i = 0, n do
@@ -25,11 +23,9 @@ function tower(n)
   end
 end
 
-
 function demo(n)
   n = n or 10
-  tower(n)
-  balls(n)
+  tower(n) balls(n)
 end
 
 demo(10)

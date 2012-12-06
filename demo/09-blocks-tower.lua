@@ -3,7 +3,6 @@
 --
 
 plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 v:add(plane)
 
@@ -42,5 +41,3 @@ function tower(floors,blocks_per_floor,num_balls)
 end
 
 tower(80,8,4)
-
--- EOF

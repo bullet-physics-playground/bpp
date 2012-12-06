@@ -1,10 +1,8 @@
 plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 v:add(plane)
 
 function chain(N,xp,yp,zp)
-
   velomax=10
   veloz=-velomax+math.random(1,velomax*2)
 
@@ -32,5 +30,4 @@ function chain(N,xp,yp,zp)
     
 end
 
-chain(30,  0,80,0)
-
+chain(30, 0, 80, 0)

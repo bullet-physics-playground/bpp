@@ -1,12 +1,11 @@
--- preDraw callback demo: move cam
+p = Plane(0,1,0)
+p.col = "#111111" 
+v:add(p)
 
 cube = Cube() 
 cube.pos = btVector3(0, 0.5, 0);
 cube.col = "#ff0000"
 v:add(cube)
-
-p = Plane(0,1,0) p.col = "#111111" 
-v:add(p)
 
 v:preDraw(function(n)
   -- print(n)
@@ -22,8 +21,8 @@ v:preDraw(function(n)
   v:cam(cam)
 end)
 
--- More callback functions:
-
--- v:postDraw(function)
--- v:preSim(function)
--- v:postSim(function)
+-- All callback functions:
+-- * v:preDraw(function) called about 25 times / sec.
+-- * v:postDraw(function) called 25 times / sec.
+-- * v:preSim(function) called before every simulation step.
+-- * v:postSim(function) called after every simulation step.

@@ -3,10 +3,8 @@
 --
 
 plane = Plane(0,1,0)
-plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 plane.friction=.7
-
 v:add(plane)
 
 function coins_pile(coin_type,N,xp,zp)
@@ -34,7 +32,9 @@ function coins_pile(coin_type,N,xp,zp)
 
   for i = 0,N do
     q = btQuaternion(1,0,0,1)
-    o = btVector3(xp-.5+math.random(0,10)*.1,.6+i*coin_height,zp-.5+math.random(0,10)*.1) 
+    o = btVector3(xp-.5+math.random(0,10)*.1,
+                  .6+i*coin_height,
+                  zp-.5+math.random(0,10)*.1) 
     d = Cylinder(coin_width,coin_width,coin_height,1)
     d.mass=coin_width*coin_height*.1
     d.col = "#00ff00"
@@ -56,5 +56,3 @@ coins_pile(1,45,15,15)
 coins_pile(2,41,15,-15)
 coins_pile(3,43,-15,15)
 coins_pile(4,48,-15,-15)
-
--- EOF
