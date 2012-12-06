@@ -89,6 +89,7 @@ class Viewer : public QGLViewer
   static int lua_print(lua_State*);
 
   void addConstraints(QList<btTypedConstraint *> cons);
+  void addConstraint(btTypedConstraint *con);
  public slots:
   bool parse(QString txt);
   void clear();
@@ -159,7 +160,10 @@ class Viewer : public QGLViewer
   int currentKF_;
 
   QList<Object*>   *_objects;
+  QList<btTypedConstraint*> *_constraints;
+
   QList<Object*>   *_all_objects; // for bounding box calculation
+
   btScalar           _aabb[6];
 
   btDefaultCollisionConfiguration *collisionCfg;

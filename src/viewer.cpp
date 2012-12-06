@@ -63,6 +63,7 @@ void Viewer::luaBind(lua_State *s) {
    class_<Viewer>("Viewer")
    .def(constructor<>())
    .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
+   .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
    .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(luabind::result))
    .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -146,6 +147,11 @@ void Viewer::luaBind(lua_State *s) {
    ];
 
   module(s)
+  [
+   class_<btRigidBody>("btRigidBody")
+   ];
+
+  module(s)
 	[
 	 class_<btTransform>("btTransform")
 	 .def(constructor<>())
@@ -162,6 +168,18 @@ void Viewer::luaBind(lua_State *s) {
    .def("setIdentity", &btTransform::setIdentity )
    .def("setOrigin", &btTransform::setOrigin )
    .def("setRotation", &btTransform::setRotation )
+   ];
+
+  module(s)
+  [
+   class_<btTypedConstraint>("btTypedConstraint")
+  ];
+
+  module(s)
+  [
+   class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3 &>())
+   .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
    ];
 
   module(s)
@@ -192,9 +210,14 @@ void Viewer::addObject(Object* o) {
   addConstraints(o->getConstraints());
 }
 
+void Viewer::addConstraint(btTypedConstraint *con) {
+  dynamicsWorld->addConstraint(con, true);
+  _constraints->push_back(con);
+}
+
 void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
   for (int i = 0; i < cons.size(); ++i) {
-	dynamicsWorld->addConstraint(cons[i], true);
+    addConstraint(cons[i]);
   }
 }
 
@@ -370,6 +393,8 @@ void Viewer::addObjects() {
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   _objects = new QList<Object *>();
+  _constraints = new QList<btTypedConstraint *>();
+
   _all_objects = new QList<Object *>();
 
   L = NULL;
@@ -591,13 +616,20 @@ void Viewer::clear() {
 	delete obj;
   }
 
-  _objects->clear();
-  _all_objects->clear();
+  QList<btTypedConstraint*>::iterator i;
+  for (i = _constraints->begin(); i != _constraints->end(); i++) {
+      _constraints->removeAll(*i);
+      dynamicsWorld->removeConstraint(*i);
+  }
 
+  _objects->clear();
+  _constraints->clear();
+
+  _all_objects->clear();
 }
 
 void Viewer::resetCamView() {
-	
+
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
     updateGL();
