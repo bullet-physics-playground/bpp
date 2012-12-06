@@ -529,8 +529,6 @@ void Gui::fontChanged(const QString& family, uint size) {
   editor->setFont(family, size);
 }
 
-#define pi (3.1415926535f)
-
 void Gui::loadSettings() {
   settings->beginGroup("gui");
 
