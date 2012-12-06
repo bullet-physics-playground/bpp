@@ -212,7 +212,7 @@ void Viewer::addObject(Object* o) {
 
 void Viewer::addConstraint(btTypedConstraint *con) {
   dynamicsWorld->addConstraint(con, true);
-  _constraints->push_back(con);
+  _constraints->insert(con);
 }
 
 void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
@@ -240,20 +240,15 @@ void report_errors(lua_State *L, int status)
 using namespace qglviewer;
 
 namespace {
-  void getAABB(const QList<Object *> *objects, btScalar aabb[6]) {
+  void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
     btVector3 aabbMin, aabbMax;
 
-	if (objects->size() > 0) {
-	  objects->at(0)->body->getAabb(aabbMin, aabbMax);
-	  aabb[0] = aabbMin[0]; aabb[1] = aabbMin[1]; aabb[2] = aabbMin[2];
-	  aabb[3] = aabbMax[0]; aabb[4] = aabbMax[1]; aabb[5] = aabbMax[2];
-	} else {
-	  aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
-	  aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
-	}
+  aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
+  aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
 
-	for (int i = 0; i < objects->size(); ++i) {
-	  Object *o = objects->at(i);
+  QSet<Object*>::iterator oi;
+  for (oi = objects->begin(); oi != objects->end(); oi++) {
+      Object *o = *oi;
 
 	  if (o->toString() != QString("Plane")) {
 		btVector3 oaabbmin, oaabbmax;
@@ -337,34 +332,17 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 }
 
 void Viewer::add4BBox(Object *o) {
-  _all_objects->push_back(o);
+  _all_objects->insert(o);
 }
 
 void Viewer::add4BBox(QList<Object *> ol) {
   foreach (Object *o, ol) {
-    _all_objects->push_back(o);
+    _all_objects->insert(o);
   }
-}
-
-void Viewer::removeObject(Object *o) {
-
-  if (_objects->contains(o)) {
-	_objects->removeAll(o);
-
-	if (o->body != NULL)
-	  dynamicsWorld->removeRigidBody(o->body);
-  }
-
-  if (_all_objects->contains(o))
-	_all_objects->removeAll(o);
-
-  delete o;
-
-  // o = NULL;
 }
 
 void Viewer::addObject(Object *o, int type, int mask) {
-  _objects->push_back(o);
+  _objects->insert(o);
 
   if (o->body != NULL) {
 	if(!_deactivation){  
@@ -376,14 +354,7 @@ void Viewer::addObject(Object *o, int type, int mask) {
 
 void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
   foreach (Object *o, ol) {
-    _objects->push_back(o);
-
-	if (o->body != NULL) {
-          if(!_deactivation){  
-	    o->body->setActivationState(DISABLE_DEACTIVATION);
-	  }
-	  dynamicsWorld->addRigidBody(o->body, type, mask);
-	}
+    addObject(o, type, mask);
   }
 }
 
@@ -392,10 +363,10 @@ void Viewer::addObjects() {
 }
 
 Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
-  _objects = new QList<Object *>();
-  _constraints = new QList<btTypedConstraint *>();
+  _objects = new QSet<Object *>();
+  _constraints = new QSet<btTypedConstraint *>();
 
-  _all_objects = new QList<Object *>();
+  _all_objects = new QSet<Object *>();
 
   L = NULL;
 
@@ -588,7 +559,7 @@ bool Viewer::parse(QString txt) {
       startAnimation();
   }
 
-  // qDebug() << "Viewer::parse end";
+  // qDebug() << "Viewer::parse() end";
 
   _parsing = false;
 
@@ -596,36 +567,41 @@ bool Viewer::parse(QString txt) {
 }
 
 void Viewer::clear() {
-  // qDebug() << "Viewer::clear()" << _objects->size();
+  // qDebug() << "Viewer::clear() objects: " << _objects->size();
 
-  for (int i = 0; i < _objects->size(); ++i) {
-	removeObject(_objects->at(i));
-  }
-
-  // remove all contact maifolds
-  for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
-	btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-
-	btRigidBody* body = btRigidBody::upcast(obj);
-	if (body && body->getMotionState()) {
-	  delete body->getMotionState();
-	}
-
-	dynamicsWorld->removeCollisionObject( obj );
-
-	delete obj;
-  }
-
-  QList<btTypedConstraint*>::iterator i;
-  for (i = _constraints->begin(); i != _constraints->end(); i++) {
-      _constraints->removeAll(*i);
-      dynamicsWorld->removeConstraint(*i);
+  // remove all objects
+  QSet<Object *>::const_iterator i = _objects->constBegin();
+  while (i != _objects->constEnd()) {
+    if ((*i)->body != NULL)
+      dynamicsWorld->removeRigidBody((*i)->body);
+    ++i;
   }
 
   _objects->clear();
-  _constraints->clear();
-
   _all_objects->clear();
+
+  // remove all contact manifolds
+  for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
+    btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+
+    btRigidBody* body = btRigidBody::upcast(obj);
+    if (body && body->getMotionState()) {
+      delete body->getMotionState();
+    }
+
+    dynamicsWorld->removeCollisionObject( obj );
+
+    delete obj;
+  }
+
+  // remove all constraints
+  QSet<btTypedConstraint *>::const_iterator it = _constraints->constBegin();
+  while (it != _constraints->constEnd()) {
+    dynamicsWorld->removeConstraint(*it);
+    ++it;
+  }
+
+  _constraints->clear();
 }
 
 void Viewer::resetCamView() {
@@ -751,7 +727,6 @@ void Viewer::init() {
   glShadeModel(GL_SMOOTH);
   //glPointSize(3.0);
 
-  addObjects();
   computeBoundingBox();
 
   if (!restoreStateFromFile()) {

@@ -117,7 +117,6 @@ class Viewer : public QGLViewer
   virtual void addObjects();
 
   void addObject(Object *o, int type, int mask);
-  void removeObject(Object *o);
 
   void addObjects(QList<Object *> ol, int type, int mask);
 
@@ -159,10 +158,10 @@ class Viewer : public QGLViewer
   int nbKeyFrames;
   int currentKF_;
 
-  QList<Object*>   *_objects;
-  QList<btTypedConstraint*> *_constraints;
+  QSet<Object*>   *_objects;
+  QSet<btTypedConstraint*> *_constraints;
 
-  QList<Object*>   *_all_objects; // for bounding box calculation
+  QSet<Object*>   *_all_objects; // for bounding box calculation
 
   btScalar           _aabb[6];
 
