@@ -13,8 +13,8 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   setMinimumSize(800, 600);
 
   // setAttribute(Qt::WA_DeleteOnClose);
-  setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
-  //  setWindowIcon(QIcon(":images/icon.png"));
+  // setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
+  // setWindowIcon(QIcon(":images/icon.png"));
 
   ui.viewer->setSavePNG(savePNG);
   ui.viewer->setSavePOV(savePOV);
@@ -149,9 +149,9 @@ void Gui::loadLastFile() {
   settings->endGroup();
 
   if (lastFile != "") {
-    //loadFile(lastFile);
+    loadFile(lastFile);
   } else {
-    //loadFile(":demo/00-objects.lua");
+    loadFile(":demo/00-objects.lua");
   }
 }
 
@@ -167,14 +167,13 @@ void Gui::loadFile(const QString &path) {
 #endif
 
   if (editor->load(path)) {
-	setCurrentFile(path);
-	setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
-	parseEditor();
-	statusBar()->showMessage(tr("File loaded"), 2000);
-        _fileSaved=true;
+    setCurrentFile(path);
+    setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
+    parseEditor();
+    statusBar()->showMessage(tr("File loaded"), 2000);
+    _fileSaved = true;
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
-	//  drillView->zoomFit();
     statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
   }
 
@@ -199,7 +198,6 @@ void Gui::createToolBar() {
   myToolBar->addAction( prefsAction );
   myToolBar->addSeparator();
   myToolBar->addAction( playAction );
-  //myToolBar->addAction( stopAction );
   myToolBar->addAction( restartAction );
   myToolBar->addSeparator();
   myToolBar->addAction( povAction );
@@ -373,6 +371,8 @@ void Gui::updateRecentFileActions() {
 
 void Gui::setCurrentFile(const QString &fileName) {
 
+  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
+
   if (editor->script_filename.isEmpty())
     setWindowTitle(tr("Recent Files"));
   else
@@ -391,8 +391,6 @@ void Gui::setCurrentFile(const QString &fileName) {
     if (mainWin)
       mainWin->updateRecentFileActions();
   }
-
-  
 }
 
 void Gui::createDock() {
@@ -475,7 +473,6 @@ void Gui::newFile() {
   } 
   editor->clear();
   setCurrentFile(editor->script_filename);
-  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(false);
   _fileSaved=true;
 }
@@ -494,7 +491,6 @@ void Gui::openFile(const QString& path) {
   } 
   editor->load(path);
   setCurrentFile(editor->script_filename);
-  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(false);
   _fileSaved=true;
 }
@@ -508,7 +504,6 @@ void Gui::save() {
 void Gui::saveAs() {
   editor->saveAs();
   setCurrentFile(editor->script_filename);
-  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(true);
   _fileSaved=true;
 }
@@ -516,7 +511,6 @@ void Gui::saveAs() {
 void Gui::saveFile(const QString& path) {
   editor->saveAs(path);
   setCurrentFile(editor->script_filename);
-  ui.viewer->setScriptName(strippedNameNoExt(editor->script_filename));
   saveAction->setEnabled(false);
   _fileSaved=true;
 }
