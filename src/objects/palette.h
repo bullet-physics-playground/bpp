@@ -22,6 +22,7 @@ public:
   ~Palette();
 
   QColor getRandomColor();
+  void setSeed(int seed);
 
   static void luaBind(lua_State *s);
   virtual QString toString() const;

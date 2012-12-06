@@ -86,6 +86,10 @@ QColor Palette::getRandomColor() {
   return col;
 }
 
+void Palette::setSeed(int seed) {
+  qsrand(seed);
+}
+
 Palette::~Palette()
 {
 }
@@ -100,6 +104,7 @@ void Palette::luaBind(lua_State *s) {
      class_<Palette>("Palette")
      .def(constructor<QString>(), adopt(result))
      .def("getRandomColor", &Palette::getRandomColor)
+     .def("setSeed", &Palette::setSeed)
      .def(tostring(const_self))
      ];
 }
