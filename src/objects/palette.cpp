@@ -1,4 +1,12 @@
+#ifdef WIN32_VC90
+#pragma warning (disable : 4251)
+#endif
+
 #include "palette.h"
+
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 #include <QFile>
 #include <QRegExp>
@@ -6,9 +14,20 @@
 #include <QTextStream>
 #include <QDebug>
 
+#include <boost/shared_ptr.hpp>
+#include <luabind/adopt_policy.hpp>
+
 using namespace std;
 
-Palette::Palette(QString fileName) {
+std::ostream& operator<<(std::ostream& ostream, const Palette& pal) {
+  ostream << pal.toString().toAscii().data();
+
+  return ostream;
+}
+
+#include <luabind/operator.hpp>
+
+Palette::Palette(QString fileName) : QObject() {
   QFile f(fileName);
 
   if (f.open(QIODevice::ReadOnly)) {
@@ -24,8 +43,8 @@ Palette::Palette(QString fileName) {
       int pos = 0;
 
       while ((pos = rx.indexIn(line, pos)) != -1) {
-	list << rx.cap(1);
-	pos += rx.matchedLength();
+        list << rx.cap(1);
+        pos += rx.matchedLength();
       }
 
       if (list.size() == 3) {
@@ -69,4 +88,22 @@ QColor Palette::getRandomColor() {
 
 Palette::~Palette()
 {
+}
+
+void Palette::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+    [
+     class_<Palette>("Palette")
+     .def(constructor<QString>(), adopt(result))
+     .def("getRandomColor", &Palette::getRandomColor)
+     .def(tostring(const_self))
+     ];
+}
+
+QString Palette::toString() const {
+  return QString("Palette");
 }

@@ -15,7 +15,8 @@ public:
   
   static void luaBind(lua_State *s);
   QString toString() const;
- protected:
+
+protected:
   virtual void renderInLocalFrame(QTextStream *s) const;
   
   btScalar         radius;

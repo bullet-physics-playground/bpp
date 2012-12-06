@@ -523,6 +523,7 @@ bool Viewer::parse(QString txt) {
   Cube::luaBind(L);
   Cylinder::luaBind(L);
   Mesh3DS::luaBind(L);
+  Palette::luaBind(L);
   Plane::luaBind(L);
   Sphere::luaBind(L);
   Viewer::luaBind(L);
