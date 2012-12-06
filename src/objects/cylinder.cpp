@@ -112,7 +112,7 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
   //TODO  
   if (s != NULL) {
     if (mPreSDL == NULL) {	    
-      *s << "cylinder { " << -lengths[2]/2.0 << "*z, " << lengths[2]/2.0 << "*z, " << lengths[0]/2.0 << "\n      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+      *s << "cylinder { " << -lengths[2]/2.0 << "*z, " << lengths[2]/2.0 << "*z, " << lengths[0] << "\n      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
     }else{
       *s << mPreSDL << endl;	    
     }	    
