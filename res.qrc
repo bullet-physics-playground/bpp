@@ -5,7 +5,10 @@
     <file>demo/02-domino.lua</file>
     <file>demo/03-math.lua</file>
     <file>demo/04-anim.lua</file>
+  </qresource>
+  <qresource prefix="/">
     <file>icons/deactivation.png</file>
     <file>icons/povray.png</file>
+    <file>icons/icon.svg</file>
   </qresource>
 </RCC>

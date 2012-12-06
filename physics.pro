@@ -13,10 +13,18 @@ CONFIG *= debug_and_release
 win32 {
 
   CONFIG += link_koppi_style_win32
+
+  RC_FILE = physics.rc
+
 } else {
   DEFINES += HAS_GETOPT
 
   CONFIG += link_pkgconfig
+}
+
+mac {
+  CONFIG += x86 ppc
+  ICON = icons/icon.icns
 }
 
 win32 {
@@ -321,7 +329,15 @@ FORMS       += src/gui.ui
 
 RESOURCES   += res.qrc
 
-OTHER_FILES += README.md
+ICON         = icons/icon.svg
+
+OTHER_FILES += README.md \
+               icons/icon.svg \
+               icons/icon.png \
+               icons/icon.ico \
+               icons/icon.hqx \
+               icons/icon.icns \
+               icons/icon.ico
 
 DIRS_DC = object_script.* .ui .moc .rcc .obj *.pro.user $$TARGET
 
