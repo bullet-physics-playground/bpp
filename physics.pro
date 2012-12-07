@@ -50,7 +50,7 @@ link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
   PKGCONFIG += bullet lua5.1 luabind
 
-  LIBS += -lqglviewer-qt4 -lglut -lGL -l3ds
+  LIBS += -lqglviewer-qt4 -lGLEW -lGLU -lGL -lglut -l3ds
   # If you se the latest QGLViewer sources from www.libqglviewer.com
   # use the followings LIBS instead:
   #LIBS += -lQGLViewer -lglut -lGL -l3ds

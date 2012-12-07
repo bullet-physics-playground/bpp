@@ -1,7 +1,6 @@
 #include <QApplication>
 #include <QDebug>
 
-
 #include "gui.h"
 
 #include "viewer.h"
@@ -10,8 +9,7 @@
 // #include <windows.h>
 #endif
 
-#include <GL/gl.h>			// Header File For The OpenGL32 Library
-#include <GL/glu.h>			// Header File For The GLu32 Library
+#include <GL/glew.h>
 #include <GL/freeglut.h>
 
 using namespace std;
@@ -50,6 +48,14 @@ int main(int argc, char **argv) {
 
   g = new Gui(savePNG, savePOV);
   g->show();
+
+  GLenum err = glewInit();
+  if (GLEW_OK != err) {
+    /* Problem: glewInit failed, something is seriously wrong. */
+    fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    return 1;
+  }
+  fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
   return application.exec();
 }

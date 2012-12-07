@@ -8,12 +8,11 @@
 #include <windows.h>
 #endif
 
-#include <GL/glut.h>
-
 #include <QDebug>
-#include <assert.h>
 
-#include <lib3ds.h>
+#include <lib3ds/mesh.h>
+#include <lib3ds/node.h>
+#include <lib3ds/vector.h>
 
 using namespace std;
 
@@ -21,13 +20,11 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 
 Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
-  Lib3dsFile *m_model = lib3ds_file_open(filename.toAscii());
+  m_model = lib3ds_file_load(filename.toAscii());
 
   if (!m_model) {
 	  
     qDebug() << "Unable to load " << filename << ": using empty shape.";
-	  
-    listref=0;
 	  
     btEmptyShape *shape = new btEmptyShape();
     btQuaternion qtn;
@@ -44,54 +41,60 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     shape->calculateLocalInertia(mass,inertia);  
     body = new btRigidBody(mass, motionState, shape, inertia);
 	  
-  }else{
+  } else {
+    m_TotalFaces = 0;
 
-    Lib3dsMesh * mesh;
-    int i = 0;
-    int count = 0;
+    Lib3dsMesh *mesh;
+
+    for (mesh = m_model->meshes; mesh != 0; mesh = mesh->next) {
+      m_TotalFaces += mesh->faces;
+    }
 
     btTriangleMesh* trimesh = new btTriangleMesh();
  
-    count = 0;
-    for (i = 0; i < m_model->nmeshes; i++) {
-      mesh = m_model->meshes[i];
-      count += mesh->nfaces;
-    }
+    // Allocate memory for our vertices and normals
+    Lib3dsVector * vertices = new Lib3dsVector[m_TotalFaces * 3];
+    Lib3dsVector * normals = new Lib3dsVector[m_TotalFaces * 3];
 
-    int cnt = 0;
-    listref = glGenLists(1);
-    assert(listref != 0);
+    unsigned int f = 0;
+    for(mesh = m_model->meshes;mesh != NULL;mesh = mesh->next)
+    {
+      lib3ds_mesh_calculate_normals(mesh, &normals[f*3]);
 
-    glNewList(listref,GL_COMPILE);
-    glBegin(GL_TRIANGLES);
+      for(unsigned int cur_face = 0; cur_face < mesh->faces;cur_face++)
+      {
+        Lib3dsFace * face = &mesh->faceL[cur_face];
+        for(unsigned int i = 0;i < 3;i++)
+        {
+          memcpy(&vertices[f*3 + i], mesh->pointL[face->points[ i ]].pos, sizeof(Lib3dsVector));
 
-    float (*normals)[3] = new float[count][3];
-
-    for (i = 0; i < m_model->nmeshes; i++) {
-      mesh = m_model->meshes[i];
-      unsigned int cnt1 = mesh->nfaces;
-      lib3ds_mesh_calculate_face_normals(mesh,&normals[cnt]);
-      // uint index = 0;
-      for (uint x=0; x<cnt1; x++) { // face
-        glNormal3f(normals[cnt+x][0], normals[cnt+x][1], normals[cnt+x][2]);
-        for (uint y=0; y<3; y++) { // vertex
-  	  //indices[cnt+x][y] = index++;
-	  uint num = mesh->faces[x].index[y];
-	  glVertex3f(mesh->vertices[num][0], mesh->vertices[num][1], mesh->vertices[num][2]);
         }
-        uint num1 = mesh->faces[x].index[0];
-        uint num2 = mesh->faces[x].index[1];
-        uint num3 = mesh->faces[x].index[2];    
-        trimesh->addTriangle(btVector3(mesh->vertices[num1][0],mesh->vertices[num1][1],mesh->vertices[num1][2]),
-			   btVector3(mesh->vertices[num2][0],mesh->vertices[num2][1],mesh->vertices[num2][2]),
-			   btVector3(mesh->vertices[num3][0],mesh->vertices[num3][1],mesh->vertices[num3][2]));
-      }
 
-      cnt += cnt1;
+        trimesh->addTriangle(btVector3(vertices[f*3][0],vertices[f*3][1],vertices[f*3][2]),
+                             btVector3(vertices[f*3+1][0],vertices[f*3+1][1],vertices[f*3+1][2]),
+                             btVector3(vertices[f*3+2][0],vertices[f*3+2][1],vertices[f*3+2][2]));
+
+        f++;
+      }
     }
-  
-    glEnd();
-    glEndList();
+
+    // Generate a Vertex Buffer Object and store it with our vertices
+    glGenBuffers(1, &m_VertexVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Lib3dsVector) * 3 * m_TotalFaces, vertices, GL_STATIC_DRAW);
+
+    // Generate another Vertex Buffer Object and store the normals in it
+    glGenBuffers(1, &m_NormalVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Lib3dsVector) * 3 * m_TotalFaces, normals, GL_STATIC_DRAW);
+
+    // Clean up our allocated memory
+    delete vertices;
+    delete normals;
+
+    // We no longer need lib3ds
+    lib3ds_file_free(m_model);
+    m_model = NULL;
 
     btGImpactMeshShape *shape = new btGImpactMeshShape(trimesh);
     shape->updateBound();
@@ -111,7 +114,6 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     body = new btRigidBody(mass, motionState, shape, inertia);
     
   }
-  
 }
 
 void Mesh3DS::luaBind(lua_State *s) {
@@ -156,11 +158,25 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glColor3ubv(color);
-  if(listref>0){
-    glCallList(listref);
-  }else{
-    glutSolidCube(0.0f);
-  }
+
+  // Enable vertex and normal arrays
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+
+  // Bind the vbo with the normals
+  glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
+  // The pointer for the normals is NULL which means that OpenGL will use the currently bound vbo
+  glNormalPointer(GL_FLOAT, 0, NULL);
+
+  glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
+  glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+  // Render the triangles
+  glDrawArrays(GL_TRIANGLES, 0, m_TotalFaces * 3);
+
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_NORMAL_ARRAY);
+
   glPopMatrix();
 
   if (s != NULL) {  

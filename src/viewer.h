@@ -3,6 +3,8 @@
 
 #include <lua.hpp>
 
+#include <GL/glew.h>
+
 #include <QGLViewer/qglviewer.h>
 #include <QGLViewer/manipulatedFrame.h>
 
