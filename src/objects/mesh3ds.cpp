@@ -20,6 +20,8 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 
 Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
+  m_TotalFaces = 0;
+
   m_model = lib3ds_file_load(filename.toAscii());
 
   if (!m_model) {
@@ -42,8 +44,6 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     body = new btRigidBody(mass, motionState, shape, inertia);
 	  
   } else {
-    m_TotalFaces = 0;
-
     Lib3dsMesh *mesh;
 
     for (mesh = m_model->meshes; mesh != 0; mesh = mesh->next) {
@@ -159,23 +159,25 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glColor3ubv(color);
 
-  // Enable vertex and normal arrays
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
+  if (m_TotalFaces > 0) {
+    // Enable vertex and normal arrays
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
 
-  // Bind the vbo with the normals
-  glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
-  // The pointer for the normals is NULL which means that OpenGL will use the currently bound vbo
-  glNormalPointer(GL_FLOAT, 0, NULL);
+    // Bind the vbo with the normals
+    glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
+    // The pointer for the normals is NULL which means that OpenGL will use the currently bound vbo
+    glNormalPointer(GL_FLOAT, 0, NULL);
 
-  glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
-  glVertexPointer(3, GL_FLOAT, 0, NULL);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
+    glVertexPointer(3, GL_FLOAT, 0, NULL);
 
-  // Render the triangles
-  glDrawArrays(GL_TRIANGLES, 0, m_TotalFaces * 3);
+    // Render the triangles
+    glDrawArrays(GL_TRIANGLES, 0, m_TotalFaces * 3);
 
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+  }
 
   glPopMatrix();
 
