@@ -14,7 +14,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   // setAttribute(Qt::WA_DeleteOnClose);
   // setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
-  setWindowIcon(QIcon(":icons/icon.svg"));
+  setWindowIcon(QIcon(":icons/physics.svg"));
 
   ui.viewer->setSavePNG(savePNG);
   ui.viewer->setSavePOV(savePOV);
