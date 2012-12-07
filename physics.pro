@@ -20,11 +20,13 @@ win32 {
   DEFINES += HAS_GETOPT
 
   CONFIG += link_pkgconfig
+
+  
 }
 
 mac {
   CONFIG += x86 ppc
-  ICON = icons/icon.icns
+  ICON = icons/physics.icns
 }
 
 win32 {
@@ -33,11 +35,21 @@ win32 {
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
   DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
+
+  physics-binary.path = /usr/bin
+  physics-binary.files = physics
+  physics-icons.path = /usr/share/icons/hicolor/scalable/apps
+  physics-icons.files = icons/physics.svg
+  physics-desktop.path = /usr/share/applications
+  pyhsics-desktop.files = physics.desktop
+
+  INSTALLS += physics-binary physics-icons physics-desktop
 }
 
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
+RCC_DIR = .rcc
 
 DEPENDPATH += .
 
@@ -341,15 +353,14 @@ FORMS       += src/gui.ui
 
 RESOURCES   += res.qrc
 
-ICON         = icons/icon.svg
+ICON         = icons/physics.svg
 
 OTHER_FILES += README.md \
-               icons/icon.svg \
-               icons/icon.png \
-               icons/icon.ico \
-               icons/icon.hqx \
-               icons/icon.icns \
-               icons/icon.ico
+               icons/physics.svg \
+               icons/physics.png \
+               icons/physics.hqx \
+               icons/physics.icns \
+               icons/physics.ico
 
 DIRS_DC = object_script.* .ui .moc .rcc .obj *.pro.user $$TARGET
 

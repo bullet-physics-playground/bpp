@@ -9,6 +9,6 @@
   <qresource prefix="/">
     <file>icons/deactivation.png</file>
     <file>icons/povray.png</file>
-    <file>icons/icon.svg</file>
+    <file>icons/physics.svg</file>
   </qresource>
 </RCC>
