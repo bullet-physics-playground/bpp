@@ -46,6 +46,12 @@ int main(int argc, char **argv) {
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
+#ifdef WIN32_LINK_THEME
+  if (!QIcon::hasThemeIcon("document-new")) {
+    QIcon::setThemeName("humanity");
+  }
+#endif
+
   g = new Gui(savePNG, savePOV);
   g->show();
 

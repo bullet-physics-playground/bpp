@@ -91,6 +91,7 @@ link_koppi_style_win32 {
   DEFINES += WIN32_LINK_LUA
   DEFINES += WIN32_LINK_LUABIND
   DEFINES += WIN32_LINK_FREEGLUT
+  DEFINES += WIN32_LINK_GLEW
   DEFINES += WIN32_LINK_BOOST
 
   DEFINES += WIN32_LINK_AUTOIMPORT
@@ -100,12 +101,13 @@ link_koppi_style_win32 {
   WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.14-win32-dll
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
   WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.3.17
-  WIN32_DIR_LIB3DS    = $$WIN32_DIR_LIB\\lib3ds
+  WIN32_DIR_LIB3DS    = $$WIN32_DIR_LIB\\lib3ds-1.3.0
 
 ## We use glut lib included with bullet.
 
   WIN32_DIR_GLUT      = $$WIN32_DIR_LIB\\bullet-r2552\\Glut
   WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.0-1-mingw
+  WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.5.4-mingw32
   WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet-r2552
   WIN32_DIR_BOOST     = $$WIN32_DIR_LIB\\boost_1_51_0
 }
@@ -174,6 +176,18 @@ contains(DEFINES, WIN32_LINK_FREEGLUT) {
   LIBS += -lfreeglut -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
 }
 
+contains(DEFINES, WIN32_LINK_GLEW) {
+# message(Statically linking glew)
+
+  PATH_GLEW = $$WIN32_DIR_GLEW
+
+  INCLUDEPATH += $$PATH_GLEW\\include
+
+  LIBS += -L$$PATH_GLEW\\lib -L$$PATH_GLEW\\bin
+
+  LIBS += -lglew32
+}
+
 contains(DEFINES, WIN32_LINK_GLUT) {
 # message(Statically linking glut)
 
@@ -215,15 +229,13 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
 contains(DEFINES, WIN32_LINK_LIB3DS) {
 #  message(Statically linking lib3ds)
 
-  SRC_LIB3DS  = $$WIN32_DIR_LIB3DS\\src
+  SRC_LIB3DS  = $$WIN32_DIR_LIB3DS
 
   INCLUDEPATH += $$SRC_LIB3DS
 
-  HEADERS += $$SRC_LIB3DS\\lib3ds.h
-
   # include
 
-  LIBS += -L$$WIN32_DIR_LIB3DS\\src
+  LIBS += -L$$WIN32_DIR_LIB3DS\\release
 
   # link
 
