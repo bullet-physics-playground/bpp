@@ -1,0 +1,18 @@
+Source: bullet-physics-playground
+Section: graphics
+Priority: optional
+Maintainer: Jakob Flierl <jakob.flierl@gmail.com>
+Uploaders: Jakob Flierl <jakob.flierl@gmail.com>
+Build-Depends: debhelper (>= 7.0.50~), automake, libtool, cmake, freeglut3-dev, libqt4-dev, libqglviewer-qt4-dev, freeglut3-dev, libglew1.6-dev, libluabind-dev, liblua5.1-0-dev, libbullet-dev
+Standards-Version: 3.9.1
+Homepage: https://github.com/koppi/bulttet-physics-playground
+DM-Upload-Allowed: yes
+Vcs-Git: git://github.com/koppi/bullet-physics-playground.git
+Vcs-Browser: https://github.com/koppi/bullet-physics-playground
+
+
+Package: bullet-physics-playground
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: bullet physics playground
+ Physics simulation and more.

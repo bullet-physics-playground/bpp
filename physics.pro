@@ -21,7 +21,14 @@ win32 {
 
   CONFIG += link_pkgconfig
 
-  
+  physics-binary.path = /usr/bin
+  physics-binary.files = physics
+  physics-deskop.path = /usr/share/applications
+  physics-deskop.files = physics.desktop
+  physics-icons.path = /usr/share/icons/hicolor/scalable/apps
+  physics-icons.files = icons/physics.svg
+
+  INSTALLS += physics-binary physics-deskop physics-icons
 }
 
 mac {
@@ -35,15 +42,6 @@ win32 {
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
   DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
-
-  physics-binary.path = /usr/bin
-  physics-binary.files = physics
-  physics-icons.path = /usr/share/icons/hicolor/scalable/apps
-  physics-icons.files = icons/physics.svg
-  physics-desktop.path = /usr/share/applications
-  pyhsics-desktop.files = physics.desktop
-
-  INSTALLS += physics-binary physics-icons physics-desktop
 }
 
 MOC_DIR = .moc

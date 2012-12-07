@@ -1,0 +1,89 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+CXXFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CXXFLAGS += -O0
+else
+	CXXFLAGS += -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+        INSTALL_PROGRAM += -s
+endif
+
+QMAKE_AFTER = -after \
+	      'QMAKE_CXXFLAGS_RELEASE = $(CXXFLAGS)' \
+	      'QMAKE_POST_LINK ~= s/strip/:'
+
+build: build-stamp
+build-stamp: $(QUILT_STAMPFN)
+	dh_testdir
+
+	qmake-qt4 $(QMAKE_AFTER) physics.pro && $(MAKE)
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	[ ! -f Makefile ] || $(MAKE) clean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	$(MAKE) INSTALL_ROOT=$(CURDIR)/debian/bullet-physics-playground install
+	install -d -v -m 0755 $(CURDIR)/debian/bullet-physics-playground/usr/share/applications
+	chmod 664 $(CURDIR)/debian/bullet-physics-playground/usr/share/applications/physics.desktop
+
+	install -d -v -m 0755 $(CURDIR)/debian/bullet-physics-playground/usr/share/icons/hicolor/scalable/apps
+	chmod 664 $(CURDIR)/debian/bullet-physics-playground/usr/share/icons/hicolor/scalable/apps/physics.svg
+
+	install -d -v -m 0755 $(CURDIR)/debian/bullet-physics-playground/usr/bin
+	install -m 755 -p physics $(CURDIR)/debian/bullet-physics-playground/usr/bin/physics
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+#	dh_installchangelogs ChangeLog
+	dh_installdocs -i
+	dh_install -i
+	dh_installman -i
+	dh_compress -i --exclude=.cpp --exclude=.pri
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installchangelogs ChangeLog
+	dh_installdocs -s README.md
+	dh_install -s --sourcedir=$(CURDIR)/debian/tmp
+#	dh_installman physics.1
+	dh_installmime
+	dh_installmenu
+	dh_link
+	dh_strip
+	dh_compress -s
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
