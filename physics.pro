@@ -63,9 +63,9 @@ link_pkgconfig {
   LIBS += -lqglviewer-qt4 -lGLEW -lGLU -lGL -lglut -l3ds
   # If you se the latest QGLViewer sources from www.libqglviewer.com
   # use the followings LIBS instead:
-  #LIBS += -lQGLViewer -lglut -lGL -l3ds
+  #LIBS += -lQGLViewer -lGLEW -lglut -lGL -l3ds
   # and on ubuntu 12.04 use -lGLU instead -lGL:
-  #LIBS += -lQGLViewer -lglut -lGLU -l3ds
+  #LIBS += -lQGLViewer -lGLEW -lglut -lGLU -l3ds
 }
 
 win32-msvc* {
