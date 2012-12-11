@@ -571,10 +571,12 @@ void Gui::closeEvent(QCloseEvent * event) {
     msgBox->exec();  
     if ((QPushButton*)msgBox->clickedButton() == yesButton){
       saveSettings();
+	  ui.viewer->close();
       event->accept();
     }
   }else{
     saveSettings();
+	ui.viewer->close();
   }
 }
 
