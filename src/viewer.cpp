@@ -32,7 +32,11 @@ using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
   ostream << v.toString().toAscii().data();
+  return ostream;
+}
 
+std::ostream& operator<<(std::ostream& ostream, const btVector3& v) {
+  ostream << v.x() << v.y() << v.z();
   return ostream;
 }
 
@@ -106,6 +110,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("rotate", &btVector3::rotate )
    .def("setZero", &btVector3::setZero )
    .def("triple", &btVector3::triple )
+   .def(tostring(const_self))
    ];
 
   module(s)
@@ -523,14 +528,15 @@ bool Viewer::parse(QString txt) {
   if (L != NULL) {
 	clear();
 	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-	lua_close(L);
-  }
-  
+
   // invalidate function refs
   _cb_preDraw = luabind::object();
   _cb_postDraw = luabind::object();
   _cb_preSim = luabind::object();
   _cb_postSim = luabind::object();
+
+  lua_close(L);
+  }
   
   // qDeleteAll(*_objects);
   
@@ -745,7 +751,7 @@ void Viewer::computeBoundingBox() {
 
   btVector3 center = (vmin + vmax) / 2.0f;
   setSceneRadius((vmax - vmin).length() * 2.0);
-  setSceneCenter((Vec)center);
+  setSceneCenter(Vec(0.0,0.0,0.0));
 }
 
 void Viewer::init() {
@@ -817,7 +823,7 @@ void Viewer::draw() {
 	try {
 	  luabind::call_function<void>(_cb_preDraw, _frameNum);
 	} catch(const std::exception& e){
-	  std::cout << e.what() << std::endl;
+      emitScriptOutput(QString(e.what()));
 	}
   }
 
@@ -916,7 +922,7 @@ void Viewer::postDraw() {
 	try {
 	  luabind::call_function<void>(_cb_postDraw, _frameNum);
 	} catch(const std::exception& e){
-	  std::cout << e.what() << std::endl;
+      emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postDraw()"));
 	}
   }
 
@@ -1040,7 +1046,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_preSim, _frameNum);
       } catch(const std::exception& e){
-        std::cout << e.what() << std::endl;
+        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:preSim()"));
       }
     }
     
@@ -1050,7 +1056,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_postSim, _frameNum);
       } catch(const std::exception& e){
-        std::cout << e.what() << std::endl;
+        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postSim()"));
       }
     }
 
