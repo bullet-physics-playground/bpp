@@ -206,7 +206,6 @@ void Viewer::luaBind(lua_State *s) {
 
 void Viewer::addObject(Object* o) {
   addObject(o, o->getCol1(), o->getCol2()); 
-  add4BBox(o);
   addConstraints(o->getConstraints());
 }
 
@@ -240,27 +239,28 @@ void report_errors(lua_State *L, int status)
 using namespace qglviewer;
 
 namespace {
-  void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
-    btVector3 aabbMin, aabbMax;
+void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
+  btVector3 aabbMin, aabbMax;
 
   aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
   aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
 
   QSet<Object*>::iterator oi;
   for (oi = objects->begin(); oi != objects->end(); oi++) {
-      Object *o = *oi;
+    Object *o = *oi;
 
 	  if (o->toString() != QString("Plane")) {
-		btVector3 oaabbmin, oaabbmax;
-		o->body->getAabb(oaabbmin, oaabbmax);
-		
-		for (int i = 0; i < 3; ++i) {
-		  aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
-		  aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
-		}
+      btVector3 oaabbmin, oaabbmax;
+      o->body->getAabb(oaabbmin, oaabbmax);
+
+      for (int i = 0; i < 3; ++i) {
+        aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
+        aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
+      }
 	  }
-    }
   }
+  // qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
+}
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
@@ -307,10 +307,10 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     // kfi_.toggleInterpolation();
     // break;
   case Qt::Key_Plus :
-    kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()+0.25);
+    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()+0.25);
     break;
   case Qt::Key_Minus :
-    kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()-0.25);
+    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()-0.25);
     break;
     /*
     case Qt::Key_Left :
@@ -328,16 +328,6 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
       // break;
     default:
       QGLViewer::keyPressEvent(e);
-  }
-}
-
-void Viewer::add4BBox(Object *o) {
-  _all_objects->insert(o);
-}
-
-void Viewer::add4BBox(QList<Object *> ol) {
-  foreach (Object *o, ol) {
-    _all_objects->insert(o);
   }
 }
 
@@ -362,11 +352,11 @@ void Viewer::addObjects() {
 
 }
 
-Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
+Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
+  setAttribute(Qt::WA_DeleteOnClose);
+
   _objects = new QSet<Object *>();
   _constraints = new QSet<btTypedConstraint *>();
-
-  _all_objects = new QSet<Object *>();
 
   L = NULL;
 
@@ -387,14 +377,20 @@ Viewer::Viewer(QWidget *, bool savePNG, bool savePOV) {
   _frameNum = 0;
   _firstFrame = 0;
 
-  nbKeyFrames = 10;
+//  nbKeyFrames = 10;
 
-  setManipulatedFrame(new ManipulatedFrame());
-  camera()->setType(Camera::PERSPECTIVE);
+//  setManipulatedFrame(new ManipulatedFrame());
+//  camera()->setType(Camera::PERSPECTIVE);
   
   loadPrefs();
 
   startAnimation();
+}
+
+void Viewer::close() {
+  // qDebug() << "Viewer::close()";
+  savePrefs();
+  QGLViewer::close();
 }
 
 void Viewer::setCamera(Camera *cam) {
@@ -578,7 +574,6 @@ void Viewer::clear() {
   }
 
   _objects->clear();
-  _all_objects->clear();
 
   // remove all contact manifolds
   for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
@@ -614,10 +609,15 @@ void Viewer::resetCamView() {
 
 void Viewer::loadPrefs() {
   QSettings s;
+
+  QGLViewer::restoreStateFromFile();
 }
 
 void Viewer::savePrefs() {
+  // qDebug() << "Viewer::savePrefs()";
   QSettings s;
+
+  QGLViewer::saveStateToFile();
 }
 
 void Viewer::openPovFile() {
@@ -694,14 +694,11 @@ void Viewer::closePovFile() {
 }
 
 Viewer::~Viewer() {
-  savePrefs();
-
-  delete [] _objects;
-  delete [] _all_objects;
+  // qDebug() << "Viewer::~Viewer()";
+  delete _objects;
   delete dynamicsWorld;
   delete collisionCfg;
   delete axisSweep;
-
 }
 
 void Viewer::computeBoundingBox() {
@@ -711,8 +708,8 @@ void Viewer::computeBoundingBox() {
   btVector3 vmin(_aabb[0], _aabb[1], _aabb[2]);
   btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
-  btVector3 center = (vmin + vmax)/2.0f;
-  setSceneRadius((vmax - vmin).length()*5.0);
+  btVector3 center = (vmin + vmax) / 2.0f;
+  setSceneRadius((vmax - vmin).length() * 2.0);
   setSceneCenter((Vec)center);
 }
 
@@ -727,7 +724,7 @@ void Viewer::init() {
   glShadeModel(GL_SMOOTH);
   //glPointSize(3.0);
 
-  computeBoundingBox();
+  // computeBoundingBox();
 
   if (!restoreStateFromFile()) {
     showEntireScene();
@@ -770,6 +767,9 @@ void Viewer::init() {
 void Viewer::draw() {
 
   if (_parsing) return;
+
+  // Don't know if this is a good idea..
+  computeBoundingBox();
 
   // qDebug() << "Viewer::draw() 0";
   QMutexLocker locker(&mutex);

@@ -93,6 +93,8 @@ class Viewer : public QGLViewer
   void addConstraints(QList<btTypedConstraint *> cons);
   void addConstraint(btTypedConstraint *con);
  public slots:
+  void close();
+
   bool parse(QString txt);
   void clear();
 
@@ -121,9 +123,6 @@ class Viewer : public QGLViewer
   void addObject(Object *o, int type, int mask);
 
   void addObjects(QList<Object *> ol, int type, int mask);
-
-  void add4BBox(Object *o);
-  void add4BBox(QList<Object *> ol);
 
   virtual void startAnimation();
   virtual void stopAnimation();
@@ -155,15 +154,13 @@ class Viewer : public QGLViewer
 
   Sphere *mioSphere;
 
-  ManipulatedFrame** keyFrame_;
-  KeyFrameInterpolator kfi_;
-  int nbKeyFrames;
-  int currentKF_;
+//  ManipulatedFrame** keyFrame_;
+//  KeyFrameInterpolator kfi_;
+//  int nbKeyFrames;
+//  int currentKF_;
 
-  QSet<Object*>   *_objects;
+  QSet<Object*> *_objects;
   QSet<btTypedConstraint*> *_constraints;
-
-  QSet<Object*>   *_all_objects; // for bounding box calculation
 
   btScalar           _aabb[6];
 
