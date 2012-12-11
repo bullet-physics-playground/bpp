@@ -177,9 +177,44 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
   [
+   class_<btPoint2PointConstraint,btTypedConstraint>("btPoint2PointConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&>())
+   ];
+   
+  module(s)
+  [
    class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
-   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3 &>())
+   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
+   .def("setAxis", &btHingeConstraint::setAxis)
    .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
+   ];
+
+  module(s)
+  [
+   class_<btSliderConstraint,btTypedConstraint>("btSliderConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
+   .def("setLowerLinLimit", &btSliderConstraint::setLowerLinLimit)
+   .def("setUpperLinLimit", &btSliderConstraint::setUpperLinLimit)
+   .def("setLowerAngLimit", &btSliderConstraint::setLowerAngLimit)
+   .def("setUpperAngLimit", &btSliderConstraint::setUpperAngLimit)
+   .def("setSoftnessDirLin", &btSliderConstraint::setSoftnessDirLin)
+   .def("setRestitutionDirLin", &btSliderConstraint::setRestitutionDirLin)
+   .def("setDampingDirLin", &btSliderConstraint::setDampingDirLin)
+   .def("setSoftnessDirAng", &btSliderConstraint::setSoftnessDirAng)
+   .def("setRestitutionDirAng", &btSliderConstraint::setRestitutionDirAng)
+   .def("setDampingDirAng", &btSliderConstraint::setDampingDirAng)
+   .def("setSoftnessLimLin", &btSliderConstraint::setSoftnessLimLin)
+   .def("setRestitutionLimLin", &btSliderConstraint::setRestitutionLimLin)
+   .def("setDampingLimLin", &btSliderConstraint::setDampingLimLin)
+   .def("setSoftnessLimAng", &btSliderConstraint::setSoftnessLimAng)
+   .def("setRestitutionLimAng", &btSliderConstraint::setRestitutionLimAng)
+   .def("setDampingLimAng", &btSliderConstraint::setDampingLimAng)
+   .def("setSoftnessOrthoLin", &btSliderConstraint::setSoftnessOrthoLin)
+   .def("setRestitutionOrthoLin", &btSliderConstraint::setRestitutionOrthoLin)
+   .def("setDampingOrthoLin", &btSliderConstraint::setDampingOrthoLin)
+   .def("setSoftnessOrthoAng", &btSliderConstraint::setSoftnessOrthoAng)
+   .def("setRestitutionOrthoAng", &btSliderConstraint::setRestitutionOrthoAng)
+   .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
    ];
 
   module(s)
