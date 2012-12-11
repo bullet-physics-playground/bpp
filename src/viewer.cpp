@@ -750,7 +750,7 @@ void Viewer::computeBoundingBox() {
   btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
   btVector3 center = (vmin + vmax) / 2.0f;
-  setSceneRadius((vmax - vmin).length() * 2.0);
+  setSceneRadius((vmax - vmin).length() * 4.0);
   setSceneCenter(Vec(0.0,0.0,0.0));
 }
 
