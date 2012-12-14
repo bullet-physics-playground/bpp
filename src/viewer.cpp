@@ -191,6 +191,7 @@ void Viewer::luaBind(lua_State *s) {
    class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
    .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
    .def("setAxis", &btHingeConstraint::setAxis)
+   .def("setLimit", &btHingeConstraint::setLimit)
    .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
    ];
 
