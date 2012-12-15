@@ -140,7 +140,8 @@ SOURCES += src/main.cpp \
            src/code.cpp \
            src/objects/objects.cpp \
            src/objects/cam.cpp \
-    src/high.cpp
+    src/high.cpp \
+           src/prefs.cpp
 
 HEADERS += src/objects/palette.h \
            src/viewer.h \
@@ -156,8 +157,8 @@ HEADERS += src/objects/palette.h \
            src/code.h \
            src/objects/objects.h \
            src/objects/cam.h \
-    src/high.h
-
+    src/high.h \
+           src/prefs.h
 
 # WIN32 stuff
 
@@ -347,7 +348,7 @@ contains(DEFINES, WIN32_LINK_THEME) {
 
 ## Misc stuff
 
-FORMS       += src/gui.ui
+FORMS       += src/gui.ui src/prefs.ui
 
 RESOURCES   += res.qrc
 

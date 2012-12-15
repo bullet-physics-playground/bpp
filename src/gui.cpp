@@ -1,3 +1,5 @@
+#include "prefs.h"
+
 #include "gui.h"
 
 #define APP_VERSION QString("v1.0.1")
@@ -510,6 +512,12 @@ void Gui::saveFile(const QString& path) {
 }
 
 void Gui::editPrefs() {
+  Prefs *p = new Prefs(this);
+
+  connect(p, SIGNAL(fontChanged(QString, uint)),
+          this, SLOT(fontChanged(QString, uint)));
+
+  p->show();
 }
 
 void Gui::openRecentFile() {
