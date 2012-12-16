@@ -184,14 +184,17 @@ void Viewer::luaBind(lua_State *s) {
   [
    class_<btPoint2PointConstraint,btTypedConstraint>("btPoint2PointConstraint")
    .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&>())
+   .def("setParam", &btPoint2PointConstraint::setParam)
    ];
    
   module(s)
   [
    class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
    .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
+   .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&>())
    .def("setAxis", &btHingeConstraint::setAxis)
    .def("setLimit", &btHingeConstraint::setLimit)
+   .def("setParam", &btHingeConstraint::setParam)
    .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
    ];
 
@@ -221,6 +224,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("setSoftnessOrthoAng", &btSliderConstraint::setSoftnessOrthoAng)
    .def("setRestitutionOrthoAng", &btSliderConstraint::setRestitutionOrthoAng)
    .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
+   .def("setParam", &btSliderConstraint::setParam)
    ];
 
   module(s)
