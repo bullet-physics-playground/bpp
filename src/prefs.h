@@ -1,4 +1,4 @@
-#ifndef REFS_H
+#ifndef PREFS_H
 #define PREFS_H
 
 #include <QSettings>
@@ -7,23 +7,23 @@
 #include "ui_prefs.h"
 
 class Prefs : public QDialog , public Ui_Prefs {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-  Prefs(QWidget* parent = 0, Qt::WFlags fl = 0);
-    ~Prefs();
+  Prefs(QWidget* parent = 0, Qt::WFlags fl = 0, QString organization = "", QString app_name = "");
+  ~Prefs();
 
-    void accept();
-    void activateGroupPage(QString group, int id);
+  void accept();
+  void activateGroupPage(QString group, int id);
 
 	QVariant getValue(const QString &key) const;
 
 protected:
-    void changeEvent(QEvent *e);
+  void changeEvent(QEvent *e);
 
 protected Q_SLOTS:
-    void changeGroup(QListWidgetItem *current, QListWidgetItem *previous);
-    void on_buttonApply_clicked();
+  void changeGroup(QListWidgetItem *current, QListWidgetItem *previous);
+  void on_buttonOk_clicked();
 
 	void fontFamilyChanged(const QString &);
 	void fontSizeChanged(const QString &);
@@ -35,12 +35,13 @@ private:
 	void keyPressEvent(QKeyEvent *e);
 	void updateGUI();
 	void removeDefaultSettings();
-    void setupPages();
+  void setupPages();
 
 private:
-    QHash<QString, QList<QString> > _pages;
-    bool invalidParameter;
+  QHash<QString, QList<QString> > _pages;
+  bool invalidParameter;
 
+  QSettings *_settings;
 	QSettings::SettingsMap defaultmap;
 };
 

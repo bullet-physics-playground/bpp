@@ -5,6 +5,7 @@
 #define APP_VERSION QString("v1.0.1")
 #define APP_NAME QString("physics")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
+#define APP_ORGANIZATION QString("koppi.me")
 
 Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   _fileSaved=true;
@@ -23,7 +24,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   setAcceptDrops(true);
 
-  settings = new QSettings("koppi.me", APP_NAME);
+  settings = new QSettings(APP_ORGANIZATION, APP_NAME);
 
   createDock();
 
@@ -512,7 +513,7 @@ void Gui::saveFile(const QString& path) {
 }
 
 void Gui::editPrefs() {
-  Prefs *p = new Prefs(this);
+  Prefs *p = new Prefs(this, 0, APP_ORGANIZATION, APP_NAME);
 
   connect(p, SIGNAL(fontChanged(QString, uint)),
           this, SLOT(fontChanged(QString, uint)));
