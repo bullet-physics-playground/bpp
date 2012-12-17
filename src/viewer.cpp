@@ -735,9 +735,9 @@ void Viewer::openPovFile() {
     *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z() << "> angle 39.6" << endl;
     // qDebug() << vLook.x() << vLook.y() << vLook.z();
   } else {
-    Vec vLook = camera()->viewDirection();
-    *_stream << "  look_at < " << vLook.x << ", " << vLook.y << ", " << vLook.z << "> angle 39.6" << endl;
-    // qDebug() << vLook.x << vLook.y << vLook.z;
+    Vec vDir = camera()->viewDirection();
+    *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z << "> angle 39.6" << endl;
+     // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
   }
   *_stream << "  }" << endl << endl;
 
