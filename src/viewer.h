@@ -80,7 +80,7 @@ class Viewer : public QGLViewer
   void resetCamView();
 
   void addObject(Object* o);
-  void setCamera(Camera* cam);
+  void setCamera(Cam* cam);
 
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);

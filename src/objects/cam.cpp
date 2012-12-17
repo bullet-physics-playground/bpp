@@ -15,7 +15,7 @@ std::ostream& operator<<(std::ostream& ostream, const Cam& cam) {
   return ostream;
 }
 
-Cam::Cam() {
+Cam::Cam() : Camera() {
 }
 
 QString Cam::toString() const {
@@ -61,8 +61,10 @@ btVector3 Cam::getPosition() const {
 
 void Cam::setLookAt(const btVector3& v) {
   Camera::lookAt(Vec(v[0], v[1], v[2]));
+
+  _lookAt = v;
 }
 
 btVector3 Cam::getLookAt() const {
-  return btVector3(0.0,0.0,0.0); // FIXME
+  return _lookAt;
 }

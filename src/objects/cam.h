@@ -31,6 +31,9 @@ class Cam : public Camera {
   void setLookAt(const btVector3& v);
   btVector3 getLookAt() const;
 
+ protected:
+  btVector3 _lookAt;
+
 };
 
 #endif
