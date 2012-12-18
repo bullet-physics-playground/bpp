@@ -226,6 +226,13 @@ void Viewer::luaBind(lua_State *s) {
    .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
    .def("setParam", &btSliderConstraint::setParam)
    ];
+   
+  module(s)
+  [
+   class_<btGeneric6DofSpringConstraint,btTypedConstraint>("btGeneric6DofSpringConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
+   .def("setAxis", &btGeneric6DofSpringConstraint::setAxis)
+   ];   
 
   module(s)
 	[
