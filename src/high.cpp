@@ -50,6 +50,13 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
   rule.pattern = QRegExp("--[^\n]*");
   rule.format = singleLineCommentFormat;
   highlightingRules.append(rule);
+
+  multiLineCommentFormat.setForeground(Qt::black);
+  multiLineCommentFormat.setFontItalic(true);
+
+  //Multi Line Comment --[[ ]]
+  commentStartExpression = QRegExp("--\\[\\["); // --[[
+  commentEndExpression = QRegExp("--\\]\\]"); // ]]
 }
 
 void Highlighter::highlightBlock(const QString &text) {
@@ -61,5 +68,25 @@ void Highlighter::highlightBlock(const QString &text) {
 		setFormat(index, length, rule.format);
 		index = text.indexOf(expression, index + length);
 	  }
+  }
+
+  int startIndex = 0;
+
+  setCurrentBlockState(0);
+
+  if (previousBlockState() != 1)
+    startIndex = commentStartExpression.indexIn(text);
+
+  while (startIndex >= 0) {
+    int endIndex = commentEndExpression.indexIn(text, startIndex);
+    int commentLength;
+    if (endIndex == -1) {
+      setCurrentBlockState(1);
+      commentLength = text.length() - startIndex;
+    } else {
+      commentLength = endIndex - startIndex + commentEndExpression.matchedLength();
+    }
+    setFormat(startIndex, commentLength, multiLineCommentFormat);
+    startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
   }
 }

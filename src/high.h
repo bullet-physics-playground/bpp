@@ -26,6 +26,9 @@ class Highlighter : public QSyntaxHighlighter
   };
   QVector<HighlightingRule> highlightingRules;
 
+  QRegExp commentStartExpression;
+  QRegExp commentEndExpression;
+
   QTextCharFormat keywordFormat;
   QTextCharFormat classFormat;
   QTextCharFormat singleLineCommentFormat;
