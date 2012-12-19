@@ -231,8 +231,21 @@ void Viewer::luaBind(lua_State *s) {
   [
    class_<btGeneric6DofSpringConstraint,btTypedConstraint>("btGeneric6DofSpringConstraint")
    .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
+   .def("enableSpring", &btGeneric6DofSpringConstraint::enableSpring)
+   .def("setStiffness", &btGeneric6DofSpringConstraint::setStiffness)
+   .def("setDamping", &btGeneric6DofSpringConstraint::setDamping)
+   //.def("setEquilibriumPoint", &btGeneric6DofSpringConstraint::setEquilibriumPoint) // FIX ME: compilation error
    .def("setAxis", &btGeneric6DofSpringConstraint::setAxis)
    ];   
+
+  module(s)
+  [
+   class_<btUniversalConstraint,btTypedConstraint>("btUniversalConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&>())
+   .def("setAxis", &btUniversalConstraint::setAxis)
+   .def("setUpperLimit", &btHingeConstraint::setLimit)
+   .def("setLowerLimit", &btHingeConstraint::setParam)
+   ];
 
   module(s)
 	[

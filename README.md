@@ -49,6 +49,9 @@ physics options:
 * [07-coins-piles.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/07-coins-piles.lua) - POV-Ray export customisation
 * [08-oranges-box.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/08-oranges-box.lua) - General usage demo
 * [09-blocks-tower.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-blocks-tower.lua) - General usage demo
+* [10-coins-3ds-box.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-coins-3ds-box.lua) - Usage of postSim() to add objects during simulation
+* [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - Illustrates usage of hinge and slider constraints
+* [12-collar-p2p.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-p2p.lua) - Illustrates usage of point-to-point constraints
 
 # Youtube needs more povray animations
 
