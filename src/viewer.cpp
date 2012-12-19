@@ -67,6 +67,7 @@ void Viewer::luaBind(lua_State *s) {
    class_<Viewer>("Viewer")
    .def(constructor<>())
    .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
+   .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(luabind::result))
    .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
    .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
    .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
@@ -273,6 +274,13 @@ void Viewer::luaBind(lua_State *s) {
 void Viewer::addObject(Object* o) {
   addObject(o, o->getCol1(), o->getCol2()); 
   addConstraints(o->getConstraints());
+}
+
+void Viewer::removeObject(Object* o) {
+  if (o->body != NULL)
+    dynamicsWorld->removeRigidBody(o->body);
+
+  _objects->remove(o);
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {
