@@ -69,7 +69,9 @@ void Viewer::luaBind(lua_State *s) {
    .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
    .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(luabind::result))
    .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
+   .def("removeConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::removeConstraint, adopt(_2))
    .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
+   .def("removeShortcut", &Viewer::removeShortcut, adopt(luabind::result))
    .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
    .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -286,6 +288,11 @@ void Viewer::removeObject(Object* o) {
 void Viewer::addConstraint(btTypedConstraint *con) {
   dynamicsWorld->addConstraint(con, true);
   _constraints->insert(con);
+}
+
+void Viewer::removeConstraint(btTypedConstraint *con) {
+  dynamicsWorld->removeConstraint(con);
+  _constraints->remove(con);
 }
 
 void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
@@ -1017,6 +1024,10 @@ void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
   } else {
     // qDebug() << "Not a function";
   }
+}
+
+void Viewer::removeShortcut(const QString &keys) {
+  _cb_shortcuts->remove(keys);
 }
 
 void Viewer::postDraw() {

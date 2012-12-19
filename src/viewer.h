@@ -93,6 +93,11 @@ class Viewer : public QGLViewer
 
   void addConstraints(QList<btTypedConstraint *> cons);
   void addConstraint(btTypedConstraint *con);
+  void removeConstraint(btTypedConstraint *con);
+
+  void addShortcut(const QString&, const luabind::object &fn);
+  void removeShortcut(const QString&);
+
  public slots:
   void close();
 
@@ -103,8 +108,6 @@ class Viewer : public QGLViewer
   void setCBPostDraw(const luabind::object &fn);
   void setCBPreSim(const luabind::object &fn);
   void setCBPostSim(const luabind::object &fn);
-
-  void addShortcut(const QString&, const luabind::object &fn);
 
  signals:
   void scriptFinished();
