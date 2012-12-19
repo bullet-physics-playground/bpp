@@ -601,11 +601,7 @@ int Viewer::lua_print(lua_State* L) {
 bool Viewer::parse(QString txt) {
   _parsing = true;
 
-  // qDebug() << "Viewer::parse 0";
-
   QMutexLocker locker(&mutex);
-  
-  // qDebug() << "Viewer::parse 1";
   
   _scriptContent = txt;
 	
@@ -628,16 +624,19 @@ bool Viewer::parse(QString txt) {
   lua_close(L);
   }
   
-  // qDeleteAll(*_objects);
-  
-  // qDebug() << "after lua_gc";
-
   // setup lua
-
   L = luaL_newstate();
-  //  luaopen_io(L); // provides io.*
   luaL_openlibs(L);
+
+  /* this is done above
+  luaopen_base(L);
+  luaopen_table(L);
+  luaopen_io(L);
+  luaopen_os(L);
+  luaopen_package(L);
   luaopen_math(L);
+  */
+
   // lua_load_environment(L);
 
   Cam::luaBind(L);
@@ -690,7 +689,7 @@ bool Viewer::parse(QString txt) {
 
   _parsing = false;
 
-  if (error) return false; else return true;
+  return (error ? false : true);
 }
 
 void Viewer::clear() {
