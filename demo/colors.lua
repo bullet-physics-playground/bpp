@@ -1,5 +1,0 @@
-col_red = "#ff0000"
-col_green = "green"
-col_blue = "#0000ff"
-col_white = "#ffffff"
-col_gray = "#101010"
