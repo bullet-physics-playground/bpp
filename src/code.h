@@ -36,8 +36,7 @@ class CodeEditor : public QPlainTextEdit {
   void setFont(QString family, uint size);
 
   void appendLine(QString l) {
-	lines.append(l);
-	set_text();
+    appendPlainText(l);
   }
 
   void replaceText(QString txt) {
@@ -55,20 +54,6 @@ class CodeEditor : public QPlainTextEdit {
   void scriptSaved();
 
  protected:
-  void set_text() {
-	QString text;
-	for (int n = 0; n < lines.size(); n++) {
-	  text += lines[n];
-	  if (n < lines.size() - 1) text += "\n";
-	}
-
-	setPlainText(text);
-
-	QTextCursor c = textCursor();
-	c.movePosition(QTextCursor::End);
-	setTextCursor(c);
-  }
-
   void resizeEvent(QResizeEvent *event);
   
  private slots:
@@ -78,8 +63,6 @@ class CodeEditor : public QPlainTextEdit {
   
  private:
   QWidget *lineNumberArea;
-
-  QVarLengthArray<QString> lines;
 
   Highlighter *highlighter;
 };
