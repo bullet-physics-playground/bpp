@@ -68,6 +68,7 @@ void Viewer::luaBind(lua_State *s) {
    .def(constructor<>())
    .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
    .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
+   .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
    .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
    .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -329,6 +330,52 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
+  int keyInt = e->key();
+  Qt::Key key = static_cast<Qt::Key>(keyInt);
+
+  if (key == Qt::Key_unknown) {
+      qDebug() << "Unknown key from a macro probably";
+      return;
+  }
+
+  // the user have clicked just and only the special keys Ctrl, Shift, Alt, Meta.
+  if(key == Qt::Key_Control ||
+      key == Qt::Key_Shift ||
+      key == Qt::Key_Alt ||
+      key == Qt::Key_Meta)
+  {
+      qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
+      qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
+      return;
+  }
+
+  // check for a combination of user clicks
+  Qt::KeyboardModifiers modifiers = e->modifiers();
+  QString keyText = e->text();
+  // if the keyText is empty than it's a special key like F1, F5, ...
+  //  qDebug() << "Pressed Key:" << keyText;
+
+  QList<Qt::Key> modifiersList;
+  if(modifiers & Qt::ShiftModifier)
+      keyInt += Qt::SHIFT;
+  if(modifiers & Qt::ControlModifier)
+      keyInt += Qt::CTRL;
+  if(modifiers & Qt::AltModifier)
+      keyInt += Qt::ALT;
+  if(modifiers & Qt::MetaModifier)
+      keyInt += Qt::META;
+
+  QString seq = QKeySequence(keyInt).toString(QKeySequence::NativeText);
+  // qDebug() << "KeySequence:" << seq;
+
+  if (_cb_shortcuts->contains(seq)) {
+    try {
+      luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
+    } catch(const std::exception& e){
+        emitScriptOutput(QString(e.what()));
+    }
+  }
+
   switch (e->key()) {
 
   case Qt::Key_S :
@@ -446,6 +493,8 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   // setManipulatedFrame(new ManipulatedFrame());
   // camera()->setType(Camera::PERSPECTIVE);
+
+  _cb_shortcuts = new QHash<QString, luabind::object>();
   
   loadPrefs();
 
@@ -664,6 +713,7 @@ void Viewer::clear() {
   }
 
   _constraints->clear();
+  _cb_shortcuts->clear();
 }
 
 void Viewer::resetCamView() {
@@ -946,6 +996,14 @@ void Viewer::setCBPostSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
     // qDebug() << "A function";
     _cb_postSim = fn;
+  } else {
+    // qDebug() << "Not a function";
+  }
+}
+
+void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_shortcuts->insert(keys, fn);
   } else {
     // qDebug() << "Not a function";
   }

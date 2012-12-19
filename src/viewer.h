@@ -103,6 +103,8 @@ class Viewer : public QGLViewer
   void setCBPreSim(const luabind::object &fn);
   void setCBPostSim(const luabind::object &fn);
 
+  void addShortcut(const QString&, const luabind::object &fn);
+
  signals:
   void scriptFinished();
   void scriptStopped();
@@ -191,6 +193,8 @@ class Viewer : public QGLViewer
 
   luabind::object _cb_preDraw,_cb_postDraw;
   luabind::object _cb_preSim,_cb_postSim;
+
+  QHash<QString, luabind::object> *_cb_shortcuts;
 
   bool _parsing;
 };
