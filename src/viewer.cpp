@@ -344,8 +344,8 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
       key == Qt::Key_Alt ||
       key == Qt::Key_Meta)
   {
-      qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
-      qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
+      // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
+      // qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
       return;
   }
 
@@ -802,11 +802,13 @@ void Viewer::openPovFile() {
 
   if (_cam != NULL) {
     btVector3 vLook = _cam->getLookAt();
-    *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z() << "> angle 39.6" << endl;
+    *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
+    *_stream << "> angle " << _cam->fieldOfView() * 180.0 / 2.0 << endl;
     // qDebug() << vLook.x() << vLook.y() << vLook.z();
   } else {
     Vec vDir = camera()->viewDirection();
-    *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z << "> angle 39.6" << endl;
+    *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
+    *_stream << "> angle " << camera()->fieldOfView() * 180.0 / 2.0 << endl;
      // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
   }
   *_stream << "  }" << endl << endl;

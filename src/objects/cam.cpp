@@ -40,6 +40,9 @@ void Cam::luaBind(lua_State *s) {
      class_<Cam,Camera>("Cam")
      .def(constructor<>(), adopt(result))
 
+     .def("setFieldOfView", &Cam::setFieldOfView)
+     .def("setHorizontalFieldOfView", &Cam::setHorizontalFieldOfView)
+
      .property("pos",
                (btVector3(Cam::*)(void))&Cam::getPosition,
                (void(Cam::*)(const btVector3&))&Cam::setPosition)
