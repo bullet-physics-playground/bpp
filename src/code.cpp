@@ -4,8 +4,8 @@
 
 #include "code.h"
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent) {
-  QSettings s;
+CodeEditor::CodeEditor(QWidget *parent, QString organization, QString app_name) : QPlainTextEdit(parent) {
+  QSettings s(organization, app_name);
 
   QString family = s.value("editor/fontfamily", "Courier").toString();
   uint size = s.value("editor/fontsize", 10).toUInt();

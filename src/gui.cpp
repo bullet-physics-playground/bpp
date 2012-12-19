@@ -396,7 +396,7 @@ void Gui::createDock() {
   dw1->setWindowTitle("Debug");
   dw1->setTitleBarWidget(new QWidget(this));
 
-  debugText = new CodeEditor(this);
+  debugText = new CodeEditor(this, APP_ORGANIZATION, APP_NAME);
   dw1->setWidget(debugText);
   debugText->setReadOnly(true);
 
@@ -405,7 +405,7 @@ void Gui::createDock() {
   QDockWidget *dw2 = new QDockWidget(this);
   dw2->setObjectName("DockLUAScript");
   dw2->setWindowTitle("LUA Script");
-  editor = new CodeEditor(this);
+  editor = new CodeEditor(this, APP_ORGANIZATION, APP_NAME);
   dw2->setWidget(editor);
 
   addDockWidget(Qt::RightDockWidgetArea, dw2);
@@ -530,6 +530,7 @@ void Gui::openRecentFile() {
 
 void Gui::fontChanged(const QString& family, uint size) {
   editor->setFont(family, size);
+  debugText->setFont(family, size);
 }
 
 void Gui::loadSettings() {
