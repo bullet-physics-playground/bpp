@@ -761,7 +761,7 @@ void Viewer::openPovFile() {
   if(!_scriptName.isEmpty()){
     sceneName=_scriptName;
   }else{
-    sceneName="no_name";
+    sceneName="no_name.lua";
   }
   sceneDir.mkdir(qPrintable(sceneName));
   file.sprintf("export/%s/%s-%05d.inc", qPrintable(sceneName), qPrintable(sceneName), _frameNum);
