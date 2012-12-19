@@ -492,8 +492,6 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
   _deactivation = true;
 
   collisionCfg = new btDefaultCollisionConfiguration();
-  //axisSweep = new btAxisSweep3(btVector3(-100,-100,-100), btVector3(100,100,100), 52800);
-  //dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg), axisSweep, new btSequentialImpulseConstraintSolver, collisionCfg);
   btBroadphaseInterface* broadphase = new btDbvtBroadphase();
   dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg), broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
   btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
@@ -512,6 +510,8 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
   _cb_shortcuts = new QHash<QString, luabind::object>();
   
   loadPrefs();
+  
+  _cam=NULL;
 
   startAnimation();
 }
@@ -814,15 +814,16 @@ void Viewer::openPovFile() {
   *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl; 
   *_stream << "  right -image_width/image_height*x" << endl;
 
+  #define _USE_MATH_DEFINES
   if (_cam != NULL) {
     btVector3 vLook = _cam->getLookAt();
     *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
-    *_stream << "> angle " << _cam->fieldOfView() * 180.0 / 2.0 << endl;
-    // qDebug() << vLook.x() << vLook.y() << vLook.z();
+    *_stream << "> angle " << _cam->fieldOfView() * 180.0 / M_PI << endl;
+    //// qDebug() << vLook.x() << vLook.y() << vLook.z();
   } else {
     Vec vDir = camera()->viewDirection();
     *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
-    *_stream << "> angle " << camera()->fieldOfView() * 180.0 / 2.0 << endl;
+    *_stream << "> angle " << camera()->fieldOfView() * 180.0 / M_PI << endl;
      // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
   }
   *_stream << "  }" << endl << endl;
@@ -841,7 +842,6 @@ Viewer::~Viewer() {
   delete _objects;
   delete dynamicsWorld;
   delete collisionCfg;
-  delete axisSweep;
 }
 
 void Viewer::computeBoundingBox() {

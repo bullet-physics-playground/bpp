@@ -171,7 +171,6 @@ class Viewer : public QGLViewer
   btScalar           _aabb[6];
 
   btDefaultCollisionConfiguration *collisionCfg;
-  btAxisSweep3 *axisSweep;
   btDiscreteDynamicsWorld *dynamicsWorld;
 
   QTime              _time;
