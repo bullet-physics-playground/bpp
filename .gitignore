@@ -17,13 +17,6 @@ physics.pro.user*
 
 qrc_res.cpp
 
-src/objects/robots/roboop/bench
-src/objects/robots/roboop/demo
-src/objects/robots/roboop/demo_2dof_pd
-src/objects/robots/roboop/libnewmat.a
-src/objects/robots/roboop/libroboop.a
-src/objects/robots/roboop/rtest
-
 Makefile
 
 .moc
@@ -41,7 +34,9 @@ anim
 
 physics
 
-local.properties
-build.xml
-proguard.cfg
+build-stamp
+debian/bullet-physics-playground.debhelper.log
+debian/bullet-physics-playground.substvars
+debian/bullet-physics-playground/
+debian/files
 
