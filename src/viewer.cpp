@@ -70,6 +70,8 @@ void Viewer::luaBind(lua_State *s) {
    .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(luabind::result))
    .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
    .def("removeConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::removeConstraint, adopt(_2))
+   .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster, adopt(luabind::result))
+   .def("addVehicle", (void(Viewer::*)(btRaycastVehicle *))&Viewer::addVehicle, adopt(_2))
    .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
    .def("removeShortcut", &Viewer::removeShortcut, adopt(luabind::result))
    .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
@@ -252,6 +254,34 @@ void Viewer::luaBind(lua_State *s) {
    ];
 
   module(s)
+  [
+   class_<btVehicleRaycaster>("btVehicleRaycaster")
+  ];
+
+  module(s)
+  [
+   class_<btDefaultVehicleRaycaster, btVehicleRaycaster>("btDefaultVehicleRaycaster")
+  ];
+
+  module(s)
+  [
+   class_<btRaycastVehicle::btVehicleTuning>("btVehicleTuning")
+   .def(constructor<>())
+   .def_readwrite("suspensionStiffness", &btRaycastVehicle::btVehicleTuning::m_suspensionStiffness)
+   .def_readwrite("suspensionCompression", &btRaycastVehicle::btVehicleTuning::m_suspensionCompression)
+   .def_readwrite("suspensionDamping", &btRaycastVehicle::btVehicleTuning::m_suspensionDamping)
+   .def_readwrite("maxSuspensionTravelCm", &btRaycastVehicle::btVehicleTuning::m_maxSuspensionTravelCm)
+   .def_readwrite("frictionSlip", &btRaycastVehicle::btVehicleTuning::m_frictionSlip)
+   .def_readwrite("maxSuspensionForce", &btRaycastVehicle::btVehicleTuning::m_maxSuspensionForce)
+  ];
+
+  module(s)
+  [
+   class_<btRaycastVehicle>("btRaycastVehicle")
+   .def(constructor<const btRaycastVehicle::btVehicleTuning&, btRigidBody*, btVehicleRaycaster*>())
+  ];
+
+  module(s)
 	[
 	 class_<QColor>("QColor")
 	 .def(constructor<>())
@@ -299,6 +329,15 @@ void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
   for (int i = 0; i < cons.size(); ++i) {
     addConstraint(cons[i]);
   }
+}
+
+btVehicleRaycaster* Viewer::createVehicleRaycaster() {
+  return new btDefaultVehicleRaycaster(dynamicsWorld);
+}
+
+void Viewer::addVehicle(btRaycastVehicle *veh) {
+  dynamicsWorld->addVehicle(veh);
+  _raycast_vehicles->insert(veh);
 }
 
 void Viewer::luaBindInstance(lua_State *s) {
@@ -484,6 +523,7 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   _objects = new QSet<Object *>();
   _constraints = new QSet<btTypedConstraint *>();
+  _raycast_vehicles = new QSet<btRaycastVehicle *>();
 
   L = NULL;
 

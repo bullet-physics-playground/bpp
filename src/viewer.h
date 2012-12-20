@@ -10,6 +10,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
+
 #include <QMutex>
 #include <QMutexLocker>
 
@@ -93,10 +95,13 @@ class Viewer : public QGLViewer
 
   void addConstraints(QList<btTypedConstraint *> cons);
   void addConstraint(btTypedConstraint *con);
+  void addVehicle(btRaycastVehicle *veh);
   void removeConstraint(btTypedConstraint *con);
 
   void addShortcut(const QString&, const luabind::object &fn);
   void removeShortcut(const QString&);
+
+  btVehicleRaycaster* createVehicleRaycaster();
 
  public slots:
   void close();
@@ -167,6 +172,7 @@ class Viewer : public QGLViewer
 
   QSet<Object*> *_objects;
   QSet<btTypedConstraint*> *_constraints;
+  QSet<btRaycastVehicle*> *_raycast_vehicles;
 
   btScalar           _aabb[6];
 
