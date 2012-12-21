@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
 }
 
 std::ostream& operator<<(std::ostream& ostream, const btVector3& v) {
-  ostream << v.x() << v.y() << v.z();
+  ostream << "btVector3(" << v.x() << ", " << v.y() << ", " << v.z() < ")";
   return ostream;
 }
 
@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream& ostream, const QString& s) {
 }
 
 std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
-  ostream << c.name().toAscii().data();
+  ostream << "QColor(\"" << c.name().toAscii().data() << "\")";
   return ostream;
 }
 
@@ -91,7 +91,12 @@ void Viewer::luaBind(lua_State *s) {
 	 class_<btVector3>( "btVector3" )
 	 .def(constructor<>())
 	 .def(constructor<btScalar, btScalar, btScalar>())
-	 .property("x", &btVector3::getX, &btVector3::setX)
+   .def(const_self + const_self)
+   .def(const_self - const_self)
+   .def(const_self * other<btScalar>())
+   .def(const_self / other<btScalar>())
+   .def(const_self == const_self)
+   .property("x", &btVector3::getX, &btVector3::setX)
 	 .property("y", &btVector3::getY, &btVector3::setY)
 	 .property("z", &btVector3::getZ, &btVector3::setZ)
 	 .def( "getX", &btVector3::getX )
