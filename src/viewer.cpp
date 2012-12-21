@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
 }
 
 std::ostream& operator<<(std::ostream& ostream, const btVector3& v) {
-  ostream << "btVector3(" << v.x() << ", " << v.y() << ", " << v.z() < ")";
+  ostream << "btVector3(" << v.x() << ", " << v.y() << ", " << v.z() << ")";
   return ostream;
 }
 
