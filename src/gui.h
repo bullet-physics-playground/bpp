@@ -38,6 +38,7 @@ private slots:
  public slots:
   void postDraw(int);
   void debug(QString msg);
+  void clearDebug();
   void toggleSimButton(bool);
   void togglePOVButton(bool);
   void togglePNGButton(bool);

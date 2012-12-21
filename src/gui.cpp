@@ -53,6 +53,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   connect(debugText, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
 
   connect(ui.viewer, SIGNAL(scriptHasOutput(QString)), this, SLOT(debug(QString)));
+  connect(ui.viewer, SIGNAL(scriptStarts()), this, SLOT(clearDebug()));
   connect(ui.viewer, SIGNAL(simulationStateChanged(bool)), this, SLOT(toggleSimButton(bool)));
   connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVButton(bool)));
   connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(togglePNGButton(bool)));
@@ -476,6 +477,10 @@ void Gui::animFinished() {
 
 void Gui::debug(QString txt) {
   debugText->appendLine(txt);
+}
+
+void Gui::clearDebug() {
+  debugText->clear();
 }
 
 void Gui::newFile() {
