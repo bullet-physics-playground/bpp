@@ -436,7 +436,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     try {
       luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
     } catch(const std::exception& ex){
-      emitScriptOutput(QString("%2 in shortcut '%1' function.").arg(seq).arg(ex.what()));
+      showLuaException(ex, QString("shortcut '%1' function").arg(seq));
     }
 
     return; // skip built in command if overridden by shortcut
@@ -611,10 +611,13 @@ int Viewer::lua_print(lua_State* L) {
 }
 
 bool Viewer::parse(QString txt) {
-  _parsing = true;
+  emit scriptStopped();
 
   QMutexLocker locker(&mutex);
   
+  _parsing = true;
+  _has_exception = false;
+
   _scriptContent = txt;
 	
   bool animStarted = animationIsStarted();
@@ -622,6 +625,8 @@ bool Viewer::parse(QString txt) {
   if (animStarted) {
       stopAnimation();
   }
+
+  emit scriptStarts();
 
   if (L != NULL) {
     clear();
@@ -938,8 +943,8 @@ void Viewer::draw() {
 	try {
 	  luabind::call_function<void>(_cb_preDraw, _frameNum);
 	} catch(const std::exception& e){
-      emitScriptOutput(QString(e.what()));
-	}
+    showLuaException(e, "v:preDraw()");
+  }
   }
 
   // qDebug() << "Viewer::draw() 2";
@@ -1041,7 +1046,7 @@ void Viewer::postDraw() {
 	try {
 	  luabind::call_function<void>(_cb_postDraw, _frameNum);
 	} catch(const std::exception& e){
-      emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postDraw()"));
+    showLuaException(e, "v:postDraw()");
 	}
   }
 
@@ -1140,7 +1145,14 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
-  
+  QMutexLocker locker(&mutex);
+
+  if (_has_exception) {
+    return;
+  }
+
+  // emitScriptOutput("Viewer::animate() begin");
+
   // Find the time elapsed between last time
   float nbSecsElapsed = 0.08f; // 25 pics/sec
   // float nbSecsElapsed = 1.0 / 24.0;
@@ -1165,7 +1177,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_preSim, _frameNum);
       } catch(const std::exception& e){
-        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:preSim()"));
+        showLuaException(e, "v:preSim()");
       }
     }
     
@@ -1175,7 +1187,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_postSim, _frameNum);
       } catch(const std::exception& e){
-        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postSim()"));
+        showLuaException(e, "v:postSim()");
       }
     }
 
@@ -1187,14 +1199,31 @@ void Viewer::animate() {
 
   // Restart the elapsed time counter
   _time.restart();
+
+  // emitScriptOutput("Viewer::animate() end");
 }
 
 void Viewer::command(QString cmd) {
+  QMutexLocker locker(&mutex);
+
+  // emitScriptOutput("Viewer::command() begin");
+
   if(_cb_onCommand) {
     try {
       luabind::call_function<void>(_cb_onCommand, cmd);
     } catch(const std::exception& e){
-      emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:command()"));
+      showLuaException(e, "v:onCommand()");
     }
   }
+
+  // emitScriptOutput("Viewer::command() end");
+}
+
+void Viewer::showLuaException(const std::exception &e, const QString& context) {
+  _has_exception = true;
+
+  // the error message should be on top of the stack
+  QString luaWhat = QString("%1").arg(lua_tostring(L, -1));
+
+  emitScriptOutput(QString("%1 in %2: %3").arg(e.what()).arg(context).arg(luaWhat));
 }

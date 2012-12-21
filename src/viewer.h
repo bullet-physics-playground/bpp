@@ -62,6 +62,7 @@ class Viewer : public QGLViewer
   void setScriptName(QString sn);
 
   void emitScriptOutput(const QString&);
+  void emitClearOutput();
   static int lua_print(lua_State*);
 
   void addConstraints(QList<btTypedConstraint *> cons);
@@ -90,10 +91,14 @@ class Viewer : public QGLViewer
 
   void command(QString cmd);
 
+  void showLuaException(const std::exception& e, const QString& context = "");
+
  signals:
   void scriptFinished();
+  void scriptStarts();
   void scriptStopped();
   void scriptHasOutput(const QString&);
+
   void postDrawShot(int);
   void simulationStateChanged(bool);
   void POVStateChanged(bool);
@@ -182,6 +187,7 @@ class Viewer : public QGLViewer
   QHash<QString, luabind::object> *_cb_shortcuts;
 
   bool _parsing;
+  bool _has_exception;
 };
 
 #endif // VIEWER_H
