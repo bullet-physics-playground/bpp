@@ -20,6 +20,10 @@
 
 #include "objects/cam.h"
 
+#ifdef HAS_QEXTSERIAL
+#include "qserial.h"
+#endif
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -428,6 +432,8 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     } catch(const std::exception& e){
         emitScriptOutput(QString(e.what()));
     }
+
+    return; // skip built in command if overridden by shortcut
   }
 
   switch (e->key()) {
@@ -456,44 +462,9 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_C :
     resetCamView();
-    break;    
-  /*
-  case Qt::Key_Left :
-    currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
-    setManipulatedFrame(keyFrame_[currentKF_]);
-    updateGL();
     break;
-  case Qt::Key_Right :
-    currentKF_ = (currentKF_+1) % nbKeyFrames;
-    setManipulatedFrame(keyFrame_[currentKF_]);
-    updateGL();
-    break;
-  */
-    //  case Qt::Key_Return :
-    // kfi_.toggleInterpolation();
-    // break;
-  case Qt::Key_Plus :
-    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()+0.25);
-    break;
-  case Qt::Key_Minus :
-    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()-0.25);
-    break;
-    /*
-    case Qt::Key_Left :
-      break;
-    case Qt::Key_Right :
-      break;
-    case Qt::Key_Return :
-      break;
-    case Qt::Key_Plus :
-      break;
-    case Qt::Key_Minus :
-      break;
-    */
-      //    case Qt::Key_C :
-      // break;
-    default:
-      QGLViewer::keyPressEvent(e);
+  default:
+    QGLViewer::keyPressEvent(e);
   }
 }
 
@@ -541,11 +512,6 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   _frameNum = 0;
   _firstFrame = 0;
-
-//  nbKeyFrames = 10;
-
-  // setManipulatedFrame(new ManipulatedFrame());
-  // camera()->setType(Camera::PERSPECTIVE);
 
   _cb_shortcuts = new QHash<QString, luabind::object>();
   
@@ -690,6 +656,10 @@ bool Viewer::parse(QString txt) {
   Sphere::luaBind(L);
   Viewer::luaBind(L);
 
+#ifdef HAS_QEXTSERIAL
+  QSerial::luaBind(L);
+#endif
+
   luaBindInstance(L);
 
   lua_pushlightuserdata(L, (void*)this);
@@ -779,15 +749,11 @@ void Viewer::resetCamView() {
 }
 
 void Viewer::loadPrefs() {
-  QSettings s;
-
   QGLViewer::restoreStateFromFile();
 }
 
 void Viewer::savePrefs() {
   // qDebug() << "Viewer::savePrefs()";
-  QSettings s;
-
   QGLViewer::saveStateToFile();
 }
 

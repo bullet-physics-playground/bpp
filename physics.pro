@@ -4,6 +4,9 @@ TEMPLATE = app
 
 CONFIG  *= debug_and_release
 
+CONFIG  += warn_on
+CONFIG  += thread
+
 win32 {
 
   CONFIG += link_koppi_style_win32
@@ -44,12 +47,13 @@ OBJECTS_DIR = .obj
 UI_DIR = .ui
 RCC_DIR = .rcc
 
-DEPENDPATH += .
-
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
 
 INCLUDEPATH += src
+DEPENDPATH  += src
+
+DEFINES     += HAS_QEXTSERIAL
 
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
@@ -65,6 +69,37 @@ link_pkgconfig {
   # and on ubuntu 12.04 use -lGLU instead -lGL:
 
   #LIBS += -lQGLViewer -lGLEW -lglut -lGLU -l3ds
+}
+
+contains(DEFINES, HAS_QEXTSERIAL) {
+  INCLUDEPATH += lib/qextserial
+  DEPENDPATH  += lib/qextserial
+
+  HEADERS     += qextserialport_global.h \
+                 qextserialport.h \
+                 qextserialenumerator.h \
+                 src/qserial.h
+
+  SOURCES     += qextserialport.cpp \
+                 src/qserial.cpp
+
+  unix:SOURCES       += posix_qextserialport.cpp
+  unix:!macx:SOURCES += qextserialenumerator_unix.cpp
+
+  macx {
+    SOURCES   += qextserialenumerator_osx.cpp
+    LIBS      += -framework IOKit -framework CoreFoundation
+  }
+
+  win32 {
+    SOURCES   += win_qextserialport.cpp qextserialenumerator_win.cpp
+    DEFINES   += UNICODE
+    DEFINES   += WINVER=0x0501 # needed for mingw
+    LIBS      += -lsetupapi -ladvapi32 -luser32
+  }
+
+  unix:DEFINES   += _TTY_POSIX_
+  win32:DEFINES  += _TTY_WIN_
 }
 
 CONFIG *= qt opengl
@@ -103,7 +138,8 @@ HEADERS += src/objects/palette.h \
            src/objects/objects.h \
            src/objects/cam.h \
            src/high.h \
-           src/prefs.h
+           src/prefs.h \
+           src/bindings.h
 
 FORMS   += src/gui.ui \
            src/prefs.ui

@@ -410,7 +410,15 @@ void Gui::createDock() {
 
   addDockWidget(Qt::RightDockWidgetArea, dw2);
 
-  // tabifyDockWidget(dw2, dw3);
+  QDockWidget *dw3 = new QDockWidget(this);
+  dw3->setObjectName("DockCommandLine");
+  dw3->setWindowTitle("Command Line");
+  commandLine = new CommandLine(this);
+  dw3->setWidget(commandLine);
+
+  // hide cmdline by default - the last state is restored via prefs or gui:showCommandLine() Lua function
+  addDockWidget(Qt::RightDockWidgetArea, dw3);
+  dw3->setVisible(false);
 }
 
 void Gui::about() {
@@ -418,8 +426,8 @@ void Gui::about() {
 
     tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
     tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-    tr("<p>&copy; 2008-2012 <a href=\"https://github.com/koppi\">Jakob Flierl</a></p>") + \
-    tr("<p>&copy; 2012 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
+    tr("<p>&copy; 2008-2013 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
+    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
   QMessageBox::about(this, tr("About"), txt);
 }

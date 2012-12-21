@@ -53,7 +53,7 @@ void Plane::luaBind(lua_State *s) {
 
   open(s);
 
-  module(s)
+    module(s)
     [
      class_<Plane, Object>("Plane")
      .def(constructor<>(), adopt(result))
