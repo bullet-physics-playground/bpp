@@ -84,6 +84,11 @@ class Viewer : public QGLViewer
   void setCBPostDraw(const luabind::object &fn);
   void setCBPreSim(const luabind::object &fn);
   void setCBPostSim(const luabind::object &fn);
+  void setCBOnCommand(const luabind::object &fn);
+
+  void keyPressEvent(QKeyEvent *e);
+
+  void command(QString cmd);
 
  signals:
   void scriptFinished();
@@ -97,8 +102,6 @@ class Viewer : public QGLViewer
 
  protected:
   virtual void init();
-
-  virtual void keyPressEvent(QKeyEvent *e);
 
   virtual void addObjects();
 
@@ -171,8 +174,10 @@ class Viewer : public QGLViewer
 
   QMutex mutex;
 
+  // Lua callback functions
   luabind::object _cb_preDraw,_cb_postDraw;
   luabind::object _cb_preSim,_cb_postSim;
+  luabind::object _cb_onCommand;
 
   QHash<QString, luabind::object> *_cb_shortcuts;
 

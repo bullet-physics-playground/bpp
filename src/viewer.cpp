@@ -83,6 +83,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
    .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
    .def("postSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostSim, adopt(luabind::result))
+   .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
    .def(tostring(const_self))
   ];
 
@@ -434,8 +435,8 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   if (_cb_shortcuts->contains(seq)) {
     try {
       luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
-    } catch(const std::exception& e){
-        emitScriptOutput(QString(e.what()));
+    } catch(const std::exception& ex){
+      emitScriptOutput(QString("%2 in shortcut '%1' function.").arg(seq).arg(ex.what()));
     }
 
     return; // skip built in command if overridden by shortcut
@@ -623,16 +624,17 @@ bool Viewer::parse(QString txt) {
   }
 
   if (L != NULL) {
-	clear();
-	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+    clear();
+    lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
-  // invalidate function refs
-  _cb_preDraw = luabind::object();
-  _cb_postDraw = luabind::object();
-  _cb_preSim = luabind::object();
-  _cb_postSim = luabind::object();
+    // invalidate function refs
+    _cb_preDraw = luabind::object();
+    _cb_postDraw = luabind::object();
+    _cb_preSim = luabind::object();
+    _cb_postSim = luabind::object();
+    _cb_onCommand = luabind::object();
 
-  lua_close(L);
+    lua_close(L);
   }
   
   // setup lua
@@ -994,45 +996,37 @@ void Viewer::draw() {
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_preDraw = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_postDraw = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPreSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_preSim = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_postSim = fn;
-  } else {
-    // qDebug() << "Not a function";
+  }
+}
+
+void Viewer::setCBOnCommand(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onCommand = fn;
   }
 }
 
 void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
     _cb_shortcuts->insert(keys, fn);
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
@@ -1193,4 +1187,14 @@ void Viewer::animate() {
 
   // Restart the elapsed time counter
   _time.restart();
+}
+
+void Viewer::command(QString cmd) {
+  if(_cb_onCommand) {
+    try {
+      luabind::call_function<void>(_cb_onCommand, cmd);
+    } catch(const std::exception& e){
+      emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:command()"));
+    }
+  }
 }

@@ -52,8 +52,10 @@ class CodeEditor : public QPlainTextEdit {
  signals:
   void scriptLoaded();
   void scriptSaved();
+  void keyPressed(QKeyEvent *e);
 
  protected:
+  void keyPressEvent(QKeyEvent *e);
   void resizeEvent(QResizeEvent *event);
   
  private slots:
