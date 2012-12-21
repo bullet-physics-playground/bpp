@@ -48,7 +48,8 @@ void CommandLine::keyPressEvent(QKeyEvent *e) {
     QLineEdit::keyPressEvent(e);
   }
 
-  if (e->isAccepted()) {
+  // special case - accept return key which is also mapped to qglviewer start/stopAnimation()
+  if (e->isAccepted() || e->key() == Qt::Key_Return) {
     return;
   }
 
