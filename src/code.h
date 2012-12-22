@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QVarLengthArray>
 
-#include "luahighlighter.h"
+#include "high.h"
 
 class QPaintEvent;
 class QResizeEvent;
