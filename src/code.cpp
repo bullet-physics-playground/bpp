@@ -12,7 +12,7 @@ CodeEditor::CodeEditor(QWidget *parent, QString organization, QString app_name) 
 
   setFont(family, size);
 
-  highlighter = new Highlighter(document());
+  highlighter = new LuaHighlighter(document());
 
   lineNumberArea = new LineNumberArea(this);
   
@@ -231,14 +231,14 @@ void CodeEditor::keyPressEvent(QKeyEvent *e) {
   }
 
   // the user have clicked just and only the special keys Ctrl, Shift, Alt, Meta.
-  if(key == Qt::Key_Control ||
+  if (key == Qt::Key_Control ||
       key == Qt::Key_Shift ||
       key == Qt::Key_Alt ||
       key == Qt::Key_Meta)
   {
       // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
       // qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
-      return;
+      // return;
   }
 
   // check for a combination of user clicks

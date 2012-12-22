@@ -26,8 +26,8 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor assigns the device name to the name of the first port on the specified system.
 See the other constructors if you need to open a different port.
 */
-QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
- : QIODevice()
+QextSerialPort::QextSerialPort(QObject* parent, QextSerialPort::QueryMode mode)
+ : QIODevice(parent)
 {
 
 #ifdef Q_OS_WIN
@@ -65,8 +65,8 @@ Constructs a serial port attached to the port specified by name.
 name is the name of the device, which is windowsystem-specific,
 e.g."COM1" or "/dev/ttyS0".
 */
-QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode mode)
-    : QIODevice()
+QextSerialPort::QextSerialPort(const QString & name, QObject* parent, QextSerialPort::QueryMode mode)
+    : QIODevice(parent)
 {
     construct();
     setQueryMode(mode);
@@ -77,8 +77,8 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 /*!
 Constructs a port with default name and specified settings.
 */
-QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice()
+QextSerialPort::QextSerialPort(const PortSettings& settings, QObject* parent, QextSerialPort::QueryMode mode)
+    : QIODevice(parent)
 {
     construct();
     setBaudRate(settings.BaudRate);
@@ -94,8 +94,8 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 /*!
 Constructs a port with specified name and settings.
 */
-QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice()
+QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QObject* parent, QextSerialPort::QueryMode mode)
+    : QIODevice(parent)
 {
     construct();
     setPortName(name);
@@ -139,7 +139,7 @@ void QextSerialPort::setPortName(const QString & name)
     #ifdef Q_OS_WIN
     port = fullPortNameWin( name );
     #else
-    port = name;
+    port = fullPortNameUnix( name );
     #endif
 }
 
@@ -217,8 +217,46 @@ bool QextSerialPort::isSequential() const
     return true;
 }
 
+/*!
+Sets the port settigns.
+*/
+void QextSerialPort::setPortSetting(const PortSettings& settings)
+{
+    setBaudRate(settings.BaudRate);
+    setDataBits(settings.DataBits);
+    setParity(settings.Parity);
+    setStopBits(settings.StopBits);
+    setFlowControl(settings.FlowControl);
+    setTimeout(settings.Timeout_Millisec);
+}
+
+/*!
+Returns the current setting of the port.
+*/
+PortSettings QextSerialPort::portSetting() const
+{
+    return Settings;
+}
+
 QString QextSerialPort::errorString()
 {
+#ifdef Q_OS_WIN
+    LPTSTR lpMsgBuf = 0;
+    DWORD ret = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+                  0,
+                  ::GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPTSTR) &lpMsgBuf, 0, 0);
+#ifdef UNICODE
+    QString res = QString::fromWCharArray( (LPTSTR)lpMsgBuf);
+#else
+    QString res =  QString::fromLocal8Bit((LPTSTR) lpMsgBuf);
+#endif
+    res.remove(QChar('\n'));
+    LocalFree(lpMsgBuf);
+    (void)ret;
+    return res;
+#endif
     switch(lastErr)
     {
         case E_NO_ERROR: return "No Error has occurred";

@@ -71,5 +71,5 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
 
 void QextSerialEnumerator::setUpNotifications( )
 {
-    qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
+  //    qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
 }

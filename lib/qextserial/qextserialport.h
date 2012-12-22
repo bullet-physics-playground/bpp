@@ -73,7 +73,8 @@ enum BaudRateType
     BAUD76800,             //POSIX ONLY
     BAUD115200,
     BAUD128000,            //WINDOWS ONLY
-    BAUD256000             //WINDOWS ONLY
+    BAUD256000,            //WINDOWS ONLY
+    BAUDLAST
 };
 
 enum DataBitsType
@@ -135,7 +136,8 @@ struct PortSettings
 #include <windows.h>
 #include <QThread>
 #include <QReadWriteLock>
-#include <QtCore/private/qwineventnotifier_p.h>
+//#include <QtCore/private/qwineventnotifier_p.h>
+#include "qwineventnotifier_p.h"
 #endif
 
 /*!
@@ -179,7 +181,7 @@ No guarantees are made as to the quality of POSIX support under NT/2000 however.
 
 \author Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz
 */
-class QextSerialPort: public QIODevice
+class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
 {
     Q_OBJECT
     public:
@@ -188,10 +190,10 @@ class QextSerialPort: public QIODevice
             EventDriven
         };
 
-        QextSerialPort(QueryMode mode = EventDriven);
-        QextSerialPort(const QString & name, QueryMode mode = EventDriven);
-        QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven);
-        QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven);
+        QextSerialPort(QObject* parent = 0, QueryMode mode = EventDriven);
+        QextSerialPort(const QString & name, QObject* parent = 0, QueryMode mode = EventDriven);
+        QextSerialPort(PortSettings const& s, QObject* parent = 0, QueryMode mode = EventDriven);
+        QextSerialPort(const QString & name, PortSettings const& s, QObject* parent = 0, QueryMode mode = EventDriven);
         ~QextSerialPort();
 
         void setPortName(const QString & name);
@@ -242,6 +244,9 @@ class QextSerialPort: public QIODevice
         void setFlowControl(FlowType);
         FlowType flowControl() const;
 
+        void setPortSetting(const PortSettings& settings);
+        PortSettings portSetting() const;
+
         void setTimeout(long);
 
         bool open(OpenMode mode);
@@ -268,7 +273,9 @@ class QextSerialPort: public QIODevice
         virtual qint64 bytesToWrite() const;
         static QString fullPortNameWin(const QString & name);
 #endif
-
+#ifdef Q_OS_UNIX
+        static QString fullPortNameUnix(const QString & name);
+#endif
     protected:
         QMutex* mutex;
         QString port;
@@ -327,6 +334,7 @@ class QextSerialPort: public QIODevice
          * 	\see lineStatus().
          */
         void dsrChanged(bool status);
+        void lineChanged(int lineStatus);
 
 };
 

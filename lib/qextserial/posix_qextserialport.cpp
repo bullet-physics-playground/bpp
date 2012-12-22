@@ -5,6 +5,7 @@
 #include "qextserialport.h"
 #include <QMutexLocker>
 #include <QDebug>
+#include <QRegExp>
 
 void QextSerialPort::platformSpecificInit()
 {
@@ -18,6 +19,17 @@ Standard destructor.
 void QextSerialPort::platformSpecificDestruct()
 {}
 
+QString QextSerialPort::fullPortNameUnix(const QString & name)
+{
+    QRegExp rx("dev/");
+    QString fullName(name);
+    if(fullName.contains(rx)) {
+        return fullName;
+    }
+    fullName = QString("/dev/%1").arg(fullName);
+    fullName.remove("//");
+    return fullName;
+}
 /*!
 Sets the baud rate of the serial port.  Note that not all rates are applicable on
 all platforms.  The following table shows translations of the various baud rate
@@ -355,6 +367,16 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
                 cfsetospeed(&Posix_CommConfig, B115200);
 #endif
                 break;
+        default:
+                TTY_WARNING("QextSerialPort: POSIX does not support any baud operation.  Switching to 115200 baud.");
+#ifdef CBAUD
+                Posix_CommConfig.c_cflag&=(~CBAUD);
+                Posix_CommConfig.c_cflag|=B115200;
+#else
+                cfsetispeed(&Posix_CommConfig, B115200);
+                cfsetospeed(&Posix_CommConfig, B115200);
+#endif
+                break;
         }
         tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
     }
@@ -680,10 +702,10 @@ bool QextSerialPort::open(OpenMode mode)
     if (mode == QIODevice::NotOpen)
         return isOpen();
     if (!isOpen()) {
-        qDebug() << "trying to open file" << port.toAscii();
+	  // qDebug() << "trying to open file" << port.toAscii();
         //note: linux 2.6.21 seems to ignore O_NDELAY flag
         if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
-            qDebug("file opened succesfully");
+		  // qDebug("file opened succesfully");
 
             setOpenMode(mode);              // Flag the port as opened
             tcgetattr(fd, &old_termios);    // Save the old termios
@@ -719,7 +741,7 @@ bool QextSerialPort::open(OpenMode mode)
                 connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
             }
         } else {
-            qDebug() << "could not open file:" << strerror(errno);
+		    // qDebug() << "could not open file:" << strerror(errno);
             lastErr = E_FILE_NOT_FOUND;
         }
     }

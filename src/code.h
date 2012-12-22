@@ -8,7 +8,7 @@
 #include <QWidget>
 #include <QVarLengthArray>
 
-#include "high.h"
+#include "luahighlighter.h"
 
 class QPaintEvent;
 class QResizeEvent;
@@ -66,7 +66,7 @@ class CodeEditor : public QPlainTextEdit {
  private:
   QWidget *lineNumberArea;
 
-  Highlighter *highlighter;
+  LuaHighlighter *highlighter;
 };
 
 

@@ -24,7 +24,7 @@ enum collisiontypes {
   COL_POWERUP = BIT(3) //<Collide with powerups
 };
 
-#include "bindings.h" // for Lua QString => string mapping
+#include "lua_converters.h" // for Lua QString => string mapping
 
 class Object : public QObject {
  Q_OBJECT;

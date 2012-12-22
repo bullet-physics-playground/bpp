@@ -83,7 +83,7 @@ bool QextSerialPort::open(OpenMode mode) {
                 Win_CommTimeouts.WriteTotalTimeoutMultiplier = 0;
                 Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
                 SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
-                if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
+                if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR | EV_CTS | EV_RING | EV_RLSD)) {
                     qWarning() << "failed to set Comm Mask. Error code:", GetLastError();
                     return false;
                 }
@@ -277,7 +277,6 @@ purpose within this class.  This function is meaningless on an unbuffered device
 only prints a warning message to that effect.
 */
 void QextSerialPort::ungetChar(char c) {
-    Q_UNUSED(c);
 
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
@@ -701,6 +700,10 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate) {
                 TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: POSIX does not support 256000 baud operation.");
                 Win_CommConfig.dcb.BaudRate=CBR_256000;
                 break;
+
+            default:
+                Win_CommConfig.dcb.BaudRate=baudRate;
+                break;
         }
         SetCommConfig(Win_Handle, &Win_CommConfig, sizeof(COMMCONFIG));
     }
@@ -779,7 +782,6 @@ ulong QextSerialPort::lineStatus(void) {
 
 bool QextSerialPort::waitForReadyRead(int msecs)
 {
-    Q_UNUSED(msecs);
     //@todo implement
     return false;
 }
@@ -837,6 +839,26 @@ void QextSerialPort::onWinEvent(HANDLE h)
                 emit dsrChanged(true);
             else
                 emit dsrChanged(false);
+        }
+        if(eventMask & (EV_DSR | EV_CTS | EV_RING | EV_RLSD)){
+            int Status = 0;
+            unsigned long Temp=0;
+            if (isOpen()) {
+                GetCommModemStatus(Win_Handle, &Temp);
+                if (Temp&MS_CTS_ON) {
+                    Status|=LS_CTS;
+                }
+                if (Temp&MS_DSR_ON) {
+                    Status|=LS_DSR;
+                }
+                if (Temp&MS_RING_ON) {
+                    Status|=LS_RI;
+                }
+                if (Temp&MS_RLSD_ON) {
+                    Status|=LS_DCD;
+                }
+            }
+            emit lineChanged(Status);
         }
     }
     WaitCommEvent(Win_Handle, &eventMask, &overlap);

@@ -5,6 +5,11 @@
 
 #include <QtCore/qglobal.h>
 
+#ifdef QEXTSERIALPORT_LIB
+# define QEXTSERIALPORT_EXPORT Q_DECL_EXPORT
+#else
+# define QEXTSERIALPORT_EXPORT
+#endif
 
 #endif // QEXTSERIALPORT_GLOBAL_H
 

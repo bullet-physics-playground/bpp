@@ -32,7 +32,7 @@ class Viewer;
 
 std::ostream& operator<<(std::ostream&, const Viewer& v);
 
-#include "bindings.h"
+#include "lua_converters.h"
 
 class Viewer : public QGLViewer
 {

@@ -4,9 +4,9 @@
 
 #include "viewer.h"
 
-#include "coll.h"
-
 #include <QColor>
+
+#include "lua_register.h"
 
 #include "objects/object.h"
 #include "objects/objects.h"
@@ -410,7 +410,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   {
       // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
       // qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
-      return;
+      // return;
   }
 
   // check for a combination of user clicks
@@ -644,19 +644,14 @@ bool Viewer::parse(QString txt) {
   
   // setup lua
   L = luaL_newstate();
+
+  // open all standard Lua libs
   luaL_openlibs(L);
 
-  /* this is done above
-  luaopen_base(L);
-  luaopen_table(L);
-  luaopen_io(L);
-  luaopen_os(L);
-  luaopen_package(L);
-  luaopen_math(L);
-  */
+  // register non-object classes
+  register_classes(L);
 
-  // lua_load_environment(L);
-
+  // register all bpp classes
   Cam::luaBind(L);
   Object::luaBind(L);
   Objects::luaBind(L);
@@ -669,7 +664,7 @@ bool Viewer::parse(QString txt) {
   Viewer::luaBind(L);
 
 #ifdef HAS_QEXTSERIAL
-  QSerial::luaBind(L);
+  QSerialPort::luaBind(L);
 #endif
 
   luaBindInstance(L);
