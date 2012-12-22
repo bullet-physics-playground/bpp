@@ -11,14 +11,14 @@ QextSerialEnumerator* QSerialPort::enumerator = 0;
 static setter_map<QSerialPort> lqserialport_set_map;
 
 SIGNAL_PROPERYT(lqserialport, connected, QSerialPort, "(const QextPortInfo&)")
-// SIGNAL_PROPERYT(lqserialport, disconnected, QSerialPort, "(const QextPortInfo&)")
-// SIGNAL_PROPERYT(lqserialport, readyRead, QSerialPort, "()")
-// SIGNAL_PROPERYT(lqserialport, bytesWritten, QSerialPort, "(qint64)")
-// SIGNAL_PROPERYT(lqserialport, aboutToClose, QSerialPort, "()")
-// SIGNAL_PROPERYT(lqserialport, readChannelFinished, QSerialPort, "()")
-// SIGNAL_PROPERYT(lqserialport, dsrChanged, QSerialPort, "(bool)")
-// SIGNAL_PROPERYT(lqserialport, settingChange, QSerialPort, "(const QString&)")
-// SIGNAL_PROPERYT(lqserialport, lineChanged, QSerialPort, "(int)")
+SIGNAL_PROPERYT(lqserialport, disconnected, QSerialPort, "(const QextPortInfo&)")
+SIGNAL_PROPERYT(lqserialport, readyRead, QSerialPort, "()")
+SIGNAL_PROPERYT(lqserialport, bytesWritten, QSerialPort, "(qint64)")
+SIGNAL_PROPERYT(lqserialport, aboutToClose, QSerialPort, "()")
+SIGNAL_PROPERYT(lqserialport, readChannelFinished, QSerialPort, "()")
+SIGNAL_PROPERYT(lqserialport, dsrChanged, QSerialPort, "(bool)")
+SIGNAL_PROPERYT(lqserialport, settingChange, QSerialPort, "(const QString&)")
+SIGNAL_PROPERYT(lqserialport, lineChanged, QSerialPort, "(int)")
 
 
 void QSerialPort::initial()
@@ -94,6 +94,7 @@ LQextSerialPort lqextserialport()
     .def(constructor<const QString&, const PortSettings&>())
     .def(constructor<const QString&, const PortSettings&, QObject*>())
     .def(constructor<const QString&, const PortSettings&, QObject*, int>())
+    .def("__tostring", &QSerialPort::settingString)
     .def("__init", table_init_general<QSerialPort>)
     .def("__call", lqserialport_init)
     .def("setDtr", &QSerialPort::setDtr)
@@ -142,7 +143,6 @@ LQextSerialPort lqextserialport()
     .property("DTR", &QSerialPort::DTR)
 
     .sig_prop(lqserialport, connected)
-        /*
     .sig_prop(lqserialport, disconnected)
     .sig_prop(lqserialport, readyRead)
     .sig_prop(lqserialport, bytesWritten)
@@ -151,7 +151,6 @@ LQextSerialPort lqextserialport()
     .sig_prop(lqserialport, dsrChanged)
     .sig_prop(lqserialport, settingChange)
     .sig_prop(lqserialport, lineChanged)
-*/
 
     .class_<QSerialPort>::property("portSetting", &QSerialPort::portSetting, &QSerialPort::setPortSetting)
     .property("isOpen", &QSerialPort::isOpen)

@@ -6,7 +6,9 @@
 
 #include <QColor>
 
+#ifdef HAS_LUA_QT
 #include "lua_register.h"
+#endif
 
 #include "objects/object.h"
 #include "objects/objects.h"
@@ -648,8 +650,10 @@ bool Viewer::parse(QString txt) {
   // open all standard Lua libs
   luaL_openlibs(L);
 
-  // register non-object classes
+#ifdef HAS_LUA_QT
+  // register some qt classes
   register_classes(L);
+#endif
 
   // register all bpp classes
   Cam::luaBind(L);
@@ -664,7 +668,9 @@ bool Viewer::parse(QString txt) {
   Viewer::luaBind(L);
 
 #ifdef HAS_QEXTSERIAL
+#ifdef HAS_LUA_QT
   QSerialPort::luaBind(L);
+#endif
 #endif
 
   luaBindInstance(L);

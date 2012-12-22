@@ -387,6 +387,9 @@ LQIcon lqicon()
         .def("paint", tag_function<_F(_p,_ri)>(boost::bind(_RI &QIcon::paint, _1,_2,_3,_4,_5,_6,Qt::AlignCenter,QIcon::Normal,QIcon::Off) ))
         .def("paint", tag_function<_F(_p,_ri,Qt::Alignment)>(boost::bind(_RI &QIcon::paint, _1,_2,_3,_4,_5,_6,_7,QIcon::Normal,QIcon::Off) ))
         .def("paint", tag_function<_F(_p,_ri,Qt::Alignment,QIcon::Mode)>(boost::bind(_RI &QIcon::paint, _1,_2,_3,_4,_5,_6,_7,_8,QIcon::Off) ))
+        .scope [
+          def("fromTheme", &QIcon::fromTheme)
+        ]
         ;
 }
 namespace luabind{
