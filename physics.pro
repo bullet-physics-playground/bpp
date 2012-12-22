@@ -92,7 +92,7 @@ contains(DEFINES, HAS_QEXTSERIAL) {
     LIBS      += -lsetupapi -ladvapi32 -luser32
   }
 
-  unix:DEFINES   += _TTY_POSIX_ _TTY_NOWARN_
+  unix:DEFINES   += _TTY_LINUX_ _TTY_NOWARN_
   win32:DEFINES  += _TTY_WIN_ _TTY_NOWARN_
 }
 
