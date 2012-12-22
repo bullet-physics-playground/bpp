@@ -114,7 +114,11 @@ bool CodeEditor::saveAs(QString filename) {
 }
 
 bool CodeEditor::save() {
-  return saveAs(script_filename);
+  if (QString("no_name") == script_filename) {
+    return saveAs("");
+  } else {
+    return saveAs(script_filename);
+  }
 }
 
 QString CodeEditor::scriptFile() const {
