@@ -449,8 +449,60 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
   [
-   class_<btRigidBody>("btRigidBody")
-   ];
+   class_<btCollisionObject>("btCollisionObject")
+   .def(constructor<>())
+   .def("mergesSimulationIslands", &btCollisionObject::mergesSimulationIslands)
+   .def("getAnisotropicFriction", &btCollisionObject::getAnisotropicFriction)
+   .def("setAnisotropicFriction", &btCollisionObject::setAnisotropicFriction)
+   .def("hasAnisotropicFriction", &btCollisionObject::hasAnisotropicFriction)
+   .def("setContactProcessingThreshold", &btCollisionObject::setContactProcessingThreshold)
+   .def("isStaticObject", &btCollisionObject::isStaticObject)
+   .def("isKinematicObject", &btCollisionObject::isStaticOrKinematicObject)
+   .def("hasContactResponse", &btCollisionObject::hasContactResponse)
+   // .def("getCollisionShape", &btCollisionObject::getCollisionShape)
+   // .def("getRootCollisionShape", &btCollisionObject::getRootCollisionShape)
+   .def("getActivationState", &btCollisionObject::getActivationState)
+   .def("setActivationState", &btCollisionObject::setActivationState)
+   .def("setDeactivationTime", &btCollisionObject::setDeactivationTime)
+   .def("getDeactivationTime", &btCollisionObject::getDeactivationTime)
+   .def("forceActivationState", &btCollisionObject::forceActivationState)
+   .def("activate", &btCollisionObject::activate)
+   .def("isActive", &btCollisionObject::isActive)
+   .def("setRestitution", &btCollisionObject::setRestitution)
+   .def("getRestitution", &btCollisionObject::getRestitution)
+   .def("setFriction", &btCollisionObject::setFriction)
+   .def("getFriction", &btCollisionObject::getFriction)
+   // .def("getWorldTransform", &btCollisionObject::getWorldTransform)
+   .def("setWorldTransform", &btCollisionObject::setWorldTransform)
+   // .def("getBroadphaseHandle", &btCollisionObject::getBroadphaseHandle)
+   // .def("getInterpolationWorldTransform", &btCollisionObject::getInterpolationWorldTransform)
+   .def("setInterpolationWorldTransform", &btCollisionObject::setInterpolationWorldTransform)
+   .def("setInterpolationLinearVelocity", &btCollisionObject::setInterpolationLinearVelocity)
+   .def("setInterpolationAngularVelocity", &btCollisionObject::setInterpolationAngularVelocity)
+   .def("getInterpolationLinearVelocity", &btCollisionObject::getInterpolationLinearVelocity)
+   .def("getInterpolationAngularVelocity", &btCollisionObject::getInterpolationAngularVelocity)
+   .def("getIslandTag", &btCollisionObject::getIslandTag)
+   .def("setIslandTag", &btCollisionObject::setIslandTag)
+   .def("getCompanionId", &btCollisionObject::getCompanionId)
+   .def("setCompanionId", &btCollisionObject::setCompanionId)
+   .def("getHitFraction", &btCollisionObject::getHitFraction)
+   .def("setHitFraction", &btCollisionObject::setHitFraction)
+   .def("getCollisionFlags", &btCollisionObject::setCollisionFlags)
+   .def("setCollisionFlags", &btCollisionObject::getCollisionFlags)
+   .def("getCcdSweptSphereRadius", &btCollisionObject::getCcdSweptSphereRadius)
+   .def("setCcdSweptSphereRadius", &btCollisionObject::setCcdSweptSphereRadius)
+   .def("getCcdMotionThreshold", &btCollisionObject::getCcdMotionThreshold)
+   .def("getCcdSquareMotionThreshold", &btCollisionObject::getCcdSquareMotionThreshold)
+   .def("setCcdMotionThreshold", &btCollisionObject::setCcdMotionThreshold)
+   .def("getUserPointer", &btCollisionObject::getUserPointer)
+   .def("setUserPointer", &btCollisionObject::setUserPointer)
+   .def("checkCollideWith", &btCollisionObject::checkCollideWith)
+  ];
+
+  module(s)
+  [
+   class_<btRigidBody, btCollisionObject>("btRigidBody")
+  ];
 
   module(s)
 	[
@@ -673,7 +725,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
   for (oi = objects->begin(); oi != objects->end(); oi++) {
     Object *o = *oi;
 
-	  if (o->toString() != QString("Plane")) {
+    if (o->toString() != QString("Plane") && o->body) {
       btVector3 oaabbmin, oaabbmax;
       o->body->getAabb(oaabbmin, oaabbmax);
 
