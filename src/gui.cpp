@@ -7,6 +7,14 @@
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 #define APP_ORGANIZATION QString("koppi.me")
 
+std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
+  ostream << gui.toString().toAscii().data();
+  return ostream;
+}
+
+#include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
+
 Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   _fileSaved=true;
   _simulationRunning=false;
@@ -39,22 +47,29 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
   connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
+  // map user defined shortcuts to the viewer sub-window
+  connect(editor, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
+  connect(commandLine, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
+  connect(debugText, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
+
   connect(ui.viewer, SIGNAL(scriptHasOutput(QString)), this, SLOT(debug(QString)));
+  connect(ui.viewer, SIGNAL(scriptStarts()), this, SLOT(clearDebug()));
   connect(ui.viewer, SIGNAL(simulationStateChanged(bool)), this, SLOT(toggleSimButton(bool)));
   connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVButton(bool)));
   connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(togglePNGButton(bool)));
   connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivationButton(bool)));
 
-  //  ui.cmdline->setFocus();
-
-  //  connect(ui.cmdline, SIGNAL(execute(QString)), this, SLOT(command(QString)));
+  connect(commandLine, SIGNAL(execute(QString)), this, SLOT(command(QString)));
 
   loadSettings();
 
   connect(ui.viewer, SIGNAL(postDrawShot(int)), this, SLOT(postDraw(int)));
 
-  QTimer::singleShot(0, this, SLOT(loadLastFile()));
+  // commandLine->setFocus();
+
   newFile();
+
+  QTimer::singleShot(0, this, SLOT(loadLastFile()));
 }
 
 void Gui::toggleSimButton(bool simRunning) {
@@ -410,7 +425,15 @@ void Gui::createDock() {
 
   addDockWidget(Qt::RightDockWidgetArea, dw2);
 
-  // tabifyDockWidget(dw2, dw3);
+  QDockWidget *dw3 = new QDockWidget(this);
+  dw3->setObjectName("DockCommandLine");
+  dw3->setWindowTitle("Command Line");
+  commandLine = new CommandLine(this);
+  dw3->setWidget(commandLine);
+
+  // hide cmdline by default - the last state is restored via prefs or gui:showCommandLine() Lua function
+  addDockWidget(Qt::RightDockWidgetArea, dw3);
+  dw3->setVisible(false);
 }
 
 void Gui::about() {
@@ -418,8 +441,8 @@ void Gui::about() {
 
     tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
     tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-    tr("<p>&copy; 2008-2012 <a href=\"https://github.com/koppi\">Jakob Flierl</a></p>") + \
-    tr("<p>&copy; 2012 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
+    tr("<p>&copy; 2008-2013 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
+    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
   QMessageBox::about(this, tr("About"), txt);
 }
@@ -454,6 +477,10 @@ void Gui::animFinished() {
 
 void Gui::debug(QString txt) {
   debugText->appendLine(txt);
+}
+
+void Gui::clearDebug() {
+  debugText->clear();
 }
 
 void Gui::newFile() {
@@ -591,8 +618,7 @@ void Gui::closeEvent(QCloseEvent * event) {
 }
 
 void Gui::command(QString cmd) {
-  log("> " + cmd);
-  cmd = cmd.toLower();
+  // log("> " + cmd);
 
   /*
   if (cmd.startsWith("home")) {
@@ -612,11 +638,30 @@ void Gui::command(QString cmd) {
     log(" - home ");
     log(" - move [x][y][z] move end effector to <x,y,z>");
 	}*/
+
+  ui.viewer->command(cmd);
 }
 
 void Gui::log(QString text) {
-  // ui.cmdlog->appendPlainText(text);
+  debugText->appendLine(text);
 }
 
 void Gui::updateValues() {
+}
+
+QString Gui::toString() const {
+  return QString("Gui");
+}
+
+void Gui::luaBind(lua_State *s) {
+  using namespace luabind;
+
+  open(s);
+
+  module(s)
+  [
+   class_<Gui>("Gui")
+   .def(constructor<>())
+   .def(tostring(const_self))
+  ];
 }

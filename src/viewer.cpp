@@ -4,9 +4,13 @@
 
 #include "viewer.h"
 
-#include "coll.h"
-
 #include <QColor>
+
+#include "lua_converters.h"
+
+#ifdef HAS_LUA_QT
+#include "lua_register.h"
+#endif
 
 #include "objects/object.h"
 #include "objects/objects.h"
@@ -19,6 +23,9 @@
 #include "objects/palette.h"
 
 #include "objects/cam.h"
+#ifdef HAS_QEXTSERIAL
+#include "qserial.h"
+#endif
 
 #ifdef WIN32
 #include <windows.h>
@@ -28,6 +35,12 @@
 
 #include <QDebug>
 
+#include <boost/exception/all.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/exception/info.hpp>
+
+typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
+
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
@@ -36,7 +49,7 @@ std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
 }
 
 std::ostream& operator<<(std::ostream& ostream, const btVector3& v) {
-  ostream << v.x() << v.y() << v.z();
+  ostream << "btVector3(" << v.x() << ", " << v.y() << ", " << v.z() << ")";
   return ostream;
 }
 
@@ -46,7 +59,7 @@ std::ostream& operator<<(std::ostream& ostream, const QString& s) {
 }
 
 std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
-  ostream << c.name().toAscii().data();
+  ostream << "QColor(\"" << c.name().toAscii().data() << "\")";
   return ostream;
 }
 
@@ -79,6 +92,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
    .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
    .def("postSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostSim, adopt(luabind::result))
+   .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
    .def(tostring(const_self))
   ];
 
@@ -87,7 +101,12 @@ void Viewer::luaBind(lua_State *s) {
 	 class_<btVector3>( "btVector3" )
 	 .def(constructor<>())
 	 .def(constructor<btScalar, btScalar, btScalar>())
-	 .property("x", &btVector3::getX, &btVector3::setX)
+   .def(const_self + const_self)
+   .def(const_self - const_self)
+   .def(const_self * other<btScalar>())
+   .def(const_self / other<btScalar>())
+   .def(const_self == const_self)
+   .property("x", &btVector3::getX, &btVector3::setX)
 	 .property("y", &btVector3::getY, &btVector3::setY)
 	 .property("z", &btVector3::getZ, &btVector3::setZ)
 	 .def( "getX", &btVector3::getX )
@@ -410,7 +429,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   {
       // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
       // qDebug() << "New KeySequence:" << QKeySequence(keyInt).toString(QKeySequence::NativeText);
-      return;
+      // return;
   }
 
   // check for a combination of user clicks
@@ -435,9 +454,11 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   if (_cb_shortcuts->contains(seq)) {
     try {
       luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
-    } catch(const std::exception& e){
-        emitScriptOutput(QString(e.what()));
+    } catch(const std::exception& ex){
+      showLuaException(ex, QString("shortcut '%1' function").arg(seq));
     }
+
+    return; // skip built in command if overridden by shortcut
   }
 
   switch (e->key()) {
@@ -466,44 +487,9 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_C :
     resetCamView();
-    break;    
-  /*
-  case Qt::Key_Left :
-    currentKF_ = (currentKF_+nbKeyFrames-1) % nbKeyFrames;
-    setManipulatedFrame(keyFrame_[currentKF_]);
-    updateGL();
     break;
-  case Qt::Key_Right :
-    currentKF_ = (currentKF_+1) % nbKeyFrames;
-    setManipulatedFrame(keyFrame_[currentKF_]);
-    updateGL();
-    break;
-  */
-    //  case Qt::Key_Return :
-    // kfi_.toggleInterpolation();
-    // break;
-  case Qt::Key_Plus :
-    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()+0.25);
-    break;
-  case Qt::Key_Minus :
-    // kfi_.setInterpolationSpeed(kfi_.interpolationSpeed()-0.25);
-    break;
-    /*
-    case Qt::Key_Left :
-      break;
-    case Qt::Key_Right :
-      break;
-    case Qt::Key_Return :
-      break;
-    case Qt::Key_Plus :
-      break;
-    case Qt::Key_Minus :
-      break;
-    */
-      //    case Qt::Key_C :
-      // break;
-    default:
-      QGLViewer::keyPressEvent(e);
+  default:
+    QGLViewer::keyPressEvent(e);
   }
 }
 
@@ -551,11 +537,6 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   _frameNum = 0;
   _firstFrame = 0;
-
-//  nbKeyFrames = 10;
-
-  // setManipulatedFrame(new ManipulatedFrame());
-  // camera()->setType(Camera::PERSPECTIVE);
 
   _cb_shortcuts = new QHash<QString, luabind::object>();
   
@@ -649,10 +630,13 @@ int Viewer::lua_print(lua_State* L) {
 }
 
 bool Viewer::parse(QString txt) {
-  _parsing = true;
+  emit scriptStopped();
 
   QMutexLocker locker(&mutex);
   
+  _parsing = true;
+  _has_exception = false;
+
   _scriptContent = txt;
 	
   bool animStarted = animationIsStarted();
@@ -661,34 +645,29 @@ bool Viewer::parse(QString txt) {
       stopAnimation();
   }
 
+  emit scriptStarts();
+
   if (L != NULL) {
-	clear();
-	lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+    clear();
+    lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
-  // invalidate function refs
-  _cb_preDraw = luabind::object();
-  _cb_postDraw = luabind::object();
-  _cb_preSim = luabind::object();
-  _cb_postSim = luabind::object();
+    // invalidate function refs
+    _cb_preDraw = luabind::object();
+    _cb_postDraw = luabind::object();
+    _cb_preSim = luabind::object();
+    _cb_postSim = luabind::object();
+    _cb_onCommand = luabind::object();
 
-  lua_close(L);
+    lua_close(L);
   }
   
   // setup lua
   L = luaL_newstate();
+
+  // open all standard Lua libs
   luaL_openlibs(L);
 
-  /* this is done above
-  luaopen_base(L);
-  luaopen_table(L);
-  luaopen_io(L);
-  luaopen_os(L);
-  luaopen_package(L);
-  luaopen_math(L);
-  */
-
-  // lua_load_environment(L);
-
+  // register all bpp classes
   Cam::luaBind(L);
   Object::luaBind(L);
   Objects::luaBind(L);
@@ -700,6 +679,17 @@ bool Viewer::parse(QString txt) {
   Sphere::luaBind(L);
   Viewer::luaBind(L);
 
+#ifdef HAS_LUA_QT
+
+#ifdef HAS_QEXTSERIAL
+  QSerialPort::luaBind(L);
+#endif
+
+  // register some qt classes
+  register_classes(L);
+
+#endif
+
   luaBindInstance(L);
 
   lua_pushlightuserdata(L, (void*)this);
@@ -710,7 +700,7 @@ bool Viewer::parse(QString txt) {
 	|| lua_pcall(L, 0, LUA_MULTRET, 0);
 
   if (error) {
-	lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+  lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
 	if (lua_error.contains(QRegExp(tr("stopping$")))) {
 	  lua_error = tr("script stopped");
@@ -789,15 +779,11 @@ void Viewer::resetCamView() {
 }
 
 void Viewer::loadPrefs() {
-  QSettings s;
-
   QGLViewer::restoreStateFromFile();
 }
 
 void Viewer::savePrefs() {
   // qDebug() << "Viewer::savePrefs()";
-  QSettings s;
-
   QGLViewer::saveStateToFile();
 }
 
@@ -975,8 +961,8 @@ void Viewer::draw() {
 	try {
 	  luabind::call_function<void>(_cb_preDraw, _frameNum);
 	} catch(const std::exception& e){
-      emitScriptOutput(QString(e.what()));
-	}
+    showLuaException(e, "v:preDraw()");
+  }
   }
 
   // qDebug() << "Viewer::draw() 2";
@@ -1033,45 +1019,37 @@ void Viewer::draw() {
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_preDraw = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostDraw(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_postDraw = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPreSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_preSim = fn;
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
 void Viewer::setCBPostSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
-    // qDebug() << "A function";
     _cb_postSim = fn;
-  } else {
-    // qDebug() << "Not a function";
+  }
+}
+
+void Viewer::setCBOnCommand(const luabind::object &fn) {
+  if(luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onCommand = fn;
   }
 }
 
 void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
     _cb_shortcuts->insert(keys, fn);
-  } else {
-    // qDebug() << "Not a function";
   }
 }
 
@@ -1086,7 +1064,7 @@ void Viewer::postDraw() {
 	try {
 	  luabind::call_function<void>(_cb_postDraw, _frameNum);
 	} catch(const std::exception& e){
-      emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postDraw()"));
+    showLuaException(e, "v:postDraw()");
 	}
   }
 
@@ -1185,7 +1163,14 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
-  
+  QMutexLocker locker(&mutex);
+
+  if (_has_exception) {
+    return;
+  }
+
+  // emitScriptOutput("Viewer::animate() begin");
+
   // Find the time elapsed between last time
   float nbSecsElapsed = 0.08f; // 25 pics/sec
   // float nbSecsElapsed = 1.0 / 24.0;
@@ -1210,7 +1195,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_preSim, _frameNum);
       } catch(const std::exception& e){
-        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:preSim()"));
+        showLuaException(e, "v:preSim()");
       }
     }
     
@@ -1220,7 +1205,7 @@ void Viewer::animate() {
       try {
         luabind::call_function<void>(_cb_postSim, _frameNum);
       } catch(const std::exception& e){
-        emitScriptOutput(QString("%1 %2").arg(e.what()).arg("in v:postSim()"));
+        showLuaException(e, "v:postSim()");
       }
     }
 
@@ -1232,4 +1217,35 @@ void Viewer::animate() {
 
   // Restart the elapsed time counter
   _time.restart();
+
+  // emitScriptOutput("Viewer::animate() end");
+}
+
+void Viewer::command(QString cmd) {
+  QMutexLocker locker(&mutex);
+
+  // emitScriptOutput("Viewer::command() begin");
+
+  if(_cb_onCommand) {
+    try {
+      luabind::call_function<void>(_cb_onCommand, cmd);
+    } catch(const std::exception& e){
+      showLuaException(e, "v:onCommand()");
+    }
+  }
+
+  // emitScriptOutput("Viewer::command() end");
+}
+
+void Viewer::showLuaException(const std::exception &e, const QString& context) {
+  _has_exception = true;
+
+  if ( std::string const *stack = boost::get_error_info<stack_info>(e) ) {
+    std::cout << stack << std::endl;
+  }
+
+  // the error message should be on top of the stack
+  QString luaWhat = QString("%1").arg(lua_tostring(L, -1));
+
+  emitScriptOutput(QString("%1 in %2: %3").arg(e.what()).arg(context).arg(luaWhat));
 }

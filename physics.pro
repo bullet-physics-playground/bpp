@@ -2,7 +2,8 @@ TARGET   = physics
 
 TEMPLATE = app
 
-CONFIG  *= debug_and_release
+DEFINES     += HAS_QEXTSERIAL
+DEFINES     += HAS_LUA_QT
 
 win32 {
 
@@ -44,12 +45,8 @@ OBJECTS_DIR = .obj
 UI_DIR = .ui
 RCC_DIR = .rcc
 
-DEPENDPATH += .
-
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
-
-INCLUDEPATH += src
 
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
@@ -67,46 +64,151 @@ link_pkgconfig {
   #LIBS += -lQGLViewer -lGLEW -lglut -lGLU -l3ds
 }
 
+contains(DEFINES, HAS_QEXTSERIAL) {
+  INCLUDEPATH += lib/qextserial
+  DEPENDPATH  += lib/qextserial
+
+  HEADERS     += qextserialport_global.h \
+                 qextserialport.h \
+                 qextserialenumerator.h
+
+  contains(DEFINES, HAS_LUA_QT) {
+    HEADERS   += src/wrapper/qserial.h \
+                 src/wrapper/lua_serial.h
+  }
+
+  SOURCES     += qextserialport.cpp
+
+  contains(DEFINES, HAS_LUA_QT) {
+    SOURCES   += src/wrapper/qserial.cpp \
+                 src/wrapper/lua_serial.cpp
+  }
+
+  unix:SOURCES       += posix_qextserialport.cpp
+  unix:!macx:SOURCES += qextserialenumerator_unix.cpp
+
+  macx {
+    SOURCES   += qextserialenumerator_osx.cpp
+    LIBS      += -framework IOKit -framework CoreFoundation
+  }
+
+  win32 {
+    SOURCES   += win_qextserialport.cpp qextserialenumerator_win.cpp
+    DEFINES   += UNICODE
+    DEFINES   += WINVER=0x0501 # needed for mingw
+    LIBS      += -lsetupapi -ladvapi32 -luser32
+  }
+
+  unix:DEFINES   += _TTY_LINUX_ _TTY_NOWARN_
+  win32:DEFINES  += _TTY_WIN_ _TTY_NOWARN_
+}
+
+CONFIG  *= debug_and_release
 CONFIG *= qt opengl
-QT     *= opengl xml gui core
+CONFIG  += warn_on
+CONFIG  += thread
 
-SOURCES += src/main.cpp \
-           src/objects/palette.cpp \
-           src/viewer.cpp \
-           src/objects/object.cpp \
-           src/objects/cube.cpp \
-           src/objects/sphere.cpp \
-           src/objects/plane.cpp \
-           src/objects/cylinder.cpp \
-           src/objects/mesh3ds.cpp \
-           src/coll.cpp \
-           src/gui.cpp \
-           src/cmd.cpp \
-           src/code.cpp \
-           src/objects/objects.cpp \
-           src/objects/cam.cpp \
-           src/high.cpp \
-           src/prefs.cpp
+QT     *= opengl xml network gui core
 
-HEADERS += src/objects/palette.h \
-           src/viewer.h \
-           src/objects/object.h \
-           src/objects/cube.h \
-           src/objects/sphere.h \
-           src/objects/plane.h \
-           src/objects/cylinder.h \
-           src/objects/mesh3ds.h \
-           src/coll.h \
-           src/gui.h \
-           src/cmd.h \
-           src/code.h \
-           src/objects/objects.h \
-           src/objects/cam.h \
-           src/high.h \
-           src/prefs.h
+INCLUDEPATH += src/wrapper
+DEPENDPATH  += src/wrapper
 
-FORMS   += src/gui.ui \
-           src/prefs.ui
+contains(DEFINES, HAS_LUA_QT) {
+
+# Lua wrapper classes
+
+HEADERS += \
+  lua_network.h \
+  lua_util.h \
+  lua_register.h \
+  lua_qslot.h \
+  lua_qtypes.h \
+  lua_qt.h \
+  lua_qaction.h \
+  lua_qbutton.h \
+  lua_qlayout.h \
+  lua_qlist.h \
+  lua_qmainwindow.h \
+  lua_qobject.h \
+  lua_qrect.h \
+  lua_qtextedit.h \
+  lua_qdialog.h \
+  lua_qtabwidget.h \
+  lua_qevent.h \
+  lua_qspin.h \
+  lua_qpainter.h \
+  lua_qprocess.h \
+  lua_qslider.h \
+  lua_qurl.h \
+  lua_qfile.h \
+  lua_qftp.h
+
+SOURCES += \
+  lua_network.cpp \
+  lua_qaction.cpp \
+  lua_qbutton.cpp \
+  lua_qlayout.cpp \
+  lua_qlist.cpp \
+  lua_qmainwindow.cpp \
+  lua_qobject.cpp \
+  lua_qrect.cpp \
+  lua_qtextedit.cpp \
+  lua_qdialog.cpp \
+  lua_qtabwidget.cpp \
+  lua_qevent.cpp \
+  lua_qspin.cpp \
+  lua_qpainter.cpp \
+  lua_qprocess.cpp \
+  lua_qslider.cpp \
+  lua_qurl.cpp \
+  lua_qfile.cpp \
+  lua_qftp.cpp \
+  lua_util.cpp \
+  lua_register.cpp \
+  lua_qslot.cpp
+}
+
+# Main BPP source files
+
+INCLUDEPATH += src
+DEPENDPATH  += src
+
+SOURCES += main.cpp \
+           viewer.cpp \
+           objects/object.cpp \
+           objects/objects.cpp \
+           objects/palette.cpp \
+           objects/cube.cpp \
+           objects/sphere.cpp \
+           objects/plane.cpp \
+           objects/cylinder.cpp \
+           objects/mesh3ds.cpp \
+           objects/cam.cpp \
+           gui.cpp \
+           cmd.cpp \
+           code.cpp \
+           high.cpp \
+           prefs.cpp
+
+HEADERS += viewer.h \
+           objects/object.h \
+           objects/palette.h \
+           objects/objects.h \
+           objects/cube.h \
+           objects/sphere.h \
+           objects/plane.h \
+           objects/cylinder.h \
+           objects/mesh3ds.h \
+           objects/cam.h \
+           src/wrapper/lua_converters.h \
+           gui.h \
+           cmd.h \
+           code.h \
+           high.h \
+           prefs.h
+
+FORMS   += gui.ui \
+           prefs.ui
 
 RESOURCES   += res.qrc
 

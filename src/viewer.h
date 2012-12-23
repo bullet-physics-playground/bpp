@@ -32,37 +32,6 @@ class Viewer;
 
 std::ostream& operator<<(std::ostream&, const Viewer& v);
 
-namespace luabind
-{
-  template <>
-  struct default_converter<unsigned long long>
-	: native_converter_base<unsigned long long>
-  {
-    static int compute_score(lua_State* L, int index) {
-	  return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
-    }
-
-    unsigned long long from(lua_State* L, int index) {
-	  return static_cast<unsigned long long>(lua_tonumber(L, index));
-    }
-
-    void to(lua_State* L, unsigned long long value) {
-	  lua_pushnumber(L, static_cast<lua_Number>(value));
-    }
-  };
-
-  template <>
-  struct default_converter<unsigned long long const>
-	: default_converter<unsigned long long>
-  {};
-
-  template <>
-  struct default_converter<unsigned long long const&>
-	: default_converter<unsigned long long>
-  {};
-
-}
-  
 class Viewer : public QGLViewer
 {
   Q_OBJECT;
@@ -91,6 +60,7 @@ class Viewer : public QGLViewer
   void setScriptName(QString sn);
 
   void emitScriptOutput(const QString&);
+  void emitClearOutput();
   static int lua_print(lua_State*);
 
   void addConstraints(QList<btTypedConstraint *> cons);
@@ -113,11 +83,20 @@ class Viewer : public QGLViewer
   void setCBPostDraw(const luabind::object &fn);
   void setCBPreSim(const luabind::object &fn);
   void setCBPostSim(const luabind::object &fn);
+  void setCBOnCommand(const luabind::object &fn);
+
+  void keyPressEvent(QKeyEvent *e);
+
+  void command(QString cmd);
+
+  void showLuaException(const std::exception& e, const QString& context = "");
 
  signals:
   void scriptFinished();
+  void scriptStarts();
   void scriptStopped();
   void scriptHasOutput(const QString&);
+
   void postDrawShot(int);
   void simulationStateChanged(bool);
   void POVStateChanged(bool);
@@ -126,8 +105,6 @@ class Viewer : public QGLViewer
 
  protected:
   virtual void init();
-
-  virtual void keyPressEvent(QKeyEvent *e);
 
   virtual void addObjects();
 
@@ -200,12 +177,15 @@ class Viewer : public QGLViewer
 
   QMutex mutex;
 
+  // Lua callback functions
   luabind::object _cb_preDraw,_cb_postDraw;
   luabind::object _cb_preSim,_cb_postSim;
+  luabind::object _cb_onCommand;
 
   QHash<QString, luabind::object> *_cb_shortcuts;
 
   bool _parsing;
+  bool _has_exception;
 };
 
 #endif // VIEWER_H

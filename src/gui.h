@@ -9,6 +9,10 @@
 #include "code.h"
 #include "viewer.h"
 
+class Gui;
+
+std::ostream& operator<<(std::ostream&, const Gui& v);
+
 class Gui : public QMainWindow {
  Q_OBJECT
 
@@ -16,7 +20,10 @@ class Gui : public QMainWindow {
   Gui(bool savePOV = false, bool savePNG = false, QWidget *parent = 0);
   QMessageBox* msgBox;
  
- private slots:
+  QString toString() const;
+  void luaBind(lua_State *s);
+
+private slots:
   void updateValues();
   void command(QString cmd);
 
@@ -31,6 +38,7 @@ class Gui : public QMainWindow {
  public slots:
   void postDraw(int);
   void debug(QString msg);
+  void clearDebug();
   void toggleSimButton(bool);
   void togglePOVButton(bool);
   void togglePNGButton(bool);
@@ -190,7 +198,7 @@ class Gui : public QMainWindow {
   // main app components //////////////////////////////////////////////////////
   CodeEditor *editor;
   CodeEditor *debugText;
-
+  CommandLine *commandLine;
   /////////////////////////////////////////////////////////////////////////////
 
   bool savePOV, savePNG;

@@ -16,6 +16,7 @@ class CommandLine : public QLineEdit {
   void executed();
 
  signals:
+  void keyPressed(QKeyEvent *e);
   void execute(QString cmd);
 
  private:
