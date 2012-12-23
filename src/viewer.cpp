@@ -96,6 +96,114 @@ void Viewer::luaBind(lua_State *s) {
    .def(tostring(const_self))
   ];
 
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionShape.html
+  [
+   class_<btCollisionShape>("btCollisionShape")
+   .property("userPointer", &btCollisionShape::getUserPointer, &btCollisionShape::setUserPointer)
+   .def("isPolyhedral", &btCollisionShape::isPolyhedral)
+   .def("isConvex2d", &btCollisionShape::isConvex2d)
+   .def("isConvex", &btCollisionShape::isConvex)
+   .def("isNonMoving", &btCollisionShape::isNonMoving)
+   .def("isConcave", &btCollisionShape::isConcave)
+   .def("isCompound", &btCollisionShape::isCompound)
+   .def("isSoftBody", &btCollisionShape::isSoftBody)
+   .def("isInfinite", &btCollisionShape::isInfinite)
+   .def("getShapeType", &btCollisionShape::getShapeType)
+   .def("setUserPointer", &btCollisionShape::setUserPointer)
+   .def("getUserPointer", &btCollisionShape::getUserPointer)
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCompoundShape.html
+  [
+   class_<btCompoundShape,btCollisionShape>("btCompoundShape")
+   .def(constructor<bool>())
+   .def("addChildShape", &btCompoundShape::addChildShape)
+   .def("removeChildShape", &btCompoundShape::removeChildShape)
+   .def("removeChildShapeByIndex", &btCompoundShape::removeChildShapeByIndex)
+   .def("getNumChildShapes", &btCompoundShape::getNumChildShapes)
+   // .def("getChildShape", &btCompoundShape::getChildShape)
+   // .def("getChildTransform", &btCompoundShape::getChildTransform)
+   .def("updateChildTransform", &btCompoundShape::updateChildTransform)
+   .def("getChildList", &btCompoundShape::getChildList)
+   // .def("getDynamicAabbTree", &btCompoundShape::getDynamicAabbTree)
+   .def("createAabbTreeFromChildren", &btCompoundShape::createAabbTreeFromChildren)
+   .def("calculatePrincipalAxisTransform", &btCompoundShape::calculatePrincipalAxisTransform)
+   .def("getUpdateRevision", &btCompoundShape::getUpdateRevision)
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConcaveShape.html
+  [
+   class_<btConcaveShape, btCollisionShape>("btConcaveShape")
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexShape.html
+  [
+   class_<btConvexShape, btCollisionShape>("btConvexShape")
+   .def("localGetSupportVertexWithoutMarginNonVirtual", &btConvexShape::localGetSupportVertexWithoutMarginNonVirtual)
+   .def("localGetSupportVertexNonVirtual", &btConvexShape::localGetSupportVertexNonVirtual)
+   .def("getMarginNonVirtual", &btConvexShape::getMarginNonVirtual)
+   .def("getAabbNonVirtual", &btConvexShape::getAabbNonVirtual)
+   .def("getAabb", &btConvexShape::getAabb)
+  ];
+
+  // http://bulletphysics.com/Bullet/BulletFull/classbtConvex2dShape.html
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexInternalShape.html
+  [
+      class_<btConvexInternalShape, btConvexShape>("btConvexInternalShape")
+      .def("getImplicitShapeDimensions", &btConvexInternalShape::getImplicitShapeDimensions)
+      .def("setImplicitShapeDimensions", &btConvexInternalShape::setImplicitShapeDimensions)
+      // .def("setSafeMargin", &btConvexInternalShape::setSafeMargin)
+      .def("getAabb", &btConvexInternalShape::getAabb)
+      .def("getLocalScalingNV", &btConvexInternalShape::getLocalScalingNV)
+      .def("getMarginNV", &btConvexInternalShape::getMarginNV)
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShape.html
+  [
+      class_<btCapsuleShape, btConvexInternalShape>("btCapsuleShape")
+      .def(constructor<btScalar, btScalar>())
+      .def("getUpAxis", &btCapsuleShape::getUpAxis)
+      .def("getRadius", &btCapsuleShape::getRadius)
+      .def("getHalfHeight", &btCapsuleShape::getHalfHeight)
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeX.html
+  [
+      class_<btCapsuleShapeX, btCapsuleShape>("btCapsuleShapeX")
+      .def(constructor<btScalar, btScalar>())
+  ];
+
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeZ.html
+  [
+      class_<btCapsuleShapeZ, btCapsuleShape>("btCapsuleShapeZ")
+      .def(constructor<btScalar, btScalar>())
+  ];
+
+   // http://bulletphysics.com/Bullet/BulletFull/classbtConeShape.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeX.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeZ.html
+   // http://bulletphysics.com/Bullet/BulletFull/classbtConvexInternalAabbCachingShape.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtMultiSphereShape.html
+   // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShape.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeX.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeZ.html
+   // http://bulletphysics.com/Bullet/BulletFull/classbtMinkowskiSumShape.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtPolyhedralConvexShape.html
+     // http://bulletphysics.com/Bullet/BulletFull/classbtBox2dShape.html
+     // http://bulletphysics.com/Bullet/BulletFull/classbtBoxShape.html
+     // http://bulletphysics.com/Bullet/BulletFull/classbtPolyhedralConvexAabbCachingShape.html
+      // http://bulletphysics.com/Bullet/BulletFull/classbtBU__Simplex1to4.html
+       // http://bulletphysics.com/Bullet/BulletFull/classbtTetrahedronShapeEx.html
+      // http://bulletphysics.com/Bullet/BulletFull/classbtConvexHullShape.html
+      // http://bulletphysics.com/Bullet/BulletFull/classbtConvexPointCloudShape.html
+      // http://bulletphysics.com/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
+     // http://bulletphysics.com/Bullet/BulletFull/classbtTriangleShape.html
+      // http://bulletphysics.com/Bullet/BulletFull/classbtTriangleShapeEx.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtSoftClusterCollisionShape.html
+    // http://bulletphysics.com/Bullet/BulletFull/classbtSphereShape.html
+   // http://bulletphysics.com/Bullet/BulletFull/classbtUniformScalingShape.html
+
   module(s)
 	[
 	 class_<btVector3>( "btVector3" )
