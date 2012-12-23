@@ -184,6 +184,7 @@ void Gui::loadFile(const QString &path) {
     parseEditor();
     statusBar()->showMessage(tr("File loaded"), 2000);
     _fileSaved = true;
+    saveAction->setEnabled(false);
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
     statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
@@ -239,6 +240,7 @@ void Gui::createActions() {
   saveAction->setShortcut(tr("Ctrl+S"));
   saveAction->setStatusTip(tr("Save file"));
   connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
+  saveAction->setEnabled(false);
 
   QIcon saveAsIcon = QIcon::fromTheme("document-save-as" );
   saveAsAction = new QAction(saveAsIcon, tr("&Save As.."), this);
@@ -497,7 +499,7 @@ void Gui::newFile() {
   } 
   editor->clear();
   setCurrentFile(editor->script_filename);
-  saveAction->setEnabled(false);
+  saveAction->setEnabled(true);
   _fileSaved=true;
 }
 
@@ -520,23 +522,35 @@ void Gui::openFile(const QString& path) {
 }
 
 void Gui::save() {
-  editor->save();
-  saveAction->setEnabled(false);
-  _fileSaved=true;
+  if (editor->save()) {
+    saveAction->setEnabled(false);
+    _fileSaved=true;
+  } else {
+    saveAction->setEnabled(true);
+    _fileSaved=false;
+  }
 }
 
 void Gui::saveAs() {
-  editor->saveAs();
-  setCurrentFile(editor->script_filename);
-  saveAction->setEnabled(true);
-  _fileSaved=true;
+  if (editor->saveAs()) {
+    setCurrentFile(editor->script_filename);
+    saveAction->setEnabled(false);
+    _fileSaved=true;
+  } else {
+    saveAction->setEnabled(true);
+    _fileSaved=false;
+  }
 }
 
 void Gui::saveFile(const QString& path) {
-  editor->saveAs(path);
-  setCurrentFile(editor->script_filename);
-  saveAction->setEnabled(false);
-  _fileSaved=true;
+  if (editor->saveAs(path)) {
+    setCurrentFile(editor->script_filename);
+    saveAction->setEnabled(false);
+    _fileSaved=true;
+  } else {
+    saveAction->setEnabled(true);
+    _fileSaved=false;
+  }
 }
 
 void Gui::editPrefs() {
