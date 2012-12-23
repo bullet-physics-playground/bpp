@@ -416,7 +416,6 @@ void QLuaSlot::general_slot(QWidget* param1)
     if(m_delete_when_done)this->deleteLater();
 }
 
-/*
 void QLuaSlot::general_slot(QAbstractSocket::SocketError param1)
 {
     ::gen_slot(m_obj,m_method,param1);
@@ -428,7 +427,6 @@ void QLuaSlot::general_slot(QAbstractSocket::SocketState param1)
     ::gen_slot(m_obj,m_method,param1);
     if(m_delete_when_done)this->deleteLater();
 }
-*/
 
 void QLuaSlot::general_slot(QClipboard::Mode param1)
 {
@@ -436,13 +434,12 @@ void QLuaSlot::general_slot(QClipboard::Mode param1)
     if(m_delete_when_done)this->deleteLater();
 }
 
-/*
 void QLuaSlot::general_slot(const QHostInfo& param1)
 {
     ::gen_slot(m_obj,m_method,param1);
     if(m_delete_when_done)this->deleteLater();
 }
-*/
+
 void QLuaSlot::general_slot(Qt::DropAction param1)
 {
     ::gen_slot(m_obj,m_method,param1);
@@ -461,13 +458,11 @@ void QLuaSlot::general_slot(qint64 param1,qint64 param2)
     if(m_delete_when_done)this->deleteLater();
 }
 
-/*
 void QLuaSlot::general_slot(const QUrlInfo & param1)
 {
     ::gen_slot(m_obj,m_method,param1);
     if(m_delete_when_done)this->deleteLater();
 }
-*/
 
 void QLuaSlot::general_slot(int param1,const QString& param2)
 {

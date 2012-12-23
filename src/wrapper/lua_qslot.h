@@ -2,6 +2,7 @@
 #define QLUASLOT_H
 
 #include <QtGui>
+#include <QtNetwork>
 
 #include "lua.hpp"
 
@@ -65,14 +66,14 @@ public slots:
     void general_slot(QProcess::ProcessState);
     void general_slot(QWidget*,QWidget*);
     void general_slot(QWidget*);
-//    void general_slot(QAbstractSocket::SocketError);
-//    void general_slot(QAbstractSocket::SocketState);
+    void general_slot(QAbstractSocket::SocketError);
+    void general_slot(QAbstractSocket::SocketState);
     void general_slot(QClipboard::Mode);
-//    void general_slot(const QHostInfo&);
+    void general_slot(const QHostInfo&);
     void general_slot(Qt::DropAction);
     void general_slot(int,bool);
     void general_slot(qint64,qint64);
-//    void general_slot(const QUrlInfo &);
+    void general_slot(const QUrlInfo &);
     void general_slot(int,const QString&);
     void general_slot(Qt::DockWidgetAreas);
     void general_slot(Qt::DockWidgetArea);
@@ -91,8 +92,6 @@ private:
     QString m_signature;
     bool    m_delete_when_done;
 };
-//typedef boost::shared_ptr<QLuaSlot> auto_slot;
-
 
 bool sigfunc_connect(QObject* sender, const char* signal, object func);
 QLuaSlot* get_slot(const QObject* obj, const char* member);
