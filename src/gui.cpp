@@ -523,6 +523,7 @@ void Gui::openFile(const QString& path) {
 
 void Gui::save() {
   if (editor->save()) {
+    setCurrentFile(editor->script_filename);
     saveAction->setEnabled(false);
     _fileSaved=true;
   } else {
