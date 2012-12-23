@@ -47,7 +47,6 @@ public:
     bool RTS(){ return (lineStatus() & LS_RTS) != 0;}
 
     static void luaBind(lua_State* L);
-    qint64 writeDoh(QString data);
 
 protected:
     void initial();

@@ -117,10 +117,9 @@ LQextSerialPort lqextserialport()
     .def("bytesToWrite", &QSerialPort::bytesToWrite)
     .def("read", (QByteArray (QSerialPort::*)(qint64))&QSerialPort::read)
     .def("write", (qint64 (QSerialPort::*)(const char *,qint64))&QSerialPort::write)
-//    .def("write", (qint64 (QSerialPort::*)(const char *))&QSerialPort::write)
-    .def("write", &QSerialPort::writeDoh)
+    .def("write", (qint64 (QSerialPort::*)(const char *))&QSerialPort::write)
     .def("write", (qint64 (QSerialPort::*)(const QByteArray&))&QSerialPort::write)
-//        .def("write", (qint64 (QSerialPort::*)(const QByteArray&))&QSerialPort::write)
+    .def("write", (qint64 (QSerialPort::*)(const QByteArray&))&QSerialPort::write)
 
     .def("setPortName", &QSerialPort::setPortName)
     .def("setQueryMode", &QSerialPort::setQueryMode)
@@ -250,8 +249,4 @@ void QSerialPort::luaBind(lua_State *L) {
       lqextportinfo(),
       lqportsetting()
   ];
-}
-
-qint64 QSerialPort::writeDoh(QString data) {
-  return write(QByteArray(data.toAscii().constData()));
 }
