@@ -610,9 +610,9 @@ void lqtreewidget_test(QTreeWidget* w)
     (void)w;
 }
 namespace luabind{
-QT_EMUN_CONVERTER(QItemSelectionModel::SelectionFlags)
-QT_EMUN_CONVERTER(Qt::SortOrder)
-QT_EMUN_CONVERTER(Qt::ItemFlags)
+QT_ENUM_CONVERTER(QItemSelectionModel::SelectionFlags)
+QT_ENUM_CONVERTER(Qt::SortOrder)
+QT_ENUM_CONVERTER(Qt::ItemFlags)
 }
 LQTreeWidget lqtreewidget()
 {

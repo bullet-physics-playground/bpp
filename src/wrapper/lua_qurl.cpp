@@ -16,12 +16,12 @@ void table_init_general<QUrl>(const luabind::argument & arg, const object& obj)
 
 namespace luabind
 {
-    QT_EMUN_CONVERTER(QUrl::ParsingMode)
-    QT_EMUN_CONVERTER(QUrl::FormattingOptions)
-    QT_EMUN_CONVERTER(Qt::DropActions)
-    QT_EMUN_CONVERTER(Qt::DropAction)
-    QT_EMUN_CONVERTER(QRegExp::CaretMode)
-    QT_EMUN_CONVERTER(QRegExp::PatternSyntax)
+    QT_ENUM_CONVERTER(QUrl::ParsingMode)
+    QT_ENUM_CONVERTER(QUrl::FormattingOptions)
+    QT_ENUM_CONVERTER(Qt::DropActions)
+    QT_ENUM_CONVERTER(Qt::DropAction)
+    QT_ENUM_CONVERTER(QRegExp::CaretMode)
+    QT_ENUM_CONVERTER(QRegExp::PatternSyntax)
 
     QByteArray byteArrayFromObject(const object& obj){
         QByteArray arr;
@@ -41,43 +41,6 @@ namespace luabind
         }
         return tb;
     }
-
-    template<>
-    struct default_converter<QList<QByteArray> >
-      : native_converter_base<QList<QByteArray> >
-    {
-        static int compute_score(lua_State* L, int index)
-        {
-            return lua_type(L, index) == LUA_TTABLE ? 0 : -1;
-        }
-
-        QList<QByteArray> from(lua_State* L, int index)
-        {
-            object obj(luabind::from_stack(L,index));
-            QList<QByteArray> res;
-            for(iterator i(obj),e; i!=e; ++i){
-                if(type(*i) == LUA_TTABLE){
-                    res.append(byteArrayFromObject(*i));
-                }
-            }
-            return res;
-        }
-
-        void to(lua_State* L, QList<QByteArray> const& arr)
-        {
-            object obj = luabind::newtable(L);
-            for(int i=0;i<arr.length();i++){
-                obj[i+1] = byteArrayToObject(L,arr.at(i));
-            }
-            obj.push(L);
-        }
-    };
-
-    template<>
-    struct default_converter<QList<QByteArray> const&>
-      : default_converter<QList<QByteArray> >
-    {};
-
 
     template<>
     struct default_converter<QList<QPair<QByteArray, QByteArray> > >

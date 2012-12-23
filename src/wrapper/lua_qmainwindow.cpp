@@ -81,12 +81,12 @@ void set_state(QMainWindow* w, const QByteArray& arr)
     w->restoreState(arr);
 }
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::DockWidgetArea)
-    QT_EMUN_CONVERTER(Qt::ToolBarArea)
-    QT_EMUN_CONVERTER(Qt::Corner)
-    QT_EMUN_CONVERTER(QMainWindow::DockOption)
-    QT_EMUN_CONVERTER(QMainWindow::DockOptions)
-    QT_EMUN_CONVERTER(Qt::ToolButtonStyle)
+    QT_ENUM_CONVERTER(Qt::DockWidgetArea)
+    QT_ENUM_CONVERTER(Qt::ToolBarArea)
+    QT_ENUM_CONVERTER(Qt::Corner)
+    QT_ENUM_CONVERTER(QMainWindow::DockOption)
+    QT_ENUM_CONVERTER(QMainWindow::DockOptions)
+    QT_ENUM_CONVERTER(Qt::ToolButtonStyle)
 }
 
 void lqmainwindow_addToolBarBreak(QMainWindow* w) { w->addToolBarBreak();}
@@ -307,7 +307,7 @@ LQMdiSubWindow lqmdisubwindow()
 }
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QSystemTrayIcon::MessageIcon)
+    QT_ENUM_CONVERTER(QSystemTrayIcon::MessageIcon)
 }
 SIGNAL_PROPERYT(lqsystemtrayicon, activated, QSystemTrayIcon, "(QSystemTrayIcon::ActivationReason)")
 SIGNAL_PROPERYT(lqsystemtrayicon, messageClicked, QSystemTrayIcon, "()")

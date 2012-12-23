@@ -5,7 +5,7 @@
 #include "lua_qslot.h"
 
 namespace luabind{
-QT_EMUN_CONVERTER(Qt::Corner)
+QT_ENUM_CONVERTER(Qt::Corner)
 }
 
 SIGNAL_PROPERYT(lqtabwidget, currentChanged, QTabWidget, "(int)")

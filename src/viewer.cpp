@@ -6,6 +6,8 @@
 
 #include <QColor>
 
+#include "lua_converters.h"
+
 #ifdef HAS_LUA_QT
 #include "lua_register.h"
 #endif
@@ -21,7 +23,6 @@
 #include "objects/palette.h"
 
 #include "objects/cam.h"
-
 #ifdef HAS_QEXTSERIAL
 #include "qserial.h"
 #endif
@@ -33,6 +34,12 @@
 #include <GL/glut.h>
 
 #include <QDebug>
+
+#include <boost/exception/all.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/exception/info.hpp>
+
+typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
 
 using namespace std;
 
@@ -650,11 +657,6 @@ bool Viewer::parse(QString txt) {
   // open all standard Lua libs
   luaL_openlibs(L);
 
-#ifdef HAS_LUA_QT
-  // register some qt classes
-  register_classes(L);
-#endif
-
   // register all bpp classes
   Cam::luaBind(L);
   Object::luaBind(L);
@@ -667,10 +669,15 @@ bool Viewer::parse(QString txt) {
   Sphere::luaBind(L);
   Viewer::luaBind(L);
 
-#ifdef HAS_QEXTSERIAL
 #ifdef HAS_LUA_QT
+
+#ifdef HAS_QEXTSERIAL
   QSerialPort::luaBind(L);
 #endif
+
+  // register some qt classes
+  register_classes(L);
+
 #endif
 
   luaBindInstance(L);
@@ -683,7 +690,7 @@ bool Viewer::parse(QString txt) {
 	|| lua_pcall(L, 0, LUA_MULTRET, 0);
 
   if (error) {
-	lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+  lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
 	if (lua_error.contains(QRegExp(tr("stopping$")))) {
 	  lua_error = tr("script stopped");
@@ -1222,6 +1229,10 @@ void Viewer::command(QString cmd) {
 
 void Viewer::showLuaException(const std::exception &e, const QString& context) {
   _has_exception = true;
+
+  if ( std::string const *stack = boost::get_error_info<stack_info>(e) ) {
+    std::cout << stack << std::endl;
+  }
 
   // the error message should be on top of the stack
   QString luaWhat = QString("%1").arg(lua_tostring(L, -1));

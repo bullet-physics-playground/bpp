@@ -1,14 +1,14 @@
 #include "lua_qfile.h"
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QFile::FileError)
-    QT_EMUN_CONVERTER(QFile::Permission)
-    QT_EMUN_CONVERTER(QFile::Permissions)
-    QT_EMUN_CONVERTER(QDir::Filter)
-    QT_EMUN_CONVERTER(QDir::Filters)
-    QT_EMUN_CONVERTER(QDir::SortFlag)
-    QT_EMUN_CONVERTER(QDir::SortFlags)
-    QT_EMUN_CONVERTER(QIODevice::OpenMode)
+    QT_ENUM_CONVERTER(QFile::FileError)
+    QT_ENUM_CONVERTER(QFile::Permission)
+    QT_ENUM_CONVERTER(QFile::Permissions)
+    QT_ENUM_CONVERTER(QDir::Filter)
+    QT_ENUM_CONVERTER(QDir::Filters)
+    QT_ENUM_CONVERTER(QDir::SortFlag)
+    QT_ENUM_CONVERTER(QDir::SortFlags)
+    QT_ENUM_CONVERTER(QIODevice::OpenMode)
 }
 
 bool lqfile_open(QFile* w)

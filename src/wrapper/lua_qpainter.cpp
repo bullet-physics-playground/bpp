@@ -57,17 +57,17 @@ bool lqpainter_begin3(QPainter* p, QPixmap* w)
 }
 
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::BGMode)
-    QT_EMUN_CONVERTER(Qt::BrushStyle)
-    QT_EMUN_CONVERTER(Qt::PenStyle)
-    QT_EMUN_CONVERTER(QPainter::RenderHint)
-    QT_EMUN_CONVERTER(QPainter::RenderHints)
-    QT_EMUN_CONVERTER(Qt::SizeMode)
-    QT_EMUN_CONVERTER(Qt::GlobalColor)
-    QT_EMUN_CONVERTER(Qt::ImageConversionFlags)
-    QT_EMUN_CONVERTER(Qt::MaskMode)
-    QT_EMUN_CONVERTER(Qt::AspectRatioMode)
-    QT_EMUN_CONVERTER(Qt::TransformationMode)
+    QT_ENUM_CONVERTER(Qt::BGMode)
+    QT_ENUM_CONVERTER(Qt::BrushStyle)
+    QT_ENUM_CONVERTER(Qt::PenStyle)
+    QT_ENUM_CONVERTER(QPainter::RenderHint)
+    QT_ENUM_CONVERTER(QPainter::RenderHints)
+    QT_ENUM_CONVERTER(Qt::SizeMode)
+    QT_ENUM_CONVERTER(Qt::GlobalColor)
+    QT_ENUM_CONVERTER(Qt::ImageConversionFlags)
+    QT_ENUM_CONVERTER(Qt::MaskMode)
+    QT_ENUM_CONVERTER(Qt::AspectRatioMode)
+    QT_ENUM_CONVERTER(Qt::TransformationMode)
 }
 
 
@@ -196,8 +196,8 @@ LQPainter lqpainter()
     ;
 }
 namespace luabind{
-    QT_EMUN_CONVERTER(QImage::Format)
-    QT_EMUN_CONVERTER(QImage::InvertMode)
+    QT_ENUM_CONVERTER(QImage::Format)
+    QT_ENUM_CONVERTER(QImage::InvertMode)
 }
 
 struct QMyByteArray : public QByteArray

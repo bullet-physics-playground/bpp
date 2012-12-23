@@ -5,12 +5,12 @@
 #include <luabind/adopt_policy.hpp>
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QFtp::Command)
-    QT_EMUN_CONVERTER(QFtp::Error)
-    QT_EMUN_CONVERTER(QFtp::State)
-    QT_EMUN_CONVERTER(QFtp::TransferMode)
-    QT_EMUN_CONVERTER(QFtp::TransferType)
-    QT_EMUN_CONVERTER(QUrlInfo::PermissionSpec)
+    QT_ENUM_CONVERTER(QFtp::Command)
+    QT_ENUM_CONVERTER(QFtp::Error)
+    QT_ENUM_CONVERTER(QFtp::State)
+    QT_ENUM_CONVERTER(QFtp::TransferMode)
+    QT_ENUM_CONVERTER(QFtp::TransferType)
+    QT_ENUM_CONVERTER(QUrlInfo::PermissionSpec)
 }
 
 QFile* lqftp_currentDevice(QFtp* w)

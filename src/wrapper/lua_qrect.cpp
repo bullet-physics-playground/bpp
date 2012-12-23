@@ -103,8 +103,8 @@ QFont* lqfont_init(QFont* widget, const object& obj)
 }
 
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::BrushStyle)
-    QT_EMUN_CONVERTER(Qt::GlobalColor)
+    QT_ENUM_CONVERTER(Qt::BrushStyle)
+    QT_ENUM_CONVERTER(Qt::GlobalColor)
 }
 
 LQPoint lqpoint()
@@ -257,7 +257,7 @@ LQMargins lqmargins()
     ;
 }
 namespace luabind{
-    QT_EMUN_CONVERTER(QRegion::RegionType)
+    QT_ENUM_CONVERTER(QRegion::RegionType)
 }
 
 void lqregion_setRects(QRegion* w, const QVector<QRect>& rects)
@@ -368,7 +368,7 @@ LQBrush  lqbrush()
 }
 
 namespace luabind{
-QT_EMUN_CONVERTER(Qt::PenStyle)
+QT_ENUM_CONVERTER(Qt::PenStyle)
 }
 
 ENUM_FILTER(QPen,capStyle,setCapStyle)

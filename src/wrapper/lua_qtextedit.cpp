@@ -8,7 +8,7 @@ static setter_map<QPlainTextEdit> lqplaintextedit_set_map;
 static setter_map<QLineEdit> lqlineedit_set_map;
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QTextDocument::FindFlags)
+    QT_ENUM_CONVERTER(QTextDocument::FindFlags)
 }
 
 QLabel* lqlabel_init(QLabel* widget, const object& obj)

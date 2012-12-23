@@ -1,5 +1,5 @@
-#ifndef BINDINGS_H
-#define BINDINGS_H
+#ifndef LUA_CONVERTERS_H
+#define LUA_CONVERTERS_H
 
 #include <lua.hpp>
 #include <luabind/luabind.hpp>
@@ -30,33 +30,6 @@ std::string fromQString(const QString& str);
 namespace luabind
 {
   template <>
-  struct default_converter<unsigned long long>
-  : native_converter_base<unsigned long long>
-  {
-    static int compute_score(lua_State* L, int index) {
-    return lua_type(L, index) == LUA_TNUMBER ? 0 : -1;
-    }
-
-    unsigned long long from(lua_State* L, int index) {
-    return static_cast<unsigned long long>(lua_tonumber(L, index));
-    }
-
-    void to(lua_State* L, unsigned long long value) {
-    lua_pushnumber(L, static_cast<lua_Number>(value));
-    }
-  };
-
-  template <>
-  struct default_converter<unsigned long long const>
-  : default_converter<unsigned long long>
-  {};
-
-  template <>
-  struct default_converter<unsigned long long const&>
-  : default_converter<unsigned long long>
-  {};
-
-  template <>
     struct default_converter<QString>
   : native_converter_base<QString>
   {
@@ -72,11 +45,6 @@ namespace luabind
     lua_pushstring(L, x.toAscii());
   }
   };
-
-  template <>
-    struct default_converter<QString const>
-  : default_converter<QString>
-  {};
 
   template <>
     struct default_converter<QString const&>
@@ -259,12 +227,11 @@ namespace luabind
     struct default_converter<QVariant const&>
       : default_converter<QVariant>
     {};
-}
 
-#define QT_EMUN_CONVERTER(T)        \
-template <> \
-struct default_converter<T> \
-  : native_converter_base<T> \
+#define QT_ENUM_CONVERTER(T)        \
+template <>\
+struct default_converter<T>\
+  : native_converter_base<T>\
 {\
     static int compute_score(lua_State* L, int index)\
     {\
@@ -283,4 +250,7 @@ struct default_converter<T> \
     }\
 };
 
-#endif // BINDINGS_H
+    QT_ENUM_CONVERTER(qint64)
+}
+
+#endif // LUA_CONVERTERS_H

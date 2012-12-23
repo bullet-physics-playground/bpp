@@ -39,14 +39,14 @@ void table_init_general<QProcess>(const luabind::argument & arg, const object& o
 
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QProcess::ProcessChannel)
-    QT_EMUN_CONVERTER(QProcess::ProcessError)
-    QT_EMUN_CONVERTER(QProcess::ProcessState)
-    QT_EMUN_CONVERTER(QProcess::ProcessChannelMode)
-    QT_EMUN_CONVERTER(QProcess::ExitStatus)
-    QT_EMUN_CONVERTER(QIODevice::OpenMode)
-    QT_EMUN_CONVERTER(QIODevice::OpenModeFlag)
-    QT_EMUN_CONVERTER(QClipboard::Mode)
+    QT_ENUM_CONVERTER(QProcess::ProcessChannel)
+    QT_ENUM_CONVERTER(QProcess::ProcessError)
+    QT_ENUM_CONVERTER(QProcess::ProcessState)
+    QT_ENUM_CONVERTER(QProcess::ProcessChannelMode)
+    QT_ENUM_CONVERTER(QProcess::ExitStatus)
+    QT_ENUM_CONVERTER(QIODevice::OpenMode)
+    QT_ENUM_CONVERTER(QIODevice::OpenModeFlag)
+    QT_ENUM_CONVERTER(QClipboard::Mode)
 }
 
 ENUM_FILTER(QProcess,processChannelMode,setProcessChannelMode)

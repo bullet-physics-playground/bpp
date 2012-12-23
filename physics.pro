@@ -2,6 +2,9 @@ TARGET   = physics
 
 TEMPLATE = app
 
+DEFINES     += HAS_QEXTSERIAL
+DEFINES     += HAS_LUA_QT
+
 win32 {
 
   CONFIG += link_koppi_style_win32
@@ -45,8 +48,6 @@ RCC_DIR = .rcc
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
 
-DEFINES     += HAS_QEXTSERIAL
-
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
   PKGCONFIG += bullet lua5.1 luabind
@@ -69,13 +70,19 @@ contains(DEFINES, HAS_QEXTSERIAL) {
 
   HEADERS     += qextserialport_global.h \
                  qextserialport.h \
-                 qextserialenumerator.h \
-                 src/wrapper/qserial.h \
-                 src/wrapper/lua_serial.h
+                 qextserialenumerator.h
 
-  SOURCES     += qextserialport.cpp \
-                 src/wrapper/qserial.cpp \
+  contains(DEFINES, HAS_LUA_QT) {
+    HEADERS   += src/wrapper/qserial.h \
+                 src/wrapper/lua_serial.h
+  }
+
+  SOURCES     += qextserialport.cpp
+
+  contains(DEFINES, HAS_LUA_QT) {
+    SOURCES   += src/wrapper/qserial.cpp \
                  src/wrapper/lua_serial.cpp
+  }
 
   unix:SOURCES       += posix_qextserialport.cpp
   unix:!macx:SOURCES += qextserialenumerator_unix.cpp
@@ -103,14 +110,16 @@ CONFIG  += thread
 
 QT     *= opengl xml network gui core
 
-# Lua wrapper classes
 INCLUDEPATH += src/wrapper
 DEPENDPATH  += src/wrapper
+
+contains(DEFINES, HAS_LUA_QT) {
+
+# Lua wrapper classes
 
 HEADERS += \
   lua_network.h \
   lua_util.h \
-  lua_converters.h \
   lua_register.h \
   lua_qslot.h \
   lua_qtypes.h \
@@ -157,14 +166,12 @@ SOURCES += \
   lua_util.cpp \
   lua_register.cpp \
   lua_qslot.cpp
+}
 
 # Main BPP source files
 
 INCLUDEPATH += src
-INCLUDEPATH += src/objects
-
 DEPENDPATH  += src
-DEPENDPATH  += src/objects
 
 SOURCES += main.cpp \
            viewer.cpp \
@@ -193,6 +200,7 @@ HEADERS += viewer.h \
            objects/cylinder.h \
            objects/mesh3ds.h \
            objects/cam.h \
+           src/wrapper/lua_converters.h \
            gui.h \
            cmd.h \
            code.h \

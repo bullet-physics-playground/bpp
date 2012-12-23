@@ -1,9 +1,11 @@
 #ifndef LUA_SERIAL_H
 #define LUA_SERIAL_H
+
 #include "qextserialport.h"
 #include "qextserialenumerator.h"
 
 #include "lua_qt.h"
+
 #include "lua_serial.h"
 
 class QSerialPort : public QextSerialPort
@@ -45,6 +47,7 @@ public:
     bool RTS(){ return (lineStatus() & LS_RTS) != 0;}
 
     static void luaBind(lua_State* L);
+    qint64 writeDoh(QString data);
 
 protected:
     void initial();

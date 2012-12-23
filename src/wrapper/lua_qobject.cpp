@@ -188,8 +188,8 @@ void lqwidget_render16(QWidget* l, QWidget* p, const QPoint& pt, const QRegion& 
 
 
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::ContextMenuPolicy)
-    QT_EMUN_CONVERTER(Qt::WidgetAttribute)
+    QT_ENUM_CONVERTER(Qt::ContextMenuPolicy)
+    QT_ENUM_CONVERTER(Qt::WidgetAttribute)
 }
 ENUM_FILTER(QWidget, contextMenuPolicy, setContextMenuPolicy)
 ENUM_FILTER(QWidget, windowFlags, setWindowFlags)

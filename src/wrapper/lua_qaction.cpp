@@ -340,8 +340,8 @@ LQToolBar lqtoolbar()
 #define _m3 (QPixmap(QIcon::*)(int, QIcon::Mode, QIcon::State) const)
 
 namespace luabind{
-    QT_EMUN_CONVERTER(QIcon::Mode)
-    QT_EMUN_CONVERTER(QIcon::State)
+    QT_ENUM_CONVERTER(QIcon::Mode)
+    QT_ENUM_CONVERTER(QIcon::State)
 }
 LQIcon lqicon()
 {
@@ -393,7 +393,7 @@ LQIcon lqicon()
         ;
 }
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::CursorShape)
+    QT_ENUM_CONVERTER(Qt::CursorShape)
 }
 LQCursor lqcursor()
 {

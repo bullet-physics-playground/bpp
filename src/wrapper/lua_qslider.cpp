@@ -17,7 +17,7 @@ void table_init_general<QAbstractSlider>(const luabind::argument & arg, const ob
     lqas_init(construct<QAbstractSlider>(arg), obj);
 }
 namespace luabind{
-    QT_EMUN_CONVERTER(QAbstractSlider::SliderAction)
+    QT_ENUM_CONVERTER(QAbstractSlider::SliderAction)
 }
 
 ENUM_FILTER(QAbstractSlider, orientation, setOrientation)

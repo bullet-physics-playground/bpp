@@ -335,7 +335,7 @@ void table_init_general<QFormLayout>(const luabind::argument & arg, const object
 ENUM_FILTER(QFormLayout,rowWrapPolicy,setRowWrapPolicy)
 ENUM_FILTER(QFormLayout,labelAlignment,setLabelAlignment)
 namespace luabind{
-    QT_EMUN_CONVERTER(QFormLayout::ItemRole)
+    QT_ENUM_CONVERTER(QFormLayout::ItemRole)
 }
 
 LQFormLayout lqformlayout()

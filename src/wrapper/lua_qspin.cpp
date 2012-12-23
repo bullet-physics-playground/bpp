@@ -125,8 +125,8 @@ LQDoubleSpinBox lqdoublespinbox()
 }
 
 namespace luabind{
-QT_EMUN_CONVERTER(Qt::DateFormat)
-QT_EMUN_CONVERTER(Qt::TimeSpec)
+QT_ENUM_CONVERTER(Qt::DateFormat)
+QT_ENUM_CONVERTER(Qt::TimeSpec)
 }
 LQDate lqdate()
 {

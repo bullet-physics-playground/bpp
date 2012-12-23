@@ -32,8 +32,6 @@ class Viewer;
 
 std::ostream& operator<<(std::ostream&, const Viewer& v);
 
-#include "lua_converters.h"
-
 class Viewer : public QGLViewer
 {
   Q_OBJECT;

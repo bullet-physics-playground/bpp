@@ -2,11 +2,11 @@
 #include "luabind/dependency_policy.hpp"
 
 namespace luabind{
-    QT_EMUN_CONVERTER(Qt::KeyboardModifiers)
-    QT_EMUN_CONVERTER(Qt::MouseButtons)
-    QT_EMUN_CONVERTER(Qt::MouseButton)
-    QT_EMUN_CONVERTER(Qt::DropAction)
-    QT_EMUN_CONVERTER(Qt::DropActions)
+    QT_ENUM_CONVERTER(Qt::KeyboardModifiers)
+    QT_ENUM_CONVERTER(Qt::MouseButtons)
+    QT_ENUM_CONVERTER(Qt::MouseButton)
+    QT_ENUM_CONVERTER(Qt::DropAction)
+    QT_ENUM_CONVERTER(Qt::DropActions)
 }
 
 template<typename T>
