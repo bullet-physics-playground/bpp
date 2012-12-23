@@ -274,11 +274,21 @@ void Viewer::luaBind(lua_State *s) {
    .def_readwrite("frictionSlip", &btRaycastVehicle::btVehicleTuning::m_frictionSlip)
    .def_readwrite("maxSuspensionForce", &btRaycastVehicle::btVehicleTuning::m_maxSuspensionForce)
   ];
+  
+  module(s)
+  [
+   class_<btWheelInfo>("btWheelInfo")
+  ];
 
   module(s)
   [
    class_<btRaycastVehicle>("btRaycastVehicle")
    .def(constructor<const btRaycastVehicle::btVehicleTuning&, btRigidBody*, btVehicleRaycaster*>())
+   .def("setCoordinateSystem", &btRaycastVehicle::setCoordinateSystem)
+   .def("addWheel", &btRaycastVehicle::addWheel)
+   .def("applyEngineForce", &btRaycastVehicle::applyEngineForce)
+   .def("updateWheelTransform", &btRaycastVehicle::updateWheelTransform)
+   .def("updateVehicle", &btRaycastVehicle::updateVehicle)   
   ];
 
   module(s)
