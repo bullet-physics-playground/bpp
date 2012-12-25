@@ -11,6 +11,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <qgl.h>
+
 class Object;
 
 std::ostream& operator<<(std::ostream&, const Object& obj);
@@ -33,7 +35,6 @@ class Object : public QObject {
   Object(QObject *parent = NULL);
   virtual ~Object();
 
-  void render(QTextStream *s);
   void setColor(int r, int g, int b);
   void setColor(QColor col);
   void setColorString(QString c);
@@ -73,13 +74,17 @@ class Object : public QObject {
   void setLinearVelocity(const btVector3& vector);
   btVector3 getLinearVelocity() const;
 
+  void setRigidBody(btRigidBody *b);
   btRigidBody* getRigidBody() const;
+
+  void setCollisionShape(btCollisionShape* s);
+  btCollisionShape* getCollisionShape();
 
   // POV-Ray properties
 
   void setPovPhotons(bool _photons_enable = false,
-		     bool _photons_reflection = false,
-		     bool _photons_refraction = false);
+             bool _photons_reflection = false,
+             bool _photons_refraction = false);
 
   virtual QString getPovPhotons() const;
 
@@ -99,7 +104,13 @@ class Object : public QObject {
 
   virtual QString toString() const;
 
+  virtual void render(QTextStream *s);
+  void setRenderFunction(const luabind::object &fn);
+  luabind::object getRenderFunction() const;
+
   virtual void renderInLocalFrame(QTextStream *s) const;
+  void renderInLocalFramePre(QTextStream *s) const;
+  void renderInLocalFramePost(QTextStream *s) const;
 
   QList<btTypedConstraint*> getConstraints();
 
@@ -107,7 +118,7 @@ class Object : public QObject {
   collisiontypes getCol1() const;
   collisiontypes getCol2() const;
  protected:
-	
+
   unsigned char color[3];
 
   bool photons_enable;
@@ -122,6 +133,10 @@ class Object : public QObject {
 
   collisiontypes col1;
   collisiontypes col2;
+
+  luabind::object _cb_render;
+
+  mutable GLfloat matrix[16];
 };
 
 #endif // OBJECT_H

@@ -18,6 +18,7 @@ class Plane : public Object
   QString toString() const;
   
   virtual void renderInLocalFrame(QTextStream *s) const;
+  virtual void render(QTextStream *s) const;
  protected:
   void init(btScalar nx, btScalar ny, btScalar nz,
 			btScalar nConst, btScalar size);

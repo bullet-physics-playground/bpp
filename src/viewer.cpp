@@ -110,15 +110,40 @@ void Viewer::luaBind(lua_State *s) {
    .def("isCompound", &btCollisionShape::isCompound)
    .def("isSoftBody", &btCollisionShape::isSoftBody)
    .def("isInfinite", &btCollisionShape::isInfinite)
+   .def("setLocalScaling", &btCollisionShape::setLocalScaling)
+   .def("getLocalScaling", &btCollisionShape::getLocalScaling)
+   .def("calculateLocalInertia", &btCollisionShape::calculateLocalInertia)
+   .def("getName", &btCollisionShape::getName)
    .def("getShapeType", &btCollisionShape::getShapeType)
+   .def("setMargin", &btCollisionShape::setMargin)
+   .def("getMargin", &btCollisionShape::getMargin)
    .def("setUserPointer", &btCollisionShape::setUserPointer)
    .def("getUserPointer", &btCollisionShape::getUserPointer)
+   .def("calculateSerializeBufferSize", &btCollisionShape::calculateSerializeBufferSize)
+   .def("serialize", &btCollisionShape::serialize)
+   .def("serializeSingleShape", &btCollisionShape::serializeSingleShape)
   ];
 
   // TODO
   // http://bulletphysics.com/Bullet/BulletFull/structbtDbvt.html
   // btStridingMeshInterface
   // btBroadphaseProxy
+
+
+  // btMotionState
+
+  module(s)
+  [
+   class_<btMotionState>("btMotionState")
+  ];
+
+  // btDefaultMotionState
+  module(s)
+  [
+   class_<btDefaultMotionState, btMotionState>("btDefaultMotionState")
+  .def(constructor<const btTransform&, const btTransform&>())
+  .def(constructor<const btTransform&>())
+  ];
 
   // BULLET SHAPE CLASSES
 
@@ -361,24 +386,24 @@ void Viewer::luaBind(lua_State *s) {
   // BULLET GEOMETRY CLASSES
 
   module(s)
-	[
-	 class_<btVector3>( "btVector3" )
-	 .def(constructor<>())
-	 .def(constructor<btScalar, btScalar, btScalar>())
+    [
+     class_<btVector3>( "btVector3" )
+     .def(constructor<>())
+     .def(constructor<btScalar, btScalar, btScalar>())
    .def(const_self + const_self)
    .def(const_self - const_self)
    .def(const_self * other<btScalar>())
    .def(const_self / other<btScalar>())
    .def(const_self == const_self)
    .property("x", &btVector3::getX, &btVector3::setX)
-	 .property("y", &btVector3::getY, &btVector3::setY)
-	 .property("z", &btVector3::getZ, &btVector3::setZ)
-	 .def( "getX", &btVector3::getX )
-	 .def( "getY", &btVector3::getY )
-	 .def( "getZ", &btVector3::getZ )
-	 .def( "setX", &btVector3::setX )
-	 .def( "setY", &btVector3::setY )
-	 .def( "setZ", &btVector3::setZ )
+     .property("y", &btVector3::getY, &btVector3::setY)
+     .property("z", &btVector3::getZ, &btVector3::setZ)
+     .def( "getX", &btVector3::getX )
+     .def( "getY", &btVector3::getY )
+     .def( "getZ", &btVector3::getZ )
+     .def( "setX", &btVector3::setX )
+     .def( "setY", &btVector3::setY )
+     .def( "setZ", &btVector3::setZ )
    .def( "absolute", &btVector3::absolute )
    .def("angle", &btVector3::angle )
    .def("closestAxis", &btVector3::closestAxis )
@@ -416,11 +441,11 @@ void Viewer::luaBind(lua_State *s) {
   ];
 
   module(s)
-	[
-	 class_<btQuaternion>("btQuaternion")
-	 .def(constructor<>())
+    [
+     class_<btQuaternion>("btQuaternion")
+     .def(constructor<>())
    .def(constructor<const btVector3&, btScalar>())
-	 .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+     .def(constructor<btScalar, btScalar, btScalar, btScalar>())
    .def("angle", &btQuaternion::angle )
    .def("dot", &btQuaternion::dot )
    .def("farthest", &btQuaternion::farthest )
@@ -505,9 +530,85 @@ void Viewer::luaBind(lua_State *s) {
    .def("checkCollideWith", &btCollisionObject::checkCollideWith)
   ];
 
+  // btRigidBodyConstructionInfo
+
+  module(s)
+          [
+          class_<btRigidBody::btRigidBodyConstructionInfo>("btRigidBodyConstructionInfo")
+          .def(constructor<btScalar, btMotionState *, btCollisionShape *, const btVector3 &>())
+          ];
+
   module(s)
   [
    class_<btRigidBody, btCollisionObject>("btRigidBody")
+   .def(constructor<const btRigidBody::btRigidBodyConstructionInfo &>())
+   .def(constructor<btScalar, btMotionState *, btCollisionShape *, const btVector3 &>())
+   .def("proceedToTransform", &btRigidBody::proceedToTransform)
+   .def("predictIntegratedTransform", &btRigidBody::predictIntegratedTransform)
+   .def("saveKinematicState", &btRigidBody::saveKinematicState)
+   .def("applyGravity", &btRigidBody::applyGravity)
+   .def("setGravity", &btRigidBody::setGravity)
+   .def("getGravity", &btRigidBody::getGravity)
+   .def("setDamping", &btRigidBody::setDamping)
+   .def("getLinearDamping", &btRigidBody::getLinearDamping)
+   .def("getAngularDamping", &btRigidBody::getAngularDamping)
+   .def("getLinearSleepingThreshold", &btRigidBody::getLinearSleepingThreshold)
+   .def("getAngularSleepingThreshold", &btRigidBody::getAngularSleepingThreshold)
+   .def("applyDamping", &btRigidBody::applyDamping)
+   .def("getCollisionShape", (btCollisionShape*(btRigidBody::*)())&btRigidBody::getCollisionShape)
+   .def("setMassProps", &btRigidBody::setMassProps)
+   .def("getLinearFactor", &btRigidBody::getLinearFactor)
+   .def("setLinearFactor", &btRigidBody::setLinearFactor)
+   .def("getInvMass", &btRigidBody::getInvMass)
+   .def("getInvInertiaTensorWorld", &btRigidBody::getInvInertiaTensorWorld)
+   .def("integrateVelocities", &btRigidBody::integrateVelocities)
+   .def("setCenterOfMassTransform", &btRigidBody::setCenterOfMassTransform)
+   .def("applyCentralForce", &btRigidBody::applyCentralForce)
+   .def("getTotalForce", &btRigidBody::getTotalForce)
+   .def("getTotalTorque", &btRigidBody::getTotalTorque)
+   .def("getInvInertiaDiagLocal", &btRigidBody::getInvInertiaDiagLocal)
+   .def("setInvInertiaDiagLocal", &btRigidBody::setInvInertiaDiagLocal)
+   .def("setSleepingThresholds", &btRigidBody::setSleepingThresholds)
+   .def("applyTorque", &btRigidBody::applyTorque)
+   .def("applyForce", &btRigidBody::applyForce)
+   .def("applyCentralImpulse", &btRigidBody::applyCentralImpulse)
+   .def("applyTorqueImpulse", &btRigidBody::applyTorqueImpulse)
+   .def("applyImpulse", &btRigidBody::applyImpulse)
+   .def("clearForces", &btRigidBody::clearForces)
+   .def("updateInertiaTensor", &btRigidBody::updateInertiaTensor)
+   .def("getCenterOfMassPosition", &btRigidBody::getCenterOfMassPosition)
+   .def("getOrientation", &btRigidBody::getOrientation)
+   .def("getCenterOfMassTransform", &btRigidBody::getCenterOfMassTransform)
+   .def("getLinearVelocity", &btRigidBody::getLinearVelocity)
+   .def("getAngularVelocity", &btRigidBody::getAngularVelocity)
+   .def("setLinearVelocity", &btRigidBody::setLinearVelocity)
+   .def("setAngularVelocity", &btRigidBody::setAngularVelocity)
+   .def("getVelocityInLocalPoint", &btRigidBody::getVelocityInLocalPoint)
+   .def("translate", &btRigidBody::translate)
+   .def("getAabb", &btRigidBody::getAabb)
+   .def("computeImpulseDenominator", &btRigidBody::computeImpulseDenominator)
+   .def("computeAngularImpulseDenominator", &btRigidBody::computeAngularImpulseDenominator)
+   .def("updateDeactivation", &btRigidBody::updateDeactivation)
+   .def("wantsSleeping", &btRigidBody::wantsSleeping)
+   .def("getBroadphaseProxy", (btBroadphaseProxy*(btRigidBody::*)(void))&btRigidBody::getBroadphaseProxy)
+   .def("setNewBroadphaseProxy", &btRigidBody::setNewBroadphaseProxy)
+   .def("getMotionState", (btMotionState *(btRigidBody::*)(void))&btRigidBody::getMotionState)
+   .def("setMotionState", &btRigidBody::setMotionState)
+   .def("setAngularFactor", (void(btRigidBody::*)(const btVector3&))&btRigidBody::setAngularFactor)
+   .def("setAngularFactor", (void(btRigidBody::*)(btScalar))&btRigidBody::setAngularFactor)
+   .def("getAngularFactor", &btRigidBody::getAngularFactor)
+   .def("isInWorld", &btRigidBody::isInWorld)
+   .def("checkCollideWithOverride", &btRigidBody::checkCollideWithOverride)
+   .def("addConstraintRef", &btRigidBody::addConstraintRef)
+   .def("removeConstraintRef", &btRigidBody::removeConstraintRef)
+   .def("getConstraintRef", &btRigidBody::getConstraintRef)
+   .def("getNumConstraintRefs", &btRigidBody::getNumConstraintRefs)
+   .def("setFlags", &btRigidBody::setFlags)
+   .def("getFlags", &btRigidBody::getFlags)
+   // not in the headers .def("getDeltaLinearVelocity", &btRigidBody::getDeltaLinearVelocity)
+   // not in the headers .def("getDeltaAngularVelocity", &btRigidBody::getDeltaAngularVelocity)
+   // not in the headers .def("getPushVelocity", &btRigidBody::getPushVelocity)
+   // not in the headers .def("getTurnVelocity", &btRigidBody::getTurnVelocity)
   ];
 
   module(s)
@@ -542,7 +643,7 @@ void Viewer::luaBind(lua_State *s) {
    .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&>())
    .def("setParam", &btPoint2PointConstraint::setParam)
    ];
-   
+
   module(s)
   [
    class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
@@ -582,7 +683,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
    .def("setParam", &btSliderConstraint::setParam)
    ];
-   
+
   module(s)
   [
    class_<btGeneric6DofSpringConstraint,btTypedConstraint>("btGeneric6DofSpringConstraint")
@@ -592,7 +693,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("setDamping", &btGeneric6DofSpringConstraint::setDamping)
    //.def("setEquilibriumPoint", &btGeneric6DofSpringConstraint::setEquilibriumPoint) // FIX ME: compilation error
    .def("setAxis", &btGeneric6DofSpringConstraint::setAxis)
-   ];   
+   ];
 
   module(s)
   [
@@ -624,7 +725,7 @@ void Viewer::luaBind(lua_State *s) {
    .def_readwrite("frictionSlip", &btRaycastVehicle::btVehicleTuning::m_frictionSlip)
    .def_readwrite("maxSuspensionForce", &btRaycastVehicle::btVehicleTuning::m_maxSuspensionForce)
   ];
-  
+
   module(s)
   [
    class_<btWheelInfo>("btWheelInfo")
@@ -638,35 +739,35 @@ void Viewer::luaBind(lua_State *s) {
    .def("addWheel", &btRaycastVehicle::addWheel)
    .def("applyEngineForce", &btRaycastVehicle::applyEngineForce)
    .def("updateWheelTransform", &btRaycastVehicle::updateWheelTransform)
-   .def("updateVehicle", &btRaycastVehicle::updateVehicle)   
+   .def("updateVehicle", &btRaycastVehicle::updateVehicle)
   ];
 
   // QT helper classes
 
   module(s)
-	[
-	 class_<QColor>("QColor")
-	 .def(constructor<>())
-	 .def(constructor<QString>())
-	 .def(constructor<int, int, int>())
-	 .def(constructor<int, int, int, int>())
-	 .property("r", &QColor::red, &QColor::setRed)
-	 .property("g", &QColor::green, &QColor::setGreen)
-	 .property("b", &QColor::blue, &QColor::setBlue)
+    [
+     class_<QColor>("QColor")
+     .def(constructor<>())
+     .def(constructor<QString>())
+     .def(constructor<int, int, int>())
+     .def(constructor<int, int, int, int>())
+     .property("r", &QColor::red, &QColor::setRed)
+     .property("g", &QColor::green, &QColor::setGreen)
+     .property("b", &QColor::blue, &QColor::setBlue)
    .def(tostring(self))
-	 ];
+     ];
 
   module(s)
-	[
-	 class_<QString>("QString")
-	 .def(constructor<>())
-	 .def(constructor<const char *>())
+    [
+     class_<QString>("QString")
+     .def(constructor<>())
+     .def(constructor<const char *>())
      .def(tostring(self))
-	 ];
+     ];
 }
 
 void Viewer::addObject(Object* o) {
-  addObject(o, o->getCol1(), o->getCol2()); 
+  addObject(o, o->getCol1(), o->getCol2());
   addConstraints(o->getConstraints());
 }
 
@@ -711,7 +812,7 @@ void Viewer::luaBindInstance(lua_State *s) {
 void report_errors(lua_State *L, int status)
 {
   if ( status!=0 ) {
-	std::cerr << "-- " << lua_tostring(L, -1) << std::endl;
+    std::cerr << "-- " << lua_tostring(L, -1) << std::endl;
     lua_pop(L, 1); // remove error message
   }
 }
@@ -735,12 +836,16 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
       btVector3 oaabbmin, oaabbmax;
       o->body->getAabb(oaabbmin, oaabbmax);
 
+      // qDebug() << o->toString() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
+      //         << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
+
       for (int i = 0; i < 3; ++i) {
         aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
         aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
       }
-	  }
+      }
   }
+
   // qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
 }
 }
@@ -830,10 +935,10 @@ void Viewer::addObject(Object *o, int type, int mask) {
   _objects->insert(o);
 
   if (o->body != NULL) {
-	if(!_deactivation){  
-	  o->body->setActivationState(DISABLE_DEACTIVATION);
-	}
-	dynamicsWorld->addRigidBody(o->body, type, mask);
+    if(!_deactivation){
+      o->body->setActivationState(DISABLE_DEACTIVATION);
+    }
+    dynamicsWorld->addRigidBody(o->body, type, mask);
   }
 }
 
@@ -872,9 +977,9 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
   _firstFrame = 0;
 
   _cb_shortcuts = new QHash<QString, luabind::object>();
-  
+
   loadPrefs();
-  
+
   _cam=NULL;
 
   startAnimation();
@@ -925,8 +1030,8 @@ void Viewer::restartSim() {
 }
 
 void Viewer::setScriptName(QString sn) {
-  _scriptName = sn;	
-}	
+  _scriptName = sn;
+}
 
 void Viewer::emitScriptOutput(const QString& out) {
   emit scriptHasOutput(out);
@@ -937,26 +1042,26 @@ int Viewer::lua_print(lua_State* L) {
   Viewer* p = static_cast<Viewer*>(lua_touserdata(L, lua_upvalueindex(1)));
 
   if (p) {
-	int n = lua_gettop(L);  /* number of arguments */
-	
-	int i;
-	lua_getglobal(L, "tostring");
-	for (i=1; i <= n; i++) {
-	  const char *s;
-	  lua_pushvalue(L, -1);  /* function to be called */
-	  lua_pushvalue(L, i);   /* value to print */
-	  lua_call(L, 1, 1);
-	  s = lua_tostring(L, -1);  /* get result */
-	  if (s == NULL)
-		return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
-	  // if (i>1) p->emitScriptOutput(QString("\t"));
-	  p->emitScriptOutput(QString(s));
-	  lua_pop(L, 1);  /* pop result */
-	}
-	
-	// p->emitScriptOutput(QString("\n"));
+    int n = lua_gettop(L);  /* number of arguments */
+
+    int i;
+    lua_getglobal(L, "tostring");
+    for (i=1; i <= n; i++) {
+      const char *s;
+      lua_pushvalue(L, -1);  /* function to be called */
+      lua_pushvalue(L, i);   /* value to print */
+      lua_call(L, 1, 1);
+      s = lua_tostring(L, -1);  /* get result */
+      if (s == NULL)
+        return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+      // if (i>1) p->emitScriptOutput(QString("\t"));
+      p->emitScriptOutput(QString(s));
+      lua_pop(L, 1);  /* pop result */
+    }
+
+    // p->emitScriptOutput(QString("\n"));
   } else {
-	return luaL_error(L, "stack has no thread ref", "");
+    return luaL_error(L, "stack has no thread ref", "");
   }
 
   return 0;
@@ -966,12 +1071,12 @@ bool Viewer::parse(QString txt) {
   emit scriptStopped();
 
   QMutexLocker locker(&mutex);
-  
+
   _parsing = true;
   _has_exception = false;
 
   _scriptContent = txt;
-	
+
   bool animStarted = animationIsStarted();
 
   if (animStarted) {
@@ -982,7 +1087,7 @@ bool Viewer::parse(QString txt) {
 
   if (L != NULL) {
     clear();
-    lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+    // FIXME lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
     // invalidate function refs
     _cb_preDraw = luabind::object();
@@ -991,9 +1096,9 @@ bool Viewer::parse(QString txt) {
     _cb_postSim = luabind::object();
     _cb_onCommand = luabind::object();
 
-    lua_close(L);
+    // FIXME lua_close(L);
   }
-  
+
   // setup lua
   L = luaL_newstate();
 
@@ -1030,22 +1135,22 @@ bool Viewer::parse(QString txt) {
   lua_setglobal(L, "print");
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
-	|| lua_pcall(L, 0, LUA_MULTRET, 0);
+    || lua_pcall(L, 0, LUA_MULTRET, 0);
 
   if (error) {
   lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
-	if (lua_error.contains(QRegExp(tr("stopping$")))) {
-	  lua_error = tr("script stopped");
-	  qDebug() << "lua run : script stopped";
-	} else {
-	  // qDebug() << QString("lua run : %1").arg(lua_error);
-	  emit scriptHasOutput(lua_error);
-	}
-	
-	lua_pop(L, 1);  /* pop error message from the stack */
+    if (lua_error.contains(QRegExp(tr("stopping$")))) {
+      lua_error = tr("script stopped");
+      qDebug() << "lua run : script stopped";
+    } else {
+      // qDebug() << QString("lua run : %1").arg(lua_error);
+      emit scriptHasOutput(lua_error);
+    }
+
+    lua_pop(L, 1);  /* pop error message from the stack */
   } else {
-	lua_error = tr("ok");
+    lua_error = tr("ok");
   }
 
   // report_errors(L, error);
@@ -1121,12 +1226,12 @@ void Viewer::savePrefs() {
 }
 
 void Viewer::openPovFile() {
-  QString file;  	
-  QString fileMain;  	
-  QString fileINI;  	
+  QString file;
+  QString fileMain;
+  QString fileINI;
   QDir sceneDir("export");
 
-  QString sceneName;	
+  QString sceneName;
   if(!_scriptName.isEmpty()){
     sceneName=_scriptName;
   }else{
@@ -1140,9 +1245,9 @@ void Viewer::openPovFile() {
   // qDebug() << "saving pov file:" << file;
 
   _fileINI = new QFile(fileINI);
-  _fileINI->open(QFile::WriteOnly | QFile::Truncate);  
+  _fileINI->open(QFile::WriteOnly | QFile::Truncate);
   _streamINI = new QTextStream(_fileINI);
-  *_streamINI << "; Animation INI file generated by Bullet Physics Playground" << endl << endl;	
+  *_streamINI << "; Animation INI file generated by Bullet Physics Playground" << endl << endl;
   *_streamINI << "Input_File_Name=" << sceneName << ".pov" << endl;
   *_streamINI << "Output_to_File=on" << endl;
   *_streamINI << "Pause_When_Done=off" << endl;
@@ -1155,32 +1260,32 @@ void Viewer::openPovFile() {
   *_streamINI << "+L../../includes" << endl << endl;
   *_streamINI << "Initial_Clock=" << _firstFrame << endl;
   *_streamINI << "Final_Clock=" << _frameNum << endl;
-  *_streamINI << "Final_Frame=" << _frameNum << endl;  
+  *_streamINI << "Final_Frame=" << _frameNum << endl;
   if (_fileINI != NULL) {
     _fileINI->close();
   }
 
   _fileMain = new QFile(fileMain);
-  _fileMain->open(QFile::WriteOnly | QFile::Truncate);  
+  _fileMain->open(QFile::WriteOnly | QFile::Truncate);
   _streamMain = new QTextStream(_fileMain);
-  *_streamMain << "// Main POV file generated by Bullet Physics Playground" << endl << endl;	
+  *_streamMain << "// Main POV file generated by Bullet Physics Playground" << endl << endl;
   *_streamMain << "#include \"settings.inc\"" << endl << endl;
   *_streamMain << "#include concat(concat(\"" << sceneName << "-\",str(clock,-5,0)),\".inc\")" << endl << endl;
   if (_fileMain != NULL) {
     _fileMain->close();
   }
-  
+
   _file = new QFile(file);
   _file->open(QFile::WriteOnly | QFile::Truncate);
-  
+
   _stream = new QTextStream(_file);
 
-  *_stream << "// Include file generated by Bullet Physics Playground" << endl << endl;	
+  *_stream << "// Include file generated by Bullet Physics Playground" << endl << endl;
 
   Vec pos = camera()->position();
 
   *_stream << "camera { " << endl;
-  *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl; 
+  *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
   *_stream << "  right -image_width/image_height*x" << endl;
 
   #define _USE_MATH_DEFINES
@@ -1214,15 +1319,22 @@ Viewer::~Viewer() {
 }
 
 void Viewer::computeBoundingBox() {
-  // Compute the bounding box
+  return; // doh
+
   getAABB(_objects, _aabb);
 
   btVector3 vmin(_aabb[0], _aabb[1], _aabb[2]);
   btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
+  float radius = (vmax - vmin).length() * 10.0f;
+  qDebug() << "setSceneRadius() " << radius;
+  setSceneRadius(radius);
+
   btVector3 center = (vmin + vmax) / 2.0f;
-  setSceneRadius((vmax - vmin).length() * 4.0);
-  setSceneCenter(Vec(0.0,0.0,0.0));
+  // qDebug() << "setSceneCenter() " << center.z() << center.y() << center.z();
+  setSceneCenter(Vec(center.x(), center.y(), 0));
+
+  // setSceneCenter(Vec());
 }
 
 void Viewer::init() {
@@ -1236,7 +1348,7 @@ void Viewer::init() {
   glShadeModel(GL_SMOOTH);
   //glPointSize(3.0);
 
-  // computeBoundingBox();
+  computeBoundingBox();
 
   if (!restoreStateFromFile()) {
     showEntireScene();
@@ -1247,7 +1359,7 @@ void Viewer::init() {
   glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 25.0);
   GLfloat specular_color[4] = { 0.38f, 0.38f, 0.38f, 0.50 };
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  specular_color);
-  
+
   float light0_pos[] = {200.0, 200.0, 200.0, 0.50f};
   GLfloat ambient[] = { 0.35f, 0.35f, 0.35f };
   GLfloat diffuse[] = { 0.3f, 0.3f, 0.5f , 0.50f};
@@ -1262,8 +1374,8 @@ void Viewer::init() {
 
   //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
 
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);	
-  glLightfv(GL_LIGHT1, GL_SPECULAR, specular);	
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
+  glLightfv(GL_LIGHT1, GL_SPECULAR, specular);
   glLightfv(GL_LIGHT1, GL_POSITION, light0_pos);
   glLightfv(GL_LIGHT1, GL_AMBIENT, ambient);
 
@@ -1283,71 +1395,43 @@ void Viewer::draw() {
   // Don't know if this is a good idea..
   computeBoundingBox();
 
-  // qDebug() << "Viewer::draw() 0";
   QMutexLocker locker(&mutex);
-  // qDebug() << "Viewer::draw() 1";
 
-  float light0_pos[] = {200.0, 200.0, 200.0, 1.0f};
-  float light1_pos[] = {0.0, 200.0, 200.0, 1.0f};
-
-  if(_cb_preDraw) {
-	try {
-	  luabind::call_function<void>(_cb_preDraw, _frameNum);
-	} catch(const std::exception& e){
+  if (_cb_preDraw) {
+    try {
+      luabind::call_function<void>(_cb_preDraw, _frameNum);
+    } catch(const std::exception& e){
     showLuaException(e, "v:preDraw()");
   }
   }
 
-  // qDebug() << "Viewer::draw() 2";
-
-  // Directionnal light
-  glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
-  glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
-
-  //  drawLight(GL_LIGHT0);
-  //drawLight(GL_LIGHT1);
-
-  //glDisable(GL_COLOR_MATERIAL);
-
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  //  glEnable(GL_LIGHTING);
-  //  glEnable(GL_DEPTH_TEST);
-
   if (manipulatedFrame() != NULL) {
-	glPushMatrix();
-	glMultMatrixd(manipulatedFrame()->matrix());
+    glPushMatrix();
+    glMultMatrixd(manipulatedFrame()->matrix());
   }
-
-  // qDebug() << "Viewer::draw() 3";
 
   if (_savePOV)
     openPovFile();
 
   // qDebug() << "Number of objects:" << _objects->size();
-  
-  // qDebug() << "Viewer::draw() 4";
-  
-  // for (int i = 0; i < _objects->size(); ++i) {
-  //  Object *o = _objects->at(i);
   foreach (Object *o, *_objects) {
-	if (_savePOV) {
-	  o->renderInLocalFrame(_stream);
-	} else {
-	  o->renderInLocalFrame(NULL);
-	}
+    try {
+      if (_savePOV) {
+        o->render(_stream);
+      } else {
+        o->render(NULL);
+      }
+    } catch(const std::exception& e){
+      showLuaException(e, "object:render()");
+    }
   }
-  
-  if (_savePOV)
-	closePovFile();
 
-  // glFlush();
+  if (_savePOV)
+    closePovFile();
 
   if (manipulatedFrame() != NULL) {
-	glPopMatrix();
+    glPopMatrix();
   }
-
-  // qDebug() << "Viewer::draw() end";
 }
 
 void Viewer::setCBPreDraw(const luabind::object &fn) {
@@ -1394,11 +1478,11 @@ void Viewer::postDraw() {
   QGLViewer::postDraw();
 
   if(_cb_postDraw) {
-	try {
-	  luabind::call_function<void>(_cb_postDraw, _frameNum);
-	} catch(const std::exception& e){
+    try {
+      luabind::call_function<void>(_cb_postDraw, _frameNum);
+    } catch(const std::exception& e){
     showLuaException(e, "v:postDraw()");
-	}
+    }
   }
 
   // Red dot when EventRecorder is active
@@ -1511,7 +1595,7 @@ void Viewer::animate() {
 
   if (_savePNG) {
     QDir sceneDir("screenshots");
-    QString file;  	
+    QString file;
     if(!_scriptName.isEmpty()){
       sceneDir.mkdir(qPrintable(_scriptName));
       file.sprintf("screenshots/%s/%s-%05d.png", qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
@@ -1521,7 +1605,7 @@ void Viewer::animate() {
     }
     saveSnapshot(file, true);
   }
-    
+
   if (_simulate) {
 
     if(_cb_preSim) {
@@ -1531,7 +1615,7 @@ void Viewer::animate() {
         showLuaException(e, "v:preSim()");
       }
     }
-    
+
     dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
 
     if(_cb_postSim) {

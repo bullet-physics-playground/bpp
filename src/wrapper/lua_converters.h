@@ -126,6 +126,49 @@ namespace luabind
       : default_converter<QList<T> >
     {};
 
+    template <typename T>
+    struct default_converter<QList< QList<T> > >
+      : native_converter_base<QList< QList<T> > >
+    {
+        static int compute_score(lua_State* L, int index)
+        {
+            return lua_type(L, index) == LUA_TTABLE ? 0 : -1;
+        }
+
+        QList< QList<T> > from(lua_State* L, int index)
+        {
+            object obj(luabind::from_stack(L,index));
+            QList< QList<T> > arr;
+            for(iterator i(obj),e; i!=e; ++i){
+                QList<T> xx;
+                for(iterator i2(*i),e2; i2 != e2; ++i2){
+                    if(is_class<T>(*i2)){
+                        xx.append(object_cast<T>(*i2));
+                    }
+                }
+                arr.append(xx);
+            }
+            return arr;
+        }
+        void to(lua_State* L, QList< QList<T> > const& arr)
+        {
+            object obj = luabind::newtable(L);
+            for(int i=0;i<arr.length();i++){
+                const QList<T>& x = arr.at(i);
+                object t = luabind::newtable(L);
+                for(int j=0;j<x.length();j++){
+                    t[j+1] = x.at(j);
+                }
+                obj[i+1] = t;
+            }
+            obj.push(L);
+        }
+    };
+
+    template <typename T>
+    struct default_converter<QList< QList<T> > const&>
+      : default_converter<QList< QList<T> > >
+    {};
 
     template <typename T>
     struct default_converter<QVector<T> >

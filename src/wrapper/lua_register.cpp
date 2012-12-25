@@ -13,8 +13,13 @@
 #include "lua_serial.h"
 #include "lua_network.h"
 
+#ifdef HAS_LUA_GL
+#include "luagl.h"
+#include "luaglu.h"
+#include "lua_qglviewer.h"
+#endif
+
 // TODO #include "lua_usbhid.h"
-// TODO #include "lua_qglviewer.h"
 
 #include "lua_util.h"
 
@@ -245,6 +250,12 @@ static int my_xor(int x, int y) { return x ^ y;}
 
 void register_classes(lua_State* L)
 {
+
+#ifdef HAS_LUA_GL
+    luaopen_luagl(L);
+    luaopen_luaglu(L);
+#endif
+
     __pL = L;
     luabind::open(L);
     bind_class_info(L);
@@ -405,14 +416,13 @@ void register_classes(lua_State* L)
         lqhidcaps(),
         */
 
-        /*
+#ifdef HAS_LUA_GL
         lqglwidget(),
         lqglviewer(),
         lqglvec(),
         lquaternion(),
         lqcamera(),
-        lqobject3ds(),
-        */
+#endif
 
         lqutil(),
 

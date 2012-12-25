@@ -19,8 +19,8 @@ using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Object& obj) {
   ostream << obj.toString().toAscii().data() << "[ rgb: " <<
-	obj.getColor().red() << ", " << obj.getColor().green() << ", " <<
-	obj.getColor().blue() << "]";
+    obj.getColor().red() << ", " << obj.getColor().green() << ", " <<
+    obj.getColor().blue() << "]";
 
   return ostream;
 }
@@ -41,6 +41,8 @@ Object::Object(QObject *parent) : QObject(parent) {
   photons_refraction = false;
 
   setCollisionTypes(COL_WALL, COL_WALL);
+
+  _cb_render = luabind::object();
 }
 
 Object::~Object() {
@@ -48,13 +50,13 @@ Object::~Object() {
   // qDebug() << "Object::~Object()";
 
   if (shape != NULL) {
-	delete shape;
-	shape = NULL;
+    // delete shape;
+    // FIXME shape = NULL;
   }
 
   if (body != NULL) {
-	delete body;
-	body = NULL;
+    // delete body;
+    // FIXME body = NULL;
   }
 }
 
@@ -90,70 +92,103 @@ void Object::luaBind(lua_State *s) {
      .def(constructor<>(), adopt(result))
      .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
-	 .property("color",
-			   (QColor(Object::*)(void))&Object::getColor,
-			   (void(Object::*)(QColor))&Object::setColor)
+     .property("color",
+               (QColor(Object::*)(void))&Object::getColor,
+               (void(Object::*)(QColor))&Object::setColor)
 
-	 .property("col",
-			   (QString(Object::*)(void))&Object::getColorString,
-			   (void(Object::*)(QString))&Object::setColorString)
+     .property("col",
+               (QString(Object::*)(void))&Object::getColorString,
+               (void(Object::*)(QString))&Object::setColorString)
 
-	 .property("pos",
-			   (btVector3(Object::*)(void))&Object::getPosition,
+     .property("pos",
+               (btVector3(Object::*)(void))&Object::getPosition,
                (void(Object::*)(const btVector3&))&Object::setPosition)
 
-	 .property("trans",
-			   (btTransform(Object::*)(void))&Object::getTransform,
+     .property("trans",
+               (btTransform(Object::*)(void))&Object::getTransform,
                (void(Object::*)(const btTransform&))&Object::setTransform)
 
-	 .property("mass",
-			   (btScalar(Object::*)(void))&Object::getMass,
-			   (void(Object::*)(btScalar))&Object::setMass)
+     .property("mass",
+               (btScalar(Object::*)(void))&Object::getMass,
+               (void(Object::*)(btScalar))&Object::setMass)
 
-	 .property("vel",
+     .property("vel",
                (btVector3(Object::*)(void))&Object::getLinearVelocity,
                (void(Object::*)(btVector3&))&Object::setLinearVelocity)
 
-	 .property("friction",
-			   (btScalar(Object::*)(void))&Object::getFriction,
-			   (void(Object::*)(btScalar))&Object::setFriction)
+     .property("friction",
+               (btScalar(Object::*)(void))&Object::getFriction,
+               (void(Object::*)(btScalar))&Object::setFriction)
 
-	 .property("restitution",
-			   (btScalar(Object::*)(void))&Object::getRestitution,
-			   (void(Object::*)(btScalar))&Object::setRestitution)
+     .property("restitution",
+               (btScalar(Object::*)(void))&Object::getRestitution,
+               (void(Object::*)(btScalar))&Object::setRestitution)
 
-	 .property("damp_lin",
-			   (btScalar(Object::*)(void))&Object::getLinearDamping,
-			   (void(Object::*)(btScalar))&Object::setLinearDamping)
+     .property("damp_lin",
+               (btScalar(Object::*)(void))&Object::getLinearDamping,
+               (void(Object::*)(btScalar))&Object::setLinearDamping)
 
-	 .property("damp_ang",
-			   (btScalar(Object::*)(void))&Object::getAngularDamping,
-			   (void(Object::*)(btScalar))&Object::setAngularDamping)
+     .property("damp_ang",
+               (btScalar(Object::*)(void))&Object::getAngularDamping,
+               (void(Object::*)(btScalar))&Object::setAngularDamping)
 
-	 // povray properties
+     // povray properties
 
-	 .property("texture",
-			   (QString(Object::*)(void))&Object::getTexture,
-			   (void(Object::*)(QString))&Object::setTexture)
+     .property("texture",
+               (QString(Object::*)(void))&Object::getTexture,
+               (void(Object::*)(QString))&Object::setTexture)
 
-	 .property("pre_sdl",
-			   (QString(Object::*)(void))&Object::getPreSDL,
-			   (void(Object::*)(QString))&Object::setPreSDL)
+     .property("pre_sdl",
+               (QString(Object::*)(void))&Object::getPreSDL,
+               (void(Object::*)(QString))&Object::setPreSDL)
 
-	 .property("post_sdl",
-			   (QString(Object::*)(void))&Object::getPostSDL,
-			   (void(Object::*)(QString))&Object::setPostSDL)
+     .property("post_sdl",
+               (QString(Object::*)(void))&Object::getPostSDL,
+               (void(Object::*)(QString))&Object::setPostSDL)
 
-   .def("getRigidBody", &Object::getRigidBody)
+     .def("getRigidBody", &Object::getRigidBody)
+     .def("setRigidBody", &Object::setRigidBody)
 
-	 .def(tostring(const_self))
-	 ];
+     .property("body", &Object::getRigidBody, &Object::setRigidBody)
+
+     .def("getCollisionShape", &Object::getCollisionShape)
+     .def("setCollisionShape", &Object::setCollisionShape)
+
+     .property("shape", &Object::getCollisionShape, &Object::setCollisionShape)
+
+     .def("setRenderFunction", &Object::setRenderFunction)
+     .def("getRenderFunction", &Object::getRenderFunction)
+
+     .property("render", &Object::getRenderFunction, &Object::setRenderFunction)
+
+     .def(tostring(const_self))
+     ];
 }
 
 void Object::renderInLocalFrame(QTextStream *s) const {
-  Q_UNUSED(s);
+  Q_UNUSED(s)
+}
 
-  qDebug() << "Object::renderInLocalFrame";
+void Object::renderInLocalFramePre(QTextStream *s) const {
+  btTransform trans;
+
+  body->getMotionState()->getWorldTransform(trans);
+  trans.getOpenGLMatrix(matrix);
+
+  glPushMatrix();
+  glMultMatrixf(matrix);
+
+  glEnable(GL_NORMALIZE);
+
+  if (_cb_render) {
+    luabind::call_function<void>(_cb_render, s);
+  }
+}
+
+void Object::renderInLocalFramePost(QTextStream *s) const {
+  Q_UNUSED(s)
+
+  glPopMatrix();
 }
 
 void Object::setTexture(QString texture) {
@@ -230,8 +265,20 @@ btVector3 Object::getLinearVelocity() const {
   return body->getLinearVelocity();
 }
 
+void Object::setRigidBody(btRigidBody *b) {
+  body = b;
+}
+
 btRigidBody* Object::getRigidBody() const {
   return body;
+}
+
+void Object::setCollisionShape(btCollisionShape *s) {
+    shape = s;
+}
+
+btCollisionShape* Object::getCollisionShape() {
+    return shape;
 }
 
 void Object::setColor(int r, int g, int b) {
@@ -309,7 +356,7 @@ void Object::setTransform(const btTransform &trans) {
   if (body != NULL) {
     delete body->getMotionState();
     body->setMotionState(new btDefaultMotionState(trans));
-  } 
+  }
 }
 
 btTransform Object::getTransform() const {
@@ -323,8 +370,8 @@ btScalar Object::getMass() const {
 }
 
 void Object::setPovPhotons(bool _photons_enable,
-			   bool _photons_reflection,
-			   bool _photons_refraction) {
+               bool _photons_reflection,
+               bool _photons_refraction) {
   photons_enable = _photons_enable;
   photons_reflection = _photons_reflection;
   photons_refraction = _photons_refraction;
@@ -347,9 +394,19 @@ QString Object::getPovPhotons() const {
 
 void Object::render(QTextStream *s)
 {
+  if (body) {
+    renderInLocalFramePre(s);
+    renderInLocalFrame(s);
+    renderInLocalFramePost(s);
+  }
+}
 
-  if (body != NULL)
-	renderInLocalFrame(s);
-  else
-	qDebug() << "body == null";
+void Object::setRenderFunction(const luabind::object &fn) {
+  if (luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_render = fn;
+  }
+}
+
+luabind::object Object::getRenderFunction() const {
+  return _cb_render;
 }

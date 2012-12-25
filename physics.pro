@@ -4,6 +4,7 @@ TEMPLATE = app
 
 DEFINES     += HAS_QEXTSERIAL
 DEFINES     += HAS_LUA_QT
+DEFINES     += HAS_LUA_GL
 
 win32 {
 
@@ -166,6 +167,22 @@ SOURCES += \
   lua_util.cpp \
   lua_register.cpp \
   lua_qslot.cpp
+}
+
+contains(DEFINES, HAS_LUA_GL) {
+  INCLUDEPATH += lib/luagl/include
+  DEPENDPATH  += lib/luagl/src
+
+  SOURCES *= luagl_util.c \
+             luagl.c \
+             luaglu.c \
+             luagl_const.c
+
+  HEADERS *= luagl.h \
+             luaglu.h
+
+  HEADERS += lua_qglviewer.h
+  SOURCES += lua_qglviewer.cpp
 }
 
 # Main BPP source files

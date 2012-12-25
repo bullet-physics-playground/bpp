@@ -73,7 +73,6 @@ QString Plane::toString() const {
 
 void Plane::renderInLocalFrame(QTextStream *s) const
 {
-
   // qDebug() << "Plane::renderInLocalFrame";
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -97,7 +96,6 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   btVector3 pt2 = planeOrigin - vec1*vecLen;
   btVector3 pt3 = planeOrigin + vec1*vecLen;
 
-
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
@@ -118,23 +116,34 @@ void Plane::renderInLocalFrame(QTextStream *s) const
   glEnd();
 
   if (s != NULL) {
-    if (mPreSDL == NULL) {	    
-      *s << "plane { <" << planeNormal[0] << ", " << planeNormal[1] << ", " << planeNormal[2] << ">, " << planeConst << "\n";
+    if (mPreSDL == NULL) {
+      *s << "plane { <"
+         << planeNormal[0] << ", "
+         << planeNormal[1] << ", "
+         << planeNormal[2] << ">, "
+         << planeConst << endl;
       if (mTexture != NULL) {
         *s << mTexture << endl;
       } else if (mPigment != NULL) {
         *s << mPigment << endl;
       } else {
-        *s << "  pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+        *s << "  pigment { rgb <"
+           << color[0]/255.0 << ", "
+           << color[1]/255.0 << ", "
+           << color[2]/255.0 << "> }" << endl;
       }
     }else{
       *s << mPreSDL << endl;
     }
-    if (mPostSDL == NULL) {	    
+    if (mPostSDL == NULL) {
       *s << "}" << endl << endl;
     }else{
       *s << mPostSDL << endl;
     }
   }
-  
+
+}
+
+void Plane::render(QTextStream *s) const {
+  renderInLocalFrame(s);
 }

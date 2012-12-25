@@ -25,9 +25,9 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
   m_model = lib3ds_file_load(filename.toAscii());
 
   if (!m_model) {
-	  
+
     qDebug() << "Unable to load " << filename << ": using empty shape.";
-	  
+
     btEmptyShape *shape = new btEmptyShape();
     btQuaternion qtn;
     btTransform trans;
@@ -40,9 +40,9 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     motionState = new btDefaultMotionState(trans);
 
     btVector3 inertia;
-    shape->calculateLocalInertia(mass,inertia);  
+    shape->calculateLocalInertia(mass,inertia);
     body = new btRigidBody(mass, motionState, shape, inertia);
-	  
+
   } else {
     Lib3dsMesh *mesh;
 
@@ -51,7 +51,7 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     }
 
     btTriangleMesh* trimesh = new btTriangleMesh();
- 
+
     // Allocate memory for our vertices and normals
     Lib3dsVector * vertices = new Lib3dsVector[m_TotalFaces * 3];
     Lib3dsVector * normals = new Lib3dsVector[m_TotalFaces * 3];
@@ -110,9 +110,9 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     motionState = new btDefaultMotionState(trans);
 
     btVector3 inertia;
-    shape->calculateLocalInertia(mass,inertia);  
+    shape->calculateLocalInertia(mass,inertia);
     body = new btRigidBody(mass, motionState, shape, inertia);
-    
+
   }
 }
 
@@ -125,8 +125,8 @@ void Mesh3DS::luaBind(lua_State *s) {
     [
      class_<Mesh3DS,Object>("Mesh3DS")
      .def(constructor<QString, btScalar>(), adopt(result))
-	 .def(tostring(const_self))
-	 ];
+     .def(tostring(const_self))
+     ];
 }
 
 QString Mesh3DS::toString() const {
@@ -143,15 +143,7 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
   // GLfloat low_shininess[] = { 5.0 };
   GLfloat high_shininess[] = { 100.0 };
   // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
-	
-  btTransform trans;
-  btScalar m[16];
 
-  body->getMotionState()->getWorldTransform(trans);
-  trans.getOpenGLMatrix(m);
-
-  glPushMatrix();
-  glMultMatrixf(m);
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
@@ -179,18 +171,16 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
     glDisableClientState(GL_NORMAL_ARRAY);
   }
 
-  glPopMatrix();
-
-  if (s != NULL) {  
-    if (mPreSDL == NULL) {	  
+  if (s != NULL) {
+    if (mPreSDL == NULL) {
       *s << "mesh2 {\n";
       /*
     *s << "  vertex_vectors {\n";
     *s << "    " << count*3 << ", \n";
     for (int i = 0; i < count; i++) {
       for (int y = 0; y < 3; y++) {
-	*s << "   <" << vertices[i][y][0] << ", " << vertices[i][y][1] << ", " << vertices[i][y][2] << ">";
-	  }
+    *s << "   <" << vertices[i][y][0] << ", " << vertices[i][y][1] << ", " << vertices[i][y][2] << ">";
+      }
       if (i != count - 1) *s << ", \n";
     }
     *s << "  }\n";
@@ -199,8 +189,8 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
     *s << "    " << count*3 << ", \n";
     for (int i = 0; i < count; i++) {
       for (int y = 0; y < 3; y++) {
-	*s << "   <" << normals[i][0] << ", " << normals[i][1] << ", " << normals[i][2] << ">";
-	  }
+    *s << "   <" << normals[i][0] << ", " << normals[i][1] << ", " << normals[i][2] << ">";
+      }
       if (i != count - 1) *s << ", \n";
     }
     *s << "  }\n";
@@ -213,17 +203,26 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
     }
     *s << "  }\n";
       */
-      *s << "pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
-    }else{	    
-      *s << mPreSDL << "\n";	    
+      *s << "pigment { rgb <"
+         << color[0]/255.0 << ", "
+         << color[1]/255.0 << ", "
+         << color[2]/255.0 << "> }" << endl;
+    } else {
+      *s << mPreSDL << "\n";
     }
-    *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
-    if (mPostSDL == NULL) {    
+
+    *s <<  "  matrix <"
+       << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
+       << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
+       << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
+       << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+    if (mPostSDL == NULL) {
       *s << "}" << endl << endl;
-    }else{	    
-      *s << mPostSDL << endl << endl;	    
+    } else {
+      *s << mPostSDL << endl << endl;
     }
-	    
+
   }
-  
+
 }

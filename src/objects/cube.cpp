@@ -61,8 +61,8 @@ void Cube::luaBind(lua_State *s) {
      .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
      .def(constructor<const btVector3&>(), adopt(result))
      .def(constructor<const btVector3&, btScalar>(), adopt(result))
-	 .def(tostring(const_self))
-	 ];
+     .def(tostring(const_self))
+     ];
 }
 
 QString Cube::toString() const {
@@ -82,16 +82,7 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
   GLfloat high_shininess[] = { 100.0 };
   // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
-  btTransform trans;
-  btScalar m[16];
-
-  body->getMotionState()->getWorldTransform(trans);
-  trans.getOpenGLMatrix(m);
-
-  glPushMatrix();
-  glMultMatrixf(m);
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glEnable(GL_NORMALIZE);
 
   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -102,26 +93,32 @@ void Cube::renderInLocalFrame(QTextStream *s) const {
   glColor3ubv(color);
 
   glutSolidCube(1.0f);
-  glPopMatrix();
-  
+
   if (s != NULL) {
-    if (mPreSDL == NULL) {	    
-      *s << "box { <" << -lengths[0]/2.0 << ", " << -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <" << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">\n";
+    if (mPreSDL == NULL) {
+      *s << "box { <"
+         << -lengths[0]/2.0 << ", "<< -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <"
+         << lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " << lengths[2]/2.0 << ">" << endl;
       if (mTexture == NULL) {
-        *s << "      pigment { rgb <" << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
+        *s << "      pigment { rgb <"
+           << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
       } else {
         *s << mTexture << endl;
       }
-    }else{
+    } else {
       *s << mPreSDL << endl;
-    }	    
-    *s <<  "  matrix <" << m[0] << "," << m[1] << "," << m[2] << ",\n        " << m[4] << "," << m[5] << "," << m[6] << ",\n        " << m[8] << "," << m[9] << "," << m[10] << ",\n        " << m[12] << "," << m[13] << "," << m[14] << ">" << endl;
-    if (mPostSDL == NULL) {	        
+    }
+
+    *s <<  "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
+       << matrix[4] << "," << matrix[5] << "," << matrix[6] << ","  << endl
+       << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
+       << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+    if (mPostSDL == NULL) {
       *s << "}" << endl << endl;
-    }else{
+    } else {
       *s << mPostSDL << endl;
     }
   }
-
   // qDebug() << "Cube::renderInLocalFrame() end";
 }
