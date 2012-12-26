@@ -71,8 +71,7 @@ QString Sphere::toString() const {
   return QString("Sphere");
 }
 
-void Sphere::renderInLocalFrame(QTextStream *s) const
-{
+void Sphere::renderInLocalFrame(QTextStream *s) {
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
@@ -99,7 +98,7 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
     if (mPreSDL == NULL) {
       *s << "sphere { <.0,.0,.0>, " << radius << endl;
       if (mTexture == NULL) {
-       *s << "      pigment { rgb <"
+       *s << "  pigment { rgb <"
           << color[0]/255.0 << ", "
           << color[1]/255.0 << ", "
           << color[2]/255.0 << "> }" << endl;
@@ -110,11 +109,10 @@ void Sphere::renderInLocalFrame(QTextStream *s) const
       *s << mPreSDL << endl;
     }
 
-    *s << "  matrix <"
-       << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
-       << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
-       << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
-       << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
+       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
+       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
+       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
     if (mPostSDL == NULL) {
       *s << "}" << endl << endl;

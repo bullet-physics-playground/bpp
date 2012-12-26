@@ -27,3 +27,10 @@ end
 line(5, -3, 0.01, 0.01, 0.4, 0.1)
 line(5,  0, 0.1,  0.1,  0.3, 0.0)
 line(5,  3, 0.1,  0.1,  0.3, 0.5)
+
+v:preDraw(function(N)
+  cam = Cam()
+  cam.pos = btVector3(20,10,20)
+  cam.look = btVector3(0,0,-10)
+  v:cam(cam)
+end)

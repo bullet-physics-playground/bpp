@@ -22,8 +22,8 @@ class Mesh3DS : public Object {
   static void luaBind(lua_State *s);
   QString toString() const;
 
-  virtual void renderInLocalFrame(QTextStream *s) const;
- 
+  virtual void renderInLocalFrame(QTextStream *s);
+
  protected:
   GLuint m_VertexVBO, m_NormalVBO;
 

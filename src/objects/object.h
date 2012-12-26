@@ -104,13 +104,13 @@ class Object : public QObject {
 
   virtual QString toString() const;
 
-  virtual void render(QTextStream *s);
+  void render(QTextStream *s);
   void setRenderFunction(const luabind::object &fn);
   luabind::object getRenderFunction() const;
 
-  virtual void renderInLocalFrame(QTextStream *s) const;
-  void renderInLocalFramePre(QTextStream *s) const;
-  void renderInLocalFramePost(QTextStream *s) const;
+  virtual void renderInLocalFrame(QTextStream *s);
+  virtual void renderInLocalFramePre(QTextStream *s);
+  virtual void renderInLocalFramePost(QTextStream *s);
 
   QList<btTypedConstraint*> getConstraints();
 

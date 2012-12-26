@@ -11,11 +11,11 @@ class Objects : public Object {
   Objects();
 
   QList<Object *>getObjects() const;
-  
+
   static void luaBind(lua_State *s);
   QString toString() const;
 
-  virtual void renderInLocalFrame(QTextStream *s) const;
+  virtual void renderInLocalFrame(QTextStream *s);
 
  protected:
   QList<Object *> _objects;

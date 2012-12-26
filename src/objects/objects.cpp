@@ -29,8 +29,8 @@ void Objects::luaBind(lua_State *s) {
     [
      class_<Objects, Object>("Objects")
      .def(constructor<>(), adopt(result))
-	 .def(tostring(const_self))
-	 ];
+     .def(tostring(const_self))
+     ];
 }
 
 QList<Object *> Objects::getObjects() const {
@@ -41,6 +41,6 @@ QString Objects::toString() const {
   return QString("Objects");
 }
 
-void Objects::renderInLocalFrame(QTextStream *) const {
+void Objects::renderInLocalFrame(QTextStream *) {
   qDebug() << "Objects::renderInLocalFrame should not be called!";
 }

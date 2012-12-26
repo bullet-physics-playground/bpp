@@ -133,7 +133,7 @@ QString Mesh3DS::toString() const {
   return QString("Mesh3DS");
 }
 
-void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
+void Mesh3DS::renderInLocalFrame(QTextStream *s) {
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
@@ -211,11 +211,10 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) const {
       *s << mPreSDL << "\n";
     }
 
-    *s <<  "  matrix <"
-       << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
-       << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
-       << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
-       << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
+       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
+       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
+       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
     if (mPostSDL == NULL) {
       *s << "}" << endl << endl;

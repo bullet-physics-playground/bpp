@@ -165,30 +165,34 @@ void Object::luaBind(lua_State *s) {
      ];
 }
 
-void Object::renderInLocalFrame(QTextStream *s) const {
+void Object::renderInLocalFrame(QTextStream *s) {
   Q_UNUSED(s)
 }
 
-void Object::renderInLocalFramePre(QTextStream *s) const {
-  btTransform trans;
+void Object::renderInLocalFramePre(QTextStream *s) {
+    btDefaultMotionState *ms = static_cast<btDefaultMotionState* >(body->getMotionState());
 
-  body->getMotionState()->getWorldTransform(trans);
-  trans.getOpenGLMatrix(matrix);
+    if (ms != 0) {
+      btTransform trans;
 
-  glPushMatrix();
-  glMultMatrixf(matrix);
+      ms->getWorldTransform(trans);
+      trans.getOpenGLMatrix(matrix);
 
-  glEnable(GL_NORMALIZE);
+      glPushMatrix();
+      glMultMatrixf(matrix);
+      glEnable(GL_NORMALIZE);
 
-  if (_cb_render) {
-    luabind::call_function<void>(_cb_render, s);
-  }
+      if (_cb_render) {
+        luabind::call_function<void>(_cb_render, s);
+      }
+    }
 }
 
-void Object::renderInLocalFramePost(QTextStream *s) const {
+void Object::renderInLocalFramePost(QTextStream *s) {
   Q_UNUSED(s)
 
-  glPopMatrix();
+  if (body)
+    glPopMatrix();
 }
 
 void Object::setTexture(QString texture) {

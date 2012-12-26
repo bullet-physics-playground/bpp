@@ -73,7 +73,47 @@ class Viewer : public QGLViewer
 
   btVehicleRaycaster* createVehicleRaycaster();
 
- public slots:
+  // OpenGL properties
+  void setGLShininess(const btScalar&);
+  btScalar getGLShininess() const;
+
+  void setGLSpecularColor(const btVector4&);
+  btVector4 getGLSpecularColor() const;
+
+  void setGLSpecularCol(const btScalar);
+  btScalar getGLSpecularCol() const;
+
+  void setGLLight0(const btVector4&);
+  btVector4 getGLLight0() const;
+
+  void setGLLight1(const btVector4&);
+  btVector4 getGLLight1() const;
+
+  void setGLAmbient(const btVector3&);
+  btVector3 getGLAmbient() const;
+
+  void setGLDiffuse(const btVector4&);
+  btVector4 getGLDiffuse() const;
+
+  void setGLSpecular(const btVector4&);
+  btVector4 getGLSpecular() const;
+
+  void setGLModelAmbient(const btVector4&);
+  btVector4 getGLModelAmbient() const;
+
+  void setGLModelAmbientPercent(const btScalar);
+  btScalar getGLModelAmbientPercent() const;
+
+  void setGLAmbientPercent(const btScalar);
+  btScalar getGLAmbientPercent() const;
+
+  void setGLDiffusePercent(const btScalar);
+  btScalar getGLDiffusePercent() const;
+
+  void setGLSpecularPercent(const btScalar);
+  btScalar getGLSpecularPercent() const;
+
+public slots:
   void close();
 
   bool parse(QString txt);
@@ -159,8 +199,6 @@ class Viewer : public QGLViewer
   QTime              _time;
 
   QTextStream      *_stream;
-  QTextStream      *_streamMain;
-  QTextStream      *_streamINI;
 
   int              _frameNum;
   int		   _firstFrame;
@@ -186,6 +224,19 @@ class Viewer : public QGLViewer
 
   bool _parsing;
   bool _has_exception;
+
+  // OpenGL properties
+
+  btScalar  _gl_shininess;
+  btVector4 _gl_specular_col;
+
+  btVector4 _light0;
+  btVector4 _light1;
+
+  btVector3 _gl_ambient;
+  btVector4 _gl_diffuse, _gl_specular;
+
+  btVector4 _gl_model_ambient;
 };
 
 #endif // VIEWER_H

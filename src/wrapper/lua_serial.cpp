@@ -243,13 +243,15 @@ QStringList validValues<FlowType>()
 
 void tranverseSetting(pfnTranverse_t pfn, void* context)
 {
-    PortSettings setting;
-    (void)setting;
-    tranverseSetting(setting.BaudRate, pfn, context);
-    tranverseSetting(setting.DataBits, pfn, context);
-    tranverseSetting(setting.Parity, pfn, context);
-    tranverseSetting(setting.StopBits, pfn, context);
-    tranverseSetting(setting.FlowControl, pfn, context);
+    PortSettings *setting = new PortSettings();
+
+    tranverseSetting(setting->BaudRate, pfn, context);
+    tranverseSetting(setting->DataBits, pfn, context);
+    tranverseSetting(setting->Parity, pfn, context);
+    tranverseSetting(setting->StopBits, pfn, context);
+    tranverseSetting(setting->FlowControl, pfn, context);
+
+    delete setting;
 }
 
 template<typename T, typename T2>

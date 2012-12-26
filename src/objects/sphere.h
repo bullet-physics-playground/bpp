@@ -12,13 +12,13 @@ public:
 
   void setRadius(btScalar radius);
   btScalar getRadius() const;
-  
+
   static void luaBind(lua_State *s);
   QString toString() const;
 
 protected:
-  virtual void renderInLocalFrame(QTextStream *s) const;
-  
+  virtual void renderInLocalFrame(QTextStream *s);
+
   btScalar         radius;
 };
 

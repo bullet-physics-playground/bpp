@@ -74,8 +74,7 @@ QString Cylinder::toString() const {
   return QString("Cylinder");
 }
 
-void Cylinder::renderInLocalFrame(QTextStream *s) const
-{
+void Cylinder::renderInLocalFrame(QTextStream *s) {
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
   GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
@@ -105,7 +104,7 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
          << -lengths[2]/2.0 << "*z, "
          << lengths[2]/2.0 << "*z, "
          << lengths[0]
-         << "\n      pigment { rgb <"
+         << "\n  pigment { rgb <"
          << color[0]/255.0 << ", "
          << color[1]/255.0 << ", "
          << color[2]/255.0 << "> }" << endl;
@@ -113,10 +112,10 @@ void Cylinder::renderInLocalFrame(QTextStream *s) const
       *s << mPreSDL << endl;
     }
 
-    *s <<  "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
-       << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
-       << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
-       << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << endl
+       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << endl
+       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << endl
+       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
     if (mPostSDL == NULL) {
       *s << "}" << endl << endl;

@@ -41,6 +41,9 @@ win32 {
   DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
 }
 
+QMAKE_CXXFLAGS_RELEASE += -O2
+QMAKE_CXXFLAGS_DEBUG   += -O0
+
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 UI_DIR = .ui
@@ -105,7 +108,7 @@ contains(DEFINES, HAS_QEXTSERIAL) {
 }
 
 CONFIG  *= debug_and_release
-CONFIG *= qt opengl
+CONFIG  *= qt opengl
 CONFIG  += warn_on
 CONFIG  += thread
 
