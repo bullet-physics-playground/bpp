@@ -113,6 +113,13 @@ class Viewer : public QGLViewer
   void setGLSpecularPercent(const btScalar);
   btScalar getGLSpecularPercent() const;
 
+  // POV-Ray properties
+  void setPreSDL(const QString&);
+  QString getPreSDL() const;
+
+  void setPostSDL(const QString&);
+  QString getPostSDL() const;
+
 public slots:
   void close();
 
@@ -237,6 +244,11 @@ public slots:
   btVector4 _gl_diffuse, _gl_specular;
 
   btVector4 _gl_model_ambient;
+
+  // POV-Ray properties
+  QString mPreSDL;
+  QString mPostSDL;
+
 };
 
 #endif // VIEWER_H

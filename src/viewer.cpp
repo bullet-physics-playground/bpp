@@ -130,6 +130,9 @@ void Viewer::luaBind(lua_State *s) {
    .property("glDiffuse", &Viewer::getGLDiffusePercent, &Viewer::setGLDiffusePercent)
    .property("glSpecular", &Viewer::getGLSpecularPercent, &Viewer::setGLSpecularPercent)
    .property("glModelAmbient", &Viewer::getGLModelAmbientPercent, &Viewer::setGLModelAmbientPercent)
+
+   .property("pre_sdl", &Viewer::getPreSDL, &Viewer::setPreSDL)
+   .property("post_sdl", &Viewer::getPostSDL, &Viewer::setPostSDL)
    .def(tostring(const_self))
   ];
 
@@ -1019,6 +1022,10 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   _cam=NULL;
 
+  // POV-Ray properties
+  mPreSDL = "";
+  mPostSDL = "";
+
   startAnimation();
 }
 
@@ -1474,8 +1481,13 @@ void Viewer::draw() {
     glMultMatrixd(manipulatedFrame()->matrix());
   }
 
-  if (_savePOV)
+  if (_savePOV) {
     openPovFile();
+
+    if (!mPreSDL.isEmpty()) {
+      *_stream << mPreSDL;
+    }
+  }
 
   // qDebug() << "Number of objects:" << _objects->size();
   foreach (Object *o, *_objects) {
@@ -1490,8 +1502,12 @@ void Viewer::draw() {
     }
   }
 
-  if (_savePOV)
+  if (_savePOV) {
+    if (!mPostSDL.isEmpty()) {
+      *_stream << mPostSDL;
+    }
     closePovFile();
+  }
 
   if (manipulatedFrame() != NULL) {
     glPopMatrix();
@@ -1840,3 +1856,22 @@ void Viewer::setGLModelAmbientPercent(const btScalar am) {
 btScalar Viewer::getGLModelAmbientPercent() const {
     return _gl_model_ambient.length();
 }
+
+// POV-Ray properties
+
+void Viewer::setPreSDL(const QString &preSDL) {
+    mPreSDL = preSDL;
+}
+
+QString Viewer::getPreSDL() const {
+    return mPreSDL;
+}
+
+void Viewer::setPostSDL(const QString &postSDL) {
+    mPostSDL = postSDL;
+}
+
+QString Viewer::getPostSDL() const {
+    return mPostSDL;
+}
+
