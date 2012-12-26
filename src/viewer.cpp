@@ -76,7 +76,8 @@ struct btMotionState_wrap : public btMotionState, wrap_base
 
 struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wrap
 {
-    btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset) : btMotionState_wrap(startTrans, centerOfMassOffset) {}
+    btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset)
+        : btMotionState_wrap(startTrans, centerOfMassOffset) {}
     btDefaultMotionState_wrap(const btTransform &startTrans) : btMotionState_wrap(startTrans) {}
 
     virtual void getWorldTransform (btTransform &worldTrans) const {
@@ -382,7 +383,8 @@ void Viewer::luaBind(lua_State *s) {
   [
    class_<btConvexTriangleMeshShape, btPolyhedralConvexAabbCachingShape>("btConvexTriangleMeshShape")
    .def(constructor<btStridingMeshInterface *, bool>())
-   .def("getMeshInterface", (btStridingMeshInterface*(btConvexTriangleMeshShape::*)())&btConvexTriangleMeshShape::getMeshInterface)
+   .def("getMeshInterface",
+        (btStridingMeshInterface*(btConvexTriangleMeshShape::*)())&btConvexTriangleMeshShape::getMeshInterface)
    .def("calculatePrincipalAxisTransform", &btConvexTriangleMeshShape::calculatePrincipalAxisTransform)
   ];
 
@@ -531,7 +533,8 @@ void Viewer::luaBind(lua_State *s) {
    .def("isKinematicObject", &btCollisionObject::isStaticOrKinematicObject)
    .def("hasContactResponse", &btCollisionObject::hasContactResponse)
    .def("getCollisionShape", (btCollisionShape *(btCollisionObject::*)())&btCollisionObject::getCollisionShape)
-   // not in the headers .def("getRootCollisionShape", (btCollisionShape *(btCollisionObject::*)())&btCollisionObject::getRootCollisionShape)
+   // not in the headers .def("getRootCollisionShape",
+          // (btCollisionShape *(btCollisionObject::*)())&btCollisionObject::getRootCollisionShape)
    .def("getActivationState", &btCollisionObject::getActivationState)
    .def("setActivationState", &btCollisionObject::setActivationState)
    .def("setDeactivationTime", &btCollisionObject::setDeactivationTime)
@@ -546,7 +549,8 @@ void Viewer::luaBind(lua_State *s) {
    .def("getWorldTransform", (btTransform&(btCollisionObject::*)())&btCollisionObject::getWorldTransform)
    .def("setWorldTransform", &btCollisionObject::setWorldTransform)
    .def("getBroadphaseHandle", (btBroadphaseProxy *(btCollisionObject::*)())&btCollisionObject::getBroadphaseHandle)
-   .def("getInterpolationWorldTransform", (btTransform&(btCollisionObject::*)())&btCollisionObject::getInterpolationWorldTransform)
+   .def("getInterpolationWorldTransform",
+        (btTransform&(btCollisionObject::*)())&btCollisionObject::getInterpolationWorldTransform)
    .def("setInterpolationWorldTransform", &btCollisionObject::setInterpolationWorldTransform)
    .def("setInterpolationLinearVelocity", &btCollisionObject::setInterpolationLinearVelocity)
    .def("setInterpolationAngularVelocity", &btCollisionObject::setInterpolationAngularVelocity)
@@ -687,7 +691,8 @@ void Viewer::luaBind(lua_State *s) {
   module(s)
   [
    class_<btHingeConstraint,btTypedConstraint>("btHingeConstraint")
-   .def(constructor<btRigidBody&, btRigidBody&, const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
+   .def(constructor<btRigidBody&, btRigidBody&,
+        const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
    .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&>())
    .def("setAxis", &btHingeConstraint::setAxis)
    .def("setLimit", &btHingeConstraint::setLimit)
@@ -1007,8 +1012,10 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   collisionCfg = new btDefaultCollisionConfiguration();
   btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-  dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg), broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
-  btCollisionDispatcher * dispatcher = static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
+  dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg),
+                                              broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
+  btCollisionDispatcher * dispatcher =
+          static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
   btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
@@ -1312,8 +1319,10 @@ void Viewer::openPovFile() {
 
   *ini << "[LOW]"  << endl <<  "Width=320" << endl <<  "Height=200"  << endl << "Antialias=Off" << endl;
   *ini << "[MED]"  << endl <<  "Width=640" << endl <<  "Height=400"  << endl << "Antialias=Off" << endl;
-  *ini << "[HIGH]" << endl << "Width=1280" << endl <<  "Height=800"  << endl << "Antialias=On" << endl << "Display=Off" << endl;
-  *ini << "[HD]"   << endl << "Width=1920" << endl <<  "Height=1080" << endl << "Antialias=On" << endl << "Display=Off" << endl;
+  *ini << "[HIGH]" << endl << "Width=1280" << endl <<  "Height=800"  << endl
+       << "Antialias=On" << endl << "Display=Off" << endl;
+  *ini << "[HD]"   << endl << "Width=1920" << endl <<  "Height=1080" << endl
+       << "Antialias=On" << endl << "Display=Off" << endl;
 
   if (_fileINI != NULL) {
     _fileINI->close();
@@ -1344,16 +1353,15 @@ void Viewer::openPovFile() {
   *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
   *_stream << "  right -image_width/image_height*x" << endl;
 
-  #define _USE_MATH_DEFINES
   if (_cam != NULL) {
     btVector3 vLook = _cam->getLookAt();
     *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
-    *_stream << "> angle " << _cam->fieldOfView() * 180.0 / M_PI << endl;
+    *_stream << "> angle " << _cam->fieldOfView() * 90.0 << endl;
     //// qDebug() << vLook.x() << vLook.y() << vLook.z();
   } else {
     Vec vDir = camera()->viewDirection();
     *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
-    *_stream << "> angle " << camera()->fieldOfView() * 180.0 / M_PI << endl;
+    *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
      // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
   }
   *_stream << "  }" << endl << endl;
@@ -1680,7 +1688,8 @@ void Viewer::animate() {
     QString file;
     if(!_scriptName.isEmpty()){
       sceneDir.mkdir(qPrintable(_scriptName));
-      file.sprintf("screenshots/%s/%s-%05d.png", qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
+      file.sprintf("screenshots/%s/%s-%05d.png",
+                   qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
     }else{
       sceneDir.mkdir("no_name");
       file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
