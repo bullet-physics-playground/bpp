@@ -18,12 +18,35 @@
 -- CONTROL
 -- *******
 
+-- car model: 0=Citroen GS, 1=Nissan Micra
+car_model=0
+
 -- camera view
 -- 0=default GL cam, 1=back, 2=onboard, 3=external 
 -- (see other test cameras at the EOF)
-camera_view=1
+camera_view=3
 
--- chassis specs: Nissan Micra (by Ren Bui)
+-- chassis specs
+if (car_model==0) then
+-- Citroen GS
+chassis_height=4
+front_axe_xpos=12
+rear_axe_xpos=-14
+front_axe_width=15
+rear_axe_width=15
+front_arm_lenght=3.75
+rear_arm_lenght=3.75
+arm_rad=.25
+tire_rad=2.8
+tire_width=1.8
+disc_width=.25
+spring_softness=.1
+tire_mass=150
+arm_mass=350
+disc_mass=150
+chassis_mass=8200-tire_mass*4-arm_mass*4-disc_mass*4-arm_mass
+else
+-- Nissan Micra (by Ren Bui)
 chassis_height=8.25
 front_axe_xpos=11.8
 rear_axe_xpos=-12.7
@@ -40,11 +63,12 @@ tire_mass=150
 arm_mass=350
 disc_mass=150
 chassis_mass=8200-tire_mass*4-arm_mass*4-disc_mass*4-arm_mass
+end
 
 -- engine specs
-angular_motor_speed=15
+angular_motor_speed=55
 angular_motor_power=550
-drive_type=0  -- 0=NONE, 1=FWD, 2=RWD, 3=AWD
+drive_type=3  -- 0=NONE, 1=FWD, 2=RWD, 3=AWD
 
 -- generic tire params
 tire_friction=.9
@@ -52,7 +76,7 @@ tire_restitution=.9
 
 -- obstacle selection:  
 -- 0=NONE, 1=ALTERNATE, 2=STEPS, 3=RAMP, 4=MESH TERRAIN 5=URBAN-LIKE
-use_obstacles=0
+use_obstacles=3
 
 -- reference ground marks
 use_markings=1
@@ -62,7 +86,11 @@ use_markings=1
 -- CAR CHASSIS MESH
 -- ****************
 
-chassis=Mesh3DS("demo/micraK11_Rene_Bui.3ds",chassis_mass)
+if (car_model==0) then
+  chassis=Mesh3DS("demo/citroen_gs.3ds",chassis_mass)
+else
+  chassis=Mesh3DS("demo/micraK11_Rene_Bui.3ds",chassis_mass)
+end
 chassis.pos =btVector3(0,chassis_height,0)
 chassis.col="#003399"
 chassis.restitution=.01
@@ -171,9 +199,6 @@ front_left_wheel_disc_constraint = btHingeConstraint(
   front_left_wheel:getRigidBody(),
   front_left_disc_pivot, front_left_wheel_pivot, front_left_disc_axis, front_left_wheel_axis
 )
-if (drive_type==1 or drive_type==3) then
-  front_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
-end
 v:addConstraint(front_left_wheel_disc_constraint)
 
 -- right
@@ -186,9 +211,6 @@ front_right_wheel_disc_constraint = btHingeConstraint(
   front_right_wheel:getRigidBody(),
   front_right_disc_pivot, front_right_wheel_pivot, front_right_disc_axis, front_right_wheel_axis
 )
-if (drive_type==1 or drive_type==3) then
-  front_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
-end
 v:addConstraint(front_right_wheel_disc_constraint)
 
 
@@ -406,9 +428,6 @@ rear_left_wheel_disc_constraint = btHingeConstraint(
   rear_left_wheel:getRigidBody(),
   rear_left_disc_pivot, rear_left_wheel_pivot, rear_left_disc_axis, rear_left_wheel_axis
 )
-if (drive_type==2 or drive_type==3) then
-  rear_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
-end
 v:addConstraint(rear_left_wheel_disc_constraint)
 
 -- right
@@ -421,9 +440,6 @@ rear_right_wheel_disc_constraint = btHingeConstraint(
   rear_right_wheel:getRigidBody(),
   rear_right_disc_pivot, rear_right_wheel_pivot, rear_right_disc_axis, rear_right_wheel_axis
 )
-if (drive_type==2 or drive_type==3) then
-  rear_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
-end
 v:addConstraint(rear_right_wheel_disc_constraint)
 
 
@@ -645,10 +661,14 @@ end)
 
 -- accelerate forward
 v:addShortcut("F2", function(N)
+ if(drive_type==1 or drive_type==3) then
   front_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
   front_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
+ end
+ if(drive_type==2 or drive_type==3) then
   rear_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
   rear_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, angular_motor_power)
+ end
 end)
 
 -- neutral
@@ -661,10 +681,14 @@ end)
 
 -- accelerate backward
 v:addShortcut("F4", function(N)
+ if(drive_type==1 or drive_type==3) then
   front_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, -angular_motor_power)
   front_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, -angular_motor_power)
+ end
+ if(drive_type==2 or drive_type==3) then
   rear_left_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, -angular_motor_power)
   rear_right_wheel_disc_constraint:enableAngularMotor(true, angular_motor_speed, -angular_motor_power)
+ end
 end)
 
 
@@ -689,13 +713,13 @@ if(camera_view>0) then
   end
   -- static mount looking at the car
   if(camera_view==3) then
-    cam.pos = btVector3(50,140,60)
+    cam.pos = btVector3(50,40,60)
     cam.look = chassis.pos
     cam:setHorizontalFieldOfView(1)
   end
   -- close look at the front suspension and wheels
   if(camera_view==4) then
-    cam.pos = btVector3(chassis.pos.x+79,chassis.pos.y-7,chassis.pos.z)
+    cam.pos = btVector3(chassis.pos.x+79,1,chassis.pos.z)
     cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
     cam:setHorizontalFieldOfView(.5)
   end
