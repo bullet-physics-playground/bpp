@@ -72,13 +72,6 @@ struct btMotionState_wrap : public btMotionState, wrap_base
 {
     btMotionState_wrap(const btTransform &, const btTransform &) {}
     btMotionState_wrap(const btTransform &) {}
-};
-
-struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wrap
-{
-    btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset)
-        : btMotionState_wrap(startTrans, centerOfMassOffset) {}
-    btDefaultMotionState_wrap(const btTransform &startTrans) : btMotionState_wrap(startTrans) {}
 
     virtual void getWorldTransform (btTransform &worldTrans) const {
       call_member<void>(this, "getWorldTransform", worldTrans);
@@ -87,6 +80,14 @@ struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wr
     virtual void setWorldTransform (const btTransform &worldTrans) {
       call_member<void>(this, "setWorldTransform", worldTrans);
     }
+};
+
+struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wrap
+{
+    btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset)
+        : btMotionState_wrap(startTrans, centerOfMassOffset) {}
+    btDefaultMotionState_wrap(const btTransform &startTrans) : btMotionState_wrap(startTrans) {}
+
 };
 
 QString Viewer::toString() const {
@@ -173,17 +174,17 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
   [
-   class_<btMotionState_wrap>("btMotionState")
+   class_<btMotionState, btMotionState_wrap>("btMotionState")
+   .def("getWorldTransform", &btMotionState::getWorldTransform)
+   .def("setWorldTransform", &btMotionState::setWorldTransform)
   ];
 
   // btDefaultMotionState
   module(s)
   [
-   class_<btDefaultMotionState_wrap, btMotionState_wrap>("btDefaultMotionState")
+   class_<btDefaultMotionState, btDefaultMotionState_wrap, btMotionState>("btDefaultMotionState")
    .def(constructor<const btTransform&, const btTransform&>())
    .def(constructor<const btTransform&>())
-   .def("getWorldTransform", &btDefaultMotionState_wrap::getWorldTransform)
-   .def("setWorldTransform", &btDefaultMotionState_wrap::setWorldTransform)
   ];
 
   // BULLET SHAPE CLASSES
