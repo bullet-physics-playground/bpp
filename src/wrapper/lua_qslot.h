@@ -12,7 +12,7 @@
 using namespace luabind;
 
 struct QextPortInfo;
-struct QUsbHidInfo;
+// struct QUsbHidInfo;
 
 class QLuaSlot : public QObject
 {
@@ -84,7 +84,7 @@ public slots:
     void general_slot(Qt::ToolBarAreas);
     void general_slot(const QMouseEvent* param1);
 #ifdef Q_OS_WIN
-    void general_slot(const QUsbHidInfo&);
+//    void general_slot(const QUsbHidInfo&);
 #endif
 private:
     object m_obj;

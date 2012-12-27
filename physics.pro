@@ -11,6 +11,7 @@ win32 {
   CONFIG += link_koppi_style_win32
 
   include(win32.pri)
+#  RC_FILE = physics.rc
 
 } else {
 
@@ -45,7 +46,7 @@ QMAKE_CXXFLAGS_RELEASE += -O2
 QMAKE_CXXFLAGS_DEBUG   += -O0
 
 MOC_DIR = .moc
-OBJECTS_DIR = .obj
+#OBJECTS_DIR = .obj
 UI_DIR = .ui
 RCC_DIR = .rcc
 
