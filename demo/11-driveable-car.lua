@@ -667,6 +667,14 @@ end
 -- KEYBOARD SHORTCUTS
 -- ******************
 
+-- switch camera
+v:addShortcut("F1", function(N)
+  camera_type = camera_type + 1;
+  if (camera_type == 6) then
+    camera_type = 0
+  end
+end)
+
 -- steer left
 v:addShortcut("F9", function(N)
   front_left_disc_arm_constraint:enableAngularMotor(true, 100, -500)
