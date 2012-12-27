@@ -18,8 +18,10 @@
 -- CONTROL
 -- *******
 
--- camera
-camera_type=1
+-- camera view
+-- 0=default GL cam, 1=back, 2=onboard, 3=external 
+-- (see other test cameras at the EOF)
+camera_view=1
 
 -- chassis specs: Nissan Micra (by Ren Bui)
 chassis_height=8.25
@@ -49,7 +51,7 @@ tire_friction=.9
 tire_restitution=.9
 
 -- obstacle selection:  
--- 0=NONE, 1=ALTERNATE, 2=STEPS, 3=RAMP, 4=MESH TERRAIN
+-- 0=NONE, 1=ALTERNATE, 2=STEPS, 3=RAMP, 4=MESH TERRAIN 5=URBAN-LIKE
 use_obstacles=0
 
 -- reference ground marks
@@ -65,7 +67,6 @@ chassis.pos =btVector3(0,chassis_height,0)
 chassis.col="#003399"
 chassis.restitution=.01
 chassis.friction=.1
-chassis.pre_sdl="object{car"
 v:add(chassis)
 
 
@@ -76,13 +77,11 @@ v:add(chassis)
 -- left
 front_left_arm=Cylinder(arm_rad,arm_rad,front_arm_lenght,arm_mass)
 front_left_arm.pos=btVector3(front_axe_xpos,tire_rad,front_axe_width*.5-tire_width*.5-disc_width-front_arm_lenght*.5)
-front_left_arm.pre_sdl="object{front_arm"
 v:add(front_left_arm)
 
 -- right
 front_right_arm=Cylinder(arm_rad,arm_rad,front_arm_lenght,arm_mass)
 front_right_arm.pos=btVector3(front_axe_xpos,tire_rad,-front_axe_width*.5+tire_width*.5+disc_width+front_arm_lenght*.5)
-front_right_arm.pre_sdl="object{front_arm"
 v:add(front_right_arm)
 
 
@@ -93,13 +92,11 @@ v:add(front_right_arm)
 -- left
 front_left_disc=Cylinder(tire_rad*.5,tire_rad*.5,disc_width,disc_mass)
 front_left_disc.pos=btVector3(front_axe_xpos,tire_rad,front_axe_width*.5-tire_width*.5-disc_width*.5)
-front_left_disc.pre_sdl="object{front_disc"
 v:add(front_left_disc)
 
 -- right
 front_right_disc=Cylinder(tire_rad*.5,tire_rad*.5,disc_width,disc_mass)
 front_right_disc.pos=btVector3(front_axe_xpos,tire_rad,-(front_axe_width*.5-tire_width*.5-disc_width*.5))
-front_right_disc.pre_sdl="object{front_disc"
 v:add(front_right_disc)
 
 
@@ -113,7 +110,6 @@ front_left_wheel.pos = btVector3(front_axe_xpos, tire_rad, front_axe_width*.5)
 front_left_wheel.col = "#333333"
 front_left_wheel.friction=tire_friction
 front_left_wheel.restitution=tire_restitution
-front_left_wheel.pre_sdl="object{gs_tyre"
 v:add(front_left_wheel)
 
 -- right
@@ -122,7 +118,6 @@ front_right_wheel.pos = btVector3(front_axe_xpos, tire_rad, -front_axe_width*.5)
 front_right_wheel.col = "#333333"
 front_right_wheel.friction=tire_friction
 front_right_wheel.restitution=tire_restitution
-front_right_wheel.pre_sdl="object{gs_tyre"
 v:add(front_right_wheel)
 
 
@@ -306,13 +301,11 @@ v:addConstraint(front_right_body_arm_constraint)
 -- left
 rear_left_arm=Cylinder(arm_rad,arm_rad,front_arm_lenght,arm_mass)
 rear_left_arm.pos=btVector3(rear_axe_xpos,tire_rad,rear_axe_width*.5-tire_width*.5-disc_width-front_arm_lenght*.5)
-rear_left_arm.pre_sdl="object{rear_arm"
 v:add(rear_left_arm)
 
 -- right
 rear_right_arm=Cylinder(arm_rad,arm_rad,rear_arm_lenght,arm_mass)
 rear_right_arm.pos=btVector3(rear_axe_xpos,tire_rad,-rear_axe_width*.5+tire_width*.5+disc_width+rear_arm_lenght*.5)
-rear_right_arm.pre_sdl="object{rear_arm"
 v:add(rear_right_arm)
 
 
@@ -323,13 +316,11 @@ v:add(rear_right_arm)
 -- left
 rear_left_disc=Cylinder(tire_rad*.5,tire_rad*.5,disc_width,disc_mass)
 rear_left_disc.pos=btVector3(rear_axe_xpos,tire_rad,rear_axe_width*.5-tire_width*.5-disc_width*.5)
-rear_left_disc.pre_sdl="object{rear_disc"
 v:add(rear_left_disc)
 
 -- right
 rear_right_disc=Cylinder(tire_rad*.5,tire_rad*.5,disc_width,disc_mass)
 rear_right_disc.pos=btVector3(rear_axe_xpos,tire_rad,-(rear_axe_width*.5-tire_width*.5-disc_width*.5))
-rear_right_disc.pre_sdl="object{rear_disc"
 v:add(rear_right_disc)
 
 
@@ -343,7 +334,6 @@ rear_left_wheel.pos = btVector3(rear_axe_xpos, tire_rad, rear_axe_width*.5)
 rear_left_wheel.col = "#333333"
 rear_left_wheel.friction=tire_friction
 rear_left_wheel.restitution=tire_restitution
-rear_left_wheel.pre_sdl="object{gs_tyre"
 v:add(rear_left_wheel)
 
 -- right
@@ -352,7 +342,6 @@ rear_right_wheel.pos = btVector3(rear_axe_xpos, tire_rad, -rear_axe_width*.5)
 rear_right_wheel.col = "#333333"
 rear_right_wheel.friction=tire_friction
 rear_right_wheel.restitution=tire_restitution
-rear_right_wheel.pre_sdl="object{gs_tyre"
 v:add(rear_right_wheel)
 
 
@@ -360,9 +349,9 @@ v:add(rear_right_wheel)
 -- REAR STABILIZER BAR
 -- *******************
 
-rear_steering_bar=Cylinder(arm_rad*.5,arm_rad*.5,rear_axe_width-tire_width-disc_width*2,arm_mass*.5)
-rear_steering_bar.pos=btVector3(rear_axe_xpos+tire_rad*.4,tire_rad,0)
-v:add(rear_steering_bar)
+rear_stabilizer_bar=Cylinder(arm_rad*.5,arm_rad*.5,rear_axe_width-tire_width-disc_width*2,arm_mass*.5)
+rear_stabilizer_bar.pos=btVector3(rear_axe_xpos+tire_rad*.4,tire_rad,0)
+v:add(rear_stabilizer_bar)
 
 
 -- *************************************
@@ -374,7 +363,7 @@ rear_left_disc_pivot = btVector3(tire_rad*.4,0,-disc_width*.5)
 rear_left_steering_bar_pivot = btVector3(0,0,rear_axe_width*.5-tire_width*.5-disc_width)
 rear_left_steering_bar_constraint = btPoint2PointConstraint(
   rear_left_disc:getRigidBody(),
-  rear_steering_bar:getRigidBody(),
+  rear_stabilizer_bar:getRigidBody(),
   rear_left_disc_pivot,
   rear_left_steering_bar_pivot
 )
@@ -385,7 +374,7 @@ rear_right_disc_pivot = btVector3(tire_rad*.4,0,disc_width*.5)
 rear_right_steering_bar_pivot = btVector3(0,0,-rear_axe_width*.5+tire_width*.5+disc_width)
 rear_right_steering_bar_constraint = btPoint2PointConstraint(
   rear_right_disc:getRigidBody(),
-  rear_steering_bar:getRigidBody(),
+  rear_stabilizer_bar:getRigidBody(),
   rear_right_disc_pivot,
   rear_right_steering_bar_pivot
 )
@@ -396,7 +385,7 @@ rear_center_body_pivot = btVector3(rear_axe_xpos+tire_rad*.4,-chassis_height+tir
 rear_center_steering_bar_pivot = btVector3(0,0,0)
 rear_center_steering_bar_constraint = btPoint2PointConstraint(
   chassis:getRigidBody(),
-  rear_steering_bar:getRigidBody(),
+  rear_stabilizer_bar:getRigidBody(),
   rear_center_body_pivot,
   rear_center_steering_bar_pivot
 )
@@ -550,64 +539,61 @@ if(use_obstacles~=4) then
   plane.col = "#111111"
   plane.friction=0.9
   plane.restitution=.1
-  plane.pre_sdl="object{track"
   v:add(plane)
 end
 
 -- ground markings for reference of deviation
 if(use_markings==1) then
- if(use_obstacles<4) then
-  for j = 1,5 do
-   for i = 1,20 do
-    marks=Cube(5,.01,1,0)
-    marks.pos=btVector3(-200+i*20,.005,-3*40+40*j)
-    marks.col = "#FF9900"
-    marks.friction=.9
-    marks.pre_sdl="object{track_mark()"
-    v:add(marks)
-   end
+  if(use_obstacles<4) then
+    for j = 1,5 do
+      for i = 1,20 do
+        marks=Cube(5,.01,1,0)
+        marks.pos=btVector3(-200+i*20,.005,-3*40+40*j)
+        marks.col = "#FF9900"
+        marks.friction=.9
+        v:add(marks)
+      end
+    end
   end
- end
 end
 
 -- suspension test: alternate obstacles
 if(use_obstacles==1) then
- for i = 1,40 do
-  obs1=Cube(1,1,15,0)
-  if(i%2==0) then
-    obs1.pos=btVector3(20+i*5,.5,7.5)
-  else
-    obs1.pos=btVector3(20+i*5,.5,-7.5)
+  for i = 1,40 do
+    obs1=Cube(1,1,15,0)
+    if(i%2==0) then
+      obs1.pos=btVector3(20+i*5,.5,7.5)
+    else
+      obs1.pos=btVector3(20+i*5,.5,-7.5)
+    end
+    obs1.col = "#FF9900"
+    obs1.friction=.9
+    v:add(obs1)
   end
-  obs1.col = "#FF9900"
-  obs1.friction=.9
-  v:add(obs1)
- end
 end
 
 -- suspension test: steps
 if(use_obstacles==2) then
- for i = 1,40 do
-  obs1=Cube(10,1,30,0)
-  if(i<=20) then
-    obs1.pos=btVector3(20+i*10,.5+i,0)
-  else
-    obs1.pos=btVector3(20+i*10,.5+40-i,0)
+  for i = 1,40 do
+    obs1=Cube(10,1,30,0)
+    if(i<=20) then
+      obs1.pos=btVector3(20+i*10,.5+i,0)
+    else
+      obs1.pos=btVector3(20+i*10,.5+40-i,0)
+    end
+    obs1.col = "#FF9900"
+    obs1.friction=.9
+    v:add(obs1)
   end
-  obs1.col = "#FF9900"
-  obs1.friction=.9
-  v:add(obs1)
- end
 end
 
 -- suspension test: ramp
 if(use_obstacles==3) then
- ramp=Cube(30,.1,30,0)
- q = btQuaternion(0,0,.1,1)
- o = btVector3(150,3,0)
- ramp.trans=btTransform(q,o)
- ramp.pre_sdl="object{ramp"
- v:add(ramp)
+  ramp=Cube(30,.1,30,0)
+  q = btQuaternion(0,0,.1,1)
+  o = btVector3(150,3,0)
+  ramp.trans=btTransform(q,o)
+  v:add(ramp)
 end
 
 -- suspension test: mesh terrain test
@@ -620,6 +606,18 @@ if(use_obstacles==4) then
   v:add(terrain)
 end
 
+-- urban-like
+if(use_obstacles==5) then
+  for i = 1,100 do
+    obs1=Cube(50,50,50,0)
+    obs1.pos=btVector3(math.random(-5,5)*100,25,math.random(-5,5)*100)
+    obs1.col = "#FF9900"
+    obs1.friction=.9
+    if(math.abs(obs1.pos.x)>50 and math.abs(obs1.pos.x)>50) then
+    v:add(obs1)
+    end
+  end
+end
 
 -- ******************
 -- KEYBOARD SHORTCUTS
@@ -627,9 +625,9 @@ end
 
 -- switch camera
 v:addShortcut("F1", function(N)
-  camera_type = camera_type + 1;
-  if (camera_type == 6) then
-    camera_type = 0
+  camera_view = camera_view + 1;
+  if (camera_view == 4) then
+    camera_view = 1
   end
 end)
 
@@ -675,47 +673,53 @@ end)
 -- *************************
 v:postSim(function(N)
 
+if(camera_view>0) then
+
   cam = Cam()
-  -- pseudo orthographic from the side
-  if(camera_type==0) then
-  cam.pos = btVector3(chassis.pos.x,10,chassis.pos.z+2000)
-  cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
-  cam:setHorizontalFieldOfView(.025)
-  end
-  -- overview 1
-  if(camera_type==1) then
-  cam.pos = btVector3(chassis.pos.x+40,40,chassis.pos.z+50)
-  cam.look = chassis.pos
-  end
-  -- overview 2
-  if(camera_type==2) then
-  cam.pos = btVector3(50,40,chassis.pos.z+30)
-  cam.look = chassis.pos
-  cam:setHorizontalFieldOfView(1)
-  end
-  -- look at the front suspension and wheels
-  if(camera_type==3) then
-  cam.pos = btVector3(chassis.pos.x+99,chassis.pos.y+14,chassis.pos.z)
-  cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-  cam:setHorizontalFieldOfView(.5)
-  end
-  -- look at the rear suspension and wheels
-  if(camera_type==4) then
-  cam.pos = btVector3(chassis.pos.x-45,chassis.pos.y-3,chassis.pos.z)
-  cam.look = btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z)
+  
+  -- from the back, moves with the car
+  if(camera_view==1) then
+    cam.pos = rear_stabilizer_bar.pos+btVector3(rear_stabilizer_bar.pos.x-front_steering_bar.pos.x,chassis_height,rear_stabilizer_bar.pos.z-front_steering_bar.pos.z)*2
+    cam.look = front_steering_bar.pos
   end
   -- onboard
-  if(camera_type==5) then
-  cam.pos = btVector3(chassis.pos.x,chassis.pos.y+4,chassis.pos.z)
-  cam.look = btVector3(front_steering_bar.pos.x,chassis.pos.y+4,front_steering_bar.pos.z)
+  if(camera_view==2) then
+    cam.pos = btVector3(chassis.pos.x,chassis.pos.y+4,chassis.pos.z)
+    cam.look = btVector3(front_steering_bar.pos.x,chassis.pos.y+4,front_steering_bar.pos.z)
+  end
+  -- static mount looking at the car
+  if(camera_view==3) then
+    cam.pos = btVector3(50,140,60)
+    cam.look = chassis.pos
+    cam:setHorizontalFieldOfView(1)
+  end
+  -- close look at the front suspension and wheels
+  if(camera_view==4) then
+    cam.pos = btVector3(chassis.pos.x+79,chassis.pos.y-7,chassis.pos.z)
+    cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
+    cam:setHorizontalFieldOfView(.5)
+  end
+  -- close look at the rear suspension and wheels
+  if(camera_view==5) then
+    cam.pos = btVector3(chassis.pos.x-45,chassis.pos.y-3,chassis.pos.z)
+    cam.look = btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z)
   end
   -- from below
-  if(camera_type==6) then
-  cam.pos = btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z)
-  cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-  cam:setHorizontalFieldOfView(.1)
+  if(camera_view==6) then
+    cam.pos = btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z)
+    cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
+    cam:setHorizontalFieldOfView(.1)
   end
+  -- pseudo orthographic from the side 
+  if(camera_view==7) then
+    cam.pos = btVector3(chassis.pos.x,10,chassis.pos.z+2000)
+    cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
+    cam:setHorizontalFieldOfView(.025)
+  end
+  
   v:cam(cam)
+
+end
   
 end) -- postSim
 
