@@ -170,21 +170,17 @@ void Object::renderInLocalFrame(QTextStream *s) {
 }
 
 void Object::renderInLocalFramePre(QTextStream *s) {
-    btDefaultMotionState *ms = static_cast<btDefaultMotionState* >(body->getMotionState());
+    btTransform trans;
 
-    if (ms != 0) {
-      btTransform trans;
+    body->getMotionState()->getWorldTransform(trans);
+    trans.getOpenGLMatrix(matrix);
 
-      ms->getWorldTransform(trans);
-      trans.getOpenGLMatrix(matrix);
+    glPushMatrix();
+    glMultMatrixf(matrix);
+    glEnable(GL_NORMALIZE);
 
-      glPushMatrix();
-      glMultMatrixf(matrix);
-      glEnable(GL_NORMALIZE);
-
-      if (_cb_render) {
+    if (_cb_render) {
         luabind::call_function<void>(_cb_render, s);
-      }
     }
 }
 
