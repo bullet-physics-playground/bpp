@@ -73,7 +73,7 @@ QStringList lqobject_dynamicPropertyNames(QObject* w)
 LQObject lqobject()
 {
     return
-    class_<QObject>("QObject")
+    class_<QObject, boost::shared_ptr<QObject> >("QObject")
             .def(constructor<>())
             .def(constructor<QObject*>())
             .def("installEventFilter", installEventFilter_x)

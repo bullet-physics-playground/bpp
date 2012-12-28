@@ -16,10 +16,10 @@ std::ostream& operator<<(std::ostream&, const Gui& v);
 class Gui : public QMainWindow {
  Q_OBJECT
 
- public: 
+ public:
   Gui(bool savePOV = false, bool savePNG = false, QWidget *parent = 0);
   QMessageBox* msgBox;
- 
+
   QString toString() const;
   void luaBind(lua_State *s);
 
@@ -39,11 +39,14 @@ private slots:
   void postDraw(int);
   void debug(QString msg);
   void clearDebug();
+
+  void setStatusBarText(QString msg);
+
   void toggleSimButton(bool);
   void togglePOVButton(bool);
   void togglePNGButton(bool);
   void toggleDeactivationButton(bool);
-  
+
   void about();
   void newFile();
   void loadFile(const QString &path = QString());
@@ -59,7 +62,7 @@ private slots:
   void loadLastFile();
 
   void scriptChanged();
- 
+
   void parseEditor();
 
   // drag & drop support
@@ -93,7 +96,7 @@ private slots:
       ui.viewer->stopSim();
       _simulationRunning=false;
     }else{
-      QIcon playIcon = QIcon::fromTheme("media-playback-pause");	  
+      QIcon playIcon = QIcon::fromTheme("media-playback-pause");
       playAction->setIcon(playIcon);
       playAction->setText(tr("Pause &Simulation"));
       playAction->setShortcut(tr("Ctrl+C"));
@@ -131,10 +134,10 @@ private slots:
   void createToolBar();
   void createActions();
   void createMenus();
- 
+
   bool _fileSaved;
   bool _simulationRunning;
-  
+
   // settings
   QSettings *settings;
 
@@ -150,7 +153,7 @@ private slots:
   void updateRecentFileActions();
   void setCurrentFile(const QString &fileName);
 
-  // actions                                                                    
+  // actions
   QAction *newAction;
   QAction *openAction;
   QAction *saveAction;
@@ -175,7 +178,7 @@ private slots:
   QAction *playAction;
   //QAction *stopAction;
   QAction *restartAction;
-  
+
   QAction *povAction;
   QAction *pngAction;
   QAction *deactivationAction;

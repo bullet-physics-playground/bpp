@@ -18,7 +18,7 @@ std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
 Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   _fileSaved=true;
   _simulationRunning=false;
-	
+
   ui.setupUi(this);
 
   setMinimumSize(800, 600);
@@ -33,6 +33,8 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   setAcceptDrops(true);
 
   settings = new QSettings(APP_ORGANIZATION, APP_NAME);
+
+  ui.viewer->setSettings(settings);
 
   createDock();
 
@@ -59,6 +61,8 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(togglePNGButton(bool)));
   connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivationButton(bool)));
 
+  connect(ui.viewer, SIGNAL(statusEvent(QString)), this, SLOT(setStatusBarText(QString)));
+
   connect(commandLine, SIGNAL(execute(QString)), this, SLOT(command(QString)));
 
   loadSettings();
@@ -74,7 +78,7 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 
 void Gui::toggleSimButton(bool simRunning) {
   if(simRunning){
-    QIcon playIcon = QIcon::fromTheme("media-playback-pause");	  
+    QIcon playIcon = QIcon::fromTheme("media-playback-pause");
     playAction->setIcon(playIcon);
     playAction->setText(tr("Pause &Simulation"));
     playAction->setShortcut(tr("Ctrl+C"));
@@ -121,14 +125,14 @@ void Gui::postDraw(int frame) {
   //QPixmap p = QPixmap::grabWidget(this);
 
   if (savePNG) {
-	QPixmap p = QPixmap::grabWindow(this->winId());
-	
-	QString file;
-	file.sprintf("screenshots/w-%05d.png", frame);
-	
-	qDebug() << "saving screenshot " << file;
-	
-	p.save(file, "png");
+    QPixmap p = QPixmap::grabWindow(this->winId());
+
+    QString file;
+    file.sprintf("screenshots/w-%05d.png", frame);
+
+    qDebug() << "saving screenshot " << file;
+
+    p.save(file, "png");
   }
 
 }
@@ -489,14 +493,14 @@ void Gui::newFile() {
   if(!_fileSaved){
     msgBox = new QMessageBox(this);
     msgBox->setWindowTitle("Warning");
-    msgBox->setText("Current file not saved: continue anyhow?");        
+    msgBox->setText("Current file not saved: continue anyhow?");
     QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
-    msgBox->exec();  
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);
+    msgBox->exec();
     if ((QPushButton*)msgBox->clickedButton() != yesButton){
-	return;
+    return;
     }
-  } 
+  }
   editor->clear();
   setCurrentFile(editor->script_filename);
   saveAction->setEnabled(true);
@@ -507,14 +511,14 @@ void Gui::openFile(const QString& path) {
   if(!_fileSaved){
     msgBox = new QMessageBox(this);
     msgBox->setWindowTitle("Warning");
-    msgBox->setText("Current file not saved: continue anyhow?");        
+    msgBox->setText("Current file not saved: continue anyhow?");
     QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
-    msgBox->exec();  
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);
+    msgBox->exec();
     if ((QPushButton*)msgBox->clickedButton() != yesButton){
-	return;
+    return;
     }
-  } 
+  }
   editor->load(path);
   setCurrentFile(editor->script_filename);
   saveAction->setEnabled(false);
@@ -614,21 +618,21 @@ void Gui::resizeEvent(QResizeEvent *) {
 void Gui::closeEvent(QCloseEvent * event) {
   // qDebug() << "Gui::closeEvent";
   if(!_fileSaved){
-    event->ignore();	    
+    event->ignore();
     msgBox = new QMessageBox(this);
     msgBox->setWindowTitle("Warning");
-    msgBox->setText("File not saved: exit anyhow?");        
+    msgBox->setText("File not saved: exit anyhow?");
     QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-    msgBox->addButton(tr("No"), QMessageBox::ActionRole);  
-    msgBox->exec();  
+    msgBox->addButton(tr("No"), QMessageBox::ActionRole);
+    msgBox->exec();
     if ((QPushButton*)msgBox->clickedButton() == yesButton){
       saveSettings();
-	  ui.viewer->close();
+      ui.viewer->close();
       event->accept();
     }
   }else{
     saveSettings();
-	ui.viewer->close();
+    ui.viewer->close();
   }
 }
 
@@ -644,7 +648,7 @@ void Gui::command(QString cmd) {
     double x = s.at(1).toDouble();
     double y = s.at(2).toDouble();
     double z = s.at(3).toDouble();
-    
+
     log(QString("moving to <%1, %2, %3>.").arg(x).arg(y).arg(z));
 
     ui.viewer->rm->cmdMoveTo(x, y, z);
@@ -652,7 +656,7 @@ void Gui::command(QString cmd) {
     log("available commands:");
     log(" - home ");
     log(" - move [x][y][z] move end effector to <x,y,z>");
-	}*/
+    }*/
 
   ui.viewer->command(cmd);
 }
@@ -679,4 +683,8 @@ void Gui::luaBind(lua_State *s) {
    .def(constructor<>())
    .def(tostring(const_self))
   ];
+}
+
+void Gui::setStatusBarText(QString msg) {
+    statusBar()->showMessage(msg);
 }

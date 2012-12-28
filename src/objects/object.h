@@ -32,7 +32,7 @@ class Object : public QObject {
  Q_OBJECT;
 
  public:
-  Object(QObject *parent = NULL);
+  Object(QObject *parent = 0);
   virtual ~Object();
 
   void setColor(int r, int g, int b);

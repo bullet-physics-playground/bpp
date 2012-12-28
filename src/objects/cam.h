@@ -17,8 +17,8 @@ class Cam : public Camera {
  Q_OBJECT;
 
  public:
-  Cam();
-  virtual ~Cam() {};
+  Cam(QObject *parent = 0);
+  ~Cam();
 
   static void luaBind(lua_State *s);
 

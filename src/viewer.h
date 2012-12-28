@@ -120,6 +120,11 @@ class Viewer : public QGLViewer
   void setPostSDL(const QString&);
   QString getPostSDL() const;
 
+  void setSettings(QSettings *settings);
+
+  void setPrefs(QString key, QString value);
+  QString getPrefs(QString key, QString defaultValue) const;
+
 public slots:
   void close();
 
@@ -130,6 +135,7 @@ public slots:
   void setCBPostDraw(const luabind::object &fn);
   void setCBPreSim(const luabind::object &fn);
   void setCBPostSim(const luabind::object &fn);
+  void setCBPreStop(const luabind::object &fn);
   void setCBOnCommand(const luabind::object &fn);
 
   void keyPressEvent(QKeyEvent *e);
@@ -139,6 +145,8 @@ public slots:
   void showLuaException(const std::exception& e, const QString& context = "");
 
  signals:
+  void statusEvent(const QString&);
+
   void scriptFinished();
   void scriptStarts();
   void scriptStopped();
@@ -225,6 +233,7 @@ public slots:
   // Lua callback functions
   luabind::object _cb_preDraw,_cb_postDraw;
   luabind::object _cb_preSim,_cb_postSim;
+  luabind::object _cb_preStop;
   luabind::object _cb_onCommand;
 
   QHash<QString, luabind::object> *_cb_shortcuts;
@@ -248,6 +257,8 @@ public slots:
   // POV-Ray properties
   QString mPreSDL;
   QString mPostSDL;
+
+  QSettings * _settings;
 
 };
 

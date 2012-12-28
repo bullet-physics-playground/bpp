@@ -15,7 +15,15 @@ std::ostream& operator<<(std::ostream& ostream, const Cam& cam) {
   return ostream;
 }
 
-Cam::Cam() : Camera() {
+Cam::Cam(QObject *parent) : Camera() {
+    setParent(parent);
+    // qDebug() << "Cam::Cam()";
+//    setUpVector(Vec(0,0,-1), false);
+//    setViewDirection(Vec(0,1,0));
+}
+
+Cam::~Cam() {
+    // qDebug() << "Cam::~Cam()";
 }
 
 QString Cam::toString() const {
@@ -31,14 +39,15 @@ void Cam::luaBind(lua_State *s) {
 
   module(s)
     [
-	 class_<Camera>("Camera")
-     .def(constructor<>(), adopt(result))
-	 ];
+     class_<Camera, boost::shared_ptr<Camera> >("Camera")
+          .def(constructor<>())
+     ];
 
   module(s)
     [
      class_<Cam,Camera>("Cam")
-     .def(constructor<>(), adopt(result))
+          .def(constructor<>())
+          .def(constructor<QObject *>())
 
      .def("setFieldOfView", &Cam::setFieldOfView)
      .def("setHorizontalFieldOfView", &Cam::setHorizontalFieldOfView)

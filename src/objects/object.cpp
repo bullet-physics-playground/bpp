@@ -89,7 +89,8 @@ void Object::luaBind(lua_State *s) {
   module(s)
     [
      class_<Object>("Object")
-     .def(constructor<>(), adopt(result))
+          .def(constructor<>(), adopt(result))
+          .def(constructor<QObject *>(), adopt(result))
      .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
      .property("color",
