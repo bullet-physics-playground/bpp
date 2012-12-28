@@ -732,6 +732,16 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
   [
+   class_<btGeneric6DofConstraint,btTypedConstraint>("btGeneric6DofConstraint")
+   .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
+   .def("setLinearUpperLimit", &btGeneric6DofConstraint::setLinearUpperLimit)
+   .def("setLinearLowerLimit", &btGeneric6DofConstraint::setLinearLowerLimit)
+   .def("setLimit", &btGeneric6DofConstraint::setLimit)
+   .def("setAxis", &btGeneric6DofConstraint::setAxis)
+   ];
+
+  module(s)
+  [
    class_<btGeneric6DofSpringConstraint,btTypedConstraint>("btGeneric6DofSpringConstraint")
    .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
    .def("enableSpring", &btGeneric6DofSpringConstraint::enableSpring)
