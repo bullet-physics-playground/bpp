@@ -24,7 +24,7 @@ car_model=0
 -- camera view
 -- 0=default GL cam, 1=back, 2=onboard, 3=external 
 -- (see other test cameras at the EOF)
-camera_view=3
+camera_view = tonumber(v:loadPrefs("camera_view", "3"))
 
 -- chassis specs
 if (car_model==0) then
@@ -76,7 +76,7 @@ tire_restitution=.9
 
 -- obstacle selection:  
 -- 0=NONE, 1=ALTERNATE, 2=STEPS, 3=RAMP, 4=MESH TERRAIN 5=URBAN-LIKE
-use_obstacles=3
+use_obstacles=4
 
 -- reference ground marks
 use_markings=1
@@ -695,7 +695,7 @@ end)
 -- *************************
 -- on-the-fly camera control
 -- *************************
-v:postSim(function(N)
+v:preDraw(function(N)
 
 if(camera_view>0) then
 
@@ -745,6 +745,10 @@ if(camera_view>0) then
 
 end
   
-end) -- postSim
+end) -- preDraw
+
+v:preStop(function(N)
+  v:savePrefs("camera_view", tostring(camera_view))
+end) -- preStop
 
 -- EOF
