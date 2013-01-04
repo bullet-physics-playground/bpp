@@ -7,12 +7,20 @@ plane { <0,1,0>,0]]
 
 if (use_lightsys == 1) then
   p.post_sdl = [[
-  pigment{ checker rgb ReferenceRGB(Gray20) rgb ReferenceRGB(Gray60)}
+  pigment{
+    checker
+      rgb ReferenceRGB(Gray20)
+      rgb ReferenceRGB(Gray60)
+  }
 }
 ]]
 else
   p.post_sdl = [[
-  pigment { checker rgb <0.2,0.2,0.2>, rgb <0.6,0.6,0.6> }
+  pigment {
+    checker
+      rgb <0.2,0.2,0.2>,
+      rgb <0.6,0.6,0.6>
+  }
 }
 ]]
 end
@@ -59,9 +67,10 @@ sp.post_sdl =
 
 v:add(sp)
 
+c = Cam()
+v:cam(c)
+
 v:preDraw(function(N)
-  cam = Cam()
-  cam.pos = btVector3(4,4,5)
-  cam.look = sp.pos - btVector3(0,0.25,0)
-  v:cam(cam)
+  c.pos = btVector3(8,8,8)
+  c.look = cy.pos - btVector3(0,0,0)
 end)
