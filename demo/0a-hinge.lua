@@ -27,8 +27,7 @@ pivot2 = btVector3(0,0,2.5)
 axis2  = btVector3(0,0,1)
 
 con0 = btHingeConstraint(
-  cube:getRigidBody(),
-  c0:getRigidBody(),
+  cube.body, c0.body,
   pivot0, pivot1, axis0, axis1)
 
 con0:enableAngularMotor(true, 2, 1)
@@ -36,8 +35,7 @@ con0:enableAngularMotor(true, 2, 1)
 v:addConstraint(con0)
 
 con1 = btHingeConstraint(
-  cube:getRigidBody(),
-  c1:getRigidBody(),
+  cube.body, c1.body,
   pivot0, pivot2, axis0, axis2)
 
 con1:enableAngularMotor(true, -2, 1)
