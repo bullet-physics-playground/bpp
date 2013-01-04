@@ -173,11 +173,17 @@ void Object::renderInLocalFrame(QTextStream *s) {
 void Object::renderInLocalFramePre(QTextStream *s) {
     btTransform trans;
 
-    body->getMotionState()->getWorldTransform(trans);
-    trans.getOpenGLMatrix(matrix);
+    // qDebug() << toString() << (body->getMotionState());
 
-    glPushMatrix();
-    glMultMatrixf(matrix);
+    if (body && body->getMotionState()) {
+      body->getMotionState()->getWorldTransform(trans);
+      trans.getOpenGLMatrix(matrix);
+
+      glPushMatrix();
+      glMultMatrixf(matrix);
+    } else {
+    }
+
     glEnable(GL_NORMALIZE);
 
     if (_cb_render) {
