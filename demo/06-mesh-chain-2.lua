@@ -30,4 +30,4 @@ function chain(N,xp,yp,zp)
     
 end
 
-chain(30, 0, 80, 0)
+chain(14, 0, 100, 0)
