@@ -32,8 +32,7 @@ function collar(num_pearls,collar_pos,pearl_radius)
       this_pivot = btVector3(-pearl_radius,0,0)
       last_pivot = btVector3(pearl_radius,0,0)
       constr = btPoint2PointConstraint(
-        pearl:getRigidBody(),
-        last_pearl:getRigidBody(),
+        pearl.body, last_pearl.body,
         this_pivot,last_pivot)
         v:addConstraint(constr)
     else
@@ -44,8 +43,7 @@ function collar(num_pearls,collar_pos,pearl_radius)
       this_pivot = btVector3(pearl_radius,0,0)
       last_pivot = btVector3(-pearl_radius,0,0)
       constr = btPoint2PointConstraint(
-        pearl:getRigidBody(),
-        first_pearl:getRigidBody(),
+        pearl.body, first_pearl.body,
         this_pivot,last_pivot)
         v:addConstraint(constr)
     end
