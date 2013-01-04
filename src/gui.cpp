@@ -15,22 +15,11 @@ std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
+Gui::Gui(QWidget *parent) : QMainWindow(parent) {
   _fileSaved=true;
   _simulationRunning=false;
 
   ui.setupUi(this);
-
-  setMinimumSize(800, 600);
-
-  // setAttribute(Qt::WA_DeleteOnClose);
-  // setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
-  setWindowIcon(QIcon(":icons/physics.svg"));
-
-  ui.viewer->setSavePNG(savePNG);
-  ui.viewer->setSavePOV(savePOV);
-
-  setAcceptDrops(true);
 
   settings = new QSettings(APP_ORGANIZATION, APP_NAME);
 
@@ -42,11 +31,6 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   createMenus();
   setStatusBar( new QStatusBar(this) );
 
-  createToolBar();
-
-  this->savePNG = savePNG;
-  this->savePOV = savePOV;
-
   connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
   // map user defined shortcuts to the viewer sub-window
@@ -57,9 +41,9 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   connect(ui.viewer, SIGNAL(scriptHasOutput(QString)), this, SLOT(debug(QString)));
   connect(ui.viewer, SIGNAL(scriptStarts()), this, SLOT(clearDebug()));
   connect(ui.viewer, SIGNAL(simulationStateChanged(bool)), this, SLOT(toggleSimButton(bool)));
-  connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVButton(bool)));
-  connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(togglePNGButton(bool)));
-  connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivationButton(bool)));
+  connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVExport(bool)));
+  connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(toggleScreenshotExport(bool)));
+  connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivation(bool)));
 
   connect(ui.viewer, SIGNAL(statusEvent(QString)), this, SLOT(setStatusBarText(QString)));
 
@@ -68,10 +52,9 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
   loadSettings();
 
   connect(ui.viewer, SIGNAL(postDrawShot(int)), this, SLOT(postDraw(int)));
-
   // commandLine->setFocus();
 
-  newFile();
+  fileNew();
 
   QTimer::singleShot(0, this, SLOT(loadLastFile()));
 }
@@ -79,51 +62,44 @@ Gui::Gui(bool savePNG, bool savePOV, QWidget *parent) : QMainWindow(parent) {
 void Gui::toggleSimButton(bool simRunning) {
   if(simRunning){
     QIcon playIcon = QIcon::fromTheme("media-playback-pause");
-    playAction->setIcon(playIcon);
-    playAction->setText(tr("Pause &Simulation"));
-    playAction->setShortcut(tr("Ctrl+C"));
-    playAction->setStatusTip(tr("Pause Simulation"));
-    playAction->setChecked(true);
+    ui.actionToggleSim->setIcon(playIcon);
+    ui.actionToggleSim->setText(tr("Pause &Simulation"));
+    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
+    ui.actionToggleSim->setStatusTip(tr("Pause Simulation"));
+    ui.actionToggleSim->setChecked(true);
     _simulationRunning=true;
   }else{
     QIcon playIcon = QIcon::fromTheme("media-playback-start");
-    playAction->setIcon(playIcon);
-    playAction->setText(tr("&Run simulation.."));
-    playAction->setShortcut(tr("Ctrl+P"));
-    playAction->setStatusTip(tr("Run Simulation"));
-    playAction->setChecked(false);
+    ui.actionToggleSim->setIcon(playIcon);
+    ui.actionToggleSim->setText(tr("&Run simulation.."));
+    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
+    ui.actionToggleSim->setStatusTip(tr("Run Simulation"));
+    ui.actionToggleSim->setChecked(false);
     _simulationRunning=false;
   }
 }
 
-void Gui::togglePOVButton(bool enabledPOV) {
-  if(enabledPOV){
-    povAction->setChecked(true);
-  }else{
-    povAction->setChecked(false);
-  }
+void Gui::togglePOVExport(bool p) {
+  ui.viewer->toggleSavePOV(p);
+  ui.actionTogglePOVExport->setChecked(p);
 }
 
-void Gui::togglePNGButton(bool enabledPNG) {
-  if(enabledPNG){
-    pngAction->setChecked(true);
-  }else{
-    pngAction->setChecked(false);
-  }
+void Gui::toggleScreenshotExport(bool p) {
+  ui.viewer->toggleSavePNG(p);
+
+  ui.actionTogglePNGScreenshot->setChecked(p);
 }
 
-void Gui::toggleDeactivationButton(bool enabledDeactivation) {
-  if(enabledDeactivation){
-    deactivationAction->setChecked(true);
-  }else{
-    deactivationAction->setChecked(false);
-  }
+void Gui::toggleDeactivation(bool d) {
+  ui.viewer->toggleDeactivation(d);
+  ui.actionToggleDeactivation->setChecked(d);
 }
 
 
 void Gui::postDraw(int frame) {
   //QPixmap p = QPixmap::grabWidget(this);
 
+  /*
   if (savePNG) {
     QPixmap p = QPixmap::grabWindow(this->winId());
 
@@ -134,6 +110,7 @@ void Gui::postDraw(int frame) {
 
     p.save(file, "png");
   }
+  */
 
 }
 
@@ -152,7 +129,7 @@ void Gui::dropEvent(QDropEvent *event) {
 
   if (filePath.isEmpty()) return;
 
-  loadFile(filePath);
+  fileLoad(filePath);
 
   event->acceptProposedAction();
 }
@@ -165,13 +142,13 @@ void Gui::loadLastFile() {
   settings->endGroup();
 
   if (lastFile != "") {
-    loadFile(lastFile);
+    fileLoad(lastFile);
   } else {
-    loadFile(":demo/00-objects.lua");
+    fileLoad(":demo/00-objects.lua");
   }
 }
 
-void Gui::loadFile(const QString &path) {
+void Gui::fileLoad(const QString &path) {
   QFile file(path);
 
   settings->beginGroup( "mainwindow" );
@@ -188,7 +165,7 @@ void Gui::loadFile(const QString &path) {
     parseEditor();
     statusBar()->showMessage(tr("File loaded"), 2000);
     _fileSaved = true;
-    saveAction->setEnabled(false);
+    ui.actionSave->setEnabled(false);
   } else {
     setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
     statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
@@ -199,141 +176,7 @@ void Gui::loadFile(const QString &path) {
 #endif
 }
 
-void Gui::createToolBar() {
-  myToolBar = new QToolBar(this);
-  myToolBar->setWindowTitle("Toolbar Main");
-  myToolBar->setObjectName("ToolBarMain");
-
-  myToolBar->addAction( newAction );
-  myToolBar->addAction( openAction );
-  myToolBar->addAction( saveAction );
-  myToolBar->addAction( saveAsAction );
-  myToolBar->addSeparator();
-  myToolBar->addAction( cutAction );
-  myToolBar->addAction( copyAction );
-  myToolBar->addAction( pasteAction );
-  myToolBar->addAction( prefsAction );
-  myToolBar->addSeparator();
-  myToolBar->addAction( playAction );
-  myToolBar->addAction( restartAction );
-  myToolBar->addSeparator();
-  myToolBar->addAction( povAction );
-  myToolBar->addAction( pngAction );
-  myToolBar->addAction( deactivationAction );
-  myToolBar->addSeparator();
-  myToolBar->addAction( resetAction );
-
-  addToolBar( myToolBar );
-}
-
 void Gui::createActions() {
-  QIcon newIcon = QIcon::fromTheme("document-new");
-  newAction = new QAction(newIcon,tr("&New"), this);
-  newAction->setShortcut(tr("Ctrl+N"));
-  newAction->setStatusTip(tr("Create a new file"));
-  connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
-
-  QIcon openIcon = QIcon::fromTheme("document-open" );
-  openAction = new QAction(openIcon, tr("&Open..."), this);
-  openAction->setShortcut(tr("Ctrl+O"));
-  openAction->setStatusTip(tr("Open an existing file"));
-  connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
-
-  QIcon saveIcon = QIcon::fromTheme("document-save" );
-  saveAction = new QAction(saveIcon, tr("&Save.."), this);
-  saveAction->setShortcut(tr("Ctrl+S"));
-  saveAction->setStatusTip(tr("Save file"));
-  connect(saveAction, SIGNAL(triggered()), this, SLOT(save()));
-  saveAction->setEnabled(false);
-
-  QIcon saveAsIcon = QIcon::fromTheme("document-save-as" );
-  saveAsAction = new QAction(saveAsIcon, tr("&Save As.."), this);
-  saveAsAction->setShortcut(tr("Ctrl+A"));
-  saveAsAction->setStatusTip(tr("Save file as.."));
-  connect(saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
-
-  cutAction = new QAction(QIcon::fromTheme("edit-cut"), tr("Cu&t"), this);
-  cutAction->setShortcuts(QKeySequence::Cut);
-  cutAction->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-  connect(cutAction, SIGNAL(triggered()), editor, SLOT(cut()));
-
-  copyAction = new QAction(QIcon::fromTheme("edit-copy"), tr("&Copy"), this);
-  copyAction->setShortcuts(QKeySequence::Copy);
-  copyAction->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-  connect(copyAction, SIGNAL(triggered()), editor, SLOT(copy()));
-
-  pasteAction = new QAction(QIcon::fromTheme("edit-paste"), tr("&Paste"), this);
-  pasteAction->setShortcuts(QKeySequence::Paste);
-  pasteAction->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-  connect(pasteAction, SIGNAL(triggered()), editor, SLOT(paste()));
-  cutAction->setEnabled(false);
-  copyAction->setEnabled(false);
-  connect(editor, SIGNAL(copyAvailable(bool)), cutAction, SLOT(setEnabled(bool)));
-  connect(editor, SIGNAL(copyAvailable(bool)), copyAction, SLOT(setEnabled(bool)));
-
-  prefsAction = new QAction(QIcon::fromTheme("preferences-system"), tr("&Preferences.."), this);
-  prefsAction->setShortcut(tr("Ctrl+P"));
-  prefsAction->setStatusTip(tr("Edit application preferences"));
-  connect(prefsAction, SIGNAL(triggered()), this, SLOT(editPrefs()));
-
-  exitAction = new QAction(tr("E&xit"), this);
-  exitAction->setShortcut(tr("Ctrl+X"));
-  exitAction->setStatusTip(tr("Exit the application"));
-  connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-
-  aboutAction = new QAction(tr("&About"), this);
-  aboutAction->setStatusTip(tr("Show the application's About box"));
-  connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
-
-  QIcon playIcon = QIcon::fromTheme("media-playback-start");
-  playAction = new QAction(playIcon,tr("&Run simulation.."), this);
-  playAction->setShortcut(tr("Ctrl+P"));
-  playAction->setStatusTip(tr("Run Simulation"));
-  playAction->setCheckable(true);
-  connect(playAction, SIGNAL(triggered()), this, SLOT( toggleSim() ));
-  //connect(playAction, SIGNAL(triggered()), this, SLOT( runProgram() ));
-
-  /*QIcon stopIcon = QIcon::fromTheme("media-playback-pause");
-  stopAction = new QAction(stopIcon,tr("Pause &Simulation"), this);
-  stopAction->setShortcut(tr("Ctrl+C"));
-  stopAction->setStatusTip(tr("Pause Simulation"));
-  stopAction->setCheckable(true);
-  connect(stopAction, SIGNAL(triggered()), this, SLOT( stopProgram() ));*/
-
-  QIcon restartIcon = QIcon::fromTheme("view-refresh");
-  restartAction = new QAction(restartIcon,tr("&Restart Simulation"), this);
-  restartAction->setShortcut(tr("Ctrl+R"));
-  restartAction->setStatusTip(tr("Restart Simulation"));
-  connect(restartAction, SIGNAL(triggered()), this, SLOT( rerunProgram() ));
-
-  QIcon povIcon = QIcon(":icons/povray.png");
-  povAction = new QAction(povIcon,tr("Toggle &POV export"), this);
-  povAction->setShortcut(tr("Ctrl+R"));
-  povAction->setStatusTip(tr("Toggle POV export"));
-  povAction->setCheckable(true);
-  connect(povAction, SIGNAL(triggered()), this, SLOT( toggleExport() ));
-
-  QIcon pngIcon = QIcon::fromTheme("camera");
-  pngAction = new QAction(pngIcon,tr("Toggle PNG &screenshot saving"), this);
-  pngAction->setShortcut(tr("Ctrl+R"));
-  pngAction->setStatusTip(tr("Toggle PNG screenshot saving"));
-  pngAction->setCheckable(true);
-  connect(pngAction, SIGNAL(triggered()), this, SLOT( toggleScreenshots() ));
-
-  QIcon deactivationIcon = QIcon(":icons/deactivation.png");
-  deactivationAction = new QAction(deactivationIcon,tr("Toggle &deactivation state"), this);
-  deactivationAction->setShortcut(tr("Ctrl+R"));
-  deactivationAction->setStatusTip(tr("Toggle deactivation state"));
-  deactivationAction->setCheckable(true);
-  deactivationAction->setChecked(true);
-  connect(deactivationAction, SIGNAL(triggered()), this, SLOT( toggleDeactivationState() ));
-
-  QIcon resetIcon = QIcon::fromTheme("go-home");
-  resetAction = new QAction(resetIcon,tr("Reset &camera view to initial state"), this);
-  resetAction->setShortcut(tr("Ctrl+R"));
-  resetAction->setStatusTip(tr("Reset camera view to initial state"));
-  connect(resetAction, SIGNAL(triggered()), this, SLOT( resetCamera() ));
-
   for (int i = 0; i < MAX_RECENT_FILES; ++i) {
     recentFileActions[i] = new QAction(this);
     recentFileActions[i]->setVisible(false);
@@ -343,31 +186,14 @@ void Gui::createActions() {
 }
 
 void Gui::createMenus() {
-  fileMenu = menuBar()->addMenu( tr("&File") );
-  fileMenu->addAction( newAction );
-  fileMenu->addAction( openAction );
-  fileMenu->addSeparator();
-  fileMenu->addAction( saveAction );
-  fileMenu->addAction( saveAsAction );
-  separatorAction = fileMenu->addSeparator();
   for (int i = 0; i < MAX_RECENT_FILES; ++i)
-    fileMenu->addAction(recentFileActions[i]);
-  fileMenu->addSeparator();
-  fileMenu->addAction( exitAction );
+    ui.menuFile->addAction(recentFileActions[i]);
+
+  actionSeparator = ui.menuFile->addSeparator();
+
+  ui.menuFile->addAction(ui.actionExit);
 
   updateRecentFileActions();
-
-  editMenu = new QMenu(tr("E&dit"));
-  editAction = menuBar()->addMenu(editMenu);
-  editMenu->addAction(cutAction);
-  editMenu->addAction(copyAction);
-  editMenu->addAction(pasteAction);
-  editMenu->addSeparator();
-  editMenu->addAction(prefsAction);
-
-  helpMenu = new QMenu(tr("&Help"));
-  helpAction = menuBar()->addMenu(helpMenu);
-  helpMenu->addAction(aboutAction);
 }
 
 void Gui::updateRecentFileActions() {
@@ -384,7 +210,7 @@ void Gui::updateRecentFileActions() {
   for (int j = numRecentFiles; j < MAX_RECENT_FILES; ++j)
     recentFileActions[j]->setVisible(false);
 
-  separatorAction->setVisible(numRecentFiles > 0);
+  actionSeparator->setVisible(numRecentFiles > 0);
 }
 
 void Gui::setCurrentFile(const QString &fileName) {
@@ -395,6 +221,10 @@ void Gui::setCurrentFile(const QString &fileName) {
     setWindowTitle(tr("Recent Files"));
   else
     setWindowTitle(tr("%1 %2 - %3").arg(APP_NAME_FULL).arg(APP_VERSION).arg(strippedName(editor->script_filename)));
+
+  if (fileName == "no_name") {
+      return;
+  }
 
   QStringList files = settings->value("recentFileList").toStringList();
   files.removeAll(fileName);
@@ -442,13 +272,14 @@ void Gui::createDock() {
   dw3->setVisible(false);
 }
 
-void Gui::about() {
+void Gui::helpAbout() {
     QString txt =
 
     tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
     tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
     tr("<p>&copy; 2008-2013 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
-    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
+    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>") + \
+    tr("<p>Using: GLEW %1, OpenGL: %2</p>").arg((const char*) glewGetString(GLEW_VERSION)).arg(GL_VERSION);
 
   QMessageBox::about(this, tr("About"), txt);
 }
@@ -462,7 +293,7 @@ QString Gui::strippedNameNoExt(const QString &fullFileName) {
 }
 
 void Gui::scriptChanged() {
-  saveAction->setEnabled(true);
+  ui.actionSave->setEnabled(true);
   _fileSaved=false;
   parseEditor();
 }
@@ -489,7 +320,7 @@ void Gui::clearDebug() {
   debugText->clear();
 }
 
-void Gui::newFile() {
+void Gui::fileNew() {
   if(!_fileSaved){
     msgBox = new QMessageBox(this);
     msgBox->setWindowTitle("Warning");
@@ -503,11 +334,11 @@ void Gui::newFile() {
   }
   editor->clear();
   setCurrentFile(editor->script_filename);
-  saveAction->setEnabled(true);
+  ui.actionSave->setEnabled(true);
   _fileSaved=true;
 }
 
-void Gui::openFile(const QString& path) {
+void Gui::fileOpen(const QString& path) {
   if(!_fileSaved){
     msgBox = new QMessageBox(this);
     msgBox->setWindowTitle("Warning");
@@ -521,44 +352,44 @@ void Gui::openFile(const QString& path) {
   }
   editor->load(path);
   setCurrentFile(editor->script_filename);
-  saveAction->setEnabled(false);
+  ui.actionSave->setEnabled(false);
   _fileSaved=true;
 }
 
-void Gui::save() {
+void Gui::fileSave() {
   if (editor->save()) {
     setCurrentFile(editor->script_filename);
-    saveAction->setEnabled(false);
+    ui.actionSave->setEnabled(false);
     _fileSaved=true;
   } else {
-    saveAction->setEnabled(true);
+    ui.actionSave->setEnabled(true);
     _fileSaved=false;
   }
 }
 
-void Gui::saveAs() {
+void Gui::fileSaveAs() {
   if (editor->saveAs()) {
     setCurrentFile(editor->script_filename);
-    saveAction->setEnabled(false);
+    ui.actionSave->setEnabled(false);
     _fileSaved=true;
   } else {
-    saveAction->setEnabled(true);
+    ui.actionSave->setEnabled(true);
     _fileSaved=false;
   }
 }
 
-void Gui::saveFile(const QString& path) {
+void Gui::fileSave(const QString& path) {
   if (editor->saveAs(path)) {
     setCurrentFile(editor->script_filename);
-    saveAction->setEnabled(false);
+    ui.actionSave->setEnabled(false);
     _fileSaved=true;
   } else {
-    saveAction->setEnabled(true);
+    ui.actionSave->setEnabled(true);
     _fileSaved=false;
   }
 }
 
-void Gui::editPrefs() {
+void Gui::editPreferences() {
   Prefs *p = new Prefs(this, 0, APP_ORGANIZATION, APP_NAME);
 
   connect(p, SIGNAL(fontChanged(QString, uint)),
@@ -570,7 +401,7 @@ void Gui::editPrefs() {
 void Gui::openRecentFile() {
   QAction *action = qobject_cast<QAction *>(sender());
   if (action) {
-    loadFile(action->data().toString());
+    fileLoad(action->data().toString());
   }
 }
 
@@ -663,9 +494,6 @@ void Gui::command(QString cmd) {
 
 void Gui::log(QString text) {
   debugText->appendLine(text);
-}
-
-void Gui::updateValues() {
 }
 
 QString Gui::toString() const {

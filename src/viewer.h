@@ -42,9 +42,9 @@ class Viewer : public QGLViewer
 
   void setSavePNG(bool png);
   void setSavePOV(bool pov);
-  void toggleSavePOV();
-  void toggleSavePNG();
-  void toggleDeactivation();
+  void toggleSavePOV(bool savePOV);
+  void toggleSavePNG(bool savePNG);
+  void toggleDeactivation(bool deactivation);
   void startSim();
   void stopSim();
   void restartSim();

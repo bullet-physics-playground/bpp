@@ -68,65 +68,25 @@ std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-#define LuaClassNonDeletable(in_class) \
-namespace luabind{namespace detail{ \
-template<> struct delete_s<in_class> {static void apply(void*) {}}; \
-template<> struct destruct_only_s<in_class> {static void apply(void*){}}; \
-}}
-
-LuaClassNonDeletable(btDefaultMotionState)
-LuaClassNonDeletable(btMotionState)
-LuaClassNonDeletable(btCollisionObject)
-LuaClassNonDeletable(btRigidBody)
-
 struct btMotionState_wrap : public btMotionState, wrap_base
 {
-    btMotionState_wrap(const btTransform &, const btTransform &) {}
-    btMotionState_wrap(const btTransform &) {}
+    btMotionState_wrap(const btTransform &, const btTransform &) : wrap_base() {}
+    btMotionState_wrap(const btTransform &) : wrap_base() {}
 
     virtual void getWorldTransform (btTransform &worldTrans) const {
-        qDebug() << "btMotionState_wrap::getWorldTransform()";
-        call_member<void>(this, "getWorldTransform", worldTrans);
-        /*
-        lua_State* L = m_self.state();
-                m_self.get(L);
-                if( ! lua_isnil( L, -1 ) ) {
-                } else {
-                    qDebug() << "getWorldTransform missing on the Lua side";
-                }
-                lua_pop( L, 1 ); */
+      call_member<void>(this, "getWorldTransform", worldTrans);
     }
 
     virtual void setWorldTransform (const btTransform &worldTrans) {
-        qDebug() << "btMotionState_wrap::setWorldTransform()";
-        call_member<void>(this, "setWorldTransform", worldTrans);
-        /*
-        lua_State* L = m_self.state();
-                m_self.get(L);
-                if( ! lua_isnil( L, -1 ) )
-                else
-                    qDebug() << "setWorldTransform missing on the Lua side";
-                lua_pop( L, 1 );*/
-    }
-
-    virtual ~btMotionState_wrap() {
-        qDebug() << "~btMotionState_wrap()";
+      call_member<void>(this, "setWorldTransform", worldTrans);
     }
 };
 
 struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wrap
 {
     btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset)
-        : btDefaultMotionState(startTrans, centerOfMassOffset), btMotionState_wrap(startTrans, centerOfMassOffset) {
-        qDebug() << "btDefaultMotionState_wrap()";
-    }
-    btDefaultMotionState_wrap(const btTransform &startTrans) : btDefaultMotionState(startTrans), btMotionState_wrap(startTrans) {
-        qDebug() << "btDefaultMotionState_wrap()";
-    }
-
-    virtual ~btDefaultMotionState_wrap() {
-        qDebug() << "~btDefaultMotionState_wrap()";
-    }
+        : btMotionState_wrap(startTrans, centerOfMassOffset) {}
+    btDefaultMotionState_wrap(const btTransform &startTrans) : btMotionState_wrap(startTrans) {}
 };
 
 QString Viewer::toString() const {
@@ -155,10 +115,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
    .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
    .def("postSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostSim, adopt(luabind::result))
-   .def("preStop", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreStop, adopt(luabind::result))
    .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
-   .def("savePrefs", &Viewer::setPrefs)
-   .def("loadPrefs", &Viewer::getPrefs)
    .property("glShininess", &Viewer::getGLShininess, &Viewer::setGLShininess)
    .property("glSpecularColor", &Viewer::getGLSpecularColor, &Viewer::setGLSpecularColor)
    .property("glSpecularColor", &Viewer::getGLSpecularCol, &Viewer::setGLSpecularCol)
@@ -216,17 +173,17 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s)
   [
-   class_<btMotionState, boost::shared_ptr<btMotionState_wrap>, btMotionState_wrap >("btMotionState")
-   .def("getWorldTransform", &btMotionState_wrap::getWorldTransform)
-   .def("setWorldTransform", &btMotionState_wrap::setWorldTransform)
+   class_<btMotionState, btMotionState_wrap>("btMotionState")
+   .def("getWorldTransform", &btMotionState::getWorldTransform)
+   .def("setWorldTransform", &btMotionState::setWorldTransform)
   ];
 
   // btDefaultMotionState
   module(s)
   [
-   class_<btDefaultMotionState, boost::shared_ptr<btDefaultMotionState_wrap>, btDefaultMotionState_wrap, btMotionState >("btDefaultMotionState")
-          .def(constructor<const btTransform&, const btTransform&>(), adopt(result))
-          .def(constructor<const btTransform&>(), adopt(result))
+   class_<btDefaultMotionState, btDefaultMotionState_wrap, btMotionState>("btDefaultMotionState")
+   .def(constructor<const btTransform&, const btTransform&>())
+   .def(constructor<const btTransform&>())
   ];
 
   // BULLET SHAPE CLASSES
@@ -565,7 +522,7 @@ void Viewer::luaBind(lua_State *s) {
 
   module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionObject.html
   [
-   class_<btCollisionObject, boost::shared_ptr<btCollisionObject> >("btCollisionObject")
+   class_<btCollisionObject>("btCollisionObject")
    .def(constructor<>())
    .def("mergesSimulationIslands", &btCollisionObject::mergesSimulationIslands)
    .def("getAnisotropicFriction", &btCollisionObject::getAnisotropicFriction)
@@ -770,16 +727,6 @@ void Viewer::luaBind(lua_State *s) {
    .def("setRestitutionOrthoAng", &btSliderConstraint::setRestitutionOrthoAng)
    .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
    .def("setParam", &btSliderConstraint::setParam)
-   ];
-
-  module(s)
-  [
-   class_<btGeneric6DofConstraint,btTypedConstraint>("btGeneric6DofConstraint")
-   .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
-   .def("setLinearUpperLimit", &btGeneric6DofConstraint::setLinearUpperLimit)
-   .def("setLinearLowerLimit", &btGeneric6DofConstraint::setLinearLowerLimit)
-   .def("setLimit", &btGeneric6DofConstraint::setLimit)
-   .def("setAxis", &btGeneric6DofConstraint::setAxis)
    ];
 
   module(s)
@@ -1051,7 +998,6 @@ void Viewer::addObjects() {
 }
 
 Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
-
   setAttribute(Qt::WA_DeleteOnClose);
 
   _objects = new QSet<Object *>();
@@ -1098,8 +1044,8 @@ void Viewer::close() {
 
 void Viewer::setCamera(Cam *cam) {
   _cam = cam;
-
   QGLViewer::setCamera( cam );
+  // QGLViewer::setManipulatedFrame(cam->frame());
 }
 
 void Viewer::setSavePNG(bool png) {
@@ -1110,16 +1056,16 @@ void Viewer::setSavePOV(bool pov) {
   _savePOV = pov;
 }
 
-void Viewer::toggleSavePNG(bool savePNG) {
-  _savePNG = savePNG;
+void Viewer::toggleSavePNG() {
+  _savePNG = !_savePNG;
 }
 
-void Viewer::toggleSavePOV(bool savePOV) {
-  _savePOV = savePOV;
+void Viewer::toggleSavePOV() {
+  _savePOV = !_savePOV;
 }
 
-void Viewer::toggleDeactivation(bool deactivation) {
-  _deactivation = deactivation;
+void Viewer::toggleDeactivation() {
+  _deactivation = !_deactivation;
 }
 
 void Viewer::startSim() {
@@ -1177,14 +1123,6 @@ bool Viewer::parse(QString txt) {
 
   QMutexLocker locker(&mutex);
 
-  if(_cb_preStop) {
-    try {
-      luabind::call_function<void>(_cb_preStop, _frameNum);
-    } catch(const std::exception& e){
-      showLuaException(e, "v:preStop()");
-    }
-  }
-
   _parsing = true;
   _has_exception = false;
 
@@ -1199,9 +1137,8 @@ bool Viewer::parse(QString txt) {
   emit scriptStarts();
 
   if (L != NULL) {
-      lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-
-      clear();
+    clear();
+    // FIXME lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
 
     // invalidate function refs
     _cb_preDraw = luabind::object();
@@ -1210,42 +1147,43 @@ bool Viewer::parse(QString txt) {
     _cb_postSim = luabind::object();
     _cb_onCommand = luabind::object();
 
-    // lua_close(L);
-  } else {
-      // setup lua
-      L = luaL_newstate();
-      // open all standard Lua libs
-      luaL_openlibs(L);
-
-      // register all bpp classes
-      Cam::luaBind(L);
-      Object::luaBind(L);
-      Objects::luaBind(L);
-      Cube::luaBind(L);
-      Cylinder::luaBind(L);
-      Mesh3DS::luaBind(L);
-      Palette::luaBind(L);
-      Plane::luaBind(L);
-      Sphere::luaBind(L);
-      Viewer::luaBind(L);
-
-    #ifdef HAS_LUA_QT
-
-    #ifdef HAS_QEXTSERIAL
-      QSerialPort::luaBind(L);
-    #endif
-
-      // register some qt classes
-      register_classes(L);
-
-    #endif
-
-      luaBindInstance(L);
-
-      lua_pushlightuserdata(L, (void*)this);
-      lua_pushcclosure(L,  &Viewer::lua_print, 1);
-      lua_setglobal(L, "print");
+    lua_close(L);
   }
+
+  // setup lua
+  L = luaL_newstate();
+
+  // open all standard Lua libs
+  luaL_openlibs(L);
+
+  // register all bpp classes
+  Cam::luaBind(L);
+  Object::luaBind(L);
+  Objects::luaBind(L);
+  Cube::luaBind(L);
+  Cylinder::luaBind(L);
+  Mesh3DS::luaBind(L);
+  Palette::luaBind(L);
+  Plane::luaBind(L);
+  Sphere::luaBind(L);
+  Viewer::luaBind(L);
+
+#ifdef HAS_LUA_QT
+
+#ifdef HAS_QEXTSERIAL
+  QSerialPort::luaBind(L);
+#endif
+
+  // register some qt classes
+  register_classes(L);
+
+#endif
+
+  luaBindInstance(L);
+
+  lua_pushlightuserdata(L, (void*)this);
+  lua_pushcclosure(L,  &Viewer::lua_print, 1);
+  lua_setglobal(L, "print");
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
     || lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -1294,6 +1232,8 @@ void Viewer::clear() {
     ++i;
   }
 
+  _objects->clear();
+
   // remove all contact manifolds
   for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
     btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
@@ -1314,8 +1254,6 @@ void Viewer::clear() {
     dynamicsWorld->removeConstraint(*it);
     ++it;
   }
-
-  _objects->clear();
 
   _constraints->clear();
   _cb_shortcuts->clear();
@@ -1488,19 +1426,13 @@ void Viewer::init() {
 }
 
 void Viewer::draw() {
+
   if (_parsing) return;
 
   // Don't know if this is a good idea..
   // computeBoundingBox();
 
   QMutexLocker locker(&mutex);
-
-  if (L) {
-    lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-    int lsize = lua_gc(L, LUA_GCCOUNT, -1);
-    emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
-    lua_gc(L, LUA_GCSTOP, -1);
-  }
 
   glDisable(GL_COLOR_MATERIAL);
 
@@ -1611,12 +1543,6 @@ void Viewer::setCBPreSim(const luabind::object &fn) {
 void Viewer::setCBPostSim(const luabind::object &fn) {
   if(luabind::type(fn) == LUA_TFUNCTION) {
     _cb_postSim = fn;
-  }
-}
-
-void Viewer::setCBPreStop(const luabind::object &fn) {
-  if(luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_preStop = fn;
   }
 }
 
@@ -1958,19 +1884,3 @@ QString Viewer::getPostSDL() const {
     return mPostSDL;
 }
 
-void Viewer::setPrefs(QString key, QString value) {
-    _settings->beginGroup("lua");
-    _settings->setValue(key, value);
-    _settings->endGroup();
-}
-
-QString Viewer::getPrefs(QString key, QString defaultValue) const {
-    _settings->beginGroup("lua");
-    QString v =_settings->value(key, defaultValue).toString();
-    _settings->endGroup();
-    return v;
-}
-
-void Viewer::setSettings(QSettings *settings) {
-    _settings = settings;
-}
