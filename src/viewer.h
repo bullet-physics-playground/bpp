@@ -10,16 +10,13 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include "BulletDynamics/Vehicle/btRaycastVehicle.h"
-
-#include <QMutex>
-#include <QMutexLocker>
-
 #include <QFile>
 #include <QDir>
-#include <QTextStream>
+#include <QMutex>
 #include <QKeyEvent>
+#include <QMutexLocker>
 #include <QSettings>
+#include <QTextStream>
 
 #include "objects/cam.h"
 
