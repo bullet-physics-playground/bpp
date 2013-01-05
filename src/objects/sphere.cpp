@@ -92,7 +92,7 @@ void Sphere::renderInLocalFrame(QTextStream *s) {
 
   glColor3ubv(color);
 
-  glutSolidSphere(1.0f, 64, 64);
+  glutSolidSphere(1.0f, 64, 32);
 
   if (s != NULL) {
     if (mPreSDL == NULL) {
