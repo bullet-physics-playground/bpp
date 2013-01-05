@@ -279,7 +279,9 @@ void Gui::helpAbout() {
     tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
     tr("<p>&copy; 2008-2013 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
     tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>") + \
-    tr("<p>Using: GLEW %1, OpenGL: %2</p>").arg((const char*) glewGetString(GLEW_VERSION)).arg(GL_VERSION);
+    tr("<p>Using: <ul><li>GLEW %1</li><li>OpenGL %2</li></ul></p>").
+            arg((const char*) glewGetString(GLEW_VERSION)).
+            arg((const char*) glGetString(GL_VERSION));
 
   QMessageBox::about(this, tr("About"), txt);
 }
