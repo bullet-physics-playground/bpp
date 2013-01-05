@@ -7,7 +7,7 @@ SetCompressor lzma
 
 # Defines
 !define REGKEY "SOFTWARE\$(^Name)" ;
-!define VERSION 1.0.1
+!define VERSION 0.0.2
 !define COMPANY "Jakob Flierl"
 !define URL https://github.com/koppi/bullet-physics-playground
 
@@ -58,7 +58,8 @@ Section "physics (required)" ;
   SectionIn RO
 
   SetOutPath $INSTDIR
-  File "C:\bullet-physics-playground\release\physics.exe"
+  File "release\physics.exe"
+  File "release\*.dll"
   File "${QTDIR}\bin\QtCore4.dll"
   File "${QTDIR}\bin\QtOpenGL4.dll"
   File "${QTDIR}\bin\QtGui4.dll"

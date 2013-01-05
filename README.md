@@ -27,11 +27,6 @@ Select your operating system:
 $ ./physics 
 ```
 
-physics options:
-
-* -p generate POV-Ray output
-* -s save screenshots
-
 # Documentation
 
 * [Basic Usage HOWTO (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)

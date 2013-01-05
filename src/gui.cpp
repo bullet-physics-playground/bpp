@@ -2,7 +2,7 @@
 
 #include "gui.h"
 
-#define APP_VERSION QString("v1.0.1")
+#define APP_VERSION QString("v0.0.2")
 #define APP_NAME QString("physics")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 #define APP_ORGANIZATION QString("koppi.me")
