@@ -264,7 +264,7 @@
   </action>
   <action name="actionRestart">
    <property name="icon">
-    <iconset theme="reload">
+    <iconset theme="view-refresh">
      <normaloff/>
     </iconset>
    </property>
