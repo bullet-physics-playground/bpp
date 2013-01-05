@@ -36,8 +36,6 @@ link_koppi_style_win32 {
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
-  DEFINES += WIN32_LINK_THEME
-
   WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.14-win32-dll
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
   WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.3.17
@@ -157,18 +155,18 @@ contains(DEFINES, WIN32_LINK_BULLET) {
 
   LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
 
-  LIBS += -L$$DIR_BULLET\\Extras/GIMPACTUtils
-  LIBS += -L$$DIR_BULLET\\Extras/HACD
+  LIBS += -L$$DIR_BULLET\\Extras\\GIMPACTUtils
+  LIBS += -L$$DIR_BULLET\\Extras\\HACD
   LIBS += -L$$DIR_BULLET\\src\\BulletCollision
   LIBS += -L$$DIR_BULLET\\src\\BulletDynamics
   LIBS += -L$$DIR_BULLET\\src\\BulletMultithreaded
   LIBS += -L$$DIR_BULLET\\src\\BulletSoftBody
   LIBS += -L$$DIR_BULLET\\src\\LinearMath
-  LIBS += -L$$DIR_BULLET\\Extras/Serialize/BulletFileLoader
-  LIBS += -L$$DIR_BULLET\\Extras/Serialize/BulletWorldImporter
-  LIBS += -L$$DIR_BULLET\\Extras/ConvexDecomposition
-  LIBS += -L$$DIR_BULLET\\Extras/LibXML
-  LIBS += -L$$DIR_BULLET\\Extras/LibXML/include
+  LIBS += -L$$DIR_BULLET\\Extras\\Serialize\\BulletFileLoader
+  LIBS += -L$$DIR_BULLET\\Extras\\Serialize\\BulletWorldImporter
+  LIBS += -L$$DIR_BULLET\\Extras\\ConvexDecomposition
+  LIBS += -L$$DIR_BULLET\\Extras\\LibXML
+  LIBS += -L$$DIR_BULLET\\Extras\\LibXML\\include
 
   # Link
 
@@ -228,10 +226,4 @@ contains(DEFINES, WIN32_LINK_BOOST) {
   LIBS += -L$$WIN32_DIR_BOOST\\stage\\lib
 
   # link ?
-}
-
-contains(DEFINES, WIN32_LINK_THEME) {
-#  message(Statically linking theme)
-
-  RESOURCES += humanity.qrc
 }

@@ -276,7 +276,7 @@ This function is included to implement the full QIODevice interface, and current
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
-void QextSerialPort::ungetChar(char c) {
+void QextSerialPort::ungetChar(char) {
 
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
@@ -780,7 +780,7 @@ ulong QextSerialPort::lineStatus(void) {
     return Status;
 }
 
-bool QextSerialPort::waitForReadyRead(int msecs)
+bool QextSerialPort::waitForReadyRead(int)
 {
     //@todo implement
     return false;

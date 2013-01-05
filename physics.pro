@@ -11,13 +11,12 @@ win32 {
   CONFIG += link_koppi_style_win32
 
   include(win32.pri)
-#  RC_FILE = physics.rc
+
+  RESOURCES   += res.qrc humanity.qrc
 
 } else {
 
-  DEFINES += HAS_GETOPT
-
-  CONFIG += link_pkgconfig
+  CONFIG      += link_pkgconfig
 
   physics-binary.path = /usr/bin
   physics-binary.files = physics
@@ -26,12 +25,15 @@ win32 {
   physics-icons.path = /usr/share/icons/hicolor/scalable/apps
   physics-icons.files = icons/physics.svg
 
-  INSTALLS += physics-binary physics-deskop physics-icons
+  INSTALLS    += physics-binary physics-deskop physics-icons
+
+  RESOURCES   += res.qrc
+
 }
 
 mac {
-  CONFIG += x86 ppc
-  ICON = icons/physics.icns
+  CONFIG      += x86 ppc
+  ICON         = icons/physics.icns
 }
 
 win32 {
@@ -182,8 +184,8 @@ contains(DEFINES, HAS_LUA_GL) {
              luaglu.c \
              luagl_const.c
 
-  HEADERS *= luagl.h \
-             luaglu.h
+  HEADERS *= lib/luagl/include/luagl.h \
+             lib/luagl/include/luaglu.h
 
   HEADERS += lua_qglviewer.h
   SOURCES += lua_qglviewer.cpp
@@ -232,8 +234,6 @@ HEADERS += viewer.h \
 
 FORMS   += gui.ui \
            prefs.ui
-
-RESOURCES   += res.qrc
 
 ICON    = icons/physics.svg
 

@@ -74,7 +74,7 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
     rule.blockState = BS_Dummy;
     highlightingRules.append(rule);
 
-    functionFormat.setFontItalic(true);
+    // functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
     rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
     rule.format = functionFormat;

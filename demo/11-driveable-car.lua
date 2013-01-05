@@ -19,7 +19,7 @@
 -- *******
 
 -- car model: 0=Citroen GS, 1=Nissan Micra
-car_model=0
+car_model=1
 
 -- camera view
 -- 0=default GL cam, 1=back, 2=onboard, 3=external 
@@ -76,7 +76,7 @@ tire_restitution=.9
 
 -- obstacle selection:  
 -- 0=NONE, 1=ALTERNATE, 2=STEPS, 3=RAMP, 4=MESH TERRAIN 5=URBAN-LIKE
-use_obstacles=4
+use_obstacles=1
 
 -- reference ground marks
 use_markings=1
