@@ -209,7 +209,8 @@ SOURCES += main.cpp \
            cmd.cpp \
            code.cpp \
            high.cpp \
-           prefs.cpp
+           prefs.cpp \
+    src/wrapper/lua_bullet.cpp
 
 HEADERS += viewer.h \
            objects/object.h \
@@ -226,7 +227,8 @@ HEADERS += viewer.h \
            cmd.h \
            code.h \
            high.h \
-           prefs.h
+           prefs.h \
+    src/wrapper/lua_bullet.h
 
 FORMS   += gui.ui \
            prefs.ui
