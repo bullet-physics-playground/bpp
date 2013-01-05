@@ -242,7 +242,9 @@ OTHER_FILES += README.md \
                icons/physics.png \
                icons/physics.hqx \
                icons/physics.icns \
-               icons/physics.ico
+               icons/physics.ico \
+               physics.nsi \
+               License
 
 DIRS_DC = object_script.* .ui .moc .rcc .obj *.pro.user $$TARGET
 
