@@ -18,7 +18,7 @@ Caption "Bullet Physics Playground ${VERSION} Setup"
 BrandingText " © Jakob Flierl "
 
 ; The file to write
-OutFile "setup-bpp-${VERSION}-win32.exe"
+OutFile "bpp-${VERSION}-win32.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\bpp
@@ -47,8 +47,6 @@ RequestExecutionLevel admin
 ;Languages
 
   !insertmacro MUI_LANGUAGE "English"
-
-!include "FileAssociation.nsh"
 
 Section "physics (required)" ;
   
