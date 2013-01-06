@@ -14,6 +14,8 @@ win32 {
 
   RESOURCES   += res.qrc humanity.qrc
 
+  RC_FILE      = physics.rc
+
 } else {
 
   CONFIG      += link_pkgconfig

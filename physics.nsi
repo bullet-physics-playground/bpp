@@ -2,7 +2,7 @@
 
 !include "MUI2.nsh"
 
-Name "bullet-physics-playground"
+Name "Bullet Physics Playground"
 SetCompressor lzma
 
 # Defines
@@ -61,6 +61,7 @@ Section "physics (required)" ;
   File "${QTDIR}\bin\QtCore4.dll"
   File "${QTDIR}\bin\QtOpenGL4.dll"
   File "${QTDIR}\bin\QtGui4.dll"
+  File "${QTDIR}\bin\QtNetwork4.dll"
   File "${QTDIR}\bin\QtSvg4.dll"
   File "${QTDIR}\bin\QtXml4.dll"
 
