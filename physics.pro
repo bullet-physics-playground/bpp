@@ -246,7 +246,8 @@ OTHER_FILES += README.md \
                icons/physics.icns \
                icons/physics.ico \
                physics.nsi \
-               License
+               License \
+               debian/changelog
 
 DIRS_DC = object_script.* .ui .moc .rcc .obj *.pro.user $$TARGET
 
