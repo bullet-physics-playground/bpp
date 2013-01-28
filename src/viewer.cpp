@@ -645,7 +645,7 @@ void Viewer::openPovFile() {
   *ini << "Verbose=Off" << endl;
   *ini << "Display=On" << endl;
   *ini << "Width=720" << endl;
-  *ini << "Width=480" << endl;
+  *ini << "Height=480" << endl;
   *ini << "+FN" << endl;
   *ini << "+a +j0" << endl;
 
