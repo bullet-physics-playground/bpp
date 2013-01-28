@@ -652,6 +652,8 @@ void LuaBullet::luaBind(lua_State *s)
      .def("setLimit", &btHingeConstraint::setLimit)
      .def("setParam", &btHingeConstraint::setParam)
      .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
+     .def("getHingeAngle",  (btScalar(btHingeConstraint::*)())&btHingeConstraint::getHingeAngle)
+     .def("getHingeAngle", (btScalar(btHingeConstraint::*)(const btTransform&, const btTransform&))&btHingeConstraint::getHingeAngle)     
      ];
 
     module(s)
@@ -691,6 +693,7 @@ void LuaBullet::luaBind(lua_State *s)
      .def("setLinearLowerLimit", &btGeneric6DofConstraint::setLinearLowerLimit)
      .def("setLimit", &btGeneric6DofConstraint::setLimit)
      .def("setAxis", &btGeneric6DofConstraint::setAxis)
+     .def("setParam", &btGeneric6DofConstraint::setParam)
      ];
 
     module(s)
@@ -700,8 +703,10 @@ void LuaBullet::luaBind(lua_State *s)
      .def("enableSpring", &btGeneric6DofSpringConstraint::enableSpring)
      .def("setStiffness", &btGeneric6DofSpringConstraint::setStiffness)
      .def("setDamping", &btGeneric6DofSpringConstraint::setDamping)
-     //.def("setEquilibriumPoint", &btGeneric6DofSpringConstraint::setEquilibriumPoint) // FIX ME: compilation error
      .def("setAxis", &btGeneric6DofSpringConstraint::setAxis)
+     .def("setEquilibriumPoint",  (void(btGeneric6DofSpringConstraint::*)())&btGeneric6DofSpringConstraint::setEquilibriumPoint)
+     .def("setEquilibriumPoint", (void(btGeneric6DofSpringConstraint::*)(int))&btGeneric6DofSpringConstraint::setEquilibriumPoint)
+     .def("setEquilibriumPoint", (void(btGeneric6DofSpringConstraint::*)(int,btScalar))&btGeneric6DofSpringConstraint::setEquilibriumPoint)
      ];
 
     module(s)
