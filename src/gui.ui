@@ -310,6 +310,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="../res.qrc">
      <normaloff>:/icons/deactivation.png</normaloff>:/icons/deactivation.png</iconset>
