@@ -37,19 +37,19 @@ $ ./physics
 
 ## Examples
 
-* [00-objects.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/00-objects.lua) - basic objects
-* [01-test.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/01-test.lua) - LUA syntax testing
-* [02-domino.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/02-domino.lua) - function definition and loop
-* [03-math.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/03-math.lua) - math functions
-* [04-anim.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/04-anim.lua) - callback functions
-* [05-mesh-chain.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/05-mesh-chain.lua) - Mesh3DS usage, transformations
-* [06-mesh-chain-2.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/06-mesh-chain-2.lua) - Mesh3DS usage, transformations
-* [07-coins-piles.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/07-coins-piles.lua) - POV-Ray export customisation
-* [08-oranges-box.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/08-oranges-box.lua) - General usage demo
-* [09-blocks-tower.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-blocks-tower.lua) - General usage demo
-* [10-coins-3ds-box.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-coins-3ds-box.lua) - Usage of postSim() to add objects during simulation
-* [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - Illustrates usage of hinge and slider constraints
-* [12-collar-p2p.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-p2p.lua) - Illustrates usage of point-to-point constraints
+* [00-hello.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/00-hello.lua) - hello LUA
+* [01-syntax.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/01-syntax.lua) - LUA syntax
+* [02-dominos.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/02-dominos.lua) - dominos
+* [03-math-fun.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/03-math-fun.lua) - math functions
+* [04-callbacks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/04-callbacks.lua) - callback functions
+* [05-mesh-chain.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/05-mesh-chain.lua) - transform functions
+* [06-mesh-chain2.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/06-mesh-chain2.lua) - transform functions
+* [07-pilesofcoins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/07-pilesofcoins.lua) - customize POV-Ray export
+* [08-box-w-oranges.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/08-box-w-oranges.lua) - general usage demo
+* [09-tower-w-blocks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-tower-w-blocks.lua) - general usage demo
+* [10-3ds-box-w-coins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-3ds-box-w-coins.lua) - usage of ```postSim()``` to add/remove objects during simulation
+* [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - usage of hinge and slider constraints
+* [12-collar-poin2point.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-point2point.lua) - usage of point-to-point constraints
 
 ## Youtube
 
