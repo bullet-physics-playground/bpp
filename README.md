@@ -1,6 +1,9 @@
 # bullet-physics-playground
 
-![bpp-win32-objects.png](https://github.com/koppi/bullet-physics-playground/wiki/bpp-win32-objects.png)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=19OirI8yjLc
+" target="_blank"><img
+src="http://img.youtube.com/vi/19OirI8yjLc/0.jpg"
+alt="bullet-physics-playground" width="240" height="180" border="10" /></a>
 
 Features:
 
