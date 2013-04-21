@@ -3,20 +3,20 @@
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=19OirI8yjLc
 " target="_blank"><img
 src="http://img.youtube.com/vi/19OirI8yjLc/0.jpg"
-alt="bullet-physics-playground" width="240" height="180" border="10" /></a>
+alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
 
 Features:
 
-* LUA scripting (experimental)
-* OpenGL gui (alpha)
+* LUA scripting  (experimental)
+* OpenGL gui     (experimental)
 * POV-Ray export (stable)
 
-Still images and animations created with bullet-physics-playground:
+Created with bullet-physics-playground:
 
 * [Still images](https://github.com/koppi/bullet-physics-playground/wiki/Still-images)
 * [Animations](https://github.com/koppi/bullet-physics-playground/wiki/Animations)
 
-## Build bullet-physics-playground
+## Build
 
 Select your operating system:
 
@@ -24,18 +24,18 @@ Select your operating system:
  * [Build on Mac OSX](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Mac-OSX)
  * [Build on Windows](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows)
 
-## Run bullet-physics-playground
+## Run
 
 ```
 $ ./physics 
 ```
 
-# Documentation
+# Document
 
 * [Basic Usage HOWTO (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)
 * [LUA Scripting Reference (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Scripting-Reference)
 
-# Examples
+## Examples
 
 * [00-objects.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/00-objects.lua) - basic objects
 * [01-test.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/01-test.lua) - LUA syntax testing
@@ -51,7 +51,7 @@ $ ./physics
 * [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - Illustrates usage of hinge and slider constraints
 * [12-collar-p2p.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-p2p.lua) - Illustrates usage of point-to-point constraints
 
-# Youtube needs more povray animations
+## Youtube
 
 Install povray, mencoder and mplayer:
 
@@ -65,7 +65,7 @@ Render the pov files to 1920x1080 png images and create anim.avi:
 cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
 ```
 
-# Authors / Copyright
+## Authors
 
-* © 2008-2013 [Jakob Flierl](https://github.com/koppi)
-* © 2012-2013 [Jaime Vives Piqueres](http://ignorancia.org/)
+* © 2008 – 2013 [Jakob Flierl](https://github.com/koppi)
+* © 2012 – 2013 [Jaime Vives Piqueres](http://ignorancia.org/)
