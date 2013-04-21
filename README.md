@@ -1,5 +1,9 @@
 # bullet-physics-playground
 
+<iframe width="420" height="315"
+src="http://www.youtube.com/embed/19OirI8yjLc" frameborder="0"
+allowfullscreen></iframe>
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=19OirI8yjLc
 " target="_blank"><img
 src="http://img.youtube.com/vi/19OirI8yjLc/0.jpg"
