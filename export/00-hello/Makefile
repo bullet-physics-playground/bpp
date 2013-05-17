@@ -1,10 +1,10 @@
 # POV-Ray Makefile -------------------------------------------------------------
 
 POVRAY  ?= povray
-POVOPT  ?= -c +d +v +sp4 +ep4
+POVOPT  ?= -c -d
 
-FILES   ?= 00-objects
-RES     ?= LOW
+FILES   ?= 00-hello
+RES     ?= HIGH
 
 # Dependencies -----------------------------------------------------------------
 DOCPNG   = ${FILES:=.png}
@@ -25,7 +25,7 @@ avi: $(DOCAVI)
 %.pov: Makefile settings.inc
 
 %.png: %.ini %.pov
-	$(POVRAY) $(POVOPT) '$<[$(RES)]' -i'${@:.png=.pov}' +fn +o'$@'
+	$(POVRAY) $(POVOPT) '$<[$(RES)]' -i'${@:.png=.pov}' +o'$@'
 
 %.avi: %.ini %.pov
 	$(POVRAY) $(POVOPT) '$<[$(RES)]' -i'${@:.avi=.pov}'
