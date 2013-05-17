@@ -158,6 +158,9 @@ public slots:
  protected:
   virtual void init();
 
+  void setGravity(btVector3 gravity);
+  btVector3 getGravity();
+
   virtual void addObjects();
 
   void addObject(Object *o, int type, int mask);

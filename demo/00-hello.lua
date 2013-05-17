@@ -1,4 +1,6 @@
-use_lightsys = 1
+use_lightsys = 0
+
+-- v.gravity = btVector3(0,0,0)
 
 p = Plane(0,1,0)
 p.col = "#333333"

@@ -1,3 +1,5 @@
+-- v.gravity = btVector3(0,0,0)
+
 plane = Plane(0,1,0)
 plane.col = "#333333"
 
@@ -20,7 +22,7 @@ end
 v:add(plane)
 
 function line(N,zpos,damp_lin,damp_ang,fri,res)
-  local s = Sphere(1,1)
+  local s = Sphere(1,5)
   s.pos = btVector3(-15, 1, zpos)
   s.col = "#0000ff"
   s.vel = btVector3(5,0,0)
@@ -49,7 +51,7 @@ sphere { <.0,.0,.0>, 1
 
     v:add(d)
 
-    if (i == N) then
+    if (i == N / 2) then
       d_end = d
     end
   end
@@ -57,22 +59,21 @@ sphere { <.0,.0,.0>, 1
   return s,d_end
 end
 
-s,d = line(5, -3, 0.01, 0.01, 0.4, 0.1)
-line(5,  0, 0.1,  0.1,  0.3, 0.0)
-line(5,  3, 0.1,  0.1,  0.3, 0.5)
+n = 10
+
+line(n, -3, 0.01, 0.01, 0.4, -0.1)
+s,d = line(n,  0, 0.01,  0.01,  0.4, 0.4)
+line(n,  3, 0.01,  0.01,  0.4, 0.1)
 
 v:preDraw(function(N)
   cam = Cam()
 
-  if (N < 40) then
+  if (N < 100) then
     cam.pos = s.pos + btVector3(7,18,18)
     cam.look = s.pos + btVector3(7,-4,0)
-  elseif (N < 100) then
-    cam.pos = d.pos + btVector3(-10,9,18)
-    cam.look = d.pos + btVector3(-4,-4,0)
   else
-    cam.pos = s.pos + btVector3(7,6,25)
-    cam.look = s.pos + btVector3(7,4,0)
+    cam.pos = d.pos + btVector3(-15,6,25)
+    cam.look = d.pos + btVector3(5,4,0)
   end
   v:cam(cam)
 end)

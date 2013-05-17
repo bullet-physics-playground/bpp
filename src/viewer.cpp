@@ -94,6 +94,7 @@ void Viewer::luaBind(lua_State *s) {
    .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
    .def("savePrefs", &Viewer::setPrefs)
    .def("loadPrefs", &Viewer::getPrefs)
+   .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
    .property("glShininess", &Viewer::getGLShininess, &Viewer::setGLShininess)
    .property("glSpecularColor", &Viewer::getGLSpecularColor, &Viewer::setGLSpecularColor)
    .property("glSpecularColor", &Viewer::getGLSpecularCol, &Viewer::setGLSpecularCol)
@@ -325,6 +326,14 @@ void Viewer::addObjects() {
 
 }
 
+void Viewer::setGravity(btVector3 gravity) {
+  dynamicsWorld->setGravity(gravity);
+}
+
+btVector3 Viewer::getGravity() {
+  return btVector3(); // TODO
+}
+
 Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
 
   setAttribute(Qt::WA_DeleteOnClose);
@@ -346,8 +355,6 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
   btCollisionDispatcher * dispatcher =
           static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
   btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
-
-  dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
   _frameNum = 0;
   _firstFrame = 0;
@@ -523,6 +530,8 @@ bool Viewer::parse(QString txt) {
       lua_pushcclosure(L,  &Viewer::lua_print, 1);
       lua_setglobal(L, "print");
   }
+
+  dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
     || lua_pcall(L, 0, LUA_MULTRET, 0);
