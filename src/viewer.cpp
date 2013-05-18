@@ -331,7 +331,7 @@ void Viewer::setGravity(btVector3 gravity) {
 }
 
 btVector3 Viewer::getGravity() {
-  return btVector3(); // TODO
+  return dynamicsWorld->getGravity();
 }
 
 Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
