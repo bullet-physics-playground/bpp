@@ -6,6 +6,10 @@ plane = Plane(0,1,0)
 plane.col = "#111111"
 v:add(plane)
 
+--v.timeStep      = 0.01
+--v.maxSubSteps   = 1
+--v.fixedTimeStep = 0.08
+
 function tower(floors,blocks_per_floor,num_balls)
 
   for i=1,num_balls do

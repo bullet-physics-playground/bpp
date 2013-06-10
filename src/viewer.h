@@ -42,9 +42,21 @@ class Viewer : public QGLViewer
   void toggleSavePOV(bool savePOV);
   void toggleSavePNG(bool savePNG);
   void toggleDeactivation(bool deactivation);
+
+  // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+  void setTimeStep(btScalar ts);
+  btScalar getTimeStep();
+  
+  void setMaxSubSteps(int steps);
+  int getMaxSubSteps();
+  
+  void setFixedTimeStep(btScalar fts);
+  btScalar getFixedTimeStep();
+
   void startSim();
   void stopSim();
   void restartSim();
+  
   void resetCamView();
 
   void addObject(Object* o);
@@ -259,6 +271,11 @@ public slots:
   QString mPostSDL;
 
   QSettings * _settings;
+
+  // bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+  btScalar _timeStep;
+  int      _maxSubSteps;
+  btScalar _fixedTimeStep;
 
 };
 

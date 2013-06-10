@@ -94,7 +94,14 @@ void Viewer::luaBind(lua_State *s) {
    .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
    .def("savePrefs", &Viewer::setPrefs)
    .def("loadPrefs", &Viewer::getPrefs)
+   
    .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
+
+   // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+   .property("timeStep", &Viewer::getTimeStep, &Viewer::setTimeStep)
+   .property("maxSubSteps", &Viewer::getMaxSubSteps, &Viewer::setMaxSubSteps)
+   .property("fixedTimeStep", &Viewer::getFixedTimeStep, &Viewer::setFixedTimeStep)
+   
    .property("glShininess", &Viewer::getGLShininess, &Viewer::setGLShininess)
    .property("glSpecularColor", &Viewer::getGLSpecularColor, &Viewer::setGLSpecularColor)
    .property("glSpecularColor", &Viewer::getGLSpecularCol, &Viewer::setGLSpecularCol)
@@ -334,6 +341,30 @@ btVector3 Viewer::getGravity() {
   return dynamicsWorld->getGravity();
 }
 
+void Viewer::setTimeStep(btScalar ts) {
+  _timeStep = ts;
+}
+
+btScalar Viewer::getTimeStep() {
+  return _timeStep;
+}
+
+void Viewer::setMaxSubSteps(int mst) {
+  _maxSubSteps = mst;
+}
+
+int Viewer::getMaxSubSteps() {
+  return _maxSubSteps;
+}
+
+void Viewer::setFixedTimeStep(btScalar fts) {
+  _fixedTimeStep = fts;
+}
+
+btScalar Viewer::getFixedTimeStep() {
+  return _fixedTimeStep;
+}
+
 Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
 
   setAttribute(Qt::WA_DeleteOnClose);
@@ -532,6 +563,17 @@ bool Viewer::parse(QString txt) {
   }
 
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
+
+  // bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+  //
+  // It's important that timeStep is always less than maxSubSteps*fixedTimeStep,
+  // otherwise you are losing time. Mathematically,
+  //
+  //   timeStep < maxSubSteps * fixedTimeStep
+  //
+  _timeStep = 0.0083;      // roughly 1/120th of a second
+  _maxSubSteps = 1;
+  _fixedTimeStep = 0.017;  // 1/60th of a second,
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
     || lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -1038,11 +1080,6 @@ void Viewer::animate() {
 
   // emitScriptOutput("Viewer::animate() begin");
 
-  // Find the time elapsed between last time
-  float nbSecsElapsed = 0.08f; // 25 pics/sec
-  // float nbSecsElapsed = 1.0 / 24.0;
-  //  float nbSecsElapsed = _time.elapsed()/10.0f;
-
   if (_savePNG) {
     QDir sceneDir("screenshots");
     QString file;
@@ -1067,7 +1104,16 @@ void Viewer::animate() {
       }
     }
 
-    dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
+    
+    // Find the time elapsed between last time
+    // float nbSecsElapsed = 0.08f; // 25 pics/sec
+    // float nbSecsElapsed = 1.0 / 24.0;
+    // float nbSecsElapsed = _time.elapsed()/10.0f;
+    
+    // old: dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
+
+    // new: bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+    dynamicsWorld->stepSimulation(_timeStep, _maxSubSteps, _fixedTimeStep);
 
     if(_cb_postSim) {
       try {

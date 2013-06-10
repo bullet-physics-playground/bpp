@@ -1,7 +1,11 @@
--- v.gravity = btVector3(0,0,0)
-
 plane = Plane(0,1,0)
 plane.col = "#333333"
+
+-- v.gravity = btVector3(0,0,0)
+
+v.timeStep      = 0.08
+v.maxSubSteps   = 10
+v.fixedTimeStep = 0.016
 
 plane.pre_sdl = [[
 plane { <0,1,0>,0]]
