@@ -571,9 +571,10 @@ bool Viewer::parse(QString txt) {
   //
   //   timeStep < maxSubSteps * fixedTimeStep
   //
-  _timeStep = 0.0083;      // roughly 1/120th of a second
+  _timeStep = 0.04;          // roughly 25fps
+  //_timeStep = 0.0083;      // roughly 1/120th of a second
   _maxSubSteps = 1;
-  _fixedTimeStep = 0.017;  // 1/60th of a second,
+  _fixedTimeStep = 0.017;    // 1/60th of a second
 
   int error = luaL_loadstring(L, txt.toAscii().constData())
     || lua_pcall(L, 0, LUA_MULTRET, 0);
