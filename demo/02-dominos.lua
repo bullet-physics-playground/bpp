@@ -3,9 +3,9 @@ plane.col = "#333333"
 
 -- v.gravity = btVector3(0,0,0)
 
-v.timeStep      = 0.08
+v.timeStep      = 1/25
+v.fixedTimeStep = v.timeStep / 2
 v.maxSubSteps   = 10
-v.fixedTimeStep = 0.016
 
 plane.pre_sdl = [[
 plane { <0,1,0>,0]]
@@ -26,8 +26,8 @@ end
 v:add(plane)
 
 function line(N,zpos,damp_lin,damp_ang,fri,res)
-  local s = Sphere(1,5)
-  s.pos = btVector3(-15, 1, zpos)
+  local s = Sphere(1.5,5)
+  s.pos = btVector3(-15, 1.5, zpos)
   s.col = "#0000ff"
   s.vel = btVector3(5,0,0)
   s.pre_sdl = [[
@@ -63,21 +63,22 @@ sphere { <.0,.0,.0>, 1
   return s,d_end
 end
 
-n = 10
+n = 20
 
-line(n, -3, 0.01, 0.01, 0.4, -0.1)
-s,d = line(n,  0, 0.01,  0.01,  0.4, 0.4)
-line(n,  3, 0.01,  0.01,  0.4, 0.1)
+line(n, -3, 0.01, 0.01, 0.1, 0.1)
+s,d = line(n,  0, 0.01,  0.01,  0.2, 0.2)
+line(n,  3, 0.01,  0.01,  0.3, 0.3)
+line(n,  6, 0.1,  0.01,  0.4, 0.4)
 
 v:preDraw(function(N)
   cam = Cam()
 
-  if (N < 100) then
-    cam.pos = s.pos + btVector3(7,18,18)
-    cam.look = s.pos + btVector3(7,-4,0)
+  if (N < 150) then
+    cam.pos = s.pos + btVector3(10,10,30)
+    cam.look = s.pos + btVector3(10,2,0)
   else
-    cam.pos = d.pos + btVector3(-15,6,25)
-    cam.look = d.pos + btVector3(5,4,0)
+    cam.pos = d.pos + btVector3(-25,10,30)
+    cam.look = d.pos + btVector3(5,2,0)
   end
   v:cam(cam)
 end)

@@ -6,9 +6,11 @@ plane = Plane(0,1,0)
 plane.col = "#111111"
 v:add(plane)
 
---v.timeStep      = 0.01
---v.maxSubSteps   = 1
---v.fixedTimeStep = 0.08
+
+-- see http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+v.timeStep      = 1/50  -- 50fps
+v.fixedTimeStep = 0.02  -- timeStep < maxSubSteps * fixedTimeStep
+v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
 
 function tower(floors,blocks_per_floor,num_balls)
 
