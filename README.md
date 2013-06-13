@@ -21,7 +21,7 @@ Created with bullet-physics-playground:
 Select your operating system:
 
  * [Build on Linux](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Linux)
- * [Build on Mac OSX](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Mac-OSX)
+ * [Build on Mac OSX (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Mac-OSX)
  * [Build on Windows](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows)
 
 ## Run
@@ -33,7 +33,7 @@ $ ./physics
 # Document
 
 * [Basic Usage HOWTO (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)
-* [LUA Scripting Reference (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Scripting-Reference)
+* [LUA-Bindings-Reference (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Bindings-Reference)
 
 ## Examples
 
@@ -51,20 +51,6 @@ $ ./physics
 * [10-3ds-box-w-coins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-3ds-box-w-coins.lua) - usage of ```postSim()``` to add/remove objects during simulation
 * [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - usage of hinge and slider constraints
 * [12-collar-poin2point.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-point2point.lua) - usage of point-to-point constraints
-
-## Youtube
-
-Install povray, mencoder and mplayer:
-
-```
-$ sudo apt-get -y install povray povray-includes mencoder mplayer
-```
-
-Render the pov files to 1920x1080 png images and create anim.avi:
-
-```
-cd anim; for f in $(ls *.pov); do ./pov2png.sh $f; done; ./png2avi.sh
-```
 
 ## Authors
 
