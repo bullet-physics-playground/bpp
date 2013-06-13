@@ -1,24 +1,33 @@
 --
--- blocks tower
+-- blocks tower colliding with random spheres
 --
+-- different values of v.fixedTimeStep:
+-- reproduce stable / unstable tower
+-- 
+---
+
+v.timeStep      = 1/25  -- 25fps
+
+--v.fixedTimeStep = 0.017 -- unstable tower
+v.fixedTimeStep = 0.005 --   stable   tower
+
+-- timeStep < maxSubSteps * fixedTimeStep
+v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
+
+---
 
 plane = Plane(0,1,0)
 plane.col = "#111111"
 v:add(plane)
 
 
--- see http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
-v.timeStep      = 1/50  -- 50fps
-v.fixedTimeStep = 0.02  -- timeStep < maxSubSteps * fixedTimeStep
-v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
-
 function tower(floors,blocks_per_floor,num_balls)
 
   for i=1,num_balls do
-   s1 = Sphere(1.75,1)
-   s1.pos = btVector3(150+math.random(10,20), math.random(1,floors), 0)
+   s1 = Sphere(2.75,1.5)
+   s1.pos = btVector3(550+math.random(10,20), math.random(1,floors), 0)
    s1.col = "#0000ff"
-   s1.vel = btVector3(-math.random(112,150),math.random(0,10)*.1,math.random(0,10)*.1)
+   s1.vel = btVector3(-math.random(150,350),math.random(0,10)*.1,math.random(0,10)*.1)
    s1.friction=.3
    s1.restitution=0.1
    v:add(s1)
@@ -46,4 +55,5 @@ function tower(floors,blocks_per_floor,num_balls)
 
 end
 
-tower(80,8,4)
+--tower(80,8,0) -- floors,blocks_per_floor,balls
+tower(80,8,4) -- floors,blocks_per_floor,balls

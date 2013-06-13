@@ -46,7 +46,9 @@ $ ./physics
 * [06-mesh-chain2.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/06-mesh-chain2.lua) - transform functions
 * [07-pilesofcoins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/07-pilesofcoins.lua) - customize POV-Ray export
 * [08-box-w-oranges.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/08-box-w-oranges.lua) - general usage demo
-* [09-tower-w-blocks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-tower-w-blocks.lua) - general usage demo
+*
+  [09-tower-w-blocks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-tower-w-blocks.lua)
+*- different values on v.fixedTimestep produce stabile / unstable results
 * [10-3ds-box-w-coins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-3ds-box-w-coins.lua) - usage of ```postSim()``` to add/remove objects during simulation
 * [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - usage of hinge and slider constraints
 * [12-collar-poin2point.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-point2point.lua) - usage of point-to-point constraints
