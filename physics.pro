@@ -29,7 +29,7 @@ win32 {
 
   INSTALLS    += physics-binary physics-deskop physics-icons
 
-  RESOURCES   += res.qrc
+  RESOURCES   += res.qrc humanity.qrc
 
 }
 
@@ -59,7 +59,7 @@ INCLUDEPATH += /usr/local/include/bullet
 
 link_pkgconfig {
   message("Using pkg-config "$$system(pkg-config --version)".")
-  PKGCONFIG += bullet lua5.1 luabind
+  PKGCONFIG += bullet lua5.1 luabind assimp
 
   LIBS += -lqglviewer-qt4 -lGLEW -lGLU -lGL -lglut -l3ds
 
@@ -207,6 +207,7 @@ SOURCES += main.cpp \
            objects/sphere.cpp \
            objects/plane.cpp \
            objects/cylinder.cpp \
+           objects/mesh.cpp \
            objects/mesh3ds.cpp \
            objects/cam.cpp \
            gui.cpp \
@@ -224,6 +225,7 @@ HEADERS += viewer.h \
            objects/sphere.h \
            objects/plane.h \
            objects/cylinder.h \
+           objects/mesh.h \
            objects/mesh3ds.h \
            objects/cam.h \
            src/wrapper/lua_converters.h \
