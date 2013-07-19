@@ -15,11 +15,9 @@ int main(int argc, char **argv) {
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 
-#ifdef Q_OS_WIN32
   if (!QIcon::hasThemeIcon("document-new")) {
     QIcon::setThemeName("humanity");
   }
-#endif
 
   g = new Gui();
   g->show();
