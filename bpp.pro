@@ -16,20 +16,20 @@ win32 {
 
   RESOURCES   += res.qrc humanity.qrc
 
-  RC_FILE      = physics.rc
+  RC_FILE      = bpp.rc
 
 } else {
 
   CONFIG      += link_pkgconfig
 
-  physics-binary.path = /usr/bin
-  physics-binary.files = bpp
-  physics-deskop.path = /usr/share/applications
-  physics-deskop.files = bpp.desktop
-  physics-icons.path = /usr/share/icons/hicolor/scalable/apps
-  physics-icons.files = icons/physics.svg
+  bpp-binary.path = /usr/bin
+  bpp-binary.files = bpp
+  bpp-deskop.path = /usr/share/applications
+  bpp-deskop.files = bpp.desktop
+  bpp-icons.path = /usr/share/icons/hicolor/scalable/apps
+  bpp-icons.files = icons/bpp.svg
 
-  INSTALLS    += physics-binary physics-deskop physics-icons
+  INSTALLS    += bpp-binary bpp-deskop bpp-icons
 
   RESOURCES   += res.qrc humanity.qrc
 
@@ -37,7 +37,7 @@ win32 {
 
 mac {
   CONFIG      += x86 ppc
-  ICON         = icons/physics.icns
+  ICON         = icons/bpp.icns
 }
 
 win32 {
@@ -255,15 +255,15 @@ HEADERS += src/viewer.h \
 FORMS   += src/gui.ui \
            src/prefs.ui
 
-ICON    = icons/physics.svg
+ICON    = icons/bpp.svg
 
 OTHER_FILES += README.md \
-               icons/physics.svg \
-               icons/physics.png \
-               icons/physics.hqx \
-               icons/physics.icns \
-               icons/physics.ico \
-               physics.nsi \
+               icons/bpp.svg \
+               icons/bpp.png \
+               icons/bpp.hqx \
+               icons/bpp.icns \
+               icons/bpp.ico \
+               bpp.nsi \
                License \
                debian/changelog
 
