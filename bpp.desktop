@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Bullet Physics Playground
+GenericName=Bullet Physics Playground
+Comment=Physics Simulation
+Icon=/usr/share/icons/hicolor/scalable/apps/bpp.svg
+
+Type=Application
+Categories=Engineering;
+
+Exec=bpp %f
+Terminal=false
