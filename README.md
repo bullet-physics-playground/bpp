@@ -1,4 +1,4 @@
-# bullet-physics-playground
+[![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp)
 
 <a
 href="http://www.youtube.com/watch?feature=player_embedded&v=19OirI8yjLc&hd=1"
@@ -8,51 +8,42 @@ alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
 Features:
 
 * LUA scripting  (experimental)
-* OpenGL gui     (experimental)
+* OpenGL GUI     (experimental)
 * POV-Ray export (stable)
 
 Created with bullet-physics-playground:
 
-* [Still images](https://github.com/koppi/bullet-physics-playground/wiki/Still-images)
-* [Animations](https://github.com/koppi/bullet-physics-playground/wiki/Animations)
+* [Still images](https://github.com/bullet-physics-playground/bpp/wiki/Still-images)
+* [Animations](https://github.com/bullet-physics-playground/bpp/wiki/Animations)
 
-## Build
+### Build
+
+WIP
 
 Select your operating system:
 
- * [Build on Linux](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Linux)
- * [Build on Mac OSX (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Mac-OSX)
- * [Build on Windows](https://github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows)
+ * [Build on Linux](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Linux)
+ * [Build on Mac OSX](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OSX)
+ * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
 
-## Run
+### Run
 
 ```
-$ ./physics 
+$ ./bpp
 ```
 
-# Document
+## Document
 
-* [Basic Usage HOWTO (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/Basic-Usage-HOWTO)
-* [LUA-Bindings-Reference (WIP)](https://github.com/koppi/bullet-physics-playground/wiki/LUA-Bindings-Reference)
+WIP
 
-## Examples
+* [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)
+* [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference)
 
-* [00-hello.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/00-hello.lua) - hello LUA
-* [01-syntax.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/01-syntax.lua) - LUA syntax
-* [02-dominos.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/02-dominos.lua) - dominos
-* [03-math-fun.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/03-math-fun.lua) - math functions
-* [04-callbacks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/04-callbacks.lua) - callback functions
-* [05-mesh-chain.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/05-mesh-chain.lua) - transform functions
-* [06-mesh-chain2.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/06-mesh-chain2.lua) - transform functions
-* [07-pilesofcoins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/07-pilesofcoins.lua) - customize POV-Ray export
-* [08-box-w-oranges.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/08-box-w-oranges.lua) - general usage demo
-* [09-tower-w-blocks.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/09-tower-w-blocks.lua)
- - different values on v.fixedTimestep produce stabile / unstable results
-* [10-3ds-box-w-coins.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/10-3ds-box-w-coins.lua) - usage of ```postSim()``` to add/remove objects during simulation
-* [11-car-hinge-slider.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/11-car-hinge-slider.lua) - usage of hinge and slider constraints
-* [12-collar-poin2point.lua](https://github.com/koppi/bullet-physics-playground/blob/master/demo/12-collar-point2point.lua) - usage of point-to-point constraints
+### Demos
 
-## Authors
+WIP
 
-* © 2008 – 2013 [Jakob Flierl](https://github.com/koppi)
-* © 2012 – 2013 [Jaime Vives Piqueres](http://ignorancia.org/)
+### Authors
+
+* © 2008 – 2016 [@koppi](https://github.com/koppi) – Initial release.
+* © 2012 – 2013 [@jaimevives](https://github.com/jaimevives) – POV-Ray export.

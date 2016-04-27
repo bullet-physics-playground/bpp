@@ -1,10 +1,12 @@
-TARGET   = physics
+TARGET   = bpp
 
 TEMPLATE = app
 
-DEFINES     += HAS_QEXTSERIAL
-DEFINES     += HAS_LUA_QT
-DEFINES     += HAS_LUA_GL
+#DEFINES     += HAS_QEXTSERIAL
+#DEFINES     += HAS_LUA_QT
+#DEFINES     += HAS_LUA_GL
+
+DEFINES     += HAS_LIB_ASSIMP
 
 win32 {
 
@@ -21,9 +23,9 @@ win32 {
   CONFIG      += link_pkgconfig
 
   physics-binary.path = /usr/bin
-  physics-binary.files = physics
+  physics-binary.files = bpp
   physics-deskop.path = /usr/share/applications
-  physics-deskop.files = physics.desktop
+  physics-deskop.files = bpp.desktop
   physics-icons.path = /usr/share/icons/hicolor/scalable/apps
   physics-icons.files = icons/physics.svg
 
@@ -39,8 +41,8 @@ mac {
 }
 
 win32 {
-  DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
-  DEFINES += BUILDDATE=\\\"$$system('echo %date%')\\\"
+  DEFINES += BUILDTIME=\\\"HH:MM\\\"
+  DEFINES += BUILDDATE=\\\"Y-m-d\\\"
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
   DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
@@ -58,19 +60,33 @@ INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
 
 link_pkgconfig {
-  message("Using pkg-config "$$system(pkg-config --version)".")
-  PKGCONFIG += bullet lua5.1 luabind assimp
+#  message("Using pkg-config "$$system(pkg-config --version)".")
 
-  LIBS += -lqglviewer-qt4 -lGLEW -lGLU -lGL -lglut -l3ds
+  LSB_RELEASE_ID  = $$system(lsb_release -is)
+  LSB_RELEASE_REL = $$system(lsb_release -rs)
 
-  # If you se the latest QGLViewer sources from www.libqglviewer.com
-  # use the followings LIBS instead:
+#  message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
 
-  #LIBS += -lQGLViewer -lGLEW -lglut -lGL -l3ds
+  contains(LSB_RELEASE_ID, Ubuntu): {
+    contains(LSB_RELEASE_REL, 16.04) : {
+      PKGCONFIG += lua5.2
+      PKGCONFIG -= luabind
+      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut -l3ds /usr/lib/libluabind.a
+    }
+  } else {
+    PKGCONFIG += bullet lua5.1 luabind
+    LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut -l3ds
 
-  # and on ubuntu 12.04 use -lGLU instead -lGL:
+    contains(DEFINES, HAS_LIB_ASSIMP) {
+      PKGCONFIG += assimp
+    }
+  }
 
-  #LIBS += -lQGLViewer -lGLEW -lglut -lGLU -l3ds
+  PKGCONFIG += luabind bullet
+
+  contains(DEFINES, HAS_LIB_ASSIMP) {
+    PKGCONFIG += assimp
+  }
 }
 
 contains(DEFINES, HAS_QEXTSERIAL) {
@@ -198,46 +214,46 @@ contains(DEFINES, HAS_LUA_GL) {
 INCLUDEPATH += src
 DEPENDPATH  += src
 
-SOURCES += main.cpp \
-           viewer.cpp \
-           objects/object.cpp \
-           objects/objects.cpp \
-           objects/palette.cpp \
-           objects/cube.cpp \
-           objects/sphere.cpp \
-           objects/plane.cpp \
-           objects/cylinder.cpp \
-           objects/mesh.cpp \
-           objects/mesh3ds.cpp \
-           objects/cam.cpp \
-           gui.cpp \
-           cmd.cpp \
-           code.cpp \
-           high.cpp \
-           prefs.cpp \
-    src/wrapper/lua_bullet.cpp
+SOURCES += src/main.cpp \
+           src/viewer.cpp \
+           src/objects/object.cpp \
+           src/objects/objects.cpp \
+           src/objects/palette.cpp \
+           src/objects/cube.cpp \
+           src/objects/sphere.cpp \
+           src/objects/plane.cpp \
+           src/objects/cylinder.cpp \
+           src/objects/mesh.cpp \
+           src/objects/mesh3ds.cpp \
+           src/objects/cam.cpp \
+           src/wrapper/lua_bullet.cpp \
+           src/gui.cpp \
+           src/cmd.cpp \
+           src/code.cpp \
+           src/high.cpp \
+           src/prefs.cpp
 
-HEADERS += viewer.h \
-           objects/object.h \
-           objects/palette.h \
-           objects/objects.h \
-           objects/cube.h \
-           objects/sphere.h \
-           objects/plane.h \
-           objects/cylinder.h \
-           objects/mesh.h \
-           objects/mesh3ds.h \
-           objects/cam.h \
+HEADERS += src/viewer.h \
+           src/objects/object.h \
+           src/objects/palette.h \
+           src/objects/objects.h \
+           src/objects/cube.h \
+           src/objects/sphere.h \
+           src/objects/plane.h \
+           src/objects/cylinder.h \
+           src/objects/mesh.h \
+           src/objects/mesh3ds.h \
+           src/objects/cam.h \
+           src/wrapper/lua_bullet.h \
            src/wrapper/lua_converters.h \
-           gui.h \
-           cmd.h \
-           code.h \
-           high.h \
-           prefs.h \
-    src/wrapper/lua_bullet.h
+           src/gui.h \
+           src/cmd.h \
+           src/code.h \
+           src/high.h \
+           src/prefs.h
 
-FORMS   += gui.ui \
-           prefs.ui
+FORMS   += src/gui.ui \
+           src/prefs.ui
 
 ICON    = icons/physics.svg
 

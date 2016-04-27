@@ -18,7 +18,7 @@
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Object& obj) {
-  ostream << obj.toString().toAscii().data() << "[ rgb: " <<
+  ostream << obj.toString().toUtf8().data() << "[ rgb: " <<
     obj.getColor().red() << ", " << obj.getColor().green() << ", " <<
     obj.getColor().blue() << "]";
 

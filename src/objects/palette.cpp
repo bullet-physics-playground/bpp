@@ -20,7 +20,7 @@
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Palette& pal) {
-  ostream << pal.toString().toAscii().data();
+  ostream << pal.toString().toUtf8().data();
 
   return ostream;
 }

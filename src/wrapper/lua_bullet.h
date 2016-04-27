@@ -7,8 +7,12 @@
 
 #include <QObject>
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+
+#pragma GCC diagnostic pop
 
 class LuaBullet : public QObject
 {

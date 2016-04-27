@@ -80,5 +80,5 @@ v:preDraw(function(N)
     cam.pos = d.pos + btVector3(-25,10,30)
     cam.look = d.pos + btVector3(5,2,0)
   end
-  v:cam(cam)
+  v:setCam(cam)
 end)

@@ -31,9 +31,27 @@ class Cam : public Camera {
   void setLookAt(const btVector3& v);
   btVector3 getLookAt() const;
 
+  void setUseFocalBlur(const int v);
+  int getUseFocalBlur() const;
+
+  void setFocalPoint(const btVector3& v);
+  btVector3 getFocalPoint() const;
+
+  void setPreSDL(QString pre_sdl);
+  QString getPreSDL() const;
+
+  void setPostSDL(QString post_sdl);
+  QString getPostSDL() const;
+  
  protected:
   btVector3 _lookAt;
 
+  int _useFocalBlur;
+  btVector3 _focalPoint;
+
+  QString mPreSDL;
+  QString mPostSDL;
+  
 };
 
 #endif

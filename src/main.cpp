@@ -4,7 +4,6 @@
 
 #include "gui.h"
 
-#include <GL/glew.h>
 #include <GL/freeglut.h>
 
 int main(int argc, char **argv) {
@@ -21,12 +20,6 @@ int main(int argc, char **argv) {
 
   g = new Gui();
   g->show();
-
-  GLenum err = glewInit();
-  if (GLEW_OK != err) {
-    std::cout << "Error: " << glewGetErrorString(err) << " Exiting." << endl;
-    return 1;
-  }
 
   return application.exec();
 }

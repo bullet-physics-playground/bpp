@@ -22,7 +22,7 @@ using namespace std;
 Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
   m_TotalFaces = 0;
 
-  m_model = lib3ds_file_load(filename.toAscii());
+  m_model = lib3ds_file_load(filename.toUtf8());
 
   if (!m_model) {
 
@@ -79,14 +79,18 @@ Mesh3DS::Mesh3DS(QString filename, btScalar mass) : Object() {
     }
 
     // Generate a Vertex Buffer Object and store it with our vertices
+    /*
     glGenBuffers(1, &m_VertexVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VertexVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Lib3dsVector) * 3 * m_TotalFaces, vertices, GL_STATIC_DRAW);
+    */
 
     // Generate another Vertex Buffer Object and store the normals in it
+    /*
     glGenBuffers(1, &m_NormalVBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Lib3dsVector) * 3 * m_TotalFaces, normals, GL_STATIC_DRAW);
+    */
 
     // Clean up our allocated memory
     delete vertices;
@@ -136,7 +140,7 @@ QString Mesh3DS::toString() const {
 void Mesh3DS::renderInLocalFrame(QTextStream *s) {
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
+  GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
   // GLfloat no_shininess[] = { 0.0 };
@@ -157,6 +161,7 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) {
     glEnableClientState(GL_NORMAL_ARRAY);
 
     // Bind the vbo with the normals
+    /*
     glBindBuffer(GL_ARRAY_BUFFER, m_NormalVBO);
     // The pointer for the normals is NULL which means that OpenGL will use the currently bound vbo
     glNormalPointer(GL_FLOAT, 0, NULL);
@@ -169,6 +174,7 @@ void Mesh3DS::renderInLocalFrame(QTextStream *s) {
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
+    */
   }
 
   if (s != NULL) {

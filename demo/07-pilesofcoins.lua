@@ -41,8 +41,8 @@ function coins_pile(coin_type,N,xp,zp)
     d.trans=btTransform(q,o)
     d.friction=.4
     d.restitution=.1
-    d.pre_sdl="object{coin("..coin_type..")"
-    d.post_sdl="}\n"
+--    d.pre_sdl="object{coin("..coin_type..")"
+--    d.post_sdl="}\n"
     v:add(d)
   end
 end

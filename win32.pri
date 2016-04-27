@@ -36,16 +36,18 @@ link_koppi_style_win32 {
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
-  WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.14-win32-dll
+  DEFINES -= HAS_LIB_ASSIMP
+
+  WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.4-win32-dll
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
-  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.3.17
+  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.5.1
   WIN32_DIR_LIB3DS    = $$WIN32_DIR_LIB\\lib3ds-1.3.0
 
 ## We use glut lib included with bullet.
 
   WIN32_DIR_GLUT      = $$WIN32_DIR_LIB\\bullet-r2552\\Glut
-  WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.0-1-mingw
-  WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.5.4-mingw32
+  WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw\\freeglut
+  WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.10.0
   WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet-r2552
   WIN32_DIR_BOOST     = $$WIN32_DIR_LIB\\boost_1_51_0
 }
@@ -82,7 +84,7 @@ contains(DEFINES, WIN32_LINK_GLEW) {
 
   INCLUDEPATH += $$PATH_GLEW\\include
 
-  LIBS += -L$$PATH_GLEW\\lib -L$$PATH_GLEW\\bin
+  LIBS += -L$$PATH_GLEW\\lib -L$$PATH_GLEW\\lib
 
   LIBS += -lglew32
 }
@@ -122,11 +124,17 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
 
   # Link
 
-  LIBS += -lQGLViewer2
+  CONFIG( debug, debug|release ) {
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer\\debug -lQGLViewerd2
+  } else {
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer\\release -lQGLViewer2
+  }
 }
 
 contains(DEFINES, WIN32_LINK_LIB3DS) {
 #  message(Statically linking lib3ds)
+
+  DEFINES += LIB3DS_STATIC
 
   SRC_LIB3DS  = $$WIN32_DIR_LIB3DS
 
@@ -134,7 +142,7 @@ contains(DEFINES, WIN32_LINK_LIB3DS) {
 
   # include
 
-  LIBS += -L$$WIN32_DIR_LIB3DS\\release
+  LIBS += -L$$WIN32_DIR_LIB3DS\\lib3ds\\.libs
 
   # link
 
@@ -209,11 +217,13 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
 
   # include
 
-  LIBS += -L$$PATH_LUABIND\\stage\\lib
-
-  # link
-
-  LIBS += -lluabind
+#  CONFIG( debug, debug|release ) {
+    LIBS += -L$$PATH_LUABIND\\bin\\gcc-mingw-4.4.0\\release
+    LIBS += -lluabind
+#  } else {
+#    LIBS += -L$$PATH_LUABIND\\bin\\gcc-mingw-4.4.0\\debug
+#    LIBS += -lluabindd
+#  }
 }
 
 contains(DEFINES, WIN32_LINK_BOOST) {

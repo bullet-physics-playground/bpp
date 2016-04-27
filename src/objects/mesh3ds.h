@@ -1,7 +1,7 @@
 #ifndef Model3DS_H
 #define Model3DS_H
 
-#include <GL/glew.h>
+// #include <GL/glew.h>
 
 #ifdef WIN32
 #include <windows.h>

@@ -3,8 +3,6 @@
 
 #include <lua.hpp>
 
-#include <GL/glew.h>
-
 #include <QGLViewer/qglviewer.h>
 #include <QGLViewer/manipulatedFrame.h>
 
@@ -62,6 +60,7 @@ class Viewer : public QGLViewer
   void addObject(Object* o);
   void removeObject(Object* o);
   void setCamera(Cam* cam);
+  Cam* getCamera();
 
   static void luaBind(lua_State *s);
   void luaBindInstance(lua_State *s);
@@ -241,6 +240,7 @@ public slots:
   QString	_scriptContent;
 
   QMutex mutex;
+  QMutex cammutex;
 
   // Lua callback functions
   luabind::object _cb_preDraw,_cb_postDraw;

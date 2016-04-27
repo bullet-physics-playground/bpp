@@ -20,7 +20,11 @@
 #include "objects/cube.h"
 #include "objects/sphere.h"
 #include "objects/cylinder.h"
+
+#ifdef HAS_LIB_ASSIMP
 #include "objects/mesh.h"
+#endif
+
 #include "objects/mesh3ds.h"
 
 #include "objects/palette.h"
@@ -42,6 +46,7 @@
 #include <boost/throw_exception.hpp>
 #include <boost/exception/info.hpp>
 
+#include <luabind/class_info.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 #include <luabind/tag_function.hpp>
@@ -51,17 +56,17 @@ typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Viewer& v) {
-  ostream << v.toString().toAscii().data();
+  ostream << v.toString().toUtf8().data();
   return ostream;
 }
 
 std::ostream& operator<<(std::ostream& ostream, const QString& s) {
-  ostream << s.toAscii().data();
+  ostream << s.toUtf8().data();
   return ostream;
 }
 
 std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
-  ostream << "QColor(\"" << c.name().toAscii().data() << "\")";
+  ostream << "QColor(\"" << c.name().toUtf8().data() << "\")";
   return ostream;
 }
 
@@ -78,6 +83,8 @@ void Viewer::luaBind(lua_State *s) {
   [
    class_<Viewer>("Viewer")
    .def(constructor<>())
+   .def("setCam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
+   .def("getCam", &Viewer::getCamera)
    .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
    .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(luabind::result))
    .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
@@ -86,7 +93,6 @@ void Viewer::luaBind(lua_State *s) {
    .def("addVehicle", (void(Viewer::*)(btRaycastVehicle *))&Viewer::addVehicle, adopt(_2))
    .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
    .def("removeShortcut", &Viewer::removeShortcut, adopt(luabind::result))
-   .def("cam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
    .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
    .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
    .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
@@ -95,6 +101,8 @@ void Viewer::luaBind(lua_State *s) {
    .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
    .def("savePrefs", &Viewer::setPrefs)
    .def("loadPrefs", &Viewer::getPrefs)
+
+   // .property("cam", &Viewer::getCamera, &Viewer::setCamera)
    
    .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
 
@@ -154,10 +162,13 @@ void Viewer::addObject(Object* o) {
 }
 
 void Viewer::removeObject(Object* o) {
+  if (o == NULL) return;
+
   if (o->body != NULL)
     dynamicsWorld->removeRigidBody(o->body);
 
   _objects->remove(o);
+  o->setParent(0);
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {
@@ -395,7 +406,7 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
 
   loadPrefs();
 
-  _cam=NULL;
+  setCamera(new Cam(this));
 
   // POV-Ray properties
   mPreSDL = "";
@@ -412,8 +423,11 @@ void Viewer::close() {
 
 void Viewer::setCamera(Cam *cam) {
   _cam = cam;
-
   QGLViewer::setCamera( cam );
+}
+
+Cam* Viewer::getCamera() {
+  return _cam;
 }
 
 void Viewer::setSavePNG(bool png) {
@@ -517,19 +531,25 @@ bool Viewer::parse(QString txt) {
 
       clear();
 
-    // invalidate function refs
-    _cb_preDraw = luabind::object();
-    _cb_postDraw = luabind::object();
-    _cb_preSim = luabind::object();
-    _cb_postSim = luabind::object();
-    _cb_onCommand = luabind::object();
+      // invalidate function refs
+      _cb_preDraw = luabind::object();
+      _cb_postDraw = luabind::object();
+      _cb_preSim = luabind::object();
+      _cb_postSim = luabind::object();
+      _cb_onCommand = luabind::object();
+      
+      lua_close(L);
+  }
 
-    // lua_close(L);
-  } else {
+  {
       // setup lua
       L = luaL_newstate();
+
       // open all standard Lua libs
       luaL_openlibs(L);
+
+      luaL_dostring(L, "os.setlocale('C')");
+      luaL_dostring(L, "package.path = \"demo/?.lua;\"..package.path");
 
       // register all bpp classes
       LuaBullet::luaBind(L);
@@ -539,7 +559,9 @@ bool Viewer::parse(QString txt) {
       Objects::luaBind(L);
       Cube::luaBind(L);
       Cylinder::luaBind(L);
+    #ifdef HAS_LIB_ASSIMP
       Mesh::luaBind(L);
+    #endif
       Mesh3DS::luaBind(L);
       Palette::luaBind(L);
       Plane::luaBind(L);
@@ -557,12 +579,14 @@ bool Viewer::parse(QString txt) {
 
     #endif
 
-      luaBindInstance(L);
+      luabind::bind_class_info(L);
 
       lua_pushlightuserdata(L, (void*)this);
       lua_pushcclosure(L,  &Viewer::lua_print, 1);
       lua_setglobal(L, "print");
   }
+
+  luaBindInstance(L);
 
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
@@ -578,7 +602,7 @@ bool Viewer::parse(QString txt) {
   _maxSubSteps = 10;
   _fixedTimeStep = 0.017;    // 1/60th of a second
 
-  int error = luaL_loadstring(L, txt.toAscii().constData())
+  int error = luaL_loadstring(L, txt.toUtf8().constData())
     || lua_pcall(L, 0, LUA_MULTRET, 0);
 
   if (error) {
@@ -661,7 +685,7 @@ void Viewer::resetCamView() {
 }
 
 void Viewer::loadPrefs() {
-  QGLViewer::restoreStateFromFile();
+    // QGLViewer::restoreStateFromFile();
 }
 
 void Viewer::savePrefs() {
@@ -726,6 +750,8 @@ void Viewer::openPovFile() {
 
   QTextStream *smain = new QTextStream(_fileMain);
   *smain << "// Main POV file generated by Bullet Physics Playground" << endl << endl;
+  *smain << "#version 3.7;" << endl << endl;
+
   *smain << "#include \"settings.inc\"" << endl << endl;
   *smain << "#include concat(concat(\"" << sceneName << "-\",str(clock,-5,0)),\".inc\")" << endl << endl;
 
@@ -740,47 +766,64 @@ void Viewer::openPovFile() {
 
   *_stream << "// Include file generated by Bullet Physics Playground" << endl << endl;
 
+  if (!mPreSDL.isEmpty()) {
+      *_stream << mPreSDL << endl << endl;
+  }
+
   /*
   if (_cam != NULL) {
     *_stream << "#declare useFocalBlur = " << _cam->getUseFocalBlur() << "; // 0=off 1=low quality 10=high quality" << endl << endl;
     }*/
 
-  Vec pos = camera()->position();
-
-  *_stream << "camera { " << endl;
-  *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
-  *_stream << "  right -image_width/image_height*x" << endl;
-
   if (_cam != NULL) {
-    btVector3 vLook = _cam->getLookAt();
-    *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
-    *_stream << "> angle " << _cam->fieldOfView() * 90.0 << endl;
-    //// qDebug() << vLook.x() << vLook.y() << vLook.z();
+
+  if (_cam->getPreSDL() == NULL) {
+      Vec pos = camera()->position();
+
+      *_stream << "camera { " << endl;
+      *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
+      *_stream << "  right -image_width/image_height*x" << endl;
+      
+      if (_cam != NULL) {
+          btVector3 vLook = _cam->getLookAt();
+          *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
+          *_stream << "> angle " << _cam->fieldOfView() * 90.0 << endl;
+          //// qDebug() << vLook.x() << vLook.y() << vLook.z();
+      } else {
+          Vec vDir = camera()->viewDirection();
+          *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
+          *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
+          // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
+      }
+
+      /*
+       *_stream << "#if(useFocalBlur)" << endl;
+       *_stream << "  aperture 0.001"  << endl;
+       *_stream << "  blur_samples 10*useFocalBlur" << endl;
+       *_stream << "  focal_point <"
+       << _cam->getFocalPoint().x() << ", "
+       << _cam->getFocalPoint().y() << ", "
+       << _cam->getFocalPoint().z() << "> " << endl;
+       *_stream << "  confidence 0.9+(useFocalBlur*0.0085)" << endl;
+       *_stream << "  variance 1/(2000*useFocalBlur)" << endl;
+       *_stream << "#end" << endl;
+       */
+      *_stream << "  }" << endl << endl;
   } else {
-    Vec vDir = camera()->viewDirection();
-    *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
-    *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
-     // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
+      *_stream << _cam->getPreSDL() << endl;
   }
 
-  *_stream << "#if(useFocalBlur)" << endl;
-  *_stream << "  aperture 0.001"  << endl;
-  *_stream << "  blur_samples 10*useFocalBlur" << endl;
-  *_stream << "  focal_point <"
-           << _cam->getFocalPoint().x() << ", "
-           << _cam->getFocalPoint().y() << ", "
-           << _cam->getFocalPoint().z() << "> " << endl;
-  *_stream << "  confidence 0.9+(useFocalBlur*0.0085)" << endl;
-  *_stream << "  variance 1/(2000*useFocalBlur)" << endl;
-  *_stream << "#end" << endl;
-  
-  *_stream << "  }" << endl << endl;
+}
 }
 
 void Viewer::closePovFile() {
-  if (_file != NULL) {
-    _file->close();
-  }
+    if (!mPostSDL.isEmpty()) {
+        *_stream << endl << mPostSDL << endl << endl;
+    }
+    
+    if (_file != NULL) {
+        _file->close();
+    }
 }
 
 Viewer::~Viewer() {
@@ -865,7 +908,7 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  specular_color);
 
   GLfloat light0_pos[] = {_light0.x(), _light0.y(), _light0.z(), _light0.w()};
-  GLfloat light1_pos[] = {_light1.x(), _light1.y(), _light1.z(), _light1.w()};
+  // GLfloat light1_pos[] = {_light1.x(), _light1.y(), _light1.z(), _light1.w()};
 
   GLfloat ambient[]  = { _gl_ambient.x(),  _gl_ambient.y(), _gl_ambient.z() };
   GLfloat diffuse[]  = { _gl_diffuse.x(),  _gl_diffuse.y(), _gl_diffuse.z() };
@@ -908,10 +951,6 @@ void Viewer::draw() {
 
   if (_savePOV) {
     openPovFile();
-
-    if (!mPreSDL.isEmpty()) {
-      *_stream << mPreSDL;
-    }
   }
 
   // qDebug() << "Number of objects:" << _objects->size();
@@ -928,9 +967,6 @@ void Viewer::draw() {
   }
 
   if (_savePOV) {
-    if (!mPostSDL.isEmpty()) {
-      *_stream << mPostSDL;
-    }
     closePovFile();
   }
 
@@ -986,6 +1022,7 @@ void Viewer::removeShortcut(const QString &keys) {
 }
 
 void Viewer::postDraw() {
+  if (_parsing) return
   QGLViewer::postDraw();
 
   if(_cb_postDraw) {

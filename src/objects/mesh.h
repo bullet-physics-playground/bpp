@@ -1,7 +1,9 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <GL/glew.h>
+#ifdef HAS_LIB_ASSIMP
+
+// #include <GL/glew.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -30,5 +32,7 @@ class Mesh : public Object {
   
   GLuint m_VertexVBO, m_NormalVBO;
 };
+
+#endif
 
 #endif

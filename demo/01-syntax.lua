@@ -1,31 +1,30 @@
-io.write("Hello world, from ",_VERSION,"!\n")
+printf = function(s,...) print(s:format(...)) end 
 
-function balls(n)
-  n = n or 10
-  for i = 0, n do
-    io.write("shpere ",tostring(i), "\n");
-    s = Sphere(0.5, 100)
-    s.pos = btVector3(-n / 2 + i, 0.5, 10)
-    s.color = QColor(0,0,255)
-    s.vel = btVector3(0, 0, -10)
-    v:add(s)
+info = function(c)
+  printf("Attributes")
+
+  for k, f in pairs(class_info(c).attributes) do
+    printf(" - %s %s", f, class_info(c[f]).name)
+  end
+
+  printf("Methods")
+
+  for k, f in pairs(class_info(c).methods) do
+    printf(" - %s", k)
   end
 end
 
-function tower(n)
-  n = n or 10
-  for i = 0, n do
-    io.write("cube ",tostring(i),"\n");
-    c = Cube(btVector3(1, 1, 1))
-    c.pos = btVector3(0, 0.5 + i, 0)
-    c.color = QColor(255, 0, 0)
-    v:add(c)
+classes = function()
+  printf("Registered classes:")
+  for i, f in ipairs(class_names()) do
+    printf(" - %s", f)
   end
 end
 
-function demo(n)
-  n = n or 10
-  tower(n) balls(n)
-end
+printf("Hello from %s!\n", _VERSION)
 
-demo(10)
+-- lists all available classes
+-- classes()
+
+-- print attributes of class v
+info(v)

@@ -63,8 +63,6 @@ void Sphere::luaBind(lua_State *s) {
      .property("radius", &Sphere::getRadius, &Sphere::setRadius)
      .def(tostring(const_self))
      ];
-
-  Object::luaBind(s);
 }
 
 QString Sphere::toString() const {

@@ -8,7 +8,7 @@
 #define APP_ORGANIZATION QString("koppi.me")
 
 std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
-  ostream << gui.toString().toAscii().data();
+  ostream << gui.toString().toUtf8().data();
   return ostream;
 }
 
@@ -16,6 +16,7 @@ std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
 #include <luabind/adopt_policy.hpp>
 
 Gui::Gui(QWidget *parent) : QMainWindow(parent) {
+
   _fileSaved=true;
   _simulationRunning=false;
 
@@ -96,7 +97,7 @@ void Gui::toggleDeactivation(bool d) {
 }
 
 
-void Gui::postDraw(int frame) {
+void Gui::postDraw(int /* frame */) {
   //QPixmap p = QPixmap::grabWidget(this);
 
   /*
@@ -277,11 +278,8 @@ void Gui::helpAbout() {
 
     tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
     tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-    tr("<p>&copy; 2008-2013 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
-    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>") + \
-    tr("<p>Using: <ul><li>GLEW %1</li><li>OpenGL %2</li></ul></p>").
-            arg((const char*) glewGetString(GLEW_VERSION)).
-            arg((const char*) glGetString(GL_VERSION));
+    tr("<p>&copy; 2008-2016 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
+    tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
   QMessageBox::about(this, tr("About"), txt);
 }
@@ -323,17 +321,6 @@ void Gui::clearDebug() {
 }
 
 void Gui::fileNew() {
-  if(!_fileSaved){
-    msgBox = new QMessageBox(this);
-    msgBox->setWindowTitle("Warning");
-    msgBox->setText("Current file not saved: continue anyhow?");
-    QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-    msgBox->addButton(tr("No"), QMessageBox::ActionRole);
-    msgBox->exec();
-    if ((QPushButton*)msgBox->clickedButton() != yesButton){
-    return;
-    }
-  }
   editor->clear();
   setCurrentFile(editor->script_filename);
   ui.actionSave->setEnabled(true);
@@ -392,7 +379,7 @@ void Gui::fileSave(const QString& path) {
 }
 
 void Gui::editPreferences() {
-  Prefs *p = new Prefs(this, 0, APP_ORGANIZATION, APP_NAME);
+  Prefs *p = new Prefs(this);
 
   connect(p, SIGNAL(fontChanged(QString, uint)),
           this, SLOT(fontChanged(QString, uint)));

@@ -2,6 +2,7 @@
 #define GUI_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include "ui_gui.h"
 
@@ -18,7 +19,6 @@ class Gui : public QMainWindow {
 
  public:
   Gui(QWidget *parent = 0);
-  QMessageBox* msgBox;
 
   QString toString() const;
   void luaBind(lua_State *s);
@@ -149,6 +149,8 @@ private:
   CodeEditor *editor;
   CodeEditor *debugText;
   CommandLine *commandLine;
+
+  QMessageBox *msgBox;
 };
 
 #endif

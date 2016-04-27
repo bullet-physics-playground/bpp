@@ -5,12 +5,13 @@
 
 #include "prefs.h"
 
-Prefs::Prefs(QWidget* parent, Qt::WFlags fl, QString organization, QString app_name) :
-  QDialog(parent, fl) {
+Prefs::Prefs(QWidget* parent) :
+  QDialog(parent) {
 
   this->setupUi(this);
 
-  _settings = new QSettings(organization, app_name);
+  _settings = new QSettings("", "");
+  // _settings = new QSettings(organization, app_name);
 
   connect(listBox, SIGNAL(currentItemChanged(QListWidgetItem *,QListWidgetItem *)),
           this, SLOT(changeGroup(QListWidgetItem *, QListWidgetItem*)));

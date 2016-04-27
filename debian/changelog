@@ -1,10 +1,16 @@
-bullet-physics-playground (0.0.1-ubuntu1) unstable; urgency=low
+bpp (0.0.2-ubuntu1) unstable; urgency=low
+
+  * Bump version 0.0.2
+
+ -- Jakob Flierl <jakob.flierl@gmail.com>  Thu, 13 Feb 2014 14:19:49 +0100
+
+bpp (0.0.1-ubuntu1) unstable; urgency=low
 
   * Release version 0.0.1.
 
  -- Jakob Flierl <jakob.flierl@gmail.com>  Sat, 05 Jan 2013 23:36:06 +0100
 
-bullet-physics-playground (0.0.0-ubuntu1) unstable; urgency=low
+bpp (0.0.0-ubuntu1) unstable; urgency=low
 
   * Initial release.
 

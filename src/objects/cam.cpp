@@ -10,7 +10,7 @@
 using namespace std;
 
 std::ostream& operator<<(std::ostream& ostream, const Cam& cam) {
-  ostream << cam.toString().toAscii().data() << "[ pos: " << "]";
+  ostream << cam.toString().toUtf8().data();
 
   return ostream;
 }
@@ -20,6 +20,8 @@ Cam::Cam(QObject *parent) : Camera() {
     // qDebug() << "Cam::Cam()";
 //    setUpVector(Vec(0,0,-1), false);
 //    setViewDirection(Vec(0,1,0));
+
+    setUseFocalBlur(0);
 }
 
 Cam::~Cam() {
@@ -58,6 +60,22 @@ void Cam::luaBind(lua_State *s) {
      .property("look",
                (btVector3(Cam::*)(void))&Cam::getLookAt,
                (void(Cam::*)(const btVector3&))&Cam::setLookAt)
+
+     .property("useFocalBlur",
+               (int(Cam::*)(void))&Cam::getUseFocalBlur,
+               (void(Cam::*)(int))&Cam::setUseFocalBlur)
+     .property("focalPoint",
+               (btVector3(Cam::*)(void))&Cam::getFocalPoint,
+               (void(Cam::*)(const btVector3&))&Cam::setFocalPoint)
+
+     .property("pre_sdl",
+               (QString(Cam::*)(void))&Cam::getPreSDL,
+               (void(Cam::*)(QString))&Cam::setPreSDL)
+
+     .property("post_sdl",
+               (QString(Cam::*)(void))&Cam::getPostSDL,
+               (void(Cam::*)(QString))&Cam::setPostSDL)
+     
      .def(tostring(const_self))
      ];
 }
@@ -80,3 +98,36 @@ void Cam::setLookAt(const btVector3& v) {
 btVector3 Cam::getLookAt() const {
   return _lookAt;
 }
+
+void Cam::setFocalPoint(const btVector3& v) {
+  _focalPoint = v;
+}
+
+btVector3 Cam::getFocalPoint() const {
+  return _focalPoint;
+}
+
+void Cam::setUseFocalBlur(const int ufb) {
+  _useFocalBlur = ufb;
+}
+
+int Cam::getUseFocalBlur() const {
+  return _useFocalBlur;
+}
+
+void Cam::setPostSDL(QString post_sdl) {
+  mPostSDL = post_sdl;
+}
+
+QString Cam::getPostSDL() const {
+  return mPostSDL;
+}
+
+void Cam::setPreSDL(QString pre_sdl) {
+  mPreSDL = pre_sdl;
+}
+
+QString Cam::getPreSDL() const {
+  return mPreSDL;
+}
+

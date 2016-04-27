@@ -66,8 +66,6 @@ void Cylinder::luaBind(lua_State *s) {
      .def(constructor<btScalar, btScalar, btScalar, btScalar>())
      .def(tostring(const_self))
      ];
-
-  Object::luaBind(s);
 }
 
 QString Cylinder::toString() const {
@@ -77,7 +75,7 @@ QString Cylinder::toString() const {
 void Cylinder::renderInLocalFrame(QTextStream *s) {
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
+  GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
   // GLfloat no_shininess[] = { 0.0 };

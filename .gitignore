@@ -10,10 +10,6 @@ release
 Makefile.Debug
 Makefile.Release
 lib
-object_script.physics.Debug
-object_script.physics.Release
-
-physics.pro.user*
 
 .classpath
 .project
@@ -40,11 +36,11 @@ target
 
 anim
 
-physics
-
+bpp
 build-stamp
 debian/bullet-physics-playground.debhelper.log
 debian/bullet-physics-playground.substvars
 debian/bullet-physics-playground/
 debian/files
 
+bpp.pro.user

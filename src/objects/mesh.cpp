@@ -2,6 +2,8 @@
 #pragma warning (disable : 4251)
 #endif
 
+#ifdef HAS_LIB_ASSIMP
+
 #include "mesh.h"
 
 #ifdef WIN32
@@ -21,7 +23,7 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
-  m_scene = aiImportFile(filename.toAscii(), aiProcessPreset_TargetRealtime_Fast);
+  m_scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
 
   if (!m_scene) {
 
@@ -123,7 +125,7 @@ QString Mesh::toString() const {
 void Mesh::renderInLocalFrame(QTextStream *s) {
 
   GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat mat_ambient[] = { color[0] / 255.0, color[1] / 255.0, color[2] / 255.0, 1.0 };
+  GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
   GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
   GLfloat mat_specular[] = { 0.0, 0.0, 0.0, 1.0 };
   // GLfloat no_shininess[] = { 0.0 };
@@ -226,3 +228,5 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
   }
 
 }
+
+#endif

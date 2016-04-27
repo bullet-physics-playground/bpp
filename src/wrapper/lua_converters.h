@@ -42,7 +42,7 @@ namespace luabind
   }
 
   void to(lua_State* L, QString const& x) {
-    lua_pushstring(L, x.toAscii());
+    lua_pushstring(L, x.toUtf8());
   }
   };
 

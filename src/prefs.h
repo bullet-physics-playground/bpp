@@ -1,6 +1,8 @@
 #ifndef PREFS_H
 #define PREFS_H
 
+#include <QtCore>
+
 #include <QSettings>
 #include <QKeyEvent>
 
@@ -10,7 +12,7 @@ class Prefs : public QDialog , public Ui_Prefs {
   Q_OBJECT
 
 public:
-  Prefs(QWidget* parent = 0, Qt::WFlags fl = 0, QString organization = "", QString app_name = "");
+  Prefs(QWidget* parent = 0);
   ~Prefs();
 
   void accept();

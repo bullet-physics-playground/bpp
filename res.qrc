@@ -17,6 +17,6 @@
   <qresource prefix="/">
     <file>icons/deactivation.png</file>
     <file>icons/povray.png</file>
-    <file>icons/physics.svg</file>
+    <file>icons/bpp.svg</file>
   </qresource>
 </RCC>
