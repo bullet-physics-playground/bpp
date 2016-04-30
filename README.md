@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp)
 
 <a
-href="https://www.youtube.com/watch?v=TUtLOcbtcZk&index=1&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/wyuDqjGvYWo/0.jpg" alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
+href="https://www.youtube.com/watch?v=wyuDqjGvYWo&index=1&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/wyuDqjGvYWo/0.jpg" alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
 
 Features:
 
