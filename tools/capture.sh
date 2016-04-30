@@ -11,7 +11,7 @@
 #
 # Required tools:
 #
-# sudo apt-get install ffmpeg pulseaudio pulseaudio-utils beep
+# sudo apt-get install ffmpeg pulseaudio pulseaudio-utils beep x11-utils
 #
 
 loadModule(){
