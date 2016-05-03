@@ -65,9 +65,14 @@ link_pkgconfig {
   LSB_RELEASE_ID  = $$system(lsb_release -is)
   LSB_RELEASE_REL = $$system(lsb_release -rs)
 
-#  message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
+  message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
 
   contains(LSB_RELEASE_ID, Ubuntu): {
+    contains(LSB_RELEASE_REL, 14.04) : {
+      PKGCONFIG += lua5.2
+      PKGCONFIG -= luabind
+      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
+    }
     contains(LSB_RELEASE_REL, 16.04) : {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
