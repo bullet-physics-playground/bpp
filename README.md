@@ -16,6 +16,8 @@ Created with bullet-physics-playground:
 
 ### Build
 
+[![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 WIP
 
 Select your operating system:
