@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp)
+[![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp) [![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <a
 href="https://www.youtube.com/watch?v=wyuDqjGvYWo&index=1&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/wyuDqjGvYWo/0.jpg" alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
@@ -15,8 +15,6 @@ Created with bullet-physics-playground:
 * [Animations](https://github.com/bullet-physics-playground/bpp/wiki/Animations)
 
 ### Build
-
-[![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 WIP
 
