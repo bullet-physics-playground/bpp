@@ -17,5 +17,5 @@ union{
     }
   }
   cylinder{<0,0,0>,<0,.9,0>,.02 pigment{DarkGreen*.5}}
-  scale 4.5
+  scale 3.5
 }
