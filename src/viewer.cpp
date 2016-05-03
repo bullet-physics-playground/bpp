@@ -25,8 +25,6 @@
 #include "objects/mesh.h"
 #endif
 
-#include "objects/mesh3ds.h"
-
 #include "objects/palette.h"
 
 #include "objects/cam.h"
@@ -102,7 +100,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("savePrefs", &Viewer::setPrefs)
             .def("loadPrefs", &Viewer::getPrefs)
 
-            // .property("cam", &Viewer::getCamera, &Viewer::setCamera)
+            .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
             .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
 
@@ -562,7 +560,6 @@ bool Viewer::parse(QString txt) {
 #ifdef HAS_LIB_ASSIMP
         Mesh::luaBind(L);
 #endif
-        Mesh3DS::luaBind(L);
         Palette::luaBind(L);
         Plane::luaBind(L);
         Sphere::luaBind(L);

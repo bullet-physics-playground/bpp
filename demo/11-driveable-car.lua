@@ -14,6 +14,9 @@
 -- + F5  = neutral
 -- + F9  = turn left
 -- + F10 = turn right
+
+-- v.gravity = btVector3(0,-9.81*3,0) -- XXX fix gravity in viewer.cpp
+
 --
 -- WARNING:
 -- + The script doesn't run correctly most of the times. Sometimes some 
@@ -26,9 +29,6 @@
 -- CONTROL
 -- *******
 
--- force decimal dot on SDL exports 
-os.setlocale("en_US.UTF-8")
-
 -- camera view:
 -- 0=default GL cam, 1=back follow, 2=onboard, 3=external 
 -- (see other test cameras at the EOF)
@@ -36,7 +36,8 @@ camera_view=3
 
 -- car model: 
 -- 1=Citroen GS, 2=Nissan Micra
-car_model=1
+car_model=2
+
 if (car_model==1) then
 -- Citroen GS
 chassis_model="citroen_gs.3ds"
@@ -82,11 +83,11 @@ total_car_mass=800
 drivetrain_type=1  -- 0=NONE, 1=FWD, 2=RWD, 3=AWD
 engine_placement=.5  -- 1=FRONT, 0=CENTER, -1=REAR
 engine_height=tire_radius+1
-onboard_cam_height=4
+onboard_cam_height=3.5
 end
 
 -- engine control
-initial_angular_velocity=15
+initial_angular_velocity=-35
 
 -- obstacle selection:  
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
@@ -115,13 +116,12 @@ tire_restitution=.01
 metal_friction=.5
 metal_restitution=.01
 
-
 -- ************
 -- CAR GEOMETRY
 -- ************
 
 -- CAR CHASSIS MESH
-chassis=Mesh3DS("demo/"..chassis_model,chassis_mass)
+chassis=Mesh("demo/"..chassis_model,chassis_mass)
 chassis.pos =btVector3(0,chassis_height,0)
 chassis.col="#CCCCCC"
 chassis.restitution=.01
@@ -393,6 +393,7 @@ rear_left_wheel_disc_constraint = btHingeConstraint(
 v:addConstraint(rear_left_wheel_disc_constraint)
 
 -- FRONT STEERING CONSTRAINT
+
 -- right
 pivotA = btVector3(0,0,arm_radius)
 axisA  = btVector3(0,0,1)
@@ -405,6 +406,7 @@ front_right_disc_spindle_constraint = btHingeConstraint(
 front_right_disc_spindle_constraint:setAxis(btVector3(0,1,0))
 front_right_disc_spindle_constraint:setLimit(0,0,.9,.3,1)
 v:addConstraint(front_right_disc_spindle_constraint)
+
 -- left
 pivotA = btVector3(0,0,-arm_radius)
 axisA  = btVector3(0,0,1)
@@ -419,6 +421,7 @@ front_left_disc_spindle_constraint:setLimit(0,0,.9,.3,1)
 v:addConstraint(front_left_disc_spindle_constraint)
 
 -- REAR STEERING CONSTRAINT (FIXED)
+
 -- right
 pivotA = btVector3(0,0,arm_radius)
 axisA  = btVector3(0,0,1)
@@ -431,6 +434,7 @@ rear_right_disc_spindle_constraint = btHingeConstraint(
 rear_right_disc_spindle_constraint:setAxis(btVector3(0,1,0))
 rear_right_disc_spindle_constraint:setLimit(0,0,.9,.3,1)
 v:addConstraint(rear_right_disc_spindle_constraint)
+
 -- left
 pivotA = btVector3(0,0,-arm_radius)
 axisA  = btVector3(0,0,1)
@@ -445,6 +449,7 @@ rear_left_disc_spindle_constraint:setLimit(0,0,.9,.3,1)
 v:addConstraint(rear_left_disc_spindle_constraint)
 
 -- FRONT ARMS CONTRAINTS
+
 -- right
 pivotA = btVector3(0,0,front_arm_lenght*.5)
 axisA  = btVector3(1,0,0)
@@ -486,6 +491,7 @@ front_right_lower_arm_chassis_constraint = btHingeConstraint(
   pivotA, pivotB, axisA, axisB
 )
 v:addConstraint(front_right_lower_arm_chassis_constraint)
+
 -- left
 pivotA = btVector3(0,0,-front_arm_lenght*.5)
 axisA  = btVector3(1,0,0)
@@ -529,6 +535,7 @@ front_left_lower_arm_chassis_constraint = btHingeConstraint(
 v:addConstraint(front_left_lower_arm_chassis_constraint)
 
 -- REAR ARMS CONTRAINTS
+
 -- right
 pivotA = btVector3(0,0,rear_arm_lenght*.5)
 axisA  = btVector3(1,0,0)
@@ -613,6 +620,7 @@ rear_left_lower_arm_chassis_constraint = btHingeConstraint(
 v:addConstraint(rear_left_lower_arm_chassis_constraint)
 
 -- FRONT SPRING CONSTRAINTS (NO GEOM)
+
 -- right
 q = btQuaternion()
 o = btVector3(front_axle_xpos,arm_body_height+tire_radius*.5,front_axle_width*.5-tire_width*.5-arm_radius)
@@ -655,6 +663,7 @@ front_left_upper_arm_chassis_spring:setLimit(5,0,0)
 v:addConstraint(front_left_upper_arm_chassis_spring)
 
 -- REAR SPRING CONSTRAINTS (NO GEOM)
+
 -- right
 q = btQuaternion()
 o = btVector3(rear_axle_xpos,arm_body_height+tire_radius*.5,rear_axle_width*.5-tire_width*.5-arm_radius)
@@ -697,6 +706,7 @@ rear_left_upper_arm_chassis_spring:setLimit(5,0,0)
 v:addConstraint(rear_left_upper_arm_chassis_spring)
 
 -- FRONT STABILIZER BAR-DISCS-BODY CONSTRAINTS
+
 -- right
 pivotA = btVector3(tire_radius*.4,0,-tire_width*.5)
 pivotB = btVector3(0,0,front_axle_width*.5-tire_width*.5)
@@ -776,6 +786,7 @@ front_center_stabilizer_bar2_constraint:setLimit(4,0,0)
 front_center_stabilizer_bar2_constraint:setLimit(5,0,0)
 
 -- REAR STABILIZER BAR-DISCS-BODY CONSTRAINTS
+
 -- right
 pivotA = btVector3(tire_radius*.4,0,-tire_width*.5)
 pivotB = btVector3(0,0,rear_axle_width*.5-tire_width*.5)
@@ -898,7 +909,7 @@ end
 
 -- suspension test: 
 if(use_obstacles==1) then
-  testbed=Mesh3DS("demo/testbed.3ds",0)
+  testbed=Mesh("demo/testbed.3ds",0)
   testbed.pos =btVector3(0,0,0)
   testbed.col="#996600"
   testbed.friction=.9
@@ -914,7 +925,7 @@ end
 
 -- suspension test: mesh terrain test
 if(use_obstacles==2) then
-  terrain=Mesh3DS("demo/terrain.3ds",0)
+  terrain=Mesh("demo/terrain.3ds",0)
   terrain.pos =btVector3(0,-1,0)
   terrain.col="#993399"
   terrain.friction=.9
@@ -930,7 +941,7 @@ end
 -- switch camera
 v:addShortcut("F1", function(N)
   camera_view = camera_view + 1;
-  if (camera_view == 4) then
+  if (camera_view == 8) then
     camera_view = 1
   end
 end)
@@ -1086,12 +1097,12 @@ if(camera_view>0) then
     cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
     cam:setHorizontalFieldOfView(.025)
   end
--- aerial viwe
+-- aerial view
   if(camera_view==8) then
     cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z)
     cam.look = chassis.pos
   end  
-  v:cam(cam)
+  v:setCam(cam)
 end
 
 -- CAR STEERING: AUTO-STRAIGHTEN 
@@ -1148,6 +1159,5 @@ v.pre_sdl="#declare chassis_pos=<"..chassis.pos.x..","..chassis.pos.y..","..chas
   
 
 end) -- postSim
-
 
 -- EOF
