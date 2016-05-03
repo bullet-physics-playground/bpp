@@ -70,6 +70,6 @@ sp.post_sdl =
 v:add(sp)
 
 v:preDraw(function(N)
-  v.cam.pos = btVector3(8,8,8)
+  v.cam.pos  = btVector3(8,8,8)
   v.cam.look = cy.pos - btVector3(0,0,0)
 end)
