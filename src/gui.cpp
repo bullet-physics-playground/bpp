@@ -296,12 +296,12 @@ void Gui::helpWiki() {
     QDesktopServices::openUrl(QUrl("https://github.com/koppi/bullet-physics-playground/wiki"));
 }
 
-void Gui::helpDonate() {
-    QDesktopServices::openUrl(QUrl("https://koppi.github.com/paypal"));
+void Gui::helpChat() {
+    QDesktopServices::openUrl(QUrl("https://gitter.im/bullet-physics-playground/bpp"));
 }
 
-void Gui::helpChat() {
-    QDesktopServices::openUrl(QUrl("https://gitter.im/koppi/bpp"));
+void Gui::helpDonate() {
+    QDesktopServices::openUrl(QUrl("https://koppi.github.com/paypal"));
 }
 
 QString Gui::strippedName(const QString &fullFileName) {
