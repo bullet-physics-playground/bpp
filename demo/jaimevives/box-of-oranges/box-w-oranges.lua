@@ -1,6 +1,6 @@
 -- ORANGES BOX 
 
-plane = Plane(0,1,0)
+plane = Plane(0,1,0,0,1000)
 plane.col = "#111111"
 v:add(plane)
 
