@@ -8,7 +8,6 @@
     <file>demo/05-mesh-chain.lua</file>
     <file>demo/06-mesh-chain2.lua</file>
     <file>demo/07-pilesofcoins.lua</file>
-    <file>demo/08-box-w-oranges.lua</file>
     <file>demo/09-tower-w-blocks.lua</file>
     <file>demo/10-3ds-box-w-coins.lua</file>
     <file>demo/11-car-hinge-slider.lua</file>
