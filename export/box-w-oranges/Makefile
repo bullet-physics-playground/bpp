@@ -28,7 +28,7 @@ distclean: clean
 	/bin/rm -f ${SCENE}.pov ${SCENE}.ini *.pov-state ${SCENE}-*.inc *.log
 
 clean:
-	/bin/rm -f ${SCENE}-*.png *.avi *.mov
+	/bin/rm -f ${SCENE}-*.png *.mkv
 
 dist: clean
 	XZ_OPT=-9e tar -C .. -cvJf ../${SCENE}.tar.xz ${SCENE}
