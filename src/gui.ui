@@ -31,7 +31,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -86,7 +95,15 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="action_Homepage"/>
+    <addaction name="separator"/>
+    <addaction name="action_Chat"/>
+    <addaction name="action_Issues"/>
+    <addaction name="action_Wiki"/>
+    <addaction name="separator"/>
     <addaction name="actionAbout"/>
+    <addaction name="separator"/>
+    <addaction name="action_Donate"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -142,8 +159,7 @@
   <action name="actionNew">
    <property name="icon">
     <iconset theme="document-new">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -158,8 +174,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset theme="document-open">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Open..</string>
@@ -177,8 +192,7 @@
    </property>
    <property name="icon">
     <iconset theme="document-save">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Save..</string>
@@ -193,8 +207,7 @@
   <action name="actionSaveAs">
    <property name="icon">
     <iconset theme="document-save-as">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Save &amp;As..</string>
@@ -209,8 +222,7 @@
   <action name="actionExit">
    <property name="icon">
     <iconset theme="exit">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>E&amp;xit</string>
@@ -222,8 +234,7 @@
   <action name="actionPreferences">
    <property name="icon">
     <iconset theme="preferences-system">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Preferences..</string>
@@ -237,7 +248,7 @@
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>&amp;About..</string>
+    <string>&amp;About</string>
    </property>
    <property name="toolTip">
     <string>Show the application's About box</string>
@@ -249,8 +260,7 @@
    </property>
    <property name="icon">
     <iconset theme="media-playback-start">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Start/Stop Simulation</string>
@@ -265,8 +275,7 @@
   <action name="actionRestart">
    <property name="icon">
     <iconset theme="view-refresh">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Restart</string>
@@ -296,11 +305,10 @@
    </property>
    <property name="icon">
     <iconset theme="camera">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Toggle PNG Screenshot Saving</string>
+    <string>Toggle PNG screenshot saving</string>
    </property>
    <property name="toolTip">
     <string>Toggle PNG Screemshot Saving</string>
@@ -318,7 +326,7 @@
      <normaloff>:/icons/deactivation.png</normaloff>:/icons/deactivation.png</iconset>
    </property>
    <property name="text">
-    <string>Toggle Deactivation</string>
+    <string>Toggle deactivation</string>
    </property>
    <property name="toolTip">
     <string>Toggle deactivation state</string>
@@ -327,11 +335,44 @@
   <action name="actionResetCamera">
    <property name="icon">
     <iconset theme="go-home">
-     <normaloff/>
-    </iconset>
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Reset Camera View to initial State</string>
+    <string>Reset camera view to initial state</string>
+   </property>
+  </action>
+  <action name="action_Donate">
+   <property name="text">
+    <string>&amp;Donate</string>
+   </property>
+   <property name="toolTip">
+    <string>Please donate via Paypal!</string>
+   </property>
+  </action>
+  <action name="action_Issues">
+   <property name="text">
+    <string>&amp;Issues</string>
+   </property>
+   <property name="toolTip">
+    <string>Bullet Physiscs Playground issues on GitHub</string>
+   </property>
+  </action>
+  <action name="action_Wiki">
+   <property name="text">
+    <string>&amp;Wiki</string>
+   </property>
+  </action>
+  <action name="action_Homepage">
+   <property name="text">
+    <string>&amp;Homepage</string>
+   </property>
+   <property name="toolTip">
+    <string>http//bullet-physics-playground.github.io/</string>
+   </property>
+  </action>
+  <action name="action_Chat">
+   <property name="text">
+    <string>&amp;Chat</string>
    </property>
   </action>
  </widget>
@@ -555,6 +596,86 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>action_Homepage</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpHomepage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Issues</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpIssues()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Wiki</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpWiki()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Donate</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpDonate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_Chat</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpChat()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileNew()</slot>
@@ -570,5 +691,10 @@
   <slot>toggleScreenshotExport(bool)</slot>
   <slot>toggleDeactivation(bool)</slot>
   <slot>resetCamera()</slot>
+  <slot>helpHomepage()</slot>
+  <slot>helpIssues()</slot>
+  <slot>helpWiki()</slot>
+  <slot>helpDonate()</slot>
+  <slot>helpChat()</slot>
  </slots>
 </ui>

@@ -284,6 +284,26 @@ void Gui::helpAbout() {
     QMessageBox::about(this, tr("About"), txt);
 }
 
+void Gui::helpHomepage() {
+    QDesktopServices::openUrl(QUrl("http://bullet-physics-playground.github.io/"));
+}
+
+void Gui::helpIssues() {
+    QDesktopServices::openUrl(QUrl("https://github.com/bullet-physics-playground/bpp/issues"));
+}
+
+void Gui::helpWiki() {
+    QDesktopServices::openUrl(QUrl("https://github.com/koppi/bullet-physics-playground/wiki"));
+}
+
+void Gui::helpDonate() {
+    QDesktopServices::openUrl(QUrl("https://koppi.github.com/paypal"));
+}
+
+void Gui::helpChat() {
+    QDesktopServices::openUrl(QUrl("https://gitter.im/koppi/bpp"));
+}
+
 QString Gui::strippedName(const QString &fullFileName) {
     return QFileInfo(fullFileName).fileName();
 }

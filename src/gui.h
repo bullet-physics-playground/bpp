@@ -47,13 +47,19 @@ public slots:
     void toggleScreenshotExport(bool);
     void toggleDeactivation(bool);
 
-    void helpAbout();
     void fileNew();
     void fileLoad(const QString &path = QString());
     void fileOpen(const QString &path = QString());
     void fileSave();
     void fileSave(const QString &path);
     void fileSaveAs();
+
+    void helpAbout();
+    void helpHomepage();
+    void helpIssues();
+    void helpWiki();
+    void helpChat();
+    void helpDonate();
 
     void editPreferences();
 
