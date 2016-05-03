@@ -13,7 +13,7 @@ all:
 	@echo ""
 
 quick:
-	time nice povray ${SCENE}.ini -V +W380 +H253 +Q4 -A +d ${POV}
+	time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POV}
 
 quickc:
 	time nice povray ${SCENE}.ini -V +W759 +H506 +Q4 -A +d +c ${POV}
