@@ -16,10 +16,10 @@ quick:
 	time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POV}
 
 quickc:
-	time nice povray ${SCENE}.ini -V +W759 +H506 +Q4 -A +d +c ${POV}
+	time nice povray ${SCENE}.ini -V +W760 +H506 +Q4 -A +d +c ${POV}
 
 final:
-	time nice povray ${SCENE}.ini -V +W759 +H506 +Q11 +A0.3 -d +c ${POV}
+	time nice povray ${SCENE}.ini -V +W760 +H506 +Q11 +A0.3 -d +c ${POV}
 
 mkv:
 	time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
