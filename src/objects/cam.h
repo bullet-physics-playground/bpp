@@ -14,44 +14,44 @@
 using namespace qglviewer;
 
 class Cam : public Camera {
- Q_OBJECT;
+    Q_OBJECT;
 
- public:
-  Cam(QObject *parent = 0);
-  ~Cam();
+public:
+    Cam(QObject *parent = 0);
+    ~Cam();
 
-  static void luaBind(lua_State *s);
+    static void luaBind(lua_State *s);
 
-  virtual QString toString() const;
+    virtual QString toString() const;
 
-  void setPosition(const btVector3& v);
+    void setPosition(const btVector3& v);
 
-  btVector3 getPosition() const;
+    btVector3 getPosition() const;
 
-  void setLookAt(const btVector3& v);
-  btVector3 getLookAt() const;
+    void setLookAt(const btVector3& v);
+    btVector3 getLookAt() const;
 
-  void setUseFocalBlur(const int v);
-  int getUseFocalBlur() const;
+    void setUseFocalBlur(const int v);
+    int getUseFocalBlur() const;
 
-  void setFocalPoint(const btVector3& v);
-  btVector3 getFocalPoint() const;
+    void setFocalPoint(const btVector3& v);
+    btVector3 getFocalPoint() const;
 
-  void setPreSDL(QString pre_sdl);
-  QString getPreSDL() const;
+    void setPreSDL(QString pre_sdl);
+    QString getPreSDL() const;
 
-  void setPostSDL(QString post_sdl);
-  QString getPostSDL() const;
-  
- protected:
-  btVector3 _lookAt;
+    void setPostSDL(QString post_sdl);
+    QString getPostSDL() const;
 
-  int _useFocalBlur;
-  btVector3 _focalPoint;
+protected:
+    btVector3 _lookAt;
 
-  QString mPreSDL;
-  QString mPostSDL;
-  
+    int _useFocalBlur;
+    btVector3 _focalPoint;
+
+    QString mPreSDL;
+    QString mPostSDL;
+
 };
 
 #endif

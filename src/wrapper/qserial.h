@@ -66,4 +66,5 @@ typedef class_<QextPortInfo>  LQextPortInfo;
 LQextSerialPort lqextserialport();
 LQextPortInfo lqextportinfo();
 LQPortSetting lqportsetting();
+
 #endif // LUA_SERIAL_H

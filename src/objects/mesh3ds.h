@@ -16,19 +16,19 @@
 #include <lib3ds/file.h>
 
 class Mesh3DS : public Object {
- public:
-  Mesh3DS(QString filename, btScalar mass);
+public:
+    Mesh3DS(QString filename, btScalar mass);
 
-  static void luaBind(lua_State *s);
-  QString toString() const;
+    static void luaBind(lua_State *s);
+    QString toString() const;
 
-  virtual void renderInLocalFrame(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s);
 
- protected:
-  GLuint m_VertexVBO, m_NormalVBO;
+protected:
+    GLuint m_VertexVBO, m_NormalVBO;
 
-  unsigned int m_TotalFaces;
-  Lib3dsFile * m_model;
+    unsigned int m_TotalFaces;
+    Lib3dsFile * m_model;
 };
 
 #endif

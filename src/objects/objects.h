@@ -7,19 +7,18 @@
 
 class Objects : public Object {
 
- public:
-  Objects();
+public:
+    Objects();
 
-  QList<Object *>getObjects() const;
+    QList<Object *>getObjects() const;
 
-  static void luaBind(lua_State *s);
-  QString toString() const;
+    static void luaBind(lua_State *s);
+    QString toString() const;
 
-  virtual void renderInLocalFrame(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s);
 
- protected:
-  QList<Object *> _objects;
+protected:
+    QList<Object *> _objects;
 };
-
 
 #endif // CUBE_H

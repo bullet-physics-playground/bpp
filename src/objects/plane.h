@@ -7,25 +7,25 @@
 
 class Plane : public Object
 {
- public:
-  Plane(const btVector3& dim, btScalar nConst, btScalar size);
-  Plane(btScalar nx = 0.0, btScalar ny = 0.0, btScalar nz = 0.0,
-        btScalar nConst = 0.0, btScalar size = 10.0);
+public:
+    Plane(const btVector3& dim, btScalar nConst, btScalar size);
+    Plane(btScalar nx = 0.0, btScalar ny = 0.0, btScalar nz = 0.0,
+          btScalar nConst = 0.0, btScalar size = 10.0);
 
-  void setPigment(QString pigment);
+    void setPigment(QString pigment);
 
-  static void luaBind(lua_State *s);
-  QString toString() const;
+    static void luaBind(lua_State *s);
+    QString toString() const;
 
-  virtual void renderInLocalFrame(QTextStream *s);
-  virtual void render(QTextStream *s);
- protected:
-  void init(btScalar nx, btScalar ny, btScalar nz,
-            btScalar nConst, btScalar size);
+    virtual void renderInLocalFrame(QTextStream *s);
+    virtual void render(QTextStream *s);
+protected:
+    void init(btScalar nx, btScalar ny, btScalar nz,
+              btScalar nConst, btScalar size);
 
-  btScalar       size;
+    btScalar       size;
 
-  QString mPigment;
+    QString mPigment;
 };
 
 #endif // PLANE_H

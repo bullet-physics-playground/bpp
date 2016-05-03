@@ -23,4 +23,5 @@ void tranverseSetting(pfnTranverse_t pfn, void* context);
 QString  PortSettingString(const PortSettings& setting);
 void  UpdatePortSettingString(PortSettings& setting, const QString& str);
 bool  isSameSetting(const PortSettings& setting, const QString& str);
+
 #endif // SERIALHELPER_H

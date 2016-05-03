@@ -35,7 +35,6 @@ int luaopen_luagl(lua_State *L);
 }
 #endif
 
-
 #endif
 
 

@@ -1,8 +1,10 @@
-color = require "color"
-t     = require "transform"
+-- demo of the transform.lua library
+
+col = require "color"
+t   = require "transform"
 
 plane = Plane(0,1,0)
-plane.col = "#7f7f7f"
+plane.col = col.blue
 v:add(plane)
 
 v.gravity = btVector3(0,-9.81*20,0)
@@ -41,7 +43,7 @@ v:preSim(function(N)
 if (math.fmod(N, 30) == 0) then
 if (math.random() > 0.2) then
   s=Sphere(2,1)
-  s.col = "#ff0000"
+  s.col = col.red
 else
   s=Cube(3,3,3,1)
   s.col = color.random_pastel()

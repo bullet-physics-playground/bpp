@@ -18,19 +18,19 @@
 #include <assimp/scene.h>
 
 class Mesh : public Object {
- public:
-  Mesh(QString filename, btScalar mass);
-  ~Mesh();
-  
-  static void luaBind(lua_State *s);
-  QString toString() const;
+public:
+    Mesh(QString filename, btScalar mass);
+    ~Mesh();
 
-  virtual void renderInLocalFrame(QTextStream *s);
+    static void luaBind(lua_State *s);
+    QString toString() const;
 
- protected:
-  const aiScene *m_scene;
-  
-  GLuint m_VertexVBO, m_NormalVBO;
+    virtual void renderInLocalFrame(QTextStream *s);
+
+protected:
+    const aiScene *m_scene;
+
+    GLuint m_VertexVBO, m_NormalVBO;
 };
 
 #endif

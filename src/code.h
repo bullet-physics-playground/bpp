@@ -17,73 +17,73 @@ class QSize;
 class LineNumberArea;
 
 class CodeEditor : public QPlainTextEdit {
- Q_OBJECT;
-	
- public:
-  CodeEditor(QWidget *parent = 0, QString organization = "", QString app_name = "");
-  
-  void lineNumberAreaPaintEvent(QPaintEvent *event);
-  int lineNumberAreaWidth();
+    Q_OBJECT;
 
-  QString script_filename;
- public slots:
-  void clear();
-  bool save();
-  bool load(QString filename=QString());
-  bool saveAs(QString filename=QString());
-  QString scriptFile() const;
+public:
+    CodeEditor(QWidget *parent = 0, QString organization = "", QString app_name = "");
 
-  void setFont(QString family, uint size);
+    void lineNumberAreaPaintEvent(QPaintEvent *event);
+    int lineNumberAreaWidth();
 
-  void appendLine(QString l) {
-    appendPlainText(l);
-  }
+    QString script_filename;
+public slots:
+    void clear();
+    bool save();
+    bool load(QString filename=QString());
+    bool saveAs(QString filename=QString());
+    QString scriptFile() const;
 
-  void replaceText(QString txt) {
-	int pos = textCursor().position();
+    void setFont(QString family, uint size);
 
-	setPlainText(txt);
+    void appendLine(QString l) {
+        appendPlainText(l);
+    }
 
-	QTextCursor cursor = this->textCursor();
-	cursor.setPosition(pos, QTextCursor::MoveAnchor);
-	setTextCursor(cursor);
-  }
-  
- signals:
-  void scriptLoaded();
-  void scriptSaved();
-  void keyPressed(QKeyEvent *e);
+    void replaceText(QString txt) {
+        int pos = textCursor().position();
 
- protected:
-  void keyPressEvent(QKeyEvent *e);
-  void resizeEvent(QResizeEvent *event);
-  
- private slots:
-  void updateLineNumberAreaWidth(int newBlockCount);
-  void highlightCurrentLine();
-  void updateLineNumberArea(const QRect &, int);
-  
- private:
-  QWidget *lineNumberArea;
+        setPlainText(txt);
 
-  LuaHighlighter *highlighter;
+        QTextCursor cursor = this->textCursor();
+        cursor.setPosition(pos, QTextCursor::MoveAnchor);
+        setTextCursor(cursor);
+    }
+
+signals:
+    void scriptLoaded();
+    void scriptSaved();
+    void keyPressed(QKeyEvent *e);
+
+protected:
+    void keyPressEvent(QKeyEvent *e);
+    void resizeEvent(QResizeEvent *event);
+
+private slots:
+    void updateLineNumberAreaWidth(int newBlockCount);
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &, int);
+
+private:
+    QWidget *lineNumberArea;
+
+    LuaHighlighter *highlighter;
 };
 
 
 class LineNumberArea : public QWidget {
- Q_OBJECT;
+    Q_OBJECT;
 
- public:
-  LineNumberArea(CodeEditor *editor) : QWidget(editor) { codeEditor = editor; }
-  QSize sizeHint() const {return QSize(codeEditor->lineNumberAreaWidth(), 0); }
-  
- protected:
-  void paintEvent(QPaintEvent *event) {
-	codeEditor->lineNumberAreaPaintEvent(event);
-  }
-  
- private:
-  CodeEditor *codeEditor;
+public:
+    LineNumberArea(CodeEditor *editor) : QWidget(editor) { codeEditor = editor; }
+    QSize sizeHint() const {return QSize(codeEditor->lineNumberAreaWidth(), 0); }
+
+protected:
+    void paintEvent(QPaintEvent *event) {
+        codeEditor->lineNumberAreaPaintEvent(event);
+    }
+
+private:
+    CodeEditor *codeEditor;
 };
 
 #endif

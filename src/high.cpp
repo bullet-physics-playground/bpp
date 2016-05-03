@@ -1,12 +1,5 @@
 #include "high.h"
 
-//#include <QDebug>
-
-struct NoDebug;
-template<typename T>
-inline NoDebug& operator<<(NoDebug& n,T&){return n;}
-#define qDebug()  (*(NoDebug*)0)
-
 LuaHighlighter::LuaHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
@@ -97,7 +90,7 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
     rule.blockState = BS_Dummy;
     highlightingRules.append(rule);
 }
-//! [6]
+
 void LuaHighlighter::addUserKeyword(const QString& keyword)
 {
     QRegExp& exp = highlightingRules.last().pattern;
@@ -105,7 +98,7 @@ void LuaHighlighter::addUserKeyword(const QString& keyword)
     patten = patten.left(patten.length()-3)+"|"+keyword+")\\b";
     exp.setPattern(patten);
 }
-//! [7]
+
 void LuaHighlighter::highlightBlock(const QString &text)
 {
     setCurrentBlockState(BS_Dummy);
@@ -116,7 +109,6 @@ void LuaHighlighter::highlightBlock(const QString &text)
         p = new MyTextBlockUserData();
         setCurrentBlockUserData(p);
     }
-    qDebug()<<text;
     int offset = 0;
     int prevState = previousBlockState();
     //*
@@ -124,14 +116,13 @@ void LuaHighlighter::highlightBlock(const QString &text)
         HighlightingRule prevRule = highlightingRules.at(prevState);
         int len = matchBlockEnd(text, offset, prevRule);
         setFormat(offset, len, prevRule);
-        qDebug()<<"last rule: "<<prevRule.name<<"("<<offset<<","<<len<<")";
         offset += len;
     }
     //*/
 
     //foreach (const HighlightingRule &rule, highlightingRules) {
-        //QRegExp expression(rule.pattern);
-        //int index = expression.indexIn(text, offset);
+    //QRegExp expression(rule.pattern);
+    //int index = expression.indexIn(text, offset);
     while(offset < text.length()){
         HighlightingRule rule;
         int matchedLength = 0;
@@ -139,12 +130,8 @@ void LuaHighlighter::highlightBlock(const QString &text)
         while (index >= 0) {
             int length = matchedLength;
             if(rule.blockState != BS_Dummy){
-                qDebug()<<"block: "<<rule.name<<"start:"<<offset;
                 length = matchBlockEnd(text, index+matchedLength, rule);
                 length += matchedLength;
-                qDebug()<<"block: "<<"length:"<<length;
-            }else{
-                qDebug()<<"match: "<<rule.name<<"("<<offset<<","<<length<<")";
             }
             setFormat(index, length, rule);
             offset = index + length;
@@ -153,7 +140,6 @@ void LuaHighlighter::highlightBlock(const QString &text)
         if(index == -1)break;
     }
 }
-//! [11]
 
 int LuaHighlighter::matchPatten(const QString &text, int offset, HighlightingRule& r, int& matchedLength)
 {
@@ -181,11 +167,10 @@ int LuaHighlighter::matchBlockEnd(const QString &text, int startIndex, const Hig
     int length;
     if (endIndex == -1) {
         setCurrentBlockState(rule.blockState);
-        qDebug()<<"state == 1";
         length = text.length() - startIndex;
     } else {
         length = endIndex - startIndex
-                        + endExp.matchedLength();
+                + endExp.matchedLength();
     }
     return length;
 }
