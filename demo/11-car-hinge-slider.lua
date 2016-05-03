@@ -13,7 +13,7 @@ plane.restitution=.1
 v:add(plane)
 
 -- CAR MESH
-car_body=Mesh3DS("demo/citroen_gs.3ds",1)
+car_body=Mesh("demo/3ds/citroen_gs.3ds",1)
 car_body.pos =btVector3(0,4,0)
 --car_body=Cube(40,1,11,1)
 --car_body.pos =btVector3(0,5,0)

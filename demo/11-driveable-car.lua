@@ -121,7 +121,7 @@ metal_restitution=.01
 -- ************
 
 -- CAR CHASSIS MESH
-chassis=Mesh("demo/"..chassis_model,chassis_mass)
+chassis=Mesh("demo/3ds/"..chassis_model,chassis_mass)
 chassis.pos =btVector3(0,chassis_height,0)
 chassis.col="#CCCCCC"
 chassis.restitution=.01
@@ -909,7 +909,7 @@ end
 
 -- suspension test: 
 if(use_obstacles==1) then
-  testbed=Mesh("demo/testbed.3ds",0)
+  testbed=Mesh("demo/3ds/testbed.3ds",0)
   testbed.pos =btVector3(0,0,0)
   testbed.col="#996600"
   testbed.friction=.9
@@ -925,7 +925,7 @@ end
 
 -- suspension test: mesh terrain test
 if(use_obstacles==2) then
-  terrain=Mesh("demo/terrain.3ds",0)
+  terrain=Mesh("demo/3ds/terrain.3ds",0)
   terrain.pos =btVector3(0,-1,0)
   terrain.col="#993399"
   terrain.friction=.9
