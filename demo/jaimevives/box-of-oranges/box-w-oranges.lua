@@ -7,6 +7,8 @@ plane = Plane(0,1,0,0,1000)
 plane.col = "#00b000"
 v:add(plane)
 
+-- BOX MADE OUT OF CUBES
+
 c_post = [[
    no_shadow
    no_reflection
@@ -14,7 +16,6 @@ c_post = [[
 }
 ]]
 
--- BOX MADE OUT OF CUBES
 c1 = Cube(1,17,50,0)
 c1.pos = btVector3(-15.5,7.5,0)
 c1.col = "#f0ff00"
