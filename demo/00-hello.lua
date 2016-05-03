@@ -75,5 +75,5 @@ v:preDraw(function(N)
   c.pos = btVector3(8,8,8)
   c.look = cy.pos - btVector3(0,0,0)
 
-  v:cam(c)
+  v.cam = c
 end)
