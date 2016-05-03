@@ -139,6 +139,7 @@ public slots:
     bool parse(QString txt);
     void clear();
 
+    void setCBPreStart(const luabind::object &fn);
     void setCBPreDraw(const luabind::object &fn);
     void setCBPostDraw(const luabind::object &fn);
     void setCBPreSim(const luabind::object &fn);
@@ -243,6 +244,7 @@ private:
     QMutex cammutex;
 
     // Lua callback functions
+    luabind::object _cb_preStart;
     luabind::object _cb_preDraw,_cb_postDraw;
     luabind::object _cb_preSim,_cb_postSim;
     luabind::object _cb_preStop;

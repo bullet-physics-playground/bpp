@@ -1160,4 +1160,10 @@ v.pre_sdl="#declare chassis_pos=<"..chassis.pos.x..","..chassis.pos.y..","..chas
 
 end) -- postSim
 
+v:onCommand(function(cmd)
+--  print(cmd)
+  local f = assert(loadstring(cmd))
+  f(v)
+end)  -- onCommand
+
 -- EOF

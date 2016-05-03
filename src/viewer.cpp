@@ -91,6 +91,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("addVehicle", (void(Viewer::*)(btRaycastVehicle *))&Viewer::addVehicle, adopt(_2))
             .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
             .def("removeShortcut", &Viewer::removeShortcut, adopt(luabind::result))
+            .def("preStart", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreStart, adopt(luabind::result))
             .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
             .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
             .def("preSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreSim, adopt(luabind::result))
@@ -530,10 +531,12 @@ bool Viewer::parse(QString txt) {
         clear();
 
         // invalidate function refs
-        _cb_preDraw = luabind::object();
-        _cb_postDraw = luabind::object();
-        _cb_preSim = luabind::object();
-        _cb_postSim = luabind::object();
+        _cb_preStart  = luabind::object();
+        _cb_preStop   = luabind::object();
+        _cb_preDraw   = luabind::object();
+        _cb_postDraw  = luabind::object();
+        _cb_preSim    = luabind::object();
+        _cb_postSim   = luabind::object();
         _cb_onCommand = luabind::object();
 
         lua_close(L);
@@ -972,6 +975,12 @@ void Viewer::draw() {
     }
 }
 
+void Viewer::setCBPreStart(const luabind::object &fn) {
+    if(luabind::type(fn) == LUA_TFUNCTION) {
+        _cb_preStart = fn;
+    }
+}
+
 void Viewer::setCBPreDraw(const luabind::object &fn) {
     if(luabind::type(fn) == LUA_TFUNCTION) {
         _cb_preDraw = fn;
@@ -1115,11 +1124,27 @@ void Viewer::postDraw() {
 }
 
 void Viewer::startAnimation() {
+    if (_cb_preStart) {
+        try {
+            luabind::call_function<void>(_cb_preStart, _frameNum);
+        } catch(const std::exception& e){
+            showLuaException(e, "v:preStart()");
+        }
+    }
+
     _time.start();
     QGLViewer::startAnimation();
 }
 
 void Viewer::stopAnimation() {
+    if (_cb_preStop) {
+        try {
+            luabind::call_function<void>(_cb_preStop, _frameNum);
+        } catch(const std::exception& e){
+            showLuaException(e, "v:preStop()");
+        }
+    }
+
     QGLViewer::stopAnimation();
     //  updateGL();
 }

@@ -19,7 +19,7 @@ mod_gravity = 1  -- modulate gravity
 pov_export  = 0  -- povray export on / off
 
 d  = 100   -- box dimension
-x  = 200   -- number of objects
+x  = 50   -- number of objects
 od = 4     -- object dimension
 
 v.gravity = btVector3(0,0,0)
@@ -27,9 +27,9 @@ v.gravity = btVector3(0,0,0)
 col = "#aaaaaa"
 
 friction = 0
-restitution = 1.02
-damp_ang = 0.01
-damp_lin = 0.01
+restitution = 0.8
+damp_ang = 0.05
+damp_lin = 0.05
 
 v.pre_sdl = [[
 #include "colors.inc"
@@ -109,7 +109,7 @@ for i = 0,x do
   p = d*2-od
 
 if (i > x/2) then
-  s = Sphere(od,1)
+  s = Mesh("demo/stl/torus.stl",1)
   s.col = color.random_pastel()
   s.vel = btVector3(math.random()*vel-vel/2,
                     math.random()*vel-vel/2,
