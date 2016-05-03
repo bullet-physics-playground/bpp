@@ -1,25 +1,42 @@
+
+v.gravity = btVector3(0,-98.1, 0)
+
 -- ORANGES BOX 
 
 plane = Plane(0,1,0,0,1000)
 plane.col = "#00b000"
 v:add(plane)
 
+c_post = [[
+   no_shadow
+   no_reflection
+   no_image
+}
+]]
+
 -- BOX MADE OUT OF CUBES
 c1 = Cube(1,17,50,0)
 c1.pos = btVector3(-15.5,7.5,0)
 c1.col = "#f0ff00"
+c1.post_sdl = c_post
 v:add(c1)
+
 c2 = Cube(1,17,50,0)
 c2.pos = btVector3(15.5,7.5,0)
 c2.col = "#f0ff00"
+c2.post_sdl = c_post
 v:add(c2)
+
 c3 = Cube(30,17,1,0)
 c3.pos = btVector3(0,7.5,25.5)
 c3.col = "#f0ff00"
+c3.post_sdl = c_post
 v:add(c3)
+
 c4 = Cube(30,17,1,0)
 c4.pos = btVector3(0,7.5,-25.5)
 c4.col = "#f0ff00"
+c4.post_sdl = c_post
 v:add(c4)
 
 -- A ROW OF ORANGES ALONG X
