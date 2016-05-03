@@ -1,6 +1,8 @@
 SCENE?=box-w-oranges
 
-all:
+all: help
+
+help:
 	@echo "usage:"
 	@echo ""
 	@echo "  make quick # render quick"
