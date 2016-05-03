@@ -16,13 +16,11 @@ Created with bullet-physics-playground:
 
 ### Build
 
-WIP
-
 Select your operating system:
 
  * [Build on Linux](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Linux)
- * [Build on Mac OSX](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OSX)
  * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
+ * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
 ### Run
 
