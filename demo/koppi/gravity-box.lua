@@ -1,8 +1,8 @@
-color = require "color"
+color  = require "color"
 colors = require "colors"
-metal = require "metal"
+metal  = require "metal"
 
-print(v.glAmbient) --btVector3(1,0,0))
+-- print(v.glAmbient) --btVector3(1,0,0))
 
 v.glAmbient = 0.3
 v.glDiffuse = 0.1
