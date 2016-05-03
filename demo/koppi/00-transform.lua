@@ -1,77 +1,56 @@
 color = require "color"
-
-v.gravity = btVector3(0,-9.81*20,0)
-
-c = Cam()
-v:setCam(c)
-c.pos  = btVector3(-10, 40, -60)
-c.look = btVector3(13, 15, 0)
-
-v.glAmbient = 0.2
-v.glDiffuse = 0.7
-v.glLight0 = btVector4(100,100,100,1000)
-v.glLight1 = btVector4(-100,100,100,100)
-v.glSpecular = 0.8
-v.glModelAmbient = 0.5
+t     = require "transform"
 
 plane = Plane(0,1,0)
 plane.col = "#7f7f7f"
 v:add(plane)
 
-ob = {}
+v.gravity = btVector3(0,-9.81*20,0)
 
-function move(o, v)
-  trans1 = btTransform(btQuaternion(0,0,0,1), v)
-  trans2 = o.trans
-  trans2:mult(trans1, trans2)
-  o.trans = trans2
-end
+X = 50
+Y = 50
 
-function rotate(o, q)
-  trans1 = btTransform(q, btVector3(0,0,0))
-  trans2 = o.trans
-  trans2:mult(trans1, trans2)
-  o.trans = trans2
-end
-
-N=0
-
-for i = 1, 120 do
-  --print(i)
-  a = Cube(0.25,1.4,10,0)
---  rotate(a, btQuaternion(0,0,1, math.cos(N/10)))
-  move(a, btVector3(i*0.5,math.sin(N/5+i/2)*2.5+5,0))
-  a.col= "#ff0000"
-  v:add(a)
-  ob[#ob+1] = a
+mt = {} -- create the matrix
+for i=1,X do
+  for j=1,Y do
+  c = Cube(0.75,0.75,0.75,0)
+--  c.col= "#ff0000"
+  t.rotate(c, btQuaternion(1,0,1,1), btVector3(i/X,0,0))
+  t.move  (c, btVector3(i-X/2,0,j-Y/2))
+  v:add(c)
+  mt[i*Y + j] = c
+  end
 end
 
 function update(N)
-  for i = 1, 120 do
-    --print(i)
-    a = ob[i]
-    t = a.pos
-    t.y = math.sin(N/2+i/3.5)*1.2-2+i*0.1
-    a.pos = t
+  for i=1,X do
+    for j=1,Y do
+      tmp = mt[i*Y + j].pos
+      p1 = math.sin(N/100)*10
+      p2 = math.cos(N/100)*10
+      tmp.y = math.cos(p2*2+i*.2)*math.cos(p1+j*.2)*2 + 4
+      mt[i*Y + j].pos = tmp
+    end
   end
 end
 
 update(0)
 
 v:preSim(function(N)
---print(N)
 
-if (math.fmod(N, 34) == 0) then
-print(N)
-  s=Sphere(2.6,1)
+if (math.fmod(N, 30) == 0) then
+if (math.random() > 0.2) then
+  s=Sphere(2,1)
+  s.col = "#ff0000"
+else
+  s=Cube(3,3,3,1)
   s.col = color.random_pastel()
-  move(s, btVector3(45,0,0))
-  move(s, btVector3(0,65,0))
+end
+  t.move(s, btVector3(0,0,0))
+  t.move(s, btVector3(0,10,0))
   v:add(s)
 end
 
 update(N)
---print(ob)
-
 
 end)
