@@ -24,7 +24,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../res.qrc">
-    <normaloff>:/icons/physics.svg</normaloff>:/icons/physics.svg</iconset>
+    <normaloff>:/icons/bpp.svg</normaloff>:/icons/bpp.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">

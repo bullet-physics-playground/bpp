@@ -90,8 +90,8 @@
         </property>
         <property name="icon">
          <iconset>
-          <activeoff>:/icons/physics.svg</activeoff>
-          <activeon>:/icons/physics.svg</activeon>
+          <activeoff>:/icons/bpp.svg</activeoff>
+          <activeon>:/icons/bpp.svg</activeon>
          </iconset>
         </property>
        </item>
