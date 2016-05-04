@@ -26,6 +26,8 @@ help:
 	@echo "  make ec2-down   # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
 	@echo "  make youtube-up # make ${SCENE}.mkv on ec2 with ffmpeg and upload to YouTube"
 	@echo ""
+	@echo "  see https://github.com/bullet-physics-playground/bpp/issues/8 for POV-Ray on Amazon EC2"
+	@echo ""
 
 quick:
 	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POVOPT}
