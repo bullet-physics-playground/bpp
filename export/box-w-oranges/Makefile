@@ -23,7 +23,7 @@ quickc:
 final: 720p
 
 720p:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W1280 +H720 +Q11 +A0.3 -d +c ${POV}
+	/usr/bin/time nice povray ${SCENE}.ini -V +W1280 +H720 +Q11 +A0.3 ${POV}
 
 mkv:
 	/usr/bin/time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'

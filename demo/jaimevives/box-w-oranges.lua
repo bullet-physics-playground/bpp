@@ -45,14 +45,21 @@ c4.col = "#f0ff00"
 c4.post_sdl = c_post
 v:add(c4)
 
+c5     = Cube(30,2,50,0)
+c5.pos = btVector3(0,0,0)
+c5.col = "#f0ff00"
+c5.post_sdl = c_post
+v:add(c5)
+
 -- A ROW OF ORANGES ALONG X
 function oranges_row(N,H)
   for i = 0,N do
-    d     = Sphere(3.5+math.random(0,10)*.05)
+    scale = 3.5+math.random(0,10)*.05
+    d     = Sphere(scale)
     d.pos = btVector3(-5+math.random(0,10),H,-15+30*i/N)    
     d.col = "#f05000"
     d.friction = 4;
-    d.pre_sdl = "object{orange"
+    d.pre_sdl = "object{orange scale " .. tostring(scale)
     v:add(d)
   end
 end
