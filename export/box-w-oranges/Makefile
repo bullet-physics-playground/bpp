@@ -7,6 +7,8 @@ POVINC?=-LLightsysIV
 
 POVOPT=${POVINC} ${POV}
 
+MKV_LOOP?=10
+
 all: help
 
 help:
@@ -18,7 +20,7 @@ help:
 	@echo "  make final    # render final"
 	@echo ""
 	@echo "  make mkv      # make ${SCENE}.mkv      with ffmpeg"
-	@echo "  make mkv-loop # make ${SCENE}-loop.mkv with ffmpeg"
+	@echo "  make mkv-loop # make ${SCENE}-loop.mkv (looped ${MKV_LOOP}) times with ffmpeg"
 	@echo ""
 	@echo "  make clean    # cleanup"
 	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
@@ -51,7 +53,7 @@ mkv:
 	/usr/bin/time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
 
 mkv-loop: mkv
-	for i in {1..10}; do printf "file '%s'\n" ${SCENE}.mkv >> loop.txt; done
+	for i in {1..${MKV_LOOP}}; do printf "file '%s'\n" ${SCENE}.mkv >> loop.txt; done
 	ffmpeg -y -f concat -i loop.txt -c copy ${SCENE}-loop.mkv
 	rm loop.txt
 
