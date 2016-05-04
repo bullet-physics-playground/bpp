@@ -14,9 +14,10 @@ v:add(plane)
 
 -- invisible in POV-Ray
 c_post = [[
-   no_shadow
-   no_reflection
-   no_image
+  no_shadow
+  no_reflection
+  no_image
+  no_radiosity
 }
 ]]
 
