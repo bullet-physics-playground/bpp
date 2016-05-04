@@ -1,3 +1,5 @@
+SHELL:=/bin/bash
+
 SCENE?=box-w-oranges
 POV?=
 
@@ -12,21 +14,26 @@ help:
 	@echo ""
 	@echo " Local Rendering"
 	@echo ""
-	@echo "  make quick # render quick"
-	@echo "  make final # render final"
+	@echo "  make quick    # render quick"
+	@echo "  make final    # render final"
 	@echo ""
-	@echo "  make mkv   # convert pngs to mkv with ffmpeg"
+	@echo "  make mkv      # make ${SCENE}.mkv      with ffmpeg"
+	@echo "  make mkv-loop # make ${SCENE}-loop.mkv with ffmpeg"
 	@echo ""
-	@echo "  make clean # cleanup"
-	@echo "  make dist  # cleanup and create ../${SCENE}.tar.xz"
+	@echo "  make clean    # cleanup"
+	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
 	@echo ""
-	@echo " Clound Rendering"
+	@echo " Clound Rendering on ec2"
 	@echo ""
-	@echo "  make ec2-up     # make ${SCENE}.tar.xz, upload and extract it to ec2:."
-	@echo "  make ec2-down   # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
-	@echo "  make youtube-up # make ${SCENE}.mkv on ec2 with ffmpeg and upload to YouTube"
+	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ec2:."
+	@echo "  make ec2-down  # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
 	@echo ""
 	@echo "  see https://github.com/bullet-physics-playground/bpp/issues/8 for POV-Ray on Amazon EC2"
+	@echo ""
+	@echo " YouTube"
+	@echo ""
+	@echo "  make youtube-up      # make and upload ${SCENE}.mkv      to YouTube"
+	@echo "  make youtube-up-loop # make and upload ${SCENE}-loop.mkv to YouTube"
 	@echo ""
 
 quick:
@@ -43,6 +50,11 @@ final: 720p
 mkv:
 	/usr/bin/time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
 
+mkv-loop: mkv
+	for i in {1..10}; do printf "file '%s'\n" ${SCENE}.mkv >> loop.txt; done
+	ffmpeg -y -f concat -i loop.txt -c copy ${SCENE}-loop.mkv
+	rm loop.txt
+
 ec2-up: dist
 	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ec2:.
 	ssh ec2 "tar xvf ${SCENE}.tar.xz"
@@ -53,6 +65,9 @@ ec2-down:
 
 youtube-up: mkv
 	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
+
+youtube-up-loop: mkv-loop
+	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
 
 distclean: clean
 	/bin/rm -f ${SCENE}.pov ${SCENE}.ini *.pov-state ${SCENE}-*.inc *.log
