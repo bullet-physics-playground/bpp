@@ -23,11 +23,20 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
+    if (filename != NULL)
+        loadFile(filename, mass);
+}
+
+Mesh::~Mesh() {
+    aiReleaseImport(m_scene);
+}
+
+void Mesh::loadFile(QString filename, btScalar mass) {
     m_scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
 
     if (!m_scene) {
 
-        qDebug() << "Unable to load " << filename << ": using empty shape.";
+        // qDebug() << "Unable to load " << filename << ": using empty shape.";
 
         btEmptyShape *shape = new btEmptyShape();
         btQuaternion qtn;
@@ -99,10 +108,6 @@ Mesh::Mesh(QString filename, btScalar mass) : Object() {
         body = new btRigidBody(mass, motionState, shape, inertia);
 
     }
-}
-
-Mesh::~Mesh() {
-    aiReleaseImport(m_scene);
 }
 
 void Mesh::luaBind(lua_State *s) {

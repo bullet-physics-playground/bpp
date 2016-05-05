@@ -22,8 +22,10 @@ public:
     Mesh(QString filename, btScalar mass);
     ~Mesh();
 
+    void loadFile(QString filename, btScalar mass);
+
     static void luaBind(lua_State *s);
-    QString toString() const;
+    virtual QString toString() const;
 
     virtual void renderInLocalFrame(QTextStream *s);
 

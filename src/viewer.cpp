@@ -23,6 +23,7 @@
 
 #ifdef HAS_LIB_ASSIMP
 #include "objects/mesh.h"
+#include "objects/openscad.h"
 #endif
 
 #include "objects/palette.h"
@@ -562,6 +563,7 @@ bool Viewer::parse(QString txt) {
         Cylinder::luaBind(L);
 #ifdef HAS_LIB_ASSIMP
         Mesh::luaBind(L);
+        OpenSCAD::luaBind(L);
 #endif
         Palette::luaBind(L);
         Plane::luaBind(L);

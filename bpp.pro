@@ -239,7 +239,8 @@ SOURCES += src/main.cpp \
            src/cmd.cpp \
            src/code.cpp \
            src/high.cpp \
-           src/prefs.cpp
+           src/prefs.cpp \
+           src/objects/openscad.cpp
 
 HEADERS += src/viewer.h \
            src/objects/object.h \
@@ -257,7 +258,8 @@ HEADERS += src/viewer.h \
            src/cmd.h \
            src/code.h \
            src/high.h \
-           src/prefs.h
+           src/prefs.h \
+           src/objects/openscad.h
 
 FORMS   += src/gui.ui \
            src/prefs.ui
