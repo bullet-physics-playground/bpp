@@ -656,6 +656,7 @@ void LuaBullet::luaBind(lua_State *s)
             .def("getHingeAngle", (btScalar(btHingeConstraint::*)(const btTransform&, const btTransform&))&btHingeConstraint::getHingeAngle)
             ];
 
+#ifdef HAVE_btHingeAccumulatedAngleConstraint
     module(s)
             [
             class_<btHingeAccumulatedAngleConstraint,btHingeConstraint>("btHingeAccumulatedAngleConstraint")
@@ -665,6 +666,7 @@ void LuaBullet::luaBind(lua_State *s)
             .def("setAccumulatedHingeAngle", &btHingeAccumulatedAngleConstraint::setAccumulatedHingeAngle)
             .def("getAccumulatedHingeAngle", &btHingeAccumulatedAngleConstraint::getAccumulatedHingeAngle)
             ];
+#endif
 
     module(s)
             [
