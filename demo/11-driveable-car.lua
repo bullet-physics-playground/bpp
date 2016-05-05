@@ -1,6 +1,9 @@
 -- *********************
 -- DRIVEABLE CAR EXAMPLE
 -- *********************
+
+-- v.gravity = btVector3(0,-9.81,0)
+
 --
 -- NOTES:
 -- + Please turn deactivation OFF or keyboad shortcuts will not work
@@ -883,7 +886,7 @@ v:addConstraint(engine_constraint)
 
 -- default floor plane
 if(use_obstacles<=1) then
-  plane = Plane(0,1,0)
+  plane = Plane(0,1,0,0,1000)
 --  plane = Cube(1000,1,1000,0)
   plane.col = "#111111"
   plane.pos=btVector3(0,0,0)

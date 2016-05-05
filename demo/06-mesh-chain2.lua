@@ -16,7 +16,7 @@ function chain(N,xp,yp,zp)
     if(i==1 or i==N) then 
       this_mass=0
     end
-    o = btVector3(xp-N*4.5+i*9,yp,zp)
+    o = btVector3(xp-N*4.1+i*9,yp,zp)
     d=Mesh("demo/3ds/chain-link.3ds",this_mass)
     d.trans = btTransform(q,o)    
     d.col = "#ff0000"
@@ -30,4 +30,4 @@ function chain(N,xp,yp,zp)
     
 end
 
-chain(14, 0, 100, 0)
+chain(15, 0,100, 0)

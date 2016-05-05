@@ -1,12 +1,12 @@
 -- CONTROL
-angular_motor_speed=3
+angular_motor_speed=5
 drive_type=3 -- 0=NONE, 1=FWD, 2=RWD, 3=AWD
 car_previous_velocity=btVector3(angular_motor_speed,0,0)
 tire_friction=.9
 tire_restitution=.9
 
 -- FLOOR
-plane = Plane(0,1,0)
+plane = Plane(0,1,0,0,1000)
 plane.col = "#111111"
 plane.friction=0.9
 plane.restitution=.1
@@ -295,10 +295,9 @@ end
 --end
 
 v:postSim(function(N)
-  cam = Cam()
-  cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+50)
---  cam.pos = btVector3(car_body.pos.x+40,40,car_body.pos.z+50)
-  cam.look = car_body.pos
-  v:cam(cam)
+  v.cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+50)
+--  v.cam.pos = btVector3(car_body.pos.x+40,40,car_body.pos.z+50)
+  v.cam.look = car_body.pos
+
 end)
 

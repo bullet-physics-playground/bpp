@@ -2,7 +2,7 @@
 -- COINS PILES DEMO 1 - JVP
 --
 
-plane = Plane(0,1,0)
+plane = Plane(0,1,0,0,1000)
 plane.col = "#111111"
 plane.friction=.7
 v:add(plane)
