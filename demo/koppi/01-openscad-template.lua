@@ -1,6 +1,8 @@
 --
 -- OpenSCAD template for Bullet Physics Playground
 --
+-- see: http://edutechwiki.unige.ch/en/OpenScad_beginners_tutorial
+--
 
 v.gravity = btVector3(0,-98.1,0)
 
