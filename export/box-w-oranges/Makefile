@@ -25,7 +25,7 @@ help:
 	@echo "  make clean    # cleanup"
 	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
 	@echo ""
-	@echo " Clound Rendering on ec2"
+	@echo " Cloud Rendering on ec2"
 	@echo ""
 	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ec2:."
 	@echo "  make ec2-down  # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
