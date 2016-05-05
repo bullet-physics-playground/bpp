@@ -40,25 +40,25 @@ struct btMotionState_wrap : public btMotionState, luabind::wrap_base
                                        qDebug() << "btMotionState_wrap::getWorldTransform()";
                                        luabind::call_member<void>(this, "getWorldTransform", worldTrans);
                                        /*
-                                               lua_State* L = m_self.state();
-                                                       m_self.get(L);
-                                                       if( ! lua_isnil( L, -1 ) ) {
-                                                       } else {
-                                                           qDebug() << "getWorldTransform missing on the Lua side";
-                                                       }
-                                                       lua_pop( L, 1 ); */
+                                                                                      lua_State* L = m_self.state();
+                                                                                              m_self.get(L);
+                                                                                              if( ! lua_isnil( L, -1 ) ) {
+                                                                                              } else {
+                                                                                                  qDebug() << "getWorldTransform missing on the Lua side";
+                                                                                              }
+                                                                                              lua_pop( L, 1 ); */
                                        }
 
                                        virtual void setWorldTransform (const btTransform &worldTrans) {
                                        qDebug() << "btMotionState_wrap::setWorldTransform()";
                                        luabind::call_member<void>(this, "setWorldTransform", worldTrans);
                                        /*
-                                               lua_State* L = m_self.state();
-                                                       m_self.get(L);
-                                                       if( ! lua_isnil( L, -1 ) )
-                                                       else
-                                                           qDebug() << "setWorldTransform missing on the Lua side";
-                                                       lua_pop( L, 1 );*/
+                                                                                      lua_State* L = m_self.state();
+                                                                                              m_self.get(L);
+                                                                                              if( ! lua_isnil( L, -1 ) )
+                                                                                              else
+                                                                                                  qDebug() << "setWorldTransform missing on the Lua side";
+                                                                                              lua_pop( L, 1 );*/
                                        }
 
                                        virtual ~btMotionState_wrap() {
@@ -654,6 +654,16 @@ void LuaBullet::luaBind(lua_State *s)
             .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
             .def("getHingeAngle",  (btScalar(btHingeConstraint::*)())&btHingeConstraint::getHingeAngle)
             .def("getHingeAngle", (btScalar(btHingeConstraint::*)(const btTransform&, const btTransform&))&btHingeConstraint::getHingeAngle)
+            ];
+
+    module(s)
+            [
+            class_<btHingeAccumulatedAngleConstraint,btHingeConstraint>("btHingeAccumulatedAngleConstraint")
+            .def(constructor<btRigidBody&, btRigidBody&,
+                 const btVector3&, const btVector3&, const btVector3&, const btVector3&, bool>())
+            .def(constructor<btRigidBody&, btRigidBody&, const btTransform&, const btTransform&, bool>())
+            .def("setAccumulatedHingeAngle", &btHingeAccumulatedAngleConstraint::setAccumulatedHingeAngle)
+            .def("getAccumulatedHingeAngle", &btHingeAccumulatedAngleConstraint::getAccumulatedHingeAngle)
             ];
 
     module(s)
