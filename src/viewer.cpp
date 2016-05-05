@@ -784,17 +784,10 @@ void Viewer::openPovFile() {
             *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
             *_stream << "  right -image_width/image_height*x" << endl;
 
-            if (_cam != NULL) {
-                btVector3 vLook = _cam->getLookAt();
-                *_stream << "  look_at < " << vLook.x() << ", " << vLook.y() << ", " << vLook.z();
-                *_stream << "> angle " << _cam->fieldOfView() * 90.0 << endl;
-                //// qDebug() << vLook.x() << vLook.y() << vLook.z();
-            } else {
-                Vec vDir = camera()->viewDirection();
-                *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
-                *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
-                // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
-            }
+            Vec vDir = camera()->viewDirection();
+            *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
+            *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
+            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
 
             /*
        *_stream << "#if(useFocalBlur)" << endl;

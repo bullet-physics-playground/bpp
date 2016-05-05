@@ -56,3 +56,7 @@ con1 = btHingeConstraint(
   pivot0, pivot1, axis0, axis1)
 
 v:addConstraint(con1)
+
+--print(v.cam.look)
+v.cam.look =  btVector3(0,60,0)
+--print(v.cam.look)

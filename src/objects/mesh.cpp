@@ -176,36 +176,61 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
 
     if (s != NULL) {
         if (mPreSDL == NULL) {
-            *s << "mesh2 {\n";
-            /*
-    *s << "  vertex_vectors {\n";
-    *s << "    " << count*3 << ", \n";
-    for (int i = 0; i < count; i++) {
-      for (int y = 0; y < 3; y++) {
-    *s << "   <" << vertices[i][y][0] << ", " << vertices[i][y][1] << ", " << vertices[i][y][2] << ">";
-      }
-      if (i != count - 1) *s << ", \n";
-    }
-    *s << "  }\n";
+            // THIS IS STILL BROKEN -- XXXXXXXXXXXXX still broken code
 
-    *s << "  normal_vectors {\n";
-    *s << "    " << count*3 << ", \n";
-    for (int i = 0; i < count; i++) {
-      for (int y = 0; y < 3; y++) {
-    *s << "   <" << normals[i][0] << ", " << normals[i][1] << ", " << normals[i][2] << ">";
-      }
-      if (i != count - 1) *s << ", \n";
-    }
-    *s << "  }\n";
 
-    *s << "  face_indices {\n";
-    *s << "    " << count << ", \n";
-    for (int i = 0; i < count; i++) {
-      *s << "    <" << indices[i][0] << ", " << indices[i][1] << ", " << indices[i][2] << ">";
-      if (i != count - 1) *s << ", \n";
-    }
-    *s << "  }\n";
-      */
+            const struct aiMesh* mesh = m_scene->mMeshes[0];
+
+            *s << "mesh2 {" << endl;
+            *s << "  vertex_vectors {" << endl;
+            *s << "    " << mesh->mNumFaces * 3 << ", " << endl; // only triangle supported by now
+
+            for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
+                const struct aiFace* face = &mesh->mFaces[t];
+
+                int i0 = face->mIndices[0];
+                int i1 = face->mIndices[1];
+                int i2 = face->mIndices[2];
+
+                *s << "   "
+                   << "<"
+                   << mesh->mVertices[i0].x << ","
+                   << mesh->mVertices[i0].y << ","
+                   << mesh->mVertices[i0].z
+                   << ">, "
+                   << "<"
+                   << mesh->mVertices[i1].x << ","
+                   << mesh->mVertices[i1].y << ","
+                   << mesh->mVertices[i1].z
+                   << ">, "
+                   << "<"
+                   << mesh->mVertices[i2].x << ","
+                   << mesh->mVertices[i2].y << ","
+                   << mesh->mVertices[i2].z
+                   << ">" << endl;
+            }
+            *s << "  }" << endl;
+
+            *s << "  face_indices {\n";
+            *s << "    " << mesh->mNumFaces << ", \n";
+            for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
+                const struct aiFace* face = &mesh->mFaces[t];
+
+                assert(face->mNumIndices == 3);
+
+                int i0 = face->mIndices[0];
+                int i1 = face->mIndices[1];
+                int i2 = face->mIndices[2];
+
+                *s << "   "
+                   << "<"
+                   << i0 << ","
+                   << i1 << ","
+                   << i2
+                   << ">" << endl;
+            }
+            *s << "  }" << endl;
+
             *s << "pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
