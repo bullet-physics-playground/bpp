@@ -8,6 +8,9 @@
 # run capture.sh to start capture
 # run capture.sh to stop a running capture.sh
 #
+# On my Thinkpad X220 I have mapped the "blue think button" to a custom
+# keyboard shortcut with the command "capture.sh". In this way I can
+# start and stop desktop recordings.
 #
 # Required tools:
 #
