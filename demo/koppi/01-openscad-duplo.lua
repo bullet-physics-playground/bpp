@@ -1,5 +1,5 @@
 --
--- Duplo marble run
+-- marble run with Duplo
 --
 
 require "koppi/duplo" -- thingiverse.com/thing:159219
@@ -7,8 +7,8 @@ require "koppi/duplo" -- thingiverse.com/thing:159219
 v.gravity = btVector3(0,-98.1*4,0)
 
 p = Plane(0,1,0,0,1000)
-p.pos = btVector3(0,-120,0)
-p.col = "#006000"
+p.pos = btVector3(0,-130,0)
+p.col = "#303030"
 v:add(p)
 
 function d(p, rx, ry, rz, px, py, pz, col, mass)
@@ -41,15 +41,23 @@ d("mirror([0,1,0])rampCornerPiece(steps=30)", -90,-180,0, -4,-6,2, blue, m)
 d("mirror([0,1,0])rampCornerPiece(steps=30)", -90,-90,0, -4,-8,4, green, m)
 
 d("longRampPiece()", -90,90,0, -1,-10,4, red, m)
+d("rampPiece()", -90,90,0, 2,-12,4, green, m)
 
 d("duplo(2,2,2,true,false)", -90,90,0, 2,-3,2, blue, m)
 
 d("duplo(2,4,2,true,false)", -90,90,0, 1,-5,2, green, m)
+d("duplo(2,2,2,true,false)", -90,90,0, 2,-7,2, red, m)
+d("duplo(2,2,2,true,false)", -90,90,0, 2,-9,2, yellow, m)
 
 d("duplo(2,4,2,true,false)", -90,90,0, -1,-7,2, yellow, m)
 d("duplo(2,4,2,true,false)", -90,90,0, -3,-9,2, red, m)
 d("duplo(2,2,2,true,false)", -90,90,0, 0,-9,2, blue, m)
 d("duplo(2,2,2,true,false)", -90,90,0, -4,-11,4, blue, m)
+d("duplo(2,4,2,true,false)", -90,90,0, -3,-13,4, yellow, m)
+d("duplo(2,2,2,true,false)", -90,90,0, 0,-13,4, blue, m)
+d("duplo(2,4,2,true,false)", -90,90,0, 1,-11,2, red, m)
+d("duplo(2,2,2,true,false)", -90,90,0, 2,-13,2, green, m)
+d("duplo(2,2,2,true,false)", -90,90,0, 0,-13,2, yellow, m)
 
 for i = 0,4 do
 d("duplo(2,2,2,true,false)", -90,90,0, 8,-4,4, yellow, 1)
