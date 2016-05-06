@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp) [![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp) [![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [Join G+ community](https://plus.google.com/communities/118046861018657351607)
 
 <a
 href="https://www.youtube.com/watch?v=wyuDqjGvYWo&index=1&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/wyuDqjGvYWo/0.jpg" alt="bullet-physics-playground" width="480" height="360" border="10" /></a>
@@ -10,10 +10,9 @@ Features:
 * OpenSCAD import (experimental)
 * POV-Ray export  (stable)
 
-Created with bullet-physics-playground:
+Created with Bullet Physics Playground:
 
-* [Still images](https://github.com/bullet-physics-playground/bpp/wiki/Still-images)
-* [Animations](https://github.com/bullet-physics-playground/bpp/wiki/Animations)
+* Join the [G+ community](https://plus.google.com/communities/118046861018657351607)
 
 ### Build
 
