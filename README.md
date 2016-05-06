@@ -5,9 +5,10 @@ href="https://www.youtube.com/watch?v=wyuDqjGvYWo&index=1&list=PL-OhsevLGGI2bFpO
 
 Features:
 
-* LUA scripting  (experimental)
-* OpenGL GUI     (experimental)
-* POV-Ray export (stable)
+* LUA scripting   (experimental)
+* OpenGL GUI      (experimental)
+* OpenSCAD import (experimental)
+* POV-Ray export  (stable)
 
 Created with bullet-physics-playground:
 
