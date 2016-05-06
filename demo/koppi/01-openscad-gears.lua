@@ -1,8 +1,10 @@
 --
--- OpenSCAD experiments
+-- Parametric Involute Bevel and Spur Gears
 --
+-- http://www.thingiverse.com/thing:3575
 
 require "koppi/gearsv50"
+require "color"
 
 v.gravity = btVector3(0,-980.1, 0)
 
@@ -22,9 +24,16 @@ function gear1(pitch, mass)
   return g
 end
 
-g = gear1(700, 1)
-g.pos = btVector3(0,12,0)
---v:add(g)
+function gears1() 
+  for i = 0,20 do
+    g = gear1(500+i*100, 1)
+    g.pos = btVector3(0,12,0)
+    g.col = color.random_pastel()
+    v:add(g)
+  end
+end
+
+gears1()
 
 function gear2(pitch, teeth, mass)
   g = gearsv50.new({fun=[[
@@ -38,11 +47,12 @@ rim_width=65
 end
 
 function gears2() 
-  for i = 0,2 do
+  for i = 0,20 do
     g = gear2(500, 6+i*2, 1)
     g.pos = btVector3(0,12,0)
+    g.col = color.random_pastel()
     v:add(g)
   end
 end
 
-gears2()
+--gears2()
