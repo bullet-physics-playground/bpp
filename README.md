@@ -28,16 +28,12 @@ Select your operating system:
 $ ./bpp
 ```
 
-## Document
+## Wiki
 
 WIP
 
 * [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)
 * [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference)
-
-### Demos
-
-WIP
 
 ### Authors
 
