@@ -58,7 +58,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
                 return;
             }
 
-            if (!p.waitForFinished()) {
+            if (!p.waitForFinished(-1)) { // wait forever
                 qDebug() << "openscad !p.waitForFinished()";
                 return;
             }
