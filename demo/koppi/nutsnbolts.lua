@@ -1,5 +1,6 @@
 module("nutsnbolts", package.seeall)
 
+-- Nuts and Bolts v1.95 OpenSCAD library
 -- http://www.thingiverse.com/thing:965737
 -- v1.95
 function new(params)
