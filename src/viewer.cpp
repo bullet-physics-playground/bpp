@@ -436,6 +436,10 @@ void Viewer::setSavePNG(bool png) {
 
 void Viewer::setSavePOV(bool pov) {
     _savePOV = pov;
+
+    if(_savePOV){
+        _firstFrame=_frameNum;
+    }
 }
 
 void Viewer::toggleSavePNG(bool savePNG) {
@@ -444,6 +448,10 @@ void Viewer::toggleSavePNG(bool savePNG) {
 
 void Viewer::toggleSavePOV(bool savePOV) {
     _savePOV = savePOV;
+
+    if(_savePOV){
+        _firstFrame=_frameNum;
+    }
 }
 
 void Viewer::toggleDeactivation(bool deactivation) {
