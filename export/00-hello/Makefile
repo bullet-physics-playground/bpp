@@ -39,10 +39,10 @@ help:
 	@echo ""
 
 quick:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POVOPT}
+	/usr/bin/time nice povray ${SCENE}.ini -V +W426 +H240 +Q4 -A +d ${POVOPT}
 
 quickc:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d +c ${POVOPT}
+	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H240 +Q4 -A +d +c ${POVOPT}
 
 final: 720p
 
