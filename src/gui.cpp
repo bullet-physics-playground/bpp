@@ -285,7 +285,7 @@ void Gui::helpAbout() {
 }
 
 void Gui::helpHomepage() {
-    QDesktopServices::openUrl(QUrl("http://bullet-physics-playground.github.io/"));
+    QDesktopServices::openUrl(QUrl("https://plus.google.com/communities/118046861018657351607"));
 }
 
 void Gui::helpIssues() {
