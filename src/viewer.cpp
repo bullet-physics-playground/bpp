@@ -1402,8 +1402,9 @@ void Viewer::setSettings(QSettings *settings) {
 }
 
 void Viewer::onQuickRender() {
-  qDebug() << "quickRender()";
+  qDebug() << "quickRender() 1";
   savePOV(true);
+  qDebug() << "quickRender() 2";
 
   // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
   // env.insert("", );
@@ -1417,7 +1418,8 @@ void Viewer::onQuickRender() {
       sceneName="no_name";
   }
 
-  args << "+Q8";  // no media and radiosity
+  args << "+Q11";  // best
+//  args << "+Q8";  // no media and radiosity
   args << "+p";   // pause when done
   args << "-A";   // no anti aliasing
   args << "+d";   // display
@@ -1425,7 +1427,6 @@ void Viewer::onQuickRender() {
   args << "-L../../includes";
   args << "+W1280";
   args << "+H720";
-  args << "+F";   // turn output file on
   args << "-GA";  // suppress all text output
 
   QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -1437,6 +1438,7 @@ void Viewer::onQuickRender() {
   //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
   QString png = QString("%1/bpp-%2-%3-%4.png").arg(desktop, timestamp, sceneName, fn);
 
+  args << "+F";   // turn output file on
   args << QString("+O%1").arg(png);
 
   args << QString("+K%1").arg(_frameNum); // pov clock is the frame number

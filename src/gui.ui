@@ -105,15 +105,8 @@
     <addaction name="separator"/>
     <addaction name="action_Donate"/>
    </widget>
-   <widget class="QMenu" name="menu_Render">
-    <property name="title">
-     <string>&amp;View</string>
-    </property>
-    <addaction name="action_RenderFrame"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menu_Render"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

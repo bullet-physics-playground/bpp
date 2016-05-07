@@ -3,8 +3,8 @@
 col = require "color"
 t   = require "transform"
 
-plane = Plane(0,1,0)
-plane.col = col.blue
+plane = Plane(0,1,0,0,1000)
+plane.col = col.green
 v:add(plane)
 
 v.gravity = btVector3(0,-9.81*20,0)
@@ -16,7 +16,7 @@ mt = {} -- create the matrix
 for i=1,X do
   for j=1,Y do
   c = Cube(0.75,0.75,0.75,0)
---  c.col= "#ff0000"
+  c.col= "#707070"
   t.rotate(c, btQuaternion(1,0,1,1), btVector3(i/X,0,0))
   t.move  (c, btVector3(i-X/2,0,j-Y/2))
   v:add(c)
