@@ -1,44 +1,45 @@
- -- http://www.ignorancia.org/en/index.php?page=Lightsys
-use_lightsys = 0
-
--- http://www.openscad.org/
-use_openscad = 1
+use_openscad = 1 -- http://www.openscad.org
 
 require "color"
 
-v.gravity = btVector3(0,-9.81*4,0)
+v.gravity = btVector3(0,-9.81*2,0)
 
 p = Plane(0.001,1,0.001,0,1000)
 p.col = "#331"
-p.pre_sdl = [[plane { <0,1,0>,0]]
-if (use_lightsys == 1) then
-  p.post_sdl = [[
-  pigment{
+
+p.pre_sdl  = [[
+plane { <0,1,0>,0
+]]
+
+p.post_sdl = [[
+#if (use_lightsys)
+  pigment {
     checker
       rgb ReferenceRGB(Gray20)
       rgb ReferenceRGB(Gray60)
-  }}]]
-else
-  p.post_sdl = [[
+  }
+#else
   pigment {
     checker
       rgb <.2,.2,.2>,
       rgb <.6,.6,.6>
-  }}]]
-end
+  }
+#end
+}]]
+
 v:add(p)
 
-cu = Cube()
-cu.col = "#ff0000"
+cu = Cube(1,1,1,2)
+cu.col = "#ef3010"
 cu.pos = btVector3(0, 0.5, 0);
 v:add(cu)
 
 cy = Cylinder()
-cy.col = "#00ff00"
+cy.col = "#007f00"
 cy.pos = btVector3(1, 0.5, 0)
 v:add(cy)
 
-sp = Sphere()
+sp = Sphere(.5,2)
 sp.col = "#ffff00"
 sp.pos = btVector3(0.5, 1.5, 0)
 
@@ -69,19 +70,20 @@ v:add(sp)
 
 if (use_openscad == 1) then
   sc = OpenSCAD([[
-    rotate_extrude(convexity = 10, $fn = 50)
+    rotate_extrude(convexity = 10, $fn = 40)
     translate([0.45, 0, 0])
-    circle(r = 0.25, $fn = 50);
-  ]], .5)
-  sc.col = color.blue
-  sc.pos = btVector3(4,1,1)
+    circle(r = 0.25, $fn = 20);
+  ]], .75)
+  sc.col = "#103070"
+  sc.pos = btVector3(4,3,0.2)
   v:add(sc)
 end
 
-v.cam:setFieldOfView(.5)
+v.cam:setFieldOfView(.06)
 
 v:preDraw(function(N)
   v.cam:setUpVector(btVector3(0,1,0), false)
-  v.cam.pos  = btVector3(2,3,6)
-  v.cam.look = cy.pos - btVector3(1,-.5,-1)
+  d = 60
+  v.cam.pos  = btVector3(d,d,d)
+  v.cam.look = cy.pos - btVector3(-.5,-.5,0)
 end)
