@@ -6,9 +6,15 @@ require "color"
 
 v.gravity = btVector3(0,-98.1*2,0)
 
-p = Plane(0,1,0,0,1)
+p = Plane(0,1,0,0,10)
 p.pos = btVector3(0,-1,0)
 p.col = "#303030"
+p.post_sdl = [[
+  pigment {
+    checker
+      rgb <0.2,0.2,0.2>,
+      rgb <0.6,0.6,0.6>
+} scale 2 }]]
 v:add(p)
 
 function wheel(rad, px, py, pz)
