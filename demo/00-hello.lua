@@ -69,7 +69,7 @@ sc = OpenSCAD([[
   rotate_extrude(convexity = 10, $fn = 50)
   translate([0.45, 0, 0])
   circle(r = 0.25, $fn = 50);
-]], 1)
+]], .5)
 sc.col = color.blue
 sc.pos = btVector3(4,1,1)
 v:add(sc)

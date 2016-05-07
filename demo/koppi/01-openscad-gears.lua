@@ -30,6 +30,7 @@ function gears1()
     g.pos = btVector3(0,12,0)
     g.col = color.random_pastel()
     v:add(g)
+--   print(g)
   end
 end
 
