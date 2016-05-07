@@ -53,6 +53,11 @@ void Prefs::setupPages() {
     this->defaultmap["editor/fontfamily"] = found_family;
     this->defaultmap["editor/fontsize"] = 12;
 
+    this->defaultmap["povray/preview"] =
+            "#!/bin/sh\n\n"
+            "cd $SCENE\n"
+            "POV=\"+d -c +K$FRAME\" make quick\n";
+
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
             this, SLOT(fontFamilyChanged(const QString &)));
 
@@ -110,10 +115,12 @@ void Prefs::updateGUI() {
     int sidx = this->fontSize->findText(fontsize);
     if (sidx >= 0) {
         this->fontSize->setCurrentIndex(sidx);
-    }
-    else {
+    } else {
         this->fontSize->setEditText(fontsize);
     }
+
+    QString povCmd = getValue("povray/preview").toString();
+    povPreview->setPlainText(povCmd);
 }
 
 void Prefs::changeGroup(QListWidgetItem *current, QListWidgetItem *previous) {
@@ -144,8 +151,10 @@ void Prefs::accept() {
 }
 
 void Prefs::on_buttonOk_clicked() {
-    // TODO save settings
     emit fontChanged(getValue("editor/fontfamily").toString(), getValue("editor/fontsize").toUInt());
+    emit povPreviewChanged(getValue("povray/preview").toString());
+
+    // TODO save settings
 }
 
 void Prefs::changeEvent(QEvent *e) {

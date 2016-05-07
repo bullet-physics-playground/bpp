@@ -153,6 +153,8 @@ public slots:
 
     void showLuaException(const std::exception& e, const QString& context = "");
 
+    void onQuickRender();
+
 signals:
     void statusEvent(const QString&);
 
@@ -185,12 +187,11 @@ protected:
     virtual void draw();
     virtual void postDraw();
 
-
     void computeBoundingBox();
 
     void openPovFile();
     void closePovFile();
-    void savePOV();
+    void savePOV(bool force = false);
 
     void loadPrefs();
     void savePrefs();

@@ -32,6 +32,7 @@ protected Q_SLOTS:
 
 signals:
     void fontChanged(const QString &family, uint size) const;
+    void povPreviewChanged(QString cmd) const;
 
 private:
     void keyPressEvent(QKeyEvent *e);

@@ -50,6 +50,11 @@
 #include <luabind/adopt_policy.hpp>
 #include <luabind/tag_function.hpp>
 
+#include <QProcess>
+#include <QProcessEnvironment>
+#include <QStringList>
+#include <QStandardPaths>
+
 typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
 
 using namespace std;
@@ -713,7 +718,7 @@ void Viewer::openPovFile() {
     if(!_scriptName.isEmpty()){
         sceneName=_scriptName;
     }else{
-        sceneName="no_name.lua";
+        sceneName="no_name";
     }
     sceneDir.mkdir(qPrintable(sceneName));
     file.sprintf("export/%s/%s-%05d.inc", qPrintable(sceneName), qPrintable(sceneName), _frameNum);
@@ -965,8 +970,8 @@ void Viewer::draw() {
     }
 }
 
-void Viewer::savePOV() {
-    if (!_savePOV)
+void Viewer::savePOV(bool force) {
+    if (!force && !_savePOV)
         return;
 
     openPovFile();
@@ -1394,4 +1399,56 @@ QString Viewer::getPrefs(QString key, QString defaultValue) const {
 
 void Viewer::setSettings(QSettings *settings) {
     _settings = settings;
+}
+
+void Viewer::onQuickRender() {
+  qDebug() << "quickRender()";
+  savePOV(true);
+
+  // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+  // env.insert("", );
+
+  QStringList args;
+
+  QString sceneName;
+  if(!_scriptName.isEmpty()){
+      sceneName=_scriptName;
+  }else{
+      sceneName="no_name";
+  }
+
+  args << "+Q8";  // no media and radiosity
+  args << "+p";   // pause when done
+  args << "-A";   // no anti aliasing
+  args << "+d";   // display
+  args << "-c";   // don't continue with a started render
+  args << "-L../../includes";
+  args << "+W1280";
+  args << "+H720";
+  args << "+F";   // turn output file on
+  args << "-GA";  // suppress all text output
+
+  QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+  QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
+  QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
+
+  //// ~/Desktop/bpp-timestamp.png
+  //QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
+  //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
+  QString png = QString("%1/bpp-%2-%3-%4.png").arg(desktop, timestamp, sceneName, fn);
+
+  args << QString("+O%1").arg(png);
+
+  args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
+
+  args << sceneName + ".pov";
+
+  qDebug() << "executing povray " << args.join(" ");
+
+  QDir dir(".");
+  QString sceneDir = dir.absoluteFilePath("export/" + sceneName);
+  qDebug() << "sceneDir: " << sceneDir;
+
+  QProcess p;
+  p.startDetached("povray", args, sceneDir);
 }
