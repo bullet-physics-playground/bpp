@@ -1,41 +1,81 @@
-# POV-Ray Makefile -------------------------------------------------------------
+SHELL:=/bin/bash
 
-POVRAY  ?= povray
-POVOPT  ?= -c -d
+SCENE?=$(shell basename `pwd`)
+POV?=
 
-FILES   ?= 00-hello
-RES     ?= HIGH
+POVINC?=-LLightsysIV
 
-# Dependencies -----------------------------------------------------------------
-DOCPNG   = ${FILES:=.png}
-DOCAVI   = ${FILES:=.avi}
+POVOPT=${POVINC} ${POV}
 
-AVICLEAN = ${FILES:=.aviclean}
-PNGCLEAN = ${FILES:=.pngclean}
+MKV_LOOP?=10
 
-.SUFFIXES:
-.SUFFIXES: .pov .ini .png .avi .aviclean .pngclean
+all: help
 
-all: png
+help:
+	@echo "usage:"
+	@echo ""
+	@echo " Local Rendering"
+	@echo ""
+	@echo "  make quick    # render quick"
+	@echo "  make final    # render final"
+	@echo ""
+	@echo "  make mkv      # make ${SCENE}.mkv      with ffmpeg"
+	@echo "  make mkv-loop # make ${SCENE}-loop.mkv (looped ${MKV_LOOP}) times with ffmpeg"
+	@echo ""
+	@echo "  make clean    # cleanup"
+	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
+	@echo ""
+	@echo " Cloud Rendering on ec2"
+	@echo ""
+	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ec2:."
+	@echo "  make ec2-down  # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
+	@echo ""
+	@echo "  see https://github.com/bullet-physics-playground/bpp/issues/8 for POV-Ray on Amazon EC2"
+	@echo ""
+	@echo " YouTube"
+	@echo ""
+	@echo "  make youtube-up      # make and upload ${SCENE}.mkv      to YouTube"
+	@echo "  make youtube-up-loop # make and upload ${SCENE}-loop.mkv to YouTube"
+	@echo ""
 
-png: $(DOCPNG)
+quick:
+	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POVOPT}
 
-avi: $(DOCAVI)
+quickc:
+	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d +c ${POVOPT}
 
-%.pov: Makefile settings.inc
+final: 720p
 
-%.png: %.ini %.pov
-	$(POVRAY) $(POVOPT) '$<[$(RES)]' -i'${@:.png=.pov}' +o'$@'
+720p:
+	/usr/bin/time nice povray ${SCENE}.ini -V +W1280 +H720 +Q11 +A0.3 ${POVOPT}
 
-%.avi: %.ini %.pov
-	$(POVRAY) $(POVOPT) '$<[$(RES)]' -i'${@:.avi=.pov}'
+mkv:
+	/usr/bin/time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
 
-# Clean up code ----------------------------------------------------------------
+mkv-loop: mkv
+	for i in {1..${MKV_LOOP}}; do printf "file '%s'\n" ${SCENE}.mkv >> loop.txt; done
+	ffmpeg -y -f concat -i loop.txt -c copy ${SCENE}-loop.mkv
+	rm loop.txt
 
-%.aviclean:
-	/bin/rm -fr '${@:.aviclean=.avi}'
-%.pngclean:
-	/bin/rm -fr '${@:.pngclean=.png}'
+ec2-up: dist
+	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ec2:.
+	ssh ec2 "tar xvf ${SCENE}.tar.xz"
 
-clean: $(AVICLEAN) $(PNGCLEAN)
-	/bin/rm -fr *~ *.bak $(FILES)-*.inc $(FILES).avi $(FILES)*.png divx2pass.log *.pov-state
+ec2-down:
+	ssh ec2 "make -C ${SCENE} mkv"
+	scp ec2:${SCENE}/${SCENE}.mkv .
+
+youtube-up: mkv
+	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
+
+youtube-up-loop: mkv-loop
+	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
+
+distclean: clean
+	/bin/rm -f ${SCENE}.pov ${SCENE}.ini *.pov-state ${SCENE}-*.inc *.log
+
+clean:
+	/bin/rm -f ${SCENE}-*.png *.mkv *.pov-state
+
+dist: clean
+	XZ_OPT=-9e tar -C .. -cvJf ../${SCENE}.tar.xz ${SCENE}
