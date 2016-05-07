@@ -800,9 +800,13 @@ void Viewer::openPovFile() {
             *_stream << "  right -image_width/image_height*x" << endl;
 
             Vec vDir = camera()->viewDirection();
+
+            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
             *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
             *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
-            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
+
+            *_stream << "  sky   <-1,1,0>" << endl;
+
 
             /*
        *_stream << "#if(useFocalBlur)" << endl;
@@ -816,11 +820,10 @@ void Viewer::openPovFile() {
        *_stream << "  variance 1/(2000*useFocalBlur)" << endl;
        *_stream << "#end" << endl;
        */
-            *_stream << "  }" << endl << endl;
+            *_stream << "}" << endl << endl;
         } else {
             *_stream << _cam->getPreSDL() << endl;
         }
-
     }
 }
 
