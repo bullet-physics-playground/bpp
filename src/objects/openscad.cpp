@@ -94,5 +94,5 @@ void OpenSCAD::luaBind(lua_State *s) {
 }
 
 QString OpenSCAD::toString() const {
-    return QString("OpenSCAD([[" + sdl + "]]");
+    return QString("OpenSCAD([[" + sdl + "]])");
 }

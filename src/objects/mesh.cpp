@@ -23,6 +23,9 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
+
+    setColor(0.75, 0.75, 0.75);
+
     if (filename != NULL)
         loadFile(filename, mass);
 }
@@ -181,67 +184,75 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
 
     if (s != NULL) {
         if (mPreSDL == NULL) {
-            // THIS IS STILL BROKEN -- XXXXXXXXXXXXX still broken code
-
-
             const struct aiMesh* mesh = m_scene->mMeshes[0];
 
             *s << "mesh2 {" << endl;
             *s << "  vertex_vectors {" << endl;
-            *s << "    " << mesh->mNumFaces * 3 << ", " << endl; // only triangle supported by now
+            *s << "    " << mesh->mNumVertices << ", ";
+            for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+                *s << "<"
+                   << mesh->mVertices[i].x
+                   << ","
+                   << mesh->mVertices[i].y
+                   << ","
+                   << mesh->mVertices[i].z
+                   << ">";
+            }
+            *s << " }" << endl;
 
+            if (mesh->HasNormals()) {
+                *s << "  normal_vectors {" << endl;
+                *s << "    " << mesh->mNumVertices << ", ";
+                for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
+                    *s << "<"
+                       << mesh->mNormals[i].x
+                       << ","
+                       << mesh->mNormals[i].y
+                       << ","
+                       << mesh->mNormals[i].z
+                       << ">";
+                }
+                *s << " }" << endl;
+            }
+
+            *s << "  face_indices {"  << endl;
+            *s << "    " << mesh->mNumFaces << ", ";
             for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
                 const struct aiFace* face = &mesh->mFaces[t];
-
-                int i0 = face->mIndices[0];
-                int i1 = face->mIndices[1];
-                int i2 = face->mIndices[2];
-
-                *s << "   "
-                   << "<"
-                   << mesh->mVertices[i0].x << ","
-                   << mesh->mVertices[i0].y << ","
-                   << mesh->mVertices[i0].z
-                   << ">, "
-                   << "<"
-                   << mesh->mVertices[i1].x << ","
-                   << mesh->mVertices[i1].y << ","
-                   << mesh->mVertices[i1].z
-                   << ">, "
-                   << "<"
-                   << mesh->mVertices[i2].x << ","
-                   << mesh->mVertices[i2].y << ","
-                   << mesh->mVertices[i2].z
-                   << ">" << endl;
+                // only trimeshes for now! assert(face->mNumIndices == 3);
+                *s << "<"
+                   << face->mIndices[0]
+                   << ","
+                   << face->mIndices[1]
+                   << ","
+                   << face->mIndices[2]
+                   << ">";
             }
-            *s << "  }" << endl;
+            *s << " }" << endl;
 
-            *s << "  face_indices {\n";
-            *s << "    " << mesh->mNumFaces << ", \n";
-            for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
-                const struct aiFace* face = &mesh->mFaces[t];
-
-                assert(face->mNumIndices == 3);
-
-                int i0 = face->mIndices[0];
-                int i1 = face->mIndices[1];
-                int i2 = face->mIndices[2];
-
-                *s << "   "
-                   << "<"
-                   << i0 << ","
-                   << i1 << ","
-                   << i2
-                   << ">" << endl;
+            if (mesh->HasNormals()) {
+                *s << "  normal_indices {"  << endl;
+                *s << "    " << mesh->mNumFaces << ", ";
+                for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
+                    const struct aiFace* face = &mesh->mFaces[t];
+                    // only trimeshes for now! assert(face->mNumIndices == 3);
+                    *s << "<"
+                       << face->mIndices[0]
+                       << ","
+                       << face->mIndices[1]
+                       << ","
+                       << face->mIndices[2]
+                       << ">";
+                }
+                *s << " }" << endl;
             }
-            *s << "  }" << endl;
 
-            *s << "pigment { rgb <"
+            *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }" << endl;
         } else {
-            *s << mPreSDL << "\n";
+            *s << mPreSDL << endl;
         }
 
         *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl

@@ -24,6 +24,8 @@ public:
 
     virtual QString toString() const;
 
+    void setUpVector(const btVector3& v, bool noMove);
+
     void setPosition(const btVector3& v);
 
     btVector3 getPosition() const;
