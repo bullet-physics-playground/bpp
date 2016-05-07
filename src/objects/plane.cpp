@@ -134,6 +134,12 @@ void Plane::renderInLocalFrame(QTextStream *s) {
         }else{
             *s << mPreSDL << endl;
         }
+
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
         if (mPostSDL == NULL) {
             *s << "}" << endl << endl;
         }else{
