@@ -185,10 +185,12 @@ protected:
     virtual void draw();
     virtual void postDraw();
 
+
     void computeBoundingBox();
 
     void openPovFile();
     void closePovFile();
+    void savePOV();
 
     void loadPrefs();
     void savePrefs();

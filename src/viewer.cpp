@@ -626,7 +626,7 @@ bool Viewer::parse(QString txt) {
     // report_errors(L, error);
     // lua_close(L);
 
-    _frameNum = 0; // reset frames counter
+    _frameNum   = 0; // reset frames counter
     _firstFrame = 0;
 
     if (animStarted) {
@@ -944,30 +944,32 @@ void Viewer::draw() {
         glMultMatrixd(manipulatedFrame()->matrix());
     }
 
-    if (_savePOV) {
-        openPovFile();
-    }
-
-    // qDebug() << "Number of objects:" << _objects->size();
     foreach (Object *o, *_objects) {
         try {
-            if (_savePOV) {
-                o->render(_stream);
-            } else {
-                o->render(NULL);
-            }
+            o->render(NULL);
         } catch(const std::exception& e){
             showLuaException(e, "object:render()");
         }
     }
 
-    if (_savePOV) {
-        closePovFile();
-    }
-
     if (manipulatedFrame() != NULL) {
         glPopMatrix();
     }
+}
+
+void Viewer::savePOV() {
+    if (!_savePOV)
+        return;
+
+    openPovFile();
+    foreach (Object *o, *_objects) {
+        try {
+                o->render(_stream);
+        } catch(const std::exception& e){
+            showLuaException(e, "object:render()");
+        }
+    }
+    closePovFile();
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {
@@ -1167,6 +1169,10 @@ void Viewer::animate() {
             file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
         }
         saveSnapshot(file, true);
+    }
+
+    if (_savePOV) {
+        savePOV();
     }
 
     if (_simulate) {
