@@ -112,6 +112,8 @@ con0:enableAngularMotor(true, speed, s1)
 
 v:addConstraint(con0)
 
+v.cam:setHorizontalFieldOfView(0.15)
+
 function run()
   s = Sphere(1,2)
   s.pos = btVector3(1,10,7)
