@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
 
-SCENE?=box-w-oranges
+SCENE?=$(shell basename `pwd`)
 POV?=
 
 POVINC?=-LLightsysIV
