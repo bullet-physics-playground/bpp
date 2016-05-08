@@ -19,7 +19,7 @@ function d(p, rx, ry, rz, px, py, pz, col, mass)
 end
 
 m = 0
-red    = "#f30"
+red    = "#ff3300"
 yellow = "#ff0"
 blue   = "#006"
 green  = "#3c0"
