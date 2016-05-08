@@ -102,7 +102,6 @@ void Cylinder::renderInLocalFrame(QTextStream *s) {
                << -lengths[2]/2.0 << "*z, "
                << lengths[2]/2.0 << "*z, "
                << lengths[0]
-               << "> }"
                << endl;
         } else {
             *s << mPreSDL << endl;
