@@ -6,7 +6,7 @@ v.gravity = btVector3(0,-98.1, 0)
 
 -- ORANGES BOX 
 
-plane = Plane(0,1,0,0,1000)
+plane = Plane(0,1,0,0,10000)
 plane.col = "#00b000"
 v:add(plane)
 
