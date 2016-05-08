@@ -151,6 +151,7 @@
    <addaction name="actionRestart"/>
    <addaction name="separator"/>
    <addaction name="actionToggleDeactivation"/>
+   <addaction name="actionTogglePOVExport"/>
   </widget>
   <widget class="QToolBar" name="toolBarView">
    <property name="windowTitle">
@@ -162,10 +163,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionTogglePOVExport"/>
-   <addaction name="actionQuickRender"/>
-   <addaction name="separator"/>
    <addaction name="actionResetCamera"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
