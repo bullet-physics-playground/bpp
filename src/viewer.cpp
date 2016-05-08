@@ -980,7 +980,7 @@ void Viewer::savePOV(bool force) {
     openPovFile();
     foreach (Object *o, *_objects) {
         try {
-                o->render(_stream);
+            o->render(_stream);
         } catch(const std::exception& e){
             showLuaException(e, "object:render()");
         }
@@ -1405,55 +1405,77 @@ void Viewer::setSettings(QSettings *settings) {
 }
 
 void Viewer::onQuickRender() {
-  qDebug() << "quickRender() 1";
-  savePOV(true);
-  qDebug() << "quickRender() 2";
+    _settings->beginGroup("gui");
+    QString renderResolution = _settings->value("renderResolution", "").toString();
+    _settings->endGroup();
 
-  // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  // env.insert("", );
+    qDebug() << renderResolution;
 
-  QStringList args;
+    int renderWidth, renderHeight;
 
-  QString sceneName;
-  if(!_scriptName.isEmpty()){
-      sceneName=_scriptName;
-  }else{
-      sceneName="no_name";
-  }
+    if (renderResolution.isEmpty() || renderResolution == "view size") {
+        renderWidth  = geometry().width();
+        renderHeight = geometry().height();
+    } else if (renderResolution.contains("x")) {
+        Q_ASSERT(renderResolution.split("x").length() == 2);
+        renderWidth  = renderResolution.split("x")[0].toInt();
+        renderHeight = renderResolution.split("x")[1].toInt();
+    } else {
+        renderWidth  = geometry().width();
+        renderHeight = geometry().height();
+    }
 
-  args << "+Q11";  // best
-//  args << "+Q8";  // no media and radiosity
-  args << "+p";   // pause when done
-  args << "-A";   // no anti aliasing
-  args << "+d";   // display
-  args << "-c";   // don't continue with a started render
-  args << "-L../../includes";
-  args << QString("+W%1").arg(geometry().width());
-  args << QString("+H%1").arg(geometry().height());
-  args << "+GA";  // turn on all text output
+    _settings->endGroup();
 
-  QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-  QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
-  QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
+    qDebug() << "quickRender() 1";
+    savePOV(true);
+    qDebug() << "quickRender() 2";
 
-  //// ~/Desktop/bpp-timestamp.png
-  //QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
-  //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
-  QString png = QString("%1/bpp-%2-%3-%4.png").arg(desktop, timestamp, sceneName, fn);
+    // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    // env.insert("", );
 
-  args << "+F";   // turn output file on
-  args << QString("+O%1").arg(png);
+    QStringList args;
 
-  args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
+    QString sceneName;
+    if(!_scriptName.isEmpty()){
+        sceneName=_scriptName;
+    }else{
+        sceneName="no_name";
+    }
 
-  args << sceneName + ".pov";
+    args << "+Q11";  // best
+    //  args << "+Q8";  // no media and radiosity
+    args << "+p";   // pause when done
+    args << "-A";   // no anti aliasing
+    args << "+d";   // display
+    args << "-c";   // don't continue with a started render
+    args << "-L../../includes";
+    args << QString("+W%1").arg(renderWidth);
+    args << QString("+H%1").arg(renderHeight);
+    args << "+GA";  // turn on all text output
 
-  qDebug() << "executing povray " << args.join(" ");
+    QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
+    QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
 
-  QDir dir(".");
-  QString sceneDir = dir.absoluteFilePath("export/" + sceneName);
-  qDebug() << "sceneDir: " << sceneDir;
+    //// ~/Desktop/bpp-timestamp.png
+    //QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
+    //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
+    QString png = QString("%1/bpp-%2-%3-%4.png").arg(desktop, timestamp, sceneName, fn);
 
-  QProcess p;
-  p.startDetached("povray", args, sceneDir);
+    args << "+F";   // turn output file on
+    args << QString("+O%1").arg(png);
+
+    args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
+
+    args << sceneName + ".pov";
+
+    qDebug() << "executing povray " << args.join(" ");
+
+    QDir dir(".");
+    QString sceneDir = dir.absoluteFilePath("export/" + sceneName);
+    qDebug() << "sceneDir: " << sceneDir;
+
+    QProcess p;
+    p.startDetached("povray", args, sceneDir);
 }

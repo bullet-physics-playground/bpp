@@ -32,6 +32,27 @@ Gui::Gui(QWidget *parent) : QMainWindow(parent) {
     createMenus();
     setStatusBar( new QStatusBar(this) );
 
+    renderSettings = new QComboBox(ui.toolBarView);
+
+    QStringList settings;
+    settings << "view size";
+    settings << "  426x240";
+    settings << "  640x360";
+    settings << " 1280x720";
+    settings << "1920x1080";
+    settings << "2560x1440";
+    settings << "3840x2160";
+
+    renderSettings->addItems(settings);
+    renderSettings->setEditable(true);
+    renderSettings->lineEdit()->setReadOnly(true);
+    renderSettings->lineEdit()->setAlignment(Qt::AlignRight);
+    for (int i = 0; i < renderSettings->count(); i++)
+        renderSettings->setItemData(i, Qt::AlignRight, Qt::TextAlignmentRole);
+
+    ui.toolBarView->addWidget(renderSettings);
+    ui.toolBarView->addAction(ui.actionQuickRender);
+
     connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
     // map user defined shortcuts to the viewer sub-window
@@ -49,6 +70,8 @@ Gui::Gui(QWidget *parent) : QMainWindow(parent) {
     connect(ui.viewer, SIGNAL(statusEvent(QString)), this, SLOT(setStatusBarText(QString)));
 
     connect(commandLine, SIGNAL(execute(QString)), this, SLOT(command(QString)));
+
+    connect(renderSettings, SIGNAL(currentTextChanged(QString)), this, SLOT(saveSettings()));
 
     loadSettings();
 
@@ -431,6 +454,8 @@ void Gui::loadSettings() {
         showMaximized();
     }
 
+    renderSettings->setCurrentIndex(renderSettings->findText(settings->value("renderResolution", "View size").toString()));
+
     settings->endGroup();
 }
 
@@ -445,6 +470,8 @@ void Gui::saveSettings() {
         settings->setValue("pos", pos());
         settings->setValue("size", size());
     }
+
+    settings->setValue("renderResolution", renderSettings->currentText());
 
     settings->endGroup();
 }

@@ -121,6 +121,10 @@ public slots:
 signals:
     void play();
 
+protected slots:
+    void loadSettings();
+    void saveSettings();
+
 private:
     void createDock();
     void createActions();
@@ -144,9 +148,6 @@ private:
 
     void log(QString text);
 
-    void loadSettings();
-    void saveSettings();
-
     Ui::MainWindow ui;
 
     QAction* actionSeparator;
@@ -157,6 +158,8 @@ private:
     CommandLine *commandLine;
 
     QMessageBox *msgBox;
+
+    QComboBox   *renderSettings;
 };
 
 #endif
