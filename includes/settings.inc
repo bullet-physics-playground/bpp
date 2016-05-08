@@ -89,7 +89,7 @@ sphere { // sky
     } 
     finish { diffuse 0 ambient 0.75 } 
   } 
-  scale 10000 
+  scale 1000000000
   hollow on 
   no_shadow 
 }
