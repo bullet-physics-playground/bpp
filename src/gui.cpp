@@ -55,6 +55,8 @@ Gui::Gui(QWidget *parent) : QMainWindow(parent) {
 
     connect(editor, SIGNAL(textChanged()), this, SLOT(scriptChanged()));
 
+    connect(ui.actionQuickRender, SIGNAL(triggered()), ui.viewer, SLOT(onQuickRender()));
+
     // map user defined shortcuts to the viewer sub-window
     connect(editor, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
     connect(commandLine, SIGNAL(keyPressed(QKeyEvent *)), ui.viewer, SLOT(keyPressEvent(QKeyEvent *)));
@@ -430,6 +432,7 @@ void Gui::fileSave(const QString& path) {
     settings->setValue( "lastFile", path);
     settings->endGroup();
 }
+
 
 void Gui::editPreferences() {
     Prefs *p = new Prefs(this);

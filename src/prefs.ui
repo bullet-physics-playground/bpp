@@ -201,52 +201,6 @@
              </widget>
             </item>
             <item>
-             <layout class="QFormLayout" name="formLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>POV export directory</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <layout class="QHBoxLayout" name="horizontalLayout_3">
-                <item>
-                 <widget class="QLineEdit" name="lineEditPOVExport"/>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButtonPOVExport">
-                  <property name="text">
-                   <string>Browse</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Screenshots directory</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <layout class="QHBoxLayout" name="horizontalLayout_4">
-                <item>
-                 <widget class="QLineEdit" name="lineEditScreenshots"/>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_3Screenshots">
-                  <property name="text">
-                   <string>Browse</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
              <spacer name="verticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -265,30 +219,54 @@
         </layout>
        </widget>
        <widget class="QWidget" name="povPage">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
           <widget class="QGroupBox" name="groupBoxPOV">
            <property name="title">
-            <string>POV-Ray settings</string>
+            <string>POV-Ray Settings</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>Export Directory</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <widget class="QLineEdit" name="lineEditPOVExport"/>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButtonPOVExport">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
                <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string>Render preview</string>
+                 <string>Render Command</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPlainTextEdit" name="povPreview">
                 <property name="plainText">
-                 <string>#!/bin/sh
-
-cd $SCENE
-
-POV=&quot;+d -c +K$FRAME&quot; make quick</string>
+                 <string>Work in progress..</string>
                 </property>
                </widget>
               </item>
@@ -302,7 +280,7 @@ POV=&quot;+d -c +K$FRAME&quot; make quick</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>165</height>
+                <height>500</height>
                </size>
               </property>
              </spacer>

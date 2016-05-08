@@ -419,7 +419,7 @@
    <header>viewer.h</header>
    <container>1</container>
    <slots>
-    <slot>onQuickRender()</slot>
+    <slot>onQuickRender(QString)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -712,22 +712,6 @@
     <hint type="destinationlabel">
      <x>224</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionQuickRender</sender>
-   <signal>triggered()</signal>
-   <receiver>viewer</receiver>
-   <slot>onQuickRender()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>317</x>
-     <y>206</y>
     </hint>
    </hints>
   </connection>

@@ -1,55 +1,63 @@
-use_openscad = 1 -- http://www.openscad.org
+v.pre_sdl = [[
+#include "textures.inc"
+]]
 
 require "color"
 
-v.gravity = btVector3(0,-9.81*2,0)
+use_openscad = 1 -- http://www.openscad.org
 
-p = Plane(0.001,1,0.001,0,1000)
-p.col = "#331"
+v.gravity = btVector3(0,-9.81,0)
 
-p.pre_sdl  = [[
-plane { <0,1,0>,0
-]]
+v.timeStep      = 1/10
+v.maxSubSteps   = 10
+v.fixedTimeStep = 1/100
 
-p.post_sdl = [[
+p = Plane(0,1,0,0,10)
+p.col = color.gray
+p.sdl = [[
 #if (use_lightsys)
   pigment {
     checker
-      rgb ReferenceRGB(Gray20)
+      rgb ReferenceRGB(Gray30)
       rgb ReferenceRGB(Gray60)
   }
 #else
   pigment {
     checker
-      rgb <.2,.2,.2>,
-      rgb <.6,.6,.6>
+      rgb White * 0.3,
+      rgb White * 0.6
   }
 #end
-}]]
-
+]]
 v:add(p)
 
-cu = Cube(1,1,1,2)
+cu = Cube(1,1,1,4)
 cu.col = "#ef3010"
 cu.pos = btVector3(0, 0.5, 0);
+cu.sdl = [[
+  texture {
+    pigment { color Red }
+    finish { phong 1}
+  }
+]]
 v:add(cu)
 
 cy = Cylinder()
 cy.col = "#007f00"
 cy.pos = btVector3(1, 0.5, 0)
+cy.sdl = [[
+  texture {
+    pigment { color Green }
+    finish { phong 1}
+  }
+]]
 v:add(cy)
 
 sp = Sphere(.5,2)
 sp.col = "#ffff00"
-sp.pos = btVector3(0.5, 1.5, 0)
+sp.pos = btVector3(0.5, 2, 0)
 
-sp.pre_sdl =
-[[
-sphere { <.0,.0,.0>, 0.5
-]]
-
-sp.post_sdl =
-[[
+sp.sdl = [[
   texture { uv_mapping
     pigment {
       tiling 6
@@ -63,7 +71,6 @@ sp.post_sdl =
     }
     finish { phong 1}
   }
-}
 ]]
 
 v:add(sp)
@@ -79,11 +86,47 @@ if (use_openscad == 1) then
   v:add(sc)
 end
 
-v.cam:setFieldOfView(.06)
+-- pseudo orthogonal view
+v.cam:setFieldOfView(.01)
+
+v:preStart(function(N)
+  print("preStart("..tostring(N)..")")
+end)
+
+v:preStop(function(N)
+  print("preStop("..tostring(N)..")")
+end)
+
+v:preSim(function(N)
+--  print("preSim("..tostring(N)..")")
+end)
+
+v:postSim(function(N)
+  v.cam:setUpVector(btVector3(0,1,0), false)
+  --d = 350
+  --o = btVector3(-.2,-.2,0)
+  --v.cam.pos  = btVector3(-d,d,d) - o
+  --v.cam.look = cy.pos - o 
+
+  ---- render every 10th frame with POV-Ray
+  -- if (N % 10 == 0) then povRender(N) end
+end)
 
 v:preDraw(function(N)
-  v.cam:setUpVector(btVector3(0,1,0), false)
-  d = 60
-  v.cam.pos  = btVector3(d,d,d)
-  v.cam.look = cy.pos - btVector3(-.5,-.5,0)
+--  print("preDraw("..tostring(N)..")")
+end)
+
+v:postDraw(function(N)
+--  print("postDraw("..tostring(N)..")")
+end)
+
+function povRender(N)
+  v:quickRender("-p -d +W320 +H240 +O/tmp/00-hello-"..string.format("%05d", N)..".png")
+end
+
+v:onCommand(function(N, cmd)
+  --print("at frame "..tostring(N)..": '"..cmd)
+
+  local f = assert(loadstring(cmd))
+  f(v)
 end)

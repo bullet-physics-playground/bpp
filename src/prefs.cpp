@@ -51,12 +51,10 @@ void Prefs::setupPages() {
     QString found_family(QFontInfo(font).family());
 
     this->defaultmap["editor/fontfamily"] = found_family;
-    this->defaultmap["editor/fontsize"] = 12;
+    this->defaultmap["editor/fontsize"]   = 12;
 
     this->defaultmap["povray/preview"] =
-            "#!/bin/sh\n\n"
-            "cd $SCENE\n"
-            "POV=\"+d -c +K$FRAME\" make quick\n";
+            "Work in progress..";
 
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
             this, SLOT(fontFamilyChanged(const QString &)));

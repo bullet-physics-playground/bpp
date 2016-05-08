@@ -154,6 +154,7 @@ public slots:
     void showLuaException(const std::exception& e, const QString& context = "");
 
     void onQuickRender();
+    void onQuickRender(QString povargs);
 
 signals:
     void statusEvent(const QString&);

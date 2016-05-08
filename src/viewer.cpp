@@ -106,6 +106,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
             .def("savePrefs", &Viewer::setPrefs)
             .def("loadPrefs", &Viewer::getPrefs)
+            .def("quickRender", (void(Viewer::*)(QString povargs))&Viewer::onQuickRender)
 
             .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
@@ -1239,7 +1240,7 @@ void Viewer::command(QString cmd) {
 
     if(_cb_onCommand) {
         try {
-            luabind::call_function<void>(_cb_onCommand, cmd);
+            luabind::call_function<void>(_cb_onCommand, _frameNum, cmd);
         } catch(const std::exception& e){
             showLuaException(e, "v:onCommand()");
         }
@@ -1405,6 +1406,10 @@ void Viewer::setSettings(QSettings *settings) {
 }
 
 void Viewer::onQuickRender() {
+    onQuickRender("");
+}
+
+void Viewer::onQuickRender(QString povargs) {
     _settings->beginGroup("gui");
     QString renderResolution = _settings->value("renderResolution", "").toString();
     _settings->endGroup();
@@ -1469,6 +1474,8 @@ void Viewer::onQuickRender() {
     args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
 
     args << sceneName + ".pov";
+
+    args << povargs;
 
     qDebug() << "executing povray " << args.join(" ");
 
