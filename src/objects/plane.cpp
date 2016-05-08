@@ -121,18 +121,19 @@ void Plane::renderInLocalFrame(QTextStream *s) {
                << planeNormal[1] << ", "
                << planeNormal[2] << ">, "
                << planeConst << endl;
-            if (mTexture != NULL) {
-                *s << mTexture << endl;
-            } else if (mPigment != NULL) {
-                *s << mPigment << endl;
-            } else {
-                *s << "  pigment { rgb <"
-                   << color[0]/255.0 << ", "
-                   << color[1]/255.0 << ", "
-                   << color[2]/255.0 << "> }" << endl;
-            }
-        }else{
+        } else {
             *s << mPreSDL << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
         }
 
         *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
@@ -142,7 +143,7 @@ void Plane::renderInLocalFrame(QTextStream *s) {
 
         if (mPostSDL == NULL) {
             *s << "}" << endl << endl;
-        }else{
+        } else {
             *s << mPostSDL << endl;
         }
     }

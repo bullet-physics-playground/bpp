@@ -95,16 +95,19 @@ void Sphere::renderInLocalFrame(QTextStream *s) {
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "sphere { <.0,.0,.0>, " << radius << endl;
-            if (mTexture == NULL) {
-                *s << "  pigment { rgb <"
-                   << color[0]/255.0 << ", "
-                   << color[1]/255.0 << ", "
-                   << color[2]/255.0 << "> }" << endl;
-            } else {
-                *s << mTexture << endl;
-            }
         } else {
             *s << mPreSDL << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
         }
 
         *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl

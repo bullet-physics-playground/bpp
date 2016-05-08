@@ -57,6 +57,7 @@ polygon(points= concat(
 end
 
 sp = spiral2()
+sp.col = color.green
 v:add(sp)
 
 v:postSim(function(N)

@@ -805,7 +805,7 @@ void Viewer::openPovFile() {
             *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
             *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
 
-            *_stream << "  sky   <-1,1,0>" << endl;
+            // *_stream << "  sky   <-1,1,0>" << endl;
 
 
             /*
@@ -1430,7 +1430,7 @@ void Viewer::onQuickRender() {
   args << "-L../../includes";
   args << "+W1280";
   args << "+H720";
-  args << "-GA";  // suppress all text output
+  args << "+GA";  // turn on all text output
 
   QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
   QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");

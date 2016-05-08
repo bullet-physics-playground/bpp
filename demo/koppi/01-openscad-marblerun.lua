@@ -6,28 +6,36 @@ require "color"
 
 v.gravity = btVector3(0,-98.1*2,0)
 
+-- POV-Ray scene settings
+v.pre_sdl = [==[
+
+#include "textures.inc"
+#declare seee = seed(5);
+
+#declare PlankNormal =
+  normal
+  { gradient x 2 slope_map { [0 <0,1>][.05 <1,0>][.95 <1,0>][1 <0,-1>] }
+    scale 2
+  };
+
+]==]
+
 p = Plane(0,1,0,0,10)
-p.pos = btVector3(0,-1,0)
+p.pos = btVector3(0,-0.5,0)
 p.col = "#303030"
 p.post_sdl = [[
-  pigment {
-    checker
-      rgb <0.2,0.2,0.2>,
-      rgb <0.6,0.6,0.6>
-} scale 2 }]]
+	
+texture { PinkAlabaster scale 2 }
+}]]
 v:add(p)
 
 function wheel(rad, px, py, pz)
   w = OpenSCAD([[
 module wheel(rad) {
-  $fn = 70;
+  $fn = 170;
 
-  n = 10;
+  n = 12;
   c = -0.25;
-
-  module rotate_about(v,a) {
-    translate(v) rotate(a) translate(-v) child(0);
-  }
 
   difference() {
     cylinder(r = rad-c, h=2, center=true);
@@ -38,6 +46,8 @@ module wheel(rad) {
       cylinder(r1=1.275, r2=1.1, h = 3);
     }
     cylinder(r = .6, h=2, center=true);
+    translate([0,0,1.5])
+    cylinder(r = rad-2-c, h=2, center=true);
   }
 }
 wheel(]]..tostring(rad)..[[);]], 20);
@@ -92,13 +102,40 @@ box(]]..tostring(c)..[[,]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tos
   return t
 end
 
-b = box(1, 5,2.5,10, 0,4.1,5.6)
+b = box(1, 5,1.4,10, 0,3.5,5.6)
+b.sdl = [[
+pigment { Gray20 }
+    finish {
+      ambient .2
+      diffuse .6
+      phong .75
+      phong_size 25
+    }
+]]
 v:add(b)
 
 w = wheel(9, 0,10,0)
+w.sdl = [[
+pigment { Gray50 }
+    finish {
+      ambient .2
+      diffuse .6
+      phong .75
+      phong_size 25
+    }
+]]
 v:add(w)
 
 t = tower(15,10,2, 0,5,-2)
+t.sdl = [[
+pigment { Gray20 }
+    finish {
+      ambient .2
+      diffuse .6
+      phong .75
+      phong_size 25
+    }
+]]
 v:add(t)
 
 pivot0 = btVector3(0,0,-2)
@@ -124,6 +161,48 @@ function run()
   s = Sphere(1,2)
   s.pos = btVector3(1,10,7)
   s.col = color.random_pastel()
+
+  s.pre_sdl = [==[
+
+// from alzinger.de/cms5/robert/raytracing/marble-machine-in-povray.html
+
+union {
+  difference {     
+    sphere {0,1}      
+    #for (i,1,70)
+      sphere {0,1 scale (rand(seee)*0.04+0.01) 
+      translate y*(0.3+0.5*rand(seee)) 
+      rotate <rand(seee)*360,0,rand(seee)*360>}
+    #end
+    union {
+      blob { threshold  0.1
+      #for (i,-0.9,0.9,0.01)
+        sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
+        translate y*(i) rotate <0,i*150,0>}
+      #end
+      texture {
+        pigment{ color ]==]..(math.random() >= 0.5 and "Blue" or "Red")..[==[ }
+        finish { diffuse 0.9 phong 0.8 }
+      }
+    }
+    blob {
+      threshold  0.1
+      #for (i,-0.9,0.9,0.01)
+        sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
+        translate y*(i) rotate <0,90+i*150,0>}
+      #end
+        texture { pigment{ color ]==]..(math.random() >= 0.5 and "Yellow" or "Green")..[==[ }
+        finish {diffuse 0.9 phong 0.8}
+      }
+    }
+  }
+  texture { Glass }
+  interior {
+    ior 1.5 caustics 0.25
+  }
+}
+]==]
+
   v:add(s)
 end
 

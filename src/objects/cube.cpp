@@ -96,14 +96,20 @@ void Cube::renderInLocalFrame(QTextStream *s) {
             *s << "box { <"
                << -lengths[0]/2.0 << ", "<< -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <"
                <<  lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " <<  lengths[2]/2.0 << ">" << endl;
-            if (mTexture == NULL) {
-                *s << "  pigment { rgb <"
-                   << color[0]/255.0 << ", " << color[1]/255.0 << ", " << color[2]/255.0 << "> }" << endl;
-            } else {
-                *s << mTexture << endl;
-            }
         } else {
-            *s << mPreSDL << endl;
+            *s << mPreSDL
+               << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
         }
 
         *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << endl
@@ -112,9 +118,12 @@ void Cube::renderInLocalFrame(QTextStream *s) {
            << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
         if (mPostSDL == NULL) {
-            *s << "}" << endl << endl;
+            *s << "}"
+               << endl
+               << endl;
         } else {
-            *s << mPostSDL << endl;
+            *s << mPostSDL
+               << endl;
         }
     }
     // qDebug() << "Cube::renderInLocalFrame() end";

@@ -64,7 +64,7 @@ global_settings {
 } 
 
 light_source {
-  <1000, 10000, 15000>
+  <-1000, 1000, 1000>
   color rgb <255.0/ 160.0, 255.0/158.0, 255.0/154.0>*.95
 
 #switch (Phot_Quality)

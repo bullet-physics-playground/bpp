@@ -143,6 +143,10 @@ void Object::luaBind(lua_State *s) {
                       (QString(Object::*)(void))&Object::getPreSDL,
                       (void(Object::*)(QString))&Object::setPreSDL)
 
+            .property("sdl",
+                      (QString(Object::*)(void))&Object::getSDL,
+                      (void(Object::*)(QString))&Object::setSDL)
+
             .property("post_sdl",
                       (QString(Object::*)(void))&Object::getPostSDL,
                       (void(Object::*)(QString))&Object::setPostSDL)
@@ -220,6 +224,14 @@ void Object::setPreSDL(QString pre_sdl) {
 
 QString Object::getPreSDL() const {
     return mPreSDL;
+}
+
+void Object::setSDL(QString sdl) {
+    mSDL = sdl;
+}
+
+QString Object::getSDL() const {
+    return mSDL;
 }
 
 void Object::setMass(btScalar _mass) {

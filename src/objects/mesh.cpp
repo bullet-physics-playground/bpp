@@ -212,7 +212,8 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
                        << mesh->mNormals[i].z
                        << ">";
                 }
-                *s << " }" << endl;
+                *s << " }"
+                   << endl;
             }
 
             *s << "  face_indices {"  << endl;
@@ -228,7 +229,8 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
                    << face->mIndices[2]
                    << ">";
             }
-            *s << " }" << endl;
+            *s << " }"
+               << endl;
 
             if (mesh->HasNormals()) {
                 *s << "  normal_indices {"  << endl;
@@ -244,15 +246,23 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
                        << face->mIndices[2]
                        << ">";
                 }
-                *s << " }" << endl;
+                *s << " }"
+                   << endl;
             }
+        } else {
+            *s << mPreSDL
+               << endl;
+        }
 
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
-               << color[2]/255.0 << "> }" << endl;
-        } else {
-            *s << mPreSDL << endl;
+               << color[2]/255.0 << "> }"
+               << endl;
         }
 
         *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
@@ -261,9 +271,13 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
            << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
         if (mPostSDL == NULL) {
-            *s << "}" << endl << endl;
+            *s << "}"
+               << endl
+               << endl;
         } else {
-            *s << mPostSDL << endl << endl;
+            *s << mPostSDL
+               << endl
+               << endl;
         }
 
     }

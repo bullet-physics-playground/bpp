@@ -94,6 +94,9 @@ public:
     void setPreSDL(QString pre_sdl);
     QString getPreSDL() const;
 
+    void setSDL(QString sdl);
+    QString getSDL() const;
+
     void setPostSDL(QString post_sdl);
     QString getPostSDL() const;
 
@@ -127,6 +130,7 @@ protected:
 
     QString mTexture;
     QString mPreSDL;
+    QString mSDL;
     QString mPostSDL;
 
     QList<btTypedConstraint*> _constraints;

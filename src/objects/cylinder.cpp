@@ -102,12 +102,21 @@ void Cylinder::renderInLocalFrame(QTextStream *s) {
                << -lengths[2]/2.0 << "*z, "
                << lengths[2]/2.0 << "*z, "
                << lengths[0]
-               << "\n  pigment { rgb <"
-               << color[0]/255.0 << ", "
-               << color[1]/255.0 << ", "
-               << color[2]/255.0 << "> }" << endl;
+               << "> }"
+               << endl;
         } else {
             *s << mPreSDL << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
         }
 
         *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
