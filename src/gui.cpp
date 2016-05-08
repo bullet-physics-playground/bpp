@@ -167,8 +167,6 @@ void Gui::loadLastFile() {
 
     if (lastFile != "") {
         fileLoad(lastFile);
-    } else {
-        fileLoad(":demo/00-objects.lua");
     }
 }
 
@@ -397,6 +395,10 @@ void Gui::fileSave() {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
+
+    settings->beginGroup( "mainwindow" );
+    settings->setValue( "lastFile", editor->script_filename);
+    settings->endGroup();
 }
 
 void Gui::fileSaveAs() {
@@ -408,6 +410,10 @@ void Gui::fileSaveAs() {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
+
+    settings->beginGroup( "mainwindow" );
+    settings->setValue( "lastFile", editor->script_filename);
+    settings->endGroup();
 }
 
 void Gui::fileSave(const QString& path) {
@@ -419,6 +425,10 @@ void Gui::fileSave(const QString& path) {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
+
+    settings->beginGroup( "mainwindow" );
+    settings->setValue( "lastFile", path);
+    settings->endGroup();
 }
 
 void Gui::editPreferences() {
