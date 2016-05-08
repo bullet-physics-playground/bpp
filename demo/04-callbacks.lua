@@ -12,13 +12,10 @@ v:preDraw(function(n)
 
   i = n / 100 * math.pi * 2 r = 8 z = 8
 
-  cam = Cam()
-  cam.pos = btVector3(
+  v.cam.pos = btVector3(
   r*math.sin(i), z, r*math.cos(i))
 
-  cam.look = btVector3(0,1,0)
-
-  v:cam(cam)
+  v.cam.look = btVector3(0,1,0)
 end)
 
 -- All callback functions:

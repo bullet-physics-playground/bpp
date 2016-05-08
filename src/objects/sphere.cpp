@@ -88,9 +88,9 @@ void Sphere::renderInLocalFrame(QTextStream *s) {
     glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
     glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
-    glColor3ubv(color);
+    glColor3ub(color[0], color[1], color[2]);
 
-    glutSolidSphere(1.0f, 64, 32);
+    glutSolidSphere(1.0f, 32, 16);
 
     if (s != NULL) {
         if (mPreSDL == NULL) {

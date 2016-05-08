@@ -17,7 +17,7 @@ v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
 ---
 
 plane = Plane(0,1,0,0,1000)
-plane.col = "#111111"
+plane.col = "#ffffff"
 v:add(plane)
 
 
@@ -46,7 +46,7 @@ function tower(floors,blocks_per_floor,num_balls)
       q = btQuaternion(0,math.sin((2*math.pi*(j+disp)/blocks_per_floor)/2),0,math.cos((2*math.pi*(j+disp)/blocks_per_floor)/2))
       o = btVector3(tower_radius*math.sin(2*math.pi*(j+disp)/blocks_per_floor),.5+i*1,tower_radius*math.cos(2*math.pi*(j+disp)/blocks_per_floor))
       d.trans = btTransform(q,o)    
-      d.col = "#ff00ff"
+      d.col = "#f0a020"
       d.friction=.5
       d.restitution=.1
       v:add(d)
