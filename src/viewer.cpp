@@ -1428,8 +1428,8 @@ void Viewer::onQuickRender() {
   args << "+d";   // display
   args << "-c";   // don't continue with a started render
   args << "-L../../includes";
-  args << "+W1280";
-  args << "+H720";
+  args << QString("+W%1").arg(geometry().width());
+  args << QString("+H%1").arg(geometry().height());
   args << "+GA";  // turn on all text output
 
   QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
