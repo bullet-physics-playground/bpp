@@ -92,4 +92,4 @@ clean:
 	/bin/rm -f ${SCENE}-*.png *.mkv *.pov-state
 
 dist: clean
-	XZ_OPT=-9e tar -C .. -cvJf ../${SCENE}.tar.xz ${SCENE}
+	find . -print0 | sort -z | XZ_OPT=-9e tar -cvJf ../${SCENE}.tar.xz --no-recursion --null -T -
