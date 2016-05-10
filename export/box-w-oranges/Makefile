@@ -1,13 +1,27 @@
 SHELL:=/bin/bash
 
 SCENE?=$(shell basename `pwd`)
+
+# Cloud rendering host alias "ec2" according to your ~/.ssh/config
+# see https://github.com/bullet-physics-playground/bpp/issues/8
+
+EC2?=ec2
+
+# Custom POV-Ray options
+
 POV?=
+
+# Custom POV-Ray include directives
 
 POVINC?=-LLightsysIV
 
-POVOPT=${POVINC} ${POV}
+# Custom ffmpeg loop times (default x10 loops)
 
 MKV_LOOP?=10
+
+# ----------------------------------------------------------------------------
+
+POVOPT=${POVINC} ${POV}
 
 all: help
 
@@ -25,10 +39,10 @@ help:
 	@echo "  make clean    # cleanup"
 	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
 	@echo ""
-	@echo " Cloud Rendering on ec2"
+	@echo " Cloud Rendering on ${EC2}"
 	@echo ""
-	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ec2:."
-	@echo "  make ec2-down  # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
+	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ${EC2}:."
+	@echo "  make ec2-down  # make ${SCENE}.mkv on ${EC2} with ffmpeg and scp to local machine"
 	@echo ""
 	@echo "  see https://github.com/bullet-physics-playground/bpp/issues/8 for POV-Ray on Amazon EC2"
 	@echo ""
@@ -58,12 +72,12 @@ mkv-loop: mkv
 	rm loop.txt
 
 ec2-up: dist
-	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ec2:.
-	ssh ec2 "tar xvf ${SCENE}.tar.xz"
+	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ${EC2}:.
+	ssh ${EC2} "tar xvf ${SCENE}.tar.xz"
 
 ec2-down:
-	ssh ec2 "make -C ${SCENE} mkv"
-	scp ec2:${SCENE}/${SCENE}.mkv .
+	ssh ${EC2} "make -C ${SCENE} mkv"
+	scp ${EC2}:${SCENE}/${SCENE}.mkv .
 
 youtube-up: mkv
 	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
