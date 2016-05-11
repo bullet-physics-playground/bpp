@@ -20,7 +20,7 @@ sudo add-apt-repository -y ppa:mc3man/trusty-media
 sudo apt-get update
 sudo apt-get -y install ffmpeg
 
-sudo apt-get -y install python-dev
+sudo apt-get -y install python-dev python-pip
 sudo pip install --upgrade google-api-python-client progressbar2
 
 wget https://github.com/tokland/youtube-upload/archive/master.zip
