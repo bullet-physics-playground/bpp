@@ -46,6 +46,15 @@ public:
     void setPostSDL(QString post_sdl);
     QString getPostSDL() const;
 
+    virtual qreal zNear() const;
+    virtual qreal zFar() const;
+
+    void toggleMode() { standard = !standard; }
+    bool isStandard() { return standard; }
+
+    void changeOrthoFrustumSize(int delta);
+    virtual void getOrthoWidthHeight(GLdouble &halfWidth, GLdouble &halfHeight) const;
+
 protected:
     btVector3 _lookAt;
 
@@ -54,6 +63,10 @@ protected:
 
     QString mPreSDL;
     QString mPostSDL;
+
+private :
+    bool standard;
+    float orthoSize;
 
 };
 

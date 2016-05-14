@@ -18,6 +18,9 @@ std::ostream& operator<<(std::ostream& ostream, const Cam& cam) {
 Cam::Cam(QObject *parent) : Camera() {
     setParent(parent);
     setUseFocalBlur(0);
+
+    standard = true;
+    orthoSize = 1.0;
 }
 
 Cam::~Cam() {
@@ -142,3 +145,33 @@ QString Cam::getPreSDL() const {
     return mPreSDL;
 }
 
+qreal Cam::zNear() const
+{
+    return Camera::zNear();
+}
+
+qreal Cam::zFar() const
+{
+    return Camera::zFar();
+}
+
+void Cam::changeOrthoFrustumSize(int delta)
+{
+    double factor = 1.00005;
+
+    if (delta > 0)
+        orthoSize *= factor;
+    else
+        orthoSize /= factor;
+}
+
+void Cam::getOrthoWidthHeight(GLdouble &halfWidth, GLdouble &halfHeight) const
+{
+    if (standard)
+    {
+        halfHeight = orthoSize;
+        halfWidth = aspectRatio() * orthoSize;
+    }
+    else
+        Camera::getOrthoWidthHeight(halfWidth, halfHeight);
+}

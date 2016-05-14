@@ -387,7 +387,7 @@ if (use_openscad == 1) then
   v:add(sc)
 end
 
-pixarlamp = Mesh("demo/koppi/pixarlamp.stl", 0)
+pixarlamp = Mesh("demo/stl/pixarlamp.stl", 0)
 pixarlamp.trans = btTransform(btQuaternion(-0.04,-.48,-1.1,1), btVector3(0.8,3.17,3))
 pixarlamp.col = "#ffffff"
 v:add(pixarlamp)
