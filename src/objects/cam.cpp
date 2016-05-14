@@ -66,12 +66,15 @@ void Cam::luaBind(lua_State *s) {
                       (btVector3(Cam::*)(void))&Cam::getUpVector,
                       (void(Cam::*)(const btVector3&))&Cam::setUpVector)
 
-            .property("useFocalBlur",
+            .property("focal_blur",
                       (int(Cam::*)(void))&Cam::getUseFocalBlur,
                       (void(Cam::*)(int))&Cam::setUseFocalBlur)
-            .property("focalPoint",
+            .property("focal_point",
                       (btVector3(Cam::*)(void))&Cam::getFocalPoint,
                       (void(Cam::*)(const btVector3&))&Cam::setFocalPoint)
+            .property("focal_aperture",
+                      (int(Cam::*)(void))&Cam::getFocalAperture,
+                      (void(Cam::*)(double))&Cam::setFocalAperture)
 
             .property("pre_sdl",
                       (QString(Cam::*)(void))&Cam::getPreSDL,
@@ -127,6 +130,14 @@ void Cam::setUseFocalBlur(const int ufb) {
 
 int Cam::getUseFocalBlur() const {
     return _useFocalBlur;
+}
+
+void Cam::setFocalAperture(double aperture) {
+    _focalAperture = aperture;
+}
+
+double Cam::getFocalAperture() const {
+    return _focalAperture;
 }
 
 void Cam::setPostSDL(QString post_sdl) {

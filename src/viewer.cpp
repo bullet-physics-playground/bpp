@@ -164,6 +164,8 @@ void Viewer::luaBind(lua_State *s) {
 }
 
 void Viewer::addObject(Object* o) {
+    if (o == NULL) return;
+
     addObject(o, o->getCol1(), o->getCol2());
     addConstraints(o->getConstraints());
 }
@@ -797,19 +799,17 @@ void Viewer::openPovFile() {
         *_stream << mPreSDL << endl << endl;
     }
 
-    /*
-  if (_cam != NULL) {
-    *_stream << "#declare useFocalBlur = " << _cam->getUseFocalBlur() << "; // 0=off 1=low quality 10=high quality" << endl << endl;
-    }*/
 
     if (_cam != NULL) {
+
+        *_stream << "#declare use_focal_blur = " << _cam->getUseFocalBlur() << "; // 0=off 1=low quality 10=high quality" << endl << endl;
 
         if (_cam->getPreSDL() == NULL) {
             Vec pos = camera()->position();
 
-            *_stream << "camera { " << endl;
-            *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
-            *_stream << "  right -image_width/image_height*x" << endl;
+            *_stream << "camera { " << endl
+                     << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
+                     << "  right -image_width/image_height*x" << endl;
             Vec vDir = camera()->viewDirection();
 
             // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
@@ -831,21 +831,17 @@ void Viewer::openPovFile() {
                      << _cam->getUpVector().z()
                      << ">" << endl;
 
-            // *_stream << "  sky   <-1,1,0>" << endl;
+            *_stream << "#if(use_focal_blur)" << endl
+                     << "  aperture " << _cam->getFocalAperture() << endl
+                     << "  blur_samples 10*use_focal_blur" << endl
+                     << "  focal_point <"
+                     << _cam->getFocalPoint().x() << ", "
+                     << _cam->getFocalPoint().y() << ", "
+                     << _cam->getFocalPoint().z() << "> "
+                     << "  confidence 0.9+(use_focal_blur*0.0085)" << endl
+                     << "  variance 1/(2000*use_focal_blur)" << endl
+                     << "#end" << endl;
 
-
-            /*
-       *_stream << "#if(useFocalBlur)" << endl;
-       *_stream << "  aperture 0.001"  << endl;
-       *_stream << "  blur_samples 10*useFocalBlur" << endl;
-       *_stream << "  focal_point <"
-       << _cam->getFocalPoint().x() << ", "
-       << _cam->getFocalPoint().y() << ", "
-       << _cam->getFocalPoint().z() << "> " << endl;
-       *_stream << "  confidence 0.9+(useFocalBlur*0.0085)" << endl;
-       *_stream << "  variance 1/(2000*useFocalBlur)" << endl;
-       *_stream << "#end" << endl;
-       */
             *_stream << "}" << endl << endl;
         } else {
             *_stream << _cam->getPreSDL() << endl;

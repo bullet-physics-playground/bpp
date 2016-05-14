@@ -1,24 +1,20 @@
 plane = Plane(0,1,0)
 plane.col = "#333333"
+plane.friction = 2
 
 -- v.gravity = btVector3(0,0,0)
 
-v.timeStep      = 1/25
-v.fixedTimeStep = v.timeStep / 2
-v.maxSubSteps   = 10
-
-plane.pre_sdl = [[
-plane { <0,1,0>,0]]
+v.timeStep      = 1/15
+v.fixedTimeStep = v.timeStep / 4
+v.maxSubSteps   = 100
 
 if (use_lightsys == 1) then
-  plane.post_sdl = [[
+  plane.sdl = [[
   pigment{ rgb ReferenceRGB(Gray20) }
-}
 ]]
 else
-  plane.post_sdl = [[
+  plane.sdl = [[
   pigment { rgb <0.2,0.2,0.2> }
-}
 ]]
 end
 
@@ -30,12 +26,8 @@ function line(N,zpos,damp_lin,damp_ang,fri,res)
   s.pos = btVector3(-15, 1.5, zpos)
   s.col = "#0000ff"
   s.vel = btVector3(5,0,0)
-  s.pre_sdl = [[
-sphere { <.0,.0,.0>, 1
-]]
-  s.post_sdl = [[
+  s.sdl = [[
   texture{pigment{color Gray} finish{ reflection 1 }}
-}
 ]]
 
   v:add(s)
@@ -72,13 +64,16 @@ line(n,  6, 0.1,  0.01,  0.4, 0.4)
 
 v:preDraw(function(N)
   cam = Cam()
+  cam:setHorizontalFieldOfView(0.7)
+  cam.up = btVector3(0,1,0)
 
-  if (N < 150) then
-    cam.pos = s.pos + btVector3(10,10,30)
-    cam.look = s.pos + btVector3(10,2,0)
-  else
-    cam.pos = d.pos + btVector3(-25,10,30)
-    cam.look = d.pos + btVector3(5,2,0)
-  end
+  cam.pos  = d.pos + btVector3(-45+N/2,10,45)
+  cam.look = d.pos + btVector3(-29+N/4,1,0)
+
+   if (N > 150) then
+     cam.pos  = d.pos + btVector3(-45+150/2,10,45-(N-150)/2)
+     cam.look = d.pos + btVector3(-29+150/4,1,0)
+   end
+
   v:setCam(cam)
 end)

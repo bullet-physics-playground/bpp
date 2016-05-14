@@ -57,6 +57,8 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         body = new btRigidBody(mass, motionState, shape, inertia);
 
     } else {
+        assert(m_scene->mNumMeshes > 0);
+
         const struct aiMesh* mesh = m_scene->mMeshes[0];
 
         unsigned int t;
@@ -182,7 +184,7 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
         }
     }
 
-    if (s != NULL) {
+    if (s != NULL && m_scene != NULL && m_scene->mNumMeshes > 0) {
         if (mPreSDL == NULL) {
             const struct aiMesh* mesh = m_scene->mMeshes[0];
 
@@ -279,9 +281,7 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
                << endl
                << endl;
         }
-
     }
-
 }
 
 #endif

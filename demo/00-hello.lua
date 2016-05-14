@@ -6,7 +6,7 @@ v.pre_sdl = [[
 
 global_settings {
   assumed_gamma 1.0
-  max_trace_level 256
+  max_trace_level 20
 
   radiosity {
     count 100 
@@ -412,11 +412,18 @@ v:preSim(function(N)
 end)
 
 v:postSim(function(N)
-  --v.cam:setUpVector(btVector3(0,1,0), false)
-  --d = 350
-  --o = btVector3(-.2,-.2,0)
-  --v.cam.pos  = btVector3(-d,d,d) - o
-  --v.cam.look = cy.pos - o 
+  v.cam:setUpVector(btVector3(0,1,0), false)
+  d = 350
+  o = btVector3(-.2,-.2,0)
+
+  v.cam.pos  = btVector3(-d,d,d) - o
+  v.cam.look = cy.pos - o
+
+  
+  v.cam.focal_blur      = 2
+  v.cam.focal_aperture  = 5
+  -- set blur point to sphere shape position
+  v.cam.focal_point = sp.pos
 
   ---- render every 10th frame with POV-Ray
   -- if (N % 10 == 0) then povRender(N) end
@@ -440,3 +447,4 @@ v:onCommand(function(N, cmd)
   local f = assert(loadstring(cmd))
   f(v)
 end)
+

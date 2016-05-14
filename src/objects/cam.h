@@ -40,6 +40,9 @@ public:
     void setFocalPoint(const btVector3& v);
     btVector3 getFocalPoint() const;
 
+    void setFocalAperture(double aperture);
+    double getFocalAperture() const;
+
     void setPreSDL(QString pre_sdl);
     QString getPreSDL() const;
 
@@ -60,6 +63,7 @@ protected:
 
     int _useFocalBlur;
     btVector3 _focalPoint;
+    double _focalAperture;
 
     QString mPreSDL;
     QString mPostSDL;
