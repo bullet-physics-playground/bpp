@@ -14,6 +14,7 @@
 #include "lua_register.h"
 #endif
 
+
 #include "objects/object.h"
 #include "objects/objects.h"
 #include "objects/plane.h"
@@ -861,13 +862,13 @@ void Viewer::computeBoundingBox() {
     btVector3 vmin(_aabb[0], _aabb[1], _aabb[2]);
     btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
-    float radius = (vmax - vmin).length() * 10.0f;
+    float radius = (vmax - vmin).length();
     // qDebug() << "setSceneRadius() " << radius;
     setSceneRadius(radius);
 
     btVector3 center = (vmin + vmax) / 2.0f;
     // qDebug() << "setSceneCenter() " << center.z() << center.y() << center.z();
-    setSceneCenter(Vec(center.x(), center.y(), 0));
+    setSceneCenter(Vec(center.x(), center.y(), center.z()));
 
     // setSceneCenter(Vec());
 }

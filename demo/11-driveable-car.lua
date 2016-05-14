@@ -148,7 +148,7 @@ v:add(engine)
 
 -- FRONT WHEELS
 -- right
-front_right_wheel = Cylinder(tire_radius,tire_radius,tire_width*.9,tire_mass)
+front_right_wheel = Cylinder(tire_radius,tire_width*.9,tire_mass)
 front_right_wheel.pos = btVector3(front_axle_xpos, tire_radius, front_axle_width*.5)
 front_right_wheel.col = "#333333"
 front_right_wheel.friction=tire_friction
@@ -158,7 +158,7 @@ front_right_wheel.pre_sdl=right_tire_sdl
 end
 v:add(front_right_wheel)
 -- left
-front_left_wheel = Cylinder(tire_radius,tire_radius,tire_width*.9,tire_mass)
+front_left_wheel = Cylinder(tire_radius,tire_width*.9,tire_mass)
 front_left_wheel.pos = btVector3(front_axle_xpos, tire_radius, -front_axle_width*.5)
 front_left_wheel.col = "#333333"
 front_left_wheel.friction=tire_friction
@@ -170,7 +170,7 @@ v:add(front_left_wheel)
 
 -- REAR WHEELS
 -- right
-rear_right_wheel = Cylinder(tire_radius,tire_radius,tire_width*.9,tire_mass)
+rear_right_wheel = Cylinder(tire_radius,tire_width*.9,tire_mass)
 rear_right_wheel.pos = btVector3(rear_axle_xpos, tire_radius, rear_axle_width*.5)
 rear_right_wheel.col = "#333333"
 rear_right_wheel.friction=tire_friction
@@ -180,7 +180,7 @@ rear_right_wheel.pre_sdl=right_tire_sdl
 end
 v:add(rear_right_wheel)
 -- left
-rear_left_wheel = Cylinder(tire_radius,tire_radius,tire_width*.9,tire_mass)
+rear_left_wheel = Cylinder(tire_radius,tire_width*.9,tire_mass)
 rear_left_wheel.pos = btVector3(rear_axle_xpos, tire_radius, -rear_axle_width*.5)
 rear_left_wheel.col = "#333333"
 rear_left_wheel.friction=tire_friction
@@ -192,7 +192,7 @@ v:add(rear_left_wheel)
 
 -- FRONT DISCS
 -- right
-front_right_disc=Cylinder(tire_radius*.75,tire_radius*.75,tire_width,disc_mass)
+front_right_disc=Cylinder(tire_radius*.75,tire_width,disc_mass)
 front_right_disc.pos=btVector3(front_axle_xpos,tire_radius,front_axle_width*.5)
 front_right_disc.col="#ff0000"
 front_right_disc.friction=metal_friction
@@ -200,7 +200,7 @@ front_right_disc.restitution=metal_restitution
 front_right_disc.pre_sdl="object{disk"
 v:add(front_right_disc)
 -- left
-front_left_disc=Cylinder(tire_radius*.75,tire_radius*.75,tire_width,disc_mass)
+front_left_disc=Cylinder(tire_radius*.75,tire_width,disc_mass)
 front_left_disc.pos=btVector3(front_axle_xpos,tire_radius,-front_axle_width*.5)
 front_left_disc.col="#ff0000"
 front_left_disc.friction=metal_friction
@@ -210,7 +210,7 @@ v:add(front_left_disc)
 
 -- REAR DISCS
 -- right
-rear_right_disc=Cylinder(tire_radius*.75,tire_radius*.75,tire_width,disc_mass)
+rear_right_disc=Cylinder(tire_radius*.75,tire_width,disc_mass)
 rear_right_disc.pos=btVector3(rear_axle_xpos,tire_radius,rear_axle_width*.5)
 rear_right_disc.col="#ff0000"
 rear_right_disc.friction=metal_friction
@@ -218,7 +218,7 @@ rear_right_disc.restitution=metal_restitution
 rear_right_disc.pre_sdl="object{disk"
 v:add(rear_right_disc)
 -- left
-rear_left_disc=Cylinder(tire_radius*.75,tire_radius*.75,tire_width,disc_mass)
+rear_left_disc=Cylinder(tire_radius*.75,tire_width,disc_mass)
 rear_left_disc.pos=btVector3(rear_axle_xpos,tire_radius,-rear_axle_width*.5)
 rear_left_disc.col="#ff0000"
 rear_left_disc.friction=metal_friction
@@ -260,26 +260,26 @@ v:add(rear_left_spindle)
 
 -- FRONT CONTROL ARMS 
 -- right
-front_right_upper_arm=Cylinder(arm_radius,arm_radius,front_arm_lenght,arm_mass)
+front_right_upper_arm=Cylinder(arm_radius,front_arm_lenght,arm_mass)
 front_right_upper_arm.pos=btVector3(front_axle_xpos,tire_radius+tire_radius*.25+arm_radius,front_axle_width*.5-tire_width*.5-arm_radius*2-front_arm_lenght*.5)
 front_right_upper_arm.col="#0000ff"
 front_right_upper_arm.friction=tire_friction
 front_right_upper_arm.restitution=tire_restitution
 v:add(front_right_upper_arm)
-front_right_lower_arm=Cylinder(arm_radius,arm_radius,front_arm_lenght,arm_mass)
+front_right_lower_arm=Cylinder(arm_radius,front_arm_lenght,arm_mass)
 front_right_lower_arm.pos=btVector3(front_axle_xpos,tire_radius-(tire_radius*.25+arm_radius),front_axle_width*.5-tire_width*.5-arm_radius*2-front_arm_lenght*.5)
 front_right_lower_arm.col="#0000ff"
 front_right_lower_arm.friction=tire_friction
 front_right_lower_arm.restitution=tire_restitution
 v:add(front_right_lower_arm)
 -- left
-front_left_upper_arm=Cylinder(arm_radius,arm_radius,front_arm_lenght,arm_mass)
+front_left_upper_arm=Cylinder(arm_radius,front_arm_lenght,arm_mass)
 front_left_upper_arm.pos=btVector3(front_axle_xpos,tire_radius+tire_radius*.25+arm_radius,-(front_axle_width*.5-tire_width*.5-arm_radius*2-front_arm_lenght*.5))
 front_left_upper_arm.col="#0000ff"
 front_left_upper_arm.friction=tire_friction
 front_left_upper_arm.restitution=tire_restitution
 v:add(front_left_upper_arm)
-front_left_lower_arm=Cylinder(arm_radius,arm_radius,front_arm_lenght,arm_mass)
+front_left_lower_arm=Cylinder(arm_radius,front_arm_lenght,arm_mass)
 front_left_lower_arm.pos=btVector3(front_axle_xpos,tire_radius-(tire_radius*.25+arm_radius),-(front_axle_width*.5-tire_width*.5-arm_radius*2-front_arm_lenght*.5))
 front_left_lower_arm.col="#0000ff"
 front_left_lower_arm.friction=tire_friction
@@ -288,26 +288,26 @@ v:add(front_left_lower_arm)
 
 -- REAR CONTROL ARMS 
 -- right
-rear_right_upper_arm=Cylinder(arm_radius,arm_radius,rear_arm_lenght,arm_mass)
+rear_right_upper_arm=Cylinder(arm_radius,rear_arm_lenght,arm_mass)
 rear_right_upper_arm.pos=btVector3(rear_axle_xpos,tire_radius+tire_radius*.25+arm_radius,rear_axle_width*.5-tire_width*.5-arm_radius*2-rear_arm_lenght*.5)
 rear_right_upper_arm.col="#0000ff"
 rear_right_upper_arm.friction=tire_friction
 rear_right_upper_arm.restitution=tire_restitution
 v:add(rear_right_upper_arm)
-rear_right_lower_arm=Cylinder(arm_radius,arm_radius,rear_arm_lenght,arm_mass)
+rear_right_lower_arm=Cylinder(arm_radius,rear_arm_lenght,arm_mass)
 rear_right_lower_arm.pos=btVector3(rear_axle_xpos,tire_radius-(tire_radius*.25+arm_radius),rear_axle_width*.5-tire_width*.5-arm_radius*2-rear_arm_lenght*.5)
 rear_right_lower_arm.col="#0000ff"
 rear_right_lower_arm.friction=tire_friction
 rear_right_lower_arm.restitution=tire_restitution
 v:add(rear_right_lower_arm)
 -- left
-rear_left_upper_arm=Cylinder(arm_radius,arm_radius,rear_arm_lenght,arm_mass)
+rear_left_upper_arm=Cylinder(arm_radius,rear_arm_lenght,arm_mass)
 rear_left_upper_arm.pos=btVector3(rear_axle_xpos,tire_radius+tire_radius*.25+arm_radius,-(rear_axle_width*.5-tire_width*.5-arm_radius*2-rear_arm_lenght*.5))
 rear_left_upper_arm.col="#0000ff"
 rear_left_upper_arm.friction=tire_friction
 rear_left_upper_arm.restitution=tire_restitution
 v:add(rear_left_upper_arm)
-rear_left_lower_arm=Cylinder(arm_radius,arm_radius,rear_arm_lenght,arm_mass)
+rear_left_lower_arm=Cylinder(arm_radius,rear_arm_lenght,arm_mass)
 rear_left_lower_arm.pos=btVector3(rear_axle_xpos,tire_radius-(tire_radius*.25+arm_radius),-(rear_axle_width*.5-tire_width*.5-arm_radius*2-rear_arm_lenght*.5))
 rear_left_lower_arm.col="#0000ff"
 rear_left_lower_arm.friction=tire_friction
@@ -315,13 +315,13 @@ rear_left_lower_arm.restitution=tire_restitution
 v:add(rear_left_lower_arm)
 
 -- FRONT STABILIZER BARS
-front_stabilizer_bar=Cylinder(arm_radius,arm_radius,front_axle_width-tire_width,arm_mass*2)
+front_stabilizer_bar=Cylinder(arm_radius,front_axle_width-tire_width,arm_mass*2)
 front_stabilizer_bar.pos=btVector3(front_axle_xpos+tire_radius*.4,tire_radius,0)
 front_stabilizer_bar.col = "#0000ff"
 front_stabilizer_bar.friction=metal_friction
 front_stabilizer_bar.restitution=metal_restitution
 v:add(front_stabilizer_bar)
-front_stabilizer_bar2=Cylinder(arm_radius,arm_radius,front_axle_width-tire_width,arm_mass*2)
+front_stabilizer_bar2=Cylinder(arm_radius,front_axle_width-tire_width,arm_mass*2)
 front_stabilizer_bar2.pos=btVector3(front_axle_xpos-tire_radius*.4,tire_radius,0)
 front_stabilizer_bar2.col = "#0000ff"
 front_stabilizer_bar2.friction=metal_friction
@@ -329,13 +329,13 @@ front_stabilizer_bar2.restitution=metal_restitution
 v:add(front_stabilizer_bar2)
 
 -- REAR STABILIZER BARS
-rear_stabilizer_bar=Cylinder(arm_radius,arm_radius,rear_axle_width-tire_width,arm_mass*2)
+rear_stabilizer_bar=Cylinder(arm_radius,rear_axle_width-tire_width,arm_mass*2)
 rear_stabilizer_bar.pos=btVector3(rear_axle_xpos+tire_radius*.4,tire_radius,0)
 rear_stabilizer_bar.col = "#0000ff"
 rear_stabilizer_bar.friction=metal_friction
 rear_stabilizer_bar.restitution=metal_restitution
 v:add(rear_stabilizer_bar)
-rear_stabilizer_bar2=Cylinder(arm_radius,arm_radius,rear_axle_width-tire_width,arm_mass*2)
+rear_stabilizer_bar2=Cylinder(arm_radius,rear_axle_width-tire_width,arm_mass*2)
 rear_stabilizer_bar2.pos=btVector3(rear_axle_xpos-tire_radius*.4,tire_radius,0)
 rear_stabilizer_bar2.col = "#0000ff"
 rear_stabilizer_bar2.friction=metal_friction
@@ -886,7 +886,7 @@ v:addConstraint(engine_constraint)
 
 -- default floor plane
 if(use_obstacles<=1) then
-  plane = Plane(0,1,0,0,1000)
+  plane = Plane(0,1,0,0,1500)
 --  plane = Cube(1000,1,1000,0)
   plane.col = "#111111"
   plane.pos=btVector3(0,0,0)

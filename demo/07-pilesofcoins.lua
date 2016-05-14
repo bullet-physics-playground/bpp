@@ -35,7 +35,7 @@ function coins_pile(coin_type,N,xp,zp)
     o = btVector3(xp-.5+math.random(0,10)*.1,
                   .6+i*coin_height,
                   zp-.5+math.random(0,10)*.1) 
-    d = Cylinder(coin_width,coin_width,coin_height,1)
+    d = Cylinder(coin_width,coin_height,1)
     d.mass=coin_width*coin_height*.1
     d.col = "#00ff00"
     d.trans=btTransform(q,o)

@@ -7,12 +7,12 @@ cube.pos = btVector3(0, 1, 0);
 cube.col = "#ff0000"
 v:add(cube)
 
-c0 = Cylinder(1,1,0.25,1)
+c0 = Cylinder(1,0.25,1)
 c0.pos = btVector3(0, 1, 2.5)
 c0.col = "#00ff00"
 v:add(c0)
 
-c1 = Cylinder(1,1,0.25,1)
+c1 = Cylinder(1,0.25,1)
 c1.pos = btVector3(0, 1, -2.5)
 c1.col = "#0000ff"
 v:add(c1)

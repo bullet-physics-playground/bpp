@@ -2,6 +2,8 @@
 -- point-to-point constraint: pearls collar
 --
 
+v.gravity = btVector3(0,-98,0)
+
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
@@ -56,6 +58,6 @@ end
 
 collar(60,btVector3(0,175,0),4.6)
 
-c = Cylinder(10,10,200,0)
+c = Cylinder(10,200,0)
 c.pos = btVector3(0,100,0)
 v:add(c)

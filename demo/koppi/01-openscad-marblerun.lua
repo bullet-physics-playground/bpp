@@ -18,6 +18,42 @@ v.pre_sdl = [==[
     scale 2
   };
 
+#declare Photons=on;
+
+global_settings {
+ 
+  max_trace_level 5
+  #if (Photons)          // global photon block
+    photons {
+      spacing 0.02                 // specify the density of photons
+      //count 100000               // alternatively use a total number of photons
+
+      //gather min, max            // amount of photons gathered during render [20, 100]
+      //media max_steps [,factor]  // media photons
+      //jitter 1.0                 // jitter phor photon rays
+      //max_trace_level 5          // optional separate max_trace_level
+      //adc_bailout 1/255          // see global adc_bailout
+      //save_file "filename"       // save photons to file
+      //load_file "filename"       // load photons from file
+      //autostop 0                 // photon autostop option
+      //radius 10                  // manually specified search radius
+      // (---Adaptive Search Radius---)
+      //steps 1
+      //expand_thresholds 0.2, 40
+    }
+
+  #end
+}
+
+light_source {
+  <500,500,150>       // light's position
+  color rgb 1.3       // light's color
+  photons {           // photon block for a light source
+    refraction on
+    reflection on
+  }
+}
+
 ]==]
 
 p = Plane(0,1,0,0,10)
@@ -200,6 +236,11 @@ union {
   interior {
     ior 1.5 caustics 0.25
   }
+  photons {  // photon block for an object
+    target 1.0
+    refraction on
+    reflection on
+  }
 }
 ]==]
 
@@ -208,7 +249,7 @@ end
 
 run()
 
-v:onCommand(function(cmd)
+v:onCommand(function(N, cmd)
   print(cmd)
   local f = assert(loadstring(cmd))
   f(v)

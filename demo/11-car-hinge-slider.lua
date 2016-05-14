@@ -23,14 +23,14 @@ car_body.restitution=0
 v:add(car_body)
 
 -- FRONT AXE
-front_axe_left_arm=Cylinder(.5,.5,6,1)
+front_axe_left_arm=Cylinder(.5,6,1)
 front_axe_left_arm.pos=btVector3(12,3,3.5)
 front_axe_left_arm.friction=0.1
 front_axe_left_arm.restitution=0
 front_axe_left_arm.vel=car_previous_velocity
 v:add(front_axe_left_arm)
 
-front_axe_right_arm=Cylinder(.5,.5,6,1)
+front_axe_right_arm=Cylinder(.5,6,1)
 front_axe_right_arm.pos=btVector3(12,3,-3.5)
 front_axe_right_arm.friction=0.1
 front_axe_right_arm.restitution=0
@@ -38,7 +38,7 @@ front_axe_right_arm.vel=car_previous_velocity
 v:add(front_axe_right_arm)
 
 -- FRONT WHEELS
-front_wheel_left = Cylinder(3,3,2,1)
+front_wheel_left = Cylinder(3,2,1)
 front_wheel_left.pos = btVector3(12, 3, 7.5)
 front_wheel_left.col = "#333333"
 front_wheel_left.friction=tire_friction
@@ -46,7 +46,7 @@ front_wheel_left.restitution=tire_restitution
 front_wheel_left.vel=car_previous_velocity
 v:add(front_wheel_left)
 
-front_wheel_right = Cylinder(3,3,2,1)
+front_wheel_right = Cylinder(3,2,1)
 front_wheel_right.pos = btVector3(12, 3, -7.5)
 front_wheel_right.col = "#333333"
 front_wheel_right.friction=tire_friction
@@ -146,14 +146,14 @@ front_axe_right_spring_constraint:setUpperLinLimit(0)
 v:addConstraint(front_axe_right_spring_constraint)
 
 -- REAR AXE
-rear_axe_left_arm=Cylinder(.5,.5,6,1)
+rear_axe_left_arm=Cylinder(.5,6,1)
 rear_axe_left_arm.pos=btVector3(-14,3,3.5)
 rear_axe_left_arm.friction=0.1
 rear_axe_left_arm.restitution=0
 rear_axe_left_arm.vel=car_previous_velocity
 v:add(rear_axe_left_arm)
 
-rear_axe_right_arm=Cylinder(.5,.5,6,1)
+rear_axe_right_arm=Cylinder(.5,6,1)
 rear_axe_right_arm.pos=btVector3(-14,3,-3.5)
 rear_axe_right_arm.friction=0.1
 rear_axe_right_arm.restitution=0
@@ -162,7 +162,7 @@ v:add(rear_axe_right_arm)
 
 
 -- REAR WHEELS
-rear_wheel_left = Cylinder(3,3,2,1)
+rear_wheel_left = Cylinder(3,2,1)
 rear_wheel_left.pos = btVector3(-14, 3, 7.0)
 rear_wheel_left.col = "#333333"
 rear_wheel_left.friction=tire_friction
@@ -170,7 +170,7 @@ rear_wheel_left.restitution=tire_restitution
 rear_wheel_left.vel=car_previous_velocity
 v:add(rear_wheel_left)
 
-rear_wheel_right = Cylinder(3,3,2,1)
+rear_wheel_right = Cylinder(3,2,1)
 rear_wheel_right.pos = btVector3(-14, 3, -7.0)
 rear_wheel_right.col = "#333333"
 rear_wheel_right.friction=tire_friction
@@ -294,8 +294,13 @@ end
 --  v:add(obs1)
 --end
 
+v:preDraw(function(N)
+  v.cam:setUpVector(btVector3(.1,1,0), true)
+  v.cam:setFieldOfView(.01) -- pseudo orthogonal
+end)
+
 v:postSim(function(N)
-  v.cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+50)
+  v.cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+4000)
 --  v.cam.pos = btVector3(car_body.pos.x+40,40,car_body.pos.z+50)
   v.cam.look = car_body.pos
 

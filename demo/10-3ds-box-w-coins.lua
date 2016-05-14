@@ -10,8 +10,8 @@ b.col="#ff0000"
 v:add(b)
 
 v:postSim(function(N)
-if(N%5==0) then
-  c=Cylinder(7,7,1.1,1)
+if(N%5==0 and N < 500) then
+  c=Cylinder(7,1.1,1)
   q = btQuaternion(1,0,0,1)
   o = btVector3(math.random(-2,2),150,math.random(-2,2))
   c.trans=btTransform(q,o)  
