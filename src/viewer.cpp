@@ -1469,6 +1469,7 @@ void Viewer::onQuickRender(QString povargs) {
         sceneName="no_name";
     }
 
+    args << "povray";
     args << "+Q11";  // best
     //  args << "+Q8";  // no media and radiosity
     args << "+p";   // pause when done
@@ -1505,5 +1506,5 @@ void Viewer::onQuickRender(QString povargs) {
     qDebug() << "sceneDir: " << sceneDir;
 
     QProcess p;
-    p.startDetached("povray", args, sceneDir);
+    p.startDetached("nice", args, sceneDir);
 }
