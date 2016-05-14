@@ -295,14 +295,9 @@ end
 --end
 
 v:preDraw(function(N)
-  v.cam:setUpVector(btVector3(.1,1,0), true)
-  v.cam:setFieldOfView(.01) -- pseudo orthogonal
-end)
-
-v:postSim(function(N)
-  v.cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+4000)
---  v.cam.pos = btVector3(car_body.pos.x+40,40,car_body.pos.z+50)
-  v.cam.look = car_body.pos
-
+  v.cam:setFieldOfView(.2)      -- pseudo orthogonal
+  v.cam.up = btVector3(.1,1,0)  -- rotate camera
+  v.cam.pos = btVector3(car_body.pos.x,car_body.pos.y,car_body.pos.z+200)
+  v.cam.look = btVector3(car_body.pos.x,10,car_body.pos.z)
 end)
 
