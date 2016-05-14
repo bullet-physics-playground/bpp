@@ -33,3 +33,63 @@ end
 
 -- print(rgb2col(255,255,255))
 -- print(rgbt2col(255,255,255,0))
+
+function random_bpp()
+   scheme = {
+      "#3a8581",
+      "#71b04b",
+      "#00a651",
+      "#29a969",
+      "#6e2c90",
+      "#4f6ab1",
+      "#86733d",
+      "#ef4927",
+      "#895781",
+      "#ec2290",
+      "#d76048",
+      "#72c59a",
+      "#4ec2c6",
+      "#8ea0c8",
+      "#eec343",
+      "#d0b05f",
+      "#f9b598",
+      "#aa7694",
+      "#abdddf",
+      "#80ffff",
+      "#b3b08f",
+      "#ffffff",
+   }
+   
+   return scheme[ math.random( #scheme ) ]
+end
+
+function random_chrome()
+   scheme = {
+      "#698153",
+      "#177646",
+      "#13864c",
+      "#159053",
+      "#169f5c",
+      "#1da362",
+      "#39ac74",
+      "#b44438",
+      "#d54b3e",
+      "#dc5044",
+      "#c77067",
+      "#e27066",
+      "#4b8bf4",
+      "#e5a738",
+      "#fbc03d",
+      "#fecd42",
+      "#c8b763",
+      "#fbd366",
+      "#79a7f3",
+      "#7ebd9d",
+      "#aecae8",
+      "#dec1aa",
+      "#d9dfe4",
+      "#f1f1f1",
+   }
+
+   return scheme[ math.random( #scheme ) ]
+end
