@@ -51,6 +51,7 @@ void Cam::luaBind(lua_State *s) {
             .def("setHorizontalFieldOfView", &Cam::setHorizontalFieldOfView)
 
             .def("setUpVector", &Cam::setUpVector)
+            .def("getUpVector", &Cam::getUpVector)
 
             .property("pos",
                       (btVector3(Cam::*)(void))&Cam::getPosition,
@@ -58,6 +59,9 @@ void Cam::luaBind(lua_State *s) {
             .property("look",
                       (btVector3(Cam::*)(void))&Cam::getLookAt,
                       (void(Cam::*)(const btVector3&))&Cam::setLookAt)
+            .property("up",
+                      (btVector3(Cam::*)(void))&Cam::getUpVector,
+                      (void(Cam::*)(const btVector3&))&Cam::setUpVector)
 
             .property("useFocalBlur",
                       (int(Cam::*)(void))&Cam::getUseFocalBlur,
@@ -81,6 +85,10 @@ void Cam::luaBind(lua_State *s) {
 // see http://libqglviewer.com/refManual/classqglviewer_1_1Camera.html#ab442b71a46297223ae12b163653eeb7e
 void Cam::setUpVector(const btVector3 &v, bool noMove) {
     Camera::setUpVector(Vec(v[0], v[1], v[2]), noMove);
+}
+
+btVector3 Cam::getUpVector() const {
+    return btVector3(upVector().x, upVector().y, upVector().z);
 }
 
 void Cam::setPosition(const btVector3& v) {

@@ -810,12 +810,26 @@ void Viewer::openPovFile() {
             *_stream << "camera { " << endl;
             *_stream << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl;
             *_stream << "  right -image_width/image_height*x" << endl;
-
             Vec vDir = camera()->viewDirection();
 
             // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
-            *_stream << "  look_at < " << pos.x + vDir.x << ", " << pos.y + vDir.y << ", " << pos.z + vDir.z;
-            *_stream << "> angle " << camera()->fieldOfView() * 90.0 << endl;
+            *_stream << "  look_at <"
+                     << pos.x + vDir.x
+                     << ", "
+                     << pos.y + vDir.y
+                     << ", "
+                     << pos.z + vDir.z
+                     << "> ";
+
+            *_stream << "angle " << camera()->fieldOfView() * 90.0 << endl;
+
+            *_stream << "  sky <"
+                     << _cam->getUpVector().x()
+                     << ", "
+                     << _cam->getUpVector().y()
+                     << ", "
+                     << _cam->getUpVector().z()
+                     << ">" << endl;
 
             // *_stream << "  sky   <-1,1,0>" << endl;
 
