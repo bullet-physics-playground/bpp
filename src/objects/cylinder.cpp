@@ -17,23 +17,23 @@ using namespace std;
 #include <luabind/operator.hpp>
 
 Cylinder::Cylinder(const btVector3& dim, btScalar mass) : Object() {
-    init(dim.getX(), dim.getY(), dim.getZ(), mass);
+    init(dim.getX(), dim.getZ(), mass);
 }
 
-Cylinder::Cylinder(btScalar width, btScalar height, btScalar depth,
+Cylinder::Cylinder(btScalar radius, btScalar depth,
                    btScalar mass) : Object() {
 
-    init(width, height, depth, mass);
+    init(radius, depth, mass);
 }
 
-void Cylinder::init(btScalar width, btScalar height, btScalar depth,
+void Cylinder::init(btScalar radius, btScalar depth,
                     btScalar mass) {
 
-    lengths[0] = width;
-    lengths[1] = height;
+    lengths[0] = radius;
+    lengths[1] = radius;
     lengths[2] = depth;
 
-    shape = new btCylinderShapeZ(btVector3(width, height, depth*.5));
+    shape = new btCylinderShapeZ(btVector3(radius, radius, depth*.5));
 
     btQuaternion qtn;
     btTransform trans;
@@ -62,8 +62,8 @@ void Cylinder::luaBind(lua_State *s) {
             .def(constructor<>())
             .def(constructor<const btVector3&>())
             .def(constructor<const btVector3&, btScalar>())
+            .def(constructor<btScalar, btScalar>())
             .def(constructor<btScalar, btScalar, btScalar>())
-            .def(constructor<btScalar, btScalar, btScalar, btScalar>())
             .def(tostring(const_self))
             ];
 }
