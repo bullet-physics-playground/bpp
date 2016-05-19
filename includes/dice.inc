@@ -50,16 +50,20 @@
 }
  
 #declare DiceInterior = interior { ior 1.5 }
-#declare DiceFinish = finish { phong 0.1 specular 0.4 ambient 0.7 }
  
 #macro Dice(Color)
 difference {
   object {
     DiceBody
-//    pigment { color Color}
-    pigment { color Color filter 0.4 transmit 0.3}
-    interior { DiceInterior }
-    finish { DiceFinish }
+    texture {
+    pigment {color Color}
+//    pigment { color Color filter 0.4 transmit 0.3}
+      finish{
+        specular albedo 0.05 roughness 0.02
+        conserve_energy
+      }
+    }
+//    interior { DiceInterior }
   }
   union {
     object { One rotate -90*z }
@@ -69,7 +73,7 @@ difference {
     object { Five rotate 180*x }
     object { Six rotate 90*z }
     pigment { White }
-    finish { ambient 0.5 roughness 0.5}
+    finish { roughness 0.5 specular albedo 0.05 conserve_energy }
  
   }
   bounded_by { box { <-.52, -.52, -.52>, <.52, .52, .52> } }
