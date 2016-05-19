@@ -2,7 +2,10 @@
 -- DRIVEABLE CAR EXAMPLE
 -- *********************
 
--- v.gravity = btVector3(0,-9.81,0)
+v.gravity = btVector3(0,-9.81,0)
+v.timeStep      = 1/10
+v.maxSubSteps   = 10
+v.fixedTimeStep = 1/100
 
 --
 -- NOTES:
@@ -90,7 +93,7 @@ onboard_cam_height=3.5
 end
 
 -- engine control
-initial_angular_velocity=-35
+initial_angular_velocity=-10
 
 -- obstacle selection:  
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
@@ -890,7 +893,7 @@ if(use_obstacles<=1) then
 --  plane = Cube(1000,1,1000,0)
   plane.col = "#111111"
   plane.pos=btVector3(0,0,0)
-  plane.friction=1
+  plane.friction=7
   plane.restitution=.1
   plane.pre_sdl="object{ground"
   v:add(plane)
