@@ -34,7 +34,8 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
 
     // else: the STL file needs to be generated with openscad:
     //// echo "cube([2,3,4]);" > /tmp/bpp.scad && openscad -o /tmp/bpp.stl /tmp/bpp.scad
-    QTemporaryFile tmp(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/bpp");
+    //QTemporaryFile tmp(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/bpp");
+    QTemporaryFile tmp("bpp");
     if (tmp.open()) {
         QFile scad(tmp.fileName() + ".scad");
         if (scad.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -45,6 +46,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
 
             QStringList args;
 
+            args << "openscad";
             args << "-o";
             args << stlfile;
             args << scad.fileName();
@@ -52,7 +54,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
             //qDebug() << "executing openscad " << args;
 
             QProcess p;
-            p.start("openscad", args);
+            p.start("nice", args);
             if (!p.waitForStarted()) {
                 qDebug() << "openscad !p.waitForStarted()";
                 return;
