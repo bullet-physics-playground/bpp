@@ -235,53 +235,55 @@ QString Object::getSDL() const {
 }
 
 void Object::setMass(btScalar _mass) {
-    btVector3 inertia;
-    shape->calculateLocalInertia(_mass,inertia);
-    body->setMassProps(_mass, inertia);
+    if (body != NULL) {
+        btVector3 inertia;
+        shape->calculateLocalInertia(_mass,inertia);
+        body->setMassProps(_mass, inertia);
+    }
 }
 
 void Object::setFriction(btScalar friction) {
-    body->setFriction(friction);
+    if (body != NULL) body->setFriction(friction);
 }
 
 btScalar Object::getFriction() const {
-    return body->getFriction();
+    if (body != NULL) return body->getFriction(); else return 0;
 }
 
 void Object::setRestitution(btScalar restitution) {
-    body->setRestitution(restitution);
+    if (body != NULL) body->setRestitution(restitution);
 }
 
 btScalar Object::getRestitution() const {
-    return body->getRestitution();
+    if (body != NULL) return body->getRestitution(); else return 0;
 }
 
 void Object::setLinearDamping(btScalar linearDamping) {
-    body->setDamping(linearDamping, getAngularDamping());
+    if (body != NULL) body->setDamping(linearDamping, getAngularDamping());
 }
 
 void Object::setAngularDamping(btScalar angularDamping) {
-    body->setDamping(getLinearDamping(), angularDamping);
+    if (body != NULL) body->setDamping(getLinearDamping(), angularDamping);
 }
 
 void Object::setDamping(btScalar linearDamping, btScalar angularDamping) {
-    body->setDamping(linearDamping, angularDamping);
+    if (body != NULL) body->setDamping(linearDamping, angularDamping);
 }
 
 btScalar Object::getLinearDamping() const {
-    return body->getLinearDamping();
+    if (body != NULL) return body->getLinearDamping(); else return 0;
 }
 
 btScalar Object::getAngularDamping() const {
-    return body->getAngularDamping();
+    if (body != NULL) return body->getAngularDamping(); else return 0;
 }
 
 void Object::setLinearVelocity(const btVector3 &vector) {
-    body->setLinearVelocity(vector);
+    if (body != NULL) body->setLinearVelocity(vector);
 }
 
 btVector3 Object::getLinearVelocity() const {
-    return body->getLinearVelocity();
+    if (body != NULL) return body->getLinearVelocity(); else return btVector3();
 }
 
 void Object::setRigidBody(btRigidBody *b) {
@@ -337,9 +339,13 @@ void Object::setPosition(btScalar x, btScalar y, btScalar z) {
 }
 
 btVector3 Object::getPosition() const {
-    btTransform trans;
-    body->getMotionState()->getWorldTransform(trans);
-    return trans.getOrigin();
+    if (body != NULL) {
+        btTransform trans;
+        body->getMotionState()->getWorldTransform(trans);
+        return trans.getOrigin();
+    } else {
+        return btVector3();
+    }
 }
 
 void Object::setRotation(const btVector3& axis, btScalar angle) {
@@ -366,9 +372,13 @@ void Object::setRotation(const btQuaternion &r) {
 }
 
 btQuaternion Object::getRotation() const {
-    btTransform trans;
-    body->getMotionState()->getWorldTransform(trans);
-    return trans.getRotation();
+    if (body != NULL) {
+        btTransform trans;
+        body->getMotionState()->getWorldTransform(trans);
+        return trans.getRotation();
+    } else {
+        return btQuaternion();
+    }
 }
 
 void Object::setTransform(const btTransform &trans) {
@@ -379,13 +389,17 @@ void Object::setTransform(const btTransform &trans) {
 }
 
 btTransform Object::getTransform() const {
-    btTransform trans;
-    body->getMotionState()->getWorldTransform(trans);
-    return trans;
+    if (body != NULL) {
+        btTransform trans;
+        body->getMotionState()->getWorldTransform(trans);
+        return trans;
+    } else {
+        return btTransform();
+    }
 }
 
 btScalar Object::getMass() const {
-    return body->getInvMass();
+    if (body != NULL) return body->getInvMass(); else return 0;
 }
 
 void Object::setPovPhotons(bool _photons_enable,
