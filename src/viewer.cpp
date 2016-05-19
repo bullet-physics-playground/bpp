@@ -238,8 +238,11 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
             btVector3 oaabbmin, oaabbmax;
             o->body->getAabb(oaabbmin, oaabbmax);
 
-            // qDebug() << o->toString() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
-            //         << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
+            oaabbmin -= o->getPosition();
+            oaabbmax += o->getPosition();
+
+//            qDebug() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
+//                     << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
 
             for (int i = 0; i < 3; ++i) {
                 aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
@@ -248,7 +251,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
         }
     }
 
-    // qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
+//    qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
 }
 }
 
@@ -646,6 +649,8 @@ bool Viewer::parse(QString txt) {
     _frameNum   = 0; // reset frames counter
     _firstFrame = 0;
 
+    computeBoundingBox();
+
     if (animStarted) {
         startAnimation();
     }
@@ -890,7 +895,7 @@ void Viewer::init() {
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
-    computeBoundingBox();
+    //computeBoundingBox();
 
     if (!restoreStateFromFile()) {
         showEntireScene();
@@ -912,12 +917,9 @@ void Viewer::init() {
 }
 
 void Viewer::draw() {
-    if (_parsing) return;
-
-    // Don't know if this is a good idea..
-    // computeBoundingBox();
-
     QMutexLocker locker(&mutex);
+
+    if (_parsing) return;
 
     if (L) {
         lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
