@@ -44,7 +44,6 @@ public slots:
     void toggleSimButton(bool);
 
     void togglePOVExport(bool);
-    void toggleScreenshotExport(bool);
     void toggleDeactivation(bool);
     void toggleFullscreen();
 

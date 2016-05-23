@@ -113,8 +113,8 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
-   <addaction name="menuHelp"/>
    <addaction name="menu_View"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBarFile">
@@ -326,21 +326,6 @@
    </property>
    <property name="text">
     <string>Toggle POV Export</string>
-   </property>
-  </action>
-  <action name="actionTogglePNGScreenshot">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="camera">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>Toggle PNG screenshot saving</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle PNG Screemshot Saving</string>
    </property>
   </action>
   <action name="actionToggleDeactivation">
@@ -610,22 +595,6 @@
    <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
    <slot>togglePOVExport(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>321</x>
-     <y>166</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionTogglePNGScreenshot</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>toggleScreenshotExport(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>-1</x>

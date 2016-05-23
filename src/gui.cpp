@@ -68,7 +68,6 @@ Gui::Gui(QWidget *parent) : QMainWindow(parent) {
     connect(ui.viewer, SIGNAL(scriptStarts()), this, SLOT(clearDebug()));
     connect(ui.viewer, SIGNAL(simulationStateChanged(bool)), this, SLOT(toggleSimButton(bool)));
     connect(ui.viewer, SIGNAL(POVStateChanged(bool)), this, SLOT(togglePOVExport(bool)));
-    connect(ui.viewer, SIGNAL(PNGStateChanged(bool)), this, SLOT(toggleScreenshotExport(bool)));
     connect(ui.viewer, SIGNAL(deactivationStateChanged(bool)), this, SLOT(toggleDeactivation(bool)));
 
     connect(ui.viewer, SIGNAL(statusEvent(QString)), this, SLOT(setStatusBarText(QString)));
@@ -126,17 +125,10 @@ void Gui::togglePOVExport(bool p) {
     ui.actionTogglePOVExport->setChecked(p);
 }
 
-void Gui::toggleScreenshotExport(bool p) {
-    ui.viewer->toggleSavePNG(p);
-
-    ui.actionTogglePNGScreenshot->setChecked(p);
-}
-
 void Gui::toggleDeactivation(bool d) {
     ui.viewer->toggleDeactivation(d);
     ui.actionToggleDeactivation->setChecked(d);
 }
-
 
 void Gui::postDraw(int /* frame */) {
     //QPixmap p = QPixmap::grabWidget(this);
@@ -491,6 +483,8 @@ void Gui::loadSettings() {
 
     renderSettings->setCurrentIndex(renderSettings->findText(settings->value("renderResolution", "View size").toString()));
 
+    ui.actionToggleDeactivation->setChecked(settings->value("deactivationState", true).toBool());
+
     settings->endGroup();
 }
 
@@ -508,6 +502,8 @@ void Gui::saveSettings() {
     }
 
     settings->setValue("renderResolution", renderSettings->currentText());
+
+    settings->setValue("deactivationState", ui.actionToggleDeactivation->isChecked());
 
     settings->endGroup();
 }
