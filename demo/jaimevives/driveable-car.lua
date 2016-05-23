@@ -28,11 +28,12 @@ v.pre_sdl = pre_sdl
 --
 -- WARNING:
 --
--- The script doesn't run correctly most of the times. Sometimes some 
--- contraints will break, others the program will hang or even crash, but
--- if you get a clean run, it will work correctly until restarted (when
--- you see the four suspensions bouncing equally at the start, it means 
--- that it worked).
+-- The script doesn't run correctly most of the times.
+-- Sometimes some contraints will break, others the
+-- program will hang or even crash, but if you get a
+-- clean run, it will work correctly until restarted
+-- (when you see the four suspensions bouncing equally
+-- at the start, it means that it worked).
 
 -- *******
 -- CONTROL
@@ -51,7 +52,7 @@ car_model=1
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
 use_obstacles = 2
 
-if (car_model==1) then -- Citroen GS (by Jaime Vives Piqueres)
+if (car_model==1) then -- Citroen GS (JVP)
   chassis_model="citroen_gs.3ds"
   chassis_height=4.4
   front_axle_xpos=12.45
@@ -1207,7 +1208,7 @@ v:onCommand(function(cmd)
 end)  -- onCommand
 
 -- set camera up vector
-v.cam.up = btVector3(0,1,0)
+--v.cam.up = btVector3(0,1,0)
 
 
 -- EOF
