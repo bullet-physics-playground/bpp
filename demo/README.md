@@ -12,7 +12,7 @@
 
 #### Lua modules
 
-* [module](https://github.com/bullet-physics-playground/bpp/tree/master/demo/util)
+* [module](https://github.com/bullet-physics-playground/bpp/tree/master/demo/module)
 
 #### Meshes
 
