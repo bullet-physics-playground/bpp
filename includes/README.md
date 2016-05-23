@@ -35,9 +35,14 @@ License: XXX
 
 ### Micra K11
 
+![micra_demo.jpg](micra_demo.jpg)
+
 Nissan Micra K11 car model
 
 Author: Rene Bui - http://www.renebui-onlinestudio.com/
+
+  * demo scene:
+    * micra_demo.pov
 
   * main include:
     * i_micra_k11.inc
