@@ -19,23 +19,28 @@ p.friction = 100
 p.sdl = [[ texture { pigment { color White } }]]
 v:add(p)
 
-txt = OpenSCAD([[
-  text = "Bullet Physics Playground";
+function text(t, x, y, z)
+  t = OpenSCAD([[
+  text = "]]..t..[[";
   font = "Arial";
   linear_extrude(height = 2) {
     text(
       text = text, font = font,
       size = 1, halign = "center");
   }]],0)
-txt.pos = btVector3(0,7.5,-1)
-txt.col = "#000000"
-txt.post_sdl = [[
+t.pos = btVector3(x,y,z)
+t.col = "#ffffff"
+t.post_sdl = [[
   no_shadow
   no_reflection
   no_radiosity
 }]]
+v:add(t)
+return t
+end
 
-v:add(txt)
+txt = text("Bullet Physics Playground", 0,8.4,-1)
+text("Version 0.0.3 (WIP)", 0,6.6,-1)
 
 function run()
   d = dice.new({ mass = 10, col = color.random_google() })
@@ -73,5 +78,5 @@ v.cam.look = btVector3(0,4,0)
 
 --v.cam.focal_blur      = 10
 v.cam.focal_aperture  = 5
---- set blur point to XXX shape position
+--- set blur point to txt shape position
 v.cam.focal_point = txt.pos
