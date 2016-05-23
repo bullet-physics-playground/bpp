@@ -1,17 +1,5 @@
 <RCC>
   <qresource>
-    <file>demo/00-hello.lua</file>
-    <file>demo/01-syntax.lua</file>
-    <file>demo/02-dominos.lua</file>
-    <file>demo/03-math-fun.lua</file>
-    <file>demo/04-callbacks.lua</file>
-    <file>demo/05-mesh-chain.lua</file>
-    <file>demo/06-mesh-chain2.lua</file>
-    <file>demo/07-pilesofcoins.lua</file>
-    <file>demo/09-tower-w-blocks.lua</file>
-    <file>demo/10-3ds-box-w-coins.lua</file>
-    <file>demo/11-car-hinge-slider.lua</file>
-    <file>demo/12-collar-point2point.lua</file>
   </qresource>
   <qresource prefix="/">
     <file>icons/deactivation.png</file>
