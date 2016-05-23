@@ -1,7 +1,37 @@
+### A Box with Oranges
+
+ ![oranges-box.png](oranges-box.jpg)
+
+  See http://www.ignorancia.org/en/index.php?page=a-box-of-oranges for more details.
+
+  * fruits woodbox include:
+    * fruits_woodbox.inc
+
+  * orange include:
+    * isorange.inc
+
+  * grass bank include:
+    * grassy_bank.inc
+
+  * grass leaf macro:
+    * i_leaf.inc
+
+  * textures:
+    * flat_uniformly_aged_metal_6080084.jpg
+    * flat_wood_4022164.JPG
+    * grassy_bank_7160794.jpg
+    * grassy_bank_7160794b.jpg
+
+This creation is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
+
+http://creativecommons.org/licenses/by-sa/3.0/
+
 ### Dice
 
   * main include:
     * dice.inc  - found on wikipedia.org
+
+License: XXX
 
 ### Micra K11
 
@@ -42,6 +72,8 @@ This creation is licensed under a Creative Commons Attribution-NonCommercial 3.0
 http://creativecommons.org/licenses/by-nc/3.0/
 
 ### Vintage car inspired on a Citroen GS
+
+ ![citroen_gs_demo.png](citroen_gs_demo.png)
 
 Author: Jaime Vives Piqueres - http://www.ignorancia.org/
 
