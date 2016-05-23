@@ -5,9 +5,9 @@
 #include "gui.h"
 
 #define APP_VERSION QString("v0.0.3 (WIP)")
-#define APP_NAME QString("physics")
+#define APP_NAME QString("bpp")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
-#define APP_ORGANIZATION QString("koppi.me")
+#define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
 
 std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
     ostream << gui.toString().toUtf8().data();
@@ -379,21 +379,40 @@ void Gui::fileNew() {
 }
 
 void Gui::fileOpen(const QString& path) {
-    if(!_fileSaved){
-        msgBox = new QMessageBox(this);
-        msgBox->setWindowTitle("Warning");
-        msgBox->setText("Current file not saved: continue anyhow?");
-        QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-        msgBox->addButton(tr("No"), QMessageBox::ActionRole);
-        msgBox->exec();
-        if ((QPushButton*)msgBox->clickedButton() != yesButton){
-            return;
+    if (!_fileSaved) {
+        settings->beginGroup("gui");
+        bool dontask = settings->value("dont_ask_unsaved_changes", false ).toBool();
+        settings->endGroup();
+
+        if (!dontask) {
+            msgBox = new QMessageBox(this);
+            msgBox->setWindowTitle(tr("Unsaved changes"));
+            msgBox->setText(tr("File '%1'\n\nnot saved: continue anyhow?\n").arg(editor->script_filename));
+            //msgBox->setIcon(QMessageBox::Icon::Question);
+            msgBox->addButton(QMessageBox::No);
+            msgBox->addButton(QMessageBox::Yes);
+            msgBox->setDefaultButton(QMessageBox::No);
+
+            QCheckBox *check = new QCheckBox(tr("Don't show this message again."), this);
+            msgBox->setCheckBox(check);
+
+            int32_t answer = msgBox->exec();
+
+            settings->beginGroup("gui");
+            settings->setValue("dont_ask_unsaved_changes", check->isChecked());
+            settings->endGroup();
+
+            if (answer == QMessageBox::No) {
+                return;
+            }
         }
     }
+
     editor->load(path);
     setCurrentFile(editor->script_filename);
     ui.actionSave->setEnabled(false);
-    _fileSaved=true;
+
+    _fileSaved = true;
 }
 
 void Gui::fileSave() {
