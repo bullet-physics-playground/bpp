@@ -20,6 +20,7 @@
 #declare use_blur =7*0;  // blur samples (0=off)
 #declare n_blades=50000*.1; // number of grass blades (use as many as you can afford, of course)
 global_settings{
+  assumed_gamma 1.0
   //radiosity{Rad_Settings(Radiosity_OutdoorHQ, off, off)}
   radiosity{Rad_Settings(Radiosity_OutdoorLQ, off, off)}
 }
