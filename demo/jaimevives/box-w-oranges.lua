@@ -1,8 +1,13 @@
 --
--- http://www.ignorancia.org/en/index.php?page=a-box-of-oranges
+-- A Box of Oranges
 --
 
-v.gravity = btVector3(0,-98.1, 0)
+-- ignorancia.org/en/index.php?page=a-box-of-oranges
+--
+
+v.timeStep      = 1/5
+v.maxSubSteps   = 10
+v.fixedTimeStep = 1/20
 
 -- ORANGES BOX 
 

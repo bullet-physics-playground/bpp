@@ -1,6 +1,12 @@
-color  = require "color"
-colors = require "colors"
-metal  = require "metal"
+--
+-- Omni-directional stereo rendered box with gravity variation
+--
+
+-- Notice: POV-Ray export requires the user_defined cam feature
+
+require "module/color"
+require "module/colors"
+require "module/metal"
 
 -- print(v.glAmbient) --btVector3(1,0,0))
 
