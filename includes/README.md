@@ -22,9 +22,7 @@
     * grassy_bank_7160794.jpg
     * grassy_bank_7160794b.jpg
 
-This creation is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
-
-http://creativecommons.org/licenses/by-sa/3.0/
+This creation is licensed under a [Creative Commons Attribution-ShareAlike 3.0 Unported License](http://creativecommons.org/licenses/by-sa/3.0).
 
 ### Dice
 
@@ -72,9 +70,7 @@ Author: Rene Bui - http://www.renebui-onlinestudio.com/
     * micra_taillight_r.jpg
     * micra_windshield.png
 
-This creation is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License.
-
-http://creativecommons.org/licenses/by-nc/3.0/
+This creation is licensed under a [Creative Commons Attribution-NonCommercial 3.0 Unported License](http://creativecommons.org/licenses/by-nc/3.0/).
 
 ### Vintage car inspired on a Citroen GS
 
@@ -130,7 +126,5 @@ POV-Ray, as the main car assembly include and the demo scene.
     * hf_car-plate.png
     * im_car-plate.png
 
-This creation is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License.
-
-http://creativecommons.org/licenses/by-sa/3.0/
+This creation is licensed under a [Creative Commons Attribution-ShareAlike 3.0 Unported License](http://creativecommons.org/licenses/by-sa/3.0).
 
