@@ -31,7 +31,9 @@ Mesh::Mesh(QString filename, btScalar mass) : Object() {
 }
 
 Mesh::~Mesh() {
-    aiReleaseImport(m_scene);
+    if (m_scene != NULL) {
+        aiReleaseImport(m_scene);
+    }
 }
 
 void Mesh::loadFile(QString filename, btScalar mass) {

@@ -46,6 +46,7 @@ public slots:
     void togglePOVExport(bool);
     void toggleScreenshotExport(bool);
     void toggleDeactivation(bool);
+    void toggleFullscreen();
 
     void fileNew();
     void fileLoad(const QString &path = QString());
@@ -117,6 +118,8 @@ public slots:
     }
 
     void fontChanged(const QString &family, uint size);
+
+    void setFullscreenActionState();
 
 signals:
     void play();

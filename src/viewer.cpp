@@ -14,7 +14,6 @@
 #include "lua_register.h"
 #endif
 
-
 #include "objects/object.h"
 #include "objects/objects.h"
 #include "objects/plane.h"

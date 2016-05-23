@@ -1,5 +1,7 @@
 #include "prefs.h"
 
+#include <Qt>
+
 #include "gui.h"
 
 #define APP_VERSION QString("v0.0.3 (WIP)")
@@ -82,7 +84,21 @@ Gui::Gui(QWidget *parent) : QMainWindow(parent) {
 
     fileNew();
 
+    QTimer::singleShot(500, this, SLOT(setFullscreenActionState()));
+
     QTimer::singleShot(0, this, SLOT(loadLastFile()));
+}
+
+void Gui::setFullscreenActionState() {
+    ui.action_Full_screen->setChecked(isFullScreen());
+}
+
+void Gui::toggleFullscreen() {
+    if (isFullScreen()) {
+        showNormal();
+    } else {
+        showFullScreen();
+    }
 }
 
 void Gui::toggleSimButton(bool simRunning) {
@@ -463,6 +479,12 @@ void Gui::loadSettings() {
     move(settings->value("pos", pos()).toPoint());
     resize(settings->value("size", size()).toSize());
 
+    if ( settings->value("fullscreen", isFullScreen() ).toBool()) {
+        showFullScreen();
+    } else {
+        showNormal();
+    }
+
     if ( settings->value("maximized", isMaximized() ).toBool()) {
         showMaximized();
     }
@@ -477,9 +499,10 @@ void Gui::saveSettings() {
 
     settings->setValue("geometry", saveGeometry());
     settings->setValue("state", saveState());
-    settings->setValue("maximized", isMaximized());
+    settings->setValue("fullscreen", isFullScreen());
+    settings->setValue("maximized",  isMaximized());
 
-    if ( !isMaximized() ) {
+    if ( !isMaximized() && !isFullScreen() ) {
         settings->setValue("pos", pos());
         settings->setValue("size", size());
     }
@@ -497,15 +520,37 @@ void Gui::resizeEvent(QResizeEvent *) {
 
 void Gui::closeEvent(QCloseEvent * event) {
     // qDebug() << "Gui::closeEvent";
-    if(!_fileSaved){
+    if(!_fileSaved) {
         event->ignore();
-        msgBox = new QMessageBox(this);
-        msgBox->setWindowTitle("Warning");
-        msgBox->setText("File not saved: exit anyhow?");
-        QPushButton *yesButton = msgBox->addButton(tr("Yes"), QMessageBox::ActionRole);
-        msgBox->addButton(tr("No"), QMessageBox::ActionRole);
-        msgBox->exec();
-        if ((QPushButton*)msgBox->clickedButton() == yesButton){
+
+        settings->beginGroup("gui");
+        bool dontask = settings->value("dont_ask_unsaved_changes", false ).toBool();
+        settings->endGroup();
+
+        if (!dontask) {
+            msgBox = new QMessageBox(this);
+            msgBox->setWindowTitle(tr("Unsaved changes"));
+            msgBox->setText(tr("File '%1'\n\nnot saved: exit anyhow?\n").arg(editor->script_filename));
+            //msgBox->setIcon(QMessageBox::Icon::Question);
+            msgBox->addButton(QMessageBox::No);
+            msgBox->addButton(QMessageBox::Yes);
+            msgBox->setDefaultButton(QMessageBox::No);
+
+            QCheckBox *check = new QCheckBox(tr("Don't show this message again."), this);
+            msgBox->setCheckBox(check);
+
+            int32_t answer = msgBox->exec();
+
+            settings->beginGroup("gui");
+            settings->setValue("dont_ask_unsaved_changes", check->isChecked());
+            settings->endGroup();
+
+            if (answer == QMessageBox::Yes) {
+                saveSettings();
+                ui.viewer->close();
+                event->accept();
+            }
+        } else {
             saveSettings();
             ui.viewer->close();
             event->accept();
@@ -513,6 +558,7 @@ void Gui::closeEvent(QCloseEvent * event) {
     }else{
         saveSettings();
         ui.viewer->close();
+        event->accept();
     }
 }
 
