@@ -16,5 +16,5 @@
 
 #### Meshes
 
-* [mesh](https://github.com/bullet-physics-playground/bpp/tree/master/demo/3ds) - 3ds/STL/OpenSCAD meshes
+* [mesh](https://github.com/bullet-physics-playground/bpp/tree/master/demo/mesh) - 3ds/STL/OpenSCAD meshes
 
