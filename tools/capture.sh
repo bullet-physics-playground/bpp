@@ -17,6 +17,9 @@
 # sudo apt-get install ffmpeg pulseaudio pulseaudio-utils beep x11-utils
 #
 
+PROGRAM_FILE="$0"
+PROGRAM_NAME="$(basename $0)"
+
 loadModule(){
         MODULE_LOAD1=$(pactl load-module module-null-sink sink_name=GameAudio sink_properties=device.description="GameAudio") # For Game Audio
         MODULE_LOAD2=$(pactl load-module module-null-sink sink_name=MicAudio sink_properties=device.description="MicAudio") # For Mic Audio
@@ -34,6 +37,33 @@ unloadModule(){
         pactl unload-module module-loopback
         echo "Exit!"
 }
+
+#echo >&2 "$PROGRAM_NAME: started from '$PROGRAM_FILE' with options: $*"
+
+if [ $(( ${BASH_VERSINFO[0]} )) -lt 4 ]
+then
+  echo >&2
+  echo >&2 "$PROGRAM_NAME: ERROR"
+  echo >&2 "BASH version 4 or later is required."
+  echo >&2 "You are running version: ${BASH_VERSION}"
+  echo >&2 "Please upgrade."
+  echo >&2
+  exit 1
+fi
+
+require_cmd() {
+  which "$1" >/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo >&2 "$PROGRAM_NAME: ERROR: Command '$1' is not found in the system path."
+    return 1
+  fi
+  return 0
+}
+
+require_cmd beep   || exit 1
+require_cmd ffmpeg || exit 1
+require_cmd pactl  || exit 1
 
 pidfile=~/.capture.pid
 

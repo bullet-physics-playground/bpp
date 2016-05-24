@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 
+readonly PROGRAM_FILE="$0"
+readonly PROGRAM_NAME="$(basename $0)"
+
+#echo >&2 "$PROGRAM_NAME: started from '$PROGRAM_FILE' with options: $*"
+
+if [ $(( ${BASH_VERSINFO[0]} )) -lt 4 ]
+then
+  echo >&2
+  echo >&2 "$PROGRAM_NAME: ERROR"
+  echo >&2 "BASH version 4 or later is required."
+  echo >&2 "You are running version: ${BASH_VERSION}"
+  echo >&2 "Please upgrade."
+  echo >&2
+  exit 1
+fi
+
+require_cmd() {
+  which "$1" >/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo >&2 "$PROGRAM_NAME: ERROR: Command '$1' is not found in the system path."
+    return 1
+  fi
+  return 0
+}
+
+require_cmd sbatch || exit 1
+require_cmd ffmpeg || exit 1
+require_cmd povray || exit 1
+
 # defaults
+
 readonly DEF_NUM_CPUS=1
 readonly DEF_PARTITION=debug
 readonly DEF_JOB_NAME=povray
@@ -12,7 +43,6 @@ readonly SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 ######
 
-readonly PROGNAME=$(basename $0)
 readonly ARGS="$@"
 
 SCENE=$DEF_SCENE
@@ -22,7 +52,7 @@ POV_ARGS="$DEF_POVARGS"
 function usage() {
     cat <<-EOF
 
- usage: $PROGNAME [-c] [-p] [-J] [-w] [-s] [-f] [-o]
+ usage: $PROGRAM_NAME [-c] [-p] [-J] [-w] [-s] [-f] [-o]
 
  optional arguments:
     -c: number of CPU cores to request (default: $DEF_NUM_CPUS)
