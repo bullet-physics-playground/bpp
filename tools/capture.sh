@@ -21,21 +21,21 @@ PROGRAM_FILE="$0"
 PROGRAM_NAME="$(basename $0)"
 
 loadModule(){
-        MODULE_LOAD1=$(pactl load-module module-null-sink sink_name=GameAudio sink_properties=device.description="GameAudio") # For Game Audio
-        MODULE_LOAD2=$(pactl load-module module-null-sink sink_name=MicAudio sink_properties=device.description="MicAudio") # For Mic Audio
-        pactl load-module module-device-manager >> /dev/null
-        pactl load-module module-loopback sink=GameAudio >> /dev/null
-        pactl load-module module-loopback sink=MicAudio >> /dev/null
+  MODULE_LOAD1=$(pactl load-module module-null-sink sink_name=GameAudio sink_properties=device.description="GameAudio") # For Game Audio
+  MODULE_LOAD2=$(pactl load-module module-null-sink sink_name=MicAudio sink_properties=device.description="MicAudio") # For Mic Audio
+  pactl load-module module-device-manager >> /dev/null
+  pactl load-module module-loopback sink=GameAudio >> /dev/null
+  pactl load-module module-loopback sink=MicAudio >> /dev/null
 }
 
 unloadModule(){
-        echo "Stopping Audio (Don't worry if you see errors here)"
-        pactl unload-module $MODULE_LOAD1
-        pactl unload-module $MODULE_LOAD2
-        pactl unload-module module-device-manager
-        pactl unload-module module-null-sink
-        pactl unload-module module-loopback
-        echo "Exit!"
+  echo "Stopping Audio (Don't worry if you see errors here)"
+  pactl unload-module $MODULE_LOAD1
+  pactl unload-module $MODULE_LOAD2
+  pactl unload-module module-device-manager
+  pactl unload-module module-null-sink
+  pactl unload-module module-loopback
+  echo "Exit!"
 }
 
 #echo >&2 "$PROGRAM_NAME: started from '$PROGRAM_FILE' with options: $*"
