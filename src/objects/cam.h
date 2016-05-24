@@ -49,8 +49,13 @@ public:
     void setPostSDL(QString post_sdl);
     QString getPostSDL() const;
 
+#if QGLVIEWER_VERSION >= 0x020600
     virtual qreal zNear() const;
-    virtual qreal zFar() const;
+    virtual qreal zFar()  const;
+#else
+    virtual float zNear() const;
+    virtual float zFar()  const;
+#endif
 
     void toggleMode() { standard = !standard; }
     bool isStandard() { return standard; }

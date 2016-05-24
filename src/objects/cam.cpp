@@ -156,15 +156,29 @@ QString Cam::getPreSDL() const {
     return mPreSDL;
 }
 
+#if QGLVIEWER_VERSION >= 0x020600
 qreal Cam::zNear() const
 {
     return Camera::zNear();
 }
+#else
+float Cam::zNear() const
+{
+    return Camera::zNear();
+}
+#endif
 
+#if QGLVIEWER_VERSION >= 0x020600
 qreal Cam::zFar() const
 {
     return Camera::zFar();
 }
+#else
+float Cam::zFar() const
+{
+    return Camera::zFar();
+}
+#endif
 
 void Cam::changeOrthoFrustumSize(int delta)
 {
