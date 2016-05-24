@@ -71,6 +71,9 @@ youtube-up: mkv
 youtube-up-loop: mkv-loop
 	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
 
+slurm-job:
+	../../tools/slurm-pov-job -f $(shell grep Final_Frame ${SCENE}.ini | awk -F= '{ print $$2 }') -s ${SCENE}
+
 distclean: clean
 	/bin/rm -f ${SCENE}.pov ${SCENE}.ini *.pov-state ${SCENE}-*.inc *.log
 
