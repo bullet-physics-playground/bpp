@@ -61,9 +61,10 @@ require_cmd() {
   return 0
 }
 
-require_cmd beep   || exit 1
-require_cmd ffmpeg || exit 1
-require_cmd pactl  || exit 1
+require_cmd beep     || exit 1
+require_cmd xdpyinfo || exit 1
+require_cmd ffmpeg   || exit 1
+require_cmd pactl    || exit 1
 
 pidfile=~/.capture.pid
 
