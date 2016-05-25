@@ -40,25 +40,25 @@ struct btMotionState_wrap : public btMotionState, luabind::wrap_base
                                        qDebug() << "btMotionState_wrap::getWorldTransform()";
                                        luabind::call_member<void>(this, "getWorldTransform", worldTrans);
                                        /*
-                                                                                      lua_State* L = m_self.state();
-                                                                                              m_self.get(L);
-                                                                                              if( ! lua_isnil( L, -1 ) ) {
-                                                                                              } else {
-                                                                                                  qDebug() << "getWorldTransform missing on the Lua side";
-                                                                                              }
-                                                                                              lua_pop( L, 1 ); */
+                                                                                                                             lua_State* L = m_self.state();
+                                                                                                                                     m_self.get(L);
+                                                                                                                                     if( ! lua_isnil( L, -1 ) ) {
+                                                                                                                                     } else {
+                                                                                                                                         qDebug() << "getWorldTransform missing on the Lua side";
+                                                                                                                                     }
+                                                                                                                                     lua_pop( L, 1 ); */
                                        }
 
                                        virtual void setWorldTransform (const btTransform &worldTrans) {
                                        qDebug() << "btMotionState_wrap::setWorldTransform()";
                                        luabind::call_member<void>(this, "setWorldTransform", worldTrans);
                                        /*
-                                                                                      lua_State* L = m_self.state();
-                                                                                              m_self.get(L);
-                                                                                              if( ! lua_isnil( L, -1 ) )
-                                                                                              else
-                                                                                                  qDebug() << "setWorldTransform missing on the Lua side";
-                                                                                              lua_pop( L, 1 );*/
+                                                                                                                             lua_State* L = m_self.state();
+                                                                                                                                     m_self.get(L);
+                                                                                                                                     if( ! lua_isnil( L, -1 ) )
+                                                                                                                                     else
+                                                                                                                                         qDebug() << "setWorldTransform missing on the Lua side";
+                                                                                                                                     lua_pop( L, 1 );*/
                                        }
 
                                        virtual ~btMotionState_wrap() {
@@ -91,6 +91,7 @@ void LuaBullet::luaBind(lua_State *s)
     using namespace luabind;
 
     open(s);
+
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionShape.html
             [
             class_<btCollisionShape>("btCollisionShape")
@@ -163,6 +164,53 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConcaveShape.html
             [
             class_<btConcaveShape, btCollisionShape>("btConcaveShape")
+            .property("margin", &btConcaveShape::getMargin, &btConcaveShape::setMargin)
+
+            .def("getMargin", &btConcaveShape::getMargin)
+            .def("setMargin", &btConcaveShape::setMargin)
+
+            .def("processAllTriangles", &btConcaveShape::processAllTriangles)
+            ];
+
+    module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtEmptyShape.html
+            [
+            class_<btEmptyShape, btConcaveShape>("btEmptyShape")
+            .def("getMargin", &btEmptyShape::getMargin)
+            .def("setMargin", &btEmptyShape::setMargin)
+            .property("margin", &btEmptyShape::getMargin, &btEmptyShape::setMargin)
+
+            .def("processAllTriangles", &btEmptyShape::processAllTriangles)
+            ];
+
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactShapeInterface.html
+            [
+            class_<btGImpactShapeInterface, btConcaveShape>("btGImpactShapeInterface")
+            .def("updateBound", &btGImpactShapeInterface::updateBound)
+            .def("getAABB", &btGImpactShapeInterface::getAabb)
+            .property("aabb", &btGImpactShapeInterface::getAabb)
+            .def("getLocalBox", &btGImpactShapeInterface::getLocalBox)
+            .property("localBox", &btGImpactShapeInterface::getLocalBox)
+            .def("getBoxSet", &btGImpactShapeInterface::getBoxSet)
+            .property("boxSet",  &btGImpactShapeInterface::getBoxSet)
+            .def("getHasBoxSet", &btGImpactShapeInterface::hasBoxSet)
+            .property("hasBoxSet", &btGImpactShapeInterface::hasBoxSet)
+
+            // XXX
+            ];
+
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
+            [
+            class_<btGImpactMeshShape, btGImpactShapeInterface>("btGImpactMeshShape")
+            .def(constructor<btStridingMeshInterface*>())
+
+            .property("margin", &btGImpactMeshShape::getMargin, &btGImpactMeshShape::setMargin)
+            .def("getMargin", &btGImpactMeshShape::getMargin)
+            .def("setMargin", &btGImpactMeshShape::setMargin)
+
+            .property("meshInterface", (btStridingMeshInterface * (btGImpactMeshShape::*)()) &btGImpactMeshShape::getMeshInterface)
+            .def("getMeshInterface", (btStridingMeshInterface * (btGImpactMeshShape::*)()) &btGImpactMeshShape::getMeshInterface)
+
+            .def("updateBound", &btGImpactMeshShape::updateBound)
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexShape.html
@@ -192,8 +240,11 @@ void LuaBullet::luaBind(lua_State *s)
             [
             class_<btCapsuleShape, btConvexInternalShape>("btCapsuleShape")
             .def(constructor<btScalar, btScalar>())
+            .property("upAxis", &btCapsuleShape::getUpAxis)
             .def("getUpAxis", &btCapsuleShape::getUpAxis)
+            .property("radius", &btCapsuleShape::getRadius)
             .def("getRadius", &btCapsuleShape::getRadius)
+            .property("halfHeight", &btCapsuleShape::getHalfHeight)
             .def("getHalfHeight", &btCapsuleShape::getHalfHeight)
             ];
 
@@ -325,12 +376,41 @@ void LuaBullet::luaBind(lua_State *s)
 
     // not defined in the headers http://bulletphysics.com/Bullet/BulletFull/classbtConvexPointCloudShape.html
 
-    module(s)
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtStridingMeshInterface.html
             [
             class_<btStridingMeshInterface>("btStridingMeshInterface")
             .def("calculateAabbBruteForce", &btStridingMeshInterface::calculateAabbBruteForce)
+
+            .property("scaling", &btStridingMeshInterface::getScaling, &btStridingMeshInterface::setScaling)
             .def("getScaling", &btStridingMeshInterface::getScaling)
             .def("setScaling", &btStridingMeshInterface::setScaling)
+            ];
+
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html
+            [
+            class_<btTriangleIndexVertexArray, btStridingMeshInterface>("btTriangleIndexVertexArray")
+            .def("getIndexedMeshArray", (IndexedMeshArray &(btTriangleIndexVertexArray::*)())&btTriangleIndexVertexArray::getIndexedMeshArray)
+            .def("addaddIndexedMesh", &btTriangleIndexVertexArray::addIndexedMesh)
+            ];
+
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtTriangleMesh.html
+            [
+            class_<btTriangleMesh, btTriangleIndexVertexArray>("btTriangleMesh")
+            .def(constructor<bool, bool>())
+            .def(constructor<bool>())
+            .def(constructor<>())
+            .def("addIndex", &btTriangleMesh::addIndex)
+            .def("addTriangle", &btTriangleMesh::addTriangle)
+            .def("addTriangleIndices", &btTriangleMesh::addTriangleIndices)
+            .def("findOrAddVertex", &btTriangleMesh::findOrAddVertex)
+            .def("getNumTriangles", &btTriangleMesh::getNumTriangles)
+            .property("numTriangles", &btTriangleMesh::getNumTriangles)
+            .def("getUse32bitIndices", &btTriangleMesh::getUse32bitIndices)
+            .property("use32bitIndices", &btTriangleMesh::getUse32bitIndices)
+            .def("getUse4componentVertices", &btTriangleMesh::getUse4componentVertices)
+            .property("use4componentVertices", &btTriangleMesh::getUse4componentVertices)
+            .def("preallocateIndices", &btTriangleMesh::preallocateIndices)
+            .def("preallocateVertices", &btTriangleMesh::preallocateVertices)
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
@@ -367,7 +447,9 @@ void LuaBullet::luaBind(lua_State *s)
             class_<btSphereShape, btConvexInternalShape>("btSphereShape")
             .def(constructor<btScalar>())
             .def("getRadius", &btSphereShape::getRadius)
+            .property("radius", &btSphereShape::getRadius)
             .def("setUnscaledRadius", &btSphereShape::setUnscaledRadius)
+            .property("unscaledRadius", &btSphereShape::setUnscaledRadius)
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtUniformScalingShape.html
@@ -421,6 +503,19 @@ void LuaBullet::luaBind(lua_State *s)
             .def("setZero", &btVector3::setZero )
             .def("triple", &btVector3::triple )
             .def(tostring(const_self))
+            ];
+
+    module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtAABB.html
+            [
+            class_<btAABB>("btAABB")
+            .def(constructor<>())
+            .def(constructor<btVector3, btVector3, btVector3>())
+            .def(constructor<btVector3, btVector3, btVector3, btScalar>())
+            .def(constructor<btAABB &>())
+            .def(constructor<btAABB &, btScalar>())
+            .def("invalidate", &btAABB::invalidate)
+            .def("merge", &btAABB::merge)
+             // XXX
             ];
 
     module(s)

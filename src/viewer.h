@@ -8,6 +8,8 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include "GL_ShapeDrawer.h"
+
 #include <QFile>
 #include <QDir>
 #include <QMutex>
@@ -188,6 +190,8 @@ protected:
     virtual void draw();
     virtual void postDraw();
 
+    void drawSceneInternal(int pass);
+
     void computeBoundingBox();
 
     void openPovFile();
@@ -282,6 +286,8 @@ private:
     btScalar _timeStep;
     int      _maxSubSteps;
     btScalar _fixedTimeStep;
+
+    GL_ShapeDrawer* _drawer;
 
 };
 

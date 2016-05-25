@@ -17,12 +17,85 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
+
 using namespace std;
 
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
+class GlDrawcallback : public btTriangleCallback
+{
+
+public:
+
+    bool m_wireframe;
+
+    GlDrawcallback()
+        :m_wireframe(false)
+    {
+    }
+
+    virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
+    {
+
+        (void)triangleIndex;
+        (void)partId;
+
+
+        if (m_wireframe)
+        {
+            glBegin(GL_LINES);
+            glColor3f(1, 0, 0);
+            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+            glColor3f(0, 1, 0);
+            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+            glColor3f(0, 0, 1);
+            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+            glEnd();
+        } else
+        {
+            glBegin(GL_TRIANGLES);
+            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+            glEnd();
+        }
+    }
+};
+
+class TriangleGlDrawcallback : public btInternalTriangleIndexCallback
+{
+public:
+    virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+    {
+        (void)triangleIndex;
+        (void)partId;
+
+
+        glBegin(GL_TRIANGLES);//LINES);
+        glColor3f(1, 0, 0);
+        glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+        glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+        glColor3f(0, 1, 0);
+        glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+        glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
+        glColor3f(0, 0, 1);
+        glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+        glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
+        glEnd();
+    }
+};
+
+
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
+    m_mesh = new btTriangleMesh();
 
     setColor(0.75, 0.75, 0.75);
 
@@ -30,20 +103,29 @@ Mesh::Mesh(QString filename, btScalar mass) : Object() {
         loadFile(filename, mass);
 }
 
+Mesh::Mesh(QString filename) : Object() {
+    m_mesh = new btTriangleMesh();
+
+    setColor(0.75, 0.75, 0.75);
+
+    if (filename != NULL)
+        loadFile(filename, 0);
+}
+
+Mesh::Mesh() : Object() {
+    setColor(0.75, 0.75, 0.75);
+    setMass(0);
+}
+
 Mesh::~Mesh() {
-    if (m_scene != NULL) {
-        aiReleaseImport(m_scene);
-    }
 }
 
 void Mesh::loadFile(QString filename, btScalar mass) {
-    m_scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
+    const aiScene *scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
 
-    if (!m_scene) {
-
+    if (!scene) {
         // qDebug() << "Unable to load " << filename << ": using empty shape.";
-
-        btEmptyShape *shape = new btEmptyShape();
+        btEmptyShape* shape = new btEmptyShape();
         btQuaternion qtn;
         btTransform trans;
         btDefaultMotionState *motionState;
@@ -57,15 +139,12 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         btVector3 inertia;
         shape->calculateLocalInertia(mass,inertia);
         body = new btRigidBody(mass, motionState, shape, inertia);
-
     } else {
-        assert(m_scene->mNumMeshes > 0);
+        assert(scene->mNumMeshes > 0);
 
-        const struct aiMesh* mesh = m_scene->mMeshes[0];
+        const struct aiMesh* mesh = scene->mMeshes[0];
 
         unsigned int t;
-
-        btTriangleMesh* trimesh = new btTriangleMesh();
 
         for (t = 0; t < mesh->mNumFaces; ++t) {
             const struct aiFace* face = &mesh->mFaces[t];
@@ -85,20 +164,20 @@ void Mesh::loadFile(QString filename, btScalar mass) {
             int i1 = face->mIndices[1];
             int i2 = face->mIndices[2];
 
-            trimesh->addTriangle(btVector3(mesh->mVertices[i0].x,
-                                           mesh->mVertices[i0].y,
-                                           mesh->mVertices[i0].z),
-                                 btVector3(mesh->mVertices[i1].x,
-                                           mesh->mVertices[i1].y,
-                                           mesh->mVertices[i1].z),
-                                 btVector3(mesh->mVertices[i2].x,
-                                           mesh->mVertices[i2].y,
-                                           mesh->mVertices[i2].z)
-                                 );
+            m_mesh->addTriangle(btVector3(mesh->mVertices[i0].x,
+                                          mesh->mVertices[i0].y,
+                                          mesh->mVertices[i0].z),
+                                btVector3(mesh->mVertices[i1].x,
+                                          mesh->mVertices[i1].y,
+                                          mesh->mVertices[i1].z),
+                                btVector3(mesh->mVertices[i2].x,
+                                          mesh->mVertices[i2].y,
+                                          mesh->mVertices[i2].z)
+                                );
         }
 
-        btGImpactMeshShape *shape = new btGImpactMeshShape(trimesh);
-        shape->updateBound();
+        m_shape = new btGImpactMeshShape(m_mesh);
+        m_shape->updateBound();
 
         btQuaternion qtn;
         btTransform trans;
@@ -111,9 +190,10 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         motionState = new btDefaultMotionState(trans);
 
         btVector3 inertia;
-        shape->calculateLocalInertia(mass,inertia);
-        body = new btRigidBody(mass, motionState, shape, inertia);
+        m_shape->calculateLocalInertia(mass,inertia);
+        body = new btRigidBody(mass, motionState, m_shape, inertia);
 
+        aiReleaseImport(scene);
     }
 }
 
@@ -127,6 +207,9 @@ void Mesh::luaBind(lua_State *s) {
             class_<Mesh,Object>("Mesh")
             .def(constructor<QString, btScalar>(), adopt(result))
             .def(tostring(const_self))
+
+            .property("shape", &Mesh::getShape, &Mesh::setShape)
+
             ];
 }
 
@@ -135,24 +218,20 @@ QString Mesh::toString() const {
 }
 
 void Mesh::renderInLocalFrame(QTextStream *s) {
-
-    GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
-    GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-    GLfloat mat_specular[] = { 0.0, 0.0, 0.0, 1.0 };
-    // GLfloat no_shininess[] = { 0.0 };
-    // GLfloat low_shininess[] = { 5.0 };
-    GLfloat high_shininess[] = { 100.0 };
-    // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
     glColor3ubv(color);
 
-    if (m_scene) {
+    if (m_shape != NULL) {
+        GlDrawcallback drawCallback;
+        drawCallback.m_wireframe = true;
+
+        btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
+
+        concaveMesh->processAllTriangles(&drawCallback,btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)); // XXX use scene world bounds
+    }
+
+    /* XXX add back POV-Ray export
+
+    if (m_scene && m_scene->mMeshes) {
         const struct aiMesh* mesh = m_scene->mMeshes[0];
 
         unsigned int i,t;
@@ -284,6 +363,15 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
                << endl;
         }
     }
+    */
+}
+
+btGImpactMeshShape* Mesh::getShape() const {
+    return m_shape;
+}
+
+void Mesh::setShape(btGImpactMeshShape *shape) {
+    m_shape = shape;
 }
 
 #endif

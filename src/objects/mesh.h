@@ -20,7 +20,12 @@
 class Mesh : public Object {
 public:
     Mesh(QString filename, btScalar mass);
+    Mesh(QString filename);
+    Mesh();
     ~Mesh();
+
+    btGImpactMeshShape* getShape() const;
+    void setShape(btGImpactMeshShape *shape);
 
     void loadFile(QString filename, btScalar mass);
 
@@ -30,9 +35,10 @@ public:
     virtual void renderInLocalFrame(QTextStream *s);
 
 protected:
-    const aiScene *m_scene;
-
     GLuint m_VertexVBO, m_NormalVBO;
+
+    btGImpactMeshShape *m_shape;
+    btTriangleMesh     *m_mesh;
 };
 
 #endif

@@ -240,8 +240,8 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
             oaabbmin -= o->getPosition();
             oaabbmax += o->getPosition();
 
-//            qDebug() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
-//                     << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
+            //            qDebug() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
+            //                     << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
 
             for (int i = 0; i < 3; ++i) {
                 aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
@@ -250,7 +250,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
         }
     }
 
-//    qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
+    //    qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
 }
 }
 
@@ -409,6 +409,8 @@ Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent) 
     btCollisionDispatcher * dispatcher =
             static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
     btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+
+    _drawer = new GL_ShapeDrawer();
 
     _frameNum = 0;
     _firstFrame = 0;
@@ -900,7 +902,7 @@ void Viewer::init() {
         showEntireScene();
     }
 
-    _gl_shininess = btScalar(25.0);
+    _gl_shininess = btScalar(5.0);
     _gl_specular_col = btVector4(.85f, .85f, .85f, 1.0f);
 
     _light0 = btVector4(200.0, 200.0, 200.0, 0.2);
@@ -909,7 +911,7 @@ void Viewer::init() {
     _gl_ambient = btVector3(.1f, .1f, 1.0f);
     _gl_diffuse = btVector4(.9f, .9f, .9f, 1.0f);
     _gl_specular = btVector4(.85f, .85f, .85f, 1.0f);
-    _gl_model_ambient = btVector4(.4f, .4f, 0.4f, 1.0f);
+    _gl_model_ambient = btVector4(.4f, .4f, .4f, 1.0f);
 
     _initialCameraPosition=camera()->position();
     _initialCameraOrientation=camera()->orientation();
@@ -922,53 +924,10 @@ void Viewer::draw() {
 
     if (L) {
         lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-        int lsize = lua_gc(L, LUA_GCCOUNT, -1);
-        emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
+        // int lsize = lua_gc(L, LUA_GCCOUNT, -1);
+        // emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
         lua_gc(L, LUA_GCSTOP, -1);
     }
-
-    //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glDisable(GL_COLOR_MATERIAL);
-
-    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, _gl_shininess);
-
-    GLfloat specular_color[4] = {
-        _gl_specular_col.x(),
-        _gl_specular_col.y(),
-        _gl_specular_col.z(),
-        _gl_specular_col.w()
-    };
-
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  specular_color);
-
-    GLfloat light0_pos[] = {_light0.x(), _light0.y(), _light0.z(), _light0.w()};
-    // GLfloat light1_pos[] = {_light1.x(), _light1.y(), _light1.z(), _light1.w()};
-
-    GLfloat ambient[]  = { _gl_ambient.x(),  _gl_ambient.y(), _gl_ambient.z() };
-    GLfloat diffuse[]  = { _gl_diffuse.x(),  _gl_diffuse.y(), _gl_diffuse.z() };
-    GLfloat specular[] = {_gl_specular.x(), _gl_specular.y(), _gl_specular.z() };
-
-    GLfloat lmodel_ambient[] = {
-        _gl_model_ambient.x(),
-        _gl_model_ambient.y(),
-        _gl_model_ambient.z(), _gl_model_ambient.w() };
-    GLfloat local_view[] = { 0.0 };
-
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_pos);
-    // glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
-
-    glEnable(GL_LIGHT0);
-    // glEnable(GL_LIGHT1);
-
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-
-    glEnable(GL_LIGHTING);
-
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-
-    glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
 
     if (_cb_preDraw) {
         try {
@@ -978,21 +937,126 @@ void Viewer::draw() {
         }
     }
 
+    GLfloat light_ambient[]  = { _gl_ambient.x(),  _gl_ambient.y(), _gl_ambient.z() };
+    GLfloat light_diffuse[]  = { _gl_diffuse.x(),  _gl_diffuse.y(), _gl_diffuse.z() };
+    GLfloat light_specular[] = {_gl_specular.x(), _gl_specular.y(), _gl_specular.z() };
+
+    //	light_position is NOT default value
+    GLfloat light_position0[] = {_light0.x(), _light0.y(), _light0.z(), _light0.w()};
+    GLfloat light_position1[] = { btScalar(-100.0), btScalar( 1.0), btScalar(-100.0), btScalar(0.0) };
+
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
+
+    glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT1);
+
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    glClearColor(btScalar(0),btScalar(0),btScalar(0),btScalar(0));
+
+    /*
+    GLfloat lmodel_ambient[] = {
+        _gl_model_ambient.x(),
+        _gl_model_ambient.y(),
+        _gl_model_ambient.z(), _gl_model_ambient.w() };
+
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
+    */
+
     if (manipulatedFrame() != NULL) {
         glPushMatrix();
         glMultMatrixd(manipulatedFrame()->matrix());
     }
 
-    foreach (Object *o, *_objects) {
-        try {
-            o->render(NULL);
-        } catch(const std::exception& e){
-            showLuaException(e, "object:render()");
-        }
+    bool useShadows = false; // XXX
+
+    if(useShadows)
+    {
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_CULL_FACE);
+        drawSceneInternal(0);
+
+        glDisable(GL_LIGHTING);
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_STENCIL_TEST);
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+        glStencilFunc(GL_ALWAYS,1,0xFFFFFFFFL);
+        glFrontFace(GL_CCW);
+        glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+        drawSceneInternal(1);
+        glFrontFace(GL_CW);
+        glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
+        drawSceneInternal(1);
+        glFrontFace(GL_CCW);
+
+        glPolygonMode(GL_FRONT,GL_FILL);
+        glPolygonMode(GL_BACK,GL_FILL);
+        glShadeModel(GL_SMOOTH);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+        glEnable(GL_LIGHTING);
+        glDepthMask(GL_TRUE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
+        glEnable(GL_CULL_FACE);
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+
+        glDepthFunc(GL_LEQUAL);
+        glStencilFunc( GL_NOTEQUAL, 0, 0xFFFFFFFFL );
+        glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+        glDisable(GL_LIGHTING);
+        drawSceneInternal(2);
+        glEnable(GL_LIGHTING);
+        glDepthFunc(GL_LESS);
+        glDisable(GL_STENCIL_TEST);
+        glDisable(GL_CULL_FACE);
+    }
+    else
+    {
+        glDisable(GL_CULL_FACE);
+        drawSceneInternal(0);
     }
 
     if (manipulatedFrame() != NULL) {
         glPopMatrix();
+    }
+}
+
+void Viewer::drawSceneInternal(int pass) {
+    // btScalar m[16];
+    btMatrix3x3	rot;rot.setIdentity();
+
+    foreach (Object *o, *_objects) {
+        btVector3 aabbMin(0,0,0),aabbMax(0,0,0);
+        //m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+
+        aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+        aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+        //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
+        //		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
+        // dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));
+
+        //btVector3 m_sundirection(-1,-1,-1);
+        btVector3 m_sundirection(btVector3(1,-2,1)*1000);
+
+        switch(pass)
+        {
+        case	0:	_drawer->drawOpenGL(o);break;
+        //case	1:	_drawer->drawShadow(m_sundirection*rot,o);break;
+        //case	2:	_drawer->drawOpenGL(o);break;
+        }
     }
 }
 
