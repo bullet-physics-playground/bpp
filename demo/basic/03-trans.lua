@@ -109,11 +109,20 @@ update(N)
 
 end)
 
-v.cam:setFieldOfView(0.025)
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam.pos  = btVector3(600, 600, 1000)
-v.cam.look = btVector3(1,10,0)
+function setcam()
+  v.cam:setFieldOfView(0.022)
+  v.cam.pos  = btVector3(600, 600, 1000)
+  v.cam:setUpVector(btVector3(0,1,0), true)
+  v.cam.look = btVector3(1,10,0)
 
---v.cam.focal_blur     = 10
-v.cam.focal_aperture = 5
-v.cam.focal_point    = btVector(1,10,0)
+  --v.cam.focal_blur     = 10
+  v.cam.focal_aperture = 50
+  v.cam.focal_point    = btVector3(1,10,0)
+end
+
+setcam()
+
+v:postSim(function(N)
+  print(N)
+  setcam()
+end)
