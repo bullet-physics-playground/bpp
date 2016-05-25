@@ -96,6 +96,7 @@ public:
 
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
     m_mesh = new btTriangleMesh();
+    m_shape = new btGImpactMeshShape(m_mesh);
 
     setColor(0.75, 0.75, 0.75);
 
@@ -105,6 +106,7 @@ Mesh::Mesh(QString filename, btScalar mass) : Object() {
 
 Mesh::Mesh(QString filename) : Object() {
     m_mesh = new btTriangleMesh();
+    m_shape = new btGImpactMeshShape(m_mesh);
 
     setColor(0.75, 0.75, 0.75);
 
@@ -113,6 +115,9 @@ Mesh::Mesh(QString filename) : Object() {
 }
 
 Mesh::Mesh() : Object() {
+    m_mesh = new btTriangleMesh();
+    m_shape = new btGImpactMeshShape(m_mesh);
+
     setColor(0.75, 0.75, 0.75);
     setMass(0);
 }
@@ -125,7 +130,6 @@ void Mesh::loadFile(QString filename, btScalar mass) {
 
     if (!scene) {
         // qDebug() << "Unable to load " << filename << ": using empty shape.";
-        btEmptyShape* shape = new btEmptyShape();
         btQuaternion qtn;
         btTransform trans;
         btDefaultMotionState *motionState;
@@ -137,8 +141,8 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         motionState = new btDefaultMotionState(trans);
 
         btVector3 inertia;
-        shape->calculateLocalInertia(mass,inertia);
-        body = new btRigidBody(mass, motionState, shape, inertia);
+        m_shape->calculateLocalInertia(mass,inertia);
+        body = new btRigidBody(mass, motionState, m_shape, inertia);
     } else {
         assert(scene->mNumMeshes > 0);
 
@@ -176,7 +180,6 @@ void Mesh::loadFile(QString filename, btScalar mass) {
                                 );
         }
 
-        m_shape = new btGImpactMeshShape(m_mesh);
         m_shape->updateBound();
 
         btQuaternion qtn;
