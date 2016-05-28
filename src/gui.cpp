@@ -424,10 +424,6 @@ void Gui::fileSave() {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
-
-    settings->beginGroup( "mainwindow" );
-    settings->setValue( "lastFile", editor->script_filename);
-    settings->endGroup();
 }
 
 void Gui::fileSaveAs() {
@@ -439,10 +435,6 @@ void Gui::fileSaveAs() {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
-
-    settings->beginGroup( "mainwindow" );
-    settings->setValue( "lastFile", editor->script_filename);
-    settings->endGroup();
 }
 
 void Gui::fileSave(const QString& path) {
@@ -454,10 +446,6 @@ void Gui::fileSave(const QString& path) {
         ui.actionSave->setEnabled(true);
         _fileSaved=false;
     }
-
-    settings->beginGroup( "mainwindow" );
-    settings->setValue( "lastFile", path);
-    settings->endGroup();
 }
 
 
