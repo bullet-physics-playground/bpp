@@ -1,7 +1,6 @@
 --
 -- Dice
 --
-
 require "module/color"
 require "module/dice"
 
@@ -13,8 +12,8 @@ v.pre_sdl = [==[
 
 ]==]
 
-p = Plane(0,1,0,0,10)
-p.col = "#fff"
+p = Plane(0,1,0,0,1000)
+p.col = "#111"
 p.friction = 100
 p.sdl = [[ texture { pigment { color White } }]]
 v:add(p)
@@ -40,7 +39,7 @@ return t
 end
 
 txt = text("Bullet Physics Playground", 0,8.4,-1)
-text("Version 0.0.3 (WIP)", 0,6.6,-1)
+text("Version 0.0.3", 0,6.6,-1)
 
 function run()
   d = dice.new({ mass = 10, col = color.random_google() })
@@ -52,7 +51,7 @@ end
 run()run()
 
 v:postSim(function(N)
-  if (N % 5 == 0 and N < 1000) then
+  if (N % 1 == 0 and N < 10000) then
     run()
   end
 

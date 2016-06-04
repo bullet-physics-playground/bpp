@@ -30,6 +30,7 @@ LuaClassNonDeletable(btDefaultMotionState)
 LuaClassNonDeletable(btMotionState)
 LuaClassNonDeletable(btCollisionObject)
 LuaClassNonDeletable(btRigidBody)
+LuaClassNonDeletable(btConcaveShape)
 
 struct btMotionState_wrap : public btMotionState, luabind::wrap_base
 {
@@ -37,7 +38,7 @@ struct btMotionState_wrap : public btMotionState, luabind::wrap_base
                                        btMotionState_wrap(const btTransform &) {}
 
                                        virtual void getWorldTransform (btTransform &worldTrans) const {
-                                       qDebug() << "btMotionState_wrap::getWorldTransform()";
+                                       //qDebug() << "btMotionState_wrap::getWorldTransform()";
                                        luabind::call_member<void>(this, "getWorldTransform", worldTrans);
                                        /*
                                                                                                                              lua_State* L = m_self.state();
@@ -50,7 +51,7 @@ struct btMotionState_wrap : public btMotionState, luabind::wrap_base
                                        }
 
                                        virtual void setWorldTransform (const btTransform &worldTrans) {
-                                       qDebug() << "btMotionState_wrap::setWorldTransform()";
+                                       //qDebug() << "btMotionState_wrap::setWorldTransform()";
                                        luabind::call_member<void>(this, "setWorldTransform", worldTrans);
                                        /*
                                                                                                                              lua_State* L = m_self.state();
@@ -60,24 +61,16 @@ struct btMotionState_wrap : public btMotionState, luabind::wrap_base
                                                                                                                                          qDebug() << "setWorldTransform missing on the Lua side";
                                                                                                                                      lua_pop( L, 1 );*/
                                        }
-
-                                       virtual ~btMotionState_wrap() {
-                                       qDebug() << "~btMotionState_wrap()";
-                                       }
                                        };
 
 struct btDefaultMotionState_wrap : public btDefaultMotionState, btMotionState_wrap
 {
     btDefaultMotionState_wrap(const btTransform &startTrans, const btTransform &centerOfMassOffset)
         : btDefaultMotionState(startTrans, centerOfMassOffset), btMotionState_wrap(startTrans, centerOfMassOffset) {
-        qDebug() << "btDefaultMotionState_wrap()";
+        //qDebug() << "btDefaultMotionState_wrap()";
     }
     btDefaultMotionState_wrap(const btTransform &startTrans) : btDefaultMotionState(startTrans), btMotionState_wrap(startTrans) {
-        qDebug() << "btDefaultMotionState_wrap()";
-    }
-
-    virtual ~btDefaultMotionState_wrap() {
-        qDebug() << "~btDefaultMotionState_wrap()";
+        //qDebug() << "btDefaultMotionState_wrap()";
     }
 };
 
@@ -128,7 +121,7 @@ void LuaBullet::luaBind(lua_State *s)
 
     module(s)
             [
-            class_<btMotionState, boost::shared_ptr<btMotionState_wrap>, btMotionState_wrap >("btMotionState")
+            class_<btMotionState, btMotionState*, btMotionState_wrap >("btMotionState")
             .def("getWorldTransform", &btMotionState_wrap::getWorldTransform)
             .def("setWorldTransform", &btMotionState_wrap::setWorldTransform)
             ];
@@ -136,8 +129,8 @@ void LuaBullet::luaBind(lua_State *s)
     // btDefaultMotionState
     module(s)
             [
-            class_<btDefaultMotionState, boost::shared_ptr<btDefaultMotionState_wrap>, btDefaultMotionState_wrap, btMotionState >("btDefaultMotionState")
-            .def(constructor<const btTransform&, const btTransform&>(), adopt(result))
+            class_<btDefaultMotionState, btDefaultMotionState*, btDefaultMotionState_wrap, btMotionState >("btDefaultMotionState")
+            .def(constructor<const btTransform&, const btTransform&>())
             .def(constructor<const btTransform&>(), adopt(result))
             ];
 
@@ -146,7 +139,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCompoundShape.html
             [
             class_<btCompoundShape,btCollisionShape>("btCompoundShape")
-            .def(constructor<bool>())
+            .def(constructor<bool>(), adopt(result))
             .def("addChildShape", &btCompoundShape::addChildShape)
             .def("removeChildShape", &btCompoundShape::removeChildShape)
             .def("removeChildShapeByIndex", &btCompoundShape::removeChildShapeByIndex)
@@ -201,7 +194,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
             [
             class_<btGImpactMeshShape, btGImpactShapeInterface>("btGImpactMeshShape")
-            .def(constructor<btStridingMeshInterface*>())
+            .def(constructor<btStridingMeshInterface*>(), adopt(result))
 
             .property("margin", &btGImpactMeshShape::getMargin, &btGImpactMeshShape::setMargin)
             .def("getMargin", &btGImpactMeshShape::getMargin)
@@ -239,7 +232,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShape.html
             [
             class_<btCapsuleShape, btConvexInternalShape>("btCapsuleShape")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             .property("upAxis", &btCapsuleShape::getUpAxis)
             .def("getUpAxis", &btCapsuleShape::getUpAxis)
             .property("radius", &btCapsuleShape::getRadius)
@@ -251,19 +244,19 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeX.html
             [
             class_<btCapsuleShapeX, btCapsuleShape>("btCapsuleShapeX")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeZ.html
             [
             class_<btCapsuleShapeZ, btCapsuleShape>("btCapsuleShapeZ")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShape.html
             [
             class_<btConeShape, btConvexInternalShape>("btConeShape")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             .def("getRadius", &btConeShape::getRadius)
             .def("getHeight", &btConeShape::getHeight)
             .def("setConeUpIndex", &btConeShape::setConeUpIndex)
@@ -273,13 +266,13 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeX.html
             [
             class_<btConeShapeX, btConeShape>("btConeShapeX")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeZ.html
             [
             class_<btConeShapeZ, btConeShape>("btConeShapeZ")
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexInternalAabbCachingShape.html
@@ -291,7 +284,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtMultiSphereShape.html
             [
             class_<btMultiSphereShape, btConvexInternalAabbCachingShape>("btMultiSphereShape")
-            .def(constructor<const btVector3*, const btScalar*, int>())
+            .def(constructor<const btVector3*, const btScalar*, int>(), adopt(result))
             .def("getSphereCount", &btMultiSphereShape::getSphereCount)
             .def("getSpherePosition", &btMultiSphereShape::getSpherePosition)
             .def("getSphereRadius", &btMultiSphereShape::getSphereRadius)
@@ -308,13 +301,13 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeX.html
             [
             class_<btCylinderShapeX, btCylinderShape>("btCylinderShapeX")
-            .def(constructor<const btVector3&>())
+            .def(constructor<const btVector3&>(), adopt(result))
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeZ.html
             [
             class_<btCylinderShapeZ, btCylinderShape>("btCylinderShapeZ")
-            .def(constructor<const btVector3&>())
+            .def(constructor<const btVector3&>(), adopt(result))
             ];
 
     // not in the headers http://bulletphysics.com/Bullet/BulletFull/classbtMinkowskiSumShape.html
@@ -331,7 +324,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtBoxShape.html
             [
             class_<btBoxShape, btPolyhedralConvexShape>("btBoxShape")
-            .def(constructor<const btVector3&>())
+            .def(constructor<const btVector3&>(), adopt(result))
             .def("getHalfExtentsWithMargin", &btBoxShape::getHalfExtentsWithMargin)
             .def("getHalfExtentsWithoutMargin", &btBoxShape::getHalfExtentsWithoutMargin)
             .def("localGetSupportingVertexWithoutMargin", &btBoxShape::localGetSupportingVertexWithoutMargin)
@@ -347,11 +340,11 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtBU__Simplex1to4.html
             [
             class_<btBU_Simplex1to4, btPolyhedralConvexAabbCachingShape>("btBU_Simplex1to4")
-            .def(constructor<>())
-            .def(constructor<const btVector3&>())
-            .def(constructor<const btVector3&, const btVector3&>())
-            .def(constructor<const btVector3&, const btVector3&, const btVector3&>())
-            .def(constructor<const btVector3&, const btVector3&, const btVector3&, const btVector3&>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<const btVector3&>(), adopt(result))
+            .def(constructor<const btVector3&, const btVector3&>(), adopt(result))
+            .def(constructor<const btVector3&, const btVector3&, const btVector3&>(), adopt(result))
+            .def(constructor<const btVector3&, const btVector3&, const btVector3&, const btVector3&>(), adopt(result))
             .def("reset", &btBU_Simplex1to4::reset)
             .def("addVertex", &btBU_Simplex1to4::addVertex)
             ];
@@ -359,14 +352,14 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtTetrahedronShapeEx.html
             [
             class_<btTetrahedronShapeEx, btBU_Simplex1to4>("btTetrahedronShapeEx")
-            .def(constructor<>())
+            .def(constructor<>(), adopt(result))
             .def("setVertices", &btTetrahedronShapeEx::setVertices)
             ];
 
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexHullShape.html
             [
             class_<btConvexHullShape, btPolyhedralConvexAabbCachingShape>("btConvexHullShape")
-            .def(constructor<const btScalar*, int, int>())
+            .def(constructor<const btScalar*, int, int>(), adopt(result))
             .def("addPoint", &btConvexHullShape::addPoint)
             .def("getUnscaledPoints", (btVector3*(btConvexHullShape::*)())&btConvexHullShape::getUnscaledPoints)
             .def("getPoints", &btConvexHullShape::getPoints)
@@ -396,9 +389,9 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtTriangleMesh.html
             [
             class_<btTriangleMesh, btTriangleIndexVertexArray>("btTriangleMesh")
-            .def(constructor<bool, bool>())
-            .def(constructor<bool>())
-            .def(constructor<>())
+            .def(constructor<bool, bool>(), adopt(result))
+            .def(constructor<bool>(), adopt(result))
+            .def(constructor<>(), adopt(result))
             .def("addIndex", &btTriangleMesh::addIndex)
             .def("addTriangle", &btTriangleMesh::addTriangle)
             .def("addTriangleIndices", &btTriangleMesh::addTriangleIndices)
@@ -416,7 +409,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
             [
             class_<btConvexTriangleMeshShape, btPolyhedralConvexAabbCachingShape>("btConvexTriangleMeshShape")
-            .def(constructor<btStridingMeshInterface *, bool>())
+            .def(constructor<btStridingMeshInterface *, bool>(), adopt(result))
             .def("getMeshInterface",
                  (btStridingMeshInterface*(btConvexTriangleMeshShape::*)())&btConvexTriangleMeshShape::getMeshInterface)
             .def("calculatePrincipalAxisTransform", &btConvexTriangleMeshShape::calculatePrincipalAxisTransform)
@@ -432,9 +425,9 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtTriangleShapeEx.html
             [
             class_<btTriangleShapeEx, btTriangleShape>("btTriangleShapeEx")
-            .def(constructor<>())
-            .def(constructor<const btVector3&, const btVector3&, const btVector3&>())
-            .def(constructor<const btTriangleShapeEx>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<const btVector3&, const btVector3&, const btVector3&>(), adopt(result))
+            .def(constructor<const btTriangleShapeEx>(), adopt(result))
             .def("applyTransform", &btTriangleShapeEx::applyTransform)
             .def("buildTriPlane", &btTriangleShapeEx::buildTriPlane)
             .def("overlap_test_conservative", &btTriangleShapeEx::overlap_test_conservative)
@@ -445,7 +438,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtSphereShape.html
             [
             class_<btSphereShape, btConvexInternalShape>("btSphereShape")
-            .def(constructor<btScalar>())
+            .def(constructor<btScalar>(), adopt(result))
             .def("getRadius", &btSphereShape::getRadius)
             .property("radius", &btSphereShape::getRadius)
             .def("setUnscaledRadius", &btSphereShape::setUnscaledRadius)
@@ -455,7 +448,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtUniformScalingShape.html
             [
             class_<btUniformScalingShape, btConvexShape>("btUniformScalingShape")
-            .def(constructor<btConvexShape*, btScalar>())
+            .def(constructor<btConvexShape*, btScalar>(), adopt(result))
             .def("getUniformScalingFactor", &btUniformScalingShape::getUniformScalingFactor)
             .def("getChildShape", (btConvexShape *(btUniformScalingShape::*)())&btUniformScalingShape::getChildShape)
             .def("getAabb", &btUniformScalingShape::getAabb)
@@ -466,8 +459,8 @@ void LuaBullet::luaBind(lua_State *s)
     module(s)
             [
             class_<btVector3>( "btVector3" )
-            .def(constructor<>())
-            .def(constructor<btScalar, btScalar, btScalar>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
             .def(const_self + const_self)
             .def(const_self - const_self)
             .def(const_self * other<btScalar>())
@@ -508,11 +501,11 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtAABB.html
             [
             class_<btAABB>("btAABB")
-            .def(constructor<>())
-            .def(constructor<btVector3, btVector3, btVector3>())
-            .def(constructor<btVector3, btVector3, btVector3, btScalar>())
-            .def(constructor<btAABB &>())
-            .def(constructor<btAABB &, btScalar>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<btVector3, btVector3, btVector3>(), adopt(result))
+            .def(constructor<btVector3, btVector3, btVector3, btScalar>(), adopt(result))
+            .def(constructor<btAABB &>(), adopt(result))
+            .def(constructor<btAABB &, btScalar>(), adopt(result))
             .def("invalidate", &btAABB::invalidate)
             .def("merge", &btAABB::merge)
              // XXX
@@ -521,8 +514,8 @@ void LuaBullet::luaBind(lua_State *s)
     module(s)
             [
             class_<btVector4, btVector3>("btVector4")
-            .def(constructor<>())
-            .def(constructor<const btScalar&, const btScalar&, const btScalar&, const btScalar&>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<const btScalar&, const btScalar&, const btScalar&, const btScalar&>(), adopt(result))
             .def("absolute4", &btVector4::absolute4)
             .def("getW", &btVector4::getW)
             .def("maxAxis4", &btVector4::maxAxis4)
@@ -534,9 +527,9 @@ void LuaBullet::luaBind(lua_State *s)
     module(s)
             [
             class_<btQuaternion>("btQuaternion")
-            .def(constructor<>())
-            .def(constructor<const btVector3&, btScalar>())
-            .def(constructor<btScalar, btScalar, btScalar, btScalar>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<const btVector3&, btScalar>(), adopt(result))
+            .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
             .def("angle", &btQuaternion::angle )
             .def("dot", &btQuaternion::dot )
             .def("farthest", &btQuaternion::farthest )
@@ -572,7 +565,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionObject.html
             [
             class_<btCollisionObject, boost::shared_ptr<btCollisionObject> >("btCollisionObject")
-            .def(constructor<>())
+            .def(constructor<>(), adopt(result))
             .def("mergesSimulationIslands", &btCollisionObject::mergesSimulationIslands)
             .def("getAnisotropicFriction", &btCollisionObject::getAnisotropicFriction)
             .def("setAnisotropicFriction", &btCollisionObject::setAnisotropicFriction)
@@ -628,7 +621,7 @@ void LuaBullet::luaBind(lua_State *s)
     module(s)
             [
             class_<btRigidBody::btRigidBodyConstructionInfo>("btRigidBodyConstructionInfo")
-            .def(constructor<btScalar, btMotionState *, btCollisionShape *, const btVector3 &>())
+            .def(constructor<btScalar, btMotionState *, btCollisionShape *, const btVector3 &>(), adopt(result))
             ];
 
     module(s)

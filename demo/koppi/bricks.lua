@@ -58,7 +58,7 @@ end)
 function cubex(px, py, pz)
   c = Cube(2,1,1,.0001)
   c.pos = btVector3(px,py-0.05,pz)
-  c.col = "#ff0000"
+  c.col = "#7f0000"
   c.sdl = [[
     texture { tbrick1 }
   ]]
@@ -132,10 +132,12 @@ function run()
   s = Sphere(2,2)
   s.pos = btVector3(-80,3,30)
   s.vel = btVector3(30,20,2)
+  s.col = "#888"
   v:add(s)
   s = Sphere(2,2)
   s.pos = btVector3(-55,20,25)
   s.vel = btVector3(40,2,0)
+  s.col = "#888"
   v:add(s)
 end
 

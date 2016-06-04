@@ -4,16 +4,17 @@
 
 v.gravity       = btVector3(0,-9.81,0)
 
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+--v.timeStep      = 1/10
+--v.maxSubSteps   = 10
+--v.fixedTimeStep = 1/100
 
   pre_sdl = '#include "drivable_car_setup.inc"'
 v.pre_sdl = pre_sdl
 
 --
 -- NOTES:
--- + Please turn deactivation OFF or keyboad shortcuts will not work
+-- + Please turn deactivation OFF or keyboard
+--   shortcuts will not work
 -- + Dimensions scaled x10 for better stability
 --
 -- KEYBOARD SHORTCUTS:
@@ -50,7 +51,7 @@ car_model=1
 
 -- obstacle selection:  
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
-use_obstacles = 2
+use_obstacles = 1
 
 if (car_model==1) then -- Citroen GS (JVP)
   chassis_model="citroen_gs.3ds"
@@ -101,12 +102,12 @@ elseif (car_model==2) then -- Nissan Micra (by Ren Bui)
       rotate y*90
       scale 7.5
   ]]
-  right_tire_sdl="object{micra_tyre scate 7.5"
-  left_tire_sdl="object{micra_tyre scate 7.5 rotate 180*y"
+  right_tire_sdl="object{micra_tyre scale 7.5"
+  left_tire_sdl="object{micra_tyre scale 7.5 rotate 180*y"
 end
 
 -- engine control
-initial_angular_velocity = -10
+initial_angular_velocity = 20
 
 -- ******************
 -- INTERNAL VARIABLES

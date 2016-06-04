@@ -27,6 +27,8 @@ public:
     btGImpactMeshShape* getShape() const;
     void setShape(btGImpactMeshShape *shape);
 
+    virtual void setMass(btScalar mass);
+
     void loadFile(QString filename, btScalar mass);
 
     static void luaBind(lua_State *s);

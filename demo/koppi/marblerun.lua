@@ -67,7 +67,7 @@ object {
 
 p = Plane(0,1,0,0,100)
 p.pos = btVector3(0,-0.5,0)
-p.col = "#000000"
+p.col = "#111111"
 p.sdl = [[
   texture { pigment{color rgbt<1,1,1,0.7>*1.1}
             finish {ambient 0.45 diffuse 0.85}}

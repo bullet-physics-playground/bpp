@@ -70,26 +70,28 @@ public:
     }
 };
 
-class TriangleGlDrawcallback : public btInternalTriangleIndexCallback
+class POVSaveCallback : public btTriangleCallback
 {
+
 public:
-    virtual void internalProcessTriangleIndex(btVector3* triangle,int partId,int  triangleIndex)
+
+    QList<btVector3> v1;
+    QList<btVector3> v2;
+    QList<btVector3> v3;
+    QList<int> idx;
+
+    POVSaveCallback()
     {
-        (void)triangleIndex;
+    }
+
+    virtual void processTriangle(btVector3* triangle,int partId, int triangleIndex)
+    {
         (void)partId;
 
-
-        glBegin(GL_TRIANGLES);//LINES);
-        glColor3f(1, 0, 0);
-        glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-        glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-        glColor3f(0, 1, 0);
-        glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-        glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-        glColor3f(0, 0, 1);
-        glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-        glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-        glEnd();
+        v1.append(triangle[0]);
+        v2.append(triangle[1]);
+        v3.append(triangle[2]);
+        idx.append(triangleIndex);
     }
 };
 
@@ -148,9 +150,7 @@ void Mesh::loadFile(QString filename, btScalar mass) {
 
         const struct aiMesh* mesh = scene->mMeshes[0];
 
-        unsigned int t;
-
-        for (t = 0; t < mesh->mNumFaces; ++t) {
+        for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
             const struct aiFace* face = &mesh->mFaces[t];
 
             GLenum face_mode;
@@ -178,7 +178,10 @@ void Mesh::loadFile(QString filename, btScalar mass) {
                                           mesh->mVertices[i2].y,
                                           mesh->mVertices[i2].z)
                                 );
+
         }
+
+        // qDebug() << m_mesh->getNumTriangles();
 
         m_shape->updateBound();
 
@@ -207,8 +210,10 @@ void Mesh::luaBind(lua_State *s) {
 
     module(s)
             [
-            class_<Mesh,Object>("Mesh")
-            .def(constructor<QString, btScalar>(), adopt(result))
+            class_<Mesh, Object>("Mesh")
+            .def(constructor<>())
+            .def(constructor<QString>())
+            .def(constructor<QString, btScalar>())
             .def(tostring(const_self))
 
             .property("shape", &Mesh::getShape, &Mesh::setShape)
@@ -223,150 +228,96 @@ QString Mesh::toString() const {
 void Mesh::renderInLocalFrame(QTextStream *s) {
     glColor3ubv(color);
 
-    if (m_shape != NULL) {
+    if (m_shape != NULL && body != NULL && body->getMotionState() != NULL
+        // && typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
+    ) {
         GlDrawcallback drawCallback;
         drawCallback.m_wireframe = true;
 
         btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
-
         concaveMesh->processAllTriangles(&drawCallback,btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)); // XXX use scene world bounds
-    }
 
-    /* XXX add back POV-Ray export
+        if (s != NULL) {
+            POVSaveCallback pov;
+            concaveMesh->processAllTriangles(&pov,btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)); // XXX use scene world bounds
 
-    if (m_scene && m_scene->mMeshes) {
-        const struct aiMesh* mesh = m_scene->mMeshes[0];
+            if (pov.idx.length()>0) {
 
-        unsigned int i,t;
+                if (mPreSDL == NULL) {
+                    *s << "mesh2 {" << endl;
+                    *s << "  vertex_vectors {" << endl;
+                    *s << "    " << pov.idx.length()*3 << ", ";
+                    for (int i = 0; i < pov.idx.length(); ++i) {
+                        *s << "<"
+                           << pov.v1.at(i).x()
+                           << ","
+                           << pov.v1.at(i).y()
+                           << ","
+                           << pov.v1.at(i).z()
+                           << ">";
+                        *s << "<"
+                           << pov.v2.at(i).x()
+                           << ","
+                           << pov.v2.at(i).y()
+                           << ","
+                           << pov.v2.at(i).z()
+                           << ">";
+                        *s << "<"
+                           << pov.v3.at(i).x()
+                           << ","
+                           << pov.v3.at(i).y()
+                           << ","
+                           << pov.v3.at(i).z()
+                           << ">";
+                    }
+                    *s << " }" << endl;
 
-        for (t = 0; t < mesh->mNumFaces; ++t) {
-            const struct aiFace* face = &mesh->mFaces[t];
-            GLenum face_mode;
-
-            switch(face->mNumIndices) {
-            case 1:  face_mode = GL_POINTS; break;
-            case 2:  face_mode = GL_LINES; break;
-            case 3:  face_mode = GL_TRIANGLES; break;
-            default: face_mode = GL_POLYGON; break;
-            }
-
-            glBegin(face_mode);
-
-            for (i = 0; i < face->mNumIndices; i++) {
-                int index = face->mIndices[i];
-
-                if (mesh->mColors[0] != NULL)
-                    glColor4fv((GLfloat*)&mesh->mColors[0][index]);
-
-                if (mesh->mNormals != NULL)
-                    glNormal3fv(&mesh->mNormals[index].x);
-
-                glVertex3fv(&mesh->mVertices[index].x);
-            }
-
-            glEnd();
-        }
-    }
-
-    if (s != NULL && m_scene != NULL && m_scene->mNumMeshes > 0) {
-        if (mPreSDL == NULL) {
-            const struct aiMesh* mesh = m_scene->mMeshes[0];
-
-            *s << "mesh2 {" << endl;
-            *s << "  vertex_vectors {" << endl;
-            *s << "    " << mesh->mNumVertices << ", ";
-            for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-                *s << "<"
-                   << mesh->mVertices[i].x
-                   << ","
-                   << mesh->mVertices[i].y
-                   << ","
-                   << mesh->mVertices[i].z
-                   << ">";
-            }
-            *s << " }" << endl;
-
-            if (mesh->HasNormals()) {
-                *s << "  normal_vectors {" << endl;
-                *s << "    " << mesh->mNumVertices << ", ";
-                for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
-                    *s << "<"
-                       << mesh->mNormals[i].x
-                       << ","
-                       << mesh->mNormals[i].y
-                       << ","
-                       << mesh->mNormals[i].z
-                       << ">";
+                    *s << "  face_indices {"  << endl;
+                    *s << "    " << pov.idx.length() << ", ";
+                    for (int i = 0; i < pov.idx.length(); ++i) {
+                        *s << "<"
+                           << i*3
+                           << ","
+                           << i*3+1
+                           << ","
+                           << i*3+2
+                           << ">";
+                    }
+                    *s << " }"
+                       << endl;
+                } else {
+                    *s << mPreSDL
+                       << endl;
                 }
-                *s << " }"
-                   << endl;
-            }
 
-            *s << "  face_indices {"  << endl;
-            *s << "    " << mesh->mNumFaces << ", ";
-            for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
-                const struct aiFace* face = &mesh->mFaces[t];
-                // only trimeshes for now! assert(face->mNumIndices == 3);
-                *s << "<"
-                   << face->mIndices[0]
-                   << ","
-                   << face->mIndices[1]
-                   << ","
-                   << face->mIndices[2]
-                   << ">";
-            }
-            *s << " }"
-               << endl;
-
-            if (mesh->HasNormals()) {
-                *s << "  normal_indices {"  << endl;
-                *s << "    " << mesh->mNumFaces << ", ";
-                for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
-                    const struct aiFace* face = &mesh->mFaces[t];
-                    // only trimeshes for now! assert(face->mNumIndices == 3);
-                    *s << "<"
-                       << face->mIndices[0]
-                       << ","
-                       << face->mIndices[1]
-                       << ","
-                       << face->mIndices[2]
-                       << ">";
+                if (mSDL != NULL) {
+                    *s << mSDL
+                       << endl;
+                } else {
+                    *s << "  pigment { rgb <"
+                       << color[0]/255.0 << ", "
+                       << color[1]/255.0 << ", "
+                       << color[2]/255.0 << "> }"
+                       << endl;
                 }
-                *s << " }"
-                   << endl;
+
+                *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
+                   << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
+                   << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
+                   << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+                if (mPostSDL == NULL) {
+                    *s << "}"
+                       << endl
+                       << endl;
+                } else {
+                    *s << mPostSDL
+                       << endl
+                       << endl;
+                }
             }
-        } else {
-            *s << mPreSDL
-               << endl;
-        }
-
-        if (mSDL != NULL) {
-            *s << mSDL
-               << endl;
-        } else {
-            *s << "  pigment { rgb <"
-               << color[0]/255.0 << ", "
-               << color[1]/255.0 << ", "
-               << color[2]/255.0 << "> }"
-               << endl;
-        }
-
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
-
-        if (mPostSDL == NULL) {
-            *s << "}"
-               << endl
-               << endl;
-        } else {
-            *s << mPostSDL
-               << endl
-               << endl;
         }
     }
-    */
 }
 
 btGImpactMeshShape* Mesh::getShape() const {
@@ -374,7 +325,18 @@ btGImpactMeshShape* Mesh::getShape() const {
 }
 
 void Mesh::setShape(btGImpactMeshShape *shape) {
+    if (m_shape != NULL)
+        delete m_shape;
+
     m_shape = shape;
+}
+
+void Mesh::setMass(btScalar _mass) {
+    if (body != NULL && m_shape != NULL) {
+        btVector3 inertia;
+        m_shape->calculateLocalInertia(_mass,inertia);
+        body->setMassProps(_mass, inertia);
+    }
 }
 
 #endif

@@ -240,7 +240,8 @@ SOURCES += src/main.cpp \
            src/code.cpp \
            src/high.cpp \
            src/prefs.cpp \
-           src/objects/openscad.cpp
+           src/objects/openscad.cpp \
+           src/GL_ShapeDrawer.cpp
 
 HEADERS += src/viewer.h \
            src/objects/object.h \
@@ -259,7 +260,8 @@ HEADERS += src/viewer.h \
            src/code.h \
            src/high.h \
            src/prefs.h \
-           src/objects/openscad.h
+           src/objects/openscad.h \
+           src/GL_ShapeDrawer.h
 
 FORMS   += src/gui.ui \
            src/prefs.ui

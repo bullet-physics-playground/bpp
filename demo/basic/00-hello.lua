@@ -229,29 +229,37 @@ material {
 }
 ]]
 
-p = Plane(0,1,0,0,10)
-p.sdl = [[
-#if (use_lightsys)
-  pigment {
-      rgb ReferenceRGB(Gray90)
-  }
-#else
-  texture {
-    pigment {
-        rgb White * 0.9
-      }
-    }
-#end
-  finish {
-    Glossy
-    ambient 0.2
-    specular 0.6 // shiny
+v.pre_sdl = v.pre_sdl..[==[
 
-/*      irid { 0.25
-        thickness 0.2 // of the layer
-        turbulence 0.7 }
-*/
-  }
+// ground 
+
+#declare RasterScale = 0.1 ;
+#declare RasterHalfLine  = 0.045;
+#declare RasterHalfLineZ = 0.045;
+
+#macro Raster(RScale, HLine)
+   pigment{ gradient x scale RScale
+            color_map{[0.000   color rgbt<1,1,1,1>*0.6]
+                      [0+HLine color rgbt<1,1,1,1>*0.6]
+                      [0+HLine color rgbt<1,1,1,1>]
+                      [1-HLine color rgbt<1,1,1,1>]
+                      [1-HLine color rgbt<1,1,1,1>*0.6]
+                      [1.000   color rgbt<1,1,1,1>*0.6]} }
+   finish { ambient 0.15 diffuse 0.85}
+#end
+
+]==]
+
+p = Plane(0,1,0,0,10)
+p.pos = btVector3(0,-0.5,0)
+p.col = "#000000"
+p.sdl = [[
+  texture { pigment{color rgbt<1,1,1,0.7>*1.1}
+            finish {ambient 0.45 diffuse 0.85}}
+  texture { Raster(RasterScale,RasterHalfLine ) rotate<0,0,0> }
+  texture { Raster(RasterScale,RasterHalfLineZ) rotate<0,90,0>}
+  rotate<0,0,0>
+  // no_shadow
 ]]
 v:add(p)
 
@@ -441,24 +449,13 @@ geodesic_sphere(r = 0.5, $fn=6);
   gs.col = "#103070"
   gs.sdl =
 [[
-  material { M_Glass }
-
-/*
-  hollow on 
-  texture { pigment {rgbt<1,1,1,0.95>} }
-  finish {reflection 0.5 ambient .2 diffuse 0 specular 1 roughness .001 }  
-  interior { ior 2.42  // diamant
-                 // 1.95  // Zircon
-    dispersion 1.1
-    dispersion_samples 50
+  texture {
+    pigment { color rgbf <1.0, 0.0, 0.0, 0.0> }
+    finish {
+      phong 0.2
+      reflection 0.2
+    }
   }
-
-  photons {  // photon block for an object
-    target 1.0
-    refraction on
-    reflection on
-  }
-*/
 ]]
   gs.pos = btVector3(0,1.5,1.5)
 
@@ -536,7 +533,7 @@ module roundedBox(x, y, z, r)
 		cube([x-r*2, y-r*2, z], center=true);
 	}
 }
-$fn=15;
+$fn=25;
 roundedBox(1, 1, 1, .05);
 ]==],10)
   rb.pos = btVector3(0,.5,1.5)

@@ -8,7 +8,7 @@ v.timeStep      = 1/5
 v.maxSubSteps   = 10
 v.fixedTimeStep = 1/20
 
-plane = Plane(0,1,0,0,100)
+plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0, 0, 0)
 plane.col = "#111111"
 v:add(plane)

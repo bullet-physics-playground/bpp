@@ -179,13 +179,13 @@ void Object::renderInLocalFramePre(QTextStream *s) {
 
     // qDebug() << toString() << (body->getMotionState());
 
-    if (body && body->getMotionState()) {
+    if (body != NULL && body->getMotionState() != NULL
+            //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
+            ) {
         body->getMotionState()->getWorldTransform(trans);
         trans.getOpenGLMatrix(matrix);
-
         glPushMatrix();
         glMultMatrixf(matrix);
-    } else {
     }
 
     glEnable(GL_NORMALIZE);
@@ -235,7 +235,7 @@ QString Object::getSDL() const {
 }
 
 void Object::setMass(btScalar _mass) {
-    if (body != NULL) {
+    if (body != NULL && shape != NULL) {
         btVector3 inertia;
         shape->calculateLocalInertia(_mass,inertia);
         body->setMassProps(_mass, inertia);
@@ -339,7 +339,7 @@ void Object::setPosition(btScalar x, btScalar y, btScalar z) {
 }
 
 btVector3 Object::getPosition() const {
-    if (body != NULL) {
+    if (body != NULL && typeid(body->getMotionState()) == typeid(btDefaultMotionState)) {
         btTransform trans;
         body->getMotionState()->getWorldTransform(trans);
         return trans.getOrigin();
@@ -349,7 +349,7 @@ btVector3 Object::getPosition() const {
 }
 
 void Object::setRotation(const btVector3& axis, btScalar angle) {
-    if (body != NULL) {
+    if (body != NULL && typeid(body->getMotionState()) == typeid(btDefaultMotionState)) {
         btTransform trans;
         btQuaternion rot;
         body->getMotionState()->getWorldTransform(trans);
@@ -423,7 +423,6 @@ QString Object::getPovPhotons() const {
 
     return tmp;
 }
-
 
 void Object::render(QTextStream *s)
 {

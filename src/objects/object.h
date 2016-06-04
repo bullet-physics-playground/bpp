@@ -54,7 +54,7 @@ public:
     void setTransform(const btTransform& trans);
     btTransform getTransform() const;
 
-    void setMass(btScalar mass);
+    virtual void setMass(btScalar mass);
     btScalar getMass() const;
 
     void setFriction(btScalar friction);

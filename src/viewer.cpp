@@ -90,13 +90,13 @@ void Viewer::luaBind(lua_State *s) {
             .def("setCam", (void(Viewer::*)(Cam *))&Viewer::setCamera, adopt(_2))
             .def("getCam", &Viewer::getCamera)
             .def("add", (void(Viewer::*)(Object *))&Viewer::addObject, adopt(_2))
-            .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(luabind::result))
+            .def("remove", (void(Viewer::*)(Object *))&Viewer::removeObject, adopt(result))
             .def("addConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::addConstraint, adopt(_2))
-            .def("removeConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::removeConstraint, adopt(_2))
-            .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster, adopt(luabind::result))
+            .def("removeConstraint", (void(Viewer::*)(btTypedConstraint *))&Viewer::removeConstraint, adopt(result))
+            .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster)
             .def("addVehicle", (void(Viewer::*)(btRaycastVehicle *))&Viewer::addVehicle, adopt(_2))
-            .def("addShortcut", &Viewer::addShortcut, adopt(luabind::result))
-            .def("removeShortcut", &Viewer::removeShortcut, adopt(luabind::result))
+            .def("addShortcut", &Viewer::addShortcut)
+            .def("removeShortcut", &Viewer::removeShortcut)
             .def("preStart", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreStart, adopt(luabind::result))
             .def("preDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreDraw, adopt(luabind::result))
             .def("postDraw", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostDraw, adopt(luabind::result))
@@ -233,7 +233,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
     for (oi = objects->begin(); oi != objects->end(); oi++) {
         Object *o = *oi;
 
-        if (o->toString() != QString("Plane") && o->body) {
+        if (o->toString() != QString("Plane") && o->body != NULL) {
             btVector3 oaabbmin, oaabbmax;
             o->body->getAabb(oaabbmin, oaabbmax);
 
@@ -522,9 +522,9 @@ int Viewer::lua_print(lua_State* L) {
 }
 
 bool Viewer::parse(QString txt) {
-    emit scriptStopped();
-
     QMutexLocker locker(&mutex);
+
+    emit scriptStopped();
 
     if(_cb_preStop) {
         try {
@@ -547,10 +547,18 @@ bool Viewer::parse(QString txt) {
 
     emit scriptStarts();
 
-    if (L != NULL) {
-        lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+    clear();
 
-        clear();
+    if (L != NULL) {
+
+        lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+        int lsize = lua_gc(L, LUA_GCCOUNT, -1);
+        emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
+        // lua_gc(L, LUA_GCSTOP, -1);
+
+        //XXX lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+
+        //XXX clear();
 
         // invalidate function refs
         _cb_preStart  = luabind::object();
@@ -650,8 +658,6 @@ bool Viewer::parse(QString txt) {
     _frameNum   = 0; // reset frames counter
     _firstFrame = 0;
 
-    computeBoundingBox();
-
     if (animStarted) {
         startAnimation();
     }
@@ -666,39 +672,23 @@ bool Viewer::parse(QString txt) {
 void Viewer::clear() {
     // qDebug() << "Viewer::clear() objects: " << _objects->size();
 
-    // remove all objects
-    QSet<Object *>::const_iterator i = _objects->constBegin();
-    while (i != _objects->constEnd()) {
-        if ((*i)->body != NULL)
-            dynamicsWorld->removeRigidBody((*i)->body);
-        ++i;
-    }
+    //    delete dynamicsWorld;
 
-    // remove all contact manifolds
-    for (int i = dynamicsWorld->getNumCollisionObjects()-1; i>=0 ;i--) {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-
-        btRigidBody* body = btRigidBody::upcast(obj);
-        if (body && body->getMotionState()) {
-            delete body->getMotionState();
-        }
-
-        dynamicsWorld->removeCollisionObject( obj );
-
-        delete obj;
-    }
-
-    // remove all constraints
-    QSet<btTypedConstraint *>::const_iterator it = _constraints->constBegin();
-    while (it != _constraints->constEnd()) {
-        dynamicsWorld->removeConstraint(*it);
-        ++it;
-    }
+    collisionCfg = new btDefaultCollisionConfiguration();
+    btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+    dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg),
+                                                broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
+    btCollisionDispatcher * dispatcher =
+            static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
+    btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 
     _objects->clear();
 
     _constraints->clear();
     _cb_shortcuts->clear();
+
+    setPreSDL("");
+    setPostSDL("");
 }
 
 void Viewer::resetCamView() {
@@ -867,9 +857,9 @@ void Viewer::closePovFile() {
 
 Viewer::~Viewer() {
     // qDebug() << "Viewer::~Viewer()";
-    delete _objects;
-    delete dynamicsWorld;
-    delete collisionCfg;
+    //delete _objects;
+    //delete dynamicsWorld;
+    //delete collisionCfg;
 }
 
 void Viewer::computeBoundingBox() {
@@ -923,10 +913,10 @@ void Viewer::draw() {
     if (_parsing) return;
 
     if (L) {
-        lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
-        // int lsize = lua_gc(L, LUA_GCCOUNT, -1);
-        // emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
-        lua_gc(L, LUA_GCSTOP, -1);
+        //lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage
+        //int lsize = lua_gc(L, LUA_GCCOUNT, -1);
+        //emit statusEvent(QString("LUA_GCCOUNT = %1").arg(lsize));
+        //lua_gc(L, LUA_GCSTOP, -1);
     }
 
     if (_cb_preDraw) {
@@ -936,6 +926,8 @@ void Viewer::draw() {
             showLuaException(e, "v:preDraw()");
         }
     }
+
+    computeBoundingBox();
 
     GLfloat light_ambient[]  = { _gl_ambient.x(),  _gl_ambient.y(), _gl_ambient.z() };
     GLfloat light_diffuse[]  = { _gl_diffuse.x(),  _gl_diffuse.y(), _gl_diffuse.z() };
@@ -1252,7 +1244,7 @@ void Viewer::stopAnimation() {
 void Viewer::animate() {
     QMutexLocker locker(&mutex);
 
-    if (_has_exception) {
+    if (_has_exception || _parsing) {
         return;
     }
 
@@ -1295,6 +1287,10 @@ void Viewer::animate() {
         // float nbSecsElapsed = _time.elapsed()/10.0f;
 
         // old: dynamicsWorld->stepSimulation(nbSecsElapsed, 10);
+
+        if (_has_exception || _parsing) {
+            return;
+        }
 
         // new: bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
         dynamicsWorld->stepSimulation(_timeStep, _maxSubSteps, _fixedTimeStep);

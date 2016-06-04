@@ -8,7 +8,7 @@ plane.friction = 2
 
 -- v.gravity = btVector3(0,0,0)
 
-v.timeStep      = 1/7
+v.timeStep      = 1/80
 v.fixedTimeStep = v.timeStep / 4
 v.maxSubSteps   = 70
 

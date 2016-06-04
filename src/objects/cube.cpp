@@ -13,7 +13,6 @@
 #include <QDebug>
 
 using namespace std;
-
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 

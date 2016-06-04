@@ -319,7 +319,7 @@ end
 
 steps()
 
-v:preDraw(function(N)
+v:postSim(function(N)
 
   -- pseudo orthogonal
   v.cam:setFieldOfView(.2)
