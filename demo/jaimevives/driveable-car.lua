@@ -4,9 +4,9 @@
 
 v.gravity       = btVector3(0,-9.81,0)
 
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+v.timeStep      = 1/20
+v.maxSubSteps   = 14
+v.fixedTimeStep = 1/120
 
   pre_sdl = '#include "drivable_car_setup.inc"'
 v.pre_sdl = pre_sdl
@@ -47,7 +47,7 @@ camera_view=3
 
 -- car model: 
 -- 1=Citroen GS, 2=Nissan Micra
-car_model=2
+car_model=1
 
 -- obstacle selection:  
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
