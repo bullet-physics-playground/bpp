@@ -29,3 +29,7 @@
   object{wunderbaum_}
 }
 
+#declare micra_tyre=object{micra_LF_wheel_
+ translate <0.9679261,0.5966882,-1.592224>
+ rotate 90*y
+}
