@@ -2,9 +2,9 @@
 -- Mesh cain demo
 --
 
-v.timeStep      = 1/2
-v.maxSubSteps   = 40
-v.fixedTimeStep = 1/80
+v.timeStep      = 1/4
+v.maxSubSteps   = 20
+v.fixedTimeStep = 1/100
 
 plane = Plane(0,1,0,0,1000)
 plane.col = "#111111"

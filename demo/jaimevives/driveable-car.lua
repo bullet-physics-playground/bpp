@@ -4,9 +4,9 @@
 
 v.gravity       = btVector3(0,-9.81,0)
 
---v.timeStep      = 1/10
---v.maxSubSteps   = 10
---v.fixedTimeStep = 1/100
+v.timeStep      = 1/10
+v.maxSubSteps   = 10
+v.fixedTimeStep = 1/100
 
   pre_sdl = '#include "drivable_car_setup.inc"'
 v.pre_sdl = pre_sdl
@@ -47,11 +47,14 @@ camera_view=3
 
 -- car model: 
 -- 1=Citroen GS, 2=Nissan Micra
-car_model=1
+car_model=2
 
 -- obstacle selection:  
 -- 0=NONE, 1=MISC, 2=MESH TERRAIN 
 use_obstacles = 1
+
+-- engine control
+initial_angular_velocity = 100
 
 if (car_model==1) then -- Citroen GS (JVP)
   chassis_model="citroen_gs.3ds"
@@ -105,9 +108,6 @@ elseif (car_model==2) then -- Nissan Micra (by Ren Bui)
   right_tire_sdl="object{micra_tyre scale 7.5"
   left_tire_sdl="object{micra_tyre scale 7.5 rotate 180*y"
 end
-
--- engine control
-initial_angular_velocity = 20
 
 -- ******************
 -- INTERNAL VARIABLES
@@ -1081,57 +1081,56 @@ end)
 -- POST SIMULATION STUFF
 -- *********************
 v:postSim(function(N)
+  v.cam.up = btVector3(0,1,0)
 
 -- CAMERA VIEWS 
 if(camera_view>0) then
-  cam = Cam() 
   -- from the back, moves with the car
   if(camera_view==1) then
-    cam.pos = rear_stabilizer_bar.pos+btVector3(rear_stabilizer_bar.pos.x-front_stabilizer_bar.pos.x,chassis_height+5,rear_stabilizer_bar.pos.z-front_stabilizer_bar.pos.z)*2
-    cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+4,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
+    v.cam.pos = rear_stabilizer_bar.pos+btVector3(rear_stabilizer_bar.pos.x-front_stabilizer_bar.pos.x,chassis_height+5,rear_stabilizer_bar.pos.z-front_stabilizer_bar.pos.z)*2
+    v.cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+4,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
   end
   -- onboard
   if(camera_view==2) then
-    cam:setHorizontalFieldOfView(2.5)
-    cam.pos = btVector3(rear_stabilizer_bar.pos.x,chassis.pos.y+onboard_cam_height,rear_stabilizer_bar.pos.z)
-    cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+onboard_cam_height,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
-    cam:setHorizontalFieldOfView(.5)
+    v.cam:setHorizontalFieldOfView(2.5)
+    v.cam.pos = btVector3(rear_stabilizer_bar.pos.x,chassis.pos.y+onboard_cam_height,rear_stabilizer_bar.pos.z)
+    v.cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+onboard_cam_height,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
+    v.cam:setHorizontalFieldOfView(.5)
   end
   -- static mount looking at the car
   if(camera_view==3) then
-    cam.pos = btVector3(50,40,60)
-    cam.look = chassis.pos
-    cam:setHorizontalFieldOfView(1)
+    v.cam.pos = btVector3(50,40,60)
+    v.cam.look = chassis.pos
+    v.cam:setHorizontalFieldOfView(1)
   end
   -- close look at the front suspension and wheels
   if(camera_view==4) then
-    cam.pos = btVector3(chassis.pos.x+79,4,chassis.pos.z)
-    cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-    cam:setHorizontalFieldOfView(.5)
+    v.cam.pos = btVector3(chassis.pos.x+79,4,chassis.pos.z)
+    v.cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
+    v.cam:setHorizontalFieldOfView(.5)
   end
   -- close look at the rear suspension and wheels
   if(camera_view==5) then
-    cam.pos = btVector3(chassis.pos.x-45,chassis.pos.y,chassis.pos.z)
-    cam.look = btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z)
+    v.cam.pos = btVector3(chassis.pos.x-45,chassis.pos.y,chassis.pos.z)
+    v.cam.look = btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z)
   end
   -- from below
   if(camera_view==6) then
-    cam.pos = btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z)
-    cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-    cam:setHorizontalFieldOfView(.1)
+    v.cam.pos = btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z)
+    v.cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
+    v.cam:setHorizontalFieldOfView(.1)
   end
   -- pseudo orthographic from the side 
   if(camera_view==7) then
-    cam.pos = btVector3(chassis.pos.x,100,chassis.pos.z+2000)
-    cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
-    cam:setHorizontalFieldOfView(.025)
+    v.cam.pos = btVector3(chassis.pos.x,100,chassis.pos.z+2000)
+    v.cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
+    v.cam:setHorizontalFieldOfView(.025)
   end
 -- aerial view
   if(camera_view==8) then
-    cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z)
-    cam.look = chassis.pos
-  end  
-  v:setCam(cam)
+    v.cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z)
+    v.cam.look = chassis.pos
+  end
 end
 
 -- CAR STEERING: AUTO-STRAIGHTEN 

@@ -227,30 +227,46 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
     btVector3 aabbMin, aabbMax;
 
     aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
-    aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
+    aabb[3] =  10; aabb[4] =  10; aabb[5] =  10;
+
+    int dbg = 0;
 
     QSet<Object*>::iterator oi;
     for (oi = objects->begin(); oi != objects->end(); oi++) {
         Object *o = *oi;
 
-        if (o->toString() != QString("Plane") && o->body != NULL) {
+        if (o->body != NULL) {
             btVector3 oaabbmin, oaabbmax;
             o->body->getAabb(oaabbmin, oaabbmax);
 
-            oaabbmin -= o->getPosition();
-            oaabbmax += o->getPosition();
+            if  ("Plane" == o->toString()) {
+                btScalar s = ((Plane*)o)->getSize();
+                oaabbmin[0] = -s;
+                oaabbmin[1] = -s;
+                oaabbmin[2] = -s;
 
-            //            qDebug() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z()
-            //                     << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
+                oaabbmax[0] = s;
+                oaabbmax[1] = s;
+                oaabbmax[2] = s;
+            }
+
+            if (qIsFinite(o->getPosition().x()) && qIsFinite(o->getPosition().y()) && qIsFinite(o->getPosition().z())) {
+                oaabbmin -= o->getPosition();
+                oaabbmax += o->getPosition();
+            }
+
+            if (dbg) qDebug() << o->toString() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z() << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
 
             for (int i = 0; i < 3; ++i) {
-                aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
-                aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
+                if (qIsFinite(oaabbmin[i]))
+                  aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
+                if (qIsFinite(oaabbmax[i]))
+                  aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
             }
         }
     }
 
-    //    qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
+    if (dbg) qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
 }
 }
 
@@ -619,20 +635,6 @@ bool Viewer::parse(QString txt) {
 
     luaBindInstance(L);
 
-    dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
-
-    // bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
-    //
-    // It's important that timeStep is always less than maxSubSteps*fixedTimeStep,
-    // otherwise you are losing time. Mathematically,
-    //
-    //   timeStep < maxSubSteps * fixedTimeStep
-    //
-    _timeStep = 0.04;          // roughly 25fps
-    //_timeStep = 0.0083;      // roughly 1/120th of a second
-    _maxSubSteps = 10;
-    _fixedTimeStep = 0.017;    // 1/60th of a second
-
     int error = luaL_loadstring(L, txt.toUtf8().constData())
             || lua_pcall(L, 0, LUA_MULTRET, 0);
 
@@ -672,12 +674,27 @@ bool Viewer::parse(QString txt) {
 void Viewer::clear() {
     // qDebug() << "Viewer::clear() objects: " << _objects->size();
 
-    //    delete dynamicsWorld;
+    // bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+    //
+    // It's important that timeStep is always less than maxSubSteps*fixedTimeStep,
+    // otherwise you are losing time. Mathematically,
+    //
+    //   timeStep < maxSubSteps * fixedTimeStep
+    //
+    _timeStep = 1/25.0;       // 25fps
+    //_timeStep = 1/120.0;    // 1/120th of a second
+    _maxSubSteps = 7;
+    _fixedTimeStep = 1/100.0; // 1/60th of a second
+
+    delete dynamicsWorld;
 
     collisionCfg = new btDefaultCollisionConfiguration();
     btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+
     dynamicsWorld = new btDiscreteDynamicsWorld(new btCollisionDispatcher(collisionCfg),
                                                 broadphase, new btSequentialImpulseConstraintSolver, collisionCfg);
+    dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
+
     btCollisionDispatcher * dispatcher =
             static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
     btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
@@ -687,8 +704,24 @@ void Viewer::clear() {
     _constraints->clear();
     _cb_shortcuts->clear();
 
-    setPreSDL("");
-    setPostSDL("");
+    setPreSDL(NULL);
+    setPostSDL(NULL);
+
+    if (_cam != NULL) {
+        _cam->setPreSDL(NULL);
+        _cam->setPostSDL(NULL);
+    }
+
+    _gl_shininess = btScalar(5.0);
+    _gl_specular_col = btVector4(.85f, .85f, .85f, 1.0f);
+
+    _light0 = btVector4(200.0, 200.0, 200.0, 0.2);
+    _light1 = btVector4(400.0, 400.0, 200.0, 0.1);
+
+    _gl_ambient = btVector3(.1f, .1f, 1.0f);
+    _gl_diffuse = btVector4(.9f, .9f, .9f, 1.0f);
+    _gl_specular = btVector4(.85f, .85f, .85f, 1.0f);
+    _gl_model_ambient = btVector4(.4f, .4f, .4f, 1.0f);
 }
 
 void Viewer::resetCamView() {
@@ -857,9 +890,9 @@ void Viewer::closePovFile() {
 
 Viewer::~Viewer() {
     // qDebug() << "Viewer::~Viewer()";
-    //delete _objects;
-    //delete dynamicsWorld;
-    //delete collisionCfg;
+    delete _objects;
+    delete dynamicsWorld;
+    delete collisionCfg;
 }
 
 void Viewer::computeBoundingBox() {
@@ -869,14 +902,18 @@ void Viewer::computeBoundingBox() {
     btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
 
     float radius = (vmax - vmin).length();
-    // qDebug() << "setSceneRadius() " << radius;
-    setSceneRadius(radius);
 
-    btVector3 center = (vmin + vmax) / 2.0f;
-    // qDebug() << "setSceneCenter() " << center.z() << center.y() << center.z();
-    setSceneCenter(Vec(center.x(), center.y(), center.z()));
+    if (qIsFinite(radius)) {
+        // qDebug() << QString("setSceneRadius(%1)").arg(radius);
+        setSceneRadius(radius);
 
-    // setSceneCenter(Vec());
+        //btVector3 center = (- vmax + vmin) / 2.0f;
+        //qDebug() << "setSceneCenter() " << center.x() << center.y() << center.z();
+        //setSceneCenter(Vec(center.x(), center.y(), center.z()));
+        setSceneCenter(Vec());
+    } else {
+        qDebug() << tr("Warning: scene radius is: %1").arg(radius);
+    }
 }
 
 void Viewer::init() {
@@ -1034,8 +1071,8 @@ void Viewer::drawSceneInternal(int pass) {
         btVector3 aabbMin(0,0,0),aabbMax(0,0,0);
         //m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
 
-        aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-        aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+        // aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+        // aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
         //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
         //		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
         // dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));
@@ -1046,8 +1083,8 @@ void Viewer::drawSceneInternal(int pass) {
         switch(pass)
         {
         case	0:	_drawer->drawOpenGL(o);break;
-        //case	1:	_drawer->drawShadow(m_sundirection*rot,o);break;
-        //case	2:	_drawer->drawOpenGL(o);break;
+            //case	1:	_drawer->drawShadow(m_sundirection*rot,o);break;
+            //case	2:	_drawer->drawOpenGL(o);break;
         }
     }
 }

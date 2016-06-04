@@ -96,7 +96,7 @@ end
 --v:add(mesh())
 
 function tst()
-  for i = 0,10 do
+  for i = 0,70 do
     m = mesh()
     m.pos = btVector3(0,i,0)
   end

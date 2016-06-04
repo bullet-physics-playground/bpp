@@ -19,6 +19,9 @@ public:
 
     virtual void renderInLocalFrame(QTextStream *s);
     virtual void render(QTextStream *s);
+
+    btScalar getSize();
+
 protected:
     void init(btScalar nx, btScalar ny, btScalar nz,
               btScalar nConst, btScalar size);

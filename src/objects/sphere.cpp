@@ -15,6 +15,7 @@
 using namespace std;
 
 #include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
 
 Sphere::Sphere(btScalar pradius, btScalar mass) : Object()
 {
@@ -57,9 +58,9 @@ void Sphere::luaBind(lua_State *s) {
     module(s)
             [
             class_<Sphere,Object>("Sphere")
-            .def(constructor<>())
-            .def(constructor<btScalar>())
-            .def(constructor<btScalar, btScalar>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<btScalar>(), adopt(result))
+            .def(constructor<btScalar, btScalar>(), adopt(result))
             .property("radius", &Sphere::getRadius, &Sphere::setRadius)
             .def(tostring(const_self))
             ];

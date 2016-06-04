@@ -25,7 +25,7 @@ v.pre_sdl = [[
 
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0,-100,0)
-plane.col = color.green
+plane.col = color.gray
 plane.sdl = [[
   texture {
     pigment { color rgb <0,0,0>*1.5 }
@@ -123,6 +123,6 @@ end
 setcam()
 
 v:postSim(function(N)
-  print(N)
+  --print(N)
   setcam()
 end)

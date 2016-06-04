@@ -41,7 +41,7 @@ v.pre_sdl = [[
 
 v.gravity = btVector3(0,-9.81,0)
 
-plane = Plane(0,1,0,0,1000)
+plane = Plane(0,1,0,0,200)
 plane.pos = btVector3(0,1,0)
 plane.col = "#222"
 plane.friction = 10

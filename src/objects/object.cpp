@@ -339,7 +339,7 @@ void Object::setPosition(btScalar x, btScalar y, btScalar z) {
 }
 
 btVector3 Object::getPosition() const {
-    if (body != NULL && typeid(body->getMotionState()) == typeid(btDefaultMotionState)) {
+    if (body != NULL) {
         btTransform trans;
         body->getMotionState()->getWorldTransform(trans);
         return trans.getOrigin();
@@ -349,7 +349,7 @@ btVector3 Object::getPosition() const {
 }
 
 void Object::setRotation(const btVector3& axis, btScalar angle) {
-    if (body != NULL && typeid(body->getMotionState()) == typeid(btDefaultMotionState)) {
+    if (body != NULL) {
         btTransform trans;
         btQuaternion rot;
         body->getMotionState()->getWorldTransform(trans);

@@ -35,6 +35,7 @@ car.pos =btVector3(0,4,0)
 car.col="#003399"
 car.vel=car_previous_velocity
 car.restitution=0
+print(car.pos)
 v:add(car)
 
 -- FRONT AXE
@@ -319,7 +320,7 @@ end
 
 steps()
 
-v:postSim(function(N)
+v:preDraw(function(N)
 
   -- pseudo orthogonal
   v.cam:setFieldOfView(.2)
@@ -327,14 +328,18 @@ v:postSim(function(N)
   -- rotate camera
   v.cam.up   = btVector3(.25,1,0)
 
-  v.cam.pos  = btVector3(
+  pos  = btVector3(
     car.pos.x,
     car.pos.y+8,
     car.pos.z+200)
 
-  v.cam.look = btVector3(
+  look = btVector3(
     car.pos.x,
     10,
     car.pos.z)
 
+  v.cam.pos  = pos
+  v.cam.look = look
+
+  print("pos = "..tostring(pos).." look = "..tostring(look))
 end)

@@ -211,9 +211,9 @@ void Mesh::luaBind(lua_State *s) {
     module(s)
             [
             class_<Mesh, Object>("Mesh")
-            .def(constructor<>())
-            .def(constructor<QString>())
-            .def(constructor<QString, btScalar>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<QString>(), adopt(result))
+            .def(constructor<QString, btScalar>(), adopt(result))
             .def(tostring(const_self))
 
             .property("shape", &Mesh::getShape, &Mesh::setShape)

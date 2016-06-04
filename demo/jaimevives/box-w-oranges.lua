@@ -11,7 +11,7 @@ v.fixedTimeStep = 1/20
 
 -- ORANGES BOX 
 
-plane = Plane(0,1,0,0,10000)
+plane = Plane(0,1,0,0,100)
 plane.col = "#00b000"
 v:add(plane)
 

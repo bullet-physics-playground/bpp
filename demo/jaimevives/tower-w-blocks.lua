@@ -14,7 +14,7 @@ v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
 
 ---
 
-plane = Plane(0,1,0,0,1000)
+plane = Plane(0,1,0,0,200)
 plane.col = "#ffffff"
 v:add(plane)
 

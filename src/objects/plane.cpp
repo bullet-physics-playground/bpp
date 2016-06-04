@@ -153,3 +153,7 @@ void Plane::renderInLocalFrame(QTextStream *s) {
 void Plane::render(QTextStream *s) {
     renderInLocalFrame(s);
 }
+
+btScalar Plane::getSize() {
+    return size;
+}
