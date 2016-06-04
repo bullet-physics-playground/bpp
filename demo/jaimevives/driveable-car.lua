@@ -101,8 +101,8 @@ elseif (car_model==2) then -- Nissan Micra (by Ren Bui)
       rotate y*90
       scale 7.5
   ]]
-  right_tire_sdl="object{gs_tyre"
-   left_tire_sdl="object{gs_tyre rotate 180*y"
+  right_tire_sdl="object{micra_tyre scate 7.5"
+  left_tire_sdl="object{micra_tyre scate 7.5 rotate 180*y"
 end
 
 -- engine control
