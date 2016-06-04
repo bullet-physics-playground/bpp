@@ -18,8 +18,8 @@ v.fixedTimeStep = 1/60
 use_obstacles = 2 -- 1 planes , 2 terrain
 
 col_sand  = "#ffff99"
-col_base  = "#2f2f2f"
-col_wheel = "#0f5f1f"
+col_base  = "#2f1f1f"
+col_wheel = "#3f3f3f"
 
 if(use_obstacles==2) then
   local f = 2000  -- friction
@@ -81,6 +81,7 @@ car = function(r,x,y,z)
 
   cube = Cube(d1,len*2,d,100) 
   cube.col = base_col
+  cube.sdl = "texture { t_body }"
   trans.move(cube, btVector3(x,y,z))
   v:add(cube)
 
@@ -88,6 +89,7 @@ car = function(r,x,y,z)
   c0.pos = btVector3(0, -len, d/2+.4/2)
   c0.friction = f
   c0.col = wheel_col
+  c0.sdl = "texture { t_wheel }"
   trans.move(c0, btVector3(x,y,z))
   v:add(c0)
 
@@ -95,6 +97,7 @@ car = function(r,x,y,z)
   c1.pos = btVector3(0, -len, -d/2-.4/2)
   c1.friction = f
   c1.col = wheel_col
+  c1.sdl = "texture { t_wheel }"
   trans.move(c1, btVector3(x,y,z))
   v:add(c1)
 
@@ -102,6 +105,7 @@ car = function(r,x,y,z)
   c2.pos = btVector3(0, len, d/2+.4/2)
   c2.friction = f
   c2.col = wheel_col
+  c2.sdl = "texture { t_wheel }"
   trans.move(c2, btVector3(x,y,z))
   v:add(c2)
 
@@ -109,6 +113,7 @@ car = function(r,x,y,z)
   c3.pos = btVector3(0, len, -d/2-.4/2)
   c3.friction = f
   c3.col = wheel_col
+  c3.sdl = "texture { t_wheel }"
   trans.move(c3, btVector3(x,y,z))
   v:add(c3)
 
@@ -173,15 +178,16 @@ for i = -3,3 do
 end
 
 function setcam()
-  d = 30
+  d = 220
 
   v.cam.up   = btVector3(0,1,0)
-  v.cam:setHorizontalFieldOfView(1.2)
+  v.cam:setHorizontalFieldOfView(0.4)
 
   v.cam.pos  = c.car.pos
-     + btVector3(d*-.1,d*0.1,d*0.4)
+     + btVector3(d*-.1,d*0.075,d*0.4)
 
   v.cam.look = c.car.pos
+     + btVector3(0,6,0)
   --print(c.car.vel)
 end
 
@@ -217,10 +223,22 @@ end)
 
 v.pre_sdl = [[
 #declare t_sand = texture {
-  pigment{ color rgb<0.9,0.78,0.6>}
+  pigment{ color rgb<0.5,0.38,0.2>}
   normal { bumps 0.5 scale 0.015 }
   finish { diffuse 0.9 phong 0 }
 }
+
+#declare t_shiny_metal = texture {
+ pigment { rgb .8 }
+ finish { 
+   ambient .2 diffuse .2
+   specular 1.5 roughness .02 brilliance 2
+   reflection { .6 metallic 1 } metallic
+  }
+}
+
+#declare t_wheel = t_shiny_metal
+#declare t_body  = t_shiny_metal
 ]]
 
 -- EOF

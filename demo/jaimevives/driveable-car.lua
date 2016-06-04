@@ -54,7 +54,7 @@ car_model=1
 use_obstacles = 1
 
 -- engine control
-initial_angular_velocity = 100
+initial_angular_velocity = 20
 
 if (car_model==1) then -- Citroen GS (JVP)
   chassis_model="citroen_gs.3ds"
