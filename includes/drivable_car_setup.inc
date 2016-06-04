@@ -72,13 +72,13 @@ texture{
   pigment{SlateBlue*.5+NavyBlue*.5}
   finish{specular albedo .1 roughness .005 reflection{.01,.25}}
 }
-#include "i_citroen_gs.inc"
+#include "../../includes/i_citroen_gs.inc"
 #declare citroen_gs=object{jvp_citroen_gs(t_paint,20)
  scale 10*<-1,1,1>
  rotate 90*y
  translate <-3,-4,0>
  }
-#declare gs_tyre=object{wheel(1,0) scale .1 rotate 90*y}
+#declare gs_tyre=object{wheel(1,0) scale <.6,1,1>*.1 rotate 90*y}
 
 // ground
 #declare ground=
