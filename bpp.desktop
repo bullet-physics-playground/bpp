@@ -7,7 +7,7 @@ Comment=Physics Simulation
 Icon=/usr/share/icons/hicolor/scalable/apps/bpp.svg
 
 Type=Application
-Categories=Engineering;
+Categories=Engineering;Development
 
 Exec=bpp %f
 Terminal=false
