@@ -5,6 +5,9 @@ services:
 
 script:
   - export TRAVIS_DEBIAN_DISTRIBUTION=sid; wget -O- http://travis.debian.net/script.sh | sh -
+  - sudo dpkg -i ../bpp*deb
+  - sudo apt -f install
+  - dpkg -L bpp
 
 branches:
   except:
