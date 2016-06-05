@@ -3,8 +3,8 @@ Section: graphics
 Priority: optional
 Maintainer: Jakob Flierl <jakob.flierl@gmail.com>
 Uploaders: Jakob Flierl <jakob.flierl@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~), automake, libtool, cmake, libqt4-dev, libqglviewer-qt4-dev | libqglviewer-dev, freeglut3-dev, libglew1.6-dev, libluabind-dev, liblua5.1-0-dev, libbullet-dev, libassimp-dev, lib3ds-dev
-Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 7.0.50~), automake, libtool, cmake, qt5-default, libqglviewer-dev, freeglut3-dev, libglew1.6-dev, libluabind-dev, liblua5.2-dev, libbullet-dev, libassimp-dev
+Standards-Version: 3.9.7
 Homepage: https://github.com/bulttet-physics-playground
 Vcs-Git: git://github.com/bullet-physics-playground/bpp.git
 Vcs-Browser: https://github.com/bullet-physics-playground/bpp
