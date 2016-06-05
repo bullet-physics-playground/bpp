@@ -1,0 +1,2 @@
+extend-diff-ignore = "^\.travis\.yml$"
+tar-ignore = "bpp/export/.*"
