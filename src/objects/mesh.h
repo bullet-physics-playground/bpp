@@ -34,7 +34,7 @@ public:
     static void luaBind(lua_State *s);
     virtual QString toString() const;
 
-    virtual void renderInLocalFrame(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
 
 protected:
     GLuint m_VertexVBO, m_NormalVBO;

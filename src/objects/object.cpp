@@ -170,11 +170,16 @@ void Object::luaBind(lua_State *s) {
             ];
 }
 
-void Object::renderInLocalFrame(QTextStream *s) {
+void Object::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(s)
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
 }
 
-void Object::renderInLocalFramePre(QTextStream *s) {
+void Object::renderInLocalFramePre(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
     btTransform trans;
 
     // qDebug() << toString() << (body->getMotionState());
@@ -195,8 +200,10 @@ void Object::renderInLocalFramePre(QTextStream *s) {
     }
 }
 
-void Object::renderInLocalFramePost(QTextStream *s) {
+void Object::renderInLocalFramePost(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(s)
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
 
     if (body)
         glPopMatrix();
@@ -424,12 +431,12 @@ QString Object::getPovPhotons() const {
     return tmp;
 }
 
-void Object::render(QTextStream *s)
+void Object::render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb)
 {
     if (body) {
-        renderInLocalFramePre(s);
-        renderInLocalFrame(s);
-        renderInLocalFramePost(s);
+        renderInLocalFramePre(s, minaabb, maxaabb);
+        renderInLocalFrame(s, minaabb, maxaabb);
+        renderInLocalFramePost(s, minaabb, maxaabb);
     }
 }
 

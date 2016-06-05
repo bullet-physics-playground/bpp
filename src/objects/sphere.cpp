@@ -70,7 +70,10 @@ QString Sphere::toString() const {
     return QString("Sphere");
 }
 
-void Sphere::renderInLocalFrame(QTextStream *s) {
+void Sphere::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
     GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
     GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };

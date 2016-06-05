@@ -68,7 +68,10 @@ QString Cube::toString() const {
     return QString("Cube");
 }
 
-void Cube::renderInLocalFrame(QTextStream *s) {
+void Cube::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
     glScalef(lengths[0], lengths[1], lengths[2]);
     glColor3ubv(color);
     glutSolidCube(1.0f);

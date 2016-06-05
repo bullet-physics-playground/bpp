@@ -216,9 +216,9 @@ void renderSquareA(float x, float y, float z)
 inline void glDrawVector(const btVector3& v) { glVertex3d(v[0], v[1], v[2]); }
 
 
-void GL_ShapeDrawer::drawOpenGL(Object* o)
+void GL_ShapeDrawer::drawOpenGL(Object* o, btVector3& minaabb, btVector3& maxaabb)
 {
-    o->render(NULL);
+    o->render(NULL, minaabb, maxaabb);
 
     // XXX add caching
 }

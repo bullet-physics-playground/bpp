@@ -225,7 +225,7 @@ QString Mesh::toString() const {
     return QString("Mesh");
 }
 
-void Mesh::renderInLocalFrame(QTextStream *s) {
+void Mesh::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
     glColor3ubv(color);
 
     if (m_shape != NULL && body != NULL && body->getMotionState() != NULL
@@ -235,11 +235,11 @@ void Mesh::renderInLocalFrame(QTextStream *s) {
         drawCallback.m_wireframe = true;
 
         btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
-        concaveMesh->processAllTriangles(&drawCallback,btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)); // XXX use scene world bounds
+        concaveMesh->processAllTriangles(&drawCallback, minaabb, maxaabb);
 
         if (s != NULL) {
             POVSaveCallback pov;
-            concaveMesh->processAllTriangles(&pov,btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)); // XXX use scene world bounds
+            concaveMesh->processAllTriangles(&pov,minaabb, maxaabb);
 
             if (pov.idx.length()>0) {
 

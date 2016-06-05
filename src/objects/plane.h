@@ -17,8 +17,8 @@ public:
     static void luaBind(lua_State *s);
     QString toString() const;
 
-    virtual void renderInLocalFrame(QTextStream *s);
-    virtual void render(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    virtual void render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
 
     btScalar getSize();
 

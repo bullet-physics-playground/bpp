@@ -90,7 +90,7 @@ void Cam::luaBind(lua_State *s) {
 
 // see http://libqglviewer.com/refManual/classqglviewer_1_1Camera.html#ab442b71a46297223ae12b163653eeb7e
 void Cam::setUpVector(const btVector3 &v, bool noMove) {
-    if (qIsFinite(v.length()))
+    if (isfinite(v.length()))
       Camera::setUpVector(Vec(v[0], v[1], v[2]), noMove);
 }
 
@@ -99,7 +99,7 @@ btVector3 Cam::getUpVector() const {
 }
 
 void Cam::setPosition(const btVector3& v) {
-    if (qIsFinite(v[0]) && qIsFinite(v[1]) && qIsFinite(v[2]))
+    if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))
       Camera::setPosition(Vec(v[0], v[1], v[2]));
 }
 
@@ -109,7 +109,7 @@ btVector3 Cam::getPosition() const {
 }
 
 void Cam::setLookAt(const btVector3& v) {
-    if (qIsFinite(v[0]) && qIsFinite(v[1]) && qIsFinite(v[2]))
+    if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))
       Camera::lookAt(Vec(v[0], v[1], v[2]));
 
     _lookAt = v;
@@ -120,7 +120,7 @@ btVector3 Cam::getLookAt() const {
 }
 
 void Cam::setFocalPoint(const btVector3& v) {
-    if (qIsFinite(v[0]) && qIsFinite(v[1]) && qIsFinite(v[2]))
+    if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))
       _focalPoint = v;
 }
 

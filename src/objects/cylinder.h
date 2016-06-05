@@ -17,7 +17,7 @@ public:
 
 protected:
     void init(btScalar radius, btScalar depth, btScalar mass);
-    virtual void renderInLocalFrame(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
 };
 
 #endif // CYLINDER_H

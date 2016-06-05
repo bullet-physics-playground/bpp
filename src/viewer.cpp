@@ -1008,7 +1008,7 @@ void Viewer::draw() {
         glMultMatrixd(manipulatedFrame()->matrix());
     }
 
-    bool useShadows = false; // XXX
+    bool useShadows = true; // XXX
 
     if(useShadows)
     {
@@ -1067,12 +1067,13 @@ void Viewer::drawSceneInternal(int pass) {
     // btScalar m[16];
     btMatrix3x3	rot;rot.setIdentity();
 
-    foreach (Object *o, *_objects) {
-        btVector3 aabbMin(0,0,0),aabbMax(0,0,0);
-        //m_dynamicsWorld->getBroadphase()->getBroadphaseAabb(aabbMin,aabbMax);
+    btVector3 minaabb(0,0,0),maxaabb(0,0,0);
+    dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb,maxaabb);
 
-        // aabbMin-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-        // aabbMax+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+
+    foreach (Object *o, *_objects) {
         //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
         //		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
         // dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));
@@ -1082,21 +1083,25 @@ void Viewer::drawSceneInternal(int pass) {
 
         switch(pass)
         {
-        case	0:	_drawer->drawOpenGL(o);break;
-            //case	1:	_drawer->drawShadow(m_sundirection*rot,o);break;
-            //case	2:	_drawer->drawOpenGL(o);break;
+        case 0: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
+        // case 1: _drawer->drawShadow(m_sundirection*rot,o); break;
+        case 2: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
         }
     }
 }
 
 void Viewer::savePOV(bool force) {
+
+    btVector3 minaabb(_aabb[0], _aabb[1], _aabb[2]);
+    btVector3 maxaabb(_aabb[3], _aabb[4], _aabb[5]);
+
     if (!force && !_savePOV)
         return;
 
     openPovFile();
     foreach (Object *o, *_objects) {
         try {
-            o->render(_stream);
+            o->render(_stream, minaabb, maxaabb);
         } catch(const std::exception& e){
             showLuaException(e, "object:render()");
         }

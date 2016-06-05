@@ -17,7 +17,7 @@ public:
     QString toString() const;
 
 protected:
-    virtual void renderInLocalFrame(QTextStream *s);
+    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
 
     btScalar         radius;
 };

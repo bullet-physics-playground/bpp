@@ -71,7 +71,10 @@ QString Plane::toString() const {
     return QString("Plane");
 }
 
-void Plane::renderInLocalFrame(QTextStream *s) {
+void Plane::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
     // qDebug() << "Plane::renderInLocalFrame";
 
     GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -150,8 +153,8 @@ void Plane::renderInLocalFrame(QTextStream *s) {
 
 }
 
-void Plane::render(QTextStream *s) {
-    renderInLocalFrame(s);
+void Plane::render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    renderInLocalFrame(s, minaabb, maxaabb);
 }
 
 btScalar Plane::getSize() {

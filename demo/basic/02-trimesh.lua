@@ -8,9 +8,9 @@
 
 v.gravity = btVector3(0,-9.81,0)
 
-v.timeStep      = 1/25
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/70
+v.timeStep      = 1/5
+v.maxSubSteps   = 6
+v.fixedTimeStep = 1/120
 
 v.pre_sdl = v.pre_sdl..[==[
 
@@ -75,7 +75,7 @@ shape = btGImpactMeshShape(m)
 
 shape:updateBound()
 
-mass = 10
+mass = 100
 
 inertia = btVector3()
 shape:calculateLocalInertia(mass, inertia)
@@ -85,9 +85,10 @@ mm = Mesh()
 mm.col   = "#ff0000"
 mm.shape = shape
 mm.body  = body
-mm.mass  = 10
---mm.inertia = 0.9
---mm.damp_lin = 0.5
+mm.mass     = 10
+mm.inertia  = 2.9
+mm.damp_lin = 0.5
+mm.damp_ang = 0.5
 v:add(mm)
 return mm
 end

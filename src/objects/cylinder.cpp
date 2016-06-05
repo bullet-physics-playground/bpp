@@ -72,7 +72,9 @@ QString Cylinder::toString() const {
     return QString("Cylinder");
 }
 
-void Cylinder::renderInLocalFrame(QTextStream *s) {
+void Cylinder::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
 
     GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };

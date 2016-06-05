@@ -48,7 +48,7 @@ public:
     virtual ~GL_ShapeDrawer();
 
     // drawOpenGL might allocate temporary memory, stores pointer in shape user pointer
-    virtual void drawOpenGL(Object* o);
+    virtual void drawOpenGL(Object* o, btVector3& minaabb, btVector3& maxaabb);
 
     void drawSphere(btScalar r, int lats, int longs);
     static void drawCoordSystem();
