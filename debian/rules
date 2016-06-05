@@ -22,7 +22,7 @@ build: build-stamp
 build-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 
-	qmake $(QMAKE_AFTER) bpp.pro && $(MAKE)
+	qmake $(QMAKE_AFTER) bpp.pro && $(MAKE) -j$(nproc)
 
 	touch $@
 
