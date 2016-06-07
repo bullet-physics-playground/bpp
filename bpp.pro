@@ -69,7 +69,7 @@ link_pkgconfig {
 
   contains(LSB_RELEASE_ID, Ubuntu): {
     contains(LSB_RELEASE_REL, 14.04) : {
-      PKGCONFIG += lua5.1
+      PKGCONFIG += lua5.2
       PKGCONFIG += luabind
       PKGCONFIG += bullet
       LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
