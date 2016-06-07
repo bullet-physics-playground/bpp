@@ -6,7 +6,7 @@ v.timeStep      = 1/5
 v.maxSubSteps   = 100
 v.fixedTimeStep = 1/50
 
-plane = Plane(0,1,0,0,1000)
+plane = Plane(0,1,0,0,1)
 plane.friction = 10
 plane.col = "#111111"
 v:add(plane)

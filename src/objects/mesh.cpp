@@ -232,7 +232,7 @@ void Mesh::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& max
         // && typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
     ) {
         GlDrawcallback drawCallback;
-        drawCallback.m_wireframe = true;
+        drawCallback.m_wireframe = true; // XXX
 
         btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
         concaveMesh->processAllTriangles(&drawCallback, minaabb, maxaabb);

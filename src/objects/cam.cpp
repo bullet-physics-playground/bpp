@@ -186,7 +186,7 @@ float Cam::zFar() const
 
 void Cam::changeOrthoFrustumSize(int delta)
 {
-    double factor = 1.00005;
+    double factor = 1.000005;
 
     if (delta > 0)
         orthoSize *= factor;

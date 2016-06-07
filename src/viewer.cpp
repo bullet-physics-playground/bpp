@@ -713,16 +713,15 @@ void Viewer::clear() {
         _cam->setPostSDL(NULL);
     }
 
-    _gl_shininess = btScalar(5.0);
-    _gl_specular_col = btVector4(.85f, .85f, .85f, 1.0f);
+    _light0 = btVector4( 200.0, 200.0,  200.0, 0.4);
+    _light1 = btVector4(-100.0,   1.0, -100.0, 0.0);
 
-    _light0 = btVector4(200.0, 200.0, 200.0, 0.2);
-    _light1 = btVector4(400.0, 400.0, 200.0, 0.1);
-
-    _gl_ambient = btVector3(.1f, .1f, 1.0f);
-    _gl_diffuse = btVector4(.9f, .9f, .9f, 1.0f);
-    _gl_specular = btVector4(.85f, .85f, .85f, 1.0f);
-    _gl_model_ambient = btVector4(.4f, .4f, .4f, 1.0f);
+    _gl_ambient       = btVector3(0.2f, 0.2f, 0.2f);
+    _gl_diffuse       = btVector4(0.8f, 0.8f, 0.8f, 1.0f);
+    _gl_shininess     = btScalar(50.0);
+    _gl_specular_col  = btVector4(0.85f, 0.85f, 0.85f, 1.0f);
+    _gl_specular      = btVector4(0.0f, 0.0f, 0.0f, 0.0f);
+    _gl_model_ambient = btVector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void Viewer::resetCamView() {
@@ -930,15 +929,15 @@ void Viewer::init() {
         showEntireScene();
     }
 
-    _gl_shininess = btScalar(5.0);
-    _gl_specular_col = btVector4(.85f, .85f, .85f, 1.0f);
-
     _light0 = btVector4(200.0, 200.0, 200.0, 0.2);
     _light1 = btVector4(400.0, 400.0, 200.0, 0.1);
 
     _gl_ambient = btVector3(.1f, .1f, 1.0f);
     _gl_diffuse = btVector4(.9f, .9f, .9f, 1.0f);
     _gl_specular = btVector4(.85f, .85f, .85f, 1.0f);
+    _gl_shininess = btScalar(50.0);
+    _gl_specular_col = btVector4(0.0f, 0.0f, 0.0f, 0.0f);
+
     _gl_model_ambient = btVector4(.4f, .4f, .4f, 1.0f);
 
     _initialCameraPosition=camera()->position();
@@ -973,7 +972,7 @@ void Viewer::draw() {
 
     //	light_position is NOT default value
     GLfloat light_position0[] = {_light0.x(), _light0.y(), _light0.z(), _light0.w()};
-    GLfloat light_position1[] = { btScalar(-100.0), btScalar( 1.0), btScalar(-100.0), btScalar(0.0) };
+    GLfloat light_position1[] = {_light1.x(), _light1.y(), _light1.z(), _light1.w()};
 
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
@@ -995,14 +994,12 @@ void Viewer::draw() {
 
     glClearColor(btScalar(0),btScalar(0),btScalar(0),btScalar(0));
 
-    /*
-    GLfloat lmodel_ambient[] = {
-        _gl_model_ambient.x(),
-        _gl_model_ambient.y(),
-        _gl_model_ambient.z(), _gl_model_ambient.w() };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, _gl_model_ambient);
 
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lmodel_ambient);
-    */
+    glMaterialfv(GL_FRONT, GL_AMBIENT,  _gl_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,  _gl_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
+    glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
 
     if (manipulatedFrame() != NULL) {
         glPushMatrix();
@@ -1073,17 +1070,6 @@ void Viewer::drawSceneInternal(int pass) {
 
     minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
     maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-
-    float light_pos[] = {2.0, -1.0, 1.0, 10.0};
-      float ambient[4] = {0.33, 0.22, 0.03, 1.0};
-      float diffuse[4] = {0.78, 0.57, 0.11, 1.0};
-      float specular[4] = {0.99, 0.91, 0.81, 1.0};
-      float shininess = 27.8;
-      glClearDepth(1.0);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 
     foreach (Object *o, *_objects) {
         //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());

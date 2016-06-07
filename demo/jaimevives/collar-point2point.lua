@@ -10,7 +10,7 @@ v.fixedTimeStep = 1/20
 
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0, 0, 0)
-plane.col = "#111111"
+plane.col = "#777"
 v:add(plane)
 
 function collar(num_pearls,collar_pos,pearl_radius)
@@ -29,7 +29,7 @@ function collar(num_pearls,collar_pos,pearl_radius)
     o = btVector3(collar_pos.x+x, collar_pos.y, collar_pos.z+y)
     pearl.trans = btTransform(q,o)    
     pearl.col = "#ffEEDD"
-    pearl.friction = .3
+    pearl.friction = 0.6
     pearl.restitution = .1
     v:add(pearl)
 
@@ -61,6 +61,8 @@ end
 
 collar(60,btVector3(0,175,0),4.6)
 
-c = Cylinder(10,200,0)
-c.pos = btVector3(0,100,0)
+c = Cylinder(10,220,0)
+c.pos = btVector3(0,120,0)
+c.col = "#333"
+c.friction = 1
 v:add(c)

@@ -15,7 +15,7 @@ v.maxSubSteps   = 2 * v.timeStep / v.fixedTimeStep
 ---
 
 plane = Plane(0,1,0,0,200)
-plane.col = "#ffffff"
+plane.col = "#fff"
 v:add(plane)
 
 function tower(floors,blocks_per_floor,num_balls)
