@@ -58,9 +58,9 @@ global_settings{
 // *** SUN & SKY ***
 // *****************
 // CIE & LIGHTSYS 
-#include "CIE.inc"
-#include "lightsys.inc"          
-#include "lightsys_constants.inc" 
+#include "bpp_CIE.inc"
+#include "bpp_lightsys.inc"          
+#include "bpp_lightsys_constants.inc" 
 #declare Lightsys_Brightness=.75; 
 // sun position
 #declare r_sun=seed(544);
@@ -71,7 +71,7 @@ global_settings{
 #declare Intensity_Mult=2;
 #declare Current_Turbidity=3;
 #declare Max_Vertices=800;
-#include "CIE_Skylight"
+#include "bpp_CIE_Skylight"
 // LightSys based sun to replace skylight SunColor
 #declare lct=4000+2500*Al/90; 
 #declare lc=Daylight(lct);

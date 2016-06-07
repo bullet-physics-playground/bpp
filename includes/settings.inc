@@ -60,11 +60,11 @@ global_settings {
 
 #if (use_lightsys)
 
-#include "CIE.inc"
-#include "CIE_tools.inc"
-#include "lightsys.inc"
-#include "lightsys_constants.inc"
-#include "espd_lightsys.inc"
+#include "bpp_CIE.inc"
+#include "bpp_CIE_tools.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
+#include "bpp_espd_lightsys.inc"
   
 #if (use_lightsys_light1 = 1)
 object {
@@ -96,7 +96,7 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 
 // -----------------------------------------------------
 
-#include "CIE_Skylight.inc"
+#include "bpp_CIE_Skylight.inc"
 
 // -----------------------------------------------------
 #declare Lightsys_Brightness = 1.0;

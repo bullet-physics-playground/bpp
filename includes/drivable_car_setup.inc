@@ -27,9 +27,9 @@ global_settings{
 // *** SUN & SKY ***
 // *****************
 // CIE & LIGHTSYS 
-#include "CIE.inc"
-#include "lightsys.inc"          
-#include "lightsys_constants.inc" 
+#include "bpp_CIE.inc"
+#include "bpp_lightsys.inc"          
+#include "bpp_lightsys_constants.inc" 
 #declare Lightsys_Brightness=.75; 
 // sun position
 #declare r_sun=seed(54);

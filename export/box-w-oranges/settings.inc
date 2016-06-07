@@ -36,10 +36,10 @@ global_settings{
 #include "grassy_bank.inc"
 
 // *** SKY AND SUNLIGHT ***
-#include "CIE.inc"
+#include "bpp_CIE.inc"
 #declare Lightsys_Scene_Scale=1;
-#include "lightsys.inc"
-#include "lightsys_constants.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
 #declare Cl_Daylight =Daylight(6500);
 #declare Cl_Skylight =Daylight(7500);
 #declare Lightsys_Brightness=.75;
@@ -48,7 +48,7 @@ global_settings{
 #declare Intensity_Mult=1; // brightness of the sky dome and sunlight
 #declare fiLuminous=finish{ambient 0 emission 1 diffuse 0 specular 0 phong 0 reflection 0 crand 0 irid{0}}
 #declare Max_Vertices=1000;
-#include "CIE_Skylight"
+#include "bpp_CIE_Skylight"
 #declare Cl_Sunlight =Daylight(4000+3000*Al/90);
 light_source{
   SolarPosition
