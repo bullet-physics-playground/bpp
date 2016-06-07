@@ -8,7 +8,7 @@ Features:
 * LUA scripting   (experimental)
 * OpenGL GUI      (experimental)
 * OpenSCAD import (experimental)
-* POV-Ray export  (stable)
+* POV-Ray [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
 Created with Bullet Physics Playground:
 
