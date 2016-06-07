@@ -69,13 +69,15 @@ link_pkgconfig {
 
   contains(LSB_RELEASE_ID, Ubuntu): {
     contains(LSB_RELEASE_REL, 14.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
+      PKGCONFIG += lua5.1
+      PKGCONFIG += luabind
+      PKGCONFIG += bullet
+      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
     }
     contains(LSB_RELEASE_REL, 16.04) : {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
+      PKGCONFIG += bullet
       LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }
@@ -83,8 +85,6 @@ link_pkgconfig {
     PKGCONFIG += bullet lua5.2 luabind
     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
   }
-
-  PKGCONFIG += bullet
 
   contains(DEFINES, HAS_LIB_ASSIMP) {
     PKGCONFIG += assimp
