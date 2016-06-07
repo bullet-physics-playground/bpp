@@ -43,6 +43,7 @@ TRAVIS_DEBIAN_INCREMENT_VERSION_NUMBER="${TRAVIS_DEBIAN_INCREMENT_VERSION_NUMBER
 #### Distribution #############################################################
 
 TRAVIS_DEBIAN_BACKPORTS="${TRAVIS_DEBIAN_BACKPORTS:-false}"
+TRAVIS_DEBIAN_PROPOSED="${TRAVIS_DEBIAN_PROPOSED:-true}"
 
 if [ "${TRAVIS_DEBIAN_DISTRIBUTION:-}" = "" ]
 then
@@ -116,6 +117,8 @@ cat >Dockerfile <<EOF
 FROM ubuntu:${TRAVIS_DEBIAN_DISTRIBUTION}
 RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main restricted universe multiverse" > /etc/apt/sources.list
 RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION} main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-updates main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 
 if [ "${TRAVIS_DEBIAN_BACKPORTS}" = true ]
@@ -123,6 +126,14 @@ then
 	cat >>Dockerfile <<EOF
 RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main restricted universe multiverse" >> /etc/apt/sources.list
 RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-backports main restricted universe multiverse" >> /etc/apt/sources.list
+EOF
+fi
+
+if [ "${TRAVIS_DEBIAN_PROPOSED}" = true ]
+then
+        cat >>Dockerfile <<EOF
+RUN echo "deb ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-proposed main restricted universe multiverse" >> /etc/apt/sources.list
+RUN echo "deb-src ${TRAVIS_DEBIAN_MIRROR} ${TRAVIS_DEBIAN_DISTRIBUTION}-proposed main restricted universe multiverse" >> /etc/apt/sources.list
 EOF
 fi
 
