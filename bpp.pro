@@ -82,13 +82,6 @@ link_pkgconfig {
   } contains(LSB_RELEASE_ID, Debian): {
     PKGCONFIG += bullet lua5.2 luabind
     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
-  } else: {
-    PKGCONFIG += bullet lua5.1 luabind
-    LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
-
-    contains(DEFINES, HAS_LIB_ASSIMP) {
-      PKGCONFIG += assimp
-    }
   }
 
   PKGCONFIG += bullet
