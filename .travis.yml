@@ -5,7 +5,7 @@ services:
 
 script:
   - export TRAVIS_DEBIAN_DISTRIBUTION=sid; wget -O- http://travis.debian.net/script.sh | sh -
-  - dpkg -c ../bpp_*deb
+  - export TRAVIS_DEBIAN_DISTRIBUTION=xenial; tools/docker-ubuntu.sh
 
 branches:
   except:
