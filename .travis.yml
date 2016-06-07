@@ -4,7 +4,8 @@ services:
   - docker
 
 script:
-  - wget -O- http://travis.debian.net/script.sh | sh -
+  - export TRAVIS_DEBIAN_DISTRIBUTION=sid; wget -O- http://travis.debian.net/script.sh | sh -
+  - dpkg -c ../bpp_*deb
 
 branches:
   except:
