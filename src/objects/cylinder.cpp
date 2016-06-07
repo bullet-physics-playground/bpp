@@ -72,17 +72,7 @@ QString Cylinder::toString() const {
     return QString("Cylinder");
 }
 
-void Cylinder::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
-
-    // translate to match Bullet cylinder origin
-    glTranslated(0,0,-lengths[2]*.5);
-    glScalef(lengths[0], lengths[1], lengths[2]);
-
-    glColor3ubv(color);
-    glutSolidCylinder(1, 1, 16, 16);
-
+void Cylinder::toPOV(QTextStream *s) const {
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "cylinder { "
@@ -116,5 +106,14 @@ void Cylinder::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3&
             *s << mPostSDL << endl;
         }
     }
+}
 
+void Cylinder::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
+    // translate to match Bullet cylinder origin
+    glTranslated(0,0,-lengths[2]*.5);
+    glScalef(lengths[0], lengths[1], lengths[2]);
+    glutSolidCylinder(1, 1, 16, 16);
 }

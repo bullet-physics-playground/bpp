@@ -12,7 +12,7 @@ v.fixedTimeStep = 1/20
 -- ORANGES BOX 
 
 plane = Plane(0,1,0,0,100)
-plane.col = "#00b000"
+plane.col = "green"
 v:add(plane)
 
 -- BOX MADE OUT OF CUBES
@@ -26,33 +26,35 @@ c_post = [[
 }
 ]]
 
+col = "burlywood"
+
 c1     = Cube(1,17,50,0)
 c1.pos = btVector3(-15.5,7.5,0)
-c1.col = "#f0ff00"
+c1.col = col
 c1.post_sdl = c_post
 v:add(c1)
 
 c2     = Cube(1,17,50,0)
 c2.pos = btVector3(15.5,7.5,0)
-c2.col = "#f0ff00"
+c2.col = col
 c2.post_sdl = c_post
 v:add(c2)
 
 c3     = Cube(30,17,1,0)
 c3.pos = btVector3(0,7.5,25.5)
-c3.col = "#f0ff00"
+c3.col = col
 c3.post_sdl = c_post
 v:add(c3)
 
 c4     = Cube(30,17,1,0)
 c4.pos = btVector3(0,7.5,-25.5)
-c4.col = "#f0ff00"
+c4.col = col
 c4.post_sdl = c_post
 v:add(c4)
 
 c5     = Cube(30,2,50,0)
 c5.pos = btVector3(0,0,0)
-c5.col = "#f0ff00"
+c5.col = col
 c5.post_sdl = c_post
 v:add(c5)
 
@@ -62,7 +64,7 @@ function oranges_row(N,H)
     scale = 3.5+math.random(0,10)*.05
     d     = Sphere(scale)
     d.pos = btVector3(-5+math.random(0,10),H,-15+30*i/N)    
-    d.col = "#f05000"
+    d.col = "Orange"
     d.friction = 4;
     d.pre_sdl = "object{orange scale " .. tostring(scale)
     v:add(d)

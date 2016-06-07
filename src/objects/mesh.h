@@ -33,8 +33,9 @@ public:
 
     static void luaBind(lua_State *s);
     virtual QString toString() const;
+    virtual void toPOV(QTextStream *s) const;
 
-    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
 
 protected:
     GLuint m_VertexVBO, m_NormalVBO;

@@ -16,8 +16,9 @@ public:
 
     static void luaBind(lua_State *s);
     QString toString() const;
+    virtual void toPOV(QTextStream *s) const;
 
-    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
 protected:
     void init(btScalar width, btScalar height, btScalar depth, btScalar mass);
 };

@@ -535,8 +535,9 @@ module roundedBox(x, y, z, r)
 }
 $fn=25;
 roundedBox(1, 1, 1, .05);
-]==],10)
+]==],0)
   rb.pos = btVector3(0,.5,1.5)
+  rb.trans = btTransform(btQuaternion(-1,.45,0,1), btVector3(0,0.5,1.5))
   rb.col = "#ffff00"
   v:add(rb)
 

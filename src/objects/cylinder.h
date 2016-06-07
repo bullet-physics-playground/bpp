@@ -14,10 +14,11 @@ public:
 
     static void luaBind(lua_State *s);
     QString toString() const;
+    virtual void toPOV(QTextStream *s) const;
 
 protected:
     void init(btScalar radius, btScalar depth, btScalar mass);
-    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
 };
 
 #endif // CYLINDER_H

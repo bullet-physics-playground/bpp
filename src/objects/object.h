@@ -106,14 +106,15 @@ public:
     static void luaBind(lua_State *s);
 
     virtual QString toString() const;
+    virtual void toPOV(QTextStream *s) const;
 
-    void render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    void render(btVector3& minaabb, btVector3& maxaabb);
     void setRenderFunction(const luabind::object &fn);
     luabind::object getRenderFunction() const;
 
-    virtual void renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
-    virtual void renderInLocalFramePre(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
-    virtual void renderInLocalFramePost(QTextStream *s, btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFramePre(btVector3& minaabb, btVector3& maxaabb);
+    virtual void renderInLocalFramePost(btVector3& minaabb, btVector3& maxaabb);
 
     QList<btTypedConstraint*> getConstraints();
 

@@ -8,9 +8,9 @@
 
 require "module/trans"
 
-v.timeStep      = 1/2.5
+v.timeStep      = 1/5
 v.maxSubSteps   = 6
-v.fixedTimeStep = 1/60
+v.fixedTimeStep = 1/80
 
 --v.gravity = btVector3(0,-9.81*.15,0)
 --v.gravity = btVector3(0,0,0)
@@ -24,12 +24,15 @@ col_wheel = "#3f3f3f"
 if(use_obstacles==2) then
   local f = 2000  -- friction
 
-  terrain = Mesh("demo/mesh/terrain.3ds",0)
-  terrain.pos =btVector3(0,-1,0)
+  terrain = Mesh("demo/mesh/XantheTerra.stl",0)
+--  terrain = Mesh("demo/mesh/berlin.stl",0)
+  --terrain.pos =btVector3(0,-1,0)
   terrain.col=col_sand
   terrain.friction=f
   terrain.restitution=0
   terrain.sdl = "texture { t_sand }"
+ terrain.trans = btTransform(btQuaternion(-1,0,0,1), btVector3(240,-10,175))
+-- terrain.trans = btTransform(btQuaternion(-1,0,0,1), btVector3(-60,-10,100))
   v:add(terrain)
 end
 
@@ -64,10 +67,11 @@ end
 car = function(r,x,y,z)
   local wheel_col = col_wheel
   local base_col  = col_base
-  local d   = rnd(2.5,3)
-  local d1  = rnd(.4,0.4)
-  local cd1 = rnd(0.5,0.6)
-  local cd2 = rnd(0.5,0.9)
+  local d   = rnd(0.75,1)
+  local d1  = rnd(.12,0.2)
+  local cd1 = rnd(0.25,0.4)
+  local cd2 = rnd(0.25,0.4)
+  local cdd = rnd(0.1,0.75)  -- wheel width
   local d2  = rnd(0.3,0.5)
   local d3  = rnd(0.2,0.3)
   local r   = rnd(0.75,.75)
@@ -75,8 +79,8 @@ car = function(r,x,y,z)
   local m2  = rnd(12,15)
   local s1  = rnd(100,200)
   local s2  = rnd(100,200)
-  local len = rnd(1.5,2)
-  local speed = rnd(3,10)
+  local len = rnd(.65,1.75)
+  local speed = rnd(16,20)
   local f = 200
 
   cube = Cube(d1,len*2,d,100) 
@@ -85,32 +89,32 @@ car = function(r,x,y,z)
   trans.move(cube, btVector3(x,y,z))
   v:add(cube)
 
-  c0 = Cylinder(cd1,.4,m1)
-  c0.pos = btVector3(0, -len, d/2+.4/2)
+  c0 = Cylinder(cd1,cdd,m1)
+  c0.pos = btVector3(0, -len, d/2+cdd/2)
   c0.friction = f
   c0.col = wheel_col
   c0.sdl = "texture { t_wheel }"
   trans.move(c0, btVector3(x,y,z))
   v:add(c0)
 
-  c1 = Cylinder(cd1,.4,m1)
-  c1.pos = btVector3(0, -len, -d/2-.4/2)
+  c1 = Cylinder(cd1,cdd,m1)
+  c1.pos = btVector3(0, -len, -d/2-cdd/2)
   c1.friction = f
   c1.col = wheel_col
   c1.sdl = "texture { t_wheel }"
   trans.move(c1, btVector3(x,y,z))
   v:add(c1)
 
-  c2 = Cylinder(cd2,.4,m1)
-  c2.pos = btVector3(0, len, d/2+.4/2)
+  c2 = Cylinder(cd2,cdd,m1)
+  c2.pos = btVector3(0, len, d/2+cdd/2)
   c2.friction = f
   c2.col = wheel_col
   c2.sdl = "texture { t_wheel }"
   trans.move(c2, btVector3(x,y,z))
   v:add(c2)
 
-  c3 = Cylinder(cd2,.4,m1)
-  c3.pos = btVector3(0, len, -d/2-.4/2)
+  c3 = Cylinder(cd2,cdd,m1)
+  c3.pos = btVector3(0, len, -d/2-cdd/2)
   c3.friction = f
   c3.col = wheel_col
   c3.sdl = "texture { t_wheel }"
@@ -120,19 +124,19 @@ car = function(r,x,y,z)
   pivot0 = btVector3(0,-len,0)
   axis0  = btVector3(0,0,1)
 
-  pivot1 = btVector3(0,0,-d/2-.4/2)
+  pivot1 = btVector3(0,0,-d/2-cdd/2)
   axis1  = btVector3(0,0,1)
 
-  pivot2 = btVector3(0,0,d/2+.4/2)
+  pivot2 = btVector3(0,0,d/2+cdd/2)
   axis2  = btVector3(0,0,1)
 
   pivot3 = btVector3(0,len,0)
   axis3  = btVector3(0,0,1)
 
-  pivot4 = btVector3(0,0,-d/2-.4/2)
+  pivot4 = btVector3(0,0,-d/2-cdd/2)
   axis4  = btVector3(0,0,1)
 
-  pivot5 = btVector3(0,0,d/2+.4/2)
+  pivot5 = btVector3(0,0,d/2+cdd/2)
   axis6  = btVector3(0,0,1)
 
   con0 = btHingeConstraint(
@@ -168,8 +172,11 @@ c = nil
 
 local cs = {}
 
-for i = -3,3 do
-  for j = -3,3 do
+NX = 10
+NY = 10
+
+for i = -NX,NX do
+  for j = -NY,NY do
     d = 7
     tmp = car(0,i*d,10,j*d)
     if (i == 0 and j == 0) then c = tmp end
@@ -178,20 +185,35 @@ for i = -3,3 do
 end
 
 function setcam()
-  d = 220
+  d = 820 -- camera distance to object
 
   v.cam.up   = btVector3(0,1,0)
   v.cam:setHorizontalFieldOfView(0.4)
 
   v.cam.pos  = c.car.pos
-     + btVector3(d*-.1,d*0.075,d*0.4)
+     + btVector3(d*-.1,d*0.01,d*0.2)
 
   v.cam.look = c.car.pos
-     + btVector3(0,6,0)
+     + btVector3(0,-6,0)
   --print(c.car.vel)
 end
 
 setcam()
+
+v:preSim(function(N)
+  -- reset cars to center if y < -10
+  -- XXX does not work yet
+  for i = 0, #cs do
+    tmp = cs[i]
+    if (tmp.car.pos.y < -10) then
+      print(tmp.car.pos.y)
+      tmp.car.pos.x = 0
+      tmp.car.pos.y = 20
+      tmp.car.pos.z = 0
+    end
+  end
+end)
+
 
 v:postSim(function(n)
   setcam()
@@ -223,7 +245,7 @@ end)
 
 v.pre_sdl = [[
 #declare t_sand = texture {
-  pigment{ color rgb<0.5,0.38,0.2>}
+  pigment{ color rgb<0.4,0.28,0.06>}
   normal { bumps 0.5 scale 0.015 }
   finish { diffuse 0.9 phong 0 }
 }
@@ -238,7 +260,11 @@ v.pre_sdl = [[
 }
 
 #declare t_wheel = t_shiny_metal
-#declare t_body  = t_shiny_metal
+#declare t_body  = texture{
+  pigment{ color Red }
+  normal {bumps 0.5 scale 0.005}
+  finish {diffuse 0.9 phong 1.0}
+}
 ]]
 
 -- EOF

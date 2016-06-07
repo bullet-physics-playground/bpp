@@ -225,100 +225,103 @@ QString Mesh::toString() const {
     return QString("Mesh");
 }
 
-void Mesh::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+void Mesh::toPOV(QTextStream *s) const {
+    if (s != NULL && m_shape != NULL && body != NULL && body->getMotionState() != NULL) {
+        POVSaveCallback pov;
+        btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
+        btVector3 pmaxaabb = btVector3( 1e99,  1e99,  1e99); // XXX
+        btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
+        concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
+
+        if (pov.idx.length()>0) {
+
+            if (mPreSDL == NULL) {
+                *s << "mesh2 {" << endl;
+                *s << "  vertex_vectors {" << endl;
+                *s << "    " << pov.idx.length()*3 << ", ";
+                for (int i = 0; i < pov.idx.length(); ++i) {
+                    *s << "<"
+                       << pov.v1.at(i).x()
+                       << ","
+                       << pov.v1.at(i).y()
+                       << ","
+                       << pov.v1.at(i).z()
+                       << ">";
+                    *s << "<"
+                       << pov.v2.at(i).x()
+                       << ","
+                       << pov.v2.at(i).y()
+                       << ","
+                       << pov.v2.at(i).z()
+                       << ">";
+                    *s << "<"
+                       << pov.v3.at(i).x()
+                       << ","
+                       << pov.v3.at(i).y()
+                       << ","
+                       << pov.v3.at(i).z()
+                       << ">";
+                }
+                *s << " }" << endl;
+
+                *s << "  face_indices {"  << endl;
+                *s << "    " << pov.idx.length() << ", ";
+                for (int i = 0; i < pov.idx.length(); ++i) {
+                    *s << "<"
+                       << i*3
+                       << ","
+                       << i*3+1
+                       << ","
+                       << i*3+2
+                       << ">";
+                }
+                *s << " }"
+                   << endl;
+            } else {
+                *s << mPreSDL
+                   << endl;
+            }
+
+            if (mSDL != NULL) {
+                *s << mSDL
+                   << endl;
+            } else {
+                *s << "  pigment { rgb <"
+                   << color[0]/255.0 << ", "
+                   << color[1]/255.0 << ", "
+                   << color[2]/255.0 << "> }"
+                   << endl;
+            }
+
+            *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
+               << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
+               << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
+               << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+            if (mPostSDL == NULL) {
+                *s << "}"
+                   << endl
+                   << endl;
+            } else {
+                *s << mPostSDL
+                   << endl
+                   << endl;
+            }
+        }
+    }
+}
+
+void Mesh::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
     glColor3ubv(color);
 
     if (m_shape != NULL && body != NULL && body->getMotionState() != NULL
-        // && typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
-    ) {
+            // && typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
+            ) {
         GlDrawcallback drawCallback;
         drawCallback.m_wireframe = true; // XXX
 
         btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
         concaveMesh->processAllTriangles(&drawCallback, minaabb, maxaabb);
-
-        if (s != NULL) {
-            POVSaveCallback pov;
-            btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
-            btVector3 pmaxaabb = btVector3( 1e99,  1e99,  1e99); // XXX
-            concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
-
-            if (pov.idx.length()>0) {
-
-                if (mPreSDL == NULL) {
-                    *s << "mesh2 {" << endl;
-                    *s << "  vertex_vectors {" << endl;
-                    *s << "    " << pov.idx.length()*3 << ", ";
-                    for (int i = 0; i < pov.idx.length(); ++i) {
-                        *s << "<"
-                           << pov.v1.at(i).x()
-                           << ","
-                           << pov.v1.at(i).y()
-                           << ","
-                           << pov.v1.at(i).z()
-                           << ">";
-                        *s << "<"
-                           << pov.v2.at(i).x()
-                           << ","
-                           << pov.v2.at(i).y()
-                           << ","
-                           << pov.v2.at(i).z()
-                           << ">";
-                        *s << "<"
-                           << pov.v3.at(i).x()
-                           << ","
-                           << pov.v3.at(i).y()
-                           << ","
-                           << pov.v3.at(i).z()
-                           << ">";
-                    }
-                    *s << " }" << endl;
-
-                    *s << "  face_indices {"  << endl;
-                    *s << "    " << pov.idx.length() << ", ";
-                    for (int i = 0; i < pov.idx.length(); ++i) {
-                        *s << "<"
-                           << i*3
-                           << ","
-                           << i*3+1
-                           << ","
-                           << i*3+2
-                           << ">";
-                    }
-                    *s << " }"
-                       << endl;
-                } else {
-                    *s << mPreSDL
-                       << endl;
-                }
-
-                if (mSDL != NULL) {
-                    *s << mSDL
-                       << endl;
-                } else {
-                    *s << "  pigment { rgb <"
-                       << color[0]/255.0 << ", "
-                       << color[1]/255.0 << ", "
-                       << color[2]/255.0 << "> }"
-                       << endl;
-                }
-
-                *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-                   << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-                   << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-                   << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
-
-                if (mPostSDL == NULL) {
-                    *s << "}"
-                       << endl
-                       << endl;
-                } else {
-                    *s << mPostSDL
-                       << endl
-                       << endl;
-                }
-            }
-        }
     }
 }
 

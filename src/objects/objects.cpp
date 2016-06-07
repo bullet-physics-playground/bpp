@@ -41,6 +41,12 @@ QString Objects::toString() const {
     return QString("Objects");
 }
 
-void Objects::renderInLocalFrame(QTextStream *) {
+void Objects::toPOV(QTextStream *s) const {
+    Q_UNUSED(s)
+}
+
+void Objects::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
     qDebug() << "Objects::renderInLocalFrame should not be called!";
 }

@@ -71,38 +71,13 @@ QString Plane::toString() const {
     return QString("Plane");
 }
 
-void Plane::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
-
-    // qDebug() << "Plane::renderInLocalFrame";
-
-    const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
-    btScalar planeConst = staticPlaneShape->getPlaneConstant();
-    const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
-    btVector3 planeOrigin = planeNormal * planeConst;
-    btVector3 vec0,vec1;
-    btPlaneSpace1(planeNormal,vec0,vec1);
-    btScalar vecLen = size;
-    btVector3 pt0 = planeOrigin - vec0*vecLen;
-    btVector3 pt1 = planeOrigin + vec0*vecLen;
-    btVector3 pt2 = planeOrigin - vec1*vecLen;
-    btVector3 pt3 = planeOrigin + vec1*vecLen;
-
-    glColor3ubv(color);
-    glBegin(GL_TRIANGLES);
-
-    glNormal3fv(planeNormal);
-    glVertex3fv(pt0);
-    glVertex3fv(pt1);
-    glVertex3fv(pt2);
-    glVertex3fv(pt0);
-    glVertex3fv(pt1);
-    glVertex3fv(pt3);
-    glEnd();
-
+void Plane::toPOV(QTextStream *s) const {
     if (s != NULL) {
         if (mPreSDL == NULL) {
+            const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+            const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+            btScalar planeConst = staticPlaneShape->getPlaneConstant();
+
             *s << "plane { <"
                << planeNormal[0] << ", "
                << planeNormal[1] << ", "
@@ -134,11 +109,41 @@ void Plane::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& ma
             *s << mPostSDL << endl;
         }
     }
-
 }
 
-void Plane::render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    renderInLocalFrame(s, minaabb, maxaabb);
+void Plane::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
+    // qDebug() << "Plane::renderInLocalFrame";
+
+    const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
+    btScalar planeConst = staticPlaneShape->getPlaneConstant();
+    const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
+    btVector3 planeOrigin = planeNormal * planeConst;
+    btVector3 vec0,vec1;
+    btPlaneSpace1(planeNormal,vec0,vec1);
+    btScalar vecLen = size;
+    btVector3 pt0 = planeOrigin - vec0*vecLen;
+    btVector3 pt1 = planeOrigin + vec0*vecLen;
+    btVector3 pt2 = planeOrigin - vec1*vecLen;
+    btVector3 pt3 = planeOrigin + vec1*vecLen;
+
+    glColor3ubv(color);
+    glBegin(GL_TRIANGLES);
+
+    glNormal3fv(planeNormal);
+    glVertex3fv(pt0);
+    glVertex3fv(pt1);
+    glVertex3fv(pt2);
+    glVertex3fv(pt0);
+    glVertex3fv(pt1);
+    glVertex3fv(pt3);
+    glEnd();
+}
+
+void Plane::render(btVector3& minaabb, btVector3& maxaabb) {
+    renderInLocalFrame(minaabb, maxaabb);
 }
 
 btScalar Plane::getSize() {

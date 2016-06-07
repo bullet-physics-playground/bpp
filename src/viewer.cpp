@@ -1082,27 +1082,19 @@ void Viewer::drawSceneInternal(int pass) {
         switch(pass)
         {
         case 0: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
-        // case 1: _drawer->drawShadow(m_sundirection*rot,o); break;
+            // case 1: _drawer->drawShadow(m_sundirection*rot,o); break;
         case 2: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
         }
     }
 }
 
 void Viewer::savePOV(bool force) {
-
-    btVector3 minaabb(_aabb[0], _aabb[1], _aabb[2]);
-    btVector3 maxaabb(_aabb[3], _aabb[4], _aabb[5]);
-
     if (!force && !_savePOV)
         return;
 
     openPovFile();
     foreach (Object *o, *_objects) {
-        try {
-            o->render(_stream, minaabb, maxaabb);
-        } catch(const std::exception& e){
-            showLuaException(e, "object:render()");
-        }
+        o->toPOV(_stream);
     }
     closePovFile();
 }

@@ -81,6 +81,10 @@ QString Object::toString() const {
     return QString("Object");
 }
 
+void Object::toPOV(QTextStream *s) const {
+    Q_UNUSED(s);
+}
+
 void Object::luaBind(lua_State *s) {
     using namespace luabind;
 
@@ -172,13 +176,12 @@ void Object::luaBind(lua_State *s) {
             ];
 }
 
-void Object::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(s)
+void Object::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
 }
 
-void Object::renderInLocalFramePre(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
+void Object::renderInLocalFramePre(btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
 
@@ -198,12 +201,11 @@ void Object::renderInLocalFramePre(QTextStream *s, btVector3& minaabb, btVector3
     glEnable(GL_NORMALIZE);
 
     if (_cb_render) {
-        luabind::call_function<void>(_cb_render, s);
+        luabind::call_function<void>(_cb_render, this);
     }
 }
 
-void Object::renderInLocalFramePost(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(s)
+void Object::renderInLocalFramePost(btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
 
@@ -433,12 +435,11 @@ QString Object::getPovPhotons() const {
     return tmp;
 }
 
-void Object::render(QTextStream *s, btVector3& minaabb, btVector3& maxaabb)
-{
+void Object::render(btVector3& minaabb, btVector3& maxaabb) {
     if (body) {
-        renderInLocalFramePre(s, minaabb, maxaabb);
-        renderInLocalFrame(s, minaabb, maxaabb);
-        renderInLocalFramePost(s, minaabb, maxaabb);
+        renderInLocalFramePre(minaabb, maxaabb);
+        renderInLocalFrame(minaabb, maxaabb);
+        renderInLocalFramePost(minaabb, maxaabb);
     }
 }
 

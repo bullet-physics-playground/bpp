@@ -81,7 +81,8 @@ link_pkgconfig {
       LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }
-  } contains(LSB_RELEASE_ID, Debian): {
+  }
+  contains(LSB_RELEASE_ID, Debian): {
     PKGCONFIG += bullet lua5.2 luabind
     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
   }
