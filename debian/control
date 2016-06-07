@@ -13,5 +13,6 @@ Vcs-Browser: https://github.com/bullet-physics-playground/bpp
 Package: bpp
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5svg5
+Recommends: povray, openscad | openscad-nightly
 Description: bullet physics playground
  Physics simulation.
