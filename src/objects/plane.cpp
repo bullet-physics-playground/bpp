@@ -77,15 +77,6 @@ void Plane::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& ma
 
     // qDebug() << "Plane::renderInLocalFrame";
 
-    GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
-    GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    // GLfloat no_shininess[] = { 0.0 };
-    // GLfloat low_shininess[] = { 5.0 };
-    GLfloat high_shininess[] = { 100.0 };
-    // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
-
     const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
     btScalar planeConst = staticPlaneShape->getPlaneConstant();
     const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
@@ -98,14 +89,7 @@ void Plane::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& ma
     btVector3 pt2 = planeOrigin - vec1*vecLen;
     btVector3 pt3 = planeOrigin + vec1*vecLen;
 
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-
     glColor3ubv(color);
-
     glBegin(GL_TRIANGLES);
 
     glNormal3fv(planeNormal);

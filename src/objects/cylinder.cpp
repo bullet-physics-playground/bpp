@@ -76,26 +76,11 @@ void Cylinder::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3&
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
 
-    GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
-    GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    // GLfloat no_shininess[] = { 0.0 };
-    // GLfloat low_shininess[] = { 5.0 };
-    GLfloat high_shininess[] = { 100.0 };
-    // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
-
     // translate to match Bullet cylinder origin
     glTranslated(0,0,-lengths[2]*.5);
     glScalef(lengths[0], lengths[1], lengths[2]);
 
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
     glColor3ubv(color);
-
     glutSolidCylinder(1, 1, 16, 16);
 
     if (s != NULL) {

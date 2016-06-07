@@ -37,7 +37,7 @@ public:
 
     void setColor(int r, int g, int b);
     void setColor(QColor col);
-    void setColorString(QString c);
+    void setColor(QString c);
 
     QColor getColor() const;
     QString getColorString() const;

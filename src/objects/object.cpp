@@ -91,6 +91,8 @@ void Object::luaBind(lua_State *s) {
             class_<Object>("Object")
             .def(constructor<>(), adopt(result))
             .def(constructor<QObject *>(), adopt(result))
+            .def("setColor", (void(Object::*)(QColor))&Object::setColor)
+            .def("setColor", (void(Object::*)(QString))&Object::setColor)
             .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
 
             .property("color",
@@ -99,7 +101,7 @@ void Object::luaBind(lua_State *s) {
 
             .property("col",
                       (QString(Object::*)(void))&Object::getColorString,
-                      (void(Object::*)(QString))&Object::setColorString)
+                      (void(Object::*)(QString))&Object::setColor)
 
             .property("pos",
                       (btVector3(Object::*)(void))&Object::getPosition,
@@ -315,16 +317,16 @@ void Object::setColor(int r, int g, int b) {
     color[2] = b;
 }
 
+void Object::setColor(QString col) {
+    setColor(QColor(col));
+}
+
 void Object::setColor(QColor col) {
     setColor(col.red(), col.green(), col.blue());
 }
 
 QColor Object::getColor() const {
     return QColor(color[0], color[1], color[2]);
-}
-
-void Object::setColorString(QString col) {
-    setColor(QColor(col));
 }
 
 QString Object::getColorString() const {

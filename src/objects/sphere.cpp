@@ -74,26 +74,8 @@ void Sphere::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& m
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
 
-    GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
-    GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    // GLfloat no_shininess[] = { 10.0 };
-    // GLfloat low_shininess[] = { 5.0 };
-    GLfloat high_shininess[] = { 100.0 };
-    // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
-
     glScalef(radius, radius, radius);
-    //  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
-    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-
     glColor3ub(color[0], color[1], color[2]);
-
     glutSolidSphere(1.0f, 32, 16);
 
     if (s != NULL) {

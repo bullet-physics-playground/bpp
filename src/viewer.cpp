@@ -143,10 +143,10 @@ void Viewer::luaBind(lua_State *s) {
     module(s)
             [
             class_<QColor>("QColor")
-            .def(constructor<>())
-            .def(constructor<QString>())
-            .def(constructor<int, int, int>())
-            .def(constructor<int, int, int, int>())
+            .def(constructor<>(), adopt(result))
+            .def(constructor<QString>(), adopt(result))
+            .def(constructor<int, int, int>(), adopt(result))
+            .def(constructor<int, int, int, int>(), adopt(result))
             .property("r", &QColor::red, &QColor::setRed)
             .property("g", &QColor::green, &QColor::setGreen)
             .property("b", &QColor::blue, &QColor::setBlue)
@@ -161,6 +161,7 @@ void Viewer::luaBind(lua_State *s) {
             .def(tostring(self))
             ];
 }
+
 
 void Viewer::addObject(Object* o) {
     if (o == NULL) return;
@@ -1072,6 +1073,17 @@ void Viewer::drawSceneInternal(int pass) {
 
     minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
     maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+
+    float light_pos[] = {2.0, -1.0, 1.0, 10.0};
+      float ambient[4] = {0.33, 0.22, 0.03, 1.0};
+      float diffuse[4] = {0.78, 0.57, 0.11, 1.0};
+      float specular[4] = {0.99, 0.91, 0.81, 1.0};
+      float shininess = 27.8;
+      glClearDepth(1.0);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 
     foreach (Object *o, *_objects) {
         //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());

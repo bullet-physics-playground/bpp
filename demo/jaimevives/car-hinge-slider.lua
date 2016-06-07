@@ -22,7 +22,7 @@ tire_restitution = .9
 
 -- FLOOR
 plane = Plane(0,1,0,0,1000)
-plane.col = "#111111"
+plane.col = "#111"
 plane.friction=0.9
 plane.restitution=.1
 v:add(plane)
