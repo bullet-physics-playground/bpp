@@ -250,7 +250,7 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
                 oaabbmax[2] = s;
             }
 
-            if (qIsFinite(o->getPosition().x()) && qIsFinite(o->getPosition().y()) && qIsFinite(o->getPosition().z())) {
+            if (isfinite(o->getPosition().x()) && isfinite(o->getPosition().y()) && isfinite(o->getPosition().z())) {
                 oaabbmin -= o->getPosition();
                 oaabbmax += o->getPosition();
             }
@@ -258,9 +258,9 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
             if (dbg) qDebug() << o->toString() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z() << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
 
             for (int i = 0; i < 3; ++i) {
-                if (qIsFinite(oaabbmin[i]))
+                if (isfinite(oaabbmin[i]))
                   aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
-                if (qIsFinite(oaabbmax[i]))
+                if (isfinite(oaabbmax[i]))
                   aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
             }
         }
@@ -903,7 +903,7 @@ void Viewer::computeBoundingBox() {
 
     float radius = (vmax - vmin).length();
 
-    if (qIsFinite(radius)) {
+    if (isfinite(radius)) {
         // qDebug() << QString("setSceneRadius(%1)").arg(radius);
         setSceneRadius(radius);
 
