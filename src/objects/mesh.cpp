@@ -239,7 +239,9 @@ void Mesh::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& max
 
         if (s != NULL) {
             POVSaveCallback pov;
-            concaveMesh->processAllTriangles(&pov,minaabb, maxaabb);
+            btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
+            btVector3 pmaxaabb = btVector3( 1e99,  1e99,  1e99); // XXX
+            concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
             if (pov.idx.length()>0) {
 
