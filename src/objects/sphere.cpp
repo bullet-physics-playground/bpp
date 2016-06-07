@@ -70,14 +70,7 @@ QString Sphere::toString() const {
     return QString("Sphere");
 }
 
-void Sphere::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
-
-    glScalef(radius, radius, radius);
-    glColor3ub(color[0], color[1], color[2]);
-    glutSolidSphere(1.0f, 32, 16);
-
+void Sphere::toPOV(QTextStream *s) const {
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "sphere { <.0,.0,.0>, " << radius << endl;
@@ -107,5 +100,13 @@ void Sphere::renderInLocalFrame(QTextStream *s, btVector3& minaabb, btVector3& m
             *s << mPostSDL << endl;
         }
     }
+}
 
+void Sphere::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
+    Q_UNUSED(minaabb)
+    Q_UNUSED(maxaabb)
+
+    glScalef(radius, radius, radius);
+    glColor3ub(color[0], color[1], color[2]);
+    glutSolidSphere(1.0f, 32, 16);
 }
