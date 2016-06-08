@@ -4,11 +4,6 @@
 
 #include "gui.h"
 
-#define APP_VERSION QString("v0.0.3 (WIP)")
-#define APP_NAME QString("bpp")
-#define APP_NAME_FULL tr("Bullet Physics Playground")
-#define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
-
 std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
     ostream << gui.toString().toUtf8().data();
     return ostream;
@@ -17,16 +12,15 @@ std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
 #include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
 
-Gui::Gui(QWidget *parent) : QMainWindow(parent) {
+Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     _fileSaved=true;
     _simulationRunning=false;
 
     ui.setupUi(this);
 
-    settings = new QSettings(APP_ORGANIZATION, APP_NAME);
-
-    ui.viewer->setSettings(settings);
+    this->settings = s;
+    ui.viewer->setSettings(s);
 
     createDock();
 
@@ -193,13 +187,13 @@ void Gui::fileLoad(const QString &path) {
 
     if (editor->load(path)) {
         setCurrentFile(path);
-        setWindowTitle(tr("%1 - %2").arg(APP_NAME_FULL).arg(file.fileName()));
+        setWindowTitle(tr("%1 - %2").arg(QCoreApplication::applicationName()).arg(file.fileName()));
         parseEditor();
         statusBar()->showMessage(tr("File loaded"), 2000);
         _fileSaved = true;
         ui.actionSave->setEnabled(false);
     } else {
-        setWindowTitle(tr("%1 %2").arg(APP_NAME_FULL).arg(APP_VERSION));
+        setWindowTitle(tr("%1 %2").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()));
         statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
     }
 
@@ -252,7 +246,7 @@ void Gui::setCurrentFile(const QString &fileName) {
     if (editor->script_filename.isEmpty())
         setWindowTitle(tr("Recent Files"));
     else
-        setWindowTitle(tr("%1 %2 - %3").arg(APP_NAME_FULL).arg(APP_VERSION).arg(strippedName(editor->script_filename)));
+        setWindowTitle(tr("%1 %2 - %3").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()).arg(strippedName(editor->script_filename)));
 
     if (fileName == "no_name") {
         return;
@@ -279,7 +273,7 @@ void Gui::createDock() {
     dw1->setWindowTitle("Debug");
     dw1->setTitleBarWidget(new QWidget(this));
 
-    debugText = new CodeEditor(this, APP_ORGANIZATION, APP_NAME);
+    debugText = new CodeEditor(settings, this);
     dw1->setWidget(debugText);
     debugText->setReadOnly(true);
 
@@ -288,7 +282,7 @@ void Gui::createDock() {
     QDockWidget *dw2 = new QDockWidget(this);
     dw2->setObjectName("DockLUAScript");
     dw2->setWindowTitle("LUA Script");
-    editor = new CodeEditor(this, APP_ORGANIZATION, APP_NAME);
+    editor = new CodeEditor(settings, this);
     dw2->setWidget(editor);
 
     addDockWidget(Qt::RightDockWidgetArea, dw2);
@@ -306,8 +300,7 @@ void Gui::createDock() {
 
 void Gui::helpAbout() {
     QString txt =
-
-            tr("<p><b>%1 (%2)</b></p>").arg(APP_NAME_FULL).arg(APP_VERSION) + \
+            tr("<p><b>%1 (%2)</b></p>").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()) + \
             tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
             tr("<p>&copy; 2008-2016 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
             tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
@@ -606,7 +599,6 @@ void Gui::luaBind(lua_State *s) {
     module(s)
             [
             class_<Gui>("Gui")
-            .def(constructor<>())
             .def(tostring(const_self))
             ];
 }

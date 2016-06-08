@@ -1,5 +1,5 @@
 --
--- 00-hello-cmdline.lua
+-- 00-hello-cmdline.lua - A Sphere drops on a Plane
 --
 
 -- You can run this Lua script from the command-line:
@@ -11,14 +11,16 @@
 --   $ bpp -n 60 -l 00-hello-cmdline.lua | \
 --     gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 
--- A Sphere drops on a Plane
-
-p = Plane(0,1,0,0) -- a fixed plane in the x-z dimension
+-- a fixed plane in the x-z dimension
+p = Plane(0,1,0,0,100)
+p.col = "gray"
 v:add(p)
 
-s = Sphere(1,10)          -- 1 radius, 10 mass
-s.pos = btVector3(0,10,0) -- position of sphere
-s.vel = btVector3(10,0,0) -- velocity vector
+-- a sphere with diameter 1 and mass 10
+s = Sphere(1,10)
+s.pos = btVector3(0,10,0) -- position
+s.vel = btVector3(10,0,0) -- velocity
+s.col = "green"
 v:add(s)
 
 v:preSim(function(N)

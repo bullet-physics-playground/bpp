@@ -2,6 +2,7 @@
 #define CODEEDITOR_H
 
 #include <QDebug>
+#include <QSettings>
 
 #include <QPlainTextEdit>
 #include <QObject>
@@ -20,7 +21,7 @@ class CodeEditor : public QPlainTextEdit {
     Q_OBJECT;
 
 public:
-    CodeEditor(QWidget *parent = 0, QString organization = "", QString app_name = "");
+    CodeEditor(QSettings *settings, QWidget *parent = 0);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();

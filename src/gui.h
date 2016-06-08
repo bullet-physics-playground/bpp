@@ -18,7 +18,7 @@ class Gui : public QMainWindow {
     Q_OBJECT
 
 public:
-    Gui(QWidget *parent = 0);
+    Gui(QSettings *settings, QWidget *parent = 0);
 
     QString toString() const;
     void luaBind(lua_State *s);

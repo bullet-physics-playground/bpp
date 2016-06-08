@@ -1,3 +1,8 @@
+#define APP_VERSION QString("v0.0.3")
+#define APP_NAME QString("bpp")
+#define APP_NAME_FULL tr("Bullet Physics Playground")
+#define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
+
 #include <QApplication>
 
 #include <QCommandLineParser>
@@ -12,7 +17,10 @@ QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
 
 int main(int argc, char **argv) {
     QApplication application(argc, argv);
-    application.setApplicationVersion("0.0.3");
+
+    QSettings *settings = new QSettings(APP_ORGANIZATION, APP_NAME);
+
+    application.setApplicationVersion(APP_VERSION);
 
     QCommandLineParser parser;
 
@@ -41,7 +49,7 @@ int main(int argc, char **argv) {
             QIcon::setThemeName("humanity");
         }
 
-        g = new Gui();
+        g = new Gui(settings);
         g->show();
 
         return application.exec();
@@ -71,6 +79,8 @@ int main(int argc, char **argv) {
         }
 
         Viewer *v = new Viewer();
+        v->setSettings(settings);
+
 
         QObject::connect(v, &Viewer::scriptHasOutput, [=](QString o) {
             qStdOut() << o << endl;

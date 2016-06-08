@@ -5,11 +5,10 @@
 
 #include "code.h"
 
-CodeEditor::CodeEditor(QWidget *parent, QString organization, QString app_name) : QPlainTextEdit(parent) {
-    QSettings s(organization, app_name);
+CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
 
-    QString family = s.value("editor/fontfamily", "Courier").toString();
-    uint size = s.value("editor/fontsize", 10).toUInt();
+    QString family = s->value("editor/fontfamily", "Courier").toString();
+    uint size = s->value("editor/fontsize", 10).toUInt();
 
     setFont(family, size);
 
