@@ -2,6 +2,8 @@ TARGET   = bpp
 
 TEMPLATE = app
 
+CONFIG += c++11
+
 #DEFINES     += HAS_QEXTSERIAL
 #DEFINES     += HAS_LUA_QT
 #DEFINES     += HAS_LUA_GL

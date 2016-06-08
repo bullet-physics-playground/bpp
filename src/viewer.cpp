@@ -646,7 +646,7 @@ bool Viewer::parse(QString txt) {
             lua_error = tr("script stopped");
             qDebug() << "lua run : script stopped";
         } else {
-            // qDebug() << QString("lua run : %1").arg(lua_error);
+            qDebug() << QString("lua run : %1").arg(lua_error);
             emit scriptHasOutput(lua_error);
         }
 
@@ -666,6 +666,8 @@ bool Viewer::parse(QString txt) {
     }
 
     // qDebug() << "Viewer::parse() end";
+
+    emit scriptFinished();
 
     _parsing = false;
 
@@ -947,7 +949,7 @@ void Viewer::init() {
 void Viewer::draw() {
     QMutexLocker locker(&mutex);
 
-    if (_parsing) return;
+    if (_parsing || !isVisible()) return;
 
     if (L) {
         //lua_gc(L, LUA_GCCOLLECT, 0); // collect garbage

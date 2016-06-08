@@ -135,6 +135,12 @@ public:
     void setPrefs(QString key, QString value);
     QString getPrefs(QString key, QString defaultValue) const;
 
+    virtual void startAnimation();
+    virtual void stopAnimation();
+    virtual void animate();
+    virtual void draw();
+    virtual void postDraw();
+
 public slots:
     void close();
 
@@ -183,12 +189,6 @@ protected:
     void addObject(Object *o, int type, int mask);
 
     void addObjects(QList<Object *> ol, int type, int mask);
-
-    virtual void startAnimation();
-    virtual void stopAnimation();
-    virtual void animate();
-    virtual void draw();
-    virtual void postDraw();
 
     void drawSceneInternal(int pass);
 
