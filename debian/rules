@@ -71,7 +71,7 @@ binary-arch: build install
 #	dh_installchangelogs ChangeLog
 	dh_installdocs -s README.md
 	dh_install -s --sourcedir=$(CURDIR)/debian/tmp
-#	dh_installman bpp.1
+	dh_installman bpp.1
 	dh_installmime
 	dh_installmenu
 	dh_link

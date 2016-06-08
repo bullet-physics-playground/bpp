@@ -30,11 +30,16 @@ win32 {
   bpp-deskop.files = bpp.desktop
   bpp-icons.path = /usr/share/icons/hicolor/scalable/apps
   bpp-icons.files = icons/bpp.svg
+  bpp-man.path = /usr/share/man/man1
+  bpp-man.files = bpp.1
+  bpp-man.depends = $(SOURCES)
+  bpp-man.commands = help2man -N -n \"Bullet Physics Playground\" -o bpp.1 ./bpp
 
-  INSTALLS    += bpp-binary bpp-deskop bpp-icons
+  INSTALLS    += bpp-binary bpp-deskop bpp-icons bpp-man
 
   RESOURCES   += res.qrc humanity.qrc
 
+  QMAKE_EXTRA_TARGETS += bpp-man
 }
 
 mac {

@@ -12,17 +12,18 @@ QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
 
 int main(int argc, char **argv) {
     QApplication application(argc, argv);
+    application.setApplicationVersion("0.0.3");
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("bpp");
 
     parser.addHelpOption();
+    parser.addVersionOption();
 
     QCommandLineOption luaOption(QStringList() << "l" << "lua",
                                  QObject::tr("Runs the given Lua script without GUI."), "file", "script.lua");
     QCommandLineOption nOption(QStringList() << "n" << "frames",
                                QObject::tr("Number of frames to simulate."), "n");
-    QCommandLineOption verboseOption(QStringList() << "v" << "verbose",
+    QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
                                      QObject::tr("Verbose output."));
     parser.addOption(luaOption);
     parser.addOption(nOption);
