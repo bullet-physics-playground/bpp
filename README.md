@@ -5,10 +5,10 @@ href="https://www.youtube.com/watch?v=IwdbtfiEo0A&list=PL-OhsevLGGI2bFpOqzqnWsGI
 
 Features:
 
-* LUA scripting   (experimental)
-* OpenGL GUI      (experimental)
-* OpenSCAD import (experimental)
-* POV-Ray [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
+* [Lua](https://www.lua.org/) scripting   (experimental)
+* [OpenGL](https://www.opengl.org/) GUI      (experimental)
+* [OpenSCAD](http://www.openscad.org/) import (experimental)
+* [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
 Created with Bullet Physics Playground:
 
