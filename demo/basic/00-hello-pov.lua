@@ -7,7 +7,7 @@
 -- To simulate and render a 400 frames animation of this scene
 -- with POV-Ray, run from the console:
 --
--- echo "render = 1" | bpp -f demo/basic/00-anim.lua -n 400 -i
+-- echo "render = 1" | bpp -f demo/basic/00-hello-pov.lua -n 400 -i
 --
 
 require "module/povray"
@@ -48,7 +48,7 @@ v:postSim(function(N) print(N)
   setcam()
   if (render) then
     if (N % 1 == 0) then
-      povray.render("-d +Lincludes -p +W320 +H240", ".", "00-anim", r)
+      povray.render("-d +Lincludes -p +W320 +H240", "/tmp", "00-hello-pov", r)
       r = r + 1
     end
   end
