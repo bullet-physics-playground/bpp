@@ -16,23 +16,18 @@ QTextStream& qStdOut() { static QTextStream ts( stdout ); return ts; }
 QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
 
 int main(int argc, char **argv) {
+    QSharedPointer<QCoreApplication> app;
 
     // workaround for https://forum.qt.io/topic/53298/qcommandlineparser-to-select-gui-or-non-gui-mode
 
-    QSharedPointer<QCoreApplication> app;
+    // On Linux: enable printing of version and help without DISPLAY variable set
 
     bool runCore = false;
     for (int i = 0; i < argc; i++) {
         if (QString(argv[i]) == "-h" ||
-            QString(argv[i]) == "--help" ||
-            QString(argv[i]) == "-V" ||
-            QString(argv[i]) == "--version" ||
-            QString(argv[i]) == "-f" ||
-            QString(argv[i]) == "--file" ||
-            QString(argv[i]) == "-l" ||
-            QString(argv[i]) == "--lua" ||
-            QString(argv[i]) == "-i" ||
-            QString(argv[i]) == "--stdin") {
+                QString(argv[i]) == "--help" ||
+                QString(argv[i]) == "-v" ||
+                QString(argv[i]) == "--version" ) {
             runCore = true;
             break;
         }
@@ -62,7 +57,7 @@ int main(int argc, char **argv) {
     QCommandLineOption luaExpressionOption(QStringList() << "l" << "lua",
                                            QObject::tr("Runs the given Lua expression without GUI."), "expression");
     QCommandLineOption luaStdinOption(QStringList() << "i" << "stdin",
-                                           QObject::tr("Interprets Lua code from stdin without GUI."));
+                                      QObject::tr("Interprets Lua code from stdin without GUI."));
     QCommandLineOption nOption(QStringList() << "n" << "frames",
                                QObject::tr("Number of frames to simulate."), "n", "10");
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
@@ -151,7 +146,7 @@ int main(int argc, char **argv) {
         }
 
         if (!lua.isEmpty()) {
-          v->setScriptName(lua[0]);
+            v->setScriptName(lua[0]);
         } else {
             v->setScriptName("stdin.lua");
         }
