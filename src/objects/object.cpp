@@ -172,6 +172,9 @@ void Object::luaBind(lua_State *s) {
 
             .property("render", &Object::getRenderFunction, &Object::setRenderFunction)
 
+            .def("toPOV", (QString(Object::*)() const)&Object::toPOV)
+            .property("pov", (QString(Object::*)() const)&Object::toPOV)
+
             .def(tostring(const_self))
             ];
 }
@@ -451,4 +454,26 @@ void Object::setRenderFunction(const luabind::object &fn) {
 
 luabind::object Object::getRenderFunction() const {
     return _cb_render;
+}
+
+QString Object::toPOV() const {
+    btTransform trans;
+
+    if (body != NULL && body->getMotionState() != NULL
+            //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
+            ) {
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
+    QByteArray *data = new QByteArray();
+    QTextStream* s = new QTextStream(data);
+
+    toPOV(s);
+
+    s->flush();
+
+    QString str = QString::fromStdString(data->toStdString());
+    delete data;
+    return str;
 }

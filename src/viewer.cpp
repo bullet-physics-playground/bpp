@@ -110,6 +110,7 @@ void Viewer::luaBind(lua_State *s) {
 
             .def("quickRender", (void(Viewer::*)(QString povargs))&Viewer::onQuickRender)
             .def("toPOV", &Viewer::toPOV)
+            .property("pov", &Viewer::toPOV)
 
             .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
@@ -658,9 +659,9 @@ bool Viewer::parse(QString txt) {
 
         if (lua_error.contains(QRegExp(tr("stopping$")))) {
             lua_error = tr("script stopped");
-            qDebug() << "lua run : script stopped";
+            // qDebug() << "lua run : script stopped";
         } else {
-            qDebug() << QString("lua run : %1").arg(lua_error);
+            // qDebug() << QString("lua run : %1").arg(lua_error);
             emit scriptHasOutput(lua_error);
         }
 
@@ -1110,7 +1111,7 @@ void Viewer::savePOV(bool force) {
 
     openPovFile();
     foreach (Object *o, *_objects) {
-        o->toPOV(_stream);
+        *_stream << o->toPOV();
     }
     closePovFile();
 }
@@ -1174,7 +1175,7 @@ QString Viewer::toPOV() const {
     }
 
     foreach (Object *o, *_objects) {
-        o->toPOV(s);
+        *s << o->toPOV();
     }
 
     if (!mPostSDL.isEmpty()) {

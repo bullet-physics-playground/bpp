@@ -106,7 +106,9 @@ public:
     static void luaBind(lua_State *s);
 
     virtual QString toString() const;
+
     virtual void toPOV(QTextStream *s) const;
+    virtual QString toPOV() const;
 
     void render(btVector3& minaabb, btVector3& maxaabb);
     void setRenderFunction(const luabind::object &fn);
