@@ -16,14 +16,44 @@ QTextStream& qStdOut() { static QTextStream ts( stdout ); return ts; }
 QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
 
 int main(int argc, char **argv) {
-    QApplication application(argc, argv);
+
+    // workaround for https://forum.qt.io/topic/53298/qcommandlineparser-to-select-gui-or-non-gui-mode
+
+    QSharedPointer<QCoreApplication> app;
+
+    bool runCore = false;
+    for (int i = 0; i < argc; i++) {
+        if (QString(argv[i]) == "-h" ||
+            QString(argv[i]) == "--help" ||
+            QString(argv[i]) == "-V" ||
+            QString(argv[i]) == "--version" ||
+            QString(argv[i]) == "-f" ||
+            QString(argv[i]) == "--file" ||
+            QString(argv[i]) == "-l" ||
+            QString(argv[i]) == "--lua" ||
+            QString(argv[i]) == "-i" ||
+            QString(argv[i]) == "--stdin") {
+            runCore = true;
+            break;
+        }
+    }
+
+    if (runCore) {
+        app = QSharedPointer<QCoreApplication>(new QCoreApplication(argc, argv));
+    } else {
+        app = QSharedPointer<QCoreApplication>(new QApplication(argc, argv));
+    }
+
+    // end workaround
 
     QSettings *settings = new QSettings(APP_ORGANIZATION, APP_NAME);
 
-    application.setApplicationVersion(APP_VERSION);
+    app->setApplicationName(APP_NAME);
+    app->setApplicationVersion(APP_VERSION);
 
     QCommandLineParser parser;
 
+    parser.setApplicationDescription(QObject::tr("The Bullet Physics Playground"));
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -43,7 +73,7 @@ int main(int argc, char **argv) {
     parser.addOption(nOption);
     parser.addOption(verboseOption);
 
-    parser.process(application);
+    parser.process(*app);
 
     if (!parser.isSet(luaOption) && !parser.isSet(luaStdinOption) && !parser.isSet(luaExpressionOption)) {
         Gui *g;
@@ -58,7 +88,7 @@ int main(int argc, char **argv) {
         g = new Gui(settings);
         g->show();
 
-        return application.exec();
+        return app->exec();
     } else {
         QStringList lua = parser.values(luaOption);
         QStringList luaExpression = parser.values(luaExpressionOption);
@@ -137,6 +167,6 @@ int main(int argc, char **argv) {
 
         QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 
-        return application.exec();
+        return app->exec();
     }
 }
