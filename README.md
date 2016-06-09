@@ -39,6 +39,8 @@ Pipe simulation data into [gnuplot](https://en.wikipedia.org/wiki/Gnuplot):
 $ bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 ```
 
+For more demos, see [demo/](https://github.com/bullet-physics-playground/bpp/tree/master/demo).
+
 ## Wiki
 
 * [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)
