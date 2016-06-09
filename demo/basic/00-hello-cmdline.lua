@@ -31,6 +31,7 @@ end)
 
 v:postSim(function(N)
   print(N.." "..s.pos.x.." "..s.pos.y)
+--  print(v:toPOV())
 end)
 
 -- EOF
