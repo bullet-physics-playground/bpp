@@ -15,6 +15,10 @@
 QTextStream& qStdOut() { static QTextStream ts( stdout ); return ts; }
 QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
 
+QString withoutExtension(const QString & fileName) {
+    return fileName.left(fileName.lastIndexOf("."));
+}
+
 int main(int argc, char **argv) {
     QSharedPointer<QCoreApplication> app;
 
@@ -118,8 +122,8 @@ int main(int argc, char **argv) {
         }
 
         int n = parser.value(nOption).toInt();
-        if (n < 1) {
-            qStdErr() << QObject::tr("Error: -n must be > 1. Exiting.") << endl;
+        if (n < 0) {
+            qStdErr() << QObject::tr("Error: -n must be >= 0. Exiting.") << endl;
             return EXIT_FAILURE;
         }
 
@@ -146,9 +150,9 @@ int main(int argc, char **argv) {
         }
 
         if (!lua.isEmpty()) {
-            v->setScriptName(lua[0]);
+            v->setScriptName(withoutExtension(lua[0]));
         } else {
-            v->setScriptName("stdin.lua");
+            v->setScriptName("stdin");
         }
 
         v->parse(txt);

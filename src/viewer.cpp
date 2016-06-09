@@ -5,6 +5,7 @@
 #include "viewer.h"
 
 #include <QColor>
+#include <QTextCodec>
 
 #include "lua_converters.h"
 
@@ -106,7 +107,9 @@ void Viewer::luaBind(lua_State *s) {
             .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
             .def("savePrefs", &Viewer::setPrefs)
             .def("loadPrefs", &Viewer::getPrefs)
+
             .def("quickRender", (void(Viewer::*)(QString povargs))&Viewer::onQuickRender)
+            .def("toPOV", &Viewer::toPOV)
 
             .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
@@ -260,9 +263,9 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 
             for (int i = 0; i < 3; ++i) {
                 if (isfinite(oaabbmin[i]))
-                  aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
+                    aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
                 if (isfinite(oaabbmax[i]))
-                  aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
+                    aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
             }
         }
     }
@@ -1110,6 +1113,79 @@ void Viewer::savePOV(bool force) {
         o->toPOV(_stream);
     }
     closePovFile();
+}
+
+QString Viewer::toPOV() const {
+    QByteArray *data = new QByteArray();
+    QTextStream* s = new QTextStream(data);
+
+    *s << "#include \"settings.inc\"" << endl << endl;
+
+    if (!mPreSDL.isEmpty()) {
+        *s << mPreSDL << endl << endl;
+    }
+
+    if (_cam != NULL) {
+
+        *s << "#declare use_focal_blur = " << _cam->getUseFocalBlur() << "; // 0=off 1=low quality 10=high quality" << endl << endl;
+
+        if (_cam->getPreSDL() == NULL) {
+            Vec pos = camera()->position();
+
+            *s << "camera { " << endl
+               << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
+               << "  right -image_width/image_height*x" << endl;
+            Vec vDir = camera()->viewDirection();
+
+            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
+            *s << "  look_at <"
+               << pos.x + vDir.x
+               << ", "
+               << pos.y + vDir.y
+               << ", "
+               << pos.z + vDir.z
+               << "> ";
+
+            *s << "angle " << camera()->fieldOfView() * 90.0 << endl;
+
+            *s << "  sky <"
+               << _cam->getUpVector().x()
+               << ", "
+               << _cam->getUpVector().y()
+               << ", "
+               << _cam->getUpVector().z()
+               << ">" << endl;
+
+            *s << "#if(use_focal_blur)" << endl
+               << "  aperture " << _cam->getFocalAperture() << endl
+               << "  blur_samples 10*use_focal_blur" << endl
+               << "  focal_point <"
+               << _cam->getFocalPoint().x() << ", "
+               << _cam->getFocalPoint().y() << ", "
+               << _cam->getFocalPoint().z() << "> "
+               << "  confidence 0.9+(use_focal_blur*0.0085)" << endl
+               << "  variance 1/(2000*use_focal_blur)" << endl
+               << "#end" << endl;
+
+            *s << "}" << endl << endl;
+        } else {
+            *s << _cam->getPreSDL() << endl;
+        }
+    }
+
+    foreach (Object *o, *_objects) {
+        o->toPOV(s);
+    }
+
+    if (!mPostSDL.isEmpty()) {
+        *s << endl << mPostSDL << endl << endl;
+    }
+
+    s->flush();
+
+    QString str = QString::fromStdString(data->toStdString());
+    delete data;
+    return str;
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {

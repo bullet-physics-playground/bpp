@@ -130,6 +130,8 @@ public:
     void setPostSDL(const QString&);
     QString getPostSDL() const;
 
+    QString toPOV() const;
+
     void setSettings(QSettings *settings);
 
     void setPrefs(QString key, QString value);
