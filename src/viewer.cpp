@@ -636,6 +636,17 @@ bool Viewer::parse(QString txt) {
 
     luaBindInstance(L);
 
+    // useful for shell scripting. Example:
+    //
+    // #!/usr/bin/bpp -f
+    // print("Hello, BPP!")
+
+    if (txt.startsWith("#!")) { // remove potential shebang on first line
+        QStringList tmp = txt.split("\n");
+        tmp.removeAt(0);
+        txt = tmp.join("\n");
+    }
+
     int error = luaL_loadstring(L, txt.toUtf8().constData())
             || lua_pcall(L, 0, LUA_MULTRET, 0);
 

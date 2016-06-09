@@ -4,11 +4,11 @@
 
 -- You can run this Lua script from the command-line:
 --
---   $ bpp -n 60 -l 00-hello-cmdline.lua
+--   $ bpp -n 60 -f 00-hello-cmdline.lua
 --
 -- Or plot the result with gnuplot:
 --
---   $ bpp -n 60 -l 00-hello-cmdline.lua | \
+--   $ bpp -n 60 -f 00-hello-cmdline.lua | \
 --     gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 
 -- a fixed plane in the x-z dimension

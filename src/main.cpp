@@ -27,19 +27,25 @@ int main(int argc, char **argv) {
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption luaOption(QStringList() << "l" << "lua",
-                                 QObject::tr("Runs the given Lua script without GUI."), "file", "script.lua");
+    QCommandLineOption luaOption(QStringList() << "f" << "file",
+                                 QObject::tr("Runs the given Lua script without GUI."), "file");
+    QCommandLineOption luaExpressionOption(QStringList() << "l" << "lua",
+                                           QObject::tr("Runs the given Lua expression without GUI."), "expression");
+    QCommandLineOption luaStdinOption(QStringList() << "i" << "stdin",
+                                           QObject::tr("Interprets Lua code from stdin without GUI."));
     QCommandLineOption nOption(QStringList() << "n" << "frames",
-                               QObject::tr("Number of frames to simulate."), "n");
+                               QObject::tr("Number of frames to simulate."), "n", "10");
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
                                      QObject::tr("Verbose output."));
     parser.addOption(luaOption);
+    parser.addOption(luaExpressionOption);
+    parser.addOption(luaStdinOption);
     parser.addOption(nOption);
     parser.addOption(verboseOption);
 
     parser.process(application);
 
-    if (!parser.isSet(luaOption)) {
+    if (!parser.isSet(luaOption) && !parser.isSet(luaStdinOption) && !parser.isSet(luaExpressionOption)) {
         Gui *g;
 
         glutInit(&argc,argv);
@@ -55,22 +61,36 @@ int main(int argc, char **argv) {
         return application.exec();
     } else {
         QStringList lua = parser.values(luaOption);
+        QStringList luaExpression = parser.values(luaExpressionOption);
 
-        if (lua.isEmpty()) {
+        if (lua.isEmpty() && luaExpression.isEmpty() && !parser.isSet(luaStdinOption)) {
             qStdErr() << QObject::tr("Error: Option '--lua' requires a Lua script file as an argument. Exiting.") << endl;
             return EXIT_FAILURE;
         }
 
-        QFile file(lua[0]);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QString errMsg = file.errorString();
-            qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << endl;
-            return EXIT_FAILURE;
+        QString txt;
+
+        if (!lua.isEmpty()) {
+            QFile file(lua[0]);
+            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QString errMsg = file.errorString();
+                qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << endl;
+                return EXIT_FAILURE;
+            }
+
+            QTextStream in(&file);
+            txt = in.readAll();
+            file.close();
         }
 
-        QTextStream in(&file);
-        QString txt = in.readAll();
-        file.close();;
+        if (parser.isSet(luaStdinOption)) {
+            QTextStream in(stdin);
+            txt += "\n" + in.readAll();
+        }
+
+        if (!luaExpression.isEmpty()) {
+            txt += "\n" + luaExpression[0];
+        }
 
         int n = parser.value(nOption).toInt();
         if (n < 1) {
@@ -80,7 +100,6 @@ int main(int argc, char **argv) {
 
         Viewer *v = new Viewer();
         v->setSettings(settings);
-
 
         QObject::connect(v, &Viewer::scriptHasOutput, [=](QString o) {
             qStdOut() << o << endl;
@@ -101,7 +120,12 @@ int main(int argc, char **argv) {
             });
         }
 
-        v->setScriptName(lua[0]);
+        if (!lua.isEmpty()) {
+          v->setScriptName(lua[0]);
+        } else {
+            v->setScriptName("stdin.lua");
+        }
+
         v->parse(txt);
         v->startSim();
 
