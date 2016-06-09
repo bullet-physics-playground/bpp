@@ -36,7 +36,7 @@ $ echo "render = 1" | ./bpp -f demo/basic/00-hello-pov.lua -n 400 -i
 
 Pipe simulation data into [gnuplot](https://en.wikipedia.org/wiki/Gnuplot):
 ```bash
-$ bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
+$ ./bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 ```
 
 For more demos, see [demo/](https://github.com/bullet-physics-playground/bpp/tree/master/demo).
