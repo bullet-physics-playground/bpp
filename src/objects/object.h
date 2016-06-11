@@ -91,6 +91,9 @@ public:
     void setTexture(QString texture);
     QString getTexture() const;
 
+    void setPOVExport(bool onoff);
+    bool getPOVExport();
+
     void setPreSDL(QString pre_sdl);
     QString getPreSDL() const;
 
@@ -132,6 +135,7 @@ protected:
     bool photons_refraction;
 
     QString mTexture;
+    bool mPOVExport;
     QString mPreSDL;
     QString mSDL;
     QString mPostSDL;

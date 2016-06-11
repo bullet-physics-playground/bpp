@@ -31,6 +31,8 @@ Object::Object(QObject *parent) : QObject(parent) {
 
     // qDebug() << "Object::Object()";
 
+    mPOVExport = true;
+
     shape = 0;
     body = 0;
 
@@ -140,6 +142,10 @@ void Object::luaBind(lua_State *s) {
                       (void(Object::*)(btScalar))&Object::setAngularDamping)
 
             // povray properties
+
+            .property("pov_export",
+                      (bool(Object::*)(void))&Object::getPOVExport,
+                      (void(Object::*)(bool))&Object::setPOVExport)
 
             .property("texture",
                       (QString(Object::*)(void))&Object::getTexture,
@@ -476,4 +482,12 @@ QString Object::toPOV() const {
     QString str = QString::fromStdString(data->toStdString());
     delete data;
     return str;
+}
+
+void Object::setPOVExport(bool onoff) {
+    mPOVExport = onoff;
+}
+
+bool Object::getPOVExport() {
+    return mPOVExport;
 }
