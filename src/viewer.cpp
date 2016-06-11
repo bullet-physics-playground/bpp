@@ -802,7 +802,7 @@ void Viewer::openPovFile() {
 
     // *ini << "Antialias_Threshold=0.3"
 
-    *ini << "+L../../includes" << endl << endl;
+    *ini << "+L/usr/share/bpp/includes +L../../includes" << endl << endl;
     *ini << "Initial_Clock=" << _firstFrame << endl;
     *ini << "Final_Clock=" << _frameNum << endl;
     *ini << "Final_Frame=" << _frameNum << endl;
@@ -1659,7 +1659,7 @@ void Viewer::onQuickRender(QString povargs) {
     args << "-A";   // no anti aliasing
     args << "+d";   // display
     args << "-c";   // don't continue with a started render
-    args << "-L../../includes";
+    args << "+L/usr/share/bpp/includes +L../../includes";
     args << QString("+W%1").arg(renderWidth);
     args << QString("+H%1").arg(renderHeight);
     args << "+GA";  // turn on all text output
