@@ -100,7 +100,8 @@ v.maxSubSteps   = 10
 v.fixedTimeStep = 1/100
 
 p = Plane(0,1,0,0,1000)
-p.pos = btVector3(0,-1,0)
+p.pos = btVector3(0,13,0)
+p.col = "green"
 v:add(p)
 
 cu = Cube(15,1,15,0)
@@ -156,7 +157,8 @@ end
 if (use_openscad == 1) then
   sc = OpenSCAD([[
     difference() {
-      cube([100,70,100], center=true);
+      translate([0,-12,0])
+      cube([100,50,100], center=true);
       translate([0,-12.25,0])
       cube([95,45,95], center=true);
       translate([30,-14, 50])
@@ -288,13 +290,19 @@ v:onCommand(function(N, cmd)
   f(v)
 end)
 
--- pseudo orthogonal view
---v.cam:setFieldOfView(.01)
+function setcam()
+  d = 60
+  -- pseudo orthogonal view
+  --v.cam:setFieldOfView(.1)
 
-v.cam.focal_blur      = 0 -- > 0: enable focal blur
-v.cam.focal_aperture  = 5
---v.cam.focal_point = XXX.pos
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam:setHorizontalFieldOfView(1.2)
-v.cam.pos  = btVector3(0,30,-40)
-v.cam.look = btVector3(0,30,40) 
+  v.cam.focal_blur      = 0 -- > 0: enable focal blur
+  v.cam.focal_aperture  = 5
+  --v.cam.focal_point = XXX.pos
+  v.cam:setUpVector(btVector3(0,1,0), true)
+  v.cam:setHorizontalFieldOfView(0.7)
+  v.cam.pos  = btVector3(0,30,d*4)
+  v.cam.look = btVector3(0,50,0) 
+end
+
+setcam()
+
