@@ -736,7 +736,7 @@ void Viewer::clear() {
     dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
     btCollisionDispatcher * dispatcher =
-            static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
+            static_cast<btCollisionDispatcher *>(dynamicsWorld->getDispatcher());
     btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 
     _objects->clear();
@@ -750,6 +750,7 @@ void Viewer::clear() {
     if (_cam != NULL) {
         _cam->setPreSDL(NULL);
         _cam->setPostSDL(NULL);
+        _cam->setUseFocalBlur(0);
     }
 
     _light0 = btVector4( 200.0, 200.0,  200.0, 0.4);
@@ -899,19 +900,27 @@ void Viewer::openPovFile() {
 
             *_stream << "camera { " << endl
                      << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
-                     << "  right -image_width/image_height*x" << endl;
-            Vec vDir = camera()->viewDirection();
+                     << "  right image_width/image_height*x" << endl;
 
-            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
-            *_stream << "  look_at <"
-                     << pos.x + vDir.x
+            Vec dir = ((Cam*)camera())->viewDirection();
+            *_stream << "  direction <"
+                     << dir.x
                      << ", "
-                     << pos.y + vDir.y
+                     << dir.y
                      << ", "
-                     << pos.z + vDir.z
+                     << dir.z
                      << "> ";
 
-            *_stream << "angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
+            Vec look = ((Cam*)camera())->viewDirection() * 1000000 + camera()->position();
+            *_stream << "  look_at <"
+                     << look.x
+                     << ", "
+                     << look.y
+                     << ", "
+                     << look.z
+                     << "> ";
+
+            *_stream << "  angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
 
             *_stream << "  sky <"
                      << _cam->getUpVector().x()
@@ -1180,19 +1189,27 @@ QString Viewer::toPOV() const {
 
             *s << "camera { " << endl
                << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
-               << "  right - image_width / image_height*x" << endl;
-            Vec vDir = camera()->viewDirection();
+               << "  right image_width / image_height*x" << endl;
 
-            // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
-            *s << "  look_at <"
-               << pos.x + vDir.x
+            Vec dir = ((Cam*)camera())->viewDirection();
+            *s << "  direction <"
+               << dir.x
                << ", "
-               << pos.y + vDir.y
+               << dir.y
                << ", "
-               << pos.z + vDir.z
+               << dir.z
                << "> ";
 
-            *s << "angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
+            Vec look = ((Cam*)camera())->viewDirection() * 1000000 + camera()->position();
+            *s << "  look_at <"
+               << look.x
+               << ", "
+               << look.y
+               << ", "
+               << look.z
+               << "> ";
+
+            *s << "  angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
 
             *s << "  sky <"
                << _cam->getUpVector().x()
