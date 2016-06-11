@@ -902,6 +902,7 @@ void Viewer::openPovFile() {
                      << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
                      << "  right - image_width/image_height*x" << endl;
 
+            /*
             Vec dir = ((Cam*)camera())->viewDirection();
             *_stream << "  direction <"
                      << dir.x
@@ -910,7 +911,7 @@ void Viewer::openPovFile() {
                      << ", "
                      << dir.z
                      << "> ";
-
+*/
             Vec look = ((Cam*)camera())->viewDirection() * 1000000 + camera()->position();
             *_stream << "  look_at <"
                      << look.x
@@ -1191,6 +1192,7 @@ QString Viewer::toPOV() const {
                << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
                << "  right - image_width / image_height*x" << endl;
 
+            /*
             Vec dir = ((Cam*)camera())->viewDirection();
             *s << "  direction <"
                << dir.x
@@ -1199,6 +1201,7 @@ QString Viewer::toPOV() const {
                << ", "
                << dir.z
                << "> ";
+               */
 
             Vec look = ((Cam*)camera())->viewDirection() * 1000000 + camera()->position();
             *s << "  look_at <"

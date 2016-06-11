@@ -4,6 +4,10 @@
 require "module/color"
 require "module/dice"
 
+v.timeStep      = 1/5
+v.maxSubSteps   = 20
+v.fixedTimeStep = 1/120
+
 v.pre_sdl = [==[
 
 #include "finish.inc"
@@ -13,7 +17,7 @@ v.pre_sdl = [==[
 ]==]
 
 p = Plane(0,1,0,0,1000)
-p.col = "#111"
+p.col = "#fff"
 p.friction = 100
 p.sdl = [[ texture { pigment { color White } }]]
 v:add(p)
@@ -22,7 +26,7 @@ function text(t, x, y, z)
   t = OpenSCAD([[
   text = "]]..t..[[";
   font = "Arial";
-  linear_extrude(height = 2) {
+  linear_extrude(height = 0.5) {
     text(
       text = text, font = font,
       size = 1, halign = "center");
@@ -44,7 +48,7 @@ text("Version 0.0.3", 0,6.6,-1)
 function run()
   d = dice.new({ mass = 10, col = color.random_google() })
   d.friction = 100
-  d.pos=btVector3(0,0.75,0)
+  d.pos=btVector3(0,0.3,0)
   v:add(d)
 end
 
@@ -55,11 +59,15 @@ v:postSim(function(N)
     run()
   end
 
-  c = 1
+  c = 2.5
   i = math.sin(N/100)*c
   j = math.cos(N/100)*c
+--  v.gravity = btVector3(0,-c,0)
   v.gravity = btVector3(i,-c,j)
 
+  tmp = v.cam.pos tmp.z = tmp.z + 1 v.cam.pos = tmp
+  tmp = v.cam.pos tmp.y = tmp.y + 1 v.cam.pos = tmp
+  tmp = v.cam.look tmp.y = tmp.y + 0.001 v.cam.look = tmp
 end)
 
 v:onCommand(function(N, cmd)

@@ -11,7 +11,7 @@
 -- math.tan
 
 plane = Plane(0,1,0)
-plane.col = "#111111"
+plane.col = "white"
 v:add(plane)
 
 --
@@ -24,7 +24,7 @@ function circle(d,r,N)
 
     s = Sphere(d, 1/d)
     s.pos = btVector3(x, d / 2 + 0.1,y)
-    s.col = "#0000ff"
+    s.col = "blue"
     v:add(s)
   end
 end
