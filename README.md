@@ -5,10 +5,10 @@ href="https://www.youtube.com/watch?v=IwdbtfiEo0A&list=PL-OhsevLGGI2bFpOqzqnWsGI
 
 Features:
 
-* LUA scripting   (experimental)
-* OpenGL GUI      (experimental)
-* OpenSCAD import (experimental)
-* POV-Ray [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
+* [Lua](https://www.lua.org/) scripting   (experimental)
+* [OpenGL](https://www.opengl.org/) GUI      (experimental)
+* [OpenSCAD](http://www.openscad.org/) import (experimental)
+* [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
 Created with Bullet Physics Playground:
 
@@ -24,14 +24,27 @@ Select your operating system:
 
 ### Run
 
-```
+Start with GUI:
+```bash
 $ ./bpp
 ```
 
+Start without GUI and render a 400 frames animation with POV-Ray from the command-line:
+```bash
+$ echo "render = 1" | ./bpp -f demo/basic/00-hello-pov.lua -n 400 -i
+```
+
+Pipe bpp simulation data into [gnuplot](https://en.wikipedia.org/wiki/Gnuplot):
+```bash
+$ ./bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
+```
+
+For more demos, see [demo/](https://github.com/bullet-physics-playground/bpp/tree/master/demo).
+
 ## Wiki
 
-* [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO) WIP
-* [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference) WIP
+* [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)
+* [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference)
 * [POV-Ray on Amazon EC2](https://github.com/bullet-physics-playground/bpp/wiki/POV%E2%80%93Ray-on-Amazon-EC2) WIP
 
 ### Authors
