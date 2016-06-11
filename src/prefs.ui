@@ -238,10 +238,14 @@
               <item row="0" column="1">
                <layout class="QHBoxLayout" name="horizontalLayout_3">
                 <item>
-                 <widget class="QLineEdit" name="lineEditPOVExport"/>
+                 <widget class="QLineEdit" name="povExportDir">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButtonPOVExport">
+                 <widget class="QPushButton" name="povExportDirBrowse">
                   <property name="text">
                    <string>Browse</string>
                   </property>
@@ -252,21 +256,33 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
                <widget class="QLabel" name="label_3">
                 <property name="text">
-                 <string>Render Command</string>
+                 <string>Quick Render      </string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPlainTextEdit" name="povPreview">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="plainText">
-                 <string>Work in progress..</string>
+                 <string>+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA</string>
                 </property>
                </widget>
               </item>

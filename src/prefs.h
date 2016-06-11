@@ -12,27 +12,33 @@ class Prefs : public QDialog , public Ui_Prefs {
     Q_OBJECT
 
 public:
-    Prefs(QWidget* parent = 0);
+    Prefs(QSettings *settings, QWidget* parent = 0);
     ~Prefs();
 
     void accept();
     void activateGroupPage(QString group, int id);
 
-    QVariant getValue(const QString &key) const;
+    QVariant getValue(QString key) const;
+    void setValue(QString key, QVariant value);
 
 protected:
     void changeEvent(QEvent *e);
 
-protected Q_SLOTS:
+protected slots:
     void changeGroup(QListWidgetItem *current, QListWidgetItem *previous);
     void on_buttonOk_clicked();
 
-    void fontFamilyChanged(const QString &);
-    void fontSizeChanged(const QString &);
+    void fontFamilyChanged(const QString);
+    void fontSizeChanged(const QString);
+
+    void on_povPreviewChanged();
+    void on_povExportDirChanged();
+    void on_povExportDirBrowse();
 
 signals:
     void fontChanged(const QString &family, uint size) const;
     void povPreviewChanged(QString cmd) const;
+    void povExportDirChanged(QString dir) const;
 
 private:
     void keyPressEvent(QKeyEvent *e);
