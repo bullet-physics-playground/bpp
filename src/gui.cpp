@@ -441,9 +441,8 @@ void Gui::fileSave(const QString& path) {
     }
 }
 
-
 void Gui::editPreferences() {
-    Prefs *p = new Prefs(this);
+    Prefs *p = new Prefs(settings, this);
 
     connect(p, SIGNAL(fontChanged(QString, uint)),
             this, SLOT(fontChanged(QString, uint)));

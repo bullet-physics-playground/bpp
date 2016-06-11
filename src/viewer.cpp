@@ -6,6 +6,7 @@
 
 #include <QColor>
 #include <QTextCodec>
+#include <QMessageBox>
 
 #include "lua_converters.h"
 
@@ -762,18 +763,40 @@ void Viewer::openPovFile() {
     QString file;
     QString fileMain;
     QString fileINI;
-    QDir sceneDir("export");
 
     QString sceneName;
-    if(!_scriptName.isEmpty()){
-        sceneName=_scriptName;
-    }else{
-        sceneName="no_name";
+    if (!_scriptName.isEmpty()) {
+        sceneName = _scriptName;
+    } else {
+        sceneName = "no_name";
     }
-    sceneDir.mkdir(qPrintable(sceneName));
-    file.sprintf("export/%s/%s-%05d.inc", qPrintable(sceneName), qPrintable(sceneName), _frameNum);
-    fileMain.sprintf("export/%s/%s.pov", qPrintable(sceneName), qPrintable(sceneName));
-    fileINI.sprintf("export/%s/%s.ini", qPrintable(sceneName), qPrintable(sceneName));
+
+    QDir pwdDir(".");
+
+    QString exportDir = _settings->value("povray/export", "export").toString();
+    if (!pwdDir.exists(exportDir)) {
+        if (!pwdDir.mkpath(exportDir)) {
+            QMessageBox msgBox;
+            msgBox.setText(tr("Unable to create directory %1.").arg(exportDir));
+            msgBox.exec();
+            return;
+        }
+    }
+
+    QString sceneDir  = pwdDir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
+
+    if (!pwdDir.exists(sceneDir)) {
+        if (!pwdDir.mkpath(sceneDir)) {
+            QMessageBox msgBox;
+            msgBox.setText(tr("Unable to create directory %1.").arg(sceneDir));
+            msgBox.exec();
+            return;
+        }
+    }
+
+    file.sprintf("%s/%s-%05d.inc", qPrintable(sceneDir), qPrintable(sceneName), _frameNum);
+    fileMain.sprintf("%s/%s.pov", qPrintable(sceneDir), qPrintable(sceneName));
+    fileINI.sprintf("%s/%s.ini", qPrintable(sceneDir), qPrintable(sceneName));
 
     // qDebug() << "saving pov file:" << file;
 
@@ -867,7 +890,7 @@ void Viewer::openPovFile() {
                      << pos.z + vDir.z
                      << "> ";
 
-            *_stream << "angle " << camera()->fieldOfView() * 90.0 << endl;
+            *_stream << "angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
 
             *_stream << "  sky <"
                      << _cam->getUpVector().x()
@@ -1135,7 +1158,7 @@ QString Viewer::toPOV() const {
 
             *s << "camera { " << endl
                << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
-               << "  right -image_width/image_height*x" << endl;
+               << "  right - image_width / image_height*x" << endl;
             Vec vDir = camera()->viewDirection();
 
             // qDebug() << pos.x + vDir.x << pos.y + vDir.y << pos.z + vDir.z;
@@ -1147,7 +1170,7 @@ QString Viewer::toPOV() const {
                << pos.z + vDir.z
                << "> ";
 
-            *s << "angle " << camera()->fieldOfView() * 90.0 << endl;
+            *s << "angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI << endl;
 
             *s << "  sky <"
                << _cam->getUpVector().x()
@@ -1614,11 +1637,9 @@ void Viewer::onQuickRender() {
 }
 
 void Viewer::onQuickRender(QString povargs) {
-    _settings->beginGroup("gui");
-    QString renderResolution = _settings->value("renderResolution", "").toString();
-    _settings->endGroup();
+    QString renderResolution = _settings->value("gui/renderResolution", "view size").toString();
 
-    qDebug() << renderResolution;
+    // qDebug() << renderResolution;
 
     int renderWidth, renderHeight;
 
@@ -1636,9 +1657,7 @@ void Viewer::onQuickRender(QString povargs) {
 
     _settings->endGroup();
 
-    qDebug() << "quickRender() 1";
     savePOV(true);
-    qDebug() << "quickRender() 2";
 
     // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     // env.insert("", );
@@ -1646,23 +1665,20 @@ void Viewer::onQuickRender(QString povargs) {
     QStringList args;
 
     QString sceneName;
-    if(!_scriptName.isEmpty()){
-        sceneName=_scriptName;
-    }else{
-        sceneName="no_name";
+    if (!_scriptName.isEmpty()) {
+        sceneName = _scriptName;
+    } else {
+        sceneName = "no_name";
     }
 
     args << "povray";
-    args << "+Q11";  // best
-    //  args << "+Q8";  // no media and radiosity
-    args << "+p";   // pause when done
-    args << "-A";   // no anti aliasing
-    args << "+d";   // display
-    args << "-c";   // don't continue with a started render
-    args << "+L/usr/share/bpp/includes +L../../includes";
+
+    QString opts = _settings->value("povray/preview").toString();
+
+    args << opts;
+
     args << QString("+W%1").arg(renderWidth);
     args << QString("+H%1").arg(renderHeight);
-    args << "+GA";  // turn on all text output
 
     QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
@@ -1685,7 +1701,9 @@ void Viewer::onQuickRender(QString povargs) {
     qDebug() << "executing povray " << args.join(" ");
 
     QDir dir(".");
-    QString sceneDir = dir.absoluteFilePath("export/" + sceneName);
+
+    QString exportDir = _settings->value("povray/export", "export").toString();
+    QString sceneDir = dir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
     qDebug() << "sceneDir: " << sceneDir;
 
     QProcess p;

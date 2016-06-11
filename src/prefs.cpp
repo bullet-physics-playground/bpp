@@ -2,15 +2,16 @@
 
 #include <QFont>
 #include <QFontDialog>
+#include <QFileDialog>
 
 #include "prefs.h"
 
-Prefs::Prefs(QWidget* parent) :
+Prefs::Prefs(QSettings *settings, QWidget* parent) :
     QDialog(parent) {
 
-    this->setupUi(this);
+    _settings = settings;
 
-    _settings = new QSettings("", "");
+    this->setupUi(this);
 
     connect(listBox, SIGNAL(currentItemChanged(QListWidgetItem *,QListWidgetItem *)),
             this, SLOT(changeGroup(QListWidgetItem *, QListWidgetItem*)));
@@ -50,30 +51,57 @@ void Prefs::setupPages() {
     font.setFamily(fontfamily);
     QString found_family(QFontInfo(font).family());
 
-    this->defaultmap["editor/fontfamily"] = found_family;
-    this->defaultmap["editor/fontsize"]   = 12;
-
-    this->defaultmap["povray/preview"] =
-            "Work in progress..";
+    this->defaultmap["editor/fontfamily"] = _settings->value("editor/fontfamily", "Courier").toString();
+    this->defaultmap["editor/fontsize"]   = _settings->value("editor/fontsize", 12).toInt();
+    this->defaultmap["povray/export"]     = _settings->value("povray/export", "export").toString();
+    this->defaultmap["povray/preview"]    = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
 
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
             this, SLOT(fontFamilyChanged(const QString &)));
 
     connect(this->fontSize, SIGNAL(editTextChanged(const QString &)),
             this, SLOT(fontSizeChanged(const QString &)));
+
+    connect(this->povExportDir, SIGNAL(textChanged(QString)),
+            this, SLOT(on_povExportDirChanged()));
+
+    connect(this->povExportDirBrowse, SIGNAL(clicked(bool)),
+            this, SLOT(on_povExportDirBrowse()));
+
+    connect(this->povPreview, SIGNAL(textChanged()),
+            this, SLOT(on_povPreviewChanged()));
 }
 
-void Prefs::fontFamilyChanged(const QString &family) {
-    _settings->setValue("editor/fontfamily", family);
+void Prefs::fontFamilyChanged(const QString family) {
+    setValue("editor/fontfamily", family);
     emit fontChanged(family, getValue("editor/fontsize").toUInt());
 }
 
-void Prefs::fontSizeChanged(const QString &size) {
+void Prefs::fontSizeChanged(const QString size) {
     uint intsize = size.toUInt();
 
-    _settings->setValue("editor/fontsize", intsize);
+    setValue("editor/fontsize", intsize);
 
     emit fontChanged(getValue("editor/fontfamily").toString(), intsize);
+}
+
+void Prefs::on_povPreviewChanged() {
+    setValue("povray/preview", povPreview->toPlainText());
+    emit povPreviewChanged(getValue("povray/preview").toString());
+}
+
+void Prefs::on_povExportDirChanged() {
+    setValue("povray/export", povExportDir->text());
+    emit povExportDirChanged(povExportDir->text());
+}
+
+void Prefs::on_povExportDirBrowse() {
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select POV-Ray scene export directory"),
+                                                    getValue("povray/export").toString(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    setValue("povray/export", dir);
+    povExportDir->setText(dir);
+    emit povExportDirChanged(dir);
 }
 
 void Prefs::keyPressEvent(QKeyEvent *e) {
@@ -98,8 +126,12 @@ void Prefs::removeDefaultSettings() {
     }
 }
 
-QVariant Prefs::getValue(const QString &key) const {
+QVariant Prefs::getValue(QString key) const {
     return _settings->value(key, this->defaultmap[key]);
+}
+
+void Prefs::setValue(QString key, QVariant value) {
+    _settings->setValue(key, value);
 }
 
 void Prefs::updateGUI() {
@@ -117,8 +149,8 @@ void Prefs::updateGUI() {
         this->fontSize->setEditText(fontsize);
     }
 
-    QString povCmd = getValue("povray/preview").toString();
-    povPreview->setPlainText(povCmd);
+    povExportDir->setText(getValue("povray/export").toString());
+    povPreview->setPlainText(getValue("povray/preview").toString());
 }
 
 void Prefs::changeGroup(QListWidgetItem *current, QListWidgetItem *previous) {
@@ -150,9 +182,14 @@ void Prefs::accept() {
 
 void Prefs::on_buttonOk_clicked() {
     emit fontChanged(getValue("editor/fontfamily").toString(), getValue("editor/fontsize").toUInt());
-    emit povPreviewChanged(getValue("povray/preview").toString());
+    _settings->setValue("editor/fontfamily", getValue("editor/fontfamily").toString());
+    _settings->setValue("editor/fontsize", getValue("editor/fontsize").toUInt());
 
-    // TODO save settings
+    emit povPreviewChanged(getValue("povray/preview").toString());
+    // _settings->setValue("povray/preview", getValue("povray/preview").toString());
+
+    emit povExportDirChanged(getValue("povray/export").toString());
+    // _settings->setValue("povray/export", getValue("povray/export").toString());
 }
 
 void Prefs::changeEvent(QEvent *e) {
