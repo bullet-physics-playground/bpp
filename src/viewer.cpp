@@ -1678,8 +1678,6 @@ void Viewer::onQuickRender(QString povargs) {
         renderHeight = geometry().height();
     }
 
-    _settings->endGroup();
-
     savePOV(true);
 
     // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
@@ -1696,7 +1694,7 @@ void Viewer::onQuickRender(QString povargs) {
 
     args << "povray";
 
-    QString opts = _settings->value("povray/preview").toString();
+    QString opts = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
 
     args << opts;
 
@@ -1721,7 +1719,7 @@ void Viewer::onQuickRender(QString povargs) {
 
     args << povargs;
 
-    qDebug() << "executing povray " << args.join(" ");
+    qDebug() << "executing " << args.join(" ");
 
     QDir dir(".");
 
