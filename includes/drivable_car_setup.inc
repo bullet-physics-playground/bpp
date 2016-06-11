@@ -74,7 +74,7 @@ texture{
 }
 #include "i_citroen_gs.inc"
 #declare citroen_gs=object{jvp_citroen_gs(t_paint,20)
- scale 10*<1,1,1>
+ scale 10*<-1,1,1>
  rotate 90*y
  translate <-3,-4,0>
  }

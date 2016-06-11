@@ -27,6 +27,7 @@
   //  object{micra_LF_wheel_ Rotate_Around_Trans(y*20, <-1, 0, 1.55>)} // rotate front left wheel
   //  object{micra_RF_wheel_ Rotate_Around_Trans(y*20, <1, 0, 1.55>)}  // rotate front right wheel
   object{wunderbaum_}
+  scale <-1,1,1>
 }
 
 #declare micra_tyre=object{micra_LF_wheel_

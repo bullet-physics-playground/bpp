@@ -900,7 +900,7 @@ void Viewer::openPovFile() {
 
             *_stream << "camera { " << endl
                      << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
-                     << "  right image_width/image_height*x" << endl;
+                     << "  right - image_width/image_height*x" << endl;
 
             Vec dir = ((Cam*)camera())->viewDirection();
             *_stream << "  direction <"
@@ -1189,7 +1189,7 @@ QString Viewer::toPOV() const {
 
             *s << "camera { " << endl
                << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << " >" << endl
-               << "  right image_width / image_height*x" << endl;
+               << "  right - image_width / image_height*x" << endl;
 
             Vec dir = ((Cam*)camera())->viewDirection();
             *s << "  direction <"
