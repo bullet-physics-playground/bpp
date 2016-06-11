@@ -13,7 +13,6 @@ material{
   texture{
     pigment{
       image_map{png "logo" interpolate 2}
-      scale <-1,1,1> translate -.5*x
     }
   }
 }
