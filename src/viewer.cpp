@@ -604,7 +604,7 @@ bool Viewer::parse(QString txt) {
         luaL_dostring(L, "os.setlocale('C')");
 
         QString path = _settings->value("lua/path", "demo/?.lua;").toString();
-        QString p    = QString("%1\"%2\"").arg("package.path = package.path..", path);
+        QString p    = QString("%1\";%2\"").arg("package.path = package.path..", path);
 
         int error = luaL_loadstring(L, qPrintable(p))
                 || lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -1155,7 +1155,8 @@ void Viewer::savePOV(bool force) {
 
     openPovFile();
     foreach (Object *o, *_objects) {
-        *_stream << o->toPOV();
+        if (o->getPOVExport())
+            *_stream << o->toPOV();
     }
     closePovFile();
 }
@@ -1219,7 +1220,8 @@ QString Viewer::toPOV() const {
     }
 
     foreach (Object *o, *_objects) {
-        *s << o->toPOV();
+        if (o->getPOVExport())
+            *s << o->toPOV();
     }
 
     if (!mPostSDL.isEmpty()) {
