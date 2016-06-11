@@ -36,7 +36,7 @@
     <number>6</number>
    </property>
    <item row="0" column="0">
-    <layout class="QHBoxLayout">
+    <layout class="QHBoxLayout" name="noname">
      <property name="spacing">
       <number>6</number>
      </property>
@@ -115,11 +115,29 @@
        </item>
        <item>
         <property name="text">
+         <string>Lua</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../res.qrc">
+          <normaloff>:/icons/lua.svg</normaloff>:/icons/lua.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>POV-Ray</string>
         </property>
         <property name="icon">
          <iconset resource="../res.qrc">
-          <normaloff>:/icons/povray.png</normaloff>:/icons/povray.png</iconset>
+          <normaloff>:/icons/povray.svg</normaloff>:/icons/povray.svg</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>OpenSCAD</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../res.qrc">
+          <normaloff>:/icons/openscad.svg</normaloff>:/icons/openscad.svg</iconset>
         </property>
        </item>
       </widget>
@@ -133,7 +151,7 @@
         <enum>QFrame::Raised</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="guiPage">
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -218,6 +236,62 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="luaPage">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Lua settings</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetMinimumSize</enum>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>package path</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="luaPath">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>30</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>135</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="povPage">
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
@@ -268,20 +342,8 @@
                </widget>
               </item>
               <item>
-               <widget class="QPlainTextEdit" name="povPreview">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>30</height>
-                 </size>
-                </property>
-                <property name="plainText">
+               <widget class="QLineEdit" name="povPreview">
+                <property name="text">
                  <string>+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA</string>
                 </property>
                </widget>
@@ -307,26 +369,58 @@
         </layout>
        </widget>
        <widget class="QWidget" name="wohooPage">
-        <widget class="QPushButton" name="pushButton">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>200</y>
-           <width>89</width>
-           <height>19</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Wohoo!</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>OpenSCAD settings</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Executable</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="scadExecutable"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="scadExecutableBrowse">
+                <property name="text">
+                 <string>Browse</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>244</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
     </layout>
    </item>
    <item row="1" column="0">
-    <layout class="QHBoxLayout">
+    <layout class="QHBoxLayout" name="_2">
      <property name="spacing">
       <number>6</number>
      </property>

@@ -322,7 +322,7 @@
    </property>
    <property name="icon">
     <iconset resource="../res.qrc">
-     <normaloff>:/icons/povray.png</normaloff>:/icons/povray.png</iconset>
+     <normaloff>:/icons/povray.svg</normaloff>:/icons/povray.svg</iconset>
    </property>
    <property name="text">
     <string>Toggle POV Export</string>

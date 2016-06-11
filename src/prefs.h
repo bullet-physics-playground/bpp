@@ -31,14 +31,24 @@ protected slots:
     void fontFamilyChanged(const QString);
     void fontSizeChanged(const QString);
 
+    void on_luaPathChanged();
+
     void on_povPreviewChanged();
     void on_povExportDirChanged();
     void on_povExportDirBrowse();
 
+    void on_scadExecutableChanged();
+    void on_scadExecutableBrowse();
+
 signals:
     void fontChanged(const QString &family, uint size) const;
+
+    void luaPathChanged(QString path) const;
+
     void povPreviewChanged(QString cmd) const;
     void povExportDirChanged(QString dir) const;
+
+    void scadExecutableChanged(QString dir) const;
 
 private:
     void keyPressEvent(QKeyEvent *e);

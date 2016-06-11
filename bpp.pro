@@ -143,7 +143,7 @@ CONFIG  *= qt opengl
 CONFIG  += warn_on
 CONFIG  += thread
 
-QT     *= opengl xml network gui core
+QT      *= opengl xml network gui core
 
 INCLUDEPATH += src/wrapper
 DEPENDPATH  += src/wrapper

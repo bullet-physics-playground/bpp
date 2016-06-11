@@ -53,8 +53,11 @@ void Prefs::setupPages() {
 
     this->defaultmap["editor/fontfamily"] = _settings->value("editor/fontfamily", "Courier").toString();
     this->defaultmap["editor/fontsize"]   = _settings->value("editor/fontsize", 12).toInt();
+    this->defaultmap["lua/path"]          = _settings->value("lua/path", "/usr/share/bpp/demo/?.lua;demo/?.lua").toString();
     this->defaultmap["povray/export"]     = _settings->value("povray/export", "export").toString();
     this->defaultmap["povray/preview"]    = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
+
+    this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
 
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
             this, SLOT(fontFamilyChanged(const QString &)));
@@ -62,14 +65,23 @@ void Prefs::setupPages() {
     connect(this->fontSize, SIGNAL(editTextChanged(const QString &)),
             this, SLOT(fontSizeChanged(const QString &)));
 
+    connect(this->luaPath, SIGNAL(textChanged()),
+            this, SLOT(on_luaPathChanged()));
+
     connect(this->povExportDir, SIGNAL(textChanged(QString)),
             this, SLOT(on_povExportDirChanged()));
 
     connect(this->povExportDirBrowse, SIGNAL(clicked(bool)),
             this, SLOT(on_povExportDirBrowse()));
 
-    connect(this->povPreview, SIGNAL(textChanged()),
+    connect(this->povPreview, SIGNAL(textChanged(QString)),
             this, SLOT(on_povPreviewChanged()));
+
+    connect(this->scadExecutable, SIGNAL(textChanged(QString)),
+            this, SLOT(on_scadExecutableChanged()));
+
+    connect(this->scadExecutableBrowse, SIGNAL(clicked(bool)),
+            this, SLOT(on_scadExecutableBrowse()));
 }
 
 void Prefs::fontFamilyChanged(const QString family) {
@@ -85,8 +97,13 @@ void Prefs::fontSizeChanged(const QString size) {
     emit fontChanged(getValue("editor/fontfamily").toString(), intsize);
 }
 
+void Prefs::on_luaPathChanged() {
+    setValue("lua/path", luaPath->toPlainText());
+    emit luaPathChanged(luaPath->toPlainText());
+}
+
 void Prefs::on_povPreviewChanged() {
-    setValue("povray/preview", povPreview->toPlainText());
+    setValue("povray/preview", povPreview->text());
     emit povPreviewChanged(getValue("povray/preview").toString());
 }
 
@@ -99,9 +116,33 @@ void Prefs::on_povExportDirBrowse() {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Select POV-Ray scene export directory"),
                                                     getValue("povray/export").toString(),
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-    setValue("povray/export", dir);
-    povExportDir->setText(dir);
-    emit povExportDirChanged(dir);
+
+    if (!dir.isEmpty()) {
+      setValue("povray/export", dir);
+      povExportDir->setText(dir);
+      emit povExportDirChanged(dir);
+    }
+}
+
+void Prefs::on_scadExecutableChanged() {
+    setValue("openscad/executable", scadExecutable->text());
+    emit scadExecutableChanged(scadExecutable->text());
+}
+
+void Prefs::on_scadExecutableBrowse() {
+    QFileDialog *dlg = new QFileDialog(this);
+    dlg->setFilter(QDir::Executable);
+    dlg->selectFile(getValue("openscad/executable").toString());
+
+    QString filename;
+    if (dlg->exec())
+        filename = dlg->selectedFiles().first();
+    else
+        return;
+
+    setValue("openscad/executable", filename);
+    scadExecutable->setText(filename);
+    emit scadExecutableChanged(filename);
 }
 
 void Prefs::keyPressEvent(QKeyEvent *e) {
@@ -149,8 +190,12 @@ void Prefs::updateGUI() {
         this->fontSize->setEditText(fontsize);
     }
 
+    luaPath->setText(getValue("lua/path").toString());
+
     povExportDir->setText(getValue("povray/export").toString());
-    povPreview->setPlainText(getValue("povray/preview").toString());
+    povPreview->setText(getValue("povray/preview").toString());
+
+    scadExecutable->setText(getValue("openscad/executable").toString());
 }
 
 void Prefs::changeGroup(QListWidgetItem *current, QListWidgetItem *previous) {
@@ -182,14 +227,10 @@ void Prefs::accept() {
 
 void Prefs::on_buttonOk_clicked() {
     emit fontChanged(getValue("editor/fontfamily").toString(), getValue("editor/fontsize").toUInt());
-    _settings->setValue("editor/fontfamily", getValue("editor/fontfamily").toString());
-    _settings->setValue("editor/fontsize", getValue("editor/fontsize").toUInt());
-
+    emit luaPathChanged(getValue("lua/path").toString());
     emit povPreviewChanged(getValue("povray/preview").toString());
-    // _settings->setValue("povray/preview", getValue("povray/preview").toString());
-
     emit povExportDirChanged(getValue("povray/export").toString());
-    // _settings->setValue("povray/export", getValue("povray/export").toString());
+    emit scadExecutableChanged(getValue("openscad/executable").toString());
 }
 
 void Prefs::changeEvent(QEvent *e) {

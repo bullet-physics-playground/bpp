@@ -3,8 +3,9 @@
   </qresource>
   <qresource prefix="/">
     <file>icons/deactivation.png</file>
-    <file>icons/povray.png</file>
     <file>icons/bpp.svg</file>
     <file>icons/lua.svg</file>
+    <file>icons/povray.svg</file>
+    <file>icons/openscad.svg</file>
   </qresource>
 </RCC>

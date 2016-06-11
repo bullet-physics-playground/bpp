@@ -602,7 +602,28 @@ bool Viewer::parse(QString txt) {
         luaL_openlibs(L);
 
         luaL_dostring(L, "os.setlocale('C')");
-        luaL_dostring(L, "package.path = \"demo/?.lua;\"..package.path");
+
+        QString path = _settings->value("lua/path", "demo/?.lua;").toString();
+        QString p    = QString("%1\"%2\"").arg("package.path = package.path..", path);
+
+        int error = luaL_loadstring(L, qPrintable(p))
+                || lua_pcall(L, 0, LUA_MULTRET, 0);
+
+        if (error) {
+            lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+
+            if (lua_error.contains(QRegExp(tr("stopping$")))) {
+                lua_error = tr("script stopped");
+                // qDebug() << "lua run : script stopped";
+            } else {
+                // qDebug() << QString("lua run : %1").arg(lua_error);
+                emit scriptHasOutput(lua_error);
+            }
+
+            lua_pop(L, 1);  /* pop error message from the stack */
+        } else {
+            lua_error = tr("ok");
+        }
 
         // register all bpp classes
         LuaBullet::luaBind(L);
