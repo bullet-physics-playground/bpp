@@ -7,6 +7,7 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 #include <QFileInfo>
+#include <QSettings>
 
 using namespace std;
 
@@ -46,7 +47,10 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
 
             QStringList args;
 
-            args << "openscad";
+            QSettings s;
+            QString openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
+
+            args << openscad;
             args << "-o";
             args << stlfile;
             args << scad.fileName();
