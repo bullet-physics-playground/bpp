@@ -24,19 +24,19 @@ col_wheel = "#3f3f3f"
 if(use_obstacles==2) then
   local f = 2000  -- friction
 
-  terrain = Mesh("demo/mesh/terrain.3ds",0)
+  terrain = Mesh("/usr/share/bpp/demo/mesh/terrain.3ds",0)
   terrain.pos =btVector3(0,-1,0)
   terrain.col=col_sand
   terrain.friction=f
   terrain.restitution=0
   terrain.sdl = "texture { t_sand }"
- terrain.trans = btTransform(btQuaternion(-1,0,0,1), btVector3(240,-10,175))
+ terrain.trans = btTransform(btQuaternion(0,0,0,1), btVector3(240,-10,175))
 -- terrain.trans = btTransform(btQuaternion(-1,0,0,1), btVector3(-60,-10,100))
   v:add(terrain)
 end
 
 if(use_obstacles==1) then
-  local a = 0.2 -- ange
+  local a = 0.1 -- angle
   local dim = 100
   local f = 200  -- friction
 
@@ -171,8 +171,8 @@ c = nil
 
 local cs = {}
 
-NX = 10
-NY = 10
+NX = 4
+NY = 4
 
 for i = -NX,NX do
   for j = -NY,NY do
@@ -190,7 +190,7 @@ function setcam()
   v.cam:setHorizontalFieldOfView(0.4)
 
   v.cam.pos  = c.car.pos
-     + btVector3(d*-.1,d*0.01,d*0.2)
+     + btVector3(d*-.1,d*0.1,d*0.2)
 
   v.cam.look = c.car.pos
      + btVector3(0,-6,0)

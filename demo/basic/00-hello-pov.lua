@@ -48,7 +48,7 @@ v:postSim(function(N) print(N)
   setcam()
   if (render) then
     if (N % 1 == 0) then
-      povray.render("-d +Lincludes -p +W320 +H240", "/tmp", "00-hello-pov", r)
+      povray.render("-d +L/usr/share/bpp/includes +Lincludes -p +W320 +H240", "/tmp", "00-hello-pov", r)
       r = r + 1
     end
   end

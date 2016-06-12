@@ -15,6 +15,7 @@
 p = Plane(0,1,0,0,100)
 p.col = "white"
 p.restitution = 1
+p.friction = 1
 v:add(p)
 
 -- a sphere with diameter 2 and mass 10
@@ -23,6 +24,22 @@ s.pos = btVector3( 0,10, 0) -- position
 s.vel = btVector3( 4, 0, 0) -- velocity
 s.col = "red"
 s.restitution =.9
+s.friction = 1
+s.sdl = [[
+  texture {
+    pigment {
+      radial
+      frequency 2
+      color_map {
+        [0.00 color ReferenceRGB(Red)]    [0.25 color ReferenceRGB(Red)]
+        [0.25 color ReferenceRGB(Green)]  [0.50 color ReferenceRGB(Green)]
+        [0.50 color ReferenceRGB(Blue)]   [0.75 color ReferenceRGB(Blue)]
+        [0.75 color ReferenceRGB(Yellow)] [1.00 color ReferenceRGB(Yellow)]
+      }
+    }
+    finish { specular 0.6 }
+  }
+]]
 v:add(s)
 
 function setcam()

@@ -537,7 +537,7 @@ $fn=25;
 roundedBox(1, 1, 1, .05);
 ]==],0)
   rb.pos = btVector3(0,.5,1.5)
-  rb.trans = btTransform(btQuaternion(-1,.45,0,1), btVector3(0,0.5,1.5))
+  rb.trans = btTransform(btQuaternion(-1,.25,0,1), btVector3(0,0.5,1.5))
   rb.col = "#ffff00"
   v:add(rb)
 
@@ -568,9 +568,9 @@ v:preSim(function(N)
 end)
 
 v.cam:setUpVector(btVector3(0,1,0), false)
-d = 350
-o = btVector3(0,-.2,0)
-v.cam.pos  = btVector3(d,d,d) - o
+d = 200
+o = btVector3(-.05,-0.15,-0.5)
+v.cam.pos  = btVector3(d,200,d) - o
 v.cam.look = cy.pos - o
 
 v:postSim(function(N)
