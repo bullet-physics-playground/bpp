@@ -8,9 +8,9 @@ plane.friction = 2
 
 -- v.gravity = btVector3(0,0,0)
 
-v.timeStep      = 1/80
+v.timeStep      = 1/5
 v.fixedTimeStep = v.timeStep / 4
-v.maxSubSteps   = 70
+v.maxSubSteps   = 10
 
 if (use_lightsys == 1) then
   plane.sdl = [[

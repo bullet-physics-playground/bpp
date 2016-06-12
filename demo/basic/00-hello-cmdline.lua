@@ -4,11 +4,11 @@
 
 -- You can run this Lua script from the command-line:
 --
---   $ bpp -n 200 -f 00-hello-cmdline.lua
+--   $ bpp -n 200 -f /usr/share/bpp/demo/basic/00-hello-cmdline.lua
 --
 -- Or plot the result with gnuplot:
 --
---   $ bpp -n 200 -f 00-hello-cmdline.lua | \
+--   $ bpp -n 200 -f /usr/share/bpp/demo/basic/00-hello-cmdline.lua | \
 --     gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 
 -- a fixed plane in the x-z dimension
@@ -17,21 +17,35 @@ p.col = "white"
 p.restitution = 1
 v:add(p)
 
--- a sphere with diameter 1 and mass 10
-s = Sphere(0.5,10)
+-- a sphere with diameter 2 and mass 10
+s = Sphere(1,10)
 s.pos = btVector3( 0,10, 0) -- position
-s.vel = btVector3( 2, 0, 0) -- velocity
+s.vel = btVector3( 4, 0, 0) -- velocity
 s.col = "red"
-s.restitution =.725
+s.restitution =.9
 v:add(s)
 
+function setcam()
+  v.cam:setFieldOfView(0.0095)
+  v.cam:setUpVector(btVector3(0,1,0), true)
+  v.cam.pos  = btVector3(600, 1, 2000)
+  v.cam.look = btVector3(13.5,4,0)
+
+  v.cam.focal_blur     = 1
+  v.cam.focal_aperture = 5
+  v.cam.focal_point    = s.pos
+end
+
+setcam()
+
 v:preSim(function(N)
-  if (N == 0) then print("N X Y") end
+  if (N == 0) then print("N X Y Z") end
 end)
 
 v:postSim(function(N)
-  print(N.." "..s.pos.x.." "..s.pos.y)
+  print(N.." "..s.pos.x.." "..s.pos.y.." "..s.pos.z)
 --  print(v:toPOV())
+  setcam()
 end)
 
 -- EOF
