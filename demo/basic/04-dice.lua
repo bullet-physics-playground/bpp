@@ -43,7 +43,7 @@ return t
 end
 
 txt = text("Bullet Physics Playground", 0,8.4,-1)
-text("Version 0.0.3", 0,6.6,-1)
+text("Version 0.0.4", 0,6.6,-1)
 
 function run()
   d = dice.new({ mass = 10, col = color.random_google() })

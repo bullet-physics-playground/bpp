@@ -1,8 +1,8 @@
-bpp (0.0.3-1) UNRELEASED; urgency=medium
+bpp (0.0.4-1ubuntu1) UNRELEASED; urgency=medium
 
-  * Bump version 0.0.3.
+  * Bump version 0.0.4.
 
- -- Jakob Flierl <jakob.flierl@gmail.com>  Sun, 05 Jun 2016 12:46:03 +0200
+ -- Jakob Flierl <jakob.flierl@gmail.com>  Sun, 12 Jun 2016 22:28:49 +0200
 
 bpp (0.0.2-ubuntu1) unstable; urgency=low
 
