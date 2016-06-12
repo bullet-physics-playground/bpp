@@ -5,8 +5,21 @@ services:
 
 script:
   - export TRAVIS_DEBIAN_DISTRIBUTION=xenial; tools/docker-ubuntu.sh
-  - export TRAVIS_DEBIAN_DISTRIBUTION=sid;    tools/docker-debian.sh
+  - ls -alrt
+  - ls -alrt ..
 
 branches:
   except:
     - /^debian\/\d/
+
+before_deploy:
+  - export DEB_FILES=$(ls *.deb)
+  - echo "deploying $DEB_FILES to GitHub releases"
+
+deploy:
+  provider: releases
+  api_key: <%= ENV['API_KEY'] %>
+  file_glob: true
+  file: "${DEB_FILES}"
+  on:
+    tags: true
