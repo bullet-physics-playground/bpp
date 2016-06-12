@@ -34,7 +34,7 @@ class Viewer : public QGLViewer
     Q_OBJECT;
 
 public:
-    Viewer(QWidget *parent = NULL, bool savePNG = false, bool savePOV = false);
+    Viewer(QWidget *parent = NULL, QSettings *settings = NULL, bool savePNG = false, bool savePOV = false);
     ~Viewer();
 
     void setSavePNG(bool png);

@@ -64,12 +64,15 @@ int main(int argc, char **argv) {
                                       QObject::tr("Interprets Lua code from stdin without GUI."));
     QCommandLineOption nOption(QStringList() << "n" << "frames",
                                QObject::tr("Number of frames to simulate."), "n", "10");
+    QCommandLineOption povExportOption(QStringList() << "e" << "export",
+                                     QObject::tr("Export frames to POV-Ray."));
     QCommandLineOption verboseOption(QStringList() << "V" << "verbose",
                                      QObject::tr("Verbose output."));
     parser.addOption(luaOption);
     parser.addOption(luaExpressionOption);
     parser.addOption(luaStdinOption);
     parser.addOption(nOption);
+    parser.addOption(povExportOption);
     parser.addOption(verboseOption);
 
     parser.process(*app);
@@ -127,8 +130,7 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        Viewer *v = new Viewer();
-        v->setSettings(settings);
+        Viewer *v = new Viewer(NULL, settings);
 
         QObject::connect(v, &Viewer::scriptHasOutput, [=](QString o) {
             qStdOut() << o << endl;
@@ -154,6 +156,8 @@ int main(int argc, char **argv) {
         } else {
             v->setScriptName("stdin");
         }
+
+        v->setSavePOV(parser.isSet("export"));
 
         v->parse(txt);
         v->startSim();

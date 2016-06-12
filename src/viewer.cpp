@@ -410,7 +410,8 @@ btScalar Viewer::getFixedTimeStep() {
     return _fixedTimeStep;
 }
 
-Viewer::Viewer(QWidget *parent, bool savePNG, bool savePOV) : QGLViewer(parent)  {
+Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePNG, bool savePOV) : QGLViewer(parent)  {
+    _settings = settings;
 
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -786,9 +787,12 @@ void Viewer::openPovFile() {
     QString fileMain;
     QString fileINI;
 
+    // qDebug() << "openPovFile() " << _scriptName;
+
     QString sceneName;
     if (!_scriptName.isEmpty()) {
-        sceneName = _scriptName;
+        QFileInfo fi(_scriptName);
+        sceneName = fi.completeBaseName();
     } else {
         sceneName = "no_name";
     }
@@ -820,7 +824,7 @@ void Viewer::openPovFile() {
     fileMain.sprintf("%s/%s.pov", qPrintable(sceneDir), qPrintable(sceneName));
     fileINI.sprintf("%s/%s.ini", qPrintable(sceneDir), qPrintable(sceneName));
 
-    // qDebug() << "saving pov file:" << file;
+    // qDebug() << "saving POV-Ray file: " << file;
 
     _fileINI = new QFile(fileINI);
     _fileINI->open(QFile::WriteOnly | QFile::Truncate);
@@ -852,11 +856,12 @@ void Viewer::openPovFile() {
     *ini << "Final_Clock=" << _frameNum << endl;
     *ini << "Final_Frame=" << _frameNum << endl;
 
-    *ini << "[LOW]"  << endl <<  "Width=320" << endl <<  "Height=200"  << endl << "Antialias=Off" << endl;
-    *ini << "[MED]"  << endl <<  "Width=640" << endl <<  "Height=400"  << endl << "Antialias=Off" << endl;
-    *ini << "[HIGH]" << endl << "Width=1280" << endl <<  "Height=800"  << endl
+    *ini << "[240p]"  << endl <<  "Width=426" << endl << "Height=240"  << endl << "Antialias=Off" << endl;
+    *ini << "[720p]" << endl << "Width=1280" << endl << "Height=720"  << endl
          << "Antialias=On" << endl << "Display=Off" << endl;
-    *ini << "[HD]"   << endl << "Width=1920" << endl <<  "Height=1080" << endl
+    *ini << "[1080p]" << endl << "Width=1920" << endl <<  "Height=1080" << endl
+         << "Antialias=On" << endl << "Display=Off" << endl;
+    *ini << "[2160p]" << endl << "Width=3840" << endl <<  "Height=2160" << endl
          << "Antialias=On" << endl << "Display=Off" << endl;
 
     if (_fileINI != NULL) {
@@ -1707,7 +1712,8 @@ void Viewer::onQuickRender(QString povargs) {
 
     QString sceneName;
     if (!_scriptName.isEmpty()) {
-        sceneName = _scriptName;
+        QFileInfo fi(_scriptName);
+        sceneName = fi.completeBaseName();
     } else {
         sceneName = "no_name";
     }
