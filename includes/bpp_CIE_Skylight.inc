@@ -84,7 +84,7 @@
 // fiLuminous corrected for allowing user to specify its own value and
 // to prevent #default{} from spewing troubles here - Philippe 08 june 2003
 #ifndef (fiLuminous)
-  #local fiLuminous=finish{ambient 1 diffuse 0 specular 0 phong 0 reflection 0 crand 0 irid{0}}
+  #local fiLuminous=finish{ambient 1 diffuse 0 specular 0 phong 0 reflection 0 crand 0 irid{0} emission 0}
 #end
 
 #ifdef(Turb_amount)

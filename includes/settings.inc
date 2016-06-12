@@ -225,7 +225,7 @@ sphere { // sky
         [0.3 color rgb < 0.5, 0.6, 1.0 >]
       }
     }
-    finish { diffuse 0 ambient 0.75 }
+    finish { diffuse 0 ambient 0.75 emission 0 }
   }
   scale 100000000
   hollow on
