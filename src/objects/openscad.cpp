@@ -1,6 +1,7 @@
 #include "openscad.h"
 
 #include <QFile>
+#include <QDir>
 #include <QTemporaryFile>
 #include <QProcess>
 #include <QDebug>
@@ -24,7 +25,15 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
     hashAlgo.addData(sdl.toUtf8());
     QString hash = hashAlgo.result().toHex();
 
-    QString stlfile = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "-" + hash + ".stl";
+    QFileInfo cacheInfo(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    if (!cacheInfo.exists()) {
+        QDir p(".");
+        if (!p.mkpath(cacheInfo.absoluteFilePath())) {
+            qDebug() << "unable to create " << cacheInfo.absoluteFilePath();
+        }
+    }
+
+    QString stlfile = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QDir::separator() + hash + ".stl";
 
     // check, if the STL file exists in the cache. If so, load it and return
     QFileInfo check_file(stlfile);

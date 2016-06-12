@@ -245,7 +245,7 @@ v.pre_sdl = v.pre_sdl..[==[
 
 ]==]
 
-p = Plane(0,1,0,0,10)
+p = Plane(0,1,0,0,.1)
 p.pos = btVector3(0,-0.5,0)
 p.col = "#777"
 p.sdl = [[
