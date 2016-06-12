@@ -71,6 +71,13 @@ QString Sphere::toString() const {
 }
 
 void Sphere::toPOV(QTextStream *s) const {
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "sphere { <.0,.0,.0>, " << radius << endl;

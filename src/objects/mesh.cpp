@@ -226,6 +226,13 @@ QString Mesh::toString() const {
 }
 
 void Mesh::toPOV(QTextStream *s) const {
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
     if (s != NULL && m_shape != NULL && body != NULL && body->getMotionState() != NULL) {
         POVSaveCallback pov;
         btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX

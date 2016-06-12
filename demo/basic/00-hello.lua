@@ -263,6 +263,47 @@ p.sdl = [[
 ]]
 v:add(p)
 
+v.pre_sdl = v.pre_sdl .. [[
+
+#include "bpp_lightsys_colors.inc"
+
+#declare use_area = 1; // use area lights?
+
+#macro bulb(cl)
+sphere{0,0.5
+ material{
+  texture{
+   pigment { color rgbf<1, 1, 1, 1> }
+   finish {  diffuse 0 }
+  }
+  interior{
+   media {
+    method 1
+    emission cl
+    intervals 10
+    samples 1, 10
+    confidence 0.9999
+    variance 1/1000
+   }
+  }
+ }
+ hollow
+ no_shadow
+}
+#end
+]]
+
+l = Sphere(0.5,1)
+l.pre_sdl = "union {"
+l.sdl = [[
+ Light(Cl_Incandescent_60w,100,<9,0,0>,<0,0,9>,4*use_area,4*use_area,1)
+ object{bulb(Cl_Incandescent_60w) scale <1,1,1>}
+]]
+l.pos = btVector3(1,3,1)
+l.col = "green"
+--print(l.pov)
+v:add(l)
+
 cu = Cube(1,1,1,4)
 cu.col = "#ef3010"
 cu.pos = btVector3(0, 0.5, 0);

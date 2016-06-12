@@ -72,6 +72,13 @@ QString Plane::toString() const {
 }
 
 void Plane::toPOV(QTextStream *s) const {
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
     if (s != NULL) {
         if (mPreSDL == NULL) {
             const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);

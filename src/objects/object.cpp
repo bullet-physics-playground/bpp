@@ -27,14 +27,15 @@ std::ostream& operator<<(std::ostream& ostream, const Object& obj) {
 
 #include <luabind/operator.hpp>
 
-Object::Object(QObject *parent) : QObject(parent) {
+Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
+    Q_UNUSED(pmass)
 
     // qDebug() << "Object::Object()";
 
     mPOVExport = true;
 
     shape = 0;
-    body = 0;
+    body  = 0;
 
     setColor(0.5,0.5,0.5);
 
@@ -84,7 +85,46 @@ QString Object::toString() const {
 }
 
 void Object::toPOV(QTextStream *s) const {
-    Q_UNUSED(s);
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
+    if (s != NULL) {
+        if (mPreSDL == NULL) {
+            *s << "sphere { <0,0,0>, 1" << endl;
+        } else {
+            *s << mPreSDL
+               << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
+        }
+
+        *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << endl
+           << "          " << matrix[4] << ","  << matrix[5] << ","  << matrix[6] << ","  << endl
+           << "          " << matrix[8] << ","  << matrix[9] << ","  << matrix[10] << "," << endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+        if (mPostSDL == NULL) {
+            *s << "}"
+               << endl
+               << endl;
+        } else {
+            *s << mPostSDL
+               << endl;
+        }
+    }
 }
 
 void Object::luaBind(lua_State *s) {
@@ -97,6 +137,7 @@ void Object::luaBind(lua_State *s) {
             class_<Object>("Object")
             .def(constructor<>(), adopt(result))
             .def(constructor<QObject *>(), adopt(result))
+            .def(constructor<QObject *, btScalar>(), adopt(result))
             .def("setColor", (void(Object::*)(QColor))&Object::setColor)
             .def("setColor", (void(Object::*)(QString))&Object::setColor)
             .def("setColor", (void(Object::*)(int, int, int))&Object::setColor)
@@ -147,10 +188,6 @@ void Object::luaBind(lua_State *s) {
                       (bool(Object::*)(void))&Object::getPOVExport,
                       (void(Object::*)(bool))&Object::setPOVExport)
 
-            .property("texture",
-                      (QString(Object::*)(void))&Object::getTexture,
-                      (void(Object::*)(QString))&Object::setTexture)
-
             .property("pre_sdl",
                       (QString(Object::*)(void))&Object::getPreSDL,
                       (void(Object::*)(QString))&Object::setPreSDL)
@@ -188,6 +225,10 @@ void Object::luaBind(lua_State *s) {
 void Object::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
     Q_UNUSED(minaabb)
     Q_UNUSED(maxaabb)
+
+    glScalef(0.5, 0.5, 0.5);
+    glColor3ub(color[0], color[1], color[2]);
+    glutSolidSphere(1.0f, 32, 16);
 }
 
 void Object::renderInLocalFramePre(btVector3& minaabb, btVector3& maxaabb) {
@@ -220,14 +261,6 @@ void Object::renderInLocalFramePost(btVector3& minaabb, btVector3& maxaabb) {
 
     if (body)
         glPopMatrix();
-}
-
-void Object::setTexture(QString texture) {
-    mTexture = texture;
-}
-
-QString Object::getTexture() const {
-    return mTexture;
 }
 
 void Object::setPostSDL(QString post_sdl) {

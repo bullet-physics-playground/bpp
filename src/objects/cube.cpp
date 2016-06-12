@@ -69,6 +69,13 @@ QString Cube::toString() const {
 }
 
 void Cube::toPOV(QTextStream *s) const {
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "box { <"

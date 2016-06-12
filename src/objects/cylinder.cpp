@@ -73,6 +73,13 @@ QString Cylinder::toString() const {
 }
 
 void Cylinder::toPOV(QTextStream *s) const {
+    if (body != NULL && body->getMotionState() != NULL) {
+        btTransform trans;
+
+        body->getMotionState()->getWorldTransform(trans);
+        trans.getOpenGLMatrix(matrix);
+    }
+
     if (s != NULL) {
         if (mPreSDL == NULL) {
             *s << "cylinder { "

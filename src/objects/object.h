@@ -32,7 +32,7 @@ class Object : public QObject {
     Q_OBJECT;
 
 public:
-    Object(QObject *parent = 0);
+    Object(QObject *parent = 0, btScalar pmass = 0);
     virtual ~Object();
 
     void setColor(int r, int g, int b);
@@ -87,9 +87,6 @@ public:
                        bool _photons_refraction = false);
 
     virtual QString getPovPhotons() const;
-
-    void setTexture(QString texture);
-    QString getTexture() const;
 
     void setPOVExport(bool onoff);
     bool getPOVExport();
