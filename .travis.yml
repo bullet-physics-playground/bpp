@@ -13,7 +13,7 @@ branches:
     - /^debian\/\d/
 
 before_deploy:
-  - export RELEASE_FILES=$(ls ../bpp_*)
+  - export RELEASE_FILES=$(ls ../bpp_*deb)
   - echo "deploying $RELEASE_FILES to GitHub releases"
 
 deploy:
