@@ -31,7 +31,6 @@ global_settings {
   assumed_gamma 1.0
   max_trace_level 20
 
-/*
   radiosity {
     count 100 
     recursion_limit 2
@@ -42,9 +41,8 @@ global_settings {
             adc_bailout 0.01/2
             brightness 0.5
             normal on
-//            media on
+            media on
   }
-*/
   irid_wavelength rgb <0.70,0.52,0.48>
 }  
 
@@ -52,7 +50,7 @@ global_settings {
 
 #include "textures.inc"
 
-#declare daytime = 5;
+#declare daytime = 3;
 
    #switch (int(daytime))
    #case (0)    // morning
@@ -205,7 +203,6 @@ material {
     pigment { color ReferenceRGB(<0.5,0.9,0.5>) transmit 0.5}
     //pigment { color rgbt <0.5,0.9,0.5,0.5> }
 
-/*
     finish {
       ambient 0.0
       diffuse 0.05
@@ -217,16 +214,13 @@ material {
       }
       conserve_energy
     }
-*/
   }
-/*
   interior {
     ior 1.5
     fade_power 1001
     fade_distance 0.9
     fade_color <0.5,0.8,0.6>
   }
-*/
 }
 ]]
 
@@ -308,17 +302,15 @@ function light(m, r,type,intensity)
   return l
 end
 
-for i = 0,10 do
+for i = 0,3 do
   l1 = light(1, 0.25, "Cl_Cool_White_Fluor", 0.5)
-  l1.pos = btVector3(1.3, 22.75, 0.6)
+  l1.pos = btVector3(1.3, 22.75+i*3, 0.6)
   v:add(l1)
 end
 
 l2 = light(0, 0.5, "Cl_Halogen", 8)
 l2.pos = btVector3(3.3, 12.75, 0.6)
 v:add(l2)
-
-
 
 cu = Cube(1,1,1,4)
 cu.col = "#ef3010"
@@ -337,7 +329,7 @@ cy.pos = btVector3(1, 0.5, 0)
 cy.sdl = [[
   texture {
     pigment { rgb ReferenceRGB(Green) }
-    finish { phong 1}
+    finish  { phong 1 }
   }
 ]]
 v:add(cy)
@@ -373,13 +365,17 @@ if (use_openscad == 1) then
   sc.sdl =
 [==[
   material { M_Glass }
-
 /*
-  hollow on 
+  hollow off
   texture { pigment {rgbt<1,1,1,0.95>} }
-  finish {reflection 0.5 ambient .2 diffuse 0 specular 1 roughness .001 }  
-  interior { ior 2.42  // diamant
-                 // 1.95  // Zircon
+  finish {
+    reflection 0.5 ambient .2
+    diffuse 0 specular 1 roughness .001
+  }  
+  interior {
+    ior
+      2.42  // diamant
+      // 1.95 // Zircon
     dispersion 1.1
     dispersion_samples 50
   }
