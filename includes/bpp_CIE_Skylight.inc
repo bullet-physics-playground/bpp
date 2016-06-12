@@ -563,10 +563,10 @@ mesh2{
 //#debug concat("Sky dome has ",str(IcoVtxIndex,1,0)," vertices.\n")
 // use  Faces-Edges-Vertices formula to compute number of different vertices
 // or change tesselation to remove duplicated vertices
-#debug concat("Sky dome _uses_ ",str(IcoVtxIndex,1,0)," vertices, ")
 
-#debug concat("has ",str(IcoNumFaces,1,0)," faces and ")
-#debug concat("_uses_ ",str(IcoMeshIndex,1,0)," faces.\n")
+//#debug concat("Sky dome _uses_ ",str(IcoVtxIndex,1,0)," vertices, ")
+//#debug concat("has ",str(IcoNumFaces,1,0)," faces and ")
+//#debug concat("_uses_ ",str(IcoMeshIndex,1,0)," faces.\n")
 
 // usefull objects for working on the file
 //sphere{vnormalize(SolarPosition)*100, 10 texture{pigment{green 1} finish{ambient 1}} }
