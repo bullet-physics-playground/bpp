@@ -13,7 +13,7 @@ POV?=
 
 # Custom POV-Ray include directives
 
-POVINC?=-LLightsysIV
+POVINC?=+LLightsysIV +L$(HOME)/.cache/bpp
 
 # Custom ffmpeg loop times (default x10 loops)
 
