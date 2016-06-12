@@ -55,7 +55,7 @@ void Prefs::setupPages() {
     this->defaultmap["editor/fontsize"]   = _settings->value("editor/fontsize", 12).toInt();
     this->defaultmap["lua/path"]          = _settings->value("lua/path", "/usr/share/bpp/demo/?.lua;demo/?.lua").toString();
     this->defaultmap["povray/export"]     = _settings->value("povray/export", "export").toString();
-    this->defaultmap["povray/preview"]    = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
+    this->defaultmap["povray/preview"]    = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA +SP32 +EP2").toString();
 
     this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
 

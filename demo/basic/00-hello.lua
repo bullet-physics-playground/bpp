@@ -2,6 +2,9 @@
 -- Demo of basic BPP objects and functions
 --
 
+ -- don't include global settings.inc
+v.pov_settings = ""
+
 require "module/color"
 
 v.gravity = btVector3(0,-9.81,0)
@@ -15,6 +18,14 @@ use_openscad = 1 -- requires www.openscad.org
 v.pre_sdl = [[
 
 #version 3.7;
+
+#include "colors.inc"
+
+#include "bpp_CIE.inc"
+#include "bpp_CIE_tools.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
+#include "bpp_espd_lightsys.inc"
 
 global_settings {
   assumed_gamma 1.0
@@ -39,19 +50,9 @@ global_settings {
 
 #default{ finish{ ambient 0 diffuse 1 }} 
 
-/*
-object {
-  Light(
-    EmissiveSpectrum(ES_GE_SW_Incandescent_100w),
-    Lm_Incandescent_100w,
-    x*25, z*25, 4, 4, on
-  )
-  translate <-100, 290, -100>
-}*/
-
 #include "textures.inc"
 
-declare daytime = 0;
+#declare daytime = 5;
 
    #switch (int(daytime))
    #case (0)    // morning
@@ -267,7 +268,7 @@ v.pre_sdl = v.pre_sdl .. [[
 
 #include "bpp_lightsys_colors.inc"
 
-#declare use_area = 1; // use area lights?
+#declare use_area = 0; // use area lights?
 
 #macro bulb(cl)
 sphere{0,0.5
@@ -293,16 +294,31 @@ sphere{0,0.5
 #end
 ]]
 
-l = Sphere(0.5,1)
-l.pre_sdl = "union {"
-l.sdl = [[
- Light(Cl_Incandescent_60w,100,<9,0,0>,<0,0,9>,4*use_area,4*use_area,1)
- object{bulb(Cl_Incandescent_60w) scale <1,1,1>}
-]]
-l.pos = btVector3(1,3,1)
-l.col = "green"
---print(l.pov)
-v:add(l)
+function light(m, r,type,intensity)
+  l = Sphere(r, m)
+  l.pre_sdl = "union {"
+  l.sdl = [[
+    Light(]]..type..[[ ]]..intensity..[[,
+      <9,0,0>, <0,0,9>,
+      4*use_area, 4*use_area, 0)
+    object{ bulb(]]..type..[[) scale <1,1,1>*]]..tostring(r*2)..[[ }
+  ]]
+  l.col = "white"
+  --print(l.pov)
+  return l
+end
+
+for i = 0,10 do
+  l1 = light(1, 0.25, "Cl_Cool_White_Fluor", 0.5)
+  l1.pos = btVector3(1.3, 22.75, 0.6)
+  v:add(l1)
+end
+
+l2 = light(0, 0.5, "Cl_Halogen", 8)
+l2.pos = btVector3(3.3, 12.75, 0.6)
+v:add(l2)
+
+
 
 cu = Cube(1,1,1,4)
 cu.col = "#ef3010"

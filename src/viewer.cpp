@@ -140,6 +140,9 @@ void Viewer::luaBind(lua_State *s) {
 
             .property("pre_sdl", &Viewer::getPreSDL, &Viewer::setPreSDL)
             .property("post_sdl", &Viewer::getPostSDL, &Viewer::setPostSDL)
+
+            .property("pov_settings", &Viewer::getPOVSettingsInc, &Viewer::setPOVSettingsInc)
+
             .def(tostring(const_self))
             ];
 
@@ -478,6 +481,14 @@ void Viewer::setSavePOV(bool pov) {
     }
 }
 
+void Viewer::setPOVSettingsInc(QString s) {
+    _pov_settings_inc = s;
+}
+
+QString Viewer::getPOVSettingsInc() {
+    return _pov_settings_inc;
+}
+
 void Viewer::toggleSavePNG(bool savePNG) {
     _savePNG = savePNG;
 }
@@ -745,6 +756,8 @@ void Viewer::clear() {
     _constraints->clear();
     _cb_shortcuts->clear();
 
+    _pov_settings_inc = "settings.inc";
+
     setPreSDL(NULL);
     setPostSDL(NULL);
 
@@ -877,7 +890,10 @@ void Viewer::openPovFile() {
 
     *smain << "#version 3.7;" << endl << endl;
 
-    *smain << "#include \"settings.inc\"" << endl << endl;
+    if (_pov_settings_inc != NULL && !_pov_settings_inc.isEmpty()) {
+        *smain << "#include \"" + _pov_settings_inc + "\"" << endl << endl;
+    }
+
     *smain << "#include concat(concat(\"" << sceneName << "-\",str(clock,-5,0)),\".inc\")" << endl << endl;
 
     if (_fileMain != NULL) {

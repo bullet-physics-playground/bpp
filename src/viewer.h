@@ -132,6 +132,9 @@ public:
 
     QString toPOV() const;
 
+    void setPOVSettingsInc(QString pov_settings_inc);
+    QString getPOVSettingsInc();
+
     void setSettings(QSettings *settings);
 
     void setPrefs(QString key, QString value);
@@ -281,6 +284,8 @@ private:
     // POV-Ray properties
     QString mPreSDL;
     QString mPostSDL;
+
+    QString _pov_settings_inc;
 
     QSettings * _settings;
 
