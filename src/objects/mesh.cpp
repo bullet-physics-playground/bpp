@@ -10,6 +10,10 @@
 #include <windows.h>
 #endif
 
+#include <QStandardPaths>
+#include <QCryptographicHash>
+#include <QFileInfo>
+#include <QDir>
 #include <QDebug>
 
 // assimp include files. These three are usually needed.
@@ -225,6 +229,63 @@ QString Mesh::toString() const {
     return QString("Mesh");
 }
 
+void Mesh::toMesh2(QTextStream *s) const {
+    if (s != NULL && m_shape != NULL) {
+        POVSaveCallback pov;
+        btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
+        btVector3 pmaxaabb = btVector3( 1e99,  1e99,  1e99); // XXX
+        btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
+        concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
+
+        if (pov.idx.length() > 0) {
+            *s << "mesh2 {" << endl;
+            *s << "  vertex_vectors {" << endl;
+            *s << "    " << pov.idx.length()*3 << ", ";
+            for (int i = 0; i < pov.idx.length(); ++i) {
+                *s << "<"
+                   << pov.v1.at(i).x()
+                   << ","
+                   << pov.v1.at(i).y()
+                   << ","
+                   << pov.v1.at(i).z()
+                   << ">";
+                *s << "<"
+                   << pov.v2.at(i).x()
+                   << ","
+                   << pov.v2.at(i).y()
+                   << ","
+                   << pov.v2.at(i).z()
+                   << ">";
+                *s << "<"
+                   << pov.v3.at(i).x()
+                   << ","
+                   << pov.v3.at(i).y()
+                   << ","
+                   << pov.v3.at(i).z()
+                   << ">";
+            }
+            *s << " }" << endl;
+
+            *s << "  face_indices {"  << endl;
+            *s << "    " << pov.idx.length() << ", ";
+            for (int i = 0; i < pov.idx.length(); ++i) {
+                *s << "<"
+                   << i*3
+                   << ","
+                   << i*3+1
+                   << ","
+                   << i*3+2
+                   << ">";
+            }
+            *s << " }"
+               << endl;
+            *s << "}" << endl;
+        } else {
+            *s << "union {}" << endl; // empty object in case of empty mesh
+        }
+    }
+}
+
 void Mesh::toPOV(QTextStream *s) const {
     if (body != NULL && body->getMotionState() != NULL) {
         btTransform trans;
@@ -234,86 +295,81 @@ void Mesh::toPOV(QTextStream *s) const {
     }
 
     if (s != NULL && m_shape != NULL && body != NULL && body->getMotionState() != NULL) {
-        POVSaveCallback pov;
-        btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
-        btVector3 pmaxaabb = btVector3( 1e99,  1e99,  1e99); // XXX
-        btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
-        concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
+        if (mPreSDL == NULL) {
 
-        if (pov.idx.length()>0) {
+            QByteArray *data = new QByteArray();
+            QTextStream *tmp = new QTextStream(data);
+            toMesh2(tmp);
+            tmp->flush();
+            QString str = QString::fromStdString(data->toStdString());
+            delete data;
 
-            if (mPreSDL == NULL) {
-                *s << "mesh2 {" << endl;
-                *s << "  vertex_vectors {" << endl;
-                *s << "    " << pov.idx.length()*3 << ", ";
-                for (int i = 0; i < pov.idx.length(); ++i) {
-                    *s << "<"
-                       << pov.v1.at(i).x()
-                       << ","
-                       << pov.v1.at(i).y()
-                       << ","
-                       << pov.v1.at(i).z()
-                       << ">";
-                    *s << "<"
-                       << pov.v2.at(i).x()
-                       << ","
-                       << pov.v2.at(i).y()
-                       << ","
-                       << pov.v2.at(i).z()
-                       << ">";
-                    *s << "<"
-                       << pov.v3.at(i).x()
-                       << ","
-                       << pov.v3.at(i).y()
-                       << ","
-                       << pov.v3.at(i).z()
-                       << ">";
+            QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
+            hashAlgo.addData(str.toUtf8());
+            QString hash = hashAlgo.result().toHex();
+
+            QFileInfo cacheInfo(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+            if (!cacheInfo.exists()) {
+                QDir p(".");
+                if (!p.mkpath(cacheInfo.absoluteFilePath())) {
+                    qDebug() << "unable to create " << cacheInfo.absoluteFilePath();
                 }
-                *s << " }" << endl;
+            }
 
-                *s << "  face_indices {"  << endl;
-                *s << "    " << pov.idx.length() << ", ";
-                for (int i = 0; i < pov.idx.length(); ++i) {
-                    *s << "<"
-                       << i*3
-                       << ","
-                       << i*3+1
-                       << ","
-                       << i*3+2
-                       << ">";
+            // check, if the inc file exists in the cache. If not, create it
+            QString incfile = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+                    QDir::separator() + "mesh_" + hash + ".inc";
+
+            QFileInfo check_file(incfile);
+            if (!check_file.exists() && !check_file.isFile() && m_shape != NULL) {
+                QFile file(incfile);
+                if (file.open(QIODevice::ReadWrite) )
+                {
+                    QTextStream stream( &file );
+                    stream << "#declare mesh_" + hash + " = ";
+                    toMesh2(&stream);
+                    stream.flush();
+                    file.close();
+                } else {
+                    qDebug() << "unable to create " << incfile;
                 }
-                *s << " }"
-                   << endl;
             } else {
-                *s << mPreSDL
-                   << endl;
+                // qDebug() << "mesh already exists " << incfile;
             }
 
-            if (mSDL != NULL) {
-                *s << mSDL
-                   << endl;
-            } else {
-                *s << "  pigment { rgb <"
-                   << color[0]/255.0 << ", "
-                   << color[1]/255.0 << ", "
-                   << color[2]/255.0 << "> }"
-                   << endl;
-            }
+            *s << "#include \"" + check_file.fileName() + "\"" << endl << endl;
 
-            *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-               << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-               << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-               << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+            *s << "object { mesh_" + hash << endl;
 
-            if (mPostSDL == NULL) {
-                *s << "}"
-                   << endl
-                   << endl;
-            } else {
-                *s << mPostSDL
-                   << endl
-                   << endl;
-            }
+        } else {
+            *s << mPreSDL
+               << endl;
+        }
+
+        if (mSDL != NULL) {
+            *s << mSDL
+               << endl;
+        } else {
+            *s << "  pigment { rgb <"
+               << color[0]/255.0 << ", "
+               << color[1]/255.0 << ", "
+               << color[2]/255.0 << "> }"
+               << endl;
+        }
+
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+
+        if (mPostSDL == NULL) {
+            *s << "}"
+               << endl
+               << endl;
+        } else {
+            *s << mPostSDL
+               << endl
+               << endl;
         }
     }
 }

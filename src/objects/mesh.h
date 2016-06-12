@@ -34,6 +34,7 @@ public:
     static void luaBind(lua_State *s);
     virtual QString toString() const;
     virtual void toPOV(QTextStream *s) const;
+    virtual void toMesh2(QTextStream *s) const;
 
     virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
 
