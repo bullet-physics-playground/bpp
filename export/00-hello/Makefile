@@ -1,13 +1,27 @@
 SHELL:=/bin/bash
 
 SCENE?=$(shell basename `pwd`)
+
+# Cloud rendering host alias "ec2" according to your ~/.ssh/config
+# see https://github.com/bullet-physics-playground/bpp/issues/8
+
+EC2?=ec2
+
+# Custom POV-Ray options
+
 POV?=
+
+# Custom POV-Ray include directives
 
 POVINC?=-LLightsysIV
 
-POVOPT=${POVINC} ${POV}
+# Custom ffmpeg loop times (default x10 loops)
 
 MKV_LOOP?=10
+
+# ----------------------------------------------------------------------------
+
+POVOPT=${POVINC} ${POV}
 
 all: help
 
@@ -25,10 +39,10 @@ help:
 	@echo "  make clean    # cleanup"
 	@echo "  make dist     # cleanup and create ../${SCENE}.tar.xz"
 	@echo ""
-	@echo " Cloud Rendering on ec2"
+	@echo " Cloud Rendering on ${EC2}"
 	@echo ""
-	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ec2:."
-	@echo "  make ec2-down  # make ${SCENE}.mkv on ec2 with ffmpeg and scp to local machine"
+	@echo "  make ec2-up    # make ${SCENE}.tar.xz, upload and extract it to ${EC2}:."
+	@echo "  make ec2-down  # make ${SCENE}.mkv on ${EC2} with ffmpeg and scp to local machine"
 	@echo ""
 	@echo "  see https://github.com/bullet-physics-playground/bpp/issues/8 for POV-Ray on Amazon EC2"
 	@echo ""
@@ -39,10 +53,10 @@ help:
 	@echo ""
 
 quick:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W426 +H240 +Q4 -A +d ${POVOPT}
+	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POVOPT}
 
 quickc:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H240 +Q4 -A +d +c ${POVOPT}
+	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d +c ${POVOPT}
 
 final: 720p
 
@@ -57,22 +71,22 @@ mkv-loop: mkv
 	ffmpeg -y -f concat -i loop.txt -c copy ${SCENE}-loop.mkv
 	rm loop.txt
 
-ec2-up: dist
-	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ec2:.
-	ssh ec2 "tar xvf ${SCENE}.tar.xz"
+slurm-job:
+	slurm-pov-job -f $(shell grep Final_Frame ${SCENE}.ini | awk -F= '{ print $$2 }') -s ${SCENE}
+
+ec2-up:
+	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ${EC2}:.
+	ssh ${EC2} "tar xvf ${SCENE}.tar.xz"
 
 ec2-down:
-	ssh ec2 "make -C ${SCENE} mkv"
-	scp ec2:${SCENE}/${SCENE}.mkv .
+	ssh ${EC2} "make -C ${SCENE} mkv"
+	scp ${EC2}:${SCENE}/${SCENE}.mkv .
 
 youtube-up: mkv
 	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
 
 youtube-up-loop: mkv-loop
 	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
-
-slurm-job:
-	../../tools/slurm-pov-job -f $(shell grep Final_Frame ${SCENE}.ini | awk -F= '{ print $$2 }') -s ${SCENE}
 
 distclean: clean
 	/bin/rm -f ${SCENE}.pov ${SCENE}.ini *.pov-state ${SCENE}-*.inc *.log
@@ -81,4 +95,6 @@ clean:
 	/bin/rm -f ${SCENE}-*.png *.mkv *.pov-state
 
 dist: clean
-	XZ_OPT=-9e tar -C .. -cvJf ../${SCENE}.tar.xz ${SCENE}
+	#XZ_OPT=-9e tar -C .. -cvJf ../${SCENE}.tar.xz ${SCENE}
+	#find . -print0 | sort -z | XZ_OPT=-9e tar -cvJf ../${SCENE}.tar.xz --no-recursion --null -T -
+	cd .. && find ${SCENE} -print0 | sort -z | tar -cvJf ${SCENE}.tar.xz --no-recursion --null -T -

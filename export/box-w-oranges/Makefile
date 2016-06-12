@@ -71,6 +71,9 @@ mkv-loop: mkv
 	ffmpeg -y -f concat -i loop.txt -c copy ${SCENE}-loop.mkv
 	rm loop.txt
 
+slurm-job:
+	slurm-pov-job -f $(shell grep Final_Frame ${SCENE}.ini | awk -F= '{ print $$2 }') -s ${SCENE}
+
 ec2-up:
 	rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress ../${SCENE}.tar.xz ${EC2}:.
 	ssh ${EC2} "tar xvf ${SCENE}.tar.xz"

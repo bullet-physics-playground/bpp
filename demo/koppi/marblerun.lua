@@ -78,6 +78,8 @@ p.sdl = [[
 ]]
 v:add(p)
 
+function marblewheel(mwx, mwy, mwz)
+
 function wheel(rad, px, py, pz)
   w = OpenSCAD([[
 module wheel(rad) {
@@ -162,7 +164,7 @@ box(]]..tostring(c)..[[,]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tos
   return t
 end
 
-b = box(1, 3,2,10, 1,3.9,5.55)
+b = box(1, 3,2,10, mwx+1,mwy+3.9,mwz+5.55)
 b.sdl = [[
   pigment { color ReferenceRGB(<0.9,0.8,0.3>) }
   finish {
@@ -173,10 +175,10 @@ b.sdl = [[
 ]]
 v:add(b)
 
-w = wheel(9, 0,10,0)
+w = wheel(9, mwx+0,mwy+10,mwz+0)
 v:add(w)
 
-t = tower(15,10,2, 0,5,-2)
+t = tower(15,10,2, mwx+0,mwy+5,mwz-2)
 t.sdl = [[
   pigment { color ReferenceRGB(Red) * contrast }
   finish {
@@ -202,35 +204,6 @@ con0:enableAngularMotor(true, speed, s1)
 v:addConstraint(con0)
 
 v.cam:setHorizontalFieldOfView(0.15)
-
-function run()
-
-  rcol1 = color.random_google()
-  rcol2 = color.white
-  col1 = QColor(rcol1)
-  col2 = QColor(rcol2)
-
-  s = marble.new({
-col1r = col1.r / 255,
-col1g = col1.g / 255,
-col1b = col1.b / 255,
-col2r = col2.r / 255,
-col2g = col2.g / 255,
-col2b = col2.b / 255})
-  s.pos = btVector3(0,19,3)
-  s.friction = 0
-  s.restitution = 0
-  s.mass = 1
-  s.col = rcol1
-
-  v:add(s)
-end
-
-v:postSim(function(N)
-  if (N % 15 == 0 and N < 150) then
-    run()
-  end
-end)
 
 path = OpenSCAD(path_extrude.sdl .. [[
 
@@ -260,6 +233,7 @@ path.sdl = [[
 ]]
 path.friction = 0
 path.col = color.gray
+path.pos = btVector3(mwx,mwy,mwz)
 v:add(path)
 
 thing = OpenSCAD([==[
@@ -269,7 +243,7 @@ rotate([-90,0,0])
       points=[[1.2,-0.35],[3.5,-0.1],[4.2,0.9],[5.3,1.1]]
   );
 ]==],0)
-thing.pos = btVector3(1,7,6.5)
+thing.pos = btVector3(mwx+1,mwy+7,mwz+6.5)
 thing.friction = 0
 thing.col = color.gray
 thing.sdl = [[
@@ -281,6 +255,44 @@ thing.sdl = [[
   }
 ]]
 v:add(thing)
+
+end
+
+marblewheel(10,0,0)
+marblewheel(-10,0,0)
+
+function addmarble(px,py,pz)
+  rcol1 = color.random_google()
+  rcol2 = color.white
+  col1 = QColor(rcol1)
+  col2 = QColor(rcol2)
+
+  s = marble.new({
+col1r = col1.r / 255,
+col1g = col1.g / 255,
+col1b = col1.b / 255,
+col2r = col2.r / 255,
+col2g = col2.g / 255,
+col2b = col2.b / 255})
+  s.pos = btVector3(px,py,pz)
+  s.friction = 0
+  s.restitution = 0
+  s.mass = 1
+  s.col = rcol1
+
+  v:add(s)
+end
+
+function run()
+  addmarble(-10,19,3)
+  addmarble( 10,19,3)
+end
+
+v:postSim(function(N)
+  if (N % 15 == 0 and N < 150) then
+    run()
+  end
+end)
 
 v.cam.focal_blur      = 0-- > 0: enable focal blur
 v.cam.focal_aperture  = 5
