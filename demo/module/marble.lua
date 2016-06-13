@@ -4,8 +4,8 @@
 
 module("marble", package.seeall)
 
-function sdl(col1r, col1g, col1b, col2r, col2g, col2b)
-   local marble_sdl = [==[
+function pre_sdl(col1r, col1g, col1b, col2r, col2g, col2b)
+   local marble_pre_sdl = [==[
 
 union {
   difference {     
@@ -17,40 +17,39 @@ union {
     #end
     union {
       blob { threshold  0.1
-      #for (i,-0.9,0.9,0.01)
-        sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
-        translate y*(i) rotate <0,i*150,0>}
-      #end
-      texture {
-        pigment{ color rgb <]==]..tostring(col1r)..[==[, ]==]..tostring(col1g)..[==[, ]==]..tostring(col1b)..[==[> }
-        finish { diffuse 0.9 phong 0.8 ambient 1.2}
+        #for (i,-0.9,0.9,0.01)
+          sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
+          translate y*(i) rotate <0,i*150,0>}
+        #end
+        texture {
+          pigment{ color rgb <]==]..tostring(col1r)..[==[, ]==]..tostring(col1g)..[==[, ]==]..tostring(col1b)..[==[> }
+          finish { diffuse 0.9 phong 0.8 ambient 1.2}
+        }
       }
-    }
-    blob {
-      threshold  0.1
-      #for (i,-0.9,0.9,0.01)
-        sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
-        translate y*(i) rotate <0,90+i*150,0>}
-      #end
+      blob {
+        threshold  0.1
+        #for (i,-0.9,0.9,0.01)
+          sphere {0,1, 0.2 scale <sin(((i+1)*pi/2))*0.8,0.1,0.08> 
+          translate y*(i) rotate <0,90+i*150,0>}
+        #end
         texture {
           pigment{ color rgb <]==]..tostring(col2r)..[==[, ]==]..tostring(col2g)..[==[, ]==]..tostring(col2b)..[==[> }
-        finish {diffuse 0.9 phong 0.8 ambient 1.2}
+          finish {diffuse 0.9 phong 0.8 ambient 1.2}
+        }
       }
     }
+    texture { Glass }
+    interior {
+      ior 1.5 caustics 0.25
+    }
+    photons {  // photon block for an object
+      target 1.0
+      refraction on
+      reflection on
+    }
   }
-  texture { Glass }
-  interior {
-    ior 1.5 caustics 0.25
-  }
-  photons {  // photon block for an object
-    target 1.0
-    refraction on
-    reflection on
-  }
-}
-}
 ]==]
-   return marble_sdl
+   return marble_pre_sdl
 end
 
 function new(params)
@@ -81,7 +80,7 @@ function new(params)
 
    s = Sphere(d, mass)
    s.col = "#ff0000"
-   s.pre_sdl = "object {" .. sdl(col1r, col1g, col1b, col2r, col2g, col2b)
+   s.pre_sdl = pre_sdl(col1r, col1g, col1b, col2r, col2g, col2b)
 
    return s
 end

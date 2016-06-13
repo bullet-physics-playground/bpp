@@ -231,7 +231,7 @@ path.sdl = [[
     phong_size 25
   }
 ]]
-path.friction = 0
+path.friction = 0.1
 path.col = color.gray
 path.pos = btVector3(mwx,mwy,mwz)
 v:add(path)
@@ -244,7 +244,7 @@ rotate([-90,0,0])
   );
 ]==],0)
 thing.pos = btVector3(mwx+1,mwy+7,mwz+6.5)
-thing.friction = 0
+thing.friction = 0.1
 thing.col = color.gray
 thing.sdl = [[
   pigment { color ReferenceRGB(White) * contrast }
@@ -275,7 +275,7 @@ col2r = col2.r / 255,
 col2g = col2.g / 255,
 col2b = col2.b / 255})
   s.pos = btVector3(px,py,pz)
-  s.friction = 0
+  s.friction = 0.1
   s.restitution = 0
   s.mass = 1
   s.col = rcol1
