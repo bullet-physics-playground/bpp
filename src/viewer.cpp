@@ -603,6 +603,18 @@ bool Viewer::parse(QString txt) {
         _cb_postSim   = luabind::object();
         _cb_onCommand = luabind::object();
 
+        lua_getglobal(L, "exit_function");
+        int exists_exit_function = !lua_isnil(L, -1);
+        lua_pop(L, 1);
+        if (exists_exit_function) {
+            try { luabind::call_function<int>(L, "exit_function");
+            } catch (const luabind::error &er) {
+                QString lua_error = QString("%1 -- %2").arg(er.what(), lua_tostring(er.state(), -1));
+                emit scriptHasOutput(lua_error);
+                return true;
+            }
+        }
+
         lua_close(L);
     }
 
