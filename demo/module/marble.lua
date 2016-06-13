@@ -7,7 +7,7 @@ module("marble", package.seeall)
 function pre_sdl(col1r, col1g, col1b, col2r, col2g, col2b)
    local marble_pre_sdl = [==[
 
-union {
+object {
   difference {     
     sphere {0,1}      
     #for (i,1,70)
@@ -80,6 +80,7 @@ function new(params)
 
    s = Sphere(d, mass)
    s.col = "#ff0000"
+   s.sdl = "//"
    s.pre_sdl = pre_sdl(col1r, col1g, col1b, col2r, col2g, col2b)
 
    return s
