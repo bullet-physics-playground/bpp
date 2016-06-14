@@ -34,13 +34,11 @@ class Viewer : public QGLViewer
     Q_OBJECT;
 
 public:
-    Viewer(QWidget *parent = NULL, QSettings *settings = NULL, bool savePNG = false, bool savePOV = false);
+    Viewer(QWidget *parent = NULL, QSettings *settings = NULL, bool savePOV = false);
     ~Viewer();
 
-    void setSavePNG(bool png);
     void setSavePOV(bool pov);
     void toggleSavePOV(bool savePOV);
-    void toggleSavePNG(bool savePNG);
     void toggleDeactivation(bool deactivation);
 
     // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
@@ -247,7 +245,6 @@ private:
     QFile            *_fileMain;
     QFile            *_fileINI;
 
-    bool               _savePNG;
     bool               _savePOV;
     bool		_deactivation;
     QString	_scriptName;

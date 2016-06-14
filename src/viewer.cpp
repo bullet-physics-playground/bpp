@@ -341,10 +341,6 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
         }
         emit POVStateChanged(_savePOV);
         break;
-    case Qt::Key_G :
-        _savePNG = !_savePNG;
-        emit PNGStateChanged(_savePNG);
-        break;
     case Qt::Key_D :
         _deactivation = !_deactivation;
         emit deactivationStateChanged(_deactivation);
@@ -413,7 +409,7 @@ btScalar Viewer::getFixedTimeStep() {
     return _fixedTimeStep;
 }
 
-Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePNG, bool savePOV) : QGLViewer(parent)  {
+Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer(parent)  {
     _settings = settings;
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -424,7 +420,10 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePNG, bool savePOV)
 
     L = NULL;
 
-    _savePNG = savePNG; _savePOV = savePOV; setSnapshotFormat("png");
+    _savePOV = savePOV;
+
+    setSnapshotFormat("png");
+
     _simulate = false;
     _deactivation = true;
 
@@ -469,10 +468,6 @@ Cam* Viewer::getCamera() {
     return _cam;
 }
 
-void Viewer::setSavePNG(bool png) {
-    _savePNG = png;
-}
-
 void Viewer::setSavePOV(bool pov) {
     _savePOV = pov;
 
@@ -487,10 +482,6 @@ void Viewer::setPOVSettingsInc(QString s) {
 
 QString Viewer::getPOVSettingsInc() {
     return _pov_settings_inc;
-}
-
-void Viewer::toggleSavePNG(bool savePNG) {
-    _savePNG = savePNG;
 }
 
 void Viewer::toggleSavePOV(bool savePOV) {
@@ -1386,22 +1377,6 @@ void Viewer::postDraw() {
         qglColor(foregroundColor());
     }
 
-    if (_savePNG) {
-        startScreenCoordinatesSystem();
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
-        glPointSize(12.0);
-        glColor3f(0.0, 0.0, 1.0);
-        glBegin(GL_POINTS);
-        glVertex2i(width()-60, 20);
-        glEnd();
-        glEnable(GL_LIGHTING);
-        glEnable(GL_DEPTH_TEST);
-        stopScreenCoordinatesSystem();
-        // restore foregroundColor
-        qglColor(foregroundColor());
-    }
-
     if (_savePOV) {
         startScreenCoordinatesSystem();
         glDisable(GL_LIGHTING);
@@ -1472,20 +1447,6 @@ void Viewer::animate() {
     // emitScriptOutput(QString("_frameNum = %1").arg(_frameNum));
 
     // emitScriptOutput("Viewer::animate() begin");
-
-    if (_savePNG) {
-        QDir sceneDir("screenshots");
-        QString file;
-        if(!_scriptName.isEmpty()){
-            sceneDir.mkdir(qPrintable(_scriptName));
-            file.sprintf("screenshots/%s/%s-%05d.png",
-                         qPrintable(_scriptName), qPrintable(_scriptName), _frameNum);
-        }else{
-            sceneDir.mkdir("no_name");
-            file.sprintf("screenshots/no_name/no_name-%05d.png", _frameNum);
-        }
-        saveSnapshot(file, true);
-    }
 
     if (_savePOV) {
         savePOV();
