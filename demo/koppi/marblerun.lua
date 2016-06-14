@@ -294,14 +294,23 @@ v:postSim(function(N)
   end
 end)
 
-v.cam.focal_blur      = 0-- > 0: enable focal blur
-v.cam.focal_aperture  = 5
+function setcam()
+  v.cam.focal_blur      = 0-- > 0: enable focal blur
+  v.cam.focal_aperture  = 5
 
--- set blur point to wheel shape position
-v.cam.focal_point = w.pos
+  -- set blur point to wheel shape position
+  v.cam.focal_point = w.pos
 
--- pseudo orthogonal view
-v.cam:setFieldOfView(.3)
+  v.cam:setUpVector(btVector3(0,1,0), false)
+
+  -- pseudo orthogonal view
+  v.cam:setFieldOfView(.0275)
+
+  v.cam.pos = btVector3(250,300,1000)
+  v.cam.look = btVector3(0,10,3)
+end
+
+setcam()
 
 --run()
 
