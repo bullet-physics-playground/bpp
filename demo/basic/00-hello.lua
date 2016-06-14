@@ -268,7 +268,7 @@ v.pre_sdl = v.pre_sdl .. [[
 sphere{0,0.5
  material{
   texture{
-   pigment { color rgbf<1, 1, 1, 1> }
+   pigment { color rgbf<1, 1, 1, 1>*1.7 }
    finish {  diffuse 0 }
   }
   interior{
@@ -303,13 +303,13 @@ function light(m, r,type,intensity)
 end
 
 for i = 0,3 do
-  l1 = light(1, 0.25, "Cl_Cool_White_Fluor", 0.5)
-  l1.pos = btVector3(1.3, 22.75+i*3, 0.6)
+  l1 = light(0.1, 0.125, "Cl_Cool_White_Fluor", 1.5)
+  l1.pos = btVector3(1.3, 6.75+i*3, 0.6)
   v:add(l1)
 end
 
 l2 = light(0, 0.5, "Cl_Halogen", 8)
-l2.pos = btVector3(3.3, 12.75, 0.6)
+l2.pos = btVector3(4.3, 25, 1.6)
 v:add(l2)
 
 cu = Cube(1,1,1,4)
