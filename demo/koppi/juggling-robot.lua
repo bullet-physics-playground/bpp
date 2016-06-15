@@ -1,5 +1,5 @@
 --
--- C. Shanon's juggling robot
+-- Claude Shannon's juggling robot
 --
 
 v.gravity = btVector3(0,-9.81,0)
