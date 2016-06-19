@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/bullet-physics-playground/bpp.svg?branch=master)](https://travis-ci.org/bullet-physics-playground/bpp) [![Join the chat at https://gitter.im/bullet-physics-playground/bpp](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <a
-href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/0.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
+href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/maxresdefault.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
 
 Features:
 
