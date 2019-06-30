@@ -10,10 +10,6 @@ Features:
 * [OpenSCAD](http://www.openscad.org/) import (experimental)
 * [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
-Created with Bullet Physics Playground:
-
-* Join the [G+ community](https://plus.google.com/communities/118046861018657351607).
-
 ### Build
 
 Select your operating system:
