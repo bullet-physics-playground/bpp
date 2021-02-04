@@ -106,7 +106,7 @@ link_pkgconfig {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut /usr/lib/x86_64-linux-gnu/libluabind.a
+      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }  }
   contains(LSB_RELEASE_ID, Debian): {
