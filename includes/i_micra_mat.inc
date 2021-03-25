@@ -195,13 +195,13 @@ texture{pigment {color rgb <1,1,1> transmit  0}
 //==================================================
 #declare blinker_L_auv_=
 texture{pigment {color rgb <1, .68, 0> filter  0.3} 
-        finish{phong .7 phong_size 20 diffuse 0.7*1 ambient rgb 0 reflection{0, .2} caustics .9}
+        finish{phong .7 phong_size 20 diffuse 0.7*1 ambient rgb 0 reflection{0, .2} }
         normal{uv_mapping p_map5 bump_size 3}
         }
 //==================================================
 #declare blinker_R_auv_= 
 texture{pigment {color rgb <1, .68, 0> filter  0.3} 
-        finish{phong .7 phong_size 20 diffuse 0.7*1 ambient rgb 0 reflection{0, .2} caustics .9}
+        finish{phong .7 phong_size 20 diffuse 0.7*1 ambient rgb 0 reflection{0, .2} }
         normal{uv_mapping p_map6 bump_size 3}
         }
 //==================================================
@@ -221,13 +221,13 @@ texture{pigment {color rgb <182,178,169>/255 filter .9}
 texture{pigment {color rgb <1, .12, 0> transmit  0.19} 
         finish{phong 1 phong_size 20 diffuse 0.6*1 ambient rgb 0 reflection{0, .2}}}
 texture{pigment{p_map10} 
-        finish{phong 1 phong_size 60 diffuse 0.6*1 ambient rgb 0.06 reflection{0, .5} caustics .9}} // diffuse 7 reflection{0, .2}
+        finish{phong 1 phong_size 60 diffuse 0.6*1 ambient rgb 0.06 reflection{0, .5} }} // diffuse 7 reflection{0, .2}
 //==================================================
 #declare taillight_R_auv_= 
 texture{pigment {color rgb <1, .12, 0> transmit  0.19} 
         finish{phong 1 phong_size 20 diffuse 0.6*1 ambient rgb 0 reflection{0, .2}}}
 texture{pigment{p_map11} 
-        finish{phong 1 phong_size 60 diffuse 0.6*1 ambient rgb 0.06 reflection{0, .5} caustics .9}} // diffuse 7 reflection{0, .2}
+        finish{phong 1 phong_size 60 diffuse 0.6*1 ambient rgb 0.06 reflection{0, .5} }} // diffuse 7 reflection{0, .2}
 //==================================================
 #declare rearwindow_auv_= 
 texture{pigment{p_map13} 
