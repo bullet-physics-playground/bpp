@@ -46,7 +46,7 @@ v.pre_sdl = pre_sdl
 camera_view=3
 
 -- car model: 
--- 1=Citroen GS, 2=Nissan Micra
+-- 1=Citroen GS, 2=Nissan Micra, 3=LEGO buggy
 car_model=1
 
 -- obstacle selection:  
@@ -107,6 +107,29 @@ elseif (car_model==2) then -- Nissan Micra (by Ren Bui)
   ]]
   right_tire_sdl="object{micra_tyre scale 7.5"
   left_tire_sdl="object{micra_tyre scale 7.5 rotate 180*y"
+elseif (car_model==3) then -- LEGO buggy (by koppi)
+  chassis_model="lego_buggy.stl"
+  chassis_height=2.5
+  front_axle_xpos=8.4
+  rear_axle_xpos=-5.95
+  front_axle_width=15
+  rear_axle_width=18
+  front_arm_lenght=1.75
+  rear_arm_lenght=1.75
+  arm_radius=.2
+  arm_body_height=-1
+  suspension_lower_limit=-.8
+  suspension_upper_limit=.8
+  tire_radius=3.5
+  tire_width=3
+  total_car_mass=800
+  drivetrain_type=1    -- 0=NONE,  1=FWD,     2=RWD, 3=AWD
+  engine_placement=0  -- 1=FRONT, 0=CENTER, -1=REAR
+  engine_height=tire_radius+1
+  onboard_cam_height=3.5
+  chassis_sdl=[[object{lego_buggy]]
+  right_tire_sdl="object{lego_buggy_wheel rotate <0,-90,0>"
+  left_tire_sdl="object{lego_buggy_wheel rotate <0,90,0>"
 end
 
 -- ******************
@@ -966,16 +989,19 @@ end
 -- KEYBOARD SHORTCUTS
 -- ******************
 
--- switch camera
-v:addShortcut("F1", function(N)
+function switch_camera(N)
   camera_view = camera_view + 1;
   if (camera_view == 8) then
     camera_view = 1
   end
+  print("Switched to cam number "..tostring(camera_view)..".")
+end
+
+v:addShortcut("F1", function(N)
+  switch_camera(N)
 end)
 
--- steer left
-v:addShortcut("F9", function(N)
+function steer_left(N)
   steer_power_right=max_angular_steer_power
   front_center_stabilizer_bar_constraint:setLimit(0,-tire_radius*.5,tire_radius*.5)
   front_center_stabilizer_bar_constraint:setLimit(2,-tire_radius*.25,tire_radius*.25)
@@ -987,10 +1013,13 @@ v:addShortcut("F9", function(N)
   front_left_disc_spindle_constraint:enableAngularMotor(true, -10, steer_power_right)
   turning_right=N
   turning_left=nil
+end
+
+v:addShortcut("F9", function(N)
+  steer_left(N)
 end)
 
--- steer right
-v:addShortcut("F10", function(N)
+function steer_right(N)
   steer_power_left=max_angular_steer_power
   front_center_stabilizer_bar_constraint:setLimit(0,-tire_radius*.5,tire_radius*.5)
   front_center_stabilizer_bar_constraint:setLimit(2,-tire_radius*.25,tire_radius*.25)
@@ -1002,10 +1031,14 @@ v:addShortcut("F10", function(N)
   front_left_disc_spindle_constraint:enableAngularMotor(true, 10, steer_power_left)
   turning_left=N
   turning_right=nil
+end
+
+v:addShortcut("F10", function(N)
+  steer_right(N)
 end)
 
 -- accelerate forward
-v:addShortcut("F2", function(N)
+function accelerate_forward(N)
  front_right_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
  front_left_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
  rear_right_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
@@ -1028,10 +1061,13 @@ v:addShortcut("F2", function(N)
  end
  accelerating=N
  braking=nil
+end
+
+v:addShortcut("F2", function(N)
+ accelerate_forward(N)
 end)
 
--- accelerate backward
-v:addShortcut("F4", function(N)
+function accelerate_backward(N)
  front_right_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
  front_left_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
  rear_right_wheel_disc_constraint:setLimit(1,-1,0,.3,1)
@@ -1054,16 +1090,23 @@ v:addShortcut("F4", function(N)
  end
  accelerating=N
  braking=nil
+end
+
+v:addShortcut("F4", function(N)
+ accelerate_backward(N)
 end)
 
--- brake
-v:addShortcut("F3", function(N)
+function brake(N)
   front_right_wheel_disc_constraint:setLimit(0,0,0,.3,1)
   front_left_wheel_disc_constraint:setLimit(0,0,0,.3,1)
   rear_right_wheel_disc_constraint:setLimit(0,0,0,.3,1)
   rear_left_wheel_disc_constraint:setLimit(0,0,0,.3,1)
   accelerating=nil
   braking=N
+end
+
+v:addShortcut("F3", function(N)
+  brake(N)
 end)
 
 -- neutral
@@ -1081,7 +1124,8 @@ end)
 -- POST SIMULATION STUFF
 -- *********************
 v:postSim(function(N)
-  v.cam.up = btVector3(0,1,0)
+
+  v.cam:setUpVector(btVector3(0,1,0), true)
 
 -- CAMERA VIEWS 
 if(camera_view>0) then
@@ -1105,7 +1149,7 @@ if(camera_view>0) then
   end
   -- close look at the front suspension and wheels
   if(camera_view==4) then
-    v.cam.pos = btVector3(chassis.pos.x+79,4,chassis.pos.z)
+    v.cam.pos = btVector3(chassis.pos.x+79,5,chassis.pos.z)
     v.cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
     v.cam:setHorizontalFieldOfView(.5)
   end
@@ -1122,8 +1166,8 @@ if(camera_view>0) then
   end
   -- pseudo orthographic from the side 
   if(camera_view==7) then
-    v.cam.pos = btVector3(chassis.pos.x,100,chassis.pos.z+2000)
-    v.cam.look = btVector3(chassis.pos.x,10,chassis.pos.z)
+    v.cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z+2000)
+    v.cam.look = btVector3(chassis.pos.x,5,chassis.pos.z)
     v.cam:setHorizontalFieldOfView(.025)
   end
 -- aerial view
@@ -1201,7 +1245,7 @@ v.pre_sdl="#declare chassis_pos=<"
 
 end) -- postSim
 
-v:onCommand(function(cmd)
+v:onCommand(function(N, cmd)
 --  print(cmd)
   local f = assert(loadstring(cmd))
   f(v)
@@ -1209,6 +1253,27 @@ end)  -- onCommand
 
 -- set camera up vector
 --v.cam.up = btVector3(0,1,0)
+  v.cam:setUpVector(btVector3(0,1,0), false)
 
+v:onJoystick(function(N, joy)
+  if(joy.axes[1] < 0) then
+    steer_left(N)
+  end
+  if(joy.axes[1] > 0) then
+    steer_right(N)
+  end
+  if (joy.triggeredButton0) then
+    accelerate_forward(N)
+  end
+  if (joy.triggeredButton1) then
+    accelerate_backward(N)
+  end
+  if (joy.triggeredButton2) then
+    brake(N)
+  end
+  if (joy.triggeredButton3) then
+    switch_camera(N)
+  end
+end)
 
 -- EOF

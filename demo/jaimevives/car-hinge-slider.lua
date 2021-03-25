@@ -326,7 +326,7 @@ v:preDraw(function(N)
   v.cam:setFieldOfView(.2)
 
   -- rotate camera
-  v.cam.up   = btVector3(.25,1,0)
+  v.cam:setUpVector(btVector3(.25,1,0), true)
 
   pos  = btVector3(
     car.pos.x,
@@ -341,5 +341,5 @@ v:preDraw(function(N)
   v.cam.pos  = pos
   v.cam.look = look
 
-  print("pos = "..tostring(pos).." look = "..tostring(look))
+  --print("pos = "..tostring(pos).." look = "..tostring(look))
 end)

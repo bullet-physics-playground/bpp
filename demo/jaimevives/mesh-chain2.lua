@@ -44,6 +44,7 @@ chain(17, 0,40, 0)
 v.cam:setFieldOfView(0.1)
 
 -- rotate camera
+v.cam:setUpVector(btVector3(0,1,0), true)
 v.cam.up   = btVector3(0,1,0)
 v.cam.pos = btVector3(0,500,1500)
 v.cam.look = btVector3(0,25,0)
