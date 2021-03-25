@@ -245,7 +245,7 @@ v.pre_sdl = v.pre_sdl..[==[
 
 ]==]
 
-p = Plane(0,1,0,0,.1)
+p = Plane(0,1,0,0,10)
 p.pos = btVector3(0,-0.5,0)
 p.col = "#777"
 p.sdl = [[
@@ -303,8 +303,8 @@ function light(m, r,type,intensity)
 end
 
 for i = 0,3 do
-  l1 = light(0.1, 0.125, "Cl_Cool_White_Fluor", 1.5)
-  l1.pos = btVector3(1.3, 6.75+i*3, 0.6)
+  l1 = light(0, .5, "Cl_Cool_White_Fluor", 1.5)
+  l1.pos = btVector3(1.3, 10+i*3, 0.6)
   v:add(l1)
 end
 
@@ -586,20 +586,17 @@ module roundedBox(x, y, z, r)
 		cube([x-r*2, y-r*2, z], center=true);
 	}
 }
-$fn=25;
-roundedBox(1, 1, 1, .05);
-]==],0)
+$fn=50;
+
+//roundedBox(1, 1, 1, .05);
+pill(.25, 1);
+]==],0.1)
   rb.pos = btVector3(0,.5,1.5)
   rb.trans = btTransform(btQuaternion(-1,.25,0,1), btVector3(0,0.5,1.5))
   rb.col = "#ffff00"
   v:add(rb)
 
 end
-
-pixarlamp = Mesh("demo/stl/pixarlamp.stl", 0)
-pixarlamp.trans = btTransform(btQuaternion(-0.04,-.48,-1.1,1), btVector3(0.8,3.17,3))
-pixarlamp.col = "#ffffff"
-v:add(pixarlamp)
 
 ls = Sphere(0.25,0)
 ls.pos = btVector3(0.6,3.425,3.4)
@@ -609,11 +606,11 @@ ls.pos = btVector3(0.6,3.425,3.4)
 v.cam:setFieldOfView(.01)
 
 v:preStart(function(N)
-  print("preStart("..tostring(N)..")")
+--  print("preStart("..tostring(N)..")")
 end)
 
 v:preStop(function(N)
-  print("preStop("..tostring(N)..")")
+--  print("preStop("..tostring(N)..")")
 end)
 
 v:preSim(function(N)
@@ -633,7 +630,7 @@ v:postSim(function(N)
   v.cam.focal_point = sp.pos
 
   ---- render every 10th frame with POV-Ray
-  -- if (N % 10 == 0) then povRender(N) end
+  --if (N % 10 == 0) then povRender(N) end
 end)
 
 v:preDraw(function(N)

@@ -6,11 +6,13 @@
 -- Needs more investigation (koppi).
 --
 
+require "module/color"
+
 v.gravity = btVector3(0,-9.81,0)
 
-v.timeStep      = 1/15
+v.timeStep      = 1/50
 v.maxSubSteps   = 7
-v.fixedTimeStep = 1/60
+v.fixedTimeStep = 1/120
 
 v.pre_sdl = v.pre_sdl..[==[
 
@@ -82,7 +84,7 @@ shape:calculateLocalInertia(mass, inertia)
 body = btRigidBody(mass, ms, shape, inertia)
 
 mm = Mesh()
-mm.col   = "#ff0000"
+mm.col   = color.random_google()
 mm.shape = shape
 mm.body  = body
 mm.mass     = 1
@@ -97,9 +99,9 @@ end
 --v:add(mesh())
 
 function tst()
-  for i = 0,70 do
+  for i = 0,60 do
     m = mesh()
-    m.pos = btVector3(0,i,0)
+    m.pos = btVector3(0,0,0)
   end
 end
 

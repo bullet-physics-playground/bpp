@@ -52,7 +52,7 @@ v.cam.pos = btVector3(r, z, r)
 v.cam.look = btVector3(0,p1.pos.y-150,0)
 
 -- cam focal blur
-v.cam.focal_blur      = 0
+v.cam.focal_blur      = 10
 v.cam.focal_aperture  = 5
 -- set blur point to mesh shape position
 v.cam.focal_point = p1.pos

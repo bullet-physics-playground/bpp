@@ -4,7 +4,7 @@
 
 -- tip: type "run()" in the GUI Command Line
 
-p = Plane(0,1,0,0,100)
+p = Plane(0,1,0,0,10)
 p.col = "#111111" 
 v:add(p)
 

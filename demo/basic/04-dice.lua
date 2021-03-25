@@ -3,6 +3,7 @@
 --
 require "module/color"
 require "module/dice"
+require "module/text"
 
 v.timeStep      = 1/5
 v.maxSubSteps   = 20
@@ -16,39 +17,19 @@ v.pre_sdl = [==[
 
 ]==]
 
-p = Plane(0,1,0,0,1000)
-p.col = "#fff"
+p = Plane(0,1,0,0,10)
+p.col = "#050"
 p.friction = 100
 p.sdl = [[ texture { pigment { color White } }]]
 v:add(p)
 
-function text(t, x, y, z)
-  t = OpenSCAD([[
-  text = "]]..t..[[";
-  font = "Arial";
-  linear_extrude(height = 0.5) {
-    text(
-      text = text, font = font,
-      size = 1, halign = "center");
-  }]],0)
-t.pos = btVector3(x,y,z)
-t.col = "#ffffff"
-t.post_sdl = [[
-  no_shadow
-  no_reflection
-  no_radiosity
-}]]
-v:add(t)
-return t
-end
-
-txt = text("Bullet Physics Playground", 0,8.4,-1)
-text("Version 0.0.4", 0,6.6,-1)
+txt = text.txt("Bullet Physics Playground", 0,7.5,-1)
+text.txt("Version 0.0.5", 0,6.6,-1)
 
 function run()
-  d = dice.new({ mass = 10, col = color.random_google() })
+  d = dice.new({ mass = 10, col = "#f00" })
   d.friction = 100
-  d.pos=btVector3(0,0.3,0)
+  d.pos=btVector3(0,0.45,0)
   v:add(d)
 end
 
@@ -65,8 +46,8 @@ v:postSim(function(N)
 --  v.gravity = btVector3(0,-c,0)
   v.gravity = btVector3(i,-c,j)
 
-  tmp = v.cam.pos tmp.z = tmp.z + 1 v.cam.pos = tmp
-  tmp = v.cam.pos tmp.y = tmp.y + 1 v.cam.pos = tmp
+  tmp = v.cam.pos tmp.z = tmp.z + 0.1 v.cam.pos = tmp
+  tmp = v.cam.pos tmp.y = tmp.y + 0.1 v.cam.pos = tmp
   tmp = v.cam.look tmp.y = tmp.y + 0.001 v.cam.look = tmp
 end)
 
@@ -78,7 +59,7 @@ end)
 
 v.cam:setFieldOfView(0.025)
 
-v.cam:setUpVector(btVector3(0,1,0), true)
+v.cam:setUpVector(btVector3(0,1,0), false)
 --v.cam.pos  = btVector3(1,4,900)
 v.cam.pos  = btVector3(0, 6, 550)
 v.cam.look = btVector3(0,4,0)
