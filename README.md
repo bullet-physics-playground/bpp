@@ -79,4 +79,4 @@ The editor has a few known problems:
 # Authors
 
 * © 2008 – 2021 [@koppi](https://github.com/koppi) – Initial release.
-* © 2012 – 2013 [@jaimevives](https://github.com/jaimevives) – POV-Ray export.
+* © 2012 – 2016 [@jaimevives](https://github.com/jaimevives) – POV-Ray export.
