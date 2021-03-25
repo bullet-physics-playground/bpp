@@ -57,7 +57,7 @@ bool CodeEditor::load(QString filename) {
     if (filename.isEmpty()) {
         filename = QString(".lua");
         filename = QFileDialog::getOpenFileName(this, "Open a script",
-                                                script_filename, "lua source (*.lua);;All files (*)");
+                                                script_filename, "Lua source (*.lua);;All files (*)");
         if (filename.isEmpty())
             return false;
     }
@@ -85,7 +85,7 @@ bool CodeEditor::load(QString filename) {
 bool CodeEditor::saveAs(QString filename) {
     if (filename.isEmpty()) {
         QFileDialog dialog(this, tr("Save a script"), script_filename,
-                           tr("lua source (*.lua);;All files (*)"));
+                           tr("Lua source (*.lua);;All files (*)"));
         dialog.setAcceptMode(QFileDialog::AcceptSave);
         dialog.setDefaultSuffix("lua");
         dialog.selectFile(script_filename);
