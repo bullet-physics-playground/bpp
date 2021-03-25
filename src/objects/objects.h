@@ -22,4 +22,4 @@ protected:
     QList<Object *> _objects;
 };
 
-#endif // CUBE_H
+#endif // OBJECTS_H

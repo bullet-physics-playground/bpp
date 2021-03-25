@@ -39,12 +39,11 @@ public:
     virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
 
 protected:
-    GLuint m_VertexVBO, m_NormalVBO;
-
     btGImpactMeshShape *m_shape;
     btTriangleMesh     *m_mesh;
+    const aiScene *m_scene;
 };
 
 #endif
 
-#endif
+#endif // MESH_H
