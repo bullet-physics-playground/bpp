@@ -8,8 +8,6 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include "GL_ShapeDrawer.h"
-
 #include <QFile>
 #include <QDir>
 #include <QMutex>
@@ -21,6 +19,9 @@
 #include "objects/cam.h"
 
 #include "objects/sphere.h"
+
+#include "joystick/joystickhandler.h"
+#include "joystick/joystickinterfacesdl.h"
 
 using namespace qglviewer;
 
@@ -63,6 +64,7 @@ public:
     Cam* getCamera();
 
     static void luaBind(lua_State *s);
+    //static void luabind_error(lua_State *s);
     void luaBindInstance(lua_State *s);
     virtual QString toString() const;
     void setScriptName(QString sn);
@@ -157,6 +159,7 @@ public slots:
     void setCBPostSim(const luabind::object &fn);
     void setCBPreStop(const luabind::object &fn);
     void setCBOnCommand(const luabind::object &fn);
+    void setCBOnJoystick(const luabind::object &fn);
 
     void keyPressEvent(QKeyEvent *e);
 
@@ -166,6 +169,8 @@ public slots:
 
     void onQuickRender();
     void onQuickRender(QString povargs);
+
+    void onJoystickData(const JoystickInfo &ji);
 
 signals:
     void statusEvent(const QString&);
@@ -180,6 +185,8 @@ signals:
     void POVStateChanged(bool);
     void PNGStateChanged(bool);
     void deactivationStateChanged(bool);
+
+    void clearDebugText();
 
 protected:
     virtual void init();
@@ -259,6 +266,7 @@ private:
     luabind::object _cb_preSim,_cb_postSim;
     luabind::object _cb_preStop;
     luabind::object _cb_onCommand;
+    luabind::object _cb_onJoystick;
 
     QHash<QString, luabind::object> *_cb_shortcuts;
 
@@ -266,7 +274,6 @@ private:
     bool _has_exception;
 
     // OpenGL properties
-
     btScalar  _gl_shininess;
     btVector4 _gl_specular_col;
 
@@ -291,7 +298,9 @@ private:
     int      _maxSubSteps;
     btScalar _fixedTimeStep;
 
-    GL_ShapeDrawer* _drawer;
+    // joystick handler
+    JoystickInterfaceSDL* _joystickInterface;
+    JoystickHandler _joystickHandler;
 
 };
 

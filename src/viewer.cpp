@@ -76,6 +76,12 @@ std::ostream& operator<<(std::ostream& ostream, const QColor& c) {
     return ostream;
 }
 
+std::ostream& operator<<(std::ostream& ostream, const JoystickInfo& ji) {
+    Q_UNUSED(ji)
+    ostream << "JoystickInfo()"; //XXX
+    return ostream;
+}
+
 QString Viewer::toString() const {
     return QString("Viewer");
 }
@@ -106,8 +112,10 @@ void Viewer::luaBind(lua_State *s) {
             .def("postSim", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPostSim, adopt(luabind::result))
             .def("preStop", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBPreStop, adopt(luabind::result))
             .def("onCommand", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnCommand, adopt(luabind::result))
+            .def("onJoystick", (void(Viewer::*)(const luabind::object &fn))&Viewer::setCBOnJoystick, adopt(luabind::result))
             .def("savePrefs", &Viewer::setPrefs)
             .def("loadPrefs", &Viewer::getPrefs)
+            .def("clearDebugText", &Viewer::clearDebugText)
 
             .def("quickRender", (void(Viewer::*)(QString povargs))&Viewer::onQuickRender)
             .def("toPOV", &Viewer::toPOV)
@@ -166,6 +174,27 @@ void Viewer::luaBind(lua_State *s) {
             class_<QString>("QString")
             .def(constructor<>())
             .def(constructor<const char *>())
+            .def(tostring(self))
+            ];
+
+    module(s)
+            [
+            class_<JoystickInfo>("JoystickInfo")
+            .def(constructor<>())
+            .property("axes", &JoystickInfo::getAxisValues)
+            .property("axis0", &JoystickInfo::getAxis0)
+            .property("axis1", &JoystickInfo::getAxis1)
+            .property("axis2", &JoystickInfo::getAxis2)
+            .property("axis3", &JoystickInfo::getAxis3)
+            .property("buttons", &JoystickInfo::getButtonValues)
+            .property("button0", &JoystickInfo::getButton0)
+            .property("button1", &JoystickInfo::getButton1)
+            .property("button2", &JoystickInfo::getButton2)
+            .property("button3", &JoystickInfo::getButton3)
+            .property("triggeredButton0", &JoystickInfo::getTriggeredButton0)
+            .property("triggeredButton1", &JoystickInfo::getTriggeredButton1)
+            .property("triggeredButton2", &JoystickInfo::getTriggeredButton2)
+            .property("triggeredButton3", &JoystickInfo::getTriggeredButton3)
             .def(tostring(self))
             ];
 }
@@ -233,19 +262,15 @@ using namespace qglviewer;
 
 namespace {
 void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
-    btVector3 aabbMin, aabbMax;
-
     aabb[0] = -10; aabb[1] = -10; aabb[2] = -10;
-    aabb[3] =  10; aabb[4] =  10; aabb[5] =  10;
-
-    int dbg = 0;
+    aabb[3] = 10; aabb[4] = 10; aabb[5] = 10;
 
     QSet<Object*>::iterator oi;
     for (oi = objects->begin(); oi != objects->end(); oi++) {
         Object *o = *oi;
 
         if (o->body != NULL) {
-            btVector3 oaabbmin, oaabbmax;
+            btVector3 oaabbmin(0,0,0), oaabbmax(0,0,0);
             o->body->getAabb(oaabbmin, oaabbmax);
 
             if  ("Plane" == o->toString()) {
@@ -259,23 +284,19 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
                 oaabbmax[2] = s;
             }
 
-            if (isfinite(o->getPosition().x()) && isfinite(o->getPosition().y()) && isfinite(o->getPosition().z())) {
-                oaabbmin -= o->getPosition();
-                oaabbmax += o->getPosition();
+            if (isfinite(o->getPosition().x()) &&
+                    isfinite(o->getPosition().y()) &&
+                    isfinite(o->getPosition().z())) {
+              oaabbmin -= o->getPosition();
+              oaabbmax += o->getPosition();
             }
 
-            if (dbg) qDebug() << o->toString() << oaabbmin.x() << oaabbmin.y() << oaabbmin.z() << oaabbmax.x() << oaabbmax.y() << oaabbmax.z();
-
             for (int i = 0; i < 3; ++i) {
-                if (isfinite(oaabbmin[i]))
-                    aabb[  i] = qMin(aabb[  i], oaabbmin[  i]);
-                if (isfinite(oaabbmax[i]))
-                    aabb[3+i] = qMax(aabb[3+i], oaabbmax[3+i]);
+              aabb[  i] = qMin(aabb[  i], oaabbmin[i]);
+              aabb[3+i] = qMax(aabb[3+i], oaabbmax[i]);
             }
         }
     }
-
-    if (dbg) qDebug() << "getAABB()" << aabb[0] << aabb[1] << aabb[2] << aabb[3] << aabb[4] << aabb[5];
 }
 }
 
@@ -319,11 +340,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     // qDebug() << "KeySequence:" << seq;
 
     if (_cb_shortcuts->contains(seq)) {
-        try {
-            luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
-        } catch(const std::exception& ex){
-            showLuaException(ex, QString("shortcut '%1' function").arg(seq));
-        }
+        luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
 
         return; // skip built in command if overridden by shortcut
     }
@@ -435,8 +452,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer(p
             static_cast<btCollisionDispatcher *>(dynamicsWorld ->getDispatcher());
     btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
 
-    _drawer = new GL_ShapeDrawer();
-
     _frameNum = 0;
     _firstFrame = 0;
 
@@ -450,7 +465,21 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer(p
     mPreSDL = "";
     mPostSDL = "";
 
+    // joystick integration
+    _joystickInterface = new JoystickInterfaceSDL();
+    connect(&_joystickHandler, SIGNAL(data(JoystickInfo)), this, SLOT(onJoystickData(JoystickInfo)));
+    _joystickHandler.setInterface(_joystickInterface);
+    _joystickHandler.initialize();
+    _joystickHandler.setUpdateInterval(40); // 25 fps
+
     startAnimation();
+}
+
+void Viewer::onJoystickData(const JoystickInfo &ji) {
+    QMutexLocker locker(&mutex);
+    if (_cb_onJoystick) {
+        luabind::call_function<void>(_cb_onJoystick, _frameNum, ji);
+    }
 }
 
 void Viewer::close() {
@@ -546,17 +575,23 @@ int Viewer::lua_print(lua_State* L) {
     return 0;
 }
 
+/*
+void Viewer::luabind_error(lua_State* L) {
+    qDebug() << "luabind_error" << endl;
+
+    // the error message should be on top of the stack
+    QString luaWhat = QString("%1").arg(lua_tostring(L, -1));
+
+    //emit scriptHasOutput(QString("%1").arg(luaWhat));
+}*/
+
 bool Viewer::parse(QString txt) {
     QMutexLocker locker(&mutex);
 
     emit scriptStopped();
 
     if(_cb_preStop) {
-        try {
-            luabind::call_function<void>(_cb_preStop, _frameNum);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:preStop()");
-        }
+        luabind::call_function<void>(_cb_preStop, _frameNum);
     }
 
     _parsing = true;
@@ -586,24 +621,22 @@ bool Viewer::parse(QString txt) {
         //XXX clear();
 
         // invalidate function refs
-        _cb_preStart  = luabind::object();
-        _cb_preStop   = luabind::object();
-        _cb_preDraw   = luabind::object();
-        _cb_postDraw  = luabind::object();
-        _cb_preSim    = luabind::object();
-        _cb_postSim   = luabind::object();
-        _cb_onCommand = luabind::object();
+        _cb_preStart   = luabind::object();
+        _cb_preStop    = luabind::object();
+        _cb_preDraw    = luabind::object();
+        _cb_postDraw   = luabind::object();
+        _cb_preSim     = luabind::object();
+        _cb_postSim    = luabind::object();
+        _cb_onCommand  = luabind::object();
+        _cb_onJoystick = luabind::object();
+
+        //luabind::set_error_callback(&Viewer::luabind_error);
 
         lua_getglobal(L, "exit_function");
         int exists_exit_function = !lua_isnil(L, -1);
         lua_pop(L, 1);
         if (exists_exit_function) {
-            try { luabind::call_function<int>(L, "exit_function");
-            } catch (const luabind::error &er) {
-                QString lua_error = QString("%1 -- %2").arg(er.what(), lua_tostring(er.state(), -1));
-                emit scriptHasOutput(lua_error);
-                return true;
-            }
+            luabind::call_function<int>(L, "exit_function");
         }
 
         lua_close(L);
@@ -768,12 +801,13 @@ void Viewer::clear() {
         _cam->setPreSDL(NULL);
         _cam->setPostSDL(NULL);
         _cam->setUseFocalBlur(0);
+        _cam->setUpVector(btVector3(0,1,0), true);
     }
 
     _light0 = btVector4( 200.0, 200.0,  200.0, 0.4);
     _light1 = btVector4(-100.0,   1.0, -100.0, 0.0);
 
-    _gl_ambient       = btVector3(0.2f, 0.2f, 0.2f);
+    _gl_ambient       = btVector3(0.3f, 0.3f, 0.3f);
     _gl_diffuse       = btVector4(0.8f, 0.8f, 0.8f, 1.0f);
     _gl_shininess     = btScalar(50.0);
     _gl_specular_col  = btVector4(0.85f, 0.85f, 0.85f, 1.0f);
@@ -783,6 +817,7 @@ void Viewer::clear() {
 
 void Viewer::resetCamView() {
 
+    camera()->setUpVector(Vec(0,1,0), true);
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
     updateGL();
@@ -993,22 +1028,10 @@ Viewer::~Viewer() {
 void Viewer::computeBoundingBox() {
     getAABB(_objects, _aabb);
 
-    btVector3 vmin(_aabb[0], _aabb[1], _aabb[2]);
-    btVector3 vmax(_aabb[3], _aabb[4], _aabb[5]);
+    qglviewer::Vec qmin(_aabb[0], _aabb[1], _aabb[2]);
+    qglviewer::Vec qmax(_aabb[3], _aabb[4], _aabb[5]);
 
-    float radius = (vmax - vmin).length();
-
-    if (isfinite(radius)) {
-        // qDebug() << QString("setSceneRadius(%1)").arg(radius);
-        setSceneRadius(radius);
-
-        //btVector3 center = (- vmax + vmin) / 2.0f;
-        //qDebug() << "setSceneCenter() " << center.x() << center.y() << center.z();
-        //setSceneCenter(Vec(center.x(), center.y(), center.z()));
-        setSceneCenter(Vec());
-    } else {
-        qDebug() << tr("Warning: scene radius is: %1").arg(radius);
-    }
+    setSceneBoundingBox(qmin, qmax);
 }
 
 void Viewer::init() {
@@ -1037,6 +1060,7 @@ void Viewer::init() {
 
     _initialCameraPosition=camera()->position();
     _initialCameraOrientation=camera()->orientation();
+
 }
 
 void Viewer::draw() {
@@ -1054,8 +1078,8 @@ void Viewer::draw() {
     if (_cb_preDraw) {
         try {
             luabind::call_function<void>(_cb_preDraw, _frameNum);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:preDraw()");
+        } catch (const std::exception& e) {
+            showLuaException(e, "preDraw()");
         }
     }
 
@@ -1101,85 +1125,29 @@ void Viewer::draw() {
         glMultMatrixd(manipulatedFrame()->matrix());
     }
 
-    bool useShadows = true; // XXX
-
-    if(useShadows)
-    {
-        glClear(GL_STENCIL_BUFFER_BIT);
-        glEnable(GL_CULL_FACE);
-        drawSceneInternal(0);
-
-        glDisable(GL_LIGHTING);
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);
-        glEnable(GL_STENCIL_TEST);
-        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-        glStencilFunc(GL_ALWAYS,1,0xFFFFFFFFL);
-        glFrontFace(GL_CCW);
-        glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
-        drawSceneInternal(1);
-        glFrontFace(GL_CW);
-        glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
-        drawSceneInternal(1);
-        glFrontFace(GL_CCW);
-
-        glPolygonMode(GL_FRONT,GL_FILL);
-        glPolygonMode(GL_BACK,GL_FILL);
-        glShadeModel(GL_SMOOTH);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-        glEnable(GL_LIGHTING);
-        glDepthMask(GL_TRUE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
-        glEnable(GL_CULL_FACE);
-        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
-        glDepthFunc(GL_LEQUAL);
-        glStencilFunc( GL_NOTEQUAL, 0, 0xFFFFFFFFL );
-        glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-        glDisable(GL_LIGHTING);
-        drawSceneInternal(2);
-        glEnable(GL_LIGHTING);
-        glDepthFunc(GL_LESS);
-        glDisable(GL_STENCIL_TEST);
-        glDisable(GL_CULL_FACE);
-    }
-    else
-    {
-        glDisable(GL_CULL_FACE);
-        drawSceneInternal(0);
-    }
+    glDisable(GL_CULL_FACE);
+    drawSceneInternal(0);
 
     if (manipulatedFrame() != NULL) {
         glPopMatrix();
     }
+
+
 }
 
 void Viewer::drawSceneInternal(int pass) {
+    Q_UNUSED(pass)
     // btScalar m[16];
     btMatrix3x3	rot;rot.setIdentity();
 
     btVector3 minaabb(0,0,0),maxaabb(0,0,0);
     dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb,maxaabb);
 
-    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+//    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+//    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 
     foreach (Object *o, *_objects) {
-        //		printf("aabbMin=(%f,%f,%f)\n",aabbMin.getX(),aabbMin.getY(),aabbMin.getZ());
-        //		printf("aabbMax=(%f,%f,%f)\n",aabbMax.getX(),aabbMax.getY(),aabbMax.getZ());
-        // dynamicsWorld->getDebugDrawer()->drawAabb(aabbMin,aabbMax,btVector3(1,1,1));
-
-        //btVector3 m_sundirection(-1,-1,-1);
-        btVector3 m_sundirection(btVector3(1,-2,1)*1000);
-
-        switch(pass)
-        {
-        case 0: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
-            // case 1: _drawer->drawShadow(m_sundirection*rot,o); break;
-        case 2: _drawer->drawOpenGL(o, minaabb, maxaabb);  break;
-        }
+        o->render(minaabb, maxaabb);
     }
 }
 
@@ -1321,6 +1289,12 @@ void Viewer::setCBOnCommand(const luabind::object &fn) {
     }
 }
 
+void Viewer::setCBOnJoystick(const luabind::object &fn) {
+    if(luabind::type(fn) == LUA_TFUNCTION) {
+        _cb_onJoystick = fn;
+    }
+}
+
 void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
     if(luabind::type(fn) == LUA_TFUNCTION) {
         _cb_shortcuts->insert(keys, fn);
@@ -1336,11 +1310,7 @@ void Viewer::postDraw() {
             QGLViewer::postDraw();
 
     if(_cb_postDraw) {
-        try {
-            luabind::call_function<void>(_cb_postDraw, _frameNum);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:postDraw()");
-        }
+        luabind::call_function<void>(_cb_postDraw, _frameNum);
     }
 
     // Red dot when EventRecorder is active
@@ -1413,11 +1383,7 @@ void Viewer::postDraw() {
 
 void Viewer::startAnimation() {
     if (_cb_preStart) {
-        try {
-            luabind::call_function<void>(_cb_preStart, _frameNum);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:preStart()");
-        }
+        luabind::call_function<void>(_cb_preStart, _frameNum);
     }
 
     _time.start();
@@ -1426,11 +1392,7 @@ void Viewer::startAnimation() {
 
 void Viewer::stopAnimation() {
     if (_cb_preStop) {
-        try {
-            luabind::call_function<void>(_cb_preStop, _frameNum);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:preStop()");
-        }
+        luabind::call_function<void>(_cb_preStop, _frameNum);
     }
 
     QGLViewer::stopAnimation();
@@ -1455,11 +1417,7 @@ void Viewer::animate() {
     if (_simulate) {
 
         if(_cb_preSim) {
-            try {
-                luabind::call_function<void>(_cb_preSim, _frameNum);
-            } catch(const std::exception& e){
-                showLuaException(e, "v:preSim()");
-            }
+            luabind::call_function<void>(_cb_preSim, _frameNum);
         }
 
 
@@ -1478,11 +1436,7 @@ void Viewer::animate() {
         dynamicsWorld->stepSimulation(_timeStep, _maxSubSteps, _fixedTimeStep);
 
         if(_cb_postSim) {
-            try {
-                luabind::call_function<void>(_cb_postSim, _frameNum);
-            } catch(const std::exception& e){
-                showLuaException(e, "v:postSim()");
-            }
+            luabind::call_function<void>(_cb_postSim, _frameNum);
         }
 
         if (_frameNum > 10)
@@ -1503,11 +1457,7 @@ void Viewer::command(QString cmd) {
     // emitScriptOutput("Viewer::command() begin");
 
     if(_cb_onCommand) {
-        try {
-            luabind::call_function<void>(_cb_onCommand, _frameNum, cmd);
-        } catch(const std::exception& e){
-            showLuaException(e, "v:onCommand()");
-        }
+        luabind::call_function<void>(_cb_onCommand, _frameNum, cmd);
     }
 
     // emitScriptOutput("Viewer::command() end");
@@ -1734,13 +1684,13 @@ void Viewer::onQuickRender(QString povargs) {
 
     args << povargs;
 
-    qDebug() << "executing " << args.join(" ");
+    // qDebug() << "executing " << args.join(" ");
 
     QDir dir(".");
 
     QString exportDir = _settings->value("povray/export", "export").toString();
     QString sceneDir = dir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
-    qDebug() << "sceneDir: " << sceneDir;
+    // qDebug() << "sceneDir: " << sceneDir;
 
     QProcess p;
     p.startDetached("nice", args, sceneDir);
