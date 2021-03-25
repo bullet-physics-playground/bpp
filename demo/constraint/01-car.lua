@@ -19,12 +19,12 @@ use_obstacles = 2 -- 1 planes , 2 terrain
 
 col_sand  = "#ffff99"
 col_base  = "#2f1f1f"
-col_wheel = "#3f3f3f"
+col_wheel = "#0f0f0f"
 
 if(use_obstacles==2) then
   local f = 2000  -- friction
 
-  terrain = Mesh("/usr/share/bpp/demo/mesh/terrain.3ds",0)
+  terrain = Mesh("demo/mesh/terrain.3ds",0)
   terrain.pos =btVector3(0,-1,0)
   terrain.col=col_sand
   terrain.friction=f
@@ -214,7 +214,7 @@ v:preSim(function(N)
 end)
 
 
-v:postSim(function(n)
+v:preDraw(function(n)
   setcam()
 end)
 

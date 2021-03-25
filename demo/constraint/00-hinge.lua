@@ -2,7 +2,7 @@
 -- btHingeConstraint with angular motor
 --
 
-plane = Plane(0,1,0,0,100)
+plane = Plane(0,1,0,0,10)
 plane.col = "#111111"
 v:add(plane)
 
