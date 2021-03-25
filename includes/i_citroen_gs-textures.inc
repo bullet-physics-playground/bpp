@@ -59,7 +59,7 @@ texture{pigment{rgb 1}}
 texture{
  pigment{Firebrick filter .9}
  normal{n_optic}
- finish{F_Glass4 caustics .9}
+ finish{F_Glass4}
 }
 #else
 #declare t_stop=
@@ -72,7 +72,7 @@ texture{pigment{Firebrick}}
 texture{
  pigment{Orange filter .9}
  normal{n_optic}
- finish{F_Glass4 caustics .9}
+ finish{F_Glass4}
 }
 #else
 #declare t_interm=
@@ -85,7 +85,7 @@ texture{pigment{Orange}}
 texture{
  pigment{Yellow filter .67}
  normal{quilted scale <.2,.1,.1>*.2}
- finish{F_Glass3 caustics .9}
+ finish{F_Glass3}
 }
 #else
 #declare t_fog_glass=
