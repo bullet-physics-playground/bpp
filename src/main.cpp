@@ -1,4 +1,4 @@
-#define APP_VERSION QString("v0.0.4")
+#define APP_VERSION QString("v0.0.5")
 #define APP_NAME QString("bpp")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 #define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
@@ -20,6 +20,10 @@ QString withoutExtension(const QString & fileName) {
 }
 
 int main(int argc, char **argv) {
+
+    // make xlib and glx thread safe under x11
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+
     QSharedPointer<QCoreApplication> app;
 
     // workaround for https://forum.qt.io/topic/53298/qcommandlineparser-to-select-gui-or-non-gui-mode
