@@ -66,6 +66,8 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     connect(ui.viewer, SIGNAL(statusEvent(QString)), this, SLOT(setStatusBarText(QString)));
 
+    connect(ui.viewer, SIGNAL(clearDebugText()), debugText, SLOT(clear()));
+
     connect(commandLine, SIGNAL(execute(QString)), this, SLOT(command(QString)));
 
     connect(renderSettings, SIGNAL(currentTextChanged(QString)), this, SLOT(saveSettings()));
@@ -180,6 +182,7 @@ void Gui::fileLoad(const QString &path) {
     settings->beginGroup( "mainwindow" );
     settings->setValue( "lastFile", path);
     settings->endGroup();
+    settings->sync();
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -194,7 +197,7 @@ void Gui::fileLoad(const QString &path) {
         ui.actionSave->setEnabled(false);
     } else {
         setWindowTitle(tr("%1 %2").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()));
-        statusBar()->showMessage(tr("Error loading File %1").arg(path), 5000);
+        statusBar()->showMessage(tr("Error loading file %1").arg(path), 5000);
     }
 
 #ifndef QT_NO_CURSOR
@@ -259,6 +262,7 @@ void Gui::setCurrentFile(const QString &fileName) {
         files.removeLast();
 
     settings->setValue("recentFileList", files);
+    settings->sync();
 
     foreach (QWidget *widget, QApplication::topLevelWidgets()) {
         Gui *mainWin = qobject_cast<Gui *>(widget);
@@ -302,14 +306,14 @@ void Gui::helpAbout() {
     QString txt =
             tr("<p><b>%1 (%2)</b></p>").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()) + \
             tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-            tr("<p>&copy; 2008-2016 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
+            tr("<p>&copy; 2008-2021 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
             tr("<p>&copy; 2012-2013 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
     QMessageBox::about(this, tr("About"), txt);
 }
 
 void Gui::helpHomepage() {
-    QDesktopServices::openUrl(QUrl("https://plus.google.com/communities/118046861018657351607"));
+    QDesktopServices::openUrl(QUrl("https://github.com/bullet-physics-playground"));
 }
 
 void Gui::helpIssues() {
@@ -317,15 +321,11 @@ void Gui::helpIssues() {
 }
 
 void Gui::helpWiki() {
-    QDesktopServices::openUrl(QUrl("https://github.com/koppi/bullet-physics-playground/wiki"));
+    QDesktopServices::openUrl(QUrl("https://github.com/bullet-physics-playground/bpp/wiki"));
 }
 
 void Gui::helpChat() {
     QDesktopServices::openUrl(QUrl("https://gitter.im/bullet-physics-playground/bpp"));
-}
-
-void Gui::helpDonate() {
-    QDesktopServices::openUrl(QUrl("https://koppi.github.com/paypal"));
 }
 
 QString Gui::strippedName(const QString &fullFileName) {
@@ -337,9 +337,16 @@ QString Gui::strippedNameNoExt(const QString &fullFileName) {
 }
 
 void Gui::scriptChanged() {
-    ui.actionSave->setEnabled(true);
-    _fileSaved=false;
-    parseEditor();
+    static QString oldText;
+
+    if (oldText != editor->toPlainText()) {
+      oldText = editor->toPlainText();
+      ui.actionSave->setEnabled(true);
+      _fileSaved=false;
+      parseEditor();
+    } else {
+        // qDebug() << "Warning: Gui::scriptChanged() called, but editor text the same." << endl;
+    }
 }
 
 void Gui::parseEditor() {
@@ -394,6 +401,7 @@ void Gui::fileOpen(const QString& path) {
             settings->beginGroup("gui");
             settings->setValue("dont_ask_unsaved_changes", check->isChecked());
             settings->endGroup();
+            settings->sync();
 
             if (answer == QMessageBox::No) {
                 return;
@@ -402,6 +410,15 @@ void Gui::fileOpen(const QString& path) {
     }
 
     editor->load(path);
+    setCurrentFile(editor->script_filename);
+    ui.actionSave->setEnabled(false);
+
+    _fileSaved = true;
+}
+
+
+void Gui::fileReload() {
+    editor->load(editor->script_filename);
     setCurrentFile(editor->script_filename);
     ui.actionSave->setEnabled(false);
 
@@ -505,6 +522,8 @@ void Gui::saveSettings() {
     settings->setValue("deactivationState", ui.actionToggleDeactivation->isChecked());
 
     settings->endGroup();
+
+    settings->sync();
 }
 
 void Gui::moveEvent(QMoveEvent *) {
@@ -539,6 +558,7 @@ void Gui::closeEvent(QCloseEvent * event) {
             settings->beginGroup("gui");
             settings->setValue("dont_ask_unsaved_changes", check->isChecked());
             settings->endGroup();
+            settings->sync();
 
             if (answer == QMessageBox::Yes) {
                 saveSettings();
@@ -558,27 +578,6 @@ void Gui::closeEvent(QCloseEvent * event) {
 }
 
 void Gui::command(QString cmd) {
-    // log("> " + cmd);
-
-    /*
-  if (cmd.startsWith("home")) {
-    log("moving into home position.");
-    ui.viewer->rm->cmdHome();
-  } else if (cmd.startsWith("m")) {
-    QStringList s = cmd.split(" ");
-    double x = s.at(1).toDouble();
-    double y = s.at(2).toDouble();
-    double z = s.at(3).toDouble();
-
-    log(QString("moving to <%1, %2, %3>.").arg(x).arg(y).arg(z));
-
-    ui.viewer->rm->cmdMoveTo(x, y, z);
-  } else if (cmd.startsWith("?") || cmd.startsWith("help")) {
-    log("available commands:");
-    log(" - home ");
-    log(" - move [x][y][z] move end effector to <x,y,z>");
-    }*/
-
     ui.viewer->command(cmd);
 }
 

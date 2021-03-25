@@ -49,6 +49,7 @@ public slots:
 
     void fileNew();
     void fileLoad(const QString &path = QString());
+    void fileReload();
     void fileOpen(const QString &path = QString());
     void fileSave();
     void fileSave(const QString &path);
@@ -59,7 +60,6 @@ public slots:
     void helpIssues();
     void helpWiki();
     void helpChat();
-    void helpDonate();
 
     void editPreferences();
 

@@ -70,7 +70,7 @@
      <x>0</x>
      <y>0</y>
      <width>636</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -79,6 +79,7 @@
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
+    <addaction name="actionReload"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -102,8 +103,6 @@
     <addaction name="action_Wiki"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
-    <addaction name="separator"/>
-    <addaction name="action_Donate"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -129,6 +128,7 @@
    </attribute>
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
+   <addaction name="actionReload"/>
    <addaction name="actionSave"/>
    <addaction name="actionSaveAs"/>
   </widget>
@@ -272,7 +272,7 @@
     <string>Edit application preferences</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string>F12</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -292,7 +292,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Start/Stop Simulation</string>
+    <string>Start/Stop simulation</string>
    </property>
    <property name="toolTip">
     <string>Run/Pause simulation</string>
@@ -355,14 +355,6 @@
     <string>Reset camera view to initial state</string>
    </property>
   </action>
-  <action name="action_Donate">
-   <property name="text">
-    <string>&amp;Donate</string>
-   </property>
-   <property name="toolTip">
-    <string>Please donate via Paypal!</string>
-   </property>
-  </action>
   <action name="action_Issues">
    <property name="text">
     <string>&amp;Issues</string>
@@ -402,14 +394,14 @@
   </action>
   <action name="actionQuickRender">
    <property name="icon">
-    <iconset theme="camera">
+    <iconset theme="camera-photo">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Quick Render</string>
    </property>
    <property name="toolTip">
-    <string>Render current Frame with POV-Ray</string>
+    <string>Render current frame with POV-Ray</string>
    </property>
    <property name="shortcut">
     <string>F6</string>
@@ -428,6 +420,18 @@
    </property>
    <property name="shortcut">
     <string>F11</string>
+   </property>
+  </action>
+  <action name="actionReload">
+   <property name="icon">
+    <iconset theme="document-revert">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Reload file</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload currently open file from disk</string>
    </property>
   </action>
  </widget>
@@ -687,22 +691,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>action_Donate</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>helpDonate()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>action_Chat</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -734,10 +722,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionReload</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>fileReload()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>fileNew()</slot>
   <slot>fileOpen()</slot>
+  <slot>fileReload()</slot>
   <slot>fileSave()</slot>
   <slot>fileSaveAs()</slot>
   <slot>fileExit()</slot>
@@ -752,7 +757,6 @@
   <slot>helpHomepage()</slot>
   <slot>helpIssues()</slot>
   <slot>helpWiki()</slot>
-  <slot>helpDonate()</slot>
   <slot>helpChat()</slot>
   <slot>toggleFullscreen()</slot>
  </slots>
