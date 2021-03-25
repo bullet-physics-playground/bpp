@@ -44,3 +44,6 @@ debian/bullet-physics-playground/
 debian/files
 
 bpp.pro.user
+*.scad
+
+.qmake.stash
