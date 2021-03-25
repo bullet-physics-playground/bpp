@@ -16,7 +16,7 @@
 // *** GLOBAL ***
 global_settings{
  max_trace_level 6  // for the glass sheets
- assumed_gamma 1.5  // raised a bit for outdoor
+ //assumed_gamma 1.5  // raised a bit for outdoor
  #if (use_radiosity>0)
    radiosity{Rad_Settings(Radiosity_OutdoorLQ, off, off)}
  #end
@@ -57,6 +57,7 @@ light_source{
 // ***********************************************
 
 #include "i_micra_k11.inc"
+#include "i_lego_buggy.inc"
 
 // car parts
 #declare front_axe=
