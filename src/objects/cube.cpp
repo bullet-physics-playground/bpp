@@ -41,8 +41,10 @@ void Cube::init(btScalar width, btScalar height, btScalar depth, btScalar mass) 
     trans.setOrigin(btVector3(0, 0, 0));
     motionState = new btDefaultMotionState(trans);
 
-    btVector3 inertia;
-    shape->calculateLocalInertia(mass,inertia);
+    bool isDynamic = (mass != 0.f);
+    btVector3 inertia(0, 0, 0);
+    if (isDynamic)
+        shape->calculateLocalInertia(mass,inertia);
     btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape, inertia);
 
     body = new btRigidBody(bodyCI);

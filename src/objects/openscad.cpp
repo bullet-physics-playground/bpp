@@ -64,7 +64,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
             args << stlfile;
             args << scad.fileName();
 
-            //qDebug() << "executing openscad " << args;
+            qDebug() << "executing openscad " << args;
 
             QProcess p;
             p.start("nice", args);

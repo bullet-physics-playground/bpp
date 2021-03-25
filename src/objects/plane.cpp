@@ -137,16 +137,30 @@ void Plane::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
     btVector3 pt3 = planeOrigin + vec1*vecLen;
 
     glColor3ubv(color);
-    glBegin(GL_TRIANGLES);
 
+    glBegin(GL_LINES);
+    glVertex3f(pt0.getX(), pt0.getY(), pt0.getZ());
+    glVertex3f(pt1.getX(), pt1.getY(), pt1.getZ());
+    glVertex3f(pt2.getX(), pt2.getY(), pt2.getZ());
+    glVertex3f(pt3.getX(), pt3.getY(), pt3.getZ());
+    glEnd();
+
+    glBegin(GL_TRIANGLES);
     glNormal3fv(planeNormal);
     glVertex3fv(pt0);
     glVertex3fv(pt1);
     glVertex3fv(pt2);
+    glVertex3fv(pt2);
+    glVertex3fv(pt1);
+    glVertex3fv(pt0);
     glVertex3fv(pt0);
     glVertex3fv(pt1);
     glVertex3fv(pt3);
+    glVertex3fv(pt3);
+    glVertex3fv(pt1);
+    glVertex3fv(pt0);
     glEnd();
+
 }
 
 void Plane::render(btVector3& minaabb, btVector3& maxaabb) {

@@ -164,7 +164,7 @@ void Object::luaBind(lua_State *s) {
 
             .property("vel",
                       (btVector3(Object::*)(void))&Object::getLinearVelocity,
-                      (void(Object::*)(btVector3&))&Object::setLinearVelocity)
+                      (void(Object::*)(const btVector3&))&Object::setLinearVelocity)
 
             .property("friction",
                       (btScalar(Object::*)(void))&Object::getFriction,
@@ -231,36 +231,36 @@ void Object::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
     glutSolidSphere(1.0f, 32, 16);
 }
 
-void Object::renderInLocalFramePre(btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
-
+void Object::renderInLocalFramePre(btVector3& oaabbmin, btVector3& oaabbmax) {
     btTransform trans;
 
-    // qDebug() << toString() << (body->getMotionState());
+    if (isfinite(oaabbmin[0]) && isfinite(oaabbmin[1]) && isfinite(oaabbmin[2]) &&
+            isfinite(oaabbmax[3]) && isfinite(oaabbmax[4]) && isfinite(oaabbmax[5])) {
+        // qDebug() << toString() << (body->getMotionState());
 
-    if (body != NULL && body->getMotionState() != NULL
-            //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
-            ) {
-        body->getMotionState()->getWorldTransform(trans);
-        trans.getOpenGLMatrix(matrix);
-        glPushMatrix();
-        glMultMatrixf(matrix);
-    }
+        if (body != NULL && body->getMotionState() != NULL
+                //&& typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
+                ) {
+            body->getMotionState()->getWorldTransform(trans);
+            trans.getOpenGLMatrix(matrix);
+            glPushMatrix();
+            glMultMatrixf(matrix);
+        }
 
-    glEnable(GL_NORMALIZE);
+        glEnable(GL_NORMALIZE);
 
-    if (_cb_render) {
-        luabind::call_function<void>(_cb_render, this);
+        if (_cb_render) {
+            luabind::call_function<void>(_cb_render, this);
+        }
     }
 }
 
-void Object::renderInLocalFramePost(btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
-
-    if (body)
-        glPopMatrix();
+void Object::renderInLocalFramePost(btVector3& oaabbmin, btVector3& oaabbmax) {
+    if (isfinite(oaabbmin[0]) && isfinite(oaabbmin[1]) && isfinite(oaabbmin[2]) &&
+            isfinite(oaabbmax[3]) && isfinite(oaabbmax[4]) && isfinite(oaabbmax[5])) {
+        if (body)
+            glPopMatrix();
+    }
 }
 
 void Object::setPostSDL(QString post_sdl) {
@@ -382,23 +382,17 @@ void Object::setPosition(const btVector3& v) {
 }
 
 void Object::setPosition(btScalar x, btScalar y, btScalar z) {
-    if (body != NULL) {
-        btTransform trans;
-        body->getMotionState()->getWorldTransform(trans);
-        trans.setOrigin(btVector3(x, y, z));
-        delete body->getMotionState();
-        body->setMotionState(new btDefaultMotionState(trans));
-    }
+    btTransform trans;
+    body->getMotionState()->getWorldTransform(trans);
+    trans.setOrigin(btVector3(x, y, z));
+    delete body->getMotionState();
+    body->setMotionState(new btDefaultMotionState(trans));
 }
 
 btVector3 Object::getPosition() const {
-    if (body != NULL) {
-        btTransform trans;
-        body->getMotionState()->getWorldTransform(trans);
-        return trans.getOrigin();
-    } else {
-        return btVector3();
-    }
+    btTransform trans;
+    body->getMotionState()->getWorldTransform(trans);
+    return trans.getOrigin();
 }
 
 void Object::setRotation(const btVector3& axis, btScalar angle) {

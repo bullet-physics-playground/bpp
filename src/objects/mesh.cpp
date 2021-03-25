@@ -46,22 +46,6 @@ public:
         (void)triangleIndex;
         (void)partId;
 
-
-        if (m_wireframe)
-        {
-            glBegin(GL_LINES);
-            glColor3f(1, 0, 0);
-            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-            glColor3f(0, 1, 0);
-            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-            glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
-            glColor3f(0, 0, 1);
-            glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-            glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
-            glEnd();
-        } else
-        {
             glBegin(GL_TRIANGLES);
             glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
             glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
@@ -70,7 +54,6 @@ public:
             glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
             glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
             glEnd();
-        }
     }
 };
 
@@ -103,8 +86,9 @@ public:
 Mesh::Mesh(QString filename, btScalar mass) : Object() {
     m_mesh = new btTriangleMesh();
     m_shape = new btGImpactMeshShape(m_mesh);
+    m_scene = NULL;
 
-    setColor(0.75, 0.75, 0.75);
+    setColor(127, 127, 127);
 
     if (filename != NULL)
         loadFile(filename, mass);
@@ -113,8 +97,9 @@ Mesh::Mesh(QString filename, btScalar mass) : Object() {
 Mesh::Mesh(QString filename) : Object() {
     m_mesh = new btTriangleMesh();
     m_shape = new btGImpactMeshShape(m_mesh);
+    m_scene = NULL;
 
-    setColor(0.75, 0.75, 0.75);
+    setColor(127, 127, 127);
 
     if (filename != NULL)
         loadFile(filename, 0);
@@ -123,18 +108,20 @@ Mesh::Mesh(QString filename) : Object() {
 Mesh::Mesh() : Object() {
     m_mesh = new btTriangleMesh();
     m_shape = new btGImpactMeshShape(m_mesh);
+    m_scene = NULL;
 
-    setColor(0.75, 0.75, 0.75);
+    setColor(127, 127, 127);
     setMass(0);
 }
 
 Mesh::~Mesh() {
+    aiReleaseImport(m_scene);
 }
 
 void Mesh::loadFile(QString filename, btScalar mass) {
-    const aiScene *scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
+    m_scene = aiImportFile(filename.toUtf8(), aiProcessPreset_TargetRealtime_Fast);
 
-    if (!scene) {
+    if (!m_scene) {
         // qDebug() << "Unable to load " << filename << ": using empty shape.";
         btQuaternion qtn;
         btTransform trans;
@@ -150,9 +137,9 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         m_shape->calculateLocalInertia(mass,inertia);
         body = new btRigidBody(mass, motionState, m_shape, inertia);
     } else {
-        assert(scene->mNumMeshes > 0);
+        assert(m_scene->mNumMeshes > 0);
 
-        const struct aiMesh* mesh = scene->mMeshes[0];
+        const struct aiMesh* mesh = m_scene->mMeshes[0];
 
         for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
             const struct aiFace* face = &mesh->mFaces[t];
@@ -202,8 +189,6 @@ void Mesh::loadFile(QString filename, btScalar mass) {
         btVector3 inertia;
         m_shape->calculateLocalInertia(mass,inertia);
         body = new btRigidBody(mass, motionState, m_shape, inertia);
-
-        aiReleaseImport(scene);
     }
 }
 
@@ -263,8 +248,27 @@ void Mesh::toMesh2(QTextStream *s) const {
                    << ","
                    << pov.v3.at(i).z()
                    << ">";
+                if (i != pov.idx.length() - 1) *s << ", \n";
             }
             *s << " }" << endl;
+
+            /*
+            *s << "  normal_vectors {\n";
+            *s << "    " << pov.idx.length() << ", ";
+            for (int i = 0; i < pov.idx.length(); i++) {
+                btVector3 normal = (pov.v3.at(i) - pov.v1.at(i)).cross(pov.v2.at(i) - pov.v1.at(i));
+                normal.normalize();
+              *s << "<"
+                 << normal.getX()
+                 << ","
+                 << normal.getY()
+                 << ","
+                 << normal.getZ()
+                 << ">";
+                if (i != pov.idx.length() - 1) *s << ", \n";
+            }
+            *s << " }" << endl;
+            */
 
             *s << "  face_indices {"  << endl;
             *s << "    " << pov.idx.length() << ", ";
@@ -276,9 +280,11 @@ void Mesh::toMesh2(QTextStream *s) const {
                    << ","
                    << i*3+2
                    << ">";
+                if (i != pov.idx.length() - 1) *s << ", \n";
             }
             *s << " }"
                << endl;
+
             *s << "}" << endl;
         } else {
             *s << "union {}" << endl; // empty object in case of empty mesh
@@ -375,16 +381,57 @@ void Mesh::toPOV(QTextStream *s) const {
 }
 
 void Mesh::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
+    (void)minaabb;
+    (void)maxaabb;
+
+    GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat mat_ambient[] = { (GLfloat)(color[0] / 255.0), (GLfloat)(color[1] / 255.0), (GLfloat)(color[2] / 255.0), 1.0 };
+    GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
+    GLfloat mat_specular[] = { 0.0, 0.0, 0.0, 1.0 };
+    // GLfloat no_shininess[] = { 0.0 };
+    // GLfloat low_shininess[] = { 5.0 };
+    GLfloat high_shininess[] = { 100.0 };
+    // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
     glColor3ubv(color);
 
-    if (m_shape != NULL && body != NULL && body->getMotionState() != NULL
-            // && typeid(body->getMotionState()) == typeid(btDefaultMotionState) //XXX
-            ) {
-        GlDrawcallback drawCallback;
-        drawCallback.m_wireframe = true; // XXX
+    if (m_scene != NULL && m_scene->mMeshes != NULL) {
+      const struct aiMesh* mesh = m_scene->mMeshes[0];
 
-        btConcaveShape* concaveMesh = (btConcaveShape*) m_shape;
-        concaveMesh->processAllTriangles(&drawCallback, minaabb, maxaabb);
+      unsigned int i,t;
+
+      for (t = 0; t < mesh->mNumFaces; ++t) {
+        const struct aiFace* face = &mesh->mFaces[t];
+        if (face != NULL) {
+            GLenum face_mode;
+
+            switch(face->mNumIndices) {
+              case 1:  face_mode = GL_POINTS; break;
+              case 2:  face_mode = GL_LINES; break;
+              case 3:  face_mode = GL_TRIANGLES; break;
+              default: face_mode = GL_POLYGON; break;
+            }
+
+            glBegin(face_mode);
+
+            for (i = 0; i < face->mNumIndices; i++) {
+              int index = face->mIndices[i];
+
+              if (mesh->mColors[0] != NULL)
+                glColor4fv((GLfloat*)&mesh->mColors[0][index]);
+
+              if (mesh->mNormals != NULL)
+                glNormal3fv(&mesh->mNormals[index].x);
+              glVertex3fv(&mesh->mVertices[index].x);
+            }
+            glEnd();
+        }
+      }
     }
 }
 
