@@ -79,12 +79,14 @@ link_pkgconfig {
       PKGCONFIG += lua5.2
       PKGCONFIG += luabind
       PKGCONFIG += bullet
+      PKGCONFIG += sdl2
       LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
     }
     contains(LSB_RELEASE_REL, 16.04) : {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
+      PKGCONFIG += sdl2
       LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }
@@ -92,6 +94,7 @@ link_pkgconfig {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
+      PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }
@@ -99,12 +102,13 @@ link_pkgconfig {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
+      PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }
   }
   contains(LSB_RELEASE_ID, Debian): {
-    PKGCONFIG += bullet lua5.2 luabind
+    PKGCONFIG += bullet lua5.2 luabind sdl2
     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
   }
 
@@ -226,8 +230,7 @@ contains(DEFINES, HAS_LUA_GL) {
              luaglu.c \
              luagl_const.c
 
-  HEADERS *= lib/luagl/include/luagl.h \
-             lib/luagl/include/luaglu.h
+  HEADERS *=
 
   HEADERS += lua_qglviewer.h
   SOURCES += lua_qglviewer.cpp
@@ -256,7 +259,10 @@ SOURCES += src/main.cpp \
            src/high.cpp \
            src/prefs.cpp \
            src/objects/openscad.cpp \
-           src/GL_ShapeDrawer.cpp
+    src/joystick/joystickhandler.cpp \
+    src/joystick/joystickinfo.cpp \
+    src/joystick/joystickinterface.cpp \
+    src/joystick/joystickinterfacesdl.cpp
 
 HEADERS += src/viewer.h \
            src/objects/object.h \
@@ -276,7 +282,12 @@ HEADERS += src/viewer.h \
            src/high.h \
            src/prefs.h \
            src/objects/openscad.h \
-           src/GL_ShapeDrawer.h
+    src/joystick/joystickballvector.h \
+    src/joystick/joystickconstants.h \
+    src/joystick/joystickhandler.h \
+    src/joystick/joystickinfo.h \
+    src/joystick/joystickinterface.h \
+    src/joystick/joystickinterfacesdl.h
 
 FORMS   += src/gui.ui \
            src/prefs.ui
