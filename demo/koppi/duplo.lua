@@ -26,10 +26,10 @@ object {
 
 p = Plane(0,1,0,0,1000)
 p.pos = btVector3(0,-134.5,0)
-p.col = "#ffffff"
+p.col = "#00ff00"
 p.sdl = [[
   pigment { HuntersGreen }
-  normal  { quilted scale 0.5 }
+  normal  { quilted scale 2.5 }
 ]]
 v:add(p)
 
@@ -41,7 +41,7 @@ function d(p, rx, ry, rz, px, py, pz, col, mass)
 end
 
 m = 0
-red    = "#ff3300"
+red    = "#ff0000"
 yellow = "#ff0"
 blue   = "#006"
 green  = "#3c0"
@@ -105,7 +105,7 @@ end
 
 run()run()run()
 
-v:onCommand(function(cmd)
+v:onCommand(function(N, cmd)
   print(cmd)
   local f = assert(loadstring(cmd))
   f(v)

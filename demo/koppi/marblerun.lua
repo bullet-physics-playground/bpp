@@ -103,7 +103,7 @@ module wheel(rad) {
 }
 wheel(]]..tostring(rad)..[[);]], 20);
   w.pos = btVector3(px, py, pz)
-  w.col = color.gray
+  w.col = "#fff"
   w.sdl = [[
   texture {
     pigment {
@@ -160,7 +160,7 @@ module box(c, width, height, depth) {
 }
 box(]]..tostring(c)..[[,]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tostring(depth)..[[);]], 0);
   t.pos = btVector3(px, py, pz)
-  t.col = color.gray
+  t.col = "#fff"
   return t
 end
 
@@ -245,7 +245,7 @@ rotate([-90,0,0])
 ]==],0)
 thing.pos = btVector3(mwx+1,mwy+7,mwz+6.5)
 thing.friction = 1
-thing.col = color.gray
+thing.col = "#fff"
 thing.sdl = [[
   pigment { color ReferenceRGB(White) * contrast }
   finish {

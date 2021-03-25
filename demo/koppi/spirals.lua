@@ -130,7 +130,7 @@ v:preSim(function(N)
 
 end)
 
-v:onCommand(function(cmd)
+v:onCommand(function(N, cmd)
   print(cmd)
   local f = assert(loadstring(cmd))
   f(v)

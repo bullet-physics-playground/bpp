@@ -29,8 +29,8 @@ v.pre_sdl =  [[
 ]]
 
 p = Plane(0,1,0,0,1250)
-p.col = "#000"
-p.sdl = [[ pigment { color Black } ]]
+p.col = "#0f0"
+p.sdl = [[ pigment { color Green } ]]
 p.friction = 10
 v:add(p)
 

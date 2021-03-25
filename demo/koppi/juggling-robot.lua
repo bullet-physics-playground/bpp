@@ -10,7 +10,7 @@ v.fixedTimeStep = 1/200
 
 y = 2.5 di = 5 d = 0.35 l = 2.35 p = 120
 
-plane = Plane(0,1,0,0,1)
+plane = Plane(0,1,0,0,10)
 plane.col = "green"
 plane.pos = btVector3(0,-2.5,0)
 v:add(plane)

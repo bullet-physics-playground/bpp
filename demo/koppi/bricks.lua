@@ -133,11 +133,18 @@ function run()
   s.pos = btVector3(-80,3,30)
   s.vel = btVector3(30,20,2)
   s.col = "#888"
+  s.sdl = [[
+  texture { Polished_Chrome }
+  ]]
   v:add(s)
   s = Sphere(2,2)
   s.pos = btVector3(-55,20,25)
   s.vel = btVector3(40,2,0)
   s.col = "#888"
+  s.sdl = [[
+  texture { Polished_Chrome }
+  ]]
+
   v:add(s)
 end
 
@@ -145,7 +152,7 @@ run()
 
 v.cam:setHorizontalFieldOfView(0.15)
 
-v:onCommand(function(cmd)
+v:onCommand(function(N, cmd)
   print(cmd)
   local f = assert(loadstring(cmd))
   f(v)
