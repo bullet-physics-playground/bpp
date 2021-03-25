@@ -115,7 +115,7 @@ for i = 0,x do
   p = d*2-od
 
 if (i > x/2) then
-  s = Mesh("demo/stl/torus.stl",1)
+  s = Mesh("demo/mesh/torus.stl",1)
   s.col = color.random_pastel()
   s.vel = btVector3(math.random()*vel-vel/2,
                     math.random()*vel-vel/2,
