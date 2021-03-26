@@ -44,54 +44,51 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
 
     // else: the STL file needs to be generated with openscad:
     //// echo "cube([2,3,4]);" > /tmp/bpp.scad && openscad -o /tmp/bpp.stl /tmp/bpp.scad
-    //QTemporaryFile tmp(QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/bpp");
-    QTemporaryFile tmp("bpp");
-    if (tmp.open()) {
-        QFile scad(tmp.fileName() + ".scad");
-        if (scad.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            // qDebug() << scad.fileName();
-            QTextStream out(&scad);
-            out << sdl;
-            scad.close();
+    QString scadFile = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QDir::separator() + hash + ".scad";
+    QFile scad(scadFile);
+    if (scad.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        // qDebug() << "scad.fileName() = " << scad.fileName();
+        QTextStream out(&scad);
+        out << sdl;
+        scad.close();
 
-            QStringList args;
+        QStringList args;
 
-            QSettings s;
-            QString openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
+        QSettings s;
+        QString openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
 
-            args << openscad;
-            args << "-o";
-            args << stlfile;
-            args << scad.fileName();
+        args << openscad;
+        args << "-o";
+        args << stlfile;
+        args << scad.fileName();
 
-            qDebug() << "executing openscad " << args;
+        // qDebug() << "executing openscad " << args;
 
-            QProcess p;
-            p.start("nice", args);
-            if (!p.waitForStarted()) {
-                qDebug() << "openscad !p.waitForStarted()";
-                return;
-            }
-
-            if (!p.waitForFinished(-1)) { // wait forever
-                qDebug() << "openscad !p.waitForFinished()";
-                return;
-            }
-
-            if (p.exitCode() != 0) {
-                qDebug() << tr("openscad exited with code: %1.").arg(p.exitCode());
-                QString err = p.readAllStandardError();
-                if (!err.isEmpty()) {
-                    qDebug() << err;
-                }
-                return;
-            }
-
-            loadFile(stlfile, mass);
-        } else {
-            qDebug() << tr("Error writing to file '%1'.").arg(scad.fileName());
+        QProcess p;
+        p.start("nice", args);
+        if (!p.waitForStarted()) {
+            qDebug() << "openscad !p.waitForStarted()";
             return;
         }
+
+        if (!p.waitForFinished(-1)) { // wait forever
+            qDebug() << "openscad !p.waitForFinished()";
+            return;
+        }
+
+        if (p.exitCode() != 0) {
+            qDebug() << tr("openscad exited with code: %1.").arg(p.exitCode());
+            QString err = p.readAllStandardError();
+            if (!err.isEmpty()) {
+                qDebug() << err;
+            }
+            return;
+        }
+
+        loadFile(stlfile, mass);
+    } else {
+        qDebug() << tr("Error writing to file '%1'.").arg(scad.fileName());
+        return;
     }
 }
 
