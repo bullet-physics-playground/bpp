@@ -1,20 +1,47 @@
 module("text", package.seeall)
 
-function txt(t, x, y, z)
+function new(params)
+    params    = params or {}
+   options   = {
+      str    = "ABC",
+      font   = "Arial",
+      height = 0.5,
+      size   = 0.5,
+      mass   = 0,
+      col    = "#ffffff",
+      x      = 0,
+      y      = 0,
+      z      = 0,
+      post_sdl = [[
+        no_shadow
+        no_reflection
+        no_radiosity
+      }]]
+   }
+
+   for k,v in pairs(params) do options[k] = v end
+
+   str  = options.str
+   font = options.font
+   height = options.height
+   size = options.size
+   mass = options.mass
+   col  = options.col
+   x    = options.x
+   y    = options.y
+   z    = options.z
+   post_sdl = options.post_sdl
+
   t = OpenSCAD([[
-  text = "]]..t..[[";
-  font = "Arial";
-  linear_extrude(height = 0.5) {
+  text = "]]..str..[[";
+  font = "]]..font..[[";
+  linear_extrude(height = ]]..height..[[) {
     text(
       text = text, font = font,
-      size = 0.5, halign = "center");
+      size = ]]..size..[[, halign = "center");
   }]],0)
   t.pos = btVector3(x,y,z)
-  t.col = "#ffffff"
-  t.post_sdl = [[
-    no_shadow
-    no_reflection
-    no_radiosity
-  }]]
+  t.col = col
+  t.post_sdl = post_sdl
   return t
 end

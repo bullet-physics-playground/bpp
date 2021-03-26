@@ -23,8 +23,11 @@ p.friction = 100
 p.sdl = [[ texture { pigment { color White } }]]
 v:add(p)
 
-txt = text.txt("Bullet Physics Playground", 0,7.5,-1)
-text.txt("Version 0.0.5", 0,6.6,-1)
+v:add(text.new({ str = "Bullet Physics Playground",
+  size = 1, height = .1, y = 8, z = -2}))
+txt = text.new({ str = "version 0.0.5",
+  size = 1, height = .1, y = 6, z = -2})
+v:add(txt)
 
 function run()
   d = dice.new({ mass = 10, col = "#f00" })
@@ -41,8 +44,8 @@ v:postSim(function(N)
   end
 
   c = 2.5
-  i = math.sin(N/100)*c
-  j = math.cos(N/100)*c
+  i = math.sin(N/100)*c/2
+  j = math.cos(N/100)*c/2
 --  v.gravity = btVector3(0,-c,0)
   v.gravity = btVector3(i,-c,j)
 
@@ -61,7 +64,7 @@ v.cam:setFieldOfView(0.025)
 
 v.cam:setUpVector(btVector3(0,1,0), false)
 --v.cam.pos  = btVector3(1,4,900)
-v.cam.pos  = btVector3(0, 6, 550)
+v.cam.pos  = btVector3(0, 4, 550)
 v.cam.look = btVector3(0,4,0)
 
 --v.cam.focal_blur      = 10

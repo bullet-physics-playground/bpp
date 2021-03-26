@@ -14,7 +14,7 @@ function new(params)
    mass = options.mass
    col  = options.col
 
-   s = Cube(1,1,1, mass)
+   s = Cube(1.04,1.04,1.04, mass)
 
    s.col = col
    r,g,b = color.col2rgb(col)
