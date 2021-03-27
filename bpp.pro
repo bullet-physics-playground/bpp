@@ -110,6 +110,7 @@ link_pkgconfig {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
+      PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
       DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     }  }
