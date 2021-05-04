@@ -53,8 +53,6 @@ void Cube::init(btScalar width, btScalar height, btScalar depth, btScalar mass) 
 void Cube::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<Cube,Object>("Cube")
@@ -82,35 +80,35 @@ void Cube::toPOV(QTextStream *s) const {
         if (mPreSDL == NULL) {
             *s << "box { <"
                << -lengths[0]/2.0 << ", "<< -lengths[1]/2.0 << ", " << -lengths[2]/2.0 << ">, <"
-               <<  lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " <<  lengths[2]/2.0 << ">" << endl;
+               <<  lengths[0]/2.0 << ", " << lengths[1]/2.0 << ", " <<  lengths[2]/2.0 << ">" << Qt::endl;
         } else {
             *s << mPreSDL
-               << endl;
+               << Qt::endl;
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << endl;
+               << Qt::endl;
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << endl;
+               << Qt::endl;
         }
 
-        *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << endl
-           << "          " << matrix[4] << ","  << matrix[5] << ","  << matrix[6] << ","  << endl
-           << "          " << matrix[8] << ","  << matrix[9] << ","  << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+        *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << Qt::endl
+           << "          " << matrix[4] << ","  << matrix[5] << ","  << matrix[6] << ","  << Qt::endl
+           << "          " << matrix[8] << ","  << matrix[9] << ","  << matrix[10] << "," << Qt::endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << Qt::endl;
 
         if (mPostSDL == NULL) {
             *s << "}"
-               << endl
-               << endl;
+               << Qt::endl
+               << Qt::endl;
         } else {
             *s << mPostSDL
-               << endl;
+               << Qt::endl;
         }
     }
 }

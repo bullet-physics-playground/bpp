@@ -195,8 +195,6 @@ void Mesh::loadFile(QString filename, btScalar mass) {
 void Mesh::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<Mesh, Object>("Mesh")
@@ -223,8 +221,8 @@ void Mesh::toMesh2(QTextStream *s) const {
         concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
         if (pov.idx.length() > 0) {
-            *s << "mesh2 {" << endl;
-            *s << "  vertex_vectors {" << endl;
+            *s << "mesh2 {" << Qt::endl;
+            *s << "  vertex_vectors {" << Qt::endl;
             *s << "    " << pov.idx.length()*3 << ", ";
             for (int i = 0; i < pov.idx.length(); ++i) {
                 *s << "<"
@@ -250,7 +248,7 @@ void Mesh::toMesh2(QTextStream *s) const {
                    << ">";
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
-            *s << " }" << endl;
+            *s << " }" << Qt::endl;
 
             /*
             *s << "  normal_vectors {\n";
@@ -267,10 +265,10 @@ void Mesh::toMesh2(QTextStream *s) const {
                  << ">";
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
-            *s << " }" << endl;
+            *s << " }" << Qt::endl;
             */
 
-            *s << "  face_indices {"  << endl;
+            *s << "  face_indices {"  << Qt::endl;
             *s << "    " << pov.idx.length() << ", ";
             for (int i = 0; i < pov.idx.length(); ++i) {
                 *s << "<"
@@ -283,11 +281,11 @@ void Mesh::toMesh2(QTextStream *s) const {
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
             *s << " }"
-               << endl;
+               << Qt::endl;
 
-            *s << "}" << endl;
+            *s << "}" << Qt::endl;
         } else {
-            *s << "union {}" << endl; // empty object in case of empty mesh
+            *s << "union {}" << Qt::endl; // empty object in case of empty mesh
         }
     }
 }
@@ -343,39 +341,39 @@ void Mesh::toPOV(QTextStream *s) const {
                 // qDebug() << "mesh already exists " << incfile;
             }
 
-            *s << "#include \"" + check_file.fileName() + "\"" << endl << endl;
+            *s << "#include \"" + check_file.fileName() + "\"" << Qt::endl << Qt::endl;
 
-            *s << "object { mesh_" + hash << endl;
+            *s << "object { mesh_" + hash << Qt::endl;
 
         } else {
             *s << mPreSDL
-               << endl;
+               << Qt::endl;
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << endl;
+               << Qt::endl;
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << endl;
+               << Qt::endl;
         }
 
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << Qt::endl
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << Qt::endl
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << Qt::endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << Qt::endl;
 
         if (mPostSDL == NULL) {
             *s << "}"
-               << endl
-               << endl;
+               << Qt::endl
+               << Qt::endl;
         } else {
             *s << mPostSDL
-               << endl
-               << endl;
+               << Qt::endl
+               << Qt::endl;
         }
     }
 }

@@ -95,8 +95,6 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
 void OpenSCAD::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<OpenSCAD,Mesh>("OpenSCAD")

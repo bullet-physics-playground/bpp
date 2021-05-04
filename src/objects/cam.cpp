@@ -36,8 +36,6 @@ QString Cam::toString() const {
 void Cam::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<Camera, boost::shared_ptr<Camera> >("Camera")

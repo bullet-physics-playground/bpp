@@ -241,7 +241,6 @@ LQextSerialPort lqextserialport()
 }
 
 void QSerialPort::luaBind(lua_State *L) {
-    luabind::open(L);
     luabind::module(L)
             [
             lqextserialport(),

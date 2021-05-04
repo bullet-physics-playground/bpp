@@ -52,8 +52,6 @@ btScalar Sphere::getRadius() const {
 void Sphere::luaBind(lua_State *s) {
   using namespace luabind;
 
-  open(s);
-
   module(s)
     [
      class_<Sphere,Object>("Sphere")

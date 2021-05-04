@@ -67,7 +67,7 @@ Palette::Palette(QString fileName) : QObject() {
         f.close();
     } else {
         qDebug() << "Cannot open file for reading: "
-                 << qPrintable(f.errorString()) << endl;
+                 << qPrintable(f.errorString()) << Qt::endl;
         return;
     }
 }
@@ -96,8 +96,6 @@ Palette::~Palette()
 
 void Palette::luaBind(lua_State *s) {
     using namespace luabind;
-
-    open(s);
 
     module(s)
             [

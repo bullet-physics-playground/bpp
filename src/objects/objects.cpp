@@ -23,8 +23,6 @@ Objects::Objects() {
 void Objects::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<Objects, Object>("Objects")

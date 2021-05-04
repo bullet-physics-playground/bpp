@@ -83,8 +83,6 @@ void LuaBullet::luaBind(lua_State *s)
 {
     using namespace luabind;
 
-    open(s);
-
     module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionShape.html
             [
             class_<btCollisionShape>("btCollisionShape")

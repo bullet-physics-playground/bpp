@@ -257,7 +257,6 @@ void register_classes(lua_State* L)
 #endif
 
     __pL = L;
-    luabind::open(L);
     bind_class_info(L);
     luabind::module(L)
     [

@@ -53,8 +53,6 @@ btScalar Sphere::getRadius() const {
 void Sphere::luaBind(lua_State *s) {
     using namespace luabind;
 
-    open(s);
-
     module(s)
             [
             class_<Sphere,Object>("Sphere")
@@ -80,31 +78,31 @@ void Sphere::toPOV(QTextStream *s) const {
 
     if (s != NULL) {
         if (mPreSDL == NULL) {
-            *s << "sphere { <.0,.0,.0>, " << radius << endl;
+            *s << "sphere { <.0,.0,.0>, " << radius << Qt::endl;
         } else {
-            *s << mPreSDL << endl;
+            *s << mPreSDL << Qt::endl;
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << endl;
+               << Qt::endl;
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << endl;
+               << Qt::endl;
         }
 
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << Qt::endl
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << Qt::endl
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << Qt::endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << Qt::endl;
 
         if (mPostSDL == NULL) {
-            *s << "}" << endl << endl;
+            *s << "}" << Qt::endl << Qt::endl;
         } else {
-            *s << mPostSDL << endl;
+            *s << mPostSDL << Qt::endl;
         }
     }
 }
