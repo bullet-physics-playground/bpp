@@ -7,10 +7,11 @@
 
 #include <QCommandLineParser>
 #include <QCommandLineOption>
-#include <GL/freeglut.h>
 
 #include "gui.h"
 #include "viewer.h"
+
+#include <GL/freeglut.h>
 
 QTextStream& qStdOut() { static QTextStream ts( stdout ); return ts; }
 QTextStream& qStdErr() { static QTextStream ts( stderr ); return ts; }
@@ -100,7 +101,7 @@ int main(int argc, char **argv) {
         QStringList luaExpression = parser.values(luaExpressionOption);
 
         if (lua.isEmpty() && luaExpression.isEmpty() && !parser.isSet(luaStdinOption)) {
-            qStdErr() << QObject::tr("Error: Option '--lua' requires a Lua script file as an argument. Exiting.") << endl;
+            qStdErr() << QObject::tr("Error: Option '--lua' requires a Lua script file as an argument. Exiting.") << Qt::endl;
             return EXIT_FAILURE;
         }
 
@@ -110,7 +111,7 @@ int main(int argc, char **argv) {
             QFile file(lua[0]);
             if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 QString errMsg = file.errorString();
-                qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << endl;
+                qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << Qt::endl;
                 return EXIT_FAILURE;
             }
 
@@ -130,28 +131,28 @@ int main(int argc, char **argv) {
 
         int n = parser.value(nOption).toInt();
         if (n < 0) {
-            qStdErr() << QObject::tr("Error: -n must be >= 0. Exiting.") << endl;
+            qStdErr() << QObject::tr("Error: -n must be >= 0. Exiting.") << Qt::endl;
             return EXIT_FAILURE;
         }
 
         Viewer *v = new Viewer(NULL, settings);
 
         QObject::connect(v, &Viewer::scriptHasOutput, [=](QString o) {
-            qStdOut() << o << endl;
+            qStdOut() << o << Qt::endl;
         });
         QObject::connect(v, &Viewer::statusEvent, [=](QString e) {
-            qStdErr() << e << endl;
+            qStdErr() << e << Qt::endl;
         });
 
         if (parser.isSet("verbose"))  {
             QObject::connect(v, &Viewer::scriptStarts, [=]() {
-                qStdErr() << "scriptStarts()" << endl;
+                qStdErr() << "scriptStarts()" << Qt::endl;
             });
             QObject::connect(v, &Viewer::scriptStopped, [=]() {
-                qStdErr() << "scriptStoppend()" << endl;
+                qStdErr() << "scriptStoppend()" << Qt::endl;
             });
             QObject::connect(v, &Viewer::scriptFinished, [=]() {
-                qStdErr() << "scriptFinished()" << endl;
+                qStdErr() << "scriptFinished()" << Qt::endl;
             });
         }
 
