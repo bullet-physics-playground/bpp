@@ -285,13 +285,13 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
             if (isfinite(o->getPosition().x()) &&
                     isfinite(o->getPosition().y()) &&
                     isfinite(o->getPosition().z())) {
-              oaabbmin -= o->getPosition();
-              oaabbmax += o->getPosition();
+                oaabbmin -= o->getPosition();
+                oaabbmax += o->getPosition();
             }
 
             for (int i = 0; i < 3; ++i) {
-              aabb[  i] = qMin(aabb[  i], oaabbmin[i]);
-              aabb[3+i] = qMax(aabb[3+i], oaabbmax[i]);
+                aabb[  i] = qMin(aabb[  i], oaabbmin[i]);
+                aabb[3+i] = qMax(aabb[3+i], oaabbmax[i]);
             }
         }
     }
@@ -338,7 +338,12 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     // qDebug() << "KeySequence:" << seq;
 
     if (_cb_shortcuts->contains(seq)) {
-        luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
+        try {
+            luabind::call_function<void>(_cb_shortcuts->value(seq), _frameNum);
+        } catch (const std::exception& e) {
+            showLuaException(e, "onShortcut()");
+        }
+
 
         return; // skip built in command if overridden by shortcut
     }
@@ -476,7 +481,11 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer(p
 void Viewer::onJoystickData(const JoystickInfo &ji) {
     QMutexLocker locker(&mutex);
     if (_cb_onJoystick) {
-        luabind::call_function<void>(_cb_onJoystick, _frameNum, ji);
+        try {
+            luabind::call_function<void>(_cb_onJoystick, _frameNum, ji);
+        } catch (const std::exception& e) {
+            showLuaException(e, "onJoystick()");
+        }
     }
 }
 
@@ -589,7 +598,12 @@ bool Viewer::parse(QString txt) {
     emit scriptStopped();
 
     if(_cb_preStop) {
-        luabind::call_function<void>(_cb_preStop, _frameNum);
+        try {
+            luabind::call_function<void>(_cb_preStop, _frameNum);
+        } catch (const std::exception& e) {
+            showLuaException(e, "preStop()");
+        }
+
     }
 
     _parsing = true;
@@ -634,7 +648,12 @@ bool Viewer::parse(QString txt) {
         int exists_exit_function = !lua_isnil(L, -1);
         lua_pop(L, 1);
         if (exists_exit_function) {
-            luabind::call_function<int>(L, "exit_function");
+            try {
+                luabind::call_function<int>(L, "exit_function");
+            } catch (const std::exception& e) {
+                showLuaException(e, "exit_function()");
+            }
+
         }
 
         lua_close(L);
@@ -1143,8 +1162,8 @@ void Viewer::drawSceneInternal(int pass) {
     btVector3 minaabb(0,0,0),maxaabb(0,0,0);
     dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb,maxaabb);
 
-//    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-//    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+    //    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+    //    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 
     foreach (Object *o, *_objects) {
         o->render(minaabb, maxaabb);
@@ -1310,7 +1329,12 @@ void Viewer::postDraw() {
             QGLViewer::postDraw();
 
     if(_cb_postDraw) {
-        luabind::call_function<void>(_cb_postDraw, _frameNum);
+        try {
+            luabind::call_function<void>(_cb_postDraw, _frameNum);
+        } catch (const std::exception& e) {
+            showLuaException(e, "postDraw()");
+        }
+
     }
 
     // Red dot when EventRecorder is active
@@ -1383,7 +1407,12 @@ void Viewer::postDraw() {
 
 void Viewer::startAnimation() {
     if (_cb_preStart) {
-        luabind::call_function<void>(_cb_preStart, _frameNum);
+        try {
+            luabind::call_function<void>(_cb_preStart, _frameNum);
+        } catch (const std::exception& e) {
+            showLuaException(e, "preStart()");
+        }
+
     }
 
     _time.start();
@@ -1392,7 +1421,11 @@ void Viewer::startAnimation() {
 
 void Viewer::stopAnimation() {
     if (_cb_preStop) {
-        luabind::call_function<void>(_cb_preStop, _frameNum);
+        try {
+            luabind::call_function<void>(_cb_preStop, _frameNum);
+        } catch (const std::exception& e) {
+            showLuaException(e, "preStop()");
+        }
     }
 
     QGLViewer::stopAnimation();
@@ -1417,7 +1450,11 @@ void Viewer::animate() {
     if (_simulate) {
 
         if(_cb_preSim) {
-            luabind::call_function<void>(_cb_preSim, _frameNum);
+            try {
+                luabind::call_function<void>(_cb_preSim, _frameNum);
+            } catch (const std::exception& e) {
+                showLuaException(e, "preSim()");
+            }
         }
 
 
@@ -1436,7 +1473,11 @@ void Viewer::animate() {
         dynamicsWorld->stepSimulation(_timeStep, _maxSubSteps, _fixedTimeStep);
 
         if(_cb_postSim) {
-            luabind::call_function<void>(_cb_postSim, _frameNum);
+            try {
+                luabind::call_function<void>(_cb_postSim, _frameNum);
+            } catch (const std::exception& e) {
+                showLuaException(e, "postSim()");
+            }
         }
 
         if (_frameNum > 10)
@@ -1457,7 +1498,11 @@ void Viewer::command(QString cmd) {
     // emitScriptOutput("Viewer::command() begin");
 
     if(_cb_onCommand) {
-        luabind::call_function<void>(_cb_onCommand, _frameNum, cmd);
+        try {
+            luabind::call_function<void>(_cb_onCommand, _frameNum, cmd);
+        } catch (const std::exception& e) {
+            showLuaException(e, "onCommand()");
+        }
     }
 
     // emitScriptOutput("Viewer::command() end");
