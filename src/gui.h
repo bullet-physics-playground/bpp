@@ -12,8 +12,6 @@
 
 class Gui;
 
-std::ostream& operator<<(std::ostream&, const Gui& v);
-
 class Gui : public QMainWindow {
     Q_OBJECT
 
