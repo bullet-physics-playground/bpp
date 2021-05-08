@@ -4,14 +4,6 @@
 
 #include "gui.h"
 
-std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
-    ostream << gui.toString().toUtf8().data();
-    return ostream;
-}
-
-#include <luabind/operator.hpp>
-#include <luabind/adopt_policy.hpp>
-
 Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     _fileSaved=true;
@@ -583,20 +575,6 @@ void Gui::command(QString cmd) {
 
 void Gui::log(QString text) {
     debugText->appendLine(text);
-}
-
-QString Gui::toString() const {
-    return QString("Gui");
-}
-
-void Gui::luaBind(lua_State *s) {
-    using namespace luabind;
-
-    module(s)
-            [
-            class_<Gui>("Gui")
-            .def(tostring(const_self))
-            ];
 }
 
 void Gui::setStatusBarText(QString msg) {
