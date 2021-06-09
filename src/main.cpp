@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
         QStringList luaExpression = parser.values(luaExpressionOption);
 
         if (lua.isEmpty() && luaExpression.isEmpty() && !parser.isSet(luaStdinOption)) {
-            qStdErr() << QObject::tr("Error: Option '--lua' requires a Lua script file as an argument. Exiting.") << Qt::endl;
+            qStdErr() << QObject::tr("Error: Option '--lua' requires a Lua script file as an argument. Exiting.") << endl;
             return EXIT_FAILURE;
         }
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv) {
             QFile file(lua[0]);
             if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 QString errMsg = file.errorString();
-                qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << Qt::endl;
+                qStdErr() << QObject::tr("Error: reading '%1': %2. Exiting.").arg(lua[0], errMsg) << endl;
                 return EXIT_FAILURE;
             }
 
@@ -131,28 +131,28 @@ int main(int argc, char **argv) {
 
         int n = parser.value(nOption).toInt();
         if (n < 0) {
-            qStdErr() << QObject::tr("Error: -n must be >= 0. Exiting.") << Qt::endl;
+            qStdErr() << QObject::tr("Error: -n must be >= 0. Exiting.") << endl;
             return EXIT_FAILURE;
         }
 
         Viewer *v = new Viewer(NULL, settings);
 
         QObject::connect(v, &Viewer::scriptHasOutput, [=](QString o) {
-            qStdOut() << o << Qt::endl;
+            qStdOut() << o << endl;
         });
         QObject::connect(v, &Viewer::statusEvent, [=](QString e) {
-            qStdErr() << e << Qt::endl;
+            qStdErr() << e << endl;
         });
 
         if (parser.isSet("verbose"))  {
             QObject::connect(v, &Viewer::scriptStarts, [=]() {
-                qStdErr() << "scriptStarts()" << Qt::endl;
+                qStdErr() << "scriptStarts()" << endl;
             });
             QObject::connect(v, &Viewer::scriptStopped, [=]() {
-                qStdErr() << "scriptStoppend()" << Qt::endl;
+                qStdErr() << "scriptStoppend()" << endl;
             });
             QObject::connect(v, &Viewer::scriptFinished, [=]() {
-                qStdErr() << "scriptFinished()" << Qt::endl;
+                qStdErr() << "scriptFinished()" << endl;
             });
         }
 
