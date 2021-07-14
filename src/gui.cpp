@@ -9,9 +9,6 @@ std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
     return ostream;
 }
 
-#include <luabind/operator.hpp>
-#include <luabind/adopt_policy.hpp>
-
 Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     _fileSaved=true;
@@ -587,18 +584,6 @@ void Gui::log(QString text) {
 
 QString Gui::toString() const {
     return QString("Gui");
-}
-
-void Gui::luaBind(lua_State *s) {
-    using namespace luabind;
-
-    open(s);
-
-    module(s)
-            [
-            class_<Gui>("Gui")
-            .def(tostring(const_self))
-            ];
 }
 
 void Gui::setStatusBarText(QString msg) {
