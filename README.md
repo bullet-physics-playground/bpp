@@ -58,7 +58,7 @@ $ ./bpp -f demo/basic/00-luabind.lua
 
 ### Mouse usage
 
-Press "h" to show QGLViewer help window, and click on the "Mouse" tab to see all the possible mouse actions.
+* Press "h" to show QGLViewer help window, and click on the "Mouse" tab to see all the possible mouse actions.
 
 ## Editor
 
