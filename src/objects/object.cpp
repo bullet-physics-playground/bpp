@@ -94,35 +94,35 @@ void Object::toPOV(QTextStream *s) const {
 
     if (s != NULL) {
         if (mPreSDL == NULL) {
-            *s << "sphere { <0,0,0>, 1" << Qt::endl;
+            *s << "sphere { <0,0,0>, 1" << endl;
         } else {
             *s << mPreSDL
-               << Qt::endl;
+               << endl;
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << Qt::endl;
+               << endl;
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << Qt::endl;
+               << endl;
         }
 
-        *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << Qt::endl
-           << "          " << matrix[4] << ","  << matrix[5] << ","  << matrix[6] << ","  << Qt::endl
-           << "          " << matrix[8] << ","  << matrix[9] << ","  << matrix[10] << "," << Qt::endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << Qt::endl;
+        *s << "  matrix <" << matrix[0] << ","  << matrix[1] << ","  << matrix[2] << "," << endl
+           << "          " << matrix[4] << ","  << matrix[5] << ","  << matrix[6] << ","  << endl
+           << "          " << matrix[8] << ","  << matrix[9] << ","  << matrix[10] << "," << endl
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
 
         if (mPostSDL == NULL) {
             *s << "}"
-               << Qt::endl
-               << Qt::endl;
+               << endl
+               << endl;
         } else {
             *s << mPostSDL
-               << Qt::endl;
+               << endl;
         }
     }
 }

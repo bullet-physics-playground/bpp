@@ -18,6 +18,8 @@ class Gui : public QMainWindow {
 public:
     Gui(QSettings *settings, QWidget *parent = 0);
 
+    QString toString() const;
+
 private slots:
     void command(QString cmd);
 

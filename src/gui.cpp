@@ -4,6 +4,11 @@
 
 #include "gui.h"
 
+std::ostream& operator<<(std::ostream& ostream, const Gui& gui) {
+    ostream << gui.toString().toUtf8().data();
+    return ostream;
+}
+
 Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     _fileSaved=true;
@@ -575,6 +580,10 @@ void Gui::command(QString cmd) {
 
 void Gui::log(QString text) {
     debugText->appendLine(text);
+}
+
+QString Gui::toString() const {
+    return QString("Gui");
 }
 
 void Gui::setStatusBarText(QString msg) {
