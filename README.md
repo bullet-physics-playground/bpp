@@ -33,6 +33,32 @@ Pipe bpp simulation data into [gnuplot](https://en.wikipedia.org/wiki/Gnuplot):
 $ ./bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 ```
 
+to see a bouncing sphere:
+```bash
+  10 +---------------------------------------------------------------------+   
+     | AA   +      +      +      +      +      +      +      +      +      |   
+   9 |-+AA                                                       Y    A  +-|   
+     |   AA               AAAA                                             |   
+   8 |-+  AA            AA   AAA                                         +-|   
+     |     A           AA      AA                                          |   
+   7 |-+   AA          A        A                                        +-|   
+     |      A         A          A                                         |   
+   6 |-+    AA       A           AA                                      +-|   
+     |       A      AA            A                                        |   
+   5 |-+     A      A             AA                                     +-|   
+     |        A    AA              A        AAA                            |   
+   4 |-+      A    A               AA     AAA  AA                        +-|   
+     |         A   A                A    AA     AA                         |   
+   3 |-+       A  A                  A  AA        A                      +-|   
+     |          A A                  A  A          A   AAAAAA              |   
+   2 |-+        AA                   A A           AA AA    AA           +-|   
+     |          AA                    AA            AAA      AAAAAAAA      |   
+   1 |-+         A                    A              A        AA     AAAAAA|   
+     |      +      +      +      +      +      +      +      +      +      |   
+   0 +---------------------------------------------------------------------+   
+     0      20     40     60     80    100    120    140    160    180    200  
+```
+
 For more demos, see [demo/](https://github.com/bullet-physics-playground/bpp/tree/master/demo).
 
 For a list of Lua-accessible classes, functions and properties, run:
