@@ -1,0 +1,25 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: packages
+      run: sudo apt -y install libbullet-dev libassimp-dev liblua5.2-dev libluabind-dev  \
+                    libqglviewer-headers libqglviewer-dev-qt5 freeglut3-dev libglew-dev \
+                    libsdl2-dev git g++ povray povray-examples
+    - name: qmake
+      run: QT_SELECT=qt5 qmake
+      
+    - name: build
+      run: make -j $(nproc)
