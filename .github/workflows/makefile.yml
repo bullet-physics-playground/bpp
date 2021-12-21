@@ -15,9 +15,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: packages
-      run: sudo apt -y install libbullet-dev libassimp-dev liblua5.2-dev libluabind-dev  \
-                    libqglviewer-headers libqglviewer-dev-qt5 freeglut3-dev libglew-dev \
-                    libsdl2-dev git g++ povray povray-examples
+      run: sudo apt -y install libbullet-dev libassimp-dev liblua5.2-dev libluabind-dev libqglviewer-headers libqglviewer-dev-qt5 freeglut3-dev libglew-dev libsdl2-dev git g++ povray povray-examples
     - name: qmake
       run: QT_SELECT=qt5 qmake
       
