@@ -8,7 +8,7 @@ Features:
 * [OpenSCAD](http://www.openscad.org/) import (experimental, sometimes crashes)
 * [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
-### Build
+### Build [![Makefile CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml)
 
 Select your operating system:
 
