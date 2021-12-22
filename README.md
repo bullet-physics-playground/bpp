@@ -1,14 +1,16 @@
+# The Bullet Physics Playground
+
 <a
 href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/maxresdefault.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
 
-Features:
+## Features
 
 * [Lua](https://www.lua.org/) scripting   (experimental, sometimes segfaults)
 * [OpenGL](https://www.opengl.org/)-2 GUI      (experimental, no OpenCL features)
 * [OpenSCAD](http://www.openscad.org/) import (experimental, sometimes crashes)
 * [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
 
-### Build [![Makefile CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml)
+## Build [![Makefile CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml)
 
 Select your operating system:
 
@@ -16,7 +18,7 @@ Select your operating system:
  * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
  * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
-### Run
+## Run
 
 Start with GUI:
 ```bash
@@ -66,11 +68,11 @@ For a list of Lua-accessible classes, functions and properties, run:
 $ ./bpp -f demo/basic/00-luabind.lua
 ```
 
-# Basic Usage HOWTO
+## Basic Usage HOWTO
 
-## Viewer
+### Viewer
 
-### Keyboard shortcuts
+#### Keyboard shortcuts
 
 * "s" starts/stops the physics simulation
 * "p" toggles the POV-Ray export mode
@@ -82,11 +84,11 @@ $ ./bpp -f demo/basic/00-luabind.lua
 * Use arrow keys to move the camera 
 * "h" shows QGLViewer help window: note the above shortcuts overwrite the QGLViewer ones under the "Keyboard" tab.
 
-### Mouse usage
+#### Mouse usage
 
 * Press "h" to show QGLViewer help window, and click on the "Mouse" tab to see all the possible mouse actions.
 
-## Editor
+### Editor
 
 The editor has a few known problems:
  
@@ -94,13 +96,20 @@ The editor has a few known problems:
 
 * With scripts which load many objects, or big meshes, the typing can be very slow.
 
-# Wiki
+## Wiki
 
 * [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)
 * [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference)
 * [POV-Ray on Amazon EC2](https://github.com/bullet-physics-playground/bpp/wiki/POV%E2%80%93Ray-on-Amazon-EC2)
 
-# Authors
+## Author
 
-* © 2008 – 2021 [@koppi](https://github.com/koppi) – Initial release.
-* © 2012 – 2016 [@jaimevives](https://github.com/jaimevives) – POV-Ray export and his [latest computer generated images](http://www.ignorancia.org/index.php/galleries/latest-images/).
+* **Jakob Flierl** – [koppi](https://github.com/koppi) – Initial release.
+
+## Contributors
+
+* **Jaime Vives Piqueres** – [jaimevives](https://github.com/jaimevives) – POV-Ray export and his [latest computer generated images](http://www.ignorancia.org/index.php/galleries/latest-images/).
+
+## License
+
+The Bullet Physics Playground is licensed under the GNU Lesser General Public License.
