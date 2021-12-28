@@ -1,8 +1,14 @@
+bpp (0.0.6-ubuntu1) unstable; urgency=low
+
+  * Bump version 0.0.6.
+
+ -- Jakob Flierl <jakob.flierl@gmail.com>  Tue, 28 Dec 2021 18:55:28 +0100
+
 bpp (0.0.5-ubuntu1) unstable; urgency=low
 
   * Bump version 0.0.5.
 
- -- Jakob Flierl <jakob.flierl@gmail.com>  Tue, 23 Mar 2021 11:48:09 +0100
+ -- Jakob Flierl <jakob.flierl@gmail.com>  Tue, 25 Dec 2021 18:55:28 +0100
 
 bpp (0.0.4-ubuntu1) unstable; urgency=low
  
