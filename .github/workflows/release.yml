@@ -1,0 +1,55 @@
+name: CI for release tags
+
+on:
+  push:
+    tags:
+      - "v*" # matches v1.0.1, v1.2, v2, etc
+
+jobs:
+  once:
+    name: Create single release for all builds
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create a release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: true
+  build:
+    name: Create cross-platform release builds, tag and upload binaries
+    needs: once
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: true
+
+      - name: install packages required for the build
+        run: |
+          sudo apt update
+          sudo apt full-upgrade -y
+          sudo DEBIAN_FRONTEND=noninteractive apt -qq -y install -qq devscripts equivs
+          mk-build-deps -i -s sudo -t "apt --yes --no-install-recommends"
+
+      - name: build deb package
+        run: dpkg-buildpackage -b -rfakeroot -us -uc
+        
+      - name: Upload deb package to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ../*.deb
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
