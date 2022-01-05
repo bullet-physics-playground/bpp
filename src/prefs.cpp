@@ -58,7 +58,7 @@ void Prefs::setupPages() {
 
     QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
-    QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../include -c +d -A +p +Q11 +GA +SP32 +EP2";
+    QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../include -c +d -A +p +Q11 +GA";
     this->defaultmap["povray/preview"]    = _settings->value("povray/preview", povopt).toString();
 
     this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
