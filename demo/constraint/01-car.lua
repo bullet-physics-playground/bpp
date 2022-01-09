@@ -171,8 +171,8 @@ c = nil
 
 local cs = {}
 
-NX = 4
-NY = 4
+NX = 2
+NY = 2
 
 for i = -NX,NX do
   for j = -NY,NY do
@@ -184,7 +184,7 @@ for i = -NX,NX do
 end
 
 function setcam()
-  d = 820 -- camera distance to object
+  d = 420 -- camera distance to object
 
   v.cam.up   = btVector3(0,1,0)
   v.cam:setHorizontalFieldOfView(0.4)
@@ -209,6 +209,7 @@ v:preSim(function(N)
       tmp.car.pos.x = 0
       tmp.car.pos.y = 20
       tmp.car.pos.z = 0
+      cs[i] = tmp
     end
   end
 end)

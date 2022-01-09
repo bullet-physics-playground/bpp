@@ -6,7 +6,7 @@ v.timeStep      = 1/10
 v.maxSubSteps   = 10
 v.fixedTimeStep = 1/100
 
-v.gravity = btVector3(-2.45,-9.81,0)
+v.gravity = btVector3(0,-9.81,0)
 
 -- CONTROL
 

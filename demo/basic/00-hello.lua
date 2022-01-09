@@ -651,3 +651,36 @@ v:onCommand(function(N, cmd)
   local f = assert(loadstring(cmd))
   f(v)
 end)
+
+v:onJoystick(function(N, joy)
+  d = 1
+  p = v.cam.pos
+  if(joy.axes[1] < 0) then
+    p.x = p.x + joy.axes[1] / 32768 * d
+  end
+  if(joy.axes[1] > 0) then
+    p.x = p.x + joy.axes[1] / 32768 * d
+  end
+  if(joy.axes[2] < 0) then
+    p.y = p.y + joy.axes[2] / 32768 * d
+  end
+  if(joy.axes[2] > 0) then
+    p.y = p.y + joy.axes[2] / 32768 * d
+  end
+  v.cam.pos = p
+  print(p)
+  l = v.cam.look
+  if(joy.axes[3] < 0) then
+    l.x = l.x + joy.axes[3] / 32768 * d
+  end
+  if(joy.axes[3] > 0) then
+    l.x = l.x + joy.axes[3] / 32768 * d
+  end
+  if(joy.axes[4] < 0) then
+    l.y = l.y + joy.axes[4] / 32768 * d
+  end
+  if(joy.axes[4] > 0) then
+    l.y = l.y + joy.axes[4] / 32768 * d
+  end
+  v.cam.look = l
+end)

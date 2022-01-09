@@ -15,7 +15,7 @@ v:add(plane)
 d = 200
 
 for i = 1,3 do
-  m = Mesh("demo/mesh/box.3ds", 100)
+  m = Mesh("demo/mesh/box.3ds", 10)
   m.col="#ff0000"
   m.pos=btVector3(
     math.random()*d-d/2,

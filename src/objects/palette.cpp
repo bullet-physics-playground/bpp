@@ -67,7 +67,7 @@ Palette::Palette(QString fileName) : QObject() {
         f.close();
     } else {
         qDebug() << "Cannot open file for reading: "
-                 << qPrintable(f.errorString()) << endl;
+                 << qPrintable(f.errorString()) << "\n";
         return;
     }
 }

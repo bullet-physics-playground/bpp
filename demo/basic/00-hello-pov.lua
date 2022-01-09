@@ -31,7 +31,7 @@ s.pos = btVector3(0,10,0)
 s.vel = btVector3(3,0,0)
 s.col = "red"
 s.restitution = 0.925
-v:add(s) --print(s.pov)
+v:add(s)
 
 function setcam()
   v.cam:setUpVector(btVector3(0,1,0), false)
@@ -52,4 +52,5 @@ v:postSim(function(N) print(N)
       r = r + 1
     end
   end
+  print(s.pov)
 end)

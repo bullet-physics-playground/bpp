@@ -53,18 +53,18 @@ help:
 	@echo ""
 
 quick:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d ${POVOPT}
+	nice povray ${SCENE}.ini -V +W380 +H252 +Q9 -A +d ${POVOPT}
 
 quickc:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W380 +H252 +Q4 -A +d +c ${POVOPT}
+	nice povray ${SCENE}.ini -V +W380 +H252 +Q9 -A +d +c ${POVOPT}
 
 final: 720p
 
 720p:
-	/usr/bin/time nice povray ${SCENE}.ini -V +W1280 +H720 +Q11 +A0.3 ${POVOPT}
+	nice povray ${SCENE}.ini -V +W1280 +H720 +Q11 +AM2 +A0.1 +R3 ${POVOPT}
 
 mkv:
-	/usr/bin/time nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
+	nice ffmpeg -y -framerate 25 -pattern_type glob -i '${SCENE}*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv420p '${SCENE}.mkv'
 
 mkv-loop: mkv
 	for i in {1..${MKV_LOOP}}; do printf "file '%s'\n" ${SCENE}.mkv >> loop.txt; done

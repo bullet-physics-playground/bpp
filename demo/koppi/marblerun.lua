@@ -203,8 +203,6 @@ con0:enableAngularMotor(true, speed, s1)
 
 v:addConstraint(con0)
 
-v.cam:setHorizontalFieldOfView(0.15)
-
 path = OpenSCAD(path_extrude.sdl .. [[
 
 o = 1.45;
@@ -258,8 +256,8 @@ v:add(thing)
 
 end
 
-marblewheel(10,0,0)
-marblewheel(-10,0,0)
+--marblewheel(10,0,0)
+marblewheel(0,0,0)
 
 function addmarble(px,py,pz)
   rcol1 = color.random_google()
@@ -277,15 +275,14 @@ col2b = col2.b / 255})
   s.pos = btVector3(px,py,pz)
   s.friction = 0.12
   s.restitution = 0
-  s.mass = 1
+  s.mass = .1
   s.col = rcol1
 
   v:add(s)
 end
 
 function run()
-  addmarble(-10,19,3)
-  addmarble( 10,19,3)
+  addmarble(0,19,3)
 end
 
 v:postSim(function(N)
@@ -304,7 +301,7 @@ function setcam()
   v.cam:setUpVector(btVector3(0,1,0), false)
 
   -- pseudo orthogonal view
-  v.cam:setFieldOfView(.0275)
+  v.cam:setFieldOfView(.02)
 
   v.cam.pos = btVector3(250,300,1000)
   v.cam.look = btVector3(0,10,3)

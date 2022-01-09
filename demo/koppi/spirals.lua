@@ -108,7 +108,7 @@ v:add(sp)
 v:postSim(function(N)
   tr = sp.trans
   q = btQuaternion()
-  q:setEuler(N/5,0,0)
+  q:setEuler(-N/5,0,0)
   tr:setRotation(q)
   sp.trans = tr
 end)
@@ -140,6 +140,6 @@ v.cam.focal_blur      = 0
 v.cam.focal_aperture  = 5
 --v.cam.focal_point = XXX.pos
 v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam:setHorizontalFieldOfView(1.3)
+v.cam:setHorizontalFieldOfView(1.1)
 v.cam.pos  = btVector3(0,30,-20)
 v.cam.look = btVector3(0,0,0) 

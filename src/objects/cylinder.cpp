@@ -84,31 +84,31 @@ void Cylinder::toPOV(QTextStream *s) const {
                << -lengths[2]/2.0 << "*z, "
                << lengths[2]/2.0 << "*z, "
                << lengths[0]
-               << endl;
+               << "\n";
         } else {
-            *s << mPreSDL << endl;
+            *s << mPreSDL << "\n";
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << endl;
+               << "\n";
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << endl;
+               << "\n";
         }
 
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << "\n"
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << "\n"
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << "\n"
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << "\n";
 
         if (mPostSDL == NULL) {
-            *s << "}" << endl << endl;
+            *s << "}" << "\n" << "\n";
         } else {
-            *s << mPostSDL << endl;
+            *s << mPostSDL << "\n";
         }
     }
 }

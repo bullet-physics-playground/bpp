@@ -342,7 +342,7 @@ void Gui::scriptChanged() {
       _fileSaved=false;
       parseEditor();
     } else {
-        // qDebug() << "Warning: Gui::scriptChanged() called, but editor text the same." << endl;
+        // qDebug() << "Warning: Gui::scriptChanged() called, but editor text the same." << "\n";
     }
 }
 

@@ -221,8 +221,8 @@ void Mesh::toMesh2(QTextStream *s) const {
         concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
         if (pov.idx.length() > 0) {
-            *s << "mesh2 {" << endl;
-            *s << "  vertex_vectors {" << endl;
+            *s << "mesh2 {" << "\n";
+            *s << "  vertex_vectors {" << "\n";
             *s << "    " << pov.idx.length()*3 << ", ";
             for (int i = 0; i < pov.idx.length(); ++i) {
                 *s << "<"
@@ -248,7 +248,7 @@ void Mesh::toMesh2(QTextStream *s) const {
                    << ">";
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
-            *s << " }" << endl;
+            *s << " }" << "\n";
 
             /*
             *s << "  normal_vectors {\n";
@@ -265,10 +265,10 @@ void Mesh::toMesh2(QTextStream *s) const {
                  << ">";
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
-            *s << " }" << endl;
+            *s << " }" << "\n";
             */
 
-            *s << "  face_indices {"  << endl;
+            *s << "  face_indices {"  << "\n";
             *s << "    " << pov.idx.length() << ", ";
             for (int i = 0; i < pov.idx.length(); ++i) {
                 *s << "<"
@@ -281,11 +281,11 @@ void Mesh::toMesh2(QTextStream *s) const {
                 if (i != pov.idx.length() - 1) *s << ", \n";
             }
             *s << " }"
-               << endl;
+               << "\n";
 
-            *s << "}" << endl;
+            *s << "}" << "\n";
         } else {
-            *s << "union {}" << endl; // empty object in case of empty mesh
+            *s << "union {}" << "\n"; // empty object in case of empty mesh
         }
     }
 }
@@ -341,39 +341,39 @@ void Mesh::toPOV(QTextStream *s) const {
                 // qDebug() << "mesh already exists " << incfile;
             }
 
-            *s << "#include \"" + check_file.fileName() + "\"" << endl << endl;
+            *s << "#include \"" + check_file.fileName() + "\"" << "\n" << "\n";
 
-            *s << "object { mesh_" + hash << endl;
+            *s << "object { mesh_" + hash << "\n";
 
         } else {
             *s << mPreSDL
-               << endl;
+               << "\n";
         }
 
         if (mSDL != NULL) {
             *s << mSDL
-               << endl;
+               << "\n";
         } else {
             *s << "  pigment { rgb <"
                << color[0]/255.0 << ", "
                << color[1]/255.0 << ", "
                << color[2]/255.0 << "> }"
-               << endl;
+               << "\n";
         }
 
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << endl
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << endl
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << endl
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << endl;
+        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << "\n"
+           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << "\n"
+           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << "\n"
+           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << "\n";
 
         if (mPostSDL == NULL) {
             *s << "}"
-               << endl
-               << endl;
+               << "\n"
+               << "\n";
         } else {
             *s << mPostSDL
-               << endl
-               << endl;
+               << "\n"
+               << "\n";
         }
     }
 }
