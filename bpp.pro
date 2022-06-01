@@ -147,6 +147,10 @@ link_pkgconfig {
     PKGCONFIG += bullet lua5.2 luabind sdl2
     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
   }
+  contains(LSB_RELEASE_ID, FreeBSD): {
+    PKGCONFIG += bullet lua-5.1 sdl2
+    LIBS += -lluabind -lQGLViewer -lGLEW -lGLU -lGL -lglut
+  }
 
   contains(DEFINES, HAS_LIB_ASSIMP) {
     PKGCONFIG += assimp
