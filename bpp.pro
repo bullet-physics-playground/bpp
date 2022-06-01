@@ -4,11 +4,12 @@ TEMPLATE = app
 
 CONFIG += c++11
 
-#DEFINES     += HAS_QEXTSERIAL
-#DEFINES     += HAS_LUA_QT
-#DEFINES     += HAS_LUA_GL
+#DEFINES       += HAS_QEXTSERIAL
+#DEFINES       += HAS_LUA_QT
+#DEFINES       += HAS_LUA_GL
 
-DEFINES     += HAS_LIB_ASSIMP
+DEFINES        += HAS_LIB_ASSIMP
+QMAKE_CXXFLAGS += -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations
 
 win32 {
 
