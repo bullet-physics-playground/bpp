@@ -13,6 +13,7 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QDebug>
+#include <QRandomGenerator>
 
 #include <boost/shared_ptr.hpp>
 #include <luabind/adopt_policy.hpp>
@@ -28,7 +29,9 @@ std::ostream& operator<<(std::ostream& ostream, const Palette& pal) {
 #include <luabind/operator.hpp>
 
 Palette::Palette(QString fileName) : QObject() {
-    QFile f(fileName);
+        rg = QRandomGenerator();
+
+        QFile f(fileName);
 
     if (f.open(QIODevice::ReadOnly)) {
         QTextStream in(&f);
@@ -75,7 +78,7 @@ Palette::Palette(QString fileName) : QObject() {
 QColor Palette::getRandomColor() {
     unsigned int r,g,b;
 
-    unsigned int random = qrand() % colors[0].size();
+    unsigned int random = rg.generate() % colors[0].size();
 
     r = colors[0].at(random);
     g = colors[1].at(random);
@@ -87,7 +90,7 @@ QColor Palette::getRandomColor() {
 }
 
 void Palette::setSeed(int seed) {
-    qsrand(seed);
+    rg.seed(seed);
 }
 
 Palette::~Palette()

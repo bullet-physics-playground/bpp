@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QColor>
 #include <QList>
+#include <QRandomGenerator>
 
 class Palette;
 
@@ -29,6 +30,7 @@ public:
 
 protected:
     QList<unsigned char> colors[3];
+    QRandomGenerator rg;
 };
 
 #endif // PALETTE_H
