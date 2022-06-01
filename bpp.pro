@@ -69,8 +69,8 @@ INCLUDEPATH += /usr/local/include/bullet
 link_pkgconfig {
 #  message("Using pkg-config "$$system(pkg-config --version)".")
 
-  LSB_RELEASE_ID  = $$system(lsb_release -is)
-  LSB_RELEASE_REL = $$system(lsb_release -rs)
+  LSB_RELEASE_ID  = $$system(. /etc/os-release; echo "$NAME")
+  LSB_RELEASE_REL = $$system(. /etc/os-release; echo "$VERSION_ID")
 
   message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
 
