@@ -29,7 +29,7 @@ std::ostream& operator<<(std::ostream& ostream, const Palette& pal) {
 #include <luabind/operator.hpp>
 
 Palette::Palette(QString fileName) : QObject() {
-        rg = QRandomGenerator();
+        rg = QRandomGenerator(42);
 
         QFile f(fileName);
 
