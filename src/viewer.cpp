@@ -57,6 +57,8 @@
 #include <QStringList>
 #include <QStandardPaths>
 
+#include <Bullet3Collision/Gimpact/btGImpactCollisionAlgorithm.h>
+
 typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
 
 using namespace std;
@@ -839,7 +841,7 @@ void Viewer::resetCamView() {
     camera()->setUpVector(Vec(0,1,0), true);
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
-    updateGL();
+    //XXXupdateGL();
 
 }
 
@@ -1368,7 +1370,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_savePOV) {
@@ -1384,7 +1386,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_deactivation) {
@@ -1400,7 +1402,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+       //XXXqglColor(foregroundColor());
     }
 
 }
