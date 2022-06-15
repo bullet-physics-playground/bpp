@@ -27,7 +27,7 @@ win32 {
   CONFIG      += link_pkgconfig
 
   bpp-binary.path = /usr/bin
-  bpp-binary.files = bpp
+  bpp-binary.files = release/bpp
   bpp-deskop.path = /usr/share/applications
   bpp-deskop.files = bpp.desktop
   bpp-icons.path = /usr/share/icons/hicolor/scalable/apps
