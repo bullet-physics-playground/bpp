@@ -11,24 +11,32 @@ link_koppi_style_win32 {
   LIBS += -L$$WIN32_DIR_DLL
 
   DEFINES += WIN32_LINK_QGLVIEWER
-#  DEFINES += WIN32_LINK_GLUT
-  DEFINES += WIN32_LINK_LIB3DS
-  DEFINES += WIN32_LINK_BULLET
-  DEFINES += WIN32_LINK_LUA
-  DEFINES += WIN32_LINK_LUABIND
-  DEFINES += WIN32_LINK_FREEGLUT
-  DEFINES += WIN32_LINK_GLEW
+  DEFINES += WIN32_LINK_GLUT
+#  DEFINES += WIN32_LINK_BULLET
+#  DEFINES += WIN32_LINK_LUA
+#  DEFINES += WIN32_LINK_LUABIND
+#  DEFINES += WIN32_LINK_FREEGLUT
+#  DEFINES += WIN32_LINK_GLEW
   DEFINES += WIN32_LINK_BOOST
   DEFINES += WIN32_LINK_SDL2
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
-  DEFINES -= HAS_LIB_ASSIMP
+  CONFIG += link_pkgconfig
 
-  WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.4_Win64_dllw4_lib
-  WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
-  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.8.0
-  WIN32_DIR_LIB3DS    = $$WIN32_DIR_LIB\\lib3ds-1.3.0
+#  DEFINES -= HAS_LIB_ASSIMP
+  PKGCONFIG += assimp
+  PKGCONFIG += glut
+  PKGCONFIG += glew
+  PKGCONFIG += sdl2
+  PKGCONFIG += bullet
+  PKGCONFIG += lua
+#  PKGCONFIG += luabind
+  LIBS += -lluabind09
+
+  WIN32_DIR_LUA       = /opt/mxe/usr/i686-w64-mingw32.shared
+  WIN32_DIR_LUABIND   = /opt/mxe/usr/i686-w64-mingw32.shared
+  WIN32_DIR_QGLVIEWER = /opt/libQGLViewer
 
 ## We use glut lib included with bullet.
 
@@ -36,6 +44,7 @@ link_koppi_style_win32 {
   WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw
   WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.10.0
   WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet3-2.89
+  WIN32_DIR_BULLET    = /opt/bullet3-3.06
   WIN32_DIR_BOOST     = $$WIN32_DIR_LIB\\boost_1_51_0
   WIN32_DIR_SDL2      = $$WIN32_DIR_LIB\\SDL2-2.0.22
 }
@@ -102,7 +111,8 @@ contains(DEFINES, WIN32_LINK_GLUT) {
 
   # link
 
-  LIBS += -lglut32 -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
+  LIBS += -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
+  #LIBS += -lglut32 -lglu32 -lopengl32 -lwinmm -Wl,--subsystem,windows
 }
 
 contains(DEFINES, WIN32_LINK_QGLVIEWER) {
@@ -113,28 +123,10 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
   # Link
 
   CONFIG( debug, debug|release ) {
-    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer\\debug -lQGLViewerd2
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewerd2
   } else {
-    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer\\release -lQGLViewer2
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewer2
   }
-}
-
-contains(DEFINES, WIN32_LINK_LIB3DS) {
-#  message(Statically linking lib3ds)
-
-  DEFINES += LIB3DS_STATIC
-
-  SRC_LIB3DS  = $$WIN32_DIR_LIB3DS
-
-  INCLUDEPATH += $$SRC_LIB3DS
-
-  # include
-
-  LIBS += -L$$WIN32_DIR_LIB3DS\\lib3ds\\.libs
-
-  # link
-
-  LIBS += -l3ds
 }
 
 contains(DEFINES, WIN32_LINK_BULLET) {
@@ -149,7 +141,7 @@ contains(DEFINES, WIN32_LINK_BULLET) {
 
   # Include
 
-  LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
+  LIBS += -L$$WIN32_DIR_BULLET\\lib
 
   LIBS += -L$$DIR_BULLET\\Extras\\GIMPACTUtils
   LIBS += -L$$DIR_BULLET\\Extras\\HACD
@@ -197,7 +189,7 @@ contains(DEFINES, WIN32_LINK_LUA) {
 contains(DEFINES, WIN32_LINK_LUABIND) {
 #  message(Statically linking luabind)
 
-  DEFINES += LUABIND_DYNAMIC_LINK=1
+#  DEFINES += LUABIND_DYNAMIC_LINK=1
 
   PATH_LUABIND = $$WIN32_DIR_LUABIND
 
@@ -206,8 +198,7 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
   # include
 
 #  CONFIG( debug, debug|release ) {
-    LIBS += -L$$PATH_LUABIND\\bin\\gcc-mingw-4.4.0\\release
-    LIBS += -lluabind
+##XXX    LIBS += -lluabind
 #  } else {
 #    LIBS += -L$$PATH_LUABIND\\bin\\gcc-mingw-4.4.0\\debug
 #    LIBS += -lluabindd

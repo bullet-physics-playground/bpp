@@ -8,6 +8,8 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
+#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+
 #include "lua_converters.h"
 
 #include "lua_bullet.h"
@@ -1354,7 +1356,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_simulate) {
