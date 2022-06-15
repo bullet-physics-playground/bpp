@@ -9,6 +9,7 @@ CONFIG += c++11
 #DEFINES       += HAS_LUA_GL
 
 DEFINES        += HAS_LIB_ASSIMP
+DEFINES        += BOOST_BIND_GLOBAL_PLACEHOLDERS
 QMAKE_CXXFLAGS += -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations
 
 win32 {
@@ -59,15 +60,26 @@ win32 {
 QMAKE_CXXFLAGS_RELEASE += -O2
 QMAKE_CXXFLAGS_DEBUG   += -O0
 
-MOC_DIR = .moc
-#OBJECTS_DIR = .obj
-UI_DIR = .ui
-RCC_DIR = .rcc
+CONFIG(debug, debug|release){
+  DESTDIR = ./debug
+  OBJECTS_DIR = debug/.obj
+  MOC_DIR = debug/.moc
+  RCC_DIR = debug/.rcc
+  UI_DIR = debug/.ui
+}
+
+CONFIG(release, debug|release){
+  DESTDIR = ./release
+  OBJECTS_DIR = release/.obj
+  MOC_DIR = release/.moc
+  RCC_DIR = release/.rcc
+  UI_DIR = release/.ui
+}
 
 INCLUDEPATH += /usr/include/bullet
 INCLUDEPATH += /usr/local/include/bullet
 
-link_pkgconfig {
+unix:link_pkgconfig {
 #  message("Using pkg-config "$$system(pkg-config --version)".")
 
   LSB_RELEASE_ID  = $$system(. /etc/os-release; echo "$NAME")
