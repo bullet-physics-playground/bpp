@@ -59,8 +59,6 @@
 #include <QStringList>
 #include <QStandardPaths>
 
-#include <Bullet3Collision/Gimpact/btGImpactCollisionAlgorithm.h>
-
 typedef boost::error_info<struct tag_stack_str,std::string> stack_info;
 
 using namespace std;
