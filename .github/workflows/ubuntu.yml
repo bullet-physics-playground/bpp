@@ -50,10 +50,7 @@ jobs:
       run: dpkg-buildpackage -b -rfakeroot -us -uc
 
     - name: install binary package
-      run: sudo dpkg -i ../bpp*deb
-
-    - name: install binary package dependencies
-      run: sudo apt -f install
+      run: sudo dpkg -i ../bpp*deb; sudo apt -f install
 
     - name: run lintian
       run: lintian ../bpp*deb | lintian-info
