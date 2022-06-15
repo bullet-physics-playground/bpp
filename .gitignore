@@ -47,3 +47,5 @@ bpp.pro.user
 *.scad
 
 .qmake.stash
+
+export

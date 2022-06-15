@@ -35,7 +35,7 @@ win32 {
   bpp-man.path = /usr/share/man/man1
   bpp-man.files = bpp.1
   bpp-man.depends = $(SOURCES)
-  bpp-man.commands = help2man --no-discard-stderr -N -n \"Bullet Physics Playground\" -o bpp.1 ./bpp
+  bpp-man.commands = help2man --no-discard-stderr -N -n \"Bullet Physics Playground\" -o bpp.1 release/bpp
 
   INSTALLS    += bpp-binary bpp-deskop bpp-icons bpp-man
 
