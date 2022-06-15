@@ -157,8 +157,15 @@ unix:link_pkgconfig {
     }
   }
   contains(LSB_RELEASE_ID, Debian): {
-    PKGCONFIG += bullet lua5.2 luabind sdl2
-    LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
+     contains(LSB_RELEASE_REL, 11) : {
+      PKGCONFIG += lua5.2
+      PKGCONFIG -= luabind
+      PKGCONFIG += bullet
+      PKGCONFIG += sdl2
+      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
+      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
+      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+    }
   }
   contains(LSB_RELEASE_ID, FreeBSD): {
     PKGCONFIG += bullet lua-5.1 sdl2
