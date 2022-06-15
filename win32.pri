@@ -1,19 +1,5 @@
-win32-msvc* {
-## Someone needs to try this with VC90
-
-# VC90 needs:
-#
-# * VC 2008 SP1: Fix for vector <function <FT>> crash.
-#   http://www.microsoft.com/en-us/download/details.aspx?id=15303
-# * ..
-
-  DEFINES += WIN32_VC90
-
-# TODO: send your pull request and update the wiki.
-}
-
 link_koppi_style_win32 {
-  message("Statically linking win32 libs (koppi style)")
+#  message("Statically linking win32 libs (koppi style)")
 
 ## The libs are in C:\lib on koppi's hard drive. See:
 #  github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows
@@ -33,23 +19,25 @@ link_koppi_style_win32 {
   DEFINES += WIN32_LINK_FREEGLUT
   DEFINES += WIN32_LINK_GLEW
   DEFINES += WIN32_LINK_BOOST
+  DEFINES += WIN32_LINK_SDL2
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
   DEFINES -= HAS_LIB_ASSIMP
 
-  WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.4-win32-dll
+  WIN32_DIR_LUA       = $$WIN32_DIR_LIB\\lua-5.1.4_Win64_dllw4_lib
   WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind-0.9.1
-  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.5.1
+  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer-2.8.0
   WIN32_DIR_LIB3DS    = $$WIN32_DIR_LIB\\lib3ds-1.3.0
 
 ## We use glut lib included with bullet.
 
   WIN32_DIR_GLUT      = $$WIN32_DIR_LIB\\bullet-r2552\\Glut
-  WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw\\freeglut
+  WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw
   WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.10.0
-  WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet-r2552
+  WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet3-2.89
   WIN32_DIR_BOOST     = $$WIN32_DIR_LIB\\boost_1_51_0
+  WIN32_DIR_SDL2      = $$WIN32_DIR_LIB\\SDL2-2.0.22
 }
 
 contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
@@ -153,7 +141,7 @@ contains(DEFINES, WIN32_LINK_BULLET) {
 #  message(Statically linking Bullet Physics Library)
 
   # c++ - gcc warning" 'will be initialized after'
-  QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+  unix:QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
   INCLUDEPATH += $$WIN32_DIR_BULLET\\src
 
@@ -236,4 +224,17 @@ contains(DEFINES, WIN32_LINK_BOOST) {
   LIBS += -L$$WIN32_DIR_BOOST\\stage\\lib
 
   # link ?
+}
+
+contains(DEFINES, WIN32_LINK_SDL2) {
+#  message(Linking SDL2)
+
+# include
+
+  INCLUDEPATH += $$WIN32_DIR_SDL2\\include
+
+  LIBS += -L$$WIN32_DIR_SDL2\\lib\\x64
+
+  # link
+  LIBS += -lSDL2
 }
