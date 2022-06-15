@@ -1,0 +1,76 @@
+name: ubuntu
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - bionic
+          - focal
+          - impish
+          - jammy
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: upgrade
+      run: sudo apt update && sudo apt dist-upgrade
+    
+    - name: install devscripts
+      run: |
+        sudo apt update -qq
+        sudo apt full-upgrade -y                                                
+        sudo DEBIAN_FRONTEND=noninteractive apt -qq -y install devscripts equivs lintian
+        mk-build-deps -i -s sudo -t "apt --yes --no-install-recommends"
+    - name: build source package
+      env:
+        DEBFULLNAME: "Github Actions"
+        DEBEMAIL: "jakob.flierl@gmail.com"
+        TARGET: ${{ matrix.target }}
+      run: |
+        git fetch --unshallow
+        git fetch --tags
+        VERSION="$(git describe --tags | sed -e "s/^v//" -e "s/-/+git/")"
+        dch --create \
+            --distribution ${TARGET} \
+            --package bpp \
+            --newversion ${VERSION}~${TARGET}1 \
+            "Automatic build from Github"
+        debuild -S -sa -us -uc -d
+                                                                                
+    - name: build binary package
+      run: dpkg-buildpackage -b -rfakeroot -us -uc
+
+    - name: install binary package
+      run: sudo dpkg -i ../bpp*deb
+
+    - name: install binary package dependencies
+      run: sudo apt -f install
+
+    - name: run lintian
+      run: lintian ../bpp*deb | lintian-info
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ubuntu-${{ matrix.target }}
+        if-no-files-found: error
+        path: |
+          *.buildinfo
+          *.changes
+          *.dsc
+          *.tar.*
+          *.deb
+          ~/**/*/*.buildinfo
+          ~/**/*/*.changes
+          ~/**/*/*.dsc
+          ~/**/*/*.tar.*
+          ~/**/*/*.deb
