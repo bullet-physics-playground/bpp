@@ -50,6 +50,7 @@ jobs:
       run: dpkg-buildpackage -b -rfakeroot -us -uc
 
     - name: install binary package
+      continue-on-error: true
       run: sudo dpkg -i ../bpp*deb; sudo apt -f install
 
     - name: run lintian
