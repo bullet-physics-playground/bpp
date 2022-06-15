@@ -47,7 +47,7 @@ install: build
 	chmod 664 $(CURDIR)/debian/bpp/usr/share/icons/hicolor/scalable/apps/bpp.svg
 
 	install -d -v -m 0755 $(CURDIR)/debian/bpp/usr/bin
-	install -m 755 -p bpp $(CURDIR)/debian/bpp/usr/bin/bpp
+	install -m 755 -p release/bpp $(CURDIR)/debian/bpp/usr/bin/bpp
 	
 	install -d -v -m 0755 $(CURDIR)/debian/bpp/usr/share/bpp
 	cp -rpv demo $(CURDIR)/debian/bpp/usr/share/bpp/demo
