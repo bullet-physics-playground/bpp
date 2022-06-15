@@ -123,6 +123,12 @@ public:
     void setGLSpecularPercent(const btScalar);
     btScalar getGLSpecularPercent() const;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    void setBackgroundColor(const QColor& color) { glClearColor(color.redF(), color.greenF(), color.blueF(), color.alphaF()); }
+#else
+    void setBackgroundColor(const QColor& color) { qglClearColor(color); }
+#endif
+
     // POV-Ray properties
     void setPreSDL(const QString&);
     QString getPreSDL() const;

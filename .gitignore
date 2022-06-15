@@ -49,3 +49,6 @@ bpp.pro.user
 .qmake.stash
 
 export
+
+debian/bpp.debhelper.log
+debian/bpp.substvars

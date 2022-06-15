@@ -8,6 +8,8 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
+#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+
 #include "lua_converters.h"
 
 #include "lua_bullet.h"
@@ -839,7 +841,7 @@ void Viewer::resetCamView() {
     camera()->setUpVector(Vec(0,1,0), true);
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
-    updateGL();
+    //XXXupdateGL();
 
 }
 
@@ -1352,7 +1354,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_simulate) {
@@ -1368,7 +1370,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_savePOV) {
@@ -1384,7 +1386,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+        //XXXqglColor(foregroundColor());
     }
 
     if (_deactivation) {
@@ -1400,7 +1402,7 @@ void Viewer::postDraw() {
         glEnable(GL_DEPTH_TEST);
         stopScreenCoordinatesSystem();
         // restore foregroundColor
-        qglColor(foregroundColor());
+       //XXXqglColor(foregroundColor());
     }
 
 }

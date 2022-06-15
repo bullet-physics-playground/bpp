@@ -5,10 +5,6 @@
 
 #include "mesh.h"
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include <QObject>
 
 class OpenSCAD : public Mesh
