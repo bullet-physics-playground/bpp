@@ -303,7 +303,7 @@ void Gui::helpAbout() {
     QString txt =
             tr("<p><b>%1 (%2)</b></p>").arg(QCoreApplication::applicationName()).arg(QCoreApplication::applicationVersion()) + \
             tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
-            tr("<p>Lua version: %1</p>").arg(LUA_VERSION) + \
+            tr("<p>%1 Bullet %2</p>").arg(LUA_VERSION).arg(BULLET_VERSION) + \
             tr("<p>&copy; 2008-2022 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
             tr("<p>&copy; 2012-2016 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 

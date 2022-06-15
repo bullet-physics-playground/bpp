@@ -53,9 +53,11 @@ mac {
 win32 {
   DEFINES += BUILDTIME=\\\"HH:MM\\\"
   DEFINES += BUILDDATE=\\\"Y-m-d\\\"
+  DEFINES += BULLET_VERSION=""
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
   DEFINES += BUILDDATE=\\\"$$system(date '+%Y-%m-%d')\\\"
+  DEFINES += BULLET_VERSION=\\\"$$system(pkg-config bullet --modversion)\\\"
 }
 
 QMAKE_CXXFLAGS_RELEASE += -O2
