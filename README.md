@@ -17,7 +17,7 @@ A very simple physics simulation software.
 
 <a href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/maxresdefault.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
 
-## Build [![Makefile CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/makefile.yml)
+## Build [![Ubuntu CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml)
 
 Select your operating system:
 
