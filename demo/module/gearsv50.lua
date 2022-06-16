@@ -6,9 +6,9 @@
 --
 -- http://www.thingiverse.com/thing:3575
 --
-module("gearsv50", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
 
    params = params or {}
    options = {
@@ -24,10 +24,10 @@ function new(params)
 
    mass = options.mass
    
-   return OpenSCAD(fun..lib, mass)
+   return OpenSCAD(fun..M.lib, mass)
 end
 
-lib = [===[
+M.lib = [===[
 
 // Parametric Involute Bevel and Spur Gears by GregFrost
 // It is licensed under the Creative Commons - GNU GPL license.
@@ -702,3 +702,6 @@ module test_backlash ()
 
 
 ]===]
+
+return M
+

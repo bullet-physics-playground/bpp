@@ -4,7 +4,7 @@
 -- http://thingiverse.com/thing:159219
 --
 
-require "module/duplo"
+duplo = require "module/duplo"
 
 v.timeStep      = 1/3
 v.maxSubSteps   = 50
@@ -92,6 +92,22 @@ end
 for i = 0,1 do
 d("duplo(4,2,2,true,false)", -90,90,0, 8,5,4, red, 1)
 end
+
+function setcam()
+  d = 2000
+  -- pseudo orthogonal view
+  --v.cam:setFieldOfView(.1)
+
+  v.cam.focal_blur      = 0 -- > 0: enable focal blur
+  v.cam.focal_aperture  = 5
+  --v.cam.focal_point = XXX.pos
+  v.cam:setUpVector(btVector3(0,1,0), true)
+  v.cam:setHorizontalFieldOfView(0.075)
+  v.cam.pos  = btVector3(-2000,1000,d)
+  v.cam.look = btVector3(20,0,50) 
+end
+
+setcam()
 
 function run()
   s = Sphere(12,3)

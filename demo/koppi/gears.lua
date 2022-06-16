@@ -4,8 +4,8 @@
 -- http://www.thingiverse.com/thing:3575
 --
 
-require "module/color"
-require "module/gearsv50"
+color = require "module/color"
+gearsv50 = require "module/gearsv50"
 
 v.timeStep      = 1/25
 v.maxSubSteps   = 60

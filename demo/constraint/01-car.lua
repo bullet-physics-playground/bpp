@@ -6,7 +6,7 @@
 -- * F1 - prev car
 -- * F2 - next car
 
-require "module/trans"
+trans = require "module/trans"
 
 v.timeStep      = 1/5
 v.maxSubSteps   = 6

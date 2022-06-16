@@ -1,20 +1,16 @@
 --
--- Parametric pulley, OpenSCAD model from:
+--  Bolts and Nuts v1.9.5 OpenSCAD Library
 --
--- https://www.thingiverse.com/thing:16627
+--  Copyright (C) 2015 Cristiano Gariboldo - Pixel3Design.it
 --
--- POV-Ray export of this scene reqiures you
--- to have installed LightSYS version 4d from:
+--  License:: GPL
 --
--- http://www.ignorancia.org/index.php/technical/lightsys/
+-- http://www.thingiverse.com/thing:965737
 --
 
-color      = require "module/color"
-pulley2012 = require "module/pulley2012"
-
-v.timeStep      = 1/3
-v.maxSubSteps   = 200
-v.fixedTimeStep = 1/100
+nutsnbolts  = require "module/nutsnbolts"
+color       = require "module/color"
+trans       = require "module/trans"
 
 v.pre_sdl = [==[
 
@@ -198,53 +194,29 @@ texture{
 
 ]==]
 
-p = Plane(0,1,0,0,100)
-p.pos = btVector3(0,-0.5,0)
-p.col = "#111111"
-p.sdl = [[
-  texture { pigment{color rgbt<1,1,1,0.7>*1.1}
-            finish {ambient 0.45 diffuse 0.85}}
-  texture { Raster(RasterScale,RasterHalfLine ) rotate<0,0,0> }
-  texture { Raster(RasterScale,RasterHalfLineZ) rotate<0,90,0>}
-  rotate<0,0,0>
-  no_shadow
-]]
-v:add(p)
-
-function pulley(teeth, profile, mass)
-  g = pulley2012.new({fn = 10, fun = [[
-teeth = ]]..tostring(teeth)..[[;
-profile = ]]..tostring(profile)..[[;
-
-]], mass = mass})
-  return g
-end
-
-function pulleys() 
-  p = nil
+function bolts() 
   for i = 6,10 do
-    g = pulley(6+i*2, 1, 1)
-    g.pos = btVector3(-140+i*15,16,0)
-    g.col = color.random_pastel()
-    g.sdl = [[
+    o = nutsnbolts.new({
+      fun  = "conical_allen_bolt (20, 3, 6, 4, 0.2, 32, \"metric\", 1, 2.5, 10, 0.4);",
+    mass = 0 })
+
+    o.pos = btVector3(-140+i*15,16,0)
+    o.col = color.random_pastel()
+    o.sdl = [[
       texture{ t_metal }
     ]]
-    v:add(g)
-    if (i == 8) then p = g.pos end
+    v:add(o)
   end
-  return p
 end
- 
-pos = pulleys()
 
--- focal blur
-v.cam.focal_blur      = 7
+bolts();
+
+v.cam:setFieldOfView(0.25)
+v.cam:setUpVector(btVector3(0,1,0), true)
+v.cam:setHorizontalFieldOfView(0.003)
+v.cam.pos  = btVector3(0,10000,0)
+v.cam.look = btVector3(0,0,10) 
+
+v.cam.focal_blur      = 1
 v.cam.focal_aperture  = 5
-v.cam.focal_point     = pos
-
--- pseudo orthogonal view
-v.cam:setFieldOfView(.3)
-v.cam:setUpVector(btVector3(0,1,0), false)
---v.cam:setHorizontalFieldOfView(1.1)
-v.cam.pos  = btVector3(140,75,140)
-v.cam.look = btVector3(0,15,0)
+v.cam.focal_point = btVector3(0,0,0)

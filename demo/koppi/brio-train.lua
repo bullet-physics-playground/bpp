@@ -2,8 +2,8 @@
 -- BRIO bricks train
 --
 
-require "module/color"
-require "module/brio"
+color = require "module/color"
+brio  = require "module/brio"
 
 v.timeStep      = 1/2
 v.maxSubSteps   = 100
@@ -88,6 +88,14 @@ s.col = "#ff0000"
 v:add(s)
 
 v.cam:setFieldOfView(0.25)
+v.cam:setUpVector(btVector3(0,1,0), true)
+v.cam:setHorizontalFieldOfView(0.02)
+v.cam.pos  = btVector3(-10000,10000,35000)
+v.cam.look = btVector3(0,0,0) 
+
+v.cam.focal_blur      = 0
+v.cam.focal_aperture  = 5
+v.cam.focal_point = btVector3(0,0,0)
 
 v:preDraw(function(N)
 --  v.cam.up   = btVector3(0,1,0)

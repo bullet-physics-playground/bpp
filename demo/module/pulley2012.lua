@@ -5,9 +5,9 @@
 --
 -- https://www.thingiverse.com/thing:16627
 --
-module("pulley2012", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
 
    params = params or {}
    options = {
@@ -22,10 +22,10 @@ function new(params)
    fn   = options.fn
    mass = options.mass
    
-   return OpenSCAD("$fn = "..fn..";\n"..fun..lib, mass)
+   return OpenSCAD("$fn = "..fn..";\n"..fun..M.lib, mass)
 end
 
-lib = [===[
+M.lib = [===[
 
 // Parametric Pulley with multiple belt profiles
 // by droftarts January 2012
@@ -312,3 +312,6 @@ module GT2_5mm()
 	}
 
 ]===]
+
+return M
+

@@ -10,9 +10,9 @@
 --
 -- http://www.thingiverse.com/thing:21486
 --
-module("hcw", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
 
    params = params or {}
    options = {
@@ -1147,3 +1147,6 @@ module arc( height, depth, radius, degrees ) {
 ]===], mass)
 
 end
+
+return M
+

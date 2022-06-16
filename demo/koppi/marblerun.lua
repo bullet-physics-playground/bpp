@@ -4,9 +4,9 @@
 
 -- Please disable deactivation state
 
-require "module/color"
-require "module/marble"
-require "module/path_extrude"
+color = require "module/color"
+marble = require "module/marble"
+path_extrude = require "module/path_extrude"
 
 v.timeStep      = 1/6
 v.maxSubSteps   = 200

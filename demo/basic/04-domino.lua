@@ -74,11 +74,11 @@ line(n,  3, 0.01,  0.01,  0.3, 0.3)
 line(n,  6, 0.1,  0.01,  0.4, 0.4)
 
 v:preDraw(function(N) --print(N)
-  v.cam:setHorizontalFieldOfView(0.8)
+  v.cam:setHorizontalFieldOfView(0.28)
 
   if (N < 50) then
-    --v.cam.up = btVector3(0,1,0)
-    v.cam.pos  = d.pos + btVector3(-45+N,20,45)
+    v.cam.up = btVector3(0,1,0)
+    v.cam.pos  = d.pos + btVector3(75+N,20,45)
     v.cam.look = d.pos + btVector3(-29+N*0.7,1,0)
   end
 end)

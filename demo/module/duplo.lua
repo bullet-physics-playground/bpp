@@ -8,9 +8,9 @@
 --
 -- The duplo-block-lib is derived from http://www.thingiverse.com/thing:1778
 
-module("duplo", package.seeall)
+local M = {}
 
-lib = [===[
+M.lib = [===[
 
 // Duplo-compatible block library (C) by Joachim Eibl 2013
 
@@ -385,7 +385,7 @@ module cornerRamp(steps) // nr of steps: e.g. coarse=10, fine=90
 
 ]===]
 
-function new(params)
+function M.new(params)
    params    = params or {}
    options   = {
       fun  = "cosinusSlopedRampPiece();",
@@ -400,6 +400,8 @@ function new(params)
 
    mass = options.mass
 
-   return OpenSCAD(lib..options.fun, mass)
+   return OpenSCAD(M.lib..options.fun, mass)
 end
+
+return M
 

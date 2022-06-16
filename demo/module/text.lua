@@ -1,6 +1,6 @@
-module("text", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
     params    = params or {}
    options   = {
       str    = "ABC",
@@ -45,3 +45,6 @@ function new(params)
   t.post_sdl = post_sdl
   return t
 end
+
+return M
+

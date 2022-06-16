@@ -1,12 +1,12 @@
-module("color", package.seeall);
+local M = {}
 
-red = "#ff0000"
-green = "#00ff00"
-blue = "#0000ff"
-white = "#ffffff"
-gray = "#101010"
+M.red = "#ff0000"
+M.green = "#00ff00"
+M.blue = "#0000ff"
+M.white = "#ffffff"
+M.gray = "#101010"
 
-function num2hex(num)
+function M.num2hex(num)
     local hexstr = '0123456789abcdef'
     local s = ''
     while num > 0 do
@@ -18,29 +18,29 @@ function num2hex(num)
     return s
 end
 
-function rgb2col(r,g,b)
-  return string.format("#%s%s%s", num2hex(r), num2hex(g), num2hex(b))
+function M.rgb2col(r,g,b)
+  return string.format("#%s%s%s", M.num2hex(r), M.num2hex(g), M.num2hex(b))
 end
 
-function rgbt2col(r,g,b,t)
-  return string.format("#%s%s%s%s", num2hex(r), num2hex(g), num2hex(b), num2hex(t))
+function M.rgbt2col(r,g,b,t)
+  return string.format("#%s%s%s%s", M.num2hex(r), M.num2hex(g), M.num2hex(b), M.num2hex(t))
 end
 
-function col2rgb(col)
+function M.col2rgb(col)
   c = QColor(col)
   return c.r, c.g, c.b
 end
 
 -- from http://stackoverflow.com/questions/43044
-random_pastel = function()
-  return rgb2col(math.random(127)+127,math.random(127)+127,math.random(127)+127)
+M.random_pastel = function()
+  return M.rgb2col(math.random(127)+127,math.random(127)+127,math.random(127)+127)
 end
 
 -- print(rgb2col(255,255,255))
 -- print(rgbt2col(255,255,255,0))
 
-function random_bpp()
-   scheme = {
+function M.random_bpp()
+   local scheme = {
       "#3a8581",
       "#71b04b",
       "#00a651",
@@ -67,8 +67,8 @@ function random_bpp()
    return scheme[ math.random( #scheme ) ]
 end
 
-function random_chrome()
-   scheme = {
+function M.random_chrome()
+   local scheme = {
       "#698153",
       "#177646",
       "#13864c",
@@ -97,8 +97,8 @@ function random_chrome()
    return scheme[ math.random( #scheme ) ]
 end
 
-function random_google()
-   scheme = {
+function M.random_google()
+   local scheme = {
       "#ff0000",
       "#34a853",
       "#fbbb04",
@@ -107,3 +107,6 @@ function random_google()
 
    return scheme[ math.random( #scheme ) ]
 end
+
+return M
+

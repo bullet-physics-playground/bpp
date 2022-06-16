@@ -841,6 +841,7 @@ void Viewer::resetCamView() {
     camera()->setUpVector(Vec(0,1,0), true);
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
+    camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
     //XXXupdateGL();
 
 }
@@ -1081,7 +1082,7 @@ void Viewer::init() {
 
     _initialCameraPosition=camera()->position();
     _initialCameraOrientation=camera()->orientation();
-
+    _initialCameraHorizontalFieldOfView=camera()->horizontalFieldOfView();
 }
 
 void Viewer::draw() {
@@ -1704,7 +1705,7 @@ void Viewer::onQuickRender(QString povargs) {
         sceneName = "no_name";
     }
 
-    args << "povray";
+    QString povray = _settings->value("povray/executable", "/usr/bin/povray").toString();
 
     QString opts = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
 
@@ -1731,7 +1732,7 @@ void Viewer::onQuickRender(QString povargs) {
 
     args << povargs;
 
-    // qDebug() << "executing " << args.join(" ");
+    //qDebug() << "executing " << povray << args.join(" ");
 
     QDir dir(".");
 
@@ -1740,5 +1741,5 @@ void Viewer::onQuickRender(QString povargs) {
     // qDebug() << "sceneDir: " << sceneDir;
 
     QProcess p;
-    p.startDetached("nice", args, sceneDir);
+    p.startDetached(povray, args, sceneDir);
 }
