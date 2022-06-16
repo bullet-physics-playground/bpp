@@ -25,7 +25,7 @@ jobs:
   build:
     name: Create cross-platform release builds, tag and upload binaries
     needs: once
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
