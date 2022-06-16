@@ -8,7 +8,7 @@ on:
 jobs:
   once:
     name: Create single release for all builds
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
@@ -27,25 +27,47 @@ jobs:
     needs: once
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        target:
+          - bionic
+          - focal
+          - impish
+          - jammy
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           submodules: true
 
+      - name: upgrade
+        run: sudo apt update && sudo apt -y full-upgrade
+
       - name: install packages required for the build
         run: |
-          sudo apt update
-          sudo apt full-upgrade -y
-          sudo DEBIAN_FRONTEND=noninteractive apt -qq -y install -qq devscripts equivs
+          sudo DEBIAN_FRONTEND=noninteractive apt -qq -y install -qq devscripts equivs lintian
           mk-build-deps -i -s sudo -t "apt --yes --no-install-recommends"
 
-      - name: build deb package
+      - name: build source package
+        env:
+          DEBFULLNAME: "Github Actions"
+          DEBEMAIL: "jakob.flierl@gmail.com"
+          TARGET: ${{ matrix.target }}
+        run: |
+          git fetch --unshallow
+          git fetch --tags
+          VERSION="$(git describe --tags | sed -e "s/^v//" -e "s/-/+git/")"
+          dch --create \
+              --distribution ${TARGET} \
+              --package bpp \
+              --newversion ${VERSION}~${TARGET}1 \
+              "Automatic build from Github"
+          debuild -S -sa -us -uc -d
+
+      - name: build binary package
         run: dpkg-buildpackage -b -rfakeroot -us -uc
         
-      - name: Upload deb package to release
+      - name: Upload build artefacts to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
