@@ -3,6 +3,8 @@ link_koppi_style_win32 {
 
 ## The libs are in C:\lib on koppi's hard drive. See:
 #  github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows
+#
+  PKG_CONFIG=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-pkg-config
 
   WIN32_DIR_LIB = C:\\lib
 
@@ -14,11 +16,11 @@ link_koppi_style_win32 {
   DEFINES += WIN32_LINK_GLUT
 #  DEFINES += WIN32_LINK_BULLET
 #  DEFINES += WIN32_LINK_LUA
-#  DEFINES += WIN32_LINK_LUABIND
+  DEFINES += WIN32_LINK_LUABIND
 #  DEFINES += WIN32_LINK_FREEGLUT
 #  DEFINES += WIN32_LINK_GLEW
   DEFINES += WIN32_LINK_BOOST
-  DEFINES += WIN32_LINK_SDL2
+#  DEFINES += WIN32_LINK_SDL2
 
   DEFINES += WIN32_LINK_AUTOIMPORT
 
@@ -31,11 +33,10 @@ link_koppi_style_win32 {
   PKGCONFIG += sdl2
   PKGCONFIG += bullet
   PKGCONFIG += lua
-#  PKGCONFIG += luabind
-  LIBS += -lluabind09
+  LIBS += -lluabind
 
-  WIN32_DIR_LUA       = /opt/mxe/usr/i686-w64-mingw32.shared
-  WIN32_DIR_LUABIND   = /opt/mxe/usr/i686-w64-mingw32.shared
+  WIN32_DIR_LUA       = /opt/mxe/usr/x86_64-w64-mingw32.shared
+  WIN32_DIR_LUABIND   = /opt/mxe/usr/x86_64-w64-mingw32.shared
   WIN32_DIR_QGLVIEWER = /opt/libQGLViewer
 
 ## We use glut lib included with bullet.
@@ -193,7 +194,7 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
 
   PATH_LUABIND = $$WIN32_DIR_LUABIND
 
-  INCLUDEPATH += $$PATH_LUABIND
+  INCLUDEPATH += $$PATH_LUABIND\\include
 
   # include
 
