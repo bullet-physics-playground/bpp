@@ -109,6 +109,10 @@ The editor has a few known problems:
 * [LUA-Bindings-Reference](https://github.com/bullet-physics-playground/bpp/wiki/LUA-Bindings-Reference)
 * [POV-Ray on Amazon EC2](https://github.com/bullet-physics-playground/bpp/wiki/POV%E2%80%93Ray-on-Amazon-EC2)
 
+## Chat
+
+[![Gitter](https://badges.gitter.im/bullet-physics-playground/bpp.svg)](https://gitter.im/bullet-physics-playground/bpp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Author
 
 * **Jakob Flierl** – [koppi](https://github.com/koppi) – Initial release.
