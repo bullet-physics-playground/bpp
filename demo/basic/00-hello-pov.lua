@@ -10,7 +10,9 @@
 -- echo "render = 1" | bpp -f demo/basic/00-hello-pov.lua -n 400 -i
 --
 
-require "module/povray"
+-- local render = 1
+
+povray = require "module/povray"
 
 p = Plane(0,1,0,0,10)
 p.pos = btVector3(0,-0.5,0)

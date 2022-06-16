@@ -7,9 +7,9 @@
 --
 -- http://www.thingiverse.com/thing:965737
 --
-module("nutsnbolts", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
 
    params = params or {}
    options = {
@@ -873,3 +873,6 @@ module teardrop(radius, length, angle) {
 
 ]===]..options.fun, mass)
 end
+
+return M
+

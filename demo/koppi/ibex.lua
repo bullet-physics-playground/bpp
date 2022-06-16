@@ -2,7 +2,7 @@
 -- IBEX sculpture (WIP)
 --
 
-require "module/color"
+color = require "module/color"
 
 v.pre_sdl = [[
 

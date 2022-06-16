@@ -1,9 +1,9 @@
 --
 -- Dice
 --
-require "module/color"
-require "module/dice"
-require "module/text"
+color = require "module/color"
+dice  = require "module/dice"
+text  = require "module/text"
 
 v.timeStep      = 1/5
 v.maxSubSteps   = 20

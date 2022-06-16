@@ -2,9 +2,9 @@
 -- OpenSCAD path_extrude function
 --
 
-module("path_extrude", package.seeall)
+local M = {}
 
-sdl = [==[
+M.sdl = [==[
 
 // rotation matrix implementation
 // OpenSCAD seems to do this slightly different from Wikipedia
@@ -125,3 +125,6 @@ module path_extrude(points, path, pos=0, merge=false, extruded=[]){
 }
 
 ]==]
+
+return M
+

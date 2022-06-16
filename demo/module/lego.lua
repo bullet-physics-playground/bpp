@@ -6,9 +6,9 @@
 --
 -- http://www.thingiverse.com/thing:191146
 --
-module("lego", package.seeall)
+local M = {}
 
-function new(params)
+function M.new(params)
 
    params = params or {}
    options = {
@@ -24,10 +24,10 @@ function new(params)
 
    mass = options.mass
 
-   return OpenSCAD(fun..lib, mass)
+   return OpenSCAD(fun..M.lib, mass)
 end
 
-lib = [===[
+M.lib = [===[
 
 // 5 Basic dimensions
 
@@ -156,4 +156,6 @@ rotate([0,90,0]) cylinder(r=recess_D/2, h=brick_w-Wall, center=true, $fn=smooth)
 }
 
 ]===]
+
+return M
 

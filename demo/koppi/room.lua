@@ -1,8 +1,8 @@
 --
--- A room (WIP)
+-- A room (with random objects)
 --
 
-require "module/color"
+color = require "module/color"
 
 v.pre_sdl = [[
 
@@ -178,7 +178,7 @@ texture {
   sc.pos = btVector3(0,50,0)
   v:add(sc)
 
-  require "module/oloid"
+  oloid = require "module/oloid"
 
 for i = 1,6 do
   o = oloid.new({fun="$fn=50; oloid(4);", mass = 1})
@@ -193,7 +193,7 @@ for i = 1,6 do
   v:add(o)
 end
 
-require "module/path_extrude"
+path_extrude = require "module/path_extrude"
 
 path = OpenSCAD(path_extrude.sdl .. [[
 

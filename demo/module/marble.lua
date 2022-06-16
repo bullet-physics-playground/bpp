@@ -2,7 +2,7 @@
 -- http://alzinger.de/cms5/robert/raytracing/marble-machine-in-povray.html
 --
 
-module("marble", package.seeall)
+local M = {}
 
 function pre_sdl(col1r, col1g, col1b, col2r, col2g, col2b)
    local marble_pre_sdl = [==[
@@ -52,7 +52,7 @@ object {
    return marble_pre_sdl
 end
 
-function new(params)
+function M.new(params)
    params    = params or {}
    options   = {
       d      =  1,
@@ -85,4 +85,6 @@ function new(params)
 
    return s
 end
+
+return M
 

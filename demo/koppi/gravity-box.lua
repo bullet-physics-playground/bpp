@@ -4,9 +4,9 @@
 
 -- Notice: POV-Ray export requires the user_defined cam feature
 
-require "module/color"
-require "module/colors"
-require "module/metal"
+color = require "module/color"
+colors = require "module/colors"
+metal = require "module/metal"
 
 -- print(v.glAmbient) --btVector3(1,0,0))
 

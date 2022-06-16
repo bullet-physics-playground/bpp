@@ -1,8 +1,8 @@
-module("dice", package.seeall)
+local M = {}
 
-require "color"
+color = require "module/color"
 
-function new(params)
+function M.new(params)
    params    = params or {}
    options   = {
       mass   = 1,
@@ -26,4 +26,6 @@ function new(params)
 
    return s
 end
+
+return M
 

@@ -5,9 +5,9 @@
 -- http://www.thingiverse.com/thing:43278
 --
 
-module("brio", package.seeall)
+local M = {}
 
-function sdl(cmd)
+function M.sdl(cmd)
    return "rotate([0,90,90]) "..cmd..[==[
 
 WIDTH=40.7;
@@ -542,7 +542,7 @@ module brio_connector(len) {
 ]==]
 end
 
-function new(params)
+function M.new(params)
    params    = params or {}
    options   = {
       cmd    =  "brio_straight(LENGTH);",
@@ -554,9 +554,11 @@ function new(params)
    cmd  = options.cmd
    mass = options.mass
 
-   s = OpenSCAD(sdl(cmd), mass)
+   s = OpenSCAD(M.sdl(cmd), mass)
    s.col = "#ffff00"
 
    return s
 end
+
+return M
 

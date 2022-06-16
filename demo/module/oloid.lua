@@ -1,9 +1,9 @@
 --
 -- Full / Half Oloid
 --
-module("oloid", package.seeall)
+local M = {}
 
-lib = [===[
+M.lib = [===[
 
 _type = 1; // [1:Full Oloid, 2:Half Oloid]
 
@@ -78,7 +78,7 @@ module run($fn=180) {
 
 ]===]
 
-function new(params)
+function M.new(params)
    params    = params or {}
    options   = {
       fun  = "oloid(_radius);",
@@ -91,6 +91,8 @@ function new(params)
 
    mass = options.mass
 
-   return OpenSCAD(lib..options.fun, mass)
+   return OpenSCAD(M.lib..options.fun, mass)
 end
+
+return M
 

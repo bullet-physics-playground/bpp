@@ -4,7 +4,7 @@
 -- http://thingiverse.com/thing:159219
 --
 
-require "module/duplo"
+duplo = require "module/duplo"
 
 v.timeStep      = 1/3
 v.maxSubSteps   = 50

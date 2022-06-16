@@ -2,8 +2,8 @@
 -- util/trans.lua library demo
 --
 
-require "module/color"
-require "module/trans"
+color = require "module/color"
+trans = require "module/trans"
 
 v.pre_sdl = [[
 #include "textures.inc"

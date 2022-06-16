@@ -381,6 +381,9 @@ void Object::setPosition(const btVector3& v) {
 
 void Object::setPosition(btScalar x, btScalar y, btScalar z) {
     btTransform trans;
+    if (body->getMotionState() == NULL) {
+        body->setMotionState(new btDefaultMotionState());
+    }
     body->getMotionState()->getWorldTransform(trans);
     trans.setOrigin(btVector3(x, y, z));
     delete body->getMotionState();

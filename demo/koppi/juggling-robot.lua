@@ -86,3 +86,12 @@ rot(0)
 v:preSim(function(N)
   rot(N)
 end)
+
+v.cam:setUpVector(btVector3(0,1,0), false)
+v.cam:setHorizontalFieldOfView(0.0003)
+v.cam.pos  = btVector3(35000,0,000)
+v.cam.look = btVector3(0,3,0) 
+
+v.cam.focal_blur      = 0
+v.cam.focal_aperture  = 5
+v.cam.focal_point = btVector3(0,0,0)
