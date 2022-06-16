@@ -34,6 +34,10 @@ protected slots:
     void on_luaPathChanged();
 
     void on_povPreviewChanged();
+
+    void on_povExecutableChanged();
+    void on_povExecutableBrowse();
+
     void on_povExportDirChanged();
     void on_povExportDirBrowse();
 
@@ -46,6 +50,7 @@ signals:
     void luaPathChanged(QString path) const;
 
     void povPreviewChanged(QString cmd) const;
+    void povExecutableChanged(QString dir) const;
     void povExportDirChanged(QString dir) const;
 
     void scadExecutableChanged(QString dir) const;

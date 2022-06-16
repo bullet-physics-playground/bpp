@@ -61,6 +61,7 @@ void Prefs::setupPages() {
     QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../include -c +d -A +p +Q11 +GA";
     this->defaultmap["povray/preview"]    = _settings->value("povray/preview", povopt).toString();
 
+    this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "/usr/bin/povray").toString();
     this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
 
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
@@ -71,6 +72,12 @@ void Prefs::setupPages() {
 
     connect(this->luaPath, SIGNAL(textChanged()),
             this, SLOT(on_luaPathChanged()));
+
+    connect(this->povExecutable, SIGNAL(textChanged(QString)),
+            this, SLOT(on_povExportDirChanged()));
+
+    connect(this->povExecutableBrowse, SIGNAL(clicked(bool)),
+            this, SLOT(on_povExecutableBrowse()));
 
     connect(this->povExportDir, SIGNAL(textChanged(QString)),
             this, SLOT(on_povExportDirChanged()));
@@ -109,6 +116,27 @@ void Prefs::on_luaPathChanged() {
 void Prefs::on_povPreviewChanged() {
     setValue("povray/preview", povPreview->text());
     emit povPreviewChanged(getValue("povray/preview").toString());
+}
+
+void Prefs::on_povExecutableChanged() {
+    setValue("povray/export", povExecutable->text());
+    emit povExecutableChanged(povExecutable->text());
+}
+
+void Prefs::on_povExecutableBrowse() {
+    QFileDialog *dlg = new QFileDialog(this);
+    dlg->setFilter(QDir::Executable);
+    dlg->selectFile(getValue("povray/executable").toString());
+
+    QString filename;
+    if (dlg->exec())
+        filename = dlg->selectedFiles().first();
+    else
+        return;
+
+    setValue("povray/executable", filename);
+    scadExecutable->setText(filename);
+    emit povExecutableChanged(filename);
 }
 
 void Prefs::on_povExportDirChanged() {
@@ -197,6 +225,7 @@ void Prefs::updateGUI() {
     luaPath->setText(getValue("lua/path").toString());
 
     povExportDir->setText(getValue("povray/export").toString());
+    povExecutable->setText(getValue("povray/executable").toString());
     povPreview->setText(getValue("povray/preview").toString());
 
     scadExecutable->setText(getValue("openscad/executable").toString());
@@ -233,6 +262,7 @@ void Prefs::on_buttonOk_clicked() {
     emit fontChanged(getValue("editor/fontfamily").toString(), getValue("editor/fontsize").toUInt());
     emit luaPathChanged(getValue("lua/path").toString());
     emit povPreviewChanged(getValue("povray/preview").toString());
+    emit povExecutableChanged(getValue("povray/executable").toString());
     emit povExportDirChanged(getValue("povray/export").toString());
     emit scadExecutableChanged(getValue("openscad/executable").toString());
 }

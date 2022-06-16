@@ -301,6 +301,35 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
             <item>
+             <layout class="QFormLayout" name="formLayout_2">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Executable</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <item>
+                 <widget class="QLineEdit" name="povExecutable">
+                  <property name="text">
+                   <string>povray</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="povExecutableBrowse">
+                  <property name="text">
+                   <string>Browse</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QFormLayout" name="formLayout">
               <item row="0" column="0">
                <widget class="QLabel" name="label">
@@ -314,7 +343,7 @@
                 <item>
                  <widget class="QLineEdit" name="povExportDir">
                   <property name="text">
-                   <string/>
+                   <string>export</string>
                   </property>
                  </widget>
                 </item>
