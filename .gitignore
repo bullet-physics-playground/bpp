@@ -37,10 +37,14 @@ target
 anim
 
 bpp
+
+bpp-build-deps*
+
 build-stamp
 debian/bullet-physics-playground.debhelper.log
 debian/bullet-physics-playground.substvars
 debian/bullet-physics-playground/
+debian/changelog
 debian/files
 
 bpp.pro.user
