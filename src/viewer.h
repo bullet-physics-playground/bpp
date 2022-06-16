@@ -228,6 +228,7 @@ private:
     Cam *_cam;
     Vec _initialCameraPosition;
     Quaternion _initialCameraOrientation;
+    btScalar _initialCameraHorizontalFieldOfView;
 
     bool _simulate;
 

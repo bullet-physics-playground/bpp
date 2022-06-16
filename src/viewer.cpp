@@ -841,6 +841,7 @@ void Viewer::resetCamView() {
     camera()->setUpVector(Vec(0,1,0), true);
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
+    camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
     //XXXupdateGL();
 
 }
@@ -1081,7 +1082,7 @@ void Viewer::init() {
 
     _initialCameraPosition=camera()->position();
     _initialCameraOrientation=camera()->orientation();
-
+    _initialCameraHorizontalFieldOfView=camera()->horizontalFieldOfView();
 }
 
 void Viewer::draw() {
