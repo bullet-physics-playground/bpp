@@ -1,4 +1,4 @@
-#define APP_VERSION QString("v0.1.0")
+#define APP_VERSION QString("v0.1.4")
 #define APP_NAME QString("bpp")
 #define APP_NAME_FULL tr("Bullet Physics Playground")
 #define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
