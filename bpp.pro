@@ -51,8 +51,8 @@ mac {
 }
 
 win32 {
-  DEFINES += BUILDTIME=\\\"HH:MM\\\"
-  DEFINES += BUILDDATE=\\\"Y-m-d\\\"
+  DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
+  DEFINES += BUILDDATE=\\\"$$system('echo %date%')\\\"
   DEFINES += BULLET_VERSION=\\\"\\\"
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
