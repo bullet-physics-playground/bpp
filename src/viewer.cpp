@@ -8,7 +8,7 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
-#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
 #include "lua_converters.h"
 
