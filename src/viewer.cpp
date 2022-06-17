@@ -570,7 +570,7 @@ int Viewer::lua_print(lua_State* L) {
             lua_call(L, 1, 1);
             s = lua_tostring(L, -1);  /* get result */
             if (s == NULL)
-                return luaL_error(L, LUA_QL("tostring") " must return a string to " LUA_QL("print"));
+                return luaL_error(L, "'tostring' must return a string to 'print'");
             // if (i>1) p->emitScriptOutput(QString("\t"));
             p->emitScriptOutput(QString(s));
             lua_pop(L, 1);  /* pop result */
