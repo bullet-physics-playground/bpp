@@ -1,12 +1,7 @@
 link_koppi_style_win32 {
-#  message("Statically linking win32 libs (koppi style)")
+  #PKG_CONFIG=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-pkg-config
 
-## The libs are in C:\lib on koppi's hard drive. See:
-#  github.com/koppi/bullet-physics-playground/wiki/Build-on-Windows
-#
-  PKG_CONFIG=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-pkg-config
-
-  WIN32_DIR_LIB = C:\\lib
+  WIN32_DIR_LIB = C:\Users\jakob\OneDrive\Documents\GitHub
 
   WIN32_DIR_DLL = $$WIN32_DIR_LIB\\dll
 
@@ -14,8 +9,7 @@ link_koppi_style_win32 {
 
   DEFINES += WIN32_LINK_QGLVIEWER
   DEFINES += WIN32_LINK_GLUT
-#  DEFINES += WIN32_LINK_BULLET
-#  DEFINES += WIN32_LINK_LUA
+  DEFINES += WIN32_LINK_BULLET
   DEFINES += WIN32_LINK_LUABIND
 #  DEFINES += WIN32_LINK_FREEGLUT
 #  DEFINES += WIN32_LINK_GLEW
@@ -26,40 +20,35 @@ link_koppi_style_win32 {
 
   CONFIG += link_pkgconfig
 
-#  DEFINES -= HAS_LIB_ASSIMP
   PKGCONFIG += assimp
-  PKGCONFIG += glut
+#  PKGCONFIG += boost
+  PKGCONFIG += freeglut
   PKGCONFIG += glew
   PKGCONFIG += sdl2
-  PKGCONFIG += bullet
+#  PKGCONFIG += bullet
   PKGCONFIG += lua
-  LIBS += -lluabind
 
-  WIN32_DIR_LUA       = /opt/mxe/usr/x86_64-w64-mingw32.shared
-  WIN32_DIR_LUABIND   = /opt/mxe/usr/x86_64-w64-mingw32.shared
-  WIN32_DIR_QGLVIEWER = /opt/libQGLViewer
+  WIN32_DIR_LUABIND   = $$WIN32_DIR_LIB\\luabind
+  WIN32_DIR_QGLVIEWER = $$WIN32_DIR_LIB\\libQGLViewer
 
 ## We use glut lib included with bullet.
 
   WIN32_DIR_GLUT      = $$WIN32_DIR_LIB\\bullet-r2552\\Glut
   WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw
   WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.10.0
-  WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet3-2.89
-  WIN32_DIR_BULLET    = /opt/bullet3-3.06
-  WIN32_DIR_BOOST     = $$WIN32_DIR_LIB\\boost_1_51_0
+  WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet3
+#  WIN32_DIR_BULLET    = /opt/bullet3-3.06
+  WIN32_DIR_BOOST     = C:\msys64\mingw64
   WIN32_DIR_SDL2      = $$WIN32_DIR_LIB\\SDL2-2.0.22
 }
 
 contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
-# message(Enabling auto import: This should work unless it involves constant data structures referencing symbols from auto-imported DLLs.)
   QMAKE_LFLAGS            = -Wl,-enable-auto-import
   QMAKE_LFLAGS_RELEASE    = -Wl,-s
   QMAKE_LFLAGS_DEBUG      =
 }
 
 contains(DEFINES, WIN32_LINK_FREEGLUT) {
-# message(Statically linking freeglut)
-
   DEFINES += FREEGLUT_STATIC
 
   PATH_FREEGLUT = $$WIN32_DIR_FREEGLUT
@@ -76,19 +65,17 @@ contains(DEFINES, WIN32_LINK_FREEGLUT) {
 }
 
 contains(DEFINES, WIN32_LINK_GLEW) {
-# message(Statically linking glew)
 
   PATH_GLEW = $$WIN32_DIR_GLEW
 
   INCLUDEPATH += $$PATH_GLEW\\include
 
-  LIBS += -L$$PATH_GLEW\\lib -L$$PATH_GLEW\\lib
+  LIBS += -L$$PATH_GLEW\\lib
 
   LIBS += -lglew32
 }
 
 contains(DEFINES, WIN32_LINK_GLUT) {
-# message(Statically linking glut)
 
   DEFINES += GLUT_NO_LIB_PRAGMA
   DEFINES += GLUT_NO_WARNING_DISABLE=1
@@ -117,7 +104,6 @@ contains(DEFINES, WIN32_LINK_GLUT) {
 }
 
 contains(DEFINES, WIN32_LINK_QGLVIEWER) {
-#  message(Statically linking QGLViewer)
 
   INCLUDEPATH += $$WIN32_DIR_QGLVIEWER
 
@@ -131,7 +117,6 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
 }
 
 contains(DEFINES, WIN32_LINK_BULLET) {
-#  message(Statically linking Bullet Physics Library)
 
   # c++ - gcc warning" 'will be initialized after'
   unix:QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
@@ -142,61 +127,26 @@ contains(DEFINES, WIN32_LINK_BULLET) {
 
   # Include
 
-  LIBS += -L$$WIN32_DIR_BULLET\\lib
-
-  LIBS += -L$$DIR_BULLET\\Extras\\GIMPACTUtils
-  LIBS += -L$$DIR_BULLET\\Extras\\HACD
-  LIBS += -L$$DIR_BULLET\\src\\BulletCollision
-  LIBS += -L$$DIR_BULLET\\src\\BulletDynamics
-  LIBS += -L$$DIR_BULLET\\src\\BulletMultithreaded
-  LIBS += -L$$DIR_BULLET\\src\\BulletSoftBody
-  LIBS += -L$$DIR_BULLET\\src\\LinearMath
-  LIBS += -L$$DIR_BULLET\\Extras\\Serialize\\BulletFileLoader
-  LIBS += -L$$DIR_BULLET\\Extras\\Serialize\\BulletWorldImporter
-  LIBS += -L$$DIR_BULLET\\Extras\\ConvexDecomposition
-  LIBS += -L$$DIR_BULLET\\Extras\\LibXML
-  LIBS += -L$$DIR_BULLET\\Extras\\LibXML\\include
+  LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
 
   # Link
 
-  LIBS += -lGIMPACTUtils
-  LIBS += -lHACD
-  LIBS += -lConvexDecomposition
-  LIBS += -lBulletDynamics
-  LIBS += -lBulletCollision
-  LIBS += -lBulletMultithreaded
-  LIBS += -lBulletSoftBody
-  LIBS += -lLinearMath
-  LIBS += -lBulletWorldImporter
-  LIBS += -lBulletFileLoader
-}
-
-contains(DEFINES, WIN32_LINK_LUA) {
-#  message(Statically linking LUA)
-
-  INCLUDEPATH += $$WIN32_DIR_LUA\\include
-
-  HEADERS += $$WIN32_DIR_LUA\\include\\lua.hpp
-
-  # include
-
-  LIBS += -L$$WIN32_DIR_LUA
-
-  # link
-
-  LIBS += -llua51
+  LIBS += -lBulletSoftBody -lBulletDynamics -lBulletCollision -lLinearMath
 }
 
 contains(DEFINES, WIN32_LINK_LUABIND) {
-#  message(Statically linking luabind)
 
 #  DEFINES += LUABIND_DYNAMIC_LINK=1
 
   PATH_LUABIND = $$WIN32_DIR_LUABIND
 
-  INCLUDEPATH += $$PATH_LUABIND\\include
+  INCLUDEPATH += $$PATH_LUABIND $$PATH_LUABIND/build
+
+  HEADERS += $$PATH_LUABIND/luabind/luabind.hpp
 
   # include
+
+  LIBS += -L$$PATH_LUABIND/build/src -lluabind09
 
 #  CONFIG( debug, debug|release ) {
 ##XXX    LIBS += -lluabind
@@ -207,19 +157,17 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
 }
 
 contains(DEFINES, WIN32_LINK_BOOST) {
-#  message(Statically linking Boost)
 
-  INCLUDEPATH += $$WIN32_DIR_BOOST
+  INCLUDEPATH += $$WIN32_DIR_BOOST\\include
 
   # include
 
-  LIBS += -L$$WIN32_DIR_BOOST\\stage\\lib
+  LIBS += -L$$WIN32_DIR_BOOST\\mingw64\\lib
 
   # link ?
 }
 
 contains(DEFINES, WIN32_LINK_SDL2) {
-#  message(Linking SDL2)
 
 # include
 

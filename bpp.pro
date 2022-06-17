@@ -11,7 +11,7 @@ CONFIG += c++11
 DEFINES        += HAS_LIB_ASSIMP
 DEFINES        += BOOST_BIND_GLOBAL_PLACEHOLDERS
 
-QMAKE_CXXFLAGS += -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-reorder -Wno-parentheses -Wno-ignored-qualifiers -Wno-unused-local-typedefs -Wno-terminate
+QMAKE_CXXFLAGS += -Wno-attributes -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-reorder -Wno-parentheses -Wno-ignored-qualifiers -Wno-unused-local-typedefs -Wno-terminate
 
 win32 {
 
@@ -51,8 +51,8 @@ mac {
 }
 
 win32 {
-  DEFINES += BUILDTIME=\\\"HH:MM\\\"
-  DEFINES += BUILDDATE=\\\"Y-m-d\\\"
+  DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
+  DEFINES += BUILDDATE=\\\"$$system('echo %date%')\\\"
   DEFINES += BULLET_VERSION=\\\"\\\"
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
