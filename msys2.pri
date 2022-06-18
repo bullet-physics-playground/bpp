@@ -1,5 +1,8 @@
-link_koppi_style_win32 {
+build_with_msys2 {
   #PKG_CONFIG=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-pkg-config
+
+  CONFIG-= windows
+  QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
 
   WIN32_DIR_LIB = C:\Users\jakob\OneDrive\Documents\GitHub
 
@@ -123,8 +126,6 @@ contains(DEFINES, WIN32_LINK_BULLET) {
 
   INCLUDEPATH += $$WIN32_DIR_BULLET\\src
 
-  HEADERS += $$WIN32_DIR_BULLET\\src\\btBulletDynamicsCommon.h
-
   # Include
 
   LIBS += -L$$WIN32_DIR_BULLET\\build\\lib
@@ -141,8 +142,6 @@ contains(DEFINES, WIN32_LINK_LUABIND) {
   PATH_LUABIND = $$WIN32_DIR_LUABIND
 
   INCLUDEPATH += $$PATH_LUABIND $$PATH_LUABIND/build
-
-  HEADERS += $$PATH_LUABIND/luabind/luabind.hpp
 
   # include
 

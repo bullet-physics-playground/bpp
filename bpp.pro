@@ -4,6 +4,8 @@ TEMPLATE = app
 
 CONFIG += c++11
 
+CONFIG *= qt opengl warn_on shared thread
+
 #DEFINES       += HAS_QEXTSERIAL
 #DEFINES       += HAS_LUA_QT
 #DEFINES       += HAS_LUA_GL
@@ -15,9 +17,11 @@ QMAKE_CXXFLAGS += -Wno-attributes -Wno-deprecated -Wno-deprecated-copy -Wno-depr
 
 win32 {
 
-  CONFIG += link_koppi_style_win32
+#  CONFIG += build_with_msys2
+#  include(msys2.pri)
 
-  include(win32.pri)
+  CONFIG += build_with_mxe
+  include(mxe.pri)
 
   RESOURCES   += res.qrc humanity.qrc
 
@@ -371,3 +375,7 @@ DIRS_DC = object_script.* .ui .moc .rcc .obj *.pro.user $$TARGET
 
 unix:QMAKE_DISTCLEAN  += -r $$DIRS_DC
 win32:QMAKE_DISTCLEAN += /s /f /q $$DIRS_DC && rd /s /q $$DIRS_DC
+
+win32:DISTFILES += \
+    mxe.pri \
+    msys2.pri
