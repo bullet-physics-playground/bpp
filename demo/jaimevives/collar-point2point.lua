@@ -8,6 +8,43 @@ v.timeStep      = 1/5
 v.maxSubSteps   = 10
 v.fixedTimeStep = 1/20
 
+v.pre_sdl = [[
+
+#version 3.7;
+
+#include "colors.inc"
+
+#declare n_pearl=
+normal{
+   radial sine_wave
+   frequency 36*4
+   rotate 90*z
+}
+#declare t_pearl=
+material{
+   texture{
+     pigment {
+       aoi
+       color_map{
+         [0 Wheat*.5+Coral*.5]
+         [1 White]
+       }
+     }
+     normal{n_pearl .05}
+     finish{
+       specular albedo .25 metallic roughness .025 diffuse .75 brilliance 2
+       reflection{0,1 metallic}
+       conserve_energy
+       irid {
+           0.35
+           thickness .1
+           turbulence .5
+         }
+     }
+   }
+}
+]]
+
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0, 0, 0)
 plane.col = "#777"
@@ -31,6 +68,7 @@ function collar(num_pearls,collar_pos,pearl_radius)
     pearl.col = "#ffEEDD"
     pearl.friction = 0.6
     pearl.restitution = .1
+    pearl.sdl = [[ material { t_pearl } ]]
     v:add(pearl)
 
     if (i>1) then
