@@ -60,7 +60,7 @@ jobs:
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         git clone https://github.com/bullet-physics-playground/luabind
         cd luabind && mkdir build && cd build
-        /usr/lib/mxe/usr/bin/${MXE_TARGET}-cmake ..
+        /usr/lib/mxe/usr/bin/${MXE_TARGET}-cmake -DBUILD_STATIC=ON -DBUILD_STATIC_LIBS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release ..
         make -j2
         cd ../..
 
