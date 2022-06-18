@@ -40,7 +40,6 @@ jobs:
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         git clone https://github.com/bullet-physics-playground/bullet3
         cd bullet3
-        git checkout 3.06
         mkdir build && cd build
         /usr/lib/mxe/usr/bin/${MXE_TARGET}-cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_BULLET3=OFF -DBUILD_BULLET_ROBOTICS_EXTRA=OFF -DBUILD_BULLET_ROBOTICS_GUI_EXTRA=OFF -DBUILD_CLSOCKET=OFF -DBUILD_CONVEX_DECOMPOSITION_EXTRA=OFF -DBUILD_ENET=OFF -DBUILD_EXTRAS=OFF -DBUILD_GIMPACTUTILS_EXTRA=OFF -DBUILD_HACD_EXTRA=OFF -DBUILD_INVERSE_DYNAMIC_EXTRA=OFF -DBUILD_OBJ2SDF_EXTRA=OFF -DBUILD_SERIALIZE_EXTRA=OFF -DBUILD_CPU_DEMOS=OFF -DBUILD_DEMOS=OFF -DBUILD_EXTRAS=OFF -DBUILD_MULTITHREADING=ON -DBUILD_UNIT_TESTS=OFF -DUSE_CUSTOM_VECOR_MATH=OFF -DUSE_DOUBLE_PRECISION=OFF -DUSE_GLUT=OFF -DUSE_GRAPHICAL_BENCHMARK=OFF -DBUILD_SHARED_LIBS=on               -DBUILD_EXTRAS=on -DBUILD_BULLET2_DEMOS=off -DBUILD_OPENGL3_DEMOS=off -DBUILD_CPU_DEMOS=off -DBUILD_UNIT_TESTS=off -DINSTALL_LIBS=on -DINSTALL_EXTRA_LIBS=on .. -G "Unix Makefiles"
         make -j2
@@ -65,4 +64,11 @@ jobs:
         make -j2
         cd ../..
 
+    - name: Download and build bpp
+      run: |
+        export PATH=$PATH:/usr/lib/mxe/usr/bin
+        git clone https://github.com/bullet-physics-playground/bpp
+        cd bpp
+        /usr/lib/mxe/usr/${MXE_TARGET}/qt5/bin/qmake
+        make -j2
 
