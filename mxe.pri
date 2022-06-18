@@ -6,6 +6,8 @@ build_with_mxe {
   CONFIG-= windows
   QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
 
+  QMAKE_LFLAGS += -Wl,--allow-multiple-definition
+
   PKGCONFIG += assimp
   PKGCONFIG += minizip
   PKGCONFIG += glut
