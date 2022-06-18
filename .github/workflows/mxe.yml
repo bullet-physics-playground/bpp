@@ -36,7 +36,7 @@ jobs:
     - name: Download and build qglviewer
       run: |
         git clone https://github.com/GillesDebunne/libQGLViewer
-        pushd libQGLViewer/libQGLViewer
+        pushd libQGLViewer/QGLViewer
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         /usr/lib/mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake
         make -j2
