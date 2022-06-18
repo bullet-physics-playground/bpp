@@ -1,7 +1,7 @@
 build_with_mxe {
 
   CONFIG    += link_pkgconfig
-  PKG_CONFIG =i686-w64-mingw32.static-pkg-config
+  PKG_CONFIG =i686-w64-mingw32.shared-pkg-config
 
   CONFIG-= windows
   QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS

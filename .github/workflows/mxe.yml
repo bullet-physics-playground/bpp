@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  MXE_TARGET: i686-w64-mingw32.static
+  MXE_TARGET: i686-w64-mingw32.shared
 
 jobs:
   build:
