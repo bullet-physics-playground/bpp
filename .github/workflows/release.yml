@@ -23,17 +23,16 @@ jobs:
           draft: true
           prerelease: true
   build:
-    name: Create cross-platform release builds, tag and upload binaries
+    name: Build release for ${{ matrix.target }}
     needs: once
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.target }}
     strategy:
       fail-fast: false
       matrix:
         target:
-          - bionic
-          - focal
-          - impish
-          - jammy
+          - ubuntu-18.04
+          - ubuntu-20.04
+          - ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -52,8 +51,8 @@ jobs:
         env:
           DEBFULLNAME: "Github Actions"
           DEBEMAIL: "jakob.flierl@gmail.com"
-          TARGET: ${{ matrix.target }}
         run: |
+          export TARGET=$(. /etc/lsb-release && echo $DISTRIB_CODENAME)
           git fetch --unshallow
           git fetch --tags
           VERSION="$(git describe --tags | sed -e "s/^v//" -e "s/-/+git/")"
