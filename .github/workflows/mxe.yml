@@ -1,0 +1,29 @@
+name: mxe
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: upgrade
+      run: sudo apt update && sudo apt dist-upgrade
+
+    - name: install mxe packages
+      run: |
+        sudo apt -y install software-properties-common lsb-release
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9
+        sudo add-apt-repository -y "deb [arch=amd64] https://pkg.mxe.cc/repos/apt `lsb_release -sc` main"
+        sudo apt update
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-cc
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-qt5
+        apt-cache search 'mxe.*qt5'
