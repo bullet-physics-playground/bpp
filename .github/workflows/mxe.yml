@@ -26,4 +26,9 @@ jobs:
         sudo apt update
         sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-cc
         sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-qt5
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-lua
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-assimp
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-freeglut
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-glew
+        sudo apt -y install mxe-{i686,x86-64}-w64-mingw32.{static,shared}-sdl2
         apt-cache search 'mxe.*qt5'
