@@ -8,15 +8,15 @@ on:
 
 jobs:
   build:
+    name: ${{ matrix.target }}
     strategy:
       fail-fast: false
       matrix:
         target:
-          - bionic
-          - focal
-          - impish
-          - jammy
-    runs-on: ubuntu-22.04
+          - ubuntu-18.04
+          - ubuntu-20.04
+          - ubuntu-22.04
+    runs-on: ${{ matrix.target }}
 
     steps:
     - uses: actions/checkout@v3
