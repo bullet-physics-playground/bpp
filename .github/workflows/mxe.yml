@@ -47,7 +47,7 @@ jobs:
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         git clone https://github.com/bullet-physics-playground/luabind
         cd luabind && mkdir build && cd build
-        /usr/lib/mxe/usr/bin/i686-w64-mingw32.shared-cmake ..
+        /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-cmake ..
         make -j2
         cd ../..
 
