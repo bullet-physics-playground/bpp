@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  MXE_TARGET: i686-w64-mingw32.static
+
 jobs:
   build:
     strategy:
@@ -24,21 +27,20 @@ jobs:
         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9
         sudo add-apt-repository -y "deb [arch=amd64] https://pkg.mxe.cc/repos/apt `lsb_release -sc` main"
         sudo apt update
-        sudo apt -y install mxe-i686-w64-mingw32.static-cc
-        sudo apt -y install mxe-i686-w64-mingw32.static-qt5
-        sudo apt -y install mxe-i686-w64-mingw32.static-lua
-        sudo apt -y install mxe-i686-w64-mingw32.static-assimp
-        sudo apt -y install mxe-i686-w64-mingw32.static-freeglut
-        sudo apt -y install mxe-i686-w64-mingw32.static-glew
-        sudo apt -y install mxe-i686-w64-mingw32.static-sdl2
-        apt-cache search 'mxe.*qt5'
+        sudo apt -y install mxe-${MXE_TARGET}-cc
+        sudo apt -y install mxe-${MXE_TARGET}-qt5
+        sudo apt -y install mxe-${MXE_TARGET}-lua
+        sudo apt -y install mxe-${MXE_TARGET}-assimp
+        sudo apt -y install mxe-${MXE_TARGET}-freeglut
+        sudo apt -y install mxe-${MXE_TARGET}-glew
+        sudo apt -y install mxe-${MXE_TARGET}-sdl2
 
     - name: Download and build qglviewer
       run: |
         git clone https://github.com/GillesDebunne/libQGLViewer
         pushd libQGLViewer/QGLViewer
         export PATH=$PATH:/usr/lib/mxe/usr/bin
-        /usr/lib/mxe/usr/i686-w64-mingw32.static/qt5/bin/qmake
+        /usr/lib/mxe/usr/${MXE_TARGET}/qt5/bin/qmake
         make -j2
         popd
 
@@ -47,7 +49,7 @@ jobs:
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         git clone https://github.com/bullet-physics-playground/luabind
         cd luabind && mkdir build && cd build
-        /usr/lib/mxe/usr/bin/i686-w64-mingw32.static-cmake ..
+        /usr/lib/mxe/usr/bin/${MXE_TARGET}-cmake ..
         make -j2
         cd ../..
 
