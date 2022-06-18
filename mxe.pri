@@ -7,6 +7,7 @@ build_with_mxe {
   QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
 
   PKGCONFIG += assimp
+  PKGCONFIG += minizip
   PKGCONFIG += glut
   PKGCONFIG += glew
   PKGCONFIG += sdl2
