@@ -34,8 +34,8 @@ jobs:
       env:
         DEBFULLNAME: "Github Actions"
         DEBEMAIL: "jakob.flierl@gmail.com"
-        TARGET: ${{ matrix.target }}
       run: |
+        export TARGET=$(. /etc/lsb-release && echo $DISTRIB_CODENAME)
         git fetch --unshallow
         git fetch --tags
         VERSION="$(git describe --tags | sed -e "s/^v//" -e "s/-/+git/")"
