@@ -1,54 +1,27 @@
-#ifndef CODEEDITOR_H
-#define CODEEDITOR_H
+#ifndef CODE_H
+#define CODE_H
 
-#include <QDebug>
 #include <QSettings>
 
-#include <QPlainTextEdit>
-#include <QObject>
-#include <QWidget>
-#include <QVarLengthArray>
+#include <Qsci/qsciscintilla.h>
 
-#include "high.h"
-
-class QPaintEvent;
-class QResizeEvent;
-class QSize;
-
-class LineNumberArea;
-
-class CodeEditor : public QPlainTextEdit {
-    Q_OBJECT;
-
+class Code : public QsciScintilla
+{
+    Q_OBJECT
 public:
-    CodeEditor(QSettings *settings, QWidget *parent = 0);
-
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
-    int lineNumberAreaWidth();
+    explicit Code(QSettings *settings, QWidget *parent = nullptr);
 
     QString script_filename;
+
 public slots:
-    void clear();
+    bool load(QString fileName=QString());
+    bool saveAs(QString fileName=QString());
     bool save();
-    bool load(QString filename=QString());
-    bool saveAs(QString filename=QString());
-    QString scriptFile() const;
 
-    void setFont(QString family, uint size);
+    QString toPlainText();
+    void appendLine(QString line);
 
-    void appendLine(QString l) {
-        appendPlainText(l);
-    }
-
-    void replaceText(QString txt) {
-        int pos = textCursor().position();
-
-        setPlainText(txt);
-
-        QTextCursor cursor = this->textCursor();
-        cursor.setPosition(pos, QTextCursor::MoveAnchor);
-        setTextCursor(cursor);
-    }
+    void setFont(QString family, int size);
 
 signals:
     void scriptLoaded();
@@ -57,34 +30,7 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent *e);
-    void resizeEvent(QResizeEvent *event);
 
-private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
-    void highlightCurrentLine();
-    void updateLineNumberArea(const QRect &, int);
-
-private:
-    QWidget *lineNumberArea;
-
-    LuaHighlighter *highlighter;
 };
 
-
-class LineNumberArea : public QWidget {
-    Q_OBJECT;
-
-public:
-    LineNumberArea(CodeEditor *editor) : QWidget(editor) { codeEditor = editor; }
-    QSize sizeHint() const {return QSize(codeEditor->lineNumberAreaWidth(), 0); }
-
-protected:
-    void paintEvent(QPaintEvent *event) {
-        codeEditor->lineNumberAreaPaintEvent(event);
-    }
-
-private:
-    CodeEditor *codeEditor;
-};
-
-#endif
+#endif // CODE_H
