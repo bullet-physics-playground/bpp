@@ -38,6 +38,7 @@ jobs:
     - name: Download and build bullet fork
       run: |
         export PATH=$PATH:/usr/lib/mxe/usr/bin
+        cd ..
         git clone https://github.com/bullet-physics-playground/bullet3
         cd bullet3
         mkdir build && cd build
@@ -48,6 +49,7 @@ jobs:
 
     - name: Download and build qglviewer
       run: |
+        cd ..
         git clone https://github.com/GillesDebunne/libQGLViewer
         pushd libQGLViewer/QGLViewer
         export PATH=$PATH:/usr/lib/mxe/usr/bin
@@ -57,6 +59,7 @@ jobs:
 
     - name: Download and build luabind fork
       run: |
+        cd ..
         export PATH=$PATH:/usr/lib/mxe/usr/bin
         git clone https://github.com/bullet-physics-playground/luabind
         cd luabind && mkdir build && cd build
