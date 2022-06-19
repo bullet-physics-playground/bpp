@@ -64,11 +64,9 @@ jobs:
         make -j2
         cd ../..
 
-    - name: Download and build bpp
+    - name: Build bpp
       run: |
         export PATH=$PATH:/usr/lib/mxe/usr/bin
-        git clone https://github.com/bullet-physics-playground/bpp
-        cd bpp
         /usr/lib/mxe/usr/${MXE_TARGET}/qt5/bin/qmake
         make -j2
 
