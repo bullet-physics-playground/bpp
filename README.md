@@ -17,12 +17,12 @@ A very simple physics simulation software.
 
 <a href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/maxresdefault.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
 
-## Build [![Ubuntu CI](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml)
+## Build
 
 Select your operating system:
 
- * [Build on Linux](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Linux)
- * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
+ * [Build on Linux](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Linux) [![UbuntuI](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/ubuntu.yml)
+ * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows) [![Windows](https://github.com/bullet-physics-playground/bpp/actions/workflows/mxe.yml/badge.svg)](https://github.com/bullet-physics-playground/bpp/actions/workflows/mxe.yml)
  * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
 ## Run
