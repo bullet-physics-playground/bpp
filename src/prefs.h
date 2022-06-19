@@ -28,6 +28,9 @@ protected slots:
     void changeGroup(QListWidgetItem *current, QListWidgetItem *previous);
     void on_buttonOk_clicked();
 
+    void guiOpenLastFileChanged(const bool);
+    void guiWindowStateChanged(const bool);
+
     void fontFamilyChanged(const QString);
     void fontSizeChanged(const QString);
 
@@ -45,6 +48,9 @@ protected slots:
     void on_scadExecutableBrowse();
 
 signals:
+    void checkOpenLastFileChanged(const bool checked);
+    void checkOpenLastWindowState(const bool checked);
+
     void fontChanged(const QString &family, uint size) const;
 
     void luaPathChanged(QString path) const;

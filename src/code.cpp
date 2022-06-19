@@ -25,17 +25,21 @@ Code::Code(QSettings *s, QWidget *parent)
     //l->setColor(QColor(0xff, 0x80, 0x00), QsciLexerLua::);
     //l->setPaper(QColor(0x0, 0x0, 128));
 
+    /*
     QFont font = QFont();
     font.setFamily(family);
     //font.setFixedPitch(true);
     font.setPointSize(size);
 
+    */
     api->prepare();
-    l->setDefaultFont(font);
+    //l->setDefaultFont(font);
     setLexer(l);
 
+    /*
     QsciScintilla::setFont(font);
     setMarginsFont(font);
+    */
 
     // Line Highlight
     setCaretLineVisible(true);
@@ -43,9 +47,9 @@ Code::Code(QSettings *s, QWidget *parent)
     //setCaretLineBackgroundColor(QColor("blue"));
 
     // # Margin 0 is used for line numbers
-    QFontMetrics fontmetrics = QFontMetrics(font);
-    setMarginsFont(font);
-    setMarginWidth(0, fontmetrics.width("0000") + 6);
+    //QFontMetrics fontmetrics = QFontMetrics(font);
+    //setMarginsFont(font);
+    //setMarginWidth(0, fontmetrics.width("0000") + 6);
     setMarginLineNumbers(0, true);
     //setMarginsBackgroundColor(QColor("blue"));
 
@@ -54,7 +58,7 @@ Code::Code(QSettings *s, QWidget *parent)
     setFolding(QsciScintilla::BoxedTreeFoldStyle);
     setBraceMatching(QsciScintilla::SloppyBraceMatch);
 
-    setFoldMarginColors(QColor("#99CC66"), QColor("#333300"));
+    //setFoldMarginColors(QColor("#99CC66"), QColor("#333300"));
 
     SendScintilla(SCI_SETHSCROLLBAR, 0);
     setBraceMatching(SloppyBraceMatch);
@@ -160,10 +164,10 @@ void Code::appendLine(QString line) {
 void Code::setFont(QString family, int size) {
     //  qDebug() << " setFont " << family << size;
     //XXX set Lexer font here, too.
-    QFont *f = new QFont(family, size);
+    //QFont *f = new QFont(family, size);
     //f->setFixedPitch(true);
-    QsciScintilla::setFont(*f);
-    QWidget::setFont(*f);
+    //QsciScintilla::setFont(*f);
+    //QWidget::setFont(*f);
 }
 
 void Code::keyPressEvent(QKeyEvent *e) {

@@ -28,6 +28,9 @@ Prefs::~Prefs() {
 }
 
 void Prefs::setupPages() {
+    this->defaultmap["gui/openlastfile"]        = _settings->value("gui/openlastfile", false).toBool();
+    this->defaultmap["gui/openlastwindowstate"] = _settings->value("gui/openlastwindowstate", true).toBool();
+
     QFontDatabase db;
 
     foreach (int size, db.standardSizes()) {
@@ -64,6 +67,12 @@ void Prefs::setupPages() {
     this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "/usr/bin/povray").toString();
     this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
 
+    connect(this->checkOpenLast, SIGNAL(toggled(bool)),
+            this, SLOT(guiOpenLastFileChanged(bool)));
+
+    connect(this->checkWindowSave, SIGNAL(toggled(bool)),
+            this, SLOT(guiWindowStateChanged(bool)));
+
     connect(this->fontChooser, SIGNAL(activated(const QString &)),
             this, SLOT(fontFamilyChanged(const QString &)));
 
@@ -93,6 +102,16 @@ void Prefs::setupPages() {
 
     connect(this->scadExecutableBrowse, SIGNAL(clicked(bool)),
             this, SLOT(on_scadExecutableBrowse()));
+}
+
+void Prefs::guiOpenLastFileChanged(const bool checked) {
+    setValue("gui/openlastfile", checked);
+    emit checkOpenLastFileChanged(getValue("gui/openlastfile").toBool());
+}
+
+void Prefs::guiWindowStateChanged(const bool checked) {
+    setValue("gui/openlastwindowstate", checked);
+    emit checkOpenLastWindowState(getValue("gui/openlastwindowstate").toBool());
 }
 
 void Prefs::fontFamilyChanged(const QString family) {
@@ -208,6 +227,10 @@ void Prefs::setValue(QString key, QVariant value) {
 }
 
 void Prefs::updateGUI() {
+
+    checkOpenLast->setChecked(getValue("gui/openlastfile").toBool());
+    checkWindowSave->setChecked(getValue("gui/openlastwindowstate").toBool());
+
     QString fontfamily = getValue("editor/fontfamily").toString();
     int fidx = this->fontChooser->findText(fontfamily,Qt::MatchContains);
     if (fidx >= 0) {
