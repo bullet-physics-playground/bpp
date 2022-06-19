@@ -81,19 +81,19 @@ $ release/bpp -f demo/basic/00-luabind.lua
 
 #### Keyboard shortcuts
 
-* "s" starts/stops the physics simulation
-* "p" toggles the POV-Ray export mode
-* "g" toggles the PNG screenshot saving mode
-* "a" toggles display of world axis
-* "f" toggles FPS display 
-* Enter starts/stops the animation
-* Space toggles between fly/revolve camera modes
+* <kbd>S</kbd> starts/stops the physics simulation
+* <kbd>P</kbd> toggles the POV-Ray export mode
+* <kbd>G</kbd> toggles the PNG screenshot saving mode
+* <kbd>A</kbd> toggles display of world axis
+* <kbd>F</kbd> toggles FPS display 
+* <kbd>⏎ Enter</kbd> starts/stops the animation
+* <kbd>Space</kbd> toggles between fly/revolve camera modes
 * Use arrow keys to move the camera 
-* "h" shows QGLViewer help window: note the above shortcuts overwrite the QGLViewer ones under the "Keyboard" tab.
+*  <kbd>H</kbd>s hows QGLViewer help window: note the above shortcuts overwrite the QGLViewer ones under the "Keyboard" tab.
 
 #### Mouse usage
 
-* Press "h" to show QGLViewer help window, and click on the "Mouse" tab to see all the possible mouse actions.
+* Press <kbd>H</kbd> to show QGLViewer help window, and click on the "Mouse" tab to see all the possible mouse actions.
 
 ### Editor
 
