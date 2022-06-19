@@ -78,7 +78,9 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent) {
 
     QTimer::singleShot(500, this, SLOT(setFullscreenActionState()));
 
-    QTimer::singleShot(0, this, SLOT(loadLastFile()));
+    if (this->settings->value("gui/openlastfile", false).toBool()) {
+        QTimer::singleShot(0, this, SLOT(loadLastFile()));
+    }
 }
 
 void Gui::setFullscreenActionState() {
@@ -479,21 +481,24 @@ void Gui::fontChanged(const QString& family, uint size) {
 }
 
 void Gui::loadSettings() {
+
     settings->beginGroup("gui");
 
-    restoreGeometry(settings->value("geometry", saveGeometry() ).toByteArray());
-    restoreState(settings->value("state", saveState() ).toByteArray());
-    move(settings->value("pos", pos()).toPoint());
-    resize(settings->value("size", size()).toSize());
+    if (settings->value("openlastwindowstate", true).toBool()) {
+        restoreGeometry(settings->value("geometry", saveGeometry() ).toByteArray());
+        restoreState(settings->value("state", saveState() ).toByteArray());
+        move(settings->value("pos", pos()).toPoint());
+        resize(settings->value("size", size()).toSize());
 
-    if ( settings->value("fullscreen", isFullScreen() ).toBool()) {
-        showFullScreen();
-    } else {
-        showNormal();
-    }
+        if ( settings->value("fullscreen", isFullScreen() ).toBool()) {
+            showFullScreen();
+        } else {
+            showNormal();
+        }
 
-    if ( settings->value("maximized", isMaximized() ).toBool()) {
-        showMaximized();
+        if ( settings->value("maximized", isMaximized() ).toBool()) {
+            showMaximized();
+        }
     }
 
     renderSettings->setCurrentIndex(renderSettings->findText(settings->value("renderResolution", "View size").toString()));
@@ -506,14 +511,19 @@ void Gui::loadSettings() {
 void Gui::saveSettings() {
     settings->beginGroup("gui");
 
-    settings->setValue("geometry", saveGeometry());
-    settings->setValue("state", saveState());
-    settings->setValue("fullscreen", isFullScreen());
-    settings->setValue("maximized",  isMaximized());
+    // qDebug() << settings->value("openlastwindowstate", true).toBool();
 
-    if ( !isMaximized() && !isFullScreen() ) {
-        settings->setValue("pos", pos());
-        settings->setValue("size", size());
+    if (settings->value("openlastwindowstate", true).toBool()) {
+
+        settings->setValue("geometry", saveGeometry());
+        settings->setValue("state", saveState());
+        settings->setValue("fullscreen", isFullScreen());
+        settings->setValue("maximized",  isMaximized());
+
+        if ( !isMaximized() && !isFullScreen() ) {
+            settings->setValue("pos", pos());
+            settings->setValue("size", size());
+        }
     }
 
     settings->setValue("renderResolution", renderSettings->currentText());
