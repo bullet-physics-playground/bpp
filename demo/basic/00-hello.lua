@@ -5,7 +5,7 @@
  -- don't include global settings.inc
 v.pov_settings = ""
 
-require "module/color"
+color = require "module/color"
 
 v.gravity = btVector3(0,-9.81,0)
 
@@ -50,7 +50,7 @@ global_settings {
 
 #include "textures.inc"
 
-#declare daytime = 3;
+#declare daytime = 0;
 
    #switch (int(daytime))
    #case (0)    // morning
@@ -262,7 +262,7 @@ v.pre_sdl = v.pre_sdl .. [[
 
 #include "bpp_lightsys_colors.inc"
 
-#declare use_area = 0; // use area lights?
+#declare use_area = 1; // use area lights?
 
 #macro bulb(cl)
 sphere{0,0.5
