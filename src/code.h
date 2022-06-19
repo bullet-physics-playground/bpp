@@ -17,6 +17,7 @@ public slots:
     bool load(QString fileName=QString());
     bool saveAs(QString fileName=QString());
     bool save();
+    void clear();
 
     QString toPlainText();
     void appendLine(QString line);

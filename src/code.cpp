@@ -152,6 +152,11 @@ bool Code::save() {
     }
 }
 
+void Code::clear() {
+    script_filename = QString();
+    QsciScintilla::clear();
+}
+
 QString Code::toPlainText() {
     return text();
 }
