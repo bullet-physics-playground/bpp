@@ -29,6 +29,7 @@ jobs:
         sudo apt update
         sudo apt -y install mxe-${MXE_TARGET}-cc
         sudo apt -y install mxe-${MXE_TARGET}-qt5
+        sudo apt -y install mxe-${MXE_TARGET}-qscintilla2
         sudo apt -y install mxe-${MXE_TARGET}-lua
         sudo apt -y install mxe-${MXE_TARGET}-assimp
         sudo apt -y install mxe-${MXE_TARGET}-freeglut
