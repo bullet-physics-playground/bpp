@@ -135,7 +135,7 @@ void Prefs::on_povExecutableBrowse() {
         return;
 
     setValue("povray/executable", filename);
-    scadExecutable->setText(filename);
+    povExecutable->setText(filename);
     emit povExecutableChanged(filename);
 }
 
