@@ -176,6 +176,15 @@ unix:link_pkgconfig {
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
+  contains(LSB_RELEASE_ID, Mint): {
+    PKGCONFIG += lua5.2
+    PKGCONFIG -= luabind
+    PKGCONFIG += bullet
+    PKGCONFIG += sdl2
+    LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
+    DEFINES += HAVE_btHingeAccumulatedAngleConstraint
+    DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+  }
   contains(LSB_RELEASE_ID, FreeBSD): {
     PKGCONFIG += bullet lua-5.1 sdl2
     LIBS += -lluabind -lQGLViewer -lGLEW -lGLU -lGL -lglut
