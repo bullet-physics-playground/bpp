@@ -178,6 +178,14 @@ public slots:
 
     void onJoystickData(const JoystickInfo &ji);
 
+    void updateGLViewer() {
+#if QGLVIEWER_VERSION < 0x020700
+      this->updateGL();
+#else
+      this->update();
+#endif
+  };
+
 signals:
     void statusEvent(const QString&);
 
