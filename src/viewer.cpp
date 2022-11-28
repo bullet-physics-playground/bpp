@@ -431,7 +431,9 @@ btScalar Viewer::getFixedTimeStep() {
     return _fixedTimeStep;
 }
 
-Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer(parent)  {
+Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV) : QGLViewer()  {
+    Q_UNUSED(parent);
+    
     _settings = settings;
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -842,7 +844,7 @@ void Viewer::resetCamView() {
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
     camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
-    //XXXupdateGL();
+    updateGLViewer();
 
 }
 
@@ -1432,7 +1434,7 @@ void Viewer::stopAnimation() {
     }
 
     QGLViewer::stopAnimation();
-    //  updateGL();
+    updateGLViewer();
 }
 
 void Viewer::animate() {
