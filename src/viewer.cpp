@@ -844,7 +844,7 @@ void Viewer::resetCamView() {
     camera()->setPosition(_initialCameraPosition);
     camera()->setOrientation(_initialCameraOrientation);
     camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
-    updateGLViewer();
+    //XXX updateGLViewer();
 
 }
 
@@ -1434,7 +1434,7 @@ void Viewer::stopAnimation() {
     }
 
     QGLViewer::stopAnimation();
-    updateGLViewer();
+    //XXX updateGLViewer();
 }
 
 void Viewer::animate() {
