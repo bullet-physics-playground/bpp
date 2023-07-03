@@ -61,7 +61,7 @@ void Prefs::setupPages() {
 
     QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
-    QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../include -c +d -A +p +Q11 +GA";
+    QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA";
     this->defaultmap["povray/preview"]    = _settings->value("povray/preview", povopt).toString();
 
     this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "/usr/bin/povray").toString();
