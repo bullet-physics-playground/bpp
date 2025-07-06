@@ -58,7 +58,7 @@ jobs:
       run: lintian ../bpp*deb | lintian-info
 
     - name: upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntu-${{ matrix.target }}
         if-no-files-found: error
