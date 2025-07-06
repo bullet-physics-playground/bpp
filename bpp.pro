@@ -193,7 +193,7 @@ unix:link_pkgconfig {
     }
   }
   contains(LSB_RELEASE_REL, 24.04) : {
-      PKGCONFIG += lua5.2
+      PKGCONFIG += lua5.1
       PKGCONFIG -= luabind 
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
