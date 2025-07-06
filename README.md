@@ -29,17 +29,17 @@ Select your operating system:
 
 Start with GUI:
 ```bash
-$ release/bpp
+release/bpp
 ```
 
 Start without GUI and render a 400 frames animation with POV-Ray from the command-line:
 ```bash
-$ echo "render = 1" | release/bpp -f demo/basic/00-hello-pov.lua -n 400 -i
+echo "render = 1" | release/bpp -f demo/basic/00-hello-pov.lua -n 400 -i
 ```
 
 Pipe bpp simulation data into [gnuplot](https://en.wikipedia.org/wiki/Gnuplot):
 ```bash
-$ release/bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
+release/bpp -n 200 -f demo/basic/00-hello-cmdline.lua | gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 ```
 
 to see a bouncing sphere:
@@ -72,7 +72,7 @@ For more demos, see [demo/](https://github.com/bullet-physics-playground/bpp/tre
 
 For a list of Lua-accessible classes, functions and properties, run:
 ```bash
-$ release/bpp -f demo/basic/00-luabind.lua
+release/bpp -f demo/basic/00-luabind.lua
 ```
 
 ## Basic Usage HOWTO
