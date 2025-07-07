@@ -12,8 +12,8 @@ build_with_msys2 {
   CONFIG += link_pkgconfig
 
   PKGCONFIG += assimp
-  PKGCONFIG += freeglut
   PKGCONFIG += glew
+  PKGCONFIG += freeglut
   PKGCONFIG += sdl2
   PKGCONFIG += bullet
   PKGCONFIG += lua5.1
@@ -21,12 +21,7 @@ build_with_msys2 {
   WIN32_DIR_LUABIND   = ..\\luabind
   WIN32_DIR_QGLVIEWER = ..\\libQGLViewer
 
-  WIN32_DIR_FREEGLUT  = $$WIN32_DIR_LIB\\freeglut-2.8.1-1-mingw
-  WIN32_DIR_GLEW      = $$WIN32_DIR_LIB\\glew-1.10.0
-  WIN32_DIR_BULLET    = $$WIN32_DIR_LIB\\bullet3
-#  WIN32_DIR_BULLET    = /opt/bullet3-3.06
   WIN32_DIR_BOOST     = C:\msys64\mingw64
-  WIN32_DIR_SDL2      = $$WIN32_DIR_LIB\\SDL2-2.0.22
 }
 
 contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
@@ -42,9 +37,9 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
   # Link
 
   CONFIG( debug, debug|release ) {
-    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewerd2
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewerd2 -lopengl32
   } else {
-    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewer2
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewer2 -lopengl32
   }
 }
 
