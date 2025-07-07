@@ -25,7 +25,7 @@ v:add(p)
 
 v:add(text.new({ str = "Bullet Physics Playground",
   size = 1, height = .1, y = 8, z = -2}))
-txt = text.new({ str = "version 0.1.5",
+txt = text.new({ str = "version 0.1.6",
   size = 1, height = .1, y = 6, z = -2})
 v:add(txt)
 
