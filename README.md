@@ -7,7 +7,7 @@ A very simple physics simulation software.
 * [Lua](https://www.lua.org/) scripting   (experimental, sometimes segfaults)
 * [OpenGL](https://www.opengl.org/)-2 GUI      (experimental, no OpenCL features)
 * [OpenSCAD](http://www.openscad.org/) import (experimental, sometimes crashes)
-* [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/en/index.php?page=Lightsys) export (stable)
+* [POV-Ray](http://www.povray.org/) / [Lightsys](http://www.ignorancia.org/index.php?page=lightsys) export (stable)
 
 ## Screenshot
 
