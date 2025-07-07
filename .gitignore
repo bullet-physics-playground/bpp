@@ -48,6 +48,7 @@ debian/changelog
 debian/files
 debian/bpp/*
 
+bpp.1
 bpp.pro.user
 *.scad
 
