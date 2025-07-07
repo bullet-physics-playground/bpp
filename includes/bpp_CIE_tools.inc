@@ -50,7 +50,7 @@
  * In opposite to some other implementation contrast of 0 gives
  * 50% gray and not black.
  * Brightness and Contrast can be either a single value or a
- * rgb color vector to adjust each channel seperately.
+ * rgb color vector to adjust each channel separately.
  */
 #macro CIE_Imagemap_BC(Image, Brightness, Contrast)
   #local Brightness = Brightness*<0.5,0.5,0.5>;
@@ -124,7 +124,7 @@
 // sRGB gamma 2.2 correction IEC 61966-2-1 
 // (International Electrotechnical Commission)
 // This sRGB gamma correction uses a fixed value of 2.2 and
-// is composed of two seperate functions 
+// is composed of two separate functions 
 #macro GammaCorrectXYZ2RGB(C)
   (C<=0.0031308 ? (12.92*C) : (1.055*pow(C,1/2.4)-0.055))
 #end

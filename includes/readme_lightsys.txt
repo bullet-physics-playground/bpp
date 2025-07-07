@@ -23,7 +23,7 @@ of creating a light source, specifically the aspects about color, intensity and
 fading. I was tired of always having to find by trial and error the right
 combination of these factors for each light_source on each scene.
 
-  I had in mind a set of macros wich will allow to automatically calculate the
+  I had in mind a set of macros which will allow to automatically calculate the
 color, intensity and fading based on a few fixed rules. I started then learning 
 about light on the Internet, searching with google and surfing link after link. 
 After some time, I ended up with some basic principles to apply as rules for my

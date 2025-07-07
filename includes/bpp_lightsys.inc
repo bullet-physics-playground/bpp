@@ -11,14 +11,14 @@
   
   Changes on version 4b (08/11/09):
   
-    + removed all #version statments as they were not necessary, and were genrating
+    + removed all #version statements as they were not necessary, and were generating
     warnings on version 3.7 (jaime, recommended by Ive)
   
   Changes on version 4b (11/24/06):
   
     + New Lightsys_Scene_Scale controls scene scale respect to the fade distance (Jaime)
     + falloff decreased to 89.9 to avoid media artifacts (?!) (Jaime)
-    + corrected bug in Light_Color_Filtered() wich used .Gray instead .gray (Stefan Sittler)
+    + corrected bug in Light_Color_Filtered() which used .Gray instead .gray (Stefan Sittler)
 
   Changes on version 4:
 
@@ -41,7 +41,7 @@
 */
 
 
-// *** AUXILIAR LIGTH MACROS ***
+// *** AUXILIARY LIGHT MACROS ***
 //
 // Macros for alternative usage in complex light_sources, proposed by Philippe Debar 
 // also used now inside the main "light()" macro for clarity and economy.
@@ -84,7 +84,7 @@
 // --- Light_Color_Filtered() --
 //
 // Obtain light_source color for a given light color and lumens intensity,
-// filtered trough a given filter color.
+// filtered through a given filter color.
 // Parameters: 
 //  + basic light color (rgb from kelvin temp. or spectrum) 
 //  + lumens intensity 

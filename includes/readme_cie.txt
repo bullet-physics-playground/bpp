@@ -20,10 +20,10 @@ MAIN FEATURES
     Illuminant A, B, C, D50, D55, D65, D75, E and all F-types are supported.
 
   CIE color system and default illuminant
-    with 13 predifined color systems together with the illuminant and the
+    with 13 predefined color systems together with the illuminant and the
     possibility to select also 'custom-made' systems.
 
-  CIE color system with custum illuminant
+  CIE color system with custom illuminant
     use any non-default illuminant for the predefined color system
     already 20 CIE standard illuminants are defined and in addition you
     can convert temperatures to whitepoints.
@@ -175,8 +175,8 @@ PUBLIC MACROS
   Wavelength(W)
     Converts a given wavelength into a gamut mapped RGB value (maybe useful to
     determine the color of some a high energy laser where usually the wavelength
-    or the frequence is known, as the wavelength can easily calculated from a
-    given frequence)
+    or the frequency is known, as the wavelength can easily calculated from a
+    given frequency)
 
   xyz2RGBgamut(XYZ)
     Converts xyz to RGB
@@ -347,7 +347,7 @@ HISTORY
     same way as done for the Blackbody and Daylight macros.
     Call it e.g. Incandescent(K).
   - check if the three different F-type spectra are also based on functions
-    and - if so - implement it. This way we could eleminate the 12 emissive
+    and - if so - implement it. This way we could eliminate the 12 emissive
     spectra from espd_cie_standard.inc and also the 12 F-type whitepoints
     in cie.inc.
   - Luv/Lch(uv) implementation

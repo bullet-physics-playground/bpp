@@ -99,7 +99,7 @@ release/bpp -f demo/basic/00-luabind.lua
 
 The editor has a few known problems:
  
-* It will crash if you try to use a non-existant file for a Mesh object. It will crash too if you try to edit the file name. The workaround is to comment out the Mesh and v:add() lines before editing them.
+* It will crash if you try to use a non-existent file for a Mesh object. It will crash too if you try to edit the file name. The workaround is to comment out the Mesh and v:add() lines before editing them.
 
 * With scripts which load many objects, or big meshes, the typing can be very slow.
 

@@ -14,8 +14,8 @@
   -Ive 2003  email: ive@lilysoft.com  (version 1.7)
 
   -version 1.8:
-  +minor modifications by Jaime, 2004 (version 1.8) to avoid strange sintax
-erros with some usages, due to #if's on return values of macros withouth
+  +minor modifications by Jaime, 2004 (version 1.8) to avoid strange syntax
+errors with some usages, due to #if's on return values of macros without
 assigning a variable.
 
   -------------------------------------------------------------------------
@@ -29,10 +29,10 @@ assigning a variable.
     Illuminant A, B, C, D50, D55, D65, D75, E and all F-types are supported.  
 
   CIE color system and default illuminant
-    with 13 predifined color systems together with the illuminant and the
+    with 13 predefined color systems together with the illuminant and the
     possibility to select also 'custom-made' systems.
 
-  CIE color system with custum illuminant
+  CIE color system with custom illuminant
     use any non-default illuminant for the predefined color system
     already 20 CIE standard illuminants are defined and in addition you 
     can convert temperatures to whitepoints.
@@ -285,7 +285,7 @@ assigning a variable.
 }
   
 /* Lookup table containing S0, S1, S2 to calculate the spectra for the 
- * CIE D standard illuminants (D50, D55, D65, D75) and also custum D 
+ * CIE D standard illuminants (D50, D55, D65, D75) and also custom D 
  * illuminants for color temperatures between 4000K and 25000K.
  * See the macro Daylight for the formula and more details.
  */
@@ -1072,7 +1072,7 @@ assigning a variable.
 //=====================================================================
 // Change the reference whitepoint for the CIE observer.
 // Usually there is no need to do this because all common applications 
-// color mangement systems and spectrometer do work with D50 which is 
+// color management systems and spectrometer do work with D50 which is 
 // also here the  the default setting.
 // AND DO NOT CONFUSE THIS WITH THE COLOR SYSTEM WHITEPOINT!
 //===================================================================== 
@@ -1589,7 +1589,7 @@ assigning a variable.
 
 //=====================================================================
 // Wavelength conversion 
-// Wavelength to xyz color space aproximation by using the cubic interpolated
+// Wavelength to xyz color space approximation by using the cubic interpolated
 // CMF as lookup table where the "border" of the *visible* color space is 
 // defined in xy coordinates.
 //=====================================================================

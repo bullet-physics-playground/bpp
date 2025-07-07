@@ -187,7 +187,7 @@
  700, 0.3
  800, 0.0
 }
-// Several Phillips bulbs and tubes, extrated from data sheets at phillips.com:
+// Several Phillips bulbs and tubes, extracted from data sheets at phillips.com:
 // - compact white fluorescent Phillips PL-S 11W -
 #declare ES_Phillips_PLS_11w = spline{ linear_spline
  350, 0.0

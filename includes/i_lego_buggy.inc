@@ -133,7 +133,7 @@
 /* lego_stone_template => st  ---------------------------------------------- */
 
 #macro st(XSIZE,YSIZE,ZSIZE,NOPPEN,WHOLE)
- #if (XSIZE>1) // FIXIT: isn't there any 'AND' experession in POV-Ray 3.1 ?
+ #if (XSIZE>1) // FIXIT: isn't there any 'AND' expression in POV-Ray 3.1 ?
   #if (WHOLE=yes)
  merge {
   difference {

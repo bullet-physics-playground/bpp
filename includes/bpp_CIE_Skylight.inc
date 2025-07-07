@@ -65,7 +65,7 @@
 
 #ifndef(Current_Turbidity) #local Current_Turbidity=3.0; #end
 
-#ifndef(Tesselation_Trigger) #local Tesselation_Trigger=0.95; #end
+#ifndef(Tessellation_Trigger) #local Tessellation_Trigger=0.95; #end
 
 #ifndef(Max_Vertices) #local Max_Vertices=12+4*1247; #end
 
@@ -193,7 +193,7 @@
   // A, B, C, D, E: distribution coefficients
   // ÀA: darkening or brightening of the horizon?
   // ÀB: luminance gradient near the horizon?
-  // ÀC: realtive intensity of the circumsolar region?
+  // ÀC: relative intensity of the circumsolar region?
   // ÀD: width of the circumsolar region?
   // ÀE: relative backscattered light?
 
@@ -362,12 +362,12 @@
 #declare SunColor = xyz2RGB(SkyXYZ(Current_SolarPos));
 
 // ======================================================
-// The building of the tesselated icosahedron dome
+// The building of the tessellated icosahedron dome
 // ======================================================
 
 #local IcoVtx=array[Max_Vertices][2];  // IcoVtx[n][0]=vertex ; IcoVtx[n][1]=color
 #local IcoMesh=array[Max_Faces][3]; // three vertices per triangle
-#local IcoMeshFlag=array[Max_Faces];// use this triangle or was is tesselated ?
+#local IcoMeshFlag=array[Max_Faces];// use this triangle or was is tesselllated ?
 #local IcoNumFaces=0;          // number of face to use
 
 #local IcoVtxIndex=0;          // current vertices index
@@ -433,13 +433,13 @@ AddTriangleToMesh(11, 6, 7)
 AddTriangleToMesh( 7,11, 3)
 
 
-// Tesselation loop
+// Tessellation loop
 // This produce many duplicated vertices (probably 1/2)
 #local ite0=0;
 #while ( (ite0<IcoMeshIndex) & (IcoMeshIndex<(Max_Faces-3)) & (IcoVtxIndex<(Max_Vertices-3)) )
-  // Prepare tesselation test :
+  // Prepare tessellation test :
   // If linear interpolation (as performed by the mesh)
-  // isn't correct enough (Tesselation_Trigger), tesselate ;
+  // isn't correct enough (Tessellation_Trigger), tessellate ;
   // else validate current triangle (=do nothing)
   
   // Data for existing vertices
@@ -455,7 +455,7 @@ AddTriangleToMesh( 7,11, 3)
   #local col2=IcoVtx[idx2][1];
   #local col3=IcoVtx[idx3][1];
   
-  // Potential vertices for tesselation
+  // Potential vertices for tessellation
   #local vtx12=vnormalize((vtx1+vtx2)/2);
   #local vtx23=vnormalize((vtx2+vtx3)/2);
   #local vtx31=vnormalize((vtx3+vtx1)/2);
@@ -476,15 +476,15 @@ AddTriangleToMesh( 7,11, 3)
   #local colM31=DeltaE_CMC(col31, colM31);// *sqrt(vlength(vtx1-vtx3)/VtxLength);
   
   
-  // Test if >= Tesselation_Trigger
-  // if that is the case, tesselate
-  // Tesselates also if not enough vertices
-  #local colM12=( colM12>=Tesselation_Trigger ) ;
-  #local colM23=( colM23>=Tesselation_Trigger ) ;
-  #local colM31=( colM31>=Tesselation_Trigger ) ;
+  // Test if >= Tessellation_Trigger
+  // if that is the case, tessellate
+  // Tessellates also if not enough vertices
+  #local colM12=( colM12>=Tessellation_Trigger ) ;
+  #local colM23=( colM23>=Tessellation_Trigger ) ;
+  #local colM31=( colM31>=Tessellation_Trigger ) ;
   #if (colM12 | colM23 | colM31 | (IcoVtxIndex<Min_Vertices) )
-    // Tesselate
-    // Invalidate the tesselated triangle
+    // Tessellate
+    // Invalidate the tessellated triangle
     #declare IcoMeshFlag[ite0]=false;
     #declare IcoNumFaces=IcoNumFaces-1;
     // Add 4 new triangles
@@ -500,10 +500,10 @@ AddTriangleToMesh( 7,11, 3)
     AddTriangleToMesh(idx12, idx23, idx31)
     
     #if (IcoMeshIndex>=(Max_Faces-3))
-      #debug "Warning: Tesselation ended while tesselation wasn't complete : maximum number of faces is met.\n"
+      #debug "Warning: Tessellation ended while tessellation wasn't complete : maximum number of faces is met.\n"
     #end
     #if (IcoVtxIndex>=(Max_Vertices-3))
-      #debug "Warning: Tesselation ended while tesselation wasn't complete : maximum number of vertices is met.\n"
+      #debug "Warning: Tessellation ended while tessellation wasn't complete : maximum number of vertices is met.\n"
     #end
       
   /*
@@ -512,7 +512,7 @@ AddTriangleToMesh( 7,11, 3)
         // out of vertices are traced.
     #declare IcoMeshFlag[ite0]=true;
   */
-  #end // end tesselation test 
+  #end // end tessellation test 
   #local ite0=ite0+1;
 #end // #while (ite0<IcoVtxIndex)
 
@@ -562,13 +562,13 @@ mesh2{
 // There are many duplicates vertices - up to 50%
 //#debug concat("Sky dome has ",str(IcoVtxIndex,1,0)," vertices.\n")
 // use  Faces-Edges-Vertices formula to compute number of different vertices
-// or change tesselation to remove duplicated vertices
+// or change tessellation to remove duplicated vertices
 
 //#debug concat("Sky dome _uses_ ",str(IcoVtxIndex,1,0)," vertices, ")
 //#debug concat("has ",str(IcoNumFaces,1,0)," faces and ")
 //#debug concat("_uses_ ",str(IcoMeshIndex,1,0)," faces.\n")
 
-// usefull objects for working on the file
+// useful objects for working on the file
 //sphere{vnormalize(SolarPosition)*100, 10 texture{pigment{green 1} finish{ambient 1}} }
 //sphere{5*z, 1 texture{finish{reflection 1}}}
 
@@ -578,7 +578,7 @@ mesh2{
 // Cleaning and exiting
 // ======================================================
 
-// Clean unecessary declaration : #undef
+// Clean unnecessary declaration : #undef
 // TO DO
 
 #undef Lightsys_FB  // - Ive

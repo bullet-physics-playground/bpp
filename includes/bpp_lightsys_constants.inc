@@ -4,7 +4,7 @@
   LightSysIV : predefined constants.
   
   These are for easy use the system using standard values for common illuminants and 
-  tipical films or white points. Automatically includes the spectrum database files
+  typical films or white points. Automatically includes the spectrum database files
   espd_cie_standard.inc and espd_lightsys.inc 
 
   Jaime Vives Piqueres, Apr-2003.
@@ -138,7 +138,7 @@
 #include "bpp_espd_cie_standard.inc"  // standard illuminants
 #include "bpp_espd_lightsys.inc" // real iluminants 
 
-// *** generic spectrum Alias (easy to rememeber) ***
+// *** generic spectrum Alias (easy to remember) ***
 #declare ES_Incandescent_60w=spline{ES_GE_SW_Incandescent_60w}
 #declare ES_Xenon_Flash=spline{ES_Nikon_SB16_XenonFlash}
 #declare ES_Warm_White_Fluor=spline{ES_GTE_341_Warm}
