@@ -119,7 +119,7 @@ The editor has a few known problems:
 
 ## Contributors
 
-* **Jaime Vives Piqueres** – [jaimevives](https://github.com/jaimevives) – POV-Ray export and his [latest computer generated images](http://www.ignorancia.org/index.php/galleries/latest-images/).
+* **Jaime Vives Piqueres** – [jaimevives](https://github.com/jaimevives) – POV-Ray export and his [latest computer generated images](http://www.ignorancia.org/index.php?page=latest-images).
 
 ## License
 
