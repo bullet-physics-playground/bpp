@@ -47,7 +47,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
     QString scadFile = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QDir::separator() + hash + ".scad";
     QFile scad(scadFile);
     if (scad.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        // qDebug() << "scad.fileName() = " << scad.fileName();
+        qDebug() << "scad.fileName() = " << scad.fileName();
         QTextStream out(&scad);
         out << sdl;
         scad.close();
@@ -55,17 +55,23 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(NULL, mass) {
         QStringList args;
 
         QSettings s;
-        QString openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
+        QString openscad;
 
-        args << openscad;
+        #ifdef Q_OS_WIN
+            openscad = s.value("openscad/executable", "C:\\Program Files\\OpenSCAD\\openscad.exe").toString();
+        #else
+            openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
+        #endif
+
+        // args << openscad;
         args << "-o";
         args << stlfile;
         args << scad.fileName();
 
-        // qDebug() << "executing openscad " << args;
+        qDebug() << "executing openscad " << args;
 
         QProcess p;
-        p.start("nice", args);
+        p.start(openscad, args);
         if (!p.waitForStarted()) {
             qDebug() << "openscad !p.waitForStarted()";
             return;

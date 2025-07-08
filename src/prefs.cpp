@@ -61,11 +61,27 @@ void Prefs::setupPages() {
 
     QString cache = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
-    QString povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA";
+    QString povopt;
+
+#ifdef Q_OS_WIN
+    povopt = "+L" + cache + " +L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA";
+#else
+    povopt = "+L" + cache + " +LC:\\msys64\\home\\koppi\\bpp\\includes +L..\\..\\includes -c +d -A +p +Q11 +GA";
+#endif
+
     this->defaultmap["povray/preview"]    = _settings->value("povray/preview", povopt).toString();
 
-    this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "/usr/bin/povray").toString();
-    this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
+    #ifdef Q_OS_WIN
+        this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe").toString();
+    #else
+        this->defaultmap["povray/executable"]   = _settings->value("povray/executable", "/usr/bin/povray").toString();
+    #endif
+
+    #ifdef Q_OS_WIN
+        this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "C:\\Program Files\\OpenSCAD\\openscad.exe").toString();
+    #else
+        this->defaultmap["openscad/executable"] = _settings->value("openscad/executable", "/usr/bin/openscad").toString();
+    #endif
 
     connect(this->checkOpenLast, SIGNAL(toggled(bool)),
             this, SLOT(guiOpenLastFileChanged(bool)));

@@ -4,13 +4,13 @@
 
 -- adjust the module path to include
 -- the demo/ directory
-package.path = "demo/?.lua;"..package.path
+package.path = "C:\\msys64\\home\\koppi\\bpp\\demo\\?.lua;"..package.path
 
 -- print the package path
 print("Lua package path: "..package.path)
 
--- load the module "module/color.lua"
-require "module/color"
+-- load the module "color.lua"
+color = require "module/color"
 
 -- use the color module
 print(color.red)

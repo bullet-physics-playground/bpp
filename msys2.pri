@@ -18,14 +18,14 @@ build_with_msys2 {
   PKGCONFIG += bullet
   PKGCONFIG += lua5.1
 
-  WIN32_DIR_LUABIND   = ..\\luabind
-  WIN32_DIR_QGLVIEWER = ..\\libQGLViewer
+  WIN32_DIR_LUABIND   = C:\msys64\home\koppi\luabind
+  WIN32_DIR_QGLVIEWER = C:\msys64\home\koppi\libQGLViewer
 
   WIN32_DIR_BOOST     = C:\msys64\mingw64
 }
 
 contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
-  QMAKE_LFLAGS            = -Wl,-enable-auto-import
+  QMAKE_LFLAGS            = -static-libgcc -static-libstdc++ -Wl,-enable-auto-import
   QMAKE_LFLAGS_RELEASE    = -Wl,-s
   QMAKE_LFLAGS_DEBUG      =
 }
