@@ -12,6 +12,7 @@
         <file alias="actions/24/document-save-as.svg">icons/humanity/actions/24/document-save-as.svg</file>
         <file alias="actions/24/document-new.svg">icons/humanity/actions/24/document-new.svg</file>
         <file alias="actions/24/document-open.svg">icons/humanity/actions/24/document-open.svg</file>
+        <file alias="actions/24/document-revert.svg">icons/humanity/actions/24/document-revert.svg</file>
         <file alias="actions/24/document-save.svg">icons/humanity/actions/24/document-save.svg</file>
         <file alias="actions/24/edit-cut.svg">icons/humanity/actions/24/edit-cut.svg</file>
         <file alias="actions/24/edit-copy.svg">icons/humanity/actions/24/edit-copy.svg</file>
@@ -26,6 +27,7 @@
         <file alias="actions/48/document-save-as.svg">icons/humanity/actions/48/document-save-as.svg</file>
         <file alias="actions/48/document-new.svg">icons/humanity/actions/48/document-new.svg</file>
         <file alias="actions/48/document-open.svg">icons/humanity/actions/48/document-open.svg</file>
+        <file alias="actions/48/document-revert.svg">icons/humanity/actions/48/document-revert.svg</file>
         <file alias="actions/48/document-save.svg">icons/humanity/actions/48/document-save.svg</file>
         <file alias="actions/48/edit-cut.svg">icons/humanity/actions/48/edit-cut.svg</file>
         <file alias="actions/48/edit-copy.svg">icons/humanity/actions/48/edit-copy.svg</file>
