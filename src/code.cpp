@@ -1,67 +1,30 @@
-#include "code.h"
+#include <QtGui>
+#include <QtWidgets>
 
-#include <Qsci/qscilexerlua.h>
-#include <Qsci/qsciapis.h>
-
-#include <QAction>
-#include <QFileDialog>
-#include <QTextStream>
-#include <QMessageBox>
-#include <QKeyEvent>
 #include <QDebug>
 
-Code::Code(QSettings *s, QWidget *parent)
-    : QsciScintilla(parent)
-{
+#include "code.h"
+
+CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
+
     QString family = s->value("editor/fontfamily", "Courier").toString();
     uint size = s->value("editor/fontsize", 10).toUInt();
 
-    QsciLexerLua *l = new QsciLexerLua(this);
+    setFont(family, size);
 
-    QsciAPIs* api = new QsciAPIs(l);
+    highlighter = new LuaHighlighter(document());
 
-    //l->setColor(Qt::blue, QsciLexerLua::Keyword);
-    //l->setColor(QColor(0xff, 0x80, 0x00), QsciLexerLua::Number);
-    //l->setColor(QColor(0xff, 0x80, 0x00), QsciLexerLua::);
-    //l->setPaper(QColor(0x0, 0x0, 128));
+    lineNumberArea = new LineNumberArea(this);
 
-    /*
-    QFont font = QFont();
-    font.setFamily(family);
-    //font.setFixedPitch(true);
-    font.setPointSize(size);
+    connect(this, SIGNAL(blockCountChanged(int)),
+            this, SLOT(updateLineNumberAreaWidth(int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)),
+            this, SLOT(updateLineNumberArea(QRect,int)));
+    connect(this, SIGNAL(cursorPositionChanged()),
+            this, SLOT(highlightCurrentLine()));
 
-    */
-    api->prepare();
-    //l->setDefaultFont(font);
-    setLexer(l);
-
-    /*
-    QsciScintilla::setFont(font);
-    setMarginsFont(font);
-    */
-
-    // Line Highlight
-    setCaretLineVisible(true);
-    //setCaretForegroundColor(QColor("yellow"));
-    //setCaretLineBackgroundColor(QColor("blue"));
-
-    // # Margin 0 is used for line numbers
-    //QFontMetrics fontmetrics = QFontMetrics(font);
-    //setMarginsFont(font);
-    //setMarginWidth(0, fontmetrics.width("0000") + 6);
-    setMarginLineNumbers(0, true);
-    //setMarginsBackgroundColor(QColor("blue"));
-
-    // setEdgeMode(QsciScintilla::EdgeLine); setEdgeColumn(80); setEdgeColor(QColor("#FF0000"));
-
-    setFolding(QsciScintilla::BoxedTreeFoldStyle);
-    setBraceMatching(QsciScintilla::SloppyBraceMatch);
-
-    //setFoldMarginColors(QColor("#99CC66"), QColor("#333300"));
-
-    SendScintilla(SCI_SETHSCROLLBAR, 0);
-    setBraceMatching(SloppyBraceMatch);
+    updateLineNumberAreaWidth(0);
+    highlightCurrentLine();
 
     QAction* a = new QAction(tr("Open a file"), this);
     a->setShortcut(tr("Ctrl+1"));
@@ -82,7 +45,15 @@ Code::Code(QSettings *s, QWidget *parent)
     connect(a, SIGNAL(triggered()), this, SLOT(saveAs()));
 }
 
-bool Code::load(QString filename) {
+void CodeEditor::clear() {
+
+    setPlainText("");
+    script_filename = "no_name";
+    emit scriptLoaded();
+
+}
+
+bool CodeEditor::load(QString filename) {
     if (filename.isEmpty()) {
         filename = QString(".lua");
         filename = QFileDialog::getOpenFileName(this, "Open a script",
@@ -95,25 +66,23 @@ bool Code::load(QString filename) {
     if (!file.open(QIODevice::ReadOnly)) {
 
         /*
-        QMessageBox::warning(this, tr("Application error"),
-                             tr("Cannot read file %1\n").arg(filename));
-        */
+    QMessageBox::warning(this, tr("Application error"),
+                         tr("Cannot read file %1\n").arg(filename));
+    */
         return false;
     }
 
     QTextStream os(&file);
     QString p = os.readAll();
     file.close();
-
-    setText(p);
-
+    setPlainText(p);
     script_filename = filename;
     emit scriptLoaded();
 
     return true;
 }
 
-bool Code::saveAs(QString filename) {
+bool CodeEditor::saveAs(QString filename) {
     if (filename.isEmpty()) {
         QFileDialog dialog(this, tr("Save a script"), script_filename,
                            tr("Lua source (*.lua);;All files (*)"));
@@ -144,7 +113,7 @@ bool Code::saveAs(QString filename) {
     return true;
 }
 
-bool Code::save() {
+bool CodeEditor::save() {
     if (QString("no_name") == script_filename) {
         return saveAs("");
     } else {
@@ -152,31 +121,102 @@ bool Code::save() {
     }
 }
 
-void Code::clear() {
-    script_filename = QString();
-    QsciScintilla::clear();
+QString CodeEditor::scriptFile() const {
+    return script_filename;
 }
 
-QString Code::toPlainText() {
-    return text();
-}
+void CodeEditor::setFont(QString family, uint size) {
 
-void Code::appendLine(QString line) {
-    append("\n" + line);
-    SendScintilla(QsciScintilla::SCI_GOTOLINE, toPlainText().lastIndexOf("\n") + 1);
-}
-
-void Code::setFont(QString family, int size) {
     //  qDebug() << " setFont " << family << size;
-    //XXX set Lexer font here, too.
-    //QFont *f = new QFont(family, size);
-    //f->setFixedPitch(true);
-    //QsciScintilla::setFont(*f);
-    //QWidget::setFont(*f);
+
+    QFont font;
+    font.setFamily(family);
+    font.setFixedPitch(true);
+    font.setPointSize(size);
+
+    QPlainTextEdit::setFont(font);
 }
 
-void Code::keyPressEvent(QKeyEvent *e) {
-    QsciScintilla::keyPressEvent(e);
+int CodeEditor::lineNumberAreaWidth() {
+    int digits = 1;
+    int max = qMax(1, blockCount());
+    while (max >= 10) {
+        max /= 10;
+        ++digits;
+    }
+
+    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+
+    return space;
+}
+
+void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
+    setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+}
+
+void CodeEditor::updateLineNumberArea(const QRect &rect, int dy) {
+    if (dy)
+        lineNumberArea->scroll(0, dy);
+    else
+        lineNumberArea->update(0, rect.y(),
+                               lineNumberArea->width(), rect.height());
+
+    if (rect.contains(viewport()->rect()))
+        updateLineNumberAreaWidth(0);
+}
+
+void CodeEditor::resizeEvent(QResizeEvent *e) {
+    QPlainTextEdit::resizeEvent(e);
+
+    QRect cr = contentsRect();
+    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(),
+                                      lineNumberAreaWidth(), cr.height()));
+}
+
+void CodeEditor::highlightCurrentLine() {
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+
+        QColor lineColor = QColor(Qt::yellow).lighter(160);
+
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+
+    setExtraSelections(extraSelections);
+}
+
+void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
+    QPainter painter(lineNumberArea);
+    painter.fillRect(event->rect(), Qt::lightGray);
+
+    QTextBlock block = firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+    int bottom = top + (int) blockBoundingRect(block).height();
+
+    while (block.isValid() && top <= event->rect().bottom()) {
+        if (block.isVisible() && bottom >= event->rect().top()) {
+            QString number = QString::number(blockNumber + 1);
+            painter.setPen(Qt::black);
+            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
+                             Qt::AlignRight, number);
+        }
+
+        block = block.next();
+        top = bottom;
+        bottom = top + (int) blockBoundingRect(block).height();
+        ++blockNumber;
+    }
+}
+
+void CodeEditor::keyPressEvent(QKeyEvent *e) {
+    QPlainTextEdit::keyPressEvent(e);
 
     if (e->isAccepted()) {
         return;

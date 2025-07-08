@@ -152,8 +152,8 @@ private:
     QAction* actionSeparator;
 
     // main app components //////////////////////////////////////////////////////
-    Code *editor;
-    Code *debugText;
+    CodeEditor *editor;
+    CodeEditor *debugText;
     CommandLine *commandLine;
 
     QMessageBox *msgBox;

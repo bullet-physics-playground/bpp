@@ -6,8 +6,6 @@ CONFIG += c++11
 
 CONFIG *= qt opengl warn_on shared thread
 
-CONFIG         += qscintilla2
-
 #DEFINES       += HAS_QEXTSERIAL
 #DEFINES       += HAS_LUA_QT
 #DEFINES       += HAS_LUA_GL
@@ -366,7 +364,6 @@ INCLUDEPATH += src
 DEPENDPATH  += src
 
 SOURCES += src/main.cpp \
-    src/code.cpp \
            src/viewer.cpp \
            src/objects/object.cpp \
            src/objects/objects.cpp \
@@ -380,6 +377,8 @@ SOURCES += src/main.cpp \
            src/wrapper/lua_bullet.cpp \
            src/gui.cpp \
            src/cmd.cpp \
+           src/code.cpp \
+           src/high.cpp \
            src/prefs.cpp \
            src/objects/openscad.cpp \
     src/joystick/joystickhandler.cpp \
@@ -388,7 +387,6 @@ SOURCES += src/main.cpp \
     src/joystick/joystickinterfacesdl.cpp
 
 HEADERS += src/viewer.h \
-    src/code.h \
            src/objects/object.h \
            src/objects/palette.h \
            src/objects/objects.h \
@@ -401,6 +399,8 @@ HEADERS += src/viewer.h \
            src/wrapper/lua_bullet.h \
            src/wrapper/lua_converters.h \
            src/gui.h \
+           src/code.h \
+           src/high.h \
            src/cmd.h \
            src/prefs.h \
            src/objects/openscad.h \

@@ -276,7 +276,7 @@ void Gui::createDock() {
     dw1->setWindowTitle("Debug");
     dw1->setTitleBarWidget(new QWidget(this));
 
-    debugText = new Code(settings, this);
+    debugText = new CodeEditor(settings, this);
     dw1->setWidget(debugText);
     debugText->setReadOnly(true);
 
@@ -285,7 +285,7 @@ void Gui::createDock() {
     QDockWidget *dw2 = new QDockWidget(this);
     dw2->setObjectName("DockLUAScript");
     dw2->setWindowTitle("LUA Script");
-    editor = new Code(settings, this);
+    editor = new CodeEditor(settings, this);
     dw2->setWidget(editor);
 
     addDockWidget(Qt::RightDockWidgetArea, dw2);
