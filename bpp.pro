@@ -17,11 +17,11 @@ QMAKE_CXXFLAGS += -Wno-attributes -Wno-deprecated -Wno-deprecated-copy -Wno-depr
 
 win32 {
 
-#  CONFIG += build_with_msys2
-#  include(msys2.pri)
+  CONFIG += build_with_msys2
+  include(msys2.pri)
 
-  CONFIG += build_with_mxe
-  include(mxe.pri)
+#  CONFIG += build_with_mxe
+#  include(mxe.pri)
 
   RESOURCES   += res.qrc humanity.qrc
 

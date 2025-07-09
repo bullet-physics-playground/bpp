@@ -1694,8 +1694,10 @@ void Viewer::onQuickRender(QString povargs) {
 
     savePOV(true);
 
-    // QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    // env.insert("", );
+//    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+//    for (int i = 0; i < env.toStringList().length(); i++) {
+//        qDebug() << env.toStringList().at(i);
+//    }
 
     QStringList args;
 
@@ -1707,11 +1709,18 @@ void Viewer::onQuickRender(QString povargs) {
         sceneName = "no_name";
     }
 
-    QString povray = _settings->value("povray/executable", "/usr/bin/povray").toString();
+    QString povray;
+    QString opts;
 
-    QString opts = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
+#ifdef Q_OS_WIN
+    povray = _settings->value("povray/executable", "C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe").toString();
+    opts = _settings->value("povray/preview", "+LC:\\msys64\\home\\koppi\\bpp\\includes +L..\\..\\includes -c +d -A +p +Q11 +GA").toString();
+#else
+    povray = _settings->value("povray/executable", "/usr/bin/povray").toString();
+    opts = _settings->value("povray/preview", "+L/usr/share/bpp/includes +L../../includes -c +d -A +p +Q11 +GA").toString();
+#endif
 
-    args << opts;
+    args << opts.split(" ");
 
     args << QString("+W%1").arg(renderWidth);
     args << QString("+H%1").arg(renderHeight);
@@ -1723,7 +1732,7 @@ void Viewer::onQuickRender(QString povargs) {
     //// ~/Desktop/bpp-timestamp.png
     //QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
     //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
-    QString png = QString("%1/bpp-%2-%3-%4.png").arg(desktop, timestamp, sceneName, fn);
+    QString png = QString("%1%2bpp-%3-%4-%5.png").arg(desktop, QDir::separator(), timestamp, sceneName, fn);
 
     args << "+F";   // turn output file on
     args << QString("+O%1").arg(png);
@@ -1732,16 +1741,20 @@ void Viewer::onQuickRender(QString povargs) {
 
     args << sceneName + ".pov";
 
-    args << povargs;
+    //XXX args << povargs;
 
-    //qDebug() << "executing " << povray << args.join(" ");
+    qDebug() << "executing " << povray << args;
 
     QDir dir(".");
 
     QString exportDir = _settings->value("povray/export", "export").toString();
     QString sceneDir = dir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
-    // qDebug() << "sceneDir: " << sceneDir;
+    qDebug() << "exportDir: " << exportDir;
+    qDebug() << "sceneDir: " << sceneDir;
 
     QProcess p;
-    p.startDetached(povray, args, sceneDir);
+    p.setProgram(povray);
+    p.setArguments(args);
+    p.setWorkingDirectory(sceneDir);
+    p.startDetached();
 }
