@@ -307,7 +307,7 @@ void Gui::helpAbout() {
             tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) + \
             tr("<p>%1 Bullet: %2</p>").arg(LUA_VERSION).arg(BULLET_VERSION) + \
             tr("<p>GLEW:&nbsp;%1 GL&nbsp;Renderer:&nbsp;%2 GL&nbsp;Vendor:&nbsp;%3</p>").arg((char *)glGetString(GL_VERSION)).arg((char *)glGetString(GL_RENDERER)).arg((char *)glGetString(GL_VENDOR)) + \
-            tr("<p>&copy; 2008-2022 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
+            tr("<p>&copy; 2008-2026 <a href=\"http://github.com/koppi\">Jakob Flierl</a></p>") + \
             tr("<p>&copy; 2012-2016 <a href=\"http://ignorancia.org/\">Jaime Vives Piqueres</a></p>");
 
     QMessageBox::about(this, tr("About"), txt);
