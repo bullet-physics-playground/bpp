@@ -6,7 +6,6 @@ CONFIG += c++11
 
 CONFIG *= qt opengl warn_on shared thread
 
-#DEFINES       += HAS_LUA_QT
 #DEFINES       += HAS_LUA_GL
 
 DEFINES        += HAS_LIB_ASSIMP
@@ -63,7 +62,7 @@ win32 {
   DEFINES += BULLET_VERSION=\\\"$$system(pkg-config bullet --modversion)\\\"
 }
 
-QMAKE_CXXFLAGS_RELEASE += -O2
+QMAKE_CXXFLAGS_RELEASE += -O3
 QMAKE_CXXFLAGS_DEBUG   += -O0
 
 CONFIG(debug, debug|release){
@@ -182,61 +181,6 @@ QT      *= opengl xml network gui core
 
 INCLUDEPATH += src/wrapper
 DEPENDPATH  += src/wrapper
-
-contains(DEFINES, HAS_LUA_QT) {
-
-# Lua wrapper classes
-
-HEADERS += \
-  lua_network.h \
-  lua_util.h \
-  lua_register.h \
-  lua_qslot.h \
-  lua_qtypes.h \
-  lua_qt.h \
-  lua_qaction.h \
-  lua_qbutton.h \
-  lua_qlayout.h \
-  lua_qlist.h \
-  lua_qmainwindow.h \
-  lua_qobject.h \
-  lua_qrect.h \
-  lua_qtextedit.h \
-  lua_qdialog.h \
-  lua_qtabwidget.h \
-  lua_qevent.h \
-  lua_qspin.h \
-  lua_qpainter.h \
-  lua_qprocess.h \
-  lua_qslider.h \
-  lua_qurl.h \
-  lua_qfile.h \
-  lua_qftp.h
-
-SOURCES += \
-  lua_network.cpp \
-  lua_qaction.cpp \
-  lua_qbutton.cpp \
-  lua_qlayout.cpp \
-  lua_qlist.cpp \
-  lua_qmainwindow.cpp \
-  lua_qobject.cpp \
-  lua_qrect.cpp \
-  lua_qtextedit.cpp \
-  lua_qdialog.cpp \
-  lua_qtabwidget.cpp \
-  lua_qevent.cpp \
-  lua_qspin.cpp \
-  lua_qpainter.cpp \
-  lua_qprocess.cpp \
-  lua_qslider.cpp \
-  lua_qurl.cpp \
-  lua_qfile.cpp \
-  lua_qftp.cpp \
-  lua_util.cpp \
-  lua_register.cpp \
-  lua_qslot.cpp
-}
 
 contains(DEFINES, HAS_LUA_GL) {
   INCLUDEPATH += lib/luagl/include
