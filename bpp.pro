@@ -6,8 +6,6 @@ CONFIG += c++11
 
 CONFIG *= qt opengl warn_on shared thread
 
-#DEFINES       += HAS_LUA_GL
-
 DEFINES        += HAS_LIB_ASSIMP
 DEFINES        += BOOST_BIND_GLOBAL_PLACEHOLDERS
 
@@ -181,21 +179,6 @@ QT      *= opengl xml network gui core
 
 INCLUDEPATH += src/wrapper
 DEPENDPATH  += src/wrapper
-
-contains(DEFINES, HAS_LUA_GL) {
-  INCLUDEPATH += lib/luagl/include
-  DEPENDPATH  += lib/luagl/src
-
-  SOURCES *= luagl_util.c \
-             luagl.c \
-             luaglu.c \
-             luagl_const.c
-
-  HEADERS *=
-
-  HEADERS += lua_qglviewer.h
-  SOURCES += lua_qglviewer.cpp
-}
 
 # Main BPP source files
 
