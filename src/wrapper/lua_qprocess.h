@@ -3,9 +3,9 @@
 
 #include "lua_qt.h"
 
-typedef class_<QProcessEnvironment>  LQProcessEnvironment;
-typedef class_<QProcess,QObject>  LQProcess;
-typedef class_<QApplication,QObject>  LQApplication;
+typedef class_<QProcessEnvironment> LQProcessEnvironment;
+typedef class_<QProcess, QObject> LQProcess;
+typedef class_<QApplication, QObject> LQApplication;
 typedef class_<QDesktopWidget, QWidget> LQDesktopWidget;
 typedef class_<QClipboard, QObject> LQClipboard;
 typedef class_<QSound, QObject> LQSound;

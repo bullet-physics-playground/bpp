@@ -3,9 +3,8 @@
 
 #include "lua_qt.h"
 
-class QUtil
-{
-    // dummy class, used to strore the static functions
+class QUtil {
+  // dummy class, used to strore the static functions
 };
 typedef class_<QUtil> LQUtil;
 

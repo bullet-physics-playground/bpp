@@ -4,8 +4,8 @@
 #include "lua_qt.h"
 
 typedef class_<QUrl> LQUrl;
-typedef class_<QMimeData,QObject> LQMimeData;
-typedef class_<QDrag,QObject> LQDrag;
+typedef class_<QMimeData, QObject> LQMimeData;
+typedef class_<QDrag, QObject> LQDrag;
 typedef class_<QRegExp> LQRegExp;
 
 LQUrl lqurl();

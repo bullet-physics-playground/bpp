@@ -6,25 +6,25 @@
 #include <QString>
 
 class CommandLine : public QLineEdit {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    CommandLine(QWidget *parent = 0);
-    QList<QString>* getHistory();
+  CommandLine(QWidget *parent = 0);
+  QList<QString> *getHistory();
 
 public slots:
-    void executed();
+  void executed();
 
 signals:
-    void keyPressed(QKeyEvent *e);
-    void execute(QString cmd);
+  void keyPressed(QKeyEvent *e);
+  void execute(QString cmd);
 
 private:
-    void keyPressEvent(QKeyEvent *e);
+  void keyPressEvent(QKeyEvent *e);
 
 private:
-    QList<QString> *history;
-    int historyPos;
+  QList<QString> *history;
+  int historyPos;
 };
 
 #endif

@@ -6,7 +6,7 @@
 typedef class_<QPainter> LQPainter;
 typedef class_<QImage> LQImage;
 typedef class_<QPixmap> LQPixmap;
-typedef class_<QBitmap,QPixmap> LQBitmap;
+typedef class_<QBitmap, QPixmap> LQBitmap;
 
 LQPainter lqpainter();
 LQImage lqimage();

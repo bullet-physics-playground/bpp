@@ -12,9 +12,9 @@ using namespace qglviewer;
 
 class Object3ds;
 
-typedef class_<qglviewer::Camera,QObject> LQCamera;
-typedef class_<QGLWidget,QWidget> LQGLWidget;
-typedef class_<QGLViewer,QGLWidget> LQGLViewer;
+typedef class_<qglviewer::Camera, QObject> LQCamera;
+typedef class_<QGLWidget, QWidget> LQGLWidget;
+typedef class_<QGLViewer, QGLWidget> LQGLViewer;
 typedef class_<qglviewer::Vec> LQGLVec;
 typedef class_<qglviewer::Quaternion> LQuaternion;
 typedef class_<Object3ds> LQObject3DS;

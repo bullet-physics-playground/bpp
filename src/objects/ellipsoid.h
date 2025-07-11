@@ -5,8 +5,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-class Sphere : public Object
-{
+class Sphere : public Object {
 public:
   Sphere(btScalar radius = 0.5, btScalar mass = 1.0);
 
@@ -19,7 +18,7 @@ public:
 protected:
   virtual void renderInLocalFrame(QTextStream *s);
 
-  btScalar         radius;
+  btScalar radius;
 };
 
 #endif // SPHERE_H

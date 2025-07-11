@@ -8,18 +8,18 @@
 class Objects : public Object {
 
 public:
-    Objects();
+  Objects();
 
-    QList<Object *>getObjects() const;
+  QList<Object *> getObjects() const;
 
-    static void luaBind(lua_State *s);
-    QString toString() const;
-    virtual void toPOV(QTextStream *s) const;
+  static void luaBind(lua_State *s);
+  QString toString() const;
+  virtual void toPOV(QTextStream *s) const;
 
-    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
+  virtual void renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb);
 
 protected:
-    QList<Object *> _objects;
+  QList<Object *> _objects;
 };
 
 #endif // OBJECTS_H

@@ -1,5 +1,5 @@
 #ifdef WIN32_VC90
-#pragma warning (disable : 4251)
+#pragma warning(disable : 4251)
 #endif
 
 #include "sphere.h"
@@ -16,8 +16,7 @@ using namespace std;
 
 #include <luabind/operator.hpp>
 
-Sphere::Sphere(btScalar pradius, btScalar mass) : Object()
-{
+Sphere::Sphere(btScalar pradius, btScalar mass) : Object() {
   radius = pradius;
 
   shape = new bt(radius);
@@ -33,7 +32,7 @@ Sphere::Sphere(btScalar pradius, btScalar mass) : Object()
   motionState = new btDefaultMotionState(trans);
 
   btVector3 inertia;
-  shape->calculateLocalInertia(mass,inertia);
+  shape->calculateLocalInertia(mass, inertia);
   body = new btRigidBody(mass, motionState, shape, inertia);
 }
 
@@ -45,38 +44,32 @@ void Sphere::setRadius(btScalar pradius) {
   shape = new btSphereShape(radius);
 }
 
-btScalar Sphere::getRadius() const {
-  return radius;
-}
+btScalar Sphere::getRadius() const { return radius; }
 
 void Sphere::luaBind(lua_State *s) {
   using namespace luabind;
 
-  module(s)
-    [
-     class_<Sphere,Object>("Sphere")
-     .def(constructor<>())
-     .def(constructor<btScalar>())
-     .def(constructor<btScalar, btScalar>())
-     .property("radius", &Sphere::getRadius, &Sphere::setRadius)
-     .def(tostring(const_self))
-     ];
+  module(s)[class_<Sphere, Object>("Sphere")
+                .def(constructor<>())
+                .def(constructor<btScalar>())
+                .def(constructor<btScalar, btScalar>())
+                .property("radius", &Sphere::getRadius, &Sphere::setRadius)
+                .def(tostring(const_self))];
 
   Object::luaBind(s);
 }
 
-QString Sphere::toString() const {
-  return QString("Sphere");
-}
+QString Sphere::toString() const { return QString("Sphere"); }
 
 void Sphere::renderInLocalFrame(QTextStream *s) {
-  GLfloat no_mat[] = { 0.0, 0.0, 0.0, 1.0 };
-  GLfloat mat_ambient[] = { color[0] / 255.0f, color[1] / 255.0f, color[2] / 255.0f, 1.0 };
-  GLfloat mat_diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat no_mat[] = {0.0, 0.0, 0.0, 1.0};
+  GLfloat mat_ambient[] = {color[0] / 255.0f, color[1] / 255.0f,
+                           color[2] / 255.0f, 1.0};
+  GLfloat mat_diffuse[] = {0.5, 0.5, 0.5, 1.0};
+  GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
   // GLfloat no_shininess[] = { 10.0 };
   // GLfloat low_shininess[] = { 5.0 };
-  GLfloat high_shininess[] = { 100.0 };
+  GLfloat high_shininess[] = {100.0};
   // GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
   glScalef(radius, radius, radius);
@@ -96,10 +89,8 @@ void Sphere::renderInLocalFrame(QTextStream *s) {
     if (mPreSDL == NULL) {
       *s << "sphere { <.0,.0,.0>, " << radius << "\n";
       if (mTexture == NULL) {
-       *s << "  pigment { rgb <"
-          << color[0]/255.0 << ", "
-          << color[1]/255.0 << ", "
-          << color[2]/255.0 << "> }" << "\n";
+        *s << "  pigment { rgb <" << color[0] / 255.0 << ", "
+           << color[1] / 255.0 << ", " << color[2] / 255.0 << "> }" << "\n";
       } else {
         *s << mTexture << "\n";
       }
@@ -107,16 +98,20 @@ void Sphere::renderInLocalFrame(QTextStream *s) {
       *s << mPreSDL << "\n";
     }
 
-    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2] << "," << "\n"
-       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6] << "," << "\n"
-       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10] << "," << "\n"
-       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << "\n";
+    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
+       << "," << "\n"
+       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
+       << "," << "\n"
+       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10]
+       << "," << "\n"
+       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
+       << ">" << "\n";
 
     if (mPostSDL == NULL) {
-      *s << "}" << "\n" << "\n";
+      *s << "}" << "\n"
+         << "\n";
     } else {
       *s << mPostSDL << "\n";
     }
   }
-
 }

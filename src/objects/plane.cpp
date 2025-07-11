@@ -1,5 +1,5 @@
 #ifdef WIN32_VC90
-#pragma warning (disable : 4251)
+#pragma warning(disable : 4251)
 #endif
 
 #include "plane.h"
@@ -14,157 +14,153 @@
 
 using namespace std;
 
-#include <luabind/operator.hpp>
 #include <luabind/adopt_policy.hpp>
+#include <luabind/operator.hpp>
 
 Plane::Plane(const btVector3 &dim, btScalar nConst, btScalar psize) : Object() {
-    init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
+  init(dim.getX(), dim.getY(), dim.getZ(), nConst, psize);
 }
 
-Plane::Plane(btScalar nx, btScalar ny, btScalar nz,
-             btScalar nConst, btScalar psize) : Object() {
-    init(nx, ny, nz, nConst, psize);
+Plane::Plane(btScalar nx, btScalar ny, btScalar nz, btScalar nConst,
+             btScalar psize)
+    : Object() {
+  init(nx, ny, nz, nConst, psize);
 }
 
-void Plane::init(btScalar nx, btScalar ny, btScalar nz, btScalar nConst, btScalar psize) {
-    size = psize;
+void Plane::init(btScalar nx, btScalar ny, btScalar nz, btScalar nConst,
+                 btScalar psize) {
+  size = psize;
 
-    shape = new btStaticPlaneShape(btVector3(nx, ny, nz), nConst);
+  shape = new btStaticPlaneShape(btVector3(nx, ny, nz), nConst);
 
-    btQuaternion qtn;
-    btTransform trans;
-    btDefaultMotionState *motionState;
+  btQuaternion qtn;
+  btTransform trans;
+  btDefaultMotionState *motionState;
 
-    trans.setIdentity();
-    qtn.setEuler(0.0, 0.0, 0.0);
-    trans.setRotation(qtn);
-    trans.setOrigin(btVector3(0, 0, 0));
-    motionState = new btDefaultMotionState(trans);
+  trans.setIdentity();
+  qtn.setEuler(0.0, 0.0, 0.0);
+  trans.setRotation(qtn);
+  trans.setOrigin(btVector3(0, 0, 0));
+  motionState = new btDefaultMotionState(trans);
 
-    body = new btRigidBody(0.0, motionState, shape, btVector3(.0, .0, .0));
+  body = new btRigidBody(0.0, motionState, shape, btVector3(.0, .0, .0));
 }
 
-void Plane::setPigment(QString pigment) {
-    mPigment = pigment;
-}
+void Plane::setPigment(QString pigment) { mPigment = pigment; }
 
 void Plane::luaBind(lua_State *s) {
-    using namespace luabind;
+  using namespace luabind;
 
-    module(s)
-            [
-            class_<Plane, Object>("Plane")
-            .def(constructor<>(), adopt(result))
-            .def(constructor<btScalar>(), adopt(result))
-            .def(constructor<btScalar, btScalar>(), adopt(result))
-            .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
-            .def(constructor<btScalar, btScalar, btScalar, btScalar>(), adopt(result))
-            .def(constructor<btScalar, btScalar, btScalar, btScalar, btScalar>(), adopt(result))
-            .def(constructor<const btVector3&, btScalar, btScalar>(), adopt(result))
-            .def(tostring(const_self))
-            ];
+  module(s)[class_<Plane, Object>("Plane")
+                .def(constructor<>(), adopt(result))
+                .def(constructor<btScalar>(), adopt(result))
+                .def(constructor<btScalar, btScalar>(), adopt(result))
+                .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
+                .def(constructor<btScalar, btScalar, btScalar, btScalar>(),
+                     adopt(result))
+                .def(constructor<btScalar, btScalar, btScalar, btScalar,
+                                 btScalar>(),
+                     adopt(result))
+                .def(constructor<const btVector3 &, btScalar, btScalar>(),
+                     adopt(result))
+                .def(tostring(const_self))];
 }
 
-QString Plane::toString() const {
-    return QString("Plane");
-}
+QString Plane::toString() const { return QString("Plane"); }
 
 void Plane::toPOV(QTextStream *s) const {
-    if (body != NULL && body->getMotionState() != NULL) {
-        btTransform trans;
+  if (body != NULL && body->getMotionState() != NULL) {
+    btTransform trans;
 
-        body->getMotionState()->getWorldTransform(trans);
-        trans.getOpenGLMatrix(matrix);
+    body->getMotionState()->getWorldTransform(trans);
+    trans.getOpenGLMatrix(matrix);
+  }
+
+  if (s != NULL) {
+    if (mPreSDL == NULL) {
+      const btStaticPlaneShape *staticPlaneShape =
+          static_cast<const btStaticPlaneShape *>(shape);
+      const btVector3 &planeNormal = staticPlaneShape->getPlaneNormal();
+      btScalar planeConst = staticPlaneShape->getPlaneConstant();
+
+      *s << "plane { <" << planeNormal[0] << ", " << planeNormal[1] << ", "
+         << planeNormal[2] << ">, " << planeConst << "\n";
+    } else {
+      *s << mPreSDL << "\n";
     }
 
-    if (s != NULL) {
-        if (mPreSDL == NULL) {
-            const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
-            const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
-            btScalar planeConst = staticPlaneShape->getPlaneConstant();
-
-            *s << "plane { <"
-               << planeNormal[0] << ", "
-               << planeNormal[1] << ", "
-               << planeNormal[2] << ">, "
-               << planeConst << "\n";
-        } else {
-            *s << mPreSDL << "\n";
-        }
-
-        if (mSDL != NULL) {
-            *s << mSDL
-               << "\n";
-        } else {
-            *s << "  pigment { rgb <"
-               << color[0]/255.0 << ", "
-               << color[1]/255.0 << ", "
-               << color[2]/255.0 << "> }"
-               << "\n";
-        }
-
-        *s << "  matrix <" <<  matrix[0] << "," <<  matrix[1] << "," <<  matrix[2] << "," << "\n"
-           << "          " <<  matrix[4] << "," <<  matrix[5] << "," <<  matrix[6] << "," << "\n"
-           << "          " <<  matrix[8] << "," <<  matrix[9] << "," << matrix[10] << "," << "\n"
-           << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14] << ">" << "\n";
-
-        if (mPostSDL == NULL) {
-            *s << "}" << "\n" << "\n";
-        } else {
-            *s << mPostSDL << "\n";
-        }
+    if (mSDL != NULL) {
+      *s << mSDL << "\n";
+    } else {
+      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
+         << ", " << color[2] / 255.0 << "> }" << "\n";
     }
+
+    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
+       << "," << "\n"
+       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
+       << "," << "\n"
+       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10]
+       << "," << "\n"
+       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
+       << ">" << "\n";
+
+    if (mPostSDL == NULL) {
+      *s << "}" << "\n"
+         << "\n";
+    } else {
+      *s << mPostSDL << "\n";
+    }
+  }
 }
 
-void Plane::renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb) {
-    Q_UNUSED(minaabb)
-    Q_UNUSED(maxaabb)
+void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
+  Q_UNUSED(minaabb)
+  Q_UNUSED(maxaabb)
 
-    // qDebug() << "Plane::renderInLocalFrame";
+  // qDebug() << "Plane::renderInLocalFrame";
 
-    const btStaticPlaneShape* staticPlaneShape = static_cast<const btStaticPlaneShape*>(shape);
-    btScalar planeConst = staticPlaneShape->getPlaneConstant();
-    const btVector3& planeNormal = staticPlaneShape->getPlaneNormal();
-    btVector3 planeOrigin = planeNormal * planeConst;
-    btVector3 vec0,vec1;
-    btPlaneSpace1(planeNormal,vec0,vec1);
-    btScalar vecLen = size;
-    btVector3 pt0 = planeOrigin - vec0*vecLen;
-    btVector3 pt1 = planeOrigin + vec0*vecLen;
-    btVector3 pt2 = planeOrigin - vec1*vecLen;
-    btVector3 pt3 = planeOrigin + vec1*vecLen;
+  const btStaticPlaneShape *staticPlaneShape =
+      static_cast<const btStaticPlaneShape *>(shape);
+  btScalar planeConst = staticPlaneShape->getPlaneConstant();
+  const btVector3 &planeNormal = staticPlaneShape->getPlaneNormal();
+  btVector3 planeOrigin = planeNormal * planeConst;
+  btVector3 vec0, vec1;
+  btPlaneSpace1(planeNormal, vec0, vec1);
+  btScalar vecLen = size;
+  btVector3 pt0 = planeOrigin - vec0 * vecLen;
+  btVector3 pt1 = planeOrigin + vec0 * vecLen;
+  btVector3 pt2 = planeOrigin - vec1 * vecLen;
+  btVector3 pt3 = planeOrigin + vec1 * vecLen;
 
-    glColor3ubv(color);
+  glColor3ubv(color);
 
-    glBegin(GL_LINES);
-    glVertex3f(pt0.getX(), pt0.getY(), pt0.getZ());
-    glVertex3f(pt1.getX(), pt1.getY(), pt1.getZ());
-    glVertex3f(pt2.getX(), pt2.getY(), pt2.getZ());
-    glVertex3f(pt3.getX(), pt3.getY(), pt3.getZ());
-    glEnd();
+  glBegin(GL_LINES);
+  glVertex3f(pt0.getX(), pt0.getY(), pt0.getZ());
+  glVertex3f(pt1.getX(), pt1.getY(), pt1.getZ());
+  glVertex3f(pt2.getX(), pt2.getY(), pt2.getZ());
+  glVertex3f(pt3.getX(), pt3.getY(), pt3.getZ());
+  glEnd();
 
-    glBegin(GL_TRIANGLES);
-    glNormal3fv(planeNormal);
-    glVertex3fv(pt0);
-    glVertex3fv(pt1);
-    glVertex3fv(pt2);
-    glVertex3fv(pt2);
-    glVertex3fv(pt1);
-    glVertex3fv(pt0);
-    glVertex3fv(pt0);
-    glVertex3fv(pt1);
-    glVertex3fv(pt3);
-    glVertex3fv(pt3);
-    glVertex3fv(pt1);
-    glVertex3fv(pt0);
-    glEnd();
-
+  glBegin(GL_TRIANGLES);
+  glNormal3fv(planeNormal);
+  glVertex3fv(pt0);
+  glVertex3fv(pt1);
+  glVertex3fv(pt2);
+  glVertex3fv(pt2);
+  glVertex3fv(pt1);
+  glVertex3fv(pt0);
+  glVertex3fv(pt0);
+  glVertex3fv(pt1);
+  glVertex3fv(pt3);
+  glVertex3fv(pt3);
+  glVertex3fv(pt1);
+  glVertex3fv(pt0);
+  glEnd();
 }
 
-void Plane::render(btVector3& minaabb, btVector3& maxaabb) {
-    renderInLocalFrame(minaabb, maxaabb);
+void Plane::render(btVector3 &minaabb, btVector3 &maxaabb) {
+  renderInLocalFrame(minaabb, maxaabb);
 }
 
-btScalar Plane::getSize() {
-    return size;
-}
+btScalar Plane::getSize() { return size; }

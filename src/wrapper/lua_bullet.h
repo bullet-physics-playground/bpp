@@ -9,21 +9,19 @@
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-#include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 #pragma GCC diagnostic pop
 
-class LuaBullet : public QObject
-{
-    Q_OBJECT
+class LuaBullet : public QObject {
+  Q_OBJECT
 public:
-    explicit LuaBullet(QObject *parent = 0);
-    static void luaBind(lua_State *);
+  explicit LuaBullet(QObject *parent = 0);
+  static void luaBind(lua_State *);
 signals:
 
 public slots:
-
 };
 
 #endif // LUA_BULLET_H

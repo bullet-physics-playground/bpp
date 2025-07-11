@@ -7,21 +7,20 @@
 
 #include <QObject>
 
-class OpenSCAD : public Mesh
-{
-    Q_OBJECT
+class OpenSCAD : public Mesh {
+  Q_OBJECT
 public:
-    explicit OpenSCAD(QString sdl, btScalar mass);
+  explicit OpenSCAD(QString sdl, btScalar mass);
 
-    static void luaBind(lua_State *s);
-    virtual QString toString() const;
+  static void luaBind(lua_State *s);
+  virtual QString toString() const;
 
 signals:
 
 public slots:
 
 private:
-    QString sdl;
+  QString sdl;
 };
 
 #endif // HAS_LIB_ASSIMP

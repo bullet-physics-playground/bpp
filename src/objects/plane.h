@@ -5,31 +5,30 @@
 
 #include <btBulletDynamicsCommon.h>
 
-class Plane : public Object
-{
+class Plane : public Object {
 public:
-    Plane(const btVector3& dim, btScalar nConst, btScalar size);
-    Plane(btScalar nx = 0.0, btScalar ny = 0.0, btScalar nz = 0.0,
-          btScalar nConst = 0.0, btScalar size = 10.0);
+  Plane(const btVector3 &dim, btScalar nConst, btScalar size);
+  Plane(btScalar nx = 0.0, btScalar ny = 0.0, btScalar nz = 0.0,
+        btScalar nConst = 0.0, btScalar size = 10.0);
 
-    void setPigment(QString pigment);
+  void setPigment(QString pigment);
 
-    static void luaBind(lua_State *s);
-    QString toString() const;
-    virtual void toPOV(QTextStream *s) const;
+  static void luaBind(lua_State *s);
+  QString toString() const;
+  virtual void toPOV(QTextStream *s) const;
 
-    virtual void renderInLocalFrame(btVector3& minaabb, btVector3& maxaabb);
-    virtual void render(btVector3& minaabb, btVector3& maxaabb);
+  virtual void renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb);
+  virtual void render(btVector3 &minaabb, btVector3 &maxaabb);
 
-    btScalar getSize();
+  btScalar getSize();
 
 protected:
-    void init(btScalar nx, btScalar ny, btScalar nz,
-              btScalar nConst, btScalar size);
+  void init(btScalar nx, btScalar ny, btScalar nz, btScalar nConst,
+            btScalar size);
 
-    btScalar       size;
+  btScalar size;
 
-    QString mPigment;
+  QString mPigment;
 };
 
 #endif // PLANE_H

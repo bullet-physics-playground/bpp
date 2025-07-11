@@ -4,22 +4,22 @@
 #include "lua_qt.h"
 
 typedef class_<QEvent> LQEvent;
-typedef class_<QInputEvent,QEvent> LQInputEvent;
-typedef class_<QCloseEvent,QEvent> LQCloseEvent;
-typedef class_<QContextMenuEvent,QInputEvent> LQContextMenuEvent;
-typedef class_<QDropEvent,QEvent> LQDropEvent;
-typedef class_<QDragMoveEvent,QDropEvent> LQDragMoveEvent;
-typedef class_<QDragEnterEvent,QDragMoveEvent> LQDragEnterEvent;
-typedef class_<QDragLeaveEvent,QEvent> LQDragLeaveEvent;
+typedef class_<QInputEvent, QEvent> LQInputEvent;
+typedef class_<QCloseEvent, QEvent> LQCloseEvent;
+typedef class_<QContextMenuEvent, QInputEvent> LQContextMenuEvent;
+typedef class_<QDropEvent, QEvent> LQDropEvent;
+typedef class_<QDragMoveEvent, QDropEvent> LQDragMoveEvent;
+typedef class_<QDragEnterEvent, QDragMoveEvent> LQDragEnterEvent;
+typedef class_<QDragLeaveEvent, QEvent> LQDragLeaveEvent;
 
-typedef class_<QKeyEvent,QInputEvent> LQKeyEvent;
-typedef class_<QMouseEvent,QInputEvent> LQMouseEvent;
-typedef class_<QPaintEvent,QEvent> LQPaintEvent;
-typedef class_<QTimerEvent,QEvent> LQTimerEvent;
-typedef class_<QWheelEvent,QInputEvent> LQWheelEvent;
-typedef class_<QResizeEvent,QEvent> LQResizeEvent;
-typedef class_<QShowEvent,QEvent> LQShowEvent;
-typedef class_<QHideEvent,QEvent> LQHideEvent;
+typedef class_<QKeyEvent, QInputEvent> LQKeyEvent;
+typedef class_<QMouseEvent, QInputEvent> LQMouseEvent;
+typedef class_<QPaintEvent, QEvent> LQPaintEvent;
+typedef class_<QTimerEvent, QEvent> LQTimerEvent;
+typedef class_<QWheelEvent, QInputEvent> LQWheelEvent;
+typedef class_<QResizeEvent, QEvent> LQResizeEvent;
+typedef class_<QShowEvent, QEvent> LQShowEvent;
+typedef class_<QHideEvent, QEvent> LQHideEvent;
 
 LQEvent lqevent();
 LQInputEvent lqinputevent();

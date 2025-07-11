@@ -5,13 +5,13 @@
 
 #include <QtNetwork>
 
-typedef class_<QHostAddress>  LQHostAddress;
+typedef class_<QHostAddress> LQHostAddress;
 typedef class_<QNetworkProxy> LQNetworkProxy;
-typedef class_<QTcpServer,QObject>  LQTcpServer;
-typedef class_<QAbstractSocket,QObject>  LQAbstractSocket;
-typedef class_<QTcpSocket,QAbstractSocket>  LQTcpSocket;
-typedef class_<QUdpSocket,QAbstractSocket>  LQUdpSocket;
-typedef class_<QHostInfo>   LQHostInfo;
+typedef class_<QTcpServer, QObject> LQTcpServer;
+typedef class_<QAbstractSocket, QObject> LQAbstractSocket;
+typedef class_<QTcpSocket, QAbstractSocket> LQTcpSocket;
+typedef class_<QUdpSocket, QAbstractSocket> LQUdpSocket;
+typedef class_<QHostInfo> LQHostInfo;
 typedef class_<QNetworkInterface> LQNetworkInterface;
 typedef class_<QNetworkAddressEntry> LQNetworkAddressEntry;
 
