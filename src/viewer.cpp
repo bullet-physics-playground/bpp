@@ -10,8 +10,6 @@
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
-#include "lua_converters.h"
-
 #include "lua_bullet.h"
 
 #ifdef HAS_LUA_QT
@@ -33,9 +31,6 @@
 #include "objects/palette.h"
 
 #include "objects/cam.h"
-#ifdef HAS_QEXTSERIAL
-#include "qserial.h"
-#endif
 
 #ifdef WIN32
 #include <windows.h>
@@ -716,17 +711,6 @@ bool Viewer::parse(QString txt) {
     Plane::luaBind(L);
     Sphere::luaBind(L);
     Viewer::luaBind(L);
-
-#ifdef HAS_LUA_QT
-
-#ifdef HAS_QEXTSERIAL
-    QSerialPort::luaBind(L);
-#endif
-
-    // register some qt classes
-    register_classes(L);
-
-#endif
 
     luabind::bind_class_info(L);
 
