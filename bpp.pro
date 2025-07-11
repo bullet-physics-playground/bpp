@@ -6,7 +6,6 @@ CONFIG += c++11
 
 CONFIG *= qt opengl warn_on shared thread
 
-#DEFINES       += HAS_QEXTSERIAL
 #DEFINES       += HAS_LUA_QT
 #DEFINES       += HAS_LUA_GL
 
@@ -172,45 +171,6 @@ unix:link_pkgconfig {
   contains(DEFINES, HAS_LIB_ASSIMP) {
     PKGCONFIG += assimp
   }
-}
-
-contains(DEFINES, HAS_QEXTSERIAL) {
-  INCLUDEPATH += lib/qextserial
-  DEPENDPATH  += lib/qextserial
-
-  HEADERS     += qextserialport_global.h \
-                 qextserialport.h \
-                 qextserialenumerator.h
-
-  contains(DEFINES, HAS_LUA_QT) {
-    HEADERS   += src/wrapper/qserial.h \
-                 src/wrapper/lua_serial.h
-  }
-
-  SOURCES     += qextserialport.cpp
-
-  contains(DEFINES, HAS_LUA_QT) {
-    SOURCES   += src/wrapper/qserial.cpp \
-                 src/wrapper/lua_serial.cpp
-  }
-
-  unix:SOURCES       += posix_qextserialport.cpp
-  unix:!macx:SOURCES += qextserialenumerator_unix.cpp
-
-  macx {
-    SOURCES   += qextserialenumerator_osx.cpp
-    LIBS      += -framework IOKit -framework CoreFoundation
-  }
-
-  win32 {
-    SOURCES   += win_qextserialport.cpp qextserialenumerator_win.cpp
-    DEFINES   += UNICODE
-    DEFINES   += WINVER=0x0501 # needed for mingw
-    LIBS      += -lsetupapi -ladvapi32 -luser32
-  }
-
-  unix:DEFINES   += _TTY_LINUX_ _TTY_NOWARN_
-  win32:DEFINES  += _TTY_WIN_ _TTY_NOWARN_
 }
 
 CONFIG  *= debug_and_release
