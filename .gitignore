@@ -4,6 +4,8 @@ ui_gui.h
 
 html
 
+build/
+    
 debug
 release
 
