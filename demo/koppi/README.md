@@ -14,7 +14,6 @@ Demos by [@koppi](https://github.com/koppi)
 * **juggling-robot.lua**: A simulation of Claude Shannon's juggling robot.
 * **lego.lua**: A demonstration of a parametric Lego brick created with OpenSCAD.
 * **marblerun.lua**: A marble run simulation (WIP).
-* **maze.lua**: A maze loaded from an STL file.
 * **nutsnbolts.lua**: A demonstration of the Bolts and Nuts v1.9.5 OpenSCAD Library.
 * **pulley.lua**: A demonstration of a parametric pulley created with OpenSCAD.
 * **room.lua**: A room with random objects.
