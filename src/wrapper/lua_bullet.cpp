@@ -86,8 +86,10 @@ LuaBullet::LuaBullet(QObject *parent) : QObject(parent) {}
 void LuaBullet::luaBind(lua_State *s) {
   using namespace luabind;
 
+  // https://pybullet.org/Bullet/BulletFull/
+
   module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionShape.html
+      s) // https://pybullet.org/Bullet/BulletFull/classbtCollisionShape.html
       [class_<btCollisionShape>("btCollisionShape")
            .property("userPointer", &btCollisionShape::getUserPointer,
                      &btCollisionShape::setUserPointer)
@@ -116,19 +118,16 @@ void LuaBullet::luaBind(lua_State *s) {
                 &btCollisionShape::serializeSingleShape)];
 
   // TODO
-  // http://bulletphysics.com/Bullet/BulletFull/structbtDbvt.html
   // btStridingMeshInterface
   // btBroadphaseProxy
 
-  // btMotionState
-
-  module(
-      s)[class_<btMotionState, btMotionState *, btMotionState_wrap>(
+  // https://pybullet.org/Bullet/BulletFull/classbtMotionState.html
+  module(s)[class_<btMotionState, btMotionState *, btMotionState_wrap>(
              "btMotionState")
              .def("getWorldTransform", &btMotionState_wrap::getWorldTransform)
              .def("setWorldTransform", &btMotionState_wrap::setWorldTransform)];
 
-  // btDefaultMotionState
+  // https://pybullet.org/Bullet/BulletFull/structbtDefaultMotionState.html
   module(s)[class_<btDefaultMotionState, btDefaultMotionState *,
                    btDefaultMotionState_wrap, btMotionState>(
                 "btDefaultMotionState")
@@ -137,8 +136,7 @@ void LuaBullet::luaBind(lua_State *s) {
 
   // BULLET SHAPE CLASSES
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCompoundShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCompoundShape.html
       [class_<btCompoundShape, btCollisionShape>("btCompoundShape")
            .def(constructor<bool>(), adopt(result))
            .def("addChildShape", &btCompoundShape::addChildShape)
@@ -161,8 +159,7 @@ void LuaBullet::luaBind(lua_State *s) {
                 &btCompoundShape::calculatePrincipalAxisTransform)
            .def("getUpdateRevision", &btCompoundShape::getUpdateRevision)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConcaveShape.html
+  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConcaveShape.html
       [class_<btConcaveShape, btCollisionShape>("btConcaveShape")
            .property("margin", &btConcaveShape::getMargin,
                      &btConcaveShape::setMargin)
@@ -172,7 +169,7 @@ void LuaBullet::luaBind(lua_State *s) {
 
            .def("processAllTriangles", &btConcaveShape::processAllTriangles)];
 
-  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtEmptyShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtEmptyShape.html
       [class_<btEmptyShape, btConcaveShape>("btEmptyShape")
            .def("getMargin", &btEmptyShape::getMargin)
            .def("setMargin", &btEmptyShape::setMargin)
@@ -181,8 +178,7 @@ void LuaBullet::luaBind(lua_State *s) {
 
            .def("processAllTriangles", &btEmptyShape::processAllTriangles)];
 
-  module(
-      s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactShapeInterface.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtGImpactShapeInterface.html
       [class_<btGImpactShapeInterface, btConcaveShape>(
            "btGImpactShapeInterface")
            .def("updateBound", &btGImpactShapeInterface::updateBound)
@@ -198,8 +194,7 @@ void LuaBullet::luaBind(lua_State *s) {
        // XXX
   ];
 
-  module(
-      s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
+  module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
       [class_<btGImpactMeshShape, btGImpactShapeInterface>("btGImpactMeshShape")
            .def(constructor<btStridingMeshInterface *>(), adopt(result))
 
@@ -217,8 +212,7 @@ void LuaBullet::luaBind(lua_State *s) {
 
            .def("updateBound", &btGImpactMeshShape::updateBound)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexShape.html
       [class_<btConvexShape, btCollisionShape>("btConvexShape")
            .def("localGetSupportVertexWithoutMarginNonVirtual",
                 &btConvexShape::localGetSupportVertexWithoutMarginNonVirtual)
@@ -228,11 +222,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("getAabbNonVirtual", &btConvexShape::getAabbNonVirtual)
            .def("getAabb", &btConvexShape::getAabb)];
 
-  // not in the headers
-  // http://bulletphysics.com/Bullet/BulletFull/classbtConvex2dShape.html
-
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexInternalShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexInternalShape.html
       [class_<btConvexInternalShape, btConvexShape>("btConvexInternalShape")
            .def("getImplicitShapeDimensions",
                 &btConvexInternalShape::getImplicitShapeDimensions)
@@ -245,8 +235,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("getLocalScalingNV", &btConvexInternalShape::getLocalScalingNV)
            .def("getMarginNV", &btConvexInternalShape::getMarginNV)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCapsuleShape.html
       [class_<btCapsuleShape, btConvexInternalShape>("btCapsuleShape")
            .def(constructor<btScalar, btScalar>(), adopt(result))
            .property("upAxis", &btCapsuleShape::getUpAxis)
@@ -256,17 +245,15 @@ void LuaBullet::luaBind(lua_State *s) {
            .property("halfHeight", &btCapsuleShape::getHalfHeight)
            .def("getHalfHeight", &btCapsuleShape::getHalfHeight)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeX.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCapsuleShapeX.html
       [class_<btCapsuleShapeX, btCapsuleShape>("btCapsuleShapeX")
            .def(constructor<btScalar, btScalar>(), adopt(result))];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCapsuleShapeZ.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCapsuleShapeZ.html
       [class_<btCapsuleShapeZ, btCapsuleShape>("btCapsuleShapeZ")
            .def(constructor<btScalar, btScalar>(), adopt(result))];
 
-  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConeShape.html
       [class_<btConeShape, btConvexInternalShape>("btConeShape")
            .def(constructor<btScalar, btScalar>(), adopt(result))
            .def("getRadius", &btConeShape::getRadius)
@@ -274,23 +261,21 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("setConeUpIndex", &btConeShape::setConeUpIndex)
            .def("getConeUpIndex", &btConeShape::getConeUpIndex)];
 
-  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeX.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConeShapeX.html
       [class_<btConeShapeX, btConeShape>("btConeShapeX")
            .def(constructor<btScalar, btScalar>(), adopt(result))];
 
-  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtConeShapeZ.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConeShapeZ.html
       [class_<btConeShapeZ, btConeShape>("btConeShapeZ")
            .def(constructor<btScalar, btScalar>(), adopt(result))];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexInternalAabbCachingShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexInternalAabbCachingShape.html
       [class_<btConvexInternalAabbCachingShape>(
            "btConvexInternalAabbCachingShape")
            .def("recalcLocalAabb",
                 &btConvexInternalAabbCachingShape::recalcLocalAabb)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtMultiSphereShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtMultiSphereShape.html
       [class_<btMultiSphereShape, btConvexInternalAabbCachingShape>(
            "btMultiSphereShape")
            .def(constructor<const btVector3 *, const btScalar *, int>(),
@@ -299,8 +284,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("getSpherePosition", &btMultiSphereShape::getSpherePosition)
            .def("getSphereRadius", &btMultiSphereShape::getSphereRadius)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCylinderShape.html
       [class_<btCylinderShape, btConvexInternalShape>("btCylinderShape")
            .def("getHalfExtentsWithMargin",
                 &btCylinderShape::getHalfExtentsWithMargin)
@@ -308,21 +292,15 @@ void LuaBullet::luaBind(lua_State *s) {
                 &btCylinderShape::getHalfExtentsWithoutMargin)
            .def("getAabb", &btCylinderShape::getAabb)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeX.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCylinderShapeX.html
       [class_<btCylinderShapeX, btCylinderShape>("btCylinderShapeX")
            .def(constructor<const btVector3 &>(), adopt(result))];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCylinderShapeZ.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCylinderShapeZ.html
       [class_<btCylinderShapeZ, btCylinderShape>("btCylinderShapeZ")
            .def(constructor<const btVector3 &>(), adopt(result))];
 
-  // not in the headers
-  // http://bulletphysics.com/Bullet/BulletFull/classbtMinkowskiSumShape.html
-
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtPolyhedralConvexShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtPolyhedralConvexShape.html
       [class_<btPolyhedralConvexShape, btConvexInternalShape>(
           "btPolyhedralConvexShape")
        // TODO .def("getConvexPolyhedron",
@@ -331,9 +309,9 @@ void LuaBullet::luaBind(lua_State *s) {
   ];
 
   // not in the headers
-  // http://bulletphysics.com/Bullet/BulletFull/classbtBox2dShape.html
+  // https://pybullet.org/Bullet/BulletFull/classbtBox2dShape.html
 
-  module(s) // http://bulletphysics.com/Bullet/BulletFull/classbtBoxShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtBoxShape.html
       [class_<btBoxShape, btPolyhedralConvexShape>("btBoxShape")
            .def(constructor<const btVector3 &>(), adopt(result))
            .def("getHalfExtentsWithMargin",
@@ -343,8 +321,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("localGetSupportingVertexWithoutMargin",
                 &btBoxShape::localGetSupportingVertexWithoutMargin)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtPolyhedralConvexAabbCachingShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtPolyhedralConvexAabbCachingShape.html
       [class_<btPolyhedralConvexAabbCachingShape, btPolyhedralConvexShape>(
            "btPolyhedralConvexAabbCachingShape")
            .def("getNonvirtualAabb",
@@ -352,8 +329,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("recalcLocalAabb",
                 &btPolyhedralConvexAabbCachingShape::recalcLocalAabb)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtBU__Simplex1to4.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtBU__Simplex1to4.html
       [class_<btBU_Simplex1to4, btPolyhedralConvexAabbCachingShape>(
            "btBU_Simplex1to4")
            .def(constructor<>(), adopt(result))
@@ -369,14 +345,12 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("reset", &btBU_Simplex1to4::reset)
            .def("addVertex", &btBU_Simplex1to4::addVertex)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtTetrahedronShapeEx.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTetrahedronShapeEx.html
       [class_<btTetrahedronShapeEx, btBU_Simplex1to4>("btTetrahedronShapeEx")
            .def(constructor<>(), adopt(result))
            .def("setVertices", &btTetrahedronShapeEx::setVertices)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexHullShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexHullShape.html
       [class_<btConvexHullShape, btPolyhedralConvexAabbCachingShape>(
            "btConvexHullShape")
            .def(constructor<const btScalar *, int, int>(), adopt(result))
@@ -388,10 +362,9 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("getNumPoints", &btConvexHullShape::getNumPoints)];
 
   // not defined in the headers
-  // http://bulletphysics.com/Bullet/BulletFull/classbtConvexPointCloudShape.html
+  // https://pybullet.org/Bullet/BulletFull/classbtConvexPointCloudShape.html
 
-  module(
-      s) // http://bulletphysics.org/Bullet/BulletFull/classbtStridingMeshInterface.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtStridingMeshInterface.html
       [class_<btStridingMeshInterface>("btStridingMeshInterface")
            .def("calculateAabbBruteForce",
                 &btStridingMeshInterface::calculateAabbBruteForce)
@@ -401,8 +374,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("getScaling", &btStridingMeshInterface::getScaling)
            .def("setScaling", &btStridingMeshInterface::setScaling)];
 
-  module(
-      s) // http://bulletphysics.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleIndexVertexArray.html
       [class_<btTriangleIndexVertexArray, btStridingMeshInterface>(
            "btTriangleIndexVertexArray")
            .def("getIndexedMeshArray",
@@ -411,8 +383,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("addaddIndexedMesh",
                 &btTriangleIndexVertexArray::addIndexedMesh)];
 
-  module(
-      s) // http://bulletphysics.org/Bullet/BulletFull/classbtTriangleMesh.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleMesh.html
       [class_<btTriangleMesh, btTriangleIndexVertexArray>("btTriangleMesh")
            .def(constructor<bool, bool>(), adopt(result))
            .def(constructor<bool>(), adopt(result))
@@ -433,8 +404,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("preallocateIndices", &btTriangleMesh::preallocateIndices)
            .def("preallocateVertices", &btTriangleMesh::preallocateVertices)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
       [class_<btConvexTriangleMeshShape, btPolyhedralConvexAabbCachingShape>(
            "btConvexTriangleMeshShape")
            .def(constructor<btStridingMeshInterface *, bool>(), adopt(result))
@@ -444,15 +414,13 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("calculatePrincipalAxisTransform",
                 &btConvexTriangleMeshShape::calculatePrincipalAxisTransform)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtTriangleShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleShape.html
       [class_<btTriangleShape, btPolyhedralConvexShape>("btTriangleShape")
            .def("getVertexPtr", (btVector3 & (btTriangleShape::*)(int)) &
                                     btTriangleShape::getVertexPtr)
            .def("calcNormal", &btTriangleShape::calcNormal)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtTriangleShapeEx.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleShapeEx.html
       [class_<btTriangleShapeEx, btTriangleShape>("btTriangleShapeEx")
            .def(constructor<>(), adopt(result))
            .def(constructor<const btVector3 &, const btVector3 &,
@@ -465,10 +433,9 @@ void LuaBullet::luaBind(lua_State *s) {
                 &btTriangleShapeEx::overlap_test_conservative)];
 
   // not defined in the headers
-  // http://bulletphysics.com/Bullet/BulletFull/classbtSoftClusterCollisionShape.html
+  // https://pybullet.org/Bullet/BulletFull/classbtSoftClusterCollisionShape.html
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtSphereShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtSphereShape.html
       [class_<btSphereShape, btConvexInternalShape>("btSphereShape")
            .def(constructor<btScalar>(), adopt(result))
            .def("getRadius", &btSphereShape::getRadius)
@@ -476,8 +443,7 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("setUnscaledRadius", &btSphereShape::setUnscaledRadius)
            .property("unscaledRadius", &btSphereShape::setUnscaledRadius)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtUniformScalingShape.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtUniformScalingShape.html
       [class_<btUniformScalingShape, btConvexShape>("btUniformScalingShape")
            .def(constructor<btConvexShape *, btScalar>(), adopt(result))
            .def("getUniformScalingFactor",
@@ -489,7 +455,7 @@ void LuaBullet::luaBind(lua_State *s) {
 
   // BULLET GEOMETRY CLASSES
 
-  module(s)[class_<btVector3>("btVector3")
+  module(s)[class_<btVector3>("btVector3") // https://pybullet.org/Bullet/BulletFull/classbtVector3.html
                 .def(constructor<>(), adopt(result))
                 .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
                 .def(const_self + const_self)
@@ -528,7 +494,7 @@ void LuaBullet::luaBind(lua_State *s) {
                 .def("triple", &btVector3::triple)
                 .def(tostring(const_self))];
 
-  module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtAABB.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtAABB.html
       [class_<btAABB>("btAABB")
            .def(constructor<>(), adopt(result))
            .def(constructor<btVector3, btVector3, btVector3>(), adopt(result))
@@ -541,7 +507,8 @@ void LuaBullet::luaBind(lua_State *s) {
        // XXX
   ];
 
-  module(s)[class_<btVector4, btVector3>("btVector4")
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtVector4.html
+      [class_<btVector4, btVector3>("btVector4")
                 .def(constructor<>(), adopt(result))
                 .def(constructor<const btScalar &, const btScalar &,
                                  const btScalar &, const btScalar &>(),
@@ -553,7 +520,8 @@ void LuaBullet::luaBind(lua_State *s) {
                 .def("closestAxis4", &btVector4::closestAxis4)
                 .def("setValue", &btVector4::setValue)];
 
-  module(s)[class_<btQuaternion>("btQuaternion")
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtQuaternion.html
+      [class_<btQuaternion>("btQuaternion")
                 .def(constructor<>(), adopt(result))
                 .def(constructor<const btVector3 &, btScalar>(), adopt(result))
                 .def(constructor<btScalar, btScalar, btScalar, btScalar>(),
@@ -589,8 +557,7 @@ void LuaBullet::luaBind(lua_State *s) {
                 .def("y", &btQuaternion::y)
                 .def("z", &btQuaternion::z)];
 
-  module(
-      s) // http://bulletphysics.com/Bullet/BulletFull/classbtCollisionObject.html
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCollisionObject.html
       [class_<btCollisionObject, boost::shared_ptr<btCollisionObject>>(
            "btCollisionObject")
            .def(constructor<>(), adopt(result))
@@ -669,13 +636,14 @@ void LuaBullet::luaBind(lua_State *s) {
 
   // btRigidBodyConstructionInfo
 
-  module(s)[class_<btRigidBody::btRigidBodyConstructionInfo>(
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
+      [class_<btRigidBody::btRigidBodyConstructionInfo>(
                 "btRigidBodyConstructionInfo")
                 .def(constructor<btScalar, btMotionState *, btCollisionShape *,
                                  const btVector3 &>(),
                      adopt(result))];
 
-  module(s)
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
       [class_<btRigidBody, btCollisionObject>("btRigidBody")
            .def(constructor<const btRigidBody::btRigidBodyConstructionInfo &>())
            .def(constructor<btScalar, btMotionState *, btCollisionShape *,
@@ -767,7 +735,8 @@ void LuaBullet::luaBind(lua_State *s) {
        // .def("getTurnVelocity", &btRigidBody::getTurnVelocity)
   ];
 
-  module(s)[class_<btTransform>("btTransform")
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTransform.html
+      [class_<btTransform>("btTransform")
                 .def(constructor<>())
                 .def(constructor<const btQuaternion &, const btVector3 &>())
                 .def("getIdentity", &btTransform::getIdentity)
@@ -811,9 +780,8 @@ void LuaBullet::luaBind(lua_State *s) {
                                                   const btTransform &)) &
                       btHingeConstraint::getHingeAngle)];
 
-#ifdef HAVE_btHingeAccumulatedAngleConstraint
-  module(
-      s)[class_<btHingeAccumulatedAngleConstraint, btHingeConstraint>(
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtHingeAccumulatedAngleConstraint.html
+      [class_<btHingeAccumulatedAngleConstraint, btHingeConstraint>(
              "btHingeAccumulatedAngleConstraint")
              .def(constructor<btRigidBody &, btRigidBody &, const btVector3 &,
                               const btVector3 &, const btVector3 &,
@@ -825,7 +793,6 @@ void LuaBullet::luaBind(lua_State *s) {
              .def(
                  "getAccumulatedHingeAngle",
                  &btHingeAccumulatedAngleConstraint::getAccumulatedHingeAngle)];
-#endif
 
   module(s)
       [class_<btSliderConstraint, btTypedConstraint>("btSliderConstraint")

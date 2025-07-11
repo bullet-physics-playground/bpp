@@ -95,71 +95,12 @@ unix:link_pkgconfig {
   message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
 
   contains(LSB_RELEASE_ID, Ubuntu): {
-    contains(LSB_RELEASE_REL, 14.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG += luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut
-    }
-    contains(LSB_RELEASE_REL, 16.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-    }
-    contains(LSB_RELEASE_REL, 18.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-    }
-    contains(LSB_RELEASE_REL, 19.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut /usr/lib/libluabind.a
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-    }
-    contains(LSB_RELEASE_REL, 20.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
-    }
-    contains(LSB_RELEASE_REL, 21.04) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
-    }
-    contains(LSB_RELEASE_REL, 21.10) : {
-      PKGCONFIG += lua5.2
-      PKGCONFIG -= luabind
-      PKGCONFIG += bullet
-      PKGCONFIG += sdl2
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
-      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
-    }
     contains(LSB_RELEASE_REL, 22.04) : {
       PKGCONFIG += lua5.2
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 22.10) : {
@@ -168,7 +109,6 @@ unix:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 23.04) : {
@@ -177,7 +117,6 @@ unix:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 23.10) : {
@@ -186,7 +125,6 @@ unix:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
@@ -196,7 +134,6 @@ unix:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
 
@@ -207,7 +144,6 @@ unix:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-      DEFINES += HAVE_btHingeAccumulatedAngleConstraint
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 12) : {
@@ -216,7 +152,6 @@ unix:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lglut -lluabind
-     DEFINES += HAVE_btHingeAccumulatedAngleConstraint
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
