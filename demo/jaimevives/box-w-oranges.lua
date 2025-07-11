@@ -2,7 +2,7 @@
 -- A Box of Oranges
 --
 
--- ignorancia.org/en/index.php?page=a-box-of-oranges
+-- http://www.ignorancia.org/index.php?page=a-box-of-oranges
 --
 
 v.timeStep      = 1/5
