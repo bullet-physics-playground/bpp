@@ -254,5 +254,4 @@ unix:QMAKE_DISTCLEAN  += -r $$DIRS_DC
 win32:QMAKE_DISTCLEAN += /s /f /q $$DIRS_DC && rd /s /q $$DIRS_DC
 
 win32:DISTFILES += \
-    mxe.pri \
     msys2.pri
