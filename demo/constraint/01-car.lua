@@ -17,9 +17,9 @@ v.fixedTimeStep = 1/80
 
 use_obstacles = 2 -- 1 planes , 2 terrain
 
-col_sand  = "#ffff99"
-col_base  = "#2f1f1f"
-col_wheel = "#0f0f0f"
+col_sand  = "#404005"
+col_wheel  = "#1f1f1f"
+col_base = "#0f0f0f"
 
 if(use_obstacles==2) then
   local f = 2000  -- friction
@@ -57,7 +57,7 @@ if(use_obstacles==1) then
   v:add(plane)
 end
 
-math.randomseed(os.time())
+math.randomseed(2342)
 
 function rnd(min, max)
   return min + math.random() * (max - min)
@@ -66,23 +66,23 @@ end
 car = function(r,x,y,z)
   local wheel_col = col_wheel
   local base_col  = col_base
-  local d   = rnd(0.75,1)
-  local d1  = rnd(.12,0.2)
-  local cd1 = rnd(0.25,0.4)
-  local cd2 = rnd(0.25,0.4)
-  local cdd = rnd(0.1,0.75)  -- wheel width
-  local d2  = rnd(0.3,0.5)
-  local d3  = rnd(0.2,0.3)
-  local r   = rnd(0.75,.75)
-  local m1  = rnd(12,15)
-  local m2  = rnd(12,15)
+  local d   = rnd(10,10)
+  local d1  = rnd(5,5)
+  local cd1 = rnd(5,5)
+  local cd2 = rnd(5,5)
+  local cdd = rnd(5,5)  -- wheel width
+  local d2  = rnd(1.3,1.5)
+  local d3  = rnd(1.2,1.3)
+  local r   = rnd(1.75,1.75)
+  local m1  = rnd(1,1)
+  local m2  = rnd(1,1)
   local s1  = rnd(100,200)
   local s2  = rnd(100,200)
-  local len = rnd(.65,1.75)
-  local speed = rnd(16,20)
-  local f = 200
+  local len = rnd(10,10)
+  local speed = rnd(0.5,1)
+  local f = 2000
 
-  cube = Cube(d1,len*2,d,100) 
+  cube = Cube(d1,len*2,d,1) 
   cube.col = base_col
   cube.sdl = "texture { t_body }"
   trans.move(cube, btVector3(x,y,z))
@@ -176,7 +176,7 @@ NY = 2
 
 for i = -NX,NX do
   for j = -NY,NY do
-    d = 7
+    d = 50
     tmp = car(0,i*d,10,j*d)
     if (i == 0 and j == 0) then c = tmp end
     cs [i+j*3] = tmp
@@ -184,7 +184,7 @@ for i = -NX,NX do
 end
 
 function setcam()
-  d = 420 -- camera distance to object
+  d = 5000 -- camera distance to object
 
   v.cam.up   = btVector3(0,1,0)
   v.cam:setHorizontalFieldOfView(0.4)
@@ -250,20 +250,23 @@ v.pre_sdl = [[
   finish { diffuse 0.9 phong 0 }
 }
 
-#declare t_shiny_metal = texture {
- pigment { rgb .8 }
- finish { 
-   ambient .2 diffuse .2
-   specular 1.5 roughness .02 brilliance 2
-   reflection { .6 metallic 1 } metallic
-  }
+#declare t_wheel = texture{
+    pigment { Gray50 }
+    finish {
+      ambient .2
+      diffuse .6
+      phong .75
+      phong_size 25
+    }
 }
-
-#declare t_wheel = t_shiny_metal
 #declare t_body  = texture{
-  pigment{ color Red }
-  normal {bumps 0.5 scale 0.005}
-  finish {diffuse 0.9 phong 1.0}
+    pigment { Gray10 }
+    finish {
+      ambient .2
+      diffuse .6
+      phong .75
+      phong_size 25
+    }
 }
 ]]
 
