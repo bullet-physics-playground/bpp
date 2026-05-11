@@ -141,6 +141,10 @@ struct btDefaultMotionState_wrap : public btDefaultMotionState,
   }
 };
 
+static void btQuaternion_setRotation(btQuaternion& q, const btVector3& axis, btScalar angle) {
+    q.setRotation(axis, angle);
+}
+
 LuaBullet::LuaBullet(QObject *parent) : QObject(parent) {}
 
 void LuaBullet::luaBind(lua_State *s) {
@@ -607,42 +611,75 @@ void LuaBullet::luaBind(lua_State *s) {
                 .def("closestAxis4", &btVector4::closestAxis4)
                 .def("setValue", &btVector4::setValue)];
 
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtMatrix3x3.html
+      [class_<btMatrix3x3>("btMatrix3x3")
+            .def(constructor<>(), adopt(result))
+            .def(constructor<btScalar, btScalar, btScalar,
+                             btScalar, btScalar, btScalar,
+                             btScalar, btScalar, btScalar>(), adopt(result))
+            .def(constructor<const btVector3 &, const btVector3 &, const btVector3 &>(), adopt(result))
+            .property("x", &btMatrix3x3::getColumn)
+            .def("getColumn", &btMatrix3x3::getColumn)
+            .def("getRow", &btMatrix3x3::getRow)
+            .def("setEulerZYX", &btMatrix3x3::setEulerZYX)
+            .def("setEulerYPR", &btMatrix3x3::setEulerYPR)
+            .def("getRotation", &btMatrix3x3::getRotation)
+            .def("inverse", &btMatrix3x3::inverse)
+            .def("transpose", &btMatrix3x3::transpose)
+            .def("determinant", &btMatrix3x3::determinant)
+            .def("tdotx", &btMatrix3x3::tdotx)
+            .def("tdoty", &btMatrix3x3::tdoty)
+            .def("tdotz", &btMatrix3x3::tdotz)];
+
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtQuaternion.html
       [class_<btQuaternion>("btQuaternion")
-                .def(constructor<>(), adopt(result))
-                .def(constructor<const btVector3 &, btScalar>(), adopt(result))
-                .def(constructor<btScalar, btScalar, btScalar, btScalar>(),
-                     adopt(result))
-                .def("angle", &btQuaternion::angle)
-                .def("dot", &btQuaternion::dot)
-                .def("farthest", &btQuaternion::farthest)
-                .def("getAngle", &btQuaternion::getAngle)
-                .def("getAxis", &btQuaternion::getAxis)
-                .def("getIdentity", &btQuaternion::getIdentity)
-                .def("getW", &btQuaternion::getW)
-                .def("getX", &btQuaternion::getX)
-                .def("getY", &btQuaternion::getY)
-                .def("getZ", &btQuaternion::getZ)
-                .def("inverse", &btQuaternion::inverse)
-                .def("length", &btQuaternion::length)
-                .def("length2", &btQuaternion::length2)
-                .def("nearest", &btQuaternion::nearest)
-                .def("normalize", &btQuaternion::normalize)
-                .def("normalized", &btQuaternion::normalized)
-                .def("setEuler", &btQuaternion::setEuler)
-                .def("setEulerZYX", &btQuaternion::setEulerZYX)
-                .def("setMax", &btQuaternion::setMax)
-                .def("setMin", &btQuaternion::setMin)
-                .def("setRotation", &btQuaternion::setRotation)
-                .def("setW", &btQuaternion::setW)
-                .def("setX", &btQuaternion::setX)
-                .def("setY", &btQuaternion::setY)
-                .def("setZ", &btQuaternion::setZ)
-                .def("slerp", &btQuaternion::slerp)
-                .def("w", &btQuaternion::w)
-                .def("x", &btQuaternion::x)
-                .def("y", &btQuaternion::y)
-                .def("z", &btQuaternion::z)];
+                 .def(constructor<>(), adopt(result))
+                 .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
+                 .def(constructor<btScalar, btScalar, btScalar, btScalar>(),
+                      adopt(result))
+                 .def(constructor<const btVector3 &, btScalar>(), adopt(result))
+                 .def("angle", &btQuaternion::angle)
+                 .def("angleShortestPath", &btQuaternion::angleShortestPath)
+                  .def(const_self + const_self)
+                  .def(const_self - const_self)
+                  .def(const_self * const_self)
+                  .def(const_self * other<btScalar>())
+                  .def(const_self / other<btScalar>())
+                  .def(-const_self)
+                  .def(const_self == const_self)
+                 .def("dot", &btQuaternion::dot)
+                 .def("farthest", &btQuaternion::farthest)
+                 .def("getAngle", &btQuaternion::getAngle)
+                 .def("getAngleShortestPath", &btQuaternion::getAngleShortestPath)
+                 .def("getAxis", &btQuaternion::getAxis)
+                 .def("getW", &btQuaternion::getW)
+                 .def("getX", &btQuaternion::getX)
+                 .def("getY", &btQuaternion::getY)
+                 .def("getZ", &btQuaternion::getZ)
+                 .def("inverse", &btQuaternion::inverse)
+                 .def("length", &btQuaternion::length)
+                 .def("length2", &btQuaternion::length2)
+                 .def("nearest", &btQuaternion::nearest)
+                 .def("normalize", &btQuaternion::normalize)
+                 .def("normalized", &btQuaternion::normalized)
+                 .def("safeNormalize", &btQuaternion::safeNormalize)
+                 .def("setEuler", &btQuaternion::setEuler)
+                 .def("setEulerZYX", &btQuaternion::setEulerZYX)
+                 .def("setMax", &btQuaternion::setMax)
+                 .def("setMin", &btQuaternion::setMin)
+                 .def("setRotation", &btQuaternion_setRotation)
+                 .def("setValue", (void(btQuadWord::*)(btScalar const&, btScalar const&, btScalar const&, btScalar const&)) &btQuadWord::setValue)
+                 .def("setValue", (void(btQuadWord::*)(btScalar const&, btScalar const&, btScalar const&)) &btQuadWord::setValue)
+                 .def("setW", &btQuaternion::setW)
+                 .def("setX", &btQuaternion::setX)
+                 .def("setY", &btQuaternion::setY)
+                 .def("setZ", &btQuaternion::setZ)
+                 .def("slerp", &btQuaternion::slerp)
+                 .def("w", &btQuaternion::w)
+                 .def("x", &btQuaternion::x)
+                 .def("y", &btQuaternion::y)
+                 .def("z", &btQuaternion::z)
+                 .def(tostring(const_self))];
 
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtCollisionObject.html
       [class_<btCollisionObject>("btCollisionObject")

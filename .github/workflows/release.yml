@@ -1,49 +1,119 @@
-name: CI for release tags
+name: Release
 
 on:
   push:
     tags:
-      - "v*" # matches v1.0.1, v2, etc
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
 
 jobs:
   build:
-    name: Build release for ${{ matrix.target }}
-    runs-on: ${{ matrix.target }}
+    name: Build .deb for ${{ matrix.distro }} ${{ matrix.codename }} (${{ matrix.arch }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - ubuntu-24.04
+        include:
+          # Ubuntu
+          - distro: ubuntu
+            codename: noble
+            version: "24.04"
+            arch: amd64
+          - distro: ubuntu
+            codename: noble
+            version: "24.04"
+            arch: arm64
+          - distro: ubuntu
+            codename: resolute
+            version: "26.04"
+            arch: amd64
+          - distro: ubuntu
+            codename: resolute
+            version: "26.04"
+            arch: arm64
+          # Debian
+          - distro: debian
+            codename: bookworm
+            version: "12"
+            arch: amd64
+          - distro: debian
+            codename: bookworm
+            version: "12"
+            arch: arm64
+          - distro: debian
+            codename: trixie
+            version: "13"
+            arch: amd64
+          - distro: debian
+            codename: trixie
+            version: "13"
+            arch: arm64
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
 
-    - uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-        fetch-tags: true
-        submodules: true
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
 
-    - name: install packages required for the build
-      run: |
-        sudo apt update -qq
-        sudo DEBIAN_FRONTEND=noninteractive apt -qq -y install devscripts equivs lintian
-        mk-build-deps -i -s sudo -t "apt --yes --no-install-recommends"
+      - name: Build package
+        run: |
+          ARCH="${{ matrix.arch }}"
+          CODENAME="${{ matrix.codename }}"
+          VERSION="${{ github.ref_name }}-1${CODENAME}"
+          PLATFORM="linux/amd64"
+          [ "$ARCH" = "arm64" ] && PLATFORM="linux/arm64/v8"
 
-    - name: build source package
-      env:
-        DEBFULLNAME: "Jakob Flierl"
-        DEBEMAIL: "jakob.flierl@gmail.com"
-      run: |
-        export TARGET=$(. /etc/lsb-release && echo $DISTRIB_CODENAME)
-        VERSION="$(git describe --tags | sed -e "s/^v//" -e "s/-/+git/")"
-        dch --increment --distribution ${TARGET} -- "Automatic build"
-        debuild -S -sa -us -uc -d
+          WORKSPACE_PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          REPO_DIR="$(basename "$GITHUB_WORKSPACE")"
 
-    - name: build binary package
-      run: dpkg-buildpackage -b -us -uc
+          docker run --platform "$PLATFORM" --rm \
+            -v "${WORKSPACE_PARENT}:/workspace" \
+            -w "/workspace/${REPO_DIR}" \
+            -e VERSION="${VERSION}" \
+            -e CODENAME="${CODENAME}" \
+            -e REPO_DIR="${REPO_DIR}" \
+            -e DISTRO="${{ matrix.distro }}" \
+            ${{ matrix.distro }}:"${CODENAME}" bash -ec '
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -qq
+            apt-get install -y -qq build-essential devscripts debhelper dh-make equivs
+            mk-build-deps -i -t "apt --yes --no-install-recommends"
+            sed -i "1s/.*/bpp (${VERSION}) ${CODENAME}; urgency=medium/" debian/changelog
+            dpkg-buildpackage -b -uc -us -d
+            mkdir -p "/workspace/${REPO_DIR}/deb-output"
+            find /workspace -path "*/deb-output" -prune -o -type f \( -name "*.deb" -o -name "*.dsc" \) -print | while read -r f; do cp "$f" "/workspace/${REPO_DIR}/deb-output/"; done
+            '
+        env:
+          DEB_BUILD_OPTIONS: nocheck
 
-    - name: upload debian package
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ../*.deb
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: bpp-deb-${{ matrix.distro }}-${{ matrix.codename }}-${{ matrix.arch }}
+          path: deb-output/
+          if-no-files-found: ignore
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Flatten artifact directories
+        run: |
+          mkdir -p release-packages
+          find artifacts -type f \( -name "*.deb" -o -name "*.dsc" \) | while read -r file; do
+            cp "$file" release-packages/
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: release-packages/*
+          generate_release_notes: true
