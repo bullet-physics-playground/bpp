@@ -511,7 +511,9 @@ void Gui::fileOpen(const QString &path) {
 }
 
 void Gui::fileReload() {
+  editor->blockSignals(true);
   editor->load(editor->scriptFile());
+  editor->blockSignals(false);
   ui.viewer->clearParams();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(false);

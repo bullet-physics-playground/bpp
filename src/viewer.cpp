@@ -648,7 +648,19 @@ void Viewer::startSim() { _simulate = true; }
 
 void Viewer::stopSim() { _simulate = false; }
 
-void Viewer::restartSim() { parse(_scriptContent); }
+void Viewer::restartSim() {
+  Vec camPos = camera()->position();
+  Quaternion camOri = camera()->orientation();
+  btScalar camHfov = camera()->horizontalFieldOfView();
+  Vec camUp = camera()->upVector();
+
+  parse(_scriptContent);
+
+  camera()->setPosition(camPos);
+  camera()->setOrientation(camOri);
+  camera()->setHorizontalFieldOfView(camHfov);
+  camera()->setUpVector(camUp, true);
+}
 
 void Viewer::setScriptName(QString sn) { _scriptName = sn; }
 void Viewer::setScriptBasePath(QString sbp) { _scriptBasePath = sbp; }
