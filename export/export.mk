@@ -93,7 +93,7 @@ slurm:
 #	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
 
 distclean: clean
-	rm -f ${SCENE}.pov ${SCENE}.ini ?????.inc
+	rm -f ${SCENE}.pov ${SCENE}.ini ?????.inc mesh_*.inc
 
 clean:
 	rm -f *.png *.mov *.mp4 *.mkv *.pov-state *.err *.out *.log
