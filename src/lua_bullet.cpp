@@ -897,6 +897,7 @@ module(
            .def("setAxis", &btHingeConstraint::setAxis)
            .def("setLimit", &btHingeConstraint::setLimit)
            .def("setParam", &btHingeConstraint::setParam)
+           .def("setAngularOnly", &btHingeConstraint::setAngularOnly)
            .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
            .def("getHingeAngle", (btScalar(btHingeConstraint::*)()) &
                                         btHingeConstraint::getHingeAngle)
