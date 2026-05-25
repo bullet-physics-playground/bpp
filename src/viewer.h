@@ -150,8 +150,6 @@ public:
   void setPostSDL(const QString &);
   QString getPostSDL() const;
 
-  QString toPOV() const;
-
   void setPOVSettingsInc(QString pov_settings_inc);
   QString getPOVSettingsInc();
 

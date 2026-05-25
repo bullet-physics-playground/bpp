@@ -188,8 +188,6 @@ void Viewer::luaBind(lua_State *s) {
 
            .def("quickRender",
                 (void(Viewer::*)(QString povargs)) & Viewer::onQuickRender)
-           .def("toPOV", &Viewer::toPOV)
-           .property("pov", &Viewer::toPOV)
 
            .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
@@ -1654,77 +1652,6 @@ void Viewer::savePOV(bool force) {
     delete _fileMakefile;
     _fileMakefile = nullptr;
   }
-}
-
-QString Viewer::toPOV() const {
-  QByteArray *data = new QByteArray();
-  QTextStream *s = new QTextStream(data);
-
-  *s << "#include \"settings.inc\"" << "\n"
-     << "\n";
-
-  if (!mPreSDL.isEmpty()) {
-    *s << mPreSDL << "\n"
-       << "\n";
-  }
-
-  if (_cam != nullptr) {
-
-    *s << "#declare use_focal_blur = " << _cam->getUseFocalBlur()
-       << "; // 0=off 1=low quality 10=high quality" << "\n"
-       << "\n";
-
-    if (_cam->getPreSDL().isNull()) {
-Vec pos = camera()->position();
-
-      *s << "camera { " << "\n"
-          << "  location < " << pos.x << ", " << pos.y << ", " << pos.z << ">"
-          << "\n"
-          << "  right - image_width / image_height*x" << "\n";
-
-      btVector3 lookAt = _cam->getLookAt();
-      *s << "  look_at <" << lookAt.x() << ", " << lookAt.y() << ", " << lookAt.z() << "> ";
-
-      *s << "  angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI
-         << "\n";
-
-      *s << "  sky <" << _cam->getUpVector().x() << ", "
-         << _cam->getUpVector().y() << ", " << _cam->getUpVector().z() << ">"
-         << "\n";
-
-      *s << "#if(use_focal_blur)" << "\n"
-         << "  aperture " << _cam->getFocalAperture() << "\n"
-         << "  blur_samples 10*use_focal_blur" << "\n"
-         << "  focal_point <" << _cam->getFocalPoint().x() << ", "
-         << _cam->getFocalPoint().y() << ", " << _cam->getFocalPoint().z()
-         << "> " << "  confidence 0.9+(use_focal_blur*0.0085)" << "\n"
-         << "  variance 1/(2000*use_focal_blur)" << "\n"
-         << "#end" << "\n";
-
-      *s << "}" << "\n"
-         << "\n";
-    } else {
-      *s << _cam->getPreSDL() << "\n";
-    }
-  }
-
-  foreach (Object *o, *_objects) {
-    if (o->getPOVExport())
-      *s << o->toPOV();
-  }
-
-  if (!mPostSDL.isEmpty()) {
-    *s << "\n"
-       << mPostSDL << "\n"
-       << "\n";
-  }
-
-  s->flush();
-  delete s;
-
-  QString str = QString::fromStdString(data->toStdString());
-  delete data;
-  return str;
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {
