@@ -11,7 +11,7 @@ POV?=+W1280 +H720 -J +FN10
 
 # Custom POV-Ray include directives
 
-POVINC?=+LLightsysIV +L$(HOME)/.cache/bpp +L/nfs/cache
+POVINC?=+LLightsysIV
 
 # Custom ffmpeg loop times (default x10 loops)
 
@@ -46,6 +46,7 @@ help:
 	@echo " Cluster rendering using slurm"
 	@echo ""
 	@echo "  make slurm           # render using the slurm workload manager"
+	@echo "  make kubernetes      # render using kubernets cluster"
 	@echo ""
 	@echo " YouTube"
 	@echo ""
@@ -54,7 +55,7 @@ help:
 	@echo ""
 
 quick:
-	povray ${SCENE}.ini -V +W380 +H252 +Q3 -A +D +c ${POVOPT} || true
+	povray ${SCENE}.ini -V +W380 +H252 +Q3 -A +D -C -CC ${POVOPT} || true
 
 final: 720p
 
@@ -84,7 +85,13 @@ ec2-down:
 	scp ${EC2}:${SCENE}/${SCENE}.mkv .
 
 slurm:
-	sbatch -J ${SCENE} -a 1-`ls -1 *.inc|wc -l` --export=POVOPT='${POVOPT}' ../povray.sbatch ${SCENE} `ls -1 *.inc | wc -l`
+	sbatch -J ${SCENE} -a 1-`ls -1 ?????.inc|wc -l` --export=POVOPT='${POVOPT}' ../povray.sbatch ${SCENE} `ls -1 *.inc | wc -l`
+
+kubernetes:
+	python3 ../../scripts/povray-job.py --start 1 --end `ls -1 ?????.inc | wc -l` --width 1280 --height 720 ${SCENE}.pov
+
+log-kubernets:
+	kubectl logs -f -l app=povray-worker --max-log-requests=50 --tail=50
 
 #youtube-up: mkv
 #	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
