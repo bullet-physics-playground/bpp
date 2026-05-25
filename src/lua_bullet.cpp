@@ -862,6 +862,7 @@ void LuaBullet::luaBind(lua_State *s) {
       [class_<btTransform>("btTransform")
                 .def(constructor<>())
                 .def(constructor<const btQuaternion &, const btVector3 &>())
+                .def("getBasis", (const btMatrix3x3 & (btTransform::*)() const) &btTransform::getBasis)
                 .def("getIdentity", &btTransform::getIdentity)
                 .def("getOpenGLMatrix", &btTransform::getOpenGLMatrix)
                 .def("getRotation", &btTransform::getRotation)
@@ -968,9 +969,9 @@ module(
            .def("setDampingOrthoAng", &btSliderConstraint::setDampingOrthoAng)
            .def("setPoweredLinMotor", &btSliderConstraint::setPoweredLinMotor)
            .def("getPoweredLinMotor", &btSliderConstraint::getPoweredLinMotor)
+           .def("getLinearPos", &btSliderConstraint::getLinearPos)
            .def("setTargetLinMotorVelocity",
-                &btSliderConstraint::setTargetLinMotorVelocity)
-           .def("getTargetLinMotorVelocity",
+                &btSliderConstraint::setTargetLinMotorVelocity)           .def("getTargetLinMotorVelocity",
                 &btSliderConstraint::getTargetLinMotorVelocity)
            .def("setMaxLinMotorForce", &btSliderConstraint::setMaxLinMotorForce)
            .def("getMaxLinMotorForce", &btSliderConstraint::getMaxLinMotorForce)
