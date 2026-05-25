@@ -235,7 +235,7 @@ module(s)[class_<Mesh, Object>("Mesh")
 
 QString Mesh::toString() const { return QString("Mesh"); }
 
-void Mesh::toMesh2(QTextStream *s) const {
+void Mesh::toMesh2(QTextStream *s, QString hash) const {
   if (s != nullptr && m_shape != nullptr) {
     POVSaveCallback pov;
     btVector3 pminaabb = btVector3(-1e99, -1e99, -1e99); // XXX
@@ -243,7 +243,11 @@ void Mesh::toMesh2(QTextStream *s) const {
     btConcaveShape *concaveMesh = (btConcaveShape *)m_shape;
     concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
+    *s << "#ifndef (mesh_" << hash << "_included)" << "\n";
+    *s << "#declare mesh_" << hash << "_included = 1;" << "\n\n";
+
     if (pov.idx.length() > 0) {
+      *s << "#declare mesh_" << hash << " = ";
       *s << "mesh2 {" << "\n";
       *s << "  vertex_vectors {" << "\n";
       *s << "    " << pov.idx.length() * 3 << ", ";
@@ -289,95 +293,84 @@ void Mesh::toMesh2(QTextStream *s) const {
     } else {
       *s << "union {}" << "\n"; // empty object in case of empty mesh
     }
+    *s << "#end" << "\n";
   }
 }
 
-void Mesh::toPOV(QTextStream *s) const {
+QString Mesh::toPOV(const QString &sceneDir) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;
-
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
   }
 
-  if (s != nullptr && m_shape != nullptr && body != nullptr &&
+  QByteArray data;
+  QTextStream s(&data);
+
+  if (m_shape != nullptr && body != nullptr &&
       body->getMotionState() != nullptr) {
     if (mPreSDL.isNull()) {
+      QByteArray meshdata;
+      QTextStream tmp(&meshdata);
 
-      QByteArray *data = new QByteArray();
-      QTextStream *tmp = new QTextStream(data);
-      toMesh2(tmp);
-      tmp->flush();
-      QString str = QString::fromStdString(data->toStdString());
-      delete data;
+	  QString str = QString::fromStdString(meshdata.toStdString());
 
       QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
       hashAlgo.addData(str.toUtf8());
       QString hash = hashAlgo.result().toHex();
 
-      QFileInfo cacheInfo(
-          QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-      if (!cacheInfo.exists()) {
-        QDir p(".");
-        if (!p.mkpath(cacheInfo.absoluteFilePath())) {
-          qDebug() << "unable to create " << cacheInfo.absoluteFilePath();
-        }
-      }
+      toMesh2(&tmp, hash);
+      tmp.flush();
 
-      // check, if the inc file exists in the cache. If not, create it
-      QString incfile =
-          QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
-          QDir::separator() + "mesh_" + hash + ".inc";
+      QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
       QFileInfo check_file(incfile);
       if (!check_file.exists() && !check_file.isFile() && m_shape != nullptr) {
         QFile file(incfile);
         if (file.open(QIODevice::ReadWrite)) {
           QTextStream stream(&file);
-          stream << "#declare mesh_" + hash + " = ";
-          toMesh2(&stream);
+          toMesh2(&stream, hash);
           stream.flush();
           file.close();
         } else {
           qDebug() << "unable to create " << incfile;
         }
-      } else {
-        // qDebug() << "mesh already exists " << incfile;
       }
 
-      *s << "#include \"" + check_file.fileName() + "\"" << "\n"
-         << "\n";
-
-      *s << "object { mesh_" + hash << "\n";
-
+      s << "#include \"" + check_file.fileName() + "\"" << "\n"
+        << "\n";
+      s << "object { mesh_" + hash << "\n";
     } else {
-      *s << mPreSDL << "\n";
+      s << mPreSDL << "\n";
     }
 
     if (!mSDL.isNull()) {
-      *s << mSDL << "\n";
+      s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
+        << ", " << color[2] / 255.0 << "> }" << "\n";
     }
 
-    *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
-       << "," << "\n"
-       << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
-       << "," << "\n"
-       << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10]
-       << "," << "\n"
-       << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
-       << ">" << "\n";
+    s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
+      << "," << "\n"
+      << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
+      << "," << "\n"
+      << "          " << matrix[8] << "," << matrix[9] << "," << matrix[10]
+      << "," << "\n"
+      << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
+      << ">" << "\n";
 
     if (mPostSDL.isNull()) {
-      *s << "}" << "\n"
-         << "\n";
+      s << "}" << "\n"
+        << "\n";
     } else {
-      *s << mPostSDL << "\n"
-         << "\n";
+      s << mPostSDL << "\n"
+        << "\n";
     }
   }
+
+  s.flush();
+  return QString::fromStdString(data.toStdString());
 }
 
 void Mesh::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {

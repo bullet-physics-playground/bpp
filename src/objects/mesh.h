@@ -63,8 +63,8 @@ public:
 
   static void luaBind(lua_State *s);
   QString toString() const override;
-  void toPOV(QTextStream *s) const override;
-  void toMesh2(QTextStream *s) const;
+  QString toPOV(const QString &sceneDir) const;
+  void toMesh2(QTextStream *s, QString hash) const;
 
   void renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) override;
 

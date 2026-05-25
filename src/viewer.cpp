@@ -1601,8 +1601,18 @@ void Viewer::savePOV(bool force) {
   }
 
   foreach (Object *o, *_objects) {
-    if (o->getPOVExport())
+    if (o->getPOVExport()) {
+#ifdef HAS_LIB_ASSIMP
+      Mesh *m = dynamic_cast<Mesh *>(o);
+      if (m) {
+        *_stream << m->toPOV(sceneDir);
+      } else {
+        *_stream << o->toPOV();
+      }
+#else
       *_stream << o->toPOV();
+#endif
+    }
   }
 
   if (!mPostSDL.isEmpty()) {
