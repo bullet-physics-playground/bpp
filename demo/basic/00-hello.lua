@@ -59,6 +59,9 @@ s1.col = color.gold
 s1.pos = btVector3(2,0.5,0)
 v:add(s1)
 
+co = Cone()
+v:add(co)
+
 -- preStart: Called once before simulation starts
 v:preStart(function(N)
   print("preStart("..tostring(N)..")")

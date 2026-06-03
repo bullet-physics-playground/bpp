@@ -19,6 +19,7 @@
 #include "lua_register.h"
 #endif
 
+#include "objects/cone.h"
 #include "objects/cube.h"
 #include "objects/cylinder.h"
 #include "objects/object.h"
@@ -851,6 +852,7 @@ emit scriptStarts();
     Cam::luaBind(L);
     Object::luaBind(L);
     Objects::luaBind(L);
+    Cone::luaBind(L);
     Cube::luaBind(L);
     Cylinder::luaBind(L);
 #ifdef HAS_LIB_ASSIMP

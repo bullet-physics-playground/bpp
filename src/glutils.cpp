@@ -94,3 +94,33 @@ void solidCylinder(double radius, double height, int slices, int stacks) {
         glEnd();
     }
 }
+
+void solidCone(double radius, double height, int slices, int stacks) {
+    for (int i = 0; i < stacks; i++) {
+        float z0 = (float)height * i / stacks;
+        float z1 = (float)height * (i + 1) / stacks;
+        float r0 = (float)radius * (1.0f - (float)i / stacks);
+        float r1 = (float)radius * (1.0f - (float)(i + 1) / stacks);
+
+        glBegin(GL_TRIANGLE_STRIP);
+        for (int j = 0; j <= slices; j++) {
+            double theta = j * 2.0 * M_PI / slices;
+            float x = (float)cos(theta);
+            float y = (float)sin(theta);
+
+            glNormal3f(x, y, (float)radius / (float)height);
+            glVertex3f(r0 * x, r0 * y, z0);
+            glVertex3f(r1 * x, r1 * y, z1);
+        }
+        glEnd();
+    }
+
+    glBegin(GL_TRIANGLE_FAN);
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    for (int j = 0; j <= slices; j++) {
+        double theta = j * 2.0 * M_PI / slices;
+        glVertex3f((float)radius * cos(theta), (float)radius * sin(theta), 0.0f);
+    }
+    glEnd();
+}
