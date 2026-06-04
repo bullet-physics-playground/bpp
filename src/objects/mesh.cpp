@@ -126,22 +126,17 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
   m_filename = filename;
   m_mass = mass;
 
-  if (_meshCache.contains(filename)) {
-    auto entry = _meshCache.value(filename);
+  QString cacheKey = QFileInfo(filename).absoluteFilePath();
+
+  if (_meshCache.contains(cacheKey)) {
+    auto entry = _meshCache.value(cacheKey);
     m_shape = entry->m_shape;
     m_mesh = entry->m_mesh;
     m_scene = entry->m_scene;
     shape = m_shape;
   } else {
-    QFileInfo info(filename);
-    QString absPath;
-    if (info.exists()) {
-      absPath = filename;
-    } else {
-      absPath = QFileInfo(QDir::current(), filename).absoluteFilePath();
-    }
     const aiScene *scene =
-        aiImportFile(absPath.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
+        aiImportFile(cacheKey.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
 
     if (!scene) {
       return;
@@ -193,7 +188,7 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
     entry->m_shape = new btGImpactMeshShape(triMesh);
     entry->m_shape->updateBound();
 
-    _meshCache.insert(filename, entry);
+    _meshCache.insert(cacheKey, entry);
 
     m_shape = entry->m_shape;
     m_mesh = entry->m_mesh;
@@ -312,15 +307,17 @@ QString Mesh::toPOV(const QString &sceneDir) const {
     if (mPreSDL.isNull()) {
       QByteArray meshdata;
       QTextStream tmp(&meshdata);
-
-	  QString str = QString::fromStdString(meshdata.toStdString());
+      toMesh2(&tmp, QString());
+      tmp.flush();
 
       QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
-      hashAlgo.addData(str.toUtf8());
+      hashAlgo.addData(meshdata);
       QString hash = hashAlgo.result().toHex();
 
-      toMesh2(&tmp, hash);
-      tmp.flush();
+      meshdata.clear();
+      QTextStream tmp2(&meshdata);
+      toMesh2(&tmp2, hash);
+      tmp2.flush();
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
