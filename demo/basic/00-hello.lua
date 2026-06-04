@@ -13,6 +13,8 @@
 local color = require "color"
 -- Load OpenSCAD geodesic sphere module
 local gs    = require "scad/geodesic_sphere"
+-- Load OpenSCAD text module
+local text  = require "scad/text"
 
 -- Set simulation timing: 25 fps, up to 120 substeps, 1/60s fixed timestep
 v.timeStep      = 1/25
@@ -25,12 +27,15 @@ v:addParam("cubeMass", 1.0)
 v:addParam("enableGravity", true)
 v:addParam("cam.fov", 0.03, 0.01, 0.1)
 
+v.pre_sdl = [[
+]]
+
 --
 -- SCENE SETUP
 --
 
 -- Create a ground plane at y=0, size 5x5 units
-p = Plane(0,1,0,0,5)
+p = Plane(0,1,0,0,10)
 p.pos = btVector3(0,0,0)
 p.col = color.forestgreen
 v:add(p)
@@ -38,7 +43,7 @@ v:add(p)
 -- Create a cube at position (-2, 0.5, 0)
 cu = Cube(1,1,1,1)  -- dimensions 1x1x1, mass 1
 cu.col = color.aquamarine
-cu.pos = btVector3(-2, 0.5, 0);
+cu.pos = btVector3(-3, 0.5, 0);
 v:add(cu)
 
 -- Create a cylinder at position (-1, 0.5, 0)
@@ -59,20 +64,82 @@ s1.col = color.gold
 s1.pos = btVector3(2,0.5,0)
 v:add(s1)
 
-co = Cone()
+cy = Cylinder(0.05, 7, 0)
+cy.col = "#00f"
+v:add(cy)
+co = Cone(0.2, 0.7, 0)
+co.col = "#00f"
+rot = btQuaternion()
+rot:setEuler(3.1415, 0.0, 0.0)
+pos = btVector3(0.0, 0.0, -3.5)
+transform = btTransform(rot, pos)
+co.trans = transform
 v:add(co)
+
+txt = text.new({ str = "z", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
+txt.col = "#00f"
+rot = btQuaternion()
+rot:setEuler(0.0, 0.0, 0.0)
+pos = btVector3(0, 0.25, -3.5)
+transform = btTransform(rot, pos)
+txt.trans = transform
+v:add(txt)
+
+cy = Cylinder(0.05, 7, 0)
+cy.col = "#0f0"
+rot = btQuaternion()
+rot:setEuler(0.0, -3.1415/2, 0.0)
+pos = btVector3(0, 0, 0)
+transform = btTransform(rot, pos)
+cy.trans = transform
+v:add(cy)
+co = Cone(0.2, 0.7, 0)
+co.col = "#0f0"
+rot = btQuaternion()
+rot:setEuler(0.0, -3.1415/2, 0.0)
+pos = btVector3(0.0, 3.5, 0)
+transform = btTransform(rot, pos)
+co.trans = transform
+v:add(co)
+
+txt = text.new({ str = "y", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
+txt.col = "#0f0"
+rot = btQuaternion()
+rot:setEuler(-3.1415/2, 0.0, 0.0)
+pos = btVector3(0, 3.5 + 0.5, 0)
+transform = btTransform(rot, pos)
+txt.trans = transform
+v:add(txt)
+
+cy = Cylinder(0.05, 7, 0)
+cy.col = "#f00"
+rot = btQuaternion()
+rot:setEuler(3.1415/2, 0.0, 0.0)
+pos = btVector3(0, 0, 0)
+transform = btTransform(rot, pos)
+cy.trans = transform
+v:add(cy)
+co = Cone(0.2, 0.7, 0)
+co.col = "#f00"
+rot = btQuaternion()
+rot:setEuler(3.1415/2, 0.0, 0.0)
+pos = btVector3(3.5, 0.0, 0.0)
+transform = btTransform(rot, pos)
+co.trans = transform
+v:add(co)
+
+txt = text.new({ str = "x", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
+txt.col = "#f00"
+rot = btQuaternion()
+rot:setEuler(-3.1415/2, 0.0, 0.0)
+pos = btVector3(3.5, 0.25, 0)
+transform = btTransform(rot, pos)
+txt.trans = transform
+v:add(txt)
 
 -- preStart: Called once before simulation starts
 v:preStart(function(N)
   print("preStart("..tostring(N)..")")
-  
-  -- Set a pseudo orthogonal camera view
-  v.cam:setFieldOfView(0.03)
-
-  v.cam:setUpVector(btVector3(0.259637, 0.929523, -0.261871), true)
-  v.cam.up   = btVector3(0.259637, 0.929523, -0.261871)
-  v.cam.pos  = btVector3(-121.023, 69.3107, 123.504)
-  v.cam.look = btVector3(649931, -368689, -664294)
 end)
 
 -- preStop: Called once when simulation stops
@@ -100,7 +167,7 @@ end)
 -- postSim: Called after each physics simulation step
 v:postSim(function(N)
   --print("postSim("..tostring(N)..")")
-  v.cam.focal_blur      = 7
+  v.cam.focal_blur      = 0
   v.cam.focal_aperture  = 5
   -- set blur point to sphere shape position
   v.cam.focal_point = sp.pos
