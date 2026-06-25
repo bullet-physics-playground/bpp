@@ -129,28 +129,28 @@ static QString locateMeshFile(const QString &filename) {
     return filename;
   }
   if (fi.exists()) {
-    return fi.absoluteFilePath();
+    return QDir::toNativeSeparators(fi.absoluteFilePath());
   }
 
   QString appDir = QCoreApplication::applicationDirPath();
-  QFileInfo appDirFi(appDir + "/" + filename);
+  QFileInfo appDirFi(QDir(appDir).filePath(filename));
   if (appDirFi.exists()) {
-    return appDirFi.absoluteFilePath();
+    return QDir::toNativeSeparators(appDirFi.absoluteFilePath());
   }
 
-  QFileInfo parentDirFi(appDir + "/../" + filename);
+  QFileInfo parentDirFi(QDir(appDir + "/..").filePath(filename));
   if (parentDirFi.exists()) {
-    return parentDirFi.absoluteFilePath();
+    return QDir::toNativeSeparators(parentDirFi.absoluteFilePath());
   }
 
-  QFileInfo grandparentDirFi(appDir + "/../../" + filename);
+  QFileInfo grandparentDirFi(QDir(appDir + "/../..").filePath(filename));
   if (grandparentDirFi.exists()) {
-    return grandparentDirFi.absoluteFilePath();
+    return QDir::toNativeSeparators(grandparentDirFi.absoluteFilePath());
   }
 
-  QFileInfo installFi("/usr/share/bpp/" + filename);
+  QFileInfo installFi(QDir("/usr/share/bpp").filePath(filename));
   if (installFi.exists()) {
-    return installFi.absoluteFilePath();
+    return QDir::toNativeSeparators(installFi.absoluteFilePath());
   }
 
   return filename;

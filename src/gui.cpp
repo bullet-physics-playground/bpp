@@ -312,7 +312,7 @@ void Gui::setCurrentFile(const QString &fileName) {
   if (!scriptFile.isEmpty() && scriptFile != "no_name") {
     QFileInfo fi(scriptFile);
     if (fi.exists()) {
-      QString dir = fi.absolutePath();
+      QString dir = QDir::toNativeSeparators(fi.absolutePath());
       QDir::setCurrent(dir);
       ui.viewer->setScriptBasePath(dir);
     }

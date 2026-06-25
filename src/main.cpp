@@ -260,10 +260,10 @@ int main(int argc, char **argv) {
 
     if (!lua.isEmpty()) {
       v->setScriptName(withoutExtension(lua[0]));
-      v->setScriptBasePath(QFileInfo(lua[0]).absolutePath());
+      v->setScriptBasePath(QDir::toNativeSeparators(QFileInfo(lua[0]).absolutePath()));
     } else if (!positionalLuaFile.isEmpty()) {
       v->setScriptName(withoutExtension(positionalLuaFile));
-      v->setScriptBasePath(QFileInfo(positionalLuaFile).absolutePath());
+      v->setScriptBasePath(QDir::toNativeSeparators(QFileInfo(positionalLuaFile).absolutePath()));
     } else {
       v->setScriptName("stdin");
     }
