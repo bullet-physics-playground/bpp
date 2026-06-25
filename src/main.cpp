@@ -7,6 +7,7 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QFileInfo>
+#include <QDir>
 #include <QTimer>
 
 #include "gui.h"

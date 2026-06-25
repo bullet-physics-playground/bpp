@@ -5,6 +5,8 @@
 #include "gui.h"
 
 #include <QProgressBar>
+#include <QDir>
+#include <QFileInfo>
 
 std::ostream &operator<<(std::ostream &ostream, const Gui &gui) {
   ostream << gui.toString().toUtf8().data();
@@ -306,6 +308,15 @@ void Gui::setCurrentFile(const QString &fileName) {
   QString scriptFile = editor->scriptFile();
 
   ui.viewer->setScriptName(strippedNameNoExt(scriptFile));
+
+  if (!scriptFile.isEmpty() && scriptFile != "no_name") {
+    QFileInfo fi(scriptFile);
+    if (fi.exists()) {
+      QString dir = fi.absolutePath();
+      QDir::setCurrent(dir);
+      ui.viewer->setScriptBasePath(dir);
+    }
+  }
 
   if (scriptFile.isEmpty())
     setWindowTitle(tr("Recent Files"));

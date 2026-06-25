@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QCoreApplication>
 
 // assimp include files. These three are usually needed.
 #include <assimp/cimport.h>
@@ -122,11 +123,45 @@ Mesh::~Mesh() {
   }
 }
 
+static QString locateMeshFile(const QString &filename) {
+  QFileInfo fi(filename);
+  if (fi.isAbsolute()) {
+    return filename;
+  }
+  if (fi.exists()) {
+    return fi.absoluteFilePath();
+  }
+
+  QString appDir = QCoreApplication::applicationDirPath();
+  QFileInfo appDirFi(appDir + "/" + filename);
+  if (appDirFi.exists()) {
+    return appDirFi.absoluteFilePath();
+  }
+
+  QFileInfo parentDirFi(appDir + "/../" + filename);
+  if (parentDirFi.exists()) {
+    return parentDirFi.absoluteFilePath();
+  }
+
+  QFileInfo grandparentDirFi(appDir + "/../../" + filename);
+  if (grandparentDirFi.exists()) {
+    return grandparentDirFi.absoluteFilePath();
+  }
+
+  QFileInfo installFi("/usr/share/bpp/" + filename);
+  if (installFi.exists()) {
+    return installFi.absoluteFilePath();
+  }
+
+  return filename;
+}
+
 void Mesh::loadFile(const QString &filename, btScalar mass) {
   m_filename = filename;
   m_mass = mass;
 
-  QString cacheKey = QFileInfo(filename).absoluteFilePath();
+  QString resolvedPath = locateMeshFile(filename);
+  QString cacheKey = QFileInfo(resolvedPath).absoluteFilePath();
 
   if (_meshCache.contains(cacheKey)) {
     auto entry = _meshCache.value(cacheKey);
