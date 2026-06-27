@@ -85,11 +85,12 @@ void Cone::toPOV(QTextStream *s) const {
 
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   if (s != nullptr) {
     if (mPreSDL.isNull()) {
-      *s << "cone { <0, 0, " << -height / 2.0 << ">, " << radius << ", <0, 0, " << height / 2.0 << ">, 0"
+      *s << "cone { <0, 0, " << height / 2.0 << ">, " << radius << ", <0, 0, " << -height / 2.0 << ">, 0"
          << "\n";
     } else {
       *s << mPreSDL << "\n";

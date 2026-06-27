@@ -128,6 +128,8 @@ public:
   collisiontypes getCol1() const;
   collisiontypes getCol2() const;
 
+  static void povMatrixFromGL(const float *gl, float *pov);
+
 protected:
   unsigned char color[3];
 

@@ -77,6 +77,7 @@ void Plane::toPOV(QTextStream *s) const {
 
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   if (s != nullptr) {
@@ -87,7 +88,7 @@ void Plane::toPOV(QTextStream *s) const {
       btScalar planeConst = staticPlaneShape->getPlaneConstant();
 
       *s << "plane { <" << planeNormal[0] << ", " << planeNormal[1] << ", "
-         << planeNormal[2] << ">, " << planeConst << "\n";
+         << -planeNormal[2] << ">, " << planeConst << "\n";
     } else {
       *s << mPreSDL << "\n";
     }

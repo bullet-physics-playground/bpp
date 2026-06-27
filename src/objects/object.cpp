@@ -89,12 +89,21 @@ QList<btTypedConstraint *> Object::getConstraints() const { return _constraints;
 
 QString Object::toString() const { return QString("Object"); }
 
+void Object::povMatrixFromGL(const float *gl, float *pov) {
+  pov[0] = gl[0];   pov[1] = gl[1];   pov[2]  = -gl[2];
+  pov[4] = gl[4];   pov[5] = gl[5];   pov[6]  = -gl[6];
+  pov[8] = -gl[8];  pov[9] = -gl[9];  pov[10] = gl[10];
+  pov[12] = gl[12]; pov[13] = gl[13]; pov[14] = -gl[14];
+  pov[3] = pov[7] = pov[11] = 0.0f; pov[15] = 1.0f;
+}
+
 void Object::toPOV(QTextStream *s) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;
 
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   if (s != nullptr) {
@@ -494,6 +503,7 @@ QString Object::toPOV() const {
   ) {
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   QByteArray data;

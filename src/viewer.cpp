@@ -1537,38 +1537,26 @@ void Viewer::savePOV(bool force) {
       Vec pos = camera()->position();
 
       *_stream << "camera { " << "\n"
-               << "  location < " << pos.x << ", " << pos.y << ", " << pos.z
+               << "  location < " << pos.x << ", " << pos.y << ", " << -pos.z
                << " >" << "\n"
-               << "  right - image_width/image_height*x" << "\n";
+	           << "  right image_width/image_height*x" << "\n";
 
-      /*
-      Vec dir = ((Cam*)camera())->viewDirection();
-      *_stream << "  direction <"
-               << dir.x
-               << ", "
-               << dir.y
-               << ", "
-               << dir.z
-               << "> ";
-*/
-
-	  
-	  Vec look = ((Cam *)camera())->viewDirection() * 1000000 + camera()->position();
-      *_stream << "  look_at <" << look.x << ", " << look.y << ", " << look.z
+      Vec look = ((Cam *)camera())->viewDirection() * 1000000 + camera()->position();
+      *_stream << "  look_at <" << look.x << ", " << look.y << ", " << -look.z
 			   << "> ";
 
       *_stream << "  angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI
                << "\n";
 
       *_stream << "  sky <" << _cam->getUpVector().x() << ", "
-               << _cam->getUpVector().y() << ", " << _cam->getUpVector().z()
+               << _cam->getUpVector().y() << ", " << -_cam->getUpVector().z()
                << ">" << "\n";
 
       *_stream << "#if(use_focal_blur)" << "\n"
                << "  aperture " << _cam->getFocalAperture() << "\n"
                << "  blur_samples 10*use_focal_blur" << "\n"
                << "  focal_point <" << _cam->getFocalPoint().x() << ", "
-               << _cam->getFocalPoint().y() << ", " << _cam->getFocalPoint().z()
+               << _cam->getFocalPoint().y() << ", " << -_cam->getFocalPoint().z()
                << "> " << "  confidence 0.9+(use_focal_blur*0.0085)" << "\n"
                << "  variance 1/(2000*use_focal_blur)" << "\n"
                << "#end" << "\n";

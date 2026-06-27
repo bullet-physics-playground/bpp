@@ -283,11 +283,11 @@ void Mesh::toMesh2(QTextStream *s, QString hash) const {
       *s << "    " << pov.idx.length() * 3 << ", ";
       for (int i = 0; i < pov.idx.length(); ++i) {
         *s << "<" << pov.v1.at(i).x() << "," << pov.v1.at(i).y() << ","
-           << pov.v1.at(i).z() << ">";
+           << -pov.v1.at(i).z() << ">";
         *s << "<" << pov.v2.at(i).x() << "," << pov.v2.at(i).y() << ","
-           << pov.v2.at(i).z() << ">";
+           << -pov.v2.at(i).z() << ">";
         *s << "<" << pov.v3.at(i).x() << "," << pov.v3.at(i).y() << ","
-           << pov.v3.at(i).z() << ">";
+           << -pov.v3.at(i).z() << ">";
         if (i != pov.idx.length() - 1)
           *s << ", \n";
       }
@@ -332,6 +332,7 @@ QString Mesh::toPOV(const QString &sceneDir) const {
     btTransform trans;
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   QByteArray data;

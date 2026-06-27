@@ -78,6 +78,7 @@ void Cube::toPOV(QTextStream *s) const {
 
     body->getMotionState()->getWorldTransform(trans);
     trans.getOpenGLMatrix(matrix);
+    povMatrixFromGL(matrix, matrix);
   }
 
   if (s != nullptr) {
