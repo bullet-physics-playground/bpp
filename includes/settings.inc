@@ -1,6 +1,6 @@
 // settings.inc for Bullet Physics Playground POV-Ray export
 
-// for LightSys see - http://www.ignorancia.org/en/index.php?page=Lightsys
+// for LightSys see - http://www.ignorancia.org/index.php?page=lightsys
 #declare use_rad        = 0;  // 0/1/2
 #declare use_lightsys   = 1;  // 0/1
 #declare use_lightsys_setting = 1; // 0/1
