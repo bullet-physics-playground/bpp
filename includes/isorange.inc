@@ -8,13 +8,30 @@ union{
     }
     max_gradient 3
     contained_by{sphere{0,1}}
-    texture{
-      pigment{Orange*.4+OrangeRed*.5}
-      finish{
-        specular albedo 0.05 roughness 0.02
-        conserve_energy
+    #if(pass=1)
+      texture{
+        pigment{Orange*.4+OrangeRed*.5}
+        finish{
+          specular albedo 0.05 roughness 0.02
+          conserve_energy
+        }
       }
-    }
+    #end
+    #if(pass=2)
+      texture{
+        pigment{White}
+        finish{subsurface{translucency 1}}
+      }
+    #end
+    #if(pass=3)
+      texture{
+        pigment{Orange*.25+OrangeRed*.25}
+        finish{
+          specular albedo 0.05 roughness 0.02
+          conserve_energy
+        }
+      }
+    #end
   }
   cylinder{<0,0,0>,<0,.9,0>,.02 pigment{DarkGreen*.5}}
 }

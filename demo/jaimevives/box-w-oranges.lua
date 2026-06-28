@@ -83,9 +83,12 @@ oranges_row(4,75)
 oranges_row(4,85)
 oranges_row(4,95)
 
---[[
-v.cam:setUpVector(btVector3(-0.238615, 0.950738, -0.197887), true)
-v.cam.up   = btVector3(-0.238615, 0.950738, -0.197887)
-v.cam.pos  = btVector3(280.435, 135.555, 265.615)
-v.cam.look = btVector3(-687390, -309170, -656575)
-]]
+v.cam:setUpVector(btVector3(0, 1, 0), true)
+v.cam.up   = btVector3(0, 1, 0)
+v.cam.pos  = btVector3(101, 71, 40)
+v.cam.look = btVector3(0, 2, 2)
+v.cam:setFieldOfView(.5)
+
+v.cam.focal_blur = 10
+v.cam.focal_point = btVector3(0,2,2)
+v.cam.focal_aperture = 1.33

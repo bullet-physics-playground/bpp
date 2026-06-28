@@ -5,9 +5,15 @@
    
   POV-Ray rendering of the demonstration LUA script included into Koppi's
   Bullet Physics Playground
-  
-  The included image map textures are from www.mayang.com/textures
 
+  Note this scene can be rendered in two "modes":
+    1) no subsurface: if "pass" is set to 1, it will do a regular, final 
+       render withouth SSLT. 
+    2) posprocessed sslt: render two times, setting "pass" to 2 and 3, then
+       use any image manipulation software to "screen" the subsurface-only
+       render over the other one. Best results are usually obtained by using
+       50% transparency on the screened image, and tinting it with some orangish
+       or redish tone.
 */
 #version 3.7;
 #include "colors.inc"
@@ -16,13 +22,17 @@
 #include "rad_def.inc"
 
 // *** CONTROL CENTER ***
-#declare use_area = 0;
+#declare pass=1; // 1=regular, 2=subsurface-only, 3=reduced orange color intensiy
 #declare use_blur =7*0;  // blur samples (0=off)
+#declare use_area=0;
 #declare n_blades=50000*.1; // number of grass blades (use as many as you can afford, of course)
 global_settings{
-  assumed_gamma 1.0
-  //radiosity{Rad_Settings(Radiosity_OutdoorHQ, off, off)}
-  radiosity{Rad_Settings(Radiosity_OutdoorLQ, off, off)}
+  #if(pass!=2)
+    //radiosity{Rad_Settings(Radiosity_OutdoorHQ, off, off)}
+    radiosity{Rad_Settings(Radiosity_OutdoorLQ, off, off)}
+  #else
+    subsurface{}
+  #end
 }
 #default{texture{finish{ambient 0 emission 0 diffuse 1}}}
 
@@ -36,25 +46,41 @@ global_settings{
 #include "grassy_bank.inc"
 
 // *** SKY AND SUNLIGHT ***
-#include "bpp_CIE.inc"
+#include "bpp_CIE.inc" 
 #declare Lightsys_Scene_Scale=1;
-#include "bpp_lightsys.inc"
-#include "bpp_lightsys_constants.inc"
-#declare Cl_Daylight =Daylight(6500);
-#declare Cl_Skylight =Daylight(7500);
+#include "bpp_lightsys.inc" 
+#include "bpp_lightsys_constants.inc" 
+#declare Cl_Daylight =Daylight(6500); 
+#declare Cl_Skylight =Daylight(7500); 
 #declare Lightsys_Brightness=.75;
-#declare r_sun=seed(990);
+#declare r_sun=seed(990);  
 #declare North=z; #declare Az=360*rand(r_sun); #declare Al=5+55*rand(r_sun);
 #declare Intensity_Mult=1; // brightness of the sky dome and sunlight
 #declare fiLuminous=finish{ambient 0 emission 1 diffuse 0 specular 0 phong 0 reflection 0 crand 0 irid{0}}
 #declare Max_Vertices=1000;
 #include "bpp_CIE_Skylight"
-#declare Cl_Sunlight =Daylight(4000+3000*Al/90);
+#declare Cl_Sunlight =Daylight(4000+3000*Al/90); 
 light_source{
   SolarPosition
   Light_Color(Cl_Sunlight,SunColor.gray*2)
   parallel
   #if (use_area)
     area_light 5000*x,5000*z,5,5 jitter adaptive 1 orient circular
-  #end
+  #end                  
 }
+
+// *** CAMERA ***
+/*
+camera{
+ location <101,71,-40>
+ up 1*y
+ right (9/6)*x
+ angle 39.6 // 28.8 39.6 54.4
+ look_at <0,2,2> 
+ #if (use_blur)
+ focal_point <0,2,2>
+ aperture 1.33
+ blur_samples use_blur
+ #end
+}
+*/
