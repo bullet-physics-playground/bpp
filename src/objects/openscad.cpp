@@ -102,20 +102,27 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
           qDebug() << err;
         }
       }
+      m_process->deleteLater();
+      m_process = nullptr;
+    } else {
+      loadFile(m_stlfile, m_pendingMass);
       m_stlReady = true;
       m_process->deleteLater();
       m_process = nullptr;
+      emit stlReady();
       return;
     }
 
-    loadFile(m_stlfile, m_pendingMass);
-    m_stlReady = true;
-    m_process->deleteLater();
-    m_process = nullptr;
-    emit stlReady();
+    // Try to load the STL file even if OpenSCAD reported an error,
+    // since the file may have been written despite the non-zero exit.
+    QFileInfo stlCheck(m_stlfile);
+    if (stlCheck.exists() && stlCheck.isFile()) {
+      loadFile(m_stlfile, m_pendingMass);
+      m_stlReady = true;
+      emit stlReady();
+    }
   } else {
     qDebug() << tr("Error writing to file '%1'.").arg(scad.fileName());
-    m_stlReady = true;
   }
 }
 
