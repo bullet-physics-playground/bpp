@@ -9,6 +9,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QKeyEvent>
 #include <QMutex>
