@@ -14,8 +14,17 @@
 QString getDefaultLuaPath(const QString &scriptBasePath) {
   QStringList luaPaths;
 
-  if (!scriptBasePath.isEmpty() && QDir(scriptBasePath + "/module").exists()) {
-    luaPaths << scriptBasePath + "/module/?.lua;";
+  // Walk up from the script's directory to find a 'module/' directory.
+  // This handles scripts in any subdirectory (e.g. demo/koppi/) so users
+  // can write  require "color"  instead of  require "module/color".
+  if (!scriptBasePath.isEmpty()) {
+    QDir dir(scriptBasePath);
+    do {
+      if (QDir(dir.absolutePath() + "/module").exists()) {
+        luaPaths << dir.absolutePath() + "/module/?.lua;";
+        break;
+      }
+    } while (dir.cdUp());
   }
 
   QString appDir = QFileInfo(QCoreApplication::applicationFilePath()).absolutePath();
