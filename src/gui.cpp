@@ -251,7 +251,11 @@ void Gui::fileLoad(const QString &path) {
   QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
 
-  if (editor->load(path)) {
+  editor->blockSignals(true);
+  bool loaded = editor->load(path);
+  editor->blockSignals(false);
+
+  if (loaded) {
     setCurrentFile(path);
     setWindowTitle(tr("%1 - %2")
                        .arg(QCoreApplication::applicationName())
@@ -519,12 +523,16 @@ void Gui::fileOpen(const QString &path) {
     }
   }
 
+  editor->blockSignals(true);
   editor->load(path);
+  editor->blockSignals(false);
   ui.viewer->clearParams();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(false);
 
   _fileSaved = true;
+
+  parseEditor();
 }
 
 void Gui::fileReload() {
