@@ -38,9 +38,6 @@ Usage: bpp -n 200 -f demo/basic/01-hello-cmdline.lua
 
 ]==]
 
--- Enable debug POV SDL generation (set to 1 for debug)
-debug_pov = 0
-
 --
 -- SCENE SETUP
 --
@@ -116,16 +113,9 @@ end)
 
 -- postSim: Called after each simulation step
 v:postSim(function(N)
+  v:clearDebugText()
   setcam()
-  -- Output frame number and position (for gnuplot)
-  if (debug_pov == 0) then
-    print(N.." "..s.pos.x.." "..s.pos.y.." "..s.pos.z)
-  end
-  -- Alternative: output POV-Ray scene
-  if (debug_pov == 1) then
-    v:clearDebugText()
-    print(v:toPOV())
-  end
+  print(N.." "..s.pos.x.." "..s.pos.y.." "..s.pos.z)
 end)
 
 -- EOF
