@@ -222,6 +222,12 @@ void Gui::dropEvent(QDropEvent *event) {
 }
 
 void Gui::loadLastFile() {
+  bool openLast = settings->value("gui/openlastfile", false).toBool();
+  if (!openLast) {
+    openLast = settings->value("openlastfile", false).toBool();
+  }
+  if (!openLast) return;
+
   QString lastFile;
 
   settings->beginGroup("mainwindow");
