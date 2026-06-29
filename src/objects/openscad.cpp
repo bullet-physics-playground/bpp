@@ -14,6 +14,8 @@
 #include <QTemporaryFile>
 #include <QApplication>
 
+#include <stdexcept>
+
 using namespace std;
 
 #include <luabind/adopt_policy.hpp>
@@ -120,9 +122,13 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
       loadFile(m_stlfile, m_pendingMass);
       m_stlReady = true;
       emit stlReady();
+    } else {
+      throw std::runtime_error(
+          QString("OpenSCAD failed to generate mesh file: %1").arg(stlfile).toStdString());
     }
   } else {
-    qDebug() << tr("Error writing to file '%1'.").arg(scad.fileName());
+    throw std::runtime_error(
+        QString("Could not write OpenSCAD file: %1").arg(scad.fileName()).toStdString());
   }
 }
 

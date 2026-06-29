@@ -39,9 +39,15 @@ local m = Mesh()
 assert_not_nil("Mesh() default constructor", m)
 assert_not_nil("Mesh() default shape", m.shape)
 
--- test constructor with invalid file - m_scene should not be initialized, shape should be nil
-local m2 = Mesh("nonexistent/file.3ds", 10)
-assert_nil("Mesh with invalid file leaves shape nil", m2.shape)
+-- test constructor with invalid file - should throw a Lua error
+local ok, err = pcall(Mesh, "nonexistent/file.3ds", 10)
+if ok then
+  print("FAIL Mesh with invalid file should have thrown")
+  fail = fail + 1
+else
+  print("PASS Mesh with invalid file throws error")
+  pass = pass + 1
+end
 
 -- test constructor with valid 3ds file
 local m3 = Mesh("demo/mesh/testbed.3ds", 0)

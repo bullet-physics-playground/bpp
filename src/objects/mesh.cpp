@@ -17,6 +17,8 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 
+#include <stdexcept>
+
 // assimp include files. These three are usually needed.
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
@@ -174,10 +176,14 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
         aiImportFile(cacheKey.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
 
     if (!scene) {
-      return;
+      throw std::runtime_error(
+          QString("Could not load mesh file: %1").arg(filename).toStdString());
     }
 
-    assert(scene->mNumMeshes > 0);
+    if (scene->mNumMeshes == 0) {
+      throw std::runtime_error(
+          QString("Mesh file has no meshes: %1").arg(filename).toStdString());
+    }
 
     btTriangleMesh *triMesh = new btTriangleMesh();
     const struct aiMesh *amesh = scene->mMeshes[0];
