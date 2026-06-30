@@ -257,6 +257,7 @@ private:
   Vec _initialCameraPosition;
   Quaternion _initialCameraOrientation;
   btScalar _initialCameraHorizontalFieldOfView;
+  Vec _initialCameraUpVector;
 
   bool _simulate;
 

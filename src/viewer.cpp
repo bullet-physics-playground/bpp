@@ -554,6 +554,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _initialCameraPosition = Vec(0, 0, 0);
   _initialCameraOrientation = Quaternion();
   _initialCameraHorizontalFieldOfView = 0.5;
+  _initialCameraUpVector = Vec(0, 1, 0);
 
   _light0 = btVector4(100.0, 200.0, 100.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, -200.0, 0.2);
@@ -885,6 +886,11 @@ emit scriptStarts();
     txt = tmp.join("\n");
   }
 
+  // Snapshot camera state before script execution so we can detect if
+  // the script explicitly positioned the camera (e.g. via cam.pos/cam.look).
+  Vec camPosBeforeScript = camera()->position();
+  Quaternion camOriBeforeScript = camera()->orientation();
+
   int error = luaL_loadstring(L, txt.toUtf8().constData()) ||
               lua_pcall(L, 0, LUA_MULTRET, 0);
 
@@ -925,6 +931,21 @@ emit scriptStarts();
     lua_pop(L, 1);
   } else {
     lua_error = tr("ok");
+  }
+
+  // If the script changed the camera (e.g. via cam.pos/cam.look), update the
+  // initial camera state so the "House" button returns to the script's view.
+  Vec camPosAfterScript = camera()->position();
+  Quaternion camOriAfterScript = camera()->orientation();
+  bool camChanged = (camPosBeforeScript != camPosAfterScript);
+  if (!camChanged)
+    for (int i = 0; i < 4; ++i)
+      if (camOriBeforeScript[i] != camOriAfterScript[i]) { camChanged = true; break; }
+  if (camChanged) {
+    _initialCameraPosition = camPosAfterScript;
+    _initialCameraOrientation = camOriAfterScript;
+    _initialCameraHorizontalFieldOfView = camera()->horizontalFieldOfView();
+    _initialCameraUpVector = camera()->upVector();
   }
 
   _frameNum = 1; // reset frames counter
@@ -1062,12 +1083,10 @@ void Viewer::clear() {
 }
 
 void Viewer::resetCamView() {
-
-  camera()->setUpVector(Vec(0, 1, 0), true);
+  camera()->setUpVector(_initialCameraUpVector, true);
   camera()->setPosition(_initialCameraPosition);
   camera()->setOrientation(_initialCameraOrientation);
   camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
-  // XXX updateGLViewer();
 }
 
 Viewer::~Viewer() {
@@ -1250,6 +1269,7 @@ void Viewer::init() {
   _initialCameraPosition = camera()->position();
   _initialCameraOrientation = camera()->orientation();
   _initialCameraHorizontalFieldOfView = camera()->horizontalFieldOfView();
+  _initialCameraUpVector = camera()->upVector();
 }
 
 void Viewer::draw() {
