@@ -17,7 +17,7 @@ v:add(plane)
 d = 200
 
 for i = 1,3 do
-  m = Mesh("demo/mesh/box.3ds", 10)
+  m = Mesh("demo/mesh/box.3ds", 10, false)
   m.col="#ff0000"
   m.pos=btVector3(
     math.random()*d-d/2,
@@ -31,7 +31,7 @@ d = 100
 local p1 = nil
 
 for i = 1,20 do
-  m = Mesh("demo/mesh/torus.stl", 1)
+  m = Mesh("demo/mesh/torus.stl", 1, false)
   m.col="#7f007f"
   m.pos=btVector3(math.random(-d,d),200-i*2,math.random(-d,d))
 --  t.rotate(m, btQuaternion(0,1,0,1), btVector3(0,0,0))

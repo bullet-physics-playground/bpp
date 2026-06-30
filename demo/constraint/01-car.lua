@@ -24,7 +24,7 @@ col_base = "#0f0f0f"
 if(use_obstacles==2) then
   local f = 2000  -- friction
 
-  terrain = Mesh("demo/mesh/terrain.3ds",0)
+  terrain = Mesh("demo/mesh/terrain.3ds", 0, false)
   terrain.pos =btVector3(0,-1,0)
   terrain.col=col_sand
   terrain.friction=f

@@ -89,6 +89,6 @@ v.cam.pos  = btVector3(101, 71, 40)
 v.cam.look = btVector3(0, 2, 2)
 v.cam:setFieldOfView(.5)
 
-v.cam.focal_blur = 10
+v.cam.focal_blur = 5
 v.cam.focal_point = btVector3(0,2,2)
 v.cam.focal_aperture = 1.33

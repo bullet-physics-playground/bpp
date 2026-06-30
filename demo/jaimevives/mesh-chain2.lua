@@ -25,7 +25,7 @@ function chain(N,xp,yp,zp)
       this_mass=0
     end
     o = btVector3(xp-N*5+i*9,yp,zp)
-    d=Mesh("demo/mesh/chain-link.3ds",this_mass)
+    d=Mesh("demo/mesh/chain-link.3ds", this_mass, false)
     d.trans = btTransform(q,o)    
     d.col = "#ff0000"
     d.friction = .3

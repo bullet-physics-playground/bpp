@@ -19,7 +19,7 @@ local plane = Plane(0,1,0,0,100)
 plane.col = color.gray
 v:add(plane)
 
-local b = Mesh("demo/mesh/box.3ds",0)
+local b = Mesh("demo/mesh/box.3ds", 0, false)
 b.pos = btVector3(0,20.15,0)
 b.col = color.darkblue
 v:add(b)
