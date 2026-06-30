@@ -25,7 +25,7 @@ function M.new(params)
    fn   = options.fn
    mass = options.mass
    
-   return OpenSCAD("$fn = "..fn..";\n"..fun..M.lib, mass)
+   return OpenSCAD("$fn = "..fn..";\n"..fun..M.lib, mass, false)
 end
 
 M.lib = [===[

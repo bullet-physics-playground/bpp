@@ -1145,7 +1145,7 @@ module arc( height, depth, radius, degrees ) {
 	}
 }
 
-]===], mass)
+]===], mass, false)
 
 end
 

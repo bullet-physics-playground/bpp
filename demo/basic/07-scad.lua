@@ -83,7 +83,7 @@ color("MediumSlateBlue")
           projection() rotate([0,-90,-90]) GEB();
         }
 
-]===], 1)
+]===], 1, false)
 
     o.col = "#7f7f7f"
 

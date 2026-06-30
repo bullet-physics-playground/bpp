@@ -13,8 +13,8 @@
 #declare use_plane_tex  = 0;  // 0/1/2
 #declare use_photons    = 0;  // 0/1/2
 
-#declare Al=30;      // sun altitude
-#declare Az=270-45;   // sun rotation 
+#declare Al=90;      // sun altitude
+#declare Az=270-45-90-90;   // sun rotation
 #declare North=-z;
 #declare DomeSize=1e9;
 #declare Current_Turbidity = 5.0;

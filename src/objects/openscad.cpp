@@ -23,10 +23,12 @@ using namespace std;
 
 static int s_runningCount = 0;
 
-OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
+OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
+    : Mesh(nullptr, mass) {
   this->sdl = sdl;
   m_process = nullptr;
   m_pendingMass = mass;
+  m_centerOfMass = centerOfMass;
   m_stlReady = false;
 
   QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
@@ -48,7 +50,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
 
   QFileInfo check_file(stlfile);
   if (check_file.exists() && check_file.isFile()) {
-    loadFile(stlfile, mass);
+    loadFile(stlfile, mass, m_centerOfMass);
     m_stlReady = true;
     return;
   }
@@ -107,7 +109,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
       m_process->deleteLater();
       m_process = nullptr;
     } else {
-      loadFile(m_stlfile, m_pendingMass);
+      loadFile(m_stlfile, m_pendingMass, m_centerOfMass);
       m_stlReady = true;
       m_process->deleteLater();
       m_process = nullptr;
@@ -119,7 +121,7 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass) : Mesh(nullptr, mass) {
     // since the file may have been written despite the non-zero exit.
     QFileInfo stlCheck(m_stlfile);
     if (stlCheck.exists() && stlCheck.isFile()) {
-      loadFile(m_stlfile, m_pendingMass);
+      loadFile(m_stlfile, m_pendingMass, m_centerOfMass);
       m_stlReady = true;
       emit stlReady();
     } else {
@@ -177,7 +179,7 @@ void OpenSCAD::luaBind(lua_State *s) {
   using namespace luabind;
 
   module(s)[class_<OpenSCAD, Mesh>("OpenSCAD")
-                .def(constructor<QString, btScalar>(), adopt(result))
+                .def(constructor<QString, btScalar, bool>(), adopt(result))
                 .def(tostring(const_self))];
 }
 

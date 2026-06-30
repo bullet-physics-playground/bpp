@@ -60,7 +60,7 @@ union() {
   translate([0,0,-d*2]) rotate ([ 0,-90-45,0]) box();
 }
 
-]],0)
+]],0,false)
 t.col = "gray"
 t.friction    = 1
 t.restitution = 0

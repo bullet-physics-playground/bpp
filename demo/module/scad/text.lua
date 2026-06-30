@@ -39,7 +39,7 @@ function M.new(params)
     text(
       text = text, font = font,
       size = ]]..size..[[, halign = "center");
-  }]], mass)
+  }]], mass, false)
   t.pos = btVector3(x,y,z)
   t.col = col
   t.post_sdl = post_sdl

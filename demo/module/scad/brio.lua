@@ -554,7 +554,7 @@ function M.new(params)
    cmd  = options.cmd
    mass = options.mass
 
-   s = OpenSCAD(M.sdl(cmd), mass)
+   s = OpenSCAD(M.sdl(cmd), mass, false)
    s.col = "#ffff00"
 
    return s

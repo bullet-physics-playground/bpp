@@ -65,7 +65,7 @@ function spiral1(height, twist, fn, mass)
     $fn    = ]]..tostring(fn)    ..[[)
   translate([1, 0, 0])
   circle(r = 1);
-]], mass)
+]], mass, false)
 end
 
 function spirals() 
@@ -98,7 +98,7 @@ polygon(points= concat(
   translate([0,-0.5,0])
   cylinder(h=0.75, r=r*14);
 };
-]==],0)
+]==],0,false)
 end
 
 sp = spiral2()

@@ -137,7 +137,7 @@ function M.new(params)
    col  = options.col
    mass = options.mass
 
-   local obj = OpenSCAD(M.lib..options.fun, mass)
+   local obj = OpenSCAD(M.lib..options.fun, mass, false)
    obj.col = options.col
    
    return obj

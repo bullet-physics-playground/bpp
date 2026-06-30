@@ -872,7 +872,7 @@ module teardrop(radius, length, angle) {
 	}
 }
 
-]===]..options.fun, mass)
+]===]..options.fun, mass, false)
 end
 
 return M

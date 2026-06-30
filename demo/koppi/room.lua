@@ -162,7 +162,7 @@ end
       translate([-16,-9, 50])
       cube([42,30,10], center=true);
     }
-  ]], 0)
+  ]], 0, false)
   sc.col = "#7f7f30"
   sc.sdl = [[
 texture {
@@ -190,7 +190,7 @@ translate([.5,5.75,5.5])
 rotate([270,-90,0])
 path_extrude(points=pts, path=p, merge=false);
 
-]], 0)
+]], 0, false)
 path.col = "#00007f";
 path.sdl = [[
   pigment { color ReferenceRGB(<0.9,0.9,0.5>) * use_contrast }
@@ -218,7 +218,7 @@ rotate([0,90,0])
 rotate([270,0,20])
 path_extrude(points=pts, path=p, merge=false);
 
-]], 0)
+]], 0, false)
 path.col = "#00007f";
 path.sdl = [[
   pigment { color ReferenceRGB(<0.9,0.9,0.5>) * use_contrast }

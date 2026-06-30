@@ -90,7 +90,7 @@ if (use_openscad == 1) then
     rotate([-90,0,0])
     cylinder(h+1,d,1.5, center=true);
     }
-]],0)
+]],0,false)
   sc.col = "#ffffff"
   sc.pos = btVector3(0,57.5,-5)
   v:add(sc)
@@ -106,7 +106,7 @@ if (use_openscad == 1) then
       translate([-16,-5.5,50])
       cube([40,30,10], center=true);
     }
-  ]], 0)
+  ]], 0, false)
   sc.col = color.white
   sc.sdl = [[
       texture { pigment{ color rgb<1,1,1>}

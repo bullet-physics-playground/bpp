@@ -25,7 +25,7 @@ function M.new(params)
 
    mass = options.mass
    
-   return OpenSCAD(fun..M.lib, mass)
+   return OpenSCAD(fun..M.lib, mass, false)
 end
 
 M.lib = [===[

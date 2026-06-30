@@ -101,7 +101,7 @@ module wheel(rad) {
     cylinder(r = rad-0.5-c, h=2, center=true);
   }
 }
-wheel(]]..tostring(rad)..[[);]], 20);
+wheel(]]..tostring(rad)..[[);]], 20, false);
   w.pos = btVector3(px, py, pz)
   w.col = "#fff"
   w.sdl = [[
@@ -133,7 +133,7 @@ module tower(width, height, depth) {
     cylinder(r = width/2-c/2, h = depth, center=true);
   }
 }
-tower(]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tostring(depth)..[[);]], 0);
+tower(]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tostring(depth)..[[);]], 0, false);
   t.pos = btVector3(px, py, pz)
   t.col = color.pov_gray25
   return t
@@ -158,7 +158,7 @@ module box(c, width, height, depth) {
     cube([width+c,height*2,2], center=true);
   }
 }
-box(]]..tostring(c)..[[,]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tostring(depth)..[[);]], 0);
+box(]]..tostring(c)..[[,]]..tostring(width)..[[,]]..tostring(height)..[[,]]..tostring(depth)..[[);]], 0, false);
   t.pos = btVector3(px, py, pz)
   t.col = "#fff"
   return t
@@ -211,7 +211,7 @@ translate([.5,7.75,5.5])
 rotate([270,-90,0])
 path_extrude(points=pts, path=p, merge=false);
 
-]], 0)
+]], 0, false)
 path.col = color.pov_gray25;
 path.friction = 1
 path.col = color.gray
@@ -224,7 +224,7 @@ rotate([-90,0,0])
     polygon(
       points=[[1.2,-0.35],[3.5,-0.1],[4.2,0.9],[5.3,1.1]]
   );
-]==],0)
+]==],0,false)
 thing.pos = btVector3(mwx+1,mwy+7,mwz+6.5)
 thing.friction = 1
 thing.col = "#fff"

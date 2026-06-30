@@ -11,7 +11,7 @@
 class OpenSCAD : public Mesh {
   Q_OBJECT
 public:
-  explicit OpenSCAD(QString sdl, btScalar mass);
+  explicit OpenSCAD(QString sdl, btScalar mass, bool centerOfMass = true);
 
   static void luaBind(lua_State *s);
   virtual QString toString() const;
@@ -29,6 +29,7 @@ private:
   QProcess *m_process;
   QString m_stlfile;
   btScalar m_pendingMass;
+  bool m_centerOfMass;
   bool m_stlReady;
 };
 

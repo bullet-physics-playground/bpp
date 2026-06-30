@@ -91,7 +91,7 @@ function M.new(params)
 
    mass = options.mass
 
-   return OpenSCAD(M.lib..options.fun, mass)
+   return OpenSCAD(M.lib..options.fun, mass, false)
 end
 
 return M
