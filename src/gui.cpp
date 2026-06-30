@@ -544,6 +544,8 @@ void Gui::fileReload() {
   ui.actionSave->setEnabled(false);
 
   _fileSaved = true;
+
+  parseEditor();
 }
 
 void Gui::fileSave() {
