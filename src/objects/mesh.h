@@ -39,8 +39,8 @@ public:
 
 class Mesh : public Object {
 public:
-  Mesh(const QString &filename, btScalar mass);
-  Mesh(const QString &filename);
+  Mesh(const QString &filename, btScalar mass, bool centerOfMass = true);
+  Mesh(const QString &filename, bool centerOfMass = true);
   Mesh();
   ~Mesh();
 
@@ -59,7 +59,7 @@ public:
     shape = nullptr;
   }
 
-  void loadFile(const QString &filename, btScalar mass);
+  void loadFile(const QString &filename, btScalar mass, bool centerOfMass = true);
 
   void recreate(btDiscreteDynamicsWorld *world = nullptr);
 

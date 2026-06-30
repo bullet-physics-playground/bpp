@@ -78,7 +78,7 @@ public:
   }
 };
 
-Mesh::Mesh(const QString &filename, btScalar mass) {
+Mesh::Mesh(const QString &filename, btScalar mass, bool centerOfMass) {
   m_filename = filename;
   m_mass = mass;
   m_mesh = nullptr;
@@ -88,10 +88,10 @@ Mesh::Mesh(const QString &filename, btScalar mass) {
   setColor(127, 127, 127);
 
   if (!filename.isNull())
-    loadFile(filename, mass);
+    loadFile(filename, mass, centerOfMass);
 }
 
-Mesh::Mesh(const QString &filename) {
+Mesh::Mesh(const QString &filename, bool centerOfMass) {
   m_filename = filename;
   m_mass = 0;
   m_mesh = nullptr;
@@ -101,7 +101,7 @@ Mesh::Mesh(const QString &filename) {
   setColor(127, 127, 127);
 
   if (!filename.isNull())
-    loadFile(filename, 0);
+    loadFile(filename, 0, centerOfMass);
 }
 
 Mesh::Mesh() {
@@ -159,12 +159,14 @@ static QString locateMeshFile(const QString &filename) {
   return filename;
 }
 
-void Mesh::loadFile(const QString &filename, btScalar mass) {
+void Mesh::loadFile(const QString &filename, btScalar mass,
+                    bool centerOfMass) {
   m_filename = filename;
   m_mass = mass;
 
   QString resolvedPath = locateMeshFile(filename);
-  QString cacheKey = QFileInfo(resolvedPath).absoluteFilePath();
+  QString absPath = QFileInfo(resolvedPath).absoluteFilePath();
+  QString cacheKey = absPath + QString(centerOfMass ? "?cog=1" : "?cog=0");
 
   if (_meshCache.contains(cacheKey)) {
     auto entry = _meshCache.value(cacheKey);
@@ -175,7 +177,7 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
     _comOffset = entry->m_comOffset;
   } else {
     const aiScene *scene =
-        aiImportFile(cacheKey.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
+        aiImportFile(absPath.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
 
     if (!scene) {
       throw std::runtime_error(
@@ -198,20 +200,22 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
 
     // Compute center of mass from tetrahedra (origin, v0, v1, v2)
     btVector3 cog(0, 0, 0);
-    double totalVolume = 0;
-    for (unsigned int t = 0; t < amesh->mNumFaces; ++t) {
-      const struct aiFace *face = &amesh->mFaces[t];
-      if (face->mNumIndices < 3)
-        continue;
-      btVector3 v0 = verts[face->mIndices[0]];
-      btVector3 v1 = verts[face->mIndices[1]];
-      btVector3 v2 = verts[face->mIndices[2]];
-      double vol = v0.cross(v1).dot(v2) / 6.0;
-      cog += (v0 + v1 + v2) / 4.0 * vol;
-      totalVolume += vol;
+    if (centerOfMass) {
+      double totalVolume = 0;
+      for (unsigned int t = 0; t < amesh->mNumFaces; ++t) {
+        const struct aiFace *face = &amesh->mFaces[t];
+        if (face->mNumIndices < 3)
+          continue;
+        btVector3 v0 = verts[face->mIndices[0]];
+        btVector3 v1 = verts[face->mIndices[1]];
+        btVector3 v2 = verts[face->mIndices[2]];
+        double vol = v0.cross(v1).dot(v2) / 6.0;
+        cog += (v0 + v1 + v2) / 4.0 * vol;
+        totalVolume += vol;
+      }
+      if (totalVolume != 0)
+        cog /= totalVolume;
     }
-    if (totalVolume != 0)
-      cog /= totalVolume;
 
     btTriangleMesh *triMesh = new btTriangleMesh();
     for (unsigned int t = 0; t < amesh->mNumFaces; ++t) {
@@ -283,6 +287,7 @@ module(s)[class_<Mesh, Object>("Mesh")
                  .def(constructor<>(), adopt(result))
                  .def(constructor<QString>(), adopt(result))
                  .def(constructor<QString, btScalar>(), adopt(result))
+                 .def(constructor<QString, btScalar, bool>(), adopt(result))
                  .def(tostring(const_self))
 
                  .property("shape", &Mesh::getShape, &Mesh::setShape)
