@@ -24,7 +24,8 @@
 class MeshCacheEntry {
 public:
   MeshCacheEntry()
-      : m_shape(nullptr), m_mesh(nullptr), m_scene(nullptr), refCount(0) {}
+      : m_shape(nullptr), m_mesh(nullptr), m_scene(nullptr), refCount(0),
+        m_comOffset(0, 0, 0) {}
   ~MeshCacheEntry() {
     delete m_shape;
     delete m_mesh;
@@ -33,6 +34,7 @@ public:
   btTriangleMesh *m_mesh;
   const aiScene *m_scene;
   int refCount;
+  btVector3 m_comOffset;
 };
 
 class Mesh : public Object {
@@ -76,6 +78,7 @@ protected:
   const aiScene *m_scene;
   QString m_filename;
   btScalar m_mass;
+  btVector3 _comOffset;
 };
 
 #endif

@@ -111,6 +111,7 @@ Mesh::Mesh() {
   m_shape = new btGImpactMeshShape(m_mesh);
   m_scene = nullptr;
   shape = m_shape;
+  _comOffset = btVector3(0, 0, 0);
 
   setColor(127, 127, 127);
   setMass(0);
@@ -171,6 +172,7 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
     m_mesh = entry->m_mesh;
     m_scene = entry->m_scene;
     shape = m_shape;
+    _comOffset = entry->m_comOffset;
   } else {
     const aiScene *scene =
         aiImportFile(cacheKey.toUtf8().constData(), aiProcessPreset_TargetRealtime_Fast);
@@ -185,9 +187,33 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
           QString("Mesh file has no meshes: %1").arg(filename).toStdString());
     }
 
-    btTriangleMesh *triMesh = new btTriangleMesh();
     const struct aiMesh *amesh = scene->mMeshes[0];
 
+    // Collect all vertices
+    QVector<btVector3> verts;
+    verts.reserve(amesh->mNumVertices);
+    for (unsigned int i = 0; i < amesh->mNumVertices; ++i)
+      verts.append(btVector3(amesh->mVertices[i].x, amesh->mVertices[i].y,
+                             amesh->mVertices[i].z));
+
+    // Compute center of mass from tetrahedra (origin, v0, v1, v2)
+    btVector3 cog(0, 0, 0);
+    double totalVolume = 0;
+    for (unsigned int t = 0; t < amesh->mNumFaces; ++t) {
+      const struct aiFace *face = &amesh->mFaces[t];
+      if (face->mNumIndices < 3)
+        continue;
+      btVector3 v0 = verts[face->mIndices[0]];
+      btVector3 v1 = verts[face->mIndices[1]];
+      btVector3 v2 = verts[face->mIndices[2]];
+      double vol = v0.cross(v1).dot(v2) / 6.0;
+      cog += (v0 + v1 + v2) / 4.0 * vol;
+      totalVolume += vol;
+    }
+    if (totalVolume != 0)
+      cog /= totalVolume;
+
+    btTriangleMesh *triMesh = new btTriangleMesh();
     for (unsigned int t = 0; t < amesh->mNumFaces; ++t) {
       const struct aiFace *face = &amesh->mFaces[t];
 
@@ -214,13 +240,8 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
       int i1 = face->mIndices[1];
       int i2 = face->mIndices[2];
 
-      triMesh->addTriangle(
-          btVector3(amesh->mVertices[i0].x, amesh->mVertices[i0].y,
-                    amesh->mVertices[i0].z),
-          btVector3(amesh->mVertices[i1].x, amesh->mVertices[i1].y,
-                    amesh->mVertices[i1].z),
-          btVector3(amesh->mVertices[i2].x, amesh->mVertices[i2].y,
-                    amesh->mVertices[i2].z));
+      triMesh->addTriangle(verts[i0] - cog, verts[i1] - cog,
+                           verts[i2] - cog);
     }
 
     auto entry = std::make_shared<MeshCacheEntry>();
@@ -228,12 +249,14 @@ void Mesh::loadFile(const QString &filename, btScalar mass) {
     entry->m_mesh = triMesh;
     entry->m_shape = new btGImpactMeshShape(triMesh);
     entry->m_shape->updateBound();
+    entry->m_comOffset = cog;
 
     _meshCache.insert(cacheKey, entry);
 
     m_shape = entry->m_shape;
     m_mesh = entry->m_mesh;
     m_scene = entry->m_scene;
+    _comOffset = cog;
   }
 
   shape = m_shape;
