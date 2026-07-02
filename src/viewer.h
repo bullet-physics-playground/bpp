@@ -69,6 +69,11 @@ public:
 
   void resetCamView();
 
+  void setTau(btScalar tau);
+  void setErp(btScalar erp);
+  void setErp2(btScalar erp);
+  void setCfm(btScalar cfm);
+  
   void addObject(Object *o);
   Object *removeObject(Object *o);
   void addObjectBody(Object *o);

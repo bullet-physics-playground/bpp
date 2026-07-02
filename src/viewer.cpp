@@ -126,6 +126,10 @@ void Viewer::luaBind(lua_State *s) {
            .def("remove",
                 (Object * (Viewer::*)(Object *)) &
                     Viewer::removeObject)
+           .def("setTau", (void(Viewer::*)(btScalar))&Viewer::setTau)
+           .def("setErp", (void(Viewer::*)(btScalar))&Viewer::setErp)
+           .def("setErp2", (void(Viewer::*)(btScalar))&Viewer::setErp2)
+           .def("setCfm", (void(Viewer::*)(btScalar))&Viewer::setCfm)
            .def("addConstraint",
                 (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
                 adopt(_2))
@@ -305,6 +309,23 @@ Object *Viewer::removeObject(Object *o) {
   o->setParent(0);
 
   return o;
+}
+
+void Viewer::setTau(btScalar tau) {
+  dynamicsWorld->getSolverInfo().m_tau = tau;
+}
+
+
+void Viewer::setErp(btScalar erp) {
+  dynamicsWorld->getSolverInfo().m_erp = erp;
+}
+
+void Viewer::setErp2(btScalar erp) {
+  dynamicsWorld->getSolverInfo().m_erp2 = erp;
+}
+
+void Viewer::setCfm(btScalar cfm) {
+  dynamicsWorld->getSolverInfo().m_globalCfm = cfm;
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {
