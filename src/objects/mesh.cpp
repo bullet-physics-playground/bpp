@@ -46,10 +46,15 @@ public:
     (void)triangleIndex;
     (void)partId;
 
+    btVector3 n = (triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]);
+    n.normalize();
+
     glBegin(GL_TRIANGLES);
+    glNormal3d(n.x(), n.y(), n.z());
     glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
     glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
     glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+    glNormal3d(-n.x(), -n.y(), -n.z());
     glVertex3d(triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
     glVertex3d(triangle[1].getX(), triangle[1].getY(), triangle[1].getZ());
     glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
