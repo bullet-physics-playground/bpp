@@ -19,7 +19,7 @@ This directory contains a collection of basic examples for the Bullet Physics Pl
 *   `12-input-joystick.lua`: This script demonstrates how to capture and respond to joystick input.
 *   `13-pyramid.lua`: A demo that creates tetrahedra and square-based pyramids as compound rigid bodies.
 *   `14-spline-flythrough.lua`: A demo that animates the camera along a spline path, tracking different objects.
-*   `15-space-navigator.lua`: This script demonstrates how to capture and respond to SpaceNavigator 3D mouse input. Without a registered callback the 3D mouse provides CAD-style camera navigation (screen-space pan, dolly zoom, pivot orbit).
+*   `15-space-navigator.lua`: This script demonstrates how to capture and respond to SpaceNavigator 3D mouse input. Without a registered callback the 3D mouse navigates the camera like Blender (turntable orbit about the view centre, screen-space panning, dolly zoom).
 
 ## How to Run
 

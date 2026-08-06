@@ -43,6 +43,8 @@
 
 #include <QDebug>
 
+#include <QTimer>
+
 #include <boost/exception/all.hpp>
 #include <boost/exception/info.hpp>
 #include <boost/throw_exception.hpp>
@@ -599,6 +601,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _timeStep = 1 / 25.0;
   _maxSubSteps = 7;
+  _snOrbitDist = 0.0;
+  _snMode = SN_MODE_FLY;
   _fixedTimeStep = 1 / 100.0;
 
   _initialCameraPosition = Vec(0, 0, 0);
@@ -653,6 +657,15 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
           &Viewer::onSpaceNavigatorNorm);
   connect(_spaceNavigator, &SpaceNavigator::buttonChanged, this,
           &Viewer::onSpaceNavigatorButton);
+
+  // Fixed-rate integrator for the built-in camera control: the deflection
+  // reported by the device only updates a target velocity, which the timer
+  // integrates over the real elapsed time so the motion is smooth and does
+  // not depend on the (bursty) device report timing.
+  _snTimer = new QTimer(this);
+  _snTimer->setInterval(16);
+  connect(_snTimer, &QTimer::timeout, this, &Viewer::onSpaceNavigatorTick);
+
   connect(_spaceNavigator, &SpaceNavigator::deviceOpened, this, [this] {
     emit statusEvent(QString("SpaceNavigator opened: %1")
                          .arg(_spaceNavigator->devicePath()));
@@ -661,7 +674,10 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
           [this](const QString &message) {
             emit statusEvent(QString("SpaceNavigator: %1").arg(message));
           });
-  if (_spaceNavigator->open()) {
+  const bool snOpened = _spaceNavigator->open();
+  qDebug() << "SNOPEN" << snOpened
+           << (snOpened ? _spaceNavigator->devicePath() : QString("none"));
+  if (snOpened) {
     emit statusEvent(QString("SpaceNavigator detected: %1")
                          .arg(_spaceNavigator->devicePath()));
   }
@@ -698,68 +714,169 @@ void Viewer::onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes) {
   QMutexLocker locker(&mutex);
 
   // A Lua onSpaceNavigator callback takes precedence over the built-in
-  // camera control.
+  // camera control.  Clear the target so no residual deflection moves the
+  // camera once the script takes over.
   if (_cb_onSpaceNavigator) {
-    return;
-  }
-  if (camera() == nullptr) {
+    _snTarget = SpaceNavigator::AxesNorm();
     return;
   }
 
   // Deadzone (fraction of full deflection) suppresses sensor noise so a
   // resting controller does not drift.  A sub-linear response curve gives
-  // fine control near the centre and fast travel at full deflection.
+  // fine control near the centre and fast travel at full deflection.  The
+  // shaped deflection becomes the target velocity which the SpaceNavigator
+  // timer integrates at a fixed rate, so the camera moves smoothly no
+  // matter how irregularly the device reports arrive.
   const double deadzone = 0.06;
   auto shave = [deadzone](double v) {
     return std::fabs(v) < deadzone ? 0.0 : v;
   };
   auto curve = [](double v) { return v * v * v; };
 
-  const double tx = curve(shave(axes.x));
-  const double ty = curve(shave(axes.y));
-  const double tz = curve(shave(axes.z));
-  const double rxp = curve(shave(axes.rx));
-  const double ryp = curve(shave(axes.ry));
-  const double rzp = curve(shave(axes.rz));
+  const double targetX = curve(shave(axes.x));
+  const double targetY = curve(shave(axes.y));
+  const double targetZ = curve(shave(axes.z));
+  const double targetRX = curve(shave(axes.rx));
+  const double targetRY = curve(shave(axes.ry));
+  const double targetRZ = curve(shave(axes.rz));
 
-  // Each device report is one integration step, so the camera keeps moving
-  // while the cap is deflected (velocity control), exactly like the
-  // 3Dconnexion drivers.  Full-deflection speeds: ~60% of the scene radius
-  // per second when panning, and about a radian per second when rotating.
+  // Low-pass filter target velocity to smooth out device packet jitter
+  const double alpha = 0.5;
+  _snTarget.x = _snTarget.x * (1.0 - alpha) + targetX * alpha;
+  _snTarget.y = _snTarget.y * (1.0 - alpha) + targetY * alpha;
+  _snTarget.z = _snTarget.z * (1.0 - alpha) + targetZ * alpha;
+  _snTarget.rx = _snTarget.rx * (1.0 - alpha) + targetRX * alpha;
+  _snTarget.ry = _snTarget.ry * (1.0 - alpha) + targetRY * alpha;
+  _snTarget.rz = _snTarget.rz * (1.0 - alpha) + targetRZ * alpha;
+
+  _snEventTimer.restart();
+
+  if (!_snTimer->isActive()) {
+    _snTimer->start();
+    _snTickTimer.start();
+  }
+}
+
+void Viewer::onSpaceNavigatorTick() {
+  QMutexLocker locker(&mutex);
+
+  // Integrate the target velocity over the real elapsed time (clamped so a
+  // delayed tick cannot cause a jump).  Restarted first so the measurement
+  // stays fresh even while the controller is resting.
+  const qint64 elapsedMs = _snTickTimer.restart();
+  const qreal dt = qMin(qreal(elapsedMs) / 1000.0, qreal(0.1));
+
+  if (camera() == nullptr || _cb_onSpaceNavigator) {
+    return;
+  }
+
+  // Smoothly decay target velocity if no new device events arrive (> 80ms quiet)
+  if (_snEventTimer.isValid() && _snEventTimer.elapsed() > 80) {
+    const qreal decay = qMax(qreal(0.0), qreal(1.0) - dt * 15.0);
+    _snTarget.x *= decay;
+    _snTarget.y *= decay;
+    _snTarget.z *= decay;
+    _snTarget.rx *= decay;
+    _snTarget.ry *= decay;
+    _snTarget.rz *= decay;
+    if (std::fabs(_snTarget.x) < 1e-4) _snTarget.x = 0.0;
+    if (std::fabs(_snTarget.y) < 1e-4) _snTarget.y = 0.0;
+    if (std::fabs(_snTarget.z) < 1e-4) _snTarget.z = 0.0;
+    if (std::fabs(_snTarget.rx) < 1e-4) _snTarget.rx = 0.0;
+    if (std::fabs(_snTarget.ry) < 1e-4) _snTarget.ry = 0.0;
+    if (std::fabs(_snTarget.rz) < 1e-4) _snTarget.rz = 0.0;
+  }
+
+  const double tx = _snTarget.x, ty = _snTarget.y, tz = _snTarget.z;
+  const double rxp = _snTarget.rx, ryp = _snTarget.ry, rzp = _snTarget.rz;
+  if (tx == 0.0 && ty == 0.0 && tz == 0.0 && rxp == 0.0 && ryp == 0.0 &&
+      rzp == 0.0) {
+    _snTimer->stop();
+    return;
+  }
+
+  if (_snOrbitDist <= 0.0) {
+    _snOrbitDist = (camera()->pivotPoint() - camera()->position()).norm();
+  }
+  if (_snOrbitDist <= 0.0) {
+    _snOrbitDist = camera()->sceneRadius();
+  }
   const qreal sceneRadius = camera()->sceneRadius() > 0.0
                                 ? camera()->sceneRadius()
                                 : 1.0;
-  const qreal transSpeed = 0.006 * sceneRadius;
-  const qreal rotSpeed = 0.012;
 
-  // Screen-space panning: X pans right, Z pans up, Y dollies along the
-  // view axis (push forward to zoom in), as in professional CAD packages.
   const qglviewer::Vec right = camera()->rightVector();
   const qglviewer::Vec up = camera()->upVector();
   const qglviewer::Vec view = camera()->viewDirection();
-  camera()->frame()->translate(right * (tx * transSpeed) +
-                               view * (ty * transSpeed) +
-                               up * (tz * transSpeed));
 
-  // Pivot-based orbit around the scene centre (a "turntable"): yaw about
-  // the world vertical axis, pitch about the camera's horizontal axis and
-  // roll about the view axis.  Rotating the position around the pivot by
-  // the same quaternion keeps the pivot exactly on the view axis, so the
-  // model stays centred while orbiting around it.
-  const qglviewer::Vec pivot = camera()->pivotPoint();
-  const qglviewer::Quaternion rotation(
-      qglviewer::Quaternion(qglviewer::Vec(0.0, 1.0, 0.0), -ryp * rotSpeed) *
-      qglviewer::Quaternion(camera()->rightVector(), -rxp * rotSpeed) *
-      qglviewer::Quaternion(view, rzp * rotSpeed));
-  camera()->frame()->rotateAroundPoint(rotation, pivot);
+  if (_snMode == SN_MODE_FLY) {
+    // Blender Fly mode: First-person navigation around camera position.
+    const qreal transSpeed = 0.6 * (_snOrbitDist > 0.0 ? _snOrbitDist : sceneRadius);
+    const qreal rotSpeed = 1.2;
+
+    camera()->frame()->translate((right * (tx * transSpeed) +
+                                  view * (ty * transSpeed) +
+                                  up * (tz * transSpeed)) *
+                                 dt);
+
+    const qglviewer::Quaternion rotation(
+        qglviewer::Quaternion(qglviewer::Vec(0.0, 1.0, 0.0),
+                              rzp * rotSpeed * dt) *
+        qglviewer::Quaternion(camera()->rightVector(), rxp * rotSpeed * dt) *
+        qglviewer::Quaternion(view, -ryp * rotSpeed * dt));
+    camera()->frame()->rotateAroundPoint(rotation, camera()->position());
+  } else {
+    // Blender Object mode: NDOF orbit around view-centre pivot point.
+    if (_snOrbitDist <= 0.0) {
+      _snOrbitDist = (camera()->pivotPoint() - camera()->position()).norm();
+    }
+    if (_snOrbitDist <= 0.0) {
+      _snOrbitDist = sceneRadius;
+    }
+
+    const qreal transSpeed = 0.6 * _snOrbitDist;
+    const qreal rotSpeed = 1.2;
+
+    // Screen-space translation: X strafes right, Z pans up, Y dollies along view axis
+    camera()->frame()->translate((right * (tx * transSpeed) +
+                                  view * (ty * transSpeed) +
+                                  up * (tz * transSpeed)) *
+                                 dt);
+
+    // Keep the pivot on the view axis at the current orbit distance; dollying
+    // shrinks the distance so orbiting after zooming happens at the new depth.
+    _snOrbitDist -= ty * transSpeed * dt;
+    if (_snOrbitDist < 0.01 * sceneRadius) {
+      _snOrbitDist = 0.01 * sceneRadius;
+    }
+    const qglviewer::Vec pivot = camera()->position() + view * _snOrbitDist;
+
+    // Turntable rotation around the view-centre pivot
+    const qglviewer::Quaternion rotation(
+        qglviewer::Quaternion(qglviewer::Vec(0.0, 1.0, 0.0),
+                              -rzp * rotSpeed * dt) *
+        qglviewer::Quaternion(camera()->rightVector(), -rxp * rotSpeed * dt) *
+        qglviewer::Quaternion(view, ryp * rotSpeed * dt));
+    camera()->frame()->rotateAroundPoint(rotation, pivot);
+  }
 
   updateGLViewer();
 }
 
 void Viewer::onSpaceNavigatorButton(int button, bool pressed) {
   QMutexLocker locker(&mutex);
-  if (pressed && button == 0) {
-    resetCamView();
+  if (pressed) {
+    if (button == 0) {
+      resetCamView();
+    } else if (button == 1 || button == 2) {
+      if (_snMode == SN_MODE_OBJECT) {
+        _snMode = SN_MODE_FLY;
+        emit statusEvent(QString("SpaceNavigator mode: Fly"));
+      } else {
+        _snMode = SN_MODE_OBJECT;
+        emit statusEvent(QString("SpaceNavigator mode: Object"));
+      }
+    }
   }
 }
 
@@ -1242,15 +1359,22 @@ void Viewer::resetCamView() {
   camera()->setPosition(_initialCameraPosition);
   camera()->setOrientation(_initialCameraOrientation);
   camera()->setHorizontalFieldOfView(_initialCameraHorizontalFieldOfView);
+
+  // Reinitialise the SpaceNavigator orbit distance from the new view.
+  _snOrbitDist = 0.0;
 }
 
 Viewer::~Viewer() {
   // qDebug() << "Viewer::~Viewer()";
 
-  // Stop joystick handler before deleting anything
+  // Stop the joystick handler before deleting anything
   _joystickHandler.stop();
 
-  // Close the SpaceNavigator and drop Lua references before Lua teardown
+  // Stop the SpaceNavigator integration timer, then close the device and
+  // drop Lua references before Lua teardown
+  if (_snTimer) {
+    _snTimer->stop();
+  }
   delete _spaceNavigator;
   _spaceNavigator = nullptr;
 
@@ -1402,6 +1526,9 @@ void Viewer::computeBoundingBox() {
   qglviewer::Vec qmax(_aabb[3], _aabb[4], _aabb[5]);
 
   setSceneBoundingBox(qmin, qmax);
+
+  // The scene changed, so the SpaceNavigator orbit distance is stale.
+  _snOrbitDist = 0.0;
 }
 
 void Viewer::init() {

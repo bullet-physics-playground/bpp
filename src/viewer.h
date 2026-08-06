@@ -34,6 +34,7 @@ using namespace qglviewer;
 
 class Object;
 class Viewer;
+class QTimer;
 
 struct ParamInfo {
   QVariant value;
@@ -213,6 +214,7 @@ public slots:
   void onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes);
   void onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes);
   void onSpaceNavigatorButton(int button, bool pressed);
+  void onSpaceNavigatorTick();
 
   void updateGLViewer() {
 #if QGLVIEWER_VERSION < 0x020700
@@ -368,6 +370,31 @@ private:
 
   // SpaceNavigator 3D mouse
   SpaceNavigator *_spaceNavigator;
+
+  // SpaceNavigator navigation mode (Object/Orbit vs Fly/First-person)
+  enum SpaceNavigatorMode {
+    SN_MODE_OBJECT,
+    SN_MODE_FLY
+  };
+  SpaceNavigatorMode _snMode;
+
+  // Blender-style orbit distance: the distance from the camera to the
+  // view-centre pivot the SpaceNavigator orbits around.  Reinitialised from
+  // the scene when the camera is reset or the scene changes.
+  qreal _snOrbitDist;
+
+  // Timer-driven integration of the 3D mouse: the current shaped deflection
+  // is held in _snTarget (a target velocity in units of full deflection)
+  // and integrated over the real elapsed time at a fixed rate by _snTimer,
+  // so the camera motion is smooth and independent of how irregularly the
+  // device reports arrive.
+  QTimer *_snTimer;
+  QElapsedTimer _snTickTimer;
+  // Measured from the most recent device event; used by the tick to detect
+  // that the controller has gone quiet so the held target velocity can be
+  // decayed to a smooth stop instead of being held forever.
+  QElapsedTimer _snEventTimer;
+  SpaceNavigator::AxesNorm _snTarget;
 
    // parameter storage for Lua scripts
    QHash<QString, QVariant> _params;

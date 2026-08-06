@@ -273,7 +273,6 @@ void SpaceNavigator::handleAxisAbsolute(int index, int value)
   }
   m_pos[index] = delta;
   setNormalized(index, static_cast<double>(value - m_axisCenter[index]));
-  emitAxes();
 }
 
 void SpaceNavigator::setNormalized(int index, double deflection)
@@ -452,6 +451,7 @@ void SpaceNavigator::poll()
 
   struct input_event ev;
   ssize_t n;
+  bool axesUpdated = false;
   while ((n = ::read(m_platform->fd, &ev, sizeof(struct input_event))) > 0)
   {
     if (static_cast<size_t>(n) < sizeof(struct input_event))
@@ -472,6 +472,7 @@ void SpaceNavigator::poll()
       if (ev.code < NUM_AXES)
       {
         handleAxisDelta(ev.code, ev.value);
+        axesUpdated = true;
       }
     }
     else if (ev.type == EV_ABS)
@@ -479,8 +480,14 @@ void SpaceNavigator::poll()
       if (ev.code < NUM_AXES)
       {
         handleAxisAbsolute(ev.code, ev.value);
+        axesUpdated = true;
       }
     }
+  }
+
+  if (axesUpdated)
+  {
+    emitAxes();
   }
 }
 
