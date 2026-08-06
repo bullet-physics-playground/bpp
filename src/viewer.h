@@ -3,6 +3,7 @@
 
 #include <lua.hpp>
 
+#include <QGLViewer/manipulatedCameraFrame.h>
 #include <QGLViewer/manipulatedFrame.h>
 #include <QGLViewer/qglviewer.h>
 
@@ -26,6 +27,8 @@
 
 #include "joystick/joystickhandler.h"
 #include "joystick/joystickinterfacesdl.h"
+
+#include "spacenavigator/spacenavigator.h"
 
 using namespace qglviewer;
 
@@ -184,6 +187,7 @@ public slots:
   void setCBPreStop(const luabind::object &fn);
   void setCBOnCommand(const luabind::object &fn);
   void setCBOnJoystick(const luabind::object &fn);
+  void setCBOnSpaceNavigator(const luabind::object &fn);
   void setCBCycleObject(const luabind::object &fn);
   void setCBOnParamChanged(const luabind::object &fn);
 
@@ -205,6 +209,10 @@ public slots:
   void onQuickRender(QString povargs);
 
   void onJoystickData(const JoystickInfo &ji);
+
+  void onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes);
+  void onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes);
+  void onSpaceNavigatorButton(int button, bool pressed);
 
   void updateGLViewer() {
 #if QGLVIEWER_VERSION < 0x020700
@@ -318,6 +326,7 @@ private:
   luabind::object _cb_preStop;
   luabind::object _cb_onCommand;
   luabind::object _cb_onJoystick;
+  luabind::object _cb_onSpaceNavigator;
   luabind::object _cb_cycleObject;
   luabind::object _cb_onParamChanged;
 
@@ -356,6 +365,9 @@ private:
   // joystick handler
   JoystickInterfaceSDL *_joystickInterface;
   JoystickHandler _joystickHandler;
+
+  // SpaceNavigator 3D mouse
+  SpaceNavigator *_spaceNavigator;
 
    // parameter storage for Lua scripts
    QHash<QString, QVariant> _params;

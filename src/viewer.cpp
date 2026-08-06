@@ -48,6 +48,7 @@
 #include <boost/throw_exception.hpp>
 
 #include <cstdlib>
+#include <cmath>
 
 #if defined(Q_OS_LINUX)
 static void *aligned_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
@@ -107,6 +108,20 @@ std::ostream &operator<<(std::ostream &ostream, const QColor &c) {
 std::ostream &operator<<(std::ostream &ostream, const JoystickInfo &ji) {
   Q_UNUSED(ji)
   ostream << "JoystickInfo()"; // XXX
+  return ostream;
+}
+
+std::ostream &operator<<(std::ostream &ostream,
+                         const SpaceNavigator::Axes &axes) {
+  ostream << QString("SpaceNavigatorAxes(x=%1, y=%2, z=%3, rx=%4, ry=%5, rz=%6)")
+                 .arg(axes.x)
+                 .arg(axes.y)
+                 .arg(axes.z)
+                 .arg(axes.rx)
+                 .arg(axes.ry)
+                 .arg(axes.rz)
+                 .toUtf8()
+                 .data();
   return ostream;
 }
 
@@ -174,6 +189,10 @@ void Viewer::luaBind(lua_State *s) {
             .def("onJoystick",
                  (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnJoystick,
+                 adopt(luabind::result))
+            .def("onSpaceNavigator",
+                 (void(Viewer::*)(const luabind::object &fn)) &
+                    Viewer::setCBOnSpaceNavigator,
                  adopt(luabind::result))
             .def("cycleObject",
                  (void(Viewer::*)(const luabind::object &fn)) &
@@ -273,6 +292,16 @@ void Viewer::luaBind(lua_State *s) {
              .property("triggeredButton2", &JoystickInfo::getTriggeredButton2)
              .property("triggeredButton3", &JoystickInfo::getTriggeredButton3)
              .def(tostring(self))];
+
+  module(s)[class_<SpaceNavigator::Axes>("SpaceNavigatorAxes")
+                .def(constructor<>())
+                .def_readwrite("x", &SpaceNavigator::Axes::x)
+                .def_readwrite("y", &SpaceNavigator::Axes::y)
+                .def_readwrite("z", &SpaceNavigator::Axes::z)
+                .def_readwrite("rx", &SpaceNavigator::Axes::rx)
+                .def_readwrite("ry", &SpaceNavigator::Axes::ry)
+                .def_readwrite("rz", &SpaceNavigator::Axes::rz)
+                .def(tostring(self))];
 }
 
 void Viewer::addObject(Object *o) {
@@ -616,6 +645,27 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _joystickHandler.initialize();
   _joystickHandler.setUpdateInterval(40); // 25 fps
 
+  // SpaceNavigator 3D mouse integration
+  _spaceNavigator = new SpaceNavigator(this);
+  connect(_spaceNavigator, &SpaceNavigator::axesChanged, this,
+          &Viewer::onSpaceNavigatorAxes);
+  connect(_spaceNavigator, &SpaceNavigator::axesNormChanged, this,
+          &Viewer::onSpaceNavigatorNorm);
+  connect(_spaceNavigator, &SpaceNavigator::buttonChanged, this,
+          &Viewer::onSpaceNavigatorButton);
+  connect(_spaceNavigator, &SpaceNavigator::deviceOpened, this, [this] {
+    emit statusEvent(QString("SpaceNavigator opened: %1")
+                         .arg(_spaceNavigator->devicePath()));
+  });
+  connect(_spaceNavigator, &SpaceNavigator::error, this,
+          [this](const QString &message) {
+            emit statusEvent(QString("SpaceNavigator: %1").arg(message));
+          });
+  if (_spaceNavigator->open()) {
+    emit statusEvent(QString("SpaceNavigator detected: %1")
+                         .arg(_spaceNavigator->devicePath()));
+  }
+
   startAnimation();
 }
 
@@ -627,6 +677,89 @@ void Viewer::onJoystickData(const JoystickInfo &ji) {
     } catch (const std::exception &e) {
       showLuaException(e, "onJoystick()");
     }
+  }
+}
+
+void Viewer::onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes) {
+  QMutexLocker locker(&mutex);
+
+  // A Lua onSpaceNavigator callback takes precedence over the built-in
+  // camera control, so scripts can use the 3D mouse for their own purposes.
+  if (_cb_onSpaceNavigator) {
+    try {
+      luabind::call_function<void>(_cb_onSpaceNavigator, _frameNum, axes);
+    } catch (const std::exception &e) {
+      showLuaException(e, "onSpaceNavigator()");
+    }
+  }
+}
+
+void Viewer::onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes) {
+  QMutexLocker locker(&mutex);
+
+  // A Lua onSpaceNavigator callback takes precedence over the built-in
+  // camera control.
+  if (_cb_onSpaceNavigator) {
+    return;
+  }
+  if (camera() == nullptr) {
+    return;
+  }
+
+  // Deadzone (fraction of full deflection) suppresses sensor noise so a
+  // resting controller does not drift.  A sub-linear response curve gives
+  // fine control near the centre and fast travel at full deflection.
+  const double deadzone = 0.06;
+  auto shave = [deadzone](double v) {
+    return std::fabs(v) < deadzone ? 0.0 : v;
+  };
+  auto curve = [](double v) { return v * v * v; };
+
+  const double tx = curve(shave(axes.x));
+  const double ty = curve(shave(axes.y));
+  const double tz = curve(shave(axes.z));
+  const double rxp = curve(shave(axes.rx));
+  const double ryp = curve(shave(axes.ry));
+  const double rzp = curve(shave(axes.rz));
+
+  // Each device report is one integration step, so the camera keeps moving
+  // while the cap is deflected (velocity control), exactly like the
+  // 3Dconnexion drivers.  Full-deflection speeds: ~60% of the scene radius
+  // per second when panning, and about a radian per second when rotating.
+  const qreal sceneRadius = camera()->sceneRadius() > 0.0
+                                ? camera()->sceneRadius()
+                                : 1.0;
+  const qreal transSpeed = 0.006 * sceneRadius;
+  const qreal rotSpeed = 0.012;
+
+  // Screen-space panning: X pans right, Z pans up, Y dollies along the
+  // view axis (push forward to zoom in), as in professional CAD packages.
+  const qglviewer::Vec right = camera()->rightVector();
+  const qglviewer::Vec up = camera()->upVector();
+  const qglviewer::Vec view = camera()->viewDirection();
+  camera()->frame()->translate(right * (tx * transSpeed) +
+                               view * (ty * transSpeed) +
+                               up * (tz * transSpeed));
+
+  // Pivot-based orbit around the scene centre (a "turntable"): yaw about
+  // the world vertical axis, pitch about the camera's horizontal axis and
+  // roll about the view axis.  Rotating the position around the pivot by
+  // the same quaternion keeps the pivot exactly on the view axis, so the
+  // model stays centred while orbiting around it.
+  const qglviewer::Vec pivot = camera()->pivotPoint();
+  const qglviewer::Quaternion rotation(
+      qglviewer::Quaternion(qglviewer::Vec(0.0, 1.0, 0.0), -ryp * rotSpeed) *
+      qglviewer::Quaternion(camera()->rightVector(), -rxp * rotSpeed) *
+      qglviewer::Quaternion(view, rzp * rotSpeed));
+  camera()->frame()->rotateAroundPoint(rotation, pivot);
+
+  updateGLViewer();
+}
+
+void Viewer::onSpaceNavigatorButton(int button, bool pressed) {
+  QMutexLocker locker(&mutex);
+  if (pressed && button == 0) {
+    resetCamView();
   }
 }
 
@@ -765,6 +898,7 @@ emit scriptStarts();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
     _cb_onParamChanged = luabind::object();
+    _cb_onSpaceNavigator = luabind::object();
 
     if (_cb_shortcuts) {
       for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
@@ -1116,6 +1250,10 @@ Viewer::~Viewer() {
   // Stop joystick handler before deleting anything
   _joystickHandler.stop();
 
+  // Close the SpaceNavigator and drop Lua references before Lua teardown
+  delete _spaceNavigator;
+  _spaceNavigator = nullptr;
+
   // Reset luabind::object members before closing Lua state
   _cb_preStart = luabind::object();
   _cb_preDraw = luabind::object();
@@ -1125,6 +1263,7 @@ Viewer::~Viewer() {
   _cb_preStop = luabind::object();
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
+  _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
 
   // Clear shortcuts BEFORE closing Lua state.
@@ -1730,6 +1869,12 @@ void Viewer::setCBOnCommand(const luabind::object &fn) {
 void Viewer::setCBOnJoystick(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
     _cb_onJoystick = fn;
+  }
+}
+
+void Viewer::setCBOnSpaceNavigator(const luabind::object &fn) {
+  if (luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onSpaceNavigator = fn;
   }
 }
 

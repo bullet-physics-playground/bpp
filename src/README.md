@@ -39,6 +39,9 @@ src/
 ├── joystick/             # Gamepad/joystick support
 │   ├── joystickinterface*.cpp/h
 │   └── joystickhandler*.cpp/h
+├── spacenavigator/       # 3Dconnexion SpaceNavigator 3D mouse support
+│   ├── spacenavigator.h
+│   └── spacenavigator.cpp
 └── *.ui                  # Qt Designer UI files
 ```
 

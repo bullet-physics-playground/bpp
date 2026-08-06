@@ -17,6 +17,9 @@ This directory contains a collection of basic examples for the Bullet Physics Pl
 *   `10-dice.lua`: A fun example that simulates rolling dice.
 *   `11-domino.lua`: A classic physics simulation of a chain of falling dominos.
 *   `12-input-joystick.lua`: This script demonstrates how to capture and respond to joystick input.
+*   `13-pyramid.lua`: A demo that creates tetrahedra and square-based pyramids as compound rigid bodies.
+*   `14-spline-flythrough.lua`: A demo that animates the camera along a spline path, tracking different objects.
+*   `15-space-navigator.lua`: This script demonstrates how to capture and respond to SpaceNavigator 3D mouse input. Without a registered callback the 3D mouse provides CAD-style camera navigation (screen-space pan, dolly zoom, pivot orbit).
 
 ## How to Run
 
