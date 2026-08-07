@@ -7,10 +7,11 @@
 -- Usage: bpp -f demo/basic/09-trans.lua
 
 local trans = require "scad/trans"
+local color = require "color"
 
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0,-100,0)
-plane.col = "gray"
+plane.col = "black"
 plane.sdl = [[
   texture {
     pigment { color rgb <0,0,0>*1.5 }
@@ -71,7 +72,7 @@ if (math.random() > 0.5) then
 else
   s=Cube(2,2,2,1)
 end
-  s.col = color.random_pastel()
+  s.col = color.random_google()
   trans.move(s, btVector3(1,0,0))
   trans.move(s, btVector3(0,20,0))
   v:add(s)
@@ -82,13 +83,13 @@ update(N)
 end)
 
 function setcam()
-v.cam:setUpVector(btVector3(-0.00402076, 0.964909, -0.262553), true)
-v.cam.up   = btVector3(-0.00402076, 0.964909, -0.262553)
-v.cam.pos  = btVector3(3.63213, 357.46, 1261.87)
-v.cam.look = btVector3(-2807.88, -262207, -963648)
+  v.cam:setUpVector(btVector3(-0.149028, 0.74414, -0.651189), true)
+  v.cam.up   = btVector3(-0.149028, 0.74414, -0.651189)
+  v.cam.pos  = btVector3(13.0949, 43.915, 41.5668)
+  v.cam.look = btVector3(-208476, -667341, -714892)
 
-  v.cam.focal_blur     = 1
-  v.cam.focal_aperture = 50
+  v.cam.focal_blur     = 0
+  v.cam.focal_aperture = 20
   v.cam.focal_point    = btVector3(1,10,0)
 end
 

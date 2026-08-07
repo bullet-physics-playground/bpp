@@ -82,7 +82,7 @@ mm.col   = color.random_chrome()
 mm.shape = shape
 mm.body  = body
 mm.mass     = 1
-mm.inertia  = 20.9
+mm.inertia  = 0.9
 mm.damp_lin = 0.0
 mm.damp_ang = 0.0
 v:add(mm)
@@ -93,7 +93,7 @@ end
 --v:add(mesh())
 
 function tst()
-  for i = 0,60 do
+  for i = 0,600 do
     m = mesh()
   end
 end
