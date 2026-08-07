@@ -383,6 +383,7 @@ void Gui::createDock() {
   dw2->setWidget(editor);
 
   addDockWidget(Qt::RightDockWidgetArea, dw2);
+  dockLUAScript = dw2;
 
   QDockWidget *dw3 = new QDockWidget(this);
   dw3->setObjectName("DockCommandLine");
@@ -648,10 +649,23 @@ void Gui::loadSettings() {
     if (settings->value("maximized", isMaximized()).toBool()) {
       showMaximized();
     }
+
+    // restoreState() redistributes dock/splitter sizes to fit whatever the
+    // window's actual size ends up being, which can differ slightly from
+    // session to session (window manager chrome, screen changes, etc.) and
+    // doesn't reliably preserve this dock's exact width. Re-assert it
+    // explicitly so it doesn't drift.
+    int luaWidth = settings->value("luaScriptDockWidth", -1).toInt();
+    if (luaWidth > 0) {
+      resizeDocks({dockLUAScript}, {luaWidth}, Qt::Horizontal);
+    }
   }
 
-  renderSettings->setCurrentIndex(renderSettings->findText(
-      settings->value("renderResolution", "view size").toString()));
+  {
+    QSignalBlocker blocker(renderSettings);
+    renderSettings->setCurrentIndex(renderSettings->findText(
+        settings->value("renderResolution", "view size").toString()));
+  }
 
   ui.actionToggleDeactivation->setChecked(
       settings->value("deactivationState", true).toBool());
@@ -670,6 +684,7 @@ void Gui::saveSettings() {
     settings->setValue("state", saveState());
     settings->setValue("fullscreen", isFullScreen());
     settings->setValue("maximized", isMaximized());
+    settings->setValue("luaScriptDockWidth", dockLUAScript->width());
   }
 
   QString renderRes = renderSettings->currentText();

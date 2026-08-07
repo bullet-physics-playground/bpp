@@ -164,6 +164,7 @@ private:
   CodeEditor *debugText;
   CodeEditor *camText;
   CommandLine *commandLine;
+  QDockWidget *dockLUAScript;
 
   QMessageBox *msgBox;
 
