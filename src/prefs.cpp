@@ -133,7 +133,7 @@ void Prefs::setupPages() {
   QString defaultPovrayExe;
   QString defaultIncludes;
 
-  QString pwd = QDir::currentPath();
+  QString pwd = startupWorkingDir();
 
 #if defined (Q_OS_WIN)
   defaultPovrayExe = QString("C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe");
