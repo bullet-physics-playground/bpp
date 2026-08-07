@@ -5,6 +5,8 @@
 #include "viewer.h"
 #include "prefs.h"
 
+#include "appenv.h"
+
 #include <memory>
 
 #include <QColor>
@@ -1935,7 +1937,7 @@ void Viewer::savePOV(bool force) {
     sceneName = "no_name";
   }
 
-  QDir pwdDir(".");
+  QDir pwdDir(startupWorkingDir());
 
   QString exportDir = _settings->value("povray/export", "export").toString();
 
@@ -2811,9 +2813,9 @@ void Viewer::onQuickRender(QString povargs) {
 
   qDebug() << "executing " << povray << args;
 
-  QDir dir(".");
+  QDir dir(startupWorkingDir());
 
-  QString defaultExportPath = QString("%1%2%3").arg(QDir::currentPath(), QDir::separator(), "export");
+  QString defaultExportPath = QString("%1%2%3").arg(startupWorkingDir(), QDir::separator(), "export");
 
   QString exportDir = _settings->value("povray/export", defaultExportPath).toString();
   QString sceneDir =

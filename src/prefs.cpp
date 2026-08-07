@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 #include <QPlainTextEdit>
 
+#include "appenv.h"
 #include "prefs.h"
 
 QString getDefaultLuaPath(const QString &scriptBasePath) {
@@ -109,7 +110,7 @@ void Prefs::setupPages() {
       _settings->value("lua/path", defaultLuaPath)
           .toString();
 
-  QDir currDir(QDir::currentPath());
+  QDir currDir(startupWorkingDir());
   QString currExport = currDir.filePath("export");
   QDir parentDir = currDir;
   parentDir.cdUp();

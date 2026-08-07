@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QTimer>
 
+#include "appenv.h"
 #include "gui.h"
 #include "prefs.h"
 #include "viewer.h"
@@ -30,6 +31,10 @@ QString withoutExtension(const QString &fileName) {
 }
 
 int main(int argc, char **argv) {
+
+  // Capture the launch directory before anything (e.g. opening a script)
+  // can change the process's current working directory.
+  startupWorkingDir();
 
   // make xlib and glx thread safe under x11
   QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
