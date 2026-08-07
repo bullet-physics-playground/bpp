@@ -365,7 +365,11 @@ void Object::setRigidBody(btRigidBody *b) {
 
 btRigidBody *Object::getRigidBody() const { return body; }
 
-void Object::setCollisionShape(btCollisionShape *s) { shape = s; }
+void Object::setCollisionShape(btCollisionShape *s) {
+  if (shape != nullptr && shape != s)
+    delete shape;
+  shape = s;
+}
 
 btCollisionShape *Object::getCollisionShape() const { return shape; }
 

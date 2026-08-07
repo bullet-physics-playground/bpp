@@ -530,6 +530,9 @@ void Gui::fileOpen(const QString &path) {
       settings->endGroup();
       settings->sync();
 
+      msgBox->deleteLater();
+      msgBox = nullptr;
+
       if (answer == QMessageBox::No) {
         return;
       }
@@ -596,6 +599,7 @@ void Gui::fileSave(const QString &path) {
 
 void Gui::editPreferences() {
   Prefs *p = new Prefs(settings, this);
+  p->setAttribute(Qt::WA_DeleteOnClose);
 
   connect(p, SIGNAL(fontChanged(QString, uint)), this,
           SLOT(fontChanged(QString, uint)));
@@ -743,6 +747,9 @@ void Gui::closeEvent(QCloseEvent *event) {
       settings->setValue("dont_ask_unsaved_changes", check->isChecked());
       settings->endGroup();
       settings->sync();
+
+      msgBox->deleteLater();
+      msgBox = nullptr;
 
       if (answer == QMessageBox::Yes) {
         statusBar()->showMessage(tr("Saving preferences..."));

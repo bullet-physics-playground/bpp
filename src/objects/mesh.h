@@ -79,6 +79,11 @@ protected:
   QString m_filename;
   btScalar m_mass;
   btVector3 _comOffset;
+
+  // True only for the no-arg constructor, which allocates m_shape/m_mesh
+  // directly instead of pulling them from the refcounted _meshCache; only
+  // then does ~Mesh() own them and need to delete them itself.
+  bool m_ownsMeshDirectly = false;
 };
 
 #endif

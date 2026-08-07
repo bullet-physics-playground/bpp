@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QFont>
 #include <QFontDialog>
+#include <QScopedPointer>
 #include <QStandardPaths>
 #include <QPlainTextEdit>
 
@@ -286,7 +287,7 @@ void Prefs::on_povExecutableChanged() {
 }
 
 void Prefs::on_povExecutableBrowse() {
-  QFileDialog *dlg = new QFileDialog(this);
+  QScopedPointer<QFileDialog> dlg(new QFileDialog(this));
   dlg->setFilter(QDir::Executable);
   dlg->selectFile(getValue("povray/executable").toString());
 
@@ -325,7 +326,7 @@ void Prefs::on_scadExecutableChanged() {
 }
 
 void Prefs::on_scadExecutableBrowse() {
-  QFileDialog *dlg = new QFileDialog(this);
+  QScopedPointer<QFileDialog> dlg(new QFileDialog(this));
   dlg->setFilter(QDir::Executable);
   dlg->selectFile(getValue("openscad/executable").toString());
 

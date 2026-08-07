@@ -117,12 +117,17 @@ Mesh::Mesh() {
   m_scene = nullptr;
   shape = m_shape;
   _comOffset = btVector3(0, 0, 0);
+  m_ownsMeshDirectly = true;
 
   setColor(127, 127, 127);
   setMass(0);
 }
 
 Mesh::~Mesh() {
+  if (m_ownsMeshDirectly) {
+    delete m_shape;
+    delete m_mesh;
+  }
   m_shape = nullptr;
   m_mesh = nullptr;
   m_scene = nullptr;
@@ -525,6 +530,9 @@ void Mesh::setShape(btGImpactMeshShape *shape) {
     delete m_shape;
 
   m_shape = shape;
+  // The new shape's ownership is no longer the default constructor's
+  // direct allocation, so ~Mesh() must not delete it a second time.
+  m_ownsMeshDirectly = false;
 }
 
 btTriangleMesh *Mesh::getTriangleMesh() const { return m_mesh; }
@@ -534,6 +542,8 @@ void Mesh::setTriangleMesh(btTriangleMesh *mesh) {
     delete m_mesh;
 
   m_mesh = mesh;
+  // Same reasoning as setShape(): don't let ~Mesh() delete this again.
+  m_ownsMeshDirectly = false;
 }
 
 void Mesh::setMass(btScalar _mass) {

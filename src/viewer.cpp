@@ -446,7 +446,9 @@ void Viewer::addConstraints(QList<btTypedConstraint *> cons) {
 }
 
 btVehicleRaycaster *Viewer::createVehicleRaycaster() {
-  return new btDefaultVehicleRaycaster(dynamicsWorld);
+  btVehicleRaycaster *raycaster = new btDefaultVehicleRaycaster(dynamicsWorld);
+  _vehicle_raycasters->insert(raycaster);
+  return raycaster;
 }
 
 void Viewer::addVehicle(btRaycastVehicle *veh) {
@@ -676,6 +678,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _objects = new QSet<Object *>();
   _constraints = new QSet<btTypedConstraint *>();
   _raycast_vehicles = new QSet<btRaycastVehicle *>();
+  _vehicle_raycasters = new QSet<btVehicleRaycaster *>();
 
   L = nullptr;
 
@@ -1599,6 +1602,12 @@ void Viewer::clear() {
   }
   _raycast_vehicles->clear();
 
+  {
+    QList<btVehicleRaycaster*> vrs = _vehicle_raycasters->values();
+    for (btVehicleRaycaster* vr : vrs) delete vr;
+  }
+  _vehicle_raycasters->clear();
+
   // Delete existing dynamics world and its subcomponents
   if (dynamicsWorld) {
     delete dynamicsWorld;
@@ -1835,6 +1844,13 @@ Viewer::~Viewer() {
   }
   _raycast_vehicles->clear();
   delete _raycast_vehicles;
+
+  {
+    QList<btVehicleRaycaster*> vrs = _vehicle_raycasters->values();
+    for (btVehicleRaycaster* vr : vrs) delete vr;
+  }
+  _vehicle_raycasters->clear();
+  delete _vehicle_raycasters;
 
   delete _joystickInterface;
 }

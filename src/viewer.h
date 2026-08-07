@@ -304,6 +304,9 @@ private:
   QSet<Object *> *_objects;
   QSet<btTypedConstraint *> *_constraints;
   QSet<btRaycastVehicle *> *_raycast_vehicles;
+  // btRaycastVehicle doesn't own/delete its raycaster, so track the ones we
+  // hand out from createVehicleRaycaster() ourselves.
+  QSet<btVehicleRaycaster *> *_vehicle_raycasters;
   // Store raw Lua registry references (not luabind::object) to avoid
   // use-after-free when Lua state is destroyed.
   std::map<Object*, int> _luabindRegistry;
