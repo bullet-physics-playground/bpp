@@ -727,16 +727,22 @@ void Gui::closeEvent(QCloseEvent *event) {
       settings->sync();
 
       if (answer == QMessageBox::Yes) {
+        statusBar()->showMessage(tr("Saving preferences..."));
+        statusBar()->repaint();
         saveSettings();
         ui.viewer->close();
         event->accept();
       }
     } else {
+      statusBar()->showMessage(tr("Saving preferences..."));
+      statusBar()->repaint();
       saveSettings();
       ui.viewer->close();
       event->accept();
     }
   } else {
+    statusBar()->showMessage(tr("Saving preferences..."));
+    statusBar()->repaint();
     saveSettings();
     ui.viewer->close();
     event->accept();
