@@ -29,10 +29,13 @@ JoystickInterfaceSDL::~JoystickInterfaceSDL()
    SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
    #else
    if (mController) {
+       // Closes the underlying joystick (mActiveJoystick) too.
        SDL_GameControllerClose(mController);
+   } else if (mActiveJoystick) {
+       SDL_JoystickClose(mActiveJoystick);
    }
    SDL_QuitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
-   delete getButtonMapping();
+   delete[] getButtonMapping();
    #endif
 }
 
@@ -128,6 +131,19 @@ void JoystickInterfaceSDL::setActiveJoystick(int id)
       mActiveJoystick = SDL_JoystickOpen(id);
 
       #else
+
+      // Close whatever was previously active before opening the new
+      // device - otherwise switching joysticks leaks the old SDL handle.
+      if (mController)
+      {
+         SDL_GameControllerClose(mController);
+         mController = 0;
+      }
+      else if (mActiveJoystick)
+      {
+         SDL_JoystickClose(mActiveJoystick);
+      }
+      mActiveJoystick = 0;
 
       if (SDL_IsGameController(id))
       {
@@ -413,9 +429,8 @@ void JoystickInterfaceSDL::initializeButtonMappings()
 {
    int buttonCount = getButtonCount(0);
 
-   // clear previous mapping
-   delete getButtonMapping();
-
+   // setButtonMapping() below deletes[] any previous mapping itself once
+   // the new one is ready - freeing it here too would double-free it.
    JoystickConstants::ControllerButton* mapping =
       new JoystickConstants::ControllerButton[buttonCount];
 
