@@ -628,6 +628,7 @@ void Gui::setOpenLastFile(bool checked) {
 void Gui::fontChanged(const QString &family, uint size) {
   editor->setFont(family, size);
   debugText->setFont(family, size);
+  camText->setFont(family, size);
 }
 
 void Gui::loadSettings() {
