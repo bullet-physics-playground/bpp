@@ -92,6 +92,8 @@ void Prefs::setupPages() {
   fontfamily = "Console";
 #elif defined(Q_OS_MAC)
   fontfamily = "Monaco";
+#else
+  fontfamily = "Courier";
 #endif
 
   QFont font;

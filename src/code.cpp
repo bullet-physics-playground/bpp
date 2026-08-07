@@ -19,7 +19,7 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
 #endif
 
   family = s->value("editor/fontfamily", family).toString();
-  uint size = s->value("editor/fontsize", 10).toUInt();
+  uint size = s->value("editor/fontsize", 12).toUInt();
 
   setFont(family, size);
 
