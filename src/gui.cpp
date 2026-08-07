@@ -165,6 +165,10 @@ void Gui::toggleDeactivation(bool d) {
   ui.actionToggleDeactivation->setChecked(d);
 }
 
+void Gui::toggleShowConstraints(bool checked) {
+  ui.viewer->setShowConstraints(checked);
+}
+
 void Gui::postDraw(int /* frame */) {
   // QPixmap p = QPixmap::grabWidget(this);
 
@@ -670,6 +674,9 @@ void Gui::loadSettings() {
   ui.actionToggleDeactivation->setChecked(
       settings->value("deactivationState", true).toBool());
 
+  ui.actionShowConstraints->setChecked(
+      settings->value("showConstraints", true).toBool());
+
   settings->endGroup();
 }
 
@@ -695,6 +702,8 @@ void Gui::saveSettings() {
 
   settings->setValue("deactivationState",
                      ui.actionToggleDeactivation->isChecked());
+
+  settings->setValue("showConstraints", ui.actionShowConstraints->isChecked());
 
   settings->endGroup();
 

@@ -109,6 +109,7 @@
      <string>&amp;View</string>
     </property>
     <addaction name="action_Full_screen"/>
+    <addaction name="actionShowConstraints"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -422,6 +423,20 @@
     <string>F11</string>
    </property>
   </action>
+  <action name="actionShowConstraints">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Constraints</string>
+   </property>
+   <property name="toolTip">
+    <string>Show / hide constraint visualization (e.g. hinge axes) in the 3D view</string>
+   </property>
+  </action>
   <action name="actionReload">
    <property name="icon">
     <iconset theme="document-revert">
@@ -723,6 +738,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>actionShowConstraints</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>toggleShowConstraints(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>317</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>actionReload</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
@@ -759,5 +790,6 @@
   <slot>helpWiki()</slot>
   <slot>helpChat()</slot>
   <slot>toggleFullscreen()</slot>
+  <slot>toggleShowConstraints(bool)</slot>
  </slots>
 </ui>

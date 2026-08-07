@@ -231,6 +231,9 @@ public slots:
   void setSpaceNavigatorPanZoom(bool on);
   bool spaceNavigatorPanZoom() const;
 
+  void setShowConstraints(bool on);
+  bool showConstraints() const;
+
   void updateGLViewer() {
 #if QGLVIEWER_VERSION < 0x020700
     this->updateGL();
@@ -314,6 +317,22 @@ private:
   btBroadphaseInterface *broadphase;
   btCollisionDispatcher *dispatcher;
   btConstraintSolver *solver;
+
+  // Draws constraints (hinge axes, slider axes, pivots, ...), modelled on
+  // btDiscreteDynamicsWorld::debugDrawConstraint() but implemented directly
+  // so we control size/color per constraint type.
+  btIDebugDraw *_debugDrawer;
+  bool _showConstraints;
+  void drawConstraints();
+  void drawConstraint(btTypedConstraint *c, btScalar size);
+  btScalar constraintDrawSize(btTypedConstraint *c);
+  void drawConstraintFrame(const btTransform &t, btScalar size);
+  void drawConstraintAxis(const btTransform &t, int axis, btScalar size,
+                          const btVector3 &color);
+  void drawConstraintPoint(const btVector3 &p, btScalar size,
+                           const btVector3 &color);
+  void drawConstraintCylinder(const btVector3 &from, const btVector3 &to,
+                              btScalar radius, const btVector3 &color);
 
   QElapsedTimer _timer;
 

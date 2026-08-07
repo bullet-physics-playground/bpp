@@ -17,6 +17,8 @@
 
 #include "lua_bullet.h"
 
+#include "glutils.h"
+
 #ifdef HAS_LUA_QT
 #include "lua_register.h"
 #endif
@@ -93,6 +95,32 @@ static void *aligned_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) 
 using stack_info = boost::error_info<struct tag_stack_str, std::string>;
 
 using namespace std;
+
+// Forwards Bullet's constraint debug-draw geometry (btDynamicsWorld::debugDrawConstraint())
+// to immediate-mode OpenGL lines. Only drawLine() is used for constraint visualization.
+class GLDebugDrawer : public btIDebugDraw {
+public:
+  void drawLine(const btVector3 &from, const btVector3 &to,
+                const btVector3 &color) override {
+    glColor3f(color.x(), color.y(), color.z());
+    glBegin(GL_LINES);
+    glVertex3d(from.x(), from.y(), from.z());
+    glVertex3d(to.x(), to.y(), to.z());
+    glEnd();
+  }
+
+  void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int,
+                        const btVector3 &) override {}
+  void reportErrorWarning(const char *warningString) override {
+    qWarning() << warningString;
+  }
+  void draw3dText(const btVector3 &, const char *) override {}
+  void setDebugMode(int mode) override { _debugMode = mode; }
+  int getDebugMode() const override { return _debugMode; }
+
+private:
+  int _debugMode = 0;
+};
 
 std::ostream &operator<<(std::ostream &ostream, const Viewer &v) {
   ostream << v.toString().toUtf8().data();
@@ -234,6 +262,9 @@ void Viewer::luaBind(lua_State *s) {
                      &Viewer::setSpaceNavigatorZoomDirection)
            .property("snPanZoom", &Viewer::spaceNavigatorPanZoom,
                      &Viewer::setSpaceNavigatorPanZoom)
+
+           .property("showConstraints", &Viewer::showConstraints,
+                     &Viewer::setShowConstraints)
 
            // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
            .property("timeStep", &Viewer::getTimeStep, &Viewer::setTimeStep)
@@ -694,6 +725,12 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase,
                                               solver, collisionCfg);
+  _debugDrawer = new GLDebugDrawer();
+  _debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawConstraints |
+                             btIDebugDraw::DBG_DrawConstraintLimits);
+  dynamicsWorld->setDebugDrawer(_debugDrawer);
+  _showConstraints = true;
+
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
   btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
 
@@ -1127,6 +1164,13 @@ void Viewer::setSpaceNavigatorPanZoom(bool on) {
 }
 
 bool Viewer::spaceNavigatorPanZoom() const { return _snPanZoom; }
+
+void Viewer::setShowConstraints(bool on) {
+  QMutexLocker locker(&mutex);
+  _showConstraints = on;
+}
+
+bool Viewer::showConstraints() const { return _showConstraints; }
 
 void Viewer::close() {
   QGLViewer::close();
@@ -1574,6 +1618,7 @@ void Viewer::clear() {
 
   dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase,
                                               solver, collisionCfg);
+  dynamicsWorld->setDebugDrawer(_debugDrawer);
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
 
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
@@ -1692,6 +1737,10 @@ Viewer::~Viewer() {
   if (dynamicsWorld) {
     delete dynamicsWorld;
     dynamicsWorld = nullptr;
+  }
+  if (_debugDrawer) {
+    delete _debugDrawer;
+    _debugDrawer = nullptr;
   }
   if (dispatcher) {
     delete dispatcher;
@@ -1929,6 +1978,176 @@ void Viewer::drawSceneInternal(int pass) {
 
   foreach (Object *o, *_objects) {
     o->render(minaabb, maxaabb);
+  }
+
+  drawConstraints();
+}
+
+// Renders every constraint via btDynamicsWorld::debugDrawConstraint(),
+// which dispatches on the constraint's own type (hinge, point2point,
+// slider, cone-twist, 6dof, gear, ...).
+void Viewer::drawConstraints() {
+  if (!_showConstraints)
+    return;
+
+  glEnable(GL_DEPTH_TEST);
+
+  // Size each constraint's markers relative to the parts it connects
+  // instead of the whole scene's AABB - a single far-away or oversized
+  // object (a ground plane, a long road, ...) would otherwise blow up
+  // every marker's size, even for small constraints elsewhere.
+  foreach (btTypedConstraint *c, *_constraints) {
+    drawConstraint(c, constraintDrawSize(c));
+  }
+}
+
+// A solid cylinder from `from` to `to`, radius `radius`, colored `color`.
+// Builds a rotation (via btPlaneSpace1, matching how btHingeConstraint
+// itself derives a frame from a single axis) that maps the cylinder's
+// local Z (solidCylinder()'s axis) onto the from->to direction.
+void Viewer::drawConstraintCylinder(const btVector3 &from, const btVector3 &to,
+                                    btScalar radius, const btVector3 &color) {
+  btVector3 dir = to - from;
+  btScalar length = dir.length();
+  if (length < SIMD_EPSILON)
+    return;
+  dir /= length;
+
+  btVector3 p1, p2;
+  btPlaneSpace1(dir, p1, p2);
+
+  btTransform t;
+  t.setIdentity();
+  t.setOrigin(from);
+  t.getBasis().setValue(p1.x(), p2.x(), dir.x(), p1.y(), p2.y(), dir.y(),
+                        p1.z(), p2.z(), dir.z());
+
+  GLfloat m[16];
+  t.getOpenGLMatrix(m);
+
+  glColor3f(color.x(), color.y(), color.z());
+  glPushMatrix();
+  glMultMatrixf(m);
+  solidCylinder(radius, length, 8, 1);
+  glPopMatrix();
+}
+
+static const btVector3 kConstraintColor(1.0, 0.5, 0.0); // orange
+
+// A 3-axis cross, for constraints that pin a full frame (generic 6dof /
+// fixed) rather than a single axis or point.
+void Viewer::drawConstraintFrame(const btTransform &t, btScalar size) {
+  btScalar radius = size * btScalar(0.1);
+  const btVector3 &origin = t.getOrigin();
+  drawConstraintCylinder(origin, origin + t.getBasis().getColumn(0) * size,
+                         radius, kConstraintColor);
+  drawConstraintCylinder(origin, origin + t.getBasis().getColumn(1) * size,
+                         radius, kConstraintColor);
+  drawConstraintCylinder(origin, origin + t.getBasis().getColumn(2) * size,
+                         radius, kConstraintColor);
+}
+
+// A single cylinder through t's origin along one of its local axes, for
+// constraints defined by one axis (hinge, slider, cone-twist's twist axis).
+void Viewer::drawConstraintAxis(const btTransform &t, int axis, btScalar size,
+                                const btVector3 &color) {
+  btScalar radius = size * btScalar(0.15);
+  const btVector3 &origin = t.getOrigin();
+  btVector3 dir = t.getBasis().getColumn(axis);
+  drawConstraintCylinder(origin - dir * size, origin + dir * size, radius,
+                         color);
+}
+
+// A small 3-axis cross of cylinders at a single world point, for point
+// constraints (point2point pivot).
+void Viewer::drawConstraintPoint(const btVector3 &p, btScalar size,
+                                 const btVector3 &color) {
+  btScalar radius = size * btScalar(0.15);
+  drawConstraintCylinder(p - btVector3(size, 0, 0), p + btVector3(size, 0, 0),
+                         radius, color);
+  drawConstraintCylinder(p - btVector3(0, size, 0), p + btVector3(0, size, 0),
+                         radius, color);
+  drawConstraintCylinder(p - btVector3(0, 0, size), p + btVector3(0, 0, size),
+                         radius, color);
+}
+
+// Half the average bounding-sphere radius of the two connected bodies, so
+// markers scale with the parts a constraint actually joins rather than the
+// whole scene (a single far-away or oversized object would otherwise blow
+// up every marker's size).
+btScalar Viewer::constraintDrawSize(btTypedConstraint *c) {
+  btVector3 center;
+  btScalar radiusA = 0, radiusB = 0;
+
+  if (c->getRigidBodyA().getCollisionShape())
+    c->getRigidBodyA().getCollisionShape()->getBoundingSphere(center, radiusA);
+  if (c->getRigidBodyB().getCollisionShape())
+    c->getRigidBodyB().getCollisionShape()->getBoundingSphere(center, radiusB);
+
+  btScalar radius = (radiusA + radiusB) * btScalar(0.5);
+  if (radius <= 0)
+    radius = btScalar(1.0);
+
+  return radius * btScalar(0.5);
+}
+
+// Modelled on btDiscreteDynamicsWorld::debugDrawConstraint(), implemented
+// directly so we control size/color per type instead of Bullet's internal
+// (often too-small) defaults.
+void Viewer::drawConstraint(btTypedConstraint *c, btScalar size) {
+  const btTransform &trA = c->getRigidBodyA().getCenterOfMassTransform();
+  const btTransform &trB = c->getRigidBodyB().getCenterOfMassTransform();
+
+  switch (c->getConstraintType()) {
+  case POINT2POINT_CONSTRAINT_TYPE: {
+    auto *p2p = static_cast<btPoint2PointConstraint *>(c);
+    drawConstraintPoint(trA * p2p->getPivotInA(), size, kConstraintColor);
+    drawConstraintPoint(trB * p2p->getPivotInB(), size, kConstraintColor);
+    break;
+  }
+  case HINGE_CONSTRAINT_TYPE: {
+    // Hinge axis is the frame's local Z (see btHingeConstraint::setAxis()).
+    auto *hinge = static_cast<btHingeConstraint *>(c);
+    drawConstraintAxis(trA * hinge->getFrameOffsetA(), 2, size,
+                       kConstraintColor);
+    break;
+  }
+  case SLIDER_CONSTRAINT_TYPE: {
+    // Slide axis is the frame's local X.
+    auto *slider = static_cast<btSliderConstraint *>(c);
+    drawConstraintAxis(slider->getCalculatedTransformA(), 0, size,
+                       kConstraintColor);
+    break;
+  }
+  case CONETWIST_CONSTRAINT_TYPE: {
+    // Twist axis is the frame's local X.
+    auto *cone = static_cast<btConeTwistConstraint *>(c);
+    drawConstraintAxis(trA * cone->getAFrame(), 0, size, kConstraintColor);
+    break;
+  }
+  case D6_CONSTRAINT_TYPE:
+  case D6_SPRING_CONSTRAINT_TYPE:
+  case D6_SPRING_2_CONSTRAINT_TYPE:
+  case FIXED_CONSTRAINT_TYPE: {
+    auto *d6 = static_cast<btGeneric6DofConstraint *>(c);
+    drawConstraintFrame(d6->getCalculatedTransformA(), size);
+    break;
+  }
+  case GEAR_CONSTRAINT_TYPE: {
+    auto *gear = static_cast<btGearConstraint *>(c);
+    btVector3 axisA = trA.getBasis() * gear->getAxisA();
+    btVector3 axisB = trB.getBasis() * gear->getAxisB();
+    btScalar radius = size * btScalar(0.15);
+    drawConstraintCylinder(trA.getOrigin() - axisA * size,
+                           trA.getOrigin() + axisA * size, radius,
+                           kConstraintColor);
+    drawConstraintCylinder(trB.getOrigin() - axisB * size,
+                           trB.getOrigin() + axisB * size, radius,
+                           kConstraintColor);
+    break;
+  }
+  default:
+    break;
   }
 }
 

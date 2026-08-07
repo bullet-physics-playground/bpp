@@ -49,6 +49,7 @@ public slots:
   void togglePOVExport(bool);
   void toggleDeactivation(bool);
   void toggleFullscreen();
+  void toggleShowConstraints(bool);
 
   void fileNew();
   void fileLoad(const QString &path = QString());
