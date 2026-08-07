@@ -47,13 +47,31 @@ int main(int argc, char **argv) {
   // On Linux: enable printing of version and help without DISPLAY variable set
 
   bool runCore = false;
+  bool headlessSimulate = false;
   for (int i = 0; i < argc; i++) {
-    if (QString(argv[i]) == "-h" || QString(argv[i]) == "--help" ||
-        QString(argv[i]) == "-v" || QString(argv[i]) == "--version" ||
-        QString(argv[i]) == "-r" || QString(argv[i]) == "--report-load") {
+    QString arg = QString(argv[i]);
+    if (arg == "-h" || arg == "--help" || arg == "-v" || arg == "--version" ||
+        arg == "-r" || arg == "--report-load") {
       runCore = true;
       break;
     }
+    if (arg == "-f" || arg == "--file" || arg == "-l" || arg == "--lua" ||
+        arg == "-i" || arg == "--stdin") {
+      headlessSimulate = true;
+    }
+  }
+
+  // Headless simulate mode (-f/-l/-i) never shows a window, but Viewer is a
+  // QWidget (via QGLViewer) and still needs a real QApplication with a
+  // working QPA platform plugin - QCoreApplication isn't enough. If there's
+  // no display to connect to, fall back to the offscreen plugin so this can
+  // run on a bare server/CI/container instead of aborting with "could not
+  // connect to display". Only do this when the user hasn't already picked a
+  // platform themselves.
+  if (headlessSimulate && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") &&
+      qEnvironmentVariableIsEmpty("DISPLAY") &&
+      qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
+    qputenv("QT_QPA_PLATFORM", "offscreen");
   }
 
   if (runCore) {
