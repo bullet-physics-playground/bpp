@@ -35,6 +35,7 @@ using namespace qglviewer;
 class Object;
 class Viewer;
 class QTimer;
+class btSoftRigidDynamicsWorld;
 
 struct ParamInfo {
   QVariant value;
@@ -313,8 +314,13 @@ private:
 
   btScalar _aabb[6];
 
+  // Actually a btSoftBodyRigidBodyCollisionConfiguration (see viewer.cpp);
+  // the base pointer type is enough for everything this header needs.
   btDefaultCollisionConfiguration *collisionCfg;
-  btDiscreteDynamicsWorld *dynamicsWorld;
+  // A btSoftRigidDynamicsWorld so soft bodies (SoftBody objects) can be
+  // simulated alongside rigid bodies. It IS-A btDiscreteDynamicsWorld, so
+  // all the rigid-body-oriented calls elsewhere keep working unchanged.
+  btSoftRigidDynamicsWorld *dynamicsWorld;
 
   // Keep ownership of Bullet subcomponents so we can delete them explicitly
   btBroadphaseInterface *broadphase;
