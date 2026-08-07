@@ -1230,9 +1230,15 @@ void Viewer::toggleDeactivation(bool deactivation) {
   _deactivation = deactivation;
 }
 
-void Viewer::startSim() { _simulate = true; }
+void Viewer::startSim() {
+  _simulate = true;
+  emit simulationStateChanged(_simulate);
+}
 
-void Viewer::stopSim() { _simulate = false; }
+void Viewer::stopSim() {
+  _simulate = false;
+  emit simulationStateChanged(_simulate);
+}
 
 void Viewer::restartSim() {
   Vec camPos = camera()->position();
