@@ -319,6 +319,10 @@ void Gui::updateRecentFileActions() {
 
 void Gui::setCurrentFile(const QString &fileName) {
 
+  QString filePath = fileName;
+  if (!filePath.isEmpty() && filePath != "no_name")
+    filePath = QFileInfo(filePath).absoluteFilePath();
+
   QString scriptFile = editor->scriptFile();
 
   ui.viewer->setScriptName(strippedNameNoExt(scriptFile));
@@ -340,13 +344,13 @@ void Gui::setCurrentFile(const QString &fileName) {
                        .arg(QCoreApplication::applicationVersion())
                        .arg(strippedName(scriptFile)));
 
-  if (fileName == "no_name") {
+  if (filePath == "no_name") {
     return;
   }
 
   QStringList files = settings->value("recentFileList").toStringList();
-  files.removeAll(fileName);
-  files.prepend(fileName);
+  files.removeAll(filePath);
+  files.prepend(filePath);
   while (files.size() > MAX_RECENT_FILES)
     files.removeLast();
 
