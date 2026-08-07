@@ -589,6 +589,20 @@ void Gui::editPreferences() {
   connect(p, SIGNAL(checkOpenLastFileChanged(bool)), this,
           SLOT(setOpenLastFile(bool)));
 
+  // SpaceNavigator 3D mouse navigation settings
+  connect(p, &Prefs::snNavigationModeChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorMode);
+  connect(p, &Prefs::snLockHorizonChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorLockHorizon);
+  connect(p, &Prefs::snAutoFlySpeedChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorAutoFlySpeed);
+  connect(p, &Prefs::snShowOrbitAxisChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorShowOrbitAxis);
+  connect(p, &Prefs::snZoomDirectionChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorZoomDirection);
+  connect(p, &Prefs::snPanZoomChanged, ui.viewer,
+          &Viewer::setSpaceNavigatorPanZoom);
+
   p->show();
 }
 

@@ -215,6 +215,21 @@ public slots:
   void onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes);
   void onSpaceNavigatorButton(int button, bool pressed);
   void onSpaceNavigatorTick();
+  void integrateSpaceNavigator(bool sustained = false);
+
+  // SpaceNavigator navigation settings
+  void setSpaceNavigatorMode(int mode);
+  int spaceNavigatorMode() const;
+  void setSpaceNavigatorLockHorizon(bool on);
+  bool spaceNavigatorLockHorizon() const;
+  void setSpaceNavigatorAutoFlySpeed(bool on);
+  bool spaceNavigatorAutoFlySpeed() const;
+  void setSpaceNavigatorShowOrbitAxis(bool on);
+  bool spaceNavigatorShowOrbitAxis() const;
+  void setSpaceNavigatorZoomDirection(bool forward);
+  bool spaceNavigatorZoomForward() const;
+  void setSpaceNavigatorPanZoom(bool on);
+  bool spaceNavigatorPanZoom() const;
 
   void updateGLViewer() {
 #if QGLVIEWER_VERSION < 0x020700
@@ -378,23 +393,37 @@ private:
   };
   SpaceNavigatorMode _snMode;
 
+  // SpaceNavigator navigation settings (editable from the Preferences
+  // dialog and via the Lua sn* properties).
+  bool _snLockHorizon;
+  bool _snAutoFlySpeed;
+  bool _snShowOrbitAxis;
+  bool _snZoomForward;
+  bool _snPanZoom;
+
   // Blender-style orbit distance: the distance from the camera to the
   // view-centre pivot the SpaceNavigator orbits around.  Reinitialised from
   // the scene when the camera is reset or the scene changes.
   qreal _snOrbitDist;
 
-  // Timer-driven integration of the 3D mouse: the current shaped deflection
-  // is held in _snTarget (a target velocity in units of full deflection)
-  // and integrated over the real elapsed time at a fixed rate by _snTimer,
-  // so the camera motion is smooth and independent of how irregularly the
-  // device reports arrive.
+  // 3D mouse integration: the current shaped deflection is held in _snTarget
+  // (a target velocity in units of full deflection).  Each device report
+  // integrates the target over the time elapsed since the previous report
+  // (event-driven, like Blender's NDOF), so navigation responds immediately.
+  // _snTimer is a sustaining timer only: the SpaceNavigator is an absolute
+  // device that reports nothing while a deflection is held still, so the
+  // timer keeps integrating the last target at a fixed rate and the camera
+  // keeps moving for as long as the cap is held.  Motion stops when the cap
+  // returns to rest: the last report's deflection is remembered in
+  // _snLastInput, the sustaining path eases resting axes back to zero (the
+  // event path has already shaped them through the dead band and low-pass),
+  // and the eased target is stopped once it falls back into the target dead
+  // band.  _snTickTimer is shared by both paths so the integrated time
+  // intervals never overlap.
   QTimer *_snTimer;
   QElapsedTimer _snTickTimer;
-  // Measured from the most recent device event; used by the tick to detect
-  // that the controller has gone quiet so the held target velocity can be
-  // decayed to a smooth stop instead of being held forever.
-  QElapsedTimer _snEventTimer;
   SpaceNavigator::AxesNorm _snTarget;
+  SpaceNavigator::AxesNorm _snLastInput;
 
    // parameter storage for Lua scripts
    QHash<QString, QVariant> _params;

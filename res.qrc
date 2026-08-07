@@ -7,5 +7,6 @@
     <file>icons/lua.svg</file>
     <file>icons/povray.svg</file>
     <file>icons/openscad.svg</file>
+    <file>icons/3dconnexion.svg</file>
   </qresource>
 </RCC>

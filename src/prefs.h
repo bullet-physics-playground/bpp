@@ -53,6 +53,13 @@ protected slots:
   void on_scadExecutableChanged();
   void on_scadExecutableBrowse();
 
+  void on_snNavigationModeChanged(int index);
+  void on_snLockHorizonChanged(bool checked);
+  void on_snAutoFlySpeedChanged(bool checked);
+  void on_snShowOrbitAxisChanged(bool checked);
+  void on_snZoomDirectionChanged(int index);
+  void on_snPanZoomChanged(bool checked);
+
 signals:
   void checkOpenLastFileChanged(const bool checked);
   void checkOpenLastWindowState(const bool checked);
@@ -66,6 +73,13 @@ signals:
   void povExportDirChanged(const QString &dir) const;
 
   void scadExecutableChanged(const QString &dir) const;
+
+  void snNavigationModeChanged(int mode) const;
+  void snLockHorizonChanged(bool checked) const;
+  void snAutoFlySpeedChanged(bool checked) const;
+  void snShowOrbitAxisChanged(bool checked) const;
+  void snZoomDirectionChanged(bool forward) const;
+  void snPanZoomChanged(bool checked) const;
 
 private:
   void keyPressEvent(QKeyEvent *e);

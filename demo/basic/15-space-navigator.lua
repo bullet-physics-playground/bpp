@@ -9,12 +9,19 @@
 --  callback simply never fires.)
 --
 -- Registering an onSpaceNavigator callback takes over the camera from the
--- built-in Blender-style camera control, so this script only prints axes.
--- Without registering a callback, the 3D mouse navigates the camera exactly
--- like Blender's default NDOF mode ("Orbit about view centre" + Turntable +
--- Dolly): X strafes, Y dollies in/out (push forward to zoom in), Z pans up,
--- and RX/RY/RZ orbit the camera turntable-style around whatever it is
--- looking at (yaw keeps the horizon level).
+-- built-in camera control, so this script only prints axes.  Without
+-- registering a callback, the 3D mouse navigates the camera with the
+-- built-in navigation: X/Y/Z push translates the camera (X strafes right,
+-- Y moves along the view direction, Z moves up/down) and RX/RY/RZ rotates,
+-- in both Fly (first-person) and Object (orbit) modes.  Configurable from the
+-- SpaceNavigator page of the Preferences dialog, or in a script via the
+-- Viewer properties
+--   v.snMode = 0            -- 0 = Fly, 1 = Object (orbit)
+--   v.snLockHorizon = true
+--   v.snAutoFlySpeed = true
+--   v.snShowOrbitAxis = true
+--   v.snZoomForward = true
+--   v.snPanZoom = true
 
 v:onSpaceNavigator(function(N, sn)
   v:clearDebugText()

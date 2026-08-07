@@ -140,6 +140,15 @@
           <normaloff>:/icons/openscad.svg</normaloff>:/icons/openscad.svg</iconset>
         </property>
        </item>
+        <item>
+         <property name="text">
+          <string>SpaceNavigator</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res.qrc">
+           <normaloff>:/icons/3dconnexion.svg</normaloff>:/icons/3dconnexion.svg</iconset>
+         </property>
+        </item>
       </widget>
      </item>
      <item>
@@ -433,15 +442,122 @@
              </spacer>
             </item>
            </layout>
-          </widget>
-         </item>
-        </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="spacenavigatorPage">
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QGroupBox" name="groupBoxSN">
+            <property name="title">
+             <string>SpaceNavigator Settings</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
+             <item>
+              <layout class="QFormLayout" name="formLayout_3">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Navigation mode</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="snNavigationMode">
+                 <item>
+                  <property name="text">
+                   <string>Fly</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Object (orbit)</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_7">
+                 <property name="text">
+                  <string>Forward / back direction</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="snZoomDirection">
+                 <item>
+                  <property name="text">
+                   <string>Forward</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Backward</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="Line" name="line_2">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkSnLockHorizon">
+               <property name="text">
+                <string>Lock horizon</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkSnAutoFlySpeed">
+               <property name="text">
+                <string>Auto fly speed</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkSnShowOrbitAxis">
+               <property name="text">
+                <string>Show orbit axis</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkSnPanZoom">
+                 <property name="text">
+                  <string>Pan camera view</string>
+                 </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>240</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
     <layout class="QHBoxLayout" name="_2">
      <property name="spacing">
       <number>6</number>

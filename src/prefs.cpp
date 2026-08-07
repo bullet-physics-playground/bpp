@@ -210,6 +210,40 @@ void Prefs::setupPages() {
 
   connect(this->scadExecutableBrowse, &QPushButton::clicked, this,
           &Prefs::on_scadExecutableBrowse);
+
+  // SpaceNavigator 3D mouse navigation settings
+  this->defaultmap["spacenavigator/navigationMode"] =
+      _settings->value("spacenavigator/navigationMode", 0).toInt();
+  this->defaultmap["spacenavigator/lockHorizon"] =
+      _settings->value("spacenavigator/lockHorizon", true).toBool();
+  this->defaultmap["spacenavigator/autoFlySpeed"] =
+      _settings->value("spacenavigator/autoFlySpeed", true).toBool();
+  this->defaultmap["spacenavigator/showOrbitAxis"] =
+      _settings->value("spacenavigator/showOrbitAxis", false).toBool();
+  this->defaultmap["spacenavigator/zoomDirection"] =
+      _settings->value("spacenavigator/zoomDirection", 0).toInt();
+  this->defaultmap["spacenavigator/panZoom"] =
+      _settings->value("spacenavigator/panZoom", true).toBool();
+
+  connect(this->snNavigationMode,
+          static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this, &Prefs::on_snNavigationModeChanged);
+
+  connect(this->snZoomDirection,
+          static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+          this, &Prefs::on_snZoomDirectionChanged);
+
+  connect(this->checkSnLockHorizon, &QCheckBox::toggled, this,
+          &Prefs::on_snLockHorizonChanged);
+
+  connect(this->checkSnAutoFlySpeed, &QCheckBox::toggled, this,
+          &Prefs::on_snAutoFlySpeedChanged);
+
+  connect(this->checkSnShowOrbitAxis, &QCheckBox::toggled, this,
+          &Prefs::on_snShowOrbitAxisChanged);
+
+  connect(this->checkSnPanZoom, &QCheckBox::toggled, this,
+          &Prefs::on_snPanZoomChanged);
 }
 
 void Prefs::guiOpenLastFileChanged(const bool checked) {
@@ -305,6 +339,36 @@ void Prefs::on_scadExecutableBrowse() {
   emit scadExecutableChanged(filename);
 }
 
+void Prefs::on_snNavigationModeChanged(int index) {
+  setValue("spacenavigator/navigationMode", index);
+  emit snNavigationModeChanged(index);
+}
+
+void Prefs::on_snLockHorizonChanged(bool checked) {
+  setValue("spacenavigator/lockHorizon", checked);
+  emit snLockHorizonChanged(checked);
+}
+
+void Prefs::on_snAutoFlySpeedChanged(bool checked) {
+  setValue("spacenavigator/autoFlySpeed", checked);
+  emit snAutoFlySpeedChanged(checked);
+}
+
+void Prefs::on_snShowOrbitAxisChanged(bool checked) {
+  setValue("spacenavigator/showOrbitAxis", checked);
+  emit snShowOrbitAxisChanged(checked);
+}
+
+void Prefs::on_snZoomDirectionChanged(int index) {
+  setValue("spacenavigator/zoomDirection", index);
+  emit snZoomDirectionChanged(index == 0);
+}
+
+void Prefs::on_snPanZoomChanged(bool checked) {
+  setValue("spacenavigator/panZoom", checked);
+  emit snPanZoomChanged(checked);
+}
+
 void Prefs::keyPressEvent(QKeyEvent *e) {
 #ifdef Q_OS_MAC
   if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_Period) {
@@ -360,6 +424,13 @@ void Prefs::updateGUI() {
   povPreview->setText(getValue("povray/preview").toString());
 
   scadExecutable->setText(getValue("openscad/executable").toString());
+
+  snNavigationMode->setCurrentIndex(getValue("spacenavigator/navigationMode").toInt());
+  snZoomDirection->setCurrentIndex(getValue("spacenavigator/zoomDirection").toInt());
+  checkSnLockHorizon->setChecked(getValue("spacenavigator/lockHorizon").toBool());
+  checkSnAutoFlySpeed->setChecked(getValue("spacenavigator/autoFlySpeed").toBool());
+  checkSnShowOrbitAxis->setChecked(getValue("spacenavigator/showOrbitAxis").toBool());
+  checkSnPanZoom->setChecked(getValue("spacenavigator/panZoom").toBool());
 }
 
 void Prefs::changeGroup(QListWidgetItem *current, QListWidgetItem *previous) {
@@ -397,6 +468,12 @@ void Prefs::on_buttonOk_clicked() {
   emit povExecutableChanged(getValue("povray/executable").toString());
   emit povExportDirChanged(getValue("povray/export").toString());
   emit scadExecutableChanged(getValue("openscad/executable").toString());
+  emit snNavigationModeChanged(getValue("spacenavigator/navigationMode").toInt());
+  emit snLockHorizonChanged(getValue("spacenavigator/lockHorizon").toBool());
+  emit snAutoFlySpeedChanged(getValue("spacenavigator/autoFlySpeed").toBool());
+  emit snShowOrbitAxisChanged(getValue("spacenavigator/showOrbitAxis").toBool());
+  emit snZoomDirectionChanged(getValue("spacenavigator/zoomDirection").toInt() == 0);
+  emit snPanZoomChanged(getValue("spacenavigator/panZoom").toBool());
 }
 
 void Prefs::changeEvent(QEvent *e) {
