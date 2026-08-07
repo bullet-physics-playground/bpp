@@ -89,7 +89,11 @@ QMessageBox::warning(this, tr("Application error"),
   QString p = os.readAll();
   file.close();
   setPlainText(p);
-  script_filename = filename;
+  // Resolve to an absolute path now, before anything changes the process's
+  // working directory (e.g. Gui::setCurrentFile chdir's into this script's
+  // directory) - otherwise a later save() would try to write the relative
+  // path against the wrong directory.
+  script_filename = QFileInfo(filename).absoluteFilePath();
   emit scriptLoaded();
 
   return true;
