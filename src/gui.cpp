@@ -637,8 +637,6 @@ void Gui::loadSettings() {
   if (settings->value("openlastwindowstate", true).toBool()) {
     restoreGeometry(settings->value("geometry", saveGeometry()).toByteArray());
     restoreState(settings->value("state", saveState()).toByteArray());
-    move(settings->value("pos", pos()).toPoint());
-    resize(settings->value("size", size()).toSize());
 
     if (settings->value("fullscreen", isFullScreen()).toBool()) {
       showFullScreen();
@@ -671,11 +669,6 @@ void Gui::saveSettings() {
     settings->setValue("state", saveState());
     settings->setValue("fullscreen", isFullScreen());
     settings->setValue("maximized", isMaximized());
-
-    if (!isMaximized() && !isFullScreen()) {
-      settings->setValue("pos", pos());
-      settings->setValue("size", size());
-    }
   }
 
   QString renderRes = renderSettings->currentText();
