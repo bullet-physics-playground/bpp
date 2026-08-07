@@ -29,8 +29,12 @@
 #include "objects/object.h"
 #include "objects/objects.h"
 #include "objects/plane.h"
+#include "objects/softbody.h"
 #include "objects/sphere.h"
 #include "objects/triangle.h"
+
+#include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
+#include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 
 #ifdef HAS_LIB_ASSIMP
 #include "objects/mesh.h"
@@ -403,6 +407,10 @@ Object *Viewer::removeObject(Object *o) {
   if (o->body != nullptr)
     dynamicsWorld->removeRigidBody(o->body);
 
+  SoftBody *sb = dynamic_cast<SoftBody *>(o);
+  if (sb != nullptr && sb->getSoftBody() != nullptr)
+    dynamicsWorld->removeSoftBody(sb->getSoftBody());
+
   _objects->remove(o);
   o->setParent(0);
 
@@ -542,6 +550,17 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
         aabb[3 + i] = qMax(aabb[3 + i], oaabbmax[i]);
       }
     }
+
+    SoftBody *sb = dynamic_cast<SoftBody *>(o);
+    if (sb != nullptr && sb->getSoftBody() != nullptr) {
+      btVector3 oaabbmin(0, 0, 0), oaabbmax(0, 0, 0);
+      sb->getSoftBody()->getAabb(oaabbmin, oaabbmax);
+
+      for (int i = 0; i < 3; ++i) {
+        aabb[i] = qMin(aabb[i], oaabbmin[i]);
+        aabb[3 + i] = qMax(aabb[3 + i], oaabbmax[i]);
+      }
+    }
   }
 }
 } // namespace
@@ -641,6 +660,10 @@ void Viewer::addObject(Object *o, int type, int mask) {
     }
     dynamicsWorld->addRigidBody(o->body, type, mask);
   }
+
+  SoftBody *sb = dynamic_cast<SoftBody *>(o);
+  if (sb != nullptr && sb->getSoftBody() != nullptr)
+    dynamicsWorld->addSoftBody(sb->getSoftBody(), type, mask);
 }
 
 void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
@@ -653,6 +676,9 @@ void Viewer::addObjects() {}
 
 void Viewer::setGravity(btVector3 gravity) {
   dynamicsWorld->setGravity(gravity);
+  // btDiscreteDynamicsWorld::setGravity() only updates rigid bodies; soft
+  // bodies read gravity from the world info instead.
+  dynamicsWorld->getWorldInfo().m_gravity = gravity;
 }
 
 btVector3 Viewer::getGravity() { return dynamicsWorld->getGravity(); }
@@ -740,14 +766,24 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _gl_specular = btVector4(1.0f, 1.0f, 1.0f, 1.0f);
   _gl_model_ambient = btVector4(0.2f, 0.2f, 0.2f, 1.0f);
 
-  collisionCfg = new btDefaultCollisionConfiguration();
+  // A soft/rigid collision configuration is a drop-in superset of
+  // btDefaultCollisionConfiguration, so every existing rigid-body code path
+  // keeps working; it additionally registers the soft-vs-rigid and
+  // soft-vs-soft collision algorithms that SoftBody objects need.
+  collisionCfg = new btSoftBodyRigidBodyCollisionConfiguration();
   // create and keep pointers to subcomponents so we can delete them later
   broadphase = new btDbvtBroadphase();
   dispatcher = new btCollisionDispatcher(collisionCfg);
   solver = new btSequentialImpulseConstraintSolver();
 
-  dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase,
-                                              solver, collisionCfg);
+  dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
+                                               solver, collisionCfg);
+  dynamicsWorld->getWorldInfo().m_broadphase = broadphase;
+  dynamicsWorld->getWorldInfo().m_dispatcher = dispatcher;
+  dynamicsWorld->getWorldInfo().m_gravity = dynamicsWorld->getGravity();
+  dynamicsWorld->getWorldInfo().m_sparsesdf.Initialize();
+  SoftBody::setWorldInfo(&dynamicsWorld->getWorldInfo());
+
   _debugDrawer = new GLDebugDrawer();
   _debugDrawer->setDebugMode(btIDebugDraw::DBG_DrawConstraints |
                              btIDebugDraw::DBG_DrawConstraintLimits);
@@ -1356,6 +1392,10 @@ emit scriptStarts();
         if (o->body != nullptr) {
           dynamicsWorld->removeRigidBody(o->body);
         }
+        SoftBody *sb = dynamic_cast<SoftBody *>(o);
+        if (sb != nullptr && sb->getSoftBody() != nullptr) {
+          dynamicsWorld->removeSoftBody(sb->getSoftBody());
+        }
       }
     }
 
@@ -1386,6 +1426,10 @@ emit scriptStarts();
         m->luaRelease();
       }
 #endif
+      SoftBody *sb = dynamic_cast<SoftBody *>(o);
+      if (sb) {
+        sb->luaRelease();
+      }
     }
   }
 
@@ -1453,6 +1497,7 @@ emit scriptStarts();
 #endif
     Palette::luaBind(L);
     Plane::luaBind(L);
+    SoftBody::luaBind(L);
     Sphere::luaBind(L);
     Triangle::luaBind(L);
     Viewer::luaBind(L);
@@ -1575,6 +1620,10 @@ void Viewer::clear() {
       if (o->body != nullptr) {
         dynamicsWorld->removeRigidBody(o->body);
       }
+      SoftBody *sb = dynamic_cast<SoftBody *>(o);
+      if (sb != nullptr && sb->getSoftBody() != nullptr) {
+        dynamicsWorld->removeSoftBody(sb->getSoftBody());
+      }
     }
   }
 
@@ -1644,15 +1693,20 @@ void Viewer::clear() {
   _maxSubSteps = 7;
   _fixedTimeStep = 1 / 100.0; // 1/60th of a second
 
-  collisionCfg = new btDefaultCollisionConfiguration();
+  collisionCfg = new btSoftBodyRigidBodyCollisionConfiguration();
   broadphase = new btDbvtBroadphase();
   dispatcher = new btCollisionDispatcher(collisionCfg);
   solver = new btSequentialImpulseConstraintSolver();
 
-  dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase,
-                                              solver, collisionCfg);
+  dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
+                                               solver, collisionCfg);
   dynamicsWorld->setDebugDrawer(_debugDrawer);
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
+  dynamicsWorld->getWorldInfo().m_broadphase = broadphase;
+  dynamicsWorld->getWorldInfo().m_dispatcher = dispatcher;
+  dynamicsWorld->getWorldInfo().m_gravity = dynamicsWorld->getGravity();
+  dynamicsWorld->getWorldInfo().m_sparsesdf.Initialize();
+  SoftBody::setWorldInfo(&dynamicsWorld->getWorldInfo());
 
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
   btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
@@ -1738,6 +1792,10 @@ Viewer::~Viewer() {
       if (o->body != nullptr) {
         dynamicsWorld->removeRigidBody(o->body);
       }
+      SoftBody *sb = dynamic_cast<SoftBody *>(o);
+      if (sb != nullptr && sb->getSoftBody() != nullptr) {
+        dynamicsWorld->removeSoftBody(sb->getSoftBody());
+      }
     }
   }
 
@@ -1764,6 +1822,10 @@ Viewer::~Viewer() {
       m->luaRelease();
     }
 #endif
+    SoftBody *sb = dynamic_cast<SoftBody *>(o);
+    if (sb) {
+      sb->luaRelease();
+    }
   }
 
   // Delete dynamics world and collision config (after removing rigid bodies).
@@ -2017,7 +2079,14 @@ void Viewer::drawSceneInternal(int pass) {
   //    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 
   foreach (Object *o, *_objects) {
-    o->render(minaabb, maxaabb);
+    // SoftBody has no rigid body/motion-state, so Object::render() (which
+    // requires one) would silently skip it. Render it directly instead.
+    SoftBody *sb = dynamic_cast<SoftBody *>(o);
+    if (sb != nullptr) {
+      sb->renderWorld();
+    } else {
+      o->render(minaabb, maxaabb);
+    }
   }
 
   drawConstraints();
