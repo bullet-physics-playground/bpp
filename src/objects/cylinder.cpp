@@ -64,7 +64,8 @@ void Cylinder::luaBind(lua_State *s) {
                  .def(constructor<const btVector3 &, btScalar>(), adopt(result))
                  .def(constructor<btScalar, btScalar>(), adopt(result))
                  .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
-                 .def(tostring(const_self))];
+                 .def(tostring(const_self))
+                 .def(const_self == const_self)];
 }
 
 QString Cylinder::toString() const { return QString("Cylinder"); }

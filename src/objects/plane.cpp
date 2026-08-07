@@ -66,7 +66,8 @@ void Plane::luaBind(lua_State *s) {
                      adopt(result))
                 .def(constructor<const btVector3 &, btScalar, btScalar>(),
                      adopt(result))
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QString Plane::toString() const { return QString("Plane"); }

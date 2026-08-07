@@ -180,7 +180,8 @@ void OpenSCAD::luaBind(lua_State *s) {
 
   module(s)[class_<OpenSCAD, Mesh>("OpenSCAD")
                 .def(constructor<QString, btScalar, bool>(), adopt(result))
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QString OpenSCAD::toString() const { return QString("OpenSCAD"); }

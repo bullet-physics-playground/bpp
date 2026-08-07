@@ -127,6 +127,22 @@ std::ostream &operator<<(std::ostream &ostream, const Viewer &v) {
   return ostream;
 }
 
+// luabind's comparison policy needs an operator== reachable via ADL for
+// every class registered with it (see the identity-operator comment in
+// lua_bullet.cpp for why this matters). Viewer/JoystickInfo have no natural
+// value equality, so fall back to identity; QColor already has a real
+// operator== from Qt, and SpaceNavigator::Axes is a plain field struct.
+bool operator==(const Viewer &a, const Viewer &b) { return &a == &b; }
+
+bool operator==(const JoystickInfo &a, const JoystickInfo &b) {
+  return &a == &b;
+}
+
+bool operator==(const SpaceNavigator::Axes &a, const SpaceNavigator::Axes &b) {
+  return a.x == b.x && a.y == b.y && a.z == b.z && a.rx == b.rx &&
+         a.ry == b.ry && a.rz == b.rz;
+}
+
 std::ostream &operator<<(std::ostream &ostream, const QString &s) {
   ostream << s.toUtf8().data();
   return ostream;
@@ -304,7 +320,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("pov_settings", &Viewer::getPOVSettingsInc,
                      &Viewer::setPOVSettingsInc)
 
-           .def(tostring(const_self))];
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
 
   // QT helper classes
 
@@ -316,7 +333,8 @@ void Viewer::luaBind(lua_State *s) {
                 .property("r", &QColor::red, &QColor::setRed)
                 .property("g", &QColor::green, &QColor::setGreen)
                 .property("b", &QColor::blue, &QColor::setBlue)
-                .def(tostring(self))];
+                .def(tostring(self))
+                .def(self == self)];
 
 // QString is handled by the default_converter<QString> in lua_converters.h
   // which converts Lua strings to QString automatically.
@@ -340,7 +358,8 @@ void Viewer::luaBind(lua_State *s) {
              .property("triggeredButton1", &JoystickInfo::getTriggeredButton1)
              .property("triggeredButton2", &JoystickInfo::getTriggeredButton2)
              .property("triggeredButton3", &JoystickInfo::getTriggeredButton3)
-             .def(tostring(self))];
+             .def(tostring(self))
+             .def(self == self)];
 
   module(s)[class_<SpaceNavigator::Axes>("SpaceNavigatorAxes")
                 .def(constructor<>())
@@ -350,7 +369,8 @@ void Viewer::luaBind(lua_State *s) {
                 .def_readwrite("rx", &SpaceNavigator::Axes::rx)
                 .def_readwrite("ry", &SpaceNavigator::Axes::ry)
                 .def_readwrite("rz", &SpaceNavigator::Axes::rz)
-                .def(tostring(self))];
+                .def(tostring(self))
+                .def(self == self)];
 }
 
 void Viewer::addObject(Object *o) {

@@ -19,6 +19,7 @@
 class Object;
 
 std::ostream &operator<<(std::ostream &, const Object &obj);
+bool operator==(const Object &a, const Object &b);
 
 #define BIT(x) (1 << (x))
 

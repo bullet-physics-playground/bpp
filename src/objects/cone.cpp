@@ -74,7 +74,8 @@ void Cone::luaBind(lua_State *s) {
                 .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
                 .property("radius", &Cone::getRadius, &Cone::setRadius)
                 .property("height", &Cone::getHeight, &Cone::setHeight)
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QString Cone::toString() const { return QString("Cone"); }

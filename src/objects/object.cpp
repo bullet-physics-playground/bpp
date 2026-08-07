@@ -25,6 +25,11 @@ std::ostream &operator<<(std::ostream &ostream, const Object &obj) {
   return ostream;
 }
 
+// Objects are unique bodies in the scene, not comparable by value; compare
+// identity, same as luabind's fallback for the Bullet classes registered in
+// lua_bullet.cpp.
+bool operator==(const Object &a, const Object &b) { return &a == &b; }
+
 #include <luabind/operator.hpp>
 
 Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
@@ -222,7 +227,8 @@ void Object::luaBind(lua_State *s) {
            .def("toPOV", (QString(Object::*)() const) & Object::toPOV)
            .property("pov", (QString(Object::*)() const) & Object::toPOV)
 
-           .def(tostring(const_self))];
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
 }
 
 void Object::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {

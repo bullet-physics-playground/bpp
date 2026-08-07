@@ -16,6 +16,21 @@ std::ostream &operator<<(std::ostream &ostream, const Cam &cam) {
   return ostream;
 }
 
+bool operator==(const Cam &a, const Cam &b) { return &a == &b; }
+
+// qglviewer::Camera has no operator<</== of its own, and luabind's
+// tostring()/comparison policies need one reachable via ADL for every class
+// registered with them (see the identity-operator comment in
+// lua_bullet.cpp). ADL for a qglviewer::Camera argument only searches the
+// qglviewer namespace, so these have to live inside it rather than in the
+// global namespace like Cam's own operator<< above.
+namespace qglviewer {
+inline std::ostream &operator<<(std::ostream &ostream, const Camera &cam) {
+  return ostream << "Camera(" << static_cast<const void *>(&cam) << ")";
+}
+inline bool operator==(const Camera &a, const Camera &b) { return &a == &b; }
+}
+
 Cam::Cam(QObject *parent) : Camera() {
   setParent(parent);
   setUseFocalBlur(0);
@@ -40,8 +55,10 @@ QString Cam::toString() const { return QString("Cam"); }
 void Cam::luaBind(lua_State *s) {
   using namespace luabind;
 
-  module(s)[class_<Camera>("Camera").def(
-      constructor<>())];
+  module(s)[class_<Camera>("Camera")
+                .def(constructor<>())
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 
   module(
       s)[class_<Cam, Camera>("Cam")
@@ -77,7 +94,8 @@ void Cam::luaBind(lua_State *s) {
              .property("post_sdl", (QString(Cam::*)(void)) & Cam::getPostSDL,
                        (void(Cam::*)(QString)) & Cam::setPostSDL)
 
-             .def(tostring(const_self))];
+             .def(tostring(const_self))
+             .def(const_self == const_self)];
 }
 
 // see

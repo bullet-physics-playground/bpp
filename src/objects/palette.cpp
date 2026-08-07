@@ -26,6 +26,8 @@ std::ostream &operator<<(std::ostream &ostream, const Palette &pal) {
   return ostream;
 }
 
+bool operator==(const Palette &a, const Palette &b) { return &a == &b; }
+
 #include <luabind/operator.hpp>
 
 Palette::Palette(QString fileName) : QObject() {
@@ -106,7 +108,8 @@ void Palette::luaBind(lua_State *s) {
                 .def(constructor<QString>(), adopt(result))
                 .def("getRandomColor", &Palette::getRandomColor)
                 .def("setSeed", &Palette::setSeed)
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QString Palette::toString() const { return QString("Palette"); }

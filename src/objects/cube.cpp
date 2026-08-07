@@ -67,7 +67,8 @@ void Cube::luaBind(lua_State *s) {
                      adopt(result))
                 .def(constructor<const btVector3 &>(), adopt(result))
                 .def(constructor<const btVector3 &, btScalar>(), adopt(result))
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QString Cube::toString() const { return QString("Cube"); }

@@ -299,6 +299,7 @@ module(s)[class_<Mesh, Object>("Mesh")
                  .property("shape", &Mesh::getShape, &Mesh::setShape)
                  .property("mesh", &Mesh::getTriangleMesh,
                            &Mesh::setTriangleMesh)
+                 .def(const_self == const_self)
 
   ];
 }

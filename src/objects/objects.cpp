@@ -18,7 +18,8 @@ void Objects::luaBind(lua_State *s) {
 
   module(s)[class_<Objects, Object>("Objects")
                 .def(constructor<>(), adopt(result))
-                .def(tostring(const_self))];
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
 }
 
 QList<Object *> Objects::getObjects() const {
