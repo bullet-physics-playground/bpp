@@ -116,6 +116,8 @@ void SoftBody::luaBind(lua_State *s) {
 
                 .property("nodeCount", &SoftBody::getNodeCount)
                 .property("faceCount", &SoftBody::getFaceCount)
+                .property("contactCount", &SoftBody::getContactCount)
+                .def("getContact", &SoftBody::getContact)
 
                 .def("translate", &SoftBody::translate)
                 .def("rotate", &SoftBody::rotate)
@@ -349,4 +351,17 @@ int SoftBody::getNodeCount() const {
 
 int SoftBody::getFaceCount() const {
   return m_softBody != nullptr ? m_softBody->m_faces.size() : 0;
+}
+
+int SoftBody::getContactCount() const {
+  return m_softBody != nullptr ? m_softBody->m_rcontacts.size() : 0;
+}
+
+RigidSoftContact SoftBody::getContact(int i) const {
+  if (m_softBody == nullptr || i < 0 || i >= m_softBody->m_rcontacts.size())
+    return RigidSoftContact();
+
+  const btSoftBody::RContact &rc = m_softBody->m_rcontacts[i];
+  int nodeIndex = rc.m_node - &m_softBody->m_nodes[0];
+  return RigidSoftContact(nodeIndex, rc);
 }

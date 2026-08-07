@@ -29,6 +29,7 @@
 #include "objects/object.h"
 #include "objects/objects.h"
 #include "objects/plane.h"
+#include "objects/rigidsoftcontact.h"
 #include "objects/softbody.h"
 #include "objects/sphere.h"
 #include "objects/triangle.h"
@@ -1497,6 +1498,7 @@ emit scriptStarts();
 #endif
     Palette::luaBind(L);
     Plane::luaBind(L);
+    RigidSoftContact::luaBind(L);
     SoftBody::luaBind(L);
     Sphere::luaBind(L);
     Triangle::luaBind(L);

@@ -21,6 +21,7 @@ This directory contains a collection of basic examples for the Bullet Physics Pl
 *   `14-spline-flythrough.lua`: A demo that animates the camera along a spline path, tracking different objects.
 *   `15-space-navigator.lua`: This script demonstrates how to capture and respond to SpaceNavigator 3D mouse input. Without a registered callback the 3D mouse navigates the camera: X/Y/Z push translates (X strafes right, Y moves along the view direction, Z moves up/down) and RX/RY/RZ rotates, in both Fly (first-person) and Object (orbit) modes. Navigation is configurable via the SpaceNavigator page of the Preferences dialog (Fly/Object mode, lock horizon, auto fly speed, show orbit axis, forward/back direction, pan) and via the `v.snMode`, `v.snLockHorizon`, `v.snAutoFlySpeed`, `v.snShowOrbitAxis`, `v.snZoomForward` and `v.snPanZoom` Lua properties.
 *   `16-softbody.lua`: This demo shows the basic usage of the `SoftBody` class (a Bullet cloth patch): a cloth sheet dropped onto a static box and the ground so it drapes and deforms, plus a smaller patch pinned along one edge and blown by a constant wind force to make a waving flag.
+*   `17-rigid-soft-contact.lua`: This demo shows the basic usage of the `RigidSoftContact` class: a read-only snapshot of one of Bullet's soft-vs-rigid collision contacts (`btSoftBody::RContact`). A cloth patch is dropped onto the ground, and each `postSim` step queries `SoftBody.contactCount` and `SoftBody:getContact(i)` to print the touching node, contact position, normal, friction and which rigid body was touched.
 
 ## How to Run
 

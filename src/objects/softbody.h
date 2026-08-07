@@ -2,6 +2,7 @@
 #define SOFTBODY_H
 
 #include "object.h"
+#include "rigidsoftcontact.h"
 
 #include <btBulletDynamicsCommon.h>
 
@@ -81,6 +82,13 @@ public:
 
   int getNodeCount() const;
   int getFaceCount() const;
+
+  // Rigid-soft contacts (btSoftBody::RContact / m_rcontacts) currently
+  // touching this soft body: Bullet regenerates the whole array from
+  // scratch every simulation step, so these are read-only snapshots, not
+  // live handles. Call after a simulation step (e.g. from postSim).
+  int getContactCount() const;
+  RigidSoftContact getContact(int i) const;
 
   // Drops the raw btSoftBody pointer without deleting it. Mirrors
   // Mesh::luaRelease(): called by Viewer during teardown after the soft
