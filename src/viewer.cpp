@@ -674,7 +674,10 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _initialCameraHorizontalFieldOfView = 0.5;
   _initialCameraUpVector = Vec(0, 1, 0);
 
-  _light0 = btVector4(100.0, 200.0, 100.0, 0.4);
+  // Matches the POV-Ray light_source <500,500,500> in includes/settings.inc.
+  // POV-Ray is left-handed, OpenGL is right-handed, so Z is negated (see
+  // Object::povMatrixFromGL()).
+  _light0 = btVector4(500.0, 500.0, -500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, -200.0, 0.2);
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -1588,7 +1591,10 @@ void Viewer::clear() {
     _cam->setUpVector(btVector3(0, 1, 0), true);
   }
 
-  _light0 = btVector4(100.0, 200.0, 100.0, 0.4);
+  // Matches the POV-Ray light_source <500,500,500> in includes/settings.inc.
+  // POV-Ray is left-handed, OpenGL is right-handed, so Z is negated (see
+  // Object::povMatrixFromGL()).
+  _light0 = btVector4(500.0, 500.0, -500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, -200.0, 0.2);
 
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
@@ -1787,7 +1793,10 @@ void Viewer::init() {
 
   showEntireScene();
 
-  _light0 = btVector4(100.0, 200.0, 100.0, 0.4);
+  // Matches the POV-Ray light_source <500,500,500> in includes/settings.inc.
+  // POV-Ray is left-handed, OpenGL is right-handed, so Z is negated (see
+  // Object::povMatrixFromGL()).
+  _light0 = btVector4(500.0, 500.0, -500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, -200.0, 0.2);
 
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
