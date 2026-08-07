@@ -84,7 +84,6 @@ signals:
 private:
   void keyPressEvent(QKeyEvent *e);
   void updateGUI();
-  void removeDefaultSettings();
   void setupPages();
 
 private:

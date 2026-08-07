@@ -59,9 +59,7 @@ Prefs::Prefs(QSettings *settings, QWidget *parent) : QDialog(parent) {
   updateGUI();
 }
 
-Prefs::~Prefs() {
-  removeDefaultSettings();
-}
+Prefs::~Prefs() = default;
 
 void Prefs::setupPages() {
   bool openLastFile = _settings->value("gui/openlastfile", false).toBool();
@@ -381,15 +379,6 @@ void Prefs::keyPressEvent(QKeyEvent *e) {
       if ((e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_W) ||
           e->key() == Qt::Key_Escape) {
     close();
-  }
-}
-
-void Prefs::removeDefaultSettings() {
-  for (QSettings::SettingsMap::const_iterator iter = this->defaultmap.begin();
-       iter != this->defaultmap.end(); iter++) {
-    if (_settings->value(iter.key()) == iter.value()) {
-      _settings->remove(iter.key());
-    }
   }
 }
 
