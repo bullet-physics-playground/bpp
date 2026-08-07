@@ -242,8 +242,12 @@ void Gui::loadLastFile() {
 void Gui::fileLoad(const QString &path) {
   QFile file(path);
 
+  QString filePath = path;
+  if (!filePath.isEmpty() && filePath != "no_name")
+    filePath = QFileInfo(filePath).absoluteFilePath();
+
   settings->beginGroup("mainwindow");
-  settings->setValue("lastFile", path);
+  settings->setValue("lastFile", filePath);
   settings->endGroup();
   settings->sync();
 
