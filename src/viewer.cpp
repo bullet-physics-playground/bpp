@@ -806,8 +806,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
             emit statusEvent(QString("SpaceNavigator: %1").arg(message));
           });
   const bool snOpened = _spaceNavigator->open();
-  qDebug() << "SNOPEN" << snOpened
-           << (snOpened ? _spaceNavigator->devicePath() : QString("none"));
   if (snOpened) {
     emit statusEvent(QString("SpaceNavigator detected: %1")
                          .arg(_spaceNavigator->devicePath()));
