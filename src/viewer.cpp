@@ -2679,7 +2679,11 @@ void Viewer::addParam(const QString &name, const btScalar &value, const btScalar
   if (L) {
     lua_State *ls = L;
     lua_pushstring(ls, name.toUtf8().constData());
-    lua_pushinteger(ls, value);
+    // Use lua_pushnumber (not lua_pushinteger) so fractional defaults
+    // (e.g. addParam("rate", 0.12, ...)) survive the round trip through
+    // the Lua global that getParam() reads back, instead of being
+    // truncated to 0.
+    lua_pushnumber(ls, value);
     lua_setglobal(ls, name.toUtf8().constData());
   }
 
