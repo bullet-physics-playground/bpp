@@ -234,12 +234,12 @@ local channelLen = lastRow.x + 8
 local zw1 = Cube(channelLen, topY - botY, 0.2, 0)
 zw1.pos = btVector3(lastRow.x / 2, (topY + botY) / 2, CHANNEL_Z + 0.1)
 zw1.col = "darkblue"
-zw1.transparency = 0.9
+zw1.transparency = 0.5
 v:add(zw1)
 local zw2 = Cube(channelLen, topY - botY, 0.2, 0)
 zw2.pos = btVector3(lastRow.x / 2, (topY + botY) / 2, -CHANNEL_Z - 0.1)
 zw2.col = "darkblue"
-zw2.transparency = 0.9
+zw2.transparency = 0.5
 v:add(zw2)
 
 -- ---------------------------------------------------------------------
@@ -366,5 +366,5 @@ v:postSim(function(N)
 end)
 
 common.setCamera(btVector3(2.62242, 15.8954, -28.7863),
-                 btVector3(499.773, -581198, 813722), nil,
+                 btVector3(centerX, centerY, 0), nil,
                  { up = btVector3(0.00180565, 0.81375, 0.581213) })
