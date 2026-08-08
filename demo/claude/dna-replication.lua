@@ -92,7 +92,36 @@
 -- growing outward from their own template, one on each side of the
 -- original helix, rather than the whole helix visually splitting in two.
 --
--- Usage: bpp -n 600 -f demo/koppi/dna-replication.lua
+-- The whole cell cycle is gated by the cell cycle control system -- a
+-- system of specialized "stop-sign" proteins. Three checkpoints monitor
+-- critical transitions: the G1 (main) checkpoint before replication (size,
+-- nutrients, intact DNA -- p53, the "guardian of the genome", either
+-- initiates repair or, for severe damage, commits the cell to programmed
+-- cell death / apoptosis), the G2 checkpoint before mitosis (DNA copied
+-- completely and without errors), and the M (spindle) checkpoint at
+-- metaphase (every chromosome correctly attached to the spindle, blocking
+-- anaphase until it is). The molecular control center is the cyclin/CDK
+-- system: cyclins rise and fall in waves, CDKs are always present but only
+-- become active when a matching cyclin binds them, and an active cyclin-CDK
+-- complex phosphorylates targets to trigger the next phase. When a
+-- checkpoint detects damage, CDK inhibitors (CKI, e.g. p21/p27) bind the
+-- complex and halt the cycle. Live params expose each gate: dnaDamageCheckpoint
+-- (G1 arrest, p53-mediated, reversible on repair), apoptosis (p53 commits
+-- the cell to death -- the cycle stops permanently), g2CheckpointDamage /
+-- overrideG2Checkpoint (the G2 gate), and mCheckpointFail (the M gate).
+--
+-- Replication happens before every division, so the story does not stop at
+-- the first cytokinesis: the demo follows the daughter cells' lineage into
+-- a second generation. After the first division the whole cell cycle
+-- (G1 -> S -> G2 -> M -> cytokinesis) genuinely re-runs on the
+-- semi-conservatively inherited DNA -- whose sequence is unchanged, so the
+-- exact same fork/origin machinery replays it -- with the new generation's
+-- strands laid down as the next outer layer of the growing molecule stack.
+-- The lineage is followed for MAX_GENERATIONS rounds of division (the two
+-- daughters of a division are genetically identical, so one lineage is
+-- exact); set the live enterG0 param to stop after the first division.
+--
+-- Usage: bpp -n 3200 -f demo/koppi/dna-replication.lua
 --
 
 local color  = require "color"
@@ -246,6 +275,17 @@ local PROTEIN_DOMAIN_ATOMS = {
   { 0, 0, 0, 1.0 }, { 0.5, 0.3, 0.25, 0.7 }, { -0.3, -0.35, 0.2, 0.6 },
 }
 
+-- A mitochondrion: an elongated, slightly bent double-membrane rod -- the
+-- classic bean-shaped organelle -- shown during cytokinesis as the
+-- cytoplasm's organelles are shared out between the two daughter cells.
+local MITO_ATOMS = {
+  { 0, 0, 0, 1.0 },
+  { 0.45, 0.12, 0.05, 0.7 },
+  { -0.45, 0.12, 0.05, 0.7 },
+  { 0.2, -0.35, 0.08, 0.6 },
+  { -0.2, -0.3, -0.05, 0.55 },
+}
+
 --
 -- Biology tables
 --
@@ -282,6 +322,12 @@ local HISTONE_COL      = "#c9a876" -- histone octamer, DNA wraps around it to fo
 local COHESIN_COL      = "#7788cc" -- cohesin, rings the two sister chromatids together
 local MMR_COL          = "#cc6699" -- mismatch repair complex, a second chance for escaped errors
 local CHECKPOINT_COL   = "#ffee66" -- G2/M checkpoint flash
+local P53_COL          = "#cc66ff" -- p53, the "guardian of the genome", at the G1 checkpoint
+local CKI_COL          = "#ff5555" -- CDK inhibitor (p21/p27), blocks cyclin-CDK to halt the cycle
+local CYCLIN_CDK_COL   = "#ff9966" -- an active cyclin-CDK complex (e.g. cyclin B-CDK1, MPF)
+local ENVELOPE_COL     = "#aaccee" -- nuclear envelope / cell membrane ring marker
+local SPINDLE_POLE_COL = "#ffaa44" -- centrosome / spindle pole
+local SPINDLE_FIBER_COL = "#eeeeaa" -- spindle fiber (microtubule)
 
 --
 -- 1. Elongation kinetics (Michaelis-Menten): v = Vmax*[dNTP] / (Km+[dNTP]).
@@ -384,7 +430,77 @@ local rotationAngle = 0
 -- over UNTWIST_STEPS once postSim sees replication complete (see basePos()
 -- below for how this actually straightens each strand).
 local UNTWIST_STEPS   = 240
-local untwistProgress = 0
+local M = {
+  currentStage = nil, -- G1/S/G2/M/G0 -- see setStage below
+  untwistProgress = 0,
+  decatenationProgress = 0,
+  condensationProgress = 0,
+  anaphaseProgress = 0,
+  recoilProgress = 0, -- post-mitotic re-coiling of the two daughter duplexes into visible
+                      -- double helices (see basePos/updateRecoil): ramps 0->1 once anaphase ends
+  recoilAnnounced = false,
+  histoneMarkers = {}, -- { obj=, bp=, strand= }
+  cohesinRing = nil,
+  spindlePole1 = nil, spindlePole2 = nil,
+  spindleFiber1 = nil, spindleFiber2 = nil,
+  newEnvelopeRing1 = nil, newEnvelopeRing2 = nil,
+  totalSynthesized = 0,
+  replicationAnnounced = false,
+  untwistAnnounced = false,
+  decatenationAnnounced = false,
+  phiRampProgress = 0, -- steps of G1->S progress banked so far (frozen during checkpoint arrest)
+  chromatinStarted = false,
+  chromatinStepCounter = 0,
+  chromatinSpawnIndex = 0,
+  chromatinAnnounced = false,
+  mmrStarted = false,
+  mmrStepCounter = 0,
+  mmrIndex = 0,
+  mmrMarker = nil,
+  mmrAnnounced = false,
+  prophaseStarted = false,
+  prophaseStepCounter = 0,
+  prophaseAnnounced = false,
+  breakdownEnvelope = nil,
+  metaphaseStarted = false,
+  metaphaseStepCounter = 0,
+  metaphaseAnnounced = false,
+  anaphaseStarted = false,
+  anaphaseAnnounced = false,
+  telophaseStarted = false,
+  telophaseStepCounter = 0,
+  telophaseAnnounced = false,
+  cytokinesisAnnounced = false,
+  cytokinesisStarted = false,
+  cytokinesisStepCounter = 0,
+  cleavageFurrow = nil,   -- the constricting actin ring, animal cells (updateCytokinesis)
+  cellPlate = nil,        -- the outward-growing dividing wall, plant cells (updateCytokinesis)
+  mitochondria1 = {}, -- { obj=, dy=, dz= } -- organelles orbiting with daughter cell 1
+  mitochondria2 = {}, -- same, for daughter cell 2
+  cyclinB = 0,        -- the cyclin B wave, 0..1 (see updateCyclinWave)
+  ckiActive = false,  -- a CDK inhibitor is currently blocking the cyclin-CDK complex
+  g1CheckpointAnnounced = false, -- G1 (main) checkpoint has reported DNA damage (see updateG1Checkpoint)
+  g1RepairAnnounced = false,
+  p53Marker = nil,    -- p53, the "guardian of the genome", while the G1 checkpoint holds
+  g1CkiMarker = nil,  -- the p21 CDK-inhibitor marker, while the G1 checkpoint holds
+  g2Passed = false,   -- G2 checkpoint gate: replication verified, mitosis allowed
+  g2Arrested = false,
+  g2Announced = false,
+  g2CkiMarker = nil,  -- CDK-inhibitor marker at the G2 checkpoint, while it blocks mitosis
+  mCheckpointAnnounced = false, -- M (spindle) checkpoint has reported a misattachment
+  mCheckpointPassed = false,    -- M checkpoint satisfied: anaphase may begin
+  mArrested = false,
+  mCkiMarker = nil,   -- CDK-inhibitor marker at the M checkpoint, while it blocks anaphase
+  apoptosis = false,  -- p53-mediated programmed cell death has been triggered
+  generation = 1,     -- which generation's cell cycle is running (see MAX_GENERATIONS /
+                      -- transitionToNextGeneration): each is a fresh G1 -> S -> G2 -> M
+  genOutwardOffset = 0.8, -- outward layer this generation's new strands are laid at (see
+                          -- chainPos): generation 1 at 0.8, generation 2 at 1.6, etc.
+  membraneRing1 = nil, -- daughter cell 1's cell membrane ring, created at cytokinesis
+  membraneRing2 = nil, -- same, daughter cell 2 (both removed at the next generation's start)
+  pendingTransition = false, -- a generation has finished; hold, then call transitionToNextGeneration
+  genHoldCounter = 0,        -- steps remaining in the post-cytokinesis hold (see GEN_HOLD_STEPS)
+}
 
 -- Once untwisting is done, the two straightened daughter duplexes are still
 -- topologically interlinked (catenated) from having been wound around each
@@ -395,7 +511,6 @@ local untwistProgress = 0
 -- in basePos() below, ramped from 0 to 1 over DECATENATION_STEPS.
 local DECATENATION_STEPS = 150
 local DECATENATION_SEP   = 3.5    -- how far apart (world Z, each way) the two molecules end up
-local decatenationProgress = 0
 
 -- Chromatin repackaging: once decatenated, each daughter duplex gets a
 -- histone marker every NUCLEOSOME_BP_STEP bp (nucleosomes are DNA wrapped
@@ -414,6 +529,111 @@ local CENTROMERE_BP             = math.floor(NBP / 2)
 -- MMR_STEP_INTERVAL steps so the repair pass reads as a gradual scan of
 -- the genome rather than an instant fix-up.
 local MMR_STEP_INTERVAL = 15
+
+-- Mitosis (PMAT + cytokinesis), once the checkpoint passes:
+--
+-- Prophase: M.condensationProgress (see basePos()) ramps 0->1 over
+-- PROPHASE_STEPS, compressing each chromatid's length toward
+-- CONDENSE_RISE_SCALE of its full extension, symmetrically around the
+-- centromere (so it condenses in place rather than sliding toward one
+-- end) -- the same trick M.untwistProgress already uses on TWIST, just
+-- applied to RISE instead. The original nuclear envelope (both sister
+-- chromatids' shared one) is shown briefly, then breaks down.
+--
+-- Metaphase: spindle fibers (pole-to-centromere) hold for METAPHASE_STEPS.
+--
+-- Anaphase: M.anaphaseProgress (see basePos()) ramps 0->1 over
+-- ANAPHASE_STEPS, adding ANAPHASE_EXTRA_SEP more world-Z separation on
+-- top of decatenation's own -- POLE_DISTANCE is set so each chromatid's
+-- centromere reaches exactly its pole's position once anaphase completes.
+--
+-- Telophase: M.condensationProgress ramps back down over TELOPHASE_STEPS
+-- (decondensing), and a new envelope ring forms around each pole's set.
+--
+-- Cytokinesis: unlike mitosis (which only duplicates the nucleus), this
+-- divides the whole cell -- the cytoplasm and its organelles are shared
+-- between the two daughter regions. Animal cells pinch apart via a
+-- contractile actin ring (cleavage furrow, see updateCytokinesis); plant
+-- cells instead grow a cell plate outward from the center to build a new
+-- dividing wall. Each daughter then gets its own cell membrane, and the
+-- two independent cells immediately begin the interphase (G1 -> S -> G2)
+-- of their own new cell cycle -- or, with the enterG0 param, exit into the
+-- G0 resting phase instead.
+--
+-- All of these are rendered as sparse RINGS of small marker spheres (see
+-- createEnvelopeRing below), not one large solid sphere: an early
+-- experiment confirmed that a big mass-0 sphere overlapping this scene's
+-- many small dynamic bodies (wobbling bases, floating molecules) violently
+-- ejects them every one of Bullet's contact solver -- btCollisionObject's
+-- CF_NO_CONTACT_RESPONSE flag IS a real, working Lua-bound setter
+-- (confirmed directly, unlike Object's own collision-type setter, which
+-- isn't bound at all), but setting it made no measurable difference in
+-- that same test, so a large solid collider had to be avoided outright
+-- rather than merely flagged. A sparse ring of small markers (each about
+-- the same scale as markers already used safely elsewhere in this file)
+-- sidesteps the problem instead of trying to solve it.
+local CONDENSE_RISE_SCALE    = 0.12
+local PROPHASE_STEPS         = 200
+local PROPHASE_ENVELOPE_HOLD = 30    -- steps the original envelope stays visible before breaking down
+local METAPHASE_STEPS        = 100
+local ANAPHASE_STEPS         = 150
+local ANAPHASE_EXTRA_SEP     = 4.0
+local POLE_DISTANCE          = DECATENATION_SEP + ANAPHASE_EXTRA_SEP
+local TELOPHASE_STEPS        = 150
+local ENVELOPE_RING_R        = 4.5   -- radius of the original (breaking-down) nuclear envelope ring
+local NEW_ENVELOPE_RING_R    = 2.2   -- radius of each new nuclear envelope, around one decondensed set
+local CELL_MEMBRANE_RING_R   = 3.5   -- radius of each daughter cell's own membrane, at cytokinesis
+local ENVELOPE_RING_N        = 14    -- marker spheres per envelope/membrane ring
+
+-- Cytokinesis (actual cell division) runs over CYTOKINESIS_STEPS once
+-- telophase finishes. Animal cells (default): a contractile ring of actin
+-- fibers constricts the cell in the middle (the cleavage furrow), shown
+-- here as a marker ring shrinking from just outside the final membrane
+-- radius down toward nothing at the cleavage plane. Plant cells (set the
+-- live plantCell param): constriction is impossible through the rigid cell
+-- wall, so instead a cell plate forms in the center and grows from the
+-- inside out to build a new dividing wall -- a marker ring expanding from
+-- the center out to the membrane radius. Either way the cytoplasm's
+-- organelles (mitochondria, MITOCHONDRION_COUNT per cell) are distributed
+-- between the two daughter regions while the division proceeds, and only
+-- when it completes do the two independent cells each get their own cell
+-- membrane (see updateCytokinesis).
+local CYTOKINESIS_STEPS     = 120   -- steps for the furrow to constrict / the plate to form
+local CYTOKINESIS_RING_N    = 18    -- marker spheres per cleavage-furrow / cell-plate ring
+local CLEAVAGE_FURROW_COL   = "#f0ecd0" -- the actin contractile ring, animal cells
+local CELL_PLATE_COL        = "#7fbf7f" -- the growing cell plate / new dividing wall, plant cells
+local MITOCHONDRION_COL     = "#d0525a" -- mitochondria, shared out between the daughter cells
+local MITOCHONDRION_COUNT   = 6     -- mitochondria spawned per daughter region
+
+-- Cell lineage: after each cytokinesis the demo follows the daughter cells'
+-- lineage into a new cell cycle -- see transitionToNextGeneration. The
+-- whole S phase and mitosis machinery genuinely re-runs for the next
+-- generation on the semi-conservatively inherited DNA, with its freshly
+-- synthesized strands laid down as the next outer layer (GEN_LAYER_SPACING
+-- further from the template helix, see chainPos). MAX_GENERATIONS caps the
+-- demo at two rounds of division; the live enterG0 param stops after the
+-- first division instead. (These three and the generation functions below
+-- are deliberately global: Lua 5.1 caps the main chunk at 200 local
+-- variables and this file already sits within a few of that limit.)
+GEN_LAYER_SPACING = 0.8 -- outward offset between one generation's strands and the next
+MAX_GENERATIONS   = 2   -- rounds of division modeled (generations 1 and 2)
+GEN_HOLD_STEPS    = 90  -- steps the completed division stays visible before the next
+                        -- generation re-coils and begins (see M.pendingTransition)
+RECOIL_STEPS      = 150 -- steps for each finished daughter duplex to coil back into a
+                        -- visible double helix after anaphase (see updateRecoil/basePos)
+
+-- The cyclin/CDK control system (see updateCyclinWave): cyclin
+-- concentrations rise and fall in waves through the cell cycle. M.cyclinB
+-- (a representative cyclin B wave) accumulates through interphase, crests
+-- at metaphase, and crashes at anaphase when APC/C degrades it. CDKs are
+-- always present but only become active when the matching cyclin binds
+-- them; an active cyclin-CDK complex then phosphorylates targets to
+-- trigger the start of the next phase. When any checkpoint detects damage,
+-- a CDK inhibitor (CKI, see CKI_COL) binds the complex and the wave is
+-- held back, halting the cycle.
+local CYCLIN_B_RISE  = 1 / 1000     -- per-step accumulation of the cyclin B wave through interphase
+local CYCLIN_B_DECAY = 1 / ANAPHASE_STEPS -- APC/C-mediated crash per step of anaphase
+
 
 -- Rotates pos by `angle` radians around the vertical (Y) axis.
 local rotateY = common.rotateY
@@ -470,19 +690,33 @@ end
 --
 
 -- World-space position of nucleotide `strand` (1 or 2) at base-pair index i.
--- The per-bp angular step scales down by (1 - untwistProgress): normally
--- (0) this is the full helical TWIST; once replication finishes and
--- untwistProgress ramps to 1 (see postSim), every bp's angle collapses to
--- the same constant (0 for strand 1, pi for strand 2), so the strand
--- straightens from a spiral into a flat vertical line. Once untwisted,
--- decatenationProgress (see postSim) then pushes each strand's whole
--- daughter duplex further apart along world Z -- +Z for strand 1, -Z for
--- strand 2 -- so the two finished molecules visibly separate.
+-- The per-bp angular step scales with (1 - M.untwistProgress +
+-- M.recoilProgress): normally (both 0) this is the full helical TWIST; once
+-- replication finishes and M.untwistProgress ramps to 1 (see postSim),
+-- every bp's angle collapses to the same constant (0 for strand 1, pi for
+-- strand 2), so the strand straightens from a spiral into a flat vertical
+-- line. Once untwisted, M.decatenationProgress (see postSim) then pushes
+-- each strand's whole daughter duplex further apart along world Z -- +Z for
+-- strand 1, -Z for strand 2 -- so the two finished molecules visibly
+-- separate; anaphase later adds ANAPHASE_EXTRA_SEP more Z separation the
+-- same way. Y itself compresses symmetrically around the centromere's own Y
+-- position as M.condensationProgress ramps 0->1 during prophase (and back
+-- during telophase), so the chromatid condenses/decondenses in place rather
+-- than sliding toward one end. Once anaphase has separated the two finished
+-- duplexes, M.recoilProgress (see updateRecoil) ramps 0->1, re-adding the
+-- full TWIST so each daughter duplex coils back around its own center into
+-- a visible double helix -- the two helix structures each daughter cell
+-- carries away from the division.
 local function basePos(i, strand)
-  local angle = (i - 1) * TWIST * (1 - untwistProgress)
+  local twistOn = 1 - M.untwistProgress + M.recoilProgress
+  local angle = (i - 1) * TWIST * twistOn
   if strand == 2 then angle = angle + math.pi end
-  local y = (i - 1) * RISE
-  local zSep = (strand == 1 and 1 or -1) * DECATENATION_SEP * decatenationProgress
+  local rawY = (i - 1) * RISE
+  local centromereY = (CENTROMERE_BP - 1) * RISE
+  local condenseScale = 1 - M.condensationProgress * (1 - CONDENSE_RISE_SCALE)
+  local y = centromereY + (rawY - centromereY) * condenseScale
+  local zSep = (strand == 1 and 1 or -1) *
+    (DECATENATION_SEP * M.decatenationProgress + ANAPHASE_EXTRA_SEP * M.anaphaseProgress)
   return btVector3(RADIUS * math.cos(angle), y, RADIUS * math.sin(angle) + zSep)
 end
 
@@ -498,6 +732,17 @@ end
 -- Pushes a point further out, away from the helix's central (vertical) axis,
 -- used to place each new daughter strand clear of the original DNA geometry.
 local outwardOffset = common.outwardOffset
+
+-- World-space position of a freshly synthesized nucleotide on the current
+-- generation's new strand: pushed outward from its template base by this
+-- generation's layer offset (M.genOutwardOffset). Generation 2's strands sit
+-- one GEN_LAYER_SPACING further out than generation 1's, so the second
+-- cycle's new chains never collide with the first cycle's (which stay in
+-- the scene as the earlier generation's settled chromosomes -- see
+-- transitionToNextGeneration).
+function chainPos(i, strand)
+  return rotateY(outwardOffset(basePos(i, strand), M.genOutwardOffset), rotationAngle)
+end
 
 -- Quaternion that rotates a Cylinder's local +Z axis (its default, resting
 -- orientation, see Cylinder::renderInLocalFrame) to point from p1 to p2, so
@@ -657,6 +902,29 @@ local function removeEnzymeCluster(cluster)
   for _, s in ipairs(cluster) do v:remove(s) end
 end
 
+-- A sparse ring of ENVELOPE_RING_N small marker spheres around `center`,
+-- radius `ringR`, in the Y-Z plane (facing the fixed camera, which sits out
+-- along +X) -- the nuclear envelope / cell membrane's visual stand-in. See
+-- the mitosis header comment near CONDENSE_RISE_SCALE for why this is a
+-- sparse ring rather than one large solid sphere.
+local function createEnvelopeRing(center, ringR, col)
+  local ring = {}
+  for k = 0, ENVELOPE_RING_N - 1 do
+    local a = k * (2 * math.pi / ENVELOPE_RING_N)
+    local m = MoleculeBlob(0.12, 0, SINGLE_ATOM)
+    m.col = col
+    m.pos = btVector3(center.x, center.y + ringR * math.cos(a), center.z + ringR * math.sin(a))
+    v:add(m)
+    ring[#ring + 1] = m
+  end
+  return ring
+end
+
+local function removeEnvelopeRing(ring)
+  if ring == nil then return end
+  for _, m in ipairs(ring) do v:remove(m) end
+end
+
 -- Transient enzyme markers (primase, exonuclease, ligase) that flash at
 -- the site of their action and disappear again -- unlike the persistent,
 -- fork-tracking helicase/polymerase markers. `currentStep` is refreshed
@@ -692,11 +960,11 @@ end
 -- still priming -- so this tracks the FURTHEST phase reached by ANY fork
 -- so far, monotonically, rather than trying to model each fork's own
 -- (much noisier) independent phase separately. Phases 1-4 reuse the exact
--- wording already printed once in preStart's header; 5-11 cover what
+-- wording already printed once in preStart's header; 5-16 cover what
 -- happens after Phase 4 finishes in a real cell -- completion, untwisting,
--- decatenation, chromatin repackaging, mismatch repair, and finally the
--- G2/M checkpoint gate -- see the postSim block below for each one's own
--- trigger.
+-- decatenation, chromatin repackaging, mismatch repair, the G2/M
+-- checkpoint gate, and then mitosis itself (PMAT + cytokinesis) -- see the
+-- postSim block below for each one's own trigger.
 local PHASE_NAMES = {
   [1]  = "Phase 1 Initiation: topoisomerase + helicase unwind the helix, SSB proteins coat the exposed single strands",
   [2]  = "Phase 2 Priming: primase lays an RNA primer for polymerase to extend from",
@@ -708,7 +976,12 @@ local PHASE_NAMES = {
   [8]  = "Decatenation: topoisomerase II unlinks the two interlinked daughter helices",
   [9]  = "Chromatin repackaging: histones reassemble into nucleosomes, cohesin links the sister chromatids",
   [10] = "Mismatch repair: escaped replication errors get one further chance at correction",
-  [11] = "Cell cycle checkpoint: replication verified complete -- the cell may proceed toward mitosis",
+  [11] = "G2 checkpoint: the DNA must be copied completely and without errors -- only then does the cell proceed toward mitosis",
+  [12] = "Prophase: chromatin condenses into a visible chromosome, the nuclear envelope breaks down, the spindle begins to form",
+  [13] = "Metaphase: the spindle is fully formed and aligns the chromosome at the equatorial plane",
+  [14] = "Anaphase: spindle fibers shorten and pull the separated sister chromatids toward opposite poles",
+  [15] = "Telophase: chromosomes decondense at the poles and a new nuclear envelope forms around each set",
+  [16] = "Cytokinesis: the cytoplasm divides -- a cleavage furrow pinches the cell apart (animal) or a cell plate builds a new wall (plant) -- producing two independent, genetically identical daughter cells",
 }
 
 local currentPhase = 0 -- 0 = nothing has happened yet; preStart below advances it to 1
@@ -717,6 +990,34 @@ local function setPhase(n)
   if n <= currentPhase then return end -- monotonic: never re-announce an earlier/current phase
   currentPhase = n
   print("[Phase] " .. PHASE_NAMES[n])
+end
+
+-- A coarser G1/S/G2/M cell-cycle STAGE indicator, layered on top of
+-- PHASE_NAMES/setPhase above rather than replacing it: G1 (growth -- the
+-- cell grows, produces proteins, and multiplies its organelles) is the
+-- window this demo already spends ramping Phi(t) up and licensing origins
+-- before any actually fires, so no new mechanics are needed for it -- it's
+-- simply relabeled. S (synthesis -- DNA is completely duplicated, one
+-- chromatid becomes two) begins the moment the first origin actually
+-- fires (Phase 2); G2 (preparation -- continued growth, checking the
+-- freshly replicated DNA for errors, final preparation for mitosis) begins
+-- once the core replication machinery finishes (Phase 5) and covers
+-- untwisting/decatenation/chromatin/mismatch-repair/checkpoint; M
+-- (mitosis) begins at Prophase (Phase 12). Once cytokinesis (Phase 16)
+-- has actually divided the cell, the two independent daughter cells
+-- immediately begin the interphase of their own new cell cycle -- G1 is
+-- announced again, and the interphase runs G1 -> S -> G2 -> the next
+-- mitosis. The G0 special case (not all cells keep dividing: mature nerve
+-- and muscle cells exit after G1) is available through the live enterG0
+-- param, which instead sends the daughters straight into the G0 resting
+-- phase, performing their specialized functions and never dividing again.
+-- Unlike setPhase, this isn't keyed by a monotonic number -- there are
+-- only these few values, always visited in the same order, so a simple
+-- "did it change" check is enough.
+local function setStage(name, blurb)
+  if M.currentStage == name then return end
+  M.currentStage = name
+  print("[Stage] " .. name .. ": " .. blurb)
 end
 
 -- Build the original double helix: two backbones of colored nucleotide
@@ -954,7 +1255,7 @@ local function createFork(originIndex, dir)
 
   local leadAnchor = MoleculeBlob(0.1, 0, PYRIMIDINE_ATOMS)
   leadAnchor.col = PRIMER_COL
-  leadAnchor.pos = rotateY(outwardOffset(basePos(originIndex, 1), 0.8), rotationAngle)
+  leadAnchor.pos = chainPos(originIndex, 1)
   v:add(leadAnchor)
   -- Primase lays this leading-strand primer too -- the very first one at
   -- this origin -- exactly like it does for every lagging-strand
@@ -1009,7 +1310,7 @@ local function extendLeadingStrand(fork, i)
 
   local nuc = MoleculeBlob(0.13, 0.05, baseAtoms(base))
   nuc.col = isMutation and MUTATION_COL or BASE_COLOR[base]
-  nuc.pos = rotateY(outwardOffset(basePos(i, 1), 0.8), rotationAngle)
+  nuc.pos = chainPos(i, 1)
   v:add(nuc)
   if isMutation then
     print(string.format(
@@ -1033,7 +1334,7 @@ local function extendLaggingStrand(fork, i)
   if fork.lagPrimer == nil then
     fork.lagPrimer = MoleculeBlob(0.1, 0, PYRIMIDINE_ATOMS)
     fork.lagPrimer.col = PRIMER_COL
-    fork.lagPrimer.pos = rotateY(outwardOffset(basePos(i, 2), 0.8), rotationAngle)
+    fork.lagPrimer.pos = chainPos(i, 2)
     v:add(fork.lagPrimer)
     fork.lagPrimers[#fork.lagPrimers + 1] = { obj = fork.lagPrimer, i = i }
     fork.lagChainEnd = fork.lagPrimer
@@ -1058,7 +1359,7 @@ local function extendLaggingStrand(fork, i)
 
   local nuc = MoleculeBlob(0.13, 0.05, baseAtoms(base))
   nuc.col = isMutation and MUTATION_COL or BASE_COLOR[base]
-  nuc.pos = rotateY(outwardOffset(basePos(i, 2), 0.8), rotationAngle)
+  nuc.pos = chainPos(i, 2)
   v:add(nuc)
   if isMutation then
     print(string.format(
@@ -1156,12 +1457,26 @@ v:preStart(function(N)
     "and generic DNA-scanning proteins (transcription factors, repair enzymes) -- tune " ..
     "brownianForce live to see them jostle more or less",
     #floatingMolecules))
+  print("4. Cell cycle control: three checkpoints -- G1 (main: size, nutrients, intact " ..
+        "DNA before replication; p53 repairs or triggers apoptosis), G2 (DNA copied " ..
+        "completely and without errors before mitosis), and M / spindle (every chromosome " ..
+        "attached to the spindle before anaphase). Cyclins rise and fall in waves; CDKs " ..
+        "are always present but only active when a cyclin binds, phosphorylating to start " ..
+        "the next phase; CDK inhibitors (p21/p27) halt the cycle when a checkpoint fails. " ..
+        "Live params: dnaDamageCheckpoint (G1 arrest), apoptosis (p53 commits the cell to " ..
+        "death), g2CheckpointDamage/overrideG2Checkpoint (G2 gate), mCheckpointFail (M gate)")
+  print("5. Cell lineage: the demo follows one cell's lineage across generations. After the " ..
+        "first cytokinesis the daughter cells enter G1 of their own cycle, and the whole " ..
+        "process re-runs for a second generation -- S replication of the same " ..
+        "(semi-conservatively inherited) DNA, then G2 and the next mitosis, with the new " ..
+        "strands laid down as a fresh outer layer. enterG0 stops after the first division.")
   print("")
   print("Strand 1 (template for the lagging daughter, 5'->3'): " .. table.concat(strand1))
   local s2 = {}
   for i = 1, NBP do s2[i] = strand2Base(i) end
   print("Strand 2 (template for the leading daughter, 5'->3'):  " .. table.concat(s2))
   print("")
+  setStage("G1", "the cell grows, produces proteins, and multiplies its organelles")
   setPhase(1)
 end)
 
@@ -1175,8 +1490,20 @@ v:addParam("mmrEfficiency", 0.7, 0, 0.999)       -- post-replication mismatch re
 v:addParam("wobbleForce", 3.0, 0, 8)             -- magnitude of the per-step random thermal force
 v:addParam("brownianForce", 0.5, 0, 3)           -- jitter magnitude for floating background molecules
 v:addParam("cdkActivity", 1.0, 0, 1.5)           -- CDK2/4/6 activity, the other half of Drive D(t)
-v:addParam("dnaDamageCheckpoint", false)         -- ATR/ATM-style checkpoint: clamps Phi(t) near 0,
-                                                  -- reversibly arresting all NEW origin firing
+v:addParam("dnaDamageCheckpoint", false)         -- G1 (main) checkpoint: DNA damage detected before replication.
+                                                  -- p53 induces p21, clamping Phi(t) near 0 and reversibly
+                                                  -- arresting all NEW origin firing (clear = damage repaired)
+v:addParam("apoptosis", false)                   -- severe, irreparable damage at the G1 checkpoint: p53 commits
+                                                  -- the cell to programmed cell death -- the cycle halts permanently
+v:addParam("g2CheckpointDamage", false)          -- G2 checkpoint: extra damage detected after replication
+                                                  -- (besides any uncorrected mutations), blocking entry into mitosis
+v:addParam("overrideG2Checkpoint", false)        -- force-release the G2 checkpoint block, letting mitosis proceed
+v:addParam("mCheckpointFail", false)             -- M (spindle) checkpoint: a chromatid is not attached to the
+                                                  -- spindle, blocking anaphase (clear once every fiber is anchored)
+v:addParam("plantCell", false)                   -- plant-style cytokinesis: an outward-growing cell plate
+                                                  -- instead of an animal actin cleavage furrow
+v:addParam("enterG0", false)                     -- after cytokinesis the daughter cells exit into the G0
+                                                  -- resting phase instead of entering a new G1 interphase
 
 -- preSim: Called before each physics step. Nudges every base of the
 -- original helix with a small random force, like the thermal jostling of
@@ -1231,6 +1558,70 @@ local function forkLivePos(f)
   end
 end
 
+-- Chromatin repackaging markers (see postSim's spawnChromatinStep): every
+-- bp in nucleosomeBps gets one histone marker per daughter duplex, plus a
+-- single cohesin ring at the centromere -- both repositioned every frame
+-- below, exactly like every other persistent marker in this function.
+local nucleosomeBps = {}
+for i = 1, NBP, NUCLEOSOME_BP_STEP do nucleosomeBps[#nucleosomeBps + 1] = i end
+
+-- Mitosis markers (see postSim's updateProphase/updateMetaphase/
+-- updateTelophase): spindle poles are fixed points that spin along with
+-- rotationAngle like everything else; fibers connect a pole to its own
+-- chromatid's centromere and are recreated each frame since that distance
+-- genuinely changes (shortening through anaphase); the two new nuclear
+-- envelope rings (telophase) each track their own chromatid the same way
+-- the cohesin ring already tracks both.
+
+-- Repositions every mitosis marker above, once per frame. Split out from
+-- rotateSceneGeometry itself (called as its last step) rather than inlined
+-- there, so rotateSceneGeometry's OWN upvalue count doesn't grow further --
+-- see the postSim upvalue-limit note near CONDENSE_RISE_SCALE for why a
+-- single closure capturing too much of this file's shared state is a real,
+-- already-hit problem here (Lua 5.1 caps a closure at 60 upvalues).
+local function repositionMitosisMarkers()
+  local centromereY = (CENTROMERE_BP - 1) * RISE
+  if M.spindlePole1 ~= nil then
+    M.spindlePole1.pos = rotateY(btVector3(0, centromereY, POLE_DISTANCE), rotationAngle)
+  end
+  if M.spindlePole2 ~= nil then
+    M.spindlePole2.pos = rotateY(btVector3(0, centromereY, -POLE_DISTANCE), rotationAngle)
+  end
+  if M.spindleFiber1 ~= nil then
+    local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    v:remove(M.spindleFiber1)
+    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, SPINDLE_FIBER_COL)
+  end
+  if M.spindleFiber2 ~= nil then
+    local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    v:remove(M.spindleFiber2)
+    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, SPINDLE_FIBER_COL)
+  end
+  if M.newEnvelopeRing1 ~= nil then
+    local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    for k, m in ipairs(M.newEnvelopeRing1) do
+      local a = (k - 1) * (2 * math.pi / ENVELOPE_RING_N)
+      m.pos = btVector3(c1.x, c1.y + NEW_ENVELOPE_RING_R * math.cos(a), c1.z + NEW_ENVELOPE_RING_R * math.sin(a))
+    end
+  end
+  if M.newEnvelopeRing2 ~= nil then
+    local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    for k, m in ipairs(M.newEnvelopeRing2) do
+      local a = (k - 1) * (2 * math.pi / ENVELOPE_RING_N)
+      m.pos = btVector3(c2.x, c2.y + NEW_ENVELOPE_RING_R * math.cos(a), c2.z + NEW_ENVELOPE_RING_R * math.sin(a))
+    end
+  end
+  -- Cytokinesis organelles: the mitochondria distributed at the start of
+  -- division orbit with their own daughter cell, which sits at roughly
+  -- world Z = +/-POLE_DISTANCE once anaphase is done.
+  for _, mito in ipairs(M.mitochondria1) do
+    mito.obj.pos = rotateY(btVector3(0, centromereY + mito.dy, POLE_DISTANCE + mito.dz), rotationAngle)
+  end
+  for _, mito in ipairs(M.mitochondria2) do
+    mito.obj.pos = rotateY(btVector3(0, centromereY + mito.dy, -POLE_DISTANCE + mito.dz), rotationAngle)
+  end
+end
+
 local function rotateSceneGeometry()
   for i = 1, NBP do
     local pos1 = rotateY(basePos(i, 1), rotationAngle)
@@ -1260,7 +1651,11 @@ local function rotateSceneGeometry()
 
   for _, f in ipairs(forks) do
     local livePos = forkLivePos(f)
-    f.topoisomerase.pos = rotateY(basePos(clampBp(livePos + f.dir * SSB_LOOKAHEAD), 1), rotationAngle)
+    -- topoisomerase is removed (set nil) once mitosis's prophase begins,
+    -- vestigial by then -- see updateProphase.
+    if f.topoisomerase ~= nil then
+      f.topoisomerase.pos = rotateY(basePos(clampBp(livePos + f.dir * SSB_LOOKAHEAD), 1), rotationAngle)
+    end
     -- The CMG helicase's hexameric ring stays centered on the helix's own
     -- axis (encircling the whole duplex) at the fork's current position,
     -- and spins along with rotationAngle like everything else.
@@ -1268,9 +1663,9 @@ local function rotateSceneGeometry()
     for k, hs in ipairs(f.helicase) do
       hs.pos = ringPositions[k]
     end
-    f.leadAnchor.pos = rotateY(outwardOffset(basePos(f.startIndex, 1), 0.8), rotationAngle)
+    f.leadAnchor.pos = chainPos(f.startIndex, 1)
     for _, p in ipairs(f.lagPrimers) do
-      p.obj.pos = rotateY(outwardOffset(basePos(p.i, 2), 0.8), rotationAngle)
+      p.obj.pos = chainPos(p.i, 2)
     end
 
     -- Daughter-strand backbone cylinders connect two real dynamic (or
@@ -1287,35 +1682,715 @@ local function rotateSceneGeometry()
       updateDynamicBackbone(b)
     end
   end
+
+  for _, h in ipairs(M.histoneMarkers) do
+    h.obj.pos = rotateY(outwardOffset(basePos(h.bp, h.strand), 0.8), rotationAngle)
+  end
+  if M.cohesinRing ~= nil then
+    local posA = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    local posB = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    v:remove(M.cohesinRing)
+    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COHESIN_COL)
+  end
+
+  repositionMitosisMarkers()
 end
 
-local totalSynthesized = 0
-local replicationAnnounced = false
-local untwistAnnounced = false
-local decatenationAnnounced = false -- true once decatenationProgress reaches 1
-local phiRampProgress = 0 -- steps of G1->S progress banked so far (frozen during checkpoint arrest)
 
--- Chromatin repackaging state: nucleosomeBps lists every bp that gets a
--- histone marker (see NUCLEOSOME_BP_STEP), on both daughter duplexes;
--- chromatinSpawnIndex walks through that combined list two-at-a-time (one
--- histone per strand per visited bp), CHROMATIN_SPAWN_INTERVAL steps apart.
--- histoneMarkers/cohesinRing are repositioned every frame in
--- rotateSceneGeometry, same as every other persistent marker.
-local nucleosomeBps = {}
-for i = 1, NBP, NUCLEOSOME_BP_STEP do nucleosomeBps[#nucleosomeBps + 1] = i end
-local chromatinSpawnIndex = 0
-local chromatinAnnounced = false
-local histoneMarkers = {} -- { obj=, bp=, strand= }
-local cohesinRing = nil
+-- Chromatin repackaging state (nucleosomeBps/M.histoneMarkers/M.cohesinRing are
+-- declared earlier, right before rotateSceneGeometry, since that function
+-- repositions M.histoneMarkers/M.cohesinRing every frame and needs them already
+-- in scope): M.chromatinSpawnIndex walks through nucleosomeBps two-at-a-time
+-- (one histone per strand per visited bp), CHROMATIN_SPAWN_INTERVAL steps apart.
 
--- Mismatch repair state: mmrIndex walks through mutationSites one at a
--- time, MMR_STEP_INTERVAL steps apart (see postSim); mmrMarker is the
+-- Mismatch repair state: M.mmrIndex walks through mutationSites one at a
+-- time, MMR_STEP_INTERVAL steps apart (see postSim); M.mmrMarker is the
 -- transient repair-complex marker shown at whichever site is being visited.
-local mmrIndex = 0
-local mmrMarker = nil
-local mmrAnnounced = false
 
-local checkpointAnnounced = false
+
+-- Decatenation (see basePos()'s M.decatenationProgress-driven Z offset):
+-- once untwisted, the two straight daughter duplexes are still catenated,
+-- so topoisomerase II unlinks them and they drift apart.
+local function updateDecatenation()
+  if not (M.untwistAnnounced and M.decatenationProgress < 1) then return end
+  if M.decatenationProgress == 0 then
+    setPhase(8)
+    print("Topoisomerase II passes one daughter helix through a transient break in " ..
+          "the other, resolving their interlinking -- the two molecules drift apart.")
+  end
+  M.decatenationProgress = math.min(1, M.decatenationProgress + 1 / DECATENATION_STEPS)
+  if M.decatenationProgress >= 1 and not M.decatenationAnnounced then
+    M.decatenationAnnounced = true
+    print("Decatenation complete: the two daughter double helices are now fully " ..
+          "independent molecules.")
+  end
+end
+
+-- Chromatin repackaging: once decatenated, spawn one histone marker per
+-- strand at each bp in nucleosomeBps, CHROMATIN_SPAWN_INTERVAL steps
+-- apart, plus a single cohesin ring at the centromere (created once, then
+-- kept live every frame by rotateSceneGeometry).
+local function updateChromatinPackaging()
+  if not (M.decatenationAnnounced and not M.chromatinAnnounced) then return end
+  if not M.chromatinStarted then
+    M.chromatinStarted = true
+    setPhase(9)
+    print("Histones begin reassembling into nucleosomes along each daughter duplex, " ..
+          "and cohesin rings the two sister chromatids together at the centromere.")
+    local posA = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    local posB = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COHESIN_COL)
+  end
+  M.chromatinStepCounter = M.chromatinStepCounter + 1
+  if M.chromatinStepCounter >= CHROMATIN_SPAWN_INTERVAL and M.chromatinSpawnIndex < #nucleosomeBps then
+    M.chromatinStepCounter = 0
+    M.chromatinSpawnIndex = M.chromatinSpawnIndex + 1
+    local bp = nucleosomeBps[M.chromatinSpawnIndex]
+    for strand = 1, 2 do
+      local h = MoleculeBlob(0.24, 0, PROTEIN_ATOMS)
+      h.col = HISTONE_COL
+      h.pos = rotateY(outwardOffset(basePos(bp, strand), 0.8), rotationAngle)
+      v:add(h)
+      M.histoneMarkers[#M.histoneMarkers + 1] = { obj = h, bp = bp, strand = strand }
+    end
+    if M.chromatinSpawnIndex >= #nucleosomeBps then
+      M.chromatinAnnounced = true
+      print(string.format(
+        "Chromatin repackaging complete: %d nucleosomes assembled per daughter strand.",
+        #nucleosomeBps))
+    end
+  end
+end
+
+-- Mismatch repair: once chromatin is packaged, visit every escaped
+-- mutation (mutationSites, recorded in extendLeadingStrand/
+-- extendLaggingStrand) one at a time, MMR_STEP_INTERVAL steps apart, each
+-- with its own independent (mmrEfficiency) chance at correction.
+local function updateMismatchRepair()
+  if not (M.chromatinAnnounced and not M.mmrAnnounced) then return end
+  if not M.mmrStarted then
+    M.mmrStarted = true
+    setPhase(10)
+    if #mutationSites == 0 then
+      print("Mismatch repair scans the genome: no escaped errors remain to correct.")
+    else
+      print(string.format(
+        "Mismatch repair scans the genome for the %d error(s) that escaped proofreading.",
+        #mutationSites))
+    end
+  end
+  M.mmrStepCounter = M.mmrStepCounter + 1
+  if M.mmrStepCounter < MMR_STEP_INTERVAL then return end
+  M.mmrStepCounter = 0
+  if M.mmrMarker ~= nil then
+    removeEnzymeCluster(M.mmrMarker)
+    M.mmrMarker = nil
+  end
+  if M.mmrIndex < #mutationSites then
+    M.mmrIndex = M.mmrIndex + 1
+    local site = mutationSites[M.mmrIndex]
+    M.mmrMarker = createEnzymeCluster(site.obj.pos, MMR_COL, 0.09, 4)
+    if math.random() < v:getParam("mmrEfficiency") then
+      site.obj.col = BASE_COLOR[site.correctBase]
+      site.repaired = true
+      mutationStats.mmrCaught = mutationStats.mmrCaught + 1
+      print("Mismatch repair corrects an escaped error to " .. site.correctBase)
+    else
+      print("Mismatch repair passes over an escaped error and leaves it uncorrected")
+    end
+  else
+    M.mmrAnnounced = true
+    print(string.format(
+      "Mismatch repair complete: %d of %d escaped error(s) corrected, %d persist as " ..
+      "permanent mutations in the final genome.",
+      mutationStats.mmrCaught, mutationStats.escaped,
+      mutationStats.escaped - mutationStats.mmrCaught))
+  end
+end
+
+-- The cyclin/CDK wave (see the cyclin constants above): the representative
+-- cyclin B concentration rises through interphase, holds at its peak
+-- through prophase/metaphase, and crashes at anaphase as APC/C degrades
+-- it. A CDK inhibitor (a failed G1/G2/M checkpoint) holds the wave back:
+-- cyclin still accumulates, but the CKI blocks the active cyclin-CDK
+-- complex, so the cycle cannot progress. Updates M.cyclinB each step.
+local function updateCyclinWave()
+  if M.apoptosis then return end
+  if M.anaphaseStarted then
+    M.cyclinB = math.max(0.05, M.cyclinB - CYCLIN_B_DECAY)
+  elseif not M.ckiActive then
+    M.cyclinB = math.min(1, M.cyclinB + CYCLIN_B_RISE)
+  end
+end
+
+-- Apoptosis: if the G1 checkpoint's damage is severe and irreparable, p53
+-- commits the cell to programmed cell death rather than repair. The cell
+-- cycle freezes, the DNA condenses and darkens, and the background
+-- molecular crowd is dismantled -- see the postSim guard below.
+local function triggerApoptosis()
+  M.apoptosis = true
+  M.ckiActive = true
+  setStage("apoptosis", "the damage is severe and irreparable: p53 activates programmed cell death")
+  print("The damage is severe and irreparable: p53 activates apoptosis. The cell shrinks, " ..
+        "its DNA condenses and fragments, and it is quietly dismantled -- a fail-safe " ..
+        "that protects the organism from a damaged cell.")
+  for _, nuc in ipairs(wobblers) do nuc.col = "#3a3a3a" end
+  for _, m in ipairs(floatingMolecules) do v:remove(m.obj) end
+end
+
+-- G1 checkpoint (the main/restriction checkpoint): before replication the
+-- cell checks whether it is large enough, has sufficient nutrients, and
+-- possesses intact DNA. The live dnaDamageCheckpoint param simulates DNA
+-- damage at this gate: p53 -- the "guardian of the genome" -- detects it,
+-- induces the CDK inhibitor p21, and the cycle halts before any origin
+-- fires (see postSim's Phi clamp). Clearing the param = the damage was
+-- repaired; p53 clears, p21 is released, and cyclin E-CDK2 resumes driving
+-- S-phase entry. The severe, irreparable case is the live apoptosis param:
+-- p53 commits the cell to programmed cell death instead (triggerApoptosis)
+-- and the cycle stops permanently.
+local function updateG1Checkpoint()
+  if M.apoptosis or currentPhase > 4 then return end -- the G1/S interphase window
+  if v:getParam("apoptosis") then
+    triggerApoptosis()
+    return
+  end
+  local damaged = v:getParam("dnaDamageCheckpoint")
+  if damaged and not M.g1CheckpointAnnounced then
+    M.g1CheckpointAnnounced = true
+    M.ckiActive = true
+    local pos = originAxisPos(ORIGIN_INDICES[1])
+    M.p53Marker = MoleculeBlob(0.18, 0, PROTEIN_ATOMS)
+    M.p53Marker.col = P53_COL
+    M.p53Marker.pos = pos
+    v:add(M.p53Marker)
+    M.g1CkiMarker = createEnzymeCluster(btVector3(pos.x, pos.y - 0.6, pos.z), CKI_COL, 0.09, 4)
+    print("G1 checkpoint (main): the cell checks whether it is large enough, has " ..
+          "sufficient nutrients, and possesses intact DNA before replication begins.")
+    print("DNA damage is detected: p53 (the 'guardian of the genome') induces the CDK " ..
+          "inhibitor p21, which blocks cyclin E-CDK2 -- the cycle halts and no origins fire.")
+  elseif not damaged and M.g1CheckpointAnnounced and not M.g1RepairAnnounced then
+    M.g1RepairAnnounced = true
+    M.ckiActive = false
+    if M.p53Marker ~= nil then v:remove(M.p53Marker); M.p53Marker = nil end
+    if M.g1CkiMarker ~= nil then removeEnzymeCluster(M.g1CkiMarker); M.g1CkiMarker = nil end
+    local pos = rotateY(originAxisPos(ORIGIN_INDICES[1]), rotationAngle)
+    spawnTimedEnzyme(pos, CYCLIN_CDK_COL, 0.12, 5)
+    print("G1 checkpoint passes: the damage is repaired, p21 is cleared, and cyclin " ..
+          "E-CDK2 becomes active again, driving S-phase entry.")
+  end
+end
+
+-- G2 checkpoint (phase 11): immediately before mitosis, the cell verifies
+-- that the DNA has been copied completely and without errors. Damage --
+-- uncorrected mutations that escaped proofreading AND mismatch repair, or
+-- the live g2CheckpointDamage param -- blocks entry into mitosis: the CDK
+-- inhibitor keeps cyclin B-CDK1 (MPF) inactive until the damage is
+-- rectified (clear g2CheckpointDamage) or the block is overridden (the
+-- live overrideG2Checkpoint param). Once passed, active MPF phosphorylates
+-- mitotic targets and drives the cell into mitosis.
+local function updateCellCycleCheckpoint()
+  if not (M.mmrAnnounced and not M.g2Passed) then return end
+  setPhase(11)
+  local persistent = mutationStats.escaped - mutationStats.mmrCaught
+  local g2Damage = v:getParam("g2CheckpointDamage")
+  if (persistent > 0 or g2Damage) and not v:getParam("overrideG2Checkpoint") then
+    if not M.g2Announced then
+      M.g2Announced = true
+      M.g2Arrested = true
+      M.ckiActive = true
+      local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 1.6), rotationAngle)
+      M.g2CkiMarker = createEnzymeCluster(ckiPos, CKI_COL, 0.1, 4)
+      print(string.format(
+        "G2 checkpoint: DNA replication verified complete, but damage is still present " ..
+        "(%d uncorrected mutation(s) persist in the final genome%s).",
+        persistent, g2Damage and " and g2CheckpointDamage is set" or ""))
+      print("The CDK inhibitor binds cyclin B-CDK1 (MPF): entry into mitosis is blocked " ..
+            "until the damage is rectified. Clear g2CheckpointDamage or set " ..
+            "overrideG2Checkpoint to release the block.")
+    end
+    return
+  end
+  if not M.g2Passed then
+    M.g2Passed = true
+    M.g2Arrested = false
+    M.ckiActive = false
+    if M.g2CkiMarker ~= nil then removeEnzymeCluster(M.g2CkiMarker); M.g2CkiMarker = nil end
+    local checkpointPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 1.6), rotationAngle)
+    spawnTimedEnzyme(checkpointPos, CYCLIN_CDK_COL, 0.15, 5)
+    if M.g2Announced then
+      print("G2 checkpoint passes: the damage is rectified -- active cyclin B-CDK1 (MPF) " ..
+            "phosphorylates mitotic targets and drives the cell into mitosis.")
+    else
+      print(string.format(
+        "G2 checkpoint passes: the DNA was copied completely and without errors " ..
+        "(%d mutation(s) persist in the final genome) -- active cyclin B-CDK1 (MPF) " ..
+        "phosphorylates mitotic targets and drives the cell into mitosis.",
+        persistent))
+    end
+  end
+end
+
+-- Prophase (12): chromatin begins condensing (M.condensationProgress, see
+-- basePos()), the original nuclear envelope -- shared by both sister
+-- chromatids up to this point -- is shown briefly, then breaks down, and
+-- the spindle apparatus begins to form as two centrosomes take up position
+-- at opposite poles. Leftover fork markers (topoisomerase/helicase) are
+-- cleaned up here too: vestigial by this point, and safe to remove
+-- outright since neither ever had a constraint attached to it (unlike the
+-- daughter-strand chain nucleotides, which do, and are deliberately left
+-- alone here for exactly that reason -- removing a body while a
+-- btPoint2PointConstraint still references it is a real crash/corruption
+-- risk this file has no way to clean up, since those constraints were
+-- never kept in a table to remove them by).
+
+local function updateProphase()
+  if not (M.g2Passed and not M.prophaseAnnounced) then return end
+  if not M.prophaseStarted then
+    M.prophaseStarted = true
+    setPhase(12)
+    setStage("M", "mitosis: PMAT + cytokinesis, the two-chromatid 2C chromosomes return to 1C")
+    print("Chromatin begins condensing into a compact, visible chromosome as the cell " ..
+          "commits to mitosis.")
+    print("The mitotic CDK wave crests: cyclin B-CDK1 (MPF) is at its peak as the cell " ..
+          "enters prophase.")
+    for _, f in ipairs(forks) do
+      if f.topoisomerase ~= nil then
+        v:remove(f.topoisomerase)
+        f.topoisomerase = nil
+      end
+      for _, hs in ipairs(f.helicase) do v:remove(hs) end
+      f.helicase = {}
+    end
+    local center = rotateY(btVector3(0, (CENTROMERE_BP - 1) * RISE, 0), rotationAngle)
+    M.breakdownEnvelope = createEnvelopeRing(center, ENVELOPE_RING_R, ENVELOPE_COL)
+    M.spindlePole1 = MoleculeBlob(0.35, 0, PROTEIN_ATOMS)
+    M.spindlePole1.col = SPINDLE_POLE_COL
+    v:add(M.spindlePole1)
+    M.spindlePole2 = MoleculeBlob(0.35, 0, PROTEIN_ATOMS)
+    M.spindlePole2.col = SPINDLE_POLE_COL
+    v:add(M.spindlePole2)
+    repositionMitosisMarkers() -- give the poles their first real position immediately
+    print("The spindle apparatus begins to form as two centrosomes take up position at " ..
+          "opposite poles.")
+  end
+  M.prophaseStepCounter = M.prophaseStepCounter + 1
+  if M.prophaseStepCounter == PROPHASE_ENVELOPE_HOLD and M.breakdownEnvelope ~= nil then
+    removeEnvelopeRing(M.breakdownEnvelope)
+    M.breakdownEnvelope = nil
+    print("The nuclear envelope breaks down.")
+  end
+  M.condensationProgress = math.min(1, M.prophaseStepCounter / PROPHASE_STEPS)
+  if M.prophaseStepCounter >= PROPHASE_STEPS and not M.prophaseAnnounced then
+    M.prophaseAnnounced = true
+    print("Prophase complete: the chromosome is fully condensed and clearly visible.")
+  end
+end
+
+-- Metaphase (13): the spindle fully forms -- a fiber reaches from each
+-- pole to capture its own chromatid's centromere -- and holds the
+-- (already essentially centered) chromosome at the equatorial plane.
+
+local function updateMetaphase()
+  if not (M.prophaseAnnounced and not M.metaphaseAnnounced) then return end
+  if not M.metaphaseStarted then
+    M.metaphaseStarted = true
+    setPhase(13)
+    local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, SPINDLE_FIBER_COL)
+    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, SPINDLE_FIBER_COL)
+    print("The spindle apparatus is fully formed, its fibers reaching in to capture each " ..
+          "sister chromatid's centromere.")
+  end
+  M.metaphaseStepCounter = M.metaphaseStepCounter + 1
+  -- M checkpoint (spindle checkpoint): the cell only gives the signal for
+  -- anaphase once every chromosome is correctly attached to the spindle.
+  -- The live mCheckpointFail param simulates a misattached chromatid: APC/C
+  -- stays inhibited, cyclin B is not yet degraded, and anaphase is blocked
+  -- until every fiber is anchored (clear the param). This prevents daughter
+  -- cells from receiving too many or too few chromosomes.
+  if M.metaphaseStepCounter >= METAPHASE_STEPS and not M.mCheckpointPassed then
+    if v:getParam("mCheckpointFail") then
+      if not M.mCheckpointAnnounced then
+        M.mCheckpointAnnounced = true
+        M.mArrested = true
+        M.ckiActive = true
+        local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 1.6), rotationAngle)
+        M.mCkiMarker = createEnzymeCluster(ckiPos, CKI_COL, 0.1, 4)
+        print("M checkpoint (spindle checkpoint): a sister chromatid is not correctly " ..
+              "attached to the spindle -- APC/C stays inhibited, cyclin B is not yet " ..
+              "degraded, and anaphase is blocked, preventing daughter cells from " ..
+              "receiving too many or too few chromosomes.")
+        print("Clear mCheckpointFail once every fiber is properly anchored to release the block.")
+      end
+    else
+      M.mCheckpointPassed = true
+      M.metaphaseAnnounced = true
+      M.mArrested = false
+      M.ckiActive = false
+      if M.mCkiMarker ~= nil then removeEnzymeCluster(M.mCkiMarker); M.mCkiMarker = nil end
+      local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 1.6), rotationAngle)
+      spawnTimedEnzyme(ckiPos, CYCLIN_CDK_COL, 0.15, 5)
+      if M.mCheckpointAnnounced then
+        print("M checkpoint satisfied: every spindle fiber is now properly anchored -- " ..
+              "APC/C is released and the signal to separate is given.")
+      else
+        print("M checkpoint (spindle checkpoint) satisfied: every chromosome is correctly " ..
+              "attached to the spindle -- the signal to separate is given.")
+      end
+      print("Metaphase complete: both chromatids are aligned at the equatorial plane, " ..
+            "held by cohesin and captured by spindle fibers from both poles.")
+    end
+  end
+end
+
+-- Anaphase (14): cohesin dissolves at the centromere, and the spindle
+-- fibers shorten (see repositionMitosisMarkers) as M.anaphaseProgress (see
+-- basePos()) pulls each sister chromatid the rest of the way to its pole.
+
+local function updateAnaphase()
+  if not (M.metaphaseAnnounced and not M.anaphaseAnnounced) then return end
+  if not M.anaphaseStarted then
+    M.anaphaseStarted = true
+    setPhase(14)
+    if M.cohesinRing ~= nil then
+      v:remove(M.cohesinRing)
+      M.cohesinRing = nil
+    end
+    print("APC/C releases its inhibition and degrades cyclin B: the mitotic CDK wave " ..
+          "crashes, inactivating CDK1 and allowing the cell to exit mitosis.")
+    print("Cohesin dissolves at the centromere -- the spindle fibers shorten, pulling " ..
+          "the sister chromatids apart toward opposite poles.")
+  end
+  M.anaphaseProgress = math.min(1, M.anaphaseProgress + 1 / ANAPHASE_STEPS)
+  if M.anaphaseProgress >= 1 and not M.anaphaseAnnounced then
+    M.anaphaseAnnounced = true
+    print("Anaphase complete: two full sets of chromosomes now sit at opposite poles.")
+  end
+end
+
+-- Post-mitotic re-coiling (see basePos): once anaphase has fully separated
+-- the two finished daughter duplexes, each coils back into a compact,
+-- visible double helix around its own center -- the two helix structures
+-- the daughter cells carry away -- ramping M.recoilProgress 0->1 over
+-- RECOIL_STEPS while telophase decondenses them and the new envelopes form
+-- around each one. Rendered as the two strands of each duplex (the original
+-- template plus its freshly synthesized partner) spiraling together around
+-- that duplex's own axis.
+function updateRecoil()
+  if not (M.anaphaseAnnounced and M.recoilProgress < 1) then return end
+  M.recoilProgress = math.min(1, M.recoilProgress + 1 / RECOIL_STEPS)
+  if M.recoilProgress >= 1 and not M.recoilAnnounced then
+    M.recoilAnnounced = true
+    print("The two finished daughter double helices coil back into their compact spiral " ..
+          "forms -- a full double helix now sits at each pole, one per daughter cell.")
+  end
+end
+
+-- Telophase (15): the spindle disassembles, each chromatid decondenses
+-- back toward its original, relaxed length (M.condensationProgress reverses
+-- here), and a new nuclear envelope ring forms around each pole's set.
+
+local function updateTelophase()
+  if not (M.anaphaseAnnounced and not M.telophaseAnnounced) then return end
+  if not M.telophaseStarted then
+    M.telophaseStarted = true
+    setPhase(15)
+    if M.spindleFiber1 ~= nil then v:remove(M.spindleFiber1); M.spindleFiber1 = nil end
+    if M.spindleFiber2 ~= nil then v:remove(M.spindleFiber2); M.spindleFiber2 = nil end
+    if M.spindlePole1 ~= nil then v:remove(M.spindlePole1); M.spindlePole1 = nil end
+    if M.spindlePole2 ~= nil then v:remove(M.spindlePole2); M.spindlePole2 = nil end
+    local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    M.newEnvelopeRing1 = createEnvelopeRing(c1, NEW_ENVELOPE_RING_R, ENVELOPE_COL)
+    M.newEnvelopeRing2 = createEnvelopeRing(c2, NEW_ENVELOPE_RING_R, ENVELOPE_COL)
+    print("The spindle apparatus disassembles as the chromosomes begin to decondense " ..
+          "and a new nuclear envelope forms around each pole's set.")
+  end
+  M.telophaseStepCounter = M.telophaseStepCounter + 1
+  M.condensationProgress = math.max(0, 1 - M.telophaseStepCounter / TELOPHASE_STEPS)
+  if M.telophaseStepCounter >= TELOPHASE_STEPS and not M.telophaseAnnounced then
+    M.telophaseAnnounced = true
+    print("Telophase complete: the chromosomes have decondensed and nuclear division " ..
+          "is complete.")
+  end
+end
+
+-- Cytokinesis (16): the cytoplasm itself divides, each new nucleus getting
+-- its own cell membrane -- the final step, producing two independent,
+-- genetically identical daughter cells.
+
+-- A sparse ring of CYTOKINESIS_RING_N small markers centered at the
+-- cleavage-plane midpoint (0, centromere Y, 0) in the Y-Z plane (facing the
+-- camera), at radius `ringR` -- the stand-in for both the animal cleavage
+-- furrow (shrinking) and the plant cell plate (growing). The midpoint lies
+-- on the helix's own Y axis, a fixed point under rotateY, so these markers
+-- never need per-frame repositioning (same reasoning as originAxisPos).
+local function setCytokinesisRingRadius(ring, ringR)
+  for k, m in ipairs(ring) do
+    local a = (k - 1) * (2 * math.pi / CYTOKINESIS_RING_N)
+    m.pos = btVector3(0, (CENTROMERE_BP - 1) * RISE + ringR * math.cos(a), ringR * math.sin(a))
+  end
+end
+
+local function createCytokinesisRing(ringR, col)
+  local ring = {}
+  for k = 0, CYTOKINESIS_RING_N - 1 do
+    local m = MoleculeBlob(0.1, 0, SINGLE_ATOM)
+    m.col = col
+    v:add(m)
+    ring[#ring + 1] = m
+  end
+  setCytokinesisRingRadius(ring, ringR)
+  return ring
+end
+
+local function removeCytokinesisRing(ring)
+  if ring == nil then return end
+  for _, m in ipairs(ring) do v:remove(m) end
+end
+
+-- Spawns MITOCHONDRION_COUNT mitochondria near daughter cell `cellSign`
+-- (+1 or -1, its Z sign from decatenation/anaphase separation), each at a
+-- random (dy, dz) offset within its cell's membrane disk, in the
+-- pre-rotation frame; repositionMitosisMarkers rotates them into place
+-- every frame so they stay in step with the cell they belong to.
+local function spawnMitochondria(list, cellSign)
+  for _ = 1, MITOCHONDRION_COUNT do
+    local m = MoleculeBlob(0.13, 0, MITO_ATOMS)
+    m.col = MITOCHONDRION_COL
+    v:add(m)
+    list[#list + 1] = {
+      obj = m,
+      dy = (math.random() * 2 - 1) * 2.2,
+      dz = (math.random() * 2 - 1) * 2.2,
+      cell = cellSign,
+    }
+  end
+end
+
+-- Rebuilds the hydrogen-bond rungs of the central double helix, which the
+-- previous generation's forks removed one by one as they unwound it. The
+-- two original strands are still present (their tether anchors follow
+-- basePos), so a fresh, intact chromosome reappears -- the daughter cell's
+-- own double helix beginning its cycle. rotateSceneGeometry re-spans every
+-- rung from the live base positions each frame, so small settling errors
+-- here self-correct immediately.
+function rebuildRungs()
+  for i = 1, NBP do
+    if rungs[i] == nil then
+      local rungR = (strand1[i] == "A" or strand1[i] == "T") and RUNG_R_WEAK or RUNG_R_STRONG
+      rungs[i] = createRungCylinders(baseSpheres1[i].pos, baseSpheres2[i].pos,
+                                     BASE_COLOR[strand1[i]], BASE_COLOR[strand2Base(i)], rungR)
+    end
+  end
+end
+
+-- Re-initializes the origin/ORC machinery for a fresh generation: rebuilds
+-- the origins table (unresolved, unlicensed, no MCM markers yet) and places
+-- a new ORC marker at each origin sequence, whose rung is re-marked bright
+-- orange. Returns the fresh table; see transitionToNextGeneration.
+function reinitOrigins()
+  local fresh = {}
+  for k, index in ipairs(ORIGIN_INDICES) do
+    local rung = rungs[index]
+    if rung ~= nil then
+      rung.col1, rung.col2 = ORIGIN_COL, ORIGIN_COL
+      if rung.cy1 ~= nil then rung.cy1.col = ORIGIN_COL end
+      if rung.cy2 ~= nil then rung.cy2.col = ORIGIN_COL end
+    end
+    local orc = Cube(0.2, 0.2, 0.2, 0)
+    orc.col = ORC_COL
+    orc.pos = originAxisPos(index)
+    v:add(orc)
+    fresh[k] = {
+      index = index,
+      A = ORIGIN_A[k],
+      C = ORIGIN_C[k],
+      resolved = false,
+      licensed = false,
+      orcMarker = orc,
+      mcmMarker = nil,
+    }
+  end
+  return fresh
+end
+
+-- Moves the demo into the next generation's cell cycle (see
+-- updateCytokinesis): cleans up the finished generation's visual artifacts
+-- (mitochondria, membrane/envelope rings, histones, cohesin, stray SSBs),
+-- coils the daughter chromosome back into an intact double helix, rebuilds
+-- its rungs and origin licensing markers, and resets every per-generation
+-- piece of the fork/mitosis machinery -- so the G1 ramp, S-phase origin
+-- firing and fork synthesis, G2 checkpoint, and the next PMAT + cytokinesis
+-- all genuinely re-run. The previous generation's two daughter strands stay
+-- in the scene (their physics constraints are not removable) as the settled
+-- chromosomes of the earlier cell; this generation's new strands are laid
+-- down as the next outer layer (M.genOutwardOffset). The two daughter cells
+-- of a division carry the same genetic information (semi-conservative
+-- replication of identical sequences), so following one lineage this way is
+-- exact.
+function transitionToNextGeneration()
+  M.generation = M.generation + 1
+  for _, mito in ipairs(M.mitochondria1) do v:remove(mito.obj) end
+  for _, mito in ipairs(M.mitochondria2) do v:remove(mito.obj) end
+  M.mitochondria1, M.mitochondria2 = {}, {}
+  removeEnvelopeRing(M.membraneRing1); M.membraneRing1 = nil
+  removeEnvelopeRing(M.membraneRing2); M.membraneRing2 = nil
+  removeEnvelopeRing(M.newEnvelopeRing1); M.newEnvelopeRing1 = nil
+  removeEnvelopeRing(M.newEnvelopeRing2); M.newEnvelopeRing2 = nil
+  for _, h in ipairs(M.histoneMarkers) do v:remove(h.obj) end
+  M.histoneMarkers = {}
+  if M.cohesinRing ~= nil then v:remove(M.cohesinRing); M.cohesinRing = nil end
+  for i = 1, NBP do
+    local markers = ssbMarkers[i]
+    if markers ~= nil then
+      v:remove(markers[1]); v:remove(markers[2])
+      ssbMarkers[i] = nil
+    end
+  end
+
+  -- A fresh chromosome: the daughter cell's DNA coils back into its intact
+  -- double helix before the new S phase re-unwinds it.
+  M.untwistProgress = 0
+  M.decatenationProgress = 0
+  M.anaphaseProgress = 0
+  M.condensationProgress = 0
+  M.recoilProgress = 0
+  M.recoilAnnounced = false
+  rebuildRungs()
+  origins = reinitOrigins()
+  forks = {}
+  claimedUnwind = {}
+  claimedSynth = {}
+  mutationSites = {}
+  mutationStats = { attempted = 0, caught = 0, escaped = 0, mmrCaught = 0 }
+  M.totalSynthesized = 0
+  M.replicationAnnounced = false
+  M.untwistAnnounced = false
+  M.decatenationAnnounced = false
+  M.chromatinStarted = false
+  M.chromatinStepCounter = 0
+  M.chromatinSpawnIndex = 0
+  M.chromatinAnnounced = false
+  M.mmrStarted = false
+  M.mmrStepCounter = 0
+  M.mmrIndex = 0
+  M.mmrMarker = nil
+  M.mmrAnnounced = false
+  M.prophaseStarted = false
+  M.prophaseStepCounter = 0
+  M.prophaseAnnounced = false
+  M.breakdownEnvelope = nil
+  M.metaphaseStarted = false
+  M.metaphaseStepCounter = 0
+  M.metaphaseAnnounced = false
+  M.anaphaseStarted = false
+  M.anaphaseAnnounced = false
+  M.telophaseStarted = false
+  M.telophaseStepCounter = 0
+  M.telophaseAnnounced = false
+  M.cytokinesisStarted = false
+  M.cytokinesisStepCounter = 0
+  M.cytokinesisAnnounced = false
+  M.cleavageFurrow = nil
+  M.cellPlate = nil
+  M.cyclinB = 0
+  M.ckiActive = false
+  M.g1CheckpointAnnounced = false
+  M.g1RepairAnnounced = false
+  M.p53Marker = nil
+  M.g1CkiMarker = nil
+  M.g2Passed = false
+  M.g2Arrested = false
+  M.g2Announced = false
+  M.g2CkiMarker = nil
+  M.mCheckpointAnnounced = false
+  M.mCheckpointPassed = false
+  M.mArrested = false
+  M.mCkiMarker = nil
+  M.phiRampProgress = 0
+  M.genOutwardOffset = M.genOutwardOffset + GEN_LAYER_SPACING
+  currentPhase = 0
+  M.currentStage = nil
+  setStage("G1", "generation " .. M.generation .. ": the daughter cell begins the interphase " ..
+           "of its own new cell cycle -- G1 growth -> S replication -> G2 preparation, " ..
+           "then the next mitosis")
+  print("Generation " .. M.generation .. " begins: we follow the daughter cell's lineage. " ..
+        "Its chromosome, carried down intact from the first division, coils back into " ..
+        "a fresh double helix and starts its own G1.")
+end
+
+-- Cytokinesis (16): the actual physical division of the whole cell --
+-- mitosis only duplicated the nucleus; this divides the cytoplasm, sharing
+-- its organelles between the two daughter regions. Animal cells pinch
+-- themselves apart via a contractile actin ring (the cleavage furrow);
+-- plant cells, unable to constrict through their rigid wall, instead grow
+-- a cell plate outward from the center to build a new dividing wall. Only
+-- once the furrow has closed / the plate has formed do the two independent
+-- cells each get their own cell membrane. With the live enterG0 param set,
+-- the daughters then exit the cycle into the G0 resting phase and never
+-- divide again; otherwise the demo follows the lineage into the next
+-- generation (see transitionToNextGeneration), re-running the full cycle on
+-- the semi-conservatively inherited DNA until MAX_GENERATIONS is reached.
+local function updateCytokinesis()
+  if not (M.telophaseAnnounced and not M.cytokinesisAnnounced) then return end
+  if not M.cytokinesisStarted then
+    M.cytokinesisStarted = true
+    setPhase(16)
+    spawnMitochondria(M.mitochondria1, 1)
+    spawnMitochondria(M.mitochondria2, -1)
+    print("The cytoplasm and its organelles (mitochondria) are distributed between the " ..
+          "two daughter regions as cell division proceeds.")
+    if v:getParam("plantCell") then
+      M.cellPlate = createCytokinesisRing(0.1, CELL_PLATE_COL)
+      print("Cytokinesis (plant cell): a cell plate forms in the center and grows from " ..
+            "the inside out, building a new dividing wall through the rigid cell wall.")
+    else
+      M.cleavageFurrow = createCytokinesisRing(CELL_MEMBRANE_RING_R * 1.3, CLEAVAGE_FURROW_COL)
+      print("Cytokinesis (animal cell): a ring of actin fibers constricts the cell in the " ..
+            "middle, forming a cleavage furrow that pinches the cytoplasm apart.")
+    end
+  end
+
+  M.cytokinesisStepCounter = M.cytokinesisStepCounter + 1
+  local progress = math.min(1, M.cytokinesisStepCounter / CYTOKINESIS_STEPS)
+  if M.cleavageFurrow ~= nil then
+    -- Constriction: the furrow shrinks from just outside the membrane
+    -- radius down toward the cleavage plane as the ring tightens.
+    setCytokinesisRingRadius(M.cleavageFurrow,
+                             math.max(0.15, CELL_MEMBRANE_RING_R * 1.3 * (1 - progress)))
+  elseif M.cellPlate ~= nil then
+    -- The plate grows from the center outward until it spans the cell.
+    setCytokinesisRingRadius(M.cellPlate, CELL_MEMBRANE_RING_R * progress)
+  end
+
+  if M.cytokinesisStepCounter >= CYTOKINESIS_STEPS and not M.cytokinesisAnnounced then
+    M.cytokinesisAnnounced = true
+    removeCytokinesisRing(M.cleavageFurrow)
+    M.cleavageFurrow = nil
+    removeCytokinesisRing(M.cellPlate)
+    M.cellPlate = nil
+    local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
+    local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
+    M.membraneRing1 = createEnvelopeRing(c1, CELL_MEMBRANE_RING_R, ENVELOPE_COL)
+    M.membraneRing2 = createEnvelopeRing(c2, CELL_MEMBRANE_RING_R, ENVELOPE_COL)
+    print("Cytokinesis divides the cytoplasm: two independent, genetically identical " ..
+          "daughter cells now exist -- mitosis of generation " .. M.generation .. " is complete.")
+    if v:getParam("enterG0") then
+      setStage("G0", "the daughter cells exit the cell cycle after G1 and enter the resting phase, performing their specialized functions and generally never dividing again")
+      print("Both daughter cells leave the cell cycle and enter the G0 resting phase.")
+    elseif M.generation < MAX_GENERATIONS then
+      M.pendingTransition = true
+      M.genHoldCounter = GEN_HOLD_STEPS
+    else
+      print("Generation " .. M.generation .. " complete: the two daughter cells of the first " ..
+            "division have each divided again -- four double helices now exist, every one " ..
+            "carrying the same genetic information. Two rounds of semi-conservative " ..
+            "replication have propagated the genome intact.")
+    end
+  end
+end
 
 -- postSim: Called after each simulation step.
 --
@@ -1335,6 +2410,14 @@ local checkpointAnnounced = false
 v:postSim(function(N)
   currentStep = N
   updateTimedMarkers()
+  updateG1Checkpoint()
+  if M.apoptosis then
+    -- The cell is dying: keep the helix gently spinning but freeze the cell
+    -- cycle -- no further phases, no new events.
+    rotationAngle = rotationAngle + ROTATION_SPEED
+    rotateSceneGeometry()
+    return
+  end
   rotationAngle = rotationAngle + ROTATION_SPEED
   rotateSceneGeometry()
 
@@ -1350,9 +2433,9 @@ v:postSim(function(N)
   -- model's predicted synergy between pathways.
   local checkpointActive = v:getParam("dnaDamageCheckpoint")
   if not checkpointActive then
-    phiRampProgress = phiRampProgress + 1
+    M.phiRampProgress = M.phiRampProgress + 1
   end
-  local phi = checkpointActive and CHECKPOINT_PHI or math.min(1, phiRampProgress / PHI_RAMP_STEPS)
+  local phi = checkpointActive and CHECKPOINT_PHI or math.min(1, M.phiRampProgress / PHI_RAMP_STEPS)
   local cdk = v:getParam("cdkActivity")
   local drive = math.max(0, cdk * (dNTP / 100) + gaussianRandom() * DRIVE_NOISE)
 
@@ -1401,6 +2484,7 @@ v:postSim(function(N)
           forks[#forks + 1] = createFork(o.index, 1)
           forks[#forks + 1] = createFork(o.index, -1)
           setPhase(2) -- this fork's createFork() already laid its first primer
+          setStage("S", "the DNA is completely duplicated (replication): each 1C chromosome becomes a two-chromatid 2C chromosome once again")
           print(string.format(
             "Cdc45/GINS join the loaded hexamers, forming two CMG helicases -- origin at " ..
             "bp %d fires at step %d: R = %.2f(Phi)*%.2f(A)*%.2f(D)*%.2f(C) = " ..
@@ -1475,16 +2559,17 @@ v:postSim(function(N)
         extendLeadingStrand(f, nextI)
         extendLaggingStrand(f, nextI)
         f.synthPos = nextI
-        totalSynthesized = totalSynthesized + 1
+        M.totalSynthesized = M.totalSynthesized + 1
       end
     end
   end
 
-  if totalSynthesized >= NBP and not replicationAnnounced then
-    replicationAnnounced = true
+  if M.totalSynthesized >= NBP and not M.replicationAnnounced then
+    M.replicationAnnounced = true
     setPhase(5)
-    print("Replication complete: two double helices now exist, each with " ..
-          "one original strand and one newly synthesized strand.")
+    setStage("G2", "the cell continues to grow, checks the replicated DNA for errors, and makes final preparations for mitosis")
+    print("Generation " .. M.generation .. ": replication complete -- two double helices " ..
+          "now exist, each with one original strand and one newly synthesized strand.")
     print(string.format(
       "Fidelity summary: %d attempted misincorporations, %d caught by proofreading, " ..
       "%d escaped as mutations (observed rate %.4f per base, driven by real per-step " ..
@@ -1502,13 +2587,47 @@ v:postSim(function(N)
 
   -- Untwisting itself (see basePos()): ramps once replication is complete,
   -- independent of the announcement block above so it keeps advancing every
-  -- step afterward, not just the one step replicationAnnounced flips.
-  if replicationAnnounced and untwistProgress < 1 then
-    untwistProgress = math.min(1, untwistProgress + 1 / UNTWIST_STEPS)
-    if untwistProgress >= 1 and not untwistAnnounced then
-      untwistAnnounced = true
+  -- step afterward, not just the one step M.replicationAnnounced flips.
+  if M.replicationAnnounced and M.untwistProgress < 1 then
+    M.untwistProgress = math.min(1, M.untwistProgress + 1 / UNTWIST_STEPS)
+    if M.untwistProgress >= 1 and not M.untwistAnnounced then
+      M.untwistAnnounced = true
       setPhase(7)
       print("Both new double helices have fully untwisted into straight, unwound strands.")
+    end
+  end
+
+  -- Decatenation, chromatin repackaging, mismatch repair, and the final
+  -- checkpoint (phases 8-11) each live in their own top-level function --
+  -- see updateDecatenation/updateChromatinPackaging/updateMismatchRepair/
+  -- updateCellCycleCheckpoint above -- rather than inline here. Lua 5.1
+  -- cap: a single closure gets at most 60 upvalues, and postSim already
+  -- captures most of this file's shared state directly; four more blocks
+  -- of phase-8-11 locals pushed it over that limit. Splitting them into
+  -- separate functions means postSim only needs one upvalue per function
+  -- (the function reference itself) instead of one per local it touches.
+  updateDecatenation()
+  updateChromatinPackaging()
+  updateMismatchRepair()
+  updateCellCycleCheckpoint()
+  -- Mitosis (phases 12-16): PMAT + cytokinesis, same split-into-functions
+  -- reasoning as the four calls above.
+  updateProphase()
+  updateMetaphase()
+  updateAnaphase()
+  updateRecoil()
+  updateTelophase()
+  updateCytokinesis()
+  -- The cyclin/CDK wave is updated last, so a checkpoint that fired during
+  -- this same step immediately holds the wave back.
+  updateCyclinWave()
+  -- A finished generation holds a few steps so the completed division stays
+  -- on screen, then coils back and begins the next generation's cycle.
+  if M.pendingTransition then
+    M.genHoldCounter = M.genHoldCounter - 1
+    if M.genHoldCounter <= 0 then
+      M.pendingTransition = false
+      transitionToNextGeneration()
     end
   end
 end)
