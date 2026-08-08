@@ -2,12 +2,11 @@
 -- BRIO bricks train
 --
 
-color = require "color"
-brio  = require "scad/brio"
+color  = require "color"
+brio   = require "scad/brio"
+common = require "common"
 
-v.timeStep      = 1/2
-v.maxSubSteps   = 100
-v.fixedTimeStep = 1/5
+common.setTiming(1/2, 100, 1/5)
 
 v.pre_sdl =  [[
 #include "textures.inc"
@@ -87,14 +86,9 @@ s.pos = btVector3(260,65,-35)
 s.col = "#ff0000"
 v:add(s)
 
-v.cam:setUpVector(btVector3(0.252607, 0.868592, -0.426306), true)
-v.cam.up   = btVector3(0.252607, 0.868592, -0.426306)
-v.cam.pos  = btVector3(-11988.6, 18557, 30609.3)
-v.cam.look = btVector3(309154, -472328, -779267)
-
-v.cam.focal_blur      = 0
-v.cam.focal_aperture  = 5
-v.cam.focal_point = btVector3(0,0,0)
+common.setCamera(btVector3(-11988.6, 18557, 30609.3),
+                 btVector3(309154, -472328, -779267), nil,
+                 { up = btVector3(0.252607, 0.868592, -0.426306) })
 
 v:preDraw(function(N)
 --  v.cam.up   = btVector3(0,1,0)

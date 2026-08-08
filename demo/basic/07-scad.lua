@@ -6,11 +6,10 @@
 --
 -- Usage: bpp -f demo/basic/07-scad.lua
 
-v.gravity = btVector3(0,-9.81,0)
+local common = require "common"
 
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+common.gravity(-9.81)
+common.setTiming(1/10, 10, 1/100)
 
 local p = Plane(0,1,0,0,100)
 p.col = "#7f7f7f"
@@ -101,14 +100,10 @@ texture {
   end
 end
 
-v.cam:setUpVector(btVector3(-0.0780239, 0.962312, -0.260514), true)
-v.cam.up   = btVector3(-0.0780239, 0.962312, -0.260514)
-v.cam.pos  = btVector3(600.407, 610.439, 1996.8)
-v.cam.look = btVector3(-275495, -271337, -919858)
-
---v.cam.focal_blur     = 10
-v.cam.focal_aperture = 5
-v.cam.focal_point    = btVector3(1,10,0)
+common.setCamera(btVector3(600.407, 610.439, 1996.8),
+                 btVector3(-275495, -271337, -919858), nil,
+                 { up = btVector3(-0.0780239, 0.962312, -0.260514),
+                   focal_aperture = 5, focal_point = btVector3(1,10,0) })
 
 v.sdl = [[
 light_source { <100, 200, 100> color rgb <1, 0.95, 0.8>

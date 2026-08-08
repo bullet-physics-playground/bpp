@@ -6,13 +6,12 @@
 --
 -- Usage: bpp -f demo/basic/10-dice.lua
 
-local color = require "color"
-local dice  = require "povray/dice"
-local text  = require "scad/text"
+local color  = require "color"
+local dice   = require "povray/dice"
+local text   = require "scad/text"
+local common = require "common"
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 20
-v.fixedTimeStep = 1/120
+common.setTiming(1/5, 20, 1/120)
 
 v.pre_sdl = [==[
 #include "finish.inc"
@@ -60,9 +59,5 @@ v:onCommand(function(N, cmd)
   f(v)
 end)
 
-v.cam:setFieldOfView(0.025)
-
-v.cam:setUpVector(btVector3(0,1,0), false)
---v.cam.pos  = btVector3(1,4,900)
-v.cam.pos  = btVector3(0, 4, 550)
-v.cam.look = btVector3(0,4,0)
+common.setCamera(btVector3(0, 4, 550), btVector3(0, 4, 0), 0.025,
+                 { noMove = false })

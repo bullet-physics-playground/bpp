@@ -1,4 +1,5 @@
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
 p = Plane(0,1,0,0,200)
 p.pos = btVector3(0,0,0)
@@ -38,7 +39,6 @@ v:add(rock)
 
 end
 
-v.cam:setUpVector(btVector3(0.523171, 0.681407, 0.511836), true)
-v.cam.up   = btVector3(0.523171, 0.681407, 0.511836)
-v.cam.pos  = btVector3(-179.156, 254.345, -195.809)
-v.cam.look = btVector3(459988, -731122, 503128)
+common.setCamera(btVector3(-179.156, 254.345, -195.809),
+                 btVector3(459988, -731122, 503128), nil,
+                 { up = btVector3(0.523171, 0.681407, 0.511836) })

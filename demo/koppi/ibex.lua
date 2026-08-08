@@ -2,7 +2,8 @@
 -- IBEX sculpture (WIP)
 --
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
 v.pre_sdl = [[
 
@@ -68,11 +69,8 @@ light_source{
 
 use_openscad = 1 -- http://www.openscad.org
 
-v.gravity = btVector3(0,-9.81,0)
-
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+common.gravity(-9.81)
+common.setTiming(1/10, 10, 1/100)
 
 p = Plane(0,1,0,0,1000)
 p.pos = btVector3(0,-1,0)
@@ -148,21 +146,13 @@ N=1000
 for i = 0,N do
 d = 5
 c = Cylinder(0.5,0.2,10)
-  tr = btTransform(
-    btQuaternion(),
-    btVector3(
-       math.sin(i)*2,
-       35+math.sin(i*2.2)*d*2,
-       math.cos(i)*4))
-  q = btQuaternion()
-  q:setEuler(
-0,
-math.sin(i/N*3.1415*2)*360,
-math.cos(i/N*3.1415)*360
-)
-  tr:setRotation(q)
-
-  c.trans = tr
+  c.trans = common.transform(
+    0,
+    math.sin(i/N*3.1415*2)*360,
+    math.cos(i/N*3.1415)*360,
+    math.sin(i)*2,
+    35+math.sin(i*2.2)*d*2,
+    math.cos(i)*4)
   c.col = color.red
   c.sdl = tex
   v:add(c) 
@@ -170,10 +160,8 @@ end
 
 function camera()
 -- pseudo orthogonal view
-  v.cam:setUpVector(btVector3(0,1,0), true)
-  v.cam:setHorizontalFieldOfView(1.7)
-  v.cam.pos  = btVector3(0,30,40)
-  v.cam.look = btVector3(0,50,-40) 
+  common.setCamera(btVector3(0,30,40), btVector3(0,50,-40), 1.7,
+                   { horizontal = true })
 end
 
 v:preStart(function(N)

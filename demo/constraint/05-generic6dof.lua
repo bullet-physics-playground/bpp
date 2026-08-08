@@ -17,13 +17,10 @@ link.pos = btVector3(0, 0, 0)
 link.col = "#ff6600"
 v:add(link)
 
-frameInA = btTransform()
-frameInA:setIdentity()
-frameInA:setOrigin(btVector3(0, 0, 0))
+local common = require "common"
 
-frameInB = btTransform()
-frameInB:setIdentity()
-frameInB:setOrigin(btVector3(0, -1, 0))
+frameInA = common.transform(0, 0, 0, 0, 0, 0)
+frameInB = common.transform(0, 0, 0, 0, -1, 0)
 
 con = btGeneric6DofConstraint(
   cube.body, link.body,
@@ -38,9 +35,8 @@ con:setAngularUpperLimit(btVector3(math.pi * 0.5, 0.75, math.pi * 0.8))
 
 v:addConstraint(con)
 
-v.cam:setUpVector(btVector3(0.00872655, 0.92641, -0.376416), true)
-v.cam.up   = btVector3(0.00872655, 0.92641, -0.376416)
-v.cam.pos  = btVector3(0.0257065, 8.99374, 11.1444)
-v.cam.look = btVector3(22.0324, -376421, -926434)
+common.setCamera(btVector3(0.0257065, 8.99374, 11.1444),
+                 btVector3(22.0324, -376421, -926434), nil,
+                 { up = btVector3(0.00872655, 0.92641, -0.376416) })
 
 -- EOF

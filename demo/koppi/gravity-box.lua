@@ -4,12 +4,11 @@
 
 -- Notice: POV-Ray export requires the user_defined cam feature
 
-local color = require "color"
-local metal = require "povray/metal"
+local color  = require "color"
+local metal  = require "povray/metal"
+local common = require "common"
 
-v.timeStep      = 1/25 -- fps
--- v.fixedTimeStep = v.timeStep / 2
--- v.maxSubSteps   = 25
+common.setTiming(1/25)
 
 mod_gravity = 1  -- modulate gravity
 pov_export  = 0  -- povray export on / off
@@ -18,7 +17,7 @@ d  = 100   -- box dimension
 x  = 50   -- number of objects
 od = 4     -- object dimension
 
-v.gravity = btVector3(0,0,0)
+common.gravity(0)
 
 col = "#aaaaaa"
 
@@ -194,6 +193,6 @@ if (mod_gravity == 1) then
 --  print(v.gravity)
 --end
 else
-  v.gravity = btVector3(0,0,0)
+common.gravity(0)
 end
 end)

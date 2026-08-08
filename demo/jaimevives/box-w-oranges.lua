@@ -5,9 +5,9 @@
 -- http://www.ignorancia.org/index.php?page=a-box-of-oranges
 --
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/20
+local common = require "common"
+
+common.setTiming(1/5, 10, 1/20)
 
 -- ORANGES BOX 
 
@@ -83,12 +83,6 @@ oranges_row(4,75)
 oranges_row(4,85)
 oranges_row(4,95)
 
-v.cam:setUpVector(btVector3(0, 1, 0), true)
-v.cam.up   = btVector3(0, 1, 0)
-v.cam.pos  = btVector3(101, 71, 40)
-v.cam.look = btVector3(0, 2, 2)
-v.cam:setFieldOfView(.5)
-
-v.cam.focal_blur = 5
-v.cam.focal_point = btVector3(0,2,2)
-v.cam.focal_aperture = 1.33
+common.setCamera(btVector3(101, 71, 40), btVector3(0, 2, 2), .5,
+                 { focal_blur = 5, focal_aperture = 1.33,
+                   focal_point = btVector3(0,2,2) })

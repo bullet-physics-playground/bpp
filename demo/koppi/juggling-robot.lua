@@ -2,9 +2,9 @@
 -- Claude Shannon's juggling robot
 --
 
-v.timeStep      = 1/25
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/200
+local common = require "common"
+
+common.setTiming(1/25, 10, 1/200)
 
 y = 2.5 di = 5 d = 0.35 l = 2.35 p = 120
 
@@ -73,9 +73,7 @@ end
 
 function rot(N)
   tr = t.trans
-  q = btQuaternion()
-  q:setEuler(0,(tri(l,p,N+p/2)-l/2)*0.6,0)
-  tr:setRotation(q)
+  tr:setRotation(common.quat(0,(tri(l,p,N+p/2)-l/2)*0.6,0))
   t.trans = tr
 end
 
@@ -85,11 +83,6 @@ v:preSim(function(N)
   rot(N)
 end)
 
-v.cam:setUpVector(btVector3(-6.90089e-17, 1, -6.90089e-17), true)
-v.cam.up   = btVector3(-6.90089e-17, 1, -6.90089e-17)
-v.cam.pos  = btVector3(19.4706, 2.72201, 0.289923)
-v.cam.look = btVector3(-999981, 2.72201, 0.289923)
-
-v.cam.focal_blur      = 0
-v.cam.focal_aperture  = 5
-v.cam.focal_point = btVector3(0,0,0)
+common.setCamera(btVector3(19.4706, 2.72201, 0.289923),
+                 btVector3(-999981, 2.72201, 0.289923), nil,
+                 { up = btVector3(-6.90089e-17, 1, -6.90089e-17) })

@@ -14,6 +14,8 @@ local scene = 0 --[[
 
 math.randomseed(42)
 
+local common = require "common"
+
 v.pre_sdl = [[
 #include "textures.inc"
 #include "domino.inc"
@@ -30,9 +32,7 @@ plane.sdl = [[
 ]]
 v:add(plane)
 
-v.timeStep      = 1/5
-v.fixedTimeStep = v.timeStep / 4
-v.maxSubSteps   = 10
+common.setTiming(1/5, 10, 1/20)
 
 local col = require("color")
 
@@ -163,10 +163,9 @@ function spline_dominos(damp_lin, damp_ang, fri, res)
         v:add(d)
     end
 
-    v.cam:setUpVector(btVector3(-0.0834355, 0.759854, 0.644717), true)
-    v.cam.up   = btVector3(-0.0834355, 0.759854, 0.644717)
-    v.cam.pos  = btVector3(57.2042, 302.164, -463.355)
-    v.cam.look = btVector3(-67279.3, -649491, 756659)
+    common.setCamera(btVector3(57.2042, 302.164, -463.355),
+                     btVector3(-67279.3, -649491, 756659), nil,
+                     { up = btVector3(-0.0834355, 0.759854, 0.644717) })
 
   elseif scene == 2 then
     -- Fixed control points (spline-based)
@@ -212,9 +211,7 @@ function spline_dominos(damp_lin, damp_ang, fri, res)
         local dx = p_next.x - p.x
         local dz = p_next.z - p.z
         local normal_angle = math.atan2(dx, dz) + math.pi / 2
-        local q = btQuaternion()
-        q:setEulerZYX(0, normal_angle, 0)
-        d.trans = btTransform(q, btVector3(p.x, p.y, p.z))
+        d.trans = common.transform(0, normal_angle, 0, p.x, p.y, p.z)
         v:add(d)
     end
 
@@ -288,9 +285,7 @@ function spline_dominos(damp_lin, damp_ang, fri, res)
         local dx = p_next.x - p.x
         local dz = p_next.z - p.z
         local normal_angle = math.atan2(dx, dz) + math.pi / 2
-        local q = btQuaternion()
-        q:setEulerZYX(0, normal_angle, 0)
-        d.trans = btTransform(q, btVector3(p.x, p.y, p.z))
+        d.trans = common.transform(0, normal_angle, 0, p.x, p.y, p.z)
         v:add(d)
     end
   end

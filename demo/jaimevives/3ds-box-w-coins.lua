@@ -4,16 +4,14 @@
 -- preSim used to insert coins on-the-fly
 --
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 100
-v.fixedTimeStep = 1/50
+common.setTiming(1/5, 100, 1/50)
 
-v.cam:setUpVector(btVector3(-0.0059111, 0.733655, -0.679497), true)
-v.cam.up   = btVector3(-0.0059111, 0.733655, -0.679497)
-v.cam.pos  = btVector3(223.256, 3697.59, 3962.94)
-v.cam.look = btVector3(-41161.4, -675408, -728910)
+common.setCamera(btVector3(223.256, 3697.59, 3962.94),
+                 btVector3(-41161.4, -675408, -728910), nil,
+                 { up = btVector3(-0.0059111, 0.733655, -0.679497) })
 
 local plane = Plane(0,1,0,0,100)
 plane.col = color.gray

@@ -6,6 +6,8 @@ Demos by [@koppi](https://github.com/koppi)
 
 * **bricks.lua**: A simulation of a house collapsing, with walls made of bricks.
 * **brio-train.lua**: A simulation of a BRIO train on a wooden track.
+* **dna-replication.lua**: A physics simulation of semi-conservative DNA replication, with helicase unwinding the double helix and the leading and lagging strands (Okazaki fragments joined by ligase) growing as real constrained rigid-body chains.
+* **dna-transcription.lua**: A physics simulation of DNA transcription, with an RNA polymerase marker reading the template strand and building a growing mRNA physics chain (uracil replacing thymine).
 * **duplo.lua**: A marble run made with Duplo bricks.
 * **gears.lua**: A demonstration of parametric involute bevel and spur gears.
 * **gravity-box.lua**: An omni-directional stereo rendered box with gravity variation.

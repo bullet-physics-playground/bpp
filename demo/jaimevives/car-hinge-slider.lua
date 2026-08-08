@@ -2,11 +2,11 @@
 -- Basic car demo
 --
 
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+local common = require "common"
 
-v.gravity = btVector3(0,-9.81,0)
+common.setTiming(1/10, 10, 1/100)
+
+common.gravity(-9.81)
 
 -- CONTROL
 
@@ -322,24 +322,11 @@ steps()
 
 v:preDraw(function(N)
 
-  -- pseudo orthogonal
-  v.cam:setFieldOfView(.2)
-
-  -- rotate camera
-  v.cam:setUpVector(btVector3(.25,1,0), true)
-
-  pos  = btVector3(
-    car.pos.x,
-    car.pos.y+8,
-    car.pos.z+200)
-
-  look = btVector3(
-    car.pos.x,
-    10,
-    car.pos.z)
-
-  v.cam.pos  = pos
-  v.cam.look = look
+  -- pseudo orthogonal + rotate camera
+  common.setCamera(
+    btVector3(car.pos.x, car.pos.y+8, car.pos.z+200),
+    btVector3(car.pos.x, 10, car.pos.z), .2,
+    { up = btVector3(.25,1,0) })
 
   -- printf("pos = %s look = %s", tostring(pos), tostring(look))
 end)

@@ -15,13 +15,10 @@ link = Cube(1,2,1,1)
 link.col = "#ff6600"
 v:add(link)
 
-frameInA = btTransform()
-frameInA:setIdentity()
-frameInA:setOrigin(btVector3(0, 1, 0))
+local common = require "common"
 
-frameInB = btTransform()
-frameInB:setIdentity()
-frameInB:setOrigin(btVector3(0, -1, 0))
+frameInA = common.transform(0, 0, 0, 0, 1, 0)
+frameInB = common.transform(0, 0, 0, 0, -1, 0)
 
 con = btGeneric6DofSpringConstraint(
   cube.body, link.body,
@@ -42,9 +39,8 @@ con:setEquilibriumPoint()
 
 v:addConstraint(con)
 
-v.cam:setUpVector(btVector3(0.497141, 0.675332, -0.544773), true)
-v.cam.up   = btVector3(0.497141, 0.675332, -0.544773)
-v.cam.pos  = btVector3(-21.5418, 41.0771, 26.8821)
-v.cam.look = btVector3(404757, -735820, -542801)
+common.setCamera(btVector3(-21.5418, 41.0771, 26.8821),
+                 btVector3(404757, -735820, -542801), nil,
+                 { up = btVector3(0.497141, 0.675332, -0.544773) })
 
 -- EOF

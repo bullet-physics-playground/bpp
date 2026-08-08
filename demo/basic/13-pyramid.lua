@@ -7,12 +7,11 @@
 --
 -- Usage: bpp -f demo/basic/13-pyramid.lua
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.gravity = btVector3(0, -9.81, 0)
-v.timeStep      = 1/50
-v.maxSubSteps   = 7
-v.fixedTimeStep = 1/120
+common.gravity(-9.81)
+common.setTiming(1/50, 7, 1/120)
 
 local dim = 20 -- scene dimension
 
@@ -60,10 +59,7 @@ function make_pyramid(triangles, px, py, pz, mass, col)
   local shape = btGImpactMeshShape(meshData)
   shape:updateBound()
 
-  local trans = btTransform()
-  trans:setIdentity()
-  trans:setOrigin(btVector3(px, py, pz))
-  local ms = btDefaultMotionState(trans)
+  local ms = btDefaultMotionState(common.transform(0, 0, 0, px, py, pz))
 
   local inertia = btVector3()
   if mass > 0 then

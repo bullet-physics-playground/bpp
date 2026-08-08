@@ -12,11 +12,10 @@
 -- Usage: bpp -f demo/basic/17-rigid-soft-contact.lua
 --
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.timeStep      = 1/25
-v.maxSubSteps   = 30
-v.fixedTimeStep = 1/120
+common.setTiming(1/25, 30, 1/120)
 
 --
 -- SCENE SETUP
@@ -44,10 +43,7 @@ sb.pos = btVector3(0, 3, 0)
 v:add(sb)
 
 -- Camera
-v.cam:setFieldOfView(0.5)
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam.pos  = btVector3(6, 4, 6)
-v.cam.look = btVector3(0, 0.5, 0)
+common.setCamera(btVector3(6, 4, 6), btVector3(0, 0.5, 0), 0.5)
 
 local function vecToString(v3)
   return string.format("(%.2f, %.2f, %.2f)", v3.x, v3.y, v3.z)

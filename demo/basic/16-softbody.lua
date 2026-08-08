@@ -12,11 +12,10 @@
 -- Usage: bpp -f demo/basic/16-softbody.lua
 --
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.timeStep      = 1/25
-v.maxSubSteps   = 30
-v.fixedTimeStep = 1/120
+common.setTiming(1/25, 30, 1/120)
 
 --
 -- SCENE SETUP
@@ -59,10 +58,7 @@ pole.pos = btVector3(-4, 1.5, 0)
 v:add(pole)
 
 -- Camera
-v.cam:setFieldOfView(0.5)
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam.pos  = btVector3(8, 5, 9)
-v.cam.look = btVector3(0, 1.5, 0)
+common.setCamera(btVector3(8, 5, 9), btVector3(0, 1.5, 0), 0.5)
 
 -- preStart: Called once before simulation starts
 v:preStart(function(N)

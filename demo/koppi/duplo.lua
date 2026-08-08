@@ -4,12 +4,11 @@
 -- http://thingiverse.com/thing:159219
 --
 
-local duplo = require "scad/duplo"
-local color = require "color"
+local duplo  = require "scad/duplo"
+local color  = require "color"
+local common = require "common"
 
-v.timeStep      = 1/3
-v.maxSubSteps   = 50
-v.fixedTimeStep = 1/20
+common.setTiming(1/3, 50, 1/20)
 
 v.pre_sdl = [[
 
@@ -97,15 +96,8 @@ end
 function setcam()
   d = 2000
   -- pseudo orthogonal view
-  --v.cam:setFieldOfView(.1)
-
-  v.cam.focal_blur      = 0 -- > 0: enable focal blur
-  v.cam.focal_aperture  = 5
-  --v.cam.focal_point = XXX.pos
-  v.cam:setUpVector(btVector3(0,1,0), true)
-  v.cam:setHorizontalFieldOfView(0.075)
-  v.cam.pos  = btVector3(-2000,1000,d)
-  v.cam.look = btVector3(20,0,50) 
+  common.setCamera(btVector3(-2000,1000,d), btVector3(20,0,50), 0.075,
+                   { horizontal = true })
 end
 
 setcam()

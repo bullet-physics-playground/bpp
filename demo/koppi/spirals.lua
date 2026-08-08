@@ -2,12 +2,11 @@
 -- Parametric OpenSCAD spirals
 --
 
-color = require "color"
+color  = require "color"
 marble = require "povray/marble"
+common = require "common"
 
-v.timeStep      = 1/6
-v.maxSubSteps   = 200
-v.fixedTimeStep = 1/100
+common.setTiming(1/6, 200, 1/100)
 
 v.pre_sdl = [==[
 
@@ -136,10 +135,5 @@ v:onCommand(function(N, cmd)
   f(v)
 end)
 
-v.cam.focal_blur      = 0
-v.cam.focal_aperture  = 5
---v.cam.focal_point = XXX.pos
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam:setHorizontalFieldOfView(1.1)
-v.cam.pos  = btVector3(0,30,-20)
-v.cam.look = btVector3(0,0,0) 
+common.setCamera(btVector3(0,30,-20), btVector3(0,0,0), 1.1,
+                 { horizontal = true })

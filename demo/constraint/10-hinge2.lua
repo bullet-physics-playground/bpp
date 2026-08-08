@@ -6,6 +6,8 @@
 -- for suspension travel, all in a single constraint.
 --
 
+local common = require "common"
+
 plane = Plane(0,1,0,0,20)
 plane.col = "#222222"
 v:add(plane)
@@ -18,9 +20,7 @@ v:add(chassis)
 wheelRadius = 1.2
 wheel = Cylinder(wheelRadius, 0.6, 3)
 wheel.pos = btVector3(3, 3.5, 0)
-q = btQuaternion()
-q:setEulerZYX(0, math.pi / 2, 0) -- lay the cylinder on its side: axis along X, like a wheel
-wheel.rot = q
+wheel.rot = common.quat(0, math.pi / 2, 0) -- lay the cylinder on its side: axis along X, like a wheel
 wheel.col = "#4488ff" -- distinct from the orange constraint-visualization gizmo
 v:add(wheel)
 
@@ -63,8 +63,6 @@ v:postSim(function(N)
   con:setServoTarget(5, steer)
 end)
 
-v.cam:setUpVector(btVector3(0, 1, 0), true)
-v.cam.pos  = btVector3(10, 7, 12)
-v.cam.look = btVector3(2, 3, 0)
+common.setCamera(btVector3(10, 7, 12), btVector3(2, 3, 0))
 
 -- EOF

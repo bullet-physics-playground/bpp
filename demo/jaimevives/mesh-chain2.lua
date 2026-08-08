@@ -2,9 +2,9 @@
 -- Mesh cain demo
 --
 
-v.timeStep      = 1/4
-v.maxSubSteps   = 20
-v.fixedTimeStep = 1/100
+local common = require "common"
+
+common.setTiming(1/4, 20, 1/100)
 
 plane = Plane(0,1,0,0,1000)
 plane.col = "#111111"
@@ -40,11 +40,5 @@ end
 
 chain(17, 0,40, 0)
 
--- pseudo orthogonal
-v.cam:setFieldOfView(0.1)
-
--- rotate camera
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam.up   = btVector3(0,1,0)
-v.cam.pos = btVector3(0,500,1500)
-v.cam.look = btVector3(0,25,0)
+-- pseudo orthogonal + rotate camera
+common.setCamera(btVector3(0,500,1500), btVector3(0,25,0), 0.1)

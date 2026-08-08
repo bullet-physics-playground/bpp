@@ -2,9 +2,9 @@
 -- House collapse
 --
 
-v.timeStep      = 1/25
---v.maxSubSteps   = 10
---v.fixedTimeStep = 1/70
+local common = require "common"
+
+common.setTiming(1/25)
 
 v.pre_sdl = [[
 
@@ -39,7 +39,7 @@ v.pre_sdl = [[
 };
 ]]
 
-v.gravity = btVector3(0,-9.81,0)
+common.gravity(-9.81)
 
 local plane = Plane(0,1,0,0,200)
 plane.pos = btVector3(0,1,0)
@@ -150,19 +150,12 @@ end
 
 run()
 
-v.cam:setHorizontalFieldOfView(0.15)
-
 v:onCommand(function(N, cmd)
   print(cmd)
   local f = assert(loadstring(cmd))
   f(v)
 end)
 
-v.cam:setUpVector(btVector3(-0.139018, 0.860899, -0.489414), true)
-v.cam.up   = btVector3(-0.139018, 0.860899, -0.489414)
-v.cam.pos  = btVector3(73.6663, 138.493, 242.79)
-v.cam.look = btVector3(-205820, -508402, -835816)
-
-v.cam.focal_blur      = 0
-v.cam.focal_aperture  = 5
-v.cam.focal_point = btVector3(0,0,0)
+common.setCamera(btVector3(73.6663, 138.493, 242.79),
+                 btVector3(-205820, -508402, -835816), 0.15,
+                 { horizontal = true, up = btVector3(-0.139018, 0.860899, -0.489414) })

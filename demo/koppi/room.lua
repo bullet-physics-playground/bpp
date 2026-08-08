@@ -2,8 +2,9 @@
 -- A room with random objects (WIP)
 --
 
-local color = require "color"
+local color       = require "color"
 local path_extrude = require "scad/path_extrude"
+local common      = require "common"
 
 v.pre_sdl = [[
 
@@ -92,9 +93,7 @@ light_source{ <0,55,0>
 }
 ]]
 
-v.timeStep      = 1/25
---v.maxSubSteps   = 10
---v.fixedTimeStep = 1/100
+common.setTiming(1/25)
 
 p = Plane(0,1,0,0,100)
 p.pos = btVector3(0,13,0)
@@ -261,13 +260,8 @@ v:onCommand(function(N, cmd)
 end)
 
 function setcam()
-  v.cam.focal_blur      = 0
-  v.cam.focal_aperture  = 5
-  --v.cam.focal_point = XXX.pos
-  v.cam:setUpVector(btVector3(0,1,0), true)
-  v.cam:setHorizontalFieldOfView(1)
-  v.cam.pos  = btVector3(-40,40,40)
-  v.cam.look = btVector3(40,20,-20) 
+  common.setCamera(btVector3(-40,40,40), btVector3(40,20,-20), 1,
+                   { horizontal = true })
 end
 
 setcam()

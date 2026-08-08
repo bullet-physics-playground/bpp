@@ -11,6 +11,7 @@
 local nutsnbolts  = require "scad/nutsnbolts"
 local color       = require "color"
 local trans       = require "scad/trans"
+local common      = require "common"
 
 v.pre_sdl = [==[
 
@@ -211,11 +212,6 @@ end
 
 bolts();
 
-v.cam:setUpVector(btVector3(-0.0660439, 0.962428, -0.263383), true)
-v.cam.up   = btVector3(-0.0660439, 0.962428, -0.263383)
-v.cam.pos  = btVector3(250, 300, 1000)
-v.cam.look = btVector3(-233834, -271237, -932527)
-
-v.cam.focal_blur      = 1
-v.cam.focal_aperture  = 5
-v.cam.focal_point = btVector3(0,0,0)
+common.setCamera(btVector3(250, 300, 1000), btVector3(-233834, -271237, -932527), nil,
+                 { up = btVector3(-0.0660439, 0.962428, -0.263383),
+                   focal_blur = 1, focal_aperture = 5 })

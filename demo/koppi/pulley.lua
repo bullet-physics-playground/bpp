@@ -11,10 +11,9 @@
 
 local color      = require "color"
 local pulley2012 = require "scad/pulley2012"
+local common     = require "common"
 
-v.timeStep      = 1/3
-v.maxSubSteps   = 200
-v.fixedTimeStep = 1/100
+common.setTiming(1/3, 200, 1/100)
 
 v.pre_sdl = [==[
 
@@ -237,14 +236,8 @@ end
  
 pos = pulleys()
 
--- focal blur
-v.cam.focal_blur      = 7
-v.cam.focal_aperture  = 5
-v.cam.focal_point     = pos
-
--- pseudo orthogonal view
-v.cam:setFieldOfView(.3)
-v.cam:setUpVector(btVector3(-0.205076, 0.95702, -0.205076), true)
-v.cam.up   = btVector3(-0.205076, 0.95702, -0.205076)
-v.cam.pos  = btVector3(185.779, 55.6399, 102.518)
-v.cam.look = btVector3(-676530, -289965, -676613)
+-- focal blur + pseudo orthogonal view
+common.setCamera(btVector3(185.779, 55.6399, 102.518),
+                 btVector3(-676530, -289965, -676613), .3,
+                 { up = btVector3(-0.205076, 0.95702, -0.205076),
+                   focal_blur = 7, focal_aperture = 5, focal_point = pos })

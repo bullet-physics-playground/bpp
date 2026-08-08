@@ -4,12 +4,11 @@
 -- http://www.thingiverse.com/thing:3575
 --
 
-local color = require "color"
+local color    = require "color"
 local gearsv50 = require "scad/gearsv50"
+local common   = require "common"
 
-v.timeStep      = 1/25
-v.maxSubSteps   = 60
-v.fixedTimeStep = 1/50
+common.setTiming(1/25, 60, 1/50)
 
 v.pre_sdl = [[
 
@@ -138,11 +137,5 @@ gs(6, 0, 103, 0, color.goldenrod)
 gs(26, -56.5, 53, 0, color.darkblue)
 gs(26, 0, 147, 0, color.darkgreen)
 
-v.cam:setUpVector(btVector3(0,1,0), false)
-v.cam:setHorizontalFieldOfView(0.0075)
-v.cam.pos  = btVector3(-10000,10000,35000)
-v.cam.look = btVector3(0,95,0) 
-
-v.cam.focal_blur      = 0
-v.cam.focal_aperture  = 5
-v.cam.focal_point = btVector3(0,0,0)
+common.setCamera(btVector3(-10000,10000,35000), btVector3(0,95,0), 0.0075,
+                 { horizontal = true, noMove = false })

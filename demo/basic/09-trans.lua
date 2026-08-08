@@ -6,8 +6,9 @@
 --
 -- Usage: bpp -f demo/basic/09-trans.lua
 
-local trans = require "scad/trans"
-local color = require "color"
+local trans  = require "scad/trans"
+local color  = require "color"
+local common = require "common"
 
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0,-100,0)
@@ -24,7 +25,7 @@ plane.sdl = [[
 ]]
 v:add(plane)
 
-v.gravity = btVector3(0,-9.81*20,0)
+common.gravity(-9.81 * 20)
 
 X = 40
 Y = 40
@@ -83,14 +84,10 @@ update(N)
 end)
 
 function setcam()
-  v.cam:setUpVector(btVector3(-0.149028, 0.74414, -0.651189), true)
-  v.cam.up   = btVector3(-0.149028, 0.74414, -0.651189)
-  v.cam.pos  = btVector3(13.0949, 43.915, 41.5668)
-  v.cam.look = btVector3(-208476, -667341, -714892)
-
-  v.cam.focal_blur     = 0
-  v.cam.focal_aperture = 20
-  v.cam.focal_point    = btVector3(1,10,0)
+  common.setCamera(btVector3(13.0949, 43.915, 41.5668),
+                   btVector3(-208476, -667341, -714892), nil,
+                   { up = btVector3(-0.149028, 0.74414, -0.651189),
+                     focal_aperture = 20, focal_point = btVector3(1,10,0) })
 end
 
 setcam()

@@ -85,9 +85,9 @@
 -- point in its own cycle, not just whichever pair happens to start low.
 --
 
-v.timeStep = 1/10
-v.maxSubSteps = 20
-v.fixedTimeStep = 1/480
+local common = require "common"
+
+common.setTiming(1/10, 20, 1/480)
 
 -- ---------------------------------------------------------------------
 -- shared geometry / constants
@@ -684,11 +684,8 @@ end)
 v:postSim(function(N)
   local CAM_SCALE = cube_w / 15
 
-  v.cam:setUpVector(btVector3(0,1,0), true)
-  v.cam:setFieldOfView(0.15)
-
-  v.cam.look = btVector3(cube.pos.x, cube.pos.y, cube.pos.z)
-  v.cam.pos  = btVector3(cube.pos.x - 120*CAM_SCALE, cube.pos.y, cube.pos.z + 120*CAM_SCALE)
+  common.setCamera(btVector3(cube.pos.x - 120*CAM_SCALE, cube.pos.y, cube.pos.z + 120*CAM_SCALE),
+                   btVector3(cube.pos.x, cube.pos.y, cube.pos.z), 0.15)
 end)
 
-v.gravity = btVector3(0, -9.8, 0)
+common.gravity(-9.8)

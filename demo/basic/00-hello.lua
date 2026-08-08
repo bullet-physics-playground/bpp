@@ -10,16 +10,15 @@
 --
 
 -- Load the color module for predefined color names
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 -- Load OpenSCAD geodesic sphere module
 local gs    = require "scad/geodesic_sphere"
 -- Load OpenSCAD text module
 local text  = require "scad/text"
 
 -- Set simulation timing: 25 fps, up to 120 substeps, 1/60s fixed timestep
-v.timeStep      = 1/25
-v.maxSubSteps   = 120
-v.fixedTimeStep = 1/60
+common.setTiming(1/25, 120, 1/60)
 
 -- Add parameters accessible from GUI
 v:addParam("sphereColor", "red")
@@ -37,7 +36,7 @@ v.pre_sdl = [[
 -- Create a ground plane at y=0, size 5x5 units
 p = Plane(0,1,0,0,10)
 p.pos = btVector3(0,0,0)
-p.col = color.forestgreen
+p.col = color.darkgray
 v:add(p)
 
 -- Create a cube at position (-2, 0.5, 0)
@@ -69,72 +68,40 @@ cy.col = "#00f"
 v:add(cy)
 co = Cone(0.2, 0.7, 0)
 co.col = "#00f"
-rot = btQuaternion()
-rot:setEuler(3.1415, 0.0, 0.0)
-pos = btVector3(0.0, 0.0, -3.5)
-transform = btTransform(rot, pos)
-co.trans = transform
+co.trans = common.transform(3.1415, 0.0, 0.0, 0.0, 0.0, -3.5)
 v:add(co)
 
 txt = text.new({ str = "z", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
 txt.col = "#00f"
-rot = btQuaternion()
-rot:setEuler(0.0, 0.0, 0.0)
-pos = btVector3(0, 0.25, -3.5)
-transform = btTransform(rot, pos)
-txt.trans = transform
+txt.trans = common.transform(0.0, 0.0, 0.0, 0, 0.25, -3.5)
 v:add(txt)
 
 cy = Cylinder(0.05, 7, 0)
 cy.col = "#0f0"
-rot = btQuaternion()
-rot:setEuler(0.0, -3.1415/2, 0.0)
-pos = btVector3(0, 0, 0)
-transform = btTransform(rot, pos)
-cy.trans = transform
+cy.trans = common.transform(0.0, -3.1415/2, 0.0, 0, 0, 0)
 v:add(cy)
 co = Cone(0.2, 0.7, 0)
 co.col = "#0f0"
-rot = btQuaternion()
-rot:setEuler(0.0, -3.1415/2, 0.0)
-pos = btVector3(0.0, 3.5, 0)
-transform = btTransform(rot, pos)
-co.trans = transform
+co.trans = common.transform(0.0, -3.1415/2, 0.0, 0.0, 3.5, 0)
 v:add(co)
 
 txt = text.new({ str = "y", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
 txt.col = "#0f0"
-rot = btQuaternion()
-rot:setEuler(-3.1415/2, 0.0, 0.0)
-pos = btVector3(0, 3.5 + 0.5, 0)
-transform = btTransform(rot, pos)
-txt.trans = transform
+txt.trans = common.transform(-3.1415/2, 0.0, 0.0, 0, 3.5 + 0.5, 0)
 v:add(txt)
 
 cy = Cylinder(0.05, 7, 0)
 cy.col = "#f00"
-rot = btQuaternion()
-rot:setEuler(3.1415/2, 0.0, 0.0)
-pos = btVector3(0, 0, 0)
-transform = btTransform(rot, pos)
-cy.trans = transform
+cy.trans = common.transform(3.1415/2, 0.0, 0.0, 0, 0, 0)
 v:add(cy)
 co = Cone(0.2, 0.7, 0)
 co.col = "#f00"
-rot = btQuaternion()
-rot:setEuler(3.1415/2, 0.0, 0.0)
-pos = btVector3(3.5, 0.0, 0.0)
-transform = btTransform(rot, pos)
-co.trans = transform
+co.trans = common.transform(3.1415/2, 0.0, 0.0, 3.5, 0.0, 0.0)
 v:add(co)
 
 txt = text.new({ str = "x", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
 txt.col = "#f00"
-rot = btQuaternion()
-rot:setEuler(-3.1415/2, 0.0, 0.0)
-pos = btVector3(3.5, 0.25, 0)
-transform = btTransform(rot, pos)
-txt.trans = transform
+txt.trans = common.transform(-3.1415/2, 0.0, 0.0, 3.5, 0.25, 0)
 v:add(txt)
 
 -- preStart: Called once before simulation starts

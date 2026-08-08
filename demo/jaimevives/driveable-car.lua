@@ -2,11 +2,10 @@
 -- Drivable car demo
 --
 
-v.gravity       = btVector3(0,-9.81,0)
+local common = require "common"
 
-v.timeStep      = 1/20
-v.maxSubSteps   = 14
-v.fixedTimeStep = 1/120
+common.gravity(-9.81)
+common.setTiming(1/20, 14, 1/120)
 
   pre_sdl = '#include "drivable_car_setup.inc"'
 v.pre_sdl = pre_sdl
@@ -1176,55 +1175,50 @@ end)
 -- *********************
 v:postSim(function(N)
 
-  v.cam:setUpVector(btVector3(0,1,0), true)
-
 -- CAMERA VIEWS 
 if(camera_view>0) then
   -- from the back, moves with the car
   if(camera_view==1) then
-    v.cam.pos = rear_stabilizer_bar.pos+btVector3(rear_stabilizer_bar.pos.x-front_stabilizer_bar.pos.x,chassis_height+5,rear_stabilizer_bar.pos.z-front_stabilizer_bar.pos.z)*2
-    v.cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+4,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
+    common.setCamera(rear_stabilizer_bar.pos+btVector3(rear_stabilizer_bar.pos.x-front_stabilizer_bar.pos.x,chassis_height+5,rear_stabilizer_bar.pos.z-front_stabilizer_bar.pos.z)*2,
+      chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+4,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z))
   end
   -- onboard
   if(camera_view==2) then
-    v.cam:setHorizontalFieldOfView(2.5)
-    v.cam.pos = btVector3(rear_stabilizer_bar.pos.x,chassis.pos.y+onboard_cam_height,rear_stabilizer_bar.pos.z)
-    v.cam.look = chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+onboard_cam_height,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z)
-    v.cam:setHorizontalFieldOfView(.5)
+    common.setCamera(btVector3(rear_stabilizer_bar.pos.x,chassis.pos.y+onboard_cam_height,rear_stabilizer_bar.pos.z),
+      chassis.pos+btVector3(front_stabilizer_bar.pos.x-rear_stabilizer_bar.pos.x,front_stabilizer_bar.pos.y-rear_stabilizer_bar.pos.y+onboard_cam_height,front_stabilizer_bar.pos.z-rear_stabilizer_bar.pos.z), 2.5,
+      { horizontal = true })
   end
   -- static mount looking at the car
   if(camera_view==3) then
-    v.cam.pos = btVector3(50,40,60)
-    v.cam.look = chassis.pos
-    v.cam:setHorizontalFieldOfView(1)
+    common.setCamera(btVector3(50,40,60), chassis.pos, 1,
+      { horizontal = true })
   end
   -- close look at the front suspension and wheels
   if(camera_view==4) then
-    v.cam.pos = btVector3(chassis.pos.x+79,5,chassis.pos.z)
-    v.cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-    v.cam:setHorizontalFieldOfView(.5)
+    common.setCamera(btVector3(chassis.pos.x+79,5,chassis.pos.z),
+      btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z), .5,
+      { horizontal = true })
   end
   -- close look at the rear suspension and wheels
   if(camera_view==5) then
-    v.cam.pos = btVector3(chassis.pos.x-45,chassis.pos.y,chassis.pos.z)
-    v.cam.look = btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z)
+    common.setCamera(btVector3(chassis.pos.x-45,chassis.pos.y,chassis.pos.z),
+      btVector3(chassis.pos.x+10-30,chassis.pos.y-3,chassis.pos.z))
   end
   -- from below
   if(camera_view==6) then
-    v.cam.pos = btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z)
-    v.cam.look = btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z)
-    v.cam:setHorizontalFieldOfView(.1)
+    common.setCamera(btVector3(chassis.pos.x,chassis.pos.y-400,chassis.pos.z),
+      btVector3(chassis.pos.x,chassis.pos.y,chassis.pos.z), .1,
+      { horizontal = true })
   end
   -- pseudo orthographic from the side 
   if(camera_view==7) then
-    v.cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z+2000)
-    v.cam.look = btVector3(chassis.pos.x,5,chassis.pos.z)
-    v.cam:setHorizontalFieldOfView(.025)
+    common.setCamera(btVector3(chassis.pos.x,500,chassis.pos.z+2000),
+      btVector3(chassis.pos.x,5,chassis.pos.z), .025,
+      { horizontal = true })
   end
 -- aerial view
   if(camera_view==8) then
-    v.cam.pos = btVector3(chassis.pos.x,500,chassis.pos.z)
-    v.cam.look = chassis.pos
+    common.setCamera(btVector3(chassis.pos.x,500,chassis.pos.z), chassis.pos)
   end
 end
 

@@ -6,28 +6,10 @@
 --
 -- Usage: bpp -f demo/basic/08-trimesh.lua
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.pre_sdl = v.pre_sdl..[==[
-
-// ground 
-
-#declare RasterScale = 1 ;
-#declare RasterHalfLine  = 0.045;
-#declare RasterHalfLineZ = 0.045;
-
-#macro Raster(RScale, HLine)
-   pigment{ gradient x scale RScale
-            color_map{[0.000   color rgbt<1,1,1,1>*0.6]
-                      [0+HLine color rgbt<1,1,1,1>*0.6]
-                      [0+HLine color rgbt<1,1,1,1>]
-                      [1-HLine color rgbt<1,1,1,1>]
-                      [1-HLine color rgbt<1,1,1,1>*0.6]
-                      [1.000   color rgbt<1,1,1,1>*0.6]} }
-   finish { ambient 0.15 diffuse 0.85}
-#end
-
-]==]
+v.pre_sdl = common.povRaster(1, 0.045, 0.045)
 
 p = Plane(0,1,0,0,100)
 p.pos = btVector3(0,-2,0)
@@ -57,15 +39,7 @@ function mesh()
   m:addTriangle(c, d, a, true)
   m:addTriangle(d, a, b, true)
 
- qtn = btQuaternion()
- trans = btTransform()
-
-trans:setIdentity()
-qtn:setEuler(0.0, 20, 0.0);
-trans:setRotation(qtn)
-trans:setOrigin(btVector3(0, 2, 0))
-
-ms    = btDefaultMotionState(trans)
+ms = btDefaultMotionState(common.transform(0.0, 20, 0.0, 0, 2, 0))
 
 shape = btGImpactMeshShape(m)
 

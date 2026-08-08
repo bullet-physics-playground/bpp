@@ -9,6 +9,8 @@
 -- but still allows rotation about the hinge axis).
 --
 
+local common = require "common"
+
 plane = Plane(0,1,0,0,20)
 plane.col = "#222222"
 v:add(plane)
@@ -25,13 +27,8 @@ for i = 1, LINKS do
   links[i] = link
 
   if i > 1 then
-    local frameInA = btTransform()
-    frameInA:setIdentity()
-    frameInA:setOrigin(btVector3(LEN * 0.5, 0, 0))
-
-    local frameInB = btTransform()
-    frameInB:setIdentity()
-    frameInB:setOrigin(btVector3(-LEN * 0.5, 0, 0))
+    local frameInA = common.transform(0, 0, 0, LEN * 0.5, 0, 0)
+    local frameInB = common.transform(0, 0, 0, -LEN * 0.5, 0, 0)
 
     local con = btFixedConstraint(links[i - 1].body, link.body, frameInA, frameInB)
     v:addConstraint(con)
@@ -44,8 +41,6 @@ end
 -- rigid rod, never flexing at any of its 4 welded joints.
 links[1].body:setAngularVelocity(btVector3(0, 0, 2))
 
-v.cam:setUpVector(btVector3(0, 1, 0), true)
-v.cam.pos  = btVector3(3, 9, 17)
-v.cam.look = btVector3(3, 2, 0)
+common.setCamera(btVector3(3, 9, 17), btVector3(3, 2, 0))
 
 -- EOF

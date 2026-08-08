@@ -6,9 +6,9 @@
 --
 -- Usage: bpp -f demo/basic/06-mesh.lua
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/5
+local common = require "common"
+
+common.setTiming(1/5, 10, 1/5)
 
 plane = Plane(0,1,0,0,500)
 plane.col = "#111111"
@@ -41,19 +41,7 @@ for i = 1,20 do
   v:add(m)
 end
 
--- cam pseudo orthogonal
-v.cam:setHorizontalFieldOfView(0.2)
-
--- cam up vector
-v.cam:setUpVector(
-  btVector3(0,1,0), false)
-
-r = 1000 z = 2000
-v.cam.pos = btVector3(r, z, r)
-v.cam.look = btVector3(0,p1.pos.y-150,0)
-
--- cam focal blur
-v.cam.focal_blur      = 10
-v.cam.focal_aperture  = 5
--- set blur point to mesh shape position
-v.cam.focal_point = p1.pos
+-- cam pseudo orthogonal, up vector, focal blur on the 10th torus
+common.setCamera(btVector3(1000, 2000, 1000), btVector3(0, p1.pos.y - 150, 0),
+                 0.2, { horizontal = true, noMove = false,
+                        focal_blur = 10, focal_point = p1.pos })

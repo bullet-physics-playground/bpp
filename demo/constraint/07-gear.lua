@@ -15,11 +15,11 @@ gearA.pos = btVector3(-25, 10, 0)
 gearA.col = "#ff0000"
 v:add(gearA)
 
+local common = require "common"
+
 gearB = Mesh("demo/mesh/spur-02.stl", 1, false)
 gearB.pos = btVector3(25, 10, 0)
-q = btQuaternion()
-q:setEulerZYX(0, 0, -theta)
-gearB.rot = q
+gearB.rot = common.quat(0, 0, -theta)
 gearB.col = "#006600"
 v:add(gearB)
 
@@ -46,8 +46,6 @@ hingeB = btHingeConstraint(
   btVector3(0, 0, 1))
 v:addConstraint(hingeB)
 
-v.cam:setUpVector(btVector3(0,1,0), true)
-v.cam.pos = btVector3(10, 100, 100)
-v.cam.look = btVector3(0, 10, 0)
+common.setCamera(btVector3(10, 100, 100), btVector3(0, 10, 0))
 
 -- EOF

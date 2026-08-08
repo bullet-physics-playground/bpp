@@ -6,11 +6,10 @@
 -- * F1 - prev car
 -- * F2 - next car
 
-local trans = require "scad/trans"
+local trans  = require "scad/trans"
+local common = require "common"
 
-v.timeStep      = 1/10
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/100
+common.setTiming(1/10, 10, 1/100)
 
 --v.gravity = btVector3(0,-9.81*.15,0)
 --v.gravity = btVector3(0,0,0)

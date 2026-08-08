@@ -2,11 +2,10 @@
 -- Piles of coins
 --
 
-local color = require "color"
+local color  = require "color"
+local common = require "common"
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 200
-v.fixedTimeStep = 1/300
+common.setTiming(1/5, 200, 1/300)
 
 plane = Plane(0,1,0,0,100)
 plane.col = color.darkgray
@@ -63,9 +62,8 @@ coins_pile(2,41,15,-15)
 coins_pile(3,43,-15,15)
 coins_pile(4,48,-15,-15)
 
-v.cam:setUpVector(btVector3(-0.0123214, 0.795762, -0.605484), true)
-v.cam.up   = btVector3(-0.0123214, 0.795762, -0.605484)
-v.cam.pos  = btVector3(76.6849, 2008.08, 2609.51)
-v.cam.look = btVector3(-23345.7, -603585, -792820)
+common.setCamera(btVector3(76.6849, 2008.08, 2609.51),
+                 btVector3(-23345.7, -603585, -792820), nil,
+                 { up = btVector3(-0.0123214, 0.795762, -0.605484) })
 
 -- EOF

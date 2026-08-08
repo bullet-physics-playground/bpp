@@ -6,6 +6,8 @@
 -- at a constant velocity like a plain motor).
 --
 
+local common = require "common"
+
 plane = Plane(0,1,0,0,10)
 plane.col = "#222222"
 v:add(plane)
@@ -20,13 +22,8 @@ link.pos = btVector3(0, 5, 0)
 link.col = "#ff6600"
 v:add(link)
 
-frameInA = btTransform()
-frameInA:setIdentity()
-frameInA:setOrigin(btVector3(0, -1, 0))
-
-frameInB = btTransform()
-frameInB:setIdentity()
-frameInB:setOrigin(btVector3(0, 1.5, 0))
+frameInA = common.transform(0, 0, 0, 0, -1, 0)
+frameInB = common.transform(0, 0, 0, 0, 1.5, 0)
 
 con = btGeneric6DofSpring2Constraint(
   base.body, link.body,
@@ -59,8 +56,6 @@ v:postSim(function(N)
   con:setServoTarget(5, target)
 end)
 
-v.cam:setUpVector(btVector3(0, 1, 0), true)
-v.cam.pos  = btVector3(10, 8, 14)
-v.cam.look = btVector3(0, 4, 0)
+common.setCamera(btVector3(10, 8, 14), btVector3(0, 4, 0))
 
 -- EOF

@@ -4,9 +4,9 @@
 
 -- Demo of the btPoint2PointConstraint
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 10
-v.fixedTimeStep = 1/20
+local common = require "common"
+
+common.setTiming(1/5, 10, 1/20)
 
 v.pre_sdl = [[
 
@@ -107,14 +107,8 @@ v:add(c)
 
 function setcam()
   h = 100
-  v.cam:setFieldOfView(0.75)
-  v.cam:setUpVector(btVector3(0,1,0), true)
-  v.cam.pos  = btVector3(250, h, 0)
-  v.cam.look = btVector3(-10000000, h, 0)
-
-  v.cam.focal_blur     = 7*1
-  v.cam.focal_aperture = 5
-  v.cam.focal_point    = c.pos
+  common.setCamera(btVector3(250, h, 0), btVector3(-10000000, h, 0), 0.75,
+                   { focal_blur = 7, focal_point = c.pos })
 end
 
 setcam()

@@ -43,13 +43,10 @@ pendulum_con2 = btHingeConstraint(
   btVector3(0, 1, 0), btVector3(0, 2, 0))
 v:addConstraint(pendulum_con2)
 
-frameInA = btTransform()
-frameInA:setIdentity()
-frameInA:setOrigin(btVector3(0, 1, 0))
+local common = require "common"
 
-frameInB = btTransform()
-frameInB:setIdentity()
-frameInB:setOrigin(btVector3(0, 0.5, 0))
+frameInA = common.transform(0, 0, 0, 0, 1, 0)
+frameInB = common.transform(0, 0, 0, 0, 0.5, 0)
 
 con = btSliderConstraint(
   base.body, slider.body,
@@ -73,9 +70,8 @@ v:postSim(function(N)
   con:setTargetAngMotorVelocity(angVel)
 end)
 
-v.cam:setUpVector(btVector3(0.0404929, 0.837619, -0.544752), true)
-v.cam.up   = btVector3(0.0404929, 0.837619, -0.544752)
-v.cam.pos  = btVector3(-1.07499, 14.0327, 21.5028)
-v.cam.look = btVector3(41823.5, -546128, -836626)
+common.setCamera(btVector3(-1.07499, 14.0327, 21.5028),
+                 btVector3(41823.5, -546128, -836626), nil,
+                 { up = btVector3(0.0404929, 0.837619, -0.544752) })
 
 -- EOF

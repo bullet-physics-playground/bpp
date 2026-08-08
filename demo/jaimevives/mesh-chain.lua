@@ -2,9 +2,9 @@
 -- Mesh cain demo
 --
 
-v.timeStep      = 1/5
-v.maxSubSteps   = 100
-v.fixedTimeStep = 1/50
+local common = require "common"
+
+common.setTiming(1/5, 100, 1/50)
 
 plane = Plane(0,1,0,0,100)
 plane.friction = 10
@@ -41,7 +41,6 @@ end
 
 chain(40,btVector3(0,60,0))
 
-v.cam:setUpVector(btVector3(-0.0076577, 0.99053, -0.137086), true)
-v.cam.up   = btVector3(-0.0076577, 0.99053, -0.137086)
-v.cam.pos  = btVector3(1.38623, 375.857, 2638.52)
-v.cam.look = btVector3(163.488, -136713, -987920)
+common.setCamera(btVector3(1.38623, 375.857, 2638.52),
+                 btVector3(163.488, -136713, -987920), nil,
+                 { up = btVector3(-0.0076577, 0.99053, -0.137086) })

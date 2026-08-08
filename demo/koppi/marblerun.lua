@@ -7,10 +7,9 @@
 local color = require "color"
 local marble = require "povray/marble"
 local path_extrude = require "scad/path_extrude"
+local common = require "common"
 
-v.timeStep      = 1/6
-v.maxSubSteps   = 200
-v.fixedTimeStep = 1/40
+common.setTiming(1/6, 200, 1/40)
 
 local speed = 0.175
 local s1 = 9e99
@@ -276,19 +275,9 @@ v:postSim(function(N)
 end)
 
 function setcam()
-  v.cam.focal_blur      = 0-- > 0: enable focal blur
-  v.cam.focal_aperture  = 5
-
-  -- set blur point to wheel shape position
-  v.cam.focal_point = w.pos
-
-  v.cam:setUpVector(btVector3(0,1,0), false)
-
-  -- pseudo orthogonal view
-  v.cam:setFieldOfView(.02)
-
-  v.cam.pos = btVector3(250,300,1000)
-  v.cam.look = btVector3(0,10,3)
+  -- set blur point to wheel shape position, pseudo orthogonal view
+  common.setCamera(btVector3(250,300,1000), btVector3(0,10,3), .02,
+                   { noMove = false, focal_point = w.pos })
 end
 
 setcam()
