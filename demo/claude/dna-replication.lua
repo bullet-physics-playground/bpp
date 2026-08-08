@@ -126,6 +126,15 @@ common.gravity(-9.81)
 -- radius/mass Sphere() is actually built with) is entirely unaffected;
 -- only what POV-Ray draws changes.
 --
+-- The same trick replaces every cylinder in this demo too: BlobCylinder()
+-- builds a fixed Cylinder() body whose exported shape is a blob rod -- an
+-- array of blob component spheres strung along the cylinder's local +Z axis
+-- (the axis a cylinder already rests along), spaced tightly enough that the
+-- metaball fields stay above threshold between neighbors and the whole thing
+-- reads as one smooth, slightly beaded strand rather than the default POV
+-- `cylinder { }` primitive. Backbones, rungs and the MCM2-7 ring markers are
+-- all drawn this way; their lengths, orientations and mass are unchanged.
+--
 local BLOB_THRESHOLD = 0.6
 local BLOB_R_SCALE = 1 / math.sqrt(1 - math.sqrt(BLOB_THRESHOLD))
 
@@ -146,6 +155,30 @@ local ION_ATOMS   = SINGLE_ATOM -- a bare ion (Mg2+) genuinely is just one atom
 
 local function BlobSphere(radius, mass)
   return MoleculeBlob(radius, mass, SINGLE_ATOM)
+end
+
+-- The cylinder equivalent of MoleculeBlob: a plain Cylinder physics body
+-- whose POV-Ray export is a blob rod -- `n` component spheres of the
+-- cylinder's radius strung down its local +Z axis from -depth/2 to
+-- +depth/2 (exactly where the default `cylinder { ... }` primitive would
+-- run), spaced close enough that the fields fuse into one smooth bead of a
+-- strand. The physics object underneath is still an ordinary Cylinder of
+-- the same radius/depth, so lengths, masses, orientations and every
+-- reposition/rotation call below are completely unaffected.
+local BLOB_ROD_SPACING = 0.5 -- center-to-center spacing of the bead spheres, as a fraction
+                             -- of each bead's blob radius (BLOB_R_SCALE * radius)
+
+local function BlobCylinder(radius, depth, mass)
+  local obj = Cylinder(radius, depth, mass)
+  local beadR = radius * BLOB_R_SCALE
+  local n = math.max(2, math.ceil(depth / (beadR * BLOB_ROD_SPACING)) + 1)
+  local parts = { string.format("blob {\n  threshold %.3f", BLOB_THRESHOLD) }
+  for k = 1, n do
+    local z = -depth / 2 + (k - 1) * (depth / (n - 1))
+    parts[#parts + 1] = string.format("  sphere { <0,0,%.5f>, %.5f, 1 }", z, beadR)
+  end
+  obj.pre_sdl = table.concat(parts, "\n")
+  return obj
 end
 
 -- n atoms evenly spaced around a ring of radius `ringR` (a multiple of the
@@ -425,8 +458,20 @@ local orientBetween = common.orientBetween
 -- vertical axis rather than a cylinder lying on its side.
 local VERTICAL_RING_ROT = orientBetween(btVector3(0, 0, 0), btVector3(0, 1, 0))
 
--- Places a fixed (mass 0) cylinder spanning p1..p2 and returns it.
-local placeCylinder = common.placeCylinder
+-- Places a fixed (mass 0) blob rod spanning p1..p2 and returns it -- the
+-- blob-rendered stand-in for common.placeCylinder (see BlobCylinder). The
+-- orientation from orientBetween, the midpoint placement, and the rigid
+-- repositionCylinder updates in rotateSceneGeometry all work exactly the
+-- same, because the object underneath is still a plain Cylinder.
+local function placeBlobCylinder(p1, p2, radius, col)
+  local rot, len, mid = orientBetween(p1, p2)
+  if len < 1e-6 then return nil end
+  local cy = BlobCylinder(radius, len, 0.01)
+  cy.col = col
+  cy.trans = btTransform(rot, mid)
+  v:add(cy)
+  return cy
+end
 
 -- Re-orients an already-placed cylinder to span p1..p2 (its length is
 -- fixed at creation, but rotateY is a rigid transform, so the distance
@@ -448,7 +493,7 @@ local function updateDynamicBackbone(record)
   if record.cy ~= nil then
     v:remove(record.cy)
   end
-  record.cy = placeCylinder(record.a.pos, record.b.pos, BACKBONE_R, BACKBONE_COL)
+  record.cy = placeBlobCylinder(record.a.pos, record.b.pos, BACKBONE_R, BACKBONE_COL)
 end
 
 -- Tethers `nuc` to a fixed, invisible-sized anchor at its rest position
@@ -484,8 +529,8 @@ end
 -- col2=, r= }; see updateRungCylinders/removeRungCylinders.
 local function createRungCylinders(pos1, pos2, col1, col2, radius)
   local mid = btVector3((pos1.x + pos2.x) * 0.5, (pos1.y + pos2.y) * 0.5, (pos1.z + pos2.z) * 0.5)
-  local cy1 = placeCylinder(pos1, mid, radius, col1)
-  local cy2 = placeCylinder(mid, pos2, radius, col2)
+  local cy1 = placeBlobCylinder(pos1, mid, radius, col1)
+  local cy2 = placeBlobCylinder(mid, pos2, radius, col2)
   return { cy1 = cy1, cy2 = cy2, col1 = col1, col2 = col2, r = radius }
 end
 
@@ -499,8 +544,8 @@ local function updateRungCylinders(rung, pos1, pos2)
   if rung.cy1 ~= nil then v:remove(rung.cy1) end
   if rung.cy2 ~= nil then v:remove(rung.cy2) end
   local mid = btVector3((pos1.x + pos2.x) * 0.5, (pos1.y + pos2.y) * 0.5, (pos1.z + pos2.z) * 0.5)
-  rung.cy1 = placeCylinder(pos1, mid, rung.r, rung.col1)
-  rung.cy2 = placeCylinder(mid, pos2, rung.r, rung.col2)
+  rung.cy1 = placeBlobCylinder(pos1, mid, rung.r, rung.col1)
+  rung.cy2 = placeBlobCylinder(mid, pos2, rung.r, rung.col2)
 end
 
 local function removeRungCylinders(rung)
@@ -626,8 +671,8 @@ for i = 1, NBP do
   rungs[i] = createRungCylinders(pos1, pos2, BASE_COLOR[strand1[i]], BASE_COLOR[strand2Base(i)], rungR)
 
   if i > 1 then
-    backbone1[i] = placeCylinder(basePos(i - 1, 1), pos1, BACKBONE_R, BACKBONE_COL)
-    backbone2[i] = placeCylinder(basePos(i - 1, 2), pos2, BACKBONE_R, BACKBONE_COL)
+    backbone1[i] = placeBlobCylinder(basePos(i - 1, 1), pos1, BACKBONE_R, BACKBONE_COL)
+    backbone2[i] = placeBlobCylinder(basePos(i - 1, 2), pos2, BACKBONE_R, BACKBONE_COL)
   end
 end
 
@@ -879,7 +924,7 @@ local function extendLeadingStrand(fork, i)
   local con = btPoint2PointConstraint(fork.leadChainEnd.body, nuc.body,
                                        btVector3(0, 0, 0), btVector3(0, 0, 0))
   v:addConstraint(con)
-  local backbone = placeCylinder(fork.leadChainEnd.pos, nuc.pos, BACKBONE_R, LEADING_STRAND_COL)
+  local backbone = placeBlobCylinder(fork.leadChainEnd.pos, nuc.pos, BACKBONE_R, LEADING_STRAND_COL)
   fork.leadBackbone[#fork.leadBackbone + 1] = { cy = backbone, a = fork.leadChainEnd, b = nuc }
   fork.leadChainEnd = nuc
   repositionEnzymeCluster(fork.leadPolymerase, nuc.pos)
@@ -927,7 +972,7 @@ local function extendLaggingStrand(fork, i)
   local con = btPoint2PointConstraint(fork.lagChainEnd.body, nuc.body,
                                        btVector3(0, 0, 0), btVector3(0, 0, 0))
   v:addConstraint(con)
-  local backbone = placeCylinder(fork.lagChainEnd.pos, nuc.pos, BACKBONE_R, LAGGING_STRAND_COL)
+  local backbone = placeBlobCylinder(fork.lagChainEnd.pos, nuc.pos, BACKBONE_R, LAGGING_STRAND_COL)
   fork.lagBackbone[#fork.lagBackbone + 1] = { cy = backbone, a = fork.lagChainEnd, b = nuc }
   fork.lagChainEnd = nuc
   fork.lagFragmentLen = fork.lagFragmentLen + 1
@@ -948,7 +993,7 @@ local function extendLaggingStrand(fork, i)
       local ligaseCon = btPoint2PointConstraint(fork.lastLigatedEnd.body, fork.lagPrimer.body,
                                                  btVector3(0, 0, 0), btVector3(0, 0, 0))
       v:addConstraint(ligaseCon)
-      local ligaseBackbone = placeCylinder(fork.lastLigatedEnd.pos, fork.lagPrimer.pos,
+      local ligaseBackbone = placeBlobCylinder(fork.lastLigatedEnd.pos, fork.lagPrimer.pos,
                                             BACKBONE_R, LAGGING_STRAND_COL)
       fork.lagBackbone[#fork.lagBackbone + 1] =
         { cy = ligaseBackbone, a = fork.lastLigatedEnd, b = fork.lagPrimer }
@@ -1193,7 +1238,7 @@ v:postSim(function(N)
       -- for initiation, not just another multiplicative factor.
       if not o.licensed and N >= LICENSING_STEP then
         o.licensed = true
-        local mcm = Cylinder(0.55, 0.2, 0)
+        local mcm = BlobCylinder(0.55, 0.2, 0)
         mcm.col = MCM_COL
         mcm.trans = btTransform(VERTICAL_RING_ROT, originAxisPos(o.index))
         v:add(mcm)
@@ -1319,6 +1364,6 @@ v:postSim(function(N)
   end
 end)
 
-common.setCamera(btVector3(18, 10, 0), btVector3(0, 8, 0), 1)
+common.setCamera(btVector3(48, 10, 0), btVector3(0, 8, 0), 0.1)
 
 -- EOF
