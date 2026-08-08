@@ -277,6 +277,11 @@ local PRIMASE_COL      = "#ff8800" -- primase, lays each RNA primer
 local POLYMERASE_COL   = "#5599ff" -- DNA polymerase, actively extending a strand
 local EXONUCLEASE_COL  = "#aa4477" -- 5'->3' exonuclease, removes each RNA primer
 local LIGASE_COL       = "#ccdd33" -- DNA ligase, welds Okazaki fragments together
+local TOPO2_COL        = "#2299aa" -- topoisomerase II, decatenates the two finished daughter helices
+local HISTONE_COL      = "#c9a876" -- histone octamer, DNA wraps around it to form a nucleosome
+local COHESIN_COL      = "#7788cc" -- cohesin, rings the two sister chromatids together
+local MMR_COL          = "#cc6699" -- mismatch repair complex, a second chance for escaped errors
+local CHECKPOINT_COL   = "#ffee66" -- G2/M checkpoint flash
 
 --
 -- 1. Elongation kinetics (Michaelis-Menten): v = Vmax*[dNTP] / (Km+[dNTP]).
@@ -371,6 +376,45 @@ local ROTATION_SPEED = 0.006      -- radians the whole helix turns per simulatio
 -- rotated by this angle (via rotateY) before being applied to an object.
 local rotationAngle = 0
 
+-- Once replication finishes, both resulting double helices -- strand1 plus
+-- its new outer partner, and strand2 plus its own -- untwist out of their
+-- spiral shape: topoisomerase has already relieved all torsional stress by
+-- then, so there is no more supercoiling tension holding the coil closed.
+-- Ramped from 0 (the normal, fully twisted helix) to 1 (fully untwisted)
+-- over UNTWIST_STEPS once postSim sees replication complete (see basePos()
+-- below for how this actually straightens each strand).
+local UNTWIST_STEPS   = 240
+local untwistProgress = 0
+
+-- Once untwisting is done, the two straightened daughter duplexes are still
+-- topologically interlinked (catenated) from having been wound around each
+-- other -- real topoisomerase II resolves this by passing one duplex
+-- through a transient double-strand break in the other, then resealing it,
+-- letting the two molecules drift apart. Modeled here as a growing world-Z
+-- offset -- +Z for strand 1's daughter duplex, -Z for strand 2's -- added
+-- in basePos() below, ramped from 0 to 1 over DECATENATION_STEPS.
+local DECATENATION_STEPS = 150
+local DECATENATION_SEP   = 3.5    -- how far apart (world Z, each way) the two molecules end up
+local decatenationProgress = 0
+
+-- Chromatin repackaging: once decatenated, each daughter duplex gets a
+-- histone marker every NUCLEOSOME_BP_STEP bp (nucleosomes are DNA wrapped
+-- around a histone octamer -- see spawnChromatinStep below), spawned one at
+-- a time every CHROMATIN_SPAWN_INTERVAL steps, plus a single cohesin ring
+-- linking the two sister chromatids at the "centromere" bp (their midpoint).
+local NUCLEOSOME_BP_STEP        = 6
+local CHROMATIN_SPAWN_INTERVAL  = 12
+local CENTROMERE_BP             = math.floor(NBP / 2)
+
+-- Mismatch repair: after chromatin packaging, every base that escaped
+-- proofreading (see pickBaseWithFidelity/MUTATION_COL) gets one further,
+-- independent chance at correction -- distinguishing the new strand from
+-- the methylated template the way real MMR does, simplified here to a
+-- straight live probability roll. One site is visited every
+-- MMR_STEP_INTERVAL steps so the repair pass reads as a gradual scan of
+-- the genome rather than an instant fix-up.
+local MMR_STEP_INTERVAL = 15
+
 -- Rotates pos by `angle` radians around the vertical (Y) axis.
 local rotateY = common.rotateY
 
@@ -426,11 +470,20 @@ end
 --
 
 -- World-space position of nucleotide `strand` (1 or 2) at base-pair index i.
+-- The per-bp angular step scales down by (1 - untwistProgress): normally
+-- (0) this is the full helical TWIST; once replication finishes and
+-- untwistProgress ramps to 1 (see postSim), every bp's angle collapses to
+-- the same constant (0 for strand 1, pi for strand 2), so the strand
+-- straightens from a spiral into a flat vertical line. Once untwisted,
+-- decatenationProgress (see postSim) then pushes each strand's whole
+-- daughter duplex further apart along world Z -- +Z for strand 1, -Z for
+-- strand 2 -- so the two finished molecules visibly separate.
 local function basePos(i, strand)
-  local angle = (i - 1) * TWIST
+  local angle = (i - 1) * TWIST * (1 - untwistProgress)
   if strand == 2 then angle = angle + math.pi end
   local y = (i - 1) * RISE
-  return btVector3(RADIUS * math.cos(angle), y, RADIUS * math.sin(angle))
+  local zSep = (strand == 1 and 1 or -1) * DECATENATION_SEP * decatenationProgress
+  return btVector3(RADIUS * math.cos(angle), y, RADIUS * math.sin(angle) + zSep)
 end
 
 -- Point on the helix's own central (vertical) axis at base-pair index i --
@@ -629,6 +682,43 @@ local function updateTimedMarkers()
   end
 end
 
+-- A single GLOBAL "current phase" indicator, printed once whenever it
+-- changes (see setPhase below) so the log gives an at-a-glance sense of how
+-- far replication has progressed overall, alongside the more granular
+-- per-event prints (a specific origin firing, one Okazaki fragment's
+-- ligase weld, etc.) scattered through the fork machinery. With multiple
+-- origins firing at different times, the four canonical phases genuinely
+-- overlap across forks -- one fork can be elongating while another is
+-- still priming -- so this tracks the FURTHEST phase reached by ANY fork
+-- so far, monotonically, rather than trying to model each fork's own
+-- (much noisier) independent phase separately. Phases 1-4 reuse the exact
+-- wording already printed once in preStart's header; 5-11 cover what
+-- happens after Phase 4 finishes in a real cell -- completion, untwisting,
+-- decatenation, chromatin repackaging, mismatch repair, and finally the
+-- G2/M checkpoint gate -- see the postSim block below for each one's own
+-- trigger.
+local PHASE_NAMES = {
+  [1]  = "Phase 1 Initiation: topoisomerase + helicase unwind the helix, SSB proteins coat the exposed single strands",
+  [2]  = "Phase 2 Priming: primase lays an RNA primer for polymerase to extend from",
+  [3]  = "Phase 3 Elongation: polymerase synthesizes 5'->3', continuous on the leading strand, in Okazaki fragments on the lagging strand",
+  [4]  = "Phase 4 Termination: polymerase I replaces primers with DNA, ligase welds the Okazaki fragments into one continuous strand",
+  [5]  = "Replication complete: both new strands are fully synthesized",
+  [6]  = "Untwisting: both new double helices relax out of their spiral shape",
+  [7]  = "Relaxed: both new double helices are fully untwisted",
+  [8]  = "Decatenation: topoisomerase II unlinks the two interlinked daughter helices",
+  [9]  = "Chromatin repackaging: histones reassemble into nucleosomes, cohesin links the sister chromatids",
+  [10] = "Mismatch repair: escaped replication errors get one further chance at correction",
+  [11] = "Cell cycle checkpoint: replication verified complete -- the cell may proceed toward mitosis",
+}
+
+local currentPhase = 0 -- 0 = nothing has happened yet; preStart below advances it to 1
+
+local function setPhase(n)
+  if n <= currentPhase then return end -- monotonic: never re-announce an earlier/current phase
+  currentPhase = n
+  print("[Phase] " .. PHASE_NAMES[n])
+end
+
 -- Build the original double helix: two backbones of colored nucleotide
 -- spheres linked to their neighbor by a backbone cylinder, plus a
 -- hydrogen-bond rung between each base pair -- two colored cylinders
@@ -765,8 +855,13 @@ end
 -- computed fresh from the real local stacking context, then rolled
 -- against the live thermoAmplification/proofreadingEfficiency params.
 --
-local mutationStats = { attempted = 0, caught = 0, escaped = 0 }
+local mutationStats = { attempted = 0, caught = 0, escaped = 0, mmrCaught = 0 }
 local totalPairingEnergyKJ = 0 -- running DG_pairing of the two new strands, for the final summary
+
+-- Every escaped mutation (see MUTATION_COL below), recorded so the later
+-- mismatch-repair pass (see postSim) has real sites to visit instead of
+-- needing to rescan the whole molecule for MUTATION_COL-colored spheres.
+local mutationSites = {} -- { obj=, correctBase=, repaired= }
 
 -- Nearest-neighbor stacking DG for the duplex step formed by `prevBase`
 -- (the last base already incorporated on this new strand) followed by
@@ -903,6 +998,7 @@ local function extendLeadingStrand(fork, i)
     -- call below, run every time this strand gains a nucleotide).
     spawnTimedEnzyme(fork.leadAnchor.pos, EXONUCLEASE_COL, 0.06, 4)
     fork.leadPolymerase = createEnzymeCluster(fork.leadAnchor.pos, POLYMERASE_COL, 0.09, 5)
+    setPhase(4)
     print("DNA polymerase I replaces the leading strand's primer with DNA (fork from bp " ..
           fork.startIndex .. ")")
   end
@@ -919,6 +1015,7 @@ local function extendLeadingStrand(fork, i)
     print(string.format(
       "UNCORRECTED replication error at bp %d (leading strand): inserted %s instead of %s",
       i, base, correctBase))
+    mutationSites[#mutationSites + 1] = { obj = nuc, correctBase = correctBase, repaired = false }
   end
 
   local con = btPoint2PointConstraint(fork.leadChainEnd.body, nuc.body,
@@ -967,6 +1064,7 @@ local function extendLaggingStrand(fork, i)
     print(string.format(
       "UNCORRECTED replication error at bp %d (lagging strand): inserted %s instead of %s",
       i, base, correctBase))
+    mutationSites[#mutationSites + 1] = { obj = nuc, correctBase = correctBase, repaired = false }
   end
 
   local con = btPoint2PointConstraint(fork.lagChainEnd.body, nuc.body,
@@ -988,6 +1086,7 @@ local function extendLaggingStrand(fork, i)
     -- permanently unfinished.)
     fork.lagPrimer.col = LAGGING_STRAND_COL
     spawnTimedEnzyme(fork.lagPrimer.pos, EXONUCLEASE_COL, 0.06, 4)
+    setPhase(4)
     print("DNA polymerase I replaces the RNA primer at bp " .. i .. " with DNA")
     if fork.lastLigatedEnd ~= nil then
       local ligaseCon = btPoint2PointConstraint(fork.lastLigatedEnd.body, fork.lagPrimer.body,
@@ -1062,6 +1161,8 @@ v:preStart(function(N)
   local s2 = {}
   for i = 1, NBP do s2[i] = strand2Base(i) end
   print("Strand 2 (template for the leading daughter, 5'->3'):  " .. table.concat(s2))
+  print("")
+  setPhase(1)
 end)
 
 v:addParam("dNTP_uM", 40, 0, 100)               -- [dNTP], Michaelis-Menten input, also feeds D(t)
@@ -1069,6 +1170,8 @@ v:addParam("eukaryote", true)                   -- Vmax = human (true) or E. col
 v:addParam("thermoAmplification", 25, 1, 100)    -- scales the computed thermodynamic misincorporation
                                                   -- ratio up so a mutation is visible in a 48 bp demo
 v:addParam("proofreadingEfficiency", 0.85, 0, 0.999) -- chance an attempt gets caught
+v:addParam("mmrEfficiency", 0.7, 0, 0.999)       -- post-replication mismatch repair's own,
+                                                  -- independent chance to still catch an escaped error
 v:addParam("wobbleForce", 3.0, 0, 8)             -- magnitude of the per-step random thermal force
 v:addParam("brownianForce", 0.5, 0, 3)           -- jitter magnitude for floating background molecules
 v:addParam("cdkActivity", 1.0, 0, 1.5)           -- CDK2/4/6 activity, the other half of Drive D(t)
@@ -1188,7 +1291,31 @@ end
 
 local totalSynthesized = 0
 local replicationAnnounced = false
+local untwistAnnounced = false
+local decatenationAnnounced = false -- true once decatenationProgress reaches 1
 local phiRampProgress = 0 -- steps of G1->S progress banked so far (frozen during checkpoint arrest)
+
+-- Chromatin repackaging state: nucleosomeBps lists every bp that gets a
+-- histone marker (see NUCLEOSOME_BP_STEP), on both daughter duplexes;
+-- chromatinSpawnIndex walks through that combined list two-at-a-time (one
+-- histone per strand per visited bp), CHROMATIN_SPAWN_INTERVAL steps apart.
+-- histoneMarkers/cohesinRing are repositioned every frame in
+-- rotateSceneGeometry, same as every other persistent marker.
+local nucleosomeBps = {}
+for i = 1, NBP, NUCLEOSOME_BP_STEP do nucleosomeBps[#nucleosomeBps + 1] = i end
+local chromatinSpawnIndex = 0
+local chromatinAnnounced = false
+local histoneMarkers = {} -- { obj=, bp=, strand= }
+local cohesinRing = nil
+
+-- Mismatch repair state: mmrIndex walks through mutationSites one at a
+-- time, MMR_STEP_INTERVAL steps apart (see postSim); mmrMarker is the
+-- transient repair-complex marker shown at whichever site is being visited.
+local mmrIndex = 0
+local mmrMarker = nil
+local mmrAnnounced = false
+
+local checkpointAnnounced = false
 
 -- postSim: Called after each simulation step.
 --
@@ -1273,6 +1400,7 @@ v:postSim(function(N)
           meltOrigin(o.index)
           forks[#forks + 1] = createFork(o.index, 1)
           forks[#forks + 1] = createFork(o.index, -1)
+          setPhase(2) -- this fork's createFork() already laid its first primer
           print(string.format(
             "Cdc45/GINS join the loaded hexamers, forming two CMG helicases -- origin at " ..
             "bp %d fires at step %d: R = %.2f(Phi)*%.2f(A)*%.2f(D)*%.2f(C) = " ..
@@ -1339,6 +1467,11 @@ v:postSim(function(N)
           v:remove(markers[2])
           ssbMarkers[nextI] = nil
         end
+        -- Set before extending: extendLeadingStrand's very first call for a
+        -- fork replaces that fork's leading primer immediately (see below)
+        -- and would otherwise call setPhase(4) before Phase 3 ever got
+        -- announced, silently skipping it under setPhase's monotonic guard.
+        setPhase(3)
         extendLeadingStrand(f, nextI)
         extendLaggingStrand(f, nextI)
         f.synthPos = nextI
@@ -1349,6 +1482,7 @@ v:postSim(function(N)
 
   if totalSynthesized >= NBP and not replicationAnnounced then
     replicationAnnounced = true
+    setPhase(5)
     print("Replication complete: two double helices now exist, each with " ..
           "one original strand and one newly synthesized strand.")
     print(string.format(
@@ -1361,6 +1495,21 @@ v:postSim(function(N)
       "Total DG_pairing of the two new daughter strands: %.1f kJ/mol (sum of every " ..
       "correctly incorporated step's real nearest-neighbor stacking energy)",
       totalPairingEnergyKJ))
+    setPhase(6)
+    print("Both new double helices begin to untwist, relaxing out of their spiral " ..
+          "shape now that no more torsional stress needs to be held.")
+  end
+
+  -- Untwisting itself (see basePos()): ramps once replication is complete,
+  -- independent of the announcement block above so it keeps advancing every
+  -- step afterward, not just the one step replicationAnnounced flips.
+  if replicationAnnounced and untwistProgress < 1 then
+    untwistProgress = math.min(1, untwistProgress + 1 / UNTWIST_STEPS)
+    if untwistProgress >= 1 and not untwistAnnounced then
+      untwistAnnounced = true
+      setPhase(7)
+      print("Both new double helices have fully untwisted into straight, unwound strands.")
+    end
   end
 end)
 
