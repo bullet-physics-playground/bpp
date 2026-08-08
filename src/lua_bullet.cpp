@@ -859,8 +859,8 @@ void LuaBullet::luaBind(lua_State *s) {
            .def("setCompanionId", &btCollisionObject::setCompanionId)
            .def("getHitFraction", &btCollisionObject::getHitFraction)
            .def("setHitFraction", &btCollisionObject::setHitFraction)
-           .def("getCollisionFlags", &btCollisionObject::setCollisionFlags)
-           .def("setCollisionFlags", &btCollisionObject::getCollisionFlags)
+           .def("getCollisionFlags", &btCollisionObject::getCollisionFlags)
+           .def("setCollisionFlags", &btCollisionObject::setCollisionFlags)
            .def("getCcdSweptSphereRadius",
                 &btCollisionObject::getCcdSweptSphereRadius)
            .def("setCcdSweptSphereRadius",
