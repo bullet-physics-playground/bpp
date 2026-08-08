@@ -46,6 +46,12 @@ public:
   QColor getColor() const;
   QString getColorString() const;
 
+  // 0.0 = fully opaque, 1.0 = fully transparent -- matches POV-Ray's own
+  // rgbt transmit channel directly, so povPigment() can pass it straight
+  // through with no remapping.
+  void setTransparency(btScalar t);
+  btScalar getTransparency() const;
+
   void setPosition(btScalar x, btScalar y, btScalar z);
   void setPosition(const btVector3 &v);
 
@@ -132,7 +138,16 @@ public:
   static void povMatrixFromGL(const float *gl, float *pov);
 
 protected:
+  // Shared by every derived object's toPOV()/renderInLocalFrame(): writes
+  // the standard "pigment { rgbt <r,g,b,t> }" line (used whenever there's
+  // no custom .sdl override) and applies color+alpha as the current GL
+  // color, respectively -- centralizing these means transparency support
+  // doesn't have to be re-implemented in each of the ~10 primitive types.
+  void povPigment(QTextStream *s) const;
+  void glApplyColor() const;
+
   unsigned char color[3];
+  btScalar transparency;
 
   bool photons_enable;
   bool photons_reflection;

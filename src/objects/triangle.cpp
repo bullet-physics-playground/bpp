@@ -98,8 +98,7 @@ void Triangle::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -128,7 +127,7 @@ void Triangle::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   btVector3 edge2 = vertices[2] - vertices[0];
   btVector3 normal = edge1.cross(edge2).normalized();
 
-  glColor3ubv(color);
+  glApplyColor();
 
   glBegin(GL_TRIANGLES);
   glNormal3f(normal.x(), normal.y(), normal.z());

@@ -86,8 +86,7 @@ void Sphere::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -113,6 +112,6 @@ void Sphere::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   Q_UNUSED(maxaabb)
 
   glScalef(radius, radius, radius);
-  glColor3ub(color[0], color[1], color[2]);
+  glApplyColor();
   solidSphere(1.0f, 32, 16);
 }

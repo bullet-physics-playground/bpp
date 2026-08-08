@@ -100,8 +100,7 @@ void Cone::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -128,6 +127,6 @@ void Cone::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
 
   glTranslated(0, 0, -height * .5);
   glScalef(radius, radius, height);
-  glColor3ubv(color);
+  glApplyColor();
   solidCone(1, 1, 16, 16);
 }

@@ -232,8 +232,7 @@ QString Terrain::toPOV(const QString &sceneDir) const {
     if (!mSDL.isNull()) {
       s << mSDL << "\n";
     } else {
-      s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-        << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(&s);
     }
 
     s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -278,7 +277,7 @@ void Terrain::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-  glColor3ubv(color);
+  glApplyColor();
 
   TerrainGlDrawCallback drawCallback;
   btVector3 aabbMin(-1e99, -1e99, -1e99);

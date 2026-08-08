@@ -1171,6 +1171,79 @@ module(
            .def(const_self == const_self)];
 
 module(
+    s)[class_<btGeneric6DofSpring2Constraint, btTypedConstraint>(
+           "btGeneric6DofSpring2Constraint")
+           .def(constructor<btRigidBody &, btRigidBody &, const btTransform &,
+                            const btTransform &>())
+           .def("setLinearUpperLimit",
+                &btGeneric6DofSpring2Constraint::setLinearUpperLimit)
+           .def("setLinearLowerLimit",
+                &btGeneric6DofSpring2Constraint::setLinearLowerLimit)
+           .def("setAngularUpperLimit",
+                &btGeneric6DofSpring2Constraint::setAngularUpperLimit)
+           .def("setAngularLowerLimit",
+                &btGeneric6DofSpring2Constraint::setAngularLowerLimit)
+           .def("setLimit", &btGeneric6DofSpring2Constraint::setLimit)
+           .def("setAxis", &btGeneric6DofSpring2Constraint::setAxis)
+           .def("setBounce", &btGeneric6DofSpring2Constraint::setBounce)
+           .def("enableMotor", &btGeneric6DofSpring2Constraint::enableMotor)
+           .def("setServo", &btGeneric6DofSpring2Constraint::setServo)
+           .def("setTargetVelocity",
+                &btGeneric6DofSpring2Constraint::setTargetVelocity)
+           .def("setServoTarget",
+                &btGeneric6DofSpring2Constraint::setServoTarget)
+           .def("setMaxMotorForce",
+                &btGeneric6DofSpring2Constraint::setMaxMotorForce)
+           .def("enableSpring", &btGeneric6DofSpring2Constraint::enableSpring)
+           .def("setStiffness", &btGeneric6DofSpring2Constraint::setStiffness)
+           .def("setDamping", &btGeneric6DofSpring2Constraint::setDamping)
+           .def("setEquilibriumPoint",
+                (void(btGeneric6DofSpring2Constraint::*)()) &
+                    btGeneric6DofSpring2Constraint::setEquilibriumPoint)
+           .def("setEquilibriumPoint",
+                (void(btGeneric6DofSpring2Constraint::*)(int)) &
+                    btGeneric6DofSpring2Constraint::setEquilibriumPoint)
+           .def("setEquilibriumPoint",
+                (void(btGeneric6DofSpring2Constraint::*)(int, btScalar)) &
+                    btGeneric6DofSpring2Constraint::setEquilibriumPoint)
+           .def("setParam", &btGeneric6DofSpring2Constraint::setParam)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+// btFixedConstraint: a btGeneric6DofSpring2Constraint with every linear and
+// angular DOF locked at construction, welding rbA/rbB rigidly together at
+// their relative frameInA/frameInB offset -- unlike btPoint2PointConstraint
+// (locks position only) or a mass-0 body (immovable rather than jointed to
+// another dynamic body), this is the one constraint that removes all 6
+// relative degrees of freedom between two otherwise-independent bodies.
+module(s)[class_<btFixedConstraint, btGeneric6DofSpring2Constraint>(
+              "btFixedConstraint")
+              .def(constructor<btRigidBody &, btRigidBody &,
+                               const btTransform &, const btTransform &>())
+              .def(tostring(const_self))
+              .def(const_self == const_self)];
+
+// btHinge2Constraint: an btGeneric6DofSpring2Constraint specialized for
+// suspension -- 2 angular DOFs (steering around axis1, wheel spin around
+// axis2, which must be orthogonal) plus 1 linear DOF along axis1 for the
+// suspension's own spring travel; commonly used for a vehicle's
+// steerable/driven wheel.
+module(s)[class_<btHinge2Constraint, btGeneric6DofSpring2Constraint>(
+              "btHinge2Constraint")
+              .def(constructor<btRigidBody &, btRigidBody &, btVector3 &,
+                               btVector3 &, btVector3 &>())
+              .def("getAnchor", &btHinge2Constraint::getAnchor)
+              .def("getAnchor2", &btHinge2Constraint::getAnchor2)
+              .def("getAxis1", &btHinge2Constraint::getAxis1)
+              .def("getAxis2", &btHinge2Constraint::getAxis2)
+              .def("getAngle1", &btHinge2Constraint::getAngle1)
+              .def("getAngle2", &btHinge2Constraint::getAngle2)
+              .def("setUpperLimit", &btHinge2Constraint::setUpperLimit)
+              .def("setLowerLimit", &btHinge2Constraint::setLowerLimit)
+              .def(tostring(const_self))
+              .def(const_self == const_self)];
+
+module(
     s)[class_<btUniversalConstraint, btTypedConstraint>(
            "btUniversalConstraint")
            .def(constructor<btRigidBody &, btRigidBody &, const btVector3 &,

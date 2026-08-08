@@ -181,8 +181,7 @@ void SoftBody::toPOV(QTextStream *s) const {
   if (!mSDL.isNull()) {
     *s << mSDL << "\n";
   } else {
-    *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-       << ", " << color[2] / 255.0 << "> }\n";
+    povPigment(s);
   }
 
   if (mPostSDL.isNull()) {
@@ -196,11 +195,18 @@ void SoftBody::renderWorld() {
   if (m_softBody == nullptr)
     return;
 
-  glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+  glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT |
+               GL_DEPTH_BUFFER_BIT);
   glEnable(GL_NORMALIZE);
   glDisable(GL_CULL_FACE);
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-  glColor3ub(color[0], color[1], color[2]);
+  glApplyColor();
+
+  if (transparency > 0.0) {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE);
+  }
 
   const btSoftBody::tFaceArray &faces = m_softBody->m_faces;
 

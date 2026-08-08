@@ -97,8 +97,7 @@ void Plane::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -138,7 +137,7 @@ void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   btVector3 pt2 = planeOrigin - vec1 * vecLen;
   btVector3 pt3 = planeOrigin + vec1 * vecLen;
 
-  glColor3ubv(color);
+  glApplyColor();
 
   glBegin(GL_LINES);
   glVertex3f(pt0.getX(), pt0.getY(), pt0.getZ());

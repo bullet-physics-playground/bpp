@@ -426,8 +426,7 @@ QString Mesh::toPOV(const QString &sceneDir) const {
     if (!mSDL.isNull()) {
       s << mSDL << "\n";
     } else {
-      s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-        << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(&s);
     }
 
     s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -472,7 +471,7 @@ void Mesh::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-  glColor3ubv(color);
+  glApplyColor();
 
   if (m_scene != nullptr && m_scene->mMeshes != nullptr) {
     const struct aiMesh *mesh = m_scene->mMeshes[0];

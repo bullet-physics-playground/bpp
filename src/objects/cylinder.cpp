@@ -90,8 +90,7 @@ void Cylinder::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -119,6 +118,6 @@ void Cylinder::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   // translate to match Bullet cylinder origin
   glTranslated(0, 0, -lengths[2] * .5);
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glColor3ubv(color);
+  glApplyColor();
   solidCylinder(1, 1, 16, 16);
 }

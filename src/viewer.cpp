@@ -1225,7 +1225,12 @@ void Viewer::setSpaceNavigatorPanZoom(bool on) {
 bool Viewer::spaceNavigatorPanZoom() const { return _snPanZoom; }
 
 void Viewer::setShowConstraints(bool on) {
-  QMutexLocker locker(&mutex);
+  // No mutex here (unlike the input-event setters above): Viewer::parse()
+  // already holds `mutex` for a script's entire run, so a script setting
+  // v.showConstraints at top level -- the natural place to do it -- would
+  // deadlock against itself on a plain (non-recursive) QMutex. _showConstraints
+  // is a single bool only ever read from the render thread in
+  // drawConstraints(), same as the unlocked setTau/setErp/setCfm above.
   _showConstraints = on;
 }
 
@@ -2239,11 +2244,36 @@ void Viewer::drawConstraint(btTypedConstraint *c, btScalar size) {
     break;
   }
   case D6_CONSTRAINT_TYPE:
-  case D6_SPRING_CONSTRAINT_TYPE:
-  case D6_SPRING_2_CONSTRAINT_TYPE:
-  case FIXED_CONSTRAINT_TYPE: {
+  case D6_SPRING_CONSTRAINT_TYPE: {
+    // btGeneric6DofConstraint and btGeneric6DofSpringConstraint (which
+    // derives from it) are a separate class hierarchy from
+    // btGeneric6DofSpring2Constraint below -- casting either family to the
+    // other's type would read through the wrong vtable/layout.
     auto *d6 = static_cast<btGeneric6DofConstraint *>(c);
     drawConstraintFrame(d6->getCalculatedTransformA(), size);
+    break;
+  }
+  case D6_SPRING_2_CONSTRAINT_TYPE:
+  case FIXED_CONSTRAINT_TYPE: {
+    // Covers plain btGeneric6DofSpring2Constraint and btFixedConstraint
+    // (both report D6_SPRING_2_CONSTRAINT_TYPE/FIXED_CONSTRAINT_TYPE and
+    // draw as a 3-axis frame cross), and btHinge2Constraint, which also
+    // reports D6_SPRING_2_CONSTRAINT_TYPE but is drawn more usefully as
+    // its own two joint axes (steering + wheel-spin) through its anchor.
+    auto *hinge2 = dynamic_cast<btHinge2Constraint *>(c);
+    if (hinge2 != nullptr) {
+      btVector3 anchor = hinge2->getAnchor();
+      btScalar radius = size * btScalar(0.15);
+      drawConstraintCylinder(anchor - hinge2->getAxis1() * size,
+                             anchor + hinge2->getAxis1() * size, radius,
+                             kConstraintColor);
+      drawConstraintCylinder(anchor - hinge2->getAxis2() * size,
+                             anchor + hinge2->getAxis2() * size, radius,
+                             kConstraintColor);
+    } else {
+      auto *d6b = static_cast<btGeneric6DofSpring2Constraint *>(c);
+      drawConstraintFrame(d6b->getCalculatedTransformA(), size);
+    }
     break;
   }
   case GEAR_CONSTRAINT_TYPE: {

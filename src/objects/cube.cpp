@@ -94,8 +94,7 @@ void Cube::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -121,6 +120,6 @@ void Cube::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   Q_UNUSED(maxaabb)
 
   glScalef(lengths[0], lengths[1], lengths[2]);
-  glColor3ubv(color);
+  glApplyColor();
   solidCube(1.0f);
 }

@@ -44,6 +44,7 @@ Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
   _ownsBody = true;
 
   setColor(127, 127, 127);
+  transparency = 0.0;
 
   photons_enable = false;
   photons_reflection = false;
@@ -121,8 +122,7 @@ void Object::toPOV(QTextStream *s) const {
     if (!mSDL.isNull()) {
       *s << mSDL << "\n";
     } else {
-      *s << "  pigment { rgb <" << color[0] / 255.0 << ", " << color[1] / 255.0
-         << ", " << color[2] / 255.0 << "> }" << "\n";
+      povPigment(s);
     }
 
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
@@ -160,6 +160,10 @@ void Object::luaBind(lua_State *s) {
 
             .property("col", (QString(Object::*)(void)) & Object::getColorString,
                       (void(Object::*)(const QString &)) & Object::setColor)
+
+           .property("transparency",
+                     (btScalar(Object::*)(void)) & Object::getTransparency,
+                     (void(Object::*)(btScalar)) & Object::setTransparency)
 
            .property("pos", (btVector3(Object::*)(void)) & Object::getPosition,
                      (void(Object::*)(const btVector3 &)) & Object::setPosition)
@@ -236,7 +240,7 @@ void Object::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   Q_UNUSED(maxaabb)
 
   glScalef(0.5, 0.5, 0.5);
-  glColor3ub(color[0], color[1], color[2]);
+  glApplyColor();
   solidSphere(1.0f, 32, 16);
 }
 
@@ -259,6 +263,15 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
 
     glEnable(GL_NORMALIZE);
 
+    if (transparency > 0.0) {
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      // Don't let a transparent object occlude whatever's behind it in
+      // the depth buffer -- without this, objects rendered afterward
+      // would still be depth-tested against it as if it were opaque.
+      glDepthMask(GL_FALSE);
+    }
+
     if (_cb_render) {
       luabind::call_function<void>(_cb_render, this);
     }
@@ -268,6 +281,11 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
 void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
   if (isfinite(oaabbmin[0]) && isfinite(oaabbmin[1]) && isfinite(oaabbmin[2]) &&
       isfinite(oaabbmax[0]) && isfinite(oaabbmax[1]) && isfinite(oaabbmax[2])) {
+    if (transparency > 0.0) {
+      glDepthMask(GL_TRUE);
+      glDisable(GL_BLEND);
+    }
+
     if (body != nullptr && body->getMotionState() != nullptr)
       glPopMatrix();
   }
@@ -388,6 +406,27 @@ void Object::setColor(const QColor &col) {
 QColor Object::getColor() const { return QColor(color[0], color[1], color[2]); }
 
 QString Object::getColorString() const { return getColor().name(); }
+
+void Object::setTransparency(btScalar t) {
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+  transparency = t;
+}
+
+btScalar Object::getTransparency() const { return transparency; }
+
+void Object::povPigment(QTextStream *s) const {
+  if (s == nullptr)
+    return;
+
+  *s << "  pigment { rgbt <" << color[0] / 255.0 << ", " << color[1] / 255.0
+     << ", " << color[2] / 255.0 << ", " << transparency << "> }" << "\n";
+}
+
+void Object::glApplyColor() const {
+  GLubyte alpha = (GLubyte)((1.0 - transparency) * 255.0 + 0.5);
+  glColor4ub(color[0], color[1], color[2], alpha);
+}
 
 void Object::setPosition(const btVector3 &v) { setPosition(v[0], v[1], v[2]); }
 
