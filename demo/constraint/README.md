@@ -65,6 +65,32 @@ A gear constraint couples two bodies' rotation with a configurable ratio.
 - Independent axis direction per body
 - Used to simulate gear trains
 
+### btFixedConstraint (08-fixed.lua)
+A fixed constraint welds two bodies rigidly together: every linear and angular degree of freedom between them is locked, unlike btPoint2PointConstraint (locks position only) or btHingeConstraint (locks position but still allows rotation about its axis).
+
+**Features:**
+- All 6 relative degrees of freedom locked
+- Each body keeps its own physics body/mass/collision shape
+- Used to weld chains of parts into one rigid compound
+
+### btGeneric6DofSpring2Constraint (09-generic6dofspring2.lua)
+The improved successor to btGeneric6DofSpringConstraint, with a more stable spring implementation and servo motor support.
+
+**Features:**
+- All btGeneric6DofConstraint-style per-axis limits
+- Enable spring per axis, with `limitIfNeeded` stiffness/damping safety
+- Servo motor mode: drives an axis toward a target position/angle at a bounded speed, instead of spinning at a constant velocity like a plain motor
+- Rotation order configurable for the Euler angle system
+
+### btHinge2Constraint (10-hinge2.lua)
+A specialization of btGeneric6DofSpring2Constraint for suspension joints (as in ODE's Hinge2): 2 rotational DOFs (steering around axis1, spin around axis2, which must be orthogonal to axis1) plus 1 translational DOF for spring-loaded suspension travel -- modeling a steerable, driven, sprung vehicle wheel in a single constraint.
+
+**Features:**
+- `getAngle1()`/`getAngle2()`, `getAxis1()`/`getAxis2()`, `getAnchor()`/`getAnchor2()`
+- `setUpperLimit()`/`setLowerLimit()` convenience methods for the steering angle
+- Independent motors for wheel spin (constant velocity) and steering (servo, toward a moving target)
+- Suspension spring/limits inherited from btGeneric6DofSpring2Constraint
+
 ## Usage
 
 Run a demo:
