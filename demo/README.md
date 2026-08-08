@@ -7,6 +7,7 @@
 
 * [jaimevives/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/jaimevives) by [@jaimevives](https://github.com/jaimevives)
 * [koppi/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/koppi) by [@koppi](https://github.com/koppi)
+* [WyomingWill/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/WyomingWill) by [@WyomingWill](https://github.com/WyomingWill)
 
 ### Meshes
 
