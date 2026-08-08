@@ -236,24 +236,61 @@ cube.friction = 0.5
 v:add(cube)
 
 -- ---------------------------------------------------------------------
--- floor: static, placed just below the lowest point any foot reaches
--- over a full crank rotation (checked numerically -- every linkage
--- cycles through the same B.y range regardless of phase). floor_top_y
--- is DERIVED from p_len rather than a separate hardcoded number: 4.6 -
--- p_len comes from the crank/rocker/coupler loop's own lowest reach
--- (independent of p_len) minus the foot's half-thickness and a small
--- margin. Change p_len above and the floor follows automatically --
--- same for the feet, which already read p_len indirectly via lk.C.
--- (Terrain/patches were tried here for a while -- tiles, multiple
--- scattered patches, a GImpact-mesh alternative -- but reverted back
--- to a plain flat floor.)
+-- floor: an uneven terrain mesh (Terrain, backed by
+-- btBvhTriangleMeshShape -- Bullet's BVH-accelerated static concave
+-- shape) instead of a flat Cube. floor_top_y is still the mechanism's
+-- own baseline reach, DERIVED from p_len exactly as before (4.6 - p_len
+-- comes from the crank/rocker/coupler loop's own lowest point,
+-- independent of p_len, minus the foot's half-thickness and a small
+-- margin); terrainHeight(x,z) adds a small undulation ON TOP of that
+-- baseline, so a foot still finds ~floor_top_y on average but has real
+-- bumps to step over/into instead of a perfectly flat surface.
+-- terrain_amp is on the order of the crank length driving the whole
+-- gait (a_len=1.0) and well past the foot's own half-thickness (0.15),
+-- so bumps are a real obstacle the feet have to climb, not just surface
+-- texture -- worth watching on the first run, same honest caveat as the
+-- top crossbars above.
+-- (Terrain was tried here before via btGImpactMeshShape -- tiles,
+-- scattered patches -- but reverted: GImpact is built for shapes that
+-- might move, and is markedly slower/less stable than it needs to be
+-- for a shape that never does. btBvhTriangleMeshShape builds its BVH
+-- tree once, at construction, and is ONLY ever valid for a static body
+-- -- exactly what the floor already was, so nothing about "static,
+-- never moves" had to change, just the shape type backing it.)
 -- ---------------------------------------------------------------------
 local floor_top_y = 4.6 - p_len
-local floor_w, floor_th, floor_d = 300, 1.0, 150
+local floor_w, floor_d = 300, 150
+local terrain_amp = 0.8                  -- bump height
+local terrain_nx, terrain_nz = 120, 60   -- grid resolution: 2.5-unit cells in both X and Z
 
-floor = Cube(floor_w, floor_th, floor_d, 0)   -- mass 0 -> static
+-- Smooth, deterministic pseudo-noise: three sine waves at different
+-- frequencies/phases/axes summed together. Each term alone is perfectly
+-- smooth (a sine has no discontinuities), so neighboring grid points are
+-- always close in height -- no cliff edge a foot could catch a corner on
+-- -- while the SUM of three incommensurate frequencies isn't simply
+-- periodic the way a single sine would be, so the walker's path crosses
+-- real bump-to-bump variation rather than a uniform ripple.
+function terrainHeight(x, z)
+  return terrain_amp * (
+    0.5 * math.sin(x * 0.30 + z * 0.21) +
+    0.3 * math.sin(x * 0.11 - z * 0.44 + 1.7) +
+    0.2 * math.sin(x * 0.53 + z * 0.07 + 4.1))
+end
+
+floor = Terrain()
+local floor_x0, floor_z0 = cube_center_x - floor_w/2, -floor_d/2
+for i = 0, terrain_nx - 1 do
+  for j = 0, terrain_nz - 1 do
+    local xa, xb = floor_x0 + i*(floor_w/terrain_nx), floor_x0 + (i+1)*(floor_w/terrain_nx)
+    local za, zb = floor_z0 + j*(floor_d/terrain_nz), floor_z0 + (j+1)*(floor_d/terrain_nz)
+    local yaa, yab = floor_top_y + terrainHeight(xa, za), floor_top_y + terrainHeight(xa, zb)
+    local yba, ybb = floor_top_y + terrainHeight(xb, za), floor_top_y + terrainHeight(xb, zb)
+    floor:addTriangle(btVector3(xa, yaa, za), btVector3(xa, yab, zb), btVector3(xb, yba, za))
+    floor:addTriangle(btVector3(xb, yba, za), btVector3(xa, yab, zb), btVector3(xb, ybb, zb))
+  end
+end
+floor:build()
 floor.col = "#694811"
-floor.pos = btVector3(cube_center_x, floor_top_y - floor_th/2, 0)
 floor.friction = 0.8
 v:add(floor)
 
@@ -600,14 +637,18 @@ foot4 = buildFoot(linkage4, "yellow")
 -- its path should closely track the true centroid's shape without
 -- that bookkeeping.
 --
--- Markers are static (mass 0) AND mostly buried in the floor -- only
+-- Markers are static (mass 0) AND mostly buried in the ground -- only
 -- a small amount pokes above the surface, thin enough that a foot
 -- crossing one shouldn't meaningfully disturb the walk. (setCollisionFlags
 -- was tried first to make them fully non-colliding, but this binding
 -- only exposes a getter-style setCollisionFlags with no way to pass a
 -- value -- confirmed by a runtime error in an earlier version, not a
 -- guess. Burying them is a lower-risk fix that doesn't depend on an
--- uncertain API.)
+-- uncertain API.) With the floor now an uneven Terrain instead of a
+-- flat Cube, "buried" means evaluating the same terrainHeight(x,z) the
+-- floor mesh itself was built from at the marker's own (x,z), not the
+-- flat floor_top_y constant -- otherwise every marker would float above
+-- or sink below whatever bump happens to be under it.
 -- ---------------------------------------------------------------------
 
 local TRAIL_INTERVAL = 30   -- frames between markers (0.5s at 60fps) -- lower = finer trail, more markers over a long run
@@ -619,7 +660,7 @@ v:preSim(function(N)
     trail_frame_count = 0
     local marker = Cube(1.0, 0.05, 1.0, 0)   -- a bit thicker than before (was 0.001) -- extra margin against any residual mismatch
     marker.col = "red"
-    marker.pos = btVector3(cube.pos.x, floor_top_y, cube.pos.z)   -- flat floor, no terrain height to account for anymore
+    marker.pos = btVector3(cube.pos.x, floor_top_y + terrainHeight(cube.pos.x, cube.pos.z), cube.pos.z)
     v:add(marker)
   end
 end)

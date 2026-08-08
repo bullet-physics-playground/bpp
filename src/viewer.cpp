@@ -32,6 +32,7 @@
 #include "objects/rigidsoftcontact.h"
 #include "objects/softbody.h"
 #include "objects/sphere.h"
+#include "objects/terrain.h"
 #include "objects/triangle.h"
 
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
@@ -1501,6 +1502,7 @@ emit scriptStarts();
     RigidSoftContact::luaBind(L);
     SoftBody::luaBind(L);
     Sphere::luaBind(L);
+    Terrain::luaBind(L);
     Triangle::luaBind(L);
     Viewer::luaBind(L);
 
@@ -2508,6 +2510,11 @@ void Viewer::savePOV(bool force) {
 
   foreach (Object *o, *_objects) {
     if (o->getPOVExport()) {
+      Terrain *t = dynamic_cast<Terrain *>(o);
+      if (t) {
+        *_stream << t->toPOV(sceneDir);
+        continue;
+      }
 #ifdef HAS_LIB_ASSIMP
       Mesh *m = dynamic_cast<Mesh *>(o);
       if (m) {
