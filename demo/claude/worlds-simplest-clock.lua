@@ -116,33 +116,41 @@
 -- which is what it takes to balance the drive torque at this radius, and
 -- they are present on nearly every step.
 --
--- Cutting each hook back to a short locking face (see OPENING THE DROP) got
--- the wheel escaping: it now advances, the weight descends, and over a run
--- the net rotation comes to roughly the 7.5 deg per beat a single-tooth
--- escape wants. What it does NOT do is regulate.
+-- The escapement now runs, and runs at the right rate. Over a long run it
+-- holds a .72-.76 s beat against the .745 s the pendulum's own inertia
+-- predicts, and advances the wheel 15 deg -- one full tooth pitch -- every
+-- other beat, which is 7.5 deg per beat averaged: exactly the rate 24 teeth
+-- at two beats per tooth demands. It sustains that for about 30 beats before
+-- the swing decays past roughly 2.1 deg and the wheel locks up again, so it
+-- is still under-powered rather than wrong.
 --
--- FACE_W and TRIM_RELEASE were then swept together, 21 combinations, scoring
--- the fraction of beats that pass exactly one tooth and the spread of the
--- beat period. The result is a sharp binary, with no working window between:
+-- Getting there took discarding two plausible-looking theories, both of
+-- which were measured rather than argued away.
 --
---     FACE_W        behaviour
---     1.0 and up    LOCKED. Beautifully regular -- .731 +-.010 s against a
---                   natural .745 -- but the wheel nets zero. The face is by
---                   then a long enough arc to foul the next tooth along.
---     0.8 and below ESCAPING but erratic. Period scatter +-0.24 to +-0.84 s,
---                   with slips of 39 to 57 deg (several teeth at once).
---                   Best regularity anywhere: 25% clean beats.
+-- Sizing the pallet faces cannot do it. Swept 21 ways, FACE_W and
+-- TRIM_RELEASE give a sharp binary with no window between: a face 1.0 deg or
+-- longer locks the wheel dead (beautifully regular, .731 +-.010 s, but zero
+-- net advance), and 0.8 deg or shorter escapes erratically (+-0.24 to +-0.84
+-- s of scatter, slips of 39 to 57 deg). At radius .97 a degree of arc is
+-- only .17 units, a few mesh facets, so a face short enough to avoid fouling
+-- the next tooth is also short enough to be missed by an arriving one.
 --
--- The conflict is geometric, and it is why neither knob can win: a face long
--- enough to catch reliably (at radius .97, 1 deg of arc is only .17 units,
--- a handful of mesh facets) is also long enough to sit on the next tooth and
--- lock the wheel. Sizing the face cannot fix that. What is left untried is
--- the knob that actually sets drop in a real escapement -- the ANGULAR SPAN
--- between the two faces relative to the tooth pitch. It is currently 112.46
--- deg = 7.497 pitches, i.e. almost exactly the symmetric 7.5, and LEFT_FACE
--- and RIGHT_FACE below are already the constants that set it: shifting one
--- by a fraction of a degree sets the drop directly, instead of trying to buy
--- it by shortening the faces.
+-- Nor is it the angular span. That works out at 112.44 deg = 7.496 pitches,
+-- giving drops of 7.44 and 7.56 deg either way -- already as balanced as it
+-- can be. But computing those numbers is what exposed the real fault: the
+-- wheel advances 7.5 deg per beat and the drop was 7.5 deg, so the ENTIRE
+-- advance was drop and there was no impulse phase at all. The wheel free-ran
+-- a whole pitch and slammed into the next pallet, every beat.
+--
+-- The cause was self-inflicted, in the radial trim above. Cutting a face
+-- with a circle centred on the WHEEL axis makes it concentric with the tooth
+-- tips, which is a deadbeat locking face: a tooth resting on it presses
+-- straight through the anchor's pivot and cannot drive it, so no energy ever
+-- reaches the pendulum. The drawing never had that problem -- its pallet
+-- faces are struck at r = 1.3401, 1.3407 and 1.4400 about the rolling
+-- contact, i.e. about the anchor's own pivot, which is the classic recoil
+-- face the tooth slides along and drives. Cutting concentric with the pivot
+-- instead preserves it, and FACE_BITE just sets how far each hook reaches.
 --
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
@@ -823,7 +831,14 @@ local TRIM_R       = 1.0000 + TRIM_CLEAR
 -- the next face comes round.
 local LEFT_FACE  = 210.86
 local RIGHT_FACE = 323.32
-local FACE_W     = 0.5
+local FACE_W     = 12.0        -- >= 12 disables the sector cut entirely
+
+-- How far each hook is allowed to reach, measured from the anchor's pivot.
+-- Untrimmed the pallet tips sit 1.4770 (left) and 1.3977 (right) from it, so
+-- these are those figures less the bite taken out of each face.
+local FACE_BITE    = 0.025     -- how much is taken off each face
+local FACE_REACH_L = 1.4770 - FACE_BITE
+local FACE_REACH_R = 1.3977 - FACE_BITE
 
 -- Where the wheel axis sits in the anchor's own frame at a given swing --
 -- the anchor turns about the shaft, so from the anchor the axis swings the
@@ -842,12 +857,34 @@ local function anchorSrc(dx, dy, dz)
   local wnx, wny = wheelAxisInAnchor(0)
   local zb, zf = Z_FORK_BACK - 0.05, Z_FORK_FRONT + 0.05
 
-  -- each cut is confined to its own side, or trimming one hook would trim
-  -- the other -- and the other one has to stay down in the teeth to lock
-  local trimLeft = string.format("intersection(){%s %s}",
-    scadDisc(lx, ly, zb, zf, 2 * TRIM_R, 0), scadBox(-20, 0, zb, zf, 40, 80))
-  local trimRight = string.format("intersection(){%s %s}",
-    scadDisc(rx, ry, zb, zf, 2 * TRIM_R, 0), scadBox(20, 0, zb, zf, 40, 80))
+  -- Each hook is shortened by an arc struck about the anchor's OWN pivot,
+  -- not about the wheel axis, and that distinction is the whole escapement.
+  --
+  -- A face concentric with the wheel is a deadbeat locking face: a tooth
+  -- resting on it presses straight at the anchor's pivot and cannot drive it,
+  -- so no energy reaches the pendulum. Cutting with a wheel-centred circle
+  -- (which is what this did before) makes both faces exactly that, and the
+  -- measured result was an escapement whose entire 7.5 deg per beat was drop
+  -- and none of it impulse -- the wheel free-ran the whole pitch and slammed
+  -- into the next pallet, which is why the beat would not settle however the
+  -- faces were sized. The drawing never had that problem: its pallet faces
+  -- are struck at r = 1.3401, 1.3407 and 1.4400 about the rolling contact,
+  -- i.e. about the anchor's pivot, which is the classic recoil face -- the
+  -- tooth slides along it and drives the anchor as it goes.
+  --
+  -- So the cut is concentric with the pivot too, preserving that, and its
+  -- radius simply sets how far each hook reaches toward the wheel. Confined
+  -- to its own side and to the fork, or it would saw the tail off as well.
+  local sx, sy = 0.0, PIVOT_SHAFT_Y - ANCHOR_PIVOT_Y   -- the hinge, in anchor coords
+  local function reachCut(side, radius)
+    local x = (side < 0) and -20 or 20
+    return string.format("difference(){intersection(){%s %s} %s}",
+      scadBox(x, 1.6, zb, zf, 40, 3.2),
+      scadBox(0, 1.6, zb, zf, 80, 3.2),
+      scadDisc(sx, sy, zb, zf, 2 * radius, 1))
+  end
+  local trimLeft  = reachCut(-1, FACE_REACH_L)
+  local trimRight = reachCut(1, FACE_REACH_R)
 
   -- OPENING THE DROP. The radial cut above leaves each hook as a 5.4 deg arc
   -- struck about the wheel axis -- concentric with the tooth tips, i.e. a
@@ -877,8 +914,11 @@ local function anchorSrc(dx, dy, dz)
     return scadPlate(pts, zb, zf)
   end
 
-  local backLeft  = sector(LEFT_FACE + FACE_W, LEFT_FACE + 12.0, 0.84, 1.06)
-  local backRight = sector(RIGHT_FACE + FACE_W, RIGHT_FACE + 12.0, 0.84, 1.06)
+  local backLeft, backRight = "", ""
+  if FACE_W < 12.0 then
+    backLeft  = sector(LEFT_FACE + FACE_W, LEFT_FACE + 12.0, 0.84, 1.06)
+    backRight = sector(RIGHT_FACE + FACE_W, RIGHT_FACE + 12.0, 0.84, 1.06)
+  end
 
   return string.format([[
 translate([%.4f,%.4f,%.4f])difference(){
