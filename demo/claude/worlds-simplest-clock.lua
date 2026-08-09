@@ -101,10 +101,24 @@
 -- tooth can ever pass, and the manifold dump duly shows the wheel bottoming
 -- on the gullet floor (contacts at r = 8.800 units, exactly the root circle).
 --
--- The fix is to trim the hooks radially -- DETAIL J and DETAIL H -- so that
--- at the working amplitude the releasing pallet's ENTIRE profile clears
--- 1.000 while the catching one stays inside the band. That is a real edit to
--- the traced profile and has not been made yet.
+-- The hooks have since been trimmed for exactly that (see THE HOOK TRIM
+-- below) and it worked as far as it goes: release now happens at +-0.75 deg
+-- instead of +-1.5, the wheel moves +-1 to 2 deg per beat where it managed
+-- +-0.17 before, and the manifold dump no longer shows it bottoming on the
+-- gullet floor -- the deepest contact moved from r = 8.800 to 8.99.
+--
+-- What still stops it is DROP, the small free rotation a wheel needs between
+-- one pallet letting go and the other catching. There is none here: the two
+-- hooks span 7.5 tooth pitches exactly, so the far tooth is already touching
+-- the moment the near one is released and the wheel is handed straight from
+-- one pallet to the other. That the holding is continuous rather than
+-- intermittent is measurable -- the impulses that do it are about .0006,
+-- which is what it takes to balance the drive torque at this radius, and
+-- they are present on nearly every step. Opening the gap is a matter of
+-- trimming the hooks' leading faces further: TRIM_RELEASE is the knob (note
+-- SMALLER values cut more, since the cutting circle sits nearer the anchor's
+-- centreline), and .2 visibly holds amplitude better than the .75 used here,
+-- but no value tried yet gives a clean tooth-per-beat escape.
 --
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
@@ -752,8 +766,56 @@ end
 -- CONTACT it rocks on, .125 above its own bore, so the whole pendulum
 -- assembly shares one datum. The fork keeps the full .187 thickness and
 -- the tail steps down to .088, per the parts sheet's side view.
+-- THE HOOK TRIM -- the one edit here that departs from the traced profile.
+--
+-- As drawn, neither hook ever gets far enough out of the tooth band. Swept
+-- hook by hook, the closest either comes to the wheel axis is
+--     swing   -3    -2  -1.5    -1     0    +1  +1.5    +2    +3  deg
+--     left   .891  .917 .930  .942  .968  .994 1.007 1.020 1.045
+--     right 1.042 1.017 1.005  .993  .968  .944 .932  .920  .895
+-- so a pallet only clears the 1.000 tip circle past +-1.5 deg, while the
+-- pendulum settles at about 2 deg: half a degree of margin, with a +-1.5 deg
+-- dead band in the middle where both hooks are in the teeth at once.
+--
+-- Each hook is therefore cut back with the tooth-tip circle itself, taken
+-- where that circle sits relative to the anchor at the swing the pallet is
+-- meant to release at. Cutting the LEFT hook with the circle as seen at
+-- +TRIM_RELEASE guarantees it is clear there, by construction, and leaves it
+-- untouched at negative swing where it still has to lock. The right hook
+-- gets the mirror. Verified after trimming:
+--     swing  -2    -1  -0.75     0  +0.75    +1    +2  deg
+--     left  .934  .960  .966  .986  1.005 1.011 1.036
+--     right 1.035 1.011 1.005  .986  .967  .961  .936
+-- release at +-0.75 instead of +-1.5, the dead band halved, and the engaged
+-- hook still locks .056 deep at 2 deg -- well clear of bottoming on the .880
+-- gullet floor, which is what the manifold dump had caught it doing.
+local TRIM_RELEASE = 0.75              -- swing (deg) at which a pallet must be clear
+local TRIM_CLEAR   = 0.005             -- radial clearance past the tooth tips
+local TRIM_R       = 1.0000 + TRIM_CLEAR
+
+-- Where the wheel axis sits in the anchor's own frame at a given swing --
+-- the anchor turns about the shaft, so from the anchor the axis swings the
+-- other way about it.
+local function wheelAxisInAnchor(deg)
+  local t = math.rad(deg)
+  local arm = -PIVOT_SHAFT_Y                        -- shaft to wheel axis
+  local shaftInDatum = PIVOT_SHAFT_Y - ANCHOR_PIVOT_Y
+  return arm * math.sin(t), shaftInDatum + arm * math.cos(t)
+end
+
 local function anchorSrc(dx, dy, dz)
   local waist = LEVER_DROP - 0.3125      -- where the drawing steps the thickness
+  local lx, ly = wheelAxisInAnchor(TRIM_RELEASE)
+  local rx, ry = wheelAxisInAnchor(-TRIM_RELEASE)
+  local zb, zf = Z_FORK_BACK - 0.05, Z_FORK_FRONT + 0.05
+
+  -- each cut is confined to its own side, or trimming one hook would trim
+  -- the other -- and the other one has to stay down in the teeth to lock
+  local trimLeft = string.format("intersection(){%s %s}",
+    scadDisc(lx, ly, zb, zf, 2 * TRIM_R, 0), scadBox(-20, 0, zb, zf, 40, 80))
+  local trimRight = string.format("intersection(){%s %s}",
+    scadDisc(rx, ry, zb, zf, 2 * TRIM_R, 0), scadBox(20, 0, zb, zf, 40, 80))
+
   return string.format([[
 translate([%.4f,%.4f,%.4f])difference(){
 intersection(){
@@ -766,6 +828,8 @@ union(){
 %s
 %s
 %s
+%s
+%s
 }
 ]], dx, dy, dz,
     scadPlate(trace(LEVER, 0, u(LEVER_DROP), FINE_TOL), Z_FORK_BACK, Z_FORK_FRONT),
@@ -773,7 +837,8 @@ union(){
     scadBox(0, waist - 1.1, Z_FORK_BACK, Z_TAIL_FRONT, 2.8, 2.2),
     scadDisc(0, LEVER_DROP, Z_FORK_BACK, Z_FORK_FRONT, 0.3750, 1),
     scadDisc(0, LEVER_DROP - 0.5625, Z_FORK_BACK, Z_FORK_FRONT, 0.1285, 1),
-    scadDisc(0, LEVER_DROP - 1.6250, Z_FORK_BACK, Z_FORK_FRONT, 0.1285, 1))
+    scadDisc(0, LEVER_DROP - 1.6250, Z_FORK_BACK, Z_FORK_FRONT, 0.1285, 1),
+    trimLeft, trimRight)
 end
 
 -- item 18 -- the steel pivot disc pressed into the anchor's .375 bore,
