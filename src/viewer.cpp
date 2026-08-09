@@ -262,7 +262,10 @@ void Viewer::luaBind(lua_State *s) {
                     Viewer::setCBOnParamChanged,
                  adopt(luabind::result))
             .def("addParam", (void(Viewer::*)(const QString &, const QVariant &)) & Viewer::addParam)
+            .def("addParam", (void(Viewer::*)(const QString &, const QVariant &, const QString &)) & Viewer::addParam)
             .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &)) & Viewer::addParam)
+            .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &)) & Viewer::addParam)
+            .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &, const QString &)) & Viewer::addParam)
             .def("getParam", &Viewer::getParam)
             .def("getParams", &Viewer::getParams)
             .def("savePrefs", &Viewer::setPrefs)
@@ -1343,12 +1346,24 @@ void Viewer::restartSim() {
   btScalar camHfov = camera()->horizontalFieldOfView();
   Vec camUp = camera()->upVector();
 
+  QHash<QString, QVariant> savedParams = _params;
+
   parse(_scriptContent);
 
   camera()->setPosition(camPos);
   camera()->setOrientation(camOri);
   camera()->setHorizontalFieldOfView(camHfov);
   camera()->setUpVector(camUp, true);
+
+  for (auto it = savedParams.constBegin(); it != savedParams.constEnd(); ++it) {
+    if (!_params.contains(it.key())) continue;
+    ParamInfo info = _paramInfo.value(it.key());
+    if (info.hasRange) {
+      addParam(it.key(), it.value().toDouble(), info.min, info.max, info.step, info.comment);
+    } else {
+      addParam(it.key(), it.value(), info.comment);
+    }
+  }
 }
 
 void Viewer::setScriptName(QString sn) { _scriptName = sn; }
@@ -2722,7 +2737,17 @@ void Viewer::setCBCycleObject(const luabind::object &fn) {
 }
 
 void Viewer::addParam(const QString &name, const QVariant &value) {
+  addParam(name, value, QString());
+}
+
+void Viewer::addParam(const QString &name, const QVariant &value, const QString &comment) {
   _params[name] = value;
+
+  ParamInfo info;
+  info.value = value;
+  info.comment = comment;
+  _paramInfo[name] = info;
+
   if (L) {
     lua_State *ls = L;
     lua_pushstring(ls, name.toUtf8().constData());
@@ -2762,11 +2787,21 @@ void Viewer::addParam(const QString &name, const QVariant &value) {
 }
 
 void Viewer::addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max) {
+  addParam(name, value, min, max, 0.0, QString());
+}
+
+void Viewer::addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step) {
+  addParam(name, value, min, max, step, QString());
+}
+
+void Viewer::addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step, const QString &comment) {
   _params[name] = QVariant(value);
   ParamInfo info;
   info.value = QVariant(value);
   info.min = min;
   info.max = max;
+  info.step = step;
+  info.comment = comment;
   info.hasRange = true;
   _paramInfo[name] = info;
   if (L) {

@@ -416,6 +416,8 @@ void Gui::createDock() {
   addDockWidget(Qt::RightDockWidgetArea, dw5);
   paramsTable->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(paramsTable, &QTableWidget::cellChanged, this, &Gui::onParamsTableCellChanged);
+  paramsTable->viewport()->setMouseTracking(true);
+  paramsTable->viewport()->installEventFilter(this);
 }
 
 void Gui::helpAbout() {
@@ -795,6 +797,16 @@ void Gui::hideProgressBar() {
   statusBar()->repaint();
 }
 
+static QString paramTooltip(const QVariant &value, const ParamInfo &info) {
+  QString tooltip = info.comment;
+  if (!tooltip.isEmpty()) tooltip += "\n";
+  tooltip += QString("Value: %1").arg(value.toString());
+  if (info.hasRange) {
+    tooltip += QString("\nMin: %1  Max: %2").arg(info.min).arg(info.max);
+  }
+  return tooltip;
+}
+
 void Gui::updateParamsTable() {
   if (!paramsTable || !ui.viewer) return;
 
@@ -802,27 +814,94 @@ void Gui::updateParamsTable() {
 
   QHash<QString, QVariant> params = ui.viewer->getParams();
 
-  paramsTable->setRowCount(params.size());
+  QStringList names = params.keys();
+  names.sort(Qt::CaseInsensitive);
+
+  // If the set/order of param names hasn't changed since the last refresh,
+  // update the existing items/widgets in place instead of tearing down and
+  // recreating the whole table -- rebuilding on every tick (e.g. while
+  // dragging a slider) made the table flicker and interrupted the drag.
+  bool sameLayout = (paramsTable->rowCount() == names.size());
+  for (int i = 0; sameLayout && i < names.size(); ++i) {
+    QTableWidgetItem *nameItem = paramsTable->item(i, 0);
+    if (!nameItem || nameItem->text() != names[i]) sameLayout = false;
+  }
+
+  if (!sameLayout) {
+    paramsTable->clearContents();
+    paramsTable->setRowCount(names.size());
+  }
 
   int row = 0;
-  for (auto it = params.constBegin(); it != params.constEnd(); ++it) {
-    QTableWidgetItem *nameItem = new QTableWidgetItem(it.key());
+  for (const QString &name : names) {
+    QVariant value = params.value(name);
+    ParamInfo info = ui.viewer->getParamInfo(name);
+    QString tooltip = paramTooltip(value, info);
+
+    if (sameLayout) {
+      paramsTable->item(row, 0)->setToolTip(tooltip);
+
+      if (info.hasRange) {
+        double scale = (info.step > 0.0) ? (1.0 / info.step) : 100.0;
+        QSlider *slider = qobject_cast<QSlider *>(paramsTable->cellWidget(row, 1));
+        QSignalBlocker sliderBlocker(slider);
+        slider->setMinimum(qRound(info.min * scale));
+        slider->setMaximum(qRound(info.max * scale));
+        slider->setValue(qRound(value.toDouble() * scale));
+        slider->setProperty("paramScale", scale);
+        slider->setToolTip(tooltip);
+      } else if (value.type() == QVariant::Bool) {
+        QCheckBox *checkBox = paramsTable->cellWidget(row, 1)->findChild<QCheckBox *>();
+        QSignalBlocker checkBoxBlocker(checkBox);
+        checkBox->setChecked(value.toBool());
+        checkBox->setToolTip(tooltip);
+      } else {
+        QTableWidgetItem *valueItem = paramsTable->item(row, 1);
+        valueItem->setText(value.toString());
+        valueItem->setData(Qt::UserRole, value);
+      }
+
+      row++;
+      continue;
+    }
+
+    QTableWidgetItem *nameItem = new QTableWidgetItem(name);
     nameItem->setFlags(nameItem->flags() & ~Qt::ItemIsEditable);
+    nameItem->setToolTip(tooltip);
     paramsTable->setItem(row, 0, nameItem);
 
-    ParamInfo info = ui.viewer->getParamInfo(it.key());
     if (info.hasRange) {
+      double scale = (info.step > 0.0) ? (1.0 / info.step) : 100.0;
       QSlider *slider = new QSlider(Qt::Horizontal);
-      slider->setObjectName(it.key());
-      slider->setMinimum(info.min * 100);
-      slider->setMaximum(info.max * 100);
-      slider->setValue(it.value().toDouble() * 100);
-      slider->setProperty("paramName", it.key());
+      slider->setObjectName(name);
+      slider->setMinimum(qRound(info.min * scale));
+      slider->setMaximum(qRound(info.max * scale));
+      slider->setValue(qRound(value.toDouble() * scale));
+      slider->setProperty("paramName", name);
+      slider->setProperty("paramScale", scale);
+      slider->setToolTip(tooltip);
+      slider->setMouseTracking(true);
+      slider->installEventFilter(this);
       connect(slider, &QSlider::valueChanged, this, &Gui::onParamSliderChanged);
       paramsTable->setCellWidget(row, 1, slider);
+    } else if (value.type() == QVariant::Bool) {
+      QCheckBox *checkBox = new QCheckBox();
+      checkBox->setChecked(value.toBool());
+      checkBox->setProperty("paramName", name);
+      checkBox->setToolTip(tooltip);
+      checkBox->setMouseTracking(true);
+      checkBox->installEventFilter(this);
+      connect(checkBox, &QCheckBox::toggled, this, &Gui::onParamCheckBoxChanged);
+
+      QWidget *cell = new QWidget();
+      QHBoxLayout *layout = new QHBoxLayout(cell);
+      layout->addWidget(checkBox);
+      layout->setAlignment(Qt::AlignCenter);
+      layout->setContentsMargins(0, 0, 0, 0);
+      paramsTable->setCellWidget(row, 1, cell);
     } else {
-      QTableWidgetItem *valueItem = new QTableWidgetItem(it.value().toString());
-      valueItem->setData(Qt::UserRole, it.value());
+      QTableWidgetItem *valueItem = new QTableWidgetItem(value.toString());
+      valueItem->setData(Qt::UserRole, value);
       paramsTable->setItem(row, 1, valueItem);
     }
 
@@ -864,5 +943,46 @@ void Gui::onParamSliderChanged(int value) {
   if (!slider || !ui.viewer) return;
 
   QString name = slider->property("paramName").toString();
-  ui.viewer->addParam(name, QVariant(value/100.0));
+  double scale = slider->property("paramScale").toDouble();
+  ParamInfo info = ui.viewer->getParamInfo(name);
+
+  // Snap to the exact configured bounds at the ends of the slider -- the
+  // int-position <-> btScalar (float) round trip through scale can drift by
+  // a hair, which otherwise makes the slider look like it never quite
+  // reaches its real min/max.
+  double newValue;
+  if (value == slider->minimum()) newValue = info.min;
+  else if (value == slider->maximum()) newValue = info.max;
+  else newValue = value / scale;
+
+  ui.viewer->addParam(name, newValue, info.min, info.max, info.step, info.comment);
+}
+
+void Gui::onParamCheckBoxChanged(bool checked) {
+  QCheckBox *checkBox = qobject_cast<QCheckBox *>(sender());
+  if (!checkBox || !ui.viewer) return;
+
+  QString name = checkBox->property("paramName").toString();
+  ui.viewer->addParam(name, QVariant(checked));
+}
+
+// Qt's default tooltip only repositions when a fresh QEvent::ToolTip fires,
+// which is suppressed while the cursor stays within the same item/widget --
+// so it goes stale as the mouse keeps moving across a wide row. Explicitly
+// re-showing it on every mouse move keeps it glued to the cursor instead.
+bool Gui::eventFilter(QObject *obj, QEvent *event) {
+  if (event->type() == QEvent::MouseMove) {
+    if (obj == paramsTable->viewport()) {
+      QMouseEvent *me = static_cast<QMouseEvent *>(event);
+      QTableWidgetItem *item = paramsTable->itemAt(me->pos());
+      if (item && !item->toolTip().isEmpty()) {
+        QToolTip::showText(paramsTable->viewport()->mapToGlobal(me->pos()), item->toolTip(), paramsTable);
+      }
+    } else if (QWidget *w = qobject_cast<QWidget *>(obj)) {
+      if (!w->toolTip().isEmpty()) {
+        QToolTip::showText(QCursor::pos(), w->toolTip(), w);
+      }
+    }
+  }
+  return QMainWindow::eventFilter(obj, event);
 }

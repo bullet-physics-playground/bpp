@@ -1482,30 +1482,36 @@ v:preStart(function(N)
   setPhase(1)
 end)
 
-v:addParam("dNTP_uM", 40, 0, 100)               -- [dNTP], Michaelis-Menten input, also feeds D(t)
-v:addParam("eukaryote", true)                   -- Vmax = human (true) or E. coli (false) speed
-v:addParam("thermoAmplification", 25, 1, 100)    -- scales the computed thermodynamic misincorporation
-                                                  -- ratio up so a mutation is visible in a 48 bp demo
-v:addParam("proofreadingEfficiency", 0.85, 0, 0.999) -- chance an attempt gets caught
-v:addParam("mmrEfficiency", 0.7, 0, 0.999)       -- post-replication mismatch repair's own,
-                                                  -- independent chance to still catch an escaped error
-v:addParam("wobbleForce", 3.0, 0, 8)             -- magnitude of the per-step random thermal force
-v:addParam("brownianForce", 0.5, 0, 3)           -- jitter magnitude for floating background molecules
-v:addParam("cdkActivity", 1.0, 0, 1.5)           -- CDK2/4/6 activity, the other half of Drive D(t)
-v:addParam("dnaDamageCheckpoint", false)         -- G1 (main) checkpoint: DNA damage detected before replication.
-                                                  -- p53 induces p21, clamping Phi(t) near 0 and reversibly
-                                                  -- arresting all NEW origin firing (clear = damage repaired)
-v:addParam("apoptosis", false)                   -- severe, irreparable damage at the G1 checkpoint: p53 commits
-                                                  -- the cell to programmed cell death -- the cycle halts permanently
-v:addParam("g2CheckpointDamage", false)          -- G2 checkpoint: extra damage detected after replication
-                                                  -- (besides any uncorrected mutations), blocking entry into mitosis
-v:addParam("overrideG2Checkpoint", false)        -- force-release the G2 checkpoint block, letting mitosis proceed
-v:addParam("mCheckpointFail", false)             -- M (spindle) checkpoint: a chromatid is not attached to the
-                                                  -- spindle, blocking anaphase (clear once every fiber is anchored)
-v:addParam("plantCell", false)                   -- plant-style cytokinesis: an outward-growing cell plate
-                                                  -- instead of an animal actin cleavage furrow
-v:addParam("enterG0", false)                     -- after cytokinesis the daughter cells exit into the G0
-                                                  -- resting phase instead of entering a new G1 interphase
+v:addParam("dNTP_uM", 40, 0, 100, 1, "[dNTP], Michaelis-Menten input, also feeds D(t)")
+v:addParam("eukaryote", true, "Vmax = human (true) or E. coli (false) speed")
+v:addParam("thermoAmplification", 25, 1, 100, 1,
+  "scales the computed thermodynamic misincorporation ratio up so a mutation is visible in a 48 bp demo")
+v:addParam("proofreadingEfficiency", 0.85, 0, 0.999, 0.01, "chance an attempt gets caught")
+v:addParam("mmrEfficiency", 0.7, 0, 0.999, 0.01,
+  "post-replication mismatch repair's own, independent chance to still catch an escaped error")
+v:addParam("wobbleForce", 3.0, 0, 8, 0.1, "magnitude of the per-step random thermal force")
+v:addParam("brownianForce", 0.5, 0, 3, 0.1, "jitter magnitude for floating background molecules")
+v:addParam("cdkActivity", 1.0, 0, 1.5, 0.1, "CDK2/4/6 activity, the other half of Drive D(t)")
+v:addParam("dnaDamageCheckpoint", false,
+  "G1 (main) checkpoint: DNA damage detected before replication. p53 induces p21, clamping Phi(t) near 0 and reversibly arresting all NEW origin firing (clear = damage repaired)")
+v:addParam("apoptosis", false,
+  "severe, irreparable damage at the G1 checkpoint: p53 commits the cell to programmed cell death -- the cycle halts permanently")
+v:addParam("g2CheckpointDamage", false,
+  "G2 checkpoint: extra damage detected after replication (besides any uncorrected mutations), blocking entry into mitosis")
+v:addParam("overrideG2Checkpoint", false, "force-release the G2 checkpoint block, letting mitosis proceed")
+v:addParam("mCheckpointFail", false,
+  "M (spindle) checkpoint: a chromatid is not attached to the spindle, blocking anaphase (clear once every fiber is anchored)")
+v:addParam("plantCell", false,
+  "plant-style cytokinesis: an outward-growing cell plate instead of an animal actin cleavage furrow")
+v:addParam("enterG0", false,
+  "after cytokinesis the daughter cells exit into the G0 resting phase instead of entering a new G1 interphase")
+
+-- onParamChanged: Called when a parameter value is changed in the GUI. All
+-- the params above are read live via v:getParam() each frame, so this is
+-- just user feedback in the command line -- no extra wiring needed.
+v:onParamChanged(function(N, name, value)
+  print("onParamChanged("..tostring(N).."): "..name.." = "..tostring(value))
+end)
 
 -- preSim: Called before each physics step. Nudges every base of the
 -- original helix with a small random force, like the thermal jostling of

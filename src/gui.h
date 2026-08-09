@@ -28,6 +28,7 @@ private slots:
   void updateFrameLabel(int frameNum);
    void onParamsTableCellChanged(int row, int column);
    void onParamSliderChanged(int value);
+   void onParamCheckBoxChanged(bool checked);
 
   void moveEvent(QMoveEvent *) override;
   void resizeEvent(QResizeEvent *) override;
@@ -175,6 +176,7 @@ private:
 
   QTableWidget *paramsTable;
   void updateParamsTable();
+  bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
 #endif

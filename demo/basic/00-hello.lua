@@ -21,10 +21,10 @@ local text  = require "scad/text"
 common.setTiming(1/25, 120, 1/60)
 
 -- Add parameters accessible from GUI
-v:addParam("sphereColor", "red")
-v:addParam("cubeMass", 1.0)
-v:addParam("enableGravity", true)
-v:addParam("cam.fov", 0.03, 0.01, 0.1)
+v:addParam("sphereColor", "red", "name of the sphere's color")
+v:addParam("cubeMass", 1.0, "mass of the falling cube, in kg")
+v:addParam("enableGravity", true, "toggle gravity on/off")
+v:addParam("cam.fov", 0.03, 0.01, 0.1, 0.005, "camera field of view")
 
 v.pre_sdl = [[
 ]]
@@ -159,7 +159,7 @@ end)
 
 -- onParamChanged: Called when a parameter value is changed in the GUI
 v:onParamChanged(function(N, name, value)
-  print("onParamChanged("..tostring(N).."): "..name.." = "..value)
+  print("onParamChanged("..tostring(N).."): "..name.." = "..tostring(value))
   if (name == "cam.fov") then
     v.cam:setFieldOfView(tonumber(value))
   end

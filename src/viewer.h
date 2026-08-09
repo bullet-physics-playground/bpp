@@ -41,6 +41,8 @@ struct ParamInfo {
   QVariant value;
   btScalar min = 0.0;
   btScalar max = 100.0;
+  btScalar step = 0.0;
+  QString comment;
   bool hasRange = false;
 };
 
@@ -205,7 +207,10 @@ public slots:
   void setCBOnParamChanged(const luabind::object &fn);
 
   void addParam(const QString &name, const QVariant &value);
+  void addParam(const QString &name, const QVariant &value, const QString &comment);
   void addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max);
+  void addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step);
+  void addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step, const QString &comment);
   QVariant getParam(const QString &name) const;
   QHash<QString, QVariant> getParams() const;
   void clearParams();
