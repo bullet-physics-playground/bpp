@@ -74,6 +74,19 @@ int main(int argc, char **argv) {
     qputenv("QT_QPA_PLATFORM", "offscreen");
   }
 
+  // Native Wayland forbids clients from positioning their own top-level
+  // windows (the compositor has sole authority over placement), so
+  // Gui::loadSettings()'s restoreGeometry()/restoreState() can't actually
+  // restore the saved window/dock positions there - the window just gets
+  // centered every time. XWayland doesn't have this restriction, so prefer
+  // it when it's available and the user hasn't already picked a platform.
+  if (!runCore && !headlessSimulate &&
+      qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") &&
+      !qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY") &&
+      !qEnvironmentVariableIsEmpty("DISPLAY")) {
+    qputenv("QT_QPA_PLATFORM", "xcb");
+  }
+
   if (runCore) {
     app = QSharedPointer<QCoreApplication>(new QCoreApplication(argc, argv));
   } else {

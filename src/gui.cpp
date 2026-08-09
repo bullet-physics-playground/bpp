@@ -423,6 +423,15 @@ void Gui::createDock() {
     dw5->setWindowFlag(Qt::WindowStaysOnTopHint, floating);
     dw5->show();
   });
+
+  connect(paramsTable, &QTableWidget::customContextMenuRequested, this, [this, dw5](const QPoint &pos) {
+    QMenu menu;
+    QAction *dockAction = menu.addAction(tr("Dock to Main Window"));
+    dockAction->setEnabled(dw5->isFloating());
+    if (menu.exec(paramsTable->viewport()->mapToGlobal(pos)) == dockAction) {
+      dw5->setFloating(false);
+    }
+  });
 }
 
 void Gui::helpAbout() {
