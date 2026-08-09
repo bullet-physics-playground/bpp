@@ -81,13 +81,22 @@
 -- * F1 - restart the pendulum from rest at its drawn offset
 -- * F2 - print beats, wheel turns and the current amplitude
 --
+-- STATUS -- WORK IN PROGRESS. The clock is stable but does not yet keep
+-- time: the pendulum holds a bounded 2-4 deg swing indefinitely, but the
+-- escape wheel only rocks a degree or two instead of escaping a tooth per
+-- beat, and the anchor rings at about .15 s rather than beating at its own
+-- .745 s. Everything AROUND the escapement is verified correct -- with the
+-- pallets disengaged the pendulum runs at .740 s against .746 s predicted
+-- from its own accumulated inertia, and holds 3.00 deg amplitude with no
+-- drift -- so what remains is the tooth-on-pallet contact itself.
+--
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
 --   .0625" rolling offset left unmodelled (see above)
+-- * the anchor is modelled coplanar with the disc rather than at its drawn
+--   .187 thickness (see the z stack below for why, and for the measurements)
 -- * the film strip is rigid here; in the real clock it is a flexure and
 --   carries part of the pendulum's compliance
--- * profiles are flattened at a .04" chord tolerance, so the very tip
---   fillets (r .015") come out as a couple of facets rather than curves
 -- * the drive weight is reduced in simulation so the freewheeling catches
 --   stay stable; the drawing never states what the original weighed
 --
@@ -325,17 +334,38 @@ local Z_FRONT_BACK, Z_FRONT_FRONT =  0.540, 0.690
 -- profile -> polygon -> OpenSCAD
 -- ---------------------------------------------------------------------
 
-local CHORD_TOL = u(0.04)           -- longest facet allowed when flattening an arc
+-- Longest facet allowed when flattening an arc. The coarse figure is fine
+-- for the frame, whose parts only have to look right.
+local CHORD_TOL = u(0.04)
+
+-- The escapement gets its own, far finer tolerance, and this is the number
+-- the whole mechanism turns on. The pallet tips sit at radius .9783 in a
+-- tooth band running .880 to 1.000, so a pallet only ever engages a tooth
+-- over .0217" -- .217 simulation units. At the coarse tolerance a single
+-- facet is .40 units, nearly TWICE that: the one feature doing all the work
+-- was smaller than the triangles representing it, so whether a tooth caught
+-- or slipped depended on where a facet boundary happened to fall rather than
+-- on the geometry. At .004" the engagement spans about 5 facets.
+--
+-- Note this is emphatically NOT a case for moving the pallets deeper into
+-- the band. They sit high in it by design: from .9783 it is only .022" up to
+-- release but .098" down to jamming against the gullet. Re-centring them
+-- (pivot 1.594 instead of 1.6716) inverts that -- .07" to release against
+-- .05" to jam -- so the wheel would seize before it ever unlocked. The
+-- drawing is right; only its discretisation was wrong.
+local FINE_TOL = u(0.004)
 
 -- Expands a traced profile into a closed polygon in simulation units,
--- optionally rotated about the datum by `deg` and shifted in y by `dy`.
-local function trace(prof, deg, dy)
+-- optionally rotated about the datum by `deg`, shifted in y by `dy`, and
+-- flattened at `tol` (default CHORD_TOL).
+local function trace(prof, deg, dy, tol)
   local c, s = 1.0, 0.0
   if deg and deg ~= 0 then
     local a = math.rad(deg)
     c, s = math.cos(a), math.sin(a)
   end
   dy = dy or 0
+  tol = tol or CHORD_TOL
   local pts = {}
   local function push(x, y)
     pts[#pts + 1] = { c * x - s * y, s * x + c * y + dy }
@@ -348,7 +378,7 @@ local function trace(prof, deg, dy)
     else
       local cx, cy, r = u(seg[1]), u(seg[2]), u(seg[3])
       local a1, sweep = seg[4], seg[5]
-      local n = math.max(2, math.ceil(r * math.abs(math.rad(sweep)) / CHORD_TOL))
+      local n = math.max(2, math.ceil(r * math.abs(math.rad(sweep)) / tol))
       for k = 1, n do
         local a = math.rad(a1 + sweep * k / n)
         push(cx + r * math.cos(a), cy + r * math.sin(a))
@@ -361,10 +391,10 @@ end
 -- The teeth are traced tooth-to-tooth: each one ends exactly where the next
 -- begins, so n rotated copies concatenate into ONE closed outline. Both
 -- wheels are drawn with decreasing angle, hence the negative step.
-local function chain(prof, n, deg)
+local function chain(prof, n, deg, tol)
   local pts = {}
   for i = 0, n - 1 do
-    for _, p in ipairs(trace(prof, i * deg)) do
+    for _, p in ipairs(trace(prof, i * deg, 0, tol)) do
       pts[#pts + 1] = p
     end
   end
@@ -373,10 +403,10 @@ end
 
 -- The disc's four windows are separate closed loops, so they stay separate
 -- polygons -- concatenating them would make one self-intersecting path.
-local function copies(prof, n, deg)
+local function copies(prof, n, deg, tol)
   local list = {}
   for i = 0, n - 1 do
-    list[#list + 1] = trace(prof, i * deg)
+    list[#list + 1] = trace(prof, i * deg, 0, tol)
   end
   return list
 end
@@ -386,14 +416,14 @@ end
 -- concatenate into ONE closed outline. Closed profiles -- the disc's windows
 -- -- come back as a list of separate loops, because concatenating those would
 -- make one self-intersecting path.
-local function repeated(prof, n, deg)
-  local one = trace(prof, 0)
+local function repeated(prof, n, deg, tol)
+  local one = trace(prof, 0, 0, tol)
   local dx = one[1][1] - one[#one][1]
   local dy = one[1][2] - one[#one][2]
   if dx * dx + dy * dy < 1e-6 then
-    return copies(prof, n, deg)
+    return copies(prof, n, deg, tol)
   end
-  return chain(prof, n, deg)
+  return chain(prof, n, deg, tol)
 end
 
 local function scadPoly(pts)
@@ -659,7 +689,7 @@ translate([0,0,%.4f])difference(){
 %s
 }
 ]], dz,
-    scadPlate(repeated(TOOTH, 24, -15.0), Z_DISC_BACK, Z_DISC_FRONT),
+    scadPlate(repeated(TOOTH, 24, -15.0, FINE_TOL), Z_DISC_BACK, Z_DISC_FRONT),
     scadDisc(0, 0, Z_DISC_BACK, Z_DISC_FRONT, 0.5906, 1),
     scadPlates(repeated(CD_WINDOW, 4, 90.0), Z_DISC_BACK - 0.02, Z_DISC_FRONT + 0.02))
 end
@@ -715,7 +745,7 @@ union(){
 %s
 }
 ]], dx, dy, dz,
-    scadPlate(trace(LEVER, 0, u(LEVER_DROP)), Z_FORK_BACK, Z_FORK_FRONT),
+    scadPlate(trace(LEVER, 0, u(LEVER_DROP), FINE_TOL), Z_FORK_BACK, Z_FORK_FRONT),
     scadBox(0, waist + 1.5, Z_FORK_BACK, Z_FORK_FRONT, 2.8, 3.0),
     scadBox(0, waist - 1.1, Z_FORK_BACK, Z_TAIL_FRONT, 2.8, 2.2),
     scadDisc(0, LEVER_DROP, Z_FORK_BACK, Z_FORK_FRONT, 0.3750, 1),
@@ -782,7 +812,7 @@ local DRIVE_TORQUE = TORQUE_SCALE * WEIGHT_M * (-GRAVITY) * u(DRUM_R)
 local wheelM, wheelCX, wheelCY, wheelCZ, wheelIxx, wheelIyy, wheelIzz
 do
   local mp = massProps()
-  mp:plate(repeated(TOOTH, 24, -15.0), Z_DISC_BACK, Z_DISC_FRONT, MAT.lexan * RHO)
+  mp:plate(repeated(TOOTH, 24, -15.0, FINE_TOL), Z_DISC_BACK, Z_DISC_FRONT, MAT.lexan * RHO)
   for _, win in ipairs(repeated(CD_WINDOW, 4, 90.0)) do
     mp:plate(win, Z_DISC_BACK, Z_DISC_FRONT, -MAT.lexan * RHO)
   end
@@ -831,7 +861,7 @@ local function partProps(fn)
 end
 
 local leverP = partProps(function(mp)
-  mp:plate(trace(LEVER, 0, u(LEVER_DROP)), Z_FORK_BACK, Z_FORK_FRONT, MAT.nylon * RHO)
+  mp:plate(trace(LEVER, 0, u(LEVER_DROP), FINE_TOL), Z_FORK_BACK, Z_FORK_FRONT, MAT.nylon * RHO)
   mp:disc(0, LEVER_DROP, Z_FORK_BACK, Z_FORK_FRONT, 0.3750, -MAT.nylon * RHO)
 end)
 local discP = partProps(function(mp)
@@ -1002,7 +1032,14 @@ end
 -- run: drive the arbor, carry the riders, count the beats
 -- ---------------------------------------------------------------------
 
-local DRIVE_SIGN = -1               -- teeth lean so the wheel is driven clockwise
+-- Which way the weight turns the wheel. The teeth are asymmetric -- one face
+-- is very nearly radial (its ends lie at -36.40 and -36.13 deg, i.e. along a
+-- radius) and the other rakes back from -37.8 to -39.6 deg -- and it is the
+-- radial face that has to lead, since that is the one a pallet can hold
+-- against. That face sits on the anticlockwise side of each tooth, so the
+-- wheel is driven anticlockwise, +1 about z. Confirmed by measurement: +1
+-- advances the wheel 8.20 deg in a beat where -1 manages 1.60.
+local DRIVE_SIGN = 1
 local wheelTurn, prevC, prevS = 0, 1, 0
 local beats, lastSide, maxAng = 0, 0, 0
 local beatFrame, beatTurn = 0, 0
