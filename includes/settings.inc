@@ -2,10 +2,10 @@
 
 // for LightSys see - http://www.ignorancia.org/index.php?page=lightsys
 #declare use_rad        = 0;  // 0/1/2
-#declare use_lightsys   = 1;  // 0/1
+#declare use_lightsys   = 0;  // 0/1
 #declare use_lightsys_setting = 1; // 0/1
 #declare use_cie_whitepoint = 0; // 0/1/2/3
-#declare use_lightsys_light1 = 0;
+#declare use_lightsys_light1 = 1;
 #declare use_area_light = 0;  // 0/1
 #declare use_background = 0;  // 0/1/2
 #declare use_clouds     = 0;  // 0/1/2/3
@@ -66,6 +66,10 @@ global_settings {
 #include "bpp_lightsys_constants.inc"
 #include "bpp_espd_lightsys.inc"
   
+// Secondary light besides the sun, mirroring the interactive OpenGL view's
+// GL_LIGHT1 (Viewer::_light1 in src/viewer.cpp: btVector4(-200, 100, 200,
+// 0.2)). POV-Ray is left-handed while the OpenGL/Bullet world is
+// right-handed, so only the Z axis is negated to convert between them.
 #if (use_lightsys_light1 = 1)
 object {
   Light(
@@ -73,7 +77,7 @@ object {
     Lm_Incandescent_15w,
     x*25, z*25, 4, 4, on
   )
-  translate <0, 290, 0>
+  translate <-200, 100, -200>
 }
 #end
 
@@ -144,10 +148,25 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
     jitter
   }
 #else
+  // These mirror the interactive OpenGL view's GL_LIGHT0/GL_LIGHT1
+  // (Viewer::_light0/_light1 in src/viewer.cpp). POV-Ray uses a
+  // left-handed coordinate system while the OpenGL/Bullet world is
+  // right-handed, so only the Z axis is negated to convert between them.
   light_source{
-    <500,500,500> color White
+    <500,500,-500> color White // GL_LIGHT0: btVector4(500, 500, 500, 0.4)
 #switch (use_photons)
-#case (1) 
+#case (1)
+  photons {
+    reflection on
+    refraction on
+  }
+#break
+#end
+  }
+  light_source{
+    <-200,100,-200> color White // GL_LIGHT1: btVector4(-200, 100, 200, 0.2)
+#switch (use_photons)
+#case (1)
   photons {
     reflection on
     refraction on
