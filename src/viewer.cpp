@@ -199,6 +199,8 @@ void Viewer::luaBind(lua_State *s) {
            .def("setErp", (void(Viewer::*)(btScalar))&Viewer::setErp)
            .def("setErp2", (void(Viewer::*)(btScalar))&Viewer::setErp2)
            .def("setCfm", (void(Viewer::*)(btScalar))&Viewer::setCfm)
+           .def("setSolverIterations",
+                (void(Viewer::*)(int)) & Viewer::setSolverIterations)
            .def("addConstraint",
                 (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
                 adopt(_2))
@@ -434,6 +436,10 @@ void Viewer::setErp2(btScalar erp) {
 
 void Viewer::setCfm(btScalar cfm) {
   dynamicsWorld->getSolverInfo().m_globalCfm = cfm;
+}
+
+void Viewer::setSolverIterations(int n) {
+  dynamicsWorld->getSolverInfo().m_numIterations = n;
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {

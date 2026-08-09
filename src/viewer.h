@@ -78,6 +78,7 @@ public:
   void setErp(btScalar erp);
   void setErp2(btScalar erp);
   void setCfm(btScalar cfm);
+  void setSolverIterations(int n);
   
   void addObject(Object *o);
   Object *removeObject(Object *o);
