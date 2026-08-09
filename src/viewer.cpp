@@ -201,6 +201,9 @@ void Viewer::luaBind(lua_State *s) {
            .def("setCfm", (void(Viewer::*)(btScalar))&Viewer::setCfm)
            .def("setSolverIterations",
                 (void(Viewer::*)(int)) & Viewer::setSolverIterations)
+           .def("eachContact",
+                (void(Viewer::*)(const luabind::object &)) &
+                    Viewer::eachContact)
            .def("addConstraint",
                 (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
                 adopt(_2))
@@ -440,6 +443,53 @@ void Viewer::setCfm(btScalar cfm) {
 
 void Viewer::setSolverIterations(int n) {
   dynamicsWorld->getSolverInfo().m_numIterations = n;
+}
+
+void Viewer::eachContact(const luabind::object &fn) {
+  if (dynamicsWorld == nullptr || !fn.is_valid())
+    return;
+
+  btDispatcher *dispatcher = dynamicsWorld->getDispatcher();
+  if (dispatcher == nullptr)
+    return;
+
+  // Map a collision body back to the Object that owns it. The object set is
+  // small (a scene is tens of objects, not thousands) and this only runs when
+  // a script explicitly asks for a dump, so a linear scan is fine and avoids
+  // keeping a parallel index in sync with add/removeObject.
+  auto ownerOf = [this](const btCollisionObject *co) -> Object * {
+    if (co == nullptr || _objects == nullptr)
+      return nullptr;
+    for (Object *o : *_objects) {
+      if (o != nullptr && o->body == co)
+        return o;
+    }
+    return nullptr;
+  };
+
+  const int numManifolds = dispatcher->getNumManifolds();
+  for (int i = 0; i < numManifolds; ++i) {
+    btPersistentManifold *manifold = dispatcher->getManifoldByIndexInternal(i);
+    if (manifold == nullptr)
+      continue;
+
+    const int numContacts = manifold->getNumContacts();
+    if (numContacts == 0)
+      continue;
+
+    Object *oa = ownerOf(manifold->getBody0());
+    Object *ob = ownerOf(manifold->getBody1());
+
+    for (int j = 0; j < numContacts; ++j) {
+      const btManifoldPoint &pt = manifold->getContactPoint(j);
+      const btVector3 &pos = pt.getPositionWorldOnB();
+      const btVector3 &nrm = pt.m_normalWorldOnB;
+
+      luabind::call_function<void>(fn, oa, ob, pos.x(), pos.y(), pos.z(),
+                                   nrm.x(), nrm.y(), nrm.z(),
+                                   pt.getDistance(), pt.getAppliedImpulse());
+    }
+  }
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {

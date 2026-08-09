@@ -81,14 +81,30 @@
 -- * F1 - restart the pendulum from rest at its drawn offset
 -- * F2 - print beats, wheel turns and the current amplitude
 --
--- STATUS -- WORK IN PROGRESS. The clock is stable but does not yet keep
--- time: the pendulum holds a bounded 2-4 deg swing indefinitely, but the
--- escape wheel only rocks a degree or two instead of escaping a tooth per
--- beat, and the anchor rings at about .15 s rather than beating at its own
--- .745 s. Everything AROUND the escapement is verified correct -- with the
--- pallets disengaged the pendulum runs at .740 s against .746 s predicted
--- from its own accumulated inertia, and holds 3.00 deg amplitude with no
--- drift -- so what remains is the tooth-on-pallet contact itself.
+-- STATUS -- WORK IN PROGRESS. The pendulum is right: it beats a steady
+-- .72-.74 s against .746 s predicted from its own accumulated inertia, at a
+-- stable ~2 deg amplitude, hung on the real five-body welded assembly. What
+-- does not work yet is the escapement -- the wheel only rocks +-0.17 deg,
+-- and identically so across a 10x range of drive torque, which is the
+-- signature of a wheel that is held rather than one that is under-driven.
+--
+-- The reason, found by walking the contact manifolds (v:eachContact) and
+-- then confirmed geometrically: the anchor NEVER clears the teeth. Tracking
+-- the two pallet tip points alone suggests it does -- they rise past the
+-- 1.000" tip circle at under a degree of swing -- but the tips are not the
+-- lowest part of the hook. Sweeping the whole traced outline gives its
+-- closest approach to the wheel axis as
+--     swing  -3    -2    -1     0    +1    +2    +3  deg
+--     min r .891  .917  .942  .968  .944  .920  .895
+-- i.e. inside the .880-1.000 tooth band at every angle of the swing, on both
+-- sides at once. There is always anchor material in the tooth path, so no
+-- tooth can ever pass, and the manifold dump duly shows the wheel bottoming
+-- on the gullet floor (contacts at r = 8.800 units, exactly the root circle).
+--
+-- The fix is to trim the hooks radially -- DETAIL J and DETAIL H -- so that
+-- at the working amplitude the releasing pallet's ENTIRE profile clears
+-- 1.000 while the catching one stays inside the band. That is a real edit to
+-- the traced profile and has not been made yet.
 --
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
@@ -640,9 +656,16 @@ union(){
 ]], scadDisc(STANDOFF_X, STANDOFF_Y, Z_BASE_FRONT, Z_STANDOFF_FRONT, 0.4500),
     scadDisc(STANDOFF_X, STANDOFF_Y, Z_BASE_BACK - 0.06, Z_FRONT_FRONT + 0.06, 0.1380),
     scadDisc(STANDOFF_X, STANDOFF_Y, Z_FRONT_FRONT, Z_FRONT_FRONT + 0.06, 0.2620),
+    -- The scallop has to be centred on wherever the anchor actually passes,
+    -- and cut deeper than the standoff is wide, or the anchor fouls it. The
+    -- contact-manifold dump caught exactly that: with the scallop on the
+    -- standoff's own mid-height the anchor was striking its lower edge at
+    -- (-1.38, -14.74) with an applied impulse of 23.3, a static-body contact
+    -- stiff enough to cage the pendulum and ring it at .15 s instead of
+    -- letting it beat. Following the anchor's z band keeps it clear.
     string.format("translate([%.4f,%.4f,%.4f])rotate([0,90,0])cylinder(h=%.4f,d=%.4f,$fn=48,center=true);",
-      u(STANDOFF_X), u(STANDOFF_Y), u((Z_BASE_FRONT + Z_STANDOFF_FRONT) / 2),
-      u(0.6000), u(0.3750)))
+      u(STANDOFF_X), u(STANDOFF_Y), u((Z_FORK_BACK + Z_FORK_FRONT) / 2),
+      u(0.6000), u(0.5000)))
   return scad(src, 0, "#b98a5a")
 end
 
