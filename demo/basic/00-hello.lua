@@ -22,8 +22,12 @@ common.setTiming(1/25, 120, 1/60)
 
 -- Add parameters accessible from GUI
 v:addParam("sphereColor", "red", "name of the sphere's color")
+v:addParam("geoSphereColor", "gold", "name of the OpenSCAD geodesic sphere's color")
 v:addParam("cubeMass", 1.0, "mass of the falling cube, in kg")
+v:addParam("sphereMass", 1.0, 0.1, 5, 0.1, "mass of the sphere, in kg")
 v:addParam("enableGravity", true, "toggle gravity on/off")
+v:addParam("gravityStrength", 9.8, 0, 20, 0.5, "gravity magnitude, in m/s^2 (only applied while enableGravity is on)")
+v:addParam("focalAperture", 5, 0, 20, 0.5, "camera depth-of-field aperture (0 = no blur)")
 v:addParam("cam.fov", 0.03, 0.01, 0.1, 0.005, "camera field of view")
 
 v.pre_sdl = [[
@@ -118,14 +122,20 @@ end)
 v:preSim(function(N)
   
   sp.col = tostring(v:getParam("sphereColor"))
+  s1.col = tostring(v:getParam("geoSphereColor"))
 
   mass = v:getParam("cubeMass")
   if (mass ~= cu.mass) then
     cu.mass = v:getParam("cubeMass")
   end
 
+  mass = v:getParam("sphereMass")
+  if (mass ~= sp.mass) then
+    sp.mass = mass
+  end
+
   if v:getParam("enableGravity") then
-    v.gravity = btVector3(0, -9.8, 0)
+    v.gravity = btVector3(0, -v:getParam("gravityStrength"), 0)
   else
     v.gravity = btVector3(0, 0, 0)
   end
@@ -134,8 +144,9 @@ end)
 -- postSim: Called after each physics simulation step
 v:postSim(function(N)
   --print("postSim("..tostring(N)..")")
-  v.cam.focal_blur      = 0
-  v.cam.focal_aperture  = 5
+  local aperture = v:getParam("focalAperture")
+  v.cam.focal_blur      = (aperture > 0) and 1 or 0
+  v.cam.focal_aperture  = aperture
   -- set blur point to sphere shape position
   v.cam.focal_point = sp.pos
 end)
@@ -162,6 +173,12 @@ v:onParamChanged(function(N, name, value)
   print("onParamChanged("..tostring(N).."): "..name.." = "..tostring(value))
   if (name == "cam.fov") then
     v.cam:setFieldOfView(tonumber(value))
+  elseif (name == "focalAperture") then
+    -- postSim only runs while the simulation is stepping, so apply this
+    -- immediately too, otherwise it has no effect while paused.
+    local aperture = tonumber(value)
+    v.cam.focal_blur     = (aperture > 0) and 1 or 0
+    v.cam.focal_aperture = aperture
   end
 end)
 
