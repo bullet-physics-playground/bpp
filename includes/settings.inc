@@ -152,8 +152,12 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
   // (Viewer::_light0/_light1 in src/viewer.cpp). POV-Ray uses a
   // left-handed coordinate system while the OpenGL/Bullet world is
   // right-handed, so only the Z axis is negated to convert between them.
+  // Color is scaled by GL_DIFFUSE (Viewer::_gl_diffuse, shared by both
+  // lights) so the overall brightness matches the OpenGL view instead of
+  // rendering at full, unscaled white.
+  #declare GL_Diffuse = 0.7;
   light_source{
-    <500,500,-500> color White // GL_LIGHT0: btVector4(500, 500, 500, 0.4)
+    <500,500,-500> color White*GL_Diffuse // GL_LIGHT0: btVector4(500, 500, 500, 0.4)
 #switch (use_photons)
 #case (1)
   photons {
@@ -164,7 +168,7 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 #end
   }
   light_source{
-    <-200,100,-200> color White // GL_LIGHT1: btVector4(-200, 100, 200, 0.2)
+    <-200,100,-200> color White*GL_Diffuse // GL_LIGHT1: btVector4(-200, 100, 200, 0.2)
 #switch (use_photons)
 #case (1)
   photons {
