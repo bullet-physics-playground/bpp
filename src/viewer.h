@@ -78,6 +78,17 @@ public:
   void setErp(btScalar erp);
   void setErp2(btScalar erp);
   void setCfm(btScalar cfm);
+  void setSolverIterations(int n);
+
+  // Walks the narrowphase's persistent manifolds and hands every live
+  // contact point to `fn`, which is called as
+  //   fn(objA, objB, px, py, pz, nx, ny, nz, distance, impulse)
+  // with the position and normal in world space, `distance` negative when
+  // the pair is interpenetrating, and `impulse` the magnitude the solver
+  // actually applied on the previous step. objA/objB are the Objects the
+  // two collision bodies belong to, or nil for a body the viewer does not
+  // own. Read-only: it reports the current manifolds and changes nothing.
+  void eachContact(const luabind::object &fn);
   
   void addObject(Object *o);
   Object *removeObject(Object *o);
