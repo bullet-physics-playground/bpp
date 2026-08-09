@@ -116,16 +116,33 @@
 -- which is what it takes to balance the drive torque at this radius, and
 -- they are present on nearly every step.
 --
--- Cutting each hook back to a short locking face (see OPENING THE DROP)
--- roughly doubles what the wheel gets per beat again -- +-4.3 deg where the
--- radial trim alone gave +-2.0 -- but it still recoils rather than escaping,
--- and once the swing decays under about 2 deg the wheel locks solid again at
--- +-0.17 deg. The behaviour scales cleanly with amplitude, which says the
--- escapement is close but the pallets still give back on the return swing
--- most of what they gained. Two knobs are left untried: FACE_W (how much of
--- each hook survives as a face; 2.0 deg here) and TRIM_RELEASE (note SMALLER
--- values cut MORE, the cutting circle sitting nearer the anchor's centreline
--- -- .2 holds amplitude better than the .75 used here).
+-- Cutting each hook back to a short locking face (see OPENING THE DROP) got
+-- the wheel escaping: it now advances, the weight descends, and over a run
+-- the net rotation comes to roughly the 7.5 deg per beat a single-tooth
+-- escape wants. What it does NOT do is regulate.
+--
+-- FACE_W and TRIM_RELEASE were then swept together, 21 combinations, scoring
+-- the fraction of beats that pass exactly one tooth and the spread of the
+-- beat period. The result is a sharp binary, with no working window between:
+--
+--     FACE_W        behaviour
+--     1.0 and up    LOCKED. Beautifully regular -- .731 +-.010 s against a
+--                   natural .745 -- but the wheel nets zero. The face is by
+--                   then a long enough arc to foul the next tooth along.
+--     0.8 and below ESCAPING but erratic. Period scatter +-0.24 to +-0.84 s,
+--                   with slips of 39 to 57 deg (several teeth at once).
+--                   Best regularity anywhere: 25% clean beats.
+--
+-- The conflict is geometric, and it is why neither knob can win: a face long
+-- enough to catch reliably (at radius .97, 1 deg of arc is only .17 units,
+-- a handful of mesh facets) is also long enough to sit on the next tooth and
+-- lock the wheel. Sizing the face cannot fix that. What is left untried is
+-- the knob that actually sets drop in a real escapement -- the ANGULAR SPAN
+-- between the two faces relative to the tooth pitch. It is currently 112.46
+-- deg = 7.497 pitches, i.e. almost exactly the symmetric 7.5, and LEFT_FACE
+-- and RIGHT_FACE below are already the constants that set it: shifting one
+-- by a fraction of a degree sets the drop directly, instead of trying to buy
+-- it by shortening the faces.
 --
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
@@ -796,7 +813,7 @@ end
 -- release at +-0.75 instead of +-1.5, the dead band halved, and the engaged
 -- hook still locks .056 deep at 2 deg -- well clear of bottoming on the .880
 -- gullet floor, which is what the manifold dump had caught it doing.
-local TRIM_RELEASE = 0.75              -- swing (deg) at which a pallet must be clear
+local TRIM_RELEASE = 1.0              -- swing (deg) at which a pallet must be clear
 local TRIM_CLEAR   = 0.005             -- radial clearance past the tooth tips
 local TRIM_R       = 1.0000 + TRIM_CLEAR
 
@@ -806,7 +823,7 @@ local TRIM_R       = 1.0000 + TRIM_CLEAR
 -- the next face comes round.
 local LEFT_FACE  = 210.86
 local RIGHT_FACE = 323.32
-local FACE_W     = 2.0
+local FACE_W     = 0.5
 
 -- Where the wheel axis sits in the anchor's own frame at a given swing --
 -- the anchor turns about the shaft, so from the anchor the axis swings the
