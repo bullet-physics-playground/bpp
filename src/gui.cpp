@@ -418,6 +418,11 @@ void Gui::createDock() {
   connect(paramsTable, &QTableWidget::cellChanged, this, &Gui::onParamsTableCellChanged);
   paramsTable->viewport()->setMouseTracking(true);
   paramsTable->viewport()->installEventFilter(this);
+
+  connect(dw5, &QDockWidget::topLevelChanged, this, [dw5](bool floating) {
+    dw5->setWindowFlag(Qt::WindowStaysOnTopHint, floating);
+    dw5->show();
+  });
 }
 
 void Gui::helpAbout() {
