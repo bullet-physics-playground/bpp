@@ -2,13 +2,14 @@
 -- Transform utilities demo
 --
 -- Demonstrates the scad/trans module for rotating and moving objects.
--- Shows a grid of spheres that can be manipulated.
+-- Shows a grid of spheres, colored by height using the "spring" colormap.
 --
 -- Usage: bpp -f demo/basic/09-trans.lua
 
-local trans  = require "scad/trans"
-local color  = require "color"
-local common = require "common"
+local trans     = require "scad/trans"
+local color     = require "color"
+local common    = require "common"
+local colormaps = require "colormaps"
 
 plane = Plane(0,1,0,0,1000)
 plane.pos = btVector3(0,-100,0)
@@ -35,8 +36,6 @@ mt = {} -- create the matrix
 for i=1,X do
   for j=1,Y do
   c = Sphere(0.25,0)
-  --c = Cube(0.5,0.5,0.5,0)
-  --c.col= color.random_google()
   trans.rotate(c, btQuaternion(1,0,1,1), btVector3(i/X,0,0))
   trans.move  (c, btVector3(i-X/2,0,j-Y/2))
 
@@ -49,16 +48,33 @@ for i=1,X do
 end
 
 function update(N)
+  local height = {}
+  local hmin, hmax = math.huge, -math.huge
+
   for i=1,X do
     for j=1,Y do
-      tmp = mt[i*Y + j].pos
       p1 = math.sin(N/50)*20
       x = i-X/2
       y = j-Y/2
       p = math.sin(((x*x)+(y*y))/50+2+p1)*1.5
       p2 = math.log(math.sqrt((x*x)+(y*y))+2.5)*2
-      tmp.y = p + 4 + p2
-      mt[i*Y + j].pos = tmp
+      local h = p + 4 + p2
+      height[i*Y + j] = h
+      if h < hmin then hmin = h end
+      if h > hmax then hmax = h end
+    end
+  end
+
+  local span = hmax - hmin
+  for i=1,X do
+    for j=1,Y do
+      local idx = i*Y + j
+      local h = height[idx]
+      tmp = mt[idx].pos
+      tmp.y = h
+      mt[idx].pos = tmp
+      local t = (span > 0) and (h - hmin) / span or 0
+      mt[idx].col = colormaps.sample_hex("spring", t)
     end
   end
 end
