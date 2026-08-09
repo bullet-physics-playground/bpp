@@ -114,11 +114,18 @@
 -- one pallet to the other. That the holding is continuous rather than
 -- intermittent is measurable -- the impulses that do it are about .0006,
 -- which is what it takes to balance the drive torque at this radius, and
--- they are present on nearly every step. Opening the gap is a matter of
--- trimming the hooks' leading faces further: TRIM_RELEASE is the knob (note
--- SMALLER values cut more, since the cutting circle sits nearer the anchor's
--- centreline), and .2 visibly holds amplitude better than the .75 used here,
--- but no value tried yet gives a clean tooth-per-beat escape.
+-- they are present on nearly every step.
+--
+-- Cutting each hook back to a short locking face (see OPENING THE DROP)
+-- roughly doubles what the wheel gets per beat again -- +-4.3 deg where the
+-- radial trim alone gave +-2.0 -- but it still recoils rather than escaping,
+-- and once the swing decays under about 2 deg the wheel locks solid again at
+-- +-0.17 deg. The behaviour scales cleanly with amplitude, which says the
+-- escapement is close but the pallets still give back on the return swing
+-- most of what they gained. Two knobs are left untried: FACE_W (how much of
+-- each hook survives as a face; 2.0 deg here) and TRIM_RELEASE (note SMALLER
+-- values cut MORE, the cutting circle sitting nearer the anchor's centreline
+-- -- .2 holds amplitude better than the .75 used here).
 --
 -- LIMITATIONS, stated plainly:
 -- * the rolling anchor pivot is a plain hinge at the shaft centre, the
@@ -793,6 +800,14 @@ local TRIM_RELEASE = 0.75              -- swing (deg) at which a pallet must be 
 local TRIM_CLEAR   = 0.005             -- radial clearance past the tooth tips
 local TRIM_R       = 1.0000 + TRIM_CLEAR
 
+-- Catching edges of the two hooks, measured about the wheel axis at neutral,
+-- and how much of each to keep as a locking face. Everything above the face,
+-- inside the tooth band, is cut away so a released tooth has clear air until
+-- the next face comes round.
+local LEFT_FACE  = 210.86
+local RIGHT_FACE = 323.32
+local FACE_W     = 2.0
+
 -- Where the wheel axis sits in the anchor's own frame at a given swing --
 -- the anchor turns about the shaft, so from the anchor the axis swings the
 -- other way about it.
@@ -807,6 +822,7 @@ local function anchorSrc(dx, dy, dz)
   local waist = LEVER_DROP - 0.3125      -- where the drawing steps the thickness
   local lx, ly = wheelAxisInAnchor(TRIM_RELEASE)
   local rx, ry = wheelAxisInAnchor(-TRIM_RELEASE)
+  local wnx, wny = wheelAxisInAnchor(0)
   local zb, zf = Z_FORK_BACK - 0.05, Z_FORK_FRONT + 0.05
 
   -- each cut is confined to its own side, or trimming one hook would trim
@@ -815,6 +831,37 @@ local function anchorSrc(dx, dy, dz)
     scadDisc(lx, ly, zb, zf, 2 * TRIM_R, 0), scadBox(-20, 0, zb, zf, 40, 80))
   local trimRight = string.format("intersection(){%s %s}",
     scadDisc(rx, ry, zb, zf, 2 * TRIM_R, 0), scadBox(20, 0, zb, zf, 40, 80))
+
+  -- OPENING THE DROP. The radial cut above leaves each hook as a 5.4 deg arc
+  -- struck about the wheel axis -- concentric with the tooth tips, i.e. a
+  -- deadbeat face. Concentric faces give no drop at all: the far arc is
+  -- already at the same depth on the other side of the wheel the instant the
+  -- near one lifts, so the wheel is handed straight from pallet to pallet.
+  -- Measured about the wheel axis at neutral, the hooks occupy
+  --     left  210.86 .. 216.23 deg   (deepest .9682 at 211.48)
+  --     right 323.32 .. 328.33 deg   (deepest .9683 at 323.90)
+  -- a span of 112.46 deg between the catching edges = 7.497 tooth pitches,
+  -- which SHOULD give a tooth 7.46 deg of free run. It does not, because
+  -- each arc is long enough to meet the next tooth along well before that.
+  -- So each hook is cut back to a short locking face at its catching edge --
+  -- the low-angle one, since the wheel runs anticlockwise and every tooth
+  -- therefore arrives from below -- and everything above that face, inside
+  -- the tooth band, is taken away.
+  local function sector(a0, a1, r0, r1)
+    local pts, n = {}, 48
+    for k = 0, n do
+      local a = math.rad(a0 + (a1 - a0) * k / n)
+      pts[#pts + 1] = { u(wnx + r1 * math.cos(a)), u(wny + r1 * math.sin(a)) }
+    end
+    for k = n, 0, -1 do
+      local a = math.rad(a0 + (a1 - a0) * k / n)
+      pts[#pts + 1] = { u(wnx + r0 * math.cos(a)), u(wny + r0 * math.sin(a)) }
+    end
+    return scadPlate(pts, zb, zf)
+  end
+
+  local backLeft  = sector(LEFT_FACE + FACE_W, LEFT_FACE + 12.0, 0.84, 1.06)
+  local backRight = sector(RIGHT_FACE + FACE_W, RIGHT_FACE + 12.0, 0.84, 1.06)
 
   return string.format([[
 translate([%.4f,%.4f,%.4f])difference(){
@@ -830,6 +877,8 @@ union(){
 %s
 %s
 %s
+%s
+%s
 }
 ]], dx, dy, dz,
     scadPlate(trace(LEVER, 0, u(LEVER_DROP), FINE_TOL), Z_FORK_BACK, Z_FORK_FRONT),
@@ -838,7 +887,7 @@ union(){
     scadDisc(0, LEVER_DROP, Z_FORK_BACK, Z_FORK_FRONT, 0.3750, 1),
     scadDisc(0, LEVER_DROP - 0.5625, Z_FORK_BACK, Z_FORK_FRONT, 0.1285, 1),
     scadDisc(0, LEVER_DROP - 1.6250, Z_FORK_BACK, Z_FORK_FRONT, 0.1285, 1),
-    trimLeft, trimRight)
+    trimLeft, trimRight, backLeft, backRight)
 end
 
 -- item 18 -- the steel pivot disc pressed into the anchor's .375 bore,
