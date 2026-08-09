@@ -15,20 +15,6 @@ common.setTiming(1/50, 7, 1/120)
 
 local dim = 20 -- scene dimension
 
-v.pre_sdl = [[
-
-#include "textures.inc"
-
-object {                                                                        
-  Light(                                                                        
-    EmissiveSpectrum(ES_GE_SW_Incandescent_100w),                               
-    Lm_Incandescent_100w,                                                       
-    x*50, z*50, 4, 4, on                                                        
-  )                                                                             
-  translate <0, 290, 150>                                                   
-}
-]]
-
 v.pre_sdl = v.pre_sdl..[==[
 #declare CheckerScale = 0.5;
 #declare CheckerPigment = pigment {

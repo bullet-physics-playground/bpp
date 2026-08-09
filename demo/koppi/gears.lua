@@ -15,21 +15,6 @@ v.pre_sdl = [[
 #include "textures.inc"
 #include "metals.inc"
 
-sky_sphere {
-  pigment {
-    gradient y
-    color_map {
-      [0.0 rgb ReferenceRGB(<0.6,0.7,1.0>*Lightsys_Brightness) ]
-      [0.7 rgb ReferenceRGB(<0.0,0.1,0.8>*Lightsys_Brightness) ]
-    }
-  }
-}
-
-object {
-  Light(Daylight(5500), 300, x*70, z*70, 4, 4, off)
-  translate <0, 50, 100>
-}
-
 #declare n_scratchs =
 normal{
  bump_map {png "hf_scratch2"}
