@@ -95,15 +95,17 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
 
     hideProgressBar();
 
-    if (m_process->exitStatus() == QProcess::CrashExit ||
-        m_process->exitCode() != 0) {
+    int exitCode = m_process->exitCode();
+    QString openscadError;
+
+    if (m_process->exitStatus() == QProcess::CrashExit || exitCode != 0) {
       if (m_process->exitStatus() == QProcess::CrashExit) {
         qDebug() << "openscad process error";
       } else {
-        qDebug() << tr("openscad exited with code: %1.").arg(m_process->exitCode());
-        QString err = m_process->readAllStandardError();
-        if (!err.isEmpty()) {
-          qDebug() << err;
+        qDebug() << tr("openscad exited with code: %1.").arg(exitCode);
+        openscadError = m_process->readAllStandardError();
+        if (!openscadError.isEmpty()) {
+          qDebug() << openscadError;
         }
       }
       m_process->deleteLater();
@@ -125,8 +127,12 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
       m_stlReady = true;
       emit stlReady();
     } else {
-      throw std::runtime_error(
-          QString("OpenSCAD failed to generate mesh file: %1").arg(stlfile).toStdString());
+      QString msg =
+          QString("OpenSCAD failed to generate mesh file: %1").arg(stlfile);
+      if (exitCode == 1 && !openscadError.isEmpty()) {
+        msg += "\n" + openscadError;
+      }
+      throw std::runtime_error(msg.toStdString());
     }
   } else {
     throw std::runtime_error(
