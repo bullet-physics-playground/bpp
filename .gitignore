@@ -75,6 +75,9 @@ build_log.txt
 build_warnings.txt
 
 export/*/GNUmakefile
+export/*/*.inc
+export/*/*.ini
+export/*/*.pov
 
 .gdb_history
 
