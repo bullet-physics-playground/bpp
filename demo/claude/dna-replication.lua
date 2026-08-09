@@ -305,29 +305,41 @@ local BASE_COLOR = {
   G = "#84824c",
   C = "#2f3d94",
 }
-local BACKBONE_COL     = "#8aabaf" -- template helix backbone
-local LEADING_STRAND_COL = "#e0a030" -- leading-strand (continuous) daughter backbone, amber
-local LAGGING_STRAND_COL = "#30a0a0" -- lagging-strand (Okazaki) daughter backbone, teal
-local PRIMER_COL       = "#ff44aa" -- short RNA primer, before it is replaced by DNA
-local HELICASE_COL     = "#eeeeee"
-local TOPO_COL         = "#66ddcc" -- topoisomerase, leads the fork
-local SSB_COL          = "#f5f0b0" -- single-strand binding proteins
-local MUTATION_COL     = "#111111" -- an uncorrected replication error
-local PRIMASE_COL      = "#ff8800" -- primase, lays each RNA primer
-local POLYMERASE_COL   = "#5599ff" -- DNA polymerase, actively extending a strand
-local EXONUCLEASE_COL  = "#aa4477" -- 5'->3' exonuclease, removes each RNA primer
-local LIGASE_COL       = "#ccdd33" -- DNA ligase, welds Okazaki fragments together
-local TOPO2_COL        = "#2299aa" -- topoisomerase II, decatenates the two finished daughter helices
-local HISTONE_COL      = "#c9a876" -- histone octamer, DNA wraps around it to form a nucleosome
-local COHESIN_COL      = "#7788cc" -- cohesin, rings the two sister chromatids together
-local MMR_COL          = "#cc6699" -- mismatch repair complex, a second chance for escaped errors
-local CHECKPOINT_COL   = "#ffee66" -- G2/M checkpoint flash
-local P53_COL          = "#cc66ff" -- p53, the "guardian of the genome", at the G1 checkpoint
-local CKI_COL          = "#ff5555" -- CDK inhibitor (p21/p27), blocks cyclin-CDK to halt the cycle
-local CYCLIN_CDK_COL   = "#ff9966" -- an active cyclin-CDK complex (e.g. cyclin B-CDK1, MPF)
-local ENVELOPE_COL     = "#aaccee" -- nuclear envelope / cell membrane ring marker
-local SPINDLE_POLE_COL = "#ffaa44" -- centrosome / spindle pole
-local SPINDLE_FIBER_COL = "#eeeeaa" -- spindle fiber (microtubule)
+local COL = {
+  BACKBONE_COL = "#8aabaf", -- template helix backbone
+  LEADING_STRAND_COL = "#e0a030", -- leading-strand (continuous) daughter backbone, amber
+  LAGGING_STRAND_COL = "#30a0a0", -- lagging-strand (Okazaki) daughter backbone, teal
+  PRIMER_COL = "#ff44aa", -- short RNA primer, before it is replaced by DNA
+  HELICASE_COL = "#eeeeee",
+  TOPO_COL = "#66ddcc", -- topoisomerase, leads the fork
+  SSB_COL = "#f5f0b0", -- single-strand binding proteins
+  MUTATION_COL = "#111111", -- an uncorrected replication error
+  PRIMASE_COL = "#ff8800", -- primase, lays each RNA primer
+  POLYMERASE_COL = "#5599ff", -- DNA polymerase, actively extending a strand
+  EXONUCLEASE_COL = "#aa4477", -- 5'->3' exonuclease, removes each RNA primer
+  LIGASE_COL = "#ccdd33", -- DNA ligase, welds Okazaki fragments together
+  TOPO2_COL = "#2299aa", -- topoisomerase II, decatenates the two finished daughter helices
+  HISTONE_COL = "#c9a876", -- histone octamer, DNA wraps around it to form a nucleosome
+  COHESIN_COL = "#7788cc", -- cohesin, rings the two sister chromatids together
+  MMR_COL = "#cc6699", -- mismatch repair complex, a second chance for escaped errors
+  CHECKPOINT_COL = "#ffee66", -- G2/M checkpoint flash
+  P53_COL = "#cc66ff", -- p53, the "guardian of the genome", at the G1 checkpoint
+  CKI_COL = "#ff5555", -- CDK inhibitor (p21/p27), blocks cyclin-CDK to halt the cycle
+  CYCLIN_CDK_COL = "#ff9966", -- an active cyclin-CDK complex (e.g. cyclin B-CDK1, MPF)
+  ENVELOPE_COL = "#aaccee", -- nuclear envelope / cell membrane ring marker
+  SPINDLE_POLE_COL = "#ffaa44", -- centrosome / spindle pole
+  SPINDLE_FIBER_COL = "#eeeeaa", -- spindle fiber (microtubule)
+  ORIGIN_COL = "#ff9922", -- marks every origin, before it fires
+  ORC_COL = "#8855cc", -- Origin Recognition Complex: binds the origin sequence
+  MCM_COL = "#ccaaff", -- MCM2-7 double hexamer: the loaded, still-inactive helicase ring
+  CLEAVAGE_FURROW_COL = "#f0ecd0", -- the actin contractile ring, animal cells
+  CELL_PLATE_COL = "#7fbf7f", -- the growing cell plate / new dividing wall, plant cells
+  MITOCHONDRION_COL = "#d0525a", -- mitochondria, shared out between the daughter cells
+  WATER_COL = "#cfe9ff",
+  MG_COL = "#77ee88", -- Mg2+, conventionally green in molecular viewers
+  ATP_COL = "#ffcc22",
+  PROTEIN_COL = "#df9aa0", -- generic transcription factor / repair enzyme / remodeler --
+}
 
 --
 -- 1. Elongation kinetics (Michaelis-Menten): v = Vmax*[dNTP] / (Km+[dNTP]).
@@ -389,10 +401,7 @@ local INIT_THRESHOLD  = 0.12   -- T: minimum R = Phi*A*D*C required to fire
 local PHI_RAMP_STEPS  = 150    -- simulation steps for Phi to ramp 0 -> 1 (G1 -> S)
 local CHECKPOINT_PHI  = 0.02   -- Phi is clamped to this while dnaDamageCheckpoint is set
 local DRIVE_NOISE     = 0.01   -- small per-step jitter on D(t), for realism (not bias)
-local ORIGIN_COL      = "#ff9922" -- marks every origin, before it fires
 local LICENSING_STEP  = 15     -- steps for Cdc6/Cdt1 to load the MCM2-7 double hexamer
-local ORC_COL         = "#8855cc" -- Origin Recognition Complex: binds the origin sequence
-local MCM_COL         = "#ccaaff" -- MCM2-7 double hexamer: the loaded, still-inactive helicase ring
 
 --
 -- Helix geometry (roughly to scale with real B-DNA: ~10.5 bp/turn, 0.34
@@ -522,7 +531,7 @@ local CHROMATIN_SPAWN_INTERVAL  = 12
 local CENTROMERE_BP             = math.floor(NBP / 2)
 
 -- Mismatch repair: after chromatin packaging, every base that escaped
--- proofreading (see pickBaseWithFidelity/MUTATION_COL) gets one further,
+-- proofreading (see pickBaseWithFidelity/COL.MUTATION_COL) gets one further,
 -- independent chance at correction -- distinguishing the new strand from
 -- the methylated template the way real MMR does, simplified here to a
 -- straight live probability roll. One site is visited every
@@ -600,9 +609,6 @@ local ENVELOPE_RING_N        = 14    -- marker spheres per envelope/membrane rin
 -- membrane (see updateCytokinesis).
 local CYTOKINESIS_STEPS     = 120   -- steps for the furrow to constrict / the plate to form
 local CYTOKINESIS_RING_N    = 18    -- marker spheres per cleavage-furrow / cell-plate ring
-local CLEAVAGE_FURROW_COL   = "#f0ecd0" -- the actin contractile ring, animal cells
-local CELL_PLATE_COL        = "#7fbf7f" -- the growing cell plate / new dividing wall, plant cells
-local MITOCHONDRION_COL     = "#d0525a" -- mitochondria, shared out between the daughter cells
 local MITOCHONDRION_COUNT   = 6     -- mitochondria spawned per daughter region
 
 -- Cell lineage: after each cytokinesis the demo follows the daughter cells'
@@ -629,7 +635,7 @@ RECOIL_STEPS      = 150 -- steps for each finished daughter duplex to coil back 
 -- always present but only become active when the matching cyclin binds
 -- them; an active cyclin-CDK complex then phosphorylates targets to
 -- trigger the start of the next phase. When any checkpoint detects damage,
--- a CDK inhibitor (CKI, see CKI_COL) binds the complex and the wave is
+-- a CDK inhibitor (CKI, see COL.CKI_COL) binds the complex and the wave is
 -- held back, halting the cycle.
 local CYCLIN_B_RISE  = 1 / 1000     -- per-step accumulation of the cyclin B wave through interphase
 local CYCLIN_B_DECAY = 1 / ANAPHASE_STEPS -- APC/C-mediated crash per step of anaphase
@@ -791,7 +797,7 @@ local function updateDynamicBackbone(record)
   if record.cy ~= nil then
     v:remove(record.cy)
   end
-  record.cy = placeBlobCylinder(record.a.pos, record.b.pos, BACKBONE_R, BACKBONE_COL)
+  record.cy = placeBlobCylinder(record.a.pos, record.b.pos, BACKBONE_R, COL.BACKBONE_COL)
 end
 
 -- Tethers `nuc` to a fixed, invisible-sized anchor at its rest position
@@ -1062,8 +1068,8 @@ for i = 1, NBP do
   rungs[i] = createRungCylinders(pos1, pos2, BASE_COLOR[strand1[i]], BASE_COLOR[strand2Base(i)], rungR)
 
   if i > 1 then
-    backbone1[i] = placeBlobCylinder(basePos(i - 1, 1), pos1, BACKBONE_R, BACKBONE_COL)
-    backbone2[i] = placeBlobCylinder(basePos(i - 1, 2), pos2, BACKBONE_R, BACKBONE_COL)
+    backbone1[i] = placeBlobCylinder(basePos(i - 1, 1), pos1, BACKBONE_R, COL.BACKBONE_COL)
+    backbone2[i] = placeBlobCylinder(basePos(i - 1, 2), pos2, BACKBONE_R, COL.BACKBONE_COL)
   end
 end
 
@@ -1074,12 +1080,12 @@ end
 for _, o in ipairs(origins) do
   if rungs[o.index] ~= nil then
     local rung = rungs[o.index]
-    rung.col1, rung.col2 = ORIGIN_COL, ORIGIN_COL
-    if rung.cy1 ~= nil then rung.cy1.col = ORIGIN_COL end
-    if rung.cy2 ~= nil then rung.cy2.col = ORIGIN_COL end
+    rung.col1, rung.col2 = COL.ORIGIN_COL, COL.ORIGIN_COL
+    if rung.cy1 ~= nil then rung.cy1.col = COL.ORIGIN_COL end
+    if rung.cy2 ~= nil then rung.cy2.col = COL.ORIGIN_COL end
   end
   local orc = Cube(0.2, 0.2, 0.2, 0)
-  orc.col = ORC_COL
+  orc.col = COL.ORC_COL
   orc.pos = originAxisPos(o.index)
   v:add(orc)
   o.orcMarker = orc
@@ -1106,10 +1112,6 @@ local CLOUD_MIN_R        = 2.0    -- stays clear of the helix + daughter strands
 local CLOUD_MAX_R        = 3.2
 local SHELL_MIN_R        = RADIUS + 0.15 -- water hugs the helix's own surface
 local SHELL_MAX_R        = RADIUS + 0.5
-local WATER_COL          = "#cfe9ff"
-local MG_COL             = "#77ee88" -- Mg2+, conventionally green in molecular viewers
-local ATP_COL            = "#ffcc22"
-local PROTEIN_COL        = "#df9aa0" -- generic transcription factor / repair enzyme / remodeler --
                                       -- salmon, sampled from the reference image's protein complexes
 
 local function randomCloudPos(minR, maxR)
@@ -1134,20 +1136,20 @@ local function spawnFloatingMolecule(radius, col, minR, maxR, atoms)
 end
 
 for _ = 1, 50 do
-  spawnFloatingMolecule(0.05, WATER_COL, SHELL_MIN_R, SHELL_MAX_R, WATER_ATOMS)
+  spawnFloatingMolecule(0.05, COL.WATER_COL, SHELL_MIN_R, SHELL_MAX_R, WATER_ATOMS)
 end
 for _ = 1, 14 do
-  spawnFloatingMolecule(0.06, MG_COL, CLOUD_MIN_R, CLOUD_MAX_R, ION_ATOMS)
+  spawnFloatingMolecule(0.06, COL.MG_COL, CLOUD_MIN_R, CLOUD_MAX_R, ION_ATOMS)
 end
 for _ = 1, 30 do
   local dntpBase = BASES[math.random(1, 4)]
   spawnFloatingMolecule(0.09, BASE_COLOR[dntpBase], CLOUD_MIN_R, CLOUD_MAX_R, baseAtoms(dntpBase))
 end
 for _ = 1, 20 do
-  spawnFloatingMolecule(0.11, ATP_COL, CLOUD_MIN_R, CLOUD_MAX_R, ATP_ATOMS)
+  spawnFloatingMolecule(0.11, COL.ATP_COL, CLOUD_MIN_R, CLOUD_MAX_R, ATP_ATOMS)
 end
 for _ = 1, 6 do
-  spawnFloatingMolecule(0.22, PROTEIN_COL, CLOUD_MIN_R, CLOUD_MAX_R, PROTEIN_ATOMS)
+  spawnFloatingMolecule(0.22, COL.PROTEIN_COL, CLOUD_MIN_R, CLOUD_MAX_R, PROTEIN_ATOMS)
 end
 
 --
@@ -1159,9 +1161,9 @@ end
 local mutationStats = { attempted = 0, caught = 0, escaped = 0, mmrCaught = 0 }
 local totalPairingEnergyKJ = 0 -- running DG_pairing of the two new strands, for the final summary
 
--- Every escaped mutation (see MUTATION_COL below), recorded so the later
+-- Every escaped mutation (see COL.MUTATION_COL below), recorded so the later
 -- mismatch-repair pass (see postSim) has real sites to visit instead of
--- needing to rescan the whole molecule for MUTATION_COL-colored spheres.
+-- needing to rescan the whole molecule for COL.MUTATION_COL-colored spheres.
 local mutationSites = {} -- { obj=, correctBase=, repaired= }
 
 -- Nearest-neighbor stacking DG for the duplex step formed by `prevBase`
@@ -1239,7 +1241,7 @@ end
 -- extendLaggingStrand) once there is actually a primer for them to bind.
 local function createFork(originIndex, dir)
   local topo = Cone(0.3, 0.7, 0)
-  topo.col = TOPO_COL
+  topo.col = COL.TOPO_COL
   topo.pos = rotateY(basePos(originIndex, 1), rotationAngle)
   v:add(topo)
 
@@ -1247,20 +1249,20 @@ local function createFork(originIndex, dir)
   local ringPositions = helicaseRingPositions(originAxisPos(originIndex), rotationAngle)
   for k = 1, HELICASE_SUBUNIT_COUNT do
     local hs = MoleculeBlob(HELICASE_SUBUNIT_R, 0, PROTEIN_DOMAIN_ATOMS)
-    hs.col = HELICASE_COL
+    hs.col = COL.HELICASE_COL
     hs.pos = ringPositions[k]
     v:add(hs)
     helicaseSpheres[k] = hs
   end
 
   local leadAnchor = MoleculeBlob(0.1, 0, PYRIMIDINE_ATOMS)
-  leadAnchor.col = PRIMER_COL
+  leadAnchor.col = COL.PRIMER_COL
   leadAnchor.pos = chainPos(originIndex, 1)
   v:add(leadAnchor)
   -- Primase lays this leading-strand primer too -- the very first one at
   -- this origin -- exactly like it does for every lagging-strand
   -- Okazaki fragment later (see extendLaggingStrand).
-  spawnTimedEnzyme(leadAnchor.pos, PRIMASE_COL, 0.08, 4)
+  spawnTimedEnzyme(leadAnchor.pos, COL.PRIMASE_COL, 0.08, 4)
 
   return {
     startIndex = originIndex,
@@ -1292,13 +1294,13 @@ end
 -- Phase 2/3/4 for the leading strand (template: strand1), one nucleotide.
 local function extendLeadingStrand(fork, i)
   if not fork.leadPrimerReplaced then
-    fork.leadAnchor.col = LEADING_STRAND_COL
+    fork.leadAnchor.col = COL.LEADING_STRAND_COL
     fork.leadPrimerReplaced = true
     -- Exonuclease removes the RNA primer; DNA polymerase then binds right
     -- there and rides along the strand as it grows (see the reposition
     -- call below, run every time this strand gains a nucleotide).
-    spawnTimedEnzyme(fork.leadAnchor.pos, EXONUCLEASE_COL, 0.06, 4)
-    fork.leadPolymerase = createEnzymeCluster(fork.leadAnchor.pos, POLYMERASE_COL, 0.09, 5)
+    spawnTimedEnzyme(fork.leadAnchor.pos, COL.EXONUCLEASE_COL, 0.06, 4)
+    fork.leadPolymerase = createEnzymeCluster(fork.leadAnchor.pos, COL.POLYMERASE_COL, 0.09, 5)
     setPhase(4)
     print("DNA polymerase I replaces the leading strand's primer with DNA (fork from bp " ..
           fork.startIndex .. ")")
@@ -1309,7 +1311,7 @@ local function extendLeadingStrand(fork, i)
   fork.leadPrevBase = base
 
   local nuc = MoleculeBlob(0.13, 0.05, baseAtoms(base))
-  nuc.col = isMutation and MUTATION_COL or BASE_COLOR[base]
+  nuc.col = isMutation and COL.MUTATION_COL or BASE_COLOR[base]
   nuc.pos = chainPos(i, 1)
   v:add(nuc)
   if isMutation then
@@ -1322,7 +1324,7 @@ local function extendLeadingStrand(fork, i)
   local con = btPoint2PointConstraint(fork.leadChainEnd.body, nuc.body,
                                        btVector3(0, 0, 0), btVector3(0, 0, 0))
   v:addConstraint(con)
-  local backbone = placeBlobCylinder(fork.leadChainEnd.pos, nuc.pos, BACKBONE_R, LEADING_STRAND_COL)
+  local backbone = placeBlobCylinder(fork.leadChainEnd.pos, nuc.pos, BACKBONE_R, COL.LEADING_STRAND_COL)
   fork.leadBackbone[#fork.leadBackbone + 1] = { cy = backbone, a = fork.leadChainEnd, b = nuc }
   fork.leadChainEnd = nuc
   repositionEnzymeCluster(fork.leadPolymerase, nuc.pos)
@@ -1333,7 +1335,7 @@ end
 local function extendLaggingStrand(fork, i)
   if fork.lagPrimer == nil then
     fork.lagPrimer = MoleculeBlob(0.1, 0, PYRIMIDINE_ATOMS)
-    fork.lagPrimer.col = PRIMER_COL
+    fork.lagPrimer.col = COL.PRIMER_COL
     fork.lagPrimer.pos = chainPos(i, 2)
     v:add(fork.lagPrimer)
     fork.lagPrimers[#fork.lagPrimers + 1] = { obj = fork.lagPrimer, i = i }
@@ -1343,9 +1345,9 @@ local function extendLaggingStrand(fork, i)
     -- Primase flashes at the new primer site; DNA polymerase then binds
     -- there too (creating the marker on this fork's first fragment,
     -- otherwise just moving the existing one to the new primer).
-    spawnTimedEnzyme(fork.lagPrimer.pos, PRIMASE_COL, 0.08, 4)
+    spawnTimedEnzyme(fork.lagPrimer.pos, COL.PRIMASE_COL, 0.08, 4)
     if fork.lagPolymerase == nil then
-      fork.lagPolymerase = createEnzymeCluster(fork.lagPrimer.pos, POLYMERASE_COL, 0.09, 5)
+      fork.lagPolymerase = createEnzymeCluster(fork.lagPrimer.pos, COL.POLYMERASE_COL, 0.09, 5)
     else
       repositionEnzymeCluster(fork.lagPolymerase, fork.lagPrimer.pos)
     end
@@ -1358,7 +1360,7 @@ local function extendLaggingStrand(fork, i)
   fork.lagPrevBase = base
 
   local nuc = MoleculeBlob(0.13, 0.05, baseAtoms(base))
-  nuc.col = isMutation and MUTATION_COL or BASE_COLOR[base]
+  nuc.col = isMutation and COL.MUTATION_COL or BASE_COLOR[base]
   nuc.pos = chainPos(i, 2)
   v:add(nuc)
   if isMutation then
@@ -1371,7 +1373,7 @@ local function extendLaggingStrand(fork, i)
   local con = btPoint2PointConstraint(fork.lagChainEnd.body, nuc.body,
                                        btVector3(0, 0, 0), btVector3(0, 0, 0))
   v:addConstraint(con)
-  local backbone = placeBlobCylinder(fork.lagChainEnd.pos, nuc.pos, BACKBONE_R, LAGGING_STRAND_COL)
+  local backbone = placeBlobCylinder(fork.lagChainEnd.pos, nuc.pos, BACKBONE_R, COL.LAGGING_STRAND_COL)
   fork.lagBackbone[#fork.lagBackbone + 1] = { cy = backbone, a = fork.lagChainEnd, b = nuc }
   fork.lagChainEnd = nuc
   fork.lagFragmentLen = fork.lagFragmentLen + 1
@@ -1385,8 +1387,8 @@ local function extendLaggingStrand(fork, i)
     -- check closes out the fragment early if this fork stopped unwinding
     -- mid-fragment, e.g. by meeting another fork, so no fragment is left
     -- permanently unfinished.)
-    fork.lagPrimer.col = LAGGING_STRAND_COL
-    spawnTimedEnzyme(fork.lagPrimer.pos, EXONUCLEASE_COL, 0.06, 4)
+    fork.lagPrimer.col = COL.LAGGING_STRAND_COL
+    spawnTimedEnzyme(fork.lagPrimer.pos, COL.EXONUCLEASE_COL, 0.06, 4)
     setPhase(4)
     print("DNA polymerase I replaces the RNA primer at bp " .. i .. " with DNA")
     if fork.lastLigatedEnd ~= nil then
@@ -1394,10 +1396,10 @@ local function extendLaggingStrand(fork, i)
                                                  btVector3(0, 0, 0), btVector3(0, 0, 0))
       v:addConstraint(ligaseCon)
       local ligaseBackbone = placeBlobCylinder(fork.lastLigatedEnd.pos, fork.lagPrimer.pos,
-                                            BACKBONE_R, LAGGING_STRAND_COL)
+                                            BACKBONE_R, COL.LAGGING_STRAND_COL)
       fork.lagBackbone[#fork.lagBackbone + 1] =
         { cy = ligaseBackbone, a = fork.lastLigatedEnd, b = fork.lagPrimer }
-      spawnTimedEnzyme(fork.lagPrimer.pos, LIGASE_COL, 0.08, 4)
+      spawnTimedEnzyme(fork.lagPrimer.pos, COL.LIGASE_COL, 0.08, 4)
       print("Ligase welds the Okazaki fragment ending at bp " .. i .. " onto the lagging strand")
     end
     fork.lastLigatedEnd = fork.lagChainEnd
@@ -1590,12 +1592,12 @@ local function repositionMitosisMarkers()
   if M.spindleFiber1 ~= nil then
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     v:remove(M.spindleFiber1)
-    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, SPINDLE_FIBER_COL)
+    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, COL.SPINDLE_FIBER_COL)
   end
   if M.spindleFiber2 ~= nil then
     local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
     v:remove(M.spindleFiber2)
-    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, SPINDLE_FIBER_COL)
+    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, COL.SPINDLE_FIBER_COL)
   end
   if M.newEnvelopeRing1 ~= nil then
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
@@ -1690,7 +1692,7 @@ local function rotateSceneGeometry()
     local posA = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     local posB = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
     v:remove(M.cohesinRing)
-    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COHESIN_COL)
+    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COL.COHESIN_COL)
   end
 
   repositionMitosisMarkers()
@@ -1739,7 +1741,7 @@ local function updateChromatinPackaging()
           "and cohesin rings the two sister chromatids together at the centromere.")
     local posA = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     local posB = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
-    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COHESIN_COL)
+    M.cohesinRing = placeBlobCylinder(posA, posB, BACKBONE_R * 1.5, COL.COHESIN_COL)
   end
   M.chromatinStepCounter = M.chromatinStepCounter + 1
   if M.chromatinStepCounter >= CHROMATIN_SPAWN_INTERVAL and M.chromatinSpawnIndex < #nucleosomeBps then
@@ -1748,7 +1750,7 @@ local function updateChromatinPackaging()
     local bp = nucleosomeBps[M.chromatinSpawnIndex]
     for strand = 1, 2 do
       local h = MoleculeBlob(0.24, 0, PROTEIN_ATOMS)
-      h.col = HISTONE_COL
+      h.col = COL.HISTONE_COL
       h.pos = rotateY(outwardOffset(basePos(bp, strand), 0.8), rotationAngle)
       v:add(h)
       M.histoneMarkers[#M.histoneMarkers + 1] = { obj = h, bp = bp, strand = strand }
@@ -1789,7 +1791,7 @@ local function updateMismatchRepair()
   if M.mmrIndex < #mutationSites then
     M.mmrIndex = M.mmrIndex + 1
     local site = mutationSites[M.mmrIndex]
-    M.mmrMarker = createEnzymeCluster(site.obj.pos, MMR_COL, 0.09, 4)
+    M.mmrMarker = createEnzymeCluster(site.obj.pos, COL.MMR_COL, 0.09, 4)
     if math.random() < v:getParam("mmrEfficiency") then
       site.obj.col = BASE_COLOR[site.correctBase]
       site.repaired = true
@@ -1860,10 +1862,10 @@ local function updateG1Checkpoint()
     M.ckiActive = true
     local pos = originAxisPos(ORIGIN_INDICES[1])
     M.p53Marker = MoleculeBlob(0.18, 0, PROTEIN_ATOMS)
-    M.p53Marker.col = P53_COL
+    M.p53Marker.col = COL.P53_COL
     M.p53Marker.pos = pos
     v:add(M.p53Marker)
-    M.g1CkiMarker = createEnzymeCluster(btVector3(pos.x, pos.y - 0.6, pos.z), CKI_COL, 0.09, 4)
+    M.g1CkiMarker = createEnzymeCluster(btVector3(pos.x, pos.y - 0.6, pos.z), COL.CKI_COL, 0.09, 4)
     print("G1 checkpoint (main): the cell checks whether it is large enough, has " ..
           "sufficient nutrients, and possesses intact DNA before replication begins.")
     print("DNA damage is detected: p53 (the 'guardian of the genome') induces the CDK " ..
@@ -1874,7 +1876,7 @@ local function updateG1Checkpoint()
     if M.p53Marker ~= nil then v:remove(M.p53Marker); M.p53Marker = nil end
     if M.g1CkiMarker ~= nil then removeEnzymeCluster(M.g1CkiMarker); M.g1CkiMarker = nil end
     local pos = rotateY(originAxisPos(ORIGIN_INDICES[1]), rotationAngle)
-    spawnTimedEnzyme(pos, CYCLIN_CDK_COL, 0.12, 5)
+    spawnTimedEnzyme(pos, COL.CYCLIN_CDK_COL, 0.12, 5)
     print("G1 checkpoint passes: the damage is repaired, p21 is cleared, and cyclin " ..
           "E-CDK2 becomes active again, driving S-phase entry.")
   end
@@ -1899,7 +1901,7 @@ local function updateCellCycleCheckpoint()
       M.g2Arrested = true
       M.ckiActive = true
       local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 1.6), rotationAngle)
-      M.g2CkiMarker = createEnzymeCluster(ckiPos, CKI_COL, 0.1, 4)
+      M.g2CkiMarker = createEnzymeCluster(ckiPos, COL.CKI_COL, 0.1, 4)
       print(string.format(
         "G2 checkpoint: DNA replication verified complete, but damage is still present " ..
         "(%d uncorrected mutation(s) persist in the final genome%s).",
@@ -1916,7 +1918,7 @@ local function updateCellCycleCheckpoint()
     M.ckiActive = false
     if M.g2CkiMarker ~= nil then removeEnzymeCluster(M.g2CkiMarker); M.g2CkiMarker = nil end
     local checkpointPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 1.6), rotationAngle)
-    spawnTimedEnzyme(checkpointPos, CYCLIN_CDK_COL, 0.15, 5)
+    spawnTimedEnzyme(checkpointPos, COL.CYCLIN_CDK_COL, 0.15, 5)
     if M.g2Announced then
       print("G2 checkpoint passes: the damage is rectified -- active cyclin B-CDK1 (MPF) " ..
             "phosphorylates mitotic targets and drives the cell into mitosis.")
@@ -1962,12 +1964,12 @@ local function updateProphase()
       f.helicase = {}
     end
     local center = rotateY(btVector3(0, (CENTROMERE_BP - 1) * RISE, 0), rotationAngle)
-    M.breakdownEnvelope = createEnvelopeRing(center, ENVELOPE_RING_R, ENVELOPE_COL)
+    M.breakdownEnvelope = createEnvelopeRing(center, ENVELOPE_RING_R, COL.ENVELOPE_COL)
     M.spindlePole1 = MoleculeBlob(0.35, 0, PROTEIN_ATOMS)
-    M.spindlePole1.col = SPINDLE_POLE_COL
+    M.spindlePole1.col = COL.SPINDLE_POLE_COL
     v:add(M.spindlePole1)
     M.spindlePole2 = MoleculeBlob(0.35, 0, PROTEIN_ATOMS)
-    M.spindlePole2.col = SPINDLE_POLE_COL
+    M.spindlePole2.col = COL.SPINDLE_POLE_COL
     v:add(M.spindlePole2)
     repositionMitosisMarkers() -- give the poles their first real position immediately
     print("The spindle apparatus begins to form as two centrosomes take up position at " ..
@@ -1997,8 +1999,8 @@ local function updateMetaphase()
     setPhase(13)
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
-    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, SPINDLE_FIBER_COL)
-    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, SPINDLE_FIBER_COL)
+    M.spindleFiber1 = placeBlobCylinder(M.spindlePole1.pos, c1, BACKBONE_R, COL.SPINDLE_FIBER_COL)
+    M.spindleFiber2 = placeBlobCylinder(M.spindlePole2.pos, c2, BACKBONE_R, COL.SPINDLE_FIBER_COL)
     print("The spindle apparatus is fully formed, its fibers reaching in to capture each " ..
           "sister chromatid's centromere.")
   end
@@ -2016,7 +2018,7 @@ local function updateMetaphase()
         M.mArrested = true
         M.ckiActive = true
         local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 1.6), rotationAngle)
-        M.mCkiMarker = createEnzymeCluster(ckiPos, CKI_COL, 0.1, 4)
+        M.mCkiMarker = createEnzymeCluster(ckiPos, COL.CKI_COL, 0.1, 4)
         print("M checkpoint (spindle checkpoint): a sister chromatid is not correctly " ..
               "attached to the spindle -- APC/C stays inhibited, cyclin B is not yet " ..
               "degraded, and anaphase is blocked, preventing daughter cells from " ..
@@ -2030,7 +2032,7 @@ local function updateMetaphase()
       M.ckiActive = false
       if M.mCkiMarker ~= nil then removeEnzymeCluster(M.mCkiMarker); M.mCkiMarker = nil end
       local ckiPos = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 1.6), rotationAngle)
-      spawnTimedEnzyme(ckiPos, CYCLIN_CDK_COL, 0.15, 5)
+      spawnTimedEnzyme(ckiPos, COL.CYCLIN_CDK_COL, 0.15, 5)
       if M.mCheckpointAnnounced then
         print("M checkpoint satisfied: every spindle fiber is now properly anchored -- " ..
               "APC/C is released and the signal to separate is given.")
@@ -2102,8 +2104,8 @@ local function updateTelophase()
     if M.spindlePole2 ~= nil then v:remove(M.spindlePole2); M.spindlePole2 = nil end
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
-    M.newEnvelopeRing1 = createEnvelopeRing(c1, NEW_ENVELOPE_RING_R, ENVELOPE_COL)
-    M.newEnvelopeRing2 = createEnvelopeRing(c2, NEW_ENVELOPE_RING_R, ENVELOPE_COL)
+    M.newEnvelopeRing1 = createEnvelopeRing(c1, NEW_ENVELOPE_RING_R, COL.ENVELOPE_COL)
+    M.newEnvelopeRing2 = createEnvelopeRing(c2, NEW_ENVELOPE_RING_R, COL.ENVELOPE_COL)
     print("The spindle apparatus disassembles as the chromosomes begin to decondense " ..
           "and a new nuclear envelope forms around each pole's set.")
   end
@@ -2158,7 +2160,7 @@ end
 local function spawnMitochondria(list, cellSign)
   for _ = 1, MITOCHONDRION_COUNT do
     local m = MoleculeBlob(0.13, 0, MITO_ATOMS)
-    m.col = MITOCHONDRION_COL
+    m.col = COL.MITOCHONDRION_COL
     v:add(m)
     list[#list + 1] = {
       obj = m,
@@ -2195,12 +2197,12 @@ function reinitOrigins()
   for k, index in ipairs(ORIGIN_INDICES) do
     local rung = rungs[index]
     if rung ~= nil then
-      rung.col1, rung.col2 = ORIGIN_COL, ORIGIN_COL
-      if rung.cy1 ~= nil then rung.cy1.col = ORIGIN_COL end
-      if rung.cy2 ~= nil then rung.cy2.col = ORIGIN_COL end
+      rung.col1, rung.col2 = COL.ORIGIN_COL, COL.ORIGIN_COL
+      if rung.cy1 ~= nil then rung.cy1.col = COL.ORIGIN_COL end
+      if rung.cy2 ~= nil then rung.cy2.col = COL.ORIGIN_COL end
     end
     local orc = Cube(0.2, 0.2, 0.2, 0)
-    orc.col = ORC_COL
+    orc.col = COL.ORC_COL
     orc.pos = originAxisPos(index)
     v:add(orc)
     fresh[k] = {
@@ -2343,11 +2345,11 @@ local function updateCytokinesis()
     print("The cytoplasm and its organelles (mitochondria) are distributed between the " ..
           "two daughter regions as cell division proceeds.")
     if v:getParam("plantCell") then
-      M.cellPlate = createCytokinesisRing(0.1, CELL_PLATE_COL)
+      M.cellPlate = createCytokinesisRing(0.1, COL.CELL_PLATE_COL)
       print("Cytokinesis (plant cell): a cell plate forms in the center and grows from " ..
             "the inside out, building a new dividing wall through the rigid cell wall.")
     else
-      M.cleavageFurrow = createCytokinesisRing(CELL_MEMBRANE_RING_R * 1.3, CLEAVAGE_FURROW_COL)
+      M.cleavageFurrow = createCytokinesisRing(CELL_MEMBRANE_RING_R * 1.3, COL.CLEAVAGE_FURROW_COL)
       print("Cytokinesis (animal cell): a ring of actin fibers constricts the cell in the " ..
             "middle, forming a cleavage furrow that pinches the cytoplasm apart.")
     end
@@ -2373,8 +2375,8 @@ local function updateCytokinesis()
     M.cellPlate = nil
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
     local c2 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 2), 0.8), rotationAngle)
-    M.membraneRing1 = createEnvelopeRing(c1, CELL_MEMBRANE_RING_R, ENVELOPE_COL)
-    M.membraneRing2 = createEnvelopeRing(c2, CELL_MEMBRANE_RING_R, ENVELOPE_COL)
+    M.membraneRing1 = createEnvelopeRing(c1, CELL_MEMBRANE_RING_R, COL.ENVELOPE_COL)
+    M.membraneRing2 = createEnvelopeRing(c2, CELL_MEMBRANE_RING_R, COL.ENVELOPE_COL)
     print("Cytokinesis divides the cytoplasm: two independent, genetically identical " ..
           "daughter cells now exist -- mitosis of generation " .. M.generation .. " is complete.")
     if v:getParam("enterG0") then
@@ -2390,6 +2392,69 @@ local function updateCytokinesis()
             "replication have propagated the genome intact.")
     end
   end
+end
+
+-- Dynamic camera: keeps whatever's currently relevant framed as the
+-- scene's spatial extent changes dramatically across phases -- a compact
+-- ~1-2 unit-radius helix during S phase, but a ~15-20 unit-wide mitotic
+-- spindle apparatus by anaphase, at a different absolute position again
+-- once generation 2 begins. The original single, fixed common.setCamera
+-- call below (kept as the frame-1 default) could not keep pace with that
+-- range once mitosis/generations were added -- confirmed by rendering:
+-- several later frames showed nothing but background floating molecules,
+-- with the real action having drifted entirely outside a fixed, narrow
+-- field of view.
+--
+-- look tracks the midpoint between both chromatids' centromere positions
+-- -- the same CENTROMERE_BP reference point already used throughout the
+-- mitosis machinery above -- so it's always defined, even before the two
+-- chromatids exist as visibly separate things (both chainPos calls just
+-- agree until decatenation actually starts pulling them apart). reach is
+-- the single number driving how far out the camera needs to pull back to
+-- keep everything comfortably framed: half the distance between the two
+-- chromatids, or the distance out to a spindle pole, or out to a
+-- nuclear-envelope/cell-membrane ring, whichever is currently largest.
+-- halfWidth = 2.4 reproduces the original fixed camera's own framing
+-- (48 * tan(0.1/2) ~= 2.4) when reach is 0, so early frames look just
+-- like they did before this became dynamic.
+local function updateCamera()
+  local c1 = chainPos(CENTROMERE_BP, 1)
+  local c2 = chainPos(CENTROMERE_BP, 2)
+  local look = btVector3((c1.x + c2.x) * 0.5, (c1.y + c2.y) * 0.5, (c1.z + c2.z) * 0.5)
+
+  local function distFromLook(p)
+    local dx, dy, dz = p.x - look.x, p.y - look.y, p.z - look.z
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+  end
+
+  local reach = distFromLook(c1) -- half the c1<->c2 separation, however it's currently driven
+                                  -- (decatenation, anaphase, or a later generation's own layer)
+  if M.spindlePole1 ~= nil then
+    reach = math.max(reach, distFromLook(M.spindlePole1.pos))
+  end
+  if M.newEnvelopeRing1 ~= nil then
+    reach = math.max(reach, distFromLook(c1) + NEW_ENVELOPE_RING_R)
+  end
+  if M.membraneRing1 ~= nil then
+    reach = math.max(reach, distFromLook(c1) + CELL_MEMBRANE_RING_R)
+  end
+  if M.breakdownEnvelope ~= nil then
+    reach = math.max(reach, ENVELOPE_RING_R)
+  end
+
+  local halfWidth = 2.4 + reach
+  local distance = 48
+  local fov = 2 * math.atan(halfWidth / distance)
+
+  local offsetLen = math.sqrt(48 * 48 + 2 * 2) -- the original camera's own (48,10,0)-(0,8,0) offset
+  local pos = btVector3(
+    look.x + 48 / offsetLen * distance,
+    look.y + 2 / offsetLen * distance,
+    look.z)
+
+  v.cam:setFieldOfView(fov)
+  v.cam.pos = pos
+  v.cam.look = look
 end
 
 -- postSim: Called after each simulation step.
@@ -2449,7 +2514,7 @@ v:postSim(function(N)
       if not o.licensed and N >= LICENSING_STEP then
         o.licensed = true
         local mcm = BlobCylinder(0.55, 0.2, 0)
-        mcm.col = MCM_COL
+        mcm.col = COL.MCM_COL
         mcm.trans = btTransform(VERTICAL_RING_ROT, originAxisPos(o.index))
         v:add(mcm)
         o.mcmMarker = mcm
@@ -2517,11 +2582,11 @@ v:postSim(function(N)
         removeRungCylinders(rungs[nextI])
         rungs[nextI] = nil
         local m1 = MoleculeBlob(0.06, 0, PROTEIN_DOMAIN_ATOMS)
-        m1.col = SSB_COL
+        m1.col = COL.SSB_COL
         m1.pos = rotateY(basePos(nextI, 1), rotationAngle)
         v:add(m1)
         local m2 = MoleculeBlob(0.06, 0, PROTEIN_DOMAIN_ATOMS)
-        m2.col = SSB_COL
+        m2.col = COL.SSB_COL
         m2.pos = rotateY(basePos(nextI, 2), rotationAngle)
         v:add(m2)
         ssbMarkers[nextI] = { m1, m2 }
@@ -2630,6 +2695,8 @@ v:postSim(function(N)
       transitionToNextGeneration()
     end
   end
+
+  updateCamera()
 end)
 
 common.setCamera(btVector3(48, 10, 0), btVector3(0, 8, 0), 0.1)
