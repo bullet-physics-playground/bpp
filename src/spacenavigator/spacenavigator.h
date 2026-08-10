@@ -163,8 +163,21 @@ public:
      * \brief Returns a platform-specific description of the open device
      *        (device node on Linux, HID path on Windows, product name on
      *        macOS), or an empty string if closed.
+     *
+     * This is the string open(const QString &) expects, not something to put
+     * in front of a user; deviceName() is the readable one.
      */
     QString devicePath() const;
+
+    /*!
+     * \brief Returns the product name the device reports, for display.
+     *
+     * Taken from the USB product string (EVIOCGNAME on Linux,
+     * HidD_GetProductString on Windows, kIOHIDProductKey on macOS), for
+     * example "3Dconnexion Universal Receiver".  Falls back to devicePath()
+     * when the device reports no name, and is empty when closed.
+     */
+    QString deviceName() const;
 
     /*!
      * \brief Read all currently pending events.
@@ -249,6 +262,8 @@ private:
 #if defined(Q_OS_WIN)
     void startWindowsRead();
     void parseWindowsReport(const unsigned char *data, int len);
+    void parseWindowsReportRaw(const unsigned char *data, int len);
+    void updateWindowsAxisRanges();
 #endif
 #if defined(Q_OS_MACOS)
     static void macInputValueCallback(void *context, int result, void *sender,
