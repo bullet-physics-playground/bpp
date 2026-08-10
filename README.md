@@ -71,14 +71,46 @@ bpp -n 200 -f demo/basic/01-hello-cmdline.lua | \
 Contributions are welcome! Please feel free to submit a pull request or open an
 issue on the [GitHub repository](https://github.com/bullet-physics-playground/bpp).
 
+## Contributions
+
+### People
+
+*   **Jakob Flierl** – [koppi](https://github.com/koppi) – Creator and
+    primary maintainer since 2011.
+*   **Jaime Vives Piqueres** – [jaimevives](https://github.com/jaimevives) –
+    POV-Ray export, the [Citroën GS](demo/jaimevives) and
+    [box-with-oranges](includes/README.md) demo scenes, and his
+    [latest computer generated images](http://www.ignorancia.org/index.php?page=latest-images).
+*   **WyomingWill** – the [Chebyshev four-bar linkage walker
+    demos](demo/WyomingWill).
+*   Demos in [`demo/claude`](demo/claude) and select other scripts were
+    developed with the assistance of
+    [Claude Code](https://claude.com/claude-code).
+
+### Bundled third-party content
+
+The [`includes/`](includes/) directory bundles POV-Ray assets and lighting
+macros from other authors, each under its own terms; see
+[includes/README.md](includes/README.md) for full details.
+
+| Content | Author(s) | License |
+| --- | --- | --- |
+| [LightSys 4](includes/readme_lightsys.txt) lighting macros | Jaime Vives Piqueres, with Ive and Philippe Debar | not stated in-repo; used with attribution |
+| [CIE XYZ color model](includes/readme_cie.txt) | Ive | not stated in-repo; used with attribution |
+| [Skylight model](includes/readme_skylight.txt) | Philippe Debar, adapted by Ive | not stated in-repo; used with attribution |
+| [Studio Lighting Kit](includes/studio-light-readme.txt) | Jaime Vives Piqueres | not stated in-repo; used with attribution |
+| Box-of-oranges scene | Jaime Vives Piqueres | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0) |
+| Citroën GS car model | Jaime Vives Piqueres | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0) |
+| Nissan Micra K11 car model | Rene Bui | [CC BY-NC 3.0](http://creativecommons.org/licenses/by-nc/3.0/) |
+| Dice model | found on Wikipedia | [Public Domain](https://creativecommons.org/publicdomain/zero/1.0/) |
+| Humanity icon theme | Canonical / Ubuntu | not stated in-repo; used with attribution |
+
+A few other bundled POV-Ray assets (e.g. the LEGO buggy, Wunderbaum, and
+cajón meshes under `includes/`) carry no attribution or license information
+in this repository.
+
 ## License
 
-The Bullet Physics Playground is licensed under the
-[GNU Lesser General Public License](LICENSE).
-
-## Acknowledgments
-
-*   **Jakob Flierl** – [koppi](https://github.com/koppi) – Initial release.
-*   **Jaime Vives Piqueres** – [jaimevives](https://github.com/jaimevives) –
-    POV-Ray export and his
-    [latest computer generated images](http://www.ignorancia.org/index.php?page=latest-images).
+The Bullet Physics Playground itself is licensed under the
+[GNU Lesser General Public License](LICENSE). Bundled third-party content
+retains its own license as noted above.
