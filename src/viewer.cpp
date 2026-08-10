@@ -268,6 +268,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &, const QString &)) & Viewer::addParam)
             .def("getParam", &Viewer::getParam)
             .def("getParams", &Viewer::getParams)
+            .def("getTime", &Viewer::getTime)
             .def("savePrefs", &Viewer::setPrefs)
            .def("loadPrefs", &Viewer::getPrefs)
            .def("clearDebugText", &Viewer::clearDebugText)
@@ -756,11 +757,15 @@ void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
 
 btScalar Viewer::getFixedTimeStep() { return _fixedTimeStep; }
 
+btScalar Viewer::getTime() const { return _wallTimer.elapsed() / 1000.0; }
+
 Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
     : QGLViewer() {
   Q_UNUSED(parent);
 
   _settings = settings;
+
+  _wallTimer.start();
 
   _objects = new QSet<Object *>();
   _constraints = new QSet<btTypedConstraint *>();

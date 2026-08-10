@@ -74,6 +74,12 @@ public:
   void stopSim();
   void restartSim();
 
+  // Monotonic wall-clock seconds since the viewer was constructed. Lua's
+  // os.clock() reports CPU time, which barely advances while the viewer
+  // idles between frames; this is what a script needs to pace itself
+  // against real time.
+  btScalar getTime() const;
+
   void resetCamView();
 
   void setTau(btScalar tau);
@@ -360,6 +366,7 @@ private:
                               btScalar radius, const btVector3 &color);
 
   QElapsedTimer _timer;
+  QElapsedTimer _wallTimer; // never restarted; backs getTime()
 
   QTextStream *_stream;
 
