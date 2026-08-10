@@ -19,6 +19,9 @@ build_with_msys2 {
   WIN32_DIR_QGLVIEWER = $$HOME/libQGLViewer
 
   LIBS += -lSDL2main
+
+  # SpaceNavigator HID support
+  LIBS += -lhid -lsetupapi
 }
 
 contains(DEFINES, WIN32_LINK_AUTOIMPORT) {
