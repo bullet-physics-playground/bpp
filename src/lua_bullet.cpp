@@ -285,6 +285,45 @@ void LuaBullet::luaBind(lua_State *s) {
            .def(tostring(const_self))
            .def(const_self == const_self)];
 
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtStaticPlaneShape.html
+      [class_<btStaticPlaneShape, btConcaveShape>("btStaticPlaneShape")
+           .def(constructor<const btVector3 &, btScalar>(), adopt(result))
+           .def("getPlaneNormal", &btStaticPlaneShape::getPlaneNormal)
+           .def("getPlaneConstant", &btStaticPlaneShape::getPlaneConstant)
+           .property("planeNormal", &btStaticPlaneShape::getPlaneNormal)
+           .property("planeConstant", &btStaticPlaneShape::getPlaneConstant)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleMeshShape.html
+      [class_<btTriangleMeshShape, btConcaveShape>("btTriangleMeshShape")
+           .def("getMeshInterface",
+                (btStridingMeshInterface * (btTriangleMeshShape::*)()) &
+                    btTriangleMeshShape::getMeshInterface)
+           .property("meshInterface",
+                     (btStridingMeshInterface * (btTriangleMeshShape::*)()) &
+                         btTriangleMeshShape::getMeshInterface)
+           .def("getLocalAabbMin", &btTriangleMeshShape::getLocalAabbMin)
+           .def("getLocalAabbMax", &btTriangleMeshShape::getLocalAabbMax)
+           .def("recalcLocalAabb", &btTriangleMeshShape::recalcLocalAabb)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtBvhTriangleMeshShape.html
+      [class_<btBvhTriangleMeshShape, btTriangleMeshShape>(
+           "btBvhTriangleMeshShape")
+           .def(constructor<btStridingMeshInterface *, bool, bool>(),
+                adopt(result))
+           .def("getOwnsBvh", &btBvhTriangleMeshShape::getOwnsBvh)
+           .def("usesQuantizedAabbCompression",
+                &btBvhTriangleMeshShape::usesQuantizedAabbCompression)
+           .def("buildOptimizedBvh",
+                &btBvhTriangleMeshShape::buildOptimizedBvh)
+           .def("refitTree", &btBvhTriangleMeshShape::refitTree)
+           .def("partialRefitTree", &btBvhTriangleMeshShape::partialRefitTree)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtEmptyShape.html
       [class_<btEmptyShape, btConcaveShape>("btEmptyShape")
            .def("getMargin", &btEmptyShape::getMargin)
