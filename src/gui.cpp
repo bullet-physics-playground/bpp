@@ -411,6 +411,7 @@ void Gui::createDock() {
   dw5->setWindowTitle("Parameters");
   paramsTable = new QTableWidget(0, 2, this);
   paramsTable->setHorizontalHeaderLabels(QStringList() << "Name" << "Value");
+  paramsTable->horizontalHeader()->setStretchLastSection(true);
   paramsTable->setItemDelegate(new QItemDelegate());
   dw5->setWidget(paramsTable);
   addDockWidget(Qt::RightDockWidgetArea, dw5);
