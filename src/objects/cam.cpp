@@ -125,10 +125,10 @@ btVector3 Cam::getPosition() const {
 }
 
 void Cam::setLookAt(const btVector3 &v) {
-  if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))
+  if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2])) {
     Camera::lookAt(Vec(v[0], v[1], v[2]));
-
-  _lookAt = v;
+    _lookAt = v;
+  }
 }
 
 btVector3 Cam::getLookAt() const { return _lookAt; }

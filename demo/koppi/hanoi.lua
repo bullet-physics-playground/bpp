@@ -22,11 +22,12 @@
 -- cylinders pierced with a hole the size of the peg diameter, their outer
 -- edge minkowski-rounded and given a classic POV-Ray "plastic" (phong
 -- highlight, no reflection) finish, instead of the original's flat-shaded
--- solid placeholder quad. The whole tower now stands on a slowly
--- (clockwise, viewed from above) rotating wood-textured turntable (a flat
--- Cylinder, see woods.inc's T_Wood32) that rests on a static pedestal
--- ring -- a torus generated at load time via OpenSCAD's rotate_extrude(),
--- not loaded from a mesh file. The camera is pseudo-orthogonal (parked
+-- solid placeholder quad. The whole tower stands, fixed, on a
+-- wood-textured platform (a flat Cylinder, see woods.inc's T_Wood32)
+-- that rests on a static pedestal ring -- a torus generated at load time
+-- via OpenSCAD's rotate_extrude(), not loaded from a mesh file. Instead
+-- of the scene spinning, the camera slowly orbits it (see rotateY() in
+-- the postSim callback below). The camera is pseudo-orthogonal (parked
 -- far away with a small matching FOV, see demo/basic/06-mesh.lua) and
 -- frames the full scene.
 --
@@ -44,7 +45,7 @@ local colormaps = require "colormaps"
 common.setTiming(1 / 25, 10, 1 / 60)
 
 -- Predefined POV-Ray wood texture (see /usr/share/povray-3.8/include/
--- woods.inc) used on the rotating platform below.
+-- woods.inc) used on the platform below.
 v.pre_sdl = [[
 #include "woods.inc"
 ]]
@@ -96,10 +97,9 @@ local function slotWorldY(slot) -- slot is a 0-based stack height
 end
 
 --------------------------------------------------------------------------
--- Turntable rotation. Every object's position/orientation is kept in
--- board-local coordinates and re-projected into world space each step by
--- rotating it about Y -- the same "no scene graph, rotate by hand" idiom
--- common.rotateY() documents.
+-- Orientation. The scene itself is static -- rotateY() (see
+-- common.rotateY()) is instead reused below to orbit the camera around
+-- it, in the postSim callback near the bottom of this file.
 --------------------------------------------------------------------------
 local rotateY = common.rotateY
 
@@ -107,18 +107,15 @@ local rotateY = common.rotateY
 -- so it stands up with its axis vertical (see common.orientBetween).
 local VERTICAL_ROT = common.orientBetween(btVector3(0, 0, 0), btVector3(0, 1, 0))
 
-local ROTATION_SPEED = -0.01 -- radians/step; negative turns the turntable clockwise (viewed from above)
-local rotationAngle  = 0
-
 local function poseFlat(obj, localPos, extraSpin)
-  local q = btQuaternion(btVector3(0, 1, 0), rotationAngle + (extraSpin or 0)) * VERTICAL_ROT
-  obj.trans = btTransform(q, rotateY(localPos, rotationAngle))
+  local q = btQuaternion(btVector3(0, 1, 0), extraSpin or 0) * VERTICAL_ROT
+  obj.trans = btTransform(q, localPos)
 end
 
 --------------------------------------------------------------------------
 -- Static scenery: floor, pedestal torus (built via OpenSCAD, not a mesh
--- file), and the rotating platform. The three pegs are built by setup()
--- below, since their length depends on numStones.
+-- file), and the platform. The three pegs are built by setup() below,
+-- since their length depends on numStones.
 --------------------------------------------------------------------------
 local floor = Plane(0, 1, 0, 0, PLATFORM_R * 2)
 floor.col = "#1a1a1a"
@@ -427,17 +424,27 @@ local camPos   = btVector3(SCENE_R * 9, SCENE_R * 11, SCENE_R * 9)
 local camDist  = math.sqrt(camPos.x ^ 2 + camPos.y ^ 2 + camPos.z ^ 2)
 local camNeed  = math.max(SCENE_R, SCENE_LOOK_Y * CAMERA_MAX_ASPECT)
 local camFov   = 2 * math.atan(camNeed / camDist)
+local camLook  = btVector3(0, SCENE_LOOK_Y, 0)
 
 common.setCamera(
   camPos,
-  btVector3(0, SCENE_LOOK_Y, 0),
+  camLook,
   camFov,
   { horizontal = true, noMove = false }
 )
 
-v:postSim(function(N)
-  rotationAngle = rotationAngle + ROTATION_SPEED
+-- The scene itself never moves; instead the camera orbits around it each
+-- step (rotateY() on the original camPos, about the scene's own vertical
+-- axis) at a fixed distance/height, so framing (camFov above) stays valid
+-- at every point on the orbit. .look and .up are reassigned every step
+-- too -- Cam:setLookAt() just orients the camera once at assignment time
+-- (see Cam::setLookAt in cam.cpp), it doesn't keep tracking a point (or
+-- an upright orientation) on its own, so both have to be pinned again
+-- each time .pos moves, or the view would drift/roll off-center.
+local CAMERA_ORBIT_SPEED = 0.005 -- radians the camera orbits per simulation step
+local cameraAngle = 0
 
+v:postSim(function(N)
   if animating then
     advanceFlight()
   elseif not solved then
@@ -446,6 +453,11 @@ v:postSim(function(N)
 
   updateRestingStonePoses()
   updatePegsAndPlatform()
+
+  cameraAngle = cameraAngle + CAMERA_ORBIT_SPEED
+
+common.setCamera(
+  rotateY(camPos, cameraAngle), camLook, camFov, { horizontal = true, noMove = false } )
 end)
 
 -- EOF
