@@ -132,18 +132,21 @@ void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   btVector3 vec0, vec1;
   btPlaneSpace1(planeNormal, vec0, vec1);
   btScalar vecLen = size;
-  btVector3 pt0 = planeOrigin - vec0 * vecLen;
-  btVector3 pt1 = planeOrigin + vec0 * vecLen;
-  btVector3 pt2 = planeOrigin - vec1 * vecLen;
-  btVector3 pt3 = planeOrigin + vec1 * vecLen;
+
+  // The 4 corners of the square, not the 4 edge-midpoints (which would
+  // triangulate into a diamond instead of a rectangle).
+  btVector3 pt0 = planeOrigin - vec0 * vecLen - vec1 * vecLen;
+  btVector3 pt1 = planeOrigin + vec0 * vecLen - vec1 * vecLen;
+  btVector3 pt2 = planeOrigin + vec0 * vecLen + vec1 * vecLen;
+  btVector3 pt3 = planeOrigin - vec0 * vecLen + vec1 * vecLen;
 
   glApplyColor();
 
-  glBegin(GL_LINES);
-  glVertex3f(pt0.getX(), pt0.getY(), pt0.getZ());
-  glVertex3f(pt1.getX(), pt1.getY(), pt1.getZ());
-  glVertex3f(pt2.getX(), pt2.getY(), pt2.getZ());
-  glVertex3f(pt3.getX(), pt3.getY(), pt3.getZ());
+  glBegin(GL_LINE_LOOP);
+  glVertex3fv(pt0);
+  glVertex3fv(pt1);
+  glVertex3fv(pt2);
+  glVertex3fv(pt3);
   glEnd();
 
   glBegin(GL_TRIANGLES);
@@ -154,12 +157,12 @@ void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   glVertex3fv(pt2);
   glVertex3fv(pt1);
   glVertex3fv(pt0);
-  glVertex3fv(pt0);
-  glVertex3fv(pt1);
+  glVertex3fv(pt2);
   glVertex3fv(pt3);
-  glVertex3fv(pt3);
-  glVertex3fv(pt1);
   glVertex3fv(pt0);
+  glVertex3fv(pt0);
+  glVertex3fv(pt3);
+  glVertex3fv(pt2);
   glEnd();
 }
 
