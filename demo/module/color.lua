@@ -299,15 +299,7 @@ for k, v in pairs({
 }) do M[k] = v end
 
 function M.num2hex(num)
-    local hexstr = '0123456789abcdef'
-    local s = ''
-    while num > 0 do
-        local mod = math.fmod(num, 16)
-        s = string.sub(hexstr, mod+1, mod+1) .. s
-        num = math.floor(num / 16)
-    end
-    if s == '' then s = '00' end
-    return s
+    return string.format("%02x", num)
 end
 
 function M.rgb2col(r,g,b)
