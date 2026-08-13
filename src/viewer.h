@@ -13,10 +13,14 @@
 #include <QElapsedTimer>
 #include <QFile>
 #include <QKeyEvent>
+#include <QMouseEvent>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QRect>
 #include <QSettings>
 #include <QTextStream>
+#include <QVector>
+#include <QWheelEvent>
 #include <map>
 #include <functional>
 #include <luabind/object.hpp>
@@ -225,6 +229,19 @@ public slots:
 
   void keyPressEvent(QKeyEvent *e);
 
+  // Qt intercepts Tab/Backtab for focus-chain traversal in QWidget::event(),
+  // before keyPressEvent() ever runs. Disable that so Tab reaches
+  // keyPressEvent() and toggles the quad view instead.
+  bool focusNextPrevChild(bool) override { return false; }
+
+  // Pan (drag) and zoom (wheel) for whichever ortho pane the mouse is
+  // over, when in quad view. Falls through to QGLViewer's default
+  // camera() handling everywhere else (including the perspective pane).
+  void mousePressEvent(QMouseEvent *e) override;
+  void mouseMoveEvent(QMouseEvent *e) override;
+  void mouseReleaseEvent(QMouseEvent *e) override;
+  void wheelEvent(QWheelEvent *e) override;
+
   void command(QString cmd);
 
   void showLuaException(const std::exception &e, const QString &context = "");
@@ -297,6 +314,8 @@ protected:
   void addObjects(QList<Object *> ol, int type, int mask);
 
   void drawSceneInternal(int pass);
+  void drawQuadView();
+  void updateOrthoCameras();
 
   void computeBoundingBox();
 
@@ -314,6 +333,32 @@ private:
   Quaternion _initialCameraOrientation;
   btScalar _initialCameraHorizontalFieldOfView;
   Vec _initialCameraUpVector;
+
+  // Tab toggles between the single perspective view and a 4-pane CAD-style
+  // layout (perspective, top, front, right), matching AutoCAD/Maya. The
+  // perspective quadrant reuses camera(); the other three are fixed,
+  // auto-framed orthographic views.
+  bool _quadView;
+  // Set once updateOrthoCameras() has auto-framed the ortho cameras for
+  // the first time, so later Tab toggles remember the user's own pan/zoom
+  // in those views instead of re-framing every time.
+  bool _orthoCamerasFitted;
+  qglviewer::Camera *_camTop;
+  qglviewer::Camera *_camFront;
+  qglviewer::Camera *_camRight;
+
+  // One quad-view pane: which camera renders it, and its rectangle in
+  // widget (Qt, top-left origin) coordinates.
+  struct Pane {
+    qglviewer::Camera *cam;
+    QRect rect;
+  };
+  QVector<Pane> computePanes() const;
+  qglviewer::Camera *orthoCameraAt(const QPoint &pos) const;
+
+  // Active pan drag on one of the ortho panes (nullptr when not panning).
+  qglviewer::Camera *_orthoPanCamera;
+  QPoint _orthoPanLastPos;
 
   bool _simulate;
 

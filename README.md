@@ -49,6 +49,9 @@ Select your operating system:
 *   **Enter:** Start/stop the animation.
 *   **Space:** Toggle between fly and revolve camera modes.
 *   **Arrow Keys:** Move the camera.
+*   **Tab:** Toggle between the single perspective view and a 4-view
+    CAD-style layout (perspective, top, front, right). Scroll to zoom and
+    drag to pan in the top/front/right views.
 *   **H:** Show the QGLViewer help window.
 
 ### Command-Line

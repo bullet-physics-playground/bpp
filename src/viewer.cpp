@@ -708,9 +708,86 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_C:
     resetCamView();
     break;
+  case Qt::Key_Tab:
+    _quadView = !_quadView;
+    if (_quadView && !_orthoCamerasFitted) {
+      // Auto-frame the ortho cameras only the first time quad view is
+      // shown, so later toggles remember any pan/zoom the user applied.
+      updateOrthoCameras();
+      _orthoCamerasFitted = true;
+    }
+    update();
+    break;
   default:
     QGLViewer::keyPressEvent(e);
   }
+}
+
+void Viewer::mousePressEvent(QMouseEvent *e) {
+  qglviewer::Camera *cam = orthoCameraAt(e->pos());
+  if (cam) {
+    _orthoPanCamera = cam;
+    _orthoPanLastPos = e->pos();
+    e->accept();
+    return;
+  }
+  QGLViewer::mousePressEvent(e);
+}
+
+void Viewer::mouseMoveEvent(QMouseEvent *e) {
+  if (_orthoPanCamera) {
+    const QPoint delta = e->pos() - _orthoPanLastPos;
+    _orthoPanLastPos = e->pos();
+
+    if (!delta.isNull()) {
+      // Convert screen-pixel movement to world units at the pane's current
+      // zoom level (screenHeight() is this camera's pane height, set each
+      // time drawQuadView() renders it).
+      GLdouble halfWidth, halfHeight;
+      _orthoPanCamera->getOrthoWidthHeight(halfWidth, halfHeight);
+      const int paneHeight = _orthoPanCamera->screenHeight();
+      const qreal unitsPerPixel =
+          (paneHeight > 0) ? (2.0 * halfHeight / paneHeight) : 0.0;
+
+      const qglviewer::Vec translation =
+          -_orthoPanCamera->rightVector() * (delta.x() * unitsPerPixel) +
+          _orthoPanCamera->upVector() * (delta.y() * unitsPerPixel);
+
+      _orthoPanCamera->setPosition(_orthoPanCamera->position() + translation);
+      _orthoPanCamera->setPivotPoint(_orthoPanCamera->pivotPoint() +
+                                     translation);
+      update();
+    }
+    e->accept();
+    return;
+  }
+  QGLViewer::mouseMoveEvent(e);
+}
+
+void Viewer::mouseReleaseEvent(QMouseEvent *e) {
+  if (_orthoPanCamera) {
+    _orthoPanCamera = nullptr;
+    e->accept();
+    return;
+  }
+  QGLViewer::mouseReleaseEvent(e);
+}
+
+void Viewer::wheelEvent(QWheelEvent *e) {
+  qglviewer::Camera *cam = orthoCameraAt(e->position().toPoint());
+  if (cam) {
+    // One wheel "click" is 120 (QWheelEvent::angleDelta() units); each
+    // click zooms by 10%, scrolling the camera towards/away from its
+    // pivot along its own view direction.
+    const qreal notches = e->angleDelta().y() / 120.0;
+    const qreal factor = pow(0.9, notches);
+    const qglviewer::Vec pivot = cam->pivotPoint();
+    cam->setPosition(pivot + (cam->position() - pivot) * factor);
+    e->accept();
+    update();
+    return;
+  }
+  QGLViewer::wheelEvent(e);
 }
 
 void Viewer::addObject(Object *o, int type, int mask) {
@@ -789,6 +866,26 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _simulate = false;
   _deactivation = true;
+
+  _quadView = false;
+  _orthoCamerasFitted = false;
+
+  _camTop = new qglviewer::Camera();
+  _camTop->setType(qglviewer::Camera::ORTHOGRAPHIC);
+  _camTop->setViewDirection(qglviewer::Vec(0, -1, 0));
+  _camTop->setUpVector(qglviewer::Vec(0, 0, -1));
+
+  _camFront = new qglviewer::Camera();
+  _camFront->setType(qglviewer::Camera::ORTHOGRAPHIC);
+  _camFront->setViewDirection(qglviewer::Vec(0, 0, -1));
+  _camFront->setUpVector(qglviewer::Vec(0, 1, 0));
+
+  _camRight = new qglviewer::Camera();
+  _camRight->setType(qglviewer::Camera::ORTHOGRAPHIC);
+  _camRight->setViewDirection(qglviewer::Vec(-1, 0, 0));
+  _camRight->setUpVector(qglviewer::Vec(0, 1, 0));
+
+  _orthoPanCamera = nullptr;
 
   _timeStep = 1 / 25.0;
   _maxSubSteps = 7;
@@ -1830,6 +1927,10 @@ void Viewer::resetCamView() {
 
   // Reinitialise the SpaceNavigator orbit distance from the new view.
   _snOrbitDist = 0.0;
+
+  if (_quadView) {
+    updateOrthoCameras();
+  }
 }
 
 Viewer::~Viewer() {
@@ -2004,6 +2105,10 @@ Viewer::~Viewer() {
   delete _vehicle_raycasters;
 
   delete _joystickInterface;
+
+  delete _camTop;
+  delete _camFront;
+  delete _camRight;
 }
 
 void Viewer::computeBoundingBox() {
@@ -2117,6 +2222,12 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
   glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
 
+  if (_quadView) {
+    drawQuadView();
+    mutex.unlock();
+    return;
+  }
+
   if (manipulatedFrame() != nullptr) {
     glPushMatrix();
     glMultMatrixd(manipulatedFrame()->matrix());
@@ -2175,6 +2286,95 @@ void Viewer::drawSceneInternal(int pass) {
   }
 
   drawConstraints();
+}
+
+// Re-frames the three fixed orthographic cameras on the current scene,
+// keeping their view direction/up vector (set once, in the constructor)
+// and just sliding them along that direction so the whole scene is in
+// frame - the same thing fitSphere() is for. Called once when quad view
+// is switched on (and on 'C' reset), not every frame, so it doesn't fight
+// the user's own pan/zoom in those views afterwards.
+void Viewer::updateOrthoCameras() {
+  const qglviewer::Vec center = camera()->sceneCenter();
+  const qreal radius = camera()->sceneRadius();
+
+  for (qglviewer::Camera *cam : {_camTop, _camFront, _camRight}) {
+    cam->setSceneCenter(center);
+    cam->setSceneRadius(radius);
+    cam->setPivotPoint(center);
+    cam->fitSphere(center, radius);
+  }
+}
+
+// The current quad-view pane layout: perspective (top-left, the
+// interactive camera()), top (top-right), front (bottom-left), right
+// (bottom-right) - the classic AutoCAD/Maya 4-view layout. Rectangles are
+// in widget coordinates (Qt convention: origin top-left, y down), shared
+// by drawQuadView() (which flips to OpenGL's bottom-left-origin viewport)
+// and orthoCameraAt() (which hit-tests mouse events directly against
+// these).
+QVector<Viewer::Pane> Viewer::computePanes() const {
+  const int w = width();
+  const int h = height();
+  const int leftW = w / 2;
+  const int rightW = w - leftW;
+  const int topH = h / 2;
+  const int bottomH = h - topH;
+
+  return {
+      {camera(), QRect(0, 0, leftW, topH)},            // top-left: perspective
+      {_camTop, QRect(leftW, 0, rightW, topH)},         // top-right: top
+      {_camFront, QRect(0, topH, leftW, bottomH)},      // bottom-left: front
+      {_camRight, QRect(leftW, topH, rightW, bottomH)}, // bottom-right: right
+  };
+}
+
+// The ortho camera under widget position pos, or nullptr when quad view
+// is off or pos is over the perspective pane (where camera()'s own
+// default mouse handling already applies).
+qglviewer::Camera *Viewer::orthoCameraAt(const QPoint &pos) const {
+  if (!_quadView) return nullptr;
+
+  for (const Pane &p : computePanes()) {
+    if (p.cam != camera() && p.rect.contains(pos)) {
+      return p.cam;
+    }
+  }
+  return nullptr;
+}
+
+// Splits the viewport into the 4 quadView panes and renders the scene
+// once per pane, each with its own camera and clipped to its own
+// rectangle.
+void Viewer::drawQuadView() {
+  const int w = width();
+  const int h = height();
+  const QVector<Pane> panes = computePanes();
+
+  for (int i = 0; i < panes.size(); i++) {
+    const Pane &p = panes[i];
+    // glViewport() takes the bottom-left corner; p.rect.y() is measured
+    // from the top, so flip it.
+    const int glX = p.rect.x();
+    const int glY = h - p.rect.y() - p.rect.height();
+    glViewport(glX, glY, p.rect.width(), p.rect.height());
+
+    p.cam->setScreenWidthAndHeight(p.rect.width(), p.rect.height());
+    p.cam->loadProjectionMatrix();
+    p.cam->loadModelViewMatrix();
+
+    glDisable(GL_CULL_FACE);
+    drawSceneInternal(i);
+  }
+
+  // Restore the full-window viewport and camera() state: postDraw()'s
+  // screen-coordinate overlays (record/simulate/save/deactivation dots)
+  // assume the whole widget, and the next frame's mouse handling assumes
+  // camera()'s screen size matches the widget again.
+  glViewport(0, 0, w, h);
+  camera()->setScreenWidthAndHeight(w, h);
+  camera()->loadProjectionMatrix();
+  camera()->loadModelViewMatrix();
 }
 
 // Renders every constraint via btDynamicsWorld::debugDrawConstraint(),
