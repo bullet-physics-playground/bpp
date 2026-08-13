@@ -3299,9 +3299,30 @@ void Viewer::onQuickRender(QString povargs) {
   qDebug() << "exportDir: " << exportDir;
   qDebug() << "sceneDir: " << sceneDir;
 
-  QProcess p;
-  p.setProgram(povray);
-  p.setArguments(args);
-  p.setWorkingDirectory(sceneDir);
-  p.startDetached();
+  QProcess *p = new QProcess(this);
+  p->setProgram(povray);
+  p->setArguments(args);
+  p->setWorkingDirectory(sceneDir);
+  p->setProcessChannelMode(QProcess::MergedChannels);
+
+  connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+          this, [this, p](int exitCode, QProcess::ExitStatus exitStatus) {
+            if (exitCode != 0 || exitStatus == QProcess::CrashExit) {
+              emitScriptOutput(
+                  QString("POV-Ray failed (exit code %1):\n%2")
+                      .arg(exitCode)
+                      .arg(QString::fromLocal8Bit(p->readAll())));
+            }
+            p->deleteLater();
+          });
+  connect(p, &QProcess::errorOccurred, this,
+          [this, p](QProcess::ProcessError) {
+            if (p->error() == QProcess::FailedToStart) {
+              emitScriptOutput(
+                  QString("POV-Ray failed to start: %1").arg(p->errorString()));
+              p->deleteLater();
+            }
+          });
+
+  p->start();
 }
