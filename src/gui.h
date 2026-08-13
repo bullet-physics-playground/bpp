@@ -138,6 +138,10 @@ private:
   void createDock();
   void createActions();
   void createMenus();
+  void createPovrayMenu();
+  QString povraySettingsPath() const;
+  int readPovraySetting(const QString &name, int defaultValue) const;
+  void writePovraySetting(const QString &name, int value);
 
   bool _fileSaved;
   bool _simulationRunning;

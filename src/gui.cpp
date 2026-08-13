@@ -1,12 +1,16 @@
+#include "appenv.h"
 #include "prefs.h"
 
 #include <Qt>
 
 #include "gui.h"
 
+#include <QActionGroup>
+#include <QFile>
 #include <QProgressBar>
 #include <QDir>
 #include <QFileInfo>
+#include <QRegExp>
 
 std::ostream &operator<<(std::ostream &ostream, const Gui &gui) {
   ostream << gui.toString().toUtf8().data();
@@ -301,7 +305,171 @@ void Gui::createMenus() {
 
   ui.menuFile->addAction(ui.actionExit);
 
+  createPovrayMenu();
+
   updateRecentFileActions();
+}
+
+namespace {
+
+struct PovrayOption {
+  int value;
+  const char *label;
+};
+
+struct PovraySetting {
+  const char *name;        // #declare name in includes/settings.inc
+  const char *label;       // menu entry / submenu title
+  const char *description; // status bar / tooltip text
+  bool toggle;             // true: single checkable action (0/1)
+                            // false: submenu of exclusive radio-style actions
+  QVector<PovrayOption> options; // used when !toggle
+};
+
+const QVector<PovraySetting> &povraySettings() {
+  static const QVector<PovraySetting> settings = {
+      {"use_lightsys", "Enable / disable LightSYS rendering system",
+       "Use the LightSys physically-based sun/sky lighting system instead "
+       "of simple fixed point lights",
+       true,
+       {}},
+      {"use_rad", "Radiosity",
+       "Radiosity (indirect lighting) quality", false,
+       {{0, "Off"}, {1, "Outdoor, low quality"}, {2, "Outdoor, high quality"}}},
+      {"use_lightsys_setting", "LightSys light preset",
+       "LightSys area-light color preset (only used with LightSys and "
+       "area light both on)",
+       false,
+       {{0, "Daylight fluorescent"}, {1, "Cool fluorescent"}}},
+      {"use_cie_whitepoint", "CIE white point",
+       "CIE color-system white point / film response adaptation (only "
+       "used with LightSys)",
+       false,
+       {{0, "Off"},
+        {1, "Illuminant B"},
+        {2, "Daylight film"},
+        {3, "Indoor film"}}},
+      {"use_lightsys_light1", "Secondary LightSys fill light",
+       "Secondary LightSys light matching the interactive view's "
+       "GL_LIGHT1 (only used with LightSys)",
+       true,
+       {}},
+      {"use_area_light", "Area light (soft shadows)",
+       "Render the main light as a soft area light for soft shadows, "
+       "instead of a hard point light",
+       true,
+       {}},
+      {"use_background", "Background",
+       "Background behind objects that don't hit any geometry", false,
+       {{0, "None (sky)"}, {1, "Black"}, {2, "White"}}},
+      {"use_clouds", "Clouds / sky", "Sky and cloud rendering style", false,
+       {{0, "Off"},
+        {1, "Simple cloud plane"},
+        {2, "Fast realistic clouds"},
+        {3, "Gradient sky dome"}}},
+      {"use_plane", "Ground plane", "Add a textured ground plane to the render",
+       true,
+       {}},
+      {"use_plane_tex", "Ground plane texture",
+       "Ground plane texture (only used when the ground plane is on)",
+       false,
+       {{0, "Plain"}, {1, "Grass"}, {2, "Glossy white"}}},
+      {"use_photons", "Photon mapping",
+       "Photon mapping quality for caustics and reflections", false,
+       {{0, "Off"}, {1, "Normal"}, {2, "Fine"}}},
+  };
+  return settings;
+}
+
+} // namespace
+
+void Gui::createPovrayMenu() {
+  QMenu *menuPovray = new QMenu(tr("&POV-Ray"), this);
+  ui.menubar->insertMenu(ui.menuHelp->menuAction(), menuPovray);
+
+  auto addSetting = [this, menuPovray](const PovraySetting &setting) {
+    if (setting.toggle) {
+      QAction *action = menuPovray->addAction(tr(setting.label));
+      action->setCheckable(true);
+      action->setChecked(readPovraySetting(setting.name, 0) != 0);
+      action->setStatusTip(tr(setting.description));
+      action->setToolTip(tr(setting.description));
+      QString name = setting.name;
+      connect(action, &QAction::toggled, this, [this, name](bool checked) {
+        writePovraySetting(name, checked ? 1 : 0);
+      });
+      return;
+    }
+
+    QMenu *sub = menuPovray->addMenu(tr(setting.label));
+    sub->setStatusTip(tr(setting.description));
+    sub->setToolTip(tr(setting.description));
+    QActionGroup *group = new QActionGroup(sub);
+    group->setExclusive(true);
+    int current = readPovraySetting(setting.name, setting.options.first().value);
+    QString name = setting.name;
+    for (const PovrayOption &opt : setting.options) {
+      QAction *a = sub->addAction(tr(opt.label));
+      a->setCheckable(true);
+      a->setChecked(opt.value == current);
+      a->setStatusTip(tr(setting.description));
+      a->setToolTip(tr(setting.description));
+      group->addAction(a);
+      int value = opt.value;
+      connect(a, &QAction::triggered, this, [this, name, value]() {
+        writePovraySetting(name, value);
+      });
+    }
+  };
+
+  const QVector<PovraySetting> &settings = povraySettings();
+  addSetting(settings.first()); // use_lightsys: the headline toggle
+  menuPovray->addSeparator();
+  for (int i = 1; i < settings.size(); i++) {
+    addSetting(settings.at(i));
+  }
+}
+
+QString Gui::povraySettingsPath() const {
+  return startupWorkingDir() + QDir::separator() + "includes" +
+         QDir::separator() + "settings.inc";
+}
+
+int Gui::readPovraySetting(const QString &name, int defaultValue) const {
+  QFile file(povraySettingsPath());
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    return defaultValue;
+  }
+  QRegExp rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
+  while (!file.atEnd()) {
+    QString line = QString::fromUtf8(file.readLine());
+    if (rx.indexIn(line) >= 0) {
+      return rx.cap(1).toInt();
+    }
+  }
+  return defaultValue;
+}
+
+void Gui::writePovraySetting(const QString &name, int value) {
+  QString path = povraySettingsPath();
+  QFile file(path);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    return;
+  }
+  QString content = QString::fromUtf8(file.readAll());
+  file.close();
+
+  QRegExp rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
+  if (rx.indexIn(content) < 0) {
+    return; // setting not found in the file, don't touch it
+  }
+  content.replace(rx, QString("\\1%1\\2").arg(value));
+
+  QFile out(path);
+  if (!out.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    return;
+  }
+  out.write(content.toUtf8());
 }
 
 void Gui::updateRecentFileActions() {
