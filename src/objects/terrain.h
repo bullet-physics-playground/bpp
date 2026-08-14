@@ -33,6 +33,7 @@ public:
 
   static void luaBind(lua_State *s);
   QString toString() const override;
+  using Object::toPOV;
   QString toPOV(const QString &sceneDir) const;
   void toMesh2(QTextStream *s, QString hash) const;
 

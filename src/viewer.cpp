@@ -27,7 +27,6 @@
 #include "objects/cube.h"
 #include "objects/cylinder.h"
 #include "objects/object.h"
-#include "objects/objects.h"
 #include "objects/plane.h"
 #include "objects/rigidsoftcontact.h"
 #include "objects/softbody.h"
@@ -1688,7 +1687,6 @@ emit scriptStarts();
 
     Cam::luaBind(L);
     Object::luaBind(L);
-    Objects::luaBind(L);
     Cone::luaBind(L);
     Cube::luaBind(L);
     Cylinder::luaBind(L);

@@ -284,6 +284,13 @@ linux:link_pkgconfig {
   contains(DEFINES, HAS_LIB_ASSIMP) {
     PKGCONFIG += assimp
   }
+
+  # Bullet's own headers trigger -Wunused-parameter and similar warnings
+  # under -Wall -Wextra. Re-adding its include dir via -isystem (on top of
+  # the -I already added by PKGCONFIG) marks it as a system header
+  # directory, so the compiler suppresses warnings from those headers.
+  BULLET_INCDIR = $$system(pkg-config --cflags-only-I bullet)
+  QMAKE_CXXFLAGS += $$replace(BULLET_INCDIR, -I, -isystem )
 }
 
 SOURCES     += $$files("src/*.cpp", true)
