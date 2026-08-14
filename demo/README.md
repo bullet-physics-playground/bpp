@@ -8,6 +8,7 @@
 * [jaimevives/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/jaimevives) by [@jaimevives](https://github.com/jaimevives)
 * [koppi/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/koppi) by [@koppi](https://github.com/koppi)
 * [WyomingWill/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/WyomingWill) by [@WyomingWill](https://github.com/WyomingWill)
+* [claude/](https://github.com/bullet-physics-playground/bpp/tree/master/demo/claude) - demos generated with [Claude Code](https://docs.anthropic.com/en/docs/claude-code), including `jansen-walker.lua`, a six-legged Theo Jansen ("Strandbeest") walker built from real Bullet rigid bodies and hinge constraints
 
 ### Meshes
 
