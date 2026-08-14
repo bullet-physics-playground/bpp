@@ -4,16 +4,11 @@
 -- mounted on a triangulated spine, built the same way as
 -- demo/WyomingWill/cheby_normal6.lua: real Bullet rigid bodies + hinge
 -- constraints (one of them motorized per leg), not analytic forward
--- kinematics. NOTE: in this side-by-side arrangement the mechanism cycles
--- its full gait correctly but does not travel -- see the "HONEST CAVEAT
--- (this walker doesn't travel)" note below for why, and what was tried.
+-- kinematics.
 --
 -- KEYBOARD SHORTCUTS:
--- * R - reverse the gait cycle direction (see the shortcut's own comment
---       below for why flipping every crank motor's sign is enough) --
---       since this build doesn't travel either way (see above), this
---       mainly reverses which direction each foot sweeps through its
---       stance phase, not a literal forward/backward walk
+-- * R - reverse walking direction (see the shortcut's own comment below
+--       for why flipping every crank motor's sign is enough)
 --
 -- Ground link lengths a..m are Theo Jansen's own published "holy numbers",
 -- transcribed from the linkage_c reference tool's mechanisms.c (the same
@@ -74,55 +69,40 @@
 -- needed just to keep one leg's own closed-loop network from diverging
 -- (see the CFM note below for why).
 --
--- HONEST CAVEAT (this walker doesn't travel): laying all three leg-pairs
--- side by side along Z, all sharing the same X, measures out to zero net
--- motion -- cube.pos.x sits within +-0.001 of its starting point over a
--- full 900-frame test, even with the mirror fix above applied. Four
--- separate fixes were tried and none of them worked, which is worth
--- recording so a future attempt doesn't re-tread the same ground:
---   1. PAIR_X_STAGGER (declared below, near LANE_SPACING; currently 0)
---      nudges each pair along X too, on the theory that simultaneously-
---      planted feet from different phase groups were gripping the exact
---      same ground patch from competing directions. Tested at 40, 80,
---      120, and 160 units -- the last closing in on the ~220-unit spacing
---      that DOES walk when pairs are spread along X instead of side by
---      side (an earlier version of this file) -- and none produced
---      meaningful net motion; watching individual feet confirmed each
---      pair's own absolute ground-contact range was already well clear of
---      its neighbors' even at modest stagger, ruling out "feet fighting
---      over the same patch" as the actual mechanism.
---   2. Cube mass: dropped from 220 down to 15, then 5, 3, and 1. Heavier
---      values held perfectly still; lighter ones jiggled MORE (up to
---      +-0.5 briefly at mass 1) but never developed a sustained trend --
---      the signature of a mechanism with zero average thrust, not one
---      that's just too heavy to respond to nonzero thrust.
---   3. Cube size: shrunk from spanning all 6 lanes down to a small
---      24-unit-deep central hub (with the truss, not the cube itself,
---      providing the visual frame out to each leg) -- no change.
---   4. Foot friction: dropped from 0.9 to 0.3, 0.15, and 0.05 -- produced
---      BIT-IDENTICAL trajectories at every value tested, which rules out
---      a friction stalemate (multiple feet's conflicting demands locking
---      each other via static friction): if that were the mechanism,
---      lowering friction enough to let a foot slip should have changed
---      the outcome, and it did not, at all.
--- Directly instrumenting cube.vel confirmed a real, specific pattern:
--- vel.x stays within +-0.003 for an ENTIRE crank cycle while vel.y swings
--- from -2.5 to +0.17 and vel.z sustains excursions up to 0.85 for dozens
--- of frames. That's not oscillation-that-cancels-on-average (which is
--- what friction-based cancellation or destructive phase interference
--- would look like) -- X is pinned near-zero at every instant while Y and
--- Z move freely, which is a stronger and stranger constraint than "no net
--- progress." The actual cause remains unidentified. It is NOT a
--- construction bug in any individual leg (still verified pivot-exact --
--- see the diagnostic technique in the "WHY 11 RIGID BODIES" note) and,
--- per the four tests above, not explained by inertia, size, or friction
--- either. This version is shipped as-is: six legs, correctly built and
--- correctly phase-staggered, standing rock-stable and cycling their full
--- gait indefinitely (checked to 900 frames) -- it just doesn't go
--- anywhere. PAIR_X_STAGGER is left in the code at 0 (not deleted) so a
--- future attempt has the hook already wired up, and cube mass is left at
--- the original 220 (not the smaller values tested above, which made no
--- difference) since it's the one known-good value for standing stability.
+-- RESOLVED: FOR A WHILE, THIS WALKER DIDN'T TRAVEL. Laying all three
+-- leg-pairs side by side along Z, all sharing the same X, appeared to
+-- measure out to zero net motion no matter what was tried:
+--   1. PAIR_X_STAGGER (declared below, near LANE_SPACING) nudging each
+--      pair along X too, tested at 0, 40, 80, 120, and 160 units.
+--   2. Cube mass, dropped from 220 down to 15, 5, 3, and 1.
+--   3. Cube size, shrunk from spanning all 6 lanes down to a small
+--      24-unit-deep central hub.
+--   4. Foot friction, dropped from 0.9 to 0.3, 0.15, and 0.05 --
+--      produced BIT-IDENTICAL trajectories at every value.
+-- None of those changed the outcome even slightly. The actual cause
+-- turned out to be unrelated to the leg arrangement entirely: the
+-- TRIANGULATED TRUSS below was originally built with mass 0 for its
+-- struts ("purely decorative, why would it need mass?"), each welded
+-- rigidly to the cube. In Bullet, mass 0 means STATIC -- not "weightless
+-- but free to move" -- so those 17 struts were 17 immovable anchors, each
+-- permanently pinned to the cube's own CONSTRUCTION-TIME position; the
+-- moment the cube tried to move, all 17 welds fought it back to where it
+-- started. Confirmed by elimination: removing the truss entirely let the
+-- cube travel 150+ units in 15 simulated seconds; restoring the truss
+-- with a small nonzero strut mass (see TRUSS_MASS near the truss code)
+-- walked just as well; raising solver iterations on the mass-0 version
+-- (30, 50, 100 -- well above Bullet's default) did NOT help, which is
+-- what pointed away from a precision/convergence explanation and toward
+-- the static-vs-dynamic distinction specifically. Direct cube.vel
+-- instrumentation during the broken period showed the actual signature
+-- clearly: vel.x pinned within +-0.003 for an entire crank cycle while
+-- vel.y swung from -2.5 to +0.17 and vel.z sustained excursions up to
+-- 0.85 -- consistent with X being rigidly anchored while Y/Z retained
+-- whatever slight give Bullet's CFM softening allowed even on a nominally
+-- "static" weld. None of the four leg-layout fixes above could ever have
+-- worked, since the leg arrangement was never the problem -- they're kept
+-- here (PAIR_X_STAGGER is still 0; cube mass is still 220) as a record of
+-- what was ruled out, not as remaining live levers.
 --
 -- SIX LEGS, NOT FOUR: the original 4-leg build (2 pairs x front/back,
 -- phases 0/180) walked for a while but eventually tipped and fell -- with
@@ -138,11 +118,16 @@
 -- move as true counterparts by construction (see "MIRRORED LEGS" above);
 -- the three PAIRS (laid out side by side along Z, not spread along X the
 -- way an earlier version of this file did) are what's phase-staggered for
--- continuous support -- unrelated to which axis they happen to sit along,
--- and this benefit held up in the current (side-by-side, non-traveling)
--- layout too: standing height stayed rock-stable for the full 900-frame
--- test, with no sagging at all -- likely because a stationary walker never
--- has to shift its own weight forward the way a traveling one does.
+-- continuous support -- unrelated to which axis they happen to sit along.
+-- Now that the walker actually travels (see the "RESOLVED" note above)
+-- and holds itself upright while doing so (see cube.damp_ang below, near
+-- where the cube is built), it holds its full standing height for the
+-- ENTIRE walk rather than sagging over time -- checked out to 900 frames
+-- / 45s, reaching nearly 400 units of travel with pitch never exceeding
+-- a few degrees. (An earlier version of this note described the walker
+-- as "sagging into a lower stance" after ~10-12 seconds -- that was this
+-- same pitch-forward problem, just misdiagnosed from cube.pos alone,
+-- without checking cube.trans's actual rotation.)
 --
 
 local common = require "common"
@@ -330,12 +315,26 @@ local OUTER_REACH = (NUM_PAIRS - 0.5) * LANE_SPACING + STACK_DEPTH   -- outermos
 
 local CUBE_MARGIN = 20.0     -- clearance beyond the outermost lane, so the
                               -- body's own Z-extent doesn't clip the legs
-local CUBE_X_MARGIN = 60.0   -- clearance beyond the staggered mount span,
-                              -- covering G's own ~38-unit overhang past O
-local CUBE_W = (NUM_PAIRS - 1) * PAIR_X_STAGGER + 2 * CUBE_X_MARGIN
+-- MOUNT_SPAN_MIN/MAX: every hinge that attaches directly to the cube (O,
+-- plus the three G-rockers) lives in world X between the leftmost pair's
+-- G (G.x = O.x - LEN.a, i.e. LEN.a=38 units further -X than O) and the
+-- rightmost pair's O -- this is the ONLY span the cube actually needs to
+-- structurally cover. An earlier version centered the cube on O alone
+-- (CUBE_CENTER_X = LEG_MOUNT_X) with a generous flat CUBE_X_MARGIN on
+-- both sides (120 units wide total) -- which put G comfortably inside but
+-- left the cube's own +X edge sticking out ~45 units past the farthest
+-- any leg hinge actually reaches there, an unsupported cantilever with
+-- nothing under it. That overhang is what pitched the whole walker
+-- forward onto its nose as it walked. Centering on the REAL mounting
+-- span instead, with a small margin, fixes both the balance and the size
+-- at once.
+local MOUNT_SPAN_MIN = LEG_MOUNT_X - LEN.a                             -- leftmost G
+local MOUNT_SPAN_MAX = LEG_MOUNT_X + (NUM_PAIRS - 1) * PAIR_X_STAGGER  -- rightmost O
+local CUBE_X_MARGIN = 15.0   -- clearance beyond the mounting span on each side
+local CUBE_W = (MOUNT_SPAN_MAX - MOUNT_SPAN_MIN) + 2 * CUBE_X_MARGIN
 local CUBE_H = 10.0
 local CUBE_D = 2 * (OUTER_REACH + CUBE_MARGIN)   -- spans all 6 lanes side by side
-local CUBE_CENTER_X = LEG_MOUNT_X + (NUM_PAIRS - 1) * PAIR_X_STAGGER / 2   -- middle pair's X
+local CUBE_CENTER_X = (MOUNT_SPAN_MIN + MOUNT_SPAN_MAX) / 2   -- centered on the mounting span, not just O
 
 local JANSEN_YMIN    = -91.83   -- foot F's lowest reach relative to O
 local FOOT_CLEARANCE = 3.0
@@ -355,6 +354,20 @@ cube.col = "#6b5d4f"   -- weathered wood/frame tone, distinct from the tan
                        -- have a wood or metal spine, not colored plastic
 cube.pos = btVector3(CUBE_CENTER_X, CUBE_POS_Y, 0)
 cube.friction = 0.5
+-- angular damping: O (the crank hinge) sits ~8 units ABOVE the cube's own
+-- center of mass (O_MOUNT_Y vs CUBE_POS_Y) -- horizontal thrust applied
+-- above the COM is a textbook tip-forward lever arm (like pushing a
+-- filing cabinet up high instead of at its base), and this walker used to
+-- pitch forward hard enough to reach -80 to -90 degrees (nearly on its
+-- face) within ~15 seconds of walking, previously misread as "sagging
+-- into a lower stance" since only cube.pos, not cube.trans's rotation,
+-- was being checked. damp_ang=1.0 resists that pitch buildup directly and
+-- was found empirically: 0.3 and 0.6 still tipped all the way to -89
+-- degrees, 1.0 held pitch under ~4 degrees for a full 900-frame test. As
+-- a side effect (an upright walker turns out to be a far more efficient
+-- one) it also more than doubled the distance traveled in the same time
+-- and cut sideways (Z) drift by roughly 20x.
+cube.damp_ang = 1.0
 v:add(cube)
 
 -- floor is much thicker than a typical bpp floor -- this mechanism's 16
@@ -369,16 +382,34 @@ floor.friction = 0.8
 v:add(floor)
 
 -- ---------------------------------------------------------------------
--- triangulated spine truss -- purely decorative struts, welded (locked
--- slider, mass 0) rigidly to the main cube so they move as one with it,
--- without adding any DOF to the leg hinge network (same weld-via-locked-
--- slider trick as buildFoot below). A real Strandbeest's frame is a
--- triangulated lattice of wood/PVC struts, not a solid plate -- this
--- approximates that with a classic zigzag (Warren) truss running the
--- spine's WIDTH (Z), the same direction the six legs are now laid out
--- side by side in, rather than along X like the rest of this file's rods.
--- alignVecX (not zrotVec) orients these, since they run in the Y-Z plane.
--- ---------------------------------------------------------------------
+-- triangulated spine truss -- decorative struts, welded (locked slider)
+-- rigidly to the main cube so they move as one with it, without adding
+-- any DOF to the leg hinge network (same weld-via-locked-slider trick as
+-- buildFoot below). A real Strandbeest's frame is a triangulated lattice
+-- of wood/PVC struts, not a solid plate -- this approximates that with a
+-- classic zigzag (Warren) truss running the spine's WIDTH (Z), the same
+-- direction the six legs are now laid out side by side in, rather than
+-- along X like the rest of this file's rods. alignVecX (not zrotVec)
+-- orients these, since they run in the Y-Z plane.
+--
+-- WHY TRUSS_MASS IS NOT 0: mass 0 in Bullet means STATIC, not "weightless
+-- but free to move" -- a mass-0 body never responds to any force and
+-- never moves from wherever it was built. An earlier version of this file
+-- built these struts with mass 0 (reasonable-sounding: they're purely
+-- decorative, why would they need mass?) and welded them to the cube.
+-- The result: 17 immovable anchors, each permanently welded to the cube's
+-- CONSTRUCTION-TIME position -- so the moment the cube tried to move, all
+-- 17 welds fought it back toward where it started. This was confirmed as
+-- the actual (and entire) cause of the walker's "doesn't travel" problem
+-- documented at length elsewhere in this file: removing the truss
+-- entirely let the cube travel over 150 units in 15 simulated seconds;
+-- restoring the truss with a small nonzero mass (this constant) walked
+-- just as well; more solver iterations with the mass-0 version did NOT
+-- help (ruling out a precision/convergence explanation, and pointing
+-- specifically at the static-vs-dynamic distinction). TRUSS_MASS is tiny
+-- relative to a single leg rod (~0.3-3, see MASS_PER_LEN) so it barely
+-- perturbs the walker's overall mass budget while being fully dynamic.
+local TRUSS_MASS = 0.05
 
 local TRUSS_TOP_Y = O_MOUNT_Y + 15.0   -- a "mast" height above the crank line,
                                         -- echoing where a real Strandbeest's
@@ -398,7 +429,7 @@ function trussStrut(z1, y1, z2, y2)
   local midz, midy = (z1 + z2) / 2, (y1 + y2) / 2
   local q = alignVecX(0, dy, dz)
 
-  local obj = Cube(len, TRUSS_W, TRUSS_D, 0)
+  local obj = Cube(len, TRUSS_W, TRUSS_D, TRUSS_MASS)
   obj.col = TRUSS_COLOR
   obj.trans = btTransform(q, btVector3(cube.pos.x, midy, midz))
   v:add(obj)
@@ -619,25 +650,24 @@ end
 -- KEYBOARD SHORTCUTS
 -- ******************
 
--- R: reverse the gait cycle direction. Every leg's motion comes from ONE
+-- R: reverse walking direction. Every leg's motion comes from ONE
 -- motorized hinge (crank<->cube at O); the other 15 hinges per leg are
--- passive, just following along -- so reversing the gait is as simple as
+-- passive, just following along -- so reversing the walk is as simple as
 -- flipping every crank motor's target angular velocity sign. Since the
 -- foot traces a CLOSED loop (theta -> theta+2*pi returns to the same
 -- pose), running theta backward retraces that exact same loop in reverse,
 -- including the flat "stance" portion -- so the foot sweeps the ground in
--- the opposite X direction during stance. In an earlier (spread-along-X)
--- layout this literally walked the cube backward; in this side-by-side
--- layout the cube doesn't travel either direction (see the "HONEST
--- CAVEAT" header note), so what's actually visible here is each foot's
--- stance sweep reversing direction, not a body reversing course. The
--- three pairs' relative phase offsets (0/120/240 degrees, baked in at
--- construction via each crank's initial angle -- see buildJansenLeg) stay
--- staggered the same way under a sign flip, so the continuous-support
--- property survives the reversal too. Each leg's OWN baseSpeed is what
--- gets flipped here (currently always equal to the shared SPEED -- see
--- the "MIRRORED LEGS" header note for why it's still threaded through
--- per-leg rather than inlined), multiplying walkDir onto it.
+-- the opposite X direction during stance, which is what actually walks
+-- the cube backward (verified: cube.pos.x climbs, then after a brief
+-- momentum-driven overshoot following a reversal, genuinely turns around
+-- and decreases). The three pairs' relative phase offsets (0/120/240
+-- degrees, baked in at construction via each crank's initial angle --
+-- see buildJansenLeg) stay staggered the same way under a sign flip, so
+-- the continuous-support property survives the reversal too. Each leg's
+-- OWN baseSpeed is what gets flipped here (currently always equal to the
+-- shared SPEED -- see the "MIRRORED LEGS" header note for why it's still
+-- threaded through per-leg rather than inlined), multiplying walkDir
+-- onto it.
 local walkDir = 1
 
 v:addShortcut("R", function(N)
