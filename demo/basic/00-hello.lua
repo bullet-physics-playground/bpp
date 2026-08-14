@@ -14,8 +14,8 @@ local color  = require "color"
 local common = require "common"
 -- Load OpenSCAD geodesic sphere module
 local gs    = require "scad/geodesic_sphere"
--- Load OpenSCAD text module
-local text  = require "scad/text"
+-- Load the RGB XYZ origin marker module
+local origin = require "origin"
 
 -- Set simulation timing: 25 fps, up to 120 substeps, 1/60s fixed timestep
 common.setTiming(1/25, 120, 1/60)
@@ -67,46 +67,8 @@ s1.col = color.gold
 s1.pos = btVector3(2,0.5,0)
 v:add(s1)
 
-cy = Cylinder(0.05, 7, 0)
-cy.col = "#00f"
-v:add(cy)
-co = Cone(0.2, 0.7, 0)
-co.col = "#00f"
-co.trans = common.transform(3.1415, 0.0, 0.0, 0.0, 0.0, -3.5)
-v:add(co)
-
-txt = text.new({ str = "z", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
-txt.col = "#00f"
-txt.trans = common.transform(0.0, 0.0, 0.0, 0, 0.25, -3.5)
-v:add(txt)
-
-cy = Cylinder(0.05, 7, 0)
-cy.col = "#0f0"
-cy.trans = common.transform(0.0, -3.1415/2, 0.0, 0, 0, 0)
-v:add(cy)
-co = Cone(0.2, 0.7, 0)
-co.col = "#0f0"
-co.trans = common.transform(0.0, -3.1415/2, 0.0, 0.0, 3.5, 0)
-v:add(co)
-
-txt = text.new({ str = "y", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
-txt.col = "#0f0"
-txt.trans = common.transform(-3.1415/2, 0.0, 0.0, 0, 3.5 + 0.5, 0)
-v:add(txt)
-
-cy = Cylinder(0.05, 7, 0)
-cy.col = "#f00"
-cy.trans = common.transform(3.1415/2, 0.0, 0.0, 0, 0, 0)
-v:add(cy)
-co = Cone(0.2, 0.7, 0)
-co.col = "#f00"
-co.trans = common.transform(3.1415/2, 0.0, 0.0, 3.5, 0.0, 0.0)
-v:add(co)
-
-txt = text.new({ str = "x", size = 0.5, height = 0.1, y = 1, z = 0, mass = 0})
-txt.col = "#f00"
-txt.trans = common.transform(-3.1415/2, 0.0, 0.0, 3.5, 0.25, 0)
-v:add(txt)
+-- Add an RGB XYZ origin marker at (0,0,0)
+v:add(origin.new(btVector3(0,0,0)))
 
 -- preStart: Called once before simulation starts
 v:preStart(function(N)

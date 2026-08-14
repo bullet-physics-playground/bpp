@@ -192,6 +192,8 @@ void Viewer::luaBind(lua_State *s) {
            .def("getCam", &Viewer::getCamera)
            .def("add", (void(Viewer::*)(Object *)) & Viewer::addObject,
                 adopt(_2))
+           .def("add", (void(Viewer::*)(const luabind::object &)) &
+                    Viewer::addObjectList)
            .def("remove",
                 (Object * (Viewer::*)(Object *)) &
                     Viewer::removeObject)
@@ -410,6 +412,21 @@ void Viewer::addObject(Object *o) {
 
   addObject(o, o->getCol1(), o->getCol2());
   addConstraints(o->getConstraints());
+}
+
+void Viewer::addObjectList(const luabind::object &objs) {
+  if (L == nullptr || !objs.is_valid())
+    return;
+
+  // Re-enter through the Lua-visible v:add(Object) overload for each
+  // element, instead of calling addObject(Object*) directly here, so every
+  // object goes through the same adopt(_2)/registry bookkeeping that a
+  // plain v:add(obj) call from a script would trigger.
+  luabind::object self(L, this);
+  luabind::object addFn = self["add"];
+  for (luabind::iterator i(objs), end; i != end; ++i) {
+    luabind::call_function<void>(addFn, self, *i);
+  }
 }
 
 Object *Viewer::removeObject(Object *o) {

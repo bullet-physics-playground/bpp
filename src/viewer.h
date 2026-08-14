@@ -103,6 +103,10 @@ public:
   void eachContact(const luabind::object &fn);
   
   void addObject(Object *o);
+  // Adds every object in a Lua array/table (e.g. as returned by a module's
+  // constructor) via the same v:add() path as a single object, so each
+  // element goes through the normal adopt/registry bookkeeping.
+  void addObjectList(const luabind::object &objs);
   Object *removeObject(Object *o);
   void addObjectBody(Object *o);
   void setCamera(Cam *cam);
