@@ -2632,6 +2632,15 @@ void Viewer::savePOV(bool force) {
     }
   }
 
+  // Keep sceneDir self-contained: copy the current includes/settings.inc
+  // alongside the exported scene, rather than relying on the +L library
+  // path to find the original when the scene is rendered later, elsewhere.
+  QString settingsIncPath = startupWorkingDir() + QDir::separator() +
+                             "includes" + QDir::separator() + "settings.inc";
+  QString sceneSettingsInc = sceneDir + QDir::separator() + "settings.inc";
+  QFile::remove(sceneSettingsInc);
+  QFile::copy(settingsIncPath, sceneSettingsInc);
+
   QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
   QString file = QString("%1%2%3.inc").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(fn);
   QString fileMain = QString("%1%2%3.pov").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(qPrintable(sceneName));
