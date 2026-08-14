@@ -3503,7 +3503,13 @@ void Viewer::onQuickRender(QString povargs) {
   qDebug() << "exportDir: " << exportDir;
   qDebug() << "sceneDir: " << sceneDir;
 
-  QProcess *p = new QProcess(this);
+  // Deliberately parentless: a QProcess still running when its parent is
+  // destroyed gets kill()ed (and waited on) from within ~QProcess(), which
+  // both kills povray out from under the user and crashes bpp by invoking
+  // the finished-signal lambda below while this Viewer is mid-teardown. With
+  // no parent, closing bpp neither touches this QProcess nor the povray
+  // process it wraps; on a normal, non-crashing exit it simply outlives us.
+  QProcess *p = new QProcess();
   p->setProgram(povray);
   p->setArguments(args);
   p->setWorkingDirectory(sceneDir);
