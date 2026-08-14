@@ -225,6 +225,13 @@ public slots:
   QHash<QString, QVariant> getParams() const;
   void clearParams();
 
+  // Sets the text shown in the "Shortcuts" dock panel (see helpTextChanged()
+  // above). Scripts call this once (typically near the top, listing their
+  // own v:addShortcut() bindings) so the panel always reflects whatever
+  // script is actually loaded, rather than something hardcoded in the GUI
+  // itself and liable to drift out of sync.
+  void setHelpText(const QString &text);
+	
   ParamInfo getParamInfo(const QString &name) const;
 
   void keyPressEvent(QKeyEvent *e);
@@ -300,6 +307,7 @@ signals:
 
   void clearDebugText();
   void paramsChanged();
+  void helpTextChanged(const QString &text);
 
 protected:
   virtual void init();

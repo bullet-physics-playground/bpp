@@ -98,6 +98,8 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
 
   connect(ui.viewer, &Viewer::clearDebugText, debugText, &CodeEditor::clear);
 
+  connect(ui.viewer, &Viewer::helpTextChanged, shortcutsText, &CodeEditor::setPlainText);
+
   connect(commandLine, &CommandLine::execute, this, &Gui::command);
 
   connect(renderSettings, &QComboBox::currentTextChanged, this, &Gui::saveSettings);
@@ -583,6 +585,7 @@ void Gui::createDock() {
   paramsTable->setItemDelegate(new QItemDelegate());
   dw5->setWidget(paramsTable);
   addDockWidget(Qt::RightDockWidgetArea, dw5);
+  dockParams = dw5;
   paramsTable->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(paramsTable, &QTableWidget::cellChanged, this, &Gui::onParamsTableCellChanged);
   paramsTable->viewport()->setMouseTracking(true);
@@ -601,6 +604,15 @@ void Gui::createDock() {
       dw5->setFloating(false);
     }
   });
+
+  QDockWidget *dw6 = new QDockWidget(this);
+  dw6->setObjectName("DockShortcuts");
+  dw6->setWindowTitle("Shortcuts");
+  shortcutsText = new CodeEditor(settings, this);
+  shortcutsText->setReadOnly(true);
+  dw6->setWidget(shortcutsText);
+  addDockWidget(Qt::BottomDockWidgetArea, dw6);
+  dockShortcuts = dw6;
 }
 
 void Gui::helpAbout() {
@@ -823,6 +835,7 @@ void Gui::fontChanged(const QString &family, uint size) {
   editor->setFont(family, size);
   debugText->setFont(family, size);
   camText->setFont(family, size);
+  shortcutsText->setFont(family, size);
 }
 
 void Gui::loadSettings() {
@@ -853,6 +866,16 @@ void Gui::loadSettings() {
       resizeDocks({dockLUAScript}, {luaWidth}, Qt::Horizontal);
     }
   }
+
+  // The Parameters panel is essential (it's how you actually control a
+  // running simulation), so unlike other docks it's never left to whatever
+  // a prior session happened to save -- always force it visible on launch.
+  dockParams->setVisible(true);
+  // Same reasoning for Shortcuts: it's meant to be an always-visible
+  // reference (replacing what used to be an in-scene HUD some scripts
+  // built for themselves), not something that silently stays closed
+  // because a previous session happened to leave it that way.
+  dockShortcuts->setVisible(true);
 
   {
     QSignalBlocker blocker(renderSettings);

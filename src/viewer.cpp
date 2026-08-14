@@ -272,6 +272,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("savePrefs", &Viewer::setPrefs)
            .def("loadPrefs", &Viewer::getPrefs)
            .def("clearDebugText", &Viewer::clearDebugText)
+           .def("setHelpText", &Viewer::setHelpText)
 
            .def("quickRender",
                 (void(Viewer::*)(QString povargs)) & Viewer::onQuickRender)
@@ -1472,6 +1473,9 @@ void Viewer::setScriptName(QString sn) { _scriptName = sn; }
 void Viewer::setScriptBasePath(QString sbp) { _scriptBasePath = sbp; }
 
 void Viewer::emitScriptOutput(const QString &out) { emit scriptHasOutput(out); }
+
+// Sets the "Shortcuts" dock panel's text; see the declaration in viewer.h.
+void Viewer::setHelpText(const QString &text) { emit helpTextChanged(text); }
 
 int Viewer::lua_print(lua_State *L) {
 
