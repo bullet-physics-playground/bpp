@@ -29,7 +29,7 @@ v.pre_sdl = [==[
 #declare use_norm   =1;  // use micro-normals?
 #declare r_l=seed(132);  // random light placement seed 
 #declare use_area   =0;  // use area lights?
-
+#declare hf_res  =1000;  // hf resolution
 
 // *******************
 // *** build lamps ***
@@ -193,13 +193,66 @@ texture{
    finish { ambient 0.15 diffuse 0.85}
 #end
 
+// *****************
+// *** test room ***
+// *****************
+#declare p_mortar=rgb ReflectiveSpectrum(RS_ConstrStone2);
+#declare p_brick =rgb ReflectiveSpectrum(RS_ConstrStone3);
+box{-.5,.5
+ hollow
+ scale <500,250,500>
+ pigment{brick 
+  color p_mortar color p_brick
+  scale 4
+ }
+ translate 125*y
+}
+plane{y,0.1
+ hollow
+ pigment{checker color p_mortar color p_mortar*.1 scale 50}
+}
+plane{y,249.9
+ hollow
+ pigment{rgb ReflectiveSpectrum(RS_White_Paint_1)}
+}
+
+// *** table ***
+// - pigment for the table hf function -
+#declare p_hf=
+pigment{
+ brick color 1 color rgb 0 mortar 2 rotate 90*x scale .001
+}
+// - height filed table -
+#declare table=
+height_field{
+ function hf_res,hf_res{
+  pigment{p_hf}
+ }
+ water_level 0.1
+ translate -.5
+ texture{
+  pigment{rgb ReflectiveSpectrum(RS_Iron)}
+  finish{Metal}
+ }
+ scale <50,.05,50>
+}
+object{table
+ translate <0,0,2>
+}
+
 ]==]
+
+
+p = Plane(0,1,0,0,100)
+p.pos = btVector3(0,0,0)
+p.col = color.darkgray
+v:add(p)
 
 function bolts() 
   for i = 6,10 do
     o = nutsnbolts.new({
       fun  = "conical_allen_bolt (20, 3, 6, 4, 0.2, 32, \"metric\", 1, 2.5, 10, 0.4);",
-    mass = 0 })
+    mass = 1 })
 
     o.trans = common.transform(
       math.random() * 2 * math.pi, math.random() * 2 * math.pi, math.random() * 2 * math.pi,
@@ -216,4 +269,4 @@ bolts();
 
 common.setCamera(btVector3(250, 300, 1000), btVector3(-233834, -271237, -932527), nil,
                  { up = btVector3(-0.0660439, 0.962428, -0.263383),
-                   focal_blur = 1, focal_aperture = 5 })
+                   focal_blur = 0, focal_aperture = 5 })
