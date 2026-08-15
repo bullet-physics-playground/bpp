@@ -201,7 +201,9 @@ function bolts()
       fun  = "conical_allen_bolt (20, 3, 6, 4, 0.2, 32, \"metric\", 1, 2.5, 10, 0.4);",
     mass = 0 })
 
-    o.pos = btVector3(-140+i*15,16,0)
+    o.trans = common.transform(
+      math.random() * 2 * math.pi, math.random() * 2 * math.pi, math.random() * 2 * math.pi,
+      math.random() * 80 - 40, 16 + i * 8, math.random() * 60 - 30)
     o.col = color.random_pastel()
     o.sdl = [[
       texture{ t_metal }
