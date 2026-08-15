@@ -1,13 +1,17 @@
 // settings.inc for Bullet Physics Playground POV-Ray export
 
+#include "colors.inc"
+#include "textures.inc"
+#include "metals.inc"
+
 // for LightSys see - http://www.ignorancia.org/index.php?page=lightsys
 #declare use_rad        = 0;  // 0/1/2
-#declare use_lightsys   = 0;  // 0/1
+#declare use_lightsys   = 1;  // 0/1
 #declare use_lightsys_setting = 1; // 0/1
 #declare use_cie_whitepoint = 0; // 0/1/2/3
 #declare use_lightsys_light1 = 1;
 #declare use_area_light = 0;  // 0/1
-#declare use_background = 0;  // 0/1/2
+#declare use_background = 1;  // 0/1/2
 #declare use_clouds     = 0;  // 0/1/2/3
 #declare use_plane      = 0;  // 0/1
 #declare use_plane_tex  = 0;  // 0/1/2
@@ -52,8 +56,6 @@ global_settings {
 
 #default { finish {ambient 0.1 diffuse 0.9 specular 0.85 roughness 0.009} }
 
-#include "colors.inc"
-
 #if (use_clouds = 2)
   #include "fastclouds.inc"
 #end
@@ -64,6 +66,7 @@ global_settings {
 #include "bpp_CIE_tools.inc"
 #include "bpp_lightsys.inc"
 #include "bpp_lightsys_constants.inc"
+#include "lightsys_colors.inc"
 #include "bpp_espd_lightsys.inc"
   
 // Secondary light besides the sun, mirroring the interactive OpenGL view's
