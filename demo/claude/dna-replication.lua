@@ -84,7 +84,7 @@
 -- position (see tetherToRestPosition) and nudged every step by a small
 -- random force (see the thermal wobble preSim below) -- like molecules
 -- jiggling around their lattice positions in a liquid. The whole assembly
--- also spins slowly around its own vertical axis (see rotateSceneGeometry
+-- also spins slowly around its own long axis, horizontal on screen (see rotateSceneGeometry
 -- in the postSim callback): every fixed anchor and decorative cylinder is
 -- rotated in place each step, and the dynamic bases/daughter strands
 -- simply follow along through their existing tether/chain constraints.
@@ -126,6 +126,7 @@
 
 local color  = require "color"
 local common = require "common"
+local text   = require "scad/text"
 
 math.randomseed(12) -- reproducible; chosen for a clean, readable template strand
 
@@ -426,7 +427,7 @@ local ENZYME_MARKER_DURATION = 20 -- steps a transient enzyme marker (primase/ex
                                    -- ligase) stays visible before it is removed
 local ROTATION_SPEED = 0.006      -- radians the whole helix turns per simulation step
 
--- Current spin of the whole helix around its own vertical (Y) axis, updated
+-- Current spin of the whole helix around its own long (Z) axis, updated
 -- once per postSim step below. Every position derived from basePos() is
 -- rotated by this angle (via rotateY) before being applied to an object.
 local rotationAngle = 0
@@ -509,6 +510,7 @@ local M = {
   membraneRing2 = nil, -- same, daughter cell 2 (both removed at the next generation's start)
   pendingTransition = false, -- a generation has finished; hold, then call transitionToNextGeneration
   genHoldCounter = 0,        -- steps remaining in the post-cytokinesis hold (see GEN_HOLD_STEPS)
+  statusText = nil, -- floating status label, bottom of the display (see setPhase/updateCamera)
 }
 
 -- Once untwisting is done, the two straightened daughter duplexes are still
@@ -641,8 +643,16 @@ local CYCLIN_B_RISE  = 1 / 1000     -- per-step accumulation of the cyclin B wav
 local CYCLIN_B_DECAY = 1 / ANAPHASE_STEPS -- APC/C-mediated crash per step of anaphase
 
 
--- Rotates pos by `angle` radians around the vertical (Y) axis.
-local rotateY = common.rotateY
+-- Rotates pos by `angle` radians around the helix's own long axis -- world
+-- Z here, not common.lua's usual Y, so the helix reads horizontally from
+-- this demo's fixed camera (positioned out along world X -- see
+-- updateCamera far below) rather than vertically. A local override of
+-- common.rotateY (X/Z-mixing, Y-preserving) rather than that shared
+-- function itself, which other demos still use with the Y convention.
+local function rotateY(pos, angle)
+  local c, s = math.cos(angle), math.sin(angle)
+  return btVector3(pos.x * c - pos.y * s, pos.x * s + pos.y * c, pos.z)
+end
 
 -- Clamps a bp index into the valid [1, NBP] range.
 local function clampBp(i)
@@ -696,48 +706,62 @@ end
 --
 
 -- World-space position of nucleotide `strand` (1 or 2) at base-pair index i.
--- The per-bp angular step scales with (1 - M.untwistProgress +
+-- The whole helix runs along world Z here (horizontal, see rotateY above),
+-- not the more usual Y -- X/Y are the small "radius" plane (the circular
+-- cross-section, plus the daughter-duplex separation below), Z is the long
+-- axis. The per-bp angular step scales with (1 - M.untwistProgress +
 -- M.recoilProgress): normally (both 0) this is the full helical TWIST; once
 -- replication finishes and M.untwistProgress ramps to 1 (see postSim),
 -- every bp's angle collapses to the same constant (0 for strand 1, pi for
--- strand 2), so the strand straightens from a spiral into a flat vertical
--- line. Once untwisted, M.decatenationProgress (see postSim) then pushes
--- each strand's whole daughter duplex further apart along world Z -- +Z for
--- strand 1, -Z for strand 2 -- so the two finished molecules visibly
--- separate; anaphase later adds ANAPHASE_EXTRA_SEP more Z separation the
--- same way. Y itself compresses symmetrically around the centromere's own Y
--- position as M.condensationProgress ramps 0->1 during prophase (and back
--- during telophase), so the chromatid condenses/decondenses in place rather
--- than sliding toward one end. Once anaphase has separated the two finished
--- duplexes, M.recoilProgress (see updateRecoil) ramps 0->1, re-adding the
--- full TWIST so each daughter duplex coils back around its own center into
--- a visible double helix -- the two helix structures each daughter cell
--- carries away from the division.
+-- strand 2), so the strand straightens from a spiral into a flat
+-- horizontal line. Once untwisted, M.decatenationProgress (see postSim)
+-- then pushes each strand's whole daughter duplex further apart along
+-- world Y -- +Y for strand 1, -Y for strand 2 -- so the two finished
+-- molecules visibly separate; anaphase later adds ANAPHASE_EXTRA_SEP more
+-- Y separation the same way. Z itself compresses symmetrically around the
+-- centromere's own Z position as M.condensationProgress ramps 0->1 during
+-- prophase (and back during telophase), so the chromatid
+-- condenses/decondenses in place rather than sliding toward one end. Once
+-- anaphase has separated the two finished duplexes, M.recoilProgress (see
+-- updateRecoil) ramps 0->1, re-adding the full TWIST so each daughter
+-- duplex coils back around its own center into a visible double helix --
+-- the two helix structures each daughter cell carries away from the
+-- division.
 local function basePos(i, strand)
   local twistOn = 1 - M.untwistProgress + M.recoilProgress
   local angle = (i - 1) * TWIST * twistOn
   if strand == 2 then angle = angle + math.pi end
-  local rawY = (i - 1) * RISE
-  local centromereY = (CENTROMERE_BP - 1) * RISE
+  local rawZ = (i - 1) * RISE
+  local centromereZ = (CENTROMERE_BP - 1) * RISE
   local condenseScale = 1 - M.condensationProgress * (1 - CONDENSE_RISE_SCALE)
-  local y = centromereY + (rawY - centromereY) * condenseScale
-  local zSep = (strand == 1 and 1 or -1) *
+  local z = centromereZ + (rawZ - centromereZ) * condenseScale
+  local ySep = (strand == 1 and 1 or -1) *
     (DECATENATION_SEP * M.decatenationProgress + ANAPHASE_EXTRA_SEP * M.anaphaseProgress)
-  return btVector3(RADIUS * math.cos(angle), y, RADIUS * math.sin(angle) + zSep)
+  return btVector3(RADIUS * math.cos(angle), RADIUS * math.sin(angle) + ySep, z)
 end
 
--- Point on the helix's own central (vertical) axis at base-pair index i --
--- where pre-RC proteins (ORC, the MCM2-7 double hexamer) sit, since they
--- encircle the whole duplex rather than binding to one strand's side. A
--- rotation about that same axis (rotateY) leaves such a point fixed, so
--- these markers need no per-frame repositioning as the helix spins.
+-- Point on the helix's own central (long, horizontal) axis at base-pair
+-- index i -- where pre-RC proteins (ORC, the MCM2-7 double hexamer) sit,
+-- since they encircle the whole duplex rather than binding to one
+-- strand's side. A rotation about that same axis (rotateY) leaves such a
+-- point fixed, so these markers need no per-frame repositioning as the
+-- helix spins.
 local function originAxisPos(i)
-  return btVector3(0, (i - 1) * RISE, 0)
+  return btVector3(0, 0, (i - 1) * RISE)
 end
 
--- Pushes a point further out, away from the helix's central (vertical) axis,
--- used to place each new daughter strand clear of the original DNA geometry.
-local outwardOffset = common.outwardOffset
+-- Pushes a point further out, away from the helix's central (long,
+-- horizontal) axis, used to place each new daughter strand clear of the
+-- original DNA geometry. A local override of common.outwardOffset (which
+-- works in the X-Z plane, treating Y as the axis) for the same reason
+-- rotateY above is: this file's own axis is X-Y, treating Z as the axis.
+local function outwardOffset(pos, extra)
+  local len = math.sqrt(pos.x * pos.x + pos.y * pos.y)
+  if len < 1e-6 then
+    return btVector3(pos.x + extra, pos.y, pos.z)
+  end
+  return btVector3(pos.x + pos.x / len * extra, pos.y + pos.y / len * extra, pos.z)
+end
 
 -- World-space position of a freshly synthesized nucleotide on the current
 -- generation's new strand: pushed outward from its template base by this
@@ -756,11 +780,12 @@ end
 -- between them.
 local orientBetween = common.orientBetween
 
--- Orientation for a Cylinder standing with its axis vertical (along global
--- Y), computed once and reused for every MCM2-7 double-hexamer ring marker
--- below, so each one reads as a flat collar encircling the helix's own
--- vertical axis rather than a cylinder lying on its side.
-local VERTICAL_RING_ROT = orientBetween(btVector3(0, 0, 0), btVector3(0, 1, 0))
+-- Orientation for a Cylinder standing with its axis along the helix's own
+-- long axis (global Z here -- see rotateY above), computed once and
+-- reused for every MCM2-7 double-hexamer ring marker below, so each one
+-- reads as a flat collar encircling that axis rather than a cylinder
+-- lying on its side.
+local AXIS_RING_ROT = orientBetween(btVector3(0, 0, 0), btVector3(0, 0, 1))
 
 -- Places a fixed (mass 0) blob rod spanning p1..p2 and returns it -- the
 -- blob-rendered stand-in for common.placeCylinder (see BlobCylinder). The
@@ -992,10 +1017,45 @@ local PHASE_NAMES = {
 
 local currentPhase = 0 -- 0 = nothing has happened yet; preStart below advances it to 1
 
+-- Status text (bottom of the display): a floating OpenSCAD-extruded 3D
+-- label naming whatever phase the simulation is currently in. Best-effort,
+-- pcall'd like every other OpenSCAD text object in this codebase (see
+-- demo/module/scad/text.lua's other callers), since it depends on an
+-- external openscad binary that might not be installed/configured -- a
+-- missing label just means one isn't shown, not that the whole demo
+-- aborts. Only actually rebuilt (expensive: reruns OpenSCAD) when the
+-- label text itself changes, from setPhase below; repositioning every
+-- frame to stay pinned at the bottom of whatever the dynamic camera is
+-- currently framing is a cheap plain transform update, done in
+-- updateCamera, not here.
+local function setStatusText(label)
+  if M.statusText ~= nil then
+    v:remove(M.statusText)
+    M.statusText = nil
+  end
+  local ok, obj = pcall(function()
+    return text.new({ str = label, size = 0.55, height = 0.1, mass = 0, col = "#ffffff" })
+  end)
+  if ok and obj ~= nil then
+    -- Faces the camera, which always looks along roughly -X toward
+    -- whatever updateCamera's `look` currently is (see its own fixed
+    -- offset direction there) -- local +Z (OpenSCAD's extrusion axis)
+    -- rotated to point along world +X, confirmed by render. Position is
+    -- an arbitrary placeholder here: updateCamera repositions it (along
+    -- with everything else about the camera) before this frame is over,
+    -- since it always runs as postSim's last step.
+    obj.trans = btTransform(common.orientBetween(btVector3(0, 0, 0), btVector3(1, 0, 0)), btVector3(0, 0, 0))
+    v:add(obj)
+    M.statusText = obj
+  end
+end
+
 local function setPhase(n)
   if n <= currentPhase then return end -- monotonic: never re-announce an earlier/current phase
   currentPhase = n
-  print("[Phase] " .. PHASE_NAMES[n])
+  local label = PHASE_NAMES[n]
+  print("[Phase] " .. label)
+  setStatusText(label:match("^([^:]+)") or label)
 end
 
 -- A coarser G1/S/G2/M cell-cycle STAGE indicator, layered on top of
@@ -1117,8 +1177,8 @@ local SHELL_MAX_R        = RADIUS + 0.5
 local function randomCloudPos(minR, maxR)
   local r = minR + math.random() * (maxR - minR)
   local theta = math.random() * 2 * math.pi
-  local y = math.random() * (NBP - 1) * RISE
-  return btVector3(r * math.cos(theta), y, r * math.sin(theta))
+  local z = math.random() * (NBP - 1) * RISE
+  return btVector3(r * math.cos(theta), r * math.sin(theta), z)
 end
 
 local floatingMolecules = {}
@@ -1222,6 +1282,17 @@ end
 local forks = {}
 local claimedUnwind = {}
 local claimedSynth = {}
+
+-- Every earlier generation's own forks table, kept around after
+-- transitionToNextGeneration clears `forks` for the next generation's
+-- fresh cycle. Those old fork objects (leadAnchor, every daughter-strand
+-- chain node) are never removed from the scene -- removing a body while a
+-- btPoint2PointConstraint still references it is a real crash/corruption
+-- risk, and those constraints were never kept in a table to remove first
+-- -- so they stay visible forever as that generation's settled, recoiled
+-- daughter helix/helices. sceneReach (see updateCamera) needs to know
+-- about them too, for the camera to keep them in frame.
+local retiredForkGroups = {}
 
 -- Melts a freshly fired origin's own rung (that is what "firing" means) and
 -- marks its bp as already unwound, before its two forks are spawned. Safe
@@ -1588,12 +1659,12 @@ for i = 1, NBP, NUCLEOSOME_BP_STEP do nucleosomeBps[#nucleosomeBps + 1] = i end
 -- single closure capturing too much of this file's shared state is a real,
 -- already-hit problem here (Lua 5.1 caps a closure at 60 upvalues).
 local function repositionMitosisMarkers()
-  local centromereY = (CENTROMERE_BP - 1) * RISE
+  local centromereZ = (CENTROMERE_BP - 1) * RISE
   if M.spindlePole1 ~= nil then
-    M.spindlePole1.pos = rotateY(btVector3(0, centromereY, POLE_DISTANCE), rotationAngle)
+    M.spindlePole1.pos = rotateY(btVector3(0, POLE_DISTANCE, centromereZ), rotationAngle)
   end
   if M.spindlePole2 ~= nil then
-    M.spindlePole2.pos = rotateY(btVector3(0, centromereY, -POLE_DISTANCE), rotationAngle)
+    M.spindlePole2.pos = rotateY(btVector3(0, -POLE_DISTANCE, centromereZ), rotationAngle)
   end
   if M.spindleFiber1 ~= nil then
     local c1 = rotateY(outwardOffset(basePos(CENTROMERE_BP, 1), 0.8), rotationAngle)
@@ -1621,12 +1692,12 @@ local function repositionMitosisMarkers()
   end
   -- Cytokinesis organelles: the mitochondria distributed at the start of
   -- division orbit with their own daughter cell, which sits at roughly
-  -- world Z = +/-POLE_DISTANCE once anaphase is done.
+  -- world Y = +/-POLE_DISTANCE once anaphase is done.
   for _, mito in ipairs(M.mitochondria1) do
-    mito.obj.pos = rotateY(btVector3(0, centromereY + mito.dy, POLE_DISTANCE + mito.dz), rotationAngle)
+    mito.obj.pos = rotateY(btVector3(0, POLE_DISTANCE + mito.dz, centromereZ + mito.dy), rotationAngle)
   end
   for _, mito in ipairs(M.mitochondria2) do
-    mito.obj.pos = rotateY(btVector3(0, centromereY + mito.dy, -POLE_DISTANCE + mito.dz), rotationAngle)
+    mito.obj.pos = rotateY(btVector3(0, -POLE_DISTANCE + mito.dz, centromereZ + mito.dy), rotationAngle)
   end
 end
 
@@ -1969,7 +2040,7 @@ local function updateProphase()
       for _, hs in ipairs(f.helicase) do v:remove(hs) end
       f.helicase = {}
     end
-    local center = rotateY(btVector3(0, (CENTROMERE_BP - 1) * RISE, 0), rotationAngle)
+    local center = rotateY(btVector3(0, 0, (CENTROMERE_BP - 1) * RISE), rotationAngle)
     M.breakdownEnvelope = createEnvelopeRing(center, ENVELOPE_RING_R, COL.ENVELOPE_COL)
     M.spindlePole1 = MoleculeBlob(0.35, 0, PROTEIN_ATOMS)
     M.spindlePole1.col = COL.SPINDLE_POLE_COL
@@ -2129,15 +2200,16 @@ end
 -- genetically identical daughter cells.
 
 -- A sparse ring of CYTOKINESIS_RING_N small markers centered at the
--- cleavage-plane midpoint (0, centromere Y, 0) in the Y-Z plane (facing the
--- camera), at radius `ringR` -- the stand-in for both the animal cleavage
--- furrow (shrinking) and the plant cell plate (growing). The midpoint lies
--- on the helix's own Y axis, a fixed point under rotateY, so these markers
+-- cleavage-plane midpoint (0, 0, centromere Z), offset in the Y-Z plane
+-- (facing the camera, which sits out along world X -- see updateCamera),
+-- at radius `ringR` -- the stand-in for both the animal cleavage furrow
+-- (shrinking) and the plant cell plate (growing). The midpoint lies on
+-- the helix's own Z axis, a fixed point under rotateY, so these markers
 -- never need per-frame repositioning (same reasoning as originAxisPos).
 local function setCytokinesisRingRadius(ring, ringR)
   for k, m in ipairs(ring) do
     local a = (k - 1) * (2 * math.pi / CYTOKINESIS_RING_N)
-    m.pos = btVector3(0, (CENTROMERE_BP - 1) * RISE + ringR * math.cos(a), ringR * math.sin(a))
+    m.pos = btVector3(0, ringR * math.cos(a), (CENTROMERE_BP - 1) * RISE + ringR * math.sin(a))
   end
 end
 
@@ -2268,6 +2340,7 @@ function transitionToNextGeneration()
   M.recoilAnnounced = false
   rebuildRungs()
   origins = reinitOrigins()
+  retiredForkGroups[#retiredForkGroups + 1] = forks
   forks = {}
   claimedUnwind = {}
   claimedSynth = {}
@@ -2400,56 +2473,136 @@ local function updateCytokinesis()
   end
 end
 
--- Dynamic camera: keeps whatever's currently relevant framed as the
--- scene's spatial extent changes dramatically across phases -- a compact
--- ~1-2 unit-radius helix during S phase, but a ~15-20 unit-wide mitotic
--- spindle apparatus by anaphase, at a different absolute position again
--- once generation 2 begins. The original single, fixed common.setCamera
--- call below (kept as the frame-1 default) could not keep pace with that
--- range once mitosis/generations were added -- confirmed by rendering:
--- several later frames showed nothing but background floating molecules,
--- with the real action having drifted entirely outside a fixed, narrow
--- field of view.
+-- sceneReach helpers: reach starts as an accumulator and each call
+-- returns the possibly-updated running max (Lua has no by-reference
+-- numbers, so the return value IS the update).
+local function trackPos(reach, look, pos)
+  local dx, dy, dz = pos.x - look.x, pos.y - look.y, pos.z - look.z
+  local d = math.sqrt(dx * dx + dy * dy + dz * dz)
+  if d > reach then return d end
+  return reach
+end
+
+local function trackObj(reach, look, obj)
+  if obj == nil then return reach end
+  return trackPos(reach, look, obj.pos)
+end
+
+-- A plain array of Objects, each with .pos directly -- the ring/cluster
+-- lists (createEnvelopeRing/createCytokinesisRing/createEnzymeCluster)
+-- used throughout this file.
+local function trackObjList(reach, look, list)
+  if list == nil then return reach end
+  for _, obj in ipairs(list) do
+    reach = trackPos(reach, look, obj.pos)
+  end
+  return reach
+end
+
+-- An array of { obj = Object, ... } wrapper records -- floatingMolecules/
+-- histoneMarkers/mitochondria-style lists.
+local function trackWrappedList(reach, look, list)
+  if list == nil then return reach end
+  for _, entry in ipairs(list) do
+    reach = trackPos(reach, look, entry.obj.pos)
+  end
+  return reach
+end
+
+local function trackForkGroup(reach, look, forkList)
+  for _, f in ipairs(forkList) do
+    reach = trackObj(reach, look, f.leadAnchor)
+    for _, p in ipairs(f.lagPrimers) do
+      reach = trackObj(reach, look, p.obj)
+    end
+    for _, b in ipairs(f.leadBackbone) do
+      reach = trackObj(reach, look, b.a)
+      reach = trackObj(reach, look, b.b)
+    end
+    for _, b in ipairs(f.lagBackbone) do
+      reach = trackObj(reach, look, b.a)
+      reach = trackObj(reach, look, b.b)
+    end
+  end
+  return reach
+end
+
+-- True (not heuristic) scene extent: the largest distance from `look`
+-- among every object this file tracks in a Lua-side table. There's no
+-- Viewer:getObjects() to enumerate the live scene generically, so this
+-- walks the same collections rotateSceneGeometry/postSim already
+-- maintain -- including every earlier generation's own retired forks
+-- (see retiredForkGroups), which stay visible forever as that
+-- generation's settled daughter helix/helices. A handful of small,
+-- always-central markers (ORC/MCM origin flags, rung cylinders, SSB
+-- pairs) are left out since they sit at or inside basePos-derived
+-- positions already covered by the two template strands below.
+local function sceneReach(look)
+  local reach = 0
+  for i = 1, NBP do
+    reach = trackObj(reach, look, baseSpheres1[i])
+    reach = trackObj(reach, look, baseSpheres2[i])
+  end
+  reach = trackWrappedList(reach, look, floatingMolecules)
+  reach = trackWrappedList(reach, look, M.histoneMarkers)
+  reach = trackWrappedList(reach, look, M.mitochondria1)
+  reach = trackWrappedList(reach, look, M.mitochondria2)
+  reach = trackForkGroup(reach, look, forks)
+  for _, group in ipairs(retiredForkGroups) do
+    reach = trackForkGroup(reach, look, group)
+  end
+  reach = trackObj(reach, look, M.spindlePole1)
+  reach = trackObj(reach, look, M.spindlePole2)
+  reach = trackObjList(reach, look, M.newEnvelopeRing1)
+  reach = trackObjList(reach, look, M.newEnvelopeRing2)
+  reach = trackObjList(reach, look, M.membraneRing1)
+  reach = trackObjList(reach, look, M.membraneRing2)
+  reach = trackObjList(reach, look, M.breakdownEnvelope)
+  reach = trackObjList(reach, look, M.cleavageFurrow)
+  reach = trackObjList(reach, look, M.cellPlate)
+  reach = trackObj(reach, look, M.p53Marker)
+  reach = trackObjList(reach, look, M.g1CkiMarker)
+  reach = trackObjList(reach, look, M.g2CkiMarker)
+  reach = trackObjList(reach, look, M.mCkiMarker)
+  for _, tm in ipairs(timedMarkers) do
+    reach = trackObjList(reach, look, tm.cluster)
+  end
+  return reach
+end
+
+-- Dynamic camera: keeps EVERY currently-live object framed as the scene's
+-- spatial extent changes dramatically across phases -- a compact ~1-2
+-- unit-radius helix during S phase, but a much wider mitotic spindle
+-- apparatus by anaphase, at a different absolute position again once
+-- generation 2 begins. The original single, fixed common.setCamera call
+-- below (kept as the frame-1 default) could not keep pace with that range
+-- once mitosis/generations were added -- confirmed by rendering: several
+-- later frames showed nothing but background floating molecules, with the
+-- real action having drifted entirely outside a fixed, narrow field of
+-- view. A first fix used a small heuristic (centromere separation + a few
+-- known marker radii); this is the genuinely robust version, built from
+-- sceneReach's true max-distance-from-look sweep over every tracked
+-- object.
 --
 -- look tracks the midpoint between both chromatids' centromere positions
 -- -- the same CENTROMERE_BP reference point already used throughout the
 -- mitosis machinery above -- so it's always defined, even before the two
 -- chromatids exist as visibly separate things (both chainPos calls just
--- agree until decatenation actually starts pulling them apart). reach is
--- the single number driving how far out the camera needs to pull back to
--- keep everything comfortably framed: half the distance between the two
--- chromatids, or the distance out to a spindle pole, or out to a
--- nuclear-envelope/cell-membrane ring, whichever is currently largest.
--- halfWidth = 2.4 reproduces the original fixed camera's own framing
--- (48 * tan(0.1/2) ~= 2.4) when reach is 0, so early frames look just
--- like they did before this became dynamic.
+-- agree until decatenation actually starts pulling them apart), and stays
+-- close to the true centroid of everything else being tracked. distance
+-- grows along with reach (not just fov) so the camera never ends up
+-- uncomfortably close to (or inside) its own bounding sphere once reach
+-- gets large. halfWidth = 2.4 reproduces the original fixed camera's own
+-- framing (48 * tan(0.1/2) ~= 2.4) when reach is 0, so early frames look
+-- just like they did before this became dynamic.
 local function updateCamera()
   local c1 = chainPos(CENTROMERE_BP, 1)
   local c2 = chainPos(CENTROMERE_BP, 2)
   local look = btVector3((c1.x + c2.x) * 0.5, (c1.y + c2.y) * 0.5, (c1.z + c2.z) * 0.5)
 
-  local function distFromLook(p)
-    local dx, dy, dz = p.x - look.x, p.y - look.y, p.z - look.z
-    return math.sqrt(dx * dx + dy * dy + dz * dz)
-  end
-
-  local reach = distFromLook(c1) -- half the c1<->c2 separation, however it's currently driven
-                                  -- (decatenation, anaphase, or a later generation's own layer)
-  if M.spindlePole1 ~= nil then
-    reach = math.max(reach, distFromLook(M.spindlePole1.pos))
-  end
-  if M.newEnvelopeRing1 ~= nil then
-    reach = math.max(reach, distFromLook(c1) + NEW_ENVELOPE_RING_R)
-  end
-  if M.membraneRing1 ~= nil then
-    reach = math.max(reach, distFromLook(c1) + CELL_MEMBRANE_RING_R)
-  end
-  if M.breakdownEnvelope ~= nil then
-    reach = math.max(reach, ENVELOPE_RING_R)
-  end
-
+  local reach = sceneReach(look)
   local halfWidth = 2.4 + reach
-  local distance = 48
+  local distance = math.max(48, reach * 3)
   local fov = 2 * math.atan(halfWidth / distance)
 
   local offsetLen = math.sqrt(48 * 48 + 2 * 2) -- the original camera's own (48,10,0)-(0,8,0) offset
@@ -2461,6 +2614,16 @@ local function updateCamera()
   v.cam:setFieldOfView(fov)
   v.cam.pos = pos
   v.cam.look = look
+
+  -- Status text: pinned near the bottom edge of whatever's currently in
+  -- view -- visibleHalfHeight is the true (not approximated) vertical
+  -- half-extent of the frame at the look plane, so this tracks the
+  -- camera's own zoom exactly instead of drifting off-frame at some zoom
+  -- levels and not others.
+  if M.statusText ~= nil then
+    local visibleHalfHeight = distance * math.tan(fov / 2)
+    M.statusText.pos = btVector3(look.x, look.y - visibleHalfHeight * 0.82, look.z)
+  end
 end
 
 -- postSim: Called after each simulation step.
@@ -2521,7 +2684,7 @@ v:postSim(function(N)
         o.licensed = true
         local mcm = BlobCylinder(0.55, 0.2, 0)
         mcm.col = COL.MCM_COL
-        mcm.trans = btTransform(VERTICAL_RING_ROT, originAxisPos(o.index))
+        mcm.trans = btTransform(AXIS_RING_ROT, originAxisPos(o.index))
         v:add(mcm)
         o.mcmMarker = mcm
         print("Cdc6/Cdt1 load the MCM2-7 double hexamer onto origin bp " .. o.index ..
@@ -2705,6 +2868,9 @@ v:postSim(function(N)
   updateCamera()
 end)
 
-common.setCamera(btVector3(48, 10, 0), btVector3(0, 8, 0), 0.1)
+-- Frame-1 fallback only -- updateCamera (see postSim) overrides pos/look/
+-- fov on every step from the very first one, before any frame is ever
+-- rendered/exported, so these particular numbers are never actually seen.
+common.setCamera(btVector3(48, 10, 0), btVector3(0, 0, 8), 0.1)
 
 -- EOF
