@@ -60,6 +60,7 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
   renderSettingsList << "7680x4320 YouTube 8K";
   renderSettingsList << "3470x2442 DIN A4 landscape 300dpi 5mm margin";
   renderSettingsList << "6780x4725 DIN A4 landscape 600dpi 5mm margin";
+  renderSettingsList << "  600x800 portrait (3:4)";
 
   renderSettings->addItems(renderSettingsList);
   renderSettings->setEditable(true);

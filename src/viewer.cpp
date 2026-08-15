@@ -2744,6 +2744,9 @@ void Viewer::savePOV(bool force) {
   ini << "[DIN-A4-landscape-600dpi-5mm-margin]" << "\n"
       << "Width=6780" << "\n"
       << "Height=4725" << "\n";
+  ini << "[portrait]" << "\n"
+      << "Width=600" << "\n"
+      << "Height=800" << "\n";
 
   _fileINI->close();
 
