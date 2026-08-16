@@ -236,6 +236,17 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 void CodeEditor::keyPressEvent(QKeyEvent *e) {
+  if (e->key() == Qt::Key_S && e->modifiers() == Qt::ControlModifier) {
+    // Handled explicitly here (rather than relying on the window's
+    // Ctrl+S QAction shortcut) because this event would otherwise fall
+    // through to keyPressed() below and get forwarded to the Viewer,
+    // whose own key handling toggles the simulation on a bare 'S' key
+    // regardless of modifiers.
+    e->accept();
+    emit savePressed();
+    return;
+  }
+
   QPlainTextEdit::keyPressEvent(e);
 
   if (e->isAccepted()) {

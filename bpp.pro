@@ -14,6 +14,14 @@ DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
 DEFINES += LUABIND_USE_CXX11
 DEFINES += GLUT_DISABLE_ATEXIT_HACK
 
+# POV-Ray VFE embedding: in-process F6 quick-render via POV-Ray's VFE API
+# (see povray-mingw/ and src/povray/) instead of shelling out to a separate
+# povray/pvengine process. Off by default -- enabling it requires a sibling
+# povray/ source checkout and a prebuilt povray-mingw/povvfe static lib.
+# Enable with `qmake "USE_VFE=1"`, or just change the 0 below.
+isEmpty(USE_VFE): USE_VFE = 0
+DEFINES += USE_VFE=$$USE_VFE
+
 # QMAKE_CXXFLAGS += -Wno-attributes -Wno-deprecated -Wno-deprecated-copy -Wno-deprecated-declarations -Wno-reorder -Wno-parentheses -Wno-ignored-qualifiers -Wno-unused-local-typedefs -Wno-terminate
 QMAKE_CXXFLAGS += -Wno-deprecated-copy
 QMAKE_CXXFLAGS_RELEASE += -O3

@@ -53,6 +53,7 @@ signals:
   void scriptLoaded();
   void scriptSaved();
   void keyPressed(QKeyEvent *e);
+  void savePressed();
 
 protected:
   void keyPressEvent(QKeyEvent *e) override;

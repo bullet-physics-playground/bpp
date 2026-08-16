@@ -40,6 +40,10 @@ class Object;
 class Viewer;
 class QTimer;
 class btSoftRigidDynamicsWorld;
+#if USE_VFE
+class BppVfeSession;
+class BppVfeDisplay;
+#endif // USE_VFE
 
 struct ParamInfo {
   QVariant value;
@@ -479,6 +483,53 @@ private:
   QString mPostSDL;
 
   QString _pov_settings_inc;
+
+#if USE_VFE
+  // POV-Ray VFE quick-render preview (F6, gated by the povray/useVFE
+  // setting). See src/povray/bppvfesession.h and bppvfedisplay.h.
+  void startVfeQuickRender(const QString &sceneName, const QString &sceneDir,
+                            const QStringList &args);
+  void pollVfeRender();
+  void drainVfeMessages();
+  void drawVfePreview();
+  void teardownVfeRender(bool shutdownSession);
+
+  std::unique_ptr<BppVfeSession> _vfeSession;
+  // vfe destroys the Display (via VirtualFrontEnd::Process()'s CloseView()
+  // call, vfe/vfe.cpp) as soon as a render reaches a terminal state, on its
+  // own worker thread, with no notification to us -- a raw pointer captured
+  // once at creation would dangle the moment that happens. weak_ptr, backed
+  // by vfeSession::GetDisplay()'s shared_ptr, lets lock() safely detect that
+  // instead of touching freed memory.
+  std::weak_ptr<BppVfeDisplay> _vfeDisplay;
+  QTimer *_vfePollTimer;
+  bool _vfeRenderActive;
+  // F6 while a render is already active cancels it and restarts with the
+  // new scene/options once vfe has actually torn the old one down --
+  // CancelRender() is asynchronous, so SetOptions()/StartRender() can't be
+  // called again immediately (per vfeSession::CancelRender()'s own docs).
+  // pollVfeRender() consumes this on the next stRenderShutdown.
+  bool _vfeRestartPending;
+  QString _vfePendingSceneName;
+  QString _vfePendingSceneDir;
+  QStringList _vfePendingArgs;
+  // Clicking the 3D view while the VFE preview is showing (rendering or
+  // finished) dismisses it back to the normal OpenGL scene; a fresh F6
+  // brings it back. Does not cancel an in-progress render, only its display.
+  bool _vfePreviewVisible;
+  // Set when a new render starts; drawVfePreview() deletes and recreates
+  // _vfePreviewTexture on its next call. All GL work for this happens
+  // inside drawVfePreview() (called from postDraw(), always within a
+  // current GL context) rather than from startVfeQuickRender() itself,
+  // which runs from a keypress/action handler with no GL context current --
+  // calling makeCurrent() there was the cause of a crash on the second
+  // render (the first render never takes this path, since no texture
+  // exists yet to delete, so it was untested until the second F6 press).
+  bool _vfePreviewNeedsReset;
+  unsigned int _vfePreviewTexture;
+  int _vfePreviewWidth;
+  int _vfePreviewHeight;
+#endif // USE_VFE
 
   QSettings *_settings;
 

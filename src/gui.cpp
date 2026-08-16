@@ -78,6 +78,8 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
 
   connect(editor, &CodeEditor::keyPressed, ui.viewer,
           &Viewer::keyPressEvent);
+  connect(editor, &CodeEditor::savePressed, this,
+          static_cast<void (Gui::*)()>(&Gui::fileSave));
   connect(commandLine, &CommandLine::keyPressed, ui.viewer,
           &Viewer::keyPressEvent);
   connect(debugText, &CodeEditor::keyPressed, ui.viewer,
@@ -147,7 +149,6 @@ void Gui::toggleSimButton(bool simRunning) {
     QIcon playIcon = QIcon::fromTheme("media-playback-pause");
     ui.actionToggleSim->setIcon(playIcon);
     ui.actionToggleSim->setText(tr("Pause &Simulation"));
-    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
     ui.actionToggleSim->setStatusTip(tr("Pause Simulation"));
     ui.actionToggleSim->setChecked(true);
     _simulationRunning = true;
@@ -155,7 +156,6 @@ void Gui::toggleSimButton(bool simRunning) {
     QIcon playIcon = QIcon::fromTheme("media-playback-start");
     ui.actionToggleSim->setIcon(playIcon);
     ui.actionToggleSim->setText(tr("&Run simulation.."));
-    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
     ui.actionToggleSim->setStatusTip(tr("Run Simulation"));
     ui.actionToggleSim->setChecked(false);
     _simulationRunning = false;
@@ -425,12 +425,26 @@ void Gui::createPovrayMenu() {
     }
   };
 
-  const QVector<PovraySetting> &settings = povraySettings();
-  addSetting(settings.first()); // use_lightsys: the headline toggle
+  const QVector<PovraySetting> &povSettings = povraySettings();
+  addSetting(povSettings.first()); // use_lightsys: the headline toggle
   menuPovray->addSeparator();
-  for (int i = 1; i < settings.size(); i++) {
-    addSetting(settings.at(i));
+  for (int i = 1; i < povSettings.size(); i++) {
+    addSetting(povSettings.at(i));
   }
+
+#if USE_VFE
+  menuPovray->addSeparator();
+  QAction *useVFE = menuPovray->addAction(tr("Use embedded VFE for Quick Render (F6, experimental)"));
+  useVFE->setCheckable(true);
+  useVFE->setChecked(settings->value("povray/useVFE", false).toBool());
+  useVFE->setStatusTip(tr(
+      "Render F6 quick-renders in-process via POV-Ray's VFE API, with a "
+      "live preview and Esc to cancel, instead of launching a separate "
+      "povray/pvengine process"));
+  connect(useVFE, &QAction::toggled, this, [this](bool checked) {
+    settings->setValue("povray/useVFE", checked);
+  });
+#endif // USE_VFE
 }
 
 QString Gui::povraySettingsPath() const {

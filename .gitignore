@@ -69,7 +69,11 @@ debian/bpp.substvars
 .qtc_clangd/
 object_script.bpp.Debug
 object_script.bpp.Release
+object_script.libpovvfe.Debug
+object_script.libpovvfe.Release
 ui_prefs.h
+
+povray-mingw/smoketest/testscene/
 
 build_log.txt
 build_warnings.txt
