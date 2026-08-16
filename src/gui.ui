@@ -299,7 +299,7 @@
     <string>Run/Pause simulation</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+P</string>
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionRestart">

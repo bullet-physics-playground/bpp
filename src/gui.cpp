@@ -78,6 +78,8 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
 
   connect(editor, &CodeEditor::keyPressed, ui.viewer,
           &Viewer::keyPressEvent);
+  connect(editor, &CodeEditor::savePressed, this,
+          static_cast<void (Gui::*)()>(&Gui::fileSave));
   connect(commandLine, &CommandLine::keyPressed, ui.viewer,
           &Viewer::keyPressEvent);
   connect(debugText, &CodeEditor::keyPressed, ui.viewer,
@@ -147,7 +149,6 @@ void Gui::toggleSimButton(bool simRunning) {
     QIcon playIcon = QIcon::fromTheme("media-playback-pause");
     ui.actionToggleSim->setIcon(playIcon);
     ui.actionToggleSim->setText(tr("Pause &Simulation"));
-    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
     ui.actionToggleSim->setStatusTip(tr("Pause Simulation"));
     ui.actionToggleSim->setChecked(true);
     _simulationRunning = true;
@@ -155,7 +156,6 @@ void Gui::toggleSimButton(bool simRunning) {
     QIcon playIcon = QIcon::fromTheme("media-playback-start");
     ui.actionToggleSim->setIcon(playIcon);
     ui.actionToggleSim->setText(tr("&Run simulation.."));
-    ui.actionToggleSim->setShortcut(tr("Ctrl+S"));
     ui.actionToggleSim->setStatusTip(tr("Run Simulation"));
     ui.actionToggleSim->setChecked(false);
     _simulationRunning = false;

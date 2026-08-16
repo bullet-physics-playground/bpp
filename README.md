@@ -41,6 +41,26 @@ Select your operating system:
 
 ### GUI
 
+#### Menu shortcuts
+
+These work anywhere in the main window (including while editing the Lua
+script):
+
+*   **Ctrl+N:** New file.
+*   **Ctrl+O:** Open file.
+*   **Ctrl+S:** Save file.
+*   **Ctrl+A:** Save file as.
+*   **Ctrl+Q:** Exit.
+*   **F12:** Preferences.
+*   **Ctrl+C:** Start/pause the physics simulation.
+*   **Ctrl+R:** Restart the simulation.
+*   **F6:** Quick render current frame with POV-Ray.
+*   **F11:** Toggle full screen.
+
+#### 3D view shortcuts
+
+These require the 3D view to have keyboard focus:
+
 *   **S:** Start/stop the physics simulation.
 *   **P:** Toggle POV-Ray export mode.
 *   **G:** Toggle PNG screenshot saving mode.

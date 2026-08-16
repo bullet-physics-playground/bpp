@@ -99,7 +99,6 @@ void runProgram() {
       QIcon playIcon = QIcon::fromTheme("media-playback-start");
       ui.actionToggleSim->setIcon(playIcon);
       ui.actionToggleSim->setText(tr("&Run simulation.."));
-      ui.actionToggleSim->setShortcut(tr("Ctrl+P"));
       ui.actionToggleSim->setStatusTip(tr("Run Simulation"));
       statusBar()->showMessage(tr("Stopped simulation."));
       ui.viewer->stopSim();
@@ -108,7 +107,6 @@ void runProgram() {
       QIcon playIcon = QIcon::fromTheme("media-playback-pause");
       ui.actionToggleSim->setIcon(playIcon);
       ui.actionToggleSim->setText(tr("Pause &Simulation"));
-      ui.actionToggleSim->setShortcut(tr("Ctrl+C"));
       ui.actionToggleSim->setStatusTip(tr("Pause Simulation"));
       statusBar()->showMessage(tr("Running simulation..."));
       ui.viewer->startSim();
