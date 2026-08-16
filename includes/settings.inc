@@ -6,7 +6,7 @@
 
 // for LightSys see - http://www.ignorancia.org/index.php?page=lightsys
 #declare use_rad        = 0;  // 0/1/2
-#declare use_lightsys   = 1;  // 0/1
+#declare use_lightsys   = 0;  // 0/1
 #declare use_lightsys_setting = 1; // 0/1
 #declare use_cie_whitepoint = 0; // 0/1/2/3
 #declare use_lightsys_light1 = 1;
@@ -30,7 +30,7 @@
 #end
 
 global_settings {
-  charset utf8
+  // charset utf8
   assumed_gamma 1.0
   max_trace_level 15
 #if (use_rad = 1)
