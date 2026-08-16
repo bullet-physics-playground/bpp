@@ -2,6 +2,8 @@
 
 #if USE_VFE
 
+#include <algorithm>
+
 #include <QMutexLocker>
 
 BppVfeDisplay::BppVfeDisplay(unsigned int width, unsigned int height, vfe::vfeSession *session, bool visible)
@@ -20,36 +22,48 @@ void BppVfeDisplay::setPixelLocked(unsigned int x, unsigned int y, const RGBA8 &
 }
 
 void BppVfeDisplay::DrawPixel(unsigned int x, unsigned int y, const RGBA8 &colour) {
+  // POV-Ray's coordinates aren't guaranteed to stay within GetWidth()/
+  // GetHeight() (its own reference unix/disp_sdl.cpp bounds-checks for
+  // exactly this reason) -- silently drop out-of-range pixels rather than
+  // writing past the QImage's row buffer.
+  if (x >= GetWidth() || y >= GetHeight())
+    return;
   QMutexLocker lock(&_mutex);
   setPixelLocked(x, y, colour);
   _dirty = true;
 }
 
 void BppVfeDisplay::DrawPixelBlock(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, const RGBA8 *colour) {
+  unsigned int ix2 = std::min(x2, GetWidth() - 1);
+  unsigned int iy2 = std::min(y2, GetHeight() - 1);
   QMutexLocker lock(&_mutex);
-  for (unsigned int y = y1; y <= y2; ++y)
-    for (unsigned int x = x1; x <= x2; ++x)
+  for (unsigned int y = y1; y <= iy2; ++y)
+    for (unsigned int x = x1; x <= ix2; ++x)
       setPixelLocked(x, y, *colour++);
   _dirty = true;
 }
 
 void BppVfeDisplay::DrawFilledRectangle(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, const RGBA8 &colour) {
+  unsigned int ix2 = std::min(x2, GetWidth() - 1);
+  unsigned int iy2 = std::min(y2, GetHeight() - 1);
   QMutexLocker lock(&_mutex);
-  for (unsigned int y = y1; y <= y2; ++y)
-    for (unsigned int x = x1; x <= x2; ++x)
+  for (unsigned int y = y1; y <= iy2; ++y)
+    for (unsigned int x = x1; x <= ix2; ++x)
       setPixelLocked(x, y, colour);
   _dirty = true;
 }
 
 void BppVfeDisplay::DrawRectangleFrame(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, const RGBA8 &colour) {
+  unsigned int ix2 = std::min(x2, GetWidth() - 1);
+  unsigned int iy2 = std::min(y2, GetHeight() - 1);
   QMutexLocker lock(&_mutex);
-  for (unsigned int x = x1; x <= x2; ++x) {
+  for (unsigned int x = x1; x <= ix2; ++x) {
     setPixelLocked(x, y1, colour);
-    setPixelLocked(x, y2, colour);
+    setPixelLocked(x, iy2, colour);
   }
-  for (unsigned int y = y1; y <= y2; ++y) {
+  for (unsigned int y = y1; y <= iy2; ++y) {
     setPixelLocked(x1, y, colour);
-    setPixelLocked(x2, y, colour);
+    setPixelLocked(ix2, y, colour);
   }
   _dirty = true;
 }

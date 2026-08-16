@@ -85,6 +85,27 @@ linux {
   tests.commands = make -C tests debug
   tests.CONFIG   = phony
   QMAKE_EXTRA_TARGETS += tests
+
+  # POV-Ray VFE embedding on Linux -- see povray-linux/README.md.
+  # Linux twin of msys2.pri's WIN32_LINK_POVVFE block.
+  equals(USE_VFE, 1) {
+    LINUX_DIR_POVRAY = $$PWD/../povray
+
+    INCLUDEPATH += \
+      $$LINUX_DIR_POVRAY/source \
+      $$LINUX_DIR_POVRAY/vfe \
+      $$LINUX_DIR_POVRAY/vfe/unix \
+      $$LINUX_DIR_POVRAY/platform/unix \
+      $$LINUX_DIR_POVRAY/platform \
+      $$LINUX_DIR_POVRAY/unix \
+      $$LINUX_DIR_POVRAY/unix/povconfig
+
+    DEFINES += HAVE_CONFIG_H
+    DEFINES += BUILT_BY=\\\"bpp-povvfe-prototype\\\"
+
+    LIBS += -L$$PWD/povray-linux/release -L$$PWD/povray-linux/debug -lpovvfe -lpthread
+    PKGCONFIG += zlib libpng libjpeg libtiff-4
+  }
 }
 
 mac {

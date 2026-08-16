@@ -4,7 +4,7 @@
 
 #include <string>
 
-BppVfeSession::BppVfeSession(int id) : vfePlatform::vfeWinSession(id) {}
+BppVfeSession::BppVfeSession(int id) : BppVfeSessionBase(id) {}
 
 void BppVfeSession::NotifyCriticalError(const char *message, const char *file, int line) {
   AppendErrorAndStatusMessage(std::string(message) + " (" + file + ":" + std::to_string(line) + ")");

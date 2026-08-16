@@ -37,7 +37,7 @@ Select your operating system:
  * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
  * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
-### Optional: embedded POV-Ray VFE rendering (experimental, Windows only)
+### Optional: embedded POV-Ray VFE rendering (experimental)
 
 By default, F6 quick-render shells out to an external `povray`/`pvengine`
 executable, same as it always has. There is an experimental alternative
@@ -49,17 +49,23 @@ a subprocess.
 `USE_VFE` defaults to `0` (off) and building bpp normally is unaffected by
 it either way. Turning it on requires a sibling
 [POV-Ray source checkout](https://github.com/POV-Ray/povray) and a prebuilt
-static library — see [`povray-mingw/README.md`](povray-mingw/README.md) for
-the full build steps. Once that's in place:
+static library — see [`povray-mingw/README.md`](povray-mingw/README.md)
+(Windows/MSYS2 MinGW-w64) or [`povray-linux/README.md`](povray-linux/README.md)
+(Linux) for the full build steps. Once that's in place:
 
 ```bash
 qmake "USE_VFE=1" bpp.pro
 ```
 
-This is a prototype: Windows/MSYS2 MinGW-w64 only, and statically linking
-POV-Ray's AGPLv3-licensed core into bpp's LGPL binary has real licensing
-implications for anyone distributing a `USE_VFE=1` build — worth deciding
-deliberately before shipping it beyond a local build.
+This is a prototype, and statically linking POV-Ray's AGPLv3-licensed core
+into bpp's LGPL binary has real licensing implications for anyone
+distributing a `USE_VFE=1` build — worth deciding deliberately before
+shipping it beyond a local build.
+
+The Linux build has been verified end-to-end (builds, links, and renders via
+F6 without crashing); see [`povray-linux/README.md`](povray-linux/README.md)
+for the gotchas that took to get there. The Windows/MSYS2 path is untested
+beyond compiling — see [`povray-mingw/README.md`](povray-mingw/README.md).
 
 ## Usage
 

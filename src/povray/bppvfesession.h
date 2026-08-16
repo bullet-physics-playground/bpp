@@ -5,7 +5,13 @@
 
 #include "vfeplatform.h"
 
-class BppVfeSession : public vfePlatform::vfeWinSession {
+#ifdef _WIN32
+using BppVfeSessionBase = vfePlatform::vfeWinSession;
+#else
+using BppVfeSessionBase = vfePlatform::vfeUnixSession;
+#endif
+
+class BppVfeSession : public BppVfeSessionBase {
 public:
   BppVfeSession(int id = 0);
 
