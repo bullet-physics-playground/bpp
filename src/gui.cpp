@@ -425,12 +425,26 @@ void Gui::createPovrayMenu() {
     }
   };
 
-  const QVector<PovraySetting> &settings = povraySettings();
-  addSetting(settings.first()); // use_lightsys: the headline toggle
+  const QVector<PovraySetting> &povSettings = povraySettings();
+  addSetting(povSettings.first()); // use_lightsys: the headline toggle
   menuPovray->addSeparator();
-  for (int i = 1; i < settings.size(); i++) {
-    addSetting(settings.at(i));
+  for (int i = 1; i < povSettings.size(); i++) {
+    addSetting(povSettings.at(i));
   }
+
+#if USE_VFE
+  menuPovray->addSeparator();
+  QAction *useVFE = menuPovray->addAction(tr("Use embedded VFE for Quick Render (F6, experimental)"));
+  useVFE->setCheckable(true);
+  useVFE->setChecked(settings->value("povray/useVFE", false).toBool());
+  useVFE->setStatusTip(tr(
+      "Render F6 quick-renders in-process via POV-Ray's VFE API, with a "
+      "live preview and Esc to cancel, instead of launching a separate "
+      "povray/pvengine process"));
+  connect(useVFE, &QAction::toggled, this, [this](bool checked) {
+    settings->setValue("povray/useVFE", checked);
+  });
+#endif // USE_VFE
 }
 
 QString Gui::povraySettingsPath() const {

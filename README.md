@@ -37,6 +37,30 @@ Select your operating system:
  * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
  * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
+### Optional: embedded POV-Ray VFE rendering (experimental, Windows only)
+
+By default, F6 quick-render shells out to an external `povray`/`pvengine`
+executable, same as it always has. There is an experimental alternative
+build flag, `USE_VFE`, that instead embeds POV-Ray's own VFE (Virtual Front
+End) API directly into bpp, so F6 renders in-process with a live pixel
+preview inside the 3D view, and a real cancel (Esc) instead of only killing
+a subprocess.
+
+`USE_VFE` defaults to `0` (off) and building bpp normally is unaffected by
+it either way. Turning it on requires a sibling
+[POV-Ray source checkout](https://github.com/POV-Ray/povray) and a prebuilt
+static library — see [`povray-mingw/README.md`](povray-mingw/README.md) for
+the full build steps. Once that's in place:
+
+```bash
+qmake "USE_VFE=1" bpp.pro
+```
+
+This is a prototype: Windows/MSYS2 MinGW-w64 only, and statically linking
+POV-Ray's AGPLv3-licensed core into bpp's LGPL binary has real licensing
+implications for anyone distributing a `USE_VFE=1` build — worth deciding
+deliberately before shipping it beyond a local build.
+
 ## Usage
 
 ### GUI
@@ -54,7 +78,10 @@ script):
 *   **F12:** Preferences.
 *   **Ctrl+C:** Start/pause the physics simulation.
 *   **Ctrl+R:** Restart the simulation.
-*   **F6:** Quick render current frame with POV-Ray.
+*   **F6:** Quick render current frame with POV-Ray (or in-process via the
+    experimental embedded VFE API, if enabled — see
+    [Optional: embedded POV-Ray VFE rendering](#optional-embedded-pov-ray-vfe-rendering-experimental-windows-only)
+    above).
 *   **F11:** Toggle full screen.
 
 #### 3D view shortcuts
@@ -67,7 +94,10 @@ These require the 3D view to have keyboard focus:
 *   **A:** Toggle display of the world axis.
 *   **F:** Toggle FPS display.
 *   **Enter:** Start/stop the animation.
-*   **Space:** Toggle between fly and revolve camera modes.
+*   **Space:** Toggle between fly and revolve camera modes; while an
+    embedded VFE render (see above) is in progress, pauses/resumes it
+    instead.
+*   **Esc:** Cancel an in-progress embedded VFE render.
 *   **Arrow Keys:** Move the camera.
 *   **Tab:** Toggle between the single perspective view and a 4-view
     CAD-style layout (perspective, top, front, right). Scroll to zoom and
