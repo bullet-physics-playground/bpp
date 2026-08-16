@@ -859,6 +859,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _settings = settings;
 
+  setStateFileName(QString());
+
   _wallTimer.start();
 
   _objects = new QSet<Object *>();
