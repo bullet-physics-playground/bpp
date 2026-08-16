@@ -862,9 +862,17 @@ void Gui::loadSettings() {
     // session to session (window manager chrome, screen changes, etc.) and
     // doesn't reliably preserve this dock's exact width. Re-assert it
     // explicitly so it doesn't drift.
+    //
+    // loadSettings() itself runs from the Gui constructor, before main()
+    // calls show() on it, so resizeDocks() has no real window/layout
+    // geometry to work with yet and silently has no effect. Defer it to
+    // the next event loop iteration (same trick used for loadLastFile()
+    // below), by which point the window is actually shown.
     int luaWidth = settings->value("luaScriptDockWidth", -1).toInt();
     if (luaWidth > 0) {
-      resizeDocks({dockLUAScript}, {luaWidth}, Qt::Horizontal);
+      QTimer::singleShot(0, this, [this, luaWidth]() {
+        resizeDocks({dockLUAScript}, {luaWidth}, Qt::Horizontal);
+      });
     }
   }
 
