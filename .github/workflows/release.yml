@@ -95,9 +95,98 @@ jobs:
           path: deb-output/
           if-no-files-found: ignore
 
+  build-windows:
+    name: Build Windows installer (x64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Package list follows the "Build on Windows with MSYS2" wiki page,
+      # minus qt-creator and github-cli (IDE/CLI conveniences, not build deps).
+      - name: Set up MSYS2 (MinGW64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            git
+            base-devel
+            unzip
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-qt5
+            mingw-w64-x86_64-assimp
+            mingw-w64-x86_64-glew
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-lua51
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-bullet
+            mingw-w64-x86_64-angleproject
+            mingw-w64-x86_64-freeglut
+            mingw-w64-x86_64-nsis
+
+      # luabind and libQGLViewer are custom/forked builds not packaged by
+      # MSYS2, built from source as siblings of the bpp checkout dir to
+      # match msys2.pri's `HOME = $$PWD/..` layout.
+      - name: Build luabind (bullet-physics-playground fork)
+        run: |
+          set -e
+          PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          cd "$PARENT"
+          git clone https://github.com/bullet-physics-playground/luabind --depth=1
+          cd luabind && mkdir build && cd build
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -G Ninja ..
+          ninja
+
+      - name: Build libQGLViewer
+        run: |
+          set -e
+          PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          cd "$PARENT"
+          git clone https://github.com/GillesDebunne/libQGLViewer --depth=1
+          cd libQGLViewer/QGLViewer
+          qmake-qt5
+          mingw32-make -j$(nproc)
+
+      - name: Build bpp
+        run: |
+          set -e
+          qmake-qt5
+          mingw32-make -j$(nproc)
+
+      - name: Deploy Qt runtime and remaining DLLs
+        run: |
+          set -e
+          windeployqt-qt5.exe --release --compiler-runtime --angle release/bpp.exe
+          cp /mingw64/bin/SDL2.dll release/
+          cp /mingw64/bin/lua51.dll release/
+          cp /mingw64/bin/libLinearMath.dll release/
+          cp /mingw64/bin/libBullet* release/
+          cp /mingw64/bin/libassimp-6.dll release/
+          PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          cp "$PARENT/libQGLViewer/QGLViewer/QGLViewer3.dll" release/
+
+      - name: Build NSIS installer
+        run: |
+          set -e
+          sed -i 's/^!define VERSION .*/!define VERSION "${{ github.ref_name }}"/' bpp.nsi
+          makensis.exe bpp.nsi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bpp-windows-x64
+          path: bpp-*-win-x64.exe
+          if-no-files-found: error
+
   release:
     name: Create GitHub Release
-    needs: build
+    needs: [build, build-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -108,7 +197,7 @@ jobs:
       - name: Flatten artifact directories
         run: |
           mkdir -p release-packages
-          find artifacts -type f \( -name "*.deb" -o -name "*.dsc" \) | while read -r file; do
+          find artifacts -type f \( -name "*.deb" -o -name "*.dsc" -o -name "*.exe" \) | while read -r file; do
             cp "$file" release-packages/
           done
 
