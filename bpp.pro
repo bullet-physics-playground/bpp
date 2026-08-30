@@ -109,28 +109,33 @@ linux {
 }
 
 mac {
-  CONFIG      += x86 ppc
   ICON         = icons/bpp.icns
 
   RESOURCES   += res.qrc humanity.qrc
 
-  INCLUDEPATH += /usr/local/include
-  INCLUDEPATH += /usr/local/Cellar/lua/5.5.0/include
-  INCLUDEPATH += /usr/local/include/lua5.5
-  INCLUDEPATH += /usr/local/include/luabind
-  INCLUDEPATH += /usr/local/include/QGLViewer
-  INCLUDEPATH += /usr/local/var/homebrew/tmp/.cellar/freeglut/3.8.0/include
-  INCLUDEPATH += /usr/local/Cellar/sdl2/include/SDL
-  INCLUDEPATH += /usr/local/Cellar/sdl12-compat/include
-  INCLUDEPATH += /usr/local/Cellar/bullet/3.25/include/bullet
-  INCLUDEPATH += /usr/local/Cellar/assimp/6.0.4_1/include
+  # Resolve Homebrew paths dynamically instead of hardcoding one
+  # machine's Cellar version snapshot -- keeps this working across
+  # Homebrew upgrades and across Intel (/usr/local) vs Apple Silicon
+  # (/opt/homebrew) installs. qt@5 and lua are keg-only formulas (kept
+  # out of the general prefix since other versions may coexist), so
+  # look those up by name; libQGLViewer installs alongside whichever
+  # Qt it was built against.
+  BREW_PREFIX  = $$system(brew --prefix)
+  QT5_PREFIX   = $$system(brew --prefix qt@5)
+  LUA_PREFIX   = $$system(brew --prefix lua)
+  LUA_INCLUDE  = $$system(ls -d $$LUA_PREFIX/include/lua5.* 2>/dev/null | head -1)
 
-  LIBS += -F/usr/local/lib
-  LIBS += -F/usr/local/Cellar/qt@5/5.15.18/lib
-  LIBS += -L/usr/local/lib
-  LIBS += -L/usr/local/Cellar/lua/5.5.0/lib
-  LIBS += -L/usr/local/Cellar/assimp/6.0.4_1/lib
-  LIBS += -L/usr/local/Cellar/bullet/3.25/lib
+  INCLUDEPATH += $$BREW_PREFIX/include
+  INCLUDEPATH += $$BREW_PREFIX/include/bullet
+  INCLUDEPATH += $$BREW_PREFIX/include/QGLViewer
+  INCLUDEPATH += $$QT5_PREFIX/include/QGLViewer
+  INCLUDEPATH += $$LUA_INCLUDE
+
+  LIBS += -F$$BREW_PREFIX/lib
+  LIBS += -F$$QT5_PREFIX/lib
+  LIBS += -L$$BREW_PREFIX/lib
+  LIBS += -L$$QT5_PREFIX/lib
+  LIBS += -L$$LUA_PREFIX/lib
   LIBS += -lluabind
   LIBS += -llua
   LIBS += -lSDL2

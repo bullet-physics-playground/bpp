@@ -191,9 +191,69 @@ jobs:
           path: bpp-*-win-x64.exe
           if-no-files-found: error
 
+  build-macos:
+    name: Build macOS app (arm64)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # Package list follows the "Build on Mac OS-X" wiki page, minus
+      # povray/openscad/sdl12-compat/git (runtime tools or already
+      # present on the runner, not build deps).
+      - name: Install build dependencies (Homebrew)
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 freeglut
+
+      # luabind and libQGLViewer are custom/forked builds not packaged
+      # by Homebrew, built from source and installed into the Homebrew
+      # prefix so bpp.pro's dynamic brew --prefix lookups find them.
+      - name: Build luabind (bullet-physics-playground fork)
+        run: |
+          set -e
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/bullet-physics-playground/luabind --depth=1
+          cd luabind && mkdir build && cd build
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" ..
+          make -j$(sysctl -n hw.ncpu)
+          sudo make install
+
+      - name: Build libQGLViewer
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/GillesDebunne/libQGLViewer --depth=1
+          cd libQGLViewer/QGLViewer
+          qmake
+          make -j$(sysctl -n hw.ncpu)
+          sudo make install
+
+      - name: Build bpp
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          qmake bpp.pro
+          make -j$(sysctl -n hw.ncpu) release
+
+      - name: Package app bundle
+        run: |
+          set -e
+          mkdir -p macos-output
+          ditto -c -k --sequesterRsrc --keepParent \
+            release/bpp.app "macos-output/bpp-${{ github.ref_name }}-macos-arm64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bpp-macos-arm64
+          path: macos-output/*.zip
+          if-no-files-found: error
+
   release:
     name: Create GitHub Release
-    needs: [build, build-windows]
+    needs: [build, build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
@@ -204,7 +264,7 @@ jobs:
       - name: Flatten artifact directories
         run: |
           mkdir -p release-packages
-          find artifacts -type f \( -name "*.deb" -o -name "*.dsc" -o -name "*.exe" \) | while read -r file; do
+          find artifacts -type f \( -name "*.deb" -o -name "*.dsc" -o -name "*.exe" -o -name "*.zip" \) | while read -r file; do
             cp "$file" release-packages/
           done
 
