@@ -83,7 +83,7 @@ jobs:
             sed -i "1s/.*/bpp (${VERSION}) ${CODENAME}; urgency=medium/" debian/changelog
             dpkg-buildpackage -b -uc -us -d
             mkdir -p "/workspace/${REPO_DIR}/deb-output"
-            find /workspace -path "*/deb-output" -prune -o -type f \( -name "*.deb" -o -name "*.dsc" \) -print | while read -r f; do cp "$f" "/workspace/${REPO_DIR}/deb-output/"; done
+            find /workspace -path "*/deb-output" -prune -o -type f \( -name "*.deb" -o -name "*.dsc" \) ! -name "*dbgsym*" ! -name "bpp-build-deps_*" -print | while read -r f; do cp "$f" "/workspace/${REPO_DIR}/deb-output/"; done
             '
         env:
           DEB_BUILD_OPTIONS: nocheck
