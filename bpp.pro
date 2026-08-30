@@ -139,7 +139,7 @@ mac {
   LIBS += -L$$BREW_PREFIX/lib
   LIBS += -L$$QT5_PREFIX/lib
   LIBS += -L$$LUA_PREFIX/lib
-  LIBS += -lluabind
+  LIBS += -lluabind09
   LIBS += -llua
   LIBS += -lSDL2
   LIBS += -lBulletDynamics
