@@ -112,11 +112,13 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          # bpp.nsi hardcodes !define DLL "C:\msys64\mingw64\bin" (the
-          # default path when a user installs MSYS2 themselves, per the
-          # wiki's Windows build instructions). setup-msys2 defaults to
-          # installing under $RUNNER_TEMP instead, so pin it to match.
-          location: 'C:\'
+          # windows-latest runners ship MSYS2 pre-installed at C:\msys64,
+          # which is also what bpp.nsi hardcodes as !define DLL
+          # "C:\msys64\mingw64\bin" (the default path from a manual
+          # install, per the wiki's Windows build instructions). The
+          # action's own default (release: true) instead downloads a
+          # fresh copy into $RUNNER_TEMP, so use the pre-installed one.
+          release: false
           install: >-
             git
             base-devel
