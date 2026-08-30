@@ -214,7 +214,11 @@ jobs:
           cd "$PARENT"
           git clone https://github.com/bullet-physics-playground/luabind --depth=1
           cd luabind && mkdir build && cd build
-          cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" ..
+          # CMake's own default install prefix is /usr/local, which is
+          # not where Homebrew lives on Apple Silicon (/opt/homebrew) --
+          # point it at the actual brew prefix so bpp.pro's
+          # brew --prefix lookups find it.
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -DCMAKE_INSTALL_PREFIX="$(brew --prefix)" ..
           make -j$(sysctl -n hw.ncpu)
           sudo make install
 
