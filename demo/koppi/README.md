@@ -19,5 +19,6 @@ Demos by [@koppi](https://github.com/koppi)
 * **marblerun.lua**: A marble run simulation (WIP).
 * **nutsnbolts.lua**: A demonstration of the Bolts and Nuts v1.9.5 OpenSCAD Library.
 * **pulley.lua**: A demonstration of a parametric pulley created with OpenSCAD.
+* **rm501.lua**: A Mitsubishi RM-501 Movemaster II robot arm - a rigid-body chain of five motorised hinge joints - driving its tool tip through random points in space with the trajectory generator ported from [rm501](https://github.com/koppi/rm501)'s `trajgen.c` (`demo/module/trajgen.lua`). (WIP)
 * **room.lua**: A room with random objects.
 * **spirals.lua**: A demonstration of parametric spirals created with OpenSCAD.
