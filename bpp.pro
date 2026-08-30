@@ -119,8 +119,10 @@ mac {
   # (/opt/homebrew) installs. qt@5 and lua are keg-only formulas (kept
   # out of the general prefix since other versions may coexist), so
   # look those up by name. libQGLViewer's qmake `make install` puts its
-  # framework (headers embedded inside it, Qt/mac convention) in the
-  # standard /Library/Frameworks, independent of Homebrew entirely.
+  # compiled framework in the standard /Library/Frameworks (independent
+  # of Homebrew), but its Headers/ isn't reliably populated with the
+  # individual .h files, so read those straight from a sibling source
+  # checkout instead -- same idea as WIN32_DIR_QGLVIEWER in msys2.pri.
   BREW_PREFIX  = $$system(brew --prefix)
   QT5_PREFIX   = $$system(brew --prefix qt@5)
   LUA_PREFIX   = $$system(brew --prefix lua)
@@ -128,8 +130,7 @@ mac {
 
   INCLUDEPATH += $$BREW_PREFIX/include
   INCLUDEPATH += $$BREW_PREFIX/include/bullet
-  INCLUDEPATH += $$BREW_PREFIX/include/QGLViewer
-  INCLUDEPATH += $$QT5_PREFIX/include/QGLViewer
+  INCLUDEPATH += $$PWD/../libQGLViewer/QGLViewer
   INCLUDEPATH += $$LUA_INCLUDE
 
   LIBS += -F/Library/Frameworks
