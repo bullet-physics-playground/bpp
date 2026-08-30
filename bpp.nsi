@@ -137,7 +137,7 @@ Section "Uninstall"
   DeleteRegKey HKLM SOFTWARE\bpp
 
   Delete "$INSTDIR\bpp.exe"
-  Delete "$INSTDIR\QGLViewer2.dll"
+  Delete "$INSTDIR\QGLViewer3.dll"
   Delete "$INSTDIR\libdouble-conversion.dll"
   Delete "$INSTDIR\libgcc_s_seh-1.dll"
   Delete "$INSTDIR\libicuuc77.dll"
