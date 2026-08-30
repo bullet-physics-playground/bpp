@@ -153,7 +153,7 @@ mac {
 
 win32 {
   DEFINES += BUILDTIME=\\\"$$system('echo %time%')\\\"
-  DEFINES += BUILDDATE=\\\"$$system('echo %date%')\\\"
+  DEFINES += BUILDDATE=\\\"$$system('powershell -NoProfile -Command Get-Date -Format yyyy-MM-dd')\\\"
   DEFINES += BULLET_VERSION=\\\"\\\"
 } else {
   DEFINES += BUILDTIME=\\\"$$system(date '+%H:%M')\\\"
