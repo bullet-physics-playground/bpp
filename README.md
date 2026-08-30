@@ -58,9 +58,9 @@ qmake "USE_VFE=1" bpp.pro
 ```
 
 This is a prototype, and statically linking POV-Ray's AGPLv3-licensed core
-into bpp's LGPL binary has real licensing implications for anyone
-distributing a `USE_VFE=1` build — worth deciding deliberately before
-shipping it beyond a local build.
+into bpp's AGPLv3 binary means the resulting binary is bound by AGPLv3
+obligations — worth deciding deliberately before shipping a
+`USE_VFE=1` build beyond a local build.
 
 The Linux build has been verified end-to-end (builds, links, and renders via
 F6 without crashing); see [`povray-linux/README.md`](povray-linux/README.md)
@@ -171,5 +171,5 @@ in this repository.
 ## License
 
 The Bullet Physics Playground itself is licensed under the
-[GNU Lesser General Public License](LICENSE). Bundled third-party content
+[GNU Affero General Public License v3](LICENSE). Bundled third-party content
 retains its own license as noted above.

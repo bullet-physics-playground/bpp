@@ -143,7 +143,10 @@ make
 
 ## License
 
-Copyright © 2008-2026 Jakob Flierl  
-Copyright © 2012-2016 Jaime Vives Piqueres
+Copyright (C) 2008-2026 Jakob Flierl
+Copyright (C) 2012-2016 Jaime Vives Piqueres
+
+Licensed under the GNU Affero General Public License v3.0 or later.
+See [LICENSE](../LICENSE) for the full license text.
 
 GitHub: https://github.com/bullet-physics-playground/bpp

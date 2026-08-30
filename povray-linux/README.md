@@ -98,7 +98,7 @@ no dependency on the POV-Ray checkout at all.
 
 ## Licensing
 
-POV-Ray is licensed under the AGPLv3; bpp is LGPL. Statically linking
+POV-Ray is licensed under the AGPLv3; bpp is also AGPLv3. Statically linking
 `libpovvfe.a` into bpp means the resulting binary is bound by AGPLv3
 obligations. Fine for local experimentation, but worth a deliberate decision
 before anyone distributes a `USE_VFE=1` build.
