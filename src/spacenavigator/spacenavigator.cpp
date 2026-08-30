@@ -104,12 +104,17 @@ namespace
 {
 
 const quint16 USB_VENDOR_ID_LOGITECH = 0x046d;
+const quint16 USB_VENDOR_ID_3DCONNEXION = 0x256f;
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
 const quint16 USB_DEVICE_ID_SPACENAVIGATOR = 0xc626;
 const quint16 USB_DEVICE_ID_SPACETRAVELLER = 0xc623;
 const quint16 USB_DEVICE_ID_SPACEBALL_5000 = 0xc603;
-const quint16 USB_VENDOR_ID_3DCONNEXION = 0x256f;
+#endif
 
+#if defined(Q_OS_LINUX)
 const int MAX_DEVICES = 64;
+#endif
 
 #if defined(Q_OS_WIN)
 void winEnumerate3DMice(QStringList &out);

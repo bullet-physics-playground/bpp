@@ -200,11 +200,11 @@ public:
   void setPrefs(QString key, QString value);
   QString getPrefs(QString key, QString defaultValue) const;
 
-  virtual void startAnimation();
-  virtual void stopAnimation();
-  virtual void animate();
-  virtual void draw();
-  virtual void postDraw();
+  void startAnimation() override;
+  void stopAnimation() override;
+  void animate() override;
+  void draw() override;
+  void postDraw() override;
 
 public slots:
   void close();
@@ -242,7 +242,7 @@ public slots:
 	
   ParamInfo getParamInfo(const QString &name) const;
 
-  void keyPressEvent(QKeyEvent *e);
+  void keyPressEvent(QKeyEvent *e) override;
 
   // Qt intercepts Tab/Backtab for focus-chain traversal in QWidget::event(),
   // before keyPressEvent() ever runs. Disable that so Tab reaches
@@ -318,7 +318,7 @@ signals:
   void helpTextChanged(const QString &text);
 
 protected:
-  virtual void init();
+  void init() override;
 
   void setGravity(btVector3 gravity);
   btVector3 getGravity();
