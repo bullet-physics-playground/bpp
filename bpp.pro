@@ -142,6 +142,7 @@ mac {
   LIBS += -lluabind09
   LIBS += -llua
   LIBS += -lSDL2
+  LIBS += -lBulletSoftBody
   LIBS += -lBulletDynamics
   LIBS += -lBulletCollision
   LIBS += -lLinearMath
