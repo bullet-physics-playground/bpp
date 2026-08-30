@@ -130,7 +130,7 @@ mac {
 
   INCLUDEPATH += $$BREW_PREFIX/include
   INCLUDEPATH += $$BREW_PREFIX/include/bullet
-  INCLUDEPATH += $$PWD/../libQGLViewer/QGLViewer
+  INCLUDEPATH += $$PWD/../libQGLViewer
   INCLUDEPATH += $$LUA_INCLUDE
 
   LIBS += -F/Library/Frameworks
