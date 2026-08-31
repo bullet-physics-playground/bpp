@@ -255,9 +255,67 @@ jobs:
           path: macos-output/*.zip
           if-no-files-found: error
 
+  build-macos-intel:
+    name: Build macOS app (x86_64)
+    # macos-15-intel is the last x86_64 image GitHub Actions offers
+    # (macos-latest/macos-14+ are Apple Silicon only); available until
+    # August 2027. Homebrew paths are resolved dynamically in bpp.pro
+    # (brew --prefix), so this job is otherwise identical to build-macos.
+    runs-on: macos-15-intel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies (Homebrew)
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 freeglut
+
+      - name: Build luabind (bullet-physics-playground fork)
+        run: |
+          set -e
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/bullet-physics-playground/luabind --depth=1
+          cd luabind && mkdir build && cd build
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -DCMAKE_INSTALL_PREFIX="$(brew --prefix)" ..
+          make -j$(sysctl -n hw.ncpu)
+          sudo make install
+
+      - name: Build libQGLViewer
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/GillesDebunne/libQGLViewer --depth=1
+          cd libQGLViewer/QGLViewer
+          qmake
+          make -j$(sysctl -n hw.ncpu)
+          sudo make install
+
+      - name: Build bpp
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          qmake bpp.pro
+          make -j$(sysctl -n hw.ncpu) release
+
+      - name: Package app bundle
+        run: |
+          set -e
+          mkdir -p macos-output
+          ditto -c -k --sequesterRsrc --keepParent \
+            release/bpp.app "macos-output/bpp-${{ github.ref_name }}-macos-x86_64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bpp-macos-x86_64
+          path: macos-output/*.zip
+          if-no-files-found: error
+
   release:
     name: Create GitHub Release
-    needs: [build, build-windows, build-macos]
+    needs: [build, build-windows, build-macos, build-macos-intel]
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
