@@ -120,6 +120,30 @@ bpp -n 200 -f demo/basic/01-hello-cmdline.lua | \
     gnuplot -e "set terminal dumb; plot for[col=3:3] '/dev/stdin' using 1:col title columnheader(col) with lines"
 ```
 
+### Distributed rendering with povomatic
+
+[povomatic](https://github.com/koppi/povomatic) renders a POV-Ray animation
+across a Kubernetes cluster, one job per frame. To send it a bpp scene, export
+the frames and submit from the export directory:
+
+```bash
+bpp -f demo/basic/00-hello.lua -n 278 -e       # writes export/00-hello/
+make -C export/00-hello povomatic              # rsync + submit via povomatic.py
+```
+
+`make povomatic` runs [`scripts/povomatic-job.py`](scripts/povomatic-job.py),
+which copies `includes/` **and POV-Ray's own standard includes** (`colors.inc`
+etc., which `settings.inc` pulls in and the render image does not ship) to
+povomatic's shared asset volume, copies the exported scene to its input volume,
+and calls `povomatic.py` with the frame count and clock range read from the
+generated `.ini` (bpp exports each frame so that POV-Ray's `clock` equals the
+frame number). Pass extra options through
+`POVOMATIC_ARGS`, e.g. `make -C export/00-hello povomatic POVOMATIC_ARGS="--res 1080p --priority 5"`;
+run `scripts/povomatic-job.py --help` for the full list. The API URL comes from
+`$POVOMATIC_API` (or `--api-url`); `$POVOMATIC_INPUT`, `$POVOMATIC_ASSETS`,
+`$POVOMATIC_REMOTE_INPUT` and `$POVRAY_INCLUDE_DIR` override the volume and
+include paths.
+
 ## Documentation / Wiki
 
 * [Basic Usage HOWTO](https://github.com/bullet-physics-playground/bpp/wiki/Basic-Usage-HOWTO)

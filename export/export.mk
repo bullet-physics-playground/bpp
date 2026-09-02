@@ -17,6 +17,10 @@ POVINC?=+LLightsysIV
 
 MKV_LOOP?=10
 
+# Extra options for scripts/povomatic-job.py (e.g. --res 1080p --priority 5)
+
+POVOMATIC_ARGS?=
+
 # ----------------------------------------------------------------------------
 
 POVOPT=${POVINC} ${POV}
@@ -47,6 +51,7 @@ help:
 	@echo ""
 	@echo "  make slurm           # render using the slurm workload manager"
 	@echo "  make kubernetes      # render using kubernets cluster"
+	@echo "  make povomatic       # submit to povomatic (POVOMATIC_ARGS='--res 1080p ...')"
 	@echo ""
 	@echo " YouTube"
 	@echo ""
@@ -92,6 +97,9 @@ kubernetes:
 
 log-kubernets:
 	kubectl logs -f -l app=povray-worker --max-log-requests=50 --tail=50
+
+povomatic:
+	python3 ../../scripts/povomatic-job.py ${POVOMATIC_ARGS} .
 
 #youtube-up: mkv
 #	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
