@@ -10,6 +10,7 @@ DIRS_BUILD = $(DIRS:%=build-%)
 DIRS_FINAL = $(DIRS:%=final-%)
 DIRS_SLURM = $(DIRS:%=slurm-%)
 DIRS_KUBERNETES = $(DIRS:%=kubernetes-%)
+DIRS_POVOMATIC = $(DIRS:%=povomatic-%)
 DIRS_CLEAN = $(DIRS:%=clean-%)
 DIRS_DISTCLEAN = $(DIRS:%=distclean-%)
 
@@ -37,6 +38,12 @@ $(DIRS_KUBERNETES):
 	@echo " $(@kubernetes-%=%))"
 	$(Q)$(MAKE) -C $(@:kubernetes-%=%) kubernetes
 
+povomatic: $(DIRS_POVOMATIC)
+
+$(DIRS_POVOMATIC):
+	@echo " $(@povomatic-%=%))"
+	$(Q)$(MAKE) -C $(@:povomatic-%=%) povomatic
+
 clean: $(DIRS_CLEAN)
 
 $(DIRS_CLEAN):
@@ -50,4 +57,4 @@ $(DIRS_DISTCLEAN):
 	$(Q)$(MAKE) -C $(@:distclean-%=%) distclean
 
 
-.PHONY: all $(DIRS_BUILD) final $(DIRS_FINAL) slurm $(DIRS_SLURM) kubernetes $(DIRS_KUBERNETES) clean $(DIRS_CLEAN) distclean $(DIRS_DISTCLEAN)
+.PHONY: all $(DIRS_BUILD) final $(DIRS_FINAL) slurm $(DIRS_SLURM) kubernetes $(DIRS_KUBERNETES) povomatic $(DIRS_POVOMATIC) clean $(DIRS_CLEAN) distclean $(DIRS_DISTCLEAN)
