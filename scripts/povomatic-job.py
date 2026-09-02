@@ -59,6 +59,12 @@ RSYNC_EXCLUDES = [
     "GNUmakefile", "Makefile",
 ]
 
+# settings.inc is per-scene: bpp regenerates it into every export dir, and some
+# scenes (box-w-oranges) ship a hand-authored one. The assets volume is earlier
+# on POV-Ray's library path than the scene's own directory, so a settings.inc
+# left there shadows every scene's copy. Keep it out.
+ASSETS_EXCLUDES = ["settings.inc", "README.md", "readme_*.txt", "*.pov"]
+
 
 def die(msg):
     print(f"povomatic-job: {msg}", file=sys.stderr)
@@ -223,7 +229,8 @@ def main():
     povomatic_py = find_povomatic_py(args.povomatic_py)
 
     # --- assets: bpp's bundled includes/ + POV-Ray's stock includes ----------
-    steps = [rsync(os.path.join(REPO_ROOT, "includes"), args.assets_dir)]
+    steps = [rsync(os.path.join(REPO_ROOT, "includes"), args.assets_dir,
+                   ASSETS_EXCLUDES)]
     pov_inc = find_povray_includes(args.povray_include_dir)
     if pov_inc:
         steps.append(rsync(pov_inc, args.assets_dir))
