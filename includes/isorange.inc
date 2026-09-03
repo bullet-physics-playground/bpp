@@ -1,3 +1,5 @@
+#include "functions.inc" // f_sphere, f_ph, f_th, f_bumps, f_granite
+
 #declare orange=
 union{
   isosurface{
