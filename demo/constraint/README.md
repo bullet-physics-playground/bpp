@@ -91,7 +91,7 @@ A specialization of btGeneric6DofSpring2Constraint for suspension joints (as in 
 - Independent motors for wheel spin (constant velocity) and steering (servo, toward a moving target)
 - Suspension spring/limits inherited from btGeneric6DofSpring2Constraint
 
-### Geneva Drive (geneva-drive.lua)
+### Geneva Drive (11-geneva-drive.lua)
 A 4-station Geneva mechanism (Maltese cross) — the classic intermittent-motion drive from film projectors and index tables. A continuously-rotating pin-disk indexes the cross one quarter-turn per revolution, then the cross dwells while the pin swings clear. Both parts are built as OpenSCAD extrusions and constrained with btHingeConstraint to the world.
 
 **Features:**
