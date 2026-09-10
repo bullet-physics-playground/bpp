@@ -568,7 +568,7 @@ void Gui::createDock() {
   QDockWidget *dw2 = new QDockWidget(this);
   dw2->setObjectName("DockLUAScript");
   dw2->setWindowTitle("LUA Script");
-  editor = new CodeEditor(settings, this);
+  editor = new CodeEditor(settings, this, true);
   dw2->setWidget(editor);
 
   addDockWidget(Qt::RightDockWidgetArea, dw2);
@@ -817,6 +817,8 @@ void Gui::editPreferences() {
           SLOT(fontChanged(QString, uint)));
   connect(p, SIGNAL(checkOpenLastFileChanged(bool)), this,
           SLOT(setOpenLastFile(bool)));
+  connect(p, &Prefs::languageServerExecutableChanged, editor,
+          &CodeEditor::setLanguageServerExecutable);
 
   // SpaceNavigator 3D mouse navigation settings
   connect(p, &Prefs::snNavigationModeChanged, ui.viewer,

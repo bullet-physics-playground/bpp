@@ -2,10 +2,26 @@
 #include <QtWidgets>
 
 #include <QDebug>
+#include <QDir>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
+#include <QRegExp>
+#include <QSet>
+#include <QStandardItemModel>
+#include <QTextBrowser>
+#include <QTimer>
+#include <QUrl>
 
 #include "code.h"
 
-CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
+CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
+    : QPlainTextEdit(parent), completer(nullptr), completionDocumentation(nullptr),
+      languageServer(nullptr),
+      lspRequestId(0), lspInitializeRequestId(-1),
+      lspCompletionRequestId(-1), lspDocumentVersion(0),
+      lspInitialized(false) {
 
   QString family;
 #ifdef Q_OS_LINUX
@@ -24,6 +40,33 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
   setFont(family, size);
 
   highlighter = new LuaHighlighter(document());
+
+  if (enableCompletion) {
+    completer = new QCompleter(this);
+    completer->setWidget(this);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    completer->popup()->installEventFilter(this);
+    connect(completer,
+            static_cast<void (QCompleter::*)(const QString &)>(
+                &QCompleter::activated),
+            this, &CodeEditor::insertCompletion);
+    connect(completer->popup(), &QAbstractItemView::entered, this,
+            [this](const QModelIndex &index) {
+              showCompletionDocumentation(index);
+            });
+    connect(this, &CodeEditor::textChanged, this, [this]() {
+      if (lspInitialized && !lspOpenedUri.isEmpty())
+        updateLspDocument();
+    });
+    connect(this, &CodeEditor::scriptLoaded, this, [this]() {
+      lspOpenedUri.clear();
+      if (lspInitialized)
+        openLspDocument();
+    });
+    startLanguageServer(
+        s->value("editor/languageServer", "lua-language-server").toString());
+  }
 
   lineNumberArea = new LineNumberArea(this);
 
@@ -56,7 +99,33 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent) : QPlainTextEdit(parent) {
   connect(a, &QAction::triggered, this, [this]() { saveAs(""); });
 }
 
-CodeEditor::~CodeEditor() = default;
+CodeEditor::~CodeEditor() {
+  stopLanguageServer();
+}
+
+void CodeEditor::stopLanguageServer() {
+  if (!languageServer)
+    return;
+
+  if (languageServer->state() == QProcess::Running) {
+    sendLspMessage("exit", QJsonObject());
+    if (!languageServer->waitForFinished(500)) {
+      languageServer->terminate();
+      languageServer->waitForFinished(500);
+    }
+  }
+  delete languageServer;
+  languageServer = nullptr;
+  languageServerOutput.clear();
+  lspOpenedUri.clear();
+  lspCompletions.clear();
+  lspInitialized = false;
+}
+
+void CodeEditor::setLanguageServerExecutable(const QString &path) {
+  stopLanguageServer();
+  startLanguageServer(path);
+}
 
 void CodeEditor::clear() {
 
@@ -235,7 +304,45 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
   }
 }
 
+bool CodeEditor::eventFilter(QObject *watched, QEvent *event) {
+  if (completer && watched == completer->popup()) {
+    if (event->type() == QEvent::Hide) {
+      hideCompletionDocumentation();
+    } else if (event->type() == QEvent::KeyPress) {
+      auto *keyEvent = static_cast<QKeyEvent *>(event);
+      if (keyEvent->key() == Qt::Key_Return ||
+          keyEvent->key() == Qt::Key_Enter) {
+        insertSelectedCompletion();
+        return true;
+      }
+      if (keyEvent->key() == Qt::Key_Up || keyEvent->key() == Qt::Key_Down ||
+          keyEvent->key() == Qt::Key_PageUp ||
+          keyEvent->key() == Qt::Key_PageDown) {
+        QTimer::singleShot(0, this, [this]() {
+          showCompletionDocumentation(completer->popup()->currentIndex());
+        });
+      }
+    }
+  }
+
+  return QPlainTextEdit::eventFilter(watched, event);
+}
+
 void CodeEditor::keyPressEvent(QKeyEvent *e) {
+  if (completer && completer->popup()->isVisible() &&
+      (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)) {
+    insertSelectedCompletion();
+    e->accept();
+    return;
+  }
+
+  if (completer && e->key() == Qt::Key_Space &&
+      e->modifiers() == Qt::ControlModifier) {
+    showCompletion();
+    e->accept();
+    return;
+  }
+
   if (e->key() == Qt::Key_S && e->modifiers() == Qt::ControlModifier) {
     // Handled explicitly here (rather than relying on the window's
     // Ctrl+S QAction shortcut) because this event would otherwise fall
@@ -250,6 +357,10 @@ void CodeEditor::keyPressEvent(QKeyEvent *e) {
   QPlainTextEdit::keyPressEvent(e);
 
   if (e->isAccepted()) {
+    if (completer && completer->popup()->isVisible()) {
+      showCompletion();
+      requestLspCompletion();
+    }
     return;
   }
 
@@ -291,4 +402,278 @@ void CodeEditor::keyPressEvent(QKeyEvent *e) {
   // qDebug() << "CodeEditor::keyPressed(" << seq << ")";
 
   emit keyPressed(e);
+}
+
+QString CodeEditor::textUnderCursor() const {
+  QTextCursor cursor = textCursor();
+  cursor.select(QTextCursor::WordUnderCursor);
+  return cursor.selectedText();
+}
+
+void CodeEditor::showCompletion() {
+  updateCompletionModel(localCompletions() + lspCompletions);
+
+  const QString prefix = textUnderCursor();
+  completer->setCompletionPrefix(prefix);
+  completer->popup()->setCurrentIndex(completer->completionModel()->index(0, 0));
+
+  QRect rect = cursorRect();
+  rect.setWidth(completer->popup()->sizeHintForColumn(0) +
+                completer->popup()->verticalScrollBar()->sizeHint().width());
+  completer->complete(rect);
+  showCompletionDocumentation(completer->popup()->currentIndex());
+}
+
+QStringList CodeEditor::localCompletions() const {
+  QSet<QString> words = {
+      "and",       "break",    "do",       "else",      "elseif",
+      "end",       "false",    "for",      "function",  "if",
+      "in",        "local",    "nil",      "not",       "or",
+      "repeat",    "return",   "then",     "true",      "until",
+      "while",     "require",  "print",    "pairs",     "ipairs",
+      "next",      "type",     "tonumber", "tostring",  "math",
+      "string",    "table",    "v",        "btVector3", "btQuaternion",
+  };
+
+  QRegExp wordExpression("\\b[A-Za-z_][A-Za-z0-9_]*\\b");
+  const QString script = toPlainText();
+  int index = wordExpression.indexIn(script);
+  while (index >= 0) {
+    words.insert(wordExpression.cap());
+    index = wordExpression.indexIn(script, index + wordExpression.matchedLength());
+  }
+
+  QStringList completions = words.values();
+  completions.sort(Qt::CaseInsensitive);
+  return completions;
+}
+
+void CodeEditor::updateCompletionModel(const QStringList &completions) {
+  QStringList uniqueCompletions = completions;
+  uniqueCompletions.removeDuplicates();
+  uniqueCompletions.sort(Qt::CaseInsensitive);
+
+  auto *model = qobject_cast<QStandardItemModel *>(completer->model());
+  if (!model) {
+    model = new QStandardItemModel(completer);
+    completer->setModel(model);
+  }
+  model->clear();
+  for (const QString &completion : uniqueCompletions) {
+    auto *item = new QStandardItem(completion);
+    item->setData(lspCompletionDocumentation.value(completion), Qt::ToolTipRole);
+    model->appendRow(item);
+  }
+}
+
+void CodeEditor::insertSelectedCompletion() {
+  const QModelIndex index = completer->popup()->currentIndex();
+  if (!index.isValid())
+    return;
+
+  insertCompletion(index.data(Qt::DisplayRole).toString());
+  completer->popup()->hide();
+  hideCompletionDocumentation();
+}
+
+void CodeEditor::showCompletionDocumentation(const QModelIndex &index) {
+  const QString documentation = index.data(Qt::ToolTipRole).toString();
+  if (documentation.isEmpty()) {
+    hideCompletionDocumentation();
+    return;
+  }
+
+  if (!completionDocumentation) {
+    completionDocumentation = new QTextBrowser(this);
+    completionDocumentation->setReadOnly(true);
+    completionDocumentation->setOpenExternalLinks(true);
+    completionDocumentation->setWindowFlags(Qt::ToolTip);
+  }
+
+  completionDocumentation->setHtml(
+      QString("<html><body>%1</body></html>")
+          .arg(documentation.toHtmlEscaped().replace("\n", "<br>")));
+  completionDocumentation->resize(360, 180);
+  completionDocumentation->move(completer->popup()->mapToGlobal(
+      QPoint(completer->popup()->width() + 8, 0)));
+  completionDocumentation->show();
+}
+
+void CodeEditor::hideCompletionDocumentation() {
+  if (completionDocumentation)
+    completionDocumentation->hide();
+}
+
+QString CodeEditor::lspDocumentUri() const {
+  if (!script_filename.isEmpty() && script_filename != "no_name")
+    return QUrl::fromLocalFile(script_filename).toString();
+
+  return QUrl::fromLocalFile(QDir::current().filePath("untitled.lua"))
+      .toString();
+}
+
+void CodeEditor::startLanguageServer(const QString &program) {
+  if (program.isEmpty())
+    return;
+
+  languageServer = new QProcess(this);
+  connect(languageServer, &QProcess::started, this,
+          &CodeEditor::initializeLanguageServer);
+  connect(languageServer, &QProcess::readyReadStandardOutput, this,
+          &CodeEditor::handleLanguageServerOutput);
+  languageServer->start(program, QStringList() << "--stdio");
+}
+
+void CodeEditor::sendLspMessage(const QString &method,
+                                const QJsonObject &params, int requestId) {
+  if (!languageServer || languageServer->state() != QProcess::Running)
+    return;
+
+  QJsonObject message;
+  message["jsonrpc"] = "2.0";
+  message["method"] = method;
+  message["params"] = params;
+  if (requestId >= 0)
+    message["id"] = requestId;
+
+  const QByteArray payload = QJsonDocument(message).toJson(QJsonDocument::Compact);
+  languageServer->write("Content-Length: " + QByteArray::number(payload.size()) +
+                        "\r\n\r\n" + payload);
+}
+
+void CodeEditor::initializeLanguageServer() {
+  QJsonObject capabilities;
+  QJsonObject textDocument;
+  textDocument["completion"] = QJsonObject();
+  capabilities["textDocument"] = textDocument;
+
+  QJsonObject params;
+  params["processId"] = static_cast<qint64>(QCoreApplication::applicationPid());
+  params["rootUri"] = QUrl::fromLocalFile(QDir::currentPath()).toString();
+  params["capabilities"] = capabilities;
+  lspInitializeRequestId = ++lspRequestId;
+  sendLspMessage("initialize", params, lspInitializeRequestId);
+}
+
+void CodeEditor::openLspDocument() {
+  if (!lspInitialized)
+    return;
+
+  lspOpenedUri = lspDocumentUri();
+  lspDocumentVersion = 1;
+  QJsonObject document;
+  document["uri"] = lspOpenedUri;
+  document["languageId"] = "lua";
+  document["version"] = lspDocumentVersion;
+  document["text"] = toPlainText();
+  QJsonObject params;
+  params["textDocument"] = document;
+  sendLspMessage("textDocument/didOpen", params);
+}
+
+void CodeEditor::updateLspDocument() {
+  QJsonObject document;
+  document["uri"] = lspOpenedUri;
+  document["version"] = ++lspDocumentVersion;
+  QJsonObject change;
+  change["text"] = toPlainText();
+  QJsonObject params;
+  params["textDocument"] = document;
+  params["contentChanges"] = QJsonArray() << change;
+  sendLspMessage("textDocument/didChange", params);
+}
+
+void CodeEditor::requestLspCompletion() {
+  if (!lspInitialized || lspOpenedUri.isEmpty())
+    return;
+
+  lspCompletions.clear();
+  lspCompletionDocumentation.clear();
+  updateCompletionModel(localCompletions());
+  const QTextCursor cursor = textCursor();
+  const QTextBlock block = cursor.block();
+  QJsonObject position;
+  position["line"] = block.blockNumber();
+  position["character"] = cursor.position() - block.position();
+  QJsonObject document;
+  document["uri"] = lspOpenedUri;
+  QJsonObject params;
+  params["textDocument"] = document;
+  params["position"] = position;
+  lspCompletionRequestId = ++lspRequestId;
+  sendLspMessage("textDocument/completion", params, lspCompletionRequestId);
+}
+
+void CodeEditor::handleLanguageServerOutput() {
+  languageServerOutput += languageServer->readAllStandardOutput();
+  while (true) {
+    const int headerEnd = languageServerOutput.indexOf("\r\n\r\n");
+    if (headerEnd < 0)
+      return;
+
+    const QByteArray header = languageServerOutput.left(headerEnd);
+    QRegExp contentLength("Content-Length: (\\d+)", Qt::CaseInsensitive);
+    if (contentLength.indexIn(QString::fromLatin1(header)) < 0) {
+      languageServerOutput.remove(0, headerEnd + 4);
+      continue;
+    }
+
+    const int length = contentLength.cap(1).toInt();
+    const int messageStart = headerEnd + 4;
+    if (languageServerOutput.size() < messageStart + length)
+      return;
+
+    const QByteArray payload = languageServerOutput.mid(messageStart, length);
+    languageServerOutput.remove(0, messageStart + length);
+    const QJsonObject response = QJsonDocument::fromJson(payload).object();
+    const int responseId = response.value("id").toInt(-1);
+    if (responseId == lspInitializeRequestId) {
+      lspInitialized = true;
+      sendLspMessage("initialized", QJsonObject());
+      openLspDocument();
+      if (completer->popup()->isVisible())
+        requestLspCompletion();
+      continue;
+    }
+
+    if (responseId != lspCompletionRequestId)
+      continue;
+
+    QJsonArray items;
+    const QJsonValue result = response.value("result");
+    if (result.isArray())
+      items = result.toArray();
+    else if (result.isObject())
+      items = result.toObject().value("items").toArray();
+
+    lspCompletions.clear();
+    lspCompletionDocumentation.clear();
+    for (const QJsonValue &value : items) {
+      const QJsonObject item = value.toObject();
+      const QString completion = item.value("insertText").toString(
+          item.value("label").toString());
+      if (!completion.isEmpty()) {
+        lspCompletions.append(completion);
+        const QJsonValue documentation = item.value("documentation");
+        QString documentationText;
+        if (documentation.isString())
+          documentationText = documentation.toString();
+        else if (documentation.isObject())
+          documentationText = documentation.toObject().value("value").toString();
+        if (documentationText.isEmpty())
+          documentationText = item.value("detail").toString();
+        lspCompletionDocumentation.insert(completion, documentationText);
+      }
+    }
+
+    if (completer->popup()->isVisible())
+      showCompletion();
+  }
+}
+
+void CodeEditor::insertCompletion(const QString &completion) {
+  QTextCursor cursor = textCursor();
+  cursor.select(QTextCursor::WordUnderCursor);
+  cursor.insertText(completion);
+  setTextCursor(cursor);
 }

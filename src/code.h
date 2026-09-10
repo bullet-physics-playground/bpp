@@ -4,8 +4,10 @@
 #include <QDebug>
 #include <QSettings>
 
+#include <QByteArray>
 #include <QObject>
 #include <QPlainTextEdit>
+#include <QStringList>
 #include <QVarLengthArray>
 #include <QWidget>
 
@@ -14,6 +16,11 @@
 class QPaintEvent;
 class QResizeEvent;
 class QSize;
+class QCompleter;
+class QJsonObject;
+class QModelIndex;
+class QProcess;
+class QTextBrowser;
 
 class LineNumberArea;
 
@@ -21,7 +28,8 @@ class CodeEditor : public QPlainTextEdit {
   Q_OBJECT;
 
 public:
-  CodeEditor(QSettings *settings, QWidget *parent = nullptr);
+  CodeEditor(QSettings *settings, QWidget *parent = nullptr,
+             bool enableCompletion = false);
   ~CodeEditor() override; // Add destructor declaration
 
   void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -36,6 +44,7 @@ public slots:
   bool saveAs(QString filename = QString());
 
   void setFont(QString family, uint size);
+  void setLanguageServerExecutable(const QString &path);
 
   void appendLine(QString l) { appendPlainText(l); }
 
@@ -56,6 +65,7 @@ signals:
   void savePressed();
 
 protected:
+  bool eventFilter(QObject *watched, QEvent *event) override;
   void keyPressEvent(QKeyEvent *e) override;
   void resizeEvent(QResizeEvent *event) override;
 
@@ -63,9 +73,42 @@ private slots:
   void updateLineNumberAreaWidth(int newBlockCount);
   void highlightCurrentLine();
   void updateLineNumberArea(const QRect &, int);
+  void insertCompletion(const QString &completion);
 
 private:
+  QString textUnderCursor() const;
+  void showCompletion();
+  QStringList localCompletions() const;
+  void updateCompletionModel(const QStringList &completions);
+  void insertSelectedCompletion();
+  void showCompletionDocumentation(const QModelIndex &index);
+  void hideCompletionDocumentation();
+
+  void startLanguageServer(const QString &program);
+  void stopLanguageServer();
+  void sendLspMessage(const QString &method, const QJsonObject &params,
+                      int requestId = -1);
+  void initializeLanguageServer();
+  void openLspDocument();
+  void updateLspDocument();
+  void requestLspCompletion();
+  void handleLanguageServerOutput();
+  QString lspDocumentUri() const;
+
   QWidget *lineNumberArea;
+
+  QCompleter *completer;
+  QTextBrowser *completionDocumentation;
+  QProcess *languageServer;
+  QByteArray languageServerOutput;
+  QString lspOpenedUri;
+  QStringList lspCompletions;
+  QHash<QString, QString> lspCompletionDocumentation;
+  int lspRequestId;
+  int lspInitializeRequestId;
+  int lspCompletionRequestId;
+  int lspDocumentVersion;
+  bool lspInitialized;
 
   LuaHighlighter *highlighter;
 

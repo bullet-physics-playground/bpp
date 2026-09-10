@@ -110,6 +110,10 @@ void Prefs::setupPages() {
   this->defaultmap["lua/path"] =
       _settings->value("lua/path", defaultLuaPath)
           .toString();
+  this->defaultmap["editor/languageServer"] = _settings
+                                                  ->value("editor/languageServer",
+                                                          "lua-language-server")
+                                                  .toString();
 
   QDir currDir(startupWorkingDir());
   QString currExport = currDir.filePath("export");
@@ -191,6 +195,12 @@ void Prefs::setupPages() {
 
   connect(this->luaPath, &QTextEdit::textChanged, this,
           &Prefs::on_luaPathChanged);
+
+  connect(this->languageServerExecutable, &QLineEdit::editingFinished, this,
+          &Prefs::on_languageServerExecutableChanged);
+
+  connect(this->languageServerExecutableBrowse, &QPushButton::clicked, this,
+          &Prefs::on_languageServerExecutableBrowse);
 
     connect(this->povExecutable, &QLineEdit::textChanged, this,
           &Prefs::on_povExecutableChanged);
@@ -274,6 +284,23 @@ void Prefs::fontSizeChanged(const QString &size) {
 void Prefs::on_luaPathChanged() {
   setValue("lua/path", luaPath->toPlainText());
   emit luaPathChanged(luaPath->toPlainText());
+}
+
+void Prefs::on_languageServerExecutableChanged() {
+  setValue("editor/languageServer", languageServerExecutable->text());
+  emit languageServerExecutableChanged(languageServerExecutable->text());
+}
+
+void Prefs::on_languageServerExecutableBrowse() {
+  QScopedPointer<QFileDialog> dlg(new QFileDialog(this));
+  dlg->setFilter(QDir::Executable);
+  dlg->selectFile(getValue("editor/languageServer").toString());
+
+  if (!dlg->exec())
+    return;
+
+  languageServerExecutable->setText(dlg->selectedFiles().first());
+  on_languageServerExecutableChanged();
 }
 
 void Prefs::on_povPreviewChanged() {
@@ -411,6 +438,8 @@ void Prefs::updateGUI() {
   }
 
   luaPath->setText(getValue("lua/path").toString());
+  languageServerExecutable->setText(
+      getValue("editor/languageServer").toString());
 
   povExportDir->setText(getValue("povray/export").toString());
   povExecutable->setText(getValue("povray/executable").toString());
@@ -457,6 +486,8 @@ void Prefs::on_buttonOk_clicked() {
   emit fontChanged(getValue("editor/fontfamily").toString(),
                    getValue("editor/fontsize").toUInt());
   emit luaPathChanged(getValue("lua/path").toString());
+  emit languageServerExecutableChanged(
+      getValue("editor/languageServer").toString());
   emit povPreviewChanged(getValue("povray/preview").toString());
   emit povExecutableChanged(getValue("povray/executable").toString());
   emit povExportDirChanged(getValue("povray/export").toString());

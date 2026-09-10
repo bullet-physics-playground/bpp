@@ -41,6 +41,8 @@ protected slots:
   void fontSizeChanged(const QString &);
 
   void on_luaPathChanged();
+  void on_languageServerExecutableChanged();
+  void on_languageServerExecutableBrowse();
 
   void on_povPreviewChanged();
 
@@ -67,6 +69,7 @@ signals:
   void fontChanged(const QString &family, uint size) const;
 
   void luaPathChanged(const QString &path) const;
+  void languageServerExecutableChanged(const QString &path) const;
 
   void povPreviewChanged(const QString &cmd) const;
   void povExecutableChanged(const QString &dir) const;
