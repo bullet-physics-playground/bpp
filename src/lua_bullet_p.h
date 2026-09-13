@@ -48,6 +48,7 @@
  * take the C++ object with it.
  *
  * @param in_class The class whose instances Lua must not delete.
+ */
 
 #define LuaClassNonDeletable(in_class)                                         \
   namespace luabind {                                                          \
