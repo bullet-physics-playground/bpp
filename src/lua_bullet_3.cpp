@@ -1,0 +1,454 @@
+/**
+ * @file lua_bullet_3.cpp
+ * @brief The third quarter of the Bullet-to-Lua registrations.
+ *
+ * Split out of lua_bullet.cpp purely to shorten the build; see
+ * lua_bullet_p.h. The registrations appear here in the same order they had
+ * in the original single function.
+ */
+
+#include "lua_bullet_p.h"
+
+/**
+ * @brief Registers the third quarter of the Bullet API.
+ * @param s The Lua state to register in.
+ */
+void luaBindBulletPart3(lua_State *s) {
+  using namespace luabind;
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleMesh.html
+      [class_<btTriangleMesh, btTriangleIndexVertexArray>("btTriangleMesh")
+           .def(constructor<bool, bool>(), adopt(result))
+           .def(constructor<bool>(), adopt(result))
+           .def(constructor<>(), adopt(result))
+           .def("addIndex", &btTriangleMesh::addIndex)
+           .def("addTriangle", &btTriangleMesh::addTriangle)
+           // not in Bullet on Ubuntu 14.04 .def("addTriangleIndices",
+           // &btTriangleMesh::addTriangleIndices)
+           .def("findOrAddVertex", &btTriangleMesh::findOrAddVertex)
+           .def("getNumTriangles", &btTriangleMesh::getNumTriangles)
+           .property("numTriangles", &btTriangleMesh::getNumTriangles)
+           .def("getUse32bitIndices", &btTriangleMesh::getUse32bitIndices)
+           .property("use32bitIndices", &btTriangleMesh::getUse32bitIndices)
+           .def("getUse4componentVertices",
+                &btTriangleMesh::getUse4componentVertices)
+           .property("use4componentVertices",
+                     &btTriangleMesh::getUse4componentVertices)
+           .def("preallocateIndices", &btTriangleMesh::preallocateIndices)
+           .def("preallocateVertices", &btTriangleMesh::preallocateVertices)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
+      [class_<btConvexTriangleMeshShape, btPolyhedralConvexAabbCachingShape>(
+           "btConvexTriangleMeshShape")
+           .def(constructor<btStridingMeshInterface *, bool>(), adopt(result))
+           .def("getMeshInterface",
+                (btStridingMeshInterface * (btConvexTriangleMeshShape::*)()) &
+                    btConvexTriangleMeshShape::getMeshInterface)
+           .def("calculatePrincipalAxisTransform",
+                &btConvexTriangleMeshShape::calculatePrincipalAxisTransform)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleShape.html
+      [class_<btTriangleShape, btPolyhedralConvexShape>("btTriangleShape")
+           .def(constructor<const btVector3 &, const btVector3 &,
+                             const btVector3 &>(),
+                adopt(result))
+           .def("getVertexPtr", (btVector3 & (btTriangleShape::*)(int)) &
+                                    btTriangleShape::getVertexPtr)
+           .def("calcNormal", &btTriangleShape::calcNormal)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTriangleShapeEx.html
+      [class_<btTriangleShapeEx, btTriangleShape>("btTriangleShapeEx")
+           .def(constructor<>(), adopt(result))
+           .def(constructor<const btVector3 &, const btVector3 &,
+                            const btVector3 &>(),
+                adopt(result))
+           .def(constructor<const btTriangleShapeEx>(), adopt(result))
+           .def("applyTransform", &btTriangleShapeEx::applyTransform)
+           .def("buildTriPlane", &btTriangleShapeEx::buildTriPlane)
+           .def("overlap_test_conservative",
+                &btTriangleShapeEx::overlap_test_conservative)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  // not defined in the headers
+  // https://pybullet.org/Bullet/BulletFull/classbtSoftClusterCollisionShape.html
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtSphereShape.html
+      [class_<btSphereShape, btConvexInternalShape>("btSphereShape")
+           .def(constructor<btScalar>(), adopt(result))
+           .def("getRadius", &btSphereShape::getRadius)
+           .property("radius", &btSphereShape::getRadius)
+           .def("setUnscaledRadius", &btSphereShape::setUnscaledRadius)
+           .property("unscaledRadius", &btSphereShape::setUnscaledRadius)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtUniformScalingShape.html
+      [class_<btUniformScalingShape, btConvexShape>("btUniformScalingShape")
+           .def(constructor<btConvexShape *, btScalar>(), adopt(result))
+           .def("getUniformScalingFactor",
+                &btUniformScalingShape::getUniformScalingFactor)
+           .def("getChildShape",
+                (btConvexShape * (btUniformScalingShape::*)()) &
+                    btUniformScalingShape::getChildShape)
+           .def("getAabb", &btUniformScalingShape::getAabb)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  // BULLET GEOMETRY CLASSES
+
+  module(s)[class_<btVector3>("btVector3") // https://pybullet.org/Bullet/BulletFull/classbtVector3.html
+                .def(constructor<>(), adopt(result))
+                .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
+                .def(const_self + const_self)
+                .def(const_self - const_self)
+                .def(const_self * other<btScalar>())
+                .def(const_self / other<btScalar>())
+                .def(const_self == const_self)
+                .property("x", &btVector3::getX, &btVector3::setX)
+                .property("y", &btVector3::getY, &btVector3::setY)
+                .property("z", &btVector3::getZ, &btVector3::setZ)
+                .def("getX", &btVector3::getX)
+                .def("getY", &btVector3::getY)
+                .def("getZ", &btVector3::getZ)
+                .def("setX", &btVector3::setX)
+                .def("setY", &btVector3::setY)
+                .def("setZ", &btVector3::setZ)
+                .def("absolute", &btVector3::absolute)
+                .def("angle", &btVector3::angle)
+                .def("closestAxis", &btVector3::closestAxis)
+                .def("cross", &btVector3::cross)
+                .def("distance", &btVector3::distance)
+                .def("distance2", &btVector3::distance2)
+                .def("dot", &btVector3::dot)
+                .def("furthestAxis", &btVector3::furthestAxis)
+                .def("fuzzyZero", &btVector3::fuzzyZero)
+                .def("isZero", &btVector3::isZero)
+                .def("length", &btVector3::length)
+                .def("length2", &btVector3::length2)
+                .def("lerp", &btVector3::lerp)
+                .def("maxAxis", &btVector3::maxAxis)
+                .def("minAxis", &btVector3::minAxis)
+                .def("normalize", &btVector3::normalize)
+                .def("normalized", &btVector3::normalized)
+                .def("rotate", &btVector3::rotate)
+                .def("setZero", &btVector3::setZero)
+                .def("triple", &btVector3::triple)
+                .def(tostring(const_self))];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtAABB.html
+      [class_<btAABB>("btAABB")
+           .def(constructor<>(), adopt(result))
+           .def(constructor<btVector3, btVector3, btVector3>(), adopt(result))
+           .def(constructor<btVector3, btVector3, btVector3, btScalar>(),
+                adopt(result))
+           .def(constructor<btAABB &>(), adopt(result))
+           .def(constructor<btAABB &, btScalar>(), adopt(result))
+           .def("invalidate", &btAABB::invalidate)
+           .def("merge", &btAABB::merge)
+           .def(tostring(const_self))
+           .def(const_self == const_self)
+       // XXX
+  ];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtVector4.html
+      [class_<btVector4, btVector3>("btVector4")
+                .def(constructor<>(), adopt(result))
+                .def(constructor<const btScalar &, const btScalar &,
+                                 const btScalar &, const btScalar &>(),
+                     adopt(result))
+                .def("absolute4", &btVector4::absolute4)
+                .def("getW", &btVector4::getW)
+                .def("maxAxis4", &btVector4::maxAxis4)
+                .def("minAxis4", &btVector4::minAxis4)
+                .def("closestAxis4", &btVector4::closestAxis4)
+                .def("setValue", &btVector4::setValue)
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtMatrix3x3.html
+      [class_<btMatrix3x3>("btMatrix3x3")
+            .def(constructor<>(), adopt(result))
+            .def(constructor<btScalar, btScalar, btScalar,
+                             btScalar, btScalar, btScalar,
+                             btScalar, btScalar, btScalar>(), adopt(result))
+            .def(constructor<const btVector3 &, const btVector3 &, const btVector3 &>(), adopt(result))
+            .property("x", &btMatrix3x3::getColumn)
+            .def("getColumn", &btMatrix3x3::getColumn)
+            .def("getRow", &btMatrix3x3::getRow)
+            .def("setEulerZYX", &btMatrix3x3::setEulerZYX)
+            .def("setEulerYPR", &btMatrix3x3::setEulerYPR)
+            .def("getRotation", &btMatrix3x3::getRotation)
+            .def("inverse", &btMatrix3x3::inverse)
+            .def("transpose", &btMatrix3x3::transpose)
+            .def("determinant", &btMatrix3x3::determinant)
+            .def("tdotx", &btMatrix3x3::tdotx)
+            .def("tdoty", &btMatrix3x3::tdoty)
+            .def("tdotz", &btMatrix3x3::tdotz)
+            .def(tostring(const_self))
+            .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtQuaternion.html
+      [class_<btQuaternion>("btQuaternion")
+                 .def(constructor<>(), adopt(result))
+                 .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
+                 .def(constructor<btScalar, btScalar, btScalar, btScalar>(),
+                      adopt(result))
+                 .def(constructor<const btVector3 &, btScalar>(), adopt(result))
+                 .def("angle", &btQuaternion::angle)
+                 .def("angleShortestPath", &btQuaternion::angleShortestPath)
+                  .def(const_self + const_self)
+                  .def(const_self - const_self)
+                  .def(const_self * const_self)
+                  .def(const_self * other<btScalar>())
+                  .def(const_self / other<btScalar>())
+                  .def(-const_self)
+                  .def(const_self == const_self)
+                 .def("dot", &btQuaternion::dot)
+                 .def("farthest", &btQuaternion::farthest)
+                 .def("getAngle", &btQuaternion::getAngle)
+                 .def("getAngleShortestPath", &btQuaternion::getAngleShortestPath)
+                 .def("getAxis", &btQuaternion::getAxis)
+                 .def("getW", &btQuaternion::getW)
+                 .def("getX", &btQuaternion::getX)
+                 .def("getY", &btQuaternion::getY)
+                 .def("getZ", &btQuaternion::getZ)
+                 .def("inverse", &btQuaternion::inverse)
+                 .def("length", &btQuaternion::length)
+                 .def("length2", &btQuaternion::length2)
+                 .def("nearest", &btQuaternion::nearest)
+                 .def("normalize", &btQuaternion::normalize)
+                 .def("normalized", &btQuaternion::normalized)
+                 .def("safeNormalize", &btQuaternion::safeNormalize)
+                 .def("setEuler", &btQuaternion::setEuler)
+                 .def("setEulerZYX", &btQuaternion::setEulerZYX)
+                 .def("setMax", &btQuaternion::setMax)
+                 .def("setMin", &btQuaternion::setMin)
+                 .def("setRotation", &btQuaternion_setRotation)
+                 .def("setValue", (void(btQuadWord::*)(btScalar const&, btScalar const&, btScalar const&, btScalar const&)) &btQuadWord::setValue)
+                 .def("setValue", (void(btQuadWord::*)(btScalar const&, btScalar const&, btScalar const&)) &btQuadWord::setValue)
+                 .def("setW", &btQuaternion::setW)
+                 .def("setX", &btQuaternion::setX)
+                 .def("setY", &btQuaternion::setY)
+                 .def("setZ", &btQuaternion::setZ)
+                 .def("slerp", &btQuaternion::slerp)
+                 .def("w", &btQuaternion::w)
+                 .def("x", &btQuaternion::x)
+                 .def("y", &btQuaternion::y)
+                 .def("z", &btQuaternion::z)
+                 .def(tostring(const_self))];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtCollisionObject.html
+      [class_<btCollisionObject>("btCollisionObject")
+       .def(constructor<>(), adopt(result))
+           .def("mergesSimulationIslands",
+                &btCollisionObject::mergesSimulationIslands)
+           .def("getAnisotropicFriction",
+                &btCollisionObject::getAnisotropicFriction)
+           .def("setAnisotropicFriction",
+                &btCollisionObject::setAnisotropicFriction)
+           .def("hasAnisotropicFriction",
+                &btCollisionObject::hasAnisotropicFriction)
+           .def("setContactProcessingThreshold",
+                &btCollisionObject::setContactProcessingThreshold)
+           .def("isStaticObject", &btCollisionObject::isStaticObject)
+           .def("isKinematicObject",
+                &btCollisionObject::isStaticOrKinematicObject)
+           .def("hasContactResponse", &btCollisionObject::hasContactResponse)
+           .def("getCollisionShape",
+                (btCollisionShape * (btCollisionObject::*)()) &
+                    btCollisionObject::getCollisionShape)
+           // not in the headers .def("getRootCollisionShape",
+           // (btCollisionShape
+           // *(btCollisionObject::*)())&btCollisionObject::getRootCollisionShape)
+           .def("getActivationState", &btCollisionObject::getActivationState)
+           .def("setActivationState", &btCollisionObject::setActivationState)
+           .def("setDeactivationTime", &btCollisionObject::setDeactivationTime)
+           .def("getDeactivationTime", &btCollisionObject::getDeactivationTime)
+           .def("forceActivationState",
+                &btCollisionObject::forceActivationState)
+           .def("activate", &btCollisionObject::activate)
+           .def("isActive", &btCollisionObject::isActive)
+           .def("setRestitution", &btCollisionObject::setRestitution)
+           .def("getRestitution", &btCollisionObject::getRestitution)
+           .def("setFriction", &btCollisionObject::setFriction)
+           .def("getFriction", &btCollisionObject::getFriction)
+           .def("getWorldTransform", (btTransform & (btCollisionObject::*)()) &
+                                         btCollisionObject::getWorldTransform)
+           .def("setWorldTransform", &btCollisionObject::setWorldTransform)
+           .def("getBroadphaseHandle",
+                (btBroadphaseProxy * (btCollisionObject::*)()) &
+                    btCollisionObject::getBroadphaseHandle)
+           .def("getInterpolationWorldTransform",
+                (btTransform & (btCollisionObject::*)()) &
+                    btCollisionObject::getInterpolationWorldTransform)
+           .def("setInterpolationWorldTransform",
+                &btCollisionObject::setInterpolationWorldTransform)
+           .def("setInterpolationLinearVelocity",
+                &btCollisionObject::setInterpolationLinearVelocity)
+           .def("setInterpolationAngularVelocity",
+                &btCollisionObject::setInterpolationAngularVelocity)
+           .def("getInterpolationLinearVelocity",
+                &btCollisionObject::getInterpolationLinearVelocity)
+           .def("getInterpolationAngularVelocity",
+                &btCollisionObject::getInterpolationAngularVelocity)
+           .def("getIslandTag", &btCollisionObject::getIslandTag)
+           .def("setIslandTag", &btCollisionObject::setIslandTag)
+           .def("getCompanionId", &btCollisionObject::getCompanionId)
+           .def("setCompanionId", &btCollisionObject::setCompanionId)
+           .def("getHitFraction", &btCollisionObject::getHitFraction)
+           .def("setHitFraction", &btCollisionObject::setHitFraction)
+           .def("getCollisionFlags", &btCollisionObject::getCollisionFlags)
+           .def("setCollisionFlags", &btCollisionObject::setCollisionFlags)
+           .def("getCcdSweptSphereRadius",
+                &btCollisionObject::getCcdSweptSphereRadius)
+           .def("setCcdSweptSphereRadius",
+                &btCollisionObject::setCcdSweptSphereRadius)
+           .def("getCcdMotionThreshold",
+                &btCollisionObject::getCcdMotionThreshold)
+           .def("getCcdSquareMotionThreshold",
+                &btCollisionObject::getCcdSquareMotionThreshold)
+           .def("setCcdMotionThreshold",
+                &btCollisionObject::setCcdMotionThreshold)
+           .def("getUserPointer", &btCollisionObject::getUserPointer)
+           .def("setUserPointer", &btCollisionObject::setUserPointer)
+           .def("checkCollideWith", &btCollisionObject::checkCollideWith)
+           .def(tostring(const_self))
+           .def(const_self == const_self)];
+
+  // btRigidBodyConstructionInfo
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
+      [class_<btRigidBody::btRigidBodyConstructionInfo>(
+                "btRigidBodyConstructionInfo")
+                .def(constructor<btScalar, btMotionState *, btCollisionShape *,
+                                 const btVector3 &>(),
+                     adopt(result))
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
+      [class_<btRigidBody, btCollisionObject>("btRigidBody")
+           .def(constructor<const btRigidBody::btRigidBodyConstructionInfo &>())
+           .def(constructor<btScalar, btMotionState *, btCollisionShape *,
+                            const btVector3 &>())
+           .def("proceedToTransform", &btRigidBody::proceedToTransform)
+           .def("predictIntegratedTransform",
+                &btRigidBody::predictIntegratedTransform)
+           .def("saveKinematicState", &btRigidBody::saveKinematicState)
+           .def("applyGravity", &btRigidBody::applyGravity)
+           .def("setGravity", &btRigidBody::setGravity)
+           .def("getGravity", &btRigidBody::getGravity)
+           .def("setDamping", &btRigidBody::setDamping)
+           .def("getLinearDamping", &btRigidBody::getLinearDamping)
+           .def("getAngularDamping", &btRigidBody::getAngularDamping)
+           .def("getLinearSleepingThreshold",
+                &btRigidBody::getLinearSleepingThreshold)
+           .def("getAngularSleepingThreshold",
+                &btRigidBody::getAngularSleepingThreshold)
+           .def("applyDamping", &btRigidBody::applyDamping)
+           .def("getCollisionShape", (btCollisionShape * (btRigidBody::*)()) &
+                                         btRigidBody::getCollisionShape)
+           .def("setMassProps", &btRigidBody::setMassProps)
+           .def("getLinearFactor", &btRigidBody::getLinearFactor)
+           .def("setLinearFactor", &btRigidBody::setLinearFactor)
+           .def("getInvMass", &btRigidBody::getInvMass)
+           .def("getInvInertiaTensorWorld",
+                &btRigidBody::getInvInertiaTensorWorld)
+           .def("integrateVelocities", &btRigidBody::integrateVelocities)
+           .def("setCenterOfMassTransform",
+                &btRigidBody::setCenterOfMassTransform)
+           .def("applyCentralForce", &btRigidBody::applyCentralForce)
+           .def("getTotalForce", &btRigidBody::getTotalForce)
+           .def("getTotalTorque", &btRigidBody::getTotalTorque)
+           .def("getInvInertiaDiagLocal", &btRigidBody::getInvInertiaDiagLocal)
+           .def("setInvInertiaDiagLocal", &btRigidBody::setInvInertiaDiagLocal)
+           .def("setSleepingThresholds", &btRigidBody::setSleepingThresholds)
+           .def("applyTorque", &btRigidBody::applyTorque)
+           .def("applyForce", &btRigidBody::applyForce)
+           .def("applyCentralImpulse", &btRigidBody::applyCentralImpulse)
+           .def("applyTorqueImpulse", &btRigidBody::applyTorqueImpulse)
+           .def("applyImpulse", &btRigidBody::applyImpulse)
+           .def("clearForces", &btRigidBody::clearForces)
+           .def("updateInertiaTensor", &btRigidBody::updateInertiaTensor)
+           .def("getCenterOfMassPosition",
+                &btRigidBody::getCenterOfMassPosition)
+           .def("getOrientation", &btRigidBody::getOrientation)
+           .def("getCenterOfMassTransform",
+                &btRigidBody::getCenterOfMassTransform)
+           .def("getLinearVelocity", &btRigidBody::getLinearVelocity)
+           .def("getAngularVelocity", &btRigidBody::getAngularVelocity)
+           .def("setLinearVelocity", &btRigidBody::setLinearVelocity)
+           .def("setAngularVelocity", &btRigidBody::setAngularVelocity)
+           .def("getVelocityInLocalPoint",
+                &btRigidBody::getVelocityInLocalPoint)
+           .def("translate", &btRigidBody::translate)
+           .def("getAabb", &btRigidBody::getAabb)
+           .def("computeImpulseDenominator",
+                &btRigidBody::computeImpulseDenominator)
+           .def("computeAngularImpulseDenominator",
+                &btRigidBody::computeAngularImpulseDenominator)
+           .def("updateDeactivation", &btRigidBody::updateDeactivation)
+           .def("wantsSleeping", &btRigidBody::wantsSleeping)
+           .def("getBroadphaseProxy",
+                (btBroadphaseProxy * (btRigidBody::*)(void)) &
+                    btRigidBody::getBroadphaseProxy)
+           .def("setNewBroadphaseProxy", &btRigidBody::setNewBroadphaseProxy)
+           .def("getMotionState", (btMotionState * (btRigidBody::*)(void)) &
+                                      btRigidBody::getMotionState)
+           .def("setMotionState", &btRigidBody::setMotionState)
+           .def("setAngularFactor", (void(btRigidBody::*)(const btVector3 &)) &
+                                        btRigidBody::setAngularFactor)
+           .def("setAngularFactor", (void(btRigidBody::*)(btScalar)) &
+                                        btRigidBody::setAngularFactor)
+           .def("getAngularFactor", &btRigidBody::getAngularFactor)
+           .def("isInWorld", &btRigidBody::isInWorld)
+           .def("checkCollideWithOverride",
+                &btRigidBody::checkCollideWithOverride)
+           .def("addConstraintRef", &btRigidBody::addConstraintRef)
+           .def("removeConstraintRef", &btRigidBody::removeConstraintRef)
+           .def("getConstraintRef", &btRigidBody::getConstraintRef)
+           .def("getNumConstraintRefs", &btRigidBody::getNumConstraintRefs)
+           .def("setFlags", &btRigidBody::setFlags)
+           .def("getFlags", &btRigidBody::getFlags)
+           .def(tostring(const_self))
+           .def(const_self == const_self)
+       // not in the headers .def("getDeltaLinearVelocity",
+       // &btRigidBody::getDeltaLinearVelocity) not in the headers
+       // .def("getDeltaAngularVelocity", &btRigidBody::getDeltaAngularVelocity)
+       // not in the headers .def("getPushVelocity",
+       // &btRigidBody::getPushVelocity) not in the headers
+       // .def("getTurnVelocity", &btRigidBody::getTurnVelocity)
+  ];
+
+  module(s) // https://pybullet.org/Bullet/BulletFull/classbtTransform.html
+      [class_<btTransform>("btTransform")
+                .def(constructor<>())
+                .def(constructor<const btQuaternion &, const btVector3 &>())
+                .def("getBasis", (const btMatrix3x3 & (btTransform::*)() const) &btTransform::getBasis)
+                .def("getIdentity", &btTransform::getIdentity)
+                .def("getOpenGLMatrix", &btTransform::getOpenGLMatrix)
+                .def("getRotation", &btTransform::getRotation)
+                .def("inverse", &btTransform::inverse)
+                .def("inverseTimes", &btTransform::inverseTimes)
+                .def("invXform", &btTransform::invXform)
+                .def("mult", &btTransform::mult)
+                .def("setBasis", &btTransform::setBasis)
+                .def("setFromOpenGLMatrix", &btTransform::setFromOpenGLMatrix)
+                .def("setIdentity", &btTransform::setIdentity)
+                .def("setOrigin", &btTransform::setOrigin)
+                .def("setRotation", &btTransform::setRotation)
+                .def(tostring(const_self))
+                .def(const_self == const_self)];
+
+  // BULLET CONSTRAINT CLASSES
+
+  module(s)[class_<btTypedConstraint>("btTypedConstraint")
+                .def(tostring(const_self))
+                .def(const_self == const_self)];}
