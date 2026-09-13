@@ -502,7 +502,11 @@ btTransform Object::getTransform() const {
 
 btScalar Object::getMass() const {
   if (body != nullptr) {
-    return body->getInvMass();
+    // Bullet stores the inverse mass, and gives a static body an inverse
+    // mass of 0 to mean infinite. Invert it back, reporting a static body
+    // as 0 -- the same value setMass() takes to make one.
+    const btScalar invMass = body->getInvMass();
+    return invMass > btScalar(0) ? btScalar(1) / invMass : btScalar(0);
   }
   return 0;
 }
