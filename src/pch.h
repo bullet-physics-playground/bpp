@@ -102,6 +102,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
+/*
 #ifndef __gl_h_
 # include <GL/gl.h>
 #endif
@@ -111,5 +112,6 @@
 #ifndef __glut_h_
 # include <GL/glut.h>
 #endif
+*/
 
 #endif
