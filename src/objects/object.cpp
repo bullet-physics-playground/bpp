@@ -1,3 +1,8 @@
+/**
+ * @file object.cpp
+ * @brief Implementation of the scene object base class.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif

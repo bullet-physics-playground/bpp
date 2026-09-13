@@ -1,3 +1,8 @@
+/**
+ * @file mesh.cpp
+ * @brief Implementation of the assimp-backed triangle mesh.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif
@@ -33,13 +38,32 @@ using namespace std;
 
 QHash<QString, std::shared_ptr<MeshCacheEntry>> Mesh::_meshCache;
 
+/**
+ * @brief Draws each triangle of a concave shape as Bullet walks over it.
+ *
+ * Handed to btConcaveShape::processAllTriangles(), which calls back once per
+ * triangle.
+ */
 class GlDrawcallback : public btTriangleCallback {
 
 public:
-  bool m_wireframe;
+  bool m_wireframe; ///< Unused; the triangles are always drawn filled.
 
+  /**
+   * @brief Constructs the callback.
+   */
   GlDrawcallback() : m_wireframe(false) {}
 
+  /**
+   * @brief Emits one triangle, with a normal, facing both ways.
+   *
+   * The three vertices are emitted twice in opposite winding orders so the
+   * surface is lit and visible from either side.
+   *
+   * @param triangle      The triangle's three vertices.
+   * @param partId        Sub-part the triangle came from. Unused.
+   * @param triangleIndex Index within that sub-part. Unused.
+   */
   virtual void processTriangle(btVector3 *triangle, int partId,
                                int triangleIndex) {
 
@@ -62,16 +86,31 @@ public:
   }
 };
 
+/**
+ * @brief Collects the triangles of a concave shape for POV-Ray export.
+ *
+ * Handed to btConcaveShape::processAllTriangles(), which calls back once per
+ * triangle; the collected vertices are then written out as a @c mesh2 block.
+ */
 class POVSaveCallback : public btTriangleCallback {
 
 public:
-  QList<btVector3> v1;
-  QList<btVector3> v2;
-  QList<btVector3> v3;
-  QList<int> idx;
+  QList<btVector3> v1;  ///< First vertex of each triangle.
+  QList<btVector3> v2;  ///< Second vertex of each triangle.
+  QList<btVector3> v3;  ///< Third vertex of each triangle.
+  QList<int> idx;       ///< Each triangle's index within its sub-part.
 
+  /**
+   * @brief Constructs an empty collector.
+   */
   POVSaveCallback() {}
 
+  /**
+   * @brief Records one triangle's vertices and index.
+   * @param triangle      The triangle's three vertices.
+   * @param partId        Sub-part the triangle came from. Unused.
+   * @param triangleIndex Index within that sub-part.
+   */
   virtual void processTriangle(btVector3 *triangle, int partId,
                                int triangleIndex) {
     (void)partId;
@@ -136,6 +175,18 @@ Mesh::~Mesh() {
   }
 }
 
+/**
+ * @brief Finds a model file, trying the places bpp's own models live.
+ *
+ * An absolute path is taken as it stands. A relative one is tried against the
+ * working directory first, then next to the executable, one and two levels
+ * above it, and finally under @c /usr/share/bpp, so a demo script works
+ * whether bpp was run from the build tree or from an install.
+ *
+ * @param filename The file to find.
+ * @return An absolute path to the file, or @p filename unchanged if it was
+ *         not found anywhere.
+ */
 static QString locateMeshFile(const QString &filename) {
   QFileInfo fi(filename);
   if (fi.isAbsolute()) {

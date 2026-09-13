@@ -1,3 +1,8 @@
+/**
+ * @file joystickhandler.cpp
+ * @brief Implementation of the joystick polling loop.
+ */
+
 #include "joystickhandler.h"
 
 #include "joystickinterface.h"

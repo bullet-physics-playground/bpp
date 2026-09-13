@@ -1,3 +1,8 @@
+/**
+ * @file joystickinfo.cpp
+ * @brief Implementation of the joystick state snapshot.
+ */
+
 #include "joystickinfo.h"
 
 JoystickInfo::JoystickInfo()

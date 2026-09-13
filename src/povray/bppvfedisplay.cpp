@@ -1,3 +1,8 @@
+/**
+ * @file bppvfedisplay.cpp
+ * @brief Implementation of the QImage-backed POV-Ray VFE display.
+ */
+
 #include "bppvfedisplay.h"
 
 #if USE_VFE

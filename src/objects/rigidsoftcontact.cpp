@@ -1,3 +1,8 @@
+/**
+ * @file rigidsoftcontact.cpp
+ * @brief Implementation of the soft-to-rigid contact snapshot.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif

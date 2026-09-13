@@ -1,3 +1,8 @@
+/**
+ * @file plane.cpp
+ * @brief Implementation of the infinite ground plane.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif

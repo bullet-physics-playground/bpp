@@ -1,3 +1,8 @@
+/**
+ * @file palette.cpp
+ * @brief Implementation of the random colour palette.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif
@@ -26,6 +31,12 @@ std::ostream &operator<<(std::ostream &ostream, const Palette &pal) {
   return ostream;
 }
 
+/**
+ * @brief Compares two palettes by identity.
+ * @param a First palette.
+ * @param b Second palette.
+ * @return True only if both are the same object.
+ */
 bool operator==(const Palette &a, const Palette &b) { return &a == &b; }
 
 #include <luabind/operator.hpp>

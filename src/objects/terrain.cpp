@@ -1,3 +1,8 @@
+/**
+ * @file terrain.cpp
+ * @brief Implementation of the static concave ground mesh.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif
@@ -20,16 +25,26 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 #include <luabind/operator.hpp>
 
-// Collects the world-space triangles of a static concave shape via
-// btConcaveShape::processAllTriangles, exactly like Mesh's own
-// POVSaveCallback -- kept as a separate, differently-named class so the two
-// translation units don't define clashing same-named classes.
+/**
+ * @brief Collects the triangles of the terrain for POV-Ray export.
+ *
+ * Collects the world-space triangles of a static concave shape via
+ * btConcaveShape::processAllTriangles, exactly like Mesh's own
+ * POVSaveCallback -- kept as a separate, differently-named class so the two
+ * translation units don't define clashing same-named classes.
+ */
 class TerrainPOVSaveCallback : public btTriangleCallback {
 public:
-  QList<btVector3> v1;
-  QList<btVector3> v2;
-  QList<btVector3> v3;
+  QList<btVector3> v1; ///< First vertex of each triangle.
+  QList<btVector3> v2; ///< Second vertex of each triangle.
+  QList<btVector3> v3; ///< Third vertex of each triangle.
 
+  /**
+   * @brief Records one triangle's vertices.
+   * @param triangle      The triangle's three vertices.
+   * @param partId        Sub-part the triangle came from. Unused.
+   * @param triangleIndex Index within that sub-part. Unused.
+   */
   virtual void processTriangle(btVector3 *triangle, int partId,
                                int triangleIndex) {
     (void)partId;
@@ -40,8 +55,20 @@ public:
   }
 };
 
+/**
+ * @brief Draws each triangle of the terrain as Bullet walks over it.
+ *
+ * The terrain counterpart of Mesh's GlDrawcallback, kept separate for the same
+ * reason as TerrainPOVSaveCallback.
+ */
 class TerrainGlDrawCallback : public btTriangleCallback {
 public:
+  /**
+   * @brief Emits one triangle, with a normal, facing both ways.
+   * @param triangle      The triangle's three vertices.
+   * @param partId        Sub-part the triangle came from. Unused.
+   * @param triangleIndex Index within that sub-part. Unused.
+   */
   virtual void processTriangle(btVector3 *triangle, int partId,
                                int triangleIndex) {
     (void)partId;

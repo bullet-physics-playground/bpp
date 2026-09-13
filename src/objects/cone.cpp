@@ -1,3 +1,8 @@
+/**
+ * @file cone.cpp
+ * @brief Implementation of the cone primitive.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif

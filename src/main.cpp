@@ -1,6 +1,20 @@
+/**
+ * @file main.cpp
+ * @brief Program entry point, command line handling and headless simulation.
+ *
+ * bpp runs in one of three modes, picked apart here from the command line:
+ * a plain QCoreApplication for @c --help / @c --version / @c --report-load,
+ * the full Gui for interactive use, and a windowless Viewer that steps a
+ * script for a fixed number of frames for @c -f / @c -l / @c -i.
+ */
+
+/// Version string reported by @c --version and recorded in the settings.
 #define APP_VERSION QString("0.3.37")
+/// Short application name; also the QSettings application key.
 #define APP_NAME QString("bpp")
+/// Translated, human readable application name.
 #define APP_NAME_FULL tr("Bullet Physics Playground")
+/// Organization name used to locate the QSettings store.
 #define APP_ORGANIZATION QString("bullet-physics-playground.github.io")
 
 #include <QApplication>
@@ -17,19 +31,67 @@
 
 #include "glutils.h"
 
+/**
+ * @brief Returns the process-wide QTextStream wrapping stdout.
+ *
+ * A function-local static, so the stream is constructed on first use and
+ * shares one buffer across every caller.
+ *
+ * @return Reference to the stdout stream.
+ */
 QTextStream &qStdOut() {
   static QTextStream ts(stdout);
   return ts;
 }
+/**
+ * @brief Returns the process-wide QTextStream wrapping stderr.
+ *
+ * Used for diagnostics and error messages so they stay separable from the
+ * script output written to qStdOut().
+ *
+ * @return Reference to the stderr stream.
+ */
 QTextStream &qStdErr() {
   static QTextStream ts(stderr);
   return ts;
 }
 
+/**
+ * @brief Strips the extension from a file name.
+ *
+ * Used to turn a script path into the base name that the Viewer uses when it
+ * names exported POV-Ray frames and images.
+ *
+ * @param fileName Name or path to strip.
+ * @return Everything before the last @c '.'. If there is no dot the result is
+ *         an empty string, because QString::lastIndexOf() returns -1.
+ */
 QString withoutExtension(const QString &fileName) {
   return fileName.left(fileName.lastIndexOf("."));
 }
 
+/**
+ * @brief Entry point: parses the command line and starts the chosen mode.
+ *
+ * Captures the start-up working directory, then scans argv directly - before
+ * QCommandLineParser runs - to decide which flavour of application object is
+ * needed, since constructing a QApplication requires a display that
+ * @c --help and @c --version must work without. The same early scan selects
+ * the @c offscreen QPA plugin when a headless run has no display available,
+ * and prefers XWayland over native Wayland for GUI runs so that saved window
+ * and dock geometry can actually be restored.
+ *
+ * The modes are then: report the script that would be loaded and exit; show
+ * the Gui, optionally opening and running a positional script; or build a
+ * windowless Viewer, feed it script text from a file, stdin and/or @c --lua,
+ * step it @c --frames times and exit.
+ *
+ * @param argc Argument count as received from the C runtime.
+ * @param argv Argument vector as received from the C runtime.
+ * @return 0 on success, EXIT_FAILURE if a script could not be read or the
+ *         arguments were inconsistent; in GUI mode, the exit code of the Qt
+ *         event loop.
+ */
 int main(int argc, char **argv) {
 
   // Capture the launch directory before anything (e.g. opening a script)

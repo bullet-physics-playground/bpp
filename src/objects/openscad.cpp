@@ -1,3 +1,8 @@
+/**
+ * @file openscad.cpp
+ * @brief Implementation of the OpenSCAD-generated mesh.
+ */
+
 #include "openscad.h"
 
 #include <QCryptographicHash>
@@ -21,6 +26,8 @@ using namespace std;
 #include <luabind/adopt_policy.hpp>
 #include <luabind/operator.hpp>
 
+/// How many OpenSCAD processes are running, so the busy indicator is only
+/// hidden once the last of them has finished.
 static int s_runningCount = 0;
 
 OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)

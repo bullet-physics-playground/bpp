@@ -1,3 +1,8 @@
+/**
+ * @file cam.cpp
+ * @brief Implementation of the scene camera.
+ */
+
 #include "cam.h"
 
 #include <QGLViewer/camera.h>
@@ -10,12 +15,24 @@
 
 using namespace std;
 
+/**
+ * @brief Writes a camera's description to a standard stream.
+ * @param ostream The stream to write to.
+ * @param cam     The camera to describe.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const Cam &cam) {
   ostream << cam.toString().toUtf8().data();
 
   return ostream;
 }
 
+/**
+ * @brief Compares two cameras by identity.
+ * @param a First camera.
+ * @param b Second camera.
+ * @return True only if both are the same object.
+ */
 bool operator==(const Cam &a, const Cam &b) { return &a == &b; }
 
 // qglviewer::Camera has no operator<</== of its own, and luabind's
@@ -25,9 +42,21 @@ bool operator==(const Cam &a, const Cam &b) { return &a == &b; }
 // qglviewer namespace, so these have to live inside it rather than in the
 // global namespace like Cam's own operator<< above.
 namespace qglviewer {
+/**
+ * @brief Writes a QGLViewer camera to a standard stream by its address.
+ * @param ostream The stream to write to.
+ * @param cam     The camera.
+ * @return @p ostream, for chaining.
+ */
 inline std::ostream &operator<<(std::ostream &ostream, const Camera &cam) {
   return ostream << "Camera(" << static_cast<const void *>(&cam) << ")";
 }
+/**
+ * @brief Compares two QGLViewer cameras by identity.
+ * @param a First camera.
+ * @param b Second camera.
+ * @return True only if both are the same object.
+ */
 inline bool operator==(const Camera &a, const Camera &b) { return &a == &b; }
 }
 

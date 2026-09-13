@@ -69,17 +69,16 @@ public:
     /*!
      * \brief Raw axis values, ordered X Y Z RX RY RZ.
      *
-     * \var Axes::x      translation along the X axis (delta)
-     * \var Axes::y      translation along the Y axis (delta)
-     * \var Axes::z      translation along the Z axis (delta)
-     * \var Axes::rx     rotation around the X axis (delta)
-     * \var Axes::ry     rotation around the Y axis (delta)
-     * \var Axes::rz     rotation around the Z axis (delta)
+     * Every component is a delta, as documented in the class description.
      */
     struct Axes
     {
-        int x = 0, y = 0, z = 0;
-        int rx = 0, ry = 0, rz = 0;
+        int x = 0,  //!< Translation along the X axis (delta).
+            y = 0,  //!< Translation along the Y axis (delta).
+            z = 0;  //!< Translation along the Z axis (delta).
+        int rx = 0, //!< Rotation around the X axis (delta).
+            ry = 0, //!< Rotation around the Y axis (delta).
+            rz = 0; //!< Rotation around the Z axis (delta).
     };
 
     /*!
@@ -92,8 +91,12 @@ public:
      */
     struct AxesNorm
     {
-        double x = 0.0, y = 0.0, z = 0.0;
-        double rx = 0.0, ry = 0.0, rz = 0.0;
+        double x = 0.0,  //!< Translation along the X axis, in [-1, 1].
+               y = 0.0,  //!< Translation along the Y axis, in [-1, 1].
+               z = 0.0;  //!< Translation along the Z axis, in [-1, 1].
+        double rx = 0.0, //!< Rotation around the X axis, in [-1, 1].
+               ry = 0.0, //!< Rotation around the Y axis, in [-1, 1].
+               rz = 0.0; //!< Rotation around the Z axis, in [-1, 1].
     };
 
     /// Number of reportable axes (X Y Z RX RY RZ).
@@ -248,27 +251,175 @@ signals:
     void error(const QString &message);
 
 private:
+    /*!
+     * \brief Find and open the first supported 3D mouse.
+     *
+     * Platform-specific: scans the evdev nodes on Linux, enumerates the HID
+     * interfaces on Windows, and matches on vendor id on macOS.
+     *
+     * \return true if a device was opened.
+     */
     bool openAuto();
+
+    /*!
+     * \brief Open one named device and start delivering its events.
+     *
+     * Checks that the device really is a 3D mouse, resets the axis state,
+     * learns the axis ranges from it and hooks it into the event loop.
+     * Emits error() and returns false if any of that fails.
+     *
+     * \param path platform-specific device identifier, as for
+     *             open(const QString &).
+     * \return true on success.
+     */
     bool openPath(const QString &path);
+
+    /*!
+     * \brief Release the platform handles and emit deviceClosed().
+     *
+     * Safe to call when nothing is open.
+     */
     void closePlatform();
+
+    /*!
+     * \brief Zero the axis and button state and restore the nominal ranges.
+     *
+     * The scale factors are the SpaceNavigator's nominal ranges, about +-512
+     * for translation and +-900 for rotation; where the platform can report
+     * the real range it is queried afterwards and overwrites these.
+     */
     void resetState();
+
+    /*!
+     * \brief Record a relative axis reading and publish it.
+     *
+     * For devices that report movement rather than position (Linux EV_REL).
+     *
+     * \param index axis index, 0 to \c NUM_AXES-1; out of range is ignored.
+     * \param delta movement since the previous event.
+     */
     void handleAxisDelta(int index, int delta);
+
+    /*!
+     * \brief Record an absolute axis reading.
+     *
+     * Stores the reading, derives the delta from the previous one and
+     * normalises the deflection about the axis centre. Does not publish
+     * anything; the caller emits once the whole report has been decoded.
+     *
+     * \param index axis index, 0 to \c NUM_AXES-1; out of range is ignored.
+     * \param value the absolute reading.
+     */
     void handleAxisAbsolute(int index, int value);
+
+    /*!
+     * \brief Record a button state and emit buttonChanged() if it changed.
+     *
+     * \param button  button number; out of range is ignored.
+     * \param pressed true when pressed.
+     */
     void handleButton(int button, bool pressed);
+
+    /*!
+     * \brief Emit axesChanged() and axesNormChanged() with the current state.
+     */
     void emitAxes();
+
+    /*!
+     * \brief Slot for the socket notifier; reads whatever is pending.
+     *
+     * Linux only; a no-op on the other platforms, which are driven by their
+     * own callbacks.
+     */
     void onReadyRead();
+
+    /*!
+     * \brief Handle a completed overlapped read and start the next one.
+     *
+     * Windows only.
+     */
     void onReadComplete();
+
+    /*!
+     * \brief Scale one axis deflection into [-1, 1] and store it.
+     *
+     * \param index      axis index, 0 to \c NUM_AXES-1; out of range is
+     *                   ignored.
+     * \param deflection raw deflection from the axis centre; the result is
+     *                   clamped to the range.
+     */
     void setNormalized(int index, double deflection);
 #if defined(Q_OS_LINUX)
+    /*!
+     * \brief Learn the real axis ranges from the driver.
+     *
+     * Queries EVIOCGABS for each axis and derives the centre and scale used
+     * by setNormalized(), replacing the nominal values from resetState().
+     * Axes the driver does not describe keep those defaults.
+     *
+     * \param fd open file descriptor of the device node.
+     */
     void updateAxisRanges(int fd);
 #endif
 #if defined(Q_OS_WIN)
+    /*!
+     * \brief Queue the next overlapped read from the HID device.
+     *
+     * The buffer is cleared first, because a short report - the button report
+     * is shorter than the axis report - would otherwise leave the tail of the
+     * previous one in place.
+     */
     void startWindowsRead();
+
+    /*!
+     * \brief Decode one HID input report.
+     *
+     * The byte layout differs between models: the wired SpaceNavigator splits
+     * the axes over report 1 (translation) and report 2 (rotation), while the
+     * SpaceMouse Wireless packs all six into report 1 and puts the buttons in
+     * report 3. Rather than hard-coding any of that, the HidP_* functions are
+     * asked which usages this particular report carries, which works for every
+     * 3Dconnexion model. Falls back to parseWindowsReportRaw() when the report
+     * descriptor is unavailable.
+     *
+     * \param data report bytes, starting with the report id.
+     * \param len  number of bytes.
+     */
     void parseWindowsReport(const unsigned char *data, int len);
+
+    /*!
+     * \brief Fallback decoder for the standard 3Dconnexion report layout.
+     *
+     * Used only when the report descriptor is unavailable, so the usages
+     * cannot be looked up.
+     *
+     * \param data report bytes, starting with the report id.
+     * \param len  number of bytes.
+     */
     void parseWindowsReportRaw(const unsigned char *data, int len);
+
+    /*!
+     * \brief Take the axis centre and scale from the HID report descriptor.
+     *
+     * The nominal ranges guessed in resetState() are wrong for most models -
+     * a SpaceMouse Wireless reports +-350, not +-512 - which would keep the
+     * deflections short of full scale, so the descriptor is asked for the real
+     * logical range.
+     */
     void updateWindowsAxisRanges();
 #endif
 #if defined(Q_OS_MACOS)
+    /*!
+     * \brief IOKit callback delivering one changed HID element.
+     *
+     * Runs on the main run loop, so it can update the state and emit signals
+     * directly.
+     *
+     * \param context the SpaceNavigator the callback was registered for.
+     * \param result  IOKit result code; unused.
+     * \param sender  IOKit sender; unused.
+     * \param value   the HID value that changed.
+     */
     static void macInputValueCallback(void *context, int result, void *sender,
                                       struct __IOHIDValue *value);
 #endif

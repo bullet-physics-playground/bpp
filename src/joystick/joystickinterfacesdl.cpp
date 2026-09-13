@@ -1,3 +1,8 @@
+/**
+ * @file joystickinterfacesdl.cpp
+ * @brief Implementation of the SDL joystick backend.
+ */
+
 #include "joystickinterfacesdl.h"
 
 #include <QTimer>

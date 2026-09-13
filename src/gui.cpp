@@ -1,3 +1,8 @@
+/**
+ * @file gui.cpp
+ * @brief Implementation of the main application window.
+ */
+
 #include "appenv.h"
 #include "prefs.h"
 
@@ -12,6 +17,12 @@
 #include <QFileInfo>
 #include <QRegExp>
 
+/**
+ * @brief Writes a Gui's description to a standard stream.
+ * @param ostream The stream to write to.
+ * @param gui     The window to describe.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const Gui &gui) {
   ostream << gui.toString().toUtf8().data();
   return ostream;
@@ -315,11 +326,21 @@ void Gui::createMenus() {
 
 namespace {
 
+/**
+ * @brief One selectable value of a multiple-choice POV-Ray setting.
+ */
 struct PovrayOption {
   int value;
   const char *label;
 };
 
+/**
+ * @brief One POV-Ray render setting, as presented in the POV-Ray menu.
+ *
+ * The settings are not stored in the application's QSettings: each one names a
+ * @c \#declare in @c includes/settings.inc, which the exported scenes include,
+ * and the menu reads and writes that file directly.
+ */
 struct PovraySetting {
   const char *name;        // #declare name in includes/settings.inc
   const char *label;       // menu entry / submenu title
@@ -329,6 +350,14 @@ struct PovraySetting {
   QVector<PovrayOption> options; // used when !toggle
 };
 
+/**
+ * @brief The table of POV-Ray render settings offered in the menu.
+ *
+ * The first entry is the LightSys master switch, which createPovrayMenu()
+ * places above a separator; the rest follow in the order given here.
+ *
+ * @return The settings table. Built once and shared.
+ */
 const QVector<PovraySetting> &povraySettings() {
   static const QVector<PovraySetting> settings = {
       {"use_lightsys", "Enable / disable LightSYS rendering system",
@@ -1028,6 +1057,16 @@ void Gui::hideProgressBar() {
   statusBar()->repaint();
 }
 
+/**
+ * @brief Builds the tooltip shown for a script parameter.
+ *
+ * Combines the comment the script gave the parameter, its current value and,
+ * where one was declared, its range.
+ *
+ * @param value The parameter's current value.
+ * @param info  The parameter's declared metadata.
+ * @return The tooltip text.
+ */
 static QString paramTooltip(const QVariant &value, const ParamInfo &info) {
   QString tooltip = info.comment;
   if (!tooltip.isEmpty()) tooltip += "\n";

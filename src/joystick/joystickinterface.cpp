@@ -1,3 +1,8 @@
+/**
+ * @file joystickinterface.cpp
+ * @brief Shared parts of the joystick backend interface.
+ */
+
 #include "joystickinterface.h"
 
 JoystickInterface::JoystickInterface(QObject* parent)

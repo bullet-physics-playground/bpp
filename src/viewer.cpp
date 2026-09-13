@@ -1,3 +1,8 @@
+/**
+ * @file viewer.cpp
+ * @brief Implementation of the 3D view, the simulation and the script host.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif
@@ -65,6 +70,21 @@
 #include <cmath>
 
 #if defined(Q_OS_LINUX)
+/**
+ * @brief Lua allocator that returns 16-byte aligned memory.
+ *
+ * Bullet's maths types are SIMD-aligned, so a Bullet object Lua allocates and
+ * owns has to sit on a 16-byte boundary; the default allocator only promises
+ * the platform's malloc alignment. Follows the lua_Alloc contract: a zero
+ * @p nsize frees, and a non-null @p ptr reallocates by allocating, copying and
+ * freeing, since posix_memalign has no realloc counterpart.
+ *
+ * @param ud    User data. Unused.
+ * @param ptr   Block to resize or free, or null to allocate.
+ * @param osize Size of the existing block.
+ * @param nsize Requested size, or 0 to free.
+ * @return The new block, or null when freeing or on allocation failure.
+ */
 static void *aligned_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud;
   (void)osize;
@@ -100,14 +120,27 @@ static void *aligned_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) 
 #include <QStandardPaths>
 #include <QStringList>
 
+/// Boost.Exception tag carrying a Lua stack trace on a thrown exception,
+/// read back by Viewer::showLuaException().
 using stack_info = boost::error_info<struct tag_stack_str, std::string>;
 
 using namespace std;
 
-// Forwards Bullet's constraint debug-draw geometry (btDynamicsWorld::debugDrawConstraint())
-// to immediate-mode OpenGL lines. Only drawLine() is used for constraint visualization.
+/**
+ * @brief Forwards Bullet's debug-draw geometry to immediate-mode OpenGL.
+ *
+ * Bullet asks a btIDebugDraw to render its own visualisations, in bpp's case
+ * the constraint geometry from btDynamicsWorld::debugDrawConstraint(). Only
+ * drawLine() is used for that, so the rest of the interface is stubbed out.
+ */
 class GLDebugDrawer : public btIDebugDraw {
 public:
+  /**
+   * @brief Draws one coloured line segment.
+   * @param from  Start point in world space.
+   * @param to    End point in world space.
+   * @param color RGB colour.
+   */
   void drawLine(const btVector3 &from, const btVector3 &to,
                 const btVector3 &color) override {
     glColor3f(color.x(), color.y(), color.z());
@@ -117,19 +150,54 @@ public:
     glEnd();
   }
 
+  /**
+   * @brief Draws a contact point. Not implemented.
+   *
+   * Bullet passes the contact position and normal on the second body, the
+   * separation distance, the contact's age and a colour; all are ignored, and
+   * the parameters are left unnamed so the empty body draws no warning.
+   */
   void drawContactPoint(const btVector3 &, const btVector3 &, btScalar, int,
                         const btVector3 &) override {}
+
+  /**
+   * @brief Reports a Bullet diagnostic through Qt's warning channel.
+   * @param warningString The message.
+   */
   void reportErrorWarning(const char *warningString) override {
     qWarning() << warningString;
   }
+
+  /**
+   * @brief Draws text in the scene. Not implemented.
+   *
+   * Bullet passes the world position and the string; both are ignored, and the
+   * parameters are left unnamed so the empty body draws no warning.
+   */
   void draw3dText(const btVector3 &, const char *) override {}
+
+  /**
+   * @brief Sets which categories of debug geometry Bullet should emit.
+   * @param mode A combination of btIDebugDraw::DebugDrawModes.
+   */
   void setDebugMode(int mode) override { _debugMode = mode; }
+
+  /**
+   * @brief Returns which categories of debug geometry are enabled.
+   * @return The current debug mode flags.
+   */
   int getDebugMode() const override { return _debugMode; }
 
 private:
-  int _debugMode = 0;
+  int _debugMode = 0; ///< Which categories of debug geometry Bullet emits.
 };
 
+/**
+ * @brief Writes a Viewer's description to a standard stream.
+ * @param ostream The stream to write to.
+ * @param v       The viewer to describe.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const Viewer &v) {
   ostream << v.toString().toUtf8().data();
   return ostream;
@@ -140,33 +208,75 @@ std::ostream &operator<<(std::ostream &ostream, const Viewer &v) {
 // lua_bullet.cpp for why this matters). Viewer/JoystickInfo have no natural
 // value equality, so fall back to identity; QColor already has a real
 // operator== from Qt, and SpaceNavigator::Axes is a plain field struct.
+/**
+ * @brief Compares two Viewers by identity.
+ * @param a First viewer.
+ * @param b Second viewer.
+ * @return True only if both are the same object.
+ */
 bool operator==(const Viewer &a, const Viewer &b) { return &a == &b; }
 
+/**
+ * @brief Compares two JoystickInfos by identity.
+ * @param a First report.
+ * @param b Second report.
+ * @return True only if both are the same object.
+ */
 bool operator==(const JoystickInfo &a, const JoystickInfo &b) {
   return &a == &b;
 }
 
+/**
+ * @brief Compares two sets of 3D mouse axes by value.
+ * @param a First set of axes.
+ * @param b Second set of axes.
+ * @return True if all six axes match.
+ */
 bool operator==(const SpaceNavigator::Axes &a, const SpaceNavigator::Axes &b) {
   return a.x == b.x && a.y == b.y && a.z == b.z && a.rx == b.rx &&
          a.ry == b.ry && a.rz == b.rz;
 }
 
+/**
+ * @brief Writes a QString to a standard stream as UTF-8.
+ * @param ostream The stream to write to.
+ * @param s       The string.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const QString &s) {
   ostream << s.toUtf8().data();
   return ostream;
 }
 
+/**
+ * @brief Writes a QColor to a standard stream by its name.
+ * @param ostream The stream to write to.
+ * @param c       The colour.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const QColor &c) {
   ostream << "QColor(\"" << c.name().toUtf8().data() << "\")";
   return ostream;
 }
 
+/**
+ * @brief Writes a placeholder description of a JoystickInfo to a stream.
+ * @param ostream The stream to write to.
+ * @param ji      The report. Its contents are not printed.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream, const JoystickInfo &ji) {
   Q_UNUSED(ji)
   ostream << "JoystickInfo()"; // XXX
   return ostream;
 }
 
+/**
+ * @brief Writes a set of 3D mouse axes to a standard stream.
+ * @param ostream The stream to write to.
+ * @param axes    The axes.
+ * @return @p ostream, for chaining.
+ */
 std::ostream &operator<<(std::ostream &ostream,
                          const SpaceNavigator::Axes &axes) {
   ostream << QString("SpaceNavigatorAxes(x=%1, y=%2, z=%3, rx=%4, ry=%5, rz=%6)")
@@ -553,6 +663,12 @@ void Viewer::luaBindInstance(lua_State *s) {
   globals(s)["v"] = this;
 }
 
+/**
+ * @brief Prints a pending Lua error to stderr and pops it off the stack.
+ * @param L      The Lua state.
+ * @param status Status returned by lua_pcall() or similar; 0 means no error
+ *               and nothing is done.
+ */
 void report_errors(lua_State *L, int status) {
   if (status != 0) {
     std::cerr << "-- " << lua_tostring(L, -1) << "\n";
@@ -560,6 +676,7 @@ void report_errors(lua_State *L, int status) {
   }
 }
 
+/// Standard gravity in m/s^2, used as the default for a fresh world.
 constexpr btScalar G = 9.81f;
 
 using namespace qglviewer;
@@ -594,6 +711,18 @@ const double kSnTargetDeadBand =
 // where pixsize is the world-space size of one screen pixel at the orbit depth.
 const double kSnPixelsPerSecond = 600.0;
 
+/**
+ * @brief Computes an axis-aligned bounding box around every object.
+ *
+ * Starts from a fixed 10-unit box so an empty scene still has a sensible
+ * extent, then grows it to include each rigid and soft body. A Plane
+ * contributes its declared size rather than the effectively infinite AABB
+ * Bullet reports for it, and a body whose position is not finite is included
+ * without being offset, so one diverged object cannot make the box unusable.
+ *
+ * @param[in]  objects The objects to cover.
+ * @param[out] aabb    Receives minimum x, y, z followed by maximum x, y, z.
+ */
 void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
   aabb[0] = -10;
   aabb[1] = -10;
@@ -2510,6 +2639,7 @@ void Viewer::drawConstraintCylinder(const btVector3 &from, const btVector3 &to,
   glPopMatrix();
 }
 
+/// Colour every constraint marker is drawn in.
 static const btVector3 kConstraintColor(1.0, 0.5, 0.0); // orange
 
 // A 3-axis cross, for constraints that pin a full frame (generic 6dof /

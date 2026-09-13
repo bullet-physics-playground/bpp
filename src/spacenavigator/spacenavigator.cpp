@@ -58,43 +58,55 @@
 #endif
 
 #if defined(Q_OS_LINUX)
+/*!
+ * Platform state for the Linux evdev backend.
+ */
 struct PlatformData
 {
-  int fd;
-  QString path;
-  QString name;
-  QSocketNotifier *notifier;
+  int fd;                       //!< Open device node descriptor.
+  QString path;                 //!< The node's path, e.g. "/dev/input/event5".
+  QString name;                 //!< Product string the driver reports.
+  QSocketNotifier *notifier;    //!< Wakes onReadyRead() when events arrive.
 };
 #elif defined(Q_OS_MACOS)
+/*!
+ * Platform state for the macOS IOKit HID backend.
+ */
 struct PlatformData
 {
-  IOHIDManagerRef manager;
-  QString path;
-  QString name;
+  IOHIDManagerRef manager; //!< HID manager delivering values on the run loop.
+  QString path;            //!< Product name, there being no device node.
+  QString name;            //!< Product string the device reports.
 };
 #elif defined(Q_OS_WIN)
+/*!
+ * Platform state for the Windows raw HID backend.
+ */
 struct PlatformData
 {
-  HANDLE file;
-  QString path;
-  QString name;
-  HANDLE readEvent;
-  OVERLAPPED ov;
-  QWinEventNotifier *notifier;
-  std::vector<unsigned char> buffer;
+  HANDLE file;                 //!< Open HID device interface.
+  QString path;                //!< The interface path it was opened from.
+  QString name;                //!< Product string the device reports.
+  HANDLE readEvent;            //!< Signalled when an overlapped read finishes.
+  OVERLAPPED ov;               //!< Overlapped state of the pending read.
+  QWinEventNotifier *notifier; //!< Wakes onReadComplete() on #readEvent.
+  std::vector<unsigned char> buffer; //!< Receives one input report.
 
   /// Report descriptor of the open collection, kept for HidP_* decoding.
   PHIDP_PREPARSED_DATA preparsed;
-  HIDP_CAPS caps;
+  HIDP_CAPS caps; //!< Capabilities of the open top-level collection.
 
   /// Bit width and signedness of each axis, from the report descriptor.
-  int axisBits[SpaceNavigator::NUM_AXES];
-  bool axisSigned[SpaceNavigator::NUM_AXES];
+  int axisBits[SpaceNavigator::NUM_AXES];  //!< Bit width of each axis.
+  bool axisSigned[SpaceNavigator::NUM_AXES]; //!< Whether each axis is signed.
 
   /// Buffer size HidP_GetUsages() needs for the button page.
   ULONG buttonListLength;
 };
 #else
+/*!
+ * Platform state for unsupported platforms: there is none.
+ */
 struct PlatformData
 {
 };
@@ -377,11 +389,19 @@ void SpaceNavigator::emitAxes()
 
 #if defined(Q_OS_LINUX)
 
+/// Test one bit in an evdev capability bitmask.
 #define test_bit(bit, array) (array[(bit) / 8] & (1 << ((bit) % 8)))
 
 namespace
 {
 
+/*!
+ * True when the device behind \a fd is a supported 3D mouse.
+ *
+ * Matches on the USB vendor and product ids, and additionally requires the
+ * device to report all six Generic Desktop axes, so a keyboard or a mouse from
+ * the same vendor is not mistaken for one.
+ */
 bool linuxIs3DMouse(int fd)
 {
   struct input_id id;
@@ -426,6 +446,9 @@ QString linuxDeviceName(int fd)
   return QString::fromUtf8(name).trimmed();
 }
 
+/*!
+ * Open an evdev node non-blocking, returning a descriptor or a negative value.
+ */
 int linuxOpenDevice(const QString &path)
 {
   // Prefer read/write like rm501.c, fall back to read-only when we lack
@@ -567,6 +590,11 @@ void SpaceNavigator::onReadyRead()
 namespace
 {
 
+/*!
+ * Build an IOHIDManager matching dictionary selecting one USB vendor id.
+ *
+ * The caller owns the returned dictionary and must CFRelease() it.
+ */
 CFDictionaryRef macVendorMatch(int vendor)
 {
   CFMutableDictionaryRef dict =
@@ -707,6 +735,9 @@ const USAGE HID_USAGE_MULTI_AXIS = 0x08;
 const USAGE HID_USAGE_JOYSTICK = 0x04;
 const USAGE HID_USAGE_GAMEPAD = 0x05;
 
+/*!
+ * True for the USB vendor and product ids of a supported 3D mouse.
+ */
 bool winIsKnownVendor(USHORT vendor, USHORT product)
 {
   if (vendor == USB_VENDOR_ID_3DCONNEXION)
@@ -822,6 +853,13 @@ int winSignedValue(ULONG raw, int bits, bool isSigned)
   return static_cast<int>(raw);
 }
 
+/*!
+ * Append the HID interface path of every supported 3D mouse to \a out.
+ *
+ * Walks the present HID device interfaces, keeping those whose vendor and
+ * product ids are recognised and whose top-level collection is the one
+ * carrying the axes.
+ */
 void winEnumerate3DMice(QStringList &out)
 {
   GUID hidGuid;

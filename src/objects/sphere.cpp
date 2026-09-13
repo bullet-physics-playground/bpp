@@ -1,3 +1,8 @@
+/**
+ * @file sphere.cpp
+ * @brief Implementation of the sphere primitive.
+ */
+
 #ifdef WIN32_VC90
 #pragma warning(disable : 4251)
 #endif

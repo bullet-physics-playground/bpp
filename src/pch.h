@@ -1,6 +1,14 @@
 #ifndef PCH_H
 #define PCH_H
 
+/**
+ * @file pch.h
+ * @brief Precompiled header: the Qt, OpenGL and STL headers used throughout.
+ *
+ * Collected in one place so the compiler can pre-parse them once instead of
+ * on every translation unit. It declares nothing of its own.
+ */
+
 // Qt Core
 #include <Qt>
 #include <QByteArray>
