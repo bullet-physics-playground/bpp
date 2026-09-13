@@ -93,6 +93,15 @@
 #include <list>
 #include <set>
 
+// Third-party templates: these dominate compile cost (luabind is in 16 of
+// 30 TUs, Bullet in 15) and are what makes the PCH worth having.
+#include <lua.hpp>
+#include <luabind/luabind.hpp>
+#include <luabind/operator.hpp>
+#include <luabind/adopt_policy.hpp>
+#include <btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
+
 #ifndef __gl_h_
 # include <GL/gl.h>
 #endif
