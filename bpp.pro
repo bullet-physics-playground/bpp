@@ -176,8 +176,9 @@ linux:link_pkgconfig {
 
   LSB_RELEASE_ID  = $$system(. /etc/os-release; echo "$NAME")
   LSB_RELEASE_REL = $$system(. /etc/os-release; echo "$VERSION_ID")
+  LSB_RELEASE_VER = $$system(. /etc/os-release; echo "$VERSION_CODENAME")
 
-  message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL)
+  message(This is $$LSB_RELEASE_ID $$LSB_RELEASE_REL $$LSB_RELEASE_VER)
 
   contains(LSB_RELEASE_ID, Ubuntu): {
     contains(LSB_RELEASE_REL, 21.04) : {
@@ -280,6 +281,14 @@ linux:link_pkgconfig {
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 13) : {
+     PKGCONFIG += lua5.1
+     PKGCONFIG -= luabind
+     PKGCONFIG += bullet
+     PKGCONFIG += sdl2
+     LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
+     DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+    }
+    contains(LSB_RELEASE_VER, forky) : {
      PKGCONFIG += lua5.1
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
