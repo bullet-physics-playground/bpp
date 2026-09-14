@@ -62,7 +62,11 @@ jobs:
         run: |
           ARCH="${{ matrix.arch }}"
           CODENAME="${{ matrix.codename }}"
-          VERSION="${{ github.ref_name }}-1${CODENAME}"
+          # Tag pushes carry a version; manual runs carry a branch name, which
+          # dpkg rejects because it does not start with a digit.
+          REF="${{ github.ref_name }}"
+          case "$REF" in [0-9]*) ;; *) REF="0.0.0+${REF//\//-}" ;; esac
+          VERSION="${REF}-1${CODENAME}"
           PLATFORM="linux/amd64"
           [ "$ARCH" = "arm64" ] && PLATFORM="linux/arm64/v8"
 
