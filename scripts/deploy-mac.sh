@@ -27,13 +27,32 @@ macdeployqt "$APP"
 QGLVIEWER_LIB="$QGLVIEWER_DEST/Versions/3/QGLViewer"
 for dep in $(otool -L "$QGLVIEWER_LIB" | awk 'NR>1 {print $1}'); do
   case "$dep" in
-    # Match by framework name regardless of Homebrew prefix (Intel
+    # Match every Qt framework regardless of Homebrew prefix (Intel
     # /usr/local, Apple Silicon /opt/homebrew, or a Cellar keg path).
-    */QtOpenGL.framework/*) install_name_tool -change "$dep" @executable_path/../Frameworks/QtOpenGL.framework/Versions/5/QtOpenGL "$QGLVIEWER_LIB" 2>/dev/null || true ;;
-    */QtWidgets.framework/*) install_name_tool -change "$dep" @executable_path/../Frameworks/QtWidgets.framework/Versions/5/QtWidgets "$QGLVIEWER_LIB" 2>/dev/null || true ;;
-    */QtGui.framework/*) install_name_tool -change "$dep" @executable_path/../Frameworks/QtGui.framework/Versions/5/QtGui "$QGLVIEWER_LIB" 2>/dev/null || true ;;
-    */QtCore.framework/*) install_name_tool -change "$dep" @executable_path/../Frameworks/QtCore.framework/Versions/5/QtCore "$QGLVIEWER_LIB" 2>/dev/null || true ;;
+    /*/Qt*.framework/*)
+      rel=$(echo "$dep" | sed -E 's|^.*/(Qt[A-Za-z0-9]+\.framework/)|\1|')
+      install_name_tool -change "$dep" "@executable_path/../Frameworks/$rel" "$QGLVIEWER_LIB" 2>/dev/null || true ;;
   esac
 done
 
-echo "Deploy complete. QGLViewer bundled and paths fixed."
+# Step 6: Verify the bundle is self-contained. Every Mach-O must resolve
+# through the bundle (@executable_path, @rpath, @loader_path) or the OS;
+# an absolute build-machine path crashes dyld at launch on other Macs.
+BAD=""
+while IFS= read -r f; do
+  file -b "$f" | grep -q "Mach-O" || continue
+  for dep in $(otool -L "$f" | awk '/\(compatibility version /{print $1}'); do
+    case "$dep" in
+      @*|/System/*|/usr/lib/*) ;;
+      /*) BAD="$BAD
+  ${f#$APP/}: $dep" ;;
+    esac
+  done
+done < <(find "$APP/Contents" -type f)
+
+if [ -n "$BAD" ]; then
+  printf 'Error: bundle depends on paths outside the bundle:%s\n' "$BAD" >&2
+  exit 1
+fi
+
+echo "Deploy complete. QGLViewer bundled, paths fixed, bundle self-contained."
