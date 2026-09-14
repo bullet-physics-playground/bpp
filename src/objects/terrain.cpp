@@ -64,18 +64,51 @@ public:
 class TerrainGlDrawCallback : public btTriangleCallback {
 public:
   /**
-   * @brief Emits one triangle, with a normal, facing both ways.
+   * @brief Sets up the callback with the colours it will draw with.
+   * @param triColors The terrain's sparse per-triangle overrides, looked up
+   *                  by the same triangleIndex Bullet passes into
+   *                  processTriangle(). Held by reference, so it must
+   *                  outlive the callback.
+   * @param baseColor What to fall back to for every triangle that has no
+   *                  override -- the terrain's own colour, exactly what
+   *                  Object::glApplyColor() would have set once for the
+   *                  whole mesh before per-triangle colouring existed.
+   * @param baseAlpha The terrain's opacity, applied to every triangle.
+   */
+  TerrainGlDrawCallback(
+      const QHash<int, std::array<unsigned char, 3>> &triColors,
+      const unsigned char *baseColor, GLubyte baseAlpha)
+      : m_triColors(triColors), m_baseAlpha(baseAlpha) {
+    m_baseColor[0] = baseColor[0];
+    m_baseColor[1] = baseColor[1];
+    m_baseColor[2] = baseColor[2];
+  }
+
+  /**
+   * @brief Emits one triangle, with a normal and a colour, facing both ways.
    * @param triangle      The triangle's three vertices.
    * @param partId        Sub-part the triangle came from. Unused.
-   * @param triangleIndex Index within that sub-part. Unused.
+   * @param triangleIndex Index within that sub-part, which is what the
+   *                      per-triangle colour overrides are keyed by.
    */
   virtual void processTriangle(btVector3 *triangle, int partId,
                                int triangleIndex) {
     (void)partId;
-    (void)triangleIndex;
 
     btVector3 n = (triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]);
     n.normalize();
+
+    // Re-set the color for every triangle, not just the overridden ones,
+    // since GL retains whatever color the previous triangle in this same
+    // draw pass left behind -- without this, an uncolored triangle drawn
+    // right after a colored one would inherit that color.
+    auto it = m_triColors.constFind(triangleIndex);
+    if (it != m_triColors.constEnd()) {
+      const std::array<unsigned char, 3> &c = it.value();
+      glColor4ub(c[0], c[1], c[2], m_baseAlpha);
+    } else {
+      glColor4ub(m_baseColor[0], m_baseColor[1], m_baseColor[2], m_baseAlpha);
+    }
 
     glBegin(GL_TRIANGLES);
     glNormal3d(n.x(), n.y(), n.z());
@@ -88,6 +121,11 @@ public:
     glVertex3d(triangle[0].getX(), triangle[0].getY(), triangle[0].getZ());
     glEnd();
   }
+
+private:
+  const QHash<int, std::array<unsigned char, 3>> &m_triColors;
+  unsigned char m_baseColor[3];
+  GLubyte m_baseAlpha;
 };
 
 Terrain::Terrain() {
@@ -113,6 +151,28 @@ void Terrain::addTriangle(const btVector3 &v0, const btVector3 &v1,
 }
 
 int Terrain::getNumTriangles() const { return m_mesh->getNumTriangles(); }
+
+void Terrain::setTriangleColor(int index, int r, int g, int b) {
+  std::array<unsigned char, 3> c = {(unsigned char)qBound(0, r, 255),
+                                    (unsigned char)qBound(0, g, 255),
+                                    (unsigned char)qBound(0, b, 255)};
+  m_triColors[index] = c;
+}
+
+void Terrain::setTriangleColor(int index, const QString &col) {
+  QColor c(col);
+  setTriangleColor(index, c.red(), c.green(), c.blue());
+}
+
+QString Terrain::getTriangleColor(int index) const {
+  auto it = m_triColors.constFind(index);
+  if (it == m_triColors.constEnd())
+    return getColorString(); // no override -- reports the terrain's own color
+  const std::array<unsigned char, 3> &c = it.value();
+  return QColor(c[0], c[1], c[2]).name();
+}
+
+void Terrain::clearTriangleColors() { m_triColors.clear(); }
 
 void Terrain::build() {
   if (body != nullptr) {
@@ -151,6 +211,14 @@ void Terrain::luaBind(lua_State *s) {
                 .def("addTriangle", &Terrain::addTriangle)
                 .def("build", &Terrain::build)
                 .def("getNumTriangles", &Terrain::getNumTriangles)
+                .def("setTriangleColor",
+                     (void(Terrain::*)(int, int, int, int)) &
+                         Terrain::setTriangleColor)
+                .def("setTriangleColor",
+                     (void(Terrain::*)(int, const QString &)) &
+                         Terrain::setTriangleColor)
+                .def("getTriangleColor", &Terrain::getTriangleColor)
+                .def("clearTriangleColors", &Terrain::clearTriangleColors)
                 .def(tostring(const_self))
                 .def(const_self == const_self)];
 }
@@ -304,9 +372,14 @@ void Terrain::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
-  glApplyColor();
 
-  TerrainGlDrawCallback drawCallback;
+  // glApplyColor() used to set the color once here for the whole mesh; it is
+  // now set per-triangle inside the callback, falling back to this same base
+  // color and alpha for every triangle without an override, so the material
+  // setup above still applies but the draw color comes from the callback.
+  GLubyte alpha = (GLubyte)((1.0 - transparency) * 255.0 + 0.5);
+
+  TerrainGlDrawCallback drawCallback(m_triColors, color, alpha);
   btVector3 aabbMin(-1e99, -1e99, -1e99);
   btVector3 aabbMax(1e99, 1e99, 1e99);
   m_shape->processAllTriangles(&drawCallback, aabbMin, aabbMax);

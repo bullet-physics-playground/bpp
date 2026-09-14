@@ -10,6 +10,10 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include <QHash>
+
+#include <array>
+
 /**
  * @brief A static, concave triangle mesh, typically a bumpy floor.
  *
@@ -66,6 +70,49 @@ public:
   int getNumTriangles() const;
 
   /**
+   * @brief Colours a single triangle, overriding the terrain's own colour.
+   *
+   * The triangle is addressed by the 0-based index Bullet hands back in
+   * addTriangle() call order -- triangle N is the Nth addTriangle() call.
+   * Lets a script mark individual terrain cells, a walker's footprint trail
+   * say, by recolouring existing mesh geometry instead of spawning extra
+   * static bodies: a trail of separate Cube markers keeps adding rigid
+   * bodies, and draw calls, for the life of the run, while this recolours
+   * triangles that are already part of the one terrain body and already
+   * drawn every frame. Triangles with no explicit colour fall back to the
+   * terrain's own colour at render time.
+   *
+   * @note Affects the real-time OpenGL viewer only -- toPOV() and toMesh2()
+   *       still export the terrain in its single base colour.
+   *
+   * @param index The triangle's index, in addTriangle() call order.
+   * @param r     Red, 0 to 255; values outside the range are clamped.
+   * @param g     Green, 0 to 255; values outside the range are clamped.
+   * @param b     Blue, 0 to 255; values outside the range are clamped.
+   */
+  void setTriangleColor(int index, int r, int g, int b);
+
+  /**
+   * @brief Colours a single triangle from a name or hex string.
+   * @param index The triangle's index, in addTriangle() call order.
+   * @param col   Anything QColor accepts, such as @c "red" or @c "#ff8800".
+   */
+  void setTriangleColor(int index, const QString &col);
+
+  /**
+   * @brief Returns a triangle's colour as a hex string.
+   * @param index The triangle's index, in addTriangle() call order.
+   * @return The triangle's own colour in @c "#rrggbb" form, or the
+   *         terrain's colour if that triangle has no override.
+   */
+  QString getTriangleColor(int index) const;
+
+  /**
+   * @brief Drops every per-triangle colour override.
+   */
+  void clearTriangleColors();
+
+  /**
    * @brief Registers the Terrain class with a Lua state.
    * @param s The Lua state to register in.
    */
@@ -112,6 +159,16 @@ public:
 protected:
   btTriangleMesh *m_mesh;          ///< The accumulated triangles.
   btBvhTriangleMeshShape *m_shape; ///< BVH shape built from #m_mesh by build().
+
+  /**
+   * @brief Per-triangle colour overrides, keyed by triangle index.
+   *
+   * Sparse on purpose: a trail marks a tiny fraction of a mesh that can be
+   * thousands of triangles, so a hash keyed by triangle index costs nothing
+   * for the overwhelming majority of uncoloured triangles, unlike a vector
+   * sized to getNumTriangles().
+   */
+  QHash<int, std::array<unsigned char, 3>> m_triColors;
 };
 
 #endif // TERRAIN_H
