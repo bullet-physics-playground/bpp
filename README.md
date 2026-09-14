@@ -29,6 +29,19 @@ batch processing and scripting.
 
 <a href="https://www.youtube.com/watch?v=RwMhyvVPsQI&list=PL-OhsevLGGI2bFpOqzqnWsGILh9a5YkDr" target="_blank"><img src="http://img.youtube.com/vi/RwMhyvVPsQI/maxresdefault.jpg" alt="Bullet Physics Playground" width="640" border="10" /></a>
 
+## Download
+
+Release builds are attached to each [release](https://github.com/bullet-physics-playground/bpp/releases).
+The macOS disk images bundle their Homebrew dependencies, so each one requires
+at least the macOS version its build machine used:
+
+| Disk image | Requires |
+| --- | --- |
+| `bpp-<version>-macos-arm64.dmg` (Apple Silicon) | macOS 26 or later |
+| `bpp-<version>-macos-x86_64.dmg` (Intel) | macOS 15 or later |
+
+On an older macOS, build from source instead.
+
 ## Build
 
 Select your operating system:
