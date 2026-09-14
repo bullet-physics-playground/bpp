@@ -41,7 +41,12 @@ done
 BAD=""
 while IFS= read -r f; do
   file -b "$f" | grep -q "Mach-O" || continue
+  # otool -L lists a dylib's own install id first. Plugins are dlopen'd by
+  # path and keep the id they were built with, which resolves nothing at
+  # load time -- only a dependent's load command can break the bundle.
+  ids=$(otool -D "$f" 2>/dev/null | awk '!/:$/ && NF')
   for dep in $(otool -L "$f" | awk '/\(compatibility version /{print $1}'); do
+    if printf '%s\n' "$ids" | grep -Fxq "$dep"; then continue; fi
     case "$dep" in
       @*|/System/*|/usr/lib/*) ;;
       /*) BAD="$BAD
