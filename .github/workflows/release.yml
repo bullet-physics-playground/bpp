@@ -198,7 +198,9 @@ jobs:
 
   build-macos:
     name: Build macOS app (arm64)
-    runs-on: macos-latest
+    # Pinned, not macos-latest: the bundled Homebrew libraries are built for
+    # the runner's macOS, so the image's minimum version follows it upward.
+    runs-on: macos-14
     steps:
       - name: Checkout
         uses: actions/checkout@v6

@@ -37,7 +37,7 @@ at least the macOS version its build machine used:
 
 | Disk image | Requires |
 | --- | --- |
-| `bpp-<version>-macos-arm64.dmg` (Apple Silicon) | macOS 26 or later |
+| `bpp-<version>-macos-arm64.dmg` (Apple Silicon) | macOS 14 or later |
 | `bpp-<version>-macos-x86_64.dmg` (Intel) | macOS 15 or later |
 
 On an older macOS, build from source instead.
