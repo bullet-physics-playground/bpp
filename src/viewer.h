@@ -30,6 +30,8 @@
 #include <functional>
 #include <luabind/object.hpp>
 
+#include <SDL2/SDL_mixer.h>
+
 #include "objects/cam.h"
 
 #include "objects/sphere.h"
@@ -187,6 +189,30 @@ public:
    * @return The substep limit.
    */
   int getMaxSubSteps();
+
+  /**
+   * @brief Loads a short sound effect (WAV, or MP3 via mpg123) for later
+   * playback with playSound(). Safe to call even if no audio device is
+   * available (headless/CI runs, or a machine with no sound hardware) --
+   * returns -1 in that case rather than throwing, and playSound() on an
+   * invalid id is a silent no-op. Loading the same path twice returns the
+   * same id rather than loading it again.
+   * @param path Path to a sound file, relative to the script's working
+   *             directory, same convention as Mesh() paths.
+   * @return An id to pass to playSound(), or -1 if audio isn't available
+   *         or the file failed to load.
+   */
+  int loadSound(const QString &path);
+
+  /**
+   * @brief Plays a sound previously loaded with loadSound(), starting
+   * immediately (does not block). Intended to be called from a Lua
+   * postSim callback at the exact frame an event (e.g. an escapement
+   * beat) is detected. A no-op if id is invalid or no audio device is
+   * available.
+   * @param id The id returned by loadSound().
+   */
+  void playSound(int id);
 
   /**
    * @brief Sets the size of Bullet's internal fixed simulation step.
@@ -1831,6 +1857,18 @@ private:
   // joystick handler
   JoystickInterfaceSDL *_joystickInterface; ///< SDL joystick backend.
   JoystickHandler _joystickHandler;         ///< Polls it and emits the reports.
+
+  // audio: short sound effects (ticks, tocks, bells, ...), triggered from
+  // Lua postSim callbacks. Deliberately minimal -- one-shot chunk playback
+  // only, no music/streaming, since that's all a beat sound needs.
+  bool _audioAvailable; ///< False if SDL audio / Mix_OpenAudio failed to
+                        ///< init (no device, headless env, etc.) -- every
+                        ///< audio method becomes a safe no-op in that case
+                        ///< rather than crashing the sim.
+  std::map<QString, int> _soundIdByPath; ///< Path -> id, so loading the same
+                                         ///< file twice is free.
+  std::map<int, Mix_Chunk *> _soundChunks; ///< id -> loaded chunk.
+  int _nextSoundId; ///< Monotonically increasing; never reused.
 
   // SpaceNavigator 3D mouse
   SpaceNavigator *_spaceNavigator; ///< The 3D mouse, open or not.

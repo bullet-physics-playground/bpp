@@ -143,6 +143,7 @@ mac {
   LIBS += -lluabind09
   LIBS += -llua
   LIBS += -lSDL2
+  LIBS += -lSDL2_mixer
   LIBS += -lBulletSoftBody
   LIBS += -lBulletDynamics
   LIBS += -lBulletCollision
@@ -186,6 +187,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -194,6 +196,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -202,6 +205,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -210,6 +214,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -218,6 +223,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -226,6 +232,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -234,6 +241,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind 
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -242,6 +250,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind 
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -250,6 +259,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind 
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -258,6 +268,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -269,6 +280,7 @@ linux:link_pkgconfig {
       PKGCONFIG -= luabind
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -277,6 +289,7 @@ linux:link_pkgconfig {
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
+     PKGCONFIG += SDL2_mixer
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -285,6 +298,7 @@ linux:link_pkgconfig {
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
+     PKGCONFIG += SDL2_mixer
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -293,6 +307,7 @@ linux:link_pkgconfig {
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
+     PKGCONFIG += SDL2_mixer
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -303,6 +318,7 @@ linux:link_pkgconfig {
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
+     PKGCONFIG += SDL2_mixer
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -311,6 +327,7 @@ linux:link_pkgconfig {
      PKGCONFIG -= luabind
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
+     PKGCONFIG += SDL2_mixer
      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
@@ -320,12 +337,13 @@ linux:link_pkgconfig {
     PKGCONFIG -= luabind
     PKGCONFIG += bullet
     PKGCONFIG += sdl2
+    PKGCONFIG += SDL2_mixer
     LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
     DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
   }
   contains(LSB_RELEASE_ID, FreeBSD): {
-    PKGCONFIG += bullet lua-5.1 sdl2
+    PKGCONFIG += bullet lua-5.1 sdl2 SDL2_mixer
     LIBS += -lluabind -lQGLViewer -lGLEW -lGLU -lGL -lGL
   }
 

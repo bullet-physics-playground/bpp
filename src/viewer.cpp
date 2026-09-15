@@ -24,8 +24,10 @@
 
 #include "glutils.h"
 
+#if USE_VFE
 #include "povray/bppvfesession.h"
 #include "povray/bppvfedisplay.h"
+#endif // USE_VFE
 
 #ifdef HAS_LUA_QT
 #include "lua_register.h"
@@ -418,6 +420,12 @@ void Viewer::luaBind(lua_State *s) {
                      &Viewer::setMaxSubSteps)
            .property("fixedTimeStep", &Viewer::getFixedTimeStep,
                      &Viewer::setFixedTimeStep)
+
+           // Short sound-effect playback (ticks, tocks, bells, ...).
+           // loadSound() is safe to call even with no audio device
+           // present -- returns -1, and playSound() on -1 is a no-op.
+           .def("loadSound", &Viewer::loadSound)
+           .def("playSound", &Viewer::playSound)
 
            .property("glShininess", &Viewer::getGLShininess,
                      &Viewer::setGLShininess)
@@ -1012,6 +1020,40 @@ void Viewer::setMaxSubSteps(int mst) { _maxSubSteps = mst; }
 
 int Viewer::getMaxSubSteps() { return _maxSubSteps; }
 
+int Viewer::loadSound(const QString &path) {
+  if (!_audioAvailable) {
+    return -1;
+  }
+
+  auto existing = _soundIdByPath.find(path);
+  if (existing != _soundIdByPath.end()) {
+    return existing->second;
+  }
+
+  Mix_Chunk *chunk = Mix_LoadWAV(path.toUtf8().constData());
+  if (!chunk) {
+    qWarning() << "loadSound: failed to load" << path << ":" << Mix_GetError();
+    return -1;
+  }
+
+  int id = _nextSoundId++;
+  _soundChunks[id] = chunk;
+  _soundIdByPath[path] = id;
+  return id;
+}
+
+void Viewer::playSound(int id) {
+  if (!_audioAvailable || id < 0) {
+    return;
+  }
+  auto it = _soundChunks.find(id);
+  if (it == _soundChunks.end()) {
+    return;
+  }
+  // -1: play on the first free channel. 0: play once, don't loop.
+  Mix_PlayChannel(-1, it->second, 0);
+}
+
 void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
 
 btScalar Viewer::getFixedTimeStep() { return _fixedTimeStep; }
@@ -1169,6 +1211,26 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _joystickHandler.setInterface(_joystickInterface);
   _joystickHandler.initialize();
   _joystickHandler.setUpdateInterval(40); // 25 fps
+
+  // audio: short sound effects, e.g. an escapement's tick/tock, triggered
+  // from Lua. SDL_INIT_JOYSTICK is already up by this point (see above);
+  // SDL_InitSubSystem is safe to call again to add AUDIO on top of it.
+  // Deliberately tolerant of failure -- no audio device (common in
+  // headless/CI runs) must not crash the simulation, just leave sound
+  // effects silently unavailable.
+  _audioAvailable = false;
+  _nextSoundId = 0;
+  if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+    qWarning() << "Audio unavailable (SDL_InitSubSystem):" << SDL_GetError()
+               << "-- sound effects disabled, simulation continues normally.";
+  } else if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+    qWarning() << "Audio unavailable (Mix_OpenAudio):" << Mix_GetError()
+               << "-- sound effects disabled, simulation continues normally.";
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+  } else {
+    _audioAvailable = true;
+  }
+
 
   // SpaceNavigator 3D mouse integration
   _spaceNavigator = new SpaceNavigator(this);
@@ -2148,6 +2210,18 @@ Viewer::~Viewer() {
     _vfePreviewTexture = 0;
   }
 #endif // USE_VFE
+
+  // Free any loaded sound effects and shut audio down before anything
+  // else that might still reference it.
+  if (_audioAvailable) {
+    for (auto &kv : _soundChunks) {
+      Mix_FreeChunk(kv.second);
+    }
+    _soundChunks.clear();
+    _soundIdByPath.clear();
+    Mix_CloseAudio();
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+  }
 
   // Stop the joystick handler before deleting anything
   _joystickHandler.stop();
