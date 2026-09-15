@@ -31,8 +31,8 @@ v.timeStep = 1.0/10.0
 -- loadSound() is safe to call even with no audio device present (returns
 -- -1); playSound() on an invalid id is a silent no-op, so this degrades
 -- gracefully on a machine/CI run with no audio hardware.
-local tickSoundId = v:loadSound("demo/sound/tick.wav")
-local tockSoundId = v:loadSound("demo/sound/tock.wav")
+local tickSoundId = v:loadSound("../../../demo/sound/tick.wav")
+local tockSoundId = v:loadSound("../../../demo/sound/tock.wav")
 
 c = Cube(6000,6000,6,0) -- static plate
 c.pos = btVector3(0, 300, 0)
