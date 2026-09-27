@@ -31,8 +31,8 @@ v.timeStep = 1.0/10.0
 -- loadSound() is safe to call even with no audio device present (returns
 -- -1); playSound() on an invalid id is a silent no-op, so this degrades
 -- gracefully on a machine/CI run with no audio hardware.
-local tickSoundId = v:loadSound("../../../demo/sound/tick.wav")
-local tockSoundId = v:loadSound("../../../demo/sound/tock.wav")
+local tickSoundId = v:loadSound("demo/sound/tick.wav")
+local tockSoundId = v:loadSound("demo/sound/tock.wav")
 
 c = Cube(6000,6000,6,0) -- static plate
 c.pos = btVector3(0, 300, 0)
@@ -920,13 +920,24 @@ v:postSim(function(N)
               print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -- outside deadband (+/-%.1fs), but tuning is off, no change applied",
                                    BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, BLOCK_ERROR_DEADBAND))
             else
-              local step = BLOCK_GAIN * err
-              step = math.max(-MAX_GRAVITY_STEP_PER_UPDATE, math.min(MAX_GRAVITY_STEP_PER_UPDATE, step))
-
+              -- PENDULUM LAW (pure/theoretical mode): for a fixed
+              -- compound pendulum, T = 2*pi*sqrt(I/(m*g*d)) with I, m, d
+              -- all fixed properties of this body -- so T is proportional
+              -- to 1/sqrt(g) for THIS pendulum specifically, and a single
+              -- observed period at the current gravity is enough to solve
+              -- directly for the gravity that would give the target
+              -- period: g_target = g_current * (T_measured/T_target)^2.
+              -- Replaces the old incremental proportional-nudge approach
+              -- entirely for now (BLOCK_GAIN/MAX_GRAVITY_STEP_PER_UPDATE
+              -- below are unused as a result, kept for the mixed-mode
+              -- version planned later, not deleted).
+              local tMeasured = blockElapsed / BEATS_PER_BLOCK
+              local tTarget = TARGET_BLOCK_SECONDS / BEATS_PER_BLOCK
               local curG = v:getParam("gravity")
-              local newG = setParam("gravity", curG + step)   -- setParam() itself clamps to PARAM_INFO.gravity's [min,max]
+              local rawTarget = curG * (tMeasured / tTarget) ^ 2
+              local newG = setParam("gravity", rawTarget)
               noteGravitySeen(newG)
-              print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -> gravity %.1f -> %.1f",
+              print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -> gravity %.1f -> %.1f (pendulum law, one-shot)",
                                    BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, curG, newG))
             end
             -- Range-so-far tracking only means something during an

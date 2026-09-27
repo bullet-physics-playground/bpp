@@ -20,7 +20,7 @@ local function setParam(name, value)
   return value
 end
 
-setParam("foliotWeight", 4.14)
+setParam("foliotWeight", 4.83)
 
 local GRAVITY = 1224   -- fixed, not a live slider -- see WEIGHT_M/foliotWeight consistency findings for why gravity isn't a safe live-tunable lever here.
 v.gravity = btVector3(0, -GRAVITY, 0)
@@ -30,8 +30,8 @@ v.friction = 0.1
 -- loadSound() is safe to call even with no audio device present (returns
 -- -1); playSound() on an invalid id is a silent no-op, so this degrades
 -- gracefully on a machine/CI run with no audio hardware.
-local tickSoundId = v:loadSound("../../../demo/sound/tick.wav")
-local tockSoundId = v:loadSound("../../../demo/sound/tock.wav")
+local tickSoundId = v:loadSound("demo/sound/tick.wav")
+local tockSoundId = v:loadSound("demo/sound/tock.wav")
 v:setErp(0.8)
 v:setErp2(0.0)
 v.timeStep = 1.0/10.0
@@ -720,6 +720,80 @@ local training = false          -- true only between a 'T' press and the next 'G
 local trainingWeightMin = nil   -- lowest foliotWeight value actually seen during the current/most recent training session
 local trainingWeightMax = nil   -- highest foliotWeight value actually seen during the current/most recent training session
 
+-- ANCHOR + AVERAGED-WINDOW CALIBRATION. The foliot's true physics is
+-- T^2 = A + B*foliotWeight (an AFFINE relationship -- the bar's own
+-- fixed inertia contributes A, the tunable weight contributes B*w).
+-- Two well-separated measurements solve for A and B exactly, getting
+-- into the right neighborhood in one jump -- but real data showed that
+-- naively repeating that same "solve from the newest point(s)" trick
+-- forever doesn't converge, whether using just the last two points
+-- (they end up too close together, amplifying noise) or a running
+-- least-squares over every accumulated point (a growing cluster of
+-- near-duplicate points, e.g. from repeatedly re-measuring near the
+-- same weight, can dominate the fit as much as a single noisy point
+-- would). Either way, real per-block measurement noise (a few seconds
+-- even in a healthy run) was leaking straight into the weight
+-- corrections instead of being averaged out first.
+--
+-- This version fixes that by collapsing the noise BEFORE solving,
+-- rather than folding it into the solve itself: keep ONE fixed anchor
+-- point (the very first measurement of the session, at whatever weight
+-- training started from), and for every refinement after the initial
+-- 2-point calibration, HOLD the weight fixed across up to
+-- REFINE_WINDOW_N blocks, collect that many measurements all at the
+-- SAME weight, average their T^2 values into a single de-noised point,
+-- and solve using just that averaged point plus the fixed anchor --
+-- the same simple two-point algebra as before, just fed a genuinely
+-- de-noised second point instead of a single noisy one.
+--
+-- SWAP-ANCHOR + RUNNING-AVERAGE CALIBRATION. The foliot's true physics
+-- is T^2 = A + B*foliotWeight (an AFFINE relationship -- the bar's own
+-- fixed inertia contributes A, the tunable weight contributes B*w).
+--
+-- Two measurements at two different weights solve for A and B exactly.
+-- Every correction after that reuses the SAME simple two-point solve,
+-- fed one fixed anchor point plus the running AVERAGE of every other
+-- measurement taken since ("the remaining points") -- collapsing their
+-- noise by averaging before the algebra ever sees it, rather than
+-- letting per-block noise leak straight into a fit (as either a bare
+-- two-point calculation or a multi-point regression over raw points
+-- both turned out to, in earlier versions of this).
+--
+-- Since T^2=A+B*w is linear, averaging commutes with it exactly: the
+-- average of several noisy (w,T^2) measurements lands, in expectation,
+-- precisely on the true line, and gets more precise (variance shrinks
+-- like 1/n) as more measurements accumulate -- unlike averaging into a
+-- nonlinear model, where that wouldn't hold.
+--
+-- Which of the first two points becomes the fixed anchor matters: if
+-- the anchor happened to be close to the eventual answer, the running
+-- average could drift toward it as convergence proceeds, narrowing the
+-- gap the solve depends on. To reduce that risk without adding any
+-- extra deliberate probing, whichever of the first two points is
+-- FURTHER from the 60s target (by block time) becomes the anchor, and
+-- the closer one becomes the first "remaining" point instead -- no
+-- data discarded, just labeled by which role it plays.
+--
+-- No spread guard, no additional deliberate high/low probes beyond the
+-- one initial jump needed to get a second, genuinely different point
+-- in the first place. The residual risk that the running average could
+-- still end up close to the anchor is accepted rather than guarded
+-- against.
+--
+-- calibAnchorW/calibAnchorT: the fixed anchor, set once (after the
+-- swap decision) and never changed again until the next 'T' press.
+-- calibCandW/calibCandT/calibCandErr: temporarily holds the FIRST
+-- measurement while waiting for the second, so the swap can be
+-- decided; cleared once the swap happens.
+-- remainingSumW/remainingSumT2/remainingCount: running sums for the
+-- average of every "remaining" point (not a list -- no window, no
+-- cap, nothing ever ages out).
+-- (globals, not locals -- see the upvalue-ceiling notes elsewhere in
+-- this file.)
+calibAnchorW, calibAnchorT = nil, nil
+calibCandW, calibCandT, calibCandErr = nil, nil, nil
+remainingSumW, remainingSumT2, remainingCount = 0, 0, 0
+
 local function noteWeightSeen(w)
   if trainingWeightMin == nil or w < trainingWeightMin then trainingWeightMin = w end
   if trainingWeightMax == nil or w > trainingWeightMax then trainingWeightMax = w end
@@ -734,9 +808,20 @@ v:addShortcut("T", function(N)
   blockStartClock = nil   -- discard any in-progress block from before training started (or from a previous training run)
   blockBeatCount = 0
   trainingWeightMin, trainingWeightMax = nil, nil   -- fresh range for this session
+  calibAnchorW, calibAnchorT = nil, nil   -- forget any previous anchor -- start fresh
+  calibCandW, calibCandT, calibCandErr = nil, nil, nil
+  remainingSumW, remainingSumT2, remainingCount = 0, 0, 0
   local startW = v:getParam("foliotWeight")
   noteWeightSeen(startW)
-  print(string.format("[tuning] STARTED at frame %d, foliotWeight=%.2f -- adjusting until 'G' locks it in", N, startW))
+  print(string.format("[tuning] STARTED at frame %d, foliotWeight=%.2f -- calibration begins now:", N, startW))
+  print("[tuning]   block 1 measures at the current weight, then jumps to a deliberately")
+  print("[tuning]   different test weight to get a second, genuinely different point.")
+  print("[tuning]   Whichever of those two ends up FURTHER from the 60s target becomes a")
+  print("[tuning]   fixed anchor for the rest of the session; the other joins a running")
+  print("[tuning]   average of every measurement since. Every later block solves from the")
+  print("[tuning]   anchor plus that average, then folds its own new measurement in --")
+  print("[tuning]   collapsing noise by averaging before the algebra, not folding it in.")
+  print("[tuning]   Press 'G' any time to lock in the current weight.")
 end)
 
 v:addShortcut("G", function(N)
@@ -946,17 +1031,86 @@ v:postSim(function(N)
               print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -- outside deadband (+/-%.1fs), but training is off, no change applied",
                                    BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, BLOCK_ERROR_DEADBAND))
             else
-              -- Negative sign vs the old gravity controller: more mass
-              -- means a SLOWER beat, so a positive error (running slow)
-              -- needs a NEGATIVE weight nudge, not a positive one.
-              local step = -BLOCK_GAIN * err
-              step = math.max(-MAX_WEIGHT_STEP_PER_UPDATE, math.min(MAX_WEIGHT_STEP_PER_UPDATE, step))
-
+              -- SWAP-ANCHOR + RUNNING-AVERAGE CALIBRATION. See the
+              -- block of comments above calibAnchorW's declaration for
+              -- the full reasoning.
+              local tMeasured = blockElapsed / BEATS_PER_BLOCK
+              local tTarget = TARGET_BLOCK_SECONDS / BEATS_PER_BLOCK
               local curW = v:getParam("foliotWeight")
-              local newW = setParam("foliotWeight", curW + step)   -- setParam() itself clamps to PARAM_INFO.foliotWeight's [min,max]
-              noteWeightSeen(newW)
-              print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -> foliotWeight %.2f -> %.2f",
-                                   BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, curW, newW))
+
+              if calibCandW == nil and calibAnchorW == nil then
+                -- First-ever measurement this session: hold it as a
+                -- CANDIDATE (not yet known whether it'll be the anchor
+                -- or the first "remaining" point -- that's decided once
+                -- the second point arrives). Deliberately jump to a
+                -- different test weight to get that second point.
+                calibCandW, calibCandT, calibCandErr = curW, tMeasured, math.abs(err)
+                local mid = (PARAM_INFO.foliotWeight.min + PARAM_INFO.foliotWeight.max) / 2
+                local w2test
+                if curW < mid then
+                  w2test = curW * 1.5 + 0.5
+                else
+                  w2test = curW * 0.6667
+                end
+                local actualW2 = setParam("foliotWeight", w2test)
+                print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -- point 1: weight=%.2f, measured period=%.4fs/beat",
+                                     BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, curW, tMeasured))
+                print(string.format("  [beat control]   jumping to test weight %.2f to collect a second point and decide the anchor",
+                                     actualW2))
+                noteWeightSeen(actualW2)
+
+              elseif calibAnchorW == nil then
+                -- Second point collected -- decide the swap: whichever
+                -- of the two is FURTHER from the 60s target becomes the
+                -- fixed anchor; the other joins the running average as
+                -- the first "remaining" point.
+                local thisErr = math.abs(err)
+                local anchorW, anchorT, anchorErr, otherW, otherT, otherErr
+                if calibCandErr >= thisErr then
+                  anchorW, anchorT, anchorErr = calibCandW, calibCandT, calibCandErr
+                  otherW, otherT, otherErr = curW, tMeasured, thisErr
+                else
+                  anchorW, anchorT, anchorErr = curW, tMeasured, thisErr
+                  otherW, otherT, otherErr = calibCandW, calibCandT, calibCandErr
+                end
+                calibAnchorW, calibAnchorT = anchorW, anchorT
+                remainingSumW, remainingSumT2, remainingCount = otherW, otherT^2, 1
+
+                local Bfit = (calibAnchorT^2 - otherT^2) / (calibAnchorW - otherW)
+                local Afit = calibAnchorT^2 - Bfit * calibAnchorW
+                local wTarget = (tTarget^2 - Afit) / Bfit
+                local newW = setParam("foliotWeight", wTarget)
+                print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -- point 2: weight=%.2f, measured period=%.4fs/beat",
+                                     BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, curW, tMeasured))
+                print(string.format("  [beat control]   weight=%.2f (err=%.3fs) is further from target than weight=%.2f (err=%.3fs) -- anchor fixed at w=%.2f",
+                                     anchorW, anchorErr, otherW, otherErr, anchorW))
+                print(string.format("  [beat control]   T^2=%.4f+%.4f*w (anchor w=%.2f, remaining-points average w=%.2f) -> foliotWeight %.2f -> %.2f",
+                                     Afit, Bfit, calibAnchorW, otherW, curW, newW))
+                noteWeightSeen(newW)
+
+              else
+                -- Ongoing refinement: fold this block's measurement into
+                -- the running average of "remaining" points (unbounded
+                -- -- nothing ages out), then solve using the fixed
+                -- anchor plus that updated average. Collapses per-block
+                -- noise by averaging BEFORE the algebra sees it, and
+                -- gets more precise as more measurements accumulate,
+                -- rather than being fully determined by whichever one
+                -- or two points happen to be newest.
+                remainingSumW = remainingSumW + curW
+                remainingSumT2 = remainingSumT2 + tMeasured^2
+                remainingCount = remainingCount + 1
+                local avgW = remainingSumW / remainingCount
+                local avgT2 = remainingSumT2 / remainingCount
+
+                local Bfit = (calibAnchorT^2 - avgT2) / (calibAnchorW - avgW)
+                local Afit = calibAnchorT^2 - Bfit * calibAnchorW
+                local wTarget = (tTarget^2 - Afit) / Bfit
+                local newW = setParam("foliotWeight", wTarget)
+                print(string.format("  [beat control] %d beats took %.3fs (target %.1fs) err=%+.3fs -> foliotWeight %.2f -> %.2f (anchor w=%.2f, %d remaining points averaging to w=%.3f T^2=%.4f: T^2=%.4f+%.4f*w)",
+                                     BEATS_PER_BLOCK, blockElapsed, TARGET_BLOCK_SECONDS, err, curW, newW, calibAnchorW, remainingCount, avgW, avgT2, Afit, Bfit))
+                noteWeightSeen(newW)
+              end
             end
             -- Range-so-far tracking only means something during an
             -- active (or at least once-started) training session --
