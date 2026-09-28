@@ -22,6 +22,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QRect>
+#include <QSet>
 #include <QSettings>
 #include <QTextStream>
 #include <QVector>
@@ -854,6 +855,25 @@ public slots:
   void setCBOnJoystick(const luabind::object &fn);
 
   /**
+   * @brief Sets the hook called when a key is pressed or released.
+   *
+   * The function receives the frame number, the key's name (the Qt key
+   * sequence text, e.g. "Return", "Z", "1"; the two Shift keys are reported
+   * as "LShift" and "RShift") and true for a press, false for a release.
+   * Auto-repeat presses are not reported. If the function returns true for a
+   * press, that key is consumed: it and its auto-repeats skip the built-in
+   * key bindings until it is released.
+   *
+   * @param fn A Lua function as described. Ignored if not a function.
+   */
+  void setCBOnKey(const luabind::object &fn);
+
+  /** @brief Milliseconds between animation frames (QGLViewer's period). */
+  int getAnimationPeriod() const;
+  /** @brief Sets the milliseconds between animation frames. */
+  void setAnimationPeriodMs(int ms);
+
+  /**
    * @brief Sets the hook called for each 3D mouse report.
    *
    * Setting this takes the 3D mouse away from the built-in camera control, so
@@ -985,6 +1005,12 @@ public slots:
    * @param e The key event.
    */
   void keyPressEvent(QKeyEvent *e) override;
+
+  /**
+   * @brief Reports key releases to the onKey() hook, if one is set.
+   * @param e The key event.
+   */
+  void keyReleaseEvent(QKeyEvent *e) override;
 
   /**
    * @brief Stops Tab and Backtab being eaten by focus traversal.
@@ -1698,6 +1724,8 @@ private:
   luabind::object _cb_preStop;   ///< Called before the script is replaced.
   luabind::object _cb_onCommand; ///< Called for a command line entry.
   luabind::object _cb_onJoystick; ///< Called for each joystick report.
+  luabind::object _cb_onKey; ///< Called for each key press and release.
+  QSet<int> _luaHeldKeys;    ///< Keys the onKey() hook consumed on press.
   luabind::object _cb_onSpaceNavigator; ///< Called for each 3D mouse report;
                                         ///< when set it also takes the device
                                         ///< away from the built-in camera

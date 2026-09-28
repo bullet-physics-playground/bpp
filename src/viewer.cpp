@@ -365,6 +365,10 @@ void Viewer::luaBind(lua_State *s) {
                  (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnJoystick,
                  adopt(luabind::result))
+            .def("onKey",
+                 (void(Viewer::*)(const luabind::object &fn)) &
+                    Viewer::setCBOnKey,
+                 adopt(luabind::result))
             .def("onSpaceNavigator",
                  (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnSpaceNavigator,
@@ -396,6 +400,9 @@ void Viewer::luaBind(lua_State *s) {
            .property("cam", &Viewer::getCamera, &Viewer::setCamera)
 
            .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
+
+           .property("animationPeriod", &Viewer::getAnimationPeriod,
+                     &Viewer::setAnimationPeriodMs)
 
            // SpaceNavigator 3D mouse navigation settings
            .property("snMode", &Viewer::spaceNavigatorMode,
@@ -784,7 +791,60 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 }
 } // namespace
 
+namespace {
+// Name a key for the onKey() hook: its Qt key sequence text, except that the
+// two Shift keys are told apart (pinball flippers are traditionally on the
+// left and right Shift). Qt reports both as Key_Shift, so the side comes from
+// the platform's native code.
+QString luaKeyName(const QKeyEvent *e) {
+  if (e->key() == Qt::Key_Shift) {
+#if defined(Q_OS_MAC)
+    const bool right = e->nativeVirtualKey() == 60; // kVK_RightShift
+#elif defined(Q_OS_WIN)
+    const bool right = e->nativeScanCode() == 54;
+#else
+    const bool right = e->nativeScanCode() == 62; // X11 / evdev keycode
+#endif
+    return right ? QStringLiteral("RShift") : QStringLiteral("LShift");
+  }
+  return QKeySequence(e->key()).toString(QKeySequence::PortableText);
+}
+} // namespace
+
+void Viewer::keyReleaseEvent(QKeyEvent *e) {
+  if (!e->isAutoRepeat() && _cb_onKey) {
+    _luaHeldKeys.remove(e->key());
+    try {
+      luabind::call_function<void>(_cb_onKey, _frameNum, luaKeyName(e), false);
+    } catch (const std::exception &ex) {
+      showLuaException(ex, "onKey()");
+    }
+  }
+  QGLViewer::keyReleaseEvent(e);
+}
+
 void Viewer::keyPressEvent(QKeyEvent *e) {
+  if (_cb_onKey) {
+    if (e->isAutoRepeat()) {
+      if (_luaHeldKeys.contains(e->key()))
+        return;
+    } else {
+      bool consumed = false;
+      try {
+        luabind::object r = luabind::call_function<luabind::object>(
+            _cb_onKey, _frameNum, luaKeyName(e), true);
+        consumed = r && luabind::type(r) == LUA_TBOOLEAN &&
+                   luabind::object_cast<bool>(r);
+      } catch (const std::exception &ex) {
+        showLuaException(ex, "onKey()");
+      }
+      if (consumed) {
+        _luaHeldKeys.insert(e->key());
+        return;
+      }
+    }
+  }
+
   int keyInt = e->key();
   Qt::Key key = static_cast<Qt::Key>(keyInt);
 
@@ -1809,6 +1869,8 @@ emit scriptStarts();
     _cb_postSim = luabind::object();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
+    _cb_onKey = luabind::object();
+    _luaHeldKeys.clear();
     _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
 
@@ -2243,6 +2305,8 @@ Viewer::~Viewer() {
   _cb_preStop = luabind::object();
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
+  _cb_onKey = luabind::object();
+  _luaHeldKeys.clear();
   _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
 
@@ -3216,6 +3280,16 @@ void Viewer::setCBOnCommand(const luabind::object &fn) {
     _cb_onCommand = fn;
   }
 }
+
+void Viewer::setCBOnKey(const luabind::object &fn) {
+  if (luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onKey = fn;
+  }
+}
+
+int Viewer::getAnimationPeriod() const { return animationPeriod(); }
+
+void Viewer::setAnimationPeriodMs(int ms) { setAnimationPeriod(ms); }
 
 void Viewer::setCBOnJoystick(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
