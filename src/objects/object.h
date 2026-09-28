@@ -517,6 +517,15 @@ public:
   collisiontypes getCol1() const;
 
   /**
+   * @brief Whether the object takes part in collision detection at all.
+   * Setting false (before the object is added to the world) puts it in no
+   * collision group, so nothing is ever tested against it -- for objects
+   * that are only for show. Lua property: collides.
+   */
+  void setCollides(bool on);
+  bool getCollides() const;
+
+  /**
    * @brief Returns the collision groups the object collides with.
    * @return Its mask.
    */

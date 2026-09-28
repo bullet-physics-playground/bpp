@@ -216,6 +216,11 @@ public:
   void playSound(int id);
 
   /**
+   * @brief As playSound(id), at a volume from 0 (silent) to 1 (full).
+   */
+  void playSound(int id, double volume);
+
+  /**
    * @brief Sets the size of Bullet's internal fixed simulation step.
    * @param fts The internal step in seconds. Defaults to 1/100.
    */

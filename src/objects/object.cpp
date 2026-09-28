@@ -94,6 +94,15 @@ void Object::setCollisionTypes(collisiontypes col1, collisiontypes col2) {
 
 collisiontypes Object::getCol1() const { return col1; }
 
+void Object::setCollides(bool on) {
+  if (on)
+    setCollisionTypes(COL_WALL, COL_WALL);
+  else
+    setCollisionTypes(COL_NOTHING, COL_NOTHING);
+}
+
+bool Object::getCollides() const { return col2 != COL_NOTHING; }
+
 collisiontypes Object::getCol2() const { return col2; }
 
 QList<btTypedConstraint *> Object::getConstraints() const { return _constraints; }
@@ -201,6 +210,11 @@ void Object::luaBind(lua_State *s) {
                      (void(Object::*)(btScalar)) & Object::setAngularDamping)
 
            // povray properties
+
+           // false: the object touches nothing (set before v:add()) --
+           // for things that are only for show, which then cost nothing
+           // in collision detection
+           .property("collides", &Object::getCollides, &Object::setCollides)
 
            .property("pov_export",
                      (bool(Object::*)(void)) & Object::getPOVExport,

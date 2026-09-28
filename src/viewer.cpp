@@ -432,7 +432,8 @@ void Viewer::luaBind(lua_State *s) {
            // loadSound() is safe to call even with no audio device
            // present -- returns -1, and playSound() on -1 is a no-op.
            .def("loadSound", &Viewer::loadSound)
-           .def("playSound", &Viewer::playSound)
+           .def("playSound", (void(Viewer::*)(int)) & Viewer::playSound)
+           .def("playSound", (void(Viewer::*)(int, double)) & Viewer::playSound)
 
            .property("glShininess", &Viewer::getGLShininess,
                      &Viewer::setGLShininess)
@@ -1111,7 +1112,22 @@ void Viewer::playSound(int id) {
     return;
   }
   // -1: play on the first free channel. 0: play once, don't loop.
-  Mix_PlayChannel(-1, it->second, 0);
+  int ch = Mix_PlayChannel(-1, it->second, 0);
+  if (ch >= 0) Mix_Volume(ch, MIX_MAX_VOLUME);
+}
+
+void Viewer::playSound(int id, double volume) {
+  if (!_audioAvailable || id < 0) {
+    return;
+  }
+  auto it = _soundChunks.find(id);
+  if (it == _soundChunks.end()) {
+    return;
+  }
+  if (volume <= 0) return;
+  if (volume > 1) volume = 1;
+  int ch = Mix_PlayChannel(-1, it->second, 0);
+  if (ch >= 0) Mix_Volume(ch, (int)(volume * MIX_MAX_VOLUME + 0.5));
 }
 
 void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
@@ -1289,6 +1305,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
   } else {
     _audioAvailable = true;
+    // room for many overlapping effects (e.g. a pool break)
+    Mix_AllocateChannels(32);
   }
 
 
