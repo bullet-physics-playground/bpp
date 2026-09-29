@@ -13,6 +13,13 @@
 -- is flipping here" fills in and the timing sharpens. The left and right
 -- flippers share what they learn (the right side is the mirror image).
 --
+-- TIME counts too. Every frame the ball spends at the flippers costs a
+-- little, and every flip a little more, so the quickest way back up the
+-- table is worth the most. A ball that hangs about the flippers for four
+-- seconds without going anywhere counts as badly as a drain. (Without
+-- this it learned to keep the ball alive by flicking it over and over on
+-- the base of the flipper, where it barely moves.)
+--
 -- PLUNGER: it tries different plunger strengths and keeps a running
 -- average of how many points each one led to (a "multi-armed bandit"),
 -- choosing the best one most of the time and the others now and then.
@@ -33,6 +40,10 @@ return function(TF)
   local GAMMA = 0.98          -- how much a later outcome counts, per frame back
   ai.epsilon = 0.03           -- how often it tries a random choice while playing
   local HOLD = 12             -- frames a flip holds the flipper up (0.2 s)
+  local STEP_COST = 0.004     -- the cost of each frame spent at the flippers...
+  local FLIP_COST = 0.02      -- ...and of each flip
+  local STALL_FRAMES = 240    -- this long at the flippers (4 s) without going
+  local STALL_REWARD = -1     -- back up the table is as bad as a drain
 
   -- the state: the ball's place and motion relative to the flipper nearest
   -- it, in bins
@@ -58,6 +69,7 @@ return function(TF)
   brain = brain or { q = {}, episodes = 0, balls = 0, games = 0, scores = {}, recent = {},
                      plunge = { n = {}, sum = {} } }
   brain.recent = brain.recent or {}
+  brain.stalls = brain.stalls or 0
   brain.scores = brain.scores or {}
   local q = brain.q
 
@@ -66,8 +78,8 @@ return function(TF)
     if not f then return false end
     f:write("-- What the computer player of Pinball Machine A has learned.\n")
     f:write("-- Written by pinball-machine-a-ai.lua; delete it to start over.\n")
-    f:write(string.format("return { episodes = %d, balls = %d, games = %d,\n",
-                          brain.episodes, brain.balls, brain.games))
+    f:write(string.format("return { episodes = %d, balls = %d, games = %d, stalls = %d,\n",
+                          brain.episodes, brain.balls, brain.games, brain.stalls))
     local keys = {}
     for k in pairs(q) do keys[#keys + 1] = k end
     table.sort(keys)
@@ -125,7 +137,7 @@ return function(TF)
   local episode = nil           -- { s, a, frames } while the ball is near the flippers
   local pull = nil              -- { at, strength, arm } while drawing the plunger
   local ballPlay = nil          -- { arm, score } for the ball in play
-  local stats = { saves = 0, drains = 0 }
+  local stats = { saves = 0, drains = 0, stalls = 0 }
   local lastGameActive = false
   local game = TF.game
 
@@ -134,11 +146,17 @@ return function(TF)
     if #brain.recent > 400 then table.remove(brain.recent, 1) end
   end
 
-  -- the end of a visit to the flippers: +1 the ball went back up, -1 it drained
+  -- what the last choice cost: the frames since it, and the flip if it was one
+  local function cost(ep)
+    return STEP_COST * (ep.frames - ep.at) + (ep.a == 1 and FLIP_COST or 0)
+  end
+
+  -- the end of a visit to the flippers: +1 the ball went back up, -1 it
+  -- drained (or stalled there)
   local function finish(reward)
     if episode then
       local s, a = episode.s, episode.a
-      setQ(s, a, Q(s, a) + ALPHA * (reward - Q(s, a)))
+      setQ(s, a, Q(s, a) + ALPHA * (reward - cost(episode) - Q(s, a)))
       brain.episodes = brain.episodes + 1
       if reward > 0 then stats.saves = stats.saves + 1; recent(1)
       elseif reward < 0 then stats.drains = stats.drains + 1; recent(0) end
@@ -234,13 +252,17 @@ return function(TF)
       episode.frames = episode.frames + 1
       if dw > DW0 + NDW * DW_STEP and vw > 0 then finish(1)          -- back up the table
       elseif TF.inOuthole(u, w) or dw < DW0 - 2 then finish(-1)       -- gone
-      elseif episode.frames > 600 then finish(0) end                  -- stuck
+      elseif episode.frames > STALL_FRAMES then                        -- going nowhere
+        stats.stalls = stats.stalls + 1
+        brain.stalls = brain.stalls + 1
+        finish(STALL_REWARD)
+      end
     end
     if s and hold[side] == 0 then
       -- learn from the last choice: what it led to is the best this state offers
       if episode then
         local ps, pa = episode.s, episode.a
-        local target = GAMMA * math.max(Q(s, 0), Q(s, 1))
+        local target = -cost(episode) + GAMMA * math.max(Q(s, 0), Q(s, 1))
         setQ(ps, pa, Q(ps, pa) + ALPHA * (target - Q(ps, pa)))
       end
       -- choose: flip (1) or wait (0)
@@ -250,7 +272,8 @@ return function(TF)
         local q0, q1 = Q(s, 0), Q(s, 1)
         a = (q1 > q0 or (q1 == q0 and math.random() < 0.5)) and 1 or 0
       end
-      episode = { s = s, a = a, frames = episode and episode.frames or 0 }
+      local f = episode and episode.frames or 0
+      episode = { s = s, a = a, frames = f, at = f }
       if a == 1 then
         press(side, true)
         hold[side] = HOLD
@@ -281,10 +304,10 @@ return function(TF)
     local entries = 0
     for _ in pairs(q) do entries = entries + 1 end
     return string.format("COMPUTER PLAYER (P): %s | %d games learned from, average of the last %d: %s, best %s | "
-                         .. "saves at the flippers: %s of the last %d | %d flipper visits, %d table entries",
+                         .. "saves at the flippers: %s of the last %d | %d flipper visits, %d stalled, %d table entries",
                          ai.on and "PLAYING" or "off", brain.games, n, n > 0 and tostring(math.floor(sum / n)) or "-",
                          tostring(best), m > 0 and string.format("%.0f%%", 100 * saved / m) or "-", m,
-                         brain.episodes, entries)
+                         brain.episodes, brain.stalls, entries)
   end
 
   ai.brain = brain

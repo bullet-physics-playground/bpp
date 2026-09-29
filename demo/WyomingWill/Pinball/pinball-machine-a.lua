@@ -9,7 +9,7 @@
 --   pinball-machine-a-rules.lua    the game rules: points, target banks, bonus,
 --                             extra balls, which sound file plays when.
 --                             Edit it and press R to reload.
---   pinball_machine_sounds/      put sound files here (names are listed in the
+--   pinball-machine-a-sounds/      put sound files here (names are listed in the
 --                             rules file); missing ones are simply skipped
 --
 -- THE LAYOUT is an approximation: no drawing of the real playfield was
@@ -52,6 +52,7 @@
 --   Return           hold to draw the plunger back, release to launch
 --                    (launching with no game running starts one)
 --   Left/Right Shift flippers (also Z and / )
+--   Space            shake (nudge) the machine -- too often and it tilts
 --   1                start a new game (when no game is running)
 --   P                the computer plays, learning as it goes (see
 --                    pinball-machine-a-ai.lua); P again to stop
@@ -72,7 +73,7 @@ local common = require "common"
 -- ---------------------------------------------------------------------
 
 local RULES_FILE = "pinball-machine-a-rules.lua"
-local SOUND_DIR = "pinball_machine_sounds/"
+local SOUND_DIR = "pinball-machine-a-sounds/"
 
 local rules
 do
@@ -89,6 +90,15 @@ do
   rules.sounds = rules.sounds or {}
   rules.multiplier = rules.multiplier or { max = 5 }
   rules.ballsPerGame = rules.ballsPerGame or 3
+  -- (for rules files written before the machine could be shaken)
+  rules.tilt = rules.tilt or {}
+  rules.tilt.nudge = rules.tilt.nudge or 35       -- cm/s the ball gets, up the table
+  if rules.tilt.warnings == nil then rules.tilt.warnings = 2 end   -- per ball, before a tilt
+  rules.tilt.sway = rules.tilt.sway or 2.5        -- the tilt bob swings this far (shoves)...
+  rules.tilt.settle = rules.tilt.settle or 1.0    -- ...and settles this much a second
+  for event, file in pairs({ nudge = "nudge.wav", tiltWarning = "tilt_warning.wav", tilt = "tilt.wav" }) do
+    if rules.sounds[event] == nil then rules.sounds[event] = file end
+  end
 end
 
 -- ---------------------------------------------------------------------
@@ -907,6 +917,9 @@ local game = {
   ballsPerGame = rules.ballsPerGame,
   high = 0,
   serveAt = nil,         -- frame to serve the next ball, after a drain
+  tilted = false,        -- this ball is tilted: flippers and coils dead
+  warnings = 0,          -- tilt warnings this ball
+  sway = 0, swayAt = 0,  -- the tilt bob's swing
   messageText = nil, messageUntil = 0,
 }
 do
@@ -1009,6 +1022,7 @@ end
 
 local function resetBallState()
   game.bonus, game.multiplier = 0, 1
+  game.tilted, game.warnings, game.sway = false, 0, 0
   game.loopValue = rules.loop and rules.loop.start or 0
   for _, bank in ipairs(banks) do
     for i in ipairs(bank.lit) do bank.lit[i] = false end
@@ -1057,6 +1071,7 @@ end
 
 -- A switch was hit. Plays its sound always; scores only during a game.
 onSwitch = function(sw)
+  if game.tilted then return end        -- a tilted machine is dead
   local name = sw.name
   playSound(sw.cat, name)
   if not game.active then return end
@@ -1112,7 +1127,7 @@ end
 ballDrained = function()
   playSound("drain")
   if not game.active then return end
-  local total = game.bonus * game.multiplier
+  local total = game.tilted and 0 or game.bonus * game.multiplier   -- (no bonus after a tilt)
   if total > 0 then
     addScore(total)
     message("BONUS " .. total, 2)
@@ -1195,7 +1210,7 @@ end
 local function driveFlippers()
   for side, f in pairs(flippers) do
     local dir = (side < 0) and 1 or -1
-    if f.pressed then
+    if f.pressed and not game.tilted then
       f.hinge:enableAngularMotor(true, dir * FLIP_UP_VEL, FLIP_UP_IMPULSE)
     else
       f.hinge:enableAngularMotor(true, -dir * FLIP_DN_VEL, FLIP_DN_IMPULSE)
@@ -1229,6 +1244,63 @@ local function now()
   if TF and TF.clock then return TF.clock() end    -- scripted tests' clock
   return v.getTime and v:getTime() or frame * FRAME
 end
+
+-- ---------------------------------------------------------------------
+-- shaking the machine (Space). A shove on the front of the cabinet: the
+-- ball gets a push up the table (and a little to one side or the other),
+-- and the view jolts. Each shove swings the tilt bob; swing it too far
+-- and it's a warning (DANGER), and after the rules' number of warnings in
+-- one ball the next is a TILT: flippers, bumpers and slingshots go dead,
+-- nothing scores, and the ball is lost with no bonus.
+-- ---------------------------------------------------------------------
+
+local nudger = { shake = nil }    -- shake: the view's jolt in progress { pos, look, frames }
+
+function nudger.nudge()
+  local vel = ball.vel
+  local side = (math.random() - 0.5) * 0.6
+  ball.vel = btVector3(vel.x + side * rules.tilt.nudge, vel.y, vel.z - rules.tilt.nudge)
+  playSound("nudge")
+  if nudger.shake then nudger.shake.frames = 0
+  else pcall(function() nudger.shake = { pos = v.cam.pos, look = v.cam.look, frames = 0 } end) end
+  if not (game.active and rules.tilt.warnings and not game.tilted) then return end
+  local t = now()
+  game.sway = math.max(0, game.sway - rules.tilt.settle * (t - game.swayAt)) + 1
+  game.swayAt = t
+  if game.sway > rules.tilt.sway then
+    game.sway = 0
+    game.warnings = game.warnings + 1
+    if game.warnings > rules.tilt.warnings then
+      game.tilted = true
+      for _, f in pairs(flippers) do f.pressed = false end
+      message("TILT", 3)
+      playSound("tilt")
+    else
+      message("DANGER", 2)
+      playSound("tiltWarning")
+    end
+  end
+end
+
+-- the jolt: the view moves forward and back over a fifth of a second
+function nudger.tick()
+  local shake = nudger.shake
+  if not shake then return end
+  shake.frames = shake.frames + 1
+  local k = shake.frames
+  if k >= 12 then
+    pcall(function() v.cam.pos = shake.pos; v.cam.look = shake.look end)
+    nudger.shake = nil
+    return
+  end
+  local a = 0.9 * math.sin(k * math.pi / 3) * (1 - k / 12)
+  local p, l = shake.pos, shake.look
+  pcall(function()
+    v.cam.pos = btVector3(p.x + 0.3 * a, p.y + 0.2 * a, p.z - a)
+    v.cam.look = btVector3(l.x + 0.3 * a, l.y + 0.2 * a, l.z - a)
+  end)
+end
+
 local EDIT_SELECT_COL = "#7cfc00"
 -- the area the lanes and bumpers must stay inside (table coordinates, cm)
 local EDIT_AREA = { umin = L + 1.0, umax = LANE_IN - 0.8, wmin = 36 }
@@ -1661,6 +1733,8 @@ PLAY
   Return              hold to pull the plunger, release to launch
                       (launching with no game running starts one)
   Left/Right Shift    flippers (Z and / also work)
+  Space               shake (nudge) the machine: a push up the table.
+                      Too often and you get DANGER, then TILT (the ball is lost)
   1                   start a new game (when no game is running)
   P                   the computer plays, learning as it goes (P again to stop)
 Rules: ]] .. RULES_FILE .. [[  (edit, then reload the table: R during play, or Ctrl+R)
@@ -1862,11 +1936,16 @@ local function onKey(N, key, down)
   if editing and editorKey(key, down) then return true end
   local side = FLIPPER_KEYS[key]
   if side then
+    if down and game.tilted then return true end   -- (dead after a tilt)
     if down ~= flippers[side].pressed then
       flippers[side].pressed = down
       playSound(down and "flipperUp" or "flipperDown")
       if down then rotateBanks(side) end
     end
+    return true
+  end
+  if key == "Space" then
+    if down then nudger.nudge() end
     return true
   end
   if key == "Return" or key == "Enter" then
@@ -1910,7 +1989,7 @@ TF = { onKey = function(key, down) return onKey(frame, key, down) end, gate = ga
        bumpers = bumpers, switchByName = switchByName, soundIds = soundIds,
        editOrder = function() return EDIT_ORDER end, plunger = plunger,
        hit = function(name) onSwitch(switchByName[name]) end,
-       drain = function() ballDrained() end, startGame = startGame,
+       drain = function() ballDrained() end, startGame = startGame, nudge = function() nudger.nudge() end,
        -- for the computer player
        now = function() return now() end, laneIn = LANE_IN, inOuthole = function(u, w) return inOuthole(u, w) end,
        ballVelUW = function() local bv = ball.vel return bv.x, -bv.z end,
@@ -1940,6 +2019,7 @@ local shown = {}         -- what the scoreboard last showed
 local function updateBoard()
   local msg
   if game.messageText and frame < game.messageUntil then msg = game.messageText
+  elseif game.tilted then msg = "TILT"
   elseif editing then msg = "EDIT LAYOUT"
   elseif not game.active then msg = "PRESS 1"
   else msg = "" end
@@ -2037,7 +2117,7 @@ v:postSim(function(N)
       hit = distSegSeg(prevU, prevW, u, w, s.a[1], s.a[2], s.b[1], s.b[2]) < 0.6
     end
     if hit then
-      if (swUntil[s.name] or 0) <= frame then
+      if (swUntil[s.name] or 0) <= frame and not game.tilted then   -- (tilted: all dead)
         TF.switchLog[#TF.switchLog + 1] = { frame = frame, sw = s.name }
         for _, b in ipairs(bumpers) do
           if b.name == s.name then fireBumper(b) end
@@ -2088,6 +2168,7 @@ v:postSim(function(N)
     end
   end
 
+  nudger.tick()
   prevU, prevW = u, w
   if TF.ai then TF.ai.tick(N) end
   TF.gcTick()

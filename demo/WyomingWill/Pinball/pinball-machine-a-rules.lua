@@ -84,6 +84,14 @@ return {
   -- The left loop's value rises each time round, and resets each ball.
   loop = { switch = "leftLoop", start = 5000, step = 5000, max = 25000 },
 
+  -- Shaking the machine (Space). Each shove pushes the ball up the table at
+  -- `nudge` cm/s and swings the tilt bob; more than `sway` shoves close
+  -- together (it settles by `settle` a second) is a warning, DANGER. After
+  -- `warnings` warnings in one ball, the next one TILTS: the flippers,
+  -- bumpers and slingshots go dead, nothing scores, and the ball is lost
+  -- with no bonus. warnings = false: shake as much as you like.
+  tilt = { nudge = 35, sway = 2.5, settle = 1.0, warnings = 2 },
+
   -- Sound effects: event name -> file in the pinball-machine-a-sounds folder next
   -- to the table. WAV always works; OGG, FLAC and MP3 work if your SDL_mixer
   -- supports them. A missing file is just skipped, so add them as you go.
@@ -109,6 +117,9 @@ return {
     gameStart    = "game_start.wav",
     gameOver     = "game_over.wav",
     highScore    = "high_score.wav",
+    nudge        = "nudge.wav",          -- the machine shaken (Space)
+    tiltWarning  = "tilt_warning.wav",   -- DANGER: shaken too much
+    tilt         = "tilt.wav",           -- TILT
   },
 
   -- Optional: extra rules in Lua. Called for every switch hit after the
@@ -123,5 +134,19 @@ return {
   --       game.addScore(3000)
   --     end
   --   end,
-  onSwitch = nil,
+  -- onSwitch = nil,
+  -- an extra ball at every 100,000 points
+  onSwitch = (function()
+    local nextAt, lastScore = 100000, 0
+    return function(game, name)
+      if game.score < lastScore then nextAt = 100000 end   -- a new game started
+      lastScore = game.score
+      if game.score >= nextAt then
+        game.awardExtraBall()
+        game.message("REPLAY")
+        nextAt = nextAt + 100000
+      end
+    end
+  end)(),
+  
 }
