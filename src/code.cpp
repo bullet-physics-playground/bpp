@@ -235,6 +235,13 @@ int CodeEditor::lineNumberAreaWidth() {
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
   setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
+
+  // setViewportMargins() alone does not resize lineNumberArea - that only
+  // happens in resizeEvent(), which a margin change does not trigger. Without
+  // this, the gutter keeps its old width until the editor itself is resized.
+  QRect cr = contentsRect();
+  lineNumberArea->setGeometry(
+      QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
 void CodeEditor::updateLineNumberArea(const QRect &rect, int dy) {
