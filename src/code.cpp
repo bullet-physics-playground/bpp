@@ -70,7 +70,13 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
 
   lineNumberArea = new LineNumberArea(this);
 
-  connect(this, &CodeEditor::blockCountChanged, this,
+  // Connected to the document's own signal, not the QPlainTextEdit one:
+  // Gui::fileLoad() wraps editor->load() in editor->blockSignals(true/false)
+  // to silence textChanged/cursorPositionChanged side effects while loading,
+  // but that also suppresses this widget's own blockCountChanged - which the
+  // gutter margin needs even during a silenced load. The document is never
+  // blockSignals()'d, so its signal still gets through.
+  connect(document(), &QTextDocument::blockCountChanged, this,
           &CodeEditor::updateLineNumberAreaWidth);
   connect(this, &CodeEditor::updateRequest, this,
           &CodeEditor::updateLineNumberArea);
