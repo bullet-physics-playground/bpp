@@ -130,11 +130,21 @@ int main(int argc, char **argv) {
   // run on a bare server/CI/container instead of aborting with "could not
   // connect to display". Only do this when the user hasn't already picked a
   // platform themselves.
+  //
+  // Linux only: DISPLAY and WAYLAND_DISPLAY are how X11 and Wayland advertise
+  // a display, so their absence is the "no display" test here. Windows never
+  // sets either, so the test would always pass and every headless run would
+  // be forced onto the offscreen plugin - which a build folder need not ship
+  // (only qwindows.dll is deployed), aborting with "no Qt platform plugin
+  // could be initialized" even though the native plugin works fine for a
+  // windowless run. Windows and macOS always have a window server to talk to.
+#ifdef Q_OS_LINUX
   if (headlessSimulate && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM") &&
       qEnvironmentVariableIsEmpty("DISPLAY") &&
       qEnvironmentVariableIsEmpty("WAYLAND_DISPLAY")) {
     qputenv("QT_QPA_PLATFORM", "offscreen");
   }
+#endif
 
   // Native Wayland forbids clients from positioning their own top-level
   // windows (the compositor has sole authority over placement), so
