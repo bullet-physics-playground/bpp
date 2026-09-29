@@ -14,7 +14,7 @@ build_with_msys2 {
   equals(USE_VFE, 1): DEFINES += WIN32_LINK_POVVFE
 
   CONFIG += link_pkgconfig
-  PKGCONFIG += assimp bullet glew freeglut sdl2 lua5.1
+  PKGCONFIG += assimp bullet glew freeglut sdl2 sdl2_mixer lua5.1
 
   WIN32_DIR_LUABIND   = $$HOME/luabind
   WIN32_DIR_QGLVIEWER = $$HOME/libQGLViewer
