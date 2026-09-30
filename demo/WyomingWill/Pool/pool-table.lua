@@ -142,6 +142,31 @@ local function box(x, y, z, sx, sy, sz, col, yaw)
   return c
 end
 
+-- In POV-Ray the woodwork is cherry (includes/diva-wood-cherry.jpg, the
+-- wood of includes/poolballs.pov's rack). The picture is projected across
+-- a box diagonally, so its grain shows on the top and the sides alike;
+-- `grain` is the way it runs: "x", "z", "around" (level, all round the
+-- box) or "up".
+local WOOD = {
+  x = "rotate 45*x", z = "rotate 45*x rotate 90*y",
+  around = "rotate 45*y", up = "rotate 90*z rotate 45*y",
+}
+local function wood(c, grain)
+  c.sdl = "texture { t_wood " .. WOOD[grain] .. " }"
+  return c
+end
+v.pre_sdl = v.pre_sdl .. [[
+#declare t_wood =
+texture {
+  pigment {
+    image_map { jpeg "diva-wood-cherry" interpolate 2 }
+    rotate 90*z          // the grain along X
+    scale 40             // about 40 cm of veneer
+  }
+  finish { specular 0.3 roughness 0.02 }
+}
+]]
+
 -- A flat disc lying on a surface at height y (no collision response).
 local function disc(x, y, z, r, col)
   local c = Cylinder(r, 0.1, 0)
@@ -206,10 +231,50 @@ do
   local cloth = box(0, -5, 0, 2 * K.RAIL_IN_X, 10, 2 * K.RAIL_IN_Z, COL.cloth)
   cloth.friction = 1.0
   cloth.restitution = 0.0
-  box(0, -12, 0, 2 * K.OUT_X, 20, 2 * K.OUT_Z, COL.apron)
+  -- in POV-Ray, the cloth from Jaime Vives Piqueres' includes/poolballs.pov:
+  -- furry fabric with chalk specks on it (and no shine). Its f_mesh1 weave
+  -- is left out: far finer than a pixel from any of our views, it only
+  -- shows as streaks.
+  cloth.sdl = "texture { t_cloth }"
+  v.pre_sdl = v.pre_sdl .. [[
+#declare t_cloth =
+texture {
+  pigment {
+    image_map { jpeg "mayang-furry_fabric_6150133-gr" interpolate 2 }
+    warp { turbulence 1 lambda 4 }
+    rotate 90*x
+    scale .04
+  }
+  finish { specular 0 }
+}
+texture {
+  pigment {
+    wrinkles warp { turbulence 1 lambda 3 }
+    scale 1 frequency 8
+    color_map {
+      [0 rgbt 1]
+      [0.200 rgbt 1]
+      [0.201 White]
+      [0.202 rgbt 1]
+      [0.400 rgbt 1]
+      [0.401 Firebrick]
+      [0.402 rgbt 1]
+      [0.600 rgbt 1]
+      [0.601 Gold]
+      [0.602 rgbt 1]
+      [0.800 rgbt 1]
+      [0.801 SlateBlue]
+      [0.802 rgbt 1]
+      [1.0 rgbt 1]
+    }
+  }
+  finish { specular 0 }
+}
+]]
+  wood(box(0, -12, 0, 2 * K.OUT_X, 20, 2 * K.OUT_Z, COL.apron), "around")
   for _, sx in ipairs({ -1, 1 }) do
     for _, sz in ipairs({ -1, 1 }) do
-      box(sx * (K.OUT_X - 14), -52, sz * (K.OUT_Z - 14), 14, 60, 14, COL.apron)   -- legs
+      wood(box(sx * (K.OUT_X - 14), -52, sz * (K.OUT_Z - 14), 14, 60, 14, COL.apron), "up")   -- legs
     end
   end
 
@@ -264,13 +329,13 @@ do
 
   -- the wooden rails around it all (they close off the back of the pockets)
   for _, sz in ipairs({ -1, 1 }) do
-    local r = box(0, K.RAIL_H / 2, sz * (K.RAIL_IN_Z + K.RAIL_W / 2), 2 * K.OUT_X, K.RAIL_H,
-                  K.RAIL_W, COL.rail)
+    local r = wood(box(0, K.RAIL_H / 2, sz * (K.RAIL_IN_Z + K.RAIL_W / 2), 2 * K.OUT_X, K.RAIL_H,
+                       K.RAIL_W, COL.rail), "x")
     r.restitution = 0.3
   end
   for _, sx in ipairs({ -1, 1 }) do
-    local r = box(sx * (K.RAIL_IN_X + K.RAIL_W / 2), K.RAIL_H / 2, 0, K.RAIL_W, K.RAIL_H,
-                  2 * K.RAIL_IN_Z, COL.rail)
+    local r = wood(box(sx * (K.RAIL_IN_X + K.RAIL_W / 2), K.RAIL_H / 2, 0, K.RAIL_W, K.RAIL_H,
+                       2 * K.RAIL_IN_Z, COL.rail), "z")
     r.restitution = 0.3
   end
 
@@ -292,11 +357,11 @@ do
 
   -- the ball tray along the far side, where pocketed balls are lined up
   local TZ = K.OUT_Z + 7
-  box(0, -4, TZ, 110, 2, 8, COL.apron)
-  box(0, -1, TZ + 4.5, 110, 8, 1, COL.apron)
-  box(0, -3.5, TZ - 4.5, 110, 3, 1, COL.apron)
-  box(-55.5, -1, TZ, 1, 8, 10, COL.apron)
-  box(55.5, -1, TZ, 1, 8, 10, COL.apron)
+  wood(box(0, -4, TZ, 110, 2, 8, COL.apron), "x")
+  wood(box(0, -1, TZ + 4.5, 110, 8, 1, COL.apron), "x")
+  wood(box(0, -3.5, TZ - 4.5, 110, 3, 1, COL.apron), "x")
+  wood(box(-55.5, -1, TZ, 1, 8, 10, COL.apron), "z")
+  wood(box(55.5, -1, TZ, 1, 8, 10, COL.apron), "z")
   K.TRAY_Z, K.TRAY_Y = TZ, -3 + K.R
 end
 
@@ -323,7 +388,7 @@ end
 -- POV-Ray export: the balls wear Jaime Vives Piqueres' ivory textures
 -- (http://ignorancia.org/index.php?page=pool-balls), t_ivory0..15, which
 -- map includes/ball0..15.jpeg onto them -- so the markings aren't exported.
-v.pre_sdl = [[
+v.pre_sdl = v.pre_sdl .. [[
 #declare use_media = 0;
 #include "poolballs_textures.inc"
 ]]
@@ -443,6 +508,10 @@ do
   local post2 = Cube(3, 30, 3, 0); post2.pos = btVector3(PX + 1.5, 9, 50); post2.col = "#202428"
   v:add(post1); v:add(post2)
   local BITS = { 1, 2, 4, 8, 16, 32, 64 }
+  -- In POV-Ray the displays light themselves: the board faces away from
+  -- the light, so they'd be almost black. (The finish follows the pigment
+  -- bpp writes from .col, so the digits still change from frame to frame.)
+  local GLOW = "  finish { ambient 0 diffuse 0 emission 1 }\n}"
 
   -- A row of digits starting at z0 (left, as the player sees it).
   local function digits(z0, y, count, scale, onCol, offCol, showOff)
@@ -461,7 +530,7 @@ do
         local c = Cube(0.3, g[4], g[3], 0)
         c.pos = btVector3(PX - 0.2, y + g[2], z + g[1])
         c.col = offCol
-        c.pov_export = false
+        c.post_sdl = GLOW
         if showOff then v:add(c) end
         cubes[s] = { obj = c, added = showOff, on = false }
       end
@@ -502,6 +571,7 @@ do
     local c = Cube(0.3, 3.2, 2.0, 0)
     c.pos = btVector3(PX - 0.2, 33, -38 + (i - 1) * 2.6)
     c.col = "#1a1a1a"
+    c.post_sdl = GLOW
     v:add(c)
     local on = i <= 12 and "#39d353" or (i <= 17 and "#ffd400" or "#ff3b30")
     board.force[i] = { obj = c, on = on, lit = false }
@@ -509,9 +579,11 @@ do
   local face = Cylinder(6, 0.3, 0)
   face.trans = btTransform(btQuaternion(yAxis, math.pi / 2), btVector3(PX - 0.2, 36, 42))
   face.col = WHITE
+  face.post_sdl = GLOW
   v:add(face)
   local dot = Cylinder(1.0, 0.3, 0)
   dot.col = "#c62828"
+  dot.post_sdl = GLOW
   v:add(dot)
   board.spinDot = function(sx, sy)
     -- the ball is 6 cm across on the panel; the dot shows the tip's offset
