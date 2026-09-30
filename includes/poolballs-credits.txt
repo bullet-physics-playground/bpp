@@ -1,0 +1,17 @@
+-----------------------------------------------------------------------------
++ ball*.jpeg derived from the Billiard Ball textures by Elisa LR:
+
+  http://www.sharecg.com/pf/full_uploads.php?pf_user_name=embolino&division_id=0&s=dd&pn=2
+-----------------------------------------------------------------------------
++ b16walls014-bm.jpg derived from an image downloaded at Image * After:
+
+  http://www.imageafter.com
+-----------------------------------------------------------------------------
++ diva-wood-cherry.jpg texture image by Patricia Abood:
+
+  http://www.3d-diva.com/page1_freetexture_homepg.html
+-----------------------------------------------------------------------------
++ rest of image-maps derived from Mayang textures:
+
+  http://www.mayang.com/textures
+-----------------------------------------------------------------------------

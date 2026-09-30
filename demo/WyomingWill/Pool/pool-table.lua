@@ -304,9 +304,11 @@ end
 -- the balls
 -- ---------------------------------------------------------------------
 
-local BALL_COLS = { "#f5c400", "#1f4fbf", "#d32f2f", "#5e2a8c", "#ef6c00", "#1b7f3b", "#7b1f1f",
-                    "#101010" }
-local WHITE = "#f4f1e8"
+-- (the colours of includes/ball1..8.jpeg and ball0.jpeg, so the POV-Ray
+-- render looks like the 3D view)
+local BALL_COLS = { "#feec02", "#182983", "#e53118", "#93117f", "#ef7f01", "#00914e", "#871421",
+                    "#000000" }
+local WHITE = "#f7f2d4"
 
 -- A mesh that follows a ball around (its number spots, stripe or dots).
 local function marking(file, col)
@@ -318,12 +320,21 @@ local function marking(file, col)
   return m
 end
 
+-- POV-Ray export: the balls wear Jaime Vives Piqueres' ivory textures
+-- (http://ignorancia.org/index.php?page=pool-balls), t_ivory0..15, which
+-- map includes/ball0..15.jpeg onto them -- so the markings aren't exported.
+v.pre_sdl = [[
+#declare use_media = 0;
+#include "poolballs_textures.inc"
+]]
+
 local balls = {}          -- [0] the cue ball, [1..15] the object balls
 for n = 0, 15 do
   local stripe = n >= 9
   local col = n == 0 and WHITE or (stripe and WHITE or BALL_COLS[n])
   local s = Sphere(K.R, K.MASS)
   s.col = col
+  s.sdl = "texture { t_ivory" .. n .. " }"
   s.friction = 0.2
   s.restitution = 0.97
   s.damp_lin = 0
