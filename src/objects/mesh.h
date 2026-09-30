@@ -229,6 +229,22 @@ protected:
    * then does ~Mesh() own them and need to delete them itself.
    */
   bool m_ownsMeshDirectly = false;
+
+  /**
+   * @name Cached drawing
+   * The triangles are compiled into an OpenGL display list the first time
+   * the mesh is drawn, and the list is replayed after that: one call a
+   * frame instead of one per triangle. The list is rebuilt if the geometry
+   * or the GL context changes.
+   */
+  ///@{
+  unsigned int m_glList = 0;            ///< The display list, or 0.
+  const void *m_glListContext = nullptr; ///< GL context the list lives in.
+  unsigned m_glListEpoch = 0;            ///< glCacheEpoch() when it was built.
+  const void *m_glListSource = nullptr;  ///< Geometry it was built from.
+  int m_glListTriangles = -1;            ///< Triangle count it was built with.
+  void drawTriangles();                  ///< Emits the triangles (uncached).
+  ///@}
 };
 
 #endif

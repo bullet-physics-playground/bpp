@@ -3,8 +3,8 @@
 A playable pinball table for the Bullet Physics Playground (bpp), in the
 style of Williams' 1983 *Time Fantasy*: Bullet physics for the ball,
 flippers, pop bumpers and slingshots; a small rules engine you can edit; a
-seven-segment scoreboard in the backbox; hooks for sound effects; and a
-layout editor for reshaping the playfield before you play.
+seven-segment scoreboard in the backbox; hooks for sound effects; a ramp;
+and a layout editor for reshaping the playfield before you play.
 
 ## Files
 
@@ -15,7 +15,7 @@ layout editor for reshaping the playfield before you play.
 | `pinball-machine-a-ai.lua` | The computer player (press `P`). |
 | `pinball-machine-a-brain.lua` | What the computer player has learned. Delete it to start it from scratch. |
 | `pinball-machine-a-train.lua` | Trains the computer player without the display, much faster than real time. |
-| `pinball-machine-a-sounds/` | Sound files (WAV, or OGG/FLAC/MP3 if your SDL_mixer supports them). Its README lists the expected names; missing ones are skipped. `bumper.wav` is included. |
+| `pinball-machine-a-sounds/` | Sound files (WAV, or OGG/FLAC/MP3 if your SDL_mixer supports them). Its README lists the expected names; missing ones are skipped. Your own sounds are included, with synthesised nudge, tilt and ramp sounds. |
 
 ## Requirements
 
@@ -39,14 +39,22 @@ shows the keys and, while editing, the position of every part.
 | `O` | select the orbit entrance: the inner orbit wall, its post and targets |
 | `X` | select the orbit exit: over the outlane, balls coming down the orbit drain; over the inlane, they come back to the flipper |
 | `F` | select the flippers, inlane guides and slingshots (together) |
+| `M` | select the ramp: the arrows move its entrance, `,` and `.` turn it 2.5° at a time (`0` puts both back) |
 | arrows | move the selection: a tap moves 0.5 cm; hold to slide (speeds up the longer you hold) |
-| `0` | put the selection back where it was built |
+| `0` | put the selection back where it is in the default layout |
 | `R` | reset the whole layout to the default (a saved layout is kept until you press `E`; reload the table to get it back) |
 | `E` | finish editing and save the layout (launching the ball also does) |
 
 Moves that would make parts collide, or leave a gap where the ball could get
 stuck, are refused, and the Shortcuts pane says why. The layout is saved in
-bpp's settings and restored the next time the table is opened.
+bpp's settings (not in the table's files) and restored the next time the
+table is opened.
+
+The default layout has the flippers and slingshots lowered (pivots 9.5 cm
+up), which keeps the ball in play better and sends fewer balls down the
+left side, with the pop bumpers, arch, orbit, lanes and ramp entrance
+arranged to suit. The computer player averaged 80,000-90,000 on it,
+against about 57,000 with everything where the table first builds it.
 
 **Play:**
 
@@ -57,6 +65,67 @@ bpp's settings and restored the next time the table is opened.
 | `Space` | shake (nudge) the machine: the ball gets a push up the table, and the view jolts. Too many shoves close together is a warning (DANGER); after two warnings in one ball, the next is a TILT |
 | `1` | start a new game (when no game is running) |
 | `P` | the computer plays, learning as it goes (press again to stop) |
+| `V` | the view: the player's, at the front of the machine, or the whole machine from the side |
+
+## The cabinet and artwork
+
+The table stands in an arcade cabinet on four chrome legs:
+
+- **Outside:** a black cabinet with yellow, orange and pink side stripes
+  and slashes, chrome side rails and a lockdown bar, a coin door with lit
+  price inserts, a start button and flipper buttons.
+- **Backbox:** the scores, with a lit marquee reading PINBALL MACHINE A,
+  ringed by chasing bulbs.
+- **Playfield artwork:**
+  - a sunburst behind the bumpers, whose colours swap every so often
+  - a diamond above the flippers, and a band behind the multiplier lamps
+  - chevron arrows that chase into the ramp and into the orbit (they move
+    with them in the layout editor)
+  - the apron below the flippers, with the machine's name
+
+Between games the coin inserts and the start button blink. It's all only
+for show: none of it touches the ball.
+
+## The ramp
+
+A clear plastic ramp climbs from the right-hand side of the playfield,
+turns left over the top of the pop bumpers and runs back down the left
+side, dropping the ball into the left inlane, so a made ramp comes straight
+back to the left flipper. It's a shot for the left flipper: catch the ball
+and flip it late, as it reaches the flipper's tip. A weak shot rolls back
+out.
+
+- **Scoring:** 100 for going up it, and each time it's made 5,000, then
+  10,000, rising by 5,000 to 25,000 (the value goes back to 5,000 each
+  ball). Both are in the rules file (`ramp`, and `rampEntrance` under
+  `points`).
+- **Moving it:** in the layout editor, `M` selects it. The arrows move the
+  entrance and `,` `.` turn it. The rest of the ramp follows: it always
+  turns at the top and drops the ball into the left inlane, wherever you've
+  put the flippers.
+- **What's refused:** a turn too tight, the ramp running into itself or off
+  the playfield, and its low end near the entrance landing on something
+  or leaving a gap where the ball could stick. The same checks stop you
+  moving other parts into its way. The high part passes over everything.
+- **How it works:** the glass sits just above the ball everywhere else, so
+  it lets the ball through while the ball is on the ramp and until it's
+  back down on the playfield. The ramp has its own clear cover.
+  - Switches know whether the ball is up on the ramp or down on the
+    playfield, so the targets under the ramp don't score for a ball riding
+    over them.
+  - The last stretch slows the ball, as a real ramp's wire return does, so
+    it drops into the inlane instead of bouncing off the posts.
+
+The ramp climbs only as high as it must to clear everything under it
+(4.2 cm), in an S-shaped climb that starts and ends level, and turns as
+soon as it has climbed: the ball has the tilted table to climb as well, so
+every centimetre further up the table makes it harder. A ball rolling into
+the mouth at about 1.4 m/s or faster makes it; slower ones roll back out.
+In testing with the computer playing on a lowered-flipper layout, every
+ball that went up that fast made it.
+
+The computer player can make the ramp, but only by chance: it learns to
+keep the ball in play, not to aim.
 
 ## Default rules
 
@@ -64,7 +133,7 @@ Pop bumpers 100 (added bumpers 100 each); each F-A-N-T-A-S-Y letter 1,000
 and 1,000 bonus, all seven 25,000 and the extra ball lit at the blue ramp
 target; all five top lanes 10,000 and the bonus multiplier up to 5x (the
 flipper buttons shift which lanes are lit); the left loop 5,000, rising by
-5,000 each time round to 25,000; bonus x multiplier added at each drain;
+5,000 each time round to 25,000; the ramp likewise; bonus x multiplier added at each drain;
 3 balls per game; the high score is kept. All of it is in the rules file.
 
 **Tilt.** The tilt bob swings a little with each shove and settles over a

@@ -29,6 +29,8 @@ pane lists which ones were not found each time the table loads.
   nudge.wav             the machine shaken (Space)
   tilt_warning.wav      DANGER: shaken too much
   tilt.wav              TILT
+  ramp_enter.wav        a ball going up the ramp
+  ramp_made.wav         the ramp made
 
 A single switch can have its own sound too: add a line to "sounds" in the
 rules file named after the switch, e.g.  rampTarget = "ramp.wav",

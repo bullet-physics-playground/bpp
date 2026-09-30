@@ -37,6 +37,7 @@
 
 #include "objects/sphere.h"
 
+#include <unordered_map>
 #include "joystick/joystickhandler.h"
 #include "joystick/joystickinterfacesdl.h"
 
@@ -1616,6 +1617,14 @@ private:
    * all the rigid-body-oriented calls elsewhere keep working unchanged.
    */
   btSoftRigidDynamicsWorld *dynamicsWorld;
+
+  /// Where each sleeping or fixed object was when its bounding box was last
+  /// brought up to date (see updateMovedAabbs()).
+  std::unordered_map<const btCollisionObject *, std::pair<btTransform, const btCollisionShape *>> _aabbSeen;
+  /// Brings the bounding boxes of sleeping and fixed objects that scripts
+  /// have moved up to date, so Bullet needn't recompute every box on every
+  /// substep.
+  void updateMovedAabbs();
 
   // Keep ownership of Bullet subcomponents so we can delete them explicitly
   btBroadphaseInterface *broadphase;  ///< Broadphase collision detection.

@@ -20,6 +20,9 @@
 --   rightStandup1, rightStandup2, rightStandup3,
 --   lowerRightStandup
 --   leftInlane, rightInlane, leftOutlane, rightOutlane
+--   rampEntrance                                 a ball going up the ramp
+--   rampMade                                     a ball over the top of the ramp,
+--                                                on its way down to the left inlane
 --
 
 return {
@@ -42,6 +45,7 @@ return {
     lowerRightStandup = 500,
     leftInlane = 1000, rightInlane = 1000,
     leftOutlane = 5000, rightOutlane = 5000,
+    rampEntrance = 100,
   },
 
   -- Banks: groups of switches, each with a lamp. Hitting an unlit one lights
@@ -84,6 +88,9 @@ return {
   -- The left loop's value rises each time round, and resets each ball.
   loop = { switch = "leftLoop", start = 5000, step = 5000, max = 25000 },
 
+  -- The ramp, likewise: each time it's made it's worth more (this ball).
+  ramp = { switch = "rampMade", start = 5000, step = 5000, max = 25000 },
+
   -- Shaking the machine (Space). Each shove pushes the ball up the table at
   -- `nudge` cm/s and swings the tilt bob; more than `sway` shoves close
   -- together (it settles by `settle` a second) is a warning, DANGER. After
@@ -120,6 +127,8 @@ return {
     nudge        = "nudge.wav",          -- the machine shaken (Space)
     tiltWarning  = "tilt_warning.wav",   -- DANGER: shaken too much
     tilt         = "tilt.wav",           -- TILT
+    ramp         = "ramp_enter.wav",     -- a ball going up the ramp
+    rampMade     = "ramp_made.wav",      -- the ramp made
   },
 
   -- Optional: extra rules in Lua. Called for every switch hit after the
@@ -134,19 +143,5 @@ return {
   --       game.addScore(3000)
   --     end
   --   end,
-  -- onSwitch = nil,
-  -- an extra ball at every 100,000 points
-  onSwitch = (function()
-    local nextAt, lastScore = 100000, 0
-    return function(game, name)
-      if game.score < lastScore then nextAt = 100000 end   -- a new game started
-      lastScore = game.score
-      if game.score >= nextAt then
-        game.awardExtraBall()
-        game.message("REPLAY")
-        nextAt = nextAt + 100000
-      end
-    end
-  end)(),
-  
+  onSwitch = nil,
 }

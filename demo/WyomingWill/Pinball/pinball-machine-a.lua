@@ -17,6 +17,7 @@
 -- rollover lanes, three pop bumpers, the seven F-A-N-T-A-S-Y targets, six
 -- 10-point standups, a ramp target, a left orbit, two slingshots,
 -- inlanes/outlanes and two flippers -- and most of it can be adjusted.
+-- A ramp was added later (the real machine has none).
 --
 -- LAYOUT EDITOR: until the first ball is launched you can move parts of
 -- the table. The Shortcuts pane lists the keys and the current positions:
@@ -38,9 +39,11 @@
 --                    they come back to the flipper.
 --   F                select the flippers, inlane guides and slingshots,
 --                    which move together
+--   M                select the ramp: the arrows move its entrance, and
+--                    , and . turn it (the rest of it follows)
 --   arrow keys       move the selection: a tap moves 0.5 cm; holding one
 --                    slides it, speeding up the longer it's held
---   0                put the selection back where it was built
+--   0                put the selection back where it is in the default layout
 --   R                reset the whole layout to the default (a saved layout
 --                    is kept until editing ends; reload to get it back)
 --   E                finish editing and save (launching the ball also does)
@@ -56,6 +59,7 @@
 --   1                start a new game (when no game is running)
 --   P                the computer plays, learning as it goes (see
 --                    pinball-machine-a-ai.lua); P again to stop
+--   V                the view: the player's, or the whole machine
 --
 -- UNITS: centimetres, seconds, kilograms. The playfield lies flat in the
 -- world's X-Z plane and gravity is tilted 6.5 degrees toward the player
@@ -91,12 +95,14 @@ do
   rules.multiplier = rules.multiplier or { max = 5 }
   rules.ballsPerGame = rules.ballsPerGame or 3
   -- (for rules files written before the machine could be shaken)
+  if rules.ramp == nil then rules.ramp = { switch = "rampMade", start = 5000, step = 5000, max = 25000 } end
   rules.tilt = rules.tilt or {}
   rules.tilt.nudge = rules.tilt.nudge or 35       -- cm/s the ball gets, up the table
   if rules.tilt.warnings == nil then rules.tilt.warnings = 2 end   -- per ball, before a tilt
   rules.tilt.sway = rules.tilt.sway or 2.5        -- the tilt bob swings this far (shoves)...
   rules.tilt.settle = rules.tilt.settle or 1.0    -- ...and settles this much a second
-  for event, file in pairs({ nudge = "nudge.wav", tiltWarning = "tilt_warning.wav", tilt = "tilt.wav" }) do
+  for event, file in pairs({ nudge = "nudge.wav", tiltWarning = "tilt_warning.wav", tilt = "tilt.wav",
+                              ramp = "ramp_enter.wav", rampMade = "ramp_made.wav" }) do
     if rules.sounds[event] == nil then rules.sounds[event] = file end
   end
 end
@@ -704,6 +710,418 @@ buildExit()
 editItems.exit = exitWall
 
 -- ---------------------------------------------------------------------
+-- the ramp: a clear plastic ramp that a ball shot from the left flipper
+-- climbs, turning left over the top of the pop bumpers and running back
+-- down the left side to drop the ball into the left inlane. Its entrance
+-- can be moved and turned in the layout editor (M); the rest of it follows
+-- (its far end always drops into the left inlane, wherever the flippers
+-- are).
+--
+-- The glass lies just above the ball everywhere else, so a ball on the
+-- ramp would hit it. While the ball is on the ramp -- or up in the air
+-- dropping off its end -- the glass lets it through; the ramp has its own
+-- clear cover. Switches know whether the ball is up on the ramp or down on
+-- the playfield, so a ball on the ramp doesn't trip the targets under it.
+-- ---------------------------------------------------------------------
+
+local rampway = { key = "ramp", label = "ramp", parts = {}, switches = {}, du = 0, dw = 0,
+                  da = 0, built = false, pts = nil, glassOff = false }
+do
+  local RW = rampway
+  RW.E0 = { 10.5, 56 }       -- the entrance mouth's centre, as built
+  RW.A0 = 15                 -- its heading, degrees right of straight up the table
+  RW.WIDTH = 3.6             -- between the rails (the ball is 2.7 across)...
+  RW.FLARE, RW.FLARE_LEN = 5.0, 16  -- ...plus this much wider at the mouth, narrowing
+                                    -- over its first 16 cm, so it's a fair target
+  RW.RAIL_T = 0.3
+  RW.RAIL_H = 4.0            -- the rails' height; the cover sits on them (well above
+                             -- the ball: one pinched between cover and floor stops dead)
+  RW.PLATE = 0.3             -- the floor's thickness
+  RW.LOW = 14                -- it climbs to H1 over the first 14 cm: from there
+  RW.H1 = 4.2                -- on, everything on the playfield passes under it
+  RW.CLIMB2 = 1              -- and no higher: the ball already has the tilted table
+  RW.HTOP = RW.H1            -- to climb as it goes round, so the lower the better
+  RW.HEND = 4.0              -- its far end, where the ball drops off
+  RW.STEP = 1.5              -- segment length
+  RW.TURN_GAP = 8            -- the turn at the top starts this far past the climb...
+  RW.TURN_H = 8              -- ...and rises this much further up the table as it goes round
+  RW.CAP_TOP = 3.35          -- under the entrance the floor meets the glass's height here:
+                             -- a wall closes the space under the ramp below that
+  RW.floorCol, RW.railCol, RW.coverCol = "#7fc8f8", "#d9dde2", "#ffffff"
+  RW.EXIT_SPEED = 110        -- the last stretch slows the ball to this (cm/s), as a
+                             -- real ramp's wire return does, so it drops into the
+                             -- inlane rather than flying at the posts
+
+  -- where it drops the ball: over the top of the left inlane
+  function RW.exitPoint()
+    return -(GUIDE_U + SLING_BACK_U) / 2 + lower.du, GUIDE_TOP + lower.dw + 7
+  end
+
+  -- the centreline's control points for entrance offsets (du, dw) and turn da
+  function RW.controls(du, dw, da)
+    local eu, ew = RW.E0[1] + du, RW.E0[2] + dw
+    local a = math.rad(RW.A0 + da)
+    local hu, hw = math.sin(a), math.cos(a)
+    local xu, xw = RW.exitPoint()
+    local lu, lw = eu + hu * RW.LOW, ew + hw * RW.LOW
+    -- (it turns soon after the climb: every cm further up the tilted table
+    -- is more for the ball to climb)
+    local tw = lw + RW.TURN_GAP
+    local top = tw + RW.TURN_H
+    return {
+      { eu, ew }, { eu + hu * 6, ew + hw * 6 }, { lu, lw },
+      { lu, tw }, { lu - 0.3 * (lu - xu), top }, { xu + 0.3 * (lu - xu), top },
+      { xu, tw }, { xu, (tw + xw) / 2 }, { xu, xw },
+    }
+  end
+
+  -- The floor's height (top) at distance s along it, of total length S;
+  -- sD is where the run down the left side begins.
+  function RW.heightAt(s, S, sD)
+    -- (an S-shaped climb, level at both ends: a ball meeting a sudden
+    -- slope, or one that suddenly levels off, loses much of its speed --
+    -- the second throws it into the air)
+    if s <= RW.LOW then
+      local x = s / RW.LOW
+      return RW.H1 * x * x * (3 - 2 * x)
+    end
+    if s <= RW.LOW + RW.CLIMB2 then return RW.H1 + (RW.HTOP - RW.H1) * (s - RW.LOW) / RW.CLIMB2 end
+    if s <= sD then return RW.HTOP end
+    return RW.HTOP + (RW.HEND - RW.HTOP) * (s - sD) / math.max(1, S - sD)
+  end
+
+  -- The centreline, every STEP cm: { u, w, h, s, tu, tw (tangent), nu, nw
+  -- (normal, to the left) }, and the length.
+  function RW.path(du, dw, da)
+    local c = RW.controls(du, dw, da)
+    local n = #c
+    local dense, len = { { c[1][1], c[1][2], 0 } }, 0
+    local sD = nil
+    for k = 1, n - 1 do
+      if k == 7 then sD = len end
+      local p0, p1, p2, p3 = c[math.max(1, k - 1)], c[k], c[k + 1], c[math.min(n, k + 2)]
+      for i = 1, 24 do
+        local t = i / 24
+        local t2, t3 = t * t, t * t * t
+        local function cr(a0, a1, a2, a3)
+          return 0.5 * (2 * a1 + (-a0 + a2) * t + (2 * a0 - 5 * a1 + 4 * a2 - a3) * t2
+                        + (-a0 + 3 * a1 - 3 * a2 + a3) * t3)
+        end
+        local u, w = cr(p0[1], p1[1], p2[1], p3[1]), cr(p0[2], p1[2], p2[2], p3[2])
+        local last = dense[#dense]
+        len = len + math.sqrt((u - last[1]) ^ 2 + (w - last[2]) ^ 2)
+        dense[#dense + 1] = { u, w, len }
+      end
+    end
+    -- resample at even spacing
+    local pts, j = {}, 1
+    local count = math.max(2, math.floor(len / RW.STEP + 0.5))
+    for i = 0, count do
+      local s = len * i / count
+      while j < #dense - 1 and dense[j + 1][3] < s do j = j + 1 end
+      local a, b = dense[j], dense[j + 1]
+      local f = (b[3] > a[3]) and (s - a[3]) / (b[3] - a[3]) or 0
+      pts[#pts + 1] = { u = a[1] + (b[1] - a[1]) * f, w = a[2] + (b[2] - a[2]) * f, s = s,
+                        h = RW.heightAt(s, len, sD or len) }
+    end
+    for i, p in ipairs(pts) do
+      local a, b = pts[math.max(1, i - 1)], pts[math.min(#pts, i + 1)]
+      local tu, tw = b.u - a.u, b.w - a.w
+      local tl = math.sqrt(tu * tu + tw * tw)
+      p.tu, p.tw = tu / tl, tw / tl
+      p.nu, p.nw = -p.tw, p.tu
+    end
+    return pts, len
+  end
+
+  -- Is the ramp with this entrance possible? True, or false and why.
+  -- With `shapeOnly`, just the ramp's own shape (on the playfield, not too
+  -- tight, not crossing itself), not what it's near.
+  function RW.check(du, dw, da, shapeOnly)
+    local pts, len = RW.path(du, dw, da)
+    local half = RW.WIDTH / 2 + RW.RAIL_T
+    local e = pts[1]
+    if da < -30 or da > 30 then return false, "it can't turn any further" end
+    if e.w < 40 + lower.dw then return false, "the entrance would reach the slingshots" end
+    if e.w + RW.LOW + RW.TURN_GAP + RW.TURN_H + 3 > PF_TOP - 12 then return false, "the entrance is as high as it goes" end
+    local _, xw = RW.exitPoint()
+    if e.w + RW.LOW + RW.TURN_GAP < xw + 12 then return false, "the entrance is as low as it goes" end
+    for i, p in ipairs(pts) do
+      for _, side in ipairs({ -1, 1 }) do
+        local u, w = p.u + side * half * p.nu, p.w + side * half * p.nw
+        if u < L + 1.0 or u > R - 1.0 or w > PF_TOP - 2 then
+          return false, "the ramp would leave the playfield"
+        end
+      end
+      -- tight turns: the heading may change by no more than STEP / 5.5 cm radius
+      if i > 1 then
+        local q = pts[i - 1]
+        local cross = q.tu * p.tw - q.tw * p.tu
+        if math.abs(cross) > RW.STEP / 5.5 then return false, "the ramp would turn too tightly" end
+      end
+      -- it mustn't run into itself
+      for k = i + 12, #pts do
+        local o = pts[k]
+        if (o.u - p.u) ^ 2 + (o.w - p.w) ^ 2 < (2 * half + 0.4) ^ 2 then
+          return false, "the ramp would run into itself"
+        end
+      end
+    end
+    if shapeOnly then return true end
+    -- the low end, near the entrance, stands on the playfield: it must be
+    -- clear of everything there, with room for the ball to pass (or none)
+    -- a gap is fine if it's too narrow for the ball to get into, or wide
+    -- enough for it to roll through; one about the ball's size traps it
+    local function gapOK(gap)
+      return (gap >= 0.1 and gap < 2 * BALL_R - 0.1) or gap >= 2 * BALL_R + 0.3
+    end
+    -- the narrowest gap to each thing near the low end
+    local gaps = {}
+    local function gap(key, g)
+      if not gaps[key] or g < gaps[key] then gaps[key] = g end
+    end
+    for _, p in ipairs(pts) do
+      if p.s > RW.LOW + 0.5 then break end
+      local hf = RW.widthAt(p.s) / 2 + RW.RAIL_T
+      for k = -2, 2 do
+        local u, w = p.u + p.nu * hf * k / 2, p.w + p.nw * hf * k / 2
+        if u > R - 1.0 then return false, "the ramp would reach the shooter lane" end
+        if w > 34 and w < 72 then gap("the right-hand targets", (20.4 - 0.4) - u) end
+        if w > 48 then gap("the orbit wall", u - (-21.5 + orbit.du + 0.3)) end
+        for _, b in ipairs(bumpers) do
+          gap("a pop bumper", math.sqrt((b.u - u) ^ 2 + (b.w - w) ^ 2) - (BUMPER_R + 0.6))
+        end
+        gap("the blue target", math.sqrt((13.5 - u) ^ 2 + (82 - w) ^ 2) - 2.0)
+        gap("the orbit entrance", math.sqrt((-19.2 + orbit.du - u) ^ 2 + (50 + orbit.dw - w) ^ 2) - 0.6)
+        if u > lanes.umin + lanes.du - 3 and u < lanes.umax + lanes.du + 3
+           and w > lanes.wmin + lanes.dw - 3 then
+          return false, "the ramp would reach the rollover lanes"
+        end
+      end
+    end
+    for what, g in pairs(gaps) do
+      if g < 0.1 then return false, "the ramp would run into " .. what end
+      if not gapOK(g) then return false, "the ball could get stuck between the ramp and " .. what end
+    end
+    -- where it drops the ball must be clear of the orbit exit wall
+    local xu, xw = RW.exitPoint()
+    local eu, ew = exitEndFor(exitWall.du, exitWall.dw)
+    local su, sw = eu - L, ew - 44
+    local t = math.max(0, math.min(1, ((xu - L) * su + (xw - 44) * sw) / (su * su + sw * sw)))
+    if math.sqrt((L + su * t - xu) ^ 2 + (44 + sw * t - xw) ^ 2) < BALL_R + 1.5 then
+      return false, "the ramp drops the ball onto the orbit exit wall"
+    end
+    return true
+  end
+
+  -- the width between the rails at distance s along it
+  function RW.widthAt(s)
+    if s >= RW.FLARE_LEN then return RW.WIDTH end
+    local f = 1 - s / RW.FLARE_LEN
+    return RW.WIDTH + RW.FLARE * f * f
+  end
+
+  -- A box from (u1,w1,y1) to (u2,w2,y2): `across` wide, `thick` deep (up
+  -- and down), tilted to follow the slope. `level`: don't tilt it (its
+  -- height is then y1..y2 as given, standing on the playfield).
+  local zAxis = btVector3(0, 0, 1)
+  -- `ext`: how far it runs on past each end (default 0.1, so the pieces
+  -- of the floor overlap; the rails' pieces meet exactly, at round posts).
+  function RW.slab(u1, w1, y1, u2, w2, y2, across, thick, col, transp, level, ext)
+    local du, dw = u2 - u1, w2 - w1
+    local lh = math.sqrt(du * du + dw * dw)
+    local q, c
+    ext = ext or 0.1
+    if level then
+      q = yRot(math.atan2(dw, du))
+      c = Cube(lh + 2 * ext, math.abs(y2 - y1), across, 0)
+      c.trans = btTransform(q, P((u1 + u2) / 2, (w1 + w2) / 2, (y1 + y2) / 2))
+    else
+      local pitch = math.atan2(y2 - y1, lh)
+      q = yRot(math.atan2(dw, du)) * btQuaternion(zAxis, pitch)
+      c = Cube(math.sqrt(lh * lh + (y2 - y1) ^ 2) + 2 * ext, thick, across, 0)
+      c.trans = btTransform(q, P((u1 + u2) / 2, (w1 + w2) / 2, (y1 + y2) / 2))
+    end
+    c.col = col
+    if transp then c.transparency = transp end
+    c.friction = 0.2
+    c.restitution = 0.3
+    if col == RW.railCol or col == RW.coverCol then c.friction = 0.02 end   -- (smooth rails and cover)
+    v:add(c)
+    collectPart(c, q, (u1 + u2) / 2, (w1 + w2) / 2, (y1 + y2) / 2)
+    return c
+  end
+
+  function RW.build()
+    removeParts(RW.parts)
+    RW.parts = {}
+    local pts, len = RW.path(RW.du, RW.dw, RW.da)
+    RW.pts, RW.len = pts, len
+    local W, T, PL = RW.WIDTH, RW.RAIL_T, RW.PLATE
+    collect = RW.parts
+    local capDone = false
+    for i = 1, #pts - 1 do
+      local a, b = pts[i], pts[i + 1]
+      -- the floor
+      local Wa, Wb = RW.widthAt(a.s), RW.widthAt(b.s)
+      RW.slab(a.u, a.w, a.h - PL / 2, b.u, b.w, b.h - PL / 2, math.max(Wa, Wb) + 2 * T, PL, RW.floorCol, 0.35)
+      -- the rails: down to the playfield where the floor is low, so no ball
+      -- can get in under it from the side
+      local low = (a.h + b.h) / 2 < RW.CAP_TOP + PL
+      for _, side in ipairs({ -1, 1 }) do
+        local oa, ob = side * (Wa / 2 + T / 2), side * (Wb / 2 + T / 2)
+        local au, aw = a.u + a.nu * oa, a.w + a.nw * oa
+        local bu, bw = b.u + b.nu * ob, b.w + b.nw * ob
+        if low then
+          RW.slab(au, aw, 0, bu, bw, math.max(a.h, b.h) + RW.RAIL_H, T, nil, RW.railCol, nil, true, 0)
+        else
+          RW.slab(au, aw, a.h + (RW.RAIL_H - PL) / 2, bu, bw, b.h + (RW.RAIL_H - PL) / 2,
+                  T, RW.RAIL_H + PL, RW.railCol, nil, nil, 0)
+        end
+        -- a round post where two pieces of rail meet, so the ball can't
+        -- catch on a corner
+        if i > 1 then
+          local bot = low and 0 or (a.h - PL)
+          local top = a.h + RW.RAIL_H
+          local c = Cylinder(T / 2, top - bot, 0)
+          c.trans = btTransform(UPRIGHT, P(au, aw, (bot + top) / 2))
+          c.col = RW.railCol
+          c.friction, c.restitution = 0.05, 0.3
+          v:add(c)
+          collectPart(c, UPRIGHT, au, aw, (bot + top) / 2)
+        end
+      end
+      -- the clear cover
+      RW.slab(a.u, a.w, a.h + RW.RAIL_H + 0.15, b.u, b.w, b.h + RW.RAIL_H + 0.15,
+              math.max(Wa, Wb) + 2 * T, 0.3, RW.coverCol, 0.9)
+      -- the wall that closes the space under the entrance
+      if not capDone and not low then
+        capDone = true
+        local cu, cw = a.u + a.nu * (W / 2), a.w + a.nw * (W / 2)
+        local du2, dw2 = a.u - a.nu * (W / 2), a.w - a.nw * (W / 2)
+        RW.slab(cu, cw, 0, du2, dw2, a.h - PL, 0.4, nil, RW.railCol, nil, true)
+      end
+    end
+    collect = nil
+    -- its switches: going in, and making it (near the far end)
+    local function across(s)
+      local best
+      for _, p in ipairs(pts) do
+        if not best or math.abs(p.s - s) < math.abs(best.s - s) then best = p end
+      end
+      local hw = W / 2
+      return { best.u + best.nu * hw, best.w + best.nw * hw }, { best.u - best.nu * hw, best.w - best.nw * hw }, best
+    end
+    local a1, b1, at1 = across(5)
+    local a2, b2 = across(len - 8)
+    if RW.decorate then collect = RW.parts; RW.decorate(pts); collect = nil end   -- (its chevrons)
+    if not RW.enterSwitch then
+      RW.enterSwitch = lineSwitch("rampEntrance", "ramp", a1[1], a1[2], b1[1], b1[2])
+      RW.madeSwitch = lineSwitch("rampMade", "rampMade", a2[1], a2[2], b2[1], b2[2])
+      RW.enterSwitch.elevated, RW.madeSwitch.elevated = true, true
+      RW.enterSwitch.upOnly = true        -- (not a ball rolling back out)
+    else
+      RW.enterSwitch.a, RW.enterSwitch.b = a1, b1
+      RW.madeSwitch.a, RW.madeSwitch.b = a2, b2
+    end
+    RW.enterSwitch.tu, RW.enterSwitch.tw = at1.tu, at1.tw
+    local umin, umax, wmin, wmax = math.huge, -math.huge, math.huge, -math.huge
+    for _, p in ipairs(pts) do
+      umin, umax = math.min(umin, p.u), math.max(umax, p.u)
+      wmin, wmax = math.min(wmin, p.w), math.max(wmax, p.w)
+    end
+    RW.box = { umin - 3, umax + 3, wmin - 3, wmax + 3 }
+    RW.built = true
+  end
+
+  -- Is a ball at (u, w), centre height y, riding the ramp?
+  -- (and the point of the centreline it's at)
+  function RW.carrying(u, w, y)
+    local pts, bx = RW.pts, RW.box
+    if not pts or u < bx[1] or u > bx[2] or w < bx[3] or w > bx[4] then return false end
+    local best, bd = nil, math.huge
+    for _, p in ipairs(pts) do
+      local d = (p.u - u) ^ 2 + (p.w - w) ^ 2
+      if d < bd then best, bd = p, d end
+    end
+    return math.sqrt(bd) < RW.widthAt(best.s) / 2 + RW.STEP and y > best.h + BALL_R - 0.7, best
+  end
+
+  -- Every frame: the glass lets the ball through while it's on the ramp
+  -- or up in the air (a ball on the playfield can't be: the glass is just
+  -- above it); back once it's down under the glass's height again.
+  -- Is a ball at (u, w) just in front of the mouth, where it may be on the
+  -- ramp by the next frame? (A fast ball goes 7 cm a frame: the glass must
+  -- already be open when it gets there, or it's wedged under it.)
+  function RW.atMouth(u, w)
+    local p = RW.pts and RW.pts[1]
+    if not p then return false end
+    local du, dw = u - p.u, w - p.w
+    local along, lat = du * p.tu + dw * p.tw, du * p.nu + dw * p.nw
+    return along > -10 and along < 2 and math.abs(lat) < RW.widthAt(0) / 2 + 1.5
+  end
+
+  function RW.glassTick(u, w, y)
+    local on, at = RW.carrying(u, w, y)
+    if on and at.s > RW.len - 10 then
+      local vel = RW.ball.vel
+      local sp = math.sqrt(vel.x * vel.x + vel.z * vel.z)
+      if sp > RW.EXIT_SPEED then
+        local k = RW.EXIT_SPEED / sp
+        RW.ball.vel = btVector3(vel.x * k, vel.y, vel.z * k)
+      end
+    end
+    -- (a ball that has left the ramp is still let through until it's down;
+    -- one on the playfield never is, however hard it presses on the glass)
+    if on then RW.fromRamp = true
+    elseif y < GLASS_Y - BALL_R - 0.02 then RW.fromRamp = false end
+    local off = on or RW.fromRamp or (y < BALL_R + 0.3 and RW.atMouth(u, w))
+    if off ~= RW.glassOff then
+      RW.glassOff = off
+      local flags = glass.body:getCollisionFlags()
+      if off then flags = flags + CF_NO_CONTACT_RESPONSE else flags = flags - CF_NO_CONTACT_RESPONSE end
+      glass.body:setCollisionFlags(flags)
+    end
+  end
+
+  -- the layout editor
+  -- A move of the ramp is refused if it would make it clash with
+  -- something -- unless it clashes already (a layout saved before the ramp
+  -- existed, say), when it may go anywhere its shape allows, so it can be
+  -- moved clear.
+  function RW.moveOK(du, dw, da)
+    local ok, why = RW.check(du, dw, da)
+    if ok or RW.check(RW.du, RW.dw, RW.da) then return ok, why end
+    return RW.check(du, dw, da, true)
+  end
+  RW.valid = function(it, du, dw) return RW.moveOK(du, dw, it.da) end
+  RW.applyFn = function(it) it.built = false end
+  RW.describe = function(it)
+    local e = RW.E0
+    local text = string.format("entrance %.1f across, %.1f up, aimed %.1f deg right of straight up",
+                               e[1] + it.du, e[2] + it.dw, RW.A0 + it.da)
+    local ok, why = RW.check(it.du, it.dw, it.da)
+    if not ok then text = text .. " -- NEEDS MOVING: " .. why end
+    return text
+  end
+  -- turn it by dA degrees (the "," and "." keys)
+  -- (like a move, a turn that lands where the ball could get stuck carries
+  -- on to the next safe angle, a step or two on)
+  function RW.turn(dA)
+    local ok, why
+    for k = 1, 3 do
+      ok, why = RW.moveOK(RW.du, RW.dw, RW.da + k * dA)
+      if ok then RW.da = RW.da + k * dA; RW.built = false; return true end
+      if not (why and why:find("stuck")) then break end
+    end
+    return ok, why
+  end
+  RW.umin, RW.umax, RW.wmin, RW.wmax = 8, 13, 54, 58    -- (roughly; for the editor's lists)
+end
+rampway.build()
+editItems.ramp = rampway
+
+-- ---------------------------------------------------------------------
 -- other lamps: bonus multiplier (2x-5x), extra ball lit is the ramp
 -- target's own lamp, shoot again between the flippers
 -- ---------------------------------------------------------------------
@@ -729,6 +1147,7 @@ v:add(ball)
 ball.body:setActivationState(4)
 ball.body:setCcdMotionThreshold(BALL_R * 0.5)
 ball.body:setCcdSweptSphereRadius(BALL_R * 0.8)
+rampway.ball = ball            -- (the ramp slows it at its far end)
 
 local function ballUW()
   local p = ball.pos
@@ -831,7 +1250,7 @@ CHARS = {
   ["0"] = 63, ["1"] = 6, ["2"] = 91, ["3"] = 79, ["4"] = 102, ["5"] = 109,
   ["6"] = 125, ["7"] = 7, ["8"] = 127, ["9"] = 111,
   A = 119, B = 124, C = 57, D = 94, E = 121, F = 113, G = 61, H = 118, I = 48,
-  J = 30, L = 56, N = 84, O = 63, P = 115, R = 80, S = 109, T = 120, U = 62,
+  J = 30, L = 56, M = 55, N = 84, O = 63, P = 115, R = 80, S = 109, T = 120, U = 62,
   Y = 110, ["-"] = 64, [" "] = 0,
 }
 
@@ -897,6 +1316,284 @@ board.scoreLabel.set("SCORE")
 board.ballLabel.set("BALL")
 board.bonusLabel.set("BONUS")
 board.highLabel.set("HI")
+-- the marquee above the scores
+local marquee = Cube(TABLE_W + 4, 15, 1, 0)
+marquee.pos = btVector3(0, 40.5, -BOX_W - 0.6)
+marquee.col = "#2b0a3d"
+v:add(marquee)
+segDisplay(-13.5, 43.6, 7, 1.5, "#ffd60a", "#2b0a3d", false).set("PINBALL")
+segDisplay(-11.4, 37.3, 9, 0.95, "#ff2d95", "#2b0a3d", false).set("MACHINE A")
+end
+
+-- ---------------------------------------------------------------------
+-- the cabinet and the artwork: an arcade cabinet on four chrome legs
+-- (side art, side rails, lockdown bar, coin door, start and flipper
+-- buttons) with the backbox on top and a lit marquee; on the playfield a
+-- sunburst behind the bumpers, a diamond above the flippers, chevron
+-- arrows into the ramp and the orbit, and the apron with the machine's
+-- name. All of it is only for show -- nothing here touches the ball -- and
+-- some of it flashes (board.artTick, every frame).
+-- ---------------------------------------------------------------------
+
+do
+  local art = { chase = {}, rays = {}, bulbs = {} }
+  board.art = art
+  local ident = btQuaternion(0, 0, 0, 1)
+  local xAxisV = btVector3(1, 0, 0)
+
+  -- add an object that's only for show
+  local function vis(obj, col)
+    obj.col = col
+    local ok = pcall(function() obj.collides = false end)
+    v:add(obj)
+    if not ok then obj.body:setCollisionFlags(obj.body:getCollisionFlags() + CF_NO_CONTACT_RESPONSE) end
+    return obj
+  end
+  -- a box in world coordinates
+  local function wbox(x, y, z, sx, sy, sz, col, q)
+    local c = Cube(sx, sy, sz, 0)
+    c.trans = btTransform(q or ident, btVector3(x, y, z))
+    return vis(c, col)
+  end
+  -- flat art on the playfield: a strip centred at (u, w), `len` long at
+  -- angle `ang` (radians, from +u toward +w), `wid` wide; `layer` stacks
+  -- pieces that overlap (0 lowest)
+  local function flat(u, w, len, wid, ang, col, layer)
+    local c = Cube(len, 0.02, wid, 0)
+    local q = yRot(ang)
+    local y = 0.004 + 0.004 * (layer or 0)
+    c.trans = btTransform(q, P(u, w, y))
+    vis(c, col)
+    collectPart(c, q, u, w, y, true)
+    return c
+  end
+  local function flatDisc(u, w, r, col, layer)
+    local c = Cylinder(r, 0.02, 0)
+    local y = 0.004 + 0.004 * (layer or 0)
+    c.trans = btTransform(UPRIGHT, P(u, w, y))
+    vis(c, col)
+    collectPart(c, UPRIGHT, u, w, y, true)
+    return c
+  end
+  -- a chevron pointing along angle `ang`, tip at (u, w)
+  local function chevron(u, w, ang, size, col, layer)
+    local arms = {}
+    for _, side in ipairs({ -1, 1 }) do
+      local a = ang + side * math.rad(135)       -- back from the tip, out to one side
+      local hu, hw = math.cos(a), math.sin(a)
+      arms[#arms + 1] = flat(u + hu * size / 2, w + hw * size / 2, size, 0.7, a, col, layer)
+    end
+    return arms
+  end
+  -- seven-segment letters lying on a surface at height y
+  local function flatText(text, u0, w0, y, scale, col)
+    local W, H, T = 1.9 * scale, 3.2 * scale, 0.36 * scale
+    local pitch = 3.0 * scale
+    local segs = {   -- a..g: {du, dw, width across, depth up the table}
+      { 0, H / 2, W - T, T }, { W / 2, H / 4, T, H / 2 - T }, { W / 2, -H / 4, T, H / 2 - T },
+      { 0, -H / 2, W - T, T }, { -W / 2, -H / 4, T, H / 2 - T }, { -W / 2, H / 4, T, H / 2 - T },
+      { 0, 0, W - T, T },
+    }
+    for k = 1, #text do
+      local bits = CHARS[text:sub(k, k)] or 0
+      for s, g in ipairs(segs) do
+        if bits % (2 * SEG_BITS[s]) >= SEG_BITS[s] then
+          local c = Cube(g[3], 0.05, g[4], 0)
+          c.pos = P(u0 + (k - 1) * pitch + g[1], w0 + g[2], y)
+          vis(c, col)
+        end
+      end
+    end
+  end
+
+  local HOT, PURPLE, YELLOW, CYAN, ORANGE = "#ff2d95", "#6a1fd0", "#ffd60a", "#22d3ee", "#ff7b00"
+  local DIM = "#3a2a10"
+
+  -- the sunburst behind the bumpers
+  local SU, SW = -1, 84
+  for i = 0, 15 do
+    local a = 2 * math.pi * i / 16
+    local col = (i % 2 == 0) and HOT or PURPLE
+    art.rays[#art.rays + 1] = { obj = flat(SU + math.cos(a) * 13, SW + math.sin(a) * 13, 18, 2.6, a, col, i % 2),
+                                a = HOT, b = PURPLE, even = (i % 2 == 0) }
+  end
+  flatDisc(SU, SW, 6.5, YELLOW, 2)
+  flatDisc(SU, SW, 4.5, ORANGE, 3)
+  flatDisc(SU, SW, 2.2, YELLOW, 4)
+
+  -- the diamond above the flippers, and a band behind the multiplier lamps
+  flat(0, 32, 6.5, 6.5, math.rad(45), HOT, 0)
+  flat(0, 32, 4.2, 4.2, math.rad(45), CYAN, 1)
+  flat(0, 32, 1.8, 1.8, math.rad(45), YELLOW, 2)
+  flat(0, 40.5, 15, 3.4, 0, "#101828", 0)
+  flat(0, 42.35, 15, 0.3, 0, YELLOW, 1)
+  flat(0, 38.65, 15, 0.3, 0, YELLOW, 1)
+
+  -- chevrons leading into the orbit (they move with the orbit entrance)
+  collect = orbit.parts
+  for k = 1, 3 do
+    local tipU, tipW = -21.8 + 1.1 * k, 47 - 4.2 * k
+    art.chase[#art.chase + 1] = { arms = chevron(tipU, tipW, math.rad(105), 2.6, DIM, 1), k = k, on = ORANGE }
+  end
+  collect = nil
+
+  -- chevrons leading into the ramp: built with the ramp, so they follow it
+  art.rampChase = {}
+  rampway.decorate = function(pts)
+    art.rampChase = {}
+    local p = pts[1]
+    local ang = math.atan2(p.tw, p.tu)
+    for k = 1, 3 do
+      local d = 3 + 4.2 * k
+      art.rampChase[k] = { arms = chevron(p.u - p.tu * d, p.w - p.tw * d, ang, 3.0, DIM, 1), k = k, on = CYAN }
+    end
+  end
+  rampway.built = false            -- (rebuilt with its chevrons when the layout loads)
+
+  -- the apron: the plastic below the flippers, with the machine's name
+  local function apron(u1, u2, w1, w2)
+    local c = Cube(u2 - u1, 0.5, w2 - w1, 0)
+    c.pos = P((u1 + u2) / 2, (w1 + w2) / 2, 0.25)
+    vis(c, "#f4ecd8")
+  end
+  apron(-25.2, -3.6, -15.5, -4.6)
+  apron(3.6, 20.8, -15.5, -4.6)
+  flatText("PINBALL", -22.4, -6.9, 0.52, 0.85, "#c1121f")
+  flatText("MACHINE", -22.4, -11.4, 0.52, 0.85, "#1d3557")
+  -- and a big A on a yellow disc: two legs and a bar
+  local ac = Cylinder(4.3, 0.05, 0)
+  ac.trans = btTransform(UPRIGHT, P(12.2, -9.6, 0.52))
+  vis(ac, YELLOW)
+  local function strip(u1, w1, u2, w2, col)
+    local du, dw = u2 - u1, w2 - w1
+    local c = Cube(math.sqrt(du * du + dw * dw), 0.06, 0.75, 0)
+    c.trans = btTransform(yRot(math.atan2(dw, du)), P((u1 + u2) / 2, (w1 + w2) / 2, 0.56))
+    vis(c, col)
+  end
+  strip(10.0, -12.4, 12.2, -6.8, "#c1121f")
+  strip(14.4, -12.4, 12.2, -6.8, "#c1121f")
+  strip(10.9, -10.2, 13.5, -10.2, "#c1121f")
+
+  -- the cabinet: body, side art, rails, lockdown bar
+  local X0 = TABLE_W / 2 + 3.5            -- the body's sides
+  local Z0, Z1 = -131, -PF_BOTTOM + 0.2   -- its back and front
+  local BODY = "#16181d"
+  wbox(0, -16, (Z0 + Z1) / 2, 2 * X0, 28, Z1 - Z0, BODY)
+  for _, sx in ipairs({ -1, 1 }) do
+    local x = sx * (X0 + 0.06)
+    -- three stripes the length of the cabinet
+    for i, s in ipairs({ { -7.5, YELLOW }, { -10.5, ORANGE }, { -13.5, HOT } }) do
+      wbox(x, s[1], (Z0 + Z1) / 2, 0.1, 2.2, Z1 - Z0, s[2])
+    end
+    -- and slashes toward the front
+    for k = 0, 4 do
+      local z = -40 + 11 * k
+      wbox(x, -21, z, 0.12, 12, 2.2, (k % 2 == 0) and CYAN or PURPLE,
+           btQuaternion(xAxisV, math.rad(-35)))
+    end
+    -- chrome side rail along the top edge
+    wbox(sx * (X0 - 1.6), 1, (-121 + Z1) / 2, 3.6, 6, Z1 + 121, "#c8ccd2")
+    -- the flipper button
+    local fb = Cylinder(0.9, 0.8, 0)
+    fb.trans = btTransform(yRot(math.pi / 2), btVector3(sx * (X0 + 0.4), -5, 11))
+    vis(fb, "#f1f1f1")
+  end
+  wbox(0, 0.5, Z1 - 1.1, 2 * X0 + 0.4, 5, 2.2, "#c8ccd2")      -- lockdown bar
+  -- the coin door and start button
+  wbox(0, -18, Z1 + 0.25, 18, 18, 0.5, "#2a2a2e")
+  for _, f in ipairs({ { 0, -9.2, 18.6, 0.6 }, { 0, -26.8, 18.6, 0.6 }, { -9.1, -18, 0.6, 18 }, { 9.1, -18, 0.6, 18 } }) do
+    wbox(f[1], f[2], Z1 + 0.55, f[3], f[4], 0.3, "#c8ccd2")
+  end
+  art.coin = {}
+  for _, x in ipairs({ -4, 4 }) do
+    wbox(x, -12.3, Z1 + 0.6, 1.4, 0.3, 0.3, "#050505")               -- the slot
+    art.coin[#art.coin + 1] = wbox(x, -15.2, Z1 + 0.6, 2.4, 3.6, 0.3, "#ff2020")   -- lit price insert
+  end
+  wbox(0, -23.5, Z1 + 0.6, 3.5, 2.2, 0.3, "#050505")                -- coin return
+  local sb = Cylinder(1.1, 1.0, 0)
+  sb.pos = btVector3(-X0 + 4.5, -5, Z1 + 0.5)
+  art.start = vis(sb, "#ff2020")
+
+  -- legs, levellers, and the floor of the arcade
+  for _, x in ipairs({ -X0 + 2.2, X0 - 2.2 }) do
+    for _, z in ipairs({ Z0 + 4, Z1 - 4 }) do
+      wbox(x, -32, z, 5.5, 4, 5.5, "#9aa0a8")                        -- the bracket
+      wbox(x, -63, z, 3.6, 62, 3.6, "#c8ccd2")                       -- the leg
+      local lv = Cylinder(1.8, 1.2, 0)
+      lv.trans = btTransform(UPRIGHT, btVector3(x, -94.4, z))
+      vis(lv, "#6b7078")
+    end
+  end
+  for i = -5, 5 do
+    for j = -6, 5 do
+      wbox(i * 30, -95.6, -57 + j * 30, 30, 0.4, 30, ((i + j) % 2 == 0) and "#1b1b24" or "#262633")
+    end
+  end
+
+  -- the backbox: its head around the scoreboard, and the marquee
+  wbox(0, 24, -126.1, 2 * X0, 52, 10, BODY)
+  wbox(0, 49.3, -120.9, 2 * X0, 1.2, 0.6, "#c8ccd2")
+  for _, sx in ipairs({ -1, 1 }) do wbox(sx * (X0 - 0.6), 24, -120.9, 1.2, 52, 0.6, "#c8ccd2") end
+  -- bulbs round the marquee, chasing
+  local n = 0
+  for i = 0, 17 do
+    for _, y in ipairs({ 47.4, 34.4 }) do
+      n = n + 1
+      local b = Cylinder(0.55, 0.4, 0)
+      b.pos = btVector3(-25.5 + i * 3, y, -119.9)
+      art.bulbs[#art.bulbs + 1] = { obj = vis(b, DIM), i = i }
+    end
+  end
+
+  -- a moment of light: chevrons chase toward the ramp and the orbit, the
+  -- marquee's bulbs run round, the sunburst swaps its colours, and the
+  -- coin inserts and start button blink while no game is running
+  local phase = {}
+  function board.artTick(N, gameOn)
+    local c = math.floor(N / 7) % 4               -- chevrons: 1, 2, 3 lit in turn, then a rest
+    if c ~= phase.c then
+      phase.c = c
+      for _, list in ipairs({ art.chase, art.rampChase }) do
+        for _, ch in ipairs(list) do
+          local col = (c < 3 and ch.k == 3 - c) and ch.on or DIM   -- (the farthest first)
+          for _, arm in ipairs(ch.arms) do if arm.col ~= col then arm.col = col end end
+        end
+      end
+    end
+    local b = math.floor(N / 5) % 3
+    if b ~= phase.b then
+      phase.b = b
+      for _, bulb in ipairs(art.bulbs) do
+        bulb.obj.col = ((bulb.i + b) % 3 == 0) and YELLOW or (((bulb.i + b) % 3 == 1) and "#ffffff" or DIM)
+      end
+    end
+    local r = math.floor(N / 40) % 2
+    if r ~= phase.r then
+      phase.r = r
+      for _, ray in ipairs(art.rays) do
+        ray.obj.col = ((ray.even and r == 0) or (not ray.even and r == 1)) and ray.a or ray.b
+      end
+    end
+    local blink = gameOn and 1 or (math.floor(N / 30) % 2)
+    if blink ~= phase.blink then
+      phase.blink = blink
+      local col = (blink == 1) and "#ff2020" or "#5a0808"
+      art.start.col = col
+      for _, coin in ipairs(art.coin) do coin.col = col end
+    end
+  end
+
+  -- two views: the player's (at the lockdown bar), and the whole machine
+  board.views = {
+    { pos = btVector3(0, 92, 78), look = btVector3(0, 7, -42) },
+    { pos = btVector3(105, 70, 95), look = btVector3(0, -22, -45) },
+  }
+  board.view = 1
+  function board.setView(k)
+    board.view = k
+    local vw = board.views[k]
+    common.setCamera(vw.pos, vw.look, 0.8, { up = btVector3(0, 1, 0) })
+  end
 end
 
 -- ---------------------------------------------------------------------
@@ -960,6 +1657,7 @@ do
   end
   if rules.extraBall then check(rules.extraBall.collectAt, "extraBall") end
   if rules.loop then check(rules.loop.switch, "loop") end
+  if rules.ramp then check(rules.ramp.switch, "ramp") end
   if #unknown > 0 then
     print("Rules name switches this table doesn't have: " .. table.concat(unknown, ", "))
   end
@@ -1024,6 +1722,7 @@ local function resetBallState()
   game.bonus, game.multiplier = 0, 1
   game.tilted, game.warnings, game.sway = false, 0, 0
   game.loopValue = rules.loop and rules.loop.start or 0
+  game.rampValue = rules.ramp and rules.ramp.start or 0
   for _, bank in ipairs(banks) do
     for i in ipairs(bank.lit) do bank.lit[i] = false end
   end
@@ -1099,6 +1798,11 @@ onSwitch = function(sw)
     addScore(game.loopValue)
     message("LOOP " .. game.loopValue, 2)
     game.loopValue = math.min(game.loopValue + (rules.loop.step or 0), rules.loop.max or math.huge)
+  end
+  if rules.ramp and name == rules.ramp.switch then
+    addScore(game.rampValue)
+    message("RAMP " .. game.rampValue, 2)
+    game.rampValue = math.min(game.rampValue + (rules.ramp.step or 0), rules.ramp.max or math.huge)
   end
   if rules.onSwitch then
     refreshApi()
@@ -1208,12 +1912,16 @@ local function fireBumper(b)
 end
 
 local function driveFlippers()
+  -- (the motors' impulses are per simulation step, tuned at 600 steps a
+  -- second; run faster -- the rec room runs at 900 -- they're scaled down
+  -- so the flippers feel the same)
+  local k = 600 * (v.fixedTimeStep or (1 / 600))
   for side, f in pairs(flippers) do
     local dir = (side < 0) and 1 or -1
     if f.pressed and not game.tilted then
-      f.hinge:enableAngularMotor(true, dir * FLIP_UP_VEL, FLIP_UP_IMPULSE)
+      f.hinge:enableAngularMotor(true, dir * FLIP_UP_VEL, FLIP_UP_IMPULSE * k)
     else
-      f.hinge:enableAngularMotor(true, -dir * FLIP_DN_VEL, FLIP_DN_IMPULSE)
+      f.hinge:enableAngularMotor(true, -dir * FLIP_DN_VEL, FLIP_DN_IMPULSE * k)
     end
   end
 end
@@ -1225,8 +1933,8 @@ end
 -- settings when editing ends and restored on the next run.
 -- ---------------------------------------------------------------------
 
-local EDIT_ORDER = { "lanes", "bumper1", "bumper2", "bumper3", "arch", "orbit", "exit", "lower" }
-local EDIT_KEYS = { L = "lanes", ["1"] = "bumper1", ["2"] = "bumper2", ["3"] = "bumper3",
+local EDIT_ORDER = { "lanes", "bumper1", "bumper2", "bumper3", "arch", "orbit", "exit", "lower", "ramp" }
+local EDIT_KEYS = { M = "ramp", L = "lanes", ["1"] = "bumper1", ["2"] = "bumper2", ["3"] = "bumper3",
                     A = "arch", O = "orbit", X = "exit", F = "lower" }
 -- Arrow keys: a tap moves EDIT_STEP; holding one slides the selection,
 -- starting after EDIT_HOLD seconds at EDIT_SLIDE cm/s and speeding up to
@@ -1301,7 +2009,6 @@ function nudger.tick()
   end)
 end
 
-local EDIT_SELECT_COL = "#7cfc00"
 -- the area the lanes and bumpers must stay inside (table coordinates, cm)
 local EDIT_AREA = { umin = L + 1.0, umax = LANE_IN - 0.8, wmin = 36 }
 local ARROWS = { Left = { -1, 0 }, Right = { 1, 0 }, Up = { 0, 1 }, Down = { 0, -1 } }
@@ -1313,6 +2020,22 @@ local releasedArrows = {}      -- arrow key name -> { at = time, since = press t
 local lastSlideAt = nil        -- time of the last slide step
 local blockedMsg = nil         -- why the last move was refused
 local editState = {}           -- odds and ends: rebuiltAt, ...
+
+-- The default layout, as offsets from where each item is built: lower
+-- flippers, which keep the ball in play (and off the left side) better,
+-- with the bumpers and ramp entrance to suit. A layout with no saved
+-- settings starts here, and 0 and R in the editor come back here. (It was
+-- worked out in play: the computer player averaged 80-90,000 on it against
+-- about 57,000 with everything where it's built.)
+editState.HOME = {
+  lanes = { 4.5, 0 }, bumper1 = { 4.9, -28.8 }, bumper2 = { -1.4, -0.5 }, bumper3 = { -5.1, -1.3 },
+  arch = { 2.5, 1.5 }, orbit = { 2.5, 0 }, exit = { 0, 0 }, lower = { 0, -5 },
+  ramp = { -0.6, -9.9, 0 },
+}
+function editState.home(key)
+  local h = editState.HOME[key] or { 0, 0 }
+  return h[1], h[2], h[3] or 0
+end
 
 -- Record where an item was built, so offsets are measured from there.
 function editState.initItem(item)
@@ -1516,6 +2239,18 @@ local function setOffset(item, du, dw, force)
       end
     end
   end
+  -- (whatever moves mustn't make the ramp clash with it -- if the ramp
+  -- clashes with something already, that's for moving the ramp to fix)
+  if not force and item ~= rampway and rampway.check(rampway.du, rampway.dw, rampway.da) then
+    local odu, odw = item.du, item.dw
+    local ob = item.bumper and { item.bumper.u, item.bumper.w }
+    item.du, item.dw = du, dw
+    if ob then item.bumper.u, item.bumper.w = item.u0 + du, item.w0 + dw end
+    local ok, why = rampway.check(rampway.du, rampway.dw, rampway.da)
+    item.du, item.dw = odu, odw
+    if ob then item.bumper.u, item.bumper.w = ob[1], ob[2] end
+    if not ok then return false, why .. " (move the ramp first: M)" end
+  end
   if not force and item.carry then item.carry(item, du - item.du, dw - item.dw) end
   item.du, item.dw = du, dw
   if item.applyFn then
@@ -1537,6 +2272,8 @@ local function setOffset(item, du, dw, force)
     item.bumper.u, item.bumper.w = item.u0 + item.du, item.w0 + item.dw
   end
   if item.afterMove then item.afterMove(item) end
+  -- the ramp drops balls into the left inlane, wherever that is
+  if item == lower or item == exitWall then rampway.built = false end
   helpDirty = true
   return true
 end
@@ -1546,13 +2283,13 @@ setOffsetRef = setOffset
 local function highlight(item, on)
   local function paint(parts)
     for _, part in ipairs(parts) do
-      if not part.isLamp then part.obj.col = on and EDIT_SELECT_COL or part.col0 end
+      if not part.isLamp then part.obj.col = on and "#7cfc00" or part.col0 end
     end
   end
   paint(item.parts)
   if item.extra then paint(item.extra.parts) end
   for _, f in pairs(item.flippers or {}) do
-    f.body.col = on and EDIT_SELECT_COL or f.col0
+    f.body.col = on and "#7cfc00" or f.col0
   end
 end
 
@@ -1594,6 +2331,7 @@ local function rebuildPending()
   if not arch.built then buildArch()                 -- (includes the orbit top)
   elseif not orbitTop.built then buildOrbitTop() end
   if not exitWall.built then buildExit() end
+  if not rampway.built then rampway.build() end
   if selected then highlight(editItems[selected], true) end
 end
 
@@ -1681,7 +2419,11 @@ function editState.resetLayout()
   for _, key in ipairs(keys) do
     if editItems[key].added then editState.removeBumper(key) end
   end
-  for _, key in ipairs(EDIT_ORDER) do setOffset(editItems[key], 0, 0, true) end
+  rampway.da = select(3, editState.home("ramp"))
+  for _, key in ipairs(EDIT_ORDER) do
+    local hu, hw = editState.home(key)
+    setOffset(editItems[key], hu, hw, true)
+  end
   rebuildPending()
   blockedMsg = "layout reset to the default"
   helpDirty = true
@@ -1696,6 +2438,8 @@ local function saveLayout()
       -- an added bumper is saved where it is, and rebuilt there
       added[#added + 1] = tostring(item.num)
       value = string.format("@%.2f,%.2f", item.bumper.u, item.bumper.w)
+    elseif item == rampway then
+      value = string.format("%.2f,%.2f,%.2f", item.du, item.dw, item.da)   -- (and its turn)
     else
       value = string.format("%.2f,%.2f", item.du, item.dw)
     end
@@ -1717,8 +2461,10 @@ local function loadLayout()
   end
   for _, key in ipairs(EDIT_ORDER) do
     if not editItems[key].added then
-      local du, dw = pref(key):match("^(%-?[%d.]+),(%-?[%d.]+)$")
-      if du then setOffset(editItems[key], tonumber(du), tonumber(dw), true) end
+      local du, dw, da = pref(key):match("^(%-?[%d.]+),(%-?[%d.]+),?(%-?[%d.]*)$")
+      local hu, hw, ha = editState.home(key)          -- (nothing saved: the default)
+      if key == "ramp" then rampway.da = tonumber(da) or (du and 0 or ha) end
+      setOffset(editItems[key], tonumber(du) or hu, tonumber(dw) or hw, true)
     end
   end
   rebuildPending()
@@ -1737,6 +2483,7 @@ PLAY
                       Too often and you get DANGER, then TILT (the ball is lost)
   1                   start a new game (when no game is running)
   P                   the computer plays, learning as it goes (P again to stop)
+  V                   the view: the player's, or the whole machine
 Rules: ]] .. RULES_FILE .. [[  (edit, then reload the table: R during play, or Ctrl+R)
 Sounds: put files in ]] .. SOUND_DIR
 
@@ -1752,7 +2499,7 @@ end
 local function helpText()
   local lines = {}
   if editing then
-    local status = "nothing selected -- press L, a bumper's number, A, O, X or F"
+    local status = "nothing selected -- press L, a bumper's number, A, O, X, F or M"
     if selected then
       status = editItems[selected].label .. ": " .. describe(editItems[selected])
       if blockedMsg then status = status .. "  -- can't go further: " .. blockedMsg end
@@ -1776,8 +2523,10 @@ local function helpText()
     lines[#lines + 1] = "  X          select the orbit exit: move its lower end over the inlane"
     lines[#lines + 1] = "             to return balls coming down the orbit, or the outlane to drain them"
     lines[#lines + 1] = "  F          select the flippers, inlane guides and slingshots (together)"
+    lines[#lines + 1] = "  M          select the ramp: the arrows move its entrance, , and . turn it"
+    lines[#lines + 1] = "             (the rest follows; it always drops the ball into the left inlane)"
     lines[#lines + 1] = "  arrows     move the selection: tap = 0.5 cm; hold to slide (speeds up as you hold)"
-    lines[#lines + 1] = "  0          put the selection back where it was built"
+    lines[#lines + 1] = "  0          put the selection back where it is in the default layout"
     lines[#lines + 1] = "  R          reset the whole layout to the default (added bumpers go too;"
     lines[#lines + 1] = "             your saved layout is kept until you press E -- reload to get it back)"
     lines[#lines + 1] = "  E          finish editing and save the layout (launching the ball also finishes)"
@@ -1875,12 +2624,22 @@ local function editorKey(key, down)
     end
     return true
   end
+  if selected == "ramp" and (key == "," or key == "." or key == "<" or key == ">") then
+    if down then
+      local ok, why = rampway.turn((key == "," or key == "<") and -2.5 or 2.5)
+      blockedMsg = (not ok) and why or nil
+      helpDirty = true
+    end
+    return true
+  end
   if EDIT_KEYS[key] or key == "0" or key == "E" then
     if down then
       if EDIT_KEYS[key] then selectItem(EDIT_KEYS[key])
       elseif key == "0" then
+        if selected == "ramp" then rampway.turn(select(3, editState.home("ramp")) - rampway.da) end
         if selected then
-          local ok, why = setOffset(editItems[selected], 0, 0)
+          local hu, hw = editState.home(selected)
+          local ok, why = setOffset(editItems[selected], hu, hw)
           blockedMsg = (not ok) and ("can't reset yet: " .. why) or nil
           helpDirty = true
         end
@@ -1911,7 +2670,7 @@ local function editorTick(N)
     end
     if mu ~= 0 or mw ~= 0 then moveSelected(mu * dt, mw * dt) end
   end
-  if (not arch.built or not exitWall.built or not orbitTop.built)
+  if (not arch.built or not exitWall.built or not orbitTop.built or not rampway.built)
      and (next(heldArrows) == nil or t - (editState.rebuiltAt or 0) > 0.07) then
     rebuildPending()
     editState.rebuiltAt = t
@@ -1929,6 +2688,10 @@ local FLIPPER_KEYS = {
 }
 
 local function onKey(N, key, down)
+  if key == "V" then            -- the view: the player's, or the whole machine
+    if down then board.setView(board.view % 2 + 1) end
+    return true
+  end
   if key == "P" then            -- the computer player (pinball-machine-a-ai.lua)
     if down and TF.ai then TF.ai.toggle() end
     return true
@@ -1985,6 +2748,8 @@ TF = { onKey = function(key, down) return onKey(frame, key, down) end, gate = ga
        frame = function() return frame end,
        switchLog = {}, game = game, banks = banks, board = board,
        editItems = editItems, isEditing = function() return editing end,
+       setOffsetForce = function(it, du, dw) setOffset(it, du, dw, true); rebuildPending() end,
+       blockedMsg = function() return blockedMsg end,
        ballVel = function(vu, vw) ball.vel = btVector3(vu, 0, -vw) end,
        bumpers = bumpers, switchByName = switchByName, soundIds = soundIds,
        editOrder = function() return EDIT_ORDER end, plunger = plunger,
@@ -1993,6 +2758,9 @@ TF = { onKey = function(key, down) return onKey(frame, key, down) end, gate = ga
        -- for the computer player
        now = function() return now() end, laneIn = LANE_IN, inOuthole = function(u, w) return inOuthole(u, w) end,
        ballVelUW = function() local bv = ball.vel return bv.x, -bv.z end,
+       ballY = function() return ball.pos.y end, ramp = rampway,
+       ballVel3 = function() return ball.vel end,
+       glassOff = function() return rampway.glassOff end,
        -- testing only: put the arch and lanes somewhere without the limits
        forceLayout = function(adu, adw, ldw)
          setOffset(editItems.arch, adu, adw, true)
@@ -2105,11 +2873,18 @@ v:postSim(function(N)
     prevU, prevW = u, w
     ballTeleported = false
   end
+  local ballY = ball.pos.y
+  rampway.glassTick(u, w, ballY)
+  local up = ballY > BALL_R + 0.65         -- up on the ramp (or in the air)
 
   -- switches the ball's path touched this frame
   for _, s in ipairs(switches) do
     local hit
-    if s.kind == "circle" then
+    if (s.elevated or false) ~= up then
+      hit = false                          -- (a switch on the ramp, or under it)
+    elseif s.upOnly and (u - prevU) * s.tu + (w - prevW) * s.tw <= 0 then
+      hit = false                          -- (only going one way)
+    elseif s.kind == "circle" then
       hit = distPointSeg(s.c[1], s.c[2], prevU, prevW, u, w) < s.r
     elseif s.kind == "face" then
       hit = distSegSeg(prevU, prevW, u, w, s.a[1], s.a[2], s.b[1], s.b[2]) < s.reach
@@ -2169,6 +2944,7 @@ v:postSim(function(N)
   end
 
   nudger.tick()
+  board.artTick(N, game.active)
   prevU, prevW = u, w
   if TF.ai then TF.ai.tick(N) end
   TF.gcTick()
@@ -2187,5 +2963,4 @@ do
 end
 
 -- camera: standing at the front of the cabinet, looking up the table
-common.setCamera(btVector3(0, 86, 70), btVector3(0, 2, -40), 0.8,
-                 { up = btVector3(0, 1, 0) })
+board.setView(1)

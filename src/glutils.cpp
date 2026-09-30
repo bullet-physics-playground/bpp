@@ -4,6 +4,10 @@
 #include <cstdlib>
 
 #include <QObject>
+#include <QOpenGLContext>
+#include <QSet>
+#include <map>
+#include <tuple>
 
 #ifdef Q_OS_MAC
 #include <OpenGL/gl.h>
@@ -14,7 +18,7 @@
 #include <GL/gl.h>
 #endif
 
-void solidCube(double sz)
+static void solidCubeDraw(double sz)
 {
 	int i, j, idx, gray, flip, rotx;
 	float vpos[3], norm[3];
@@ -40,7 +44,7 @@ void solidCube(double sz)
 	glEnd();
 }
 
-void solidSphere(double radius, int slices, int stacks) {
+static void solidSphereDraw(double radius, int slices, int stacks) {
   for(int i = 0; i < stacks; i++) {
     glBegin(GL_QUAD_STRIP);
     for(int j = 0; j <= slices; j++) {
@@ -62,7 +66,7 @@ void solidSphere(double radius, int slices, int stacks) {
   }
 }
 
-void solidCylinder(double radius, double height, int slices, int stacks) {
+static void solidCylinderDraw(double radius, double height, int slices, int stacks) {
     for (int i = 0; i < stacks; i++) {
         float z0 = (float)height * i / stacks;
         float z1 = (float)height * (i + 1) / stacks;
@@ -95,7 +99,7 @@ void solidCylinder(double radius, double height, int slices, int stacks) {
     }
 }
 
-void solidCone(double radius, double height, int slices, int stacks) {
+static void solidConeDraw(double radius, double height, int slices, int stacks) {
     for (int i = 0; i < stacks; i++) {
         float z0 = (float)height * i / stacks;
         float z1 = (float)height * (i + 1) / stacks;
@@ -123,4 +127,90 @@ void solidCone(double radius, double height, int slices, int stacks) {
         glVertex3f((float)radius * cos(theta), (float)radius * sin(theta), 0.0f);
     }
     glEnd();
+}
+
+// ---------------------------------------------------------------------------
+// Display-list caching. The primitives are drawn with the same few sizes over
+// and over (objects draw a unit shape and scale it), so each distinct call is
+// compiled once into a display list and replayed after that: one call instead
+// of hundreds of vertices, normals and sines and cosines every frame.
+// ---------------------------------------------------------------------------
+
+static unsigned s_glEpoch = 0;
+
+unsigned glCacheEpoch() { return s_glEpoch; }
+
+const void *glCacheContext() {
+  QOpenGLContext *c = QOpenGLContext::currentContext();
+  if (c == nullptr)
+    return nullptr;
+  static QSet<QOpenGLContext *> hooked;
+  if (!hooked.contains(c)) {
+    hooked.insert(c);
+    QObject::connect(c, &QOpenGLContext::aboutToBeDestroyed, [c]() {
+      hooked.remove(c);
+      ++s_glEpoch;
+    });
+  }
+  return c;
+}
+
+namespace {
+typedef std::tuple<int, double, double, int, int> PrimKey;
+struct PrimList {
+  GLuint list;
+  const void *ctx;
+  unsigned epoch;
+};
+std::map<PrimKey, PrimList> s_prims;
+
+template <class Draw>
+void cachedPrimitive(const PrimKey &key, Draw draw) {
+  const void *ctx = glCacheContext();
+  if (ctx == nullptr) {
+    draw();
+    return;
+  }
+  auto it = s_prims.find(key);
+  if (it != s_prims.end()) {
+    if (it->second.ctx == ctx && it->second.epoch == s_glEpoch) {
+      glCallList(it->second.list);
+      return;
+    }
+    s_prims.erase(it);                  // its context has gone, and the list with it
+  }
+  if (s_prims.size() >= 512) {          // odd sizes, drawn once each: don't hoard
+    draw();
+    return;
+  }
+  GLuint list = glGenLists(1);
+  if (list == 0) {
+    draw();
+    return;
+  }
+  glNewList(list, GL_COMPILE);
+  draw();
+  glEndList();
+  s_prims[key] = PrimList{list, ctx, s_glEpoch};
+  glCallList(list);
+}
+} // namespace
+
+void solidCube(double sz) {
+  cachedPrimitive(PrimKey(0, sz, 0, 0, 0), [=]() { solidCubeDraw(sz); });
+}
+
+void solidSphere(double radius, int slices, int stacks) {
+  cachedPrimitive(PrimKey(1, radius, 0, slices, stacks),
+                  [=]() { solidSphereDraw(radius, slices, stacks); });
+}
+
+void solidCylinder(double radius, double height, int slices, int stacks) {
+  cachedPrimitive(PrimKey(2, radius, height, slices, stacks),
+                  [=]() { solidCylinderDraw(radius, height, slices, stacks); });
+}
+
+void solidCone(double radius, double height, int slices, int stacks) {
+  cachedPrimitive(PrimKey(3, radius, height, slices, stacks),
+                  [=]() { solidConeDraw(radius, height, slices, stacks); });
 }

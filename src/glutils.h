@@ -24,6 +24,23 @@
 void solidCube(double sz);
 
 /**
+ * @brief The current GL context, for keeping display lists in.
+ *
+ * Returns nullptr when no context is current. The first time a context is
+ * seen, a hook is set so that when it's destroyed glCacheEpoch() changes,
+ * which tells anything holding display lists that they have gone with it.
+ */
+const void *glCacheContext();
+
+/**
+ * @brief A number that changes whenever a GL context is destroyed.
+ *
+ * A display list built when this had one value is only good while it still
+ * has that value (and in the same context).
+ */
+unsigned glCacheEpoch();
+
+/**
  * @brief Draws a solid sphere centred on the origin.
  *
  * The surface is tessellated into @p stacks quad strips running from the +Z

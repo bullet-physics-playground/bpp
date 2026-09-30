@@ -9,6 +9,8 @@
 
 #ifdef HAS_LIB_ASSIMP
 
+#include <vector>
+#include "glutils.h"
 #include "mesh.h"
 
 #ifdef WIN32
@@ -162,7 +164,18 @@ Mesh::Mesh() {
   setMass(0);
 }
 
+// Display lists of meshes that have gone, deleted the next time a mesh is
+// drawn (when their GL context is sure to be current).
+struct DeadGlList {
+  const void *ctx;
+  unsigned epoch;
+  unsigned int list;
+};
+static std::vector<DeadGlList> s_deadGlLists;
+
 Mesh::~Mesh() {
+  if (m_glList != 0)
+    s_deadGlLists.push_back(DeadGlList{m_glListContext, m_glListEpoch, m_glList});
   if (m_ownsMeshDirectly) {
     delete m_shape;
     delete m_mesh;
@@ -524,6 +537,46 @@ void Mesh::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
   glApplyColor();
 
+  // Replay the cached display list, (re)building it when there's none yet
+  // for this GL context or the geometry has changed since it was built.
+  const void *ctx = glCacheContext();
+  if (ctx == nullptr) {                 // no context to keep a list in
+    drawTriangles();
+    return;
+  }
+  if (!s_deadGlLists.empty()) {
+    for (size_t k = 0; k < s_deadGlLists.size(); ++k)
+      if (s_deadGlLists[k].ctx == ctx && s_deadGlLists[k].epoch == glCacheEpoch())
+        glDeleteLists(s_deadGlLists[k].list, 1);
+    s_deadGlLists.clear();              // (lists of a context that's gone went with it)
+  }
+  const void *source = m_scene != nullptr ? (const void *)m_scene
+                                          : (const void *)m_shape;
+  int triangles = m_mesh != nullptr ? m_mesh->getNumTriangles() : -1;
+  if (m_glList != 0 && (m_glListContext != ctx || m_glListEpoch != glCacheEpoch() ||
+                        m_glListSource != source || m_glListTriangles != triangles)) {
+    if (m_glListContext == ctx && m_glListEpoch == glCacheEpoch())
+      glDeleteLists(m_glList, 1);
+    m_glList = 0;
+  }
+  if (m_glList == 0) {
+    m_glList = glGenLists(1);
+    if (m_glList == 0) {                // out of lists: draw directly
+      drawTriangles();
+      return;
+    }
+    m_glListContext = ctx;
+    m_glListEpoch = glCacheEpoch();
+    m_glListSource = source;
+    m_glListTriangles = triangles;
+    glNewList(m_glList, GL_COMPILE);
+    drawTriangles();
+    glEndList();
+  }
+  glCallList(m_glList);
+}
+
+void Mesh::drawTriangles() {
   if (m_scene != nullptr && m_scene->mMeshes != nullptr) {
     const struct aiMesh *mesh = m_scene->mMeshes[0];
 

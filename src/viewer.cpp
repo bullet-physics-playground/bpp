@@ -579,6 +579,37 @@ void Viewer::setTau(btScalar tau) {
 }
 
 
+// Bullet recomputes every object's bounding box on every substep by
+// default, even objects that never move; with many substeps a frame and
+// thousands of fixed parts, that's most of the work of a quiet scene.
+// Instead, the substeps update only moving (active) objects, as Bullet does
+// with forceUpdateAllAabbs off, and before each frame's step this brings up
+// to date the box of any sleeping or fixed object a script has moved since
+// the last frame (scripts only move things between steps). Only moved
+// objects are touched: refreshing a fixed object's box shifts it into the
+// broadphase's moving set, which would be slower if done to all of them.
+void Viewer::updateMovedAabbs() {
+  dynamicsWorld->setForceUpdateAllAabbs(false);
+  btCollisionObjectArray &objs = dynamicsWorld->getCollisionObjectArray();
+  if (_aabbSeen.size() > (size_t)objs.size() * 2 + 64)
+    _aabbSeen.clear();                  // forget objects that have gone
+  for (int i = 0; i < objs.size(); ++i) {
+    btCollisionObject *o = objs[i];
+    if (o->isActive())
+      continue;                         // Bullet keeps these up to date
+    const btTransform &t = o->getWorldTransform();
+    const btCollisionShape *shape = o->getCollisionShape();
+    auto it = _aabbSeen.find(o);
+    if (it == _aabbSeen.end()) {
+      _aabbSeen.emplace(o, std::make_pair(t, shape));
+      dynamicsWorld->updateSingleAabb(o);
+    } else if (!(it->second.first == t) || it->second.second != shape) {
+      it->second = std::make_pair(t, shape);
+      dynamicsWorld->updateSingleAabb(o);
+    }
+  }
+}
+
 void Viewer::setErp(btScalar erp) {
   dynamicsWorld->getSolverInfo().m_erp = erp;
 }
@@ -1252,6 +1283,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   dispatcher = new btCollisionDispatcher(collisionCfg);
   solver = new btSequentialImpulseConstraintSolver();
 
+  _aabbSeen.clear();
   dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
   dynamicsWorld->getWorldInfo().m_broadphase = broadphase;
@@ -2233,6 +2265,7 @@ void Viewer::clear() {
   dispatcher = new btCollisionDispatcher(collisionCfg);
   solver = new btSequentialImpulseConstraintSolver();
 
+  _aabbSeen.clear();
   dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
   dynamicsWorld->setDebugDrawer(_debugDrawer);
@@ -3739,6 +3772,7 @@ void Viewer::animate() {
     }
 
     // new: bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
+    updateMovedAabbs();
     dynamicsWorld->stepSimulation(_timeStep, _maxSubSteps, _fixedTimeStep);
 
     if (_cb_postSim) {
