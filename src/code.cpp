@@ -264,6 +264,11 @@ bool CodeEditor::save() {
 
 QString CodeEditor::scriptFile() const { return script_filename; }
 
+void CodeEditor::disableSyntaxHighlighting() {
+  delete highlighter;
+  highlighter = nullptr;
+}
+
 void CodeEditor::setFont(QString family, uint size) {
 
   //  qDebug() << " setFont " << family << size;

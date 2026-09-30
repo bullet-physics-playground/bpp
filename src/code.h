@@ -113,6 +113,14 @@ public:
    */
   QString scriptFile() const;
 
+  /**
+   * @brief Removes the Lua syntax colouring from this editor.
+   *
+   * For views that hold plain text rather than a script, such as the
+   * Shortcuts dock.
+   */
+  void disableSyntaxHighlighting();
+
 public slots:
   /**
    * @brief Discards the buffer and starts a new, unnamed script.
@@ -524,7 +532,8 @@ private:
   int lspDocumentVersion;     ///< Document version reported to the server.
   bool lspInitialized;        ///< True once the server answered @c initialize.
 
-  LuaHighlighter *highlighter; ///< Syntax highlighter on this document.
+  LuaHighlighter *highlighter; ///< Syntax highlighter on this document, or
+                               ///< null once disableSyntaxHighlighting() ran.
 
   QString script_filename; ///< Path of the edited script, or @c "no_name".
 };

@@ -654,6 +654,8 @@ void Gui::createDock() {
   dw6->setWindowTitle("Shortcuts");
   shortcutsText = new CodeEditor(settings, this);
   shortcutsText->setReadOnly(true);
+  // The shortcut list is plain text, not Lua.
+  shortcutsText->disableSyntaxHighlighting();
   dw6->setWidget(shortcutsText);
   addDockWidget(Qt::BottomDockWidgetArea, dw6);
   dockShortcuts = dw6;
