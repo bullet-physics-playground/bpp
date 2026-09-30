@@ -282,6 +282,7 @@ void Gui::fileLoad(const QString &path) {
   editor->blockSignals(false);
 
   if (loaded) {
+    shortcutsText->clear();
     setCurrentFile(path);
     setWindowTitle(tr("%1 - %2")
                        .arg(QCoreApplication::applicationName())
@@ -741,6 +742,7 @@ void Gui::clearDebug() { debugText->clear(); }
 void Gui::fileNew() {
   editor->clear();
   ui.viewer->clearParams();
+  shortcutsText->clear();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(true);
   _fileSaved = true;
@@ -786,6 +788,7 @@ void Gui::fileOpen(const QString &path) {
   editor->load(path);
   editor->blockSignals(false);
   ui.viewer->clearParams();
+  shortcutsText->clear();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(false);
 
@@ -799,6 +802,7 @@ void Gui::fileReload() {
   editor->load(editor->scriptFile());
   editor->blockSignals(false);
   ui.viewer->clearParams();
+  shortcutsText->clear();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(false);
 
