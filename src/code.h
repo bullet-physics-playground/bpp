@@ -51,8 +51,9 @@ class LineNumberArea;
  *
  * Ctrl+F opens a find bar in the top right corner, as in a web browser: the
  * text typed there is searched for as it is typed, every match is
- * highlighted, Return and Shift+Return step to the next and previous match,
- * and Escape closes the bar again.
+ * highlighted in the text and marked with a tick along the scroll bar, Return
+ * and Shift+Return step to the next and previous match, and Escape closes the
+ * bar again.
  *
  * Key presses the editor does not consume are re-emitted through keyPressed()
  * so the rest of the application can treat them as shortcuts.
@@ -254,6 +255,10 @@ protected:
    * closes the bar, Ctrl+F selects the search text again, and everything else
    * is swallowed so it neither edits the script nor reaches keyPressed().
    *
+   * Paints the vertical scroll bar, too, while there are find matches: the bar
+   * draws itself first, then a tick is drawn across its groove at each
+   * match's line, at the same fraction of the groove as of the document.
+   *
    * @param watched The object the event was sent to.
    * @param event   The event.
    * @return True if the event was consumed here.
@@ -404,7 +409,8 @@ private:
    * Collects every match of the find bar's text into @c findSelections and
    * shows "current/total" next to the text field, where "current" is the
    * match that is selected, or 0 if none is. With the bar closed or its text
-   * empty, all highlights are removed.
+   * empty, all highlights are removed. Repaints the scroll bar, so its match
+   * ticks follow.
    */
   void updateFindHighlights();
 

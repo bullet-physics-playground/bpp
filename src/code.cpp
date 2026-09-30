@@ -102,6 +102,7 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
   findLayout->addWidget(findNextButton);
   findLayout->addWidget(findClose);
   findBar->hide();
+  verticalScrollBar()->installEventFilter(this); // Paints the match ticks.
 
   connect(findEdit, &QLineEdit::textEdited, this, [this]() {
     // Search again from the start of the current match, so the match stays
@@ -419,6 +420,7 @@ void CodeEditor::updateFindHighlights() {
                                           .arg(current)
                                           .arg(findSelections.size()));
   highlightCurrentLine();
+  verticalScrollBar()->update();
 }
 
 void CodeEditor::placeFindBar() {
@@ -463,6 +465,36 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 bool CodeEditor::eventFilter(QObject *watched, QEvent *event) {
+  if (watched == verticalScrollBar() && event->type() == QEvent::Paint &&
+      !findSelections.isEmpty()) {
+    // Like a browser, mark where the find matches are along the scroll bar:
+    // let the bar paint itself first, then draw a tick for each match on top.
+    watched->event(event);
+
+    QScrollBar *bar = verticalScrollBar();
+    QStyleOptionSlider opt;
+    opt.initFrom(bar);
+    opt.orientation = Qt::Vertical;
+    opt.minimum = bar->minimum();
+    opt.maximum = bar->maximum();
+    opt.pageStep = bar->pageStep();
+    QRect groove = bar->style()->subControlRect(
+        QStyle::CC_ScrollBar, &opt, QStyle::SC_ScrollBarGroove, bar);
+
+    // Amber stands out on light and dark grooves alike, where the yellow of
+    // the text highlight would all but vanish on a light one.
+    QPainter painter(bar);
+    int lines = qMax(1, document()->lineCount());
+    for (const QTextEdit::ExtraSelection &selection : findSelections) {
+      int y = groove.top() + groove.height() *
+                                 selection.cursor.block().firstLineNumber() /
+                                 lines;
+      painter.fillRect(groove.left() + 2, y, groove.width() - 4, 2,
+                       QColor(240, 170, 0));
+    }
+    return true;
+  }
+
   if (watched == findBar && event->type() == QEvent::KeyPress) {
     // Keys the find field did not use bubble up to here. None of them may go
     // on to the editor: QLineEdit even leaves Return unaccepted, which would
