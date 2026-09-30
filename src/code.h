@@ -22,7 +22,10 @@ class QPaintEvent;
 class QResizeEvent;
 class QSize;
 class QCompleter;
+class QFrame;
 class QJsonObject;
+class QLabel;
+class QLineEdit;
 class QModelIndex;
 class QProcess;
 class QTextBrowser;
@@ -45,6 +48,11 @@ class LineNumberArea;
  * a minimal hand-rolled LSP client - just enough of @c initialize,
  * @c didOpen / @c didChange and @c textDocument/completion to keep the popup
  * fed - and its results carry documentation shown next to the popup.
+ *
+ * Ctrl+F opens a find bar in the top right corner, as in a web browser: the
+ * text typed there is searched for as it is typed, every match is
+ * highlighted, Return and Shift+Return step to the next and previous match,
+ * and Escape closes the bar again.
  *
  * Key presses the editor does not consume are re-emitted through keyPressed()
  * so the rest of the application can treat them as shortcuts.
@@ -233,6 +241,11 @@ protected:
    * documentation pane as the selection moves, and hides that pane when the
    * popup closes.
    *
+   * Also sees every key press the find field leaves unused, as it travels up
+   * to the find bar: Return and Shift+Return step through the matches, Escape
+   * closes the bar, Ctrl+F selects the search text again, and everything else
+   * is swallowed so it neither edits the script nor reaches keyPressed().
+   *
    * @param watched The object the event was sent to.
    * @param event   The event.
    * @return True if the event was consumed here.
@@ -243,7 +256,8 @@ protected:
    * @brief Handles editor key presses.
    *
    * Accepts a completion on Return while the popup is up, opens the popup on
-   * Ctrl+Space, turns Ctrl+S into savePressed(), and otherwise lets
+   * Ctrl+Space, turns Ctrl+S into savePressed(), opens the find bar on Ctrl+F
+   * and closes it on Escape, and otherwise lets
    * QPlainTextEdit handle the key. Typing with the popup open refreshes both
    * the local and the language server candidates. Keys that were not accepted
    * are forwarded via keyPressed().
@@ -253,7 +267,8 @@ protected:
   void keyPressEvent(QKeyEvent *e) override;
 
   /**
-   * @brief Keeps the line number margin aligned with the viewport.
+   * @brief Keeps the line number margin and the find bar aligned with the
+   *        viewport.
    * @param event The resize event.
    */
   void resizeEvent(QResizeEvent *event) override;
@@ -270,7 +285,8 @@ private slots:
    * @brief Paints the subtle highlight behind the line holding the cursor.
    *
    * Chooses a translucent light or a pale yellow wash depending on whether the
-   * palette is dark. Does nothing while the editor is read-only.
+   * palette is dark. Skipped while the editor is read-only. The find matches
+   * in @c findSelections are drawn on top.
    */
   void highlightCurrentLine();
 
@@ -347,6 +363,47 @@ private:
    * @brief Hides the completion documentation pane if it exists.
    */
   void hideCompletionDocumentation();
+
+  /**
+   * @brief Opens the find bar and puts the keyboard focus in its text field.
+   *
+   * Like a browser, a selection within one line becomes the search text. The
+   * text is selected, so typing replaces it.
+   */
+  void showFindBar();
+
+  /**
+   * @brief Closes the find bar and hands the focus back to the text.
+   *
+   * The current match stays selected; the other highlights are removed.
+   */
+  void hideFindBar();
+
+  /**
+   * @brief Selects the next or previous match of the find bar's text.
+   *
+   * Searches case-insensitively from the current selection and wraps around
+   * at the end (or the start) of the document. When nothing matches the
+   * cursor stays where it is.
+   *
+   * @param backward True to search towards the start of the document.
+   */
+  void findNext(bool backward);
+
+  /**
+   * @brief Recomputes the match highlights and the match counter.
+   *
+   * Collects every match of the find bar's text into @c findSelections and
+   * shows "current/total" next to the text field, where "current" is the
+   * match that is selected, or 0 if none is. With the bar closed or its text
+   * empty, all highlights are removed.
+   */
+  void updateFindHighlights();
+
+  /**
+   * @brief Sizes the find bar and parks it in the top right of the viewport.
+   */
+  void placeFindBar();
 
   /**
    * @brief Starts a Lua language server process.
@@ -438,6 +495,12 @@ private:
   QString lspDocumentUri() const;
 
   QWidget *lineNumberArea; ///< The margin widget drawing the line numbers.
+
+  QFrame *findBar;     ///< The Ctrl+F find bar; hidden while not in use.
+  QLineEdit *findEdit; ///< The find bar's search text field.
+  QLabel *findCount;   ///< Shows "current/total" matches in the find bar.
+  QList<QTextEdit::ExtraSelection> findSelections; ///< Highlights of all the
+                                                   ///< find bar's matches.
 
   QCompleter *completer;                 ///< Drives the completion popup; null
                                          ///< when completion is disabled.

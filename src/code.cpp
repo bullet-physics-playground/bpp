@@ -70,6 +70,56 @@ CodeEditor::CodeEditor(QSettings *s, QWidget *parent, bool enableCompletion)
 
   lineNumberArea = new LineNumberArea(this);
 
+  // The Ctrl+F find bar. A child of the editor rather than of the viewport,
+  // because QPlainTextEdit scrolls the viewport's children along with the
+  // text.
+  findBar = new QFrame(this);
+  findBar->setFrameShape(QFrame::StyledPanel);
+  findBar->setAutoFillBackground(true);
+  findBar->installEventFilter(this);
+  findEdit = new QLineEdit(findBar);
+  findEdit->setPlaceholderText(tr("Find"));
+  findCount = new QLabel(findBar);
+  findCount->setAlignment(Qt::AlignCenter);
+  QToolButton *findPrev = new QToolButton(findBar);
+  findPrev->setArrowType(Qt::UpArrow);
+  findPrev->setAutoRaise(true);
+  findPrev->setToolTip(tr("Previous match (Shift+Return)"));
+  QToolButton *findNextButton = new QToolButton(findBar);
+  findNextButton->setArrowType(Qt::DownArrow);
+  findNextButton->setAutoRaise(true);
+  findNextButton->setToolTip(tr("Next match (Return)"));
+  QToolButton *findClose = new QToolButton(findBar);
+  findClose->setText(QStringLiteral("\u00d7"));
+  findClose->setAutoRaise(true);
+  findClose->setToolTip(tr("Close (Escape)"));
+  QHBoxLayout *findLayout = new QHBoxLayout(findBar);
+  findLayout->setContentsMargins(4, 2, 2, 2);
+  findLayout->setSpacing(2);
+  findLayout->addWidget(findEdit);
+  findLayout->addWidget(findCount);
+  findLayout->addWidget(findPrev);
+  findLayout->addWidget(findNextButton);
+  findLayout->addWidget(findClose);
+  findBar->hide();
+
+  connect(findEdit, &QLineEdit::textEdited, this, [this]() {
+    // Search again from the start of the current match, so the match stays
+    // put for as long as it still fits the text being typed.
+    QTextCursor cursor = textCursor();
+    cursor.setPosition(cursor.selectionStart());
+    setTextCursor(cursor);
+    findNext(false);
+  });
+  connect(findPrev, &QToolButton::clicked, this, [this]() { findNext(true); });
+  connect(findNextButton, &QToolButton::clicked, this,
+          [this]() { findNext(false); });
+  connect(findClose, &QToolButton::clicked, this, &CodeEditor::hideFindBar);
+  connect(document(), &QTextDocument::contentsChanged, this, [this]() {
+    if (!findBar->isHidden())
+      updateFindHighlights();
+  });
+
   // Connected to the document's own signal, not the QPlainTextEdit one:
   // Gui::fileLoad() wraps editor->load() in editor->blockSignals(true/false)
   // to silence textChanged/cursorPositionChanged side effects while loading,
@@ -266,6 +316,11 @@ void CodeEditor::resizeEvent(QResizeEvent *e) {
   QRect cr = contentsRect();
   lineNumberArea->setGeometry(
       QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+
+  // Also runs when only the viewport changes size, e.g. when the vertical
+  // scroll bar appears, since QAbstractScrollArea routes the viewport's
+  // resize events here.
+  placeFindBar();
 }
 
 void CodeEditor::highlightCurrentLine() {
@@ -285,7 +340,92 @@ void CodeEditor::highlightCurrentLine() {
     extraSelections.append(selection);
   }
 
+  extraSelections += findSelections;
+
   setExtraSelections(extraSelections);
+}
+
+void CodeEditor::showFindBar() {
+  QString selected = textCursor().selectedText();
+  if (!selected.isEmpty() && !selected.contains(QChar::ParagraphSeparator))
+    findEdit->setText(selected);
+
+  findBar->show();
+  findBar->raise();
+  placeFindBar();
+  findEdit->selectAll();
+  findEdit->setFocus();
+  updateFindHighlights();
+}
+
+void CodeEditor::hideFindBar() {
+  findBar->hide();
+  updateFindHighlights();
+  setFocus();
+}
+
+void CodeEditor::findNext(bool backward) {
+  QString text = findEdit->text();
+  if (!text.isEmpty()) {
+    QTextDocument::FindFlags flags;
+    if (backward)
+      flags |= QTextDocument::FindBackward;
+
+    QTextCursor match = document()->find(text, textCursor(), flags);
+    if (match.isNull()) {
+      QTextCursor wrapped(document());
+      if (backward)
+        wrapped.movePosition(QTextCursor::End);
+      match = document()->find(text, wrapped, flags);
+    }
+    if (!match.isNull())
+      setTextCursor(match);
+  }
+
+  updateFindHighlights();
+}
+
+void CodeEditor::updateFindHighlights() {
+  findSelections.clear();
+
+  QString text = findEdit->text();
+  int current = 0;
+  if (!findBar->isHidden() && !text.isEmpty()) {
+    bool isDark = palette().window().color().lightness() < 128;
+
+    QTextEdit::ExtraSelection selection;
+    selection.format.setBackground(isDark ? QColor(140, 110, 0)
+                                          : QColor(Qt::yellow));
+
+    QTextCursor cursor = textCursor();
+    QTextCursor match = document()->find(text, 0);
+    while (!match.isNull()) {
+      selection.cursor = match;
+      findSelections.append(selection);
+      if (match.selectionStart() == cursor.selectionStart() &&
+          match.selectionEnd() == cursor.selectionEnd())
+        current = findSelections.size();
+      match = document()->find(text, match);
+    }
+  }
+
+  findCount->setText(text.isEmpty() ? QString()
+                                    : QString("%1/%2")
+                                          .arg(current)
+                                          .arg(findSelections.size()));
+  highlightCurrentLine();
+}
+
+void CodeEditor::placeFindBar() {
+  // Room for a counter up to "999/999", so the bar does not change width
+  // while typing.
+  findCount->setMinimumWidth(
+      findCount->fontMetrics().horizontalAdvance(QStringLiteral("999/999")));
+  findBar->adjustSize();
+
+  QRect vr = viewport()->geometry();
+  findBar->move(qMax(vr.left(), vr.right() - findBar->width() - 4),
+                vr.top() + 4);
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
@@ -318,6 +458,20 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 bool CodeEditor::eventFilter(QObject *watched, QEvent *event) {
+  if (watched == findBar && event->type() == QEvent::KeyPress) {
+    // Keys the find field did not use bubble up to here. None of them may go
+    // on to the editor: QLineEdit even leaves Return unaccepted, which would
+    // otherwise insert a newline into the script.
+    auto *keyEvent = static_cast<QKeyEvent *>(event);
+    if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+      findNext(keyEvent->modifiers() & Qt::ShiftModifier);
+    else if (keyEvent->key() == Qt::Key_Escape)
+      hideFindBar();
+    else if (keyEvent->matches(QKeySequence::Find))
+      findEdit->selectAll();
+    return true;
+  }
+
   if (completer && watched == completer->popup()) {
     if (event->type() == QEvent::Hide) {
       hideCompletionDocumentation();
@@ -364,6 +518,18 @@ void CodeEditor::keyPressEvent(QKeyEvent *e) {
     // regardless of modifiers.
     e->accept();
     emit savePressed();
+    return;
+  }
+
+  if (e->matches(QKeySequence::Find)) {
+    e->accept();
+    showFindBar();
+    return;
+  }
+
+  if (e->key() == Qt::Key_Escape && !findBar->isHidden()) {
+    e->accept();
+    hideFindBar();
     return;
   }
 
