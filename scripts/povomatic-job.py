@@ -11,6 +11,8 @@
 #   NNNNN.inc     -- one per frame, 5-digit zero-padded frame number
 #   settings.inc  -- copied from bpp's includes/settings.inc
 #   mesh_*.inc    -- mesh geometry
+#   <scene>.wav   -- the sounds the scene played, if any, from the first frame on;
+#                    povomatic muxes it into the mp4
 #
 # povomatic renders a frame with
 #
@@ -242,6 +244,10 @@ def main():
     # --- scene: export/<scene>/ -> <input>/<scene>/ --------------------------
     dest = os.path.join(args.input_dir, scene)
     steps.append(rsync(scene_dir, dest, RSYNC_EXCLUDES))
+    # The rsync carries <scene>.wav along but deletes nothing, so a track left
+    # by an earlier export would be muxed into a scene that no longer has one.
+    if not os.path.isfile(os.path.join(scene_dir, scene + ".wav")):
+        steps.append(["rm", "-f", os.path.join(dest, scene + ".wav")])
 
     # --- build the povomatic.py invocation ---------------------------------
     pov_lib = f"+L{args.remote_input.rstrip('/')}/{scene}"
