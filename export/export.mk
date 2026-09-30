@@ -68,7 +68,7 @@ final: 720p
 	povray ${SCENE}.ini -V +W1280 +H720 +Q11 +A0.3 ${POVOPT} || true
 
 mkv:
-	ffmpeg -y -err_detect ignore_err -pattern_type glob -i '*.png' -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv444p '${SCENE}.mkv'
+	ffmpeg -y -err_detect ignore_err -pattern_type glob -i '*.png' $(if $(wildcard ${SCENE}.wav),-i '${SCENE}.wav' -c:a flac) -c:v libx264 -preset veryslow -qp 0 -r 25 -pix_fmt yuv444p '${SCENE}.mkv'
 
 mkv-8k:
 	ffmpeg -y -threads 1 -filter_threads 1 -filter_complex_threads 1 -err_detect ignore_err -i %05d.png -c:v libx265 -r 25 -crf 18 -preset slow -pix_fmt yuv420p10le -vf "colorspace=bt709:iall=bt709:range=tv:fast=1" -color_primaries bt709 -color_trc bt709 -colorspace bt709 -movflags +faststart '${SCENE}.mkv'
@@ -111,7 +111,7 @@ distclean: clean
 	rm -f ${SCENE}.pov ${SCENE}.ini ?????.inc mesh_*.inc
 
 clean:
-	rm -f *.png *.mov *.mp4 *.mkv *.pov-state *.err *.out *.log
+	rm -f *.png *.mov *.mp4 *.mkv *.pov-state *.err *.out *.log ${SCENE}.wav
 
 dist: clean
 	cd .. && find ${SCENE} -print0 | sort -z | tar -cvJf ${SCENE}.tar.xz --no-recursion --null -T -

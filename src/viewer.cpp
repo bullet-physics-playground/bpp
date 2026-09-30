@@ -1114,6 +1114,7 @@ void Viewer::playSound(int id) {
   // -1: play on the first free channel. 0: play once, don't loop.
   int ch = Mix_PlayChannel(-1, it->second, 0);
   if (ch >= 0) Mix_Volume(ch, MIX_MAX_VOLUME);
+  recordSound(it->second, 1.0);
 }
 
 void Viewer::playSound(int id, double volume) {
@@ -1128,6 +1129,16 @@ void Viewer::playSound(int id, double volume) {
   if (volume > 1) volume = 1;
   int ch = Mix_PlayChannel(-1, it->second, 0);
   if (ch >= 0) Mix_Volume(ch, (int)(volume * MIX_MAX_VOLUME + 0.5));
+  recordSound(it->second, volume);
+}
+
+void Viewer::recordSound(Mix_Chunk *chunk, double volume) {
+  if (!_savePOV)
+    return;
+  // Once this frame is exported, the next one is the first to show what the
+  // sound is about.
+  int frame = (_wavFrame == _frameNum) ? _frameNum + 1 : _frameNum;
+  _wavEvents.push_back({frame, chunk, volume});
 }
 
 void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
@@ -1296,6 +1307,9 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   // effects silently unavailable.
   _audioAvailable = false;
   _nextSoundId = 0;
+  _wavFirstFrame = 0;
+  _wavFrame = 0;
+  _wavWritten = -1;
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
     qWarning() << "Audio unavailable (SDL_InitSubSystem):" << SDL_GetError()
                << "-- sound effects disabled, simulation continues normally.";
@@ -2996,8 +3010,12 @@ void Viewer::savePOV(bool force) {
   QString file = QString("%1%2%3.inc").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(fn);
   QString fileMain = QString("%1%2%3.pov").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(qPrintable(sceneName));
   QString fileINI = QString("%1%2%3.ini").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(qPrintable(sceneName));
+  QString fileWAV = QString("%1%2%3.wav").arg(qPrintable(sceneDir)).arg(QDir::separator()).arg(qPrintable(sceneName));
 
   qDebug() << "POV-Ray file: " << file;
+
+  if (_savePOV)
+    saveWAV(fileWAV);
 
   // Clean up any previous export objects to avoid leaking when saving every
   // frame (savePOV can be called repeatedly during animation).
@@ -3258,6 +3276,99 @@ void Viewer::savePOV(bool force) {
     delete _fileMakefile;
     _fileMakefile = nullptr;
   }
+}
+
+// Frame rate export.mk encodes the exported frames at (ffmpeg's default for an
+// image sequence), which the exported audio track keeps in step with.
+static const int POV_EXPORT_FPS = 25;
+
+// Header of a 16-bit PCM WAV holding dataBytes of samples.
+static QByteArray wavHeader(int freq, int channels, quint32 dataBytes) {
+  QByteArray h;
+  QDataStream s(&h, QIODevice::WriteOnly);
+  s.setByteOrder(QDataStream::LittleEndian);
+  s.writeRawData("RIFF", 4);
+  s << quint32(36 + dataBytes);
+  s.writeRawData("WAVEfmt ", 8);
+  s << quint32(16) << quint16(1) << quint16(channels) << quint32(freq)
+    << quint32(freq * channels * 2) << quint16(channels * 2) << quint16(16);
+  s.writeRawData("data", 4);
+  s << dataBytes;
+  return h;
+}
+
+void Viewer::saveWAV(const QString &fileWAV) {
+  int freq, channels;
+  Uint16 format;
+  // The chunks hold their samples in the mixer's format; only 16-bit
+  // little-endian PCM goes into the WAV as it is.
+  if (!Mix_QuerySpec(&freq, &format, &channels) || format != AUDIO_S16LSB) {
+    _wavEvents.clear();
+    return;
+  }
+
+  // A new export: an older track no longer lines up with the frames.
+  if (fileWAV != _wavFile || _firstFrame != _wavFirstFrame ||
+      _frameNum < _wavFrame) {
+    QFile::remove(fileWAV);
+    _wavFile = fileWAV;
+    _wavFirstFrame = _firstFrame;
+    _wavWritten = -1;
+    _wavMix.clear();
+  }
+  _wavFrame = _frameNum;
+
+  if (_wavWritten < 0 && _wavEvents.empty())
+    return; // nothing played yet, so no track
+
+  QFile f(fileWAV);
+  if (!f.open(QIODevice::ReadWrite)) {
+    qWarning() << "saveWAV: cannot write" << fileWAV;
+    _wavEvents.clear();
+    return;
+  }
+  if (_wavWritten < 0)
+    _wavWritten = 0;
+
+  // first sample frame of exported frame n
+  auto start = [&](int n) {
+    return qint64(n - _firstFrame) * freq / POV_EXPORT_FPS;
+  };
+
+  // Appends the track up to sample frame end: the mix, then silence.
+  auto append = [&](qint64 end) {
+    qint64 n = (end - _wavWritten) * channels;
+    if (n <= 0)
+      return;
+    std::vector<qint16> out(n, 0);
+    qint64 m = std::min<qint64>(n, _wavMix.size());
+    for (qint64 i = 0; i < m; ++i)
+      out[i] = qBound(-32768, _wavMix[i], 32767);
+    _wavMix.erase(_wavMix.begin(), _wavMix.begin() + m);
+    f.seek(44 + _wavWritten * channels * 2);
+    f.write((const char *)out.data(), n * 2);
+    _wavWritten = end;
+  };
+
+  append(start(_frameNum)); // silence up to the first sound
+
+  for (const WavEvent &e : _wavEvents) {
+    const qint16 *src = (const qint16 *)e.chunk->abuf;
+    qint64 len = e.chunk->alen / 2;
+    qint64 at = (start(e.frame) - _wavWritten) * channels;
+    if (at + len <= 0)
+      continue;
+    if ((qint64)_wavMix.size() < at + len)
+      _wavMix.resize(at + len, 0);
+    for (qint64 i = std::max<qint64>(0, -at); i < len; ++i)
+      _wavMix[at + i] += int(src[i] * e.volume);
+  }
+  _wavEvents.clear();
+
+  append(start(_frameNum + 1)); // this frame's share
+
+  f.seek(0);
+  f.write(wavHeader(freq, channels, quint32(_wavWritten * channels * 2)));
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {
