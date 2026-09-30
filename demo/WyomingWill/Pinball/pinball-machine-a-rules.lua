@@ -143,5 +143,18 @@ return {
   --       game.addScore(3000)
   --     end
   --   end,
-  onSwitch = nil,
+  -- onSwitch = nil,
+  -- an extra ball at every 100,000 points
+  onSwitch = (function()
+    local nextAt, lastScore = 100000, 0
+    return function(game, name)
+      if game.score < lastScore then nextAt = 100000 end   -- a new game started
+      lastScore = game.score
+      if game.score >= nextAt then
+        game.awardExtraBall()
+        game.message("REPLAY")
+        nextAt = nextAt + 100000
+      end
+    end
+  end)(),
 }
