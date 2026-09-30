@@ -406,8 +406,8 @@ for n = 0, 15 do
   s.damp_ang = 0
   v:add(s)
   s.body:setActivationState(4)          -- never goes to sleep
-  s.body:setCcdMotionThreshold(tonumber(os.getenv("CCDT") or "") or K.R * 0.5)
-  s.body:setCcdSweptSphereRadius(K.R * (tonumber(os.getenv("CCDR") or "") or 0.9))
+  s.body:setCcdMotionThreshold(K.R * 0.5)
+  s.body:setCcdSweptSphereRadius(K.R * 0.9)
   local mark
   if n == 0 then mark = marking("cue-dots.obj", "#c62828")
   elseif stripe then mark = marking("ball-stripe.obj", BALL_COLS[n - 8])
@@ -1993,11 +1993,20 @@ v:postSim(function(N)
       local dropped = false
       local low = p.y < K.RAIL_H
       if low then
+        -- (a fast ball can cross the mouth and hit the back of the pocket
+        -- within one frame, so one heading in fast enough to be past the
+        -- drop point by the next frame drops now)
+        local pv = b.obj.vel
         for _, pk in ipairs(pockets) do
           local rx, rz = x - pk.mx, z - pk.mz
           local depth = rx * pk.nx + rz * pk.nz
           local lat = math.abs(rx * pk.nz - rz * pk.nx)
-          if depth > pk.depth and lat < pk.half + 2 then dropped = true; break end
+          local out = pv.x * pk.nx + pv.z * pk.nz
+          if (depth > pk.depth or (depth > -0.5 and depth + out * K.FRAME > pk.depth))
+             and lat < pk.half + 2 then
+            dropped = true
+            break
+          end
         end
         if not dropped and (math.abs(x) > K.HL + 2.5 or math.abs(z) > K.HW + 2.5) then
           dropped = true
