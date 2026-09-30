@@ -17,6 +17,11 @@ local s1 = 9e99
 -- POV-Ray scene settings
 v.pre_sdl = [==[
 
+#include "bpp_LightSys.inc"
+#include "bpp_CIE.inc"
+#include "bpp_espd_cie_standard.inc"
+#include "bpp_espd_lightsys.inc"
+
 #include "finish.inc"
 #include "textures.inc"
 
