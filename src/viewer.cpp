@@ -3153,8 +3153,11 @@ void Viewer::savePOV(bool force) {
       *_stream << "  look_at <" << look.x << ", " << look.y << ", " << -look.z
 			   << "> ";
 
-      *_stream << "  angle " << 180.0 * camera()->horizontalFieldOfView() / M_PI
-               << "\n";
+      // Keep the view's vertical field of view whatever the render's aspect
+      // ratio; the horizontal angle POV-Ray wants follows from it.
+      *_stream << "  angle degrees(2*atan(tan(radians("
+               << 180.0 * camera()->fieldOfView() / M_PI
+               << ")/2)*image_width/image_height))" << "\n";
 
       *_stream << "  sky <" << _cam->getUpVector().x() << ", "
                << _cam->getUpVector().y() << ", " << -_cam->getUpVector().z()
