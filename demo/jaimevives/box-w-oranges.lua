@@ -13,6 +13,7 @@ common.setTiming(1/5, 10, 1/20)
 
 plane = Plane(0,1,0,0,100)
 plane.col = "green"
+plane.tex = "grassy_bank_7160794.jpg" -- the grass of includes/grassy_bank.inc
 v:add(plane)
 
 -- BOX MADE OUT OF CUBES
@@ -27,34 +28,40 @@ c_post = [[
 ]]
 
 col = "burlywood"
+tex = "flat_wood_4022164.JPG" -- the wood of includes/fruits_woodbox.inc
 
 c1     = Cube(1,17,50,0)
 c1.pos = btVector3(-15.5,7.5,0)
 c1.col = col
+c1.tex = tex
 c1.post_sdl = c_post
 v:add(c1)
 
 c2     = Cube(1,17,50,0)
 c2.pos = btVector3(15.5,7.5,0)
 c2.col = col
+c2.tex = tex
 c2.post_sdl = c_post
 v:add(c2)
 
 c3     = Cube(30,17,1,0)
 c3.pos = btVector3(0,7.5,25.5)
 c3.col = col
+c3.tex = tex
 c3.post_sdl = c_post
 v:add(c3)
 
 c4     = Cube(30,17,1,0)
 c4.pos = btVector3(0,7.5,-25.5)
 c4.col = col
+c4.tex = tex
 c4.post_sdl = c_post
 v:add(c4)
 
 c5     = Cube(30,2,50,0)
 c5.pos = btVector3(0,0,0)
 c5.col = col
+c5.tex = tex
 c5.post_sdl = c_post
 v:add(c5)
 
