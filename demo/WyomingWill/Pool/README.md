@@ -5,23 +5,32 @@ table with fifteen numbered balls (solids and stripes), a cue you control
 from the keyboard, and a scoreboard. Bullet does the physics: the break,
 cushions, pockets, and the cue ball's spin (follow, draw and side spin).
 
-## The game: clear the table
+## The game: 8-ball pool
 
-The balls are racked at the foot spot. Break from the kitchen (behind the
-head string, the line across the table through the white head spot at your
-end), then pocket all fifteen in as few shots as you can. Any ball in any
-pocket counts, in any order. Your best (lowest) score is saved.
+The balls are racked at the foot spot with the 1 at the apex, the 8 in the
+middle, and a solid and stripe in the back corners. Break from the kitchen
+(behind the head string, the line across the table through the white head
+spot at your end). Your best (lowest) score is saved.
 
+- **Open table:** after the break shot, the table is open regardless of
+  whether balls dropped on the break. You can hit any solid (1–7) or stripe
+  (9–15) first.
+- **Choosing groups:** the table remains open until a solid or stripe is
+  legally pocketed. The group potted becomes your group (solids or stripes).
+- **Clearing your group and the 8-ball:** once groups are determined, you
+  must hit a ball from your group first. After clearing all seven balls of
+  your group, legally pocketing the 8-ball clears the table and wins!
 - **Scratch** (the cue ball goes in a pocket): one extra shot, and ball in
   hand in the kitchen.
-- **Shooting from the kitchen:** after a scratch you can't shoot straight
-  at a ball that's also behind the head string. The aiming guide turns red
-  and the shot is refused. The cue ball has to cross the line before it
-  hits one.
-- **Foul:** if it hits a kitchen ball before crossing the line anyway (off
-  a cushion, say), that costs one extra shot, any balls it pocketed come
-  back out onto the foot spot, and you have ball in hand in the kitchen
-  again.
+- **Shooting from the kitchen:** after a scratch or foul you can't shoot
+  straight at a ball that's also behind the head string. The aiming guide
+  turns red and the shot is refused. The cue ball has to cross the line
+  before it hits one.
+- **Foul:** hitting the wrong ball first, hitting the 8-ball before your
+  group is cleared (or on an open table), missing all object balls, or
+  hitting a kitchen ball before crossing the line costs one extra shot, any
+  balls pocketed on the shot come back out onto the foot spot, and you have
+  ball in hand in the kitchen again.
 - **Off the table:** a ball that jumps off the table, or comes to rest on a
   rail, is also a foul, scored the same way; an object ball is spotted.
 
