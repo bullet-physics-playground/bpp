@@ -564,30 +564,38 @@ public:
   btScalar getGLSpecularCol() const;
 
   /**
-   * @brief Sets the position and intensity of the main light.
+   * @brief Sets the position of the main light.
    *
-   * The first three components are the OpenGL light position, the fourth its
-   * intensity. The default matches the POV-Ray light in
-   * @c includes/settings.inc.
+   * The vector goes to @c glLightfv(GL_LIGHT0, GL_POSITION) as it stands, so
+   * it is a homogeneous coordinate, not a position and a brightness: the
+   * light sits at @c xyz/w, and a @p w of 0 makes it a direction rather than
+   * a place. The default, @c <500,500,500,0.4>, therefore lights from
+   * @c <1250,1250,1250>.
    *
-   * @param pos The new position and intensity.
+   * A POV-Ray export writes this out for the settings include to light with,
+   * so a render is lit the way the view is.
+   *
+   * @param pos The new homogeneous position.
    */
   void setGLLight0(const btVector4 &pos);
 
   /**
-   * @brief Returns the position and intensity of the main light.
+   * @brief Returns the homogeneous position of the main light.
    * @return The light vector.
    */
   btVector4 getGLLight0() const;
 
   /**
-   * @brief Sets the position and intensity of the fill light.
-   * @param pos The new position and intensity.
+   * @brief Sets the position of the fill light.
+   *
+   * A homogeneous coordinate, the same as setGLLight0() describes.
+   *
+   * @param pos The new homogeneous position.
    */
   void setGLLight1(const btVector4 &pos);
 
   /**
-   * @brief Returns the position and intensity of the fill light.
+   * @brief Returns the homogeneous position of the fill light.
    * @return The light vector.
    */
   btVector4 getGLLight1() const;
@@ -1940,8 +1948,9 @@ private:
   btScalar _gl_shininess;      ///< Material shininess exponent.
   btVector4 _gl_specular_col;  ///< Specular colour as RGBA.
 
-  btVector4 _light0; ///< Main light: position in xyz, intensity in w.
-  btVector4 _light1; ///< Fill light: position in xyz, intensity in w.
+  btVector4 _light0; ///< Main light, as a homogeneous GL_POSITION: the light
+                     ///< is at xyz/w, @see setGLLight0().
+  btVector4 _light1; ///< Fill light, the same way. @see setGLLight1().
 
   btVector3 _gl_ambient;       ///< Ambient light and material colour.
   btVector4 _gl_diffuse,  /**< Diffuse light and material colour. */

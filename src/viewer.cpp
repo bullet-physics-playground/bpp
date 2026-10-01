@@ -3129,6 +3129,32 @@ void Viewer::drawConstraint(btTypedConstraint *c, btScalar size) {
   }
 }
 
+// Writes one of the interactive view's lights out as a POV-Ray vector.
+//
+// glLightfv(GL_POSITION) takes a homogeneous coordinate, so the point OpenGL
+// really lights from is xyz/w -- the default GL_LIGHT0, btVector4(500, 500,
+// 500, 0.4), lights from <1250,1250,1250> and not from <500,500,500>. A w of
+// 0 asks for a light infinitely far off in the direction xyz; POV-Ray has no
+// such light, so it gets one a long way along it instead, which is the same
+// thing to within a rounding error at any scene's size.
+//
+// Z is negated last because POV-Ray is left-handed where the OpenGL and
+// Bullet world is right-handed, the same conversion
+// Object::povMatrixFromGL() applies to every object's transform.
+static void povLightDeclare(QTextStream &s, const char *name,
+                            const btVector4 &light) {
+  btVector3 p(light.x(), light.y(), light.z());
+
+  if (light.w() != btScalar(0)) {
+    p /= light.w();
+  } else if (p.length2() > btScalar(0)) {
+    p = p.normalized() * btScalar(1e5);
+  }
+
+  s << "#declare " << name << " = <" << p.x() << ", " << p.y() << ", "
+    << -p.z() << ">;" << "\n";
+}
+
 void Viewer::savePOV(bool force) {
   if (!force && !_savePOV)
     return;
@@ -3307,6 +3333,22 @@ void Viewer::savePOV(bool force) {
         << "\n";
 
   smain << "#version 3.7;" << "\n"
+        << "\n";
+
+  // The interactive view's two lights, for the settings include to pick up,
+  // so that a script moving them with v.glLight0 or v.glLight1 is rendered
+  // the way its view looks. The include declares its own defaults where this
+  // preamble is missing, which is what makes a hand-written scene that does
+  // not have it still render.
+  //
+  // They go in the main scene rather than in the per-frame include because
+  // the settings file, which reads them, is included ahead of that; a scene
+  // whose lights move while it runs therefore renders every one of its frames
+  // with the lights as they stood when the export last wrote this file.
+  povLightDeclare(smain, "GL_Light0", _light0);
+  povLightDeclare(smain, "GL_Light1", _light1);
+  smain << "#declare GL_Diffuse = <" << _gl_diffuse.x() << ", "
+        << _gl_diffuse.y() << ", " << _gl_diffuse.z() << ">;" << "\n"
         << "\n";
 
   if (!_pov_settings_inc.isEmpty()) {

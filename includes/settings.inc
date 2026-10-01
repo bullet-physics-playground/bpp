@@ -60,6 +60,31 @@ global_settings {
   #include "fastclouds.inc"
 #end
 
+// The two lights of the interactive OpenGL view, GL_LIGHT0 and GL_LIGHT1
+// (Viewer::_light0 and _light1 in src/viewer.cpp), so that a render is lit
+// the way the view is.
+//
+// bpp writes its own values for these into the exported .pov ahead of this
+// file, which is what lets a script that moves the lights with v.glLight0
+// or v.glLight1 render the way its view looks. The defaults below are the
+// ones the viewer starts with, and are what a scene rendered without that
+// preamble gets.
+//
+// Both are already in POV-Ray's coordinates: it is left-handed where the
+// OpenGL and Bullet world is right-handed, so Z is negated going from one
+// to the other -- the same conversion Object::povMatrixFromGL() applies to
+// every object's transform. The distance is the position OpenGL really
+// lights from, which for GL_LIGHT0's btVector4(500, 500, 500, 0.4) is
+// <500,500,500>/0.4: the fourth component is a homogeneous coordinate, not
+// a brightness.
+#ifndef (GL_Light0) #declare GL_Light0 = <1250, 1250, -1250>; #end
+#ifndef (GL_Light1) #declare GL_Light1 = <-1000, 500, -1000>; #end
+
+// GL_DIFFUSE (Viewer::_gl_diffuse), which both lights share. Using it as
+// the light colour keeps a render as bright as the view instead of lighting
+// it with full, unscaled white.
+#ifndef (GL_Diffuse) #declare GL_Diffuse = <0.7, 0.7, 0.7>; #end
+
 #if (use_lightsys)
 
 #include "bpp_CIE.inc"
@@ -69,10 +94,13 @@ global_settings {
 #include "lightsys_colors.inc"
 #include "bpp_espd_lightsys.inc"
   
-// Secondary light besides the sun, mirroring the interactive OpenGL view's
-// GL_LIGHT1 (Viewer::_light1 in src/viewer.cpp: btVector4(-200, 100, 200,
-// 0.2)). POV-Ray is left-handed while the OpenGL/Bullet world is
-// right-handed, so only the Z axis is negated to convert between them.
+// Secondary light besides the sun, standing in for the interactive OpenGL
+// view's GL_LIGHT1 -- see GL_Light1 above.
+//
+// It follows GL_Light1's direction but keeps its own distance: a LightSys
+// light is photometric and falls off with the square of it, so putting this
+// one where GL_Light1 actually is would decide its brightness rather than
+// the lumen rating above.
 #if (use_lightsys_light1 = 1)
 object {
   Light(
@@ -80,7 +108,7 @@ object {
     Lm_Incandescent_15w,
     x*25, z*25, 4, 4, on
   )
-  translate <-200, 100, -200>
+  translate vnormalize(GL_Light1) * 300
 }
 #end
 
@@ -132,35 +160,40 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 #end // use_area_light
 #else // use_lightsys
 #if (use_area_light)
+  // Same two lights, given an extent so they cast soft shadows. The fill
+  // light is the smaller source of the two, as it is the dimmer one in the
+  // view.
   light_source {
-    <500,500,500> color White * .5
-#switch (use_photons)
-#case (1)
-  photons {
-    reflection on
-    refraction on
-  }
-#break
-#end
-  }
-  light_source {
-    <500,500,500>
-    color White * .5
+    GL_Light0 color rgb GL_Diffuse
     area_light <40, 0, 0>, <0, 0, 40>, 4, 4
     adaptive 1
     jitter
+#switch (use_photons)
+#case (1)
+  photons {
+    reflection on
+    refraction on
+  }
+#break
+#end
+  }
+  light_source {
+    GL_Light1 color rgb GL_Diffuse
+    area_light <20, 0, 0>, <0, 0, 20>, 3, 3
+    adaptive 1
+    jitter
+#switch (use_photons)
+#case (1)
+  photons {
+    reflection on
+    refraction on
+  }
+#break
+#end
   }
 #else
-  // These mirror the interactive OpenGL view's GL_LIGHT0/GL_LIGHT1
-  // (Viewer::_light0/_light1 in src/viewer.cpp). POV-Ray uses a
-  // left-handed coordinate system while the OpenGL/Bullet world is
-  // right-handed, so only the Z axis is negated to convert between them.
-  // Color is scaled by GL_DIFFUSE (Viewer::_gl_diffuse, shared by both
-  // lights) so the overall brightness matches the OpenGL view instead of
-  // rendering at full, unscaled white.
-  #declare GL_Diffuse = 0.7;
   light_source{
-    <500,500,-500> color White*GL_Diffuse // GL_LIGHT0: btVector4(500, 500, 500, 0.4)
+    GL_Light0 color rgb GL_Diffuse
 #switch (use_photons)
 #case (1)
   photons {
@@ -171,7 +204,7 @@ CIE_ColorSystemWhitepoint(Beta_ColSys, Blackbody2Whitepoint(Kt_Indoor_Film))
 #end
   }
   light_source{
-    <-200,100,-200> color White*GL_Diffuse // GL_LIGHT1: btVector4(-200, 100, 200, 0.2)
+    GL_Light1 color rgb GL_Diffuse
 #switch (use_photons)
 #case (1)
   photons {
