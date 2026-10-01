@@ -98,13 +98,20 @@ contains(DEFINES, WIN32_LINK_POVVFE) {
 
   WIN32_DIR_POVRAY = $$HOME/povray
 
-  INCLUDEPATH += \
+  POVRAY_INCDIRS = \
     $$WIN32_DIR_POVRAY/source \
     $$WIN32_DIR_POVRAY/vfe \
     $$WIN32_DIR_POVRAY/vfe/win \
     $$WIN32_DIR_POVRAY/platform/windows \
     $$WIN32_DIR_POVRAY/platform \
     $$WIN32_DIR_POVRAY/windows/povconfig
+  INCLUDEPATH += $$POVRAY_INCDIRS
+
+  # POV-Ray's own headers trigger -Wmultichar, -Wreorder and similar
+  # warnings under -Wall -Wextra. Re-adding their dirs via -isystem marks
+  # them as system header directories, as bpp.pro does on Linux, so the
+  # compiler suppresses warnings from those headers.
+  for(dir, POVRAY_INCDIRS): QMAKE_CXXFLAGS += -isystem $$dir
 
   DEFINES += _CONSOLE OPENEXR_MISSING BUILDING_AMD64
   DEFINES += BUILT_BY=\\\"bpp-povvfe-prototype\\\"
