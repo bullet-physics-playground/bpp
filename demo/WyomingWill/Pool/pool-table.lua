@@ -748,6 +748,8 @@ end
 local S = {
   state = "inhand",     -- inhand, aim, stroke, rolling, cleared
   breakShot = true,     -- the next shot is the break
+  openTable = true,     -- table is open until a solid or stripe is legally pocketed
+  group = nil,          -- "solids", "stripes", or nil when open
   kitchen = false,      -- the cue ball is in hand after a scratch or foul:
                         -- it mustn't be shot straight at a ball in the kitchen
   kitchenShot = false,  -- this shot is one of those
@@ -792,6 +794,32 @@ local function leftOnTable()
   local n = 0
   for i = 1, 15 do if balls[i].onTable then n = n + 1 end end
   return n
+end
+
+local function isSolid(n) return n >= 1 and n <= 7 end
+local function isStripe(n) return n >= 9 and n <= 15 end
+local function is8Ball(n) return n == 8 end
+
+local function groupBallsLeft(group)
+  if not group then return leftOnTable() end
+  local n = 0
+  local lo, hi = (group == "solids") and 1 or 9, (group == "solids") and 7 or 15
+  for i = lo, hi do if balls[i].onTable then n = n + 1 end end
+  return n
+end
+
+local function isTargetBall(n)
+  if not n or n == 0 then return false end
+  if S.openTable then
+    return not is8Ball(n)
+  elseif S.group then
+    if groupBallsLeft(S.group) > 0 then
+      return (S.group == "solids" and isSolid(n)) or (S.group == "stripes" and isStripe(n))
+    else
+      return is8Ball(n)
+    end
+  end
+  return true
 end
 
 -- The kitchen: the end of the table behind the head string, the line
@@ -872,6 +900,8 @@ local function rack()
   S.potted = {}
   S.shots = 0
   S.breakShot = true
+  S.openTable = true
+  S.group = nil
   S.kitchen = false
   S.kitchenShot = false
   S.foul = false
@@ -1197,7 +1227,8 @@ local function drawGuide()
     local el = math.sqrt(ex * ex + ez * ez)
     if el > 1e-6 then dx, dz = ex / el, ez / el end
   end
-  local barred = S.kitchen and hit and inKitchen((ballXZ(hit)))
+  local barred = (S.kitchen and hit and inKitchen((ballXZ(hit))))
+                 or (hit and not isTargetBall(hit.n))
   guide.path(path, barred and "#ff5a4f" or "#ffffff")
   guide.ghost.pos = btVector3(gx, K.R, gz)
   local gcol = barred and "#ff3b30" or "#ffffff"
@@ -1226,7 +1257,7 @@ local auto = { on = false }
 local function helpText()
   local lines = {}
   local function add(s) lines[#lines + 1] = s end
-  add("POOL -- clear the table" .. (auto.on and "      AUTO-PLAY: the computer is playing (P to take over)" or ""))
+  add("POOL -- 8-ball" .. (auto.on and "      AUTO-PLAY: the computer is playing (P to take over)" or ""))
   add("")
   local st = S.state
   if st == "inhand" then
@@ -1235,11 +1266,21 @@ local function helpText()
   elseif st == "aim" and S.kitchen then
     add("Your shot, from the kitchen: you can't shoot straight at a ball behind the head string.")
     add("(A red ghost ball means you're aimed at one. The cue ball must cross the line before it hits one.)")
-  elseif st == "aim" then add("Your shot.")
+  elseif st == "aim" then
+    if S.openTable then
+      add("Your shot: table is open, shoot any solid (1-7) or stripe (9-15) to choose your group.")
+    elseif groupBallsLeft(S.group) == 0 then
+      add("Your shot: your group is clear! Legally pocket the 8-ball to win.")
+    else
+      add(string.format("Your shot: group is %s (%d left). Hit a %s first.",
+                        S.group:upper(), groupBallsLeft(S.group),
+                        S.group == "solids" and "solid (1-7)" or "stripe (9-15)"))
+    end
   elseif st == "stroke" or st == "rolling" then add("Balls rolling...")
   elseif st == "cleared" then add("Table cleared in " .. S.shots .. " shots! Press N for a new rack.")
   end
-  add(string.format("Shots %d   Balls left %d   Best %s", S.shots, leftOnTable(),
+  local targetCount = S.openTable and leftOnTable() or (groupBallsLeft(S.group) + (balls[8].onTable and 1 or 0))
+  add(string.format("Shots %d   Balls left %d   Best %s", S.shots, targetCount,
                     S.best and tostring(S.best) or "-"))
   add(string.format("Aim %.2f deg   Force %d%%   Spin: %s", (math.deg(S.aim) + 360) % 360,
                     math.floor(S.power * 100 + 0.5),
@@ -1277,8 +1318,9 @@ local function helpText()
   add("N or R      re-rack")
   add("P           auto-play: the computer plays the rack " .. (auto.on and "(on)" or "(off)"))
   add("")
+  add("Open table: after the break, the table is open until a solid or stripe is legally pocketed.")
   add("Scratch (cue ball in a pocket): one penalty shot and ball in hand in the kitchen.")
-  add("Foul (after ball in hand, hitting a kitchen ball before the cue ball leaves the kitchen):")
+  add("Foul (hitting wrong ball first, hitting 8-ball early, missing all balls, or kitchen foul):")
   add("one penalty shot, balls pocketed on the shot are spotted, and ball in hand in the kitchen.")
   return table.concat(lines, "\n")
 end
@@ -1338,6 +1380,7 @@ local function shoot()
   S.scratched = false
   S.foul = false
   S.message = ""
+  S.wasBreakShot = S.breakShot
   S.breakShot = false
   S.kitchenShot = S.kitchen
   S.kitchen = false
@@ -1360,16 +1403,97 @@ local function shotOver()
   -- each shot starts from a centre hit with the cue level (the aim and
   -- force are kept)
   S.spinX, S.spinY, S.elev = 0, 0, 0
+  local wasBreak = S.wasBreakShot
+  S.wasBreakShot = false
+
+  local foulReason = nil
+  if S.offTable then
+    foulReason = "OFF TABLE"
+  elseif S.scratched then
+    foulReason = "SCRATCH"
+  elseif S.foul then
+    foulReason = "FOUL"
+  elseif not wasBreak then
+    if not S.firstHit then
+      S.foul = true
+      foulReason = "NO HIT"
+    elseif not isTargetBall(S.firstHit) then
+      S.foul = true
+      foulReason = "FOUL"
+    end
+  end
+
+  local eightPotted = false
+  for _, n in ipairs(S.shotPotted) do
+    if is8Ball(n) then eightPotted = true break end
+  end
+
+  if wasBreak then
+    S.openTable = true
+    S.group = nil
+    if eightPotted then
+      for i, m in ipairs(S.shotPotted) do
+        if m == 8 then table.remove(S.shotPotted, i); break end
+      end
+      for i, m in ipairs(S.potted) do
+        if m == 8 then table.remove(S.potted, i); break end
+      end
+      spotBall(balls[8])
+      for i, n in ipairs(S.potted) do
+        placeBall(balls[n], (i - 8) * (K.D + 0.3), K.TRAY_Z, K.TRAY_Y)
+      end
+    end
+  elseif S.foul or S.scratched then
+    -- Foul or scratch: potted balls will be respotted below
+  elseif eightPotted then
+    if S.openTable or groupBallsLeft(S.group) > 0 then
+      S.foul = true
+      foulReason = "FOUL"
+    end
+  elseif S.openTable then
+    local solidsPotted, stripesPotted = 0, 0
+    for _, n in ipairs(S.shotPotted) do
+      if isSolid(n) then solidsPotted = solidsPotted + 1
+      elseif isStripe(n) then stripesPotted = stripesPotted + 1
+      end
+    end
+    if solidsPotted > 0 and stripesPotted == 0 then
+      S.group = "solids"
+      S.openTable = false
+      S.message = "SOLIDS"
+    elseif stripesPotted > 0 and solidsPotted == 0 then
+      S.group = "stripes"
+      S.openTable = false
+      S.message = "STRIPES"
+    elseif solidsPotted > 0 and stripesPotted > 0 then
+      if S.firstHit and isSolid(S.firstHit) then
+        S.group = "solids"
+      else
+        S.group = "stripes"
+      end
+      S.openTable = false
+      S.message = S.group:upper()
+    else
+      S.message = "OPEN TABLE"
+    end
+  end
+
   if S.foul then
-    S.shots = S.shots + 1                 -- the penalty (one, even with a scratch too)
-    S.message = S.offTable and "OFF TABLE" or "FOUL"
+    S.shots = S.shots + 1
+    S.message = foulReason or (S.offTable and "OFF TABLE" or "FOUL")
     respotShotBalls()
   elseif S.scratched then
-    S.shots = S.shots + 1                 -- the penalty
+    S.shots = S.shots + 1
     S.message = "SCRATCH"
   end
+
+  local cleared = false
+  if not S.openTable and S.group and groupBallsLeft(S.group) == 0 and not balls[8].onTable and not S.foul and not S.scratched then
+    cleared = true
+  end
+
   local inHand = S.scratched or S.foul
-  if leftOnTable() == 0 then
+  if cleared then
     S.state = "cleared"
     S.message = "CLEARED"
     if not S.best or S.shots < S.best then
@@ -1380,7 +1504,7 @@ local function shotOver()
   elseif inHand then
     S.state = "inhand"
     S.kitchen = true
-    cueToHand()                           -- (picked up, if it's still on the table)
+    cueToHand()
   else
     S.state = "aim"
   end
@@ -1573,11 +1697,13 @@ local lastHelp = nil
 
 local function refreshNow()
   -- scoreboard
+  local targetCount = S.openTable and leftOnTable() or (groupBallsLeft(S.group) + (balls[8].onTable and 1 or 0))
+  local defaultMsg = (S.openTable and "OPEN") or (groupBallsLeft(S.group) == 0 and "8 BALL") or (S.group and S.group:upper() or "")
   local want = {
     shots = tostring(S.shots),
-    left = tostring(leftOnTable()),
+    left = tostring(targetCount),
     best = S.best and tostring(S.best) or "",
-    message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or ""),
+    message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or defaultMsg),
   }
   for k, text in pairs(want) do
     if shown[k] ~= text then
@@ -1699,7 +1825,7 @@ function auto.bestShot(cx, cz)
   for n = 1, 15 do
     planPace()
     local b = balls[n]
-    if b.onTable then
+    if b.onTable and isTargetBall(n) then
       local bx, bz = ballXZ(b)
       if not (S.kitchen and inKitchen(bx)) then
         for _, pk in ipairs(pockets) do
@@ -1763,7 +1889,7 @@ function auto.fallback(cx, cz)
   local best, bestD
   for n = 1, 15 do
     local b = balls[n]
-    if b.onTable then
+    if b.onTable and isTargetBall(n) then
       local bx, bz = ballXZ(b)
       local dx, dz = bx - cx, bz - cz
       local d = math.sqrt(dx * dx + dz * dz)
@@ -1777,7 +1903,7 @@ function auto.fallback(cx, cz)
   -- bank: aim at the ball's mirror image beyond the foot cushion
   for n = 1, 15 do
     local b = balls[n]
-    if b.onTable then
+    if b.onTable and isTargetBall(n) then
       local bx, bz = ballXZ(b)
       local mx = 2 * (K.HL - K.R) - bx
       return { aim = math.atan2(bz - cz, mx - cx), power = 0.6, spinY = 0 }
@@ -2053,19 +2179,25 @@ end
 v:postSim(function(N)
   S.frame = N
   gcTick()
-  -- a shot from the kitchen: did the cue ball leave it before it hit
-  -- anything? The first object ball to move is the one it hit first.
-  if S.state == "rolling" and S.kitchenShot and not S.firstHit then
+  -- the first object ball the cue ball hits: the first to move (if two
+  -- start in the same frame, the one nearer the cue ball)
+  if S.state == "rolling" then
     if balls[0].onTable and not inKitchen(balls[0].obj.pos.x) then S.crossed = true end
-    for n = 1, 15 do
-      local b = balls[n]
-      if b.onTable then
+    if not S.firstHit then
+      local cx, cz = ballXZ(balls[0])
+      local bestD
+      for n = 1, 15 do
+        local b = balls[n]
         local vel = b.obj.vel
-        if vel.x * vel.x + vel.z * vel.z > 1 then
-          S.firstHit = n
-          if S.kitchenBalls[n] and not S.crossed then S.foul = true end
-          break
+        if b.onTable and vel.x * vel.x + vel.z * vel.z > 1 then
+          local bx, bz = ballXZ(b)
+          local d = (bx - cx) ^ 2 + (bz - cz) ^ 2
+          if not bestD or d < bestD then S.firstHit, bestD = n, d end
         end
+      end
+      if not S.firstHit and #S.shotPotted > 0 then S.firstHit = S.shotPotted[1] end
+      if S.firstHit and S.kitchenShot and S.kitchenBalls[S.firstHit] and not S.crossed then
+        S.foul = true
       end
     end
   end
