@@ -1,3 +1,22 @@
+### Snooker balls
+
+  * textures:
+    * [snooker-cue.jpeg](snooker-cue.jpeg)
+    * [snooker-red.jpeg](snooker-red.jpeg)
+    * [snooker-yellow.jpeg](snooker-yellow.jpeg)
+    * [snooker-green.jpeg](snooker-green.jpeg)
+    * [snooker-brown.jpeg](snooker-brown.jpeg)
+    * [snooker-blue.jpeg](snooker-blue.jpeg)
+    * [snooker-pink.jpeg](snooker-pink.jpeg)
+    * [snooker-black.jpeg](snooker-black.jpeg)
+
+Made for this repository: 1024x512 equirectangular pictures of bare phenolic
+resin, each a flat colour with a little low-frequency mottling in it, which is
+all a snooker ball has on it -- there are no numbers to print on one. The
+snooker table (demo/WyomingWill/Snooker) wraps them round its balls with the
+`tex` property. The pool table's ball0..15.jpeg come from Jaime Vives
+Piqueres' ivory set, which does have the numbers on it.
+
 ### A Box with Oranges
 
  ![oranges-box.png](oranges-box.jpg)
