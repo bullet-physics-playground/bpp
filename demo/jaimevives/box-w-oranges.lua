@@ -9,6 +9,10 @@ local common = require "common"
 
 common.setTiming(1/5, 10, 1/20)
 
+-- POV-Ray: the scene (lights, grass, crate, oranges) is set up in
+-- includes/box-w-oranges-settings.inc, not in the generic settings.inc
+v.pov_settings = "box-w-oranges-settings.inc"
+
 -- ORANGES BOX 
 
 plane = Plane(0,1,0,0,100)

@@ -23,6 +23,9 @@ Piqueres' ivory set, which does have the numbers on it.
 
   See http://www.ignorancia.org/en/index.php?page=a-box-of-oranges for more details.
 
+  * scene settings (included instead of settings.inc):
+    * [box-w-oranges-settings.inc](box-w-oranges-settings.inc)
+
   * fruits woodbox include:
     * [fruits_woodbox.inc](fruits_woodbox.inc)
 
