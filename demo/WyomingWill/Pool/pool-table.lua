@@ -399,6 +399,9 @@ for n = 0, 15 do
   local col = n == 0 and WHITE or (stripe and WHITE or BALL_COLS[n])
   local s = Sphere(K.R, K.MASS)
   s.col = col
+  -- the same pictures in the 3D view (with bpp's `tex`; without it, the
+  -- markings below draw the spots and stripes)
+  local textured = pcall(function() s.tex = "ball" .. n .. ".jpeg" end)
   s.sdl = "texture { t_ivory" .. n .. " }"
   s.friction = 0.2
   s.restitution = 0.97
@@ -409,7 +412,8 @@ for n = 0, 15 do
   s.body:setCcdMotionThreshold(K.R * 0.5)
   s.body:setCcdSweptSphereRadius(K.R * 0.9)
   local mark
-  if n == 0 then mark = marking("cue-dots.obj", "#c62828")
+  if n == 0 then mark = marking("cue-dots.obj", "#c62828")   -- (ball0.jpeg is plain)
+  elseif textured then mark = nil
   elseif stripe then mark = marking("ball-stripe.obj", BALL_COLS[n - 8])
   else mark = marking("ball-spots.obj", WHITE) end
   balls[n] = { n = n, obj = s, mark = mark, onTable = true, vx = 0, vz = 0 }
