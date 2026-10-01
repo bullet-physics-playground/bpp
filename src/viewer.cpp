@@ -389,6 +389,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("getParam", &Viewer::getParam)
             .def("getParams", &Viewer::getParams)
             .def("getTime", &Viewer::getTime)
+            .def("stepSimulation", &Viewer::stepSimulation)
             .def("savePrefs", &Viewer::setPrefs)
            .def("loadPrefs", &Viewer::getPrefs)
            .def("clearDebugText", &Viewer::clearDebugText)
@@ -608,6 +609,11 @@ void Viewer::updateMovedAabbs() {
       dynamicsWorld->updateSingleAabb(o);
     }
   }
+}
+
+int Viewer::stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep) {
+  updateMovedAabbs();
+  return dynamicsWorld->stepSimulation(timeStep, maxSubSteps, fixedTimeStep);
 }
 
 void Viewer::setErp(btScalar erp) {

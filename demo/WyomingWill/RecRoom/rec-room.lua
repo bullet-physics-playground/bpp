@@ -30,8 +30,11 @@
 --     you're at it.
 -- The physics settings (step, solver) are the world's, and the clock's
 -- escapement needs its own (100 steps a second) while the tables need 900,
--- so they take turns frame by frame, each frozen while the other steps; the
--- clock gets 25 frames for each real second, as it does on its own. A
+-- so each frame bpp steps the games, and then, whenever the clock is due a
+-- step, the room freezes the games and steps the clock once more with its
+-- own settings; it gets 25 steps for each real second, as it does on its
+-- own. (An older bpp without v:stepSimulation means taking turns, frame by
+-- frame.) A
 -- table that's waiting for a shot has its balls frozen too, and the room
 -- collects Lua's garbage a little every frame. Everything keeps running
 -- wherever you stand.
@@ -72,6 +75,11 @@ local ROOM_PHYSICS = { timeStep = 1 / 60, fixedTimeStep = 1 / 900, maxSubSteps =
 local BPP_PHYSICS = { timeStep = 1 / 25, fixedTimeStep = 1 / 100, maxSubSteps = 7,
                       iterations = 10, erp = 0.2, erp2 = 0.2, animationPeriod = 40 }
 local MAX_OWED = 5.0      -- the clock catches up on at most this many seconds' frames
+MAX_CATCHUP = MAX_CATCHUP or 4   -- and takes at most this many steps in one frame
+-- bpp with v:stepSimulation lets the room step the clock within the games'
+-- frames; an older one means taking turns, frame by frame
+OLD_TURNS = true
+local CAN_STEP = (v.stepSimulation ~= nil) and not OLD_TURNS
 local function applyPhysics(p)
   v.timeStep, v.fixedTimeStep, v.maxSubSteps = p.timeStep, p.fixedTimeStep, p.maxSubSteps
   if v.setSolverIterations then v:setSolverIterations(p.iterations) end
@@ -80,6 +88,17 @@ local function applyPhysics(p)
 end
 applyPhysics(ROOM_PHYSICS)
 if v.animationPeriod then v.animationPeriod = 16 end
+
+-- The cost meter: what each frame spends its time on, shown at the top of
+-- the Shortcuts pane (updated every second) and printed to the console
+-- every METER_PRINT seconds (0: never). METER = false turns it off.
+if METER == nil then METER = true end
+METER_PRINT = METER_PRINT or 10
+local meterText, lastHelp = "", ""      -- the meter's lines, and the help under them
+local function showHelp(text)
+  lastHelp = text
+  v:setHelpText(meterText .. text)
+end
 v.gravity = btVector3(0, -981, 0)
 
 -- ---------------------------------------------------------------------
@@ -292,7 +311,7 @@ local function makeGame(name, dir, offset, opts)
       if k == "addConstraint" or k == "removeConstraint" then
         return function(_, c, ...) return realV[k](realV, wrapped(c), ...) end
       end
-      if k == "preSim" or k == "postSim" or k == "preDraw" or k == "onKey" then
+      if k == "preSim" or k == "postSim" or k == "preDraw" or k == "postDraw" or k == "onKey" then
         return function(_, fn) g.callbacks[k] = fn end
       end
       if k == "addShortcut" then return function(_, keys, fn) g.shortcuts[keys] = fn end end
@@ -306,7 +325,7 @@ local function makeGame(name, dir, offset, opts)
       if k == "setHelpText" then
         return function(_, text)
           g.help = text
-          if active == g then realV:setHelpText(g.header() .. text) end
+          if active == g then showHelp(g.header() .. text) end
         end
       end
       if k == "loadSound" then return function(_, path) return realV:loadSound(fix(path)) end end
@@ -727,24 +746,24 @@ local function goTo(g)
   if g == pinball then
     local b = pinball.env.TF.board
     b.setView(b.view or 1)
-    realV:setHelpText(pinball.header() .. pinball.help)
+    showHelp(pinball.header() .. pinball.help)
   elseif g and (g == pool or g == snooker or g == bumper) then
     local TF = g.env.TF
     TF.setView(TF.S.view or "table")
-    realV:setHelpText(g.header() .. g.help)
+    showHelp(g.header() .. g.help)
   elseif g and g == clock then
     local c = realV.cam
     local o, S = clock.off, CLOCK_SCALE
     c:setUpVector(btVector3(0, 1, 0), true)
     c.pos = btVector3(o.x + 30 * S, o.y + 145 * S + 8, o.z + 560 * S + 175)
     c.look = btVector3(o.x + 30 * S, o.y + 135 * S, o.z + 400 * S)
-    realV:setHelpText(clock.header() .. clock.help)
+    showHelp(clock.header() .. clock.help)
   else
     local c = realV.cam
     c:setUpVector(btVector3(0, 1, 0), true)
     c.pos = ROOM_VIEW.pos
     c.look = ROOM_VIEW.look
-    realV:setHelpText(roomHelp)
+    showHelp(roomHelp)
   end
 end
 
@@ -842,46 +861,139 @@ local function restTable(g)
   end
 end
 
+-- ---------------------------------------------------------------------
+-- the cost meter
+-- ---------------------------------------------------------------------
+-- Times (bpp's stopwatch, in milliseconds; it ticks in whole ms, but the
+-- averages over a second's worth of frames come out true) are added up
+-- over each second and shown per frame.
+
+local now = function() return v:getTime() * 1000 end
+local meter = { t0 = nil, frames = 0, gameFrames = 0, clockFrames = 0,
+                physGames = 0, physClock = 0, room = 0, gc = 0, draw = 0, draws = 0, scripts = {} }
+local lastPrint = nil
+local SHORT = {}
+local function shortName(g)
+  return SHORT[g] or (g.name:gsub("^the ", ""):gsub(" machine$", ""):gsub(" table$", ""))
+end
+local function meterTick(t)
+  if not METER then return end
+  if not meter.t0 then meter.t0 = t; return end
+  local el = (t - meter.t0) / 1000
+  if el < 1 then return end
+  local budget = (v.animationPeriod or 16)
+  if meter.frames == 0 then
+    -- the simulation isn't running (bpp still draws)
+    local d = math.max(meter.draws, 1)
+    meterText = string.format(
+      "COST METER -- the simulation is paused\n" ..
+      "  %.0f frames drawn a second: drawing %.2f, garbage %.2f ms each\n\n",
+      meter.draws / el, meter.draw / d, meter.gc / d)
+  else
+    -- (physics and scripts happen once per simulated frame, drawing and
+    -- garbage once per drawn frame; while it runs, those are the same)
+    local n, d = meter.frames, math.max(meter.draws, 1)
+    local per = function(x) return x / n end
+    local parts, busy = {}, 0
+    for _, g in ipairs(games) do
+      local x = per(meter.scripts[g] or 0)
+      busy = busy + x
+      parts[#parts + 1] = string.format("%s %.2f", shortName(g), x)
+    end
+    local room = per(meter.room)
+    busy = busy + room + per(meter.physGames) + per(meter.physClock) + meter.gc / d + meter.draw / d
+    local fps = meter.frames / el
+    meterText = string.format(
+      "COST METER -- ms per frame, averaged over the last second\n" ..
+      "  %.0f frames a second: %.0f for the games, %.0f clock steps%s\n" ..
+      "  physics  games %.2f, clock %.2f\n" ..
+      "  scripts  %s, room %.2f\n" ..
+      "  garbage  %.2f      drawing %.2f\n" ..
+      "  busy     %.1f of the %d ms a frame has (%.0f%%)%s\n\n",
+      fps, meter.gameFrames / el, meter.clockFrames / el,
+      clock and "" or " (no clock)",
+      per(meter.physGames), per(meter.physClock),
+      table.concat(parts, ", "), room,
+      meter.gc / d, meter.draw / d,
+      busy, budget, 100 * busy / budget,
+      (fps < 0.95 * 1000 / budget) and string.format("; the frame rate is short of %.0f", 1000 / budget) or "")
+  end
+  realV:setHelpText(meterText .. lastHelp)
+  if METER_PRINT > 0 and (not lastPrint or t - lastPrint >= METER_PRINT * 1000) then
+    lastPrint = t
+    print((meterText:gsub("\n\n$", "")))
+  end
+  meter.t0, meter.frames, meter.gameFrames, meter.clockFrames, meter.draws = t, 0, 0, 0, 0
+  meter.physGames, meter.physClock, meter.room, meter.gc, meter.draw = 0, 0, 0, 0, 0
+  meter.scripts = {}
+end
+
 local function call(k, all)
   local err
   for _, g in ipairs(games) do
     local f = g.callbacks[k]
     if f and (all or not g.paused) then
+      local t = now()
       local ok, e = pcall(f, g.N)
+      meter.scripts[g] = (meter.scripts[g] or 0) + (now() - t)
       if not ok and not err then err = g.name .. ": " .. tostring(e) end
     end
   end
   return err
 end
-v:preSim(function(N)
-  if clock then
-    -- the clock's frames are owed to it by the real seconds gone by (a
-    -- stopwatch, never the time of day); it takes a turn when it's owed
-    -- one, but never two in a row, so the games always get at least every
-    -- other frame (if the room can't manage 50 frames a second, the clock
-    -- falls behind rather than the games stopping)
-    local fps = 1000 / clock.physics.animationPeriod
-    local now = v:getTime()
-    if not clockStart then clockStart, clockN0 = now, clock.N end
-    local owed = (now - clockStart) * fps - (clock.N - clockN0)
-    if owed > MAX_OWED * fps then        -- bpp was paused, or badly held up: don't race
-      lost = lost + (owed - MAX_OWED * fps) / fps
-      clockStart = now - ((clock.N - clockN0) + MAX_OWED * fps) / fps
-      owed = MAX_OWED * fps
-    end
-    -- say so (once every 10 s at most) when the clock has lost time
-    report.frames = report.frames + 1
-    if not report.t then report.t, report.clockN = now, clock.N end
-    if now - report.t >= 10 then
-      if lost > 0.05 then
-        local el = now - report.t
+local tPre, tStep, scriptsHere = 0, 0, 0
+local function scriptsTotal() local s = 0; for _, x in pairs(meter.scripts) do s = s + x end; return s end
+-- The clock's pace: it's owed 25 frames for each real second since it
+-- started (a stopwatch, never the time of day). Returns how many it's owed
+-- now; after a hold-up of over MAX_OWED seconds (bpp paused, say) it lets
+-- the rest go, and says so.
+local function clockOwed()
+  local fps = 1000 / clock.physics.animationPeriod
+  local t = v:getTime()
+  if not clockStart then clockStart, clockN0 = t, clock.N end
+  local owed = (t - clockStart) * fps - (clock.N - clockN0)
+  if owed > MAX_OWED * fps then
+    lost = lost + (owed - MAX_OWED * fps) / fps
+    clockStart = t - ((clock.N - clockN0) + MAX_OWED * fps) / fps
+    owed = MAX_OWED * fps
+  end
+  report.frames = report.frames + 1
+  if not report.t then report.t = t end
+  if t - report.t >= 10 then
+    if lost > 0.05 then
+      local el = t - report.t
+      if CAN_STEP then
+        print(string.format("REC ROOM: the clock lost %.1f s in the last %.0f s: the room was held up for more than %.0f s.",
+                            lost, el, MAX_OWED))
+      else
         print(string.format("REC ROOM: the clock lost %.1f s in the last %.0f s. The room ran at %.0f frames a second; " ..
                             "the clock needs %.0f of them, at most every other one, so it keeps time only when the room " ..
                             "manages %.0f or more (and isn't held up).",
                             lost, el, report.frames / el, fps, 2 * fps))
       end
-      lost, report.t, report.frames, report.clockN = 0, now, 0, clock.N
     end
+    lost, report.t, report.frames = 0, t, 0
+  end
+  return owed
+end
+
+-- one of a game's callbacks, timed for the meter
+local function callOne(g, k)
+  local f = g.callbacks[k]
+  if not f then return end
+  local t = now()
+  local ok, e = pcall(f, g.N)
+  meter.scripts[g] = (meter.scripts[g] or 0) + (now() - t)
+  if not ok then return g.name .. ": " .. tostring(e) end
+end
+
+v:preSim(function(N)
+  tPre = now()
+  local s0 = scriptsTotal()
+  if clock and not CAN_STEP then
+    -- (an older bpp: the clock takes turns with the games, a frame at a
+    -- time, never two in a row)
+    local owed = clockOwed()
     clockTurn = owed >= 1 and not lastWasClock
     lastWasClock = clockTurn
     if clockTurn then whose(true) end
@@ -893,36 +1005,92 @@ v:preSim(function(N)
     end
   end
   local err = call("preSim")
+  tStep = now()
+  meter.room = meter.room + (tStep - tPre) - (scriptsTotal() - s0)
   if err then error(err, 0) end
 end)
 v:postSim(function(N)
+  local t = now()
+  if clockTurn then meter.physClock = meter.physClock + (t - tStep); meter.clockFrames = meter.clockFrames + 1
+  else meter.physGames = meter.physGames + (t - tStep); meter.gameFrames = meter.gameFrames + 1 end
+  local pc0 = meter.physClock
+  meter.frames = meter.frames + 1
+  local s0 = scriptsTotal()
   local err = call("postSim")
   if clockTurn then whose(false); clockTurn = false end
+  -- the clock's steps, inside the same frame: the games wait while the
+  -- clock takes the steps it's owed (usually none or one; a few after a
+  -- hold-up), each with its own settings and its own callbacks around it
+  if clock and CAN_STEP then
+    local k = math.min(math.floor(clockOwed()), MAX_CATCHUP)
+    if k > 0 then
+      whose(true)
+      local P = clock.physics
+      for _ = 1, k do
+        clock.N = clock.N + 1
+        err = callOne(clock, "preSim") or err
+        local tc = now()
+        realV:stepSimulation(P.timeStep, P.maxSubSteps, P.fixedTimeStep)
+        meter.physClock = meter.physClock + (now() - tc)
+        err = callOne(clock, "postSim") or err
+      end
+      meter.clockFrames = meter.clockFrames + k
+      whose(false)
+    end
+  end
   roomTick(N)
+  meter.room = meter.room + (now() - t) - (scriptsTotal() - s0) - (meter.physClock - pc0)
   if err then error(err, 0) end
 end)
+
 -- Garbage: bpp keeps Lua's collector stopped, and each game used to
 -- collect everything every couple of seconds -- here that would be the
 -- whole room's garbage at once, a pause long enough to be felt. Instead
--- the room collects a little every frame: it steps the collector until the
--- cycle finishes or GC_BUDGET seconds have gone, then stops it again.
+-- the room collects a little at a time: once the heap has grown by half
+-- (and at least GC_MIN_KB) since the last collection finished, it runs the
+-- collector for up to GC_BUDGET seconds a frame until that collection is
+-- done, then stops it again.
 GC_BUDGET = GC_BUDGET or 0.002
+GC_MIN_KB = GC_MIN_KB or 2048
+local gcBase, gcBusy = nil, false
+local tDraw, drawScripts = 0, 0
 v:preDraw(function(N)
-  local t0 = os.clock()
-  repeat
-    local done = collectgarbage("step", 0)
-  until done or os.clock() - t0 > GC_BUDGET
+  local tg = now()
+  if not gcBase then gcBase = collectgarbage("count") end
+  if gcBusy or collectgarbage("count") > gcBase * 1.5 + GC_MIN_KB then
+    gcBusy = true
+    local done
+    repeat
+      done = collectgarbage("step", 0)
+    until done or now() - tg >= GC_BUDGET * 1000   -- (real time: os.clock counts every thread)
+    if done then gcBusy, gcBase = false, collectgarbage("count") end
+  end
   collectgarbage("stop")
+  local t1 = now()
+  meter.gc = meter.gc + (t1 - tg)
+  local s0 = scriptsTotal()
   local err = call("preDraw", true)
+  drawScripts = scriptsTotal() - s0
+  tDraw = now()
+  if err then error(err, 0) end
+end)
+-- (the scene is drawn between preDraw and postDraw)
+v:postDraw(function(N)
+  local t = now()
+  meter.draw = meter.draw + (t - tDraw)
+  meter.draws = meter.draws + 1
+  local err = call("postDraw", true)
+  meterTick(now())
   if err then error(err, 0) end
 end)
 
 TF = { pinball = pinball, pool = pool, snooker = snooker, bumper = bumper, clock = clock, goTo = goTo, games = games,
        at = function() return active end }
--- with the clock taking 25 frames a second, the room needs 85 for the
--- games to keep their 60: 12 ms a frame (83 a second)
+-- with the clock stepped inside the games' frames, the room runs at the
+-- games' 60 frames a second; an older bpp needs 83 a second (12 ms a
+-- frame), 25 for the clock and the rest for the games
 if clock then
   whose(false)
-  if v.animationPeriod then v.animationPeriod = 12 end
+  if v.animationPeriod then v.animationPeriod = CAN_STEP and 16 or 12 end
 end
 goTo(pinball)

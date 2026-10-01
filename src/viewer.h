@@ -262,6 +262,22 @@ public:
    *
    * @return Seconds since construction.
    */
+  /**
+   * @brief Steps the physics world once more, from a script.
+   *
+   * The same as the step bpp takes every frame (stepSimulation() with these
+   * settings, the moved objects' bounding boxes brought up to date first),
+   * for a script that runs part of its scene at other settings: the rec
+   * room steps its clock this way, at the clock's own step size, within the
+   * frame the other games are stepped in. Call it from preSim or postSim.
+   *
+   * @param timeStep      Seconds of simulated time to advance.
+   * @param maxSubSteps   The most substeps to take.
+   * @param fixedTimeStep Length of each substep, in seconds.
+   * @return The number of substeps taken.
+   */
+  int stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep);
+
   btScalar getTime() const;
 
   /**

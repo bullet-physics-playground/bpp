@@ -94,13 +94,14 @@ repository); without it the room has no clock and everything else works.
   usual values: 1166 means what it means when the clock runs on its own.
 - **Physics settings:** the clock's escapement only works at the settings
   it was built with: bpp's usual 100 physics steps a second and its own ERP.
-  At the pool table's 900 steps a second it stalls. So the room takes
-  turns, frame by frame. Some frames step the pinball machine and pool
-  table with their settings, others step the clock with its own, and
-  whichever isn't stepping is frozen for that frame, exactly as it was.
-  Everything runs all the time, wherever you're standing: every table's
-  computer player, the pinball's and the clock together.
-- **Pace:** the clock gets a frame whenever it has had fewer than 25 for
+  At the tables' 900 steps a second it stalls. So the clock gets its own
+  steps. Every frame, bpp steps the games as usual. Then, whenever the clock
+  is due a step, the room freezes the games, steps the clock once with its
+  own settings (and runs its script around it), and unfreezes them. The
+  games get every frame, and everything runs all the time, wherever you're
+  standing: every table's computer player, the pinball's and the clock
+  together.
+- **Pace:** the clock is due a step whenever it has had fewer than 25 for
   each real second since it started, the pace bpp's frame timer gives it
   when it runs on its own. The room measures that with a stopwatch (bpp's
   elapsed-time timer, the one the clock times its own beats with), never the
@@ -108,17 +109,59 @@ repository); without it the room has no clock and everything else works.
   nothing ever sets or corrects the hands, wheel or pendulum. So the
   clock's world runs at the same speed however busy the room is, and a
   gravity you tune and lock stays right while you play the other games.
-  The games get all the other frames; at 83 frames a second (the room's
-  12 ms frame timer) that leaves them their usual 60.
-- **If the computer can't keep up:** the clock never takes two frames in a
-  row, so the games always get at least every other frame. If the room
-  manages fewer than 50 frames a second, the clock can't get its 25 and
-  falls behind (and the games slow down too). After a hold-up it catches
-  up, at every other frame, on up to five seconds' worth. That covers the
-  snooker and bumper pool computer players, which can take up to a second
-  to plan a shot, holding up the whole room while they do (on their own
-  they pause their own table the same way). After a longer hold-up (bpp
-  paused, say) the clock loses the rest.
+- **Hold-ups:** if something holds the room up (a table's computer player
+  can think for up to a second), the clock catches up on the next frames,
+  taking up to 4 steps a frame (`MAX_CATCHUP`). A beat that falls in a
+  hold-up is timed late and the next one early, but none are lost. After a
+  hold-up of more than five seconds (bpp paused, say) the clock lets the
+  rest go and says so in the console.
+- **Older bpp:** stepping the clock within a frame needs bpp's
+  `v:stepSimulation` (this commit's change to `src/viewer.cpp` and
+  `src/viewer.h`). Without it the room falls back to taking turns: some
+  frames step the games, others the clock (never two in a row), at 83
+  frames a second. On a 60 Hz screen that leaves the games only about 35
+  frames a second, running at about 60% speed.
+- **Timing:** the beat is measured against real time. Tuning with `T` at
+  the clock finds the gravity for that.
+
+## The cost meter
+
+The top of the Shortcuts pane shows what each frame spends its time on,
+averaged over the last second, in milliseconds per frame:
+
+```
+COST METER -- ms per frame, averaged over the last second
+  60 frames a second: 60 for the games, 25 clock steps
+  physics  games 2.10, clock 0.80
+  scripts  pinball 0.40, pool 0.50, snooker 0.44, bumper pool 0.19, clock 0.02, room 0.30
+  garbage  0.10      drawing 3.00
+  busy     7.9 of the 16 ms a frame has (49%)
+```
+
+- **frames a second:** the room's, how many of them stepped the games,
+  and how many steps the clock took (which should be 25).
+- **physics:** Bullet's time stepping the games and the clock. (They're
+  one physics world, so it can't be split game by game.)
+- **scripts:** each game's own Lua code, including its computer player,
+  and the room's (taking turns, resting tables and so on).
+- **garbage:** Lua's garbage collector. It runs only once the heap has
+  grown by half since the last collection, a couple of milliseconds a frame
+  until that collection is done, so this is usually near zero.
+- **drawing:** bpp drawing the scene. Time the graphics card spends after
+  that, and waiting for the next frame, isn't counted.
+- **busy:** all of the above, against the 16 ms each frame has (a 60 Hz
+  screen shows 60 frames a second; the room doesn't try for more). Over 100%
+  and the room can't keep up: the games slow down. The clock keeps its pace
+  as long as it can fit its steps in.
+
+While the simulation is paused, the meter says so and shows only the
+drawing and garbage time per drawn frame (bpp keeps drawing).
+
+The same lines go to the console every 10 seconds, so they can be copied.
+Set `METER_PRINT = 0` at the top of `rec-room.lua` to stop that, or
+`METER = false` to turn the meter off. The stopwatch it uses ticks in whole
+milliseconds, but averaged over a second's worth of frames the figures come
+out right to about a hundredth of a millisecond.
 
 ## How it works
 
@@ -156,9 +199,10 @@ own) so the scripts can't interfere with each other:
 - **Garbage.** bpp keeps Lua's garbage collector stopped, and each game
   normally collects everything every couple of seconds. The games share one
   Lua heap here, so each of those collections would clear the whole room's
-  garbage at once, a noticeable pause. Instead the room collects a little
-  every frame (up to 2 ms), and the games' own full collections are
-  skipped.
+  garbage at once, a noticeable pause. Instead the room collects
+  gradually: once the heap has grown by half since its last collection, it
+  collects for up to 2 ms a frame until done. The games' own full
+  collections are skipped.
 
 The room's own furniture is scenery only; it doesn't collide with anything.
 
@@ -172,6 +216,10 @@ The room's own furniture is scenery only; it doesn't collide with anything.
   list once and replayed every frame, instead of being sent a triangle at
   a time. The clock's gears alone are well over 100,000 triangles. The
   room runs without it, only using more of the processor.
+- bpp with `v:stepSimulation` (this commit's change to `src/viewer.cpp`
+  and `src/viewer.h`), so the room can step the clock within the games'
+  frames (see "The clock"). Without it the room still works, but the games
+  get fewer frames.
 - Also for speed, bpp that brings only moved objects' bounding boxes up to
   date (this commit's change to `src/viewer.cpp` and `src/viewer.h`).
   Bullet's default recomputes every object's box on every physics step,
