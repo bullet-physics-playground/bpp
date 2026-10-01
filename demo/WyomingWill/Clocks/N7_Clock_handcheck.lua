@@ -752,16 +752,13 @@ v:postSim(function(N)
     return   -- nothing below this point should run until the sweep completes
   end
 
-  -- PERIODIC FULL GC: per-frame reads of physics state allocate small
-  -- Lua userdata every frame. Nothing leaks (Lua's own GC reclaims it),
-  -- but left to the default incremental pacing alone, process RSS still
-  -- creeps up over time since incremental steps don't coalesce freed
-  -- memory as well as a full collection does. A periodic full collect()
-  -- keeps RSS flat for a cost that's negligible next to this file's
-  -- actual per-frame physics cost.
-  if N % 200 == 0 then
-    collectgarbage("collect")
-  end
+  -- NO collectgarbage() HERE. bpp runs a script with the Lua collector
+  -- stopped on purpose, because Bullet objects built in Lua are kept alive by
+  -- their Lua handle alone while C++ holds a raw pointer to them -- the
+  -- btDefaultMotionState values handed to setMotionState() above are exactly
+  -- that, owned by nothing else once the statement ends. A full collect()
+  -- frees them and the next redraw dereferences the freed motion state.
+  -- bpp now ignores the call rather than crashing, but it still warns.
 
   local curGravity = v:getParam("gravity")
   if curGravity ~= lastGravity then

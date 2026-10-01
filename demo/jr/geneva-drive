@@ -1,0 +1,311 @@
+#!/usr/bin/wish
+#
+# GenevaDrive.tcl -- Animates a geneva drive
+# by Keith Vetter, Aug 23, 2006
+# from wiki.tcl.tk/16330
+# minor edits to fit here.
+ 
+#package require Tk
+if {! [catch {package require tile}]} {
+   namespace import -force ::ttk::checkbutton
+}
+
+set S(help) {
+How a film is moved through a movie projector? The film must
+advance frame by frame with each frame pausing in front of the
+lens for 1/24 of a second.
+
+This intermittent motion is achieved using a Geneva Drive.
+
+The name derives from the devices earliest application in mechanical
+watches, Geneva being an important center of watchmaking. Other
+application include pen change mechanism in plotters, automated
+sampling devices, and so on.
+}
+
+array set S {title "Geneva Drive" w 500 h 500 lw 3 animate 1 aid "" delay 10 angle 0 angle2 45}
+
+# Gear centers and radii
+set V(gear1,o) {0 57}
+set V(gear1,r0) 2
+set V(gear1,r1) 10
+set V(gear1,r2) 90
+set V(gear1,r3) 161
+set V(gear1,clr,r1) \#ccce34
+set V(gear1,clr,r2) \#ccce34
+set V(gear1,clr,r3) \#9c9a04
+
+# Driving peg
+set V(gear1,o2) {-114 0}
+set V(gear1,p) 0    ;# Used for computing angles
+set V(gear1,r10) 2
+set V(gear1,r11) 10
+set V(gear1,r12) 83
+set V(gear1,clr,p) black
+set V(gear1,clr,r0) black
+set V(gear1,clr,r10) black
+set V(gear1,clr,r11) red
+set V(gear1,clr,r12) \#ccce34
+
+set V(gear2,o) {0 -103}
+set V(gear2,r0) 2
+set V(gear2,r1) 10
+set V(gear2,clr) \#64ce9c
+set V(gear2,clr,r0) black
+set V(gear2,clr,r1) \#64ce9c
+
+
+proc DoDisplay {} {
+  global S
+
+  wm title . $S(title)
+  frame .top -bd 2 -relief ridge
+  frame .bottom -bd 0
+  label .title -text $S(title) -font {Times 42 bold}
+  button .? -text "?" -command About
+  catch {.? config -font "[.? cget -font] bold"}
+  checkbutton .anim -variable S(animate) -text Animate -command Animate
+  catch {.anim config -relief ridge -pady 5 -padx 5}
+
+  canvas .c -width $S(w) -height $S(h) -bd 0 -highlightthickness 0
+  bind .c <Configure> {ReCenter %W %h %w}
+   
+  pack .title -in .top -side top -fill x
+  pack .c -in .top -side top -fill both -expand 1
+  pack .top -side top -fill both -expand 1
+  pack .bottom -side bottom -fill x -expand 1
+  pack .anim -in .bottom -side left -expand 1 -pady 10
+  place .? -in .bottom -relx .99 -rely .5 -anchor e
+}
+
+proc ReCenter {W h w} {    ;# Called by configure event
+  set h2 [expr {$h / 2}] ; set w2 [expr {$w / 2}]
+  $W config -scrollregion [list -$w2 -$h2 $w2 $h2]
+}
+
+proc Gear1 {} {
+  global V S
+   
+  foreach {x0 y0} $V(gear1,o) break
+
+  # Big disk and middle pin
+  foreach who {r3 r1 r0} {
+    set xy [MakeBox $x0 $y0 $V(gear1,$who)]
+    .c create oval $xy -tag gear1,$who -fill $V(gear1,clr,$who) -width $S(lw)
+  }
+
+  # Outer peg
+  foreach {x1 y1} $V(gear1,o2) break
+  set x1 [expr {$x0 + $x1}]
+  set y1 [expr {$y0 + $y1}]
+  foreach who {p r11 r10} {
+    set xy [MakeBox $x1 $y1 $V(gear1,$who)]
+    set xy2 [eval RegularPolygon2 $xy -start 0 -extent 360]
+    .c create polygon $xy2 -tag [list gear1 gear1,$who] \
+            -fill $V(gear1,clr,$who) -width $S(lw) -outline black
+  }
+
+  # Rotating inner disk: concatentation of two arcs
+  set xy2 [eval RegularPolygon2 [MakeBox $x0 $y0 $V(gear1,r2)] -start 135 -extent 270]
+  set xy3 [eval RegularPolygon2 [MakeBox $x1 $y1 $V(gear1,r12)] -start -47 -extent -94]
+  set xy [concat $xy2 $xy3]
+  .c create polygon $xy -tag gear1 -fill $V(gear1,clr,r2) -outline black -width $S(lw)
+
+  .c raise gear1,r1
+  .c raise gear1,r0
+}
+
+proc Gear2 {} {
+  global V S
+
+  foreach {x0 y0} $V(gear1,o) break
+  foreach {Gx Gy} $V(gear2,o) break
+  set xy [MakeBox $x0 $y0 $V(gear1,r2)]
+  set xy0 [eval RegularPolygon2 $xy -start 135 -extent 90]
+
+  # Create one cusp and inlet
+  foreach {x1 y1} [lrange $xy0 end-1 end] break
+  set dx [expr {$x1-$x0}]
+  set dy [expr {$y1-$y0}]
+  set dist [expr {hypot($dx,$dy)}]
+  set nx [expr {$dy}]
+  set ny [expr {-$dx}]
+  
+  set x2 [expr {$x1 + $dx * 10 / $dist}]
+  set y2 [expr {$y1 + $dy * 10 / $dist}]
+  set x3 [expr {$x2 + $nx * 80 / $dist}]
+  set y3 [expr {$y2 + $ny * 80 / $dist}]
+
+  set x4 [expr {$x3 + $dx * 26 / $dist}]
+  set y4 [expr {$y3 + $dy * 26 / $dist}]
+  set x5 [expr {$x4 - $nx * 80 / $dist}]
+  set y5 [expr {$y4 - $ny * 80 / $dist}]
+  set x6 [expr {$x5 + $dx * 10 / $dist}]
+  set y6 [expr {$y5 + $dy * 10 / $dist}]
+  lappend xy0 $x1 $y1 $x2 $y2 $x3 $y3 $x4 $y4 $x5 $y5 $x6 $y6
+
+  # Rotate 3 times and join all the points
+  set xy1 [RotateCoords $xy0 $Gx $Gy -90]
+  set xy2 [RotateCoords $xy0 $Gx $Gy -180]
+  set xy3 [RotateCoords $xy0 $Gx $Gy -270]
+  set xy [concat $xy0 $xy1 $xy2 $xy3]
+  .c create poly $xy -tag gear2 -fill $V(gear2,clr) -outline black -width 4
+
+  foreach who {r1 r0} {
+    set xy [MakeBox $Gx $Gy $V(gear2,$who)]
+    .c create oval $xy -tag gear2,$who -fill $V(gear2,clr,$who) -width $S(lw)
+  }
+}
+
+proc MakeBox {x y r} {
+  return [list [expr {$x-$r}] [expr {$y-$r}] [expr {$x+$r}] [expr {$y+$r}]]
+}
+
+# from http://wiki.tcl.tk/Regular%20Polygons%202
+proc RegularPolygon2 {x0 y0 x1 y1 args} {
+  array set V {-sides 0 -start 90 -extent 360}    ;# Default values
+  foreach {a value} $args {
+       if {! [info exists V($a)]} {error "unknown option $a"}
+       if {$value == {}} {error "value of \"$a\" missing"}
+       set V($a) $value
+  }
+  if {$V(-extent) == 0} {return {}}
+
+  set xm [expr {($x0+$x1)/2.}]
+  set ym [expr {($y0+$y1)/2.}]
+  set rx [expr {$xm-$x0}]
+  set ry [expr {$ym-$y0}]
+
+  set n $V(-sides)
+  if {$n == 0} {    ;# 0 sides => circle
+       set n [expr {round(($rx+$ry)*0.5)}]
+       if {$n <= 2} {set n 4}
+  }
+
+  set dir [expr {$V(-extent) < 0 ? -1 : 1}]    ;# Extent can be negative
+  if {abs($V(-extent)) > 360} {
+       set V(-extent) [expr {$dir * (abs($V(-extent)) % 360)}]
+  }
+  set step [expr {$dir * 360.0 / $n}]
+  set numsteps [expr {1 + double($V(-extent)) / $step}]
+
+  set xy {}
+  set DEG2RAD [expr {acos(-1)*2/360}]
+
+  for {set i 0} {$i < int($numsteps)} {incr i} {
+    set rad [expr {($V(-start) - $i * $step) * $DEG2RAD}]
+    set x [expr {$rx*cos($rad)}]
+    set y [expr {$ry*sin($rad)}]
+    lappend xy [expr {$xm + $x}] [expr {$ym - $y}]
+  }
+
+  # Figure out where last segment should end
+  if {$numsteps != int($numsteps)} {
+    # Vecter V1 is last drawn vertext (x,y) from above
+    # Vector V2 is the edge of the polygon
+    set rad2 [expr {($V(-start) - int($numsteps) * $step) * $DEG2RAD}]
+    set x2 [expr {$rx*cos($rad2) - $x}]
+    set y2 [expr {$ry*sin($rad2) - $y}]
+
+    # Vector V3 is unit vector in direction we end at
+    set rad3 [expr {($V(-start) - $V(-extent)) * $DEG2RAD}]
+    set x3 [expr {cos($rad3)}]
+    set y3 [expr {sin($rad3)}]
+
+    # Find where V3 crosses V1+V2 => find j s.t.  V1 + kV2 = jV3
+    set j [expr {($x*$y2 - $x2*$y) / ($x3*$y2 - $x2*$y3)}]
+
+    lappend xy [expr {$xm + $j * $x3}] [expr {$ym - $j * $y3}]
+  }
+  return $xy
+}
+
+# From http://wiki.tcl.tk/CanvasRotation
+proc RotateItem {w tagOrId Ox Oy angle} {
+  set angle [expr {$angle * atan(1) * 4 / 180.0}]    ;# Radians
+  foreach id [$w find withtag $tagOrId] {    ;# Do each component separately
+    set xy {}
+    foreach {x y} [$w coords $id] {
+      # rotates vector (Ox,Oy)->(x,y) by angle clockwise
+
+      set x [expr {$x - $Ox}]    ;# Shift to origin
+      set y [expr {$y - $Oy}]
+
+      set xx [expr {$x * cos($angle) - $y * sin($angle)}]    ;# Rotate
+      set yy [expr {$x * sin($angle) + $y * cos($angle)}]
+
+      set xx [expr {$xx + $Ox}]    ;# Shift back
+      set yy [expr {$yy + $Oy}]
+      lappend xy $xx $yy
+    }
+    $w coords $id $xy
+  }
+}
+
+proc RotateCoords {xy Ox Oy angle} {
+  set angle [expr {$angle * atan(1) * 4 / 180.0}]    ;# Radians
+  set xy2 {}
+  foreach {x y} $xy {
+    # rotates vector (Ox,Oy)->(x,y) by angle clockwise
+
+    set x [expr {$x - $Ox}]    ;# Shift to origin
+    set y [expr {$y - $Oy}]
+
+    set xx [expr {$x * cos($angle) - $y * sin($angle)}]    ;# Rotate
+    set yy [expr {$x * sin($angle) + $y * cos($angle)}]
+
+    set xx [expr {$xx + $Ox}]    ;# Shift back
+    set yy [expr {$yy + $Oy}]
+    lappend xy2 $xx $yy
+  }
+  return $xy2
+}
+
+proc About {} {
+  set msg "$::S(title)\nby Keith Vetter, August 2006\n$::S(help)"
+  tk_messageBox -message $msg -title "About $::S(title)"
+}
+
+proc Animate {} {
+  after cancel $::S(aid)
+  StepIt 1
+  if {$::S(animate)} {
+    set ::S(aid) [after $::S(delay) Animate]
+  }
+}
+
+proc StepIt {dir} {
+  global S V
+
+  foreach {x0 y0} $V(gear1,o) break
+  RotateItem .c gear1 $x0 $y0 $dir
+  set S(angle) [expr {($S(angle) + $dir) % 360}]
+
+  if {$S(angle) == 45} {
+    set S(angle2) 45
+  } elseif {$S(angle) > 45 && $S(angle) <= 135} {
+    foreach {Gx Gy} $V(gear2,o) break
+    foreach {x1 y1} [.c coords gear1,p] break
+    set dx [expr {$x1 - $Gx}] ; set dy [expr {$y1 - $Gy}]
+    set degree [expr {round((acos($dy /hypot($dx,$dy))) * 180 / acos(-1))}]
+    set S(degree) $degree
+       
+    set da [expr {-abs($degree - abs($S(angle2)))}]
+    if {$da != 0} {
+      RotateItem .c gear2 $Gx $Gy $da
+      incr S(angle2) $da
+    }
+  }
+}
+
+ 
+DoDisplay
+
+Gear1
+
+Gear2
+
+Animate
+
+return
+

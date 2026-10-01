@@ -14,6 +14,7 @@
 #endif
 
 #include "glutils.h"
+#include "shadowmap.h"
 
 #include "appenv.h"
 
@@ -77,16 +78,7 @@ Object::~Object() {
   }
 }
 
-void Object::registerLuabindWeakPtr(void** p) {
-  _luabindWeakPtrs.push_back(p);
-}
-
 void Object::preDestructor() {
-  for (void** p : _luabindWeakPtrs) {
-    *p = nullptr;
-  }
-  _luabindWeakPtrs.clear();
-
   // Clear any luabind object references so their destructors do not touch
   // the Lua state after it has been closed.
   _cb_render = luabind::object();
@@ -304,6 +296,9 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
       if (tex != 0) {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, tex);
+        // GLSL cannot see whether GL_TEXTURE_2D is enabled, so the viewer's
+        // shadow shader has to be told; a no-op when it is not bound.
+        glSceneShaderTextured(true);
         mTextureBound = true;
       }
     }
@@ -320,6 +315,7 @@ void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
     if (mTextureBound) {
       glBindTexture(GL_TEXTURE_2D, 0);
       glDisable(GL_TEXTURE_2D);
+      glSceneShaderTextured(false);
       mTextureBound = false;
     }
 

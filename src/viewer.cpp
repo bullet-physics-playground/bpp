@@ -12,6 +12,7 @@
 
 #include "appenv.h"
 
+#include <cstring>
 #include <memory>
 
 #include <QColor>
@@ -23,6 +24,7 @@
 #include "lua_bullet.h"
 
 #include "glutils.h"
+#include "shadowmap.h"
 
 #if USE_VFE
 #include "povray/bppvfesession.h"
@@ -421,6 +423,14 @@ void Viewer::luaBind(lua_State *s) {
 
            .property("showConstraints", &Viewer::showConstraints,
                      &Viewer::setShowConstraints)
+
+           .property("shadows", &Viewer::shadows, &Viewer::setShadows)
+           .property("shadowMapSize", &Viewer::shadowMapSize,
+                     &Viewer::setShadowMapSize)
+           .property("shadowSoftness", &Viewer::shadowSoftness,
+                     &Viewer::setShadowSoftness)
+           .property("shadowDarkness", &Viewer::shadowDarkness,
+                     &Viewer::setShadowDarkness)
 
            // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
            .property("timeStep", &Viewer::getTimeStep, &Viewer::setTimeStep)
@@ -1203,6 +1213,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _parsing = false;
   _has_exception = false;
+  _warnedCollectGarbage = false;
 
   _file = nullptr;
   _fileMain = nullptr;
@@ -1303,6 +1314,11 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
                              btIDebugDraw::DBG_DrawConstraintLimits);
   dynamicsWorld->setDebugDrawer(_debugDrawer);
   _showConstraints = true;
+
+  _shadows = true;
+  // Holds no GL resources until the first shadowed frame asks for them, so
+  // building it here, with no context current, is safe.
+  _shadowMap = new ShadowMap();
 
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
   btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
@@ -1784,6 +1800,33 @@ void Viewer::setShowConstraints(bool on) {
 
 bool Viewer::showConstraints() const { return _showConstraints; }
 
+// Shadows are a render-path setting a script will normally choose at top
+// level, so like setShowConstraints() above these take no mutex: see the note
+// there. _shadowMap exists from the constructor on, and only reaches for GL
+// resources on the render thread, in renderShadowDepth() and
+// drawSceneInternal().
+void Viewer::setShadows(bool on) { _shadows = on; }
+
+bool Viewer::shadows() const { return _shadows; }
+
+void Viewer::setShadowMapSize(int px) { _shadowMap->setMapSize(px); }
+
+int Viewer::shadowMapSize() const { return _shadowMap->mapSize(); }
+
+void Viewer::setShadowSoftness(btScalar texels) {
+  _shadowMap->setSoftness(texels);
+}
+
+btScalar Viewer::shadowSoftness() const {
+  return btScalar(_shadowMap->softness());
+}
+
+void Viewer::setShadowDarkness(btScalar d) { _shadowMap->setDarkness(d); }
+
+btScalar Viewer::shadowDarkness() const {
+  return btScalar(_shadowMap->darkness());
+}
+
 void Viewer::close() {
   QGLViewer::close();
 }
@@ -1893,6 +1936,38 @@ int Viewer::lua_print(lua_State *L) {
   return 0;
 }
 
+int Viewer::lua_collectgarbage(lua_State *L) {
+  Viewer *p = static_cast<Viewer *>(lua_touserdata(L, lua_upvalueindex(1)));
+
+  const char *opt = luaL_optstring(L, 1, "collect");
+
+  // Answered for the benefit of scripts that only watch memory. Lua 5.1
+  // returns the single fractional-kilobyte figure this builds; 5.2 splits it
+  // into kilobytes and a byte remainder, which no bpp script reads.
+  if (strcmp(opt, "count") == 0) {
+    lua_pushnumber(L, lua_gc(L, LUA_GCCOUNT, 0) +
+                          lua_gc(L, LUA_GCCOUNTB, 0) / 1024.0);
+    return 1;
+  }
+
+  // "collect" and "step" free objects now; "restart" hands the collector back
+  // its automatic stepping so it frees them a moment later. All three break
+  // the invariant parse() establishes, so none of them run.
+  if (strcmp(opt, "collect") == 0 || strcmp(opt, "step") == 0 ||
+      strcmp(opt, "restart") == 0) {
+    if (p != nullptr && !p->_warnedCollectGarbage) {
+      p->_warnedCollectGarbage = true;
+      p->emitScriptOutput(
+          QString("warning: collectgarbage(\"%1\") ignored -- bpp keeps the "
+                  "Lua collector stopped for the whole run, because a "
+                  "collection frees Bullet objects the scene still points at")
+              .arg(opt));
+    }
+  }
+
+  return 0;
+}
+
 /*
 void Viewer::luabind_error(lua_State* L) {
     qDebug() << "luabind_error" << "\n";
@@ -1918,6 +1993,7 @@ bool Viewer::parse(QString txt) {
 
   _parsing = true;
   _has_exception = false;
+  _warnedCollectGarbage = false;
 
   _scriptContent = txt;
 
@@ -2080,6 +2156,13 @@ emit scriptStarts();
     lua_pushlightuserdata(L, (void *)this);
     lua_pushcclosure(L, &Viewer::lua_print, 1);
     lua_setglobal(L, "print");
+
+    // Replace the base library's collectgarbage() as well: the GCSTOP above
+    // only halts automatic stepping, so a script could otherwise force the
+    // collection that stopping the collector is meant to prevent.
+    lua_pushlightuserdata(L, (void *)this);
+    lua_pushcclosure(L, &Viewer::lua_collectgarbage, 1);
+    lua_setglobal(L, "collectgarbage");
   }
 
   luaBindInstance(L);
@@ -2531,6 +2614,12 @@ Viewer::~Viewer() {
   delete _camTop;
   delete _camFront;
   delete _camRight;
+
+  // The depth map and the shader live in the GL context, so make it current
+  // before dropping them; failing that ShadowMap leaves them to go with the
+  // context instead of deleting them into whichever one happens to be current.
+  makeCurrent();
+  delete _shadowMap;
 }
 
 void Viewer::computeBoundingBox() {
@@ -2644,6 +2733,11 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
   glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
 
+  // Fill the shadow map before anything is drawn for the screen: it needs the
+  // camera's own matrices to be the ones currently loaded, and the whole scene
+  // casts into one map that every quad-view pane then shares.
+  renderShadowDepth();
+
   if (_quadView) {
     drawQuadView();
     mutex.unlock();
@@ -2686,6 +2780,30 @@ void Viewer::draw() {
 
 void Viewer::drawSceneInternal(int pass) {
   Q_UNUSED(pass)
+
+  // The shader needs to get from the eye space it works in back out to the
+  // light's, which takes the inverse of the camera's view matrix - and that is
+  // exactly what is loaded right now, before any object pushes its own
+  // transform on top.
+  bool shaded = false;
+  if (_shadows) {
+    GLdouble camModelView[16];
+    glGetDoublev(GL_MODELVIEW_MATRIX, camModelView);
+    shaded = _shadowMap->bind(camModelView);
+  }
+
+  drawObjects();
+
+  if (shaded) {
+    // Released before the constraint markers, which are flat unlit lines and
+    // crosses and have no business being shaded.
+    _shadowMap->release();
+  }
+
+  drawConstraints();
+}
+
+void Viewer::drawObjects() {
   // btScalar m[16];
   btMatrix3x3 rot;
   rot.setIdentity();
@@ -2706,8 +2824,26 @@ void Viewer::drawSceneInternal(int pass) {
       o->render(minaabb, maxaabb);
     }
   }
+}
 
-  drawConstraints();
+void Viewer::renderShadowDepth() {
+  if (!_shadows)
+    return;
+
+  const qglviewer::Vec c = camera()->sceneCenter();
+
+  if (!_shadowMap->renderDepthBegin(_light0, btVector3(c.x, c.y, c.z),
+                                    camera()->sceneRadius())) {
+    return;
+  }
+
+  // Only the objects: a constraint marker is a hint about the scene, not part
+  // of it, and should not throw a shadow across it. Anything a script draws
+  // from an object's own render callback does cast, since that runs from
+  // Object::render().
+  drawObjects();
+
+  _shadowMap->renderDepthEnd();
 }
 
 // Re-frames the three fixed orthographic cameras on the current scene,

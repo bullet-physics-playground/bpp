@@ -48,6 +48,7 @@ using namespace qglviewer;
 class Object;
 class Viewer;
 class QTimer;
+class ShadowMap;
 class btSoftRigidDynamicsWorld;
 #if USE_VFE
 class BppVfeSession;
@@ -451,6 +452,23 @@ public:
   static int lua_print(lua_State *L);
 
   /**
+   * @brief Replacement for Lua's @c collectgarbage that cannot free the scene.
+   *
+   * parse() stops the collector for a script's whole run, because Bullet
+   * objects built in Lua are kept alive by their Lua handle alone while C++
+   * holds a raw pointer to them. An explicit collection runs even while the
+   * collector is stopped, so leaving the base library's @c collectgarbage in
+   * place lets a script free the objects the renderer is about to draw.
+   * Installed as the global @c collectgarbage with the Viewer as an upvalue.
+   * @c "count" is answered as usual; an option that would collect or restart
+   * automatic collection is ignored, with one warning per script run.
+   *
+   * @param L The Lua state.
+   * @return 1 for @c "count", otherwise 0.
+   */
+  static int lua_collectgarbage(lua_State *L);
+
+  /**
    * @brief Adds a list of constraints to the dynamics world.
    * @param cons The constraints to add. Null entries are skipped.
    */
@@ -573,6 +591,85 @@ public:
    * @return The light vector.
    */
   btVector4 getGLLight1() const;
+
+  /**
+   * @brief Turns shadow casting in the interactive view on or off.
+   *
+   * With shadows on the scene is drawn twice: once as depth only from the main
+   * light's point of view, into an off-screen map, and then normally through a
+   * shader that looks each fragment up in that map. Only the main light,
+   * setGLLight0(), casts; the fill light does not.
+   *
+   * Switching them on asks for an off-screen depth map and a shader, and a
+   * context that will not provide either falls back to the plain
+   * fixed-function draw with a warning. Shadows also change the lighting from
+   * per-vertex to per-pixel, and light both sides of a surface rather than
+   * only the front, so the shaded scene looks a little different from the
+   * unshadowed one beyond the shadows themselves.
+   *
+   * Takes no mutex, for the reason setShowConstraints() gives.
+   *
+   * @param on True to cast shadows.
+   */
+  void setShadows(bool on);
+
+  /**
+   * @brief Returns whether shadows are being cast.
+   * @return True if they are.
+   */
+  bool shadows() const;
+
+  /**
+   * @brief Sets the resolution of the square shadow depth map, in pixels.
+   *
+   * Larger is sharper and slower, and is clamped to between 256 and 8192. The
+   * default, 2048, puts a shadow edge within about a thousandth of the scene's
+   * width.
+   *
+   * @param px The new edge length in pixels.
+   */
+  void setShadowMapSize(int px);
+
+  /**
+   * @brief Returns the resolution of the shadow depth map.
+   * @return Its edge length in pixels.
+   */
+  int shadowMapSize() const;
+
+  /**
+   * @brief Sets how far a shadow edge is blurred, in depth-map texels.
+   *
+   * 0 gives a hard, stair-stepped edge; the default 1 spreads the nine shadow
+   * taps one texel apart, which is roughly a pixel of blur on screen at the
+   * default map size.
+   *
+   * @param texels The tap spacing.
+   */
+  void setShadowSoftness(btScalar texels);
+
+  /**
+   * @brief Returns how far a shadow edge is blurred.
+   * @return The tap spacing in depth-map texels.
+   */
+  btScalar shadowSoftness() const;
+
+  /**
+   * @brief Sets how much of the main light a shadow takes away, from 0 to 1.
+   *
+   * The default, 1, removes all of it, which is what a blocked light means: a
+   * shadow is then lit by the ambient terms and the unshadowed fill light
+   * alone. Lower it to lift the shadows in a scene whose lighting leaves them
+   * too heavy.
+   *
+   * @param d The fraction removed.
+   */
+  void setShadowDarkness(btScalar d);
+
+  /**
+   * @brief Returns how much of the main light a shadow takes away.
+   * @return The fraction removed, from 0 to 1.
+   */
+  btScalar shadowDarkness() const;
 
   /**
    * @brief Sets the ambient light and material colour.
@@ -1439,12 +1536,38 @@ protected:
   /**
    * @brief Renders every object and the constraint markers.
    *
-   * A SoftBody has no rigid body or motion state, so Object::render() would
-   * silently skip it; those are rendered directly instead.
+   * With shadows on, the objects are drawn through the shadow map's shader and
+   * the constraint markers after it is released, so the markers keep the flat,
+   * unlit colours they are drawn with.
    *
    * @param pass Index of the quad-view pane being drawn. Unused.
    */
   void drawSceneInternal(int pass);
+
+  /**
+   * @brief Renders every object in the scene, and nothing else.
+   *
+   * A SoftBody has no rigid body or motion state, so Object::render() would
+   * silently skip it; those are rendered directly instead.
+   *
+   * Called once per visible pass and, with shadows on, once more for the
+   * depth-only pass from the light, which is why it sets no render state of
+   * its own: each caller has already set what it needs.
+   */
+  void drawObjects();
+
+  /**
+   * @brief Renders the scene's depth from the main light, into the shadow map.
+   *
+   * A no-op when shadows are off, and gives up quietly when the GL context
+   * cannot provide the off-screen depth map or the shader, in which case
+   * drawSceneInternal() draws the scene the fixed-function way.
+   *
+   * Must be called with the camera's own modelview matrix loaded and after the
+   * lights have been positioned, since it leans on
+   * @c glLightfv(GL_POSITION) having already put light 0 into eye space.
+   */
+  void renderShadowDepth();
 
   /**
    * @brief Renders the scene once into each of the four quad-view panes.
@@ -1661,6 +1784,11 @@ private:
   btIDebugDraw *_debugDrawer;
   bool _showConstraints; ///< Whether those markers are drawn.
 
+  bool _shadows;         ///< Whether the main light casts shadows.
+  ShadowMap *_shadowMap; ///< Off-screen depth map and the shader that reads
+                         ///< it; built on the first shadowed frame, since it
+                         ///< needs a current GL context.
+
   /**
    * @brief Draws a marker for every constraint in the scene.
    *
@@ -1804,6 +1932,9 @@ private:
                        ///< the draw and animation paths touching the world.
   bool _has_exception; ///< Latched when a Lua callback threw; stops the
                        ///< simulation until the next parse().
+  bool _warnedCollectGarbage; ///< True once lua_collectgarbage() has warned
+                       ///< about a refused option, so a per-frame call does
+                       ///< not flood the output pane. Reset by parse().
 
   // OpenGL properties
   btScalar _gl_shininess;      ///< Material shininess exponent.

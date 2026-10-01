@@ -1,0 +1,3 @@
+[mcp_servers.bpp]
+command = "python3"
+args = ["/home/koppi/bpp/mcp/bpp_server.py"]

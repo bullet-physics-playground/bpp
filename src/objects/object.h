@@ -19,8 +19,6 @@
 
 #include <qgl.h>
 
-#include <vector>
-
 class Object;
 
 /**
@@ -81,10 +79,11 @@ enum collisiontypes {
  * strings replace the corresponding parts of the exported text.
  *
  * @b Ownership is split: a body the object created is deleted with it, while
- * one handed in through setRigidBody() is not. Lua adds a third case, which is
- * what preDestructor() and registerLuabindWeakPtr() exist for: when the Lua
- * state closes it frees the Bullet objects it adopted, so the raw pointers
- * here have to be cleared before the C++ destructors run.
+ * one handed in through setRigidBody() is not. Lua adds a third case: when the
+ * Lua state closes it frees the Bullet objects it adopted, so #body and #shape
+ * have to be cleared before the C++ destructors run. Viewer::parse() and the
+ * Viewer destructor do that themselves, after lua_close(); preDestructor() is
+ * called first, to drop this object's own references into the interpreter.
  */
 class Object : public QObject {
   Q_OBJECT;
@@ -650,25 +649,12 @@ protected:
   mutable GLfloat matrix[16]; ///< Scratch transform, reused by the draw and
                               ///< export paths.
 
-  std::vector<void**> _luabindWeakPtrs; ///< Pointers to null out before the
-                                        ///< Lua state is closed.
-
 public:
   /**
-   * @brief Registers a pointer to be nulled when Lua tears the object down.
-   *
-   * Lua frees the Bullet objects it adopted when the state closes, so anything
-   * still holding one has to be told before the C++ destructors run.
-   *
-   * @param p Address of the pointer to clear.
-   */
-  void registerLuabindWeakPtr(void** p);
-
-  /**
-   * @brief Clears the registered pointers and the Lua draw function.
+   * @brief Releases the object's reference to the Lua draw function.
    *
    * Called before the Lua state is closed, so that no destructor afterwards
-   * touches either a freed Bullet object or the closed interpreter.
+   * touches the closed interpreter.
    */
   void preDestructor();
 };

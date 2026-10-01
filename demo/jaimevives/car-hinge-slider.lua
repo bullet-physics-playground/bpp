@@ -305,7 +305,7 @@ function steps()
   d = 4
   h = 0.5
   for i = 1,N do
-    obs=Cube(d,h,80,0)
+    obs=Cube(d,h,30,0)
     if(i<=N/2) then
       obs.pos=btVector3(N/2+i*d,i*h,0)
     else

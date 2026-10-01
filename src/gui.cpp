@@ -187,6 +187,8 @@ void Gui::toggleShowConstraints(bool checked) {
   ui.viewer->setShowConstraints(checked);
 }
 
+void Gui::toggleShadows(bool checked) { ui.viewer->setShadows(checked); }
+
 void Gui::postDraw(int /* frame */) {
   // QPixmap p = QPixmap::grabWidget(this);
 
@@ -676,7 +678,10 @@ void Gui::helpAbout() {
           .arg((char *)glGetString(GL_VENDOR)) +
       tr("<p>&copy; 2008-%1 <a href=\"http://github.com/koppi\">Jakob "         "Flierl</a></p>")          .arg(QDate::currentDate().year()) +
       tr("<p>&copy; 2012-2016 <a href=\"http://ignorancia.org/\">Jaime Vives "
-         "Piqueres</a></p>");
+         "Piqueres</a></p>") +
+      tr("<p>&copy; 2026-%1 <a href=\"https://github.com/WyomingWill\">William "
+         "M. Spears</a></p>")
+          .arg(QDate::currentDate().year());
 
   QMessageBox::about(this, tr("About"), txt);
 }
@@ -949,6 +954,8 @@ void Gui::loadSettings() {
   ui.actionShowConstraints->setChecked(
       settings->value("showConstraints", true).toBool());
 
+  ui.actionShadows->setChecked(settings->value("shadows", true).toBool());
+
   settings->endGroup();
 }
 
@@ -976,6 +983,8 @@ void Gui::saveSettings() {
                      ui.actionToggleDeactivation->isChecked());
 
   settings->setValue("showConstraints", ui.actionShowConstraints->isChecked());
+
+  settings->setValue("shadows", ui.actionShadows->isChecked());
 
   settings->endGroup();
 

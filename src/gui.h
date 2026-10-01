@@ -213,6 +213,12 @@ public slots:
   void toggleShowConstraints(bool checked);
 
   /**
+   * @brief Turns shadow casting in the 3D view on or off.
+   * @param checked True to cast shadows.
+   */
+  void toggleShadows(bool checked);
+
+  /**
    * @brief Starts a new, empty script.
    */
   void fileNew();

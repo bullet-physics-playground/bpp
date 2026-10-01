@@ -5,17 +5,17 @@
 #include "metals.inc"
 
 // for LightSys see - http://www.ignorancia.org/index.php?page=lightsys
-#declare use_rad        = 0;  // 0/1/2
+#declare use_rad        = 2;  // 0/1/2
 #declare use_lightsys   = 0;  // 0/1
 #declare use_lightsys_setting = 1; // 0/1
-#declare use_cie_whitepoint = 0; // 0/1/2/3
+#declare use_cie_whitepoint = 2; // 0/1/2/3
 #declare use_lightsys_light1 = 1;
-#declare use_area_light = 0;  // 0/1
+#declare use_area_light = 1;  // 0/1
 #declare use_background = 1;  // 0/1/2
-#declare use_clouds     = 0;  // 0/1/2/3
+#declare use_clouds     = 3;  // 0/1/2/3
 #declare use_plane      = 0;  // 0/1
 #declare use_plane_tex  = 0;  // 0/1/2
-#declare use_photons    = 0;  // 0/1/2
+#declare use_photons    = 1;  // 0/1/2
 
 #declare Al=90;      // sun altitude
 #declare Az=270-45-90-90;   // sun rotation
