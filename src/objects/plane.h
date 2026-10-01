@@ -111,6 +111,18 @@ public:
 
 protected:
   /**
+   * @brief Writes the plane's surface, mapping a texture flat onto it.
+   *
+   * A plane has no @c uv_mapping worth the name in POV-Ray -- being infinite,
+   * it stretches the bottom row of the image out to the horizon -- so an image
+   * is laid on it directly instead, on the square the interactive view draws
+   * and repeating outwards from there.
+   *
+   * @param s The stream to write to; a null stream writes nothing.
+   */
+  void povPigment(QTextStream *s) const override;
+
+  /**
    * @brief Builds the collision shape, motion state and static rigid body.
    * @param nx     Normal x component.
    * @param ny     Normal y component.

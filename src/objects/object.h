@@ -367,6 +367,30 @@ public:
   QString getPreSDL() const;
 
   /**
+   * @brief Wraps an image file round the object.
+   *
+   * The image is drawn on the object in the interactive view, and exported as
+   * a POV-Ray @c image_map so that a render shows the same picture in the same
+   * place. It replaces the object's colour rather than tinting it, as an
+   * @c image_map replaces a pigment; #setSDL() still overrides both.
+   *
+   * The file is looked for beside the script first and then in bpp's own
+   * @c includes directory, which is also where POV-Ray looks, so a bare name
+   * such as @c "ball8.jpeg" finds the same image in the view and in a render.
+   *
+   * @param file Image file to use, or an empty string to go back to the
+   *             object's colour.
+   */
+  void setTexture(const QString &file);
+
+  /**
+   * @brief Returns the image file wrapped round the object.
+   * @return The file, as it was given to setTexture(), or an empty string when
+   *         the object has no texture.
+   */
+  QString getTexture() const;
+
+  /**
    * @brief Replaces the object's exported surface description.
    *
    * Used instead of the pigment line povPigment() would otherwise write, so a
@@ -555,7 +579,40 @@ protected:
    *
    * @param s The stream to write to; a null stream writes nothing.
    */
-  void povPigment(QTextStream *s) const;
+  virtual void povPigment(QTextStream *s) const;
+
+  /**
+   * @brief Writes the object's texture as a POV-Ray @c image_map pigment.
+   *
+   * The shapes differ only in how the image is laid on them, so each passes
+   * its own mapping in and this writes the rest: the file name, the
+   * interpolation, and the object's transparency as a transmit value.
+   *
+   * @param s          The stream to write to.
+   * @param pigmentPre Text inside the pigment, before the @c image_map:
+   *                   @c "uv_mapping" for a shape POV-Ray can unwrap by
+   *                   itself, empty otherwise.
+   * @param mapOpts    Options inside the @c image_map, such as
+   *                   @c "map_type 2" for a cylindrical wrap.
+   * @param xform      A transformation applied to the pigment, or empty.
+   */
+  void povImageMap(QTextStream *s, const QString &pigmentPre,
+                   const QString &mapOpts, const QString &xform) const;
+
+  /**
+   * @brief Writes the object's texture wrapped round its Z axis.
+   *
+   * For the shapes POV-Ray cannot unwrap by itself. Its cylindrical
+   * @c map_type goes once round the Y axis and spans Y from 0 to 1, so the
+   * image is stretched to the shape's length, centred on the origin the way
+   * the exported geometry is, and turned onto the Z axis the shape stands on.
+   * That makes it go round once and along once, as the interactive view's
+   * texture coordinates do.
+   *
+   * @param s      The stream to write to.
+   * @param length Extent of the shape along its axis.
+   */
+  void povAxialImageMap(QTextStream *s, btScalar length) const;
 
   /**
    * @brief Makes the object's colour and opacity the current OpenGL colour.
@@ -569,7 +626,14 @@ protected:
   bool photons_reflection; ///< Whether photons reflect off the object.
   bool photons_refraction; ///< Whether photons refract through it.
 
-  QString mTexture;  ///< Texture name. Unused by the base class.
+  QString mTexture;     ///< Image file wrapped round the object, as given to
+                        ///< setTexture(), and as written into exported SDL.
+  QString mTextureFile; ///< #mTexture resolved to a path on disk, for the
+                        ///< interactive view. Empty when it was not found.
+  mutable bool mTextureBound; ///< True between renderInLocalFramePre() and
+                        ///< renderInLocalFramePost() while the texture is
+                        ///< actually bound, so the colour and the teardown
+                        ///< agree about whether there is one.
   bool mPOVExport;   ///< Whether the object appears in exported scenes.
   QString mPreSDL;   ///< Replacement opening SDL, or null.
   QString mSDL;      ///< Replacement surface SDL, or null.

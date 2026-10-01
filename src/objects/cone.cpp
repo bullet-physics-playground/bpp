@@ -85,6 +85,15 @@ void Cone::luaBind(lua_State *s) {
 
 QString Cone::toString() const { return QString("Cone"); }
 
+void Cone::povPigment(QTextStream *s) const {
+  if (s == nullptr || getTexture().isEmpty()) {
+    Object::povPigment(s);
+    return;
+  }
+
+  povAxialImageMap(s, height);
+}
+
 void Cone::toPOV(QTextStream *s) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;

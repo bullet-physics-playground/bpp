@@ -59,6 +59,18 @@ public:
 
 protected:
   /**
+   * @brief Writes the cylinder's surface, wrapping a texture round it.
+   *
+   * POV-Ray has no @c uv_mapping for a cylinder, so the image is wrapped with
+   * a cylindrical @c map_type instead, stretched along the axis so that it
+   * goes round once and along once -- the same as the interactive view's
+   * texture coordinates.
+   *
+   * @param s The stream to write to; a null stream writes nothing.
+   */
+  void povPigment(QTextStream *s) const override;
+
+  /**
    * @brief Builds the collision shape, motion state and rigid body.
    * @param radius The radius.
    * @param depth  Extent along the cylinder's axis.

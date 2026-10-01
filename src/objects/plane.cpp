@@ -56,6 +56,60 @@ Plane::~Plane() {
 
 void Plane::setPigment(const QString &pigment) { mPigment = pigment; }
 
+/**
+ * @brief Works out the square the plane is drawn as.
+ *
+ * render() draws this square and povPigment() lays a texture on it, so both
+ * ask for it here rather than each deriving its own.
+ *
+ * @param shape  The plane's collision shape.
+ * @param size   Half the edge length of the square.
+ * @param normal Receives the plane normal.
+ * @param corner Receives the corner the texture's origin sits on.
+ * @param edge0  Receives the edge from that corner along the texture's u axis.
+ * @param edge1  Receives the edge from that corner along its v axis.
+ */
+static void planeSquare(const btCollisionShape *shape, btScalar size,
+                        btVector3 &normal, btVector3 &corner, btVector3 &edge0,
+                        btVector3 &edge1) {
+  const btStaticPlaneShape *staticPlaneShape =
+      static_cast<const btStaticPlaneShape *>(shape);
+  normal = staticPlaneShape->getPlaneNormal();
+
+  btVector3 vec0, vec1;
+  btPlaneSpace1(normal, vec0, vec1);
+
+  edge0 = vec0 * (size * 2);
+  edge1 = vec1 * (size * 2);
+  corner = normal * staticPlaneShape->getPlaneConstant() - vec0 * size -
+           vec1 * size;
+}
+
+void Plane::povPigment(QTextStream *s) const {
+  if (s == nullptr || getTexture().isEmpty()) {
+    Object::povPigment(s);
+    return;
+  }
+
+  btVector3 normal, corner, edge0, edge1;
+  planeSquare(shape, size, normal, corner, edge0, edge1);
+
+  // An image_map covers x and y from 0 to 1 and repeats outside that, so the
+  // matrix carries that unit square onto the square the view draws: the image
+  // lands on the same patch of plane in both, and tiles away to the horizon
+  // from there. POV-Ray's Z points the other way to ours (see
+  // Object::povMatrixFromGL), hence the negated Z on each column.
+  QString xform;
+  QTextStream m(&xform);
+  m << "matrix <" << edge0[0] << "," << edge0[1] << "," << -edge0[2] << ","
+    << " " << edge1[0] << "," << edge1[1] << "," << -edge1[2] << ","
+    << " " << normal[0] << "," << normal[1] << "," << -normal[2] << ","
+    << " " << corner[0] << "," << corner[1] << "," << -corner[2] << ">";
+  m.flush();
+
+  povImageMap(s, QString(), QString(), xform);
+}
+
 void Plane::luaBind(lua_State *s) {
   using namespace luabind;
 
@@ -129,45 +183,47 @@ void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
 
   // qDebug() << "Plane::renderInLocalFrame";
 
-  const btStaticPlaneShape *staticPlaneShape =
-      static_cast<const btStaticPlaneShape *>(shape);
-  btScalar planeConst = staticPlaneShape->getPlaneConstant();
-  const btVector3 &planeNormal = staticPlaneShape->getPlaneNormal();
-  btVector3 planeOrigin = planeNormal * planeConst;
-  btVector3 vec0, vec1;
-  btPlaneSpace1(planeNormal, vec0, vec1);
-  btScalar vecLen = size;
+  btVector3 planeNormal, corner, edge0, edge1;
+  planeSquare(shape, size, planeNormal, corner, edge0, edge1);
 
   // The 4 corners of the square, not the 4 edge-midpoints (which would
-  // triangulate into a diamond instead of a rectangle).
-  btVector3 pt0 = planeOrigin - vec0 * vecLen - vec1 * vecLen;
-  btVector3 pt1 = planeOrigin + vec0 * vecLen - vec1 * vecLen;
-  btVector3 pt2 = planeOrigin + vec0 * vecLen + vec1 * vecLen;
-  btVector3 pt3 = planeOrigin - vec0 * vecLen + vec1 * vecLen;
+  // triangulate into a diamond instead of a rectangle). A texture covers the
+  // square once, the same way povPigment() lays it on the exported plane.
+  btVector3 pt0 = corner;
+  btVector3 pt1 = corner + edge0;
+  btVector3 pt2 = corner + edge0 + edge1;
+  btVector3 pt3 = corner + edge1;
+
+  // glTexCoord applies to the vertex that follows it, so the two travel
+  // together.
+  auto corner_v = [](const btVector3 &p, float u, float v) {
+    glTexCoord2f(u, v);
+    glVertex3fv(p);
+  };
 
   glApplyColor();
 
   glBegin(GL_LINE_LOOP);
-  glVertex3fv(pt0);
-  glVertex3fv(pt1);
-  glVertex3fv(pt2);
-  glVertex3fv(pt3);
+  corner_v(pt0, 0, 0);
+  corner_v(pt1, 1, 0);
+  corner_v(pt2, 1, 1);
+  corner_v(pt3, 0, 1);
   glEnd();
 
   glBegin(GL_TRIANGLES);
   glNormal3fv(planeNormal);
-  glVertex3fv(pt0);
-  glVertex3fv(pt1);
-  glVertex3fv(pt2);
-  glVertex3fv(pt2);
-  glVertex3fv(pt1);
-  glVertex3fv(pt0);
-  glVertex3fv(pt2);
-  glVertex3fv(pt3);
-  glVertex3fv(pt0);
-  glVertex3fv(pt0);
-  glVertex3fv(pt3);
-  glVertex3fv(pt2);
+  corner_v(pt0, 0, 0);
+  corner_v(pt1, 1, 0);
+  corner_v(pt2, 1, 1);
+  corner_v(pt2, 1, 1);
+  corner_v(pt1, 1, 0);
+  corner_v(pt0, 0, 0);
+  corner_v(pt2, 1, 1);
+  corner_v(pt3, 0, 1);
+  corner_v(pt0, 0, 0);
+  corner_v(pt0, 0, 0);
+  corner_v(pt3, 0, 1);
+  corner_v(pt2, 1, 1);
   glEnd();
 }
 

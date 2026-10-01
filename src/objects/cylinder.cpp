@@ -75,6 +75,15 @@ void Cylinder::luaBind(lua_State *s) {
 
 QString Cylinder::toString() const { return QString("Cylinder"); }
 
+void Cylinder::povPigment(QTextStream *s) const {
+  if (s == nullptr || getTexture().isEmpty()) {
+    Object::povPigment(s);
+    return;
+  }
+
+  povAxialImageMap(s, lengths[2]);
+}
+
 void Cylinder::toPOV(QTextStream *s) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;

@@ -15,7 +15,11 @@
 
 #include "glutils.h"
 
+#include "appenv.h"
+
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 
 #include <memory>
 #include <luabind/adopt_policy.hpp>
@@ -50,6 +54,7 @@ Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
 
   setColor(127, 127, 127);
   transparency = 0.0;
+  mTextureBound = false;
 
   photons_enable = false;
   photons_reflection = false;
@@ -220,6 +225,8 @@ void Object::luaBind(lua_State *s) {
                      (bool(Object::*)(void)) & Object::getPOVExport,
                      (void(Object::*)(bool)) & Object::setPOVExport)
 
+.property("tex", &Object::getTexture, &Object::setTexture)
+
 .property("pre_sdl", (QString(Object::*)(void)) & Object::getPreSDL,
                       (void(Object::*)(const QString &)) & Object::setPreSDL)
 
@@ -291,6 +298,16 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
       glDepthMask(GL_FALSE);
     }
 
+    mTextureBound = false;
+    if (!mTextureFile.isEmpty()) {
+      GLuint tex = glTextureFromFile(mTextureFile);
+      if (tex != 0) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        mTextureBound = true;
+      }
+    }
+
     if (_cb_render) {
       luabind::call_function<void>(_cb_render, this);
     }
@@ -300,6 +317,12 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
 void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
   if (isfinite(oaabbmin[0]) && isfinite(oaabbmin[1]) && isfinite(oaabbmin[2]) &&
       isfinite(oaabbmax[0]) && isfinite(oaabbmax[1]) && isfinite(oaabbmax[2])) {
+    if (mTextureBound) {
+      glBindTexture(GL_TEXTURE_2D, 0);
+      glDisable(GL_TEXTURE_2D);
+      mTextureBound = false;
+    }
+
     if (transparency > 0.0) {
       glDepthMask(GL_TRUE);
       glDisable(GL_BLEND);
@@ -309,6 +332,52 @@ void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
       glPopMatrix();
   }
 }
+
+/**
+ * @brief Finds a texture image, in the places POV-Ray would look for it.
+ *
+ * An absolute path is taken as it stands. A relative one is tried against the
+ * working directory first and then against bpp's @c includes directory, which
+ * are the two the exported scene's library path names, so the interactive view
+ * and a render resolve a bare file name to the same image.
+ *
+ * @param file The image to find.
+ * @return An absolute path to the file, or an empty string when there is no
+ *         such image.
+ */
+static QString locateTextureFile(const QString &file) {
+  if (file.isEmpty()) {
+    return QString();
+  }
+
+  QFileInfo fi(file);
+  if (fi.isAbsolute()) {
+    return fi.exists() ? fi.absoluteFilePath() : QString();
+  }
+  if (fi.exists()) {
+    return fi.absoluteFilePath();
+  }
+
+  QFileInfo inc(QDir(startupWorkingDir()).filePath("includes"), file);
+  if (inc.exists()) {
+    return inc.absoluteFilePath();
+  }
+
+  return QString();
+}
+
+void Object::setTexture(const QString &file) {
+  mTexture = file;
+  mTextureFile = locateTextureFile(file);
+
+  if (!file.isEmpty() && mTextureFile.isEmpty()) {
+    qWarning() << "texture" << file
+               << "not found -- looked in" << startupWorkingDir()
+               << "and its includes directory";
+  }
+}
+
+QString Object::getTexture() const { return mTexture; }
 
 void Object::setPostSDL(const QString &post_sdl) { mPostSDL = post_sdl; }
 
@@ -434,9 +503,57 @@ void Object::setTransparency(btScalar t) {
 
 btScalar Object::getTransparency() const { return transparency; }
 
+void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
+                         const QString &mapOpts, const QString &xform) const {
+  // The file is named as the script gave it: POV-Ray finds it along the same
+  // library path the view searched (see locateTextureFile()), and works the
+  // format out from the extension.
+  *s << "  texture { pigment { ";
+  if (!pigmentPre.isEmpty()) {
+    *s << pigmentPre << " ";
+  }
+  *s << "image_map { \"" << mTexture << "\" ";
+  if (!mapOpts.isEmpty()) {
+    *s << mapOpts << " ";
+  }
+  *s << "interpolate 2";
+  if (transparency > 0.0) {
+    *s << " transmit all " << transparency;
+  }
+  *s << " }";
+  if (!xform.isEmpty()) {
+    *s << "\n    " << xform;
+  }
+  *s << " } }" << "\n";
+}
+
+void Object::povAxialImageMap(QTextStream *s, btScalar length) const {
+  // map_type 2 goes once round the Y axis and spans Y from 0 to 1, so the
+  // image is stretched to the shape's length and centred the way the exported
+  // geometry is. Turning it onto -Z rather than +Z puts the image the same way
+  // up and the same way round as the view draws it, and the half turn then
+  // lines up where it starts. Both are rotations: a mirrored transform would
+  // line the image up just as well but write any lettering backwards.
+  QString xform;
+  QTextStream t(&xform);
+  t << "scale <1," << length << ",1> translate <0," << -length / 2.0
+    << ",0> rotate x*-90 rotate z*180";
+  t.flush();
+
+  povImageMap(s, QString(), "map_type 2", xform);
+}
+
 void Object::povPigment(QTextStream *s) const {
   if (s == nullptr)
     return;
+
+  if (!mTexture.isEmpty()) {
+    // uv_mapping wraps the image round the shape the way the interactive
+    // view's texture coordinates do. POV-Ray unwraps a box and a sphere this
+    // way; Cylinder, Cone and Plane, which it does not, map their own.
+    povImageMap(s, "uv_mapping", QString(), QString());
+    return;
+  }
 
   *s << "  pigment { rgbt <" << color[0] / 255.0 << ", " << color[1] / 255.0
      << ", " << color[2] / 255.0 << ", " << transparency << "> }" << "\n";
@@ -444,6 +561,13 @@ void Object::povPigment(QTextStream *s) const {
 
 void Object::glApplyColor() const {
   GLubyte alpha = (GLubyte)((1.0 - transparency) * 255.0 + 0.5);
+  if (mTextureBound) {
+    // The default texture environment multiplies the two, so white leaves the
+    // image as it is -- the same way an image_map replaces a pigment rather
+    // than being tinted by it.
+    glColor4ub(255, 255, 255, alpha);
+    return;
+  }
   glColor4ub(color[0], color[1], color[2], alpha);
 }
 
