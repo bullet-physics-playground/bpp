@@ -92,7 +92,7 @@ linux {
   equals(USE_VFE, 1) {
     LINUX_DIR_POVRAY = $$PWD/../povray
 
-    INCLUDEPATH += \
+    POVRAY_INCDIRS = \
       $$LINUX_DIR_POVRAY/source \
       $$LINUX_DIR_POVRAY/vfe \
       $$LINUX_DIR_POVRAY/vfe/unix \
@@ -100,6 +100,13 @@ linux {
       $$LINUX_DIR_POVRAY/platform \
       $$LINUX_DIR_POVRAY/unix \
       $$LINUX_DIR_POVRAY/unix/povconfig
+    INCLUDEPATH += $$POVRAY_INCDIRS
+
+    # POV-Ray's own headers trigger -Wmultichar, -Wreorder and similar
+    # warnings under -Wall -Wextra. As for Bullet's below, re-adding their
+    # dirs via -isystem marks them as system header directories, so the
+    # compiler suppresses warnings from those headers.
+    for(dir, POVRAY_INCDIRS): QMAKE_CXXFLAGS += -isystem $$dir
 
     DEFINES += HAVE_CONFIG_H
     DEFINES += BUILT_BY=\\\"bpp-povvfe-prototype\\\"
