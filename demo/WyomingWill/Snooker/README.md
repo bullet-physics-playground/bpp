@@ -49,6 +49,7 @@ miss rule, the touching-ball rule and re-spotted black.
 | `snooker-table.lua` | The table. Open this in bpp. |
 | `snooker-table-meshes/` | The cue and the cue ball's dots. |
 | `snooker-table-sounds/` | Sound effects (the same as the pool table's). |
+| `includes/snooker-*.jpeg` | The balls' own pictures, in bpp's `includes` directory: plain phenolic resin, since snooker balls carry no numbers. Set with each ball's `tex`, so they are drawn in the view and exported to POV-Ray as an `image_map`. Without them the balls fall back to their colours. |
 
 ## Requirements
 

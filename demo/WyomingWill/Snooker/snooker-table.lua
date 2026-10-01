@@ -55,6 +55,8 @@
 --   snooker-table.lua        this table
 --   snooker-table-meshes/    the cue and the cue ball's dots
 --   snooker-table-sounds/    sound effects; missing ones are skipped
+-- The balls' pictures, snooker-*.jpeg, are in bpp's own includes directory,
+-- where POV-Ray looks too.
 --
 -- Needs bpp with the v:onKey() keyboard hook; v:playSound(id, volume) and
 -- the objects' `collides` property are used when present (see the Pool
@@ -330,6 +332,16 @@ local COLOUR_NAMES = { [2] = "yellow", [3] = "green", [4] = "brown", [5] = "blue
                        [7] = "black" }
 local COLOUR_BALL = {}        -- value -> ball index
 
+-- Snooker balls carry no numbers, so they can't wear the pool table's
+-- includes/ball0..15.jpeg. These are pictures of bare phenolic resin instead:
+-- each is its ball's colour above with a little mottling in it. `tex` draws
+-- them in the view and exports them as an image_map, so a render shows the
+-- same balls.
+local function ballTex(value)
+  local name = (value == 0) and "cue" or (value == 1) and "red" or COLOUR_NAMES[value]
+  return "snooker-" .. name .. ".jpeg"
+end
+
 -- A mesh that follows a ball around (the cue ball's dots), or a cue part.
 local function marking(file, col)
   local ok, m = pcall(function() return Mesh(MESH_DIR .. file, 0, false) end)
@@ -346,6 +358,7 @@ for n = 0, NB do
   local col = n == 0 and WHITE or (n <= 15 and RED_COL or COLOUR_COLS[value])
   local s = Sphere(K.R, K.MASS)
   s.col = col
+  pcall(function() s.tex = ballTex(value) end)    -- without it, the colour stands in
   s.friction = 0.2
   s.restitution = 0.97
   s.damp_lin = 0
