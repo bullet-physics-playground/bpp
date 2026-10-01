@@ -713,6 +713,9 @@ public:
 
   /**
    * @brief Sets the include file the exported main scene pulls in.
+   * Each export copies the file of this name from @c includes/ into the
+   * scene's export directory, so a scene with its own lighting and globals
+   * names its own file here instead of overwriting @c settings.inc.
    * @param pov_settings_inc File name, @c "settings.inc" by default. An empty
    *                         string emits no include at all.
    */
@@ -1475,10 +1478,11 @@ protected:
    * @brief Writes the current frame out as a POV-Ray scene.
    *
    * Creates a per-script directory under the export path holding a copy of
-   * @c settings.inc, a main @c .pov that includes the per-frame file, an
+   * the settings include (@c settings.inc unless the script names another,
+   * see setPOVSettingsInc()), a main @c .pov that includes the per-frame file, an
    * animation @c .ini with the usual output resolutions, a @c GNUmakefile and
    * one numbered @c .inc per frame carrying the camera and every object that
-   * opted into export. The copy of @c settings.inc keeps the directory
+   * opted into export. The copy of the settings include keeps the directory
    * self-contained, so the scene still renders elsewhere without the original
    * include path. Sounds the scene plays go to a @c .wav, see saveWAV().
    *

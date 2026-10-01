@@ -9,7 +9,8 @@
 #   <scene>.pov   -- #include "settings.inc" + #include concat(str(clock,-5,0),".inc")
 #   <scene>.ini   -- Initial_Clock / Final_Clock / Final_Frame (bpp sets clock == frame number)
 #   NNNNN.inc     -- one per frame, 5-digit zero-padded frame number
-#   settings.inc  -- copied from bpp's includes/settings.inc
+#   settings.inc  -- copied from bpp's includes/settings.inc (a script can name
+#                    its own file from includes/ instead with v.pov_settings)
 #   mesh_*.inc    -- mesh geometry
 #   <scene>.wav   -- the sounds the scene played, if any, from the first frame on;
 #                    povomatic muxes it into the mp4
@@ -61,8 +62,8 @@ RSYNC_EXCLUDES = [
     "GNUmakefile", "Makefile",
 ]
 
-# settings.inc is per-scene: bpp regenerates it into every export dir, and some
-# scenes (box-w-oranges) ship a hand-authored one. The assets volume is earlier
+# settings.inc is per-scene: bpp regenerates it into every export dir, and old
+# exports may hold a hand-authored one. The assets volume is earlier
 # on POV-Ray's library path than the scene's own directory, so a settings.inc
 # left there shadows every scene's copy. Keep it out.
 ASSETS_EXCLUDES = ["settings.inc", "README.md", "readme_*.txt", "*.pov"]
