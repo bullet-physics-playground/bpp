@@ -75,7 +75,7 @@ void luaBindBulletPart1(lua_State *s) {
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtCompoundShape.html
       [class_<btCompoundShape, btCollisionShape>("btCompoundShape")
            .def(constructor<bool>(), adopt(result))
-           .def("addChildShape", &btCompoundShape::addChildShape)
+           .def("addChildShape", &btCompoundShape::addChildShape, dependency(_1, _3))
            .def("removeChildShape", &btCompoundShape::removeChildShape)
            .def("removeChildShapeByIndex",
                 &btCompoundShape::removeChildShapeByIndex)
@@ -137,7 +137,9 @@ void luaBindBulletPart1(lua_State *s) {
       [class_<btBvhTriangleMeshShape, btTriangleMeshShape>(
            "btBvhTriangleMeshShape")
            .def(constructor<btStridingMeshInterface *, bool, bool>(),
-                adopt(result))
+                adopt(result) + dependency(_1, _2))
+           // (dependency: a script-made piece this one points at stays alive as
+           // long as this one does, whatever the garbage collector does)
            .def("getOwnsBvh", &btBvhTriangleMeshShape::getOwnsBvh)
            .def("usesQuantizedAabbCompression",
                 &btBvhTriangleMeshShape::usesQuantizedAabbCompression)
@@ -179,7 +181,9 @@ void luaBindBulletPart1(lua_State *s) {
 
   module(s) // http://bulletphysics.org/Bullet/BulletFull/classbtGImpactMeshShape.html
       [class_<btGImpactMeshShape, btGImpactShapeInterface>("btGImpactMeshShape")
-           .def(constructor<btStridingMeshInterface *>(), adopt(result))
+           .def(constructor<btStridingMeshInterface *>(), adopt(result) + dependency(_1, _2))
+           // (dependency: a script-made piece this one points at stays alive as
+           // long as this one does, whatever the garbage collector does)
 
            .property("margin", &btGImpactMeshShape::getMargin,
                      &btGImpactMeshShape::setMargin)

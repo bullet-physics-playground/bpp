@@ -65,6 +65,11 @@
 #include <QDebug>
 
 #include <QTimer>
+#include <QAbstractEventDispatcher>
+#include <QMetaEnum>
+#include <QTime>
+#include <QMap>
+#include <algorithm>
 
 #include <boost/exception/all.hpp>
 #include <boost/exception/info.hpp>
@@ -445,6 +450,11 @@ void Viewer::luaBind(lua_State *s) {
            .def("loadSound", &Viewer::loadSound)
            .def("playSound", (void(Viewer::*)(int)) & Viewer::playSound)
            .def("playSound", (void(Viewer::*)(int, double)) & Viewer::playSound)
+
+           // Where a late frame's time went (0 = off), see setFrameTiming().
+           .def("setFrameTiming", &Viewer::setFrameTiming)
+           .property("frameTiming", &Viewer::getFrameTiming,
+                     &Viewer::setFrameTiming)
 
            .property("glShininess", &Viewer::getGLShininess,
                      &Viewer::setGLShininess)
@@ -1192,7 +1202,7 @@ void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
 
 btScalar Viewer::getFixedTimeStep() { return _fixedTimeStep; }
 
-btScalar Viewer::getTime() const { return _wallTimer.elapsed() / 1000.0; }
+double Viewer::getTime() const { return _wallTimer.nsecsElapsed() / 1e9; }
 
 Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
     : QGLViewer() {
@@ -1204,6 +1214,13 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _wallTimer.start();
 
+  {
+    bool ok = false;
+    double ms = qEnvironmentVariable("BPP_FRAME_TIMING").toDouble(&ok);
+    if (ok && ms > 0)
+      setFrameTiming(ms);
+  }
+
   _objects = new QSet<Object *>();
   _constraints = new QSet<btTypedConstraint *>();
   _raycast_vehicles = new QSet<btRaycastVehicle *>();
@@ -1213,7 +1230,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _parsing = false;
   _has_exception = false;
-  _warnedCollectGarbage = false;
 
   _file = nullptr;
   _fileMain = nullptr;
@@ -1936,38 +1952,6 @@ int Viewer::lua_print(lua_State *L) {
   return 0;
 }
 
-int Viewer::lua_collectgarbage(lua_State *L) {
-  Viewer *p = static_cast<Viewer *>(lua_touserdata(L, lua_upvalueindex(1)));
-
-  const char *opt = luaL_optstring(L, 1, "collect");
-
-  // Answered for the benefit of scripts that only watch memory. Lua 5.1
-  // returns the single fractional-kilobyte figure this builds; 5.2 splits it
-  // into kilobytes and a byte remainder, which no bpp script reads.
-  if (strcmp(opt, "count") == 0) {
-    lua_pushnumber(L, lua_gc(L, LUA_GCCOUNT, 0) +
-                          lua_gc(L, LUA_GCCOUNTB, 0) / 1024.0);
-    return 1;
-  }
-
-  // "collect" and "step" free objects now; "restart" hands the collector back
-  // its automatic stepping so it frees them a moment later. All three break
-  // the invariant parse() establishes, so none of them run.
-  if (strcmp(opt, "collect") == 0 || strcmp(opt, "step") == 0 ||
-      strcmp(opt, "restart") == 0) {
-    if (p != nullptr && !p->_warnedCollectGarbage) {
-      p->_warnedCollectGarbage = true;
-      p->emitScriptOutput(
-          QString("warning: collectgarbage(\"%1\") ignored -- bpp keeps the "
-                  "Lua collector stopped for the whole run, because a "
-                  "collection frees Bullet objects the scene still points at")
-              .arg(opt));
-    }
-  }
-
-  return 0;
-}
-
 /*
 void Viewer::luabind_error(lua_State* L) {
     qDebug() << "luabind_error" << "\n";
@@ -1993,7 +1977,6 @@ bool Viewer::parse(QString txt) {
 
   _parsing = true;
   _has_exception = false;
-  _warnedCollectGarbage = false;
 
   _scriptContent = txt;
 
@@ -2046,6 +2029,7 @@ emit scriptStarts();
         }
       }
     }
+    removeLeftoverBodies();
 
     // Clear the luabind registry BEFORE closing the Lua state.
     // Release Lua references from the registry while L is still valid.
@@ -2123,12 +2107,15 @@ emit scriptStarts();
 
     luabind::open(L);
 
-    // Stop Lua GC to prevent collection of Bullet Physics objects (btRigidBody,
-    // btGImpactMeshShape, btTriangleMesh, etc.) that C++ holds raw pointers to.
-    // Lua's unique_ptr holders would delete these objects, leaving C++ with
-    // dangling pointers. GC will only run during lua_close() after we release
-    // all object ownership.
-    lua_gc(L, LUA_GCSTOP, 0);
+    // Lua's garbage collector stays on. It used to be stopped here, because a
+    // script can build its own Bullet pieces (btRigidBody, btGImpactMeshShape,
+    // btTriangleMesh, ...) and hand them to an object, which kept only raw
+    // pointers to them: collecting them left dangling pointers. Now everything
+    // the C++ side uses is kept referenced from Lua: an object keeps the body,
+    // shape and mesh a script hands it (Object::keepLua()), and a Bullet
+    // constructor that takes another script-made piece keeps it alive
+    // (luabind's dependency policy, in lua_bullet_*.cpp). So the collector can
+    // run all the time, and scripts no longer need to manage it.
 
     // register all bpp classes
     LuaBullet::luaBind(L);
@@ -2157,12 +2144,23 @@ emit scriptStarts();
     lua_pushcclosure(L, &Viewer::lua_print, 1);
     lua_setglobal(L, "print");
 
-    // Replace the base library's collectgarbage() as well: the GCSTOP above
-    // only halts automatic stepping, so a script could otherwise force the
-    // collection that stopping the collector is meant to prevent.
-    lua_pushlightuserdata(L, (void *)this);
-    lua_pushcclosure(L, &Viewer::lua_collectgarbage, 1);
-    lua_setglobal(L, "collectgarbage");
+    // Scripts written when the collector was kept stopped call
+    // collectgarbage("stop") after collecting by hand; that would switch the
+    // collector off for good, so it is ignored. "collect", "step", "count"
+    // and the rest work as usual. BPP_GC_AUTO tells a script that bpp
+    // collects garbage itself.
+    if (luaL_dostring(L,
+                      "BPP_GC_AUTO = true\n"
+                      "do\n"
+                      "  local gc = collectgarbage\n"
+                      "  collectgarbage = function(opt, ...)\n"
+                      "    if opt == 'stop' then return 0 end\n"
+                      "    return gc(opt, ...)\n"
+                      "  end\n"
+                      "end\n") != 0) {
+      emit scriptHasOutput(QString("collectgarbage setup: %1").arg(lua_tostring(L, -1)));
+      lua_pop(L, 1);
+    }
   }
 
   luaBindInstance(L);
@@ -2186,11 +2184,8 @@ emit scriptStarts();
   int error = luaL_loadstring(L, txt.toUtf8().constData()) ||
               lua_pcall(L, 0, LUA_MULTRET, 0);
 
-  // After script execution, Lua GC is stopped (stopped above after luaL_openlibs).
-  // This prevents Lua from garbage-collecting Bullet Physics objects (btRigidBody,
-  // btGImpactMeshShape, etc.) that C++ holds raw pointers to via Object properties.
-  // These objects would be collected by Lua GC when local Lua variables go out of
-  // scope, leaving C++ with dangling pointers.
+  // (Lua's garbage collector runs throughout: see where the classes are
+  // registered above for why that is safe.)
 
   if (error) {
     lua_error = tr("error: %1").arg(lua_tostring(L, -1));
@@ -2254,6 +2249,25 @@ emit scriptStarts();
   _parsing = false;
 
   return (error ? false : true);
+}
+
+// Removes whatever is still in the dynamics world once every object's own
+// body is out: a body a script replaced (obj.body = another) stays in the
+// world, kept alive from Lua (Object::retireLua()), and Lua frees it when the
+// state is closed -- so it has to leave the world first.
+void Viewer::removeLeftoverBodies() {
+  if (!dynamicsWorld)
+    return;
+  btCollisionObjectArray &all = dynamicsWorld->getCollisionObjectArray();
+  for (int i = all.size() - 1; i >= 0; --i) {
+    btCollisionObject *co = all[i];
+    if (btSoftBody *sb = btSoftBody::upcast(co))
+      dynamicsWorld->removeSoftBody(sb);
+    else if (btRigidBody *rb = btRigidBody::upcast(co))
+      dynamicsWorld->removeRigidBody(rb);
+    else
+      dynamicsWorld->removeCollisionObject(co);
+  }
 }
 
 void Viewer::clear() {
@@ -2489,6 +2503,7 @@ Viewer::~Viewer() {
       }
     }
   }
+  removeLeftoverBodies();
 
   // Release Lua references from the registry BEFORE closing Lua state.
   // These are raw integer refs, not luabind::object instances.
@@ -2674,6 +2689,9 @@ void Viewer::init() {
 }
 
 void Viewer::draw() {
+  if (_frameTimingMs > 0)
+    frameMark(FM_PAINT);
+
   if (!mutex.tryLock())
     return;
 
@@ -3887,6 +3905,114 @@ void Viewer::postDraw() {
     drawVfePreview();
   }
 #endif // USE_VFE
+
+  if (_frameTimingMs > 0)
+    frameMark(FM_AFTER_PAINT);
+}
+
+// ---------------------------------------------------------------------------
+// Frame timing: where a late frame's time went.
+//
+// Each step of bpp's frame is marked with the time it starts: the animation
+// step (scripts and physics), the drawing, every Qt event the application
+// handles (seen through an event filter on the application) and the time
+// Qt's event loop sits waiting for something to do (the event dispatcher's
+// aboutToBlock/awake signals). A step lasts until the next mark. When the
+// gap from one animation step to the next is over the threshold, the steps
+// in between are added up by kind and the biggest are printed.
+// ---------------------------------------------------------------------------
+
+void Viewer::setFrameTiming(double ms) {
+  _frameTimingMs = ms > 0 ? ms : 0;
+  _frameTimingLast = -1;
+  _frameMarks.clear();
+  if (_frameTimingMs > 0 && !_frameTimingHooked) {
+    _frameTimingHooked = true;
+    _frameMarks.reserve(4096);
+    qApp->installEventFilter(this);
+    if (QAbstractEventDispatcher *d = QAbstractEventDispatcher::instance()) {
+      connect(d, &QAbstractEventDispatcher::aboutToBlock, this, [this]() {
+        if (_frameTimingMs > 0) frameMark(FM_WAITING);
+      }, Qt::DirectConnection);
+      connect(d, &QAbstractEventDispatcher::awake, this, [this]() {
+        if (_frameTimingMs > 0) frameMark(FM_AWAKE);
+      }, Qt::DirectConnection);
+    }
+  }
+}
+
+double Viewer::getFrameTiming() const { return _frameTimingMs; }
+
+void Viewer::frameMark(int kind, int eventType, const char *cls,
+                       const char *pcls) {
+  if (_frameMarks.size() >= 100000)
+    return; // never stopped by a missing animation step: just stop noting
+  _frameMarks.append({_wallTimer.nsecsElapsed(), kind, eventType, cls, pcls});
+}
+
+bool Viewer::eventFilter(QObject *obj, QEvent *ev) {
+  if (_frameTimingMs > 0 && obj && ev) {
+    QObject *parent = obj->parent();
+    frameMark(FM_EVENT, int(ev->type()), obj->metaObject()->className(),
+              parent ? parent->metaObject()->className() : nullptr);
+  }
+  return QGLViewer::eventFilter(obj, ev);
+}
+
+void Viewer::frameTimingReport(qint64 now) {
+  if (_frameMarks.isEmpty())
+    return;
+  // Add up the time after each mark, until the next one, by what it marks.
+  QMap<QString, double> byStep; // ms
+  QString longestStep;
+  double longestMs = 0;
+  QMetaEnum types = QMetaEnum::fromType<QEvent::Type>();
+  for (int i = 0; i < _frameMarks.size(); i++) {
+    const FrameMark &m = _frameMarks[i];
+    qint64 end = i + 1 < _frameMarks.size() ? _frameMarks[i + 1].ns : now;
+    double ms = (end - m.ns) / 1e6;
+    QString step;
+    switch (m.kind) {
+    case FM_ANIMATE: step = "animation step (scripts, physics)"; break;
+    case FM_AFTER_ANIMATE: step = "after the animation step"; break;
+    case FM_PAINT: step = "drawing (with the preDraw/postDraw scripts)"; break;
+    case FM_AFTER_PAINT: step = "after drawing (Qt shows the frame: compose, swap)"; break;
+    case FM_WAITING: step = "event loop waiting (idle, or blocked in the system)"; break;
+    case FM_AWAKE: step = "event loop woke up"; break;
+    default: {
+      const char *name = types.valueToKey(m.eventType);
+      step = QString("event %1 -> %2%3")
+                 .arg(name ? QString(name) : QString::number(m.eventType))
+                 .arg(m.cls ? m.cls : "?")
+                 .arg(m.pcls ? QString(" (in %1)").arg(m.pcls) : QString());
+    }
+    }
+    byStep[step] += ms;
+    if (ms > longestMs) {
+      longestMs = ms;
+      longestStep = step;
+    }
+  }
+  QList<QPair<double, QString>> sorted;
+  for (auto it = byStep.begin(); it != byStep.end(); ++it)
+    sorted.append(qMakePair(it.value(), it.key()));
+  std::sort(sorted.begin(), sorted.end(),
+            [](const QPair<double, QString> &a, const QPair<double, QString> &b) {
+              return a.first > b.first;
+            });
+  QString out = QString("FRAME TIMING: %1 ms between animation steps, ending at %2 "
+                        "(%3 steps noted). Longest single step: %4 ms, %5. Largest totals:")
+                    .arg((now - _frameTimingLast) / 1e6, 0, 'f', 0)
+                    .arg(QTime::currentTime().toString("HH:mm:ss"))
+                    .arg(_frameMarks.size())
+                    .arg(longestMs, 0, 'f', 0)
+                    .arg(longestStep);
+  for (int i = 0; i < sorted.size() && i < 5; i++)
+    out += QString("\n  %1 ms  %2").arg(sorted[i].first, 6, 'f', 1).arg(sorted[i].second);
+  _frameTimingReports++;
+  fprintf(stderr, "%s\n", out.toUtf8().constData());
+  fflush(stderr);
+  emitScriptOutput(out);
 }
 
 void Viewer::startAnimation() {
@@ -3899,6 +4025,7 @@ void Viewer::startAnimation() {
   }
 
   _timer.start();
+  _frameTimingLast = -1; // (a pause is not a late frame)
   QGLViewer::startAnimation();
 }
 
@@ -3916,6 +4043,19 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
+  if (_frameTimingMs > 0) {
+    qint64 now = _wallTimer.nsecsElapsed();
+    if (_frameTimingLast >= 0 && now - _frameTimingLast > _frameTimingMs * 1e6)
+      frameTimingReport(now);
+    _frameMarks.clear();
+    _frameTimingLast = now;
+    frameMark(FM_ANIMATE);
+  }
+  struct AfterAnimate {
+    Viewer *v;
+    ~AfterAnimate() { if (v->_frameTimingMs > 0) v->frameMark(FM_AFTER_ANIMATE); }
+  } afterAnimate{this};
+
   QMutexLocker locker(&mutex);
 
   if (_has_exception || _parsing) {

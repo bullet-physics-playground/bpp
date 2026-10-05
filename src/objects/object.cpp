@@ -82,6 +82,9 @@ void Object::preDestructor() {
   // Clear any luabind object references so their destructors do not touch
   // the Lua state after it has been closed.
   _cb_render = luabind::object();
+  for (int i = 0; i < KEEP_SLOTS; ++i)
+    _luaKeep[i] = luabind::object();
+  _luaRetired.clear();
 }
 
 void Object::setCollisionTypes(collisiontypes col1, collisiontypes col2) {
@@ -153,6 +156,10 @@ void Object::toPOV(QTextStream *s) const {
     }
   }
 }
+
+// (defined below: obj.body = ... and obj.shape = ... from a script)
+static void luaSetRigidBody(Object &o, const luabind::object &b);
+static void luaSetCollisionShape(Object &o, const luabind::object &s);
 
 void Object::luaBind(lua_State *s) {
   using namespace luabind;
@@ -230,15 +237,15 @@ void Object::luaBind(lua_State *s) {
                       (void(Object::*)(const QString &)) & Object::setPostSDL)
 
            .def("getRigidBody", &Object::getRigidBody)
-           .def("setRigidBody", &Object::setRigidBody)
+           .def("setRigidBody", &luaSetRigidBody)
 
-           .property("body", &Object::getRigidBody, &Object::setRigidBody)
+           .property("body", &Object::getRigidBody, &luaSetRigidBody)
 
            .def("getCollisionShape", &Object::getCollisionShape)
-           .def("setCollisionShape", &Object::setCollisionShape)
+           .def("setCollisionShape", &luaSetCollisionShape)
 
            .property("shape", &Object::getCollisionShape,
-                     &Object::setCollisionShape)
+                     &luaSetCollisionShape)
 
            .def("setRenderFunction", &Object::setRenderFunction)
            .def("getRenderFunction", &Object::getRenderFunction)
@@ -468,9 +475,64 @@ void Object::setRigidBody(btRigidBody *b) {
 btRigidBody *Object::getRigidBody() const { return body; }
 
 void Object::setCollisionShape(btCollisionShape *s) {
-  if (shape != nullptr && shape != s)
+  // (a shape a script handed in belongs to Lua: Lua frees it)
+  if (shape != nullptr && shape != s && !_shapeFromLua)
     delete shape;
   shape = s;
+  _shapeFromLua = false;
+}
+
+void Object::keepLua(LuaKeepSlot slot, const luabind::object &o) {
+  if (slot < 0 || slot >= KEEP_SLOTS)
+    return;
+  if (!o.is_valid() || luabind::type(o) == LUA_TNIL)
+    _luaKeep[slot] = luabind::object();
+  else
+    _luaKeep[slot] = o;
+}
+
+void Object::retireLua(LuaKeepSlot slot) {
+  if (slot < 0 || slot >= KEEP_SLOTS)
+    return;
+  if (_luaKeep[slot].is_valid() && luabind::type(_luaKeep[slot]) != LUA_TNIL)
+    _luaRetired.push_back(_luaKeep[slot]);
+}
+
+void Object::deleteOwnShape(bool motionStateToo) {
+  if (!_shapeFromLua)
+    delete shape;
+  shape = nullptr;
+  _shapeFromLua = false;
+  if (motionStateToo && body != nullptr && _ownsBody && body->getMotionState())
+    delete body->getMotionState();
+}
+
+// What a script's obj.body = ... and obj.shape = ... call: the object keeps
+// the Lua value alive as long as it uses it (see Object::keepLua()). A
+// replaced one that Bullet still uses -- a body still in the world, a shape
+// the body still uses -- stays alive too (Object::retireLua()).
+static void luaSetRigidBody(Object &o, const luabind::object &b) {
+  btRigidBody *p = nullptr;
+  if (b.is_valid() && luabind::type(b) != LUA_TNIL)
+    p = luabind::object_cast<btRigidBody *>(b);
+  btRigidBody *old = o.getRigidBody();
+  if (old != nullptr && old != p && old->isInWorld())
+    o.retireLua(Object::KEEP_BODY);
+  o.setRigidBody(p);
+  o.keepLua(Object::KEEP_BODY, b);
+}
+
+static void luaSetCollisionShape(Object &o, const luabind::object &s) {
+  btCollisionShape *p = nullptr;
+  if (s.is_valid() && luabind::type(s) != LUA_TNIL)
+    p = luabind::object_cast<btCollisionShape *>(s);
+  btCollisionShape *old = o.getCollisionShape();
+  btRigidBody *body = o.getRigidBody();
+  if (old != nullptr && old != p && body != nullptr && body->getCollisionShape() == old)
+    o.retireLua(Object::KEEP_SHAPE);
+  o.setCollisionShape(p);
+  o.setShapeFromLua(p != nullptr);
+  o.keepLua(Object::KEEP_SHAPE, s);
 }
 
 btCollisionShape *Object::getCollisionShape() const { return shape; }

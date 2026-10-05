@@ -58,9 +58,8 @@ void Cube::init(btScalar width, btScalar height, btScalar depth,
 }
 
 Cube::~Cube() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Cube::luaBind(lua_State *s) {

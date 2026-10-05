@@ -58,9 +58,8 @@ void Triangle::init(const btVector3 &p0, const btVector3 &p1,
 }
 
 Triangle::~Triangle() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Triangle::luaBind(lua_State *s) {

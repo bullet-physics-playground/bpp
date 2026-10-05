@@ -183,7 +183,8 @@ Mesh::~Mesh() {
   m_shape = nullptr;
   m_mesh = nullptr;
   m_scene = nullptr;
-  if (body && body->getMotionState()) {
+  // (not the motion state of a body a script handed in: Lua owns it)
+  if (body && _ownsBody && body->getMotionState()) {
     delete body->getMotionState();
   }
 }
@@ -354,6 +355,28 @@ void Mesh::loadFile(const QString &filename, btScalar mass,
   body = new btRigidBody(mass, motionState, m_shape, inertia);
 }
 
+// What a script's mesh.shape = ... and mesh.mesh = ... call: the mesh keeps
+// the Lua value alive as long as it uses it (see Object::keepLua()).
+static void luaMeshSetShape(Mesh &m, const luabind::object &s) {
+  btGImpactMeshShape *p = nullptr;
+  if (s.is_valid() && luabind::type(s) != LUA_TNIL)
+    p = luabind::object_cast<btGImpactMeshShape *>(s);
+  btCollisionShape *old = m.getShape();
+  btRigidBody *body = m.getRigidBody();
+  if (old != nullptr && old != p && body != nullptr && body->getCollisionShape() == old)
+    m.retireLua(Object::KEEP_SHAPE);
+  m.setShape(p, true);
+  m.keepLua(Object::KEEP_SHAPE, s);
+}
+
+static void luaMeshSetTriangleMesh(Mesh &m, const luabind::object &t) {
+  btTriangleMesh *p = nullptr;
+  if (t.is_valid() && luabind::type(t) != LUA_TNIL)
+    p = luabind::object_cast<btTriangleMesh *>(t);
+  m.setTriangleMesh(p, true);
+  m.keepLua(Object::KEEP_MESH, t);
+}
+
 void Mesh::luaBind(lua_State *s) {
   using namespace luabind;
 
@@ -365,9 +388,9 @@ module(s)[class_<Mesh, Object>("Mesh")
                  .def(constructor<QString, btScalar, bool>(), adopt(result))
                  .def(tostring(const_self))
 
-                 .property("shape", &Mesh::getShape, &Mesh::setShape)
+                 .property("shape", &Mesh::getShape, &luaMeshSetShape)
                  .property("mesh", &Mesh::getTriangleMesh,
-                           &Mesh::setTriangleMesh)
+                           &luaMeshSetTriangleMesh)
                  .def(const_self == const_self)
 
   ];
@@ -628,11 +651,15 @@ void Mesh::drawTriangles() {
 
 btGImpactMeshShape *Mesh::getShape() const { return m_shape; }
 
-void Mesh::setShape(btGImpactMeshShape *shape) {
-  if (m_shape != nullptr)
+void Mesh::setShape(btGImpactMeshShape *newShape, bool fromLua) {
+  // (a shape a script handed in belongs to Lua: Lua frees it)
+  if (m_shape != nullptr && m_shape != newShape && !m_shapeFromLua)
     delete m_shape;
 
-  m_shape = shape;
+  m_shape = newShape;
+  shape = newShape;  // (Object's own pointer, so it never points at a deleted shape)
+  m_shapeFromLua = fromLua && newShape != nullptr;
+  _shapeFromLua = m_shapeFromLua; // (so Object never deletes it either)
   // The new shape's ownership is no longer the default constructor's
   // direct allocation, so ~Mesh() must not delete it a second time.
   m_ownsMeshDirectly = false;
@@ -640,11 +667,13 @@ void Mesh::setShape(btGImpactMeshShape *shape) {
 
 btTriangleMesh *Mesh::getTriangleMesh() const { return m_mesh; }
 
-void Mesh::setTriangleMesh(btTriangleMesh *mesh) {
-  if (m_mesh != nullptr)
+void Mesh::setTriangleMesh(btTriangleMesh *mesh, bool fromLua) {
+  // (a mesh a script handed in belongs to Lua: Lua frees it)
+  if (m_mesh != nullptr && m_mesh != mesh && !m_meshFromLua)
     delete m_mesh;
 
   m_mesh = mesh;
+  m_meshFromLua = fromLua && mesh != nullptr;
   // Same reasoning as setShape(): don't let ~Mesh() delete this again.
   m_ownsMeshDirectly = false;
 }

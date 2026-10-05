@@ -309,9 +309,52 @@ public:
 
   /**
    * @brief Attaches a collision shape, deleting any previous one.
+   *
+   * A previous shape that a script handed in (see keepLua()) belongs to Lua
+   * and is not deleted here.
+   *
    * @param s The shape to attach. The object takes ownership.
    */
   void setCollisionShape(btCollisionShape *s);
+
+  /**
+   * @brief Slots for the Lua objects an object keeps alive (see keepLua()).
+   */
+  enum LuaKeepSlot { KEEP_BODY = 0, KEEP_SHAPE = 1, KEEP_MESH = 2, KEEP_SLOTS = 3 };
+
+  /**
+   * @brief Keeps a script's Bullet object alive while this object uses it.
+   *
+   * A script can build its own body, shape or triangle mesh and hand it to an
+   * object (obj.body = body, obj.shape = shape, mesh.mesh = triangles). Lua
+   * still owns it, and only a raw pointer is kept here, so without a
+   * reference from this object Lua's garbage collector could free it while
+   * the scene still uses it. This holds that reference (replacing whatever
+   * the slot held), until the object is torn down (preDestructor()).
+   *
+   * @param slot Which of the object's parts it is.
+   * @param o The Lua value handed in (nil releases the slot).
+   */
+  void keepLua(LuaKeepSlot slot, const luabind::object &o);
+
+  /**
+   * @brief Keeps the Lua value in a slot alive until teardown, even after the
+   * slot is reused.
+   *
+   * Called when a script hands in a replacement while the old value is still
+   * in use: a body still in the dynamics world, or a shape the object's body
+   * still uses. Without it, the replacement would release the last reference
+   * and the collector could free what Bullet still points at.
+   *
+   * @param slot Which of the object's parts it is.
+   */
+  void retireLua(LuaKeepSlot slot);
+
+  /**
+   * @brief Records whether the current shape came from a script (Lua owns it).
+   * @param fromLua True when a script handed the shape in.
+   */
+  void setShapeFromLua(bool fromLua) { _shapeFromLua = fromLua; }
 
   /**
    * @brief Returns the object's collision shape.
@@ -648,6 +691,23 @@ protected:
 
   mutable GLfloat matrix[16]; ///< Scratch transform, reused by the draw and
                               ///< export paths.
+
+  luabind::object _luaKeep[KEEP_SLOTS]; ///< Script-made Bullet objects this
+                                        ///< object uses (see keepLua()).
+  std::vector<luabind::object> _luaRetired; ///< Replaced ones still in use
+                                            ///< (see retireLua()).
+  bool _shapeFromLua = false;           ///< True when #shape belongs to Lua.
+
+  /**
+   * @brief Deletes the shape and motion state a built-in object made itself.
+   *
+   * For the destructors and shape setters of Cube, Sphere and the rest: a
+   * shape a script handed in belongs to Lua, and so does the motion state of
+   * a body a script handed in, so neither is deleted here.
+   *
+   * @param motionStateToo Also delete the body's motion state (destructors).
+   */
+  void deleteOwnShape(bool motionStateToo);
 
 public:
   /**

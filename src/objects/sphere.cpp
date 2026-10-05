@@ -43,13 +43,12 @@ Sphere::Sphere(btScalar pradius, btScalar mass) {
 }
 
 Sphere::~Sphere() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Sphere::setRadius(btScalar pradius) {
-  delete shape;
+  deleteOwnShape(false);
 
   radius = pradius;
 

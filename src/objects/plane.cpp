@@ -49,9 +49,8 @@ void Plane::init(btScalar nx, btScalar ny, btScalar nz, btScalar nConst,
 }
 
 Plane::~Plane() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Plane::setPigment(const QString &pigment) { mPigment = pigment; }

@@ -55,9 +55,8 @@ void Cylinder::init(btScalar radius, btScalar depth, btScalar mass) {
 }
 
 Cylinder::~Cylinder() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Cylinder::luaBind(lua_State *s) {

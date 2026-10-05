@@ -48,14 +48,13 @@ Cone::Cone(btScalar pradius, btScalar pheight, btScalar mass) {
 }
 
 Cone::~Cone() {
-  delete shape;
-  if (body && body->getMotionState())
-    delete body->getMotionState();
+  // (not a shape or motion state a script handed in: Lua owns those)
+  deleteOwnShape(true);
 }
 
 void Cone::setRadius(btScalar pradius) {
   radius = pradius;
-  delete shape;
+  deleteOwnShape(false);
   shape = new btConeShapeZ(radius, height);
 }
 
@@ -63,7 +62,7 @@ btScalar Cone::getRadius() const { return radius; }
 
 void Cone::setHeight(btScalar pheight) {
   height = pheight;
-  delete shape;
+  deleteOwnShape(false);
   shape = new btConeShapeZ(radius, height);
 }
 

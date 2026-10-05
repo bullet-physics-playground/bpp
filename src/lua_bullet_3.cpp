@@ -42,7 +42,9 @@ void luaBindBulletPart3(lua_State *s) {
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtConvexTriangleMeshShape.html
       [class_<btConvexTriangleMeshShape, btPolyhedralConvexAabbCachingShape>(
            "btConvexTriangleMeshShape")
-           .def(constructor<btStridingMeshInterface *, bool>(), adopt(result))
+           .def(constructor<btStridingMeshInterface *, bool>(), adopt(result) + dependency(_1, _2))
+           // (dependency: a script-made piece this one points at stays alive as
+           // long as this one does, whatever the garbage collector does)
            .def("getMeshInterface",
                 (btStridingMeshInterface * (btConvexTriangleMeshShape::*)()) &
                     btConvexTriangleMeshShape::getMeshInterface)
@@ -91,7 +93,9 @@ void luaBindBulletPart3(lua_State *s) {
 
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtUniformScalingShape.html
       [class_<btUniformScalingShape, btConvexShape>("btUniformScalingShape")
-           .def(constructor<btConvexShape *, btScalar>(), adopt(result))
+           .def(constructor<btConvexShape *, btScalar>(), adopt(result) + dependency(_1, _2))
+           // (dependency: a script-made piece this one points at stays alive as
+           // long as this one does, whatever the garbage collector does)
            .def("getUniformScalingFactor",
                 &btUniformScalingShape::getUniformScalingFactor)
            .def("getChildShape",
@@ -329,15 +333,19 @@ void luaBindBulletPart3(lua_State *s) {
                 "btRigidBodyConstructionInfo")
                 .def(constructor<btScalar, btMotionState *, btCollisionShape *,
                                  const btVector3 &>(),
-                     adopt(result))
+                     adopt(result) + dependency(_1, _3) + dependency(_1, _4))
                 .def(tostring(const_self))
                 .def(const_self == const_self)];
 
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
       [class_<btRigidBody, btCollisionObject>("btRigidBody")
-           .def(constructor<const btRigidBody::btRigidBodyConstructionInfo &>())
+           // (dependency: the motion state and shape a script made stay alive
+           // as long as the body does, whatever the garbage collector does)
+           .def(constructor<const btRigidBody::btRigidBodyConstructionInfo &>(),
+                dependency(_1, _2))
            .def(constructor<btScalar, btMotionState *, btCollisionShape *,
-                            const btVector3 &>())
+                            const btVector3 &>(),
+                dependency(_1, _3) + dependency(_1, _4))
            .def("proceedToTransform", &btRigidBody::proceedToTransform)
            .def("predictIntegratedTransform",
                 &btRigidBody::predictIntegratedTransform)
@@ -402,7 +410,8 @@ void luaBindBulletPart3(lua_State *s) {
            .def("setNewBroadphaseProxy", &btRigidBody::setNewBroadphaseProxy)
            .def("getMotionState", (btMotionState * (btRigidBody::*)(void)) &
                                       btRigidBody::getMotionState)
-           .def("setMotionState", &btRigidBody::setMotionState)
+           .def("setMotionState", &btRigidBody::setMotionState,
+                dependency(_1, _2)) // (kept alive as long as the body)
            .def("setAngularFactor", (void(btRigidBody::*)(const btVector3 &)) &
                                         btRigidBody::setAngularFactor)
            .def("setAngularFactor", (void(btRigidBody::*)(btScalar)) &

@@ -224,6 +224,25 @@ public:
   void playSound(int id, double volume);
 
   /**
+   * @brief Reports where the time went whenever a frame comes late.
+   *
+   * With a threshold above zero, bpp notes each step of its frame (the
+   * animation step, the drawing, every Qt event it handles, the time its
+   * event loop sits waiting) and, when the gap from one animation step to the
+   * next exceeds the threshold, prints which steps took that time. 0 (the
+   * default) turns it off. The environment variable BPP_FRAME_TIMING=<ms>
+   * turns it on at start-up.
+   *
+   * @param ms Threshold in milliseconds; 0 turns frame timing off.
+   */
+  void setFrameTiming(double ms);
+
+  /**
+   * @brief The frame-timing threshold in milliseconds (0 when off).
+   */
+  double getFrameTiming() const;
+
+  /**
    * @brief Sets the size of Bullet's internal fixed simulation step.
    * @param fts The internal step in seconds. Defaults to 1/100.
    */
@@ -279,7 +298,7 @@ public:
    */
   int stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep);
 
-  btScalar getTime() const;
+  double getTime() const;
 
   /**
    * @brief Returns the camera to the view the script set up.
@@ -450,23 +469,6 @@ public:
    * @return 0; the function returns no values to Lua.
    */
   static int lua_print(lua_State *L);
-
-  /**
-   * @brief Replacement for Lua's @c collectgarbage that cannot free the scene.
-   *
-   * parse() stops the collector for a script's whole run, because Bullet
-   * objects built in Lua are kept alive by their Lua handle alone while C++
-   * holds a raw pointer to them. An explicit collection runs even while the
-   * collector is stopped, so leaving the base library's @c collectgarbage in
-   * place lets a script free the objects the renderer is about to draw.
-   * Installed as the global @c collectgarbage with the Viewer as an upvalue.
-   * @c "count" is answered as usual; an option that would collect or restart
-   * automatic collection is ignored, with one warning per script run.
-   *
-   * @param L The Lua state.
-   * @return 1 for @c "count", otherwise 0.
-   */
-  static int lua_collectgarbage(lua_State *L);
 
   /**
    * @brief Adds a list of constraints to the dynamics world.
@@ -1890,6 +1892,32 @@ private:
                         ///< interval between frames.
   QElapsedTimer _wallTimer; ///< Never restarted; backs getTime().
 
+  /// One step of a frame noted by frame timing (see setFrameTiming()).
+  struct FrameMark {
+    qint64 ns;        ///< When, on _wallTimer.
+    int kind;         ///< FrameMarkKind.
+    int eventType;    ///< QEvent::Type, for an event.
+    const char *cls;  ///< Receiver's class, for an event.
+    const char *pcls; ///< Receiver's parent's class, for an event.
+  };
+  /// What a FrameMark marks the start of.
+  enum FrameMarkKind {
+    FM_ANIMATE, FM_AFTER_ANIMATE, FM_PAINT, FM_AFTER_PAINT, FM_EVENT,
+    FM_WAITING, FM_AWAKE
+  };
+  void frameMark(int kind, int eventType = 0, const char *cls = nullptr,
+                 const char *pcls = nullptr);
+  void frameTimingReport(qint64 now);
+  bool eventFilter(QObject *obj, QEvent *ev) override;
+  /// Takes everything still in the dynamics world out of it, before the Lua
+  /// state that may own some of it is closed.
+  void removeLeftoverBodies();
+  double _frameTimingMs = 0;       ///< Threshold; 0 when off.
+  bool _frameTimingHooked = false; ///< Event filter and dispatcher hooked up.
+  QVector<FrameMark> _frameMarks;  ///< Steps since the last animation step.
+  qint64 _frameTimingLast = -1;    ///< Start of the last animation step.
+  int _frameTimingReports = 0;     ///< Reports printed so far.
+
   QTextStream *_stream; ///< Stream writing the current frame's POV-Ray include.
 
   int _frameNum;   ///< The frame about to be simulated, counting from 1.
@@ -1940,9 +1968,6 @@ private:
                        ///< the draw and animation paths touching the world.
   bool _has_exception; ///< Latched when a Lua callback threw; stops the
                        ///< simulation until the next parse().
-  bool _warnedCollectGarbage; ///< True once lua_collectgarbage() has warned
-                       ///< about a refused option, so a per-frame call does
-                       ///< not flood the output pane. Reset by parse().
 
   // OpenGL properties
   btScalar _gl_shininess;      ///< Material shininess exponent.

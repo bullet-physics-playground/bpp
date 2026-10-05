@@ -112,9 +112,13 @@ public:
 
   /**
    * @brief Replaces the collision shape.
+   *
+   * The previous shape is deleted unless a script handed it in (Lua owns it).
+   *
    * @param shape The new shape.
+   * @param fromLua True when a script hands it in (Lua owns it).
    */
-  void setShape(btGImpactMeshShape *shape);
+  void setShape(btGImpactMeshShape *shape, bool fromLua = false);
 
   /**
    * @brief Returns the triangle mesh the shape is built from.
@@ -124,9 +128,13 @@ public:
 
   /**
    * @brief Replaces the triangle mesh.
+   *
+   * The previous mesh is deleted unless a script handed it in (Lua owns it).
+   *
    * @param mesh The new triangle mesh.
+   * @param fromLua True when a script hands it in (Lua owns it).
    */
-  void setTriangleMesh(btTriangleMesh *mesh);
+  void setTriangleMesh(btTriangleMesh *mesh, bool fromLua = false);
 
   /**
    * @brief Sets the mesh's mass and recomputes its inertia.
@@ -229,6 +237,9 @@ protected:
    * then does ~Mesh() own them and need to delete them itself.
    */
   bool m_ownsMeshDirectly = false;
+
+  bool m_shapeFromLua = false; ///< True when #m_shape belongs to Lua.
+  bool m_meshFromLua = false;  ///< True when #m_mesh belongs to Lua.
 
   /**
    * @name Cached drawing

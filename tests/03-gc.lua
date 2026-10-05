@@ -1,4 +1,10 @@
 -- test Lua garbage collector behavior and luabind dangling pointer detection
+--
+-- bpp keeps Lua's garbage collector running for the whole run: everything the
+-- C++ side uses is kept referenced from Lua (an object keeps the body, shape
+-- and mesh a script hands it; a Bullet constructor keeps the script-made
+-- pieces it was given), so collecting can never free what the scene uses.
+-- collectgarbage("stop") is ignored, and BPP_GC_AUTO is true.
 
 local pass = 0
 local fail = 0
@@ -68,23 +74,31 @@ collectgarbage("collect")
 local mem_after_free = collectgarbage("count")
 assert_lt("memory drops after freeing references", mem_after_free, mem_with_data)
 
+assert_eq("BPP_GC_AUTO is set", BPP_GC_AUTO, true)
+
+-- "stop" is ignored: the collector keeps running, so garbage made afterwards
+-- is still freed without any explicit collection (about 40 MB is made here;
+-- with the collector stopped, all of it would stay).
 rc = collectgarbage("stop")
 assert_eq("stop returns 0", rc, 0)
 
-local tmp = {}
-for i = 1, 5000 do
-  tmp[i] = {x = i, s = string.rep("y", 50)}
+collectgarbage("collect")
+local mem_before_garbage = collectgarbage("count")
+local peak = mem_before_garbage
+for i = 1, 4000 do
+  local junk = string.rep(string.char(65 + i % 26), 10000) .. i
+  if i % 100 == 0 then
+    peak = math.max(peak, collectgarbage("count"))
+  end
 end
-local mem_stopped = collectgarbage("count")
-tmp = nil
-local mem_after_clear_stopped = collectgarbage("count")
-assert_ge("memory stays high when GC stopped", mem_after_clear_stopped, mem_stopped - 10)
+assert_lt("collector keeps running after stop (peak growth < 20 MB)",
+          peak - mem_before_garbage, 20 * 1024)
 
 rc = collectgarbage("restart")
 assert_eq("restart returns 0", rc, 0)
 collectgarbage("collect")
 local mem_restarted = collectgarbage("count")
-assert_lt("memory drops after restart+collect", mem_restarted, mem_stopped)
+assert_lt("memory back down after collect", mem_restarted, mem_before_garbage + 100)
 
 local stepped = collectgarbage("step")
 assert_eq("step returns boolean", type(stepped), "boolean")
@@ -373,5 +387,168 @@ local mem_end = collectgarbage("count")
 
 local mem_growth = mem_end - mem_baseline
 assert_lt("no significant memory leak after all tests", mem_growth, 500)
+
+-- ============================================================================
+-- Section 3: Bullet pieces a script builds itself survive collection
+--
+-- A script may build its own triangle mesh, shape, motion state and body and
+-- hand them to an object. bpp uses them every step, so none may be freed while
+-- the object uses them, even when the script keeps no reference of its own.
+-- (Before bpp kept them referenced, a collection here freed them and bpp
+-- crashed on the next step.)
+-- ============================================================================
+
+local function step(n)
+  for i = 1, n do v:stepSimulation(1 / 60, 1, 1 / 60) end
+end
+
+local function full_collect()
+  collectgarbage("collect")
+  collectgarbage("collect")
+end
+
+local function pyramid_mesh(l)
+  local m = btTriangleMesh()
+  local a, b = btVector3(0, l * 2, 0), btVector3(0, 2, l * 2)
+  local c, d = btVector3(-l, 0, -l), btVector3(l * 2, 0, 0)
+  m:addTriangle(a, b, c, true)
+  m:addTriangle(b, c, d, true)
+  m:addTriangle(c, d, a, true)
+  m:addTriangle(d, a, b, true)
+  return m
+end
+
+local function at(x, y, z)
+  return btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(x, y, z)))
+end
+
+-- Every builder returns an object added to the scene; the Bullet pieces it made
+-- are local to the builder, so only the object can keep them alive.
+local builders = {
+  { name = "triangle mesh -> GImpact shape -> body (mass, ms, shape, inertia)",
+    build = function(x)
+      local shape = btGImpactMeshShape(pyramid_mesh(1))
+      shape:updateBound()
+      local inertia = btVector3()
+      shape:calculateLocalInertia(1, inertia)
+      local o = Mesh()
+      o.shape = shape
+      o.body = btRigidBody(1, at(x, 20, 0), shape, inertia)
+      v:add(o)
+      return o
+    end },
+  { name = "construction info -> body",
+    build = function(x)
+      local shape = btSphereShape(0.5)
+      local inertia = btVector3()
+      shape:calculateLocalInertia(1, inertia)
+      local o = Sphere(0.5, 1)
+      o.shape = shape
+      o.body = btRigidBody(btRigidBodyConstructionInfo(1, at(x, 20, 0), shape, inertia))
+      v:add(o)
+      return o
+    end },
+  { name = "compound shape with child shapes",
+    build = function(x)
+      local shape = btCompoundShape(true)
+      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)),
+                          btBoxShape(btVector3(0.5, 0.5, 0.5)))
+      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 1, 0)),
+                          btSphereShape(0.4))
+      local inertia = btVector3()
+      shape:calculateLocalInertia(1, inertia)
+      local o = Cube(1, 1, 1, 1)
+      o.shape = shape
+      o.body = btRigidBody(1, at(x, 20, 0), shape, inertia)
+      v:add(o)
+      return o
+    end },
+  { name = "convex triangle mesh shape, uniformly scaled",
+    build = function(x)
+      local shape = btUniformScalingShape(btConvexTriangleMeshShape(pyramid_mesh(1), true), 0.5)
+      local inertia = btVector3()
+      shape:calculateLocalInertia(1, inertia)
+      local o = Cube(1, 1, 1, 1)
+      o.shape = shape
+      o.body = btRigidBody(1, at(x, 20, 0), shape, inertia)
+      v:add(o)
+      return o
+    end },
+}
+
+local built = {}
+for i, b in ipairs(builders) do
+  built[i] = { name = b.name, obj = b.build(i * 10) }
+end
+
+-- Lots of other garbage, then full collections between steps: anything only
+-- Lua kept alive is gone after this.
+for round = 1, 5 do
+  local t = {}
+  for i = 1, 20000 do t[i] = { i } end
+  t = nil
+  full_collect()
+  step(20)
+end
+
+for i, b in ipairs(built) do
+  local ok, y = pcall(function() return b.obj.pos.y end)
+  assert_eq("still simulated after collections: " .. b.name, ok and y < 20, true)
+end
+
+-- ============================================================================
+-- Section 4: removing such objects and collecting does not crash
+-- ============================================================================
+
+for i, b in ipairs(built) do
+  b.obj = v:remove(b.obj)
+end
+built = nil
+full_collect()
+step(5)
+assert_eq("removed script-built objects collected without a crash", true, true)
+
+-- And again, collecting while they are still in the scene, then clearing it.
+for i, b in ipairs(builders) do b.build(i * 10) end
+full_collect()
+step(10)
+full_collect()
+assert_eq("script-built objects left in the scene survive a collection", true, true)
+
+-- ============================================================================
+-- Section 5: handing in a replacement, and built-in objects with Lua pieces
+-- ============================================================================
+
+-- A body replaced while it is in the dynamics world stays alive (Bullet still
+-- simulates it) rather than being freed under it.
+local function lua_body(x)
+  local s = btSphereShape(0.5)
+  return btRigidBody(1, at(x, 10, 0), s, btVector3(0, 0, 0))
+end
+local swapped = Cube(1, 1, 1, 1)
+swapped.body = lua_body(0)
+v:add(swapped)
+swapped.body = lua_body(5)
+for round = 1, 3 do
+  local t = {}
+  for i = 1, 20000 do t[i] = { i } end
+  t = nil
+  full_collect()
+  step(5)
+end
+assert_eq("body replaced while in the world: no crash", true, true)
+
+-- Built-in objects (Cube, Sphere, ...) given a script's shape or body, then
+-- collected without ever being added: each frees only what it made itself.
+for i = 1, 100 do
+  local c = Cube(1, 1, 1, 1)
+  c.shape = btSphereShape(1)
+  if i % 2 == 0 then c.body = lua_body(i) end
+  local sp = Sphere(1, 1)
+  sp.shape = btSphereShape(2)
+  sp.radius = 2
+end
+full_collect()
+assert_eq("built-in objects with script-made pieces collected: no crash", true, true)
 
 print(string.format("\n%d passed, %d failed", pass, fail))
