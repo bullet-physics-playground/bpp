@@ -808,12 +808,15 @@ local function groupBallsLeft(group)
   return n
 end
 
-local function isTargetBall(n)
+-- (left: how many of the group were on the table, if not now -- the first
+-- hit is judged by the table as it was when the shot was played, not after
+-- it potted the group's last ball)
+local function isTargetBall(n, left)
   if not n or n == 0 then return false end
   if S.openTable then
     return not is8Ball(n)
   elseif S.group then
-    if groupBallsLeft(S.group) > 0 then
+    if (left or groupBallsLeft(S.group)) > 0 then
       return (S.group == "solids" and isSolid(n)) or (S.group == "stripes" and isStripe(n))
     else
       return is8Ball(n)
@@ -1381,6 +1384,7 @@ local function shoot()
   S.foul = false
   S.message = ""
   S.wasBreakShot = S.breakShot
+  S.groupLeftAtShot = S.group and groupBallsLeft(S.group) or nil
   S.breakShot = false
   S.kitchenShot = S.kitchen
   S.kitchen = false
@@ -1417,7 +1421,7 @@ local function shotOver()
     if not S.firstHit then
       S.foul = true
       foulReason = "NO HIT"
-    elseif not isTargetBall(S.firstHit) then
+    elseif not isTargetBall(S.firstHit, S.groupLeftAtShot) then
       S.foul = true
       foulReason = "FOUL"
     end
@@ -1885,6 +1889,56 @@ end
 
 -- Nothing to pot: a firm shot at the easiest ball to hit, or from the
 -- kitchen with every ball behind the line, a bank off the foot cushion.
+-- A one-cushion bank at a ball it may hit first (isTargetBall), with both
+-- legs clear of every other ball, for when there is no straight shot. With
+-- the cue ball in the kitchen it must meet the cushion beyond the head
+-- string, so it crosses the line before it reaches the ball. The foot
+-- cushion and both side cushions are tried; the shortest bank wins.
+-- (Without this, when the only balls it may hit were in the kitchen it
+-- banked off the foot cushion straight into the other group's balls, a
+-- foul, and so on, shot after shot.)
+function auto.bank(cx, cz)
+  local W, L = K.HW - K.R, K.HL - K.R
+  local width = 2.2 * K.R
+  local best, bestLen
+  for n = 1, 15 do
+    local b = balls[n]
+    if b.onTable and isTargetBall(n) then
+      local bx, bz = ballXZ(b)
+      -- the ball's image beyond the foot cushion, and beyond each side
+      for _, m in ipairs({ { 2 * L - bx, bz }, { bx, 2 * W - bz }, { bx, -2 * W - bz } }) do
+        planPace()
+        local mx, mz = m[1], m[2]
+        local dx, dz = mx - cx, mz - cz
+        local px, pz           -- where it meets the cushion
+        if mx ~= bx then
+          if dx > 1e-6 then local t = (L - cx) / dx; px, pz = L, cz + t * dz end
+        elseif math.abs(dz) > 1e-6 then
+          local wz = mz > 0 and W or -W
+          local t = (wz - cz) / dz
+          if t > 0 then px, pz = cx + t * dx, wz end
+        end
+        local ok = px and math.abs(pz) <= W and math.abs(px) <= L
+                   and not (S.kitchen and px <= HEAD_STRING + K.R)
+        if ok then
+          for _, pk in ipairs(pockets) do
+            if (px - pk.mx) ^ 2 + (pz - pk.mz) ^ 2 < 12 * 12 then ok = false; break end
+          end
+        end
+        if ok and laneClear(cx, cz, px, pz, width, balls[0])
+              and laneClear(px, pz, bx, bz, width, balls[0], b) then
+          local len = math.sqrt(dx * dx + dz * dz)
+          if not bestLen or len < bestLen then
+            best = { aim = math.atan2(dz, dx), power = math.min(0.6, 0.3 + len / 1000), spinY = 0 }
+            bestLen = len
+          end
+        end
+      end
+    end
+  end
+  return best
+end
+
 function auto.fallback(cx, cz)
   local best, bestD
   for n = 1, 15 do
@@ -1900,6 +1954,8 @@ function auto.fallback(cx, cz)
     end
   end
   if best then return best end
+  local bank = auto.bank(cx, cz)
+  if bank then return bank end
   -- bank: aim at the ball's mirror image beyond the foot cushion
   for n = 1, 15 do
     local b = balls[n]
@@ -1921,7 +1977,9 @@ function auto.bestSpot()
       planPace()
       if cueSpotFree(x, z) then
         local shot = auto.bestShot(x, z)
-        local score = shot and shot.score or 0
+        -- (nothing to pot from here: a spot with a clear bank still beats
+        -- one without)
+        local score = shot and shot.score or (bestScore <= 0 and auto.bank(x, z) and 1e-6 or 0)
         if score > bestScore then bestX, bestZ, bestScore = x, z, score end
       end
     end
