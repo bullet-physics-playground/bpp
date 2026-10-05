@@ -1,36 +1,55 @@
 # Pool Table
 
-A one-player game of pool for the Bullet Physics Playground (bpp): a 9-foot
-table with fifteen numbered balls (solids and stripes), a cue you control
-from the keyboard, and a scoreboard. Bullet does the physics: the break,
-cushions, pockets, and the cue ball's spin (follow, draw and side spin).
-
-## The game: 8-ball pool
+Pool for the Bullet Physics Playground (bpp): 8-ball against the computer,
+or "clear the table" on your own, on a 9-foot table with fifteen numbered
+balls (solids and stripes), a cue you control from the keyboard, and a
+scoreboard. Bullet does the physics: the break, cushions, pockets, and the
+cue ball's spin (follow, draw and side spin). `M` switches between the two
+games; the choice is kept.
 
 The balls are racked at the foot spot with the 1 at the apex, the 8 in the
-middle, and a solid and stripe in the back corners. Break from the kitchen
-(behind the head string, the line across the table through the white head
-spot at your end). Your best (lowest) score is saved.
+middle, and a solid and stripe in the back corners. The break is played
+from the kitchen (behind the head string, the line across the table
+through the white head spot at your end).
 
-- **Open table:** after the break shot, the table is open regardless of
-  whether balls dropped on the break. You can hit any solid (1–7) or stripe
-  (9–15) first.
-- **Choosing groups:** the table remains open until a solid or stripe is
-  legally pocketed. The group potted becomes your group (solids or stripes).
-- **Clearing your group and the 8-ball:** once groups are determined, you
-  must hit a ball from your group first. After clearing all seven balls of
-  your group, legally pocketing the 8-ball clears the table and wins!
+## 8-ball: you against the computer
+
+Standard 8-ball rules. You and the computer take turns to break.
+
+- **Open table:** after the break the table is open: you may hit any ball
+  but the 8 first. The first ball pocketed legally makes that group (solids
+  1–7 or stripes 9–15) the shooter's, and the other group the opponent's.
+- **Your turn** lasts while you legally pocket balls of your own group. A
+  break that pockets a ball (without a scratch) keeps the turn too.
+- **Foul:** a scratch (the cue ball in a pocket), no ball hit, the first
+  ball hit not one of yours (on an open table, the 8), or a ball off the
+  table. The other player gets ball in hand **anywhere** on the table (after
+  a scratch on the break, in the kitchen). Balls pocketed on a foul stay
+  down; one that left the table is spotted.
+- **The 8:** once your group is clear, pocket the 8 to win. Pocketing it
+  before then, or on a foul, loses the game. The 8 pocketed on the break is
+  spotted.
+
+The scoreboard shows the games each of you has won (they're kept between
+runs), how many balls the shooter still has to pocket, and whose shot it is.
+With auto-play (`P`) the computer plays both sides, rack after rack, and
+keeps a separate count.
+
+## Clear the table: on your own
+
+Pocket all fifteen in as few shots as you can. Any ball in any pocket
+counts, in any order. Your best (lowest) score is saved.
+
 - **Scratch** (the cue ball goes in a pocket): one extra shot, and ball in
   hand in the kitchen.
 - **Shooting from the kitchen:** after a scratch or foul you can't shoot
   straight at a ball that's also behind the head string. The aiming guide
   turns red and the shot is refused. The cue ball has to cross the line
   before it hits one.
-- **Foul:** hitting the wrong ball first, hitting the 8-ball before your
-  group is cleared (or on an open table), missing all object balls, or
-  hitting a kitchen ball before crossing the line costs one extra shot, any
-  balls pocketed on the shot come back out onto the foot spot, and you have
-  ball in hand in the kitchen again.
+- **Foul:** if it hits a kitchen ball before crossing the line anyway (off
+  a cushion, say), that costs one extra shot, any balls it pocketed come
+  back out onto the foot spot, and you have ball in hand in the kitchen
+  again.
 - **Off the table:** a ball that jumps off the table, or comes to rest on a
   rail, is also a foul, scored the same way; an object ball is spotted.
 
@@ -72,15 +91,18 @@ the keys along with the current aim, force and spin.
 | `B` | camera behind the cue (it follows your aim) |
 | `T` | camera overhead |
 | `N` or `R` | re-rack and start again |
-| `P` | auto-play: the computer plays the rack for you. It breaks, picks the easiest pot each time, places the cue ball when it has ball in hand, and stops when the table is clear. Press `P` again to take over at any point |
+| `M` | switch game: 8-ball against the computer, or clear the table (a fresh rack) |
+| `P` | auto-play: the computer plays for you -- in 8-ball, both sides. It breaks, picks the easiest pot each time, places the cue ball when it has ball in hand, and racks again when a game is over, so it plays on by itself. Press `P` again to take over at any point |
 
-With ball in hand the arrows move the cue ball around the kitchen (Up is
-away from you; in the behind-the-cue view, along the aim) and `Space` or `Return` puts it
-down.
+With ball in hand the arrows move the cue ball (Up is away from you; in
+the behind-the-cue view, along the aim) and `Space` or `Return` puts it
+down. While it's the computer's turn the keys that play a shot do nothing.
 
-The scoreboard past the foot of the table shows shots taken, balls left and
-your best, the force as a bar of lamps, and where the tip will strike the
-cue ball (the red dot on the white ball).
+The scoreboard past the foot of the table shows, in clear the table, shots
+taken, balls left and your best; in 8-ball, the games won by each side,
+what the shooter has left and whose shot it is. Below them are the force as
+a bar of lamps, and where the tip will strike the cue ball (the red dot on
+the white ball).
 
 ## The computer's thinking time
 

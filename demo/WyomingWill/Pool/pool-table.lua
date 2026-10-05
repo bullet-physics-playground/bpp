@@ -1,9 +1,19 @@
 --
--- POOL TABLE -- one-player "clear the table" on a 9-foot pool table, for
--- the Bullet Physics Playground. Bullet does the balls, cushions and
--- pockets; you work the cue from the keyboard.
+-- POOL TABLE -- 8-ball against the computer, or "clear the table" alone,
+-- on a 9-foot pool table, for the Bullet Physics Playground. Bullet does
+-- the balls, cushions and pockets; you work the cue from the keyboard.
+-- M switches between the two games (the choice is kept).
 --
--- THE GAME: fifteen balls are racked at the foot spot. Break from the
+-- 8-BALL: you and the computer take turns to break. After the break the
+-- table is open: the first ball pocketed legally makes solids (1-7) or
+-- stripes (9-15) that player's group, and the other player's the other
+-- group. You keep shooting while you pocket your own balls; clear them,
+-- then pocket the 8 to win. A foul (a scratch, no ball hit, the first ball
+-- hit not yours, a ball off the table) gives the other player ball in hand
+-- anywhere on the table (after a scratch on the break, in the kitchen);
+-- the 8 pocketed early, or on a foul, loses. Games won are kept.
+--
+-- CLEAR THE TABLE: fifteen balls are racked at the foot spot. Break from the
 -- kitchen (behind the head string, the line across the table through the
 -- white head spot), then pocket every ball in as few shots as you can. Any
 -- ball in any pocket counts, in any order. Pocketing the cue ball (a
@@ -37,11 +47,14 @@
 --   B                camera behind the cue (it follows your aim)
 --   T                camera overhead
 --   N or R           re-rack and start again
---   P                auto-play: the computer plays the rack for you (it
---                    picks the easiest pot, places the cue ball when it
---                    has ball in hand, and breaks). P again to take over.
--- With ball in hand the arrows move the cue ball around the kitchen (Up is
--- away from you) and Space or Return puts it down.
+--   M                switch game: 8-ball against the computer, or clear
+--                    the table
+--   P                auto-play: the computer plays for you -- the rack, or
+--                    in 8-ball both sides -- rack after rack (it picks the
+--                    easiest pot, places the cue ball when it has ball in
+--                    hand, and breaks). P again to take over.
+-- With ball in hand the arrows move the cue ball (Up is away from you) and
+-- Space or Return puts it down.
 --
 -- UNITS: centimetres, seconds, kilograms. The table's long axis is X (the
 -- head end, where you break from, at -X), across it is Z, up is Y. The
@@ -581,11 +594,13 @@ do
   end
 
   local LABEL, LABEL_OFF, LED, LED_OFF = "#d9d9d9", "#101418", "#ff6a00", "#2a1408"
-  digits(-57, 66, 5, 1.1, LABEL, LABEL_OFF, false).set("SHOTS")
+  -- (clear the table: SHOTS, LEFT, BEST; 8-ball: games won by each
+  -- player, and what the shooter has left)
+  board.label1 = digits(-57, 66, 5, 1.1, LABEL, LABEL_OFF, false)
   board.shots = digits(-38, 65.5, 3, 2.2, LED, LED_OFF, true)
   digits(-5, 66, 4, 1.1, LABEL, LABEL_OFF, false).set("LEFT")
   board.left = digits(10, 65.5, 2, 2.2, LED, LED_OFF, true)
-  digits(29, 66, 4, 1.1, LABEL, LABEL_OFF, false).set("BEST")
+  board.label3 = digits(29, 66, 4, 1.1, LABEL, LABEL_OFF, false)
   board.best = digits(44, 65.5, 3, 2.2, LED, LED_OFF, true)
   board.message = digits(-54, 49, 12, 1.6, "#7cfc00", "#16240a", true)
 
@@ -746,7 +761,19 @@ end
 -- ---------------------------------------------------------------------
 
 local S = {
-  state = "inhand",     -- inhand, aim, stroke, rolling, cleared
+  game = "8ball",       -- "8ball" (you against the computer) or "clear"
+                        -- (clear the table, alone); M switches
+  state = "inhand",     -- inhand, aim, stroke, rolling, cleared (clear the
+                        -- table), over (8-ball: someone has won)
+  turn = 1,             -- 8-ball: whose shot it is, 1 you, 2 the computer
+                        -- (with auto-play on, the computer plays both)
+  groupOf = {},         -- 8-ball: each player's group, once chosen
+  wins = { 0, 0 },      -- 8-ball games won, you and the computer (saved)
+  autoWins = { 0, 0 },  -- the same with the computer playing both sides
+  nextBreaker = 1,      -- 8-ball: who breaks the next rack (they take turns)
+  winner = nil,         -- 8-ball: who won the last game
+  handAnywhere = false, -- ball in hand anywhere on the table (8-ball, after
+                        -- a foul), not just in the kitchen
   breakShot = true,     -- the next shot is the break
   openTable = true,     -- table is open until a solid or stripe is legally pocketed
   group = nil,          -- "solids", "stripes", or nil when open
@@ -776,9 +803,16 @@ local S = {
   dirty = true,         -- guide, cue, camera and help need redrawing
   frame = 0,
 }
+local function loadPref(key)
+  return v.loadPrefs and v:loadPrefs(PREFS_PREFIX .. key, "") or ""
+end
+local function savePref(key, value)
+  if v.savePrefs then pcall(function() v:savePrefs(PREFS_PREFIX .. key, tostring(value)) end) end
+end
 do
-  local saved = v.loadPrefs and v:loadPrefs(PREFS_PREFIX .. "bestShots", "") or ""
-  S.best = tonumber(saved)
+  S.best = tonumber(loadPref("bestShots"))
+  if loadPref("game") == "clear" then S.game = "clear" end
+  S.wins = { tonumber(loadPref("wins1")) or 0, tonumber(loadPref("wins2")) or 0 }
 end
 
 local function now()
@@ -813,6 +847,7 @@ end
 -- it potted the group's last ball)
 local function isTargetBall(n, left)
   if not n or n == 0 then return false end
+  if S.game == "clear" then return true end           -- (any ball, any order)
   if S.openTable then
     return not is8Ball(n)
   elseif S.group then
@@ -831,10 +866,11 @@ end
 local HEAD_STRING = -K.HL / 2
 local function inKitchen(x) return x <= HEAD_STRING + 0.01 end
 
--- Can the cue ball sit at (x, z)? Ball in hand always goes in the kitchen.
+-- Can the cue ball sit at (x, z)? Ball in hand goes in the kitchen, except
+-- after a foul in 8-ball, when it may go anywhere.
 local function cueSpotFree(x, z)
   if math.abs(x) > K.HL - K.R - 0.05 or math.abs(z) > K.HW - K.R - 0.05 then return false end
-  if not inKitchen(x) then return false end
+  if not S.handAnywhere and not inKitchen(x) then return false end
   for n = 1, 15 do
     local b = balls[n]
     if b.onTable then
@@ -905,6 +941,14 @@ local function rack()
   S.breakShot = true
   S.openTable = true
   S.group = nil
+  S.groupOf = {}
+  S.winner = nil
+  S.handAnywhere = false
+  S.turn = 1
+  if S.game == "8ball" then
+    S.turn = S.nextBreaker             -- (the players take turns to break)
+    S.nextBreaker = 3 - S.nextBreaker
+  end
   S.kitchen = false
   S.kitchenShot = false
   S.foul = false
@@ -1250,41 +1294,84 @@ local function drawGuide()
   end
 end
 
--- auto-play (P): the computer plays the rack; filled in further down
+-- auto-play (P), and the computer's turns in 8-ball; filled in further down
 local auto = { on = false }
 
 -- ---------------------------------------------------------------------
 -- the shortcuts pane
 -- ---------------------------------------------------------------------
 
+-- 8-ball: is it the computer's shot? (with auto-play on it takes both
+-- sides; otherwise player 2)
+local function cpuTurn()
+  return auto.on or (S.game == "8ball" and S.turn == 2)
+end
+
+-- 8-ball: the name of player p, for the help and the scoreboard
+local function playerName(p)
+  if auto.on then return "Computer " .. p end
+  return p == 1 and "You" or "The computer"
+end
+
+-- 8-ball: what player p still has to pocket ("solids, 3 left", ...)
+local function groupLine(p)
+  local g = S.groupOf[p]
+  if not g then return "open table" end
+  local left = groupBallsLeft(g)
+  return left > 0 and string.format("%s, %d left", g, left) or "on the 8"
+end
+
 local function helpText()
   local lines = {}
   local function add(s) lines[#lines + 1] = s end
-  add("POOL -- 8-ball" .. (auto.on and "      AUTO-PLAY: the computer is playing (P to take over)" or ""))
+  local match = S.game == "8ball"
+  if match then
+    add("POOL -- 8-ball, " .. (auto.on and "the computer against itself      AUTO-PLAY (P to stop)"
+                                       or "you against the computer"))
+  else
+    add("POOL -- clear the table" .. (auto.on and "      AUTO-PLAY: the computer is playing (P to take over)" or ""))
+  end
   add("")
   local st = S.state
-  if st == "inhand" then
-    add(S.breakShot and "Ball in hand in the kitchen (behind the head string): place the cue ball for the break."
-                     or "Ball in hand in the kitchen (behind the head string): place the cue ball.")
+  local who = match and playerName(S.turn) or "You"
+  local pos = (who == "You") and "Your" or (who .. "'s")   -- (whose shot)
+  local cpu = match and cpuTurn() and not auto.on
+  if st == "over" then
+    add(playerName(S.winner) .. " won the game."
+        .. (auto.on and " A new rack is coming." or " Press N for a new rack."))
+  elseif cpu and (st == "inhand" or st == "aim") then
+    add("The computer's shot" .. (st == "inhand" and " (ball in hand)." or "."))
+  elseif st == "inhand" then
+    local where = S.handAnywhere and "anywhere on the table" or "in the kitchen (behind the head string)"
+    add((match and who .. ": " or "") .. "Ball in hand " .. where .. ": place the cue ball"
+        .. (S.breakShot and " for the break." or "."))
   elseif st == "aim" and S.kitchen then
-    add("Your shot, from the kitchen: you can't shoot straight at a ball behind the head string.")
+    add(pos .. " shot, from the kitchen: it can't go straight at a ball behind the head string.")
     add("(A red ghost ball means you're aimed at one. The cue ball must cross the line before it hits one.)")
   elseif st == "aim" then
-    if S.openTable then
-      add("Your shot: table is open, shoot any solid (1-7) or stripe (9-15) to choose your group.")
+    if not match then
+      add("Your shot.")
+    elseif S.breakShot then
+      add(pos .. " break.")
+    elseif S.openTable then
+      add(pos .. " shot: the table is open -- hit any ball but the 8; the first pocketed chooses the group.")
     elseif groupBallsLeft(S.group) == 0 then
-      add("Your shot: your group is clear! Legally pocket the 8-ball to win.")
+      add(pos .. " shot: the group is clear -- pocket the 8 to win.")
     else
-      add(string.format("Your shot: group is %s (%d left). Hit a %s first.",
-                        S.group:upper(), groupBallsLeft(S.group),
-                        S.group == "solids" and "solid (1-7)" or "stripe (9-15)"))
+      add(string.format("%s shot: hit one of the %s first.", pos, S.group))
     end
   elseif st == "stroke" or st == "rolling" then add("Balls rolling...")
-  elseif st == "cleared" then add("Table cleared in " .. S.shots .. " shots! Press N for a new rack.")
+  elseif st == "cleared" then
+    add("Table cleared in " .. S.shots .. " shots!" .. (auto.on and " A new rack is coming." or " Press N for a new rack."))
   end
-  local targetCount = S.openTable and leftOnTable() or (groupBallsLeft(S.group) + (balls[8].onTable and 1 or 0))
-  add(string.format("Shots %d   Balls left %d   Best %s", S.shots, targetCount,
-                    S.best and tostring(S.best) or "-"))
+  if match then
+    add(string.format("%s: %s      %s: %s", playerName(1), groupLine(1), playerName(2), groupLine(2)))
+    local w = auto.on and S.autoWins or S.wins
+    add(string.format("Games won -- %s %d, %s %d", playerName(1), w[1], playerName(2):lower(), w[2]))
+  else
+    add(string.format("Shots %d   Balls left %d   Best %s", S.shots, leftOnTable(),
+                      S.best and tostring(S.best) or "-"))
+  end
   add(string.format("Aim %.2f deg   Force %d%%   Spin: %s", (math.deg(S.aim) + 360) % 360,
                     math.floor(S.power * 100 + 0.5),
                     (S.spinX == 0 and S.spinY == 0) and "centre ball"
@@ -1319,12 +1406,20 @@ local function helpText()
   add("B           camera behind the cue" .. (S.view == "cue" and " (now)" or ""))
   add("T           camera overhead" .. (S.view == "top" and " (now)" or ""))
   add("N or R      re-rack")
-  add("P           auto-play: the computer plays the rack " .. (auto.on and "(on)" or "(off)"))
+  add("M           switch game: " .. (match and "clear the table (alone)" or "8-ball against the computer"))
+  add("P           auto-play: the computer plays " .. (match and "both sides" or "the rack")
+      .. ", rack after rack " .. (auto.on and "(on)" or "(off)"))
   add("")
-  add("Open table: after the break, the table is open until a solid or stripe is legally pocketed.")
-  add("Scratch (cue ball in a pocket): one penalty shot and ball in hand in the kitchen.")
-  add("Foul (hitting wrong ball first, hitting 8-ball early, missing all balls, or kitchen foul):")
-  add("one penalty shot, balls pocketed on the shot are spotted, and ball in hand in the kitchen.")
+  if match then
+    add("8-ball: after the break the table is open; the first ball you pocket makes solids (1-7) or")
+    add("stripes (9-15) yours. Keep shooting while you pocket your own; clear them, then pocket the 8 to win.")
+    add("Foul (scratch, no ball hit, the wrong ball first, a ball off the table): the other player gets")
+    add("ball in hand anywhere. The 8 pocketed early, or on a foul, loses the game.")
+  else
+    add("Scratch (cue ball in a pocket): one penalty shot and ball in hand in the kitchen.")
+    add("Foul (after ball in hand, hitting a kitchen ball before the cue ball leaves the kitchen):")
+    add("one penalty shot, balls pocketed on the shot are spotted, and ball in hand in the kitchen.")
+  end
   return table.concat(lines, "\n")
 end
 
@@ -1385,6 +1480,7 @@ local function shoot()
   S.message = ""
   S.wasBreakShot = S.breakShot
   S.groupLeftAtShot = S.group and groupBallsLeft(S.group) or nil
+  S.handAnywhere = false
   S.breakShot = false
   S.kitchenShot = S.kitchen
   S.kitchen = false
@@ -1402,13 +1498,66 @@ local function shoot()
   return true
 end
 
--- when every ball has stopped: what happened?
-local function shotOver()
-  -- each shot starts from a centre hit with the cue level (the aim and
-  -- force are kept)
-  S.spinX, S.spinY, S.elev = 0, 0, 0
+-- when every ball has stopped: what happened? (clear the table)
+local function clearShotOver()
+  if S.foul then
+    S.shots = S.shots + 1                 -- the penalty (one, even with a scratch too)
+    S.message = S.offTable and "OFF TABLE" or "FOUL"
+    respotShotBalls()
+  elseif S.scratched then
+    S.shots = S.shots + 1                 -- the penalty
+    S.message = "SCRATCH"
+  end
+  local inHand = S.scratched or S.foul
+  if leftOnTable() == 0 then
+    S.state = "cleared"
+    S.message = "CLEARED"
+    if not S.best or S.shots < S.best then
+      S.best = S.shots
+      savePref("bestShots", S.best)
+    end
+    playSound("cleared")
+  elseif inHand then
+    S.state = "inhand"
+    S.kitchen = true
+    cueToHand()                           -- (picked up, if it's still on the table)
+  else
+    S.state = "aim"
+  end
+end
+
+-- 8-ball: someone has won
+local function gameOver(winner)
+  S.state = "over"
+  S.winner = winner
+  if auto.on then
+    S.autoWins[winner] = S.autoWins[winner] + 1
+    S.message = "CPU " .. winner .. " GAME"
+  else
+    S.wins[winner] = S.wins[winner] + 1
+    savePref("wins" .. winner, S.wins[winner])
+    S.message = winner == 1 and "YOUR GAME" or "CPU GAME"
+  end
+  playSound("cleared")
+end
+
+-- 8-ball (standard rules, two players): what happened?
+--  * The break: if it pockets a ball (without a scratch) the breaker
+--    carries on; the 8 pocketed on the break is spotted. After the break
+--    the table is open: the first ball pocketed legally chooses the
+--    shooter's group (solids 1-7 or stripes 9-15), the other player gets
+--    the other group.
+--  * A shooter carries on while they legally pocket a ball of their group.
+--  * A foul -- a scratch, a ball off the table, no ball hit, or the first
+--    ball hit not one of yours (on an open table, the 8) -- gives the other
+--    player ball in hand anywhere on the table (after a scratch on the
+--    break, in the kitchen). Balls pocketed on a foul stay down.
+--  * Pocketing the 8 after clearing your group wins; pocketing it before,
+--    or on a foul, loses.
+local function matchShotOver()
   local wasBreak = S.wasBreakShot
   S.wasBreakShot = false
+  local shooter = S.turn
 
   local foulReason = nil
   if S.offTable then
@@ -1419,99 +1568,84 @@ local function shotOver()
     foulReason = "FOUL"
   elseif not wasBreak then
     if not S.firstHit then
-      S.foul = true
       foulReason = "NO HIT"
     elseif not isTargetBall(S.firstHit, S.groupLeftAtShot) then
-      S.foul = true
       foulReason = "FOUL"
     end
   end
+  local foul = foulReason ~= nil
 
-  local eightPotted = false
+  local eight, solids, stripes = false, 0, 0
   for _, n in ipairs(S.shotPotted) do
-    if is8Ball(n) then eightPotted = true break end
+    if is8Ball(n) then eight = true
+    elseif isSolid(n) then solids = solids + 1
+    else stripes = stripes + 1 end
   end
 
-  if wasBreak then
-    S.openTable = true
-    S.group = nil
-    if eightPotted then
-      for i, m in ipairs(S.shotPotted) do
-        if m == 8 then table.remove(S.shotPotted, i); break end
-      end
-      for i, m in ipairs(S.potted) do
-        if m == 8 then table.remove(S.potted, i); break end
-      end
-      spotBall(balls[8])
-      for i, n in ipairs(S.potted) do
-        placeBall(balls[n], (i - 8) * (K.D + 0.3), K.TRAY_Z, K.TRAY_Y)
-      end
+  if eight and not wasBreak then
+    local legal = not foul and not S.openTable and S.groupLeftAtShot == 0
+    gameOver(legal and shooter or 3 - shooter)
+    return
+  end
+  if eight then
+    -- (on the break: spotted)
+    for i, m in ipairs(S.potted) do
+      if m == 8 then table.remove(S.potted, i); break end
     end
-  elseif S.foul or S.scratched then
-    -- Foul or scratch: potted balls will be respotted below
-  elseif eightPotted then
-    if S.openTable or groupBallsLeft(S.group) > 0 then
-      S.foul = true
-      foulReason = "FOUL"
+    spotBall(balls[8])
+    for i, n in ipairs(S.potted) do
+      placeBall(balls[n], (i - 8) * (K.D + 0.3), K.TRAY_Z, K.TRAY_Y)
     end
+  end
+
+  -- balls that left the table come back; pocketed ones stay down
+  S.shotPotted = {}
+  if #S.jumpedOff > 0 then respotShotBalls() end
+
+  local keep = false
+  if foul then
+    -- (nothing)
+  elseif wasBreak then
+    keep = solids + stripes > 0
   elseif S.openTable then
-    local solidsPotted, stripesPotted = 0, 0
-    for _, n in ipairs(S.shotPotted) do
-      if isSolid(n) then solidsPotted = solidsPotted + 1
-      elseif isStripe(n) then stripesPotted = stripesPotted + 1
-      end
+    if solids + stripes > 0 then
+      local g
+      if solids > 0 and stripes == 0 then g = "solids"
+      elseif stripes > 0 and solids == 0 then g = "stripes"
+      else g = isSolid(S.firstHit) and "solids" or "stripes" end
+      S.groupOf[shooter] = g
+      S.groupOf[3 - shooter] = (g == "solids") and "stripes" or "solids"
+      S.openTable = false
+      S.group = g
+      S.message = g:upper()
+      keep = true
     end
-    if solidsPotted > 0 and stripesPotted == 0 then
-      S.group = "solids"
-      S.openTable = false
-      S.message = "SOLIDS"
-    elseif stripesPotted > 0 and solidsPotted == 0 then
-      S.group = "stripes"
-      S.openTable = false
-      S.message = "STRIPES"
-    elseif solidsPotted > 0 and stripesPotted > 0 then
-      if S.firstHit and isSolid(S.firstHit) then
-        S.group = "solids"
-      else
-        S.group = "stripes"
-      end
-      S.openTable = false
-      S.message = S.group:upper()
-    else
-      S.message = "OPEN TABLE"
-    end
+  else
+    keep = (S.group == "solids" and solids or stripes) > 0
   end
 
-  if S.foul then
-    S.shots = S.shots + 1
-    S.message = foulReason or (S.offTable and "OFF TABLE" or "FOUL")
-    respotShotBalls()
-  elseif S.scratched then
-    S.shots = S.shots + 1
-    S.message = "SCRATCH"
-  end
-
-  local cleared = false
-  if not S.openTable and S.group and groupBallsLeft(S.group) == 0 and not balls[8].onTable and not S.foul and not S.scratched then
-    cleared = true
-  end
-
-  local inHand = S.scratched or S.foul
-  if cleared then
-    S.state = "cleared"
-    S.message = "CLEARED"
-    if not S.best or S.shots < S.best then
-      S.best = S.shots
-      if v.savePrefs then pcall(function() v:savePrefs(PREFS_PREFIX .. "bestShots", tostring(S.best)) end) end
-    end
-    playSound("cleared")
-  elseif inHand then
+  if foul then
+    S.message = foulReason
+    S.turn = 3 - shooter
+    S.group = S.groupOf[S.turn]
     S.state = "inhand"
-    S.kitchen = true
+    S.kitchen = wasBreak                  -- (a scratch on the break: in the kitchen)
+    S.handAnywhere = not wasBreak
     cueToHand()
   else
+    if not keep then
+      S.turn = 3 - shooter
+      S.group = S.groupOf[S.turn]
+    end
     S.state = "aim"
   end
+end
+
+local function shotOver()
+  -- each shot starts from a centre hit with the cue level (the aim and
+  -- force are kept)
+  S.spinX, S.spinY, S.elev = 0, 0, 0
+  if S.game == "clear" then clearShotOver() else matchShotOver() end
   S.dirty = true
 end
 
@@ -1596,11 +1730,12 @@ end
 -- every key the table uses (so bpp's own shortcuts don't fire on them)
 local OUR_KEYS = {}
 for _, k in ipairs({ "Left", "Right", "Up", "Down", ",", ".", "<", ">", "W", "S", "A", "D",
-                     "C", "E", "Q", "G", "V", "B", "T", "N", "R", "P", "Space", "Return", "Enter" }) do
+                     "C", "E", "Q", "G", "V", "B", "T", "N", "R", "P", "M", "Space", "Return", "Enter" }) do
   OUR_KEYS[k] = true
 end
 
--- keys that play the shot (ignored while the computer is playing)
+-- keys that play the shot (ignored while the computer is playing, or it's
+-- the computer's turn)
 local PLAY_KEYS = { Left = 1, Right = 1, Up = 1, Down = 1, [","] = 1, ["."] = 1, ["<"] = 1, [">"] = 1,
                     W = 1, S = 1, A = 1, D = 1, C = 1, E = 1, Q = 1, Space = 1, Return = 1, Enter = 1 }
 
@@ -1610,7 +1745,7 @@ local function onKey(N, key, down)
     if down then auto.toggle() end
     return true
   end
-  if auto.on and PLAY_KEYS[key] then return true end
+  if cpuTurn() and PLAY_KEYS[key] then return true end
   local slide, act = keyAction(key)
   if slide then
     if down then
@@ -1665,6 +1800,14 @@ local function onKey(N, key, down)
     rack()
     return true
   end
+  if key == "M" then
+    -- the other game, from a fresh rack
+    S.game = (S.game == "8ball") and "clear" or "8ball"
+    savePref("game", S.game)
+    auto.phase = "idle"
+    rack()
+    return true
+  end
   return OUR_KEYS[key] or false
 end
 if v.onKey then v:onKey(onKey) end
@@ -1701,18 +1844,35 @@ local lastHelp = nil
 
 local function refreshNow()
   -- scoreboard
-  local targetCount = S.openTable and leftOnTable() or (groupBallsLeft(S.group) + (balls[8].onTable and 1 or 0))
-  local defaultMsg = (S.openTable and "OPEN") or (groupBallsLeft(S.group) == 0 and "8 BALL") or (S.group and S.group:upper() or "")
-  local want = {
-    shots = tostring(S.shots),
-    left = tostring(targetCount),
-    best = S.best and tostring(S.best) or "",
-    message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or defaultMsg),
-  }
+  local want
+  if S.game == "8ball" then
+    local w = auto.on and S.autoWins or S.wins
+    local left = S.openTable and leftOnTable() or (groupBallsLeft(S.group) + (balls[8].onTable and 1 or 0))
+    local whose = auto.on and ("CPU" .. S.turn) or (S.turn == 1 and "YOUR" or "CPU")
+    local msg = S.state == "over" and "" or (S.openTable and whose .. " SHOT")
+                or (whose .. " " .. (groupBallsLeft(S.group) == 0 and "8" or S.group:upper()))
+    want = {
+      label1 = auto.on and "CPU 1" or "YOU",
+      shots = tostring(w[1]),
+      left = tostring(left),
+      label3 = auto.on and "CPU2" or "CPU",
+      best = tostring(w[2]),
+      message = (S.message ~= "" and S.message) or msg,
+    }
+  else
+    want = {
+      label1 = "SHOTS",
+      shots = tostring(S.shots),
+      left = tostring(leftOnTable()),
+      label3 = "BEST",
+      best = S.best and tostring(S.best) or "",
+      message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or ""),
+    }
+  end
   for k, text in pairs(want) do
     if shown[k] ~= text then
       shown[k] = text
-      board[k].set(text, k ~= "message")
+      board[k].set(text, k ~= "message" and k ~= "label1" and k ~= "label3")
     end
   end
   board.setForce(S.power)
@@ -1972,7 +2132,7 @@ end
 function auto.bestSpot()
   if S.breakShot then return HEAD_STRING - 1, (math.random() - 0.5) * 20, nil end
   local bestX, bestZ, bestScore = nil, nil, -1
-  for x = -K.HL + K.R + 1, HEAD_STRING, 6 do
+  for x = -K.HL + K.R + 1, S.handAnywhere and K.HL - K.R - 1 or HEAD_STRING, 6 do
     for z = -K.HW + K.R + 1, K.HW - K.R - 1, 6 do
       planPace()
       if cueSpotFree(x, z) then
@@ -1991,20 +2151,29 @@ function auto.toggle()
   auto.on = not auto.on
   auto.phase = "idle"
   if S.message == "AUTO" then S.message = "" end
-  if auto.on and S.state == "cleared" then rack() end
+  if auto.on and (S.state == "cleared" or S.state == "over") then rack() end
   S.dirty = true
 end
 
 -- One step of auto-play, from the draw loop.
+local AUTO_RERACK = 3              -- seconds to show the result before racking again
 function auto.tick()
-  if not auto.on then return end
   local t = now()
   local st = S.state
-  if st == "cleared" then
-    auto.on = false                      -- the rack is done: stop and show the score
-    S.dirty = true
+  if st == "cleared" or st == "over" then
+    -- the game is done: with auto-play on, a moment to show the result,
+    -- then the next rack (it plays on by itself, rack after rack)
+    if auto.on then
+      auto.overAt = auto.overAt or t
+      if t - auto.overAt >= AUTO_RERACK then
+        auto.overAt, auto.phase = nil, "idle"
+        rack()
+      end
+    end
     return
   end
+  auto.overAt = nil
+  if not cpuTurn() then return end
   if auto.phase == "idle" then
     -- start thinking (see "thinking a little at a time"); it carries on
     -- below, this frame and the next few
