@@ -1213,6 +1213,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   setStateFileName(QString());
 
   _wallTimer.start();
+  _prefsPool.setMaxThreadCount(1); // (preference writes in the order made)
+  _prefsPool.setExpiryTimeout(-1);
 
   {
     bool ok = false;
@@ -2424,6 +2426,9 @@ void Viewer::resetCamView() {
 
 Viewer::~Viewer() {
   // qDebug() << "Viewer::~Viewer()";
+
+  // (let a script's last saved preferences reach the settings file)
+  _prefsPool.waitForDone();
 
 #if USE_VFE
   // Tear down any in-flight VFE render before anything else: it owns a
@@ -4248,13 +4253,60 @@ void Viewer::setPostSDL(const QString &postSDL) { mPostSDL = postSDL; }
 
 QString Viewer::getPostSDL() const { return mPostSDL; }
 
+// Writes a script's preferences on the Viewer's preference thread.
+// (which store: taken from the Viewer's settings on the main thread)
+class PrefsWriter : public QRunnable {
+public:
+  PrefsWriter(Viewer *v, const QSettings *store)
+      : _v(v), _format(store->format()), _scope(store->scope()),
+        _org(store->organizationName()), _app(store->applicationName()) {
+    setAutoDelete(true);
+  }
+  void run() override {
+    QSettings s(_format, _scope, _org, _app);
+    _v->writePendingPrefs(s);
+  }
+
+private:
+  Viewer *_v;
+  QSettings::Format _format;
+  QSettings::Scope _scope;
+  QString _org, _app;
+};
+
 void Viewer::setPrefs(QString key, QString value) {
-  _settings->beginGroup("lua");
-  _settings->setValue(key, value);
-  _settings->endGroup();
+  _luaPrefs[key] = value;
+  QMutexLocker lock(&_prefsMutex);
+  _prefsToWrite[key] = value;
+  if (!_prefsWriteQueued) {
+    _prefsWriteQueued = true;
+    _prefsPool.start(new PrefsWriter(this, _settings));
+  }
+}
+
+// On the preference thread: everything set since the last write, in one go,
+// through a QSettings of its own for the same store (Qt keeps different
+// QSettings objects for one store consistent across threads).
+void Viewer::writePendingPrefs(QSettings &s) {
+  QHash<QString, QString> todo;
+  {
+    QMutexLocker lock(&_prefsMutex);
+    todo.swap(_prefsToWrite);
+    _prefsWriteQueued = false;
+  }
+  if (todo.isEmpty())
+    return;
+  s.beginGroup("lua");
+  for (auto it = todo.constBegin(); it != todo.constEnd(); ++it)
+    s.setValue(it.key(), it.value());
+  s.endGroup();
+  s.sync();
 }
 
 QString Viewer::getPrefs(QString key, QString defaultValue) const {
+  auto it = _luaPrefs.constFind(key);
+  if (it != _luaPrefs.constEnd())
+    return it.value();
   _settings->beginGroup("lua");
   QString v = _settings->value(key, defaultValue).toString();
   _settings->endGroup();

@@ -27,6 +27,8 @@
 #include <QTextStream>
 #include <QVector>
 #include <QWheelEvent>
+#include <QHash>
+#include <QThreadPool>
 #include <map>
 #include <functional>
 #include <luabind/object.hpp>
@@ -843,7 +845,11 @@ public:
   /**
    * @brief Stores a value a script wants to keep between runs.
    *
-   * Written under the @c lua group of the application settings.
+   * Written under the @c lua group of the application settings -- on a
+   * background thread (see PrefsWriter in viewer.cpp): writing the settings
+   * file can take hundreds of milliseconds (Qt locks it and forces it to
+   * disk), and done on the main thread that froze the whole scene each time
+   * a script saved a score. getPrefs() sees the new value at once.
    *
    * @param key   Name to store it under.
    * @param value The value.
@@ -2101,6 +2107,16 @@ private:
 #endif // USE_VFE
 
   QSettings *_settings; ///< The settings store; not owned.
+
+  // Lua preferences (setPrefs()): written on a background thread.
+  QHash<QString, QString> _luaPrefs;      ///< Every value set this run (main
+                                          ///< thread only), for getPrefs().
+  QMutex _prefsMutex;                     ///< Guards the two below.
+  QHash<QString, QString> _prefsToWrite;  ///< Set, not yet written.
+  bool _prefsWriteQueued = false;         ///< A write is waiting to run.
+  QThreadPool _prefsPool;                 ///< One thread: writes run in order.
+  friend class PrefsWriter;
+  void writePendingPrefs(QSettings &s);   ///< Runs on that thread.
 
   // bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
   btScalar _timeStep;      ///< Time one animation step advances the world by.
