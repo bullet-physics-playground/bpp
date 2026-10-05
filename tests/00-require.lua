@@ -39,8 +39,9 @@ assert_match("color module is table", type(c), "table")
 -- Test package.path contains expected paths
 local fullPath = package.path
 
--- CLI mode: path should contain bpp demo/module
-assert_contains("cli path contains bpp demo/module", fullPath, "bpp/demo/module")
+-- CLI mode: path should contain the bpp checkout's demo/module (whatever
+-- the checkout's folder is called)
+assert_contains("cli path contains demo/module", fullPath, "/demo/module/")
 
 -- GUI mode (if running from bpp dir): path should work from any directory
 -- The exact path depends on whether running from bpp/ or release/ subdir

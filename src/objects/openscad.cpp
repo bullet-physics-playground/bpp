@@ -192,6 +192,7 @@ void OpenSCAD::luaBind(lua_State *s) {
   using namespace luabind;
 
   module(s)[class_<OpenSCAD, Mesh>("OpenSCAD")
+                .def(constructor<QString, btScalar>(), adopt(result))
                 .def(constructor<QString, btScalar, bool>(), adopt(result))
                 .def(tostring(const_self))
                 .def(const_self == const_self)];
