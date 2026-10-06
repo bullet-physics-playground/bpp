@@ -17,6 +17,11 @@ and "POOL" neon signs, a jukebox whose light bars move, a dartboard, two
 cue racks, a sofa and coffee table across from the tables, a door and wall
 lamps.
 
+Any other bpp script can be brought in with one line (see "More games"):
+the room comes with WyomingWill's Jansen walker, shrunk to the size of a
+cat, walking on its own patch of floor, and koppi's marble run on a small
+table against the back wall.
+
 The games are the real ones from `../pinball-machine-a/`, `../pool-table/`,
 `../snooker-table/` and `../bumper-pool/`, loaded unchanged. Everything
 they do on their own works here too: scoring, sounds, the high scores,
@@ -50,7 +55,7 @@ Click the 3D view first so it has keyboard focus.
 
 | Key | Action |
 |---|---|
-| `Tab` | walk to the next spot: the pinball machine, the pool table, the snooker table, the bumper pool table, the clock, a view of the whole room, then back to the pinball machine |
+| `Tab` | walk to the next spot: the pinball machine, the pool table, the snooker table, the bumper pool table, the clock, each of the "More games" (the marble run, the walker), a view of the whole room, then back to the pinball machine |
 | `Shift+Tab` | walk the other way |
 
 Everything else goes to the game you are standing at, and its keys are the
@@ -74,6 +79,9 @@ where you are):
   of the second hand, `G` locks it, `S` turns the tick-tock on or off. Its
   gravity is the **clock_gravity** slider in the Params pane, and it
   applies to the clock alone.
+- **At one of the "More games":** its own keys, if it has any; its
+  sliders are in the Params pane, named after it (`walker_Speed`). At the
+  walker, the view follows it as it walks.
 - **Looking round the room:** the mouse turns and zooms the view as usual.
 
 When you walk away from a game, any keys you are holding are let go (a raised
@@ -99,19 +107,20 @@ repository); without it the room has no clock and everything else works.
   the time, wherever you're standing: every table's computer player, the
   pinball's and the clock together. There are two ways of fitting the
   clock's steps in, set at the top of `rec-room.lua`:
-  - `OLD_TURNS = true` (the default): the clock and the games take turns,
-    a frame at a time (never two clock frames in a row). The room asks for
-    83 frames a second, but a 60 Hz screen allows 60, so the games get
-    about 35 of them and run at about 58% speed. This uses the least
-    processor, and it's the way that has been tested over whole nights:
-    tuned in the room, the clock averaged 60.10 s and 60.18 s per turn of
-    its second hand on two nights (at G 1210.9 and 1207.3, where training
-    happened to lock), the same clock either way.
-  - `OLD_TURNS = false`: every frame, bpp steps the games, then the clock
-    takes whatever steps it's due within the same frame. The games get all
-    60 frames, at full speed, for more processor. This needs bpp's
+  - `OLD_TURNS = false` (the default): every frame, bpp steps the games,
+    then the clock takes whatever steps it's due within the same frame. The
+    games get all 60 frames, at full speed. This needs bpp's
     `v:stepSimulation` (see "Requirements"); without it the room takes
-    turns anyway.
+    turns anyway. A 67-minute run with shadows on kept the games at 59-60
+    frames a second, and the clock's 42-beat checks averaged 59.94 s
+    against 60 (all within half a second; no correction needed).
+  - `OLD_TURNS = true`: the clock and the games take turns, a frame at a
+    time (never two clock frames in a row). The room asks for 83 frames a
+    second, but a 60 Hz screen allows 60, so the games get about 35 of
+    them and run at about 58% speed. This uses the least processor: tuned
+    in the room, the clock averaged 60.10 s and 60.18 s per turn of its
+    second hand on two nights (at G 1210.9 and 1207.3, where training
+    happened to lock), the same clock either way.
 - **Pace:** the clock is due a step whenever it has had fewer than 25 for
   each real second since it started, the pace bpp's frame timer gives it
   when it runs on its own. The room measures that with a stopwatch (bpp's
@@ -134,6 +143,74 @@ repository); without it the room has no clock and everything else works.
   script starts at 1166. The slider and tuning work as usual from there;
   `CLOCK_G = nil` starts it where its script says.
 
+## More games
+
+Any bpp script can join the room with one line in `MORE_GAMES`, near the
+top of `rec-room.lua`. The room comes with two:
+
+```lua
+MORE_GAMES = MORE_GAMES or {
+  { "../../koppi/marblerun.lua", on = "table", x = 250, z = -95, size = { 70, 50 }, scale = 2, ground = -0.5, awake = true, solid = false, name = "the marble run" },
+  { "../Walkers/Jansen_6LegT.lua", on = "floor", x = -40, z = 330, size = { 300, 110 }, scale = 0.12, height = 2, solid = false, follow = true, name = "the walker" },
+}
+```
+
+The first thing on a line is the script, from this folder (or a full
+path). The rest is optional:
+
+| Setting | What it does |
+|---|---|
+| `on` | what it stands on: `"floor"` (a patch of floor, a mat), `"table"` (a table the room puts there) or `"wall"` (a shelf on the wall nearest `x, z`, its back to the wall, facing into the room). Default `"floor"`. |
+| `x, z` | where its middle goes, in cm. The room runs from x = -470 (left wall) to 650 (right wall), and from z = -150 (the back wall, behind the pinball machine) to 960 (the door's wall). |
+| `size` | `{ w, d }`: the floor patch, table top or shelf, in cm. Default `{ 100, 60 }`. |
+| `height` | the table top or shelf, in cm above the floor (default 75 for a table, 110 for a shelf); for a floor game, how far its own floor sits above the mat |
+| `turn` | degrees, anticlockwise seen from above. 0: its front (+z) faces the door. On a wall it faces into the room unless you say otherwise. |
+| `scale` | its size (0.12: an eighth or so). Its gravity and motors are scaled with it, so it moves as it does full size, as the clock does. |
+| `ground` | the height of its own floor in its own units (default 0): that is what rests on the floor, table or shelf |
+| `name` | what Tab calls it; its sliders are named after it |
+| `awake` | `true`: its parts never go to sleep, for a demo that asks you to turn deactivation off (the marble run) |
+| `solid` | `false`: the table top, shelf or mat is only to look at. For a game with a floor of its own (the walker's terrain) or none it needs (the marble run). A solid top is tested against every moving part near it, on every step: under the marble run's wheel it tripled its cost. |
+| `follow` | `true`: while you're at it, the view follows it as it moves |
+| `keep` | `true`: never put back (see below) |
+
+How the room fits a game in:
+
+- **Its own physics.** Each runs with its own physics settings, at its
+  own pace (the frames it gets on its own, against a stopwatch), in steps
+  of its own between the games' frames, exactly as the clock does. So the
+  marble run turns at the speed it does on its own, and the walker walks
+  as it does on its own.
+- **Its ground.** A script's ground plane (`Plane`) would be endless in
+  the room, so it's left out; the room's floor patch, table or shelf
+  stands in for it. A script's terrain (`Terrain`, the walker's) is moved,
+  turned and scaled with it and cut to its patch of floor (the walker's
+  is 100 m square on its own).
+- **Putting back.** When a part of it leaves its floor patch, table or
+  shelf (falls off, walks off), the room puts the game back as it started:
+  every part it built as it loaded goes back where it was then, at rest,
+  and its script carries on. Something it made later, such as one of the
+  marble run's marbles, is just taken away if it falls. Nothing is deleted
+  and made again, so a room left running all night uses no more memory
+  for it (300 put-backs in a test: no growth at all). The walker gets put
+  back about every 80 seconds, after walking about 1.2 m. If a game is put
+  back twice within 5 seconds, it doesn't fit (its `size` is too small),
+  and the room leaves it as it is and says so in the console.
+- **Its fixed parts asleep.** Bullet puts fixed parts (mass 0) to sleep,
+  so two of them are never tested against each other. The walker's script
+  keeps its terrain awake, which made it be tested against the mat on every
+  step of every game: the clock's steps took five times as long. The room
+  puts a game's fixed parts back to sleep after it loads; they still stop
+  whatever hits them.
+- **Its cost.** Each shows on the meter's physics line. In tests the
+  marble run took about as long as on its own plus a little for the room,
+  the walker about 1 ms a frame. Both together add a few milliseconds a
+  frame, so with shadows on, a room that was at 83% may now run near
+  100%; the games then slow down a little, and the clock keeps time.
+  Remove a line (or comment it out with `--`) to leave a game out.
+
+With `OLD_TURNS = true` they run with the tables' physics settings instead
+of their own, and may not behave as they do on their own.
+
 ## The cost meter
 
 The top of the Shortcuts pane shows what each frame spends its time on,
@@ -144,7 +221,7 @@ COST METER -- ms per frame, averaged over the last second
   60 frames a second: 35 for the games, 25 clock steps; longest frame 19 ms
   physics  games 1.55, clock 1.70
   scripts  pinball 0.10, pool 0.35, snooker 0.30, bumper pool 0.20, clock 0.02, room 0.45
-  garbage  1.20      drawing 3.30
+  garbage  1.20      drawing 3.30      thinking up to 3.0
   busy     8.8 ms of each 16.7 ms frame (53%)
 ```
 
@@ -154,14 +231,17 @@ COST METER -- ms per frame, averaged over the last second
   second. Anything that holds the room up (a computer player thinking, a
   big garbage collection, a heavy break) shows here; a smooth room keeps
   it near 17 ms on a 60 Hz screen.
-- **physics:** Bullet's time stepping the games and the clock. (They're
-  one physics world, so it can't be split game by game.)
+- **physics:** Bullet's time stepping the games, the clock, and each of
+  the "More games". (The games share one physics world, so they can't be
+  split game by game.)
 - **scripts:** each game's own Lua code, including its computer player,
   and the room's (taking turns, resting tables and so on).
 - **garbage:** Lua's garbage collector, which collects a little every
   frame (see "Garbage" below).
 - **drawing:** bpp drawing the scene. Time the graphics card spends after
   that, and waiting for the next frame, isn't counted.
+- **thinking up to:** how long the tables' computer players may think each
+  frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has
   (16.7 ms on a 60 Hz screen, which holds the room to 60 frames a second
   whatever it asks for). Near 100% the room can't keep up, and the meter
@@ -255,6 +335,15 @@ own) so the scripts can't interfere with each other:
   snooker shot could hold the whole room up for over a second. With every
   computer player on, a test run of 10,000 frames went from 51 frames over
   a tenth of a second (the longest 2.3 s) to none (the longest 41 ms).
+  On their own they think 3 ms a frame. Here they get what the frame has
+  to spare: each second the room works out what everything else took and
+  lets them think for the rest of 90% of a 60th of a second
+  (`THINK_FILL`), between 0.5 and 3 ms (`THINK_MIN`, `THINK_MAX`). With
+  shadows on, the room was at about 83%, and the 3 ms tipped it over now
+  and then (14 seconds in 67 minutes, every one while bumper pool's
+  computer was thinking). Now a busy room makes the computer think longer
+  (bumper pool's longest shots, about a quarter of a second of thinking,
+  then take up to 6 seconds) instead of slowing the room down.
 
 The room's own furniture is scenery only; it doesn't collide with anything.
 
@@ -268,10 +357,10 @@ The room's own furniture is scenery only; it doesn't collide with anything.
   list once and replayed every frame, instead of being sent a triangle at
   a time. The clock's gears alone are well over 100,000 triangles. The
   room runs without it, only using more of the processor.
-- Only for `OLD_TURNS = false`: bpp with `v:stepSimulation` (a change to
-  `src/viewer.cpp` and `src/viewer.h`), so the room can step the clock
-  within the games' frames (see "The clock"). With the default, taking
-  turns, it isn't used.
+- bpp with `v:stepSimulation` (a change to `src/viewer.cpp` and
+  `src/viewer.h`), so the room can step the clock and the "More games"
+  within the games' frames (see "The clock"). Without it the room takes
+  turns (as with `OLD_TURNS = true`).
 - Also for speed, bpp that brings only moved objects' bounding boxes up to
   date (this commit's change to `src/viewer.cpp` and `src/viewer.h`).
   Bullet's default recomputes every object's box on every physics step,

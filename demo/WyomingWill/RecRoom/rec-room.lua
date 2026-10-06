@@ -45,6 +45,11 @@
 -- BumperPool/) and the clock (../Clocks/ or ../../WyomingWill/Clocks/) are
 -- used if they're there; without one, the room simply goes without it.
 --
+-- MORE GAMES: any other bpp script can join the room with one line in
+-- MORE_GAMES, below: on the floor, on a table or on a shelf, where you say,
+-- at the size you say. It comes with WyomingWill's Jansen walker and
+-- koppi's marble run.
+--
 -- UNITS: centimetres. The floor is at y = FLOOR.
 --
 
@@ -70,26 +75,28 @@ local unpack = unpack or table.unpack
 -- world runs at the same speed; the games get all the other frames. At 83
 -- frames a second that leaves them their usual 60.
 local ROOM_PHYSICS = { timeStep = 1 / 60, fixedTimeStep = 1 / 900, maxSubSteps = 30,
-                       iterations = 24, erp = 0.2, erp2 = 0.2 }
+                       iterations = 24, erp = 0.2, erp2 = 0.2, cfm = 0 }
 -- bpp's and Bullet's own starting values, for a game that doesn't set them
 local BPP_PHYSICS = { timeStep = 1 / 25, fixedTimeStep = 1 / 100, maxSubSteps = 7,
-                      iterations = 10, erp = 0.2, erp2 = 0.2, animationPeriod = 40 }
+                      iterations = 10, erp = 0.2, erp2 = 0.2, cfm = 0, animationPeriod = 40 }
 local MAX_OWED = 5.0      -- the clock catches up on at most this many seconds' frames
 MAX_CATCHUP = MAX_CATCHUP or 4   -- and takes at most this many steps in one frame
--- How the clock gets its steps. OLD_TURNS = true (the default): it takes
+-- How the clock gets its steps. OLD_TURNS = false (the default): with a
+-- bpp that has v:stepSimulation, the clock is stepped inside the games'
+-- frames, so the games get all 60 (full speed). OLD_TURNS = true: it takes
 -- turns with the games, frame by frame -- on a 60 Hz screen the games get
 -- about 35 frames a second (they run at about 58% speed) and the room uses
--- the least processor. OLD_TURNS = false: with a bpp that has
--- v:stepSimulation, the clock is stepped inside the games' frames, so the
--- games get all 60 (full speed) for more processor. Both keep the clock's
--- time the same.
-if OLD_TURNS == nil then OLD_TURNS = true end
+-- the least processor. Both keep the clock's time the same. (The games in
+-- MORE_GAMES, below, need the first way: with OLD_TURNS they run with the
+-- tables' physics settings instead of their own.)
+if OLD_TURNS == nil then OLD_TURNS = false end
 local CAN_STEP = (v.stepSimulation ~= nil) and not OLD_TURNS
 local function applyPhysics(p)
   v.timeStep, v.fixedTimeStep, v.maxSubSteps = p.timeStep, p.fixedTimeStep, p.maxSubSteps
   if v.setSolverIterations then v:setSolverIterations(p.iterations) end
   v:setErp(p.erp)
   v:setErp2(p.erp2)
+  if v.setCfm then v:setCfm(p.cfm) end
 end
 applyPhysics(ROOM_PHYSICS)
 if v.animationPeriod then v.animationPeriod = 16 end
@@ -186,18 +193,40 @@ end
 --   opts.ownPhysics -- it runs with its own physics settings (step, solver,
 --                      ERP), taking turns with the others; otherwise the
 --                      room's settings apply
+--   opts.turn       -- turned this many degrees about the upright (seen
+--                      from above, anticlockwise: 90 turns its front, +z,
+--                      to face +x)
+--   opts.extra      -- one of MORE_GAMES: its ground plane (a Plane) is
+--                      left out (the room gives it a floor of its own,
+--                      opts.patch), its terrain is cut to that patch, and
+--                      its gravity starts at bpp's own
+--   opts.patch      -- { w, d }: that floor's size in cm, about its origin
 local function makeGame(name, dir, offset, opts)
   opts = opts or {}
   local S = opts.scale or 1
   local g = { name = name, dir = dir, off = offset, callbacks = {}, help = "", down = {},
-              shortcuts = {}, bodies = {}, physics = {}, N = 0 }
+              shortcuts = {}, bodies = {}, objects = {}, bodyObj = {}, physics = {}, N = 0,
+              ownPhysics = opts.ownPhysics, scale = S, turn = opts.turn or 0, extra = opts.extra,
+              prefix = opts.params or "" }
   for k, val in pairs(BPP_PHYSICS) do g.physics[k] = val end
-  local OFF = btTransform(btQuaternion(0, 0, 0, 1), offset)
-  local INV = btTransform(btQuaternion(0, 0, 0, 1), btVector3(-offset.x, -offset.y, -offset.z))
+  if opts.extra then g.gravity = btVector3(0, -9.81, 0) end        -- (bpp's own)
+  local turn = math.rad(opts.turn or 0)
+  local cs, sn = math.cos(turn), math.sin(turn)
+  local ROT = btQuaternion(btVector3(0, 1, 0), turn)
+  local OFF = btTransform(ROT, offset)
+  local INV = OFF:inverse()
   local ox, oy, oz = offset.x, offset.y, offset.z
   local function sv(p) return btVector3(p.x * S, p.y * S, p.z * S) end   -- a length, scaled
-  local function toWorld(p) return btVector3(p.x * S + ox, p.y * S + oy, p.z * S + oz) end
-  local function toLocal(q) return btVector3((q.x - ox) / S, (q.y - oy) / S, (q.z - oz) / S) end
+  -- a direction (gravity), turned with the game and scaled
+  local function rv(p) return btVector3((p.x * cs + p.z * sn) * S, p.y * S, (-p.x * sn + p.z * cs) * S) end
+  local function toWorld(p)
+    return btVector3((p.x * cs + p.z * sn) * S + ox, p.y * S + oy, (-p.x * sn + p.z * cs) * S + oz)
+  end
+  local function toLocal(q)
+    local x, y, z = q.x - ox, q.y - oy, q.z - oz
+    return btVector3((x * cs - z * sn) / S, y / S, (x * sn + z * cs) / S)
+  end
+  g.toWorld, g.toLocal = toWorld, toLocal
   -- a file the game names: in its own folder, else as named, else from
   -- bpp's own folder
   local function fix(path)
@@ -218,11 +247,9 @@ local function makeGame(name, dir, offset, opts)
     __index = function(p, k)
       local r = rawget(p, "__real")
       if k == "pos" then return toLocal(r.pos) end
-      if k == "trans" then
-        if S == 1 then return shiftT(r.trans, INV) end
-        local q = r.pos
-        return btTransform(r.trans:getRotation(), btVector3(q.x - ox, q.y - oy, q.z - oz))
-      end
+      -- (its position in a transform stays scaled, as the game's own
+      -- btTransforms are: see env.btTransform)
+      if k == "trans" then return shiftT(r.trans, INV) end
       local val = r[k]
       if type(val) == "function" then
         local fn = function(self, ...) return val(r, ...) end
@@ -233,12 +260,21 @@ local function makeGame(name, dir, offset, opts)
     end,
     __newindex = function(p, k, val)
       local r = rawget(p, "__real")
-      if k == "pos" then r.pos = toWorld(val)
+      if k == "pos" then
+        if turn == 0 then r.pos = toWorld(val)
+        else r.trans = shiftT(btTransform(shiftT(r.trans, INV):getRotation(), sv(val)), OFF) end   -- (keeping its turn)
       elseif k == "trans" then r.trans = shiftT(val, OFF)
       else r[k] = val end
     end,
   }
   local function wrap(o) return setmetatable({ __real = o }, objMeta) end
+  -- a new object of the game's: when the game is turned, it starts out
+  -- turned with it (at the game's origin), as it would start out square to
+  -- the world on its own
+  local function made(o)
+    if turn ~= 0 then o.trans = OFF end
+    return wrap(o)
+  end
 
   -- the camera: moved by the offset, and only while you're at this game
   local camFns = {}
@@ -267,7 +303,7 @@ local function makeGame(name, dir, offset, opts)
 
   -- its gravity, applied to its own bodies
   local function applyGravity(body)
-    if g.gravity then pcall(function() body:setGravity(sv(g.gravity)) end) end
+    if g.gravity then pcall(function() body:setGravity(rv(g.gravity)) end) end
   end
 
   -- constraints: pivots scaled, motor impulses scaled to the room's step
@@ -309,19 +345,42 @@ local function makeGame(name, dir, offset, opts)
       if k == "gravity" then return g.gravity or realV.gravity end
       if k == "add" then
         return function(_, o)
+          if type(o) == "table" and rawget(o, "__dummy") then return end
           local r = wrapped(o)
           realV:add(r)
+          g.objects[r] = true
           local ok, body = pcall(function() return r.body end)
-          if ok and body then g.bodies[#g.bodies + 1] = body; applyGravity(body) end
+          if ok and body then
+            g.bodies[#g.bodies + 1] = body
+            g.bodyObj[body] = r
+            applyGravity(body)
+            if opts.awake and not body:isStaticObject() then body:forceActivationState(4) end   -- DISABLE_DEACTIVATION
+          end
         end
       end
-      if k == "remove" then return function(_, o) realV:remove(wrapped(o)) end end
+      if k == "remove" then
+        return function(_, o)
+          if type(o) == "table" and rawget(o, "__dummy") then return end
+          local r = wrapped(o)
+          -- (its body leaves the list: once the object is gone, so is the body)
+          local ok, body = pcall(function() return r.body end)
+          if ok and body then
+            for i = #g.bodies, 1, -1 do
+              if rawequal(g.bodyObj[g.bodies[i]], r) then g.bodyObj[g.bodies[i]] = nil; table.remove(g.bodies, i) end
+            end
+          end
+          g.objects[r] = nil
+          realV:remove(r)
+        end
+      end
       if k == "addConstraint" or k == "removeConstraint" then
         return function(_, c, ...) return realV[k](realV, wrapped(c), ...) end
       end
-      if k == "preSim" or k == "postSim" or k == "preDraw" or k == "postDraw" or k == "onKey" then
+      if k == "preSim" or k == "postSim" or k == "preDraw" or k == "postDraw" or k == "onKey"
+         or k == "onParamChanged" or k == "onCommand" or k == "onJoystick" or k == "onSpaceNavigator" then
         return function(_, fn) g.callbacks[k] = fn end
       end
+      if k == "setCfm" then return function(_, x) g.physics.cfm = x end end
       if k == "addShortcut" then return function(_, keys, fn) g.shortcuts[keys] = fn end end
       if k == "removeShortcut" then return function(_, keys) g.shortcuts[keys] = nil end end
       if k == "addParam" then
@@ -375,22 +434,22 @@ local function makeGame(name, dir, offset, opts)
   env._G = env
   env.v = vp
   if S == 1 then
-    env.Cube = function(...) return wrap(realCube(...)) end
-    env.Sphere = function(...) return wrap(realSphere(...)) end
-    env.Cylinder = function(...) return wrap(realCylinder(...)) end
-    env.Mesh = function(path, ...) return wrap(realMesh(fix(path), ...)) end
-    if realOpenSCAD then env.OpenSCAD = function(...) return wrap(realOpenSCAD(...)) end end
+    env.Cube = function(...) return made(realCube(...)) end
+    env.Sphere = function(...) return made(realSphere(...)) end
+    env.Cylinder = function(...) return made(realCylinder(...)) end
+    env.Mesh = function(path, ...) return made(realMesh(fix(path), ...)) end
+    if realOpenSCAD then env.OpenSCAD = function(...) return made(realOpenSCAD(...)) end end
   else
     -- sizes scaled; masses kept
     local function sized(ctor, nSizes)
       return function(a, ...)
         if type(a) ~= "number" then
-          if a == nil then return wrap(ctor()) end
-          return wrap(ctor(sv(a), ...))          -- the btVector3-of-sizes forms
+          if a == nil then return made(ctor()) end
+          return made(ctor(sv(a), ...))          -- the btVector3-of-sizes forms
         end
         local args = { a, ... }
         for i = 1, math.min(nSizes, #args) do args[i] = args[i] * S end
-        return wrap(ctor(unpack(args)))
+        return made(ctor(unpack(args)))
       end
     end
     env.Cube = sized(realCube, 3)
@@ -398,11 +457,11 @@ local function makeGame(name, dir, offset, opts)
     env.Cylinder = sized(realCylinder, 2)
     -- meshes: OpenSCAD scales them (bpp's Mesh has no scale of its own)
     env.OpenSCAD = function(sdl, ...)
-      return wrap(realOpenSCAD("module bpp_unscaled() {\n" .. sdl .. "\n}\nscale(" .. S .. ") bpp_unscaled();\n", ...))
+      return made(realOpenSCAD("module bpp_unscaled() {\n" .. sdl .. "\n}\nscale(" .. S .. ") bpp_unscaled();\n", ...))
     end
     env.Mesh = function(path, ...)
       local file = fix(path):gsub("\\", "/")
-      return wrap(realOpenSCAD('scale(' .. S .. ') import("' .. file .. '");', ...))
+      return made(realOpenSCAD('scale(' .. S .. ') import("' .. file .. '");', ...))
     end
     -- transforms the game builds hold scaled positions (constraint
     -- frames are relative to a body, so that's all they need)
@@ -459,8 +518,96 @@ local function makeGame(name, dir, offset, opts)
     end
     return require(mod)
   end
+  if opts.extra then
+    -- its ground plane (an endless one, in the room) is left out: the room
+    -- gives it a floor of its own. What the game does with it does nothing.
+    env.Plane = function()
+      return setmetatable({ __dummy = true }, { __index = function() return function() end end,
+                                                __newindex = function() end })
+    end
+    -- its terrain: moved, turned and scaled with it, and cut to its patch
+    -- of floor (what's outside it would cover the room). The game still
+    -- numbers the triangles as it made them.
+    if Terrain then
+      env.Terrain = function(...)
+        local t = wrap(Terrain(...))
+        local real = rawget(t, "__real")
+        local n, kept = 0, {}
+        local hw, hd = opts.patch[1] / 2 / S, opts.patch[2] / 2 / S
+        local function inside(p) return math.abs(p.x) <= hw and math.abs(p.z) <= hd end
+        rawset(t, "addTriangle", function(_, a, b, c)
+          if inside(a) and inside(b) and inside(c) then
+            kept[n] = real:getNumTriangles()
+            real:addTriangle(toWorld(a), toWorld(b), toWorld(c))
+          end
+          n = n + 1
+        end)
+        rawset(t, "getNumTriangles", function() return n end)
+        rawset(t, "setTriangleColor", function(_, i, ...)
+          if kept[i] then real:setTriangleColor(kept[i], ...) end
+        end)
+        rawset(t, "getTriangleColor", function(_, i, ...)
+          if kept[i] then return real:getTriangleColor(kept[i], ...) end
+        end)
+        return t
+      end
+    end
+  end
   g.env = env
-  g.load = function(file) env.dofile(file) end
+  -- Its fixed parts (mass 0) asleep, as Bullet puts them when they're
+  -- added: a script that wakes one (the walkers keep their floor awake)
+  -- would have it tested against every other fixed thing it touches, on
+  -- every step of every game. A sleeping one still stops what hits it.
+  g.settle = function()
+    for _, b in ipairs(g.bodies) do
+      if b:isStaticObject() then b:forceActivationState(2) end    -- ISLAND_SLEEPING
+    end
+  end
+  -- (and where everything it made was when it had loaded, for putting it
+  -- back as it started)
+  -- (again after a slider of its own made it build itself again, as the
+  -- walker's terrain slider does: when the parts it started with are gone)
+  g.started = function(again)
+    if again then
+      local gone = false
+      for o in pairs(g.startTrans) do if not g.objects[o] then gone = true; break end end
+      if not gone then return end
+    end
+    g.settle()
+    g.startTrans = {}
+    for o in pairs(g.objects) do
+      g.startTrans[o] = btTransform(o.trans:getRotation(), o.pos)
+    end
+    -- (paused, it takes in anything new it has made)
+    if g.paused then g.setPaused(false); g.setPaused(true) end
+  end
+  g.load = function(file)
+    env.dofile(file)
+    if opts.extra then g.started() end
+  end
+  -- Putting it back as it started: everything it made as it loaded goes
+  -- back where it was then, at rest (its own script carries on as it was).
+  -- Nothing is taken away and made again, so it costs no memory however
+  -- often it happens.
+  g.putBack = function()
+    local zero = btVector3(0, 0, 0)
+    for o, t in pairs(g.startTrans) do
+      o.trans = t
+      local ok, body = pcall(function() return o.body end)
+      if ok and body and not body:isStaticObject() then
+        body:setLinearVelocity(zero)
+        body:setAngularVelocity(zero)
+        body:clearForces()
+        if opts.awake then body:forceActivationState(4) else body:activate(true) end
+      end
+    end
+    g.putBacks = (g.putBacks or 0) + 1
+  end
+  -- taking away something it made after it had loaded (a marble that fell)
+  g.takeAway = function(body)
+    local o = g.bodyObj[body]
+    if o then vp:remove(o) end
+  end
   -- pausing: its moving bodies are taken out of the simulation (they cost
   -- nothing and keep their velocities), and its per-frame callbacks aren't
   -- called, until it's resumed. Its frame count N stops too, so it sees
@@ -499,6 +646,50 @@ local bumper = BUMPER_DIR and makeGame("the bumper pool table", BUMPER_DIR, BUMP
 if snooker then games[#games + 1] = snooker end
 if bumper then games[#games + 1] = bumper end
 
+-- MORE GAMES: any bpp script, brought into the room with one line here.
+-- The first thing on a line is its file, from this file's folder (or a
+-- full path); everything else is optional:
+--   on     = "floor", "table" or "wall": what it stands on. The room gives
+--            it a patch of floor, a table, or a shelf on the wall nearest
+--            x, z (its back to the wall, facing into the room). Its own
+--            ground plane, if it makes one, is left out.
+--   x, z   = where its middle goes, in cm. The room runs from x = -470
+--            (left wall) to 650 (right wall), and from z = -150 (the back
+--            wall, behind the pinball machine) to 960 (the door's wall).
+--   size   = { w, d }: that floor patch, table top or shelf, in cm
+--            (w across, d front to back, as the game is built); default
+--            { 100, 60 }. When anything of the game leaves it (falls off,
+--            walks off), the room puts the game back as it started
+--            (something it made later, such as a marble, is just taken
+--            away).
+--   height = the table top or the shelf, in cm above the floor (default
+--            75 for a table, 110 for a shelf)
+--   turn   = turned this many degrees, anticlockwise seen from above
+--            (default 0: its front, +z, toward the door; on a wall, it
+--            faces into the room)
+--   scale  = its size (0.1 a tenth; default 1). Its gravity and motors are
+--            scaled to suit, so it moves as it does full size.
+--   ground = the height of its own floor, in its own units (default 0):
+--            that's what rests on the floor, table or shelf
+--   name   = what Tab calls it (default: from the file's name)
+--   awake  = true: its parts never go to sleep (for a demo that asks you
+--            to turn deactivation off)
+--   keep   = true: never put back
+--   follow = true: while you're at it, the view follows it as it moves
+--            (for something that walks about)
+--   solid  = false: its floor patch, table top or shelf is only to look
+--            at; nothing rests on it, and whatever falls off is caught by
+--            the putting back instead. For a game that has a floor of its own
+--            (the walker's terrain), or none it needs (the marble run): a
+--            solid top costs time against a big moving mesh near it (the
+--            marble run's wheel: 3 times the time).
+-- Each one runs with its own physics settings (its own steps), as the
+-- clock does. Tab walks to each, after the clock.
+MORE_GAMES = MORE_GAMES or {
+  { "../../koppi/marblerun.lua", on = "table", x = 250, z = -95, size = { 70, 50 }, scale = 2, ground = -0.5, awake = true, solid = false, name = "the marble run" },
+  { "../Walkers/Jansen_6LegT.lua", on = "floor", x = -40, z = 330, size = { 300, 110 }, scale = 0.12, height = 2, solid = false, follow = true, name = "the walker" },
+}
+
 -- the clock, if it's to hand: shrunk to hang on the back wall, left of
 -- the pinball machine. Its gravity slider is "clock_gravity" in the Params
 -- pane (its script calls it "gravity"; the name is kept apart from any
@@ -523,8 +714,7 @@ do
     clock = makeGame("the clock", cdir,
                      CLOCK_OFFSET or btVector3(-100, FLOOR + 160 - 163 * S, -150 - 240 * S),
                      { scale = S, params = "clock_", noCamera = true, ownPhysics = true,
-                       paramStart = { gravity = CLOCK_G } })
-    games[#games + 1] = clock
+                       paramStart = { gravity = CLOCK_G } })    games[#games + 1] = clock
   else
     print("REC ROOM: no clock (looked for " .. CLOCK_FILE .. " in " .. table.concat(dirs, ", ") .. ")")
   end
@@ -545,6 +735,12 @@ local function header(g)
     if g == clock then
       h = h .. "Its gravity is the clock_gravity slider in the Params pane: it moves\n"
               .. "the clock alone. Its keys work while you're standing at it.\n\n"
+    end
+    if g.extra then
+      h = h .. "Its keys work while you're standing at it; its sliders, if it has any,\n"
+              .. "are the " .. g.prefix .. " ones in the Params pane." .. (g.keep and "" or
+              "\nIt's put back as it started when a part of it leaves its " .. g.on .. (g.on == "wall" and " shelf" or "")
+              .. " (" .. (g.putBacks or 0) .. " times so far).") .. "\n\n"
     end
     return h
   end
@@ -734,6 +930,154 @@ for _, z in ipairs({ 245, 540, 870 }) do              -- between the scoreboards
 end
 
 -- ---------------------------------------------------------------------
+-- MORE_GAMES: each on its own floor patch, table or shelf
+-- ---------------------------------------------------------------------
+
+local extras = {}
+local SUPPORT_HEIGHT = { floor = 0.7, table = 75, wall = 110 }
+for _, spec in ipairs(MORE_GAMES) do
+  local file = spec[1] or spec.file or ""
+  local gdir, base = file:match("^(.*[/\\])([^/\\]+)$")
+  if not gdir then gdir, base = "./", file end
+  local on = spec.on or "floor"
+  if not exists(gdir .. base) then
+    print("REC ROOM: MORE_GAMES: can't find " .. file)
+  elseif not SUPPORT_HEIGHT[on] then
+    print("REC ROOM: MORE_GAMES: " .. file .. ": on = \"" .. tostring(on) .. "\"? (floor, table or wall)")
+  else
+    local w, d = (spec.size or {})[1] or 100, (spec.size or {})[2] or 60
+    local x, z, turn = spec.x or 0, spec.z or 400, spec.turn
+    if on == "wall" then
+      -- the nearest wall: its back against it, facing into the room
+      local walls = { { x - X0, 90 }, { X1 - x, -90 }, { z - Z0, 0 }, { Z1 - z, 180 } }
+      table.sort(walls, function(a, b) return a[1] < b[1] end)
+      turn = turn or walls[1][2]
+      local t = walls[1][2]
+      if t == 90 then x = X0 + d / 2 + 1 elseif t == -90 then x = X1 - d / 2 - 1
+      elseif t == 0 then z = Z0 + d / 2 + 1 else z = Z1 - d / 2 - 1 end
+    end
+    turn = turn or 0
+    local top = FLOOR + (spec.height or SUPPORT_HEIGHT[on])
+    local S = spec.scale or 1
+    local name = spec.name or ("the " .. base:gsub("%.lua$", ""):gsub("[_%-]+", " "))
+    local prefix = (name:gsub("^the ", ""):gsub("%W+", "_")) .. "_"
+    local g = makeGame(name, gdir, btVector3(x, top - (spec.ground or 0) * S, z),
+                       { scale = S, turn = turn, extra = true, patch = { w, d }, awake = spec.awake,
+                         noCamera = true, params = prefix, ownPhysics = CAN_STEP, motors = not CAN_STEP })
+    g.on, g.top, g.x, g.z, g.w, g.d, g.keep, g.follow = on, top, x, z, w, d, spec.keep, spec.follow
+    -- its support: a floor patch (a mat), a table or a shelf. Its top is
+    -- solid; the rest is only to look at.
+    local q = yq(math.rad(turn))
+    local function at(lx, ly, lz)          -- a point on it, in the room
+      local c, s = math.cos(math.rad(turn)), math.sin(math.rad(turn))
+      return x + lx * c + lz * s, ly, z - lx * s + lz * c
+    end
+    local thick = (on == "floor") and 1 or 3
+    local slabTop = (on == "floor") and FLOOR + SUPPORT_HEIGHT.floor or top     -- (a mat stays on the floor)
+    local slab = Cube(w, thick, d, 0)
+    slab.trans = btTransform(q, btVector3(x, slabTop - thick / 2, z))
+    slab.col = (on == "floor") and "#3d5a40" or "#7a5230"
+    slab.friction = 0.8
+    if spec.solid == false then slab.collides = false end
+    v:add(slab)
+    if on == "table" then
+      for i = -1, 1, 2 do for j = -1, 1, 2 do
+        local lx, _, lz = at(i * (w / 2 - 5), 0, j * (d / 2 - 5))
+        box(lx, (FLOOR + top - thick) / 2, lz, 5, top - thick - FLOOR, 5, "#4a2a12", q)
+      end end
+      local cx, _, cz = at(0, 0, 0)
+      box(cx, top - thick - 4, cz, w - 6, 8, d - 6, "#5a3418", q)        -- the apron
+    elseif on == "wall" then
+      for i = -1, 1, 2 do                                                 -- brackets
+        local lx, _, lz = at(i * (w / 2 - 8), 0, 0)
+        box(lx, top - thick - 10, lz, 3, 20, d - 4, "#2b1608", q)
+      end
+    else
+      local cx, _, cz = at(0, 0, 0)
+      box(cx, slabTop - 0.9, cz, w + 6, 0.4, d + 6, "#b8860b", q)        -- the mat's edge
+    end
+    extras[#extras + 1] = g
+    games[#games + 1] = g
+    g.header = header(g)
+    active = g
+    local friction = realV.friction
+    local ok, err = pcall(g.load, base)
+    pcall(function() realV.friction = friction end)
+    g.builtAt = v:getTime()
+    if not ok then
+      print("REC ROOM: " .. name .. " didn't load: " .. tostring(err))
+      table.remove(games)
+      table.remove(extras)
+    end
+  end
+end
+active = pinball
+
+-- the middle of an extra's moving parts, and how far they spread from it
+local function middleOf(g)
+  return function()
+    local pts = {}
+    local sx, sy, sz = 0, 0, 0
+    for _, b in ipairs(g.bodies) do
+      if not b:isStaticObject() then
+        local p = b:getCenterOfMassPosition()
+        pts[#pts + 1] = p
+        sx, sy, sz = sx + p.x, sy + p.y, sz + p.z
+      end
+    end
+    local n = #pts
+    if n == 0 then return nil end
+    local m = btVector3(sx / n, sy / n, sz / n)
+    local r = 0
+    for _, p in ipairs(pts) do
+      r = math.max(r, math.sqrt((p.x - m.x) ^ 2 + (p.y - m.y) ^ 2 + (p.z - m.z) ^ 2))
+    end
+    return m, r
+  end
+end
+for _, g in ipairs(extras) do g.middle = middleOf(g) end
+
+-- Putting back: when a part of it (its middle) is past the edge of its
+-- floor patch, table or shelf, or has fallen below it, the game is put back
+-- as it started -- or, if that part is something it made after it had
+-- loaded (a marble), that part alone is taken away. (Put back again within
+-- a few seconds: it doesn't fit its support, and is left as it is, with a
+-- word in the console.)
+local function checkExtra(g)
+  if g.keep or g.stuck then return end
+  local c, s = math.cos(math.rad(g.turn)), math.sin(math.rad(g.turn))
+  local out, startOut = {}, false
+  for _, b in ipairs(g.bodies) do
+    if not b:isStaticObject() then
+      local p = b:getCenterOfMassPosition()
+      local dx, dz = p.x - g.x, p.z - g.z
+      local lx, lz = dx * c - dz * s, dx * s + dz * c
+      if math.abs(lx) > g.w / 2 or math.abs(lz) > g.d / 2 or p.y < g.top - 20 then
+        out[#out + 1] = b
+        if g.startTrans[g.bodyObj[b]] then startOut = true end
+      end
+    end
+  end
+  if startOut then
+    if v:getTime() - g.builtAt < 5 then
+      g.stuck = true
+      print("REC ROOM: " .. g.name .. " doesn't fit its " .. g.on .. " (size = { " .. g.w .. ", " .. g.d ..
+            " }): it's left as it is")
+      return
+    end
+    local ok, err = pcall(g.putBack)
+    g.builtAt = v:getTime()
+    if not ok then
+      g.stuck = true
+      print("REC ROOM: " .. g.name .. " couldn't be put back: " .. tostring(err))
+    end
+  end
+  for _, b in ipairs(out) do
+    if not g.startTrans[g.bodyObj[b]] then g.takeAway(b) end
+  end
+end
+
+-- ---------------------------------------------------------------------
 -- walking round: Tab goes to the next game, then a look round the room
 -- ---------------------------------------------------------------------
 
@@ -756,6 +1100,11 @@ Tab walks between them:
                             its gravity is the clock_gravity slider
   looking round the room -- the mouse turns and zooms the view as usual
 ]]
+if #extras > 0 then
+  local names = {}
+  for _, g in ipairs(extras) do names[#names + 1] = g.name:gsub("^the ", "") end
+  roomHelp = roomHelp .. "  and, from MORE_GAMES     -- " .. table.concat(names, ", ") .. "\n"
+end
 
 local function goTo(g)
   -- let go of any keys still held at the game we're leaving
@@ -782,6 +1131,19 @@ local function goTo(g)
     c.pos = btVector3(o.x + 30 * S, o.y + 145 * S + 8, o.z + 560 * S + 175)
     c.look = btVector3(o.x + 30 * S, o.y + 135 * S, o.z + 400 * S)
     showHelp(clock.header() .. clock.help)
+  elseif g and g.extra then
+    -- in front of it, looking at the middle of its moving parts (or of its
+    -- support, if nothing of it moves), from far enough to see it whole
+    local look, r = g.middle()
+    look = look or btVector3(g.x, g.top + 15, g.z)
+    local dist = math.min(math.max(g.w, g.d) * 0.8 + 60, math.max(60, 3 * (r or 1e9) + 40))
+    g.lastMiddle = look
+    local t = math.rad(g.turn)
+    local c = realV.cam
+    c:setUpVector(btVector3(0, 1, 0), true)
+    c.pos = btVector3(look.x + math.sin(t) * dist, look.y + dist * 0.5, look.z + math.cos(t) * dist)
+    c.look = look
+    showHelp(g.header() .. g.help)
   else
     local c = realV.cam
     c:setUpVector(btVector3(0, 1, 0), true)
@@ -840,11 +1202,14 @@ end
 -- settings); a clock frame swaps them over in preSim, just before the
 -- step, and back in postSim, just after.
 local clockTurn, lastWasClock = false, false
-local lost, report = 0, { frames = 0 }     -- time the clock has lost, for the console
-local clockStart, clockN0                -- real time and clock frames when it started
-local function whose(onClock)
-  for _, g in ipairs(games) do g.setPaused((g == clock) ~= onClock) end
-  applyPhysics(onClock and clock.physics or ROOM_PHYSICS)
+-- whose(g): g's turn to be stepped, with its own settings, everything else
+-- waiting; whose(nil): the games' turn, the clock and the others with their
+-- own physics waiting
+local function whose(x)
+  for _, g in ipairs(games) do
+    if x then g.setPaused(g ~= x) else g.setPaused(g == clock or g.ownPhysics == true) end
+  end
+  applyPhysics(x and x.physics or ROOM_PHYSICS)
 end
 -- A table that's waiting for a shot, with every ball still, has its balls
 -- taken out of the simulation (the tables keep them awake on purpose, so
@@ -917,8 +1282,12 @@ do
   end
 end
 local meter = { t0 = nil, longest = 0, lastDraw = nil, frames = 0, gameFrames = 0, clockFrames = 0,
-                physGames = 0, physClock = 0, room = 0, gc = 0, draw = 0, draws = 0, scripts = {} }
+                physGames = 0, physClock = 0, physOwn = {}, physOwnAll = 0, room = 0, gc = 0, draw = 0, draws = 0,
+                scripts = {} }
 local lastPrint = nil
+THINK_FILL = THINK_FILL or 0.9
+THINK_MIN, THINK_MAX = THINK_MIN or 0.5, THINK_MAX or 3
+local thinkMs = THINK_MAX
 local SHORT = {}
 local function shortName(g)
   return SHORT[g] or (g.name:gsub("^the ", ""):gsub(" machine$", ""):gsub(" table$", ""))
@@ -948,25 +1317,44 @@ local function meterTick(t)
       parts[#parts + 1] = string.format("%s %.2f", shortName(g), x)
     end
     local room = per(meter.room)
-    busy = busy + room + per(meter.physGames) + per(meter.physClock) + meter.gc / d + meter.draw / d
+    busy = busy + room + per(meter.physGames) + per(meter.physClock) + per(meter.physOwnAll) + meter.gc / d + meter.draw / d
+    local own = ""
+    for _, g in ipairs(extras) do own = own .. string.format(", %s %.2f", shortName(g), per(meter.physOwn[g] or 0)) end
     local fps = meter.frames / el
     -- how long a frame actually had (the screen may hold frames to its own
     -- rate, 60 a second, whatever the room asks for), and how much of the
     -- time the room was working
     local period = 1000 / fps
     local load = busy / period
+    -- The tables' computer players think a little each frame (PLAN_BUDGET
+    -- seconds; 3 ms on their own). Here they get what the frame has to
+    -- spare: the room aims to fill THINK_FILL of each 1/60 s, so whatever
+    -- the rest of the room took last second (the tables' own scripts
+    -- counted at their usual cost), the thinking gets the remainder,
+    -- between THINK_MIN and THINK_MAX ms. Thinking then takes longer when
+    -- the room is busy, rather than slowing the room down.
+    local tables, tableScripts = 0, 0
+    for _, g in ipairs({ pool, snooker, bumper }) do
+      if g then tables = tables + 1; tableScripts = tableScripts + per(meter.scripts[g] or 0) end
+    end
+    local others = busy - tableScripts + 0.7 * tables
+    local spare = THINK_FILL * 1000 / 60 - others
+    thinkMs = math.max(THINK_MIN, math.min(THINK_MAX, spare))
+    for _, g in ipairs({ pool, snooker, bumper }) do
+      if g then g.env.PLAN_BUDGET = thinkMs / 1000 end
+    end
     meterText = string.format(
       "COST METER -- ms per frame, averaged over the last second\n" ..
       "  %.0f frames a second: %.0f for the games, %.0f clock steps%s; longest frame %.0f ms\n" ..
-      "  physics  games %.2f, clock %.2f\n" ..
+      "  physics  games %.2f, clock %.2f%s\n" ..
       "  scripts  %s, room %.2f\n" ..
-      "  garbage  %.2f      drawing %.2f\n" ..
+      "  garbage  %.2f      drawing %.2f      thinking up to %.1f\n" ..
       "  busy     %.1f ms of each %.1f ms frame (%.0f%%)%s\n\n",
       fps, meter.gameFrames / el, meter.clockFrames / el,
       clock and "" or " (no clock)", meter.longest,
-      per(meter.physGames), per(meter.physClock),
+      per(meter.physGames), per(meter.physClock), own,
       table.concat(parts, ", "), room,
-      meter.gc / d, meter.draw / d,
+      meter.gc / d, meter.draw / d, thinkMs,
       busy, period, 100 * load,
       (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "")
   end
@@ -978,6 +1366,7 @@ local function meterTick(t)
   meter.t0, meter.frames, meter.gameFrames, meter.clockFrames, meter.draws = t, 0, 0, 0, 0
   meter.longest = 0
   meter.physGames, meter.physClock, meter.room, meter.gc, meter.draw = 0, 0, 0, 0, 0
+  meter.physOwn, meter.physOwnAll = {}, 0
   meter.scripts = {}
 end
 
@@ -996,38 +1385,40 @@ local function call(k, all)
 end
 local tPre, tStep, scriptsHere = 0, 0, 0
 local function scriptsTotal() local s = 0; for _, x in pairs(meter.scripts) do s = s + x end; return s end
--- The clock's pace: it's owed 25 frames for each real second since it
--- started (a stopwatch, never the time of day). Returns how many it's owed
--- now; after a hold-up of over MAX_OWED seconds (bpp paused, say) it lets
--- the rest go, and says so.
-local function clockOwed()
-  local fps = 1000 / clock.physics.animationPeriod
+-- The pace of a game with its own physics (the clock, and MORE_GAMES):
+-- it's owed the frames it gets on its own (the clock 25, most others 25 too)
+-- for each real second since it started (a stopwatch, never the time of
+-- day). Returns how many it's owed now; after a hold-up of over MAX_OWED
+-- seconds (bpp paused, say) it lets the rest go, and says so.
+local function owed(g)
+  local fps = 1000 / g.physics.animationPeriod
   local t = v:getTime()
-  if not clockStart then clockStart, clockN0 = t, clock.N end
-  local owed = (t - clockStart) * fps - (clock.N - clockN0)
-  if owed > MAX_OWED * fps then
-    lost = lost + (owed - MAX_OWED * fps) / fps
-    clockStart = t - ((clock.N - clockN0) + MAX_OWED * fps) / fps
-    owed = MAX_OWED * fps
+  if not g.start then g.start, g.N0, g.lost, g.report = t, g.N, 0, { frames = 0 } end
+  local report = g.report
+  local n = (t - g.start) * fps - (g.N - g.N0)
+  if n > MAX_OWED * fps then
+    g.lost = g.lost + (n - MAX_OWED * fps) / fps
+    g.start = t - ((g.N - g.N0) + MAX_OWED * fps) / fps
+    n = MAX_OWED * fps
   end
   report.frames = report.frames + 1
   if not report.t then report.t = t end
   if t - report.t >= 10 then
-    if lost > 0.05 then
+    if g.lost > 0.05 then
       local el = t - report.t
       if CAN_STEP then
-        print(string.format("REC ROOM: the clock lost %.1f s in the last %.0f s: the room was held up for more than %.0f s.",
-                            lost, el, MAX_OWED))
+        print(string.format("REC ROOM: %s lost %.1f s in the last %.0f s: the room was held up for more than %.0f s.",
+                            g.name, g.lost, el, MAX_OWED))
       else
-        print(string.format("REC ROOM: the clock lost %.1f s in the last %.0f s. The room ran at %.0f frames a second; " ..
-                            "the clock needs %.0f of them, at most every other one, so it keeps time only when the room " ..
+        print(string.format("REC ROOM: %s lost %.1f s in the last %.0f s. The room ran at %.0f frames a second; " ..
+                            "it needs %.0f of them, at most every other one, so it keeps time only when the room " ..
                             "manages %.0f or more (and isn't held up).",
-                            lost, el, report.frames / el, fps, 2 * fps))
+                            g.name, g.lost, el, report.frames / el, fps, 2 * fps))
       end
     end
-    lost, report.t, report.frames = 0, t, 0
+    g.lost, report.t, report.frames = 0, t, 0
   end
-  return owed
+  return n
 end
 
 -- one of a game's callbacks, timed for the meter
@@ -1046,10 +1437,9 @@ v:preSim(function(N)
   if clock and not CAN_STEP then
     -- (an older bpp: the clock takes turns with the games, a frame at a
     -- time, never two in a row)
-    local owed = clockOwed()
-    clockTurn = owed >= 1 and not lastWasClock
+    clockTurn = owed(clock) >= 1 and not lastWasClock
     lastWasClock = clockTurn
-    if clockTurn then whose(true) end
+    if clockTurn then whose(clock) end
   end
   for _, g in ipairs(games) do if not g.paused then g.N = g.N + 1 end end
   if not clockTurn then
@@ -1066,33 +1456,61 @@ v:postSim(function(N)
   local t = now()
   if clockTurn then meter.physClock = meter.physClock + (t - tStep); meter.clockFrames = meter.clockFrames + 1
   else meter.physGames = meter.physGames + (t - tStep); meter.gameFrames = meter.gameFrames + 1 end
-  local pc0 = meter.physClock
+  local pc0 = meter.physClock + meter.physOwnAll
   meter.frames = meter.frames + 1
   local s0 = scriptsTotal()
   local err = call("postSim")
-  if clockTurn then whose(false); clockTurn = false end
-  -- the clock's steps, inside the same frame: the games wait while the
-  -- clock takes the steps it's owed (usually none or one; a few after a
-  -- hold-up), each with its own settings and its own callbacks around it
-  if clock and CAN_STEP then
-    local k = math.min(math.floor(clockOwed()), MAX_CATCHUP)
-    if k > 0 then
-      whose(true)
-      local P = clock.physics
-      for _ = 1, k do
-        clock.N = clock.N + 1
-        err = callOne(clock, "preSim") or err
-        local tc = now()
-        realV:stepSimulation(P.timeStep, P.maxSubSteps, P.fixedTimeStep)
-        meter.physClock = meter.physClock + (now() - tc)
-        err = callOne(clock, "postSim") or err
+  if clockTurn then whose(nil); clockTurn = false end
+  -- the steps of the clock and the others with their own physics, inside
+  -- the same frame: the games wait while each takes the steps it's owed
+  -- (usually none or one; a few after a hold-up), with its own settings
+  -- and its own callbacks around them
+  if CAN_STEP then
+    local turned = false
+    for _, g in ipairs(games) do
+      if g == clock or g.ownPhysics then
+        local k = math.min(math.floor(owed(g)), MAX_CATCHUP)
+        if k > 0 then
+          whose(g)
+          turned = true
+          local P = g.physics
+          for _ = 1, k do
+            g.N = g.N + 1
+            err = callOne(g, "preSim") or err
+            local tc = now()
+            realV:stepSimulation(P.timeStep, P.maxSubSteps, P.fixedTimeStep)
+            local dt = now() - tc
+            if g == clock then meter.physClock = meter.physClock + dt
+            else meter.physOwn[g] = (meter.physOwn[g] or 0) + dt; meter.physOwnAll = meter.physOwnAll + dt end
+            err = callOne(g, "postSim") or err
+          end
+          if g == clock then meter.clockFrames = meter.clockFrames + k end
+          if g.extra and g.N % 15 < k then checkExtra(g) end
+        end
       end
-      meter.clockFrames = meter.clockFrames + k
-      whose(false)
     end
+    if turned then whose(nil) end
+  else
+    for _, g in ipairs(extras) do if N % 15 == 0 then checkExtra(g) end end
   end
   roomTick(N)
-  meter.room = meter.room + (now() - t) - (scriptsTotal() - s0) - (meter.physClock - pc0)
+  -- the view follows a game that walks about (moved, not turned, so the
+  -- mouse still turns it round)
+  if active and active.follow and active.lastMiddle and N % 2 == 0 then
+    local m = active.middle()
+    if m then
+      local o = active.lastMiddle
+      local dx, dy, dz = m.x - o.x, m.y - o.y, m.z - o.z
+      if dx * dx + dy * dy + dz * dz > 0.01 then
+        local c = realV.cam
+        local p, l = c.pos, c.look
+        c.pos = btVector3(p.x + dx, p.y + dy, p.z + dz)
+        c.look = btVector3(l.x + dx, l.y + dy, l.z + dz)
+        active.lastMiddle = m
+      end
+    end
+  end
+  meter.room = meter.room + (now() - t) - (scriptsTotal() - s0) - (meter.physClock + meter.physOwnAll - pc0)
   if err then error(err, 0) end
 end)
 
@@ -1151,7 +1569,7 @@ if FREEZE_LOG_MS > 0 and v.setFrameTiming then v:setFrameTiming(FREEZE_LOG_MS) e
 local snap = { scripts = {} }
 local function takeSnap()
   snap.physGames, snap.physClock, snap.room, snap.gc, snap.draw =
-    meter.physGames, meter.physClock, meter.room, meter.gc, meter.draw
+    meter.physGames, meter.physClock + meter.physOwnAll, meter.room, meter.gc, meter.draw
   for k in pairs(snap.scripts) do snap.scripts[k] = nil end
   for g, x in pairs(meter.scripts) do snap.scripts[g] = x end
 end
@@ -1177,7 +1595,7 @@ v:postDraw(function(N)
         inside = inside + x
         if x >= 1 then parts[#parts + 1] = string.format("%s %.0f", name, x) end
       end
-      part("physics", (meter.physGames - snap.physGames) + (meter.physClock - snap.physClock))
+      part("physics", (meter.physGames - snap.physGames) + (meter.physClock + meter.physOwnAll - snap.physClock))
       for _, g in ipairs(games) do part(shortName(g), (meter.scripts[g] or 0) - (snap.scripts[g] or 0)) end
       part("room", meter.room - snap.room)
       part("garbage", meter.gc - snap.gc)
@@ -1195,13 +1613,30 @@ v:postDraw(function(N)
   if err then error(err, 0) end
 end)
 
+-- a slider moved: the game it belongs to hears of it, by its own name
+-- (the games whose sliders are renamed first: a game whose aren't would
+-- match every name)
+v:onParamChanged(function(N, name, value)
+  for pass = 1, 2 do
+    for _, g in ipairs(games) do
+      local f, p = g.callbacks.onParamChanged, g.prefix or ""
+      if f and (p ~= "") == (pass == 1) and name:sub(1, #p) == p then
+        local ok, e = pcall(f, g.N, name:sub(#p + 1), value)
+        if not ok then print("REC ROOM: " .. g.name .. ": " .. tostring(e)) end
+        -- (one of MORE_GAMES may have built itself again, as the walker does
+        -- for its terrain: that's where it starts from now)
+        if g.extra then g.started(true) end
+        return
+      end
+    end
+  end
+end)
+
 TF = { pinball = pinball, pool = pool, snooker = snooker, bumper = bumper, clock = clock, goTo = goTo, games = games,
-       at = function() return active end }
+       extras = extras, at = function() return active end }
 -- with the clock stepped inside the games' frames, the room runs at the
 -- games' 60 frames a second; an older bpp needs 83 a second (12 ms a
 -- frame), 25 for the clock and the rest for the games
-if clock then
-  whose(false)
-  if v.animationPeriod then v.animationPeriod = CAN_STEP and 16 or 12 end
-end
+whose(nil)
+if clock and v.animationPeriod then v.animationPeriod = CAN_STEP and 16 or 12 end
 goTo(pinball)
