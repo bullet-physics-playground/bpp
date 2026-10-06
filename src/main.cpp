@@ -23,6 +23,8 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QTimer>
+#include <QPalette>
+#include <QSettings>
 
 #include "appenv.h"
 #include "gui.h"
@@ -165,6 +167,34 @@ int main(int argc, char **argv) {
     app = QSharedPointer<QCoreApplication>(new QApplication(argc, argv));
     // Set style to fusion to prevent crash in Qt Breeze style plugin cleanup
     QApplication::setStyle("fusion");
+#ifdef Q_OS_WIN
+    // Fusion ignores the Windows dark mode, so follow it by hand.
+    QSettings theme("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\"
+                    "CurrentVersion\\Themes\\Personalize",
+                    QSettings::NativeFormat);
+    if (theme.value("AppsUseLightTheme", 1).toInt() == 0) {
+      QPalette dark;
+      const QColor base(32, 32, 32), window(45, 45, 45), text(Qt::white),
+          link(66, 133, 244), off(127, 127, 127);
+      dark.setColor(QPalette::Window, window);
+      dark.setColor(QPalette::WindowText, text);
+      dark.setColor(QPalette::Base, base);
+      dark.setColor(QPalette::AlternateBase, window);
+      dark.setColor(QPalette::ToolTipBase, window);
+      dark.setColor(QPalette::ToolTipText, text);
+      dark.setColor(QPalette::Text, text);
+      dark.setColor(QPalette::Button, window);
+      dark.setColor(QPalette::ButtonText, text);
+      dark.setColor(QPalette::BrightText, Qt::red);
+      dark.setColor(QPalette::Link, link);
+      dark.setColor(QPalette::Highlight, link);
+      dark.setColor(QPalette::HighlightedText, Qt::white);
+      dark.setColor(QPalette::Disabled, QPalette::Text, off);
+      dark.setColor(QPalette::Disabled, QPalette::ButtonText, off);
+      dark.setColor(QPalette::Disabled, QPalette::WindowText, off);
+      QApplication::setPalette(dark);
+    }
+#endif
   }
 
   // end workaround
