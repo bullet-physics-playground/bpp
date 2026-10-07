@@ -2601,6 +2601,11 @@ void Viewer::clear() {
   _light0 = btVector4(500.0, 500.0, 500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
 
+  // (a script's culling and shadow-record settings go with it, as the
+  // lights do)
+  _culling = true;
+  _shadowCache = true;
+
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
   _gl_shininess = btScalar(100.0);
