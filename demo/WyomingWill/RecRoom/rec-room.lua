@@ -1301,6 +1301,17 @@ local SHORT = {}
 local function shortName(g)
   return SHORT[g] or (g.name:gsub("^the ", ""):gsub(" machine$", ""):gsub(" table$", ""))
 end
+-- (a bpp that skips what can't be seen says how many objects the last frame
+-- drew, for the screen and into the shadow map)
+local function drawnLine()
+  local ok, n = pcall(function() return realV.drawnObjects end)
+  if not ok or type(n) ~= "number" then return "" end
+  if not realV.culling then return "  drawn    everything (culling off)\n" end
+  if realV.shadows then
+    return string.format("  drawn    %d objects, %d into the shadow map\n", n, realV.shadowCasters)
+  end
+  return string.format("  drawn    %d objects\n", n)
+end
 local function meterTick(t)
   if not METER then return end
   if not meter.t0 then meter.t0 = t; return end
@@ -1358,12 +1369,14 @@ local function meterTick(t)
       "  physics  games %.2f, clock %.2f%s\n" ..
       "  scripts  %s, room %.2f\n" ..
       "  garbage  %.2f      drawing %.2f      thinking up to %.1f\n" ..
+      "%s" ..
       "  busy     %.1f ms of each %.1f ms frame (%.0f%%)%s\n\n",
       fps, meter.gameFrames / el, meter.clockFrames / el,
       clock and "" or " (no clock)", meter.longest,
       per(meter.physGames), per(meter.physClock), own,
       table.concat(parts, ", "), room,
       meter.gc / d, meter.draw / d, thinkMs,
+      drawnLine(),
       busy, period, 100 * load,
       (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "")
   end

@@ -230,6 +230,7 @@ COST METER -- ms per frame, averaged over the last second
   physics  games 1.55, clock 1.70
   scripts  pinball 0.10, pool 0.35, snooker 0.30, bumper pool 0.20, clock 0.02, room 0.45
   garbage  1.20      drawing 3.30      thinking up to 3.0
+  drawn    575 objects, 1188 into the shadow map
   busy     8.8 ms of each 16.7 ms frame (53%)
 ```
 
@@ -248,6 +249,10 @@ COST METER -- ms per frame, averaged over the last second
   frame (see "Garbage" below).
 - **drawing:** bpp drawing the scene. Time the graphics card spends after
   that, and waiting for the next frame, isn't counted.
+- **drawn:** on a bpp that skips what can't be seen (`v.culling`, on by
+  default), how many of the room's 3,300 or so objects the last frame drew
+  for the screen, and, with shadows on, into the shadow map: only what's in
+  view, or could throw a shadow into it.
 - **thinking up to:** how long the tables' computer players may think each
   frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has
