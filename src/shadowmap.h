@@ -135,6 +135,44 @@ public:
   void renderDepthEnd();
 
   /**
+   * @brief Whether a saved depth map (saveDepth()) can stand in for this
+   *        pass's: there is one, and it was made from the same light and the
+   *        same fit around the scene as the pass just begun.
+   * @return True if restoreDepth() would give the right depths.
+   */
+  bool savedDepthFits() const;
+
+  /**
+   * @brief Whether this pass's light and fit around the scene are the same
+   *        as the last ten passes' (worth saving the depth for: one that
+   *        keeps changing would have it saved and never used).
+   * @return True if they are.
+   */
+  bool lightSteady() const;
+
+  /**
+   * @brief Whether saveDepth() can work here (false once the GL context has
+   *        refused the second depth map it needs).
+   * @return True if it can.
+   */
+  bool canSaveDepth() const;
+
+  /**
+   * @brief Saves the depth drawn so far in this pass, for restoreDepth() to
+   *        put back on a later frame. Call between renderDepthBegin() and
+   *        renderDepthEnd().
+   * @return True if it was saved.
+   */
+  bool saveDepth();
+
+  /**
+   * @brief Puts back the depth saved by saveDepth() in place of this pass's
+   *        (call between renderDepthBegin() and renderDepthEnd(), before
+   *        drawing anything more into it; only when savedDepthFits()).
+   */
+  void restoreDepth();
+
+  /**
    * @brief Binds the lighting shader and the depth map for the visible pass.
    *
    * @param cameraModelView The camera's own view matrix, column-major as
@@ -176,6 +214,14 @@ private:
   /// Set by setMapSize() when the texture needs rebuilding at the new size,
   /// which only the render thread can do; cleared by isAvailable().
   bool _sizeDirty;
+
+  unsigned _savedTex;  ///< A copy of a depth map, @see saveDepth().
+  unsigned _savedTexFbo; ///< Framebuffer it is attached to (to copy from).
+  bool _haveSaved;     ///< Whether _savedTex holds a saved depth map.
+  QMatrix4x4 _savedMatrix; ///< The light matrix it was made with.
+  QMatrix4x4 _lastMatrix;  ///< The light matrix of the pass before this one.
+  int _steadyFrames = 0;   ///< Passes the light matrix has stayed the same.
+  bool _saveFailed = false; ///< @see canSaveDepth().
 
   int _savedViewport[4]; ///< Viewport renderDepthBegin() replaced.
   int _savedFbo;         ///< Framebuffer binding it replaced.

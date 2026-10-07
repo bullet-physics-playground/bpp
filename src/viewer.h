@@ -737,10 +737,40 @@ public:
 
   /**
    * @brief How many fixed objects the last frame's shadow map took from its
-   *        record (0 when it drew them all one by one).
+   *        record or its saved depth (0 when it drew them all one by one).
+   *        From the saved depth that is all of them; replaying the record,
+   *        only those in the patches culling kept.
    * @return The count.
    */
   int shadowCached() const;
+
+  /**
+   * @brief Turns the saved shadow depth on or off.
+   *
+   * On (the default), with the record on (setShadowCache()), the still
+   * objects' depth is drawn into the shadow map once and saved, and each
+   * frame after that puts the saved depth back with one copy on the graphics
+   * card, then draws only the rest. It is drawn and saved again when the
+   * record changes, or the light, or the scene's extent (which the shadow map
+   * is fitted to), once that has stayed the same for ten frames; until then,
+   * and with this off, each frame replays the record instead.
+   *
+   * @param on True to save the depth.
+   */
+  void setShadowSaved(bool on);
+
+  /**
+   * @brief Returns whether the shadow depth is saved (see setShadowSaved()).
+   * @return True if it is.
+   */
+  bool shadowSaved() const;
+
+  /**
+   * @brief Whether the last frame's shadow map started from the saved depth
+   *        (or saved it).
+   * @return True if it did.
+   */
+  bool shadowFromSaved() const;
 
   /**
    * @brief Sets the resolution of the square shadow depth map, in pixels.
@@ -1958,6 +1988,10 @@ private:
   quint64 _fixedShadowSig = 0;     ///< The objects they were made from.
   int _fixedShadowCount = 0;       ///< How many objects they hold.
   int _shadowCached = 0;           ///< Taken from it last frame.
+  bool _shadowSaved = true;        ///< See setShadowSaved().
+  bool _shadowFromSaved = false;   ///< See shadowFromSaved().
+  quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from
+  int _savedDepthCount = -1;       ///< (and how many objects it held).
   ShadowMap *_shadowMap; ///< Off-screen depth map and the shader that reads
                          ///< it; built on the first shadowed frame, since it
                          ///< needs a current GL context.

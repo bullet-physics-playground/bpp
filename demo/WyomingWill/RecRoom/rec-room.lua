@@ -1319,8 +1319,10 @@ local function drawnLine()
     -- (and a bpp that records the still objects' shadows replays those)
     local okc, c = pcall(function() return realV.shadowCached end)
     if okc and type(c) == "number" and c > 0 then
-      return string.format("  drawn    %d objects, %d into the shadow map and %d more from its record\n",
-                           n, realV.shadowCasters, c)
+      -- (and one that saves the still objects' depth copies it back instead)
+      local oks, s = pcall(function() return realV.shadowFromSaved end)
+      return string.format("  drawn    %d objects, %d into the shadow map and %d more from its %s\n",
+                           n, realV.shadowCasters, c, (oks and s == true) and "saved depth" or "record")
     end
     return string.format("  drawn    %d objects, %d into the shadow map\n", n, realV.shadowCasters)
   end

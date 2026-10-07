@@ -176,7 +176,8 @@ static const char *kFragmentShader =
 ShadowMap::ShadowMap()
     : _size(2048), _softness(1.0), _darkness(1.0), _tex(0), _fbo(0),
       _prog(nullptr), _ctx(nullptr), _epoch(0), _failed(false),
-      _haveDepth(false), _sizeDirty(false), _savedFbo(0) {
+      _haveDepth(false), _sizeDirty(false), _savedTex(0), _savedTexFbo(0),
+      _haveSaved(false), _savedFbo(0) {
   _savedViewport[0] = _savedViewport[1] = 0;
   _savedViewport[2] = _savedViewport[3] = 0;
 }
@@ -216,6 +217,10 @@ bool ShadowMap::isAvailable() {
   if (ctx != _ctx || glCacheEpoch() != _epoch) {
     _tex = 0;
     _fbo = 0;
+    _savedTex = 0;
+    _savedTexFbo = 0;
+    _haveSaved = false;
+    _saveFailed = false;
     delete _prog;
     _prog = nullptr;
     _ctx = ctx;
@@ -230,6 +235,7 @@ bool ShadowMap::isAvailable() {
     destroy();
     _sizeDirty = false;
     _failed = false;
+    _saveFailed = false;
   }
 
   if (_failed)
@@ -334,9 +340,19 @@ void ShadowMap::destroy() {
     if (_tex != 0) {
       glDeleteTextures(1, &_tex);
     }
+    if (_savedTexFbo != 0) {
+      QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+      f->glDeleteFramebuffers(1, &_savedTexFbo);
+    }
+    if (_savedTex != 0) {
+      glDeleteTextures(1, &_savedTex);
+    }
   }
   _fbo = 0;
   _tex = 0;
+  _savedTexFbo = 0;
+  _savedTex = 0;
+  _haveSaved = false;
   delete _prog;
   _prog = nullptr;
   _haveDepth = false;
@@ -389,6 +405,10 @@ bool ShadowMap::renderDepthBegin(const btVector4 &lightPos,
   bias.scale(0.5f, 0.5f, 0.5f);
 
   _lightMatrix = bias * proj * view;
+  // (steady for a few frames: a light or scene that changes every other
+  // frame would have the depth saved and never used)
+  _steadyFrames = (_lightMatrix == _lastMatrix) ? qMin(_steadyFrames + 1, 1000) : 0;
+  _lastMatrix = _lightMatrix;
 
   QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
 
@@ -450,6 +470,88 @@ void ShadowMap::renderDepthEnd() {
   glViewport(_savedViewport[0], _savedViewport[1], _savedViewport[2],
              _savedViewport[3]);
 }
+
+// The saved depth map. Copies between it and the map are made on the
+// graphics card (glCopyTexSubImage2D reads the depth of the framebuffer bound
+// for reading), so neither costs more than a moment of its time.
+
+bool ShadowMap::savedDepthFits() const {
+  return _haveDepth && _haveSaved && _savedTex != 0 && _savedMatrix == _lightMatrix;
+}
+
+bool ShadowMap::saveDepth() {
+  if (!_haveDepth)
+    return false;
+  QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+  GLint prevTex = 0;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+  if (_savedTex == 0) {
+    while (glGetError() != GL_NO_ERROR) {
+    }
+    glGenTextures(1, &_savedTex);
+    glBindTexture(GL_TEXTURE_2D, _savedTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, _size, _size, 0,
+                 GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+
+    f->glGenFramebuffers(1, &_savedTexFbo);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, _savedTexFbo);
+    f->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                              GL_TEXTURE_2D, _savedTex, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    const GLenum status = f->glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    f->glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+    if (glGetError() != GL_NO_ERROR || status != GL_FRAMEBUFFER_COMPLETE) {
+      // (no saved map, then: every frame draws it all, as before)
+      f->glDeleteFramebuffers(1, &_savedTexFbo);
+      glDeleteTextures(1, &_savedTex);
+      _savedTexFbo = 0;
+      _savedTex = 0;
+      _haveSaved = false;
+      _saveFailed = true;
+      qWarning() << "shadows: no room for a saved depth map; drawing it each frame";
+      return false;
+    }
+  }
+  // (the map's framebuffer is bound, and is read from)
+  while (glGetError() != GL_NO_ERROR) {
+  }
+  glBindTexture(GL_TEXTURE_2D, _savedTex);
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _size, _size);
+  glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+  if (glGetError() != GL_NO_ERROR) {
+    _haveSaved = false;
+    _saveFailed = true;
+    qWarning() << "shadows: the depth map would not copy; drawing it each frame";
+    return false;
+  }
+  _haveSaved = true;
+  _savedMatrix = _lightMatrix;
+  return true;
+}
+
+void ShadowMap::restoreDepth() {
+  if (!savedDepthFits())
+    return;
+  QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+  GLint prevTex = 0;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &prevTex);
+  // read from the saved map's framebuffer, into the map's texture
+  f->glBindFramebuffer(GL_FRAMEBUFFER, _savedTexFbo);
+  glBindTexture(GL_TEXTURE_2D, _tex);
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, _size, _size);
+  glBindTexture(GL_TEXTURE_2D, (GLuint)prevTex);
+  f->glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+}
+
+bool ShadowMap::lightSteady() const { return _steadyFrames >= 10; }
+
+bool ShadowMap::canSaveDepth() const { return !_saveFailed; }
 
 bool ShadowMap::bind(const double cameraModelView[16]) {
   // isAvailable() is the gate: on true it has rebuilt anything the context

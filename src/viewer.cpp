@@ -431,6 +431,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("shadowCasters", &Viewer::shadowCasters)
            .property("shadowCache", &Viewer::shadowCache, &Viewer::setShadowCache)
            .property("shadowCached", &Viewer::shadowCached)
+           .property("shadowSaved", &Viewer::shadowSaved, &Viewer::setShadowSaved)
+           .property("shadowFromSaved", &Viewer::shadowFromSaved)
            .property("shadowMapSize", &Viewer::shadowMapSize,
                      &Viewer::setShadowMapSize)
            .property("shadowSoftness", &Viewer::shadowSoftness,
@@ -2019,6 +2021,12 @@ bool Viewer::shadowCache() const { return _shadowCache; }
 
 int Viewer::shadowCached() const { return _shadowCached; }
 
+void Viewer::setShadowSaved(bool on) { _shadowSaved = on; }
+
+bool Viewer::shadowSaved() const { return _shadowSaved; }
+
+bool Viewer::shadowFromSaved() const { return _shadowFromSaved; }
+
 void Viewer::setShadowMapSize(int px) { _shadowMap->setMapSize(px); }
 
 int Viewer::shadowMapSize() const { return _shadowMap->mapSize(); }
@@ -2605,6 +2613,7 @@ void Viewer::clear() {
   // lights do)
   _culling = true;
   _shadowCache = true;
+  _shadowSaved = true;
 
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -3350,7 +3359,33 @@ void Viewer::renderShadowDepth() {
     _fixedShadowLists = 0;
     _fixedShadowCells.clear();
   }
-  if (replay) {
+  // With the record made, and the light and the scene's extent the same as
+  // last frame, all of the record is drawn once more and the depth saved
+  // (v.shadowSaved); each frame after that puts the saved depth back in one
+  // copy on the graphics card, instead of drawing the record again, until
+  // the record or the light changes.
+  _shadowFromSaved = false;
+  bool drewAll = false;
+  if (replay && _shadowSaved) {
+    if (_savedDepthSig == _fixedShadowSig && _savedDepthCount == _fixedShadowCount &&
+        _shadowMap->savedDepthFits()) {
+      _shadowMap->restoreDepth();
+      _shadowFromSaved = true;
+    } else if (_shadowMap->lightSteady() && _shadowMap->canSaveDepth()) {
+      for (int k = 0; k < _fixedShadowCells.size(); ++k)
+        glCallList(_fixedShadowLists + k);
+      drewAll = true;
+      if (_shadowMap->saveDepth()) {
+        _savedDepthSig = _fixedShadowSig;
+        _savedDepthCount = _fixedShadowCount;
+        _shadowFromSaved = true;
+      }
+    }
+  }
+  if (_shadowFromSaved || drewAll) {
+    _shadowCached = _fixedShadowCount;
+    drawObjects(true, true);
+  } else if (replay) {
     for (int k = 0; k < _fixedShadowCells.size(); ++k) {
       const QVector<Object *> &cell = _fixedShadowCells[k];
       bool wanted = !_culled;

@@ -255,7 +255,10 @@ COST METER -- ms per frame, averaged over the last second
   view, or could throw a shadow into it. A bpp that records the fixed
   objects' shadows (`v.shadowCache`, on by default) adds "and N more from
   its record": those it drew into the shadow map once and replays each
-  frame, instead of drawing them one by one.
+  frame, instead of drawing them one by one. A bpp that also saves their
+  depth (`v.shadowSaved`, on by default) says "from its saved depth"
+  instead: it drew them into the shadow map once, and copies that back
+  each frame, which costs the graphics card almost nothing.
 - **thinking up to:** how long the tables' computer players may think each
   frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has
