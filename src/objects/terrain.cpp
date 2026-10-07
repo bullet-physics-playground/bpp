@@ -148,6 +148,7 @@ Terrain::~Terrain() {
 void Terrain::addTriangle(const btVector3 &v0, const btVector3 &v1,
                           const btVector3 &v2) {
   m_mesh->addTriangle(v0, v1, v2);
+  ++m_drawVersion;
 }
 
 int Terrain::getNumTriangles() const { return m_mesh->getNumTriangles(); }
@@ -157,6 +158,7 @@ void Terrain::setTriangleColor(int index, int r, int g, int b) {
                                     (unsigned char)qBound(0, g, 255),
                                     (unsigned char)qBound(0, b, 255)};
   m_triColors[index] = c;
+  ++m_drawVersion;
 }
 
 void Terrain::setTriangleColor(int index, const QString &col) {
@@ -172,7 +174,10 @@ QString Terrain::getTriangleColor(int index) const {
   return QColor(c[0], c[1], c[2]).name();
 }
 
-void Terrain::clearTriangleColors() { m_triColors.clear(); }
+void Terrain::clearTriangleColors() {
+  m_triColors.clear();
+  ++m_drawVersion;
+}
 
 void Terrain::build() {
   if (body != nullptr) {

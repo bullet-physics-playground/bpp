@@ -433,6 +433,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("shadowCasters", &Viewer::shadowCasters)
            .property("shadowCache", &Viewer::shadowCache, &Viewer::setShadowCache)
            .property("shadowCached", &Viewer::shadowCached)
+           .property("screenCache", &Viewer::screenCache, &Viewer::setScreenCache)
+           .property("screenCached", &Viewer::screenCached)
            .property("shadowSaved", &Viewer::shadowSaved, &Viewer::setShadowSaved)
            .property("shadowFromSaved", &Viewer::shadowFromSaved)
            .property("drawTiming", &Viewer::drawTiming, &Viewer::setDrawTiming)
@@ -2025,6 +2027,12 @@ bool Viewer::shadowCache() const { return _shadowCache; }
 
 int Viewer::shadowCached() const { return _shadowCached; }
 
+void Viewer::setScreenCache(bool on) { _screenCache = on; }
+
+bool Viewer::screenCache() const { return _screenCache; }
+
+int Viewer::screenCached() const { return _screenCached; }
+
 void Viewer::setShadowSaved(bool on) { _shadowSaved = on; }
 
 bool Viewer::shadowSaved() const { return _shadowSaved; }
@@ -2119,11 +2127,15 @@ QString Viewer::drawTimingReport() {
   QString r;
   if (_dtFrames > 0) {
     const double n = _dtFrames;
-    r = QString("processor: cull %1, shadow map %2, screen %3, all of draw %4")
+    r = QString("processor: box %5, still %6, cull %1, shadow map %2, screen %3, all of draw %4")
             .arg(_dtCull / n, 0, 'f', 2)
             .arg(_dtShadow / n, 0, 'f', 2)
             .arg(_dtScreen / n, 0, 'f', 2)
-            .arg(_dtDraw / n, 0, 'f', 2);
+            .arg(_dtDraw / n, 0, 'f', 2)
+            .arg(_dtBox / n, 0, 'f', 2)
+            .arg(_dtStill / n, 0, 'f', 2);
+    if (_recordsMade > 0)
+      r += QString(" (records made %1 times)").arg(_recordsMade);
     if (_dtGpuFrames > 0)
       r += QString("; graphics card: shadow map %1, screen %2")
                .arg(_dtShadowGpu / _dtGpuFrames, 0, 'f', 2)
@@ -2131,7 +2143,8 @@ QString Viewer::drawTimingReport() {
     else if (_dtNoGpu)
       r += "; graphics card: no timers";
   }
-  _dtCull = _dtShadow = _dtScreen = _dtDraw = 0;
+  _dtCull = _dtShadow = _dtScreen = _dtDraw = _dtBox = _dtStill = 0;
+  _recordsMade = 0;
   _dtShadowGpu = _dtScreenGpu = 0;
   _dtFrames = _dtGpuFrames = 0;
   return r;
@@ -2723,6 +2736,7 @@ void Viewer::clear() {
   // lights do)
   _culling = true;
   _shadowCache = true;
+  _screenCache = true;
   _shadowSaved = true;
   _drawTiming = false;
 
@@ -3049,6 +3063,8 @@ void Viewer::draw() {
     dtAll.start();
 
   computeBoundingBox();
+  if (dtAll.isValid())
+    _dtBox += dtAll.nsecsElapsed() / 1.0e6;
 
   GLfloat light_ambient[] = {_gl_ambient.x(), _gl_ambient.y(), _gl_ambient.z()};
   GLfloat light_diffuse[] = {_gl_diffuse.x(), _gl_diffuse.y(), _gl_diffuse.z()};
@@ -3099,6 +3115,12 @@ void Viewer::draw() {
     dt.start();
   }
 
+  // Which fixed objects are still, for the records (and the screen's record
+  // made again if they've changed).
+  _screenCached = 0;
+  markStill();
+  qint64 tStill = timing ? dt.nsecsElapsed() : 0;
+
   // What this frame can skip (see setCulling()), while the camera's own
   // matrices are loaded.
   cullObjects();
@@ -3135,7 +3157,8 @@ void Viewer::draw() {
       _dtPending[_dtSlot] = true;
     _dtSlot = (_dtSlot + 1) % 4;
     const qint64 tScreen = dt.nsecsElapsed();
-    _dtCull += tCull / 1.0e6;
+    _dtStill += tStill / 1.0e6;
+    _dtCull += (tCull - tStill) / 1.0e6;
     _dtShadow += (tShadow - tCull) / 1.0e6;
     _dtScreen += (tScreen - tShadow) / 1.0e6;
   }
@@ -3185,7 +3208,22 @@ void Viewer::drawSceneInternal(int pass) {
     shaded = _shadowMap->bind(camModelView);
   }
 
-  drawObjects();
+  // The screen's record (see setScreenCache()): each patch's list, where
+  // culling keeps any of its objects, then the rest one by one.
+  const bool replay = _screenLists != 0;
+  if (replay) {
+    for (int k = 0; k < _screenCells.size(); ++k) {
+      const QVector<Object *> &cell = _screenCells[k];
+      bool wanted = !_culled;
+      for (int i = 0; !wanted && i < cell.size(); ++i)
+        wanted = cell[i]->drawOnScreen;
+      if (wanted) {
+        glCallList(_screenLists + k);
+        _screenCached += cell.size();
+      }
+    }
+  }
+  drawObjects(false, replay);
 
   if (shaded) {
     // Released before the constraint markers, which are flat unlit lines and
@@ -3207,12 +3245,20 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
   //    minaabb-=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
   //    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 
-  foreach (Object *o, *_objects) {
-    // (what cullObjects() decided for this frame)
-    if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
-      continue;
-    if (skipFixed && o->shadowListed)
-      continue;
+  // (for the screen, the surface of what doesn't set its own: see
+  // applySurface())
+  int surface = -1;
+  // For the screen, what can be seen through is drawn after everything else
+  // (in the order it comes in), so whatever is behind it is there to be seen
+  // through it, as with the screen's record.
+  QVector<Object *> seeThrough;
+  auto drawOne = [&](Object *o, bool sets) {
+    if (!shadowPass && !sets && surface != int(_anyMesh)) {
+      applySurface(_anyMesh);
+      surface = int(_anyMesh);
+    }
+    if (sets)
+      surface = 1;                       // (it leaves the surface matte)
     ++(shadowPass ? _shadowCasters : _drawnObjects);
     // SoftBody has no rigid body/motion-state, so Object::render() (which
     // requires one) would silently skip it. Render it directly instead.
@@ -3222,7 +3268,22 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
     } else {
       o->render(minaabb, maxaabb);
     }
+  };
+  foreach (Object *o, *_objects) {
+    const bool sets = !shadowPass && o->setsMaterial();
+    // (what cullObjects() decided for this frame)
+    if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
+      continue;
+    if (skipFixed && (shadowPass ? o->shadowListed : o->screenListed))
+      continue;
+    if (!shadowPass && o->getTransparency() > 0.0) {
+      seeThrough.append(o);
+      continue;
+    }
+    drawOne(o, sets);
   }
+  for (Object *o : seeThrough)
+    drawOne(o, o->setsMaterial());
 }
 
 // Culling. The camera's view is six planes (left, right, bottom, top, near,
@@ -3359,10 +3420,13 @@ bool Viewer::isFixedCaster(const Object *o) {
          dynamic_cast<const SoftBody *>(o) == nullptr;
 }
 
-// A fixed object goes into the record once it has stayed put this many
+// A fixed object goes into the records once it has stayed the same this many
 // frames, so one a script moves now and then (a plunger, a gate) keeps out of
-// it rather than having it made again every frame.
+// them rather than having them made again every frame; one that has changed
+// after going in (a lamp that blinks now and then) only goes back after ten
+// seconds the same.
 static const unsigned STILL_FRAMES = 30;
+static const unsigned RESTLESS_FRAMES = 600;
 
 // Each fixed object's address, shape, size and where it is drawn, hashed;
 // those that have stayed the same long enough are marked, and their hashes
@@ -3386,7 +3450,10 @@ quint64 Viewer::markStillCasters(int *count) {
     btTransform id;
     id.setIdentity();
     s->getAabb(id, lo, hi);
-    const bool seeThrough = o->getTransparency() > 0.0;  // (draws no depth)
+    // (what it looks like, for the screen's record: its colour, how see-
+    // through it is, and whether an image is wrapped round it)
+    const btScalar seeThrough = o->getTransparency();
+    const bool textured = o->hasTexture();
     quint64 h = 1469598103934665603ULL;  // (FNV-1a)
     auto mix = [&h](const void *p, size_t len) {
       const unsigned char *b = static_cast<const unsigned char *>(p);
@@ -3401,13 +3468,20 @@ quint64 Viewer::markStillCasters(int *count) {
     mix(&lo, sizeof(btScalar) * 3);
     mix(&hi, sizeof(btScalar) * 3);
     mix(&seeThrough, sizeof(seeThrough));
+    mix(&textured, sizeof(textured));
+    mix(o->rgb(), 3);
+    const unsigned version = o->drawVersion();
+    mix(&version, sizeof(version));
+    const unsigned needed = o->shadowRestless ? RESTLESS_FRAMES : STILL_FRAMES;
     if (h != o->shadowHash) {
+      if (o->shadowStill >= needed && o->shadowHash != 0)
+        o->shadowRestless = true;
       o->shadowHash = h;
       o->shadowStill = 0;
-    } else if (o->shadowStill < STILL_FRAMES) {
+    } else if (o->shadowStill < RESTLESS_FRAMES) {
       ++o->shadowStill;
     }
-    if (o->shadowStill >= STILL_FRAMES) {
+    if (o->shadowStill >= (o->shadowRestless ? RESTLESS_FRAMES : STILL_FRAMES)) {
       o->shadowListed = true;
       ++n;
       sum += h;
@@ -3415,6 +3489,126 @@ quint64 Viewer::markStillCasters(int *count) {
   }
   *count = n;
   return sum;
+}
+
+std::tuple<int, int, int> Viewer::patchOf(const Object *o) {
+  static const btScalar PATCH = 60;      // (a cube this many units across)
+  btTransform t;
+  if (o->body->getMotionState() != nullptr)
+    o->body->getMotionState()->getWorldTransform(t);
+  else
+    t.setIdentity();
+  btVector3 lo, hi;
+  o->body->getCollisionShape()->getAabb(t, lo, hi);
+  const btVector3 mid = (lo + hi) * 0.5;
+  auto cell = [&](btScalar x) {          // (planes and the like: far out, all one)
+    return int(std::max(-1e6, std::min(1e6, std::floor(double(x / PATCH)))));
+  };
+  return std::make_tuple(cell(mid.x()), cell(mid.y()), cell(mid.z()));
+}
+
+void Viewer::applySurface(bool matte) {
+  static const GLfloat none[] = {0.0f, 0.0f, 0.0f, 1.0f};
+  if (matte) {
+    glMaterialfv(GL_FRONT, GL_SPECULAR, none);
+    glMaterialf(GL_FRONT, GL_SHININESS, 100.0f);   // (what a Mesh sets)
+  } else {
+    glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
+    glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
+  }
+}
+
+void Viewer::markStill() {
+  _stillMarked = false;
+  _anyMesh = false;                      // (for applySurface())
+  foreach (Object *o, *_objects)
+    if (o->setsMaterial()) {
+      _anyMesh = true;
+      break;
+    }
+  const void *ctx = glCacheContext();
+  if (_screenLists != 0 && (_screenCtx != ctx || _screenEpoch != glCacheEpoch())) {
+    _screenLists = 0;                    // (its context has gone, and the lists with it)
+    _screenCells.clear();
+    _screenCount = -1;
+  }
+  const bool wantShadow = _shadows && _shadowCache;
+  if (ctx == nullptr || (!wantShadow && !_screenCache)) {
+    if (_screenLists != 0)
+      glDeleteLists(_screenLists, _screenCells.size());
+    _screenLists = 0;
+    _screenCells.clear();
+    _screenCount = -1;
+    return;
+  }
+  _stillSig = markStillCasters(&_stillCount);
+  _stillMarked = true;
+
+  // The screen's record: made again when the still objects change, or the
+  // surface they're drawn with (applySurface()). (Tried once for each: if
+  // there's nothing to record, not every frame.)
+  const bool fresh = _stillSig == _screenSig && _stillCount == _screenCount &&
+                     _screenMatte == _anyMesh && _screenSpecular == _gl_specular &&
+                     _screenShininess == _gl_shininess;
+  if (_screenLists != 0 && (!_screenCache || !fresh)) {
+    glDeleteLists(_screenLists, _screenCells.size());
+    _screenLists = 0;
+    _screenCells.clear();
+  }
+  if (!_screenCache) {
+    _screenCount = -1;
+    return;
+  }
+  if (_screenLists != 0 || fresh || _stillCount == 0)
+    return;
+  _screenSig = _stillSig;
+  _screenCount = _stillCount;
+  _screenMatte = _anyMesh;
+  _screenSpecular = _gl_specular;
+  _screenShininess = _gl_shininess;
+  QMap<std::tuple<int, int, int>, QVector<Object *>> patches;
+  foreach (Object *o, *_objects) {
+    o->screenListed = false;
+    // (not one that is see-through, which has to be drawn after what's
+    // behind it, nor one with an image, which loads it as it's drawn)
+    if (o->shadowListed && o->getTransparency() <= 0.0 && !o->hasTexture())
+      patches[patchOf(o)].append(o);
+  }
+  if (patches.isEmpty())
+    return;
+  btVector3 minaabb(0, 0, 0), maxaabb(0, 0, 0);
+  dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb, maxaabb);
+  for (int a = 0; a < 3; ++a)            // (with a body gone off to infinity,
+    if (!std::isfinite(minaabb[a]) || !std::isfinite(maxaabb[a]))  // objects draw at
+      return;                                                      // the origin)
+  const GLuint lists = glGenLists(patches.size());
+  if (lists == 0)
+    return;
+  glSetRecordingList(true);              // (see glRecordingList())
+  GLuint list = lists;
+  for (auto it = patches.cbegin(); it != patches.cend(); ++it, ++list) {
+    glNewList(list, GL_COMPILE);
+    // (the surface, as drawObjects() sets it: once at the start of the list,
+    // and again after each object that sets its own)
+    bool needSurface = true;
+    foreach (Object *o, it.value()) {
+      if (!o->setsMaterial() && needSurface) {
+        applySurface(_anyMesh);
+        needSurface = false;
+      }
+      o->render(minaabb, maxaabb);
+      if (o->setsMaterial())
+        needSurface = !_anyMesh;       // (it leaves the surface matte)
+      o->screenListed = true;
+    }
+    glEndList();
+    _screenCells.append(it.value());
+  }
+  glSetRecordingList(false);
+  _screenLists = lists;
+  _screenCtx = ctx;
+  _screenEpoch = glCacheEpoch();
+  ++_recordsMade;
 }
 
 void Viewer::renderShadowDepth() {
@@ -3435,11 +3629,9 @@ void Viewer::renderShadowDepth() {
   //
   // The fixed objects that have stayed put are drawn once, recorded as
   // OpenGL lists, and those are replayed each frame; only the rest are drawn
-  // one by one. There is a list for each patch of the scene (a cube
-  // SHADOW_PATCH across), so what culling leaves out still mostly stays out:
+  // one by one. There is a list for each patch of the scene (patchOf()), so what culling leaves out still mostly stays out:
   // a patch's list is replayed when culling keeps any of its objects. When
   // which objects are still, or where, changes, the lists are made again.
-  static const btScalar SHADOW_PATCH = 60;
   _shadowCached = 0;
   const void *ctx = glCacheContext();
   if (_fixedShadowLists != 0 && (_fixedShadowCtx != ctx || _fixedShadowEpoch != glCacheEpoch()))
@@ -3447,9 +3639,9 @@ void Viewer::renderShadowDepth() {
   if (_fixedShadowLists == 0)
     _fixedShadowCells.clear();
   bool replay = false;
-  if (_shadowCache && ctx != nullptr) {
-    int count = 0;
-    const quint64 sig = markStillCasters(&count);
+  if (_shadowCache && ctx != nullptr && _stillMarked) {
+    const int count = _stillCount;       // (markStill() marked them this frame)
+    const quint64 sig = _stillSig;
     if (_fixedShadowLists != 0 && (sig != _fixedShadowSig || count != _fixedShadowCount)) {
       glDeleteLists(_fixedShadowLists, _fixedShadowCells.size());
       _fixedShadowLists = 0;
@@ -3457,22 +3649,9 @@ void Viewer::renderShadowDepth() {
     }
     if (_fixedShadowLists == 0 && count > 0) {
       QMap<std::tuple<int, int, int>, QVector<Object *>> patches;
-      foreach (Object *o, *_objects) {
-        if (!o->shadowListed)
-          continue;
-        btTransform t;
-        if (o->body->getMotionState() != nullptr)
-          o->body->getMotionState()->getWorldTransform(t);
-        else
-          t.setIdentity();
-        btVector3 lo, hi;
-        o->body->getCollisionShape()->getAabb(t, lo, hi);
-        const btVector3 mid = (lo + hi) * 0.5;
-        auto cell = [&](btScalar x) {    // (planes and the like: far out, all one)
-          return int(std::max(-1e6, std::min(1e6, std::floor(double(x / SHADOW_PATCH)))));
-        };
-        patches[std::make_tuple(cell(mid.x()), cell(mid.y()), cell(mid.z()))].append(o);
-      }
+      foreach (Object *o, *_objects)
+        if (o->shadowListed)
+          patches[patchOf(o)].append(o);
       btVector3 minaabb(0, 0, 0), maxaabb(0, 0, 0);
       dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb, maxaabb);
       // (with a body gone off to infinity, objects draw at the origin: not
@@ -3497,6 +3676,7 @@ void Viewer::renderShadowDepth() {
         _fixedShadowEpoch = glCacheEpoch();
         _fixedShadowSig = sig;
         _fixedShadowCount = count;
+        ++_recordsMade;
       }
     }
     replay = _fixedShadowLists != 0;

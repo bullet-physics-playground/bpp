@@ -557,6 +557,10 @@ public:
    * @return True if it does.
    */
   bool hasRenderFunction() const { return bool(_cb_render); }
+  /// Whether an image is wrapped round it (setTexture()).
+  bool hasTexture() const { return !mTexture.isEmpty(); }
+  /// Its colour as red, green and blue bytes (three of them).
+  const unsigned char *rgb() const { return color; }
 
   /**
    * @brief How far what the object draws is shifted from its collision shape,
@@ -566,12 +570,29 @@ public:
    */
   virtual btVector3 drawnOffset() const { return btVector3(0, 0, 0); }
 
+  /**
+   * @brief Whether drawing it sets the surface (glMaterial) itself, and
+   *        leaves it matte for whatever is drawn next (Mesh and Terrain do).
+   * @return True if it does.
+   */
+  virtual bool setsMaterial() const { return false; }
+
+  /**
+   * @brief A number that changes whenever something about how it is drawn
+   *        changes that its shape, place and colour don't show (a Terrain's
+   *        own triangle colours), for the records of still objects.
+   * @return The number.
+   */
+  virtual unsigned drawVersion() const { return 0; }
+
   bool drawOnScreen = true;  ///< Set each frame by Viewer::cullObjects().
   bool drawInShadow = true;  ///< Set each frame by Viewer::cullObjects().
-  bool shadowListed = false; ///< In the shadow map's record of still objects
-                             ///< (set each frame by Viewer::renderShadowDepth()).
+  bool shadowListed = false; ///< Still: in the records of still objects
+                             ///< (set each frame by Viewer::markStill()).
+  bool screenListed = false; ///< In the screen's record (set by Viewer).
   quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
   unsigned shadowStill = 0;  ///< Frames it has stayed so (the same).
+  bool shadowRestless = false; ///< Has changed after being still (the same).
 
   /**
    * @brief Draws the object's geometry in its own frame.

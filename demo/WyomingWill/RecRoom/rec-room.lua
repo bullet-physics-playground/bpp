@@ -1315,18 +1315,26 @@ local function drawnLine()
   local ok, n = pcall(function() return realV.drawnObjects end)
   if not ok or type(n) ~= "number" then return "" end
   if not realV.culling then return "  drawn    everything (culling off)\n" end
+  -- (a bpp that records the still objects for the screen too: "N objects"
+  -- becomes those drawn one by one, and those from the record)
+  local okr, rc = pcall(function() return realV.screenCached end)
+  if okr and type(rc) == "number" and rc > 0 then
+    n = string.format("%d objects + %d from the screen's record", n, rc)
+  else
+    n = string.format("%d objects", n)
+  end
   if realV.shadows then
     -- (and a bpp that records the still objects' shadows replays those)
     local okc, c = pcall(function() return realV.shadowCached end)
     if okc and type(c) == "number" and c > 0 then
       -- (and one that saves the still objects' depth copies it back instead)
       local oks, s = pcall(function() return realV.shadowFromSaved end)
-      return string.format("  drawn    %d objects, %d into the shadow map and %d more from its %s\n",
+      return string.format("  drawn    %s; %d into the shadow map and %d more from its %s\n",
                            n, realV.shadowCasters, c, (oks and s == true) and "saved depth" or "record")
     end
-    return string.format("  drawn    %d objects, %d into the shadow map\n", n, realV.shadowCasters)
+    return string.format("  drawn    %s; %d into the shadow map\n", n, realV.shadowCasters)
   end
-  return string.format("  drawn    %d objects\n", n)
+  return string.format("  drawn    %s\n", n)
 end
 -- (a bpp with the drawing timer, v.drawTiming, switched on: where the
 -- drawing time went, on the processor and on the graphics card)

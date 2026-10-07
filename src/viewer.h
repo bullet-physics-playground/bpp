@@ -745,6 +745,36 @@ public:
   int shadowCached() const;
 
   /**
+   * @brief Turns the screen's record of still objects on or off.
+   *
+   * On (the default), the fixed objects that have stayed the same for a
+   * while (where they are, their shape, colour and transparency) and have no
+   * image wrapped round them and nothing of a script's drawing are drawn for
+   * the screen from recorded OpenGL lists, one per patch of the scene, each
+   * replayed when culling keeps any of its objects; the rest are drawn one by
+   * one. The lists are made again when those objects change. A fixed object
+   * that changes after being recorded (a lamp that blinks) stays out for ten
+   * seconds after it last changed, so it doesn't have them made again and
+   * again.
+   *
+   * @param on True to record them.
+   */
+  void setScreenCache(bool on);
+
+  /**
+   * @brief Returns whether the screen's record is on (see setScreenCache()).
+   * @return True if it is.
+   */
+  bool screenCache() const;
+
+  /**
+   * @brief How many objects the last frame drew for the screen from its
+   *        record (drawnObjects() counts those drawn one by one).
+   * @return The count.
+   */
+  int screenCached() const;
+
+  /**
    * @brief Turns the saved shadow depth on or off.
    *
    * On (the default), with the record on (setShadowCache()), the still
@@ -1757,6 +1787,34 @@ protected:
   quint64 markStillCasters(int *count);
 
   /**
+   * @brief Once a frame: marks the still objects (markStillCasters()) when
+   *        either record wants them, and makes the screen's record again if
+   *        they have changed (see setScreenCache()).
+   */
+  void markStill();
+
+  /**
+   * @brief Which patch of the scene an object is in, for the records' lists.
+   * @param o The object (a fixed one).
+   * @return The patch.
+   */
+  static std::tuple<int, int, int> patchOf(const Object *o);
+
+  /**
+   * @brief Sets the surface an object that doesn't set its own is drawn
+   *        with: matte (as a Mesh leaves it) or the viewer's own (shiny).
+   *
+   * Which is fixed, not left to what happened to be drawn before (the
+   * objects come in no particular order): matte whenever the scene has a
+   * Mesh or a Terrain, as drawing the shadow map always left it, and the
+   * viewer's own otherwise. Drawing one by one and from the screen's record
+   * then look the same.
+   *
+   * @param matte True for matte.
+   */
+  void applySurface(bool matte);
+
+  /**
    * @brief Decides, once a frame, which objects are drawn for the screen and
    *        which into the shadow map (see setCulling()).
    *
@@ -2007,6 +2065,22 @@ private:
   int _drawnObjects = 0;   ///< Objects drawn for the screen last frame.
   int _shadowCasters = 0;  ///< Objects drawn into the shadow map last frame.
   bool _shadowCache = true;        ///< See setShadowCache().
+  bool _screenCache = true;        ///< See setScreenCache().
+  quint64 _stillSig = 0;           ///< markStill()'s fingerprint this frame
+  int _stillCount = 0;             ///< (and how many objects are still).
+  bool _stillMarked = false;       ///< Whether markStill() marked them.
+  GLuint _screenLists = 0;         ///< The screen's record: a list per patch.
+  QVector<QVector<Object *>> _screenCells; ///< Each list's objects.
+  const void *_screenCtx = nullptr; ///< The context the lists live in.
+  unsigned _screenEpoch = 0;       ///< glCacheEpoch() when they were made.
+  quint64 _screenSig = 0;          ///< The still objects they were made from
+  int _screenCount = -1;           ///< (and how many those were).
+  bool _anyMesh = false;           ///< The scene has a Mesh or a Terrain.
+  bool _screenMatte = false;       ///< The surface they were made with
+  btVector4 _screenSpecular;       ///< (applySurface()).
+  btScalar _screenShininess = 0;
+  int _screenCached = 0;           ///< Taken from it last frame.
+  int _recordsMade = 0;            ///< Records made since the timer's report.
   GLuint _fixedShadowLists = 0;    ///< The still objects' recorded depth: one
                                    ///< list per patch of the room, from here.
   QVector<QVector<Object *>> _fixedShadowCells; ///< Each list's objects.
@@ -2023,6 +2097,7 @@ private:
   // The drawing timer (see setDrawTiming()): totals since the last report.
   bool _drawTiming = false;
   double _dtCull = 0, _dtShadow = 0, _dtScreen = 0, _dtDraw = 0;
+  double _dtBox = 0, _dtStill = 0;
   int _dtFrames = 0;
   double _dtShadowGpu = 0, _dtScreenGpu = 0;
   int _dtGpuFrames = 0;

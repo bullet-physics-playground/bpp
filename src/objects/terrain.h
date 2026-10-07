@@ -30,6 +30,9 @@
  */
 class Terrain : public Object {
 public:
+  bool setsMaterial() const override { return true; }
+  unsigned drawVersion() const override { return m_drawVersion; }
+
   /**
    * @brief Constructs an empty terrain with no triangles yet.
    */
@@ -169,6 +172,9 @@ protected:
    * sized to getNumTriangles().
    */
   QHash<int, std::array<unsigned char, 3>> m_triColors;
+
+private:
+  unsigned m_drawVersion = 0; ///< @see drawVersion(): bumped by every change.
 };
 
 #endif // TERRAIN_H
