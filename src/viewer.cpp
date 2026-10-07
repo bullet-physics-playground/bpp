@@ -425,6 +425,9 @@ void Viewer::luaBind(lua_State *s) {
                      &Viewer::setShowConstraints)
 
            .property("shadows", &Viewer::shadows, &Viewer::setShadows)
+           .property("culling", &Viewer::culling, &Viewer::setCulling)
+           .property("drawnObjects", &Viewer::drawnObjects)
+           .property("shadowCasters", &Viewer::shadowCasters)
            .property("shadowMapSize", &Viewer::shadowMapSize,
                      &Viewer::setShadowMapSize)
            .property("shadowSoftness", &Viewer::shadowSoftness,
@@ -1999,6 +2002,14 @@ void Viewer::setShadows(bool on) { _shadows = on; }
 
 bool Viewer::shadows() const { return _shadows; }
 
+void Viewer::setCulling(bool on) { _culling = on; }
+
+bool Viewer::culling() const { return _culling; }
+
+int Viewer::drawnObjects() const { return _drawnObjects; }
+
+int Viewer::shadowCasters() const { return _shadowCasters; }
+
 void Viewer::setShadowMapSize(int px) { _shadowMap->setMapSize(px); }
 
 int Viewer::shadowMapSize() const { return _shadowMap->mapSize(); }
@@ -2942,6 +2953,10 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
   glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
 
+  // What this frame can skip (see setCulling()), while the camera's own
+  // matrices are loaded.
+  cullObjects();
+
   // Fill the shadow map before anything is drawn for the screen: it needs the
   // camera's own matrices to be the ones currently loaded, and the whole scene
   // casts into one map that every quad-view pane then shares.
@@ -3012,7 +3027,7 @@ void Viewer::drawSceneInternal(int pass) {
   drawConstraints();
 }
 
-void Viewer::drawObjects() {
+void Viewer::drawObjects(bool shadowPass) {
   // btScalar m[16];
   btMatrix3x3 rot;
   rot.setIdentity();
@@ -3024,6 +3039,10 @@ void Viewer::drawObjects() {
   //    maxaabb+=btVector3(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 
   foreach (Object *o, *_objects) {
+    // (what cullObjects() decided for this frame)
+    if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
+      continue;
+    ++(shadowPass ? _shadowCasters : _drawnObjects);
     // SoftBody has no rigid body/motion-state, so Object::render() (which
     // requires one) would silently skip it. Render it directly instead.
     SoftBody *sb = dynamic_cast<SoftBody *>(o);
@@ -3032,6 +3051,134 @@ void Viewer::drawObjects() {
     } else {
       o->render(minaabb, maxaabb);
     }
+  }
+}
+
+// Culling. The camera's view is six planes (left, right, bottom, top, near,
+// far), read off its projection and modelview matrices; a box is out of view
+// when it lies wholly on the outer side of any one of them. An object's box
+// is its collision shape's, where and as the object is drawn, with a tenth of
+// its size to spare.
+//
+// For the shadow map: a shadow that falls into the view only shows where it
+// lands on something drawn there, so an object out of view still goes into
+// the map if its box, swept the way the light shines (one direction for the
+// whole scene, as the shadow map takes it) until it is past everything in
+// view, meets the view.
+void Viewer::cullObjects() {
+  _drawnObjects = 0;
+  _shadowCasters = 0;
+  _culled = _culling && !_quadView && manipulatedFrame() == nullptr;
+  if (!_culled)
+    return;
+
+  GLdouble proj[16], mv[16], m[16];
+  glGetDoublev(GL_PROJECTION_MATRIX, proj);
+  glGetDoublev(GL_MODELVIEW_MATRIX, mv);
+  for (int c = 0; c < 4; ++c)            // m = proj * mv (column-major)
+    for (int r = 0; r < 4; ++r) {
+      double sum = 0;
+      for (int k = 0; k < 4; ++k)
+        sum += proj[k * 4 + r] * mv[c * 4 + k];
+      m[c * 4 + r] = sum;
+    }
+  double planes[6][4];
+  for (int p = 0; p < 6; ++p) {
+    const int row = p / 2;
+    const double sign = (p % 2 == 0) ? 1.0 : -1.0;
+    for (int c = 0; c < 4; ++c)
+      planes[p][c] = m[c * 4 + 3] + sign * m[c * 4 + row];
+  }
+  auto outside = [&](const btVector3 &lo, const btVector3 &hi) {
+    for (int p = 0; p < 6; ++p) {
+      const double *q = planes[p];
+      const double x = q[0] >= 0 ? hi.x() : lo.x();
+      const double y = q[1] >= 0 ? hi.y() : lo.y();
+      const double z = q[2] >= 0 ? hi.z() : lo.z();
+      if (q[0] * x + q[1] * y + q[2] * z + q[3] < 0)
+        return true;
+    }
+    return false;
+  };
+
+  const double radius = camera()->sceneRadius();
+  const btScalar spare = btScalar(1e-3 * radius);
+
+  // 1: the screen. (Everything in view, or that can't be boxed, makes up
+  // what a shadow can land on.)
+  struct Box { Object *o; btVector3 lo, hi; };
+  std::vector<Box> offScreen;
+  bool anyInView = false, unboxedInView = false;
+  btVector3 viewLo(BT_LARGE_FLOAT, BT_LARGE_FLOAT, BT_LARGE_FLOAT), viewHi = -viewLo;
+  foreach (Object *o, *_objects) {
+    o->drawOnScreen = true;
+    o->drawInShadow = true;
+    btRigidBody *b = o->body;
+    // (always drawn: no shape to box; drawn by a script, or by a plain
+    // Object, which draws a ball whatever its shape; a soft body)
+    if (b == nullptr || b->getCollisionShape() == nullptr || o->hasRenderFunction() ||
+        typeid(*o) == typeid(Object) || dynamic_cast<SoftBody *>(o) != nullptr) {
+      unboxedInView = true;
+      continue;
+    }
+    // (where it is drawn: a body without a motion state is drawn as it
+    // stands, in world coordinates)
+    btTransform t;
+    if (b->getMotionState() != nullptr)
+      b->getMotionState()->getWorldTransform(t);
+    else
+      t.setIdentity();
+    btVector3 lo, hi;
+    b->getCollisionShape()->getAabb(t, lo, hi);
+    const btVector3 shift = t.getBasis() * o->drawnOffset();
+    lo += shift;
+    hi += shift;
+    const btVector3 pad = (hi - lo) * btScalar(0.1) + btVector3(spare, spare, spare);
+    lo -= pad;
+    hi += pad;
+    o->drawOnScreen = !outside(lo, hi);
+    if (o->drawOnScreen) {
+      anyInView = true;
+      viewLo.setMin(lo);
+      viewHi.setMax(hi);
+    } else {
+      offScreen.push_back(Box{o, lo, hi});
+    }
+  }
+
+  // 2: the shadow map
+  if (!_shadows)
+    return;
+  const qglviewer::Vec sc = camera()->sceneCenter();
+  btVector3 toLight(_light0.x(), _light0.y(), _light0.z());
+  if (_light0.w() != 0.0)
+    toLight = toLight / _light0.w() - btVector3(sc.x, sc.y, sc.z);
+  const bool lit = toLight.length2() > 0;
+  const btVector3 d = lit ? -toLight.normalized() : btVector3(0, -1, 0);
+  // (a soft shadow's blur reaches a few texels of the map further)
+  const btScalar blur = btScalar(2.0 * 1.02 * radius / qMax(1, _shadowMap->mapSize()) *
+                                 (_shadowMap->softness() + 1.0));
+  for (Box &x : offScreen) {
+    x.o->drawInShadow = false;
+    if (!lit || !(anyInView || unboxedInView))
+      continue;
+    // (how far until the whole box is past everything in view, along d;
+    // with something in view that can't be boxed, all the way)
+    btScalar far = btScalar(BT_LARGE_FLOAT);
+    if (!unboxedInView) {
+      for (int k = 0; k < 3; ++k) {
+        if (d[k] < 0)
+          far = btMin(far, (viewLo[k] - x.hi[k]) / d[k]);
+        else if (d[k] > 0)
+          far = btMin(far, (viewHi[k] - x.lo[k]) / d[k]);
+      }
+      far = btMax(far, btScalar(0));
+    }
+    btVector3 lo = x.lo - btVector3(blur, blur, blur), hi = x.hi + btVector3(blur, blur, blur);
+    btVector3 slo = lo, shi = hi;
+    slo.setMin(lo + d * far);
+    shi.setMax(hi + d * far);
+    x.o->drawInShadow = !outside(slo, shi);
   }
 }
 
@@ -3050,7 +3197,7 @@ void Viewer::renderShadowDepth() {
   // of it, and should not throw a shadow across it. Anything a script draws
   // from an object's own render callback does cast, since that runs from
   // Object::render().
-  drawObjects();
+  drawObjects(true);
 
   _shadowMap->renderDepthEnd();
 }

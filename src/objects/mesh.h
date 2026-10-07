@@ -229,6 +229,16 @@ protected:
   btScalar m_mass;             ///< Mass the mesh was created with.
   btVector3 _comOffset;        ///< Shift applied to centre the mass.
 
+public:
+  /**
+   * @brief What it draws (its file's vertices) sits #_comOffset away from its
+   *        shape (moved to put the centre of mass at the origin).
+   * @return #_comOffset.
+   */
+  btVector3 drawnOffset() const override { return _comOffset; }
+
+protected:
+
   /**
    * @brief Whether this object owns its geometry outright.
    *

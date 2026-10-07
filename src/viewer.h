@@ -678,6 +678,41 @@ public:
   bool shadows() const;
 
   /**
+   * @brief Turns culling on or off: skipping, each frame, the objects that
+   *        can't be seen.
+   *
+   * On (the default), an object whose bounding box lies wholly outside the
+   * camera's view isn't drawn, and, with shadows on, isn't drawn into the
+   * shadow map either unless its shadow could fall into the view (its box,
+   * swept along the light's direction, meets the view). Objects a script
+   * draws for itself (setRenderFunction()), soft bodies and objects without
+   * a shape are always drawn, as is everything in quad view.
+   *
+   * @param on True to cull.
+   */
+  void setCulling(bool on);
+
+  /**
+   * @brief Returns whether culling is on (see setCulling()).
+   * @return True if it is.
+   */
+  bool culling() const;
+
+  /**
+   * @brief How many objects the last frame drew for the screen (in quad view,
+   *        counting each pane).
+   * @return The count.
+   */
+  int drawnObjects() const;
+
+  /**
+   * @brief How many objects the last frame drew into the shadow map (0 with
+   *        shadows off).
+   * @return The count.
+   */
+  int shadowCasters() const;
+
+  /**
    * @brief Sets the resolution of the square shadow depth map, in pixels.
    *
    * Larger is sharper and slower, and is clamped to between 256 and 8192. The
@@ -1616,7 +1651,16 @@ protected:
    * depth-only pass from the light, which is why it sets no render state of
    * its own: each caller has already set what it needs.
    */
-  void drawObjects();
+  void drawObjects(bool shadowPass = false);
+
+  /**
+   * @brief Decides, once a frame, which objects are drawn for the screen and
+   *        which into the shadow map (see setCulling()).
+   *
+   * Must be called with the camera's own projection and modelview matrices
+   * loaded, before renderShadowDepth().
+   */
+  void cullObjects();
 
   /**
    * @brief Renders the scene's depth from the main light, into the shadow map.
@@ -1854,6 +1898,11 @@ private:
   bool _showConstraints; ///< Whether those markers are drawn.
 
   bool _shadows;         ///< Whether the main light casts shadows.
+  bool _culling = true;  ///< Whether unseen objects are skipped (setCulling()).
+  bool _culled = false;  ///< Whether this frame's culling applies (each
+                         ///< object's drawOnScreen and drawInShadow).
+  int _drawnObjects = 0;   ///< Objects drawn for the screen last frame.
+  int _shadowCasters = 0;  ///< Objects drawn into the shadow map last frame.
   ShadowMap *_shadowMap; ///< Off-screen depth map and the shader that reads
                          ///< it; built on the first shadowed frame, since it
                          ///< needs a current GL context.

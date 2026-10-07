@@ -552,6 +552,24 @@ public:
   luabind::object getRenderFunction() const;
 
   /**
+   * @brief Whether a script draws something of its own with the object (see
+   *        setRenderFunction()), which may reach beyond the object's shape.
+   * @return True if it does.
+   */
+  bool hasRenderFunction() const { return bool(_cb_render); }
+
+  /**
+   * @brief How far what the object draws is shifted from its collision shape,
+   *        in its own frame (see Mesh: it draws its file's vertices, while its
+   *        shape is moved to put the centre of mass at the origin).
+   * @return The shift.
+   */
+  virtual btVector3 drawnOffset() const { return btVector3(0, 0, 0); }
+
+  bool drawOnScreen = true;  ///< Set each frame by Viewer::cullObjects().
+  bool drawInShadow = true;  ///< Set each frame by Viewer::cullObjects().
+
+  /**
    * @brief Draws the object's geometry in its own frame.
    *
    * This is what a derived class overrides to draw its shape. The base class
