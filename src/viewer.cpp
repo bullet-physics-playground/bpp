@@ -69,6 +69,8 @@
 #include <QMetaEnum>
 #include <QTime>
 #include <QMap>
+#include <QElapsedTimer>
+#include <QOpenGLContext>
 #include <algorithm>
 #include <tuple>
 
@@ -433,6 +435,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("shadowCached", &Viewer::shadowCached)
            .property("shadowSaved", &Viewer::shadowSaved, &Viewer::setShadowSaved)
            .property("shadowFromSaved", &Viewer::shadowFromSaved)
+           .property("drawTiming", &Viewer::drawTiming, &Viewer::setDrawTiming)
+           .def("drawTimingReport", &Viewer::drawTimingReport)
            .property("shadowMapSize", &Viewer::shadowMapSize,
                      &Viewer::setShadowMapSize)
            .property("shadowSoftness", &Viewer::shadowSoftness,
@@ -2027,6 +2031,112 @@ bool Viewer::shadowSaved() const { return _shadowSaved; }
 
 bool Viewer::shadowFromSaved() const { return _shadowFromSaved; }
 
+// The drawing timer. The graphics card's times come from timer queries
+// (GL_TIME_ELAPSED, OpenGL 3.3 or ARB_timer_query), looked up by name so a
+// context without them simply has none.
+namespace {
+typedef void(QOPENGLF_APIENTRYP DtGenQueries)(GLsizei, GLuint *);
+typedef void(QOPENGLF_APIENTRYP DtBeginQuery)(GLenum, GLuint);
+typedef void(QOPENGLF_APIENTRYP DtEndQuery)(GLenum);
+typedef void(QOPENGLF_APIENTRYP DtGetQueryObjectuiv)(GLuint, GLenum, GLuint *);
+const GLenum DT_TIME_ELAPSED = 0x88BF;
+const GLenum DT_QUERY_RESULT = 0x8866;
+const GLenum DT_QUERY_RESULT_AVAILABLE = 0x8867;
+DtGenQueries dtGen = nullptr;
+DtBeginQuery dtBegin = nullptr;
+DtEndQuery dtEnd = nullptr;
+DtGetQueryObjectuiv dtGet = nullptr;
+} // namespace
+
+void Viewer::setDrawTiming(bool on) { _drawTiming = on; }
+
+bool Viewer::drawTiming() const { return _drawTiming; }
+
+void Viewer::dtGpuBegin(int which) {
+  if (_dtNoGpu)
+    return;
+  QOpenGLContext *c = QOpenGLContext::currentContext();
+  if (c == nullptr)
+    return;
+  const void *ctx = glCacheContext();
+  if (ctx != _dtCtx || glCacheEpoch() != _dtEpoch) {
+    // (a new context: the old queries went with the old one)
+    memset(_dtQueries, 0, sizeof(_dtQueries));
+    memset(_dtPending, 0, sizeof(_dtPending));
+    _dtCtx = ctx;
+    _dtEpoch = glCacheEpoch();
+    const QSurfaceFormat f = c->format();
+    const bool has = (f.majorVersion() > 3 || (f.majorVersion() == 3 && f.minorVersion() >= 3)) ||
+                     c->hasExtension("GL_ARB_timer_query");
+    dtGen = reinterpret_cast<DtGenQueries>(c->getProcAddress("glGenQueries"));
+    dtBegin = reinterpret_cast<DtBeginQuery>(c->getProcAddress("glBeginQuery"));
+    dtEnd = reinterpret_cast<DtEndQuery>(c->getProcAddress("glEndQuery"));
+    dtGet = reinterpret_cast<DtGetQueryObjectuiv>(c->getProcAddress("glGetQueryObjectuiv"));
+    if (!has || !dtGen || !dtBegin || !dtEnd || !dtGet) {
+      _dtNoGpu = true;
+      return;
+    }
+  }
+  unsigned &q = _dtQueries[_dtSlot][which];
+  if (q == 0)
+    dtGen(1, &q);
+  dtBegin(DT_TIME_ELAPSED, q);
+}
+
+void Viewer::dtGpuEnd() {
+  if (_dtNoGpu || dtEnd == nullptr || glCacheContext() != _dtCtx)
+    return;
+  dtEnd(DT_TIME_ELAPSED);
+}
+
+// The results of the frames before, whichever the card has finished (never
+// waiting for one), and this frame's slot made ready.
+void Viewer::dtGpuCollect() {
+  if (_dtNoGpu || dtGet == nullptr || glCacheContext() != _dtCtx)
+    return;
+  for (int s = 0; s < 4; ++s) {
+    if (!_dtPending[s])
+      continue;
+    GLuint ready0 = 0, ready1 = 0;
+    dtGet(_dtQueries[s][0], DT_QUERY_RESULT_AVAILABLE, &ready0);
+    dtGet(_dtQueries[s][1], DT_QUERY_RESULT_AVAILABLE, &ready1);
+    if (!ready0 || !ready1) {
+      if (s == _dtSlot)                  // (the ring has come round: drop it)
+        _dtPending[s] = false;
+      continue;
+    }
+    GLuint ns0 = 0, ns1 = 0;
+    dtGet(_dtQueries[s][0], DT_QUERY_RESULT, &ns0);
+    dtGet(_dtQueries[s][1], DT_QUERY_RESULT, &ns1);
+    _dtShadowGpu += ns0 / 1.0e6;
+    _dtScreenGpu += ns1 / 1.0e6;
+    ++_dtGpuFrames;
+    _dtPending[s] = false;
+  }
+}
+
+QString Viewer::drawTimingReport() {
+  QString r;
+  if (_dtFrames > 0) {
+    const double n = _dtFrames;
+    r = QString("processor: cull %1, shadow map %2, screen %3, all of draw %4")
+            .arg(_dtCull / n, 0, 'f', 2)
+            .arg(_dtShadow / n, 0, 'f', 2)
+            .arg(_dtScreen / n, 0, 'f', 2)
+            .arg(_dtDraw / n, 0, 'f', 2);
+    if (_dtGpuFrames > 0)
+      r += QString("; graphics card: shadow map %1, screen %2")
+               .arg(_dtShadowGpu / _dtGpuFrames, 0, 'f', 2)
+               .arg(_dtScreenGpu / _dtGpuFrames, 0, 'f', 2);
+    else if (_dtNoGpu)
+      r += "; graphics card: no timers";
+  }
+  _dtCull = _dtShadow = _dtScreen = _dtDraw = 0;
+  _dtShadowGpu = _dtScreenGpu = 0;
+  _dtFrames = _dtGpuFrames = 0;
+  return r;
+}
+
 void Viewer::setShadowMapSize(int px) { _shadowMap->setMapSize(px); }
 
 int Viewer::shadowMapSize() const { return _shadowMap->mapSize(); }
@@ -2614,6 +2724,7 @@ void Viewer::clear() {
   _culling = true;
   _shadowCache = true;
   _shadowSaved = true;
+  _drawTiming = false;
 
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -2933,6 +3044,10 @@ void Viewer::draw() {
     }
   }
 
+  QElapsedTimer dtAll;                  // (the drawing timer: all of draw())
+  if (_drawTiming && !_quadView)
+    dtAll.start();
+
   computeBoundingBox();
 
   GLfloat light_ambient[] = {_gl_ambient.x(), _gl_ambient.y(), _gl_ambient.z()};
@@ -2976,14 +3091,28 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
   glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
 
+  // (the drawing timer, when it's on: see setDrawTiming())
+  QElapsedTimer dt;
+  const bool timing = _drawTiming && !_quadView;
+  if (timing) {
+    dtGpuCollect();
+    dt.start();
+  }
+
   // What this frame can skip (see setCulling()), while the camera's own
   // matrices are loaded.
   cullObjects();
+  qint64 tCull = timing ? dt.nsecsElapsed() : 0;
 
   // Fill the shadow map before anything is drawn for the screen: it needs the
   // camera's own matrices to be the ones currently loaded, and the whole scene
   // casts into one map that every quad-view pane then shares.
+  if (timing)
+    dtGpuBegin(0);
   renderShadowDepth();
+  if (timing)
+    dtGpuEnd();
+  qint64 tShadow = timing ? dt.nsecsElapsed() : 0;
 
   if (_quadView) {
     drawQuadView();
@@ -2997,7 +3126,19 @@ void Viewer::draw() {
   }
 
   glDisable(GL_CULL_FACE);
+  if (timing)
+    dtGpuBegin(1);
   drawSceneInternal(0);
+  if (timing) {
+    dtGpuEnd();
+    if (!_dtNoGpu && _dtQueries[_dtSlot][0] != 0 && _dtQueries[_dtSlot][1] != 0)
+      _dtPending[_dtSlot] = true;
+    _dtSlot = (_dtSlot + 1) % 4;
+    const qint64 tScreen = dt.nsecsElapsed();
+    _dtCull += tCull / 1.0e6;
+    _dtShadow += (tShadow - tCull) / 1.0e6;
+    _dtScreen += (tScreen - tShadow) / 1.0e6;
+  }
 
   if (manipulatedFrame() != nullptr) {
     glPopMatrix();
@@ -3020,6 +3161,11 @@ void Viewer::draw() {
     QGLViewer::drawAxis(qMax(qreal(0.05), camera()->sceneRadius() * 0.1));
     glPopMatrix();
     glEnable(GL_LIGHTING);
+  }
+
+  if (dtAll.isValid()) {
+    _dtDraw += dtAll.nsecsElapsed() / 1.0e6;
+    ++_dtFrames;
   }
 
   mutex.unlock();

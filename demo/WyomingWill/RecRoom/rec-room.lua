@@ -1328,6 +1328,15 @@ local function drawnLine()
   end
   return string.format("  drawn    %d objects\n", n)
 end
+-- (a bpp with the drawing timer, v.drawTiming, switched on: where the
+-- drawing time went, on the processor and on the graphics card)
+local function timingLine()
+  local ok, on = pcall(function() return realV.drawTiming end)
+  if not ok or on ~= true then return "" end
+  local r = realV:drawTimingReport()
+  if r == "" then return "" end
+  return "  timing   " .. r .. "\n"
+end
 local function meterTick(t)
   if not METER then return end
   if not meter.t0 then meter.t0 = t; return end
@@ -1385,14 +1394,14 @@ local function meterTick(t)
       "  physics  games %.2f, clock %.2f%s\n" ..
       "  scripts  %s, room %.2f\n" ..
       "  garbage  %.2f      drawing %.2f      thinking up to %.1f\n" ..
-      "%s" ..
+      "%s%s" ..
       "  busy     %.1f ms of each %.1f ms frame (%.0f%%)%s\n\n",
       fps, meter.gameFrames / el, meter.clockFrames / el,
       clock and "" or " (no clock)", meter.longest,
       per(meter.physGames), per(meter.physClock), own,
       table.concat(parts, ", "), room,
       meter.gc / d, meter.draw / d, thinkMs,
-      drawnLine(),
+      drawnLine(), timingLine(),
       busy, period, 100 * load,
       (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "")
   end

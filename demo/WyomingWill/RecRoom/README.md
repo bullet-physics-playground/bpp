@@ -259,6 +259,12 @@ COST METER -- ms per frame, averaged over the last second
   depth (`v.shadowSaved`, on by default) says "from its saved depth"
   instead: it drew them into the shadow map once, and copies that back
   each frame, which costs the graphics card almost nothing.
+- **timing:** only with bpp's drawing timer on (`v.drawTiming = true`
+  before loading the room). It splits the drawing time into deciding what
+  to skip ("cull"), the shadow map, and the screen pass, as the processor
+  spends it, and the shadow map and the screen pass as the graphics card
+  spends it (from its own timers). "All of draw" is the whole of bpp's
+  drawing, which should match "drawing" above.
 - **thinking up to:** how long the tables' computer players may think each
   frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has

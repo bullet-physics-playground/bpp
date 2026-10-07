@@ -773,6 +773,33 @@ public:
   bool shadowFromSaved() const;
 
   /**
+   * @brief Turns the drawing timer on or off (off by default, and each time
+   *        a script starts).
+   *
+   * On, each frame times the parts of drawing the scene -- deciding what to
+   * skip, the shadow map, the screen pass, and the whole of draw() -- on the
+   * processor, and the shadow map and the screen pass on the graphics card
+   * too (with its own timers, read a few frames later so as not to wait for
+   * it). drawTimingReport() gives the averages.
+   *
+   * @param on True to time.
+   */
+  void setDrawTiming(bool on);
+
+  /**
+   * @brief Returns whether the drawing timer is on (see setDrawTiming()).
+   * @return True if it is.
+   */
+  bool drawTiming() const;
+
+  /**
+   * @brief The drawing timer's averages since the last call, one line, in
+   *        milliseconds a frame, and starts again.
+   * @return The line, or an empty string if nothing was timed.
+   */
+  QString drawTimingReport();
+
+  /**
    * @brief Sets the resolution of the square shadow depth map, in pixels.
    *
    * Larger is sharper and slower, and is clamped to between 256 and 8192. The
@@ -1992,6 +2019,22 @@ private:
   bool _shadowFromSaved = false;   ///< See shadowFromSaved().
   quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from
   int _savedDepthCount = -1;       ///< (and how many objects it held).
+
+  // The drawing timer (see setDrawTiming()): totals since the last report.
+  bool _drawTiming = false;
+  double _dtCull = 0, _dtShadow = 0, _dtScreen = 0, _dtDraw = 0;
+  int _dtFrames = 0;
+  double _dtShadowGpu = 0, _dtScreenGpu = 0;
+  int _dtGpuFrames = 0;
+  unsigned _dtQueries[4][2] = {};  ///< Timer queries, a ring of four frames.
+  bool _dtPending[4] = {};         ///< Which of them wait to be read.
+  int _dtSlot = 0;
+  const void *_dtCtx = nullptr;    ///< The context the queries belong to.
+  unsigned _dtEpoch = 0;
+  bool _dtNoGpu = false;           ///< The context has no timer queries.
+  void dtGpuBegin(int which);
+  void dtGpuEnd();
+  void dtGpuCollect();
   ShadowMap *_shadowMap; ///< Off-screen depth map and the shader that reads
                          ///< it; built on the first shadowed frame, since it
                          ///< needs a current GL context.
