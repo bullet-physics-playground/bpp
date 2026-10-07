@@ -706,11 +706,41 @@ public:
   int drawnObjects() const;
 
   /**
-   * @brief How many objects the last frame drew into the shadow map (0 with
-   *        shadows off).
+   * @brief How many objects the last frame drew into the shadow map one by
+   *        one (0 with shadows off; those replayed from its record are
+   *        shadowCached()).
    * @return The count.
    */
   int shadowCasters() const;
+
+  /**
+   * @brief Turns the shadow map's record of fixed objects on or off.
+   *
+   * On (the default), the fixed objects (mass 0) that have stayed where they
+   * are for a while are drawn into the shadow map once, recorded as OpenGL
+   * lists (one for each patch of the scene), and each frame replays the lists
+   * of the patches it needs and draws only the rest one by one. A fixed object a script moves leaves the record (which is
+   * made again without it) and comes back once it has stayed put again.
+   * Objects a script draws for itself (setRenderFunction()) are always drawn
+   * one by one.
+   *
+   * @param on True to record the fixed objects.
+   */
+  void setShadowCache(bool on);
+
+  /**
+   * @brief Returns whether the fixed objects' shadows are recorded (see
+   *        setShadowCache()).
+   * @return True if they are.
+   */
+  bool shadowCache() const;
+
+  /**
+   * @brief How many fixed objects the last frame's shadow map took from its
+   *        record (0 when it drew them all one by one).
+   * @return The count.
+   */
+  int shadowCached() const;
 
   /**
    * @brief Sets the resolution of the square shadow depth map, in pixels.
@@ -1651,7 +1681,23 @@ protected:
    * depth-only pass from the light, which is why it sets no render state of
    * its own: each caller has already set what it needs.
    */
-  void drawObjects(bool shadowPass = false);
+  void drawObjects(bool shadowPass = false, bool skipFixed = false);
+
+  /**
+   * @brief Whether an object goes into the shadow map's record of fixed
+   *        objects (see setShadowCache()).
+   * @param o The object.
+   * @return True for a fixed object none of a script's drawing goes with.
+   */
+  static bool isFixedCaster(const Object *o);
+
+  /**
+   * @brief Marks which fixed objects go into the shadow map's record (those
+   *        that have stayed put; see setShadowCache()).
+   * @param count Set to how many do.
+   * @return A fingerprint of them: which they are, where, and their shapes.
+   */
+  quint64 markStillCasters(int *count);
 
   /**
    * @brief Decides, once a frame, which objects are drawn for the screen and
@@ -1903,6 +1949,15 @@ private:
                          ///< object's drawOnScreen and drawInShadow).
   int _drawnObjects = 0;   ///< Objects drawn for the screen last frame.
   int _shadowCasters = 0;  ///< Objects drawn into the shadow map last frame.
+  bool _shadowCache = true;        ///< See setShadowCache().
+  GLuint _fixedShadowLists = 0;    ///< The still objects' recorded depth: one
+                                   ///< list per patch of the room, from here.
+  QVector<QVector<Object *>> _fixedShadowCells; ///< Each list's objects.
+  const void *_fixedShadowCtx = nullptr; ///< GL context the lists live in.
+  unsigned _fixedShadowEpoch = 0;  ///< glCacheEpoch() when they were made.
+  quint64 _fixedShadowSig = 0;     ///< The objects they were made from.
+  int _fixedShadowCount = 0;       ///< How many objects they hold.
+  int _shadowCached = 0;           ///< Taken from it last frame.
   ShadowMap *_shadowMap; ///< Off-screen depth map and the shader that reads
                          ///< it; built on the first shadowed frame, since it
                          ///< needs a current GL context.

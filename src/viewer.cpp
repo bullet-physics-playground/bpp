@@ -70,6 +70,7 @@
 #include <QTime>
 #include <QMap>
 #include <algorithm>
+#include <tuple>
 
 #include <boost/exception/all.hpp>
 #include <boost/exception/info.hpp>
@@ -428,6 +429,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("culling", &Viewer::culling, &Viewer::setCulling)
            .property("drawnObjects", &Viewer::drawnObjects)
            .property("shadowCasters", &Viewer::shadowCasters)
+           .property("shadowCache", &Viewer::shadowCache, &Viewer::setShadowCache)
+           .property("shadowCached", &Viewer::shadowCached)
            .property("shadowMapSize", &Viewer::shadowMapSize,
                      &Viewer::setShadowMapSize)
            .property("shadowSoftness", &Viewer::shadowSoftness,
@@ -2010,6 +2013,12 @@ int Viewer::drawnObjects() const { return _drawnObjects; }
 
 int Viewer::shadowCasters() const { return _shadowCasters; }
 
+void Viewer::setShadowCache(bool on) { _shadowCache = on; }
+
+bool Viewer::shadowCache() const { return _shadowCache; }
+
+int Viewer::shadowCached() const { return _shadowCached; }
+
 void Viewer::setShadowMapSize(int px) { _shadowMap->setMapSize(px); }
 
 int Viewer::shadowMapSize() const { return _shadowMap->mapSize(); }
@@ -3027,7 +3036,7 @@ void Viewer::drawSceneInternal(int pass) {
   drawConstraints();
 }
 
-void Viewer::drawObjects(bool shadowPass) {
+void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
   // btScalar m[16];
   btMatrix3x3 rot;
   rot.setIdentity();
@@ -3041,6 +3050,8 @@ void Viewer::drawObjects(bool shadowPass) {
   foreach (Object *o, *_objects) {
     // (what cullObjects() decided for this frame)
     if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
+      continue;
+    if (skipFixed && o->shadowListed)
       continue;
     ++(shadowPass ? _shadowCasters : _drawnObjects);
     // SoftBody has no rigid body/motion-state, so Object::render() (which
@@ -3182,6 +3193,70 @@ void Viewer::cullObjects() {
   }
 }
 
+bool Viewer::isFixedCaster(const Object *o) {
+  return o->body != nullptr && o->body->isStaticObject() &&
+         o->body->getCollisionShape() != nullptr && !o->hasRenderFunction() &&
+         dynamic_cast<const SoftBody *>(o) == nullptr;
+}
+
+// A fixed object goes into the record once it has stayed put this many
+// frames, so one a script moves now and then (a plunger, a gate) keeps out of
+// it rather than having it made again every frame.
+static const unsigned STILL_FRAMES = 30;
+
+// Each fixed object's address, shape, size and where it is drawn, hashed;
+// those that have stayed the same long enough are marked, and their hashes
+// summed (so the order the objects come in doesn't matter).
+quint64 Viewer::markStillCasters(int *count) {
+  quint64 sum = 0;
+  int n = 0;
+  foreach (Object *o, *_objects) {
+    o->shadowListed = false;
+    if (!isFixedCaster(o))
+      continue;
+    btTransform t;
+    if (o->body->getMotionState() != nullptr)
+      o->body->getMotionState()->getWorldTransform(t);
+    else
+      t.setIdentity();
+    btScalar m[16];
+    t.getOpenGLMatrix(m);
+    btVector3 lo(0, 0, 0), hi(0, 0, 0);
+    const btCollisionShape *s = o->body->getCollisionShape();
+    btTransform id;
+    id.setIdentity();
+    s->getAabb(id, lo, hi);
+    const bool seeThrough = o->getTransparency() > 0.0;  // (draws no depth)
+    quint64 h = 1469598103934665603ULL;  // (FNV-1a)
+    auto mix = [&h](const void *p, size_t len) {
+      const unsigned char *b = static_cast<const unsigned char *>(p);
+      for (size_t k = 0; k < len; ++k) {
+        h ^= b[k];
+        h *= 1099511628211ULL;
+      }
+    };
+    const void *ptrs[3] = {o, s, o->shape};
+    mix(ptrs, sizeof(ptrs));
+    mix(m, sizeof(m));
+    mix(&lo, sizeof(btScalar) * 3);
+    mix(&hi, sizeof(btScalar) * 3);
+    mix(&seeThrough, sizeof(seeThrough));
+    if (h != o->shadowHash) {
+      o->shadowHash = h;
+      o->shadowStill = 0;
+    } else if (o->shadowStill < STILL_FRAMES) {
+      ++o->shadowStill;
+    }
+    if (o->shadowStill >= STILL_FRAMES) {
+      o->shadowListed = true;
+      ++n;
+      sum += h;
+    }
+  }
+  *count = n;
+  return sum;
+}
+
 void Viewer::renderShadowDepth() {
   if (!_shadows)
     return;
@@ -3197,7 +3272,94 @@ void Viewer::renderShadowDepth() {
   // of it, and should not throw a shadow across it. Anything a script draws
   // from an object's own render callback does cast, since that runs from
   // Object::render().
-  drawObjects(true);
+  //
+  // The fixed objects that have stayed put are drawn once, recorded as
+  // OpenGL lists, and those are replayed each frame; only the rest are drawn
+  // one by one. There is a list for each patch of the scene (a cube
+  // SHADOW_PATCH across), so what culling leaves out still mostly stays out:
+  // a patch's list is replayed when culling keeps any of its objects. When
+  // which objects are still, or where, changes, the lists are made again.
+  static const btScalar SHADOW_PATCH = 60;
+  _shadowCached = 0;
+  const void *ctx = glCacheContext();
+  if (_fixedShadowLists != 0 && (_fixedShadowCtx != ctx || _fixedShadowEpoch != glCacheEpoch()))
+    _fixedShadowLists = 0;               // (its context has gone, and the lists with it)
+  if (_fixedShadowLists == 0)
+    _fixedShadowCells.clear();
+  bool replay = false;
+  if (_shadowCache && ctx != nullptr) {
+    int count = 0;
+    const quint64 sig = markStillCasters(&count);
+    if (_fixedShadowLists != 0 && (sig != _fixedShadowSig || count != _fixedShadowCount)) {
+      glDeleteLists(_fixedShadowLists, _fixedShadowCells.size());
+      _fixedShadowLists = 0;
+      _fixedShadowCells.clear();
+    }
+    if (_fixedShadowLists == 0 && count > 0) {
+      QMap<std::tuple<int, int, int>, QVector<Object *>> patches;
+      foreach (Object *o, *_objects) {
+        if (!o->shadowListed)
+          continue;
+        btTransform t;
+        if (o->body->getMotionState() != nullptr)
+          o->body->getMotionState()->getWorldTransform(t);
+        else
+          t.setIdentity();
+        btVector3 lo, hi;
+        o->body->getCollisionShape()->getAabb(t, lo, hi);
+        const btVector3 mid = (lo + hi) * 0.5;
+        auto cell = [&](btScalar x) {    // (planes and the like: far out, all one)
+          return int(std::max(-1e6, std::min(1e6, std::floor(double(x / SHADOW_PATCH)))));
+        };
+        patches[std::make_tuple(cell(mid.x()), cell(mid.y()), cell(mid.z()))].append(o);
+      }
+      btVector3 minaabb(0, 0, 0), maxaabb(0, 0, 0);
+      dynamicsWorld->getBroadphase()->getBroadphaseAabb(minaabb, maxaabb);
+      // (with a body gone off to infinity, objects draw at the origin: not
+      // something to record)
+      bool finite = true;
+      for (int a = 0; a < 3; ++a)
+        finite = finite && std::isfinite(minaabb[a]) && std::isfinite(maxaabb[a]);
+      GLuint lists = finite ? glGenLists(patches.size()) : 0;
+      if (lists != 0) {
+        glSetRecordingList(true);        // (see glRecordingList())
+        GLuint list = lists;
+        for (auto it = patches.cbegin(); it != patches.cend(); ++it, ++list) {
+          glNewList(list, GL_COMPILE);
+          foreach (Object *o, it.value())
+            o->render(minaabb, maxaabb);
+          glEndList();
+          _fixedShadowCells.append(it.value());
+        }
+        glSetRecordingList(false);
+        _fixedShadowLists = lists;
+        _fixedShadowCtx = ctx;
+        _fixedShadowEpoch = glCacheEpoch();
+        _fixedShadowSig = sig;
+        _fixedShadowCount = count;
+      }
+    }
+    replay = _fixedShadowLists != 0;
+  } else if (_fixedShadowLists != 0) {
+    glDeleteLists(_fixedShadowLists, _fixedShadowCells.size());
+    _fixedShadowLists = 0;
+    _fixedShadowCells.clear();
+  }
+  if (replay) {
+    for (int k = 0; k < _fixedShadowCells.size(); ++k) {
+      const QVector<Object *> &cell = _fixedShadowCells[k];
+      bool wanted = !_culled;
+      for (int i = 0; !wanted && i < cell.size(); ++i)
+        wanted = cell[i]->drawInShadow;
+      if (wanted) {
+        glCallList(_fixedShadowLists + k);
+        _shadowCached += cell.size();
+      }
+    }
+    drawObjects(true, true);
+  } else {
+    drawObjects(true);
+  }
 
   _shadowMap->renderDepthEnd();
 }

@@ -318,7 +318,9 @@ void Object::renderInLocalFramePre(btVector3 &oaabbmin, btVector3 &oaabbmax) {
     }
 
     mTextureBound = false;
-    if (!mTextureFile.isEmpty()) {
+    // (not into the shadow map's record: it needs no texture, and loading one
+    // there would record the whole image into it)
+    if (!mTextureFile.isEmpty() && !glRecordingList()) {
       GLuint tex = glTextureFromFile(mTextureFile);
       if (tex != 0) {
         glEnable(GL_TEXTURE_2D);

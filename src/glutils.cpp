@@ -165,6 +165,12 @@ static unsigned s_glEpoch = 0;
 
 unsigned glCacheEpoch() { return s_glEpoch; }
 
+static bool s_recording = false;
+
+bool glRecordingList() { return s_recording; }
+
+void glSetRecordingList(bool on) { s_recording = on; }
+
 const void *glCacheContext() {
   QOpenGLContext *c = QOpenGLContext::currentContext();
   if (c == nullptr)
@@ -204,7 +210,7 @@ void cachedPrimitive(const PrimKey &key, Draw draw) {
     }
     s_prims.erase(it);                  // its context has gone, and the list with it
   }
-  if (s_prims.size() >= 512) {          // odd sizes, drawn once each: don't hoard
+  if (s_recording || s_prims.size() >= 512) {  // (odd sizes, drawn once each: don't hoard)
     draw();
     return;
   }

@@ -46,6 +46,16 @@ const void *glCacheContext();
 unsigned glCacheEpoch();
 
 /**
+ * @brief Whether a display list is being recorded (set around recording one).
+ *
+ * OpenGL can't start a list while another is being recorded, so while this is
+ * set, anything that would make a list of its own draws directly instead (into
+ * the list being recorded).
+ */
+bool glRecordingList();
+void glSetRecordingList(bool on);
+
+/**
  * @brief Draws a solid sphere centred on the origin.
  *
  * The surface is tessellated into @p stacks quad strips running from the +Y

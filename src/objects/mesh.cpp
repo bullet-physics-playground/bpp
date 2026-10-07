@@ -585,6 +585,13 @@ void Mesh::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
       glDeleteLists(m_glList, 1);
     m_glList = 0;
   }
+  // Inside another list (the shadow map's record), the triangles themselves:
+  // OpenGL can't start a list there, and a call to this one would go wrong
+  // once it's made again for new geometry.
+  if (glRecordingList()) {
+    drawTriangles();
+    return;
+  }
   if (m_glList == 0) {
     m_glList = glGenLists(1);
     if (m_glList == 0) {                // out of lists: draw directly

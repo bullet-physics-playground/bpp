@@ -568,6 +568,10 @@ public:
 
   bool drawOnScreen = true;  ///< Set each frame by Viewer::cullObjects().
   bool drawInShadow = true;  ///< Set each frame by Viewer::cullObjects().
+  bool shadowListed = false; ///< In the shadow map's record of still objects
+                             ///< (set each frame by Viewer::renderShadowDepth()).
+  quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
+  unsigned shadowStill = 0;  ///< Frames it has stayed so (the same).
 
   /**
    * @brief Draws the object's geometry in its own frame.
