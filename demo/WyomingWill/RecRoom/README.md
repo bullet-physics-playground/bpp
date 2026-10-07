@@ -84,6 +84,14 @@ where you are):
   walker, the view follows it as it walks.
 - **Looking round the room:** the mouse turns and zooms the view as usual.
 
+bpp's own one-letter keys change the whole room: `S` stops the simulation,
+`D` turns sleeping off (everything is simulated all the time, much slower),
+`R` reloads the script and `P` saves every frame for POV-Ray. While you're
+at a game, those four do only what that game uses them for (the clock's
+`S` for its sound, the tables' `S` and `D` for spin), and nothing at a game
+that doesn't use them (the walker, the marble run). Looking round the room,
+they're bpp's as usual.
+
 When you walk away from a game, any keys you are holding are let go (a raised
 flipper drops; a drawn plunger launches), and the game carries on
 running. A ball in play on the pinball machine keeps rolling while you are at

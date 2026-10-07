@@ -1153,6 +1153,7 @@ local function goTo(g)
   end
 end
 
+local HELD_BACK = { S = true, D = true, R = true, P = true }
 v:onKey(function(N, key, down)
   if key == "Tab" then
     if down then
@@ -1176,9 +1177,17 @@ v:onKey(function(N, key, down)
     return true
   end
   local f = active.callbacks.onKey
-  if not f then return false end
-  if down then active.down[key] = true else active.down[key] = nil end
-  return f(active.N, key, down)
+  local used = false
+  if f then
+    if down then active.down[key] = true else active.down[key] = nil end
+    used = f(active.N, key, down)
+  end
+  -- bpp's own one-letter keys change the whole room (S stops the
+  -- simulation, D turns sleeping off, R reloads, P saves every frame for
+  -- POV-Ray). At a game, they do only what that game uses them for, or
+  -- nothing; looking round the room, they're bpp's as usual.
+  if not used and HELD_BACK[key] then return true end
+  return used
 end)
 
 -- the neon flickers now and then; the jukebox's bars dance
