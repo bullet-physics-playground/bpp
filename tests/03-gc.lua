@@ -165,13 +165,14 @@ assert_lt("incremental GC reclaims memory", mem_incr, mem_big)
 -- ============================================================================
 -- Section 2: Scene objects — add/remove 100 random objects, dangling pointer checks
 --
--- Ownership model (luabind adopt policies):
---   v:add(obj)    — adopt(_2): ownership transfers Lua -> C++. The Lua wrapper
---                    becomes non-owning (m_weak holds raw pointer for access).
---   obj = v:remove(obj) — adopt(result): v:remove() returns the Object pointer
---                    with a NEW owning Lua wrapper. The caller MUST reassign
---                    obj = v:remove(obj) so the new owning wrapper replaces
---                    the old non-owning one. This enables add/remove/add cycles.
+-- Ownership model:
+--   v:add(obj)    — the first time, ownership transfers Lua -> C++ (as with
+--                    luabind's adopt). The Lua wrapper becomes non-owning.
+--   v:remove(obj) — takes the object out of the scene and returns the same
+--                    wrapper (obj = v:remove(obj) still works). bpp frees
+--                    the object once the script lets go of the wrapper (and
+--                    of its body and shape); until then it can be added back,
+--                    any number of times (see tests/08-remove.lua).
 -- ============================================================================
 
 local object_factories = {
@@ -226,7 +227,7 @@ local mem_with_objects = collectgarbage("count")
 assert_gt("memory increased with 100 scene objects", mem_with_objects, mem_baseline)
 
 -- ---------------------------------------------------------------------------
--- Test 2b: remove all 100 objects — use obj = v:remove(obj) to reclaim ownership
+-- Test 2b: remove all 100 objects — obj = v:remove(obj) keeps the wrapper
 -- ---------------------------------------------------------------------------
 for i = 1, #objects do
   objects[i].obj = v:remove(objects[i].obj)
@@ -249,7 +250,7 @@ local mem_after_remove = collectgarbage("count")
 assert_lt("memory drops after removing and GC", mem_after_remove, mem_with_objects)
 
 -- ---------------------------------------------------------------------------
--- Test 2c: remove then access — obj = v:remove(obj) restores Lua ownership
+-- Test 2c: remove then access — the wrapper stays usable after remove
 -- ---------------------------------------------------------------------------
 local obj = Sphere(1.0, 1.0)
 obj.pos = btVector3(42, 0, 0)
@@ -339,7 +340,7 @@ double_remove_obj = nil
 collectgarbage("collect")
 
 -- ---------------------------------------------------------------------------
--- Test 2g: add/remove/add cycle — obj = v:remove(obj) restores ownership
+-- Test 2g: add/remove/add cycle — a removed object can be added back
 -- Note: This test currently fails with luabind ownership transfer error.
 -- The second v:add() after remove+add cycle is not supported.
 -- ---------------------------------------------------------------------------

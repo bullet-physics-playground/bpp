@@ -392,6 +392,52 @@ public:
   Object *removeObject(Object *o);
 
   /**
+   * @brief What a script's v:remove(obj) calls: removes the object and gives
+   *        it back to the script.
+   *
+   * v:add took the object from Lua; this hands it back. bpp keeps the
+   * object until the script has let go of it (its Lua handle has been
+   * collected), then frees it (see reapRemoved()), so removing objects
+   * doesn't make memory grow.
+   *
+   * @param o The script's handle to the object.
+   * @return The same handle, so obj = v:remove(obj) keeps working.
+   */
+  luabind::object removeObjectLua(const luabind::object &o);
+
+  /**
+   * @brief What a script's v:add(obj) (or v:add{...}) calls.
+   *
+   * The first time an object is added, bpp takes it from Lua: the script's
+   * handle stops owning it (luabind's adopt). Only the first time: taking it
+   * a second time would leave the handle pointing at nothing, so an object
+   * the script removes and adds again stays usable.
+   *
+   * @param o An object, or a table of objects.
+   */
+  void addObjectLua(const luabind::object &o);
+
+  /**
+   * @brief Frees removed objects the script has let go of.
+   *
+   * One whose body a constraint in the world still uses is kept until that
+   * constraint is removed too.
+   */
+  void reapRemoved();
+
+  /**
+   * @brief The Lua handle a script added an object with (a new one for an
+   *        object that isn't in the scene).
+   *
+   * Everything that hands a scene object to Lua uses it, so a script never
+   * holds two different handles to one object.
+   *
+   * @param o The object.
+   * @return Its handle, or nil for null.
+   */
+  luabind::object handleOf(Object *o);
+
+  /**
    * @brief Adds an object's rigid body to the dynamics world.
    * @param o The object whose body to add.
    */
@@ -1739,6 +1785,13 @@ private:
   //  int currentKF_;
 
   QSet<Object *> *_objects;                  ///< Every object in the scene.
+  QSet<Object *> _takenFromLua;              ///< Objects v:add took from Lua.
+  QSet<btTypedConstraint *> _detached;       ///< Constraints taken out of the
+                                             ///< world with an object they
+                                             ///< join (see removeObject()).
+  QSet<Object *> _removed;                   ///< Removed objects bpp still owns,
+                                             ///< until their script lets go
+                                             ///< (see reapRemoved()).
   QSet<btTypedConstraint *> *_constraints;   ///< Every constraint in the world.
   QSet<btRaycastVehicle *> *_raycast_vehicles; ///< Every raycast vehicle.
 

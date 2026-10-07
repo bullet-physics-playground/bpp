@@ -295,11 +295,32 @@ public:
    * @brief Attaches a rigid body the object does not own.
    *
    * Clears the ownership flag, so the body is not deleted with the object.
-   * Used when the body belongs to Lua or to some other structure.
+   * Used when the body belongs to Lua or to some other structure. When the
+   * object is in the dynamics world, the new body takes the old one's place
+   * there. A replaced body the object made itself is kept until the object
+   * goes (a constraint may still use it).
    *
    * @param b The body to attach.
    */
   void setRigidBody(btRigidBody *b);
+
+  /**
+   * @brief Tells the object which dynamics world it is in (null: none).
+   *
+   * The viewer sets it as it adds the object and clears it as it removes it.
+   *
+   * @param w The world.
+   */
+  void setWorld(btDynamicsWorld *w) { _world = w; }
+
+  /**
+   * @brief Bodies the object has had and since replaced (see setRigidBody()),
+   *        whoever made them; one a constraint joins may still be in the
+   *        world. (One the object made is freed with it; a script's is kept
+   *        alive by the object until then, see retireLua().)
+   * @return The bodies.
+   */
+  const std::vector<btRigidBody *> &formerBodies() const { return _formerBodies; }
 
   /**
    * @brief Returns the object's rigid body.
@@ -308,10 +329,11 @@ public:
   btRigidBody *getRigidBody() const;
 
   /**
-   * @brief Attaches a collision shape, deleting any previous one.
+   * @brief Attaches a collision shape in place of the previous one.
    *
    * A previous shape that a script handed in (see keepLua()) belongs to Lua
-   * and is not deleted here.
+   * and is not deleted here. One the object made itself is kept until the
+   * object goes (its body may still use it; see retireShape()).
    *
    * @param s The shape to attach. The object takes ownership.
    */
@@ -697,6 +719,18 @@ protected:
   std::vector<luabind::object> _luaRetired; ///< Replaced ones still in use
                                             ///< (see retireLua()).
   bool _shapeFromLua = false;           ///< True when #shape belongs to Lua.
+  btDynamicsWorld *_world = nullptr;    ///< The world it is in (see setWorld()).
+  std::vector<btRigidBody *> _retiredBodies; ///< Replaced bodies it made itself.
+  std::vector<btRigidBody *> _formerBodies;  ///< Every body it has replaced.
+  std::vector<btCollisionShape *> _retiredShapes; ///< Replaced shapes it made
+                                                  ///< itself.
+
+  /**
+   * @brief Keeps a replaced shape the object made itself until the object
+   *        goes, instead of deleting it while a body may still use it.
+   * @param s The shape.
+   */
+  void retireShape(btCollisionShape *s) { _retiredShapes.push_back(s); }
 
   /**
    * @brief Deletes the shape and motion state a built-in object made itself.

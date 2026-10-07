@@ -157,6 +157,7 @@ Mesh::Mesh() {
   m_shape = new btGImpactMeshShape(m_mesh);
   m_scene = nullptr;
   shape = m_shape;
+  _shapeFromLua = true;   // (a Mesh looks after its own shape: Object never frees it)
   _comOffset = btVector3(0, 0, 0);
   m_ownsMeshDirectly = true;
 
@@ -339,6 +340,7 @@ void Mesh::loadFile(const QString &filename, btScalar mass,
   }
 
   shape = m_shape;
+  _shapeFromLua = true;   // (the mesh cache's, shared: Object never frees it)
 
   btQuaternion qtn;
   btTransform trans;
@@ -388,9 +390,10 @@ module(s)[class_<Mesh, Object>("Mesh")
                  .def(constructor<QString, btScalar, bool>(), adopt(result))
                  .def(tostring(const_self))
 
-                 .property("shape", &Mesh::getShape, &luaMeshSetShape)
+                 .property("shape", &Mesh::getShape, &luaMeshSetShape,
+                           dependency(result, _1))
                  .property("mesh", &Mesh::getTriangleMesh,
-                           &luaMeshSetTriangleMesh)
+                           &luaMeshSetTriangleMesh, dependency(result, _1))
                  .def(const_self == const_self)
 
   ];
@@ -652,14 +655,17 @@ void Mesh::drawTriangles() {
 btGImpactMeshShape *Mesh::getShape() const { return m_shape; }
 
 void Mesh::setShape(btGImpactMeshShape *newShape, bool fromLua) {
-  // (a shape a script handed in belongs to Lua: Lua frees it)
-  if (m_shape != nullptr && m_shape != newShape && !m_shapeFromLua)
-    delete m_shape;
+  // (a shape a script handed in belongs to Lua: Lua frees it; a file's
+  // shape belongs to the mesh cache, shared with every Mesh of that file;
+  // one this Mesh made itself is kept until it goes, as its body may still
+  // use it)
+  if (m_shape != nullptr && m_shape != newShape && !m_shapeFromLua && m_ownsMeshDirectly)
+    retireShape(m_shape);
 
   m_shape = newShape;
   shape = newShape;  // (Object's own pointer, so it never points at a deleted shape)
   m_shapeFromLua = fromLua && newShape != nullptr;
-  _shapeFromLua = m_shapeFromLua; // (so Object never deletes it either)
+  _shapeFromLua = true;   // (a Mesh looks after its own shape: Object never frees it)
   // The new shape's ownership is no longer the default constructor's
   // direct allocation, so ~Mesh() must not delete it a second time.
   m_ownsMeshDirectly = false;

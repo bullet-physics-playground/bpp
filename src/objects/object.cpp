@@ -76,6 +76,21 @@ Object::~Object() {
     delete body;
     body = nullptr;
   }
+
+  // Bodies and shapes it made itself and then replaced. (A body still in the
+  // world, or a constraint still uses, is left, and so are the shapes, which
+  // it may use; so are motion states, which a script may have handed in.)
+  bool keptBody = false;
+  for (btRigidBody *b : _retiredBodies) {
+    if (b->isInWorld() || b->getNumConstraintRefs() > 0) {
+      keptBody = true;
+      continue;
+    }
+    delete b;
+  }
+  if (!keptBody)
+    for (btCollisionShape *s : _retiredShapes)
+      delete s;
 }
 
 void Object::preDestructor() {
@@ -236,16 +251,21 @@ void Object::luaBind(lua_State *s) {
                       (QString(Object::*)(void)) & Object::getPostSDL,
                       (void(Object::*)(const QString &)) & Object::setPostSDL)
 
-           .def("getRigidBody", &Object::getRigidBody)
+           // (a body or shape the script reads keeps the object alive: a
+           // removed object is freed once the script lets go of it, and
+           // these belong to it)
+           .def("getRigidBody", &Object::getRigidBody, dependency(result, _1))
            .def("setRigidBody", &luaSetRigidBody)
 
-           .property("body", &Object::getRigidBody, &luaSetRigidBody)
+           .property("body", &Object::getRigidBody, &luaSetRigidBody,
+                     dependency(result, _1))
 
-           .def("getCollisionShape", &Object::getCollisionShape)
+           .def("getCollisionShape", &Object::getCollisionShape,
+                dependency(result, _1))
            .def("setCollisionShape", &luaSetCollisionShape)
 
            .property("shape", &Object::getCollisionShape,
-                     &luaSetCollisionShape)
+                     &luaSetCollisionShape, dependency(result, _1))
 
            .def("setRenderFunction", &Object::setRenderFunction)
            .def("getRenderFunction", &Object::getRenderFunction)
@@ -468,16 +488,33 @@ btVector3 Object::getLinearVelocity() const {
 }
 
 void Object::setRigidBody(btRigidBody *b) {
-    body = b;
-    _ownsBody = false;
+  btRigidBody *old = body;
+  // In the world, the new body takes the old one's place there -- unless a
+  // constraint in the world still joins the old one (Bullet can't step a
+  // constraint whose body has left the world): then the world is left as it
+  // is, as before, and the constraint is the script's to remove first.
+  const bool swap = _world != nullptr && old != b &&
+                    (old == nullptr || !old->isInWorld() || old->getNumConstraintRefs() == 0);
+  if (old != nullptr && old != b) {
+    if (swap && old->isInWorld())
+      _world->removeRigidBody(old);
+    if (_ownsBody)
+      _retiredBodies.push_back(old);
+    _formerBodies.push_back(old);
+  }
+  body = b;
+  _ownsBody = false;
+  if (swap && b != nullptr && !b->isInWorld())
+    _world->addRigidBody(b, col1, col2);
 }
 
 btRigidBody *Object::getRigidBody() const { return body; }
 
 void Object::setCollisionShape(btCollisionShape *s) {
-  // (a shape a script handed in belongs to Lua: Lua frees it)
+  // (a shape a script handed in belongs to Lua: Lua frees it; one the object
+  // made itself is kept until it goes, as its body may still use it)
   if (shape != nullptr && shape != s && !_shapeFromLua)
-    delete shape;
+    retireShape(shape);
   shape = s;
   _shapeFromLua = false;
 }

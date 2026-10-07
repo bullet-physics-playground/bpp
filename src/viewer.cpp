@@ -311,13 +311,8 @@ void Viewer::luaBind(lua_State *s) {
            .def("setCam", (void(Viewer::*)(Cam *)) & Viewer::setCamera,
                 adopt(_2))
            .def("getCam", &Viewer::getCamera)
-           .def("add", (void(Viewer::*)(Object *)) & Viewer::addObject,
-                adopt(_2))
-           .def("add", (void(Viewer::*)(const luabind::object &)) &
-                    Viewer::addObjectList)
-           .def("remove",
-                (Object * (Viewer::*)(Object *)) &
-                    Viewer::removeObject)
+           .def("add", &Viewer::addObjectLua)
+           .def("remove", &Viewer::removeObjectLua)
            .def("setTau", (void(Viewer::*)(btScalar))&Viewer::setTau)
            .def("setErp", (void(Viewer::*)(btScalar))&Viewer::setErp)
            .def("setErp2", (void(Viewer::*)(btScalar))&Viewer::setErp2)
@@ -563,6 +558,27 @@ void Viewer::addObject(Object *o) {
   addConstraints(o->getConstraints());
 }
 
+void Viewer::addObjectLua(const luabind::object &handle) {
+  if (L == nullptr || !handle.is_valid())
+    return;
+  if (luabind::type(handle) == LUA_TTABLE) {
+    addObjectList(handle);
+    return;
+  }
+  Object *o = luabind::object_cast<Object *>(handle);
+  if (o == nullptr)
+    return;
+  if (!_takenFromLua.contains(o)) {
+    handle.push(L);
+    luabind::detail::object_rep *rep = luabind::detail::get_instance(L, -1);
+    if (rep != nullptr)
+      rep->release();
+    lua_pop(L, 1);
+    _takenFromLua.insert(o);
+  }
+  addObject(o);
+}
+
 void Viewer::addObjectList(const luabind::object &objs) {
   if (L == nullptr || !objs.is_valid())
     return;
@@ -582,17 +598,132 @@ Object *Viewer::removeObject(Object *o) {
   if (o == nullptr)
     return nullptr;
 
+  // A constraint joining its body comes out of the world with it (Bullet
+  // can't step a constraint whose body has left the world). It stays the
+  // script's to remove, and goes back in when the object is added back.
+  // So do bodies it had before (one a constraint kept in the world).
+  QList<btRigidBody *> bodies;
   if (o->body != nullptr)
-    dynamicsWorld->removeRigidBody(o->body);
+    bodies.append(o->body);
+  for (btRigidBody *b : o->formerBodies())
+    if (b->isInWorld())
+      bodies.append(b);
+  for (btRigidBody *b : bodies) {
+    for (btTypedConstraint *c : *_constraints) {
+      if (&c->getRigidBodyA() == b || &c->getRigidBodyB() == b) {
+        if (!_detached.contains(c)) {
+          dynamicsWorld->removeConstraint(c);
+          _detached.insert(c);
+        }
+      }
+    }
+    dynamicsWorld->removeRigidBody(b);
+  }
 
   SoftBody *sb = dynamic_cast<SoftBody *>(o);
   if (sb != nullptr && sb->getSoftBody() != nullptr)
     dynamicsWorld->removeSoftBody(sb->getSoftBody());
 
   _objects->remove(o);
+  o->setWorld(nullptr);
   o->setParent(0);
 
   return o;
+}
+
+// Removed objects bpp still owns are listed, by address, in a table in the
+// Lua registry whose values are the scripts' handles to them, held weakly:
+// when a handle is collected its entry goes, and reapRemoved() frees the
+// object.
+static const char *REMOVED_TABLE = "bpp_removed_objects";
+
+static void pushRemovedTable(lua_State *L) {
+  lua_getfield(L, LUA_REGISTRYINDEX, REMOVED_TABLE);
+  if (lua_istable(L, -1))
+    return;
+  lua_pop(L, 1);
+  lua_newtable(L);
+  lua_newtable(L);
+  lua_pushstring(L, "v");
+  lua_setfield(L, -2, "__mode");
+  lua_setmetatable(L, -2);
+  lua_pushvalue(L, -1);
+  lua_setfield(L, LUA_REGISTRYINDEX, REMOVED_TABLE);
+}
+
+static void setRemovedEntry(lua_State *L, Object *o, const luabind::object *handle) {
+  pushRemovedTable(L);
+  lua_pushlightuserdata(L, o);
+  if (handle != nullptr)
+    handle->push(L);
+  else
+    lua_pushnil(L);
+  lua_rawset(L, -3);
+  lua_pop(L, 1);
+}
+
+luabind::object Viewer::removeObjectLua(const luabind::object &handle) {
+  Object *o = luabind::object_cast<Object *>(handle);
+  if (o == nullptr || L == nullptr)
+    return handle;
+
+  // Only an object v:add took from Lua is bpp's to free; anything else
+  // still belongs to its Lua handle.
+  const bool ours = _objects->contains(o);
+  removeObject(o);
+  if (!ours)
+    return handle;
+
+  // (the handle it was added with: the one the script has; see handleOf())
+  luabind::object kept = _luabindRegistry.count(o) ? handleOf(o) : handle;
+  auto it = _luabindRegistry.find(o);
+  if (it != _luabindRegistry.end()) {
+    luaL_unref(L, LUA_REGISTRYINDEX, it->second);
+    _luabindRegistry.erase(it);
+  }
+  _removed.insert(o);
+  setRemovedEntry(L, o, &kept);
+  return kept;
+}
+
+void Viewer::reapRemoved() {
+  if (_removed.isEmpty() || L == nullptr)
+    return;
+
+  QList<Object *> gone;
+  pushRemovedTable(L);
+  for (Object *o : _removed) {
+    lua_pushlightuserdata(L, o);
+    lua_rawget(L, -2);
+    const bool held = !lua_isnil(L, -1);
+    lua_pop(L, 1);
+    if (held)
+      continue;
+    // (a constraint still joins one of its bodies: not while the script
+    // has it)
+    bool joined = false;
+    for (btTypedConstraint *c : *_constraints) {
+      btRigidBody *a = &c->getRigidBodyA(), *b = &c->getRigidBodyB();
+      if (o->body != nullptr && (a == o->body || b == o->body))
+        joined = true;
+      for (btRigidBody *r : o->formerBodies())
+        if (a == r || b == r)
+          joined = true;
+    }
+    if (joined)
+      continue;
+    gone.append(o);
+  }
+  lua_pop(L, 1);
+
+  for (Object *o : gone) {
+    _removed.remove(o);
+    _takenFromLua.remove(o);
+    if (o->body != nullptr)
+      _aabbSeen.erase(o->body);
+    o->preDestructor();
+    delete o;
+  }
 }
 
 void Viewer::setTau(btScalar tau) {
@@ -632,6 +763,7 @@ void Viewer::updateMovedAabbs() {
 }
 
 int Viewer::stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep) {
+  reapRemoved();
   updateMovedAabbs();
   return dynamicsWorld->stepSimulation(timeStep, maxSubSteps, fixedTimeStep);
 }
@@ -650,6 +782,24 @@ void Viewer::setCfm(btScalar cfm) {
 
 void Viewer::setSolverIterations(int n) {
   dynamicsWorld->getSolverInfo().m_numIterations = n;
+}
+
+luabind::object Viewer::handleOf(Object *o) {
+  if (L == nullptr)
+    return luabind::object();
+  if (o == nullptr) {
+    lua_pushnil(L);
+    luabind::object nil(luabind::from_stack(L, -1));
+    lua_pop(L, 1);
+    return nil;
+  }
+  auto it = _luabindRegistry.find(o);
+  if (it == _luabindRegistry.end())
+    return luabind::object(L, o);
+  lua_rawgeti(L, LUA_REGISTRYINDEX, it->second);
+  luabind::object h(luabind::from_stack(L, -1));
+  lua_pop(L, 1);
+  return h;
 }
 
 void Viewer::eachContact(const luabind::object &fn) {
@@ -684,8 +834,10 @@ void Viewer::eachContact(const luabind::object &fn) {
     if (numContacts == 0)
       continue;
 
-    Object *oa = ownerOf(manifold->getBody0());
-    Object *ob = ownerOf(manifold->getBody1());
+    // (the handles the script added them with, so an object never has two:
+    // see removeObjectLua())
+    luabind::object oa = handleOf(ownerOf(manifold->getBody0()));
+    luabind::object ob = handleOf(ownerOf(manifold->getBody1()));
 
     for (int j = 0; j < numContacts; ++j) {
       const btManifoldPoint &pt = manifold->getContactPoint(j);
@@ -709,6 +861,7 @@ void Viewer::addConstraint(btTypedConstraint *con) {
 btTypedConstraint *Viewer::removeConstraint(btTypedConstraint *con) {
   dynamicsWorld->removeConstraint(con);
   _constraints->remove(con);
+  _detached.remove(con);
   return con;
 }
 
@@ -1100,6 +1253,9 @@ void Viewer::wheelEvent(QWheelEvent *e) {
 
 void Viewer::addObject(Object *o, int type, int mask) {
   _objects->insert(o);
+  o->setWorld(dynamicsWorld);
+  if (_removed.remove(o) && L != nullptr)
+    setRemovedEntry(L, o, nullptr);   // (bpp's again, held by the scene)
 
   if (o->body != nullptr) {
     if (!_deactivation) {
@@ -1111,6 +1267,22 @@ void Viewer::addObject(Object *o, int type, int mask) {
   SoftBody *sb = dynamic_cast<SoftBody *>(o);
   if (sb != nullptr && sb->getSoftBody() != nullptr)
     dynamicsWorld->addSoftBody(sb->getSoftBody(), type, mask);
+
+  // constraints that came out of the world with it go back once both
+  // their bodies are in it again
+  if (o->body != nullptr && !_detached.isEmpty()) {
+    for (btTypedConstraint *c : _detached.values()) {
+      // (a constraint to a fixed point joins its body to Bullet's fixed body,
+      // which is never in the world)
+      btRigidBody &fixed = btTypedConstraint::getFixedBody();
+      btRigidBody &a = c->getRigidBodyA(), &b = c->getRigidBodyB();
+      if ((&a == o->body || &b == o->body) && (&a == &fixed || a.isInWorld()) &&
+          (&b == &fixed || b.isInWorld())) {
+        dynamicsWorld->addConstraint(c, true);
+        _detached.remove(c);
+      }
+    }
+  }
 }
 
 void Viewer::addObjects(QList<Object *> ol, int type, int mask) {
@@ -2012,6 +2184,11 @@ emit scriptStarts();
       _cb_shortcuts->clear();
     }
 
+    // (removed objects bpp still owns go with the rest)
+    for (Object *o : _removed)
+      _objects->insert(o);
+    _removed.clear();
+
     // Notify all objects that their luabind weak pointers are about to become
     // invalid (C++ objects will be deleted by clear() below).
     foreach (Object *o, *_objects) {
@@ -2314,6 +2491,8 @@ void Viewer::clear() {
     for (Object* o : objs) delete o;
   }
   _objects->clear();
+  _takenFromLua.clear();
+  _detached.clear();
 
   {
     QList<btTypedConstraint*> cons = _constraints->values();
@@ -2491,6 +2670,11 @@ Viewer::~Viewer() {
     _cb_shortcuts = nullptr;
   }
 
+  // (removed objects bpp still owns go with the rest)
+  for (Object *o : _removed)
+    _objects->insert(o);
+  _removed.clear();
+
   // Notify all objects that their luabind weak pointers are invalid
   foreach (Object* o, *_objects) {
     o->preDestructor();
@@ -2606,6 +2790,8 @@ Viewer::~Viewer() {
     for (Object* o : objs) delete o;
   }
   _objects->clear();
+  _takenFromLua.clear();
+  _detached.clear();
   delete _objects;
 
   {
@@ -4066,6 +4252,8 @@ void Viewer::animate() {
   if (_has_exception || _parsing) {
     return;
   }
+
+  reapRemoved();
 
   // emitScriptOutput(QString("_frameNum = %1").arg(_frameNum));
 
