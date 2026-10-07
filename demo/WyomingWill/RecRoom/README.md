@@ -252,7 +252,10 @@ COST METER -- ms per frame, averaged over the last second
 - **drawn:** on a bpp that skips what can't be seen (`v.culling`, on by
   default), how many of the room's 3,300 or so objects the last frame drew
   for the screen, and, with shadows on, into the shadow map: only what's in
-  view, or could throw a shadow into it.
+  view, or could throw a shadow into it. A bpp that records the fixed
+  objects' shadows (`v.shadowCache`, on by default) adds "and N more from
+  its record": those it drew into the shadow map once and replays each
+  frame, instead of drawing them one by one.
 - **thinking up to:** how long the tables' computer players may think each
   frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has
@@ -359,6 +362,15 @@ own) so the scripts can't interfere with each other:
   then take up to 6 seconds) instead of slowing the room down.
 
 The room's own furniture is scenery only; it doesn't collide with anything.
+
+The room has its own light, high up over the left-hand side
+(`ROOM_LIGHT`, x, y, z over w as OpenGL takes it). bpp's usual light is off
+to the right, outside the right-hand wall, so with shadows on the wall and
+the scoreboards shaded the far half of each table. The room's comes down
+steeply enough that the left-hand wall's shadow stops short of the pinball
+machine and the clock. Set `ROOM_LIGHT` before loading the room to put it
+somewhere else (`btVector4(500, 500, 500, 0.4)` is bpp's usual one). It
+also lights the scene POV-Ray renders.
 
 ## Requirements
 

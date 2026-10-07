@@ -797,6 +797,14 @@ local Z0, Z1 = -150, 960                               -- back wall, front of th
 local H = 340                                         -- wall height (the views look down from up to 3.2 m)
 local WOOD, GROOVE, CARPET = "#6b4423", "#3e2612", "#5a3a24"
 
+-- The light: high up over the left-hand side of the room (bpp's own is off
+-- to the right, which had the right-hand wall and the scoreboards shade the
+-- tables). It comes down steeply enough that the left-hand wall's shadow
+-- stops short of the pinball machine and the clock. (x, y, z over w, as
+-- OpenGL takes it: a light at -1000, 2800, 400.)
+ROOM_LIGHT = ROOM_LIGHT or btVector4(-400, 1120, 160, 0.4)
+v.glLight0 = ROOM_LIGHT
+
 -- floor (just above the pinball machine's own), walls with panelling
 box((X0 + X1) / 2, FLOOR - 0.8, (Z0 + Z1) / 2, X1 - X0, 2, Z1 - Z0, CARPET)
 box((X0 + X1) / 2, FLOOR + H / 2, Z0 - 2, X1 - X0, H, 4, WOOD)
@@ -1308,6 +1316,12 @@ local function drawnLine()
   if not ok or type(n) ~= "number" then return "" end
   if not realV.culling then return "  drawn    everything (culling off)\n" end
   if realV.shadows then
+    -- (and a bpp that records the still objects' shadows replays those)
+    local okc, c = pcall(function() return realV.shadowCached end)
+    if okc and type(c) == "number" and c > 0 then
+      return string.format("  drawn    %d objects, %d into the shadow map and %d more from its record\n",
+                           n, realV.shadowCasters, c)
+    end
     return string.format("  drawn    %d objects, %d into the shadow map\n", n, realV.shadowCasters)
   end
   return string.format("  drawn    %d objects\n", n)
