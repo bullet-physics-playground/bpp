@@ -23,9 +23,9 @@ v.pre_sdl = [==[
 
 #include "rspd_jvp.inc"  // material samples
 
-#include "lightsys.inc"
-#include "lightsys_constants.inc"
-#include "lightsys_colors.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
+#include "bpp_lightsys_colors.inc"
 
 #declare use_blur  =50;  // blur samples (0=off)
 #declare use_norm   =1;  // use micro-normals?
