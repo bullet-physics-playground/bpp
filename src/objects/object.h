@@ -571,6 +571,14 @@ public:
   bool shadowListed = false; ///< In the shadow map's record of still objects
                              ///< (set each frame by Viewer::renderShadowDepth()).
   quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
+
+  // A fixed object's last world box, kept by the viewer's getAABB() so it
+  // isn't worked out again from the shape while nothing about it changes.
+  bool boxKept = false;
+  btTransform boxTrans;      ///< (the body's world transform it was for)
+  btVector3 boxPos;          ///< (and the drawn position: getPosition())
+  const btCollisionShape *boxShape = nullptr;
+  btVector3 boxScale, boxMin, boxMax;
   unsigned shadowStill = 0;  ///< Frames it has stayed so (the same).
 
   /**

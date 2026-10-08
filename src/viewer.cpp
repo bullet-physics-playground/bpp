@@ -958,6 +958,11 @@ const double kSnPixelsPerSecond = 600.0;
  * Bullet reports for it, and a body whose position is not finite is included
  * without being offset, so one diverged object cannot make the box unusable.
  *
+ * Runs every frame over every object, so a fixed body keeps its part of the
+ * box (Object::boxMin and boxMax) and has it worked out again only when its
+ * shape, scale, place or drawn position changes; the result is the same, to
+ * the bit, as working every part out afresh.
+ *
  * @param[in]  objects The objects to cover.
  * @param[out] aabb    Receives minimum x, y, z followed by maximum x, y, z.
  */
@@ -975,29 +980,57 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 
     if (o->body != nullptr) {
       btVector3 oaabbmin(0, 0, 0), oaabbmax(0, 0, 0);
-      o->body->getAabb(oaabbmin, oaabbmax);
-
-      if ("Plane" == o->toString()) {
-        btScalar s = ((Plane *)o)->getSize();
-        oaabbmin[0] = -s;
-        oaabbmin[1] = -s;
-        oaabbmin[2] = -s;
-
-        oaabbmax[0] = s;
-        oaabbmax[1] = s;
-        oaabbmax[2] = s;
+      const btRigidBody *rb = o->body;
+      const btCollisionShape *shape = rb->getCollisionShape();
+      btVector3 pos(0, 0, 0);
+      if (rb->getMotionState() != nullptr) {
+        btTransform mt;
+        rb->getMotionState()->getWorldTransform(mt);
+        pos = mt.getOrigin();            // (what getPosition() gives)
       }
+      // A fixed body's part of the box is worked out again only when its
+      // shape, scale or place changes: for a compound or a mesh, working it
+      // out from the shape is most of the cost of all this.
+      const bool fixed = rb->isStaticObject() && shape != nullptr;
+      const btTransform &t = rb->getWorldTransform();
+      if (fixed && o->boxKept && o->boxShape == shape &&
+          o->boxScale == shape->getLocalScaling() && o->boxPos == pos &&
+          o->boxTrans.getOrigin() == t.getOrigin() &&
+          o->boxTrans.getBasis() == t.getBasis()) {
+        oaabbmin = o->boxMin;
+        oaabbmax = o->boxMax;
+      } else {
+        rb->getAabb(oaabbmin, oaabbmax);
+        if (Plane *pl = dynamic_cast<Plane *>(o)) {
+          btScalar s = pl->getSize();
+          oaabbmin[0] = -s;
+          oaabbmin[1] = -s;
+          oaabbmin[2] = -s;
 
-      if (isfinite(o->getPosition().x()) && isfinite(o->getPosition().y()) &&
-          isfinite(o->getPosition().z())) {
-        oaabbmin -= o->getPosition();
-        oaabbmax += o->getPosition();
+          oaabbmax[0] = s;
+          oaabbmax[1] = s;
+          oaabbmax[2] = s;
+        }
+        if (isfinite(pos.x()) && isfinite(pos.y()) && isfinite(pos.z())) {
+          oaabbmin -= pos;
+          oaabbmax += pos;
+        }
+        o->boxKept = fixed;
+        if (fixed) {
+          o->boxShape = shape;
+          o->boxScale = shape->getLocalScaling();
+          o->boxTrans = t;
+          o->boxPos = pos;
+          o->boxMin = oaabbmin;
+          o->boxMax = oaabbmax;
+        }
       }
 
       for (int i = 0; i < 3; ++i) {
         aabb[i] = qMin(aabb[i], oaabbmin[i]);
         aabb[3 + i] = qMax(aabb[3 + i], oaabbmax[i]);
       }
+      continue;                          // (a SoftBody has no rigid body)
     }
 
     SoftBody *sb = dynamic_cast<SoftBody *>(o);
