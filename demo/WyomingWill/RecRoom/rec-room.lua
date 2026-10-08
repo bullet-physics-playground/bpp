@@ -34,9 +34,8 @@
 -- step, the room freezes the games and steps the clock once more with its
 -- own settings; it gets 25 steps for each real second, as it does on its
 -- own. (An older bpp without v:stepSimulation means taking turns, frame by
--- frame.) A
--- table that's waiting for a shot has its balls frozen too, and the room
--- collects Lua's garbage a little every frame. Everything keeps running
+-- frame.) The
+-- room collects Lua's garbage a little every frame. Everything keeps running
 -- wherever you stand.
 --
 -- FILES: the pinball and pool folders must sit next to this one (as
@@ -1288,45 +1287,6 @@ local function whose(x)
   end
   applyPhysics(x and x.physics or ROOM_PHYSICS)
 end
--- A table that's waiting for a shot, with every ball still, has its balls
--- taken out of the simulation (the tables keep them awake on purpose, so
--- otherwise they'd be solved 900 times a second sitting still). They're
--- put back the moment a stroke begins (or anything moves them). The
--- table's own scripts, its computer player included, carry on as usual.
-local WAITING = { aim = true, inhand = true, cleared = true, over = true }
-local function ballBodies(g)
-  local list = {}
-  for _, b in pairs(g.env.TF.balls) do
-    local ok, body = pcall(function() return b.obj.body end)
-    if ok and body then list[#list + 1] = body end
-  end
-  return list
-end
-local function restTable(g)
-  local T = g.env.TF
-  if not (T and T.S and T.balls) then return end
-  local still = WAITING[T.S.state] == true
-  if still and not g.resting then
-    for _, body in ipairs(ballBodies(g)) do
-      local lv, av = body:getLinearVelocity(), body:getAngularVelocity()
-      if lv.x * lv.x + lv.y * lv.y + lv.z * lv.z > 0.25 or av.x * av.x + av.y * av.y + av.z * av.z > 0.25 then
-        still = false
-        break
-      end
-    end
-  end
-  if still and not g.resting then
-    g.resting = {}
-    for _, body in ipairs(ballBodies(g)) do
-      g.resting[#g.resting + 1] = { body, body:getActivationState() }
-      body:forceActivationState(5)        -- DISABLE_SIMULATION
-    end
-  elseif not still and g.resting then
-    for _, r in ipairs(g.resting) do r[1]:forceActivationState(r[2]) end
-    g.resting = nil
-  end
-end
-
 -- ---------------------------------------------------------------------
 -- the cost meter
 -- ---------------------------------------------------------------------
@@ -1567,11 +1527,6 @@ v:preSim(function(N)
     if clockTurn then whose(clock) end
   end
   for _, g in ipairs(games) do if not g.paused then g.N = g.N + 1 end end
-  if not clockTurn then
-    for _, g in ipairs(games) do
-      if g == pool or g == snooker or g == bumper then restTable(g) end
-    end
-  end
   local err = call("preSim")
   tStep = now()
   meter.room = meter.room + (tStep - tPre) - (scriptsTotal() - s0)

@@ -2331,7 +2331,30 @@ v:preDraw(function(N)
   end
 end)
 
+-- Resting: while the table waits for a shot and every ball is still, the
+-- balls are taken out of the simulation. They're set never to go to sleep
+-- (so the gentlest touch always moves them), so otherwise Bullet would
+-- solve them hundreds of times a second sitting still. They're put back
+-- the moment a stroke begins.
+local WAITING = { aim = true, inhand = true, cleared = true, over = true }
+local resting = false
+local function rest()
+  local still = WAITING[S.state] == true
+  if still == resting then return end
+  if still then
+    for _, b in pairs(balls) do
+      local vx, vy, vz = velXYZ(b.obj)
+      local wx, wy, wz = spinXYZ(b.obj)
+      if vx * vx + vy * vy + vz * vz > 0.25 or wx * wx + wy * wy + wz * wz > 0.25 then return end
+    end
+  end
+  resting = still
+  local state = still and 5 or 4        -- DISABLE_SIMULATION, or never sleeping as set up
+  for _, b in pairs(balls) do b.obj.body:forceActivationState(state) end
+end
+
 v:preSim(function(N)
+  rest()
   -- the stroke: the cue drives forward and strikes
   if S.state == "stroke" then
     S.strokeFrame = S.strokeFrame + 1

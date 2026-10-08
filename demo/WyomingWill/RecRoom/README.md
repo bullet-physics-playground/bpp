@@ -248,7 +248,7 @@ COST METER -- ms per frame, averaged over the last second
   the "More games". (The games share one physics world, so they can't be
   split game by game.)
 - **scripts:** each game's own Lua code, including its computer player,
-  and the room's (taking turns, resting tables and so on).
+  and the room's (taking turns and so on).
 - **garbage:** Lua's garbage collector, which collects a little every
   frame (see "Garbage" below).
 - **drawing:** bpp drawing the scene. Time the graphics card spends after
