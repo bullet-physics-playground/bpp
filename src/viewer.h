@@ -1210,6 +1210,19 @@ public slots:
   void setAnimationPeriodMs(int ms);
 
   /**
+   * @brief true: at most one animation step for each frame drawn.
+   *
+   * With a timer a little faster than the screen (16 ms against a 60 Hz
+   * screen's 16.7), two steps now and then fall between two pictures and
+   * that picture jumps; with this on, the extra tick is skipped, so each
+   * picture shows exactly one step. (When nothing has been drawn for
+   * 50 ms -- the window hidden, say -- steps go on regardless.) Off by
+   * default.
+   */
+  bool getOnePerFrame() const { return _onePerFrame; }
+  void setOnePerFrame(bool on) { _onePerFrame = on; }
+
+  /**
    * @brief Sets the hook called for each 3D mouse report.
    *
    * Setting this takes the 3D mouse away from the built-in camera control, so
@@ -2190,6 +2203,9 @@ private:
   QElapsedTimer _timer; ///< Restarted each animation step; measures the
                         ///< interval between frames.
   QElapsedTimer _wallTimer; ///< Never restarted; backs getTime().
+  bool _onePerFrame = false; ///< See getOnePerFrame().
+  int _stepsSinceDraw = 0;   ///< Animation steps since the last draw().
+  qint64 _lastDrawNs = -1;   ///< When draw() last ran, on _wallTimer.
 
   /// One step of a frame noted by frame timing (see setFrameTiming()).
   struct FrameMark {

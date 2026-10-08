@@ -1726,4 +1726,8 @@ TF = { pinball = pinball, pool = pool, snooker = snooker, bumper = bumper, clock
 -- frame), 25 for the clock and the rest for the games
 whose(nil)
 if clock and v.animationPeriod then v.animationPeriod = CAN_STEP and 16 or 12 end
+-- one step for each picture (a bpp with v.onePerFrame): the 16 ms timer is
+-- a little faster than a 60 Hz screen, and without this, a few times a
+-- second two steps fall between two pictures and that picture jumps
+if v.onePerFrame ~= nil then v.onePerFrame = true end
 goTo(pinball)

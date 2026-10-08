@@ -410,6 +410,9 @@ void Viewer::luaBind(lua_State *s) {
            .property("animationPeriod", &Viewer::getAnimationPeriod,
                      &Viewer::setAnimationPeriodMs)
 
+           .property("onePerFrame", &Viewer::getOnePerFrame,
+                     &Viewer::setOnePerFrame)
+
            // SpaceNavigator 3D mouse navigation settings
            .property("snMode", &Viewer::spaceNavigatorMode,
                      &Viewer::setSpaceNavigatorMode)
@@ -3080,6 +3083,8 @@ void Viewer::init() {
 void Viewer::draw() {
   if (_frameTimingMs > 0)
     frameMark(FM_PAINT);
+  _stepsSinceDraw = 0;
+  _lastDrawNs = _wallTimer.nsecsElapsed();
 
   if (!mutex.tryLock())
     return;
@@ -5090,6 +5095,12 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
+  // (one step a picture: a tick before the last step has been drawn waits
+  // for the next, unless nothing has been drawn for a while)
+  if (_onePerFrame && _stepsSinceDraw > 0 && _lastDrawNs >= 0 &&
+      _wallTimer.nsecsElapsed() - _lastDrawNs < 50000000)
+    return;
+  _stepsSinceDraw++;
   if (_frameTimingMs > 0) {
     qint64 now = _wallTimer.nsecsElapsed();
     if (_frameTimingLast >= 0 && now - _frameTimingLast > _frameTimingMs * 1e6)
