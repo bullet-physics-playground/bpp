@@ -745,6 +745,35 @@ public:
   int shadowCached() const;
 
   /**
+   * @brief Turns the screen's merge of still boxes and cylinders on or off
+   *        (an experiment, to measure).
+   *
+   * On (the default), fixed boxes and cylinders that stay where they are,
+   * the same colour, opaque and without an image or a script's drawing,
+   * have their triangles put into the room's own coordinates once, with
+   * their colour on every corner, in one batch for each patch of the
+   * scene, drawn for the screen with a single call and no change of
+   * matrix, colour or anything else between them. One that changes is
+   * taken out (the batches made again) and kept out for ten seconds; one
+   * that changes a second time stays out.
+   *
+   * @param on True to merge them.
+   */
+  void setScreenMerge(bool on);
+
+  /**
+   * @brief Returns whether the screen's merge is on (see setScreenMerge()).
+   * @return True if it is.
+   */
+  bool screenMerge() const;
+
+  /**
+   * @brief How many objects the last frame drew from the merged batches.
+   * @return The count.
+   */
+  int screenMerged() const;
+
+  /**
    * @brief Turns the saved shadow depth on or off.
    *
    * On (the default), with the record on (setShadowCache()), the still
@@ -2015,6 +2044,32 @@ private:
   quint64 _fixedShadowSig = 0;     ///< The objects they were made from.
   int _fixedShadowCount = 0;       ///< How many objects they hold.
   int _shadowCached = 0;           ///< Taken from it last frame.
+
+  // The screen's merge (see setScreenMerge()).
+  struct MergeBatch {
+    QVector<Object *> objs;        ///< What's in it.
+    unsigned vbo = 0;              ///< Its vertices, on the graphics card.
+    int verts = 0;                 ///< How many.
+  };
+  bool _screenMerge = true;
+  QVector<MergeBatch> _mergeBatches;
+  QVector<Object *> _mergeObjs;    ///< Everything merged.
+  const void *_mergeCtx = nullptr; ///< The context the batches live in.
+  unsigned _mergeEpoch = 0;
+  bool _mergeDirty = false;        ///< The batches need making again.
+  bool _mergeReady = false;        ///< They're made, and up to date.
+  long _mergeFrame = 0;
+  int _screenMerged = 0;           ///< Drawn from them last frame.
+  int _mergesMade = 0;             ///< Times made since the timer's report.
+  /// Once a frame: takes out what has changed, looks for more now and then,
+  /// and makes the batches again if need be.
+  void updateMerge();
+  /// Draws the batches (for the screen).
+  void drawMerged();
+  /// Forgets them all (deleting them if their context is current).
+  void freeMerge();
+  /// Makes them again from _mergeObjs.
+  void buildMerge();
   bool _shadowSaved = true;        ///< See setShadowSaved().
   bool _shadowFromSaved = false;   ///< See shadowFromSaved().
   quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from

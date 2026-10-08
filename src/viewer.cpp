@@ -433,6 +433,8 @@ void Viewer::luaBind(lua_State *s) {
            .property("shadowCasters", &Viewer::shadowCasters)
            .property("shadowCache", &Viewer::shadowCache, &Viewer::setShadowCache)
            .property("shadowCached", &Viewer::shadowCached)
+           .property("screenMerge", &Viewer::screenMerge, &Viewer::setScreenMerge)
+           .property("screenMerged", &Viewer::screenMerged)
            .property("shadowSaved", &Viewer::shadowSaved, &Viewer::setShadowSaved)
            .property("shadowFromSaved", &Viewer::shadowFromSaved)
            .property("drawTiming", &Viewer::drawTiming, &Viewer::setDrawTiming)
@@ -637,6 +639,12 @@ Object *Viewer::removeObject(Object *o) {
     dynamicsWorld->removeSoftBody(sb->getSoftBody());
 
   _objects->remove(o);
+  if (o->merged) {                       // (the batches are made again without it)
+    o->merged = false;
+    _mergeObjs.removeOne(o);
+    _mergeDirty = true;
+    _mergeReady = false;
+  }
   o->setWorld(nullptr);
   o->setParent(0);
 
@@ -2058,6 +2066,7 @@ bool Viewer::shadowCache() const { return _shadowCache; }
 
 int Viewer::shadowCached() const { return _shadowCached; }
 
+
 void Viewer::setShadowSaved(bool on) { _shadowSaved = on; }
 
 bool Viewer::shadowSaved() const { return _shadowSaved; }
@@ -2158,6 +2167,8 @@ QString Viewer::drawTimingReport() {
             .arg(_dtScreen / n, 0, 'f', 2)
             .arg(_dtDraw / n, 0, 'f', 2)
             .arg(_dtBox / n, 0, 'f', 2);
+    if (_mergesMade > 0)
+      r += QString(" (merge made %1 times)").arg(_mergesMade);
     if (_dtGpuFrames > 0)
       r += QString("; graphics card: shadow map %1, screen %2")
                .arg(_dtShadowGpu / _dtGpuFrames, 0, 'f', 2)
@@ -2166,6 +2177,7 @@ QString Viewer::drawTimingReport() {
       r += "; graphics card: no timers";
   }
   _dtCull = _dtShadow = _dtScreen = _dtDraw = _dtBox = 0;
+  _mergesMade = 0;
   _dtShadowGpu = _dtScreenGpu = 0;
   _dtFrames = _dtGpuFrames = 0;
   return r;
@@ -2624,6 +2636,8 @@ void Viewer::removeLeftoverBodies() {
 void Viewer::clear() {
   // qDebug() << "Viewer::clear() objects: " << _objects->size();
 
+  freeMerge();                           // (before the objects go)
+
   _params.clear();
   emit paramsChanged();
 
@@ -2757,6 +2771,7 @@ void Viewer::clear() {
   // lights do)
   _culling = true;
   _shadowCache = true;
+  _screenMerge = true;
   _shadowSaved = true;
   _drawTiming = false;
 
@@ -3135,6 +3150,8 @@ void Viewer::draw() {
     dt.start();
   }
 
+  updateMerge();                         // (see setScreenMerge())
+
   // What this frame can skip (see setCulling()), while the camera's own
   // matrices are loaded.
   cullObjects();
@@ -3207,6 +3224,260 @@ void Viewer::draw() {
   mutex.unlock();
 }
 
+// The screen's merge (see setScreenMerge()).
+
+void Viewer::setScreenMerge(bool on) { _screenMerge = on; }
+
+bool Viewer::screenMerge() const { return _screenMerge; }
+
+int Viewer::screenMerged() const { return _screenMerged; }
+
+namespace {
+// What can go into the merge: a fixed box or cylinder, opaque, without an
+// image or a script's drawing.
+bool mergeable(Object *o) {
+  return o->body != nullptr && o->body->isStaticObject() &&
+         o->body->getMotionState() != nullptr && o->getTransparency() <= 0.0 &&
+         !o->hasTexture() && !o->hasRenderFunction() &&
+         (dynamic_cast<Cube *>(o) != nullptr || dynamic_cast<Cylinder *>(o) != nullptr);
+}
+
+btTransform drawnTrans(const Object *o) {
+  btTransform t;
+  o->body->getMotionState()->getWorldTransform(t);
+  return t;
+}
+
+bool sameTrans(const btTransform &a, const btTransform &b) {
+  return a.getOrigin() == b.getOrigin() && a.getBasis() == b.getBasis();
+}
+
+struct MergeVertex {
+  float p[3];
+  float n[3];
+  unsigned char c[4];
+};
+
+// An object's triangles, in the room's coordinates, as drawing it would make
+// them: its transform, then its own scale (and, for a cylinder, the shift to
+// Bullet's middle), then the unit shape glutils.cpp draws.
+void mergeTriangles(Object *o, QVector<MergeVertex> &out) {
+  const btTransform t = drawnTrans(o);
+  const btMatrix3x3 &R = t.getBasis();
+  const btVector3 &T = t.getOrigin();
+  const unsigned char *rgb = o->rgb();
+  btVector3 scale(1, 1, 1), shift(0, 0, 0);
+  QVector<btVector3> lp, ln;             // local positions, normals (triangles)
+  if (Cube *c = dynamic_cast<Cube *>(o)) {
+    scale = btVector3(c->lengths[0], c->lengths[1], c->lengths[2]);
+    // (as solidCubeDraw(1): six quads, each two triangles)
+    for (int i = 0; i < 6; i++) {
+      const int flip = i & 1, rotx = i >> 2, idx = (~i & 2) - rotx;
+      float norm[3] = {0, 0, 0}, vpos[3] = {0, 0, 0};
+      norm[idx] = (flip ^ ((i >> 1) & 1)) ? -1 : 1;
+      vpos[idx] = norm[idx] * 0.5f;
+      btVector3 q[4];
+      for (int j = 0; j < 4; j++) {
+        const int gray = j ^ (j >> 1);
+        vpos[i & 2] = ((gray ^ flip) & 1) ? 0.5f : -0.5f;
+        vpos[rotx + 1] = ((gray ^ (rotx << 1)) & 2) ? 0.5f : -0.5f;
+        q[j] = btVector3(vpos[0], vpos[1], vpos[2]);
+      }
+      const btVector3 n(norm[0], norm[1], norm[2]);
+      for (int k : {0, 1, 2, 0, 2, 3}) {
+        lp.append(q[k]);
+        ln.append(n);
+      }
+    }
+  } else if (Cylinder *c = dynamic_cast<Cylinder *>(o)) {
+    scale = btVector3(c->lengths[0], c->lengths[1], c->lengths[2]);
+    shift = btVector3(0, 0, -c->lengths[2] * 0.5);
+    // (as solidCylinderDraw(1, 1, 16, 16): strips up the side, fans at the ends)
+    const int slices = 16, stacks = 16;
+    for (int i = 0; i < stacks; i++) {
+      const float z0 = float(i) / stacks, z1 = float(i + 1) / stacks;
+      QVector<btVector3> sp, sn;
+      for (int j = 0; j <= slices; j++) {
+        const double th = j * 2.0 * M_PI / slices;
+        const float x = float(cos(th)), y = float(sin(th));
+        sp.append(btVector3(x, y, z0));
+        sn.append(btVector3(x, y, 0));
+        sp.append(btVector3(x, y, z1));
+        sn.append(btVector3(x, y, 0));
+      }
+      // (a strip's every other triangle turns the other way round, so all
+      // face the same way: the shader lights a back face from behind)
+      for (int k = 0; k + 2 < sp.size(); k++) {
+        const int order[3] = {(k & 1) ? k + 1 : k, (k & 1) ? k : k + 1, k + 2};
+        for (int m : order) {
+          lp.append(sp[m]);
+          ln.append(sn[m]);
+        }
+      }
+    }
+    for (int side = 0; side < 2; side++) {
+      const float z = side == 0 ? 0.0f : 1.0f, nz = side == 0 ? -1.0f : 1.0f;
+      QVector<btVector3> ring;
+      for (int j = 0; j <= slices; j++) {
+        const double th = side == 0 ? (j * 2.0 * M_PI / slices) : (-j * 2.0 * M_PI / slices);
+        ring.append(btVector3(float(cos(th)), float(sin(th)), z));
+      }
+      for (int j = 0; j + 1 < ring.size(); j++)
+        for (const btVector3 &p : {btVector3(0, 0, z), ring[j], ring[j + 1]}) {
+          lp.append(p);
+          ln.append(btVector3(0, 0, nz));
+        }
+    }
+  }
+  for (int k = 0; k < lp.size(); k++) {
+    const btVector3 p = T + R * (lp[k] * scale + shift);
+    // (a normal goes through the scale's inverse, as GL_NORMALIZE leaves it)
+    btVector3 n = ln[k] / scale;
+    n = R * n.normalized();
+    MergeVertex v;
+    for (int a = 0; a < 3; a++) {
+      v.p[a] = float(p[a]);
+      v.n[a] = float(n[a]);
+    }
+    v.c[0] = rgb[0];
+    v.c[1] = rgb[1];
+    v.c[2] = rgb[2];
+    v.c[3] = 255;
+    out.append(v);
+  }
+}
+} // namespace
+
+void Viewer::freeMerge() {
+  QOpenGLContext *c = QOpenGLContext::currentContext();
+  const bool canDelete = c != nullptr && glCacheContext() == _mergeCtx &&
+                         glCacheEpoch() == _mergeEpoch;
+  for (MergeBatch &b : _mergeBatches)
+    if (b.vbo != 0 && canDelete)
+      c->functions()->glDeleteBuffers(1, &b.vbo);
+  _mergeBatches.clear();
+  for (Object *o : _mergeObjs)
+    o->merged = false;
+  _mergeObjs.clear();
+  _mergeReady = false;
+  _mergeDirty = false;
+}
+
+void Viewer::buildMerge() {
+  QOpenGLContext *c = QOpenGLContext::currentContext();
+  QOpenGLFunctions *f = c->functions();
+  for (MergeBatch &b : _mergeBatches)
+    if (b.vbo != 0)
+      f->glDeleteBuffers(1, &b.vbo);
+  _mergeBatches.clear();
+  _mergeReady = false;
+  _mergeDirty = false;
+  if (_mergeObjs.isEmpty())
+    return;
+  QMap<std::tuple<int, int, int>, QVector<Object *>> patches;
+  for (Object *o : _mergeObjs) {
+    const btVector3 &p = o->mergeTrans.getOrigin();
+    auto cell = [](btScalar x) { return int(std::floor(double(x) / 60.0)); };
+    patches[std::make_tuple(cell(p.x()), cell(p.y()), cell(p.z()))].append(o);
+  }
+  QVector<MergeVertex> verts;
+  for (auto it = patches.cbegin(); it != patches.cend(); ++it) {
+    verts.clear();
+    for (Object *o : it.value())
+      mergeTriangles(o, verts);
+    MergeBatch b;
+    b.objs = it.value();
+    b.verts = verts.size();
+    f->glGenBuffers(1, &b.vbo);
+    f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
+    f->glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(MergeVertex), verts.constData(),
+                    GL_STATIC_DRAW);
+    _mergeBatches.append(b);
+  }
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  _mergeReady = true;
+  ++_mergesMade;
+}
+
+void Viewer::updateMerge() {
+  ++_mergeFrame;
+  const void *ctx = glCacheContext();
+  if (ctx != _mergeCtx || glCacheEpoch() != _mergeEpoch) {
+    for (MergeBatch &b : _mergeBatches)
+      b.vbo = 0;                         // (they went with their context)
+    _mergeCtx = ctx;
+    _mergeEpoch = glCacheEpoch();
+    _mergeDirty = !_mergeObjs.isEmpty();
+    _mergeReady = false;
+  }
+  if (!_screenMerge || ctx == nullptr) {
+    if (!_mergeObjs.isEmpty() || !_mergeBatches.isEmpty())
+      freeMerge();
+    return;
+  }
+  // What has changed since it was merged comes out: for ten seconds the
+  // first time, for good the second.
+  for (int k = 0; k < _mergeObjs.size(); ++k) {
+    Object *o = _mergeObjs[k];
+    if (mergeable(o) && sameTrans(drawnTrans(o), o->mergeTrans) &&
+        memcmp(o->rgb(), o->mergeRgb, 3) == 0)
+      continue;
+    o->merged = false;
+    o->mergeSeen = false;
+    o->mergeBanUntil = ++o->mergeChanges >= 2 ? LONG_MAX : _mergeFrame + 600;
+    _mergeObjs.removeAt(k--);
+    _mergeDirty = true;
+  }
+  // Once a second, more: what has stayed the same since the last look.
+  if (_mergeFrame % 60 == 0) {
+    foreach (Object *o, *_objects) {
+      if (o->merged || _mergeFrame < o->mergeBanUntil || !mergeable(o))
+        continue;
+      const btTransform t = drawnTrans(o);
+      if (o->mergeSeen && sameTrans(t, o->mergeTrans) && memcmp(o->rgb(), o->mergeRgb, 3) == 0) {
+        o->merged = true;
+        _mergeObjs.append(o);
+        _mergeDirty = true;
+      } else {
+        o->mergeSeen = true;
+        o->mergeTrans = t;
+        memcpy(o->mergeRgb, o->rgb(), 3);
+      }
+    }
+  }
+  if (_mergeDirty)
+    buildMerge();
+}
+
+void Viewer::drawMerged() {
+  _screenMerged = 0;
+  if (!_mergeReady || _mergeBatches.isEmpty())
+    return;
+  QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glEnable(GL_NORMALIZE);
+  for (const MergeBatch &b : _mergeBatches) {
+    bool wanted = !_culled;
+    for (int i = 0; !wanted && i < b.objs.size(); ++i)
+      wanted = b.objs[i]->drawOnScreen;
+    if (!wanted)
+      continue;
+    f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
+    glVertexPointer(3, GL_FLOAT, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, p));
+    glNormalPointer(GL_FLOAT, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, n));
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, c));
+    glDrawArrays(GL_TRIANGLES, 0, b.verts);
+    _screenMerged += b.objs.size();
+  }
+  f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glDisableClientState(GL_COLOR_ARRAY);
+  glColor4ub(255, 255, 255, 255);        // (the colour after a colour array isn't defined)
+  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+}
+
 void Viewer::drawSceneInternal(int pass) {
   Q_UNUSED(pass)
 
@@ -3221,6 +3492,7 @@ void Viewer::drawSceneInternal(int pass) {
     shaded = _shadowMap->bind(camModelView);
   }
 
+  drawMerged();
   drawObjects();
 
   if (shaded) {
@@ -3263,6 +3535,8 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
     if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
       continue;
     if (skipFixed && o->shadowListed)
+      continue;
+    if (!shadowPass && o->merged && _mergeReady)  // (drawn by drawMerged())
       continue;
     if (!shadowPass && o->getTransparency() > 0.0) {
       seeThrough.append(o);

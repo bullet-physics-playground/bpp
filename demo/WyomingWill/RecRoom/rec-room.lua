@@ -1311,7 +1311,7 @@ local function shortName(g)
 end
 -- (a bpp that skips what can't be seen says how many objects the last frame
 -- drew, for the screen and into the shadow map)
-local function drawnLine()
+local function drawnLineOneByOne()
   local ok, n = pcall(function() return realV.drawnObjects end)
   if not ok or type(n) ~= "number" then return "" end
   if not realV.culling then return "  drawn    everything (culling off)\n" end
@@ -1327,6 +1327,16 @@ local function drawnLine()
     return string.format("  drawn    %d objects, %d into the shadow map\n", n, realV.shadowCasters)
   end
   return string.format("  drawn    %d objects\n", n)
+end
+-- (a bpp that merges the still boxes and cylinders for the screen draws
+-- those besides: "N objects + M merged")
+local function drawnLine()
+  local line = drawnLineOneByOne()
+  local ok, m = pcall(function() return realV.screenMerged end)
+  if ok and type(m) == "number" and m > 0 then
+    line = line:gsub("(%d+) objects", "%1 objects + " .. m .. " merged", 1)
+  end
+  return line
 end
 -- (a bpp with the drawing timer, v.drawTiming, switched on: where the
 -- drawing time went, on the processor and on the graphics card)

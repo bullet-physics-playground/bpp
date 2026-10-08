@@ -557,6 +557,10 @@ public:
    * @return True if it does.
    */
   bool hasRenderFunction() const { return bool(_cb_render); }
+  /// Whether an image is wrapped round it (setTexture()).
+  bool hasTexture() const { return !mTexture.isEmpty(); }
+  /// Its colour as red, green and blue bytes (three of them).
+  const unsigned char *rgb() const { return color; }
 
   /**
    * @brief How far what the object draws is shifted from its collision shape,
@@ -571,6 +575,14 @@ public:
   bool shadowListed = false; ///< In the shadow map's record of still objects
                              ///< (set each frame by Viewer::renderShadowDepth()).
   quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
+
+  // The screen's merge (see Viewer::setScreenMerge()).
+  bool merged = false;       ///< Its triangles are in a merged batch.
+  bool mergeSeen = false;    ///< Looked at by the last search for more.
+  int mergeChanges = 0;      ///< Times it changed while merged.
+  long mergeBanUntil = 0;    ///< Not merged again before this frame.
+  btTransform mergeTrans;    ///< Where it was, and its colour, when
+  unsigned char mergeRgb[3] = {0, 0, 0}; ///< merged (or last looked at).
 
   // A fixed object's last world box, kept by the viewer's getAABB() so it
   // isn't worked out again from the shape while nothing about it changes.
