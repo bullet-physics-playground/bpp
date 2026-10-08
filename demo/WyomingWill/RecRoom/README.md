@@ -344,13 +344,10 @@ own) so the scripts can't interfere with each other:
   as usual.
 - **Garbage, on a bpp that collects it itself.** A bpp built with the
   ownership fix (Oct 2026) keeps Lua's garbage collector running and sets
-  `BPP_GC_AUTO`. Left to itself, Lua's collector finished each collection
-  in one go, 10 to 20 ms inside whichever table's script was running, about
-  once a second. So the room gives it a little work every frame
-  (`GC_PACE_KB`, 32: a few tenths of a millisecond, shown as the meter's
-  "garbage"), which keeps up with the garbage and leaves nothing to do all
-  at once; `GC_PACE_KB = 0` leaves it to Lua. The games skip their own
-  collections. Everything below applies only to an older bpp.
+  `BPP_GC_AUTO`. The room then leaves garbage alone: the collector works a
+  little at a time as the scripts make garbage (its time shows in theirs,
+  and the meter's "garbage" figure stays near 0), and the games skip their
+  own collections. Everything below applies only to an older bpp.
 - **Garbage.** bpp keeps Lua's garbage collector stopped, and each game
   normally collects everything every couple of seconds. The games share one
   Lua heap here, so each of those collections would clear the whole room's

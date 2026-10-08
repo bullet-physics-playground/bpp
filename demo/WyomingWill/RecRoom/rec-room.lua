@@ -1598,23 +1598,16 @@ end)
 if GC_STEADY == nil then GC_STEADY = true end
 GC_BUDGET = GC_BUDGET or 0.002
 GC_MIN_KB = GC_MIN_KB or 2048
--- On a bpp that collects garbage itself (BPP_GC_AUTO), Lua's collector
--- runs as the scripts make garbage, but it was finishing each collection
--- in one go -- 10 to 20 ms inside whichever table's script happened to be
--- running, about once a second. So the room gives it GC_PACE_KB worth of
--- work every frame instead (a few tenths of a millisecond), which keeps
--- up with the garbage with nothing left to do all at once. 0: leave it to
--- Lua. (The pause of 400 is only a safety net: should the room stop
--- stepping, Lua collects on its own once the heap has grown fourfold.)
-GC_PACE_KB = GC_PACE_KB or 32
-if BPP_GC_AUTO and GC_PACE_KB > 0 then collectgarbage("setpause", 400) end
 local gcBase, gcBusy = nil, false
 local tDraw, drawScripts = 0, 0
 v:preDraw(function(N)
   local tg = now()
   if not gcBase then gcBase = collectgarbage("count") end
+  -- (a bpp that collects garbage itself, BPP_GC_AUTO, needs none of this:
+  -- the collector then runs a little at a time as the scripts make garbage,
+  -- and its work shows in their times rather than under "garbage")
   if BPP_GC_AUTO then
-    if GC_PACE_KB > 0 then collectgarbage("step", GC_PACE_KB) end
+    -- nothing to do
   elseif GC_STEADY or gcBusy or collectgarbage("count") > gcBase * 1.5 + GC_MIN_KB then
     gcBusy = true
     local done
