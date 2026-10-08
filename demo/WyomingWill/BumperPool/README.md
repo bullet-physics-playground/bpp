@@ -102,7 +102,8 @@ and `src/objects/object.h`.
 ## Keys
 
 Click the 3D view first so it has keyboard focus. The Shortcuts pane lists
-the keys and shows the score, the aim, the force and the spin.
+the keys. The console shows whose turn it is and the score whenever they
+change, and each shot's aim, force and spin as it's played.
 
 | Key | Action |
 |---|---|

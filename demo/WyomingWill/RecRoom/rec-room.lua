@@ -101,15 +101,21 @@ end
 applyPhysics(ROOM_PHYSICS)
 if v.animationPeriod then v.animationPeriod = 16 end
 
--- The cost meter: what each frame spends its time on, shown at the top of
--- the Shortcuts pane (updated every second) and printed to the console
--- every METER_PRINT seconds (0: never). METER = false turns it off.
+-- The cost meter: what each frame spends its time on, measured every second
+-- and printed to the console every METER_PRINT seconds (0: never). METER =
+-- false turns it off. (The Shortcuts pane holds only the keys: something
+-- written there every second kept it from being scrolled.)
 if METER == nil then METER = true end
 METER_PRINT = METER_PRINT or 10
-local meterText, lastHelp = "", ""      -- the meter's lines, and the help under them
+local meterText = ""
 local function showHelp(text)
-  lastHelp = text
-  v:setHelpText(meterText .. text)
+  v:setHelpText(text)
+end
+-- A game's news (whose turn, the score, a game won): to the console, from
+-- the game you're at only, so the console isn't filled by every table at once
+-- (see setStatusText below); walking over to a game shows where it stands
+local function showStatus(g, text)
+  if text and text ~= "" then print(text) end
 end
 v.gravity = btVector3(0, -981, 0)
 
@@ -404,6 +410,13 @@ local function makeGame(name, dir, offset, opts)
           if active == g then showHelp(g.header() .. text) end
         end
       end
+      if k == "setStatusText" then
+        -- (once: a one-off, such as a shot's settings, not the game's standing)
+        return function(_, text, once)
+          if not once then g.status = text end
+          if active == g then showStatus(g, text) end
+        end
+      end
       if k == "loadSound" then return function(_, path) return realV:loadSound(fix(path)) end end
       if k == "setSolverIterations" then
         return function(_, n) g.physics.iterations = n end
@@ -620,6 +633,7 @@ local function makeGame(name, dir, offset, opts)
       end
     end
     g.putBacks = (g.putBacks or 0) + 1
+    print(string.format("REC ROOM: %s put back as it started (%d times so far)", g.name, g.putBacks))
   end
   -- taking away something it made after it had loaded (a marble that fell)
   g.takeAway = function(body)
@@ -758,7 +772,7 @@ local function header(g)
       h = h .. "Its keys work while you're standing at it; its sliders, if it has any,\n"
               .. "are the " .. g.prefix .. " ones in the Params pane." .. (g.keep and "" or
               "\nIt's put back as it started when a part of it leaves its " .. g.on .. (g.on == "wall" and " shelf" or "")
-              .. " (" .. (g.putBacks or 0) .. " times so far).") .. "\n\n"
+              .. ".") .. "\n\n"
     end
     return h
   end
@@ -1142,6 +1156,7 @@ local function goTo(g)
     active.down = {}
   end
   active = g
+  if g and g.status then showStatus(g, g.status) end
   if g == pinball then
     local b = pinball.env.TF.board
     b.setView(b.view or 1)
@@ -1445,7 +1460,6 @@ local function meterTick(t)
       busy, period, 100 * load,
       (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "")
   end
-  realV:setHelpText(meterText .. lastHelp)
   if METER_PRINT > 0 and (not lastPrint or t - lastPrint >= METER_PRINT * 1000) then
     lastPrint = t
     print((meterText:gsub("\n\n$", "")))

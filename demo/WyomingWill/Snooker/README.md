@@ -65,7 +65,8 @@ and `src/objects/object.h`.
 ## Keys
 
 Click the 3D view first so it has keyboard focus. The Shortcuts pane lists
-the keys, and also shows the ball on, the aim, the force and the spin.
+the keys. The console shows the ball on and the break whenever they change,
+and each shot's aim, force and spin as it's played.
 
 | Key | Action |
 |---|---|

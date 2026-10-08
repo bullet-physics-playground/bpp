@@ -1344,6 +1344,7 @@ local function helpText()
     add("POOL -- clear the table" .. (auto.on and "      AUTO-PLAY: the computer is playing (P to take over)" or ""))
   end
   add("")
+  local s0 = #lines + 1          -- (from here: what's going on, for the console)
   local st = S.state
   local who = match and playerName(S.turn) or "You"
   local pos = (who == "You") and "Your" or (who .. "'s")   -- (whose shot)
@@ -1384,6 +1385,7 @@ local function helpText()
     add(string.format("Shots %d   Balls left %d   Best %s", S.shots, leftOnTable(),
                       S.best and tostring(S.best) or "-"))
   end
+  local s1 = #lines
   add(string.format("Aim %.2f deg   Force %d%%   Spin: %s", (math.deg(S.aim) + 360) % 360,
                     math.floor(S.power * 100 + 0.5),
                     (S.spinX == 0 and S.spinY == 0) and "centre ball"
@@ -1398,6 +1400,7 @@ local function helpText()
   end
   if ce >= 30 and S.spinX ~= 0 then notes[#notes + 1] = "off centre, it will curve (masse)" end
   add(string.format("Cue raised %.0f deg%s", ce, #notes > 0 and " -- " .. table.concat(notes, "; ") or ""))
+  local a1 = #lines               -- (to here: the shot's settings; then the keys)
   add("")
   if st == "inhand" then
     add("Arrows      move the cue ball (Up = away from you)")
@@ -1432,7 +1435,25 @@ local function helpText()
     add("Foul (after ball in hand, hitting a kitchen ball before the cue ball leaves the kitchen):")
     add("one penalty shot, balls pocketed on the shot are spotted, and ball in hand in the kitchen.")
   end
-  return table.concat(lines, "\n")
+  -- the keys (with the title) for the Shortcuts pane; what's going on, and
+  -- the shot as it's set up, for the console
+  local keys = { lines[1] }
+  for n = a1 + 1, #lines do keys[#keys + 1] = lines[n] end
+  return table.concat(keys, "\n"), table.concat(lines, "\n", s0, s1), table.concat(lines, "   ", s1 + 1, a1)
+end
+
+-- What's going on goes to the console, not the Shortcuts pane (written there
+-- whenever it changed, it kept the pane from being scrolled to the keys): a
+-- line when it changes, and the settings of each shot as it's played. In the
+-- rec room, v:setStatusText passes it on from the game you're at only.
+local function say(text, once)
+  if v.setStatusText then v:setStatusText(text, once) else print(text) end
+end
+local lastStatus = nil
+local function showStatus(text)
+  if S.state == "stroke" or S.state == "rolling" or text == lastStatus then return end
+  lastStatus = text
+  say("POOL: " .. text:gsub("\n", "\n      "))
 end
 
 -- ---------------------------------------------------------------------
@@ -1485,6 +1506,7 @@ local function shoot()
     return false
   end
   S.state = "stroke"
+  say("POOL: shot -- " .. select(3, helpText()), true)
   S.strokeFrame = 0
   S.shots = S.shots + 1
   S.scratched = false
@@ -1895,11 +1917,12 @@ local function refreshNow()
     drawGuide()
     if S.view == "cue" then setView() end
   end
-  local text = helpText()
+  local text, status = helpText()
   if text ~= lastHelp then
     lastHelp = text
     if v.setHelpText then v:setHelpText(text) end
   end
+  showStatus(status)
 end
 -- (nothing moves while the picture is brought up to date, and the aiming
 -- guide alone reads each ball's position tens of thousands of times: read

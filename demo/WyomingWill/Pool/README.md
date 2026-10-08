@@ -74,7 +74,8 @@ overload and the `collides` object property: the changes to
 ## Keys
 
 Click the 3D view first so it has keyboard focus. The Shortcuts pane shows
-the keys along with the current aim, force and spin.
+the keys. The console shows whose shot it is and the score whenever they
+change, and each shot's aim, force and spin as it's played.
 
 | Key | Action |
 |---|---|

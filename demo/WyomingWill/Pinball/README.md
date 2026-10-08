@@ -148,7 +148,8 @@ file (`warnings = false` turns tilting off).
 
 Press `P` and the computer plays: it finishes the layout editor, starts a
 game, pulls the plunger and works the flippers, game after game, until you
-press `P` again. The Shortcuts pane shows how it's doing.
+press `P` again. The console shows how it's doing: a line at each new ball
+and game over, with the score and the computer player's record.
 
 It learns as it plays:
 

@@ -2538,22 +2538,42 @@ local function helpText()
                                         key == selected and ">" or " ", item.label, describe(item))
     end
     lines[#lines + 1] = ""
-  else
-    local status
-    if game.active then
-      status = string.format("SCORE %s   BALL %d of %d   BONUS %s x%d   HIGH %s",
-                             commas(game.score), game.ball, game.ballsPerGame,
-                             commas(game.bonus), game.multiplier, commas(game.high))
-      if game.extraBallLit then status = status .. "   (extra ball lit)" end
-      if game.shootAgain > 0 then status = status .. "   (shoot again)" end
-    else
-      status = string.format("GAME OVER -- press 1 to play   HIGH %s", commas(game.high))
-    end
-    lines[#lines + 1] = status
   end
-  if TF and TF.ai then lines[#lines + 1] = TF.ai.statusText() end
   lines[#lines + 1] = PLAY_HELP
   return table.concat(lines, "\n")
+end
+
+-- The game's standing (the score, the ball, the computer player's record)
+-- goes to the console, not the Shortcuts pane: written there as the score
+-- changed, it kept the pane from being scrolled to the keys. A line at each
+-- new ball, game over, extra ball or shoot again, and when the computer
+-- player is switched on or off. In the rec room, v:setStatusText
+-- passes it on from the game you're at only.
+do                                   -- (the main chunk is at Lua's 200 locals)
+local function gameStatus()
+  local status
+  if game.active then
+    status = string.format("SCORE %s   BALL %d of %d   BONUS %s x%d   HIGH %s",
+                           commas(game.score), game.ball, game.ballsPerGame,
+                           commas(game.bonus), game.multiplier, commas(game.high))
+    if game.extraBallLit then status = status .. "   (extra ball lit)" end
+    if game.shootAgain > 0 then status = status .. "   (shoot again)" end
+  else
+    status = string.format("GAME OVER -- press 1 to play   HIGH %s", commas(game.high))
+  end
+  if TF and TF.ai then status = status .. "\n" .. TF.ai.statusText() end
+  return status
+end
+local lastNews = nil
+function game.showStatus()
+  local key = table.concat({ tostring(game.active), game.ball or 0, tostring(game.extraBallLit),
+                             (game.shootAgain or 0) > 0 and "again" or "",
+                             TF and TF.ai and tostring(TF.ai.on) or "" }, "|")
+  if key == lastNews then return end
+  lastNews = key
+  local text = "PINBALL: " .. gameStatus():gsub("\n", "\n         ")
+  if v.setStatusText then v:setStatusText(text) else print(text) end
+end
 end
 
 local lastStatus = nil
@@ -2866,6 +2886,7 @@ v:preDraw(function(N)
     end
     helpDirty = false
   end
+  if N % 15 == 0 then game.showStatus() end
 end)
 
 v:postSim(function(N)

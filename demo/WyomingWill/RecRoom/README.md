@@ -225,8 +225,8 @@ of their own, and may not behave as they do on their own.
 
 ## The cost meter
 
-The top of the Shortcuts pane shows what each frame spends its time on,
-averaged over the last second, in milliseconds per frame:
+Every 10 seconds (`METER_PRINT`) the console shows what each frame spends
+its time on, averaged over the last second, in milliseconds per frame:
 
 ```
 COST METER -- ms per frame, averaged over the last second
@@ -321,8 +321,10 @@ own) so the scripts can't interfere with each other:
 - **Gravity.** The tables use ordinary gravity. The pinball
   playfield uses gravity tilted by 6.5°, and the clock whatever its slider
   says, each set on its own bodies only.
-- **Camera and help text.** A game only controls the camera and the
-  Shortcuts pane while you are standing at it.
+- **Camera, keys and news.** A game only controls the camera and the
+  Shortcuts pane (its keys) while you are standing at it, and only its news
+  (whose turn, the score) goes to the console; walking over to a game shows
+  where it stands.
 - **Callbacks.** Each game's per-frame and key callbacks are collected, and
   the room calls them in turn.
 - **Files.** The file each game opens, and each sound or mesh it loads, is
