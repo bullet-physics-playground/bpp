@@ -1165,6 +1165,11 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     if (_savePOV) {
       _firstFrame = _frameNum;
     }
+    // (saying so: it writes the whole scene to a file every frame, which
+    // can slow a big scene right down, and is easy to start by mistake)
+    emitScriptOutput(_savePOV ? "POV-Ray export ON (P): every frame is saved for "
+                                "POV-Ray until P is pressed again"
+                              : "POV-Ray export OFF (P)");
     emit POVStateChanged(_savePOV);
     break;
   case Qt::Key_D:

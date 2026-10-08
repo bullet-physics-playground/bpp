@@ -1178,6 +1178,17 @@ v:onKey(function(N, key, down)
     end
     return true
   end
+  -- (P, looking round the room, would have bpp save every frame for
+  -- POV-Ray: all 3,300 objects written to a file each frame, two frames a
+  -- second. Easy to press by mistake -- it's snooker's "computer plays" --
+  -- so here it only says how; the POV-Ray menu still does it.)
+  if not active and key == "P" then
+    if down then
+      print("REC ROOM: P (save every frame for POV-Ray) is held back in the room view, " ..
+            "so it can't be started by mistake; use the POV-Ray menu for that.")
+    end
+    return true
+  end
   if not active then return false end
   local sc = active.shortcuts[key]
   if sc then
@@ -1193,7 +1204,8 @@ v:onKey(function(N, key, down)
   -- bpp's own one-letter keys change the whole room (S stops the
   -- simulation, D turns sleeping off, R reloads, P saves every frame for
   -- POV-Ray). At a game, they do only what that game uses them for, or
-  -- nothing; looking round the room, they're bpp's as usual.
+  -- nothing; looking round the room, they're bpp's as usual (all but P:
+  -- see above).
   if not used and HELD_BACK[key] then return true end
   return used
 end)

@@ -90,7 +90,11 @@ bpp's own one-letter keys change the whole room: `S` stops the simulation,
 at a game, those four do only what that game uses them for (the clock's
 `S` for its sound, the tables' `S` and `D` for spin), and nothing at a game
 that doesn't use them (the walker, the marble run). Looking round the room,
-they're bpp's as usual.
+they're bpp's as usual, except `P`: saving every frame for POV-Ray writes
+the whole room to a file each frame and slows it to about two frames a
+second, and `P` is easy to press by mistake (it's snooker's "computer
+plays"), so the room view holds it back and says so. Use the POV-Ray menu
+to save frames from the room.
 
 When you walk away from a game, any keys you are holding are let go (a raised
 flipper drops; a drawn plunger launches), and the game carries on
