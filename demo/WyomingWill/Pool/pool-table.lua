@@ -2494,7 +2494,11 @@ v:postSim(function(N)
           local depth = rx * pk.nx + rz * pk.nz
           local lat = math.abs(rx * pk.nz - rz * pk.nx)
           local out = vx * pk.nx + vz * pk.nz
-          if (depth > pk.depth or (depth > -0.5 and depth + out * K.FRAME > pk.depth))
+          -- (and one that has come to rest with its centre over the pocket,
+          -- wedged against a jaw short of the drop point, falls: it would
+          -- otherwise sit there in the hole for good)
+          if (depth > pk.depth or (depth > -0.5 and depth + out * K.FRAME > pk.depth)
+              or (depth > 0.5 and vx * vx + vz * vz < 25))
              and lat < pk.half + 2 then
             dropped = true
             break
