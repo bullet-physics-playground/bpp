@@ -1477,10 +1477,19 @@ local function scriptsTotal() local s = 0; for _, x in pairs(meter.scripts) do s
 -- for each real second since it started (a stopwatch, never the time of
 -- day). Returns how many it's owed now; after a hold-up of over MAX_OWED
 -- seconds (bpp paused, say) it lets the rest go, and says so.
+-- Each starts at a different point in its step (the clock at none): started
+-- together, they all came due in the same frames -- three steps' physics
+-- in 25 frames a second and none in the rest -- and those heavy frames
+-- missed the screen. Spread out, a frame takes one or two.
+local ownStarted = 0
 local function owed(g)
   local fps = 1000 / g.physics.animationPeriod
   local t = v:getTime()
-  if not g.start then g.start, g.N0, g.lost, g.report = t, g.N, 0, { frames = 0 } end
+  if not g.start then
+    local phase = (ownStarted * 0.618034) % 1     -- (spread evenly, however many there are)
+    ownStarted = ownStarted + 1
+    g.start, g.N0, g.lost, g.report = t - phase / fps, g.N, 0, { frames = 0 }
+  end
   local report = g.report
   local n = (t - g.start) * fps - (g.N - g.N0)
   if n > MAX_OWED * fps then
