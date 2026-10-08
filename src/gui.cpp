@@ -16,6 +16,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QRegExp>
+#include <QScrollBar>
 
 /**
  * @brief Writes a Gui's description to a standard stream.
@@ -112,7 +113,16 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
 
   connect(ui.viewer, &Viewer::clearDebugText, debugText, &CodeEditor::clear);
 
-  connect(ui.viewer, &Viewer::helpTextChanged, shortcutsText, &CodeEditor::setPlainText);
+  // (new text keeps the pane where it was scrolled to, so a script that
+  // updates its help doesn't keep throwing the reader back to the top)
+  connect(ui.viewer, &Viewer::helpTextChanged, shortcutsText, [this](const QString &text) {
+    if (text == shortcutsText->toPlainText())
+      return;
+    QScrollBar *bar = shortcutsText->verticalScrollBar();
+    const int at = bar->value();
+    shortcutsText->setPlainText(text);
+    bar->setValue(std::min(at, bar->maximum()));
+  });
 
   connect(commandLine, &CommandLine::execute, this, &Gui::command);
 
