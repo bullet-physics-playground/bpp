@@ -639,10 +639,9 @@ Object *Viewer::removeObject(Object *o) {
     dynamicsWorld->removeSoftBody(sb->getSoftBody());
 
   _objects->remove(o);
-  if (o->merged) {                       // (the batches are made again without it)
-    o->merged = false;
+  if (o->merged) {                       // (its batch is made again without it)
+    unmerge(o);
     _mergeObjs.removeOne(o);
-    _mergeDirty = true;
     _mergeReady = false;
   }
   o->setWorld(nullptr);
@@ -3261,7 +3260,7 @@ struct MergeVertex {
 // An object's triangles, in the room's coordinates, as drawing it would make
 // them: its transform, then its own scale (and, for a cylinder, the shift to
 // Bullet's middle), then the unit shape glutils.cpp draws.
-void mergeTriangles(Object *o, QVector<MergeVertex> &out) {
+void mergeTriangles(Object *o, std::vector<MergeVertex> &out) {
   const btTransform t = drawnTrans(o);
   const btMatrix3x3 &R = t.getBasis();
   const btVector3 &T = t.getOrigin();
@@ -3343,7 +3342,7 @@ void mergeTriangles(Object *o, QVector<MergeVertex> &out) {
     v.c[1] = rgb[1];
     v.c[2] = rgb[2];
     v.c[3] = 255;
-    out.append(v);
+    out.push_back(v);
   }
 }
 } // namespace
@@ -3357,96 +3356,128 @@ void Viewer::freeMerge() {
       c->functions()->glDeleteBuffers(1, &b.vbo);
   _mergeBatches.clear();
   for (Object *o : _mergeObjs)
-    o->merged = false;
+    o->merged = o->mergeDrawn = false;
   _mergeObjs.clear();
   _mergeReady = false;
-  _mergeDirty = false;
+}
+
+void Viewer::unmerge(Object *o) {
+  auto it = _mergeBatches.find(std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2]));
+  if (it != _mergeBatches.end()) {
+    it->objs.removeOne(o);
+    it->dirty = true;
+    for (Object *p : it->objs)          // (one by one until it's made again)
+      p->mergeDrawn = false;
+  }
+  o->merged = false;
+  o->mergeDrawn = false;
+  o->mergeSteady = 0;
 }
 
 void Viewer::buildMerge() {
-  QOpenGLContext *c = QOpenGLContext::currentContext();
-  QOpenGLFunctions *f = c->functions();
-  for (MergeBatch &b : _mergeBatches)
+  QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+  std::vector<MergeVertex> verts;
+  bool made = false;
+  // (a few a frame, so no one frame does them all: what's in the others is
+  // drawn one by one meanwhile)
+  int budget = 4;
+  for (auto it = _mergeBatches.begin(); it != _mergeBatches.end();) {
+    MergeBatch &b = it.value();
+    if (!b.dirty || (budget <= 0 && !b.objs.isEmpty())) {
+      ++it;
+      continue;
+    }
     if (b.vbo != 0)
       f->glDeleteBuffers(1, &b.vbo);
-  _mergeBatches.clear();
-  _mergeReady = false;
-  _mergeDirty = false;
-  if (_mergeObjs.isEmpty())
-    return;
-  QMap<std::tuple<int, int, int>, QVector<Object *>> patches;
-  for (Object *o : _mergeObjs) {
-    const btVector3 &p = o->mergeTrans.getOrigin();
-    auto cell = [](btScalar x) { return int(std::floor(double(x) / 60.0)); };
-    patches[std::make_tuple(cell(p.x()), cell(p.y()), cell(p.z()))].append(o);
-  }
-  QVector<MergeVertex> verts;
-  for (auto it = patches.cbegin(); it != patches.cend(); ++it) {
+    b.vbo = 0;
+    b.verts = 0;
+    if (b.objs.isEmpty()) {
+      it = _mergeBatches.erase(it);
+      continue;
+    }
+    --budget;
     verts.clear();
-    for (Object *o : it.value())
+    for (Object *o : b.objs)
       mergeTriangles(o, verts);
-    MergeBatch b;
-    b.objs = it.value();
-    b.verts = verts.size();
     f->glGenBuffers(1, &b.vbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
-    f->glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(MergeVertex), verts.constData(),
+    f->glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(MergeVertex), verts.data(),
                     GL_STATIC_DRAW);
-    _mergeBatches.append(b);
+    b.verts = int(verts.size());
+    b.dirty = false;
+    for (Object *o : b.objs)
+      o->mergeDrawn = true;
+    made = true;
+    ++it;
   }
   f->glBindBuffer(GL_ARRAY_BUFFER, 0);
-  _mergeReady = true;
-  ++_mergesMade;
+  if (made)
+    ++_mergesMade;
 }
 
 void Viewer::updateMerge() {
   ++_mergeFrame;
+  _mergeReady = false;
   const void *ctx = glCacheContext();
   if (ctx != _mergeCtx || glCacheEpoch() != _mergeEpoch) {
-    for (MergeBatch &b : _mergeBatches)
+    for (MergeBatch &b : _mergeBatches) {
       b.vbo = 0;                         // (they went with their context)
+      b.dirty = true;
+      for (Object *o : b.objs)
+        o->mergeDrawn = false;
+    }
     _mergeCtx = ctx;
     _mergeEpoch = glCacheEpoch();
-    _mergeDirty = !_mergeObjs.isEmpty();
-    _mergeReady = false;
   }
   if (!_screenMerge || ctx == nullptr) {
     if (!_mergeObjs.isEmpty() || !_mergeBatches.isEmpty())
       freeMerge();
     return;
   }
-  // What has changed since it was merged comes out: for ten seconds the
-  // first time, for good the second.
+  // What has changed since it was merged comes out (its batch made again):
+  // for ten seconds the first time, for good the second.
   for (int k = 0; k < _mergeObjs.size(); ++k) {
     Object *o = _mergeObjs[k];
     if (mergeable(o) && sameTrans(drawnTrans(o), o->mergeTrans) &&
         memcmp(o->rgb(), o->mergeRgb, 3) == 0)
       continue;
-    o->merged = false;
-    o->mergeSeen = false;
+    unmerge(o);
     o->mergeBanUntil = ++o->mergeChanges >= 2 ? LONG_MAX : _mergeFrame + 600;
     _mergeObjs.removeAt(k--);
-    _mergeDirty = true;
   }
-  // Once a second, more: what has stayed the same since the last look.
+  // Once a second, more: what has stayed the same for five looks running
+  // goes into the batch of its patch.
   if (_mergeFrame % 60 == 0) {
     foreach (Object *o, *_objects) {
       if (o->merged || _mergeFrame < o->mergeBanUntil || !mergeable(o))
         continue;
       const btTransform t = drawnTrans(o);
-      if (o->mergeSeen && sameTrans(t, o->mergeTrans) && memcmp(o->rgb(), o->mergeRgb, 3) == 0) {
+      if (o->mergeSteady > 0 && sameTrans(t, o->mergeTrans) &&
+          memcmp(o->rgb(), o->mergeRgb, 3) == 0) {
+        if (++o->mergeSteady < 5)
+          continue;
+        const btVector3 &p = t.getOrigin();
+        auto cell = [](btScalar x) { return int(std::floor(double(x) / 60.0)); };
+        o->mergeCell[0] = cell(p.x());
+        o->mergeCell[1] = cell(p.y());
+        o->mergeCell[2] = cell(p.z());
+        MergeBatch &b = _mergeBatches[std::make_tuple(o->mergeCell[0], o->mergeCell[1],
+                                                      o->mergeCell[2])];
+        b.objs.append(o);
+        b.dirty = true;
+        for (Object *p : b.objs)
+          p->mergeDrawn = false;
         o->merged = true;
         _mergeObjs.append(o);
-        _mergeDirty = true;
       } else {
-        o->mergeSeen = true;
+        o->mergeSteady = 1;
         o->mergeTrans = t;
         memcpy(o->mergeRgb, o->rgb(), 3);
       }
     }
   }
-  if (_mergeDirty)
-    buildMerge();
+  buildMerge();                          // (only the batches that need it)
+  _mergeReady = true;
 }
 
 void Viewer::drawMerged() {
@@ -3459,6 +3490,8 @@ void Viewer::drawMerged() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnable(GL_NORMALIZE);
   for (const MergeBatch &b : _mergeBatches) {
+    if (b.dirty || b.vbo == 0)
+      continue;
     bool wanted = !_culled;
     for (int i = 0; !wanted && i < b.objs.size(); ++i)
       wanted = b.objs[i]->drawOnScreen;
@@ -3536,7 +3569,7 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
       continue;
     if (skipFixed && o->shadowListed)
       continue;
-    if (!shadowPass && o->merged && _mergeReady)  // (drawn by drawMerged())
+    if (!shadowPass && o->mergeDrawn && _mergeReady)  // (drawn by drawMerged())
       continue;
     if (!shadowPass && o->getTransparency() > 0.0) {
       seeThrough.append(o);

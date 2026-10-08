@@ -2050,13 +2050,14 @@ private:
     QVector<Object *> objs;        ///< What's in it.
     unsigned vbo = 0;              ///< Its vertices, on the graphics card.
     int verts = 0;                 ///< How many.
+    bool dirty = true;             ///< To be made again (objects came or went).
   };
   bool _screenMerge = true;
-  QVector<MergeBatch> _mergeBatches;
+  /// One batch for each patch of the scene that has merged objects.
+  QMap<std::tuple<int, int, int>, MergeBatch> _mergeBatches;
   QVector<Object *> _mergeObjs;    ///< Everything merged.
   const void *_mergeCtx = nullptr; ///< The context the batches live in.
   unsigned _mergeEpoch = 0;
-  bool _mergeDirty = false;        ///< The batches need making again.
   bool _mergeReady = false;        ///< They're made, and up to date.
   long _mergeFrame = 0;
   int _screenMerged = 0;           ///< Drawn from them last frame.
@@ -2068,8 +2069,10 @@ private:
   void drawMerged();
   /// Forgets them all (deleting them if their context is current).
   void freeMerge();
-  /// Makes them again from _mergeObjs.
+  /// Makes the batches that need it again.
   void buildMerge();
+  /// Takes an object out of its batch (which is made again).
+  void unmerge(Object *o);
   bool _shadowSaved = true;        ///< See setShadowSaved().
   bool _shadowFromSaved = false;   ///< See shadowFromSaved().
   quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from

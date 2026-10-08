@@ -577,8 +577,10 @@ public:
   quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
 
   // The screen's merge (see Viewer::setScreenMerge()).
-  bool merged = false;       ///< Its triangles are in a merged batch.
-  bool mergeSeen = false;    ///< Looked at by the last search for more.
+  bool merged = false;       ///< Its triangles are in a merged batch
+  bool mergeDrawn = false;   ///< (and that batch is made: drawn from it).
+  int mergeSteady = 0;       ///< Searches for more it has stayed the same.
+  int mergeCell[3] = {0, 0, 0}; ///< The patch (batch) it's merged into.
   int mergeChanges = 0;      ///< Times it changed while merged.
   long mergeBanUntil = 0;    ///< Not merged again before this frame.
   btTransform mergeTrans;    ///< Where it was, and its colour, when
