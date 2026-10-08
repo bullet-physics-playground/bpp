@@ -11,7 +11,7 @@ Demos by [@koppi](https://github.com/koppi)
 * **duplo.lua**: A marble run made with Duplo bricks.
 * **gears.lua**: A demonstration of parametric involute bevel and spur gears.
 * **gravity-box.lua**: An omni-directional stereo rendered box with gravity variation.
-* **hanoi.lua**: A port of qthanoi (Towers of Hanoi), with a configurable stone count, rainbow-colored disks, and a rotating turntable.
+* **hanoi.lua**: A port of qthanoi (Towers of Hanoi), with a configurable stone count, rainbow-colored disks, a rotating turntable, and a sound for each stone picked and set down.
 * **hcw.lua**: A simulation of a Hoberman Clockwork (WIP).
 * **ibex.lua**: A simulation of an IBEX sculpture (WIP).
 * **juggling-robot.lua**: A simulation of Claude Shannon's juggling robot.

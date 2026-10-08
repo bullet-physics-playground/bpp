@@ -29,7 +29,8 @@
 -- of the scene spinning, the camera slowly orbits it (see rotateY() in
 -- the postSim callback below). The camera is pseudo-orthogonal (parked
 -- far away with a small matching FOV, see demo/basic/06-mesh.lua) and
--- frames the full scene.
+-- frames the full scene. Each move also makes a sound: a tick as the stone
+-- is picked off its tower, a knock as it lands on the other.
 --
 -- Params:
 --   numStones (3..16, default 5) -- number of disks. Changing it restarts
@@ -203,6 +204,13 @@ local flight    = nil
 
 local ANIM_FRAMES = 20 -- simulation steps a single stone flight takes
 
+-- Sound effects (see hanoi-sounds/make-sounds.py): a light tick as a stone
+-- is picked off its tower, a heavier knock as it is set down on the other.
+-- loadSound() returns -1 with no audio device (or a missing file), and
+-- playSound(-1) is then a silent no-op, so the demo runs fine without.
+local pickSound  = v:loadSound("hanoi-sounds/pick.wav")
+local placeSound = v:loadSound("hanoi-sounds/place.wav")
+
 -- Flight is split into three phases so all horizontal motion happens
 -- strictly at/above the (shared) peg-top height -- a stone never moves
 -- sideways while it's still low enough to clip a peg's side.
@@ -232,6 +240,7 @@ local function beginFlight(id, pegFrom, pegTo, fromSlot, toSlot)
     frame  = 0,
   }
   animating = true
+  v:playSound(pickSound)
 end
 
 local function advanceFlight()
@@ -256,6 +265,7 @@ local function advanceFlight()
   if blend >= 1 then
     animating = false
     flight = nil
+    v:playSound(placeSound)
   end
 end
 
