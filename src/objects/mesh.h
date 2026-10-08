@@ -236,7 +236,6 @@ public:
    * @return #_comOffset.
    */
   btVector3 drawnOffset() const override { return _comOffset; }
-  bool setsMaterial() const override { return true; }
 
 protected:
 

@@ -252,10 +252,7 @@ COST METER -- ms per frame, averaged over the last second
 - **drawn:** on a bpp that skips what can't be seen (`v.culling`, on by
   default), how many of the room's 3,300 or so objects the last frame drew
   for the screen, and, with shadows on, into the shadow map: only what's in
-  view, or could throw a shadow into it. A bpp that also records the still
-  objects for the screen (`v.screenCache`, on by default) says "N objects
-  + M from the screen's record": N drawn one by one, M replayed from lists
-  made once. A bpp that records the fixed
+  view, or could throw a shadow into it. A bpp that records the fixed
   objects' shadows (`v.shadowCache`, on by default) adds "and N more from
   its record": those it drew into the shadow map once and replays each
   frame, instead of drawing them one by one. A bpp that also saves their
@@ -263,14 +260,12 @@ COST METER -- ms per frame, averaged over the last second
   instead: it drew them into the shadow map once, and copies that back
   each frame, which costs the graphics card almost nothing.
 - **timing:** only with bpp's drawing timer on (`v.drawTiming = true`
-  before loading the room). It splits the drawing time, as the processor
-  spends it, into working out the scene's extent ("box"), checking which
-  fixed objects are still ("still"), deciding what to skip ("cull"), the
-  shadow map, and the screen pass; and the shadow map and the screen pass
-  as the graphics card spends it (from its own timers). "All of draw" is
-  the whole of bpp's drawing, which should match "drawing" above. "Records
-  made" says how many times the records of still objects were made again
-  in that second (often would be a sign something keeps changing).
+  before loading the room). It splits the drawing time into working out
+  the scene's extent ("box"), deciding what to skip ("cull"), the shadow
+  map, and the screen pass, as the processor spends it, and the shadow
+  map and the screen pass as the graphics card spends it (from its own
+  timers). "All of draw" is the whole of bpp's
+  drawing, which should match "drawing" above.
 - **thinking up to:** how long the tables' computer players may think each
   frame (see "The computer players' thinking" below).
 - **busy:** all of the above, against the time each frame actually has
