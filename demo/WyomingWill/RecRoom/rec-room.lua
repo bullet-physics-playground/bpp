@@ -489,6 +489,24 @@ local function makeGame(name, dir, offset, opts)
     end
   end
   env.io = setmetatable({ open = function(path, mode) return io.open(fix(path), mode) end }, { __index = io })
+  -- bpp's plain-number readers and setters (getPosXYZ and the rest, which
+  -- make no garbage): handed the real object, and a position through the
+  -- offset (and scale and turn), as obj.pos is; velocities and spins as they
+  -- are, as obj.vel and obj.body are
+  if getPosXYZ then
+    local function real(o) return type(o) == "table" and rawget(o, "__real") or o end
+    env.getPosXYZ = function(o)
+      local x, y, z = getPosXYZ(real(o))
+      x, y, z = x - ox, y - oy, z - oz
+      return (x * cs - z * sn) / S, y / S, (x * sn + z * cs) / S
+    end
+    env.getVelXYZ = function(o) return getVelXYZ(real(o)) end
+    env.getAngVelXYZ = function(o) return getAngVelXYZ(real(o)) end
+    env.setVelXYZ = function(o, x, y, z) return setVelXYZ(real(o), x, y, z) end
+    env.setAngVelXYZ = function(o, x, y, z) return setAngVelXYZ(real(o), x, y, z) end
+    -- (both of the game's: the same offset either way)
+    env.copyTrans = function(a, b) return copyTrans(real(a), real(b)) end
+  end
   -- the room collects garbage for everyone, a little every frame (see
   -- below); a game's own "collect everything now" would sweep the whole
   -- room's heap in one go, so it's left to the room

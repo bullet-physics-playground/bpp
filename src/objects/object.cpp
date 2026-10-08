@@ -176,8 +176,69 @@ void Object::toPOV(QTextStream *s) const {
 static void luaSetRigidBody(Object &o, const luabind::object &b);
 static void luaSetCollisionShape(Object &o, const luabind::object &s);
 
+// getPosXYZ(o), getVelXYZ(o), getAngVelXYZ(o): an object's position, velocity
+// and spin (its body's angular velocity) as three plain numbers. Reading o.pos or o.vel makes a new vector
+// each time, and a script that reads many every step makes enough of them
+// for Lua's garbage collector to stall now and then sweeping them up; plain
+// numbers make no garbage.
+static Object *luaObjectArg(lua_State *L, const char *fn) {
+  Object *o = nullptr;
+  try {
+    o = luabind::object_cast<Object *>(luabind::object(luabind::from_stack(L, 1)));
+  } catch (...) {
+    o = nullptr;
+  }
+  if (o == nullptr) luaL_error(L, "%s: expects an object", fn);
+  return o;
+}
+static int luaPushXYZ(lua_State *L, const btVector3 &v) {
+  lua_pushnumber(L, v.x());
+  lua_pushnumber(L, v.y());
+  lua_pushnumber(L, v.z());
+  return 3;
+}
+static int luaGetPosXYZ(lua_State *L) {
+  return luaPushXYZ(L, luaObjectArg(L, "getPosXYZ")->getPosition());
+}
+static int luaGetVelXYZ(lua_State *L) {
+  return luaPushXYZ(L, luaObjectArg(L, "getVelXYZ")->getLinearVelocity());
+}
+static int luaGetAngVelXYZ(lua_State *L) {
+  btRigidBody *b = luaObjectArg(L, "getAngVelXYZ")->getRigidBody();
+  return luaPushXYZ(L, b ? b->getAngularVelocity() : btVector3(0, 0, 0));
+}
+// setVelXYZ(o, x, y, z), setAngVelXYZ(o, x, y, z): the same, the other way
+static btVector3 luaXYZArg(lua_State *L) {
+  return btVector3(luaL_checknumber(L, 2), luaL_checknumber(L, 3), luaL_checknumber(L, 4));
+}
+static int luaSetVelXYZ(lua_State *L) {
+  Object *o = luaObjectArg(L, "setVelXYZ");
+  o->setLinearVelocity(luaXYZArg(L));
+  return 0;
+}
+static int luaSetAngVelXYZ(lua_State *L) {
+  btRigidBody *b = luaObjectArg(L, "setAngVelXYZ")->getRigidBody();
+  if (b) b->setAngularVelocity(luaXYZArg(L));
+  return 0;
+}
+// copyTrans(a, b): a.trans = b.trans, without the two transforms that makes
+static int luaCopyTrans(lua_State *L) {
+  Object *a = luaObjectArg(L, "copyTrans");
+  lua_remove(L, 1);
+  Object *b = luaObjectArg(L, "copyTrans");
+  a->setTransform(b->getTransform());
+  return 0;
+}
+
 void Object::luaBind(lua_State *s) {
   using namespace luabind;
+
+  lua_register(s, "getPosXYZ", luaGetPosXYZ);
+  lua_register(s, "getVelXYZ", luaGetVelXYZ);
+  lua_register(s, "getAngVelXYZ", luaGetAngVelXYZ);
+  lua_register(s, "setVelXYZ", luaSetVelXYZ);
+  lua_register(s, "setAngVelXYZ", luaSetAngVelXYZ);
+  lua_register(s, "copyTrans", luaCopyTrans);
 
   module(s)
       [class_<Object>("Object")

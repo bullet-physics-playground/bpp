@@ -319,8 +319,20 @@ for n = 1, NB do
   balls[n] = { n = n, obj = s, mark = mark, onTable = true, vx = 0, vz = 0, side = side,
                marked = marked, home = (n - 1) % 5 + 1 }
 end
+-- A ball's position, velocity and spin as plain numbers. A bpp with
+-- getPosXYZ and the rest reads and sets them without making a new vector
+-- each time: read for every ball at every step, those vectors were
+-- thousands a second of garbage, and sweeping them up held everything up
+-- now and then. (An older bpp: through the vectors, as before.)
+local posXYZ = getPosXYZ or function(o) local p = o.pos; return p.x, p.y, p.z end
+local velXYZ = getVelXYZ or function(o) local p = o.vel; return p.x, p.y, p.z end
+local spinXYZ = getAngVelXYZ or function(o) local w = o.body:getAngularVelocity(); return w.x, w.y, w.z end
+local setVel = setVelXYZ or function(o, x, y, z) o.body:setLinearVelocity(btVector3(x, y, z)) end
+local setSpin = setAngVelXYZ or function(o, x, y, z) o.body:setAngularVelocity(btVector3(x, y, z)) end
+local copyTransTo = copyTrans or function(a, b) a.trans = b.trans end
+
 local function syncMark(b)
-  if b.mark then b.mark.trans = b.obj.trans end
+  if b.mark then copyTransTo(b.mark, b.obj) end
 end
 
 -- a random orientation, so the spots don't all line up
@@ -346,14 +358,13 @@ local frozenXZ = nil
 local function ballXZ(b)
   local f = frozenXZ and frozenXZ[b]
   if f then return f[1], f[2] end
-  local p = b.obj.pos
-  return p.x, p.z
+  local x, _, z = posXYZ(b.obj)
+  return x, z
 end
 local function ballXYZ(b)
   local f = frozenXZ and frozenXZ[b]
   if f then return f[1], f[3], f[2] end
-  local p = b.obj.pos
-  return p.x, p.y, p.z
+  return posXYZ(b.obj)
 end
 
 -- the look of a ball dropping into a cup: a copy of it that sinks into
@@ -725,15 +736,15 @@ end
 local function freezeXZ()
   local f = {}
   for _, b in pairs(balls) do
-    local p = b.obj.pos
-    f[b] = { p.x, p.z, p.y }
+    local x, y, z = posXYZ(b.obj)
+    f[b] = { x, z, y }
   end
   return f
 end
 local function stillFrozen(f)
   for b, xz in pairs(f) do
-    local p = b.obj.pos
-    if math.abs(p.x - xz[1]) > 0.05 or math.abs(p.z - xz[2]) > 0.05 or math.abs(p.y - xz[3]) > 0.05 then return false end
+    local x, y, z = posXYZ(b.obj)
+    if math.abs(x - xz[1]) > 0.05 or math.abs(z - xz[2]) > 0.05 or math.abs(y - xz[3]) > 0.05 then return false end
   end
   return true
 end
@@ -2178,24 +2189,23 @@ v:preSim(function(N)
   -- the cloth: rolling resistance, and side spin wearing off
   for n = 1, NB do
     local b = balls[n]
-    if b.onTable and b.obj.pos.y < K.R + 0.2 then   -- (not in the air)
-      local body = b.obj.body
-      local vel = body:getLinearVelocity()
-      local w = body:getAngularVelocity()
-      local sp = math.sqrt(vel.x * vel.x + vel.z * vel.z)
-      local wr = math.sqrt(w.x * w.x + w.z * w.z) * K.R
-      if sp < K.STOP_V and wr < 1.5 * K.STOP_V and math.abs(w.y) < 0.5 then
-        if sp > 0 or wr > 0 or w.y ~= 0 then
-          body:setLinearVelocity(btVector3(0, vel.y, 0))
-          body:setAngularVelocity(btVector3(0, 0, 0))
+    local o = b.obj
+    if b.onTable and select(2, posXYZ(o)) < K.R + 0.2 then   -- (not in the air)
+      local vx, vy, vz = velXYZ(o)
+      local wx, wy, wz = spinXYZ(o)
+      local sp = math.sqrt(vx * vx + vz * vz)
+      local wr = math.sqrt(wx * wx + wz * wz) * K.R
+      if sp < K.STOP_V and wr < 1.5 * K.STOP_V and math.abs(wy) < 0.5 then
+        if sp > 0 or wr > 0 or wy ~= 0 then
+          setVel(o, 0, vy, 0)
+          setSpin(o, 0, 0, 0)
         end
       else
         local f = sp > 0 and math.max(0, sp - K.ROLL_DECEL * K.FRAME) / sp or 1
-        local wy = w.y
         local dwy = K.SPIN_DECEL * K.FRAME
         wy = (math.abs(wy) <= dwy) and 0 or (wy - dwy * (wy > 0 and 1 or -1))
-        body:setLinearVelocity(btVector3(vel.x * f, vel.y, vel.z * f))
-        body:setAngularVelocity(btVector3(w.x * f, wy, w.z * f))
+        setVel(o, vx * f, vy, vz * f)
+        setSpin(o, wx * f, wy, wz * f)
       end
     end
   end
@@ -2212,7 +2222,6 @@ local MAX_SOUNDS_PER_FRAME = 6
 -- cushion's nose, above the middle of the ball, grips it and takes that
 -- spin away; a bumper's ring does much the same). Returns what it hit.
 local function cushionBounce(b, x, z)
-  local vel = b.obj.vel
   local nx, nz, gap, e, kind
   for _, l in ipairs(cushionLines) do
     local lx, lz = l.x2 - l.x1, l.z2 - l.z1
@@ -2227,22 +2236,23 @@ local function cushionBounce(b, x, z)
     end
   end
   if not gap or gap > 6 then return nil end
+  local o = b.obj
+  local vx, vy, vz = velXYZ(o)
   local before = -(b.vx * nx + b.vz * nz)
-  local now_ = -(vel.x * nx + vel.z * nz)
+  local now_ = -(vx * nx + vz * nz)
   if not (before > 0.5 and gap < 0.5 + math.max(0, -now_) * K.FRAME
           and now_ < 0.9 * before - 0.3) then
     return nil
   end
-  local body = b.obj.body
   local off = math.max(e * before, -now_)
-  body:setLinearVelocity(btVector3(vel.x + (off + now_) * nx, vel.y, vel.z + (off + now_) * nz))
+  setVel(o, vx + (off + now_) * nx, vy, vz + (off + now_) * nz)
   local ax, az = -nz, nx
-  local w = body:getAngularVelocity()
+  local wx, wy, wz = spinXYZ(o)
   local rollBefore = (b.wx or 0) * ax + (b.wz or 0) * az
-  local rollNow = w.x * ax + w.z * az
+  local rollNow = wx * ax + wz * az
   local target = -ROLL_AFTER * off / K.R
   if rollBefore < 0 then target = math.min(rollNow, target) end
-  body:setAngularVelocity(btVector3(w.x + (target - rollNow) * ax, w.y, w.z + (target - rollNow) * az))
+  setSpin(o, wx + (target - rollNow) * ax, wy, wz + (target - rollNow) * az)
   b.firstContact = b.firstContact or kind
   return kind
 end
@@ -2299,32 +2309,32 @@ v:postSim(function(N)
   for n = 1, NB do
     local b = balls[n]
     if b.onTable then
-      local p = b.obj.pos
-      local x, z = p.x, p.z
-      local vel0 = b.obj.vel
+      local o = b.obj
+      local x, y, z = posXYZ(o)
+      local vx, vy, vz = velXYZ(o)
       -- over a cup: does it fall in? (only a ball down on the cloth)
       local dropped = nil
       local inside = false
-      if p.y < K.R + 0.5 then
+      if y < K.R + 0.5 then
         for c, cup in ipairs(CUPS) do
           local rx, rz = x - cup.x, z - cup.z
           if rx * rx + rz * rz < K.CUP_R * K.CUP_R then
             inside = true
             b.holeT = (b.holeT or 0) + K.FRAME
-            if fallsIn(rx, rz, vel0.x, vel0.z, b.holeT) then dropped = c end
+            if fallsIn(rx, rz, vx, vz, b.holeT) then dropped = c end
           end
         end
       end
       if not inside then b.holeT = 0 end
       -- jumping (a foul)
-      if rolling and p.y > K.R + K.JUMP_FOUL then
+      if rolling and y > K.R + K.JUMP_FOUL then
         b.jumped = true
         S.jumped = true
       end
       -- off the table: past the rails, fallen, or come to rest on a rail
-      local off = math.abs(x) > K.OUT_X or math.abs(z) > K.OUT_Z or p.y < -5
-      if not off and p.y > K.RAIL_H and (math.abs(x) > K.HL or math.abs(z) > K.HW) then
-        if vel0.x * vel0.x + vel0.y * vel0.y + vel0.z * vel0.z < 9 then
+      local off = math.abs(x) > K.OUT_X or math.abs(z) > K.OUT_Z or y < -5
+      if not off and y > K.RAIL_H and (math.abs(x) > K.HL or math.abs(z) > K.HW) then
+        if vx * vx + vy * vy + vz * vz < 9 then
           b.railFrames = (b.railFrames or 0) + 1
           off = b.railFrames > 30
         else
@@ -2339,18 +2349,19 @@ v:postSim(function(N)
         S.dirty = true
       else
         -- landing from a jump: the cloth bounces it back up
-        local vy = vel0.y
-        if (b.vy or 0) < -K.LAND_MIN and vy > -5 and p.y < K.R + 0.3 then
+        if (b.vy or 0) < -K.LAND_MIN and vy > -5 and y < K.R + 0.3 then
           local land = -(b.vy or 0) + K.G * K.FRAME
-          b.obj.body:setLinearVelocity(btVector3(vel0.x, K.LAND_E * land, vel0.z))
+          vy = K.LAND_E * land
+          setVel(o, vx, vy, vz)
           playSound("cushion", math.min(1, land / 400))
         end
-        b.vy = b.obj.vel.y
-        if p.y < K.R + 0.5 then cushionBounce(b, x, z) end
-        local vel = b.obj.vel
+        b.vy = vy
+        if y < K.R + 0.5 and cushionBounce(b, x, z) then   -- (its velocity changed)
+          vx, vy, vz = velXYZ(o)
+        end
         -- a sudden change of velocity is a collision: click (and note what
         -- it touched first)
-        local dvx, dvz = vel.x - b.vx, vel.z - b.vz
+        local dvx, dvz = vx - b.vx, vz - b.vz
         local dv = math.sqrt(dvx * dvx + dvz * dvz)
         if dv > 20 then
           local kind, m = touching(n, x, z)
@@ -2362,11 +2373,11 @@ v:postSim(function(N)
             sounds = sounds + 1
           end
         end
-        b.vx, b.vz = vel.x, vel.z
-        local w = b.obj.body:getAngularVelocity()
-        b.wx, b.wz = w.x, w.z
-        if vel.x * vel.x + vel.z * vel.z + vel.y * vel.y > 0.25 or p.y > K.R + 0.3
-           or (w.x * w.x + w.y * w.y + w.z * w.z) > 0.05 then
+        b.vx, b.vz = vx, vz
+        local wx, wy, wz = spinXYZ(o)
+        b.wx, b.wz = wx, wz
+        if vx * vx + vz * vz + vy * vy > 0.25 or y > K.R + 0.3
+           or (wx * wx + wy * wy + wz * wz) > 0.05 then
           moving = true
         end
         syncMark(b)
