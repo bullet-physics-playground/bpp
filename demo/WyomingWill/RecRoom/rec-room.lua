@@ -1133,7 +1133,7 @@ Tab walks between them:
                             Space shake, 1 new game, P computer, V its views)
   at the pool table      -- its keys (arrows aim, Up/Down force, W/A/S/D spin,
   and the snooker table     Space shoot, P computer, V/B/T its cameras;
-                            pool: M 8-ball or clear the table)
+                            M: a match against the computer, or alone)
   at the bumper pool     -- the same, with X / Z to choose your ball (Tab
   table                     walks on), O the second player, L the level
   at the clock           -- its keys (T tune its gravity, G lock it, S sound);

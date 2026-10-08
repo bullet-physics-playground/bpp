@@ -1,14 +1,38 @@
 # Snooker Table
 
-One-player snooker for the Bullet Physics Playground (bpp). It uses a
-full-size 12-foot table with 15 reds and six colours, and you work the cue
-from the keyboard. It's for practising break building, or you can press `P`
-and let the computer play. Bullet handles the physics, including the break-off,
+Snooker for the Bullet Physics Playground (bpp): a match against the
+computer, or break building on your own. It uses a full-size 12-foot table
+with 15 reds and six colours, and you work the cue from the keyboard. `M`
+switches between the two games, and `P` lets the computer play: in a match
+it takes both sides, frame after frame. Bullet handles the physics, including the break-off,
 cushions, pockets and the cue ball's spin. The table is built on the Pool
 Table's code: the cue, the aiming guide, spin, massé and the cushions all
 work in the same way.
 
-## The game: break building
+## A match: you against the computer
+
+The standard game, two players taking visits to the table. You and the
+computer take turns to break off, one frame each.
+
+- The scoring is as below: a red, then a colour, and so on; once the reds
+  are gone, the colours in order.
+- A visit lasts while you pot. A miss passes the table to the other player,
+  who plays from where the balls lie.
+- A **foul** (see the list below) gives the other player the penalty points
+  (the value of the ball on or the ball concerned, whichever is higher, and
+  at least 4) and the next visit. After an in-off they have ball in hand in
+  the D.
+- Once only the black is left, the first pot or foul ends the frame, and the
+  higher score wins it. On level scores the black is respotted, and the
+  other player plays from the D.
+- Frames won are saved, yours and the computer's.
+- Not played here: the free ball, the miss rule, the touching-ball rule and
+  asking the player who fouled to play again.
+
+The scoreboard shows **YOU**, your score; **BRK**, the break in progress;
+and **CPU**, the computer's score. The message line says whose shot it is.
+
+## Break building
 
 The balls are set up as for a frame. The reds form a triangle behind the
 pink, and the colours sit on their spots. The cue ball starts in hand in the
@@ -39,8 +63,7 @@ D.
   on the highest free spot. If every spot is covered, it goes as near its
   own spot as it can, toward the top cushion.
 
-This is a practice table, so a few match rules are left out: free ball, the
-miss rule, the touching-ball rule and re-spotted black.
+In break building, the fouls are only counted.
 
 ## Files
 
@@ -83,12 +106,14 @@ and each shot's aim, force and spin as it's played.
 | `B` | camera behind the cue (it follows your aim) |
 | `T` | camera overhead |
 | `N` or `R` | set up a new frame |
-| `P` | the computer plays (press again to take over) |
+| `M` | switch game: a match against the computer, or break building alone (a new frame; the choice is kept) |
+| `P` | auto-play: the computer plays (press again to take over). In a match it plays both sides; either way it sets up a new frame when one ends and plays on, frame after frame |
 
 With ball in hand, the arrows move the cue ball around the D, and `Space`
 or `Return` puts it down.
 
-The scoreboard past the top of the table shows:
+The scoreboard past the top of the table shows (in break building; a match
+is above):
 
 - **BREAK**: the current break
 - **HIGH**: your highest break
@@ -101,7 +126,8 @@ The scoreboard past the top of the table shows:
 
 ## The computer player
 
-Press `P` and the computer plays the frame from where it stands, trying to
+In a match the computer plays its own visits. Press `P` and it plays
+everything from where the frame stands (both sides in a match), trying to
 build breaks. It uses no learning. For each shot it:
 
 1. Looks at every pot on offer: each ball that is on, into each pocket. It

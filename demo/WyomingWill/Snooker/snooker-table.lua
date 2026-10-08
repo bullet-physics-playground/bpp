@@ -468,7 +468,7 @@ local CHARS = {
   ["6"] = 125, ["7"] = 7, ["8"] = 127, ["9"] = 111,
   A = 119, B = 124, C = 57, D = 94, E = 121, F = 113, G = 61, H = 118, I = 48,
   J = 30, L = 56, N = 84, O = 63, P = 115, R = 80, S = 109, T = 120, U = 62,
-  Y = 110, K = 117, ["-"] = 64, [" "] = 0,
+  Y = 110, K = 117, M = 55, ["-"] = 64, [" "] = 0,
 }
 do
   local SC = 1.3                     -- everything on the panel, bigger than the pool table's
@@ -528,11 +528,16 @@ do
   end
 
   local LABEL, LABEL_OFF, LED, LED_OFF = "#d9d9d9", "#101418", "#ff6a00", "#2a1408"
-  digits(-57, 66, 5, 1.1, LABEL, LABEL_OFF, false).set("BREAK")
+  -- (the three labels change with the game: BREAK HIGH PTS alone, YOU BRK
+  -- CPU in a match)
+  board.label1 = digits(-57, 66, 5, 1.1, LABEL, LABEL_OFF, false)
+  board.label1.set("BREAK")
   board.breakPts = digits(-38, 65.5, 3, 2.2, LED, LED_OFF, true)
-  digits(-7, 66, 4, 1.1, LABEL, LABEL_OFF, false).set("HIGH")
+  board.label2 = digits(-7, 66, 4, 1.1, LABEL, LABEL_OFF, false)
+  board.label2.set("HIGH")
   board.high = digits(8, 65.5, 3, 2.2, LED, LED_OFF, true)
-  digits(30, 66, 3, 1.1, LABEL, LABEL_OFF, false).set("PTS")
+  board.label3 = digits(30, 66, 3, 1.1, LABEL, LABEL_OFF, false)
+  board.label3.set("PTS")
   board.points = digits(42, 65.5, 3, 2.2, LED, LED_OFF, true)
   board.message = digits(-54, 49, 12, 1.6, "#7cfc00", "#16240a", true)
 
@@ -708,7 +713,17 @@ end
 -- ---------------------------------------------------------------------
 
 local S = {
-  state = "inhand",     -- inhand, aim, stroke, rolling, cleared
+  game = "match",       -- "match" (you against the computer) or "break"
+                        -- (break building, alone); M switches
+  state = "inhand",     -- inhand, aim, stroke, rolling, cleared (break
+                        -- building), over (a match: the frame is won)
+  turn = 1,             -- a match: whose visit it is, 1 you, 2 the computer
+                        -- (with auto-play on, the computer plays both)
+  score = { 0, 0 },     -- a match: each player's points this frame
+  frames = { 0, 0 },    -- frames won, you and the computer (saved)
+  autoFrames = { 0, 0 },-- the same with the computer playing both sides
+  nextBreaker = 1,      -- a match: who breaks off the next frame (they take turns)
+  winner = nil,         -- a match: who won the last frame
   breakOff = true,      -- the next shot is the break-off
   on = "red",           -- the ball on: "red", "colour" (any) or a colour's value
   onAtShot = "red",     -- (the ball on when this shot was taken)
@@ -738,9 +753,16 @@ local S = {
   dirty = true,         -- guide, cue, camera and help need redrawing
   frame = 0,
 }
+local function loadPref(key)
+  return v.loadPrefs and v:loadPrefs(PREFS_PREFIX .. key, "") or ""
+end
+local function savePref(key, value)
+  if v.savePrefs then pcall(function() v:savePrefs(PREFS_PREFIX .. key, tostring(value)) end) end
+end
 do
-  local saved = v.loadPrefs and v:loadPrefs(PREFS_PREFIX .. "highBreak", "") or ""
-  S.highBreak = tonumber(saved) or 0
+  S.highBreak = tonumber(loadPref("highBreak")) or 0
+  if loadPref("game") == "break" then S.game = "break" end
+  S.frames = { tonumber(loadPref("frames1")) or 0, tonumber(loadPref("frames2")) or 0 }
 end
 
 local function now()
@@ -955,6 +977,11 @@ local function rack()
   S.breakOff = true
   S.on, S.onAtShot = "red", "red"
   S.breakPts, S.lastBreak, S.framePts, S.visits, S.fouls, S.foulPts = 0, 0, 0, 0, 0, 0
+  S.score, S.winner, S.turn = { 0, 0 }, nil, 1
+  if S.game == "match" then
+    S.turn = S.nextBreaker             -- (the players take turns to break off)
+    S.nextBreaker = 3 - S.nextBreaker
+  end
   S.scratched, S.offTable = false, false
   S.state = "inhand"
   S.aim = 0
@@ -1244,6 +1271,28 @@ end
 -- auto-play (P): the computer plays; filled in further down
 local auto = { on = false }
 
+-- a match: is it the computer's shot? (with auto-play on it takes both
+-- sides; otherwise player 2)
+local function cpuTurn()
+  return auto.on or (S.game == "match" and S.turn == 2)
+end
+
+-- a match: the name of player p, for the console and the scoreboard
+local function playerName(p)
+  if auto.on then return "Computer " .. p end
+  return p == 1 and "You" or "The computer"
+end
+
+-- the points still on the table: 8 for each red (with a black after it),
+-- the colours still on their spots, and the colour due after a red just potted
+local function pointsLeft()
+  local n = redsLeft() * 8 + (S.on == "colour" and 7 or 0)
+  for val = 2, 7 do
+    if balls[COLOUR_BALL[val]].onTable then n = n + val end
+  end
+  return n
+end
+
 -- the ball on, in words
 local function onText(on)
   on = on or S.on
@@ -1259,22 +1308,54 @@ end
 local function helpText()
   local lines = {}
   local function add(s) lines[#lines + 1] = s end
-  add("SNOOKER -- break building" .. (auto.on and "      COMPUTER PLAYING (P to take over)" or ""))
+  local match = S.game == "match"
+  if match then
+    add("SNOOKER -- a match, " .. (auto.on and "the computer against itself      AUTO-PLAY (P to stop)"
+                                            or "you against the computer"))
+  else
+    add("SNOOKER -- break building" .. (auto.on and "      COMPUTER PLAYING (P to take over)" or ""))
+  end
   add("")
   local s0 = #lines + 1          -- (from here: what's going on, for the console)
   local st = S.state
-  if st == "inhand" then
+  if match then
+    local who = playerName(S.turn)
+    local pos = (who == "You") and "Your" or (who .. "'s")   -- (whose shot)
+    if st == "over" then
+      add(string.format("%s won the frame, %d-%d.%s", playerName(S.winner), math.max(S.score[1], S.score[2]),
+                        math.min(S.score[1], S.score[2]),
+                        auto.on and " A new frame is coming." or " Press N for the next frame."))
+    elseif st == "stroke" or st == "rolling" then
+      add("Balls rolling...")
+    elseif cpuTurn() and not auto.on then
+      add("The computer is at the table" .. (st == "inhand" and " (ball in hand in the D)" or "")
+          .. "; ball on: " .. onText() .. ".")
+    elseif st == "inhand" then
+      add(who .. ": ball in hand in the D -- place the cue ball" .. (S.breakOff and " and break off." or "."))
+    else
+      add(pos .. " shot; ball on: " .. onText() .. ".")
+    end
+    add(string.format("%s %d, %s %d   Break %d   Reds left %d   %d points left on the table",
+                      playerName(1), S.score[1], playerName(2):lower(), S.score[2], S.breakPts,
+                      redsLeft(), pointsLeft()))
+    local f = auto.on and S.autoFrames or S.frames
+    add(string.format("Frames won -- %s %d, %s %d   (your highest break %d)", playerName(1), f[1],
+                      playerName(2):lower(), f[2], S.highBreak))
+  elseif st == "inhand" then
     add(S.breakOff and "Ball in hand in the D: place the cue ball and break off."
                     or "Ball in hand in the D: place the cue ball.")
   elseif st == "aim" then add("Ball on: " .. onText() .. ".")
   elseif st == "stroke" or st == "rolling" then add("Balls rolling...")
   elseif st == "cleared" then
-    add(string.format("Frame cleared: %d points in %d break%s. Press N for a new frame.",
-                      S.framePts, S.visits, S.visits == 1 and "" or "s"))
+    add(string.format("Frame cleared: %d points in %d break%s.%s",
+                      S.framePts, S.visits, S.visits == 1 and "" or "s",
+                      auto.on and " A new frame is coming." or " Press N for a new frame."))
   end
-  add(string.format("Break %d   Last break %d   Highest break %d   Points this frame %d   Reds left %d",
-                    S.breakPts, S.lastBreak, S.highBreak, S.framePts, redsLeft()))
-  add(string.format("Fouls %d (%d points to an opponent)", S.fouls, S.foulPts))
+  if not match then
+    add(string.format("Break %d   Last break %d   Highest break %d   Points this frame %d   Reds left %d",
+                      S.breakPts, S.lastBreak, S.highBreak, S.framePts, redsLeft()))
+    add(string.format("Fouls %d (%d points to an opponent)", S.fouls, S.foulPts))
+  end
   local s1 = #lines
   add(string.format("Aim %.2f deg   Force %d%%   Spin: %s", (math.deg(S.aim) + 360) % 360,
                     math.floor(S.power * 100 + 0.5),
@@ -1310,11 +1391,21 @@ local function helpText()
   add("B           camera behind the cue" .. (S.view == "cue" and " (now)" or ""))
   add("T           camera overhead" .. (S.view == "top" and " (now)" or ""))
   add("N or R      new frame")
-  add("P           the computer plays " .. (auto.on and "(on)" or "(off)"))
+  add("M           switch game: " .. (match and "break building (alone)" or "a match against the computer"))
+  add("P           auto-play: the computer plays " .. (match and "both sides" or "the frame")
+      .. ", frame after frame " .. (auto.on and "(on)" or "(off)"))
   add("")
   add("Red 1, yellow 2, green 3, brown 4, blue 5, pink 6, black 7. Red, colour, red...; then the")
   add("colours in order. A miss or a foul ends the break. Fouls: in-off, no ball hit, the wrong")
   add("ball first or potted, a ball off the table. Colours potted on a foul are respotted.")
+  if match then
+    add("")
+    add("A match: you and the computer take turns to break off. A visit lasts while you pot; a miss")
+    add("or a foul passes the table over, and a foul gives the other player its points (at least 4).")
+    add("Once only the black is left, the first pot or foul ends the frame; the higher score wins it")
+    add("(level scores: the black is respotted, and the other player plays from the D). Not played")
+    add("here: the free ball, the miss rule, and asking the player who fouled to play again.")
+  end
   -- the keys (with the title) for the Shortcuts pane; what's going on, and
   -- the shot as it's set up, for the console
   local keys = { lines[1] }
@@ -1381,11 +1472,13 @@ local function shoot()
   return true
 end
 
--- The break is over (a miss or a foul): remember it if it's the highest.
+-- The break is over (a miss or a foul): remember it if it's the highest
+-- (in a match, only yours counts).
 local function endBreak()
   S.visits = S.visits + 1
   S.lastBreak = S.breakPts
-  if S.breakPts > S.highBreak then
+  local yours = S.game == "break" or (S.turn == 1 and not auto.on)
+  if yours and S.breakPts > S.highBreak then
     S.highBreak = S.breakPts
     if v.savePrefs then pcall(function() v:savePrefs(PREFS_PREFIX .. "highBreak", tostring(S.highBreak)) end) end
   end
@@ -1396,6 +1489,83 @@ end
 local function newBreakOn()
   if redsLeft() > 0 then return "red" end
   return lowestColour()
+end
+
+-- A match: someone has won the frame.
+local function frameOver(winner)
+  S.state = "over"
+  S.winner = winner
+  if auto.on then
+    S.autoFrames[winner] = S.autoFrames[winner] + 1
+    S.message = "CPU" .. winner .. " FRAME"
+  else
+    S.frames[winner] = S.frames[winner] + 1
+    savePref("frames" .. winner, S.frames[winner])
+    S.message = winner == 1 and "YOUR FRAME" or "CPU FRAME"
+  end
+  playSound("cleared")
+end
+
+-- A match: after the shot's foul, points and respotting are worked out (in
+-- shotOver), who has the table now, and is the frame over? A visit lasts
+-- while the player pots; a miss passes the table over; a foul gives the
+-- other player the penalty and the table. Once only the black is left, the
+-- first pot or foul ends the frame -- on level scores the black is respotted
+-- and the other player plays from the D.
+local function matchShotOver(foul, why, penalty, points, on)
+  local shooter = S.turn
+  local lastBlack = (on == 7)
+  if foul then
+    S.score[3 - shooter] = S.score[3 - shooter] + penalty
+    S.message = why .. " " .. penalty
+    endBreak()
+    S.turn = 3 - shooter
+    S.on = newBreakOn()
+  elseif points > 0 then
+    S.score[shooter] = S.score[shooter] + points
+    S.breakPts = S.breakPts + points
+    S.message = "BREAK " .. S.breakPts
+    if on == "red" then
+      S.on = "colour"
+    elseif on == "colour" then
+      S.on = (redsLeft() > 0) and "red" or 2
+    else
+      S.on = lowestColour()                 -- nil once the black is down
+    end
+  else
+    S.message = (S.breakPts > 0) and ("BREAK " .. S.breakPts .. " END") or "NO POT"
+    if #S.message > 12 then S.message = "BREAK " .. S.breakPts end
+    endBreak()
+    S.turn = 3 - shooter
+    S.on = newBreakOn()
+  end
+
+  if (lastBlack and (foul or points > 0)) or ballsLeft() == 0 or not S.on then
+    if points > 0 then endBreak() end
+    if S.score[1] == S.score[2] then
+      -- level: the black goes back on its spot, and the other player plays
+      -- from the D
+      local b = balls[COLOUR_BALL[7]]
+      if not b.onTable then
+        removeFromTray(b.n)
+        respotColour(b)
+        arrangeTray()
+      end
+      S.on = 7
+      S.turn = 3 - shooter
+      S.message = "RESPOT BLACK"
+      S.state = "inhand"
+      cueToHand()
+    else
+      frameOver(S.score[1] > S.score[2] and 1 or 2)
+    end
+  elseif S.scratched then
+    S.state = "inhand"
+    cueToHand()
+  else
+    S.state = "aim"
+  end
+  S.dirty = true
 end
 
 -- When every ball has stopped: was it a foul, what did it score, what's on?
@@ -1453,6 +1623,7 @@ local function shotOver()
   end
   arrangeTray()
 
+  if S.game == "match" then return matchShotOver(foul, why, penalty, points, on) end
   if foul then
     S.fouls = S.fouls + 1
     S.foulPts = S.foulPts + penalty
@@ -1571,7 +1742,7 @@ end
 -- every key the table uses (so bpp's own shortcuts don't fire on them)
 local OUR_KEYS = {}
 for _, k in ipairs({ "Left", "Right", "Up", "Down", ",", ".", "<", ">", "W", "S", "A", "D",
-                     "C", "E", "Q", "G", "V", "B", "T", "N", "R", "P", "Space", "Return", "Enter" }) do
+                     "C", "E", "Q", "G", "V", "B", "T", "N", "R", "M", "P", "Space", "Return", "Enter" }) do
   OUR_KEYS[k] = true
 end
 
@@ -1585,7 +1756,7 @@ local function onKey(N, key, down)
     if down then auto.toggle() end
     return true
   end
-  if auto.on and PLAY_KEYS[key] then return true end
+  if cpuTurn() and PLAY_KEYS[key] then return true end
   local slide, act = keyAction(key)
   if slide then
     if down then
@@ -1640,6 +1811,14 @@ local function onKey(N, key, down)
     rack()
     return true
   end
+  if key == "M" then
+    -- the other game, from a fresh rack
+    S.game = (S.game == "match") and "break" or "match"
+    savePref("game", S.game)
+    auto.phase = "idle"
+    rack()
+    return true
+  end
   return OUR_KEYS[key] or false
 end
 if v.onKey then v:onKey(onKey) end
@@ -1674,22 +1853,40 @@ local shown = {}
 local lastHelp = nil
 
 local function refreshNow()
-  -- scoreboard
-  local want = {
-    breakPts = tostring(S.breakPts),
-    high = tostring(S.highBreak),
-    points = tostring(S.framePts),
-    message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or ""),
-  }
+  -- scoreboard: alone, the break, the highest break and the frame's points;
+  -- in a match, the players' scores with the break between them
+  local want
+  if S.game == "match" then
+    local whose = auto.on and ("CPU" .. S.turn) or (S.turn == 1 and "YOUR" or "CPU")
+    want = {
+      label1 = auto.on and "CP1" or "YOU",
+      breakPts = tostring(S.score[1]),
+      label2 = "BRK",
+      high = tostring(S.breakPts),
+      label3 = auto.on and "CP2" or "CPU",
+      points = tostring(S.score[2]),
+      message = (S.message ~= "" and S.message) or (S.state == "over" and "" or whose .. " SHOT"),
+    }
+  else
+    want = {
+      label1 = "BREAK",
+      breakPts = tostring(S.breakPts),
+      label2 = "HIGH",
+      high = tostring(S.highBreak),
+      label3 = "PTS",
+      points = tostring(S.framePts),
+      message = (S.message ~= "" and S.message) or (auto.on and "AUTO" or ""),
+    }
+  end
   for k, text in pairs(want) do
     if shown[k] ~= text then
       shown[k] = text
-      board[k].set(text, k ~= "message")
+      board[k].set(text, k ~= "message" and k:sub(1, 5) ~= "label")
     end
   end
   board.setForce(S.power)
   board.spinDot(S.spinX, S.spinY)
-  board.setOn(S.state ~= "cleared" and S.on or nil)
+  board.setOn((S.state ~= "cleared" and S.state ~= "over") and S.on or nil)
   -- cue, guide and camera
   if S.state == "aim" or S.state == "inhand" then
     if S.state == "aim" then placeCue(1.0 + 16 * S.power) else cue.hide() end
@@ -1984,20 +2181,31 @@ end
 function auto.toggle()
   auto.on = not auto.on
   auto.phase = "idle"
-  if auto.on and S.state == "cleared" then rack() end
+  if S.message == "AUTO" then S.message = "" end
+  if auto.on and (S.state == "cleared" or S.state == "over") then rack() end
   S.dirty = true
 end
 
--- One step of auto-play, from the draw loop.
+-- One step of the computer's play, from the draw loop: its own visits in a
+-- match, and everything with auto-play on.
+local AUTO_RERACK = 3              -- seconds to show the result before a new frame
 function auto.tick()
-  if not auto.on then return end
   local t = now()
   local st = S.state
-  if st == "cleared" then
-    auto.on = false                      -- the frame is done: stop and show the score
-    S.dirty = true
+  if st == "cleared" or st == "over" then
+    -- the frame is done: with auto-play on, a moment to show the result,
+    -- then the next frame (it plays on by itself, frame after frame)
+    if auto.on then
+      auto.overAt = auto.overAt or t
+      if t - auto.overAt >= AUTO_RERACK then
+        auto.overAt, auto.phase = nil, "idle"
+        rack()
+      end
+    end
     return
   end
+  auto.overAt = nil
+  if not cpuTurn() then auto.phase = "idle"; return end
   if auto.phase == "idle" then
     -- start thinking (see "thinking a little at a time"); it carries on
     -- below, this frame and the next few
@@ -2364,6 +2572,7 @@ TF = {
   place = function(n, x, z) balls[n].onTable = true; placeBall(balls[n], x, z) end,
   pot = potBall, rack = rack, auto = auto, planStart = planStart, planStep = planStep, predict = predictCueBall, cast = castCueBall,
   isOn = isOn, inD = inD, shotOver = shotOver, helpText = helpText, refresh = refresh,
+  setGame = function(game) S.game = game; auto.phase = "idle"; rack() end, cpuTurn = cpuTurn,
   respotColour = respotColour, redsLeft = redsLeft,
   setView = function(view) S.view = view; setView() end,
 }
