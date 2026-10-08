@@ -21,6 +21,7 @@ v.pre_sdl = [==[
 #include "bpp_CIE.inc"
 #include "bpp_espd_cie_standard.inc"
 #include "bpp_espd_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
 
 #include "finish.inc"
 #include "textures.inc"
