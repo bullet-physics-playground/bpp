@@ -350,6 +350,12 @@ own) so the scripts can't interfere with each other:
   little at a time as the scripts make garbage (its time shows in theirs,
   and the meter's "garbage" figure stays near 0), and the games skip their
   own collections. Everything below applies only to an older bpp.
+  The less garbage, the shorter the one step of each collection that
+  can't be split up, so the tables place their cue, aiming guide and spin
+  dot (and the room moves the games' objects) with Bullet vectors and
+  transforms they fill in again each time rather than new ones. With every
+  table playing itself the room makes about 8 KB of garbage a frame
+  (it was about 25).
 - **Garbage.** bpp keeps Lua's garbage collector stopped, and each game
   normally collects everything every couple of seconds. The games share one
   Lua heap here, so each of those collections would clear the whole room's

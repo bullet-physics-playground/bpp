@@ -125,6 +125,22 @@ local function addVisual(obj)
   return obj
 end
 local yAxis = btVector3(0, 1, 0)
+-- Scratch Bullet objects for what's placed every frame (the cue, the
+-- aiming guide, the spin dot): filled in and handed over, as bpp copies
+-- them. New ones every time were garbage of the kind Lua's collector must
+-- stop everything to sweep up.
+local scratchV, scratchT = btVector3(0, 0, 0), btTransform()
+local function vec(x, y, z)
+  scratchV.x = x; scratchV.y = y; scratchV.z = z
+  return scratchV
+end
+local function trans(q, x, y, z)
+  scratchT:setRotation(q)
+  scratchT:setOrigin(vec(x, y, z))
+  return scratchT
+end
+local HIDDEN = btVector3(0, -150, 0)     -- (out of sight under the floor)
+local dashQ = btQuaternion(0, 0, 0, 1)   -- (the aiming guide's dashes)
 local UPRIGHT = btQuaternion(btVector3(1, 0, 0), math.pi / 2)   -- cylinder axis up
 
 -- ---------------------------------------------------------------------
@@ -383,9 +399,9 @@ local selector = disc(0, -150, 0, K.R + 1.0, "#ffd400")
 local function showSelector(b)
   if b then
     local x, z = ballXZ(b)
-    selector.trans = btTransform(UPRIGHT, btVector3(x, 0.07, z))
+    selector.trans = trans(UPRIGHT, x, 0.07, z)
   else
-    selector.pos = btVector3(0, -150, 0)
+    selector.pos = HIDDEN
   end
 end
 
@@ -547,9 +563,9 @@ do
   local dot = Cylinder(1.0 * SC, 0.3, 0)
   dot.col = "#1d5c9e"
   v:add(dot)
+  local SIDEWAYS = btQuaternion(yAxis, math.pi / 2)
   board.spinDot = function(sx, sy)
-    dot.trans = btTransform(btQuaternion(yAxis, math.pi / 2),
-                            btVector3(PX - 0.5, Y(36) + sy * 6 * SC * K.MAX_TIP, (42 + sx * 6 * K.MAX_TIP) * SC))
+    dot.trans = trans(SIDEWAYS, PX - 0.5, Y(36) + sy * 6 * SC * K.MAX_TIP, (42 + sx * 6 * K.MAX_TIP) * SC)
   end
   board.spinDot(0, 0)
   board.setForce = function(p)
@@ -584,21 +600,24 @@ do
 end
 
 -- Quaternion taking +Z to the unit vector (bx, by, bz).
+local cueQ = btQuaternion(0, 0, 0, 1)
 local function quatFromZ(bx, by, bz)
-  if bz < -0.9999 then return btQuaternion(yAxis, math.pi) end
+  if bz < -0.9999 then cueQ:setRotation(yAxis, math.pi); return cueQ end
   local w = 1 + bz
   local x, y = -by, bx
   local l = math.sqrt(x * x + y * y + w * w)
-  return btQuaternion(x / l, y / l, 0, w / l)
+  cueQ:setValue(x / l, y / l, 0, w / l)
+  return cueQ
 end
 
 -- Put the cue with its tip at (tx, ty, tz), running back along (bx, by, bz).
 function cue.place(tx, ty, tz, bx, by, bz)
-  local t = btTransform(quatFromZ(bx, by, bz), btVector3(tx, ty, tz))
+  local t = trans(quatFromZ(bx, by, bz), tx, ty, tz)
   for _, m in ipairs(cue.parts) do m.trans = t end
 end
+local CUE_HIDDEN = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -200, 0))
 function cue.hide()
-  local t = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -200, 0))
+  local t = CUE_HIDDEN
   for _, m in ipairs(cue.parts) do m.trans = t end
 end
 
@@ -621,7 +640,7 @@ do
   guide.ghost.col = "#ffffff"
   guide.ghost.transparency = 0.6
   guide.ghost.pov_export = false
-  guide.ghost.pos = btVector3(0, -150, 0)
+  guide.ghost.pos = HIDDEN
   addVisual(guide.ghost)
 end
 
@@ -631,22 +650,23 @@ function guide.line(x1, z1, x2, z2, col)
   local len = math.sqrt(dx * dx + dz * dz)
   if len < 0.5 then return end
   local ux, uz = dx / len, dz / len
-  local q = btQuaternion(yAxis, math.atan2(ux, uz))
+  local q = dashQ
+  q:setRotation(yAxis, math.atan2(ux, uz))
   local s = math.min(1.2, len / 2)
   while s < len and guide.used < #guide.dashes do
     guide.used = guide.used + 1
     local c = guide.dashes[guide.used]
     local m = math.min(s + 0.8, len)
-    c.trans = btTransform(q, btVector3(x1 + ux * m, 0.35, z1 + uz * m))
+    c.trans = trans(q, x1 + ux * m, 0.35, z1 + uz * m)
     if c.col ~= col then c.col = col end
     s = s + 3.2
   end
 end
 
 function guide.clear()
-  for i = 1, guide.used do guide.dashes[i].pos = btVector3(0, -150, 0) end
+  for i = 1, guide.used do guide.dashes[i].pos = HIDDEN end
   guide.used = 0
-  guide.ghost.pos = btVector3(0, -150, 0)
+  guide.ghost.pos = HIDDEN
 end
 
 -- A dashed line along a path of points.
@@ -733,11 +753,13 @@ local function planPace()
     for i, k in ipairs(PLAN_STATE) do planShown[i] = k[1][k[2]]; k[1][k[2]] = mine[i] end
   end
 end
-local function freezeXZ()
-  local f = {}
+-- (into f, if given: refresh() fills the same one every time)
+local function freezeXZ(f)
+  f = f or {}
   for _, b in pairs(balls) do
     local x, y, z = posXYZ(b.obj)
-    f[b] = { x, z, y }
+    local p = f[b]
+    if p then p[1], p[2], p[3] = x, z, y else f[b] = { x, z, y } end
   end
   return f
 end
@@ -1248,6 +1270,15 @@ local function traceAfter(s, v2, slide)
   local a1 = math.min(s, slide)
   return v2 - 2 * MU_G * a1 - 2 * K.ROLL_DECEL * math.max(0, s - slide)
 end
+-- (its answer is one table, filled in afresh each time: the computer
+-- player calls it thousands of times a turn and reads each answer at once,
+-- so a new table every time was only garbage)
+local traced = {}
+local function answer(kind, x, z, first, bounces, skipped, hit, cup)
+  local r = traced
+  r.kind, r.x, r.z, r.first, r.bounces, r.skipped, r.hit, r.cup = kind, x, z, first, bounces, skipped, hit, cup
+  return r
+end
 local function trace(x, z, dx, dz, v0, skip)
   local v2 = v0 * v0
   local slide = 12 / 49 * v0 * v0 / MU_G        -- sliding still to do
@@ -1306,9 +1337,9 @@ local function trace(x, z, dx, dz, v0, skip)
     slide = math.max(0, slide - best)
     v2 = nv2
     if kind == "stop" then
-      return { kind = "stop", x = x, z = z, first = first, bounces = bounces, skipped = skipped }
+      return answer("stop", x, z, first, bounces, skipped)
     elseif kind == "ball" then
-      return { kind = "ball", x = x, z = z, hit = obj, first = first or "ball", bounces = bounces, skipped = skipped }
+      return answer("ball", x, z, first or "ball", bounces, skipped, obj)
     elseif kind == "cup" then
       -- across the hole: does it fall before the far edge?
       local cup = CUPS[obj]
@@ -1323,7 +1354,7 @@ local function trace(x, z, dx, dz, v0, skip)
         falls = 0.5 * K.G * tt * tt > K.CUP_DROP
       end
       if falls then
-        return { kind = "cup", cup = obj, x = cup.x, z = cup.z, first = first, bounces = bounces }
+        return answer("cup", cup.x, cup.z, first, bounces, nil, nil, obj)
       end
       x, z = x + dx * (L + 0.01), z + dz * (L + 0.01)
       skipped = skipped or {}
@@ -1346,12 +1377,12 @@ local function trace(x, z, dx, dz, v0, skip)
       end
       v2 = vx * vx + vz * vz
       local l = math.sqrt(v2)
-      if l < 1e-6 then return { kind = "stop", x = x, z = z, first = first, bounces = bounces, skipped = skipped } end
+      if l < 1e-6 then return answer("stop", x, z, first, bounces, skipped) end
       dx, dz = vx / l, vz / l
       slide = 0
     end
   end
-  return { kind = "stop", x = x, z = z, first = first, bounces = bounces, skipped = skipped }
+  return answer("stop", x, z, first, bounces, skipped)
 end
 
 local function drawGuide()
@@ -1362,9 +1393,9 @@ local function drawGuide()
   if kind == "cup" then col = (cup == S.turn) and "#7cfc00" or "#ff5a4f" end
   guide.path(path, col)
   if kind == "cup" then
-    guide.ghost.pos = btVector3(CUPS[cup].x, K.R, CUPS[cup].z)
+    guide.ghost.pos = vec(CUPS[cup].x, K.R, CUPS[cup].z)
   else
-    guide.ghost.pos = btVector3(gx, K.R, gz)
+    guide.ghost.pos = vec(gx, K.R, gz)
   end
   if guide.ghost.col ~= col then guide.ghost.col = col end
   if kind == "ball" then
@@ -1929,9 +1960,10 @@ end
 -- (nothing moves while the picture is brought up to date, and the aiming
 -- guide alone reads each ball's position tens of thousands of times: read
 -- them once, here)
+local refreshXZ = {}
 local function refresh()
   if frozenXZ then return refreshNow() end
-  frozenXZ = freezeXZ()
+  frozenXZ = freezeXZ(refreshXZ)
   local ok, err = pcall(refreshNow)
   frozenXZ = nil
   if not ok then error(err, 0) end
@@ -1961,23 +1993,25 @@ local function gauss()
 end
 
 -- A clear straight run from (x, z) to a side's cup?
+-- (is (px, pz) within r of the run from (x, z) along (dx, dz)? Out here,
+-- not made afresh on each of the planner's thousands of calls)
+local function blocked(x, z, dx, dz, L2, px, pz, r)
+  local t = L2 > 0 and clamp(((px - x) * dx + (pz - z) * dz) / L2, 0, 1) or 0
+  local qx, qz = x + dx * t - px, z + dz * t - pz
+  return qx * qx + qz * qz < r * r
+end
 local function laneToCup(x, z, side, skip)
   local c = CUPS[side]
   local dx, dz = c.x - x, c.z - z
   local L2 = dx * dx + dz * dz
-  local function blocked(px, pz, r)
-    local t = L2 > 0 and clamp(((px - x) * dx + (pz - z) * dz) / L2, 0, 1) or 0
-    local qx, qz = x + dx * t - px, z + dz * t - pz
-    return qx * qx + qz * qz < r * r
-  end
   for _, bp in ipairs(BUMPERS) do
-    if blocked(bp[1], bp[2], K.R + K.RB) then return false end
+    if blocked(x, z, dx, dz, L2, bp[1], bp[2], K.R + K.RB) then return false end
   end
   for n = 1, NB do
     local b = balls[n]
     if b.onTable and n ~= skip then
       local bx, bz = ballXZ(b)
-      if blocked(bx, bz, K.D) then return false end
+      if blocked(x, z, dx, dz, L2, bx, bz, K.D) then return false end
     end
   end
   return true
@@ -2342,9 +2376,9 @@ v:postSim(function(N)
       sk.y = sk.y + sk.vy * K.FRAME
       if sk.frames > 14 then
         sk.frames = -1
-        sk.obj.pos = btVector3(0, -150, 0)
+        sk.obj.pos = HIDDEN
       else
-        sk.obj.pos = btVector3(sk.x, sk.y, sk.z)
+        sk.obj.pos = vec(sk.x, sk.y, sk.z)
       end
     end
   end

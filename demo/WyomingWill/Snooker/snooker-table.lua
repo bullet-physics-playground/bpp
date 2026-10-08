@@ -128,6 +128,22 @@ local function addVisual(obj)
   return obj
 end
 local yAxis = btVector3(0, 1, 0)
+-- Scratch Bullet objects for what's placed every frame (the cue, the
+-- aiming guide, the spin dot): filled in and handed over, as bpp copies
+-- them. New ones every time were garbage of the kind Lua's collector must
+-- stop everything to sweep up.
+local scratchV, scratchT = btVector3(0, 0, 0), btTransform()
+local function vec(x, y, z)
+  scratchV.x = x; scratchV.y = y; scratchV.z = z
+  return scratchV
+end
+local function trans(q, x, y, z)
+  scratchT:setRotation(q)
+  scratchT:setOrigin(vec(x, y, z))
+  return scratchT
+end
+local HIDDEN = btVector3(0, -150, 0)     -- (out of sight under the floor)
+local dashQ = btQuaternion(0, 0, 0, 1)   -- (the aiming guide's dashes)
 local UPRIGHT = btQuaternion(btVector3(1, 0, 0), math.pi / 2)   -- cylinder axis up
 
 
@@ -559,9 +575,9 @@ do
   local dot = Cylinder(1.0 * SC, 0.3, 0)
   dot.col = "#c62828"
   v:add(dot)
+  local SIDEWAYS = btQuaternion(yAxis, math.pi / 2)
   board.spinDot = function(sx, sy)
-    dot.trans = btTransform(btQuaternion(yAxis, math.pi / 2),
-                            btVector3(PX - 0.5, Y(36) + sy * 6 * SC * K.MAX_TIP, (42 + sx * 6 * K.MAX_TIP) * SC))
+    dot.trans = trans(SIDEWAYS, PX - 0.5, Y(36) + sy * 6 * SC * K.MAX_TIP, (42 + sx * 6 * K.MAX_TIP) * SC)
   end
   board.spinDot(0, 0)
   board.setForce = function(p)
@@ -613,21 +629,24 @@ do
 end
 
 -- Quaternion taking +Z to the unit vector (bx, by, bz).
+local cueQ = btQuaternion(0, 0, 0, 1)
 local function quatFromZ(bx, by, bz)
-  if bz < -0.9999 then return btQuaternion(yAxis, math.pi) end
+  if bz < -0.9999 then cueQ:setRotation(yAxis, math.pi); return cueQ end
   local w = 1 + bz
   local x, y = -by, bx
   local l = math.sqrt(x * x + y * y + w * w)
-  return btQuaternion(x / l, y / l, 0, w / l)
+  cueQ:setValue(x / l, y / l, 0, w / l)
+  return cueQ
 end
 
 -- Put the cue with its tip at (tx, ty, tz), running back along (bx, by, bz).
 function cue.place(tx, ty, tz, bx, by, bz)
-  local t = btTransform(quatFromZ(bx, by, bz), btVector3(tx, ty, tz))
+  local t = trans(quatFromZ(bx, by, bz), tx, ty, tz)
   for _, m in ipairs(cue.parts) do m.trans = t end
 end
+local CUE_HIDDEN = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -200, 0))
 function cue.hide()
-  local t = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -200, 0))
+  local t = CUE_HIDDEN
   for _, m in ipairs(cue.parts) do m.trans = t end
 end
 
@@ -650,7 +669,7 @@ do
   guide.ghost.col = "#ffffff"
   guide.ghost.transparency = 0.6
   guide.ghost.pov_export = false
-  guide.ghost.pos = btVector3(0, -150, 0)
+  guide.ghost.pos = HIDDEN
   addVisual(guide.ghost)
 end
 
@@ -660,22 +679,23 @@ function guide.line(x1, z1, x2, z2, col)
   local len = math.sqrt(dx * dx + dz * dz)
   if len < 0.5 then return end
   local ux, uz = dx / len, dz / len
-  local q = btQuaternion(yAxis, math.atan2(ux, uz))
+  local q = dashQ
+  q:setRotation(yAxis, math.atan2(ux, uz))
   local s = math.min(1.2, len / 2)
   while s < len and guide.used < #guide.dashes do
     guide.used = guide.used + 1
     local c = guide.dashes[guide.used]
     local m = math.min(s + 0.8, len)
-    c.trans = btTransform(q, btVector3(x1 + ux * m, 0.35, z1 + uz * m))
+    c.trans = trans(q, x1 + ux * m, 0.35, z1 + uz * m)
     if c.col ~= col then c.col = col end
     s = s + 3.2
   end
 end
 
 function guide.clear()
-  for i = 1, guide.used do guide.dashes[i].pos = btVector3(0, -150, 0) end
+  for i = 1, guide.used do guide.dashes[i].pos = HIDDEN end
   guide.used = 0
-  guide.ghost.pos = btVector3(0, -150, 0)
+  guide.ghost.pos = HIDDEN
 end
 
 -- Where the cue ball, sent from (cx, cz) along (dx, dz), first meets a ball
@@ -800,11 +820,13 @@ local function planPace()
     for i, k in ipairs(PLAN_STATE) do planShown[i] = k[1][k[2]]; k[1][k[2]] = mine[i] end
   end
 end
-local function freezeXZ()
-  local f = {}
+-- (into f, if given: refresh() fills the same one every time)
+local function freezeXZ(f)
+  f = f or {}
   for _, b in pairs(balls) do
     local x, _, z = posXYZ(b.obj)
-    f[b] = { x, z }
+    local p = f[b]
+    if p then p[1], p[2] = x, z else f[b] = { x, z } end
   end
   return f
 end
@@ -1081,8 +1103,8 @@ local function cueClears(e, gap)
   for n = 1, NB do
     local b = balls[n]
     if b.onTable then
-      local p = b.obj.pos
-      local vx, vy, vz = p.x - px, p.y - py, p.z - pz
+      local bx2, by2, bz2 = posXYZ(b.obj)
+      local vx, vy, vz = bx2 - px, by2 - py, bz2 - pz
       -- (from where the tip meets the cue ball, so the stroke clears too)
       local sB = math.max(-gap, math.min(CUE_LEN, vx * bx + vy * by + vz * bz))
       local qx, qy, qz = vx - bx * sB, vy - by * sB, vz - bz * sB
@@ -1251,7 +1273,7 @@ local function drawGuide()
   -- red: the first ball it would hit isn't on (a foul)
   local wrong = hit and not isOn(hit)
   guide.path(path, wrong and "#ff5a4f" or "#ffffff")
-  guide.ghost.pos = btVector3(gx, K.R, gz)
+  guide.ghost.pos = vec(gx, K.R, gz)
   local gcol = wrong and "#ff3b30" or "#ffffff"
   if guide.ghost.col ~= gcol then guide.ghost.col = gcol end
   if hit then
@@ -1903,9 +1925,10 @@ end
 -- (nothing moves while the picture is brought up to date, and the aiming
 -- guide alone reads each ball's position tens of thousands of times: read
 -- them once, here)
+local refreshXZ = {}
 local function refresh()
   if frozenXZ then return refreshNow() end
-  frozenXZ = freezeXZ()
+  frozenXZ = freezeXZ(refreshXZ)
   local ok, err = pcall(refreshNow)
   frozenXZ = nil
   if not ok then error(err, 0) end
