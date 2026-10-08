@@ -3701,20 +3701,20 @@ void Viewer::cullObjects() {
       continue;
     // (how far until the whole box is past everything in view, along d;
     // with something in view that can't be boxed, all the way)
-    btScalar far = btScalar(BT_LARGE_FLOAT);
+    btScalar reach = btScalar(BT_LARGE_FLOAT);
     if (!unboxedInView) {
       for (int k = 0; k < 3; ++k) {
         if (d[k] < 0)
-          far = btMin(far, (viewLo[k] - x.hi[k]) / d[k]);
+          reach = btMin(reach, (viewLo[k] - x.hi[k]) / d[k]);
         else if (d[k] > 0)
-          far = btMin(far, (viewHi[k] - x.lo[k]) / d[k]);
+          reach = btMin(reach, (viewHi[k] - x.lo[k]) / d[k]);
       }
-      far = btMax(far, btScalar(0));
+      reach = btMax(reach, btScalar(0));
     }
     btVector3 lo = x.lo - btVector3(blur, blur, blur), hi = x.hi + btVector3(blur, blur, blur);
     btVector3 slo = lo, shi = hi;
-    slo.setMin(lo + d * far);
-    shi.setMax(hi + d * far);
+    slo.setMin(lo + d * reach);
+    shi.setMax(hi + d * reach);
     x.o->drawInShadow = !outside(slo, shi);
   }
 }
