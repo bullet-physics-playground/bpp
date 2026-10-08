@@ -359,6 +359,7 @@ local function makeGame(name, dir, offset, opts)
           if ok and body then
             g.bodies[#g.bodies + 1] = body
             g.bodyObj[body] = r
+            g.moving = nil                  -- (the list of its moving bodies: made again)
             applyGravity(body)
             if opts.awake and not body:isStaticObject() then body:forceActivationState(4) end   -- DISABLE_DEACTIVATION
           end
@@ -374,6 +375,7 @@ local function makeGame(name, dir, offset, opts)
             for i = #g.bodies, 1, -1 do
               if rawequal(g.bodyObj[g.bodies[i]], r) then g.bodyObj[g.bodies[i]] = nil; table.remove(g.bodies, i) end
             end
+            g.moving = nil
           end
           g.objects[r] = nil
           realV:remove(r)
@@ -644,17 +646,30 @@ local function makeGame(name, dir, offset, opts)
   -- nothing and keep their velocities), and its per-frame callbacks aren't
   -- called, until it's resumed. Its frame count N stops too, so it sees
   -- its own frames one after another, as it does on its own.
+  -- (only the bodies that can move: most of a game's -- rails, walls, the
+  -- scoreboard's segments -- never do, and going through all of them, some
+  -- 3,000 in the room, each time the clock or another game with its own
+  -- physics took a step cost half a millisecond. The list is made when
+  -- first needed, and again after the game adds or removes something.)
+  local function movingBodies()
+    if not g.moving then
+      local list = {}
+      for _, b in ipairs(g.bodies) do
+        if not b:isStaticObject() then list[#list + 1] = b end
+      end
+      g.moving = list
+    end
+    return g.moving
+  end
   g.setPaused = function(on)
     if on == (g.paused == true) then return end
     g.paused = on
     if on then
       local list = {}
-      for _, b in ipairs(g.bodies) do
-        if not b:isStaticObject() then
-          list[#list + 1] = b
-          list[#list + 1] = b:getActivationState()
-          b:forceActivationState(5)          -- DISABLE_SIMULATION
-        end
+      for _, b in ipairs(movingBodies()) do
+        list[#list + 1] = b
+        list[#list + 1] = b:getActivationState()
+        b:forceActivationState(5)          -- DISABLE_SIMULATION
       end
       g.saved = list
     else
