@@ -18,6 +18,10 @@ JoystickInterfaceSDL::JoystickInterfaceSDL(QObject* parent)
    #ifdef SDL1
       SDL_Init(SDL_INIT_JOYSTICK);
    #else
+      // Initialising the joystick starts SDL's event system, which takes over
+      // SIGINT and SIGTERM: its handlers only queue an SDL_QUIT event that bpp
+      // never reads, so Ctrl+C and kill would do nothing. Leave them alone.
+      SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
       SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC);
       //SDL_GameControllerAddMappingsFromFile("data/game/gamecontrollerdb.txt");
    #endif
