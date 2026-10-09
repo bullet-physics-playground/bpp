@@ -1387,18 +1387,22 @@ end
 -- Once a second the room's work per frame is measured (the tables'
 -- computer players' thinking counted at its usual cost: they think with
 -- whatever time is spare, so that's not a load). Over SUSPEND_ABOVE ms for
--- SUSPEND_AFTER seconds running: a game is suspended. With the last one
--- suspended added back, under RESUME_BELOW ms for RESUME_AFTER seconds
--- running: it's resumed. (The gap between the two keeps games from going
--- on and off; after each change the room waits two seconds before the
--- next.) AUTO_SUSPEND = false: never.
+-- SUSPEND_AFTER seconds running: a game is suspended. With the cheapest
+-- suspended game added back at its usual cost, under RESUME_BELOW ms for
+-- RESUME_AFTER seconds running: it's resumed. (The gap between the two
+-- keeps games from going on and off; after each change the room waits two
+-- seconds before the next.) AUTO_SUSPEND = false: never.
 --
 -- A game's cost: its scripts, and its physics. The clock and MORE_GAMES are
 -- timed stepping alone; the pinball machine and the tables share one step,
--- so theirs is shared out by how many of their bodies are moving.
+-- so theirs is shared out by how many of their bodies are moving. The game
+-- to suspend is the most expensive just then; to bring back, it's judged
+-- by its usual cost (an average over about the last 20 seconds it ran):
+-- judged by its cost when it was suspended -- in the middle of a break,
+-- say -- a table waiting for its next shot never seemed to fit back.
 if AUTO_SUSPEND == nil then AUTO_SUSPEND = true end
 SUSPEND_ABOVE = SUSPEND_ABOVE or 15.5
-RESUME_BELOW = RESUME_BELOW or 14
+RESUME_BELOW = RESUME_BELOW or 14.5
 SUSPEND_AFTER = SUSPEND_AFTER or 2
 RESUME_AFTER = RESUME_AFTER or 5
 suspendedList = {}                 -- (global for the meter above it and for tests)
@@ -1428,6 +1432,7 @@ function gameCosts(per)
       elseif g.ownPhysics then c = c + per(meter.physOwn[g] or 0)
       elseif seen > 0 then c = c + shared * (movingSeen[g] or 0) / seen end
       g.cost = c
+      g.usualCost = g.usualCost and (0.95 * g.usualCost + 0.05 * c) or c
     end
   end
   movingSeen = {}
@@ -1493,13 +1498,13 @@ local function pausedSign(g)
 end
 
 local function suspendGame(g, load)
-  g.suspended, g.costAtSuspend, g.suspendedAt = true, g.cost or 0, v:getTime()
+  g.suspended, g.suspendedAt = true, v:getTime()
   suspendedList[#suspendedList + 1] = g
   whose(nil)                             -- (stopped now)
   g.sign = pausedSign(g)
-  print(string.format("REC ROOM: %s suspended (about %.1f ms of each frame) -- the room needed %.1f ms a frame, " ..
-                      "more than a 60th of a second allows. It carries on from where it is when there's room, " ..
-                      "or when you go to it.", g.name, g.costAtSuspend, load))
+  print(string.format("REC ROOM: %s suspended (about %.1f ms of each frame just then) -- the room needed %.1f ms a " ..
+                      "frame, more than a 60th of a second allows. It carries on from where it is when there's " ..
+                      "room, or when you go to it.", g.name, g.cost or 0, load))
 end
 local function resumeGame(g, why)
   for i, x in ipairs(suspendedList) do if x == g then table.remove(suspendedList, i); break end end
@@ -1522,8 +1527,12 @@ function suspendTick(load, frameMs)
   if v:getTime() < suspendFrom then return end
   if settle > 0 then settle = settle - 1; return end
   overFor = (load > SUSPEND_ABOVE) and overFor + 1 or 0
-  local back = suspendedList[#suspendedList]
-  underFor = (back and load + back.costAtSuspend < RESUME_BELOW) and underFor + 1 or 0
+  -- (the one to bring back: the cheapest, by its usual cost)
+  local back
+  for _, g in ipairs(suspendedList) do
+    if not back or (g.usualCost or 0) < (back.usualCost or 0) then back = g end
+  end
+  underFor = (back and load + (back.usualCost or 0) < RESUME_BELOW) and underFor + 1 or 0
   if overFor >= SUSPEND_AFTER then
     local pick
     for _, g in ipairs(games) do
@@ -1533,7 +1542,8 @@ function suspendTick(load, frameMs)
     if pick then suspendGame(pick, load) end
     overFor, underFor, settle = 0, 0, 2
   elseif underFor >= RESUME_AFTER then
-    resumeGame(back, string.format(" (the room has room for it again: %.1f ms a frame without it)", load))
+    resumeGame(back, string.format(" (the room has room for it again: %.1f ms a frame without it, and it usually " ..
+                                   "takes about %.1f)", load, back.usualCost or 0))
     overFor, underFor, settle = 0, 0, 2
   end
 end

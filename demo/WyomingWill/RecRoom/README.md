@@ -321,8 +321,8 @@ a PAUSED sign over it, and carries on from there when there's room again,
 or the moment you walk over to it. Each change is noted in the console:
 
 ```
-REC ROOM: the walker suspended (about 2.3 ms of each frame) -- the room needed 17.8 ms a frame, ...
-REC ROOM: the walker resumed (the room has room for it again: 11.2 ms a frame without it)
+REC ROOM: the walker suspended (about 2.3 ms of each frame just then) -- the room needed 17.8 ms a frame, ...
+REC ROOM: the walker resumed (the room has room for it again: 12.2 ms a frame without it, and it usually takes about 1.1)
 ```
 
 So more games can be added to the room without slowing it down: at a
@@ -332,14 +332,18 @@ the busiest of the rest wait their turn.
 - **When.** Once a second the room measures its work per frame (the
   tables' computer players' thinking counted at its usual cost: they think
   with whatever time is spare). Over `SUSPEND_ABOVE` (15.5 ms) for
-  `SUSPEND_AFTER` (2) seconds running, a game is suspended. With the last
-  one suspended added back, under `RESUME_BELOW` (14 ms) for `RESUME_AFTER`
-  (5) seconds running, it's resumed. After each change the room waits two
-  seconds before the next. `AUTO_SUSPEND = false` turns it off.
+  `SUSPEND_AFTER` (2) seconds running, the most expensive game just then
+  is suspended. With the cheapest suspended game added back at its usual
+  cost, under `RESUME_BELOW` (14.5 ms) for `RESUME_AFTER` (5) seconds
+  running, it's resumed. After each change the room waits two seconds
+  before the next. `AUTO_SUSPEND = false` turns it off.
 - **A game's cost.** Its scripts and its physics. The clock and the "More
   games" are timed stepping on their own; the pinball machine and the
   tables share one step, so that is shared out by how many of their
-  bodies are moving.
+  bodies are moving. Whether a game fits back is judged by its usual cost,
+  an average over about the last 20 seconds it ran, not by what it cost at
+  the moment it was suspended (a table in the middle of a break costs
+  several times what it does waiting for its next shot).
 - **While suspended.** Its moving parts are taken out of the simulation
   and its scripts aren't called, its computer player included. A game with
   its own physics isn't owed the time it was away. A few of the games'
