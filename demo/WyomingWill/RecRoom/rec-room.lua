@@ -36,7 +36,8 @@
 -- own. (An older bpp without v:stepSimulation means taking turns, frame by
 -- frame.) The
 -- room collects Lua's garbage a little every frame. Everything keeps running
--- wherever you stand.
+-- wherever you stand -- unless the room can't keep up, when the busiest
+-- game is suspended until there's room for it (see "suspending games").
 --
 -- FILES: the pinball and pool folders must sit next to this one (as
 -- pinball-machine-a/ and pool-table/, or Pinball/ and Pool/). The snooker
@@ -660,6 +661,7 @@ local function makeGame(name, dir, offset, opts)
     end
     return g.moving
   end
+  g.movingBodies = movingBodies
   g.setPaused = function(on)
     if on == (g.paused == true) then return end
     g.paused = on
@@ -1160,7 +1162,9 @@ if #extras > 0 then
   roomHelp = roomHelp .. "  and, from MORE_GAMES     -- " .. table.concat(names, ", ") .. "\n"
 end
 
+local resumeNow = function() end          -- (see "suspending games" below)
 local function goTo(g)
+  if g and g.suspended then resumeNow(g) end   -- (you've come to it: it plays)
   -- let go of any keys still held at the game we're leaving
   if active then
     for key in pairs(active.down) do
@@ -1283,7 +1287,7 @@ local clockTurn, lastWasClock = false, false
 -- own physics waiting
 local function whose(x)
   for _, g in ipairs(games) do
-    if x then g.setPaused(g ~= x) else g.setPaused(g == clock or g.ownPhysics == true) end
+    if x then g.setPaused(g ~= x) else g.setPaused(g == clock or g.ownPhysics == true or g.suspended == true) end
   end
   applyPhysics(x and x.physics or ROOM_PHYSICS)
 end
@@ -1367,8 +1371,175 @@ local function timingLine()
   if r == "" then return "" end
   return "  timing   " .. r .. "\n"
 end
+-- ---------------------------------------------------------------------
+-- suspending games when the room can't keep up
+-- ---------------------------------------------------------------------
+-- Everything runs all the time, wherever you stand -- as long as the room
+-- can do it all in a 60th of a second. When it can't (shadows on and every
+-- game playing itself, say), it suspends a game: the most expensive one
+-- just then, never the clock, and never the game you're at. A suspended
+-- game stops where it is -- its moving parts taken out of the simulation,
+-- its scripts not called -- with a PAUSED sign over it, and carries on from
+-- there when it's resumed: when there's room for it again, or the moment
+-- you walk over to it. (A game with its own physics isn't owed the time it
+-- was away.) Each change is noted in the console.
+--
+-- Once a second the room's work per frame is measured (the tables'
+-- computer players' thinking counted at its usual cost: they think with
+-- whatever time is spare, so that's not a load). Over SUSPEND_ABOVE ms for
+-- SUSPEND_AFTER seconds running: a game is suspended. With the last one
+-- suspended added back, under RESUME_BELOW ms for RESUME_AFTER seconds
+-- running: it's resumed. (The gap between the two keeps games from going
+-- on and off; after each change the room waits two seconds before the
+-- next.) AUTO_SUSPEND = false: never.
+--
+-- A game's cost: its scripts, and its physics. The clock and MORE_GAMES are
+-- timed stepping alone; the pinball machine and the tables share one step,
+-- so theirs is shared out by how many of their bodies are moving.
+if AUTO_SUSPEND == nil then AUTO_SUSPEND = true end
+SUSPEND_ABOVE = SUSPEND_ABOVE or 15.5
+RESUME_BELOW = RESUME_BELOW or 14
+SUSPEND_AFTER = SUSPEND_AFTER or 2
+RESUME_AFTER = RESUME_AFTER or 5
+suspendedList = {}                 -- (global for the meter above it and for tests)
+local overFor, underFor, settle = 0, 0, 0
+local movingSeen = {}              -- moving bodies counted, game by game, since the last second
+function sampleMoving()
+  for _, g in ipairs(games) do
+    if g ~= clock and not g.ownPhysics and not g.paused and g.movingBodies then
+      local n = 0
+      for _, b in ipairs(g.movingBodies()) do
+        local st = b:getActivationState()
+        if st == 1 or st == 3 or st == 4 then n = n + 1 end    -- (active, about to sleep, never sleeping)
+      end
+      movingSeen[g] = (movingSeen[g] or 0) + n
+    end
+  end
+end
+local TABLES = { [pool or 0] = true, [snooker or 0] = true, [bumper or 0] = true }
+function gameCosts(per)
+  local shared, seen = per(meter.physGames), 0
+  for _, n in pairs(movingSeen) do seen = seen + n end
+  for _, g in ipairs(games) do
+    if not g.suspended then
+      local c = per(meter.scripts[g] or 0)
+      if TABLES[g] then c = math.min(c, 0.7) end        -- (its thinking: see above)
+      if g == clock then c = c + per(meter.physClock)
+      elseif g.ownPhysics then c = c + per(meter.physOwn[g] or 0)
+      elseif seen > 0 then c = c + shared * (movingSeen[g] or 0) / seen end
+      g.cost = c
+    end
+  end
+  movingSeen = {}
+end
+
+-- the sign: PAUSED in lamps over the game, turned to the room view
+local SIGN_CH = { P = 115, A = 119, U = 62, S = 109, E = 121, D = 94 }
+local function pausedSign(g)
+  -- over the middle of its moving parts (or of all of it, if nothing moves),
+  -- above the highest part of it there
+  local function bounds(list)
+    local lo, hi
+    for _, b in ipairs(list) do
+      local p = b:getCenterOfMassPosition()
+      if not lo then lo, hi = { p.x, p.y, p.z }, { p.x, p.y, p.z }
+      else
+        lo[1], lo[2], lo[3] = math.min(lo[1], p.x), math.min(lo[2], p.y), math.min(lo[3], p.z)
+        hi[1], hi[2], hi[3] = math.max(hi[1], p.x), math.max(hi[2], p.y), math.max(hi[3], p.z)
+      end
+    end
+    return lo, hi
+  end
+  local lo, hi = bounds(g.movingBodies())
+  if not lo then lo, hi = bounds(g.bodies) end
+  if not lo then return {} end
+  local top = hi[2]
+  for _, b in ipairs(g.bodies) do
+    local p = b:getCenterOfMassPosition()
+    if p.x > lo[1] - 10 and p.x < hi[1] + 10 and p.z > lo[3] - 10 and p.z < hi[3] + 10 then top = math.max(top, p.y) end
+  end
+  local scale = 4
+  local cx, cy, cz = (lo[1] + hi[1]) / 2, top + 15 + 3.2 * scale, (lo[3] + hi[3]) / 2
+  local C = ROOM_VIEW.pos
+  local dx, dy, dz = C.x - cx, C.y - cy, C.z - cz
+  local yaw = math.atan2(dx, dz)
+  local tilt = -math.atan2(dy, math.sqrt(dx * dx + dz * dz))
+  local q = btQuaternion(btVector3(0, 1, 0), yaw) * btQuaternion(btVector3(1, 0, 0), tilt)
+  local cy_, sy_, ct, st = math.cos(yaw), math.sin(yaw), math.cos(tilt), math.sin(tilt)
+  local function at(lx, ly, lz)          -- a point of the sign, in the room
+    local y, z = ly * ct - lz * st, ly * st + lz * ct
+    return cx + lx * cy_ + z * sy_, cy + y, cz - lx * sy_ + z * cy_
+  end
+  local W, Hh, T = 1.9 * scale, 3.2 * scale, 0.28 * scale
+  local pitch = 3.1 * scale
+  local segs = { { 0, Hh / 2, W, T }, { W / 2, Hh / 4, T, Hh / 2 }, { W / 2, -Hh / 4, T, Hh / 2 },
+                 { 0, -Hh / 2, W, T }, { -W / 2, -Hh / 4, T, Hh / 2 }, { -W / 2, Hh / 4, T, Hh / 2 },
+                 { 0, 0, W, T } }
+  local text = "PAUSED"
+  local x0 = -(#text - 1) * pitch / 2
+  local parts = {}
+  local px, py, pz = at(0, 0, -0.9)
+  parts[1] = box(px, py, pz, #text * pitch + 2 * scale, Hh + 2 * scale, 0.6, "#1a0a00", q)   -- its backing
+  for k = 1, #text do
+    local bits = SIGN_CH[text:sub(k, k)] or 0
+    for i, sg in ipairs(segs) do
+      if bits % (2 * BITS[i]) >= BITS[i] then
+        local x, y, z = at(x0 + (k - 1) * pitch + sg[1], sg[2], 0)
+        parts[#parts + 1] = box(x, y, z, sg[3], sg[4], 0.8, "#ffb000", q)
+      end
+    end
+  end
+  return parts
+end
+
+local function suspendGame(g, load)
+  g.suspended, g.costAtSuspend, g.suspendedAt = true, g.cost or 0, v:getTime()
+  suspendedList[#suspendedList + 1] = g
+  whose(nil)                             -- (stopped now)
+  g.sign = pausedSign(g)
+  print(string.format("REC ROOM: %s suspended (about %.1f ms of each frame) -- the room needed %.1f ms a frame, " ..
+                      "more than a 60th of a second allows. It carries on from where it is when there's room, " ..
+                      "or when you go to it.", g.name, g.costAtSuspend, load))
+end
+local function resumeGame(g, why)
+  for i, x in ipairs(suspendedList) do if x == g then table.remove(suspendedList, i); break end end
+  g.suspended = false
+  -- (a game with its own physics isn't owed the time it was away)
+  if g.start then g.start = g.start + (v:getTime() - g.suspendedAt) end
+  if g.report and g.report.t then g.report.t = g.report.t + (v:getTime() - g.suspendedAt) end
+  for _, o in ipairs(g.sign or {}) do v:remove(o) end
+  g.sign = nil
+  whose(nil)
+  print("REC ROOM: " .. g.name .. " resumed" .. (why or ""))
+end
+resumeNow = function(g) resumeGame(g, " (you went to it)") end
+
+local suspendFrom = nil
+function suspendTick(load, frameMs)
+  if not AUTO_SUSPEND then return end
+  -- (not in the first 10 seconds: loading holds the first frames up)
+  suspendFrom = suspendFrom or v:getTime() + 10
+  if v:getTime() < suspendFrom then return end
+  if settle > 0 then settle = settle - 1; return end
+  overFor = (load > SUSPEND_ABOVE) and overFor + 1 or 0
+  local back = suspendedList[#suspendedList]
+  underFor = (back and load + back.costAtSuspend < RESUME_BELOW) and underFor + 1 or 0
+  if overFor >= SUSPEND_AFTER then
+    local pick
+    for _, g in ipairs(games) do
+      if g ~= clock and g ~= active and not g.suspended and not g.noSuspend and (g.cost or 0) > 0.2 and
+         (not pick or g.cost > pick.cost) then pick = g end
+    end
+    if pick then suspendGame(pick, load) end
+    overFor, underFor, settle = 0, 0, 2
+  elseif underFor >= RESUME_AFTER then
+    resumeGame(back, string.format(" (the room has room for it again: %.1f ms a frame without it)", load))
+    overFor, underFor, settle = 0, 0, 2
+  end
+end
+
 local function meterTick(t)
-  if not METER then return end
+  if not METER and not AUTO_SUSPEND then return end
   if not meter.t0 then meter.t0 = t; return end
   local el = (t - meter.t0) / 1000
   if el < 1 then return end
@@ -1418,14 +1589,18 @@ local function meterTick(t)
     for _, g in ipairs({ pool, snooker, bumper }) do
       if g then g.env.PLAN_BUDGET = thinkMs / 1000 end
     end
-    meterText = string.format(
+    gameCosts(per)
+    suspendTick(others, 1000 / budget)
+    local susp = {}
+    for _, g in ipairs(suspendedList) do susp[#susp + 1] = shortName(g) end
+    if METER then meterText = string.format(
       "COST METER -- ms per frame, averaged over the last second\n" ..
       "  %.0f frames a second: %.0f for the games, %.0f clock steps%s; longest frame %.0f ms\n" ..
       "  physics  games %.2f, clock %.2f%s\n" ..
       "  scripts  %s, room %.2f\n" ..
       "  garbage  %.2f      drawing %.2f      thinking up to %.1f\n" ..
       "%s%s" ..
-      "  busy     %.1f ms of each %.1f ms frame (%.0f%%)%s\n\n",
+      "  busy     %.1f ms of each %.1f ms frame (%.0f%%)%s\n%s\n",
       fps, meter.gameFrames / el, meter.clockFrames / el,
       clock and "" or " (no clock)", meter.longest,
       per(meter.physGames), per(meter.physClock), own,
@@ -1433,9 +1608,11 @@ local function meterTick(t)
       meter.gc / d, meter.draw / d, thinkMs,
       drawnLine(), timingLine(),
       busy, period, 100 * load,
-      (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "")
+      (load > 0.9 and fps < 0.95 * 1000 / budget) and "; the room can't keep up" or "",
+      #susp > 0 and ("  suspended " .. table.concat(susp, ", ") .. " (to keep up: see \"suspending games\")\n") or "")
+    end
   end
-  if METER_PRINT > 0 and (not lastPrint or t - lastPrint >= METER_PRINT * 1000) then
+  if METER and METER_PRINT > 0 and (not lastPrint or t - lastPrint >= METER_PRINT * 1000) then
     lastPrint = t
     print((meterText:gsub("\n\n$", "")))
   end
@@ -1450,7 +1627,7 @@ local function call(k, all)
   local err
   for _, g in ipairs(games) do
     local f = g.callbacks[k]
-    if f and (all or not g.paused) then
+    if f and not g.suspended and (all or not g.paused) then
       local t = now()
       local ok, e = pcall(f, g.N)
       meter.scripts[g] = (meter.scripts[g] or 0) + (now() - t)
@@ -1548,7 +1725,7 @@ v:postSim(function(N)
   if CAN_STEP then
     local turned = false
     for _, g in ipairs(games) do
-      if g == clock or g.ownPhysics then
+      if (g == clock or g.ownPhysics) and not g.suspended then
         local k = math.min(math.floor(owed(g)), MAX_CATCHUP)
         if k > 0 then
           whose(g)
@@ -1574,6 +1751,7 @@ v:postSim(function(N)
     for _, g in ipairs(extras) do if N % 15 == 0 then checkExtra(g) end end
   end
   roomTick(N)
+  if N % 10 == 0 then sampleMoving() end
   -- the view follows a game that walks about (moved, not turned, so the
   -- mouse still turns it round)
   if active and active.follow and active.lastMiddle and N % 2 == 0 then

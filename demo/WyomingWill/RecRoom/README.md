@@ -275,8 +275,9 @@ COST METER -- ms per frame, averaged over the last second
 - **busy:** all of the above, against the time each frame actually has
   (16.7 ms on a 60 Hz screen, which holds the room to 60 frames a second
   whatever it asks for). Near 100% the room can't keep up, and the meter
-  says so: the games slow down. The clock keeps its pace as long as it can
-  fit its steps in.
+  says so; it then suspends a game (see "Suspending games" below), and a
+  "suspended" line names those it has. The clock keeps its pace as long as
+  it can fit its steps in.
 
 While the simulation is paused, the meter says so and shows only the
 drawing and garbage time per drawn frame (bpp keeps drawing).
@@ -309,6 +310,42 @@ would overrun more and more through a long run (an overnight run saw the
 room's processor use climb from 65% to 90%), and the meter's late figures
 would be meaningless.
 
+## Suspending games
+
+Everything runs all the time, wherever you stand, as long as the room can
+do it all in a 60th of a second. When it can't (shadows on and every game
+playing itself, say, or more games than the computer can keep up with), it
+suspends a game: the most expensive one just then, but never the clock and
+never the game you're at. A suspended game stops exactly where it is, with
+a PAUSED sign over it, and carries on from there when there's room again,
+or the moment you walk over to it. Each change is noted in the console:
+
+```
+REC ROOM: the walker suspended (about 2.3 ms of each frame) -- the room needed 17.8 ms a frame, ...
+REC ROOM: the walker resumed (the room has room for it again: 11.2 ms a frame without it)
+```
+
+So more games can be added to the room without slowing it down: at a
+game, only that game and the clock need to run; looking round the room,
+the busiest of the rest wait their turn.
+
+- **When.** Once a second the room measures its work per frame (the
+  tables' computer players' thinking counted at its usual cost: they think
+  with whatever time is spare). Over `SUSPEND_ABOVE` (15.5 ms) for
+  `SUSPEND_AFTER` (2) seconds running, a game is suspended. With the last
+  one suspended added back, under `RESUME_BELOW` (14 ms) for `RESUME_AFTER`
+  (5) seconds running, it's resumed. After each change the room waits two
+  seconds before the next. `AUTO_SUSPEND = false` turns it off.
+- **A game's cost.** Its scripts and its physics. The clock and the "More
+  games" are timed stepping on their own; the pinball machine and the
+  tables share one step, so that is shared out by how many of their
+  bodies are moving.
+- **While suspended.** Its moving parts are taken out of the simulation
+  and its scripts aren't called, its computer player included. A game with
+  its own physics isn't owed the time it was away. A few of the games'
+  timers run on the real clock (the pause before a new rack, say), so one
+  that came due while it was away happens as soon as it's resumed.
+
 ## How it works
 
 `rec-room.lua` runs each game in its own sandbox (a Lua environment of its
@@ -338,12 +375,10 @@ own) so the scripts can't interfere with each other:
 - **Keys and sliders.** A game's keys, its keyboard shortcuts included,
   go to it only while you're at it. Its sliders are renamed in the Params
   pane when needed (the clock's gravity is `clock_gravity`).
-- **Resting tables.** The tables keep their balls awake on purpose, so on
-  their own they're solved 900 times a second even sitting still. Here, a
-  table that's waiting for a shot, with every ball still, has its balls
-  taken out of the simulation until the stroke begins (or anything moves
-  them). The table's own scripts, its computer player included, carry on
-  as usual.
+- **Resting tables.** The tables keep their balls awake on purpose, so
+  they'd be solved 900 times a second even sitting still. Each table takes
+  its balls out of the simulation itself while it waits for a shot with
+  every ball still, and puts them back as the stroke begins.
 - **Garbage, on a bpp that collects it itself.** A bpp built with the
   ownership fix (Oct 2026) keeps Lua's garbage collector running and sets
   `BPP_GC_AUTO`. The room then leaves garbage alone: the collector works a
