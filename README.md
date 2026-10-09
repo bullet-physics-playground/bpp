@@ -103,6 +103,27 @@ cache go. That is the only place it writes, so it also runs with a read-only
 root filesystem and all capabilities dropped. `/work` must be writable by the
 container's user: hence `--user` above, or `fsGroup` on a Kubernetes volume.
 
+A headless `-f` run starts in the container's working directory, not in the
+script's folder, so a script that loads files lying next to it (the meshes of
+the [Dzhanibekov demo](demo/WyomingWill/Dzhanibekov), say) fails with
+`... not found` unless its folder is the working directory. Without `-e`, set
+that with `-w`, which is `workingDir` in a Kubernetes container:
+
+```bash
+docker run --rm -w /usr/share/bpp/demo/WyomingWill/Dzhanibekov koppi/bpp \
+    -n 100 -f dzhanibekov.lua
+```
+
+An export is written to `export/` below the working directory, which has to be
+writable, and the installed demos are not. So with `-e`, mount the script's
+folder (or a copy of it) as `/work` instead:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" \
+    -v "$PWD/demo/WyomingWill/Dzhanibekov:/work" koppi/bpp \
+    -n 278 -e -f dzhanibekov.lua      # writes demo/WyomingWill/Dzhanibekov/export/
+```
+
 On Kubernetes, a Job that runs under the *restricted* Pod Security profile:
 
 ```yaml
