@@ -2061,7 +2061,8 @@ private:
   // The screen's merge (see setScreenMerge()).
   struct MergeBatch {
     QVector<Object *> objs;        ///< What's in it.
-    unsigned vbo = 0;              ///< Its vertices, on the graphics card.
+    unsigned vbo = 0;              ///< Its vertices, on the graphics card,
+    unsigned cvbo = 0;             ///< and their colours (apart: changed alone).
     int verts = 0;                 ///< How many.
     bool dirty = true;             ///< To be made again (objects came or went).
   };

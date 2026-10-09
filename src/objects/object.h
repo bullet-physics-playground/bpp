@@ -581,6 +581,8 @@ public:
   bool mergeDrawn = false;   ///< (and that batch is made: drawn from it).
   int mergeSteady = 0;       ///< Searches for more it has stayed the same.
   int mergeCell[3] = {0, 0, 0}; ///< The patch (batch) it's merged into.
+  int mergeFirst = 0;        ///< Where its vertices start in that batch,
+  int mergeVerts = 0;        ///< and how many (so its colour can be changed there).
   int mergeChanges = 0;      ///< Times it changed while merged.
   long mergeBanUntil = 0;    ///< Not merged again before this frame.
   btTransform mergeTrans;    ///< Where it was, and its colour, when

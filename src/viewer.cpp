@@ -3361,9 +3361,12 @@ void Viewer::freeMerge() {
   QOpenGLContext *c = QOpenGLContext::currentContext();
   const bool canDelete = c != nullptr && glCacheContext() == _mergeCtx &&
                          glCacheEpoch() == _mergeEpoch;
-  for (MergeBatch &b : _mergeBatches)
+  for (MergeBatch &b : _mergeBatches) {
     if (b.vbo != 0 && canDelete)
       c->functions()->glDeleteBuffers(1, &b.vbo);
+    if (b.cvbo != 0 && canDelete)
+      c->functions()->glDeleteBuffers(1, &b.cvbo);
+  }
   _mergeBatches.clear();
   for (Object *o : _mergeObjs)
     o->merged = o->mergeDrawn = false;
@@ -3387,6 +3390,7 @@ void Viewer::unmerge(Object *o) {
 void Viewer::buildMerge() {
   QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
   std::vector<MergeVertex> verts;
+  std::vector<quint32> colours;
   bool made = false;
   // (a few a frame, so no one frame does them all: what's in the others is
   // drawn one by one meanwhile)
@@ -3399,7 +3403,9 @@ void Viewer::buildMerge() {
     }
     if (b.vbo != 0)
       f->glDeleteBuffers(1, &b.vbo);
-    b.vbo = 0;
+    if (b.cvbo != 0)
+      f->glDeleteBuffers(1, &b.cvbo);
+    b.vbo = b.cvbo = 0;
     b.verts = 0;
     if (b.objs.isEmpty()) {
       it = _mergeBatches.erase(it);
@@ -3407,12 +3413,21 @@ void Viewer::buildMerge() {
     }
     --budget;
     verts.clear();
-    for (Object *o : b.objs)
+    for (Object *o : b.objs) {
+      o->mergeFirst = int(verts.size());
       mergeTriangles(o, verts);
+      o->mergeVerts = int(verts.size()) - o->mergeFirst;
+    }
     f->glGenBuffers(1, &b.vbo);
     f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
     f->glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(MergeVertex), verts.data(),
                     GL_STATIC_DRAW);
+    colours.resize(verts.size());
+    for (size_t k = 0; k < verts.size(); ++k)
+      memcpy(&colours[k], verts[k].c, 4);
+    f->glGenBuffers(1, &b.cvbo);
+    f->glBindBuffer(GL_ARRAY_BUFFER, b.cvbo);
+    f->glBufferData(GL_ARRAY_BUFFER, colours.size() * 4, colours.data(), GL_STATIC_DRAW);
     b.verts = int(verts.size());
     b.dirty = false;
     for (Object *o : b.objs)
@@ -3431,7 +3446,7 @@ void Viewer::updateMerge() {
   const void *ctx = glCacheContext();
   if (ctx != _mergeCtx || glCacheEpoch() != _mergeEpoch) {
     for (MergeBatch &b : _mergeBatches) {
-      b.vbo = 0;                         // (they went with their context)
+      b.vbo = b.cvbo = 0;                // (they went with their context)
       b.dirty = true;
       for (Object *o : b.objs)
         o->mergeDrawn = false;
@@ -3444,28 +3459,55 @@ void Viewer::updateMerge() {
       freeMerge();
     return;
   }
-  // What has changed since it was merged comes out (its batch made again):
-  // for ten seconds the first time, for good the second.
+  // What has moved since it was merged comes out (its batch made again):
+  // for ten seconds the first time, for good the second. What has only
+  // changed colour (a lamp, a scoreboard's segment) stays, and gets its new
+  // colour where it is in its batch: taken out for good after two changes,
+  // a blinking lamp was drawn on its own from then on, and the room's
+  // hundreds of lamps one by one cost more each frame than the rest of the
+  // merge saved (more still with the shadow shader on).
+  std::vector<quint32> recoloured;
+  bool bound = false;
   for (int k = 0; k < _mergeObjs.size(); ++k) {
     Object *o = _mergeObjs[k];
-    if (mergeable(o) && sameTrans(drawnTrans(o), o->mergeTrans) &&
-        memcmp(o->rgb(), o->mergeRgb, 3) == 0)
+    const bool still = mergeable(o) && sameTrans(drawnTrans(o), o->mergeTrans);
+    if (still && memcmp(o->rgb(), o->mergeRgb, 3) == 0)
       continue;
+    if (still) {
+      auto it = _mergeBatches.find(std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2]));
+      if (it != _mergeBatches.end() && it.value().cvbo != 0 && !it.value().dirty && o->mergeDrawn) {
+        // (its vertices' colours, as mergeTriangles() gives them)
+        const unsigned char *rgb = o->rgb();
+        const unsigned char c4[4] = {rgb[0], rgb[1], rgb[2], 255};
+        quint32 c;
+        memcpy(&c, c4, 4);
+        recoloured.assign(size_t(o->mergeVerts), c);
+        QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+        f->glBindBuffer(GL_ARRAY_BUFFER, it.value().cvbo);
+        f->glBufferSubData(GL_ARRAY_BUFFER, o->mergeFirst * 4, recoloured.size() * 4, recoloured.data());
+        bound = true;
+      }
+      // (a batch not made yet takes the colour it has when it's made)
+      memcpy(o->mergeRgb, o->rgb(), 3);
+      continue;
+    }
     unmerge(o);
     o->mergeBanUntil = ++o->mergeChanges >= 2 ? LONG_MAX : _mergeFrame + 600;
     _mergeObjs.removeAt(k--);
   }
-  // Once a second, more: what has stayed the same for five looks running
-  // goes into the batch of its patch.
+  if (bound)
+    QOpenGLContext::currentContext()->functions()->glBindBuffer(GL_ARRAY_BUFFER, 0);
+  // Once a second, more: what has stayed put for five looks running goes
+  // into the batch of its patch (whatever its colour does: see above).
   if (_mergeFrame % 60 == 0) {
     foreach (Object *o, *_objects) {
       if (o->merged || _mergeFrame < o->mergeBanUntil || !mergeable(o))
         continue;
       const btTransform t = drawnTrans(o);
-      if (o->mergeSteady > 0 && sameTrans(t, o->mergeTrans) &&
-          memcmp(o->rgb(), o->mergeRgb, 3) == 0) {
+      if (o->mergeSteady > 0 && sameTrans(t, o->mergeTrans)) {
         if (++o->mergeSteady < 5)
           continue;
+        memcpy(o->mergeRgb, o->rgb(), 3);
         const btVector3 &p = t.getOrigin();
         auto cell = [](btScalar x) { return int(std::floor(double(x) / 60.0)); };
         o->mergeCell[0] = cell(p.x());
@@ -3500,7 +3542,7 @@ void Viewer::drawMerged() {
   glEnableClientState(GL_COLOR_ARRAY);
   glEnable(GL_NORMALIZE);
   for (const MergeBatch &b : _mergeBatches) {
-    if (b.dirty || b.vbo == 0)
+    if (b.dirty || b.vbo == 0 || b.cvbo == 0)
       continue;
     bool wanted = !_culled;
     for (int i = 0; !wanted && i < b.objs.size(); ++i)
@@ -3510,7 +3552,8 @@ void Viewer::drawMerged() {
     f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
     glVertexPointer(3, GL_FLOAT, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, p));
     glNormalPointer(GL_FLOAT, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, n));
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(MergeVertex), (const void *)offsetof(MergeVertex, c));
+    f->glBindBuffer(GL_ARRAY_BUFFER, b.cvbo);
+    glColorPointer(4, GL_UNSIGNED_BYTE, 4, nullptr);
     glDrawArrays(GL_TRIANGLES, 0, b.verts);
     _screenMerged += b.objs.size();
   }
