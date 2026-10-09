@@ -1034,6 +1034,17 @@ public:
   QString getPOVSettingsInc();
 
   /**
+   * @brief Tells whether POV-Ray export gave up on a directory it could not
+   *        create.
+   *
+   * savePOV() reports the problem and turns export off instead of asking, so
+   * a headless run, with nobody to ask, checks this to fail.
+   *
+   * @return True once an export directory could not be created.
+   */
+  bool povExportFailed() const;
+
+  /**
    * @brief Sets the settings store the viewer reads its preferences from.
    * @param settings The store. Not owned.
    */
@@ -2275,6 +2286,7 @@ private:
   QFile *_fileMakefile; ///< The @c GNUmakefile written beside the scene.
 
   bool _savePOV;      ///< Whether each simulated frame is exported.
+  bool _povExportFailed; ///< Whether savePOV() could not create a directory.
   bool _deactivation; ///< Whether bodies are allowed to sleep.
   QString _scriptName;     ///< Base name used for exports and renders.
   QString _scriptBasePath; ///< Directory the running script came from.
