@@ -266,6 +266,7 @@ v:postSim(function(N)
     local pitch = math.deg(math.asin(math.max(-1, math.min(1, c[1].y))))    -- end to end
     r.maxRock = math.max(r.maxRock, math.abs(rock), math.abs(pitch))
     local w = W.y
+    r.spinNow, r.rockNow, r.pitchNow = w, rock, pitch
     if math.abs(w) > 0.3 then
       local sg = w > 0 and 1 or -1
       if r.sign and sg ~= r.sign then
@@ -342,5 +343,40 @@ pcall(function()
   }, "\n"))
 end)
 
+
+-- ---------------------------------------------------------------------
+-- mouse hover (needs a bpp with v:onHover): rest the mouse on a rattleback
+-- ---------------------------------------------------------------------
+if v.onHover then
+  local KEY = {}
+  for _, r in ipairs(RB) do KEY[objectKey(r.m)] = r end
+  local WHAT = {
+    Left     = "spun clockwise -- its WRONG way: it rocks, stops and turns round",
+    Middle   = "spun anticlockwise -- its OWN way: it just spins down",
+    Restless = "almost no losses at the table: it keeps reversing, both ways",
+  }
+  v:onHover(function(N, obj, x, y, z)
+    local r = KEY[objectKey(obj)]
+    if not r or not r.spinNow then return nil end
+    local w = r.spinNow
+    local lines = {
+      r.name,
+      WHAT[r.short],
+      "",
+      string.format("spin now        %+.2f turns/s  (%s)", w / (2 * math.pi),
+                    math.abs(w) < 0.05 and "about still" or (w > 0 and "anticlockwise" or "clockwise")),
+      string.format("rocking now     side %+.1f deg, end %+.1f deg (most so far %.0f)",
+                    r.rockNow, r.pitchNow, r.maxRock),
+      string.format("reversals       %d", r.reversals),
+      string.format("rolling resist. %.0f microns", r.delta * 1e4),
+      "",
+      string.format("%.1f g plastic, 12 x 3 x 1.2 cm, hull turned %g deg from the mass axes",
+                    1000 * MASS, R.skew),
+      string.format("moments of inertia (kg cm^2): length %.4f, vertical %.4f, width %.4f",
+                    IV[1], IV[2], IV[3]),
+    }
+    return table.concat(lines, "\n")
+  end)
+end
 
 if os.getenv("RB_START") == "tap" then tapThem() else spinThem() end

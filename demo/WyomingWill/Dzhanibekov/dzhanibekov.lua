@@ -125,15 +125,26 @@ common.setCamera(btVector3(0, PED_H + 28, 85), btVector3(0, PED_H + 10, 0))
 -- ---------------------------------------------------------------------
 -- the handles
 -- ---------------------------------------------------------------------
-local SPHERE = btSphereShape(0.1)            -- (they touch nothing)
+-- Collision shape: the handle's own outline (convex hull of its mesh). The
+-- handles touch nothing -- no gravity, and the glass boxes don't collide --
+-- so it changes nothing physically; it is what the mouse hover finds.
+local OUTLINE = btConvexHullShape()
+do
+  local pts = {}
+  for line in io.lines(DIR .. "t-handle.obj") do
+    local x, y, z = line:match("^v%s+(%S+)%s+(%S+)%s+(%S+)")
+    if x then pts[#pts + 1] = btVector3(tonumber(x), tonumber(y), tonumber(z)) end
+  end
+  for k, p in ipairs(pts) do OUTLINE:addPoint(p, k == #pts) end
+  OUTLINE:setMargin(0.02)
+end
 
 for _, h in ipairs(HANDLES) do
   local m = Mesh(DIR .. "t-handle.obj", 0, false)
   local body = btRigidBody(MASS, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), h.centre)),
-                           SPHERE, INERTIA)
+                           OUTLINE, INERTIA)
   m.body = body
   m.col = h.col
-  m.collides = false
   body:setActivationState(4)
   body:setDamping(0, 0)
   body:setFlags(0)                           -- Bullet's gyroscopic term off: Euler's equations below
@@ -175,7 +186,8 @@ local function start()
     b:activate(true)
     h.E0 = IV[1] * w[1] ^ 2 + IV[2] * w[2] ^ 2 + IV[3] * w[3] ^ 2
     h.L0 = math.sqrt((IV[1] * w[1]) ^ 2 + (IV[2] * w[2]) ^ 2 + (IV[3] * w[3]) ^ 2)
-    h.sign, h.lastFlip, h.nflips, h.maxTilt = 1, nil, 0, 0
+    h.sign, h.lastFlip, h.nflips, h.maxTilt, h.period = 1, nil, 0, 0, nil
+    h.W, h.eps = W, eps
   end
   print(string.format("\n--- spin %.1f turns/s, nudge %.1f%% ---", v:getParam("spin"), v:getParam("nudge")))
   for _, h in ipairs(HANDLES) do print("  " .. h.name) end
@@ -260,12 +272,14 @@ v:postSim(function(N)
     local up = c[h.axis].y
     local tilt = math.deg(math.acos(math.max(-1, math.min(1, up))))
     h.maxTilt = math.max(h.maxTilt, math.min(tilt, 180 - tilt))
+    h.tilt, h.w = tilt, w
     local sg = (w[h.axis] >= 0) and 1 or -1
     if sg ~= h.sign then
       h.sign = sg
       h.nflips = h.nflips + 1
       local per = h.lastFlip and string.format(", %.2f s after the last", t - h.lastFlip) or ""
       print(string.format("  %-6s flipped at %6.2f s%s  (flip %d)", h.short, t, per, h.nflips))
+      if h.lastFlip then h.period = t - h.lastFlip end
       h.lastFlip = t
     end
     if LOGF and N % 4 == 0 then
@@ -311,5 +325,42 @@ pcall(function()
     "  right : spun across both (largest moment)      -- steady\n" ..
     "  R  start again     Z  slow motion <-> real time")
 end)
+
+-- ---------------------------------------------------------------------
+-- mouse hover (needs a bpp with v:onHover): rest the mouse on a handle
+-- ---------------------------------------------------------------------
+local AXIS = { "the bar", "the stem", "across both" }
+local ROLE = {}
+do
+  local order = { 1, 2, 3 }
+  table.sort(order, function(a, b) return IV[a] < IV[b] end)
+  ROLE[order[1]], ROLE[order[2]], ROLE[order[3]] = "SMALLEST", "MIDDLE", "LARGEST"
+end
+if v.onHover then
+  local KEY = {}
+  for _, h in ipairs(HANDLES) do KEY[objectKey(h.m)] = h end
+  v:onHover(function(N, obj, x, y, z)
+    local h = KEY[objectKey(obj)]
+    if not h or not h.w then return nil end
+    local w = h.w
+    local E = IV[1] * w[1] ^ 2 + IV[2] * w[2] ^ 2 + IV[3] * w[3] ^ 2
+    local L = math.sqrt((IV[1] * w[1]) ^ 2 + (IV[2] * w[2]) ^ 2 + (IV[3] * w[3]) ^ 2)
+    local lines = {
+      h.name,
+      string.format("spun about %s: its %s moment of inertia", AXIS[h.axis], ROLE[h.axis]),
+      ROLE[h.axis] == "MIDDLE" and "  -> unstable: it flips over and back, again and again"
+                               or "  -> stable: it just spins",
+      "",
+      string.format("spin          %.2f turns/s, nudge %.1f%%", h.W / (2 * math.pi), 100 * h.eps),
+      string.format("spin axis     %3.0f deg from straight up (most so far %.0f)", h.tilt, h.maxTilt),
+      string.format("flips so far  %d%s", h.nflips, h.period and string.format(", every %.2f s", h.period) or ""),
+      string.format("conserved     energy %+.1e, angular momentum %+.1e", E / h.E0 - 1, L / h.L0 - 1),
+      "",
+      string.format("mass %.1f g; moments (kg cm^2): bar %.3f, stem %.3f, across %.3f",
+                    1000 * MASS, IV[1], IV[2], IV[3]),
+    }
+    return table.concat(lines, "\n")
+  end)
+end
 
 start()
