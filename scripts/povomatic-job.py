@@ -39,20 +39,30 @@
 #   POVOMATIC_INPUT         NFS input volume, host path              (default: /nfs/povray/input)
 #   POVOMATIC_ASSETS        NFS assets volume, host path             (default: /nfs/povray/assets)
 #   POVOMATIC_REMOTE_INPUT  input volume path the render workers see (default: /app/input)
+#
+# When the submit fails, the povomatic API's own log of that call is printed too,
+# since the client only reports the HTTP status (a bare "500 internal error"):
+#   POVOMATIC_API_LOG_CMD   command that prints the API's log; run with --since=<N>s
+#                           appended (no option; default: kubectl -n povomatic logs
+#                           deploy/api -c api --tail=60)
 
 import argparse
 import glob
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
+import time
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEFAULT_INPUT = os.environ.get("POVOMATIC_INPUT", "/nfs/povray/input")
 DEFAULT_ASSETS = os.environ.get("POVOMATIC_ASSETS", "/nfs/povray/assets")
 DEFAULT_REMOTE_INPUT = os.environ.get("POVOMATIC_REMOTE_INPUT", "/app/input")
+API_LOG_CMD = shlex.split(os.environ.get(
+    "POVOMATIC_API_LOG_CMD", "kubectl -n povomatic logs deploy/api -c api --tail=60"))
 
 # Rendered output and local-only files that must not be pushed to the shared
 # input volume alongside the scene.
@@ -72,6 +82,25 @@ ASSETS_EXCLUDES = ["settings.inc", "README.md", "readme_*.txt", "*.pov"]
 def die(msg):
     print(f"povomatic-job: {msg}", file=sys.stderr)
     sys.exit(1)
+
+
+def show_api_log(seconds, rc):
+    """Print what the povomatic API logged while a submit failed (best effort).
+
+    povomatic.py only reports the HTTP status; the cause, say a database
+    timeout behind a 500, is in the API's log.
+    """
+    since = int(seconds) + 5  # the request began before we started timing it
+    cmd = API_LOG_CMD + [f"--since={since}s"]
+    print(f"povomatic-job: submit failed (exit {rc}); API log of the last "
+          f"{since}s ({' '.join(cmd)}):", file=sys.stderr, flush=True)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        print(f"povomatic-job: cannot read the API log: {e}", file=sys.stderr)
+        return
+    lines = (r.stdout + r.stderr).strip().splitlines()
+    print("\n".join("  " + line for line in lines) or "  (empty)", file=sys.stderr)
 
 
 def find_povomatic_py(explicit):
@@ -145,9 +174,11 @@ def as_int(v, what):
         die(f"cannot read {what} ('{v}') as a number")
 
 
-def rsync(src, dst, extra=()):
+def rsync(src, dst, extra=(), progress=False):
     os.makedirs(dst, exist_ok=True)
     cmd = ["rsync", "-a", "--no-owner", "--no-group"]
+    if progress:
+        cmd.append("--info=progress2")
     cmd += [f"--exclude={p}" for p in extra]
     cmd += [src.rstrip("/") + "/", dst.rstrip("/") + "/"]
     return cmd
@@ -231,12 +262,19 @@ def main():
 
     povomatic_py = find_povomatic_py(args.povomatic_py)
 
+    # Each step is (label, command); a step with no label runs silently. rsync
+    # shows its own progress line, but only on a terminal: elsewhere (a log, a
+    # pipe) it would write a stream of carriage-return updates.
+    progress = sys.stdout.isatty() and not args.dry_run
+
     # --- assets: bpp's bundled includes/ + POV-Ray's stock includes ----------
-    steps = [rsync(os.path.join(REPO_ROOT, "includes"), args.assets_dir,
-                   ASSETS_EXCLUDES)]
+    steps = [(f"bpp includes -> {args.assets_dir}",
+              rsync(os.path.join(REPO_ROOT, "includes"), args.assets_dir,
+                    ASSETS_EXCLUDES, progress))]
     pov_inc = find_povray_includes(args.povray_include_dir)
     if pov_inc:
-        steps.append(rsync(pov_inc, args.assets_dir))
+        steps.append((f"POV-Ray includes -> {args.assets_dir}",
+                      rsync(pov_inc, args.assets_dir, progress=progress)))
     else:
         print("povomatic-job: warning: POV-Ray's standard include dir not found; "
               "colors.inc etc. will only resolve if the render image ships them "
@@ -244,11 +282,12 @@ def main():
 
     # --- scene: export/<scene>/ -> <input>/<scene>/ --------------------------
     dest = os.path.join(args.input_dir, scene)
-    steps.append(rsync(scene_dir, dest, RSYNC_EXCLUDES))
+    steps.append((f"scene {scene} -> {dest}",
+                  rsync(scene_dir, dest, RSYNC_EXCLUDES, progress)))
     # The rsync carries <scene>.wav along but deletes nothing, so a track left
     # by an earlier export would be muxed into a scene that no longer has one.
     if not os.path.isfile(os.path.join(scene_dir, scene + ".wav")):
-        steps.append(["rm", "-f", os.path.join(dest, scene + ".wav")])
+        steps.append((None, ["rm", "-f", os.path.join(dest, scene + ".wav")]))
 
     # --- build the povomatic.py invocation ---------------------------------
     pov_lib = f"+L{args.remote_input.rstrip('/')}/{scene}"
@@ -268,6 +307,7 @@ def main():
             die(f"still frame {frame}: {frame:05d}.inc not found")
         submit += ["--type", "still"]
         submit += ["--povray-args", f"{povray_args} +K{frame}"]
+        what = f"still, frame {frame}, {width}x{height}"
     else:
         ci = ini_first if args.clock_initial is None else args.clock_initial
         cf = ini_last if args.clock_final is None else args.clock_final
@@ -293,6 +333,7 @@ def main():
         submit += ["--type", "animation", "--frames", str(frames),
                    "--clock-initial", str(ci), "--clock-final", str(cf),
                    "--povray-args", povray_args]
+        what = f"animation, {frames} frames (clock {ci:g}..{cf:g}), {width}x{height}"
     if args.ffmpeg_args:
         submit += ["--ffmpeg-args", args.ffmpeg_args]
 
@@ -302,15 +343,31 @@ def main():
 
     if args.dry_run:
         print("rsync:")
-        for s in steps:
+        for _, s in steps:
             show(s)
         print("submit:")
         show(submit)
         return
 
-    for s in steps:
-        subprocess.run(s, check=True)
-    os.execv(sys.executable, submit)
+    # Flush every message: rsync writes to the same terminal directly.
+    total = sum(1 for label, _ in steps if label) + 1
+    n = 0
+    for label, cmd in steps:
+        if label:
+            n += 1
+            print(f"povomatic-job: [{n}/{total}] syncing {label}", flush=True)
+        t0 = time.monotonic()
+        subprocess.run(cmd, check=True)
+        if label:
+            print(f"povomatic-job: [{n}/{total}] done in "
+                  f"{time.monotonic() - t0:.1f}s", flush=True)
+    print(f"povomatic-job: [{total}/{total}] submitting {scene} to povomatic: "
+          f"{what}", flush=True)
+    started = time.monotonic()
+    rc = subprocess.run(submit).returncode
+    if rc:
+        show_api_log(time.monotonic() - started, rc)
+    sys.exit(rc)
 
 
 if __name__ == "__main__":
