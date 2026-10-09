@@ -246,7 +246,6 @@ local function makeGame(name, dir, offset, opts)
     return dir .. path
   end
   local function shiftT(t, by) local o = btTransform(); o:mult(by, t); return o end
-  local scratchT, scratchV = btTransform(), btVector3(0, 0, 0)
 
   -- an object the game made: positions go through the offset (and scale)
   local objMeta = {
@@ -264,19 +263,12 @@ local function makeGame(name, dir, offset, opts)
       end
       return val
     end,
-    -- (moving one: the result is built in scratch objects, as bpp copies
-    -- it; the tables move their cue and aiming guide every frame, and new
-    -- ones each time were garbage of the worst kind for Lua's collector)
     __newindex = function(p, k, val)
       local r = rawget(p, "__real")
       if k == "pos" then
-        if turn == 0 then
-          scratchV.x = val.x * S + ox; scratchV.y = val.y * S + oy; scratchV.z = val.z * S + oz
-          r.pos = scratchV
+        if turn == 0 then r.pos = toWorld(val)
         else r.trans = shiftT(btTransform(shiftT(r.trans, INV):getRotation(), sv(val)), OFF) end   -- (keeping its turn)
-      elseif k == "trans" then
-        scratchT:mult(OFF, val)
-        r.trans = scratchT
+      elseif k == "trans" then r.trans = shiftT(val, OFF)
       else r[k] = val end
     end,
   }
