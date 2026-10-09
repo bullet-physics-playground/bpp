@@ -1731,13 +1731,36 @@ v:postSim(function(N)
   -- the steps of the clock and the others with their own physics, inside
   -- the same frame: the games wait while each takes the steps it's owed
   -- (usually none or one; a few after a hold-up), with its own settings
-  -- and its own callbacks around them
+  -- and its own callbacks around them.
+  -- One of these steps a frame, if it can be helped: each costs a few ms,
+  -- and in a frame where two fell together (the clock's and the walker's,
+  -- say: both 25 a second) the physics came to 9 ms and the frame missed
+  -- the screen. So the clock goes first, then the others, the furthest
+  -- behind first; once one has stepped, the next waits a frame unless it's
+  -- two steps behind. Each still takes every step it's owed, at its own
+  -- pace -- a step is at most a frame later -- and after a hold-up (three
+  -- or more owed) it catches up as before.
   if CAN_STEP then
     local turned = false
+    local due = {}
     for _, g in ipairs(games) do
       if (g == clock or g.ownPhysics) and not g.suspended then
-        local k = math.min(math.floor(owed(g)), MAX_CATCHUP)
+        due[#due + 1] = { g = g, n = owed(g) }
+      end
+    end
+    table.sort(due, function(a, b)
+      if (a.g == clock) ~= (b.g == clock) then return a.g == clock end
+      return a.n > b.n
+    end)
+    local stepped = false
+    for _, d in ipairs(due) do
+      local g = d.g
+      local k = 0
+      if d.n >= 3 then k = math.min(math.floor(d.n), MAX_CATCHUP)       -- (catching up)
+      elseif d.n >= 2 or (d.n >= 1 and not stepped) then k = 1 end
+      do
         if k > 0 then
+          stepped = true
           whose(g)
           turned = true
           local P = g.physics
