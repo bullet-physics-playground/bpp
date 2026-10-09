@@ -43,13 +43,13 @@
 --   R   drop them all again, at random orientations
 --   U   set them all down gently on face A, B or C (at random) and watch
 --   K   kick: toss them all up with a spin
---   Z   slow motion (10x slower, the default) <-> real time
+--   Z   slow motion (50x slower, the default) <-> 10x slower
 --   ]   one more (and drop)      [   one fewer
 --
 -- Slow motion: in real time Bille is very quick -- nearly all its mass sits
 -- in the wedge, 2 mm above face D, so a tip from one face to the next takes
 -- about a twentieth of a second and a whole drop is over in under half a
--- second. It therefore starts at 1/10 speed ("speed" slider, down to 1/50).
+-- second. It therefore starts at 1/50 speed ("speed" slider, 0.001-0.1).
 -- Console times are simulated seconds; "redrop" counts on-screen seconds.
 --
 -- Headless testing: bpp -f demo/bille/bille-drop.lua -n FRAMES, with
@@ -108,8 +108,8 @@ local MAX_COUNT = 6
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
 local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo, hi, step, info) end
 param("count", envnum("BD_COUNT", 3), 1, MAX_COUNT, 1, "how many Billes to drop")
-param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.01,
-      "simulated seconds per real second (0.1 = 10x slow motion; Z toggles 0.1 / 1)")
+param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.001,
+      "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
 param("steps", envnum("BD_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
 param("restitution", envnum("BD_REST", 0.1), 0.0, 0.8, 0.05, "bounciness")
@@ -474,13 +474,13 @@ end
 v:addShortcut("R", function(N) drop() end)
 v:addShortcut("U", function(N) setdown() end)
 v:addShortcut("K", function(N) kick() end)
--- Z: slow motion (0.1) <-> real time (1)
+-- Z: slow motion (0.02) <-> faster (0.1)
 v:addShortcut("Z", function(N)
-  local sp = v:getParam("speed") < 0.5 and 1 or 0.1
-  v:addParam("speed", sp, 0.02, 2, 0.02,
-             "simulated seconds per real second (0.1 = 10x slow motion; Z toggles 0.1 / 1)")
+  local sp = v:getParam("speed") < 0.05 and 0.1 or 0.02
+  v:addParam("speed", sp, 0.001, .1, 0.001,
+             "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
   applyTiming()
-  print(sp < 1 and "slow motion: 10x slower" or "real time")
+  print(string.format("speed %.2f (%dx slower than real time)", sp, math.floor(1 / sp + 0.5)))
 end)
 v:addShortcut("]", function(N)
   v:addParam("count", math.min(MAX_COUNT, v:getParam("count") + 1), 1, MAX_COUNT, 1, "how many Billes to drop")
@@ -514,7 +514,7 @@ pcall(function()
     "  R  drop at random orientations\n" ..
     "  U  set down on face A, B or C\n" ..
     "  K  kick them up with a spin\n" ..
-    "  Z  slow motion (10x) <-> real time\n" ..
+    "  Z  slow motion (50x) <-> 10x slower\n" ..
     "  ]  one more     [  one fewer\n" ..
     "Dark = not on face D, bright = resting on face D.\n" ..
     "Predicted falling pattern: B -> A -> D <- C")
