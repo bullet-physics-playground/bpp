@@ -230,6 +230,16 @@ static int luaCopyTrans(lua_State *L) {
   return 0;
 }
 
+// objectKey(o): the object's identity as a light userdata. Objects of
+// different classes (a Cube and a Mesh, say) can't be compared with == in
+// Lua -- luabind only compares two of the same class -- but their keys can,
+// and a key works as a table index: KEY[objectKey(m)] = info. Used by
+// v:onHover, which is handed whatever object is under the mouse.
+static int luaObjectKey(lua_State *L) {
+  lua_pushlightuserdata(L, static_cast<void *>(luaObjectArg(L, "objectKey")));
+  return 1;
+}
+
 void Object::luaBind(lua_State *s) {
   using namespace luabind;
 
@@ -239,6 +249,7 @@ void Object::luaBind(lua_State *s) {
   lua_register(s, "setVelXYZ", luaSetVelXYZ);
   lua_register(s, "setAngVelXYZ", luaSetAngVelXYZ);
   lua_register(s, "copyTrans", luaCopyTrans);
+  lua_register(s, "objectKey", luaObjectKey);
 
   module(s)
       [class_<Object>("Object")

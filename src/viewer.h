@@ -1241,6 +1241,23 @@ public slots:
   void setCBCycleObject(const luabind::object &fn);
 
   /**
+   * @brief Sets the hover hook: v:onHover(function(N, obj, x, y, z) ... end).
+   *
+   * When the mouse rests (no button pressed) over the 3D view for half a
+   * second, a ray from the pointer finds the first object with a collision
+   * shape under it, and the hook is called with the frame number, that object
+   * and the point hit. If it returns a string, the string is shown as a
+   * tooltip by the pointer, refreshed while the mouse stays still (so live
+   * values update); otherwise no tooltip. Any button, wheel turn, key press or
+   * mouse movement hides it. The hover never consumes a mouse event, so the
+   * camera controls and clicks work exactly as without it, and a script that
+   * does not set the hook gets no hover at all.
+   *
+   * @param fn A Lua function; anything else turns the hover off.
+   */
+  void setCBOnHover(const luabind::object &fn);
+
+  /**
    * @brief Sets the hook called whenever a parameter changes.
    * @param fn A Lua function taking the frame number, the name and the new
    *           value. Ignored if not a function.
@@ -1413,6 +1430,18 @@ public slots:
    * @param e The wheel event.
    */
   void wheelEvent(QWheelEvent *e) override;
+
+  /**
+   * @brief Hides the hover tooltip when the pointer leaves the view.
+   * @param e The event.
+   */
+  void leaveEvent(QEvent *e) override;
+
+  /** @brief Hover: every 100 ms, show/refresh the tooltip if the mouse rests. */
+  void hoverTick();
+
+  /** @brief Hover: hide the tooltip. */
+  void hoverHide();
 
   /**
    * @brief Passes a command line entry to the script's onCommand hook.
@@ -2272,6 +2301,15 @@ private:
                                         ///< away from the built-in camera
                                         ///< control.
   luabind::object _cb_cycleObject;   ///< Called when F1 or F2 is pressed.
+  luabind::object _cb_onHover;       ///< Called when the mouse rests on an object.
+  QTimer *_hoverTimer = nullptr;     ///< Drives hoverTick().
+  QElapsedTimer _hoverStill;         ///< Time since the mouse last moved.
+  QPoint _hoverPos;                  ///< Where the mouse rests (widget coords).
+  bool _hoverArmed = false;          ///< Mouse is over the view with no button down.
+  bool _hoverShown = false;          ///< A hover tooltip is showing.
+  Object *_hoverObj = nullptr;       ///< Last object found under the resting mouse.
+  btVector3 _hoverHitPt;             ///< Where the ray last hit it.
+  QElapsedTimer _hoverLastHit;       ///< Time since the ray last hit it.
   luabind::object _cb_onParamChanged; ///< Called when a parameter changes.
 
   #include <memory>

@@ -70,6 +70,8 @@
 #include <QTime>
 #include <QMap>
 #include <QElapsedTimer>
+#include <QToolTip>
+#include <QApplication>
 #include <QOpenGLContext>
 #include <algorithm>
 #include <tuple>
@@ -385,6 +387,10 @@ void Viewer::luaBind(lua_State *s) {
            .def("onParamChanged",
                 (void(Viewer::*)(const luabind::object &fn)) &
                     Viewer::setCBOnParamChanged,
+                 adopt(luabind::result))
+           .def("onHover",
+                (void(Viewer::*)(const luabind::object &fn)) &
+                    Viewer::setCBOnHover,
                  adopt(luabind::result))
             .def("addParam", (void(Viewer::*)(const QString &, const QVariant &)) & Viewer::addParam)
             .def("addParam", (void(Viewer::*)(const QString &, const QVariant &, const QString &)) & Viewer::addParam)
@@ -1125,6 +1131,8 @@ void Viewer::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
+  _hoverStill.restart();             // (hover: a key hides the tooltip)
+  hoverHide();
   if (_cb_onKey) {
     if (e->isAutoRepeat()) {
       if (_luaHeldKeys.contains(e->key()))
@@ -1267,6 +1275,8 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 }
 
 void Viewer::mousePressEvent(QMouseEvent *e) {
+  _hoverArmed = false;               // (hover: a click hides the tooltip)
+  hoverHide();
 #if USE_VFE
   if (_vfePreviewVisible && (_vfeRenderActive || _vfePreviewTexture)) {
     // Dismiss the VFE render preview back to the normal OpenGL scene; an
@@ -1291,6 +1301,19 @@ void Viewer::mousePressEvent(QMouseEvent *e) {
 }
 
 void Viewer::mouseMoveEvent(QMouseEvent *e) {
+  // hover: only watch movement with no button down; never consume the event
+  if (e->buttons() == Qt::NoButton) {
+    if (!_hoverArmed || (e->pos() - _hoverPos).manhattanLength() > 3) {
+      _hoverPos = e->pos();
+      _hoverStill.restart();
+      _hoverObj = nullptr;           // (moved: forget the sticky object)
+      hoverHide();
+    }
+    _hoverArmed = true;
+  } else {
+    _hoverArmed = false;
+    hoverHide();
+  }
   if (_orthoPanCamera) {
     const QPoint delta = e->pos() - _orthoPanLastPos;
     _orthoPanLastPos = e->pos();
@@ -1330,6 +1353,8 @@ void Viewer::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 void Viewer::wheelEvent(QWheelEvent *e) {
+  _hoverStill.restart();             // (hover: hide while zooming)
+  hoverHide();
   qglviewer::Camera *cam = orthoCameraAt(e->position().toPoint());
   if (cam) {
     // One wheel "click" is 120 (QWheelEvent::angleDelta() units); each
@@ -2402,6 +2427,8 @@ emit scriptStarts();
     _luaHeldKeys.clear();
     _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
+    _cb_onHover = luabind::object();
+    hoverHide();
 
     if (_cb_shortcuts) {
       for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
@@ -2897,6 +2924,8 @@ Viewer::~Viewer() {
   _luaHeldKeys.clear();
   _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
+  _cb_onHover = luabind::object();
+  hoverHide();
 
   // Clear shortcuts BEFORE closing Lua state.
   // The shared_ptr<luabind::object> destructors call luaL_unref.
@@ -4808,6 +4837,100 @@ void Viewer::setCBOnParamChanged(const luabind::object &fn) {
   if (luabind::type(fn) == LUA_TFUNCTION) {
     _cb_onParamChanged = fn;
   }
+}
+
+void Viewer::setCBOnHover(const luabind::object &fn) {
+  if (luabind::type(fn) == LUA_TFUNCTION) {
+    _cb_onHover = fn;
+    setMouseTracking(true);          // movement without a button is reported
+    if (!_hoverTimer) {
+      _hoverTimer = new QTimer(this);
+      _hoverTimer->setInterval(100);
+      connect(_hoverTimer, &QTimer::timeout, this, [this]() { hoverTick(); });
+    }
+    _hoverTimer->start();
+  } else {
+    _cb_onHover = luabind::object();
+    if (_hoverTimer) _hoverTimer->stop();
+    hoverHide();
+  }
+}
+
+void Viewer::hoverHide() {
+  if (_hoverShown) {
+    QToolTip::hideText();
+    _hoverShown = false;
+  }
+}
+
+void Viewer::hoverTick() {
+  if (!_cb_onHover || !_hoverArmed || !dynamicsWorld) return;
+  if (QApplication::mouseButtons() != Qt::NoButton) { hoverHide(); return; }
+  if (!_hoverStill.isValid() || _hoverStill.elapsed() < 500) return;
+
+  // a ray from the camera through the pointer (the ortho pane's camera if
+  // the pointer is over one)
+  qglviewer::Camera *cam = orthoCameraAt(_hoverPos);
+  if (!cam) cam = camera();
+  qglviewer::Vec orig, dir;
+  cam->convertClickToLine(_hoverPos, orig, dir);
+  const btScalar far = 1.0e6;
+  btVector3 from(orig.x, orig.y, orig.z);
+  btVector3 to(orig.x + dir.x * far, orig.y + dir.y * far, orig.z + dir.z * far);
+  btCollisionWorld::ClosestRayResultCallback ray(from, to);
+  // bpp adds bodies with its own collision groups: let the ray see them all
+  // (an object made with collides = false has an empty mask and stays unseen)
+  ray.m_collisionFilterGroup = -1;
+  ray.m_collisionFilterMask = -1;
+  dynamicsWorld->rayTest(from, to, ray);
+  Object *hit = nullptr;
+  if (ray.hasHit() && _objects) {
+    for (Object *o : *_objects) {
+      if (o && o->getRigidBody() &&
+          static_cast<const btCollisionObject *>(o->getRigidBody()) == ray.m_collisionObject) {
+        hit = o;
+        break;
+      }
+    }
+  }
+  if (hit) {
+    _hoverObj = hit;
+    _hoverHitPt = ray.m_hitPointWorld;
+    _hoverLastHit.restart();
+  } else if (_hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
+             _objects && _objects->contains(_hoverObj)) {
+    // sticky: a spinning or rocking object can slip out from under a resting
+    // pointer for a moment -- keep reporting it for 1.5 s (no flicker)
+    hit = _hoverObj;
+  } else {
+    _hoverObj = nullptr;
+    hoverHide();
+    return;
+  }
+
+  QString text;
+  try {
+    const btVector3 &p = _hoverHitPt;
+    luabind::object res = luabind::call_function<luabind::object>(
+        _cb_onHover, _frameNum, hit, (double)p.x(), (double)p.y(), (double)p.z());
+    if (res.is_valid() && luabind::type(res) == LUA_TSTRING)
+      text = QString::fromUtf8(luabind::object_cast<std::string>(res).c_str());
+  } catch (const std::exception &e) {
+    showLuaException(e, "onHover()");
+    _cb_onHover = luabind::object();      // (don't repeat the error 10x a second)
+  }
+  if (text.isEmpty()) { hoverHide(); return; }
+  // monospace so a script can line things up
+  QToolTip::showText(mapToGlobal(_hoverPos + QPoint(16, 16)),
+                     QString("<pre style='margin:0'>%1</pre>").arg(text.toHtmlEscaped()),
+                     this, QRect(), 600000);
+  _hoverShown = true;
+}
+
+void Viewer::leaveEvent(QEvent *e) {
+  _hoverArmed = false;
+  hoverHide();
+  QGLViewer::leaveEvent(e);
 }
 
 void Viewer::setCBCycleObject(const luabind::object &fn) {
