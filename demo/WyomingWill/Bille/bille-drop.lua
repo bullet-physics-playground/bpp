@@ -39,6 +39,18 @@
 -- the table, one can land on another's frame and be propped on the wrong
 -- face (about 2% of drops with 6); the console flags these.
 --
+-- Sizes: each colour is a geometrically similar Bille of a different size
+-- (Red 1.0 = the real 50 cm one, Green 0.6, Yellow 1.3, Blue 0.8, Orange
+-- 1.15, Purple 0.7). Everything scales -- tubes, wedge, frame -- so mass
+-- goes as size^3 and inertia as size^5, and every one still ends on face D:
+-- where a body can rest does not depend on its size. How fast it tips does:
+-- tipping times grow as sqrt(size), so the 1.3 Bille is about 1.5x slower
+-- than the 0.6 one. Drop heights are scaled with size too, so each one
+-- falls the same number of its own lengths. Rolling resistance (a lever
+-- arm in microns) is a property of the materials and is NOT scaled, so it
+-- is relatively stronger on the small ones. The "size spread" slider runs
+-- from 0 (all the real size) to 1 (the sizes above).
+--
 -- Keys
 --   R   drop them all again, at random orientations
 --   U   set them all down gently on face A, B or C (at random) and watch
@@ -91,12 +103,47 @@ for _, f in ipairs(FACES) do
   REACH = math.max(REACH, math.sqrt(p[1] ^ 2 + p[2] ^ 2 + p[3] ^ 2))
 end
 
-local HULL_SHAPE = btConvexHullShape()
-for k, f in ipairs(FACES) do
-  local p = B.vertices[f]
-  HULL_SHAPE:addPoint(btVector3(p[1], p[2], p[3]), k == #FACES)
+-- size of each colour's Bille (1 = the real one, longest edge 50 cm)
+local SIZES = { 1.0, 0.6, 1.3, 0.8, 1.15, 0.7 }
+
+-- the drawing mesh of a scaled Bille: bpp meshes cannot be scaled, so a
+-- scaled copy of bille.obj is written to a temporary file and loaded
+local OBJ_LINES
+local function scaledObj(s)
+  if not OBJ_LINES then
+    OBJ_LINES = {}
+    for line in io.lines(MESH_DIR .. "bille.obj") do OBJ_LINES[#OBJ_LINES + 1] = line end
+  end
+  local name = os.tmpname()
+  local f = assert(io.open(name, "w"))
+  for _, line in ipairs(OBJ_LINES) do
+    local x, y, z = line:match("^v%s+(%S+)%s+(%S+)%s+(%S+)")
+    if x then
+      f:write(string.format("v %.5f %.5f %.5f\n", tonumber(x) * s, tonumber(y) * s, tonumber(z) * s))
+    else
+      f:write(line, "\n")
+    end
+  end
+  f:close()
+  return name
 end
-HULL_SHAPE:setMargin(MARGIN)
+
+-- collision shape, mass, inertia and lengths of a Bille of size s
+local function sized(s)
+  local hull = btConvexHullShape()
+  for k, f in ipairs(FACES) do
+    local p = B.vertices[f]
+    hull:addPoint(btVector3(p[1] * s, p[2] * s, p[3] * s), k == #FACES)
+  end
+  hull:setMargin(MARGIN * s)
+  local s5 = s ^ 5
+  return {
+    s = s, hull = hull, mass = MASS * s ^ 3,
+    inertia = btVector3(B.inertia[1] * s5, B.inertia[2] * s5, B.inertia[3] * s5),
+    k2 = { K2[1] * s * s, K2[2] * s * s, K2[3] * s * s },
+    margin = MARGIN * s, reach = REACH * s,
+  }
+end
 
 -- ---------------------------------------------------------------------
 -- world, sliders, timing
@@ -117,6 +164,8 @@ param("rolling", envnum("BD_ROLL", 50), 0, 300, 5,
       "rolling resistance lever arm, microns (constant moment at the table)")
 param("spin friction", envnum("BD_SPIN", 0.7), 0, 5, 0.1, "deceleration of spin about the vertical, rad/s^2")
 param("air drag", envnum("BD_DRAG", 0), 0, 1.5, 0.05, "Bullet velocity damping; real air drag is ~0")
+param("size spread", envnum("BD_SPREAD", 1), 0, 1, 0.1,
+      "0 = all the real size (50 cm edge); 1 = Red 1.0, Green 0.6, Yellow 1.3, Blue 0.8, Orange 1.15, Purple 0.7")
 param("redrop", envnum("BD_REDROP", 5), 0, 30, 1,
       "real (on-screen) seconds at rest before a Bille is lifted away and a new one of its colour dropped (0 = off)")
 
@@ -206,16 +255,24 @@ end
 
 local billes = {}
 
+local function sizeOf(i)
+  return 1 + v:getParam("size spread") * (SIZES[i] - 1)
+end
+
 local function newBille(i)
-  local m = Mesh(MESH_DIR .. "bille.obj", 0, false)
+  local z = sized(sizeOf(i))
+  local file = z.s == 1 and MESH_DIR .. "bille.obj" or scaledObj(z.s)
+  local m = Mesh(file, 0, false)
+  if file ~= MESH_DIR .. "bille.obj" then os.remove(file) end
   local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -60, 0)))
-  local body = btRigidBody(MASS, ms, HULL_SHAPE, INERTIA)
+  local body = btRigidBody(z.mass, ms, z.hull, z.inertia)
   m.body = body
   m.col = DARK[i]
   body:setActivationState(4)
   body:setContactProcessingThreshold(envnum("BD_CPT", 0.001))
   v:add(m)
-  return { obj = m, body = body, i = i, lit = false }
+  return { obj = m, body = body, i = i, lit = false, s = z.s, mass = z.mass,
+           k2 = z.k2, margin = z.margin, reach = z.reach, hull = z.hull }
 end
 
 local function applyMaterials()
@@ -285,14 +342,14 @@ end
 local ON_DEG = 2.0
 local function faceDown(g)
   local px, py, pz = getPosXYZ(g.obj)
-  local h = py - tableHeight(px, pz) - MARGIN
+  local h = py - tableHeight(px, pz) - g.margin
   local best, bestAng = nil, 180
   for _, f in ipairs(FACES) do
     local _, wy, _ = toWorld(g, B.normals[f])
     local ang = math.deg(math.acos(math.max(-1, math.min(1, -wy))))
     if ang < bestAng then best, bestAng = f, ang end
   end
-  if bestAng < ON_DEG and math.abs(h - B.height[best]) < 0.3 then return best, bestAng end
+  if bestAng < ON_DEG and math.abs(h - B.height[best] * g.s) < 0.3 * g.s then return best, bestAng end
   return nil, bestAng
 end
 
@@ -306,8 +363,8 @@ local function resist(dt)
   if ROLL_DELTA <= 0 and SPIN_DECEL <= 0 then return end
   for _, g in ipairs(billes) do
     local px, py, pz = getPosXYZ(g.obj)
-    local r = py - tableHeight(px, pz) - MARGIN
-    if r < REACH + 0.05 and r > 0 then
+    local r = py - tableHeight(px, pz) - g.margin
+    if r < g.reach + 0.05 and r > 0 then
       local wx, wy, wz = getAngVelXYZ(g.obj)
       local vx, vy, vz = getVelXYZ(g.obj)
       local w = math.sqrt(wx * wx + wz * wz)
@@ -318,7 +375,7 @@ local function resist(dt)
         for c = 0, 2 do
           local e = Bm:getColumn(c)
           local d = ax * e.x + az * e.z
-          k2 = k2 + K2[c + 1] * d * d
+          k2 = k2 + g.k2[c + 1] * d * d
         end
         local alpha = ROLL_DELTA * G / (k2 + r * r)
         local dw = math.min(w, alpha * dt)
@@ -348,6 +405,7 @@ local NEXT = { A = "D", B = "A", C = "D" }        -- predicted (quasi-static) fa
 local race = { t = 0, real = 0, nextReport = 1, nextTally = 60, done = {} }   -- t: simulated s, real: on-screen s
 
 local function label(g) return g.run > 1 and string.format("%s #%d", NAMES[g.i], g.run) or NAMES[g.i] end
+local function sizeText(g) return string.format("%.0f cm, %.0f g", 50 * g.s, g.mass * 1000) end
 
 local function predicted(f)
   local p = { f }
@@ -366,10 +424,18 @@ end
 local function resetRace(what)
   race.t, race.real, race.nextReport, race.nextTally, race.done = 0, 0, 1, 60, {}
   print(string.format("\n--- %s: %d Bille%s ---", what, #billes, #billes == 1 and "" or "s"))
+  local st = {}
+  for _, g in ipairs(billes) do st[#st + 1] = string.format("%s %s", NAMES[g.i], sizeText(g)) end
+  print("    sizes (longest edge, mass): " .. table.concat(st, "; "))
 end
 
 local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
+  for k = #billes, 1, -1 do           -- rebuild any whose size has changed
+    if math.abs(billes[k].s - sizeOf(k)) > 1e-6 then
+      while #billes >= k do v:remove(table.remove(billes).obj) end
+    end
+  end
   while #billes > n do v:remove(table.remove(billes).obj) end
   while #billes < n do billes[#billes + 1] = newBille(#billes + 1) end
   applyMaterials()
@@ -379,8 +445,9 @@ local function randomSpin()
   return btVector3((math.random() - 0.5) * 4, (math.random() - 0.5) * 4, (math.random() - 0.5) * 4)
 end
 
+-- drop height scaled with size, so each falls the same number of its own lengths
 local function dropOne(g, x, z, k)
-  place(g, randomQuat(), x, REACH + 6 + 5 * (k or 1) + math.random() * 8, z, nil, randomSpin())
+  place(g, randomQuat(), x, g.reach + (6 + 5 * (k or 1) + math.random() * 8) * g.s, z, nil, randomSpin())
 end
 
 local function drop()
@@ -401,7 +468,7 @@ local function setdown()
   for k, g in ipairs(billes) do
     local f = ({ "A", "B", "C" })[math.random(3)]
     g.spot, g.run = s[k], 1
-    place(g, faceDownQuat(f, math.random() * 2 * math.pi), s[k][1], B.height[f] + MARGIN + 0.02, s[k][2])
+    place(g, faceDownQuat(f, math.random() * 2 * math.pi), s[k][1], (B.height[f] + MARGIN) * g.s + 0.02, s[k][2])
     resetBille(g, f)
     print(string.format("  %-9s set down on face %s; predicted: %s", label(g), f, predicted(f)))
   end
@@ -421,7 +488,7 @@ local function clearOf(g, x, z)
   for _, o in ipairs(billes) do
     if o ~= g then
       local ox, _, oz = getPosXYZ(o.obj)
-      if math.sqrt((x - ox) ^ 2 + (z - oz) ^ 2) < 2 * REACH + 4 then return false end
+      if math.sqrt((x - ox) ^ 2 + (z - oz) ^ 2) < g.reach + o.reach + 4 then return false end
     end
   end
   return true
@@ -434,7 +501,7 @@ local function nearOther(g)
   for _, o in ipairs(billes) do
     if o ~= g then
       local ox, _, oz = getPosXYZ(o.obj)
-      if math.sqrt((px - ox) ^ 2 + (pz - oz) ^ 2) < 2 * REACH then return NAMES[o.i] end
+      if math.sqrt((px - ox) ^ 2 + (pz - oz) ^ 2) < g.reach + o.reach then return NAMES[o.i] end
     end
   end
   return nil
@@ -444,8 +511,8 @@ local function redrop(g)
   local x, z = g.spot[1], g.spot[2]
   for try = 1, 60 do
     if clearOf(g, x, z) then break end
-    x = (math.random() - 0.5) * (FLAT_W - 2 * REACH)
-    z = (math.random() - 0.5) * (FLAT_D - 2 * REACH)
+    x = (math.random() - 0.5) * (FLAT_W - 2 * g.reach)
+    z = (math.random() - 0.5) * (FLAT_D - 2 * g.reach)
   end
   g.run = g.run + 1
   dropOne(g, x, z, 1)
@@ -469,6 +536,22 @@ local function tally()
   print(string.format("=== %.0f s: %d finished run%s, %d on face D; time to rest: median %.1f s, slowest %.1f s; paths: %s ===",
                       race.t, n, n == 1 and "" or "s", onD, times[math.floor((n + 1) / 2)], times[n],
                       table.concat(ps, ", ")))
+  -- per size: median time from first touching the table to resting
+  local per = {}
+  for _, d in ipairs(race.done) do
+    per[d.i] = per[d.i] or { s = d.s, t = {} }
+    per[d.i].t[#per[d.i].t + 1] = d.rest
+  end
+  local rows = {}
+  for i, p in pairs(per) do
+    table.sort(p.t)
+    rows[#rows + 1] = { s = p.s, text = string.format("%s %.0f cm: %.2f s (%d)", NAMES[i], 50 * p.s,
+                                                       p.t[math.floor((#p.t + 1) / 2)], #p.t) }
+  end
+  table.sort(rows, function(a, b) return a.s < b.s end)
+  local st = {}
+  for _, r in ipairs(rows) do st[#st + 1] = r.text end
+  print("    median time to rest by size (runs): " .. table.concat(st, ", "))
 end
 
 v:addShortcut("R", function(N) drop() end)
@@ -504,6 +587,8 @@ v:onParamChanged(function(N, name, value)   -- bpp passes (frame, name, value)
     applyTiming()
   elseif name == "rolling" or name == "spin friction" then
     applyResistance()
+  elseif name == "size spread" then
+    drop()
   else
     applyMaterials()
   end
@@ -517,6 +602,9 @@ pcall(function()
     "  Z  slow motion (50x) <-> 10x slower\n" ..
     "  ]  one more     [  one fewer\n" ..
     "Dark = not on face D, bright = resting on face D.\n" ..
+    "Sizes: Red 1.0 (50 cm), Green 0.6, Yellow 1.3, Blue 0.8,\n" ..
+    "  Orange 1.15, Purple 0.7 ('size spread' 0 = all 1.0).\n" ..
+    "  All end on face D; bigger ones tip more slowly (~sqrt(size)).\n" ..
     "Predicted falling pattern: B -> A -> D <- C")
 end)
 
@@ -575,7 +663,7 @@ v:postSim(function(N)
                             f and ("face " .. f) or "no face (propped?)", g.restedAt - g.t0, path,
                             f == HOME and "" or "  ** NOT ON FACE D **",
                             (f ~= HOME and near) and ("  -- frames may be touching " .. near) or ""))
-        g.result = { face = f, rest = g.restedAt - g.t0, path = path }
+        g.result = { face = f, rest = g.restedAt - g.t0, path = path, i = g.i, s = g.s }
       end
     elseif moved then
       g.anchorT, g.aq, g.ap = race.t, { qx, qy, qz, qw }, { px, py, pz }
