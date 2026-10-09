@@ -16,7 +16,6 @@
 #include <memory>
 
 #include <QColor>
-#include <QMessageBox>
 #include <QTextCodec>
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
@@ -1532,6 +1531,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _stream = nullptr;
 
   _savePOV = savePOV;
+  _povExportFailed = false;
 
   setSnapshotFormat("png");
 
@@ -2290,6 +2290,8 @@ void Viewer::setSavePOV(bool pov) {
 void Viewer::setPOVSettingsInc(QString s) { _pov_settings_inc = s; }
 
 QString Viewer::getPOVSettingsInc() { return _pov_settings_inc; }
+
+bool Viewer::povExportFailed() const { return _povExportFailed; }
 
 void Viewer::toggleSavePOV(bool savePOV) {
   _savePOV = savePOV;
@@ -4352,11 +4354,19 @@ void Viewer::savePOV(bool force) {
 
   qDebug() << "exportDir: " << exportDir;
 
+  // (No dialog for a directory that cannot be created: it would run an event
+  // loop inside animate(), with the mutex held, that nobody can answer in a
+  // headless run, and the animation timer firing in it blocks on that mutex.)
+  auto exportFailed = [this](const QString &dir) {
+    emitScriptOutput(tr("Unable to create directory %1.").arg(dir));
+    _savePOV = false;
+    _povExportFailed = true;
+    emit POVStateChanged(false);
+  };
+
   if (!pwdDir.exists(exportDir)) {
     if (!pwdDir.mkpath(exportDir)) {
-      QMessageBox msgBox;
-      msgBox.setText(tr("Unable to create directory %1.").arg(exportDir));
-      msgBox.exec();
+      exportFailed(pwdDir.absoluteFilePath(exportDir));
       return;
     }
   }
@@ -4368,9 +4378,7 @@ void Viewer::savePOV(bool force) {
 
   if (!pwdDir.exists(sceneDir)) {
     if (!pwdDir.mkpath(sceneDir)) {
-      QMessageBox msgBox;
-      msgBox.setText(tr("Unable to create directory %1.").arg(sceneDir));
-      msgBox.exec();
+      exportFailed(sceneDir);
       return;
     }
   }

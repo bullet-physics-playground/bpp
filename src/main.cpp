@@ -408,20 +408,23 @@ int main(int argc, char **argv) {
 
     v->setSavePOV(parser.isSet("export"));
 
-    v->parse(txt);
+    bool parsed = v->parse(txt);
     v->startSim();
 
-    for (int i = 1; i <= n; ++i) {
+    // (Past a failed export there is nothing left to write: the rest of the
+    // frames would only repeat it.)
+    for (int i = 1; i <= n && !v->povExportFailed(); ++i) {
       v->animate();
     }
 
     v->stopAnimation();
     v->close();
+    bool failed = !parsed || v->povExportFailed();
 
     // In command-line mode, we don't need the event loop since simulation is done
     // Just delete the viewer and return
     delete v;
     delete settings;
-    return 0;
+    return failed ? EXIT_FAILURE : 0;
   }
 }
