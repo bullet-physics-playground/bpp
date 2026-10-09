@@ -1,0 +1,20 @@
+.git
+.github
+.claude
+.codex
+
+# build output; qmake and dpkg regenerate all of it
+release
+debug
+Makefile
+Makefile.*
+.qmake.stash
+build-stamp
+debian/bpp
+debian/files
+debian/*.substvars
+debian/*.debhelper*
+debian/debhelper-build-stamp
+
+# exported POV-Ray scenes (gigabytes)
+export

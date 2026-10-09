@@ -80,6 +80,68 @@ F6 without crashing); see [`povray-linux/README.md`](povray-linux/README.md)
 for the gotchas that took to get there. The Windows/MSYS2 path is untested
 beyond compiling — see [`povray-mingw/README.md`](povray-mingw/README.md).
 
+## Docker
+
+The [`Dockerfile`](Dockerfile) packages bpp as a headless worker for running on
+a server or a Kubernetes cluster ([Talos Linux](https://www.talos.dev/)
+included). It needs no display: it runs a Lua script and, with `-e`, exports
+the frames as POV-Ray scenes for a renderer such as
+[povomatic](#distributed-rendering-with-povomatic). The image ships the demos
+under `/usr/share/bpp/demo`, plus OpenSCAD and POV-Ray.
+
+```bash
+mkdir -p out
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/out:/work" koppi/bpp \
+    -n 278 -e -f /usr/share/bpp/demo/basic/00-hello.lua   # writes out/export/00-hello/
+```
+
+Arguments are the [command-line](#command-line) ones, and without any the image
+prints `--help`. To run your own script, mount it and pass its path. The
+container runs as the unprivileged uid 10001 and `/work` is its working
+directory and home, where the export (`/work/export`) and bpp's settings and
+cache go. That is the only place it writes, so it also runs with a read-only
+root filesystem and all capabilities dropped. `/work` must be writable by the
+container's user: hence `--user` above, or `fsGroup` on a Kubernetes volume.
+
+On Kubernetes, a Job that runs under the *restricted* Pod Security profile:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bpp-hello
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bpp
+          image: koppi/bpp:latest
+          args: ["-n", "278", "-e", "-f", "/usr/share/bpp/demo/basic/00-hello.lua"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: work
+              mountPath: /work
+      volumes:
+        - name: work
+          emptyDir: {}   # use a PersistentVolumeClaim to keep the export
+```
+
+The published image is `linux/amd64`. To build it yourself, for example for
+another architecture, run `docker build -t koppi/bpp .`: a first stage builds
+the Debian package from [`debian/`](debian), the way the release workflow
+does, and the runtime image installs it.
+
 ## Usage
 
 ### GUI
