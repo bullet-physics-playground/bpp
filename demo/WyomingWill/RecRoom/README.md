@@ -376,6 +376,12 @@ own) so the scripts can't interfere with each other:
   on their own. The clock takes turns with them at its own settings (see
   above). Each game counts only its own frames, so its timers work as they
   do on their own.
+- **One step of its own a frame.** The clock and the "More games" each
+  take their own physics steps, 25 a second, a few milliseconds each. In a
+  frame where two fell together the frame missed the screen, so the room
+  takes one of them a frame where it can: the clock first, then the one
+  furthest behind; the next waits a frame (16 ms) unless it's two steps
+  behind. Each still takes exactly its steps, at its own pace.
 - **Keys and sliders.** A game's keys, its keyboard shortcuts included,
   go to it only while you're at it. Its sliders are renamed in the Params
   pane when needed (the clock's gravity is `clock_gravity`).
