@@ -82,8 +82,10 @@ public:
    * @brief Draws the plane as a finite square with an outline.
    *
    * The square is built from two in-plane axes derived from the normal, and
-   * its triangles are emitted in both winding orders so the plane is visible
-   * from either side.
+   * drawn as two triangles wound counter-clockwise seen from the normal's
+   * side. Nothing in the view is back-face culled, so that is visible from
+   * either side; a second, reversed copy of the triangles would lie at the
+   * same depth as the first and z-fight with it.
    *
    * @param minaabb Lower corner of the scene bounding box. Unused.
    * @param maxaabb Upper corner of the scene bounding box. Unused.

@@ -202,27 +202,39 @@ void Plane::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
 
   glApplyColor();
 
+  // The outline is drawn first, lit by the fill's normal (a line takes
+  // whichever one was set last, some other object's) and without writing
+  // depth. A line gets no polygon offset, so in the shadow map it would
+  // record the plane's true depth along the rim while the fill beside it is
+  // pushed back, and the rim would shadow itself in a band of acne. Drawn
+  // like this the fill covers it where they overlap, so the two cannot
+  // z-fight either, and the outline shows only just outside the fill's edge.
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+  glDepthMask(GL_FALSE);
+  glNormal3fv(planeNormal);
   glBegin(GL_LINE_LOOP);
   corner_v(pt0, 0, 0);
   corner_v(pt1, 1, 0);
   corner_v(pt2, 1, 1);
   corner_v(pt3, 0, 1);
   glEnd();
+  glPopAttrib();
 
+  // Each half of the square once, wound counter-clockwise seen from the
+  // normal's side (edge0 x edge1 is the normal). Nothing is back-face culled
+  // in the view, so one winding is seen from both sides. A second, reversed
+  // copy of each triangle would lie at the very same depth: which of the two
+  // wins then changes from pixel to pixel and frame to frame, and the shader
+  // lights a back face with a flipped normal, so the loser shows as dark
+  // specks and scanlines crawling over the plane.
   glBegin(GL_TRIANGLES);
   glNormal3fv(planeNormal);
   corner_v(pt0, 0, 0);
   corner_v(pt1, 1, 0);
   corner_v(pt2, 1, 1);
   corner_v(pt2, 1, 1);
-  corner_v(pt1, 1, 0);
-  corner_v(pt0, 0, 0);
-  corner_v(pt2, 1, 1);
   corner_v(pt3, 0, 1);
   corner_v(pt0, 0, 0);
-  corner_v(pt0, 0, 0);
-  corner_v(pt3, 0, 1);
-  corner_v(pt2, 1, 1);
   glEnd();
 }
 
