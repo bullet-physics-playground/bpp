@@ -4387,9 +4387,13 @@ void Viewer::savePOV(bool force) {
   // (includes/settings.inc, or the file a script names with v.pov_settings)
   // alongside the exported scene, rather than relying on the +L library
   // path to find the original when the scene is rendered later, elsewhere.
-  // A name with no file under includes/ leaves sceneDir's copy alone.
+  // A name with no file under includes/ leaves sceneDir's copy alone. Outside
+  // a source checkout (the Docker image runs from /work) includes/ is the
+  // installed /usr/share/bpp/includes.
   QString settingsIncPath = startupWorkingDir() + QDir::separator() +
                              "includes" + QDir::separator() + _pov_settings_inc;
+  if (!QFile::exists(settingsIncPath))
+    settingsIncPath = "/usr/share/bpp/includes/" + _pov_settings_inc;
   if (!_pov_settings_inc.isEmpty() && QFile::exists(settingsIncPath)) {
     QString sceneSettingsInc = sceneDir + QDir::separator() + _pov_settings_inc;
     QFile::remove(sceneSettingsInc);
