@@ -27,4 +27,23 @@ Sloan beta shapes (beta1-06, beta1-07, beta1-08, beta2-04)
               is within ~0.02 of the paper's spiral; margins 0.6 mm at 9 cm;
               still 1 + 1 with 1 mm random vertex errors (100% at 0.1 mm).
   eq.py       exact equilibrium count of a polyhedron with point masses
-  gen21.py    tungsten balls + carbon rods, mass properties, display mesh
+  gen21solid.py  writes p21.obj (closed polyhedron, flat faces) and p21.lua
+              (equal point masses at the corners, weightless skin)
+  gen21.py    the earlier skeleton version (tungsten balls on carbon rods)
+  opt21s.py, try_s.py  could a REAL hollow one work? Re-fits the shape with a
+              thin plastic skin and corner weights set inside the corners:
+              0.3 mm skin + 5-10 g weights 2 mm in: no (extra resting faces);
+              20 g weights 2 mm in: just (0.05 mm margin); 20 g right at the
+              corners: yes (0.54 mm)
+
+More corners, and real builds (p26, p37; see also gomboc-findings.pdf)
+  table1.py   rebuilds every row of the paper's Table 1 from its angles: the
+              listed z_C is not reproduced for any row (probably our misreading)
+  optnk.py    fits any Conway (n,k)-spiral for the largest margin; 13, 16, 17,
+              19 corners: no fit found; 21: 0.83 mm (4,5) and 0.62 (5,4);
+              26: 2.78 mm; 37: 4.27 mm (9 cm tall). nk_*.npy = the fits.
+              p21 now uses nk_4_5.npy.
+  shellgrid.py  margins with a plastic skin and corner weights set inside
+  optshell.py   refits (5,5) and (6,6) for 0.5 mm skin + 5.2 g weights 3 mm in
+  genshell.py   writes p26/p37 (.obj, .lua) for that build
+  robust2.py    build-error tolerance (accurate panels; rings, weights off)

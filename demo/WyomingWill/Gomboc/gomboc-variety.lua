@@ -1,12 +1,12 @@
 --
--- Gomboc Variety: Gomboc-C, Sloan's beta shapes and the 21-vertex polyhedron
+-- Gomboc Variety: Gomboc-C, Sloan's beta shapes and the spiral polyhedra
 --
 -- The same table, physics and race as Gomboc Drop C (gomboc-drop-c.lua), but
 -- every drop brings the next shape in a cycle:
 --
 --   Gomboc-C (9 cm)  ->  a beta shape  ->  Gomboc-C at 75%  ->  another beta
---   shape  ->  Gomboc-C at 125%  ->  another beta shape  ->  the 21-vertex
---   polyhedron  ->  and round again
+--   shape  ->  Gomboc-C at 125%  ->  another beta shape  ->  a spiral
+--   polyhedron (21, 26 or 37 corners, in turn)  ->  and round again
 --
 -- Each colour keeps its colour and runs through that cycle: when it has been
 -- at rest for `redrop` seconds it is lifted away and the NEXT shape is
@@ -52,11 +52,23 @@
 --               fewest corners known for a polyhedron with one stable face
 --               (the bottom pentagon) and one unstable vertex (the apex).
 --               RECONSTRUCTED: the paper gives angles, not coordinates, so the
---               rings were re-fitted close to its spiral (see p21.lua). Built
---               as 21 tungsten balls (8 mm) on 1 mm carbon rods, 9 cm tall,
---               110 g. Nearly all its mass is in its corners and it is tall
---               for its base, so it topples and clatters onto its pentagon:
---               upright in 2-3.5 s, at rest in 4-5 s, every time in tests.
+--               rings were re-fitted close to its spiral (see p21.lua). Drawn
+--               as a closed polyhedron, 9 cm tall; the physics is the paper's
+--               idealisation, all 109 g in the 21 corners and a weightless
+--               skin (a real build is very hard -- see p21.lua). With its mass
+--               in its corners and tall for its base, it topples and clatters
+--               onto its pentagon: upright in 2-3.5 s, at rest in 4-5 s,
+--               every time in tests.
+--
+--   26- and     the same construction with more corners: an apex above five
+--   37-vertex   pentagons (26) or six hexagons (37). 21 is only the FEWEST
+--               corners for which it can work; with more, the margins grow
+--               (0.8 -> 2.8 -> 4.3 mm at 9 cm), enough to build them for
+--               real. So these two are simulated as real objects: a 0.5 mm
+--               polycarbonate shell with a 5.2 g tungsten weight centred 3 mm
+--               inside each corner (142 g and 201 g), shape fitted for that
+--               build. The 37 tolerates 0.5 mm build errors; the 26 barely
+--               tolerates 0.2 mm (see p26.lua, p37.lua).
 --
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance and spin friction as constant moments at the table
@@ -73,7 +85,7 @@
 --   ]   one more (and drop)      [   one fewer
 --
 -- Sliders: count; shapes (0 = the cycle above, 1 = the cycle without the beta
--- shapes, 2 = Gomboc-C only, 3 = beta only, 4 = 21-vertex only); speed, steps,
+-- shapes, 2 = Gomboc-C only, 3 = beta only, 4 = the polyhedra only); speed, steps,
 -- friction, restitution, rolling (microns), spin friction, air drag, redrop.
 -- The tally every minute (while re-dropping) lists each shape separately.
 --
@@ -120,9 +132,15 @@ do
                    K2 = d.inertia, down = d.down, top = d.top, topHeight = d.topHeight, margin = 0.04 }
   end
   local p = load("p21")
-  BASE.P21 = { title = "21-vertex polyhedron", obj = "p21.obj", points = p.vertices, mass = p.mass,
+  BASE.P21 = { title = "21-vertex polyhedron (ideal)", obj = "p21.obj", points = p.vertices, mass = p.mass,
                K2 = p.inertia, down = p.down, top = p.top, topHeight = p.topHeight,
-               margin = p.ballRadius }       -- the balls round every corner off
+               margin = p.margin or p.ballRadius }
+  for _, nv in ipairs({ 26, 37 }) do
+    local q = load("p" .. nv)
+    BASE["P" .. nv] = { title = nv .. "-vertex shell polyhedron", obj = "p" .. nv .. ".obj", points = q.vertices,
+                        mass = q.mass, K2 = q.inertia, down = q.down, top = q.top, topHeight = q.topHeight,
+                        margin = q.margin }
+  end
 end
 
 -- the cycle (shapes slider 0) and the single-kind cycles (1, 2, 3)
@@ -189,7 +207,7 @@ local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
 param("count", envnum("GV_COUNT", 6), 1, MAX_COUNT, 1, "how many to drop")
 param("shapes", envnum("GV_SHAPES", 0), 0, 4, 1,
-      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ..., 21-vertex; 1 = the same without the beta shapes; 2 = Gomboc-C only; 3 = beta only; 4 = 21-vertex only")
+      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ..., polyhedron; 1 = the same without the beta shapes; 2 = Gomboc-C only; 3 = beta only; 4 = polyhedra only (21, 26, 37 corners)")
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GV_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
@@ -293,18 +311,20 @@ local SEQ = {}
 do
   local function C(sz) return { "C", sz } end
   local function Bt(k) return { BETAS[k] } end
-  local full, c, b = {}, 0, 0
-  for n = 1, 4 * 7 do                         -- C, beta, C, beta, C, beta, 21-vertex
+  local POLY = { "P21", "P26", "P37" }
+  local full, c, b, pp = {}, 0, 0, 0
+  for n = 1, 12 * 7 do                        -- C, beta, C, beta, C, beta, polyhedron
     local k = (n - 1) % 7 + 1
-    if k == 7 then full[#full + 1] = { "P21" }
+    if k == 7 then pp = pp % #POLY + 1; full[#full + 1] = { POLY[pp] }
     elseif k % 2 == 1 then c = c % #C_SIZES + 1; full[#full + 1] = C(C_SIZES[c])
     else b = b % #BETAS + 1; full[#full + 1] = Bt(b) end
   end
   SEQ[0] = full
-  SEQ[1] = { C(1.0), C(0.75), C(1.25), C(1.0), C(0.75), C(1.25), { "P21" } }
+  SEQ[1] = { C(1.0), C(0.75), C(1.25), { "P21" }, C(1.0), C(0.75), C(1.25), { "P26" },
+             C(1.0), C(0.75), C(1.25), { "P37" } }
   SEQ[2] = { C(1.0), C(0.75), C(1.25) }
   SEQ[3] = { Bt(1), Bt(2), Bt(3), Bt(4) }
-  SEQ[4] = { { "P21" } }
+  SEQ[4] = { { "P21" }, { "P26" }, { "P37" } }
 end
 local function nextSpec(g)
   local seq = SEQ[math.floor(v:getParam("shapes") + 0.5)] or SEQ[0]
@@ -618,7 +638,8 @@ pcall(function()
     "Each drop brings the next shape: Gomboc-C,\n" ..
     "a Sloan beta shape, Gomboc-C at 75%, another\n" ..
     "beta, Gomboc-C at 125%, another beta, and\n" ..
-    "every seventh the 21-vertex polyhedron.\n" ..
+    "every seventh a spiral polyhedron (21, 26,\n" ..
+    "37 corners in turn).\n" ..
     "All have one resting and one balancing point,\n" ..
     "but the beta shapes are so gently sloped that\n" ..
     "rolling resistance usually stops them on their\n" ..
@@ -737,5 +758,5 @@ math.randomseed(envnum("GV_SEED", os.time()))
 -- build every shape once up front, so a re-drop never waits for a mesh to load
 for _, s in ipairs(C_SIZES) do spec("C", s) end
 for _, b in ipairs(BETAS) do spec(b) end
-spec("P21")
+spec("P21"); spec("P26"); spec("P37")
 if os.getenv("GV_START") == "headstand" then headstand() else drop() end
