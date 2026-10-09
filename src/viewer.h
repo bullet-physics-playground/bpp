@@ -1921,7 +1921,7 @@ protected:
    * @brief Writes the exported frame's audio to the scene's @c .wav.
    *
    * Mixes the sounds recordSound() queued into the track and appends the
-   * frame's share of it, 1/25 s -- the rate export.mk encodes the frames at --
+   * frame's share of it, 1/25 s -- the rate the GNUmakefile encodes at --
    * so the file on disk is always a complete WAV as long as the video. The
    * track is started by the first sound, padded with silence back to the
    * export's first frame, so a scene that plays nothing gets no @c .wav. A new
