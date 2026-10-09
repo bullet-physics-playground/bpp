@@ -4433,17 +4433,11 @@ slurm:
 kubernetes:
 	python3 ../../scripts/povray-job.py --start 1 --end `ls -1 ?????.inc | wc -l` --width 1280 --height 720 ${SCENE}.pov
 
-log-kubernets:
-	kubectl logs -f -l app=povray-worker --max-log-requests=50 --tail=50
+log-povomatic-worker:
+	kubectl -n povomatic logs deploy/worker -c worker -f
 
 povomatic:
 	python3 ../../scripts/povomatic-job.py ${POVOMATIC_ARGS} .
-
-#youtube-up: mkv
-#	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}.mkv
-#
-#youtube-up-loop: mkv-loop
-#	youtube-upload -t "Bullet Physics Playground – ${SCENE}" --privacy=unlisted --category "Science & Technology" ${SCENE}-loop.mkv
 
 distclean: clean
 	rm -f ${SCENE}.pov ${SCENE}.ini ?????.inc mesh_*.inc
