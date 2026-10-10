@@ -294,6 +294,7 @@ void Gui::fileLoad(const QString &path) {
   editor->blockSignals(false);
 
   if (loaded) {
+    ui.viewer->clearParams();
     shortcutsText->clear();
     setCurrentFile(path);
     setWindowTitle(tr("%1 - %2")
