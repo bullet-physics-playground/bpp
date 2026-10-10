@@ -17,7 +17,6 @@
 #include <windows.h>
 #endif
 
-#include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -477,19 +476,7 @@ QString Mesh::toPOV(const QString &sceneDir) const {
   if (m_shape != nullptr && body != nullptr &&
       body->getMotionState() != nullptr) {
     if (mPreSDL.isNull()) {
-      QByteArray meshdata;
-      QTextStream tmp(&meshdata);
-      toMesh2(&tmp, QString());
-      tmp.flush();
-
-      QCryptographicHash hashAlgo(QCryptographicHash::Sha1);
-      hashAlgo.addData(meshdata);
-      QString hash = hashAlgo.result().toHex();
-
-      meshdata.clear();
-      QTextStream tmp2(&meshdata);
-      toMesh2(&tmp2, hash);
-      tmp2.flush();
+      QString hash = povMeshHash(m_shape);
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
