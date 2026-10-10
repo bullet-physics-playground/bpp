@@ -1,14 +1,15 @@
 --
--- Walker room: WyomingWill's walkers on one meadow, each scaled to about
--- 40 cm, walking freely inside a walled arena. They turn away from the
+-- Walker room: WyomingWill's walkers on one meadow, each scaled to the
+-- same leg length, walking freely inside a walled arena. They turn away from the
 -- walls and from each other; one that falls is stood up again. The
 -- TerrainHeight slider raises the bumps. Tab / Shift+Tab follow a
 -- walker, O looks over the room, T clears the trails (README.md).
 --
 -- Each walker is built by its own ../Walkers/<name>_parts.lua -- the
--- same code its standalone file uses -- at a scale that makes its
--- footprint 40 cm, with its own gravity scaled to match, so it moves as
--- it does full size. All of them share one world, one terrain and one
+-- same code its standalone file uses -- at a scale that puts its crank
+-- axles 12 cm above the ground (LEG), with its own gravity scaled to
+-- match, so it moves as it does full size. Every crank turns at the
+-- same speed (CRANK). All of them share one world, one terrain and one
 -- physics step.
 --
 -- Units: centimetres and seconds.
@@ -25,7 +26,8 @@ local WALKERS_DIR = WALKERS_DIR or "../Walkers/"
 -- settings
 -- ---------------------------------------------------------------------
 
-local TARGET = 40          -- every walker's footprint (its longer side), cm
+local LEG = LEG or 12       -- every walker's leg: its crank axles' height above the ground, cm
+local CRANK = CRANK or 2.6 -- every walker's crank speed, rad/s
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0
 local CELL = CELL or 4      -- terrain cell, cm
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
@@ -48,11 +50,11 @@ v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, 
 -- ---------------------------------------------------------------------
 
 local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
-local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, at 40 cm
+local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
 
 -- three sine terms as in the walkers' own terrains (amplitudes 0.5, 0.3
 -- and 0.2: AMP is the highest a bump can reach), with wavelengths between
--- those of the big walkers' terrains and the small ones', at 40 cm
+-- those of the big walkers' terrains and the small ones', scaled to the room
 local function terrainHeight(x, z)
   return AMP * (0.5 * math.sin(x * 0.19 + z * 0.13) +
                 0.3 * math.sin(x * 0.07 - z * 0.28 + 1.7) +
@@ -134,43 +136,46 @@ end
 -- ---------------------------------------------------------------------
 -- the walkers
 --
--- size: the longer side of its moving bodies' footprint when built at
---   full size (measured; the scale is TARGET / size)
+-- leg: how high its crank axles ride above the ground, walking on flat
+--   ground at full size (measured: the mean height of its cranks'
+--   centres over many turns). The scale is LEG / leg, so every walker
+--   has the same leg length -- a bump is the same obstacle to all.
 -- fixed: its own physics step; the room steps at FIXED, so its motors'
 --   impulse (applied once per step) is scaled by FIXED / fixed
 -- lift: how its build is told about the bumps -- "groundTop" (the
 --   highest the ground gets) or "terrainLift" (how much to lift it)
 -- forward: the direction it walks in its own frame (+1: +x, -1: -x)
--- opts: its standalone file's slider defaults
+-- opts: its standalone file's slider defaults (its crank speed, though,
+--   is CRANK for all: see addWalker)
 -- railed: its body is held to move only along its own heading (the
 --   balanced Spears' fix for a sideways drift); it turns only in right
 --   angles, and the hold is put back along its new heading after each
 -- ---------------------------------------------------------------------
 
 local WALKERS = {
-  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", size = 379.7, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", leg = 92.089, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5 } },
-  { name = "Klann", parts = "Klann_6Leg_parts.lua", size = 435.3, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", parts = "Klann_6Leg_parts.lua", leg = 66.096, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5 } },
-  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", size = 16.36, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", leg = 6.297, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", size = 16.31, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", leg = 6.728, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", size = 17.67, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", leg = 3.849, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", size = 28.48, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", leg = 5.311, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", size = 17.21, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", leg = 5.235, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", size = 18.97, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", leg = 5.327, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", size = 17.71, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", leg = 6.065, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", size = 37.32, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", leg = 10.587, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
-  { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", size = 26.57, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", leg = 12.938, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
-  { name = "Spears 2-leg balanced", parts = "Spears_4Bar_2Leg_Balanced_parts.lua", size = 26.59, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg balanced", parts = "Spears_4Bar_2Leg_Balanced_parts.lua", leg = 11.472, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8, barLen = 13, tipMass = 70 }, railed = true },
 }
 
@@ -254,10 +259,14 @@ room = { walkers = walkers }   -- (global, for tests and the command line)
 
 local function addWalker(spec, x, z, heading)
   local W = dofile(WALKERS_DIR .. spec.parts)
-  local scale = TARGET / spec.size
+  local scale = LEG / spec.leg
   local w = { spec = spec, scale = scale, bodies = {}, constraints = {} }
   local opts = {}
   for k, val in pairs(spec.opts) do opts[k] = val end
+  -- the same crank speed for every walker (each names it its own way)
+  for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do
+    if opts[k] then opts[k] = CRANK end
+  end
   opts.add = function(o)
     addObject(o)
     o.body:setActivationState(4)        -- DISABLE_DEACTIVATION: a sleeping body ignores its motor
@@ -400,7 +409,7 @@ room.heading, room.startTurn = heading, startTurn
 -- walkers near enough to matter.
 -- ---------------------------------------------------------------------
 
-local GAP = TARGET          -- one body length, cm
+local GAP = 40              -- about one body length, cm
 local AHEAD = math.rad(60)  -- "in front": within this of straight ahead
 local COOLDOWN = 2.0        -- s after a turn ends before it looks again
 local CANDIDATES = 12       -- new headings tried per turn
@@ -693,7 +702,7 @@ local function helpText()
   h = h .. "T           clear the trails\n"
   h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
   h = h .. "Rest the pointer on a walker, or on a trail, to see whose it is,\n"
-  h = h .. "how far it has gone and how often it has turned or been stood up.\n\n"
+  h = h .. "how far it has gone, its average speed, and how often it has turned\nor been stood up.\n\n"
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
   h = h .. "The room is built again, every walker back at its start, when you let go.\n\n"
   h = h .. "Walkers and their trails:\n"
@@ -760,8 +769,8 @@ v:onHover(function(N, obj, x, y, z)
     first = w and ("the " .. w.colour[1] .. " trail of " .. w.spec.name)
   end
   if not w then return nil end
-  return string.format("%s\nhas gone %.0f cm in %.0f s\nturned %d times, stood up %d times",
-    first, w.travelled, simTime, w.turns or 0, w.stoodUp or 0)
+  return string.format("%s\nhas gone %.0f cm in %.0f s (%.1f cm/s)\nturned %d times, stood up %d times",
+    first, w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
 end)
 
 -- the TerrainHeight slider: the room is built again once the slider has
