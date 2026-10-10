@@ -199,7 +199,7 @@ void luaBindBulletPart3(lua_State *s) {
             .def(const_self == const_self)];
 
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtQuaternion.html
-      [class_<btQuaternion>("btQuaternion")
+      [class_<btQuaternion, btQuaternion_wrap>("btQuaternion")
                  .def(constructor<>(), adopt(result))
                  .def(constructor<btScalar, btScalar, btScalar>(), adopt(result))
                  .def(constructor<btScalar, btScalar, btScalar, btScalar>(),

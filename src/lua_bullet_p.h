@@ -183,6 +183,25 @@ inline void btQuaternion_setRotation(btQuaternion& q, const btVector3& axis, btS
     q.setRotation(axis, angle);
 }
 
+/**
+ * @brief A btQuaternion whose default constructor gives the identity.
+ *
+ * Bullet's btQuaternion() leaves all four components uninitialised, so a
+ * script's btQuaternion() - meant as "no rotation", as in
+ * btTransform(btQuaternion(), pos) - was whatever the heap held. A garbage
+ * quaternion makes getOpenGLMatrix() divide by a squared length near zero and
+ * return NaN, which the POV-Ray export wrote out as "matrix <nan,nan,...>".
+ * The class is registered with this as its wrapper type, so luabind builds
+ * this instead of a bare btQuaternion; the other constructors are Bullet's
+ * own, inherited unchanged.
+ */
+struct btQuaternion_wrap : public btQuaternion {
+  using btQuaternion::btQuaternion;
+
+  /** @brief The identity rotation: (0, 0, 0, 1). */
+  btQuaternion_wrap() : btQuaternion(0, 0, 0, 1) {}
+};
+
 // Bullet's C++ classes provide neither operator<< nor operator==, but
 // luabind's tostring()/comparison policies require both to be found via ADL
 // for every class registered with them. Without a fallback, calling
