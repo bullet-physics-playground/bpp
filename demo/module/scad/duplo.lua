@@ -315,7 +315,7 @@ module ramp2Piece()
       duploMarbleRunBase(2,2,4,false);      
       union() {
          translate([0,dr+1, duploHeight+2]) rotate([90+angle,0,0]) scale([1,vscale,1])
-                  cylinder( duploRaster*6, innerRadius, innerRadius,, center=true, $fn = quality*2 );     
+                  cylinder( duploRaster*6, innerRadius, innerRadius, center=true, $fn = quality*2 );     
          translate([-2*dr,2*dr+0, 1.5*duploHeight+0]) rotate([90+angle,0,0])
                   cube( [duploRaster*4,duploRaster*4,duploRaster*4] );       
       }
@@ -330,7 +330,7 @@ module longRampPiece()
       duploMarbleRunBase(2,4,4,false);      
       union() {
          translate([0,0*dr+1, duploHeight+2]) rotate([90+angle,0,0]) scale([1,vscale,1])
-                  cylinder( duploRaster*6, innerRadius, innerRadius,, center=true, $fn = quality*2 );     
+                  cylinder( duploRaster*6, innerRadius, innerRadius, center=true, $fn = quality*2 );     
          translate([-2*dr,4*dr+0, 3*duploHeight+0]) rotate([90+angle,0,0])
                   cube( [duploRaster*4,duploRaster*4,duploRaster*8] );       
       }
