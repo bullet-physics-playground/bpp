@@ -1386,7 +1386,9 @@ end
 --
 -- Once a second the room's work per frame is measured (the tables'
 -- computer players' thinking counted at its usual cost: they think with
--- whatever time is spare, so that's not a load). Over SUSPEND_ABOVE ms for
+-- whatever time is spare, so that's not a load; and drawing at its usual
+-- cost, the least of the last 10 seconds: a spike in drawing costs the same
+-- whether a game runs or not, so suspending one wouldn't help). Over SUSPEND_ABOVE ms for
 -- SUSPEND_AFTER seconds running: a game is suspended. With the cheapest
 -- suspended game added back at its usual cost, under RESUME_BELOW ms for
 -- RESUME_AFTER seconds running: it's resumed. (The gap between the two
@@ -1402,11 +1404,12 @@ end
 -- say -- a table waiting for its next shot never seemed to fit back.
 if AUTO_SUSPEND == nil then AUTO_SUSPEND = true end
 SUSPEND_ABOVE = SUSPEND_ABOVE or 15.5
-RESUME_BELOW = RESUME_BELOW or 14.5
+RESUME_BELOW = RESUME_BELOW or 15
 SUSPEND_AFTER = SUSPEND_AFTER or 2
 RESUME_AFTER = RESUME_AFTER or 5
 suspendedList = {}                 -- (global for the meter above it and for tests)
 local overFor, underFor, settle = 0, 0, 0
+drawSeen = {}                      -- (drawing per frame, each of the last 10 seconds)
 local movingSeen = {}              -- moving bodies counted, game by game, since the last second
 function sampleMoving()
   for _, g in ipairs(games) do
@@ -1600,7 +1603,15 @@ local function meterTick(t)
       if g then g.env.PLAN_BUDGET = thinkMs / 1000 end
     end
     gameCosts(per)
-    suspendTick(others, 1000 / budget)
+    -- (drawing counted at its usual cost: the least of the last 10
+    -- seconds. A second with drawing spikes isn't a reason to suspend a game:
+    -- drawing costs the same whether a game runs or not)
+    local drawNow = meter.draw / d
+    drawSeen[#drawSeen + 1] = drawNow
+    if #drawSeen > 10 then table.remove(drawSeen, 1) end
+    local drawUsual = drawNow
+    for _, x in ipairs(drawSeen) do drawUsual = math.min(drawUsual, x) end
+    suspendTick(others - drawNow + drawUsual, 1000 / budget)
     local susp = {}
     for _, g in ipairs(suspendedList) do susp[#susp + 1] = shortName(g) end
     if METER then meterText = string.format(
@@ -1891,9 +1902,11 @@ v:postDraw(function(N)
       part("room", meter.room - snap.room)
       part("garbage", meter.gc - snap.gc)
       part("drawing", meter.draw - snap.draw)
-      print(string.format("REC ROOM: a %.0f ms freeze, ending at %s -- %s%soutside the room's code %.0f ms",
+      -- (and, with bpp's drawing timer on, that frame's drawing part by part)
+      local ok, dl = pcall(function() return realV.drawTiming and realV:lastFrameDrawing() or "" end)
+      print(string.format("REC ROOM: a %.0f ms freeze, ending at %s -- %s%soutside the room's code %.0f ms%s",
                           gap, os.date("%H:%M:%S"), table.concat(parts, ", "), #parts > 0 and ", " or "",
-                          math.max(0, gap - inside)))
+                          math.max(0, gap - inside), (ok and dl ~= "") and (" [drawing: " .. dl .. "]") or ""))
     end
   end
   meter.lastDraw = tw

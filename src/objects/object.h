@@ -575,6 +575,8 @@ public:
   bool shadowListed = false; ///< In the shadow map's record of still objects
                              ///< (set each frame by Viewer::renderShadowDepth()).
   quint64 shadowHash = 0;    ///< Where and what it was last frame (the same).
+  int shadowMoves = 0;       ///< Times it moved after having stayed put (2: kept out).
+  int shadowCell[3] = {0, 0, 0}; ///< The patch of the shadow record it's in.
 
   // The screen's merge (see Viewer::setScreenMerge()).
   bool merged = false;       ///< Its triangles are in a merged batch

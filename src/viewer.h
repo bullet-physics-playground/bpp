@@ -829,6 +829,15 @@ public:
   QString drawTimingReport();
 
   /**
+   * @brief The last frame's drawing, part by part (with the drawing timer on,
+   * see setDrawTiming()), for a script that wants to say why one frame was
+   * slow: the times in ms, and what that frame had to do besides drawing --
+   * merged batches made again or recoloured, the fixed objects' shadow
+   * record made again, the shadow map's saved depth made again.
+   */
+  QString lastFrameDrawing() const;
+
+  /**
    * @brief Sets the resolution of the square shadow depth map, in pixels.
    *
    * Larger is sharper and slower, and is clamped to between 256 and 8192. The
@@ -2089,9 +2098,15 @@ private:
   int _drawnObjects = 0;   ///< Objects drawn for the screen last frame.
   int _shadowCasters = 0;  ///< Objects drawn into the shadow map last frame.
   bool _shadowCache = true;        ///< See setShadowCache().
-  GLuint _fixedShadowLists = 0;    ///< The still objects' recorded depth: one
-                                   ///< list per patch of the room, from here.
-  QVector<QVector<Object *>> _fixedShadowCells; ///< Each list's objects.
+  /// The still objects' recorded depth: a list for each patch of the room,
+  /// made again only when what's in that patch changes.
+  struct ShadowPatch {
+    GLuint list = 0;
+    QVector<Object *> objs;         ///< (in the order they're drawn)
+    quint64 sum = 0;                ///< Their hashes, summed.
+    int count = 0;
+  };
+  QMap<std::tuple<int, int, int>, ShadowPatch> _shadowPatches;
   const void *_fixedShadowCtx = nullptr; ///< GL context the lists live in.
   unsigned _fixedShadowEpoch = 0;  ///< glCacheEpoch() when they were made.
   quint64 _fixedShadowSig = 0;     ///< The objects they were made from.
@@ -2138,6 +2153,12 @@ private:
   double _dtBox = 0;
   int _dtFrames = 0;
   double _dtShadowGpu = 0, _dtScreenGpu = 0;
+  // the last frame's drawing, part by part (see lastFrameDrawing())
+  struct LastFrame {
+    double box = 0, merge = 0, cull = 0, shadow = 0, screen = 0, all = 0;
+    int batches = 0, recoloured = 0, recorded = 0;
+    bool depthSaved = false;
+  } _lf, _lfDone;
   int _dtGpuFrames = 0;
   unsigned _dtQueries[4][2] = {};  ///< Timer queries, a ring of four frames.
   bool _dtPending[4] = {};         ///< Which of them wait to be read.

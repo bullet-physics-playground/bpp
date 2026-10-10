@@ -291,6 +291,14 @@ ended and where that frame's time went, for example
 REC ROOM: a 454 ms freeze, ending at 18:38:41 -- physics 3, garbage 4, drawing 32, outside the room's code 413 ms
 ```
 
+With bpp's drawing timer on (`v.drawTiming = true`), the line ends with
+that frame's drawing part by part, and anything it had to do besides
+drawing:
+
+```
+[drawing: box 1.2, merge 0.3 (2 recoloured), cull 0.9, shadow map 14.1 (record of 46 fixed objects made again, saved depth made again), screen 3.4, all 19.9]
+```
+
 A game named there (`snooker 380`, say) held the room up itself; time
 "outside the room's code" went to bpp's window, the graphics driver or the
 system, and the time of day lets it be matched with the system's own log. (The time of day is only printed,
@@ -331,10 +339,12 @@ the busiest of the rest wait their turn.
 
 - **When.** Once a second the room measures its work per frame (the
   tables' computer players' thinking counted at its usual cost: they think
-  with whatever time is spare). Over `SUSPEND_ABOVE` (15.5 ms) for
+  with whatever time is spare; and drawing at its usual cost, the least of
+  the last 10 seconds: a spike in drawing costs the same whether a game
+  runs or not, so suspending one wouldn't help). Over `SUSPEND_ABOVE` (15.5 ms) for
   `SUSPEND_AFTER` (2) seconds running, the most expensive game just then
   is suspended. With the cheapest suspended game added back at its usual
-  cost, under `RESUME_BELOW` (14.5 ms) for `RESUME_AFTER` (5) seconds
+  cost, under `RESUME_BELOW` (15 ms) for `RESUME_AFTER` (5) seconds
   running, it's resumed. After each change the room waits two seconds
   before the next. `AUTO_SUSPEND = false` turns it off.
 - **A game's cost.** Its scripts and its physics. The clock and the "More
