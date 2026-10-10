@@ -1593,8 +1593,9 @@ local function meterTick(t)
     -- between THINK_MIN and THINK_MAX ms. Thinking then takes longer when
     -- the room is busy, rather than slowing the room down.
     local tables, tableScripts = 0, 0
+    -- (a suspended table isn't thinking, or doing anything: not counted)
     for _, g in ipairs({ pool, snooker, bumper }) do
-      if g then tables = tables + 1; tableScripts = tableScripts + per(meter.scripts[g] or 0) end
+      if g and not g.suspended then tables = tables + 1; tableScripts = tableScripts + per(meter.scripts[g] or 0) end
     end
     local others = busy - tableScripts + 0.7 * tables
     local spare = THINK_FILL * 1000 / 60 - others
