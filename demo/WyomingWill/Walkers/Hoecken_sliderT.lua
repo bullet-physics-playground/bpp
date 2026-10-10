@@ -228,6 +228,7 @@
 --
 
 local common = require "common"
+v.shadows = false   -- no shadows: with them bpp redraws the big terrain's shadow every frame, and the walker slows down
 
 common.setTiming(1/10, 20, 1/480)
 

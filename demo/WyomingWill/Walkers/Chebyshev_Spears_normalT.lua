@@ -53,6 +53,7 @@
 -- testing state; flip back on when ready to test full dynamics.
 --
 
+v.shadows = false   -- no shadows: with them bpp redraws the big terrain's shadow every frame, and the walker slows down
 v.timeStep = 1/10
 v.fixedTimeStep = 1/480
 

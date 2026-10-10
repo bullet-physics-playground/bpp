@@ -69,6 +69,7 @@
 -- testing state; flip back on when ready to test full dynamics.
 --
 local common = require "common"
+v.shadows = false   -- no shadows: with them bpp redraws the big terrain's shadow every frame, and the walker slows down
 
 common.setTiming(1/10, 20, 1/480)
 --v.timeStep = 1/10 --1/40 -- 1/200 -- 1/60

@@ -6,6 +6,7 @@
 --
 
 local common = require "common"
+v.shadows = false   -- no shadows: with them bpp redraws the big terrain's shadow every frame, and the walker slows down
 local Jansen = dofile("Jansen_6Leg_parts.lua")   -- bpp runs a script from its own folder
 
 -- ---------------------------------------------------------------------
