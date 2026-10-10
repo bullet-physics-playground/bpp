@@ -1,19 +1,24 @@
 --
--- Gomboc Variety: Gomboc-C, Sloan's beta shapes and the spiral polyhedra
+-- Gomboc Variety: uniform-density Gombocs -- Gomboc-C and Sloan's beta shapes
 --
 -- The same table, physics and race as Gomboc Drop C (gomboc-drop-c.lua), but
 -- every drop brings the next shape in a cycle:
 --
---   Gomboc-C (9 cm)  ->  a beta shape  ->  Gomboc-C at 75%  ->  another beta
---   shape  ->  Gomboc-C at 125%  ->  another beta shape  ->  a spiral
---   polyhedron (21, 26 or 37 corners, in turn)  ->  and round again
+--   Gomboc-C (9 cm)  ->  a beta shape  ->  Gomboc-C at 75%  ->  the other
+--   beta shape  ->  Gomboc-C at 125%  ->  ...  and round again
 --
--- Each colour keeps its colour and runs through that cycle: when it has been
+-- Every body here has UNIFORM DENSITY: its shape alone gives it one resting
+-- point and one balancing point -- the true Gomboc problem. (The weighted
+-- bodies -- Bille and the 21-, 26- and 37-corner spiral polyhedra, which work
+-- because of where their mass is -- are in ../Bille/bille-drop.lua.)
+--
+-- Each colour keeps its colour and runs through the cycle: when it has been
 -- at rest for `redrop` seconds it is lifted away and the NEXT shape is
 -- dropped in its place. (The colours start at different places in the
--- cycle, so the table is mixed from the start.) Every one of these shapes
--- has one resting point and one balancing point -- but, as the console will
--- show, that alone does not make a good self-righter.
+-- cycle, so the table is mixed from the start.)
+--
+-- A WHITE DOT marks each body's balancing point. A body at rest the right
+-- way up has its dot straight on top.
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
@@ -25,50 +30,26 @@
 --   Sloan beta  M. L. Sloan's analytic Gombocs ("An Analytical Gomboc", 2023,
 --               via MathWorld): a lumpy ball whose radius in direction
 --               (phi from the pole, theta round it) is
---                 form 1:  r^4 = 1 + 4 beta sin(phi) cos(theta - 5 phi)
---                 form 2:  r^4 = 1 + 4 beta sin(phi) cos(theta -
---                                     (3 pi/2)(cos phi - cos^3 phi / 3))
+--                 r^4 = 1 + 4 beta sin(phi) cos(theta - 5 phi)      (form 1)
 --               The radius has exactly one maximum and one minimum, so the
 --               smooth body has one balancing and one resting point. Uniform
---               resin, 9 cm. Used here: form 1 at beta 0.06, 0.07, 0.08 and
---               form 2 at 0.04 -- the lumpiest that still work: above about
---               beta 0.04 the surface has dimples (not convex), a body rolls on
---               its convex hull, and from form 1 at 0.10 and form 2 at 0.05 on,
---               that hull has a second resting spot. (Strictly, a Gomboc must
---               be convex; these form-1 shapes are not quite.)
---               What to expect: they usually STOP ON THEIR SIDES. Their
---               resting valley and balancing peak differ in height by only
---               4-5 mm (Gomboc-C: 11 mm), and the slopes between are so
---               gentle that ordinary rolling resistance holds them almost
---               anywhere. In tests 3 of 15 came to rest upright at the
---               default rolling resistance, and they still wandered for a
---               minute with none at all. That is the real lesson of the
---               Gomboc: one resting point is easy to get in theory; a shape
---               that actually gets there needs the steep, sharp-edged design
---               of the real one. ("shapes" slider 1 leaves them out.)
---
---   21-vertex   after Domokos & Kovacs (2023): one apex above four horizontal
---               regular pentagons, with equal masses at its 21 corners -- the
---               fewest corners known for a polyhedron with one stable face
---               (the bottom pentagon) and one unstable vertex (the apex).
---               RECONSTRUCTED: the paper gives angles, not coordinates, so the
---               rings were re-fitted close to its spiral (see p21.lua). Drawn
---               as a closed polyhedron, 9 cm tall; the physics is the paper's
---               idealisation, all 109 g in the 21 corners and a weightless
---               skin (a real build is very hard -- see p21.lua). With its mass
---               in its corners and tall for its base, it topples and clatters
---               onto its pentagon: upright in 2-3.5 s, at rest in 4-5 s,
---               every time in tests.
---
---   26- and     the same construction with more corners: an apex above five
---   37-vertex   pentagons (26) or six hexagons (37). 21 is only the FEWEST
---               corners for which it can work; with more, the margins grow
---               (0.8 -> 2.8 -> 4.3 mm at 9 cm), enough to build them for
---               real. So these two are simulated as real objects: a 0.5 mm
---               polycarbonate shell with a 5.2 g tungsten weight centred 3 mm
---               inside each corner (142 g and 201 g), shape fitted for that
---               build. The 37 tolerates 0.5 mm build errors; the 26 barely
---               tolerates 0.2 mm (see p26.lua, p37.lua).
+--               resin, 9 cm. Used here: beta 0.07 and 0.08, as far from a
+--               sphere as this formula allows (largest radius 16% and 18% above
+--               the smallest). Beyond that the surface's dimples make its
+--               convex hull -- what touches the table -- grow a second resting
+--               spot (first found at beta 0.085). Sloan's second formula runs
+--               out sooner, at beta 0.04 (8%), so it is left out. (Strictly,
+--               a Gomboc must be convex; at these beta the surfaces are not
+--               quite, but the dimples never touch the table.)
+--               What to expect: they often STOP ON THEIR SIDES. Their resting
+--               valley and balancing peak differ in height by only about
+--               5 mm (Gomboc-C: 11 mm), and the slopes between are so gentle
+--               that ordinary rolling resistance holds them almost anywhere;
+--               beta 0.08's valley is also long and flat, so it can settle up
+--               to ~35 deg from its lowest point. That is the real lesson of
+--               the Gomboc: one resting point is easy to get in theory; a
+--               shape that actually gets there needs the steep, sharp-edged
+--               design of the real one. ("shapes" 1 leaves them out.)
 --
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance and spin friction as constant moments at the table
@@ -84,10 +65,10 @@
 --   K   kick: toss them all up with a spin
 --   ]   one more (and drop)      [   one fewer
 --
--- Sliders: count; shapes (0 = the cycle above, 1 = the cycle without the beta
--- shapes, 2 = Gomboc-C only, 3 = beta only, 4 = the polyhedra only); speed, steps,
--- friction, restitution, rolling (microns), spin friction, air drag, redrop.
--- The tally every minute (while re-dropping) lists each shape separately.
+-- Sliders: count; shapes (0 = the cycle above, 1 = Gomboc-C only, 2 = beta
+-- only); speed, steps, friction, restitution, rolling (microns), spin
+-- friction, air drag, redrop. The tally every minute (while re-dropping)
+-- lists each shape separately.
 --
 -- Hover the mouse over one (bpp with the hover patch) to see what it is.
 --
@@ -125,27 +106,16 @@ do
   BASE.C = { title = "Gomboc-C", obj = "gomboc.obj", points = h.points, mass = h.volume * RESIN,
              K2 = h.inertia, down = { 0, -1, 0 }, top = { 0, h.topHeight, 0 },
              topHeight = h.topHeight, margin = 0.04 }
-  for _, b in ipairs({ { "beta1-06", "Sloan beta 0.06 (form 1)" }, { "beta1-07", "Sloan beta 0.07 (form 1)" },
-                       { "beta1-08", "Sloan beta 0.08 (form 1)" }, { "beta2-04", "Sloan beta 0.04 (form 2)" } }) do
+  for _, b in ipairs({ { "beta1-07", "Sloan beta 0.07" }, { "beta1-08", "Sloan beta 0.08" } }) do
     local d = load(b[1])
     BASE[b[1]] = { title = b[2], obj = b[1] .. ".obj", points = d.points, mass = d.volume * RESIN,
                    K2 = d.inertia, down = d.down, top = d.top, topHeight = d.topHeight, margin = 0.04 }
-  end
-  local p = load("p21")
-  BASE.P21 = { title = "21-vertex polyhedron (ideal)", obj = "p21.obj", points = p.vertices, mass = p.mass,
-               K2 = p.inertia, down = p.down, top = p.top, topHeight = p.topHeight,
-               margin = p.margin or p.ballRadius }
-  for _, nv in ipairs({ 26, 37 }) do
-    local q = load("p" .. nv)
-    BASE["P" .. nv] = { title = nv .. "-vertex shell polyhedron", obj = "p" .. nv .. ".obj", points = q.vertices,
-                        mass = q.mass, K2 = q.inertia, down = q.down, top = q.top, topHeight = q.topHeight,
-                        margin = q.margin }
   end
 end
 
 -- the cycle (shapes slider 0) and the single-kind cycles (1, 2, 3)
 local C_SIZES = { 1.0, 0.75, 1.25 }
-local BETAS = { "beta1-06", "beta2-04", "beta1-07", "beta1-08" }
+local BETAS = { "beta1-07", "beta1-08" }
 
 -- a shape at a size: built once, then shared (Bullet allows sharing shapes)
 local SPECS = {}
@@ -206,8 +176,8 @@ local MAX_COUNT = 12
 local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo, hi, step, info) end
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
 param("count", envnum("GV_COUNT", 6), 1, MAX_COUNT, 1, "how many to drop")
-param("shapes", envnum("GV_SHAPES", 0), 0, 4, 1,
-      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ..., polyhedron; 1 = the same without the beta shapes; 2 = Gomboc-C only; 3 = beta only; 4 = polyhedra only (21, 26, 37 corners)")
+param("shapes", envnum("GV_SHAPES", 0), 0, 2, 1,
+      "0 = Gomboc-C, beta, Gomboc-C resized, beta, ...; 1 = Gomboc-C only; 2 = beta only")
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GV_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
@@ -311,20 +281,14 @@ local SEQ = {}
 do
   local function C(sz) return { "C", sz } end
   local function Bt(k) return { BETAS[k] } end
-  local POLY = { "P21", "P26", "P37" }
-  local full, c, b, pp = {}, 0, 0, 0
-  for n = 1, 12 * 7 do                        -- C, beta, C, beta, C, beta, polyhedron
-    local k = (n - 1) % 7 + 1
-    if k == 7 then pp = pp % #POLY + 1; full[#full + 1] = { POLY[pp] }
-    elseif k % 2 == 1 then c = c % #C_SIZES + 1; full[#full + 1] = C(C_SIZES[c])
+  local full, c, b = {}, 0, 0
+  for n = 1, 2 * #C_SIZES * #BETAS do          -- C, beta, C, beta, ...
+    if n % 2 == 1 then c = c % #C_SIZES + 1; full[#full + 1] = C(C_SIZES[c])
     else b = b % #BETAS + 1; full[#full + 1] = Bt(b) end
   end
   SEQ[0] = full
-  SEQ[1] = { C(1.0), C(0.75), C(1.25), { "P21" }, C(1.0), C(0.75), C(1.25), { "P26" },
-             C(1.0), C(0.75), C(1.25), { "P37" } }
-  SEQ[2] = { C(1.0), C(0.75), C(1.25) }
-  SEQ[3] = { Bt(1), Bt(2), Bt(3), Bt(4) }
-  SEQ[4] = { { "P21" }, { "P26" }, { "P37" } }
+  SEQ[1] = { C(1.0), C(0.75), C(1.25) }
+  SEQ[2] = { Bt(1), Bt(2) }
 end
 local function nextSpec(g)
   local seq = SEQ[math.floor(v:getParam("shapes") + 0.5)] or SEQ[0]
@@ -344,8 +308,31 @@ end
 local function applyMaterials() for _, g in ipairs(bodies) do applyMaterial(g) end end
 
 -- give body g a new shape: a new Mesh and rigid body in its place
+-- a body-frame point in world coordinates
+local function toWorldPoint(g, p)
+  local B = g.body:getCenterOfMassTransform():getBasis()
+  local x, y, z = getPosXYZ(g.obj)
+  for c = 0, 2 do
+    local e = B:getColumn(c)
+    x, y, z = x + e.x * p[c + 1], y + e.y * p[c + 1], z + e.z * p[c + 1]
+  end
+  return x, y, z
+end
+
+-- the white dot on the balancing point: drawn only, it touches nothing
+local function placeDot(g)
+  local x, y, z = toWorldPoint(g, g.sp.top)
+  g.dot.pos = btVector3(x, y, z)
+end
+
 local function reshape(g, sp)
   if g.obj then v:remove(g.obj) end
+  if g.dot then v:remove(g.dot) end
+  local dot = Sphere(0.09 * sp.topHeight, 0)
+  dot.col = "#ffffff"
+  pcall(function() dot.collides = false end)
+  v:add(dot)
+  g.dot = dot
   local m = Mesh(sp.file, 0, false)
   local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -50, 0)))
   local body = btRigidBody(sp.mass, ms, sp.hull, sp.inertia)
@@ -478,7 +465,10 @@ end
 
 local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
-  while #bodies > n do v:remove(table.remove(bodies).obj) end
+  while #bodies > n do
+    local g = table.remove(bodies)
+    v:remove(g.obj); if g.dot then v:remove(g.dot) end
+  end
   while #bodies < n do bodies[#bodies + 1] = { i = #bodies + 1 } end
 end
 
@@ -635,15 +625,15 @@ pcall(function()
     "  U  stand them on their heads\n" ..
     "  K  kick them up with a spin\n" ..
     "  ]  one more     [  one fewer\n" ..
-    "Each drop brings the next shape: Gomboc-C,\n" ..
-    "a Sloan beta shape, Gomboc-C at 75%, another\n" ..
-    "beta, Gomboc-C at 125%, another beta, and\n" ..
-    "every seventh a spiral polyhedron (21, 26,\n" ..
-    "37 corners in turn).\n" ..
-    "All have one resting and one balancing point,\n" ..
-    "but the beta shapes are so gently sloped that\n" ..
-    "rolling resistance usually stops them on their\n" ..
-    "sides ('shapes' 1 leaves them out).\n" ..
+    "Uniform-density Gombocs. Each drop brings the\n" ..
+    "next shape: Gomboc-C, a Sloan beta shape,\n" ..
+    "Gomboc-C at 75%, the other beta, Gomboc-C at\n" ..
+    "125%, ... The white dot is the balancing point:\n" ..
+    "on top = home. The beta shapes are so gently\n" ..
+    "sloped that rolling resistance often stops them\n" ..
+    "on their sides ('shapes' 1 leaves them out).\n" ..
+    "Weighted bodies (Bille, spiral polyhedra):\n" ..
+    "see ../Bille/bille-drop.lua.\n" ..
     "Dark = tipped over, bright = upright.\n" ..
     "Hover over one to see what it is.")
 end)
@@ -677,6 +667,7 @@ v:preSim(function(N)
 end)
 
 v:postSim(function(N)
+  for _, g in ipairs(bodies) do placeDot(g) end
   if not race.running then return end
   race.t = race.t + FRAME_DT
   local upright, rested = 0, 0
@@ -758,5 +749,4 @@ math.randomseed(envnum("GV_SEED", os.time()))
 -- build every shape once up front, so a re-drop never waits for a mesh to load
 for _, s in ipairs(C_SIZES) do spec("C", s) end
 for _, b in ipairs(BETAS) do spec(b) end
-spec("P21"); spec("P26"); spec("P37")
 if os.getenv("GV_START") == "headstand" then headstand() else drop() end

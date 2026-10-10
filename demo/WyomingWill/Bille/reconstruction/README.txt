@@ -36,3 +36,12 @@ MASS DESIGN
 FILES
   tetra.py  falling-pattern rules (which face it tips onto from each face, for any centre of mass)
   zones.py  loading zones as exact polytopes;  fit.py  the shape fit;  mass.py  the wedge design
+
+Spiral polyhedra (bille-meshes/p21, p26, p37)
+  Moved here from ../Gomboc/gomboc-meshes: like Bille, they work because of
+  where their mass is. Shapes and mass models were made by the scripts in
+  ../Gomboc/variety-reconstruction (opt21.py/optnk.py, gen21solid.py,
+  optshell.py, genshell.py). genbille.py adds the face list each .lua file
+  now carries: outward normal, centre-of-mass height, band name (S1 next to
+  the base ... apex band) and the band it tips onto quasi-statically. Every
+  band tips onto the one below it: ... -> S2 -> S1 -> base.
