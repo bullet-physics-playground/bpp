@@ -57,6 +57,18 @@ The four-bar walkers are all descended from Chebyshev's Plantigrade Machine of t
 *   `Walkers/Jansen_6LegT.lua`: Six Theo Jansen "Strandbeest" legs on a shared cube body, using Jansen's own published "holy numbers" for the ground link lengths, taken from the same crossing-free branch choice as `linkage.lua` (an earlier, more commonly cited branch has two links overlapping for 100% of the cycle, which is not physically buildable with real hinges). Each leg is seven rigid bodies rather than eight or eleven, because two of the eleven point-to-point spans in the dyad chain are rigid triangles (G-J2-J3 and J4-F-J5) and are each built as a single fused body -- a choice that also fixed a real measured chirality-flip bug originally found on Klann's much narrower triangle. A red marker trail records the trajectory.
 *   `Walkers/Klann_6LegT.lua`: The same six-leg rig with the linkage replaced by Klann's (US Patent 6,260,862), from `linkage.lua`'s `compute_klann` and uniformly scaled by 70 so its native 1-2-unit dimensions fit this file's cube and terrain -- the scale chosen by matching the leg's own full-cycle bounding box to Jansen's ~122x125-unit footprint, which meant `ROW_SPACING`, `cube_d` and the terrain grid resolution did not need re-tuning. Verified by direct computation that all four circle intersections stay well clear of the locked-configuration case across a full crank rotation. A red marker trail records the trajectory.
 
+## Euler's Cabinet of Curiosities
+
+An L-shaped 18th-century walnut gallery of rigid-body curiosities. Only the exhibit you stand at runs; the others wait and carry on when you come back. Tab walks between them. See `Cabinet/README.md`.
+
+*   `Cabinet/cabinet.lua`: The gallery -- open this one. Each exhibit below also runs on its own.
+*   `Gomboc/gomboc-drop-c.lua`, `Gomboc/gomboc-variety.lua`: Gombocs (and the Sloan beta shapes) dropped until they right themselves.
+*   `Bille/bille-drop.lua`: Bille, the weighted monostable tetrahedron, and the 21-, 26- and 37-corner spiral polyhedra.
+*   `Dzhanibekov/dzhanibekov.lua`: The Dzhanibekov (tennis-racket) effect: three T-handles spinning in zero gravity.
+*   `Rattleback/rattleback.lua`: Rattlebacks that reverse their spin.
+*   `TippeTop/tippe-top.lua`: Tippe tops that turn over onto their stems. See `TippeTop/README.md`.
+*   `ChainFountain/chain-fountain.lua`: A bead chain leaping out of a jar in an arch (the Mould effect). See `ChainFountain/README.md`.
+
 ## Removed
 
 Earlier versions of these files were moved into the directories above and renamed: `Cheby_diag.lua`, `cheby_diag4.lua` and `Spears_diag.lua` became `Walkers/Chebyshev_diagT.lua`, `Walkers/Chebyshev_normalT.lua` and `Walkers/Chebyshev_Spears_diagT.lua`. The original pinball machine, and the clocks and walkers those files were built from, were removed in their own commits.
