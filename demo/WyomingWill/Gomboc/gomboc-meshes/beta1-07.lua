@@ -7,7 +7,7 @@
 return {
   form = 1, beta = 0.07, size = 9.0, volume = 339.4788,
   inertia = { 7.491851, 7.549854, 7.617134 },   -- squared radii of gyration, cm^2
-  down = { -0.000000, -1.000000, 0.000000 },      -- outward normal at the resting point
+  down = { 0.046633, -0.996808, -0.064807 },      -- outward normal at the resting point (lowest face of the hull's one basin)
   top = { 0.000000, 4.606895, -0.000000 },       -- the balancing (unstable) point
   restHeight = 4.12807, topHeight = 4.60680,
   points = {

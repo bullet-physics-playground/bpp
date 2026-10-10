@@ -17,8 +17,11 @@
 -- dropped in its place. (The colours start at different places in the
 -- cycle, so the table is mixed from the start.)
 --
--- A WHITE DOT marks each body's balancing point. A body at rest the right
--- way up has its dot straight on top.
+-- A WHITE DOT marks each body's balancing point (its one unstable
+-- equilibrium: the point farthest from the centre of mass). The balancing
+-- point need not be straight above the resting point: at home the dot is
+-- within ~1 deg of the top on Gomboc-C, ~5 deg on beta 0.07 and ~35 deg on
+-- beta 0.08, whose one resting valley is long and nearly level.
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
@@ -45,9 +48,11 @@
 --               valley and balancing peak differ in height by only about
 --               5 mm (Gomboc-C: 11 mm), and the slopes between are so gentle
 --               that ordinary rolling resistance holds them almost anywhere;
---               beta 0.08's valley is also long and flat, so it can settle up
---               to ~35 deg from its lowest point. That is the real lesson of
---               the Gomboc: one resting point is easy to get in theory; a
+--               beta 0.08's valley is also long and nearly level: its lowest
+--               point is ~35 deg from the formula's minimum, so a body can rest
+--               anywhere along it ("tilt" is measured from that lowest
+--               point). That is the real lesson of the Gomboc: one resting
+--               point is easy to get in theory; a
 --               shape that actually gets there needs the steep, sharp-edged
 --               design of the real one. ("shapes" 1 leaves them out.)
 --
@@ -628,8 +633,9 @@ pcall(function()
     "Uniform-density Gombocs. Each drop brings the\n" ..
     "next shape: Gomboc-C, a Sloan beta shape,\n" ..
     "Gomboc-C at 75%, the other beta, Gomboc-C at\n" ..
-    "125%, ... The white dot is the balancing point:\n" ..
-    "on top = home. The beta shapes are so gently\n" ..
+    "125%, ... The white dot is the balancing point;\n" ..
+    "at home it is at or near the top (beta 0.08:\n" ..
+    "~35 deg off). The beta shapes are so gently\n" ..
     "sloped that rolling resistance often stops them\n" ..
     "on their sides ('shapes' 1 leaves them out).\n" ..
     "Weighted bodies (Bille, spiral polyhedra):\n" ..

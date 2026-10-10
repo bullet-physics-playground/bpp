@@ -12,11 +12,11 @@
 -- so the table holds Billes and polyhedra half and half (a Bille settles in
 -- half a second, a polyhedron takes several, so alternating each colour's
 -- drops would fill the table with polyhedra). Bodies are drawn dark until they rest on
--- their one stable face, then bright. A BILLE LIGHTS UP PALE while one of its
--- edges lies flat on the table -- exactly two corners touching -- as it rolls
--- from face to face, so the moments between faces are easy to catch; the
--- console lists the edges it rolled on. A WHITE DOT marks each polyhedron's
--- apex, which ends up on top. The "polyhedra look" slider draws the
+-- their one stable face, then bright. When a Bille has an EDGE LYING FLAT on
+-- the table -- exactly two corners touching, not resting on face D -- that
+-- edge lights up white (for at least 0.6 s on screen), as it rolls from face
+-- to face, so the moments between faces are easy to catch; the console lists
+-- the edges it rolled on. The "polyhedra look" slider draws the
 -- polyhedra as solids (0) or as frames, balls on rods (1); the physics is
 -- the same either way.
 --
@@ -123,7 +123,7 @@ do
     verts[#verts + 1] = p[1]; verts[#verts + 1] = p[2]; verts[#verts + 1] = p[3]
   end
   KIND.bille = { title = "Bille", short = "Bille", obj = "bille.obj", scale = 1, points = verts, faces = faces,
-                 vnames = { "A", "B", "C", "D" }, noDot = true,
+                 vnames = { "A", "B", "C", "D" },
                  home = "D", top = B.vertices.D, mass = B.mass,
                  K2 = { B.inertia[1] / B.mass, B.inertia[2] / B.mass, B.inertia[3] / B.mass },
                  margin = B.tubeRadius, sizeName = "longest edge" , sizeRef = 50 }
@@ -193,7 +193,7 @@ local function spec(kind, size)
   local sp = { kind = kind, size = size, s = s, file = file, hull = hull, mass = m, k2 = k2,
                inertia = btVector3(k2[1] * m, k2[2] * m, k2[3] * m), margin = K.margin * s, reach = reach,
                faces = faces, home = K.home, top = { K.top[1] * s, K.top[2] * s, K.top[3] * s },
-               title = K.title, short = K.short, vnames = K.vnames, vtx = vtx, noDot = K.noDot,
+               title = K.title, short = K.short, vnames = K.vnames, vtx = vtx,
                sizeText = string.format("%.0f cm %s", K.sizeRef * size, K.sizeName) }
   local nxt = {}
   for _, f in ipairs(faces) do if f.next then nxt[f.name] = f.next end end
@@ -307,13 +307,12 @@ common.setCamera(btVector3(0, 125, 150), btVector3(0, 0, 0))
 local COLOURS = { "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4" }
 local NAMES = { "Red", "Green", "Yellow", "Blue", "Orange", "Purple" }
 local function hex(c) return tonumber(c:sub(2, 3), 16), tonumber(c:sub(4, 5), 16), tonumber(c:sub(6, 7), 16) end
-local DARK, BRIGHT, EDGE = {}, {}, {}
+local DARK, BRIGHT = {}, {}
+local EDGE_COL = "#ffffff"                    -- a Bille edge lying on the table
 for i, c in ipairs(COLOURS) do
   local r, g, b = hex(c)
   DARK[i] = string.format("#%02x%02x%02x", math.floor(r * 0.3), math.floor(g * 0.3), math.floor(b * 0.3))
   BRIGHT[i] = c
-  EDGE[i] = string.format("#%02x%02x%02x", math.floor(r + (255 - r) * 0.7), math.floor(g + (255 - g) * 0.7),
-                          math.floor(b + (255 - b) * 0.7))
 end
 
 local bodies = {}
@@ -341,17 +340,37 @@ local function applyMaterial(g)
 end
 local function applyMaterials() for _, g in ipairs(bodies) do applyMaterial(g) end end
 
--- give body g a new shape: a new Mesh, rigid body and dot in its place
+-- the six edges of a Bille, each with a bar that is shown (drawn only, it
+-- touches nothing) while that edge lies on the table
+local HIDDEN = btVector3(0, -1000, 0)
+local function makeBars(g, sp)
+  g.bars = {}
+  if not sp.vnames then return end
+  local n = #sp.vtx
+  for a = 1, n - 1 do
+    for b = a + 1, n do
+      local pa, pb = sp.vtx[a], sp.vtx[b]
+      local L = math.sqrt((pa[1] - pb[1]) ^ 2 + (pa[2] - pb[2]) ^ 2 + (pa[3] - pb[3]) ^ 2)
+      local w = 0.03 * sp.reach
+      local bar = Cube(L, w, w, 0)
+      bar.col = EDGE_COL
+      pcall(function() bar.collides = false end)
+      v:add(bar)
+      bar.pos = HIDDEN
+      g.bars[sp.vnames[a] .. sp.vnames[b]] = { obj = bar, a = a, b = b }
+    end
+  end
+end
+local function removeBars(g)
+  for _, e in pairs(g.bars or {}) do v:remove(e.obj) end
+  g.bars = {}
+end
+
+-- give body g a new shape: a new Mesh, rigid body (and edge bars) in its place
 local function reshape(g, sp)
   if g.obj then v:remove(g.obj) end
-  if g.dot then v:remove(g.dot) end
-  local dot = nil
-  if not sp.noDot then
-    dot = Sphere(0.05 * sp.reach, 0)
-    dot.col = "#ffffff"
-    pcall(function() dot.collides = false end)
-    v:add(dot)
-  end
+  removeBars(g)
+  makeBars(g, sp)
   local m = Mesh(sp.file, 0, false)
   local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -60, 0)))
   local body = btRigidBody(sp.mass, ms, sp.hull, sp.inertia)
@@ -360,7 +379,7 @@ local function reshape(g, sp)
   body:setActivationState(4)
   body:setContactProcessingThreshold(envnum("BD_CPT", 0.001))
   v:add(m)
-  g.obj, g.body, g.sp, g.dot, g.lit = m, body, sp, dot, nil
+  g.obj, g.body, g.sp, g.lit, g.barOn = m, body, sp, nil, nil
   applyMaterial(g)
 end
 
@@ -416,11 +435,23 @@ local function toWorld(g, v3)
   end
   return x, y, z
 end
-local function placeDot(g)
-  if not g.dot then return end
+-- show the bar of edge name e (or hide the shown one when e is nil)
+local function showBar(g, e)
+  if g.barOn and g.barOn ~= e then g.bars[g.barOn].obj.pos = HIDDEN end
+  g.barOn = e
+  if not e then return end
+  local bar = g.bars[e]
   local px, py, pz = getPosXYZ(g.obj)
-  local x, y, z = toWorld(g, g.sp.top)
-  g.dot.pos = btVector3(px + x, py + y, pz + z)
+  local ax, ay, az = toWorld(g, g.sp.vtx[bar.a])
+  local bx, by, bz = toWorld(g, g.sp.vtx[bar.b])
+  local dx, dy, dz = bx - ax, by - ay, bz - az
+  local L = math.sqrt(dx * dx + dy * dy + dz * dz)
+  dx, dy, dz = dx / L, dy / L, dz / L
+  -- rotation taking the bar's x axis onto the edge: axis x * d = (0, -dz, dy)
+  local s2 = math.sqrt(dz * dz + dy * dy)
+  local q = (s2 < 1e-9) and btQuaternion(0, 0, 0, 1)
+            or btQuaternion(btVector3(0, -dz / s2, dy / s2), math.acos(math.max(-1, math.min(1, dx))))
+  bar.obj.trans = btTransform(q, btVector3(px + (ax + bx) / 2, py + (ay + by) / 2, pz + (az + bz) / 2))
 end
 
 -- which face it is lying on (normal within ON_DEG of straight down and
@@ -502,7 +533,7 @@ local REST_TURN = math.rad(0.2)
 local REST_MOVE = 0.03
 local REST_HOLD = 0.4          -- simulated s (these settle within a fraction of a second)
 local SETTLE = 0.03            -- simulated s on a face before it counts as part of the path
-local FLASH = 0.3              -- on-screen s a Bille stays lit after an edge touch
+local FLASH = 0.6              -- on-screen s a Bille stays lit after an edge touch
 
 local race = { t = 0, real = 0, nextReport = 1, nextTally = 60, done = {} }   -- t: simulated s, real: on-screen s
 
@@ -538,7 +569,7 @@ local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
   while #bodies > n do
     local g = table.remove(bodies)
-    v:remove(g.obj); if g.dot then v:remove(g.dot) end
+    v:remove(g.obj); removeBars(g)
   end
   while #bodies < n do bodies[#bodies + 1] = { i = #bodies + 1 } end
 end
@@ -715,11 +746,11 @@ pcall(function()
     "Red, Yellow, Orange: Billes. Green, Blue, Purple:\n" ..
     "spiral polyhedra, 21, 26, 37 corners in turn\n" ..
     "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..
-    "A Bille lights up pale while an edge is flat on the\n" ..
-    "table (as it rolls from face to face).\n" ..
+    "A Bille's edge lights up white while it lies flat\n" ..
+    "on the table (as it rolls from face to face).\n" ..
     "'polyhedra look': solid or frame.\n" ..
     "All work because of where their weight is.\n" ..
-    "Polyhedra: white dot = apex. Dark = not yet on the\n" ..
+    "Dark = not yet on the\n" ..
     "stable face, bright = resting on it.\n" ..
     "Bille: B -> A -> D <- C.  Polyhedra: each band\n" ..
     "of side faces tips onto the next: ... S2 -> S1 -> base.\n" ..
@@ -762,7 +793,6 @@ v:postSim(function(N)
   race.t = race.t + FRAME_DT
   race.real = race.real + 1 / 60
   for _, g in ipairs(bodies) do
-    placeDot(g)
     local f, ang = faceDown(g)
     -- a face joins the path once the body has lain on it for SETTLE seconds
     -- (so a body rocking across an edge doesn't fill the path with repeats)
@@ -771,19 +801,18 @@ v:postSim(function(N)
       g.path[#g.path + 1] = f
       if f == g.sp.home then g.homeAt = race.t end
     end
-    -- a Bille balancing on an edge lights up (held for at least FLASH on-screen
-    -- seconds so that brief edge-rolls are visible), and the edge is noted
-    local e = edgeDown(g)
+    -- a Bille edge lying on the table (not on its stable face) is lit up,
+    -- for at least FLASH on-screen seconds so brief edge-rolls are visible,
+    -- and noted for the console
+    local e = (f ~= g.sp.home) and edgeDown(g) or nil
     if e then
-      g.flashUntil = race.real + FLASH
+      g.flashUntil, g.flashEdge = race.real + FLASH, e
       if e ~= g.edgeOn and g.edges[#g.edges] ~= e then g.edges[#g.edges + 1] = e end
     end
     g.edgeOn = e
-    local look = (race.real < (g.flashUntil or 0)) and "edge" or ((f == g.sp.home) and "home" or "dark")
-    if look ~= g.lit then
-      g.lit = look
-      g.obj.col = (look == "edge" and EDGE[g.i]) or (look == "home" and BRIGHT[g.i]) or DARK[g.i]
-    end
+    if g.sp.vnames then showBar(g, (race.real < (g.flashUntil or 0)) and (e or g.flashEdge) or nil) end
+    local look = (f == g.sp.home) and "home" or "dark"
+    if look ~= g.lit then g.lit = look; g.obj.col = (look == "home") and BRIGHT[g.i] or DARK[g.i] end
 
     if LOGF and N % 15 == 0 then
       local wx, wy, wz = getAngVelXYZ(g.obj)
