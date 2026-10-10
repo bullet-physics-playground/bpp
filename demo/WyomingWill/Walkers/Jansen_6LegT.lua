@@ -1,12 +1,12 @@
 --
 -- Jansen Walker on its own terrain. The mechanism itself (the body and
 -- six legs, and the notes on why it is built the way it is) is in
--- Jansen_6Leg_build.lua; this file adds the terrain, sliders, trail,
+-- Jansen_6Leg_parts.lua; this file adds the terrain, sliders, trail,
 -- camera and physics settings around it.
 --
 
 local common = require "common"
-local Jansen = dofile("Jansen_6Leg_build.lua")   -- bpp runs a script from its own folder
+local Jansen = dofile("Jansen_6Leg_parts.lua")   -- bpp runs a script from its own folder
 
 -- ---------------------------------------------------------------------
 -- SLIDERS, per direct request ("Add sliders for speed and terrain

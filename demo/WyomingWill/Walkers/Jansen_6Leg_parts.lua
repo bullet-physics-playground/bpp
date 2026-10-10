@@ -1,4 +1,7 @@
 --
+-- Not a scene: run on its own, this file builds nothing. To see the
+-- walker, open Jansen_6LegT.lua.
+--
 -- Jansen walker, the mechanism: the cube body and its six legs (links,
 -- triangles, hinges and crank motors), as a function. Jansen_6LegT.lua
 -- calls it to build the walker on its own terrain; a room can call it to
@@ -6,7 +9,7 @@
 -- settings, gravity, terrain, sliders or camera: the caller does. Every
 -- name here is local, so walkers built side by side don't share globals.
 --
---   local Jansen = dofile("Jansen_6Leg_build.lua")
+--   local Jansen = dofile("Jansen_6Leg_parts.lua")
 --   local w = Jansen.build{
 --     add = function(obj) ... end,          -- adds a body to the world
 --     addConstraint = function(con) ... end,
