@@ -47,3 +47,11 @@ More corners, and real builds (p26, p37; see also gomboc-findings.pdf)
   optshell.py   refits (5,5) and (6,6) for 0.5 mm skin + 5.2 g weights 3 mm in
   genshell.py   writes p26/p37 (.obj, .lua) for that build
   robust2.py    build-error tolerance (accurate panels; rings, weights off)
+
+Mass-distribution scale (gomboc-findings.pdf, Section 7)
+  skel.py     fits the spiral family with the mass on the vertices, edges, faces
+              or as a uniform solid; skel.log = results (only vertices work)
+  frac.py     largest evenly spread share of the mass a corner-weighted design
+              tolerates (21: 1.8% faces / 2.1% edges; 26: 9.7/13.3; 37: 17.9/24.7)
+  freecom2.py free centre of mass (Bille-like): 10 and 13 corners work, but only
+              with the centre of mass on the bottom face
