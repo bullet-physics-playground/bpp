@@ -80,6 +80,19 @@ later. It also reads the balls' positions once per shot rather than tens
 of thousands of times, which roughly halved the time and the garbage left
 for Lua's collector to a sixth. It chooses exactly the shots it did before.
 
+## Running smoothly
+
+- **Waiting for a shot.** The balls are set never to go to sleep, so the
+  gentlest touch always moves them; on their own they'd be solved 900
+  times a second sitting still. While the table waits for a shot with every
+  ball still, it takes them out of the simulation, and puts them back as
+  the stroke begins. That about halves what a waiting table costs.
+- **No garbage from the picture.** The cue, the aiming guide, the ghost
+  ball, the selector ring and the spin dot are moved every frame while you aim. They're
+  placed with a few Bullet vectors and transforms filled in again each
+  time, not new ones: new ones were garbage that held everything up now
+  and then while Lua's collector swept it away.
+
 ## Files
 
 | File | What it is |
