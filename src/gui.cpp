@@ -294,6 +294,7 @@ void Gui::fileLoad(const QString &path) {
   editor->blockSignals(false);
 
   if (loaded) {
+    ui.viewer->clearParams();
     shortcutsText->clear();
     setCurrentFile(path);
     setWindowTitle(tr("%1 - %2")
@@ -755,12 +756,16 @@ void Gui::debug(const QString &txt) { debugText->appendLine(txt); }
 void Gui::clearDebug() { debugText->clear(); }
 
 void Gui::fileNew() {
+  editor->blockSignals(true);
   editor->clear();
+  editor->blockSignals(false);
   ui.viewer->clearParams();
   shortcutsText->clear();
   setCurrentFile(editor->scriptFile());
   ui.actionSave->setEnabled(true);
   _fileSaved = true;
+
+  parseEditor();
 }
 
 void Gui::fileOpen(const QString &path) {

@@ -18,6 +18,7 @@
 
 #include "appenv.h"
 
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -880,6 +881,49 @@ QString Object::toPOV() const {
 
   QString str = QString::fromStdString(data.toStdString());
   return str;
+}
+
+namespace {
+// Feeds each triangle's nine coordinates to a SHA-1, 512 triangles at a time.
+class MeshHashCallback : public btTriangleCallback {
+public:
+  QCryptographicHash hash{QCryptographicHash::Sha1};
+
+  virtual void processTriangle(btVector3 *triangle, int partId,
+                               int triangleIndex) {
+    (void)partId;
+    (void)triangleIndex;
+    for (int i = 0; i < 3; ++i) {
+      m_buf[m_n++] = triangle[i].x();
+      m_buf[m_n++] = triangle[i].y();
+      m_buf[m_n++] = triangle[i].z();
+    }
+    if (m_n == kBufScalars)
+      flush();
+  }
+
+  void flush() {
+    hash.addData(reinterpret_cast<const char *>(m_buf),
+                 int(m_n * sizeof(btScalar)));
+    m_n = 0;
+  }
+
+private:
+  static const int kBufScalars = 9 * 512;
+  btScalar m_buf[kBufScalars];
+  int m_n = 0;
+};
+} // namespace
+
+QString Object::povMeshHash(btConcaveShape *shape) {
+  MeshHashCallback cb;
+  if (shape != nullptr) {
+    const btVector3 aabbMin(-1e99, -1e99, -1e99);
+    const btVector3 aabbMax(1e99, 1e99, 1e99);
+    shape->processAllTriangles(&cb, aabbMin, aabbMax);
+  }
+  cb.flush();
+  return QString::fromLatin1(cb.hash.result().toHex());
 }
 
 void Object::setPOVExport(bool onoff) { mPOVExport = onoff; }

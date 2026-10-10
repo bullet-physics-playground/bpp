@@ -5125,9 +5125,9 @@ void Viewer::hoverTick() {
   if (!cam) cam = camera();
   qglviewer::Vec orig, dir;
   cam->convertClickToLine(_hoverPos, orig, dir);
-  const btScalar far = 1.0e6;
+  const btScalar reach = 1.0e6;
   btVector3 from(orig.x, orig.y, orig.z);
-  btVector3 to(orig.x + dir.x * far, orig.y + dir.y * far, orig.z + dir.z * far);
+  btVector3 to(orig.x + dir.x * reach, orig.y + dir.y * reach, orig.z + dir.z * reach);
   btCollisionWorld::ClosestRayResultCallback ray(from, to);
   // bpp adds bodies with its own collision groups: let the ray see them all
   // (an object made with collides = false has an empty mask and stays unseen)

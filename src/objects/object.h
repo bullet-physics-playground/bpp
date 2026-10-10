@@ -695,6 +695,20 @@ protected:
   virtual void povPigment(QTextStream *s) const;
 
   /**
+   * @brief Names a triangle mesh by its content, for the exported
+   *        @c mesh_<hash>.inc.
+   *
+   * Hashes the triangles' coordinates as they are in memory. A mesh is
+   * included from every frame, so this runs for every mesh on every frame; it
+   * must not format the mesh as text first, which costs far more than the
+   * rest of the export together.
+   *
+   * @param shape The mesh's shape; null hashes like an empty mesh.
+   * @return The hash as lower-case hex.
+   */
+  static QString povMeshHash(btConcaveShape *shape);
+
+  /**
    * @brief Writes the object's texture as a POV-Ray @c image_map pigment.
    *
    * The shapes differ only in how the image is laid on them, so each passes
