@@ -15,6 +15,8 @@
 --     addConstraint = function(con) ... end,
 --     groundTop = ...,  -- highest the ground gets under the walker
 --     speed = ...,      -- crank motor speed (the Speed slider)
+--     scale = ...,      -- optional, default 1: multiplies every length
+--     impulseScale = ..., -- optional, default 1: multiplies the motors' impulse
 --   }
 --   w.cube, w.legs (each leg has .motorHinge), Jansen.CUBE_CENTER_X
 --
@@ -116,6 +118,7 @@
 local M = {}
 
 local add, addConstraint   -- set by M.build from its caller's opts
+local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
 -- Each leg's 10 hinges form several NESTED closed loops (unlike
 -- cheby_normal6.lua's single open-then-closed 4-bar loop), which is a
@@ -206,7 +209,7 @@ local function makeLink(p1, p2, z, color)
   local len = math.sqrt((p2.x - p1.x) ^ 2 + (p2.y - p1.y) ^ 2)
   local mid = midpoint(p1, p2)
   local q = zrotVec(p2.x - p1.x, p2.y - p1.y)
-  local obj = Cube(len, ROD_W, ROD_D, MASS_BASE + len * MASS_PER_LEN)
+  local obj = Cube(len, ROD_W * S, ROD_D * S, MASS_BASE + (len / S) * MASS_PER_LEN)   -- (mass from the unscaled length)
   obj.col = color
   obj.trans = btTransform(q, btVector3(mid.x, mid.y, z))
   obj.friction = 0.5
@@ -273,8 +276,8 @@ local function makeTriangle(p1, p2, p3, z, color)
   -- centerOfMass=true recenters physics but not rendering).
   local sdl = string.format(
     "linear_extrude(height=%.4f, center=true) { polygon(points=[[%.4f,%.4f],[%.4f,%.4f],[%.4f,%.4f]]); }",
-    ROD_D, 0 - ccx, 0 - ccy, p2x - ccx, p2y - ccy, len13 - ccx, 0 - ccy)
-  local mass = MASS_BASE + len13 * MASS_PER_LEN
+    ROD_D * S, 0 - ccx, 0 - ccy, p2x - ccx, p2y - ccy, len13 - ccx, 0 - ccy)
+  local mass = MASS_BASE + (len13 / S) * MASS_PER_LEN   -- (from the unscaled length)
   local obj = OpenSCAD(sdl, mass, false)   -- centerOfMass=false -- already pre-centered above
 
   local q = zrotVec(dx, dy)
@@ -333,14 +336,31 @@ local O_ABOVE_CUBE   = 3.0
 function M.build(opts)
 add, addConstraint = opts.add, opts.addConstraint
 
+-- SCALE: opts.scale (default 1) multiplies every length -- link lengths,
+-- rod sections, plane gaps, the cube, the leg spacing and the mount
+-- height -- so the walker is built smaller or larger about the origin.
+-- Masses stay the same. Motor strength (an angular impulse, mass x
+-- length^2 / time) goes up with the square of the scale. Moving as it
+-- does full size also needs gravity scaled by the same factor; that is
+-- the caller's job (gravity is set per body, after building).
+S = opts.scale or 1
+-- opts.impulseScale (default 1) multiplies the motors' impulse, which
+-- Bullet applies once per physics step: a caller stepping at 1/960 s
+-- instead of this walker's own 1/240 s passes 240/960 = 0.25, so the
+-- motors push just as hard per second.
+local IMPULSE_SCALE = opts.impulseScale or 1
+local LEN = (function() local t = {} for k, x in pairs(LEN) do t[k] = x * S end return t end)()
+local ROW_SPACING, CUBE_W, CUBE_H, CUBE_CENTER_X = ROW_SPACING * S, CUBE_W * S, CUBE_H * S, CUBE_CENTER_X * S
+local JANSEN_YMIN, FOOT_CLEARANCE, O_ABOVE_CUBE = JANSEN_YMIN * S, FOOT_CLEARANCE * S, O_ABOVE_CUBE * S
+
 -- ---------------------------------------------------------------------
 -- Z-plane stack -- one plane per rod, staggered out from the cube's own
 -- face so the 11 rotating rods never collide with each other or the cube
 -- (same technique as cheby_normal6.lua's z_ground/z_crank/z_coupler/...).
 -- ---------------------------------------------------------------------
 
-local plane_gap = 1.2   -- > ROD_D, so adjacent planes' rod boxes never touch
-local cube_d = 150.0     -- cube's own Z-depth
+local plane_gap = 1.2 * S   -- > ROD_D, so adjacent planes' rod boxes never touch
+local cube_d = 150.0 * S     -- cube's own Z-depth
 
 -- z_ground..z_triJ4 are read by buildJansenLeg() (defined inside this
 -- function, invoked from the leg-building loop further down) as upvalues. 7 rod
@@ -432,7 +452,7 @@ local function buildJansenLeg(x_offset, mirror, phase, speed)
       makeTriangle(J4, J5, F, z_triJ4_l, "steelblue")
 
   local MOTOR_SPEED = -speed -- WMS (negated -- see the SPEED slider note below for why)
-  local MOTOR_IMPULSE = 3000.0
+  local MOTOR_IMPULSE = 3000.0 * S * S * IMPULSE_SCALE   -- (an angular impulse: scale squared; see IMPULSE_SCALE)
 
   -- O: cube (ground) <-> crank -- the one driven joint. Both pivot sides
   -- are expressed relative to z_ground_l (the cube's own surface plane,
@@ -498,7 +518,7 @@ end
 local function buildFoot(lk, color)
   local F = lk.F
   local z = lk.z_foot
-  local foot_x, foot_y, foot_z = 9.0, 1.4, 8.0
+  local foot_x, foot_y, foot_z = 9.0 * S, 1.4 * S, 8.0 * S
 
   local foot = Cube(foot_x, foot_y, foot_z, 1.5)
   foot.col = color

@@ -16,6 +16,8 @@
 --     terrainLift = ...,  -- how far the ground can rise above Walker.FLOOR_TOP_Y
 --     cube_d = ..., cubeMass = ..., linkageSpacing = ...,   -- the sliders
 --     speed = ...,   -- the Speed slider
+--     scale = ...,         -- optional, default 1: multiplies every length
+--     impulseScale = ...,  -- optional, default 1: multiplies the motors' impulse
 --   }
 --   w.cube, w.cube_w, w.cubeCenterX, w.linkage1 .. w.linkage4 (each with
 --   .hingeO2, the motor), w.foot1 .. w.foot4
@@ -235,6 +237,7 @@
 local M = {}
 
 local add, addConstraint   -- set by M.build from its caller's opts
+local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
 local g_len, a_len, coupler_len, rocker_len, p_len = 18.088979, 2.911590, 11.224906, 9.816101, 14.675221   -- Spears 4Bar-1 ratio (crank:ground:rocker:coupler:leg = 36:223.659:121.37:138.789:181.45) scaled by k=0.08087749 for equal stride to the running baseline (8.323638, the original a=1,g=2,L=10 Hoecken slider's own stride) -- see the SPEARS 4BAR-1 CONVERSION header note for the full derivation. "p_len" keeps its name (not renamed to leg_len) purely so buildFoot's existing p_len/2 reference below still resolves correctly -- it's the LEG's length now, not a hanging pendant's.
 local rod_w, rod_d = 0.18, 0.18          -- rod cross-section
@@ -283,8 +286,8 @@ local IDENTITY_QUAT = btQuaternion(0, 0, 0, 1)
 -- makes one rod-shaped link body from p1 to p2, sitting flat on its
 -- own Z-plane, and adds it to the view.
 local function makeLink(p1, p2, z, mass, color, width, depth)
-  width = width or rod_w
-  depth = depth or rod_d
+  width = width or rod_w * S
+  depth = depth or rod_d * S
   local len = math.sqrt((p2.x-p1.x)^2 + (p2.y-p1.y)^2)
   local mid = midpoint(p1, p2)
   local q = zrotVec(p2.x - p1.x, p2.y - p1.y)
@@ -305,9 +308,27 @@ M.FLOOR_TOP_Y = -16.7   -- Spears 4Bar-1's own leg reaches roughly Y in [-16.45,
 
 function M.build(opts)
 add, addConstraint = opts.add, opts.addConstraint
-local cube_d = opts.cube_d       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
-local linkage_spacing = opts.linkageSpacing   -- GUI slider -- how far apart the two leg mounts on each face sit
-local cube_margin = 2.5
+
+-- SCALE: opts.scale (default 1) multiplies every length -- links, rod
+-- sections, plane gaps, the cube, the leg spacing, crossbars and feet --
+-- so the walker is built smaller or larger about the origin. Masses stay
+-- the same. Motor strength (an angular impulse, mass x length^2 / time)
+-- goes up with the square of the scale. The slider values passed in
+-- (cube_d, linkageSpacing, ...) are in this walker's own units, as on
+-- its sliders; terrainLift is in the caller's units. Moving as it does
+-- full size also needs gravity scaled by the same factor; that is the
+-- caller's job (gravity is set per body, after building).
+S = opts.scale or 1
+-- opts.impulseScale (default 1) multiplies the motors' impulse, which
+-- Bullet applies once per physics step: a caller stepping at 1/960 s
+-- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
+-- motors push just as hard per second.
+local IMPULSE_SCALE = opts.impulseScale or 1
+local g_len, a_len, coupler_len, rocker_len, p_len = g_len * S, a_len * S, coupler_len * S, rocker_len * S, p_len * S
+local rod_w, rod_d, plane_gap = rod_w * S, rod_d * S, plane_gap * S
+local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
+local linkage_spacing = opts.linkageSpacing * S   -- GUI slider -- how far apart the two leg mounts on each face sit
+local cube_margin = 2.5 * S
 local cube_w = linkage_spacing + 2*cube_margin   -- returned: Spears_4Bar_4LegT.lua's one-time camera setup reads it
 local cube_center_x = linkage_spacing / 2   -- returned (the floor is centred on it) -- midway between the two mounts (0 and linkage_spacing) -- symmetric for any linkage_spacing, nothing extra needed
 -- STARTING-HEIGHT CLEARANCE: terrainHeight()'s three sine terms sum to
@@ -338,7 +359,7 @@ local z_ground, z_crank, z_coupler, z_rocker, z_pendant =
       cube_d/2, cube_d/2 + plane_gap, cube_d/2 + 2*plane_gap, cube_d/2 + 3*plane_gap, cube_d/2 + 4*plane_gap
 
 --cube = Cube(cube_w, 1.5, cube_d, 100.0)   -- small mass -> now dynamic, affected by gravity
-local cube = Cube(cube_w, 1.5, cube_d, opts.cubeMass)   -- GUI slider -- small mass -> now dynamic, affected by gravity
+local cube = Cube(cube_w, 1.5 * S, cube_d, opts.cubeMass)   -- GUI slider -- small mass -> now dynamic, affected by gravity
 cube.col = "#29c235"
 cube.pos = btVector3(cube_center_x, terrain_lift, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
 cube.friction = 0.5
@@ -409,7 +430,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local z_rocker_l  = zSign * z_rocker
   local z_pendant_l = zSign * z_pendant   -- "pendant" naming kept for buildFoot's benefit -- this is really the rigid leg-arm, welded (not hinged) to the coupler, see the LEG WELD note below
 
-  local g_center = { x = x_offset, y = 1.25 + terrain_lift }   -- terrain_lift (from buildScene above) keeps every downstream point in sync with the raised cube
+  local g_center = { x = x_offset, y = 1.25 * S + terrain_lift }   -- terrain_lift (from buildScene above) keeps every downstream point in sync with the raised cube
   local O2 = { x = g_center.x - (g_len/2)*math.cos(math.rad(g_ang)),
                y = g_center.y - (g_len/2)*math.sin(math.rad(g_ang)) }
   local O4 = { x = g_center.x + (g_len/2)*math.cos(math.rad(g_ang)),
@@ -438,14 +459,14 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local lx, ly = ux*ca - uy*sa, ux*sa + uy*ca
   local C = { x = attach.x + p_len*lx, y = attach.y + p_len*ly }   -- "C"/p_len kept for buildFoot's benefit -- this is the Leg tip, at leg_len from attach
 
-  local crank   = makeLink(O2, A, z_crank_l, 2.0, "coral", 0.3, rod_d)
-  local coupler = makeLink(A, B, z_coupler_l, 4.0, "teal", 1.2, rod_d)
+  local crank   = makeLink(O2, A, z_crank_l, 2.0, "coral", 0.3 * S, rod_d)
+  local coupler = makeLink(A, B, z_coupler_l, 4.0, "teal", 1.2 * S, rod_d)
   coupler.damp_ang = 0.15
   coupler.damp_lin = 0.1
-  local rocker  = makeLink(O4, B, z_rocker_l, 3.0, "purple", 1.0, rod_d)   -- NEW body type -- this mechanism has a genuine hinged rocker (unlike the slider version's free-spinning block), closing a true 4-bar loop O2-A-B-O4
+  local rocker  = makeLink(O4, B, z_rocker_l, 3.0, "purple", 1.0 * S, rod_d)   -- NEW body type -- this mechanism has a genuine hinged rocker (unlike the slider version's free-spinning block), closing a true 4-bar loop O2-A-B-O4
   rocker.damp_ang = 0.15
   rocker.damp_lin = 0.1
-  local pendant = makeLink(attach, C, z_pendant_l, 3.0, "goldenrod", 1.0, rod_d)   -- the rigid leg-arm -- "pendant" name kept for buildFoot's benefit, but it's WELDED below, not hinged: this mechanism has zero free-swinging DOF at the foot end, unlike every Hoecken-family version in this series
+  local pendant = makeLink(attach, C, z_pendant_l, 3.0, "goldenrod", 1.0 * S, rod_d)   -- the rigid leg-arm -- "pendant" name kept for buildFoot's benefit, but it's WELDED below, not hinged: this mechanism has zero free-swinging DOF at the foot end, unlike every Hoecken-family version in this series
   pendant.damp_ang = 0.15   -- welded rigidly to the coupler below, so this mostly just aids solver stability rather than damping a genuine free oscillation the way it did for the old hinged pendant
   pendant.damp_lin = 0.1
 
@@ -462,7 +483,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   -- bar through a fixed slider point was). Flagged, not verified
   -- against a live physics run -- raise this if the motor looks
   -- underpowered.
-  hingeO2:enableAngularMotor(true, speed, 150.0)
+  hingeO2:enableAngularMotor(true, speed, 150.0 * S * S * IMPULSE_SCALE)
   addConstraint(hingeO2)
 
   -- A: crank <-> coupler (free hinge)
@@ -660,14 +681,14 @@ local function buildFoot(lk, color)
   -- EXACTLY the same position the original scale=0.40 shape used
   -- (4.025 for a front leg) -- so this is a pure shape change, not a
   -- reach or position change layered on top of it.
-  local outward_extra = 0.2303
-  local inner_gap = 2.3697
+  local outward_extra = 0.2303 * S
+  local inner_gap = 2.3697 * S
 
   local foot_outer_z = zp + dir*outward_extra   -- outer edge: further out than the pendant itself
   local foot_inner_z = dir * inner_gap           -- inner edge: short of the body's centerline, not touching it
   local foot_z_len = math.abs(foot_outer_z - foot_inner_z)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
-  local foot_x, foot_y = 1.6553, 0.3      -- foot_y (thickness) still deliberately unchanged from the original -- only the X:Z footprint shape was re-optimized here, not thickness
+  local foot_x, foot_y = 1.6553 * S, 0.3 * S      -- foot_y (thickness) still deliberately unchanged from the original -- only the X:Z footprint shape was re-optimized here, not thickness
 
   local foot = Cube(foot_x, foot_y, foot_z_len, 1.5)   -- was 0.1 -- far too light against the now much-heavier cube (100) and pendant (3.0) it's rigidly welded to; a big local mass mismatch right at a weld (a 0-limit slider, very stiff) is its own source of jitter
   foot.col = color

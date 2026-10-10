@@ -16,6 +16,8 @@
 --     terrainLift = ...,  -- how far the ground can rise above Walker.FLOOR_TOP_Y
 --     cube_d = ..., linkageSpacing = ...,         -- the sliders of the
 --     leftSpeed = ..., rightSpeed = ...,          -- same names
+--     scale = ...,         -- optional, default 1: multiplies every length
+--     impulseScale = ...,  -- optional, default 1: multiplies the motors' impulse
 --   }
 --   (the cube's mass is fixed at 7.0, as it always was here: the cubeMass
 --   slider only rebuilds the scene)
@@ -83,6 +85,7 @@
 local M = {}
 
 local add, addConstraint   -- set by M.build from its caller's opts
+local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
 local g_len, a_len, h_len, p_len = 2.5, 36*2.5/48, 110*2.5/48, 110*2.5/48
 local f_len = 2*h_len   -- AM = MB = h_len -- keeps the Grashof relation intact
@@ -191,8 +194,8 @@ local IDENTITY_QUAT = btQuaternion(0, 0, 0, 1)
 -- makes one rod-shaped link body from p1 to p2, sitting flat on its
 -- own Z-plane, and adds it to the view.
 local function makeLink(p1, p2, z, mass, color, width, depth)
-  width = width or rod_w
-  depth = depth or rod_d
+  width = width or rod_w * S
+  depth = depth or rod_d * S
   local len = math.sqrt((p2.x-p1.x)^2 + (p2.y-p1.y)^2)
   local mid = midpoint(p1, p2)
   local q = zrotVec(p2.x - p1.x, p2.y - p1.y)
@@ -218,15 +221,36 @@ M.FLOOR_TOP_Y = -0.8 - p_len   -- the floor's baseline height for this mechanism
 
 function M.build(opts)
 add, addConstraint = opts.add, opts.addConstraint
-local cube_d = opts.cube_d        -- cube's own depth (Z) -- GUI slider -- 2.5
-local linkage_spacing = opts.linkageSpacing   -- GUI slider -- how far apart the two leg mounts on each face sit
+
+-- SCALE: opts.scale (default 1) multiplies every length -- links, rod
+-- sections, plane gaps, the cube, the leg spacing, crossbars and feet --
+-- so the walker is built smaller or larger about the origin. Masses stay
+-- the same. Motor strength (an angular impulse, mass x length^2 / time)
+-- goes up with the square of the scale. The slider values passed in
+-- (cube_d, linkageSpacing, ...) are in this walker's own units, as on
+-- its sliders; terrainLift is in the caller's units. Moving as it does
+-- full size also needs gravity scaled by the same factor; that is the
+-- caller's job (gravity is set per body, after building).
+S = opts.scale or 1
+-- opts.impulseScale (default 1) multiplies the motors' impulse, which
+-- Bullet applies once per physics step: a caller stepping at 1/960 s
+-- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
+-- motors push just as hard per second.
+local IMPULSE_SCALE = opts.impulseScale or 1
+local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
+local rod_w, rod_d, plane_gap, EXT_DOWN = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S
+-- (the link masses above were worked out from the unscaled lengths, and
+-- stay as they are; the hand-worked coupler inertia below uses the scaled
+-- lengths, and so grows with the scale squared, as it should)
+local cube_d = opts.cube_d * S        -- cube's own depth (Z) -- GUI slider -- 2.5
+local linkage_spacing = opts.linkageSpacing * S   -- GUI slider -- how far apart the two leg mounts on each face sit
 -- half_spacing keeps the mounts symmetric around cube_center_x=0 for
 -- any linkage_spacing, not just the original hardcoded 10 -- the old
 -- "-5"/"linkage_spacing-5" pair only happened to be symmetric (+-5)
 -- because linkage_spacing was always 10; the same mount-offset issue
 -- Spears_diag3_ModelC.lua's own comments describe and fix.
 local half_spacing = linkage_spacing / 2
-local cube_margin = 2.5
+local cube_margin = 2.5 * S
 local cube_w = linkage_spacing + 2*cube_margin   -- returned
 local cube_center_x = 0   -- returned (the floor is centred on it)
 -- STARTING-HEIGHT CLEARANCE: terrainHeight()'s three sine terms sum to
@@ -251,7 +275,7 @@ local terrain_lift = opts.terrainLift
 local z_ground, z_crank, z_coupler, z_rocker, z_pendant, z_crossbar =
       cube_d/2, cube_d/2 + plane_gap, cube_d/2 + 2*plane_gap, cube_d/2 + plane_gap, cube_d/2 + 3*plane_gap, cube_d/2 + 4*plane_gap
 
-local cube = Cube(cube_w, 1.5, cube_d, 7.0)   -- CUBE MASS OPTIMIZED, found by running 2400-frame trials (not visible at 600) sweeping mass from 0.5 to 200: at the old mass=100, the walker phase-locks (see the long-run note below buildLinkage's linkage3/4 calls) and then REVERSES, ending up at only 99.8 units of net displacement by frame 2400. Every mass from roughly 3 to 25 avoids that reversal entirely -- net displacement 255-275 units, the walker just keeps going -- with mass=7 the peak of that plateau (275.25). Below ~mass=1 the cube starts bouncing more (Y range widens from the usual ~[-2,1.3] toward [-2.3,5.7] at mass=0.5) and net distance drops off; above ~mass=30 the reversal reappears and by mass=35 is about as bad as the original 100. This also improves the cube:leg mass ratio directly -- crank/coupler/rocker/pendant masses are all under 1.5, so mass=100 put a ~180:1 ratio across the motor-driven hinge, exactly the kind of large mass ratio flagged elsewhere in this file series as an iterative-solver risk; mass=7 brings that down to a much healthier ~12:1.
+local cube = Cube(cube_w, 1.5 * S, cube_d, 7.0)   -- CUBE MASS OPTIMIZED, found by running 2400-frame trials (not visible at 600) sweeping mass from 0.5 to 200: at the old mass=100, the walker phase-locks (see the long-run note below buildLinkage's linkage3/4 calls) and then REVERSES, ending up at only 99.8 units of net displacement by frame 2400. Every mass from roughly 3 to 25 avoids that reversal entirely -- net displacement 255-275 units, the walker just keeps going -- with mass=7 the peak of that plateau (275.25). Below ~mass=1 the cube starts bouncing more (Y range widens from the usual ~[-2,1.3] toward [-2.3,5.7] at mass=0.5) and net distance drops off; above ~mass=30 the reversal reappears and by mass=35 is about as bad as the original 100. This also improves the cube:leg mass ratio directly -- crank/coupler/rocker/pendant masses are all under 1.5, so mass=100 put a ~180:1 ratio across the motor-driven hinge, exactly the kind of large mass ratio flagged elsewhere in this file series as an iterative-solver risk; mass=7 brings that down to a much healthier ~12:1.
 cube.damp_lin = DAMP_CUBE.lin
 cube.damp_ang = DAMP_CUBE.ang
 cube.col = "#29c235"
@@ -295,7 +319,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- becomes adding post-flip -- same reasoning (and the same real-
   -- engine verification: cube.pos.y and a foot's pos.y rise by exactly
   -- terrain_lift together) as Spears_diag3_ModelC.lua's identical fix.
-  local g_center_raw = { x = x_offset, y = 1.25 - terrain_lift }
+  local g_center_raw = { x = x_offset, y = 1.25 * S - terrain_lift }
   local O2_raw = { x = g_center_raw.x - (g_len/2)*math.cos(math.rad(g_ang)),
                     y = g_center_raw.y - (g_len/2)*math.sin(math.rad(g_ang)) }
   local O4_raw = { x = g_center_raw.x + (g_len/2)*math.cos(math.rad(g_ang)),
@@ -325,11 +349,11 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- coupler hinge), C just moves further away.
   local C = { x = B.x, y = B.y - p_len - ext_down }
   local pendant_len = p_len + ext_down
-  local mass_pendant = density_pendant * pendant_len   -- 0.9729 for the default ext_down=4.0
+  local mass_pendant = density_pendant * (pendant_len / S)   -- (from the unscaled length)   -- 0.9729 for the default ext_down=4.0
 
   local half_f = f_len/2   -- = L below; AM and MB are equal-length segments, both = half_f
 
-  local crank   = makeLink(O2, A, z_crank_l, mass_crank, "coral", 0.3, rod_d)   -- ASPECT RATIO: 0.18->0.3, +89% I_xx (off-plane wobble resistance) for +1.6% motor load -- see the ASPECT RATIO note below buildLinkage's other geometry
+  local crank   = makeLink(O2, A, z_crank_l, mass_crank, "coral", 0.3 * S, rod_d)   -- ASPECT RATIO: 0.18->0.3, +89% I_xx (off-plane wobble resistance) for +1.6% motor load -- see the ASPECT RATIO note below buildLinkage's other geometry
   crank.damp_lin = DAMP_CRANK.lin
   crank.damp_ang = DAMP_CRANK.ang
 
@@ -421,7 +445,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- thinner cross-section while the actual collision shape used the new
   -- wider one, a mismatch between visible size and rotational
   -- resistance that setMassProps would silently bake in.
-  local coupler_width = 0.8
+  local coupler_width = 0.8 * S
   -- segment 1 (A->M), own box inertia about its own center, axes aligned
   -- with this body's local frame (unrotated):
   local I1xx = m/12 * (coupler_width*coupler_width + rod_d*rod_d)
@@ -479,10 +503,10 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   weldVis:setUpperLinLimit(0)
   addConstraint(weldVis)
 
-  local rocker   = makeLink(M, O4, z_rocker_l, mass_rocker, "purple", 0.5, rod_d)   -- ASPECT RATIO: 0.18->0.5, +336% I_xx for +0.7% load
+  local rocker   = makeLink(M, O4, z_rocker_l, mass_rocker, "purple", 0.5 * S, rod_d)   -- ASPECT RATIO: 0.18->0.5, +336% I_xx for +0.7% load
   rocker.damp_lin = DAMP_ROCKER.lin
   rocker.damp_ang = DAMP_ROCKER.ang
-  local pendant  = makeLink(B, C, z_pendant_l, mass_pendant, "goldenrod", 1.0, rod_d)   -- ASPECT RATIO: 0.18->1.0, +1493% I_xx for +1.0% swing cost
+  local pendant  = makeLink(B, C, z_pendant_l, mass_pendant, "goldenrod", 1.0 * S, rod_d)   -- ASPECT RATIO: 0.18->1.0, +1493% I_xx for +1.0% swing cost
   pendant.damp_lin = DAMP_PENDANT.lin
   pendant.damp_ang = DAMP_PENDANT.ang
 
@@ -501,7 +525,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   local pivotCube_O2  = btVector3(O2.x - cube.pos.x, O2.y - cube.pos.y, z_ground_l - cube.pos.z)
   local pivotCrank_O2 = btVector3(-a_len/2, 0, z_ground_l - z_crank_l)
   local hingeO2 = btHingeConstraint(cube.body, crank.body, pivotCube_O2, pivotCrank_O2, axis, axis)
-  hingeO2:enableAngularMotor(true, speed, 8.0)
+  hingeO2:enableAngularMotor(true, speed, 8.0 * S * S * IMPULSE_SCALE)
   addConstraint(hingeO2)
 
   -- A: crank <-> coupler
@@ -669,7 +693,7 @@ end
 -- other, rather than running the bar's full length. All four linkages
 -- share the same pendant_len (same ext_down), so linkage1's is a valid
 local half_pendant = linkage1.pendant_len / 2
-local brace_margin = 0.5
+local brace_margin = 0.5 * S
 local brace_height = 2 * (half_pendant - brace_margin)
 
 local crossbarFront = buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue", brace_height)
@@ -694,7 +718,7 @@ local function buildFoot(lk, color)
   local C = lk.C
   local zp = lk.z_pendant
   local dir = zp >= 0 and 1 or -1
-  local outward_extra = 5.0 --2.0            -- how far the foot reaches PAST the pendant, away from the body
+  local outward_extra = 5.0 * S --2.0            -- how far the foot reaches PAST the pendant, away from the body
 
   -- STABILITY FIX: the tipping margin toward whichever pair is
   -- currently lifted was only ~1.0 unit (COM sits near Z=0, and the old
@@ -707,13 +731,13 @@ local function buildFoot(lk, color)
   -- units, which hasn't been swept across the full gait cycle to
   -- confirm X-positions still stay clear of each other everywhere --
   -- worth a visual check if pushed further.
-  local inner_gap = 1.0 -- 2.0                -- was -1.0
+  local inner_gap = 1.0 * S -- 2.0                -- was -1.0
 
   local foot_outer_z = zp + dir*outward_extra   -- outer edge: further out than the pendant itself
   local foot_inner_z = dir * inner_gap           -- inner edge: short of the body's centerline, not touching it
   local foot_z_len = math.abs(foot_outer_z - foot_inner_z)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
-  local foot_x, foot_y = 2.0, 0.3      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
+  local foot_x, foot_y = 2.0 * S, 0.3 * S      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
 
   local foot = Cube(foot_x, foot_y, foot_z_len, mass_foot)
   foot.col = color

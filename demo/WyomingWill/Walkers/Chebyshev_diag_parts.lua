@@ -16,6 +16,8 @@
 --     terrainLift = ...,  -- how far the ground can rise above Walker.FLOOR_TOP_Y
 --     cube_d = ..., cubeMass = ..., linkageSpacing = ...,   -- the sliders
 --     motorSpeed = ...,                                      -- of the same names
+--     scale = ...,         -- optional, default 1: multiplies every length
+--     impulseScale = ...,  -- optional, default 1: multiplies the motors' impulse
 --   }
 --   w.cube, w.cube_w, w.cubeCenterX, w.linkage1 .. w.linkage4 (each with
 --   .hingeO2, the motor), w.diagonalBottom/Top, w.foot1 .. w.foot4;
@@ -128,6 +130,7 @@
 local M = {}
 
 local add, addConstraint   -- set by M.build from its caller's opts
+local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
 -- ---------------------------------------------------------------------
 -- shared geometry / constants
@@ -262,8 +265,8 @@ end
 -- makes one rod-shaped link body from p1 to p2, sitting flat on its
 -- own Z-plane, and adds it to the view.
 local function makeLink(p1, p2, z, mass, color, width, depth)
-  width = width or rod_w
-  depth = depth or rod_d
+  width = width or rod_w * S
+  depth = depth or rod_d * S
   local len = math.sqrt((p2.x-p1.x)^2 + (p2.y-p1.y)^2)
   local mid = midpoint(p1, p2)
   local q = zrotVec(p2.x - p1.x, p2.y - p1.y)
@@ -295,9 +298,27 @@ M.FLOOR_TOP_Y = 4.6 - p_len   -- the floor's baseline height for this mechanism 
 
 function M.build(opts)
 add, addConstraint = opts.add, opts.addConstraint
-local cube_d = opts.cube_d       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
-local linkage_spacing = opts.linkageSpacing   -- GUI slider -- how far apart the two g-mountings sit
-local cube_margin = 2.5
+
+-- SCALE: opts.scale (default 1) multiplies every length -- links, rod
+-- sections, plane gaps, the cube, the leg spacing, crossbars and feet --
+-- so the walker is built smaller or larger about the origin. Masses stay
+-- the same. Motor strength (an angular impulse, mass x length^2 / time)
+-- goes up with the square of the scale. The slider values passed in
+-- (cube_d, linkageSpacing, ...) are in this walker's own units, as on
+-- its sliders; terrainLift is in the caller's units. Moving as it does
+-- full size also needs gravity scaled by the same factor; that is the
+-- caller's job (gravity is set per body, after building).
+S = opts.scale or 1
+-- opts.impulseScale (default 1) multiplies the motors' impulse, which
+-- Bullet applies once per physics step: a caller stepping at 1/960 s
+-- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
+-- motors push just as hard per second.
+local IMPULSE_SCALE = opts.impulseScale or 1
+local g_len, a_len, f_len, h_len, p_len = g_len * S, a_len * S, f_len * S, h_len * S, p_len * S
+local p_top_extend, rod_w, rod_d, plane_gap = p_top_extend * S, rod_w * S, rod_d * S, plane_gap * S
+local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
+local linkage_spacing = opts.linkageSpacing * S   -- GUI slider -- how far apart the two g-mountings sit
+local cube_margin = 2.5 * S
 local cube_w = linkage_spacing + 2*cube_margin   -- returned: Chebyshev_diagT.lua's one-time camera setup reads it
 local cube_center_x = linkage_spacing / 2         -- midway between the two -- returned (the floor is centred on it)
 local z_ground, z_crank, z_coupler, z_rocker, z_pendant =
@@ -318,7 +339,7 @@ local z_ground, z_crank, z_coupler, z_rocker, z_pendant =
 -- Chebyshev_diagT.lua.
 local terrain_lift = opts.terrainLift
 --cube = Cube(cube_w, 1.5, cube_d, 140.0)
-local cube = Cube(cube_w, 1.5, cube_d, opts.cubeMass)   -- GUI slider
+local cube = Cube(cube_w, 1.5 * S, cube_d, opts.cubeMass)   -- GUI slider
 -- CUBE MASS OPTIMIZED, found by running 2400-frame trials sweeping mass 1-200 (feet untouched -- outward_extra/inner_gap left at their current values, per request). Low mass (1-40) gives modest, fairly flat travel (45-78 units net displacement); a clear step up begins around mass=50 (152) and climbs through a broad plateau from ~100-170 (216-244), peaking at mass=140 (244.04, the best found) before declining again by 180-200. Higher mass also brings a bit more sideways (Z) drift at the very top of the plateau (-7 to -14 at 140-180) than the low-mass regime shows, worth knowing if perfect straightness matters more than raw distance.
 cube.col = "#29c235"
 cube.pos = btVector3(cube_center_x, terrain_lift, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
@@ -335,7 +356,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local z_rocker_l  = zSign * z_rocker
   local z_pendant_l = zSign * z_pendant
 
-  local g_center = { x = x_offset, y = 1.25 + terrain_lift }   -- terrain_lift (from buildScene above) keeps every downstream point (O2, O4, A, M, B, C -- all translation-invariant relative to g_center) in sync with the raised cube, so the whole leg stays correctly connected, just higher up
+  local g_center = { x = x_offset, y = 1.25 * S + terrain_lift }   -- terrain_lift (from buildScene above) keeps every downstream point (O2, O4, A, M, B, C -- all translation-invariant relative to g_center) in sync with the raised cube, so the whole leg stays correctly connected, just higher up
   local O2 = { x = g_center.x - (g_len/2)*math.cos(math.rad(g_ang)),
                y = g_center.y - (g_len/2)*math.sin(math.rad(g_ang)) }
   local O4 = { x = g_center.x + (g_len/2)*math.cos(math.rad(g_ang)),
@@ -363,10 +384,10 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   -- for +5.4%; coupler (len 5.0) 0.38->1.0 gives +484% for +3.4%;
   -- pendant (len 14.5, now spanning B_top to C) 0.38->1.3 gives +874%
   -- for +0.7%.
-  local crank   = makeLink(O2, A, z_crank_l, 0.3, "coral", 0.5, rod_d)
-  local coupler = makeLink(A, B, z_coupler_l, 0.6, "teal", 1.0, rod_d)
-  local rocker  = makeLink(M, O4, z_rocker_l, 0.3, "purple", 0.7, rod_d)
-  local pendant = makeLink(B_top, C, z_pendant_l, 1.0, "goldenrod", 1.3, rod_d)   -- now spans B_top to C, not B to C -- B sits partway along this longer rod, not at its end
+  local crank   = makeLink(O2, A, z_crank_l, 0.3, "coral", 0.5 * S, rod_d)
+  local coupler = makeLink(A, B, z_coupler_l, 0.6, "teal", 1.0 * S, rod_d)
+  local rocker  = makeLink(M, O4, z_rocker_l, 0.3, "purple", 0.7 * S, rod_d)
+  local pendant = makeLink(B_top, C, z_pendant_l, 1.0, "goldenrod", 1.3 * S, rod_d)   -- now spans B_top to C, not B to C -- B sits partway along this longer rod, not at its end
   pendant.damp_ang = 0.15   -- bleeds off some oscillation energy -- helps at higher speeds, raise if it still overshoots
 
   local axis = btVector3(0,0,1)
@@ -391,7 +412,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local pivotCube_O2  = btVector3(O2.x - cube.pos.x, O2.y - cube.pos.y, z_ground_l - cube.pos.z)
   local pivotCrank_O2 = btVector3(-a_len/2, 0, z_ground_l - z_crank_l)
   local hingeO2 = btHingeConstraint(cube.body, crank.body, pivotCube_O2, pivotCrank_O2, axis, axis)
-  hingeO2:enableAngularMotor(true, speed, math.abs(speed) * MOTOR_TORQUE_RATIO)
+  hingeO2:enableAngularMotor(true, speed, math.abs(speed) * MOTOR_TORQUE_RATIO * S * S * IMPULSE_SCALE)
   stiffen(hingeO2)
   addConstraint(hingeO2)
 
@@ -606,7 +627,7 @@ end
 -- so this may be worth revisiting on its own (a wider plate arguably
 -- wants more mass, not the same amount tuned for a thin bar) -- left
 -- unchanged here since only geometry was asked for.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4, "slateblue", 1.0, 1.8)   -- left-front <-> right-back -- the sole bottom brace now
+local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S, "slateblue", 1.0, 1.8 * S)   -- left-front <-> right-back -- the sole bottom brace now
 
 -- TOP crossbar: same idea as the bottom pair, but attached near the
 -- TOP of the (now-extended) pendant instead of near C at the bottom.
@@ -633,7 +654,7 @@ local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4, "slateblue
 -- (same footprint the old pair occupied), but whether it stays clear of
 -- the crank/coupler/rocker through a full rotation isn't something I
 -- can verify without actually running it.
-local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 12.4, "firebrick", 0.385, 1.8)  -- right-front <-> left-back -- the sole top brace now
+local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 12.4 * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now
 
 -- ---------------------------------------------------------------------
 -- foot builder: a wide, flat pad welded (not hinged) to the bottom of
@@ -651,14 +672,14 @@ local function buildFoot(lk, color)
   local C = lk.C
   local zp = lk.z_pendant
   local dir = zp >= 0 and 1 or -1
-  local outward_extra = 2.0            -- how far the foot reaches PAST the pendant, away from the body
-  local inner_gap = 1.0 --0.3                -- stops short of z=0 by this much, so opposing feet don't touch at the center
+  local outward_extra = 2.0 * S            -- how far the foot reaches PAST the pendant, away from the body
+  local inner_gap = 1.0 * S --0.3                -- stops short of z=0 by this much, so opposing feet don't touch at the center
 
   local foot_outer_z = zp + dir*outward_extra   -- outer edge: further out than the pendant itself
   local foot_inner_z = dir * inner_gap           -- inner edge: short of the body's centerline, not touching it
   local foot_z_len = math.abs(foot_outer_z - foot_inner_z)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
-  local foot_x, foot_y = 2.0, 0.3      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
+  local foot_x, foot_y = 2.0 * S, 0.3 * S      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
 
   local foot = Cube(foot_x, foot_y, foot_z_len, 1.2)   -- heavier than before (was 0.5)
   foot.col = color
