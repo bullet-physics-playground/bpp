@@ -45,3 +45,5 @@ Spiral polyhedra (bille-meshes/p21, p26, p37)
   now carries: outward normal, centre-of-mass height, band name (S1 next to
   the base ... apex band) and the band it tips onto quasi-statically. Every
   band tips onto the one below it: ... -> S2 -> S1 -> base.
+  genframe.py writes pNN-frame.obj: the polyhedra drawn as frames (balls on
+  rods) for the "polyhedra look" slider; same body frame, drawing only.

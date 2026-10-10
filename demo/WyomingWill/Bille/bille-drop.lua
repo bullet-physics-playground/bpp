@@ -6,11 +6,19 @@
 -- runs through a cycle; when it has been at rest for `redrop` seconds it is
 -- lifted away and the next body in the cycle is dropped in its colour:
 --
---   Bille  ->  21-corner polyhedron  ->  26-corner  ->  37-corner  ->  ...
+--   Red, Yellow, Orange:   always Billes
+--   Green, Blue, Purple:   21-corner -> 26-corner -> 37-corner polyhedron -> ...
 --
--- A WHITE DOT marks each body's top: the corner that ends up uppermost when it
--- rests on its one stable face (Bille: vertex D; the polyhedra: the apex).
--- Bodies are drawn dark until they rest on that face, then bright.
+-- so the table holds Billes and polyhedra half and half (a Bille settles in
+-- half a second, a polyhedron takes several, so alternating each colour's
+-- drops would fill the table with polyhedra). Bodies are drawn dark until they rest on
+-- their one stable face, then bright. A BILLE LIGHTS UP PALE while one of its
+-- edges lies flat on the table -- exactly two corners touching -- as it rolls
+-- from face to face, so the moments between faces are easy to catch; the
+-- console lists the edges it rolled on. A WHITE DOT marks each polyhedron's
+-- apex, which ends up on top. The "polyhedra look" slider draws the
+-- polyhedra as solids (0) or as frames, balls on rods (1); the physics is
+-- the same either way.
 --
 -- BILLE (Almadi, Dawson & Domokos, 2025) is a tetrahedron that can rest on
 -- only one of its four faces. Its frame is mostly hollow (carbon-fibre tubes
@@ -115,18 +123,20 @@ do
     verts[#verts + 1] = p[1]; verts[#verts + 1] = p[2]; verts[#verts + 1] = p[3]
   end
   KIND.bille = { title = "Bille", short = "Bille", obj = "bille.obj", scale = 1, points = verts, faces = faces,
+                 vnames = { "A", "B", "C", "D" }, noDot = true,
                  home = "D", top = B.vertices.D, mass = B.mass,
                  K2 = { B.inertia[1] / B.mass, B.inertia[2] / B.mass, B.inertia[3] / B.mass },
                  margin = B.tubeRadius, sizeName = "longest edge" , sizeRef = 50 }
   for _, nv in ipairs({ 21, 26, 37 }) do
     local p = load("p" .. nv)
     KIND["p" .. nv] = { title = nv .. "-corner polyhedron" .. (nv == 21 and " (ideal)" or " (shell + weights)"),
-                        short = nv .. "-corner", obj = "p" .. nv .. ".obj", scale = POLY_SCALE,
+                        short = nv .. "-corner", obj = "p" .. nv .. ".obj", frameObj = "p" .. nv .. "-frame.obj",
+                        scale = POLY_SCALE,
                         points = p.vertices, faces = p.faces, home = "base", top = p.top, mass = p.mass,
                         K2 = p.inertia, margin = p.margin, sizeName = "tall", sizeRef = 9 * POLY_SCALE }
   end
 end
-local CYCLE = { [0] = { "bille", "p21", "p26", "p37" }, [1] = { "bille" }, [2] = { "p21", "p26", "p37" } }
+local CYCLE = { [1] = { "bille" }, [2] = { "p21", "p26", "p37" } }
 
 -- size of each colour (1 = the real Bille / a 40 cm polyhedron)
 local SIZES = { 1.0, 0.6, 1.3, 0.8, 1.15, 0.7 }
@@ -155,7 +165,9 @@ end
 -- a kind at a size: hull, mass, inertia and scaled faces, built once and shared
 local SPECS, KEEP = {}, {}
 local function spec(kind, size)
-  local key = kind .. "@" .. string.format("%.4f", size)
+  local K0 = KIND[kind]
+  local frame = K0.frameObj and math.floor(v:getParam("polyhedra look") + 0.5) == 1
+  local key = kind .. "@" .. string.format("%.4f", size) .. (frame and "/frame" or "")
   if SPECS[key] then return SPECS[key] end
   local K = KIND[kind]
   local s = K.scale * size
@@ -168,15 +180,20 @@ local function spec(kind, size)
   for i = 1, #p, 3 do reach = math.max(reach, math.sqrt(p[i] ^ 2 + p[i + 1] ^ 2 + p[i + 2] ^ 2) * s) end
   local faces = {}
   for _, f in ipairs(K.faces) do faces[#faces + 1] = { n = f.n, h = f.h * s, name = f.name, next = f.next } end
-  local file = scaledObj(K.obj, s)
+  local objName = frame and K.frameObj or K.obj
+  local file = scaledObj(objName, s)
   KEEP[key] = Mesh(file, 0, false)
-  if file ~= MESH_DIR .. K.obj then os.remove(file) end
+  if file ~= MESH_DIR .. objName then os.remove(file) end
+  local vtx = {}
+  if K.vnames then
+    for i = 1, #p, 3 do vtx[#vtx + 1] = { p[i] * s, p[i + 1] * s, p[i + 2] * s } end
+  end
   local m = K.mass * s ^ 3
   local k2 = { K.K2[1] * s * s, K.K2[2] * s * s, K.K2[3] * s * s }
   local sp = { kind = kind, size = size, s = s, file = file, hull = hull, mass = m, k2 = k2,
                inertia = btVector3(k2[1] * m, k2[2] * m, k2[3] * m), margin = K.margin * s, reach = reach,
                faces = faces, home = K.home, top = { K.top[1] * s, K.top[2] * s, K.top[3] * s },
-               title = K.title, short = K.short,
+               title = K.title, short = K.short, vnames = K.vnames, vtx = vtx, noDot = K.noDot,
                sizeText = string.format("%.0f cm %s", K.sizeRef * size, K.sizeName) }
   local nxt = {}
   for _, f in ipairs(faces) do if f.next then nxt[f.name] = f.next end end
@@ -196,7 +213,9 @@ local function envnum(name, default) return tonumber(os.getenv(name) or "") or d
 local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo, hi, step, info) end
 param("count", envnum("BD_COUNT", 3), 1, MAX_COUNT, 1, "how many bodies to drop")
 param("bodies", envnum("BD_BODIES", 0), 0, 2, 1,
-      "0 = the cycle (Bille, 21-, 26-, 37-corner polyhedra); 1 = Bille only; 2 = the polyhedra only")
+      "0 = half and half (Red, Yellow, Orange Billes; Green, Blue, Purple polyhedra); 1 = Bille only; 2 = the polyhedra only")
+param("polyhedra look", envnum("BD_LOOK", 0), 0, 1, 1,
+      "0 = the polyhedra drawn as solids, 1 = as frames (balls at the corners, rods on the edges); the physics is the same")
 param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.001,
       "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
 param("steps", envnum("BD_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
@@ -288,11 +307,13 @@ common.setCamera(btVector3(0, 125, 150), btVector3(0, 0, 0))
 local COLOURS = { "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4" }
 local NAMES = { "Red", "Green", "Yellow", "Blue", "Orange", "Purple" }
 local function hex(c) return tonumber(c:sub(2, 3), 16), tonumber(c:sub(4, 5), 16), tonumber(c:sub(6, 7), 16) end
-local DARK, BRIGHT = {}, {}
+local DARK, BRIGHT, EDGE = {}, {}, {}
 for i, c in ipairs(COLOURS) do
   local r, g, b = hex(c)
   DARK[i] = string.format("#%02x%02x%02x", math.floor(r * 0.3), math.floor(g * 0.3), math.floor(b * 0.3))
   BRIGHT[i] = c
+  EDGE[i] = string.format("#%02x%02x%02x", math.floor(r + (255 - r) * 0.7), math.floor(g + (255 - g) * 0.7),
+                          math.floor(b + (255 - b) * 0.7))
 end
 
 local bodies = {}
@@ -303,8 +324,12 @@ end
 
 -- the next body in this colour's cycle (each colour starts at its own place)
 local function nextSpec(g)
-  local cyc = CYCLE[math.floor(v:getParam("bodies") + 0.5)] or CYCLE[0]
-  g.turn = (g.turn or (g.i - 1)) + 1
+  local mode = math.floor(v:getParam("bodies") + 0.5)
+  -- mode 0: odd colours (Red, Yellow, Orange) are always Billes, even ones
+  -- (Green, Blue, Purple) cycle through the polyhedra -- an even split on the
+  -- table, however long each kind takes to settle
+  local cyc = (mode == 1 or (mode == 0 and g.i % 2 == 1)) and CYCLE[1] or CYCLE[2]
+  g.turn = (g.turn or math.floor((g.i - 1) / 2)) + 1
   return spec(cyc[(g.turn - 1) % #cyc + 1], sizeOf(g.i))
 end
 
@@ -320,10 +345,13 @@ local function applyMaterials() for _, g in ipairs(bodies) do applyMaterial(g) e
 local function reshape(g, sp)
   if g.obj then v:remove(g.obj) end
   if g.dot then v:remove(g.dot) end
-  local dot = Sphere(0.05 * sp.reach, 0)
-  dot.col = "#ffffff"
-  pcall(function() dot.collides = false end)
-  v:add(dot)
+  local dot = nil
+  if not sp.noDot then
+    dot = Sphere(0.05 * sp.reach, 0)
+    dot.col = "#ffffff"
+    pcall(function() dot.collides = false end)
+    v:add(dot)
+  end
   local m = Mesh(sp.file, 0, false)
   local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -60, 0)))
   local body = btRigidBody(sp.mass, ms, sp.hull, sp.inertia)
@@ -389,6 +417,7 @@ local function toWorld(g, v3)
   return x, y, z
 end
 local function placeDot(g)
+  if not g.dot then return end
   local px, py, pz = getPosXYZ(g.obj)
   local x, y, z = toWorld(g, g.sp.top)
   g.dot.pos = btVector3(px + x, py + y, pz + z)
@@ -408,6 +437,21 @@ local function faceDown(g)
   end
   if bestAng < ON_DEG and math.abs(h - best.h) < 0.006 * g.sp.reach then return best.name, bestAng end
   return nil, bestAng
+end
+
+-- which edge of a Bille lies flat on the table: exactly two of its corners
+-- touching (three = lying on a face), or nil
+local EDGE_TOL = 0.0015          -- of the body's size (0.5 mm for a 50 cm Bille)
+local function edgeDown(g)
+  if not g.sp.vnames then return nil end
+  local px, py, pz = getPosXYZ(g.obj)
+  local tol, on = EDGE_TOL * g.sp.reach, {}
+  for k, p in ipairs(g.sp.vtx) do
+    local x, y, z = toWorld(g, p)
+    if py + y - tableHeight(px + x, pz + z) - g.sp.margin < tol then on[#on + 1] = g.sp.vnames[k] end
+  end
+  if #on == 2 then return on[1] .. on[2] end
+  return nil
 end
 
 -- ---------------------------------------------------------------------
@@ -458,6 +502,7 @@ local REST_TURN = math.rad(0.2)
 local REST_MOVE = 0.03
 local REST_HOLD = 0.4          -- simulated s (these settle within a fraction of a second)
 local SETTLE = 0.03            -- simulated s on a face before it counts as part of the path
+local FLASH = 0.3              -- on-screen s a Bille stays lit after an edge touch
 
 local race = { t = 0, real = 0, nextReport = 1, nextTally = 60, done = {} }   -- t: simulated s, real: on-screen s
 
@@ -476,6 +521,7 @@ local function resetBody(g, startFace)
   g.anchorT, g.restedAt, g.restSeenAt = nil, nil, nil
   g.path = startFace and { startFace } or {}
   g.cand, g.candSince = nil, race.t
+  g.edges, g.edgeOn, g.flashUntil = {}, nil, 0
   g.homeAt = nil
   g.lit = nil
 end
@@ -492,7 +538,7 @@ local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
   while #bodies > n do
     local g = table.remove(bodies)
-    v:remove(g.obj); v:remove(g.dot)
+    v:remove(g.obj); if g.dot then v:remove(g.dot) end
   end
   while #bodies < n do bodies[#bodies + 1] = { i = #bodies + 1 } end
 end
@@ -649,6 +695,8 @@ v:onParamChanged(function(N, name, value)   -- bpp passes (frame, name, value)
     applyResistance()
   elseif name == "size spread" then
     drop()
+  elseif name == "polyhedra look" then
+    drop()
   elseif name == "bodies" then
     for _, g in ipairs(bodies) do g.turn = nil end
     drop()
@@ -664,10 +712,14 @@ pcall(function()
     "  K  kick them up with a spin\n" ..
     "  Z  slow motion (50x) <-> 10x slower\n" ..
     "  ]  one more     [  one fewer\n" ..
-    "Each colour cycles: Bille, then the spiral polyhedra\n" ..
-    "with 21, 26 and 37 corners ('bodies' slider).\n" ..
+    "Red, Yellow, Orange: Billes. Green, Blue, Purple:\n" ..
+    "spiral polyhedra, 21, 26, 37 corners in turn\n" ..
+    "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..
+    "A Bille lights up pale while an edge is flat on the\n" ..
+    "table (as it rolls from face to face).\n" ..
+    "'polyhedra look': solid or frame.\n" ..
     "All work because of where their weight is.\n" ..
-    "White dot = the top; dark = not yet on the\n" ..
+    "Polyhedra: white dot = apex. Dark = not yet on the\n" ..
     "stable face, bright = resting on it.\n" ..
     "Bille: B -> A -> D <- C.  Polyhedra: each band\n" ..
     "of side faces tips onto the next: ... S2 -> S1 -> base.\n" ..
@@ -719,8 +771,19 @@ v:postSim(function(N)
       g.path[#g.path + 1] = f
       if f == g.sp.home then g.homeAt = race.t end
     end
-    local lit = (f == g.sp.home)
-    if lit ~= g.lit then g.lit = lit; g.obj.col = lit and BRIGHT[g.i] or DARK[g.i] end
+    -- a Bille balancing on an edge lights up (held for at least FLASH on-screen
+    -- seconds so that brief edge-rolls are visible), and the edge is noted
+    local e = edgeDown(g)
+    if e then
+      g.flashUntil = race.real + FLASH
+      if e ~= g.edgeOn and g.edges[#g.edges] ~= e then g.edges[#g.edges + 1] = e end
+    end
+    g.edgeOn = e
+    local look = (race.real < (g.flashUntil or 0)) and "edge" or ((f == g.sp.home) and "home" or "dark")
+    if look ~= g.lit then
+      g.lit = look
+      g.obj.col = (look == "edge" and EDGE[g.i]) or (look == "home" and BRIGHT[g.i]) or DARK[g.i]
+    end
 
     if LOGF and N % 15 == 0 then
       local wx, wy, wz = getAngVelXYZ(g.obj)
@@ -746,9 +809,10 @@ v:postSim(function(N)
         g.restedAt, g.restSeenAt = race.t - REST_HOLD, race.real
         local path = #g.path > 0 and table.concat(g.path, " -> ") or "?"
         local home = (f == g.sp.home)
+        local edges = (g.edges and #g.edges > 0) and ("; edges it rolled on: " .. table.concat(g.edges, ", ")) or ""
         local near = nearOther(g)
-        print(string.format("  %-7s at rest on %s after %5.2f s; faces it lay on: %s%s%s -- %s", NAMES[g.i],
-                            f and ("face " .. f) or "no face (propped?)", g.restedAt - g.t0, path,
+        print(string.format("  %-7s at rest on %s after %5.2f s; faces it lay on: %s%s%s%s -- %s", NAMES[g.i],
+                            f and ("face " .. f) or "no face (propped?)", g.restedAt - g.t0, path, edges,
                             home and "" or "  ** NOT ON THE STABLE FACE **",
                             (not home and near) and ("  -- may be touching " .. near) or "", label(g)))
         g.result = { title = g.sp.title, home = home, rest = g.restedAt - g.t0, path = path }
@@ -785,5 +849,5 @@ end)
 
 math.randomseed(envnum("BD_SEED", os.time()))
 -- build every body once up front at each colour's size, so a re-drop never waits for a mesh
-for i = 1, MAX_COUNT do for _, k in ipairs(CYCLE[0]) do spec(k, sizeOf(i)) end end
+for i = 1, MAX_COUNT do for _, k in ipairs({ "bille", "p21", "p26", "p37" }) do spec(k, sizeOf(i)) end end
 if os.getenv("BD_START") == "setdown" then setdown() else drop() end
