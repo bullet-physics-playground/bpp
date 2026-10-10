@@ -11,6 +11,9 @@
 --   Down           brake           Space  jump (when on the snow)
 --   R              restart (reloads the script)
 --
+-- Sound effects live in tuxracer-sounds/ (see make-sounds.py there). Without
+-- an audio device loadSound() gives -1 and every playSound(-1) is a no-op.
+--
 -- Run headless with TUX_AUTO=1 in the environment to let an autopilot drive
 -- (smoke test: ./release/bpp -f demo/koppi/tuxracer.lua -n 1500).
 --
@@ -93,7 +96,7 @@ local function buildCourse()
   return m
 end
 
-common.setTiming(1 / 60, 4, 1 / 120)
+common.setTiming(1 / 25, 6, 1 / 150)   -- 25 fps: what the POV-Ray export (video and soundtrack) assumes
 common.gravity(-9.81)
 
 local course = buildCourse()
@@ -290,6 +293,16 @@ tux.body:setCcdSweptSphereRadius(0.25)
 
 local keys = {}
 
+local snd = {
+  fish   = v:loadSound("tuxracer-sounds/fish.wav"),
+  jump   = v:loadSound("tuxracer-sounds/jump.wav"),
+  land   = v:loadSound("tuxracer-sounds/land.wav"),
+  thud   = v:loadSound("tuxracer-sounds/thud.wav"),
+  oops   = v:loadSound("tuxracer-sounds/oops.wav"),
+  finish = v:loadSound("tuxracer-sounds/finish.wav"),
+  swish  = v:loadSound("tuxracer-sounds/swish.wav"),
+}
+
 -- Visual-only parts, glued to the torso in its local frame (x right, y up,
 -- z forward). A part is either fixed (off, q) or animated (fn() -> off, q).
 local parts = {}
@@ -446,7 +459,7 @@ local function control(N)
     local cx, cy, cz = uy * nz - uz * ny, uz * nx - ux * nz, ux * ny - uy * nx
     local av = body:getAngularVelocity()
     local ax, ay, az = av:getX(), av:getY(), av:getZ()
-    local k, c = 90, 14
+    local k, c = 25, 8          -- (applied once per 1/25 s frame, so kept soft)
     local avn = ax * nx + ay * ny + az * nz           -- spin about the normal is left alone
     body:applyTorque(btVector3(cx * k - (ax - avn * nx) * c,
                                cy * k - (ay - avn * ny) * c,
@@ -457,6 +470,7 @@ local function control(N)
     local d = want - (av2:getX() * nx + av2:getY() * ny + av2:getZ() * nz)
     body:setAngularVelocity(btVector3(av2:getX() + nx * d, av2:getY() + ny * d, av2:getZ() + nz * d))
     if keys.jump then
+      v:playSound(snd.jump, 0.7)
       body:applyCentralImpulse(btVector3(nx * m * 4.2, ny * m * 4.2, nz * m * 4.2))
     end
   else
@@ -482,6 +496,7 @@ local function collect()
       if dx * dx + dy * dy + dz * dz < 2.2 * 2.2 then
         h.alive = false
         st.fish = st.fish + 1
+        v:playSound(snd.fish, 0.8)
         hideHerring(h)
       end
     end
@@ -500,8 +515,9 @@ local function updateCamera()
   if not camPos then
     camPos, camLook = wantPos, wantLook
   else
-    camPos  = camPos  + (wantPos  - camPos)  * 0.12
-    camLook = camLook + (wantLook - camLook) * 0.2
+    local k = v.timeStep * 60                      -- (smoothing tuned at 60 fps)
+    camPos  = camPos  + (wantPos  - camPos)  * (1 - 0.88 ^ k)
+    camLook = camLook + (wantLook - camLook) * (1 - 0.80 ^ k)
   end
   v.cam.pos  = camPos
   v.cam.look = camLook
@@ -512,6 +528,26 @@ for _, path in pairs(objFiles) do os.remove(path) end   -- (all the meshes are l
 common.setCamera(btVector3(pathX(2), H(pathX(2), -8) + 5, -8),
                  btVector3(pathX(2), H(pathX(2), 12), 12), 1.0,
                  { horizontal = true })
+
+-- Sounds that follow from how Tux moves: a swish while sliding (louder with
+-- speed), a thump on touching down, a knock when something stops him dead.
+local last = { snow = false, speed = 0, vy = 0, crash = -99, swish = -99 }
+local function groundSounds(N)
+  local vel = tux.body:getLinearVelocity()
+  local speed = sqrt(vel:length2())
+  if st.landed and not last.snow and last.vy < -2.5 then
+    v:playSound(snd.land, clamp(-last.vy / 10, 0.3, 1))
+  elseif st.landed and last.snow and last.speed > 5 and last.speed - speed > 3.5
+         and N - last.crash > 8 then
+    v:playSound(snd.thud, clamp((last.speed - speed) / 10, 0.4, 1))
+    last.crash = N
+  end
+  if st.landed and speed > 2 and N - last.swish >= 8 then     -- every 0.32 s; the samples are 0.5 s
+    v:playSound(snd.swish, clamp(speed / 30, 0.1, 0.6))
+    last.swish = N
+  end
+  last.snow, last.speed, last.vy = st.landed, speed, vel:getY()
+end
 
 v:preSim(function(N)
   if not st.over then
@@ -524,30 +560,31 @@ v:postSim(function(N)
   local p = tux.pos
   syncParts(N)
   if not st.over then
+    groundSounds(N)
     collect()
     if p.z >= LENGTH then
       st.over = true
+      v:playSound(snd.finish, 0.9)
       tux.body:setDamping(0.9, 0.9)            -- coast to a stop on the runout
     end
     -- fell off the world, or wedged against a tree for two seconds: put Tux
     -- back on the path (a stuck Tux costs 3 s)
     local vel = tux.body:getLinearVelocity()
     st.still = (vel:length2() < 1 and st.t > 1) and st.still + 1 or 0
-    if p.y < H(p.x, p.z) - 5 or st.still > 120 then
+    if p.y < H(p.x, p.z) - 5 or st.still > 50 then
       local z = p.z + 2
       tux.trans = btTransform(common.quat(0, 0, 0), btVector3(pathX(z), H(pathX(z), z) + 1, z))
       tux.body:setLinearVelocity(btVector3(0, 0, 0))
       tux.body:setAngularVelocity(btVector3(0, 0, 0))
       st.still = 0
       st.t = st.t + 3
+      v:playSound(snd.oops, 0.7)
     end
   end
-  if N % 6 == 0 then
-    for _, h in ipairs(herring) do if h.alive then placeHerring(h, N / 60) end end
-  end
+  for _, h in ipairs(herring) do if h.alive then placeHerring(h, N * v.timeStep) end end
   updateCamera()
   if N % 6 == 0 then status(N) end
-  if os.getenv("TUX_LOG") and N % 60 == 0 then
+  if os.getenv("TUX_LOG") and N % 25 == 0 then
     local vel = tux.body:getLinearVelocity()
     printf("N=%d t=%.1f pos=(%.1f %.1f %.1f) speed=%.1f m/s fish=%d snow=%s over=%s",
            N, st.t, p.x, p.y, p.z, sqrt(vel:length2()), st.fish,
