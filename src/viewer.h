@@ -2119,11 +2119,15 @@ private:
     unsigned vbo = 0;              ///< Its vertices, on the graphics card,
     unsigned cvbo = 0;             ///< and their colours (apart: changed alone).
     int verts = 0;                 ///< How many.
-    bool dirty = true;             ///< To be made again (objects came or went).
+    bool dirty = true;             ///< To be made again.
+    int holes = 0;                 ///< Vertices blanked (objects that left it).
+    std::vector<std::pair<int, int>> blank; ///< To blank next frame: first, count.
   };
   bool _screenMerge = true;
   /// One batch for each patch of the scene that has merged objects.
-  QMap<std::tuple<int, int, int>, MergeBatch> _mergeBatches;
+  QMap<std::tuple<int, int, int, int>, MergeBatch> _mergeBatches;  ///< (patch, generation)
+  QMap<std::tuple<int, int, int>, int> _mergeOpenGen;  ///< Each patch's batch taking newcomers.
+  int _mergeGenCount = 0;
   QVector<Object *> _mergeObjs;    ///< Everything merged.
   const void *_mergeCtx = nullptr; ///< The context the batches live in.
   unsigned _mergeEpoch = 0;
@@ -2156,7 +2160,7 @@ private:
   // the last frame's drawing, part by part (see lastFrameDrawing())
   struct LastFrame {
     double box = 0, merge = 0, cull = 0, shadow = 0, screen = 0, all = 0;
-    int batches = 0, recoloured = 0, recorded = 0;
+    int batches = 0, recoloured = 0, recorded = 0, blanked = 0;
     bool depthSaved = false;
   } _lf, _lfDone;
   int _dtGpuFrames = 0;

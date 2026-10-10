@@ -582,7 +582,8 @@ public:
   bool merged = false;       ///< Its triangles are in a merged batch
   bool mergeDrawn = false;   ///< (and that batch is made: drawn from it).
   int mergeSteady = 0;       ///< Searches for more it has stayed the same.
-  int mergeCell[3] = {0, 0, 0}; ///< The patch (batch) it's merged into.
+  int mergeCell[3] = {0, 0, 0}; ///< The patch (batch) it's merged into,
+  int mergeGen = 0;          ///< and which of that patch's batches.
   int mergeFirst = 0;        ///< Where its vertices start in that batch,
   int mergeVerts = 0;        ///< and how many (so its colour can be changed there).
   int mergeChanges = 0;      ///< Times it changed while merged.

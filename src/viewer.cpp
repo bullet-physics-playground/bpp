@@ -2235,6 +2235,8 @@ QString Viewer::lastFrameDrawing() const {
     what << QString("%1 batch%2 made again").arg(f.batches).arg(f.batches == 1 ? "" : "es");
   if (f.recoloured > 0)
     what << QString("%1 recoloured").arg(f.recoloured);
+  if (f.blanked > 0)
+    what << QString("%1 with objects blanked").arg(f.blanked);
   if (!what.isEmpty())
     merge += " (" + what.join(", ") + ")";
   QString shadow = QString("shadow map %1").arg(f.shadow, 0, 'f', 1);
@@ -3474,19 +3476,43 @@ void Viewer::freeMerge() {
       c->functions()->glDeleteBuffers(1, &b.cvbo);
   }
   _mergeBatches.clear();
+  _mergeOpenGen.clear();
   for (Object *o : _mergeObjs)
     o->merged = o->mergeDrawn = false;
   _mergeObjs.clear();
   _mergeReady = false;
 }
 
+static std::tuple<int, int, int, int> mergeKey(const Object *o) {
+  return std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2], o->mergeGen);
+}
+
+// An object leaves its batch. Making the batch again (all of its patch's
+// boxes and cylinders) took a frame 8 to 19 ms in the rec room, each time
+// a script moved a merged object -- an aiming guide's dash, say. So its
+// triangles are blanked where they are instead (next frame, before
+// anything is drawn: see updateMerge()), and the batch is made again only
+// once more than half of it is blanks.
 void Viewer::unmerge(Object *o) {
-  auto it = _mergeBatches.find(std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2]));
+  auto it = _mergeBatches.find(mergeKey(o));
   if (it != _mergeBatches.end()) {
-    it->objs.removeOne(o);
-    it->dirty = true;
-    for (Object *p : it->objs)          // (one by one until it's made again)
-      p->mergeDrawn = false;
+    MergeBatch &b = it.value();
+    b.objs.removeOne(o);
+    bool again = b.objs.isEmpty();
+    if (!again && !b.dirty && b.vbo != 0 && o->mergeDrawn) {
+      b.blank.push_back(std::make_pair(o->mergeFirst, o->mergeVerts));
+      b.holes += o->mergeVerts;
+      again = 2 * b.holes > b.verts;
+    } else if (!b.dirty) {
+      again = true;
+    }
+    if (again && !b.dirty) {
+      b.dirty = true;
+      for (Object *p : b.objs)          // (one by one until it's made again)
+        p->mergeDrawn = false;
+    }
+    if (b.objs.isEmpty())
+      b.dirty = true;                    // (and it goes: see buildMerge())
   }
   o->merged = false;
   o->mergeDrawn = false;
@@ -3513,6 +3539,8 @@ void Viewer::buildMerge() {
       f->glDeleteBuffers(1, &b.cvbo);
     b.vbo = b.cvbo = 0;
     b.verts = 0;
+    b.holes = 0;
+    b.blank.clear();
     if (b.objs.isEmpty()) {
       it = _mergeBatches.erase(it);
       continue;
@@ -3581,7 +3609,7 @@ void Viewer::updateMerge() {
     if (still && memcmp(o->rgb(), o->mergeRgb, 3) == 0)
       continue;
     if (still) {
-      auto it = _mergeBatches.find(std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2]));
+      auto it = _mergeBatches.find(mergeKey(o));
       if (it != _mergeBatches.end() && it.value().cvbo != 0 && !it.value().dirty && o->mergeDrawn) {
         // (its vertices' colours, as mergeTriangles() gives them)
         const unsigned char *rgb = o->rgb();
@@ -3621,8 +3649,14 @@ void Viewer::updateMerge() {
         o->mergeCell[0] = cell(p.x());
         o->mergeCell[1] = cell(p.y());
         o->mergeCell[2] = cell(p.z());
-        MergeBatch &b = _mergeBatches[std::make_tuple(o->mergeCell[0], o->mergeCell[1],
-                                                      o->mergeCell[2])];
+        // (into its patch's batch that's taking newcomers; once that's
+        // made, a new one: a newcomer never has a whole patch made again)
+        int &gen = _mergeOpenGen[std::make_tuple(o->mergeCell[0], o->mergeCell[1], o->mergeCell[2])];
+        o->mergeGen = gen;
+        auto open = _mergeBatches.constFind(mergeKey(o));
+        if (open != _mergeBatches.constEnd() && !open->dirty && open->vbo != 0)
+          o->mergeGen = gen = ++_mergeGenCount;
+        MergeBatch &b = _mergeBatches[mergeKey(o)];
         b.objs.append(o);
         b.dirty = true;
         for (Object *p : b.objs)
@@ -3635,6 +3669,24 @@ void Viewer::updateMerge() {
         memcpy(o->mergeRgb, o->rgb(), 3);
       }
     }
+  }
+  // the blanks of objects that have left their batches (see unmerge())
+  std::vector<MergeVertex> zeros;
+  for (MergeBatch &b : _mergeBatches) {
+    if (b.blank.empty())
+      continue;
+    if (!b.dirty && b.vbo != 0) {
+      QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+      f->glBindBuffer(GL_ARRAY_BUFFER, b.vbo);
+      for (const auto &r : b.blank) {
+        zeros.assign(size_t(r.second), MergeVertex{});     // (all at one point: nothing drawn)
+        f->glBufferSubData(GL_ARRAY_BUFFER, r.first * sizeof(MergeVertex),
+                           r.second * sizeof(MergeVertex), zeros.data());
+      }
+      f->glBindBuffer(GL_ARRAY_BUFFER, 0);
+      ++_lf.blanked;
+    }
+    b.blank.clear();
   }
   buildMerge();                          // (only the batches that need it)
   _mergeReady = true;
