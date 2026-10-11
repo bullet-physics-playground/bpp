@@ -155,7 +155,11 @@ end
 --   rise smoothly with crank speed for all of them -- some stumble or
 --   hop at some speeds -- which is why these are measured, not worked
 --   out. The 2-leg Spears tips over on flat ground between 2.5 and 3.4
---   rad/s, so it runs just below, at about 5.6 cm/s.)
+--   rad/s, so it runs just below, at about 5.6 cm/s.) Two can't reach
+--   6 cm/s walking forwards: faster than 3.5 rad/s, Chebyshev spends
+--   more of its time sliding backwards, and faster than 3.25 Chebyshev
+--   diag walks backwards outright. They run at their best forward
+--   speeds, about 4 and 3 cm/s.
 -- opts: its standalone file's slider defaults (its crank speed, though,
 --   is set by `crank` above: see addWalker)
 -- railed: its body is held to move only along its own heading (the
@@ -168,11 +172,11 @@ local WALKERS = {
     opts = { speed = 2.5 } },
   { name = "Klann", parts = "Klann_6Leg_parts.lua", leg = 62.299, crank = 3.70, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5 } },
-  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", leg = 6.297, crank = 5.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", leg = 6.297, crank = 3.50, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", leg = 6.745, crank = 3.75, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", leg = 6.745, crank = 3.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", leg = 3.885, crank = 1.12, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", leg = 3.891, crank = 0.93, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", leg = 5.302, crank = 1.20, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },

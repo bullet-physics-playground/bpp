@@ -21,8 +21,12 @@ All of them share one world, one terrain and one physics step (1/960 s).
   its path, so veering doesn't count against it). These were found by
   sweeping crank speeds for each walker alone, because pace doesn't
   rise smoothly with crank speed for all of them: some stumble or hop
-  at some speeds. The 2-leg Spears tips over on flat ground between 2.5
-  and 3.4 rad/s, so it runs just below, at about 5.6 cm/s.
+  at some speeds. Three can't reach it walking forwards and run at
+  their best: the 2-leg Spears tips over between 2.5 and 3.4 rad/s, so
+  it runs just below (about 5.6 cm/s); faster than 3.5 rad/s Chebyshev
+  slides backwards more and more (it runs at about 4 cm/s); and faster
+  than 3.25 Chebyshev diag walks backwards outright (it runs at its own
+  3.0, about 3 cm/s).
 
 With equal legs and an equal start, a walker that falls behind as the
 bumps rise is losing to the bumps. Pace over 3 minutes in the full room
@@ -30,22 +34,26 @@ bumps rise is losing to the bumps. Pace over 3 minutes in the full room
 
 | Walker                 | Flat | 1 cm | 2 cm | 3 cm |
 |------------------------|------|------|------|------|
-| Jansen                 | 5.5  | 2.7  | 1.7  | 1.2  |
-| Klann                  | 7.4  | 6.3  | 4.4  | 6.1  |
-| Chebyshev              | 5.7  | 6.3  | 3.8  | 3.8  |
-| Chebyshev diag         | 7.4  | 5.1  | 4.5  | 3.3  |
-| Chebyshev-Spears       | 3.3  | 2.8  | 3.4  | 2.5  |
-| Chebyshev-Spears diag  | 4.9  | 4.6  | 5.2  | 5.5  |
-| Hoecken                | 6.2  | 6.0  | 5.9  | 6.2  |
-| Hoecken slider         | 5.9  | 5.5  | 5.5  | 5.4  |
-| Hoecken-Spears slider  | 5.8  | 6.0  | 5.9  | 5.7  |
-| Spears 4-bar           | 3.3  | 3.4  | 3.1  | 3.5  |
-| Spears 2-leg           | 4.8  | 4.8  | 1.6  | 1.4  |
-| Spears 2-leg balanced  | 5.7  | 5.5  | 1.2  | 0.9  |
+| Jansen                 | 5.6  | 3.6  | 1.9  | 1.6  |
+| Klann                  | 5.5  | 5.1  | 3.6  | 5.8  |
+| Chebyshev              | 4.9  | 4.6  | 4.3  | 3.8  |
+| Chebyshev diag         | 3.1  | 4.5  | 3.5  | 3.3  |
+| Chebyshev-Spears       | 5.6  | 5.7  | 6.0  | 6.2  |
+| Chebyshev-Spears diag  | 5.0  | 4.8  | 5.2  | 5.8  |
+| Hoecken                | 6.7  | 6.0  | 5.9  | 6.2  |
+| Hoecken slider         | 5.8  | 5.6  | 5.4  | 5.5  |
+| Hoecken-Spears slider  | 5.8  | 6.0  | 6.0  | 5.6  |
+| Spears 4-bar           | 3.3  | 3.3  | 3.1  | 3.5  |
+| Spears 2-leg           | 5.0  | 4.6  | 1.6  | 1.4  |
+| Spears 2-leg balanced  | 5.8  | 5.8  | 1.1  | 1.7  |
 
-Even on flat ground the paces in the room spread from 3.3 to 7.4: over
-minutes, rather than the minute each was tuned over, some walkers'
-gaits drift.
+The Spears 4-bar's 3.3 isn't the bumps: it walks at 6 cm/s for about a
+minute, then slows almost to a stop on any ground. Its four cranks
+each have their own motor, nothing keeps them in step, and over a
+couple of minutes its legs drift from their designed timing (225, 180,
+225 degrees behind the first) into step with each other. Every walker
+with separately driven cranks drifts like this to some degree; only the
+2-leg Spears, whose legs share one axle, keep their timing.
 
 When a walker comes within 40 cm of a wall, or of another walker ahead
 of it, it turns smoothly (over a second) to a new heading pointing away

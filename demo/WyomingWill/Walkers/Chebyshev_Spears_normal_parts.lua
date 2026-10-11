@@ -552,7 +552,17 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- (half_f/2 along local X to M, plus a full half_f along local NEGATIVE
   -- Y to reach B -- see the sign-bug note above for why it's -Y, not +Y)
   -- instead of being the +X end of a second body.
-  local pivotCoupler_B = btVector3(half_f/2, -half_f, z_coupler_l - z_pendant_l)
+  --
+  -- Z-TARGET FIX (the same fix as Chebyshev_Spears_diag_parts.lua's
+  -- MODEL C note): coupler is already at z_coupler_l, so its side of
+  -- hingeB needs no Z offset -- the old z_coupler_l - z_pendant_l here
+  -- put its target a full plane_gap away from the pendant side's,
+  -- building the hinge strained. At the standalone crank speed (2.6)
+  -- the walker's momentum carried it past the strained point; in the
+  -- walker room, cranked at about 1.1, it stalled there within 15 s and
+  -- stayed down. With the fix it turns steadily at 1.1, and standalone
+  -- it keeps its speed and walks a little straighter.
+  local pivotCoupler_B = btVector3(half_f/2, -half_f, 0)
   local pivotPendant_B = btVector3(-pendant_len/2, 0, z_coupler_l - z_pendant_l)
   local hingeB = btHingeConstraint(coupler.body, pendant.body, pivotCoupler_B, pivotPendant_B, axis, axis)
   addConstraint(hingeB)
