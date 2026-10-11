@@ -100,8 +100,9 @@ EXHIBITS = EXHIBITS or {
     about = "The gyroscope: held by one end of its axle, on a pedestal or a string, it\n" ..
             "doesn't fall but goes round; on a tightrope it balances on its foot." },
   { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
-    about = "Coming: the bicycle wheel. Sitting on a turntable, turn a spinning wheel\n" ..
-            "over and the turntable starts to turn the other way." },
+    prefix = "Wheel: ", floorY = 0,
+    about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
+            "stool starts to turn the other way; turn it back and the stool stops." },
   { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning egg", label = "spinning-egg",
     about = "Coming: the spinning egg. A hard-boiled egg spun fast on its side\nrises up onto its end." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",

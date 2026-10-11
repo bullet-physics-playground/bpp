@@ -55,7 +55,7 @@ with a 3.4 m aisle between.
 | A, west 3 | the tippe tops | `../TippeTop/tippe-top.lua` |
 | A, east 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
 | A, west 4 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
-| A, east 4 | the bicycle wheel | (in preparation) |
+| A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
 | A, west 5 | the spinning egg | (in preparation) |
 | A, east 5 | the double cone | (in preparation) |
 | B, north 1 | the oloid and the sphericon | (in preparation) |

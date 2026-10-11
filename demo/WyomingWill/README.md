@@ -73,6 +73,7 @@ An L-shaped 18th-century walnut gallery of rigid-body curiosities. Only the exhi
 *   `TippeTop/tippe-top.lua`: Tippe tops that turn over onto their stems. See `TippeTop/README.md`.
 *   `ChainFountain/chain-fountain.lua`: A bead chain leaping out of a jar in an arch (the Mould effect). See `ChainFountain/README.md`.
 *   `Gyroscope/gyroscope.lua`: Toy gyroscopes on a pedestal, on a string and on a tightrope. See `Gyroscope/README.md`.
+*   `BicycleWheel/bicycle-wheel.lua`: A figure on a swivel stool turns a spinning bicycle wheel over, and the stool turns. See `BicycleWheel/README.md`.
 
 ## Removed
 
