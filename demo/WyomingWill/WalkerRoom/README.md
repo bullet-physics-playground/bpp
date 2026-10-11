@@ -16,14 +16,36 @@ All of them share one world, one terrain and one physics step (1/960 s).
   A bump is then the same obstacle to every walker. Their footprints
   differ as a result: from about 16 x 25 cm (the 2-leg Spears) to
   86 x 30 cm (Klann, six legs in a row).
-- **Same crank speed.** Every crank turns at 2.6 rad/s, whatever its
-  standalone slider says, so what differs is how far each mechanism
-  carries its body per turn.
+- **Same pace on flat ground.** Each walker's crank turns at the speed
+  that walks it at about 6 cm/s on flat ground (its pace: the length of
+  its path, so veering doesn't count against it). These were found by
+  sweeping crank speeds for each walker alone, because pace doesn't
+  rise smoothly with crank speed for all of them: some stumble or hop
+  at some speeds. The 2-leg Spears tips over on flat ground between 2.5
+  and 3.4 rad/s, so it runs just below, at about 5.6 cm/s.
 
-On flat ground that gives (cm/s): Chebyshev-Spears 13.7, Chebyshev-Spears
-diag 12.2, Spears 4-bar 9.0, Hoecken 8.2, Hoecken slider 7.9, Spears
-2-leg 6.6, Jansen 6.3, Hoecken-Spears slider 6.3, Spears 2-leg balanced
-3.9, Klann 3.4, Chebyshev diag 2.7, Chebyshev 2.6.
+With equal legs and an equal start, a walker that falls behind as the
+bumps rise is losing to the bumps. Pace over 3 minutes in the full room
+(cm/s; one run each, so a few tenths either way mean little):
+
+| Walker                 | Flat | 1 cm | 2 cm | 3 cm |
+|------------------------|------|------|------|------|
+| Jansen                 | 5.5  | 2.7  | 1.7  | 1.2  |
+| Klann                  | 7.4  | 6.3  | 4.4  | 6.1  |
+| Chebyshev              | 5.7  | 6.3  | 3.8  | 3.8  |
+| Chebyshev diag         | 7.4  | 5.1  | 4.5  | 3.3  |
+| Chebyshev-Spears       | 3.3  | 2.8  | 3.4  | 2.5  |
+| Chebyshev-Spears diag  | 4.9  | 4.6  | 5.2  | 5.5  |
+| Hoecken                | 6.2  | 6.0  | 5.9  | 6.2  |
+| Hoecken slider         | 5.9  | 5.5  | 5.5  | 5.4  |
+| Hoecken-Spears slider  | 5.8  | 6.0  | 5.9  | 5.7  |
+| Spears 4-bar           | 3.3  | 3.4  | 3.1  | 3.5  |
+| Spears 2-leg           | 4.8  | 4.8  | 1.6  | 1.4  |
+| Spears 2-leg balanced  | 5.7  | 5.5  | 1.2  | 0.9  |
+
+Even on flat ground the paces in the room spread from 3.3 to 7.4: over
+minutes, rather than the minute each was tuned over, some walkers'
+gaits drift.
 
 When a walker comes within 40 cm of a wall, or of another walker ahead
 of it, it turns smoothly (over a second) to a new heading pointing away
@@ -77,8 +99,8 @@ ground any more.
 ## Settings for a launcher
 
 A script that sets these globals and then runs `walker-room.lua` changes
-the room: `LEG` (leg length, cm, 12), `CRANK` (crank speed, rad/s,
-2.6), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm, 4), `AMP`
+the room: `LEG` (leg length, cm, 12), `CRANK_OVERRIDE` (one crank
+speed, rad/s, for every walker), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm, 4), `AMP`
 (starting bump height, cm, 1), `SEED` (starting headings and turns, 1),
 `ONLY` (build just the walker of that name), `WALKERS_DIR` (where the
 parts files are, `../Walkers/`).
