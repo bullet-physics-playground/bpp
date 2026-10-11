@@ -36,6 +36,10 @@ bpp's own one-letter keys (`S` stop, `D` sleeping, `R` reload, `P` POV-Ray)
 would change the whole hall, so at an exhibit they do only what the exhibit
 uses them for. Looking down the hall, `P` is held back (use the POV-Ray menu).
 
+bpp's markers on joints (`v.showConstraints`) are off looking down the
+hall; at an exhibit they're as the exhibit has them (the gyroscopes turn
+them off).
+
 ## The plan
 
 Wing A runs north from the entrance to the corner; wing B runs east from
@@ -50,8 +54,10 @@ with a 3.4 m aisle between.
 | A, east 2 | the rattlebacks | `../Rattleback/rattleback.lua` |
 | A, west 3 | the tippe tops | `../TippeTop/tippe-top.lua` |
 | A, east 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
-| A, west 4 | the spinning egg | (in preparation) |
-| A, east 4 | the double cone | (in preparation) |
+| A, west 4 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
+| A, east 4 | the bicycle wheel | (in preparation) |
+| A, west 5 | the spinning egg | (in preparation) |
+| A, east 5 | the double cone | (in preparation) |
 | B, north 1 | the oloid and the sphericon | (in preparation) |
 | B, south 1 | the falling Slinky | (in preparation) |
 | B, north 2 | the Brazil-nut effect | (in preparation) |
@@ -109,9 +115,9 @@ Bullet world of its own (bpp's `v:newWorld()`), made exactly as bpp makes
 the scene's world, holding only what that exhibit builds, at its own
 coordinates; bpp draws it in its bay (`v:placeWorld()`). It also gets the
 same random numbers it would on its own. So it gives the same numbers, digit
-for digit -- checked for all seven by running each both ways and comparing
-everything it prints (with a fixed seed for the ones that seed from the
-clock: `GC_SEED`, `GV_SEED`, `BD_SEED`). Walking away for a while and coming
+for digit -- checked for every one of them by running each both ways and
+comparing everything it prints (with a fixed seed for the ones that seed
+from the clock: `GC_SEED`, `GV_SEED`, `BD_SEED`). Walking away for a while and coming
 back gives the same numbers as never leaving.
 
 Why separate worlds: Bullet works out an exhibit's contacts in an order

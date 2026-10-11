@@ -75,6 +75,8 @@ jobs = [
  ("rattleback", "RATTLEBACK", 4.2, 0.5),
  ("tippe-top", "TIPPE TOP", 4.2, 0.5),
  ("chain-fountain", "CHAIN FOUNTAIN", 4.2, 0.5),
+ ("gyroscope", "GYROSCOPE", 4.2, 0.5),
+ ("bicycle-wheel", "BICYCLE WHEEL", 4.2, 0.5),
  ("spinning-egg", "SPINNING EGG", 4.2, 0.5),
  ("double-cone", "DOUBLE CONE", 4.2, 0.5),
  ("oloid", "OLOID & SPHERICON", 4.2, 0.5),

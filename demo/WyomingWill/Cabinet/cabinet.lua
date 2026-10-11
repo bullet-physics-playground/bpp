@@ -95,6 +95,13 @@ EXHIBITS = EXHIBITS or {
     prefix = "Fountain: ", floorY = 0,
     about = "The chain fountain (the Mould effect): a bead chain pouring out of a jar\n" ..
             "rises in an arch above the rim on its way to the floor." },
+  { dir = "../Gyroscope/", file = "gyroscope.lua", name = "the gyroscopes", label = "gyroscope",
+    prefix = "Gyroscope: ", floorY = -75,
+    about = "The gyroscope: held by one end of its axle, on a pedestal or a string, it\n" ..
+            "doesn't fall but goes round; on a tightrope it balances on its foot." },
+  { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
+    about = "Coming: the bicycle wheel. Sitting on a turntable, turn a spinning wheel\n" ..
+            "over and the turntable starts to turn the other way." },
   { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning egg", label = "spinning-egg",
     about = "Coming: the spinning egg. A hard-boiled egg spun fast on its side\nrises up onto its end." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",
@@ -662,6 +669,8 @@ local function goTo(s)
     applyTiming(IDLE)
     -- (the Params pane: none of the exhibits' sliders)
     if realV.showParams then realV:showParams("Cabinet: ") end
+    -- (bpp's markers on joints: not in the hall views)
+    realV.showConstraints = false
     c.pos = s.pos
     c.look = s.look        -- (in that order: the look turns the view from where it now is)
     realV:setHelpText(hallHelp(s))
@@ -672,6 +681,9 @@ local function goTo(s)
     applyTiming(s.timing)
     -- (the Params pane: only this exhibit's sliders)
     if realV.showParams then realV:showParams(s.prefix) end
+    -- (and bpp's markers on joints as the exhibit has them: on, unless it
+    -- turns them off)
+    realV.showConstraints = s.vset.showConstraints ~= false
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)

@@ -8,6 +8,8 @@ return {
   ["rattleback"] = { file = "label-rattleback.obj", w = 38.82, h = 4.20 },
   ["tippe-top"] = { file = "label-tippe-top.obj", w = 30.83, h = 4.20 },
   ["chain-fountain"] = { file = "label-chain-fountain.obj", w = 51.83, h = 4.20 },
+  ["gyroscope"] = { file = "label-gyroscope.obj", w = 35.65, h = 4.20 },
+  ["bicycle-wheel"] = { file = "label-bicycle-wheel.obj", w = 48.15, h = 4.20 },
   ["spinning-egg"] = { file = "label-spinning-egg.obj", w = 43.84, h = 4.20 },
   ["double-cone"] = { file = "label-double-cone.obj", w = 42.72, h = 4.20 },
   ["oloid"] = { file = "label-oloid.obj", w = 61.57, h = 4.20 },
