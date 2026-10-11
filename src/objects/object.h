@@ -314,6 +314,11 @@ public:
   void setWorld(btDynamicsWorld *w) { _world = w; }
 
   /**
+   * @brief The dynamics world it is in (null: none).
+   */
+  btDynamicsWorld *getWorld() const { return _world; }
+
+  /**
    * @brief Bodies the object has had and since replaced (see setRigidBody()),
    *        whoever made them; one a constraint joins may still be in the
    *        world. (One the object made is freed with it; a script's is kept
@@ -591,6 +596,11 @@ public:
   btTransform mergeTrans;    ///< Where it was, and its colour, when
   unsigned char mergeRgb[3] = {0, 0, 0}; ///< merged (or last looked at).
 
+  // A world of its own (Viewer::newWorld()) drawn somewhere else in the
+  // scene (Viewer::placeWorld()): the object is drawn moved by `place`.
+  bool placed = false;
+  btTransform place;
+
   // A fixed object's last world box, kept by the viewer's getAABB() so it
   // isn't worked out again from the shape while nothing about it changes.
   bool boxKept = false;
@@ -693,20 +703,6 @@ protected:
    * @param s The stream to write to; a null stream writes nothing.
    */
   virtual void povPigment(QTextStream *s) const;
-
-  /**
-   * @brief Names a triangle mesh by its content, for the exported
-   *        @c mesh_<hash>.inc.
-   *
-   * Hashes the triangles' coordinates as they are in memory. A mesh is
-   * included from every frame, so this runs for every mesh on every frame; it
-   * must not format the mesh as text first, which costs far more than the
-   * rest of the export together.
-   *
-   * @param shape The mesh's shape; null hashes like an empty mesh.
-   * @return The hash as lower-case hex.
-   */
-  static QString povMeshHash(btConcaveShape *shape);
 
   /**
    * @brief Writes the object's texture as a POV-Ray @c image_map pigment.

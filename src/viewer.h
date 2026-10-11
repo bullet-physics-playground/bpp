@@ -40,6 +40,7 @@
 #include "objects/sphere.h"
 
 #include <unordered_map>
+#include <vector>
 #include "joystick/joystickhandler.h"
 #include "joystick/joystickinterfacesdl.h"
 
@@ -299,6 +300,40 @@ public:
    * @return The number of substeps taken.
    */
   int stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTimeStep);
+
+  /**
+   * @brief Makes another Bullet world, separate from the scene's own.
+   *
+   * Objects and constraints added while it is in use (useWorld()) go into
+   * it, the physics steps step it, and the physics settings (gravity, ERP,
+   * CFM, solver iterations) are its own; nothing in it ever meets anything
+   * in another world. A world is made exactly as the scene's own is, so a
+   * script loaded into a world of its own runs exactly as it does alone.
+   * All are drawn together; placeWorld() says where in the scene one is
+   * drawn. A script that never calls this has the one world, as always.
+   *
+   * @return The new world's number (the scene's own is 0).
+   */
+  int newWorld();
+
+  /**
+   * @brief Puts a world in use: what is added, stepped or set from now on
+   *        goes to it (0: the scene's own).
+   * @param i The world's number.
+   */
+  void useWorld(int i);
+
+  /// @return The number of the world in use.
+  int currentWorld() const { return _curWorld; }
+
+  /**
+   * @brief Where a world is drawn in the scene: its objects (and constraint
+   *        markers) are drawn moved by `place`, and the mouse finds them
+   *        there. The physics is untouched.
+   * @param i     The world's number (not 0).
+   * @param place Its place in the scene.
+   */
+  void placeWorld(int i, const btTransform &place);
 
   double getTime() const;
 
@@ -2075,6 +2110,30 @@ private:
   /// have moved up to date, so Bullet needn't recompute every box on every
   /// substep.
   void updateMovedAabbs();
+
+  /// One Bullet world and its parts (see newWorld()). The world in use is
+  /// the one in dynamicsWorld, broadphase, dispatcher, solver, collisionCfg
+  /// and _aabbSeen; its slot here keeps the same pointers (and, while it's
+  /// in use, a stale _aabbSeen).
+  struct PhysWorld {
+    btDefaultCollisionConfiguration *cfg = nullptr;
+    btBroadphaseInterface *broadphase = nullptr;
+    btCollisionDispatcher *dispatcher = nullptr;
+    btConstraintSolver *solver = nullptr;
+    btSoftRigidDynamicsWorld *world = nullptr;
+    std::unordered_map<const btCollisionObject *, std::pair<btTransform, const btCollisionShape *>> aabbSeen;
+    bool placed = false;
+    btTransform place;
+  };
+  std::vector<PhysWorld> _worlds;   ///< Empty while there is only the scene's own.
+  int _curWorld = 0;                ///< The one in use.
+  QHash<btTypedConstraint *, int> _conWorld;  ///< Constraints in other worlds than 0.
+  /// The world an object is in (the one in use if it's in none).
+  btSoftRigidDynamicsWorld *worldOfObject(const Object *o) const;
+  /// Index of a world by its pointer (-1: not one of ours).
+  int worldIndex(const btDynamicsWorld *w) const;
+  /// Takes out and deletes every world but the scene's own.
+  void dropWorlds();
 
   // Keep ownership of Bullet subcomponents so we can delete them explicitly
   btBroadphaseInterface *broadphase;  ///< Broadphase collision detection.

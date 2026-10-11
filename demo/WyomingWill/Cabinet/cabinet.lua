@@ -20,23 +20,31 @@
 -- preparation"); when the script turns up, the bay comes to life. The hall
 -- grows to fit: add lines and both wings get longer.
 --
--- HOW IT WORKS: each exhibit is the unchanged script, loaded into a sandbox
--- of its own (its own set of globals) that moves everything it builds to
--- its bay and moves everything it reads back again, so its own sums still
--- hold; finds its files in its own folder; gives its bodies its own gravity;
--- keeps its sliders apart (named "Exhibit: slider" in the Params pane); and
--- collects its per-frame callbacks, keys and help, which this file passes on
--- only while you're at it. Its ground plane is left out (the hall's floor
--- stands in for it, at the same height). The exhibits you're not at have
--- their moving bodies taken out of the simulation (they keep their
--- velocities) and their callbacks aren't called, so they cost nothing.
+-- HOW IT WORKS: each exhibit is the unchanged script, in a Bullet world of
+-- its own (bpp's v:newWorld), at its own coordinates, drawn in its bay
+-- (v:placeWorld) -- so it runs exactly as it does on its own, number for
+-- number. It's loaded into a sandbox of its own (its own set of globals)
+-- that finds its files in its own folder, gets its own random numbers,
+-- keeps its sliders apart (named "Exhibit: slider" in the Params pane), and
+-- collects its per-frame callbacks, keys and help, which this file passes
+-- on only while you're at it. Only the world of the exhibit you're at is
+-- stepped; the others wait exactly as they are, costing nothing. NEEDS a
+-- bpp with the separate-worlds patch (v:newWorld).
 --
 -- UNITS: centimetres; the floor is at y = 0.
 --
 
 local realV = v
+-- (bpp has already drawn from Lua's random numbers before any script runs:
+-- an exhibit on its own starts from there. How far in, counted from seed 1.)
+local RANDOM_BASE = 0
+do
+  local first = math.random()
+  math.randomseed(1)
+  for k = 0, 1000 do if math.random() == first then RANDOM_BASE = k; break end end
+end
 local realCube, realSphere, realCylinder, realMesh = Cube, Sphere, Cylinder, Mesh
-local realCone = Cone
+local realCone, realPlane = Cone, Plane
 local unpack = unpack or table.unpack
 
 local function findDir(cands, file)
@@ -143,18 +151,22 @@ for k = 0, ROWS_B - 1 do
 end
 
 -- ---------------------------------------------------------------------
--- physics: whichever exhibit you're at gets its own settings
+-- physics: each exhibit has a Bullet world of its own (v:newWorld, which
+-- needs a bpp from October 2026 or later), made exactly as bpp makes the
+-- scene's own, holding only what the exhibit builds, at its own
+-- coordinates. So it runs exactly as it does on its own, number for
+-- number. It's drawn in its bay (v:placeWorld). The hall is in the scene's
+-- own world (0), which nothing moves in. Only the world of the exhibit
+-- you're at is stepped; the others wait exactly as they are.
 -- ---------------------------------------------------------------------
-local BPP_PHYSICS = { timeStep = 1 / 25, fixedTimeStep = 1 / 100, maxSubSteps = 7,
-                      iterations = 10, erp = 0.2, erp2 = 0.2, cfm = 0, animationPeriod = 16 }
-local IDLE = { timeStep = 1 / 60, fixedTimeStep = 1 / 60, maxSubSteps = 1,
-               iterations = 10, erp = 0.2, erp2 = 0.2, cfm = 0, animationPeriod = 16 }
-local function applyPhysics(p)
+if not realV.newWorld then
+  error("Euler's Cabinet needs a bpp with separate worlds (v:newWorld): rebuild bpp with the worlds patch")
+end
+local BPP_TIMING = { timeStep = 1 / 25, fixedTimeStep = 1 / 100, maxSubSteps = 7, animationPeriod = 16 }
+local IDLE = { timeStep = 1 / 60, fixedTimeStep = 1 / 60, maxSubSteps = 1, animationPeriod = 16 }
+-- (the step sizes are bpp's, not a world's: each exhibit's, while you're at it)
+local function applyTiming(p)
   realV.timeStep, realV.fixedTimeStep, realV.maxSubSteps = p.timeStep, p.fixedTimeStep, p.maxSubSteps
-  if realV.setSolverIterations then realV:setSolverIterations(p.iterations) end
-  realV:setErp(p.erp)
-  realV:setErp2(p.erp2)
-  if realV.setCfm then realV:setCfm(p.cfm) end
   if realV.animationPeriod then realV.animationPeriod = p.animationPeriod or 16 end
 end
 realV.gravity = btVector3(0, -981, 0)
@@ -186,51 +198,43 @@ for entry in package.path:gmatch("[^;]+") do
   if d then ROOTS[#ROOTS + 1] = d; ROOTS[#ROOTS + 1] = d .. "../"; ROOTS[#ROOTS + 1] = d .. "../../" end
 end
 local ident = btQuaternion(0, 0, 0, 1)
-local function shiftT(t, by) local o = btTransform(); o:mult(by, t); return o end
-local function real(o) return type(o) == "table" and rawget(o, "__real") or o end
-local function unwrapAll(...)
-  local n = select("#", ...)
-  local a = { ... }
-  for i = 1, n do a[i] = real(a[i]) end
-  return unpack(a, 1, n)
-end
 
 local CALLBACKS = { preSim = true, postSim = true, preDraw = true, postDraw = true, onKey = true,
                     onParamChanged = true, onCommand = true, onJoystick = true, onSpaceNavigator = true,
                     onHover = true, cycleObject = true }
 local TIMING = { timeStep = true, fixedTimeStep = true, maxSubSteps = true, animationPeriod = true }
 
--- a body's methods that take or give directions (turned with the exhibit)
-local DIR_IN = { setLinearVelocity = true, setAngularVelocity = true, applyCentralImpulse = true,
-                 applyCentralForce = true, applyTorque = true, applyTorqueImpulse = true, setGravity = true,
-                 applyForce = true, applyImpulse = true }
-local DIR_OUT = { getLinearVelocity = true, getAngularVelocity = true, getGravity = true,
-                  getTotalForce = true, getTotalTorque = true }
+-- Runs fn with the exhibit's world in use (and its random numbers), then
+-- puts back the world that was (see setRandom, below)
+local setRandom
+local function inWorld(g, fn, ...)
+  local was = realV:currentWorld()
+  realV:useWorld(g.world)
+  local r = { pcall(fn, ...) }
+  realV:useWorld(was)
+  return unpack(r)
+end
 
-local function makeExhibit(e, offset, turn)
-  local g = { e = e, name = e.name, dir = e.dir, off = offset, callbacks = {}, shortcuts = {},
-              help = "", down = {}, dyn = {}, physics = {}, N = 0, prefix = e.prefix or (e.name .. ": "),
-              vset = {}, view = {}, turn = turn or 0 }
-  for k, val in pairs(BPP_PHYSICS) do g.physics[k] = val end
-  -- placed at offset, turned by `turn` about the upright (its +z, the side
-  -- it's seen from on its own, faces its bay's aisle)
-  local ox, oy, oz = offset.x, offset.y, offset.z
-  local t = turn or 0
-  local cs, sn = math.cos(t), math.sin(t)
-  local turned = (t ~= 0)
-  local QROT, QINV = btQuaternion(btVector3(0, 1, 0), t), btQuaternion(btVector3(0, 1, 0), -t)
-  local OFF = btTransform(QROT, offset)
-  local INV = OFF:inverse()
-  local function toWorld(p) return btVector3(p.x * cs + p.z * sn + ox, p.y + oy, -p.x * sn + p.z * cs + oz) end
+-- makeExhibit(e, bay): a sandbox for one exhibit. Everything it builds is
+-- left as it is (its own world keeps it apart); what it has of its own is
+-- its globals, its folder, its sliders, its keys and callbacks, and its
+-- camera, which is moved to its bay.
+local function makeExhibit(e, bay)
+  local g = { e = e, name = e.name, dir = e.dir, callbacks = {}, shortcuts = {}, help = "", down = {},
+              timing = {}, N = 0, draws = 0, prefix = e.prefix or (e.name .. ": "), vset = {}, view = {} }
+  for k, val in pairs(BPP_TIMING) do g.timing[k] = val end
+  g.world = realV:newWorld()
+  -- its bay: where its world is drawn, turned to face the aisle (its +z,
+  -- the side it's seen from on its own, toward the aisle)
+  local ox, oy, oz, a = bay.x, bay.y, bay.z, bay.a
+  local cs, sn = math.cos(a), math.sin(a)
+  realV:placeWorld(g.world, btTransform(btQuaternion(btVector3(0, 1, 0), a), btVector3(ox, oy, oz)))
+  local function toScene(p) return btVector3(p.x * cs + p.z * sn + ox, p.y + oy, -p.x * sn + p.z * cs + oz) end
   local function toLocal(q)
     local x, z = q.x - ox, q.z - oz
     return btVector3(x * cs - z * sn, q.y - oy, x * sn + z * cs)
   end
-  -- directions (velocities, spins, forces, gravity): turned, not moved
-  local function dirW(p) if not turned then return p end return btVector3(p.x * cs + p.z * sn, p.y, -p.x * sn + p.z * cs) end
-  local function dirL(p) if not turned then return p end return btVector3(p.x * cs - p.z * sn, p.y, p.x * sn + p.z * cs) end
-  g.dirW, g.dirL = dirW, dirL
-  g.toWorld, g.toLocal = toWorld, toLocal
+  g.toScene, g.toLocal = toScene, toLocal
   local dir = e.dir
   local function fix(path)
     if type(path) ~= "string" or path:sub(1, 1) == "/" or path:match("^%a:[/\\]") then return path end
@@ -244,85 +248,8 @@ local function makeExhibit(e, offset, turn)
     return dir .. path
   end
 
-  -- its gravity, on its own bodies
-  local function applyGravity(body)
-    if g.gravity then pcall(function() body:setGravity(dirW(g.gravity)) end) end
-  end
-
-  -- a rigid body it made itself: transforms through the offset
-  local bodyMeta = {
-    __index = function(p, k)
-      local r = rawget(p, "__real")
-      local fn
-      if k == "setCenterOfMassTransform" or k == "setWorldTransform" then
-        local f = r[k]
-        fn = function(_, t) return f(r, shiftT(t, OFF)) end
-      elseif k == "getCenterOfMassTransform" or k == "getWorldTransform" then
-        local f = r[k]
-        fn = function(_) return shiftT(f(r), INV) end
-      elseif k == "getCenterOfMassPosition" then
-        fn = function(_) return toLocal(r:getCenterOfMassPosition()) end
-      elseif turned and DIR_IN[k] then
-        local f = r[k]
-        fn = function(_, a, b) if b ~= nil then return f(r, dirW(a), dirW(b)) end return f(r, dirW(a)) end
-      elseif turned and DIR_OUT[k] then
-        local f = r[k]
-        fn = function(_) return dirL(f(r)) end
-      elseif turned and k == "getVelocityInLocalPoint" then
-        local f = r[k]
-        fn = function(_, a) return dirL(f(r, dirW(a))) end
-      elseif turned and k == "getOrientation" then
-        local f = r[k]
-        fn = function(_) return QINV * f(r) end
-      else
-        local val = r[k]
-        if type(val) ~= "function" then return val end
-        fn = function(_, ...) return val(r, unwrapAll(...)) end
-      end
-      rawset(p, k, fn)
-      return fn
-    end,
-  }
-  local function wrapBody(b) return setmetatable({ __real = b }, bodyMeta) end
-
-  -- an object it made: positions through the offset
-  local objMeta = {
-    __index = function(p, k)
-      local r = rawget(p, "__real")
-      if k == "pos" then return toLocal(r.pos) end
-      if k == "trans" then return shiftT(r.trans, INV) end
-      if k == "body" then
-        local b = rawget(p, "__body")
-        if b then return b end
-        local ok, rb = pcall(function() return r.body end)
-        if ok and rb then b = wrapBody(rb); rawset(p, "__body", b) end
-        return b
-      end
-      local val = r[k]
-      if type(val) == "function" then
-        local fn = function(self, ...) return val(r, unwrapAll(...)) end
-        rawset(p, k, fn)
-        return fn
-      end
-      return val
-    end,
-    __newindex = function(p, k, val)
-      local r = rawget(p, "__real")
-      if k == "pos" then r.pos = toWorld(val)
-      elseif k == "trans" then r.trans = shiftT(val, OFF)
-      elseif k == "body" then
-        if type(val) == "table" then rawset(p, "__body", val) else rawset(p, "__body", val and wrapBody(val) or nil) end
-        r.body = real(val)
-      else r[k] = val end
-    end,
-  }
-  local function wrap(o)
-    pcall(function() o.trans = OFF end)          -- (made at its own origin, square to it)
-    return setmetatable({ __real = o }, objMeta)
-  end
-
-  -- the camera: moved by the offset; what it sets as it loads is kept as
-  -- its view (the hall turns that to face its bay's aisle)
+  -- the camera: what it sets as it loads is kept as its view; while you're
+  -- at it, it moves the camera, from its bay
   local camFns = {}
   local cam = setmetatable({}, {
     __index = function(_, k)
@@ -342,7 +269,7 @@ local function makeExhibit(e, offset, turn)
     __newindex = function(_, k, val)
       if k == "pos" or k == "look" then
         if loading == g then g.view[k] = val
-        elseif active == g then realV.cam[k] = toWorld(val) end
+        elseif active == g then realV.cam[k] = toScene(val) end
         return
       end
       if active == g or loading == g then realV.cam[k] = val end
@@ -352,28 +279,6 @@ local function makeExhibit(e, offset, turn)
   -- the viewer, as the exhibit sees it
   local vpFns = {}
   local special = {
-    add = function(_, o)
-      if type(o) == "table" and rawget(o, "__dummy") then return end
-      local r = real(o)
-      realV:add(r)
-      local ok, body = pcall(function() return r.body end)
-      if ok and body then
-        applyGravity(body)
-        if not body:isStaticObject() then g.dyn[r] = body end
-      end
-    end,
-    remove = function(_, o)
-      if type(o) == "table" and rawget(o, "__dummy") then return end
-      local r = real(o)
-      g.dyn[r] = nil
-      realV:remove(r)
-    end,
-    addConstraint = function(_, c, ...) return realV:addConstraint(real(c), ...) end,
-    removeConstraint = function(_, c, ...) return realV:removeConstraint(real(c), ...) end,
-    setCfm = function(_, x) g.physics.cfm = x end,
-    setErp = function(_, x) g.physics.erp = x end,
-    setErp2 = function(_, x) g.physics.erp2 = x end,
-    setSolverIterations = function(_, n) g.physics.iterations = n end,
     addShortcut = function(_, keys, fn) g.shortcuts[keys] = fn end,
     removeShortcut = function(_, keys) g.shortcuts[keys] = nil end,
     addParam = function(_, n, ...) return realV:addParam(g.prefix .. n, ...) end,
@@ -384,12 +289,15 @@ local function makeExhibit(e, offset, turn)
     end,
     setStatusText = function(_, text) if active == g and text and text ~= "" then print(text) end end,
     loadSound = function(_, path) return realV:loadSound(fix(path)) end,
+    -- (the worlds are the cabinet's to arrange)
+    newWorld = function() error("an exhibit can't make worlds of its own in the cabinet") end,
+    useWorld = function() end,
+    placeWorld = function() end,
   }
   local vp = setmetatable({}, {
     __index = function(_, k)
       if k == "cam" then return cam end
-      if k == "gravity" then return g.gravity or realV.gravity end
-      if TIMING[k] then return g.physics[k] end
+      if TIMING[k] then return g.timing[k] end
       if CALLBACKS[k] then return function(_, fn) g.callbacks[k] = fn end end
       local s = special[k]
       if s then return s end
@@ -403,12 +311,8 @@ local function makeExhibit(e, offset, turn)
       return val
     end,
     __newindex = function(_, k, val)
-      if k == "gravity" then
-        g.gravity = val
-        for _, b in pairs(g.dyn) do applyGravity(b) end
-        return
-      end
-      if TIMING[k] then g.physics[k] = val; return end
+      if TIMING[k] then g.timing[k] = val; return end
+      if k == "gravity" then realV.gravity = val; return end      -- (its world's)
       g.vset[k] = val        -- (lights, shadows and the like: the hall's own stay)
     end,
   })
@@ -416,40 +320,19 @@ local function makeExhibit(e, offset, turn)
   local env = setmetatable({}, { __index = _G })
   env._G = env
   env.v = vp
-  env.Cube = function(...) return wrap(realCube(...)) end
-  env.Sphere = function(...) return wrap(realSphere(...)) end
-  env.Cylinder = function(...) return wrap(realCylinder(...)) end
-  if realCone then env.Cone = function(...) return wrap(realCone(...)) end end
-  env.Mesh = function(path, ...) return wrap(realMesh(fix(path), ...)) end
-  -- its ground plane: the hall's floor stands in for it
-  env.Plane = function()
-    return setmetatable({ __dummy = true }, { __index = function() return function() end end,
-                                              __newindex = function() end })
+  env.Mesh = function(path, ...) return realMesh(fix(path), ...) end
+  -- its ground plane: in its own world, as on its own, but not drawn (the
+  -- hall's floor is drawn there, at the same height)
+  env.Plane = function(...)
+    local p = realPlane(...)
+    pcall(function() p.transparency = 1 end)
+    return p
   end
-  env.btRigidBody = function(...) return wrapBody(btRigidBody(unwrapAll(...))) end
-  env.btDefaultMotionState = function(t, ...) return btDefaultMotionState(shiftT(t, OFF), ...) end
-  for _, cn in ipairs({ "btHingeConstraint", "btPoint2PointConstraint", "btGeneric6DofConstraint",
-                        "btGeneric6DofSpringConstraint", "btConeTwistConstraint", "btSliderConstraint",
-                        "btFixedConstraint", "btUniversalConstraint", "btHinge2Constraint",
-                        "btHingeAccumulatedAngleConstraint", "btGearConstraint" }) do
-    local ctor = _G[cn]
-    if ctor then env[cn] = function(...) return ctor(unwrapAll(...)) end end
-  end
-  if getPosXYZ then
-    env.getPosXYZ = function(o)
-      local x, y, z = getPosXYZ(real(o))
-      x, z = x - ox, z - oz
-      return x * cs - z * sn, y - oy, x * sn + z * cs
-    end
-    local function outL(x, y, z) return x * cs - z * sn, y, x * sn + z * cs end
-    local function inW(x, y, z) return x * cs + z * sn, y, -x * sn + z * cs end
-    env.getVelXYZ = function(o) return outL(getVelXYZ(real(o))) end
-    env.getAngVelXYZ = function(o) return outL(getAngVelXYZ(real(o))) end
-    env.setVelXYZ = function(o, x, y, z) return setVelXYZ(real(o), inW(x, y, z)) end
-    env.setAngVelXYZ = function(o, x, y, z) return setAngVelXYZ(real(o), inW(x, y, z)) end
-    env.copyTrans = function(a, b) return copyTrans(real(a), real(b)) end
-  end
-  if objectKey then env.objectKey = function(o) return objectKey(real(o)) end end
+  -- its random numbers: the same sequence it gets on its own (see setRandom)
+  env.math = setmetatable({
+    random = function(...) g.draws = g.draws + 1; return math.random(...) end,
+    randomseed = function(sd) g.seed, g.draws = sd, 0; return math.randomseed(sd) end,
+  }, { __index = math })
   env.io = setmetatable({
     open = function(path, mode) return io.open(fix(path), mode) end,
     lines = function(path, ...) if path == nil then return io.lines() end return io.lines(fix(path), ...) end,
@@ -474,27 +357,16 @@ local function makeExhibit(e, offset, turn)
   end
   g.env = env
   g.load = function() env.dofile(e.file) end
-
-  -- pausing: its moving bodies leave the simulation (keeping their
-  -- velocities) and its callbacks aren't called, until it's resumed
-  g.setPaused = function(on)
-    if on == (g.paused == true) then return end
-    g.paused = on
-    if on then
-      local list = {}
-      for r, b in pairs(g.dyn) do
-        list[#list + 1] = b
-        list[#list + 1] = b:getActivationState()
-        b:forceActivationState(5)                 -- DISABLE_SIMULATION
-      end
-      g.saved = list
-    else
-      local list = g.saved or {}
-      for i = 1, #list, 2 do list[i]:forceActivationState(list[i + 1]) end
-      g.saved = nil
-    end
-  end
   return g
+end
+
+-- Random numbers: Lua has one sequence for everyone. An exhibit on its own
+-- starts it from where bpp leaves it and draws from it alone; here the
+-- sequence is put back to where that exhibit had got to whenever it's the
+-- one drawing (as it loads, and while you're at it).
+setRandom = function(g)
+  math.randomseed(g.seed or 1)
+  for _ = 1, (g.seed and 0 or RANDOM_BASE) + g.draws do math.random() end
 end
 
 -- ---------------------------------------------------------------------
@@ -503,12 +375,15 @@ end
 local UP = btQuaternion(btVector3(1, 0, 0), math.pi / 2)
 local function yq(a) return btQuaternion(btVector3(0, 1, 0), a) end
 local HOVER = {}           -- objectKey -> text, for the hall's own things
+local function hallAdd(o)
+  realV:add(o)
+  return o
+end
 local function vis(o, col, tr)
   o.col = col
   pcall(function() o.collides = false end)
   if tr then pcall(function() o.transparency = tr end) end
-  realV:add(o)
-  return o
+  return hallAdd(o)
 end
 local function box(x, y, z, sx, sy, sz, col, q)
   local c = realCube(sx, sy, sz, 0)
@@ -522,7 +397,7 @@ local function solid(x, y, z, sx, sy, sz, col, q, hover)
   c.col = col
   c.friction = 0.6
   c.restitution = 0.2
-  realV:add(c)
+  hallAdd(c)
   if hover and objectKey then HOVER[objectKey(c)] = hover end
   return c
 end
@@ -630,7 +505,7 @@ do
   mesh(ring, cx, 140, cz, GILT, btQuaternion(btVector3(1, 0, 0), math.pi / 2))  -- a meridian
   mesh(ring, cx, 140, cz, GILT, btQuaternion(btVector3(0, 0, 1), math.pi / 2))  -- the colure
   local s = realSphere(5, 0); s.trans = btTransform(ident, btVector3(cx, 140, cz)); s.col = "#2a4a7a"
-  realV:add(s)
+  hallAdd(s)
   if objectKey then HOVER[objectKey(s)] = "An armillary sphere: the heavens in brass rings,\nwith the Earth in the middle." end
 end
 
@@ -705,7 +580,8 @@ for i, b in ipairs(BAYS) do
     coveredBay(b, e)
   else
     local off = btVector3(b.x, -(e.floorY or 0), b.z)
-    local g = makeExhibit(e, off, b.a)
+    -- (in a world of its own, at its own coordinates, drawn in its bay)
+    local g = makeExhibit(e, { x = b.x, y = -(e.floorY or 0), z = b.z, a = b.a })
     g.bay = b
     bayFrame(b, e.label, e.about)
     if e.stand then
@@ -716,10 +592,10 @@ for i, b in ipairs(BAYS) do
       box(b.x, top - 8, b.z, e.stand[1] - 6, 2, e.stand[2] - 6, GILT, q)
     end
     loading = g
-    local ok, err = pcall(g.load)
+    setRandom(g)
+    local ok, err = inWorld(g, g.load)
     loading = nil
     if ok then
-      g.setPaused(true)
       exhibits[#exhibits + 1] = g
       print(string.format("CABINET: %s is in its bay (%s%s)", g.name, e.dir, e.file))
     else
@@ -773,31 +649,33 @@ local function hallHelp(s)
 end
 
 local function goTo(s)
-  -- let go of any keys still held at the exhibit we're leaving, and stop it
+  -- let go of any keys still held at the exhibit we're leaving (its world
+  -- then waits, untouched, until you come back)
   if active then
     local f = active.callbacks.onKey
     for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
     active.down = {}
-    active.setPaused(true)
   end
   here = s
   local c = realV.cam
   c:setUpVector(btVector3(0, 1, 0), true)
   if s.isView then
     active = nil
-    applyPhysics(IDLE)
+    realV:useWorld(0)
+    applyTiming(IDLE)
     c.pos = s.pos
     c.look = s.look        -- (in that order: the look turns the view from where it now is)
     realV:setHelpText(hallHelp(s))
   else
     active = s
-    s.setPaused(false)
-    applyPhysics(s.physics)
+    realV:useWorld(s.world)
+    setRandom(s)
+    applyTiming(s.timing)
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)
-    c.pos = s.toWorld(pos)
-    c.look = s.toWorld(look)
+    c.pos = s.toScene(pos)
+    c.look = s.toScene(look)
     realV:setHelpText(s.header() .. s.help)
   end
 end
@@ -823,7 +701,7 @@ realV:preSim(function(N)
   if active then
     active.N = active.N + 1
     callActive("preSim")
-    if active then applyPhysics(active.physics) end
+    if active then applyTiming(active.timing) end
   end
 end)
 realV:postSim(function(N) callActive("postSim") end)
@@ -872,8 +750,10 @@ realV:onParamChanged(function(N, name, value)
     if name:sub(1, #p) == p then
       local f = g.callbacks.onParamChanged
       if f then
-        local ok, err = pcall(f, g.N, name:sub(#p + 1), value)
+        -- (in its own world; the one you're at gets its random numbers back)
+        local ok, err = inWorld(g, f, g.N, name:sub(#p + 1), value)
         if not ok then print("CABINET: " .. g.name .. ": " .. tostring(err)) end
+        if active and active ~= g then setRandom(active) end
       end
       return
     end

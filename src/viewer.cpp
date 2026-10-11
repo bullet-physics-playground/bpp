@@ -400,6 +400,10 @@ void Viewer::luaBind(lua_State *s) {
             .def("getParams", &Viewer::getParams)
             .def("getTime", &Viewer::getTime)
             .def("stepSimulation", &Viewer::stepSimulation)
+            .def("newWorld", &Viewer::newWorld)
+            .def("useWorld", &Viewer::useWorld)
+            .def("currentWorld", &Viewer::currentWorld)
+            .def("placeWorld", &Viewer::placeWorld)
             .def("savePrefs", &Viewer::setPrefs)
            .def("loadPrefs", &Viewer::getPrefs)
            .def("clearDebugText", &Viewer::clearDebugText)
@@ -621,6 +625,18 @@ Object *Viewer::removeObject(Object *o) {
   if (o == nullptr)
     return nullptr;
 
+  // (out of the world it is in, whichever is in use)
+  const int was = _curWorld;
+  if (!_worlds.empty() && o->getWorld() != nullptr && o->getWorld() != dynamicsWorld) {
+    const int k = worldIndex(o->getWorld());
+    if (k >= 0)
+      useWorld(k);
+  }
+  struct Back {
+    Viewer *v; int was;
+    ~Back() { v->useWorld(was); }
+  } back{this, was};
+
   // A constraint joining its body comes out of the world with it (Bullet
   // can't step a constraint whose body has left the world). It stays the
   // script's to remove, and goes back in when the object is added back.
@@ -831,6 +847,116 @@ int Viewer::stepSimulation(btScalar timeStep, int maxSubSteps, btScalar fixedTim
   return dynamicsWorld->stepSimulation(timeStep, maxSubSteps, fixedTimeStep);
 }
 
+// More worlds. A script that never asks for one has the scene's own, and
+// none of this does anything. Each new world is made exactly as clear()
+// makes the scene's own, so what is loaded into one runs as it does alone.
+// The world in use is always the one in the members (dynamicsWorld, ...), so
+// everything else here works on it unchanged; useWorld() swaps.
+int Viewer::newWorld() {
+  if (_worlds.empty()) {
+    PhysWorld main;
+    main.cfg = collisionCfg;
+    main.broadphase = broadphase;
+    main.dispatcher = dispatcher;
+    main.solver = solver;
+    main.world = dynamicsWorld;
+    _worlds.push_back(std::move(main));
+    _curWorld = 0;
+  }
+  PhysWorld w;
+  w.cfg = new btSoftBodyRigidBodyCollisionConfiguration();
+  w.broadphase = new btDbvtBroadphase();
+  w.dispatcher = new RestSkippingDispatcher(w.cfg);
+  w.solver = new btSequentialImpulseConstraintSolver();
+  w.world = new btSoftRigidDynamicsWorld(w.dispatcher, w.broadphase, w.solver, w.cfg);
+  w.world->setDebugDrawer(_debugDrawer);
+  w.world->setGravity(btVector3(0.0f, -9.81f, 0.0f));      // (G, as clear() sets it)
+  w.world->getWorldInfo().m_broadphase = w.broadphase;
+  w.world->getWorldInfo().m_dispatcher = w.dispatcher;
+  w.world->getWorldInfo().m_gravity = w.world->getGravity();
+  w.world->getWorldInfo().m_sparsesdf.Initialize();
+  btCollisionDispatcher *dispatcher_ptr = w.dispatcher;
+  btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
+  w.place.setIdentity();
+  _worlds.push_back(std::move(w));
+  return (int)_worlds.size() - 1;
+}
+
+void Viewer::useWorld(int i) {
+  if (_worlds.empty() || i == _curWorld)
+    return;
+  if (i < 0 || i >= (int)_worlds.size()) {
+    qWarning() << "useWorld: no world" << i;
+    return;
+  }
+  std::swap(_worlds[_curWorld].aabbSeen, _aabbSeen);
+  PhysWorld &w = _worlds[i];
+  collisionCfg = w.cfg;
+  broadphase = w.broadphase;
+  dispatcher = w.dispatcher;
+  solver = w.solver;
+  dynamicsWorld = w.world;
+  std::swap(w.aabbSeen, _aabbSeen);
+  SoftBody::setWorldInfo(&dynamicsWorld->getWorldInfo());
+  _curWorld = i;
+}
+
+void Viewer::placeWorld(int i, const btTransform &place) {
+  if (i <= 0 || i >= (int)_worlds.size())
+    return;
+  PhysWorld &w = _worlds[i];
+  w.placed = true;
+  w.place = place;
+  foreach (Object *o, *_objects) {
+    if (o->getWorld() == w.world) {
+      o->placed = true;
+      o->place = place;
+    }
+  }
+  _mergeReady = false;
+}
+
+int Viewer::worldIndex(const btDynamicsWorld *w) const {
+  for (int i = 0; i < (int)_worlds.size(); ++i)
+    if (_worlds[i].world == w)
+      return i;
+  return -1;
+}
+
+btSoftRigidDynamicsWorld *Viewer::worldOfObject(const Object *o) const {
+  btDynamicsWorld *w = o->getWorld();
+  return w ? static_cast<btSoftRigidDynamicsWorld *>(w) : dynamicsWorld;
+}
+
+void Viewer::dropWorlds() {
+  if (_worlds.empty())
+    return;
+  useWorld(0);
+  for (size_t i = 1; i < _worlds.size(); ++i) {
+    PhysWorld &w = _worlds[i];
+    for (int k = w.world->getNumConstraints() - 1; k >= 0; --k)
+      w.world->removeConstraint(w.world->getConstraint(k));
+    btCollisionObjectArray &all = w.world->getCollisionObjectArray();
+    for (int k = all.size() - 1; k >= 0; --k) {
+      btCollisionObject *co = all[k];
+      if (btSoftBody *sb = btSoftBody::upcast(co))
+        w.world->removeSoftBody(sb);
+      else if (btRigidBody *rb = btRigidBody::upcast(co))
+        w.world->removeRigidBody(rb);
+      else
+        w.world->removeCollisionObject(co);
+    }
+    delete w.world;
+    delete w.solver;
+    delete w.dispatcher;
+    delete w.broadphase;
+    delete w.cfg;
+  }
+  _worlds.clear();
+  _curWorld = 0;
+  _conWorld.clear();
+}
+
 void Viewer::setErp(btScalar erp) {
   dynamicsWorld->getSolverInfo().m_erp = erp;
 }
@@ -919,10 +1045,17 @@ void Viewer::addConstraint(btTypedConstraint *con) {
     return;
   dynamicsWorld->addConstraint(con, true);
   _constraints->insert(con);
+  if (_curWorld != 0)
+    _conWorld.insert(con, _curWorld);
 }
 
 btTypedConstraint *Viewer::removeConstraint(btTypedConstraint *con) {
-  dynamicsWorld->removeConstraint(con);
+  const int k = _conWorld.value(con, 0);
+  if (!_worlds.empty() && k != _curWorld && k < (int)_worlds.size())
+    _worlds[k].world->removeConstraint(con);
+  else
+    dynamicsWorld->removeConstraint(con);
+  _conWorld.remove(con);
   _constraints->remove(con);
   _detached.remove(con);
   return con;
@@ -1029,7 +1162,19 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
   for (oi = objects->begin(); oi != objects->end(); oi++) {
     Object *o = *oi;
 
-    if (o->body != nullptr) {
+    if (o->body != nullptr && o->placed) {
+      // (a world drawn elsewhere: its box where it's drawn; its endless
+      // planes left out)
+      if (dynamic_cast<Plane *>(o) != nullptr || o->body->getCollisionShape() == nullptr)
+        continue;
+      btVector3 lo, hi;
+      o->body->getCollisionShape()->getAabb(o->place * o->body->getWorldTransform(), lo, hi);
+      for (int i = 0; i < 3; ++i) {
+        aabb[i] = btMin(aabb[i], lo[i]);
+        aabb[i + 3] = btMax(aabb[i + 3], hi[i]);
+      }
+      continue;
+    } else if (o->body != nullptr) {
       btVector3 oaabbmin(0, 0, 0), oaabbmax(0, 0, 0);
       const btRigidBody *rb = o->body;
       const btCollisionShape *shape = rb->getCollisionShape();
@@ -1374,6 +1519,9 @@ void Viewer::wheelEvent(QWheelEvent *e) {
 void Viewer::addObject(Object *o, int type, int mask) {
   _objects->insert(o);
   o->setWorld(dynamicsWorld);
+  o->placed = !_worlds.empty() && _worlds[_curWorld].placed;
+  if (o->placed)
+    o->place = _worlds[_curWorld].place;
   if (_removed.remove(o) && L != nullptr)
     setRemovedEntry(L, o, nullptr);   // (bpp's again, held by the scene)
 
@@ -2487,11 +2635,11 @@ emit scriptStarts();
     if (dynamicsWorld) {
       foreach (Object *o, *_objects) {
         if (o->body != nullptr) {
-          dynamicsWorld->removeRigidBody(o->body);
+          worldOfObject(o)->removeRigidBody(o->body);
         }
         SoftBody *sb = dynamic_cast<SoftBody *>(o);
         if (sb != nullptr && sb->getSoftBody() != nullptr) {
-          dynamicsWorld->removeSoftBody(sb->getSoftBody());
+          worldOfObject(o)->removeSoftBody(sb->getSoftBody());
         }
       }
     }
@@ -2724,15 +2872,22 @@ emit scriptStarts();
 void Viewer::removeLeftoverBodies() {
   if (!dynamicsWorld)
     return;
-  btCollisionObjectArray &all = dynamicsWorld->getCollisionObjectArray();
-  for (int i = all.size() - 1; i >= 0; --i) {
-    btCollisionObject *co = all[i];
-    if (btSoftBody *sb = btSoftBody::upcast(co))
-      dynamicsWorld->removeSoftBody(sb);
-    else if (btRigidBody *rb = btRigidBody::upcast(co))
-      dynamicsWorld->removeRigidBody(rb);
-    else
-      dynamicsWorld->removeCollisionObject(co);
+  QList<btSoftRigidDynamicsWorld *> worlds;
+  worlds.append(dynamicsWorld);
+  for (const PhysWorld &w : _worlds)
+    if (w.world != nullptr && w.world != dynamicsWorld)
+      worlds.append(w.world);
+  for (btSoftRigidDynamicsWorld *dw : worlds) {
+    btCollisionObjectArray &all = dw->getCollisionObjectArray();
+    for (int i = all.size() - 1; i >= 0; --i) {
+      btCollisionObject *co = all[i];
+      if (btSoftBody *sb = btSoftBody::upcast(co))
+        dw->removeSoftBody(sb);
+      else if (btRigidBody *rb = btRigidBody::upcast(co))
+        dw->removeRigidBody(rb);
+      else
+        dw->removeCollisionObject(co);
+    }
   }
 }
 
@@ -2756,11 +2911,11 @@ void Viewer::clear() {
   if (dynamicsWorld) {
     foreach (Object* o, *_objects) {
       if (o->body != nullptr) {
-        dynamicsWorld->removeRigidBody(o->body);
+        worldOfObject(o)->removeRigidBody(o->body);
       }
       SoftBody *sb = dynamic_cast<SoftBody *>(o);
       if (sb != nullptr && sb->getSoftBody() != nullptr) {
-        dynamicsWorld->removeSoftBody(sb->getSoftBody());
+        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
       }
     }
   }
@@ -2768,7 +2923,11 @@ void Viewer::clear() {
   // Remove constraints from the dynamics world before deleting them.
   if (dynamicsWorld) {
     foreach (btTypedConstraint* c, *_constraints) {
-      dynamicsWorld->removeConstraint(c);
+      const int k = _conWorld.value(c, 0);
+      if (!_worlds.empty() && k != _curWorld && k < (int)_worlds.size())
+        _worlds[k].world->removeConstraint(c);
+      else
+        dynamicsWorld->removeConstraint(c);
     }
   }
 
@@ -2800,6 +2959,9 @@ void Viewer::clear() {
     for (btVehicleRaycaster* vr : vrs) delete vr;
   }
   _vehicle_raycasters->clear();
+
+  // The other worlds go first (with the scene's own back in use)
+  dropWorlds();
 
   // Delete existing dynamics world and its subcomponents
   if (dynamicsWorld) {
@@ -2983,11 +3145,11 @@ Viewer::~Viewer() {
   if (dynamicsWorld) {
     foreach (Object* o, *_objects) {
       if (o->body != nullptr) {
-        dynamicsWorld->removeRigidBody(o->body);
+        worldOfObject(o)->removeRigidBody(o->body);
       }
       SoftBody *sb = dynamic_cast<SoftBody *>(o);
       if (sb != nullptr && sb->getSoftBody() != nullptr) {
-        dynamicsWorld->removeSoftBody(sb->getSoftBody());
+        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
       }
     }
   }
@@ -3021,6 +3183,8 @@ Viewer::~Viewer() {
       sb->luaRelease();
     }
   }
+
+  dropWorlds();
 
   // Delete dynamics world and collision config (after removing rigid bodies).
   if (dynamicsWorld) {
@@ -3353,7 +3517,7 @@ namespace {
 // What can go into the merge: a fixed box or cylinder, opaque, without an
 // image or a script's drawing.
 bool mergeable(Object *o) {
-  return o->body != nullptr && o->body->isStaticObject() &&
+  return !o->placed && o->body != nullptr && o->body->isStaticObject() &&
          o->body->getMotionState() != nullptr && o->getTransparency() <= 0.0 &&
          !o->hasTexture() && !o->hasRenderFunction() &&
          (dynamic_cast<Cube *>(o) != nullptr || dynamic_cast<Cylinder *>(o) != nullptr);
@@ -3769,12 +3933,21 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
     ++(shadowPass ? _shadowCasters : _drawnObjects);
     // SoftBody has no rigid body/motion-state, so Object::render() (which
     // requires one) would silently skip it. Render it directly instead.
+    // (an object of a world drawn elsewhere: moved there)
+    if (o->placed) {
+      btScalar pm[16];
+      o->place.getOpenGLMatrix(pm);
+      glPushMatrix();
+      glMultMatrixf(pm);
+    }
     SoftBody *sb = dynamic_cast<SoftBody *>(o);
     if (sb != nullptr) {
       sb->renderWorld();
     } else {
       o->render(minaabb, maxaabb);
     }
+    if (o->placed)
+      glPopMatrix();
   };
   foreach (Object *o, *_objects) {
     // (what cullObjects() decided for this frame)
@@ -3868,6 +4041,8 @@ void Viewer::cullObjects() {
       b->getMotionState()->getWorldTransform(t);
     else
       t.setIdentity();
+    if (o->placed)
+      t = o->place * t;
     btVector3 lo, hi;
     b->getCollisionShape()->getAabb(t, lo, hi);
     const btVector3 shift = t.getBasis() * o->drawnOffset();
@@ -3923,7 +4098,7 @@ void Viewer::cullObjects() {
 }
 
 bool Viewer::isFixedCaster(const Object *o) {
-  return o->body != nullptr && o->body->isStaticObject() &&
+  return !o->placed && o->body != nullptr && o->body->isStaticObject() &&
          o->body->getCollisionShape() != nullptr && !o->hasRenderFunction() &&
          dynamic_cast<const SoftBody *>(o) == nullptr;
 }
@@ -4251,7 +4426,18 @@ void Viewer::drawConstraints() {
   // object (a ground plane, a long road, ...) would otherwise blow up
   // every marker's size, even for small constraints elsewhere.
   foreach (btTypedConstraint *c, *_constraints) {
+    // (one in a world drawn elsewhere: moved there)
+    const int k = _conWorld.value(c, 0);
+    const bool placed = k > 0 && k < (int)_worlds.size() && _worlds[k].placed;
+    if (placed) {
+      btScalar pm[16];
+      _worlds[k].place.getOpenGLMatrix(pm);
+      glPushMatrix();
+      glMultMatrixf(pm);
+    }
     drawConstraint(c, constraintDrawSize(c));
+    if (placed)
+      glPopMatrix();
   }
 }
 
@@ -5125,20 +5311,44 @@ void Viewer::hoverTick() {
   if (!cam) cam = camera();
   qglviewer::Vec orig, dir;
   cam->convertClickToLine(_hoverPos, orig, dir);
-  const btScalar reach = 1.0e6;
+  const btScalar far = 1.0e6;
   btVector3 from(orig.x, orig.y, orig.z);
-  btVector3 to(orig.x + dir.x * reach, orig.y + dir.y * reach, orig.z + dir.z * reach);
-  btCollisionWorld::ClosestRayResultCallback ray(from, to);
-  // bpp adds bodies with its own collision groups: let the ray see them all
-  // (an object made with collides = false has an empty mask and stays unseen)
-  ray.m_collisionFilterGroup = -1;
-  ray.m_collisionFilterMask = -1;
-  dynamicsWorld->rayTest(from, to, ray);
+  btVector3 to(orig.x + dir.x * far, orig.y + dir.y * far, orig.z + dir.z * far);
+  // (every world: one drawn elsewhere is tested with the ray moved back
+  // from where it's drawn, and what it hits moved there again)
+  const btCollisionObject *best = nullptr;
+  btScalar bestFraction = 2;
+  btVector3 bestPoint(0, 0, 0);
+  auto test = [&](btSoftRigidDynamicsWorld *w, const btTransform *place) {
+    btVector3 f = from, t = to;
+    if (place) {
+      const btTransform inv = place->inverse();
+      f = inv * from;
+      t = inv * to;
+    }
+    btCollisionWorld::ClosestRayResultCallback ray(f, t);
+    // bpp adds bodies with its own collision groups: let the ray see them all
+    // (an object made with collides = false has an empty mask and stays unseen)
+    ray.m_collisionFilterGroup = -1;
+    ray.m_collisionFilterMask = -1;
+    w->rayTest(f, t, ray);
+    if (ray.hasHit() && ray.m_closestHitFraction < bestFraction) {
+      bestFraction = ray.m_closestHitFraction;
+      best = ray.m_collisionObject;
+      bestPoint = place ? (*place) * ray.m_hitPointWorld : ray.m_hitPointWorld;
+    }
+  };
+  if (_worlds.empty()) {
+    test(dynamicsWorld, nullptr);
+  } else {
+    for (const PhysWorld &w : _worlds)
+      test(w.world, w.placed ? &w.place : nullptr);
+  }
   Object *hit = nullptr;
-  if (ray.hasHit() && _objects) {
+  if (best != nullptr && _objects) {
     for (Object *o : *_objects) {
       if (o && o->getRigidBody() &&
-          static_cast<const btCollisionObject *>(o->getRigidBody()) == ray.m_collisionObject) {
+          static_cast<const btCollisionObject *>(o->getRigidBody()) == best) {
         hit = o;
         break;
       }
@@ -5146,7 +5356,7 @@ void Viewer::hoverTick() {
   }
   if (hit) {
     _hoverObj = hit;
-    _hoverHitPt = ray.m_hitPointWorld;
+    _hoverHitPt = bestPoint;
     _hoverLastHit.restart();
   } else if (_hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
              _objects && _objects->contains(_hoverObj)) {
