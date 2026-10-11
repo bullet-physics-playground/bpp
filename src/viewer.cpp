@@ -398,6 +398,7 @@ void Viewer::luaBind(lua_State *s) {
             .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &, const QString &)) & Viewer::addParam)
             .def("getParam", &Viewer::getParam)
             .def("getParams", &Viewer::getParams)
+            .def("showParams", &Viewer::showParams)
             .def("getTime", &Viewer::getTime)
             .def("stepSimulation", &Viewer::stepSimulation)
             .def("newWorld", &Viewer::newWorld)
@@ -5519,6 +5520,23 @@ QVariant Viewer::getParam(const QString &name) const {
 
 QHash<QString, QVariant> Viewer::getParams() const {
   return _params;
+}
+
+void Viewer::showParams(const QString &prefix) {
+  if (prefix == _paramFilter)
+    return;
+  _paramFilter = prefix;
+  emit paramsChanged();
+}
+
+QHash<QString, QVariant> Viewer::getShownParams() const {
+  if (_paramFilter.isEmpty())
+    return _params;
+  QHash<QString, QVariant> shown;
+  for (auto it = _params.constBegin(); it != _params.constEnd(); ++it)
+    if (it.key().startsWith(_paramFilter))
+      shown.insert(it.key(), it.value());
+  return shown;
 }
 
 void Viewer::clearParams() {

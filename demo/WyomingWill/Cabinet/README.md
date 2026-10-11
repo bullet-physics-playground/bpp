@@ -25,8 +25,9 @@ Click the 3D view first so it has the keyboard.
 | `Shift+Tab` | walk back |
 
 Everything else goes to the exhibit you're at, with the same keys as when
-it runs on its own; the Shortcuts pane shows them. Its sliders are in the
-Params pane, named after it ("Drop C: speed", "Tippe top: friction").
+it runs on its own; the Shortcuts pane shows them. The Params pane shows
+only its sliders, named after it ("Drop C: speed", "Tippe top: friction");
+the others keep their settings for when you come back.
 
 Rest the mouse on an exhibit, a placard, a covered bay or the armillary
 sphere to see what it is.
@@ -119,7 +120,9 @@ seconds. In a world of its own, at its own coordinates, nothing else is
 there.
 
 **Needs bpp with the separate-worlds patch** (`v:newWorld`, `v:useWorld`,
-`v:placeWorld`, `v:currentWorld`). A script that doesn't use them -- every
+`v:placeWorld`, `v:currentWorld`; and `v:showParams`, which keeps the
+Params pane to the exhibit you're at -- without it, every exhibit's sliders
+are listed). A script that doesn't use them -- every
 other demo, the rec room, each exhibit on its own -- runs exactly as before.
 (POV-Ray export writes each exhibit where its world has it, at the origin,
 not in its bay.)

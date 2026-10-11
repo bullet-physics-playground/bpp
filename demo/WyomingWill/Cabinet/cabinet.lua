@@ -663,6 +663,8 @@ local function goTo(s)
     active = nil
     realV:useWorld(0)
     applyTiming(IDLE)
+    -- (the Params pane: none of the exhibits' sliders)
+    if realV.showParams then realV:showParams("Cabinet: ") end
     c.pos = s.pos
     c.look = s.look        -- (in that order: the look turns the view from where it now is)
     realV:setHelpText(hallHelp(s))
@@ -671,6 +673,8 @@ local function goTo(s)
     realV:useWorld(s.world)
     setRandom(s)
     applyTiming(s.timing)
+    -- (the Params pane: only this exhibit's sliders)
+    if realV.showParams then realV:showParams(s.prefix) end
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)

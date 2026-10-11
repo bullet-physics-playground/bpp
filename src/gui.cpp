@@ -1112,7 +1112,7 @@ void Gui::updateParamsTable() {
 
   QSignalBlocker blocker(paramsTable);
 
-  QHash<QString, QVariant> params = ui.viewer->getParams();
+  QHash<QString, QVariant> params = ui.viewer->getShownParams();   // (see Viewer::showParams())
 
   QStringList names = params.keys();
   names.sort(Qt::CaseInsensitive);

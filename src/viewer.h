@@ -1389,6 +1389,17 @@ public slots:
   QHash<QString, QVariant> getParams() const;
 
   /**
+   * @brief Which parameters the Params pane shows: only those whose names
+   *        start with @p prefix ("": all of them, as usual). The others keep
+   *        their values; getParam() and getParams() still see them all.
+   * @param prefix The start of the names to show.
+   */
+  void showParams(const QString &prefix);
+
+  /// @return The parameters the Params pane shows (see showParams()).
+  QHash<QString, QVariant> getShownParams() const;
+
+  /**
    * @brief Forgets every registered parameter.
    */
   void clearParams();
@@ -2656,6 +2667,7 @@ private:
    // parameter storage for Lua scripts
    QHash<QString, QVariant> _params;      ///< Current value of each parameter.
    QHash<QString, ParamInfo> _paramInfo;  ///< Range, step and comment for each.
+   QString _paramFilter;                  ///< Which the Params pane shows (see showParams()).
 };
 
 #endif // VIEWER_H
