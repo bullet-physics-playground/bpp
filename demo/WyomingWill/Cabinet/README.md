@@ -26,7 +26,7 @@ Click the 3D view first so it has the keyboard.
 
 Everything else goes to the exhibit you're at, with the same keys as when
 it runs on its own; the Shortcuts pane shows them. The Params pane shows
-only its sliders, named after it ("Drop C: speed", "Tippe top: friction");
+only its sliders, named after it ("Variety: speed", "Tippe top: friction");
 the others keep their settings for when you come back.
 
 Rest the mouse on an exhibit, a placard, a covered bay or the armillary
@@ -44,20 +44,22 @@ with a 3.4 m aisle between.
 
 | Bay | Exhibit | Folder |
 |---|---|---|
-| A, west 1 | Gömböc Drop C | `../Gomboc/gomboc-drop-c.lua` |
-| A, east 1 | Gömböc Variety | `../Gomboc/gomboc-variety.lua` |
-| A, west 2 | Bille and the polyhedra | `../Bille/bille-drop.lua` |
-| A, east 2 | the Dzhanibekov effect | `../Dzhanibekov/dzhanibekov.lua` |
-| A, west 3 | the rattlebacks | `../Rattleback/rattleback.lua` |
-| A, east 3 | the tippe tops | `../TippeTop/tippe-top.lua` |
-| A, west 4 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
-| A, east 4 | the spinning egg | (in preparation) |
-| B, north 1 | the double cone | (in preparation) |
-| B, south 1 | the oloid and the sphericon | (in preparation) |
-| B, north 2 | the falling Slinky | (in preparation) |
-| B, south 2 | the Brazil-nut effect | (in preparation) |
-| B, north 3 | Newton's cradle | (in preparation) |
-| B, south 3; B, north 4; B, south 4 | empty ("reserved") | |
+| A, west 1 | Gömböc Variety | `../Gomboc/gomboc-variety.lua` |
+| A, east 1 | Bille and the polyhedra | `../Bille/bille-drop.lua` |
+| A, west 2 | the Dzhanibekov effect | `../Dzhanibekov/dzhanibekov.lua` |
+| A, east 2 | the rattlebacks | `../Rattleback/rattleback.lua` |
+| A, west 3 | the tippe tops | `../TippeTop/tippe-top.lua` |
+| A, east 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
+| A, west 4 | the spinning egg | (in preparation) |
+| A, east 4 | the double cone | (in preparation) |
+| B, north 1 | the oloid and the sphericon | (in preparation) |
+| B, south 1 | the falling Slinky | (in preparation) |
+| B, north 2 | the Brazil-nut effect | (in preparation) |
+| B, south 2 | Newton's cradle | (in preparation) |
+| B, north 3 to B, south 4 | empty ("reserved") | |
+
+Gömböc Drop C (`../Gomboc/gomboc-drop-c.lua`) isn't in the hall: Gömböc
+Variety shows Gomboc-C and more.
 
 ## Adding exhibits
 

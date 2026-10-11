@@ -71,10 +71,6 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              the trays, which float above their ground plane on their own)
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
-  { dir = "../Gomboc/", file = "gomboc-drop-c.lua", name = "Gömböc Drop C", label = "gomboc-drop-c",
-    prefix = "Drop C: ", floorY = -80, stand = { 172, 145 },
-    about = "Gömböc Drop C: the Gömböc, the convex body of uniform density with one stable\n" ..
-            "and one unstable balance point, dropped at random until it rights itself." },
   { dir = "../Gomboc/", file = "gomboc-variety.lua", name = "Gömböc Variety", label = "gomboc-variety",
     prefix = "Variety: ", floorY = -80, stand = { 172, 145 },
     about = "Gömböc Variety: Gomboc-C at three sizes and the lumpier Sloan beta shapes,\n" ..
@@ -322,11 +318,10 @@ local function makeExhibit(e, bay)
   env.v = vp
   env.Mesh = function(path, ...) return realMesh(fix(path), ...) end
   -- its ground plane: in its own world, as on its own, but not drawn (the
-  -- hall's floor is drawn there, at the same height)
-  env.Plane = function(...)
-    local p = realPlane(...)
-    pcall(function() p.transparency = 1 end)
-    return p
+  -- hall's floor is drawn there, at the same height: it's drawn a hundredth
+  -- of a centimetre across)
+  env.Plane = function(nx, ny, nz, c)
+    return realPlane(nx, ny, nz, c, 0.01)      -- (drawn a hundredth of a cm across)
   end
   -- its random numbers: the same sequence it gets on its own (see setRandom)
   env.math = setmetatable({
@@ -510,7 +505,9 @@ do
 end
 
 -- a bay: its rug, pilasters either side on the wall behind, and the
--- placard at the aisle edge
+-- placard at the aisle edge (its board leant back only a little: leant back
+-- 35 degrees, from up in the aisle it caught the light and showed white)
+local PLACARD_TILT = 12
 local function bayFrame(b, labelKey, hoverText)
   local a = b.a
   local q = yq(a)
@@ -533,13 +530,13 @@ local function bayFrame(b, labelKey, hoverText)
   local px, pz = rot(a, 0, BAY_D / 2 - 6)
   px, pz = b.x + px, b.z + pz
   box(px, 45, pz, 6, 90, 6, DARK, q)
-  local tiltQ = q * btQuaternion(btVector3(1, 0, 0), -math.rad(35))
+  local tiltQ = q * btQuaternion(btVector3(1, 0, 0), -math.rad(PLACARD_TILT))
   local bw = L.w + 12
   local board = solid(px, 95, pz, bw, 14, 2.5, DARK, tiltQ, hoverText)
   box(px, 95, pz, bw + 2, 16, 2, GILT, tiltQ)
   -- (the lettering stands on the board's face)
   local ux, uz = rot(a, 0, 1)
-  local nY, nH = math.cos(math.rad(35)), math.sin(math.rad(35))     -- the face's normal: up and out
+  local nY, nH = math.cos(math.rad(PLACARD_TILT)), math.sin(math.rad(PLACARD_TILT))     -- the face's normal: up and out
   local lx, ly, lz = px + ux * 1.3 * nY, 95 + 1.3 * nH, pz + uz * 1.3 * nY
   -- (its letters are L.h tall from y = 0: centred on the board)
   local dy = -L.h / 2

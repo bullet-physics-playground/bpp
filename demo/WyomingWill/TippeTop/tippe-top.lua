@@ -124,7 +124,7 @@ for k = -1, 1 do
           btQuaternion(btVector3(0, 1, 0), -a + math.pi / 2))
   end
 end
-common.setCamera(btVector3(0, 31, 56), btVector3(0, 0, 3))
+common.setCamera(btVector3(0, 42, 78), btVector3(0, 0, 2))
 
 -- ---------------------------------------------------------------------
 -- the tops
