@@ -5,7 +5,7 @@ same stride, walking freely inside a walled 10 m x 10 m arena. Open
 `walker-room.lua`.
 
 Each walker is built by its own `../Walkers_For_Room/<name>_parts.lua`, a
-copy of the build its standalone file uses with one option added (see that
+copy of the build its standalone file uses with a few options added (see that
 folder's README); the walkers in `../Walkers/` are left as they are. All of
 them share one world, one terrain, one gravity and one physics step
 (1/960 s).
@@ -39,6 +39,20 @@ them share one world, one terrain, one gravity and one physics step
   slipped would go stride / (duty x turn time) -- faster for a short
   stance. What to compare on bumps is how much of its flat-ground speed
   each walker keeps.
+- **Same feet.** Every walker stands on the same flat feet: 8 cm long
+  (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5. Big feet get
+  over bumps by resting on them; small ones have to be lifted over. Their
+  own files' feet ranged from 2.6 cm long (Chebyshev-Spears diag) to
+  12.6 cm (the balanced 2-leg Spears), and Jansen and Klann had none.
+  8 cm is the shortest the 2-leg Spears can stand on (on 4 cm feet the
+  2-leg one fell and went nowhere); on 2 cm feet several walkers' physics
+  failed.
+- **Cranks in step.** Most walkers have a motor for each crank, and
+  nothing kept them in step: Chebyshev's cranks drifted 47 degrees apart
+  in 10 s, Jansen's over 1000 degrees in a minute, and Klann ended up
+  walking back and forth. Every walker's cranks are now held at the timing
+  they were built with, as one motor driving them all through gears would
+  hold them (`LOCK_CRANKS`).
 - **Same gravity.** Every standalone file uses 9.8 units/s^2, but the
   walkers are built at very different sizes in those units. All of them
   are under 20 cm/s^2 here, each with its motors made stronger or
@@ -56,34 +70,28 @@ ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 
 | Walker                 | Flat | Short bumps | Kept |
 |------------------------|------|-------------|------|
-| Chebyshev diag         | 4.66 | 5.21        | 112% |
-| Chebyshev-Spears       | 6.03 | 6.29        | 104% |
-| Spears 2-leg           | 10.08| 9.80        | 97%  |
-| Hoecken-Spears slider  | 5.60 | 5.19        | 93%  |
-| Chebyshev              | 5.95 | 5.25        | 88%  |
-| Hoecken slider         | 6.36 | 4.83        | 76%  |
-| Chebyshev-Spears diag  | 4.73 | 3.07        | 65%  |
-| Spears 2-leg balanced  | 9.58 | 6.13        | 64%  |
-| Klann                  | 2.02 | 1.28        | 63%  |
-| Hoecken                | 6.79 | 3.96        | 58%  |
-| Jansen                 | 10.04| 5.52        | 55%  |
-| Spears 4-bar           | 8.03 | 3.35        | 42%  |
+| Chebyshev-Spears diag  | 5.61 | 5.96        | 106% |
+| Hoecken-Spears slider  | 5.98 | 6.13        | 103% |
+| Chebyshev-Spears       | 6.75 | 6.83        | 101% |
+| Hoecken                | 8.73 | 8.72        | 100% |
+| Jansen                 | 6.73 | 5.90        | 88%  |
+| Chebyshev diag         | 7.74 | 6.78        | 88%  |
+| Spears 2-leg           | 10.45| 8.72        | 83%  |
+| Hoecken slider         | 8.91 | 7.02        | 79%  |
+| Chebyshev              | 9.54 | 6.95        | 73%  |
+| Spears 4-bar           | 13.46| 7.28        | 54%  |
+| Spears 2-leg balanced  | 11.03| 4.83        | 44%  |
+| Klann                  | 1.21 | 4.17        | --   |
 
 On the default bumps (22 cm long, a stride and a half) the walkers keep
 most of their speed even 8 cm high: those are rolling hills they walk up
 and down. Shorter bumps are obstacles a foot has to get over within a
 step. Some of the rest isn't the bumps:
 
-- Klann is slow on flat ground too: part of the time it is moving
-  backwards.
-- The Spears 4-bar's four cranks each have their own motor, nothing
-  keeps them in step, and over a couple of minutes its legs drift from
-  their designed timing (225, 180, 225 degrees behind the first) into
-  step with each other. Every walker with separately driven cranks
-  drifts like this to some degree; only the 2-leg Spears, whose legs
-  share one axle, keep their timing.
-- The 2-leg Spears falls over and is stood up again two to four times in
-  3 minutes, on any ground.
+- Klann gets almost nowhere on flat ground, even with its cranks in
+  step; something else about its build is wrong.
+- The 2-leg Spears falls over and is stood up again now and then, on any
+  ground.
 - The balanced 2-leg Spears' counterweight hangs only a little above
   flat ground (its own file's design). On bigger bumps it comes to rest
   on one, and its motor can't drag it off.
@@ -102,49 +110,63 @@ way it was facing, and carries on.
 ## Test track
 
 `test-track.lua` runs one walker from the room -- the same stride, chassis,
-crank speed and gravity -- straight down a 10 m x 2 m strip of the room's
-terrain, with no avoidance turns, and prints how far it got in 60 s. Open
-it in bpp to watch one walker (the settings are at its top; Tab and
-Shift+Tab put the next or previous walker on the track, timed from when
-it is put there), or run
-`./test-track-all.sh path/to/bpp` to run every walker on flat ground and
-at bump heights 2, 4 and 6 cm and lengths 11, 15 and 22 cm, from 4
-starting points each (about half an hour); the results go to
-`test-track-results.txt`.
+feet, crank speed and gravity -- straight down a 10 m x 2 m strip of the
+room's terrain, with no avoidance turns, and prints how far it got in
+60 s. Open it in bpp to watch one walker (the settings are at its top; Tab
+and Shift+Tab put the next or previous walker on the track, timed from
+when it is put there), or run `./test-track-all.sh path/to/bpp` to run
+every walker on flat ground and at bump heights 2, 4 and 6 cm and lengths
+11, 15 and 22 cm, from 4 starting points each (about 25 minutes); the
+results go to `test-track-results.txt`. `EXTRA` adds settings to every run
+(`EXTRA="FOOT_LENGTH=4" ./test-track-all.sh ...`) and `OUT` names the
+results file.
 
 Share of its flat-ground speed each walker kept (mean of the 4 starts;
-columns are bump height / bump length, in cm):
+columns are bump height / bump length, in cm), on 8 cm feet, with the lift
+of its foot path (how high its foot rises above its stance, as a share of
+its stride; measured on the builds, as the linkage reference measures it):
 
-| Walker                 | Flat cm/s | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean |
-|------------------------|-----------|------|------|------|------|------|------|------|------|------|------|
-| Chebyshev-Spears       | 6.9  | 109% | 107% | 102% | 105% | 109% | 83%  | 86%  | 94%  | 39%  | 93%  |
-| Chebyshev diag         | 5.3  | 115% | 121% | 98%  | 87%  | 82%  | 28%  | 62%  | 28%  | 12%  | 70%  |
-| Chebyshev              | 6.2  | 81%  | 90%  | 67%  | 72%  | 61%  | 33%  | 65%  | 40%  | 11%  | 58%  |
-| Chebyshev-Spears diag  | 6.6  | 79%  | 112% | 50%  | 62%  | 92%  | 18%  | 45%  | 55%  | 5%   | 57%  |
-| Hoecken                | 9.0  | 72%  | 79%  | 72%  | 53%  | 49%  | 38%  | 51%  | 26%  | 7%   | 50%  |
-| Spears 2-leg balanced  | 10.1 | 99%  | 82%  | 82%  | 54%  | 62%  | 27%  | 17%  | 23%  | 7%   | 50%  |
-| Spears 2-leg           | 7.1  | 44%  | 46%  | 50%  | 32%  | 32%  | 53%  | 29%  | 38%  | 69%  | 44%  |
-| Hoecken slider         | 6.1  | 59%  | 95%  | 69%  | 48%  | 67%  | 16%  | 32%  | 47%  | -37% | 44%  |
-| Jansen                 | 12.1 | 52%  | 56%  | 60%  | 13%  | 43%  | 44%  | 23%  | 28%  | 31%  | 39%  |
-| Hoecken-Spears slider  | 5.2  | 103% | 113% | 82%  | 97%  | 81%  | 13%  | -22% | 67%  | -229%| 34%  |
-| Spears 4-bar           | 11.7 | 60%  | 58%  | 57%  | 30%  | 17%  | 12%  | 8%   | 8%   | 4%   | 28%  |
-| Klann                  | 1.2  | 277% | 309% | 235% | 288% | 294% | 207% | 181% | 273% | 166% | --   |
+| Walker                 | Lift | Flat cm/s | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | Mean, 4 cm feet |
+|------------------------|------|-----------|------|------|------|------|------|------|------|------|------|------|------|
+| Chebyshev-Spears       | 26%  | 7.4  | 102% | 102% | 96%  | 98%  | 99%  | 88%  | 71%  | 91%  | 42%  | 88%  | 83%  |
+| Hoecken                | 17%  | 9.5  | 93%  | 94%  | 92%  | 89%  | 93%  | 72%  | 83%  | 88%  | 25%  | 81%  | 74%  |
+| Hoecken-Spears slider  | 28%  | 6.2  | 102% | 105% | 98%  | 90%  | 100% | 61%  | 80%  | 87%  | 0%   | 80%  | 64%  |
+| Chebyshev-Spears diag  | 24%  | 6.1  | 109% | 112% | 79%  | 97%  | 98%  | 41%  | 88%  | 59%  | 8%   | 77%  | 61%  |
+| Chebyshev diag         | 14%  | 8.2  | 95%  | 103% | 98%  | 84%  | 85%  | 50%  | 72%  | 38%  | 13%  | 71%  | 51%  |
+| Hoecken slider         | 21%  | 9.7  | 84%  | 87%  | 78%  | 83%  | 73%  | 59%  | 72%  | 67%  | 14%  | 69%  | 57%  |
+| Jansen                 | 28%  | 7.1  | 112% | 88%  | 58%  | 76%  | 85%  | 22%  | 61%  | 72%  | 11%  | 65%  | 60%  |
+| Chebyshev              | 16%  | 10.2 | 84%  | 85%  | 72%  | 74%  | 78%  | 37%  | 61%  | 69%  | 4%   | 63%  | 51%  |
+| Spears 4-bar           | 28%  | 15.0 | 56%  | 51%  | 35%  | 53%  | 41%  | 14%  | 46%  | 33%  | 6%   | 37%  | 38%  |
+| Spears 2-leg balanced  | 32%  | 12.1 | 62%  | 60%  | 62%  | 39%  | 40%  | 28%  | 8%   | 12%  | 6%   | 35%  | 40%  |
+| Spears 2-leg           | 32%  | 11.5 | 38%  | 38%  | 55%  | 20%  | 30%  | 21%  | 22%  | 22%  | 19%  | 30%  | --   |
+| Klann                  | 44%  | 2.1  | 93%  | 68%  | 27%  | 116% | 53%  | 10%  | 136% | 65%  | 19%  | 65%  | --   |
 
-Things in these numbers that aren't the linkage:
+The cleanest comparisons are the three pairs where the Spears version is
+the same mechanism with more lift, on the same chassis, feet and crank
+speed:
 
-- Klann's legs drift out of their designed timing within half a minute
-  (each crank has its own motor and nothing keeps them in step); on flat
-  ground it then walks back and forth and gets almost nowhere, which
-  makes its shares meaningless. The Spears 4-bar's legs drift into step
-  with each other over a minute or two, and it slows. Other walkers with
-  separately driven cranks drift too, more slowly.
-- The 2-leg Spears fell over (and was stood up again) 40 times in its 40
-  runs; the balanced one in 16 of its 40.
-- Negative shares are walkers that ended up going backwards
-  (Hoecken-Spears slider on 6 cm bumps).
-- The long bumps (22 cm, a stride and a half) are the hardest when they
-  are high: 6 cm bumps that long are steep hills to climb. Shorter bumps
-  are as steep but only part of a stride long.
+| Pair (lift)                                     | 8 cm feet  | 4 cm feet  |
+|-------------------------------------------------|------------|------------|
+| Chebyshev (16%) -> Chebyshev-Spears (26%)       | 63% -> 88% | 51% -> 83% |
+| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 71% -> 77% | 51% -> 61% |
+| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 69% -> 80% | 57% -> 64% |
+
+In all three, on both foot sizes, the version with more lift keeps more of
+its speed on bumps. Across all twelve, lift isn't the whole story:
+
+- Hoecken, with little lift, does nearly as well as the best.
+- The Spears 4-bar is the fastest walker on flat ground but keeps little
+  of it on bumps (on bumps it goes about as fast as the others, 5.6 cm/s).
+- The 2-leg Spears fall over often (37 and 31 times in 40 runs), and
+  depend more than the others on long feet.
+- Klann gets almost nowhere even on flat ground (2 cm/s, against 8-15
+  for the others), with its cranks in step, so its shares mean little.
+  Something else about its build is wrong.
+- Long, high bumps (22 cm long, 6 cm high: steep hills) stop nearly
+  everyone.
+
+Four starts per condition is few: differences of a few points mean
+little.
 
 ## Keys
 
@@ -197,4 +219,7 @@ the room: `STRIDE` (cm, 15), `CRANK` (crank speed, rad/s, 2.6),
 `../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm;
 by default it follows the bump length), `AMP`
 (starting bump height, cm, 1), `SEED` (starting headings and turns, 1),
-`ONLY` (build just the walker of that name).
+`ONLY` (build just the walker of that name), `FOOT_LENGTH`, `FOOT_WIDTH`,
+`FOOT_THICK` (cm: 8, 12, 0.5) and `FOOT_MASS` (1.5), `SAME_FEET` (false:
+each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
+run free, as in the standalone files).

@@ -11,7 +11,7 @@
 BPP=${1:-bpp}
 JOBS=${JOBS:-2}
 cd "$(dirname "$0")"
-OUT=test-track-results.txt
+OUT=${OUT:-test-track-results.txt}
 : > "$OUT"
 
 WALKERS=("Jansen" "Klann" "Chebyshev" "Chebyshev diag" "Chebyshev-Spears"
@@ -23,12 +23,12 @@ for h in 2 4 6; do for l in 11 15 22; do CONDITIONS+=("$h $l"); done; done
 run() {   # walker height length seed
   local f
   f=$(mktemp ./_track_XXXXXX.lua)
-  printf 'ONLY="%s"; AMP=%s; BUMP=%s; SEED=%s\ndofile("test-track.lua")\n' "$1" "$2" "$3" "$4" > "$f"
+  printf 'ONLY="%s"; AMP=%s; BUMP=%s; SEED=%s; '"$EXTRA"'\ndofile("test-track.lua")\n' "$1" "$2" "$3" "$4" > "$f"
   QT_QPA_PLATFORM=offscreen "$BPP" -f "$(basename "$f")" -n 3700 2>&1 | grep "^TRACK "
   rm -f "$f"
 }
 export -f run
-export BPP
+export BPP EXTRA
 
 for w in "${WALKERS[@]}"; do
   for c in "${CONDITIONS[@]}"; do

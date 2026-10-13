@@ -129,6 +129,12 @@
 
 local M = {}
 
+-- (the room, ../WalkerRoom/: it sets M.onMotor to be told of each crank
+-- motor, to keep the cranks in step)
+local function reportMotor(hinge, speed, impulse)
+  if M.onMotor then M.onMotor(hinge, speed, impulse) end
+end
+
 local add, addConstraint   -- set by M.build from its caller's opts
 local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
@@ -427,6 +433,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local pivotCrank_O2 = btVector3(-a_len/2, 0, z_ground_l - z_crank_l)
   local hingeO2 = btHingeConstraint(cube.body, crank.body, pivotCube_O2, pivotCrank_O2, axis, axis)
   hingeO2:enableAngularMotor(true, speed, math.abs(speed) * MOTOR_TORQUE_RATIO * S * S * IMPULSE_SCALE)
+  reportMotor(hingeO2, speed, math.abs(speed) * MOTOR_TORQUE_RATIO * S * S * IMPULSE_SCALE)
   stiffen(hingeO2)
   addConstraint(hingeO2)
 
@@ -694,8 +701,13 @@ local function buildFoot(lk, color)
   local foot_z_len = math.abs(foot_outer_z - foot_inner_z)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
   local foot_x, foot_y = 2.0 * S, 0.3 * S      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
+  if opts.foot then   -- (the room: every walker's feet the same size, cm --
+    -- length along the walk, width across, thickness; the outer edge stays put)
+    foot_x, foot_y, foot_z_len = opts.foot.length, opts.foot.thick, opts.foot.width
+    foot_center_z = foot_outer_z - dir * foot_z_len / 2
+  end
 
-  local foot = Cube(foot_x, foot_y, foot_z_len, 1.2)   -- heavier than before (was 0.5)
+  local foot = Cube(foot_x, foot_y, foot_z_len, opts.foot and opts.foot.mass or 1.2)   -- heavier than before (was 0.5)
   foot.col = color
   foot.trans = btTransform(IDENTITY_QUAT, btVector3(C.x, C.y, foot_center_z))
   foot.friction = 0.8 -- 0.9 -- This gave straighest motion. WMS

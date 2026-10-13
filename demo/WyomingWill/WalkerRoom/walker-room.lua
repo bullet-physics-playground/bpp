@@ -6,11 +6,12 @@
 -- walker, O looks over the room, T clears the trails (README.md).
 --
 -- Each walker is built by its own ../Walkers_For_Room/<name>_parts.lua --
--- a copy of the build its standalone file uses, with one option added
+-- a copy of the build its standalone file uses, with a few options added
 -- (see that folder's README) -- at a scale that makes its stride
 -- (the length of its foot's path) STRIDE cm, under the same gravity as
 -- every other walker (GRAVITY), with its motors made stronger or weaker
--- to match, and with every crank turning at the same speed (CRANK). A
+-- to match, on the same feet (FOOT_LENGTH ...), with its cranks kept in
+-- step (LOCK_CRANKS) and every crank turning at the same speed (CRANK). A
 -- bump is then the same obstacle to every walker's step, each walker's
 -- foot lifts as high, for its stride, as its linkage lifts it. (Their
 -- speeds on flat ground still differ: a foot covers its stride while it
@@ -40,6 +41,15 @@ local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalo
 -- for STRIDE = 15; the chassis values in WALKERS were worked out for these
 local CLEARANCE, BASE, WIDTH = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
 local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
+-- LOCK_CRANKS (default on): a walker's cranks are kept in step, at the
+-- timing they were built with, as if one motor drove them all through
+-- gears (see lockCranks)
+LOCK_CRANKS = (LOCK_CRANKS ~= false)
+-- every walker's feet: the same flat box, FOOT_LENGTH (along the walk) x
+-- FOOT_WIDTH (across) x FOOT_THICK cm, weighing FOOT_MASS (SAME_FEET =
+-- false: each keeps its own file's feet, and Jansen and Klann none)
+SAME_FEET = (SAME_FEET ~= false)
+local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
 local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
 local ARENA_Z = ARENA_Z or ARENA
@@ -332,6 +342,7 @@ local function addWalker(spec, x, z, heading)
   -- tests, overrides it
   for k, val in pairs(spec.chassis or {}) do opts[k] = val end
   for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
+  if SAME_FEET then opts.foot = FOOT end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK
   for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do
@@ -360,7 +371,13 @@ local function addWalker(spec, x, z, heading)
   w.gravityFactor = GRAVITY / (9.8 * scale)
   opts.impulseScale = FIXED / spec.fixed * w.gravityFactor
   opts[spec.lift] = AMP                  -- the room's bumps reach AMP above 0
+  -- its crank motors, as its build makes them (for lockCranks)
+  w.motors = {}
+  W.onMotor = function(h, speed, impulse)
+    w.motors[#w.motors + 1] = { hinge = h, speed = speed, impulse = impulse, sign = (speed < 0) and -1 or 1 }
+  end
   local built = W.build(opts)
+  for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0 end
   if spec.solverIterations then
     for _, con in ipairs(w.constraints) do con:setOverrideNumSolverIterations(spec.solverIterations) end
   end
@@ -798,9 +815,43 @@ v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is 
 v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
 buildRoom()
 
+-- ---------------------------------------------------------------------
+-- keeping a walker's cranks in step. Each crank has its own motor in most
+-- builds, and nothing else keeps them in step: over a minute or two their
+-- legs drift out of the timing they were built with (Klann's within half
+-- a minute, into walking back and forth). Here, every frame, each motor's
+-- speed is nudged by how far its crank has got ahead of or behind the
+-- average of the walker's cranks (since it was built): LOCK_GAIN rad/s
+-- for each radian, up to LOCK_MAX rad/s. Their average still turns as the
+-- load lets it, at up to CRANK; only their timing is held, as a gear
+-- train from one motor would hold it. (The 2-leg Spears' legs share one
+-- crank, so there is nothing to hold.)
+-- ---------------------------------------------------------------------
+
+local LOCK_GAIN, LOCK_MAX = 4, 1.5
+
+local function lockCranks(w)
+  local n = #w.motors
+  if n < 2 then return end
+  local sum = 0
+  for _, m in ipairs(w.motors) do
+    local a = m.hinge:getHingeAngle()
+    local d = a - m.last
+    if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
+    m.turned, m.last = m.turned + d * m.sign, a
+    sum = sum + m.turned
+  end
+  local mean = sum / n
+  for _, m in ipairs(w.motors) do
+    local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
+    m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, m.impulse)
+  end
+end
+
 v:preSim(function(N)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
+    if LOCK_CRANKS then lockCranks(w) end
     if TURN_TEST then
       -- (a test: every walker turns 90 degrees to the left every 10 s)
       if not w.turnLeft and simTime >= (w.nextTest or 10) then

@@ -4,7 +4,7 @@ Copies of `../Walkers/<name>_parts.lua`, built by `../WalkerRoom/walker-room.lua
 The walkers in `../Walkers/` are left as they are; changes made only so the
 room can compare linkages fairly go here.
 
-The one change: `M.build` takes an option `bodyRaise` (default 0, the
+Three changes. First, `M.build` takes an option `bodyRaise` (default 0, the
 walker's own units) that raises its body that much further above its feet
 without changing its foot path, so every walker in the room can be given
 the same body clearance.
@@ -17,4 +17,17 @@ the same body clearance.
 
 Where a crossbar, a brace or the floor height (`FLOOR_TOP_Y`) depended on the
 pendant's length, it follows it. With `bodyRaise` 0 every build is the same as
-in `../Walkers/`. The 2-leg Spears builds are unchanged copies.
+in `../Walkers/`. (The 2-leg Spears builds don't take it.)
+
+Second, an option `foot = { length, width, thick, mass }` replaces every
+foot with the same flat box: `length` along the walk, `width` across,
+`thick` its thickness (all in cm, the room's units) and `mass`. Each foot
+keeps its outer edge where it was. Jansen and Klann, whose files have a
+foot builder but don't call it (their legs stand on the corner of a
+link), get a pad of that size at the foot point, reaching outward from
+the leg's outermost plane. Without `foot`, every build keeps its own
+feet, and Jansen and Klann none.
+
+Third, each build tells the room about its crank motors: if `M.onMotor` is
+set, it is called with each motor's hinge, speed and impulse limit, so the
+room can keep the cranks in step. Unset, nothing changes.

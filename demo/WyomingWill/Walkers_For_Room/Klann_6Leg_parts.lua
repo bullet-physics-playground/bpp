@@ -119,6 +119,12 @@
 
 local M = {}
 
+-- (the room, ../WalkerRoom/: it sets M.onMotor to be told of each crank
+-- motor, to keep the cranks in step)
+local function reportMotor(hinge, speed, impulse)
+  if M.onMotor then M.onMotor(hinge, speed, impulse) end
+end
+
 local add, addConstraint   -- set by M.build from its caller's opts
 local S = 1                -- the scale (opts.scale): every length is multiplied by it
 
@@ -360,6 +366,7 @@ local function hinge(bodyA, bodyB, pivotA, pivotB, motorSpeed, motorImpulse)
   h:setParam(3, HINGE_CFM, -1)   -- BT_CONSTRAINT_CFM, scoped to just this hinge -- see the HINGE_CFM note above
   if motorSpeed ~= nil then
     h:enableAngularMotor(true, motorSpeed, motorImpulse)
+    reportMotor(h, motorSpeed, motorImpulse)
   end
   addConstraint(h)
   return h
@@ -589,20 +596,31 @@ local function buildFoot(lk, color)
   local F = lk.F
   local z = lk.z_foot
   local foot_x, foot_y, foot_z = 9.0 * S, 1.4 * S, 8.0 * S
+  local foot_mass = 1.5
+  if opts.foot then   -- (the room: every walker's feet the same size, cm --
+    -- length along the walk, width across, thickness. Its inner edge is
+    -- at the inner face of the foot's own plane, so it reaches outward,
+    -- away from the leg's other planes, as the other walkers' feet do)
+    foot_x, foot_y, foot_z = opts.foot.length, opts.foot.thick, opts.foot.width
+    foot_mass = opts.foot.mass
+    local dir = (z >= 0) and 1 or -1
+    z = z - dir * ROD_D * S / 2 + dir * foot_z / 2
+  end
+  local frameZ = lk.z_foot - z   -- the foot point, in the foot's own frame
 
-  local foot = Cube(foot_x, foot_y, foot_z, 1.5)
+  local foot = Cube(foot_x, foot_y, foot_z, foot_mass)
   foot.col = color
   foot.trans = btTransform(IDENTITY_QUAT, btVector3(F.x, F.y, z))
   foot.friction = 0.9
-  v:add(foot)
+  add(foot)
 
   local rod_quat = lk.footRod.trans:getRotation()
-  local frameInFoot = btTransform(rod_quat, btVector3(0, 0, 0))
+  local frameInFoot = btTransform(rod_quat, btVector3(0, 0, frameZ))
   local frameInRod  = btTransform(IDENTITY_QUAT, lk.footPivot)   -- triB's real local P33 pivot, not a length-based offset
   local weld = btSliderConstraint(foot.body, lk.footRod.body, frameInFoot, frameInRod, true)
   weld:setLowerLinLimit(0)   -- btSliderConstraint defaults to FREE translation
   weld:setUpperLinLimit(0)   -- unless locked -- these two calls make it a weld
-  v:addConstraint(weld)
+  addConstraint(weld)
 
   return foot
 end
@@ -683,6 +701,10 @@ for row = 0, NUM_ROWS - 1 do
 
   -- feet stay removed (buildFoot() calls commented out before this file
   -- was even handed over -- left as-is, not requested to change)
+  if opts.foot then   -- (the room: feet, all the same size)
+    buildFoot(legFront, "yellow")
+    buildFoot(legBack, "blue")
+  end
 end
 
 return { cube = cube, legs = legs }
