@@ -458,6 +458,14 @@ void luaBindBulletPart3(lua_State *s) {
 
   // BULLET CONSTRAINT CLASSES
 
+  // setOverrideNumSolverIterations(n): solve this one constraint with n
+  // solver iterations instead of the world's (v:setSolverIterations);
+  // -1 goes back to the world's. Lets one mechanism get the stiffer
+  // solving it was tuned with without slowing every other one.
   module(s)[class_<btTypedConstraint>("btTypedConstraint")
+                .def("setOverrideNumSolverIterations",
+                     &btTypedConstraint::setOverrideNumSolverIterations)
+                .def("getOverrideNumSolverIterations",
+                     &btTypedConstraint::getOverrideNumSolverIterations)
                 .def(tostring(const_self))
                 .def(const_self == const_self)];}
