@@ -59,7 +59,7 @@ The four-bar walkers are all descended from Chebyshev's Plantigrade Machine of t
 
 ## Walker room
 
-*   `WalkerRoom/walker-room.lua`: All twelve walkers above on one meadow in a walled 10 m arena, each scaled to the same leg length (crank axles 12 cm above the ground, with its gravity scaled to match) and with its crank speed set so all walk at the same pace on flat ground, and built by the same `Walkers/<name>_parts.lua` its standalone file uses. Walkers turn smoothly away from walls and from each other; one that falls is stood up again. The `TerrainHeight` slider raises the bumps until some walkers can't cover ground. **Tab**/**Shift+Tab** follow a walker, **O** looks over the room, **T** clears the trails; rest the pointer on a walker or trail to see whose it is and how far it has gone. See `WalkerRoom/README.md`.
+*   `WalkerRoom/walker-room.lua`: All twelve walkers above on one meadow in a walled 10 m arena, each scaled to the same leg length (crank axles 12 cm above the ground), all under the same gravity, with each one's crank speed set so all walk at the same pace on flat ground, and built by the same `Walkers/<name>_parts.lua` its standalone file uses. Walkers turn smoothly away from walls and from each other; one that falls is stood up again. The `TerrainHeight` slider raises the bumps until some walkers can't cover ground. **Tab**/**Shift+Tab** follow a walker, **O** looks over the room, **T** clears the trails; rest the pointer on a walker or trail to see whose it is and how far it has gone. See `WalkerRoom/README.md`.
 
 ## Euler's Cabinet of Curiosities
 

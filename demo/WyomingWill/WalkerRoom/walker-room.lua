@@ -7,10 +7,11 @@
 --
 -- Each walker is built by its own ../Walkers/<name>_parts.lua -- the
 -- same code its standalone file uses -- at a scale that puts its crank
--- axles 12 cm above the ground (LEG), with its own gravity scaled to
--- match, so it moves as it does full size. Each crank turns at the speed
--- that walks its walker at 6 cm/s on flat ground (see `crank` below). All of them share one world, one terrain and one
--- physics step.
+-- axles 12 cm above the ground (LEG), under the same gravity as every
+-- other walker (GRAVITY), with its motors made stronger or weaker to
+-- match. Each crank turns at the speed that walks its walker at 6 cm/s
+-- on flat ground (see `crank` below). All of them share one world, one
+-- terrain and one physics step.
 --
 -- Units: centimetres and seconds.
 --
@@ -27,6 +28,7 @@ local WALKERS_DIR = WALKERS_DIR or "../Walkers/"
 -- ---------------------------------------------------------------------
 
 local LEG = LEG or 12       -- every walker's leg: its crank axles' height above the ground, cm
+local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0
 local CELL = CELL or 4      -- terrain cell, cm
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
@@ -136,8 +138,9 @@ end
 -- the walkers
 --
 -- leg: how high its crank axles ride above the ground, walking on flat
---   ground at full size at its own standalone crank speed (measured: the
---   mean height of its cranks' centres over many turns). The scale is LEG / leg, so every walker
+--   ground at its own standalone crank speed under the room's GRAVITY
+--   (measured: the mean height of its cranks' centres over many turns,
+--   divided by its scale). The scale is LEG / leg, so every walker
 --   has the same leg length -- a bump is the same obstacle to all.
 -- fixed: its own physics step; the room steps at FIXED, so its motors'
 --   impulse (applied once per step) is scaled by FIXED / fixed
@@ -152,46 +155,50 @@ end
 --   choosing a speed whose neighbours give about the same pace. Every
 --   walker then keeps about the same pace on flat ground, and any that
 --   falls behind as the bumps rise is losing to the bumps. (Pace doesn't
---   rise smoothly with crank speed for all of them -- some stumble or
---   hop at some speeds -- which is why these are measured, not worked
---   out. The 2-leg Spears tips over on flat ground between 2.5 and 3.4
---   rad/s, so it runs just below, at about 5.6 cm/s.) Two can't reach
---   6 cm/s walking forwards: faster than 3.5 rad/s, Chebyshev spends
---   more of its time sliding backwards, and faster than 3.25 Chebyshev
---   diag walks backwards outright. They run at their best forward
---   speeds, about 4 and 3 cm/s.
+--   rise smoothly with crank speed for all of them -- some stumble,
+--   hop or walk backwards at some speeds -- which is why these are
+--   measured, not worked out, and were measured again under GRAVITY.)
+--   Two can't reach 6 cm/s walking forwards: Chebyshev diag walks
+--   forwards steadily only near its own 3.0 rad/s (about 2.5 cm/s), and
+--   Jansen jumps from about 5 to about 9 cm/s between 3.25 and 3.35
+--   rad/s, so it runs on the steady side (about 5).
 -- opts: its standalone file's slider defaults (its crank speed, though,
 --   is set by `crank` above: see addWalker)
+-- solverIterations: its joints are solved with this many solver
+--   iterations instead of the world's 10, as its standalone file does for
+--   the whole world (v:setSolverIterations(40) -- its notes: at 10 its
+--   rocking roughly doubles). Here it is set on its own joints only, so
+--   the others keep the 10 their own files use.
 -- railed: its body is held to move only along its own heading (the
 --   balanced Spears' fix for a sideways drift); it turns only in right
 --   angles, and the hold is put back along its new heading after each
 -- ---------------------------------------------------------------------
 
 local WALKERS = {
-  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", leg = 92.175, crank = 2.10, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", leg = 87.174, crank = 3.05, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5 } },
-  { name = "Klann", parts = "Klann_6Leg_parts.lua", leg = 62.299, crank = 3.70, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", parts = "Klann_6Leg_parts.lua", leg = 53.167, crank = 3.75, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5 } },
-  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", leg = 6.297, crank = 3.50, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", leg = 6.223, crank = 4.60, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", leg = 6.745, crank = 3.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", leg = 6.711, crank = 3.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", leg = 3.891, crank = 0.93, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", leg = 4.018, crank = 1.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", leg = 5.302, crank = 1.20, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", leg = 5.320, crank = 1.28, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", leg = 5.235, crank = 2.00, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", leg = 5.226, crank = 1.93, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", leg = 5.327, crank = 1.40, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", leg = 5.425, crank = 1.40, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", leg = 7.032, crank = 2.50, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", leg = 6.153, crank = 2.62, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", leg = 10.587, crank = 1.75, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", leg = 10.569, crank = 2.40, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
-  { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", leg = 13.789, crank = 2.40, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", leg = 15.087, crank = 2.75, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
-  { name = "Spears 2-leg balanced", parts = "Spears_4Bar_2Leg_Balanced_parts.lua", leg = 12.688, crank = 3.25, fixed = 1 / 960, lift = "terrainLift", forward = -1,
-    opts = { cube_d = 20, cubeMass = 65, speed = 3.8, barLen = 13, tipMass = 70 }, railed = true },
+  { name = "Spears 2-leg balanced", parts = "Spears_4Bar_2Leg_Balanced_parts.lua", leg = 10.880, crank = 3.15, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+    opts = { cube_d = 20, cubeMass = 65, speed = 3.8, barLen = 13, tipMass = 70 }, railed = true, solverIterations = 40 },
 }
 
 -- ---------------------------------------------------------------------
@@ -295,9 +302,22 @@ local function addWalker(spec, x, z, heading)
     roomConstraints[#roomConstraints + 1] = con
   end
   opts.scale = scale
-  opts.impulseScale = FIXED / spec.fixed
+  -- gravity: the same for every walker. Each standalone file uses 9.8
+  -- units/s^2, but the walkers are built at very different sizes in
+  -- those units (hips from about 4 units high to about 92), so scaling
+  -- each one's gravity with it left them under gravities from 1.3 cm/s^2
+  -- (Jansen) to 30 (Chebyshev-Spears) -- Klann, at 1.9, floated off the
+  -- ground for seconds at a time. GRAVITY is about the middle of that
+  -- range, so most walkers change little. Its motors are made stronger
+  -- (or weaker) by the same factor, so each can still lift itself as on
+  -- its own.
+  w.gravityFactor = GRAVITY / (9.8 * scale)
+  opts.impulseScale = FIXED / spec.fixed * w.gravityFactor
   opts[spec.lift] = AMP                  -- the room's bumps reach AMP above 0
   local built = W.build(opts)
+  if spec.solverIterations then
+    for _, con in ipairs(w.constraints) do con:setOverrideNumSolverIterations(spec.solverIterations) end
+  end
   w.cube = built.cube
   w.parts = built
   -- its radius: half the diagonal of its moving bodies' footprint (from
@@ -311,9 +331,9 @@ local function addWalker(spec, x, z, heading)
     end
   end
   w.radius = 0.5 * math.sqrt((x1 - x0) ^ 2 + (z1 - z0) ^ 2)
-  -- its own gravity, scaled with it, on its moving bodies only
+  -- its gravity, on its moving bodies only
   for _, o in ipairs(w.bodies) do
-    if o.mass > 0 then o.body:setGravity(btVector3(0, -9.8 * scale, 0)) end
+    if o.mass > 0 then o.body:setGravity(btVector3(0, -GRAVITY, 0)) end
   end
   -- its floor (FLOOR_TOP_Y, its own units) onto the room's (0), then to
   -- its spot, turned to its heading (0: walking along +x)
