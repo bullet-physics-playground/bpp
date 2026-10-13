@@ -168,6 +168,39 @@ its speed on bumps. Across all twelve, lift isn't the whole story:
 Four starts per condition is few: differences of a few points mean
 little.
 
+### Hinged feet (ANKLES)
+
+The 2-leg Spears' own files hinge each foot to its leg about the
+side-to-side axis, like an ankle (up to 90 degrees either way, damped), so
+it can tip to lie flat on the ground; every other walker's feet are
+welded to its legs. `ANKLES = true` gives every walker those ankles. On
+8 cm feet, share of flat-ground speed kept (mean over the 9 bump
+conditions, 4 starts each):
+
+| Walker                 | Welded | Ankles | On bumps, cm/s (welded -> ankles) |
+|------------------------|--------|--------|-----------------------------------|
+| Chebyshev-Spears       | 88%    | 86%    | 6.5 -> 6.3 |
+| Jansen                 | 65%    | 81%    | 4.6 -> 6.4 |
+| Hoecken                | 81%    | 79%    | 7.7 -> 7.5 |
+| Hoecken-Spears slider  | 80%    | 74%    | 5.0 -> 4.7 |
+| Klann                  | 65%    | 72%    | 1.4 -> 2.5 |
+| Spears 4-bar           | 37%    | 68%    | 5.6 -> 7.6 |
+| Chebyshev-Spears diag  | 77%    | 62%    | 4.7 -> 4.5 |
+| Chebyshev              | 63%    | 60%    | 6.4 -> 6.1 |
+| Hoecken slider         | 69%    | 56%    | 6.6 -> 5.7 |
+| Chebyshev diag         | 71%    | 50%    | 5.8 -> 4.7 |
+
+Ankles help the walkers whose feet hang from a link that turns a lot
+during a step -- the Spears 4-bar's leg-arm, Jansen's and Klann's
+triangles -- whose welded feet meet the ground tilted; the Spears 4-bar
+becomes the fastest walker on bumps. They do nothing for, or hurt, the
+walkers whose feet hang from a pendant, which stays nearly upright, so
+their welded feet already land flat. In the three Spears / non-Spears
+pairs, the version with more lift still keeps more of its speed with
+ankles: Chebyshev 60% -> Chebyshev-Spears 86%, Chebyshev diag 50% ->
+Chebyshev-Spears diag 62%, Hoecken slider 56% -> Hoecken-Spears slider
+74%.
+
 ## Keys
 
 Click the 3D view first so it has keyboard focus.
@@ -222,4 +255,5 @@ by default it follows the bump length), `AMP`
 `ONLY` (build just the walker of that name), `FOOT_LENGTH`, `FOOT_WIDTH`,
 `FOOT_THICK` (cm: 8, 12, 0.5) and `FOOT_MASS` (1.5), `SAME_FEET` (false:
 each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
-run free, as in the standalone files).
+run free, as in the standalone files), `ANKLES` (true: every walker's
+feet hinged like ankles; Walker Room1 has them welded).

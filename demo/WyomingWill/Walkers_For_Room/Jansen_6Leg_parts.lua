@@ -554,7 +554,17 @@ local function buildFoot(lk, color)
   local weld = btSliderConstraint(foot.body, lk.footRod.body, frameInFoot, frameInRod, true)
   weld:setLowerLinLimit(0)   -- btSliderConstraint defaults to FREE translation
   weld:setUpperLinLimit(0)   -- unless locked -- these two calls make it a weld
-  addConstraint(weld)
+  if opts.ankle then
+    -- (the room: the foot hinged to the leg about z, like an ankle, instead
+    -- of welded -- as the 2-leg Spears' own files do: limited to +-90
+    -- degrees, the foot's turning damped)
+    local ankle = btHingeConstraint(foot.body, lk.footRod.body, btVector3(0, 0, frameZ), lk.footPivot, btVector3(0, 0, 1), btVector3(0, 0, 1))
+    ankle:setLimit(math.rad(-90), math.rad(90), 0.9, 0.3, 0.7)
+    foot.body:setDamping(0.1, 1.0)
+    addConstraint(ankle)
+  else
+    addConstraint(weld)
+  end
 
   return foot
 end

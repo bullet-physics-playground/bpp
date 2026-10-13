@@ -49,6 +49,10 @@ LOCK_CRANKS = (LOCK_CRANKS ~= false)
 -- FOOT_WIDTH (across) x FOOT_THICK cm, weighing FOOT_MASS (SAME_FEET =
 -- false: each keeps its own file's feet, and Jansen and Klann none)
 SAME_FEET = (SAME_FEET ~= false)
+-- ANKLES = true: every walker's feet hinged to its legs about the
+-- side-to-side axis, like ankles (as the 2-leg Spears' own files have
+-- them), instead of welded (Walker Room1: welded)
+ANKLES = ANKLES or false
 local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
 local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
@@ -343,6 +347,7 @@ local function addWalker(spec, x, z, heading)
   for k, val in pairs(spec.chassis or {}) do opts[k] = val end
   for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
   if SAME_FEET then opts.foot = FOOT end
+  opts.ankle = ANKLES
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK
   for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do

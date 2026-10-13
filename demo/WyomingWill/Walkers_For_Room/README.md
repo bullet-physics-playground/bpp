@@ -4,7 +4,7 @@ Copies of `../Walkers/<name>_parts.lua`, built by `../WalkerRoom/walker-room.lua
 The walkers in `../Walkers/` are left as they are; changes made only so the
 room can compare linkages fairly go here.
 
-Three changes. First, `M.build` takes an option `bodyRaise` (default 0, the
+Four changes. First, `M.build` takes an option `bodyRaise` (default 0, the
 walker's own units) that raises its body that much further above its feet
 without changing its foot path, so every walker in the room can be given
 the same body clearance.
@@ -31,3 +31,8 @@ feet, and Jansen and Klann none.
 Third, each build tells the room about its crank motors: if `M.onMotor` is
 set, it is called with each motor's hinge, speed and impulse limit, so the
 room can keep the cranks in step. Unset, nothing changes.
+
+Fourth, an option `ankle` (true) hinges each foot to its leg about the
+side-to-side axis instead of welding it -- the joint the 2-leg Spears'
+own files use (limited to 90 degrees either way, the foot's turning
+damped). The 2-leg Spears builds always have it.
