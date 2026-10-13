@@ -49,29 +49,30 @@ The balanced 2-leg Spears' joints are solved with 40 solver iterations,
 as its own file does (its notes: at Bullet's default 10 its rocking
 roughly doubles); the others keep the default 10 their files use.
 
-Speed over 3 minutes in the full room (cm/s, horizontal, along its
-path; one run each, so a few tenths either way mean little):
+Progress in the full room over 3 minutes (cm/s, measured in 5 s steps,
+so rocking in place doesn't count as getting anywhere; one run each,
+with avoidance turns, so a few tenths either way mean little), on flat
+ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 
-| Walker                 | Flat | 1 cm | 2 cm | 3 cm | 4 cm | 6 cm | 8 cm |
-|------------------------|------|------|------|------|------|------|------|
-| Chebyshev              | 6.9  | 7.3  | 6.3  | 6.1  | 6.4  | 6.9  | 6.5  |
-| Chebyshev diag         | 5.7  | 6.8  | 6.9  | 5.7  | 5.4  | 5.3  | 5.7  |
-| Chebyshev-Spears       | 6.6  | 6.2  | 6.9  | 6.8  | 6.8  | 6.1  | 6.6  |
-| Chebyshev-Spears diag  | 4.5  | 3.8  | 3.6  | 3.5  | 4.4  | 5.0  | 6.2  |
-| Hoecken                | 8.2  | 8.1  | 7.8  | 7.5  | 7.7  | 8.3  | 8.2  |
-| Hoecken slider         | 7.2  | 6.6  | 6.6  | 6.2  | 6.5  | 7.1  | 8.4  |
-| Hoecken-Spears slider  | 6.0  | 6.0  | 5.9  | 5.8  | 5.7  | 6.4  | 6.4  |
-| Spears 4-bar           | 9.1  | 6.7  | 6.6  | 6.2  | 7.5  | 8.4  | 8.2  |
-| Jansen                 | 11.8 | 9.3  | 8.4  | 7.1  | 1.7  | 5.0  | 5.3  |
-| Klann                  | 3.6  | 3.6  | 4.6  | 4.9  | 3.4  | 4.7  | 4.0  |
-| Spears 2-leg           | 10.8 | 11.3 | 10.7 | 10.4 | 8.5  | 5.5  | 8.5  |
-| Spears 2-leg balanced  | 9.9  | 9.8  | 8.9  | 6.8  | 5.1  | 0.9  | 0.3  |
+| Walker                 | Flat | Short bumps | Kept |
+|------------------------|------|-------------|------|
+| Chebyshev diag         | 4.66 | 5.21        | 112% |
+| Chebyshev-Spears       | 6.03 | 6.29        | 104% |
+| Spears 2-leg           | 10.08| 9.80        | 97%  |
+| Hoecken-Spears slider  | 5.60 | 5.19        | 93%  |
+| Chebyshev              | 5.95 | 5.25        | 88%  |
+| Hoecken slider         | 6.36 | 4.83        | 76%  |
+| Chebyshev-Spears diag  | 4.73 | 3.07        | 65%  |
+| Spears 2-leg balanced  | 9.58 | 6.13        | 64%  |
+| Klann                  | 2.02 | 1.28        | 63%  |
+| Hoecken                | 6.79 | 3.96        | 58%  |
+| Jansen                 | 10.04| 5.52        | 55%  |
+| Spears 4-bar           | 8.03 | 3.35        | 42%  |
 
-With the same stride and chassis, the eight four-legged walkers all keep
-most of their flat-ground speed even on 8 cm bumps: the bumps are smooth
-rolling hills 18 to 33 cm long (a stride or two), which they walk up and
-down rather than having to step over. These bumps don't separate the
-linkages. Some of the rest isn't the bumps:
+On the default bumps (22 cm long, a stride and a half) the walkers keep
+most of their speed even 8 cm high: those are rolling hills they walk up
+and down. Shorter bumps are obstacles a foot has to get over within a
+step. Some of the rest isn't the bumps:
 
 - Klann is slow on flat ground too: part of the time it is moving
   backwards.
@@ -87,12 +88,16 @@ linkages. Some of the rest isn't the bumps:
   flat ground (its own file's design). On bigger bumps it comes to rest
   on one, and its motor can't drag it off.
 
-When a walker comes within 40 cm of a wall, or of another walker ahead
-of it, it turns smoothly (over a second) to a new heading pointing away
-from what is near. The balanced 2-leg Spears is held to move only along
-its heading, so it turns only in right angles. A walker
-that falls over and stays down for 2 seconds is stood up again, facing
-the way it was facing, and carries on.
+When a walker comes within 40 cm of a wall or of another walker ahead
+of it, or another walker's path and its own would bring them within
+20 cm in the next 4 seconds (from any side), it turns smoothly (over a
+second) to a new heading pointing away from what is near. It steers by
+the way it actually travels, not the way it faces: some walkers walk
+sideways or backwards part of the time, and each keeps a running
+average of the difference. The balanced 2-leg Spears is held to move
+only along its heading, so it turns only in right angles. A walker that
+falls over and stays down for 2 seconds is stood up again, facing the
+way it was facing, and carries on.
 
 ## Keys
 
@@ -115,6 +120,7 @@ stood up.
 | Slider        | Range     | What it does |
 |---------------|-----------|--------------|
 | TerrainHeight | 0 to 8 cm | How high the bumps are. The room is built again, every walker back at its start, when you let go. |
+| BumpLength    | 11 to 44 cm | How long they are (every stride is 15 cm). The default, 22, gives rolling hills; shorter bumps are obstacles. The room is built again when you let go; short bumps need a finer terrain (four times the triangles at 11 cm), which takes about 5 s to build and is slower to draw. |
 
 The point of the room: raise the bumps until some walkers can't cover
 ground any more.
@@ -140,7 +146,8 @@ ground any more.
 
 A script that sets these globals and then runs `walker-room.lua` changes
 the room: `STRIDE` (cm, 15), `CRANK` (crank speed, rad/s, 2.6),
-`GRAVITY` (cm/s^2, 20), `WALKERS_DIR` (where the builds are,
-`../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm, 4), `AMP`
+`GRAVITY` (cm/s^2, 20), `BUMP` (starting bump length, cm, 22), `WALKERS_DIR` (where the builds are,
+`../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm;
+by default it follows the bump length), `AMP`
 (starting bump height, cm, 1), `SEED` (starting headings and turns, 1),
 `ONLY` (build just the walker of that name).

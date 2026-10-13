@@ -41,7 +41,7 @@ local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalo
 local CLEARANCE, BASE, TRACK = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
 local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0
-local CELL = CELL or 4      -- terrain cell, cm
+local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
 local FRAME = 1 / 60       -- simulated time per drawn frame, s
 
@@ -57,24 +57,41 @@ v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, 
 
 -- ---------------------------------------------------------------------
 -- the terrain: one bumpy meadow for everyone. Its bump height is the
--- TerrainHeight slider; changing it builds the room again (the floor
--- changes shape, and each walker is built to clear the highest bump).
+-- TerrainHeight slider and its bumps' length the BumpLength slider;
+-- changing either builds the room again (the floor changes shape, and
+-- each walker is built to clear the highest bump).
 -- ---------------------------------------------------------------------
 
 local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
 local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
+-- bump length, cm: the middle one of the three sine terms' wavelengths
+-- (the other two are 1.25 and 0.84 times it). At 22 (1.5 strides) the
+-- bumps are rolling hills the walkers walk up and down; shorter ones are
+-- obstacles a foot has to lift over within a step.
+local BUMP = BUMP or 22
+local BUMP_MIN, BUMP_MAX = 11, 44
 
 -- three sine terms as in the walkers' own terrains (amplitudes 0.5, 0.3
--- and 0.2: AMP is the highest a bump can reach), with wavelengths between
--- those of the big walkers' terrains and the small ones', scaled to the room
+-- and 0.2: AMP is the highest a bump can reach), their wavelengths all
+-- scaled by BUMP
 local function terrainHeight(x, z)
-  return AMP * (0.5 * math.sin(x * 0.19 + z * 0.13) +
-                0.3 * math.sin(x * 0.07 - z * 0.28 + 1.7) +
-                0.2 * math.sin(x * 0.34 + z * 0.045 + 4.1))
+  local r = 22 / BUMP
+  return AMP * (0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
+                0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
+                0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1))
 end
 
-local NX = math.floor(ARENA / CELL)
+-- the terrain's cells: about a sixth of the shortest wavelength (4 cm
+-- at BUMP 22), so short bumps stay round. That is (22 / BUMP)^2 times
+-- as many triangles: at BUMP 11, four times as many (500,000), which
+-- takes longer to build and to draw.
+local CELL, NX
 local X0 = -ARENA / 2
+local function setCells()
+  CELL = CELL_SET or math.max(2, math.min(8, BUMP / 5.5))
+  NX = math.floor(ARENA / CELL)
+end
+setCells()
 
 -- everything the room adds, to take it all down again for a rebuild
 local roomObjects, roomConstraints = {}, {}
@@ -115,6 +132,7 @@ end
 local WALL_H, WALL_T = 20, 10
 
 local function buildTerrain()
+  setCells()
   floor = Terrain()
   for i = 0, NX - 1 do
     for j = 0, NX - 1 do
@@ -476,6 +494,21 @@ end
 
 -- how bad heading h would be for walker w at (x, z): the closer what lies
 -- that way, the worse
+-- how close walkers w (at x, z, moving at vx, vz cm/s) and o will come,
+-- edge to edge, over the next PREDICT seconds if both keep their present
+-- velocities (o's from its last half second), and when
+local PREDICT = 4.0
+local function closest(w, x, z, vx, vz, o)
+  local ox, _, oz = getPosXYZ(o.cube)
+  local rx, rz = ox - x, oz - z
+  local ux, uz = (o.vx or 0) - vx, (o.vz or 0) - vz
+  local uu = ux * ux + uz * uz
+  local t = 0
+  if uu > 1e-6 then t = math.max(0, math.min(PREDICT, -(rx * ux + rz * uz) / uu)) end
+  local cx, cz = rx + ux * t, rz + uz * t
+  return math.sqrt(cx * cx + cz * cz) - w.radius - o.radius, t
+end
+
 local function badness(w, x, z, h)
   local fx, fz = math.cos(h), -math.sin(h)
   local bad = 0
@@ -496,6 +529,13 @@ local function badness(w, x, z, h)
       local gap = d - w.radius - o.radius
       if gap < reach and d > 1e-6 and (dx * fx + dz * fz) / d > math.cos(AHEAD) then
         bad = bad + (reach - math.max(gap, 0)) / reach
+      end
+      -- and how close they'd come with w travelling along h at its
+      -- present speed (a crossing path, from any side)
+      if gap < reach and w.vx then
+        local sp = math.max(math.sqrt(w.vx * w.vx + w.vz * w.vz), 1)
+        local g = closest(w, x, z, sp * fx, sp * fz, o)
+        if g < GAP then bad = bad + 2 * (GAP - math.max(g, 0)) / GAP end
       end
     end
   end
@@ -596,9 +636,65 @@ local function standUp(w)
   end
 end
 
+-- the way a walker actually travels, which isn't always the way it
+-- faces: some walk sideways or backwards part of the time (Klann, and
+-- Chebyshev-Spears diag after some turns, among others). Each walker
+-- keeps a running average of the angle between the two (in its own
+-- frame, so it carries over through a turn), updated each half second
+-- it isn't turning, and avoidance steers by facing + that angle: a
+-- walker that travels backwards turns to face what it should get away
+-- from. (A walker that hardly moves, or moves every which way, keeps
+-- steering by the way it faces.)
+local function noteTravel(w, dx, dz)
+  if w.turnLeft or dx * dx + dz * dz < 0.09 then return end   -- (turning, or under 0.3 cm in half a second)
+  local off = angleDiff(math.atan2(-dz, dx), heading(w))
+  local a = 0.2
+  w.offC = (w.offC or 1) * (1 - a) + math.cos(off) * a
+  w.offS = (w.offS or 0) * (1 - a) + math.sin(off) * a
+end
+local function travel(w)
+  local c, s = w.offC or 1, w.offS or 0
+  if c * c + s * s < 0.09 then return heading(w) end       -- (no clear direction yet)
+  return heading(w) + math.atan2(s, c)
+end
+room.travel = travel
+
+-- a near miss: another walker less than GAP / 4 away and closer than it
+-- was half a second ago -- checked even in a walker's calm spell after a
+-- turn, so two walkers can't close in on each other while neither looks
+local function nearMiss(w, x, z)
+  local last = w.track and w.track[#w.track]
+  if not last then return nil end
+  for _, o in ipairs(walkers) do
+    if o ~= w and w.vx then
+      local g, t = closest(w, x, z, w.vx, w.vz, o)
+      if g < GAP / 4 and t > 0 and t < 2 then return o end
+    end
+    if o ~= w and o.track and o.track[#o.track] then
+      local ox, _, oz = getPosXYZ(o.cube)
+      local d = math.sqrt((ox - x) ^ 2 + (oz - z) ^ 2)
+      if d - w.radius - o.radius < GAP / 4 then
+        local ol = o.track[#o.track]
+        local d0 = math.sqrt((ol[1] - last[1]) ^ 2 + (ol[2] - last[2]) ^ 2)
+        if d < d0 - 0.2 then return o end
+      end
+    end
+  end
+end
+
 local function blocked(w, x, z, h)
   local what = blockedAlong(w, x, z, h)
   if what then return what end
+  -- a walker on a crossing path, from any side: both keep their present
+  -- velocities and they'd come within GAP / 2
+  if w.vx then
+    for _, o in ipairs(walkers) do
+      if o ~= w then
+        local g, t = closest(w, x, z, w.vx, w.vz, o)
+        if g < GAP / 2 and t > 0 then return o end
+      end
+    end
+  end
   local old = w.track and w.track[1]
   if old then
     local dx, dz = x - old[1], z - old[2]
@@ -611,6 +707,7 @@ end
 room.turns = {}   -- a log: { time, walker name, what blocked it, turn in degrees }
 local simTime = 0
 local TRACK_EVERY = 30      -- frames between samples of where each walker is (half a second)
+local PROGRESS_EVERY = 300  -- frames between the samples its distance gone is summed over (5 s)
 
 -- ---------------------------------------------------------------------
 -- trails: each walker paints the cell under its body in its own colour
@@ -679,6 +776,7 @@ local function teardownRoom()
 end
 
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
+v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
 buildRoom()
 
 v:preSim(function(N)
@@ -690,10 +788,11 @@ v:preSim(function(N)
         startTurn(w, math.pi / 2)
         w.nextTest = (w.nextTest or 10) + 10
       end
-    elseif not w.turnLeft and simTime >= (w.calmUntil or 0) then
+    elseif not w.turnLeft then
       local x, _, z = getPosXYZ(w.cube)
-      local h = heading(w)
-      local what = blocked(w, x, z, h)
+      local h = travel(w)
+      local what
+      if simTime >= (w.calmUntil or 0) then what = blocked(w, x, z, h) else what = nearMiss(w, x, z) end
       if what then
         local turn = chooseTurn(w, x, z, h)
         startTurn(w, turn)
@@ -702,13 +801,26 @@ v:preSim(function(N)
         w.turns = (w.turns or 0) + 1
       end
     end
-    -- (where it was half a second and a second ago: its actual motion;
-    -- and how far it has gone, in those half-second steps)
+    -- (how far it has gone: in 5 s steps, so rocking in place, back and
+    -- forth within a step, doesn't count as getting anywhere)
+    if N % PROGRESS_EVERY == 0 then
+      local x, _, z = getPosXYZ(w.cube)
+      if w.p5 then
+        w.travelled = w.travelled + math.sqrt((x - w.p5[1]) ^ 2 + (z - w.p5[2]) ^ 2)
+        w.p5[1], w.p5[2] = x, z
+      else
+        w.p5 = { x, z }
+      end
+    end
+    -- (where it was half a second and a second ago: its actual motion)
     if N % TRACK_EVERY == 0 then
       local x, _, z = getPosXYZ(w.cube)
       w.track = w.track or {}
       local last = w.track[#w.track]
-      if last then w.travelled = w.travelled + math.sqrt((x - last[1]) ^ 2 + (z - last[2]) ^ 2) end
+      if last then
+        noteTravel(w, x - last[1], z - last[2])
+        w.vx, w.vz = (x - last[1]) / (TRACK_EVERY * FRAME), (z - last[2]) / (TRACK_EVERY * FRAME)
+      end
       if #w.track >= 2 then
         -- (the oldest sample's table is reused: no garbage)
         local old = table.remove(w.track, 1)
@@ -757,6 +869,7 @@ local function helpText()
   h = h .. "Rest the pointer on a walker, or on a trail, to see whose it is,\n"
   h = h .. "how far it has gone, its average speed, and how often it has turned\nor been stood up.\n\n"
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
+  h = h .. "BumpLength: how long they are, " .. BUMP_MIN .. " to " .. BUMP_MAX .. " cm (every walker's stride is " .. STRIDE .. " cm).\n"
   h = h .. "The room is built again, every walker back at its start, when you let go.\n\n"
   h = h .. "Walkers and their trails:\n"
   for _, w in ipairs(walkers) do
@@ -826,25 +939,27 @@ v:onHover(function(N, obj, x, y, z)
     first, w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
 end)
 
--- the TerrainHeight slider: the room is built again once the slider has
--- stayed put for a moment (a drag sends every value it passes through,
--- and each build takes most of a second)
-local pendingAmp, pendingAt, draws = nil, 0, 0
+-- the TerrainHeight and BumpLength sliders: the room is built again
+-- once a slider has stayed put for a moment (a drag sends every value it
+-- passes through, and each build takes a second or more)
+local pendingAmp, pendingBump, pendingAt, draws = nil, nil, 0, 0
 v:onParamChanged(function(N, name, value)
   if name == "TerrainHeight" then pendingAmp, pendingAt = value, draws end
+  if name == "BumpLength" then pendingBump, pendingAt = value, draws end
 end)
 v:preDraw(function(N)
   draws = draws + 1
-  if pendingAmp and draws - pendingAt >= 20 then
-    if math.abs(pendingAmp - AMP) > 1e-9 then
-      AMP = pendingAmp
+  if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
+    local amp, bump = pendingAmp or AMP, pendingBump or BUMP
+    if math.abs(amp - AMP) > 1e-9 or math.abs(bump - BUMP) > 1e-9 then
+      AMP, BUMP = amp, bump
       teardownRoom()
       buildRoom()
       local k = following and following.index
       follow(k and walkers[k] or nil)
-      print(string.format("TerrainHeight = %.1f cm (room built again)", AMP))
+      print(string.format("TerrainHeight = %.1f cm, BumpLength = %.1f cm (room built again)", AMP, BUMP))
     end
-    pendingAmp = nil
+    pendingAmp, pendingBump = nil, nil
   end
 end)
 
