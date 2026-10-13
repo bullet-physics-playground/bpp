@@ -867,8 +867,8 @@ v:preSim(function(N)
     -- (the test track: how far it got along x, reported once)
     if TEST_TRACK then
       local x, _, z = getPosXYZ(w.cube)
-      if not w.trackStart then w.trackStart = { x, z } end
-      if not w.trackDone and simTime >= TRACK_SECS then
+      if not w.trackStart then w.trackStart = { x, z, simTime } end
+      if not w.trackDone and simTime - w.trackStart[3] >= TRACK_SECS then
         w.trackDone = true
         local d = x - w.trackStart[1]
         print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d",
@@ -889,6 +889,17 @@ local FOLLOW_OFFSET = { -70, 60, 85 }   -- cm from the walker, the same way the 
 local following, followX, followZ        -- the walker followed (nil: the overview), and where it was
 
 local function helpText()
+  if TEST_TRACK then
+    local h = "TEST TRACK -- " .. (walkers[1] and walkers[1].spec.name or "") .. "\n\n"
+    h = h .. "Tab         put the next walker on the track (built again)\n"
+    h = h .. "Shift+Tab   the one before\n"
+    h = h .. "O           look over the whole track\n"
+    h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
+    h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
+    h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
+    h = h .. "pane) build the track again with the same walker.\n"
+    return h
+  end
   local h = "WALKER ROOM -- " .. (following and ("following " .. following.spec.name .. " (trail " .. following.colour[1] .. ")")
                                            or "looking over the room") .. "\n\n"
   h = h .. "Tab         follow the next walker\n"
@@ -936,7 +947,24 @@ v:postSim(function(N)
   end
 end)
 
+-- on the test track, Tab and Shift+Tab put the next (or the one before)
+-- walker on the track instead: the track is built again with it
+local function trackNext(step)
+  local k = 1
+  for i, spec in ipairs(WALKERS) do if spec.name == ONLY then k = i end end
+  k = (k - 1 + step) % #WALKERS + 1
+  ONLY = WALKERS[k].name
+  teardownRoom()
+  buildRoom()
+  follow(walkers[1])
+  print("test track: " .. ONLY)
+end
+
 v:onKey(function(N, key, down)
+  if TEST_TRACK and (key == "Tab" or key == "Backtab") then
+    if down then trackNext(key == "Tab" and 1 or -1) end
+    return true
+  end
   if key == "Tab" or key == "Backtab" then
     if down and #walkers > 0 then
       local k = following and following.index or 0

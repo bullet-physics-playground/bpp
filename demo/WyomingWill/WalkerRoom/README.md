@@ -104,7 +104,9 @@ way it was facing, and carries on.
 `test-track.lua` runs one walker from the room -- the same stride, chassis,
 crank speed and gravity -- straight down a 10 m x 2 m strip of the room's
 terrain, with no avoidance turns, and prints how far it got in 60 s. Open
-it in bpp to watch one walker (the settings are at its top), or run
+it in bpp to watch one walker (the settings are at its top; Tab and
+Shift+Tab put the next or previous walker on the track, timed from when
+it is put there), or run
 `./test-track-all.sh path/to/bpp` to run every walker on flat ground and
 at bump heights 2, 4 and 6 cm and lengths 11, 15 and 22 cm, from 4
 starting points each (about half an hour); the results go to
@@ -150,8 +152,8 @@ Click the 3D view first so it has keyboard focus.
 
 | Key       | What it does |
 |-----------|--------------|
-| Tab       | Follow the next walker |
-| Shift+Tab | Follow the one before |
+| Tab       | Follow the next walker (on the test track: put the next walker on the track) |
+| Shift+Tab | Follow the one before (on the test track: put the one before on it) |
 | O         | Look over the whole room |
 | T         | Clear the trails |
 | Mouse     | Turn and zoom the view (it keeps following) |
