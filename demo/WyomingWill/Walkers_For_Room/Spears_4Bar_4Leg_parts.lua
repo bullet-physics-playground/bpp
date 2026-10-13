@@ -361,7 +361,11 @@ local z_ground, z_crank, z_coupler, z_rocker, z_pendant =
 --cube = Cube(cube_w, 1.5, cube_d, 100.0)   -- small mass -> now dynamic, affected by gravity
 local cube = Cube(cube_w, 1.5 * S, cube_d, opts.cubeMass)   -- GUI slider -- small mass -> now dynamic, affected by gravity
 cube.col = "#29c235"
-cube.pos = btVector3(cube_center_x, terrain_lift, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
+-- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
+-- moves the body up (or, negative, down) that much from where its own
+-- file puts it, leaving the leg mounts and the linkage where they are:
+-- the leg is part of the linkage, so there is no pendant to lengthen.
+cube.pos = btVector3(cube_center_x, terrain_lift + (opts.bodyRaise or 0) * S, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
 cube.friction = 0.5
 -- STRAIGHT-LINE FIX: cube.damp_ang=1.0 was found by running actual 600-frame
 -- physics trials (bpp -n 600, real Bullet, not just kinematics) and sweeping

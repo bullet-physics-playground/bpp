@@ -375,6 +375,15 @@ S = opts.scale or 1
 -- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
 -- motors push just as hard per second.
 local IMPULSE_SCALE = opts.impulseScale or 1
+-- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
+-- extends each pendant further below C by that much (EXT_DOWN), so the
+-- body rides that much higher above the feet. The extension only moves
+-- the foot path down; it doesn't change its shape. The floor drops to
+-- match (FLOOR_TOP_Y above assumes the original EXT_DOWN of 5.5), and
+-- the bottom brace, measured down from B, moves down with the feet.
+local BODY_RAISE = opts.bodyRaise or 0
+local EXT_DOWN = EXT_DOWN + BODY_RAISE
+M.FLOOR_TOP_Y = -1.8 - p_len - BODY_RAISE
 local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
 local rod_w, rod_d, plane_gap, EXT_DOWN, EXT_UP = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S, EXT_UP * S
 -- (the link masses above were worked out from the unscaled lengths, and
@@ -913,7 +922,7 @@ local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 2.75 * S, "firebri
 -- diagonal pair ends up braced exactly once, at opposite ends (1<->4 at
 -- the bottom, 2<->3 at the top), rather than one pair braced twice and
 -- the other not at all.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, -9.9 * S, "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level
+local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, (-9.9 - BODY_RAISE) * S, "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level
 
 
 -- ---------------------------------------------------------------------

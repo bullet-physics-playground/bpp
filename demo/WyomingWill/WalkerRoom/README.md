@@ -4,9 +4,11 @@ All twelve walkers from `../Walkers/` on one meadow, each scaled to the
 same stride, walking freely inside a walled 10 m x 10 m arena. Open
 `walker-room.lua`.
 
-Each walker is built by its own `../Walkers/<name>_parts.lua`, the same
-code its standalone file uses. All of them share one world, one
-terrain, one gravity and one physics step (1/960 s).
+Each walker is built by its own `../Walkers_For_Room/<name>_parts.lua`, a
+copy of the build its standalone file uses with one option added (see that
+folder's README); the walkers in `../Walkers/` are left as they are. All of
+them share one world, one terrain, one gravity and one physics step
+(1/960 s).
 
 ## A fair comparison
 
@@ -19,8 +21,18 @@ terrain, one gravity and one physics step (1/960 s).
   lift and flatness, except that the diag walkers' braces hold their
   legs at a slightly different angle (Chebyshev diag: lift 13% against
   16%; Chebyshev-Spears diag: 23-25% against 26%). Their sizes differ as
-  a result: hip heights from about 5 cm (Chebyshev-Spears) to about
-  25 cm (the 2-leg Spears).
+  a result.
+- **Same chassis.** So that only the linkage differs, every four-legged
+  walker gets the same body clearance (12 cm: its body's lowest point
+  above flat ground), the same front-to-back spacing of its feet (35 cm,
+  between the middles of its front and back feet's paths) and the same
+  side-to-side width (30 cm, outer foot edge to outer foot edge), using
+  its own file's leg-spacing and body-depth options and the room's
+  `bodyRaise` option, none of which change its foot path. Jansen and
+  Klann get the same clearance, but their rows of legs can't come closer
+  than about 1.8 strides without colliding, and their width is fixed;
+  the two 2-leg Spears, with a single column of legs, keep their own
+  chassis.
 - **Same crank speed.** Every crank turns at 2.6 rad/s. Speeds on flat
   ground still differ, by design: a foot covers its stride while it is
   down, a duty's share of each turn, so a walker whose feet never
@@ -42,38 +54,38 @@ path; one run each, so a few tenths either way mean little):
 
 | Walker                 | Flat | 1 cm | 2 cm | 3 cm | 4 cm | 6 cm | 8 cm |
 |------------------------|------|------|------|------|------|------|------|
-| Jansen                 | 10.1 | 7.9  | 7.6  | 6.7  | 5.8  | 6.0  | 5.4  |
-| Klann                  | 4.2  | 4.2  | 3.9  | 4.5  | 4.3  | 4.2  | 4.5  |
-| Chebyshev              | 7.7  | 7.8  | 6.8  | 6.0  | 6.2  | 6.2  | 7.5  |
-| Chebyshev diag         | 4.1  | 4.2  | 5.8  | 4.9  | 5.3  | 5.6  | 7.5  |
-| Chebyshev-Spears       | 6.7  | 6.7  | 6.3  | 6.3  | 6.5  | 6.4  | 5.8  |
-| Chebyshev-Spears diag  | 3.9  | 3.4  | 3.1  | 4.3  | 4.3  | 5.3  | 5.7  |
-| Hoecken                | 8.2  | 8.3  | 7.7  | 7.6  | 7.4  | 9.5  | 9.7  |
-| Hoecken slider         | 7.4  | 7.3  | 7.3  | 6.6  | 6.7  | 7.2  | 8.3  |
-| Hoecken-Spears slider  | 5.9  | 6.1  | 6.6  | 6.0  | 6.0  | 5.8  | 7.0  |
-| Spears 4-bar           | 6.1  | 7.9  | 7.3  | 6.7  | 7.2  | 7.8  | 9.0  |
-| Spears 2-leg           | 10.3 | 11.3 | 11.1 | 10.6 | 9.0  | 6.2  | 8.5  |
-| Spears 2-leg balanced  | 10.2 | 10.2 | 7.7  | 4.6  | 4.7  | 0.9  | 0.3  |
+| Chebyshev              | 6.9  | 7.3  | 6.3  | 6.1  | 6.4  | 6.9  | 6.5  |
+| Chebyshev diag         | 5.7  | 6.8  | 6.9  | 5.7  | 5.4  | 5.3  | 5.7  |
+| Chebyshev-Spears       | 6.6  | 6.2  | 6.9  | 6.8  | 6.8  | 6.1  | 6.6  |
+| Chebyshev-Spears diag  | 4.5  | 3.8  | 3.6  | 3.5  | 4.4  | 5.0  | 6.2  |
+| Hoecken                | 8.2  | 8.1  | 7.8  | 7.5  | 7.7  | 8.3  | 8.2  |
+| Hoecken slider         | 7.2  | 6.6  | 6.6  | 6.2  | 6.5  | 7.1  | 8.4  |
+| Hoecken-Spears slider  | 6.0  | 6.0  | 5.9  | 5.8  | 5.7  | 6.4  | 6.4  |
+| Spears 4-bar           | 9.1  | 6.7  | 6.6  | 6.2  | 7.5  | 8.4  | 8.2  |
+| Jansen                 | 11.8 | 9.3  | 8.4  | 7.1  | 1.7  | 5.0  | 5.3  |
+| Klann                  | 3.6  | 3.6  | 4.6  | 4.9  | 3.4  | 4.7  | 4.0  |
+| Spears 2-leg           | 10.8 | 11.3 | 10.7 | 10.4 | 8.5  | 5.5  | 8.5  |
+| Spears 2-leg balanced  | 9.9  | 9.8  | 8.9  | 6.8  | 5.1  | 0.9  | 0.3  |
 
-The bumps are smooth rolling hills 18 to 33 cm long (a stride or two),
-so most walkers just walk up and down them: only Jansen and the two
-2-leg Spears slow down much. Some of the rest isn't the bumps:
+With the same stride and chassis, the eight four-legged walkers all keep
+most of their flat-ground speed even on 8 cm bumps: the bumps are smooth
+rolling hills 18 to 33 cm long (a stride or two), which they walk up and
+down rather than having to step over. These bumps don't separate the
+linkages. Some of the rest isn't the bumps:
 
-- Klann is slow on flat ground too: about a third of the time it is
-  moving backwards.
+- Klann is slow on flat ground too: part of the time it is moving
+  backwards.
 - The Spears 4-bar's four cranks each have their own motor, nothing
   keeps them in step, and over a couple of minutes its legs drift from
   their designed timing (225, 180, 225 degrees behind the first) into
-  step with each other, and it slows. Every walker with separately
-  driven cranks drifts like this to some degree; only the 2-leg Spears,
-  whose legs share one axle, keep their timing.
-- The 2-leg Spears falls over and is stood up again three or four times
-  in 3 minutes, on any ground.
+  step with each other. Every walker with separately driven cranks
+  drifts like this to some degree; only the 2-leg Spears, whose legs
+  share one axle, keep their timing.
+- The 2-leg Spears falls over and is stood up again two to four times in
+  3 minutes, on any ground.
 - The balanced 2-leg Spears' counterweight hangs only a little above
-  flat ground (its own file's design; there too it brushes the ground
-  now and then). On bigger bumps it comes to rest on one, and its motor
-  can't drag it off.
-- Hoecken-Spears slider and Klann hop off the ground now and then.
+  flat ground (its own file's design). On bigger bumps it comes to rest
+  on one, and its motor can't drag it off.
 
 When a walker comes within 40 cm of a wall, or of another walker ahead
 of it, it turns smoothly (over a second) to a new heading pointing away
@@ -128,7 +140,7 @@ ground any more.
 
 A script that sets these globals and then runs `walker-room.lua` changes
 the room: `STRIDE` (cm, 15), `CRANK` (crank speed, rad/s, 2.6),
-`GRAVITY` (cm/s^2, 20), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm, 4), `AMP`
+`GRAVITY` (cm/s^2, 20), `WALKERS_DIR` (where the builds are,
+`../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm, 4), `AMP`
 (starting bump height, cm, 1), `SEED` (starting headings and turns, 1),
-`ONLY` (build just the walker of that name), `WALKERS_DIR` (where the
-parts files are, `../Walkers/`).
+`ONLY` (build just the walker of that name).

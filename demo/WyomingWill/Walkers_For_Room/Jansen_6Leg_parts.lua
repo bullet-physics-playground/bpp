@@ -351,6 +351,10 @@ S = opts.scale or 1
 local IMPULSE_SCALE = opts.impulseScale or 1
 local LEN = (function() local t = {} for k, x in pairs(LEN) do t[k] = x * S end return t end)()
 local ROW_SPACING, CUBE_W, CUBE_H, CUBE_CENTER_X = ROW_SPACING * S, CUBE_W * S, CUBE_H * S, CUBE_CENTER_X * S
+-- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
+-- moves the body up (or, negative, down) that much from where its own
+-- file puts it, below the crank axles, leaving the legs where they are.
+local O_ABOVE_CUBE = O_ABOVE_CUBE - (opts.bodyRaise or 0)
 local JANSEN_YMIN, FOOT_CLEARANCE, O_ABOVE_CUBE = JANSEN_YMIN * S, FOOT_CLEARANCE * S, O_ABOVE_CUBE * S
 
 -- ---------------------------------------------------------------------

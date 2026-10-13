@@ -319,6 +319,15 @@ S = opts.scale or 1
 -- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
 -- motors push just as hard per second.
 local IMPULSE_SCALE = opts.impulseScale or 1
+-- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
+-- lengthens each pendant below B by that much, so the body rides that
+-- much higher above the feet. The pendant only moves the foot path
+-- down; it doesn't change its shape. The floor drops to match
+-- (FLOOR_TOP_Y), and the top brace, measured up from the foot end,
+-- moves up with B (it was 12.4 = p_len + 1.9).
+local BODY_RAISE = opts.bodyRaise or 0
+local p_len = p_len + BODY_RAISE
+M.FLOOR_TOP_Y = 4.6 - p_len
 local g_len, a_len, f_len, h_len, p_len = g_len * S, a_len * S, f_len * S, h_len * S, p_len * S
 local p_top_extend, rod_w, rod_d, plane_gap = p_top_extend * S, rod_w * S, rod_d * S, plane_gap * S
 local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
@@ -659,7 +668,7 @@ local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S, "slate
 -- (same footprint the old pair occupied), but whether it stays clear of
 -- the crank/coupler/rocker through a full rotation isn't something I
 -- can verify without actually running it.
-local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 12.4 * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now
+local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, (12.4 + BODY_RAISE) * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now
 
 -- ---------------------------------------------------------------------
 -- foot builder: a wide, flat pad welded (not hinged) to the bottom of

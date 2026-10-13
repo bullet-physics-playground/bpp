@@ -235,6 +235,13 @@ S = opts.scale or 1
 -- instead of this walker's own 1/480 s passes 480/960 = 0.5, so the
 -- motors push just as hard per second.
 local IMPULSE_SCALE = opts.impulseScale or 1
+-- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
+-- lengthens each pendant by that much, so the body rides that much
+-- higher above the feet. The pendant only moves the foot path down; it
+-- doesn't change its shape. The floor drops to match (FLOOR_TOP_Y),
+-- and the crossbars stay no taller than the pendant allows.
+local p_len = p_len + (opts.bodyRaise or 0)
+M.FLOOR_TOP_Y = 5.3 - p_len
 local g_len, a_len, coupler_attach_len, h_len, f_len, p_len = g_len * S, a_len * S, coupler_attach_len * S, h_len * S, f_len * S, p_len * S
 local rod_w, rod_d, plane_gap = rod_w * S, rod_d * S, plane_gap * S
 local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
@@ -410,7 +417,7 @@ local linkage4 = buildLinkage(linkage_spacing, 0, true, 180, opts.rightSpeed) --
 -- ---------------------------------------------------------------------
 
 local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
-  bar_height = bar_height or 9.0 * S   -- was two 0.18-thick bars at +-4.5; this spans the same -4.5..+4.5 range as one body
+  bar_height = bar_height or math.min(9.0 * S, p_len - 1.0 * S)   -- was two 0.18-thick bars at +-4.5; this spans the same -4.5..+4.5 range as one body
   local PA, PB = lkA.pendant.pos, lkB.pendant.pos
   local len = math.sqrt((PB.x-PA.x)^2 + (PB.y-PA.y)^2)   -- should equal linkage_spacing, by symmetry
   local mid_x = (PA.x + PB.x) / 2

@@ -5,8 +5,9 @@
 -- TerrainHeight slider raises the bumps. Tab / Shift+Tab follow a
 -- walker, O looks over the room, T clears the trails (README.md).
 --
--- Each walker is built by its own ../Walkers/<name>_parts.lua -- the
--- same code its standalone file uses -- at a scale that makes its stride
+-- Each walker is built by its own ../Walkers_For_Room/<name>_parts.lua --
+-- a copy of the build its standalone file uses, with one option added
+-- (see that folder's README) -- at a scale that makes its stride
 -- (the length of its foot's path) STRIDE cm, under the same gravity as
 -- every other walker (GRAVITY), with its motors made stronger or weaker
 -- to match, and with every crank turning at the same speed (CRANK). A
@@ -27,7 +28,7 @@ v.shadows = false
 
 -- where the walkers' parts files are, relative to this file (bpp runs a
 -- script from its own folder); a launcher elsewhere can set WALKERS_DIR
-local WALKERS_DIR = WALKERS_DIR or "../Walkers/"
+local WALKERS_DIR = WALKERS_DIR or "../Walkers_For_Room/"
 
 -- ---------------------------------------------------------------------
 -- settings
@@ -35,6 +36,9 @@ local WALKERS_DIR = WALKERS_DIR or "../Walkers/"
 
 local STRIDE = STRIDE or 15  -- every walker's stride: the length of its foot's path, cm
 local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalone files' own)
+-- the chassis every four-legged walker is given (see `chassis` below),
+-- for STRIDE = 15; the chassis values in WALKERS were worked out for these
+local CLEARANCE, BASE, TRACK = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
 local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0
 local CELL = CELL or 4      -- terrain cell, cm
@@ -152,6 +156,20 @@ end
 --   flatness, except that the diag walkers' braces hold their legs at a
 --   slightly different angle (Chebyshev diag: lift 13% against 16%;
 --   Chebyshev-Spears diag: 23-25% against 26%).
+-- chassis: the build options that give it the room's chassis, so that
+--   only its linkage differs from the others': body clearance CLEARANCE
+--   (its body's lowest point above flat ground, walking), front-to-back
+--   spacing BASE (between the middles of its front and back feet's
+--   paths) and side-to-side width TRACK (outer foot edge to outer foot
+--   edge). linkageSpacing and cube_d are its own file's sliders;
+--   bodyRaise is the room's own option (../Walkers_For_Room/), which
+--   lengthens its pendants -- or, with no pendant, moves its body --
+--   without changing its foot path. Worked out from measurements at
+--   bodyRaise 0 and its default spacing and width; each of the three is
+--   linear in its option. Jansen and Klann take CLEARANCE only (their
+--   rows of legs can't come closer than about 1.8 strides without
+--   colliding, and their width is fixed); the two 2-leg Spears, with a
+--   single column of legs, keep their own chassis.
 -- fixed: its own physics step; the room steps at FIXED, so its motors'
 --   impulse (applied once per step) is scaled by FIXED / fixed
 -- lift: how its build is told about the bumps -- "groundTop" (the
@@ -170,25 +188,25 @@ end
 -- ---------------------------------------------------------------------
 
 local WALKERS = {
-  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", stride = 67.908, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5 } },
-  { name = "Klann", parts = "Klann_6Leg_parts.lua", stride = 70.619, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5 } },
-  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", stride = 4.712, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", stride = 5.827, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", stride = 5.505, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", stride = 8.378, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
   { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
@@ -280,6 +298,10 @@ local function addWalker(spec, x, z, heading)
   local w = { spec = spec, scale = scale, bodies = {}, constraints = {} }
   local opts = {}
   for k, val in pairs(spec.opts) do opts[k] = val end
+  -- its chassis for the room (see `chassis` above); CHASSIS_TEST, for
+  -- tests, overrides it
+  for k, val in pairs(spec.chassis or {}) do opts[k] = val end
+  for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK
   for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do
