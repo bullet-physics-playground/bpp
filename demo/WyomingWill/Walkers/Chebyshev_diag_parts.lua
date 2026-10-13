@@ -56,15 +56,15 @@
 -- see the note near the linkage construction calls for why each
 -- diagonal pair's sign has to match its partner, whichever sign that is.
 --
--- Ground link  g = 2.5  -- a stretch of the cube's top edge
+-- Ground link  g = 2.0  -- a stretch of the cube's top edge
 -- Crank        a = 1.0  -- O2 -> A
 -- Coupler      f = 5.0  -- A  -> B, with midpoint M
 -- Rocker       h = 2.5  -- M  -> O4
 -- Pendant      p = 10.5 -- B  -> C, hinged and hanging free (no motor)
 --
 -- The loop that actually closes is O2-A-M-O4, with sides a=1, AM=2.5,
--- h=2.5, g=2.5. Since shortest+longest (1+2.5=3.5) <= sum of the other
--- two (2.5+2.5=5), this is a Grashof linkage, and since the shortest
+-- h=2.5, g=2.0. Since shortest+longest (1+2.5=3.5) <= sum of the other
+-- two (2.0+2.5=4.5), this is a Grashof linkage, and since the shortest
 -- link is the crank, it's a crank-rocker: a can spin all the way
 -- around and drag the rest of the loop with it. B is the free end of
 -- the coupler, sticking out past M, and p just hangs off B.
@@ -136,7 +136,12 @@ local S = 1                -- the scale (opts.scale): every length is multiplied
 -- shared geometry / constants
 -- ---------------------------------------------------------------------
 
-local g_len, a_len, f_len, h_len, p_len = 2.5, 1.0, 5.0, 2.5, 10.5
+-- (g was 2.5 until Oct 2026: that isn't Chebyshev's Lambda linkage --
+-- its foot was on the ground only a third of each turn, against 72% for
+-- the Lambda (crank 1, ground 2, rocker 2.5, coupler 5 with the rocker at
+-- its midpoint; Walking_Linkages.lua's compute_chebyshev_lambda). With
+-- g = 2.0 the foot path matches it: duty 72%, lift 16.2%.)
+local g_len, a_len, f_len, h_len, p_len = 2.0, 1.0, 5.0, 2.5, 10.5
 local p_top_extend = 4.0   -- how far the pendant rod extends ABOVE B (toward the coupler), making room for the two new top crossbars. C (the foot attachment) is unaffected -- only the rod's TOP end moves.
 local rod_w, rod_d = 0.38, 0.18          -- rod cross-section
 local plane_gap = 0.4                     -- spacing between staggered planes
