@@ -38,9 +38,20 @@ local STRIDE = STRIDE or 15  -- every walker's stride: the length of its foot's 
 local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalone files' own)
 -- the chassis every four-legged walker is given (see `chassis` below),
 -- for STRIDE = 15; the chassis values in WALKERS were worked out for these
-local CLEARANCE, BASE, TRACK = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
+local CLEARANCE, BASE, WIDTH = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
 local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
-local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0
+local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
+local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
+local ARENA_Z = ARENA_Z or ARENA
+
+-- TEST_TRACK = true: the test track. Only the walker named ONLY, starting near
+-- the -x end facing +x, walks straight down the arena (make it long and
+-- narrow: ARENA_X, ARENA_Z) with no avoidance turns, for TRACK_SECS
+-- seconds, and reports how far it got along x. Its start is moved, by
+-- SEED, up to a bump length along and across, so runs with different
+-- seeds meet the bumps differently. See test-track.lua.
+TEST_TRACK = TEST_TRACK or false
+local TRACK_SECS = TRACK_SECS or 60
 local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
 local FRAME = 1 / 60       -- simulated time per drawn frame, s
@@ -85,11 +96,11 @@ end
 -- at BUMP 22), so short bumps stay round. That is (22 / BUMP)^2 times
 -- as many triangles: at BUMP 11, four times as many (500,000), which
 -- takes longer to build and to draw.
-local CELL, NX
-local X0 = -ARENA / 2
+local CELL, NX, NZ
+local X0, Z0 = -ARENA_X / 2, -ARENA_Z / 2
 local function setCells()
   CELL = CELL_SET or math.max(2, math.min(8, BUMP / 5.5))
-  NX = math.floor(ARENA / CELL)
+  NX, NZ = math.floor(ARENA_X / CELL), math.floor(ARENA_Z / CELL)
 end
 setCells()
 
@@ -111,7 +122,7 @@ local function clamp(c) return math.max(0, math.min(255, math.floor(c + 0.5))) e
 local function mix(a, b, t) return { a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t } end
 local GRASS, GRASS_DRY, DIRT, DIRT_DARK = { 58, 112, 38 }, { 128, 132, 58 }, { 128, 92, 56 }, { 92, 64, 40 }
 local function cellColour(i, j)
-  local x, z = X0 + (i + 0.5) * CELL, X0 + (j + 0.5) * CELL
+  local x, z = X0 + (i + 0.5) * CELL, Z0 + (j + 0.5) * CELL
   local y = terrainHeight(x, z) / math.max(AMP, 1e-6)
   local slope = (math.abs(terrainHeight(x + CELL, z) - terrainHeight(x - CELL, z)) +
                  math.abs(terrainHeight(x, z + CELL) - terrainHeight(x, z - CELL))) / CELL
@@ -124,7 +135,7 @@ local function cellColour(i, j)
 end
 -- a cell's two triangles (the second a shade darker, so the mesh reads)
 local function paintCell(i, j, r, g, b)
-  local t = 2 * (i * NX + j)
+  local t = 2 * (i * NZ + j)
   floor:setTriangleColor(t, r, g, b)
   floor:setTriangleColor(t + 1, clamp(r * 0.97), clamp(g * 0.97), clamp(b * 0.97))
 end
@@ -135,8 +146,8 @@ local function buildTerrain()
   setCells()
   floor = Terrain()
   for i = 0, NX - 1 do
-    for j = 0, NX - 1 do
-      local xa, xb, za, zb = X0 + i * CELL, X0 + (i + 1) * CELL, X0 + j * CELL, X0 + (j + 1) * CELL
+    for j = 0, NZ - 1 do
+      local xa, xb, za, zb = X0 + i * CELL, X0 + (i + 1) * CELL, Z0 + j * CELL, Z0 + (j + 1) * CELL
       floor:addTriangle(btVector3(xa, terrainHeight(xa, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, za), za))
       floor:addTriangle(btVector3(xb, terrainHeight(xb, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, zb), zb))
     end
@@ -146,14 +157,15 @@ local function buildTerrain()
   floor.friction = 0.8
   addObject(floor)
   for i = 0, NX - 1 do
-    for j = 0, NX - 1 do paintCell(i, j, cellColour(i, j)) end
+    for j = 0, NZ - 1 do paintCell(i, j, cellColour(i, j)) end
   end
 
   -- walls round the arena: low stone blocks
   for side = 0, 3 do
-    local len = ARENA + 2 * WALL_T
+    -- (sides 0 and 2 run along x, at z = +-; 1 and 3 along z, at x = +-)
+    local len = ((side % 2 == 0) and ARENA_X or ARENA_Z) + 2 * WALL_T
     local wall = Cube((side % 2 == 0) and len or WALL_T, WALL_H, (side % 2 == 0) and WALL_T or len, 0)
-    local off = ARENA / 2 + WALL_T / 2
+    local off = ((side % 2 == 0) and ARENA_Z or ARENA_X) / 2 + WALL_T / 2
     local x = (side == 1) and off or (side == 3) and -off or 0
     local z = (side == 0) and off or (side == 2) and -off or 0
     wall.pos = btVector3(x, WALL_H / 2 - AMP, z)
@@ -178,7 +190,7 @@ end
 --   only its linkage differs from the others': body clearance CLEARANCE
 --   (its body's lowest point above flat ground, walking), front-to-back
 --   spacing BASE (between the middles of its front and back feet's
---   paths) and side-to-side width TRACK (outer foot edge to outer foot
+--   paths) and side-to-side width WIDTH (outer foot edge to outer foot
 --   edge). linkageSpacing and cube_d are its own file's sliders;
 --   bodyRaise is the room's own option (../Walkers_For_Room/), which
 --   lengthens its pendants -- or, with no pendant, moves its body --
@@ -402,11 +414,18 @@ local function buildWalkers()
   for _, spec in ipairs(WALKERS) do
     if ONLY == nil or spec.name == ONLY then
       local col, row = n % COLS, math.floor(n / COLS)
-      local x = ONLY and 0 or (-ARENA / 2 + (col + 0.5) * ARENA / COLS)
-      local z = ONLY and 0 or (-ARENA / 2 + (row + 0.5) * ARENA / ROWS)
+      local x = ONLY and 0 or (X0 + (col + 0.5) * ARENA_X / COLS)
+      local z = ONLY and 0 or (Z0 + (row + 0.5) * ARENA_Z / ROWS)
       local heading = ONLY and 0 or random() * 2 * math.pi
+      if TEST_TRACK then
+        -- (near the -x end, facing +x; moved up to a bump length along
+        -- and across by SEED, so each seed meets the bumps differently)
+        x = X0 + 60 + random() * BUMP
+        z = (random() - 0.5) * BUMP
+        heading = 0
+      end
       -- (a railed walker starts along an axis: see `railed` above)
-      if spec.railed then heading = math.floor(random() * 4) * math.pi / 2 end
+      if spec.railed and not TEST_TRACK then heading = math.floor(random() * 4) * math.pi / 2 end
       addWalker(spec, x, z, heading)
       n = n + 1
     end
@@ -484,7 +503,7 @@ local GAP = 40              -- about one body length, cm
 local AHEAD = math.rad(60)  -- "in front": within this of straight ahead
 local COOLDOWN = 2.0        -- s after a turn ends before it looks again
 local CANDIDATES = 12       -- new headings tried per turn
-local WALL_IN = ARENA / 2   -- the walls' inner faces are at +-WALL_IN
+local WALL_X, WALL_Z = ARENA_X / 2, ARENA_Z / 2   -- the walls' inner faces are at x = +-WALL_X, z = +-WALL_Z
 
 local function angleDiff(a, b)       -- a - b, wrapped to (-pi, pi]
   local d = (a - b) % (2 * math.pi)
@@ -515,10 +534,10 @@ local function badness(w, x, z, h)
   -- walls: the distance to the wall along h, if it is near
   local reach = 4 * GAP
   local dist = 1e30
-  if fx > 1e-6 then dist = math.min(dist, (WALL_IN - w.radius - x) / fx) end
-  if fx < -1e-6 then dist = math.min(dist, (-WALL_IN + w.radius - x) / fx) end
-  if fz > 1e-6 then dist = math.min(dist, (WALL_IN - w.radius - z) / fz) end
-  if fz < -1e-6 then dist = math.min(dist, (-WALL_IN + w.radius - z) / fz) end
+  if fx > 1e-6 then dist = math.min(dist, (WALL_X - w.radius - x) / fx) end
+  if fx < -1e-6 then dist = math.min(dist, (-WALL_X + w.radius - x) / fx) end
+  if fz > 1e-6 then dist = math.min(dist, (WALL_Z - w.radius - z) / fz) end
+  if fz < -1e-6 then dist = math.min(dist, (-WALL_Z + w.radius - z) / fz) end
   if dist < reach then bad = bad + (reach - dist) / reach end
   -- walkers in that direction
   for _, o in ipairs(walkers) do
@@ -564,7 +583,7 @@ local function blockedAlong(w, x, z, h)
   local fx, fz = math.cos(h), -math.sin(h)
   -- each wall: the gap between the walker's edge and it, and how
   -- squarely the walker heads at it (1: straight at it; 0: along it)
-  for _, wall in ipairs({ { WALL_IN - x, fx }, { WALL_IN + x, -fx }, { WALL_IN - z, fz }, { WALL_IN + z, -fz } }) do
+  for _, wall in ipairs({ { WALL_X - x, fx }, { WALL_X + x, -fx }, { WALL_Z - z, fz }, { WALL_Z + z, -fz } }) do
     local gap, toward = wall[1] - w.radius, wall[2]
     if (gap < GAP and toward > math.cos(AHEAD)) or (gap < GAP / 4 and toward > 0) then return "wall" end
   end
@@ -725,9 +744,9 @@ local TRAIL_COLOURS = {
 local painted = {}          -- [cell] = the walker whose trail is on it
 
 local function cellAt(x, z)
-  local i, j = math.floor((x - X0) / CELL), math.floor((z - X0) / CELL)
-  if i < 0 or i >= NX or j < 0 or j >= NX then return nil end
-  return i * NX + j, i, j
+  local i, j = math.floor((x - X0) / CELL), math.floor((z - Z0) / CELL)
+  if i < 0 or i >= NX or j < 0 or j >= NZ then return nil end
+  return i * NZ + j, i, j
 end
 
 local function markTrail(w)
@@ -742,7 +761,7 @@ end
 
 local function clearTrails()
   for cell in pairs(painted) do
-    local i, j = math.floor(cell / NX), cell % NX
+    local i, j = math.floor(cell / NZ), cell % NZ
     paintCell(i, j, cellColour(i, j))
   end
   painted = {}
@@ -788,7 +807,7 @@ v:preSim(function(N)
         startTurn(w, math.pi / 2)
         w.nextTest = (w.nextTest or 10) + 10
       end
-    elseif not w.turnLeft then
+    elseif not TEST_TRACK and not w.turnLeft then
       local x, _, z = getPosXYZ(w.cube)
       local h = travel(w)
       local what
@@ -845,6 +864,17 @@ v:preSim(function(N)
       w.fallenSince = nil
     end
     turnStep(w, FRAME)
+    -- (the test track: how far it got along x, reported once)
+    if TEST_TRACK then
+      local x, _, z = getPosXYZ(w.cube)
+      if not w.trackStart then w.trackStart = { x, z } end
+      if not w.trackDone and simTime >= TRACK_SECS then
+        w.trackDone = true
+        local d = x - w.trackStart[1]
+        print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d",
+          w.spec.name, AMP, BUMP, SEED, d, d / TRACK_SECS, z - w.trackStart[2], w.stoodUp or 0))
+      end
+    end
   end
 end)
 
@@ -963,4 +993,4 @@ v:preDraw(function(N)
   end
 end)
 
-follow(nil)
+follow(TEST_TRACK and walkers[1] or nil)

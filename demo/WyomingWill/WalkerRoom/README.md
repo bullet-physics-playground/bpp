@@ -99,6 +99,51 @@ only along its heading, so it turns only in right angles. A walker that
 falls over and stays down for 2 seconds is stood up again, facing the
 way it was facing, and carries on.
 
+## Test track
+
+`test-track.lua` runs one walker from the room -- the same stride, chassis,
+crank speed and gravity -- straight down a 10 m x 2 m strip of the room's
+terrain, with no avoidance turns, and prints how far it got in 60 s. Open
+it in bpp to watch one walker (the settings are at its top), or run
+`./test-track-all.sh path/to/bpp` to run every walker on flat ground and
+at bump heights 2, 4 and 6 cm and lengths 11, 15 and 22 cm, from 4
+starting points each (about half an hour); the results go to
+`test-track-results.txt`.
+
+Share of its flat-ground speed each walker kept (mean of the 4 starts;
+columns are bump height / bump length, in cm):
+
+| Walker                 | Flat cm/s | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean |
+|------------------------|-----------|------|------|------|------|------|------|------|------|------|------|
+| Chebyshev-Spears       | 6.9  | 109% | 107% | 102% | 105% | 109% | 83%  | 86%  | 94%  | 39%  | 93%  |
+| Chebyshev diag         | 5.3  | 115% | 121% | 98%  | 87%  | 82%  | 28%  | 62%  | 28%  | 12%  | 70%  |
+| Chebyshev              | 6.2  | 81%  | 90%  | 67%  | 72%  | 61%  | 33%  | 65%  | 40%  | 11%  | 58%  |
+| Chebyshev-Spears diag  | 6.6  | 79%  | 112% | 50%  | 62%  | 92%  | 18%  | 45%  | 55%  | 5%   | 57%  |
+| Hoecken                | 9.0  | 72%  | 79%  | 72%  | 53%  | 49%  | 38%  | 51%  | 26%  | 7%   | 50%  |
+| Spears 2-leg balanced  | 10.1 | 99%  | 82%  | 82%  | 54%  | 62%  | 27%  | 17%  | 23%  | 7%   | 50%  |
+| Spears 2-leg           | 7.1  | 44%  | 46%  | 50%  | 32%  | 32%  | 53%  | 29%  | 38%  | 69%  | 44%  |
+| Hoecken slider         | 6.1  | 59%  | 95%  | 69%  | 48%  | 67%  | 16%  | 32%  | 47%  | -37% | 44%  |
+| Jansen                 | 12.1 | 52%  | 56%  | 60%  | 13%  | 43%  | 44%  | 23%  | 28%  | 31%  | 39%  |
+| Hoecken-Spears slider  | 5.2  | 103% | 113% | 82%  | 97%  | 81%  | 13%  | -22% | 67%  | -229%| 34%  |
+| Spears 4-bar           | 11.7 | 60%  | 58%  | 57%  | 30%  | 17%  | 12%  | 8%   | 8%   | 4%   | 28%  |
+| Klann                  | 1.2  | 277% | 309% | 235% | 288% | 294% | 207% | 181% | 273% | 166% | --   |
+
+Things in these numbers that aren't the linkage:
+
+- Klann's legs drift out of their designed timing within half a minute
+  (each crank has its own motor and nothing keeps them in step); on flat
+  ground it then walks back and forth and gets almost nowhere, which
+  makes its shares meaningless. The Spears 4-bar's legs drift into step
+  with each other over a minute or two, and it slows. Other walkers with
+  separately driven cranks drift too, more slowly.
+- The 2-leg Spears fell over (and was stood up again) 40 times in its 40
+  runs; the balanced one in 16 of its 40.
+- Negative shares are walkers that ended up going backwards
+  (Hoecken-Spears slider on 6 cm bumps).
+- The long bumps (22 cm, a stride and a half) are the hardest when they
+  are high: 6 cm bumps that long are steep hills to climb. Shorter bumps
+  are as steep but only part of a stride long.
+
 ## Keys
 
 Click the 3D view first so it has keyboard focus.
