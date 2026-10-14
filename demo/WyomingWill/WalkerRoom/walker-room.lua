@@ -52,6 +52,15 @@ LOCK_CRANKS = (LOCK_CRANKS ~= false)
 -- FOOT_WIDTH (across) x FOOT_THICK cm, weighing FOOT_MASS (SAME_FEET =
 -- false: each keeps its own file's feet, and Jansen and Klann none)
 SAME_FEET = (SAME_FEET ~= false)
+-- every walker's body the same: SAME_BODY (default on) makes each walker
+-- weigh TOTAL_MASS in all (its body making up whatever its legs, feet
+-- and braces don't), with its body turning as a BODY_BOX (cm: along the
+-- walk, up, across) of that weight would. Its body keeps its own shape
+-- for drawing and for touching things (it sits 12 cm up, clear of the
+-- ground; its depth also sets where its legs are mounted).
+SAME_BODY = (SAME_BODY ~= false)
+local TOTAL_MASS = TOTAL_MASS or 100
+local BODY_BOX = BODY_BOX or { 40, 3, 30 }
 -- ANKLES = true: every walker's feet hinged to its legs about the
 -- side-to-side axis, like ankles (as the 2-leg Spears' own files have
 -- them), instead of welded (Walker Room1: welded)
@@ -426,6 +435,18 @@ local function addWalker(spec, x, z, heading)
     end
   end
   w.radius = 0.5 * math.sqrt((x1 - x0) ^ 2 + (z1 - z0) ^ 2)
+  -- the same body for every walker (SAME_BODY, above)
+  if SAME_BODY then
+    local rest = 0
+    for _, o in ipairs(w.bodies) do if o.mass > 0 and not rawequal(o, w.cube) then rest = rest + o.mass end end
+    local m = TOTAL_MASS - rest
+    assert(m > 0, spec.name .. ": TOTAL_MASS is less than its legs weigh")
+    local x, y, z = BODY_BOX[1], BODY_BOX[2], BODY_BOX[3]
+    w.cube.body:setMassProps(m, btVector3(m / 12 * (y * y + z * z), m / 12 * (x * x + z * z), m / 12 * (x * x + y * y)))
+    w.cube.body:updateInertiaTensor()
+    w.cube.mass = m
+    w.bodyMass = m
+  end
   -- its gravity, on its moving bodies only
   for _, o in ipairs(w.bodies) do
     if o.mass > 0 then o.body:setGravity(btVector3(0, -GRAVITY, 0)) end
