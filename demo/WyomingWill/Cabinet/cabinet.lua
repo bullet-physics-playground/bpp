@@ -114,7 +114,8 @@ EXHIBITS = EXHIBITS or {
   { dir = "../Slinky/", file = "falling-slinky.lua", name = "the falling Slinky", label = "slinky",
     prefix = "Slinky: ", floorY = 0,
     about = "The falling Slinky: let a hanging Slinky go, and its bottom hangs still\n" ..
-            "in mid-air until the collapsing coils reach it, while a ball beside it falls." },
+            "in mid-air until the collapsing coils reach it, while a ball beside it falls.\n" ..
+            "Beside it, the same Slinky walks down a flight of stairs." },
   { dir = "../BrazilNut/", file = "brazil-nut.lua", name = "the Brazil-nut effect", label = "brazil-nut",
     about = "Coming: the Brazil-nut effect. Shake a box of mixed grains and the big\n" ..
             "ones come up to the top." },

@@ -1,4 +1,4 @@
-# The Falling Slinky
+# The Falling Slinky, and the Slinky on the Stairs
 
 A Slinky hangs from a hand, stretched out by its own weight. Beside its
 bottom, a steel ball hangs from a thread. The hand lets go of both at the
@@ -16,19 +16,26 @@ bottom feels just what it felt before: gravity, and the same pull up. All
 the while, the Slinky's centre of mass falls exactly as the ball does; the
 top falls faster to make up for the bottom.
 
+Right beside it, the same Slinky walks down a flight of seven stairs, end
+over end, and starts again once it reaches the floor.
+
 ## Keys
 
 | Key | Action |
 |---|---|
 | `R` | hang it up again (it lets go after two seconds) |
-| `V` | close up on the Slinky and the ball <-> the whole drop to the floor |
-| `Z` | a tenth of real speed <-> real speed |
+| `V` | views: both Slinkys (to start with); the falling one and the ball close up; the stairs close up |
+| `W` | set the Slinky on the stairs going again, from the top |
+| `Z` | a fifth of real speed <-> real speed |
 
 Sliders: stiffness (N/m) and mass (g), which hang it up again with the new
-setting half a second after you let go; hold (the seconds, on screen, it
+setting half a second after you let go (and set the one on the stairs going
+again with it); hold (the seconds, on screen, it
 hangs before the hand lets go); speed; steps. After each drop the console
 prints when the bottom started to move and when theory says it should have,
-how far the ball had fallen by then, and when the Slinky landed.
+how far the ball had fallen by then, and when the Slinky landed. For the
+stairs it prints each time one of its ends lands on a step, and how long it
+took to reach the floor.
 
 ## The theory
 
@@ -67,15 +74,68 @@ model with sticky collisions) also shows.
   step.
 * It starts exactly as it hangs, each coil's stretch set from the weight
   below it, so nothing moves until the hand lets go.
-* The wire is drawn as a helix, 8 straight pieces a coil, running from each
-  coil's height to the next one's.
-* 4800 physics steps a second. It runs at a tenth of real speed, since the
+* Only the bottom coil touches anything (the floor); the rest stop on each
+  other through their slides, so Bullet needn't look for contacts between
+  coils piled close together. Each coil is drawn as a ring of flat wire.
+* 4800 physics steps a second. It runs at a fifth of real speed, since the
   whole fall is over in half a second.
+
+## The Slinky on the stairs
+
+Seven steps, 12 cm up and 13 cm deep, from a landing 84 cm up. It starts as
+a hand would set it going: half of it closed up in a pile at the top step's
+front edge, the rest lifted over in an arch with its end set down on the
+next step. The pile pours over into the arch; the far end becomes the pile;
+and the Slinky turns end over end, each end landing one step lower than the
+other did:
+
+    stairs t= 0.64s  its first end lands on step 3
+    stairs t= 0.92s  its other end lands on step 4
+    stairs t= 1.29s  its first end lands on step 5
+    stairs t= 1.60s  its other end lands on step 6
+    stairs t= 1.97s  its first end lands on step 7
+    stairs t= 2.32s  its other end lands on the floor
+    stairs t= 2.95s  its first end lands on the floor
+    stairs t= 3.66s  the walking Slinky comes to rest, on the floor: 7 steps down in 2.95 s
+
+About a third of a second a step (in simulated time; it runs at a fifth of
+real speed, as the falling one does).
+
+Each walk is a little different. Like a real one, it is sensitive: the
+smallest difference in how a step goes changes the next, so the times vary
+by a few tenths of a second from walk to walk, and about one walk in five
+goes wrong: it gallops, skipping a step or two, or stops short on a step.
+Either way, it starts again three seconds after it comes to rest. These
+stairs (12 cm up, 13 cm deep) are the size it walks best on; with deeper
+treads it more often stops, with shallower ones it more often gallops.
+
+It's the same Slinky as the falling one, built more simply:
+
+* It moves in the plane of the drawing only (along the stairs and up and
+  down, turning about the axis across them), which is how a Slinky walks.
+* It's 43 pieces of two coils each. Each piece is a capsule as wide as the
+  Slinky and as thick as two closed coils, so closed up the pieces touch.
+  The pieces touch the stairs and each other.
+* Each piece's two sides (its ends, either side of the middle) are joined to
+  the next piece's by a spring that pulls when they're apart and never
+  pushes: half of k times 42 each, so the two sides together make the
+  Slinky's stiffness k, with a little damping (0.05 N s/m: without it
+  the Slinky gallops more often, with twice as much it more often stops). Stretched on one side and
+  closed on the other, the Slinky bends, as a real one does.
+* A stiff spring between each two pieces' middles keeps them in line, so
+  they can't slide sideways off each other.
+* Each piece is drawn as a coil, and another coil is drawn half way to the
+  next piece.
+
+The stiffness and mass sliders set it too.
 
 ## Files
 
-* `falling-slinky.lua`: the exhibit. It also stands in Euler's Cabinet of
-  Curiosities (`../Cabinet/`).
+* `falling-slinky.lua`: the exhibit, both Slinkys. It also stands in
+  Euler's Cabinet of Curiosities (`../Cabinet/`).
+* `slinky-meshes/coil.obj`: one coil, a ring of flat wire.
+* `reconstruction/gen-meshes.py`: makes it (`python3 gen-meshes.py`, from
+  that folder).
 
 Headless testing: `SL_COILS`, `SL_K` (N/m), `SL_MASS` (g), `SL_SPEED`,
 `SL_LOG=file.csv` (time, top, bottom, the bottom's speed, the ball, the
