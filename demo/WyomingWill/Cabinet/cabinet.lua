@@ -148,9 +148,13 @@ EXHIBITS = EXHIBITS or {
     prefix = "Double: ", floorY = -75,
     about = "The double pendulum: seven let go a billionth of a radian apart swing as one,\n" ..
             "then fly apart; its two pure swings; and upside down on shaken pivots." },
+  { dir = "../SolarSystem/", file = "solar-system.lua", name = "the solar system", label = "solar-system",
+    prefix = "Solar: ", floorY = -75,
+    about = "The solar system: the Sun, the planets, Pluto, five asteroids and 22 moons,\n" ..
+            "moved by gravity (and Einstein) from where JPL had them on 2026-01-01." },
 }
--- empty bays at the far end, for ideas still to come (none now: nineteen
--- exhibits, ten bays in wing A, nine in B)
+-- empty bays at the far end, for ideas still to come (none now: twenty
+-- exhibits, ten bays in each wing)
 SPARE_BAYS = SPARE_BAYS or 0
 
 -- ---------------------------------------------------------------------
