@@ -112,8 +112,9 @@ EXHIBITS = EXHIBITS or {
     about = "The double cone: on rails that rise and spread apart it rolls 'uphill',\n" ..
             "though its centre of mass goes down." },
   { dir = "../Oloid/", file = "oloid.lua", name = "the oloid and the sphericon", label = "oloid",
-    about = "Coming: the oloid and the sphericon, rollers that touch the floor with\n" ..
-            "their whole surface as they wobble along a winding path." },
+    prefix = "Oloid: ", floorY = -75,
+    about = "The oloid, the two-circle roller and the sphericon: not round, yet they\n" ..
+            "roll, laying their whole surface on the board as they go." },
   { dir = "../Slinky/", file = "falling-slinky.lua", name = "the falling Slinky", label = "slinky",
     prefix = "Slinky: ", floorY = 0,
     about = "The falling Slinky: let a hanging Slinky go, and its bottom hangs still\n" ..

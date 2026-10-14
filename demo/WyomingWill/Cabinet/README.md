@@ -64,7 +64,7 @@ with a 3.4 m aisle between.
 | A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
 | A, west 5 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
 | A, east 5 | the double cone | `../DoubleCone/double-cone.lua` |
-| B, north 1 | the oloid and the sphericon | (in preparation) |
+| B, north 1 | the oloid and the sphericon | `../Oloid/oloid.lua` |
 | B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
 | B, north 2 | the Brazil-nut effect | (in preparation) |
 | B, south 2 | Newton's cradle | (in preparation) |
