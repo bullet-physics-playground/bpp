@@ -16,6 +16,10 @@ return {
   ["slinky"] = { file = "label-slinky.obj", w = 48.56, h = 4.20 },
   ["brazil-nut"] = { file = "label-brazil-nut.obj", w = 60.13, h = 4.20 },
   ["newtons-cradle"] = { file = "label-newtons-cradle.obj", w = 56.85, h = 4.20 },
+  ["eulers-disk"] = { file = "label-eulers-disk.obj", w = 41.18, h = 4.20 },
+  ["galileo-ramp"] = { file = "label-galileo-ramp.obj", w = 49.68, h = 4.20 },
+  ["huygens-clocks"] = { file = "label-huygens-clocks.obj", w = 55.62, h = 4.20 },
+  ["kapitza"] = { file = "label-kapitza.obj", w = 65.15, h = 4.20 },
   ["reserved"] = { file = "label-reserved.obj", w = 31.24, h = 4.20 },
   ["in-preparation"] = { file = "label-in-preparation.obj", w = 28.57, h = 2.40 },
 }

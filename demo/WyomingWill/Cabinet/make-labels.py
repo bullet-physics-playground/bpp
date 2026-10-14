@@ -83,6 +83,10 @@ jobs = [
  ("slinky", "FALLING SLINKY", 4.2, 0.5),
  ("brazil-nut", "BRAZIL-NUT EFFECT", 4.2, 0.5),
  ("newtons-cradle", "NEWTON’S CRADLE", 4.2, 0.5),
+ ("eulers-disk", "EULER’S DISK", 4.2, 0.5),
+ ("galileo-ramp", "GALILEO’S RAMP", 4.2, 0.5),
+ ("huygens-clocks", "HUYGENS’ CLOCKS", 4.2, 0.5),
+ ("kapitza", "KAPITZA’S PENDULUM", 4.2, 0.5),
  ("reserved", "RESERVED", 4.2, 0.5),
  ("in-preparation", "IN PREPARATION", 2.4, 0.4),
 ]

@@ -121,15 +121,33 @@ EXHIBITS = EXHIBITS or {
             "in mid-air until the collapsing coils reach it, while a ball beside it falls.\n" ..
             "Beside it, the same Slinky walks down a flight of stairs." },
   { dir = "../BrazilNut/", file = "brazil-nut.lua", name = "the Brazil-nut effect", label = "brazil-nut",
-    about = "Coming: the Brazil-nut effect. Shake a box of mixed grains and the big\n" ..
-            "ones come up to the top." },
+    prefix = "Brazil: ", floorY = -75,
+    about = "The Brazil-nut effect: shaken hard, a box of beads turns over slowly, and\n" ..
+            "the big bead comes up to the top and stays there." },
   { dir = "../NewtonsCradle/", file = "newtons-cradle.lua", name = "Newton's cradle", label = "newtons-cradle",
     prefix = "Cradle: ", floorY = -75,
     about = "Newton's cradle: lift one ball and one flies out at the far end; two, and\n" ..
             "two. Steel on steel, by Hertz's law." },
+  { dir = "../EulersDisk/", file = "eulers-disk.lua", name = "Euler's disk", label = "eulers-disk",
+    prefix = "Disk: ", floorY = -75,
+    about = "Euler's disk: a steel disc rolls round on a mirror, leaning further over and\n" ..
+            "going round faster and faster, until it stops, flat." },
+  { dir = "../GalileoRamp/", file = "galileo-ramp.lua", name = "Galileo's ramp", label = "galileo-ramp",
+    prefix = "Ramp: ", floorY = -75,
+    about = "Galileo's ramp: a ball, a disc, a hoop and a can of soup race down a ramp.\n" ..
+            "The soup wins; the hoop comes last." },
+  { dir = "../HuygensClocks/", file = "huygens-clocks.lua", name = "Huygens' clocks", label = "huygens-clocks",
+    prefix = "Clocks: ", floorY = 0,
+    about = "Huygens' clocks: two pendulum clocks on one beam, started out of step, end\n" ..
+            "up swinging in exact opposition -- 'an odd kind of sympathy'." },
+  { dir = "../Kapitza/", file = "kapitza.lua", name = "Kapitza's pendulum", label = "kapitza",
+    prefix = "Kapitza: ", floorY = -75,
+    about = "Kapitza's pendulum: an upside-down pendulum on a pivot shaken fast up and\n" ..
+            "down stays up, rocking slowly about the upright." },
 }
--- empty bays at the far end, for ideas still to come
-SPARE_BAYS = SPARE_BAYS or 3
+-- empty bays at the far end, for ideas still to come (none now: the
+-- eighteen exhibits fill the hall as it was, ten bays in wing A, eight in B)
+SPARE_BAYS = SPARE_BAYS or 0
 
 -- ---------------------------------------------------------------------
 -- the hall's plan: an L. Wing A runs north from the entrance (+z) to the
