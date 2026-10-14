@@ -20,6 +20,13 @@
 --           on one cone, then the other, weaving from side to side; its
 --           centre of mass stays at the same height too (R / sqrt 2).
 --
+-- THE PENS: above each roller, on a dotted stem from its centre, a pen
+-- draws its centre's height, 20 times over, straight above its lane, over
+-- a thin rod at its height in theory: the oloid's red wave runs between
+-- two rods (its lowest and highest), the two-circle roller's blue line and
+-- the sphericon's green lie flat on theirs. On the board, a dotted track
+-- under each marks its path: how it weaves from side to side.
+--
 -- Theory, from the shapes alone (worked out as the script loads): the
 -- height of the centre of mass above the board for every way the roller
 -- can lie on it touching it along a line -- constant for the two-circle
@@ -211,6 +218,61 @@ local function heights(r)
   return lo, hi
 end
 for _, r in ipairs(ROLLERS) do r.hlo, r.hhi = heights(r) end
+
+-- ---------------------------------------------------------------------
+-- the pens: above each roller, a trail of dots where its centre has been,
+-- its height above the board drawn PEN_K times over (the oloid's rise and
+-- fall of 0.26 cm becomes a wave 5 cm high; the others draw flat lines),
+-- following it from side to side as it goes (the sphericon weaves). Under
+-- each trail, a thin rod at its height in theory (R / sqrt 2: the lowest
+-- the oloid's centre goes, the height the others' stays at), and for the
+-- oloid a second rod at the highest its centre goes in theory.
+-- ---------------------------------------------------------------------
+local PEN_K, PEN_UP, PEN_N, STEM_N = 20, 13, 160, 7
+local PEN_COL = { oloid = { "#d23a2a", "#8c2a20" }, ["two-circle"] = { "#2f74d0", "#234f8a" },
+                  sphericon = { "#2fa34f", "#226f38" } }
+local H_REF = AR / math.sqrt(2)
+local Q0 = btQuaternion(0, 0, 0, 1)
+local HIDDEN = btTransform(Q0, btVector3(0, -500, 0))
+local function penY(x, h) return boardY(x) + PEN_UP + PEN_K * (h - H_REF) end
+for _, r in ipairs(ROLLERS) do
+  local pc = PEN_COL[r.kind]
+  r.dots, r.stem = {}, {}
+  for i = 1, STEM_N do
+    local d = Sphere(i == STEM_N and 0.55 or 0.15, 0)
+    d.col = pc[1]
+    d.collides = false
+    d.trans = HIDDEN
+    v:add(d)
+    r.stem[i] = d
+  end
+  r.track = {}
+  for i = 1, PEN_N do
+    local d = Sphere(0.22, 0)
+    d.col = pc[2]
+    d.collides = false
+    d.trans = HIDDEN
+    v:add(d)
+    r.track[i] = d
+  end
+  for i = 1, PEN_N do
+    local d = Sphere(0.3, 0)
+    d.col = pc[1]
+    d.collides = false
+    d.trans = HIDDEN
+    v:add(d)
+    r.dots[i] = d
+  end
+  local x0, x1 = BX0 + 8, STOP_X - 2
+  local qx = btQuaternion(btVector3(0, 1, 0), math.pi / 2)
+  for _, h in ipairs(r.hhi - r.hlo > 1e-4 and { r.hlo, r.hhi } or { r.hlo }) do
+    local rod = Cylinder(0.08, (x1 - x0) / math.cos(SLOPE), 0)
+    rod.col = pc[2]
+    rod.collides = false
+    rod.trans = btTransform(btQuaternion(btVector3(0, 0, 1), -SLOPE) * qx, btVector3((x0 + x1) / 2, penY((x0 + x1) / 2, h), r.z))
+    v:add(rod)
+  end
+end
 
 -- ---------------------------------------------------------------------
 -- before every physics step: gravity, Euler's equations, the board
@@ -485,6 +547,9 @@ local function setRolling()
     r.hmin, r.hmax, r.zmin, r.zmax = 1e9, -1e9, 1e9, -1e9
     r.x0, r.y0 = r.gx, r.gy
     r.still, r.reported, r.stopped = 0, false, false
+    for _, d in ipairs(r.dots) do d.trans = HIDDEN end
+    for _, d in ipairs(r.track) do d.trans = HIDDEN end
+    r.ndots = 0
     if r.hhi - r.hlo < 1e-4 then
       print(string.format("  %-9s %.1f g; lying along a line on the board, its centre is always %.4f cm up (theory%s)", r.short,
                           r.mass * 1000, (r.hlo + r.hhi) / 2,
@@ -506,6 +571,19 @@ v:postSim(function(N_)
     load(r)
     copyTrans(r.edges, r.m)
     local h = heightOf(r)
+    -- the pen: a dotted stem from the centre up to its tip, which draws the
+    -- height straight above the roller's lane (its own side-to-side
+    -- weaving left out); the weaving is drawn on the board, under it
+    local py = penY(r.gx, h)
+    for i = 1, STEM_N do
+      local f = i / STEM_N
+      r.stem[i].trans = btTransform(Q0, btVector3(r.gx, r.gy + (py - r.gy) * f, r.gz + (r.z - r.gz) * f))
+    end
+    if not r.stopped and N_ % 2 == 0 and r.ndots < PEN_N then
+      r.ndots = r.ndots + 1
+      r.dots[r.ndots].trans = btTransform(Q0, btVector3(r.gx, py, r.z))
+      r.track[r.ndots].trans = btTransform(Q0, btVector3(r.gx, boardY(r.gx) + 0.1, r.gz))
+    end
     if not r.stopped then
       r.hmin, r.hmax = math.min(r.hmin, h), math.max(r.hmax, h)
       r.zmin, r.zmax = math.min(r.zmin, r.gz), math.max(r.zmax, r.gz)
@@ -565,6 +643,12 @@ v:setHelpText(table.concat({
   "Back:   the oloid -- its centre rises and falls a little",
   "Middle: the two-circle roller -- its centre stays level",
   "Front:  the sphericon -- weaves; its centre stays level",
+  "",
+  "Above each, a pen on a dotted stem draws its centre's height,",
+  "20 times over: the oloid's red line waves between its two",
+  "rods (its theory's lowest and highest); the blue and green",
+  "lie flat on theirs. On the board, dots mark each one's path:",
+  "how it weaves from side to side.",
   "",
   "R   push them off again",
   "Z   slow motion (1/4) <-> real time",

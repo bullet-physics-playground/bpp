@@ -14,6 +14,21 @@ line.
 
 When all three have reached the far end, they're pushed off again.
 
+## Seeing it: the pens
+
+The centres' heights change by a quarter of a centimetre at most, too
+little to see, so each roller carries a pen:
+
+* **Above each roller**, on a dotted stem from its centre, a pen draws its
+  centre's height, magnified 20 times, in a line straight above its lane.
+  * The oloid's (red) line waves between two thin rods: the lowest and
+    highest its centre can be, in theory, R/√2 and 3R/4.
+  * The two-circle roller's (blue) and the sphericon's (green) lines lie
+    flat on their one rod, at R/√2.
+* **On the board**, a dotted track under each roller marks where its
+  centre has been, so its weaving from side to side shows there and not
+  in the height line.
+
 ## Keys
 
 | Key | Action |
