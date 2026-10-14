@@ -72,6 +72,7 @@ with a 3.4 m aisle between.
 | B, south 3 | Galileo's ramp | `../GalileoRamp/galileo-ramp.lua` |
 | B, north 4 | Huygens' clocks | `../HuygensClocks/huygens-clocks.lua` |
 | B, south 4 | Kapitza's pendulum | `../Kapitza/kapitza.lua` |
+| B, north 5 | the double pendulum | `../DoublePendulum/double-pendulum.lua` |
 
 Gömböc Drop C (`../Gomboc/gomboc-drop-c.lua`) isn't in the hall: Gömböc
 Variety shows Gomboc-C and more.
@@ -96,8 +97,8 @@ Each exhibit is one line in `EXHIBITS` near the top of `cabinet.lua`:
 | `about` | what its placard says when the mouse rests on it |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`
-adds empty bays at the far end (0 now: the eighteen exhibits fill the hall
-as it was, ten bays in wing A and eight in B).
+adds empty bays at the far end (0 now: nineteen exhibits, ten bays in wing
+A and nine in B, the last row's other bay empty).
 
 An exhibit is written as a script that runs on its own, the way the
 existing ones are: centimetres, its viewing side toward +z, a `Plane` for

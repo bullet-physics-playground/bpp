@@ -144,9 +144,13 @@ EXHIBITS = EXHIBITS or {
     prefix = "Kapitza: ", floorY = -75,
     about = "Kapitza's pendulum: an upside-down pendulum on a pivot shaken fast up and\n" ..
             "down stays up, rocking slowly about the upright." },
+  { dir = "../DoublePendulum/", file = "double-pendulum.lua", name = "the double pendulum", label = "double-pendulum",
+    prefix = "Double: ", floorY = -75,
+    about = "The double pendulum: seven let go a billionth of a radian apart swing as one,\n" ..
+            "then fly apart; its two pure swings; and upside down on shaken pivots." },
 }
--- empty bays at the far end, for ideas still to come (none now: the
--- eighteen exhibits fill the hall as it was, ten bays in wing A, eight in B)
+-- empty bays at the far end, for ideas still to come (none now: nineteen
+-- exhibits, ten bays in wing A, nine in B)
 SPARE_BAYS = SPARE_BAYS or 0
 
 -- ---------------------------------------------------------------------

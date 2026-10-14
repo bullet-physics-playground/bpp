@@ -20,6 +20,7 @@ return {
   ["galileo-ramp"] = { file = "label-galileo-ramp.obj", w = 49.68, h = 4.20 },
   ["huygens-clocks"] = { file = "label-huygens-clocks.obj", w = 55.62, h = 4.20 },
   ["kapitza"] = { file = "label-kapitza.obj", w = 65.15, h = 4.20 },
+  ["double-pendulum"] = { file = "label-double-pendulum.obj", w = 59.72, h = 4.20 },
   ["reserved"] = { file = "label-reserved.obj", w = 31.24, h = 4.20 },
   ["in-preparation"] = { file = "label-in-preparation.obj", w = 28.57, h = 2.40 },
 }
