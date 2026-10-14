@@ -13,8 +13,19 @@ Open either file in the GUI, or run it headless **from the
 
     bpp -f Formations-Lennard-Jones-Quadcopter.lua -n 3000
 
-The scene starts with the drones on a launch grid. They take off, and AP
-engages once all of them are at altitude.
+The scene starts, as the originals do, with a compact random cluster: the
+drones stand at random on the ground, no closer than `padSpacing` (1 m), in
+a square about 10 m across. They climb straight up (2D: all to `altitude`;
+3D: each to a random height in a 6 m band), and AP engages once all of them
+are at altitude and spreads them into the lattice.
+
+The **status bar**, beside the frame counter, shows the current mode on
+one line: law, 2D/3D and formation, goal, obstacles, AP state, drone
+counts, wind and camera, plus the lattice's bond length and speed once AP
+runs. It updates on every change and about once a second. This uses
+`v.statusText`, a small BPP addition (`src/viewer.*`, `src/gui.*`); on an
+older BPP the mode changes are printed to the console instead. The
+Shortcuts pane holds just the keys.
 
 ## Files
 
@@ -72,6 +83,20 @@ At `apHz` (default 5 Hz) each AP tick runs these steps:
 In 2D everyone flies at `altitude`; in 3D, AP's y is height around it. A
 geofence keeps waypoints between 2 m and 60 m.
 
+**Obstacles** are solid columns from the ground up past the formation. AP
+repels inside `obstacleSize`, measured horizontally from the column's axis,
+in 3D as well as 2D. The originals' 3D obstacle was a sphere; a column needs
+a column-shaped repulsion. The solid column is a third of that radius.
+
+**Camera:** the mouse always controls the angle and zoom. With follow on
+(T), the camera is only *translated* each frame by however far the swarm's
+centre moved. Your angle and distance are kept, and the orbit point moves
+with the swarm, so dragging orbits around it. P aims from a preset view.
+Orbiting around the swarm uses `v.cam.pivot`, which needs the two small
+additions to `src/objects/cam.cpp` and `cam.h` (`v.cam.dir`,
+`v.cam.pivot`). Without them, following still works but orbiting turns
+around the world origin.
+
 With perfect tracking this reduces exactly to the original particle demo.
 That was checked by swapping in an ideal drone: the lattices match the
 originals.
@@ -90,11 +115,12 @@ originals.
 | G | goal |
 | C | clear obstacles |
 | arrows / IJKL / YH | move the cursor |
-| O | obstacle at the cursor: a pole in 2D, a sphere in 3D; both solid |
+| O | obstacle at the cursor: a solid column, in 2D and 3D |
 | V | neighbour lines |
 | W | waypoint markers |
-| T | follow camera on/off |
-| P | overview / top-down / close-up on one drone |
+| T | follow the swarm on/off |
+| P | aim the camera: overview / top-down / close-up on one drone |
+| mouse | drag to orbit, wheel to zoom; following keeps your angle |
 | = / - | simSpeed |
 
 **Colours:**
@@ -113,26 +139,45 @@ Drones that touch each other, an obstacle, or (while flying) the ground lose
 their props and fall, and can take down drones below them. Untick
 `propStrikes` to let hulls just bounce.
 
-## What the drones change (3-minute runs, 50 drones, default settings)
+## What the drones change (2-minute runs, 50 drones, default settings, compact launch)
 
 | Mode | Lattice (bond length, sd) | Drones lost |
 | --- | --- | --- |
-| Lennard-Jones 2D triangle | 1.000 R, sd 0.003: identical to the original | 0 |
-| Lennard-Jones 3D triangle | 1.006 R, sd 0.030 | 0 |
-| Lennard-Jones 3D square | peaks at 1.0 R and √2 R | 0 |
-| Newtonian 2D triangle | 1.019 R, sd 0.069; still moving at 0.3 m/s | 0 |
-| Newtonian 3D triangle | 1.013 R, sd 0.106, no collapsed pairs | 0 |
+| Lennard-Jones 2D triangle | 1.000 R, sd 0.002 | 4 (AP's first expansion) |
+| Lennard-Jones 2D square | 1.011 R, sd 0.043 | 4 (AP's first expansion) |
+| Lennard-Jones 3D triangle | 1.012 R, sd 0.047 | 0 |
+| Lennard-Jones 3D square | 1.011 R, sd 0.045, compact (80 bonds) | 0 |
+| Newtonian 2D triangle | 0.992 R, sd 0.092; still moving at 0.2 m/s | 0 |
+| Newtonian 2D square | 0.980 R, sd 0.105 | 7 |
+| Newtonian 3D triangle | 0.997 R, sd 0.112, no collapsed pairs | 0 |
+| Newtonian 3D square | 1.016 R, sd 0.118 | 0 |
 
+- **2D launches lose a few drones to AP itself.** In 2D every drone is at
+  the same height, so AP's first violent expansion from the compact cluster
+  can push a pair within a drone's width. The repulsion is capped at
+  `forceMax`/`forceMaximum`, and neighbours behind can outpush it. Ideal
+  drones (perfect tracking) collide just the same, so particles in the
+  original overlap here too, invisibly. In 3D the drones are spread over
+  6 m of height and none collide.
+  - Over 3 seeds: 1 m spacing lost 12 / 13 / 11 drones (LJ triangle /
+    LJ square / Newtonian square, of 150 each).
+  - At `padSpacing` 1.5 m that falls to 2 / 8 / 0.
+  - A higher repulsion cap makes it worse (20 / 34).
+  - Untick `propStrikes` to watch the original behaviour, with drones
+    bouncing instead.
 - **The split Newtonian law never settles on real drones.** It flips sign at
   `rad`, and the drones' response lag keeps overshooting across the switch.
-- **The defaults are chosen to keep the swarm flyable:**
-  - **AP at 5 Hz:** at 10 Hz the commanded speeds outrun the airframe.
-  - **Launch grid at 3 m:** at 1.5 m, AP's first expansion causes
-    collisions.
-  - **Solid obstacle at a third of the repulsion radius:** a drone needs
-    about 0.5 m to stop from 2 m/s.
+- **Square formations sort out slowly.** The spin trick needs spins (id % 2)
+  in a checkerboard. From a random cluster the lattice has to sort itself
+  into one, so for the first 30–40 s it keeps reorganising, then settles to
+  0.01 m/s with defects that anneal out over minutes. The original particles
+  do the same: only 14 of 50 have all four square neighbours after 600
+  ticks, 18 after 2000.
+- **AP at 5 Hz:** at 10 Hz the commanded speeds outrun the airframe.
+- **Solid obstacle at a third of the repulsion radius:** a drone needs about
+  0.5 m to stop from 2 m/s.
 
-  Each of these was measured; see `../FIXES.md` items 17–21.
+The measurements behind these are in `../FIXES.md`, items 17–23.
 
 ## Limitations
 

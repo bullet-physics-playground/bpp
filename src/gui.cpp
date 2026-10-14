@@ -53,6 +53,18 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
   progressBar->hide();
   statusBar()->addPermanentWidget(progressBar);
 
+  // The script's status line (v.statusText), left of the frame counter. A
+  // permanent widget, so BPP's own status messages don't hide it; it takes
+  // the spare width of the bar while a script uses it, and is hidden when
+  // the script sets nothing.
+  scriptStatusLabel = new QLabel(statusBar());
+  scriptStatusLabel->setObjectName("bppScriptStatus");
+  scriptStatusLabel->setTextFormat(Qt::PlainText);
+  scriptStatusLabel->setMinimumWidth(0);
+  scriptStatusLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+  scriptStatusLabel->hide();
+  statusBar()->addPermanentWidget(scriptStatusLabel, 1);
+
   frameLabel = new QLabel("frame 0", statusBar());
   frameLabel->setObjectName("bppFrameLabel");
   frameLabel->setMinimumWidth(100);
@@ -110,6 +122,13 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
           &Gui::toggleDeactivation);
 
   connect(ui.viewer, &Viewer::statusEvent, this, &Gui::setStatusBarText);
+
+  // (the full text also as a tooltip, for when the window is too narrow)
+  connect(ui.viewer, &Viewer::statusTextChanged, this, [this](const QString &text) {
+    scriptStatusLabel->setText(text);
+    scriptStatusLabel->setToolTip(text);
+    scriptStatusLabel->setVisible(!text.isEmpty());
+  });
 
   connect(ui.viewer, &Viewer::clearDebugText, debugText, &CodeEditor::clear);
 

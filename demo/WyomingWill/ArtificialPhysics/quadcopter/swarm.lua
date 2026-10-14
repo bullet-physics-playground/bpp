@@ -58,9 +58,21 @@
 --            they land on. Turn propStrikes off to let hulls just bounce.
 -- The formation starts once every drone has reached its takeoff altitude.
 --
--- OBSTACLES are real: in 2D a pole from the ground through the formation
--- plane (AP's 2D repulsion disc, extruded), in 3D a sphere. AP repels
--- inside obstacleSize; the solid object is a third of that radius. The
+-- The current mode (2D/3D, formation, goal, obstacles, AP, drone counts,
+-- wind, camera) is shown on one line in the status bar, beside the frame
+-- counter (v.statusText; on an older bpp it is printed to the console);
+-- the Shortcuts pane holds just the keys.
+--
+-- LAUNCH. As in the originals, the swarm starts as a compact random
+-- cluster, much tighter than the lattice it grows into, and AP spreads it
+-- out: drones stand at random on the ground no closer than padSpacing
+-- (1 m), climb straight up (2D: all to `altitude`; 3D: each to a random
+-- height in a band 2 x sep tall), and AP takes over once all are up.
+--
+-- OBSTACLES are real columns from the ground up past the formation, in 2D
+-- and 3D alike; AP repels inside obstacleSize, measured horizontally from
+-- the column's axis (the originals' 3D obstacle was a sphere), and the
+-- solid column is a third of that radius. The
 -- margin matters: AP's particles stop dead the moment the repulsion says
 -- so, but a drone arriving at ~2 m/s needs about half a metre to brake
 -- (35 degree tilt limit plus control lag) -- with only half the radius as
@@ -127,7 +139,7 @@ defParam("altitude",     12,   4,   40,   1,    "formation altitude (m): the 2D 
 defParam("windSpeed",    0,    0,   15,   0.5,  "steady wind along +z (m/s)")
 defParam("gust",         0,    0,   5,    0.25, "gust strength, std dev (m/s)")
 defParam("downwash",     1,    0,   2,    0.1,  "downwash strength (0 = off, 1 = momentum theory)")
-defParam("padSpacing",   3.0,  0.8, 6,    0.1,  "launch grid spacing (m), used by the next Setup (R)")
+defParam("padSpacing",   1.0,  0.7, 6,    0.1,  "closest two drones may stand in the launch cluster (m), used by the next Setup (R)")
 defParam("simSpeed",     1,    1,   8,    1,    "flight time per rendered frame, in 1/30 s units (fast-forward)")
 v:addParam("propStrikes", true, "drones touching another drone, an obstacle, or the ground in flight lose their props and fall")
 
@@ -239,21 +251,19 @@ local function moveCursor(dx, dy, dz)
 end
 
 --------------------------------------------------------------------------
--- obstacles: an AP entity plus a solid pole (2D) or sphere (3D)
+-- obstacles: an AP entity plus a solid column from the ground up past the
+-- formation, in 2D and 3D alike. AP repels by HORIZONTAL distance to the
+-- column's axis (in 2D that is all the distance there is), so the
+-- repulsion has the same shape as the solid thing it protects; the
+-- originals' 3D obstacle was a sphere.
 --------------------------------------------------------------------------
 local function buildObstacleObj(obs)
   if obs.obj then v:remove(obs.obj); obstacleObjs[obs.obj] = nil end
   local r = math.max(0.05, v:getParam("obstacleSize") * S() / 3)
-  local x, y, z = toWorld(obs.x, obs.y, obs.z)
-  local o
-  if is3D then
-    o = Sphere(r, 0)
-    o.pos = btVector3(x, y, z)
-  else
-    local h = ALT() + 6
-    o = Cylinder(r, h, 0)
-    o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(x, h / 2, z))  -- local z -> up
-  end
+  local x, _, z = toWorld(obs.x, obs.y, obs.z)
+  local h = ALT() + 2 * v:getParam(SEP) * S() + 8     -- well above the formation
+  local o = Cylinder(r, h, 0)
+  o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(x, h / 2, z))  -- local z -> up
   o.col = COL_OBS
   v:add(o)
   obs.obj = o
@@ -265,12 +275,14 @@ function addObstacleAt(x, y, z)
   local obs = { x = x, y = y, z = z, mass = HOLD_MASS }
   obstacles[#obstacles + 1] = obs
   buildObstacleObj(obs)
+  if updateStatus then updateStatus() end
 end
 
 function clearObstacles()
   for _, o in ipairs(obstacles) do v:remove(o.obj) end
   obstacles = {}
   obstacleObjs = {}
+  if updateStatus then updateStatus() end
 end
 
 --------------------------------------------------------------------------
@@ -340,11 +352,12 @@ local function apTick(p)
       end
 
       for _, obs in ipairs(obstacles) do
-        local dx, dy, dz = obs.x - d.ax, obs.y - d.ay, obs.z - d.az
-        local r = math.sqrt(dx * dx + dy * dy + dz * dz)
+        -- distance to the column's axis (horizontal only)
+        local dx, dz = obs.x - d.ax, obs.z - d.az
+        local r = math.sqrt(dx * dx + dz * dz)
         if r <= p.obstacleSize and r > 0 then
           local f = p.obstacleSize - r
-          fx, fy, fz = fx - f * dx / r, fy - f * dy / r, fz - f * dz / r
+          fx, fz = fx - f * dx / r, fz - f * dz / r
         end
       end
 
@@ -511,6 +524,7 @@ local function physicsStep(p)
       apEngaged = true
       nextApTime = simTime
       print(string.format("t=%.1f s: all drones at altitude -- Artificial Physics engaged", simTime))
+      if updateStatus then updateStatus() end
     end
   end
 end
@@ -540,21 +554,39 @@ function setup(n)
   clearWaypointMarkers()
   drones, goals = {}, {}
   objToDrone = {}
+  CAM_REAIM = true                                -- aim at the new launch
   nextId = 0
   apEngaged = false
   stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
 
-  -- launch grid, centred under the originals' starting cluster (x = WORLD_WIDTH/3)
+  -- A compact random cluster on the ground, as in the originals: they
+  -- scatter the particles over a square 2 x sep wide (6 m here), much
+  -- tighter than the lattice they grow into, and let AP spread them out.
+  -- Drones need room to stand, so positions are drawn uniformly over that
+  -- square but never closer than padSpacing; the square only grows when it
+  -- cannot hold n drones at that spacing (50 at 1 m: ~10.5 m). In 3D each
+  -- drone climbs straight up to a random height in a band 2 x sep tall
+  -- around `altitude` -- the originals' cube -- on its own column, so the
+  -- climb itself never brings two drones together.
   local s = S()
   local cx = WORLD_WIDTH / 3 * s
-  local LAUNCH_SPACING = v:getParam("padSpacing")
-  local cols = math.ceil(math.sqrt(n))
-  local rows = math.ceil(n / cols)
+  local minSep = v:getParam("padSpacing")
   local jitter = 2 * v:getParam(SEP) * s          -- the originals' scatter width
-  for i = 0, n - 1 do
-    local c, r = i % cols, math.floor(i / cols)
-    local x = cx + (c - (cols - 1) / 2) * LAUNCH_SPACING + (math.random() - 0.5) * 0.3
-    local z = (r - (rows - 1) / 2) * LAUNCH_SPACING + (math.random() - 0.5) * 0.3
+  local side = math.max(jitter, math.sqrt(n * minSep * minSep / 0.45))
+  local placed = {}
+  for _ = 1, n do
+    local x, z
+    for _ = 1, 2000 do
+      x = cx + (math.random() - 0.5) * side
+      z = (math.random() - 0.5) * side
+      local ok = true
+      for _, q in ipairs(placed) do
+        if (q[1] - x) ^ 2 + (q[2] - z) ^ 2 < minSep * minSep then ok = false; break end
+      end
+      if ok then break end
+      side = side * 1.001                          -- crowded: let it breathe
+    end
+    placed[#placed + 1] = { x, z }
     local alt = ALT()
     if is3D then alt = alt + (math.random() - 0.5) * jitter end
     launch(x, z, math.max(MIN_ALT, alt))
@@ -564,6 +596,7 @@ function setup(n)
   goal.obj = ghost(Sphere(0.4, 0), COL_GOAL)
   goals[1] = goal
   print(string.format("setup: %d drones on the launch grid (%s)", n, is3D and "3D" or "2D"))
+  if updateStatus then updateStatus() end
 end
 
 --------------------------------------------------------------------------
@@ -621,12 +654,20 @@ local function updateWaypointMarkers()
 end
 
 --------------------------------------------------------------------------
--- camera: follows the swarm (T toggles), P cycles the view
+-- camera. The mouse is always in charge of the viewing angle and zoom:
+-- the script never re-aims the camera except when P picks a view. With
+-- follow on (T), each frame the camera is only TRANSLATED by however far
+-- the swarm's centre (or, in close-up, the chosen drone) moved, so the
+-- angle and distance you set with the mouse are kept while the subject
+-- stays in view; the orbit pivot is moved with it, so dragging orbits
+-- around the swarm rather than around the world origin. (The pivot needs a
+-- bpp with v.cam.pivot; without it, following still works.)
 --------------------------------------------------------------------------
 local followCam = true
 local camMode = 1            -- 1 overview, 2 top-down, 3 close-up on one drone
+local CAM_MODES = { "overview", "top-down", "close-up" }
 local camTarget = nil
-local camX, camY, camZ = WORLD_WIDTH / 3 * 0.06, 6, 0
+local tgtX, tgtY, tgtZ = nil, nil, nil   -- the smoothed point being followed
 
 local function centroid()
   local n, x, y, z = 0, 0, 0, 0
@@ -637,31 +678,56 @@ local function centroid()
   return x / n, y / n, z / n
 end
 
-function updateCamera()
-  if not followCam then return end
+local function followPoint()
   if camMode == 3 then
     if not camTarget or camTarget.state == "crashed" or camTarget.state == "landed" then
       camTarget = nil
       for _, d in ipairs(drones) do if d.state == "ap" or d.state == "takeoff" then camTarget = d; break end end
     end
-    if camTarget then
-      local d = camTarget
-      common.setCamera(btVector3(d.px - 2.2, d.py + 1.2, d.pz + 2.2), btVector3(d.px, d.py, d.pz), 0.9)
-      return
-    end
+    if camTarget then return camTarget.px, camTarget.py, camTarget.pz end
   end
-  local x, y, z = centroid()
+  return centroid()
+end
+
+local function setPivot(x, y, z)
+  pcall(function() v.cam.pivot = btVector3(x, y, z) end)
+end
+
+-- P (and a new launch): aim the camera once from a preset offset
+function aimCamera()
+  local x, y, z = followPoint()
   if not x then return end
-  local a = 0.08                                  -- smoothing
-  camX, camY, camZ = camX + (x - camX) * a, camY + (y - camY) * a, camZ + (z - camZ) * a
-  if camMode == 2 then
-    common.setCamera(btVector3(camX, camY + 70, camZ), btVector3(camX, camY, camZ), 0.6,
-                     { up = btVector3(0, 0, -1) })
+  tgtX, tgtY, tgtZ = x, y, z
+  local look = btVector3(x, y, z)
+  if camMode == 3 then
+    common.setCamera(btVector3(x - 2.2, y + 1.2, z + 2.2), look, 0.9)
+  elseif camMode == 2 then
+    common.setCamera(btVector3(x, y + 70, z), look, 0.6, { up = btVector3(0, 0, -1) })
   elseif is3D then
-    common.setCamera(btVector3(camX + 22, camY + 15, camZ + 22), btVector3(camX, camY, camZ), 0.8)
+    common.setCamera(btVector3(x + 22, y + 15, z + 22), look, 0.8)
   else
-    common.setCamera(btVector3(camX + 4, camY + 26, camZ + 24), btVector3(camX, camY, camZ), 0.8)
+    common.setCamera(btVector3(x + 4, y + 26, z + 24), look, 0.8)
   end
+  setPivot(x, y, z)
+end
+
+-- every frame: carry the camera along with the subject, angle untouched
+function updateCamera()
+  if CAM_REAIM then CAM_REAIM = false; camTarget = nil; tgtX = nil; aimCamera() end
+  if not followCam then return end
+  local x, y, z = followPoint()
+  if not x then return end
+  if not tgtX then
+    tgtX, tgtY, tgtZ = x, y, z                    -- start following from the current view
+    setPivot(x, y, z)
+    return
+  end
+  local a = (camMode == 3) and 0.5 or 0.08        -- smoothing (close-up: tighter)
+  local nx, ny, nz = tgtX + (x - tgtX) * a, tgtY + (y - tgtY) * a, tgtZ + (z - tgtZ) * a
+  local p = v.cam.pos
+  v.cam.pos = btVector3(p.x + nx - tgtX, p.y + ny - tgtY, p.z + nz - tgtZ)
+  tgtX, tgtY, tgtZ = nx, ny, nz
+  setPivot(nx, ny, nz)
 end
 
 --------------------------------------------------------------------------
@@ -679,11 +745,13 @@ function toggleFormation()
   isSquareFormation = not isSquareFormation
   applyDefaults()
   print("square formation = " .. tostring(isSquareFormation))
+  if updateStatus then updateStatus() end
 end
 
 function toggleGoal()
   isGoalEnabled = not isGoalEnabled
   print("goal enabled = " .. tostring(isGoalEnabled))
+  if updateStatus then updateStatus() end
 end
 
 function setDimension(want3D)
@@ -693,6 +761,7 @@ function setDimension(want3D)
   setup(math.floor(v:getParam("numDrones")))
   drawCursor()
   print("dimension = " .. (is3D and "3D" or "2D"))
+  if updateStatus then updateStatus() end
 end
 
 local function pick(filter)
@@ -714,6 +783,7 @@ function addDrone()
   end
   launch(x, z, math.max(MIN_ALT, t.py))
   print("launched drone " .. (nextId - 1))
+  if updateStatus then updateStatus() end
 end
 
 -- [: one drone leaves the formation and lands
@@ -725,6 +795,7 @@ function removeDrone()
   d.spx, d.spy, d.spz = d.px, d.py, d.pz
   setState(d, "landing")
   print("drone " .. d.id .. " landing")
+  if updateStatus then updateStatus() end
 end
 
 -- D: a drone stops following AP and holds position (the original's disable)
@@ -734,6 +805,7 @@ function disableDrone()
   d.spx, d.spy, d.spz, d.vfx, d.vfy, d.vfz = d.px, d.py, d.pz, 0, 0, 0
   setState(d, "hold")
   print("drone " .. d.id .. " disabled (holding position)")
+  if updateStatus then updateStatus() end
 end
 
 --------------------------------------------------------------------------
@@ -755,10 +827,15 @@ v:addShortcut("V", function()
   print("neighbor lines = " .. tostring(showNeighborLines))
 end)
 v:addShortcut("W", function() showWaypoints = not showWaypoints; print("waypoints = " .. tostring(showWaypoints)) end)
-v:addShortcut("T", function() followCam = not followCam; print("follow camera = " .. tostring(followCam)) end)
+v:addShortcut("T", function()
+  followCam = not followCam
+  if followCam then tgtX = nil end                -- pick up from where the view is now
+  print("follow camera = " .. tostring(followCam)); updateStatus()
+end)
 v:addShortcut("P", function()
   camMode = camMode % 3 + 1; camTarget = nil; followCam = true
-  print("camera: " .. ({ "overview", "top-down", "close-up" })[camMode])
+  aimCamera()
+  print("camera: " .. CAM_MODES[camMode]); updateStatus()
 end)
 v:addShortcut("Left",  function() moveCursor(-CURSOR_STEP, 0, 0) end)
 v:addShortcut("Right", function() moveCursor(CURSOR_STEP, 0, 0) end)
@@ -902,7 +979,9 @@ v:postSim(function(N)
 
   if simTime >= nextStats then
     nextStats = simTime + 1.0
-    print(formationStats(p))
+    local line = formationStats(p)
+    print(line)
+    updateStatus(line)
     stats.maxTilt, stats.satSteps, stats.steps, stats.trackSum, stats.trackN = 0, 0, 0, 0, 0
   end
 end)
@@ -912,11 +991,9 @@ v:preStart(function(N)
   print("  G: goal  C: clear  cursor: arrows/IJKL Y/H  O: obstacle  V: lines  W: waypoints  T/P: camera  =/-: speed")
 end)
 
-local HELP_TEXT = cfg.title .. [[
-
-
+local HELP_TEXT = [[
 S        start/stop the simulation
-R        Setup: new drones on the launch grid
+R        Setup: new launch cluster
 2 / 3    2D / 3D formation (re-launches)
 
 ]        launch one more drone
@@ -930,23 +1007,77 @@ Cursor (for placing obstacles):
   Left/Right or J/L   move along x
   Up/Down    or I/K   move along z
   Y / H               move along y (3D only)
-  O                   drop an obstacle here
+  O                   drop an obstacle (column) here
 
+Camera: drag with the mouse to orbit (around
+the swarm), wheel to zoom.
+T        follow the swarm on/off
+P        view: overview / top-down / close-up
 V        neighbour lines
 W        waypoint markers
-T        follow camera on/off
-P        camera: overview / top-down / close-up
 = / -    faster / slower (simSpeed)
 
 Colours: white/yellow = spin 0/1, violet = holding,
 red = crashed, grey = landed.]]
-pcall(function() v:setHelpText(HELP_TEXT) end)
+
+pcall(function() v:setHelpText(cfg.title .. "\n\n" .. HELP_TEXT) end)
+
+-- The current mode, on one line in the status bar beside the frame
+-- counter (v.statusText). Refreshed on every change and about once a
+-- second of flight; setting the same text again costs nothing. On a bpp
+-- without v.statusText, mode changes are printed to the console instead.
+local lastStats = nil      -- "bonds 1.011R +-0.045, 0.01 m/s", from the stats tick
+local lastModeLine = nil
+local haveStatusLine = pcall(function() v.statusText = "" end)
+function updateStatus(statsLine)
+  if statsLine then
+    local len, sd = statsLine:match("len=([%d.]+)R sd=([%d.]+)R")
+    local speed = statsLine:match("speed=([%d.]+)m/s")
+    if len and speed then lastStats = string.format("bonds %sR +-%s, %s m/s", len, sd, speed) end
+  end
+  local c = { ap = 0, hold = 0, takeoff = 0, landing = 0, landed = 0, crashed = 0 }
+  for _, d in ipairs(drones) do c[d.state] = (c[d.state] or 0) + 1 end
+  local p = readParams()
+
+  local drones_ = { c.ap .. " flying" }
+  if c.hold > 0 then drones_[#drones_ + 1] = c.hold .. " holding" end
+  if c.takeoff > 0 then drones_[#drones_ + 1] = c.takeoff .. " taking off" end
+  if c.landing > 0 then drones_[#drones_ + 1] = c.landing .. " landing" end
+  if c.landed > 0 then drones_[#drones_ + 1] = c.landed .. " landed" end
+  if c.crashed > 0 then drones_[#drones_ + 1] = c.crashed .. " crashed" end
+
+  local parts = {
+    (cfg.title:gsub(" %-%- quadcopters", "")),
+    (is3D and "3D " or "2D ") .. (isSquareFormation and (is3D and "cube" or "square") or "triangle"),
+    "goal " .. (isGoalEnabled and "ON" or "off"),
+    #obstacles .. (#obstacles == 1 and " obstacle" or " obstacles"),
+    apEngaged and string.format("AP %d Hz", p.apHz) or "AP waits for takeoff",
+    table.concat(drones_, ", "),
+  }
+  if p.windSpeed > 0 or p.gust > 0 then
+    parts[#parts + 1] = string.format("wind %.1f m/s gust %.2f", p.windSpeed, p.gust)
+  end
+  if p.downwash <= 0 then parts[#parts + 1] = "no downwash" end
+  if not v:getParam("propStrikes") then parts[#parts + 1] = "prop strikes off" end
+  parts[#parts + 1] = "camera " .. CAM_MODES[camMode] .. (followCam and ", following" or ", free")
+  local modeLine = table.concat(parts, "  |  ")
+
+  if haveStatusLine then
+    local line = modeLine
+    if lastStats and apEngaged then line = line .. "  |  " .. lastStats end
+    v.statusText = line
+  elseif modeLine ~= lastModeLine then
+    print("MODE: " .. modeLine)
+  end
+  lastModeLine = modeLine
+end
 
 math.randomseed(cfg.seed or os.time())
 applyDefaults()
 setup(math.floor(v:getParam("numDrones")))
 drawCursor()
 updateCamera()
+updateStatus()
 
 -- for scripted (command-line) runs
 M.state = function() return { drones = drones, simTime = simTime, apEngaged = apEngaged } end

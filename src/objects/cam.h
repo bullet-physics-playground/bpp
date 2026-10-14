@@ -110,6 +110,32 @@ public:
   btVector3 getLookAt() const;
 
   /**
+   * @brief Returns the direction the camera is looking, as it is now.
+   *
+   * Unlike getLookAt(), this follows the mouse: after the user orbits or
+   * pans, it is the live view direction (a unit vector).
+   *
+   * @return The view direction.
+   */
+  btVector3 getViewDirection() const;
+
+  /**
+   * @brief Sets the point the mouse orbits around (QGLViewer's pivot).
+   *
+   * A script that follows a moving subject can move the pivot with it, so
+   * that orbiting with the mouse turns around the subject.
+   *
+   * @param v The new pivot point.
+   */
+  void setPivot(const btVector3 &v);
+
+  /**
+   * @brief Returns the point the mouse orbits around.
+   * @return The pivot point.
+   */
+  btVector3 getPivot() const;
+
+  /**
    * @brief Sets the focal blur quality for POV-Ray renders.
    *
    * Affects the exported scene only; the interactive view never blurs.

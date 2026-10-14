@@ -1415,7 +1415,27 @@ public slots:
    * @param text The text to show.
    */
   void setHelpText(const QString &text);
-	
+
+  /**
+   * @brief Sets the script's one-line status, shown in the status bar.
+   *
+   * See statusTextChanged(). The line sits in the status bar beside the
+   * frame counter and is meant for a script's current mode or state
+   * ("3D, square formation, goal on"), kept in view while the simulation
+   * runs. Setting the same text again does nothing, so a script may call
+   * this every frame; an empty string hides the line. Loading a new script
+   * clears it. Exposed to Lua as the property v.statusText.
+   *
+   * @param text The status line.
+   */
+  void setStatusText(const QString &text);
+
+  /**
+   * @brief Returns the text set with setStatusText().
+   * @return The status line, empty if none.
+   */
+  QString getStatusText() const { return _statusText; }
+
   /**
    * @brief Returns everything known about one parameter.
    * @param name Parameter name.
@@ -1801,6 +1821,12 @@ signals:
    * @param text The text to show.
    */
   void helpTextChanged(const QString &text);
+
+  /**
+   * @brief Emitted when the script's status line changes.
+   * @param text The new status line (empty: hide it).
+   */
+  void statusTextChanged(const QString &text);
 
 protected:
   /**
@@ -2340,6 +2366,7 @@ private:
                         ///< interval between frames.
   QElapsedTimer _wallTimer; ///< Never restarted; backs getTime().
   bool _onePerFrame = false; ///< See getOnePerFrame().
+  QString _statusText;       ///< See setStatusText().
   int _stepsSinceDraw = 0;   ///< Animation steps since the last draw().
   qint64 _lastDrawNs = -1;   ///< When draw() last ran, on _wallTimer.
 

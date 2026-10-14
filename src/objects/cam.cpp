@@ -107,6 +107,8 @@ void Cam::luaBind(lua_State *s) {
                         (void(Cam::*)(const btVector3 &)) & Cam::setLookAt)
               .property("up", (btVector3(Cam::*)(void)) & Cam::getUpVector,
                         (void(Cam::*)(const btVector3 &)) & Cam::setUpVector)
+              .property("dir", &Cam::getViewDirection)
+              .property("pivot", &Cam::getPivot, &Cam::setPivot)
 
              .property("focal_blur", (int(Cam::*)(void)) & Cam::getUseFocalBlur,
                        (void(Cam::*)(int)) & Cam::setUseFocalBlur)
@@ -161,6 +163,21 @@ void Cam::setLookAt(const btVector3 &v) {
 }
 
 btVector3 Cam::getLookAt() const { return _lookAt; }
+
+btVector3 Cam::getViewDirection() const {
+  Vec d = Camera::viewDirection();
+  return btVector3(d[0], d[1], d[2]);
+}
+
+void Cam::setPivot(const btVector3 &v) {
+  if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))
+    Camera::setPivotPoint(Vec(v[0], v[1], v[2]));
+}
+
+btVector3 Cam::getPivot() const {
+  Vec p = Camera::pivotPoint();
+  return btVector3(p[0], p[1], p[2]);
+}
 
 void Cam::setFocalPoint(const btVector3 &v) {
   if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2]))

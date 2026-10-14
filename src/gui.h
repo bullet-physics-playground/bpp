@@ -583,6 +583,7 @@ private:
   QComboBox *renderSettings; ///< Output resolution for POV-Ray renders.
   QProgressBar *progressBar; ///< Busy indicator shown while parsing.
   QLabel *frameLabel;        ///< Status bar frame counter.
+  QLabel *scriptStatusLabel; ///< Status bar line a script sets (v.statusText).
 
   QTableWidget *paramsTable; ///< Live parameters exposed by the script.
 

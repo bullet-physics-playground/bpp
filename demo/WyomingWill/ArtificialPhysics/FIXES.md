@@ -146,6 +146,57 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     perfect tracking (49 of 51 drones lost to prop strikes) — the original
     particles would simply overlap. At the default 0.25 with AP at 10 Hz,
     6 drones were lost to flight lag; at 5 Hz, none.
-21. **Launching from a dense grid is dangerous.** From a 1.5 m pad grid,
-    AP's first expansion caused 5–8 collisions within 4 s; from a 3 m (= R)
-    grid, none.
+21. **A compact launch costs a few drones in 2D, and it is AP's doing.**
+    The quadcopter demos now start like the originals: a compact random
+    cluster, drones at least 1 m apart. (The first version launched from a
+    3 m grid, which is already nearly the final lattice and made the 3D cube
+    come out far too spread out, with 41 bonds instead of 80.) In 3D no
+    drones collide. In 2D, AP's first expansion pushes some pairs within a
+    drone's width 1.5–5 s after AP engages. Repulsion is capped at
+    `forceMax`/`forceMaximum`, and neighbours behind can outpush it.
+    - With ideal drones (perfect tracking) the same pairs still collide
+      (LJ 2D: 4 and 6 strikes), so the original particles overlap there too.
+    - Over 3 seeds, 2 min, 150 drones per cell:
+
+      | Variant | LJ triangle lost | LJ square lost | Newtonian square lost |
+      | --- | --- | --- | --- |
+      | 1.0 m spacing | 12 | 13 | 11 |
+      | 1.5 m spacing | 2 | 8 | 0 |
+      | 1.0 m, repulsion cap 3 | 20 | 34 | — |
+
+    Possible fixes, not applied: a looser start, or a short-range collision
+    avoidance layer beneath AP (as real drones carry).
+
+22. **The first quadcopter version launched with striped spins.** On a pad
+    grid with an even number of columns, numbered row by row, id % 2
+    alternates along rows but each drone's vertical neighbour has the same
+    spin. In square formation same-spin pairs want √2·R, so the grid had to
+    tear itself apart and re-sort. The random-cluster launch removes this.
+
+23. **Square formations sort out slowly, drones or not.** From a random
+    cluster the spin checkerboard has to form by rearrangement. LJ 2D
+    square on drones keeps moving for 30–40 s, then settles to 0.01 m/s,
+    with defects annealing over minutes (bonds 43 → 62 over 3 min). The
+    original particles behave the same way:
+
+    | AP ticks | sd | particles with all 4 square neighbours (of 50) |
+    | --- | --- | --- |
+    | 150 | 0.052 R | 6 |
+    | 600 | 0.027 R | 14 |
+    | 2000 | 0.028 R | 18 |
+
+## BPP additions made for the quadcopter demos
+
+24. `src/objects/cam.cpp` / `cam.h`: `v.cam.dir`, the live view direction
+    (read-only; `v.cam.look` only returns what a script last set), and
+    `v.cam.pivot`, the point mouse orbiting turns around (read/write). The
+    quadcopter camera follows the swarm by translation only, so the user's
+    mouse angle is kept, and moves the pivot with it. The demos run without
+    these; orbiting then turns around the world origin.
+25. `src/viewer.*`, `src/gui.*`: `v.statusText`, a one-line script status
+    in the status bar beside the frame counter. It is a permanent label, so
+    BPP's own status messages don't cover it. It is hidden when a script
+    never sets it, ignores repeats of the same text, and is cleared when a
+    new script loads. The quadcopter demos show their mode there, so the
+    Shortcuts pane keeps a static key list. A separate "Info" dock for
+    several lines of live state is an idea for later.

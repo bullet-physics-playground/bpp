@@ -409,6 +409,7 @@ void Viewer::luaBind(lua_State *s) {
            .def("loadPrefs", &Viewer::getPrefs)
            .def("clearDebugText", &Viewer::clearDebugText)
            .def("setHelpText", &Viewer::setHelpText)
+           .property("statusText", &Viewer::getStatusText, &Viewer::setStatusText)
 
            .def("quickRender",
                 (void(Viewer::*)(QString povargs)) & Viewer::onQuickRender)
@@ -2530,6 +2531,14 @@ void Viewer::emitScriptOutput(const QString &out) { emit scriptHasOutput(out); }
 // Sets the "Shortcuts" dock panel's text; see the declaration in viewer.h.
 void Viewer::setHelpText(const QString &text) { emit helpTextChanged(text); }
 
+// Sets the script's status-bar line; see the declaration in viewer.h.
+void Viewer::setStatusText(const QString &text) {
+  if (text == _statusText)
+    return;
+  _statusText = text;
+  emit statusTextChanged(text);
+}
+
 int Viewer::lua_print(lua_State *L) {
 
   Viewer *p = static_cast<Viewer *>(lua_touserdata(L, lua_upvalueindex(1)));
@@ -2608,6 +2617,7 @@ emit scriptStarts();
     _cb_onJoystick = luabind::object();
     _cb_onKey = luabind::object();
     _luaHeldKeys.clear();
+    setStatusText(QString());   // (a script's status line goes with it)
     _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
     _cb_onHover = luabind::object();
