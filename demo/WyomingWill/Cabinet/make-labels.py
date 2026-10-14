@@ -89,6 +89,7 @@ jobs = [
  ("kapitza", "KAPITZA’S PENDULUM", 4.2, 0.5),
  ("double-pendulum", "DOUBLE PENDULUM", 4.2, 0.5),
  ("solar-system", "THE SOLAR SYSTEM", 4.2, 0.5),
+ ("pendulums-twist", "PENDULUMS WITH A TWIST", 4.2, 0.5),
  ("reserved", "RESERVED", 4.2, 0.5),
  ("in-preparation", "IN PREPARATION", 2.4, 0.4),
 ]

@@ -22,6 +22,7 @@ return {
   ["kapitza"] = { file = "label-kapitza.obj", w = 65.15, h = 4.20 },
   ["double-pendulum"] = { file = "label-double-pendulum.obj", w = 59.72, h = 4.20 },
   ["solar-system"] = { file = "label-solar-system.obj", w = 58.60, h = 4.20 },
+  ["pendulums-twist"] = { file = "label-pendulums-twist.obj", w = 81.13, h = 4.20 },
   ["reserved"] = { file = "label-reserved.obj", w = 31.24, h = 4.20 },
   ["in-preparation"] = { file = "label-in-preparation.obj", w = 28.57, h = 2.40 },
 }

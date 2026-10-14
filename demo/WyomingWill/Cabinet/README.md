@@ -64,16 +64,17 @@ with a 3.4 m aisle between.
 | A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
 | A, west 5 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
 | A, east 5 | the double cone | `../DoubleCone/double-cone.lua` |
-| B, north 1 | the oloid and the sphericon | `../Oloid/oloid.lua` |
-| B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
-| B, north 2 | the Brazil-nut effect | `../BrazilNut/brazil-nut.lua` |
-| B, south 2 | Newton's cradle | `../NewtonsCradle/newtons-cradle.lua` |
-| B, north 3 | Euler's disk | `../EulersDisk/eulers-disk.lua` |
-| B, south 3 | Galileo's ramp | `../GalileoRamp/galileo-ramp.lua` |
-| B, north 4 | Huygens' clocks | `../HuygensClocks/huygens-clocks.lua` |
-| B, south 4 | Kapitza's pendulum | `../Kapitza/kapitza.lua` |
-| B, north 5 | the double pendulum | `../DoublePendulum/double-pendulum.lua` |
-| B, south 5 | the solar system | `../SolarSystem/solar-system.lua` |
+| A, west 6 | the oloid and the sphericon | `../Oloid/oloid.lua` |
+| A, east 6 | the falling Slinky | `../Slinky/falling-slinky.lua` |
+| B, north 1 | the Brazil-nut effect | `../BrazilNut/brazil-nut.lua` |
+| B, south 1 | Newton's cradle | `../NewtonsCradle/newtons-cradle.lua` |
+| B, north 2 | Euler's disk | `../EulersDisk/eulers-disk.lua` |
+| B, south 2 | Galileo's ramp | `../GalileoRamp/galileo-ramp.lua` |
+| B, north 3 | Huygens' clocks | `../HuygensClocks/huygens-clocks.lua` |
+| B, south 3 | Kapitza's pendulum | `../Kapitza/kapitza.lua` |
+| B, north 4 | the double pendulum | `../DoublePendulum/double-pendulum.lua` |
+| B, south 4 | the solar system | `../SolarSystem/solar-system.lua` |
+| B, north 5 | pendulums with a twist | `../PendulumsTwist/pendulums-twist.lua` |
 
 Gömböc Drop C (`../Gomboc/gomboc-drop-c.lua`) isn't in the hall: Gömböc
 Variety shows Gomboc-C and more.
@@ -98,8 +99,8 @@ Each exhibit is one line in `EXHIBITS` near the top of `cabinet.lua`:
 | `about` | what its placard says when the mouse rests on it |
 
 Add lines and the hall grows to fit: both wings get longer. `SPARE_BAYS`
-adds empty bays at the far end (0 now: twenty exhibits, ten bays in each
-wing).
+adds empty bays at the far end (0 now: twenty-one exhibits, twelve bays
+in wing A and nine in B, the last row's other bay empty).
 
 An exhibit is written as a script that runs on its own, the way the
 existing ones are: centimetres, its viewing side toward +z, a `Plane` for
