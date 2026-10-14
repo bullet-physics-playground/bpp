@@ -17,7 +17,8 @@
 -- moon's position from its planet, stepped by Wisdom and Holman's mapping:
 -- each moon's Kepler orbit about its planet followed exactly for half a
 -- step, then the rest -- the other moons (with the planet's own wobble),
--- the planet's flattening (J2, J4, about its pole), the Sun's tide --
+-- the planet's flattening (J2, J4, about its pole; Mars's C22, S22, turning
+-- with it), the Sun's tide --
 -- given as a kick, then Kepler again. Sixteen steps to the innermost
 -- moon's orbit. The Sun's position comes from the main integration.
 --
@@ -247,6 +248,7 @@ return function(D)
   local SYS = {}
   for _, s in ipairs(D.systems) do
     local S = { planet = s.planet, gmp = s.gm, j2 = s.j2, j4 = s.j4, R2 = s.rref * s.rref, R4 = s.rref ^ 4,
+                c22 = s.c22, s22 = s.s22, w0 = s.w0, wdot = s.wdot,
                 px = s.pole[1], py = s.pole[2], pz = s.pole[3], ibary = IDX[s.planet], moons = {}, t = 0 }
     local pmin = math.huge
     for k, m in ipairs(s.moons) do
@@ -265,9 +267,23 @@ return function(D)
   E.SYS = SYS
 
   -- the kick: everything but each moon's Kepler orbit about its planet
+  local D2000 = D.JD0 - 2451545.0
   local function kick(S, t, dt)
     local ms = S.moons
     local nm = #ms
+    -- a planet that isn't round about its axis (C22, S22: Mars): its
+    -- equator's axes, turning with it (W, its prime meridian's angle)
+    local bx1, by1, bz1, bx2, by2, bz2
+    if S.c22 then
+      local W = math.rad(S.w0 + S.wdot * (D2000 + t))
+      local qx, qy = -S.py, S.px                 -- the equator's node on the ICRF's equator (z x pole)
+      local qn = sqrt(qx * qx + qy * qy)
+      qx, qy = qx / qn, qy / qn
+      local rx, ry, rz = S.py * 0 - S.pz * qy, S.pz * qx - S.px * 0, S.px * qy - S.py * qx   -- pole x node
+      local cw, sw = cos(W), sin(W)
+      bx1, by1, bz1 = cw * qx + sw * rx, cw * qy + sw * ry, sw * rz
+      bx2, by2, bz2 = S.py * bz1 - S.pz * by1, S.pz * bx1 - S.px * bz1, S.px * by1 - S.py * bx1
+    end
     -- the Sun, from the planet (its system's barycentre, near enough)
     local bx, by, bz = E.mainPos(S.ibary, t)
     local sx, sy, sz = E.mainPos(iSun, t)
@@ -314,6 +330,20 @@ return function(D)
           F2 = F2 + g * r * s * (12 - 28 * s * s)
         end
         ax, ay, az = ax + F1 * x + F2 * S.px, ay + F1 * y + F2 * S.py, az + F1 * z + F2 * S.pz
+      end
+      if S.c22 then
+        -- U22 = 3 mu R^2 (C22 (X^2 - Y^2) + 2 S22 X Y) / r^5, X, Y along the equator's turning axes
+        local X = x * bx1 + y * by1 + z * bz1
+        local Y = x * bx2 + y * by2 + z * bz2
+        local mu = S.gmp
+        local k = 3 * mu * S.R2 / (r2 * r2 * r)
+        local U = S.c22 * (X * X - Y * Y) + 2 * S.s22 * X * Y
+        local gX = k * (2 * S.c22 * X + 2 * S.s22 * Y)
+        local gY = k * (-2 * S.c22 * Y + 2 * S.s22 * X)
+        local gr = -5 * k * U / r2
+        ax = ax + gX * bx1 + gY * bx2 + gr * x
+        ay = ay + gX * by1 + gY * by2 + gr * y
+        az = az + gX * bz1 + gY * bz2 + gr * z
       end
       -- the Sun's tide
       local dx, dy, dz = sx - x, sy - y, sz - z

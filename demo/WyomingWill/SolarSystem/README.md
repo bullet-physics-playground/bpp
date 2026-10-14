@@ -42,7 +42,8 @@ one day, in JPL's frame (the ICRF), in AU and days.
 Wisdom and Holman's mapping. Each moon follows its exact Kepler orbit about
 its planet for half a step. Then everything else is given as one kick:
 * the other moons, with the planet's own wobble;
-* the planet's flattening, J2 and J4, about its pole;
+* the planet's flattening, J2 and J4, about its pole (and for Mars,
+  its out-of-roundness about its axis, C22 and S22, turning with it);
 * the Sun's tide, with the Sun's position taken from the main integration.
 
 Then each moon follows its Kepler orbit again. There are sixteen steps to
@@ -91,9 +92,11 @@ Every January 1 the console prints these:
   years, Titan, Rhea, Dione, Iapetus, Io, Triton, Umbriel and Charon are
   within 25–210 km. Some go further, for reasons that are physics left
   out:
-  * **Phobos**: 3,200 km a year (a few parts in 1e5 of its pace). Mars
-    isn't round about its axis either (its C22 term), and Phobos goes
-    round three times a Martian day. That isn't modelled.
+  * **Phobos**: 1,000 km a year (a part in 1e5 of its pace). Mars isn't
+    round about its axis either: its C22 and S22 terms, turning with
+    Mars, are in, and they took Phobos's drift down from 3,200 km a year
+    (Deimos's from 330 to 50). The rest is Mars's finer lumps, which
+    aren't modelled.
   * **Titania and Miranda**: 900 and 400 km a year. Neither Uranus's
     J2 nor the moons' older masses fix it (2014's masses are used).
   * **Mimas**: 500–2,400 km, rising and falling. Its 2:1 resonance with
@@ -120,9 +123,9 @@ From a run at 100 days a second:
 
 and against Horizons, a month, a year and five years in:
 
-    2026-02-01  against Horizons, km off: Phobos 310, Deimos 23, Io 78, Europa 38, Ganymede 26, Callisto 13, Mimas 518, Enceladus 172, Tethys 69, Dione 26, Rhea 7, Titan 0, Iapetus 2, Miranda 41, Ariel 7, Umbriel 9, Titania 102, Oberon 10, Triton 3, Charon 4, Ceres 1, Pallas 1, Juno 1, Vesta 2, Hygiea 0
-    2027-01-01  against Horizons, km off: Phobos 3176, Deimos 328, Io 52, Europa 199, Ganymede 213, Callisto 182, Mimas 575, Enceladus 77, Tethys 90, Dione 10, Rhea 4, Titan 31, Iapetus 11, Miranda 404, Ariel 71, Umbriel 14, Titania 858, Oberon 149, Triton 22, Charon 42, Ceres 218, Pallas 135, Juno 74, Vesta 177, Hygiea 52
-    2031-01-01  against Horizons, km off: Phobos 13996, Deimos 1671, Io 60, Europa 364, Ganymede 1160, Callisto 896, Mimas 2364, Enceladus 236, Tethys 412, Dione 53, Rhea 25, Titan 90, Iapetus 34, Miranda 2063, Ariel 392, Umbriel 83, Titania 4502, Oberon 937, Triton 108, Charon 209, Ceres 2010, Pallas 840, Juno 660, Vesta 538, Hygiea 604
+    2026-02-01  against Horizons, km off: Phobos 123, Deimos 5, Io 78, Europa 38, Ganymede 26, Callisto 13, Mimas 518, Enceladus 172, Tethys 69, Dione 26, Rhea 7, Titan 0, Iapetus 2, Miranda 41, Ariel 7, Umbriel 9, Titania 102, Oberon 10, Triton 3, Charon 4, Ceres 1, Pallas 1, Juno 1, Vesta 2, Hygiea 0
+    2027-01-01  against Horizons, km off: Phobos 986, Deimos 50, Io 52, Europa 199, Ganymede 213, Callisto 182, Mimas 575, Enceladus 77, Tethys 90, Dione 10, Rhea 4, Titan 31, Iapetus 11, Miranda 404, Ariel 71, Umbriel 14, Titania 858, Oberon 149, Triton 22, Charon 42, Ceres 218, Pallas 135, Juno 74, Vesta 177, Hygiea 52
+    2031-01-01  against Horizons, km off: Phobos 4806, Deimos 248, Io 60, Europa 364, Ganymede 1160, Callisto 896, Mimas 2364, Enceladus 236, Tethys 412, Dione 53, Rhea 25, Titan 90, Iapetus 34, Miranda 2063, Ariel 392, Umbriel 83, Titania 4502, Oberon 937, Triton 108, Charon 209, Ceres 2010, Pallas 840, Juno 660, Vesta 538, Hygiea 604
 
 ## Where it starts: the data
 

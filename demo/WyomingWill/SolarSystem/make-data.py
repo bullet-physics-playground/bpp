@@ -108,6 +108,14 @@ SYSTEMS = [
 # km off in a year)
 SYSTEM_GM = {"Mars": 42828.375816, "Jupiter": 126712764.1, "Saturn": 37940584.8418, "Uranus": 5794556.4,
              "Neptune": 6836527.10058, "Pluto": 975.43}
+# a planet that isn't round about its axis: Mars's C22 and S22
+# (unnormalised, from the normalised -8.46e-5 and 4.89e-5 of its gravity
+# field, at the 3396 km radius) and its rotation, the IAU's prime meridian
+# W = w0 + wdot d (degrees; d days from J2000). Phobos goes round three
+# times a Martian day, and this takes its drift from Horizons from 3,200
+# km a year to 1,000
+N22 = math.sqrt(2 * 5 / 24)
+TESSERAL = {"Mars": (-8.46e-5 * N22, 4.89e-5 * N22, 176.630, 350.89198226)}
 # the Earth's J2 (for the Moon) and radius, DE421's
 J2E, RE = 0.001082625305, 6378.1363
 
@@ -270,8 +278,11 @@ for (pname, pid, bary, j2, j4, rref, pra, pdec, moons) in SYSTEMS:
         mc = moons[0][2] * KM3S2
         far = far * gm_p / (gm_p + mc)
     REACH[pname] = 1.06 * far
-    L('    { planet = "%s", id = %d, bary = %d, gm = %.17g, j2 = %.10g, j4 = %.10g, rref = %.10g, pole = %s, reach = %.10g, moons = {'
-      % (pname, pid, bary, gm_p, j2, j4, rref / AU, vec(pole), REACH[pname]))
+    tess = ""
+    if pname in TESSERAL:
+        tess = " c22 = %.10g, s22 = %.10g, w0 = %.6f, wdot = %.10f," % TESSERAL[pname]
+    L('    { planet = "%s", id = %d, bary = %d, gm = %.17g, j2 = %.10g, j4 = %.10g, rref = %.10g, pole = %s, reach = %.10g,%s moons = {'
+      % (pname, pid, bary, gm_p, j2, j4, rref / AU, vec(pole), REACH[pname], tess))
     for r in rows:
         L(r)
     L("    } },")
