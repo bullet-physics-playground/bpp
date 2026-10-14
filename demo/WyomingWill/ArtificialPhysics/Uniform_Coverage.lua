@@ -27,7 +27,11 @@
 -- 3-unit / 30-degree neighbor cone, the "up to 10 tries to find a heading"
 -- loop) and getUniformityDeviation()/getTheoreticalMeanFreePath(). Feed it
 -- the same numParticles and meanFreePath and it produces the same kind of
--- statistics the app did.
+-- statistics the app did. Two deliberate departures, both benchmarked
+-- against the verbatim port over 1-100 agents and MFP 1-120 and never
+-- measurably worse: the neighbour cone is centred on the heading, and the
+-- last of the 9 heading retries is tested before giving up (see the
+-- comments in shouldTurn() and moveAgent()).
 --
 -- WHAT CHANGED FOR A 3D PHYSICS VIEWER: the app drew its own 2D Canvas (a
 -- top-down grid plus a separate bar-chart View). BPP has neither, so the
@@ -324,7 +328,14 @@ local function shouldTurn(a, meanFreePath)
         -- Lua's % already normalizes to [0, 360) for a positive divisor,
         -- same result as Kotlin's "(angleDiff % 360f + 360f) % 360f".
         local diff = (angleToOther - a.heading) % 360.0
-        if diff < 30.0 then return true end
+        -- A 30-degree cone centred on the heading (+-15). The Kotlin original
+        -- tested diff < 30, a 30-degree cone lying entirely to one side of
+        -- the heading. Centring it keeps the same width, so agents turn for
+        -- neighbours as often as before; widening it to +-30 instead was
+        -- tried and measured worse at 25 agents / MFP 60 (13%, 20 seeds),
+        -- while this version was never measurably worse (42 agent/MFP
+        -- combinations, see FIXES.md).
+        if diff < 15.0 or diff > 345.0 then return true end
       end
     end
   end
@@ -332,16 +343,22 @@ local function shouldTurn(a, meanFreePath)
 end
 
 local function moveAgent(a, meanFreePath)
-  local tries = 1
+  local tries = 0
   a.steps = a.steps + 1
 
-  while tries < 10 and shouldTurn(a, meanFreePath) do
+  -- Up to 9 new headings, as in the original -- but the last one is tested
+  -- too. The Kotlin loop exited on its tries counter after the 9th pick
+  -- without checking it, so the agent sat out the tick (and its visit went
+  -- uncounted) even when that heading was clear.
+  local blocked = shouldTurn(a, meanFreePath)
+  while blocked and tries < 9 do
     a.heading = rnd() * 360.0
     a.steps = 0
     tries = tries + 1
+    blocked = shouldTurn(a, meanFreePath)
   end
 
-  if tries < 10 then
+  if not blocked then
     local rad = math.rad(a.heading)
     a.x = a.x + math.cos(rad)
     a.y = a.y + math.sin(rad)
