@@ -1,7 +1,8 @@
 # Walker room
 
-Eleven walkers on one meadow -- ten of WyomingWill's and the
-Hoeckens-Spears 4-bar (below) -- all four-legged, each scaled
+Twelve walkers on one meadow -- ten of WyomingWill's, the
+Hoeckens-Spears 4-bar and the Long-stance Spears (below) -- all
+four-legged, each scaled
 to the same stride, walking freely inside a walled 10 m x 10 m arena.
 Open `walker-room.lua`.
 
@@ -45,6 +46,7 @@ something wrong with its build.
   | Chebyshev-Spears diag  | 3.45 | 9.1 |
   | Spears 4-bar           | 1.95 | 9.0 |
   | Hoeckens-Spears 4-bar  | 2.98 | 8.8 |
+  | Long-stance Spears     | 3.60 | 8.9 |
   | Chebyshev diag         | 2.83 | 8.8 |
   | Hoecken-Spears slider  | 3.32 | 8.6 |
   | Hoecken                | 2.23 | 8.4 |
@@ -161,6 +163,7 @@ and its mean speed over all the bumps:
 |------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|
 | Chebyshev-Spears       | 26%  | 97%  | 99%  | 94%  | 85%  | 94%  | 75%  | 63%  | 72%  | 20%  | 78%  | 7.1 |
 | Hoeckens-Spears 4-bar  | 28%  | 93%  | 97%  | 94%  | 84%  | 91%  | 77%  | 64%  | 74%  | 32%  | 78%  | 6.9 |
+| Long-stance Spears     | 29%  | 94%  | 99%  | 84%  | 73%  | 83%  | 40%  | 53%  | 59%  | 6%   | 66%  | 5.8 |
 | Chebyshev-Spears diag  | 24%  | 91%  | 95%  | 87%  | 89%  | 87%  | 22%  | 83%  | 43%  | 10%  | 67%  | 6.1 |
 | Hoecken                | 17%  | 85%  | 88%  | 84%  | 71%  | 75%  | 55%  | 50%  | 65%  | 27%  | 67%  | 5.6 |
 | Hoecken-Spears slider  | 28%  | 89%  | 95%  | 83%  | 77%  | 87%  | 32%  | 43%  | 78%  | 3%   | 65%  | 5.6 |
@@ -223,6 +226,14 @@ within 1.4 degrees of a straight line (Chebyshev-Spears: 6.3 degrees).
 Built, its cranks jam. Kept at least as far from locking as
 Chebyshev-Spears, the search finds at most duty 89%, flatness 5.2% and
 lift 29%, or duty 85%, flatness 5.6% and lift 32%.
+
+The first of those is the Long-stance Spears: crank 1, ground 1.16,
+coupler, rocker and leg 1.50, the leg 39.8 degrees off the coupler, the
+ground link at 20.1 degrees -- a much shorter coupler and rocker than
+Chebyshev-Spears' 3.06. Built, its foot path comes out at duty 85%,
+flatness 5.0%, lift 28.7% (the calculation: 89%, 5.2%, 29.4%). On the
+test track it keeps 66% of its flat speed on bumps: more lift than
+Chebyshev-Spears, but less of its speed kept, about as much as Hoecken.
 
 ### Hinged feet (ANKLES)
 
@@ -298,8 +309,9 @@ ground any more.
 | Hoecken-Spears slider  | pink     |
 | Spears 4-bar           | maroon   |
 | Hoeckens-Spears 4-bar  | teal     |
-| Spears 2-leg           | lavender (with `TWO_LEGS`) |
-| Spears 2-leg balanced  | navy (with `TWO_LEGS`) |
+| Long-stance Spears     | lavender |
+| Spears 2-leg           | navy (with `TWO_LEGS`) |
+| Spears 2-leg balanced  | olive (with `TWO_LEGS`) |
 
 ## Settings for a launcher
 

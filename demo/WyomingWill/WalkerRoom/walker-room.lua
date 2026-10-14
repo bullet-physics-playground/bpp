@@ -261,11 +261,14 @@ local WALKERS = {
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Spears 4-bar", advance = 29.019, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
-  -- (a linkage of Chebyshev-Spears' kind, built by its file with other
-  -- link lengths: see ../Walkers_For_Room/README.md)
+  -- (linkages of Chebyshev-Spears' kind, built by its file with other
+  -- link lengths: see README.md)
   { name = "Hoeckens-Spears 4-bar", advance = 18.965, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.057, chassis = { bodyRaise = 3.099, linkageSpacing = 23.652, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.6138, h = 5.8331, leg = 5.8331, legAngle = 90, groundAngle = -45 } } },
+  { name = "Long-stance Spears", advance = 15.718, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.545, chassis = { bodyRaise = -0.727, linkageSpacing = 20.032, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+    opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
+             geometry = { a = 1.875, g = 2.1842, h = 2.8129, leg = 2.8129, legAngle = 39.80, groundAngle = -20.14 } } },
   { name = "Spears 2-leg", twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
   { name = "Spears 2-leg balanced", twoLeg = true, parts = "Spears_4Bar_2Leg_Balanced_parts.lua", stride = 8.335, fixed = 1 / 960, lift = "terrainLift", forward = -1,
@@ -787,7 +790,7 @@ local TRAIL_COLOURS = {
   { "red", 230, 30, 30 }, { "orange", 255, 140, 0 }, { "yellow", 255, 225, 0 }, { "white", 250, 250, 250 },
   { "black", 25, 25, 25 }, { "cyan", 0, 210, 230 }, { "blue", 40, 70, 240 }, { "purple", 150, 50, 220 },
   { "pink", 255, 105, 180 }, { "maroon", 120, 0, 40 }, { "teal", 0, 128, 128 }, { "lavender", 200, 170, 255 },
-  { "navy", 20, 30, 110 },
+  { "navy", 20, 30, 110 }, { "olive", 128, 128, 0 },
 }
 local painted = {}          -- [cell] = the walker whose trail is on it
 
