@@ -1,6 +1,7 @@
 # Walker room
 
-Ten of WyomingWill's walkers on one meadow, all four-legged, each scaled
+Eleven walkers on one meadow -- ten of WyomingWill's and the
+Hoeckens-Spears 4-bar (below) -- all four-legged, each scaled
 to the same stride, walking freely inside a walled 10 m x 10 m arena.
 Open `walker-room.lua`.
 
@@ -43,6 +44,7 @@ something wrong with its build.
   | Jansen                 | 2.23 | 9.1 |
   | Chebyshev-Spears diag  | 3.45 | 9.1 |
   | Spears 4-bar           | 1.95 | 9.0 |
+  | Hoeckens-Spears 4-bar  | 2.98 | 8.8 |
   | Chebyshev diag         | 2.83 | 8.8 |
   | Hoecken-Spears slider  | 3.32 | 8.6 |
   | Hoecken                | 2.23 | 8.4 |
@@ -158,6 +160,7 @@ and its mean speed over all the bumps:
 | Walker                 | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s |
 |------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|
 | Chebyshev-Spears       | 26%  | 97%  | 99%  | 94%  | 85%  | 94%  | 75%  | 63%  | 72%  | 20%  | 78%  | 7.1 |
+| Hoeckens-Spears 4-bar  | 28%  | 93%  | 97%  | 94%  | 84%  | 91%  | 77%  | 64%  | 74%  | 32%  | 78%  | 6.9 |
 | Chebyshev-Spears diag  | 24%  | 91%  | 95%  | 87%  | 89%  | 87%  | 22%  | 83%  | 43%  | 10%  | 67%  | 6.1 |
 | Hoecken                | 17%  | 85%  | 88%  | 84%  | 71%  | 75%  | 55%  | 50%  | 65%  | 27%  | 67%  | 5.6 |
 | Hoecken-Spears slider  | 28%  | 89%  | 95%  | 83%  | 77%  | 87%  | 32%  | 43%  | 78%  | 3%   | 65%  | 5.6 |
@@ -176,6 +179,7 @@ the same mechanism with more lift, on the same chassis and feet:
 | Chebyshev (16%) -> Chebyshev-Spears (26%)           | 30% -> 78% | 30% -> 75% | 63% -> 88% |
 | Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 21% -> 67% | 17% -> 62% | 71% -> 77% |
 | Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 41% -> 65% | 40% -> 57% | 69% -> 80% |
+| Hoecken (17%) -> Hoeckens-Spears 4-bar (28%)        | 67% -> 78% | --         | --         |
 
 In all three the version with more lift keeps more of its speed, and
 each pair now walks with the same gait. (Chebyshev-Spears' own file has
@@ -189,6 +193,36 @@ lighter body, stronger motors or a higher side plate don't change that,
 so the cause is still unknown. Long, high bumps (22 cm long, 6 cm high:
 steep hills) stop nearly everyone. Four starts per condition is few:
 differences of a few points mean little.
+
+### Hoeckens-Spears 4-bar
+
+The true 4-bar Hoeckens linkage and the Chebyshev lambda are the same
+kind of linkage -- a crank, a rocker, and a coupler carried straight on
+past the rocker joint to the foot -- with slightly different
+proportions (crank 1: ground 2.09 against 2, coupler and rocker 2.55
+against 2.5). Chebyshev-Spears came from the lambda by shortening the
+ground link (to 1.33), lengthening the coupler and rocker (to 3.06),
+turning the leg 90 degrees off the coupler (the same length as the
+coupler) and tilting the ground link 45 degrees. The same changes made
+to Hoeckens give the Hoeckens-Spears 4-bar: ground 1.39, coupler, rocker
+and leg 3.11, the leg at 90 degrees, the ground link at 45 degrees
+(foot path: duty 79%, flatness 4.9%, mono 1.000, lift 27.7%, against
+Chebyshev-Spears' 83%, 4.7%, 0.981, 26.4%). It is built by
+Chebyshev-Spears' own file with those lengths, on the same chassis.
+
+On the test track it keeps 78% of its flat speed on bumps, as
+Chebyshev-Spears does, and more of it on the longest, highest bumps (32%
+against 20% on 6 cm x 22 cm); from Hoecken (67%) it is the fourth pair
+in which the version with more lift does better.
+
+A search of the same family for more lift found linkages with longer
+stances -- one with duty 94%, flatness 5.8% and lift 33% -- but these
+come very close to locking: in that one, the crank pin passes within
+0.07 crank lengths of the rocker's pivot, leaving the coupler and rocker
+within 1.4 degrees of a straight line (Chebyshev-Spears: 6.3 degrees).
+Built, its cranks jam. Kept at least as far from locking as
+Chebyshev-Spears, the search finds at most duty 89%, flatness 5.2% and
+lift 29%, or duty 85%, flatness 5.6% and lift 32%.
 
 ### Hinged feet (ANKLES)
 
@@ -263,8 +297,9 @@ ground any more.
 | Hoecken slider         | purple   |
 | Hoecken-Spears slider  | pink     |
 | Spears 4-bar           | maroon   |
-| Spears 2-leg           | teal     |
-| Spears 2-leg balanced  | lavender |
+| Hoeckens-Spears 4-bar  | teal     |
+| Spears 2-leg           | lavender (with `TWO_LEGS`) |
+| Spears 2-leg balanced  | navy (with `TWO_LEGS`) |
 
 ## Settings for a launcher
 

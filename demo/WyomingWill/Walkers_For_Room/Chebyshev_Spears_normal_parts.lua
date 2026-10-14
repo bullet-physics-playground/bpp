@@ -251,6 +251,39 @@ local IMPULSE_SCALE = opts.impulseScale or 1
 local BODY_RAISE = opts.bodyRaise or 0
 local EXT_DOWN = EXT_DOWN + BODY_RAISE
 M.FLOOR_TOP_Y = -0.8 - p_len - BODY_RAISE
+-- WALKER ROOM: opts.geometry = { g =, a =, h =, leg =, legAngle =,
+-- groundAngle = } builds another linkage of the same kind (this
+-- walker's own units: ground, crank, coupler-to-rocker-joint = rocker,
+-- the leg from that joint, the leg's angle off the coupler in degrees,
+-- and the ground link's angle) -- the Hoeckens-Spears 4-bar walkers.
+-- Unset, it is Chebyshev-Spears: g 2.5, a 1.875, h = leg 5.729, 90, -45.
+local LEG_LEN, LEG_ANGLE, GROUND_ANGLE = h_len, 90, -45
+local function lowestB(g, a, h, leg, legAngle, gAng)
+  -- the lowest the leg's end B gets over a turn (after the flip, so the
+  -- highest raw y), for placing the floor
+  local O2 = { x = -(g/2)*math.cos(math.rad(gAng)), y = -(g/2)*math.sin(math.rad(gAng)) }
+  local O4 = { x = (g/2)*math.cos(math.rad(gAng)), y = (g/2)*math.sin(math.rad(gAng)) }
+  local best = -1e9
+  for i = 0, 719 do
+    local t = math.rad(i / 2)
+    local A = { x = O2.x + a*math.cos(t), y = O2.y + a*math.sin(t) }
+    local Mp = circleIntersect(A, h, O4, h, true)
+    local ux, uy = (Mp.x - A.x)/h, (Mp.y - A.y)/h
+    local c, s = math.cos(math.rad(legAngle)), math.sin(math.rad(legAngle))
+    local By = Mp.y + leg*(ux*s + uy*c)
+    if By > best then best = By end
+  end
+  return best
+end
+if opts.geometry then
+  local G = opts.geometry
+  local floor0 = lowestB(g_len, a_len, h_len, h_len, 90, -45)
+  g_len, a_len, h_len = G.g, G.a, G.h
+  f_len = 2 * h_len
+  LEG_LEN, LEG_ANGLE, GROUND_ANGLE = G.leg or h_len, G.legAngle or 90, G.groundAngle or -45
+  M.FLOOR_TOP_Y = M.FLOOR_TOP_Y - (lowestB(g_len, a_len, h_len, LEG_LEN, LEG_ANGLE, GROUND_ANGLE) - floor0)
+end
+local LEG_LEN = LEG_LEN * S
 local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
 local rod_w, rod_d, plane_gap, EXT_DOWN = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S
 -- (the link masses above were worked out from the unscaled lengths, and
@@ -345,8 +378,9 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
 
   -- bend: rotate the A->M direction 90 degrees for the second half
   local ux, uy = (M_raw.x - A_raw.x)/(f_len/2), (M_raw.y - A_raw.y)/(f_len/2)
-  local rx, ry = -uy, ux   -- +90 degrees (counterclockwise)
-  local B_raw = { x = M_raw.x + (f_len/2)*rx, y = M_raw.y + (f_len/2)*ry }
+  local ca, sa = math.cos(math.rad(LEG_ANGLE)), math.sin(math.rad(LEG_ANGLE))
+  local rx, ry = ux*ca - uy*sa, ux*sa + uy*ca   -- LEG_ANGLE degrees (counterclockwise; 90 in this walker's own file)
+  local B_raw = { x = M_raw.x + LEG_LEN*rx, y = M_raw.y + LEG_LEN*ry }
 
   -- flip across the x-axis so the whole assembly ends up above the cube
   local g_center = flipY(g_center_raw)
@@ -445,7 +479,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- crammed into the A->M box's own natural inertia" or the original
   -- two-body version. (These formulas only depend on squared
   -- distances, so they're unaffected by the sign bug above.)
-  local mass_coupler = mass_couplerHalf * 2   -- combined mass of both former segments
+  local mass_coupler = mass_couplerHalf * (1 + LEG_LEN / (f_len/2))   -- combined mass of both former segments (equal halves in this walker's own file)
   local m = mass_couplerHalf   -- per-segment mass, for the formulas below
   local L = half_f
   -- ASPECT RATIO: coupler_width replaces the global rod_w for this body
@@ -478,6 +512,18 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- squared components are used, so the sign of seg2cy doesn't change
   -- the result here:
   local seg2cx, seg2cy = L/2, -L
+  if LEG_LEN ~= L or LEG_ANGLE ~= 90 then
+    -- (the room's other geometries: the leg segment of length LEG_LEN at
+    -- LEG_ANGLE off the coupler, its inertia turned into the coupler's frame)
+    local Lg, m2 = LEG_LEN, m * LEG_LEN / L
+    local ca, sa = math.cos(math.rad(LEG_ANGLE)), math.sin(math.rad(LEG_ANGLE))
+    local Ix, Iy = m2/12 * (coupler_width*coupler_width + rod_d*rod_d), m2/12 * (Lg*Lg + rod_d*rod_d)
+    I2xx_local = Ix*ca*ca + Iy*sa*sa
+    I2yy_local = Ix*sa*sa + Iy*ca*ca
+    I2zz_local = m2/12 * (Lg*Lg + coupler_width*coupler_width)
+    seg2cx, seg2cy = L/2 + Lg/2*ca, -Lg/2*sa
+    m = m2
+  end
   local Ixx = I1xx + I2xx_local + m * seg2cy*seg2cy
   local Iyy = I1yy + I2yy_local + m * seg2cx*seg2cx
   local Izz = I1zz + I2zz_local + m * (seg2cx*seg2cx + seg2cy*seg2cy)
@@ -510,7 +556,8 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- B=(L/2,-L,0)) sits at local (L/2, -L/2, 0); its own local +X axis
   -- (which runs M->B) points along coupler's local -Y -- a fixed -90
   -- degree twist (NOT +90 -- see the sign-bug note above).
-  local frameInCoupler    = btTransform(zrotVec(0, -1), btVector3(L/2, -L/2, 0))
+  local frameInCoupler    = btTransform(zrotVec(math.cos(math.rad(LEG_ANGLE)), -math.sin(math.rad(LEG_ANGLE))),
+                                        btVector3(L/2 + LEG_LEN/2*math.cos(math.rad(LEG_ANGLE)), -LEG_LEN/2*math.sin(math.rad(LEG_ANGLE)), 0))
   local frameInCouplerVis = btTransform(IDENTITY_QUAT, btVector3(0, 0, 0))
   local weldVis = btSliderConstraint(coupler.body, couplerVis.body, frameInCoupler, frameInCouplerVis, true)
   weldVis:setLowerLinLimit(0)
@@ -577,7 +624,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- walker room, cranked at about 1.1, it stalled there within 15 s and
   -- stayed down. With the fix it turns steadily at 1.1, and standalone
   -- it keeps its speed and walks a little straighter.
-  local pivotCoupler_B = btVector3(half_f/2, -half_f, 0)
+  local pivotCoupler_B = btVector3(half_f/2 + LEG_LEN*math.cos(math.rad(LEG_ANGLE)), -LEG_LEN*math.sin(math.rad(LEG_ANGLE)), 0)
   local pivotPendant_B = btVector3(-pendant_len/2, 0, z_coupler_l - z_pendant_l)
   local hingeB = btHingeConstraint(coupler.body, pendant.body, pivotCoupler_B, pivotPendant_B, axis, axis)
   addConstraint(hingeB)
@@ -589,10 +636,10 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   }
 end
 -- (the room: opts.sidePhase sets the back face's phase -- 90 in its own file)
-local linkage1 = buildLinkage(-half_spacing, -45, false, 0, opts.leftSpeed, EXT_DOWN)   -- front face, x=-half_spacing, phase 0
-local linkage2 = buildLinkage(half_spacing, -45, false, 0, opts.leftSpeed, EXT_DOWN)    -- front face, x=+half_spacing, phase 0
-local linkage3 = buildLinkage(-half_spacing, -45, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
-local linkage4 = buildLinkage(half_spacing, -45, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
+local linkage1 = buildLinkage(-half_spacing, GROUND_ANGLE, false, 0, opts.leftSpeed, EXT_DOWN)   -- front face, x=-half_spacing, phase 0
+local linkage2 = buildLinkage(half_spacing, GROUND_ANGLE, false, 0, opts.leftSpeed, EXT_DOWN)    -- front face, x=+half_spacing, phase 0
+local linkage3 = buildLinkage(-half_spacing, GROUND_ANGLE, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
+local linkage4 = buildLinkage(half_spacing, GROUND_ANGLE, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
 -- LONG-RUN BEHAVIOR (found running 2400 frames, not visible at 600): the
 -- front and back leg pairs' crank angles drift into sync with each
 -- other over time regardless of their starting phase offset -- a real

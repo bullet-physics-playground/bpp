@@ -4,7 +4,7 @@ Copies of `../Walkers/<name>_parts.lua`, built by `../WalkerRoom/walker-room.lua
 The walkers in `../Walkers/` are left as they are; changes made only so the
 room can compare linkages fairly go here.
 
-Six changes. First, `M.build` takes an option `bodyRaise` (default 0, the
+Seven changes. First, `M.build` takes an option `bodyRaise` (default 0, the
 walker's own units) that raises its body that much further above its feet
 without changing its foot path, so every walker in the room can be given
 the same body clearance.
@@ -47,3 +47,10 @@ the engine's default, as in every other build -- in the room).
 
 Sixth, Chebyshev-Spears takes `sidePhase`: the phase of its back face's
 legs (90 degrees in its own file; the room uses 180, as Chebyshev's).
+
+Seventh, Chebyshev-Spears takes `geometry = { g, a, h, leg, legAngle,
+groundAngle }`: the ground link, crank, coupler-to-rocker-joint (= the
+rocker), the leg from that joint, the leg's angle off the coupler, and
+the ground link's angle, in its own units, so that the same file builds
+other linkages of its kind (the room's Hoeckens-Spears 4-bar). Unset, it
+is Chebyshev-Spears (2.5, 1.875, 5.729, 5.729, 90, -45).
