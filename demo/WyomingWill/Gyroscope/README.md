@@ -27,8 +27,10 @@ at 100 seconds, and it just hangs.
 
 Sliders: spin (turns a second), bearing (how fast the rotors slow), pivot
 friction (at the pedestal's point; a quarter of it at the string's knot),
-slope (of the wire; takes effect on `R`: from about 17 degrees the
-tightrope gyroscope slides down it), friction (foot on wire), speed, steps.
+slope (of the wire: from about 17 degrees the tightrope gyroscope slides
+down it), friction (foot on wire), speed, steps. Moving the spin or slope
+slider spins them up again with the new setting, half a second after you
+let go.
 Rest the mouse on a gyroscope to see what it's doing. The console reports
 each change ("Pedestal sagging at 29.7 s") and every 2 seconds each one's
 tilt, spin and how many times it has gone round.

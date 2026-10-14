@@ -81,7 +81,7 @@ local IP = 25000                         -- about the stool's axis (2.5 kg m^2)
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
-param("spin", envnum("BW_SPIN", 3), 0.5, 6, 0.5, "turns per second the wheel is spun up to (on R)")
+param("spin", envnum("BW_SPIN", 3), 0.5, 6, 0.5, "turns per second the wheel is spun up to (starts it again)")
 param("turn over", envnum("BW_FLIP", 1.2), 0.3, 4, 0.1, "seconds the figure takes to turn the wheel over")
 param("stool friction", envnum("BW_STOOLF", 0.02), 0, 0.5, 0.01, "friction in the stool's bearing (N m)")
 param("wheel friction", envnum("BW_WHEELF", 0.02), 0, 0.5, 0.01, "the wheel's bearings: turns/s lost each second")
@@ -170,6 +170,7 @@ local t, auto, nextAuto = 0, true, 2.0
 local L0 = 0                              -- the angular momentum about the upright as it started turning the wheel
 local EXTRA_TURN = -1                     -- the way round it's turned over (the top handle passes the figure's right)
 
+local spunWith                            -- the spin it was last spun up with
 local function restart()
   if stoolHinge then v:removeConstraint(stoolHinge) end
   if armHinge then v:removeConstraint(armHinge) end
@@ -190,6 +191,7 @@ local function restart()
   armHinge = btHingeConstraint(ttBody, wBody, btVector3(0, WY, WD), btVector3(0, 0, 0),
                                btVector3(0, 0, 1), btVector3(0, 0, 1))
   v:addConstraint(armHinge)
+  spunWith = v:getParam("spin")
   S = 2 * math.pi * v:getParam("spin")
   phi, prevT = 0, nil
   flipAngle, lastRaw = 0, nil
@@ -334,7 +336,12 @@ function angMomUp()
   return IP * wy + Lw + MW * (z * V.x - x * V.z)
 end
 
+local restartIn                           -- frames until the spin slider's restart (see onParamChanged)
 v:postSim(function(N)
+  if restartIn then
+    restartIn = restartIn - 1
+    if restartIn <= 0 then restartIn = nil; restart(); pos = 0; auto = true; return end
+  end
   t = t + FRAME_DT
   copyTrans(figure, tt)
   -- the wheel
@@ -389,6 +396,10 @@ v:addShortcut("Z", function(N)
   applyTiming()
 end)
 v:onParamChanged(function(N, name, value)
+  -- the spin: start again with it, once the slider has been still for half
+  -- a second (and not if it's what the wheel has: bpp's Restart puts every
+  -- slider back as it was)
+  if name == "spin" and spunWith and math.abs(spunWith - value) > 1e-6 then restartIn = 30 end
   if name == "speed" or name == "steps" then applyTiming() end
   if name == "stool friction" then STOOLF = value * 1e4 end
   if name == "wheel friction" then WHEELF = value * 2 * math.pi end
@@ -411,7 +422,7 @@ v:setHelpText(table.concat({
   "R   start again",
   "Z   slow motion (1/4) <-> real time",
   "",
-  "Sliders: spin (turns/s, on R), turn over (seconds),",
+  "Sliders: spin (turns/s; starts it again), turn over (seconds),",
   "stool friction, wheel friction, speed, steps.",
   "Rest the mouse on the wheel or the stool.",
 }, "\n"))

@@ -32,6 +32,12 @@ the others keep their settings for when you come back.
 Rest the mouse on an exhibit, a placard, a covered bay or the armillary
 sphere to see what it is.
 
+Looking down the hall, the Params pane has one slider, "Cabinet: stop":
+where you are (1 is the entrance, then on round as Tab goes). Drag it to go
+straight to an exhibit. bpp's Restart (Ctrl+R) runs the whole hall again
+from the start, every exhibit fresh, and then puts every slider back as it
+was, this one included, so you're back where you were.
+
 bpp's own one-letter keys (`S` stop, `D` sleeping, `R` reload, `P` POV-Ray)
 would change the whole hall, so at an exhibit they do only what the exhibit
 uses them for. Looking down the hall, `P` is held back (use the POV-Ray menu).

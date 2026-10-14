@@ -28,7 +28,9 @@
 --    1800 physics steps a second and 20 solver iterations.
 --
 -- Keys
---   R   start again (with the sliders' chain settings)
+--   R   start again
+-- The bending, height and layers sliders start it again too, once you let
+-- go of them (half a second after the last change).
 --   V   the fountain close up <-> the whole drop
 --   Z   quarter speed <-> real speed
 --
@@ -56,9 +58,9 @@ local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
 param("speed", envnum("CF_SPEED", 0.25), 0.05, 1, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", envnum("CF_STEPS", 1800), 1200, 4800, 300, "physics steps per simulated second")
-param("bending", envnum("CF_BEND", 30), 10, 90, 5, "most a joint can bend, degrees (on R)")
-param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor, cm (on R)")
-param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (on R)")
+param("bending", envnum("CF_BEND", 30), 10, 90, 5, "most a joint can bend, degrees (starts it again)")
+param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor, cm (starts it again)")
+param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (starts it again)")
 param("friction", 0.3, 0.05, 1, 0.05, "friction, chain on glass and chain")
 
 local STEP, NSTEPS, FRAME_DT = 1 / 1800, 30, 1 / 60
@@ -333,7 +335,12 @@ end)
 
 local LOGF = os.getenv("CF_LOG") and io.open(os.getenv("CF_LOG"), "w")
 if LOGF then LOGF:write("t,top_above_rim,speed,active\n") end
+local restartIn                 -- frames until a slider's restart (see onParamChanged)
 v:postSim(function(N)
+  if restartIn then
+    restartIn = restartIn - 1
+    if restartIn <= 0 then restartIn = nil; start(); return end
+  end
   run.t = run.t + FRAME_DT
   absorb()
   feed()
@@ -380,6 +387,12 @@ v:addShortcut("Z", function(N)
 end)
 v:onParamChanged(function(N, name, value)
   if name == "speed" or name == "steps" then applyTiming() end
+  -- the chain's own settings: start again with them, once the slider has
+  -- been still for half a second (not at every step of a drag); and not
+  -- when it's set to what this run already has (bpp's Restart puts every
+  -- slider back as it was)
+  local now = { bending = BEND and math.deg(BEND), height = H, layers = LAYERS }
+  if now[name] ~= nil and math.abs(now[name] - value) > 1e-6 then restartIn = 30 end
   if name == "friction" then
     MU = value
     for i = tail, head do if links[i] and links[i].body then links[i].body:setFriction(MU) end end
@@ -396,7 +409,8 @@ v:setHelpText(table.concat({
   "so far between links. A link picked up by one end pushes its other",
   "end down into the pile; the pile pushes back, and throws the chain up.",
   "",
-  "R   start again (with the bending, height and layers sliders)",
+  "R   start again (so do the bending, height and layers",
+  "    sliders, once you let go of them)",
   "V   the fountain close up <-> the whole drop",
   "Z   quarter speed <-> real speed",
   "",

@@ -34,14 +34,14 @@ How the bending limit matters, same jar and chain:
 
 | Key | Action |
 |---|---|
-| `R` | start again, with the sliders' chain settings |
+| `R` | start again |
 | `V` | the fountain close up <-> the whole drop |
 | `Z` | quarter speed <-> real speed |
 
 Sliders: speed, steps, bending (degrees), height (the jar above the floor),
-layers (how much chain, 1.6 m a layer), friction. Bending, height and
-layers apply when you press R. Rest the mouse on the chain to see how fast
-it's going.
+layers (how much chain, 1.6 m a layer), friction. Moving the bending,
+height or layers slider starts it again with the new setting, half a second
+after you let go. Rest the mouse on the chain to see how fast it's going.
 
 ## Simulation
 

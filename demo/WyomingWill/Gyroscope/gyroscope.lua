@@ -94,10 +94,10 @@ local I = {
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
-param("spin", envnum("GY_SPIN", 100), 30, 150, 5, "turns per second the rotors are spun up to")
+param("spin", envnum("GY_SPIN", 100), 30, 150, 5, "turns per second the rotors are spun up to (spins them up again)")
 param("bearing", envnum("GY_BEAR", 1.0), 0, 5, 0.1, "the rotor's bearing friction: turns/s lost each second")
 param("pivot friction", envnum("GY_PIVF", 0.5), 0, 20, 0.5, "friction against going round at the pedestal's point (x 1e-3 N m)")
-param("slope", envnum("GY_SLOPE", 0), 0, 20, 1, "the wire's slope, degrees (takes effect on R); it slides off 17")
+param("slope", envnum("GY_SLOPE", 0), 0, 20, 1, "the wire's slope, degrees (spins them up again); it slides off 17")
 param("friction", envnum("GY_MU", 0.3), 0.05, 1, 0.05, "friction between the foot and the wire")
 param("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", 2400, 1200, 9600, 600, "physics steps per simulated second")
@@ -294,9 +294,11 @@ local function place(g, q, pos)
   b:activate(true)
 end
 
+local spunWith                  -- the spin and slope they were last spun up with
 local function spinThem()
   t = 0
   dropConstraints()
+  spunWith = { spin = v:getParam("spin"), slope = v:getParam("slope") }
   local W = 2 * math.pi * v:getParam("spin")
   print(string.format("\n--- spun up: %.0f turns/s ---", v:getParam("spin")))
   for _, g in ipairs(GYROS) do
@@ -408,7 +410,12 @@ local function say(g, s)
     print(string.format("  %-9s %s at %5.1f s (spin %.0f turns/s)", g.short, s, t, g.S / (2 * math.pi)))
   end
 end
+local restartIn                 -- frames until a slider's respin (see onParamChanged)
 v:postSim(function(N)
+  if restartIn then
+    restartIn = restartIn - 1
+    if restartIn <= 0 then restartIn = nil; spinThem(); return end
+  end
   t = t + FRAME_DT
   for k, g in ipairs(GYROS) do
     local x, y, z = getPosXYZ(g.m)
@@ -469,6 +476,10 @@ v:addShortcut("Z", function(N)
   applyTiming()
 end)
 v:onParamChanged(function(N, name, value)
+  -- spin and slope: spin them up again with it, once the slider has been
+  -- still for half a second (and not if it's what they were spun with:
+  -- bpp's Restart puts every slider back as it was)
+  if spunWith and spunWith[name] ~= nil and math.abs(spunWith[name] - value) > 1e-6 then restartIn = 30 end
   if name == "speed" or name == "steps" then applyTiming() end
   if name == "friction" then wire.body:setFriction(value) end
   if name == "bearing" then BEAR = value * 2 * math.pi end
@@ -496,7 +507,8 @@ v:setHelpText(table.concat({
   "Z   slow motion (1/4) <-> real time",
   "",
   "Sliders: spin (turns/s), bearing, pivot friction,",
-  "slope (of the wire, on R: from 17 degrees it slides),",
+  "slope (of the wire: from 17 degrees it slides); spin and",
+  "slope spin them up again once you let go of the slider,",
   "friction (foot on wire), speed, steps.",
   "Rest the mouse on a gyroscope to see what it's doing.",
 }, "\n"))

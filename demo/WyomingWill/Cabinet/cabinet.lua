@@ -622,6 +622,7 @@ stops[#stops + 1] = VIEW_B
 for _, g in ipairs(exhibits) do if g.bay.wing == "B" then stops[#stops + 1] = g end end
 local function indexOf(s) for i, x in ipairs(stops) do if x == s then return i end end end
 local here = VIEW_A
+local STOP_PARAM, stopShown = "Cabinet: stop", nil
 
 local function nextStop(s, d)
   local i = indexOf(s) or 1
@@ -662,6 +663,15 @@ local function goTo(s)
     active.down = {}
   end
   here = s
+  -- (and where you are as a slider, "Cabinet: stop": bpp's Restart runs the
+  -- hall again from the start, then puts every slider back as it was --
+  -- this one included, which brings you back here. Drag it to jump.)
+  local i = indexOf(s)
+  if i and stopShown ~= i then
+    stopShown = i
+    realV:addParam(STOP_PARAM, i, 1, #stops, 1,
+                   "where you are: 1 the entrance, then on round (Tab, Shift+Tab); drag to go there")
+  end
   local c = realV.cam
   c:setUpVector(btVector3(0, 1, 0), true)
   if s.isView then
@@ -759,6 +769,12 @@ realV:onKey(function(N, key, down)
 end)
 
 realV:onParamChanged(function(N, name, value)
+  if name == STOP_PARAM then
+    local i = math.max(1, math.min(#stops, math.floor(value + 0.5)))
+    stopShown = i
+    if stops[i] ~= here then goTo(stops[i]) end
+    return
+  end
   for _, g in ipairs(exhibits) do
     local p = g.prefix
     if name:sub(1, #p) == p then

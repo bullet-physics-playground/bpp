@@ -23,8 +23,9 @@ is angular momentum being shared out between two bodies.
 | `R` | start again: stool still, wheel spun up, axle up |
 | `Z` | slow motion (1/4) <-> real time |
 
-Sliders: spin (turns a second, on `R`), turn over (the seconds it takes),
-stool friction, wheel friction, speed, steps. Rest the mouse on the wheel or
+Sliders: spin (turns a second; moving it starts again with the new spin,
+half a second after you let go), turn over (the seconds it takes), stool
+friction, wheel friction, speed, steps. Rest the mouse on the wheel or
 the stool. After each turn the console prints how fast the stool is turning
 and how fast it should be by its angular momentum.
 
