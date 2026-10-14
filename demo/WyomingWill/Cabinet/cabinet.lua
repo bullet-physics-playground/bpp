@@ -71,6 +71,8 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              the trays, which float above their ground plane on their own)
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
+  -- WING A, "TURNING": things that roll, tumble and spin, where the body's
+  -- shape and spin decide what it does. Facing pairs across the aisle.
   { dir = "../Gomboc/", file = "gomboc-variety.lua", name = "Gömböc Variety", label = "gomboc-variety",
     prefix = "Variety: ", floorY = -80, stand = { 172, 145 },
     about = "Gömböc Variety: Gomboc-C at three sizes and the lumpier Sloan beta shapes,\n" ..
@@ -79,34 +81,10 @@ EXHIBITS = EXHIBITS or {
     prefix = "Bille: ", floorY = -80, stand = { 272, 210 },
     about = "Bille Drop: the weighted monostable tetrahedron (Bille) and the 21-, 26- and\n" ..
             "37-corner spiral polyhedra. An edge lights up when it lands on the table." },
-  { dir = "../Dzhanibekov/", file = "dzhanibekov.lua", name = "the Dzhanibekov effect", label = "dzhanibekov",
-    prefix = "Dzhanibekov: ", floorY = 0,
-    about = "The Dzhanibekov effect: three T-handles spinning in zero gravity. Spun about\n" ..
-            "the middle axis, the handle flips over and back, again and again." },
-  { dir = "../Rattleback/", file = "rattleback.lua", name = "the rattlebacks", label = "rattleback",
-    prefix = "Rattleback: ", floorY = -75,
-    about = "The rattleback: spun one way it spins; spun the other way it wobbles,\n" ..
-            "stops and spins back." },
-  { dir = "../TippeTop/", file = "tippe-top.lua", name = "the tippe tops", label = "tippe-top",
-    prefix = "Tippe top: ", floorY = -75,
-    about = "The tippe top: spin it on its ball and it turns itself over onto its stem,\n" ..
-            "raising its centre of mass as it goes." },
-  { dir = "../ChainFountain/", file = "chain-fountain.lua", name = "the chain fountain", label = "chain-fountain",
-    prefix = "Fountain: ", floorY = 0,
-    about = "The chain fountain (the Mould effect): a bead chain pouring out of a jar\n" ..
-            "rises in an arch above the rim on its way to the floor." },
-  { dir = "../Gyroscope/", file = "gyroscope.lua", name = "the gyroscopes", label = "gyroscope",
-    prefix = "Gyroscope: ", floorY = -75,
-    about = "The gyroscope: held by one end of its axle, on a pedestal or a string, it\n" ..
-            "doesn't fall but goes round; on a tightrope it balances on its foot." },
-  { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
-    prefix = "Wheel: ", floorY = 0,
-    about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
-            "stool starts to turn the other way; push the wheel out and it slows." },
-  { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning eggs", label = "spinning-egg",
-    prefix = "Egg: ", floorY = -75,
-    about = "The spinning egg: spun fast on its side, a hard-boiled egg rises onto its end\n" ..
-            "(and, spun faster, jumps as it rises); a raw one won't." },
+  { dir = "../GalileoRamp/", file = "galileo-ramp.lua", name = "Galileo's ramp", label = "galileo-ramp",
+    prefix = "Ramp: ", floorY = -75,
+    about = "Galileo's ramp: a ball, a disc, a hoop and a can of soup race down a ramp.\n" ..
+            "The soup wins; the hoop comes last." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",
     prefix = "Cone: ", floorY = -75,
     about = "The double cone: on rails that rise and spread apart it rolls 'uphill',\n" ..
@@ -115,27 +93,40 @@ EXHIBITS = EXHIBITS or {
     prefix = "Oloid: ", floorY = -75,
     about = "The oloid, the two-circle roller and the sphericon: not round, yet they\n" ..
             "roll, laying their whole surface on the board as they go." },
-  { dir = "../Slinky/", file = "falling-slinky.lua", name = "the falling Slinky", label = "slinky",
-    prefix = "Slinky: ", floorY = 0,
-    about = "The falling Slinky: let a hanging Slinky go, and its bottom hangs still\n" ..
-            "in mid-air until the collapsing coils reach it, while a ball beside it falls.\n" ..
-            "Beside it, the same Slinky walks down a flight of stairs." },
-  { dir = "../BrazilNut/", file = "brazil-nut.lua", name = "the Brazil-nut effect", label = "brazil-nut",
-    prefix = "Brazil: ", floorY = -75,
-    about = "The Brazil-nut effect: shaken hard, a box of beads turns over slowly, and\n" ..
-            "the big bead comes up to the top and stays there." },
-  { dir = "../NewtonsCradle/", file = "newtons-cradle.lua", name = "Newton's cradle", label = "newtons-cradle",
-    prefix = "Cradle: ", floorY = -75,
-    about = "Newton's cradle: lift one ball and one flies out at the far end; two, and\n" ..
-            "two. Steel on steel, by Hertz's law." },
   { dir = "../EulersDisk/", file = "eulers-disk.lua", name = "Euler's disk", label = "eulers-disk",
     prefix = "Disk: ", floorY = -75,
     about = "Euler's disk: a steel disc rolls round on a mirror, leaning further over and\n" ..
             "going round faster and faster, until it stops, flat." },
-  { dir = "../GalileoRamp/", file = "galileo-ramp.lua", name = "Galileo's ramp", label = "galileo-ramp",
-    prefix = "Ramp: ", floorY = -75,
-    about = "Galileo's ramp: a ball, a disc, a hoop and a can of soup race down a ramp.\n" ..
-            "The soup wins; the hoop comes last." },
+  { dir = "../Rattleback/", file = "rattleback.lua", name = "the rattlebacks", label = "rattleback",
+    prefix = "Rattleback: ", floorY = -75,
+    about = "The rattleback: spun one way it spins; spun the other way it wobbles,\n" ..
+            "stops and spins back." },
+  { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning eggs", label = "spinning-egg",
+    prefix = "Egg: ", floorY = -75,
+    about = "The spinning egg: spun fast on its side, a hard-boiled egg rises onto its end\n" ..
+            "(and, spun faster, jumps as it rises); a raw one won't." },
+  { dir = "../TippeTop/", file = "tippe-top.lua", name = "the tippe tops", label = "tippe-top",
+    prefix = "Tippe top: ", floorY = -75,
+    about = "The tippe top: spin it on its ball and it turns itself over onto its stem,\n" ..
+            "raising its centre of mass as it goes." },
+  { dir = "../Dzhanibekov/", file = "dzhanibekov.lua", name = "the Dzhanibekov effect", label = "dzhanibekov",
+    prefix = "Dzhanibekov: ", floorY = 0,
+    about = "The Dzhanibekov effect: three T-handles spinning in zero gravity. Spun about\n" ..
+            "the middle axis, the handle flips over and back, again and again." },
+  { dir = "../Gyroscope/", file = "gyroscope.lua", name = "the gyroscopes", label = "gyroscope",
+    prefix = "Gyroscope: ", floorY = -75,
+    about = "The gyroscope: held by one end of its axle, on a pedestal or a string, it\n" ..
+            "doesn't fall but goes round; on a tightrope it balances on its foot." },
+  { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
+    prefix = "Wheel: ", floorY = 0,
+    about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
+            "stool starts to turn the other way; push the wheel out and it slows." },
+  -- WING B, "SWINGING": pendulums, collisions and many bodies, ending with
+  -- gravity at the largest scale.
+  { dir = "../NewtonsCradle/", file = "newtons-cradle.lua", name = "Newton's cradle", label = "newtons-cradle",
+    prefix = "Cradle: ", floorY = -75,
+    about = "Newton's cradle: lift one ball and one flies out at the far end; two, and\n" ..
+            "two. Steel on steel, by Hertz's law." },
   { dir = "../HuygensClocks/", file = "huygens-clocks.lua", name = "Huygens' clocks", label = "huygens-clocks",
     prefix = "Clocks: ", floorY = 0,
     about = "Huygens' clocks: two pendulum clocks on one beam, started out of step, end\n" ..
@@ -148,17 +139,31 @@ EXHIBITS = EXHIBITS or {
     prefix = "Double: ", floorY = -75,
     about = "The double pendulum: seven let go a billionth of a radian apart swing as one,\n" ..
             "then fly apart; its two pure swings; and upside down on shaken pivots." },
-  { dir = "../SolarSystem/", file = "solar-system.lua", name = "the solar system", label = "solar-system",
-    prefix = "Solar: ", floorY = -75,
-    about = "The solar system: the Sun, the planets, Pluto, five asteroids and 21 moons,\n" ..
-            "moved by gravity (and Einstein) from where JPL had them on 2026-01-01." },
   { dir = "../PendulumsTwist/", file = "pendulums-twist.lua", name = "pendulums with a twist", label = "pendulums-twist",
     prefix = "Twist: ", floorY = -75,
     about = "Pendulums with a twist: when a double pendulum can flip over, and when it\n" ..
             "won't; the swinging Atwood machine, orderly only at 3 to 1; the swinging spring." },
+  { dir = "../ChainFountain/", file = "chain-fountain.lua", name = "the chain fountain", label = "chain-fountain",
+    prefix = "Fountain: ", floorY = 0,
+    about = "The chain fountain (the Mould effect): a bead chain pouring out of a jar\n" ..
+            "rises in an arch above the rim on its way to the floor." },
+  { dir = "../Slinky/", file = "falling-slinky.lua", name = "the falling Slinky", label = "slinky",
+    prefix = "Slinky: ", floorY = 0,
+    about = "The falling Slinky: let a hanging Slinky go, and its bottom hangs still\n" ..
+            "in mid-air until the collapsing coils reach it, while a ball beside it falls.\n" ..
+            "Beside it, the same Slinky walks down a flight of stairs." },
+  { dir = "../BrazilNut/", file = "brazil-nut.lua", name = "the Brazil-nut effect", label = "brazil-nut",
+    prefix = "Brazil: ", floorY = -75,
+    about = "The Brazil-nut effect: shaken hard, a box of beads turns over slowly, and\n" ..
+            "the big bead comes up to the top and stays there." },
+  { dir = "../SolarSystem/", file = "solar-system.lua", name = "the solar system", label = "solar-system",
+    prefix = "Solar: ", floorY = -75,
+    about = "The solar system: the Sun, the planets, Pluto, five asteroids and 21 moons,\n" ..
+            "moved by gravity (and Einstein) from where JPL had them on 2026-01-01." },
 }
 -- empty bays at the far end, for ideas still to come (none now:
--- twenty-one exhibits, twelve bays in wing A, nine in B)
+-- twenty-one exhibits: wing A's twelve bays, "Turning", hold the first
+-- twelve; wing B's nine, "Swinging", the rest)
 SPARE_BAYS = SPARE_BAYS or 0
 
 -- ---------------------------------------------------------------------
@@ -548,6 +553,38 @@ do
   local s = realSphere(5, 0); s.trans = btTransform(ident, btVector3(cx, 140, cz)); s.col = "#2a4a7a"
   hallAdd(s)
   if objectKey then HOVER[objectKey(s)] = "An armillary sphere: the heavens in brass rings,\nwith the Earth in the middle." end
+end
+
+-- the wings' titles, each on a board hung over the aisle where its wing
+-- begins: wing A's facing the entrance, wing B's facing the corner
+local function wingTitle(key, subKey, x, z, a, hover)
+  local q = yq(a)
+  local function at(dx, dy, dz)
+    local rx, rz = rot(a, dx, dz)
+    return x + rx, dy, z + rz
+  end
+  local bx, by, bz = at(0, 300, -1.5)
+  local w = math.max(LABELS[key].w, LABELS[subKey].w) + 40
+  local board = box(bx, by, bz, w, 46, 3, DARK, q)
+  local ex, ey, ez = at(0, 300, -3.2)
+  box(ex, ey, ez, w + 8, 54, 1, GILT, q)
+  for _, side in ipairs({ -1, 1 }) do
+    local cx, cy, cz = at(side * (w / 2 - 15), 300 + 27 + (H - 300 - 27) / 2, -1.5)
+    cyl(cx, cy, cz, 0.8, H - 300 - 27, GILT)
+  end
+  local tx, ty, tz = at(0, 300 + 2, 0)
+  mesh(MESH .. LABELS[key].file, tx, ty, tz, GOLD, q)
+  local sx, sy, sz = at(0, 300 - 18, 0)
+  mesh(MESH .. LABELS[subKey].file, sx, sy, sz, GOLD, q)
+  if objectKey then HOVER[objectKey(board)] = hover end
+end
+if LABELS["wing-a"] and LABELS["wing-b"] then
+  wingTitle("wing-a", "wing-a-sub", 0, ZS - 250, 0,
+            "Wing A, Turning: things that roll, tumble and spin, where the body's\n" ..
+            "shape and spin decide what it does. Exhibits facing each other make pairs.")
+  wingTitle("wing-b", "wing-b-sub", HW + 80, ZN / 2, -math.pi / 2,
+            "Wing B, Swinging: pendulums, collisions and many bodies, ending with\n" ..
+            "gravity at the largest scale: the solar system.")
 end
 
 -- a bay: its rug, pilasters either side on the wall behind, and the

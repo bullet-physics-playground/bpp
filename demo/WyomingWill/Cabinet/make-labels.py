@@ -90,6 +90,10 @@ jobs = [
  ("double-pendulum", "DOUBLE PENDULUM", 4.2, 0.5),
  ("solar-system", "THE SOLAR SYSTEM", 4.2, 0.5),
  ("pendulums-twist", "PENDULUMS WITH A TWIST", 4.2, 0.5),
+ ("wing-a", "TURNING", 14, 1.0),
+ ("wing-a-sub", "THINGS THAT ROLL, TUMBLE AND SPIN", 6.5, 0.6),
+ ("wing-b", "SWINGING", 14, 1.0),
+ ("wing-b-sub", "PENDULUMS, COLLISIONS AND MANY BODIES", 6.5, 0.6),
  ("reserved", "RESERVED", 4.2, 0.5),
  ("in-preparation", "IN PREPARATION", 2.4, 0.4),
 ]

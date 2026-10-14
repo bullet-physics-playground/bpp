@@ -23,6 +23,10 @@ return {
   ["double-pendulum"] = { file = "label-double-pendulum.obj", w = 59.72, h = 4.20 },
   ["solar-system"] = { file = "label-solar-system.obj", w = 58.60, h = 4.20 },
   ["pendulums-twist"] = { file = "label-pendulums-twist.obj", w = 81.13, h = 4.20 },
+  ["wing-a"] = { file = "label-wing-a.obj", w = 93.22, h = 14.00 },
+  ["wing-a-sub"] = { file = "label-wing-a-sub.obj", w = 156.28, h = 6.50 },
+  ["wing-b"] = { file = "label-wing-b.obj", w = 104.83, h = 14.00 },
+  ["wing-b-sub"] = { file = "label-wing-b-sub.obj", w = 180.34, h = 6.50 },
   ["reserved"] = { file = "label-reserved.obj", w = 31.24, h = 4.20 },
   ["in-preparation"] = { file = "label-in-preparation.obj", w = 28.57, h = 2.40 },
 }

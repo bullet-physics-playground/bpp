@@ -52,29 +52,49 @@ Wing A runs north from the entrance to the corner; wing B runs east from
 the corner. Each wing has bays on both sides, 4.2 m wide and 3.3 m deep,
 with a 3.4 m aisle between.
 
+Each wing has an idea, on a gilt board hung over its aisle where it
+begins:
+
+* **Wing A, "Turning": things that roll, tumble and spin**, where the
+  body's shape and spin decide what it does. The bays facing each other
+  across the aisle make pairs:
+  * shapes that right themselves (Gömböc, Bille);
+  * rolling down, and rolling "up" (Galileo's ramp, the double cone);
+  * rolling that isn't simple (the oloid, Euler's disk);
+  * spin that changes on its own (the rattlebacks, the spinning eggs);
+  * things that flip over (the tippe tops, the Dzhanibekov effect);
+  * precession (the gyroscopes, the bicycle wheel).
+* **Wing B, "Swinging": pendulums, collisions and many bodies**, ending
+  with gravity at the largest scale. In order:
+  * Newton's cradle and Huygens' clocks;
+  * Kapitza's pendulum and the double pendulum;
+  * pendulums with a twist and the chain fountain;
+  * the falling Slinky and the Brazil-nut effect;
+  * the solar system, as the finale.
+
 | Bay | Exhibit | Folder |
 |---|---|---|
 | A, west 1 | Gömböc Variety | `../Gomboc/gomboc-variety.lua` |
 | A, east 1 | Bille and the polyhedra | `../Bille/bille-drop.lua` |
-| A, west 2 | the Dzhanibekov effect | `../Dzhanibekov/dzhanibekov.lua` |
-| A, east 2 | the rattlebacks | `../Rattleback/rattleback.lua` |
-| A, west 3 | the tippe tops | `../TippeTop/tippe-top.lua` |
-| A, east 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
-| A, west 4 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
-| A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
-| A, west 5 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
-| A, east 5 | the double cone | `../DoubleCone/double-cone.lua` |
-| A, west 6 | the oloid and the sphericon | `../Oloid/oloid.lua` |
-| A, east 6 | the falling Slinky | `../Slinky/falling-slinky.lua` |
-| B, north 1 | the Brazil-nut effect | `../BrazilNut/brazil-nut.lua` |
-| B, south 1 | Newton's cradle | `../NewtonsCradle/newtons-cradle.lua` |
-| B, north 2 | Euler's disk | `../EulersDisk/eulers-disk.lua` |
-| B, south 2 | Galileo's ramp | `../GalileoRamp/galileo-ramp.lua` |
-| B, north 3 | Huygens' clocks | `../HuygensClocks/huygens-clocks.lua` |
-| B, south 3 | Kapitza's pendulum | `../Kapitza/kapitza.lua` |
-| B, north 4 | the double pendulum | `../DoublePendulum/double-pendulum.lua` |
-| B, south 4 | the solar system | `../SolarSystem/solar-system.lua` |
-| B, north 5 | pendulums with a twist | `../PendulumsTwist/pendulums-twist.lua` |
+| A, west 2 | Galileo's ramp | `../GalileoRamp/galileo-ramp.lua` |
+| A, east 2 | the double cone | `../DoubleCone/double-cone.lua` |
+| A, west 3 | the oloid and the sphericon | `../Oloid/oloid.lua` |
+| A, east 3 | Euler's disk | `../EulersDisk/eulers-disk.lua` |
+| A, west 4 | the rattlebacks | `../Rattleback/rattleback.lua` |
+| A, east 4 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
+| A, west 5 | the tippe tops | `../TippeTop/tippe-top.lua` |
+| A, east 5 | the Dzhanibekov effect | `../Dzhanibekov/dzhanibekov.lua` |
+| A, west 6 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
+| A, east 6 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
+| B, north 1 | Newton's cradle | `../NewtonsCradle/newtons-cradle.lua` |
+| B, south 1 | Huygens' clocks | `../HuygensClocks/huygens-clocks.lua` |
+| B, north 2 | Kapitza's pendulum | `../Kapitza/kapitza.lua` |
+| B, south 2 | the double pendulum | `../DoublePendulum/double-pendulum.lua` |
+| B, north 3 | pendulums with a twist | `../PendulumsTwist/pendulums-twist.lua` |
+| B, south 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
+| B, north 4 | the falling Slinky | `../Slinky/falling-slinky.lua` |
+| B, south 4 | the Brazil-nut effect | `../BrazilNut/brazil-nut.lua` |
+| B, north 5 | the solar system | `../SolarSystem/solar-system.lua` |
 
 Gömböc Drop C (`../Gomboc/gomboc-drop-c.lua`) isn't in the hall: Gömböc
 Variety shows Gomboc-C and more.
