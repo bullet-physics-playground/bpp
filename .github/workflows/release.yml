@@ -133,6 +133,7 @@ jobs:
             mingw-w64-x86_64-assimp
             mingw-w64-x86_64-glew
             mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-boost
             mingw-w64-x86_64-lua51
             mingw-w64-x86_64-cmake
@@ -209,7 +210,7 @@ jobs:
       # povray/openscad/sdl12-compat/git (runtime tools or already
       # present on the runner, not build deps).
       - name: Install build dependencies (Homebrew)
-        run: brew install qt@5 assimp cmake bullet lua boost sdl2 freeglut
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut
 
       # luabind and libQGLViewer are custom/forked builds not packaged
       # by Homebrew, built from source and installed into the Homebrew
@@ -274,7 +275,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install build dependencies (Homebrew)
-        run: brew install qt@5 assimp cmake bullet lua boost sdl2 freeglut
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut
 
       - name: Build luabind (bullet-physics-playground fork)
         run: |
