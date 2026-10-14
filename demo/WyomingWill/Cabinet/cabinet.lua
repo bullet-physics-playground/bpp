@@ -102,7 +102,7 @@ EXHIBITS = EXHIBITS or {
   { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
     prefix = "Wheel: ", floorY = 0,
     about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
-            "stool starts to turn the other way; turn it back and the stool stops." },
+            "stool starts to turn the other way; push the wheel out and it slows." },
   { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning egg", label = "spinning-egg",
     about = "Coming: the spinning egg. A hard-boiled egg spun fast on its side\nrises up onto its end." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",

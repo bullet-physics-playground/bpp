@@ -2,37 +2,45 @@
 -- The Bicycle Wheel -- Euler's Cabinet of Curiosities
 --
 -- A figure sits on a swivel stool, its feet off the floor, holding a
--- bicycle wheel by the handles on its axle. The wheel spins at 3 turns a
--- second, axle upright. The stool is still.
+-- spinning wheel by the handles on its axle, axle upright. The stool is
+-- still.
 -- Then the figure turns the wheel over -- and the stool starts to turn the
 -- other way. Turn the wheel back and the stool stops again. Nothing has
 -- pushed against the floor: the spin's angular momentum, which was
 -- pointing up, now points down, and the figure and the stool together have
 -- to take up the difference, twice the wheel's.
+-- And while the stool turns, the figure can hold the wheel close or push it
+-- out at arm's length: out, the stool slows down; back in, it speeds up
+-- again -- the same angular momentum, shared over more or less moment of
+-- inertia (a figure skater's arms).
 --
--- It turns the wheel over by itself every few seconds (A: on/off); F turns
--- it over now, L holds it level (half the difference: the stool turns half
--- as fast).
+-- By itself it goes round: turn the wheel over, push it out, pull it in,
+-- turn it back, every few seconds (A: on/off). F turns it over now, L holds
+-- it level (half the difference: the stool turns half as fast), O pushes it
+-- out, I pulls it in.
 --
--- THE WHEEL: 66 cm across, 2.2 kg, its weight mostly in the rim and tyre
--- (moment of inertia about the axle 0.15 kg m^2); at 3 turns a second its
--- angular momentum is 2.83 kg m^2/s. Figure and stool: 2.5 kg m^2 about the
--- stool's axis; with the wheel, held 47 cm out, 3.14. So turned over, the
--- stool should turn at 2 x 2.83 / 3.14 = 1.80 rad/s, a turn in 3.5 s; the
--- console gives what it does and what it should, each time. (With no
--- friction the two agree to 4 figures, and the angular momentum about the
--- stool's axis stays within 0.03% of where it started.)
+-- THE WHEEL: a small wheel, 44 cm across, so it can come in close; 3 kg,
+-- its weight in a heavy rim (moment of inertia about the axle 0.115
+-- kg m^2); spun at 4 turns a second its angular momentum is 2.89 kg m^2/s.
+-- Figure and stool: 1.5 kg m^2 about the stool's axis; the wheel and the
+-- hands holding it (1 kg) bring it to 2.09 held close (34 cm out), 2.63
+-- pushed out (50 cm). So turned over, the stool turns at 2 x 2.89 / 2.09 =
+-- 2.77 rad/s with the wheel close, and 2 x 2.89 / 2.63 = 2.20 pushed out;
+-- the console gives what it does and what it should, after each move.
+-- (With no friction they agree to 4 figures, and the angular momentum
+-- about the stool's axis stays within 0.1% of where it started.)
 --
 -- PHYSICS
 --  * The stool's turning part and the figure are one rigid body, on a
 --    hinge (a vertical axis) to the floor; a little friction in its
 --    bearing.
 --  * The wheel is one rigid body (axle, handles and wheel), on a hinge to
---    the figure's turning body: its axis points straight out in front of
---    the figure, through the wheel's centre -- the figure's arms, which turn
---    the wheel over about it and hold it every other way. A motor on that
---    hinge turns it over (in 1.2 s, smoothly); the arms are drawn to the
---    handles.
+--    the figure's hands -- a body of their own, 1 kg, on a slide straight
+--    out in front of the figure. The hinge's axis points along the slide,
+--    through the wheel's centre: the arms turn the wheel over about it,
+--    and hold it every other way. A motor on the hinge turns it over (in
+--    1.2 s, smoothly); a motor on the slide moves the hands in or out (in
+--    1.5 s). The arms are drawn to the handles.
 --  * The wheel's spin is carried as a number, an angular momentum inside
 --    its body (a "gyrostat", as the gyroscopes are): the wheel is drawn
 --    turning at the angle it's at. Bullet's gyroscopic term is off; the
@@ -47,13 +55,16 @@
 -- Keys
 --   F   turn the wheel over (up <-> down)
 --   L   hold it level, then F to go on
---   A   turning it over by itself every 6 s: on/off
+--   O   push it out, arms' length (50 cm)
+--   I   pull it in close (34 cm)
+--   A   going through it all by itself: on/off
 --   R   start again (stool still, wheel spun up, axle up)
 --   Z   slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds (so moments of inertia in kg cm^2:
 -- 1 kg m^2 = 10000).
--- Headless testing: BW_SPIN (turns/s), BW_LOG=file.csv.
+-- Headless testing: BW_SPIN (turns/s), BW_FLIP, BW_PUSH (s), BW_STOOLF, BW_WHEELF,
+-- BW_LOG=file.csv.
 --
 
 local common = require "common"
@@ -66,23 +77,27 @@ end
 
 local G = 981
 local SEAT_Y = 55                        -- the seat's top (as gen-meshes.py)
-local WY, WD = 46, 47                    -- the wheel's centre: above the seat, out in front
-local GRIP = 13                          -- the hands on the handles: this far out along the axle
+local WY = 48                            -- the wheel's centre: above the seat
+local NEAR, FAR = 34, 50                 -- ... and out in front: held close, pushed out
+local GRIP = 12                          -- the hands on the handles: this far out along the axle
 local SHOULDER = { x = 19, y = 52, z = -1 }
 local UA, FA = 29, 27                    -- upper arm, forearm (as gen-meshes.py)
 -- the wheel
-local MW = 2.2
-local IW3 = 1500                         -- about the axle, kg cm^2 (0.15 kg m^2)
-local IW1 = 800                          -- across it
+local MW = 3.0
+local IW3 = 1150                         -- about the axle, kg cm^2 (0.115 kg m^2)
+local IW1 = 600                          -- across it
 local IW = { IW3, IW1, IW1 }
 -- the figure and the stool's turning part
 local MP = 75
-local IP = 25000                         -- about the stool's axis (2.5 kg m^2)
+local IP = 15000                         -- about the stool's axis (1.5 kg m^2)
+-- the hands (and what of the forearms goes with them): on the slide
+local MC, IC = 1.0, 100
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
-param("spin", envnum("BW_SPIN", 3), 0.5, 6, 0.5, "turns per second the wheel is spun up to (starts it again)")
+param("spin", envnum("BW_SPIN", 4), 0.5, 8, 0.5, "turns per second the wheel is spun up to (starts it again)")
 param("turn over", envnum("BW_FLIP", 1.2), 0.3, 4, 0.1, "seconds the figure takes to turn the wheel over")
+param("push out", envnum("BW_PUSH", 1.5), 0.3, 4, 0.1, "seconds the figure takes to push the wheel out or pull it in")
 param("stool friction", envnum("BW_STOOLF", 0.02), 0, 0.5, 0.01, "friction in the stool's bearing (N m)")
 param("wheel friction", envnum("BW_WHEELF", 0.02), 0, 0.5, 0.01, "the wheel's bearings: turns/s lost each second")
 param("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -142,7 +157,7 @@ end
 -- the wheel: the axle and handles are its body; the turning wheel follows
 local axle = Mesh(DIR .. "wheel-axle.obj", 0, false)
 axle.col = STEEL
-local wBody = btRigidBody(MW, btDefaultMotionState(btTransform(Q0, btVector3(0, SEAT_Y + WY, WD))),
+local wBody = btRigidBody(MW, btDefaultMotionState(btTransform(Q0, btVector3(0, SEAT_Y + WY, NEAR))),
                           btSphereShape(3), btVector3(IW[1], IW[2], IW[3]))
 axle.body = wBody
 v:add(axle)
@@ -152,6 +167,17 @@ wBody:setFlags(0)                         -- gyroscopic term: handed over as a t
 local wheelParts = { visual("wheel-turning.obj", STEEL), visual("wheel-tyre.obj", "#262626"),
                      visual("wheel-mark.obj", "#b0261f") }
 
+-- the hands: a small hidden ball inside the hub
+local hands = Sphere(0.3, 0)
+hands.collides = false
+hands.col = STEEL
+local cBody = btRigidBody(MC, btDefaultMotionState(btTransform(Q0, btVector3(0, SEAT_Y + WY, NEAR))),
+                          btSphereShape(0.3), btVector3(IC, IC, IC))
+hands.body = cBody
+v:add(hands)
+cBody:setActivationState(4)
+cBody:setDamping(0, 0)
+
 local function basis(b)
   local B = b:getCenterOfMassTransform():getBasis()
   return { B:getColumn(0), B:getColumn(1), B:getColumn(2) }
@@ -160,19 +186,22 @@ end
 -- ---------------------------------------------------------------------
 -- the hinges: the stool's (vertical) and the arms' (out in front)
 -- ---------------------------------------------------------------------
-local stoolHinge, armHinge
+local stoolHinge, slide, armHinge
 local S = 0                               -- the wheel's spin, rad/s (relative to the axle)
 local phi = 0                             -- the wheel's angle, for drawing
 local prevT                               -- last step's gyroscopic torque
 local flipAngle, lastRaw = 0, nil         -- the arm hinge's angle, unwrapped
 local target, from, to, t0, dur = 0, 0, 0, 0, 1.2
 local t, auto, nextAuto = 0, true, 2.0
-local L0 = 0                              -- the angular momentum about the upright as it started turning the wheel
+local step = 0                            -- where it is in its round (by itself)
+local L0 = 0                              -- the angular momentum about the upright as the last move started
+local dist, dFrom, dTo, dT0, dDur = NEAR, NEAR, NEAR, -10, 1.5   -- the slide: where, and its move
 local EXTRA_TURN = -1                     -- the way round it's turned over (the top handle passes the figure's right)
 
 local spunWith                            -- the spin it was last spun up with
 local function restart()
   if stoolHinge then v:removeConstraint(stoolHinge) end
+  if slide then v:removeConstraint(slide) end
   if armHinge then v:removeConstraint(armHinge) end
   local tq = btTransform(Q0, btVector3(0, SEAT_Y, 0))
   tt.trans = tq
@@ -180,17 +209,34 @@ local function restart()
   ttBody:setLinearVelocity(btVector3(0, 0, 0))
   ttBody:setAngularVelocity(btVector3(0, 0, 0))
   -- the axle upright: the wheel's x turned onto y
-  local wq = btTransform(btQuaternion(btVector3(0, 0, 1), math.pi / 2), btVector3(0, SEAT_Y + WY, WD))
+  local wq = btTransform(btQuaternion(btVector3(0, 0, 1), math.pi / 2), btVector3(0, SEAT_Y + WY, NEAR))
   axle.trans = wq
   wBody:setCenterOfMassTransform(wq)
   wBody:setLinearVelocity(btVector3(0, 0, 0))
   wBody:setAngularVelocity(btVector3(0, 0, 0))
+  local cq = btTransform(Q0, btVector3(0, SEAT_Y + WY, NEAR))
+  hands.trans = cq
+  cBody:setCenterOfMassTransform(cq)
+  cBody:setLinearVelocity(btVector3(0, 0, 0))
+  cBody:setAngularVelocity(btVector3(0, 0, 0))
   stoolHinge = btHingeConstraint(ttBody, anchor.body, btVector3(0, 0, 0), btVector3(0, 0, 0),
                                  btVector3(0, 1, 0), btVector3(0, 1, 0))
   v:addConstraint(stoolHinge)
-  armHinge = btHingeConstraint(ttBody, wBody, btVector3(0, WY, WD), btVector3(0, 0, 0),
+  -- the slide: the hands move straight out in front (a slider's axis is
+  -- its frame's x: turned onto z), and don't turn on it
+  local XZ = btQuaternion(btVector3(0, 1, 0), -math.pi / 2)
+  slide = btSliderConstraint(ttBody, cBody, btTransform(XZ, btVector3(0, WY, 0)), btTransform(XZ, btVector3(0, 0, 0)), true)
+  slide:setLowerLinLimit(NEAR - 2)
+  slide:setUpperLinLimit(FAR + 2)
+  slide:setLowerAngLimit(0)
+  slide:setUpperAngLimit(0)
+  slide:setPoweredLinMotor(true)
+  slide:setMaxLinMotorForce(1e7)
+  v:addConstraint(slide)
+  armHinge = btHingeConstraint(cBody, wBody, btVector3(0, 0, 0), btVector3(0, 0, 0),
                                btVector3(0, 0, 1), btVector3(0, 0, 1))
   v:addConstraint(armHinge)
+  dist, dFrom, dTo, dT0 = NEAR, NEAR, NEAR, -10
   spunWith = v:getParam("spin")
   S = 2 * math.pi * v:getParam("spin")
   phi, prevT = 0, nil
@@ -198,12 +244,18 @@ local function restart()
   target, from, to, t0 = 0, 0, 0, 0
   t, nextAuto = 0, 2.0
   L0 = IW3 * S
-  print(string.format("\n--- the wheel spun up: %.1f turns/s, axle up; the stool still ---", v:getParam("spin")))
+  step = 0
+  print(string.format("\n--- the wheel spun up: %.1f turns/s, axle up, held close; the stool still ---", v:getParam("spin")))
 end
 
 -- where the figure has the wheel: 0 up, 1 level, 2 down (half turns)
 local pos = 0
 local angMomUp
+local function moveTo(d)
+  if math.abs(d - dTo) < 1e-6 then return end
+  dFrom, dTo, dT0, dDur = dist, d, t, v:getParam("push out")
+  L0 = angMomUp()
+end
 local function turnTo(p)
   if p == pos then return end
   from = target
@@ -232,6 +284,11 @@ local function prestep(h, tNow)
   target = from + (to - from) * smooth(u)
   local vel = (to - from) * dsmooth(u) / dur + 40 * (target - flipAngle)
   armHinge:enableAngularMotor(true, vel, 2e6 * h)
+  -- the hands: the slide's place, driven along its smooth path
+  dist = slide:getLinearPos()
+  local ud = (tNow - dT0) / dDur
+  local dTarget = dFrom + (dTo - dFrom) * smooth(ud)
+  slide:setTargetLinMotorVelocity((dTo - dFrom) * dsmooth(ud) / dDur + 40 * (dTarget - dist))
 
   -- the wheel: its gyroscopic torque, the bearings
   local c = basis(wBody)
@@ -311,6 +368,7 @@ end
 local LOGF = os.getenv("BW_LOG") and io.open(os.getenv("BW_LOG"), "w")
 if LOGF then LOGF:write("t,flip_deg,axle_up,stool_rad_s,theory_rad_s,spin_turns_s,L_up\n") end
 local reported = true
+local what = ""
 local function stoolRate() return ttBody:getAngularVelocity().y end
 local function axleUp() return basis(wBody)[1].y end
 -- what the stool should be doing, from the angular momentum about the
@@ -319,7 +377,7 @@ local function axleUp() return basis(wBody)[1].y end
 local function theory()
   local up = axleUp()
   local Iw = IW1 + (IW3 - IW1) * up * up
-  local Itot = IP + MW * WD * WD + Iw
+  local Itot = IP + (MW + MC) * dist * dist + Iw + IC
   return (L0 - IW3 * S * up) / Itot
 end
 function angMomUp()
@@ -333,7 +391,9 @@ function angMomUp()
   local Lw = c[1].y * Lb[1] + c[2].y * Lb[2] + c[3].y * Lb[3]
   local x, _, z = getPosXYZ(axle)
   local V = wBody:getLinearVelocity()
-  return IP * wy + Lw + MW * (z * V.x - x * V.z)
+  local cx, _, cz = getPosXYZ(hands)
+  local Vc = cBody:getLinearVelocity()
+  return IP * wy + Lw + MW * (z * V.x - x * V.z) + IC * cBody:getAngularVelocity().y + MC * (cz * Vc.x - cx * Vc.z)
 end
 
 local restartIn                           -- frames until the spin slider's restart (see onParamChanged)
@@ -360,17 +420,21 @@ v:postSim(function(N)
     local px, py, pz = toWorld(ct, { 0, 0, 0 }, arm.sx, -0.5, -0.3)
     placeArm(arm, sx, sy, sz, hx, hy, hz, px, py, pz)
   end
-  -- turning it over by itself
-  if auto and t >= nextAuto and t >= t0 + dur then
-    turnTo(pos == 0 and 2 or 0)
-    nextAuto = t + dur + 6
+  -- by itself: turn it over, push it out, pull it in, turn it back
+  local busy = t < t0 + dur or t < dT0 + dDur
+  if auto and t >= nextAuto and not busy then
+    step = step % 4 + 1
+    if step == 1 then turnTo(2); what = "turned over"
+    elseif step == 2 then moveTo(FAR); what = "pushed out"
+    elseif step == 3 then moveTo(NEAR); what = "pulled in"
+    else turnTo(0); what = "axle up again" end
+    nextAuto = t + math.max(dur, dDur) + (step == 4 and 4 or 3)
     reported = false
   end
-  if not reported and t >= t0 + dur + 0.5 then
+  if not reported and t >= math.max(t0 + dur, dT0 + dDur) + 0.5 then
     reported = true
-    print(string.format("t=%5.1fs  wheel %s: the stool turning at %+.3f rad/s (%.2f turns/s); it should, by its angular momentum: %+.3f",
-      t, pos == 0 and "axle up again" or pos == 1 and "held level" or "turned over", stoolRate(),
-      math.abs(stoolRate()) / (2 * math.pi), theory()))
+    print(string.format("t=%5.1fs  wheel %s (%.0f cm out): the stool turning at %+.3f rad/s (%.2f turns/s); it should, by its angular momentum: %+.3f",
+      t, what, dist, stoolRate(), math.abs(stoolRate()) / (2 * math.pi), theory()))
   end
   if LOGF and N % 4 == 0 then
     LOGF:write(string.format("%.4f,%.2f,%.4f,%.5f,%.5f,%.3f,%.1f\n", t, math.deg(flipAngle), axleUp(), stoolRate(), theory(),
@@ -382,12 +446,17 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help, hover
 -- ---------------------------------------------------------------------
-v:addShortcut("F", function(N) auto = false; turnTo(pos == 0 and 2 or 0); reported = false end)
-v:addShortcut("L", function(N) auto = false; turnTo(1); reported = false end)
+v:addShortcut("F", function(N)
+  auto = false; turnTo(pos == 0 and 2 or 0); reported = false; what = pos == 0 and "axle up again" or "turned over"
+end)
+v:addShortcut("L", function(N) auto = false; turnTo(1); reported = false; what = "held level" end)
+v:addShortcut("O", function(N) auto = false; moveTo(FAR); reported = false; what = "pushed out" end)
+v:addShortcut("I", function(N) auto = false; moveTo(NEAR); reported = false; what = "pulled in" end)
 v:addShortcut("A", function(N)
   auto = not auto
   nextAuto = t + 1
-  print(auto and "turning it over by itself every 6 s" or "turning it over only on F")
+  step = (pos == 0) and 0 or (math.abs(dTo - FAR) < 1e-6 and 2 or 1)
+  print(auto and "going through it by itself" or "moving only on F, L, O, I")
 end)
 v:addShortcut("R", function(N) restart(); pos = 0; auto = true end)
 v:addShortcut("Z", function(N)
@@ -411,18 +480,22 @@ v:setHelpText(table.concat({
   "The bicycle wheel (Euler's Cabinet of Curiosities)",
   "",
   "On a swivel stool, feet off the floor, a figure holds a",
-  "spinning bicycle wheel, axle up. It turns the wheel over,",
-  "and the stool starts to turn the other way; turned back,",
-  "the stool stops. The spin's angular momentum was up and is",
-  "now down: figure and stool take up the difference.",
+  "spinning wheel, axle up. It turns the wheel over, and the",
+  "stool starts to turn the other way; turned back, the stool",
+  "stops. The spin's angular momentum was up and is now down:",
+  "figure and stool take up the difference.",
+  "Pushed out at arm's length, the wheel slows the stool down;",
+  "pulled back in, the stool speeds up again.",
   "",
   "F   turn the wheel over (up <-> down)",
   "L   hold it level (the stool turns half as fast)",
-  "A   turning it over by itself every 6 s: on/off",
+  "O   push it out        I   pull it in",
+  "A   going through it all by itself: on/off",
   "R   start again",
   "Z   slow motion (1/4) <-> real time",
   "",
-  "Sliders: spin (turns/s; starts it again), turn over (seconds),",
+  "Sliders: spin (turns/s; starts it again), turn over and",
+  "push out (seconds),",
   "stool friction, wheel friction, speed, steps.",
   "Rest the mouse on the wheel or the stool.",
 }, "\n"))

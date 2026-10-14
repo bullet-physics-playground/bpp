@@ -10,10 +10,10 @@ import math
 
 OUT = "../bicycle-wheel-meshes/"
 SEAT_Y = 55.0          # the seat's top, above the floor
-WR = 33.0              # the wheel's radius (to the outside of the tyre)
+WR = 22.0              # the wheel's radius (to the outside of the tyre): a small wheel, so it can come in close
 TYRE = 1.8             # the tyre's thickness (radius of its section)
 RIM_R = WR - 2 * TYRE  # the rim's outer radius
-AXLE = 22.0            # half the axle's length (to the handles' ends)
+AXLE = 16.0            # half the axle's length (to the handles' ends)
 
 
 def revolve(prof, nu, axis="y", closed=False):

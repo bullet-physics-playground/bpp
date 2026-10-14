@@ -16,9 +16,11 @@
 -- the table -- exactly two corners touching, not resting on face D -- that
 -- edge lights up white (for at least 0.6 s on screen), as it rolls from face
 -- to face, so the moments between faces are easy to catch; the console lists
--- the edges it rolled on. The "polyhedra look" slider draws the
--- polyhedra as solids (0) or as frames, balls on rods (1); the physics is
--- the same either way.
+-- the edges it rolled on. The polyhedra are drawn as frames to start with
+-- -- a ball at each corner, where its weight is, on rods along the edges --
+-- and each corner's ball lights up white while it touches the table (for
+-- at least 0.3 s on screen). The "polyhedra look" slider draws them as
+-- solids instead (0); the physics is the same either way.
 --
 -- BILLE (Almadi, Dawson & Domokos, 2025) is a tetrahedron that can rest on
 -- only one of its four faces. Its frame is mostly hollow (carbon-fibre tubes
@@ -185,7 +187,7 @@ local function spec(kind, size)
   KEEP[key] = Mesh(file, 0, false)
   if file ~= MESH_DIR .. objName then os.remove(file) end
   local vtx = {}
-  if K.vnames then
+  if K.vnames or K.frameObj then
     for i = 1, #p, 3 do vtx[#vtx + 1] = { p[i] * s, p[i + 1] * s, p[i + 2] * s } end
   end
   local m = K.mass * s ^ 3
@@ -194,6 +196,7 @@ local function spec(kind, size)
                inertia = btVector3(k2[1] * m, k2[2] * m, k2[3] * m), margin = K.margin * s, reach = reach,
                faces = faces, home = K.home, top = { K.top[1] * s, K.top[2] * s, K.top[3] * s },
                title = K.title, short = K.short, vnames = K.vnames, vtx = vtx,
+               corners = K.frameObj and true or nil, ballR = 0.6 * s,    -- (twice the frame's balls, so it shows)
                sizeText = string.format("%.0f cm %s", K.sizeRef * size, K.sizeName) }
   local nxt = {}
   for _, f in ipairs(faces) do if f.next then nxt[f.name] = f.next end end
@@ -214,7 +217,7 @@ local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo
 param("count", envnum("BD_COUNT", 3), 1, MAX_COUNT, 1, "how many bodies to drop")
 param("bodies", envnum("BD_BODIES", 0), 0, 2, 1,
       "0 = half and half (Red, Yellow, Orange Billes; Green, Blue, Purple polyhedra); 1 = Bille only; 2 = the polyhedra only")
-param("polyhedra look", envnum("BD_LOOK", 0), 0, 1, 1,
+param("polyhedra look", envnum("BD_LOOK", 1), 0, 1, 1,
       "0 = the polyhedra drawn as solids, 1 = as frames (balls at the corners, rods on the edges); the physics is the same")
 param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.001,
       "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
@@ -364,6 +367,23 @@ end
 local function removeBars(g)
   for _, e in pairs(g.bars or {}) do v:remove(e.obj) end
   g.bars = {}
+  for _, b in ipairs(g.balls or {}) do v:remove(b.obj) end
+  g.balls = {}
+end
+-- a polyhedron's corners (its point masses), each with a white ball that is
+-- shown (drawn only) while that corner touches the table
+local CORNER_COL = "#ffffff"
+local function makeBalls(g, sp)
+  g.balls = {}
+  if not sp.corners then return end
+  for k = 1, #sp.vtx do
+    local b = Sphere(sp.ballR, 0)
+    b.col = CORNER_COL
+    pcall(function() b.collides = false end)
+    v:add(b)
+    b.pos = HIDDEN
+    g.balls[k] = { obj = b, until_ = 0, shown = false }
+  end
 end
 
 -- give body g a new shape: a new Mesh, rigid body (and edge bars) in its place
@@ -371,6 +391,7 @@ local function reshape(g, sp)
   if g.obj then v:remove(g.obj) end
   removeBars(g)
   makeBars(g, sp)
+  makeBalls(g, sp)
   local m = Mesh(sp.file, 0, false)
   local ms = btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, -60, 0)))
   local body = btRigidBody(sp.mass, ms, sp.hull, sp.inertia)
@@ -468,6 +489,27 @@ local function faceDown(g)
   end
   if bestAng < ON_DEG and math.abs(h - best.h) < 0.006 * g.sp.reach then return best.name, bestAng end
   return nil, bestAng
+end
+
+-- a polyhedron's corners touching the table light up, each for at least
+-- CORNER_FLASH on-screen seconds (so a corner that only taps the table
+-- shows)
+local CORNER_TOL, CORNER_FLASH = 0.003, 0.3       -- (the tolerance: of the body's size)
+local function showCorners(g, now)
+  local px, py, pz = getPosXYZ(g.obj)
+  local tol = CORNER_TOL * g.sp.reach
+  for k, p in ipairs(g.sp.vtx) do
+    local b = g.balls[k]
+    local x, y, z = toWorld(g, p)
+    if py + y - tableHeight(px + x, pz + z) - g.sp.margin < tol then b.until_ = now + CORNER_FLASH end
+    if now < b.until_ then
+      b.obj.pos = btVector3(px + x, py + y, pz + z)
+      b.shown = true
+    elseif b.shown then
+      b.obj.pos = HIDDEN
+      b.shown = false
+    end
+  end
 end
 
 -- which edge of a Bille lies flat on the table: exactly two of its corners
@@ -748,7 +790,9 @@ pcall(function()
     "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..
     "A Bille's edge lights up white while it lies flat\n" ..
     "on the table (as it rolls from face to face).\n" ..
-    "'polyhedra look': solid or frame.\n" ..
+    "A polyhedron's corners (its weights) light up white\n" ..
+    "while they touch the table.\n" ..
+    "'polyhedra look': frame (1) or solid (0).\n" ..
     "All work because of where their weight is.\n" ..
     "Dark = not yet on the\n" ..
     "stable face, bright = resting on it.\n" ..
@@ -811,6 +855,7 @@ v:postSim(function(N)
     end
     g.edgeOn = e
     if g.sp.vnames then showBar(g, (race.real < (g.flashUntil or 0)) and (e or g.flashEdge) or nil) end
+    if g.sp.corners then showCorners(g, race.real) end
     local look = (f == g.sp.home) and "home" or "dark"
     if look ~= g.lit then g.lit = look; g.obj.col = (look == "home") and BRIGHT[g.i] or DARK[g.i] end
 
