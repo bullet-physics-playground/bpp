@@ -40,7 +40,7 @@ local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalo
 -- the chassis every four-legged walker is given (see `chassis` below),
 -- for STRIDE = 15; the chassis values in WALKERS were worked out for these
 local CLEARANCE, BASE, WIDTH = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
-local GRAVITY = GRAVITY or 20   -- every walker's gravity, cm/s^2 (see addWalker)
+local GRAVITY = GRAVITY or 70   -- every walker's gravity, cm/s^2 (see addWalker)
 -- LOCK_CRANKS (default on): a walker's cranks are kept in step, at the
 -- timing they were built with, as if one motor drove them all through
 -- gears (see lockCranks)
@@ -369,10 +369,13 @@ local function addWalker(spec, x, z, heading)
   -- those units (hips from about 4 units high to about 92), so scaling
   -- each one's gravity with it left them under gravities from 1.3 cm/s^2
   -- (Jansen) to 30 (Chebyshev-Spears) -- Klann, at 1.9, floated off the
-  -- ground for seconds at a time. GRAVITY is about the middle of that
-  -- range, so most walkers change little. Its motors are made stronger
-  -- (or weaker) by the same factor, so each can still lift itself as on
-  -- its own.
+  -- ground for seconds at a time. Even at 20 (Walker Room1), the
+  -- walkers whose feet lift most (Klann, Chebyshev-Spears, Hoecken-Spears
+  -- slider) had no foot on the ground 17-31% of the time: a small push
+  -- up kept them in the air for a long time. At 70 none is off the ground
+  -- more than 2% of the time; much higher (200 and more), most walkers
+  -- stall. Its motors are made stronger (or weaker) by the same factor
+  -- as its gravity, so each can still lift itself as on its own.
   w.gravityFactor = GRAVITY / (9.8 * scale)
   opts.impulseScale = FIXED / spec.fixed * w.gravityFactor
   opts[spec.lift] = AMP                  -- the room's bumps reach AMP above 0
