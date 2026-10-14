@@ -2,7 +2,8 @@
 
 Issues found while building and examining the demos in this folder
 (identical copies live in `demo/WyomingWillJakob/ArtificialPhysics/`).
-None of these have been applied to the original files yet.
+Items 4 and 5 have been applied to `Uniform_Coverage.lua` in this folder
+(not to the WyomingWillJakob copy); none of the others have.
 
 ## Behaviour
 
@@ -30,13 +31,42 @@ None of these have been applied to the original files yet.
 
 4. **Uniform Coverage neighbour check is one-sided** — `shouldTurn()`.
    `diff = (angleToOther - heading) % 360; if diff < 30` only looks 0–30°
-   counter-clockwise of the heading, not ±30°. Ported verbatim from the
-   Kotlin, so the original app has it too. *Fix:* `if diff < 30 or diff > 330`.
+   counter-clockwise of the heading. Ported verbatim from the Kotlin, so the
+   original app has it too.
+   **APPLIED as a centred cone of the same width:** `diff < 15 or diff > 345`.
+   The first proposal, `diff < 30 or diff > 330` (±30°), was rejected by the
+   benchmark below: it doubles the cone, so agents turn away from neighbours
+   twice as often, and at 25 agents / MFP 60 that is 13% worse (20 seeds,
+   t = 2.4; extra turns shift coverage from the centre to the corners).
 
 5. **Uniform Coverage turn loop drops a valid move** — `moveAgent()`.
    After the 9th heading re-pick `tries` reaches 10 and the loop exits without
    re-testing, so the agent skips its step (and its cell count) even when the
    last heading was clear. Also verbatim from the original.
+   **APPLIED:** still at most 9 re-picks, but the last one is tested. Stalled
+   moves drop from ~5.5e-5 to ~3e-5 of all moves (the rest are genuinely
+   boxed-in agents).
+
+   **Benchmark** (headless, the script's own `setup`/`moveAgent`/
+   `uniformityDeviation`, no drawing). Agents {1, 5, 10, 25, 50, 100} ×
+   MFP {1, 5, 10, 17, 30, 60, 120}, 5 seeds each, equal budgets (2M
+   agent-steps up to 10 agents, 1M at 25, 0.5M at 50/100). Deviation of the
+   variant relative to the verbatim code:
+
+   | Variant | Geometric-mean ratio | Significantly better (t < −2) | Significantly worse (t > 2) |
+   | --- | --- | --- | --- |
+   | dead-end fix only | 0.981 | 3 of 42 | none |
+   | **dead-end fix + ±15° cone (applied)** | **0.974** | 1 of 35 | **none** |
+   | dead-end fix + ±30° cone | 0.934 | 5 of 42 | 25/60 on retest |
+
+   Configurations that looked worse at 5 seeds were rerun with 20 seeds.
+   At 25 agents / MFP 60 the ratios were: dead-end only 0.98, ±15° 1.02
+   (t = 0.4), ±30° 1.13 (t = 2.4). With 1 agent the cone cannot matter, so
+   that row isolates the dead-end fix: identical to within 0.3%. Long runs
+   at 10 agents / MFP 17 (4M ticks, 3 seeds) were all within noise, at
+   0.0016–0.0022 and still falling roughly as 1/√ticks. The ±30° cone is the
+   better choice on average (up to 33% better, e.g. 25 agents / MFP 5), if
+   one loss is acceptable.
 
 6. **Uniform Coverage statistics are slightly off-normalised.** `setup()`
    calls `monitorAgent()` once per agent, and stalled agents (item 5) are not
