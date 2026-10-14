@@ -60,4 +60,10 @@ if [ -n "$BAD" ]; then
   exit 1
 fi
 
+# Step 7: Re-sign the whole bundle. Every install_name_tool edit above (and
+# macdeployqt's own copies) invalidated the code signatures; without a fresh
+# ad-hoc signature dyld kills the app at launch with SIGKILL (Code Signature
+# Invalid) on Apple Silicon.
+codesign --force --deep --sign - "$APP"
+
 echo "Deploy complete. QGLViewer bundled, paths fixed, bundle self-contained."
