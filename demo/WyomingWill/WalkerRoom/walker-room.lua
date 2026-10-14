@@ -61,6 +61,12 @@ SAME_FEET = (SAME_FEET ~= false)
 SAME_BODY = (SAME_BODY ~= false)
 local TOTAL_MASS = TOTAL_MASS or 100
 local BODY_BOX = BODY_BOX or { 40, 3, 30 }
+-- every walker's motors the same: MOTOR_STRENGTH (default 10) is the
+-- most twisting effort all of a walker's crank motors together can give,
+-- in units of its weight x gravity x stride -- the same for every walker.
+-- (Its own file's motors ranged from 1.4 to 71 in these units.) false:
+-- each walker's own file's motors.
+MOTOR_STRENGTH = (MOTOR_STRENGTH == nil) and 10 or MOTOR_STRENGTH
 -- ANKLES = true: every walker's feet hinged to its legs about the
 -- side-to-side axis, like ankles (as the 2-leg Spears' own files have
 -- them), instead of welded (Walker Room1: welded)
@@ -419,6 +425,16 @@ local function addWalker(spec, x, z, heading)
   end
   local built = W.build(opts)
   for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0 end
+  -- the same motors for every walker (MOTOR_STRENGTH, above): Bullet
+  -- applies a motor's impulse once per physics step, so its most torque
+  -- is impulse / FIXED
+  if MOTOR_STRENGTH and #w.motors > 0 then
+    local torque = MOTOR_STRENGTH * TOTAL_MASS * GRAVITY * STRIDE / #w.motors
+    for _, m in ipairs(w.motors) do
+      m.impulse = torque * FIXED
+      m.hinge:enableAngularMotor(true, m.speed, m.impulse)
+    end
+  end
   if spec.solverIterations then
     for _, con in ipairs(w.constraints) do con:setOverrideNumSolverIterations(spec.solverIterations) end
   end
