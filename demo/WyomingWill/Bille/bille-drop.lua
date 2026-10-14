@@ -196,7 +196,7 @@ local function spec(kind, size)
                inertia = btVector3(k2[1] * m, k2[2] * m, k2[3] * m), margin = K.margin * s, reach = reach,
                faces = faces, home = K.home, top = { K.top[1] * s, K.top[2] * s, K.top[3] * s },
                title = K.title, short = K.short, vnames = K.vnames, vtx = vtx,
-               corners = K.frameObj and true or nil, ballR = 0.6 * s,    -- (twice the frame's balls, so it shows)
+               corners = K.frameObj and true or nil, ballR = 0.31 * s,   -- (the frame's balls are 0.30: just over them)
                sizeText = string.format("%.0f cm %s", K.sizeRef * size, K.sizeName) }
   local nxt = {}
   for _, f in ipairs(faces) do if f.next then nxt[f.name] = f.next end end

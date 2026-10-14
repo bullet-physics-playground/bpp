@@ -17,7 +17,7 @@
 -- By itself it goes round: turn the wheel over, push it out, pull it in,
 -- turn it back, every few seconds (A: on/off). F turns it over now, L holds
 -- it level (half the difference: the stool turns half as fast), O pushes it
--- out, I pulls it in.
+-- out or pulls it back in.
 --
 -- THE WHEEL: a small wheel, 44 cm across, so it can come in close; 3 kg,
 -- its weight in a heavy rim (moment of inertia about the axle 0.115
@@ -55,8 +55,7 @@
 -- Keys
 --   F   turn the wheel over (up <-> down)
 --   L   hold it level, then F to go on
---   O   push it out, arms' length (50 cm)
---   I   pull it in close (34 cm)
+--   O   push it out to arm's length (50 cm) <-> pull it in close (34 cm)
 --   A   going through it all by itself: on/off
 --   R   start again (stool still, wheel spun up, axle up)
 --   Z   slow motion (1/4) <-> real time
@@ -450,13 +449,15 @@ v:addShortcut("F", function(N)
   auto = false; turnTo(pos == 0 and 2 or 0); reported = false; what = pos == 0 and "axle up again" or "turned over"
 end)
 v:addShortcut("L", function(N) auto = false; turnTo(1); reported = false; what = "held level" end)
-v:addShortcut("O", function(N) auto = false; moveTo(FAR); reported = false; what = "pushed out" end)
-v:addShortcut("I", function(N) auto = false; moveTo(NEAR); reported = false; what = "pulled in" end)
+v:addShortcut("O", function(N)
+  auto = false; reported = false
+  if math.abs(dTo - FAR) < 1e-6 then moveTo(NEAR); what = "pulled in" else moveTo(FAR); what = "pushed out" end
+end)
 v:addShortcut("A", function(N)
   auto = not auto
   nextAuto = t + 1
   step = (pos == 0) and 0 or (math.abs(dTo - FAR) < 1e-6 and 2 or 1)
-  print(auto and "going through it by itself" or "moving only on F, L, O, I")
+  print(auto and "going through it by itself" or "moving only on F, L, O")
 end)
 v:addShortcut("R", function(N) restart(); pos = 0; auto = true end)
 v:addShortcut("Z", function(N)
@@ -489,7 +490,7 @@ v:setHelpText(table.concat({
   "",
   "F   turn the wheel over (up <-> down)",
   "L   hold it level (the stool turns half as fast)",
-  "O   push it out        I   pull it in",
+  "O   push it out <-> pull it in",
   "A   going through it all by itself: on/off",
   "R   start again",
   "Z   slow motion (1/4) <-> real time",

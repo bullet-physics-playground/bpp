@@ -23,14 +23,13 @@ is angular momentum being shared out between two bodies.
 |---|---|
 | `F` | turn the wheel over (up <-> down) |
 | `L` | hold it level: the stool turns half as fast (then `F` to go on) |
-| `O` | push the wheel out, arm's length (50 cm in front) |
-| `I` | pull it in close (34 cm) |
+| `O` | push the wheel out to arm's length (50 cm in front) <-> pull it in close (34 cm) |
 | `A` | going round it all by itself: on/off (on to start with) |
 | `R` | start again: stool still, wheel spun up, axle up, held close |
 | `Z` | slow motion (1/4) <-> real time |
 
 By itself it turns the wheel over, pushes it out, pulls it in and turns it
-back, a few seconds apart, and over again. `F`, `L`, `O` and `I` stop that
+back, a few seconds apart, and over again. `F`, `L` and `O` stop that
 and do just what they say; `A` starts it again.
 
 Sliders: spin (turns a second; moving it starts again with the new spin,
@@ -100,5 +99,6 @@ so it allows for the friction before the move but not during it, about
   that folder).
 
 Headless testing: `BW_SPIN` (turns a second), `BW_FLIP` (seconds to turn
-over), `BW_PUSH` (seconds to push out or pull in), `BW_STOOLF`, `BW_WHEELF`, `BW_LOG=file.csv` (time, turn angle, axle,
-stool rate, what it should be, spin, angular momentum about the axis).
+over), `BW_PUSH` (seconds to push out or pull in), `BW_STOOLF`,
+`BW_WHEELF`, `BW_LOG=file.csv` (time, turn angle, axle, stool rate, what it
+should be, spin, angular momentum about the axis).
