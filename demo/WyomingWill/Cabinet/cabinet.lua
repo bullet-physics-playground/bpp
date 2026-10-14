@@ -124,7 +124,9 @@ EXHIBITS = EXHIBITS or {
     about = "Coming: the Brazil-nut effect. Shake a box of mixed grains and the big\n" ..
             "ones come up to the top." },
   { dir = "../NewtonsCradle/", file = "newtons-cradle.lua", name = "Newton's cradle", label = "newtons-cradle",
-    about = "Coming: Newton's cradle, a row of steel balls passing momentum along the line." },
+    prefix = "Cradle: ", floorY = -75,
+    about = "Newton's cradle: lift one ball and one flies out at the far end; two, and\n" ..
+            "two. Steel on steel, by Hertz's law." },
 }
 -- empty bays at the far end, for ideas still to come
 SPARE_BAYS = SPARE_BAYS or 3

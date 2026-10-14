@@ -67,7 +67,7 @@ with a 3.4 m aisle between.
 | B, north 1 | the oloid and the sphericon | `../Oloid/oloid.lua` |
 | B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
 | B, north 2 | the Brazil-nut effect | (in preparation) |
-| B, south 2 | Newton's cradle | (in preparation) |
+| B, south 2 | Newton's cradle | `../NewtonsCradle/newtons-cradle.lua` |
 | B, north 3 to B, south 4 | empty ("reserved") | |
 
 Gömböc Drop C (`../Gomboc/gomboc-drop-c.lua`) isn't in the hall: Gömböc
