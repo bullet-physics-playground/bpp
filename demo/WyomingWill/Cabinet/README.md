@@ -65,7 +65,7 @@ with a 3.4 m aisle between.
 | A, west 5 | the spinning egg | (in preparation) |
 | A, east 5 | the double cone | (in preparation) |
 | B, north 1 | the oloid and the sphericon | (in preparation) |
-| B, south 1 | the falling Slinky | (in preparation) |
+| B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
 | B, north 2 | the Brazil-nut effect | (in preparation) |
 | B, south 2 | Newton's cradle | (in preparation) |
 | B, north 3 to B, south 4 | empty ("reserved") | |
