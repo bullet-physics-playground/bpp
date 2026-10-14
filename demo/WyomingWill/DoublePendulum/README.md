@@ -7,7 +7,7 @@ It's simple to build, and it defies intuition in three ways.
 |---|---|
 | left: the butterfly | Seven double pendulums hang on one pivot and are let go together, each a billionth of a radian further round than the one before. Each one's bottom bob starts an atom's width (2 Å) further along. For five seconds they swing as one. Then, all at once, they fly apart and never come together again. |
 | middle: the two pure swings | The same pendulum can swing for ever in just two simple ways. In the slow one, the rods swing together, the lower one √2 times as far. In the fast one, the rods swing opposed, 2.4 times as often. The ratio is irrational, so a mix of the two never repeats. Left: the slow swing. Centre: the fast one. Right: let go with only the top rod pulled aside, which is half of each. |
-| right: upside down | Three double pendulums stand on their heads on pivots shaken up and down 40 times a second. Shaken 0.6 cm, it falls. Shaken 1.0 cm, the floppy two-rod chain stands up, rocking slowly. Shaken 1.6 cm, harder, it shakes itself loose and tumbles. |
+| right: upside down | Three double pendulums stand on their heads on pivots shaken up and down 40 times a second. Shaken 0.6 cm, it falls. Shaken 1.0 cm, the floppy two-rod chain stands up, rocking slowly. Shaken 1.6 cm, harder, the shaking pumps up a sway (as legs pump a swing) that throws it over, and it tumbles. |
 
 Every 30 s they're all let go again.
 
@@ -110,11 +110,11 @@ averaging can't see:
 
     averaged over the shaking (Kapitza, Acheson) it stands if a w > sqrt((2 + sqrt 2) g l): a > 0.728 cm
     exactly (Floquet), it stands if 0.728 cm < a < 1.356 cm
-    shaken 1.60 cm: shakes itself loose at 0.69 s
+    shaken 1.60 cm: the shaking pumps up a sway and throws it over at 0.69 s
     shaken 0.60 cm: falls at 0.79 s
     shaken 0.60 cm: it fell (as it should)
     shaken 1.00 cm: it stands, rocking up to 3.8 degrees: a period of 0.881 s over 12 rocks (exact 0.879 s, +0.3%; averaged 0.881 s, +0.1%)
-    shaken 1.60 cm: it shook itself loose (as it should)
+    shaken 1.60 cm: it was thrown over by the sway the shaking pumped up (as it should)
 
 It's tilted along its slow rocking (the lower rod √2 times as far), and the
 rocking is measured on the angle averaged over each shake.

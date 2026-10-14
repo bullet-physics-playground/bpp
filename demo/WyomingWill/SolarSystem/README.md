@@ -1,7 +1,7 @@
 # The Solar System
 
 The Sun, the eight planets, Pluto, five asteroids (Ceres, Pallas, Juno,
-Vesta, Hygiea) and twenty-two moons, from 2026 January 1 on. They move as
+Vesta, Hygiea) and twenty-one moons, from 2026 January 1 on. They move as
 gravity moves them, worked out here from where JPL had them that day.
 
 | Part | What's there |
@@ -77,15 +77,30 @@ Every January 1 the console prints these:
 * **The energy and angular momentum** (Newton's) are steady to about 1e-9
   and 3e-10.
 * **Laplace's resonance.** Io, Europa and Ganymede's mean longitudes keep
-  L_I − 3 L_E + 2 L_G at 180°: it librates about 180°, with a period
-  measured at 2039 days. The theory and the moons' observed motions give
-  about 2070.
+  L_I − 3 L_E + 2 L_G at 180°. Over the years its 20-day means stay
+  between 179.7° and 180.3°. The real free libration about 180° is only
+  0.07°, and the rest is the moons' other slow wobbles. (Started instead
+  from Lainey's L1.2 theory, the angle swings 1.5° about 180°, with a
+  period measured at 2039 days, against the theory's 2070.)
 * **Neptune and Pluto**: how close they've come, and Pluto's year in
   Neptune's (1.50: the 3:2 resonance). Their orbits cross, but the
   resonance keeps them more than 17 AU apart. That is a fact of the
   millennia, not something the 25 years here can show.
-* **Horizons**: once its data are in (below), the moons and asteroids
-  against JPL Horizons, monthly for five years.
+* **The moons and asteroids against JPL Horizons**, monthly for five
+  years, in km. They start within 1 or 2 km and stay close: after five
+  years, Titan, Rhea, Dione, Iapetus, Io, Triton, Umbriel and Charon are
+  within 25–210 km. Some go further, for reasons that are physics left
+  out:
+  * **Phobos**: 3,200 km a year (a few parts in 1e5 of its pace). Mars
+    isn't round about its axis either (its C22 term), and Phobos goes
+    round three times a Martian day. That isn't modelled.
+  * **Titania and Miranda**: 900 and 400 km a year. Neither Uranus's
+    J2 nor the moons' older masses fix it (2014's masses are used).
+  * **Mimas**: 500–2,400 km, rising and falling. Its 2:1 resonance with
+    Tethys swings it back and forth over 70 years.
+  * **The asteroids**: Ceres 2,000 km in five years, about 1″ seen from
+    the Sun. Horizons' asteroid orbits include another eleven big asteroids'
+    pulls, and the Sun's barycentric motion of DE441 rather than DE421.
 
 From a run at 100 days a second:
 
@@ -103,6 +118,12 @@ From a run at 100 days a second:
                 the Moon, from the Earth: 39 km
                 a Mercury without Einstein's correction: 1813 km off
 
+and against Horizons, a month, a year and five years in:
+
+    2026-02-01  against Horizons, km off: Phobos 310, Deimos 23, Io 78, Europa 38, Ganymede 26, Callisto 13, Mimas 518, Enceladus 172, Tethys 69, Dione 26, Rhea 7, Titan 0, Iapetus 2, Miranda 41, Ariel 7, Umbriel 9, Titania 102, Oberon 10, Triton 3, Charon 4, Ceres 1, Pallas 1, Juno 1, Vesta 2, Hygiea 0
+    2027-01-01  against Horizons, km off: Phobos 3176, Deimos 328, Io 52, Europa 199, Ganymede 213, Callisto 182, Mimas 575, Enceladus 77, Tethys 90, Dione 10, Rhea 4, Titan 31, Iapetus 11, Miranda 404, Ariel 71, Umbriel 14, Titania 858, Oberon 149, Triton 22, Charon 42, Ceres 218, Pallas 135, Juno 74, Vesta 177, Hygiea 52
+    2031-01-01  against Horizons, km off: Phobos 13996, Deimos 1671, Io 60, Europa 364, Ganymede 1160, Callisto 896, Mimas 2364, Enceladus 236, Tethys 412, Dione 53, Rhea 25, Titan 90, Iapetus 34, Miranda 2063, Ariel 392, Umbriel 83, Titania 4502, Oberon 937, Triton 108, Charon 209, Ceres 2010, Pallas 840, Juno 660, Vesta 538, Hygiea 604
+
 ## Where it starts: the data
 
 `solar-data.lua` is made by `make-data.py` (Python, with NumPy, jplephem
@@ -113,11 +134,11 @@ the flattenings and poles, and the checkpoints:
   masses. DE421 comes in the skyfield-data package
   (`pip install jplephem skyfield-data`).
 * **The moons and asteroids: JPL Horizons**, fetched by
-  `fetch-horizons.sh` into `horizons/`. Until those files are in, Jupiter's
-  four moons start from Lainey's L1.2 theory (from the astronomy-engine
-  package). The others start on **stand-in orbits** of the right size and
-  shape but at made-up places round them, and the console says so. To
-  bring them in:
+  `fetch-horizons.sh` into `horizons/` (in the repository). If those files
+  are missing, Jupiter's four moons start from Lainey's L1.2 theory (from
+  the astronomy-engine package), and the others on stand-in orbits of the
+  right size and shape but at made-up places round them; the console says
+  so. To fetch them again:
 
       cd demo/WyomingWill/SolarSystem
       sh fetch-horizons.sh
@@ -128,7 +149,11 @@ the flattenings and poles, and the checkpoints:
   rings; the vitrines' hoops; the date's digits; and the names.
 
 The moons' masses are from JPL's satellite solutions; the planets' J2, J4,
-radii and poles from the IAU and the same.
+radii and poles from the IAU and the same. Each moon system's total mass
+is DE440's, which JPL's moon solutions (and so Horizons) go with, rather
+than DE421's. The main integration keeps DE421's, since its planets start
+from DE421. Pluto's is the mass Horizons' Charon orbit implies, 975.43
+km³/s² (DE440: 975.5). DE421's 977.0 takes Charon 20,000 km off in a year.
 
 ## Files
 

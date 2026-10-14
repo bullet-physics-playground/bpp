@@ -30,7 +30,7 @@ KM3S2 = 86400.0 ** 2 / AU ** 3      # km^3/s^2 -> AU^3/d^2
 # DE421
 # ---------------------------------------------------------------------------
 def find_bsp():
-    for p in [os.path.join(HERE, "de421.bsp"), "de421.bsp"] + glob.glob("/usr/**/skyfield_data/data/de421.bsp", recursive=True):
+    for p in [os.path.join(HERE, "de421.bsp"), "de421.bsp"]:
         if os.path.exists(p):
             return p
     try:
@@ -100,6 +100,14 @@ SYSTEMS = [
     ("Pluto", 999, 9, 0.0, 0.0, 1188.3, 132.993, -6.163,
      [("Charon", 901, 105.88, 606.0, 19596, 0.00005, 0.0)]),
 ]
+# each moon system's mass (planet and moons), km^3/s^2: DE440's, which
+# JPL's moon solutions (and so Horizons) go with, not DE421's (the main
+# integration keeps DE421's, as its planets start from DE421). Pluto's:
+# the mass Horizons' Charon orbit (plu060) implies -- a two-body fit to its
+# five years, 975.43 (DE440: 975.5; DE421: 977.0, which takes Charon 20,000
+# km off in a year)
+SYSTEM_GM = {"Mars": 42828.375816, "Jupiter": 126712764.1, "Saturn": 37940584.8418, "Uranus": 5794556.4,
+             "Neptune": 6836527.10058, "Pluto": 975.43}
 # the Earth's J2 (for the Moon) and radius, DE421's
 J2E, RE = 0.001082625305, 6378.1363
 
@@ -228,7 +236,7 @@ POLES = {"Earth": np.array([0, 0, 1.0])}
 L("  systems = {")
 for (pname, pid, bary, j2, j4, rref, pra, pdec, moons) in SYSTEMS:
     gm_moons = sum(m[2] for m in moons) * KM3S2
-    gm_sys = GM_DE[bary]
+    gm_sys = SYSTEM_GM[pname] * KM3S2
     gm_p = gm_sys - gm_moons
     pole = ra_dec_vec(pra, pdec)
     POLES[pname] = pole

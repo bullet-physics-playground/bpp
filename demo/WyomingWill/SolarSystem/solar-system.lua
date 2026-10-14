@@ -2,7 +2,7 @@
 -- The Solar System -- Euler's Cabinet of Curiosities
 --
 -- The Sun, the eight planets, Pluto, five asteroids (Ceres, Pallas, Juno,
--- Vesta, Hygiea) and twenty-two moons, from 2026 January 1 on, moving as
+-- Vesta, Hygiea) and twenty-one moons, from 2026 January 1 on, moving as
 -- gravity moves them -- worked out here, from where JPL had them that day.
 --
 --   the orrery    the Sun on its column, the planets, Pluto and the
@@ -253,7 +253,7 @@ local function start()
   nextCheck, nextH = 1, 1
   local E0, L0 = E.invariants()
   stats = { E0 = E0, L0 = L0, lapN = 0, lapS = 0, lapSS = 0, npMin = 1e9,
-            bin = 0, binS = 0, binN = 0, lastBin = nil, ups = {}, lapLo = 1e9, lapHi = -1e9 }
+            bin = 0, binS = 0, binN = 0, bins = {}, lapLo = 1e9, lapHi = -1e9 }
   print(string.format("\n--- the solar system, from %s (again every %d years) ---", dateStr(D.JD0), YEARS))
   print("  where it all starts:")
   for _, s in ipairs(D.sources) do print("    " .. s) end
@@ -335,11 +335,9 @@ local function checks()
                           " over the year,\n                spread %.2f (Laplace's resonance holds it at 180)", m,
                           sqrt(math.max(0, stats.lapSS / stats.lapN - m * m))))
       stats.lapN, stats.lapS, stats.lapSS = 0, 0, 0
-      local u = stats.ups
-      if #u >= 2 then
-        print(string.format("                it librates about 180, between %.2f and %.2f so far: a period of %.0f days over %d" ..
-                            " (the theory, and Io's\n                and its partners' observed motions: about 2070 days)",
-                            stats.lapLo, stats.lapHi, (u[#u] - u[1]) / (#u - 1), #u - 1))
+      if stats.lapHi > stats.lapLo then
+        print(string.format("                its 20-day means so far: %.2f to %.2f (Io's free libration about 180 is 0.07 degrees;" ..
+                            " the rest is\n                the moons' other slow wobbles)", stats.lapLo, stats.lapHi))
       end
     end
     local P = function(n)
@@ -440,10 +438,7 @@ v:preSim(function(N_)
       local m = stats.binS / stats.binN
       local tc = (stats.bin + 0.5) * 20
       stats.lapLo, stats.lapHi = math.min(stats.lapLo, m), math.max(stats.lapHi, m)
-      if stats.lastBin and stats.lastBin.m < 180 and m >= 180 then
-        stats.ups[#stats.ups + 1] = stats.lastBin.t + (tc - stats.lastBin.t) * (180 - stats.lastBin.m) / (m - stats.lastBin.m)
-      end
-      stats.lastBin = { t = tc, m = m }
+      stats.bins[#stats.bins + 1] = { t = tc, m = m }
     end
     stats.bin, stats.binS, stats.binN = bin, 0, 0
   end
@@ -469,7 +464,7 @@ v:addShortcut("R", function(N_) start(); show() end)
 v:setHelpText(table.concat({
   "The solar system (Euler's Cabinet of Curiosities)",
   "",
-  "The Sun, the planets, Pluto, five asteroids and 22 moons,",
+  "The Sun, the planets, Pluto, five asteroids and 21 moons,",
   "moved by gravity from where JPL had them on 2026-01-01.",
   "The orrery: distances from the Sun square-rooted, so all",
   "fit. Behind: each planet's moons, square-rooted the same.",

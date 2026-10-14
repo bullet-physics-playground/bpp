@@ -24,8 +24,9 @@
 --   right   UPSIDE DOWN. Three double pendulums stood on their heads on
 --           pivots shaken up and down 40 times a second. Shaken 0.6 cm,
 --           it falls. Shaken 1.0 cm, the floppy two-rod chain stands up,
---           rocking slowly. Shaken 1.6 cm -- harder -- it shakes itself
---           loose and tumbles. (Kapitza's trick, next door, works for a
+--           rocking slowly. Shaken 1.6 cm -- harder -- the shaking pumps
+--           up a sway, as legs pump a swing, that throws it over and it
+--           tumbles. (Kapitza's trick, next door, works for a
 --           chain of rods too, but only in a window: David Acheson, 1993.)
 --
 -- Theory, and what the console checks:
@@ -443,7 +444,7 @@ local function letGo()
                           s.Tavg and string.format("%.3f s", s.Tavg) or "it falls"))
     else
       print(string.format("    %s: it should %s", short, s.a < A_LO and "fall: not shaken hard enough"
-                          or "shake itself loose: shaken too hard"))
+                          or "be thrown over: shaken too hard, the shaking pumps up a sway"))
     end
   end
 end
@@ -468,7 +469,7 @@ v:preSim(function(N_)
         local tc = s.cyc / SH_F + 0.5 / SH_F
         if not s.fell and (abs(mean) > pi / 2 or abs(wrap(s.t2 - pi)) > pi / 2) then
           s.fell = tc
-          print(string.format("    shaken %.2f cm: %s at %.2f s", s.a, s.a > A_HI and "shakes itself loose" or "falls", tc))
+          print(string.format("    shaken %.2f cm: %s at %.2f s", s.a, s.a > A_HI and "the shaking pumps up a sway and throws it over" or "falls", tc))
         end
         if not s.fell then
           s.maxDev = math.max(s.maxDev, abs(mean))
@@ -585,7 +586,7 @@ v:postSim(function(N_)
     if not s.reported and t >= 12 then
       s.reported = true
       if s.fell then
-        print(string.format("    shaken %.2f cm: it %s (%s)", s.a, s.a > A_HI and "shook itself loose" or "fell",
+        print(string.format("    shaken %.2f cm: it %s (%s)", s.a, s.a > A_HI and "was thrown over by the sway the shaking pumped up" or "fell",
                             s.stable and "it shouldn't have" or "as it should"))
       elseif #s.cross >= 3 then
         local n = #s.cross - 1
@@ -637,7 +638,8 @@ v:setHelpText(table.concat({
   "apart swing as one for five seconds, then fly apart.",
   "Middle: the two pure swings, slow and fast, and a mix.",
   "Right: upside down on shaken pivots: shaken too little it",
-  "falls, just right it stands, too hard it shakes loose.",
+  "falls, just right it stands; too hard, the shaking pumps",
+  "up a sway that throws it over.",
   "",
   "R   let them all go again",
   "Z   slow motion (1/4) <-> real time",
