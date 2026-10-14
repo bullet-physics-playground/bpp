@@ -23,7 +23,19 @@ install_name_tool -change "$QGLVIEWER_SRC/Versions/3/QGLViewer" @executable_path
 # Step 4: Run macdeployqt to bundle Qt and other dependencies
 macdeployqt "$APP"
 
-# Step 5: Fix QGLViewer's dependencies to use bundled Qt frameworks
+# Step 5: Bundle SDL3. Homebrew's "sdl2" is now sdl2-compat, a shim that
+# dlopen()s SDL3 in a constructor and abort()s the process when it can't
+# find it. macdeployqt doesn't copy SDL3 (it's not a link dependency), and
+# sdl2-compat looks first at @loader_path/libSDL3.dylib -- i.e. next to the
+# shim in Frameworks.
+SDL3_LIBDIR="$(brew --prefix)/opt/sdl3/lib"
+if [ -d "$SDL3_LIBDIR" ]; then
+  cp -f "$SDL3_LIBDIR"/libSDL3*.dylib "$FRAMEWORKS_DIR/"
+  [ -e "$FRAMEWORKS_DIR/libSDL3.dylib" ] || \
+    cp -f "$(ls "$FRAMEWORKS_DIR"/libSDL3*.dylib | head -1)" "$FRAMEWORKS_DIR/libSDL3.dylib"
+fi
+
+# Step 6: Fix QGLViewer's dependencies to use bundled Qt frameworks
 QGLVIEWER_LIB="$QGLVIEWER_DEST/Versions/3/QGLViewer"
 for dep in $(otool -L "$QGLVIEWER_LIB" | awk 'NR>1 {print $1}'); do
   case "$dep" in
@@ -35,7 +47,7 @@ for dep in $(otool -L "$QGLVIEWER_LIB" | awk 'NR>1 {print $1}'); do
   esac
 done
 
-# Step 6: Point every bundled Mach-O at its bundled dependencies through
+# Step 7: Point every bundled Mach-O at its bundled dependencies through
 # the bundle. macdeployqt copies non-Qt libraries into Frameworks but can
 # leave their cross-references (e.g. libSDL2_mixer -> libSDL2) as absolute
 # Homebrew paths, which dyld can't resolve on another Mac.
@@ -52,7 +64,7 @@ while IFS= read -r f; do
   done
 done < <(find "$APP/Contents" -type f)
 
-# Step 7: Verify the bundle is self-contained. Every Mach-O must resolve
+# Step 8: Verify the bundle is self-contained. Every Mach-O must resolve
 # through the bundle (@executable_path, @rpath, @loader_path) or the OS;
 # an absolute build-machine path crashes dyld at launch on other Macs.
 BAD=""
@@ -77,7 +89,7 @@ if [ -n "$BAD" ]; then
   exit 1
 fi
 
-# Step 8: Re-sign the whole bundle. Every install_name_tool edit above (and
+# Step 9: Re-sign the whole bundle. Every install_name_tool edit above (and
 # macdeployqt's own copies) invalidated the code signatures; without a fresh
 # ad-hoc signature dyld kills the app at launch with SIGKILL (Code Signature
 # Invalid) on Apple Silicon.
