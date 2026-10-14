@@ -35,7 +35,24 @@ for dep in $(otool -L "$QGLVIEWER_LIB" | awk 'NR>1 {print $1}'); do
   esac
 done
 
-# Step 6: Verify the bundle is self-contained. Every Mach-O must resolve
+# Step 6: Point every bundled Mach-O at its bundled dependencies through
+# the bundle. macdeployqt copies non-Qt libraries into Frameworks but can
+# leave their cross-references (e.g. libSDL2_mixer -> libSDL2) as absolute
+# Homebrew paths, which dyld can't resolve on another Mac.
+while IFS= read -r f; do
+  file -b "$f" | grep -q "Mach-O" || continue
+  for dep in $(otool -L "$f" | awk '/\(compatibility version /{print $1}'); do
+    case "$dep" in
+      /*)
+        base=$(basename "$dep")
+        if [ -e "$FRAMEWORKS_DIR/$base" ]; then
+          install_name_tool -change "$dep" "@executable_path/../Frameworks/$base" "$f" 2>/dev/null || true
+        fi ;;
+    esac
+  done
+done < <(find "$APP/Contents" -type f)
+
+# Step 7: Verify the bundle is self-contained. Every Mach-O must resolve
 # through the bundle (@executable_path, @rpath, @loader_path) or the OS;
 # an absolute build-machine path crashes dyld at launch on other Macs.
 BAD=""
@@ -60,7 +77,7 @@ if [ -n "$BAD" ]; then
   exit 1
 fi
 
-# Step 7: Re-sign the whole bundle. Every install_name_tool edit above (and
+# Step 8: Re-sign the whole bundle. Every install_name_tool edit above (and
 # macdeployqt's own copies) invalidated the code signatures; without a fresh
 # ad-hoc signature dyld kills the app at launch with SIGKILL (Code Signature
 # Invalid) on Apple Silicon.
