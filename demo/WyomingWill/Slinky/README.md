@@ -21,6 +21,7 @@ top falls faster to make up for the bottom.
 | Key | Action |
 |---|---|
 | `R` | hang it up again (it lets go after two seconds) |
+| `V` | close up on the Slinky and the ball <-> the whole drop to the floor |
 | `Z` | a tenth of real speed <-> real speed |
 
 Sliders: stiffness (N/m) and mass (g), which hang it up again with the new

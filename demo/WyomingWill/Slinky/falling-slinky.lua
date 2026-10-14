@@ -44,6 +44,7 @@
 --
 -- Keys
 --   R   hang it up again (and let go)
+--   V   close up on the Slinky and the ball <-> the whole drop
 --   Z   a tenth of real speed <-> real speed
 --
 -- Units: centimetres, kilograms, seconds.
@@ -368,7 +369,20 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help
 -- ---------------------------------------------------------------------
+-- the views: close up on the Slinky and the ball, or the whole drop to the
+-- floor (V)
+local VIEW = 1
+local function setView()
+  if VIEW == 1 then
+    common.setCamera(btVector3(envnum("SL_CX", 34), envnum("SL_CY", 142), envnum("SL_CZ", 118)),
+                     btVector3(envnum("SL_LX", 6), envnum("SL_LY", 128), envnum("SL_LZ", 0)))
+  else
+    common.setCamera(btVector3(40, 105, 245), btVector3(4, 82, 0))
+  end
+end
+
 v:addShortcut("R", function(N_) hang(); drawWire() end)
+v:addShortcut("V", function(N_) VIEW = 3 - VIEW; setView() end)
 v:addShortcut("Z", function(N_)
   local sp = v:getParam("speed") < 0.5 and 1 or 0.1
   v:addParam("speed", sp, 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/10 <-> 1)")
@@ -393,13 +407,13 @@ v:setHelpText(table.concat({
   "sqrt(M/3k) -- no g in it.",
   "",
   "R   hang it up again (it lets go after two seconds)",
+  "V   close up <-> the whole drop",
   "Z   a tenth of real speed <-> real speed",
   "",
   "Sliders: stiffness (N/m), mass (g) -- both hang it up",
   "again -- hold (s), speed, steps.",
 }, "\n"))
 
-common.setCamera(btVector3(envnum("SL_CX", 28), envnum("SL_CY", 110), envnum("SL_CZ", 210)),
-                 btVector3(envnum("SL_LX", 2), envnum("SL_LY", 88), envnum("SL_LZ", 0)))
+setView()
 hang()
 drawWire()
