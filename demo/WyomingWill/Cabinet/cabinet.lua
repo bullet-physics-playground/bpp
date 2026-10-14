@@ -108,8 +108,9 @@ EXHIBITS = EXHIBITS or {
     about = "The spinning egg: spun fast on its side, a hard-boiled egg rises onto its end\n" ..
             "(and, spun faster, jumps as it rises); a raw one won't." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",
-    about = "Coming: the double cone. Two cones joined at their bases roll 'uphill'\n" ..
-            "along a V-shaped ramp, though their centre of mass goes down." },
+    prefix = "Cone: ", floorY = -75,
+    about = "The double cone: on rails that rise and spread apart it rolls 'uphill',\n" ..
+            "though its centre of mass goes down." },
   { dir = "../Oloid/", file = "oloid.lua", name = "the oloid and the sphericon", label = "oloid",
     about = "Coming: the oloid and the sphericon, rollers that touch the floor with\n" ..
             "their whole surface as they wobble along a winding path." },

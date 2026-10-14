@@ -63,7 +63,7 @@ with a 3.4 m aisle between.
 | A, west 4 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
 | A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
 | A, west 5 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
-| A, east 5 | the double cone | (in preparation) |
+| A, east 5 | the double cone | `../DoubleCone/double-cone.lua` |
 | B, north 1 | the oloid and the sphericon | (in preparation) |
 | B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
 | B, north 2 | the Brazil-nut effect | (in preparation) |
