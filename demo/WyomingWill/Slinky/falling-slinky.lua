@@ -40,7 +40,9 @@
 --    step.
 --  * It starts exactly as it hangs (each coil's stretch set from the weight
 --    below it), held for two seconds (on screen), then let go.
---  * 4800 physics steps a second; it runs at a fifth of real speed (Z: real
+--  * A twentieth of a second after it lands, it's laid to rest, closed up
+--    where it landed (86 thin coils piled up don't keep still in Bullet).
+--  * 4800 physics steps a second; it runs at a tenth of real speed (Z: real
 --    speed).
 --
 -- THE STAIRS: right beside it, the same Slinky walks down seven steps
@@ -50,7 +52,7 @@
 -- arch, the far end becomes a pile, and the Slinky turns end over end down
 -- the stairs -- each end landing a step lower than the other did -- to the
 -- floor, about a third of a second a step. Then it starts again. Like a
--- real one it's sensitive, and about one walk in five gallops (skipping a
+-- real one it's sensitive, and now and then a walk gallops (skipping a
 -- step) or stops short.
 --  * Built in the plane of the drawing: 43 pieces of two coils each,
 --    capsules that touch each other (closed up) and the stairs. Each
@@ -63,7 +65,7 @@
 --   R   hang it up again (and let go)
 --   V   views: both Slinkys; the falling one close up; the stairs close up
 --   W   set the Slinky on the stairs going again, from the top
---   Z   a fifth of real speed <-> real speed
+--   Z   a tenth of real speed <-> real speed
 --
 -- Units: centimetres, kilograms, seconds.
 -- Headless testing: SL_COILS, SL_K (N/m), SL_MASS (g), SL_SPEED, SL_LOG=file.csv.
@@ -76,13 +78,13 @@ for _, dir in ipairs({ DIR, "demo/WyomingWill/Slinky/" .. DIR }) do
   local f = io.open(dir .. "coil.obj", "r")
   if f then f:close(); DIR = dir; break end
 end
-local COIL = DIR .. "coil.obj"
+local COIL = DIR .. "coil.obj"     -- (a coil of the Slinky on the stairs)
 
 local G = 981
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
-param("speed", envnum("SL_SPEED", 0.2), 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/5 <-> 1)")
-param("steps", envnum("SL_STEPS", 4800), 1200, 9600, 600, "physics steps per simulated second")
+param("speed", envnum("SL_SPEED", 0.1), 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/10 <-> 1)")
+param("steps", 4800, 2400, 9600, 600, "physics steps per simulated second")
 param("stiffness", envnum("SL_K", 1.76), 1.2, 5, 0.02, "the Slinky's stiffness, N/m (hangs it up again)")
 param("mass", envnum("SL_MASS", 215), 100, 300, 5, "the Slinky's mass, g (hangs it up again)")
 param("hold", 2.0, 0.5, 6, 0.5, "seconds (on screen) it hangs before the hand lets go")
@@ -98,7 +100,7 @@ local function applyTiming()
 end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
-v:setSolverIterations(envnum("SL_ITER", 30))
+v:setSolverIterations(60)
 v.showConstraints = false
 
 local Q0 = btQuaternion(0, 0, 0, 1)
@@ -152,18 +154,27 @@ ballAnchor.collides = false
 v:add(ballAnchor)
 
 -- each coil's shape: a thin square plate as wide as the coil, so the
--- bottom one lands flat on the floor. Only the bottom one touches anything
--- (the floor): the rest stop on each other through their slides, so
--- Bullet needn't look for contacts between coils piled close together.
+-- bottom one lands flat on the floor (neighbours, joined by their slide,
+-- don't collide; the next but one is always further off than the plate is
+-- thick)
 local SHAPE = btBoxShape(btVector3(R + 0.2, math.max(0.004, PITCH0 * 0.3), R + 0.2))
 SHAPE:setMargin(0.002)
 local M, K, m, kseg
 for i = 1, N do
-  local o = Mesh(COIL, 0, false)  -- (each coil drawn as a ring of flat wire)
+  local o = Sphere(0.05, 0)       -- (each coil's own object: drawn as the wire, below)
   o.col = STEEL
+  o.collides = true
   coils[i] = { obj = o }
 end
 
+-- the wire, drawn: 8 straight pieces a coil, following a helix from each
+-- coil's height to the next one's
+local PIECES = 8
+local CHORD = 2 * R * math.sin(math.pi / PIECES)
+local wire = {}
+for k = 1, (N - 1) * PIECES do
+  wire[k] = vis(Cube(CHORD + 0.12, 0.07, 0.28, 0), STEEL)
+end
 
 -- the ball and its thread
 local BALL_M = 0.05
@@ -179,11 +190,10 @@ local function addBodies()
   kseg = K * (N - 1)
   local ring = m * R * R
   for i, c in ipairs(coils) do
-    if c.body then v:remove(c.obj); c.obj = Mesh(COIL, 0, false); c.obj.col = STEEL end
+    if c.body then v:remove(c.obj); c.obj = Sphere(0.05, 0); c.obj.col = STEEL end
     local body = btRigidBody(m, btDefaultMotionState(btTransform(Q0, btVector3(0, TOP_Y, 0))), SHAPE,
                              btVector3(ring / 2, ring, ring / 2))
     c.obj.body = body
-    c.obj.collides = (i == N)
     v:add(c.obj)
     body:setActivationState(4)
     body:setDamping(0, 0)
@@ -193,7 +203,7 @@ local function addBodies()
   end
 end
 
-local t, released, bottomMoved, frontAt, landedAt
+local t, released, bottomMoved, frontAt, landedAt, rested
 local reportedBottom, bottomBallY
 local shown = 0          -- frames on screen since it was hung
 local function theory() return math.sqrt(M / (3 * K)) end
@@ -251,10 +261,31 @@ local function hang()
   local top = TOP_Y + 6.5
   thread = vis(Cylinder(0.05, top - (by + BALL_R), 0), "#e8e0c8",
                btTransform(UPQ, btVector3(BALL_X, (top + by + BALL_R) / 2, 0)))
-  t, released, bottomMoved, frontAt, landedAt, reportedBottom = 0, nil, nil, nil, nil, nil
+  t, released, bottomMoved, frontAt, landedAt, reportedBottom, rested = 0, nil, nil, nil, nil, nil, nil
   shown = 0
   print(string.format("\n--- hung up: %.0f g, %d coils, stiffness %.2f N/m; %.1f cm long hanging (%.1f cm closed up); the bottom should stay put for %.3f s ---",
                       M * 1000, N, K, TOP_Y - coils[N].y0 + PITCH0, CLOSED, theory()))
+end
+
+-- once it has landed (a twentieth of a second on), it's laid to rest: a
+-- closed-up pile where it landed, still. (86 thin coils piled on each other
+-- don't keep still in Bullet: they jostle, and now and then fly apart.)
+local REST_AFTER = 0.05
+local function layToRest()
+  rested = true
+  for _, s in ipairs(slides) do v:removeConstraint(s) end
+  slides = {}
+  local bx, _, bz = getPosXYZ(coils[N].obj)
+  local h0 = math.max(0.004, PITCH0 * 0.3) + 0.002
+  for i, c in ipairs(coils) do
+    local tr = btTransform(Q0, btVector3(bx, h0 + (N - i) * PITCH0, bz))
+    c.obj.trans = tr
+    c.body:setCenterOfMassTransform(tr)
+    c.body:setLinearVelocity(btVector3(0, 0, 0))
+    c.body:setAngularVelocity(btVector3(0, 0, 0))
+    c.body:forceActivationState(5)       -- (out of the simulation till it's hung up again)
+  end
+  print(string.format("t=%6.3fs  laid to rest, closed up where it landed", t))
 end
 
 local function letGo()
@@ -267,26 +298,16 @@ end
 -- ---------------------------------------------------------------------
 -- before every physics step: the springs between neighbours
 -- ---------------------------------------------------------------------
--- (handed over as the change of velocity they make in a step, F dt / m:
--- what Bullet would do with them as forces, but quicker to hand over)
-local function springs(dt)
-  local ys, fy = {}, {}
-  for i, c in ipairs(coils) do
-    local _, y = getPosXYZ(c.obj)
-    ys[i], fy[i] = y, 0
-  end
+local function springs()
+  if rested then return end
+  local ys = {}
+  for i, c in ipairs(coils) do ys[i] = c.body:getCenterOfMassPosition().y end
   for i = 1, N - 1 do
     local s = ys[i] - ys[i + 1] - PITCH0
     if s > 0 then
       local f = kseg * s
-      fy[i], fy[i + 1] = fy[i] - f, fy[i + 1] + f
-    end
-  end
-  local k = dt / m
-  for i, c in ipairs(coils) do
-    if fy[i] ~= 0 then
-      local vx, vy, vz = getVelXYZ(c.obj)
-      setVelXYZ(c.obj, vx, vy + fy[i] * k, vz)
+      coils[i].body:applyCentralForce(btVector3(0, -f, 0))
+      coils[i + 1].body:applyCentralForce(btVector3(0, f, 0))
     end
   end
 end
@@ -298,7 +319,6 @@ local function watchBottom(tNow)
     bottomBallY = ball.body:getCenterOfMassPosition().y
   end
 end
-
 -- ---------------------------------------------------------------------
 -- the stairs, and a second Slinky that walks down them
 -- ---------------------------------------------------------------------
@@ -518,8 +538,66 @@ local function walkWatch()
   if W.done and W.t > W.done + 3 then walkStart() end
 end
 
+v:preSim(function(N_)
+  for k = 1, NSTEPS - 1 do
+    springs()
+    walkForces(STEP)
+    v:stepSimulation(STEP, 0, STEP)
+    watchBottom(t + k * STEP)
+  end
+  springs()
+  walkForces(STEP)
+end)
+
+-- ---------------------------------------------------------------------
+-- after every frame: draw the wire, the thread; watch the bottom
+-- ---------------------------------------------------------------------
+local function quatFromBasis(xx, xy, xz, yx, yy, yz, zx, zy, zz)
+  -- the rotation whose columns are x, y, z
+  local tr = xx + yy + zz
+  local w, x, y, z
+  if tr > 0 then
+    local s = math.sqrt(tr + 1) * 2
+    w, x, y, z = 0.25 * s, (yz - zy) / s, (zx - xz) / s, (xy - yx) / s
+  elseif xx > yy and xx > zz then
+    local s = math.sqrt(1 + xx - yy - zz) * 2
+    w, x, y, z = (yz - zy) / s, 0.25 * s, (yx + xy) / s, (zx + xz) / s
+  elseif yy > zz then
+    local s = math.sqrt(1 + yy - xx - zz) * 2
+    w, x, y, z = (zx - xz) / s, (yx + xy) / s, 0.25 * s, (zy + yz) / s
+  else
+    local s = math.sqrt(1 + zz - xx - yy) * 2
+    w, x, y, z = (xy - yx) / s, (zx + xz) / s, (zy + yz) / s, 0.25 * s
+  end
+  return btQuaternion(x, y, z, w)
+end
 local function drawWire()
-  -- (the coils draw themselves; the ball's thread goes when it's let go)
+  local cx, _, cz = getPosXYZ(coils[1].obj)
+  local k = 0
+  for i = 1, N - 1 do
+    local _, y0, _ = getPosXYZ(coils[i].obj)
+    local _, y1, _ = getPosXYZ(coils[i + 1].obj)
+    for j = 0, PIECES - 1 do
+      local a0, a1 = 2 * math.pi * j / PIECES, 2 * math.pi * (j + 1) / PIECES
+      local p0y, p1y = y0 + (y1 - y0) * j / PIECES, y0 + (y1 - y0) * (j + 1) / PIECES
+      local p0x, p0z = R * math.cos(a0), R * math.sin(a0)
+      local p1x, p1z = R * math.cos(a1), R * math.sin(a1)
+      local dx, dy, dz = p1x - p0x, p1y - p0y, p1z - p0z
+      local L = math.sqrt(dx * dx + dy * dy + dz * dz)
+      dx, dy, dz = dx / L, dy / L, dz / L
+      -- across: outward at the piece's middle; up: across x along
+      local am = (a0 + a1) / 2
+      local zx, zy, zz = math.cos(am), 0, math.sin(am)
+      local yx, yy, yz = zy * dz - zz * dy, zz * dx - zx * dz, zx * dy - zy * dx
+      local n = math.sqrt(yx * yx + yy * yy + yz * yz)
+      yx, yy, yz = yx / n, yy / n, yz / n
+      zx, zy, zz = dy * yz - dz * yy, dz * yx - dx * yz, dx * yy - dy * yx
+      k = k + 1
+      wire[k].trans = btTransform(quatFromBasis(dx, dy, dz, yx, yy, yz, zx, zy, zz),
+                                  btVector3(cx + (p0x + p1x) / 2, (p0y + p1y) / 2, cz + (p0z + p1z) / 2))
+    end
+  end
+  -- the thread: from the arm to the ball, while it hangs
   if released and thread then v:remove(thread); thread = nil end
 end
 
@@ -552,23 +630,13 @@ v:postSim(function(N_)
       landedAt = since
       print(string.format("t=%6.3fs  the Slinky lands, %.3f s after letting go", t, since))
     end
+    if landedAt and not rested and since - landedAt >= REST_AFTER then layToRest() end
   end
   if LOGF then
     local com = 0
     for _, c in ipairs(coils) do com = com + select(2, getPosXYZ(c.obj)) end
     LOGF:write(string.format("%.5f,%.3f,%.3f,%.3f,%.3f,%.3f\n", t, ytop, ybot, vb, select(2, getPosXYZ(ball)), com / N))
   end
-end)
-
-v:preSim(function(N_)
-  for k = 1, NSTEPS - 1 do
-    springs(STEP)
-    walkForces(STEP)
-    v:stepSimulation(STEP, 0, STEP)
-    watchBottom(t + k * STEP)
-  end
-  springs(STEP)
-  walkForces(STEP)
 end)
 
 -- ---------------------------------------------------------------------
@@ -591,8 +659,8 @@ v:addShortcut("R", function(N_) hang(); drawWire() end)
 v:addShortcut("V", function(N_) VIEW = VIEW % 3 + 1; setView() end)
 v:addShortcut("W", function(N_) walkStart(); walkDraw() end)
 v:addShortcut("Z", function(N_)
-  local sp = v:getParam("speed") < 0.5 and 1 or 0.2
-  v:addParam("speed", sp, 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/5 <-> 1)")
+  local sp = v:getParam("speed") < 0.5 and 1 or 0.1
+  v:addParam("speed", sp, 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/10 <-> 1)")
   applyTiming()
 end)
 v:onParamChanged(function(N_, name, value)
@@ -619,7 +687,7 @@ v:setHelpText(table.concat({
   "R   hang it up again (it lets go after two seconds)",
   "V   views: both; the falling one close; the stairs close",
   "W   set the one on the stairs going again",
-  "Z   a fifth of real speed <-> real speed",
+  "Z   a tenth of real speed <-> real speed",
   "",
   "Sliders: stiffness (N/m), mass (g) -- both start both",
   "again -- hold (s), speed, steps.",
