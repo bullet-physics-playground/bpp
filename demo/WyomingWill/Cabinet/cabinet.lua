@@ -103,8 +103,10 @@ EXHIBITS = EXHIBITS or {
     prefix = "Wheel: ", floorY = 0,
     about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
             "stool starts to turn the other way; push the wheel out and it slows." },
-  { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning egg", label = "spinning-egg",
-    about = "Coming: the spinning egg. A hard-boiled egg spun fast on its side\nrises up onto its end." },
+  { dir = "../SpinningEgg/", file = "spinning-egg.lua", name = "the spinning eggs", label = "spinning-egg",
+    prefix = "Egg: ", floorY = -75,
+    about = "The spinning egg: spun fast on its side, a hard-boiled egg rises onto its end\n" ..
+            "(and, spun faster, jumps as it rises); a raw one won't." },
   { dir = "../DoubleCone/", file = "double-cone.lua", name = "the double cone", label = "double-cone",
     about = "Coming: the double cone. Two cones joined at their bases roll 'uphill'\n" ..
             "along a V-shaped ramp, though their centre of mass goes down." },

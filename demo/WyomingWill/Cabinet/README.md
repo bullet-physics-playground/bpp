@@ -62,7 +62,7 @@ with a 3.4 m aisle between.
 | A, east 3 | the chain fountain | `../ChainFountain/chain-fountain.lua` |
 | A, west 4 | the gyroscopes | `../Gyroscope/gyroscope.lua` |
 | A, east 4 | the bicycle wheel | `../BicycleWheel/bicycle-wheel.lua` |
-| A, west 5 | the spinning egg | (in preparation) |
+| A, west 5 | the spinning eggs | `../SpinningEgg/spinning-egg.lua` |
 | A, east 5 | the double cone | (in preparation) |
 | B, north 1 | the oloid and the sphericon | (in preparation) |
 | B, south 1 | the falling Slinky | `../Slinky/falling-slinky.lua` |
