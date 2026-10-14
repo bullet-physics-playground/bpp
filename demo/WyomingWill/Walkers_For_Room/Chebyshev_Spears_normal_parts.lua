@@ -588,10 +588,11 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
     z_pendant = z_pendant_l, B = B, C = C, pendant_len = pendant_len,
   }
 end
+-- (the room: opts.sidePhase sets the back face's phase -- 90 in its own file)
 local linkage1 = buildLinkage(-half_spacing, -45, false, 0, opts.leftSpeed, EXT_DOWN)   -- front face, x=-half_spacing, phase 0
 local linkage2 = buildLinkage(half_spacing, -45, false, 0, opts.leftSpeed, EXT_DOWN)    -- front face, x=+half_spacing, phase 0
-local linkage3 = buildLinkage(-half_spacing, -45, true, 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
-local linkage4 = buildLinkage(half_spacing, -45, true, 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
+local linkage3 = buildLinkage(-half_spacing, -45, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
+local linkage4 = buildLinkage(half_spacing, -45, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
 -- LONG-RUN BEHAVIOR (found running 2400 frames, not visible at 600): the
 -- front and back leg pairs' crank angles drift into sync with each
 -- other over time regardless of their starting phase offset -- a real

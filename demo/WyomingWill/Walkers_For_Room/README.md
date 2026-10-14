@@ -4,7 +4,7 @@ Copies of `../Walkers/<name>_parts.lua`, built by `../WalkerRoom/walker-room.lua
 The walkers in `../Walkers/` are left as they are; changes made only so the
 room can compare linkages fairly go here.
 
-Five changes. First, `M.build` takes an option `bodyRaise` (default 0, the
+Six changes. First, `M.build` takes an option `bodyRaise` (default 0, the
 walker's own units) that raises its body that much further above its feet
 without changing its foot path, so every walker in the room can be given
 the same body clearance.
@@ -44,3 +44,6 @@ Fifth, Jansen and Klann take `rows` (rows of legs: 3 in their own files,
 next's, and between a row's two sides: 105 and 45 in their own files),
 and `hingeCFM` (how soft their hinges are: 0.1 in their own files, 0 --
 the engine's default, as in every other build -- in the room).
+
+Sixth, Chebyshev-Spears takes `sidePhase`: the phase of its back face's
+legs (90 degrees in its own file; the room uses 180, as Chebyshev's).

@@ -39,7 +39,7 @@ something wrong with its build.
 
   | Walker | Crank, rad/s | Flat, cm/s |
   |--------|--------------|------------|
-  | Chebyshev-Spears       | 3.17 | 9.4 |
+  | Chebyshev-Spears       | 3.20 | 9.2 |
   | Jansen                 | 2.23 | 9.1 |
   | Chebyshev-Spears diag  | 3.45 | 9.1 |
   | Spears 4-bar           | 1.95 | 9.0 |
@@ -95,7 +95,7 @@ Not the same yet:
 
 | What | How it differs |
 |------|----------------|
-| Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Hoecken, the two sliders, and (here) Jansen and Klann. The sides a quarter turn apart: Chebyshev-Spears. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar |
+| Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Chebyshev-Spears (here; a quarter turn apart in its own file), Hoecken, the two sliders, and (here) Jansen and Klann. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar (its design) |
 | Motor strength for the walker's weight | 35 times apart: 1.7 (Chebyshev diag) to 59 (Spears 4-bar), in units of weight x stride |
 | Body | Each file's own box and weight (7 to 220) |
 | Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann) |
@@ -157,7 +157,7 @@ and its mean speed over all the bumps:
 
 | Walker                 | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s |
 |------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|
-| Chebyshev-Spears       | 26%  | 97%  | 102% | 96%  | 88%  | 93%  | 68%  | 65%  | 73%  | 21%  | 78%  | 7.3 |
+| Chebyshev-Spears       | 26%  | 97%  | 99%  | 94%  | 85%  | 94%  | 75%  | 63%  | 72%  | 20%  | 78%  | 7.1 |
 | Chebyshev-Spears diag  | 24%  | 91%  | 95%  | 87%  | 89%  | 87%  | 22%  | 83%  | 43%  | 10%  | 67%  | 6.1 |
 | Hoecken                | 17%  | 85%  | 88%  | 84%  | 71%  | 75%  | 55%  | 50%  | 65%  | 27%  | 67%  | 5.6 |
 | Hoecken-Spears slider  | 28%  | 89%  | 95%  | 83%  | 77%  | 87%  | 32%  | 43%  | 78%  | 3%   | 65%  | 5.6 |
@@ -177,10 +177,11 @@ the same mechanism with more lift, on the same chassis and feet:
 | Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 21% -> 67% | 17% -> 62% | 71% -> 77% |
 | Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 41% -> 65% | 40% -> 57% | 69% -> 80% |
 
-In all three the version with more lift keeps more of its speed. But
-the pairs aren't yet the same in everything else: Chebyshev-Spears walks
-with its sides a quarter turn apart, Chebyshev with them opposite, and
-their bodies and motor strengths differ (see Not the same yet, above).
+In all three the version with more lift keeps more of its speed, and
+each pair now walks with the same gait. (Chebyshev-Spears' own file has
+its sides a quarter turn apart; here they are opposite, as Chebyshev's
+are. That changed nothing: 78% both ways.) Their bodies and motor
+strengths still differ (see Not the same yet, above).
 Hoecken, with little lift, does as well as the second-best Spears
 walker; Chebyshev, nearly the same linkage, does far worse -- its
 cranks slow down on bumps and its legs are pulled out of step, and a
