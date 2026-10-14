@@ -11,14 +11,12 @@
 -- (the length of its foot's path) STRIDE cm, under the same gravity as
 -- every other walker (GRAVITY), with its motors made stronger or weaker
 -- to match, on the same feet (FOOT_LENGTH ...), with its cranks kept in
--- step (LOCK_CRANKS) and every crank turning at the same speed (CRANK). A
+-- step (LOCK_CRANKS) and its cranks turning so that it would cross flat
+-- ground at FLAT_SPEED if its feet never slipped. A
 -- bump is then the same obstacle to every walker's step, each walker's
--- foot lifts as high, for its stride, as its linkage lifts it. (Their
--- speeds on flat ground still differ: a foot covers its stride while it
--- is down, a duty's share of each turn, so a walker whose feet never
--- slipped would go STRIDE / (duty x turn time) -- faster for a short
--- stance. What to compare on bumps is how much of its flat-ground speed
--- each walker keeps.)
+-- foot lifts as high, for its stride, as its linkage lifts it, and on
+-- flat ground they should all go the same speed: one that doesn't has
+-- something wrong with its build.
 -- All of them share one world, one terrain and one physics step.
 --
 -- Units: centimetres and seconds.
@@ -36,7 +34,12 @@ local WALKERS_DIR = WALKERS_DIR or "../Walkers_For_Room/"
 -- ---------------------------------------------------------------------
 
 local STRIDE = STRIDE or 15  -- every walker's stride: the length of its foot's path, cm
-local CRANK = CRANK or 2.6   -- every walker's crank speed, rad/s (most standalone files' own)
+-- every walker's crank speed is set so that, if its feet never slipped,
+-- it would cross flat ground at FLAT_SPEED cm/s: 2 pi FLAT_SPEED / its
+-- `advance` (below). CRANK (rad/s), if set, gives every walker that crank
+-- speed instead (Walker Room1 and the gravity-70 version: 2.6 for all).
+local FLAT_SPEED = FLAT_SPEED or 9
+local CRANK = CRANK
 -- the chassis every four-legged walker is given (see `chassis` below),
 -- for STRIDE = 15; the chassis values in WALKERS were worked out for these
 local CLEARANCE, BASE, WIDTH = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
@@ -214,13 +217,19 @@ end
 --   rows of legs can't come closer than about 1.8 strides without
 --   colliding, and their width is fixed); the two 2-leg Spears, with a
 --   single column of legs, keep their own chassis.
+-- advance: how far it would go per crank turn if its feet never slipped
+--   (cm, at the room's stride; measured with its body held still in the
+--   air, cranks turned slowly and in step: at each moment its lowest foot
+--   is the one standing, and the body moves as fast as that foot sweeps
+--   back). Its crank speed is 2 pi FLAT_SPEED / advance, so that every
+--   walker would cross flat ground at the same speed.
 -- fixed: its own physics step; the room steps at FIXED, so its motors'
 --   impulse (applied once per step) is scaled by FIXED / fixed
 -- lift: how its build is told about the bumps -- "groundTop" (the
 --   highest the ground gets) or "terrainLift" (how much to lift it)
 -- forward: the direction it walks in its own frame (+1: +x, -1: -x)
 -- opts: its standalone file's slider defaults (its crank speed, though,
---   is CRANK: see addWalker)
+--   is set by its advance: see addWalker)
 -- solverIterations: its joints are solved with this many solver
 --   iterations instead of the world's 10, as its standalone file does for
 --   the whole world (v:setSolverIterations(40) -- its notes: at 10 its
@@ -232,31 +241,37 @@ end
 -- ---------------------------------------------------------------------
 
 local WALKERS = {
-  { name = "Jansen", parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
-    opts = { speed = 2.5 } },
-  { name = "Klann", parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
-    opts = { speed = 2.5 } },
-  { name = "Chebyshev", parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Jansen", advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993, rowSpacing = 158.44 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
+    opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
+  { name = "Klann", advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254, rowSpacing = 164.79 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
+    opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
+  { name = "Chebyshev", advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", advance = 17.857, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev-Spears diag", parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken", parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken", advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", advance = 17.054, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", advance = 29.019, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
-  { name = "Spears 2-leg", parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg", twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
-  { name = "Spears 2-leg balanced", parts = "Spears_4Bar_2Leg_Balanced_parts.lua", stride = 8.335, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg balanced", twoLeg = true, parts = "Spears_4Bar_2Leg_Balanced_parts.lua", stride = 8.335, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8, barLen = 13, tipMass = 70 }, railed = true, solverIterations = 40 },
 }
+
+-- the 2-leg Spears are left out unless TWO_LEGS is set (a side experiment:
+-- two legs can't be compared fairly with four)
+if not TWO_LEGS then
+  for i = #WALKERS, 1, -1 do if WALKERS[i].twoLeg then table.remove(WALKERS, i) end end
+end
 
 -- ---------------------------------------------------------------------
 -- moving a whole walker rigidly: every body turned about a vertical axis
@@ -349,7 +364,8 @@ local function addWalker(spec, x, z, heading)
   if SAME_FEET then opts.foot = FOOT end
   opts.ankle = ANKLES
   -- the room's crank speed (each walker names it its own way)
-  local crank = CRANK
+  local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
+  w.crank = crank
   for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do
     if opts[k] then opts[k] = crank end
   end
@@ -831,7 +847,7 @@ buildRoom()
 -- speed is nudged by how far its crank has got ahead of or behind the
 -- average of the walker's cranks (since it was built): LOCK_GAIN rad/s
 -- for each radian, up to LOCK_MAX rad/s. Their average still turns as the
--- load lets it, at up to CRANK; only their timing is held, as a gear
+-- load lets it, at up to its crank speed; only their timing is held, as a gear
 -- train from one motor would hold it. (The 2-leg Spears' legs share one
 -- crank, so there is nothing to hold.)
 -- ---------------------------------------------------------------------

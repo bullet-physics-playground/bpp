@@ -357,6 +357,13 @@ S = opts.scale or 1
 -- motors push just as hard per second.
 local IMPULSE_SCALE = opts.impulseScale or 1
 local LEN = (function() local t = {} for k, x in pairs(LEN) do t[k] = x * S end return t end)()
+-- (the room: opts.rows rows of legs instead of 3 -- 2 makes it four-legged
+-- -- with the body shortened to match)
+local NUM_ROWS = opts.rows or NUM_ROWS
+if opts.hingeCFM then HINGE_CFM = opts.hingeCFM end   -- (the room: 0, the engine's default, as every other walker's hinges)
+local ROW_SPACING = opts.rowSpacing or ROW_SPACING   -- (the room: front-to-back spacing of the rows)
+local CUBE_W = (NUM_ROWS - 1) * ROW_SPACING + 2 * CUBE_MARGIN
+local CUBE_CENTER_X = (NUM_ROWS - 1) * ROW_SPACING / 2
 local ROW_SPACING, CUBE_W, CUBE_H, CUBE_CENTER_X = ROW_SPACING * S, CUBE_W * S, CUBE_H * S, CUBE_CENTER_X * S
 -- WALKER ROOM: opts.bodyRaise (default 0, this walker's own units)
 -- moves the body up (or, negative, down) that much from where its own
@@ -599,7 +606,7 @@ end
 -- way (-1326.28 at frame 1400, vs 120-degree spacing's own -1144.42
 -- over the identical window -- about 16% more distance, comparable
 -- stability: minY_drop 14.47 vs 14.09).
-local PHASE_SPACING = 105
+local PHASE_SPACING = opts.rowPhase or 105   -- (the room can set it: see its README)
 
 local SPEED = opts.speed   -- the Speed slider (default 2.5, was a hardcoded local before) -- used only for each hinge's CONSTRUCTION-time target; the live preSim hook below re-applies the CURRENT Speed every tick so dragging the slider updates all 6 legs without a rebuild
 
@@ -631,7 +638,7 @@ local SPEED = opts.speed   -- the Speed slider (default 2.5, was a hardcoded loc
 -- cut net_x by nearly half. Left at 0 -- unlike other walkers in this
 -- project, this one's own stability strategy (heavy mass/inertia, not
 -- damping) genuinely doesn't benefit from it.
-local FB_OFFSET = 45
+local FB_OFFSET = opts.sidePhase or 45   -- (the room can set it)
 
 local legs = {}   -- returned to the caller -- Jansen_6LegT.lua's live-update preSim hook reads it
 for row = 0, NUM_ROWS - 1 do

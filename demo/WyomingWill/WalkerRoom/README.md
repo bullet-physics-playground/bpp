@@ -1,17 +1,24 @@
 # Walker room
 
-All twelve walkers from `../Walkers/` on one meadow, each scaled to the
-same stride, walking freely inside a walled 10 m x 10 m arena. Open
-`walker-room.lua`.
+Ten of WyomingWill's walkers on one meadow, all four-legged, each scaled
+to the same stride, walking freely inside a walled 10 m x 10 m arena.
+Open `walker-room.lua`.
 
 Each walker is built by its own `../Walkers_For_Room/<name>_parts.lua`, a
 copy of the build its standalone file uses with a few options added (see that
 folder's README); the walkers in `../Walkers/` are left as they are. All of
 them share one world, one terrain, one gravity and one physics step
-(1/960 s). Gravity is 70 cm/s^2; Walker Room1, the version before this
-one, used 20 (see Same gravity, below).
+(1/960 s). Jansen and Klann, six-legged in their own files, have two rows
+of legs here instead of three. The two 2-leg Spears are left out (a side
+experiment: two legs can't be compared fairly with four); `TWO_LEGS =
+true` brings them back.
 
 ## A fair comparison
+
+The aim: every walker the same in everything but its linkage, so that on
+flat ground they all go the same speed, and on bumps the differences are
+the linkages'. A walker that doesn't make the flat-ground speed has
+something wrong with its build.
 
 - **Same stride.** Each walker is scaled so its stride -- the length of
   its foot's path, measured with its body held still and its cranks
@@ -23,37 +30,53 @@ one, used 20 (see Same gravity, below).
   legs at a slightly different angle (Chebyshev diag: lift 13% against
   16%; Chebyshev-Spears diag: 23-25% against 26%). Their sizes differ as
   a result.
-- **Same chassis.** So that only the linkage differs, every four-legged
-  walker gets the same body clearance (12 cm: its body's lowest point
-  above flat ground), the same front-to-back spacing of its feet (35 cm,
-  between the middles of its front and back feet's paths) and the same
-  side-to-side width (30 cm, outer foot edge to outer foot edge), using
-  its own file's leg-spacing and body-depth options and the room's
-  `bodyRaise` option, none of which change its foot path. Jansen and
-  Klann get the same clearance, but their rows of legs can't come closer
-  than about 1.8 strides without colliding, and their width is fixed;
-  the two 2-leg Spears, with a single column of legs, keep their own
-  chassis.
-- **Same crank speed.** Every crank turns at 2.6 rad/s. Speeds on flat
-  ground still differ, by design: a foot covers its stride while it is
-  down, a duty's share of each turn, so a walker whose feet never
-  slipped would go stride / (duty x turn time) -- faster for a short
-  stance. What to compare on bumps is how much of its flat-ground speed
-  each walker keeps.
+- **Same flat-ground speed.** Each walker's cranks turn at the speed at
+  which, if its feet never slipped, it would cross flat ground at 9 cm/s
+  (`FLAT_SPEED`). A foot covers its stride while it is down, so a
+  walker whose feet are down for less of each turn has to turn its
+  cranks slower: from 1.9 rad/s (Klann, Spears 4-bar) to 3.5
+  (Chebyshev-Spears diag). Measured on the test track (mean of 4 starts):
+
+  | Walker | Crank, rad/s | Flat, cm/s |
+  |--------|--------------|------------|
+  | Chebyshev-Spears       | 3.17 | 9.4 |
+  | Jansen                 | 2.23 | 9.1 |
+  | Chebyshev-Spears diag  | 3.45 | 9.1 |
+  | Spears 4-bar           | 1.95 | 9.0 |
+  | Chebyshev diag         | 2.83 | 8.8 |
+  | Hoecken-Spears slider  | 3.32 | 8.6 |
+  | Hoecken                | 2.23 | 8.4 |
+  | Klann                  | 1.91 | 7.7 |
+  | Chebyshev              | 2.25 | 7.7 |
+  | Hoecken slider         | 2.24 | 7.4 |
+
+  All within 82-104% of 9; Chebyshev, Klann and Hoecken slider lose the
+  most to their feet slipping, and are the builds to look at next.
+  (Walker Room1 and the gravity-70 version turned every crank at 2.6
+  rad/s, so flat speeds differed from 3.8 to 15 cm/s.)
+- **Same chassis.** So that only the linkage differs, every walker gets
+  the same body clearance (12 cm: its body's lowest point above flat
+  ground) and the same front-to-back spacing of its feet (35 cm, between
+  the middles of its front and back feet's paths); all but Jansen and
+  Klann (whose width is fixed) the same side-to-side width (30 cm, outer
+  foot edge to outer foot edge). This uses each file's own leg-spacing
+  and body-depth options and the room's `bodyRaise` option, none of
+  which change its foot path.
 - **Same feet.** Every walker stands on the same flat feet: 8 cm long
   (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5. Big feet get
   over bumps by resting on them; small ones have to be lifted over. Their
   own files' feet ranged from 2.6 cm long (Chebyshev-Spears diag) to
   12.6 cm (the balanced 2-leg Spears), and Jansen and Klann had none.
-  8 cm is the shortest the 2-leg Spears can stand on (on 4 cm feet the
-  2-leg one fell and went nowhere); on 2 cm feet several walkers' physics
-  failed.
 - **Cranks in step.** Most walkers have a motor for each crank, and
   nothing kept them in step: Chebyshev's cranks drifted 47 degrees apart
   in 10 s, Jansen's over 1000 degrees in a minute, and Klann ended up
   walking back and forth. Every walker's cranks are now held at the timing
   they were built with, as one motor driving them all through gears would
   hold them (`LOCK_CRANKS`).
+- **Same joints.** Jansen's and Klann's own files soften every hinge
+  (constraint force mixing 0.1); no other walker's do. Under this
+  gravity their joints gave, and four-legged they barely moved (0.3
+  cm/s). Here their hinges are as stiff as everyone else's.
 - **Same gravity.** Every standalone file uses 9.8 units/s^2, but the
   walkers are built at very different sizes in those units. All of them
   are under 70 cm/s^2 here (`GRAVITY`), each with its motors made
@@ -68,9 +91,15 @@ one, used 20 (see Same gravity, below).
   | 20 (Walker Room1) | 31% | 18% | 17.5% | 15.5% | under 0.5% |
   | 70              | 0.5%  | 0%  | 0%    | 0%    | under 2% |
 
-The balanced 2-leg Spears' joints are solved with 40 solver iterations,
-as its own file does (its notes: at Bullet's default 10 its rocking
-roughly doubles); the others keep the default 10 their files use.
+Not the same yet:
+
+| What | How it differs |
+|------|----------------|
+| Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Hoecken, the two sliders, and (here) Jansen and Klann. The sides a quarter turn apart: Chebyshev-Spears. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar |
+| Motor strength for the walker's weight | 35 times apart: 1.7 (Chebyshev diag) to 59 (Spears 4-bar), in units of weight x stride |
+| Body | Each file's own box and weight (7 to 220) |
+| Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann) |
+| Link weights, damping, foot friction | Each file's own (foot friction 0.9 for Jansen and Klann, 0.8 for the rest) |
 
 Progress in the full room over 3 minutes (cm/s, measured in 5 s steps,
 so rocking in place doesn't count as getting anywhere; one run each,
@@ -79,30 +108,21 @@ ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 
 | Walker                 | Flat | Short bumps | Kept |
 |------------------------|------|-------------|------|
-| Chebyshev-Spears       | 7.14 | 6.51        | 91%  |
-| Chebyshev-Spears diag  | 6.75 | 5.53        | 82%  |
-| Hoecken                | 9.25 | 7.08        | 77%  |
-| Hoecken-Spears slider  | 6.57 | 4.72        | 72%  |
-| Jansen                 | 4.91 | 3.35        | 68%  |
-| Spears 4-bar           | 12.09| 7.63        | 63%  |
-| Spears 2-leg           | 11.37| 7.01        | 62%  |
-| Hoecken slider         | 8.70 | 4.64        | 53%  |
-| Chebyshev              | 8.45 | 3.02        | 36%  |
-| Chebyshev diag         | 7.63 | 2.10        | 28%  |
-| Klann                  | 3.34 | 3.24        | --   |
-| Spears 2-leg balanced  | 0.12 | 0.21        | --   |
+| Chebyshev-Spears       | 8.84 | 7.87        | 89%  |
+| Hoecken-Spears slider  | 8.12 | 7.18        | 88%  |
+| Chebyshev-Spears diag  | 8.53 | 7.28        | 85%  |
+| Hoecken                | 7.96 | 5.70        | 72%  |
+| Hoecken slider         | 7.00 | 4.20        | 60%  |
+| Spears 4-bar           | 8.35 | 4.74        | 57%  |
+| Klann                  | 7.38 | 2.70        | 37%  |
+| Chebyshev              | 7.24 | 2.29        | 32%  |
+| Jansen                 | 8.92 | 1.80        | 20%  |
+| Chebyshev diag         | 8.45 | 1.23        | 15%  |
 
 On the default bumps (22 cm long, a stride and a half) the walkers keep
 most of their speed when the bumps are low: those are rolling hills they
 walk up and down. Shorter bumps are obstacles a foot has to get over
-within a step. Some of the rest isn't the bumps:
-
-- Klann is slow on flat ground too, even with its cranks in step;
-  something else about its build is wrong.
-- The 2-leg Spears falls over and is stood up again now and then.
-- The balanced 2-leg Spears barely moves at this gravity: its
-  counterweight hangs only a little above flat ground (its own file's
-  design) and drags.
+within a step.
 
 When a walker comes within 40 cm of a wall or of another walker ahead
 of it, or another walker's path and its own would bring them within
@@ -130,60 +150,49 @@ results go to `test-track-results.txt`. `EXTRA` adds settings to every run
 results file.
 
 Share of its flat-ground speed each walker kept (mean of the 4 starts;
-columns are bump height / bump length, in cm), at gravity 70 cm/s^2 on
-8 cm feet, with the lift of its foot path (how high its foot rises above
-its stance, as a share of its stride; measured on the builds, as the
-linkage reference measures it), and the mean in Walker Room1 (gravity
-20) for comparison:
+columns are bump height / bump length, in cm), with the lift of its foot
+path (how high its foot rises above its stance, as a share of its
+stride; measured on the builds, as the linkage reference measures it)
+and its mean speed over all the bumps:
 
-| Walker                 | Lift | Flat cm/s | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | Room1 |
-|------------------------|------|-----------|------|------|------|------|------|------|------|------|------|------|-------|
-| Chebyshev-Spears       | 26%  | 7.8  | 97%  | 100% | 89%  | 85%  | 89%  | 68%  | 54%  | 81%  | 16%  | 75%  | 88%  |
-| Chebyshev-Spears diag  | 24%  | 7.1  | 89%  | 93%  | 78%  | 86%  | 72%  | 20%  | 79%  | 34%  | 5%   | 62%  | 77%  |
-| Hoecken                | 17%  | 10.2 | 84%  | 85%  | 85%  | 66%  | 78%  | 59%  | 20%  | 67%  | 9%   | 61%  | 81%  |
-| Hoecken-Spears slider  | 28%  | 6.8  | 86%  | 90%  | 79%  | 77%  | 81%  | 20%  | 24%  | 61%  | -5%  | 57%  | 80%  |
-| Spears 4-bar           | 28%  | 12.9 | 77%  | 72%  | 68%  | 59%  | 62%  | 27%  | 47%  | 57%  | 6%   | 53%  | 37%  |
-| Hoecken slider         | 21%  | 9.1  | 67%  | 75%  | 67%  | 57%  | 62%  | 21%  | 1%   | 10%  | 4%   | 40%  | 69%  |
-| Jansen                 | 28%  | 4.7  | 73%  | 54%  | 54%  | 28%  | 62%  | 5%   | 6%   | 29%  | 9%   | 36%  | 65%  |
-| Chebyshev              | 16%  | 9.3  | 57%  | 70%  | 51%  | 30%  | 33%  | 17%  | 4%   | 4%   | 6%   | 30%  | 63%  |
-| Chebyshev diag         | 14%  | 8.2  | 55%  | 28%  | 22%  | 18%  | 16%  | 4%   | 5%   | 5%   | 4%   | 17%  | 71%  |
-| Klann                  | 44%  | 3.8  | 90%  | 73%  | 71%  | 106% | 77%  | 26%  | 83%  | 68%  | 18%  | --   | --   |
-| Spears 2-leg balanced  | 32%  | 0.6  | 82%  | 61%  | 81%  | 1%   | 26%  | 48%  | -7%  | 34%  | 42%  | --   | 35%  |
-| Spears 2-leg           | 32%  | 12.8 | 24%  | 22%  | 21%  | 3%   | 3%   | 2%   | 7%   | 4%   | 6%   | 10%  | 30%  |
+| Walker                 | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s |
+|------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|
+| Chebyshev-Spears       | 26%  | 97%  | 102% | 96%  | 88%  | 93%  | 68%  | 65%  | 73%  | 21%  | 78%  | 7.3 |
+| Chebyshev-Spears diag  | 24%  | 91%  | 95%  | 87%  | 89%  | 87%  | 22%  | 83%  | 43%  | 10%  | 67%  | 6.1 |
+| Hoecken                | 17%  | 85%  | 88%  | 84%  | 71%  | 75%  | 55%  | 50%  | 65%  | 27%  | 67%  | 5.6 |
+| Hoecken-Spears slider  | 28%  | 89%  | 95%  | 83%  | 77%  | 87%  | 32%  | 43%  | 78%  | 3%   | 65%  | 5.6 |
+| Klann                  | 44%  | 89%  | 82%  | 79%  | 76%  | 73%  | 23%  | 46%  | 58%  | 10%  | 59%  | 4.6 |
+| Jansen                 | 28%  | 88%  | 92%  | 90%  | 48%  | 41%  | 57%  | 29%  | 33%  | 14%  | 55%  | 5.0 |
+| Spears 4-bar           | 28%  | 71%  | 75%  | 73%  | 59%  | 60%  | 11%  | 47%  | 53%  | 3%   | 50%  | 4.5 |
+| Hoecken slider         | 21%  | 68%  | 79%  | 72%  | 51%  | 44%  | 25%  | 5%   | 16%  | 8%   | 41%  | 3.0 |
+| Chebyshev              | 16%  | 50%  | 68%  | 59%  | 27%  | 26%  | 18%  | 7%   | 3%   | 8%   | 30%  | 2.3 |
+| Chebyshev diag         | 14%  | 55%  | 34%  | 24%  | 37%  | 14%  | 5%   | 9%   | 7%   | 4%   | 21%  | 1.8 |
 
-The bumps are harder for every walker at gravity 70 than at 20 (where a
-walker thrown up by a bump came down slowly), but much harder for the
-walkers with little lift. The cleanest comparisons are the three pairs
-where the Spears version is the same mechanism with more lift, on the
-same chassis, feet and crank speed:
+The cleanest comparisons are the three pairs where the Spears version is
+the same mechanism with more lift, on the same chassis and feet:
 
-| Pair (lift)                                         | Gravity 70 | Room1 (gravity 20) |
-|-----------------------------------------------------|------------|--------------------|
-| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 30% -> 75% | 63% -> 88% |
-| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 17% -> 62% | 71% -> 77% |
-| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 40% -> 57% | 69% -> 80% |
+| Pair (lift)                                         | Now        | Gravity 70, same crank | Room1 (gravity 20) |
+|-----------------------------------------------------|------------|------------|--------------------|
+| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 30% -> 78% | 30% -> 75% | 63% -> 88% |
+| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 21% -> 67% | 17% -> 62% | 71% -> 77% |
+| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 41% -> 65% | 40% -> 57% | 69% -> 80% |
 
-In all three the version with more lift keeps more of its speed, and at
-gravity 70 by much more. Among the four-legged walkers, the four Spears
-linkages and Hoecken are the top five. Lift isn't the whole story:
-
-- Hoecken, with little lift (17%), is third.
-- Jansen, with as much lift as the Spears 4-bar, is slow on flat ground
-  at this gravity (4.7 cm/s, against 7.1 at 20) and keeps little.
-- Klann is still slow on flat ground (3.8 cm/s) with its cranks in step;
-  something else about its build is wrong, so its shares mean little.
-- The 2-leg Spears are a side experiment: the plain one falls over in
-  almost every run (118 times in 40), and the balanced one barely moves
-  on flat ground at this gravity (its counterweight drags).
-- Long, high bumps (22 cm long, 6 cm high: steep hills) stop nearly
-  everyone.
-
-Four starts per condition is few: differences of a few points mean
-little. Walker Room1's runs (gravity 20) also had 8 cm feet and cranks
-in step; at 4 cm feet the pairs came out the same way (51% -> 83%,
-51% -> 61%, 57% -> 64%).
+In all three the version with more lift keeps more of its speed. But
+the pairs aren't yet the same in everything else: Chebyshev-Spears walks
+with its sides a quarter turn apart, Chebyshev with them opposite, and
+their bodies and motor strengths differ (see Not the same yet, above).
+Hoecken, with little lift, does as well as the second-best Spears
+walker; Chebyshev, nearly the same linkage, does far worse -- its
+cranks slow down on bumps and its legs are pulled out of step, and a
+lighter body, stronger motors or a higher side plate don't change that,
+so the cause is still unknown. Long, high bumps (22 cm long, 6 cm high:
+steep hills) stop nearly everyone. Four starts per condition is few:
+differences of a few points mean little.
 
 ### Hinged feet (ANKLES)
+
+(Measured before the crank speeds were set for equal flat speed, with
+every crank at 2.6 rad/s.)
 
 The 2-leg Spears' own files hinge each foot to its leg about the
 side-to-side axis, like an ankle (up to 90 degrees either way, damped), so
@@ -259,8 +268,10 @@ ground any more.
 ## Settings for a launcher
 
 A script that sets these globals and then runs `walker-room.lua` changes
-the room: `STRIDE` (cm, 15), `CRANK` (crank speed, rad/s, 2.6),
-`GRAVITY` (cm/s^2, 70), `BUMP` (starting bump length, cm, 22), `WALKERS_DIR` (where the builds are,
+the room: `STRIDE` (cm, 15),
+`GRAVITY` (cm/s^2, 70), `FLAT_SPEED` (cm/s, 9), `CRANK` (rad/s:
+every walker's crank at that speed instead), `TWO_LEGS` (true: the 2-leg
+Spears too), `BUMP` (starting bump length, cm, 22), `WALKERS_DIR` (where the builds are,
 `../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm;
 by default it follows the bump length), `AMP`
 (starting bump height, cm, 1), `SEED` (starting headings and turns, 1),
