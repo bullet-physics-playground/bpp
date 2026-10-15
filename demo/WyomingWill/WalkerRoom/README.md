@@ -62,14 +62,15 @@ something wrong with its build.
   the same body clearance (12 cm: its body's lowest point above flat
   ground) and the same front-to-back spacing of its feet (35 cm, between
   the middles of its front and back feet's paths) and the same
-  side-to-side width (30-31 cm, outer foot edge to outer foot edge;
-  measured, 30.2 to 31.3). This uses each file's own leg-spacing and
-  body-depth options and the room's `bodyRaise` option, none of which
-  change its foot path. (Until Walker Room 2, Jansen's feet were 38 cm
-  apart and Klann's 35: their files' bodies are wide, and their pads
-  reach outward. Their bodies are narrower here.) A walker's body width
-  is where its legs are mounted, so the bodies look different widths
-  even though the feet stand on the same rectangle.
+  side-to-side width (38 cm, outer foot edge to outer foot edge, as
+  Jansen's own file has it; measured, 38.1 to 38.7). This uses each
+  file's own leg-spacing and body-depth options and the room's
+  `bodyRaise` option, none of which change its foot path. A walker's
+  body width is where its legs are mounted, so the bodies look
+  different widths even though the feet stand on the same rectangle.
+  `WIDE = false` gives every walker a 30-31 cm stance instead (until
+  Walker Room 2, Jansen's feet were 38 cm apart, Klann's 35 and the
+  others' about 30).
 - **Same feet.** Every walker stands on the same flat feet: 8 cm long
   (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5. Big feet get
   over bumps by resting on them; small ones have to be lifted over. Their
@@ -100,6 +101,15 @@ something wrong with its build.
   (Chebyshev-Spears 65% against 57%), as if a motor that gives way a
   little when a foot meets a bump helps it get over. `MOTOR_STRENGTH =
   false` gives each walker its own file's motors.
+- **Same physics precision.** Every joint of every walker is worked
+  over 40 times a physics step (`SOLVER_ITERATIONS`), against Bullet's
+  default 10. At 10, linkages under load have their joints pulled
+  slightly apart, and walkers whose braces close a loop across the body
+  (the diag walkers) jam on hills: Chebyshev-Spears diag made 1.3-1.8
+  cm/s on 4 cm x 22 cm bumps at 10, and 7.2-8.4 at 40 (100 gives the
+  same as 40). Stronger motors didn't help, as they wouldn't with a
+  numerical fault. The Chebyshev and Hoecken families, the walkers
+  with the weakest joints-to-load, were held back most.
 - **Same joints.** Jansen's and Klann's own files soften every hinge
   (constraint force mixing 0.1); no other walker's do. Under this
   gravity their joints gave, and four-legged they barely moved (0.3
@@ -132,18 +142,22 @@ so rocking in place doesn't count as getting anywhere; one run each,
 with avoidance turns, so a few tenths either way mean little), on flat
 ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 
-| Walker                 | Flat | Short bumps | Kept |
-|------------------------|------|-------------|------|
-| Chebyshev-Spears       | 8.84 | 7.87        | 89%  |
-| Hoecken-Spears slider  | 8.12 | 7.18        | 88%  |
-| Chebyshev-Spears diag  | 8.53 | 7.28        | 85%  |
-| Hoecken 4-bar          | 7.96 | 5.70        | 72%  |
-| Hoecken slider         | 7.00 | 4.20        | 60%  |
-| Spears 4-bar           | 8.35 | 4.74        | 57%  |
-| Klann                  | 7.38 | 2.70        | 37%  |
-| Chebyshev              | 7.24 | 2.29        | 32%  |
-| Jansen                 | 8.92 | 1.80        | 20%  |
-| Chebyshev diag         | 8.45 | 1.23        | 15%  |
+| Walker                     | Flat | Short bumps | Kept |
+|----------------------------|------|-------------|------|
+| Chebyshev-Spears diag      | 7.69 | 8.56        | 111% |
+| Hoecken-Spears slider      | 7.55 | 7.73        | 102% |
+| Hoecken-Spears 4-bar       | 8.06 | 7.62        | 95%  |
+| Hoecken-Spears long-stance | 8.11 | 7.51        | 93%  |
+| Chebyshev-Spears           | 8.44 | 7.54        | 89%  |
+| Hoecken slider             | 6.60 | 5.85        | 89%  |
+| Hoecken 4-bar              | 8.00 | 6.87        | 86%  |
+| Klann                      | 8.01 | 6.75        | 84%  |
+| Chebyshev diag             | 8.39 | 7.04        | 84%  |
+| Jansen                     | 8.35 | 6.76        | 81%  |
+| Chebyshev                  | 6.91 | 5.17        | 75%  |
+| Spears 4-bar               | 8.42 | 5.67        | 67%  |
+
+The five Spears changes are the top five.
 
 On the default bumps (22 cm long, a stride and a half) the walkers keep
 most of their speed when the bumps are low: those are rolling hills they
@@ -179,60 +193,63 @@ Share of its flat-ground speed each walker kept (mean of the 4 starts;
 columns are bump height / bump length, in cm), with the lift of its foot
 path (how high its foot rises above its stance, as a share of its
 stride; measured on the builds, as the linkage reference measures it),
-its mean speed over all the bumps, and its mean in Walker Room 2 (the
-same weight, each walker's own motors):
+its mean speed over all the bumps, and its mean before the physics
+precision was raised (wide stance, Bullet's default 10):
 
-| Walker                 | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s | Room 2 |
-|------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|--------|
-| Klann                  | 44%  | 89%  | 87%  | 85%  | 72%  | 79%  | 63%  | 67%  | 72%  | 29%  | 71%  | 6.0 | 72% |
-| Hoecken-Spears slider  | 28%  | 91%  | 100% | 87%  | 77%  | 90%  | 28%  | 42%  | 73%  | -3%  | 65%  | 5.6 | 62% |
-| Hoecken-Spears 4-bar   | 28%  | 92%  | 95%  | 86%  | 68%  | 69%  | 41%  | 59%  | 41%  | 12%  | 63%  | 5.5 | 65% |
-| Jansen                 | 28%  | 79%  | 86%  | 81%  | 63%  | 70%  | 54%  | 43%  | 27%  | 34%  | 60%  | 5.1 | 65% |
-| Chebyshev-Spears diag  | 24%  | 94%  | 94%  | 67%  | 87%  | 70%  | 11%  | 66%  | 28%  | 4%   | 58%  | 5.4 | 52% |
-| Chebyshev-Spears       | 26%  | 87%  | 94%  | 89%  | 76%  | 57%  | 44%  | 37%  | 26%  | 4%   | 57%  | 5.1 | 65% |
-| Spears 4-bar           | 28%  | 71%  | 78%  | 72%  | 59%  | 62%  | 8%   | 48%  | 44%  | 6%   | 50%  | 4.4 | 50% |
-| Hoecken-Spears long-stance | 29%  | 92%  | 67%  | 67%  | 84%  | 23%  | 21%  | 19%  | 16%  | -1%  | 43%  | 3.7 | 54% |
-| Hoecken 4-bar          | 17%  | 81%  | 61%  | 77%  | 68%  | 9%   | 24%  | 14%  | 13%  | 5%   | 39%  | 3.2 | 43% |
-| Hoecken slider         | 21%  | 56%  | 70%  | 63%  | 27%  | 32%  | 22%  | 8%   | 24%  | 8%   | 34%  | 2.7 | 40% |
-| Chebyshev diag         | 14%  | 92%  | 75%  | 31%  | 45%  | 23%  | 7%   | 13%  | 4%   | 2%   | 32%  | 2.9 | 33% |
-| Chebyshev              | 16%  | 51%  | 62%  | 22%  | 5%   | 8%   | 7%   | 2%   | 4%   | 4%   | 18%  | 1.4 | 23% |
+| Walker                     | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s | At 10 |
+|----------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|-------|
+| Chebyshev-Spears diag      | 24%  | 109% | 115% | 110% | 103% | 102% | 90%  | 92%  | 83%  | 41%  | 94%  | 8.1 | 54% |
+| Hoecken-Spears 4-bar       | 28%  | 95%  | 95%  | 90%  | 92%  | 92%  | 80%  | 90%  | 82%  | 38%  | 84%  | 7.4 | 70% |
+| Hoecken-Spears slider      | 28%  | 103% | 104% | 97%  | 99%  | 96%  | 68%  | 88%  | 86%  | 18%  | 84%  | 7.0 | 79% |
+| Chebyshev-Spears           | 26%  | 95%  | 94%  | 88%  | 92%  | 91%  | 77%  | 87%  | 80%  | 23%  | 81%  | 7.2 | 69% |
+| Klann                      | 44%  | 95%  | 93%  | 90%  | 85%  | 81%  | 70%  | 77%  | 66%  | 44%  | 78%  | 6.8 | 74% |
+| Hoecken 4-bar              | 17%  | 92%  | 91%  | 90%  | 85%  | 87%  | 71%  | 83%  | 80%  | 26%  | 78%  | 6.6 | 54% |
+| Hoecken-Spears long-stance | 29%  | 98%  | 99%  | 88%  | 94%  | 93%  | 34%  | 86%  | 77%  | 4%   | 75%  | 6.4 | 67% |
+| Chebyshev diag             | 14%  | 102% | 100% | 93%  | 93%  | 73%  | 58%  | 71%  | 31%  | 13%  | 71%  | 6.3 | 31% |
+| Hoecken slider             | 21%  | 87%  | 89%  | 87%  | 83%  | 79%  | 58%  | 76%  | 67%  | 17%  | 71%  | 5.4 | 59% |
+| Chebyshev                  | 16%  | 79%  | 82%  | 80%  | 73%  | 72%  | 38%  | 64%  | 50%  | 37%  | 64%  | 4.7 | 27% |
+| Jansen                     | 28%  | 80%  | 92%  | 87%  | 68%  | 72%  | 54%  | 53%  | 43%  | 3%   | 61%  | 5.6 | 64% |
+| Spears 4-bar               | 28%  | 77%  | 80%  | 75%  | 50%  | 69%  | 7%   | 41%  | 34%  | 11%  | 49%  | 4.5 | 49% |
 
-Across all twelve, lift and the share kept go together: correlation
-0.80 (0.77 by rank; Walker Room 2: 0.84). The four lowest-lift walkers
-are the bottom four. (Jansen, Klann, Chebyshev and Hoecken slider were
-run again after their side-to-side widths were matched: see Same
-chassis.)
+Across all twelve, lift alone no longer goes with the share kept
+(correlation 0.11; it was 0.74-0.84 at Bullet's default precision, which
+held the low-lift Chebyshev and Hoecken walkers back most). Jansen and
+the Spears 4-bar keep less than their lift would suggest, Hoecken 4-bar
+more.
 
 The cleanest comparisons are the pairs where the Spears version is the
-same mechanism with more lift, on the same chassis and feet:
+same mechanism with more lift, on the same chassis, feet, weight, motors
+and gait:
 
-| Pair (lift)                                         | Now (same motors) | Room 2 (same weight) | Own weight | Gravity 70, same crank | Room1 (gravity 20) |
+| Pair (lift)                                         | Now        | At 10, wide | At 10, narrow | Room 2 (same weight) | Room1 (gravity 20) |
 |-----------------------------------------------------|------------|------------|------------|------------|--------------------|
-| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 18% -> 57% | 23% -> 65% | 30% -> 78% | 30% -> 75% | 63% -> 88% |
-| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 32% -> 58% | 33% -> 52% | 21% -> 67% | 17% -> 62% | 71% -> 77% |
-| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 34% -> 65% | 40% -> 62% | 41% -> 65% | 40% -> 57% | 69% -> 80% |
-| Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)  | 39% -> 63% | 43% -> 65% | 67% -> 78% | --         | --         |
+| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 64% -> 81% | 27% -> 69% | 18% -> 57% | 23% -> 65% | 63% -> 88% |
+| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 71% -> 94% | 31% -> 54% | 32% -> 58% | 33% -> 52% | 71% -> 77% |
+| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 71% -> 84% | 59% -> 79% | 34% -> 65% | 40% -> 62% | 69% -> 80% |
+| Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)   | 78% -> 84% | 54% -> 70% | 39% -> 63% | 43% -> 65% | --         |
 
-In all four the version with more lift keeps more of its speed, and
-each pair walks with the same gait, weight and motors. (Chebyshev-Spears'
-own file has its sides a quarter turn apart; here they are opposite, as
-Chebyshev's are. That changed nothing: 78% both ways, before the weights
-were made the same.)
+In all four the Spears version keeps more of its speed, in every version
+of the room so far. (Chebyshev-Spears' own file has its sides a quarter
+turn apart; here they are opposite, as Chebyshev's are. That changed
+nothing: 78% both ways, before the weights were made the same.) The four
+Spears changes give the top four walkers.
 
-Hoecken keeps much more than Chebyshev, though in the room the two are
-the same kind of linkage -- a coupler carried straight on past the
-rocker joint to the foot -- with proportions 2-4% apart (crank 1:
-ground 2.09 against 2, coupler and rocker 2.55 against 2.5). Built with
-Chebyshev's proportions, Hoecken's file does nearly as badly as
-Chebyshev, so about two thirds of the difference is those proportions.
-On bumps Chebyshev's cranks slow down and its legs are pulled out of
-step; a lighter body, stronger motors or a higher side plate don't
-change that. Its foot moves forward lower to the ground at the start of
-each swing, and plausibly catches the bumps.
+The diag builds tie each front leg to the opposite back leg with braces
+that cross the body, so diagonal legs step together (a trot); the others
+tie the two legs on a side together (both legs on a side step
+together). At Bullet's default precision that crossed loop of joints
+couldn't be held together on hills and the diag walkers jammed; at 40
+passes they do as well as or better than the side-braced ones.
 
-Long, high bumps (22 cm long, 6 cm high:
-steep hills) stop nearly everyone. Four starts per condition is few:
-differences of a few points mean little.
+Hoecken and Chebyshev are, in the room, the same kind of linkage -- a
+coupler carried straight on past the rocker joint to the foot -- with
+proportions 2-4% apart (crank 1: ground 2.09 against 2, coupler and
+rocker 2.55 against 2.5). At the default precision Chebyshev did far
+worse; at 40 passes most of that gap closes (64% against 78%).
+
+Long, high bumps (22 cm long, 6 cm high: steep hills) stop nearly
+everyone. Four starts per condition is few: differences of a few points
+mean little.
 
 ### Hoecken-Spears 4-bar
 
@@ -392,7 +409,8 @@ A script that sets these globals and then runs `walker-room.lua` changes
 the room: `STRIDE` (cm, 15),
 `GRAVITY` (cm/s^2, 70), `SAME_BODY` (false: each walker's own body
 weight), `TOTAL_MASS` (100), `BODY_BOX` (cm, {40, 3, 30}), `MOTOR_STRENGTH` (10;
-false: each walker's own file's motors), `FLAT_SPEED` (cm/s, 9), `CRANK` (rad/s:
+false: each walker's own file's motors), `SOLVER_ITERATIONS` (40; false:
+Bullet's default 10), `WIDE` (true; false: a 30-31 cm stance), `FLAT_SPEED` (cm/s, 9), `CRANK` (rad/s:
 every walker's crank at that speed instead), `TWO_LEGS` (true: the 2-leg
 Spears too), `BUMP` (starting bump length, cm, 22), `WALKERS_DIR` (where the builds are,
 `../Walkers_For_Room/`), `ARENA` (side, cm, 1000), `CELL` (terrain cell, cm;
