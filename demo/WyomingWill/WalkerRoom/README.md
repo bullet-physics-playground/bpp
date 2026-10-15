@@ -371,6 +371,34 @@ Across all the walkers and both directions the angle goes with the share
 kept less closely (rank correlation 0.49): Klann comes down by far the
 most steeply (53 degrees) without being the best.
 
+The Spears 4-bar's legs are also timed unusually: its cranks at 0, 225,
+180 and 225 degrees (found by an optimizer in its own file), where the
+others step both legs on a side together or diagonal pairs together.
+Running it backward also changes that timing (the back legs then come
+135 degrees after the first leg, not 225). `GAIT` sets every leg's phase
+on the walkers without braces locking their legs together (Jansen,
+Klann, Spears 4-bar; the braced walkers' plates and bars only work with
+their own timing). On the test track (share kept; speed on bumps, cm/s;
+the Spears timing put on Jansen and Klann both ways round, front legs
+first or back legs first, the better shown):
+
+| Walker | Timing | Forward | Reversed |
+|--------|--------|---------|----------|
+| Spears 4-bar | its own, 0/225/180/225 | 49%, 4.5 | 80%, 7.1 |
+| Spears 4-bar | 0/0/180/180            | 59%, 5.1 | 80%, 7.3 |
+| Klann        | 0/0/180/180            | 78%, 6.8 | 87%, 7.7 |
+| Klann        | Spears'                | 70%, 5.7 | 80%, 7.7 |
+| Jansen       | 0/0/180/180            | 61%, 5.6 | 63%, 6.0 |
+| Jansen       | Spears'                | 59%, 3.2 | 72%, 4.7 |
+
+It was the direction, not the timing, that lifted the Spears 4-bar:
+reversed, it does as well with either timing. The Spears timing didn't
+help Jansen or Klann: their flat-ground speed fell (Jansen to 4.9-6.4
+cm/s, Klann as low as 3.9), so a share kept that looks similar hides a
+slower walker; on bumps neither got faster. (Their slower flat speed is
+legs fighting each other, not the timing changing how far a turn should
+carry them, which stays within 10%.)
+
 Not explained yet: the Hoecken-Spears long-stance comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
 its foot swings forward in about 0.2 s, the quickest of all.
@@ -508,4 +536,5 @@ run free, as in the standalone files), `ANKLES` (true: every walker's
 feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks run
-backward, so it walks the other way; or a table of names).
+backward, so it walks the other way; or a table of names), `GAIT` (four crank
+phases, degrees, for Jansen, Klann and Spears 4-bar: see above).

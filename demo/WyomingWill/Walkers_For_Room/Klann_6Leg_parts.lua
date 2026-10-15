@@ -711,8 +711,13 @@ for row = 0, NUM_ROWS - 1 do
   local x_offset = row * ROW_SPACING
   local phase = row * PHASE_SPACING
 
-  local legFront = buildKlannLeg(x_offset, false, phase, SPEED)
-  local legBack  = buildKlannLeg(x_offset, true, phase + FB_OFFSET, SPEED)
+  -- (the room: opts.phases = { row 1 this side, row 2 this side, row 1
+  -- the other side, row 2 the other side } sets every leg's phase, as
+  -- the Spears 4-bar's file orders them)
+  local pF, pB = phase, phase + FB_OFFSET
+  if opts.phases then pF, pB = opts.phases[row + 1], opts.phases[row + 3] end
+  local legFront = buildKlannLeg(x_offset, false, pF, SPEED)
+  local legBack  = buildKlannLeg(x_offset, true, pB, SPEED)
   table.insert(legs, legFront)
   table.insert(legs, legBack)
 

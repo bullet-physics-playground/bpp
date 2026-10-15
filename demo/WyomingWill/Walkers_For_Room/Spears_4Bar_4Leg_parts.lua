@@ -612,10 +612,12 @@ end
 -- that was checked for -- worth knowing if a future change wants to
 -- exploit symmetry for a smaller search space, since this optimum
 -- doesn't have any.
-local linkage1 = buildLinkage(0, 54.459, false, 0, opts.speed)                   -- front face, x=0
-local linkage2 = buildLinkage(linkage_spacing, 54.459, false, 225, opts.speed)   -- front face, x=10
-local linkage3 = buildLinkage(0, 54.459, true, 180, opts.speed)                 -- back face,  x=0
-local linkage4 = buildLinkage(linkage_spacing, 54.459, true, 225, opts.speed)   -- back face,  x=10
+-- (WALKER ROOM: opts.phases = { the four phases, in this order } sets other ones)
+local PH = opts.phases or { 0, 225, 180, 225 }
+local linkage1 = buildLinkage(0, 54.459, false, PH[1], opts.speed)                   -- front face, x=0
+local linkage2 = buildLinkage(linkage_spacing, 54.459, false, PH[2], opts.speed)   -- front face, x=10
+local linkage3 = buildLinkage(0, 54.459, true, PH[3], opts.speed)                 -- back face,  x=0
+local linkage4 = buildLinkage(linkage_spacing, 54.459, true, PH[4], opts.speed)   -- back face,  x=10
 
 -- NO CROSSBARS in this version: linkage.lua's own MECHANISMS table
 -- marks Spears 4Bar-1 as twin=false, unlike Chebyshev-Spears and
