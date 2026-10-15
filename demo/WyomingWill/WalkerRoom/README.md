@@ -110,6 +110,18 @@ something wrong with its build.
   same as 40). Stronger motors didn't help, as they wouldn't with a
   numerical fault. The Chebyshev and Hoecken families, the walkers
   with the weakest joints-to-load, were held back most.
+- **Braces clear the bumps.** The plates and bars joining a walker's
+  legs (its braces) hung as low as 0.9 cm above flat ground (Chebyshev,
+  Chebyshev-Spears, the Hoecken-Spears 4-bars) and caught on bumps
+  between the feet: on 4 cm bumps they touched 11-23% of the time. Every
+  brace now stands at least 7 cm up (`BRACE_CLEARANCE`), above the
+  tallest bumps: a plate loses that much off its bottom, its top staying
+  where it was, and a diag walker's low bar is moved up. Raised that far,
+  the diag bar would cross the circles its own cranks turn in and jam (2.5
+  cm/s on flat ground), so it passes the walker's other parts as if built
+  in a plane of its own, and still meets the ground. (Hoecken slider's
+  plates were already 6.5 cm up; Jansen, Klann and Spears 4-bar have
+  none.)
 - **Same joints.** Jansen's and Klann's own files soften every hinge
   (constraint force mixing 0.1); no other walker's do. Under this
   gravity their joints gave, and four-legged they barely moved (0.3
@@ -134,10 +146,11 @@ Not the same yet:
 |------|----------------|
 | Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Chebyshev-Spears (here; a quarter turn apart in its own file), Hoecken, the two sliders, and (here) Jansen and Klann. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar (its design) |
 | Body shape | Each file's own box (its weight is now the same: see Same weight) |
-| Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann) |
+| Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann); all at least 7 cm up now |
 | Link weights, damping, foot friction | Each file's own (foot friction 0.9 for Jansen and Klann, 0.8 for the rest) |
 
-Progress in the full room over 3 minutes (cm/s, measured in 5 s steps,
+Progress in the full room over 3 minutes (braces as built, before
+`BRACE_CLEARANCE`; cm/s, measured in 5 s steps,
 so rocking in place doesn't count as getting anywhere; one run each,
 with avoidance turns, so a few tenths either way mean little), on flat
 ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
@@ -193,46 +206,50 @@ Share of its flat-ground speed each walker kept (mean of the 4 starts;
 columns are bump height / bump length, in cm), with the lift of its foot
 path (how high its foot rises above its stance, as a share of its
 stride; measured on the builds, as the linkage reference measures it),
-its mean speed over all the bumps, and its mean before the physics
-precision was raised (wide stance, Bullet's default 10):
+its mean speed over all the bumps, and its mean before the braces were
+raised (`BRACE_CLEARANCE = false`):
 
-| Walker                     | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s | At 10 |
-|----------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|-------|
-| Chebyshev-Spears diag      | 24%  | 109% | 115% | 110% | 103% | 102% | 90%  | 92%  | 83%  | 41%  | 94%  | 8.1 | 54% |
-| Hoecken-Spears 4-bar       | 28%  | 95%  | 95%  | 90%  | 92%  | 92%  | 80%  | 90%  | 82%  | 38%  | 84%  | 7.4 | 70% |
-| Hoecken-Spears slider      | 28%  | 103% | 104% | 97%  | 99%  | 96%  | 68%  | 88%  | 86%  | 18%  | 84%  | 7.0 | 79% |
-| Chebyshev-Spears           | 26%  | 95%  | 94%  | 88%  | 92%  | 91%  | 77%  | 87%  | 80%  | 23%  | 81%  | 7.2 | 69% |
-| Klann                      | 44%  | 95%  | 93%  | 90%  | 85%  | 81%  | 70%  | 77%  | 66%  | 44%  | 78%  | 6.8 | 74% |
-| Hoecken 4-bar              | 17%  | 92%  | 91%  | 90%  | 85%  | 87%  | 71%  | 83%  | 80%  | 26%  | 78%  | 6.6 | 54% |
-| Hoecken-Spears long-stance | 29%  | 98%  | 99%  | 88%  | 94%  | 93%  | 34%  | 86%  | 77%  | 4%   | 75%  | 6.4 | 67% |
-| Chebyshev diag             | 14%  | 102% | 100% | 93%  | 93%  | 73%  | 58%  | 71%  | 31%  | 13%  | 71%  | 6.3 | 31% |
-| Hoecken slider             | 21%  | 87%  | 89%  | 87%  | 83%  | 79%  | 58%  | 76%  | 67%  | 17%  | 71%  | 5.4 | 59% |
-| Chebyshev                  | 16%  | 79%  | 82%  | 80%  | 73%  | 72%  | 38%  | 64%  | 50%  | 37%  | 64%  | 4.7 | 27% |
-| Jansen                     | 28%  | 80%  | 92%  | 87%  | 68%  | 72%  | 54%  | 53%  | 43%  | 3%   | 61%  | 5.6 | 64% |
+| Walker                     | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s | Low braces |
+|----------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|------------|
+| Chebyshev-Spears diag      | 24%  | 111% | 116% | 110% | 102% | 107% | 76%  | 88%  | 66%  | 44%  | 91%  | 7.6 | 94% |
+| Hoecken-Spears slider      | 28%  | 103% | 105% | 98%  | 98%  | 100% | 69%  | 86%  | 82%  | 19%  | 84%  | 7.0 | 84% |
+| Hoecken-Spears 4-bar       | 28%  | 95%  | 95%  | 89%  | 91%  | 92%  | 74%  | 87%  | 82%  | 11%  | 80%  | 7.1 | 84% |
+| Hoecken 4-bar              | 17%  | 92%  | 91%  | 91%  | 86%  | 87%  | 65%  | 82%  | 78%  | 45%  | 80%  | 6.7 | 78% |
+| Klann                      | 44%  | 95%  | 93%  | 90%  | 85%  | 81%  | 70%  | 77%  | 66%  | 44%  | 78%  | 6.8 | 78% |
+| Chebyshev-Spears           | 26%  | 96%  | 95%  | 91%  | 91%  | 90%  | 62%  | 82%  | 82%  | 6%   | 77%  | 6.9 | 81% |
+| Chebyshev diag             | 14%  | 103% | 105% | 95%  | 89%  | 72%  | 65%  | 75%  | 40%  | 20%  | 74%  | 6.4 | 71% |
+| Hoecken-Spears long-stance | 29%  | 98%  | 99%  | 87%  | 92%  | 89%  | 29%  | 78%  | 74%  | 7%   | 73%  | 6.2 | 75% |
+| Hoecken slider             | 21%  | 88%  | 88%  | 88%  | 78%  | 81%  | 51%  | 57%  | 67%  | 20%  | 68%  | 5.1 | 71% |
+| Jansen                     | 28%  | 80%  | 92%  | 87%  | 68%  | 72%  | 54%  | 53%  | 43%  | 3%   | 61%  | 5.6 | 61% |
+| Chebyshev                  | 16%  | 80%  | 82%  | 81%  | 76%  | 68%  | 40%  | 52%  | 54%  | 2%   | 59%  | 4.4 | 64% |
 | Spears 4-bar               | 28%  | 77%  | 80%  | 75%  | 50%  | 69%  | 7%   | 41%  | 34%  | 11%  | 49%  | 4.5 | 49% |
 
-Across all twelve, lift alone no longer goes with the share kept
-(correlation 0.11; it was 0.74-0.84 at Bullet's default precision, which
-held the low-lift Chebyshev and Hoecken walkers back most). Jansen and
-the Spears 4-bar keep less than their lift would suggest, Hoecken 4-bar
-more.
+Raising the braces helped no one much: the low plates had been carrying
+some walkers over the steepest hills (6 cm x 22 cm) like skids. Across
+all twelve, lift alone does not go with the share kept (correlation
+0.10; it was 0.74-0.84 at Bullet's default precision, which held the
+low-lift Chebyshev and Hoecken walkers back most). What does is how high
+the foot is at the front of its swing, where it meets a bump: see "Why
+the Spears changes work", below.
 
 The cleanest comparisons are the pairs where the Spears version is the
 same mechanism with more lift, on the same chassis, feet, weight, motors
 and gait:
 
-| Pair (lift)                                         | Now        | At 10, wide | At 10, narrow | Room 2 (same weight) | Room1 (gravity 20) |
-|-----------------------------------------------------|------------|------------|------------|------------|--------------------|
-| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 64% -> 81% | 27% -> 69% | 18% -> 57% | 23% -> 65% | 63% -> 88% |
-| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 71% -> 94% | 31% -> 54% | 32% -> 58% | 33% -> 52% | 71% -> 77% |
-| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 71% -> 84% | 59% -> 79% | 34% -> 65% | 40% -> 62% | 69% -> 80% |
-| Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)   | 78% -> 84% | 54% -> 70% | 39% -> 63% | 43% -> 65% | --         |
+| Pair (lift)                                         | Now        | Low braces | At 10, wide | At 10, narrow | Room 2 (same weight) | Room1 (gravity 20) |
+|-----------------------------------------------------|------------|------------|------------|------------|------------|--------------------|
+| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 59% -> 77% | 64% -> 81% | 27% -> 69% | 18% -> 57% | 23% -> 65% | 63% -> 88% |
+| Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 74% -> 91% | 71% -> 94% | 31% -> 54% | 32% -> 58% | 33% -> 52% | 71% -> 77% |
+| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 68% -> 84% | 71% -> 84% | 59% -> 79% | 34% -> 65% | 40% -> 62% | 69% -> 80% |
+| Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)   | 80% -> 80% | 78% -> 84% | 54% -> 70% | 39% -> 63% | 43% -> 65% | --         |
 
-In all four the Spears version keeps more of its speed, in every version
-of the room so far. (Chebyshev-Spears' own file has its sides a quarter
-turn apart; here they are opposite, as Chebyshev's are. That changed
-nothing: 78% both ways, before the weights were made the same.) The four
-Spears changes give the top four walkers.
+In three of the four the Spears version keeps 16-18 points more of its
+speed; Hoecken 4-bar and its Spears version now keep the same share,
+though the Spears version is still faster on bumps (7.1 cm/s against
+6.7: Hoecken 4-bar is slower on flat ground). (Chebyshev-Spears' own
+file has its sides a quarter turn apart; here they are opposite, as
+Chebyshev's are. That changed nothing: 78% both ways, before the weights
+were made the same.)
 
 The diag builds tie each front leg to the opposite back leg with braces
 that cross the body, so diagonal legs step together (a trot); the others
@@ -289,6 +306,46 @@ Chebyshev-Spears' 3.06. Built, its foot path comes out at duty 85%,
 flatness 5.0%, lift 28.7% (the calculation: 89%, 5.2%, 29.4%). On the
 test track it keeps 66% of its flat speed on bumps: more lift than
 Chebyshev-Spears, but less of its speed kept, about as much as Hoecken.
+
+### Why the Spears changes work
+
+Every Spears change raised three things about the foot's path at once:
+its duty (the share of each turn it is down: Chebyshev 72% -> 84%,
+Hoecken 4-bar 67% -> 79%), its lift, and how high the foot is at the
+front and back ends of its swing (Chebyshev 0.10 -> 0.17 of the stride
+in the front tenth of the stride, Hoecken 4-bar 0.12 -> 0.19). Across
+the twelve walkers, duty (correlation 0.65) and the front height (0.61)
+go with the share kept, lift (0.10) doesn't; but across different
+mechanisms these come mixed together.
+
+To separate them, linkages of Chebyshev-Spears' kind (its file, with
+other link lengths and a leg of its own length and angle) were found
+that change one thing and hold the others at Chebyshev-Spears' values,
+no nearer locking than it is, and built on the same chassis
+(`foot-path-variants.lua`; 8 starts each, about +-0.5 points):
+
+| Walker | Duty | Lift | Front height | Kept |
+|--------|------|------|--------------|------|
+| Chebyshev-Spears | 84% | 26.4% | 0.174 | 78.0% |
+| V duty 72        | 72% | 26.4% | 0.178 | 79.0% |
+| V front low      | 84% | 25.3% | 0.150 | 71.2% |
+| V front high     | 83% | 29.0% | 0.216 | 82.2% |
+
+(Front height: the highest the foot gets in the front tenth of its
+stride, where it comes down, as a share of the stride; measured on the
+builds.) Duty makes no difference. The height of the foot as it comes
+down does: the Spears changes lift the foot steeply and bring it down
+steeply, so it is already high when it meets the face of a bump, where
+the originals' rounded arches meet it low. In this family the front
+height can't be raised much without raising the lift too (V front high
+has both), but V front low loses 7 points for 1 point less lift, which
+lift alone doesn't explain. The Spears 4-bar has the lowest front
+height of all (0.06) and is last; Jansen comes down high (0.15) but
+lifts off low (0.09) and drags its back foot.
+
+Not explained yet: the Hoecken-Spears long-stance comes down as high as
+Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
+its foot swings forward in about 0.2 s, the quickest of all.
 
 ### Hinged feet (ANKLES)
 
@@ -420,4 +477,6 @@ by default it follows the bump length), `AMP`
 `FOOT_THICK` (cm: 8, 12, 0.5) and `FOOT_MASS` (1.5), `SAME_FEET` (false:
 each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
 run free, as in the standalone files), `ANKLES` (true: every walker's
-feet hinged like ankles; Walker Room1 has them welded).
+feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7: braces at
+least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
+walkers, as in `foot-path-variants.lua`).

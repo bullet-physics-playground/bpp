@@ -648,7 +648,7 @@ end
 -- so this may be worth revisiting on its own (a wider plate arguably
 -- wants more mass, not the same amount tuned for a thin bar) -- left
 -- unchanged here since only geometry was asked for.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S, "slateblue", 1.0, 1.8 * S)   -- left-front <-> right-back -- the sole bottom brace now
+local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S + (opts.braceRaise or 0), "slateblue", 1.0, 1.8 * S)   -- left-front <-> right-back -- the sole bottom brace now (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
 
 -- TOP crossbar: same idea as the bottom pair, but attached near the
 -- TOP of the (now-extended) pendant instead of near C at the bottom.

@@ -929,7 +929,7 @@ local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 2.75 * S, "firebri
 -- diagonal pair ends up braced exactly once, at opposite ends (1<->4 at
 -- the bottom, 2<->3 at the top), rather than one pair braced twice and
 -- the other not at all.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, (-9.9 - BODY_RAISE) * S, "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level
+local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, (-9.9 - BODY_RAISE) * S + (opts.braceRaise or 0), "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
 
 
 -- ---------------------------------------------------------------------
