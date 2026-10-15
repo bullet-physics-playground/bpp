@@ -33,6 +33,7 @@ Shortcuts pane holds just the keys.
 | --- | --- |
 | `flight.lua` | One quadcopter: rigid body, rotors, motors, air, flight controller |
 | `swarm.lua` | The AP formation harness: sensing, force laws, waypoints, launch/land, obstacles, wind, downwash, prop strikes, camera, stats, keys |
+| `sound.lua` | Rotor sound: drives BPP's synthesised voices from the motor speeds, heard from the camera |
 | `meshes/*.obj` | Frame, front arms (red), prop discs. Regenerate with `python3 gen-meshes.py meshes` |
 
 ## The quadcopter (`flight.lua`)
@@ -148,6 +149,7 @@ originals.
 | P | aim the camera: overview / top-down / close-up on one drone |
 | mouse | drag to orbit, wheel to zoom; following keeps your angle |
 | = / - | simSpeed |
+| M | sound on/off (`soundVolume`) |
 
 **Colours:**
 
@@ -167,13 +169,33 @@ item 30.
 
 **Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
-`goalSpeed`, `goalDelay`, `simSpeed`, and the `obstacleField` and
+`goalSpeed`, `goalDelay`, `simSpeed`, `soundVolume`, and the `obstacleField` and
 `propStrikes` checkboxes.
 
 **Prop strikes:** Bullet's own contact points are checked every frame.
 Drones that touch each other, an obstacle, or (while flying) the ground lose
 their props and fall, and can take down drones below them. Untick
 `propStrikes` to let hulls just bounce.
+
+**Sound** (`sound.lua`, `soundVolume`, M mutes): you hear the swarm from
+the camera. Every rotor buzzes at its blade-passing frequency (2 blades ×
+rev/s): about 38 Hz at idle, 181 Hz in hover, 283 Hz flat out. Its
+loudness rises as (rpm / max)^2.5, so climbs and hard manoeuvres are much
+louder than hover. When a drone tilts or turns, its four motors run at
+different speeds, and their tones beat against each other: that warble is
+the steering you can hear.
+
+- **Nearest 3 drones:** four voices each (one a rotor), plus a quiet
+  motor whine at 7 × rev/s.
+- **The rest:** one blended "crowd" voice; their sound powers add, at
+  their mean pitch.
+- **Distance:** loudness falls as 1/distance, and far drones lose their
+  overtones and sound duller. Doppler raises the pitch of an approaching
+  drone.
+- **Pan:** follows the camera, left of the view in the left speaker.
+
+The voices hush while the simulation is stopped. They also go into the
+`.wav` of a POV-Ray export. A bpp without `v:setTone()` just runs silent.
 
 ## What the drones change (2-minute runs, 50 drones, default settings, compact launch)
 

@@ -323,3 +323,29 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - **Lennard-Jones 3D, levels 0.05, field crossing, 2 seeds:** 0 / 0
       lost, all on levels. 42 and 45 drones were through the field at
       570 s, at least as fast as without levels.
+
+31. **Drone sound: synthesised voices in BPP (`src/synth.h/.cpp`, `src/viewer.cpp`).**
+    BPP could only play one-shot sound files (`loadSound`/`playSound`), with
+    no pitch control and no looping. A rotor's pitch and loudness change
+    every frame, so BPP now has up to 24 continuous synthesised voices,
+    set from Lua:
+
+    - `v:setTone(voice, freq, amp [, pan])`: voice 1..24, Hz, 0..1, -1..1.
+    - `v:setToneTimbre(voice, brightness, noise)`: 0 = pure sine .. 1 =
+      buzzy; level of a whooshing noise band chopped at the pitch.
+    - `v:silenceTones()`.
+
+    Each voice glides to new settings over ~30 ms, so updates once a frame
+    don't click. The voices are mixed after SDL_mixer's own channels
+    (`Mix_SetPostMix`), so `playSound()` effects still play on top. They
+    hush while the simulation is stopped and when a new script loads. They
+    are also written into the exported `.wav`. With no audio device they
+    are silent no-ops.
+
+    `quadcopter/sound.lua` drives them from the motor speeds (see the
+    quadcopter README). Checked from exported tracks:
+
+    - **Hover:** 179–185 Hz, against ~181 Hz expected.
+    - **Takeoff climb:** 192–198 Hz, and louder than hover.
+    - **Levels:** −18 dBFS RMS at a close-up camera, peaks 0.6. Clipping
+      can't happen: the output passes a soft limiter.

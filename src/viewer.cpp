@@ -474,6 +474,12 @@ void Viewer::luaBind(lua_State *s) {
            .def("loadSound", &Viewer::loadSound)
            .def("playSound", (void(Viewer::*)(int)) & Viewer::playSound)
            .def("playSound", (void(Viewer::*)(int, double)) & Viewer::playSound)
+           // continuous synthesised voices, e.g. rotors (also no-ops
+           // without audio)
+           .def("setTone", (void(Viewer::*)(int, double, double)) & Viewer::setTone)
+           .def("setTone", (void(Viewer::*)(int, double, double, double)) & Viewer::setTone)
+           .def("setToneTimbre", &Viewer::setToneTimbre)
+           .def("silenceTones", &Viewer::silenceTones)
 
            // Where a late frame's time went (0 = off), see setFrameTiming().
            .def("setFrameTiming", &Viewer::setFrameTiming)
@@ -1649,6 +1655,21 @@ void Viewer::playSound(int id, double volume) {
   recordSound(it->second, volume);
 }
 
+// (Lua numbers voices from 1, the synth from 0)
+void Viewer::setTone(int voice, double freq, double amp) {
+  _synth.setTone(voice - 1, freq, amp, 0.0);
+}
+
+void Viewer::setTone(int voice, double freq, double amp, double pan) {
+  _synth.setTone(voice - 1, freq, amp, pan);
+}
+
+void Viewer::setToneTimbre(int voice, double brightness, double noise) {
+  _synth.setTimbre(voice - 1, brightness, noise);
+}
+
+void Viewer::silenceTones() { _synth.reset(); }
+
 void Viewer::recordSound(Mix_Chunk *chunk, double volume) {
   if (!_savePOV)
     return;
@@ -1854,6 +1875,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
     _audioAvailable = true;
     // room for many overlapping effects (e.g. a pool break)
     Mix_AllocateChannels(32);
+    // and the synthesised voices of setTone(), mixed in after them
+    _synth.attach();
   }
 
 
@@ -2636,6 +2659,7 @@ emit scriptStarts();
     _cb_onKey = luabind::object();
     _luaHeldKeys.clear();
     setStatusText(QString());   // (a script's status line goes with it)
+    _synth.reset();             // (and its voices)
     _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
     _cb_onHover = luabind::object();
@@ -3124,6 +3148,7 @@ Viewer::~Viewer() {
     }
     _soundChunks.clear();
     _soundIdByPath.clear();
+    _synth.detach();
     Mix_CloseAudio();
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
   }
@@ -5192,10 +5217,12 @@ void Viewer::saveWAV(const QString &fileWAV) {
     _wavFirstFrame = _firstFrame;
     _wavWritten = -1;
     _wavMix.clear();
+    _synth.restartExport();
   }
   _wavFrame = _frameNum;
 
-  if (_wavWritten < 0 && _wavEvents.empty())
+  const bool tones = _synth.audible();
+  if (_wavWritten < 0 && _wavEvents.empty() && !tones)
     return; // nothing played yet, so no track
 
   QFile f(fileWAV);
@@ -5241,6 +5268,16 @@ void Viewer::saveWAV(const QString &fileWAV) {
       _wavMix[at + i] += int(src[i] * e.volume);
   }
   _wavEvents.clear();
+
+  // the synthesised voices, through this frame
+  if (tones || _wavWritten > 0) {
+    qint64 n = start(_frameNum + 1) - _wavWritten;
+    if (n > 0) {
+      if ((qint64)_wavMix.size() < n * channels)
+        _wavMix.resize(n * channels, 0);
+      _synth.renderInto(_wavMix.data(), (int)n, channels, freq);
+    }
+  }
 
   append(start(_frameNum + 1)); // this frame's share
 
@@ -5805,6 +5842,7 @@ void Viewer::startAnimation() {
   _timer.start();
   _frameTimingLast = -1; // (a pause is not a late frame)
   QGLViewer::startAnimation();
+  _synth.setGate(true);
 }
 
 void Viewer::stopAnimation() {
@@ -5817,6 +5855,7 @@ void Viewer::stopAnimation() {
   }
 
   QGLViewer::stopAnimation();
+  _synth.setGate(false); // (the voices hush while paused)
   // XXX updateGLViewer();
 }
 

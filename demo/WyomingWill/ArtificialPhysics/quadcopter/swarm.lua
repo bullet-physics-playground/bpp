@@ -95,6 +95,7 @@
 
 local common = require "common"
 local Quad   = require "quadcopter.flight"
+local Sound  = require "quadcopter.sound"
 
 local M = {}
 
@@ -154,6 +155,7 @@ defParam("downwash",     1,    0,   2,    0.1,  "downwash strength (0 = off, 1 =
 defParam("padSpacing",   1.0,  0.7, 6,    0.1,  "closest two drones may stand in the launch cluster (m), used by the next Setup (R)")
 defParam("simSpeed",     1,    1,   8,    1,    "flight time per rendered frame, in 1/30 s units (fast-forward)")
 v:addParam("propStrikes", true, "drones touching another drone, an obstacle, or the ground in flight lose their props and fall")
+defParam("soundVolume",  0.5,  0,   1,    0.05, "rotor sound from the camera's point of view (0 = silent; M mutes)")
 
 local function readParams()
   local p = {}
@@ -958,6 +960,13 @@ v:addShortcut("P", function()
   aimCamera()
   print("camera: " .. CAM_MODES[camMode]); updateStatus()
 end)
+local unmutedVolume = 0.5
+v:addShortcut("M", function()
+  local vol = v:getParam("soundVolume")
+  if vol > 0 then unmutedVolume = vol; setParam("soundVolume", 0)
+  else setParam("soundVolume", unmutedVolume > 0 and unmutedVolume or 0.5) end
+  print("soundVolume = " .. v:getParam("soundVolume")); updateStatus()
+end)
 v:addShortcut("Left",  function() moveCursor(-CURSOR_STEP, 0, 0) end)
 v:addShortcut("Right", function() moveCursor(CURSOR_STEP, 0, 0) end)
 v:addShortcut("Up",    function() moveCursor(0, 0, -CURSOR_STEP) end)
@@ -1103,6 +1112,7 @@ v:postSim(function(N)
   if frameCount % 3 == 0 then updateNeighborLines(p) end
   updateWaypointMarkers()
   updateCamera()
+  Sound.update(drones, v:getParam("soundVolume"))
 
   if simTime >= nextStats then
     nextStats = simTime + 1.0
@@ -1145,6 +1155,8 @@ P        view: overview / top-down / close-up
 V        neighbour lines
 W        waypoint markers
 = / -    faster / slower (simSpeed)
+M        sound on/off (soundVolume); you hear the
+         swarm from the camera
 
 Colours: white/yellow = spin 0/1, violet = holding,
 red = crashed, grey = landed.]]
@@ -1190,6 +1202,7 @@ function updateStatus(statsLine)
   end
   if p.downwash <= 0 then parts[#parts + 1] = "no downwash" end
   if not v:getParam("propStrikes") then parts[#parts + 1] = "prop strikes off" end
+  if Sound.available and v:getParam("soundVolume") <= 0 then parts[#parts + 1] = "sound off" end
   parts[#parts + 1] = "camera " .. CAM_MODES[camMode] .. (followCam and ", following" or ", free")
   local modeLine = table.concat(parts, "  |  ")
 

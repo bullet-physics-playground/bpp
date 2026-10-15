@@ -34,6 +34,7 @@
 #include <luabind/object.hpp>
 
 #include <SDL2/SDL_mixer.h>
+#include "synth.h"
 
 #include "objects/cam.h"
 
@@ -225,6 +226,35 @@ public:
    * @brief As playSound(id), at a volume from 0 (silent) to 1 (full).
    */
   void playSound(int id, double volume);
+
+  /**
+   * @brief Sets synthesised voice @p voice (1..24) sounding at @p freq Hz,
+   * @p amp loud (0..1 of full scale; 0 silences it), centred.
+   *
+   * Voices sound continuously until changed, gliding to new settings over
+   * ~30 ms, so a script can update them every frame from what it simulates
+   * (rotor speeds, say). They fall silent while the simulation is stopped
+   * and when a new script loads. A voice is a harmonic tone plus a band of
+   * noise chopped at its pitch -- see setToneTimbre(). Safe with no audio
+   * device (nothing sounds). Exposed to Lua as v:setTone(voice, freq, amp
+   * [, pan]).
+   */
+  void setTone(int voice, double freq, double amp);
+
+  /** As setTone(voice, freq, amp), panned @p pan from -1 (left) to 1
+   *  (right). */
+  void setTone(int voice, double freq, double amp, double pan);
+
+  /**
+   * @brief Voice @p voice's tone colour: @p brightness from 0 (a pure sine)
+   * to 1 (buzzy, all overtones), and @p noise from 0 to 1, the level of the
+   * whooshing noise band beside the tone. Defaults 0.5 and 0.15. Exposed to
+   * Lua as v:setToneTimbre(voice, brightness, noise).
+   */
+  void setToneTimbre(int voice, double brightness, double noise);
+
+  /** Fades every synthesised voice out (v:silenceTones()). */
+  void silenceTones();
 
   /**
    * @brief Reports where the time went whenever a frame comes late.
@@ -2621,6 +2651,7 @@ private:
                                          ///< file twice is free.
   std::map<int, Mix_Chunk *> _soundChunks; ///< id -> loaded chunk.
   int _nextSoundId; ///< Monotonically increasing; never reused.
+  ToneSynth _synth; ///< The voices of setTone().
 
   // exported audio: the sounds played while exporting, mixed by saveWAV()
   // into a track that keeps in step with the exported frames
