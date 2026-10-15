@@ -679,6 +679,18 @@ for i, b in ipairs(BAYS) do
     if ok then
       exhibits[#exhibits + 1] = g
       print(string.format("CABINET: %s is in its bay (%s%s)", g.name, e.dir, e.file))
+      -- its first frame, now: everything put where it begins, so it shows
+      -- from anywhere in the hall, not only once you're at it (and it then
+      -- stands still until you arrive, as each exhibit does when it starts)
+      inWorld(g, function()
+        g.N = g.N + 1
+        local f = g.callbacks.preSim
+        if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("CABINET: " .. g.name .. " preSim: " .. tostring(err2)) end end
+        local tm = g.timing
+        realV:stepSimulation(tm.timeStep, tm.maxSubSteps, tm.fixedTimeStep)
+        f = g.callbacks.postSim
+        if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("CABINET: " .. g.name .. " postSim: " .. tostring(err2)) end end
+      end)
     else
       print("CABINET: " .. g.name .. " didn't load: " .. tostring(err))
     end

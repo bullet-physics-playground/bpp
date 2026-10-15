@@ -251,12 +251,14 @@ end
 -- ---------------------------------------------------------------------
 local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
 local holdArm, holdLeft, holdNow = false, 0, false
+local holdTick                       -- (what moves while all else stands still: set below)
 local function holdStart() holdArm, holdLeft = true, 0 end
 local function holdPre()            -- first thing before each step: true while it stands still
   if holdLeft > 0 then
     holdLeft = holdLeft - 1
     holdNow = true
     v.timeStep = 0
+    if holdTick then holdTick() end
     return true
   end
   if holdNow then holdNow = false; applyTiming() end
@@ -641,10 +643,78 @@ local function randomSpin()
   return btVector3((math.random() - 0.5) * 4, (math.random() - 0.5) * 4, (math.random() - 0.5) * 4)
 end
 
+local function liftDecor(g)
+  if g.sp.vnames then showBar(g, nil) end
+  if g.sp.corners then showCorners(g, race.real) end
+end
+-- resting on its stable face at (x, z)
+local function qOf(q) return { q:getX(), q:getY(), q:getZ(), q:getW() } end
+local function restPose(g, x, z)
+  local home
+  for _, f in ipairs(g.sp.faces) do if f.name == g.sp.home then home = f end end
+  local q = faceDownQuat(home.n, math.random() * 2 * math.pi)
+  return { q = qOf(q), p = { x, home.h + g.sp.margin + 0.02, z } }
+end
+
+-- ---------------------------------------------------------------------
+-- an attendant's lift: a body to be dropped isn't put straight into the
+-- air; it's carried there from where it lies, over LIFT_S seconds (up
+-- first, then across, turning as it goes), held a moment, and let go.
+-- While it's carried it's out of the race, with no gravity of its own.
+-- ---------------------------------------------------------------------
+local LIFT_S, GRIP_S = 1.2, 0.4         -- (a moment to take hold of it, then the lift)
+local function poseOf(g)
+  local x, y, z = getPosXYZ(g.obj)
+  return { q = qOf(g.body:getCenterOfMassTransform():getRotation()), p = { x, y, z } }
+end
+local function setPose(g, q, x, y, z)
+  local tr = btTransform(q, btVector3(x, y, z))
+  g.body:setCenterOfMassTransform(tr)
+  g.obj.trans = tr                        -- (drawn from here, even while the physics stands still)
+  g.body:setLinearVelocity(btVector3(0, 0, 0))
+  g.body:setAngularVelocity(btVector3(0, 0, 0))
+end
+local function liftStep(g)
+  local L = g.lift
+  if not L then return end
+  L.n = L.n + 1
+  local f = math.max(0, math.min(1, L.n / L.N))
+  local s = f * f * (3 - 2 * f)
+  local up = math.min(1, 1.6 * s)
+  local q = {}
+  local n = 0
+  for i = 1, 4 do q[i] = L.q0[i] + (L.q1[i] - L.q0[i]) * s; n = n + q[i] * q[i] end
+  n = math.sqrt(n)
+  setPose(g, btQuaternion(q[1] / n, q[2] / n, q[3] / n, q[4] / n), L.p0[1] + (L.p1[1] - L.p0[1]) * s,
+          L.p0[2] + (L.p1[2] - L.p0[2]) * up, L.p0[3] + (L.p1[3] - L.p0[3]) * s)
+  liftDecor(g)
+  if f >= 1 then
+    g.lift = nil
+    g.body:setGravity(btVector3(0, -G, 0))
+    place(g, btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), L.p1[1], L.p1[2], L.p1[3], nil, L.spin)
+    g.obj.trans = g.body:getCenterOfMassTransform()
+    if L.done then L.done() end
+  end
+end
+-- carry g from pose `from` to (q; x, y, z), then drop it with `spin`
+local function liftTo(g, from, q, x, y, z, spin, onDone)
+  local q1 = qOf(q)
+  local q0 = from.q
+  if q0[1] * q1[1] + q0[2] * q1[2] + q0[3] * q1[3] + q0[4] * q1[4] < 0 then
+    q1 = { -q1[1], -q1[2], -q1[3], -q1[4] }
+  end
+  g.lift = { q0 = q0, p0 = from.p, q1 = q1, p1 = { x, y, z }, spin = spin, done = onDone,
+             n = -math.floor(GRIP_S * 60 + 0.5), N = math.floor(LIFT_S * 60 + 0.5) }
+  g.body:setGravity(btVector3(0, 0, 0))
+  setPose(g, btQuaternion(q0[1], q0[2], q0[3], q0[4]), from.p[1], from.p[2], from.p[3])
+  liftDecor(g)
+end
+
 -- drop height scaled with size, so each falls the same number of its own lengths
-local function dropOne(g, x, z, k)
+local function dropOne(g, x, z, k, from, onDone)
   local R = g.sp.reach
-  place(g, randomQuat(), x, R * (1.2 + 0.16 * (k or 1) + 0.26 * math.random()), z, nil, randomSpin())
+  liftTo(g, from or restPose(g, x, z), randomQuat(), x, R * (1.2 + 0.16 * (k or 1) + 0.26 * math.random()), z, randomSpin(),
+         onDone)
 end
 
 local function drop()
@@ -652,9 +722,10 @@ local function drop()
   setCount(v:getParam("count"))
   local s = spots(#bodies)
   for k, g in ipairs(bodies) do
+    local from = g.body and not g.lift and poseOf(g)
     reshape(g, nextSpec(g))
     g.spot, g.run = s[k], 1
-    dropOne(g, s[k][1], s[k][2], k)
+    dropOne(g, s[k][1], s[k][2], k, from or nil, function() resetBody(g) end)   -- (its clock starts when it's let go)
     resetBody(g)
   end
   resetRace("Drop")
@@ -713,8 +784,11 @@ local function nearOther(g)
   return nil
 end
 
+holdTick = function() for _, g in ipairs(bodies) do liftStep(g) end end
+
 local function redrop(g)
   local was = g.sp.short
+  local from = poseOf(g)
   reshape(g, nextSpec(g))
   local x, z = g.spot[1], g.spot[2]
   for try = 1, 60 do
@@ -723,7 +797,7 @@ local function redrop(g)
     z = (math.random() - 0.5) * (FLAT_D - 2 * g.sp.reach)
   end
   g.run = g.run + 1
-  dropOne(g, x, z, 1)
+  dropOne(g, x, z, 1, from, function() resetBody(g) end)
   resetBody(g)
   print(string.format("  %-7s %s lifted away after %g s at rest; dropping %s", NAMES[g.i], was,
                       v:getParam("redrop"), label(g)))
@@ -860,7 +934,8 @@ v:postSim(function(N)
   if holdNow then return end
   race.t = race.t + FRAME_DT
   race.real = race.real + 1 / 60
-  for _, g in ipairs(bodies) do
+  for _, g in ipairs(bodies) do liftStep(g) end
+  for _, g in ipairs(bodies) do if not g.lift then
     local f, ang = faceDown(g)
     -- a face joins the path once the body has lain on it for SETTLE seconds
     -- (so a body rocking across an edge doesn't fill the path with repeats)
@@ -919,12 +994,12 @@ v:postSim(function(N)
       g.anchorT, g.aq, g.ap = race.t, { qx, qy, qz, qw }, { px, py, pz }
       g.restedAt, g.restSeenAt = nil, nil
     end
-  end
+  end end
 
   local wait = v:getParam("redrop")
   if wait > 0 then
     for _, g in ipairs(bodies) do
-      if g.restSeenAt and race.real - g.restSeenAt >= wait then
+      if not g.lift and g.restSeenAt and race.real - g.restSeenAt >= wait then
         race.done[#race.done + 1] = g.result
         redrop(g)
       end

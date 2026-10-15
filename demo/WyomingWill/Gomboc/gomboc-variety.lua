@@ -211,12 +211,14 @@ end
 -- ---------------------------------------------------------------------
 local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
 local holdArm, holdLeft, holdNow = false, 0, false
+local holdTick                       -- (what moves while all else stands still: set below)
 local function holdStart() holdArm, holdLeft = true, 0 end
 local function holdPre()            -- first thing before each step: true while it stands still
   if holdLeft > 0 then
     holdLeft = holdLeft - 1
     holdNow = true
     v.timeStep = 0
+    if holdTick then holdTick() end
     return true
   end
   if holdNow then holdNow = false; applyTiming() end
@@ -386,6 +388,89 @@ local function place(g, q, x, y, z, vel, spin)
   b:activate(true)
 end
 
+local function liftDecor(g) placeDot(g) end
+local function pointDown(p)
+  local n = math.sqrt(p[1] ^ 2 + p[2] ^ 2 + p[3] ^ 2)
+  local x, y, z = p[1] / n, p[2] / n, p[3] / n
+  local ax, az = z, -x                          -- p x (0,-1,0) = (z, 0, -x)
+  local s = math.sqrt(ax * ax + az * az)
+  if s < 1e-9 then
+    return (y < 0) and btQuaternion(0, 0, 0, 1) or btQuaternion(btVector3(1, 0, 0), math.pi)
+  end
+  return btQuaternion(btVector3(ax / s, 0, az / s), math.acos(math.max(-1, math.min(1, -y))))
+end
+
+-- resting upright on the table at (x, z): its down normal down, its lowest
+-- point (of its hull) on the table
+local function qOf(q) return { q:getX(), q:getY(), q:getZ(), q:getW() } end
+local function restPose(g, x, z)
+  local q = pointDown(g.sp.down)
+  local qx, qy, qz, qw = q:getX(), q:getY(), q:getZ(), q:getW()
+  local pts, sc = BASE[g.sp.kind].points, g.sp.s
+  local low = math.huge
+  for i = 1, #pts, 3 do
+    local vx, vy, vz = pts[i] * sc, pts[i + 1] * sc, pts[i + 2] * sc
+    -- y of q v q*
+    local tx, ty, tz = 2 * (qy * vz - qz * vy), 2 * (qz * vx - qx * vz), 2 * (qx * vy - qy * vx)
+    low = math.min(low, vy + qw * ty + (qz * tx - qx * tz))
+  end
+  return { q = qOf(q), p = { x, -low + g.sp.margin + 0.02, z } }
+end
+
+-- ---------------------------------------------------------------------
+-- an attendant's lift: a body to be dropped isn't put straight into the
+-- air; it's carried there from where it lies, over LIFT_S seconds (up
+-- first, then across, turning as it goes), held a moment, and let go.
+-- While it's carried it's out of the race, with no gravity of its own.
+-- ---------------------------------------------------------------------
+local LIFT_S, GRIP_S = 1.2, 0.4         -- (a moment to take hold of it, then the lift)
+local function poseOf(g)
+  local x, y, z = getPosXYZ(g.obj)
+  return { q = qOf(g.body:getCenterOfMassTransform():getRotation()), p = { x, y, z } }
+end
+local function setPose(g, q, x, y, z)
+  local tr = btTransform(q, btVector3(x, y, z))
+  g.body:setCenterOfMassTransform(tr)
+  g.obj.trans = tr                        -- (drawn from here, even while the physics stands still)
+  g.body:setLinearVelocity(btVector3(0, 0, 0))
+  g.body:setAngularVelocity(btVector3(0, 0, 0))
+end
+local function liftStep(g)
+  local L = g.lift
+  if not L then return end
+  L.n = L.n + 1
+  local f = math.max(0, math.min(1, L.n / L.N))
+  local s = f * f * (3 - 2 * f)
+  local up = math.min(1, 1.6 * s)
+  local q = {}
+  local n = 0
+  for i = 1, 4 do q[i] = L.q0[i] + (L.q1[i] - L.q0[i]) * s; n = n + q[i] * q[i] end
+  n = math.sqrt(n)
+  setPose(g, btQuaternion(q[1] / n, q[2] / n, q[3] / n, q[4] / n), L.p0[1] + (L.p1[1] - L.p0[1]) * s,
+          L.p0[2] + (L.p1[2] - L.p0[2]) * up, L.p0[3] + (L.p1[3] - L.p0[3]) * s)
+  liftDecor(g)
+  if f >= 1 then
+    g.lift = nil
+    g.body:setGravity(btVector3(0, -G, 0))
+    place(g, btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), L.p1[1], L.p1[2], L.p1[3], nil, L.spin)
+    g.obj.trans = g.body:getCenterOfMassTransform()
+    if L.done then L.done() end
+  end
+end
+-- carry g from pose `from` to (q; x, y, z), then drop it with `spin`
+local function liftTo(g, from, q, x, y, z, spin, onDone)
+  local q1 = qOf(q)
+  local q0 = from.q
+  if q0[1] * q1[1] + q0[2] * q1[2] + q0[3] * q1[3] + q0[4] * q1[4] < 0 then
+    q1 = { -q1[1], -q1[2], -q1[3], -q1[4] }
+  end
+  g.lift = { q0 = q0, p0 = from.p, q1 = q1, p1 = { x, y, z }, spin = spin, done = onDone,
+             n = -math.floor(GRIP_S * 60 + 0.5), N = math.floor(LIFT_S * 60 + 0.5) }
+  g.body:setGravity(btVector3(0, 0, 0))
+  setPose(g, btQuaternion(q0[1], q0[2], q0[3], q0[4]), from.p[1], from.p[2], from.p[3])
+  liftDecor(g)
+end
+
 local function spots(n)
   local cols = math.min(GRID_COLS, math.ceil(math.sqrt(n * GRID_COLS / GRID_ROWS)))
   local rows = math.ceil(n / cols)
@@ -507,9 +592,12 @@ local function drop()
   setCount(v:getParam("count"))
   local s = spots(#bodies)
   for k, g in ipairs(bodies) do
+    local from = g.body and not g.lift and poseOf(g)
     reshape(g, nextSpec(g))
     g.spot = s[k]
-    place(g, randomQuat(), s[k][1], g.sp.topHeight + 7.5 + 4 * k + math.random() * 6, s[k][2], nil, randomSpin())
+    from = from or restPose(g, s[k][1], s[k][2])
+    liftTo(g, from, randomQuat(), s[k][1], g.sp.topHeight + 7.5 + 4 * k + math.random() * 6, s[k][2], randomSpin(),
+           function() resetBody(g) end)          -- (its clock starts when it's let go)
   end
   resetRace("Drop")
 end
@@ -537,10 +625,13 @@ local function touching(g)
   return nil
 end
 
+holdTick = function() for _, g in ipairs(bodies) do liftStep(g) end end
+
 local function redrop(g)
   race.done[#race.done + 1] = { title = g.sp.title, upright = g.rightedAt and g.rightedAt - g.t0,
                                 rest = g.restedAt - g.t0, tilt = g.tilt }
   local was = g.sp.title
+  local from = poseOf(g)
   reshape(g, nextSpec(g))
   local x, z = g.spot and g.spot[1] or 0, g.spot and g.spot[2] or 0
   for try = 1, 40 do
@@ -549,7 +640,8 @@ local function redrop(g)
     z = (math.random() - 0.5) * (FLAT_D - 20)
   end
   g.run = g.run + 1
-  place(g, randomQuat(), x, g.sp.topHeight + 9.5 + math.random() * 8, z, nil, randomSpin())
+  liftTo(g, from, randomQuat(), x, g.sp.topHeight + 9.5 + math.random() * 8, z, randomSpin(),
+         function() resetBody(g) end)
   resetBody(g)
   print(string.format("  %-7s %s lifted away after %g s at rest; dropping %s", NAMES[g.i], was,
                       v:getParam("redrop"), label(g)))
@@ -578,16 +670,6 @@ local function tally()
 end
 
 -- rotation taking body vector p to world (0, -1, 0)
-local function pointDown(p)
-  local n = math.sqrt(p[1] ^ 2 + p[2] ^ 2 + p[3] ^ 2)
-  local x, y, z = p[1] / n, p[2] / n, p[3] / n
-  local ax, az = z, -x                          -- p x (0,-1,0) = (z, 0, -x)
-  local s = math.sqrt(ax * ax + az * az)
-  if s < 1e-9 then
-    return (y < 0) and btQuaternion(0, 0, 0, 1) or btQuaternion(btVector3(1, 0, 0), math.pi)
-  end
-  return btQuaternion(btVector3(ax / s, 0, az / s), math.acos(math.max(-1, math.min(1, -y))))
-end
 
 local function headstand()
   setCount(v:getParam("count"))
@@ -701,7 +783,8 @@ v:postSim(function(N)
   if not race.running then return end
   race.t = race.t + FRAME_DT
   local upright, rested = 0, 0
-  for _, g in ipairs(bodies) do
+  for _, g in ipairs(bodies) do liftStep(g) end
+  for _, g in ipairs(bodies) do if not g.lift then
     local tilt = tiltDeg(g)
     g.tilt = tilt
     local k = g.rightedAt and 10 or math.floor(10 * math.max(0, 1 - tilt / 90) + 0.5)
@@ -743,12 +826,12 @@ v:postSim(function(N)
       g.restedAt, g.restSeenAt = nil, nil
     end
     if g.restedAt then rested = rested + 1 end
-  end
+  end end
 
   local wait = v:getParam("redrop")
   if wait > 0 then
     for _, g in ipairs(bodies) do
-      if g.restSeenAt and race.t - g.restSeenAt >= wait then
+      if not g.lift and g.restSeenAt and race.t - g.restSeenAt >= wait then
         rested = rested - 1
         redrop(g)
       end

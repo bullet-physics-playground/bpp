@@ -18,6 +18,14 @@ pause changes nothing: an exhibit's console output is the same, line for
 line, with or without it. (The falling Slinky has its own hold: the hand
 lets go after 2 s.) `HOLD_S` sets the pause, in seconds; 0 turns it off.
 
+Nothing appears out of thin air, either. Each exhibit is set up the moment
+the hall loads, so its bay is never empty when you walk up. And the
+gömböcs and the Billes, which are dropped, start resting on the table:
+during the pause an attendant's lift takes hold of each (0.4 s), carries
+it up to where it's let go (1.2 s), and holds it there till the pause
+ends. When one is dropped again, it's carried up from where it came to
+rest. Each one's clock starts when it's let go.
+
 ## Running it
 
 Open `cabinet.lua` in bpp. The exhibits' folders must be next to this one,
