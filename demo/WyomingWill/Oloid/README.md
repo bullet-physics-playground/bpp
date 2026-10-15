@@ -10,7 +10,11 @@ line.
 |---|---|
 | back: the oloid (Paul Schatz, 1929) | two circles in perpendicular planes, each through the other's centre. Its centre of mass rises and falls a little as it rolls. |
 | middle: the two-circle roller (A. T. Stewart, 1966) | the same, but with the circles' centres R sqrt(2) apart. Its centre of mass stays at exactly one height as it rolls, so on a level table it would stay put wherever it was set down. |
-| front: the sphericon | a double cone with right angles at its points, cut along its axis and one half turned a quarter turn. It rolls on one cone, then the other, weaving from side to side. Its centre of mass stays at one height too: R / sqrt 2. |
+| front: the sphericon | a double cone with right angles at its points, cut along its axis and one half turned a quarter turn. It rolls on one cone, then the other. Its centre of mass stays at one height too: R / sqrt 2. |
+
+All three weave from side to side as they go, 4 to 6 cm (the console
+gives each one's weave). What tells them apart is their centre's height:
+the oloid's rises and falls, the other two's never changes.
 
 When all three have reached the far end, they're pushed off again.
 

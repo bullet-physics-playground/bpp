@@ -8,17 +8,19 @@
 -- weaving line.
 --
 --   back    the oloid (Paul Schatz, 1929): two circles in perpendicular
---           planes, each through the other's centre. It rolls in a
---           wobbling line, its centre of mass rising and falling a little
---           as it goes.
+--           planes, each through the other's centre. Its centre of mass
+--           rises and falls a little as it goes.
 --   middle  the two-circle roller (A. T. Stewart, 1966): the same, but the
 --           circles' centres R sqrt(2) apart. Its centre of mass stays at
 --           exactly the same height as it rolls: on a level table it would
 --           stay put wherever it was set down.
 --   front   the sphericon: a double cone with right angles at its points,
 --           cut along its axis and one half turned a quarter turn. It rolls
---           on one cone, then the other, weaving from side to side; its
---           centre of mass stays at the same height too (R / sqrt 2).
+--           on one cone, then the other; its centre of mass stays at the
+--           same height too (R / sqrt 2).
+--
+-- All three weave from side to side as they go, 4 to 6 cm; what tells
+-- them apart is whether their centre stays at one height.
 --
 -- THE PENS: above each roller, on a dotted stem from its centre, a pen
 -- draws its centre's height, 20 times over, straight above its lane, over
@@ -223,7 +225,7 @@ for _, r in ipairs(ROLLERS) do r.hlo, r.hhi = heights(r) end
 -- the pens: above each roller, a trail of dots where its centre has been,
 -- its height above the board drawn PEN_K times over (the oloid's rise and
 -- fall of 0.26 cm becomes a wave 5 cm high; the others draw flat lines),
--- following it from side to side as it goes (the sphericon weaves). Under
+-- following it from side to side as it goes (all three weave). Under
 -- each trail, a thin rod at its height in theory (R / sqrt 2: the lowest
 -- the oloid's centre goes, the height the others' stays at), and for the
 -- oloid a second rod at the highest its centre goes in theory.
@@ -639,10 +641,12 @@ v:setHelpText(table.concat({
   "",
   "Three rollers, each the hull of two circular arcs, pushed",
   "along a board, lay their whole surface on it as they roll.",
+  "All three weave from side to side as they go (4 to 6 cm).",
+  "What tells them apart is their centre's height:",
   "",
   "Back:   the oloid -- its centre rises and falls a little",
   "Middle: the two-circle roller -- its centre stays level",
-  "Front:  the sphericon -- weaves; its centre stays level",
+  "Front:  the sphericon -- its centre stays level",
   "",
   "Above each, a pen on a dotted stem draws its centre's height,",
   "20 times over: the oloid's red line waves between its two",
