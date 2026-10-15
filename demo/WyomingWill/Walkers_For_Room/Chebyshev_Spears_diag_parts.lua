@@ -390,6 +390,36 @@ local IMPULSE_SCALE = opts.impulseScale or 1
 local BODY_RAISE = opts.bodyRaise or 0
 local EXT_DOWN = EXT_DOWN + BODY_RAISE
 M.FLOOR_TOP_Y = -1.8 - p_len - BODY_RAISE
+-- WALKER ROOM: opts.geometry = { g =, a =, h =, groundAngle = } builds
+-- another linkage of this kind (this walker's own units: ground, crank,
+-- coupler-to-rocker-joint = rocker = leg, the leg at 90 degrees, and the
+-- ground link's angle) -- the Hoecken-Spears 4-bar, trotting. Unset, it
+-- is Chebyshev-Spears: g 2.5, a 1.875, h 5.729, -45. The floor moves by
+-- however much lower or higher the leg's end B now reaches.
+local g_len, a_len, h_len, f_len = g_len, a_len, h_len, f_len
+local GROUND_ANGLE = -45
+if opts.geometry then
+  local function lowestB(g, a, h, gAng)
+    local best = 1e9
+    local c, s = math.cos(math.rad(gAng)), math.sin(math.rad(gAng))
+    local O2, O4 = { x = -(g/2)*c, y = -(g/2)*s }, { x = (g/2)*c, y = (g/2)*s }
+    for i = 0, 719 do
+      local t = math.rad(i / 2)
+      local A = { x = O2.x + a*math.cos(t), y = O2.y + a*math.sin(t) }
+      local Mp = circleIntersect(A, h, O4, h, true)
+      local ux = (Mp.x - A.x)/h
+      local By = -(Mp.y + h*ux)          -- (B, after the flip)
+      if By < best then best = By end
+    end
+    return best
+  end
+  local G = opts.geometry
+  local before = lowestB(g_len, a_len, h_len, GROUND_ANGLE)
+  g_len, a_len, h_len = G.g or g_len, G.a or a_len, G.h or h_len
+  f_len = 2 * h_len
+  GROUND_ANGLE = G.groundAngle or GROUND_ANGLE
+  M.FLOOR_TOP_Y = M.FLOOR_TOP_Y + (lowestB(g_len, a_len, h_len, GROUND_ANGLE) - before)
+end
 local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
 local rod_w, rod_d, plane_gap, EXT_DOWN, EXT_UP = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S, EXT_UP * S
 -- (the link masses above were worked out from the unscaled lengths, and
@@ -777,10 +807,10 @@ end
 -- WMS Speed 2.6 is good, 4.6 works but looks dangerous
 -- Initial speed comes from the motorSpeed GUI slider; see the preSim
 -- hook right below for how it stays live while the sim runs.
-local linkage1 = buildLinkage(-half_spacing, -45, false, 0, opts.motorSpeed, EXT_DOWN, EXT_UP)                 -- front-left,  phase 0
-local linkage2 = buildLinkage(half_spacing, -45, false, 180, opts.motorSpeed, EXT_DOWN, EXT_UP)  -- front-right, phase 180
-local linkage3 = buildLinkage(-half_spacing, -45, true, 180, opts.motorSpeed, EXT_DOWN, EXT_UP)                -- back-left,   phase 180 (matches linkage2's diagonal pair)
-local linkage4 = buildLinkage(half_spacing, -45, true, 0, opts.motorSpeed, EXT_DOWN, EXT_UP) -- back-right,  phase 0 (matches linkage1's diagonal pair)
+local linkage1 = buildLinkage(-half_spacing, GROUND_ANGLE, false, 0, opts.motorSpeed, EXT_DOWN, EXT_UP)                 -- front-left,  phase 0
+local linkage2 = buildLinkage(half_spacing, GROUND_ANGLE, false, 180, opts.motorSpeed, EXT_DOWN, EXT_UP)  -- front-right, phase 180
+local linkage3 = buildLinkage(-half_spacing, GROUND_ANGLE, true, 180, opts.motorSpeed, EXT_DOWN, EXT_UP)                -- back-left,   phase 180 (matches linkage2's diagonal pair)
+local linkage4 = buildLinkage(half_spacing, GROUND_ANGLE, true, 0, opts.motorSpeed, EXT_DOWN, EXT_UP) -- back-right,  phase 0 (matches linkage1's diagonal pair)
 -- ---------------------------------------------------------------------
 -- DIAGONAL crossbar builder: joins a point near the TOP of the
 -- (now upward-extended) pendant on two linkages that share the same

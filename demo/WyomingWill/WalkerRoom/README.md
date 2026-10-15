@@ -420,22 +420,43 @@ reversed, trotting Spears 4-bar keeps 99% of its speed, though partly
 because it is slower on flat ground (7.5 cm/s); on bumps it makes 7.4.
 
 The side-plated walkers can only step both legs on a side together: the
-plate locks them. `UNBRACED = true` leaves the plates off, so they can
-take any `GAIT`. Without plates all four Hoecken walkers do much worse,
-and trotting doesn't bring them back (share kept; speed on bumps, cm/s):
+plate locks them. It also holds each leg at its angle to the body (two
+legs welded to one plate, each hinged to a coupler moving in step with
+the other's, can only move without turning); without it, a slider's leg
+swings freely and its stride triples, so a walker with its plates simply
+left off is a different machine. `UNBRACED = true` leaves the plates off
+and holds each leg at its angle to the body by itself (a guide), so the
+legs can take any `GAIT`. With side timing the guided walkers match the
+plated ones closely (the Hoecken-Spears slider least well), which checks
+the guides; trotting (`GAIT = { 0, 180, 180, 0 }`) then helps all four
+Hoecken walkers (share kept; speed on bumps, cm/s):
 
-| Walker | Plates, sides | No plates, sides | No plates, trot |
-|--------|---------------|------------------|-----------------|
-| Hoecken-Spears 4-bar  | 80%, 7.1 | 68%, 6.1 | 61%, 5.4 |
-| Hoecken-Spears slider | 84%, 7.0 | 46%, 4.5 | 41%, 3.9 |
-| Hoecken 4-bar         | 80%, 6.7 | 56%, 3.6 | 51%, 3.4 |
-| Hoecken slider        | 68%, 5.1 | 50%, 3.8 | 54%, 4.3 |
+| Walker | Plates (sides) | Guides, sides | Guides, trot |
+|--------|----------------|---------------|--------------|
+| Hoecken-Spears 4-bar  | 80%, 7.1 | 78%, 7.0 | 81%, 7.4 |
+| Hoecken 4-bar         | 80%, 6.7 | 78%, 6.5 | 79%, 7.1 |
+| Hoecken-Spears slider | 84%, 7.0 | 73%, 6.2 | 82%, 7.1 |
+| Hoecken slider        | 68%, 5.1 | 65%, 4.9 | 81%, 7.1 |
 
-So for these linkages the brace is part of what makes them work: a leg
-of this kind needs its partner to hold it. Jansen, Klann and the Spears
-4-bar stand on their own legs and trot better; the plated walkers would
-need braces joining diagonal legs (as Chebyshev-Spears diag has, which
-trots and beats Chebyshev-Spears, 91% against 77%) to try it fairly.
+Trotting, the Spears versions keep their lead only narrowly: the 4-bars
+7.4 against 7.1 cm/s on bumps, the sliders level at 7.1.
+
+### Trotting the Hoecken walkers
+
+The 4-bars can also be built the way the diag walkers are, with braces
+joining diagonal legs (`trotting-walkers.lua`: the diag walkers' files
+with Hoecken's proportions; the diag bracing tilts the legs slightly, so
+their lift comes out a little lower, as for the diag walkers). Built so:
+
+| Walker | Plates (sides) | Diagonal braces, trotting |
+|--------|----------------|---------------------------|
+| Hoecken-Spears 4-bar | 80%, 7.1 | 88%, 7.7 |
+| Hoecken 4-bar        | 80%, 6.7 | 77%, 6.6 |
+
+Diagonal bars on the sliders were tried too, and dropped: welded across
+the body they shook the walker, and its speed swung from 2.4 to 14.6
+cm/s with nothing changed but the bars' weight. The guides above do the
+same job without the shaking.
 
 Not explained yet: the Hoecken-Spears long-stance comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
@@ -576,4 +597,6 @@ least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks run
 backward, so it walks the other way; or a table of names), `GAIT` (four crank
 phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (true or a table of
-names: the side plates left off, so `GAIT` applies to those walkers too).
+names: the side plates left off and each leg held at its angle by a
+guide, so `GAIT` applies to those walkers too), and the trotting Hoecken
+4-bars in `trotting-walkers.lua`.

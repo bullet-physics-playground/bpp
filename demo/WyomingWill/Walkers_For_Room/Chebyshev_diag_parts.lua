@@ -334,6 +334,30 @@ local IMPULSE_SCALE = opts.impulseScale or 1
 local BODY_RAISE = opts.bodyRaise or 0
 local p_len = p_len + BODY_RAISE
 M.FLOOR_TOP_Y = 4.6 - p_len
+-- WALKER ROOM: opts.geometry = { g =, a =, h = } builds another linkage
+-- of this kind (this walker's own units: ground, crank, rocker = half the
+-- coupler, the coupler carried straight on past the rocker joint) -- the
+-- Hoecken 4-bar's proportions, trotting. Unset: g 2.0, a 1.0, h 2.5. The
+-- floor moves by however much lower or higher the coupler's end B reaches.
+local g_len, a_len, f_len, h_len = g_len, a_len, f_len, h_len
+if opts.geometry then
+  local function lowestB(g, a, h)
+    local best = 1e9
+    for i = 0, 719 do
+      local t = math.rad(i / 2)
+      local A = { x = -g/2 + a*math.cos(t), y = a*math.sin(t) }
+      local Mp = circleIntersect(A, h, { x = g/2, y = 0 }, h, false)
+      local By = 2*Mp.y - A.y
+      if By < best then best = By end
+    end
+    return best
+  end
+  local G = opts.geometry
+  local before = lowestB(g_len, a_len, h_len)
+  g_len, a_len, h_len = G.g or g_len, G.a or a_len, G.h or h_len
+  f_len = 2 * h_len
+  M.FLOOR_TOP_Y = M.FLOOR_TOP_Y + (lowestB(g_len, a_len, h_len) - before)
+end
 local g_len, a_len, f_len, h_len, p_len = g_len * S, a_len * S, f_len * S, h_len * S, p_len * S
 local p_top_extend, rod_w, rod_d, plane_gap = p_top_extend * S, rod_w * S, rod_d * S, plane_gap * S
 local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically

@@ -532,7 +532,7 @@ local function addWalker(spec, x, z, heading)
   end
   opts.ankle = ANKLES
   local unbraced = UNBRACED == true or (type(UNBRACED) == "table" and UNBRACED[spec.name])
-  if unbraced then opts.noBraces = true end
+  if unbraced then opts.noBraces = true; opts.legGuides = true end
   if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = GAIT end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
