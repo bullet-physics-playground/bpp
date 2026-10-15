@@ -10,6 +10,12 @@ gravity moves them, worked out here from where JPL had them that day.
 | the vitrines | Along the back, each planet with its moons: the Earth and the Moon, Mars (Phobos, Deimos), Jupiter (Io, Europa, Ganymede, Callisto), Saturn (Mimas to Iapetus, and the rings), Uranus (its moons going round it on its side), Neptune (Triton going round backwards), and Pluto and Charon going round each other. Distances from the planet are square-rooted too; directions are true. North, the ecliptic's, is up everywhere. |
 | the date | above the vitrines |
 
+Every body wears a map of its surface and turns as it really does: the Earth
+once a day about its tilted axis, Venus slowly backwards, Uranus on its
+side, Mercury three times in two of its years, and the Moon and nearly all
+the moons once each time round, so that each keeps one face to its planet.
+Rest the mouse on any of them to find out about it.
+
 Time goes 5 days a second to start with. After 25 years (2051) it starts
 again: JPL's DE421, which it's checked against, ends in 2053.
 
@@ -20,8 +26,64 @@ again: JPL's DE421, which it's checked against, ends in 2053.
 | `1` `2` `3` `4` `5` | a quarter of a day, 1, 5, 25 or 100 days a second |
 | `R` | back to 2026 January 1 |
 
-Slider: days (a second). Resting the mouse on a body gives its name and
-distances, and on the Sun the date.
+Slider: days (a second). To watch them turn, slow down: at 5 days a second
+the Earth turns five times a second, and Jupiter twelve, faster than the
+60 frames a second can show (they seem to turn slowly, or backwards, as a
+wagon wheel does in a film); at a quarter of a day a second (key `1`) the
+Earth turns once every 4 seconds.
+
+Resting the mouse on a body gives its name, its size, how long it takes to
+turn and its day (noon to noon), its axis's tilt to its orbit, its
+distances (and how long light takes from it to the Earth), and its year;
+for a moon, its distance from its planet, how long it takes to go round,
+and whether it keeps one face toward it. On the Sun, the date.
+
+## The surfaces, and the turning
+
+**Each body is turned by the IAU's model of its rotation** (the Working
+Group on Cartographic Coordinates and Rotational Elements, 2015 report;
+Mars and its moons from the 2009 one, as the engine has them): where its
+north pole points, and how far round its prime meridian has turned, as
+functions of the date, with their main periodic terms (the Moon's
+librations, Neptune's and Triton's precession). They're in
+`solar-rotation.lua`. The Sun's, the planets' and the Moon's are checked
+against the hapsira library's transcription of the reports, the moons'
+against NAIF's older planetary constants kernel (pck00008) where they
+haven't changed since. Not checked against a second source: the values
+revised since 2000 for Titan, Mimas, Enceladus, Tethys, Dione and Iapetus
+(their prime meridians shifted by a few degrees), and Pluto's and
+Charon's, turned the right-hand way up in 2015 (Pluto's pole agrees with
+the one in `solar-data.lua`, from JPL).
+
+**The maps** (`solar-meshes/tex-*.jpg`, made by `make-textures.py`) are
+drawn, not photographs: each body's best-known markings put where they are
+on it, in latitude and longitude, so the turning shows. The Earth's coasts
+are Natural Earth's. The Moon has its seas on the side toward the Earth;
+Mercury its Caloris basin; Mars its dark Syrtis Major, its polar caps and
+Valles Marineris; Jupiter its belts and Great Red Spot; Saturn the
+hexagon round its north pole; Pluto its heart and Charon its red north
+pole; Iapetus its dark leading side. Some markings come and go, or drift,
+and are an example: Jupiter's Red Spot (it drifts in longitude), the
+clouds of Uranus and Neptune, the Sun's spots. Venus is shown as radar
+sees its ground (the clouds go round in 4 days, the ground in 243). Titan
+is shown as its haze. The asteroids are too small to show.
+
+The console checks the turning against what's known:
+
+* **The Earth**: at the start (2026-01-01 0h TDB) the Sun is overhead at
+  23.01 S, 178.79 W, against 23.02 S, 178.87 W from the IERS's measured
+  Earth (through Skyfield). The IAU's model is the simple one, within a
+  tenth of a degree.
+* **The Moon's face**: where on the Moon the Earth is overhead, over each
+  year. It wanders 7.9° east and west and 6.8° north and south: the
+  librations, which let us see 59% of the Moon over time. Theory: up to
+  7.9° in longitude (from its orbit's eccentricity) and the tilt of its
+  equator to its orbit, 1.5° + 5.0° to 5.3°, in latitude. This takes both
+  the Moon's orbit (from the integration) and its turning (the IAU).
+* **Mercury's 3:2**: it turns three times in two of its years, so at each
+  perihelion the same two longitudes, 0° and 180° (its "hot poles"), face
+  the Sun by turns. The console gives where the Sun is overhead at each
+  perihelion: 0.0 to 0.2 from 0° or 180°.
 
 ## Physics
 
@@ -116,6 +178,11 @@ From a run at 100 days a second:
                   spread 0.32 (Laplace's resonance holds it at 180)
                 Neptune and Pluto: closest so far 32.04 AU; Pluto's year now 1.498 of Neptune's (their orbits cross,
                   but the 3:2 resonance keeps them over 17 AU apart)
+                the Moon's face: the Earth overhead at 7.9 W to 7.6 E, 6.8 S to 6.9 N on it
+                  (the librations, which let us see 59% of it: up to 7.9 degrees east and west, and 6.7 to 6.8
+                  north and south, the tilt of its equator to its orbit)
+                Mercury at perihelion, the Sun overhead at longitude 0.2, 179.9, 0.0, -179.9
+                  (it turns 3 times in 2 of its years: at each perihelion one of its two hot poles, at 0 or 180, faces the Sun)
     ...
     2036-01-01  ... Mercury 0, Venus 0, Earth 0, Mars 5, Jupiter 11, Saturn 8, Uranus 4, Neptune 4, Pluto 4;
                 the Moon, from the Earth: 39 km
@@ -163,7 +230,11 @@ km³/s² (DE440: 975.5). DE421's 977.0 takes Charon 20,000 km off in a year.
 * `solar-system.lua`: the exhibit. It also stands in Euler's Cabinet of
   Curiosities (`../Cabinet/`).
 * `solar-engine.lua`: the integrations.
-* `solar-data.lua`, `solar-meshes/`: made by `make-data.py`.
+* `solar-rotation.lua`: how each body turns (the IAU's models).
+* `solar-data.lua`, `solar-meshes/`: made by `make-data.py`, except the
+  maps, `solar-meshes/tex-*.jpg`, made by `make-textures.py` (NumPy,
+  Pillow; it fetches Natural Earth's `ne_110m_land.geojson` from GitHub
+  if it isn't beside it).
 * `fetch-horizons.sh`: the Horizons data.
 
 Headless testing: `SS_RATE` (days a second), `SS_YEARS` (years before it

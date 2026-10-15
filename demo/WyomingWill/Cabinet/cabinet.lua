@@ -161,7 +161,8 @@ EXHIBITS = EXHIBITS or {
   { dir = "../SolarSystem/", file = "solar-system.lua", name = "the solar system", label = "solar-system",
     prefix = "Solar: ", floorY = -75,
     about = "The solar system: the Sun, the planets, Pluto, five asteroids and 21 moons,\n" ..
-            "moved by gravity (and Einstein) from where JPL had them on 2026-01-01." },
+            "moved by gravity (and Einstein) from where JPL had them on 2026-01-01,\n" ..
+            "each turning as it does: the Moon keeps one face to us." },
 }
 -- empty bays at the far end, for ideas still to come (none now:
 -- twenty-one exhibits: wing A's twelve bays, "Turning", hold the first
@@ -370,6 +371,9 @@ local function makeExhibit(e, bay)
   env._G = env
   env.v = vp
   env.Mesh = function(path, ...) return realMesh(fix(path), ...) end
+  -- (a file of its own, found from the hall: for what bpp opens itself, as
+  -- an object's tex)
+  env.cabinetPath = fix
   -- its ground plane: in its own world, as on its own, but not drawn (the
   -- hall's floor is drawn there, at the same height: it's drawn a hundredth
   -- of a centimetre across)
