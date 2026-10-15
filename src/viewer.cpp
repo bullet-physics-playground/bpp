@@ -2751,6 +2751,12 @@ emit scriptStarts();
     luaL_openlibs(L);
 
     luaL_dostring(L, "os.setlocale('C')");
+    // Lua 5.3+ folded math.atan2(y, x) into a two-argument math.atan;
+    // restore the legacy name so older scripts keep working.
+    luaL_dostring(L,
+        "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
+        "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
+        "if atan2 == nil then atan2 = math.atan2 end");
     luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
 
     // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
