@@ -22,7 +22,8 @@ build: build-stamp
 build-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 
-	qmake $(QMAKE_AFTER) bpp.pro && $(MAKE)
+	if [ -d ../povray ]; then cd ../povray-linux && qmake povvfe.pro && $(MAKE); cd -; fi
+	qmake "USE_VFE=1" $(QMAKE_AFTER) bpp.pro && $(MAKE)
 
 	touch $@
 
