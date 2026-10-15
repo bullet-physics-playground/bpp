@@ -9,7 +9,7 @@
  */
 
 /// Version string reported by @c --version and recorded in the settings.
-#define APP_VERSION QString("0.3.38")
+#define APP_VERSION QString("0.3.39")
 /// Short application name; also the QSettings application key.
 #define APP_NAME QString("bpp")
 /// Translated, human readable application name.
