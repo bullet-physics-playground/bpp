@@ -32,12 +32,16 @@
 --    up, J = C a W (C about its long axis, a its half-length). So standing
 --    up it spins at  W = W0 A b / (C a): 4% faster than it started, though
 --    it has lost a fifth of its energy to friction and raised its centre.
+--  * The rise: while the egg slides, Moffatt and Shimomura's gyroscopic
+--    balance gives J dtheta/dt = -mu M g h^2 (theta its axis from upright, h
+--    the height of its centre): the console times the rise from 60 to 30
+--    degrees and compares (spin friction taking J as it goes).
 --  * Energy: all the energy lost goes to friction at the table (the console
 --    adds up the work friction did, and compares).
 --  * Jumps: Shimomura and colleagues (2006) measured spinning eggs leaving
 --    the table, a fraction of a millimetre for up to a few hundredths of a
 --    second, spun at about 2000 turns a minute. Here the egg jumps when spun
---    faster than about 32 turns a second (1900 a minute).
+--    faster than about 30 turns a second (1800 a minute).
 --
 -- THE EGG: a spheroid 5.7 cm long and 4.3 cm across, 58 g (the shape the
 -- theory has; a real egg is a little fatter at one end). The raw one: a
@@ -58,6 +62,18 @@
 --    when the shell turns about an axis across it (the shell isn't round) is
 --    added to it; the rest of the liquid is a second body inside, free to
 --    turn, dragged round by the shell with a time constant of 1.5 s.
+--  * Each egg starts on its side tipped up 6 degrees, spun about the
+--    upright. Nearer level, friction can hold the point of contact still:
+--    the egg then rolls on its side without sliding and never rises (at 25
+--    turns a second and friction 0.3, from 3 degrees or less; the faster
+--    the spin or the less the friction, the nearer level). Near that edge,
+--    whether and when the egg breaks free and rises is decided by the
+--    step's small errors: at
+--    3 degrees the left egg rose at 0.50 s with 4800 steps a second, 2.45 s
+--    with 19200, and not at all with 28800. From 6 degrees it slides from the
+--    start and rises the same way at any step. (Up on its end it rolls
+--    again, and there the step's errors still tip it slowly further up: how
+--    long it stays up does depend on the step. See the README.)
 --  * 4800 physics steps a second.
 --
 -- Keys
@@ -68,7 +84,8 @@
 --
 -- Units: centimetres, kilograms, seconds.
 -- Headless testing: EG_SPIN, EG_FAST (turns/s), EG_MU, EG_KAPPA, EG_DELTA (microns),
--- EG_SPEED, EG_STEPS, EG_TOUCH_AT (s), EG_LOG=file.csv.
+-- EG_SPEED, EG_STEPS, EG_TILT (degrees up from level at the start), EG_BALANCED=1 (start
+-- the hard-boiled eggs in gyroscopic balance), EG_TOUCH_AT (s), EG_LOG=file.csv.
 --
 
 local common = require "common"
@@ -88,6 +105,9 @@ local IC = 2 * MASS * B * B / 5            -- about it
 local SHELL_T, SHELL_FRAC, TAU_C = 0.035, 0.10, 1.5
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
+-- tipped up from level at the start (see PHYSICS)
+local TILT0 = envnum("EG_TILT", 6)
+local BALANCED = (os.getenv("EG_BALANCED") or "") ~= ""
 local function param(...) v:addParam(...) end
 param("spin", envnum("EG_SPIN", 25), 5, 50, 1, "turns per second for the left (hard-boiled) and right (raw) eggs")
 param("fast spin", envnum("EG_FAST", 40), 5, 50, 1, "turns per second for the middle egg")
@@ -388,9 +408,45 @@ local function euler(e, h)
   e.wz = e.c1z * w1 + e.c2z * w2 + e.c3z * w3
 end
 
+-- Jellett's J = L . (G - P), and what it says the spin about the upright
+-- should be at this tilt (the egg turning about the upright)
+local function jellett(e)
+  local rx, ry, rz = support(e, 0, -1, 0)
+  local Lx, Ly, Lz = imul(e, e.wx, e.wy, e.wz)
+  local J = -(Lx * rx + Ly * ry + Lz * rz)
+  local nx, ny, nz = imul(e, 0, 1, 0)
+  return J, -(nx * rx + ny * ry + nz * rz)
+end
+
+-- the rise by Moffatt and Shimomura's gyroscopic balance: sliding, J dtheta/dt
+-- = -mu M g h^2, h the height of the centre; spin friction takes J at kappa M g
+-- h. The time from theta1 to theta2 (from upright), starting with J.
+local function msRise(J, th1, th2)
+  local n, T = 600, 0
+  local dth = (th1 - th2) / n
+  for i = 1, n do
+    local th = th1 - (i - 0.5) * dth
+    local hh = math.sqrt((A * math.cos(th)) ^ 2 + (B * math.sin(th)) ^ 2)
+    local dt = J * dth / (MU * MASS * G * hh * hh)
+    J = J - KAPPA * MASS * G * hh * dt
+    T = T + dt
+  end
+  return T
+end
+
 local t = 0
+local COS30 = math.cos(math.rad(30))
 local function step(e, h)
   load(e)
+  -- the rise, timed from 60 to 30 degrees from upright (the hard-boiled eggs)
+  if not e.raw and not e.r30 then
+    local cy = math.abs(e.c2y)
+    if not e.r60 then
+      if cy > 0.5 then e.r60, e.J60 = e.tt, (jellett(e)) end
+    elseif cy > COS30 then
+      e.r30 = e.tt
+    end
+  end
   e.vy = e.vy - G * h
   euler(e, h)
   -- the raw egg: the shell drags the liquid round, and the liquid the shell
@@ -487,15 +543,6 @@ local function energy(e)
   if e.raw then E = E + 0.5 * I_LIQ * (e.wf[1] ^ 2 + e.wf[2] ^ 2 + e.wf[3] ^ 2) end
   return E
 end
--- Jellett's J = L . (G - P), and what it says the spin about the upright
--- should be at this tilt (the egg turning about the upright)
-local function jellett(e)
-  local rx, ry, rz = support(e, 0, -1, 0)
-  local Lx, Ly, Lz = imul(e, e.wx, e.wy, e.wz)
-  local J = -(Lx * rx + Ly * ry + Lz * rz)
-  local nx, ny, nz = imul(e, 0, 1, 0)
-  return J, -(nx * rx + ny * ry + nz * rz)
-end
 local function turns(w) return w / (2 * math.pi) end
 local MICROJ = 10                          -- kg cm^2/s^2 in a microjoule
 
@@ -505,10 +552,10 @@ local function spinThem()
   print(string.format("\n--- spun: left and right %.0f turns/s, middle %.0f turns/s; friction %.2f ---",
                       v:getParam("spin"), v:getParam("fast spin"), MU))
   for i, e in ipairs(EGGS) do
-    -- on its side (its long axis level), tipped up 3 degrees, each its own
-    -- way round; spun about the upright
+    -- on its side (its long axis level), tipped up TILT0 degrees, each its
+    -- own way round; spun about the upright
     local yaw = 2 * math.pi * (i - 1) / 3 + 0.4
-    local q = btQuaternion(btVector3(0, 1, 0), yaw) * btQuaternion(btVector3(0, 0, 1), math.pi / 2 - math.rad(3))
+    local q = btQuaternion(btVector3(0, 1, 0), yaw) * btQuaternion(btVector3(0, 0, 1), math.pi / 2 - math.rad(TILT0))
     e.b:setCenterOfMassTransform(btTransform(q, btVector3(e.x, 0, 0)))
     load(e)
     local _, ry, _ = support(e, 0, -1, 0)
@@ -517,19 +564,28 @@ local function spinThem()
     local W = 2 * math.pi * v:getParam(e.spin)
     e.b:setLinearVelocity(btVector3(0, 0, 0))
     e.b:setAngularVelocity(btVector3(0, W, 0))
+    if BALANCED and not e.raw then
+      -- (headless testing: started in Moffatt and Shimomura's gyroscopic
+      -- balance, C n = A W cos(theta), n its spin about its long axis: a
+      -- little more spin about that axis, and no wobble to start with)
+      load(e)
+      local ps = (IA / IC - 1) * W * e.c2y
+      e.b:setAngularVelocity(btVector3(ps * e.c2x, W + ps * e.c2y, ps * e.c2z))
+    end
     e.wf = { 0, 0, 0 }
     load(e)
     e.W0, e.E0 = W, energy(e)
     e.J0 = jellett(e)
     e.Jc, e.Wf, e.Wrim, e.Wn = 0, 0, 0, 0
     e.tt, e.air, e.held, e.bumped = 0, nil, nil, false
+    e.r60, e.r30, e.J60 = nil, nil, nil
     e.jumps = { n = 0, longest = 0, highest = 0 }
     e.state, e.since, e.pending, e.stood, e.spunAt = "spinning on its side", 0, nil, nil, 0
     e.touch, e.shared = nil, nil
     print("  " .. e.name)
     if not e.raw then
-      print(string.format("         Jellett's J = A b W0 = %.2f; standing up it should spin W0 A b / (C a) = %.2f turns/s (x %.3f)",
-                          e.J0, turns(W * IA * B / (IC * A)), IA * B / (IC * A)))
+      print(string.format("         Jellett's J = %.2f (A b W0 = %.2f lying level); standing up it should spin W0 A b / (C a) = %.2f turns/s (x %.3f)",
+                          e.J0, IA * B * W, turns(W * IA * B / (IC * A)), IA * B / (IC * A)))
     else
       local Iy = e.I[1]
       print(string.format("         its shell is spun, not the liquid: sharing the spin, they should turn at %.1f turns/s (I shell %.4f, liquid %.4f)",
@@ -636,6 +692,11 @@ v:postSim(function(N_)
                                 math.abs(e.Jc) > 0.005 * e.J0 and string.format(", %.2f with spin friction", Jkept) or "",
                                 (J - Jkept) / Jkept * 100, lost / MICROJ, -(e.Wf + e.Wrim) / MICROJ, -e.Wn / MICROJ, fr / MICROJ,
                                 (lost - fr) / fr * 100)
+          if e.r30 then
+            local T = msRise(e.J60, math.rad(60), math.rad(30))
+            extra = extra .. string.format("\n         it rose from 60 to 30 deg in %.3f s; by J dtheta/dt = mu M g h^2 (sliding) it should take %.3f (%+.1f%%)",
+                                           e.r30 - e.r60, T, (e.r30 - e.r60 - T) / T * 100)
+          end
           if e.bumped then extra = extra .. "\n         (it touched the dish's rim)" end
           local Jp = e.jumps
           if Jp.n > 0 then
