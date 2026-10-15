@@ -19,14 +19,18 @@
 --           times as often -- an irrational ratio). Started any other way
 --           it does both at once, and never repeats. Left: the slow swing;
 --           centre: the fast one; right: let go with only the top rod
---           pulled aside -- half of each.
+--           pulled aside -- half of each. Under each, a chart recorder
+--           draws its rods' angles as they swing (the upper rod gold, the
+--           lower blue): together, in step; opposed, against each other
+--           and faster; the mix, never the same twice.
 --
 --   right   UPSIDE DOWN. Three double pendulums stood on their heads on
 --           pivots shaken up and down 40 times a second. Shaken 0.6 cm,
 --           it falls. Shaken 1.0 cm, the floppy two-rod chain stands up,
---           rocking slowly. Shaken 1.6 cm -- harder -- the shaking pumps
---           up a sway, as legs pump a swing, that throws it over and it
---           tumbles. (Kapitza's trick, next door, works for a
+--           rocking slowly. Shaken 1.42 cm -- a little too hard -- it
+--           stands a few seconds, but the shaking pumps up a sway, as legs
+--           pump a swing, that grows until it throws it over. (A fallen
+--           one is stood up again after 3 s.) (Kapitza's trick, next door, works for a
 --           chain of rods too, but only in a window: David Acheson, 1993.)
 --
 -- Theory, and what the console checks:
@@ -69,12 +73,18 @@
 
 local common = require "common"
 
+local DIR = "dp-meshes/"
+for _, dir in ipairs({ DIR, "demo/WyomingWill/DoublePendulum/" .. DIR }) do
+  local f = io.open(dir .. "together.obj", "r")
+  if f then f:close(); DIR = dir; break end
+end
+
 local G = 981
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
 param("gentle", envnum("DP_A1", 0.6), 0.1, 2.5, 0.05, "the first upside-down pendulum's shaking, cm")
 param("right", envnum("DP_A2", 1.0), 0.1, 2.5, 0.05, "the second's shaking, cm")
-param("hard", envnum("DP_A3", 1.6), 0.1, 2.5, 0.05, "the third's shaking, cm")
+param("hard", envnum("DP_A3", 1.42), 0.1, 2.5, 0.01, "the third's shaking, cm")
 param("speed", envnum("DP_SPEED", 1), 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", envnum("DP_STEPS", 4800), 2400, 9600, 1200, "RK4 steps per simulated second, for the shaken ones")
 local CYCLE = envnum("DP_CYCLE", 30)
@@ -251,7 +261,7 @@ local OM0 = sqrt(G / BF_L)
 -- ---------------------------------------------------------------------
 -- the two pure swings
 -- ---------------------------------------------------------------------
-local MD_Y, MD_L, MD_A = TABLE_Y + 42, 12, math.rad(5)
+local MD_Y, MD_L, MD_A = TABLE_Y + 42, 12, math.rad(7)
 local S2 = sqrt(2)
 local W_SLOW = sqrt(G / MD_L * (2 - S2))
 local W_FAST = sqrt(G / MD_L * (2 + S2))
@@ -301,10 +311,33 @@ local MODES = {
 }
 block(80, 3, 3, -25, MD_Y + 1.5, -6, "#4e2e15")
 for _, x in ipairs({ -66, 16 }) do block(3, MD_Y + 3 - TABLE_Y, 3, x, (MD_Y + 3 + TABLE_Y) / 2, -6, "#4e2e15") end
-for _, m in ipairs(MODES) do
+-- under each, a chart recorder: two pens drawing the rods' angles as they
+-- swing (the upper rod gold, the lower blue), sweeping across in 2 s
+local REC_W, REC_H, REC_Y, REC_T, REC_N, REC_K = 26, 11, TABLE_Y + 9, 2, 120, 24
+local REC_LABEL = { "together", "opposed", "mixed" }
+for k, m in ipairs(MODES) do
   m.l, m.z = MD_L, 0
   block(1.2, 1.2, 7, m.x, MD_Y, -2.5, "#8a8f96")
   drawn(m, 1.1, 0.22, "#c8cdd4", m.mixed and "#3a8ae8" or "#c8a04a")
+  block(REC_W + 1, REC_H + 1, 0.5, m.x, REC_Y, -4.3, "#b8932e")
+  block(REC_W, REC_H, 0.5, m.x, REC_Y, -4, "#16191d")
+  block(REC_W, 0.08, 0.2, m.x, REC_Y, -3.7, "#555b63")
+  local lab = Mesh(DIR .. REC_LABEL[k] .. ".obj", 0, false)
+  lab.col = "#d4af37"
+  lab.collides = false
+  lab.trans = btTransform(Q0, btVector3(m.x, REC_Y + REC_H / 2 + 0.8, -4))
+  v:add(lab)
+  m.pen1, m.pen2 = {}, {}
+  for i = 1, REC_N do
+    for _, pen in ipairs({ m.pen1, m.pen2 }) do
+      local d = Sphere(0.25, 0)
+      d.col = (pen == m.pen1) and "#e8c34a" or "#4aa3ff"
+      d.collides = false
+      d.trans = btTransform(Q0, btVector3(0, -500, 0))
+      v:add(d)
+      pen[i] = d
+    end
+  end
 end
 
 -- ---------------------------------------------------------------------
@@ -316,11 +349,16 @@ local SH_Y, SH_L = TABLE_Y + 35, 10
 local SHAKEN = {
   { x = 45, param = "gentle", short = "0.6 cm" },
   { x = 95, param = "right", short = "1.0 cm" },
-  { x = 145, param = "hard", short = "1.6 cm" },
+  { x = 145, param = "hard", short = "1.42 cm" },
 }
 for _, s in ipairs(SHAKEN) do
   s.l, s.z, s.om = SH_L, 0, SH_OM
   block(10, 10, 10, s.x, TABLE_Y + 5, 0, "#3a3f46")
+  local lab = Mesh(DIR .. s.param .. ".obj", 0, false)
+  lab.col = "#d4af37"
+  lab.collides = false
+  lab.trans = btTransform(Q0, btVector3(s.x, TABLE_Y + 6.5, 5.01))
+  v:add(lab)
   s.blockDraw = block(2.4, 2.4, 2.4, s.x, SH_Y, 0, "#8a8f96")
   s.shaft = block(0.8, SH_Y - TABLE_Y - 10, 0.8, s.x, 0, 0, "#c8cdd4")
   drawn(s, 1.0, 0.2, "#d0d4da", "#c8a04a")
@@ -434,6 +472,7 @@ local function letGo()
     -- tilted along the slow rocking: the lower rod sqrt 2 times as far
     setp(s, pi + math.rad(4), pi + S2 * math.rad(4))
     s.cycSum, s.cycN, s.cyc, s.lastMean, s.cross, s.fell, s.maxDev, s.reported = 0, 0, nil, nil, {}, nil, 0, false
+    s.downSince = nil
     local st, f1 = floquet(s.a)
     s.stable = st
     local short = string.format("shaken %.2f cm", s.a)
@@ -559,6 +598,14 @@ v:postSim(function(N_)
   -- the pure swings
   for _, m in ipairs(MODES) do
     show(m, m.x, MD_Y)
+    -- the recorder: this frame's angles, at the sweep's place
+    do
+      local i = math.floor((t % REC_T) / REC_T * REC_N) + 1
+      local px = m.x - REC_W / 2 + (i - 0.5) * REC_W / REC_N
+      local function clamp(y) return math.max(-REC_H / 2 + 0.3, math.min(REC_H / 2 - 0.3, y)) end
+      m.pen1[i].trans = btTransform(Q0, btVector3(px, REC_Y + clamp(REC_K * m.t1), -3.6))
+      m.pen2[i].trans = btTransform(Q0, btVector3(px, REC_Y + clamp(REC_K * m.t2), -3.5))
+    end
     if not m.reported and t >= 20 then
       m.reported = true
       if m.mixed then
@@ -583,6 +630,18 @@ v:postSim(function(N_)
     s.blockDraw.trans = btTransform(Q0, btVector3(s.x, py, 0))
     s.shaft.trans = btTransform(Q0, btVector3(s.x, (py - 1.2 + TABLE_Y + 10) / 2, 0))
     show(s, s.x, py)
+    -- one that has fallen is stood up again after 3 s, to fall again
+    -- (the console reports only the first time)
+    local down = abs(wrap(s.t1 - pi)) > pi / 2 or abs(wrap(s.t2 - pi)) > pi / 2
+    if down then
+      s.downSince = s.downSince or t
+      if t - s.downSince > 3 then
+        setp(s, pi + math.rad(4), pi + S2 * math.rad(4))
+        s.downSince = nil
+      end
+    else
+      s.downSince = nil
+    end
     if not s.reported and t >= 12 then
       s.reported = true
       if s.fell then
@@ -636,10 +695,14 @@ v:setHelpText(table.concat({
   "",
   "Left: the butterfly. Seven let go a billionth of a radian",
   "apart swing as one for five seconds, then fly apart.",
-  "Middle: the two pure swings, slow and fast, and a mix.",
-  "Right: upside down on shaken pivots: shaken too little it",
-  "falls, just right it stands; too hard, the shaking pumps",
-  "up a sway that throws it over.",
+  "Middle: the two pure swings -- both rods together (slow),",
+  "the rods opposed (fast) -- and a mix of the two. The chart",
+  "under each draws its rods' angles: upper gold, lower blue.",
+  "Right: upside down on shaken pivots. Too gentle (0.6 cm):",
+  "it falls at once. Just right (1.0 cm): it stands. A little",
+  "too hard (1.42 cm): it stands a few seconds while the",
+  "shaking pumps up a growing sway, then it's thrown over.",
+  "A fallen one is stood up again after 3 s.",
   "",
   "R   let them all go again",
   "Z   slow motion (1/4) <-> real time",
