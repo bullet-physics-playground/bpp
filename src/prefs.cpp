@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QSet>
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -35,17 +36,34 @@ QString getDefaultLuaPath(const QString &scriptBasePath) {
   }
 
   QString appDir = QFileInfo(QCoreApplication::applicationFilePath()).absolutePath();
-  QString appDemo = appDir + "/demo/module/?.lua;";
-  if (QDir(appDir + "/demo/module").exists())
-    luaPaths << appDemo;
 
-  QString siblingDemoDir = appDir + "/../demo/module";
-  if (QDir(siblingDemoDir).exists())
-    luaPaths << QFileInfo(siblingDemoDir).absolutePath() + "/module/?.lua;";
+  // Collect every place the shipped modules can live.  On macOS the .app
+  // bundle keeps them at Contents/demo/module (one level above the
+  // executable's Contents/MacOS), while development builds and other
+  // platforms may use different layouts, so probe all of them rather than
+  // relying on a single location.
+  const QStringList moduleDirs = {
+      appDir + "/demo/module",
+      appDir + "/../demo/module",
+      appDir + "/../../demo/module",
+      startupWorkingDir() + "/demo/module",
+      startupWorkingDir() + "/module",
+      "/Applications/bpp.app/Contents/demo/module",
+      "/usr/local/share/bpp/demo/module",
+      "/opt/homebrew/share/bpp/demo/module",
+      "/usr/share/bpp/demo/module",
+  };
 
-  QString installDemo = "/usr/share/bpp/demo/module/?.lua;";
-  if (QDir("/usr/share/bpp/demo/module").exists())
-    luaPaths << installDemo;
+  QSet<QString> seen;
+  for (const QString &dir : moduleDirs) {
+    if (!QDir(dir).exists())
+      continue;
+    const QString resolved = QDir(dir).absolutePath();
+    if (seen.contains(resolved))
+      continue;
+    seen.insert(resolved);
+    luaPaths << resolved + "/?.lua;";
+  }
 
   return luaPaths.join("");
 }
