@@ -870,6 +870,34 @@ local function setPivot(x, y, z)
   pcall(function() v.cam.pivot = btVector3(x, y, z) end)
 end
 
+-- Close-up is a chase view: the camera sits behind and a little above the
+-- drone, looking past it toward the goal, so you see what it is flying
+-- into. "Toward the goal" is the swarm centre's bearing to the goal,
+-- turned smoothly (and held once the swarm is on top of the goal).
+local CHASE_BACK, CHASE_UP, CHASE_AHEAD = 3.2, 1.3, 8.0   -- m
+local chaseHeading = nil
+local function chaseTo(x, y, z, snap)
+  local g = goals[1]
+  local cx, _, cz = centroid()
+  if g and cx then
+    local gx, _, gz = toWorld(g.x, g.y, g.z)
+    local dx, dz = gx - cx, gz - cz
+    if dx * dx + dz * dz > 9 then
+      local h = math.atan2(dz, dx)
+      if snap or not chaseHeading then
+        chaseHeading = h
+      else
+        local d = (h - chaseHeading + math.pi) % (2 * math.pi) - math.pi
+        chaseHeading = chaseHeading + 0.03 * d
+      end
+    end
+  end
+  local h = chaseHeading or math.pi               -- (the goal lies toward -x)
+  local ux, uz = math.cos(h), math.sin(h)
+  return btVector3(x - CHASE_BACK * ux, y + CHASE_UP, z - CHASE_BACK * uz),
+         btVector3(x + CHASE_AHEAD * ux, y - 0.4, z + CHASE_AHEAD * uz)
+end
+
 -- P (and a new launch): aim the camera once from a preset offset
 function aimCamera()
   local x, y, z = followPoint()
@@ -877,7 +905,8 @@ function aimCamera()
   tgtX, tgtY, tgtZ = x, y, z
   local look = btVector3(x, y, z)
   if camMode == 3 then
-    common.setCamera(btVector3(x - 2.2, y + 1.2, z + 2.2), look, 0.9)
+    local pos, ahead = chaseTo(x, y, z, true)
+    common.setCamera(pos, ahead, 0.9)
   elseif camMode == 2 then
     common.setCamera(btVector3(x, y + 70, z), look, 0.6, { up = btVector3(0, 0, -1) })
   elseif is3D then
@@ -901,6 +930,14 @@ function updateCamera()
   end
   local a = (camMode == 3) and 0.5 or 0.08        -- smoothing (close-up: tighter)
   local nx, ny, nz = tgtX + (x - tgtX) * a, tgtY + (y - tgtY) * a, tgtZ + (z - tgtZ) * a
+  if camMode == 3 then                            -- close-up: chase, facing the goal
+    local pos, ahead = chaseTo(nx, ny, nz, false)
+    v.cam.pos = pos
+    v.cam.look = ahead
+    tgtX, tgtY, tgtZ = nx, ny, nz
+    setPivot(nx, ny, nz)
+    return
+  end
   local p = v.cam.pos
   v.cam.pos = btVector3(p.x + nx - tgtX, p.y + ny - tgtY, p.z + nz - tgtZ)
   tgtX, tgtY, tgtZ = nx, ny, nz
@@ -1209,7 +1246,8 @@ Cursor (for placing obstacles):
 Camera: drag with the mouse to orbit (around
 the swarm), wheel to zoom.
 T        follow the swarm on/off
-P        view: overview / top-down / close-up
+P        view: overview / top-down / close-up (behind
+         one drone, looking toward the goal; T frees it)
 V        neighbour lines
 W        waypoint markers
 = / -    faster / slower (simSpeed)
