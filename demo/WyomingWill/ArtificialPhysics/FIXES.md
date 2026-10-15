@@ -234,3 +234,23 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     front of a dialog: a floating Parameters pane is deliberately set to
     stay on top, and on some Windows/OpenGL drivers a full-screen BPP window
     (View → Fullscreen, remembered between sessions) is drawn over popups.
+29. **Obstacle field for the quadcopter demos, and a gentler obstacle
+    law.** `quadcopter/swarm.lua` can now scatter random columns (radius
+    0.3–1.4 m, `fieldDensity` per 100 m², at least 2.5 m apart) between the
+    launch area and the goal. The goal switches on by itself `goalDelay` s
+    after AP engages, travels through the field at `goalSpeed`, and stops
+    beyond it. Untick `obstacleField` for the old empty sky.
+    - **The originals' obstacle law is too stiff for drones.** `size − r`
+      in AP units, with field-sized columns (repulsion 30–50 units deep at
+      6 cm per unit), gave forces of 20–40 against a drone-to-drone cap of
+      1–1.5. AP commanded 4–7 m/s, and drones arriving at 2.9 m/s hit
+      columns and each other. That cost 12–21 of 50 drones per crossing,
+      in all four law/dimension combinations.
+    - **The fix:** force = 2 units per metre of penetration, capped at 4.
+      Losses in the field dropped to 0 over 7 crossings (LJ 2D ×3, LJ 3D
+      ×2, Newtonian 2D ×2, including square). The 2D losses that remain
+      (2–6) all happen 9–12 s in, during the launch expansion (item 21),
+      before the goal is on.
+    - **Newtonian 3D** still loses 2–12. It does so with no field too, and
+      even with no goal (0 and 3 on two seeds over 3 min). That is item 2's
+      3D collapse; an earlier "0 lost" for that mode came from one seed.

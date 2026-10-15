@@ -63,6 +63,13 @@
 -- counter (v.statusText; on an older bpp it is printed to the console);
 -- the Shortcuts pane holds just the keys.
 --
+-- THE OBSTACLE FIELD (obstacleField, on by default). Setup scatters random
+-- columns between the launch area and the goal. The formation assembles in
+-- the clear; goalDelay seconds after AP engages the goal switches on, moves
+-- through the field at goalSpeed and stops in the clear beyond, and the
+-- swarm follows it through. Obstacle repulsion is a capped, gentler law
+-- than the originals' (see OBS_STIFFNESS below for why).
+--
 -- LAUNCH. As in the originals, the swarm starts as a compact random
 -- cluster, much tighter than the lattice it grows into, and AP spreads it
 -- out: drones stand at random on the ground no closer than padSpacing
@@ -132,7 +139,11 @@ defParam("range",        1.5,  1.0, 5.0,  0.1,  "interaction cutoff, as a multip
 defParam("friction",     cfg.friction, 0, 1, 0.01, "fraction of AP velocity removed each AP tick")
 defParam("timeStep",     1.0,  0.01, 1,   0.01, "AP time per AP tick: waypoint offset = timeStep * v")
 defParam("goalForce",    0.25, 0,   1,    0.01, "constant-magnitude attraction toward the goal")
-defParam("obstacleSize", 40,   0,   100,  1,    "obstacle repulsion radius (AP units); the solid obstacle is a third of it")
+defParam("obstacleSize", 40,   0,   100,  1,    "repulsion radius of obstacles placed with O (AP units); the solid column is a third of it")
+v:addParam("obstacleField", true, "Setup (R) scatters random columns between the launch area and the goal's stopping point")
+defParam("fieldDensity", 2.5,  0,   8,    0.1,  "columns per 100 m^2 of the obstacle field, used by the next Setup (R)")
+defParam("goalSpeed",    0.2,  0,   2,    0.05, "how fast the goal moves through the obstacle field (m/s); it stops at the far side")
+defParam("goalDelay",    20,   0,   120,  1,    "seconds after AP engages that the goal switches on by itself (0 = only with G)")
 defParam("metersPerUnit", 0.06, 0.02, 0.2, 0.01, "metres per AP unit (0.06: rad 50 = 3 m spacing)")
 defParam("apHz",         5,    1,   50,   1,    "AP sensing/waypoint rate (Hz); higher = faster swarm, harder flying")
 defParam("altitude",     12,   4,   40,   1,    "formation altitude (m): the 2D plane, or the 3D centre")
@@ -195,6 +206,30 @@ local gustX, gustZ = 0, 0
 local stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
 local obstacleObjs = {} -- solid obstacle objects
+local apEngagedAt = 0   -- simTime when AP engaged (for goalDelay)
+local goalAutoDone = false
+
+-- The obstacle field and the goal's route, in metres. The launch cluster
+-- sits at x ~ +14 and spreads to x ~ +3 (2D, 50 drones), so the field
+-- starts just short of that; the goal starts at its near edge, crosses it
+-- along -x at goalSpeed and stops in the clear beyond, where the formation
+-- can gather again.
+local FIELD_X_NEAR, FIELD_X_FAR, FIELD_HALF_Z = -2, -38, 18
+local GOAL_START_X, GOAL_END_X = 0, -54
+local FIELD_R_MIN, FIELD_R_MAX = 0.3, 1.4   -- solid column radius (m)
+local OBS_MARGIN = 1.6                        -- repulsion reaches this far past the column (m)
+local FIELD_MIN_GAP = 2.5                     -- clear space between two columns' surfaces (m)
+
+-- Obstacle repulsion for drones. The originals' law, f = size - r in AP
+-- units, is far too stiff once a unit is 6 cm: a column's repulsion zone is
+-- 30-50 units deep, so a drone a metre inside it got a force ~17x the cap
+-- on drone-drone forces, AP turned that into several m/s, and a drone that
+-- needs ~0.5 s to respond was flung across the gap into the next column or
+-- drone (measured: 2.9 m/s into a column, 7 m/s commanded). Instead the
+-- force grows with how far into the zone the drone is, in metres, and is
+-- capped: 2 units per metre, at most 4 -- still well above the drone-drone
+-- cap and the goal pull, but slow enough for a quadcopter to follow.
+local OBS_STIFFNESS, OBS_FORCE_MAX = 2.0, 4.0
 
 local function S() return v:getParam("metersPerUnit") end
 local function ALT() return v:getParam("altitude") end
@@ -257,22 +292,28 @@ end
 -- repulsion has the same shape as the solid thing it protects; the
 -- originals' 3D obstacle was a sphere.
 --------------------------------------------------------------------------
+--
+-- Each obstacle is kept in metres: { wx, wz, solidR, repR, manual }. AP
+-- repels inside repR (the originals' linear law, obstacleSize - r, with
+-- repR as the size); the solid column has radius solidR.
 local function buildObstacleObj(obs)
   if obs.obj then v:remove(obs.obj); obstacleObjs[obs.obj] = nil end
-  local r = math.max(0.05, v:getParam("obstacleSize") * S() / 3)
-  local x, _, z = toWorld(obs.x, obs.y, obs.z)
   local h = ALT() + 2 * v:getParam(SEP) * S() + 8     -- well above the formation
-  local o = Cylinder(r, h, 0)
-  o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(x, h / 2, z))  -- local z -> up
+  local o = Cylinder(math.max(0.05, obs.solidR), h, 0)
+  o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(obs.wx, h / 2, obs.wz))  -- local z -> up
   o.col = COL_OBS
   v:add(o)
   obs.obj = o
   obstacleObjs[o] = true
 end
 
+-- O / addObstacleAt(x, y, z): one column at an AP-unit position, sized by
+-- the obstacleSize slider (the solid column a third of its repulsion
+-- radius, as before)
 function addObstacleAt(x, y, z)
-  if not is3D then y = 0 end
-  local obs = { x = x, y = y, z = z, mass = HOLD_MASS }
+  local s_ = S()
+  local repR = v:getParam("obstacleSize") * s_
+  local obs = { wx = x * s_, wz = z * s_, repR = repR, solidR = repR / 3, manual = true }
   obstacles[#obstacles + 1] = obs
   buildObstacleObj(obs)
   if updateStatus then updateStatus() end
@@ -283,6 +324,34 @@ function clearObstacles()
   obstacles = {}
   obstacleObjs = {}
   if updateStatus then updateStatus() end
+end
+
+-- The random obstacle field: columns of random radius scattered uniformly
+-- over the field at fieldDensity per 100 m^2, never closer than
+-- FIELD_MIN_GAP surface to surface, so a drone can always get between two
+-- of them (whether AP finds the way is another matter).
+function generateField()
+  local area = (FIELD_X_NEAR - FIELD_X_FAR) * 2 * FIELD_HALF_Z
+  local want = math.floor(v:getParam("fieldDensity") * area / 100 + 0.5)
+  local placed = 0
+  for _ = 1, want * 60 do
+    if placed >= want then break end
+    local r = FIELD_R_MIN + (FIELD_R_MAX - FIELD_R_MIN) * math.random()
+    local x = FIELD_X_FAR + (FIELD_X_NEAR - FIELD_X_FAR) * math.random()
+    local z = (math.random() * 2 - 1) * FIELD_HALF_Z
+    local ok = true
+    for _, o in ipairs(obstacles) do
+      local dx, dz = o.wx - x, o.wz - z
+      if dx * dx + dz * dz < (o.solidR + r + FIELD_MIN_GAP) ^ 2 then ok = false; break end
+    end
+    if ok then
+      local obs = { wx = x, wz = z, solidR = r, repR = r + OBS_MARGIN, manual = false }
+      obstacles[#obstacles + 1] = obs
+      buildObstacleObj(obs)
+      placed = placed + 1
+    end
+  end
+  print(string.format("obstacle field: %d columns (radius %.1f-%.1f m) over %.0f m^2", placed, FIELD_R_MIN, FIELD_R_MAX, area))
 end
 
 --------------------------------------------------------------------------
@@ -352,11 +421,12 @@ local function apTick(p)
       end
 
       for _, obs in ipairs(obstacles) do
-        -- distance to the column's axis (horizontal only)
-        local dx, dz = obs.x - d.ax, obs.z - d.az
+        -- distance to the column's axis (horizontal only), in AP units
+        local dx, dz = obs.wx / s - d.ax, obs.wz / s - d.az
         local r = math.sqrt(dx * dx + dz * dz)
-        if r <= p.obstacleSize and r > 0 then
-          local f = p.obstacleSize - r
+        local size = obs.repR / s
+        if r <= size and r > 0 then
+          local f = math.min(OBS_FORCE_MAX, OBS_STIFFNESS * (size - r) * s)
           fx, fz = fx - f * dx / r, fz - f * dz / r
         end
       end
@@ -395,8 +465,20 @@ local function apTick(p)
     end
   end
 
-  -- the goal drifts toward the swarm, as in the originals (mass 100000)
-  if isGoalEnabled then
+  -- with the obstacle field, the goal travels: from the field's near edge
+  -- along -x at goalSpeed, until it stops in the clear beyond it
+  if isGoalEnabled and goals[1] and goals[1].route then
+    local g = goals[1]
+    local endX = GOAL_END_X / s
+    if g.x > endX then
+      g.x = math.max(endX, g.x - p.goalSpeed * T / s)
+      if g.x <= endX then
+        print(string.format("t=%.1f s: the goal has stopped", simTime))
+        if updateStatus then updateStatus() end
+      end
+    end
+  -- otherwise it drifts toward the swarm, as in the originals (mass 100000)
+  elseif isGoalEnabled then
     for _, g in ipairs(goals) do
       g.vx, g.vy, g.vz = g.vx * (1 - p.friction), g.vy * (1 - p.friction), g.vz * (1 - p.friction)
       local fx, fy, fz = 0, 0, 0
@@ -494,6 +576,15 @@ end
 
 local function physicsStep(p)
   -- AP and air on their own clocks
+  -- the goal switches itself on goalDelay seconds after AP engages
+  if apEngaged and not goalAutoDone and p.goalDelay > 0 and simTime - apEngagedAt >= p.goalDelay then
+    goalAutoDone = true
+    if not isGoalEnabled then
+      isGoalEnabled = true
+      print(string.format("t=%.1f s: goal on (goalDelay %d s)", simTime, p.goalDelay))
+      if updateStatus then updateStatus() end
+    end
+  end
   if apEngaged and simTime >= nextApTime then
     apTick(p)
     nextApTime = simTime + 1 / p.apHz
@@ -522,6 +613,7 @@ local function physicsStep(p)
     end
     if any and all then
       apEngaged = true
+      apEngagedAt = simTime
       nextApTime = simTime
       print(string.format("t=%.1f s: all drones at altitude -- Artificial Physics engaged", simTime))
       if updateStatus then updateStatus() end
@@ -592,7 +684,14 @@ function setup(n)
     launch(x, z, math.max(MIN_ALT, alt))
   end
 
-  local goal = { x = -WORLD_WIDTH / 3, y = 0, z = 0, vx = 0, vy = 0, vz = 0, mass = HOLD_MASS }
+  isGoalEnabled, goalAutoDone = false, false
+  local goal
+  if v:getParam("obstacleField") then
+    generateField()
+    goal = { x = GOAL_START_X / s, y = 0, z = 0, vx = 0, vy = 0, vz = 0, mass = HOLD_MASS, route = true }
+  else
+    goal = { x = -WORLD_WIDTH / 3, y = 0, z = 0, vx = 0, vy = 0, vz = 0, mass = HOLD_MASS }
+  end
   goal.obj = ghost(Sphere(0.4, 0), COL_GOAL)
   goals[1] = goal
   print(string.format("setup: %d drones on the launch grid (%s)", n, is3D and "3D" or "2D"))
@@ -964,7 +1063,13 @@ v:postSim(function(N)
   local key = obstacleKey()
   if key ~= lastObsKey then
     lastObsKey = key
-    for _, o in ipairs(obstacles) do buildObstacleObj(o) end
+    for _, o in ipairs(obstacles) do
+      if o.manual then                          -- (field columns keep their own sizes)
+        o.repR = v:getParam("obstacleSize") * S()
+        o.solidR = o.repR / 3
+      end
+      buildObstacleObj(o)
+    end
   end
   for _, g in ipairs(goals) do
     local x, y, z = toWorld(g.x, g.y, g.z)
@@ -1000,7 +1105,9 @@ R        Setup: new launch cluster
 [        a drone leaves and lands
 D        a drone stops and holds position
 F        toggle square formation
-G        toggle goal attraction
+G        toggle goal attraction (with the obstacle
+         field, the goal also starts moving; it
+         switches on by itself after goalDelay s)
 C        clear all obstacles
 
 Cursor (for placing obstacles):
@@ -1049,7 +1156,9 @@ function updateStatus(statsLine)
   local parts = {
     (cfg.title:gsub(" %-%- quadcopters", "")),
     (is3D and "3D " or "2D ") .. (isSquareFormation and (is3D and "cube" or "square") or "triangle"),
-    "goal " .. (isGoalEnabled and "ON" or "off"),
+    "goal " .. (not isGoalEnabled and "off"
+                or (goals[1] and goals[1].route and (goals[1].x <= GOAL_END_X / S() + 1e-6 and "stopped" or "moving"))
+                or "ON"),
     #obstacles .. (#obstacles == 1 and " obstacle" or " obstacles"),
     apEngaged and string.format("AP %d Hz", p.apHz) or "AP waits for takeoff",
     table.concat(drones_, ", "),
@@ -1080,7 +1189,7 @@ updateCamera()
 updateStatus()
 
 -- for scripted (command-line) runs
-M.state = function() return { drones = drones, simTime = simTime, apEngaged = apEngaged } end
+M.state = function() return { drones = drones, simTime = simTime, apEngaged = apEngaged, obstacles = obstacles } end
 M.formationStats = function() return formationStats(readParams()) end
 
 end -- M.run

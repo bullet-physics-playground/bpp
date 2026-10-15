@@ -84,9 +84,35 @@ In 2D everyone flies at `altitude`; in 3D, AP's y is height around it. A
 geofence keeps waypoints between 2 m and 60 m.
 
 **Obstacles** are solid columns from the ground up past the formation. AP
-repels inside `obstacleSize`, measured horizontally from the column's axis,
-in 3D as well as 2D. The originals' 3D obstacle was a sphere; a column needs
-a column-shaped repulsion. The solid column is a third of that radius.
+repels inside each column's repulsion radius, measured horizontally from its
+axis, in 3D as well as 2D. The originals' 3D obstacle was a sphere; a column
+needs a column-shaped repulsion.
+
+**The obstacle field** (on by default; untick `obstacleField` and press R to
+go back to an empty sky):
+
+- **Layout:** each Setup (R) scatters columns of random radius (0.3–1.4 m)
+  over a 36 m × 36 m field between the launch area and the goal, at
+  `fieldDensity` per 100 m² (default 2.5, about 32 columns). Columns are
+  never closer than 2.5 m surface to surface, so a drone can always fit
+  between two of them.
+- **Repulsion:** each column repels out to 1.6 m past its surface.
+  Obstacles placed with O keep the `obstacleSize` slider.
+- **The run:** the formation assembles in the clear. `goalDelay` seconds
+  after AP engages (default 20; 0 = only with G), the goal switches on. It
+  starts at the field's near edge, moves through the field at `goalSpeed`
+  (0.2 m/s), and stops in the clear on the far side. The swarm follows it,
+  finds its way between the columns, and reassembles around it.
+- **Timing:** a crossing takes about 9–10 minutes of flight. Use = (simSpeed)
+  to fast-forward.
+
+**Obstacle repulsion is gentler than the originals'.** The originals'
+`size − r` law in AP units is far too stiff at 6 cm per unit: a metre inside
+a column's zone gave about 17 times the drone-to-drone force cap. AP turned
+that into several m/s, and drones were flung across gaps into columns and
+each other; the first field version lost 12–21 of 50 drones per crossing.
+The force now grows at 2 units per metre into the zone, capped at 4, and no
+drone has been lost to the field since (7 crossings).
 
 **Camera:** the mouse always controls the angle and zoom. With follow on
 (T), the camera is only *translated* each frame by however far the swarm's
@@ -112,10 +138,10 @@ originals.
 | [ | a drone leaves the formation and lands |
 | D | a drone holds position (the original's "disable") |
 | F | square formation |
-| G | goal |
+| G | goal on/off (with the field, the goal also travels; it switches on by itself after `goalDelay` s) |
 | C | clear obstacles |
 | arrows / IJKL / YH | move the cursor |
-| O | obstacle at the cursor: a solid column, in 2D and 3D |
+| O | an extra obstacle at the cursor: a solid column, in 2D and 3D |
 | V | neighbour lines |
 | W | waypoint markers |
 | T | follow the swarm on/off |
@@ -131,8 +157,9 @@ originals.
 - grey: landed
 
 **Sliders** beyond the originals': `numDrones`, `metersPerUnit`, `apHz`,
-`altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `simSpeed`, and
-the `propStrikes` checkbox.
+`altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
+`goalSpeed`, `goalDelay`, `simSpeed`, and the `obstacleField` and
+`propStrikes` checkboxes.
 
 **Prop strikes:** Bullet's own contact points are checked every frame.
 Drones that touch each other, an obstacle, or (while flying) the ground lose
@@ -149,9 +176,15 @@ their props and fall, and can take down drones below them. Untick
 | Lennard-Jones 3D square | 1.011 R, sd 0.045, compact (80 bonds) | 0 |
 | Newtonian 2D triangle | 0.992 R, sd 0.092; still moving at 0.2 m/s | 0 |
 | Newtonian 2D square | 0.980 R, sd 0.105 | 7 |
-| Newtonian 3D triangle | 0.997 R, sd 0.112, no collapsed pairs | 0 |
+| Newtonian 3D triangle | 0.997 R, sd 0.112, no collapsed pairs | 0 on this seed; 0–3 in 3 min on others (see below) |
 | Newtonian 3D square | 1.016 R, sd 0.118 | 0 |
 
+- **Newtonian 3D loses a few drones on some seeds, field or no field.**
+  This is the originals' 3D Newtonian collapse (`../FIXES.md` item 2).
+  Repulsion is capped at `forceMax` while up to 12 neighbours pull inward,
+  so pairs get pushed together; on drones that is a collision. With no
+  field and no goal, 0 and 3 were lost on two seeds; with the goal on, 2
+  and 6.
 - **2D launches lose a few drones to AP itself.** In 2D every drone is at
   the same height, so AP's first violent expansion from the compact cluster
   can push a pair within a drone's width. The repulsion is capped at
