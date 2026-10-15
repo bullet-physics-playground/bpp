@@ -39,7 +39,7 @@
 --    springs in a row make k) whenever they're apart, applied before every
 --    step.
 --  * It starts exactly as it hangs (each coil's stretch set from the weight
---    below it), held for two seconds (on screen), then let go.
+--    below it), held for half a second (on screen), then let go.
 --  * A twentieth of a second after it lands, it's laid to rest, closed up
 --    where it landed (86 thin coils piled up don't keep still in Bullet).
 --  * 4800 physics steps a second; it runs at a tenth of real speed (Z: real
@@ -87,7 +87,7 @@ param("speed", envnum("SL_SPEED", 0.1), 0.02, 1, 0.02, "simulated seconds per re
 param("steps", 4800, 2400, 9600, 600, "physics steps per simulated second")
 param("stiffness", envnum("SL_K", 1.76), 1.2, 5, 0.02, "the Slinky's stiffness, N/m (hangs it up again)")
 param("mass", envnum("SL_MASS", 215), 100, 300, 5, "the Slinky's mass, g (hangs it up again)")
-param("hold", 2.0, 0.5, 6, 0.5, "seconds (on screen) it hangs before the hand lets go")
+param("hold", 0.5, 0.5, 6, 0.5, "seconds (on screen) it hangs before the hand lets go")
 
 local STEP, NSTEPS, FRAME_DT = 1 / 4800, 8, 1 / 600
 local function applyTiming()
@@ -684,7 +684,7 @@ v:setHelpText(table.concat({
   "Beside it, the same Slinky walks down seven stairs,",
   "end over end, and starts again once it's on the floor.",
   "",
-  "R   hang it up again (it lets go after two seconds)",
+  "R   hang it up again (it lets go after half a second)",
   "V   views: both; the falling one close; the stairs close",
   "W   set the one on the stairs going again",
   "Z   a tenth of real speed <-> real speed",

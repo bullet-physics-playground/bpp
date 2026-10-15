@@ -101,11 +101,11 @@ end
 
 -- ---------------------------------------------------------------------
 -- a pause at every start: one frame to put everything in place, then it
--- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- all stands still for HOLD_S seconds (half a second), so you see how it begins --
 -- bpp's own physics step stopped too (a zero time step) -- and then it
 -- carries on from there, exactly as if there had been no pause
 -- ---------------------------------------------------------------------
-local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 0.5) * 60 + 0.5)
 local holdArm, holdLeft, holdNow = false, 0, false
 local function holdStart() holdArm, holdLeft = true, 0 end
 local function holdPre()            -- first thing before each step: true while it stands still

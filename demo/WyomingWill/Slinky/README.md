@@ -23,7 +23,7 @@ over end, and starts again once it reaches the floor.
 
 | Key | Action |
 |---|---|
-| `R` | hang it up again (it lets go after two seconds) |
+| `R` | hang it up again (it lets go after half a second) |
 | `V` | views: both Slinkys (to start with); the falling one and the ball close up; the stairs close up |
 | `W` | set the Slinky on the stairs going again, from the top |
 | `Z` | a tenth of real speed <-> real speed |

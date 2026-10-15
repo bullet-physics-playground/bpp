@@ -205,11 +205,11 @@ end
 
 -- ---------------------------------------------------------------------
 -- a pause at every start: one frame to put everything in place, then it
--- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- all stands still for HOLD_S seconds (half a second), so you see how it begins --
 -- bpp's own physics step stopped too (a zero time step) -- and then it
 -- carries on from there, exactly as if there had been no pause
 -- ---------------------------------------------------------------------
-local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 0.5) * 60 + 0.5)
 local holdArm, holdLeft, holdNow = false, 0, false
 local holdTick                       -- (what moves while all else stands still: set below)
 local function holdStart() holdArm, holdLeft = true, 0 end
@@ -420,10 +420,10 @@ end
 -- ---------------------------------------------------------------------
 -- an attendant's lift: a body to be dropped isn't put straight into the
 -- air; it's carried there from where it lies, over LIFT_S seconds (up
--- first, then across, turning as it goes), held a moment, and let go.
+-- first, then across, turning as it goes), and let go.
 -- While it's carried it's out of the race, with no gravity of its own.
 -- ---------------------------------------------------------------------
-local LIFT_S, GRIP_S = 1.2, 0.4         -- (a moment to take hold of it, then the lift)
+local LIFT_S, GRIP_S = 0.8, 0.2         -- (a moment to take hold of it, then the lift)
 local function poseOf(g)
   local x, y, z = getPosXYZ(g.obj)
   return { q = qOf(g.body:getCenterOfMassTransform():getRotation()), p = { x, y, z } }
@@ -845,7 +845,7 @@ v:postSim(function(N)
   if race.t >= race.nextReport then
     race.nextReport = race.nextReport + (race.t < 20 and 1 or 5)
     local tilts = {}
-    for _, g in ipairs(bodies) do tilts[#tilts + 1] = string.format("%3.0f", g.tilt) end
+    for _, g in ipairs(bodies) do tilts[#tilts + 1] = g.tilt and string.format("%3.0f", g.tilt) or "  -" end   -- (-: still being lifted)
     print(string.format("t=%5.1fs  upright %d/%d  at rest %d/%d  tilt(deg): %s", race.t,
                         upright, #bodies, rested, #bodies, table.concat(tilts, " ")))
   end

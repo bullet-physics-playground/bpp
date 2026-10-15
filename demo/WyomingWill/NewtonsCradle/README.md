@@ -83,6 +83,36 @@ speed.
   counted as strikes.
 * 2400 physics steps a second.
 
+## Why the balls part
+
+Watch a few strikes and gaps open between the balls, a few millimetres to
+a centimetre, and close again. That's real. Because the balls touch, a
+strike isn't a series of separate two-ball collisions: the push runs
+through the row as a squeeze, a tenth of a millisecond long, and the far
+ball doesn't get quite everything. The row breaks up, and every ball moves
+a little. The first strike, one ball in at 63 cm/s:
+
+| ball | 1 (it struck) | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| speed after, cm/s | −4.1 (back) | −1.6 | −0.6 | +8.5 | +60.5 |
+
+So ball 4 follows ball 5 out, about 1 cm on these 15 cm threads, and
+ball 1 bounces back half a centimetre; out of step, they open gaps and
+close them again. This is what Herrmann and Seitz's five-ball simulation
+(1982) found: balls 1 to 3 go back, 4 and 5 forward, ball 4 with about
+12% of the incoming momentum (here, 14%), ball 5 with nearly all the rest.
+Hinch and Saint-Jean (1999) worked out how such a line breaks up; and
+watching a real cradle, the fourth ball can be seen to move and the first
+to come back a little.
+
+The small losses in each strike wear the balls' motion relative to each
+other away, and after a minute or two the whole row swings together, in
+step, at a smaller swing (Hutzler, Delaney, Weaire and MacLeod, "Rocking
+Newton's cradle", Am. J. Phys. 72, 2004, who found it settled in 1 to 2
+minutes on real cradles). For the textbook version, press `G`: a 0.1 mm
+gap between the balls makes each strike a clean series of two-ball
+collisions, one in, one out, almost exactly.
+
 ## The clack
 
 Each strike clacks, and the clack is worked out from the same physics

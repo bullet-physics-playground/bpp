@@ -10,20 +10,19 @@ Each exhibit stands in a bay of its own with a gilt-lettered placard.
 it is (a gömböc frozen in mid-air, a top mid-flip); come back and it
 carries on from there.
 
-**Every exhibit holds still for 2 seconds whenever it starts**: when you
+**Every exhibit holds still for half a second whenever it starts**: when you
 first arrive at it, when you press R, and each time it starts itself
 again. It puts everything in place, then waits, so you see how it begins
 before anything moves. The physics stops too (a zero time step), so the
 pause changes nothing: an exhibit's console output is the same, line for
 line, with or without it. (The falling Slinky has its own hold: the hand
-lets go after 2 s.) `HOLD_S` sets the pause, in seconds; 0 turns it off.
+lets go after half a second, or as long as its hold slider says.) `HOLD_S` sets the pause, in seconds; 0 turns it off.
 
 Nothing appears out of thin air, either. Each exhibit is set up the moment
 the hall loads, so its bay is never empty when you walk up. And the
 gömböcs and the Billes, which are dropped, start resting on the table:
-during the pause an attendant's lift takes hold of each (0.4 s), carries
-it up to where it's let go (1.2 s), and holds it there till the pause
-ends. When one is dropped again, it's carried up from where it came to
+as the pause begins an attendant's lift takes hold of each (0.2 s), carries
+it up to where it's let go (0.8 s), and lets go. When one is dropped again, it's carried up from where it came to
 rest. Each one's clock starts when it's let go.
 
 ## Running it
