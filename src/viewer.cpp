@@ -6479,7 +6479,9 @@ void Viewer::startVfeQuickRender(const QString &sceneName, const QString &sceneD
   // four levels up to land back at bpp/'s parent), and finally a few
   // install prefixes.
   QStringList vfeIncludeCandidates;
-  vfeIncludeCandidates << QDir(startupWorkingDir()).absoluteFilePath("../povray/distribution/include")
+  vfeIncludeCandidates << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../povray-include")
+                      << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../povray/distribution/include")
+                      << QDir(startupWorkingDir()).absoluteFilePath("../povray/distribution/include")
                       << QDir(startupWorkingDir()).absoluteFilePath("../povray/include")
                       << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../../povray/distribution/include")
                       << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../../povray/include")

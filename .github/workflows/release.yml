@@ -210,7 +210,7 @@ jobs:
       # povray/openscad/sdl12-compat/git (runtime tools or already
       # present on the runner, not build deps).
       - name: Install build dependencies (Homebrew)
-        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut autoconf automake povray libpng jpeg-turbo libtiff
 
       # luabind and libQGLViewer are custom/forked builds not packaged
       # by Homebrew, built from source and installed into the Homebrew
@@ -242,11 +242,27 @@ jobs:
           make -j$(sysctl -n hw.ncpu)
           sudo make install
 
+      - name: Build POV-Ray VFE library
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/POV-Ray/povray --depth=1
+          cd povray/unix
+          ./prebuild.sh
+          cd ..
+          sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' source/core/shape/truetype.cpp
+          ./configure --with-boost="$(brew --prefix)" --with-libpng="$(brew --prefix libpng)/lib" --with-libjpeg="$(brew --prefix jpeg-turbo)/lib" --with-libtiff="$(brew --prefix libtiff)/lib" --without-x --disable-sdl
+          cd povray-macos 2>/dev/null || cd "$GITHUB_WORKSPACE/povray-macos"
+          qmake povvfe.pro
+          make -j$(sysctl -n hw.ncpu)
+
       - name: Build bpp
         run: |
           set -e
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
-          qmake bpp.pro
+          qmake "USE_VFE=1" bpp.pro
           make -j$(sysctl -n hw.ncpu) release
 
       - name: Package app bundle

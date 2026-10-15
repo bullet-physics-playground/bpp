@@ -310,3 +310,4 @@ SOURCES += \
     $$POVRAY/platform/x86/cpuid.cpp \
     $$POVRAY/platform/x86/optimizednoise.cpp
 }
+

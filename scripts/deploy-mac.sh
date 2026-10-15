@@ -115,6 +115,16 @@ for d in demo includes; do
   fi
 done
 
+# Step 9b: Bundle POV-Ray's standard include files so VFE release builds can
+# resolve colors.inc and friends on user machines without a povray checkout.
+SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+POVINC_SRC="$SRC_DIR/../povray/distribution/include"
+if [ -d "$POVINC_SRC" ]; then
+  rm -rf "$APP/Contents/povray-include"
+  mkdir -p "$APP/Contents/povray-include"
+  cp -R "$POVINC_SRC/." "$APP/Contents/povray-include/"
+fi
+
 # Step 10: Re-sign the whole bundle. Every install_name_tool edit above (and
 # macdeployqt's own copies) invalidated the code signatures; without a fresh
 # ad-hoc signature dyld kills the app at launch with SIGKILL (Code Signature
