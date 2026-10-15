@@ -249,13 +249,12 @@ buildWire()
 -- in front of the wire, a gauge: its needle turns 20 times as far as the
 -- wire is tipped (a degree is too little to see on the wire itself)
 local GAUGE_X20 = 20
-local GAUGE_C = btVector3(MID.x, TABLE_Y + 5, 11)
+local GAUGE_C = btVector3(MID.x, TABLE_Y + 5, 14)
 local gauge, needle
 do
   gauge = Cylinder(3.2, 0.3, 0)
   gauge.trans = btTransform(Q0, GAUGE_C)
-  gauge.col = "#efe6cf"
-  gauge.collides = false
+  gauge.col = "#efe6cf"         -- (it collides, so the mouse finds it: bpp's hover only sees what collides)
   v:add(gauge)
   block(0.8, GAUGE_C.y - 3.2 - TABLE_Y, 0.8, GAUGE_C.x, (TABLE_Y + GAUGE_C.y - 3.2) / 2, GAUGE_C.z - 0.2, DARK, false)
   for _, deg in ipairs({ -40, -20, 0, 20, 40 }) do      -- marks at 0, 1 and 2 degrees each way

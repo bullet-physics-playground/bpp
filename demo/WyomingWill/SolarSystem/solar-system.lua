@@ -116,7 +116,7 @@ end
 local function ball(r, col)
   local s = Sphere(r, 0)
   s.col = col
-  s.collides = false
+  s.collides = true          -- (for the mouse: bpp's hover only finds what collides; nothing here moves under physics)
   v:add(s)
   return s
 end
