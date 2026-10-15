@@ -83,7 +83,7 @@ jobs:
             ${{ matrix.distro }}:"${CODENAME}" bash -ec '
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -qq
-            apt-get install -y -qq build-essential devscripts debhelper dh-make equivs autoconf automake libboost-dev libz-dev libpng-dev libjpeg-dev libtiff-dev
+            apt-get install -y -qq git build-essential devscripts debhelper dh-make equivs autoconf automake libboost-dev libz-dev libpng-dev libjpeg-dev libtiff-dev
             # POV-Ray source, for the USE_VFE=1 build
             if [ ! -d /workspace/povray ]; then git clone https://github.com/POV-Ray/povray --depth=1 /workspace/povray; fi
             cd /workspace/povray/unix && ./prebuild.sh
