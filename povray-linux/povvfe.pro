@@ -79,9 +79,11 @@ INCLUDEPATH += \
     $$POVRAY/vfe/unix \
     $$POVRAY/platform/unix \
     $$POVRAY/platform \
-    $$POVRAY/platform/x86 \
     $$POVRAY/unix \
     $$POVRAY/unix/povconfig
+contains(QMAKE_HOST.arch, x86_64)|contains(QMAKE_HOST.arch, x86)|contains(QMAKE_HOST.arch, i[3456]86)|equals(QMAKE_HOST.arch, i386) {
+INCLUDEPATH += $$POVRAY/platform/x86
+}
 
 CONFIG += link_pkgconfig
 PKGCONFIG += zlib libpng libjpeg libtiff-4
@@ -90,19 +92,14 @@ QMAKE_CXXFLAGS += -std=gnu++11
 
 LIBS += -lpthread
 
+contains(QMAKE_HOST.arch, x86_64)|contains(QMAKE_HOST.arch, x86)|contains(QMAKE_HOST.arch, i[3456]86)|equals(QMAKE_HOST.arch, i386) {
 # The AVX/AVX2/FMA3/FMA4 noise implementations each need their own ISA
 # flags -- and *only* their own translation unit compiled with them,
 # mirroring the real unix/Makefile.am's libx86avx.a/libx86avxfma4.a/
-# libx86avx2fma3.a split (see the comment near the top of this file). This
-# matters beyond style: giving the whole target -mfma4, for example, lets
-# GCC's optimizer legally emit FMA4 instructions in *any* translation unit
-# it likes, not just the one CPUInfo-gated call site -- and FMA4 is AMD-only
-# (Bulldozer-era), so that instantly SIGILLs on any Intel CPU (or any CPU
-# without FMA4) the moment such code runs, regardless of the runtime
-# dispatch these noise implementations are supposed to be gated behind.
+# libx86avx2fma3.a split.
 avx_noise_compiler.name = avx noise compiler
 avx_noise_compiler.input = AVX_NOISE_SOURCES
-avx_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avx_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avx_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avx_noise_compiler.CONFIG += no_link
 avx_noise_compiler.variable_out = OBJECTS
@@ -113,7 +110,7 @@ AVX_NOISE_SOURCES += \
 
 avxfma4_noise_compiler.name = avx/fma4 noise compiler
 avxfma4_noise_compiler.input = AVXFMA4_NOISE_SOURCES
-avxfma4_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avxfma4_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avxfma4_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx -mfma4 $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avxfma4_noise_compiler.CONFIG += no_link
 avxfma4_noise_compiler.variable_out = OBJECTS
@@ -122,18 +119,24 @@ AVXFMA4_NOISE_SOURCES += $$POVRAY/platform/x86/avxfma4/avxfma4noise.cpp
 
 avx2fma3_noise_compiler.name = avx2/fma3 noise compiler
 avx2fma3_noise_compiler.input = AVX2FMA3_NOISE_SOURCES
-avx2fma3_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avx2fma3_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avx2fma3_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx2 -mfma $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avx2fma3_noise_compiler.CONFIG += no_link
 avx2fma3_noise_compiler.variable_out = OBJECTS
 QMAKE_EXTRA_COMPILERS += avx2fma3_noise_compiler
 AVX2FMA3_NOISE_SOURCES += $$POVRAY/platform/x86/avx2fma3/avx2fma3noise.cpp
+}
+
 
 SOURCES += \
     $$POVRAY/platform/unix/syspovfilesystem.cpp \
     $$POVRAY/platform/unix/syspovtimer.cpp \
+contains(QMAKE_HOST.arch, x86_64)|contains(QMAKE_HOST.arch, x86)|contains(QMAKE_HOST.arch, i[3456]86)|equals(QMAKE_HOST.arch, i386) {
+SOURCES += \
     $$POVRAY/platform/x86/cpuid.cpp \
     $$POVRAY/platform/x86/optimizednoise.cpp \
+}
+SOURCES += \
     $$POVRAY/source/backend/bounding/boundingtask.cpp \
     $$POVRAY/source/backend/control/benchmark.cpp \
     $$POVRAY/source/backend/control/benchmark_ini.cpp \
