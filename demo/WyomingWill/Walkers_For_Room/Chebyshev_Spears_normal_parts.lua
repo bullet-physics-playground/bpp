@@ -636,10 +636,12 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   }
 end
 -- (the room: opts.sidePhase sets the back face's phase -- 90 in its own file)
-local linkage1 = buildLinkage(-half_spacing, GROUND_ANGLE, false, 0, opts.leftSpeed, EXT_DOWN)   -- front face, x=-half_spacing, phase 0
-local linkage2 = buildLinkage(half_spacing, GROUND_ANGLE, false, 0, opts.leftSpeed, EXT_DOWN)    -- front face, x=+half_spacing, phase 0
-local linkage3 = buildLinkage(-half_spacing, GROUND_ANGLE, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
-local linkage4 = buildLinkage(half_spacing, GROUND_ANGLE, true, opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
+-- (WALKER ROOM: opts.phases = { four phases, linkage1..4 } times the legs
+-- otherwise; opts.noBraces leaves the plates off, so they can)
+local linkage1 = buildLinkage(-half_spacing, GROUND_ANGLE, false, opts.phases and opts.phases[1] or 0, opts.leftSpeed, EXT_DOWN)   -- front face, x=-half_spacing, phase 0
+local linkage2 = buildLinkage(half_spacing, GROUND_ANGLE, false, opts.phases and opts.phases[2] or 0, opts.leftSpeed, EXT_DOWN)    -- front face, x=+half_spacing, phase 0
+local linkage3 = buildLinkage(-half_spacing, GROUND_ANGLE, true, opts.phases and opts.phases[3] or opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)  -- back face,  x=-half_spacing, phase 90 (comment previously said 180 -- corrected to match what the code actually passes)
+local linkage4 = buildLinkage(half_spacing, GROUND_ANGLE, true, opts.phases and opts.phases[4] or opts.sidePhase or 90, opts.rightSpeed, EXT_DOWN)   -- back face,  x=+half_spacing, phase 90
 -- LONG-RUN BEHAVIOR (found running 2400 frames, not visible at 600): the
 -- front and back leg pairs' crank angles drift into sync with each
 -- other over time regardless of their starting phase offset -- a real
@@ -773,8 +775,8 @@ local half_pendant = linkage1.pendant_len / 2
 local brace_margin = 0.5 * S
 local brace_height = 2 * (half_pendant - brace_margin)
 
-local crossbarFront = buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue", brace_height)
-local crossbarBack  = buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue", brace_height)
+local crossbarFront = (not opts.noBraces) and buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue", brace_height) or nil
+local crossbarBack = (not opts.noBraces) and buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue", brace_height) or nil
 -- ---------------------------------------------------------------------
 -- foot builder -- unmodified port of the original's buildFoot. A wide,
 -- flat pad welded (not hinged) to the bottom of a pendant, extending

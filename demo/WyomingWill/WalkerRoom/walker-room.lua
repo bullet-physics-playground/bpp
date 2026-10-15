@@ -105,6 +105,11 @@ REVERSE = REVERSE or false
 -- Spears 4-bar), in the Spears 4-bar file's order: front face first leg,
 -- second leg, back face first leg, second leg. Its own: { 0, 225, 180, 225 }
 GAIT = GAIT or nil
+-- UNBRACED: true (or a table of names) leaves off the side plates of the
+-- walkers that have them (Chebyshev-Spears, the Hoecken walkers and
+-- Hoecken-Spears 4-bars and sliders), so their legs are free to take
+-- any GAIT, a trot (GAIT = { 0, 180, 180, 0 }) among them
+UNBRACED = UNBRACED or false
 local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
 local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
@@ -526,7 +531,9 @@ local function addWalker(spec, x, z, heading)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
   opts.ankle = ANKLES
-  if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg")) then opts.phases = GAIT end
+  local unbraced = UNBRACED == true or (type(UNBRACED) == "table" and UNBRACED[spec.name])
+  if unbraced then opts.noBraces = true end
+  if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = GAIT end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
   local rev = REVERSE == true or (type(REVERSE) == "table" and REVERSE[spec.name])

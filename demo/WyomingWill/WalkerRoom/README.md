@@ -419,6 +419,24 @@ braces. Jansen gains most (reversed, from 6.0 to 7.7 cm/s on bumps). The
 reversed, trotting Spears 4-bar keeps 99% of its speed, though partly
 because it is slower on flat ground (7.5 cm/s); on bumps it makes 7.4.
 
+The side-plated walkers can only step both legs on a side together: the
+plate locks them. `UNBRACED = true` leaves the plates off, so they can
+take any `GAIT`. Without plates all four Hoecken walkers do much worse,
+and trotting doesn't bring them back (share kept; speed on bumps, cm/s):
+
+| Walker | Plates, sides | No plates, sides | No plates, trot |
+|--------|---------------|------------------|-----------------|
+| Hoecken-Spears 4-bar  | 80%, 7.1 | 68%, 6.1 | 61%, 5.4 |
+| Hoecken-Spears slider | 84%, 7.0 | 46%, 4.5 | 41%, 3.9 |
+| Hoecken 4-bar         | 80%, 6.7 | 56%, 3.6 | 51%, 3.4 |
+| Hoecken slider        | 68%, 5.1 | 50%, 3.8 | 54%, 4.3 |
+
+So for these linkages the brace is part of what makes them work: a leg
+of this kind needs its partner to hold it. Jansen, Klann and the Spears
+4-bar stand on their own legs and trot better; the plated walkers would
+need braces joining diagonal legs (as Chebyshev-Spears diag has, which
+trots and beats Chebyshev-Spears, 91% against 77%) to try it fairly.
+
 Not explained yet: the Hoecken-Spears long-stance comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
 its foot swings forward in about 0.2 s, the quickest of all.
@@ -557,4 +575,5 @@ feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks run
 backward, so it walks the other way; or a table of names), `GAIT` (four crank
-phases, degrees, for Jansen, Klann and Spears 4-bar: see above).
+phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (true or a table of
+names: the side plates left off, so `GAIT` applies to those walkers too).

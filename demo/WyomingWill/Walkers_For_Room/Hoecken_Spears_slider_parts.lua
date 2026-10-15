@@ -611,10 +611,12 @@ end
 -- compute_hoecken_slider's own ground_angle=90 (see ORIENTATION note up
 -- top) -- NOT 0/"along the top edge" the way the earlier four-bar
 -- versions of this file used.
-local linkage1 = buildLinkage(0, 90, false, 0, opts.leftSpeed)                 -- front face, x=0,  phase 0
-local linkage2 = buildLinkage(linkage_spacing, 90, false, 0, opts.leftSpeed)   -- front face, x=10, phase 0
-local linkage3 = buildLinkage(0, 90, true, 180, opts.rightSpeed)               -- back face,  x=0,  phase 180
-local linkage4 = buildLinkage(linkage_spacing, 90, true, 180, opts.rightSpeed) -- back face,  x=10, phase 180
+-- (WALKER ROOM: opts.phases = { four phases, linkage1..4 } times the legs
+-- otherwise; opts.noBraces leaves the plates off, so they can)
+local linkage1 = buildLinkage(0, 90, false, opts.phases and opts.phases[1] or 0, opts.leftSpeed)                 -- front face, x=0,  phase 0
+local linkage2 = buildLinkage(linkage_spacing, 90, false, opts.phases and opts.phases[2] or 0, opts.leftSpeed)   -- front face, x=10, phase 0
+local linkage3 = buildLinkage(0, 90, true, opts.phases and opts.phases[3] or 180, opts.rightSpeed)               -- back face,  x=0,  phase 180
+local linkage4 = buildLinkage(linkage_spacing, 90, true, opts.phases and opts.phases[4] or 180, opts.rightSpeed) -- back face,  x=10, phase 180
 -- ---------------------------------------------------------------------
 -- crossbar builder: joins the pendant midpoints of two linkages that
 -- are identical and driven identically (so their pendants always stay
@@ -680,8 +682,8 @@ local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
 
   return bar
 end
-local crossbarFront = buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue")
-local crossbarBack  = buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue")
+local crossbarFront = (not opts.noBraces) and buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue") or nil
+local crossbarBack = (not opts.noBraces) and buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue") or nil
 -- ---------------------------------------------------------------------
 -- foot builder: a wide, flat pad welded (not hinged) to the bottom of
 -- a pendant, extending from the pendant's own Z-plane inward to z=0 --
