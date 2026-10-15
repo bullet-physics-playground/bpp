@@ -481,6 +481,22 @@ private:
   void createPovrayMenu();
 
   /**
+   * @brief Adds a Demos menu listing the bundled example scripts.
+   *
+   * The examples ship inside the .app on macOS and next to the executable
+   * elsewhere; the menu mirrors their directory tree, one entry per @c .lua
+   * file. No menu is added when no demo directory can be found.
+   */
+  void createDemosMenu();
+
+  /**
+   * @brief Recursively fills a Demos submenu from a directory.
+   * @param menu Menu to append to.
+   * @param dir  Directory whose subdirectories and @c .lua files to list.
+   */
+  void populateDemoMenu(QMenu *menu, const QDir &dir);
+
+  /**
    * @brief Path of the POV-Ray settings include file.
    * @return @c includes/settings.inc under the start-up working directory.
    */

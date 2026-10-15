@@ -353,6 +353,7 @@ void Gui::createMenus() {
   ui.menuFile->addAction(ui.actionExit);
 
   createPovrayMenu();
+  createDemosMenu();
 
   updateRecentFileActions();
 }
@@ -507,6 +508,59 @@ void Gui::createPovrayMenu() {
     settings->setValue("povray/useVFE", checked);
   });
 #endif // USE_VFE
+}
+
+void Gui::createDemosMenu() {
+  // Same search order the Lua module path uses: next to the executable, one
+  // level up (macOS, where the demos sit at Contents/demo beside the
+  // executable's Contents/MacOS), under the launch directory, then the .deb
+  // install location.
+  const QString appDir = QCoreApplication::applicationDirPath();
+  const QStringList candidates = {
+      appDir + "/demo",
+      appDir + "/../demo",
+      startupWorkingDir() + "/demo",
+      "/usr/share/bpp/demo",
+  };
+
+  QString demoDir;
+  for (const QString &candidate : candidates) {
+    if (QDir(candidate).exists()) {
+      demoDir = QDir(candidate).absolutePath();
+      break;
+    }
+  }
+  if (demoDir.isEmpty())
+    return;
+
+  QMenu *menuDemos = new QMenu(tr("&Demos"), this);
+  populateDemoMenu(menuDemos, QDir(demoDir));
+  if (menuDemos->isEmpty()) {
+    delete menuDemos;
+    return;
+  }
+
+  ui.menubar->insertMenu(ui.menuHelp->menuAction(), menuDemos);
+}
+
+void Gui::populateDemoMenu(QMenu *menu, const QDir &dir) {
+  const QFileInfoList entries =
+      dir.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot,
+                        QDir::DirsFirst | QDir::IgnoreCase | QDir::Name);
+  for (const QFileInfo &entry : entries) {
+    if (entry.isDir()) {
+      QMenu *sub = menu->addMenu(entry.fileName());
+      populateDemoMenu(sub, QDir(entry.absoluteFilePath()));
+      if (sub->isEmpty()) {
+        menu->removeAction(sub->menuAction());
+        delete sub;
+      }
+    } else if (entry.suffix().compare("lua", Qt::CaseInsensitive) == 0) {
+      QAction *action = menu->addAction(entry.fileName());
+      const QString path = entry.absoluteFilePath();
+      connect(action, &QAction::triggered, this, [this, path]() { fileLoad(path); });
+    }
+  }
 }
 
 QString Gui::povraySettingsPath() const {
