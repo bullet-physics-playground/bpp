@@ -72,6 +72,12 @@ bpp's markers on joints (`v.showConstraints`) are off looking down the
 hall; at an exhibit they're as the exhibit has them (the gyroscopes turn
 them off).
 
+## How faithful it is
+
+`report/physics-fidelity-report.pdf` goes through every exhibit: how it is
+simulated, and each check of it against theory, with the numbers. The
+sources it is built from, and how to rebuild it, are in `report/`.
+
 ## The plan
 
 Wing A runs north from the entrance to the corner; wing B runs east from
@@ -208,3 +214,4 @@ view down wing B), for trying one out.
   (their sizes), and the brass ring of the armillary sphere.
 * `make-labels.py`: makes the lettering (needs Python with Pillow and NumPy
   and the DejaVu fonts).
+* `report/`: the physics fidelity report and its sources.
