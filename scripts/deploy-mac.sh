@@ -35,6 +35,19 @@ if [ -d "$SDL3_LIBDIR" ]; then
     cp -f "$(ls "$FRAMEWORKS_DIR"/libSDL3*.dylib | head -1)" "$FRAMEWORKS_DIR/libSDL3.dylib"
 fi
 
+# Step 5b: macdeployqt can miss transitive non-Qt dependencies (for example
+# brotlicommon, which backs libbrotlidec/freetype, and libsharpyuv, which
+# backs libwebp). Scan the whole bundle and copy any missing runtime
+# dependency from the standard Homebrew locations so the bundle is actually
+# self-contained at launch time.
+python3 "$(cd "$(dirname "$0")" && pwd)/bundle-macos-deps.py" "$APP"
+
+# Fix install names of the manually bundled SDL3 shim target too.
+SDL3_LIB="$FRAMEWORKS_DIR/libSDL3.dylib"
+if [ -f "$SDL3_LIB" ]; then
+  install_name_tool -id @executable_path/../Frameworks/libSDL3.dylib "$SDL3_LIB" 2>/dev/null || true
+fi
+
 # Step 6: Fix QGLViewer's dependencies to use bundled Qt frameworks
 QGLVIEWER_LIB="$QGLVIEWER_DEST/Versions/3/QGLViewer"
 for dep in $(otool -L "$QGLVIEWER_LIB" | awk 'NR>1 {print $1}'); do
