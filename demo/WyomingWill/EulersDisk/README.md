@@ -40,7 +40,8 @@ rolling), it gets there at a definite time t0, and near the end
     sqrt(alpha) falls at a steady rate, delta sqrt(m g a / I1) / (3 a), and
     W (t0 - t) = 3 a / delta
 
-whatever its mass or moment of inertia.
+whatever its mass or moment of inertia. So alpha goes as (t0 - t)^2, and
+W as 1 / (t0 - t).
 
     t= 27.70 s  leaning 14.98 degrees: going round  10.10 times a second (theory, going round in place:  10.11; -0.11%)
     t= 51.17 s  leaning  5.97 degrees: going round  15.72 times a second (theory, going round in place:  15.73; -0.08%)
@@ -59,9 +60,18 @@ whatever its mass or moment of inertia.
   bouncing and slipping on the mirror take over, which the theory doesn't
   follow.
 
+That finite end is the rolling resistance's, a law chosen here, not
+something the simulation finds for itself. Moffatt (Nature, 2000) let the
+air squeezed under the disc take the energy instead; then alpha goes as
+(t0 - t)^(1/3) and W as (t0 - t)^(-1/6), also to a definite end, but along
+a different curve. Which loss rules a real disc has been argued since
+(Easwar, Rouyer and Menon, 2002, spun discs in a vacuum and found the air
+plays only a small part). The exhibit shows the rolling-resistance answer;
+it can't tell the two apart.
+
 ## The disc
 
-Steel, 7.6 cm across, 1.2 cm thick, 430 g (the size of the toy), rolling on
+Steel, 7.6 cm across, 1.2 cm thick, 427 g (the size of the toy), rolling on
 the edge of its bottom face. Rolling resistance 30 microns.
 
 ## Physics
@@ -73,8 +83,8 @@ the edge of its bottom face. Rolling resistance 30 microns.
     contact point being whatever keeps that point still, solved for the
     turning at each moment;
   * stepped with RK4, 9600 times a second;
-  * with no rolling resistance its energy stays put to a few parts in a
-    million.
+  * with no rolling resistance its energy stays put to the eighth figure
+    (2523.0883 kg cm^2/s^2) over 20 s.
 * Bullet's contacts were tried first. Their small errors at a contact going
   round a rim many times a second added energy about as fast as the
   rolling resistance took it.

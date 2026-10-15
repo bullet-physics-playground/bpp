@@ -57,11 +57,27 @@ It's given no pre-tension (a real one has a little) and a stiffness of
 1.76 N/m, so hung up it stretches 60 cm. The bottom should stay put for
 0.202 s.
 
-It stays put for 0.204 s, while the ball beside it falls 20 cm. The 1%
-difference is the coils: the theory is for a smooth spring, and a spring of
-86 separate coils lags slightly behind it. With more coils (`SL_COILS`) it
-comes closer, as an independent check outside bpp (a plain mass-and-spring
-model with sticky collisions) also shows.
+It stays put for 0.2038 s, while the ball beside it falls 20.4 cm: 1.0%
+longer than the theory. Two things make that up, in about equal parts.
+
+* **The coils.** The theory is for a smooth spring; this one is 86 coils,
+  each a mass, joined by 85 springs, that stick when they meet. That chain,
+  worked out on its own outside bpp (a plain mass-and-spring model with
+  sticking collisions, a millionth of a second a step:
+  `reconstruction/slinky-chain.c`), waits 0.2030 s:
+  0.6% longer. With 43 coils it waits 0.2041 s, with 172, 0.2024, with
+  344, 0.2021: half the gap each time the coils double.
+* **The step.** Bullet, at 4800 steps a second, adds 0.4%: 0.2038 s, where
+  9600 steps a second give 0.2033, 19200 give 0.2031 and 38400 give 0.2030,
+  the chain's own. The step's share grows with the coils, because the
+  collapse then passes each coil in fewer steps. So at 4800 steps a second
+  more coils don't bring it closer: 43, 86 and 172 coils wait 0.2046,
+  0.2038 and 0.2048 s. At 19200 they do: 0.2042, 0.2031, 0.2026 s.
+  (`SL_COILS`, `SL_STEPS`; 19200 is beyond the steps slider, too slow to
+  watch.)
+
+The bottom is caught moving once it passes 1 cm/s; at 10 cm/s it's the same
+0.2038 s, so that isn't it.
 
 ## Physics
 
@@ -93,23 +109,29 @@ and the Slinky turns end over end, each end landing one step lower than the
 other did:
 
     stairs t= 0.65s  its first end lands on step 3
-    stairs t= 0.93s  its other end lands on step 4
-    stairs t= 1.28s  its first end lands on step 5
-    stairs t= 1.63s  its other end lands on step 6
-    stairs t= 2.04s  its first end lands on step 7
-    stairs t= 2.35s  its other end lands on the floor
-    stairs t= 2.64s  its first end lands on the floor
-    stairs t= 4.28s  the walking Slinky comes to rest, on the floor: 7 steps down in 2.64 s
+    stairs t= 0.92s  its other end lands on step 4
+    stairs t= 1.26s  its first end lands on step 5
+    stairs t= 1.71s  its other end lands on step 6
+    stairs t= 1.99s  its first end lands on step 7
+    stairs t= 2.39s  its other end lands on the floor
+    stairs t= 3.03s  its first end lands on the floor
+    stairs t= 3.75s  the walking Slinky comes to rest, on the floor: 7 steps down in 3.03 s
 
-About a third of a second a step (in simulated time; it runs at a tenth of
+About 0.4 s a step (2.6 to 3.1 s for a clean walk, in simulated time; it runs at a tenth of
 real speed, as the falling one does, so a walk takes half a minute on
 screen; `Z` for real speed).
 
 Each walk is a little different. Like a real one, it is sensitive: the
 smallest difference in how a step goes changes the next, so the times vary
-by a few tenths of a second from walk to walk, and now and then (one walk
-in three or four, in my runs) one goes wrong: it gallops, skipping a step or two, or stops short on a step.
-Either way, it starts again three seconds after it comes to rest. These
+from walk to walk (1.9 to 3.1 s to the floor), and often one goes wrong. In
+21 walks in a row, at the tenth of real speed it runs at: 12 went down every
+step to the floor; 4 reached the floor but galloped, skipping a step or two;
+3 stopped short on step 7; and 2 never got going, settling where they were
+set down. So nearly one walk in two goes wrong. (At real speed, `Z`, the
+landings are looked for only once a frame, a sixtieth of a second rather
+than a six-hundredth, so a quick landing can be missed and a clean walk
+logged as skipping a step; count them at a tenth of real speed.)
+Whatever happens, it starts again three seconds after it comes to rest. These
 stairs (12 cm up, 13 cm deep) are the size it walks best on; with deeper
 treads it more often stops, with shallower ones it more often gallops.
 
@@ -142,7 +164,10 @@ The stiffness and mass sliders set it too.
   flat wire.
 * `reconstruction/gen-meshes.py`: makes it (`python3 gen-meshes.py`, from
   that folder).
+* `reconstruction/slinky-chain.c`: the plain chain of coils, worked out
+  outside bpp, for the check above (`cc -O2 -o slinky-chain slinky-chain.c
+  -lm`, then `./slinky-chain 86 1e-6`: coils, step).
 
 Headless testing: `SL_COILS`, `SL_K` (N/m), `SL_MASS` (g), `SL_SPEED`,
-`SL_LOG=file.csv` (time, top, bottom, the bottom's speed, the ball, the
-centre of mass).
+`SL_STEPS`, `SL_LOG=file.csv` (time, top, bottom, the bottom's speed, the
+ball, the centre of mass).

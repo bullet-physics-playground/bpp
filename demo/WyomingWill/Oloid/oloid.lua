@@ -19,8 +19,9 @@
 --           on one cone, then the other; its centre of mass stays at the
 --           same height too (R / sqrt 2).
 --
--- All three weave from side to side as they go, 4 to 6 cm; what tells
--- them apart is whether their centre stays at one height.
+-- All three weave from side to side as they go (the two-circle roller
+-- 3.6 cm, the oloid 5.1, the sphericon 5.8); what tells them apart is
+-- whether their centre stays at one height.
 --
 -- THE PENS: above each roller, on a dotted stem from its centre, a pen
 -- draws its centre's height, 20 times over, straight above its lane, over
@@ -665,7 +666,7 @@ v:setHelpText(table.concat({
   "",
   "Three rollers, each the hull of two circular arcs, pushed",
   "along a board, lay their whole surface on it as they roll.",
-  "All three weave from side to side as they go (4 to 6 cm).",
+  "All three weave from side to side as they go (3.6 to 5.8 cm).",
   "What tells them apart is their centre's height:",
   "",
   "Back:   the oloid -- its centre rises and falls a little",

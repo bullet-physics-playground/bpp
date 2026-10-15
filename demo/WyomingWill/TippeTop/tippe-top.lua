@@ -28,8 +28,10 @@
 -- mass 4.5 mm below the ball's centre (0.3 of the radius). A top turns over
 -- only if 1 - 0.3 < 0.9 < 1 + 0.3, which this one passes. The green one's
 -- centre of mass is 0.6 mm off centre: 0.9 is outside 1 -/+ 0.04, so it
--- can't. To stay up on its stem it then needs about 100 rad/s or more
--- (a solid ball needed so much spin that it never managed it).
+-- can't. To stay up on its stem it then needs about 80 rad/s or more
+-- (the red one stands steady down to 83 and starts to sink at 82; a top's
+-- rule gives 68 for a tip that slides freely, 130-160 for one that can't;
+-- a solid ball hadn't the spin left after turning over to manage it).
 --
 -- PHYSICS, as in the other exhibits:
 --  * Bullet's gyroscopic term is off; each top's spin is advanced by
@@ -40,8 +42,12 @@
 --    (0.5 rad/s^2), so a top on its stem slows down and in the end falls
 --    over. (Without it, the red one spins on its stem for ever.)
 --  * Rolling resistance: a constant moment delta*m*g against rolling, as in
---    the other exhibits, 30 microns. It settles the tops at the end; at 100
---    microns the red one doesn't turn over at all.
+--    the other exhibits, 30 microns. It settles the tops at the end (with
+--    none they rock on). It doesn't stop the red one turning over (from 0
+--    to 300 microns it's up on its stem at 3.4-3.7 s), but brings it down
+--    sooner (onto ball and stem at 47 s with none, 39 s at 30, 30 s at
+--    100, 13 s at 300); from 50 microns the slow blue one doesn't turn
+--    over at all.
 --  * 4800 physics steps a second (it spins at 40 turns a second).
 --
 -- Keys
@@ -49,7 +55,8 @@
 --   Z   slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: TT_FAST, TT_SLOW (turns/s), TT_MU, TT_LOG=file.csv.
+-- Headless testing: TT_FAST, TT_SLOW (turns/s), TT_MU, TT_SPINF, TT_ROLL,
+-- TT_LOG=file.csv.
 --
 
 local common = require "common"

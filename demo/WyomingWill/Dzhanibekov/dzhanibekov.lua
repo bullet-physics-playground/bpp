@@ -21,21 +21,29 @@
 -- The shape matters: which axis is the middle one depends on proportions.
 -- With a long stem (7 cm) the stem becomes the smallest moment and spin
 -- about it is steady, while spin about the bar flips instead.
--- The console reports every flip and its period, and checks once in a
--- while that energy and angular momentum are conserved.
+-- The console reports every flip and its period, and every 10 s each
+-- one's energy and angular momentum (held by the script, see below: these
+-- show only rounding, not a test).
 --
 -- PHYSICS NOTE: Bullet's own handling of free rotation is not good enough
 -- here. Tested against the exact solution of Euler's equations (inertia
--- 1:2:3, one minute): with its gyroscopic term off, nothing flips; with its
--- "explicit" term the spin gains energy (+59%); with its default
--- ("implicit") term the flips are on time but the spin drains away (energy
--- -44%, angular momentum -25%; still -3% a minute at 16x the steps). So the
--- gyroscopic term is switched off (setFlags(0)) and this script advances
--- each handle's spin by Euler's equations itself, with RK4, before every
--- physics step, holding kinetic energy and angular momentum exactly. That matched the exact
--- flip period to 0.2%, with energy and angular momentum exact. (This build
--- of Bullet uses single-precision numbers, so with a vanishingly small
--- nudge rounding noise starts the wobble a little sooner -- as any tiny
+-- 1:2:3, one minute, 600 steps a second; bullet-rotation-test.lua): with
+-- its gyroscopic term off, nothing flips (the exact solution flips 21
+-- times); with its "explicit" term the spin gains energy (+59%, angular
+-- momentum +26%); with its default ("implicit") term the flips are on time
+-- but the spin drains away (energy -31.9%, angular momentum -17.5%; still
+-- -3.3% and -1.7% a minute at 16x the steps). So the gyroscopic term is
+-- switched off (setFlags(0)) and this script advances each handle's spin
+-- by Euler's equations itself, with RK4, before every physics step, and
+-- then puts it back onto its starting kinetic energy and angular momentum
+-- (two Newton steps along their gradients). Energy and angular momentum
+-- are therefore held by projection, to Bullet's single precision (about
+-- 1e-7): the console's figures for them show that, and test nothing. The
+-- real test is the flip period, which the projection doesn't set: 3.3129 s
+-- between flips (mean of 35, over 2 minutes) against the exact 3.3131 s
+-- (Euler's equations solved with elliptic integrals). (This build of
+-- Bullet uses single-precision numbers, so with a vanishingly small nudge
+-- rounding noise starts the wobble a little sooner -- as any tiny
 -- imperfection would in a real one.)
 --
 -- Keys
@@ -46,15 +54,15 @@
 --
 -- Units: centimetres, kilograms, seconds.
 --
--- Headless testing: bpp -f demo/dzhanibekov/dzhanibekov.lua -n FRAMES with
--- DZ_SPIN, DZ_NUDGE, DZ_STEPS, DZ_LOG=file.csv.
+-- Headless testing: bpp -f demo/WyomingWill/Dzhanibekov/dzhanibekov.lua
+-- -n FRAMES with DZ_SPIN, DZ_NUDGE, DZ_STEPS, DZ_LOG=file.csv.
 --
 
 local common = require "common"
 
 local DIR = "dzhanibekov-meshes/"
 local function loadData()
-  for _, dir in ipairs({ DIR, "demo/dzhanibekov/" .. DIR }) do
+  for _, dir in ipairs({ DIR, "demo/WyomingWill/Dzhanibekov/" .. DIR }) do
     local ok, data = pcall(dofile, dir .. "t-handle-data.lua")
     if ok and data then DIR = dir; return data end
   end

@@ -7,7 +7,7 @@ Sliding friction at the table does it.
 
 Three tops, each in its own dish:
 
-* **Left (red), spun fast** (40 turns a second): turns over in about 3
+* **Left (red), spun fast** (40 turns a second): turns over in about 3.5
   seconds and stands up on its stem; twenty-odd seconds later, slowing
   down, it sinks back and ends where it began, stem up.
 * **Middle (blue), the same top spun slowly** (15 turns a second): turns
@@ -35,7 +35,7 @@ only drawn; they touch nothing.
 Sliders: fast spin and slow spin (turns a second), friction, spin friction
 (how fast the spin about the upright dies away), rolling (rolling
 resistance, microns), speed, steps. Rest the mouse on a top to see what
-it's doing. The console reports each change ("Left up on its stem at 3.3 s")
+it's doing. The console reports each change ("Left   up on its stem at   3.5 s")
 and every 2 seconds each top's tilt and spin.
 
 ## The top
@@ -49,12 +49,29 @@ centre of mass is 0.6 mm off centre: 0.9 is outside 1 -/+ 0.04, so it can't.
 Getting a top to stand up on its stem took some finding:
 
 * A solid ball (moment of inertia 2/5 m r^2) turned over but never stood up:
-  standing on the stem needs about 100 rad/s or more, and a solid ball
-  hadn't the spin left after turning over. The hollow one has.
+  standing on the stem needs about 80 rad/s or more, and a solid ball
+  hadn't the spin left after turning over. The hollow one has: the red
+  top comes up onto its stem with about 91 rad/s (14.6 turns a second at
+  4 s), stands steady while it has 83 or more, and starts to sink, 24 s in, at 82. A
+  top's rule (I3 w > 2 sqrt(I m g l), l = 1.95 cm from its centre of mass
+  to the centre of the stem's round end) gives 68 rad/s with I about the
+  centre of mass, as for a tip that slides freely, and 130 to 160 with I
+  about the tip, as for one that can't slide; the stem's end, sliding at
+  friction 0.2, comes between. (The blue top, spun slowly, has at most 44
+  rad/s left once it's on its ball and stem.)
 * A long thin stem left the top stuck leaning on ball and stem; a short,
   round-ended one (radius 6 mm, standing 6 mm out of the ball) lets it up.
-* Rolling resistance of 100 microns stops the top turning over at all; 30
-  is enough to settle the tops at the end.
+* Rolling resistance (30 microns) settles the tops. With none, they never
+  settle: the blue one rocks on, 16 to 65 degrees, and after 40 s even the
+  green one starts rocking and has fallen to 71 degrees by 78 s (why the
+  green one does that hasn't been looked into). More of it doesn't stop
+  the red top turning over: from 0 to 300 microns it is up on its stem at
+  3.4 to 3.7 s each time. It brings it down sooner: back onto its ball and
+  stem at 47 s with none, 39 s at 30 microns, 30 s at 100, 13 s at 300
+  (`TT_ROLL`; the slider stops at 100), but 22 s at 10. And from 50
+  microns the slow blue top doesn't turn over at all (8 degrees at most,
+  in the 2-second reports), where at 30 it gets as far as its ball and
+  stem.
 
 ## Physics
 

@@ -70,8 +70,15 @@ becomes 1 cm:
       and the first, stepped twice as finely, only at 8.3 s
 
 The arithmetic has its own butterfly: its tiny errors grow at the same
-rate. But they start a hundred thousand times smaller than the atom, so
-the arithmetic's version parts two seconds after the seven have.
+rate. But after a second they are still three thousand times smaller than
+the atom, so the arithmetic's version parts two seconds after the seven
+have.
+
+The 5.2 s foretold against the 6.3 s seen is a check of the right size,
+not a precise test. The exponent is an average over one 30 s swing, while
+the first seconds' growth is slower, before the gap has turned into the
+direction that grows fastest; and the gap between bottom bobs is not the
+measure Benettin's method uses.
 
 **The pure swings.** For small swings,
 
@@ -119,6 +126,13 @@ averaging can't see:
 
 It's tilted along its slow rocking (the lower rod √2 times as far), and the
 rocking is measured on the angle averaged over each shake.
+
+When the 1.42 cm chain is thrown over is not a settled number. Its sway
+grows exponentially from a tiny start, and the step's own errors are part
+of that start, so the time depends on the step:
+3.96 s at 4800 steps a second, 4.46 s at 9600. Only the fact that it is
+thrown over is robust. The other shaken numbers (the 0.79 s fall, the
+0.881 s rocking) are the same at 9600.
 
 ## The pendulums
 

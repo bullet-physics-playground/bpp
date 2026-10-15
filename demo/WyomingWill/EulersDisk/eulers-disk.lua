@@ -19,10 +19,13 @@
 -- against its rolling), it gets there at a definite time t0, and near the
 -- end
 --     W (t0 - t) = 3 a / delta
--- whatever its mass or moment of inertia. The console gives W against the
--- first as it leans over, and W (t0 - t) against the second at the end.
+-- whatever its mass or moment of inertia: alpha goes as (t0 - t)^2. That
+-- end is the rolling resistance's, chosen here; with the air under the
+-- disc taking the energy instead (Moffatt, 2000), alpha would go as
+-- (t0 - t)^(1/3). The console gives W against the first as it leans over,
+-- and W (t0 - t) against the second at the end.
 --
--- THE DISC: steel, 7.6 cm across, 1.2 cm thick, 430 g -- the size of the
+-- THE DISC: steel, 7.6 cm across, 1.2 cm thick, 427 g -- the size of the
 -- toy -- rolling on the edge of its bottom face. Rolling resistance 30
 -- microns. Set going at 30 degrees.
 --
@@ -32,8 +35,8 @@
 -- second add energy as fast as the rolling resistance takes it): Newton's
 -- and Euler's equations for the disc, with the force at its contact point
 -- whatever keeps that point still, solved for the turning each moment, and
--- stepped (RK4) 9600 times a second. Its energy stays put to a few parts in
--- a million with no rolling resistance. A light drag on its centre's
+-- stepped (RK4) 9600 times a second. With no rolling resistance its energy
+-- stays put to the eighth figure over 20 s. A light drag on its centre's
 -- sideways motion (10 per second: the air, and the mirror's grip not being
 -- perfect) keeps it rolling in place; without it, as it loses energy, its
 -- centre drifts into circles a few millimetres across, and it goes round up

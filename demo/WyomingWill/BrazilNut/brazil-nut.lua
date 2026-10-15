@@ -29,8 +29,10 @@
 -- beads fall, and the bed rides on it: the floor's push on it never less
 -- than (1 - Gamma) of its weight. Above, a rigid bed would leave the floor
 -- each shake when the floor's downward acceleration passes g, at a phase
--- of arcsin(1 / Gamma) into the upswing; the real bed is springy and
--- presses on longer. The console gives both (the push from how much the
+-- of arcsin(1 / Gamma) into the upswing. This one presses on much longer,
+-- mostly because Bullet's contacts give a little: made stiffer (more steps,
+-- more solver iterations) it leaves sooner (see README). The console gives
+-- both (the push from how much the
 -- heavy box is slowed), and the convection: how fast the beads in the
 -- middle rise and those beside the walls fall.
 --
@@ -412,7 +414,7 @@ v:postSim(function(N_)
                             bx.short, g, least, 1 - g))
       else
         print(string.format("  %-6s Gamma %.1f: the bed leaves the floor %d to %d degrees into the upswing (a rigid bed: arcsin 1/Gamma = %.1f;" ..
-                            "\n         the real one is springy, squeezed by its landing, and presses on a little longer)",
+                            "\n         this one presses on longer: Bullet's contacts give a little, and the stiffer they are, the sooner it leaves)",
                             bx.short, g, off, off + 2, g > 1 and math.deg(math.asin(1 / g)) or 0))
       end
     end

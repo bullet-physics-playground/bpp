@@ -18,9 +18,11 @@
 --   middle (teal)     spun ANTICLOCKWISE -- its own way: it just spins down
 --   right  (magenta)  "the restless one": spun clockwise on a table that
 --                     takes almost no energy (rolling 5 microns instead of
---                     50): wobble, spin, wobble, spin the other way, again
---                     and again (some real rattlebacks do this)
--- T taps all three on the end from rest: they start spinning anticlockwise.
+--                     50): wobble, spin, wobble, spin the other way, and
+--                     back again (three reversals, at 0.65, 4.22 and
+--                     6.23 s; some real rattlebacks do this)
+-- T taps all three on the end from rest: they start spinning anticlockwise
+-- (the restless one then reverses twice more, at 3.10 and 5.52 s).
 -- The Shortcuts pane explains what to watch for.
 --
 -- PHYSICS, as in the other exhibits:
@@ -31,18 +33,23 @@
 --    contact, before every step (as in Gomboc Drop C). It matters here:
 --    checked against an independent model (a rigid ellipsoid rolling without
 --    slipping, energy exactly conserved), this rattleback is unstable in BOTH
---    directions -- strongly the wrong way (growth 8.5/s at 1 turn/s), weakly
---    its own way (1.7/s). Real rattlebacks reverse only one way because small
---    losses at the table damp the weak instability; with no losses at all
---    this one reverses both ways for ever. Rolling 20-100 microns gives the
---    one-way rattleback; at 200 neither way reverses. Default 50.
+--    directions -- strongly the wrong way (growth 8.9/s at 1 turn/s; 8.5/s
+--    at 6 rad/s), weakly its own way (1.7/s). Real rattlebacks reverse only
+--    one way because small losses at the table damp the weak instability;
+--    with no losses at all this one reverses both ways for ever. From this
+--    exhibit's start (1 turn/s, 1 rad/s wobble), runs of 30 s give: 0 and
+--    10 microns, both reverse, again and again; 20 and 30, the wrong-way
+--    one turns round and back and round again (at 30 the own-way one too,
+--    once, late, at 8.7 s); 40 to 100, the one-way rattleback; 150 and
+--    300, neither reverses -- but at 200 the wrong-way one still did, late
+--    (4.6 s): above 100 it is near the edge. Default 50.
 --  * Contact: convex hull of 3073 points of the half-ellipsoid, 0.1 mm
 --    margin, 10-micron contact processing threshold.
 --  * Control check: with the skew set to 0 nothing ever reverses.
 --
 -- Keys
---   R   spin them again (left clockwise, right anticlockwise)
---   T   stop them, then tap both on the end
+--   R   spin them again (left and right clockwise, middle anticlockwise)
+--   T   stop them, then tap all three on the end
 --   Z   slow motion (1/4) <-> real time
 --
 -- Sliders: spin (turns per second), wobble (the hand's rock when spun,
@@ -56,7 +63,7 @@ local common = require "common"
 
 local DIR = "rattleback-meshes/"
 local function loadData()
-  for _, dir in ipairs({ DIR, "demo/rattleback/" .. DIR }) do
+  for _, dir in ipairs({ DIR, "demo/WyomingWill/Rattleback/" .. DIR }) do
     local ok, data = pcall(dofile, dir .. "rattleback-data.lua")
     if ok and data then DIR = dir; return data end
   end

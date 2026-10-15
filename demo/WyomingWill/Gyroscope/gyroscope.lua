@@ -15,18 +15,21 @@
 --           upright (a gauge in front shows the tilt 20 times over)
 -- As the rotors slow (air, bearings), the pedestal's and the string's go
 -- round faster and sag lower; the tightrope one wobbles in wider and wider
--- circles. After about 40 s the pedestal one slides off its point; at
--- about 40 turns a second the tightrope one comes off the wire; the one on
--- the string sags on until, its rotor stopped (100 s), it just hangs. R
--- spins them up again.
+-- circles. After 37 s the pedestal one slides off its point; after a
+-- minute (38 turns a second) the tightrope one comes off the wire; the
+-- one on the string sags on until, its rotor stopped (100 s), it just
+-- hangs. R spins them up again.
 --
 -- THE GYROSCOPE: a rotor 6 cm across, 100 g, its weight mostly in the rim
 -- (moment of inertia about the axle 0.65 m r^2), in a hoop 8.8 cm across
 -- (50 g) on an axle (10 g); 160 g in all. Spun at 100 turns a second.
--- Held 6 cm from its centre, theory gives it a turn round every 2.35 s
--- (precession rate m g r / (I w)); it does that. On its foot on the wire,
--- a top's rule says it stays up while I3 w > 2 sqrt(I m g l) (l = 6.4 cm,
--- I across the axle about the foot): above 46 turns a second.
+-- Held 6 cm from its centre, theory gives it a turn round every 2.45 s
+-- (precession rate m g r / (I w) = 2.56 rad/s); it does that. On its
+-- foot on the wire, a top's rule says it stays up while
+-- I3 w > 2 sqrt(I m g l) (l = 6.4 cm, I across the axle about the foot):
+-- above 46 turns a second. On a
+-- still wire it comes off at 52 turns a second (friction 0.3) or 45
+-- (0.005, the default); rocked 1 degree, at 38.
 --
 -- PHYSICS
 --  * Each gyroscope is one rigid body (hoop, axle and rotor together). The
@@ -56,8 +59,10 @@
 --    moves at, and the foot feels that. Tipped more than about a degree,
 --    the gyroscope is soon thrown over: each tip moves the way "up" is for
 --    it, and it wobbles round the new up, and tips come about as often as
---    its wobble goes round (2.3 s), so they build it up. Rocked 1.5
---    degrees it lasts as long as at 1 (55 s); at 2, 13 s; at 3, 6 s.
+--    its wobble goes round (2.3 s), so they build it up. Rocked 1
+--    degree it lasts 62 s (still: 55 s); 1.5 degrees, 49 s (and it slides
+--    out to 14-15 cm, not 9, before it falls: it wobbles wider, and most
+--    likely the wobble pushes the foot along too); 2, 13 s; 3, 6 s.
 --  * 2400 physics steps a second.
 --
 -- Keys

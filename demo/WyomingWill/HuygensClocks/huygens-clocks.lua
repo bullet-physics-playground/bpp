@@ -22,7 +22,7 @@
 --
 -- Theory: with the clocks stopped (no escapement, no friction), the two
 -- pendulums and the beam have two ways of swinging: in opposition, at the
--- pendulum's own frequency (the beam still), and together, faster (the
+-- pendulum's own frequency (the beam still), and together, slower (the
 -- beam swinging the other way). The console works those out from the
 -- masses and the spring and compares the opposed one with what the clocks
 -- settle into; and gives the clocks' phase difference as it goes to 180

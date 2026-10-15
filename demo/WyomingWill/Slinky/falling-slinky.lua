@@ -23,9 +23,10 @@
 --   sqrt( M / 3k )
 -- M its mass, k its stiffness. There's no g in it -- on the Moon it would
 -- hang for just as long -- and the closed-up length drops out too. The
--- console gives what it does and what it should, each drop: 86 coils make
--- it about 1% longer than the smooth spring of the theory (the more coils,
--- the closer).
+-- console gives what it does and what it should, each drop: 1.0% longer,
+-- 0.6% for the 86 separate coils (a chain of them, worked out exactly,
+-- waits 0.2030 s; the more coils, the closer) and 0.4% for the step (at
+-- 19200 steps a second, 0.2031 s).
 --
 -- THE SLINKY: the original metal one -- 215 g, 86 coils 7 cm across, 5.6 cm
 -- tall closed up -- with no pre-tension, stiffness 1.76 N/m: hung up, it
@@ -51,9 +52,10 @@
 -- arch, its end set down on the next step. The pile pours over into the
 -- arch, the far end becomes a pile, and the Slinky turns end over end down
 -- the stairs -- each end landing a step lower than the other did -- to the
--- floor, about a third of a second a step. Then it starts again. Like a
--- real one it's sensitive, and now and then a walk gallops (skipping a
--- step) or stops short.
+-- floor, about 0.4 s a step. Then it starts again. Like a
+-- real one it's sensitive: nearly one walk in two goes wrong (21 in a row:
+-- 12 clean, 4 galloped, skipping a step, 3 stopped short, 2 never got
+-- going).
 --  * Built in the plane of the drawing: 43 pieces of two coils each,
 --    capsules that touch each other (closed up) and the stairs. Each
 --    piece's two sides are joined to the next piece's by a spring that only
@@ -68,7 +70,8 @@
 --   Z   a tenth of real speed <-> real speed
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: SL_COILS, SL_K (N/m), SL_MASS (g), SL_SPEED, SL_LOG=file.csv.
+-- Headless testing: SL_COILS, SL_K (N/m), SL_MASS (g), SL_SPEED, SL_STEPS,
+-- SL_LOG=file.csv.
 --
 
 local common = require "common"
@@ -84,7 +87,7 @@ local G = 981
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
 param("speed", envnum("SL_SPEED", 0.1), 0.02, 1, 0.02, "simulated seconds per real second (Z: 1/10 <-> 1)")
-param("steps", 4800, 2400, 9600, 600, "physics steps per simulated second")
+param("steps", envnum("SL_STEPS", 4800), 2400, 9600, 600, "physics steps per simulated second")
 param("stiffness", envnum("SL_K", 1.76), 1.2, 5, 0.02, "the Slinky's stiffness, N/m (hangs it up again)")
 param("mass", envnum("SL_MASS", 215), 100, 300, 5, "the Slinky's mass, g (hangs it up again)")
 param("hold", 0.5, 0.5, 6, 0.5, "seconds (on screen) it hangs before the hand lets go")

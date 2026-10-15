@@ -34,7 +34,7 @@
 --           chain of rods too, but only in a window: David Acheson, 1993.)
 --
 -- Theory, and what the console checks:
---   The butterfly: energy stays put (to about 1e-9 of the swing's) in each
+--   The butterfly: energy stays put (to about 2e-11 of m g l) in each
 --   pendulum; the same pendulum stepped twice as finely stays with the
 --   first long after the seven have parted -- what you see is the atom's
 --   width, not the arithmetic; and how fast nearby swings part (the
@@ -58,8 +58,8 @@
 -- PHYSICS: the swing's exact equations (Lagrange's), stepped here: the
 -- shaken ones by RK4, 4800 times a second; the others by Bulirsch-Stoer
 -- (tenth order), 240 times a second: stepped twice as finely, the
--- butterfly's bottom bob is a few femtometres off after a second, a
--- hundred-thousandth of the atom's width it starts with. Bullet only draws
+-- butterfly's bottom bob is 64 femtometres off after a second, some three
+-- thousand times less than the atom's width it starts with. Bullet only draws
 -- them.
 --
 -- Keys

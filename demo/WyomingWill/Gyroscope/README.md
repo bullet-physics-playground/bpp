@@ -5,7 +5,7 @@ a hoop, its axle standing out of the hoop at each end to a little ball. Spun
 up to 100 turns a second and set down:
 
 * **Left, on a pedestal**, held only by the ball at one end of its axle. It
-  doesn't fall: it goes round (precesses), axle level, a turn every 2.4
+  doesn't fall: it goes round (precesses), axle level, a turn every 2.45
   seconds.
 * **Middle, hung by a string** from the same ball. The same, the string
   leaning out a little as it goes round.
@@ -18,10 +18,10 @@ up to 100 turns a second and set down:
   gauge in front of it shows the tilt 20 times over.
 
 As the rotors slow, the left two go round faster and sag lower; the right
-one wobbles in wider and wider circles. After about 40 seconds the pedestal
-one slides off its point; at about 40 turns a second the tightrope one
-comes off the wire; the one on the string sags on until its rotor stops,
-at 100 seconds, and it just hangs.
+one wobbles in wider and wider circles. After 37 seconds the pedestal
+one slides off its point; after a minute, at 38 turns a second, the
+tightrope one comes off the wire; the one on the string sags on until its
+rotor stops, at 100 seconds, and it just hangs.
 
 ## Keys
 
@@ -48,9 +48,11 @@ about the axle 0.65 m r^2); a hoop 8.8 cm across, 50 g; an axle, 10 g; 160 g
 in all. The balls are 6 cm from the centre.
 
 * **Going round.** Held 6 cm from its centre, it goes round at
-  m g r / (I w): 2.67 radians a second at 100 turns a second, a turn every
-  2.35 s. It does that (3.4 turns in its first 8 seconds, as it slows from
-  100 to 92 turns a second).
+  m g r / (I w): 2.56 radians a second at 100 turns a second, a turn every
+  2.45 s. It does that: 2.58 radians a second over its first 2 seconds
+  (theory at the 99 turns a second it has then, 2.59), and 3.35 turns in
+  its first 8 seconds, as it slows from 100 to 92 turns a second (theory
+  3.40; the console rounds it to 3.4).
 * **Sagging.** With no friction at all it would go round level for ever,
   however slowly it spun, dipped only by its wobble (m g r I / (I3 w)^2: 3
   degrees at 100 turns a second, 16 at 40). It does that too, with the
@@ -59,7 +61,9 @@ in all. The balls are 6 cm from the centre.
 * **Standing on the wire.** A top stays up on its point while
   I3 w > 2 sqrt(I m g l), with l the height of its centre of mass above the
   point and I its moment of inertia across the axle about the point: here
-  above 46 turns a second. It comes off at about 50.
+  above 46 turns a second (46.7 to 48.2, as I is 7.36 or 7.85 kg cm^2,
+  in the hoop's plane or across it). On a still, rough wire it comes off
+  at 52.
 
 Getting the tightrope to work took some finding. The first gyroscope stood
 on the wire on its hoop, with a groove round the hoop for the wire. It can't
@@ -75,14 +79,24 @@ is a top on a point, and stays up.
   the 0.6 s each tip takes), so it slides to and fro through the middle,
   as a ball rolls to and fro in a dip; each time it stops, the attendant
   tips a little later or sooner next time, to keep it going about 9 cm
-  each way. The console gives where it is on the wire and the wire's
-  tilt.
+  each way (5 to 12 cm; the first time 14, before it has the timing).
+  The console gives where it is on the wire and the wire's tilt.
 * **Why only a degree.** To a gyroscope on a tipped wire, "up" is square
   to the wire, so each tip moves its up a little, and it wobbles round its
   new up. Its wobble goes round every 2.3 s, and the tips come about as
-  often, so they build it up. Rocked 1 or 1.5 degrees, it stays up as long
-  as on a still wire, or longer (62 and 55 s); rocked 2 degrees, it's
-  thrown over in 13 s; 3 degrees, in 6 s. Try the rock slider.
+  often, so they build it up. Rocked 1 degree, it stays up longer than on
+  a still wire (62 s, against 55); rocked 1.5 degrees, not so long (49 s,
+  at 51 turns a second); rocked 2 degrees, it's thrown over in 13 s; 3
+  degrees, in 6 s. Try the rock slider.
+* **Rocked 1.5 degrees, it goes further than 9 cm.** Each tip is half as
+  big again, and it wobbles wider (9 to 17 degrees from upright, where
+  rocked 1 degree it wobbles 2 to 8). The attendant's timing is only a
+  guess from where it last stopped, and at 1.5 degrees the same mistake in
+  timing sends it half as far again: it stops anywhere from 1 to 15 cm out.
+  In its last 6 seconds it goes 14 to 15 cm each way, though the attendant
+  is tipping as soon as it can (4 cm early, its limit). Most likely its
+  wobble, 17 to 28 degrees by then, pushes the foot along the wire too;
+  that hasn't been taken apart from the slope's push.
 * **Why it lasts longer than on a still, rough wire.** There (friction
   0.3) it comes off at 52 turns a second, near the rule's 46. The foot
   that can slide along the wire lets it, there, keep its point under its

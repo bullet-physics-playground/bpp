@@ -71,8 +71,20 @@ steps).
 sliding friction, plus the small spin friction and rolling resistance. For
 an egg that jumps, it also goes to the landings, which don't bounce. The
 console adds up the work they do and compares it with what the egg lost.
-They agree to within 1.5% at 4800 steps a second, 0.9% at 9600, and 0.3% at
-19200: the difference is the step size.
+At 4800 steps a second they agree to within 1.5% (the left egg) and 0.8%
+(the middle one). For the middle egg the gap shrinks with the step: 0.44% at
+9600 steps a second, 0.34% at 14400, 0.29% at 19200 (the last two beyond the
+steps slider's 9600, set with `EG_STEPS`). The left egg's doesn't: 0.91%,
+0.83%, 1.38%.
+
+That is because when the left egg starts to rise isn't settled by the step.
+It starts nearly level, 3 degrees up, where the rise grows from a very small
+tilt, and the step's own errors are part of what starts it: it begins to
+rise at 0.50 s at 4800 steps a second, 0.65 s at 9600, 0.90 s at 14400 and
+2.45 s at 19200, sliding (and losing energy) on its side all the while. Once
+it's rising, it goes up the same way, and Jellett's J is kept as well
+(0.82%, 0.72%, 0.70%, 0.85%). The middle egg, spun faster, rises at 0.52 s
+at every step size.
 
 **Jumps.** In 2006, Shimomura and colleagues at Keio University spun egg
 shapes at up to 2500 turns a minute, and real hard-boiled eggs at 1800.
@@ -87,7 +99,7 @@ the shell's spin with the liquid, they should turn together at 5.5 turns a
 second. With no spin friction at the table they do: the shell and liquid
 together keep the angular momentum they started with. Stopped by the finger
 and let go, the shell picks up the liquid's spin. With no spin friction,
-that's 3.41 turns a second against 3.44 for sharing. With the default spin
+that's 3.40 turns a second against 3.43 for sharing. With the default spin
 friction it's about half that, since the light shell is slowed hard by the
 table.
 

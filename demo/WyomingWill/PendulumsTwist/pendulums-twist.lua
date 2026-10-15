@@ -38,7 +38,7 @@
 --   The flip row: energy, from rest at angle a, is -3 m g l cos a; the
 --   lower rod over the top needs at least -m g l (the upper hanging), so
 --   cos a <= 1/3; the upper rod over needs +m g l, cos a <= -1/3. The
---   console gives when each goes over, and the energy, steady to 1e-10.
+--   console gives when each goes over, and the energy, steady to 1e-8 of m g l.
 --   The Atwood machine: with r the swinging side's length, theta its
 --   angle, mu the ratio, (1 + mu) r'' = r theta'^2 - g (mu - cos theta)
 --   and r theta'' = -2 r' theta' - g sin theta. At mu = 3, in coordinates
