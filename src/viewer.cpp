@@ -4932,9 +4932,19 @@ void Viewer::savePOV(bool force) {
 
   if (!_pov_settings_inc.isEmpty() && !settingsIncPath.isEmpty() &&
       QFile::exists(settingsIncPath)) {
-    QString sceneSettingsInc = sceneDir + QDir::separator() + _pov_settings_inc;
-    QFile::remove(sceneSettingsInc);
-    QFile::copy(settingsIncPath, sceneSettingsInc);
+    // Keep the scene self-contained: copy the selected settings include plus
+    // any sibling includes it pulls in (bpp_CIE.inc, bpp_CIE_tools.inc, ...)
+    // so VFE/non-VFE renders that lack POV-Ray's configured include search
+    // path can resolve them next to the scene.
+    QString srcIncDir = QFileInfo(settingsIncPath).absolutePath();
+    QDir srcQDir(srcIncDir);
+    for (const QString &entry : srcQDir.entryList(QDir::Files)) {
+      if (!entry.endsWith(".inc", Qt::CaseInsensitive))
+        continue;
+      QString dst = sceneDir + QDir::separator() + entry;
+      QFile::remove(dst);
+      QFile::copy(srcIncDir + QDir::separator() + entry, dst);
+    }
   }
 
   QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
