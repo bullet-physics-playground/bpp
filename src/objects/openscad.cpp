@@ -77,13 +77,39 @@ OpenSCAD::OpenSCAD(QString sdl, btScalar mass, bool centerOfMass)
     QSettings s;
     QString openscad;
 
+    openscad = s.value("openscad/executable").toString();
+    if (openscad.isEmpty() || !QFileInfo(openscad).exists()) {
+      QStringList candidates;
 #ifdef Q_OS_WIN
-    openscad = s.value("openscad/executable",
-                       "C:\\Program Files\\OpenSCAD\\openscad.exe")
-                   .toString();
+      candidates << "C:\\Program Files\\OpenSCAD\\openscad.exe";
+#elif defined(Q_OS_LINUX)
+      candidates << "/usr/bin/openscad" << "/usr/local/bin/openscad";
 #else
-    openscad = s.value("openscad/executable", "/usr/bin/openscad").toString();
+      candidates << "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+                 << "/opt/homebrew/bin/openscad"
+                 << "/usr/local/bin/openscad"
+                 << "/usr/bin/openscad";
 #endif
+      QString fromPath = QStandardPaths::findExecutable("openscad");
+      if (!fromPath.isEmpty())
+        candidates.prepend(fromPath);
+      for (const QString &c : candidates) {
+        QFileInfo fi(c);
+        if (fi.exists() && fi.isExecutable()) {
+          openscad = fi.absoluteFilePath();
+          break;
+        }
+      }
+    }
+    if (openscad.isEmpty()) {
+#ifdef Q_OS_WIN
+      openscad = "C:\\Program Files\\OpenSCAD\\openscad.exe";
+#elif defined(Q_OS_LINUX)
+      openscad = "/usr/bin/openscad";
+#else
+      openscad = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD";
+#endif
+    }
 
     args << "-o";
     args << stlfile;

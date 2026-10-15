@@ -172,19 +172,47 @@ void Prefs::setupPages() {
   this->defaultmap["povray/preview"] =
       _settings->value("povray/preview", opts).toString();
 
+  QString defaultOpenScadExe;
 #if defined(Q_OS_WIN)
-  this->defaultmap["openscad/executable"] =
-      _settings
-          ->value("openscad/executable",
-                  "C:\\Program Files\\OpenSCAD\\openscad.exe")
-          .toString();
+  defaultOpenScadExe = "C:\\Program Files\\OpenSCAD\\openscad.exe";
 #elif defined (Q_OS_LINUX)
-  this->defaultmap["openscad/executable"] =
-      _settings->value("openscad/executable", "/usr/bin/openscad").toString();
+  defaultOpenScadExe = "/usr/bin/openscad";
 #else
-  this->defaultmap["openscad/executable"] =
-      _settings->value("openscad/executable", "/usr/local/bin/openscad").toString();
+  defaultOpenScadExe = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD";
 #endif
+
+  // Probe the well-known installation locations (and PATH) so the prefs
+  // default points at an actually installed OpenSCAD instead of a single
+  // hard-coded path that only exists on one particular setup.
+  QString systemOpenScadExe;
+  {
+    QStringList candidates;
+#if defined(Q_OS_WIN)
+    candidates << "C:\\Program Files\\OpenSCAD\\openscad.exe";
+#elif defined(Q_OS_LINUX)
+    candidates << "/usr/bin/openscad" << "/usr/local/bin/openscad";
+#else
+    candidates << "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+               << "/opt/homebrew/bin/openscad"
+               << "/usr/local/bin/openscad"
+               << "/usr/bin/openscad";
+#endif
+    QString fromPath = QStandardPaths::findExecutable("openscad");
+    if (!fromPath.isEmpty())
+      candidates.prepend(fromPath);
+    for (const QString &c : candidates) {
+      QFileInfo fi(c);
+      if (fi.exists() && fi.isExecutable()) {
+        systemOpenScadExe = fi.absoluteFilePath();
+        break;
+      }
+    }
+  }
+  if (systemOpenScadExe.isEmpty())
+    systemOpenScadExe = defaultOpenScadExe;
+
+  this->defaultmap["openscad/executable"] =
+      _settings->value("openscad/executable", systemOpenScadExe).toString();
 
   connect(this->checkOpenLast, &QCheckBox::toggled, this,
           &Prefs::guiOpenLastFileChanged);
