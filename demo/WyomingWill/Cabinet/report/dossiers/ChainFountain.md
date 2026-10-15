@@ -3,61 +3,62 @@
 **What it shows** — A long bead chain is pulled over the rim of a jar 1.5 m above the floor. It then siphons out on its own, and rises in an arch above the rim instead of sliding over it. This is the "Mould effect", filmed by Steve Mould in 2013 and explained by Biggins and Warner in 2014. A link picked up by one end rotates and pushes its other end into the pile, and the pile's upward reaction throws the chain up. A rope, with no links, would just slide over.
 
 **Model**
-- Chain: Bullet rigid capsule links, 1.5 cm joint-to-joint, radius 0.3 cm, mass 0.5 g, with no damping and no restitution. Neighbours are joined by btConeTwistConstraint with a swing limit equal to the bending angle (default 30 deg; CF_BEND) and free twist. Friction is 0.3 for chain on glass and chain on chain.
-- Pile and jar: a rigid disc stands in for the coil in the jar, lowered one layer (0.65 cm) at a time, inside a jar of 24 glass slabs (7 cm inside radius, 8 cm wall).
-- Initial coil: 10 layers, 15.8 m, 1055 links, laid as flat spirals no tighter than 3 cm. It is drawn but not simulated until it is picked up.
-- Simulation window: links are woken so that 10 links ahead of the pick-up still lie where they were laid, at most 1200 links per simulated second. The last link woken is held at its far end by a cone-twist joint to a fixed body in the next link's place (the coil not yet moving). Links that reach y < 2.5 cm are frozen: their joint is removed and they become drawn-only, non-colliding meshes. About 130-200 links are active at a time.
-- Stepping: the step is exactly 1/1800 s at every display speed. Each frame takes as many whole steps as its share of simulated time (7 and 8 alternately at the default 0.25x). Wake, freeze and measurement run after every physics step; the fountain is sampled every 1/240 simulated s and printed every 0.25 simulated s. 20 solver iterations.
-- What Bullet does: all dynamics and contacts. What the script does: wake, anchor, freeze and the pile disc. The script integrates nothing itself.
+- Chain: Bullet rigid capsule links, 1.5 cm joint-to-joint, radius 0.3 cm, mass 0.5 g, no damping, no restitution. Neighbours are joined by btConeTwistConstraint with a swing limit equal to the bending angle (default 30 deg; CF_BEND; slider 20-90 deg, was 10-90) and free twist. Friction 0.3, chain on glass and chain on chain.
+- Pile and jar: a rigid disc stands in for the coil, lowered one layer (0.65 cm) when the first link of a new layer is woken. The jar is 24 glass slabs (7 cm inside radius, 8 cm wall).
+- Initial coil (changed 15 Oct 2026): flat spirals, outside in then inside out, all turning the same way. Every link is 1.5 cm and no joint is laid bent past its limit. The inner radius is max(3 cm, the tightest the chain can turn while tipping down) = 3.1 cm at 30 deg, 4.8 cm at 20. At a layer's end the chain tips down 0.65 cm over 3 links, going on round. 10 layers: 15.8 m (1053 links) at 30 deg, 9.6 m at 20, 16.1 m at 60/90. Waiting links are drawn, not simulated.
+- Simulation window: links are woken so that 10 links ahead of the pick-up still lie where they were laid, at most 1200 per simulated second. The last link woken is held at its far end by a cone-twist joint to a fixed body in the next link's place. Links below y = 2.5 cm are frozen: their joint is removed and they become drawn-only, non-colliding meshes. About 130-200 links are active.
+- Stepping: exactly 1/1800 s at every display speed. Each frame takes as many whole steps as its share of simulated time. Wake, freeze and measurement run after every step. 20 solver iterations.
+- Bullet does all dynamics and contacts. The script does wake, anchor, freeze, the pile disc, and (read-only) measurement.
 
-**Theory checks** — Since 15 Oct 2026 the console prints a check against Biggins and Warner (2014) at the end of each run. Their notation: h1 = drop from the pick-up to the floor, h2 = top of the chain above the pick-up, pile push a m v^2, floor pull b m v^2. Steady flow gives v^2 = g h1/(1 - a - b) and h2 = a v^2/g. Here b = 0 by construction (landed links are frozen, lose their joint and do not collide), so v = sqrt(g (h1 + h2)) with no free parameter. Table numbers are from fresh runs (10 layers unless noted). Height statistics come from the CF_LOG CSV (0.5 s until the last coil link is woken). "Highest" is the console value, which now excludes the free end flying out at the end.
+**Theory checks** — Biggins and Warner (2014): pile push a m v^2 up on the link being lifted, floor pull b m v^2. Steady flow gives v^2 = g h1/(1 - a - b) and h2 = a v^2/g (narrow arch). Here b = 0 by construction (frozen links, no joint, no collisions). Fresh runs, 10 layers, CF_SPEED=1, steady window t = 1.00 s to the last coil link woken. v = rate links land x 1.5 cm. "Push" = disc contact force minus the weight of links touching it, divided by m v^2 (CF_PUSH=1, new).
 
 | Quantity | Theory / source | Simulation (this run) | Agreement |
 |---|---|---|---|
-| Same run at any display speed | physics must not depend on frame rate | 0.25x (with pause), 0.5x and 1x: console and CSV identical line for line (30, 20, 60 deg) | **yes, exact** (was ~2x different) |
-| Speed bound, 30 deg | ideal chain (a = b = 0): sqrt(g h1), h1 = 150.4 cm: 384 cm/s | 406 cm/s off the pile (t = 1.00-3.62 s) | +5.7%, faster as theory requires when a > 0 |
-| Speed, 30 deg | B&W with b = 0: sqrt(g (h1 + h2)), h2 = 13.7 cm: 401 cm/s | 406 cm/s | **+1.2%** |
-| Speed, 20 / 60 / 90 deg | same: 405 / 395 / 396 cm/s | 463 / 422 / 426 cm/s | +14% / +7% / +8%: **no for 20 deg** |
-| a from height vs from speed | equal in steady flow: g h2/v^2 = 1 - g h1/v^2 | 30: 0.08 vs 0.11; 20: 0.08 vs 0.31; 60: 0.05 vs 0.17; 90: 0.05 vs 0.19 (14 layers: 0.09/0.28, 0.09/0.17, 0.05/0.20, 0.05/0.20) | only roughly at 30 deg |
-| a, size of the push | B&W rod model a = (1 - I/(m b^2/4))/2: 0.31 for these links; B&W bead chain 1/6; B&W measured h2/h1 = 0.14 | a 0.05-0.09 from height; h2/h1 = 0.113 / 0.091 / 0.057 / 0.065 (20/30/60/90) | fountain lower than B&W's |
-| Fountain above rim, 20 deg | (README, now this run) | median 11.1 cm (IQR 9.0-13.7), highest 21.2; 14 layers 11.1 (8.2-13.8), 24.5 | README replaced |
-| 30 deg (default) | | median 8.8 (6.5-11.0), highest 16.1; 14 layers 9.2 (6.6-11.5), 16.3 | README replaced |
-| 60 deg | | median 3.4 (2.4-5.0), highest 7.5; 14 layers 3.9 (2.6-5.1), 7.7 | README replaced; **no stall** |
-| 90 deg | | median 4.4 (3.6-5.1), highest 9.7; 14 layers 3.7 (2.6-4.8), 9.7 | README replaced |
-| Stiffer chain, higher fountain | B&W; in-app help | 20 > 30 > 60 ~ 90 | yes up to 60 deg; "twice as high at 20" was not true and the help now says "a little higher than at 30" |
-| Time to empty | README: about 4 s | 4.25 s (30), 3.75 (20), 4.00 (60, 90) | yes |
+| Same run at any display speed | must not depend on frame rate | 0.25x with pause = 1x (30 deg); 0.5x = 1x (60 deg, CF_PUSH) | **yes, exact** |
+| Speed bound | ideal chain sqrt(g h1) = 384 cm/s | 397 / 450 / 425 / 432 cm/s (30/20/60/90) | faster, as a > 0 requires |
+| Pile push a (direct) | B&W rod model a = (1 - I/(m b^2/4))/2: 1/6 for their chain, 0.31 for these links | 0.31 / 0.27 / 0.19 / 0.17; 0.05-0.10 lower (0.22/0.17/0.13/0.12) if every link within 7 mm of the pile is counted as lying on it | push present, same order as theirs |
+| a from speed, 1 - g h1/v^2 | = push if nothing else acts | 0.06 / 0.27 / 0.18 / 0.21 | 60, 90: within the push's uncertainty. 30: **no**, the rim holds the chain up with 0.31 m v^2 (20: 0.14) |
+| a from height, g h2/v^2 | = push (narrow steady arch) | 0.07 / 0.05 / 0.07 / 0.07; h2 = 10.5 / 10.7 / 12.8 / 13.2 cm | **no**: fountain about 1/3 of a v^2/g with the measured push (35 cm at 60 deg) |
+| 30 deg: height vs speed | equal | 0.07 vs 0.06 | agree only by chance (push 0.31) |
+| Energy at landing | lossless chain: 1/(2(1 - a)) of the drop = 60-72% | 42 / 44 / 50 / 49%; rms landing speed 352 / 361 / 383 / 380 cm/s, 11-20% below v | **no**: 11-30% of the power lost on the way |
+| h2/h1 | B&W measured 0.14 | 0.070 / 0.071 / 0.085 / 0.088 | fountain lower |
+| Chaos spread (jar 146, 148, 152, 154 cm) | | v 414-448 cm/s, push 0.15-0.41, height-a 0.05-0.07 | |
+| Step 1/3600 s | converged? | 20 deg: v 477, push 0.39, h2 19.8; 30: 437, 0.32, 14.3 | **not converged** at 20 deg |
+| Fountain above rim (CF_LOG, t >= 0.5 s), median (IQR), highest; 14 layers in brackets | README | 20: 4.7 (3.5-5.8), 11.9 [4.5 (3.0-5.8)]; 30: 5.4 (3.4-8.0), 12.4 [4.1 (1.9-6.7)]; 60: 7.7 (6.0-8.3), 10.1 [6.3]; 90: 7.8 (6.6-8.6), 12.4 [7.3] | README replaced |
+| Stiffer chain, higher fountain | B&W; old README | no trend beyond chaos (medians at 4 jar heights: 6-8 / 5-7 / 4-8 / 5-8 cm) | old trend came from the bad coil |
+| Time to empty | README "about 4 s" | 4.25 s (30), 4.00 (60, 90), 2.50 (20, shorter chain) | yes |
 
 **Run used**
 
 ```
 cd demo/WyomingWill/ChainFountain
-CF_SPEED=1 CF_BEND=<20|30|60|90> CF_LOG=r<b>.csv HOLD_S=0 ../../../release/bpp -f chain-fountain.lua -n 300
-CF_LAYERS=14 CF_SPEED=1 CF_BEND=<b> CF_LOG=l<b>.csv HOLD_S=0 ../../../release/bpp -f chain-fountain.lua -n 400
-timeout 3000 ../../../release/bpp -f chain-fountain.lua -n 1200        # default 0.25x with pause; identical to the 1x run
-CF_HEIGHT=<60|200> CF_SPEED=1 CF_BEND=60 HOLD_S=0 ... -n 600            # 60 deg at other heights: empties (6.75 s, 3.75 s)
-bash ../Cabinet/report/cmp2.sh chain ChainFountain chain-fountain.lua 1200 cf          # chain: IDENTICAL (21 run lines)
+CF_PUSH=1 CF_SPEED=1 CF_BEND=<20|30|60|90> CF_LOG=d<b>.csv HOLD_S=0 ../../../release/bpp -f chain-fountain.lua -n 300
+CF_PUSH=1 CF_SPEED=1 CF_LAYERS=14 CF_BEND=<b> ... -n 400 ; CF_HEIGHT=<146|148|152|154> ... ; CF_STEPS=3600 ... -n 400
+timeout 3000 ../../../release/bpp -f chain-fountain.lua -n 1200        # 0.25x with pause: identical to 1x
+bash ../Cabinet/report/cmp2.sh chain ChainFountain chain-fountain.lua 1200 cf   # IDENTICAL (22 lines); CF_PUSH=1: IDENTICAL (23); CF_BEND=60: IDENTICAL (21)
 ```
 
 ```
-t= 4.25s  all of it out of the jar; the fountain stood up to 16.1 cm above the rim
-  theory (Biggins and Warner 2014), steady part t=1.00-3.62s; h1 = 150.4 cm, the pick-up above where a link lands (the rim is 5.1 cm above the pick-up)
-  chain 406 cm/s off the pile: an ideal chain (a = b = 0) would go sqrt(g h1) = 384 cm/s and not rise above the pick-up
-  top of the chain 13.7 cm above the pick-up on average (h2): h2/h1 = 0.091 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 401 cm/s
-  a = g h2/v^2 = 0.08 from the height, 1 - g h1/v^2 = 0.11 from the speed (rod model for one of these links: 0.31)
-[20 deg] chain 463 cm/s off the pile ... v = sqrt(g (h1 + h2)) = 405 cm/s
-[20 deg]   a = g h2/v^2 = 0.08 from the height, 1 - g h1/v^2 = 0.31 from the speed (rod model for one of these links: 0.31)
-[60 deg] t= 4.00s  all of it out of the jar; the fountain stood up to 7.5 cm above the rim
+t= 4.25s  all of it out of the jar; the fountain stood up to 12.4 cm above the rim
+  theory (Biggins and Warner 2014), steady part t=1.00-3.68s; h1 = 150.2 cm, the pick-up above where a link lands (the rim is 5.3 cm above the pick-up)
+  chain 397 cm/s (the rate links land): an ideal chain (a = b = 0) would go sqrt(g h1) = 384 cm/s and not rise above the pick-up
+  top of the chain 10.5 cm above the pick-up on average (h2): h2/h1 = 0.070 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 397 cm/s
+  a = g h2/v^2 = 0.07 from the height, 1 - g h1/v^2 = 0.06 from the speed (rod model for one of these links: 0.31)
+  the links reach the floor at 352 cm/s (rms), with 42% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
+  the pile's push, measured (its contact forces less the weight lying on it): a = 0.31; the rim holds the chain up with 0.31 m v^2
+[60 deg] a = g h2/v^2 = 0.07 from the height, 1 - g h1/v^2 = 0.18 from the speed ... a = 0.19; the rim ... 0.02 m v^2
 ```
-Pause: HOLD_S=0 for 500 frames is an exact prefix of the default hold for 530 frames.
+Pause: CF_SPEED=1, HOLD_S=0 for 300 frames is an exact prefix of the default hold for 330 frames (24 lines).
 
 **Known departures and honest caveats**
-- Fixed on 15 Oct 2026: frame-rate dependence. Wake and freeze used to run once per drawn frame, with at most 6 wakes per frame, and the step was 1/1920 s at 0.25x. Now everything runs per physics step at a fixed 1/1800 s, so all speeds give the same run.
-- Fixed on 15 Oct 2026: the 60-degree stall. The diagnosis came from a dump of the old code at t = 6 s. The woken links ahead of the pick-up had a free far end. The moving chain dragged them off their places, so the wake rule kept waking until the whole remaining coil (head = 1055) was active. That left a loose heap of 140 links in the jar, held by friction and the rim, with the hanging leg's foot resting on the frozen floor links, and it stopped. The fix holds the last woken link by its far end, as the unmoved coil would. Landed links also no longer collide.
-- The README table was measured afresh and replaced; the old 20/30-degree figures (10-25, 10-20 cm) were not reproduced at any speed.
-- **The steady theory holds only roughly.** a should come out the same from the speed and from the height. It does roughly at 30 deg (0.11 vs 0.08), but not at 20 deg (0.31 vs 0.08) or at 60 and 90 (0.17-0.20 vs 0.05). The chain runs up to 14% faster than sqrt(g (h1 + h2)). The cause is not established. The pick-up runs round a flat spiral and the arch swings and loops. At 20 deg about 60 more links are moving than the pile-to-floor path needs. The flow is therefore not the steady flow the theory assumes. The fountain (a about 0.05-0.09) is lower than Biggins and Warner's chain (h2/h1 = 0.14, rod model 1/6).
-- The coil is a rigid disc, not a heap. The anchor is infinitely strong, so the unmoved coil never yields. The "floor" is a freeze at 2.5 cm, with no floor dynamics (b = 0 by construction).
-- Each run is deterministic, so "several runs" means the 10- and 14-layer runs. 60 vs 90 deg is within noise.
+- Fixed 15 Oct 2026: frame-rate dependence (all work per physics step, fixed 1/1800 s) and the 60-degree stall (last woken link anchored; landed links don't collide).
+- Fixed 15 Oct 2026: the coil was laid wrong. The spiral went in to 3 cm at every bending, so at 20 deg 304 of 1054 joints were laid bent past their stop (worst about 29 deg against 20). At every bending each layer began with a 0.65 cm upright link (90 deg bends) and the next layer wound the other way. When woken, the solver kicked these joints straight. The old "stiffer chain, higher fountain" (20 deg median 11.1 cm) came from those kicks: with the fixed coil it is 4.7. Only the lead's 3 corners, woken at t = 0, are still laid past the limit.
+- Measurement changes (15 Oct): v is now the rate links land, not the rate they are woken. At 20 deg and 4800 steps/s the waking ran ahead (wake rate 592 cm/s, above the sqrt(2 g h1) = 542 energy bound). New lines: landing speed and energy, and with CF_PUSH=1 the directly measured push. CF_PUSH is off by default because eachContact makes the run 2.6x slower in the Cabinet (34.7 s against 13.2 s for 1200 frames).
+- **Still open: the flow is not the steady, lossless flow of the theory.** The pile's push is present (a 0.17-0.31), and the speed rule matches it where the chain keeps clear of the rim. But the fountain is about a third of the narrow-arch prediction. The links land 11-20% slower than the chain's length-rate, with 42-50% of the drop's energy against at least 60% for a lossless chain. Contributing causes, seen but not isolated: the pick-up circles the spiral at the chain speed (10-20 times a second), the arch swings, the falling leg is wavy, and the chain rubs the rim (30 deg). Where the lost energy goes (joint stops, link-link contacts, rim) is not established. A pile whose pick-up stays put was not tried.
+- Not step-converged at 20 deg (1/3600 s: v +6%, h2 +85%). The run is chaotic, with spreads as in the table.
+- The waking scheme is not neutral. With 5 links woken ahead instead of 10 (scratch copy with CF_K), v = 476 / 452 cm/s at 30 / 60 deg (+20% / +6%) and a from speed 0.35 / 0.28, against a push of 0.21 / 0.16. The anchor's force is not measured. With 20 the woken links are dragged into a heap (276-446 links moving; at 60 deg the rim carries 1.3 m v^2). So v is known to about 20%.
+- The coil is a rigid disc, not a heap. When the disc drops a layer, the last ~10 woken links of the old layer fall 0.65 cm. The anchor is infinitely strong. The floor is a freeze at 2.5 cm (b = 0 by construction).
 
 **References**
-- S. Mould, video, 2013 ("Mould effect") (README).
-- J. S. Biggins, M. Warner, "Understanding the chain fountain", Proc. R. Soc. A 470 (2014) 20130689, arXiv:1310.4056 (code and README; equations v^2 = g h1/(1 - a - b), h2/h1 = a/(1 - a - b), rod model a = (1 - I/(m b^2/4))/2, measured h2 = 0.14 h1, read from the arXiv PDF).
+- S. Mould, video, 2013 (README).
+- J. S. Biggins, M. Warner, "Understanding the chain fountain", Proc. R. Soc. A 470 (2014) 20130689, arXiv:1310.4056: v^2 = g h1/(1 - a - b), h2/h1 = a/(1 - a - b), rod model a = (1 - I/(m b^2/4))/2 = 1/6 for three beads per link, measured h2 = 0.14 h1, energy requires a + b <= 1/2.
