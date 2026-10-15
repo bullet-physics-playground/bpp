@@ -48,6 +48,15 @@ the others keep their settings for when you come back.
 Rest the mouse on an exhibit, a placard, a covered bay or the armillary
 sphere to see what it is.
 
+To look closer: the wheel moves you a tenth of the way in towards what the
+bay is showing at each click (and back out the same way); drag with the
+left button to walk round it, and with the right to slide the view. To
+turn round something else, a dial say, Shift + right click on it first
+(on empty space, it's the middle of the hall again; walking on puts it
+back on each bay as you arrive). (This needs bpp from 14
+October 2026 or later; before, the mouse turned round the middle of the
+whole hall.)
+
 Looking down the hall, the Params pane has one slider, "Cabinet: stop":
 where you are (1 is the entrance, then on round as Tab goes). Drag it to go
 straight to an exhibit. bpp's Restart (Ctrl+R) runs the whole hall again
