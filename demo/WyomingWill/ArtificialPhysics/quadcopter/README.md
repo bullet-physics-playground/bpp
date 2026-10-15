@@ -169,7 +169,7 @@ item 30.
 
 **Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
-`goalSpeed`, `goalDelay`, `simSpeed`, `soundVolume`, and the `obstacleField` and
+`goalSpeed`, `goalDelay`, `simSpeed`, `soundVolume`, `soundEmphasis`, and the `obstacleField` and
 `propStrikes` checkboxes.
 
 **Prop strikes:** Bullet's own contact points are checked every frame.
@@ -193,6 +193,36 @@ the steering you can hear.
   overtones and sound duller. Doppler raises the pitch of an approaching
   drone.
 - **Pan:** follows the camera, left of the view in the left speaker.
+
+**Emphasis** (`soundEmphasis`, default 0.7; 0 = the physical sound): makes
+a drone that's doing something louder than the rest. Each drone gets an
+activity score from three things:
+
+- how far its four rotor speeds pull apart, which is the drone tilting
+  (pitch or roll) or turning;
+- how fast its overall rotor speed changes, which is the sound's pitch
+  rising or falling;
+- its speed relative to the swarm, so the whole swarm drifting after the
+  goal doesn't count.
+
+A drone that stands out from the swarm's median:
+
+- gets its own voices (picked by activity as well as nearness, and kept at
+  least 1 s so they don't flicker);
+- is up to about 12 dB louder;
+- is heard from farther away (distance counts for less).
+
+A settled swarm drops to a low hum, and the many calm drones are scaled
+back so they don't drown out the busy few.
+
+Measured with Lennard-Jones at 0.7 from a close camera:
+
+- **Takeoff:** loud.
+- **Settled lattice:** a hum, 9 dB below the physical sound.
+- **Weaving through the obstacle field:** swells about 10 dB.
+
+Newtonian never settles and every drone is about equally busy, so it stays
+near its physical level with smaller swells.
 
 The voices hush while the simulation is stopped. They also go into the
 `.wav` of a POV-Ray export. A bpp without `v:setTone()` just runs silent.

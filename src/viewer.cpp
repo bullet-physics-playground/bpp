@@ -1878,6 +1878,11 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
     // and the synthesised voices of setTone(), mixed in after them
     _synth.attach();
   }
+  // The voices sound only while the simulation is stepping: pausing (S,
+  // the toolbar button, stopSim()) hushes them, resuming brings them back.
+  connect(this, &Viewer::simulationStateChanged, this, [this](bool on) {
+    _synth.setGate(on && animationIsStarted());
+  });
 
 
   // SpaceNavigator 3D mouse integration
@@ -5857,7 +5862,7 @@ void Viewer::startAnimation() {
   _timer.start();
   _frameTimingLast = -1; // (a pause is not a late frame)
   QGLViewer::startAnimation();
-  _synth.setGate(true);
+  _synth.setGate(_simulate);
 }
 
 void Viewer::stopAnimation() {

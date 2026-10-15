@@ -349,3 +349,16 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - **Takeoff climb:** 192–198 Hz, and louder than hover.
     - **Levels:** −18 dBFS RMS at a close-up camera, peaks 0.6. Clipping
       can't happen: the output passes a soft limiter.
+
+    **Follow-ups:**
+
+    - **Pause:** the voices kept humming while the simulation was paused.
+      The gate followed the viewer's animation timer, but BPP's pause (S,
+      the toolbar button) leaves that timer running and clears the
+      simulate flag instead. The gate now follows
+      `simulationStateChanged`. Checked by capturing the live output with
+      SDL's disk audio driver: the output drops to silence while paused
+      and returns on resume.
+    - **Emphasis** (`soundEmphasis`): drones that stand out from the
+      swarm get their own voices and are up to 12 dB louder, and a
+      settled swarm drops to a hum. See the quadcopter README.

@@ -156,6 +156,7 @@ defParam("padSpacing",   1.0,  0.7, 6,    0.1,  "closest two drones may stand in
 defParam("simSpeed",     1,    1,   8,    1,    "flight time per rendered frame, in 1/30 s units (fast-forward)")
 v:addParam("propStrikes", true, "drones touching another drone, an obstacle, or the ground in flight lose their props and fall")
 defParam("soundVolume",  0.5,  0,   1,    0.05, "rotor sound from the camera's point of view (0 = silent; M mutes)")
+defParam("soundEmphasis", 0.7, 0,   1,    0.05, "0 = the physical sound; higher = busy drones louder and voiced on their own, a settled swarm quieter")
 
 local function readParams()
   local p = {}
@@ -1112,7 +1113,7 @@ v:postSim(function(N)
   if frameCount % 3 == 0 then updateNeighborLines(p) end
   updateWaypointMarkers()
   updateCamera()
-  Sound.update(drones, v:getParam("soundVolume"))
+  Sound.update(drones, v:getParam("soundVolume"), v:getParam("soundEmphasis"), simTime)
 
   if simTime >= nextStats then
     nextStats = simTime + 1.0
