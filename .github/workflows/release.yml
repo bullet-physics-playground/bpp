@@ -185,7 +185,12 @@ jobs:
           PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
           cd "$PARENT"
           git clone https://github.com/POV-Ray/povray --depth=1
-          git -C povray apply "$(cygpath -u '${{ github.workspace }}')/povray-mingw/mingw-w64-port.patch"
+          # actions/checkout runs under Git for Windows (autocrlf=true), so the
+          # committed-LF patch is checked out as CRLF, while the POV-Ray clone
+          # (MSYS2 git, autocrlf off) stays LF. A CRLF patch fails every
+          # modification hunk against the LF tree, so normalize to LF first.
+          sed 's/\r$//' "$(cygpath -u '${{ github.workspace }}')/povray-mingw/mingw-w64-port.patch" > /tmp/mingw-w64-port.patch
+          git -C povray apply /tmp/mingw-w64-port.patch
           cd "$(cygpath -u '${{ github.workspace }}')/povray-mingw"
           qmake-qt5 povvfe.pro
           mingw32-make -j$(nproc)
