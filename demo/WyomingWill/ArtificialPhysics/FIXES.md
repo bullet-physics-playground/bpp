@@ -395,3 +395,36 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     arbitrary, so from above the grid sits at a random angle. One Lennard-
     Jones drone run flattened into two full levels of about 20 with a few
     drones above and below, rather than a 4×4×3 block.
+
+33. **3D cube: launch order matters. Thirds, top level first, is now the
+    default.**
+    The initial setup decides a lot. A new `launchOrder` setting
+    (quadcopter demos) launches:
+
+    - all at once (the original);
+    - in thirds, `launchGap` (15) s apart: top level first, bottom level
+      first, or each third to random heights;
+    - one drone at a time, over the same total time.
+
+    AP starts when the first group is up, and later drones join as they
+    arrive. `goalDelay` now counts from when the last drone joined.
+
+    50 drones, 3 seeds per order per law. With flight levels on (item
+    32), share of square angles at 150 s:
+
+    - **Thirds, top first:** the only order that gives three even levels
+      every time (16 / 17 / 17), and no crashes. With the goal and field:
+      Lennard-Jones 86 / 88 / 90%, Newtonian 76 / 100 / 89%. All at once
+      gave 83 / 85 / 83% and 64 / 68 / 62%, with lopsided stacks such as
+      2 / 19 / 25 / 4.
+    - **Without the goal:** top first 91 / 88 / 94% (Lennard-Jones) and
+      90 / 95 / 95% (Newtonian). All at once 99 / 91 / 97% and
+      82 / 93 / 70%. Lennard-Jones all at once scores a little higher, but
+      only because a lopsided stack of mostly two levels has fewer places
+      to go wrong.
+    - **Bottom first and one at a time:** 4–5 drones lost per three runs.
+      Later drones climb up through the levels already formed.
+    - **Thirds at random heights:** no better than all at once.
+
+    Default `launchOrder` 1 in 3D cube, 0 in every other mode (set on
+    2/3 and F; press R to relaunch).

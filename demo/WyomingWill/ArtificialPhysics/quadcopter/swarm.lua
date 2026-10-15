@@ -152,6 +152,8 @@ defParam("altitude",     12,   4,   40,   1,    "formation altitude (m): the 2D 
 defParam("windSpeed",    0,    0,   15,   0.5,  "steady wind along +z (m/s)")
 defParam("gust",         0,    0,   5,    0.25, "gust strength, std dev (m/s)")
 defParam("downwash",     1,    0,   2,    0.1,  "downwash strength (0 = off, 1 = momentum theory)")
+defParam("launchOrder",  0,    0,   4,    1,    "how Setup (R) launches: 0 all at once, 1 thirds top level first, 2 thirds bottom level first, 3 thirds at random heights, 4 one at a time")
+defParam("launchGap",    15,   2,   60,   1,    "seconds between launch waves (one at a time: the same total time, spread evenly)")
 defParam("padSpacing",   1.0,  0.7, 6,    0.1,  "closest two drones may stand in the launch cluster (m), used by the next Setup (R)")
 defParam("simSpeed",     1,    1,   8,    1,    "flight time per rendered frame, in 1/30 s units (fast-forward)")
 v:addParam("propStrikes", true, "drones touching another drone, an obstacle, or the ground in flight lose their props and fall")
@@ -211,6 +213,8 @@ local stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
 local obstacleObjs = {} -- solid obstacle objects
 local apEngagedAt = 0   -- simTime when AP engaged (for goalDelay)
+local pendingLaunch = {} -- drones still to take off: {x, z, alt, t}
+local allUpAt = nil      -- simTime the last drone of a staged launch joined AP
 local goalAutoDone = false
 
 -- The obstacle field and the goal's route, in metres. The launch cluster
@@ -600,16 +604,29 @@ local function guide(d)
   end
 end
 
+local launch   -- (below)
+
 local function physicsStep(p)
   -- AP and air on their own clocks
   -- the goal switches itself on goalDelay seconds after AP engages
-  if apEngaged and not goalAutoDone and p.goalDelay > 0 and simTime - apEngagedAt >= p.goalDelay then
+  -- (with a staged launch, counting from when the last drone joined)
+  if apEngaged and not allUpAt and #pendingLaunch == 0 then
+    local climbing = false
+    for _, d in ipairs(drones) do if d.state == "takeoff" then climbing = true; break end end
+    if not climbing then allUpAt = simTime end
+  end
+  if allUpAt and not goalAutoDone and p.goalDelay > 0 and simTime - allUpAt >= p.goalDelay then
     goalAutoDone = true
     if not isGoalEnabled then
       isGoalEnabled = true
       print(string.format("t=%.1f s: goal on (goalDelay %d s)", simTime, p.goalDelay))
       if updateStatus then updateStatus() end
     end
+  end
+  -- staged launch: the next drones take off on schedule
+  while pendingLaunch[1] and simTime >= pendingLaunch[1].t do
+    local q = table.remove(pendingLaunch, 1)
+    launch(q.x, q.z, q.alt)
   end
   if apEngaged and simTime >= nextApTime then
     apTick(p)
@@ -631,11 +648,13 @@ local function physicsStep(p)
   end
   simTime = simTime + DT
 
-  -- start AP once every drone that took off has reached its altitude
+  -- start AP once every drone of the first launch (all of them, the first
+  -- wave, or the first drone, by launchOrder) has reached its altitude;
+  -- later ones join as they arrive
   if not apEngaged then
     local all, any = true, false
     for _, d in ipairs(drones) do
-      if d.state == "takeoff" then any = true; if not d.climbed then all = false end end
+      if d.state == "takeoff" and d.firstUp then any = true; if not d.climbed then all = false end end
     end
     if any and all then
       apEngaged = true
@@ -650,7 +669,7 @@ end
 --------------------------------------------------------------------------
 -- launching drones
 --------------------------------------------------------------------------
-local function launch(x, z, toAlt)
+function launch(x, z, toAlt)   -- (the local declared above physicsStep)
   local d = Quad.new(x, Quad.GROUND_Y, z)
   d.id = nextId; nextId = nextId + 1
   d.toAlt = toAlt
@@ -675,6 +694,7 @@ function setup(n)
   CAM_REAIM = true                                -- aim at the new launch
   nextId = 0
   apEngaged = false
+  pendingLaunch, allUpAt = {}, nil
   stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
 
   -- A compact random cluster on the ground, as in the originals: they
@@ -705,10 +725,42 @@ function setup(n)
       side = side * 1.001                          -- crowded: let it breathe
     end
     placed[#placed + 1] = { x, z }
+  end
+
+  -- Launch order (launchOrder). 0: everyone at once, each to a random
+  -- height in the band (the originals' cube). 1-3: in thirds, launchGap s
+  -- apart -- 1 the top level first, then the middle, then the bottom; 2
+  -- bottom first; 3 each third to random heights in the band. In 2D every
+  -- wave goes to the formation's altitude. 4: one drone at a time, spread
+  -- over the same total time as the waves. Drones that arrive after AP has
+  -- engaged join it as they reach their height.
+  local order = math.floor(v:getParam("launchOrder") + 0.5)
+  local gap = v:getParam("launchGap")
+  local levelH = v:getParam(SEP) * s * (isSquareFormation and 1 or math.sqrt(2 / 3))
+  local function bandAlt()
     local alt = ALT()
     if is3D then alt = alt + (math.random() - 0.5) * jitter end
-    launch(x, z, math.max(MIN_ALT, alt))
+    return math.max(MIN_ALT, alt)
   end
+  for i, q in ipairs(placed) do
+    local wave = math.min(2, math.floor((i - 1) * 3 / n))   -- 0, 1, 2: thirds
+    local t, alt = 0, bandAlt()
+    if order >= 1 and order <= 3 then
+      t = wave * gap
+      if is3D and order ~= 3 then
+        local level = (order == 1) and (1 - wave) or (wave - 1)   -- +1 top, 0, -1 bottom
+        alt = math.max(MIN_ALT, ALT() + level * levelH)
+      end
+    elseif order == 4 then
+      t = (n > 1) and (i - 1) * 2 * gap / (n - 1) or 0
+    end
+    if t <= 0 then
+      launch(q[1], q[2], alt).firstUp = true
+    else
+      pendingLaunch[#pendingLaunch + 1] = { x = q[1], z = q[2], alt = alt, t = simTime + t }
+    end
+  end
+  table.sort(pendingLaunch, function(a, b) return a.t < b.t end)
 
   isGoalEnabled, goalAutoDone = false, false
   local goal
@@ -859,6 +911,8 @@ end
 -- actions (global, so they can also be typed into the command line)
 --------------------------------------------------------------------------
 local function applyDefaults()
+  -- 3D cube launches in thirds, top level first (FIXES.md item 33)
+  setParam("launchOrder", (is3D and isSquareFormation) and 1 or 0)
   if not cfg.defaultsByMode then return end
   local key = (is3D and "3D" or "2D") .. (isSquareFormation and "Square" or "Triangle")
   local dflt = cfg.defaultsByMode[key]
@@ -1132,7 +1186,9 @@ end)
 
 local HELP_TEXT = [[
 S        start/stop the simulation
-R        Setup: new launch cluster
+R        Setup: new launch cluster (launchOrder: all
+         at once, or in thirds -- 3D cube default:
+         top level first -- or one at a time)
 2 / 3    2D / 3D formation (re-launches)
 
 ]        launch one more drone
