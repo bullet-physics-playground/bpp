@@ -175,7 +175,7 @@ Set it to 0 to turn the levels off. See `../FIXES.md` items 30 and 32.
 
 **Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
-`goalSpeed`, `goalDelay`, `launchOrder`, `launchGap`, `simSpeed`, `soundVolume`, `soundEmphasis`, and the `obstacleField` and
+`goalSpeed`, `goalDelay`, `launchOrder`, `launchGap`, `lineTransparency` (neighbour lines, 0 = solid, default 0.6), `simSpeed`, `soundVolume`, `soundEmphasis`, and the `obstacleField` and
 `propStrikes` checkboxes.
 
 **Prop strikes:** Bullet's own contact points are checked every frame.

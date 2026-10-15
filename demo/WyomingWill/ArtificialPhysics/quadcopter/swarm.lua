@@ -155,6 +155,7 @@ defParam("downwash",     1,    0,   2,    0.1,  "downwash strength (0 = off, 1 =
 defParam("launchOrder",  0,    0,   4,    1,    "how Setup (R) launches: 0 all at once, 1 thirds top level first, 2 thirds bottom level first, 3 thirds at random heights, 4 one at a time")
 defParam("launchGap",    15,   2,   60,   1,    "seconds between launch waves (one at a time: the same total time, spread evenly)")
 defParam("padSpacing",   1.0,  0.7, 6,    0.1,  "closest two drones may stand in the launch cluster (m), used by the next Setup (R)")
+defParam("lineTransparency", 0.6, 0, 1,  0.05, "neighbour lines (V): 0 = solid, 1 = invisible")
 defParam("simSpeed",     1,    1,   8,    1,    "flight time per rendered frame, in 1/30 s units (fast-forward)")
 v:addParam("propStrikes", true, "drones touching another drone, an obstacle, or the ground in flight lose their props and fall")
 defParam("soundVolume",  0.5,  0,   1,    0.05, "rotor sound from the camera's point of view (0 = silent; M mutes)")
@@ -806,6 +807,7 @@ local function updateNeighborLines(p)
           local dx, dy, dz = b.px - a.px, b.py - a.py, b.pz - a.pz
           if dx * dx + dy * dy + dz * dz < cutoff * cutoff then
             local cy = ghostCylinder(a.px, a.py, a.pz, b.px, b.py, b.pz, 0.015, COL_LINE)
+            if cy then cy.transparency = p.lineTransparency end
             if cy then neighborLineObjs[#neighborLineObjs + 1] = cy; count = count + 1 end
           end
         end

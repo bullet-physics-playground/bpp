@@ -173,6 +173,8 @@ local PARAM_INFO = {
                   comment = "algorithm ticks run per rendered frame; raise to fast-forward" },
   layerGain    = { min = 0,    max = 0.2,   step = 0.005,
                   comment = "3D only: pull toward flight levels, sqrt(2/3) rad apart (triangle) or rad (cube); 0 = off" },
+  lineTransparency = { min = 0, max = 1,   step = 0.05,
+                  comment = "neighbour lines (V): 0 = solid, 1 = invisible" },
 }
 
 local function setParam(name, value)
@@ -199,6 +201,7 @@ setParam("goalForce", 0.25)
 setParam("obstacleSize", 10)
 setParam("delayMs", 16)
 setParam("ticksPerFrame", 1)
+setParam("lineTransparency", 0.6)
 setParam("layerGain", 0)
 
 --------------------------------------------------------------------------
@@ -686,6 +689,7 @@ local function updateNeighborLines(p)
               btVector3(particle.x, particle.y, particle.z),
               btVector3(other.x, other.y, other.z),
               LINE_RADIUS, COL_LINE)
+            cy.transparency = v:getParam("lineTransparency")
             noCollideStatic(cy)
             neighborLineObjs[#neighborLineObjs + 1] = cy
             count = count + 1
