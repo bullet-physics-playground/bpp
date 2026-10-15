@@ -10,7 +10,7 @@
 - Stepping: exactly 1/1800 s at every display speed. Each frame takes as many whole steps as its share of simulated time. Wake, freeze and measurement run after every step. 20 solver iterations.
 - Bullet does all dynamics and contacts. The script does wake, anchor, freeze, the pile disc, and (read-only) measurement.
 
-**Theory checks** — Biggins and Warner (2014): pile push a m v^2 up on the link being lifted, floor pull b m v^2. Steady flow gives v^2 = g h1/(1 - a - b) and h2 = a v^2/g (narrow arch). Here b = 0 by construction (frozen links, no joint, no collisions). Fresh runs, 10 layers, CF_SPEED=1, steady window t = 1.00 s to the last coil link woken. v = rate links land x 1.5 cm. "Push" = disc contact force minus the weight of links touching it, divided by m v^2 (CF_PUSH=1, new).
+**Theory checks** — Biggins and Warner (2014): pile push a m v^2 up on the link being lifted, floor pull b m v^2. Steady flow gives v^2 = g h1/(1 - a - b) and h2 = a v^2/g (narrow arch). Here b = 0 by construction (frozen links, no joint, no collisions). Fresh runs, 10 layers, CF_SPEED=1, steady window t = 1.00 s to the last coil link woken. v = rate links land x 1.5 cm. "Push" = disc contact force minus the weight of links touching it, divided by m v^2 (CF_PUSH=1). "Carried" (new, CF_PUSH=1) = -(T - m v_i^2 - m g y)/(m v^2) on the freely falling chain 20-100 cm below the pick-up. T is the tension worked out from the links' accelerations, summed up from the free lowest link. A steady B&W chain keeps this equal to a from pile to floor.
 
 | Quantity | Theory / source | Simulation (this run) | Agreement |
 |---|---|---|---|
@@ -21,7 +21,11 @@
 | a from height, g h2/v^2 | = push (narrow steady arch) | 0.07 / 0.05 / 0.07 / 0.07; h2 = 10.5 / 10.7 / 12.8 / 13.2 cm | **no**: fountain about 1/3 of a v^2/g with the measured push (35 cm at 60 deg) |
 | 30 deg: height vs speed | equal | 0.07 vs 0.06 | agree only by chance (push 0.31) |
 | Energy at landing | lossless chain: 1/(2(1 - a)) of the drop = 60-72% | 42 / 44 / 50 / 49%; rms landing speed 352 / 361 / 383 / 380 cm/s, 11-20% below v | **no**: 11-30% of the power lost on the way |
-| h2/h1 | B&W measured 0.14 | 0.070 / 0.071 / 0.085 / 0.088 | fountain lower |
+| a the falling chain carries | = push (steady, lossless) | -0.13 / -0.07 / 0.04 / 0.03 | **no**: a third or less of the push reaches the falling chain; below zero where the rim takes more (20, 30) |
+| Stationary pick-up (CF_LAYOUT=flake, CF_JAR=0, 40 layers; 45/60/90 deg) | h2 = a v^2/g | push 0.28/0.23/0.13; h2 18.2/17.3/9.1 cm = 0.36/0.40/0.36 of push v^2/g; spiral on the same table 0.30/0.29 (60/90) | **no**: helps a little (60 deg 17.3 vs 10.6 cm), not the cause |
+| Flake: theory with the carried a (0.10/0.08/0.06) | h2 = a v^2/g; v = sqrt(g h1/(1 - a)); energy 1/(2(1 - a)) | h2 ratio 1.01/1.16/0.79; rms landing speed 0.979/0.972/0.962 of the formula; energy 53/51/49% against 56/54/53% | **yes, within 21% (height), 4% (speed), 4 points (energy)** |
+| One thing at a time (flake 60 and spiral 60): steps 3600, 7200; iterations 50, 100; friction 0; joint stops off (CF_STOP=179); 5, 15 woken ahead; links half size (CF_LINK=0.5) | | h2/(push v^2/g) 0.25-0.50 (flake), 0.24-0.35 (spiral); energy 43-53% | no model channel restores the fountain |
+| h2/h1 | B&W measured 0.14 (a = 0.12 by their formula with b = 0) | 0.070 / 0.071 / 0.085 / 0.088 (spiral), up to 0.13 (flake 45) | fountain lower |
 | Chaos spread (jar 146, 148, 152, 154 cm) | | v 414-448 cm/s, push 0.15-0.41, height-a 0.05-0.07 | |
 | Step 1/3600 s | converged? | 20 deg: v 477, push 0.39, h2 19.8; 30: 437, 0.32, 14.3 | **not converged** at 20 deg |
 | Fountain above rim (CF_LOG, t >= 0.5 s), median (IQR), highest; 14 layers in brackets | README | 20: 4.7 (3.5-5.8), 11.9 [4.5 (3.0-5.8)]; 30: 5.4 (3.4-8.0), 12.4 [4.1 (1.9-6.7)]; 60: 7.7 (6.0-8.3), 10.1 [6.3]; 90: 7.8 (6.6-8.6), 12.4 [7.3] | README replaced |
@@ -34,8 +38,9 @@
 cd demo/WyomingWill/ChainFountain
 CF_PUSH=1 CF_SPEED=1 CF_BEND=<20|30|60|90> CF_LOG=d<b>.csv HOLD_S=0 ../../../release/bpp -f chain-fountain.lua -n 300
 CF_PUSH=1 CF_SPEED=1 CF_LAYERS=14 CF_BEND=<b> ... -n 400 ; CF_HEIGHT=<146|148|152|154> ... ; CF_STEPS=3600 ... -n 400
+CF_PUSH=1 CF_SPEED=1 CF_JAR=0 CF_LAYOUT=flake CF_LAYERS=40 CF_BEND=<45|60|90> HOLD_S=0 ... -n 400   # plus CF_STEPS, CF_ITER, CF_MU=0, CF_STOP=179, CF_AHEAD, CF_LINK=0.5 one at a time
 timeout 3000 ../../../release/bpp -f chain-fountain.lua -n 1200        # 0.25x with pause: identical to 1x
-bash ../Cabinet/report/cmp2.sh chain ChainFountain chain-fountain.lua 1200 cf   # IDENTICAL (22 lines); CF_PUSH=1: IDENTICAL (23); CF_BEND=60: IDENTICAL (21)
+bash ../Cabinet/report/cmp2.sh chain ChainFountain chain-fountain.lua 1200 cf   # IDENTICAL (22 lines); CF_PUSH=1: IDENTICAL (25); flake 60 CF_PUSH=1 (1300 frames): IDENTICAL (23)
 ```
 
 ```
@@ -46,17 +51,21 @@ t= 4.25s  all of it out of the jar; the fountain stood up to 12.4 cm above the r
   a = g h2/v^2 = 0.07 from the height, 1 - g h1/v^2 = 0.06 from the speed (rod model for one of these links: 0.31)
   the links reach the floor at 352 cm/s (rms), with 42% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
   the pile's push, measured (its contact forces less the weight lying on it): a = 0.31; the rim holds the chain up with 0.31 m v^2
+  with that push a steady narrow arch would stand h2 = a v^2/g = 50.4 cm above the pick-up (it stood 10.5)
+  what the falling chain carries of it (its tension, from the links' accelerations, 20-100 cm below the pick-up): a = -0.13
+[flake 60, table] the pile's push ... a = 0.23 ... h2 = a v^2/g = 42.9 cm (it stood 17.3) ... carries of it ... a = 0.08
 [60 deg] a = g h2/v^2 = 0.07 from the height, 1 - g h1/v^2 = 0.18 from the speed ... a = 0.19; the rim ... 0.02 m v^2
 ```
-Pause: CF_SPEED=1, HOLD_S=0 for 300 frames is an exact prefix of the default hold for 330 frames (24 lines).
+Pause: CF_SPEED=1, HOLD_S=0 for 300 frames is an exact prefix of the default hold for 330 frames (24 lines; with CF_PUSH=1, 27 lines). Default output (CF_PUSH off) is byte-identical to the committed b241d9c. 0.25x with pause = 1x with CF_PUSH=1; flake 60 at 0.5x = 1x.
 
 **Known departures and honest caveats**
 - Fixed 15 Oct 2026: frame-rate dependence (all work per physics step, fixed 1/1800 s) and the 60-degree stall (last woken link anchored; landed links don't collide).
 - Fixed 15 Oct 2026: the coil was laid wrong. The spiral went in to 3 cm at every bending, so at 20 deg 304 of 1054 joints were laid bent past their stop (worst about 29 deg against 20). At every bending each layer began with a 0.65 cm upright link (90 deg bends) and the next layer wound the other way. When woken, the solver kicked these joints straight. The old "stiffer chain, higher fountain" (20 deg median 11.1 cm) came from those kicks: with the fixed coil it is 4.7. Only the lead's 3 corners, woken at t = 0, are still laid past the limit.
 - Measurement changes (15 Oct): v is now the rate links land, not the rate they are woken. At 20 deg and 4800 steps/s the waking ran ahead (wake rate 592 cm/s, above the sqrt(2 g h1) = 542 energy bound). New lines: landing speed and energy, and with CF_PUSH=1 the directly measured push. CF_PUSH is off by default because eachContact makes the run 2.6x slower in the Cabinet (34.7 s against 13.2 s for 1200 frames).
-- **Still open: the flow is not the steady, lossless flow of the theory.** The pile's push is present (a 0.17-0.31), and the speed rule matches it where the chain keeps clear of the rim. But the fountain is about a third of the narrow-arch prediction. The links land 11-20% slower than the chain's length-rate, with 42-50% of the drop's energy against at least 60% for a lossless chain. Contributing causes, seen but not isolated: the pick-up circles the spiral at the chain speed (10-20 times a second), the arch swings, the falling leg is wavy, and the chain rubs the rim (30 deg). Where the lost energy goes (joint stops, link-link contacts, rim) is not established. A pile whose pick-up stays put was not tried.
+- **Located 15 Oct 2026, mechanism still open: the fountain is low because the pile's push doesn't reach the moving chain.** The pile pushes up with a = 0.13-0.31, but the falling chain carries only a third or less of it. A pile whose pick-up stays put (flake on a table) raises the fountain only a little (ratio 0.36-0.40 against 0.29-0.30 for the spiral on the same table). No model channel tried (step x2 and x4, iterations x2.5 and x5, friction 0, joint stops off, link size x0.5, look-ahead 5/15) brings the ratio above 0.50. With the push the chain does carry, the flake obeys all three B&W relations: height within 21%, speed within 4%, energy within 4 points. So the earlier apparent 11-30% energy loss mostly came from using the contact push as a. The gap is in the pick-up zone. The chain is dragged and lifted over several links (still only about 90% of full speed 4-6 cm above the pile, from the inferred tension), not picked up a link at a time. This does not change with step or iterations, so it is not solver convergence. Without joint stops the push itself halves. On the spiral, and with half-size links, the falling chain carries 0.00-0.04 while the fountain stands higher than that would give. So between pile and falling leg those flows are not steady either. Whether real chains also carry only part of the contact push is unknown; B&W's own h2 = 0.14 h1 means a = 0.12 against their rod model's 1/6.
 - Not step-converged at 20 deg (1/3600 s: v +6%, h2 +85%). The run is chaotic, with spreads as in the table.
 - The waking scheme is not neutral. With 5 links woken ahead instead of 10 (scratch copy with CF_K), v = 476 / 452 cm/s at 30 / 60 deg (+20% / +6%) and a from speed 0.35 / 0.28, against a push of 0.21 / 0.16. The anchor's force is not measured. With 20 the woken links are dragged into a heap (276-446 links moving; at 60 deg the rim carries 1.3 m v^2). So v is known to about 20%.
+- Experiment options added (env only; defaults unchanged, byte-identical output): CF_LAYOUT=flake, CF_JAR=0, CF_ITER, CF_MU, CF_AHEAD, CF_STOP, CF_LINK; CF_PUSH=1 now also prints h2 = a v^2/g and the carried a. The flake is for 45 deg and more only (wider turns don't fit), a layer holds about 0.3 m, so a 40-layer pile is 26 cm tall and h1 drifts from about 150 to 125 cm in a run.
 - The coil is a rigid disc, not a heap. When the disc drops a layer, the last ~10 woken links of the old layer fall 0.65 cm. The anchor is infinitely strong. The floor is a freeze at 2.5 cm (b = 0 by construction).
 
 **References**

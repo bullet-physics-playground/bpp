@@ -68,13 +68,19 @@ t= 4.25s  all of it out of the jar; the fountain stood up to 12.4 cm above the r
   the links reach the floor at 352 cm/s (rms), with 42% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
 ```
 
-With `CF_PUSH=1` it also measures the pile's push itself. After every
-physics step it takes the upward contact force of the pile on the chain,
-less the weight of the links lying on it, and the upward force of the rim.
-It adds:
+With `CF_PUSH=1` it also measures two pushes. The pile's: after every
+physics step, the upward contact force of the pile on the chain, less the
+weight of the links touching it, and the upward force of the rim. And what
+the falling chain carries of it: from the lowest link up, each link's
+acceleration less g gives the force on it from the next one, so the
+chain's tension T. A steady chain keeps T - m v^2 - m g y = -a m v^2 (y
+above the pick-up) all the way from the pile to the floor, and that is read
+where the chain falls freely, 20-100 cm below the pick-up. It adds:
 
 ```
   the pile's push, measured (its contact forces less the weight lying on it): a = 0.31; the rim holds the chain up with 0.31 m v^2
+  with that push a steady narrow arch would stand h2 = a v^2/g = 50.4 cm above the pick-up (it stood 10.5)
+  what the falling chain carries of it (its tension, from the links' accelerations, 20-100 cm below the pick-up): a = -0.13
 ```
 
 (This walks all of Bullet's contacts every step, which makes the run two or
@@ -82,47 +88,79 @@ three times slower in the Cabinet, so it is off unless asked for.)
 
 All four bendings, 10 layers, `CF_PUSH=1`:
 
-| Joints bend at most | v (rate links land) | rms speed landing | h2 | a from the height | a from the speed | a, the pile's push | the rim's push |
-|---|---|---|---|---|---|---|---|
-| 20 | 450 cm/s | 361 cm/s | 10.7 cm | 0.05 | 0.27 | 0.27 | 0.14 m v^2 |
-| 30 | 397 | 352 | 10.5 | 0.07 | 0.06 | 0.31 | 0.31 |
-| 60 | 425 | 383 | 12.8 | 0.07 | 0.18 | 0.19 | 0.02 |
-| 90 | 432 | 380 | 13.2 | 0.07 | 0.21 | 0.17 | 0.01 |
+| Joints bend at most | v (rate links land) | rms speed landing | h2 | a from the height | a from the speed | a, the pile's push | the rim's push | a the falling chain carries |
+|---|---|---|---|---|---|---|---|---|
+| 20 | 450 cm/s | 361 cm/s | 10.7 cm | 0.05 | 0.27 | 0.27 | 0.14 m v^2 | -0.07 |
+| 30 | 397 | 352 | 10.5 | 0.07 | 0.06 | 0.31 | 0.31 | -0.13 |
+| 60 | 425 | 383 | 12.8 | 0.07 | 0.18 | 0.19 | 0.02 | 0.04 |
+| 90 | 432 | 380 | 13.2 | 0.07 | 0.21 | 0.17 | 0.01 | 0.03 |
 
-What it says:
+The pile does push up, as Biggins and Warner say it must: a = 0.17-0.31
+(their rod model gives 1/6 for their chain, 0.31 for one of these links).
+But the fountain stands only a fifth to two fifths as high as
+h2 = a v^2/g with that push, and the links land with 42-50% of the energy
+of their drop, where a chain that loses nothing on the way would bring
+down 1/(2 (1 - a)) = 60-72%. The speed rule seems to agree with the push
+at 60 and 90 degrees, but v is the rate links land, and they land 11-20%
+slower than that (the chain coming down is wavy). At 30 degrees the
+height and speed readings, 0.07 and 0.06, agree only by chance.
 
-* The pile does push up, as Biggins and Warner say it must: a = 0.27-0.31
-  at 20 and 30 degrees and 0.17-0.19 at 60 and 90 (their rod model for
-  their chain gives 1/6, the same model for one of these links 0.31). How
-  well that is known: counting as lying on the pile every link within
-  7 mm of it, not only the ones touching it, gives 0.05-0.10 less (0.17,
-  0.22, 0.13, 0.12).
-* Where the chain keeps clear of the rim (60 and 90 degrees), the speed
-  agrees with the push about as well as the push is known (0.18 and 0.21
-  against 0.13-0.19 and 0.12-0.17). Where it rubs and strikes the rim
-  (at 30 degrees the rim holds it up with 0.31 m v^2), it runs slower than
-  the push alone would make it go, and a reads low from the speed. At 30
-  degrees the two readings, 0.07 and 0.06, agree only by chance: the push
-  is 0.31.
-* The height doesn't follow the push: a reads 0.05-0.07 from it at every
-  bending, and the fountain stands a third as high as h2 = a v^2/g with
-  the measured push (about 35 cm at 60 degrees, against 12.8).
-* Biggins and Warner's chain loses no energy between the pile and the
-  floor, so it lands with 1/(2 (1 - a)) of the energy of its drop: 60-72%
-  for these pushes. This one lands with 42-50%, at 352-383 cm/s, 11-20%
-  slower than the rate the links land: the chain coming down is wavy, not
-  taut and straight, and a tenth to nearly a third of the power is lost on
-  the way.
+**A pile whose pick-up stays put.** On the flat spiral the pick-up runs
+round the jar at the chain's own speed. To see whether that is what keeps
+the fountain low, `CF_LAYOUT=flake` lays the chain instead in runs of four
+links, back and forth, three runs a layer, each layer over the last. The
+pick-up then stays within a few centimetres of the middle, as in a jumbled
+heap. It needs a chain that turns tightly (45 degrees and more), and a
+layer holds only about 30 cm of chain, so it is run on a table: `CF_JAR=0`
+(no glass, the pile on the bare disc), 40 layers (the pile 26 cm tall, so
+h1 falls from 150 to 125 cm during the run). The same table with the
+spiral, for comparison:
 
-So the chain fountain here is not the steady flow of the theory. The
-pick-up runs round the flat spiral at the chain's own speed (round a
-circle of 3-6 cm some 10-20 times a second), the arch swings, a stiff
-chain loops above the pile, and the chain loses energy on its way down. Of
-the theory's two rules, the one for the speed holds where the rim is out
-of the way; the one for the height (which needs as well that the chain go
-straight up and turn over in a narrow arch with nothing on it) does not.
-Where the energy goes is not settled. Their own chain gave h2/h1 = 0.14;
-this one 0.07-0.09.
+| Pile, joints bend at most | v | rms speed landing | h2 | a, the pile's push | a carried | a from the height | h2 / (push v^2/g) | h2 / (carried v^2/g) | energy landing (lossless with a carried) |
+|---|---|---|---|---|---|---|---|---|---|
+| flake, 45 | 420 cm/s | 380 cm/s | 18.2 cm | 0.28 | 0.10 | 0.10 | 0.36 | 1.01 | 53% (56%) |
+| flake, 60 | 428 | 373 | 17.3 | 0.23 | 0.08 | 0.09 | 0.40 | 1.16 | 51% (54%) |
+| flake, 90 | 435 | 365 | 9.1 | 0.13 | 0.06 | 0.05 | 0.36 | 0.79 | 49% (53%) |
+| spiral, 60 | 419 | 382 | 10.6 | 0.20 | 0.04 | 0.06 | 0.30 | 1.48 | 50% (52%) |
+| spiral, 90 | 425 | 374 | 9.5 | 0.18 | 0.01 | 0.05 | 0.29 | 5.2 | 48% (51%) |
+
+Then one thing at a time, on the flake and on the spiral (60 degrees):
+3600 and 7200 steps a second, 50 and 100 solver iterations, no friction,
+no joint stops (`CF_STOP=179`), 5 and 15 links woken ahead, links half as
+big (`CF_LINK=0.5`). None of them brings the fountain near h2 = a v^2/g
+with the pile's push: the ratio stays 0.25-0.50 on the flake and
+0.24-0.35 on the spiral, and the links land with 43-53% of the energy of
+their drop.
+
+What this says:
+
+* The pick-up staying put is not what keeps the fountain low. It helps a
+  little (at 60 degrees on the table 17.3 cm against 10.6), but the
+  fountain still stands only 0.36-0.40 of the height the pile's push
+  should throw it.
+* Nor is it energy lost in the model on the way down. In the three flake
+  runs, with the push the falling chain carries, the theory holds: the
+  height within -21% to +16%, the links land at 96-98% of
+  sqrt(g h1/(1 - a)), and with 3-4 points of the drop's energy less than a
+  chain that loses nothing.
+  The step, solver iterations, friction and joint stops change none of
+  this much.
+* What keeps it low is at the pick-up. The pile pushes up with 0.13-0.28
+  m v^2, but the moving chain carries only a third to a half of that,
+  0.06-0.10. The chain here is not picked up a link at a time, as in the
+  theory. It is dragged and lifted over several links: 4-6 cm above the
+  pile it is still going only about 90% of the chain's speed. Most of the pile's push goes somewhere in that stretch
+  other than into the chain's tension. Where exactly is not settled. It
+  does not change with the step or the solver iterations. Without joint
+  stops the push itself is smaller (0.13 against 0.23).
+* On the spiral the falling chain carries even less (0.00-0.04, below zero
+  where it rubs the rim), and with half-size links on the flake too
+  (0.01). There the fountain stands higher than the carried push alone
+  would throw it, so on the way from the pile to the falling leg the flow
+  isn't the theory's steady one either.
+
+Their own chain gave h2/h1 = 0.14, and this one 0.07-0.13. With b = 0, 0.14
+means a = 0.12 by their formula, less than their rod model's 1/6.
 
 The run is chaotic, so these numbers move from run to run: with the jar
 2 or 4 cm higher or lower, v is 414-448 cm/s, the push 0.15-0.41, and a
@@ -179,7 +217,12 @@ Because the pick-up runs round the spiral, the arch swings and loops more
 than a fountain from a jumbled heap would.
 
 Headless testing: `CF_SPEED`, `CF_STEPS`, `CF_BEND`, `CF_HEIGHT`,
-`CF_LAYERS`, `CF_LOG=file.csv`, `CF_PUSH=1` (measure the pile's push).
+`CF_LAYERS`, `CF_LOG=file.csv`, `CF_PUSH=1` (measure the pile's push and
+what the chain carries). For experiments only (the defaults are the
+exhibit): `CF_LAYOUT=flake`, `CF_JAR=0`, `CF_ITER` (solver iterations, 20),
+`CF_MU` (friction, 0.3), `CF_AHEAD` (links woken ahead, 10), `CF_STOP` (the
+joints' limit, if not the bending the chain is laid for), `CF_LINK` (links
+this many times as big; still drawn the usual size).
 
 ## Files
 

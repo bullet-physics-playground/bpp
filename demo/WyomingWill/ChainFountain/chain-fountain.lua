@@ -43,7 +43,14 @@
 --
 -- Units: centimetres, kilograms, seconds.
 -- Headless testing: CF_SPEED, CF_STEPS, CF_BEND, CF_HEIGHT, CF_LAYERS, CF_LOG=file.csv,
--- CF_PUSH=1 (measure the pile's push: see measurePush).
+-- CF_PUSH=1 (measure the pile's push: see measurePush). For experiments
+-- (the defaults are the exhibit): CF_LAYOUT=flake (the chain laid in short
+-- back-and-forth runs: see flake()), CF_JAR=0 (no glass: the pile on a bare
+-- disc, a table), CF_ITER (solver iterations, 20), CF_MU (friction, 0.3),
+-- CF_AHEAD (links woken ahead of the pick-up, 10), CF_STOP (the joints'
+-- limit in degrees, if not the bending the chain is laid for), CF_LINK (links
+-- this many times as long, thick and heavy: the same chain, finer or coarser;
+-- they are still drawn the usual size).
 --
 
 local common = require "common"
@@ -54,25 +61,26 @@ for _, dir in ipairs({ DIR, "demo/WyomingWill/ChainFountain/" .. DIR }) do
   if f then f:close(); DIR = dir; break end
 end
 
+local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local G = 981
-local L, RL = 1.5, 0.3                  -- a link: joint to joint, and its radius (as in link.obj)
-local MASS = 0.0005
+local SCALE = envnum("CF_LINK", 1)      -- (experiments only: links this many times as long, as thick, as heavy)
+local L, RL = 1.5 * SCALE, 0.3 * SCALE  -- a link: joint to joint, and its radius (as in link.obj)
+local MASS = 0.0005 * SCALE
 local RJ, JH = 7, 8                     -- the jar: inside radius, height of its wall
 local LAYER_T = 2 * RL + 0.05           -- the coil: one layer's thickness
-local K_AHEAD = 10                      -- links simulated ahead of the pick-up
+local K_AHEAD = envnum("CF_AHEAD", 10)   -- links simulated ahead of the pick-up
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
-local WAKE_RATE = 1200                  -- links woken a simulated second at most (18 m/s)
+local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
 local T_STEADY = 1.0                    -- the theory check averages from here on
 
-local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
 param("speed", envnum("CF_SPEED", 0.25), 0.05, 1, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", envnum("CF_STEPS", 1800), 1200, 4800, 300, "physics steps per simulated second")
 param("bending", envnum("CF_BEND", 30), 20, 90, 5, "most a joint can bend, degrees (starts it again)")
 param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor, cm (starts it again)")
 param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (starts it again)")
-param("friction", 0.3, 0.05, 1, 0.05, "friction, chain on glass and chain")
+param("friction", envnum("CF_MU", 0.3), 0, 1, 0.05, "friction, chain on glass and chain")
 
 -- The physics step is always 1/steps of a simulated second, whatever the
 -- speed: a frame takes as many whole steps as its share of simulated time
@@ -108,7 +116,7 @@ local function holdPre()            -- first thing before each step: true while 
   return false
 end
 applyTiming()
-v:setSolverIterations(20)
+v:setSolverIterations(envnum("CF_ITER", 20))
 v.gravity = btVector3(0, -G, 0)
 
 local floor = Plane(0, 1, 0, 0, 300)
@@ -143,8 +151,8 @@ local function buildJar()
   keep(show(foot, "#3b2412"))
   local cap = Cylinder(RJ + 3, 4, 0); cap.trans = btTransform(UPQ, btVector3(0, H - 2, 0))
   keep(show(cap, "#b8932e"))
-  -- the jar: a glass wall of 24 slabs, solid; its floor
-  for i = 0, 23 do
+  -- the jar: a glass wall of 24 slabs, solid; its floor (CF_JAR=0: none)
+  for i = 0, envnum("CF_JAR", 1) > 0 and 23 or -1 do
     local a = 2 * math.pi * i / 24
     local s = Cube(2 * math.pi * (RJ + 0.5) / 24 + 0.15, JH, 1.0, 0)
     s.trans = btTransform(btQuaternion(btVector3(0, 1, 0), -a + math.pi / 2),
@@ -205,7 +213,7 @@ local pts, layerOf = {}, {}       -- the chain's joint points, floor end first; 
 local links = {}                  -- by index: { obj, body, con, rest, disp, active, frozen }
 local tail, head, nLead, LAYERS, curLayer
 local anchor, anchorBody          -- holds the far end of the last link woken
-local BEND
+local BEND, STOP                  -- (STOP: the joints' limit; BEND unless CF_STOP says)
 local run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0 }
 
 -- the coil: in each layer a flat spiral, outside in, then inside out, all
@@ -255,6 +263,73 @@ local function coil(yTop)
   return out
 end
 
+-- for experiments only (CF_LAYOUT=flake): the chain laid in short straight
+-- runs, back and forth, FLAKE_ROWS runs a layer, each joined to the next
+-- by a half turn no tighter than the chain can turn; each layer goes back
+-- over the last. So the pick-up stays within a few centimetres of the
+-- middle, as in a jumbled heap, instead of running round the jar. Only
+-- for a chain that turns tightly (60 degrees and more): a stiffer one needs
+-- wider turns than the jar has room for. Every link L long, no joint laid
+-- past its limit; the chain drops to the next layer over the half turn and
+-- the run after it. A layer holds about 0.3 m: run it on a table
+-- (CF_JAR=0) with CF_LAYERS=40 or so.
+local FLAKE_RUN, FLAKE_ROWS = 4, 3
+local function flake(yTop)
+  local tip = math.asin(LAYER_T / DROP / L)
+  local turn = math.sqrt(math.max(BEND * BEND - tip * tip, 1e-6))
+  local r = L / (2 * math.sin(turn / 2)) + 0.1
+  local run = FLAKE_RUN * L
+  local xa, s = -run / 2, 2 * r
+  local dense = {}
+  local function add(x, y, z, layer) dense[#dense + 1] = { x, y, z, layer } end
+  local x, y, z, hx = xa, yTop, -1.5 * s, 1
+  local layer, zdir, drop, dropLeft = 1, 1, 0, 0
+  local function dy(ds)            -- going down to the next layer, evenly
+    if dropLeft > 0 then
+      local d = math.min(dropLeft, drop * ds); dropLeft = dropLeft - d; return d
+    end
+    return 0
+  end
+  add(x, y, z, layer)
+  for lay = 1, LAYERS do
+    for row = 1, FLAKE_ROWS do
+      -- the run
+      local x1 = hx > 0 and xa + run or xa
+      while (x1 - x) * hx > 0.005 do
+        x = x + 0.01 * hx; y = y - dy(0.01); add(x, y, z, layer)
+      end
+      x = x1
+      if lay == LAYERS and row == FLAKE_ROWS then break end
+      -- the half turn (at the end of a layer, down to the next over this
+      -- turn and the next run)
+      if row == FLAKE_ROWS then
+        layer = lay + 1
+        drop, dropLeft = LAYER_T / (math.pi * r + run), LAYER_T
+      end
+      local x0, z0 = x, z
+      local n = math.ceil(math.pi * r / 0.01)
+      for k = 1, n do
+        local t = math.pi * k / n
+        y = y - dy(math.pi * r / n)
+        add(x0 + hx * r * math.sin(t), y, z0 + zdir * r * (1 - math.cos(t)), layer)
+      end
+      x, z, hx = x0, z0 + zdir * s, -hx
+    end
+    zdir = -zdir
+  end
+  -- one link every L along it
+  local out = { { btVector3(dense[1][1], dense[1][2], dense[1][3]), 1 } }
+  local p = dense[1]
+  for k = 2, #dense do
+    local q = dense[k]
+    if (q[1] - p[1]) ^ 2 + (q[2] - p[2]) ^ 2 + (q[3] - p[3]) ^ 2 >= L * L then
+      out[#out + 1] = { btVector3(q[1], q[2], q[3]), q[4] }
+      p = q
+    end
+  end
+  return out
+end
+
 local function linkPose(i)
   local p, q = pts[i], pts[i + 1]
   return btVector3((p.x + q.x) / 2, (p.y + q.y) / 2, (p.z + q.z) / 2), quatAlong(q.x - p.x, q.y - p.y, q.z - p.z)
@@ -274,7 +349,7 @@ end
 local function join(a, b)
   local c = btConeTwistConstraint(a.body, b.body, btTransform(ident, btVector3(L / 2, 0, 0)),
                                   btTransform(ident, btVector3(-L / 2, 0, 0)))
-  c:setLimit(5, BEND); c:setLimit(4, BEND); c:setLimit(3, math.pi)
+  c:setLimit(5, STOP); c:setLimit(4, STOP); c:setLimit(3, math.pi)
   v:addConstraint(c)
   a.con = c
 end
@@ -306,7 +381,7 @@ local function wake(i)
     anchor = btConeTwistConstraint(body, held, btTransform(ident, btVector3(L / 2, 0, 0)),
                                    btTransform(ident, btVector3(-L / 2, 0, 0)))
     anchorBody = held                            -- (kept, so Lua doesn't collect it)
-    anchor:setLimit(5, BEND); anchor:setLimit(4, BEND); anchor:setLimit(3, math.pi)
+    anchor:setLimit(5, STOP); anchor:setLimit(4, STOP); anchor:setLimit(3, math.pi)
     v:addConstraint(anchor)
   end
   -- (a new layer: the pile drops to it, and the layer under it is drawn)
@@ -345,19 +420,20 @@ local function start()
   MU = v:getParam("friction")
   LAYERS = math.floor(v:getParam("layers") + 0.5)
   BEND = math.rad(v:getParam("bending"))
+  STOP = os.getenv("CF_STOP") and math.rad(envnum("CF_STOP", 0)) or BEND
   buildJar()
   -- the coil, its top layer just under the rim
-  local c = coil(H + JH - 1.5)
+  local c = (os.getenv("CF_LAYOUT") == "flake" and flake or coil)(H + JH - 1.5)
   -- the lead: from the coil's first point straight up, over the rim and
   -- down beside the jar to the floor (floor end first)
   local p0 = c[1][1]
   local path = {}
   local y = p0.y
-  while y < H + JH + 1.2 do path[#path + 1] = btVector3(p0.x, y, 0); y = y + L end
+  while y < H + JH + 1.2 do path[#path + 1] = btVector3(p0.x, y, p0.z); y = y + L end
   local top = path[#path]
   local xo = RJ + 2.5
-  local n = math.ceil((xo - p0.x) / L)
-  for i = 1, n do path[#path + 1] = btVector3(p0.x + (xo - p0.x) * i / n, top.y, 0) end
+  local n = math.ceil(math.sqrt((xo - p0.x) ^ 2 + p0.z ^ 2) / L)
+  for i = 1, n do path[#path + 1] = btVector3(p0.x + (xo - p0.x) * i / n, top.y, p0.z * (1 - i / n)) end
   y = top.y - L
   while y > ABSORB_Y + 1 do path[#path + 1] = btVector3(xo, y, 0); y = y - L end
   pts, layerOf = {}, {}
@@ -372,7 +448,8 @@ local function start()
   for i = 1, nLead - 1 + K_AHEAD do wake(i) end
   run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0, total = #pts - 1,
           budget = 0, nextSample = SAMPLE_DT, nextPrint = PRINT_DT,
-          steady = { n = 0, h2 = 0, h1 = 0, rim = 0, steps = 0, push = 0, rimUp = 0, landed = 0, v2 = 0 } }
+          steady = { n = 0, h2 = 0, h1 = 0, rim = 0, steps = 0, push = 0, rimUp = 0, landed = 0, v2 = 0,
+                     carried = 0, carriedN = 0 } }
   stepAcc = 0
   print(string.format("\n--- %.1f m of chain, %d links; the jar %.0f cm up; joints bend %.0f deg at most ---",
                       (#pts - 1) * L / 100, #pts - 1, H, math.deg(BEND)))
@@ -387,7 +464,7 @@ local function feed()
   while i >= tail and links[i] and links[i].rest do
     local x, y, z = getPosXYZ(links[i].obj)
     local r = links[i].rest
-    if (x - r.x) ^ 2 + (y - r.y) ^ 2 + (z - r.z) ^ 2 > 1.0 then break end
+    if (x - r.x) ^ 2 + (y - r.y) ^ 2 + (z - r.z) ^ 2 > SCALE * SCALE then break end
     n, i = n + 1, i - 1
   end
   while n < K_AHEAD and head + 1 < #pts and run.budget >= 1 do
@@ -486,6 +563,37 @@ local function measurePush()
   s.steps = s.steps + 1
   s.push = s.push + up / STEP - lying * MASS * G
   s.rimUp = s.rimUp + rimUp / STEP
+  -- and the push the moving chain carries. Up from the lowest link (its
+  -- joint to the floor gone: nothing pulls it from below), each link's
+  -- acceleration less g gives the force on it from the next one, so the
+  -- chain's tension T along it. Biggins and Warner's steady chain keeps
+  -- T - m v^2 - m g y (y above the pick-up) = -a m v^2 all the way from the
+  -- pile to the floor; it is read where the chain falls freely, 20 to 100 cm
+  -- below the pick-up (m: mass per length; v^2 each link's own).
+  local Jx, Jy, Jz, ok = 0, 0, 0, true
+  local lo, hi = pickY - math.min(100, pickY - ABSORB_Y - 20), pickY - 20
+  for i = tail, head do
+    local l = links[i]
+    if not (l and l.active) then break end
+    local vx, vy, vz = getVelXYZ(l.obj)
+    local pv = l.pv
+    l.pv = { vx, vy, vz }
+    if not (ok and pv) then ok = false
+    else
+      Jx = Jx + MASS * (vx - pv[1]) / STEP
+      Jy = Jy + MASS * ((vy - pv[2]) / STEP + G)
+      Jz = Jz + MASS * (vz - pv[3]) / STEP
+      local n = links[i + 1]
+      local x, y, z = getPosXYZ(l.obj)
+      if n and n.active and y > lo and y < hi then
+        local x2, y2, z2 = getPosXYZ(n.obj)
+        local dx, dy, dz = x2 - x, y2 - y, z2 - z
+        local T = (Jx * dx + Jy * dy + Jz * dz) / math.sqrt(dx * dx + dy * dy + dz * dz)
+        s.carried = s.carried + T - MASS / L * (vx * vx + vy * vy + vz * vz) - MASS / L * G * (y - pickY)
+        s.carriedN = s.carriedN + 1
+      end
+    end
+  end
 end
 
 -- at the end: the steady part of the run against Biggins and Warner,
@@ -526,8 +634,14 @@ local function theory()
   end
   if s.steps > 0 then
     local mv2 = MASS / L * vm * vm
+    local a = s.push / s.steps / mv2
     print(string.format("  the pile's push, measured (its contact forces less the weight lying on it): a = %.2f; the rim holds the chain up with %.2f m v^2",
-                        s.push / s.steps / mv2, s.rimUp / s.steps / mv2))
+                        a, s.rimUp / s.steps / mv2))
+    print(string.format("  with that push a steady narrow arch would stand h2 = a v^2/g = %.1f cm above the pick-up (it stood %.1f)", a * vm * vm / G, h2))
+    if s.carriedN > 0 then
+      print(string.format("  what the falling chain carries of it (its tension, from the links' accelerations, 20-100 cm below the pick-up): a = %.2f",
+                          -s.carried / s.carriedN / mv2))
+    end
   end
 end
 
