@@ -219,8 +219,10 @@ local dist, dFrom, dTo, dT0, dDur = NEAR, NEAR, NEAR, -10, 1.5   -- the slide: w
 local EXTRA_TURN = -1                     -- the way round it's turned over (the top handle passes the figure's right)
 
 local spunWith                            -- the spin it was last spun up with
+local reported, what = true, ""           -- a move's console line still to come, and the move
 local function restart()
   holdStart()
+  reported, what = true, ""                -- (a move cut off by the restart has nothing to report)
   if stoolHinge then v:removeConstraint(stoolHinge) end
   if slide then v:removeConstraint(slide) end
   if armHinge then v:removeConstraint(armHinge) end
@@ -319,7 +321,7 @@ local function prestep(h, tNow)
   local w3 = c[3].x * W.x + c[3].y * W.y + c[3].z * W.z
   local L1, L2, L3 = IW[1] * w1 + IW3 * S, IW[2] * w2, IW[3] * w3
   local t1, t2, t3 = -(w2 * L3 - w3 * L2), -(w3 * L1 - w1 * L3), -(w1 * L2 - w2 * L1)
-  if WHEELF > 0 and S > 0 then
+  if WHEELF > 0 and S > 0 and h > 0 then
     local d = math.min(S, WHEELF * h)
     S = S - d
     t1 = t1 + IW3 * d / h                  -- (what the bearings take goes to the axle)
@@ -389,8 +391,6 @@ end
 
 local LOGF = os.getenv("BW_LOG") and io.open(os.getenv("BW_LOG"), "w")
 if LOGF then LOGF:write("t,flip_deg,axle_up,stool_rad_s,theory_rad_s,spin_turns_s,L_up\n") end
-local reported = true
-local what = ""
 local function stoolRate() return ttBody:getAngularVelocity().y end
 local function axleUp() return basis(wBody)[1].y end
 -- what the stool should be doing, from the angular momentum about the
@@ -418,12 +418,47 @@ function angMomUp()
   return IP * wy + Lw + MW * (z * V.x - x * V.z) + IC * cBody:getAngularVelocity().y + MC * (cz * Vc.x - cx * Vc.z)
 end
 
+-- a guard: if anything has become not a number (or infinite) -- seen once
+-- in the hall, never since -- say what was happening, and start again
+local function finite(x) return x == x and x > -math.huge and x < math.huge end
+local function v3(b, getter)
+  local p = getter(b)
+  return { p.x, p.y, p.z }
+end
+local function badState()
+  local parts, bad = {}, false
+  for _, it in ipairs({ { "stool", ttBody }, { "wheel", wBody }, { "hands", cBody } }) do
+    local b = it[2]
+    local P = v3(b, function(o) return o:getCenterOfMassPosition() end)
+    local V = v3(b, function(o) return o:getLinearVelocity() end)
+    local W = v3(b, function(o) return o:getAngularVelocity() end)
+    for _, x in ipairs({ P[1], P[2], P[3], V[1], V[2], V[3], W[1], W[2], W[3] }) do
+      if not finite(x) then bad = true end
+    end
+    parts[#parts + 1] = string.format("%s at (%g, %g, %g) moving (%g, %g, %g) turning (%g, %g, %g)", it[1],
+                                      P[1], P[2], P[3], V[1], V[2], V[3], W[1], W[2], W[3])
+  end
+  for _, x in ipairs({ S, phi, flipAngle, dist }) do if not finite(x) then bad = true end end
+  if not bad then return nil end
+  return table.concat(parts, "; ")
+end
+
 local restartIn                           -- frames until the spin slider's restart (see onParamChanged)
 v:postSim(function(N)
   if holdNow then return end
   if restartIn then
     restartIn = restartIn - 1
     if restartIn <= 0 then restartIn = nil; restart(); pos = 0; auto = true; return end
+  end
+  local bad = badState()
+  if bad then
+    print(string.format("t=%5.1fs  ** NOT A NUMBER: the simulation broke down (%s, last move: %s; wheel %.2f cm out," ..
+                        " spinning %.3f rad/s, turned %.4f rad; %g steps a second, speed %g, step %g s); %s -- starting again",
+                        t, auto and string.format("going by itself, move %d", step) or "moved by hand",
+                        (what ~= "" and what) or "none yet", dist, S, flipAngle,
+                        v:getParam("steps"), v:getParam("speed"), STEP, bad))
+    restart(); pos = 0; auto = true
+    return
   end
   t = t + FRAME_DT
   copyTrans(figure, tt)
