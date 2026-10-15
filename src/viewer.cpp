@@ -6296,7 +6296,7 @@ void Viewer::onQuickRender(QString povargs) {
   }
   if (systemPovExe.isEmpty()) systemPovExe = "POV-Ray not found!";
 
-  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA -CC +FN10").arg(defaultIncludes);
+  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA +FN10").arg(defaultIncludes);
 
   QString povray = _settings->value("povray/executable").toString();
   if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))

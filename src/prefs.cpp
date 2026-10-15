@@ -219,7 +219,7 @@ void Prefs::setupPages() {
   }
   if (systemPovExe.isEmpty()) systemPovExe = "POV-Ray not found!";
 
-  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA -CC").arg(defaultIncludes);
+  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA").arg(defaultIncludes);
 
   QString povray = _settings->value("povray/executable").toString();
   if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))
