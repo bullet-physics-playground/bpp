@@ -89,7 +89,7 @@ jobs:
             cd /workspace/povray/unix && ./prebuild.sh
             cd /workspace/povray
             env CPPFLAGS="-I/usr/include" ./configure --with-boost=/usr --without-x --disable-sdl
-            sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' /workspace/povray/source/core/shape/truetype.cpp
+            sed -i "s/#if !defined(TARGET_OS_MAC)/#if 1/" /workspace/povray/source/core/shape/truetype.cpp
             cd /workspace/${REPO_DIR}/povray-linux
             qmake povvfe.pro && make -j$(nproc)
             cd /workspace/${REPO_DIR}
