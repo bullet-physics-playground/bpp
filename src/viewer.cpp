@@ -6213,12 +6213,35 @@ void Viewer::onQuickRender(QString povargs) {
 #ifdef Q_OS_WIN
   defaultPovrayExe = QString("C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe");
   defaultIncludes  = QString("+L%1 +L%2\\includes").arg(cache, pwd);
-#else
+#elif defined(Q_OS_LINUX)
   defaultPovrayExe = QString("/usr/bin/povray");
+  defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
+#else
+  defaultPovrayExe = QString("/opt/homebrew/bin/povray");
   defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
 #endif
 
-  QString systemPovExe = QStandardPaths::findExecutable(defaultPovrayExe);
+  QString systemPovExe;
+  {
+    QStringList candidates;
+#ifdef Q_OS_WIN
+    candidates << "C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe";
+#elif defined(Q_OS_LINUX)
+    candidates << "/usr/bin/povray" << "/usr/local/bin/povray";
+#else
+    candidates << "/opt/homebrew/bin/povray" << "/usr/local/bin/povray" << "/usr/bin/povray";
+#endif
+    QString fromPath = QStandardPaths::findExecutable("povray");
+    if (!fromPath.isEmpty())
+      candidates.prepend(fromPath);
+    for (const QString &c : candidates) {
+      QFileInfo fi(c);
+      if (fi.exists() && fi.isExecutable()) {
+        systemPovExe = fi.absoluteFilePath();
+        break;
+      }
+    }
+  }
   if (systemPovExe.isEmpty()) systemPovExe = "POV-Ray not found!";
 
   QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA -CC +FN10").arg(defaultIncludes);
