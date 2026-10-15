@@ -99,6 +99,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 
@@ -442,6 +463,7 @@ local function setp(p, t1, t2)
   p.t1, p.t2, p.w1, p.w2 = t1, t2, 0, 0
 end
 local function letGo()
+  holdStart()
   t = 0
   print(string.format("\n--- let go (again every %d s) ---", CYCLE))
   -- the butterfly
@@ -493,6 +515,7 @@ end
 -- ---------------------------------------------------------------------
 local function wrap(x) return (x + pi) % (2 * pi) - pi end
 v:preSim(function(N_)
+  if holdPre() then return end
   for k = 1, NSTEPS do
     local tt = t + (k - 1) * STEP
     -- the shaken ones: every step
@@ -569,6 +592,7 @@ local function fmtLen(cm)
 end
 
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   -- the butterfly
   for _, p in ipairs(BF) do

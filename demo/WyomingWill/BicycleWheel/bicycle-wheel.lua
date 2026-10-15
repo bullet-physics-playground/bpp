@@ -111,6 +111,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 v:setSolverIterations(30)
@@ -199,6 +220,7 @@ local EXTRA_TURN = -1                     -- the way round it's turned over (the
 
 local spunWith                            -- the spin it was last spun up with
 local function restart()
+  holdStart()
   if stoolHinge then v:removeConstraint(stoolHinge) end
   if slide then v:removeConstraint(slide) end
   if armHinge then v:removeConstraint(armHinge) end
@@ -320,6 +342,7 @@ local function prestep(h, tNow)
 end
 
 v:preSim(function(N)
+  if holdPre() then return end
   local tNow = t
   for k = 1, NSTEPS do
     prestep(STEP, tNow)
@@ -397,6 +420,7 @@ end
 
 local restartIn                           -- frames until the spin slider's restart (see onParamChanged)
 v:postSim(function(N)
+  if holdNow then return end
   if restartIn then
     restartIn = restartIn - 1
     if restartIn <= 0 then restartIn = nil; restart(); pos = 0; auto = true; return end

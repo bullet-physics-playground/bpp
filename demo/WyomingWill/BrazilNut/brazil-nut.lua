@@ -72,6 +72,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 v:setSolverIterations(20)
@@ -205,6 +226,7 @@ local function place(o, x, y)
   o.body:setAngularVelocity(btVector3(0, 0, 0))
 end
 local function pour()
+  holdStart()
   t = 0
   print(string.format("\n--- poured: %d beads a box, shaken at %d Hz; left %.1f g (%.1f mm), middle and right %.1f g (%.1f mm) ---",
                       N_S, F_HZ, v:getParam("gentle"), amplitude(BOXES[1]) * 10, v:getParam("hard"), amplitude(BOXES[2]) * 10))
@@ -268,6 +290,7 @@ local W_BED = 0
 for i = 1, N_S do W_BED = W_BED + RHO_GLASS * 4 / 3 * math.pi * smallR(i) ^ 3 * G end
 -- (the bed's weight, above: for the box's push)
 v:preSim(function(N_)
+  if holdPre() then return end
   for k = 1, NSTEPS do
     local tt = t + (k - 1) * STEP
     for _, bx in ipairs(BOXES) do
@@ -314,6 +337,7 @@ end
 local LOGF = os.getenv("BN_LOG") and io.open(os.getenv("BN_LOG"), "w")
 if LOGF then LOGF:write("t,box,special_height,surface\n") end
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   for k, bx in ipairs(BOXES) do
     local by = boxY(bx, t)

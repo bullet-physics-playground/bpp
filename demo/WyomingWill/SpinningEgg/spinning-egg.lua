@@ -106,6 +106,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 local MU, KAPPA, DELTA
@@ -479,6 +500,7 @@ local function turns(w) return w / (2 * math.pi) end
 local MICROJ = 10                          -- kg cm^2/s^2 in a microjoule
 
 local function spinThem()
+  holdStart()
   t = 0
   print(string.format("\n--- spun: left and right %.0f turns/s, middle %.0f turns/s; friction %.2f ---",
                       v:getParam("spin"), v:getParam("fast spin"), MU))
@@ -537,6 +559,7 @@ local LOGF = os.getenv("EG_LOG") and io.open(os.getenv("EG_LOG"), "w")
 if LOGF then LOGF:write("t,egg,tilt_deg,spin_up_turns,N_over_mg,gap_um,J,E,x,z\n") end
 local restAll = 0
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   local allRest = true
   for k, e in ipairs(EGGS) do
@@ -641,6 +664,7 @@ v:postSim(function(N_)
 end)
 
 v:preSim(function(N_)
+  if holdPre() then return end
   for k = 1, NSTEPS - 1 do
     for _, e in ipairs(EGGS) do step(e, STEP) end
     v:stepSimulation(STEP, 0, STEP)

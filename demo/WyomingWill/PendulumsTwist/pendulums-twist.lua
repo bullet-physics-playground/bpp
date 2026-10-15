@@ -83,6 +83,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(1 / 240, 0, 1 / 240)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 
@@ -349,6 +370,7 @@ local SIGMA1 = 0.75 * (SP_Z / SP_L) * sqrt(G / SP_L)
 -- =====================================================================
 local t = 0
 local function letGo()
+  holdStart()
   t = 0
   print(string.format("\n--- let go (again every %d s) ---", CYCLE))
   print(string.format("  The flip row: rods %d cm, let go from rest, both rods at one angle. Energy lets the lower rod over the top" ..
@@ -385,6 +407,7 @@ local function letGo()
 end
 
 v:preSim(function(N_)
+  if holdPre() then return end
   local H = FRAME_DT / 4
   for j = 1, 4 do
     local te = t + j * H
@@ -462,6 +485,7 @@ local function report()
 end
 
 v:postSim(function(N_)
+  if holdNow then return end
   -- the flip row
   for _, p in ipairs(FL) do
     local x1, y1 = p.x + FL_L * sin(p[1]), FL_Y - FL_L * cos(p[1])

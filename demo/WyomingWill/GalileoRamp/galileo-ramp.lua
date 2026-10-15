@@ -61,6 +61,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 v:setSolverIterations(30)
@@ -199,6 +220,7 @@ end
 local t, finished
 local function theoryTime(rc) return math.sqrt(2 * D_FINISH * (1 + rc.k) / (G * math.sin(SLOPE))) end
 local function lineUp()
+  holdStart()
   t, finished = 0, 0
   print(string.format("\n--- the race: %.0f cm down a ramp at %.0f degrees ---", D_FINISH, math.deg(SLOPE)))
   local order = {}
@@ -226,6 +248,7 @@ local LOGF = os.getenv("GR_LOG") and io.open(os.getenv("GR_LOG"), "w")
 if LOGF then LOGF:write("t,racer,distance\n") end
 local afterAll
 v:preSim(function(N_)
+  if holdPre() then return end
   for k = 1, NSTEPS do
     if k > 1 then t = t + STEP end
     -- (the moment each crosses the line is caught to the physics step)
@@ -253,6 +276,7 @@ v:preSim(function(N_)
 end)
 
 v:postSim(function(N_)
+  if holdNow then return end
   for i, rc in ipairs(RACERS) do
     copyTrans(rc.stripe, rc.o)
     if LOGF and N_ % 3 == 0 then

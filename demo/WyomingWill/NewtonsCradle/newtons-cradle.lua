@@ -71,6 +71,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 v:setSolverIterations(40)
@@ -193,6 +214,7 @@ local t, lifted = 0, 1
 local function ballX(i) return (i - (NB + 1) / 2) * (2 * RB + GAP) end
 local strikes, lastStrike, event, quietSteps
 local function lift(n)
+  holdStart()
   t = 0
   lifted = n
   local th = math.rad(v:getParam("lift"))
@@ -324,6 +346,7 @@ local function angleOf(b)
 end
 
 v:preSim(function(N_)
+  if holdPre() then return end
   for k = 1, NSTEPS do
     local before = (not event) and snapshot() or nil
     local hit = strike(STEP)
@@ -385,6 +408,7 @@ local auto, nextAuto = true, 15
 local LOGF = os.getenv("NC_LOG") and io.open(os.getenv("NC_LOG"), "w")
 if LOGF then LOGF:write("t,ball1_x,ball5_x,ball1_vx,ball5_vx\n") end
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   for i, b in ipairs(balls) do
     local x, y, z = getPosXYZ(b.s)

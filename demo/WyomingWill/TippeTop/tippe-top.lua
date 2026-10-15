@@ -87,6 +87,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 
@@ -203,6 +224,7 @@ local t = 0
 -- spun by hand: stem up, tilted 12 degrees (each its own way), spinning
 -- about its stem
 local function spinThem()
+  holdStart()
   t = 0
   print(string.format("\n--- spun: fast %.0f turns/s, slow %.0f turns/s ---",
                       v:getParam("fast spin"), v:getParam("slow spin")))
@@ -276,6 +298,7 @@ local function prestep(h)
 end
 
 v:preSim(function(N)
+  if holdPre() then return end
   for k = 1, NSTEPS - 1 do
     prestep(STEP)
     v:stepSimulation(STEP, 0, STEP)
@@ -302,6 +325,7 @@ end
 local LOGF = os.getenv("TT_LOG") and io.open(os.getenv("TT_LOG"), "w")
 if LOGF then LOGF:write("t,which,tilt_deg,spin_up_rad_s,com_y\n") end
 v:postSim(function(N)
+  if holdNow then return end
   t = t + FRAME_DT
   for k, top in ipairs(TOPS) do
     copyTrans(top.stem, top.m)

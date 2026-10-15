@@ -69,6 +69,28 @@ local YEARS = math.min(25, envnum("SS_YEARS", 25))
 
 v.animationPeriod = 16
 common.setTiming(1 / 60, 0, 1 / 60)
+local function applyTiming() common.setTiming(1 / 60, 0, 1 / 60) end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 v.gravity = btVector3(0, 0, 0)
 
 local sqrt, sin, cos, abs, floor, pi = math.sqrt, math.sin, math.cos, math.abs, math.floor, math.pi
@@ -247,6 +269,7 @@ end
 local E, t, nextCheck, nextH, stats
 local iSun, iEarth, iMoon = 0, 0, 0
 local function start()
+  holdStart()
   E = makeEngine(D)
   iSun, iEarth, iMoon = E.IDX.Sun, E.IDX.Earth, E.IDX.Moon
   t = 0
@@ -424,6 +447,7 @@ local function show()
 end
 
 v:preSim(function(N_)
+  if holdPre() then return end
   local dt = v:getParam("days") / 60
   t = t + dt
   E.advance(t)
@@ -449,6 +473,7 @@ v:preSim(function(N_)
   checks()
 end)
 v:postSim(function(N_)
+  if holdNow then return end
   show()
   if t >= YEARS * 365.25 then start(); show() end
 end)

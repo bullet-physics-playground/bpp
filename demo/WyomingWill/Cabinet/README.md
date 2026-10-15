@@ -10,6 +10,14 @@ Each exhibit stands in a bay of its own with a gilt-lettered placard.
 it is (a gömböc frozen in mid-air, a top mid-flip); come back and it
 carries on from there.
 
+**Every exhibit holds still for 2 seconds whenever it starts**: when you
+first arrive at it, when you press R, and each time it starts itself
+again. It puts everything in place, then waits, so you see how it begins
+before anything moves. The physics stops too (a zero time step), so the
+pause changes nothing: an exhibit's console output is the same, line for
+line, with or without it. (The falling Slinky has its own hold: the hand
+lets go after 2 s.) `HOLD_S` sets the pause, in seconds; 0 turns it off.
+
 ## Running it
 
 Open `cabinet.lua` in bpp. The exhibits' folders must be next to this one,

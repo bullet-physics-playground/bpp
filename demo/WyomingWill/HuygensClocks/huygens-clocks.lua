@@ -65,6 +65,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 v:setSolverIterations(40)
@@ -205,6 +226,7 @@ local function angleOf(c)
   return math.atan2(-col.x, col.y)          -- (positive: the bob out toward +x)
 end
 local function start()
+  holdStart()
   t = 0
   STARTS = (STARTS or 0) + 1
   local ph = math.rad(envnum("HC_PHASE", ({ 60, 300, 120 })[(STARTS - 1) % 3 + 1]))
@@ -241,6 +263,7 @@ end
 -- escapements
 -- ---------------------------------------------------------------------
 v:preSim(function(N_)
+  if holdPre() then return end
   local cb = v:getParam("beam friction")
   for k = 1, NSTEPS do
     local tt = t + (k - 1) * STEP
@@ -298,6 +321,7 @@ local function phaseDiff()
   return d * 360
 end
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   local bx = getPosXYZ(beamHold)
   beamDraw.trans = btTransform(Q0, btVector3(bx, BEAM_Y, 0))

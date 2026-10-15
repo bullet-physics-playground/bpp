@@ -72,6 +72,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v:setSolverIterations(20)
 v.gravity = btVector3(0, -G, 0)
@@ -265,6 +286,7 @@ local function setView()
 end
 
 local function start()
+  holdStart()
   teardown()
   H = v:getParam("height")
   MU = v:getParam("friction")
@@ -330,6 +352,7 @@ local function absorb()
 end
 
 v:preSim(function(N)
+  if holdPre() then return end
   for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end
 end)
 
@@ -337,6 +360,7 @@ local LOGF = os.getenv("CF_LOG") and io.open(os.getenv("CF_LOG"), "w")
 if LOGF then LOGF:write("t,top_above_rim,speed,active\n") end
 local restartIn                 -- frames until a slider's restart (see onParamChanged)
 v:postSim(function(N)
+  if holdNow then return end
   if restartIn then
     restartIn = restartIn - 1
     if restartIn <= 0 then restartIn = nil; start(); return end

@@ -72,6 +72,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
 
@@ -292,6 +313,7 @@ end
 local t, t0, flat, restartAt
 local samples = {}
 local function setGoing()
+  holdStart()
   t, t0, flat, restartAt = 0, nil, false, nil
   samples = {}
   DELTA = v:getParam("rolling") * 1e-4
@@ -330,6 +352,7 @@ local CHECK_AT = { 25, 20, 15, 10, 6, 4, 2, 1 }
 local LOGF = os.getenv("ED_LOG") and io.open(os.getenv("ED_LOG"), "w")
 if LOGF then LOGF:write("t,alpha_deg,Omega,Omega_theory,energy,cx,cz\n") end
 v:preSim(function(N_)
+  if holdPre() then return end
   if flat then return end
   for k = 1, NSTEPS do
     rk4(STEP)
@@ -344,6 +367,7 @@ v:preSim(function(N_)
   end
 end)
 v:postSim(function(N_)
+  if holdNow then return end
   t = t + FRAME_DT
   if flat then
     if restartAt and t > restartAt then setGoing() end

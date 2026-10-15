@@ -202,6 +202,27 @@ local function applyTiming()
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
+
+-- ---------------------------------------------------------------------
+-- a pause at every start: one frame to put everything in place, then it
+-- all stands still for HOLD_S seconds (2), so you see how it begins --
+-- bpp's own physics step stopped too (a zero time step) -- and then it
+-- carries on from there, exactly as if there had been no pause
+-- ---------------------------------------------------------------------
+local HOLD_FRAMES = math.floor(envnum("HOLD_S", 2) * 60 + 0.5)
+local holdArm, holdLeft, holdNow = false, 0, false
+local function holdStart() holdArm, holdLeft = true, 0 end
+local function holdPre()            -- first thing before each step: true while it stands still
+  if holdLeft > 0 then
+    holdLeft = holdLeft - 1
+    holdNow = true
+    v.timeStep = 0
+    return true
+  end
+  if holdNow then holdNow = false; applyTiming() end
+  if holdArm then holdArm, holdLeft = false, HOLD_FRAMES end
+  return false
+end
 applyTiming()
 
 -- the table: Gomboc Drop C's tray
@@ -482,6 +503,7 @@ local function randomSpin()
 end
 
 local function drop()
+  holdStart()
   setCount(v:getParam("count"))
   local s = spots(#bodies)
   for k, g in ipairs(bodies) do
@@ -665,6 +687,7 @@ end)
 -- ---------------------------------------------------------------------
 
 v:preSim(function(N)
+  if holdPre() then return end
   for k = 1, NSTEPS - 1 do
     resist(STEP)
     v:stepSimulation(STEP, 0, STEP)
@@ -673,6 +696,7 @@ v:preSim(function(N)
 end)
 
 v:postSim(function(N)
+  if holdNow then return end
   for _, g in ipairs(bodies) do placeDot(g) end
   if not race.running then return end
   race.t = race.t + FRAME_DT
