@@ -393,9 +393,14 @@ return function(D)
   -- -------------------------------------------------------------------
   -- the present: advance everything to time t (days from the start)
   -- -------------------------------------------------------------------
+  -- (the moons' steps inside the present day are finished before the next
+  -- day is stepped, so each kick takes the Sun from the day it falls in --
+  -- or, for the step that straddles the day's end, the next -- however the
+  -- frames fall: the same answer at any speed)
   E.t = 0
   function E.advance(t)
     while tB < t do
+      for _, S in ipairs(SYS) do advanceSys(S, tB) end
       for c = 1, 6 do
         local a, b = PA[c], PB[c]
         for i = 1, NN do a[i] = b[i] end

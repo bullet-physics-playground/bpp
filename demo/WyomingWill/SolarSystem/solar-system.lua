@@ -392,12 +392,9 @@ end
 local function wrap(a) return (a + pi) % (2 * pi) - pi end
 
 local function km(d) return d * AUKM end
-local function checks()
-  -- DE421, every year
-  local c = D.checks[nextCheck]
-  if c and D.JD0 + t >= c.jd - 1e-9 and c.jd - D.JD0 <= YEARS * 365.25 + 1 then
-    nextCheck = nextCheck + 1
-    E.advance(c.jd - D.JD0)
+-- DE421, every year (the engine stopped at its date: E.t)
+local function checkYear(c)
+  do
     local sx, sy, sz = E.mainPos(iSun, E.t)
     local ex, ey, ez = E.mainPos(iEarth, E.t)
     local parts = {}
@@ -461,11 +458,10 @@ local function checks()
       stats.merc = {}
     end
   end
-  -- Horizons
-  local h = D.hchecks[nextH]
-  if h and D.JD0 + t >= h.jd - 1e-9 then
-    nextH = nextH + 1
-    E.advance(h.jd - D.JD0)
+end
+-- Horizons, every month (the engine stopped at its date)
+local function checkHorizons(h)
+  do
     local parts = {}
     for _, Sy in ipairs(E.SYS) do
       for k, m in ipairs(Sy.moons) do
@@ -484,6 +480,26 @@ local function checks()
       end
     end
     if #parts > 0 then print(string.format("  %s  against Horizons, km off: %s", dateStr(h.jd), table.concat(parts, ", "))) end
+  end
+end
+-- the checks due by time tn, in order, each with the engine stopped
+-- exactly at its date (a whole day: the end of a main step), not at the
+-- frame after it -- so they read the same at any speed
+local function checks(tn)
+  while true do
+    local c, h = D.checks[nextCheck], D.hchecks[nextH]
+    local cd = (c and c.jd - D.JD0 <= YEARS * 365.25 + 1) and c.jd - D.JD0 or math.huge
+    local hd = h and h.jd - D.JD0 or math.huge
+    if math.min(cd, hd) > tn + 1e-9 then return end
+    if cd <= hd then
+      nextCheck = nextCheck + 1
+      E.advance(cd)
+      checkYear(c)
+    else
+      nextH = nextH + 1
+      E.advance(hd)
+      checkHorizons(h)
+    end
   end
 end
 
@@ -540,6 +556,7 @@ v:preSim(function(N_)
   if holdPre() then return end
   local dt = v:getParam("days") / 60
   t = t + dt
+  checks(t)          -- any check dates on the way, first (the year's figures end there)
   E.advance(t)
   -- the Laplace resonance, Neptune and Pluto
   local J = E.SYS[SYSBY.Jupiter]
@@ -575,7 +592,6 @@ v:preSim(function(N_)
   if R[1] and R[2] and R[1] > R[2] and r > R[2] then stats.merc[#stats.merc + 1] = R.lon end
   R[1], R[2] = R[2], r
   R.lon = select(2, onBody("Mercury", jd, sx - qx, sy - qy, sz - qz))
-  checks()
 end)
 v:postSim(function(N_)
   if holdNow then return end

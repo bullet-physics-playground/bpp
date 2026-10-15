@@ -119,19 +119,23 @@ usual 5 days a second that's under 2% of the time.
 
 ## What the console checks
 
-Every January 1 the console prints these:
+Every January 1 the console prints these (each check is made with the
+integration stopped exactly at its date, whatever the speed):
 
 * **The planets against JPL's DE421 ephemeris**, from the Sun, and the
   Moon from the Earth, in km. DE421 is JPL's own integration fitted to
   radar, spacecraft and laser ranging; it is where everything starts, so
   any difference is this model's. Over ten years the planets stay within
-  about 10 km and the Moon within 40 km (0.05″). The Moon's remaining
+  5 km and the Moon within 40 km (0.05″). The Moon's remaining
   error is the physics left out: the Moon's own figure, the tides, and the
   Earth's pole's precession.
 * **A Mercury without Einstein**: a massless twin pulled only by Newton.
   It falls behind, 49 km in the first year and 1800 km in ten, which is
-  8″ seen from the Sun. Without the correction, the planets wouldn't match
-  JPL's.
+  8″ seen from the Sun. Not steadily, year by year (190, 494, 733, 624,
+  404, 286, 531 and 1107 km in between): its orbit is what differs, and
+  how far apart that puts the two Mercurys depends on where in its orbit
+  Mercury is that January 1. Without the correction, the planets wouldn't
+  match JPL's.
 * **Mercury's perihelion turned by Einstein**, from a separate run of
   Mercury alone about the Sun. The orbit's Laplace–Runge–Lenz vector is
   averaged over each whole orbit, perihelion to perihelion, to remove the
@@ -152,30 +156,36 @@ Every January 1 the console prints these:
 * **The moons and asteroids against JPL Horizons**, monthly for five
   years, in km. They start within 1 or 2 km and stay close: after five
   years, Titan, Rhea, Dione, Iapetus, Io, Triton, Umbriel and Charon are
-  within 25–210 km. Some go further, for reasons that are physics left
+  within 20–210 km. Some go further, for reasons that are physics left
   out:
-  * **Phobos**: 1,000 km a year (a part in 1e5 of its pace). Mars isn't
+  * **Phobos**: 950 km a year (a part in 1e5 of its pace). Mars isn't
     round about its axis either: its C22 and S22 terms, turning with
     Mars, are in, and they took Phobos's drift down from 3,200 km a year
     (Deimos's from 330 to 50). The rest is Mars's finer lumps, which
     aren't modelled.
   * **Titania and Miranda**: 900 and 400 km a year. Neither Uranus's
     J2 nor the moons' older masses fix it (2014's masses are used).
-  * **Mimas**: 500–2,400 km, rising and falling. Its 2:1 resonance with
-    Tethys swings it back and forth over 70 years.
+  * **Mimas**: 575 km in a year and 2,800 in five, wavering by a hundred
+    or two from month to month. Its 2:1 resonance with Tethys swings it
+    back and forth over 70 years, and a small difference in that swing
+    grows slowly over five.
   * **The asteroids**: Ceres 2,000 km in five years, about 1″ seen from
     the Sun. Horizons' asteroid orbits include another eleven big asteroids'
     pulls, and the Sun's barycentric motion of DE441 rather than DE421.
 
-From a run at 100 days a second:
+From a run at 100 days a second (the checks' figures are the same at any
+speed: each check stops the integration at its date; the Laplace, Moon's
+face and perihelion lines are taken frame by frame and change a little):
 
     2027-01-01  against JPL's DE421, km off, from the Sun: Mercury 0, Venus 0, Earth 0, Mars 0, Jupiter 0, Saturn 0, Uranus 0, Neptune 0, Pluto 0;
                 the Moon, from the Earth: 4 km
                 a Mercury without Einstein's correction: 49 km off
-                energy steady to 4.4e-10, angular momentum to 9.5e-11 (Newton's; Einstein's correction is a few parts in 1e8)
+                energy steady to 4.4e-10, angular momentum to 9.4e-11 (Newton's; Einstein's correction is a few parts in 1e8)
                 Mercury's perihelion turned by Einstein: 42.981" a century, over 3 orbits (theory, 6 pi G M / (c^2 a (1 - e^2)) an orbit: 42.981")
-                Io, Europa, Ganymede: L_I - 3 L_E + 2 L_G (their mean longitudes) averaged 179.47 degrees over the year,
-                  spread 0.32 (Laplace's resonance holds it at 180)
+                Io, Europa, Ganymede: L_I - 3 L_E + 2 L_G (their mean longitudes) averaged 180.08 degrees over the year,
+                  spread 0.18 (Laplace's resonance holds it at 180)
+                  its 20-day means so far: 179.77 to 180.30 (Io's free libration about 180 is 0.07 degrees; the rest is
+                  the moons' other slow wobbles)
                 Neptune and Pluto: closest so far 32.04 AU; Pluto's year now 1.498 of Neptune's (their orbits cross,
                   but the 3:2 resonance keeps them over 17 AU apart)
                 the Moon's face: the Earth overhead at 7.9 W to 7.6 E, 6.8 S to 6.9 N on it
@@ -184,15 +194,15 @@ From a run at 100 days a second:
                 Mercury at perihelion, the Sun overhead at longitude 0.2, 179.9, 0.0, -179.9
                   (it turns 3 times in 2 of its years: at each perihelion one of its two hot poles, at 0 or 180, faces the Sun)
     ...
-    2036-01-01  ... Mercury 0, Venus 0, Earth 0, Mars 5, Jupiter 11, Saturn 8, Uranus 4, Neptune 4, Pluto 4;
+    2036-01-01  ... Mercury 1, Venus 0, Earth 1, Mars 1, Jupiter 5, Saturn 1, Uranus 0, Neptune 0, Pluto 0;
                 the Moon, from the Earth: 39 km
                 a Mercury without Einstein's correction: 1813 km off
 
 and against Horizons, a month, a year and five years in:
 
-    2026-02-01  against Horizons, km off: Phobos 123, Deimos 5, Io 78, Europa 38, Ganymede 26, Callisto 13, Mimas 518, Enceladus 172, Tethys 69, Dione 26, Rhea 7, Titan 0, Iapetus 2, Miranda 41, Ariel 7, Umbriel 9, Titania 102, Oberon 10, Triton 3, Charon 4, Ceres 1, Pallas 1, Juno 1, Vesta 2, Hygiea 0
+    2026-02-01  against Horizons, km off: Phobos 83, Deimos 4, Io 5, Europa 11, Ganymede 19, Callisto 17, Mimas 41, Enceladus 6, Tethys 8, Dione 1, Rhea 1, Titan 0, Iapetus 1, Miranda 34, Ariel 6, Umbriel 9, Titania 102, Oberon 10, Triton 3, Charon 4, Ceres 1, Pallas 1, Juno 1, Vesta 2, Hygiea 0
     2027-01-01  against Horizons, km off: Phobos 986, Deimos 50, Io 52, Europa 199, Ganymede 213, Callisto 182, Mimas 575, Enceladus 77, Tethys 90, Dione 10, Rhea 4, Titan 31, Iapetus 11, Miranda 404, Ariel 71, Umbriel 14, Titania 858, Oberon 149, Triton 22, Charon 42, Ceres 218, Pallas 135, Juno 74, Vesta 177, Hygiea 52
-    2031-01-01  against Horizons, km off: Phobos 4806, Deimos 248, Io 60, Europa 364, Ganymede 1160, Callisto 896, Mimas 2364, Enceladus 236, Tethys 412, Dione 53, Rhea 25, Titan 90, Iapetus 34, Miranda 2063, Ariel 392, Umbriel 83, Titania 4502, Oberon 937, Triton 108, Charon 209, Ceres 2010, Pallas 840, Juno 660, Vesta 538, Hygiea 604
+    2031-01-01  against Horizons, km off: Phobos 4771, Deimos 247, Io 63, Europa 361, Ganymede 1160, Callisto 897, Mimas 2794, Enceladus 276, Tethys 442, Dione 36, Rhea 22, Titan 90, Iapetus 33, Miranda 2060, Ariel 392, Umbriel 83, Titania 4502, Oberon 937, Triton 108, Charon 209, Ceres 2010, Pallas 840, Juno 660, Vesta 538, Hygiea 604
 
 ## Where it starts: the data
 
