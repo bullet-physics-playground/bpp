@@ -24,21 +24,25 @@
 -- and then it rocks about the upright at
 --     W^2 = a^2 w^2 / (2 l^2) - g / l
 -- The console gives the shaking against that limit, and the period it
--- rocks at against 2 pi / W.
+-- rocks at against 2 pi / W, and against the period for the size of its
+-- rocking (the averaged well is soft, so a bigger rock is slower).
 --
 -- THE PENDULUMS: a brass bob 3 cm across on a light rod, 20 cm from the
 -- pivot to the bob's centre; the shaker at 40 Hz.
 --
 -- PHYSICS: Bullet: each pendulum a rigid body (bob and rod) on a hinge to
 -- its pivot block, the block a heavy body moved exactly as the shaker moves
--- it, set before every step. 4800 physics steps a second (120 a shake).
+-- it, set before every step. 19200 physics steps a second (480 a shake):
+-- the rocking's period moves with the step (1.115 s at 4800 a second,
+-- 1.129 at 9600, 1.133 at 19200, 1.134 at 38400), and settles here.
 --
 -- Keys
 --   R   stand them up again (tilted 8 degrees)
 --   Z   slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: KP_SPEED, KP_STEPS, KP_TILT (degrees), KP_LOG=file.csv.
+-- Headless testing: KP_SPEED, KP_STEPS, KP_TILT (degrees), KP_A1, KP_A2 (the
+-- shaking, cm).
 --
 
 local common = require "common"
@@ -49,9 +53,9 @@ local function param(...) v:addParam(...) end
 param("left", envnum("KP_A1", 1.0), 0.1, 2, 0.05, "the left pivot's shaking, cm")
 param("right", envnum("KP_A2", 0.6), 0.1, 2, 0.05, "the right pivot's shaking, cm")
 param("speed", envnum("KP_SPEED", 1), 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
-param("steps", envnum("KP_STEPS", 4800), 2400, 9600, 600, "physics steps per simulated second")
+param("steps", envnum("KP_STEPS", 19200), 2400, 19200, 1200, "physics steps per simulated second")
 
-local STEP, NSTEPS, FRAME_DT = 1 / 4800, 80, 1 / 60
+local STEP, NSTEPS, FRAME_DT = 1 / 19200, 320, 1 / 60
 local function applyTiming()
   local speed = v:getParam("speed")
   NSTEPS = math.max(1, math.floor(v:getParam("steps") * speed / 60 + 0.5))
@@ -176,6 +180,15 @@ end
 local t = 0
 local function upright(a) return a * a * OMEGA * OMEGA > 2 * G * L_EQ end
 local function slowW(a) return math.sqrt(math.max(0, a * a * OMEGA * OMEGA / (2 * L_EQ * L_EQ) - G / L_EQ)) end
+-- the rocking's period for its size A (radians): the averaged equation,
+-- phi'' = (g/l) sin phi - K sin phi cos phi with K = a^2 w^2 / (2 l^2), is
+-- to the next order phi'' = -W^2 phi + c phi^3, c = 2K/3 - g/(6 l): a soft
+-- well, so a bigger rock is slower, by 1 + 3 c A^2 / (8 W^2) (Lindstedt)
+local function slowPeriod(a, A)
+  local W = slowW(a)
+  local c = 2 / 3 * a * a * OMEGA * OMEGA / (2 * L_EQ * L_EQ) - G / (6 * L_EQ)
+  return 2 * math.pi / W * (1 + 3 * c * A * A / (8 * W * W))
+end
 local function standUp()
   holdStart()
   t = 0
@@ -199,6 +212,7 @@ local function standUp()
                                 btVector3(0, 0, 1), btVector3(0, 0, 1))
     v:addConstraint(p.hinge)
     p.cycSum, p.cycN, p.lastMean, p.cross, p.periods, p.fell, p.reported = 0, 0, nil, {}, {}, nil, false
+    p.cyc = nil      -- (else the last run's unfinished shake takes this run's first angle)
     p.maxDev = 0
     if upright(a) then
       print(string.format("  %-6s shaken %.2f cm: a w = %.1f cm/s > %.1f -- it should stay up, rocking with a period of 2 pi / W = %.3f s",
@@ -277,8 +291,11 @@ v:postSim(function(N_)
         local n = #p.cross - 1
         local per = (p.cross[#p.cross] - p.cross[1]) / n
         local W = slowW(p.a)
-        print(string.format("  %-6s stays up, rocking up to %.1f degrees either side: a period of %.3f s over %d rocks (theory, 2 pi / W: %.3f s, %+.1f%%)",
-                            p.short, math.deg(p.maxDev), per, n, 2 * math.pi / W, (per * W / (2 * math.pi) - 1) * 100))
+        local TA = slowPeriod(p.a, p.maxDev)
+        print(string.format("  %-6s stays up, rocking up to %.1f degrees either side: a period of %.3f s over %d rocks (theory, 2 pi / W: %.3f s, %+.1f%%;" ..
+                            " for its size: %.3f s, %+.1f%%)",
+                            p.short, math.deg(p.maxDev), per, n, 2 * math.pi / W, (per * W / (2 * math.pi) - 1) * 100,
+                            TA, (per / TA - 1) * 100))
       else
         print(string.format("  %-6s stays up (%s)", p.short, upright(p.a) and "as it should" or "it shouldn't have"))
       end
