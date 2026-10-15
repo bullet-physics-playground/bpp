@@ -4907,11 +4907,31 @@ void Viewer::savePOV(bool force) {
   // A name with no file under includes/ leaves sceneDir's copy alone. Outside
   // a source checkout (the Docker image runs from /work) includes/ is the
   // installed /usr/share/bpp/includes.
-  QString settingsIncPath = startupWorkingDir() + QDir::separator() +
-                             "includes" + QDir::separator() + _pov_settings_inc;
-  if (!QFile::exists(settingsIncPath))
-    settingsIncPath = "/usr/share/bpp/includes/" + _pov_settings_inc;
-  if (!_pov_settings_inc.isEmpty() && QFile::exists(settingsIncPath)) {
+  // Search the places bpp's shipped includes can live: next to the
+  // executable (build tree and macOS .app bundle), above it, the launch
+  // directory, and the usual system install locations.  macOS apps keep
+  // them at Contents/includes, one level above the executable.
+  QStringList incDirs;
+  QString appDir = QCoreApplication::applicationDirPath();
+  incDirs << appDir + "/includes"
+          << appDir + "/../includes"
+          << appDir + "/../../includes"
+          << startupWorkingDir() + "/includes"
+          << "/Applications/bpp.app/Contents/includes"
+          << "/usr/local/share/bpp/includes"
+          << "/opt/homebrew/share/bpp/includes"
+          << "/usr/share/bpp/includes";
+
+  QString settingsIncPath;
+  for (const QString &dir : incDirs) {
+    if (QFile::exists(dir + QDir::separator() + _pov_settings_inc)) {
+      settingsIncPath = dir + QDir::separator() + _pov_settings_inc;
+      break;
+    }
+  }
+
+  if (!_pov_settings_inc.isEmpty() && !settingsIncPath.isEmpty() &&
+      QFile::exists(settingsIncPath)) {
     QString sceneSettingsInc = sceneDir + QDir::separator() + _pov_settings_inc;
     QFile::remove(sceneSettingsInc);
     QFile::copy(settingsIncPath, sceneSettingsInc);
