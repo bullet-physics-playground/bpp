@@ -6476,6 +6476,25 @@ void Viewer::startVfeQuickRender(const QString &sceneName, const QString &sceneD
     }
   }
 
+  // bpp's shipped include library (settings.inc, bpp_CIE.inc, etc.) is not
+  // implicit in an embedded VFE session, so add every place it can live the
+  // same way locateMeshFile/settingsIncPath do. Without this, a scene that
+  // pulls in settings.inc/bpp_CIE.inc fails with "Cannot open include file".
+  QStringList bppIncludeCandidates;
+  QString appDir = QCoreApplication::applicationDirPath();
+  bppIncludeCandidates << appDir + "/includes"
+                      << appDir + "/../includes"
+                      << appDir + "/../../includes"
+                      << startupWorkingDir() + "/includes"
+                      << "/Applications/bpp.app/Contents/includes"
+                      << "/usr/local/share/bpp/includes"
+                      << "/opt/homebrew/share/bpp/includes"
+                      << "/usr/share/bpp/includes";
+  for (const QString &dir : bppIncludeCandidates) {
+    if (QDir(dir).exists())
+      opts.AddLibraryPath(QDir(dir).absolutePath().toStdString());
+  }
+
   // savePOV() writes a per-frame include (e.g. "00038.inc") alongside the
   // .pov file and the main .pov references it by bare relative name. The
   // real povray.exe finds it because QProcess::setWorkingDirectory(sceneDir)
