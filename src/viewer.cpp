@@ -5393,11 +5393,21 @@ void Viewer::hoverTick() {
   const btScalar reach = 1.0e6;
   btVector3 from(orig.x, orig.y, orig.z);
   btVector3 to(orig.x + dir.x * reach, orig.y + dir.y * reach, orig.z + dir.z * reach);
-  // (every world: one drawn elsewhere is tested with the ray moved back
-  // from where it's drawn, and what it hits moved there again)
-  const btCollisionObject *best = nullptr;
-  btScalar bestFraction = 2;
-  btVector3 bestPoint(0, 0, 0);
+  // Everything along the ray, nearest first, in every world (one drawn
+  // elsewhere is tested with the ray moved back from where it's drawn, and
+  // what it hits moved there again). Objects made with collides = false are
+  // seen too: many a script draws its bodies so, and works out their
+  // contacts itself, and they still have something to say.
+  struct Hit {
+    btScalar fraction;
+    const btCollisionObject *co;
+    btVector3 point;
+  };
+  struct AllHits : public btCollisionWorld::AllHitsRayResultCallback {
+    AllHits(const btVector3 &f, const btVector3 &t) : btCollisionWorld::AllHitsRayResultCallback(f, t) {}
+    bool needsCollision(btBroadphaseProxy *) const override { return true; }
+  };
+  std::vector<Hit> hits;
   auto test = [&](btSoftRigidDynamicsWorld *w, const btTransform *place) {
     btVector3 f = from, t = to;
     if (place) {
@@ -5405,17 +5415,11 @@ void Viewer::hoverTick() {
       f = inv * from;
       t = inv * to;
     }
-    btCollisionWorld::ClosestRayResultCallback ray(f, t);
-    // bpp adds bodies with its own collision groups: let the ray see them all
-    // (an object made with collides = false has an empty mask and stays unseen)
-    ray.m_collisionFilterGroup = -1;
-    ray.m_collisionFilterMask = -1;
+    AllHits ray(f, t);
     w->rayTest(f, t, ray);
-    if (ray.hasHit() && ray.m_closestHitFraction < bestFraction) {
-      bestFraction = ray.m_closestHitFraction;
-      best = ray.m_collisionObject;
-      bestPoint = place ? (*place) * ray.m_hitPointWorld : ray.m_hitPointWorld;
-    }
+    for (int k = 0; k < ray.m_collisionObjects.size(); ++k)
+      hits.push_back({ray.m_hitFractions[k], ray.m_collisionObjects[k],
+                      place ? (*place) * ray.m_hitPointWorld[k] : ray.m_hitPointWorld[k]});
   };
   if (_worlds.empty()) {
     test(dynamicsWorld, nullptr);
@@ -5423,43 +5427,54 @@ void Viewer::hoverTick() {
     for (const PhysWorld &w : _worlds)
       test(w.world, w.placed ? &w.place : nullptr);
   }
-  Object *hit = nullptr;
-  if (best != nullptr && _objects) {
-    for (Object *o : *_objects) {
-      if (o && o->getRigidBody() &&
-          static_cast<const btCollisionObject *>(o->getRigidBody()) == best) {
-        hit = o;
-        break;
-      }
+  std::sort(hits.begin(), hits.end(), [](const Hit &a, const Hit &b) { return a.fraction < b.fraction; });
+
+  auto objectOf = [&](const btCollisionObject *co) -> Object * {
+    if (!_objects) return nullptr;
+    for (Object *o : *_objects)
+      if (o && o->getRigidBody() && static_cast<const btCollisionObject *>(o->getRigidBody()) == co) return o;
+    return nullptr;
+  };
+  auto ask = [&](Object *o, const btVector3 &p) -> QString {
+    if (!_cb_onHover) return QString();
+    try {
+      luabind::object res = luabind::call_function<luabind::object>(
+          _cb_onHover, _frameNum, o, (double)p.x(), (double)p.y(), (double)p.z());
+      if (res.is_valid() && luabind::type(res) == LUA_TSTRING)
+        return QString::fromUtf8(luabind::object_cast<std::string>(res).c_str());
+    } catch (const std::exception &e) {
+      showLuaException(e, "onHover()");
+      _cb_onHover = luabind::object();    // (don't repeat the error 10x a second)
     }
+    return QString();
+  };
+
+  // the nearest that has something to say; one that collides and hasn't
+  // stops the search (it's in the way), one that doesn't is looked through
+  QString text;
+  for (const Hit &h : hits) {
+    Object *o = objectOf(h.co);
+    if (!o) continue;
+    text = ask(o, h.point);
+    if (!text.isEmpty()) {
+      _hoverObj = o;
+      _hoverHitPt = h.point;
+      _hoverLastHit.restart();
+      break;
+    }
+    if (o->getCollides()) break;
   }
-  if (hit) {
-    _hoverObj = hit;
-    _hoverHitPt = bestPoint;
-    _hoverLastHit.restart();
-  } else if (_hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
-             _objects && _objects->contains(_hoverObj)) {
+  if (text.isEmpty() && _hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
+      _objects && _objects->contains(_hoverObj)) {
     // sticky: a spinning or rocking object can slip out from under a resting
     // pointer for a moment -- keep reporting it for 1.5 s (no flicker)
-    hit = _hoverObj;
-  } else {
+    text = ask(_hoverObj, _hoverHitPt);
+  }
+  if (text.isEmpty()) {
     _hoverObj = nullptr;
     hoverHide();
     return;
   }
-
-  QString text;
-  try {
-    const btVector3 &p = _hoverHitPt;
-    luabind::object res = luabind::call_function<luabind::object>(
-        _cb_onHover, _frameNum, hit, (double)p.x(), (double)p.y(), (double)p.z());
-    if (res.is_valid() && luabind::type(res) == LUA_TSTRING)
-      text = QString::fromUtf8(luabind::object_cast<std::string>(res).c_str());
-  } catch (const std::exception &e) {
-    showLuaException(e, "onHover()");
-    _cb_onHover = luabind::object();      // (don't repeat the error 10x a second)
-  }
-  if (text.isEmpty()) { hoverHide(); return; }
   // monospace so a script can line things up
   QToolTip::showText(mapToGlobal(_hoverPos + QPoint(16, 16)),
                      QString("<pre style='margin:0'>%1</pre>").arg(text.toHtmlEscaped()),
