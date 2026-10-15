@@ -120,6 +120,7 @@ Section "BPP (required)"
 
   File /r "demo"
   File /r "includes"
+  File /r "povray-include"
 
   SetOutPath $INSTDIR
 

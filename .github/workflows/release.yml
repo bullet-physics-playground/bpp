@@ -83,7 +83,16 @@ jobs:
             ${{ matrix.distro }}:"${CODENAME}" bash -ec '
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -qq
-            apt-get install -y -qq build-essential devscripts debhelper dh-make equivs
+            apt-get install -y -qq build-essential devscripts debhelper dh-make equivs autoconf automake libboost-dev libz-dev libpng-dev libjpeg-dev libtiff-dev
+            # POV-Ray source, for the USE_VFE=1 build
+            if [ ! -d /workspace/povray ]; then git clone https://github.com/POV-Ray/povray --depth=1 /workspace/povray; fi
+            cd /workspace/povray/unix && ./prebuild.sh
+            cd /workspace/povray
+            env CPPFLAGS="-I/usr/include" ./configure --with-boost=/usr --without-x --disable-sdl
+            sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' /workspace/povray/source/core/shape/truetype.cpp
+            cd /workspace/${REPO_DIR}/povray-linux
+            qmake povvfe.pro && make -j$(nproc)
+            cd /workspace/${REPO_DIR}
             mk-build-deps -i -t "apt --yes --no-install-recommends"
             sed -i "1s/.*/bpp (${VERSION}) ${CODENAME}; urgency=medium/" debian/changelog
             dpkg-buildpackage -b -uc -us -d
@@ -166,10 +175,21 @@ jobs:
           qmake-qt5
           mingw32-make -j$(nproc)
 
+      - name: Build POV-Ray VFE library
+        run: |
+          set -e
+          PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          cd "$PARENT"
+          git clone https://github.com/POV-Ray/povray --depth=1
+          sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' povray/source/core/shape/truetype.cpp
+          cd "$(cygpath -u '${{ github.workspace }}')/povray-mingw"
+          qmake-qt5 povvfe.pro
+          mingw32-make -j$(nproc)
+
       - name: Build bpp
         run: |
           set -e
-          qmake-qt5
+          qmake-qt5 "USE_VFE=1"
           mingw32-make -j$(nproc)
 
       - name: Deploy Qt runtime and remaining DLLs
@@ -183,6 +203,11 @@ jobs:
           cp /mingw64/bin/libassimp-6.dll release/
           PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
           cp "$PARENT/libQGLViewer/QGLViewer/QGLViewer3.dll" release/
+          if [ -d "$PARENT/povray/distribution/include" ]; then
+            rm -rf release/povray-include
+            mkdir -p release/povray-include
+            cp -r "$PARENT/povray/distribution/include/." release/povray-include/
+          fi
 
       - name: Build NSIS installer
         run: |

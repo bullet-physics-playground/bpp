@@ -6479,7 +6479,8 @@ void Viewer::startVfeQuickRender(const QString &sceneName, const QString &sceneD
   // four levels up to land back at bpp/'s parent), and finally a few
   // install prefixes.
   QStringList vfeIncludeCandidates;
-  vfeIncludeCandidates << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../povray-include")
+  vfeIncludeCandidates << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("povray-include")
+                      << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../povray-include")
                       << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../povray/distribution/include")
                       << QDir(startupWorkingDir()).absoluteFilePath("../povray/distribution/include")
                       << QDir(startupWorkingDir()).absoluteFilePath("../povray/include")
@@ -6489,7 +6490,8 @@ void Viewer::startVfeQuickRender(const QString &sceneName, const QString &sceneD
                       << "/opt/homebrew/share/povray-3.7/include"
                       << "/usr/local/share/povray-3.7/include"
                       << "/usr/share/povray-3.7/include"
-                      << "/usr/share/povray/include";
+                      << "/usr/share/povray/include"
+                      << "/usr/share/bpp/includes";
   bool vfeIncludesAdded = false;
   for (const QString &candidate : vfeIncludeCandidates) {
     if (QDir(candidate).exists()) {
