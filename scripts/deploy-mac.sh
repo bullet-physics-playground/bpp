@@ -89,10 +89,23 @@ if [ -n "$BAD" ]; then
   exit 1
 fi
 
-# Step 9: Re-sign the whole bundle. Every install_name_tool edit above (and
+# Step 9: Copy the demo scenes and the shared includes into Contents/ so they
+# ship inside the .app in the dmg (bpp resolves demo and includes relative to
+# its own location). Done after the self-contained check above so its scanner
+# doesn't walk the thousands of data files, and before the re-sign below so
+# the new files are sealed.
+SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+for d in demo includes; do
+  if [ -d "$SRC_DIR/$d" ]; then
+    rm -rf "$APP/Contents/$d"
+    cp -R "$SRC_DIR/$d" "$APP/Contents/$d"
+  fi
+done
+
+# Step 10: Re-sign the whole bundle. Every install_name_tool edit above (and
 # macdeployqt's own copies) invalidated the code signatures; without a fresh
 # ad-hoc signature dyld kills the app at launch with SIGKILL (Code Signature
 # Invalid) on Apple Silicon.
 codesign --force --deep --sign - "$APP"
 
-echo "Deploy complete. QGLViewer bundled, paths fixed, bundle self-contained."
+echo "Deploy complete. QGLViewer bundled, paths fixed, demo/includes added, bundle self-contained."
