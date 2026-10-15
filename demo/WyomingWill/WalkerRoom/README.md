@@ -61,11 +61,15 @@ something wrong with its build.
 - **Same chassis.** So that only the linkage differs, every walker gets
   the same body clearance (12 cm: its body's lowest point above flat
   ground) and the same front-to-back spacing of its feet (35 cm, between
-  the middles of its front and back feet's paths); all but Jansen and
-  Klann (whose width is fixed) the same side-to-side width (30 cm, outer
-  foot edge to outer foot edge). This uses each file's own leg-spacing
-  and body-depth options and the room's `bodyRaise` option, none of
-  which change its foot path.
+  the middles of its front and back feet's paths) and the same
+  side-to-side width (30-31 cm, outer foot edge to outer foot edge;
+  measured, 30.2 to 31.3). This uses each file's own leg-spacing and
+  body-depth options and the room's `bodyRaise` option, none of which
+  change its foot path. (Until Walker Room 2, Jansen's feet were 38 cm
+  apart and Klann's 35: their files' bodies are wide, and their pads
+  reach outward. Their bodies are narrower here.) A walker's body width
+  is where its legs are mounted, so the bodies look different widths
+  even though the feet stand on the same rectangle.
 - **Same feet.** Every walker stands on the same flat feet: 8 cm long
   (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5. Big feet get
   over bumps by resting on them; small ones have to be lifted over. Their
@@ -180,31 +184,33 @@ same weight, each walker's own motors):
 
 | Walker                 | Lift | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Mean | On bumps, cm/s | Room 2 |
 |------------------------|------|------|------|------|------|------|------|------|------|------|------|----------------|--------|
-| Klann                  | 44%  | 94%  | 88%  | 85%  | 80%  | 83%  | 67%  | 63%  | 69%  | 17%  | 72%  | 6.1 | 72% |
-| Jansen                 | 28%  | 88%  | 91%  | 86%  | 69%  | 83%  | 60%  | 49%  | 43%  | 18%  | 65%  | 5.8 | 65% |
+| Klann                  | 44%  | 89%  | 87%  | 85%  | 72%  | 79%  | 63%  | 67%  | 72%  | 29%  | 71%  | 6.0 | 72% |
 | Hoecken-Spears slider  | 28%  | 91%  | 100% | 87%  | 77%  | 90%  | 28%  | 42%  | 73%  | -3%  | 65%  | 5.6 | 62% |
-| Hoecken-Spears 4-bar  | 28%  | 92%  | 95%  | 86%  | 68%  | 69%  | 41%  | 59%  | 41%  | 12%  | 63%  | 5.5 | 65% |
+| Hoecken-Spears 4-bar   | 28%  | 92%  | 95%  | 86%  | 68%  | 69%  | 41%  | 59%  | 41%  | 12%  | 63%  | 5.5 | 65% |
+| Jansen                 | 28%  | 79%  | 86%  | 81%  | 63%  | 70%  | 54%  | 43%  | 27%  | 34%  | 60%  | 5.1 | 65% |
 | Chebyshev-Spears diag  | 24%  | 94%  | 94%  | 67%  | 87%  | 70%  | 11%  | 66%  | 28%  | 4%   | 58%  | 5.4 | 52% |
 | Chebyshev-Spears       | 26%  | 87%  | 94%  | 89%  | 76%  | 57%  | 44%  | 37%  | 26%  | 4%   | 57%  | 5.1 | 65% |
 | Spears 4-bar           | 28%  | 71%  | 78%  | 72%  | 59%  | 62%  | 8%   | 48%  | 44%  | 6%   | 50%  | 4.4 | 50% |
 | Hoecken-Spears long-stance | 29%  | 92%  | 67%  | 67%  | 84%  | 23%  | 21%  | 19%  | 16%  | -1%  | 43%  | 3.7 | 54% |
-| Hoecken slider         | 21%  | 64%  | 76%  | 70%  | 49%  | 53%  | 30%  | 5%   | 6%   | 8%   | 40%  | 3.1 | 40% |
 | Hoecken 4-bar          | 17%  | 81%  | 61%  | 77%  | 68%  | 9%   | 24%  | 14%  | 13%  | 5%   | 39%  | 3.2 | 43% |
+| Hoecken slider         | 21%  | 56%  | 70%  | 63%  | 27%  | 32%  | 22%  | 8%   | 24%  | 8%   | 34%  | 2.7 | 40% |
 | Chebyshev diag         | 14%  | 92%  | 75%  | 31%  | 45%  | 23%  | 7%   | 13%  | 4%   | 2%   | 32%  | 2.9 | 33% |
-| Chebyshev              | 16%  | 51%  | 58%  | 34%  | 17%  | 4%   | 10%  | 4%   | 4%   | 4%   | 21%  | 1.5 | 23% |
+| Chebyshev              | 16%  | 51%  | 62%  | 22%  | 5%   | 8%   | 7%   | 2%   | 4%   | 4%   | 18%  | 1.4 | 23% |
 
 Across all twelve, lift and the share kept go together: correlation
-0.81 (0.78 by rank; Walker Room 2: 0.84). The four lowest-lift walkers
-are the bottom four.
+0.80 (0.77 by rank; Walker Room 2: 0.84). The four lowest-lift walkers
+are the bottom four. (Jansen, Klann, Chebyshev and Hoecken slider were
+run again after their side-to-side widths were matched: see Same
+chassis.)
 
 The cleanest comparisons are the pairs where the Spears version is the
 same mechanism with more lift, on the same chassis and feet:
 
 | Pair (lift)                                         | Now (same motors) | Room 2 (same weight) | Own weight | Gravity 70, same crank | Room1 (gravity 20) |
 |-----------------------------------------------------|------------|------------|------------|------------|--------------------|
-| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 21% -> 57% | 23% -> 65% | 30% -> 78% | 30% -> 75% | 63% -> 88% |
+| Chebyshev (16%) -> Chebyshev-Spears (26%)           | 18% -> 57% | 23% -> 65% | 30% -> 78% | 30% -> 75% | 63% -> 88% |
 | Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 32% -> 58% | 33% -> 52% | 21% -> 67% | 17% -> 62% | 71% -> 77% |
-| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 40% -> 65% | 40% -> 62% | 41% -> 65% | 40% -> 57% | 69% -> 80% |
+| Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 34% -> 65% | 40% -> 62% | 41% -> 65% | 40% -> 57% | 69% -> 80% |
 | Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)  | 39% -> 63% | 43% -> 65% | 67% -> 78% | --         | --         |
 
 In all four the version with more lift keeps more of its speed, and

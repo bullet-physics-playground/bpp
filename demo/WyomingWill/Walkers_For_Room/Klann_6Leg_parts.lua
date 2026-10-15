@@ -439,7 +439,7 @@ local KLANN_YMIN, FOOT_CLEARANCE, O_ABOVE_CUBE = KLANN_YMIN * S, FOOT_CLEARANCE 
 -- ---------------------------------------------------------------------
 
 local plane_gap = 1.2 * S   -- > ROD_D, so adjacent planes' rod boxes never touch
-local cube_d = 150.0 * S     -- cube's own Z-depth
+local cube_d = (opts.cube_d or 150.0) * S     -- cube's own Z-depth (the room can set it: opts.cube_d)
 
 -- z_ground..z_rockerUpper are read by buildKlannLeg() (defined inside
 -- this function, invoked from the leg-building loop further down) as

@@ -378,7 +378,7 @@ local JANSEN_YMIN, FOOT_CLEARANCE, O_ABOVE_CUBE = JANSEN_YMIN * S, FOOT_CLEARANC
 -- ---------------------------------------------------------------------
 
 local plane_gap = 1.2 * S   -- > ROD_D, so adjacent planes' rod boxes never touch
-local cube_d = 150.0 * S     -- cube's own Z-depth
+local cube_d = (opts.cube_d or 150.0) * S     -- cube's own Z-depth (the room can set it: opts.cube_d)
 
 -- z_ground..z_triJ4 are read by buildJansenLeg() (defined inside this
 -- function, invoked from the leg-building loop further down) as upvalues. 7 rod

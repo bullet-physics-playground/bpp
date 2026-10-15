@@ -268,11 +268,11 @@ end
 local RED, PURPLE, BLUE, MAGENTA, WHITE, GOLD = "#D62828", "#7B2CBF", "#1F6FEB", "#E5007E", "#F2F2F2", "#FFC300"
 
 local WALKERS = {
-  { name = "Jansen", look = { code = "J 8", colour = RED, spears = false, diag = false }, advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993, rowSpacing = 158.44 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", look = { code = "J 8", colour = RED, spears = false, diag = false }, advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -29.99, rowSpacing = 158.44, cube_d = 114.8 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Klann", look = { code = "K 6", colour = PURPLE, spears = false, diag = false }, advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254, rowSpacing = 164.79 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", look = { code = "K 6", colour = PURPLE, spears = false, diag = false }, advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 10.85, rowSpacing = 164.79, cube_d = 129.8 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Chebyshev", look = { code = "C 4", colour = BLUE, spears = false, diag = false }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", look = { code = "C 4", colour = BLUE, spears = false, diag = false }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.5 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Chebyshev diag", look = { code = "C 4", colour = BLUE, spears = false, diag = true }, advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
@@ -282,7 +282,7 @@ local WALKERS = {
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
   { name = "Hoecken 4-bar", look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 2.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Hoecken-Spears slider", look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, advance = 17.054, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },

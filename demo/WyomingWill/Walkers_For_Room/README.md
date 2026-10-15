@@ -42,7 +42,8 @@ Fifth, Jansen and Klann take `rows` (rows of legs: 3 in their own files,
 `rowSpacing` (front-to-back spacing of the rows, their own units),
 `rowPhase` and `sidePhase` (degrees between one row's crank and the
 next's, and between a row's two sides: 105 and 45 in their own files),
-and `hingeCFM` (how soft their hinges are: 0.1 in their own files, 0 --
+`cube_d` (the body's depth, which sets how far apart their two sides'
+legs are: 150 in their own files), and `hingeCFM` (how soft their hinges are: 0.1 in their own files, 0 --
 the engine's default, as in every other build -- in the room).
 
 Sixth, Chebyshev-Spears takes `sidePhase`: the phase of its back face's
