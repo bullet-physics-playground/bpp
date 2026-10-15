@@ -83,10 +83,38 @@ speed.
   counted as strikes.
 * 2400 physics steps a second.
 
+## The clack
+
+Each strike clacks, and the clack is worked out from the same physics
+(`make-sounds.py`). Almost all of a Newton's cradle's sound is
+*acceleration noise*. In the tenth of a millisecond a strike lasts, each
+ball is jerked to a new speed, and as it jerks it pushes the air ahead of
+it and pulls the air behind it. (The balls' own ringing is far too high to
+hear: a 25 mm steel ball's lowest note is about 100 kHz.)
+
+So the generator runs the strike as the exhibit does: Hertz's law between
+neighbours, the same damping, 20 ns steps. It takes each ball's motion
+through the strike. For each frequency it uses the exact solution for the
+sound a rigid sphere sends out as it moves, from each ball at its own
+distance and angle from you, and again from each ball's image under the
+table. Then a short, quiet room tail.
+
+You're 60 cm in front of the cradle, 40 cm to the right and 15 cm up. A
+ball coming in at 60 cm/s (a 30-degree lift) clacks at a peak of 2.7 Pa
+there (103 dB, for a tenth of a millisecond), and the peak goes as the
+speed to the power 1.48.
+
+There's one sound for each of 1 to 4 balls coming in, at each of 10, 20,
+35, 60 and 100 cm/s (`cradle-sounds/`, 650 KB), all to one scale. A strike
+plays the one at or just above its speed, softer by that power, so the
+clacks fade as the swing dies. A strike under 2 cm/s is too soft to hear,
+and isn't played.
+
 ## Files
 
 * `newtons-cradle.lua`: the exhibit. It also stands in Euler's Cabinet of
   Curiosities (`../Cabinet/`).
+* `cradle-sounds/`: the clacks, made by `make-sounds.py` (NumPy, SciPy).
 
 Headless testing: `NC_SPEED`, `NC_STEPS`, `NC_LIFT` (degrees), `NC_GAP`
 (cm), `NC_DAMP`, `NC_LOG=file.csv`.

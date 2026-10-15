@@ -40,6 +40,9 @@
 --    strike lasts about a tenth of a millisecond), and the balls' speeds
 --    and places handed back to Bullet.
 --  * 2400 physics steps a second.
+--  * Each strike clacks: the sound worked out from the same strike and the
+--    air the jerked balls push (make-sounds.py, cradle-sounds/), louder
+--    the faster the balls meet.
 --
 -- Keys
 --   1 2 3 4   lift that many balls and let them go
@@ -248,6 +251,49 @@ end
 -- before every physics step: the strikes
 -- ---------------------------------------------------------------------
 local X, VX, U, W, D0 = {}, {}, {}, {}, {}
+
+-- ---------------------------------------------------------------------
+-- the clack: worked out from the same strike, and the air a jerked ball
+-- pushes (make-sounds.py): one sound for 1 to 4 balls coming in at each of
+-- 10, 20, 35, 60 and 100 cm/s, all to one scale; a strike plays the one
+-- at or just above its speed, softer as the pressure goes, speed^1.48
+-- ---------------------------------------------------------------------
+local SND_DIR = "cradle-sounds/"
+for _, d in ipairs({ "", "demo/WyomingWill/NewtonsCradle/" }) do
+  local f = io.open(d .. SND_DIR .. "clack-n1-v60.wav", "r")
+  if f then f:close(); SND_DIR = d .. SND_DIR; break end
+end
+local SND_SPEEDS = { 10, 20, 35, 60, 100 }
+local SND = {}
+if v.loadSound and v.playSound then
+  for n = 1, 4 do
+    SND[n] = {}
+    for _, u in ipairs(SND_SPEEDS) do
+      SND[n][u] = v:loadSound(string.format("%sclack-n%d-v%d.wav", SND_DIR, n, u))
+    end
+  end
+end
+-- at a strike's start: how fast the balls meet, and how many come in together
+local function clack()
+  if not SND[1] then return end
+  local j, c = nil, 0
+  for i = 1, NB - 1 do
+    local ci = VX[i] - VX[i + 1]
+    if ci > c then j, c = i, ci end
+  end
+  if not j or c < 2 then return end                -- (too soft to hear)
+  local n, side, step = 1, j, -1
+  if math.abs(VX[j + 1]) > math.abs(VX[j]) then side, step = j + 1, 1 end
+  local k = side + step
+  while k >= 1 and k <= NB and math.abs(VX[k] - VX[side]) < 0.2 * c do n, k = n + 1, k + step end
+  n = math.min(n, 4)
+  local ub = SND_SPEEDS[#SND_SPEEDS]            -- (the file at or just above its speed, played softer)
+  for i = #SND_SPEEDS, 1, -1 do if SND_SPEEDS[i] >= c then ub = SND_SPEEDS[i] end end
+  local id = SND[n][ub]
+  if id and id >= 0 then
+    pcall(function() v:playSound(id, math.min(1, (c / ub) ^ 1.48)) end)
+  end
+end
 local SUB = 0.25e-6
 local function strike(h)
   -- where they are, along the row, and how fast
@@ -353,6 +399,7 @@ v:preSim(function(N_)
     if hit then
       if not event then
         event = { t = t + (k - 1) * STEP, before = before }
+        clack()
       end
       quietSteps = 0
     elseif event then
