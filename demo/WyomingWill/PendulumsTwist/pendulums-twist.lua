@@ -18,10 +18,14 @@
 --           a light one that swings. Let go from 60 degrees, the light one
 --           swings in and out, the cord paying in and out, and its path
 --           (the dotted trail) is a tangle. Three machines, the heavy
---           weight 2.8, 3.0 and 3.2 times the light one. Only at exactly 3
---           does the motion keep a hidden second constant, besides its
---           energy (Casasayas, Nunes and Tufillaro, 1990): at 3 it can
---           never become chaotic.
+--           weight 2.8, 3.0 and 3.2 times the light one. They look alike,
+--           and from this gentle start all three swing in an orderly way.
+--           The difference is hidden: only at exactly 3 does the motion
+--           keep a second constant, besides its energy (Casasayas, Nunes
+--           and Tufillaro, 1990), so that at 3 it can never become chaotic,
+--           however it's started. The dial in front of each shows that
+--           quantity: at 3 its needle never moves; at 2.8 and 3.2 it
+--           wanders.
 --
 --   right   THE SWINGING SPRING. A weight on a spring, set bouncing
 --           straight up and down, the merest swing to start with. On the
@@ -61,6 +65,12 @@
 --
 
 local common = require "common"
+
+local DIR = "twist-meshes/"
+for _, dir in ipairs({ DIR, "demo/WyomingWill/PendulumsTwist/" .. DIR }) do
+  local f = io.open(dir .. "dial-top.obj", "r")
+  if f then f:close(); DIR = dir; break end
+end
 
 local G = 981
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
@@ -220,6 +230,41 @@ for k, mu in ipairs(SA_MU) do
   KEYS[objectKey(p.bob)], KEYS[objectKey(p.cw)] = p, p
   SA[k] = p
 end
+-- in front of each, a dial: its needle shows the second constant (how far
+-- the quantity I below is from where it started, 0.5 a full sweep of 120
+-- degrees each way), straight up at the start
+local DIAL_Y, DIAL_Z, DIAL_R = TABLE_Y + 9, 10, 5
+for k, p in ipairs(SA) do
+  block(14, 17, 0.6, p.x, DIAL_Y, DIAL_Z - 0.4, "#1d2228")
+  local face = Cylinder(DIAL_R, 0.2, 0)
+  face.col = "#e9e2cf"
+  face.collides = false
+  face.trans = btTransform(Q0, btVector3(p.x, DIAL_Y, DIAL_Z))
+  v:add(face)
+  block(0.25, 1.0, 0.2, p.x, DIAL_Y + DIAL_R - 0.6, DIAL_Z + 0.15, "#1d2228")     -- the zero mark
+  for _, a in ipairs({ -120, -60, 60, 120 }) do
+    local ra = math.rad(a)
+    block(0.2, 0.6, 0.2, p.x + (DIAL_R - 0.5) * sin(ra), DIAL_Y + (DIAL_R - 0.5) * cos(ra), DIAL_Z + 0.15, "#8a8f96")
+  end
+  p.needle = Cylinder(0.14, DIAL_R - 0.8, 0)
+  p.needle.col = (k == 2) and "#2a6fd0" or "#d0402a"
+  p.needle.collides = false
+  v:add(p.needle)
+  local hub = Sphere(0.4, 0)
+  hub.col = "#1d2228"
+  hub.collides = false
+  hub.trans = btTransform(Q0, btVector3(p.x, DIAL_Y, DIAL_Z + 0.2))
+  v:add(hub)
+  for _, lab in ipairs({ { "dial-top", DIAL_Y + 6.6 }, { ({ "ratio-28", "ratio-30", "ratio-32" })[k], DIAL_Y - 7.6 } }) do
+    local m = Mesh(DIR .. lab[1] .. ".obj", 0, false)
+    m.col = "#d4af37"
+    m.collides = false
+    m.trans = btTransform(Q0, btVector3(p.x, lab[2], DIAL_Z - 0.05))
+    v:add(m)
+  end
+  KEYS[objectKey(face)] = p
+end
+
 -- the mu = 3 constant, from r, theta and their rates (in units of the
 -- starting length and g)
 local function saI(p, E)
@@ -316,8 +361,8 @@ local function letGo()
     p.bob1.col, p.bob2.col = "#c8a04a", "#c8a04a"
   end
   print(string.format("  The swinging Atwood machines: let go from %.0f degrees, the swinging side %d cm; the heavy weight %s times" ..
-                      "\n    the light one. Only at 3 is there a second constant (Casasayas, Nunes & Tufillaro):" ..
-                      " I = p_xi^2/8 - E xi^2 + 2 xi^4", math.deg(SA_TH0), SA_R0, table.concat(SA_MU, ", ")))
+                      "\n    the light one. From this start all three swing in an orderly way; only at 3 is there a second constant" ..
+                      "\n    (Casasayas, Nunes & Tufillaro), I = p_xi^2/8 - E xi^2 + 2 xi^4: the dials show it", math.deg(SA_TH0), SA_R0, table.concat(SA_MU, ", ")))
   for _, p in ipairs(SA) do
     p[1], p[2], p[3], p[4] = SA_R0, SA_TH0, 0, 0
     p.E0 = saEnergy(p)
@@ -451,6 +496,10 @@ v:postSim(function(N_)
       at(p.dots[p.nd], bx, by, p.z - 0.5)
     end
     p.dE = math.max(p.dE, abs(saEnergy(p) - p.E0) / p.E0)
+    local phi = math.rad(math.max(-135, math.min(135, (saI(p, p.E0) - p.I0) / 0.5 * 120)))
+    local hl = (DIAL_R - 0.8) / 2
+    p.needle.trans = btTransform(btQuaternion(btVector3(0, 0, 1), -phi) * btQuaternion(btVector3(1, 0, 0), pi / 2),
+                                 btVector3(p.x + hl * sin(phi), DIAL_Y + hl * cos(phi), DIAL_Z + 0.3))
   end
   -- the springs
   for _, p in ipairs(SP) do
@@ -497,7 +546,10 @@ v:setHelpText(table.concat({
   "Below 70.5 the lower rod can't go over the top; above, it",
   "may -- or may not. A bob turns red when its rod goes over.",
   "Middle: swinging Atwood machines, weights 2.8, 3.0, 3.2 to 1.",
-  "Only at 3 does a hidden second constant keep it orderly.",
+  "From this start all three swing in an orderly way; only at",
+  "3 is there a hidden second constant (so at 3 it can never be",
+  "chaotic, however started). Each dial shows that quantity:",
+  "at 3 the needle stays still; at 2.8 and 3.2 it wanders.",
   "Right: springs bouncing; tuned 2:1, the bounce turns into",
   "a swing and back. Tuned 2.4:1, it just bounces.",
   "",
@@ -513,7 +565,8 @@ if v.onHover then
                            p.ang < A_LOW and "its lower rod can never go over the top" or "its lower rod may go over the top")
     elseif p.mu then
       return string.format("Swinging Atwood machine: the heavy weight %.1f times the light one%s", p.mu,
-                           p.mu == 3 and " -- the orderly one" or "")
+                           p.mu == 3 and " -- the one that keeps a second constant: its dial never moves" or
+                           " -- no second constant here: its dial wanders")
     else
       return string.format("Swinging spring: its bounce %.1f times its swing's frequency", p.ratio)
     end

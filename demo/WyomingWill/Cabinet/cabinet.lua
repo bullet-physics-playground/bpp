@@ -142,7 +142,8 @@ EXHIBITS = EXHIBITS or {
   { dir = "../PendulumsTwist/", file = "pendulums-twist.lua", name = "pendulums with a twist", label = "pendulums-twist",
     prefix = "Twist: ", floorY = -75,
     about = "Pendulums with a twist: when a double pendulum can flip over, and when it\n" ..
-            "won't; the swinging Atwood machine, orderly only at 3 to 1; the swinging spring." },
+            "won't; the swinging Atwood machine's hidden constant, kept only at 3 to 1;\n" ..
+            "the swinging spring." },
   { dir = "../ChainFountain/", file = "chain-fountain.lua", name = "the chain fountain", label = "chain-fountain",
     prefix = "Fountain: ", floorY = 0,
     about = "The chain fountain (the Mould effect): a bead chain pouring out of a jar\n" ..
