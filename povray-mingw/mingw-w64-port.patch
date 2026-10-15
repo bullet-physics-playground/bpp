@@ -125,3 +125,17 @@ index 0000000..dd1d586
 +#undef POV_CPUINFO_H
 +
 +#endif // POVRAY_WINDOWS_SYSPOVCONFIG_MINGW32_H
+
+diff --git a/vfe/win/vfeplatform.h b/vfe/win/vfeplatform.h
+index 84df777f..f1de32d1 100644
+--- a/vfe/win/vfeplatform.h
++++ b/vfe/win/vfeplatform.h
+@@ -85,7 +85,7 @@ namespace vfePlatform
+   ///////////////////////////////////////////////////////////////////////
+   // most of the methods in vfeWinSession are derived from vfeSession.
+   // see vfeSession for documentation for those cases.
+-  class vfeWinSession final : public vfeSession
++  class vfeWinSession : public vfeSession
+   {
+     public:
+ 

@@ -33,8 +33,10 @@ official `windows/vs2015/*.vcxproj` MSVC projects.
   `TRY_OPTIMIZED_NOISE*` — see `povray/windows/povconfig/syspovconfig_mingw32.h`).
 * [`mingw-w64-port.patch`](mingw-w64-port.patch) — the MinGW port of POV-Ray's
   Windows configuration, applied to the POV-Ray checkout before building (see
-  below). It adds `windows/povconfig/syspovconfig_mingw32.h` and makes two
-  small GCC fixes (`source/base/mathutil.h`, `source/base/textstream.cpp`).
+  below). It adds `windows/povconfig/syspovconfig_mingw32.h`, makes small GCC
+  fixes (`source/base/mathutil.h`, `source/base/textstream.cpp`), and drops
+  `final` from `vfePlatform::vfeWinSession` (`vfe/win/vfeplatform.h`) so bpp
+  can subclass it the way it already subclasses `vfeUnixSession`.
 * [`winconsole_shim.cpp`](winconsole_shim.cpp) — supplies the
   `pov_frontend::MinimizeShellouts()`/`ShelloutsPermitted()` symbols that
   upstream defines in `vfe/win/console/winconsole.cpp`, a file that also has a
