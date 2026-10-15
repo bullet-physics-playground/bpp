@@ -159,7 +159,7 @@ local PARAM_INFO = {
   ticksPerFrame        = { min = 1,    max = 100, step = 1,
                            comment = "algorithm ticks run per rendered frame; raise to fast-forward" },
   layerGain    = { min = 0,    max = 0.2,   step = 0.005,
-                  comment = "3D triangle only: pull toward flight levels sqrt(2/3) desiredSeparation apart (0 = off)" },
+                  comment = "3D only: pull toward flight levels, sqrt(2/3) desiredSeparation apart (triangle) or desiredSeparation (cube); 0 = off" },
 }
 
 local function setParam(name, value)
@@ -374,7 +374,9 @@ end
 -- can still change level when pushed, and nothing horizontal is touched.
 --------------------------------------------------------------------------
 local function layerPhase(p, sepR)
-  local h = sepR * math.sqrt(2 / 3)
+  -- (levels sqrt(2/3) apart for the triangle's close packing; one spacing
+  -- apart for the cube, whose layers stack straight up)
+  local h = isSquareFormation and sepR or sepR * math.sqrt(2 / 3)
   local sx, sy = 0, 0
   for _, q in ipairs(particles) do
     local a = 2 * math.pi * q.y / h
@@ -385,7 +387,7 @@ end
 
 local function updateParticles(p)
   local squareDivisor, squareSameView, squareDiffView = squareFormationParams(p)
-  local layered = is3D and not isSquareFormation and (p.layerGain or 0) > 0
+  local layered = is3D and (p.layerGain or 0) > 0
   local layerY0, layerH
   if layered then layerY0, layerH = layerPhase(p, p.desiredSeparation) end
 

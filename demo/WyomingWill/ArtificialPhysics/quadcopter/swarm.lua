@@ -145,7 +145,7 @@ v:addParam("obstacleField", true, "Setup (R) scatters random columns between the
 defParam("fieldDensity", 2.5,  0,   8,    0.1,  "columns per 100 m^2 of the obstacle field, used by the next Setup (R)")
 defParam("goalSpeed",    0.2,  0,   2,    0.05, "how fast the goal moves through the obstacle field (m/s); it stops at the far side")
 defParam("goalDelay",    20,   0,   120,  1,    "seconds after AP engages that the goal switches on by itself (0 = only with G)")
-defParam("layerGain",    cfg.layerGain or 0, 0, 0.2, 0.005, "3D triangle only: pull toward flight levels sqrt(2/3) x spacing apart (0 = off)")
+defParam("layerGain",    cfg.layerGain or 0, 0, 0.2, 0.005, "3D only: pull toward flight levels, sqrt(2/3) x spacing apart (triangle) or one spacing (cube); 0 = off")
 defParam("metersPerUnit", 0.06, 0.02, 0.2, 0.01, "metres per AP unit (0.06: rad 50 = 3 m spacing)")
 defParam("apHz",         5,    1,   50,   1,    "AP sensing/waypoint rate (Hz); higher = faster swarm, harder flying")
 defParam("altitude",     12,   4,   40,   1,    "formation altitude (m): the 2D plane, or the 3D centre")
@@ -412,8 +412,9 @@ local function apTick(p)
   -- comes from the drones' own altitudes (circular mean of height modulo the
   -- spacing); each drone is pulled gently toward its nearest level. As in
   -- Formations-*.lua's layerPhase().
-  local layered = is3D and not isSquareFormation and p.layerGain > 0
-  local layerY0, layerH = 0, p.sep * math.sqrt(2 / 3)
+  -- (cube: levels one spacing apart, stacked straight up)
+  local layered = is3D and p.layerGain > 0
+  local layerY0, layerH = 0, isSquareFormation and p.sep or p.sep * math.sqrt(2 / 3)
   if layered then
     local cx_, cy_ = 0, 0
     for _, d in ipairs(seen) do

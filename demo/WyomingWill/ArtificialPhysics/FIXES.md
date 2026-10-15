@@ -362,3 +362,36 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - **Emphasis** (`soundEmphasis`): drones that stand out from the
       swarm get their own voices and are up to 12 dB louder, and a
       settled swarm drops to a hum. See the quadcopter README.
+
+32. **3D cube: no recognisable lattice, with drones or particles. Fixed
+    with flight levels one spacing apart.**
+    The binary-spin cube does form, but slowly, and it settles at an
+    arbitrary tilt with defects. Measured as the share of angles between
+    neighbours that are square (90° or 180°), 50 members, three seeds per
+    law:
+
+    - **Particles, after 750 ticks:** Newtonian 71 / 74 / 80%,
+      Lennard-Jones 88 / 79 / 79%. Some seeds never finish: Newtonian
+      seed 2 still 71% at 3,000 ticks.
+    - **Drones:** no worse than the particles at the same tick count. At
+      5 AP ticks a second, 750 ticks is 150 s, and the goal switches on at
+      20 s, long before the cube has formed.
+    - **Downwash:** not the cause. Turning it off didn't help.
+
+    **Fix:** the flight levels of item 30, spaced one spacing apart in
+    cube mode. Each level forms a 2D square lattice (which works well)
+    and the levels stack straight up. `layerGain` 0.05 for both laws
+    (Newtonian's `DEFAULTS_BY_MODE` 3DSquare, both quadcopter demos):
+
+    - **Particles at 750 ticks:** Newtonian 95 / 78 / 98%, Lennard-Jones
+      96 / 97 / 93%.
+    - **Drones, Lennard-Jones:** 95% at 150 s with no goal (was 87%),
+      96–98% at 90–120 s with the goal and obstacle field (was 76–80%).
+    - **Drones, Newtonian:** 85% with no goal, 72–80% with the goal (was
+      59–67%). It never stops jostling.
+    - **Gain 0.1:** no better, and it over-packs Newtonian.
+
+    **Still to note:** the cube's orientation about the vertical is
+    arbitrary, so from above the grid sits at a random angle. One Lennard-
+    Jones drone run flattened into two full levels of about 20 with a few
+    drones above and below, rather than a 4×4×3 block.

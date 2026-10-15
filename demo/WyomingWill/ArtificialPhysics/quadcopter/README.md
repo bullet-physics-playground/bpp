@@ -158,14 +158,20 @@ originals.
 - red: crashed
 - grey: landed
 
-**Flight levels** (`layerGain`, 3D triangle only): a gentle vertical pull
-toward horizontal levels √(2/3) × the spacing apart, so the 3D "triangle"
-stacks into flat triangular layers (close packing) instead of a jumble.
-It's on by default for both laws: 0.1 for Newtonian and a softer 0.05 for
-Lennard-Jones, which keeps it fluid. Lennard-Jones still crossed the
-obstacle field as fast as without levels, and stayed 2–3 times as mobile
-as Newtonian. Set it to 0 to turn the levels off. See `../FIXES.md`
-item 30.
+**Flight levels** (`layerGain`, 3D): a gentle vertical pull toward
+horizontal levels.
+
+- **3D triangle:** levels √(2/3) × the spacing apart, so the swarm stacks
+  into flat triangular layers (close packing) instead of a jumble. On by
+  default: 0.1 for Newtonian, a softer 0.05 for Lennard-Jones, which keeps
+  it fluid. Lennard-Jones still crossed the obstacle field as fast as
+  without levels, and stayed 2–3 times as mobile as Newtonian.
+- **3D cube:** levels one spacing apart, so each level is a 2D square
+  lattice and the levels stack straight up. Without them the cube forms
+  slowly, tilted at an arbitrary angle and full of defects, and looks like
+  a tangle. Default 0.05 for both laws.
+
+Set it to 0 to turn the levels off. See `../FIXES.md` items 30 and 32.
 
 **Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
