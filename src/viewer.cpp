@@ -6250,6 +6250,7 @@ void Viewer::onQuickRender(QString povargs) {
   QString defaultIncludes;
 
   QString pwd = startupWorkingDir();
+  QString appDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
   defaultPovrayExe = QString("C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe");
@@ -6259,7 +6260,7 @@ void Viewer::onQuickRender(QString povargs) {
   defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
 #else
   defaultPovrayExe = QString("/opt/homebrew/bin/povray");
-  defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
+  defaultIncludes  = QString("+L%1 +L%2/includes +L%3/../includes").arg(cache, pwd, appDir);
 #endif
 
   QString systemPovExe;

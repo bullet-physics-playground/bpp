@@ -166,6 +166,31 @@ mac {
   tests.CONFIG   = phony
   QMAKE_EXTRA_TARGETS += tests
 
+  # POV-Ray VFE embedding on macOS -- see povray-macos/README.md.
+  equals(USE_VFE, 1) {
+    MAC_DIR_POVRAY = $$PWD/../povray
+
+    POVRAY_INCDIRS = \
+      $$MAC_DIR_POVRAY/source \
+      $$MAC_DIR_POVRAY/vfe \
+      $$MAC_DIR_POVRAY/vfe/unix \
+      $$MAC_DIR_POVRAY/platform/unix \
+      $$MAC_DIR_POVRAY/platform \
+      $$MAC_DIR_POVRAY/unix \
+      $$MAC_DIR_POVRAY/unix/povconfig
+    INCLUDEPATH += $$POVRAY_INCDIRS
+
+    for(dir, POVRAY_INCDIRS): QMAKE_CXXFLAGS += -isystem $$dir
+
+    DEFINES += HAVE_CONFIG_H
+    DEFINES += BUILT_BY=\"bpp-povvfe-prototype\"
+
+    CONFIG += link_pkgconfig
+    PKGCONFIG += zlib libpng libjpeg libtiff-4
+
+    LIBS += -L$$PWD/povray-macos/release -L$$PWD/povray-macos/debug -lpovvfe -lpthread
+  }
+
   QMAKE_POST_LINK = $$PWD/scripts/deploy-mac.sh $$DESTDIR/$${TARGET}.app
 }
 
