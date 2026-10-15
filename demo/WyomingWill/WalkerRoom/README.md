@@ -399,6 +399,26 @@ slower walker; on bumps neither got faster. (Their slower flat speed is
 legs fighting each other, not the timing changing how far a turn should
 carry them, which stays within 10%.)
 
+The diag walkers beat their side-braced versions by 15-17 points
+(Chebyshev-Spears diag 91% against 77%, Chebyshev diag 74% against 59%),
+but there the gait (diagonal legs together, a trot) and the bracing come
+together. The unbraced walkers separate them: with `GAIT = { 0, 180, 180,
+0 }` they trot with no braces at all (share kept; speed on bumps, cm/s):
+
+| Walker | Timing | Forward | Reversed |
+|--------|--------|---------|----------|
+| Spears 4-bar | 0/0/180/180 (sides) | 59%, 5.1 | 80%, 7.3 |
+| Spears 4-bar | trot                | 69%, 6.1 | 99%, 7.4 |
+| Klann        | sides               | 78%, 6.8 | 87%, 7.7 |
+| Klann        | trot                | 81%, 7.2 | 88%, 7.9 |
+| Jansen       | sides               | 61%, 5.6 | 63%, 6.0 |
+| Jansen       | trot                | 67%, 6.6 | 87%, 7.7 |
+
+Trotting helps all three, both ways round: it is the gait, not the
+braces. Jansen gains most (reversed, from 6.0 to 7.7 cm/s on bumps). The
+reversed, trotting Spears 4-bar keeps 99% of its speed, though partly
+because it is slower on flat ground (7.5 cm/s); on bumps it makes 7.4.
+
 Not explained yet: the Hoecken-Spears long-stance comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
 its foot swings forward in about 0.2 s, the quickest of all.
