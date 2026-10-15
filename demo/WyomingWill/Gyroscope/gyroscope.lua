@@ -10,11 +10,13 @@
 --           leaning out a little as it goes round
 --   right   on a tightrope, axle upright, standing on the wire on its
 --           other end (a forked foot): it balances there, as a top
---           balances on its point
+--           balances on its point. An attendant tips the wire, a degree
+--           one way, then the other, and it slides to and fro along it,
+--           upright (a gauge in front shows the tilt 20 times over)
 -- As the rotors slow (air, bearings), the pedestal's and the string's go
 -- round faster and sag lower; the tightrope one wobbles in wider and wider
 -- circles. After about 40 s the pedestal one slides off its point; at
--- about 50 turns a second the tightrope one comes off the wire; the one on
+-- about 40 turns a second the tightrope one comes off the wire; the one on
 -- the string sags on until, its rotor stopped (100 s), it just hangs. R
 -- spins them up again.
 --
@@ -48,7 +50,14 @@
 --    (and a quarter of it at the string's knot) against turning. That
 --    friction is what makes them sag: with none, the sag is only the
 --    wobble's, m g r I / (I3 w)^2, 3 degrees at 100 turns a second, 16 at
---    40. Foot and wire: 0.3.
+--    40. Foot and wire: 0.005, as if the foot were a little wheel (it
+--    slides on any slope over 0.3 degrees).
+--  * The wire is a kinematic body: tipped, Bullet gives it the speed it
+--    moves at, and the foot feels that. Tipped more than about a degree,
+--    the gyroscope is soon thrown over: each tip moves the way "up" is for
+--    it, and it wobbles round the new up, and tips come about as often as
+--    its wobble goes round (2.3 s), so they build it up. Rocked 1.5
+--    degrees it lasts as long as at 1 (55 s); at 2, 13 s; at 3, 6 s.
 --  * 2400 physics steps a second.
 --
 -- Keys
@@ -56,8 +65,8 @@
 --   Z   slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: GY_SPIN (turns/s), GY_BEAR, GY_PIVF, GY_SLOPE, GY_MU,
--- GY_LOG=file.csv.
+-- Headless testing: GY_SPIN (turns/s), GY_BEAR, GY_PIVF, GY_SLOPE, GY_ROCK,
+-- GY_REACH (cm each way the attendant aims for), GY_MU, GY_LOG=file.csv.
 --
 
 local common = require "common"
@@ -97,8 +106,9 @@ local function param(...) v:addParam(...) end
 param("spin", envnum("GY_SPIN", 100), 30, 150, 5, "turns per second the rotors are spun up to (spins them up again)")
 param("bearing", envnum("GY_BEAR", 1.0), 0, 5, 0.1, "the rotor's bearing friction: turns/s lost each second")
 param("pivot friction", envnum("GY_PIVF", 0.5), 0, 20, 0.5, "friction against going round at the pedestal's point (x 1e-3 N m)")
-param("slope", envnum("GY_SLOPE", 0), 0, 20, 1, "the wire's slope, degrees (spins them up again); it slides off 17")
-param("friction", envnum("GY_MU", 0.3), 0.05, 1, 0.05, "friction between the foot and the wire")
+param("slope", envnum("GY_SLOPE", 0), 0, 20, 1, "the wire's slope, degrees, while it isn't rocked (spins them up again)")
+param("rock", envnum("GY_ROCK", 1), 0, 5, 0.5, "the tightrope: tip the wire this many degrees each way, to and fro, so the gyroscope slides (0: the wire stays at its slope; spins them up again)")
+param("friction", envnum("GY_MU", 0.005), 0, 1, 0.005, "friction between the foot and the wire")
 param("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", 2400, 1200, 9600, 600, "physics steps per simulated second")
 
@@ -190,34 +200,81 @@ block(1.2, 1.2, -POST_Z + 0.6, 0, HOOK.y + 0.6, POST_Z / 2 + 0.3, DARK, false)
 block(4, 0.8, 4, 0, TABLE_Y + 0.4, POST_Z, DARK, false)
 -- right: the wire, from W0 sloping down to the right, between two posts
 local W_X0, W_LEN = SPACING - 15, 30
+local W_X0p, W_Y0p                  -- (the wire's left end, as it is now)
 local W_Y0 = TABLE_Y + 14
 local wire, WIRE_DIR, WIRE_N
-local function wirePoint(s) return btVector3(W_X0 + s * WIRE_DIR.x, W_Y0 + s * WIRE_DIR.y, 0) end
+local wireSlope = 0                  -- radians, down to the right
+local function wirePoint(s) return btVector3(W_X0p + s * WIRE_DIR.x, W_Y0p + s * WIRE_DIR.y, 0) end
 local wirePosts = {}
-local function buildWire()
-  local sl = math.rad(v:getParam("slope"))
+local POST_LONG = 12                 -- the posts slide up and down through the table, this much spare below
+-- the wire, sloping `sl` (radians) down to the right. Its left end stays at
+-- W0 when it's set (slope slider); rocking, it turns about its middle,
+-- MID, one end rising as the other falls. It's a kinematic body, so moving
+-- it, Bullet gives it the velocity it moves at, and the foot on it feels that.
+local MID = btVector3(W_X0 + W_LEN / 2, W_Y0, 0)
+local function setWire(sl, aboutMid)
+  wireSlope = sl
   WIRE_DIR = btVector3(math.cos(sl), -math.sin(sl), 0)
   WIRE_N = btVector3(math.sin(sl), math.cos(sl), 0)
   -- a capsule along x (Bullet's capsule-capsule contact is exact), turned
   -- down by the slope
   local q = btQuaternion(btVector3(0, 0, 1), -sl)
-  local mid = wirePoint(W_LEN / 2)
+  local mid
+  if aboutMid then
+    mid = MID
+    W_X0p, W_Y0p = MID.x - W_LEN / 2 * WIRE_DIR.x, MID.y - W_LEN / 2 * WIRE_DIR.y
+  else
+    W_X0p, W_Y0p = W_X0, W_Y0
+    mid = btVector3(W_X0 + W_LEN / 2 * WIRE_DIR.x, W_Y0 + W_LEN / 2 * WIRE_DIR.y, 0)
+  end
   if not wire then
     wire = Mesh(DIR .. "wire.obj", 0, false)
     wire.col = "#d8d8d8"
     wire.body = btRigidBody(0, btDefaultMotionState(btTransform(q, mid)), btCapsuleShapeX(WIRE_R, W_LEN), btVector3(0, 0, 0))
     wire.body:setFriction(v:getParam("friction"))
+    wire.body:setCollisionFlags(wire.body:getCollisionFlags() + 2)     -- (kinematic)
+    wire.body:setActivationState(4)
     v:add(wire)
-    for k = 1, 2 do wirePosts[k] = rod(0.5, TABLE_Y, W_Y0 + 0.8, 0, 0, DARK, true) end
+    for k = 1, 2 do wirePosts[k] = rod(0.5, TABLE_Y - POST_LONG, W_Y0 + 0.8, 0, 0, DARK, true) end
   end
   wire.trans = btTransform(q, mid)
-  wire.body:setCenterOfMassTransform(btTransform(q, mid))
-  -- the posts, at the wire's ends (the wire is tied lower on the right one)
+  -- the posts, at the wire's ends, their tops 0.8 above it
   for k, s in ipairs({ -0.5, W_LEN + 0.5 }) do
-    wirePosts[k].trans = btTransform(UPQ, btVector3(wirePoint(s).x, (TABLE_Y + W_Y0 + 0.8) / 2, 0))
+    local x, y = W_X0p + s * WIRE_DIR.x, W_Y0p + s * WIRE_DIR.y
+    wirePosts[k].trans = btTransform(UPQ, btVector3(x, y + 0.8 - (W_Y0 + 0.8 - TABLE_Y + POST_LONG) / 2, 0))
   end
 end
+local function buildWire() setWire(math.rad(v:getParam("slope")), false) end
 buildWire()
+-- in front of the wire, a gauge: its needle turns 20 times as far as the
+-- wire is tipped (a degree is too little to see on the wire itself)
+local GAUGE_X20 = 20
+local GAUGE_C = btVector3(MID.x, TABLE_Y + 5, 11)
+local gauge, needle
+do
+  gauge = Cylinder(3.2, 0.3, 0)
+  gauge.trans = btTransform(Q0, GAUGE_C)
+  gauge.col = "#efe6cf"
+  gauge.collides = false
+  v:add(gauge)
+  block(0.8, GAUGE_C.y - 3.2 - TABLE_Y, 0.8, GAUGE_C.x, (TABLE_Y + GAUGE_C.y - 3.2) / 2, GAUGE_C.z - 0.2, DARK, false)
+  for _, deg in ipairs({ -40, -20, 0, 20, 40 }) do      -- marks at 0, 1 and 2 degrees each way
+    local a = math.rad(deg)
+    local len = deg == 0 and 0.9 or 0.6
+    block(0.15, len, 0.1, GAUGE_C.x - (2.95 - len / 2) * math.sin(a), GAUGE_C.y + (2.95 - len / 2) * math.cos(a),
+          GAUGE_C.z + 0.2, DARK, false, btQuaternion(btVector3(0, 0, 1), a))
+  end
+  needle = Cube(0.22, 2.6, 0.1, 0)
+  needle.col = "#a8261c"
+  needle.collides = false
+  v:add(needle)
+end
+local function showGauge()
+  local a = -GAUGE_X20 * wireSlope          -- (down to the right: the needle leans right)
+  needle.trans = btTransform(btQuaternion(btVector3(0, 0, 1), a),
+                             btVector3(GAUGE_C.x - 1.2 * math.sin(a), GAUGE_C.y + 1.2 * math.cos(a), GAUGE_C.z + 0.25))
+end
+showGauge()
 
 -- ---------------------------------------------------------------------
 -- the gyroscopes
@@ -315,12 +372,68 @@ local function place(g, q, pos)
   b:activate(true)
 end
 
+-- ---------------------------------------------------------------------
+-- rocking the wire: an attendant tips it, ROCK degrees, about its middle,
+-- one end rising as the other falls. First down to the right, to set the
+-- gyroscope going; then always up on the side it's on (judged a little
+-- ahead, LEAD seconds, for the time the tipping takes, SWING_S), so it
+-- slides back and forth through the middle, as a ball rolls to and fro in
+-- a dip.
+-- ---------------------------------------------------------------------
+local START_X, SWING_S, LEAD, ROCK_WAIT = 4, 0.6, 0.3, 1.0
+local REACH = envnum("GY_REACH", 9)    -- how far each way it should slide (cm); the attendant tips later or sooner to keep it there
+local rock = { on = false }
+local function rockStart()
+  rock = { on = v:getParam("rock") > 0, a = math.rad(v:getParam("rock")), from = 0, to = 0, tau = SWING_S,
+           wait = ROCK_WAIT, started = false, swings = 0, late = 0, lastU = 0, ends = {}, s = 0 }
+end
+local function along(g)       -- the foot's place along the wire from its middle (cm, + right), and its speed
+  local x, y, z = getPosXYZ(g.m)
+  local a = basis(g.body)[1]
+  local fx, fy = x - D_WIRE * a.x - MID.x, y - D_WIRE * a.y - MID.y
+  local V = g.body:getLinearVelocity()
+  return fx * WIRE_DIR.x + fy * WIRE_DIR.y, V.x * WIRE_DIR.x + V.y * WIRE_DIR.y
+end
+local function tipTo(sl)
+  if sl ~= rock.to then rock.from, rock.to, rock.tau = wireSlope, sl, 0; rock.swings = rock.swings + 1 end
+end
+local function rockStep(h, g)
+  if not rock.on then return end
+  if g.state == "off the wire" then
+    tipTo(0)                         -- (it's down: the wire's put level, and left)
+  elseif rock.wait > 0 then
+    rock.wait = rock.wait - h
+    if rock.wait <= 0 then tipTo(rock.a) end
+  else
+    local s, u = along(g)
+    rock.s = s
+    if not rock.started then
+      rock.started = s > START_X
+    else
+      -- each time it stops and turns: how far out it got; short of REACH,
+      -- tip later next time (it gains), past it, sooner
+      if u * rock.lastU < 0 and math.abs(s) > 1 then
+        rock.late = math.max(-4, math.min(4, rock.late + 0.3 * (REACH - math.abs(s))))
+        rock.ends[#rock.ends + 1] = s
+      end
+      rock.lastU = u
+      local ahead = s + LEAD * u - (u > 0 and rock.late or -rock.late)
+      tipTo(ahead > 0 and -rock.a or rock.a)
+    end
+  end
+  if rock.tau < SWING_S then
+    rock.tau = math.min(SWING_S, rock.tau + h)
+    local f = rock.tau / SWING_S
+    setWire(rock.from + (rock.to - rock.from) * (1 - math.cos(math.pi * f)) / 2, true)
+  end
+end
+
 local spunWith                  -- the spin and slope they were last spun up with
 local function spinThem()
   holdStart()
   t = 0
   dropConstraints()
-  spunWith = { spin = v:getParam("spin"), slope = v:getParam("slope") }
+  spunWith = { spin = v:getParam("spin"), slope = v:getParam("slope"), rock = v:getParam("rock") }
   local W = 2 * math.pi * v:getParam("spin")
   print(string.format("\n--- spun up: %.0f turns/s ---", v:getParam("spin")))
   for _, g in ipairs(GYROS) do
@@ -349,6 +462,9 @@ local function spinThem()
       -- the axle upright, its forked foot (-x) on the wire, tipped half a
       -- degree across the wire; the hoop in the wire's plane
       buildWire()
+      rockStart()
+      if rock.on then setWire(0, true) end
+      showGauge()
       local q = btQuaternion(btVector3(1, 0, 0), math.rad(0.5)) * UPRIGHT
       local p = wirePoint(W_LEN / 2)
       -- (its centre straight up the axle from the wire)
@@ -411,9 +527,11 @@ v:preSim(function(N)
   if holdPre() then return end
   for k = 1, NSTEPS - 1 do
     prestep(STEP)
+    rockStep(STEP, GYROS[3])
     v:stepSimulation(STEP, 0, STEP)
   end
   prestep(STEP)
+  rockStep(STEP, GYROS[3])
 end)
 
 -- ---------------------------------------------------------------------
@@ -441,6 +559,7 @@ v:postSim(function(N)
     if restartIn <= 0 then restartIn = nil; spinThem(); return end
   end
   t = t + FRAME_DT
+  showGauge()
   for k, g in ipairs(GYROS) do
     local x, y, z = getPosXYZ(g.m)
     local tq = g.body:getCenterOfMassTransform():getRotation() * btQuaternion(btVector3(1, 0, 0), g.phi)
@@ -479,7 +598,8 @@ v:postSim(function(N)
     local parts = {}
     for _, g in ipairs(GYROS) do
       if g.kind == "tightrope" then
-        parts[#parts + 1] = string.format("%s from upright %4.1f deg, %3.0f t/s", g.short, g.tilt, g.S / (2 * math.pi))
+        parts[#parts + 1] = string.format("%s from upright %4.1f deg, %3.0f t/s", g.short, g.tilt, g.S / (2 * math.pi)) ..
+          (rock.on and string.format(", %+5.1f cm along the wire, tipped %+4.2f deg", rock.s, math.deg(wireSlope)) or "")
       else
         parts[#parts + 1] = string.format("%s below level %4.1f deg, %3.0f t/s, %.1f times round", g.short,
           g.tilt, g.S / (2 * math.pi), math.abs(g.turns))
@@ -521,7 +641,9 @@ v:setHelpText(table.concat({
   "Left:   on a pedestal",
   "Middle: hung by a string",
   "Right:  on a tightrope, axle upright, standing on the wire",
-  "        on its forked foot: it balances, as a top does",
+  "        on its forked foot: it balances, as a top does.",
+  "        The wire is tipped a degree one way, then the other,",
+  "        and it slides to and fro (the gauge: the tilt x 20)",
   "",
   "As the rotors slow, the left two go round faster and sag;",
   "the right one wobbles wider and comes off the wire.",
@@ -531,9 +653,9 @@ v:setHelpText(table.concat({
   "Z   slow motion (1/4) <-> real time",
   "",
   "Sliders: spin (turns/s), bearing, pivot friction,",
-  "slope (of the wire: from 17 degrees it slides); spin and",
-  "slope spin them up again once you let go of the slider,",
-  "friction (foot on wire), speed, steps.",
+  "rock (degrees each way; 0: still), slope (when still);",
+  "spin, rock and slope spin them up again once you let go",
+  "of the slider; friction (foot on wire), speed, steps.",
   "Rest the mouse on a gyroscope to see what it's doing.",
 }, "\n"))
 
@@ -541,10 +663,21 @@ if v.onHover then
   for _, g in ipairs(GYROS) do
     KEYS[objectKey(g.m)] = g
   end
+  local TILTED = {}
+  for _, o in ipairs({ gauge, needle, wire }) do TILTED[objectKey(o)] = true end
   v:onHover(function(N, obj, x, y, z)
-    local g = KEYS[objectKey(obj)]
+    local key = objectKey(obj)
+    if TILTED[key] then
+      local d = math.deg(wireSlope)
+      return string.format("The wire, tipped %.2f degrees%s\n(its ends %.1f mm above and below its middle)\n" ..
+                           "The gauge's needle turns %d times as far; its marks are at 1 and 2 degrees.",
+                           math.abs(d), d > 0.005 and " down to the right" or d < -0.005 and " down to the left" or "",
+                           10 * W_LEN / 2 * math.abs(math.sin(wireSlope)), GAUGE_X20)
+    end
+    local g = KEYS[key]
     if not g then return nil end
-    local how = g.kind == "tightrope" and string.format("axle %.0f deg from upright", g.tilt or 0)
+    local how = g.kind == "tightrope" and string.format("axle %.0f deg from upright", g.tilt or 0) ..
+                (rock.on and string.format(", %.1f cm %s of the wire's middle", math.abs(rock.s), rock.s >= 0 and "right" or "left") or "")
                                        or string.format("axle %.0f deg below level, %.1f times round", g.tilt or 0, math.abs(g.turns or 0))
     return string.format("%s\n%s for %.1f s\n%s, rotor %.0f turns/s", g.name, g.state or "?", t - (g.since or 0),
                          how, g.S / (2 * math.pi))

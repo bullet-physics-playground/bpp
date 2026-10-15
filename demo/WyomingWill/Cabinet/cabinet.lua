@@ -116,7 +116,8 @@ EXHIBITS = EXHIBITS or {
   { dir = "../Gyroscope/", file = "gyroscope.lua", name = "the gyroscopes", label = "gyroscope",
     prefix = "Gyroscope: ", floorY = -75,
     about = "The gyroscope: held by one end of its axle, on a pedestal or a string, it\n" ..
-            "doesn't fall but goes round; on a tightrope it balances on its foot." },
+            "doesn't fall but goes round; on a tightrope it balances on its foot, and\n" ..
+            "slides to and fro, upright, as the wire is tipped one way, then the other." },
   { dir = "../BicycleWheel/", file = "bicycle-wheel.lua", name = "the bicycle wheel", label = "bicycle-wheel",
     prefix = "Wheel: ", floorY = 0,
     about = "The bicycle wheel: on a swivel stool, turn a spinning wheel over and the\n" ..
