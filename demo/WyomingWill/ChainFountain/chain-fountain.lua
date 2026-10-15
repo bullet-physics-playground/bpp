@@ -22,10 +22,17 @@
 -- SIMULATION, to keep it to what a computer can do in time:
 --  * The coil in the jar waits, drawn but not simulated, on a flat rigid
 --    pile; ten links ahead of the one being picked up are simulated, and
---    more are woken as the chain comes for them.
---  * A link that reaches the floor is frozen where it lands.
---  * So only the moving chain is simulated, about 150-200 links, with
---    1800 physics steps a second and 20 solver iterations.
+--    more are woken as the chain comes for them. The last one woken is held
+--    by its far end where it lies, as the rest of the coil would hold it.
+--  * A link that reaches the floor is frozen where it lands, and is only
+--    drawn from then on: the floor takes the chain without pulling on it.
+--  * So only the moving chain is simulated, about 130-200 links, with
+--    1800 physics steps a second and 20 solver iterations. Waking, freezing
+--    and measuring are done after every step, so the chain does exactly
+--    the same at any speed.
+--
+-- At the end it prints the steady part of the run against Biggins and
+-- Warner's theory (see theory() below).
 --
 -- Keys
 --   R   start again
@@ -35,7 +42,7 @@
 --   Z   quarter speed <-> real speed
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: CF_SPEED, CF_STEPS, CF_BEND, CF_LOG=file.csv.
+-- Headless testing: CF_SPEED, CF_STEPS, CF_BEND, CF_HEIGHT, CF_LAYERS, CF_LOG=file.csv.
 --
 
 local common = require "common"
@@ -53,6 +60,9 @@ local RJ, JH = 7, 8                     -- the jar: inside radius, height of its
 local LAYER_T = 2 * RL + 0.05           -- the coil: one layer's thickness
 local K_AHEAD = 10                      -- links simulated ahead of the pick-up
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
+local WAKE_RATE = 1200                  -- links woken a simulated second at most (18 m/s)
+local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
+local T_STEADY = 1.0                    -- the theory check averages from here on
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local function param(...) v:addParam(...) end
@@ -63,12 +73,15 @@ param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor,
 param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (starts it again)")
 param("friction", 0.3, 0.05, 1, 0.05, "friction, chain on glass and chain")
 
-local STEP, NSTEPS, FRAME_DT = 1 / 1800, 30, 1 / 60
+-- The physics step is always 1/steps of a simulated second, whatever the
+-- speed: a frame takes as many whole steps as its share of simulated time
+-- (at a quarter speed, 7 and 8 in turn), and all the script's own work
+-- (waking, freezing, measuring) is done after every step, not every frame.
+-- So the chain does exactly the same at any speed; only what is drawn differs.
+local STEP, PER_FRAME, stepAcc = 1 / 1800, 30, 0
 local function applyTiming()
-  local speed = v:getParam("speed")
-  NSTEPS = math.max(1, math.floor(v:getParam("steps") * speed / 60 + 0.5))
-  FRAME_DT = speed / 60
-  STEP = FRAME_DT / NSTEPS
+  STEP = 1 / v:getParam("steps")
+  PER_FRAME = v:getParam("steps") * v:getParam("speed") / 60
   v.animationPeriod = 16
   common.setTiming(STEP, 0, STEP)
 end
@@ -143,6 +156,7 @@ end
 -- the pile: a rigid disc at the top of the coil (lowered a layer at a
 -- time), and under it the rest of the coil drawn as a block
 local disc, block
+local pickY                       -- the height of the chain lying on the pile
 local function setPile(top)
   if not disc then
     disc = Cylinder(RJ + 0.3, 1, 0)
@@ -152,6 +166,7 @@ local function setPile(top)
     keep(disc)
   end
   disc.trans = btTransform(UPQ, btVector3(0, top - 0.5, 0))
+  pickY = top + RL
   if block then v:remove(block) end
   local h = top - 1 - H
   if h > 0.2 then
@@ -183,6 +198,7 @@ end
 local pts, layerOf = {}, {}       -- the chain's joint points, floor end first; each one's coil layer
 local links = {}                  -- by index: { obj, body, con, rest, disp, active, frozen }
 local tail, head, nLead, LAYERS, curLayer
+local anchor, anchorBody          -- holds the far end of the last link woken
 local BEND
 local run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0 }
 
@@ -257,6 +273,18 @@ local function wake(i)
   links[i] = l
   if links[i - 1] and links[i - 1].active then join(links[i - 1], l) end
   head = i
+  -- (the coil not yet moving holds the chain's far end where it lies, as
+  -- the rest of the pile would: a moving chain can't drag it off)
+  if anchor then v:removeConstraint(anchor); anchor = nil end
+  if i + 1 < #pts then
+    local mid2, rot2 = linkPose(i + 1)
+    local held = btRigidBody(0, btDefaultMotionState(btTransform(rot2, mid2)), SHAPE, btVector3(0, 0, 0))
+    anchor = btConeTwistConstraint(body, held, btTransform(ident, btVector3(L / 2, 0, 0)),
+                                   btTransform(ident, btVector3(-L / 2, 0, 0)))
+    anchorBody = held                            -- (kept, so Lua doesn't collect it)
+    anchor:setLimit(5, BEND); anchor:setLimit(4, BEND); anchor:setLimit(3, math.pi)
+    v:addConstraint(anchor)
+  end
   -- (a new layer: the pile drops to it, and the layer under it is drawn)
   local lay = layerOf[i]
   if lay and lay > curLayer then
@@ -267,6 +295,7 @@ local function wake(i)
 end
 
 local function teardown()
+  if anchor then v:removeConstraint(anchor); anchor = nil end
   for _, l in pairs(links) do
     if l.con then v:removeConstraint(l.con) end
     if l.obj then v:remove(l.obj) end
@@ -317,14 +346,19 @@ local function start()
   drawLayer(1); drawLayer(2)
   tail, head = 1, 0
   for i = 1, nLead - 1 + K_AHEAD do wake(i) end
-  run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0, total = #pts - 1 }
+  run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0, total = #pts - 1,
+          budget = 0, nextSample = SAMPLE_DT, nextPrint = PRINT_DT,
+          steady = { n = 0, h2 = 0, h1 = 0, rim = 0 } }
+  stepAcc = 0
   print(string.format("\n--- %.1f m of chain, %d links; the jar %.0f cm up; joints bend %.0f deg at most ---",
                       (#pts - 1) * L / 100, #pts - 1, H, math.deg(BEND)))
   setView()
 end
 
--- wake links ahead of the pick-up; freeze the ones that have landed
+-- wake links ahead of the pick-up (ten still lying where they were laid,
+-- no more than WAKE_RATE a simulated second); freeze the ones that have landed
 local function feed()
+  run.budget = math.min(K_AHEAD, run.budget + WAKE_RATE * STEP)
   local n, i = 0, head
   while i >= tail and links[i] and links[i].rest do
     local x, y, z = getPosXYZ(links[i].obj)
@@ -332,10 +366,9 @@ local function feed()
     if (x - r.x) ^ 2 + (y - r.y) ^ 2 + (z - r.z) ^ 2 > 1.0 then break end
     n, i = n + 1, i - 1
   end
-  local woke = 0
-  while n < K_AHEAD and head + 1 < #pts and woke < 6 do
+  while n < K_AHEAD and head + 1 < #pts and run.budget >= 1 do
     wake(head + 1)
-    n, woke = n + 1, woke + 1
+    n, run.budget = n + 1, run.budget - 1
   end
 end
 local function absorb()
@@ -344,31 +377,24 @@ local function absorb()
     local _, y, _ = getPosXYZ(l.obj)
     if y > ABSORB_Y then break end
     if l.con then v:removeConstraint(l.con); l.con = nil end
-    l.body:forceActivationState(5)               -- DISABLE_SIMULATION: it lies where it fell
+    -- it lies where it fell, drawn only: the chain still coming down meets
+    -- nothing on the floor, so nothing there pulls on it or holds it up
+    local m = Mesh(DIR .. "link.obj", 0, false)
+    m.trans = l.obj.trans
+    v:remove(l.obj)
+    l.obj, l.body, l.disp = nil, nil, show(m, LINK_COL)
     l.active, l.frozen = false, true
     tail = tail + 1
     run.absorbed = run.absorbed + 1
   end
 end
 
-v:preSim(function(N)
-  if holdPre() then return end
-  for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end
-end)
-
 local LOGF = os.getenv("CF_LOG") and io.open(os.getenv("CF_LOG"), "w")
-if LOGF then LOGF:write("t,top_above_rim,speed,active\n") end
-local restartIn                 -- frames until a slider's restart (see onParamChanged)
-v:postSim(function(N)
-  if holdNow then return end
-  if restartIn then
-    restartIn = restartIn - 1
-    if restartIn <= 0 then restartIn = nil; start(); return end
-  end
-  run.t = run.t + FRAME_DT
-  absorb()
-  feed()
-  -- the chain's highest point above the rim, and how fast it goes there
+if LOGF then LOGF:write("t,top_above_rim,speed,active,pickup_y,head,landed\n") end
+
+-- the chain's highest point above the rim, and how fast it goes there
+-- (every SAMPLE_DT of simulated time)
+local function sample()
   local top, ti = -1e9, nil
   for i = tail, head do
     local l = links[i]
@@ -377,26 +403,96 @@ v:postSim(function(N)
       if y > top then top, ti = y, i end
     end
   end
+  run.ti = ti
+  if not (ti and tail < head - K_AHEAD) then return end
   local rim = H + JH
-  if ti and tail < head - K_AHEAD then
-    local vx, vy, vz = getVelXYZ(links[ti].obj)
-    local sp = math.sqrt(vx * vx + vy * vy + vz * vz)
-    run.top, run.speed = top - rim, sp
-    run.best = math.max(run.best, top - rim)
-    run.topAvg = run.topAvg + (run.top - run.topAvg) * 0.05
-    run.speedAvg = run.speedAvg + (sp - run.speedAvg) * 0.05
-    if LOGF and N % 2 == 0 then LOGF:write(string.format("%.4f,%.2f,%.1f,%d\n", run.t, run.top, sp, head - tail + 1)) end
+  local vx, vy, vz = getVelXYZ(links[ti].obj)
+  local sp = math.sqrt(vx * vx + vy * vy + vz * vz)
+  run.top, run.speed = top - rim, sp
+  -- (the highest: while there is chain still in the jar, not the free end
+  -- flying out at the last)
+  if head + 1 < #pts then run.best = math.max(run.best, top - rim) end
+  run.topAvg = run.topAvg + (run.top - run.topAvg) * 0.05
+  run.speedAvg = run.speedAvg + (sp - run.speedAvg) * 0.05
+  -- for the theory check: the steady part, from T_STEADY until the last
+  -- of the coil is woken
+  if run.t >= T_STEADY and head + 1 < #pts then
+    local s = run.steady
+    if not s.t0 then s.t0, s.head0 = run.t, head end
+    s.n, s.t1, s.head1 = s.n + 1, run.t, head
+    s.h2, s.h1, s.rim = s.h2 + (top - pickY), s.h1 + (pickY - ABSORB_Y), s.rim + (rim - pickY)
   end
-  if N % 60 == 0 and not run.done then
+  if LOGF then LOGF:write(string.format("%.4f,%.2f,%.1f,%d,%.2f,%d,%d\n", run.t, run.top, sp, head - tail + 1, pickY, head, run.absorbed)) end
+end
+
+-- at the end: the steady part of the run against Biggins and Warner,
+-- "Understanding the chain fountain", Proc. R. Soc. A 470 (2014) 20130689
+-- (arXiv:1310.4056). Their h1 is the pick-up above the floor, h2 the top of
+-- the chain above the pick-up; the pile pushes up on the link being picked
+-- up with a m v^2 (m: mass per length), and the floor pulls down on the link
+-- landing with b m v^2. Steady flow then gives v^2 = g h1 / (1 - a - b) and
+-- h2 = a v^2 / g. Here a link that lands is frozen and its joint goes, and
+-- the frozen links don't collide, so nothing at the floor pulls: b = 0, and
+-- v^2 = g (h1 + h2), with nothing left to choose. a is not set anywhere: it
+-- is read off twice, from the height and from the speed.
+local function theory()
+  local s = run.steady
+  if s.n < 10 or s.t1 <= s.t0 then return end
+  local h2, h1, rimUp = s.h2 / s.n, s.h1 / s.n, s.rim / s.n
+  local vm = (s.head1 - s.head0) * L / (s.t1 - s.t0)
+  local aRod = 0.5 * (1 - IP / (MASS * L * L / 4))
+  print(string.format("  theory (Biggins and Warner 2014), steady part t=%.2f-%.2fs; h1 = %.1f cm, the pick-up above where a link lands (the rim is %.1f cm above the pick-up)",
+                      s.t0, s.t1, h1, rimUp))
+  print(string.format("  chain %.0f cm/s off the pile: an ideal chain (a = b = 0) would go sqrt(g h1) = %.0f cm/s and not rise above the pick-up",
+                      vm, math.sqrt(G * h1)))
+  print(string.format("  top of the chain %.1f cm above the pick-up on average (h2): h2/h1 = %.3f (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = %.0f cm/s",
+                      h2, h2 / h1, math.sqrt(G * (h1 + h2))))
+  print(string.format("  a = g h2/v^2 = %.2f from the height, 1 - g h1/v^2 = %.2f from the speed (rod model for one of these links: %.2f)",
+                      G * h2 / (vm * vm), 1 - G * h1 / (vm * vm), aRod))
+end
+
+local function afterStep()
+  run.t = run.t + STEP
+  absorb()
+  feed()
+  if run.t >= run.nextSample - 1e-9 then
+    run.nextSample = run.nextSample + SAMPLE_DT
+    sample()
+  end
+  if run.t >= run.nextPrint - 1e-9 and not run.done then
+    run.nextPrint = run.nextPrint + PRINT_DT
     if head + 1 >= #pts and tail >= head - K_AHEAD then
       run.done = true
       print(string.format("t=%5.2fs  all of it out of the jar; the fountain stood up to %.1f cm above the rim", run.t, run.best))
-    elseif ti then
+      theory()
+    elseif run.ti then
       print(string.format("t=%5.2fs  fountain %4.1f cm above the rim (average %4.1f, highest %4.1f); chain %3.0f cm/s; %d links moving, %.1f m out",
                           run.t, run.top, run.topAvg, run.best, run.speedAvg, head - tail + 1, run.absorbed * L / 100))
     end
+    if LOGF then LOGF:flush() end
   end
-  if LOGF and N % 60 == 0 then LOGF:flush() end
+end
+
+v:preSim(function(N)
+  if holdPre() then return end
+  stepAcc = stepAcc + PER_FRAME
+  local n = math.max(1, math.floor(stepAcc + 1e-9))
+  stepAcc = stepAcc - n
+  for k = 1, n - 1 do
+    v:stepSimulation(STEP, 0, STEP)
+    afterStep()
+  end
+  -- (and bpp takes the last step itself)
+end)
+
+local restartIn                 -- frames until a slider's restart (see onParamChanged)
+v:postSim(function(N)
+  if holdNow then return end
+  afterStep()
+  if restartIn then
+    restartIn = restartIn - 1
+    if restartIn <= 0 then restartIn = nil; start() end
+  end
 end)
 
 -- ---------------------------------------------------------------------
@@ -438,8 +534,8 @@ v:setHelpText(table.concat({
   "V   the fountain close up <-> the whole drop",
   "Z   quarter speed <-> real speed",
   "",
-  "Try bending 90 (a floppier chain): the fountain shrinks to a few",
-  "centimetres; at 20 (stiffer) it stands twice as high.",
+  "Try bending 60 or 90 (a floppier chain): the fountain shrinks to a",
+  "few centimetres; at 20 (stiffer) it stands a little higher than at 30.",
   "Rest the mouse on the chain to see how fast it's going.",
 }, "\n"))
 
