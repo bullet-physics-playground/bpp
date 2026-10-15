@@ -1,13 +1,32 @@
 How the new shapes in gomboc-meshes/ were made (Python 3, numpy, scipy)
 
-Sloan beta shapes (beta1-06, beta1-07, beta1-08, beta2-04)
+Sloan beta shapes (in gomboc-meshes/: beta1-07 and beta1-08, form 1 at
+beta 0.07 and 0.08; no others are kept -- form 2 is left out, see
+gomboc-variety.lua)
   shapes.py   the two radius formulas, icospheres, exact mass properties
-  gen.py      writes <name>.obj (display) and <name>.lua (hull points, mass,
-              inertia, rest normal, balancing point); 9 cm, principal axes
+  gen.py      make(form, beta) writes <name>.obj (display) and <name>.lua
+              (hull points, mass, inertia, rest normal, balancing point);
+              9 cm, principal axes. Its __main__ makes a different, larger-beta
+              set (form 1 at 0.12, 0.15; form 2 at 0.12, 0.17) into out/; the
+              two kept were made with make(1, 0.07) and make(1, 0.08). In the
+              kept .lua files `down` is the lowest face of the hull's one basin
+              (from basins.py), not the formula's minimum that gen.py writes:
+              4.6 deg apart for beta 0.07, 34.6 deg for 0.08.
   basins.py   counts the resting basins of a hull: rolling over each edge,
               persistence of the lowest faces. Gomboc-C's hull: 1 basin.
   scanb.py    scans beta: the hull keeps ONE basin up to form 1 beta ~0.08-0.09
-              and form 2 beta ~0.04; beyond that (dimples) a second one appears
+              and form 2 beta ~0.04; beyond that (dimples) a second one appears.
+              Rerun for form 1 (15 Oct 2026, 25000 surface points): the deepest
+              extra basin is 5.9 um at 0.08 (the facets' own noise is ~5 um),
+              11.9 at 0.085, 25.3 at 0.09, 43.0 at 0.095, 66.7 at 0.10. So the
+              second basin first stands clear of the noise at 0.085.
+
+Note on gomboc-findings.pdf (not edited): Section 4 says the Sloan shapes'
+true resting orientation lies 4-5 deg from the formula's minimum. That holds
+for beta 0.07 (4.6 deg) but not for beta 0.08 (34.6 deg, from the `down` and
+`top` in the .lua files), and Section 5 of the same PDF says the balancing
+point sits ~35 deg off the top on beta 0.08 at home. Its summary's "above
+beta ~0.09" for the second basin is the rounded form of the scan above.
   lever.py    where rolling resistance can hold a shape (tipping lever below
               the rolling-resistance lever arm)
   hulleq.py   older facet check (local barriers only)

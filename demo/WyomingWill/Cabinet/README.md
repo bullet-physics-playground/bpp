@@ -21,8 +21,10 @@ lets go after half a second, or as long as its hold slider says.) `HOLD_S` sets 
 Nothing appears out of thin air, either. Each exhibit is set up the moment
 the hall loads, so its bay is never empty when you walk up. And the
 gömböcs and the Billes, which are dropped, start resting on the table:
-as the pause begins an attendant's lift takes hold of each (0.2 s), carries
-it up to where it's let go (0.8 s), and lets go. When one is dropped again, it's carried up from where it came to
+they rest there through the pause; then an attendant's lift takes hold of
+each (0.2 s), carries it up to where it's let go (0.8 s), and lets go. (The
+lift waits for the pause to end, so that, as everywhere, the pause changes
+nothing.) When one is dropped again, it's carried up from where it came to
 rest. Each one's clock starts when it's let go.
 
 ## Running it

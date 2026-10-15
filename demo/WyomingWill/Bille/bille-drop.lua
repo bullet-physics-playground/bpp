@@ -63,6 +63,18 @@
 -- and inertia, rolling resistance and spin friction as constant moments at
 -- the table before every physics step, no air drag, no taps.
 --
+-- The time step: "steps" (1200) is the physics steps per simulated second
+-- asked for, but there is always at least one step a frame. In the default
+-- 1/50 slow motion a frame is 1/3000 simulated second, so the step is
+-- 1/3000 s, not 1/1200; at 1/10 speed (Z) it is 1/1200 s. So the slow
+-- motion is also the finer stepping. (No step-size study has been made for
+-- these bodies.)
+--
+-- The faces in the console's "faces it lay on": a face counts once the
+-- body has lain on it (within 2 degrees) for 0.03 s; a face it only
+-- crossed, quicker than that, is given in brackets -- "B -> (A) -> D": it
+-- rolled over A on the way from B to D without stopping there.
+--
 -- Sizes: each colour also has its own size (Red 1.0, Green 0.6, Yellow 1.3,
 -- Blue 0.8, Orange 1.15, Purple 0.7, applied to whichever body it carries).
 -- Tipping times grow as sqrt(size); drop heights are scaled with size.
@@ -221,7 +233,8 @@ param("polyhedra look", envnum("BD_LOOK", 1), 0, 1, 1,
       "0 = the polyhedra drawn as solids, 1 = as frames (balls at the corners, rods on the edges); the physics is the same")
 param("speed", envnum("BD_SPEED", 0.02), 0.001, .1, 0.001,
       "simulated seconds per real second (0.02 = 50x slow motion; Z toggles 0.02 / 0.1)")
-param("steps", envnum("BD_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
+param("steps", envnum("BD_STEPS", 1200), 300, 4800, 300,
+      "physics steps per simulated second, but at least one a frame (at 0.02 speed: 3000 a second)")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
 param("restitution", envnum("BD_REST", 0.1), 0.0, 0.8, 0.05, "bounciness")
 param("rolling", envnum("BD_ROLL", 50), 0, 300, 5,
@@ -784,7 +797,8 @@ local function nearOther(g)
   return nil
 end
 
-holdTick = function() for _, g in ipairs(bodies) do liftStep(g) end end
+-- (the lift waits for the start pause to end, so the pause changes nothing:
+-- the bodies rest on the table through it, then are carried up)
 
 local function redrop(g)
   local was = g.sp.short
@@ -824,7 +838,8 @@ local function tally()
     for p, c in pairs(b.paths) do ps[#ps + 1] = string.format("%s x%d", p, c) end
     table.sort(ps)
     print(string.format("    %-36s %3d run%s, %d on the stable face, time to rest median %.2f s; paths: %s",
-                        title, #b.t, #b.t == 1 and " " or "s", b.home, b.t[math.floor((#b.t + 1) / 2)],
+                        title, #b.t, #b.t == 1 and " " or "s", b.home,
+                        (b.t[math.floor((#b.t + 1) / 2)] + b.t[math.floor(#b.t / 2) + 1]) / 2,
                         table.concat(ps, ", ")))
   end
 end
@@ -939,9 +954,16 @@ v:postSim(function(N)
     local f, ang = faceDown(g)
     -- a face joins the path once the body has lain on it for SETTLE seconds
     -- (so a body rocking across an edge doesn't fill the path with repeats)
-    if f ~= g.cand then g.cand, g.candSince = f, race.t end
+    -- (and one it only crossed, quicker than that, joins it in brackets)
+    if f ~= g.cand then
+      if g.cand and race.t - g.candSince < SETTLE and g.path[#g.path] ~= g.cand
+         and g.path[#g.path] ~= "(" .. g.cand .. ")" then
+        g.path[#g.path + 1] = "(" .. g.cand .. ")"
+      end
+      g.cand, g.candSince = f, race.t
+    end
     if f and race.t - g.candSince >= SETTLE and g.path[#g.path] ~= f then
-      g.path[#g.path + 1] = f
+      if g.path[#g.path] == "(" .. f .. ")" then g.path[#g.path] = f else g.path[#g.path + 1] = f end
       if f == g.sp.home then g.homeAt = race.t end
     end
     -- a Bille edge lying on the table (not on its stable face) is lit up,

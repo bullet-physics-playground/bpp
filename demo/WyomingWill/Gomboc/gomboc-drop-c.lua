@@ -46,8 +46,10 @@
 --
 -- What to expect (defaults, 6 gombocs; tested with 3 drops + 2 headstands):
 --   * all upright within about 15 s, all at rest within 16-22 s;
---   * they stop 0.3-7 deg short of exactly upright. That is real: a
---     constant rolling-resistance moment holds a gomboc wherever gravity's
+--   * they stop 0.3-8 deg short of exactly upright (7.9 deg the most
+--     seen, on the 75% one in Gomboc Variety: the smaller, the further off,
+--     since gravity's lever home grows with size and the rolling lever arm
+--     doesn't). That is real: a constant rolling-resistance moment holds a gomboc wherever gravity's
 --     pull home is weaker than it, and this gomboc's resting valley is so
 --     flat that gravity's pull stays tiny for several degrees. More
 --     "rolling" = quicker to stop, further from exactly upright;
@@ -558,7 +560,7 @@ local function tally()
   table.sort(rests)
   print(string.format("=== %.0f s: %d finished run%s; time to rest: median %.1f s, fastest %.1f s, " ..
                       "slowest %.1f s; %d came to rest not upright ===", race.t, n, n == 1 and "" or "s",
-                      rests[math.floor((n + 1) / 2)], rests[1], rests[n], notUp))
+                      (rests[math.floor((n + 1) / 2)] + rests[math.floor(n / 2) + 1]) / 2, rests[1], rests[n], notUp))
 end
 
 -- on its head: the unstable point straight down, nudged a degree or three

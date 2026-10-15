@@ -40,7 +40,10 @@
 --               sphere as this formula allows (largest radius 16% and 18% above
 --               the smallest). Beyond that the surface's dimples make its
 --               convex hull -- what touches the table -- grow a second resting
---               spot (first found at beta 0.085). Sloan's second formula runs
+--               spot: 12 microns deep at beta 0.085, 25 at 0.09, 67 at 0.10,
+--               against ~5 microns of noise from the hull's facets, none clear
+--               of it at 0.08 (variety-reconstruction/scanb.py; the findings
+--               PDF rounds this to "above beta ~0.09"). Sloan's second formula runs
 --               out sooner, at beta 0.04 (8%), so it is left out. (Strictly,
 --               a Gomboc must be convex; at these beta the surfaces are not
 --               quite, but the dimples never touch the table.)
@@ -625,7 +628,8 @@ local function touching(g)
   return nil
 end
 
-holdTick = function() for _, g in ipairs(bodies) do liftStep(g) end end
+-- (the lift waits for the start pause to end, so the pause changes nothing:
+-- the bodies rest on the table through it, then are carried up)
 
 local function redrop(g)
   race.done[#race.done + 1] = { title = g.sp.title, upright = g.rightedAt and g.rightedAt - g.t0,
@@ -663,8 +667,10 @@ local function tally()
   for _, title in ipairs(order) do
     local b = by[title]
     table.sort(b.t)
-    print(string.format("    %-26s %3d run%s, time to rest median %5.1f s (%.1f-%.1f)%s", title, #b.t,
-                        #b.t == 1 and " " or "s", b.t[math.floor((#b.t + 1) / 2)], b.t[1], b.t[#b.t],
+    local nb = #b.t
+    local med = (b.t[math.floor((nb + 1) / 2)] + b.t[math.floor(nb / 2) + 1]) / 2   -- (an even count: the mean of the middle two)
+    print(string.format("    %-26s %3d run%s, time to rest median %5.1f s (%.1f-%.1f)%s", title, nb,
+                        nb == 1 and " " or "s", med, b.t[1], b.t[nb],
                         b.notUp > 0 and string.format(", %d not upright", b.notUp) or ""))
   end
 end
