@@ -95,6 +95,11 @@ MARKS = (MARKS ~= false)
 -- side-to-side axis, like ankles (as the 2-leg Spears' own files have
 -- them), instead of welded (Walker Room1: welded)
 ANKLES = ANKLES or false
+-- REVERSE: true runs every walker's cranks backward (a table of names,
+-- { ["Spears 4-bar"] = true }, just those): each foot goes round its path
+-- the other way, so the walker walks the other way, and the end of its
+-- foot's swing it came down at is now the one it lifts off at
+REVERSE = REVERSE or false
 local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
 local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
@@ -518,7 +523,10 @@ local function addWalker(spec, x, z, heading)
   opts.ankle = ANKLES
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
+  local rev = REVERSE == true or (type(REVERSE) == "table" and REVERSE[spec.name])
+  if rev then crank = -crank end
   w.crank = crank
+  w.forward = rev and -spec.forward or spec.forward   -- which way along its body it walks
   for _, k in ipairs({ "speed", "leftSpeed", "rightSpeed", "motorSpeed" }) do
     if opts[k] then opts[k] = crank end
   end
@@ -633,7 +641,7 @@ local function addWalker(spec, x, z, heading)
   -- its spot, turned to its heading (0: walking along +x)
   local cp = w.cube.body:getCenterOfMassPosition()
   local cx, cz = cp.x, cp.z
-  local yaw0 = (spec.forward > 0) and 0 or math.pi
+  local yaw0 = (w.forward > 0) and 0 or math.pi
   if MARKS then markBody(w, spec.look) end
   moveWalker(w, cx, cz, heading - yaw0, x - cx, -(W.FLOOR_TOP_Y or 0) * scale, z - cz)
   if MARKS then placeMarks(w) end
@@ -733,7 +741,7 @@ end
 local function heading(w)
   local q = w.cube.body:getCenterOfMassTransform():getRotation()
   local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
-  local f = w.spec.forward
+  local f = w.forward
   -- the body's local x axis in the room, times its forward sign
   local fx = f * (1 - 2 * (qy * qy + qz * qz))
   local fz = f * (2 * (qx * qz - qw * qy))

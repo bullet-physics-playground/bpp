@@ -343,6 +343,34 @@ lift alone doesn't explain. The Spears 4-bar has the lowest front
 height of all (0.06) and is last; Jansen comes down high (0.15) but
 lifts off low (0.09) and drags its back foot.
 
+Running a walker in reverse (`REVERSE`) is a cleaner test still: the
+same machine, its feet going round the same paths the other way, so the
+end of the swing it came down at becomes the one it lifts off at. The
+linkages whose paths aren't the same at both ends, on the test track
+(share kept, 4 starts each), with the angle of the foot's path over its
+last 0.06 of a stride before it touches down (degrees from level; 90 is
+straight down):
+
+| Walker | Forward | Reversed | Coming down at, forward -> reversed |
+|--------|---------|----------|---------------------------------------|
+| Spears 4-bar          | 49% | 80% | 9 -> 23  |
+| Klann                 | 78% | 87% | 53 -> 65 |
+| V front high          | 83% | 90% | 16 -> 22 |
+| Jansen                | 61% | 63% | 2 -> 19  |
+| V front low           | 72% | 68% | 16 -> 13 |
+| Chebyshev-Spears diag | 91% | 82% | 13 -> 13 |
+
+Reversed, the Spears 4-bar goes from last to among the best; it comes
+down more than twice as steeply. In five of the six the walker does
+better the way its foot comes down more steeply; Chebyshev-Spears diag's
+foot comes down the same both ways, and it does worse reversed for some
+other reason (its braces, perhaps). V front high does better reversed
+though its foot is then lower at the front (0.18 against 0.22): the
+angle it comes down at matters more than how high it is a little before.
+Across all the walkers and both directions the angle goes with the share
+kept less closely (rank correlation 0.49): Klann comes down by far the
+most steeply (53 degrees) without being the best.
+
 Not explained yet: the Hoecken-Spears long-stance comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
 its foot swings forward in about 0.2 s, the quickest of all.
@@ -479,4 +507,5 @@ each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
 run free, as in the standalone files), `ANKLES` (true: every walker's
 feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
-walkers, as in `foot-path-variants.lua`).
+walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks run
+backward, so it walks the other way; or a table of names).
