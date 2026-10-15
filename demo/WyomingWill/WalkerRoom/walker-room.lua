@@ -67,6 +67,10 @@ local BODY_BOX = BODY_BOX or { 40, 3, 30 }
 -- (Its own file's motors ranged from 1.4 to 71 in these units.) false:
 -- each walker's own file's motors.
 MOTOR_STRENGTH = (MOTOR_STRENGTH == nil) and 10 or MOTOR_STRENGTH
+-- MARKS (default on): each walker's body marked with its colours and
+-- code (see markBody). false: plain bodies, as the walkers' own files
+-- paint them.
+MARKS = (MARKS ~= false)
 -- ANKLES = true: every walker's feet hinged to its legs about the
 -- side-to-side axis, like ankles (as the 2-leg Spears' own files have
 -- them), instead of welded (Walker Room1: welded)
@@ -255,38 +259,46 @@ end
 --   angles, and the hold is put back along its new heading after each
 -- ---------------------------------------------------------------------
 
+-- look: how its body is marked, so each walker can be told at a glance
+--   (see README.md, Telling the walkers apart): code is drawn on top
+--   of its body -- its linkage's inventor(s) (J Jansen, K Klann, C
+--   Chebyshev, H Hoecken, S Spears; "-S" a linkage Spears changed), then
+--   its number of bars, S for a slider; colour is its linkage's; spears
+--   puts a gold rim round its body; diag draws a line across it
+local RED, PURPLE, BLUE, MAGENTA, WHITE, GOLD = "#D62828", "#7B2CBF", "#1F6FEB", "#E5007E", "#F2F2F2", "#FFC300"
+
 local WALKERS = {
-  { name = "Jansen", advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993, rowSpacing = 158.44 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", look = { code = "J 8", colour = RED, spears = false, diag = false }, advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -23.993, rowSpacing = 158.44 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Klann", advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254, rowSpacing = 164.79 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", look = { code = "K 6", colour = PURPLE, spears = false, diag = false }, advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 15.254, rowSpacing = 164.79 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Chebyshev", advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", look = { code = "C 4", colour = BLUE, spears = false, diag = false }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.954 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", look = { code = "C 4", colour = BLUE, spears = false, diag = true }, advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", advance = 17.691, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", look = { code = "C-S 4", colour = BLUE, spears = true, diag = false }, advance = 17.691, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180 } },
-  { name = "Chebyshev-Spears diag", advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken", advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken 4-bar", look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.536, linkageSpacing = 19.549, cube_d = 3.416 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", advance = 17.054, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, advance = 17.054, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.727, chassis = { bodyRaise = 2.624, linkageSpacing = 20.363, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", advance = 29.019, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", look = { code = "S 4", colour = GOLD, spears = false, diag = false }, advance = 29.019, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.240, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
   -- (linkages of Chebyshev-Spears' kind, built by its file with other
   -- link lengths: see README.md)
-  { name = "Hoeckens-Spears 4-bar", advance = 18.965, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.057, chassis = { bodyRaise = 3.099, linkageSpacing = 23.652, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears 4-bar", look = { code = "H-S 4", colour = MAGENTA, spears = true, diag = false }, advance = 18.965, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.057, chassis = { bodyRaise = 3.099, linkageSpacing = 23.652, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.6138, h = 5.8331, leg = 5.8331, legAngle = 90, groundAngle = -45 } } },
-  { name = "Long-stance Spears", advance = 15.718, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.545, chassis = { bodyRaise = -0.727, linkageSpacing = 20.032, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears long-stance", look = { code = "H-S 4L", colour = MAGENTA, spears = true, diag = false }, advance = 15.718, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.545, chassis = { bodyRaise = -0.727, linkageSpacing = 20.032, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.1842, h = 2.8129, leg = 2.8129, legAngle = 39.80, groundAngle = -20.14 } } },
-  { name = "Spears 2-leg", twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg", look = { code = "S 4", colour = GOLD, spears = false, diag = false }, twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8 } },
-  { name = "Spears 2-leg balanced", twoLeg = true, parts = "Spears_4Bar_2Leg_Balanced_parts.lua", stride = 8.335, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 2-leg balanced", look = { code = "S 4", colour = GOLD, spears = false, diag = false }, twoLeg = true, parts = "Spears_4Bar_2Leg_Balanced_parts.lua", stride = 8.335, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, speed = 3.8, barLen = 13, tipMass = 70 }, railed = true, solverIterations = 40 },
 }
 
@@ -374,6 +386,95 @@ end
 local walkers = {}
 room = { walkers = walkers }   -- (global, for tests and the command line)
 
+-- ---------------------------------------------------------------------
+-- marking the bodies (spec.look): the body and its braces painted its
+-- linkage's colour (the rest of the walker in plain greys),
+-- a gold rim round its top edges for a linkage Spears changed, a line
+-- across it for a diag build, and its code in raised letters on top.
+-- These are for looks only: bodies that touch nothing and weigh nothing,
+-- moved with the walker's body every time the room is drawn.
+-- ---------------------------------------------------------------------
+
+local CF_KINEMATIC_OBJECT, CF_NO_CONTACT_RESPONSE = 2, 4
+
+-- black or white, whichever reads better on the colour c ("#rrggbb")
+local function codeOf(spec) return spec.look and (spec.look.code .. ", ") or "" end
+
+local function ink(c)
+  local r, g, b = tonumber(c:sub(2, 3), 16) / 255, tonumber(c:sub(4, 5), 16) / 255, tonumber(c:sub(6, 7), 16) / 255
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5) and "#111111" or "#FFFFFF"
+end
+
+-- a look-only part of a walker's marking, at (x, y, z) in its body's own
+-- frame, turned by the quaternion q (x, y, z, w)
+local function decor(w, o, col, x, y, z, q)
+  o.col = col
+  addObject(o)
+  o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
+  w.decor[#w.decor + 1] = { o = o, p = { x, y, z }, q = q or { 0, 0, 0, 1 } }
+end
+
+local function markBody(w, look)
+  w.decor = {}
+  if not look then return end
+  w.cube.col = look.colour
+  -- its braces (the plates and bars between its legs) in its colour too,
+  -- everything else in plain greys, so the walker's colours stand out
+  for _, o in ipairs(w.bodies) do
+    if not rawequal(o, w.cube) then
+      local by = w.madeBy and w.madeBy[o] or ""
+      if by:find("Crossbar") then o.col = look.colour
+      elseif by == "buildFoot" then o.col = "#3C3C3C"
+      else o.col = "#6A6A6A" end
+    end
+  end
+  -- the body's size, from its box as built (still lined up with its axes)
+  local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
+  w.cube.body:getAabb(lo, hi)
+  local m = 0.04                                   -- (the box's collision margin)
+  local X, H, Z = hi.x - lo.x - 2 * m, hi.y - lo.y - 2 * m, hi.z - lo.z - 2 * m
+  local hy = H / 2
+  local e = 0.05                                   -- standing just proud of the body, so it shows
+  local top = hy + e
+  if look.spears then
+    -- the gold rim: four strips round the top edges, part way down the sides
+    local r, k = math.max(0.2 * math.min(X, Z), 0.8), math.max(0.6 * H, 0.8)
+    for _, sz in ipairs({ -1, 1 }) do
+      decor(w, Cube(X + 2 * e, k, r, 0), GOLD, 0, top - k / 2, sz * (Z / 2 + e - r / 2))
+    end
+    for _, sx in ipairs({ -1, 1 }) do
+      decor(w, Cube(r, k, Z + 2 * e, 0), GOLD, sx * (X / 2 + e - r / 2), top - k / 2, 0)
+    end
+  end
+  if look.diag then
+    -- a line from corner to corner across the top
+    local a = math.atan(Z / X)
+    local L = 0.94 * math.sqrt(X * X + Z * Z)
+    decor(w, Cube(L, 0.15, math.max(0.1 * math.min(X, Z), 0.6), 0), ink(look.colour), 0, top + 0.08, 0,
+          { 0, math.sin(-a / 2), 0, math.cos(-a / 2) })
+  end
+  -- the code, in raised letters lying on the top, reading along the walk
+  local size = math.min(0.42 * Z, 0.8 * X / (0.62 * #look.code))
+  local text = OpenSCAD(string.format(
+    [[linear_extrude(height = 0.3) text("%s", size = %.3f, font = "Liberation Sans:style=Bold", halign = "center", valign = "center");]],
+    look.code, size), 0, false)
+  local c = math.sqrt(0.5)
+  decor(w, text, ink(look.colour), 0, top + 0.1, 0, { -c, 0, 0, c })   -- (turned so the letters face up)
+end
+
+-- each marking part to where the body now is
+local function placeMarks(w)
+  if not w.decor or #w.decor == 0 then return end
+  local t = w.cube.body:getCenterOfMassTransform()
+  local p, q = w.cube.body:getCenterOfMassPosition(), t:getRotation()
+  local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
+  for _, d in ipairs(w.decor) do
+    local dx, dy, dz = qrot(qx, qy, qz, qw, d.p[1], d.p[2], d.p[3])
+    local rx, ry, rz, rw = qmul(qx, qy, qz, qw, d.q[1], d.q[2], d.q[3], d.q[4])
+    d.o.trans = btTransform(btQuaternion(rx, ry, rz, rw), btVector3(p.x + dx, p.y + dy, p.z + dz))
+  end
+end
+
 local function addWalker(spec, x, z, heading)
   local W = dofile(WALKERS_DIR .. spec.parts)
   local scale = STRIDE / spec.stride
@@ -423,7 +524,19 @@ local function addWalker(spec, x, z, heading)
   W.onMotor = function(h, speed, impulse)
     w.motors[#w.motors + 1] = { hinge = h, speed = speed, impulse = impulse, sign = (speed < 0) and -1 or 1 }
   end
-  local built = W.build(opts)
+  -- (noting which bodies are braces and feet, for marking the walker
+  -- below: the builds make them in functions named for them)
+  local made, realCube = {}, Cube
+  Cube = function(...)
+    local o = realCube(...)
+    local f = debug.getinfo(2, "n")
+    made[o] = f and f.name
+    return o
+  end
+  local ok, built = pcall(W.build, opts)
+  Cube = realCube
+  if not ok then error(built, 0) end
+  w.madeBy = made
   for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0 end
   -- the same motors for every walker (MOTOR_STRENGTH, above): Bullet
   -- applies a motor's impulse once per physics step, so its most torque
@@ -472,7 +585,9 @@ local function addWalker(spec, x, z, heading)
   local cp = w.cube.body:getCenterOfMassPosition()
   local cx, cz = cp.x, cp.z
   local yaw0 = (spec.forward > 0) and 0 or math.pi
+  if MARKS then markBody(w, spec.look) end
   moveWalker(w, cx, cz, heading - yaw0, x - cx, -(W.FLOOR_TOP_Y or 0) * scale, z - cz)
+  if MARKS then placeMarks(w) end
   w.heading = heading                    -- (the heading it was set to; heading(w) is the one it has)
   if spec.railed then setRail(w) end
   -- how it was built to stand (some, like the 2-leg Spears, are built
@@ -1012,7 +1127,7 @@ local following, followX, followZ        -- the walker followed (nil: the overvi
 
 local function helpText()
   if TEST_TRACK then
-    local h = "TEST TRACK -- " .. (walkers[1] and walkers[1].spec.name or "") .. "\n\n"
+    local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
     h = h .. "Tab         put the next walker on the track (built again)\n"
     h = h .. "Shift+Tab   the one before\n"
     h = h .. "O           look over the whole track\n"
@@ -1022,7 +1137,7 @@ local function helpText()
     h = h .. "pane) build the track again with the same walker.\n"
     return h
   end
-  local h = "WALKER ROOM -- " .. (following and ("following " .. following.spec.name .. " (trail " .. following.colour[1] .. ")")
+  local h = "WALKER ROOM -- " .. (following and ("following " .. following.spec.name .. " (" .. codeOf(following.spec) .. "trail " .. following.colour[1] .. ")")
                                            or "looking over the room") .. "\n\n"
   h = h .. "Tab         follow the next walker\n"
   h = h .. "Shift+Tab   follow the one before\n"
@@ -1034,9 +1149,13 @@ local function helpText()
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
   h = h .. "BumpLength: how long they are, " .. BUMP_MIN .. " to " .. BUMP_MAX .. " cm (every walker's stride is " .. STRIDE .. " cm).\n"
   h = h .. "The room is built again, every walker back at its start, when you let go.\n\n"
+  h = h .. "Each body shows its walker's code: its linkage's inventor(s) -- J Jansen,\n"
+  h = h .. "K Klann, C Chebyshev, H Hoecken, S Spears; -S: a linkage Spears changed,\n"
+  h = h .. "which also has a gold rim -- then its number of bars, S if a slider. A\n"
+  h = h .. "line across the body: a diag build. The colour is the linkage's.\n\n"
   h = h .. "Walkers and their trails:\n"
   for _, w in ipairs(walkers) do
-    h = h .. string.format("  %-24s %s\n", w.spec.name, w.colour[1])
+    h = h .. string.format("  %-7s %-27s %s\n", w.spec.look and w.spec.look.code or "", w.spec.name, w.colour[1])
   end
   return h
 end
@@ -1108,7 +1227,7 @@ v:onHover(function(N, obj, x, y, z)
   local w = owner[objectKey(obj)]
   local first
   if w then
-    first = w.spec.name .. " (trail " .. w.colour[1] .. ")"
+    first = w.spec.name .. " (" .. codeOf(w.spec) .. "trail " .. w.colour[1] .. ")"
   elseif rawequal(obj, floor) then
     local cell = cellAt(x, z)
     w = cell and painted[cell]
@@ -1129,6 +1248,7 @@ v:onParamChanged(function(N, name, value)
 end)
 v:preDraw(function(N)
   draws = draws + 1
+  if MARKS then for _, w in ipairs(walkers) do placeMarks(w) end end
   if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
     local amp, bump = pendingAmp or AMP, pendingBump or BUMP
     if math.abs(amp - AMP) > 1e-9 or math.abs(bump - BUMP) > 1e-9 then

@@ -15,8 +15,8 @@ OUT=${OUT:-test-track-results.txt}
 : > "$OUT"
 
 WALKERS=("Jansen" "Klann" "Chebyshev" "Chebyshev diag" "Chebyshev-Spears"
-         "Chebyshev-Spears diag" "Hoecken" "Hoecken slider" "Hoecken-Spears slider"
-         "Spears 4-bar" "Hoeckens-Spears 4-bar" "Long-stance Spears")   # (the 2-leg Spears too, with TWO_LEGS=true in EXTRA, if added here)
+         "Chebyshev-Spears diag" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider"
+         "Spears 4-bar" "Hoecken-Spears 4-bar" "Hoecken-Spears long-stance")   # (the 2-leg Spears too, with TWO_LEGS=true in EXTRA, if added here)
 CONDITIONS=("0 22")
 for h in 2 4 6; do for l in 11 15 22; do CONDITIONS+=("$h $l"); done; done
 

@@ -52,5 +52,5 @@ Seventh, Chebyshev-Spears takes `geometry = { g, a, h, leg, legAngle,
 groundAngle }`: the ground link, crank, coupler-to-rocker-joint (= the
 rocker), the leg from that joint, the leg's angle off the coupler, and
 the ground link's angle, in its own units, so that the same file builds
-other linkages of its kind (the room's Hoeckens-Spears 4-bar). Unset, it
+other linkages of its kind (the room's Hoecken-Spears 4-bar and long-stance). Unset, it
 is Chebyshev-Spears (2.5, 1.875, 5.729, 5.729, 90, -45).

@@ -1,7 +1,7 @@
 # Walker room
 
 Twelve walkers on one meadow -- ten of WyomingWill's, the
-Hoeckens-Spears 4-bar and the Long-stance Spears (below) -- all
+Hoecken-Spears 4-bar and the Hoecken-Spears long-stance (below) -- all
 four-legged, each scaled
 to the same stride, walking freely inside a walled 10 m x 10 m arena.
 Open `walker-room.lua`.
@@ -45,11 +45,11 @@ something wrong with its build.
   | Jansen                 | 2.23 | 9.1 |
   | Chebyshev-Spears diag  | 3.45 | 9.1 |
   | Spears 4-bar           | 1.95 | 9.0 |
-  | Hoeckens-Spears 4-bar  | 2.98 | 8.8 |
-  | Long-stance Spears     | 3.60 | 8.9 |
+  | Hoecken-Spears 4-bar  | 2.98 | 8.8 |
+  | Hoecken-Spears long-stance | 3.60 | 8.9 |
   | Chebyshev diag         | 2.83 | 8.8 |
   | Hoecken-Spears slider  | 3.32 | 8.6 |
-  | Hoecken                | 2.23 | 8.4 |
+  | Hoecken 4-bar          | 2.23 | 8.4 |
   | Klann                  | 1.91 | 7.7 |
   | Chebyshev              | 2.25 | 7.7 |
   | Hoecken slider         | 2.24 | 7.4 |
@@ -90,7 +90,7 @@ something wrong with its build.
   (`MOTOR_STRENGTH`), the same for every walker. Their own files' motors
   ranged from 1.4 (Chebyshev-Spears diag) to 71 (Spears 4-bar) in these
   units. Stronger isn't better: at 70 the results are the same as at 10,
-  except that the Long-stance Spears fell 13 times. The walkers whose
+  except that the Hoecken-Spears long-stance fell 13 times. The walkers whose
   own motors were weakest (1.4-3.3: Chebyshev, Hoecken and their Spears
   versions) kept a little more of their speed on bumps with them
   (Chebyshev-Spears 65% against 57%), as if a motor that gives way a
@@ -133,7 +133,7 @@ ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 | Chebyshev-Spears       | 8.84 | 7.87        | 89%  |
 | Hoecken-Spears slider  | 8.12 | 7.18        | 88%  |
 | Chebyshev-Spears diag  | 8.53 | 7.28        | 85%  |
-| Hoecken                | 7.96 | 5.70        | 72%  |
+| Hoecken 4-bar          | 7.96 | 5.70        | 72%  |
 | Hoecken slider         | 7.00 | 4.20        | 60%  |
 | Spears 4-bar           | 8.35 | 4.74        | 57%  |
 | Klann                  | 7.38 | 2.70        | 37%  |
@@ -183,13 +183,13 @@ same weight, each walker's own motors):
 | Klann                  | 44%  | 94%  | 88%  | 85%  | 80%  | 83%  | 67%  | 63%  | 69%  | 17%  | 72%  | 6.1 | 72% |
 | Jansen                 | 28%  | 88%  | 91%  | 86%  | 69%  | 83%  | 60%  | 49%  | 43%  | 18%  | 65%  | 5.8 | 65% |
 | Hoecken-Spears slider  | 28%  | 91%  | 100% | 87%  | 77%  | 90%  | 28%  | 42%  | 73%  | -3%  | 65%  | 5.6 | 62% |
-| Hoeckens-Spears 4-bar  | 28%  | 92%  | 95%  | 86%  | 68%  | 69%  | 41%  | 59%  | 41%  | 12%  | 63%  | 5.5 | 65% |
+| Hoecken-Spears 4-bar  | 28%  | 92%  | 95%  | 86%  | 68%  | 69%  | 41%  | 59%  | 41%  | 12%  | 63%  | 5.5 | 65% |
 | Chebyshev-Spears diag  | 24%  | 94%  | 94%  | 67%  | 87%  | 70%  | 11%  | 66%  | 28%  | 4%   | 58%  | 5.4 | 52% |
 | Chebyshev-Spears       | 26%  | 87%  | 94%  | 89%  | 76%  | 57%  | 44%  | 37%  | 26%  | 4%   | 57%  | 5.1 | 65% |
 | Spears 4-bar           | 28%  | 71%  | 78%  | 72%  | 59%  | 62%  | 8%   | 48%  | 44%  | 6%   | 50%  | 4.4 | 50% |
-| Long-stance Spears     | 29%  | 92%  | 67%  | 67%  | 84%  | 23%  | 21%  | 19%  | 16%  | -1%  | 43%  | 3.7 | 54% |
+| Hoecken-Spears long-stance | 29%  | 92%  | 67%  | 67%  | 84%  | 23%  | 21%  | 19%  | 16%  | -1%  | 43%  | 3.7 | 54% |
 | Hoecken slider         | 21%  | 64%  | 76%  | 70%  | 49%  | 53%  | 30%  | 5%   | 6%   | 8%   | 40%  | 3.1 | 40% |
-| Hoecken                | 17%  | 81%  | 61%  | 77%  | 68%  | 9%   | 24%  | 14%  | 13%  | 5%   | 39%  | 3.2 | 43% |
+| Hoecken 4-bar          | 17%  | 81%  | 61%  | 77%  | 68%  | 9%   | 24%  | 14%  | 13%  | 5%   | 39%  | 3.2 | 43% |
 | Chebyshev diag         | 14%  | 92%  | 75%  | 31%  | 45%  | 23%  | 7%   | 13%  | 4%   | 2%   | 32%  | 2.9 | 33% |
 | Chebyshev              | 16%  | 51%  | 58%  | 34%  | 17%  | 4%   | 10%  | 4%   | 4%   | 4%   | 21%  | 1.5 | 23% |
 
@@ -205,7 +205,7 @@ same mechanism with more lift, on the same chassis and feet:
 | Chebyshev (16%) -> Chebyshev-Spears (26%)           | 21% -> 57% | 23% -> 65% | 30% -> 78% | 30% -> 75% | 63% -> 88% |
 | Chebyshev diag (14%) -> Chebyshev-Spears diag (24%) | 32% -> 58% | 33% -> 52% | 21% -> 67% | 17% -> 62% | 71% -> 77% |
 | Hoecken slider (21%) -> Hoecken-Spears slider (28%) | 40% -> 65% | 40% -> 62% | 41% -> 65% | 40% -> 57% | 69% -> 80% |
-| Hoecken (17%) -> Hoeckens-Spears 4-bar (28%)        | 39% -> 63% | 43% -> 65% | 67% -> 78% | --         | --         |
+| Hoecken 4-bar (17%) -> Hoecken-Spears 4-bar (28%)  | 39% -> 63% | 43% -> 65% | 67% -> 78% | --         | --         |
 
 In all four the version with more lift keeps more of its speed, and
 each pair walks with the same gait, weight and motors. (Chebyshev-Spears'
@@ -228,9 +228,9 @@ Long, high bumps (22 cm long, 6 cm high:
 steep hills) stop nearly everyone. Four starts per condition is few:
 differences of a few points mean little.
 
-### Hoeckens-Spears 4-bar
+### Hoecken-Spears 4-bar
 
-The true 4-bar Hoeckens linkage and the Chebyshev lambda are the same
+The true 4-bar Hoecken linkage and the Chebyshev lambda are the same
 kind of linkage -- a crank, a rocker, and a coupler carried straight on
 past the rocker joint to the foot -- with slightly different
 proportions (crank 1: ground 2.09 against 2, coupler and rocker 2.55
@@ -238,7 +238,7 @@ against 2.5). Chebyshev-Spears came from the lambda by shortening the
 ground link (to 1.33), lengthening the coupler and rocker (to 3.06),
 turning the leg 90 degrees off the coupler (the same length as the
 coupler) and tilting the ground link 45 degrees. The same changes made
-to Hoeckens give the Hoeckens-Spears 4-bar: ground 1.39, coupler, rocker
+to Hoecken give the Hoecken-Spears 4-bar: ground 1.39, coupler, rocker
 and leg 3.11, the leg at 90 degrees, the ground link at 45 degrees
 (foot path: duty 79%, flatness 4.9%, mono 1.000, lift 27.7%, against
 Chebyshev-Spears' 83%, 4.7%, 0.981, 26.4%). It is built by
@@ -258,7 +258,8 @@ Built, its cranks jam. Kept at least as far from locking as
 Chebyshev-Spears, the search finds at most duty 89%, flatness 5.2% and
 lift 29%, or duty 85%, flatness 5.6% and lift 32%.
 
-The first of those is the Long-stance Spears: crank 1, ground 1.16,
+The first of those is the Hoecken-Spears long-stance (found while
+looking for a Hoecken-Spears with more lift): crank 1, ground 1.16,
 coupler, rocker and leg 1.50, the leg 39.8 degrees off the coupler, the
 ground link at 20.1 degrees -- a much shorter coupler and rocker than
 Chebyshev-Spears' 3.06. Built, its foot path comes out at duty 85%,
@@ -281,7 +282,7 @@ starts each), at gravity 70:
 | Walker                 | Welded | Ankles | On bumps, cm/s (welded -> ankles) |
 |------------------------|--------|--------|-----------------------------------|
 | Chebyshev-Spears       | 75%    | 77%    | 5.9 -> 5.9 |
-| Hoecken                | 61%    | 71%    | 6.3 -> 7.2 |
+| Hoecken 4-bar          | 61%    | 71%    | 6.3 -> 7.2 |
 | Chebyshev-Spears diag  | 62%    | 66%    | 4.4 -> 4.5 |
 | Spears 4-bar           | 53%    | 63%    | 6.8 -> 6.8 |
 | Jansen                 | 36%    | 61%    | 1.7 -> 1.9 |
@@ -298,6 +299,41 @@ feet meet the ground tilted. With ankles the pairs still favour the
 version with more lift: Chebyshev 38% -> Chebyshev-Spears 77%, Chebyshev
 diag 16% -> Chebyshev-Spears diag 66%, Hoecken slider 37% ->
 Hoecken-Spears slider 49%.
+
+## Telling the walkers apart
+
+Each walker's body (and the plates or bars between its legs) is painted
+its linkage's colour, the rest of it grey, and its code is written on
+top (`MARKS = false`: each walker as its own file paints it). The code
+is its linkage's inventor(s), a space, and its number of bars (S added
+for a slider):
+
+- inventors: J Jansen, K Klann, C Chebyshev, H Hoecken, S Spears; "-S"
+  after a letter, a linkage Spears changed (C-S: Chebyshev, changed by
+  Spears), which also gets a gold rim round its body
+- bars: as counted in the linkage reference (a four-bar counts its
+  ground link; a slider counts 2 bars and the slider)
+- L after the bars: the long-stance version
+- a line across the body: a diag build -- the same linkage, braced
+  diagonally and walking with its diagonal legs together
+
+| Walker                     | Code   | Colour  | Gold rim | Line across |
+|----------------------------|--------|---------|----------|-------------|
+| Jansen                     | J 8    | red     |          |             |
+| Klann                      | K 6    | purple  |          |             |
+| Chebyshev                  | C 4    | blue    |          |             |
+| Chebyshev diag             | C 4    | blue    |          | yes         |
+| Chebyshev-Spears           | C-S 4  | blue    | yes      |             |
+| Chebyshev-Spears diag      | C-S 4  | blue    | yes      | yes         |
+| Hoecken 4-bar              | H 4    | magenta |          |             |
+| Hoecken-Spears 4-bar       | H-S 4  | magenta | yes      |             |
+| Hoecken-Spears long-stance | H-S 4L | magenta | yes      |             |
+| Hoecken slider             | H 2S   | white   |          |             |
+| Hoecken-Spears slider      | H-S 2S | white   | yes      |             |
+| Spears 4-bar               | S 4    | gold    |          |             |
+
+The code and walker are also in the help text and shown when the
+pointer rests on a walker.
 
 ## Keys
 
@@ -335,12 +371,12 @@ ground any more.
 | Chebyshev diag         | white    |
 | Chebyshev-Spears       | black    |
 | Chebyshev-Spears diag  | cyan     |
-| Hoecken                | blue     |
+| Hoecken 4-bar          | blue     |
 | Hoecken slider         | purple   |
 | Hoecken-Spears slider  | pink     |
 | Spears 4-bar           | maroon   |
-| Hoeckens-Spears 4-bar  | teal     |
-| Long-stance Spears     | lavender |
+| Hoecken-Spears 4-bar  | teal     |
+| Hoecken-Spears long-stance | lavender |
 | Spears 2-leg           | navy (with `TWO_LEGS`) |
 | Spears 2-leg balanced  | olive (with `TWO_LEGS`) |
 
