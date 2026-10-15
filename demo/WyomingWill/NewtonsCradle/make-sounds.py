@@ -25,7 +25,7 @@ clack-n<N>-v<U>.wav, the sound of N balls striking the row at U cm/s.
    the right, 15 cm up.
 
 3. 48 kHz, 16 bits, one channel, 0.3 s. All the files share one scale, so
-   their loudness is in proportion: the loudest (four balls at 120 cm/s)
+   their loudness is in proportion: the loudest (one ball at 100 cm/s)
    peaks at 0.95; the console says how loud the clack is, in pascals and
    dB, at the listener.
 

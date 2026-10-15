@@ -35,10 +35,10 @@
 --    swings in the plane of the row, turning as it swings).
 --  * The strikes: Bullet's contacts can't do them (a whole row of balls
 --    touching at once). Before every physics step, any balls that touch or
---    will within the step are worked out here along the row: Hertz's
---    push between neighbours, in steps of a quarter of a microsecond (a
---    strike lasts about a tenth of a millisecond), and the balls' speeds
---    and places handed back to Bullet.
+--    will within the step are worked out here, each along its swing:
+--    Hertz's push between neighbours, in steps of a quarter of a
+--    microsecond (a strike lasts about a tenth of a millisecond), and the
+--    balls' speeds and places handed back to Bullet, on their hinges.
 --  * 2400 physics steps a second.
 --  * Each strike clacks: the sound worked out from the same strike and the
 --    air the jerked balls push (make-sounds.py, cradle-sounds/), louder
@@ -51,7 +51,7 @@
 --   Z         slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: NC_SPEED, NC_STEPS, NC_LIFT (degrees), NC_GAP (cm),
+-- Headless testing: NC_SPEED, NC_STEPS, NC_LIFT (degrees), NC_GAP (cm), NC_DAMP,
 -- NC_LOG=file.csv.
 --
 
@@ -295,33 +295,46 @@ local function clack()
   end
 end
 local SUB = 0.25e-6
+-- (each ball is worked out along its own swing, on its hinge: a push along
+-- the line between two balls moves each along its swing by the part of it
+-- that lies along the swing, and a ball's inertia along its swing is
+-- m (1 + 2/5 r^2/L^2), since it turns with its threads)
+local MS = MB * (1 + 0.4 * RB * RB / (LP * LP))
+local A, CL, CR = {}, {}, {}
 local function strike(h)
-  -- where they are, along the row, and how fast
-  local touching = false
+  -- where they are along their swings, and how fast
   for i, b in ipairs(balls) do
     local x, y = getPosXYZ(b.s)
-    local vx = getVelXYZ(b.s)
-    X[i], VX[i] = x, vx
-    b.y = y
+    local vx, vy = getVelXYZ(b.s)
+    local a = math.atan2(x - b.ax, TOP_Y - y)
+    X[i], b.y, A[i] = x, y, a
+    VX[i] = vx * math.cos(a) + vy * math.sin(a)
   end
+  -- each contact: the gap, and how each ball's swing moves along the line between them
+  local touching = false
   for i = 1, NB - 1 do
-    local _, y1 = getPosXYZ(balls[i].s)
-    local _, y2 = getPosXYZ(balls[i + 1].s)
-    local d = math.sqrt((X[i + 1] - X[i]) ^ 2 + (y2 - y1) ^ 2) - 2 * RB
-    D0[i] = d
-    if d - (VX[i] - VX[i + 1]) * h < -1e-7 then touching = true end
+    local dx, dy = X[i + 1] - X[i], balls[i + 1].y - balls[i].y
+    local l = math.sqrt(dx * dx + dy * dy)
+    local nx, ny = dx / l, dy / l
+    D0[i] = l - 2 * RB
+    CL[i] = math.cos(A[i]) * nx + math.sin(A[i]) * ny
+    CR[i] = math.cos(A[i + 1]) * nx + math.sin(A[i + 1]) * ny
+    -- (pressed now, or will be within the step: a strike can last longer
+    -- than a step, and a contact still pressed but opening must be worked
+    -- out to the end, or what it holds is lost)
+    if math.min(D0[i], D0[i] + (CR[i] * VX[i + 1] - CL[i] * VX[i]) * h) < -1e-7 then touching = true end
   end
   if not touching then return false end
-  -- the row, along x, over this step: Hertz between neighbours
+  -- the row, over this step: Hertz between neighbours
   for i = 1, NB do U[i], W[i] = 0, VX[i] end
   local n = math.ceil(h / SUB)
   local dt = h / n
   local F = {}
   local function forces()
     for i = 1, NB - 1 do
-      local sq = -(D0[i] + U[i + 1] - U[i])
+      local sq = -(D0[i] + CR[i] * U[i + 1] - CL[i] * U[i])
       if sq > 0 then
-        local rate = W[i] - W[i + 1]              -- how fast it's squeezing
+        local rate = CL[i] * W[i] - CR[i] * W[i + 1]      -- how fast it's squeezing
         local f = K_H * sq * math.sqrt(sq) * (1 + 1.5 * ALPHA * rate)
         F[i] = f > 0 and f or 0
       else
@@ -329,33 +342,34 @@ local function strike(h)
       end
     end
   end
+  local function accel(i)
+    return ((i > 1 and F[i - 1] * CR[i - 1] or 0) - (i < NB and F[i] * CL[i] or 0)) / MS
+  end
   forces()
   for _ = 1, n do
     -- velocity Verlet
     for i = 1, NB do
-      local a = ((i > 1 and F[i - 1] or 0) - (i < NB and F[i] or 0)) / MB
-      W[i] = W[i] + 0.5 * dt * a
+      W[i] = W[i] + 0.5 * dt * accel(i)
       U[i] = U[i] + dt * W[i]
     end
     forces()
     for i = 1, NB do
-      local a = ((i > 1 and F[i - 1] or 0) - (i < NB and F[i] or 0)) / MB
-      W[i] = W[i] + 0.5 * dt * a
+      W[i] = W[i] + 0.5 * dt * accel(i)
     end
   end
-  -- hand them back: the new speed, and a place such that Bullet's step
-  -- (at the new speed) ends where the row had them
+  -- hand them back: each ball on its swing, at the new speed, placed so
+  -- that Bullet's step (at that speed) ends where the row had it, and
+  -- turned with its threads, just as the hinge has it (so the hinge has
+  -- nothing to put right, and a squeeze carried into the next step is kept)
   for i, b in ipairs(balls) do
-    local body = b.s.body
-    local V = body:getLinearVelocity()
-    local dv = W[i] - VX[i]
-    if dv ~= 0 then
-      local P = body:getCenterOfMassPosition()
-      body:setCenterOfMassTransform(btTransform(body:getOrientation(), btVector3(X[i] + U[i] - W[i] * h, P.y, P.z)))
-      body:setLinearVelocity(btVector3(W[i], V.y, V.z))
-      -- (and its turning, as it swings on its hinge: its speed over the length)
-      local A = body:getAngularVelocity()
-      body:setAngularVelocity(btVector3(A.x, A.y, A.z + dv / LP))
+    if W[i] ~= VX[i] then
+      local a = A[i] + (U[i] - W[i] * h) / LP
+      local c, sn = math.cos(a), math.sin(a)
+      local body = b.s.body
+      body:setCenterOfMassTransform(btTransform(btQuaternion(btVector3(0, 0, 1), a),
+                                                btVector3(b.ax + LP * sn, TOP_Y - LP * c, 0)))
+      body:setLinearVelocity(btVector3(W[i] * c, W[i] * sn, 0))
+      body:setAngularVelocity(btVector3(0, 0, W[i] / LP))
     end
   end
   return true

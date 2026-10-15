@@ -15,7 +15,7 @@ But that argument treats the strike as a series of separate two-ball
 collisions. In a row of balls that touch, the push travels through them as
 a pulse, squeezing each contact. By Hertz's law, the push grows as the 3/2
 power of the squeeze. So the far ball doesn't get quite everything: the
-others keep a little motion, and after a few dozen strikes the whole row is
+others keep a little motion, and after a few minutes the whole row is
 swinging together. Leave a hair's gap between the balls (`G`) and each
 strike really is a series of two-ball collisions: one in, one out, almost
 exactly.
@@ -39,7 +39,7 @@ steps.
     --- 1 ball lifted 30 degrees and let go; the balls touching ---
         two balls meeting at 62.7 cm/s: they touch for 84.2 microseconds (Hertz: 84.2); they part at 0.982 of it
       strike  1 at  0.197 s: speeds before   62.7    0.0    0.0    0.0    0.0
-                                   after    -4.1   -1.6   -0.6    8.5   60.5 cm/s; energy 95.3%; momentum along the row 0.00% off ...
+                                   after    -4.1   -1.6   -0.6    8.5   60.4 cm/s; energy 95.3%; momentum along the row 0.00% off ...
                         0.1975 s after letting go; a quarter swing from 30 degrees takes 0.1979 s
 
 * **Hertz.** Two balls meeting head on touch for 84.2 microseconds, just as
@@ -52,8 +52,8 @@ steps.
   step, 0.4 ms.
 * **The strike.** With no damping (the slider at 0) the energy is all kept:
   100.0%. The touching row sends out 62.0 of 62.7 cm/s, leaving the others
-  -4.5, -1.9, -0.9 and 8.0 cm/s. With the gap, the row sends out 62.6, and
-  the others keep 0.1 cm/s at most. Momentum along the row is kept, but for
+  -4.5, -1.9, -0.9 and 8.0 cm/s. With the gap, the row sends out 62.7,
+  and the others keep less than 0.05 cm/s. Momentum along the row is kept, but for
   what gravity and the threads change during the strike (a few
   milliseconds when the balls left moving knock again).
 
@@ -73,12 +73,21 @@ speed.
   threads: it swings in the plane of the row, turning as it swings.
 * Bullet's contacts can't do the strikes, with a whole row of balls
   touching at once. So before every physics step, the script finds any
-  balls that touch, or will within the step, and works them out along the
-  row:
+  balls that are pressed together, or will touch within the step, and
+  works them out, each ball along its own swing:
   * Hertz's push between neighbours, in steps of a quarter of a
-    microsecond (a strike lasts about a tenth of a millisecond);
-  * then it hands the balls' speeds and places back to Bullet, placed so
-    that Bullet's step ends where the row had them.
+    microsecond (a strike lasts about a tenth of a millisecond); a push
+    along the line between two balls moves each along its swing by the
+    part of it that lies along the swing, against the ball's inertia
+    along its swing, m (1 + 2/5 r^2/L^2), since it turns with its threads;
+  * then it hands the balls' speeds and places back to Bullet, each on
+    its hinge, turned with its threads, and placed so that Bullet's step
+    ends where the row had it.
+* A strike can last longer than a step (at 9600 steps a second, a step is
+  104 microseconds), so a squeeze still held at the end of a step is
+  carried into the next and worked out there. The first strike comes out
+  the same at every setting of the steps slider, 1200 to 9600: 60.4 or
+  60.5 cm/s out, 95.3% or 95.4% of the energy kept.
 * Little knocks between balls left barely moving (less than 3 cm/s) aren't
   counted as strikes.
 * 2400 physics steps a second.
@@ -94,7 +103,7 @@ a little. The first strike, one ball in at 63 cm/s:
 
 | ball | 1 (it struck) | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
-| speed after, cm/s | −4.1 (back) | −1.6 | −0.6 | +8.5 | +60.5 |
+| speed after, cm/s | −4.1 (back) | −1.6 | −0.6 | +8.5 | +60.4 |
 
 So ball 4 follows ball 5 out, about 1 cm on these 15 cm threads, and
 ball 1 bounces back half a centimetre; out of step, they open gaps and
@@ -106,12 +115,25 @@ watching a real cradle, the fourth ball can be seen to move and the first
 to come back a little.
 
 The small losses in each strike wear the balls' motion relative to each
-other away, and after a minute or two the whole row swings together, in
-step, at a smaller swing (Hutzler, Delaney, Weaire and MacLeod, "Rocking
-Newton's cradle", Am. J. Phys. 72, 2004, who found it settled in 1 to 2
-minutes on real cradles). For the textbook version, press `G`: a 0.1 mm
-gap between the balls makes each strike a clean series of two-ball
-collisions, one in, one out, almost exactly.
+other away, and in the end the whole row swings together, in step, at a
+smaller swing. Hutzler, Delaney, Weaire and MacLeod ("Rocking Newton's
+cradle", Am. J. Phys. 72, 2004) found real cradles settle so in 1 to 2
+minutes. Here (one ball lifted 30 degrees, `A` off), the row's together
+swing is 5.2 degrees; the balls' swings about it fall below half of that
+at about 80 s, below a fifth at about 3 minutes and below a tenth at about
+6 1/2 minutes (the same, to a few seconds, at 1200 and 9600 steps a
+second). So it settles on the same scale as a real cradle, or a little
+slower. Only the damping in the contacts takes
+the balls' motion away here (nothing else does: no air, no losses in the
+threads, the balls exactly in line), so how fast it settles follows from
+that one number, a quarter of Hunt and Crossley's, which was chosen for
+how two balls part (at 0.982), not to match this. With the damping at 0
+it never settles: after 3 minutes the balls swing about each other as
+much as at the start, and the energy is all still there (to 1.5%).
+
+For the textbook version, press `G`: a 0.1 mm gap between the balls makes
+each strike a clean series of two-ball collisions, one in, one out,
+almost exactly.
 
 ## The clack
 
