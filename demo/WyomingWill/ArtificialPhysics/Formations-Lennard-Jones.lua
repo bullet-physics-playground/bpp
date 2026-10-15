@@ -158,6 +158,8 @@ local PARAM_INFO = {
                            comment = "ms to wait between simulation steps (0 = as fast as possible)" },
   ticksPerFrame        = { min = 1,    max = 100, step = 1,
                            comment = "algorithm ticks run per rendered frame; raise to fast-forward" },
+  layerGain    = { min = 0,    max = 0.2,   step = 0.005,
+                  comment = "3D triangle only: pull toward flight levels sqrt(2/3) desiredSeparation apart (0 = off)" },
 }
 
 local function setParam(name, value)
@@ -179,6 +181,7 @@ setParam("goalForce", 0.25)
 setParam("obstacleSize", 10)
 setParam("delayMs", 16) -- matches the app's delay(16), ~60 fps
 setParam("ticksPerFrame", 1)
+setParam("layerGain", 0.05)  -- flight levels in 3D triangle (see layerPhase())
 
 --------------------------------------------------------------------------
 -- Colors -- matches SimulationView's Paint colors.
@@ -356,8 +359,35 @@ end
 -- moveAll(), matching a proper compute-then-move pass (not sequential
 -- mutation mid-loop).
 --------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+-- Flight levels for the 3D triangle formation (layerGain; 0 = off). The
+-- 3D relative of the triangular lattice is close packing: flat triangular
+-- layers stacked sqrt(2/3) rad apart, each sitting in the hollows of the
+-- one below. Each tick the levels' vertical offset is taken from the
+-- particles themselves (the circular mean of y modulo the spacing, so
+-- there is no fixed altitude and no favoured centre), and every particle
+-- gets a soft vertical pull, layerGain x its distance, toward its nearest
+-- level. Within a level the usual force law makes the triangular lattice;
+-- a particle one level up wants distance rad from those below, which puts
+-- it over a hollow, so the stacking comes out of the same law. Particles
+-- can still change level when pushed, and nothing horizontal is touched.
+--------------------------------------------------------------------------
+local function layerPhase(p, sepR)
+  local h = sepR * math.sqrt(2 / 3)
+  local sx, sy = 0, 0
+  for _, q in ipairs(particles) do
+    local a = 2 * math.pi * q.y / h
+    sx, sy = sx + math.cos(a), sy + math.sin(a)
+  end
+  return atan2(sy, sx) * h / (2 * math.pi), h
+end
+
 local function updateParticles(p)
   local squareDivisor, squareSameView, squareDiffView = squareFormationParams(p)
+  local layered = is3D and not isSquareFormation and (p.layerGain or 0) > 0
+  local layerY0, layerH
+  if layered then layerY0, layerH = layerPhase(p, p.desiredSeparation) end
 
   for _, particle in ipairs(particles) do
     particle.fx, particle.fy, particle.fz = 0, 0, 0
@@ -404,6 +434,11 @@ local function updateParticles(p)
         particle.fy = particle.fy - f * (dy / r)
         particle.fz = particle.fz - f * (dz / r)
       end
+    end
+
+    if layered then
+      local target = layerY0 + layerH * math.floor((particle.y - layerY0) / layerH + 0.5)
+      particle.fy = particle.fy - p.layerGain * (particle.y - target)
     end
 
     if isGoalEnabled then
@@ -566,6 +601,7 @@ local function readParams()
     timeStep = v:getParam("timeStep"),
     goalForce = v:getParam("goalForce"),
     obstacleSize = v:getParam("obstacleSize"),
+    layerGain = v:getParam("layerGain"),
   }
 end
 

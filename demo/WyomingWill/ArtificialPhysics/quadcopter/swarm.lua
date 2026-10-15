@@ -144,6 +144,7 @@ v:addParam("obstacleField", true, "Setup (R) scatters random columns between the
 defParam("fieldDensity", 2.5,  0,   8,    0.1,  "columns per 100 m^2 of the obstacle field, used by the next Setup (R)")
 defParam("goalSpeed",    0.2,  0,   2,    0.05, "how fast the goal moves through the obstacle field (m/s); it stops at the far side")
 defParam("goalDelay",    20,   0,   120,  1,    "seconds after AP engages that the goal switches on by itself (0 = only with G)")
+defParam("layerGain",    cfg.layerGain or 0, 0, 0.2, 0.005, "3D triangle only: pull toward flight levels sqrt(2/3) x spacing apart (0 = off)")
 defParam("metersPerUnit", 0.06, 0.02, 0.2, 0.01, "metres per AP unit (0.06: rad 50 = 3 m spacing)")
 defParam("apHz",         5,    1,   50,   1,    "AP sensing/waypoint rate (Hz); higher = faster swarm, harder flying")
 defParam("altitude",     12,   4,   40,   1,    "formation altitude (m): the 2D plane, or the 3D centre")
@@ -402,6 +403,22 @@ local function apTick(p)
   end
 
   local divisor, sameView, diffView = squareFormationParams(p)
+
+  -- flight levels (3D triangle, layerGain > 0): close packing is flat
+  -- triangular layers sqrt(2/3) x spacing apart. The levels' vertical offset
+  -- comes from the drones' own altitudes (circular mean of height modulo the
+  -- spacing); each drone is pulled gently toward its nearest level. As in
+  -- Formations-*.lua's layerPhase().
+  local layered = is3D and not isSquareFormation and p.layerGain > 0
+  local layerY0, layerH = 0, p.sep * math.sqrt(2 / 3)
+  if layered then
+    local cx_, cy_ = 0, 0
+    for _, d in ipairs(seen) do
+      local a = 2 * math.pi * d.ay / layerH
+      cx_, cy_ = cx_ + math.cos(a), cy_ + math.sin(a)
+    end
+    layerY0 = math.atan2(cy_, cx_) * layerH / (2 * math.pi)
+  end
   for _, d in ipairs(seen) do
     if d.state == "ap" then
       local fx, fy, fz = 0, 0, 0
@@ -429,6 +446,11 @@ local function apTick(p)
           local f = math.min(OBS_FORCE_MAX, OBS_STIFFNESS * (size - r) * s)
           fx, fz = fx - f * dx / r, fz - f * dz / r
         end
+      end
+
+      if layered then
+        local target = layerY0 + layerH * math.floor((d.ay - layerY0) / layerH + 0.5)
+        fy = fy - p.layerGain * (d.ay - target)
       end
 
       if isGoalEnabled then

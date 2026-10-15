@@ -29,6 +29,7 @@ local Swarm = require "quadcopter.swarm"
 Swarm.run({
   title    = "AP: Lennard-Jones -- quadcopters",
   sepParam = "desiredSeparation",
+  layerGain = 0.05,   -- flight levels in 3D triangle (FIXES.md item 30)
   friction = 0.5,
   params = {
     -- name,                 default, min, max, step, comment

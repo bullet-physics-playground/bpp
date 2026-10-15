@@ -156,7 +156,16 @@ originals.
 - red: crashed
 - grey: landed
 
-**Sliders** beyond the originals': `numDrones`, `metersPerUnit`, `apHz`,
+**Flight levels** (`layerGain`, 3D triangle only): a gentle vertical pull
+toward horizontal levels √(2/3) × the spacing apart, so the 3D "triangle"
+stacks into flat triangular layers (close packing) instead of a jumble.
+It's on by default for both laws: 0.1 for Newtonian and a softer 0.05 for
+Lennard-Jones, which keeps it fluid. Lennard-Jones still crossed the
+obstacle field as fast as without levels, and stayed 2–3 times as mobile
+as Newtonian. Set it to 0 to turn the levels off. See `../FIXES.md`
+item 30.
+
+**Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
 `goalSpeed`, `goalDelay`, `simSpeed`, and the `obstacleField` and
 `propStrikes` checkboxes.
@@ -176,15 +185,17 @@ their props and fall, and can take down drones below them. Untick
 | Lennard-Jones 3D square | 1.011 R, sd 0.045, compact (80 bonds) | 0 |
 | Newtonian 2D triangle | 0.992 R, sd 0.092; still moving at 0.2 m/s | 0 |
 | Newtonian 2D square | 0.980 R, sd 0.105 | 7 |
-| Newtonian 3D triangle | 0.997 R, sd 0.112, no collapsed pairs | 0 on this seed; 0–3 in 3 min on others (see below) |
+| Newtonian 3D triangle | 0.997 R, sd 0.112, no collapsed pairs (old defaults) | 0 on this seed; 0–3 in 3 min on others with the old defaults; 0 on 3 seeds with the new ones (see below) |
 | Newtonian 3D square | 1.016 R, sd 0.118 | 0 |
 
-- **Newtonian 3D loses a few drones on some seeds, field or no field.**
-  This is the originals' 3D Newtonian collapse (`../FIXES.md` item 2).
-  Repulsion is capped at `forceMax` while up to 12 neighbours pull inward,
-  so pairs get pushed together; on drones that is a collision. With no
-  field and no goal, 0 and 3 were lost on two seeds; with the goal on, 2
-  and 6.
+- **Newtonian 3D triangle used to lose a few drones, field or no field.**
+  This was the originals' 3D Newtonian collapse (`../FIXES.md` items 2 and
+  30), and it's fixed by the new 3D-triangle defaults (range 1.25, forceMax
+  5, flight levels).
+  - **Old defaults:** with no field and no goal, 0 and 3 lost on two
+    seeds; with the goal on, 2 and 6; crossing the field, 12.
+  - **New defaults:** with the goal on, 0 / 0 / 0 on three seeds; crossing
+    the field, 1 / 0 on two.
 - **2D launches lose a few drones to AP itself.** In 2D every drone is at
   the same height, so AP's first violent expansion from the compact cluster
   can push a pair within a drone's width. The repulsion is capped at

@@ -171,6 +171,8 @@ local PARAM_INFO = {
                   comment = "ms to wait between simulation steps (0 = as fast as possible)" },
   ticksPerFrame = { min = 1,   max = 100,   step = 1,
                   comment = "algorithm ticks run per rendered frame; raise to fast-forward" },
+  layerGain    = { min = 0,    max = 0.2,   step = 0.005,
+                  comment = "3D triangle only: pull toward flight levels sqrt(2/3) rad apart (0 = off)" },
 }
 
 local function setParam(name, value)
@@ -188,15 +190,16 @@ setParam("numParticles", 50)
 -- with sane bounds before that first call runs.
 setParam("G", 7500)
 setParam("power", 2.5)
-setParam("forceMax", 1.5)
+setParam("forceMax", 5.0)
 setParam("rad", 50)
-setParam("range", 1.5)
+setParam("range", 1.25)
 setParam("friction", 0.6)
 setParam("timeStep", 1)
 setParam("goalForce", 0.25)
 setParam("obstacleSize", 10)
 setParam("delayMs", 16)
 setParam("ticksPerFrame", 1)
+setParam("layerGain", 0)
 
 --------------------------------------------------------------------------
 -- Colors
@@ -369,8 +372,35 @@ end
 -- moveAll(), matching a proper compute-then-move pass (not sequential
 -- mutation mid-loop).
 --------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+-- Flight levels for the 3D triangle formation (layerGain; 0 = off). The
+-- 3D relative of the triangular lattice is close packing: flat triangular
+-- layers stacked sqrt(2/3) rad apart, each sitting in the hollows of the
+-- one below. Each tick the levels' vertical offset is taken from the
+-- particles themselves (the circular mean of y modulo the spacing, so
+-- there is no fixed altitude and no favoured centre), and every particle
+-- gets a soft vertical pull, layerGain x its distance, toward its nearest
+-- level. Within a level the usual force law makes the triangular lattice;
+-- a particle one level up wants distance rad from those below, which puts
+-- it over a hollow, so the stacking comes out of the same law. Particles
+-- can still change level when pushed, and nothing horizontal is touched.
+--------------------------------------------------------------------------
+local function layerPhase(p, sepR)
+  local h = sepR * math.sqrt(2 / 3)
+  local sx, sy = 0, 0
+  for _, q in ipairs(particles) do
+    local a = 2 * math.pi * q.y / h
+    sx, sy = sx + math.cos(a), sy + math.sin(a)
+  end
+  return atan2(sy, sx) * h / (2 * math.pi), h
+end
+
 local function updateParticles(p)
   local squareDivisor, squareSameView, squareDiffView = squareFormationParams(p)
+  local layered = is3D and not isSquareFormation and (p.layerGain or 0) > 0
+  local layerY0, layerH
+  if layered then layerY0, layerH = layerPhase(p, p.rad) end
 
   for _, particle in ipairs(particles) do
     particle.fx, particle.fy, particle.fz = 0, 0, 0
@@ -416,6 +446,11 @@ local function updateParticles(p)
         particle.fy = particle.fy - f * (dy / r)
         particle.fz = particle.fz - f * (dz / r)
       end
+    end
+
+    if layered then
+      local target = layerY0 + layerH * math.floor((particle.y - layerY0) / layerH + 0.5)
+      particle.fy = particle.fy - p.layerGain * (particle.y - target)
     end
 
     if isGoalEnabled then
@@ -578,6 +613,7 @@ local function readParams()
     timeStep = v:getParam("timeStep"),
     goalForce = v:getParam("goalForce"),
     obstacleSize = v:getParam("obstacleSize"),
+    layerGain = v:getParam("layerGain"),
   }
 end
 
@@ -733,10 +769,24 @@ end
 -- were derived from the Java source. Re-applied automatically on every
 -- dimension (2/3) or formation (F) toggle.
 --------------------------------------------------------------------------
+--
+-- 3D TRIANGLE differs from the Java defaults (range 1.5, forceMax 1.5),
+-- which made pairs collapse onto each other (11-16 pairs closer than
+-- rad/2 on every seed tried, some particles with 20-25 neighbours inside
+-- 1.2 rad -- more than the 12 that can touch a sphere). The 3D analogue of
+-- the triangular lattice is close packing: 12 neighbours at rad, the next
+-- shell already at sqrt(2) rad = 1.41 rad. A range of 1.5 reaches into
+-- that shell and pulls it in (the 2D hexagon works because its next shell
+-- is at 1.73 rad), and a repulsion cap of 1.5 can't hold out against 12+
+-- neighbours pulling at once (in 2D there are 6). range 1.25 sits between
+-- the shells; forceMax 5 keeps pairs apart. Measured, 3 seeds: collapsed
+-- pairs 16/12/13 -> 0/0/0, most neighbours inside 1.2 rad 25 -> 13.
+-- layerGain 0.1 (flight levels, see layerPhase()) then stacks the swarm
+-- into clean triangular layers: 49-50 of 50 particles on 4-5 levels.
 local DEFAULTS_BY_MODE = {
   ["2DTriangle"] = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
   ["2DSquare"]   = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
-  ["3DTriangle"] = { G = 7500, power = 2.5, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
+  ["3DTriangle"] = { G = 7500, power = 2.5, range = 1.25, forceMax = 5.0, friction = 0.6, timeStep = 1.0, rad = 50, layerGain = 0.1 },
   ["3DSquare"]   = { G = 7500, power = 2.5, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
 }
 
@@ -750,6 +800,7 @@ local function applyDefaults()
   setParam("rad", d.rad)
   setParam("friction", d.friction)
   setParam("timeStep", d.timeStep)
+  setParam("layerGain", d.layerGain or 0)
   print(string.format(
     "defaults (%s): G=%g power=%g range=%g forceMax=%g rad=%g friction=%g timeStep=%g",
     key, d.G, d.power, d.range, d.forceMax, d.rad, d.friction, d.timeStep))
@@ -1032,6 +1083,7 @@ V         toggle neighbor-connection lines
 pcall(function() v:setHelpText(HELP_TEXT) end)
 
 math.randomseed(os.time())
+applyDefaults()   -- (the header always said this ran at load; now it does)
 updateCamera()
 setup(math.floor(v:getParam("numParticles")))
 

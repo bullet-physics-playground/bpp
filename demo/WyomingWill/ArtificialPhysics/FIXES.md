@@ -2,8 +2,9 @@
 
 Issues found while building and examining the demos in this folder
 (identical copies live in `demo/WyomingWillJakob/ArtificialPhysics/`).
-Items 4 and 5 have been applied to `Uniform_Coverage.lua` in this folder
-(not to the WyomingWillJakob copy); none of the others have.
+Items 4 and 5 have been applied to `Uniform_Coverage.lua` and items 2 and 8
+to `Formations-Newtonian.lua` in this folder (not to the WyomingWillJakob
+copies); the others are not applied unless marked.
 
 ## Behaviour
 
@@ -21,8 +22,12 @@ Items 4 and 5 have been applied to `Uniform_Coverage.lua` in this folder
    essentially on top of each other; 2D and 3D-square do not. Likely cause:
    repulsion is clamped at `forceMax` = 1.5 while up to ~12 neighbours pull
    inward in 3D, so the summed attraction overpowers a capped repulsion.
-   Lennard-Jones never does this. Worth a look at `forceMax`/`G`/`power` for
-   3D, or an uncapped (or higher-capped) repulsive branch.
+   Lennard-Jones never does this.
+   **APPLIED (item 30):** the 3D-triangle defaults are now range 1.25 and
+   forceMax 5. The cause is two-fold. The 3D triangle lattice is close
+   packing, whose second neighbour shell is at √2·rad = 1.41 rad, inside
+   the old range of 1.5, so it was pulled in. And a cap of 1.5 can't hold
+   off 12+ neighbours pulling at once. Collapsed pairs 16/12/13 → 0/0/0.
 
 3. **Newtonian swarm never comes to rest.** Mean speed stays ≈ 0.6 (LJ:
    ≈ 0.002). Expected from the split law — |F| flips sign at `rad` instead of
@@ -81,6 +86,8 @@ Items 4 and 5 have been applied to `Uniform_Coverage.lua` in this folder
 8. `Formations-Newtonian.lua` says `applyDefaults()` is "called once at load";
    it only runs on a dimension (2/3) or formation (F) toggle. Harmless — the
    initial `setParam` values equal the 3D-triangle defaults.
+   **APPLIED:** it now runs at load, so the 3D-triangle defaults of item 30
+   take effect without pressing 2/3 or F.
 9. `Formations-Newtonian.lua` lines 302–307 repeat the same comment twice.
 10. `Uniform_Coverage.lua`: the `numParticles` slider comment still mentions
     the removed R shortcut; `categorySpread()` computes an unused `mean`; the
@@ -254,3 +261,65 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - **Newtonian 3D** still loses 2–12. It does so with no field too, and
       even with no goal (0 and 3 on two seeds over 3 min). That is item 2's
       3D collapse; an earlier "0 lost" for that mode came from one seed.
+30. **3D triangle: collapse fixed, and optional flight levels.**
+    `Formations-Newtonian.lua`, `Formations-Lennard-Jones.lua`, and the
+    quadcopter versions.
+
+    **Geometry.** The 3D relative of the triangular lattice is close
+    packing: flat triangular layers stacked √(2/3)·R ≈ 0.82 R apart, each in
+    the hollows of the one below. That gives 12 neighbours at R; the next
+    shell is at √2·R = 1.41 R. In 2D the hexagon works because range 1.5 R
+    sits between the first shell (R) and the second (1.73 R). In 3D, range
+    1.5 R reaches the √2 shell.
+
+    **Newtonian 3D triangle defaults: range 1.25, forceMax 5.** Original
+    particles, 3 seeds, 4000 ticks:
+
+    | Setting | Collapsed pairs (< R/2) | Most neighbours within 1.2 R |
+    | --- | --- | --- |
+    | range 1.5, forceMax 1.5 (old) | 16 / 12 / 13 | 25 (impossible; 12 can touch) |
+    | range 1.25 | 1 / 0 / 1 | 15 |
+    | forceMax 5 | 0 / 0 / 0 | 20 |
+    | range 1.25 + forceMax 5 (new) | 0 / 0 / 0 | 13 |
+
+    Lennard-Jones doesn't collapse, so its force law and cap are unchanged.
+
+    **Flight levels (`layerGain`, 3D triangle only).** Even without
+    collapse, the 3D "triangle" froze as a glass, with no tiling. Nearest-
+    neighbour forces can't choose between the two close-packed stackings,
+    50 particles is too few for a crystal (small Lennard-Jones clusters
+    prefer icosahedra), and nothing shakes the swarm out of its first
+    arrangement. Flight levels add a soft vertical pull toward horizontal
+    levels √(2/3)·R apart, `layerGain` × the distance. The levels' height
+    offset is taken from the swarm itself (circular mean of height modulo
+    the spacing), so there's no fixed altitude. The ordinary force law
+    then makes a triangular lattice within each level, and puts each level
+    over the hollows of the next. Original particles, 3 seeds:
+    - **Newtonian, layerGain 0.1:** 49–50 of 50 on 4–5 levels (old
+      defaults: 19–22). In-level second neighbours at √3·R rose to up to
+      3.7 per particle (3 = a perfect sheet).
+    - **Lennard-Jones, layerGain 0.05:** 50 of 50 on 5 levels, √3 pairs
+      3.7–4.0 per particle.
+
+    **Lennard-Jones stays fluid.** Rearrangement over 500 ticks while the
+    goal pulls the swarm (3 seeds each):
+
+    | Setting | Mobility |
+    | --- | --- |
+    | Lennard-Jones, no levels | 0.15 R |
+    | Lennard-Jones, levels 0.05 / 0.1 | 0.10 / 0.13 R |
+    | Newtonian, new defaults / with levels | 0.06 / 0.05 R |
+
+    **Defaults:** levels on in 3D triangle for both laws: 0.1 for
+    Newtonian, 0.05 for Lennard-Jones. At 0.05 Lennard-Jones rearranged a
+    little less under the goal's pull (0.10 vs 0.15 R, within the
+    seed-to-seed spread) but stayed 2–3 times as mobile as Newtonian.
+    Set `layerGain` to 0 for the old behaviour.
+
+    **On drones** (quadcopter demos, same defaults):
+    - **Newtonian 3D triangle, no field, goal on, 3 seeds:** 0 / 0 / 0
+      lost (before: 2 and 6 on seeds 1 and 2), all 50 on levels.
+    - **Newtonian 3D, field crossing, 2 seeds:** 1 / 0 lost (before: 12).
+    - **Lennard-Jones 3D, levels 0.05, field crossing, 2 seeds:** 0 / 0
+      lost, all on levels. 42 and 45 drones were through the field at
+      570 s, at least as fast as without levels.

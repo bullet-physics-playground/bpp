@@ -47,10 +47,12 @@ Swarm.run({
     return (modifiedR > p.rad) and -netF or netF
   end,
   defaultsByMode = {
-    ["2DTriangle"] = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
-    ["2DSquare"]   = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
-    ["3DTriangle"] = { G = 7500, power = 2.5, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
-    ["3DSquare"]   = { G = 7500, power = 2.5, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50 },
+    ["2DTriangle"] = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50, layerGain = 0 },
+    ["2DSquare"]   = { G = 1500, power = 2.2, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50, layerGain = 0 },
+    -- (3D triangle: range 1.25 and forceMax 5 against the 3D collapse, and
+    -- flight levels; see Formations-Newtonian.lua's DEFAULTS_BY_MODE)
+    ["3DTriangle"] = { G = 7500, power = 2.5, range = 1.25, forceMax = 5.0, friction = 0.6, timeStep = 1.0, rad = 50, layerGain = 0.1 },
+    ["3DSquare"]   = { G = 7500, power = 2.5, range = 1.5, forceMax = 1.5, friction = 0.6, timeStep = 1.0, rad = 50, layerGain = 0 },
   },
 })
 
