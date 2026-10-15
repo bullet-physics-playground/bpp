@@ -18,7 +18,9 @@
 --                    up on the stem; as it slows it rights itself again
 --   right  (green)   looks the same, but its weight is at the ball's centre:
 --                    it never turns over
--- The white bands show the spin. R spins them again. It's all over in
+-- The white bands show the spin. Above each top a needle points the way
+-- its stem points (its gold tip the stem's end): up while it spins on its
+-- ball, down once it stands on its stem. R spins them again. It's all over in
 -- about a minute and a half.
 --
 -- THE TOP: a ball 3 cm across with a short stem; 15 g, hollow (its moment
@@ -124,7 +126,7 @@ for k = -1, 1 do
           btQuaternion(btVector3(0, 1, 0), -a + math.pi / 2))
   end
 end
-common.setCamera(btVector3(0, 42, 78), btVector3(0, 0, 2))
+common.setCamera(btVector3(0, 24, 74), btVector3(0, 3, 0))
 
 -- ---------------------------------------------------------------------
 -- the tops
@@ -153,6 +155,7 @@ end
 local THETA_BOTH = math.deg(math.acos(-(R - RS) / (R + LS - RS)))
 
 local KEYS = {}
+local NEEDLE_L, NEEDLE_UP = 4, 12
 for _, t in ipairs(TOPS) do
   local m = Mesh(DIR .. t.kind .. "-ball.obj", 0, false)
   local body = btRigidBody(MASS, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1),
@@ -166,7 +169,7 @@ for _, t in ipairs(TOPS) do
   body:setFlags(0)                         -- gyroscopic term: Euler's equations below
   body:setContactProcessingThreshold(0.001)
   local stem = Mesh(DIR .. t.kind .. "-stem.obj", 0, false)
-  stem.col = "#5a3418"
+  stem.col = "#f2d46b"
   stem.collides = false
   v:add(stem)
   local stripe = Mesh(DIR .. t.kind .. "-stripe.obj", 0, false)
@@ -174,6 +177,17 @@ for _, t in ipairs(TOPS) do
   stripe.collides = false
   v:add(stripe)
   t.m, t.body, t.stem, t.stripe = m, body, stem, stripe
+  -- a needle floating above it, pointing the way its stem points, its
+  -- gold tip the stem's end (drawn only; it touches nothing)
+  local nd = Cylinder(0.12, NEEDLE_L, 0)
+  nd.col = "#e8e8e8"
+  nd.collides = false
+  v:add(nd)
+  local tip = Sphere(0.6, 0)
+  tip.col = "#f2d46b"
+  tip.collides = false
+  v:add(tip)
+  t.needle, t.tip = nd, tip
 end
 local function applyMaterials()
   for _, t in ipairs(TOPS) do t.body:setFriction(v:getParam("friction")) end
@@ -292,6 +306,25 @@ v:postSim(function(N)
   for k, top in ipairs(TOPS) do
     copyTrans(top.stem, top.m)
     copyTrans(top.stripe, top.m)
+    -- the needle: above the ball's centre, along the stem
+    do
+      local c = basis(top.body)[2]
+      local px, py, pz = getPosXYZ(top.m)
+      local bx, by, bz = px - c.x * top.A, py - c.y * top.A, pz - c.z * top.A      -- the ball's centre
+      local cy = TABLE_Y + NEEDLE_UP
+      -- turn the cylinder's own axis (z) onto the stem's direction
+      local ax, ay = -c.y, c.x                -- z x c
+      local sn = math.sqrt(ax * ax + ay * ay)
+      local q
+      if sn < 1e-6 then
+        q = (c.z > 0) and btQuaternion(0, 0, 0, 1) or btQuaternion(btVector3(1, 0, 0), math.pi)
+      else
+        q = btQuaternion(btVector3(ax / sn, ay / sn, 0), math.atan2(sn, c.z))
+      end
+      top.needle.trans = btTransform(q, btVector3(bx, cy, bz))
+      top.tip.trans = btTransform(btQuaternion(0, 0, 0, 1),
+                                  btVector3(bx + c.x * NEEDLE_L / 2, cy + c.y * NEEDLE_L / 2, bz + c.z * NEEDLE_L / 2))
+    end
     local th = tiltOf(top)
     top.tilt = th
     local s = stateOf(top, th)
@@ -354,6 +387,8 @@ v:setHelpText(table.concat({
   "Right (green): weight at the ball's centre -- never turns",
   "",
   "All three end stem up again in about a minute and a half.",
+  "Above each top, a needle points the way its stem points;",
+  "its gold tip is the stem's end.",
   "",
   "R   spin them again",
   "Z   slow motion (1/4) <-> real time",

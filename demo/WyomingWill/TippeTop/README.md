@@ -19,6 +19,12 @@ Three tops, each in its own dish:
 All three end stem up again in about a minute and a half. The white bands
 show the spin.
 
+The stem is short, as on a real tippe top, so it is drawn in pale gold to
+stand out against the felt. Above each top, a needle points the way its
+stem points, its gold tip being the stem's end. It points up while the top
+spins on its ball and down once it stands on its stem. The needles are
+only drawn; they touch nothing.
+
 ## Keys
 
 | Key | Action |
