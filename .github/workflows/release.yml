@@ -175,10 +175,25 @@ jobs:
           qmake-qt5
           mingw32-make -j$(nproc)
 
+      - name: Build POV-Ray VFE library
+        run: |
+          set -e
+          PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          cd "$PARENT"
+          git clone https://github.com/POV-Ray/povray --depth=1
+          cd povray/unix
+          ./prebuild.sh
+          cd ..
+          sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' source/core/shape/truetype.cpp
+          ./configure --with-boost=/mingw64 --with-libpng=/mingw64/lib --with-libjpeg=/mingw64/lib --with-libtiff=/mingw64/lib --without-x --disable-sdl
+          cd "$(cygpath -u '${{ github.workspace }}')/povray-linux"
+          qmake-qt5 povvfe.pro
+          mingw32-make -j$(nproc)
+
       - name: Build bpp
         run: |
           set -e
-          qmake-qt5
+          qmake-qt5 "USE_VFE=1"
           mingw32-make -j$(nproc)
 
       - name: Deploy Qt runtime and remaining DLLs
