@@ -146,7 +146,7 @@ originals.
 | V | neighbour lines |
 | W | waypoint markers |
 | T | follow the swarm on/off |
-| P | aim the camera: overview / top-down / close-up (behind one drone, looking past it toward the goal; T frees it) |
+| P | aim the camera: overview / top-down / close-up (starts behind one drone, looking past it toward the goal; then turn it with the mouse) |
 | mouse | drag to orbit, wheel to zoom; following keeps your angle |
 | = / - | simSpeed |
 | M | sound on/off (`soundVolume`) |
