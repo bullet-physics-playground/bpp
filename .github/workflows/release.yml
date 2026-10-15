@@ -185,12 +185,8 @@ jobs:
           PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
           cd "$PARENT"
           git clone https://github.com/POV-Ray/povray --depth=1
-          cd povray/unix
-          ./prebuild.sh
-          cd ..
-          sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' source/core/shape/truetype.cpp
-          ./configure --with-boost=/mingw64 --with-libpng=/mingw64/lib --with-libjpeg=/mingw64/lib --with-libtiff=/mingw64/lib --without-x --disable-sdl
-          cd "$(cygpath -u '${{ github.workspace }}')/povray-linux"
+          git -C povray apply "$(cygpath -u '${{ github.workspace }}')/povray-mingw/mingw-w64-port.patch"
+          cd "$(cygpath -u '${{ github.workspace }}')/povray-mingw"
           qmake-qt5 povvfe.pro
           mingw32-make -j$(nproc)
 
@@ -220,7 +216,10 @@ jobs:
       - name: Build NSIS installer
         run: |
           set -e
-          sed -i 's/^!define VERSION .*/!define VERSION "${{ github.ref_name }}"/' bpp.nsi
+          # GITHUB_REF_NAME can contain '/' on a branch run; bpp.nsi puts
+          # VERSION straight into OutFile, so strip it out of the path.
+          REF="${GITHUB_REF_NAME//\//-}"
+          sed -i "s/^!define VERSION .*/!define VERSION \"${REF}\"/" bpp.nsi
           makensis.exe bpp.nsi
 
       - name: Upload artifact
@@ -302,7 +301,11 @@ jobs:
         run: |
           set -e
           mkdir -p macos-output
-          dmg="macos-output/bpp-${{ github.ref_name }}-macos-arm64.dmg"
+          # A branch name (manual run) can contain '/', which would turn the
+          # dmg path below into a nonexistent subdirectory; sanitize as the
+          # Linux job does for its package version.
+          REF="${GITHUB_REF_NAME//\//-}"
+          dmg="macos-output/bpp-${REF}-macos-arm64.dmg"
           for attempt in 1 2 3 4 5; do
             if hdiutil create -volname bpp -srcfolder release/bpp.app -ov -format UDZO "$dmg"; then
               break
@@ -385,7 +388,9 @@ jobs:
         run: |
           set -e
           mkdir -p macos-output
-          dmg="macos-output/bpp-${{ github.ref_name }}-macos-x86_64.dmg"
+          # See the arm64 job: sanitize a '/' in a branch name out of the path.
+          REF="${GITHUB_REF_NAME//\//-}"
+          dmg="macos-output/bpp-${REF}-macos-x86_64.dmg"
           for attempt in 1 2 3 4 5; do
             if hdiutil create -volname bpp -srcfolder release/bpp.app -ov -format UDZO "$dmg"; then
               break

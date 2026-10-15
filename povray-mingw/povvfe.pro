@@ -15,6 +15,14 @@
 # Built as one combined archive rather than mirroring the core/vfe project
 # split: core and vfe are circularly dependent (see unix/prebuild.sh), and a
 # single archive sidesteps GNU ar/ld link-order problems entirely.
+#
+# Two adjustments to the upstream VS source lists:
+#  * source/povms/povms.c is folded into source/povms/povms.cpp (which merely
+#    #includes it as C++); listing both gives qmake two sources sharing the
+#    object basename "povms", and qmake silently drops one instead of erroring.
+#  * winconsole_shim.cpp supplies pov_frontend::MinimizeShellouts() and
+#    ShelloutsPermitted(), which upstream defines in vfe/win/console/
+#    winconsole.cpp -- a file that also contains a console main().
 
 TEMPLATE = lib
 CONFIG += staticlib c++11 warn_off
@@ -208,7 +216,6 @@ SOURCES += \
     $$POVRAY/source/parser/reservedwords.cpp \
     $$POVRAY/source/parser/scanner.cpp \
     $$POVRAY/source/parser/symboltable.cpp \
-    $$POVRAY/source/povms/povms.c \
     $$POVRAY/source/povms/povms.cpp \
     $$POVRAY/source/povms/povmscpp.cpp \
     $$POVRAY/source/povms/povmsutil.cpp \
@@ -219,4 +226,5 @@ SOURCES += \
     $$POVRAY/vfe/vfedisplay.cpp \
     $$POVRAY/vfe/vfepovms.cpp \
     $$POVRAY/vfe/vfesession.cpp \
-    $$POVRAY/vfe/win/vfeplatform.cpp
+    $$POVRAY/vfe/win/vfeplatform.cpp \
+    $$PWD/winconsole_shim.cpp
