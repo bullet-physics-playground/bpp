@@ -6471,20 +6471,32 @@ void Viewer::startVfeQuickRender(const QString &sceneName, const QString &sceneD
   // exists here) -- add it explicitly. povray/distribution/include is the
   // sibling checkout's copy; this is a dev-tree assumption specific to this
   // prototype, not something that survives packaging.
+  // POV-Ray's own standard include library (colors.inc, textures.inc, etc)
+  // is not implicit for an embedded VFE session the way it is for a real
+  // install. Try the obvious checkout-relative locations first, then walk
+  // far enough up from the .app binary / launch directory to reach a
+  // sibling povray/ checkout (bpp/release/bpp.app/Contents/MacOS needs
+  // four levels up to land back at bpp/'s parent), and finally a few
+  // install prefixes.
   QStringList vfeIncludeCandidates;
-  vfeIncludeCandidates << QDir(startupWorkingDir()).absoluteFilePath("../povray/distribution/include");
-  // applicationDirPath() is bpp.exe's own directory (bpp/release or
-  // bpp/debug), so povray/ as a sibling checkout of bpp/ needs two levels
-  // up, not one -- this candidate only exists to cover launches where the
-  // CWD isn't the bpp repo root (e.g. double-clicking the exe), so getting
-  // its relative path wrong silently defeats the whole fallback.
-  vfeIncludeCandidates << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../povray/distribution/include");
+  vfeIncludeCandidates << QDir(startupWorkingDir()).absoluteFilePath("../povray/distribution/include")
+                      << QDir(startupWorkingDir()).absoluteFilePath("../povray/include")
+                      << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../../povray/distribution/include")
+                      << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../../povray/include")
+                      << QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../povray/distribution/include")
+                      << "/opt/homebrew/share/povray-3.7/include"
+                      << "/usr/local/share/povray-3.7/include"
+                      << "/usr/share/povray-3.7/include"
+                      << "/usr/share/povray/include";
+  bool vfeIncludesAdded = false;
   for (const QString &candidate : vfeIncludeCandidates) {
     if (QDir(candidate).exists()) {
       opts.AddLibraryPath(QDir(candidate).absolutePath().toStdString());
+      vfeIncludesAdded = true;
       break;
     }
   }
+  Q_UNUSED(vfeIncludesAdded);
 
   // bpp's shipped include library (settings.inc, bpp_CIE.inc, etc.) is not
   // implicit in an embedded VFE session, so add every place it can live the
