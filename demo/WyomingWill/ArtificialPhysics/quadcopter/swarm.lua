@@ -911,8 +911,8 @@ end
 -- actions (global, so they can also be typed into the command line)
 --------------------------------------------------------------------------
 local function applyDefaults()
-  -- 3D cube launches in thirds, top level first (FIXES.md item 33)
-  setParam("launchOrder", (is3D and isSquareFormation) and 1 or 0)
+  -- 3D launches in thirds, top level first (FIXES.md item 33)
+  setParam("launchOrder", is3D and 1 or 0)
   if not cfg.defaultsByMode then return end
   local key = (is3D and "3D" or "2D") .. (isSquareFormation and "Square" or "Triangle")
   local dflt = cfg.defaultsByMode[key]
@@ -1187,7 +1187,7 @@ end)
 local HELP_TEXT = [[
 S        start/stop the simulation
 R        Setup: new launch cluster (launchOrder: all
-         at once, or in thirds -- 3D cube default:
+         at once, or in thirds -- 3D default:
          top level first -- or one at a time)
 2 / 3    2D / 3D formation (re-launches)
 

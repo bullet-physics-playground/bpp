@@ -133,7 +133,7 @@ originals.
 | Key | Action |
 | --- | --- |
 | S | start/stop |
-| R | new launch (in the order `launchOrder` says) |
+| R | new launch (in the order `launchOrder` says; 3D: in thirds, top level first) |
 | 2 / 3 | 2D / 3D |
 | ] | launch one more drone; it climbs into the formation |
 | [ | a drone leaves the formation and lands |
@@ -187,30 +187,35 @@ their props and fall, and can take down drones below them. Untick
 
 | Value | Order |
 | --- | --- |
-| 0 | all at once, each drone to a random height in a band around `altitude` (the originals' cube) |
-| 1 | in thirds, `launchGap` s apart, top level first, then the middle, then the bottom (3D cube default) |
+| 0 | all at once, each drone to a random height in a band around `altitude` (the originals' cube; 2D default) |
+| 1 | in thirds, `launchGap` s apart, top level first, then the middle, then the bottom (3D default) |
 | 2 | in thirds, bottom level first |
 | 3 | in thirds, each to random heights |
 | 4 | one drone at a time, over the same total time |
 
 AP starts once the first group is up, and later drones join as they
 reach their height. The goal's `goalDelay` counts from when the last
-drone has joined. 3D cube, 50 drones, 3 seeds, share of square angles
-between neighbours at 150 s:
+drone has joined.
 
-| Launch | Lennard-Jones, no goal | Newtonian, no goal | Lennard-Jones, goal + field | Newtonian, goal + field |
-| --- | --- | --- | --- | --- |
-| all at once | 99 / 91 / 97% | 82 / 93 / 70% | 83 / 85 / 83% | 64 / 68 / 62% |
-| thirds, top first | 91 / 88 / 94% | 90 / 95 / 95% | 86 / 88 / 90% | 76 / 100 / 89% |
-| thirds, bottom first | 87 / 83 / 93%, 5 crashed | 75 / 91 / 91%, 4 crashed | | |
-| thirds, random heights | 99 / 86 / 91% | 77 / 75 / 95%, 2 crashed | | |
-| one at a time | 93 / 92 / 88%, 4 crashed | 65 / 89 / 83%, 4 crashed | | |
+Measured on 50 drones, 3 seeds per order and law:
 
-Top first is the only order that builds three even levels every time
-(16 / 17 / 17 drones), and it never crashed. All at once makes a lopsided
-stack, such as 2 / 19 / 25 / 4. Bottom first and one at a time lose
-drones: later ones climb up through the levels already formed. In 2D and
-the 3D triangle the default stays 0. See `../FIXES.md` item 33.
+- **Shape:** top first is the only order that builds three even levels
+  every time (16 / 17 / 17 drones), in both the cube and the triangle.
+  All at once makes lopsided stacks such as 2 / 19 / 25 / 4.
+- **Safety:** top first never crashed. Bottom first and one at a time
+  lose drones, because later ones climb up through the levels already
+  formed.
+- **Lattice quality:** after the same time under the goal (about 90 s,
+  goal and field on), top first:
+  - **Cube:** clearly better for Newtonian (square angles 76 / 100 / 89%
+    against 71 / 69 / 61%). Mixed for Lennard-Jones (86 / 88 / 90%
+    against 97 / 81 / 69%).
+  - **Triangle:** roughly a tie (in-level triangle angles 89 / 84 / 95% and
+    87 / 73 / 86%, against 92 / 85 / 75% and 91 / 78 / 70%).
+
+  Top first has no bad runs; all at once sometimes does.
+
+See `../FIXES.md` item 33 for every order.
 
 **Sound** (`sound.lua`, `soundVolume`, M mutes): you hear the swarm from
 the camera. Every rotor buzzes at its blade-passing frequency (2 blades ×

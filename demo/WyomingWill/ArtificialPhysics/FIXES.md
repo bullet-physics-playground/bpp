@@ -396,8 +396,8 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     Jones drone run flattened into two full levels of about 20 with a few
     drones above and below, rather than a 4×4×3 block.
 
-33. **3D cube: launch order matters. Thirds, top level first, is now the
-    default.**
+33. **3D launches: launch order matters. Thirds, top level first, is now
+    the 3D default.**
     The initial setup decides a lot. A new `launchOrder` setting
     (quadcopter demos) launches:
 
@@ -409,22 +409,41 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     AP starts when the first group is up, and later drones join as they
     arrive. `goalDelay` now counts from when the last drone joined.
 
-    50 drones, 3 seeds per order per law. With flight levels on (item
-    32), share of square angles at 150 s:
+    50 drones, 3 seeds per order per law, flight levels on (items 30 and
+    32). At 150 s: the cube's share of square angles between neighbours,
+    and the triangle's share of triangle angles (60°, 120°, 180°) within a
+    level. "Lost" counts all three runs together.
 
-    - **Thirds, top first:** the only order that gives three even levels
-      every time (16 / 17 / 17), and no crashes. With the goal and field:
-      Lennard-Jones 86 / 88 / 90%, Newtonian 76 / 100 / 89%. All at once
-      gave 83 / 85 / 83% and 64 / 68 / 62%, with lopsided stacks such as
-      2 / 19 / 25 / 4.
-    - **Without the goal:** top first 91 / 88 / 94% (Lennard-Jones) and
-      90 / 95 / 95% (Newtonian). All at once 99 / 91 / 97% and
-      82 / 93 / 70%. Lennard-Jones all at once scores a little higher, but
-      only because a lopsided stack of mostly two levels has fewer places
-      to go wrong.
-    - **Bottom first and one at a time:** 4–5 drones lost per three runs.
-      Later drones climb up through the levels already formed.
-    - **Thirds at random heights:** no better than all at once.
+    **No goal:**
 
-    Default `launchOrder` 1 in 3D cube, 0 in every other mode (set on
-    2/3 and F; press R to relaunch).
+    | Order | Cube, Lennard-Jones | Cube, Newtonian | Triangle, Lennard-Jones | Triangle, Newtonian |
+    | --- | --- | --- | --- | --- |
+    | all at once | 99 / 91 / 97% | 82 / 93 / 70% | 88 / 98 / 98% | 90 / 79 / 76% |
+    | thirds, top first | 91 / 88 / 94% | 90 / 95 / 95% | 95 / 96 / 73% | 81 / 79 / 89% |
+    | thirds, bottom first | 87 / 83 / 93%, 5 lost | 75 / 91 / 91%, 4 lost | 65 / 68 / 77%, 8 lost | 64 / 60 / 84% |
+    | thirds, random heights | 99 / 86 / 91% | 77 / 75 / 95%, 2 lost | 78 / 97 / 96%, 4 lost | 96 / 95 / 84% |
+    | one at a time | 93 / 92 / 88%, 4 lost | 65 / 89 / 83%, 4 lost | 83 / 86 / 89%, 8 lost | 78 / 85 / 63% |
+
+    **Goal and obstacle field on.** The goal starts later after a staged
+    launch, so top first at 150 s is compared with all at once at 120 s.
+    Both have then been under the goal for about 90 s:
+
+    | Order | Cube, Lennard-Jones | Cube, Newtonian | Triangle, Lennard-Jones | Triangle, Newtonian |
+    | --- | --- | --- | --- | --- |
+    | all at once | 97 / 81 / 69% | 71 / 69 / 61% | 92 / 85 / 75% | 91 / 78 / 70% |
+    | thirds, top first | 86 / 88 / 90% | 76 / 100 / 89% | 89 / 84 / 95% | 87 / 73 / 86% |
+
+    **Conclusions:**
+
+    - **Shape:** top first is the only order that gives three even levels
+      every time (16 / 17 / 17), in both formations. All at once makes
+      lopsided stacks such as 2 / 19 / 25 / 4.
+    - **Safety:** top first never lost a drone.
+    - **Lattice quality:** about the same as all at once overall, but
+      without the bad runs. The exception is the Newtonian cube, where top
+      first is clearly better.
+    - **Bottom first and one at a time:** later drones climb up through
+      the levels already formed and lose drones.
+
+    Default `launchOrder` 1 in 3D, 0 in 2D (set on 2/3 and F; press R to
+    relaunch).
