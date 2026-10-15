@@ -200,3 +200,24 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     new script loads. The quadcopter demos show their mode there, so the
     Shortcuts pane keeps a static key list. A separate "Info" dock for
     several lines of live state is an idea for later.
+26. **Sliders missing after switching scripts (fixed in `src/viewer.cpp`).**
+    `v:showParams(prefix)` makes the Parameters pane show only sliders whose
+    names start with `prefix`. The Cabinet uses it ("Cabinet: ", then each
+    exhibit's prefix). The filter was never reset when another script was
+    loaded, so after visiting the Cabinet every script opened later in the
+    same session showed an empty Parameters pane. The sliders existed but
+    were filtered out, until BPP was restarted. Now `clearParams()` and
+    `clear()` (every load, reload and restart) reset the filter and the old
+    script's slider ranges. The Cabinet is unaffected: it sets its filter
+    again when it starts, including after Restart.
+27. **Rebuilding on another day can make gcc read the executable as C++.**
+    (Not fixed.) `bpp.pro` passes `BUILDDATE`/`BUILDTIME` as `-D` flags to
+    every file, and the precompiled header `release/bpp.gch` is rebuilt only
+    when `src/pch.h` changes. After re-running `qmake` on a different day,
+    gcc rejects the old precompiled header ("not used because `BUILDDATE'
+    defined as ..."). It then falls back to `-include release/bpp`, and on
+    Linux that is the bpp executable. The result is hundreds of thousands
+    of "stray '\177'" errors and a log growing by gigabytes. Workaround:
+    `rm -rf release/bpp.gch` before `make`, or `make clean`. Possible fixes:
+    give the macros to `gui.cpp` alone (the About box is their only use),
+    or make the precompiled header depend on the Makefile.

@@ -2908,6 +2908,8 @@ void Viewer::clear() {
   freeMerge();                           // (before the objects go)
 
   _params.clear();
+  _paramInfo.clear();
+  _paramFilter.clear();   // (a script's showParams() filter goes with it)
   emit paramsChanged();
 
   // Notify all objects that their luabind weak pointers are about to become
@@ -5549,8 +5551,13 @@ QHash<QString, QVariant> Viewer::getShownParams() const {
   return shown;
 }
 
+// (also forgets the old script's ranges and its showParams() filter: a
+// filter left over from a script that set one -- the Cabinet does -- hid
+// every slider of whatever was opened next)
 void Viewer::clearParams() {
   _params.clear();
+  _paramInfo.clear();
+  _paramFilter.clear();
   emit paramsChanged();
 }
 
