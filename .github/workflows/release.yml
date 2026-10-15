@@ -184,7 +184,7 @@ jobs:
           sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' povray/source/core/shape/truetype.cpp
           sed -i 's/  #error "Currently not supported."/  \/\/ #error "Currently not supported."/' povray/windows/povconfig/syspovconfig.h
           # Allow x64 MinGW builds (syspovconfig expects _M_X64/_M_AMD64)
-          sed -i 's/DEFINES += _CONSOLE OPENEXR_MISSING BUILDING_AMD64/DEFINES += _CONSOLE OPENEXR_MISSING BUILDING_AMD64 _M_X64/' povray-mingw/povvfe.pro
+          sed -i 's/DEFINES += _CONSOLE OPENEXR_MISSING BUILDING_AMD64/DEFINES += _CONSOLE OPENEXR_MISSING BUILDING_AMD64 _M_X64/' "$(cygpath -u '${{ github.workspace }}')/povray-mingw/povvfe.pro"
           cd "$(cygpath -u '${{ github.workspace }}')/povray-mingw"
           qmake-qt5 povvfe.pro
           mingw32-make -j$(nproc)
