@@ -1515,6 +1515,24 @@ void Viewer::wheelEvent(QWheelEvent *e) {
     update();
     return;
   }
+  // The main (perspective) view, wheel alone: each click moves the camera
+  // 10% of the way towards the pivot's depth, along its view. QGLViewer's
+  // own step is never less than a fifth of the scene's radius, so in a big
+  // scene one click could jump metres, and the camera could never ease up
+  // to something small. (Clicks the other way move it back by the same
+  // factor; modified wheels are QGLViewer's as before.)
+  if (e->modifiers() == Qt::NoModifier &&
+      camera()->type() == qglviewer::Camera::PERSPECTIVE) {
+    const qreal notches = e->angleDelta().y() / 120.0;
+    const qreal depth =
+        qMax(qreal(fabs(camera()->frame()->coordinatesOf(camera()->pivotPoint()).z)),
+             qreal(0.001) * camera()->sceneRadius());
+    const qreal step = depth * (1.0 - pow(0.9, notches));
+    camera()->setPosition(camera()->position() + camera()->viewDirection() * step);
+    e->accept();
+    update();
+    return;
+  }
   QGLViewer::wheelEvent(e);
 }
 
@@ -3037,6 +3055,7 @@ void Viewer::clear() {
     _cam->setPostSDL(QString());
     _cam->setUseFocalBlur(0);
     _cam->setUpVector(btVector3(0, 1, 0), true);
+    _cam->setPivotPoint(_cam->sceneCenter());   // (following the scene again, till it's chosen)
   }
 
   // Matches the POV-Ray light_source <500,500,-500> in includes/settings.inc.
@@ -3310,7 +3329,17 @@ void Viewer::computeBoundingBox() {
   qglviewer::Vec qmin(_aabb[0], _aabb[1], _aabb[2]);
   qglviewer::Vec qmax(_aabb[3], _aabb[4], _aabb[5]);
 
+  // (QGLViewer's setSceneCenter() also moves the pivot to the scene's
+  // centre. Done every frame, that would undo any pivot that was chosen --
+  // by a script's cam.look or cam.pivot, or by Shift + right click -- and
+  // in a big scene the mouse would orbit, zoom and pan about a point far
+  // from what's shown. So a pivot that isn't the scene's centre is kept;
+  // one that is, follows it, as before.)
+  const qglviewer::Vec pivot = camera()->pivotPoint();
+  const bool keepPivot = (pivot - camera()->sceneCenter()).norm() > 0.0;
   setSceneBoundingBox(qmin, qmax);
+  if (keepPivot)
+    camera()->setPivotPoint(pivot);
 
   // The scene changed, so the SpaceNavigator orbit distance is stale.
   _snOrbitDist = 0.0;

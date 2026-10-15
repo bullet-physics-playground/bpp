@@ -98,6 +98,9 @@ public:
    * A non-finite position is ignored, so a script computing a look-at point
    * from a diverging simulation cannot destroy the view.
    *
+   * The point also becomes the pivot, so the mouse orbits around what the
+   * script is showing, and zooms and pans at a rate fitted to its distance.
+   *
    * @param v The point to look at.
    */
   void setLookAt(const btVector3 &v);
@@ -121,6 +124,9 @@ public:
 
   /**
    * @brief Sets the point the mouse orbits around (QGLViewer's pivot).
+   *
+   * It stays there (see Viewer::computeBoundingBox()) until it's set again:
+   * by a script, by setLookAt(), or by Shift + right click on a point.
    *
    * A script that follows a moving subject can move the pivot with it, so
    * that orbiting with the mouse turns around the subject.

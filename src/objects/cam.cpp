@@ -71,6 +71,12 @@ Cam::Cam(QObject *parent) : Camera() {
   _focalPoint = btVector3(0, 0, 0);
   _focalAperture = 0.0;
   _lookAt = btVector3(0, 0, 0);
+
+  // (the near clipping plane, when the camera is inside the scene, at
+  // 0.002 * sqrt(3) * the scene's radius rather than QGLViewer's 0.005:
+  // in a large scene, such as Euler's Cabinet, 35 m long, that's 9 cm, not
+  // 23, so a small thing can be looked at closely)
+  setZNearCoefficient(0.002);
 }
 
 Cam::~Cam() {
@@ -159,6 +165,7 @@ void Cam::setLookAt(const btVector3 &v) {
   if (isfinite(v[0]) && isfinite(v[1]) && isfinite(v[2])) {
     Camera::lookAt(Vec(v[0], v[1], v[2]));
     _lookAt = v;
+    Camera::setPivotPoint(Vec(v[0], v[1], v[2]));
   }
 }
 
