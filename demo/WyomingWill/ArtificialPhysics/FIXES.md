@@ -221,3 +221,16 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     `rm -rf release/bpp.gch` before `make`, or `make clean`. Possible fixes:
     give the macros to `gui.cpp` alone (the About box is their only use),
     or make the precompiled header depend on the Makefile.
+28. **The Open/Save dialog sometimes appeared behind the BPP window (fixed in
+    `src/code.cpp`).** The script dialogs were owned by the script editor
+    widget, so their owner window was whichever window held the editor.
+    That is the main window normally, but it is the separate window of the
+    "LUA Script" pane once that pane has been undocked. A dialog owned by
+    the floating pane is kept in front of that pane only, so it could slip
+    behind the main window as soon as the main window came forward. Checked
+    on X11 (`WM_TRANSIENT_FOR`): docked, the dialog belonged to the main
+    window; floating, to the "LUA Script" window. The dialogs now always
+    belong to the main window. Two other things can still put a window in
+    front of a dialog: a floating Parameters pane is deliberately set to
+    stay on top, and on some Windows/OpenGL drivers a full-screen BPP window
+    (View → Fullscreen, remembered between sessions) is drawn over popups.

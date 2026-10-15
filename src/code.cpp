@@ -191,11 +191,24 @@ void CodeEditor::clear() {
   emit scriptLoaded();
 }
 
+// The window that should own this editor's file dialogs: the application's
+// main window, even when the editor sits in a dock that has been undocked
+// into a window of its own. A dialog owned by such a floating dock is kept in
+// front of that dock only, so it could disappear behind the main window as
+// soon as the main window came forward. (A floating dock's parent is still
+// the main window, so walking up the parents finds it.)
+static QWidget *dialogOwner(QWidget *w) {
+  for (QWidget *p = w; p; p = p->parentWidget())
+    if (qobject_cast<QMainWindow *>(p))
+      return p;
+  return w;
+}
+
 bool CodeEditor::load(QString filename) {
   if (filename.isEmpty()) {
     filename = QString(".lua");
     filename =
-        QFileDialog::getOpenFileName(this, "Open a script", script_filename,
+        QFileDialog::getOpenFileName(dialogOwner(this), "Open a script", script_filename,
                                      "Lua source (*.lua);;All files (*)");
     if (filename.isEmpty())
       return false;
@@ -227,7 +240,7 @@ QMessageBox::warning(this, tr("Application error"),
 
 bool CodeEditor::saveAs(QString filename) {
   if (filename.isEmpty()) {
-    QFileDialog dialog(this, tr("Save a script"), script_filename,
+    QFileDialog dialog(dialogOwner(this), tr("Save a script"), script_filename,
                        tr("Lua source (*.lua);;All files (*)"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setDefaultSuffix("lua");
