@@ -130,9 +130,25 @@ void Prefs::setupPages() {
   // LUA paths always use forward slashes; search CWD/demo first, then installed
   QString defaultLuaPath = getDefaultLuaPath();
 
-  this->defaultmap["lua/path"] =
-      _settings->value("lua/path", defaultLuaPath)
-          .toString();
+  QString storedLuaPath = _settings->value("lua/path").toString();
+  QString effectiveLuaPath = storedLuaPath;
+  if (storedLuaPath.isEmpty()) {
+    effectiveLuaPath = defaultLuaPath;
+  } else {
+    bool allExist = true;
+    for (const QString &entry : storedLuaPath.split(';', Qt::SkipEmptyParts)) {
+      QString dir = entry;
+      dir.replace("?.lua", "");
+      if (!QDir(dir).exists()) {
+        allExist = false;
+        break;
+      }
+    }
+    if (!allExist)
+      effectiveLuaPath = defaultLuaPath;
+  }
+
+  this->defaultmap["lua/path"] = effectiveLuaPath;
   this->defaultmap["editor/languageServer"] = _settings
                                                   ->value("editor/languageServer",
                                                           "lua-language-server")
@@ -205,13 +221,12 @@ void Prefs::setupPages() {
 
   QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA -CC").arg(defaultIncludes);
 
-  QString povray = _settings->value("povray/executable", systemPovExe).toString();
+  QString povray = _settings->value("povray/executable").toString();
+  if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))
+    povray = systemPovExe;
   QString opts =   _settings->value("povray/preview", defaultPreview).toString();
 
-  this->defaultmap["povray/executable"] =
-      _settings
-          ->value("povray/executable", povray)
-          .toString();
+  this->defaultmap["povray/executable"] = povray;
 
   this->defaultmap["povray/preview"] =
       _settings->value("povray/preview", opts).toString();
@@ -255,8 +270,10 @@ void Prefs::setupPages() {
   if (systemOpenScadExe.isEmpty())
     systemOpenScadExe = defaultOpenScadExe;
 
-  this->defaultmap["openscad/executable"] =
-      _settings->value("openscad/executable", systemOpenScadExe).toString();
+  QString storedScad = _settings->value("openscad/executable").toString();
+  if (storedScad.isEmpty() || !QFileInfo(storedScad).exists())
+    storedScad = systemOpenScadExe;
+  this->defaultmap["openscad/executable"] = storedScad;
 
   connect(this->checkOpenLast, &QCheckBox::toggled, this,
           &Prefs::guiOpenLastFileChanged);

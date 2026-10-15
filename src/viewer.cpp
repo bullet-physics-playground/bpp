@@ -2755,7 +2755,22 @@ emit scriptStarts();
 
     // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
     QString defaultPath = getDefaultLuaPath(_scriptBasePath);
-    QString path = _settings->value("lua/path", defaultPath).toString();
+    QString path = _settings->value("lua/path").toString();
+    if (path.isEmpty()) {
+      path = defaultPath;
+    } else {
+      bool allExist = true;
+      for (const QString &entry : path.split(';', Qt::SkipEmptyParts)) {
+        QString dir = entry;
+        dir.replace("?.lua", "");
+        if (!QDir(dir).exists()) {
+          allExist = false;
+          break;
+        }
+      }
+      if (!allExist)
+        path = defaultPath;
+    }
     QString p = QString("package.path = package.path..\";%1\"").arg(path);
 
     int error =
@@ -6246,7 +6261,9 @@ void Viewer::onQuickRender(QString povargs) {
 
   QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA -CC +FN10").arg(defaultIncludes);
 
-  QString povray = _settings->value("povray/executable", systemPovExe).toString();
+  QString povray = _settings->value("povray/executable").toString();
+  if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))
+    povray = systemPovExe;
   QString opts =   _settings->value("povray/preview", defaultPreview).toString();
 
   args << opts.split(" ");
