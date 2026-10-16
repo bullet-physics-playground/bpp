@@ -136,6 +136,7 @@ jobs:
           install: >-
             git
             base-devel
+            autotools
             unzip
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-qt5
@@ -150,6 +151,9 @@ jobs:
             mingw-w64-x86_64-bullet
             mingw-w64-x86_64-angleproject
             mingw-w64-x86_64-freeglut
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-libjpeg-turbo
+            mingw-w64-x86_64-libtiff
             mingw-w64-x86_64-nsis
 
       # luabind and libQGLViewer are custom/forked builds not packaged by
@@ -181,12 +185,13 @@ jobs:
           PARENT="$(dirname "$(cygpath -u '${{ github.workspace }}')")"
           cd "$PARENT"
           git clone https://github.com/POV-Ray/povray --depth=1
-          cd povray/unix
-          ./prebuild.sh
-          cd ..
-          sed -i 's/#if !defined(TARGET_OS_MAC)/#if 1/' source/core/shape/truetype.cpp
-          ./configure --with-boost=/mingw64 --with-libpng=/mingw64/lib --with-libjpeg=/mingw64/lib --with-libtiff=/mingw64/lib --without-x --disable-sdl
-          cd "$(cygpath -u '${{ github.workspace }}')/povray-linux"
+          # actions/checkout runs under Git for Windows (autocrlf=true), so the
+          # committed-LF patch is checked out as CRLF, while the POV-Ray clone
+          # (MSYS2 git, autocrlf off) stays LF. A CRLF patch fails every
+          # modification hunk against the LF tree, so normalize to LF first.
+          sed 's/\r$//' "$(cygpath -u '${{ github.workspace }}')/povray-mingw/mingw-w64-port.patch" > /tmp/mingw-w64-port.patch
+          git -C povray apply /tmp/mingw-w64-port.patch
+          cd "$(cygpath -u '${{ github.workspace }}')/povray-mingw"
           qmake-qt5 povvfe.pro
           mingw32-make -j$(nproc)
 
@@ -216,7 +221,10 @@ jobs:
       - name: Build NSIS installer
         run: |
           set -e
-          sed -i 's/^!define VERSION .*/!define VERSION "${{ github.ref_name }}"/' bpp.nsi
+          # GITHUB_REF_NAME can contain '/' on a branch run; bpp.nsi puts
+          # VERSION straight into OutFile, so strip it out of the path.
+          REF="${GITHUB_REF_NAME//\//-}"
+          sed -i "s/^!define VERSION .*/!define VERSION \"${REF}\"/" bpp.nsi
           makensis.exe bpp.nsi
 
       - name: Upload artifact
@@ -298,8 +306,21 @@ jobs:
         run: |
           set -e
           mkdir -p macos-output
-          hdiutil create -volname bpp -srcfolder release/bpp.app -ov \
-            -format UDZO "macos-output/bpp-${{ github.ref_name }}-macos-arm64.dmg"
+          # A branch name (manual run) can contain '/', which would turn the
+          # dmg path below into a nonexistent subdirectory; sanitize as the
+          # Linux job does for its package version.
+          REF="${GITHUB_REF_NAME//\//-}"
+          dmg="macos-output/bpp-${REF}-macos-arm64.dmg"
+          for attempt in 1 2 3 4 5; do
+            if hdiutil create -volname bpp -srcfolder release/bpp.app -ov -format UDZO "$dmg"; then
+              break
+            fi
+            echo "hdiutil create failed (attempt $attempt); retrying..."
+            hdiutil detach "/Volumes/bpp" -force 2>/dev/null || true
+            rm -f "$dmg"
+            sleep 5
+          done
+          test -f "$dmg"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
@@ -320,7 +341,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install build dependencies (Homebrew)
-        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut
+        run: brew install qt@5 assimp cmake bullet lua boost sdl2 sdl2_mixer freeglut autoconf automake povray libpng jpeg-turbo libtiff
 
       - name: Build luabind (bullet-physics-playground fork)
         run: |
@@ -345,19 +366,46 @@ jobs:
           make -j$(sysctl -n hw.ncpu)
           sudo make install
 
+      - name: Build POV-Ray VFE library
+        run: |
+          set -e
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          PARENT="$(dirname "$GITHUB_WORKSPACE")"
+          cd "$PARENT"
+          git clone https://github.com/POV-Ray/povray --depth=1
+          cd povray/unix
+          ./prebuild.sh
+          cd ..
+          sed -i '' 's/#if !defined(TARGET_OS_MAC)/#if 1/' source/core/shape/truetype.cpp
+          ./configure --with-boost="$(brew --prefix)" --with-libpng="$(brew --prefix libpng)/lib" --with-libjpeg="$(brew --prefix jpeg-turbo)/lib" --with-libtiff="$(brew --prefix libtiff)/lib" --without-x --disable-sdl
+          cd povray-macos 2>/dev/null || cd "$GITHUB_WORKSPACE/povray-macos"
+          qmake povvfe.pro
+          make -j$(sysctl -n hw.ncpu)
+
       - name: Build bpp
         run: |
           set -e
           export PATH="$(brew --prefix qt@5)/bin:$PATH"
-          qmake bpp.pro
+          qmake "USE_VFE=1" bpp.pro
           make -j$(sysctl -n hw.ncpu) release
 
       - name: Package app bundle
         run: |
           set -e
           mkdir -p macos-output
-          hdiutil create -volname bpp -srcfolder release/bpp.app -ov \
-            -format UDZO "macos-output/bpp-${{ github.ref_name }}-macos-x86_64.dmg"
+          # See the arm64 job: sanitize a '/' in a branch name out of the path.
+          REF="${GITHUB_REF_NAME//\//-}"
+          dmg="macos-output/bpp-${REF}-macos-x86_64.dmg"
+          for attempt in 1 2 3 4 5; do
+            if hdiutil create -volname bpp -srcfolder release/bpp.app -ov -format UDZO "$dmg"; then
+              break
+            fi
+            echo "hdiutil create failed (attempt $attempt); retrying..."
+            hdiutil detach "/Volumes/bpp" -force 2>/dev/null || true
+            rm -f "$dmg"
+            sleep 5
+          done
+          test -f "$dmg"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6

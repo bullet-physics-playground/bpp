@@ -31,6 +31,16 @@ official `windows/vs2015/*.vcxproj` MSVC projects.
   minus the MSVC precompiled-header stubs and the AVX/FMA-optimized noise
   code under `platform/x86/` (skipped by not defining
   `TRY_OPTIMIZED_NOISE*` — see `povray/windows/povconfig/syspovconfig_mingw32.h`).
+* [`mingw-w64-port.patch`](mingw-w64-port.patch) — the MinGW port of POV-Ray's
+  Windows configuration, applied to the POV-Ray checkout before building (see
+  below). It adds `windows/povconfig/syspovconfig_mingw32.h`, makes small GCC
+  fixes (`source/base/mathutil.h`, `source/base/textstream.cpp`), and drops
+  `final` from `vfePlatform::vfeWinSession` (`vfe/win/vfeplatform.h`) so bpp
+  can subclass it the way it already subclasses `vfeUnixSession`.
+* [`winconsole_shim.cpp`](winconsole_shim.cpp) — supplies the
+  `pov_frontend::MinimizeShellouts()`/`ShelloutsPermitted()` symbols that
+  upstream defines in `vfe/win/console/winconsole.cpp`, a file that also has a
+  console `main()` and so can't be linked into the library.
 * [`smoketest/`](smoketest) — a minimal console app that renders one scene
   through a `BppVfeSession`/`BppVfeDisplay` pair (the same glue classes bpp
   itself uses, from [`../src/povray/`](../src/povray)) and confirms pixels
@@ -50,7 +60,16 @@ All commands assume the MinGW-w64 toolchain is on `PATH` (e.g.
 `export PATH="/c/msys64/mingw64/bin:$PATH"` in an MSYS2 shell) and are run
 from this directory unless noted.
 
-### 1. The static library
+### 1. Patch the POV-Ray checkout
+
+Upstream has no MinGW configuration, so apply the port patch once after
+cloning (idempotent to re-check, but don't apply it twice to the same tree):
+
+```bash
+git -C ../../povray apply "$PWD/mingw-w64-port.patch"
+```
+
+### 2. The static library
 
 ```bash
 qmake povvfe.pro && mingw32-make -j4
@@ -59,7 +78,7 @@ qmake povvfe.pro && mingw32-make -j4
 Produces `release/libpovvfe.a`. This step needs the POV-Ray checkout but
 not Qt.
 
-### 2. Smoke test (verify the library actually works)
+### 3. Smoke test (verify the library actually works)
 
 ```bash
 cd smoketest
@@ -77,7 +96,7 @@ export PATH="/c/msys64/mingw64/bin:$PATH"
 A `POVINC=<path>` environment variable maps to an extra library path (for
 `colors.inc` etc — see the "missing standard includes" note below).
 
-### 3. Optional: multi-render / cancel harness
+### 4. Optional: multi-render / cancel harness
 
 ```bash
 cd ../tworenders
@@ -86,7 +105,7 @@ export PATH="/c/msys64/mingw64/bin:$PATH"
 ./release/tworenders.exe path/to/scene.pov +W320 +H240 +Oout.png +FN
 ```
 
-### 4. bpp itself, with VFE enabled
+### 5. bpp itself, with VFE enabled
 
 From the `bpp/` root:
 

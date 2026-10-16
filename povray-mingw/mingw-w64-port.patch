@@ -1,0 +1,141 @@
+diff --git a/source/base/mathutil.h b/source/base/mathutil.h
+index 7d1488a..59ad0dd 100644
+--- a/source/base/mathutil.h
++++ b/source/base/mathutil.h
+@@ -44,6 +44,7 @@
+ 
+ // C++ standard header files
+ #include <algorithm>
++#include <limits>
+ 
+ // POV-Ray header files (base module)
+ #include "base/povassert.h"
+diff --git a/source/base/textstream.cpp b/source/base/textstream.cpp
+index aac2dec..361133a 100644
+--- a/source/base/textstream.cpp
++++ b/source/base/textstream.cpp
+@@ -463,7 +463,7 @@ void OTextStream::putchar(int chr)
+ #ifdef POV_NEW_LINE_STRING
+     if (chr == '\n')
+     {
+-        for (char* c = POV_NEW_LINE_STRING; c != '\0'; ++c)
++        for (const char* c = POV_NEW_LINE_STRING; *c != '\0'; ++c)
+             stream->Write_Byte(*c);
+     }
+ #endif
+diff --git a/windows/povconfig/syspovconfig.h b/windows/povconfig/syspovconfig.h
+index fe73f22..f95e66a 100644
+--- a/windows/povconfig/syspovconfig.h
++++ b/windows/povconfig/syspovconfig.h
+@@ -42,7 +42,7 @@
+ #define POVRAY_WINDOWS_SYSPOVCONFIG_H
+ 
+ #ifdef BUILDING_AMD64
+-  #if !defined(_M_AMD64) && !defined(_M_X64)
++  #if !defined(_M_AMD64) && !defined(_M_X64) && !defined(__x86_64__)
+     #error "you are compiling the x64 project using a 32-bit compiler"
+   #endif
+ #else
+@@ -78,7 +78,6 @@
+ #define ReturnAddress()           NULL
+ 
+ #if defined(__MINGW32__)                    /* MinGW GCC */
+-  #error "Currently not supported."
+   #include "syspovconfig_mingw32.h"
+ #elif defined(__WATCOMC__)                  /* Watcom C/C++ C32 */
+   #error "Currently not supported."
+diff --git a/windows/povconfig/syspovconfig_mingw32.h b/windows/povconfig/syspovconfig_mingw32.h
+new file mode 100644
+index 0000000..dd1d586
+--- /dev/null
++++ b/windows/povconfig/syspovconfig_mingw32.h
+@@ -0,0 +1,75 @@
++//******************************************************************************
++///
++/// @file windows/povconfig/syspovconfig_mingw32.h
++///
++/// MinGW-w64 (GCC) compiler-specific POV-Ray compile-time configuration.
++///
++/// This header configures aspects of POV-Ray for compiling in an MSYS2
++/// MinGW-w64 build environment. It is the GCC counterpart of
++/// syspovconfig_msvc.h; it is pulled in by windows/povconfig/syspovconfig.h
++/// when __MINGW32__ is defined.
++///
++/// Intentionally left close to the MSVC header, but:
++///  * no <intrin.h> / _ReturnAddress() / #pragma warning (GCC has none of
++///    those, and syspovconfig.h already defines ReturnAddress() as NULL);
++///  * no __int64/__forceinline/__intN MSVC types -- mapped to the GCC
++///    equivalents;
++///  * TRY_OPTIMIZED_NOISE* and POV_CPUINFO* deliberately NOT defined: they
++///    require POV-Ray's platform/x86/ sources (cpuid.cpp plus the hand-tuned
++///    AVX/AVX2/FMA noise), none of which povray-mingw/povvfe.pro compiles,
++///    and MachineAssembler-free portable noise in
++///    source/core/material/portablenoise.cpp is used instead.
++///
++//******************************************************************************
++
++#ifndef POVRAY_WINDOWS_SYSPOVCONFIG_MINGW32_H
++#define POVRAY_WINDOWS_SYSPOVCONFIG_MINGW32_H
++
++// Integer type names (<cstdint> also makes configbase.h's default
++// POV_OFF_T = std::int_least64_t resolve).
++#include <cstdint>
++
++// GCC version (compiled as C++11, see povray-mingw/povvfe.pro).
++#define POV_CPP11_SUPPORTED               1
++#define POV_COMPILER_VER                  "gcc"
++#define METADATA_COMPILER_STRING          "gcc " __VERSION__
++
++#ifdef _WIN64
++  #define METADATA_PLATFORM_STRING        "x86_64-pc-win"
++#elif defined(__i386__)
++  #define METADATA_PLATFORM_STRING        "i686-pc-win"
++#else
++  #error "Please update syspovconfig_mingw32.h to include this Windows architecture"
++#endif
++
++// Integral type widths. These MUST be single-word typedef names (as in
++// unix/povconfig/syspovconfig.h) rather than multi-word spellings such as
++// MSVC's "unsigned __int16": POV code uses them in functional-cast syntax,
++// e.g. POV_UINT16(x) in source/parser/parser.cpp, which only accepts a
++// simple-type-specifier.
++#define POV_INT8                          int8_t
++#define POV_UINT8                         uint8_t
++#define POV_INT16                         int16_t
++#define POV_UINT16                        uint16_t
++#define POV_INT32                         int32_t
++#define POV_UINT32                        uint32_t
++#define POV_INT64                         int64_t
++#define POV_UINT64                        uint64_t
++
++// Windows is LLP64: long is 32 bits, so a 64-bit POV_LONG needs long long.
++#define POV_LONG                          signed long long
++#define POV_ULONG                         unsigned long long
++#define FORCEINLINE                       inline __attribute__((always_inline))
++
++// No AVX/FMA noise and no CPUID-driven dispatch (see file header): those need
++// platform/x86 sources this build does not compile.
++#undef TRY_OPTIMIZED_NOISE
++#undef TRY_OPTIMIZED_NOISE_AVX
++#undef TRY_OPTIMIZED_NOISE_AVX_PORTABLE
++#undef TRY_OPTIMIZED_NOISE_AVXFMA4
++#undef TRY_OPTIMIZED_NOISE_AVX2FMA3
++#undef POV_CPUINFO
++#undef POV_CPUINFO_DETAILS
++#undef POV_CPUINFO_H
++
++#endif // POVRAY_WINDOWS_SYSPOVCONFIG_MINGW32_H
+
+diff --git a/vfe/win/vfeplatform.h b/vfe/win/vfeplatform.h
+index 84df777f..f1de32d1 100644
+--- a/vfe/win/vfeplatform.h
++++ b/vfe/win/vfeplatform.h
+@@ -85,7 +85,7 @@ namespace vfePlatform
+   ///////////////////////////////////////////////////////////////////////
+   // most of the methods in vfeWinSession are derived from vfeSession.
+   // see vfeSession for documentation for those cases.
+-  class vfeWinSession final : public vfeSession
++  class vfeWinSession : public vfeSession
+   {
+     public:
+ 

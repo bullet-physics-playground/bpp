@@ -91,9 +91,11 @@ contains(DEFINES, WIN32_LINK_BOOST) {
   # link ?
 }
 
-# POV-Ray VFE embedding prototype (see povray-mingw/povvfe.pro
-# Gated behind
-# the povray/useVFE setting at runtime; this block only wires the build.
+# POV-Ray VFE embedding on Windows -- see povray-mingw/README.md.
+# Windows builds POV-Ray's native Windows glue (vfe/win, platform/windows,
+# windows/povconfig) under MSYS2 MinGW-w64 via povray-mingw/povvfe.pro, patched
+# for MinGW by povray-mingw/mingw-w64-port.patch. Gated behind the
+# povray/useVFE setting at runtime; this block only wires the build.
 contains(DEFINES, WIN32_LINK_POVVFE) {
 
   WIN32_DIR_POVRAY = $$HOME/povray
