@@ -525,7 +525,7 @@ This revises the plan's order using what the book says.
 
 | Step | Work | Why now |
 | --- | --- | --- |
-| 0 | **G2 RNG + G3 batch runner + G1 monitors**, then Ch. 2's three tests | Every measurement after this depends on them; small |
+| 0 | **G2 shared RNG** (move the existing multiply-with-carry generator out of `Uniform_Coverage.lua`, add a seed setting) **+ G3 batch runner + G1 monitors**, then Ch. 2's three tests | Every measurement after this depends on them; small |
 | 1 | **Ch. 13 on the drones:** η → adaptive friction → static friction → adaptive cap, each switchable, measured with the Ch. 16.9 metrics on Newtonian 2D/3D over several seeds | The plan's step 1, now with four parts and acceptance metrics |
 | 2 | Ch. 3 fidelity checks (G_t sweep incl. 3D, Disable One, Hooke, honeycomb) and Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19 | Cheap; firms up what is already "done" |
 | 3 | Ch. 4.1 perfect square → cube, then the triangle; Ch. 17 Method 2 as the alternative | The plan's step 2 |
