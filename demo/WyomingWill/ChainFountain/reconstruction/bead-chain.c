@@ -63,7 +63,7 @@
 #include <math.h>
 
 static double L = 0.65, D = 0.45, BEND = 30, MU = 0.3, RIMMU = -1, H = 150, RJ = 7, JH = 8;
-static double DT = 2e-5, SETTLE = 0.2, T0 = 1.0, TMAX = 4, DEPTH = 3;
+static double DT = 2e-5, SETTLE = 0.2, T0 = 1.0, TMAX = 4, DEPTH = 3, DUMPT = -1;
 static int LAYERS = 3, ITERS = 4, WALL = 1, HEAP = 0, SEED = 1;
 static const char *LOGF = NULL;
 #define G 981.0
@@ -83,6 +83,7 @@ static void getarg(const char *s) {
     else if (!strcmp(k, "DT")) DT = v; else if (!strcmp(k, "ITERS")) ITERS = (int)v;
     else if (!strcmp(k, "SETTLE")) SETTLE = v; else if (!strcmp(k, "T0")) T0 = v;
     else if (!strcmp(k, "TMAX")) TMAX = v; else if (!strcmp(k, "WALL")) WALL = (int)v;
+    else if (!strcmp(k, "DUMPT")) DUMPT = v;
     else if (!strcmp(k, "DEPTH")) DEPTH = v; else if (!strcmp(k, "RIMMU")) RIMMU = v;
     else if (!strcmp(k, "HEAP")) HEAP = (int)v; else if (!strcmp(k, "SEED")) SEED = (int)v;
     else { fprintf(stderr, "unknown %s\n", k); exit(1); }
@@ -384,6 +385,11 @@ int main(int argc, char **argv) {
           sCar += Tc[i] - lam * v2 - lam * G * yy; sCarN++;
         }
       }
+    }
+    if (DUMPT >= 0 && t >= DUMPT && t < DUMPT + DT) {
+      FILE *f = fopen("dump.csv", "w");
+      for (int i = 0; i < N; i++) fprintf(f, "%d,%.4f,%.4f,%.4f,%.2f,%.2f,%.2f,%d,%.3f,%.3f\n", i, b[i].x[0], b[i].x[1], b[i].x[2], b[i].v[0], b[i].v[1], b[i].v[2], b[i].frozen, Tc[i], Fr[i]);
+      fclose(f);
     }
     if (t >= nextSample) {
       nextSample += 1.0 / 240;

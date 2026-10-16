@@ -59,6 +59,13 @@
 -- CF_SLEEP=1 (resting links may sleep), CF_CPT=d (only contact points
 -- closer than d cm), CF_STATICLAYERS (with CF_WAKE=layer: layers of fixed
 -- links under the live ones), CF_GLASSMU (friction of the jar's glass).
+-- The heap test (16 Oct 2026; see the README): CF_POUR=1 (the chain poured
+-- into the jar and settled, then its end drawn over the rim by hand),
+-- CF_POUR=2 (the same chain coiled on the jar's floor instead), CF_NLINKS,
+-- CF_SEED, CF_POURH, CF_FEED, CF_PULL, CF_SAVEHEAP=file, CF_HEAP=file,
+-- CF_RADIUS (links this thick), CF_BEADI=1 (a link's mass in balls at its
+-- ends), CF_T0 (the theory check from t = CF_T0 s), CF_DUMP=t:file; and an
+-- option, CF_PILE=heap: a ball-chain-sized chain from a poured heap.
 --
 
 local common = require "common"
@@ -71,8 +78,17 @@ end
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local G = 981
-local SCALE = envnum("CF_LINK", 1)      -- (experiments only: links this many times as long, as thick, as heavy)
-local L, RL = 1.5 * SCALE, 0.3 * SCALE  -- a link: joint to joint, and its radius (as in link.obj)
+-- (CF_PILE=heap, an option: a finer chain, ball-chain sized, 0.65 cm a link
+-- and 4.5 mm thick, with its mass at the joints, as a ball chain's is in its
+-- balls, poured into the jar once beforehand as a jumbled heap
+-- (chain-fountain-meshes/heap.txt, made with CF_POUR=1 CF_SAVEHEAP); see
+-- the README. Ten links ahead of the pick-up are simulated, as with the
+-- coil, and any link lying on the moving chain; the rest of the heap lies
+-- fixed where it settled. Not a faithful shortcut: its fountain is about
+-- 1.6 times the full heap's.)
+local HEAPPILE = os.getenv("CF_PILE") == "heap"
+local SCALE = envnum("CF_LINK", HEAPPILE and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
+local L, RL = 1.5 * SCALE, envnum("CF_RADIUS", HEAPPILE and 0.225 or 0.3 * SCALE)  -- a link: joint to joint, and its radius (as in link.obj)
 local MASS = 0.0005 * SCALE
 local RJ, JH = 7, 8                     -- the jar: inside radius, height of its wall
 local LAYER_T = 2 * RL + 0.05           -- the coil: one layer's thickness
@@ -81,7 +97,22 @@ local K_AHEAD = envnum("CF_AHEAD", 10)   -- links simulated ahead of the pick-up
 -- waking, no anchor; CF_SETTLE=s lets that pile settle s seconds, the lead
 -- held at the floor, before it goes; CF_NOFREEZE=1 lets landed links lie
 -- on the floor, still simulated and joined, instead of freezing them)
-local LIVE = envnum("CF_LIVE", 0) > 0
+-- (CF_POUR=1: a chain of CF_NLINKS links fed into the jar, a link at a
+-- time, by a hand CF_POURH cm over the jar's floor that wanders within 2 cm
+-- of the axis (CF_SEED) and lets the chain down at CF_FEED cm/s; settled;
+-- then its end drawn over the rim to the floor and let go. CF_POUR=2: the same chain laid as a coil on the jar's floor instead,
+-- settled and drawn over the same way. Every link simulated.)
+-- (CF_SAVEHEAP=file: with CF_POUR, write where every link lies once it has
+-- settled: its joint points, end first, from the jar's floor up. CF_HEAP=file:
+-- start from such a heap instead and draw the end over as CF_POUR does; with
+-- CF_LIVE=1 every link simulated (the heap settles first), else only ten
+-- links ahead of the pick-up, as the exhibit does with its coil, the rest of
+-- the heap lying as fixed links that the moving chain lies on.)
+local HEAPF = os.getenv("CF_HEAP") or (HEAPPILE and DIR .. "heap.txt")
+local POUR = envnum("CF_POUR", 0)
+if POUR == 0 and HEAPF then POUR = 3 end
+local LIVE = envnum("CF_LIVE", 0) > 0 or POUR == 1 or POUR == 2
+local HEAPSC = POUR == 3 and not LIVE
 local SETTLE = envnum("CF_SETTLE", 0)
 local NOFREEZE = envnum("CF_NOFREEZE", 0) > 0
 -- (CF_WAKE=layer: the top layers of the coil, two or CF_LIVELAYERS, are
@@ -99,7 +130,7 @@ local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
 local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
-local T_STEADY = 1.0                    -- the theory check averages from here on
+local T_STEADY = envnum("CF_T0", 1.0)   -- the theory check averages from here on (experiments: CF_T0)
 
 local function param(...) v:addParam(...) end
 param("speed", envnum("CF_SPEED", 0.25), 0.05, 1, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -223,8 +254,13 @@ end
 -- the chain
 -- ---------------------------------------------------------------------
 local SHAPE = btCapsuleShapeX(RL, L - 2 * RL)
+local LINK_OBJ = DIR .. (HEAPPILE and "bead-link.obj" or "link.obj")
 local IP = MASS * (L * L / 12 + RL * RL / 4)
 local INERTIA = btVector3(0.5 * MASS * RL * RL, IP, IP)
+if envnum("CF_BEADI", HEAPPILE and 1 or 0) > 0 then   -- (the mass in balls at the joints, as a ball chain's)
+  IP = MASS * (L * L / 4 + 0.4 * RL * RL)
+  INERTIA = btVector3(0.4 * MASS * RL * RL, IP, IP)
+end
 local LINK_COL = "#c9c3b4"
 
 local function quatAlong(dx, dy, dz)          -- turns +x onto (dx, dy, dz)
@@ -365,7 +401,7 @@ end
 local function drawWaiting(i)
   if links[i] or i >= #pts then return end
   local mid, rot = linkPose(i)
-  local m = Mesh(DIR .. "link.obj", 0, false)
+  local m = Mesh(LINK_OBJ, 0, false)
   m.trans = btTransform(rot, mid)
   show(m, LINK_COL)
   links[i] = { disp = m }
@@ -390,7 +426,7 @@ local function wake(i)
     v:remove(l.st); l.st = nil
   end
   local mid, rot = linkPose(i)
-  local m = Mesh(DIR .. "link.obj", 0, false)
+  local m = Mesh(LINK_OBJ, 0, false)
   local body = btRigidBody(MASS, btDefaultMotionState(btTransform(rot, mid)), SHAPE, INERTIA)
   m.body = body
   m.col = LINK_COL
@@ -431,6 +467,8 @@ local function teardown()
   if anchor then v:removeConstraint(anchor); anchor = nil end
   for _, l in pairs(links) do
     if l.con then v:removeConstraint(l.con) end
+    if l.holdPrev then v:removeConstraint(l.holdPrev) end
+    if l.holdNext then v:removeConstraint(l.holdNext) end
     if l.obj then v:remove(l.obj) end
     if l.disp then v:remove(l.disp) end
     if l.st then v:remove(l.st) end
@@ -456,7 +494,7 @@ local function staticLayer(lay)
     if layerOf[i] == lay and not (links[i] and (links[i].active or links[i].st)) then
       if links[i] and links[i].disp then v:remove(links[i].disp) end
       local mid, rot = linkPose(i)
-      local m = Mesh(DIR .. "link.obj", 0, false)
+      local m = Mesh(LINK_OBJ, 0, false)
       local body = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
       m.body = body
       m.col = LINK_COL
@@ -475,6 +513,60 @@ local function liveLayersTo(top)                -- top: the lowest live layer
   for lay = top + 1, st do staticLayer(lay) end
   setPile(H + JH - 1.5 - (st - 1) * LAYER_T - RL)
   drawLayer(st + 1)
+end
+
+-- (CF_HEAP, ten ahead) a link of the heap starts moving. It is joined to
+-- whichever of its neighbours along the chain already move, and held by a
+-- joint to a neighbour that still lies fixed, as the rest of the heap would
+-- hold it. Fixed links are found by where they lie (heapGrid: cells of
+-- WAKE_R), so that a moving link can wake the ones it is about to touch.
+local WAKE_R = L + 2 * RL + 0.2
+local heapGrid, heapTop
+local function cellKey(x, y, z)
+  return math.floor(x / WAKE_R) + 1000 * (math.floor(y / WAKE_R) + 1000 * math.floor(z / WAKE_R))
+end
+local function holdJoint(a, b)                 -- the far end of body a to the near end of body b
+  local c = btConeTwistConstraint(a, b, btTransform(ident, btVector3(L / 2, 0, 0)),
+                                  btTransform(ident, btVector3(-L / 2, 0, 0)))
+  c:setLimit(5, STOP); c:setLimit(4, STOP); c:setLimit(3, math.pi)
+  v:addConstraint(c)
+  return c
+end
+local function wakeHeap(j)
+  local l = links[j]
+  if not l or l.active or l.frozen or not l.st then return end
+  local p, n = links[j - 1], links[j + 1]
+  -- (the joints holding its neighbours to it go first, one by one: taking
+  -- out a body takes its joints out with it in no set order, and the order
+  -- of Bullet's joints is the order it solves them in)
+  if p and p.holdNext then v:removeConstraint(p.holdNext); p.holdNext = nil end
+  if n and n.holdPrev then v:removeConstraint(n.holdPrev); n.holdPrev = nil end
+  if okey then staticKeys[okey(l.st)] = nil end
+  v:remove(l.st); l.st = nil
+  local mid, rot = linkPose(j)
+  local m = Mesh(LINK_OBJ, 0, false)
+  local body = btRigidBody(MASS, btDefaultMotionState(btTransform(rot, mid)), SHAPE, INERTIA)
+  m.body = body
+  m.col = LINK_COL
+  v:add(m)
+  if okey then linkOf[okey(m)] = j end
+  body:setActivationState(4)
+  if CPT then body:setContactProcessingThreshold(CPT) end
+  body:setFriction(MU)
+  body:setRestitution(0)
+  body:setDamping(0, 0)
+  l.obj, l.body, l.rest, l.active = m, body, mid, true
+  if p and p.active then
+    join(p, l)
+  elseif p and p.st then
+    l.holdPrev = holdJoint(p.st.body, body)
+  end
+  if n and n.active then
+    join(l, n)
+  elseif n and n.st then
+    l.holdNext = holdJoint(body, n.st.body)
+  end
+  head = math.max(head, j)
 end
 
 local function start()
@@ -505,6 +597,34 @@ local function start()
   nLead = #pts
   for i = 2, #c do pts[#pts + 1] = c[i][1]; layerOf[#pts - 1] = c[i][2] end
   layerOf[nLead] = 1
+  if POUR > 0 then
+    -- (experiments) the chain hangs from a hand above the jar (POUR=1), or
+    -- lies coiled on the jar's floor (POUR=2); link 1, its end, at the hand
+    local NL = math.floor(envnum("CF_NLINKS", 1500))
+    pts, layerOf = {}, {}
+    if POUR == 3 then
+      -- a heap poured before (CF_SAVEHEAP): its joint points, end first
+      local f = assert(io.open(HEAPF, "r"))
+      for line in f:lines() do
+        local x, y, z = line:match("^(%S+) (%S+) (%S+)$")
+        if x then pts[#pts + 1] = btVector3(tonumber(x), H + tonumber(y), tonumber(z)) end
+      end
+      f:close()
+    elseif POUR == 1 then
+      -- (only the last link to start with, hanging from the hand; the rest
+      -- are fed above it one by one: see pourStep)
+      for i = 0, NL do pts[#pts + 1] = btVector3(0, H + envnum("CF_POURH", 6) + (NL - i) * L, 0) end
+    else
+      local lays, cc = 1, nil
+      repeat
+        LAYERS = lays
+        cc = coil(H + RL + (lays - 1) * LAYER_T)
+        lays = lays + 1
+      until #cc > NL or lays > 60
+      for i = 1, NL + 1 do pts[i] = cc[i][1] end
+    end
+    nLead = 1
+  end
   curLayer = 1
   tail, head = 1, 0
   local hold
@@ -513,8 +633,8 @@ local function start()
     -- lowest layer (experiments only)
     local low = 1
     for _, lay in pairs(layerOf) do low = math.max(low, lay) end
-    setPile(H + JH - 1.5 - (low - 1) * LAYER_T - RL)
-    for i = 1, #pts - 1 do wake(i) end
+    if POUR > 0 then setPile(H) else setPile(H + JH - 1.5 - (low - 1) * LAYER_T - RL) end
+    for i = POUR == 1 and #pts - 1 or 1, #pts - 1 do wake(i) end
     if SETTLE > 0 then
       local mid, rot = linkPose(1)
       local held = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
@@ -523,6 +643,30 @@ local function start()
       v:addConstraint(hold)
       anchorBody = held
     end
+  elseif HEAPSC then
+    -- the heap: it lies fixed where it settled, each link a fixed body; the
+    -- end and the ten links after it are simulated, and more are woken as
+    -- the chain comes for them (see heapFeed)
+    setPile(H)
+    heapGrid = {}
+    for i = 1, #pts - 1 do
+      local mid, rot = linkPose(i)
+      local m = Mesh(LINK_OBJ, 0, false)
+      local body = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
+      m.body = body
+      m.col = LINK_COL
+      v:add(m)
+      if CPT then body:setContactProcessingThreshold(CPT) end
+      body:setFriction(MU)
+      body:setRestitution(0)
+      if okey then staticKeys[okey(m)] = true end
+      links[i] = { st = m, rest = mid }
+      local key = cellKey(mid.x, mid.y, mid.z)
+      heapGrid[key] = heapGrid[key] or {}
+      table.insert(heapGrid[key], i)
+      heapTop = math.max(heapTop or -1e9, mid.y)
+    end
+    for i = 1, math.min(K_AHEAD + 1, #pts - 1) do wakeHeap(i) end
   elseif LAYERWAKE then
     curLayer = LIVE_LAYERS
     setPile(H + JH - 1.5 - (curLayer - 1) * LAYER_T - RL)
@@ -541,6 +685,21 @@ local function start()
           steady = { n = 0, h2 = 0, h1 = 0, rim = 0, steps = 0, push = 0, rimUp = 0, landed = 0, v2 = 0,
                      carried = 0, carriedN = 0, pushP = 0 } }
   if hold then run.settle, run.hold = SETTLE, hold end
+  if POUR > 0 then
+    -- the hand: a fixed body, moved a little every step, holding the top
+    -- end of the link it last let go (POUR=1), or of link 1 (POUR=2)
+    local k = POUR == 1 and #pts - 1 or 1
+    local mid, rot = linkPose(k)
+    local hand = btRigidBody(0, btDefaultMotionState(btTransform(rot, pts[k])), SHAPE, btVector3(0, 0, 0))
+    local con = btConeTwistConstraint(links[k].body, hand, btTransform(ident, btVector3(-L / 2, 0, 0)), btTransform(ident, btVector3(0, 0, 0)))
+    con:setLimit(5, math.pi * 0.95); con:setLimit(4, math.pi * 0.95); con:setLimit(3, math.pi)
+    v:addConstraint(con)
+    -- (the heap with only ten links moving lies fixed: nothing to settle)
+    run.pour = { phase = POUR == 1 and "pour" or (HEAPSC and "pull" or "settle"), hand = hand, con = con, rot = rot, k = k,
+                 x = pts[k].x, y = pts[k].y, z = pts[k].z, vx = 0, vz = 0, t = 0, seed = math.floor(envnum("CF_SEED", 1)), s = 0,
+                 x0 = pts[k].x, y0 = pts[k].y, z0 = pts[k].z }
+    anchorBody = hand
+  end
   stepAcc = 0
   print(string.format("\n--- %.1f m of chain, %d links; the jar %.0f cm up; joints bend %.0f deg at most ---",
                       (#pts - 1) * L / 100, #pts - 1, H, math.deg(BEND)))
@@ -550,13 +709,15 @@ end
 -- the coil is not all picked up yet (with CF_LIVE: the pick-up is more
 -- than K_AHEAD links from its end)
 local function coilLeft()
-  if LIVE or LAYERWAKE then return run.pick ~= nil and run.pick < #pts - 1 - K_AHEAD end
+  if LIVE or LAYERWAKE or HEAPSC then return run.pick ~= nil and run.pick < #pts - 1 - K_AHEAD end
   return head + 1 < #pts
 end
 -- the pick-up: the first link from the floor end still where it lay
 -- (within a link's thickness... 1 cm); with CF_LIVE its height is pickY
 local function findPick()
-  local i = tail
+  -- (with CF_HEAP, ten ahead, from where it was last: the links before it
+  -- have been lifted off already)
+  local i = HEAPSC and math.max(tail, run.pick or tail) or tail
   while i < #pts do
     local l = links[i]
     if not (l and l.active and l.rest) then break end
@@ -566,7 +727,7 @@ local function findPick()
     i = i + 1
   end
   run.pick = i
-  if (LIVE or LAYERWAKE) and links[i] and links[i].rest then pickY = links[i].rest.y end
+  if (LIVE or LAYERWAKE or HEAPSC) and links[i] and links[i].rest then pickY = links[i].rest.y end
   -- (CF_WAKE=layer: the pick-up has reached a layer: wake the one under it)
   local lay = LAYERWAKE and layerOf[i]
   if lay and lay + LIVE_LAYERS - 1 > curLayer and head + 1 < #pts then
@@ -599,12 +760,61 @@ local function feed()
     n, run.budget = n + 1, run.budget - 1
   end
 end
+-- (CF_HEAP, ten ahead) wake the ten links after the pick-up, no more than
+-- WAKE_RATE a simulated second, and every fixed link lying on top of a
+-- moving link still in the heap (its centre within WAKE_R, centre to
+-- centre, and higher by more than a link's radius; the moving links looked
+-- at: from twenty before the pick-up on), so that nothing fixed pins down
+-- the chain being pulled out. Links the chain merely slides
+-- over, or lies beside, stay fixed: a rough bed.
+local function heapFeed()
+  run.budget = math.min(K_AHEAD, run.budget + WAKE_RATE * STEP)
+  local pick = run.pick or tail
+  for i = pick, math.min(pick + K_AHEAD, #pts - 1) do
+    if run.budget < 1 then break end
+    if links[i].st then wakeHeap(i); run.budget = run.budget - 1 end
+  end
+  -- (a link is looked round again only once it has moved 1 mm since it
+  -- last was, and then a millimetre further out)
+  local woke, seen, R2 = {}, {}, (WAKE_R + 0.1) ^ 2
+  for i = math.max(tail, pick - 2 * K_AHEAD), head do
+    local l = links[i]
+    local x, y, z, c
+    if l.active then
+      x, y, z = getPosXYZ(l.obj)
+      c = l.chk
+    end
+    if l.active and y < heapTop + 2 * RL and not (c and (x - c[1]) ^ 2 + (y - c[2]) ^ 2 + (z - c[3]) ^ 2 < 0.01) then
+      l.chk = { x, y, z }
+      local cx, cy, cz = math.floor(x / WAKE_R), math.floor(y / WAKE_R), math.floor(z / WAKE_R)
+      for dx = -1, 1 do for dy = -1, 1 do for dz = -1, 1 do
+        local cell = heapGrid[(cx + dx) + 1000 * ((cy + dy) + 1000 * (cz + dz))]
+        if cell then
+          for _, j in ipairs(cell) do
+            local s = links[j]
+            if s.st and not seen[j] then
+              local q = s.rest
+              if q.y > y + RL and (x - q.x) ^ 2 + (y - q.y) ^ 2 + (z - q.z) ^ 2 < R2 then
+                woke[#woke + 1] = j; seen[j] = true
+              end
+            end
+          end
+        end
+      end end end
+    end
+  end
+  table.sort(woke)
+  for _, j in ipairs(woke) do wakeHeap(j) end
+end
 local function absorb()
   while tail < head - K_AHEAD do
     local l = links[tail]
+    if not l.obj then break end
     local _, y, _ = getPosXYZ(l.obj)
     if y > ABSORB_Y then break end
     if l.con and not NOFREEZE then v:removeConstraint(l.con); l.con = nil end
+    if l.holdNext then v:removeConstraint(l.holdNext); l.holdNext = nil end
+    if l.holdPrev then v:removeConstraint(l.holdPrev); l.holdPrev = nil end
     -- (how fast it comes down, for the theory check: in the steady part)
     local st = run.steady
     if st.t0 and coilLeft() then
@@ -614,7 +824,7 @@ local function absorb()
     -- it lies where it fell, drawn only: the chain still coming down meets
     -- nothing on the floor, so nothing there pulls on it or holds it up
     if not NOFREEZE then
-      local m = Mesh(DIR .. "link.obj", 0, false)
+      local m = Mesh(LINK_OBJ, 0, false)
       m.trans = l.obj.trans
       if okey then linkOf[okey(l.obj)] = nil end
       v:remove(l.obj)
@@ -794,7 +1004,141 @@ local function theory()
   end
 end
 
+-- (CF_POUR) the hand's part: pour, settle, draw the end over, let go
+local function pourStep()
+  local P = run.pour
+  P.t = P.t + STEP
+  local function rnd()                       -- (its own random numbers: the same in the Cabinet)
+    P.seed = (P.seed * 1103515245 + 12345) % 2147483648
+    return P.seed / 2147483648
+  end
+  if P.phase == "pour" then
+    P.step = (P.step or 0) + 1
+    if P.step % 18 == 0 then                 -- (its wandering, a random walk of its velocity)
+      P.vx, P.vz = P.vx + (rnd() - 0.5) * 20, P.vz + (rnd() - 0.5) * 20
+      local r = math.sqrt(P.x * P.x + P.z * P.z)
+      if r > 2 then P.vx, P.vz = P.vx - 5 * P.x / r, P.vz - 5 * P.z / r end
+      local sp = math.sqrt(P.vx * P.vx + P.vz * P.vz)
+      if sp > 20 then P.vx, P.vz = P.vx * 20 / sp, P.vz * 20 / sp end
+    end
+    P.x, P.z, P.y = P.x + P.vx * STEP, P.z + P.vz * STEP, P.y - envnum("CF_FEED", 100) * STEP
+    local yFeed = H + envnum("CF_POURH", 6)
+    if P.y <= yFeed then
+      if P.k > 1 then
+        -- the next link, above the one held: let that one go, hold this
+        local k = P.k - 1
+        pts[k + 1] = btVector3(P.x, P.y, P.z)
+        pts[k] = btVector3(P.x, P.y + L, P.z)
+        v:removeConstraint(P.con)
+        wake(k)
+        join(links[k], links[k + 1])
+        local mid, rot = linkPose(k)
+        P.rot, P.k, P.y = rot, k, P.y + L
+        P.hand = btRigidBody(0, btDefaultMotionState(btTransform(rot, pts[k])), SHAPE, btVector3(0, 0, 0))
+        P.con = btConeTwistConstraint(links[k].body, P.hand, btTransform(ident, btVector3(-L / 2, 0, 0)), btTransform(ident, btVector3(0, 0, 0)))
+        P.con:setLimit(5, math.pi * 0.95); P.con:setLimit(4, math.pi * 0.95); P.con:setLimit(3, math.pi)
+        v:addConstraint(P.con)
+        anchorBody = P.hand
+      else
+        head = #pts - 1
+        P.phase, P.t = "settle", 0
+        print(string.format("poured (%.2f s)", P.step * STEP))
+      end
+    end
+  elseif P.phase == "settle" then
+    if P.t > 0.2 and (math.floor(P.t / STEP + 0.5) % 100 == 0 or P.t > 2) then
+      local vmax, out, ke = 0, 0, 0
+      for i = 1, #pts - 1 do
+        local l = links[i]
+        if l.obj then
+          local vx, vy, vz = getVelXYZ(l.obj)
+          vmax = math.max(vmax, math.sqrt(vx * vx + vy * vy + vz * vz))
+          ke = ke + 0.5 * MASS * (vx * vx + vy * vy + vz * vz)
+          local x, y, z = getPosXYZ(l.obj)
+          if x * x + z * z > RJ * RJ or y < H then out = out + 1 end
+        end
+      end
+      if vmax < 1 or P.t > 2 then
+        -- (ke: the links' kinetic energy of moving, per link, as a share of
+        -- what a link has at 4 m/s)
+        print(string.format("settled (%.2f s): fastest link %.2f cm/s, kinetic energy %.1e of a link at 4 m/s; %d links outside the jar",
+                            P.t, vmax, ke / (#pts - 1) / (0.5 * MASS * 400 * 400), out))
+        if os.getenv("CF_SAVEHEAP") then
+          -- the joint points, end first: each link's ends from where it lies
+          -- and which way it points (between two links, the mean of the two)
+          local f = assert(io.open(os.getenv("CF_SAVEHEAP"), "w"))
+          local function ends(i)
+            local x, y, z = getPosXYZ(links[i].obj)
+            local q = links[i].obj.trans:getRotation()
+            local qx, qy, qz, qw = q:getX(), q:getY(), q:getZ(), q:getW()
+            local ax, ay, az = 1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy + qw * qz), 2 * (qx * qz - qw * qy)
+            return x - ax * L / 2, y - ay * L / 2, z - az * L / 2, x + ax * L / 2, y + ay * L / 2, z + az * L / 2
+          end
+          local px, py, pz
+          for i = 1, #pts - 1 do
+            local x0, y0, z0, x1, y1, z1 = ends(i)
+            if px then x0, y0, z0 = (x0 + px) / 2, (y0 + py) / 2, (z0 + pz) / 2 end
+            f:write(string.format("%.6f %.6f %.6f\n", x0, y0 - H, z0))
+            px, py, pz = x1, y1, z1
+          end
+          f:write(string.format("%.6f %.6f %.6f\n", px, py - H, pz))
+          f:close()
+          print("saved the heap to " .. os.getenv("CF_SAVEHEAP"))
+        end
+        P.phase, P.t, P.s = "pull", 0, 0
+        P.x0, P.y0, P.z0 = P.x, P.y, P.z
+      end
+    end
+  elseif P.phase == "pull" then
+    local top, outX = H + JH + 4, 12
+    local up = top - P.y0
+    local dx, dz = outX - P.x0, -P.z0
+    local across = math.sqrt(dx * dx + dz * dz)
+    local down = top - (ABSORB_Y + 1)
+    P.s = P.s + envnum("CF_PULL", 150) * STEP
+    if HEAPSC then findPick(); heapFeed() end
+    if P.s < up then P.x, P.y, P.z = P.x0, P.y0 + P.s, P.z0
+    elseif P.s < up + across then
+      local f = (P.s - up) / across
+      P.x, P.y, P.z = P.x0 + f * dx, top, P.z0 + f * dz
+    else
+      -- down at 1.2 g, faster than the chain could fall: drawn taut
+      P.td = (P.td or 0) + STEP
+      local f = math.min(1, 0.6 * G * P.td * P.td / down)
+      P.x, P.y, P.z = outX, top - f * down, 0
+      if f >= 1 then
+        v:removeConstraint(P.con)
+        for i = 1, #pts - 1 do
+          local l = links[i]
+          if l.obj then
+            local x, y, z = getPosXYZ(l.obj)
+            l.rest = btVector3(x, y, z)
+          end
+        end
+        print(string.format("drawn over and let go (%.2f s)", P.t))
+        P.phase = nil
+        return false
+      end
+    end
+  end
+  P.hand:setWorldTransform(btTransform(P.rot, btVector3(P.x, P.y, P.z)))
+  return true
+end
+
+local DUMPT, DUMPF = (os.getenv("CF_DUMP") or ""):match("^([%d.]+):(.+)$")
+DUMPT = tonumber(DUMPT)
+-- the links being simulated (with CF_HEAP, ten ahead, not all those between
+-- the floor and the last one woken)
+local function nMoving()
+  if not HEAPSC then return head - tail + 1 end
+  local n = 0
+  for i = tail, head do if links[i].active then n = n + 1 end end
+  return n
+end
 local function afterStep()
+  if run.pour and run.pour.phase then
+    if pourStep() then return end
+  end
   if run.settle then
     -- (CF_LIVE with CF_SETTLE: the pile settles, the lead held; then it goes,
     -- and where each link lies now is where it lay)
@@ -809,10 +1153,24 @@ local function afterStep()
     end
   end
   run.t = run.t + STEP
-  if LIVE or LAYERWAKE or PUSH2 then findPick() end
+  if DUMPT and not run.dumped and run.t >= DUMPT then
+    -- (CF_DUMP=t:file: where every moving link is, and how fast, at t)
+    run.dumped = true
+    local f = assert(io.open(DUMPF, "w"))
+    for i = 1, #pts - 1 do
+      local l = links[i]
+      if l and l.obj then
+        local x, y, z = getPosXYZ(l.obj)
+        local vx, vy, vz = getVelXYZ(l.obj)
+        f:write(string.format("%d %.4f %.4f %.4f %.2f %.2f %.2f\n", i, x, y, z, vx, vy, vz))
+      end
+    end
+    f:close()
+  end
+  if LIVE or LAYERWAKE or HEAPSC or PUSH2 then findPick() end
   absorb()
   measurePush()
-  feed()
+  if HEAPSC then heapFeed() else feed() end
   if run.t >= run.nextSample - 1e-9 then
     run.nextSample = run.nextSample + SAMPLE_DT
     sample()
@@ -825,7 +1183,7 @@ local function afterStep()
       theory()
     elseif run.ti then
       print(string.format("t=%5.2fs  fountain %4.1f cm above the rim (average %4.1f, highest %4.1f); chain %3.0f cm/s; %d links moving, %.1f m out",
-                          run.t, run.top, run.topAvg, run.best, run.speedAvg, head - tail + 1, run.absorbed * L / 100))
+                          run.t, run.top, run.topAvg, run.best, run.speedAvg, nMoving(), run.absorbed * L / 100))
     end
     if LOGF then LOGF:flush() end
   end

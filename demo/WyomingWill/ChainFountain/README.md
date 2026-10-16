@@ -273,8 +273,106 @@ holds back as much as the pile pushes, and the chain rides on the rim.
 What the experiments have that neither has is their pile: chain "fed into
 the beaker in a random configuration" (Biggins and Warner), 30-75 m of it.
 A jumbled heap (`HEAP=`) and longer coils (5-8 layers) were tried in
-`bead-chain.c`, and the chain jammed in the jar each time. So whether a
-heap gives the real fountain is still open.
+`bead-chain.c`, and the chain jammed in the jar each time. The heap test
+below answers it.
+
+**The heap test (16 Oct 2026).** A ball chain of Biggins and Warner's
+size (links 0.65 cm joint to joint, 4.5 mm thick, the mass in the balls at
+the joints; 1500 links, 9.75 m) was poured into the jar from above, as
+they fed theirs in, and left to settle: a hand 6 cm over the jar's floor,
+wandering at random within 2 cm of the middle, lets it down a link at a
+time at 1 m/s (`CF_POUR=1`; nothing is placed by hand). It settles into a
+jumbled heap 3.5-4 cm high over the jar's floor, the end still in the hand
+6 cm up (fastest link under 4 cm/s when it is pulled, kinetic energy 10^-6
+of a link's at 4 m/s or less). Then the hand draws the end up over the rim
+and down to the floor, and lets go. The
+control is the same chain laid as the exhibit's coil on the jar's floor
+(`CF_POUR=2`), settled and drawn over the same way. Every link is
+simulated, the drop is the same (h1 = 148 cm), friction is 0.3 at every
+contact (`CF_MU=0.548` in Bullet), and the theory check runs from 1 s
+after letting go to the end of the heap (0.4-1 s, 2-4 m of chain). Two
+engines: Bullet, and `reconstruction/bead-pour.c`, the chain as 4.5 mm
+balls 6.5 mm apart on solid rods 1 mm thick, simulated outside Bullet
+(position-based, four passes in each 10^-5 s; its friction checked against
+Coulomb, see the file).
+
+| Engine, pile | Runs | v / sqrt(2 g h1) | h2/h1 | the pile's push | the rim's push | carried |
+|---|---|---|---|---|---|---|
+| Bullet, heap | 5 pours | 0.69-0.80 | 0.109-0.147 (mean 0.124) | 0.16-0.21 | 0.00-0.43 m v^2 | -0.21 to 0.12 |
+| the same, 3600 steps a second | pours 1-3 | 0.80-0.82 | 0.132-0.159 (0.142; 0.131 at 1800) | 0.23-0.26 | 0.00 | 0.08-0.15 |
+| Bullet, coil | jar at 148, 150, 152 cm | 0.26-0.44, slowing | 0.055-0.057 | 0.4-1.4 | 2.6-10.9 | -1.8 to -5.6 |
+| reference, heap | 3 pours | 0.53-0.84 | 0.123-0.183 (0.151) | 0.28-0.42 | 0.00-1.47 | -1.12 to 0.04 |
+| the same, half the step | pours 1, 2 | 0.85-0.86 | 0.174, 0.157 (0.183, 0.123) | 0.26-0.30 | 0.00-0.11 | 0.04-0.09 |
+| the same, eight passes | pour 1 | 0.77 | 0.190 | 0.25 | 0.49 | -0.30 |
+| reference, coil | 1; half the step | 0.44; 0.79 | 0.058; 0.060 | 0.31; 0.10 | 2.16; 0.67 | -1.95; -0.50 |
+| experiments | | 0.69-0.71 | 0.12-0.14 | | | |
+
+The coil in Bullet does not run steadily: the chain slides over the rim
+and stalls. At 3600 steps a second it stops within a second (500 of the
+1500 links out, then under 15 cm/s); with no friction at all it stops too,
+6.9 m out, the rest pulled into a knot against the inside of the rim.
+
+So the pile is what was missing. Poured as the experiments pour it, a ball
+chain of their size makes their fountain, h2/h1 = 0.11-0.18 in both
+engines, with the pile's push carried down the falling chain (0.02-0.15)
+and the chain clear of the rim. Laid as this exhibit's coil, the same
+chain picks up at the wall, is drawn up the glass and over the rim, and
+rides on it: 0.06, the push not carried, the rim holding the chain up with
+0.7-11 m v^2. It is not the step, the solver or Bullet: the two engines
+agree, and halving the step changes the heap's fountain by less than the
+spread from pour to pour (Bullet +8% on average, the reference -5% and
++28%). Not every pour clears the rim: in 1 of 5 Bullet pours and 1 of 3
+reference pours, and in some reloads of a heap, the chain caught on the rim
+and ran slow, with h2/h1 0.06-0.12. The chain here runs at 0.69-0.80 of
+sqrt(2 g h1) in Bullet and 0.84 in the reference, the real ones at
+0.69-0.71: nothing here loses energy to the air.
+
+Neither the links' mass nor friction makes the difference. With uniform
+rods instead of balls at the joints (`CF_BEADI=0`) one pour gives 0.138
+(the other caught on the rim, 0.059); with no friction, 0.126; with the
+exhibit's friction (0.09), 0.133, 0.103 and, on the rim, 0.061.
+
+**The exhibit's own links don't make a heap.** Poured the same way, 1.5 cm
+links that bend 30 degrees can't loop tighter than about 3 cm, and in a
+7 cm jar they lay themselves round the wall in rings, a coil of their own
+making, not a heap. 450 links (6.75 m; 700 fill the jar to the rim and
+siphon out while pouring) give h2/h1 = 0.078-0.106 from four pours,
+against 0.057-0.077 laid as the coil at three heights (`CF_T0=0.5`: the
+chain is short, so the check starts at 0.5 s; two pours at 3600 steps
+spilled over the rim while pouring). So the exhibit's coarse chain stays
+low however it lies in this jar.
+
+**`CF_PILE=heap`: the exhibit from a poured heap (an option).** The
+ball-chain-sized chain, poured once beforehand (as above, the first pour's
+wandering, but at the exhibit's friction 0.3, that is 0.09 a contact; saved as
+`chain-fountain-meshes/heap.txt` with `CF_SAVEHEAP`), lies fixed where it
+settled, every link a fixed body. As with the coil, ten links ahead of the
+pick-up are simulated, each held by a joint to its next fixed neighbour;
+any fixed link lying on top of a moving link still in the heap is woken
+too, so that the heap can't pin down the chain being pulled out (the
+links it slides over stay fixed, a rough bed). The hand draws the end over
+the rim as above. Set against the full heap (the same three heaps, every
+link simulated, the exhibit's friction):
+
+| | runs | h2/h1 | v / sqrt(2 g h1) | the pile's push | the rim's push |
+|---|---|---|---|---|---|
+| every link (the pour run; the heap reloaded; reloaded, 3600 steps) | 3 heaps x 3 | 0.058-0.160 (0.097) | 0.58-0.84 | 0.15-0.58 | 0.00-0.63 |
+| `CF_PILE=heap`, 1800 steps (the default) | 3 heaps | 0.150-0.168 (0.161) | 0.73-0.81 | 0.09-0.12 | 0.00-0.31 |
+| the same, 3600 steps | 3 heaps | 0.199, 0.184; the third stuck at the rim | 0.84 | 0.09-0.11 | 0.00 |
+| the same, 1200 steps | 3 heaps | 0.092, 0.096, 0.054 | 0.42-0.75 | -0.08-0.07 | 0.02-2.28 |
+
+It is not a faithful shortcut. As with the coil, holding the heap still
+makes the fountain taller: 1.6 times the full heap's on average, with
+a third of its push, and it changes with the step (0.09 at 1200 steps,
+0.16 at 1800, 0.19 at 3600). With the third heap at 3600 steps the chain
+stuck at the rim right after it was let go. Nor is it cheap enough. Per
+frame at quarter speed, on its own: the exhibit 5.1 ms (1200 frames in
+6.1 s), `CF_PILE=heap` 18.8 ms (800 frames in 15.1 s; 13.7 ms at 1200
+steps, which changes it), every link of the heap 58 ms (1300 frames in
+75 s); a frame at 60 a second has 16.7 ms. In the Cabinet, with the hall
+loading, 11.9 s for the exhibit's 1200 frames and 21.3 s for the heap's
+850. So the exhibit keeps its coil; `CF_PILE=heap` shows what a heap does,
+not more exactly than that.
 
 Friction in Bullet: Bullet takes the product of the two bodies' friction
 for a contact. So the friction slider's 0.3, set on the links, the glass
@@ -351,13 +449,33 @@ simulated), `CF_PUSH=2` (also the unmoved pile's push on the moving chain),
 `CF_SLEEP=1` (resting links may sleep), `CF_CPT=d` (only contact points
 closer than d cm), `CF_STATICLAYERS` (with `CF_WAKE=layer`: layers of
 fixed links under the live ones), `CF_GLASSMU` (friction of the glass; a
-contact's friction is the product of the two bodies').
+contact's friction is the product of the two bodies'). For the heap test:
+`CF_POUR=1` (`CF_NLINKS` links poured in by a hand `CF_POURH` cm over the
+jar's floor, `CF_SEED` its wandering, `CF_FEED` cm/s; settled; the end
+drawn over at `CF_PULL` cm/s and let go), `CF_POUR=2` (the same chain
+coiled on the jar's floor instead), `CF_SAVEHEAP=file` and `CF_HEAP=file`
+(save a settled heap, start from one; with `CF_LIVE=1` every link
+simulated), `CF_RADIUS` (the links' radius), `CF_BEADI=1` (a link's mass
+in balls at its ends), `CF_T0` (the theory check from this time on, 1 s),
+`CF_DUMP=t:file` (where every moving link is at time t). The heap test's
+chain: `CF_LINK=0.4333 CF_RADIUS=0.225 CF_BEADI=1 CF_NLINKS=1500`, or
+`CF_PILE=heap`, which also starts from the poured heap (see the theory
+check).
 
 ## Files
 
 * `chain-fountain.lua`: the exhibit. It runs on its own or in the Cabinet.
 * `chain-fountain-meshes/link.obj`: a link.
-* `reconstruction/gen-link.py`: makes it.
+* `chain-fountain-meshes/bead-link.obj`: a link of the ball-chain-sized
+  chain (`CF_PILE=heap`); `heap.txt`: its poured heap, the joint points
+  from the end on, in cm over the jar's floor (pour 1 of the heap test:
+  `CF_PILE=heap CF_POUR=1 CF_NLINKS=1500 CF_SEED=1 CF_SAVEHEAP=...`).
+* `reconstruction/gen-link.py`: makes the link meshes
+  (`python3 gen-link.py ../chain-fountain-meshes/bead-link.obj 0.225 0.65`).
 * `reconstruction/bead-chain.c`: the bead chain outside Bullet (see the
   theory check); `cc -O2 -o bead-chain bead-chain.c -lm`, a few minutes a
   run.
+* `reconstruction/bead-pour.c`: the heap test outside Bullet, the chain
+  poured or coiled, with solid rods; `cc -O2 -o bead-pour bead-pour.c -lm`,
+  `./bead-pour NB=1500 D=0.45 ROD=0.05 SEED=1` (`LAYOUT=1`: the coil);
+  about 25 minutes a pour, 10 a run from a saved heap.
