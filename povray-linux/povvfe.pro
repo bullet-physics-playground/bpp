@@ -130,7 +130,8 @@ AVX2FMA3_NOISE_SOURCES += $$POVRAY/platform/x86/avx2fma3/avx2fma3noise.cpp
 
 SOURCES += \
     $$POVRAY/platform/unix/syspovfilesystem.cpp \
-    $$POVRAY/platform/unix/syspovtimer.cpp \
+    $$POVRAY/platform/unix/syspovtimer.cpp
+
 contains(QMAKE_HOST.arch, x86_64)|contains(QMAKE_HOST.arch, x86)|contains(QMAKE_HOST.arch, i[3456]86)|equals(QMAKE_HOST.arch, i386) {
 SOURCES += \
     $$POVRAY/platform/x86/cpuid.cpp \
