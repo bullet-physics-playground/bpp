@@ -212,6 +212,36 @@ link: per frame 4.4, 21 and 35 ms, where a frame at 60 a second has 16.7
 ahead, and its fountain is to be read as up to twice as tall as the same
 chain simulated whole.
 
+**What a faithful run costs.** Per frame, 10 layers, 30 degrees, on its
+own (600 frames at quarter speed, 150 at real speed; a frame at 60 a second
+has 16.7 ms). "Matches" means within the spread of the every-link runs
+above, five runs each:
+
+| Way | quarter speed | real speed | against every link |
+|---|---|---|---|
+| the exhibit (ten ahead) | 5.4 ms (Cabinet 6.9) | 22 ms | fountain 1.2-2 times too tall |
+| every link | 52 | 209 | (the reference) |
+| every link, resting links let sleep (`CF_SLEEP=1`) | 53 | 208 | no faster: the joints make the whole chain one piece, and Bullet only lets a whole piece sleep |
+| every link, only touching contacts (`CF_CPT=0`) | 48 | 187 | |
+| every link, 1200 steps a second | 37 | 145 | |
+| four live layers | 32 | 129 | matches at 30, not at 90 (60 not run; three layers match there) |
+| four live layers, only touching contacts | 27 | 109 | matches at 30 (v 406, h2 8.5 cm, rim 0.20) |
+| four live layers, 10 solver iterations | 25 | 99 | doesn't (v 372, rim 0.52) |
+| four live layers, 1200 steps a second | 21 | 86 | matches at 30 (v 387, h2 8.7, rim 0.27) |
+| four live layers, both | 19 | 77 | 30: v 377, rim 0.35, at the edge; 60 and 90: no, the top layers are dragged into a heap |
+| three live layers, only touching contacts, 1200 steps | 15.0 (Cabinet 15.1) | 62 | 30: yes (v 396, h2 8.0, push 0.49, rim 0.25); 60: no (v 352 against 379, rim 0.47 against 0.32); 90: no (354 against 397, rim 0.61 against 0.28) |
+| two live layers on a third of fixed links (`CF_STATICLAYERS=1`) | | | no (one run at 30: rim 1.19, v 347) |
+
+Links next to each other along the chain never touch already: joined
+bodies don't collide in bpp, and the runs show no contacts between links
+one or two apart. Nearly all the cost of a live pile is its 900-1900
+contact points of links lying on links, against about 20 in the exhibit's
+way. So nothing tried makes a faithful run cheap enough at all three
+bendings. Only one, three live layers with only touching contacts and 1200
+steps a second, fits quarter speed (15 ms a frame), and it is faithful only
+at 30 degrees. None fits real speed: the exhibit's own way takes 22 ms
+there.
+
 The run is chaotic, so these numbers move from run to run: with the jar
 2 or 4 cm higher or lower, v is 414-448 cm/s, the push 0.15-0.41, and a
 from the height 0.05-0.07. With 3600 steps a second instead of 1800 they
@@ -276,7 +306,10 @@ this many times as big; still drawn the usual size), `CF_LIVE=1` (every
 link simulated, no waking, no anchor), `CF_SETTLE` (with `CF_LIVE`: seconds
 the pile settles, the lead held), `CF_NOFREEZE=1` (landed links stay
 simulated), `CF_WAKE=layer` and `CF_LIVELAYERS` (whole top layers
-simulated), `CF_PUSH=2` (also the unmoved pile's push on the moving chain).
+simulated), `CF_PUSH=2` (also the unmoved pile's push on the moving chain),
+`CF_SLEEP=1` (resting links may sleep), `CF_CPT=d` (only contact points
+closer than d cm), `CF_STATICLAYERS` (with `CF_WAKE=layer`: layers of
+fixed links under the live ones).
 
 ## Files
 

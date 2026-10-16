@@ -55,7 +55,10 @@
 -- the pile settles first, the lead held), CF_NOFREEZE=1 (landed links stay
 -- simulated, on the floor), CF_WAKE=layer with CF_LIVELAYERS (whole top
 -- layers simulated instead of ten links), CF_PUSH=2 (also the unmoved
--- pile's push on the moving chain, the disc and the links not yet moved).
+-- pile's push on the moving chain, the disc and the links not yet moved),
+-- CF_SLEEP=1 (resting links may sleep), CF_CPT=d (only contact points
+-- closer than d cm), CF_STATICLAYERS (with CF_WAKE=layer: layers of fixed
+-- links under the live ones).
 --
 
 local common = require "common"
@@ -86,6 +89,11 @@ local NOFREEZE = envnum("CF_NOFREEZE", 0) > 0
 -- layer above it; no anchor)
 local LAYERWAKE = os.getenv("CF_WAKE") == "layer"
 local LIVE_LAYERS = envnum("CF_LIVELAYERS", 2)   -- (with CF_WAKE=layer: how many)
+local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them as fixed links)
+-- (experiments on cost: CF_SLEEP=1 lets Bullet put resting links to sleep;
+-- CF_CPT=d processes only contact points closer than d cm)
+local SLEEP = envnum("CF_SLEEP", 0) > 0
+local CPT = tonumber(os.getenv("CF_CPT") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
 local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
@@ -371,9 +379,14 @@ local function join(a, b)
   a.con = c
 end
 -- a link starts moving
+local staticKeys = {}
 local function wake(i)
   local l = links[i] or {}
   if l.disp then v:remove(l.disp); l.disp = nil end
+  if l.st then
+    if okey then staticKeys[okey(l.st)] = nil end
+    v:remove(l.st); l.st = nil
+  end
   local mid, rot = linkPose(i)
   local m = Mesh(DIR .. "link.obj", 0, false)
   local body = btRigidBody(MASS, btDefaultMotionState(btTransform(rot, mid)), SHAPE, INERTIA)
@@ -381,7 +394,8 @@ local function wake(i)
   m.col = LINK_COL
   v:add(m)
   if okey then linkOf[okey(m)] = i end
-  body:setActivationState(4)
+  body:setActivationState(SLEEP and 1 or 4)
+  if CPT then body:setContactProcessingThreshold(CPT) end
   body:setFriction(MU)
   body:setRestitution(0)
   body:setDamping(0, 0)
@@ -417,8 +431,9 @@ local function teardown()
     if l.con then v:removeConstraint(l.con) end
     if l.obj then v:remove(l.obj) end
     if l.disp then v:remove(l.disp) end
+    if l.st then v:remove(l.st) end
   end
-  links, linkOf, discKey, jarKeys = {}, {}, nil, {}
+  links, linkOf, discKey, jarKeys, staticKeys = {}, {}, nil, {}, {}
   for _, o in ipairs(scene) do v:remove(o) end
   scene = {}
   if block then v:remove(block) end
@@ -429,6 +444,35 @@ local VIEW = 1
 local function setView()
   if VIEW == 1 then common.setCamera(btVector3(14, H + 30, 75), btVector3(10, H + 2, 0))
   else common.setCamera(btVector3(30, H * 0.65, 230 + H * 0.4), btVector3(10, H * 0.5, 0)) end
+end
+
+-- (experiments, CF_WAKE=layer with CF_STATICLAYERS: a layer's links as
+-- fixed bodies where they lie: the next live layer rests on links, not on
+-- the smooth disc, without the cost of simulating them)
+local function staticLayer(lay)
+  for i = nLead, #pts - 1 do
+    if layerOf[i] == lay and not (links[i] and (links[i].active or links[i].st)) then
+      if links[i] and links[i].disp then v:remove(links[i].disp) end
+      local mid, rot = linkPose(i)
+      local m = Mesh(DIR .. "link.obj", 0, false)
+      local body = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
+      m.body = body
+      m.col = LINK_COL
+      v:add(m)
+      body:setFriction(MU)
+      body:setRestitution(0)
+      if okey then staticKeys[okey(m)] = true end
+      links[i] = { st = m }
+    end
+  end
+end
+local function liveLayersTo(top)                -- top: the lowest live layer
+  local low = 1
+  for _, lay in pairs(layerOf) do low = math.max(low, lay) end
+  local st = math.min(low, top + STATIC_LAYERS)
+  for lay = top + 1, st do staticLayer(lay) end
+  setPile(H + JH - 1.5 - (st - 1) * LAYER_T - RL)
+  drawLayer(st + 1)
 end
 
 local function start()
@@ -484,7 +528,7 @@ local function start()
       if i >= nLead and (layerOf[i] or 1) > curLayer then break end
       wake(i)
     end
-    drawLayer(curLayer + 1)
+    if STATIC_LAYERS > 0 then liveLayersTo(curLayer) else drawLayer(curLayer + 1) end
   else
     setPile(H + JH - 1.5 - RL)
     drawLayer(1); drawLayer(2)
@@ -525,9 +569,14 @@ local function findPick()
   local lay = LAYERWAKE and layerOf[i]
   if lay and lay + LIVE_LAYERS - 1 > curLayer and head + 1 < #pts then
     curLayer = lay + LIVE_LAYERS - 1
-    setPile(H + JH - 1.5 - (curLayer - 1) * LAYER_T - RL)
-    while head + 1 < #pts and (layerOf[head + 1] or 0) <= curLayer do wake(head + 1) end
-    drawLayer(curLayer + 1)
+    if STATIC_LAYERS > 0 then
+      while head + 1 < #pts and (layerOf[head + 1] or 0) <= curLayer do wake(head + 1) end
+      liveLayersTo(curLayer)
+    else
+      setPile(H + JH - 1.5 - (curLayer - 1) * LAYER_T - RL)
+      while head + 1 < #pts and (layerOf[head + 1] or 0) <= curLayer do wake(head + 1) end
+      drawLayer(curLayer + 1)
+    end
   end
 end
 
@@ -648,7 +697,7 @@ local function measurePush()
     elseif jarKeys[other] then
       rimUp = rimUp + f
     end
-    if P and i < P and (other == discKey or (linkOf[other] and linkOf[other] >= P)) then
+    if P and i < P and (other == discKey or staticKeys[other] or (linkOf[other] and linkOf[other] >= P)) then
       upP = upP + f
       if not seenP[i] then seenP[i] = true; nP = nP + 1 end
     end
