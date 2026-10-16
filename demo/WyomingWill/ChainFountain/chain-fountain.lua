@@ -58,7 +58,7 @@
 -- pile's push on the moving chain, the disc and the links not yet moved),
 -- CF_SLEEP=1 (resting links may sleep), CF_CPT=d (only contact points
 -- closer than d cm), CF_STATICLAYERS (with CF_WAKE=layer: layers of fixed
--- links under the live ones).
+-- links under the live ones), CF_GLASSMU (friction of the jar's glass).
 --
 
 local common = require "common"
@@ -94,6 +94,8 @@ local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them a
 -- CF_CPT=d processes only contact points closer than d cm)
 local SLEEP = envnum("CF_SLEEP", 0) > 0
 local CPT = tonumber(os.getenv("CF_CPT") or "")
+-- (CF_GLASSMU: friction of the jar's glass, if not the friction slider's)
+local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
 local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
@@ -184,7 +186,7 @@ local function buildJar()
                           btVector3((RJ + 0.5) * math.cos(a), H + JH / 2, (RJ + 0.5) * math.sin(a)))
     s.col = "#cfe8f0"
     s.transparency = 0.75
-    s.friction = MU
+    s.friction = GLASSMU or MU
     v:add(s)
     keep(s)
     if okey then jarKeys[okey(s)] = true end

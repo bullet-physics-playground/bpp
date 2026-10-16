@@ -242,6 +242,47 @@ steps a second, fits quarter speed (15 ms a frame), and it is faithful only
 at 30 degrees. None fits real speed: the exhibit's own way takes 22 ms
 there.
 
+**A better chain?** Real ball chains make taller fountains than this one.
+Biggins and Warner's chain (4.5 mm balls on 2 mm rods, 6.5 mm apart, six
+balls to turn it round) gave h2 = 0.14 h1. Pantaleone's three chains gave
+0.12-0.14, with the speed 0.69-0.71 of sqrt(2 g h1). Biggins's fit to the
+fountains' shapes gives a = 0.12, b = 0.11. This chain, simulated whole,
+gives 0.04-0.06. To see whether that is Bullet's links and joints,
+`reconstruction/bead-chain.c` simulates the real kind of chain outside
+Bullet, every bead, in the same jar with the same coil and drop. It has
+beads on rods that can't stretch, the bending limit kept as the beads' own
+geometry, and contacts with no bounce and with friction, stepped finely
+(position-based, 2 x 10^-5 s). It does the same as the exhibit's chain
+simulated whole:
+
+| Bead chain (3 layers, the drop 152 cm) | v | h2 | h2/h1 | the pile's push | the rim's | carried |
+|---|---|---|---|---|---|---|
+| friction 0.3 | 329 cm/s | 6.6 cm | 0.043 | 0.29 | 0.47 m v^2 | -0.46 |
+| the same, half the step | 334 | 6.4 | 0.042 | 0.24 | 0.68 | -0.57 |
+| the same, twice the sweeps | 340 | 5.8 | 0.038 | 0.23 | 0.65 | -0.67 |
+| no friction on the glass | 412 | 6.6 | 0.043 | 0.21 | 0.19 | -0.12 |
+| friction 0.09 (as Bullet has it here: see below) | 404 | 7.5 | 0.049 | 0.21 | 0.09 | -0.07 |
+| the same, the jar 2 cm lower | 427 | 9.4 | 0.063 | 0.19 | 0.09 | -0.02 |
+| bending 20 degrees | 406 | 7.3 | 0.048 | 0.25 | 0.36 | -0.29 |
+| the pile 0.3 cm above the rim | 379 | 7.1 | 0.046 | 0.27 | 0.19 | -0.30 |
+
+So the fountain's height is not Bullet's doing. A chain of the real kind,
+simulated exactly, lifted from this coil in this jar, stands as low: its
+pile pushes, but the falling chain carries none of it. The lying chain
+holds back as much as the pile pushes, and the chain rides on the rim.
+What the experiments have that neither has is their pile: chain "fed into
+the beaker in a random configuration" (Biggins and Warner), 30-75 m of it.
+A jumbled heap (`HEAP=`) and longer coils (5-8 layers) were tried in
+`bead-chain.c`, and the chain jammed in the jar each time. So whether a
+heap gives the real fountain is still open.
+
+Friction in Bullet: Bullet takes the product of the two bodies' friction
+for a contact. So the friction slider's 0.3, set on the links, the glass
+and the disc alike, is 0.09 for every contact the chain makes. With
+friction set so that the product is 0.3 (0.548 each, `CF_MU=0.548`), the
+whole chain gives h2 = 8.6-9.8 cm at 30 degrees and 5.1-5.7 at 90 (three
+runs each), the same as with 0.09.
+
 The run is chaotic, so these numbers move from run to run: with the jar
 2 or 4 cm higher or lower, v is 414-448 cm/s, the push 0.15-0.41, and a
 from the height 0.05-0.07. With 3600 steps a second instead of 1800 they
@@ -309,10 +350,14 @@ simulated), `CF_WAKE=layer` and `CF_LIVELAYERS` (whole top layers
 simulated), `CF_PUSH=2` (also the unmoved pile's push on the moving chain),
 `CF_SLEEP=1` (resting links may sleep), `CF_CPT=d` (only contact points
 closer than d cm), `CF_STATICLAYERS` (with `CF_WAKE=layer`: layers of
-fixed links under the live ones).
+fixed links under the live ones), `CF_GLASSMU` (friction of the glass; a
+contact's friction is the product of the two bodies').
 
 ## Files
 
 * `chain-fountain.lua`: the exhibit. It runs on its own or in the Cabinet.
 * `chain-fountain-meshes/link.obj`: a link.
 * `reconstruction/gen-link.py`: makes it.
+* `reconstruction/bead-chain.c`: the bead chain outside Bullet (see the
+  theory check); `cc -O2 -o bead-chain bead-chain.c -lm`, a few minutes a
+  run.
