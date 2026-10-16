@@ -99,7 +99,7 @@ contains(QMAKE_HOST.arch, x86_64)|contains(QMAKE_HOST.arch, x86)|contains(QMAKE_
 # libx86avx2fma3.a split.
 avx_noise_compiler.name = avx noise compiler
 avx_noise_compiler.input = AVX_NOISE_SOURCES
-avx_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avx_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avx_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avx_noise_compiler.CONFIG += no_link
 avx_noise_compiler.variable_out = OBJECTS
@@ -110,7 +110,7 @@ AVX_NOISE_SOURCES += \
 
 avxfma4_noise_compiler.name = avx/fma4 noise compiler
 avxfma4_noise_compiler.input = AVXFMA4_NOISE_SOURCES
-avxfma4_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avxfma4_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avxfma4_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx -mfma4 $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avxfma4_noise_compiler.CONFIG += no_link
 avxfma4_noise_compiler.variable_out = OBJECTS
@@ -119,7 +119,7 @@ AVXFMA4_NOISE_SOURCES += $$POVRAY/platform/x86/avxfma4/avxfma4noise.cpp
 
 avx2fma3_noise_compiler.name = avx2/fma3 noise compiler
 avx2fma3_noise_compiler.input = AVX2FMA3_NOISE_SOURCES
-avx2fma3_noise_compiler.output = $$OBJECTS_DIR/$${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
+avx2fma3_noise_compiler.output = $$OBJECTS_DIR/${QMAKE_FILE_IN_BASE}$${first(QMAKE_EXT_OBJ)}
 avx2fma3_noise_compiler.commands = $(CXX) -c $(CXXFLAGS) -mavx2 -mfma $(INCPATH) -o ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
 avx2fma3_noise_compiler.CONFIG += no_link
 avx2fma3_noise_compiler.variable_out = OBJECTS
