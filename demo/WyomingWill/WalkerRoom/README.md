@@ -268,6 +268,44 @@ Long, high bumps (22 cm long, 6 cm high: steep hills) stop nearly
 everyone. Four starts per condition is few: differences of a few points
 mean little.
 
+### The best version of each walker
+
+Each walker run the way it does best -- forward or reversed (`REVERSE`),
+with its own timing or trotting (`GAIT`; plated walkers with `UNBRACED`,
+or the diag-braced builds in `trotting-walkers.lua`) -- and 8 starts per
+setting. Ranked by speed on bumps, the fairest measure once the walkers
+run differently (the reversed, trotting Spears 4-bar is slow on flat
+ground, which inflates its share kept); +- is the standard error over the
+8 starts:
+
+| Walker | Best version | Flat, cm/s | 2/11 | 2/15 | 2/22 | 4/11 | 4/15 | 4/22 | 6/11 | 6/15 | 6/22 | Kept | On bumps, cm/s |
+|--------|--------------|------------|------|------|------|------|------|------|------|------|------|------|----------------|
+| Klann                      | reverse, trot          | 8.9 | 96%  | 96%  | 98%  | 91%  | 91%  | 84% | 88% | 81% | 68% | 88% | 7.89 +-0.02 |
+| Hoecken-Spears 4-bar       | trot, diagonal braces  | 8.8 | 95%  | 98%  | 98%  | 100% | 101% | 88% | 87% | 77% | 46% | 88% | 7.71 +-0.07 |
+| Jansen                     | reverse, trot          | 8.9 | 106% | 95%  | 108% | 87%  | 85%  | 87% | 79% | 70% | 60% | 86% | 7.70 +-0.03 |
+| Chebyshev-Spears diag      | trot, diagonal braces  | 8.4 | 111% | 115% | 110% | 102% | 105% | 71% | 86% | 70% | 47% | 91% | 7.64 +-0.07 |
+| Spears 4-bar               | reverse, trot          | 7.5 | 112% | 104% | 107% | 103% | 96%  | 95% | 94% | 90% | 83% | 98% | 7.41 +-0.02 |
+| Hoecken slider             | trot, guides           | 8.8 | 95%  | 91%  | 88%  | 88%  | 87%  | 72% | 83% | 80% | 47% | 81% | 7.16 +-0.02 |
+| Hoecken-Spears slider      | trot, guides           | 8.7 | 97%  | 96%  | 88%  | 91%  | 92%  | 66% | 83% | 82% | 41% | 82% | 7.11 +-0.03 |
+| Hoecken 4-bar              | trot, guides           | 9.0 | 94%  | 91%  | 89%  | 84%  | 84%  | 76% | 78% | 74% | 41% | 79% | 7.09 +-0.05 |
+| Chebyshev-Spears           | sides, plates          | 8.9 | 95%  | 95%  | 91%  | 91%  | 91%  | 66% | 84% | 81% | 8%  | 78% | 6.96 +-0.04 |
+| Chebyshev diag             | trot, diagonal braces  | 8.7 | 103% | 104% | 95%  | 92%  | 74%  | 63% | 79% | 35% | 14% | 73% | 6.42 +-0.06 |
+| Chebyshev                  | trot, guides           | 8.9 | 91%  | 88%  | 82%  | 81%  | 80%  | 46% | 78% | 65% | 35% | 72% | 6.41 +-0.09 |
+| Hoecken-Spears long-stance | sides, plates          | 8.6 | 98%  | 99%  | 88%  | 93%  | 90%  | 32% | 81% | 73% | 8%  | 74% | 6.33 +-0.06 |
+
+The +- covers only the starting points, not modelling choices such as
+guides against plates, which moved results by more. Each linkage against
+its Spears version, best version each (speed on bumps): Chebyshev 6.41
+-> 7.0 (Chebyshev-Spears), Chebyshev diag 6.42 -> 7.64, Hoecken 4-bar
+7.09 -> 7.71, Hoecken slider 7.16 -> 7.11 (level). The Spears 4-bar's
+four bars do about as well as Klann's six and Jansen's eight.
+
+None of them floats: on flat ground no best version is ever wholly more
+than 0.5 cm off the ground, and on 4 cm x 15 cm bumps the most any is
+(the long-stance walker) is 3.6% of the time, never more than 2 cm up or
+for longer than 0.4 s -- short hops over bumps, not the floating of
+gravity 20.
+
 ### Hoecken-Spears 4-bar
 
 The true 4-bar Hoecken linkage and the Chebyshev lambda are the same
@@ -429,7 +467,9 @@ and holds each leg at its angle to the body by itself (a guide), so the
 legs can take any `GAIT`. With side timing the guided walkers match the
 plated ones closely (the Hoecken-Spears slider least well), which checks
 the guides; trotting (`GAIT = { 0, 180, 180, 0 }`) then helps all four
-Hoecken walkers (share kept; speed on bumps, cm/s):
+Hoecken walkers and Chebyshev (a lot), and Chebyshev-Spears and the
+long-stance walker little or not at all (share kept; speed on bumps,
+cm/s; 4 starts):
 
 | Walker | Plates (sides) | Guides, sides | Guides, trot |
 |--------|----------------|---------------|--------------|
@@ -437,9 +477,17 @@ Hoecken walkers (share kept; speed on bumps, cm/s):
 | Hoecken 4-bar         | 80%, 6.7 | 78%, 6.5 | 79%, 7.1 |
 | Hoecken-Spears slider | 84%, 7.0 | 73%, 6.2 | 82%, 7.1 |
 | Hoecken slider        | 68%, 5.1 | 65%, 4.9 | 81%, 7.1 |
+| Chebyshev-Spears      | 77%, 6.9 | 70%, 6.4 | 68%, 6.4 |
+| Hoecken-Spears long-stance | 73%, 6.2 | 68%, 5.9 | 68%, 6.1 |
+| Chebyshev             | 59%, 4.4 | 52%, 3.8 | 72%, 6.4 |
 
 Trotting, the Spears versions keep their lead only narrowly: the 4-bars
-7.4 against 7.1 cm/s on bumps, the sliders level at 7.1.
+7.4 against 7.1 cm/s on bumps, the sliders level at 7.1. For
+Chebyshev-Spears and the long-stance walker the guides fall short of the
+plates even with side timing (70% against 77%, 68% against 73%), so
+their trotting results may understate them; Chebyshev-Spears diag, which
+trots with its own braces, is the fairer trotting version of that
+linkage.
 
 ### Trotting the Hoecken walkers
 
@@ -464,8 +512,29 @@ its foot swings forward in about 0.2 s, the quickest of all.
 
 ### Hinged feet (ANKLES)
 
-(Measured before the crank speeds were set for equal flat speed, with
-every crank at 2.6 rad/s.)
+With the current setup, each walker in its best version (above), ankles
+help no one clearly and hurt most (speed on bumps, cm/s, 4 starts):
+
+| Walker | Welded | Ankles |
+|--------|--------|--------|
+| Hoecken-Spears 4-bar (diag) | 7.7 | 7.8 |
+| Chebyshev-Spears diag       | 7.6 | 7.6 |
+| Klann (reverse, trot)       | 7.9 | 7.2 |
+| Hoecken slider (trot)       | 7.1 | 7.0 |
+| Spears 4-bar (reverse, trot)| 7.4 | 6.9 |
+| Chebyshev-Spears            | 6.9 | 6.7 |
+| Hoecken 4-bar (trot)        | 7.1 | 6.7 |
+| Hoecken-Spears slider (trot)| 7.1 | 6.6 |
+| Jansen (reverse, trot)      | 7.7 | 6.6 |
+| Hoecken-Spears long-stance  | 6.2 | 6.1 |
+| Chebyshev diag              | 6.4 | 5.8 |
+| Chebyshev                   | 4.4 | 4.4 |
+
+The walkers that gained most from reversing and trotting lose most: a
+hinged foot rocks back as the leg drives it, undoing some of the steep
+touchdown. So `ANKLES` stays off. The earlier test, below, was made with
+gravity 20 (when the high-lift walkers floated) and every crank at 2.6
+rad/s.
 
 The 2-leg Spears' own files hinge each foot to its leg about the
 side-to-side axis, like an ankle (up to 90 degrees either way, damped), so
@@ -598,5 +667,6 @@ walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks
 backward, so it walks the other way; or a table of names), `GAIT` (four crank
 phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (true or a table of
 names: the side plates left off and each leg held at its angle by a
-guide, so `GAIT` applies to those walkers too), and the trotting Hoecken
+guide, so `GAIT` applies to those walkers too -- Chebyshev, Chebyshev-Spears,
+the Hoecken walkers and Hoecken-Spears 4-bars and sliders), and the trotting Hoecken
 4-bars in `trotting-walkers.lua`.

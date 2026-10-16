@@ -348,10 +348,12 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
     z_pendant = z_pendant_l, C = C,
   }
 end
-local linkage1 = buildLinkage(0, 0, false, 0, opts.leftSpeed)                 -- front face, x=0,  phase 0
-local linkage2 = buildLinkage(linkage_spacing, 0, false, 0, opts.leftSpeed)   -- front face, x=10, phase 0
-local linkage3 = buildLinkage(0, 0, true, 180, opts.rightSpeed)               -- back face,  x=0,  phase 180
-local linkage4 = buildLinkage(linkage_spacing, 0, true, 180, opts.rightSpeed) -- back face,  x=10, phase 180
+-- (WALKER ROOM: opts.phases = { four phases, linkage1..4 } times the legs
+-- otherwise; opts.noBraces leaves the plates off, so they can)
+local linkage1 = buildLinkage(0, 0, false, opts.phases and opts.phases[1] or 0, opts.leftSpeed)                 -- front face, x=0,  phase 0
+local linkage2 = buildLinkage(linkage_spacing, 0, false, opts.phases and opts.phases[2] or 0, opts.leftSpeed)   -- front face, x=10, phase 0
+local linkage3 = buildLinkage(0, 0, true, opts.phases and opts.phases[3] or 180, opts.rightSpeed)               -- back face,  x=0,  phase 180
+local linkage4 = buildLinkage(linkage_spacing, 0, true, opts.phases and opts.phases[4] or 180, opts.rightSpeed) -- back face,  x=10, phase 180
 -- ---------------------------------------------------------------------
 -- crossbar builder: joins the pendant midpoints of two linkages that
 -- are identical and driven identically (so their pendants always stay
@@ -411,8 +413,25 @@ local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
 
   return bar
 end
-local crossbarFront = buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue")
-local crossbarBack  = buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue")
+local crossbarFront = (not opts.noBraces) and buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue") or nil
+local crossbarBack = (not opts.noBraces) and buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue") or nil
+-- WALKER ROOM: opts.legGuides holds each leg at its angle to the body,
+-- as the side plates do (two legs welded to one plate, each hinged to a
+-- coupler that moves in step with the other, can only move without
+-- turning) -- but leg by leg, so the legs can be timed any way (GAIT) with
+-- opts.noBraces.
+if opts.legGuides then
+  for _, lk in ipairs({ linkage1, linkage2, linkage3, linkage4 }) do
+    local g = btGeneric6DofConstraint(cube.body, lk.pendant.body,
+                                      cube.body:getCenterOfMassTransform():inverseTimes(lk.pendant.body:getCenterOfMassTransform()),
+                                      btTransform(IDENTITY_QUAT, btVector3(0, 0, 0)), true)
+    g:setLinearLowerLimit(btVector3(1, 1, 1))     -- free to move ...
+    g:setLinearUpperLimit(btVector3(-1, -1, -1))
+    g:setAngularLowerLimit(btVector3(0, 0, 0))    -- ... but not to turn
+    g:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(g)
+  end
+end
 -- ---------------------------------------------------------------------
 -- foot builder: a wide, flat pad welded (not hinged) to the bottom of
 -- a pendant, extending from the pendant's own Z-plane inward to z=0 --

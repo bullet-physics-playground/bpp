@@ -106,9 +106,11 @@ REVERSE = REVERSE or false
 -- second leg, back face first leg, second leg. Its own: { 0, 225, 180, 225 }
 GAIT = GAIT or nil
 -- UNBRACED: true (or a table of names) leaves off the side plates of the
--- walkers that have them (Chebyshev-Spears, the Hoecken walkers and
--- Hoecken-Spears 4-bars and sliders), so their legs are free to take
--- any GAIT, a trot (GAIT = { 0, 180, 180, 0 }) among them
+-- walkers that have them (Chebyshev, Chebyshev-Spears, the Hoecken
+-- walkers and Hoecken-Spears 4-bars and sliders) and holds each leg at
+-- its angle to the body instead (a guide, as the plates did), so their
+-- legs are free to take any GAIT, a trot (GAIT = { 0, 180, 180, 0 })
+-- among them
 UNBRACED = UNBRACED or false
 local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
