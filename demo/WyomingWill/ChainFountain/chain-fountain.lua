@@ -50,7 +50,12 @@
 -- CF_AHEAD (links woken ahead of the pick-up, 10), CF_STOP (the joints'
 -- limit in degrees, if not the bending the chain is laid for), CF_LINK (links
 -- this many times as long, thick and heavy: the same chain, finer or coarser;
--- they are still drawn the usual size).
+-- they are still drawn the usual size), CF_LIVE=1 (every link simulated
+-- from the start: no waking, no anchor), CF_SETTLE (with CF_LIVE: seconds
+-- the pile settles first, the lead held), CF_NOFREEZE=1 (landed links stay
+-- simulated, on the floor), CF_WAKE=layer with CF_LIVELAYERS (whole top
+-- layers simulated instead of ten links), CF_PUSH=2 (also the unmoved
+-- pile's push on the moving chain, the disc and the links not yet moved).
 --
 
 local common = require "common"
@@ -69,6 +74,18 @@ local MASS = 0.0005 * SCALE
 local RJ, JH = 7, 8                     -- the jar: inside radius, height of its wall
 local LAYER_T = 2 * RL + 0.05           -- the coil: one layer's thickness
 local K_AHEAD = envnum("CF_AHEAD", 10)   -- links simulated ahead of the pick-up
+-- (experiments only: CF_LIVE=1 simulates every link from the start, no
+-- waking, no anchor; CF_SETTLE=s lets that pile settle s seconds, the lead
+-- held at the floor, before it goes; CF_NOFREEZE=1 lets landed links lie
+-- on the floor, still simulated and joined, instead of freezing them)
+local LIVE = envnum("CF_LIVE", 0) > 0
+local SETTLE = envnum("CF_SETTLE", 0)
+local NOFREEZE = envnum("CF_NOFREEZE", 0) > 0
+-- (CF_WAKE=layer: the top layers of the coil, two or CF_LIVELAYERS, are
+-- simulated, whole, and the next is woken when the pick-up reaches the
+-- layer above it; no anchor)
+local LAYERWAKE = os.getenv("CF_WAKE") == "layer"
+local LIVE_LAYERS = envnum("CF_LIVELAYERS", 2)   -- (with CF_WAKE=layer: how many)
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
 local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
@@ -372,6 +389,7 @@ local function wake(i)
   links[i] = l
   if links[i - 1] and links[i - 1].active then join(links[i - 1], l) end
   head = i
+  if LIVE or LAYERWAKE then return end
   -- (the coil not yet moving holds the chain's far end where it lies, as
   -- the rest of the pile would: a moving chain can't drag it off)
   if anchor then v:removeConstraint(anchor); anchor = nil end
@@ -442,23 +460,81 @@ local function start()
   for i = 2, #c do pts[#pts + 1] = c[i][1]; layerOf[#pts - 1] = c[i][2] end
   layerOf[nLead] = 1
   curLayer = 1
-  setPile(H + JH - 1.5 - RL)
-  drawLayer(1); drawLayer(2)
   tail, head = 1, 0
-  for i = 1, nLead - 1 + K_AHEAD do wake(i) end
+  local hold
+  if LIVE then
+    -- every link moving from the start, the pile on the disc under its
+    -- lowest layer (experiments only)
+    local low = 1
+    for _, lay in pairs(layerOf) do low = math.max(low, lay) end
+    setPile(H + JH - 1.5 - (low - 1) * LAYER_T - RL)
+    for i = 1, #pts - 1 do wake(i) end
+    if SETTLE > 0 then
+      local mid, rot = linkPose(1)
+      local held = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
+      hold = btConeTwistConstraint(links[1].body, held, btTransform(ident, btVector3(0, 0, 0)), btTransform(ident, btVector3(0, 0, 0)))
+      hold:setLimit(5, STOP); hold:setLimit(4, STOP); hold:setLimit(3, math.pi)
+      v:addConstraint(hold)
+      anchorBody = held
+    end
+  elseif LAYERWAKE then
+    curLayer = LIVE_LAYERS
+    setPile(H + JH - 1.5 - (curLayer - 1) * LAYER_T - RL)
+    for i = 1, #pts - 1 do
+      if i >= nLead and (layerOf[i] or 1) > curLayer then break end
+      wake(i)
+    end
+    drawLayer(curLayer + 1)
+  else
+    setPile(H + JH - 1.5 - RL)
+    drawLayer(1); drawLayer(2)
+    for i = 1, nLead - 1 + K_AHEAD do wake(i) end
+  end
   run = { t = 0, absorbed = 0, top = -1e9, best = -1e9, speedAvg = 0, topAvg = 0, total = #pts - 1,
           budget = 0, nextSample = SAMPLE_DT, nextPrint = PRINT_DT,
           steady = { n = 0, h2 = 0, h1 = 0, rim = 0, steps = 0, push = 0, rimUp = 0, landed = 0, v2 = 0,
-                     carried = 0, carriedN = 0 } }
+                     carried = 0, carriedN = 0, pushP = 0 } }
+  if hold then run.settle, run.hold = SETTLE, hold end
   stepAcc = 0
   print(string.format("\n--- %.1f m of chain, %d links; the jar %.0f cm up; joints bend %.0f deg at most ---",
                       (#pts - 1) * L / 100, #pts - 1, H, math.deg(BEND)))
   setView()
 end
 
+-- the coil is not all picked up yet (with CF_LIVE: the pick-up is more
+-- than K_AHEAD links from its end)
+local function coilLeft()
+  if LIVE or LAYERWAKE then return run.pick ~= nil and run.pick < #pts - 1 - K_AHEAD end
+  return head + 1 < #pts
+end
+-- the pick-up: the first link from the floor end still where it lay
+-- (within a link's thickness... 1 cm); with CF_LIVE its height is pickY
+local function findPick()
+  local i = tail
+  while i < #pts do
+    local l = links[i]
+    if not (l and l.active and l.rest) then break end
+    local x, y, z = getPosXYZ(l.obj)
+    local r = l.rest
+    if (x - r.x) ^ 2 + (y - r.y) ^ 2 + (z - r.z) ^ 2 < SCALE * SCALE then break end
+    i = i + 1
+  end
+  run.pick = i
+  if (LIVE or LAYERWAKE) and links[i] and links[i].rest then pickY = links[i].rest.y end
+  -- (CF_WAKE=layer: the pick-up has reached a layer: wake the one under it)
+  local lay = LAYERWAKE and layerOf[i]
+  if lay and lay + LIVE_LAYERS - 1 > curLayer and head + 1 < #pts then
+    curLayer = lay + LIVE_LAYERS - 1
+    setPile(H + JH - 1.5 - (curLayer - 1) * LAYER_T - RL)
+    while head + 1 < #pts and (layerOf[head + 1] or 0) <= curLayer do wake(head + 1) end
+    drawLayer(curLayer + 1)
+  end
+end
+
 -- wake links ahead of the pick-up (ten still lying where they were laid,
 -- no more than WAKE_RATE a simulated second); freeze the ones that have landed
 local function feed()
+  if LIVE then return end
   run.budget = math.min(K_AHEAD, run.budget + WAKE_RATE * STEP)
   local n, i = 0, head
   while i >= tail and links[i] and links[i].rest do
@@ -477,21 +553,23 @@ local function absorb()
     local l = links[tail]
     local _, y, _ = getPosXYZ(l.obj)
     if y > ABSORB_Y then break end
-    if l.con then v:removeConstraint(l.con); l.con = nil end
+    if l.con and not NOFREEZE then v:removeConstraint(l.con); l.con = nil end
     -- (how fast it comes down, for the theory check: in the steady part)
     local st = run.steady
-    if st.t0 and head + 1 < #pts then
+    if st.t0 and coilLeft() then
       local vx, vy, vz = getVelXYZ(l.obj)
       st.landed, st.v2 = st.landed + 1, st.v2 + vx * vx + vy * vy + vz * vz
     end
     -- it lies where it fell, drawn only: the chain still coming down meets
     -- nothing on the floor, so nothing there pulls on it or holds it up
-    local m = Mesh(DIR .. "link.obj", 0, false)
-    m.trans = l.obj.trans
-    if okey then linkOf[okey(l.obj)] = nil end
-    v:remove(l.obj)
-    l.obj, l.body, l.disp = nil, nil, show(m, LINK_COL)
-    l.active, l.frozen = false, true
+    if not NOFREEZE then
+      local m = Mesh(DIR .. "link.obj", 0, false)
+      m.trans = l.obj.trans
+      if okey then linkOf[okey(l.obj)] = nil end
+      v:remove(l.obj)
+      l.obj, l.body, l.disp = nil, nil, show(m, LINK_COL)
+      l.active, l.frozen = false, true
+    end
     tail = tail + 1
     run.absorbed = run.absorbed + 1
   end
@@ -519,12 +597,12 @@ local function sample()
   run.top, run.speed = top - rim, sp
   -- (the highest: while there is chain still in the jar, not the free end
   -- flying out at the last)
-  if head + 1 < #pts then run.best = math.max(run.best, top - rim) end
+  if coilLeft() then run.best = math.max(run.best, top - rim) end
   run.topAvg = run.topAvg + (run.top - run.topAvg) * 0.05
   run.speedAvg = run.speedAvg + (sp - run.speedAvg) * 0.05
   -- for the theory check: the steady part, from T_STEADY until the last
   -- of the coil is woken
-  if run.t >= T_STEADY and head + 1 < #pts then
+  if run.t >= T_STEADY and coilLeft() then
     local s = run.steady
     if not s.t0 then s.t0, s.land0 = run.t, run.absorbed end
     s.n, s.t1, s.land1 = s.n + 1, run.t, run.absorbed
@@ -541,10 +619,16 @@ end
 -- contacts every step, which makes the run two or three times slower in the
 -- Cabinet, so it is done only when asked for (CF_PUSH=1).
 local PUSH = envnum("CF_PUSH", 0) > 0
+local PUSH2 = PUSH and (envnum("CF_PUSH", 0) >= 2 or LIVE)
 local function measurePush()
   local s = run.steady
-  if not (PUSH and s.t0 and okey and discKey and run.t >= T_STEADY and head + 1 < #pts) then return end
+  if not (PUSH and s.t0 and okey and discKey and run.t >= T_STEADY and coilLeft()) then return end
   local up, rimUp, lying, seen = 0, 0, 0, {}
+  -- (CF_PUSH=2, or CF_LIVE: also the push of the unmoved pile, the disc and
+  -- every link from the pick-up on, on the links before it, less the weight
+  -- of those it touches)
+  local P = PUSH2 and run.pick
+  local upP, seenP, nP = 0, {}, 0
   v:eachContact(function(a, b, x, y, z, nx, ny, nz, d, imp)
     if imp <= 0 then return end
     local ka, kb = a and okey(a), b and okey(b)
@@ -552,6 +636,11 @@ local function measurePush()
     local i, other, f
     if la and not lb then i, other, f = la, kb, imp * ny        -- (the normal is on b, pointing to a)
     elseif lb and not la then i, other, f = lb, ka, -imp * ny
+    elseif P and la and lb and (la < P) ~= (lb < P) then           -- (moving link on the unmoved pile)
+      if la < P then i, f = la, imp * ny else i, f = lb, -imp * ny end
+      upP = upP + f
+      if not seenP[i] then seenP[i] = true; nP = nP + 1 end
+      return
     else return end
     if other == discKey then
       up = up + f
@@ -559,7 +648,12 @@ local function measurePush()
     elseif jarKeys[other] then
       rimUp = rimUp + f
     end
+    if P and i < P and (other == discKey or (linkOf[other] and linkOf[other] >= P)) then
+      upP = upP + f
+      if not seenP[i] then seenP[i] = true; nP = nP + 1 end
+    end
   end)
+  if P then s.pushP = s.pushP + upP / STEP - nP * MASS * G end
   s.steps = s.steps + 1
   s.push = s.push + up / STEP - lying * MASS * G
   s.rimUp = s.rimUp + rimUp / STEP
@@ -570,7 +664,7 @@ local function measurePush()
   -- T - m v^2 - m g y (y above the pick-up) = -a m v^2 all the way from the
   -- pile to the floor; it is read where the chain falls freely, 20 to 100 cm
   -- below the pick-up (m: mass per length; v^2 each link's own).
-  local Jx, Jy, Jz, ok = 0, 0, 0, true
+  local Jx, Jy, Jz, ok = 0, 0, 0, not NOFREEZE
   local lo, hi = pickY - math.min(100, pickY - ABSORB_Y - 20), pickY - 20
   for i = tail, head do
     local l = links[i]
@@ -638,6 +732,10 @@ local function theory()
     print(string.format("  the pile's push, measured (its contact forces less the weight lying on it): a = %.2f; the rim holds the chain up with %.2f m v^2",
                         a, s.rimUp / s.steps / mv2))
     print(string.format("  with that push a steady narrow arch would stand h2 = a v^2/g = %.1f cm above the pick-up (it stood %.1f)", a * vm * vm / G, h2))
+    if PUSH2 then
+      print(string.format("  the unmoved pile's push on the moving chain (disc and links from the pick-up on, less the weight they hold up): a = %.2f",
+                          s.pushP / s.steps / mv2))
+    end
     if s.carriedN > 0 then
       print(string.format("  what the falling chain carries of it (its tension, from the links' accelerations, 20-100 cm below the pick-up): a = %.2f",
                           -s.carried / s.carriedN / mv2))
@@ -646,7 +744,21 @@ local function theory()
 end
 
 local function afterStep()
+  if run.settle then
+    -- (CF_LIVE with CF_SETTLE: the pile settles, the lead held; then it goes,
+    -- and where each link lies now is where it lay)
+    run.settle = run.settle - STEP
+    if run.settle > 1e-9 then return end
+    v:removeConstraint(run.hold)
+    run.settle, run.hold = nil, nil
+    for i = 1, #pts - 1 do
+      local l = links[i]
+      local x, y, z = getPosXYZ(l.obj)
+      l.rest = btVector3(x, y, z)
+    end
+  end
   run.t = run.t + STEP
+  if LIVE or LAYERWAKE or PUSH2 then findPick() end
   absorb()
   measurePush()
   feed()
@@ -656,7 +768,7 @@ local function afterStep()
   end
   if run.t >= run.nextPrint - 1e-9 and not run.done then
     run.nextPrint = run.nextPrint + PRINT_DT
-    if head + 1 >= #pts and tail >= head - K_AHEAD then
+    if not coilLeft() and tail >= head - K_AHEAD then
       run.done = true
       print(string.format("t=%5.2fs  all of it out of the jar; the fountain stood up to %.1f cm above the rim", run.t, run.best))
       theory()

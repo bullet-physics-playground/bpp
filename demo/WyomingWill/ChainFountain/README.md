@@ -162,6 +162,56 @@ What this says:
 Their own chain gave h2/h1 = 0.14, and this one 0.07-0.13. With b = 0, 0.14
 means a = 0.12 by their formula, less than their rod model's 1/6.
 
+**Without the shortcut.** Only ten links ahead of the pick-up are
+simulated, the last held to the unmoved coil (see Simulation), and that is
+just where the push goes missing. So the same jar was run with every link
+simulated from the start (`CF_LIVE=1`: no waking, no anchor, the pile on
+the disc under its lowest layer), 6 layers (about 750 links), and set
+against the exhibit's way with the same chain. Each is the mean and spread
+of five runs, with the jar at 146, 148, 150, 152 and 154 cm (`CF_PUSH=2`
+also measures the push of the unmoved pile, the disc and every link not yet
+moved, on the moving chain):
+
+| Joints bend at most, way | v | h2 | a, unmoved pile's push | a carried | rim's push | landing energy |
+|---|---|---|---|---|---|---|
+| 30, every link | 399 ± 15 cm/s | 8.6 ± 0.4 cm | 0.49 ± 0.09 | -0.13 ± 0.08 | 0.26 ± 0.09 m v^2 | 43 ± 4% |
+| 30, ten ahead (the exhibit) | 420 ± 17 | 10.6 ± 1.5 | 0.20 ± 0.03 | -0.01 ± 0.11 | 0.13 ± 0.13 | 47 ± 5% |
+| 60, every link | 379 ± 20 | 6.3 ± 0.5 | 0.23 ± 0.03 | -0.19 ± 0.11 | 0.32 ± 0.18 | 40 ± 3% |
+| 60, ten ahead | 418 ± 6 | 10.8 ± 0.6 | 0.17 ± 0.01 | 0.01 ± 0.02 | 0.03 ± 0.03 | 48 ± 2% |
+| 90, every link | 397 ± 30 | 5.5 ± 0.4 | 0.20 ± 0.02 | -0.16 ± 0.12 | 0.28 ± 0.18 | 42 ± 3% |
+| 90, ten ahead | 423 ± 3 | 11.2 ± 0.8 | 0.15 ± 0.01 | 0.01 ± 0.02 | 0.03 ± 0.02 | 47 ± 1% |
+
+The chain with every link simulated is no different in step: with 3600
+steps a second, two runs each give h2 = 8.5 and 9.4 cm at 30 degrees, 5.7
+and 6.0 at 90. Nor if the pile first settles for 0.3 s with the lead held
+(30 degrees: 9.6 cm), nor if landed links stay on the floor instead of
+being frozen (8.5 cm).
+
+So the shortcut is not what loses the push. The chain with every link
+simulated loses it just the same: the pile pushes as hard or harder, and
+the falling chain carries none of it. Losing the push is how these rigid
+links come off a pile, in this model. But the shortcut is not neutral
+either. With every link free, the moving chain drags the top of the pile
+with it and rubs the rim (0.26-0.32 m v^2, against 0.03-0.13), and goes
+5-10% slower. Its fountain is lower: 8.6 cm at 30 degrees against 10.6,
+and about half as high at 60 and 90. The exhibit's fountain is that much
+taller than the full simulation of the same chain.
+
+A cheaper way that matches: the top layers of the coil simulated whole,
+the next one woken when the pick-up reaches the layer above it, and no
+anchor (`CF_WAKE=layer`, `CF_LIVELAYERS`). With four live layers, five runs
+at 30 degrees give v 406 ± 17, h2 8.7 ± 0.6, push 0.48 ± 0.09, carried
+-0.09 ± 0.13, rim 0.20 ± 0.10, energy 45 ± 5%: the same as every link,
+within the spread. At 60 degrees three layers match. At 90 neither three
+nor four does: v is 356-359, against 397, and the rim's push 0.57-0.62
+against 0.28, though h2 matches. It costs too much to be the exhibit's
+way. A full run (10 layers, quarter speed, 1200 frames) takes on its own
+5.3 s the exhibit's way, 25.1 s with four live layers and 41.9 s with every
+link: per frame 4.4, 21 and 35 ms, where a frame at 60 a second has 16.7
+(in the Cabinet 12.8, 30.3 and 46.9 s). So the exhibit keeps ten links
+ahead, and its fountain is to be read as up to twice as tall as the same
+chain simulated whole.
+
 The run is chaotic, so these numbers move from run to run: with the jar
 2 or 4 cm higher or lower, v is 414-448 cm/s, the push 0.15-0.41, and a
 from the height 0.05-0.07. With 3600 steps a second instead of 1800 they
@@ -222,7 +272,11 @@ what the chain carries). For experiments only (the defaults are the
 exhibit): `CF_LAYOUT=flake`, `CF_JAR=0`, `CF_ITER` (solver iterations, 20),
 `CF_MU` (friction, 0.3), `CF_AHEAD` (links woken ahead, 10), `CF_STOP` (the
 joints' limit, if not the bending the chain is laid for), `CF_LINK` (links
-this many times as big; still drawn the usual size).
+this many times as big; still drawn the usual size), `CF_LIVE=1` (every
+link simulated, no waking, no anchor), `CF_SETTLE` (with `CF_LIVE`: seconds
+the pile settles, the lead held), `CF_NOFREEZE=1` (landed links stay
+simulated), `CF_WAKE=layer` and `CF_LIVELAYERS` (whole top layers
+simulated), `CF_PUSH=2` (also the unmoved pile's push on the moving chain).
 
 ## Files
 
