@@ -306,6 +306,59 @@ than 0.5 cm off the ground, and on 4 cm x 15 cm bumps the most any is
 for longer than 0.4 s -- short hops over bumps, not the floating of
 gravity 20.
 
+### Other terrains
+
+All the results above are on one landscape: three sine waves, the same
+pattern everywhere, only scaled. To check that they don't hang on it,
+`TERRAIN` gives other ground, at the same bump heights (`AMP`) and scale
+(`BUMP`): `"random"` (twelve waves at random directions, spacings and
+offsets, a different landscape for each start; its highest point is
+AMP, as for the waves, but it is gentler on average), `"logs"`
+(separate rounded ridges AMP high across the way, at random angles and
+spacings) and `"steps"` (flat ground with sharp-edged ledges AMP high,
+up and down by turns). Each walker in its best version, unchanged, on
+bump heights 2, 4 and 6 cm and lengths 11 and 22 cm, 4 starts (speed
+on bumps, cm/s, and rank):
+
+| Walker | Waves | Random | Logs | Steps |
+|--------|-------|--------|------|-------|
+| Jansen                     | 7.89 (1)  | 8.78 (1)  | 3.99 (3)  | 6.97 (2)  |
+| Klann                      | 7.84 (2)  | 8.72 (2)  | 6.80 (1)  | 8.34 (1)  |
+| Hoecken-Spears 4-bar       | 7.50 (3)  | 7.67 (4)  | 2.61 (4)  | 4.67 (6)  |
+| Spears 4-bar               | 7.50 (4)  | 7.83 (3)  | 5.56 (2)  | 6.10 (3)  |
+| Chebyshev-Spears diag      | 7.42 (5)  | 7.48 (6)  | 1.63 (8)  | 4.17 (9)  |
+| Hoecken 4-bar              | 6.95 (6)  | 7.12 (9)  | 2.23 (6)  | 4.10 (10) |
+| Hoecken slider             | 6.86 (7)  | 7.33 (8)  | 2.42 (5)  | 5.04 (5)  |
+| Hoecken-Spears slider      | 6.79 (8)  | 7.10 (10) | 1.61 (9)  | 4.27 (8)  |
+| Chebyshev diag             | 6.50 (9)  | 6.94 (11) | 1.44 (10) | 3.62 (11) |
+| Chebyshev-Spears           | 6.36 (10) | 7.59 (5)  | 1.02 (11) | 5.16 (4)  |
+| Chebyshev                  | 6.13 (11) | 6.79 (12) | 2.11 (7)  | 3.52 (12) |
+| Hoecken-Spears long-stance | 5.60 (12) | 7.41 (7)  | 0.82 (12) | 4.38 (7)  |
+
+On irregular bumps the order holds well (rank correlation with the waves
+0.75; the same four lead). Logs and steps are different: a walker whose
+foot rises less than the obstacle is high stops dead in front of it. At
+4 cm logs every walker but three makes under 0.6 cm/s; Klann, whose
+foot rises furthest (6.6 cm at this stride), is the only one that clears
+6 cm logs and ledges reliably, and the reversed, trotting Spears 4-bar
+and Jansen (4.2 cm) get over 4 cm. So the earlier finding that lift
+doesn't matter holds for rolling ground only: over separate obstacles,
+how high the foot rises sets a hard limit. The Spears changes raise it
+(Chebyshev 2.4 cm -> Chebyshev-Spears 3.9). Each pair, Spears version
+minus original (speed on bumps, cm/s):
+
+| Pair | Waves | Random | Logs | Steps |
+|------|-------|--------|------|-------|
+| Chebyshev -> Chebyshev-Spears           | +0.23 | +0.79 | -1.09 | +1.64 |
+| Chebyshev diag -> Chebyshev-Spears diag | +0.92 | +0.54 | +0.19 | +0.55 |
+| Hoecken 4-bar -> Hoecken-Spears 4-bar   | +0.55 | +0.55 | +0.37 | +0.57 |
+| Hoecken slider -> Hoecken-Spears slider | -0.07 | -0.23 | -0.81 | -0.77 |
+
+Two pairs favour the Spears version on every terrain; Chebyshev-Spears
+on three of four; the sliders favour the original on every one. (On
+logs, a stopped walker's speed depends on where its first log falls, so
+4 starts give rough numbers there.)
+
 ### Hoecken-Spears 4-bar
 
 The true 4-bar Hoecken linkage and the Chebyshev lambda are the same
@@ -663,7 +716,8 @@ each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
 run free, as in the standalone files), `ANKLES` (true: every walker's
 feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
-walkers, as in `foot-path-variants.lua`), `REVERSE` (true: every walker's cranks run
+walkers, as in `foot-path-variants.lua`), `TERRAIN` ("waves", "random", "logs" or
+"steps"; `TERRAIN_SEED` picks the landscape, default `SEED`), `REVERSE` (true: every walker's cranks run
 backward, so it walks the other way; or a table of names), `GAIT` (four crank
 phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (true or a table of
 names: the side plates left off and each leg held at its angle by a

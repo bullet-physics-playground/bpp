@@ -155,10 +155,74 @@ local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' 
 local BUMP = BUMP or 22
 local BUMP_MIN, BUMP_MAX = 11, 44
 
--- three sine terms as in the walkers' own terrains (amplitudes 0.5, 0.3
--- and 0.2: AMP is the highest a bump can reach), their wavelengths all
--- scaled by BUMP
+-- TERRAIN: the kind of ground (all with bumps AMP high, at a scale set by
+-- BUMP), for testing that results don't hang on one landscape:
+--   "waves" (default): three sine terms as in the walkers' own terrains
+--     (amplitudes 0.5, 0.3 and 0.2: AMP is the highest a bump can reach),
+--     their wavelengths all scaled by BUMP -- the same regular pattern
+--     everywhere
+--   "random": twelve waves with random directions, wavelengths (0.6 to
+--     1.6 times BUMP) and offsets, scaled so the highest point reaches
+--     AMP: irregular bumps, a different landscape for each TERRAIN_SEED
+--   "logs": separate rounded ridges AMP high and BUMP / 2 wide across the
+--     way, at random angles (up to 15 degrees) and 1.5 to 4 BUMPs apart
+--   "steps": flat ground with sharp-edged ledges AMP high, up and down by
+--     turns, 2 to 5 BUMPs apart, at random angles (up to 15 degrees)
+-- TERRAIN_SEED (default SEED): which random landscape
+TERRAIN = TERRAIN or "waves"
+local TERRAIN_SEED = TERRAIN_SEED or SEED
+local tseed = TERRAIN_SEED * 7919 + 17
+local function trand()           -- its own random numbers, leaving the walkers' alone
+  tseed = (tseed * 1103515245 + 12345) % 2147483648
+  return tseed / 2147483648
+end
+local WAVES, RIDGES, LEDGES
+if TERRAIN == "random" then
+  WAVES = {}
+  for i = 1, 12 do
+    local th, lam = trand() * math.pi, 0.6 + trand()
+    WAVES[i] = { kx = math.cos(th) * 2 * math.pi / lam, kz = math.sin(th) * 2 * math.pi / lam,
+                 ph = trand() * 2 * math.pi, a = 0.5 + 0.5 * trand() }
+  end
+  -- (in units of BUMP) scaled so the highest point over a wide area is
+  -- 1, so AMP means the same as for "waves": the highest a bump reaches
+  -- (it is gentler on average: root-mean-square height about 0.3 AMP,
+  -- against 0.44 for "waves")
+  local m = 0
+  for i = -400, 400 do for j = -80, 80 do
+    local x, z, h = i * 0.12, j * 0.12, 0
+    for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * x + w.kz * z + w.ph) end
+    m = math.max(m, math.abs(h))
+  end end
+  for _, w in ipairs(WAVES) do w.a = w.a / m end
+elseif TERRAIN == "logs" or TERRAIN == "steps" then
+  local list, u = {}, -60
+  local gap = (TERRAIN == "logs") and { 1.5, 2.5 } or { 2, 3 }
+  while u < 60 do               -- (in units of BUMP, along x, both ways from 0)
+    list[#list + 1] = { u = u, ang = math.rad(-15 + 30 * trand()) }
+    u = u + gap[1] + gap[2] * trand()
+  end
+  if TERRAIN == "logs" then RIDGES = list else LEDGES = list end
+end
 local function terrainHeight(x, z)
+  if WAVES then
+    local X, Z, h = x / BUMP, z / BUMP, 0
+    for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * X + w.kz * Z + w.ph) end
+    return AMP * h
+  elseif RIDGES then
+    local X, Z, h = x / BUMP, z / BUMP, 0
+    for _, r in ipairs(RIDGES) do
+      local d = (X - r.u) * math.cos(r.ang) + Z * math.sin(r.ang)   -- across the ridge
+      if math.abs(d) < 0.25 then h = math.max(h, math.cos(d * 2 * math.pi) ^ 2) end
+    end
+    return AMP * h
+  elseif LEDGES then
+    local X, Z, level = x / BUMP, z / BUMP, 0
+    for _, l in ipairs(LEDGES) do
+      if (X - l.u) * math.cos(l.ang) + Z * math.sin(l.ang) > 0 then level = 1 - level end
+    end
+    return AMP * level
+  end
   local r = 22 / BUMP
   return AMP * (0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
                 0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
