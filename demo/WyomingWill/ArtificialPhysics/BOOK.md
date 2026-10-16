@@ -3,11 +3,13 @@
 This file maps every simulation, experiment and checkable result in
 *Physicomimetics: Physics-Based Swarm Intelligence* (Spears & Spears, Springer
 2011) to a Bullet Physics Playground (BPP) port. It covers all 19 chapters and
-the appendix: 182 entries. Section 5 adds the ideas from the earlier chat, the plan and the thesis digests that go beyond the book. The detailed notes for each chapter are in `book/`
+the appendix: 182 entries. Section 5 adds the ideas from the earlier chat, the plan and the thesis digests that go beyond the book. Section 6 extends the capstone mission to ground, surface and underwater vehicles, to show that the method is not tied to one vehicle. Section 7 proposes an escape from cul-de-sacs modelled on the chain fountain. The detailed notes for each chapter are in `book/`
 (`ch01.md` … `ch19.md`, `ch20-appendix.md`). They give the algorithm,
 parameter values, the results a port must reproduce (with page, figure and
 table references), and what the porter must decide where the book is silent or
 inconsistent.
+
+`BOOK.pdf` beside this file is a typeset copy of it.
 
 Page numbers are PDF pages of `apbook1.pdf`. Book page = PDF page − 31.
 
@@ -132,13 +134,17 @@ Most chapters need the same pieces. Build each once.
 | G8 | **Rays:** line of sight between agents, and IR, sonar-ring and laser rangefinders (Bullet ray tests) | 5, 7, 9, 10, 11, 12, 13, 14 |
 | G9 | **Force-law table** keyed by (source type, target type): asymmetric, with wildcards and virtual particles, and one sign convention | 3.4, 3.5, 5, 16, 17 |
 | G10 | **Ground vehicles:** skid-steer Maxelbot (MMP-5) and differential-drive Pioneer 3-AT | 9, 10, 11, 12, 13 |
-| G11 | **Water vehicles:** a holonomic round ASV (Voith–Schneider), then an AUV | 6, ★9 |
+| G11 | **Water vehicles:** a holonomic round ASV (Voith–Schneider); an ROV-style multi-thruster vehicle that can hover and move sideways; a torpedo-shaped AUV that cannot | 6, ★9, ★capstone |
 | G12 | **Fixed-wing aircraft** (constant speed, bank limit) with the heading-particle torque law, plus the dumbbell agent | 3.1 ★, 13 |
 | G13 | **Worlds:** wall polygons from vertex lists, corridors, mazes, and an obstacle-density generator | 4.3, 7, 11, 12, 14, 15 |
 | G14 | **Plume model:** Farrell-style puffs with wind, white-noise mixing and obstacles | 8, 9 |
 | G15 | **Neighbour messages:** sensed values as well as positions; flooding broadcast | 4.1, 6, 9, 12, 19 |
 | G16 | **Metrics:** lattice quality (angles, Delaunay CV), coverage grids and KL divergence, chain metrics (MST), suggested-versus-actual position gap, energy and path length, Q versus P | all |
 | G17 | **Heading-dependent force terms:** elliptical zones, LOPF sectors | 4.2, 5, 12 |
+| G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
+| G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
+| G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
+| G21 | **Harbour world:** water, docks, buildings, a warehouse and a storm drain | ★capstone |
 
 ---
 
@@ -315,6 +321,7 @@ metrics.
 | 12.13–12.16 | Chain-list protocol, display, laptop link, token loss | 422–428 | G15; ★ chain as a comms relay | new |
 | 12.17 | Static Maxelbots: line, L, U at 2, 4, 6 ft | 429–436 | Replica (G10) | new |
 | 12.18 | Dynamic: open floor, 5×14 ft corridor, L corridor | 436–442 | Replica; then ★ 3D shafts on quads | plan |
+| ★ | Chain-fountain escape (§7): the same idea of a chain, used to pull agents out of a trap rather than to deploy a relay | — | Compare with the Ch. 12 law | new |
 | ★ | Chain applications: relays in tunnels, mines, caves, garages, urban canyons, stairwells, over buildings, into pits; maze exploration; map carried back to base; branching at junctions; loops that reconnect; wall maps from range hits. Score: does the line-of-sight link hold? | — | Quads after the 2D replica (see §5) | new |
 
 ### Ch. 13 — Motion control of constrained agents (PDF 444–471) · `book/ch13.md`
@@ -340,7 +347,8 @@ metrics.
 | 14.4 | Line of sight between robots | 489–490 | G8 | plan |
 | 14.5 | Mutation-rate groups, Approaches 1 and 2 (48.3 → 68.3%) | 491–497 | Daedalus loop | plan |
 | 14.6 | Survival against obstacle density (Tables 14.7–14.10) | 497–500 | Batch, the cleanest numeric target | plan |
-| 14.7 | Future: stuck robots switch to the gas model | 503 | ★ LJ → KT hybrid escape | new |
+| 14.7 | Future: stuck robots switch to the gas model | 503 | ★ LJ → KT hybrid escape; compare with the chain-fountain escape (§7) | new |
+| ★ | Chain-fountain escape: a free agent leads stuck agents out of a cul-de-sac as a chain | — | §7 | new |
 
 ### Ch. 15 — Statistical scouts (PDF 506–535) · `book/ch15.md`
 | # | Entry | Pages | BPP | Status |
@@ -508,35 +516,146 @@ thesis digest (author named).
 | **Port the Uniform Coverage fixes to the Android app** (±15° cone; dead-end retry) | plan |
 | **FIXES item 27** (precompiled-header build bug): documented, not fixed | chat (open item) |
 
-### The capstone mission (plan)
-A swarm launches in thirds, top level first, and forms a perfect 3D lattice by
-compass and address. Scouts probe a city of buildings to estimate the risk
-before the rest follow, adapting their parameters on the way. The swarm then
-finds a 3D plume's source and height by fluxotaxis, sensing at several
-altitudes, while a chain of drones holds a relay back to the launch point
-around corners and over rooftops. Each piece is a task in this map, so it can
-be built step by step, with each step a usable demo and a measurable result.
+The plan's capstone mission is now Section 6, extended to ground, surface and
+underwater vehicles.
 
 ---
 
-## 6. Build order
+## 6. The capstone: one mission, five kinds of vehicle
+
+Ch. 13's central point is that physicomimetics only decides where each agent
+should go, and each vehicle's own controller works out how to get there. The
+book's experiments span several vehicle types (Maxelbots and Pioneers on the
+ground, surface boats, fixed-wing aircraft in simulation), but never all of
+them in one study. Running the same force laws on five kinds of vehicle, in
+one mission, makes the claim that the method is not vehicle-specific directly.
+
+The plan's original capstone was drones only: launch in thirds, a perfect 3D
+lattice by compass and address, scouts probing a city, fluxotaxis finding a
+plume's source and height, and a chain relay back to the launch point. The
+extended mission keeps all of that and adds the other vehicles.
+
+### The mission: a harbour incident
+A leak from a ship releases a chemical into both the air and the water.
+
+| Vehicle | Its part in the mission | Book chapters |
+| --- | --- | --- |
+| Quadcopters | Launch in thirds, form a perfect 3D lattice, trace the airborne plume to its source and height | 4.1, 8–9 |
+| Fixed-wing aircraft | Circle over targets for wide-area surveillance, since they cannot hover | 13 |
+| Ground robots | Scouts test the dock area first; a chain relay goes into a warehouse or storm drain; robots stuck in the drain are led out as a chain (§7); a kinetic-theory sweep covers the sheds | 15, 12, 7, ★§7 |
+| Surface boats | Map the slick or the bioluminescence; find the darkest route for a covert approach | 6 |
+| Underwater vehicles | Trace the plume underwater; hold a relay chain from the surface down to depth | 8–9, 12 |
+
+Across media, the surface boats relay between sound underwater and radio above
+it. Ch. 16's typed force laws let different vehicle types share one
+formation, and depth bands work for underwater vehicles the way flight levels
+work for the drones.
+
+### New tasks
+| Task | Needs | Effort |
+| --- | --- | --- |
+| ★ **Cross-vehicle benchmark:** the same task with the same force-law settings on all five kinds of vehicle (quadcopter, fixed-wing, ground robot, surface boat, underwater vehicle), reporting the Ch. 16.9 measures for each: settling time, lattice quality, losses, and the gap between suggested and actual position | G18, G10, G11, G12 | medium |
+| ★ Benchmark task 1: formation (2D lattice; 3D for the vehicles that can) | G18 | easy per vehicle |
+| ★ Benchmark task 2: goal through obstacles (Ch. 3.6) | G18 | easy per vehicle |
+| ★ Benchmark task 3: uniform coverage (Ch. 11) | G18, G4 | medium |
+| ★ Benchmark task 4: chain formation (Ch. 12) | G18, G8 | medium |
+| ★ ROV-style underwater vehicle (holonomic, hovers) | G11, G19 | medium |
+| ★ Torpedo-shaped AUV (cannot hover or move sideways; heading particle) | G11, G19, G18 | medium–hard |
+| ★ Underwater formation in depth bands (the counterpart of flight levels) | G11, G19, G20 | medium |
+| ★ Underwater plume tracing, the plume carried by a current | G14, G19 | hard |
+| ★ Relay chain from the surface down to depth, over sound | G20, Ch. 12 | medium |
+| ★ Mixed-vehicle formations with typed force laws (Ch. 16) | G9, G18 | medium |
+| ★ Surface boats as sound-to-radio gateways linking underwater and air swarms | G20, G15 | medium |
+| ★ Harbour world and the full mission script | G21, everything above | hard |
+
+The benchmark matrix is four tasks × five kinds of vehicle, i.e. 20 runs, each
+over several seeds. That table is the scientific result; the mission
+demonstrates it.
+
+### Order
+Build G18 and the cross-vehicle benchmark early, right after the Ch. 13
+fixes, starting with ground robots and surface boats because they are simpler
+than underwater vehicles. That tests the claim cheaply. The full mission comes
+last, since it needs nearly everything else.
+
+---
+
+## 7. Escaping cul-de-sacs: the chain fountain
+
+**The gap in the book.** Lennard-Jones swarms flow round obstacles, but agents
+caught in a concave pocket stay stuck. Ch. 14 leaves this as future work and
+suggests that stuck robots switch to the kinetic-theory gas model to escape
+(§14.11, PDF 503). Hettiarachchi's thesis also lists cul-de-sacs as an open
+problem and never defines "stuck".
+
+**The idea.** `demo/WyomingWill/ChainFountain/chain-fountain.lua` simulates a
+bead chain pouring out of a jar (the Mould effect). The part of the chain
+already outside pulls the rest over the rim; links are picked up off the pile
+one at a time, and because a joint can only bend so far (30° in the exhibit),
+the chain arches up and over the rim instead of dragging across it. The same
+mechanism can lead stuck agents out of a cul-de-sac, as a chain behind an agent
+that is not stuck. This is an alternative to the book's chain formations
+(Ch. 4.2, 12), which deploy a relay outward from a base; this chain pulls
+agents out of a trap.
+
+| Chain fountain | Escaping a cul-de-sac |
+| --- | --- |
+| The jar | The cul-de-sac |
+| The end hanging outside | A free agent (not stuck) as the head |
+| Gravity on the falling chain | The goal force, felt only by agents already outside |
+| Links picked up one at a time | Stuck agents join the chain's tail in order, nearest first |
+| Fixed link length; joints bend at most 30° | Each agent holds a set distance behind the one ahead, with a limit on the angle between successive links |
+| The arch over the rim | Clearance at the trap's mouth |
+
+**Why it might work well:**
+
+- **The pull grows as agents get out.** In the fountain the weight of the
+  falling chain drives the flow, so the more is outside, the stronger the pull.
+  If only agents outside the trap feel the goal force, the swarm behaves the
+  same way.
+- **The bend limit stops corner-cutting.** Plain follow-the-leader cuts
+  corners and drags followers into walls; a bend limit makes the chain swing
+  wide round the mouth.
+- **It suits real vehicles.** A bend limit is in effect a minimum turn radius,
+  which ground robots and fixed-wing aircraft have anyway (Ch. 13). In 3D,
+  drones can do what the bead chain does: arch up and over the wall rather
+  than thread back out through the mouth.
+
+**What doesn't carry over.** The fountain's push comes from the pile pushing
+back on each link as it is lifted. Agents have no pile, so the arch height
+will not follow Biggins and Warner's relation for h₂. Whether a virtual
+version of that push helps is an experiment, not a given.
+
+### Tasks
+| Task | Needs | Effort |
+| --- | --- | --- |
+| ★ **Cul-de-sac world:** U-shaped and deeper pocket obstacles added to the Ch. 14 obstacle field, and a definition of "stuck" (no progress toward the goal over a time window) | G13 | easy |
+| ★ **Virtual chain law:** set distance to the agent ahead, bend limit, recruitment of the nearest stuck agent at the tail, goal force only outside the trap. 2D particles first | G9 | medium |
+| ★ **Compare escapes:** plain Lennard-Jones (baseline), kinetic-theory escape (Ch. 14.7), the chain-fountain escape, and the Ch. 12 chain law. Measures: share reaching the goal, time, collisions, agents out per second, clearance at the mouth | G3, G16 | medium |
+| ★ **Sweeps:** link length, bend limit and head speed; whether the outflow rate settles to a steady value as the fountain's does | G3 | easy |
+| ★ **Vehicles:** ground robots round corners; quadcopters arching over the wall in 3D; fixed-wing aircraft, whose turn radius is the bend limit | G10, G12, G18 | medium |
+| ★ **In the capstone:** ground robots stuck in the docks or the storm drain, led out by a free one (§6) | §6 | — |
+
+---
+
+## 8. Build order
 
 This revises the plan's order using what the book says.
+
+Before porting a task, fetch its `.nlogo` from the book website, read the matching thesis digest, and check the Android app's version, if it has one. The book's chapters leave out values that the models and theses contain.
 
 | Step | Work | Why now |
 | --- | --- | --- |
 | 0 | **G2 shared RNG** (move the existing multiply-with-carry generator out of `Uniform_Coverage.lua`, add a seed setting) **+ G3 batch runner + G1 monitors**, then Ch. 2's three tests | Every measurement after this depends on them; small |
 | 1 | **Ch. 13 on the drones:** η → adaptive friction → static friction → adaptive cap, each switchable, measured with the Ch. 16.9 metrics on Newtonian 2D/3D over several seeds | The plan's step 1, now with four parts and acceptance metrics |
-| 2 | Ch. 3 fidelity checks (G_t sweep incl. 3D, Disable One, Hooke, honeycomb) and Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19 | Cheap; firms up what is already "done" |
-| 3 | Ch. 4.1 perfect square → cube, then the triangle; Ch. 17 Method 2 as the alternative | The plan's step 2 |
-| 4 | G4 velocity commands + G5 point mass; Ch. 4.4 Couette and Ch. 7 theory checks | Opens all the kinetic-theory and quark work |
-| 5 | Ch. 14 offline world → Ch. 15 scouts (particles), then Daedalus | The plan's step 3, in the order the book's dependencies need |
-| 6 | Ch. 19 formation APO with G6 fields → ★ from altitude, moving hotspot | The plan's step 4 |
-| 7 | Ch. 5 LOPF and Ch. 16 type table: square, line, star, V, rings, protection | New, cheap on the formation code |
-| 8 | G7/G8/G10 sensing and ground vehicles → Ch. 10 checks, Ch. 11 and 12 replicas, Ch. 12 chains, then ★ 3D shafts | Hardware-faithful track |
-| 9 | Ch. 8 unit tests → G14 plume → Ch. 9 → ★ fluxotaxis 3D | Flagship |
-| 10 | G11 ASV → Ch. 6 → ★ AUV; G12 fixed-wing → Ch. 13.7–13.12; Ch. 1 demos; Ch. 18 benchmark | Remaining |
-
-Before porting a task, fetch its `.nlogo` from the book website, read the
-matching thesis digest, and check the Android app's version, if it has one. The book's chapters leave out values that the models
-and theses contain.
+| 2 | ★ **G18 vehicle interface + cross-vehicle benchmark**, first with ground robots (G10) and surface boats (G11) alongside the quadcopters: formation and goal through obstacles (§6) | Tests the vehicle-independence claim early and cheaply |
+| 3 | Ch. 3 fidelity checks (G_t sweep incl. 3D, Disable One, Hooke, honeycomb) and Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19 | Cheap; firms up what is already "done" |
+| 4 | Ch. 4.1 perfect square → cube, then the triangle; Ch. 17 Method 2 as the alternative | The plan's step 2 |
+| 5 | G4 velocity commands + G5 point mass; Ch. 4.4 Couette and Ch. 7 theory checks | Opens all the kinetic-theory and quark work |
+| 6 | Ch. 14 offline world → Ch. 15 scouts (particles), then Daedalus; add cul-de-sacs and compare escapes: kinetic theory (Ch. 14.7) against the ★ chain fountain (§7) | The plan's step 3, in the order the book's dependencies need; the cul-de-sac is the book's open problem |
+| 7 | Ch. 19 formation APO with G6 fields → ★ from altitude, moving hotspot | The plan's step 4 |
+| 8 | Ch. 5 LOPF and Ch. 16 type table: square, line, star, V, rings, protection | New, cheap on the formation code |
+| 9 | G7/G8/G10 sensing and ground vehicles → Ch. 10 checks, Ch. 11 and 12 replicas, Ch. 12 chains, then ★ 3D shafts | Hardware-faithful track |
+| 10 | Ch. 8 unit tests → G14 plume → Ch. 9 → ★ fluxotaxis 3D | Flagship |
+| 11 | G11 ASV → Ch. 6 → ★ ROV and AUV (G19, G20); G12 fixed-wing → Ch. 13.7–13.12; complete the cross-vehicle benchmark with all five kinds of vehicle; Ch. 1 demos; Ch. 18 benchmark | Remaining vehicles and chapters |
+| 12 | ★ **Capstone:** G21 harbour world, underwater plume and relay, mixed-vehicle formations, the full mission (§6) | Needs nearly everything else |
