@@ -63,7 +63,7 @@ is updated at the end of every milestone.
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua` so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's book presets |
-| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua`, `mfp_theory.lua`, `world.lua`, `ch02.lua` so far |
+| `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -95,6 +95,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 
 - **Precompiled-header pitfall (FIXES 27):** after re-running qmake, or on a
   new day, `rm -rf release/bpp.gch` before `make`.
+- **Before sending a patch:** `bash checks/run_all.sh` (all must pass).
 - **Headless run:** from this folder,
   `SDL_AUDIODRIVER=dummy XDG_RUNTIME_DIR=/tmp/rt QT_QPA_PLATFORM=offscreen ~/bpp/release/bpp -f Formations-Lennard-Jones-Quadcopter.lua -n 1500`
   (`mkdir -p /tmp/rt` first). 5400 frames ≈ 180 s of flight, about a minute of
@@ -151,42 +152,46 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 
 ## 7. Where things stand and what's next
 
-- **Done:** the map, the workflow, the world-generator design, and this handoff
-  with the probes, thesis digests and PDF tool now in the repo.
-- **Next: milestone M0** (build step 0 in `BOOK.md`, details in `WORKFLOW.md`):
-  1. **Done:** `lib/rng.lua`: move the multiply-with-carry generator out of
-     `Uniform_Coverage.lua` into a shared module with a seed setting (not
-     `os.time()`); point `Uniform_Coverage.lua`, the formations and
-     `quadcopter/swarm.lua` at it; keep the appendix test as a check script.
-     Check that Uniform Coverage gives identical results with the same seed.
-  2. **Done:** `lib/batch`: a headless runner over seeds × settings writing CSV, two jobs
-     in parallel.
-  3. **Done:** `lib/monitors.lua`: centre-of-mass drift, linear and angular momentum,
-     energy, and a Lua integrator with a controllable time step.
-  4. **Done:** `lib/world.lua`: the world generator's core (G21, `BOOK.md` §6), seeded,
-     with the first book presets: Ch. 3's wall of 12 discs, Ch. 4's 84×84
-     coverage box, Ch. 7's corridor with an obstacle percentage.
-  5. **Done:** `ch02/`: the three Ch. 2 models (spring1D, spring2D, solar system) as BPP
-     scenes with check scripts against `book/ch02.md`.
-  6. The `checks/` folder and a script that runs every check.
-- **World generator (decided 2026-10-17):** option A, a procedural 3D
-  generator calibrated to published statistics of real places, with presets
-  rural, suburban, city centre, industrial port and harbour town
-  (`BOOK.md` §6). Real places (OSM, elevation, depth charts) are future
-  work. Build order: terrain and water first, then zones, streets, lots and
-  buildings, vegetation, mission features.
-- **After M0:** M1, Ch. 13's four fixes on the drones, each switchable,
-  measured on Newtonian 2D and 3D with the Ch. 16.9 metrics.
-- **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35);
-  the Android app still has the two Uniform Coverage bugs
-  fixed in BPP; FIXES item 27 is documented, not fixed; an Info pane for BPP.
+- **Done: milestone M0** (build step 0), all on `master`:
+  1. `lib/rng.lua`: the shared multiply-with-carry generator, seeded from
+     `SEED`, the `seed` slider (0–1000) or the clock; every demo and probe
+     uses it (FIXES 34).
+  2. `lib/batch.py` + `lib/batch.lua`: seeds × settings, two at a time, one
+     CSV; `--match` reads a script's own `key=value` lines.
+  3. `lib/monitors.lua`: COM drift, momentum, angular momentum, energy, and
+     the book's integrator with a chosen Δt.
+  4. `lib/world.lua` + `Worlds.lua`: the generator's core and the book
+     presets (Ch. 3 discs, Ch. 4 box, Ch. 7 corridor); `writeCPT` for
+     Zarzhitsky's tools.
+  5. `ch02/`: the three Ch. 2 models as scenes and checks.
+  6. `checks/run_all.sh`: every check, about 1 min 40 s (`checks/README.md`).
+- **Also done in the M0 chat:** Ch. 11.7, the mean free path in 3D, exact
+  and simulated (`ch11/`); the Uniform Coverage measurements and the wall-rule
+  decision (FIXES 36); the realistic generator's design (`BOOK.md` §6).
+- **Next, William's choice between:**
+  - **The realistic world generator** (`BOOK.md` §6, option A): terrain and
+    water first, then zones, streets, lots and buildings, vegetation, mission
+    features; presets rural, suburban, city centre, industrial port, harbour
+    town. Real places (OSM, elevation, depth charts) are future work.
+  - **M1:** Ch. 13's four fixes on the drones, each switchable, measured on
+    Newtonian 2D and 3D with the Ch. 16.9 metrics, using `lib/batch.py` and
+    `probes/batch_drones.lua`.
+- **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
+  Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES 4–5;
+  its wall rule is kept, FIXES 36); FIXES item 27 is documented, not fixed; an
+  Info pane for BPP; the Ch. 2 drone and 3D variants (`ch02/README.md`).
+- **Sources for the next chat:** attach `CPT.zip` again for any plume work
+  (it is not in the repo), the book PDF for chapters beyond the notes, and
+  `ap.zip` / `Android_AP.zip` to compare with the app.
 
 ## 8. Opening message for the next chat
 
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
-> WORKFLOW.md. Build BPP as described there and start milestone M0. Deliver
-> each step as a patch with git commands.
+> WORKFLOW.md. Build BPP as described there, run checks/run_all.sh, and
+> continue with the next step in HANDOFF.md §7: [the realistic world
+> generator | milestone M1]. Deliver each step as a patch with git commands.
 
-Attach the book PDF if the chat will need chapters beyond the notes, and
-`ap.zip` if it will compare with the Android app.
+Attach the book PDF if the chat will need chapters beyond the notes,
+`ap.zip` if it will compare with the Android app, and `CPT.zip` for plume
+work.
