@@ -13,14 +13,15 @@ not move, so nothing that points at them breaks.
 
 | Folder or file | Holds |
 | --- | --- |
-| `BOOK.md`, `BOOK.pdf`, `book/` | The plan and the chapter notes. `BOOK.md` is also the progress tracker |
+| `BOOK.md`, `BOOK.pdf`, `book/` | The plan, the chapter notes and (in `book/theses/`) the thesis digests. `BOOK.md` is also the progress tracker |
 | `WORKFLOW.md`, `WORKFLOW.pdf` | This file |
-| `HANDOFF.md` (new) | How William likes to work, build and run steps, the current state and the next step. A new chat starts from the repo alone |
+| `HANDOFF.md` | How William likes to work, build and run steps, the current state and the next step. A new chat starts from the repo alone |
 | `FIXES.md` | Fixes, as now |
 | `lib/` (new) | Shared code: the random number generator, batch runner, momentum and energy checks, metrics, force-law table, sensing model, and the world generator (G21), which builds every world from the book's presets to the capstone harbour |
 | `quadcopter/` (exists), then `ground/`, `boat/`, `sub/`, `fixedwing/` | One folder per kind of vehicle, all behind the same interface (G18 in `BOOK.md`) |
 | `ch02/` … `ch19/`, `capstone/` | The ports, one folder per chapter. Each has a README with the book's numbers, ours, and the choices made where the sources are silent or disagree |
-| `probes/`, `checks/` (new) | The measurement probes (until now only in the handoff bundle), and one check script per port |
+| `probes/`, `checks/` (new) | The measurement probes from the quadcopter work, and one check script per port |
+| `tools/` | `md2pdf.py`, which typesets `BOOK.md` and `WORKFLOW.md` as PDFs |
 
 The existing top-level demos (`Formations-*.lua`, `Uniform_Coverage.lua`) stay
 where they are, so they remain easy to find in BPP's file dialog.
@@ -29,8 +30,8 @@ where they are, so they remain easy to find in BPP's file dialog.
 
 Every task goes through the same steps. Each step is one patch.
 
-1. **Read the sources.** There are four, and each can be right where the others
-   are wrong:
+1. **Read the sources.** There are four (five for Ch. 8–9), and each can be right
+   where the others are wrong:
    - the chapter note in `book/` (and the book itself for anything unclear);
    - the original `.nlogo` model from the book website, the reference
      implementation;
@@ -80,7 +81,7 @@ updating `HANDOFF.md`. The milestones follow the build order in `BOOK.md`:
 
 | Milestone | Build steps | Content |
 | --- | --- | --- |
-| M0 | 0 | The folders above, `HANDOFF.md`, probes into the repo, the shared random number generator with a seed setting, the batch runner, momentum and energy checks, the world generator's core and first book presets, Ch. 2's three tests |
+| M0 | 0 | The folders above, the shared random number generator with a seed setting, the batch runner, momentum and energy checks, the world generator's core and first book presets, Ch. 2's three tests |
 | M1 | 1 | Ch. 13's four fixes on the drones, each switchable, measured |
 | M2 | 2 | The vehicle interface, ground robot and surface boat, first cross-vehicle benchmark |
 | M3 | 3–5 | Fidelity checks of the existing formations and coverage, Perfect Formation, velocity commands and kinetic theory |
@@ -88,8 +89,8 @@ updating `HANDOFF.md`. The milestones follow the build order in `BOOK.md`:
 
 ## 6. What stays out of the repo
 
-The book PDF and the theses are not William's to publish, so they stay out of
-the repo; attach them to a chat that needs them. Our chapter notes and the
-thesis digests are our own summaries and can go in. The same goes for
-Zarzhitsky's CPT code. The Android app's code lives in its own project; attach
-`ap.zip` or the CPT code when a task needs it.
+The book PDF, the theses and Zarzhitsky's CPT code are not William's to
+publish, so they stay out of the repo; attach them to a chat that needs them.
+The Android app's code lives in its own project; attach `ap.zip` when a task
+needs it. Our chapter notes and the thesis digests are our own summaries and
+are in `book/`.
