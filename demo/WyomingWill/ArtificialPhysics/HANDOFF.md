@@ -59,10 +59,11 @@ is updated at the end of every milestone.
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–36 |
+| `ch02/` | Ch. 2's springs and solar system: BPP scenes and checks (`ch02/README.md`) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua` so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's book presets |
-| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua`, `mfp_theory.lua`, `world.lua` so far |
+| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua`, `mfp_theory.lua`, `world.lua`, `ch02.lua` so far |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -139,6 +140,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   the limits drop to 0.00087 / 0.0035, 4–5× below 1 or 10 agents, because
   crowding adds turns (shorter effective free path), as Fig. 4.19 shows.
   Agents are near-independent only when they rarely meet.
+- **Ch. 2 reproduced** (`ch02/README.md`): every result of the three models,
+  including the book's peak speeds 5.6 / 5 / 4 / 9 under the force cap (we
+  get 5.50 / 4.97 / 4.00 / 9.00). Energy with the book's integrator swings
+  within a cycle (0.45% for the spring, up to 16% at a close orbital pass at
+  Δt 0.1) but does not drift.
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
@@ -160,7 +166,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   4. **Done:** `lib/world.lua`: the world generator's core (G21, `BOOK.md` §6), seeded,
      with the first book presets: Ch. 3's wall of 12 discs, Ch. 4's 84×84
      coverage box, Ch. 7's corridor with an obstacle percentage.
-  5. `ch02/`: the three Ch. 2 models (spring1D, spring2D, solar system) as BPP
+  5. **Done:** `ch02/`: the three Ch. 2 models (spring1D, spring2D, solar system) as BPP
      scenes with check scripts against `book/ch02.md`.
   6. The `checks/` folder and a script that runs every check.
 - **World generator (decided 2026-10-17):** option A, a procedural 3D

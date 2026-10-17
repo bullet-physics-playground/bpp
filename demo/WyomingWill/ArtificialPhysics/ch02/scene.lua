@@ -1,0 +1,118 @@
+--
+-- ch02/scene.lua -- drawing and running a ch02/models.lua model in BPP
+--
+-- Shared by Spring1D.lua, Spring2D.lua and SolarSystem.lua. The model's
+-- plane (x, y) is drawn as BPP (x, -z) with y up (lib/world.lua's
+-- mapping), seen from above. Each frame runs `stepsPerFrame` integrator
+-- steps; S starts and stops as in every BPP scene. The status line shows
+-- the book's monitors: time, separation, linear momentum, angular
+-- momentum, kinetic, potential and total energy.
+--
+
+package.path = "../?.lua;" .. package.path
+local common = require "common"
+local ch = require "ch02.models"
+local rng = require "lib.rng"
+
+local S = {}
+
+local CF_STATIC, CF_NO_CONTACT = 1, 4
+local function quiet(o)
+  pcall(function() o.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end)
+  return o
+end
+
+-- opts: build(params) -> model; title; camera height; trail (max dots, 0
+-- for none); trailEvery (steps between dots); colors; radius(m);
+-- springLine (draw the spring); live(name, value, model) -> true if the
+-- change was applied without a reset.
+function S.run(opts)
+  common.setTiming(1 / 30, 1, 1 / 30)
+  common.gravity(0)
+  rng.init(v)
+
+  local model, objs, springObj, comObj = nil, {}, nil, nil
+  local trail, trailNext, steps = {}, 1, 0
+  local t = 0
+
+  local function P(x, y, h) return btVector3(x, h or 0, -y) end
+
+  local function clearAll()
+    for _, o in ipairs(objs) do v:remove(o) end
+    for _, o in ipairs(trail) do v:remove(o) end
+    if springObj then v:remove(springObj); springObj = nil end
+    objs, trail, trailNext = {}, {}, 1
+  end
+
+  local function draw()
+    for i, p in ipairs(model.ps) do
+      objs[i].pos = P(p.x or 0, p.y or 0, 0)
+    end
+    local m = ch.measure(model)
+    comObj.pos = P(m.cx, m.cy, 0.2)
+    if opts.springLine then
+      if springObj then v:remove(springObj) end
+      local a, b = model.ps[1], model.ps[2]
+      springObj = common.placeCylinder(P(a.x or 0, a.y or 0, 0), P(b.x or 0, b.y or 0, 0), 0.6, "#c8c8c8")
+      if springObj then quiet(springObj) end
+    end
+    local line = string.format("%s  |  t %.2f  sep %.2f  |P| %.3g  L %.6g  KE %.4g  PE %.4g  E %.6g",
+      opts.title, t, m.sep, m.p, m.lz, m.ke, m.pe, m.e)
+    pcall(function() v.statusText = line end)
+  end
+
+  function setup()
+    rng.reseed()
+    clearAll()
+    model = opts.build()
+    t = 0
+    for i, p in ipairs(model.ps) do
+      local o = quiet(Sphere(opts.radius(p.m or 1), 0))
+      o.col = (opts.colors or {})[i] or "#ffffff"
+      v:add(o)
+      objs[i] = o
+    end
+    if not comObj then
+      comObj = quiet(Sphere(0.8, 0)); comObj.col = "#ff2020"; v:add(comObj)
+    end
+    draw()
+    print(string.format("setup: %s", opts.title))
+  end
+
+  v:onParamChanged(function(N, name, value)
+    if rng.isSeedChange(name) then setup(); return end
+    if model and opts.live and opts.live(name, value, model) then draw(); return end
+    if model and opts.resetOn and opts.resetOn[name] then setup() end
+  end)
+  v:addShortcut("R", function() setup() end)
+
+  v:postSim(function(N)
+    if not model then return end
+    local n = math.max(1, math.floor(v:getParam("stepsPerFrame")))
+    for _ = 1, n do
+      ch.step(model)
+      t = t + model.dt
+      steps = steps + 1
+      if (opts.trail or 0) > 0 and steps % (opts.trailEvery or 10) == 0 then
+        local p = model.ps[opts.trailOf or 2]
+        local dot = trail[trailNext]
+        if not dot then
+          dot = quiet(Sphere(0.35, 0)); dot.col = "#7090ff"; v:add(dot)
+          trail[trailNext] = dot
+        end
+        dot.pos = P(p.x or 0, p.y or 0, -0.3)
+        trailNext = trailNext % opts.trail + 1
+      end
+    end
+    draw()
+  end)
+
+  -- straight down, with the model's +y at the top of the screen
+  common.setCamera(btVector3(opts.cx or 0, opts.camHeight or 150, -(opts.cy or 0)),
+                   btVector3(opts.cx or 0, 0, -(opts.cy or 0)), nil, { up = btVector3(0, 0, -1) })
+  pcall(function() v:setHelpText(opts.help or opts.title) end)
+  setup()
+  return function() return model end
+end
+
+return S

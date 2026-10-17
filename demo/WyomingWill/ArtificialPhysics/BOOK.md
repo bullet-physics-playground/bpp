@@ -153,7 +153,7 @@ Most chapters need the same pieces. Build each once.
 | Ch. | Title (author) | Entries | First BPP target | Vehicles | Groundwork | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Nature is lazy (Spears) | 8 | Potential-well height map; Q-vs-P metric | particles, ★ magnets | G6, G3 | new |
-| 2 | NetLogo and physics (Spears) | 3 | Springs and solar system as integrator tests | particles, ★ 2 drones | G1 | new |
+| 2 | NetLogo and physics (Spears) | 3 | Springs and solar system as integrator tests | particles, ★ 2 drones | G1 | partly |
 | 3 | NetLogo and physicomimetics (Spears) | 7 | Check the existing formations against the book; add Hooke, honeycomb, events | particles, quads | G1, G9, G16 | partly |
 | 4 | Pushing the envelope (Spears) | 5 | Couette flow (2 closed forms); perfect square | particles, quads | G1, G3, G4, G15, G17 | partly / plan / new |
 | 5 | Local oriented potential fields (Bravi et al.) | 9 | Square, line, star, tree by sector forces | holonomic particles, quads | G9, G17 | new |
@@ -194,9 +194,9 @@ detail.
 ### Ch. 2 — NetLogo and physics (PDF 58–85) · `book/ch02.md`
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
-| 2.1 | `spring1D`: Hooke oscillation, momentum 0, energy flat, friction drains it | 58–72 | Integrator regression test (G1) | new |
-| 2.2 | `spring2D`: angular momentum conserved, centrifugal stretch > 2D | 73–77 | Test; ★ 3D off-plane spin; ★ 2 drones on a virtual spring | new |
-| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | Test; ★ one drone orbiting under a capped 1/r² law (velocity cap = drone speed limit) | new |
+| 2.1 | `spring1D`: Hooke oscillation, momentum 0, energy flat, friction drains it | 58–72 | `ch02/`: scene and checks, all results reproduced | done |
+| 2.2 | `spring2D`: angular momentum conserved, centrifugal stretch > 2D | 73–77 | `ch02/`: scene and checks, reproduced; ★ 3D off-plane spin; ★ 2 drones on a virtual spring | partly |
+| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | `ch02/`: scene and checks, all five experiments reproduced (peak speeds 5.5, 5.0, 4.0, 9.0 as printed); ★ one drone orbiting under a capped 1/r² law (velocity cap = drone speed limit) | partly |
 
 ### Ch. 3 — NetLogo and physicomimetics (PDF 86–123) · `book/ch03.md`
 | # | Entry | Pages | BPP | Status |
@@ -589,55 +589,38 @@ it would then also calibrate the statistics.
 
 | Layer | What | Based on |
 | --- | --- | --- |
-| Terrain | A heightfield: coastal plain, rolling rural relief, river valleys; slopes kept drivable for ground robots | Fractal noise shaped by a few large features |
-| Water | Sea, harbour, rivers, ponds, each with a depth grid. Harbour: dredged approach and channels, turning basin, berths alongside quays, shoaling margins | Ports dredge to set depths: Los Angeles about 16 m in the main channel and 25 m on the approach, Long Beach 11–23 m by channel |
-| Zones | Districts from one or more centres, density falling with distance, typed by Local Climate Zone: compact high-, mid- and low-rise, open mid- and low-rise, large low-rise (warehouses, port), sparsely built (rural), heavy industry; land covers: dense and scattered trees, low plants (fields), paved, bare soil, water | LCZ ranges, e.g. compact high-rise over 40% built and over 25 m; open low-rise 15–25% and 3–10 m; sparsely built 5–15% and 3–10 m |
-| Streets | Grids in cores, curving streets and cul-de-sacs in suburbs, a sparse winding network in rural areas; streets as the open space between blocks | Grid blocks about 80 × 274 m (Manhattan) and 100 × 200 m (Chicago) |
-| Lots and buildings | Blocks split into lots; one or more buildings per lot with setbacks; footprints mostly rectangles and L, T and U shapes, aligned to the street; height as a whole number of floors (about 3.5 m each), heavy-tailed, falling from the centre; flat and pitched roofs | Heights cluster at whole floors (peaks near 3.5 and 6.5 m in Santa Fe) with a heavy tail, and mean height falls with distance from the centre; US median new lot about 0.2 acre (0.13 Pacific, over 0.4 for half of New England's) |
-| Vegetation | Woods, hedgerows and tree belts, street trees, gardens; trees are their own obstacle class (they block sight and sound but are porous to air) | LCZ land covers |
-| Mission features | Quay, piers, a ship at a berth (the leak source), warehouses with doorways and open interiors, a container yard with U-shaped pockets, a storm-drain network with an outfall, launch pads | The capstone (above) |
+| Terrain | Heightfield: coastal plain, rolling relief, river valleys; slopes drivable | Fractal noise and a few large features |
+| Water | Sea, harbour, rivers, ponds with depth grids; dredged approach, channels, turning basin, berths, shoaling margins | Los Angeles: main channel ~16 m, approach ~25 m; Long Beach 11–23 m |
+| Zones | Districts around centres, density falling outward, typed by Local Climate Zone (compact/open high-, mid-, low-rise, large low-rise, sparsely built, heavy industry; trees, fields, paved, soil, water) | Compact high-rise >40% built, >25 m; open low-rise 15–25%, 3–10 m; sparse 5–15% |
+| Streets | Grids in cores, curves and cul-de-sacs in suburbs, sparse winding rural roads | Blocks ~80 × 274 m (Manhattan), 100 × 200 m (Chicago) |
+| Lots, buildings | Lots with setbacks; rectangles and L, T, U footprints along streets; whole floors (~3.5 m), heavy-tailed, lower away from the centre | Peaks at whole floors, heavy tail, height falls outward; US median new lot ~0.2 acre |
+| Vegetation | Woods, hedgerows, street trees, gardens; trees block sight and sound, are porous to air | LCZ land covers |
+| Mission features | Quay, piers, ship at a berth (the leak), warehouses with doorways, container yard with pockets, storm drains and outfall, launch pads | The capstone |
 
-**Presets** (each a parameter table for the same generator):
+**Presets** (parameter tables for one generator): **rural** (fields, woods,
+hedgerows, farmsteads, a river and pond, winding roads, rolling terrain);
+**suburban** (houses on lots, curving streets, cul-de-sacs, trees, a park with
+a pond); **city centre** (compact mid- and high-rise grid, heights falling
+from the centre, plazas, a park); **industrial port** (warehouses, container
+yard with pockets, quays, dredged basins); **harbour town**, the capstone (all
+of these around a harbour with real depth structure, the ship at its berth,
+storm drains and outfall, launch pads).
 
-1. **Rural:** fields, woods and hedgerows, scattered farmsteads, a river and a
-   pond, winding roads, rolling terrain.
-2. **Suburban:** open low-rise houses on lots, curving streets and cul-de-sacs,
-   street trees and gardens, a park with a pond.
-3. **City centre:** a grid of compact mid- and high-rise blocks whose heights
-   fall away from the centre; plazas, a park.
-4. **Industrial port:** warehouses, a container yard with pockets, quays and
-   dredged basins.
-5. **Harbour town (the capstone):** all of the above around a harbour with real
-   depth structure, the ship at its berth, the storm drains and outfall, launch
-   pads.
+**Everywhere:** gaps between buildings fit an agent or are closed (the Android
+port's rule); worlds are seeded from their own stream, so a seed always gives
+the same world and sweeps vary one knob at a time; distant districts are
+merged into static meshes, with full detail only in the mission area.
 
-**Rules that hold everywhere:**
+**Outputs:** BPP geometry (terrain, water and seabed, buildings, trees,
+tunnels); grids of ground height, water depth, zone and occupancy at a chosen
+height (2D ports, CPT format); line-of-sight occluders; metric masks (cells,
+shadow cells, traps, water). **Later:** wind with height and currents.
 
-- **Navigable:** gaps between buildings either fit an agent or are closed (the
-  Android port's rule).
-- **Seeded and parameterised:** a seed from the shared generator (G2), drawn
-  from the world's own stream; the same seed always gives the same world, and
-  sweeps can vary one knob at a time.
-- **Detail where the mission happens:** BPP cannot carry tens of thousands of
-  separate bodies, so distant districts are merged into large static meshes
-  and only the mission area is built piece by piece.
-
-**Outputs from one description:** BPP geometry (terrain, water surface and
-seabed, buildings, trees, tunnels); grids of ground height, water depth, zone
-type and occupancy at a chosen height (for 2D ports and the CPT format);
-line-of-sight occluders; and the masks the metrics need (coverage cells,
-Ch. 7's shadow cells, trap regions for spotting stuck agents, the water area).
-**Later:** a mean wind with height and a current that suit the layout, for the
-plume work.
-
-**The book's worlds stay as the book draws them,** as their own presets for
-the chapter ports: Ch. 3's 12 discs (measured from Fig. 3.25), Ch. 4's 84×84
-coverage box, Ch. 7's corridor with rectangles, triangles and circles (Fig.
-7.2), and later Ch. 11's environments, Ch. 12's 35-vertex maze and Ch. 14's
-900×700 field.
-
-The core and the book presets came in milestone M0 (`lib/world.lua`,
-`Worlds.lua`). The realistic layers come next, terrain and water first.
+**The book's worlds stay as the book draws them,** as presets for the chapter
+ports: Ch. 3's 12 discs, Ch. 4's coverage box, Ch. 7's corridor (Fig. 7.2's
+shapes), later Ch. 11's environments, Ch. 12's maze and Ch. 14's field. The
+core and these presets came in M0 (`lib/world.lua`, `Worlds.lua`); the
+realistic layers come next, terrain and water first.
 
 ### Order
 Build G18 and the cross-vehicle benchmark early, right after the Ch. 13
