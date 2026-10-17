@@ -82,10 +82,13 @@ local G = 981
 -- and 4.5 mm thick, with its mass at the joints, as a ball chain's is in its
 -- balls, poured into the jar once beforehand as a jumbled heap
 -- (chain-fountain-meshes/heap.txt, made with CF_POUR=1 CF_SAVEHEAP); see
--- the README. Ten links ahead of the pick-up are simulated, as with the
--- coil, and any link lying on the moving chain; the rest of the heap lies
--- fixed where it settled. Not a faithful shortcut: its fountain is about
--- 1.6 times the full heap's.)
+-- the README. The heap lies fixed where it settled, except within 4 cm
+-- across of the pick-up and down to 0.5 cm below it (CF_ZONE, CF_ZDEPTH),
+-- where every link moves; links left behind at rest lie fixed again. Its
+-- fountain is the fully simulated heap's within the spread from pour to
+-- pour. True friction 0.3, joints' error correction 0.5 a step, contact
+-- points only where touching. It starts at an eighth of real speed: at a
+-- quarter a frame takes 29 ms.)
 local HEAPPILE = os.getenv("CF_PILE") == "heap"
 local SCALE = envnum("CF_LINK", HEAPPILE and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
 local L, RL = 1.5 * SCALE, envnum("CF_RADIUS", HEAPPILE and 0.225 or 0.3 * SCALE)  -- a link: joint to joint, and its radius (as in link.obj)
@@ -124,7 +127,7 @@ local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them a
 -- (experiments on cost: CF_SLEEP=1 lets Bullet put resting links to sleep;
 -- CF_CPT=d processes only contact points closer than d cm)
 local SLEEP = envnum("CF_SLEEP", 0) > 0
-local CPT = tonumber(os.getenv("CF_CPT") or "")
+local CPT = tonumber(os.getenv("CF_CPT") or "") or (HEAPPILE and 0 or nil)
 -- (CF_GLASSMU: friction of the jar's glass, if not the friction slider's)
 local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
@@ -133,12 +136,14 @@ local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, 
 local T_STEADY = envnum("CF_T0", 1.0)   -- the theory check averages from here on (experiments: CF_T0)
 
 local function param(...) v:addParam(...) end
-param("speed", envnum("CF_SPEED", 0.25), 0.05, 1, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
+local SLOW = HEAPPILE and 0.125 or 0.25      -- (the speed it starts at, and Z goes back to)
+local SPEEDHELP = HEAPPILE and "simulated seconds per real second (Z: 1/8 <-> 1)" or "simulated seconds per real second (Z: 1/4 <-> 1)"
+param("speed", envnum("CF_SPEED", SLOW), 0.05, 1, HEAPPILE and 0.025 or 0.05, SPEEDHELP)
 param("steps", envnum("CF_STEPS", 1800), 1200, 4800, 300, "physics steps per simulated second")
 param("bending", envnum("CF_BEND", 30), 20, 90, 5, "most a joint can bend, degrees (starts it again)")
 param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor, cm (starts it again)")
 param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (starts it again)")
-param("friction", envnum("CF_MU", 0.3), 0, 1, 0.05, "friction, chain on glass and chain")
+param("friction", envnum("CF_MU", HEAPPILE and 0.548 or 0.3), 0, 1, 0.05, "friction, chain on glass and chain")
 
 -- The physics step is always 1/steps of a simulated second, whatever the
 -- speed: a frame takes as many whole steps as its share of simulated time
@@ -175,6 +180,11 @@ local function holdPre()            -- first thing before each step: true while 
 end
 applyTiming()
 v:setSolverIterations(envnum("CF_ITER", 20))
+-- (the joints' error correction a step: Bullet's 0.2 unless CF_ERP says;
+-- CF_PILE=heap 0.5, which makes the poured heap's fountain the same at 1800
+-- steps a second as at 3600 and 7200)
+local ERP = envnum("CF_ERP", HEAPPILE and 0.5 or 0)
+if ERP > 0 then v:setErp(ERP) end     -- (and before every frame: see preSim)
 v.gravity = btVector3(0, -G, 0)
 
 local floor = Plane(0, 1, 0, 0, 300)
@@ -472,6 +482,7 @@ local function teardown()
     if l.obj then v:remove(l.obj) end
     if l.disp then v:remove(l.disp) end
     if l.st then v:remove(l.st) end
+    if l.parked then v:remove(l.parked) end
   end
   links, linkOf, discKey, jarKeys, staticKeys = {}, {}, nil, {}, {}
   for _, o in ipairs(scene) do v:remove(o) end
@@ -521,6 +532,10 @@ end
 -- hold it. Fixed links are found by where they lie (heapGrid: cells of
 -- WAKE_R), so that a moving link can wake the ones it is about to touch.
 local WAKE_R = L + 2 * RL + 0.2
+local ZONE = envnum("CF_ZONE", HEAPPILE and 4 or 0)      -- (cm: see heapFeed; 0: none)
+local ZDEPTH = envnum("CF_ZDEPTH", HEAPPILE and 0.5 or 0) -- (cm: see heapFeed; 0: a ball)
+if ZONE <= 0 then ZONE = nil end
+if ZDEPTH <= 0 then ZDEPTH = nil end
 local heapGrid, heapTop
 local function cellKey(x, y, z)
   return math.floor(x / WAKE_R) + 1000 * (math.floor(y / WAKE_R) + 1000 * math.floor(z / WAKE_R))
@@ -532,6 +547,45 @@ local function holdJoint(a, b)                 -- the far end of body a to the n
   v:addConstraint(c)
   return c
 end
+-- a link of the heap lies fixed: a fixed body where it lies (mid, rot),
+-- filed in heapGrid by where it lies. Each link has one fixed body for the
+-- whole run: while the link moves it is parked far below the floor, and
+-- brought back when the link lies fixed again. (Not made anew: bpp keeps
+-- the boxes of fixed bodies by their address, and forgets them all at once
+-- when it holds too many; a new fixed body each time made that happen at
+-- other moments in the Cabinet than on its own, so the run differed.)
+local function fixHeap(i, mid, rot)
+  local l = links[i]
+  local m = l.parked
+  if m then
+    local t = btTransform(rot, mid)
+    m.body:setWorldTransform(t)
+    m.trans = t
+    l.parked = nil
+  else
+    m = Mesh(LINK_OBJ, 0, false)
+    local body = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
+    m.body = body
+    m.col = LINK_COL
+    v:add(m)
+    if CPT then body:setContactProcessingThreshold(CPT) end
+    body:setFriction(MU)
+    body:setRestitution(0)
+  end
+  if okey then staticKeys[okey(m)] = true end
+  l.st, l.rest, l.rot = m, mid, rot
+  heapTop = math.max(heapTop, mid.y)
+  local key = cellKey(mid.x, mid.y, mid.z)
+  if l.cell ~= key then
+    if l.cell then
+      local c = heapGrid[l.cell]
+      for k = #c, 1, -1 do if c[k] == i then table.remove(c, k) end end
+    end
+    heapGrid[key] = heapGrid[key] or {}
+    table.insert(heapGrid[key], i)
+    l.cell = key
+  end
+end
 local function wakeHeap(j)
   local l = links[j]
   if not l or l.active or l.frozen or not l.st then return end
@@ -542,8 +596,11 @@ local function wakeHeap(j)
   if p and p.holdNext then v:removeConstraint(p.holdNext); p.holdNext = nil end
   if n and n.holdPrev then v:removeConstraint(n.holdPrev); n.holdPrev = nil end
   if okey then staticKeys[okey(l.st)] = nil end
-  v:remove(l.st); l.st = nil
-  local mid, rot = linkPose(j)
+  local park = btTransform(ident, btVector3(5000 + 2 * j, -1000, 0))
+  l.st.body:setWorldTransform(park)
+  l.st.trans = park
+  l.parked, l.st = l.st, nil
+  local mid, rot = l.rest, l.rot
   local m = Mesh(LINK_OBJ, 0, false)
   local body = btRigidBody(MASS, btDefaultMotionState(btTransform(rot, mid)), SHAPE, INERTIA)
   m.body = body
@@ -567,6 +624,25 @@ local function wakeHeap(j)
     l.holdNext = holdJoint(body, n.st.body)
   end
   head = math.max(head, j)
+end
+-- (CF_ZONE) a moving link of the heap, well clear of the pick-up and at
+-- rest, lies fixed again where it is now; its joints to moving neighbours
+-- become holds (each joint taken out on its own first, as above)
+local function freezeHeap(i)
+  local l = links[i]
+  local p, n = links[i - 1], links[i + 1]
+  if p and p.con and p.active then v:removeConstraint(p.con); p.con = nil end
+  if l.con then v:removeConstraint(l.con); l.con = nil end
+  if l.holdPrev then v:removeConstraint(l.holdPrev); l.holdPrev = nil end
+  if l.holdNext then v:removeConstraint(l.holdNext); l.holdNext = nil end
+  local x, y, z = getPosXYZ(l.obj)
+  local rot = l.body:getOrientation()     -- (the body's own: in the Cabinet .trans is where the hall shows it)
+  if okey then linkOf[okey(l.obj)] = nil end
+  v:remove(l.obj)
+  l.obj, l.body, l.active, l.chk = nil, nil, false, nil
+  fixHeap(i, btVector3(x, y, z), rot)
+  if p and p.active then p.holdNext = holdJoint(p.body, l.st.body) end
+  if n and n.active then n.holdPrev = holdJoint(l.st.body, n.body) end
 end
 
 local function start()
@@ -648,23 +724,11 @@ local function start()
     -- end and the ten links after it are simulated, and more are woken as
     -- the chain comes for them (see heapFeed)
     setPile(H)
-    heapGrid = {}
+    heapGrid, heapTop = {}, -1e9
     for i = 1, #pts - 1 do
       local mid, rot = linkPose(i)
-      local m = Mesh(LINK_OBJ, 0, false)
-      local body = btRigidBody(0, btDefaultMotionState(btTransform(rot, mid)), SHAPE, btVector3(0, 0, 0))
-      m.body = body
-      m.col = LINK_COL
-      v:add(m)
-      if CPT then body:setContactProcessingThreshold(CPT) end
-      body:setFriction(MU)
-      body:setRestitution(0)
-      if okey then staticKeys[okey(m)] = true end
-      links[i] = { st = m, rest = mid }
-      local key = cellKey(mid.x, mid.y, mid.z)
-      heapGrid[key] = heapGrid[key] or {}
-      table.insert(heapGrid[key], i)
-      heapTop = math.max(heapTop or -1e9, mid.y)
+      links[i] = {}
+      fixHeap(i, mid, rot)
     end
     for i = 1, math.min(K_AHEAD + 1, #pts - 1) do wakeHeap(i) end
   elseif LAYERWAKE then
@@ -767,12 +831,66 @@ end
 -- at: from twenty before the pick-up on), so that nothing fixed pins down
 -- the chain being pulled out. Links the chain merely slides
 -- over, or lies beside, stay fixed: a rough bed.
+-- (CF_ZONE) within the zone: R2 the radius squared; with CF_ZDEPTH=d the
+-- radius is across, and the zone goes no deeper than d below the pick-up
+-- (more 'extra' cm when freezing again)
+local function inZone(dx, dy, dz, R2, extra)
+  if ZDEPTH then return dx * dx + dz * dz < R2 and dy > -(ZDEPTH + (extra or 0)) end
+  return dx * dx + dy * dy + dz * dz < R2
+end
 local function heapFeed()
   run.budget = math.min(K_AHEAD, run.budget + WAKE_RATE * STEP)
   local pick = run.pick or tail
   for i = pick, math.min(pick + K_AHEAD, #pts - 1) do
     if run.budget < 1 then break end
     if links[i].st then wakeHeap(i); run.budget = run.budget - 1 end
+  end
+  if ZONE then
+    -- (CF_ZONE=R) every link of the heap within R of the pick-up moves
+    -- (with CF_ZDEPTH=d: within R across and no more than d below it; it is
+    -- looked round again once the pick-up has moved 5 mm); every 1/100 s a
+    -- moving link of the heap further out than that by 1 cm and slower than
+    -- 1 cm/s lies fixed again. R and d: the smallest for which the fountain
+    -- no longer changes as they grow (see the README).
+    local l = links[pick]
+    if not l then return end
+    local px, py, pz
+    if l.active then px, py, pz = getPosXYZ(l.obj) else px, py, pz = l.rest.x, l.rest.y, l.rest.z end
+    local c = run.zchk
+    if not (c and (px - c[1]) ^ 2 + (py - c[2]) ^ 2 + (pz - c[3]) ^ 2 < 0.25) then
+      run.zchk = { px, py, pz }
+      local woke, nc, R2 = {}, math.ceil(ZONE / WAKE_R), ZONE * ZONE
+      local cx, cy, cz = math.floor(px / WAKE_R), math.floor(py / WAKE_R), math.floor(pz / WAKE_R)
+      -- (heights: only the cells the zone reaches, up to the heap's top)
+      local y0 = ZDEPTH and math.floor((py - ZDEPTH) / WAKE_R) - cy or -nc
+      local y1 = math.min(nc, math.floor(heapTop / WAKE_R) - cy)
+      for dx = -nc, nc do for dy = y0, y1 do for dz = -nc, nc do
+        local cell = heapGrid[(cx + dx) + 1000 * ((cy + dy) + 1000 * (cz + dz))]
+        if cell then
+          for _, j in ipairs(cell) do
+            local q = links[j].rest
+            if links[j].st and inZone(q.x - px, q.y - py, q.z - pz, R2) then woke[#woke + 1] = j end
+          end
+        end
+      end end end
+      table.sort(woke)
+      for _, j in ipairs(woke) do wakeHeap(j) end
+    end
+    run.zstep = (run.zstep or 0) + 1
+    if run.zstep % 18 == 0 then
+      local F2 = (ZONE + 1) ^ 2
+      for i = pick + K_AHEAD + 1, head do
+        local m = links[i]
+        if m.active then
+          local x, y, z = getPosXYZ(m.obj)
+          if not inZone(x - px, y - py, z - pz, F2, 1) then
+            local vx, vy, vz = getVelXYZ(m.obj)
+            if vx * vx + vy * vy + vz * vz < 1 then freezeHeap(i) end
+          end
+        end
+      end
+    end
+    return
   end
   -- (a link is looked round again only once it has moved 1 mm since it
   -- last was, and then a millimetre further out)
@@ -1069,7 +1187,7 @@ local function pourStep()
           local f = assert(io.open(os.getenv("CF_SAVEHEAP"), "w"))
           local function ends(i)
             local x, y, z = getPosXYZ(links[i].obj)
-            local q = links[i].obj.trans:getRotation()
+            local q = links[i].body:getOrientation()
             local qx, qy, qz, qw = q:getX(), q:getY(), q:getZ(), q:getW()
             local ax, ay, az = 1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy + qw * qz), 2 * (qx * qz - qw * qy)
             return x - ax * L / 2, y - ay * L / 2, z - az * L / 2, x + ax * L / 2, y + ay * L / 2, z + az * L / 2
@@ -1190,6 +1308,9 @@ local function afterStep()
 end
 
 v:preSim(function(N)
+  -- (in the Cabinet the script is loaded before its own world is the one
+  -- in use, so the joints' error correction is set again here)
+  if ERP > 0 then v:setErp(ERP) end
   if holdPre() then return end
   stepAcc = stepAcc + PER_FRAME
   local n = math.max(1, math.floor(stepAcc + 1e-9))
@@ -1217,8 +1338,8 @@ end)
 v:addShortcut("R", function(N) start() end)
 v:addShortcut("V", function(N) VIEW = 3 - VIEW; setView() end)
 v:addShortcut("Z", function(N)
-  local sp = v:getParam("speed") < 0.5 and 1 or 0.25
-  v:addParam("speed", sp, 0.05, 1, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
+  local sp = v:getParam("speed") < 0.5 and 1 or SLOW
+  v:addParam("speed", sp, 0.05, 1, HEAPPILE and 0.025 or 0.05, SPEEDHELP)
   applyTiming()
 end)
 v:onParamChanged(function(N, name, value)
