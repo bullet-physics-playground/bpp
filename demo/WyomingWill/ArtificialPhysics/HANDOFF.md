@@ -60,8 +60,9 @@ is updated at the end of every milestone.
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–36 |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua` so far (`lib/README.md`) |
-| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua` so far |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua` so far (`lib/README.md`) |
+| `Worlds.lua` | Viewer for the world generator's book presets |
+| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua`, `mfp_theory.lua`, `world.lua` so far |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -75,7 +76,7 @@ live in their own projects.
 | --- | --- |
 | The book, `apbook1.pdf` (674 pages; page refs in `BOOK.md` are PDF pages, book page = PDF − 31) | Anything the chapter notes don't settle |
 | The Android app, `ap.zip` (Kotlin; 10 simulations, all with book counterparts) | Step 1 of every task: mostly built from the `.nlogo` files, sometimes improved, sometimes wrong |
-| Zarzhitsky's CPT code, `CPT.zip` (PlumeGen, TraceGen, viewer; C/GTK2) | Ch. 8–9: the plume and robot constants the book omits. Its Textron map maker (`MakeMap.c`) is replaced by our world generator (G21). The app's version changes the plume generator |
+| Zarzhitsky's CPT code, `CPT.zip` (PlumeGen, TraceGen, viewer; C/GTK2) | Ch. 8–9: the plume and robot constants the book omits. **Its map makers (`MakeMap.c` for Textron, `MapGen.c`) are not used**: our own 3D world generator (`BOOK.md` §6) builds every world. `lib/world.lua` writes his map format (`writeCPT`) so PlumeGen and TraceGen can run on our worlds as a check; PlumeGen builds from `PlumeGen.c` + `MapUtils.c` with glib only. The app's version changes the plume generator |
 | The original NetLogo models | The book website, sites.google.com/view/artificialphysics, page `/netlogo-simulations` (Dropbox links; the cloud shell usually can't reach Dropbox, so ask William to attach them) |
 | The thesis PDFs | Only to check a detail the digests don't cover |
 
@@ -134,6 +135,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   100 the limits are 0.0158 / 0.0368 (1 agent) and 0.0131 / 0.0347 (10
   agents); at MFP ≤ 17 they are below ~0.002 and not resolved at 5×10⁷
   visits. At equal total visits one agent covers as evenly as ten.
+- **Uniform Coverage with 100 agents** (same 5×10⁷ visits): at MFP 30 / 50
+  the limits drop to 0.00087 / 0.0035, 4–5× below 1 or 10 agents, because
+  crowding adds turns (shorter effective free path), as Fig. 4.19 shows.
+  Agents are near-independent only when they rarely meet.
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
@@ -152,12 +157,18 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      in parallel.
   3. **Done:** `lib/monitors.lua`: centre-of-mass drift, linear and angular momentum,
      energy, and a Lua integrator with a controllable time step.
-  4. `lib/world.lua`: the world generator's core (G21, `BOOK.md` §6), seeded,
+  4. **Done:** `lib/world.lua`: the world generator's core (G21, `BOOK.md` §6), seeded,
      with the first book presets: Ch. 3's wall of 12 discs, Ch. 4's 84×84
      coverage box, Ch. 7's corridor with an obstacle percentage.
   5. `ch02/`: the three Ch. 2 models (spring1D, spring2D, solar system) as BPP
      scenes with check scripts against `book/ch02.md`.
   6. The `checks/` folder and a script that runs every check.
+- **World generator (decided 2026-10-17):** option A, a procedural 3D
+  generator calibrated to published statistics of real places, with presets
+  rural, suburban, city centre, industrial port and harbour town
+  (`BOOK.md` §6). Real places (OSM, elevation, depth charts) are future
+  work. Build order: terrain and water first, then zones, streets, lots and
+  buildings, vegetation, mission features.
 - **After M0:** M1, Ch. 13's four fixes on the drones, each switchable,
   measured on Newtonian 2D and 3D with the Ch. 16.9 metrics.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35);

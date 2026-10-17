@@ -45,8 +45,9 @@ Every task goes through the same steps. Each step is one patch.
      Zarzhitsky's C/GTK tool, not NetLogo, with a changed plume generator;
    - the matching thesis digest;
    - for Ch. 8–9, Zarzhitsky's original CPT code (PlumeGen, TraceGen), which
-     gives the plume and robot settings the book omits. Its map maker was
-     written for Textron and is replaced by our world generator.
+     gives the plume and robot settings the book omits. Its map makers are
+     not used; our own world generator (`BOOK.md` §6) builds every world and
+     writes his map format only so his tools can check ours.
 
    Where the sources disagree, the README records which was followed and why.
 2. **Build the 2D particle replica**, with a headless check script that compares

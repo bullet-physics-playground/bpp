@@ -144,7 +144,7 @@ Most chapters need the same pieces. Build each once.
 | G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
 | G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
-| G21 | **World generator:** our own seeded, parameterised generator of 2D and 3D worlds, replacing the old Textron map maker. Presets for the book's worlds; harbour features (water with depth, quay, piers, ship, streets of varied building heights, warehouses, a storm-drain network with an outfall, a container yard with pockets, launch pads). Outputs BPP geometry, a grid in Zarzhitsky's map format, and masks for the metrics (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
+| G21 | **World generator (core and book presets done, `lib/world.lua`; realistic layers next):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
 
 ---
 
@@ -573,36 +573,71 @@ over several seeds. That table is the scientific result; the mission
 demonstrates it.
 
 ### The world generator (G21)
-The harbour is built by our own world generator, which replaces the old Textron
-map maker (`MakeMap.c` in the CPT code). It is designed around this mission
-but serves every chapter.
+Our own generator, designed around this mission and serving every chapter. It
+is 3D and modelled on how real places are built, in general rather than any
+particular place. **Nothing is taken from the old map makers** in the CPT code
+(`MakeMap.c` for Textron, `MapGen.c`); `lib/world.lua` only *writes* their
+file format (`writeCPT`), so Zarzhitsky's PlumeGen and TraceGen can run on our
+worlds as an independent check of our plume port.
 
-| Feature | Serves |
-| --- | --- |
-| Water with a quay line, piers and a ship (the leak source), with depth for underwater vehicles | Boats, underwater plume and relay (Ch. 6, 8–9) |
-| Streets between buildings of varied heights | Urban canyons and wakes, rooftop against ground sources, 3D plume (Ch. 9) |
-| Warehouses with doorways and open interiors | Coverage and kinetic-theory sweeps (Ch. 7, 11) |
-| A storm-drain or tunnel network ending in an outfall at the harbour | Chain relays (Ch. 12) linking ground and water; chain-fountain escapes (§7) |
-| A container yard whose stacks form U-shaped pockets and a field of variable density | Cul-de-sacs (§7); obstacle density for Daedalus and scouts (Ch. 14–15) |
-| Launch pads | The launch-in-thirds start |
+**Approach (decided 2026-10-17): procedural, calibrated to published
+statistics of real places.** Importing real places (OpenStreetMap footprints
+with `building:levels`, elevation models, port depth charts) is future work;
+it would then also calibrate the statistics.
 
-- **Seeded and parameterised:** a seed from the shared generator (G2), plus
-  knobs for building density and height spread, street width, the number and
-  depth of pockets, obstacle density and the drain layout. The same seed always
-  gives the same world, and sweeps can vary one knob at a time.
-- **The book's worlds as presets:** Ch. 3's wall of 12 discs, Ch. 4's 84×84
-  coverage box, Ch. 7's corridor with an obstacle percentage, Ch. 11's
-  environments, Ch. 12's 35-vertex maze, Ch. 14's 900×700 field, so every
-  chapter port takes its world from one place.
-- **Three outputs from one description:** BPP geometry (boxes with heights, the
-  water plane, tunnels); a 2D grid in Zarzhitsky's map format, so his plume
-  generator and tracing program can run on our worlds as an independent check;
-  and masks the metrics need (coverage cells, Ch. 7's shadow cells, trap regions
-  for spotting stuck agents, the water area).
-- **Later:** a mean wind and a current that suit the layout, for the plume work.
+**Layers, in build order:**
 
-The core and the first book presets come in milestone M0; the harbour features
-arrive with the milestones that use them.
+| Layer | What | Based on |
+| --- | --- | --- |
+| Terrain | A heightfield: coastal plain, rolling rural relief, river valleys; slopes kept drivable for ground robots | Fractal noise shaped by a few large features |
+| Water | Sea, harbour, rivers, ponds, each with a depth grid. Harbour: dredged approach and channels, turning basin, berths alongside quays, shoaling margins | Ports dredge to set depths: Los Angeles about 16 m in the main channel and 25 m on the approach, Long Beach 11–23 m by channel |
+| Zones | Districts from one or more centres, density falling with distance, typed by Local Climate Zone: compact high-, mid- and low-rise, open mid- and low-rise, large low-rise (warehouses, port), sparsely built (rural), heavy industry; land covers: dense and scattered trees, low plants (fields), paved, bare soil, water | LCZ ranges, e.g. compact high-rise over 40% built and over 25 m; open low-rise 15–25% and 3–10 m; sparsely built 5–15% and 3–10 m |
+| Streets | Grids in cores, curving streets and cul-de-sacs in suburbs, a sparse winding network in rural areas; streets as the open space between blocks | Grid blocks about 80 × 274 m (Manhattan) and 100 × 200 m (Chicago) |
+| Lots and buildings | Blocks split into lots; one or more buildings per lot with setbacks; footprints mostly rectangles and L, T and U shapes, aligned to the street; height as a whole number of floors (about 3.5 m each), heavy-tailed, falling from the centre; flat and pitched roofs | Heights cluster at whole floors (peaks near 3.5 and 6.5 m in Santa Fe) with a heavy tail, and mean height falls with distance from the centre; US median new lot about 0.2 acre (0.13 Pacific, over 0.4 for half of New England's) |
+| Vegetation | Woods, hedgerows and tree belts, street trees, gardens; trees are their own obstacle class (they block sight and sound but are porous to air) | LCZ land covers |
+| Mission features | Quay, piers, a ship at a berth (the leak source), warehouses with doorways and open interiors, a container yard with U-shaped pockets, a storm-drain network with an outfall, launch pads | The capstone (above) |
+
+**Presets** (each a parameter table for the same generator):
+
+1. **Rural:** fields, woods and hedgerows, scattered farmsteads, a river and a
+   pond, winding roads, rolling terrain.
+2. **Suburban:** open low-rise houses on lots, curving streets and cul-de-sacs,
+   street trees and gardens, a park with a pond.
+3. **City centre:** a grid of compact mid- and high-rise blocks whose heights
+   fall away from the centre; plazas, a park.
+4. **Industrial port:** warehouses, a container yard with pockets, quays and
+   dredged basins.
+5. **Harbour town (the capstone):** all of the above around a harbour with real
+   depth structure, the ship at its berth, the storm drains and outfall, launch
+   pads.
+
+**Rules that hold everywhere:**
+
+- **Navigable:** gaps between buildings either fit an agent or are closed (the
+  Android port's rule).
+- **Seeded and parameterised:** a seed from the shared generator (G2), drawn
+  from the world's own stream; the same seed always gives the same world, and
+  sweeps can vary one knob at a time.
+- **Detail where the mission happens:** BPP cannot carry tens of thousands of
+  separate bodies, so distant districts are merged into large static meshes
+  and only the mission area is built piece by piece.
+
+**Outputs from one description:** BPP geometry (terrain, water surface and
+seabed, buildings, trees, tunnels); grids of ground height, water depth, zone
+type and occupancy at a chosen height (for 2D ports and the CPT format);
+line-of-sight occluders; and the masks the metrics need (coverage cells,
+Ch. 7's shadow cells, trap regions for spotting stuck agents, the water area).
+**Later:** a mean wind with height and a current that suit the layout, for the
+plume work.
+
+**The book's worlds stay as the book draws them,** as their own presets for
+the chapter ports: Ch. 3's 12 discs (measured from Fig. 3.25), Ch. 4's 84×84
+coverage box, Ch. 7's corridor with rectangles, triangles and circles (Fig.
+7.2), and later Ch. 11's environments, Ch. 12's 35-vertex maze and Ch. 14's
+900×700 field.
+
+The core and the book presets came in milestone M0 (`lib/world.lua`,
+`Worlds.lua`). The realistic layers come next, terrain and water first.
 
 ### Order
 Build G18 and the cross-vehicle benchmark early, right after the Ch. 13

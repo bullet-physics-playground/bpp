@@ -8,6 +8,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | --- | --- | --- |
 | `rng.lua` | G2 | The shared multiply-with-carry generator, seedable, with independent streams |
 | `batch.py`, `batch.lua` | G3 | Headless runs over seeds × settings, two at a time, into one CSV |
+| `world.lua` | G21 | The world generator's core: pieces, cells, masks, BPP geometry, the book's worlds as presets |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 
 ## `rng.lua`
@@ -99,3 +100,45 @@ print(mon.format(t:drift()))   -- com= dp= dl= de= relE=
 - `checks/monitors.lua` tests it against closed forms: two-body spring
   periods, the Kepler period and conserved quantities, friction decay, an
   external force, third-law violation and the caps.
+
+## `world.lua`
+
+```lua
+local World = require "lib.world"
+local w = World.preset("ch07-corridor", { percent = 30, seed = 4 })
+w:blocked(x, y)            -- in an obstacle or wall, or outside the bounds?
+w:cellOf(x, y)             -- cell index for the metrics, or nil
+w:occupancy()              -- per-cell obstacle fraction
+w:shadowCells()            -- Ch. 7's cells just downstream of obstacles
+local objs = w:toBPP(v, { scale = 0.02, cellFloor = true })
+w:writeGrid("corridor.txt")
+```
+
+- **A world** is 2D footprints with heights in the book's units: discs,
+  turned rectangles, triangles, walls, named regions and a cell tiling.
+  `World.new{}` plus `disc`, `rect`, `tri`, `wall`, `boxWalls`, `region`,
+  `cells`, `scatter` builds your own.
+- **Presets** (`World.presets()`):
+  - `ch03-obstacles`: the 12 discs of Figs. 3.25–3.26, measured from the
+    figure (`radius` 10 or 50), goal and start;
+  - `ch04-coverage`: the coverage box, nine cells on ±40 (`netlogo = true`
+    moves the walls to NetLogo's ±42);
+  - `ch07-corridor`: 1000″ × 5000″, random rectangles, triangles and circles
+    covering `percent`, 50 × 250 cells of 20″, start and goal strips.
+- **Seeded:** random worlds use their own stream, so the same seed gives the
+  same world and building one never shifts the agents' random numbers.
+- **BPP:** book (x, y) becomes BPP (x, −z) with y up, so a camera looking
+  down −z sees the book's orientation (`World.bppZ`). Objects are static
+  with no contact response. `Worlds.lua` shows the presets.
+- Each preset lists in `w.notes` the choices made where the book is silent.
+- **`writeCPT(path, nx, ny)`** writes Zarzhitsky's map format (nx lines of
+  ny characters, `' '` open, `'b'` blocked), any size, so his PlumeGen and
+  TraceGen can run on our worlds as a check. His reader as shipped wants a
+  square of at most 1024 (one `#define` and one check in `PlumeGen.c`), and
+  his `Scenario.h` expects 128; change those in a copy for other sizes. Checked against his real reader: PlumeGen
+  (built from `PlumeGen.c` + `MapUtils.c` with glib) loads it and reports the
+  same coverage. His map makers are not used. `writeGrid` writes a
+  human-readable `#`/`.` grid.
+- **The realistic layers** (terrain, water with depth, zones, streets, lots,
+  buildings, vegetation) are planned in `BOOK.md` §6 and come next.
+- `checks/world.lua`: 20 tests, about 10 s.
