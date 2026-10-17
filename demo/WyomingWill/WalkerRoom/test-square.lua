@@ -28,8 +28,8 @@ local TROT = { 0, 180, 180, 0 }
 VIEWS = {
   { walker = "Klann", label = "own frame, trot, reversed", reverse = true, gait = TROT, crank = 0.9504 },
   { walker = "Spears lift 44 diag", label = "diagonal braces (trot), forward" },
-  { walker = "Spears lift 53 diag", label = "diagonal braces (trot), reversed", reverse = true },
   { walker = "Jansen", label = "own frame, trot, reversed", reverse = true, gait = TROT },
+  { walker = "Spears lift 53 diag", label = "diagonal braces (trot), reversed", reverse = true },
   { walker = "Spears 4-bar", label = "own frame, trot, reversed", reverse = true, gait = TROT },
   { walker = "Chebyshev-Spears diag", label = "diagonal braces (trot), reversed", reverse = true },
   { walker = "Hoecken-Spears 4-bar diag", label = "diagonal braces (trot), reversed", reverse = true },

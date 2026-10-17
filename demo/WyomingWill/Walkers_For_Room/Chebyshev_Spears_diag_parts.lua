@@ -433,6 +433,9 @@ end
 local LEG_LEN = LEG_LEN * S
 local r_len = r_len * S
 local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
+-- (WALKER ROOM: opts.planeGap, the spacing between the link planes, this
+-- walker's own units -- closer for the walkers the room scales up most)
+local plane_gap = opts.planeGap or plane_gap
 local rod_w, rod_d, plane_gap, EXT_DOWN, EXT_UP = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S, EXT_UP * S
 -- (the link masses above were worked out from the unscaled lengths, and
 -- stay as they are; the hand-worked coupler inertia below uses the scaled

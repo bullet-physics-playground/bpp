@@ -424,11 +424,11 @@ cm/s; flat speed; air on flat / on bumps):
 |---------|---------|--------|-----------|------|----------|------|-----|-----------|
 | Chebyshev-Spears | diagonal | trot | reversed | 9.02 | 8.85 | 98% | 7% / 7% | diagonal, trot, forward 8.38 |
 | Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.38 | 8.31 | 99% | 7 / 7 | diagonal, trot, forward 7.85 |
+| Spears lift 44 | diagonal | trot | reversed | 7.67 | 8.16 | 106% | 2 / 4 | diagonal, trot, forward 8.06 |
 | Klann | own | trot | reversed | 8.95 | 8.03 | 90% | 0 / 0 | own, sides, reversed 7.88 |
-| Spears lift 44 | diagonal | trot | reversed | 7.67 | 8.02 | 105% | 3 / 3 | diagonal, trot, forward 7.88 |
 | Hoecken-Spears long-stance | guides | trot | reversed | 8.88 | 8.00 | 90% | 12 / 12 | diagonal, trot, reversed 7.98 |
-| Spears lift 53 | diagonal | trot | reversed | 8.07 | 7.94 | 98% | 26 / 7 | diagonal, trot, forward 7.66 |
 | Jansen | own | trot | reversed | 9.07 | 7.76 | 86% | 0 / 1 | own, sides, reversed 6.60 |
+| Spears lift 53 | diagonal | trot | reversed | 7.83 | 7.69 | 98% | 23 / 5 | diagonal, trot, forward 7.55 |
 | Hoecken 4-bar | guides | trot | reversed | 8.98 | 7.68 | 85% | 0 / 6 | guides, trot, forward 7.42 |
 | Hoecken-Spears slider | guides | trot | forward | 8.34 | 7.52 | 90% | 3 / 8 | guides, trot, reversed 7.48 |
 | Chebyshev | guides | trot | reversed | 9.07 | 7.45 | 82% | 0 / 0 | guides, trot, forward 7.13 |
@@ -442,13 +442,13 @@ random / logs / steps), ranked by the mean of the four:
 |---------|---------|--------|-----------|-------|--------|------|-------|------|-----|
 | Klann | own | trot | reversed | 8.03 | 8.49 | 7.24 | 8.30 | 8.01 | 2 / 1 / 0% |
 | Klann | own | sides | reversed | 7.88 | 8.40 | 7.39 | 8.06 | 7.93 | 2 / 1 / 0 |
-| Spears lift 44 | diagonal | trot | forward | 7.88 | 7.42 | 6.79 | 6.74 | 7.21 | 6 / 9 / 8 |
-| Spears lift 53 | diagonal | trot | reversed | 7.94 | 7.82 | 4.60 | 7.10 | 6.87 | 7 / 21 / 11 |
+| Spears lift 44 | diagonal | trot | forward | 8.06 | 7.47 | 6.21 | 6.85 | 7.15 | 6 / 7 / 5 |
 | Jansen | own | trot | reversed | 7.76 | 8.91 | 3.33 | 7.02 | 6.76 | 1 / 0 / 0 |
-| Spears lift 44 | diagonal | trot | reversed | 8.02 | 7.69 | 4.55 | 6.75 | 6.75 | 2 / 11 / 5 |
+| Spears lift 44 | diagonal | trot | reversed | 8.16 | 7.89 | 3.84 | 6.78 | 6.67 | 4 / 18 / 6 |
+| Spears lift 53 | diagonal | trot | reversed | 7.69 | 7.62 | 4.30 | 6.73 | 6.59 | 5 / 14 / 12 |
 | Spears 4-bar | own | trot | reversed | 7.42 | 7.82 | 5.38 | 5.50 | 6.53 | 3 / 1 / 1 |
+| Spears lift 53 | diagonal | trot | forward | 7.55 | 7.07 | 4.38 | 6.40 | 6.35 | 11 / 16 / 14 |
 | Spears 4-bar | own | sides | reversed | 7.00 | 7.84 | 4.73 | 5.43 | 6.25 | 2 / 1 / 1 |
-| Spears lift 53 | diagonal | trot | forward | 7.66 | 7.28 | 4.48 | 5.11 | 6.13 | 15 / 18 / 16 |
 | Chebyshev-Spears | diagonal | trot | reversed | 8.85 | 8.14 | 2.77 | 4.74 | 6.12 | 11 / 23 / 17 |
 | Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.31 | 7.68 | 3.33 | 4.70 | 6.01 | 6 / 13 / 8 |
 | Chebyshev-Spears | diagonal | trot | forward | 8.38 | 7.83 | 3.26 | 4.34 | 5.95 | 10 / 19 / 15 |
@@ -471,10 +471,16 @@ random / logs / steps), ranked by the mean of the four:
 - The waves alone mislead: Chebyshev-Spears is best there and sixth of
   the linkages over all four, held back by logs and steps.
 - On logs, the hard one, foot lift decides: Chebyshev-Spears (26% lift)
-  makes 2.77 cm/s, Spears lift 44 (44%) 6.79, second only to Klann.
+  makes 2.77 cm/s, Spears lift 44 (44%) 6.21, second only to Klann.
   Spears lift 53 lifts more and does no better: it hops more.
-- The Spears diagonal builds come off the ground on logs (9-26% of the
+- The Spears diagonal builds come off the ground on logs (7-26% of the
   time); Klann, Jansen and Spears 4-bar stay down.
+- The diagonal builds of Spears lift 44 and 53 and the plated lift 53
+  have their link planes closer together than their files' (see
+  `spears-lift-walkers.lua`): with the files' spacing, their bodies had
+  come out less than nothing deep (their legs crossing in the middle)
+  to stand on the 38 cm stance. Their parts don't touch each other
+  walking with the closer spacing, and their results moved little.
 
 `test-square.lua` shows the best of each walking on each terrain.
 
