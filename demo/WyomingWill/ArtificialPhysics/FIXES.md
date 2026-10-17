@@ -463,7 +463,16 @@ physically modelled quadcopter; see `quadcopter/README.md`).
       else the clock. 0 (the default) keeps the old behaviour: a new seed
       each load. The seed used is printed (`rng: MWC seed=…`).
     - **Setup (R)** restarts the stream from a fixed seed, so it repeats the
-      same start; with seed 0 it carries on as before.
+      same start; with seed 0 it carries on as before. Moving the seed
+      slider restarts the scene from the new seed at once.
+    - **The seed slider runs 0–1000.** It first ran to 2³¹ − 1 and would not
+      move: BPP keeps parameter ranges as floats and turns them into an
+      integer slider, so that maximum overflowed it. Larger seeds still
+      work through `SEED`.
+    - **Uniform Coverage now binds R** to a new scatter with the current
+      settings, as the formations do. Before, R was BPP's own reload, which
+      resets every slider to its default. BPP's toolbar restart, which
+      restores the sliders after reloading, also restarts from the seed.
     - **Measured:** Uniform Coverage at seed 12345 prints exactly what the
       old code printed with `mwcSeed(12345)` over 3000 ticks. Same seed, same
       result for Uniform Coverage, both particle formations (1500 ticks) and

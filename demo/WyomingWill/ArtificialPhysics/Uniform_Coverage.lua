@@ -455,6 +455,11 @@ v:addShortcut(",", function(N) -- slower: more delay
   print(string.format("delayMs = %d", d))
 end)
 
+-- R: a new scatter with the current settings, as in the formation demos.
+-- Without this, R is BPP's own reload, which resets every slider (the seed
+-- included) to its default. With a nonzero seed, R repeats the same start.
+v:addShortcut("R", function(N) setup(math.floor(v:getParam("numParticles"))) end)
+
 v:addShortcut("=", function(N) -- fast-forward: more ticks per rendered frame
   local t = setParam("ticksPerFrame", math.floor(v:getParam("ticksPerFrame")) + TICKS_PER_FRAME_STEP)
   print(string.format("ticksPerFrame = %d", t))
@@ -497,6 +502,8 @@ end)
 v:onParamChanged(function(N, name, value)
   if name == "numParticles" then
     setup(math.floor(value))
+  elseif rng.isSeedChange(name) then
+    setup(math.floor(v:getParam("numParticles"))) -- restart from the new seed
   elseif name == "meanFreePath" then
     resetStats()
     print(string.format("meanFreePath = %d (live -- stats reset so deviation reflects only this setting)",
@@ -515,7 +522,7 @@ local STATS_EVERY = 30 -- ~once a second at 30 fps
 local lastStepWallTime = os.clock()
 
 v:preStart(function(N)
-  print("Uniform Coverage -- ]/[: +/- spheres  ,/.: slower/faster  =/-: ticks/frame  S: start/stop")
+  print("Uniform Coverage -- ]/[: +/- spheres  ,/.: slower/faster  =/-: ticks/frame  R: new scatter  S: start/stop")
 end)
 
 v:postSim(function(N)

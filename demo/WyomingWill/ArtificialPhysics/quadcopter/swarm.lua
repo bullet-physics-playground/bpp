@@ -1310,6 +1310,12 @@ function updateStatus(statsLine)
 end
 
 rng.init(v, cfg.seed)   -- seed: SEED env, else the seed parameter, else cfg.seed, else the clock
+
+-- The seed slider (lib/rng.lua): a change, or BPP restoring it after a
+-- reload, restarts the scene from that seed.
+v:onParamChanged(function(N, name, value)
+  if rng.isSeedChange(name) then setup(math.floor(v:getParam("numDrones"))) end
+end)
 applyDefaults()
 setup(math.floor(v:getParam("numDrones")))
 drawCursor()

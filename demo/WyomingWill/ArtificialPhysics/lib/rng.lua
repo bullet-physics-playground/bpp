@@ -25,7 +25,11 @@
 -- script loads, so the "seed" parameter takes effect through rng.reseed(),
 -- which each script calls at the start of its setup (R): with SEED or a
 -- nonzero seed parameter, R restarts the stream and repeats the same start;
--- with 0, R carries on with the stream, as before. A probe that seeds
+-- with 0, R carries on with the stream, as before. Each script also re-runs
+-- its setup when the seed parameter changes (rng.isSeedChange in its
+-- onParamChanged): moving the slider restarts from that seed, and so does
+-- BPP's reload, which restores the slider only after the script has run.
+-- A probe that seeds
 -- explicitly (rng.seed) before calling setup is left alone when neither is
 -- set.
 --
@@ -33,6 +37,7 @@
 --   local rng = require "lib.rng"
 --   rng.init(v)                  -- once, before the scene draws anything
 --   rng.reseed()                 -- at the start of setup (see above)
+--   if rng.isSeedChange(name) then setup(...) end  -- in onParamChanged
 --   rng.random()                 -- float in [0, 1)
 --   rng.random(n), rng.random(m, n) -- integers, as math.random
 --   rng.gauss()                  -- standard normal
@@ -125,9 +130,16 @@ function M.clockSeed()
 end
 
 local viewerRef
+local initialised = false
 
-local SEED_COMMENT = "random number seed: 0 = a new seed from the clock each time the script loads; "
-  .. "the SEED environment variable overrides it"
+-- The slider's range. BPP keeps parameter ranges as floats and turns them
+-- into an integer slider (value / step), so a huge maximum overflows it and
+-- the slider will not move; floats are also exact only up to 2^24. Seeds
+-- beyond this range are still fine through SEED.
+M.SEED_PARAM_MAX = 1000
+
+local SEED_COMMENT = "random number seed (applies on R): 0 = a new seed from the clock each load "
+  .. "and each R carries on; 1-1000 = R repeats the same start. The SEED environment variable overrides it"
 
 -- Choose the seed (see the header), seed the shared stream, print it and
 -- return it. viewer is BPP's `v` (optional); default is the script's own
@@ -137,7 +149,7 @@ function M.init(viewer, default)
   local s = default or 0
   local source = default and default ~= 0 and "script" or "clock"
   if viewer then
-    pcall(function() viewer:addParam("seed", 0, 0, 2147483647, 1, SEED_COMMENT) end)
+    pcall(function() viewer:addParam("seed", 0, 0, M.SEED_PARAM_MAX, 1, SEED_COMMENT) end)
     local ok, p = pcall(function() return viewer:getParam("seed") end)
     p = ok and tonumber(p) or 0
     if p ~= 0 then s, source = p, "seed parameter" end
@@ -147,7 +159,15 @@ function M.init(viewer, default)
   if s == 0 then s, source = M.clockSeed(), "clock" end
   local used = M.seed(s)
   print(string.format("rng: MWC seed=%d (%s) %s", used, source, _VERSION))
+  initialised = true
   return used
+end
+
+-- True when an onParamChanged callback sees the seed parameter change
+-- after rng.init (so not for init's own addParam): the script should then
+-- re-run its setup, which reseeds.
+function M.isSeedChange(name)
+  return name == "seed" and initialised
 end
 
 -- The seed fixed by SEED or a nonzero seed parameter, or nil if neither.

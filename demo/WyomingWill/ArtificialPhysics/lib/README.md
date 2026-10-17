@@ -15,6 +15,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 local rng = require "lib.rng"
 rng.init(v)          -- once at load: SEED env, else the "seed" parameter, else the clock
 rng.reseed()         -- first line of setup(): a fixed seed repeats the same start
+if rng.isSeedChange(name) then setup(n) end  -- in onParamChanged: the slider restarts
 rng.random()         -- [0, 1);  rng.random(n) -> 1..n;  rng.random(m, n) -> m..n
 rng.gauss()          -- standard normal
 local s = rng.new(7) -- an independent stream: s:random(), s:gauss(), s:seed(k)
@@ -23,6 +24,8 @@ local s = rng.new(7) -- an independent stream: s:random(), s:gauss(), s:seed(k)
 - **Why:** BPP's Lua 5.1 `math.random` is glibc `rand()`, biased in the way the
   book's appendix describes. `checks/rng_appendix.lua` shows it and checks that
   this generator is not (`FIXES.md` item 34).
+- **The seed slider** runs 0–1000 (a wider float range overflows BPP's
+  integer slider); larger seeds go through `SEED`.
 - **Seed 0 means the clock** (the old behaviour). The seed used is printed as
   `rng: MWC seed=…`, so any run can be repeated with `SEED=…`.
 - **Same stream as before:** the generator and its seeding are unchanged from

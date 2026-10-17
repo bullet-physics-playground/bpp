@@ -1036,6 +1036,12 @@ V         toggle neighbor-connection lines
 pcall(function() v:setHelpText(HELP_TEXT) end)
 
 rng.init(v)   -- seed: SEED env, else the seed parameter, else the clock
+
+-- The seed slider (lib/rng.lua): a change, or BPP restoring it after a
+-- reload, restarts the scene from that seed.
+v:onParamChanged(function(N, name, value)
+  if rng.isSeedChange(name) then setup(math.floor(v:getParam("numParticles"))) end
+end)
 updateCamera()
 setup(math.floor(v:getParam("numParticles")))
 
