@@ -642,9 +642,15 @@ local function markBody(w, look)
   end
   -- the code, in raised letters lying on the top, reading along the walk
   local size = math.min(0.42 * Z, 0.8 * X / (0.62 * #look.code))
-  local text = OpenSCAD(string.format(
+  -- (made by OpenSCAD, and kept in bpp's cache; if OpenSCAD can't make
+  -- them, the walker goes without, and the output pane says why)
+  local ok, text = pcall(OpenSCAD, string.format(
     [[linear_extrude(height = 0.3) text("%s", size = %.3f, font = "Liberation Sans:style=Bold", halign = "center", valign = "center");]],
     look.code, size), 0, false)
+  if not ok then
+    print("walker room: no letters on " .. w.spec.name .. "'s body (" .. tostring(text) .. ")")
+    return
+  end
   local c = math.sqrt(0.5)
   decor(w, text, ink(look.colour), 0, top + 0.1, 0, { -c, 0, 0, c })   -- (turned so the letters face up)
 end
