@@ -12,6 +12,9 @@ is updated at the end of every milestone.
 - Repository: **github.com/bullet-physics-playground/bpp** (BPP), branch
   `master`. Qt5, QGLViewer, Bullet, Lua 5.1 + luabind, SDL2_mixer.
 - This folder, `demo/WyomingWill/ArtificialPhysics/`, holds the AP work.
+- **The aim of the research:** large-swarm results with few agents. Prefer
+  metrics that show it, such as time to a target quality against N (agents
+  that are nearly independent should scale as 1/N).
 - **The goal:** convert the whole book into BPP simulations, first as 2D
   particle replicas that reproduce the book's numbers, then on physically
   modelled vehicles, then in 3D, ending in a capstone mission flown by five
@@ -41,7 +44,7 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–35 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–36 so far) and the task READMEs up to date.
 
 ## 3. Where everything is
 
@@ -55,7 +58,8 @@ is updated at the end of every milestone.
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–35 |
+| `FIXES.md` | Fixes 1–36 |
+| `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua` so far (`lib/README.md`) |
 | `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua` so far |
 
@@ -124,6 +128,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   Eq. 3.4/3.5 threshold (G 1500 against G_t 2368 triangle, 1699 square). The 3D
   square (G 7500) is above the 2D formula's 5492; the 3D threshold must be
   measured.
+- **Uniform Coverage** (FIXES 36): BPP and Android agree; their wall rule
+  differs from NetLogo's and is kept deliberately. Deviation converges to a
+  seed-independent limit (the walk is an ergodic Markov chain): at MFP 50 /
+  100 the limits are 0.0158 / 0.0368 (1 agent) and 0.0131 / 0.0347 (10
+  agents); at MFP ≤ 17 they are below ~0.002 and not resolved at 5×10⁷
+  visits. At equal total visits one agent covers as evenly as ten.
+- **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
+  with a closed form found by PSLQ (`ch11/README.md`).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
 
 ## 7. Where things stand and what's next

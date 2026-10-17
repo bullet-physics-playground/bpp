@@ -489,3 +489,19 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     reads a global `PARAM_INFO` that the particle formations now keep local
     (`attempt to index global 'PARAM_INFO'`). Not caused by item 34; it
     fails the same way on the code before it.
+
+36. **Uniform Coverage senses walls differently from NetLogo, and keeps
+    doing so (decision, not a bug).** NetLogo's `uniform_mfpl.nlogo` turns
+    when the patch 1 ahead, or either patch 2 away at ±45°, is wall (the
+    yellow ring at 42), so robots turn up to ~2 units early and also when
+    gliding obliquely near a wall. The Android app, and BPP from it, looks
+    0.0001 ahead and turns only on touching the boundary at 40.
+    - **Measured** (1 agent, 10⁷ ticks, 2 seeds; converged, seeds within 1%):
+      with NetLogo's rule BPP gives 0.0074 / 0.0227 / 0.0271 at MFP 30 / 50
+      / 100, reproducing NetLogo's own 0.0072 / 0.023 / 0.026. The Android
+      rule gives 0.0035 / 0.0158 / 0.0368: better at every useful MFP (the
+      theory value is 17⅓), worse only at 100.
+    - This is a far larger effect than items 4 and 5, which together move
+      deviation by ~3%; that is why BPP and Android agree closely.
+    - **Decision (William, 2026-10-17):** NetLogo is not maintained; keep
+      the Android/BPP rule.

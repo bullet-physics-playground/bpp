@@ -303,7 +303,7 @@ metrics.
 | 11.4 | Markov-chain existence proof | 376–377 | Analytic test | new |
 | 11.5 | Turns at walls only: centre least visited (negative control) | 378–379 | Particles | new |
 | 11.6 | Mean-free-path turns at f = 0.6 × cell: KL 0.000060 | 379–381 | Particles (ported, check KL) | partly |
-| 11.7 | Mean free path theory 0.6518 (0.6079 with buffer) | 380–383 | Closed-form check; ★ 3D ≈ 0.77 edge | new |
+| 11.7 | Mean free path theory 0.6518 (0.6079 with buffer) | 380–383 | `ch11/`: 2D reproduced (exact 0.651757, buffer 0.6079); ★ 3D 0.7720 × edge (buffer 0.7138), with a closed form | done |
 | 11.8 | 12 environments × 5 cell sizes (Table 11.1) | 383–386 | G13 (most layouts must be rebuilt) | new |
 | 11.9 | Multi-robot formula 1 − (1 − 1/C)^N | 384 | Check with N drones ★ | new |
 | 11.10a–c | Hardware runs: 5×5 ft, 5×15 ft, L-shape | 384–396 | Maxelbot replica (G7, G10) | new |
