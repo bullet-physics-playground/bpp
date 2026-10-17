@@ -11,10 +11,10 @@
 --   dofile("trotting-walkers.lua"); ONLY = "Hoecken-Spears 4-bar diag"; dofile("test-track.lua")
 -- (in the room, they join the other walkers).
 EXTRA_WALKERS = {
-  { name = "Hoecken-Spears 4-bar diag", look = { code = "H-S 4", colour = "#E5007E", spears = true, diag = true }, wide = { cube_d = 9.337 }, brace = { gap = 1.52, diag = true }, advance = 17.862, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.1595, chassis = { bodyRaise = 2.413, linkageSpacing = 25.749, cube_d = 5.209 },
+  { name = "Hoecken-Spears 4-bar diag", look = { code = "H-S 4", colour = "#E5007E", spears = true, diag = true }, wide = { cube_d = 9.337 }, brace = { gap = 1.52, diag = true, rise = 10 }, advance = 17.862, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.1595, chassis = { bodyRaise = 2.413, linkageSpacing = 25.749, cube_d = 5.209 },
     fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6, geometry = { a = 1.875, g = 2.6138, h = 5.8331, groundAngle = -45 } } },
-  { name = "Hoecken 4-bar diag", look = { code = "H 4", colour = "#E5007E", spears = false, diag = true }, wide = { cube_d = 6.773 }, brace = { gap = 1.64, diag = true }, advance = 22.871, parts = "Chebyshev_diag_parts.lua", stride = 5.3492, chassis = { bodyRaise = -0.281, linkageSpacing = 12.458, cube_d = 5.029 },
+  { name = "Hoecken 4-bar diag", look = { code = "H 4", colour = "#E5007E", spears = false, diag = true }, wide = { cube_d = 6.773 }, brace = { gap = 1.64, diag = true, rise = 10 }, advance = 22.871, parts = "Chebyshev_diag_parts.lua", stride = 5.3492, chassis = { bodyRaise = -0.281, linkageSpacing = 12.458, cube_d = 5.029 },
     fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0, geometry = { a = 1.0, g = 2.0908, h = 2.5455 } } }
 }

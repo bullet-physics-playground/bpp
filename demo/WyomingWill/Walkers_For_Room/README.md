@@ -60,7 +60,12 @@ Chebyshev-Spears diag takes the same `geometry`.
 
 Eighth, the two diag builds take `diagGive`: how far, in degrees, their
 braces may turn on the legs they are welded to (3 in their own files,
-against crank drift; the room uses 0, its cranks being locked).
+against crank drift; the room uses 0, its cranks being locked), and
+`archRise` (cm): the bottom brace built over the body instead, at the
+top brace's height on the pendants, arched up in the middle by that much
+to pass over the top brace (three welded pieces). Chebyshev-Spears diag
+also takes `topUp`: the top braces' height above the leg's end, in its
+own units (2.75 in its file).
 
 Jansen's and Klann's feet (`foot`) reach inward from the outer face of
 their outer links, as the other builds' do, so that every walker's

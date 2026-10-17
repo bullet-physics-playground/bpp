@@ -942,6 +942,45 @@ local function buildDiagonalCrossbar(lkA, lkB, attach_up, color, mass, width)
   return bar
 end
 
+-- WALKER ROOM: opts.archRise (cm) builds the front-left/back-right brace
+-- over the body as well, at the same height on its pendants as the other
+-- one, arched up in the middle by archRise to pass over it where the two
+-- cross: three straight pieces (a quarter, a half and a quarter of the
+-- way), welded rigid into one bent bar and welded to the two pendants.
+-- The bottom brace, lifted clear of bumps, had passed through the body
+-- and the cranks; up here nothing is in its way, and no pendant is longer.
+local function buildArchedCrossbar(lkA, lkB, PA, PB, rise, color, mass, width)
+  local function at(f, up)
+    return { x = PA.x + (PB.x - PA.x) * f, y = PA.y + (PB.y - PA.y) * f + up, z = PA.z + (PB.z - PA.z) * f }
+  end
+  local pts = { PA, at(0.25, rise), at(0.75, rise), PB }
+  local segs = {}
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    local dx, dy, dz = q.x - p.x, q.y - p.y, q.z - p.z
+    local len = math.sqrt(dx*dx + dy*dy + dz*dz)
+    local seg = Cube(len, width, rod_d, mass / 3)
+    seg.col = color
+    seg.trans = btTransform(alignVecX(dx, dy, dz), btVector3((p.x + q.x)/2, (p.y + q.y)/2, (p.z + q.z)/2))
+    seg.damp_ang = 0.15
+    add(seg)
+    segs[i] = seg
+  end
+  -- (a weld: the same world frame, at the point, seen from each body)
+  local function weld(a, b, p)
+    local W = btTransform(IDENTITY_QUAT, btVector3(p.x, p.y, p.z))
+    local c = btGeneric6DofConstraint(a.body, b.body, a.trans:inverseTimes(W), b.trans:inverseTimes(W), true)
+    c:setLinearLowerLimit(btVector3(0, 0, 0)); c:setLinearUpperLimit(btVector3(0, 0, 0))
+    c:setAngularLowerLimit(btVector3(0, 0, 0)); c:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(c)
+  end
+  weld(segs[1], lkA.pendant, PA)
+  weld(segs[1], segs[2], pts[2])
+  weld(segs[2], segs[3], pts[3])
+  weld(segs[3], lkB.pendant, PB)
+  return segs[2]
+end
+
 -- ONE PLATE INSTEAD OF TWO BARS: this used to be two separate bars --
 -- diagonalTop1 (purple/slateblue, linkage1<->linkage4) at 0.5 above B,
 -- and diagonalTop2 (red/firebrick, linkage2<->linkage3) at 5.0 above B,
@@ -957,7 +996,10 @@ end
 -- Net effect: the front-left<->back-right pair (1<->4) now has no
 -- brace up here at all -- only front-right<->back-left (2<->3) is
 -- braced.
-local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 2.75 * S, "firebrick", 1.0, 2.25 * S)   -- front-right <-> back-left -- the sole brace at this level now
+-- (WALKER ROOM: opts.topUp, this walker's own units -- how far above B
+-- the top braces are; 2.75, its own file's, unset)
+local TOP_UP = (opts.topUp or 2.75) * S
+local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, TOP_UP, "firebrick", 1.0, 2.25 * S)   -- front-right <-> back-left -- the sole brace at this level now
 --diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 1.75, "firebrick", 1.0, .75)   -- front-right <-> back-left -- the sole brace at this level now
 
 -- BOTTOM PLATE, added to match: this file never had an active bottom
@@ -988,7 +1030,15 @@ local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, 2.75 * S, "firebri
 -- diagonal pair ends up braced exactly once, at opposite ends (1<->4 at
 -- the bottom, 2<->3 at the top), rather than one pair braced twice and
 -- the other not at all.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, (-9.9 - BODY_RAISE) * S + (opts.braceRaise or 0), "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
+local diagonalBottom
+if opts.archRise then
+  local up = TOP_UP   -- (the top plate's height above B)
+  diagonalBottom = buildArchedCrossbar(linkage1, linkage4,
+    { x = linkage1.B.x, y = linkage1.B.y + up, z = linkage1.z_pendant },
+    { x = linkage4.B.x, y = linkage4.B.y + up, z = linkage4.z_pendant }, opts.archRise, "slateblue", 1.0, 0.75 * S)
+else
+  diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, (-9.9 - BODY_RAISE) * S + (opts.braceRaise or 0), "slateblue", 1.0, 0.75 * S)   -- front-left <-> back-right -- the sole brace at this level (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
+end
 
 
 -- ---------------------------------------------------------------------

@@ -502,6 +502,45 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   }
 end
 
+-- WALKER ROOM: opts.archRise (cm) builds the front-left/back-right brace
+-- over the body as well, at the same height on its pendants as the other
+-- one, arched up in the middle by archRise to pass over it where the two
+-- cross: three straight pieces (a quarter, a half and a quarter of the
+-- way), welded rigid into one bent bar and welded to the two pendants.
+-- The bottom brace, lifted clear of bumps, had passed through the body
+-- and the cranks; up here nothing is in its way, and no pendant is longer.
+local function buildArchedCrossbar(lkA, lkB, PA, PB, rise, color, mass, width)
+  local function at(f, up)
+    return { x = PA.x + (PB.x - PA.x) * f, y = PA.y + (PB.y - PA.y) * f + up, z = PA.z + (PB.z - PA.z) * f }
+  end
+  local pts = { PA, at(0.25, rise), at(0.75, rise), PB }
+  local segs = {}
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    local dx, dy, dz = q.x - p.x, q.y - p.y, q.z - p.z
+    local len = math.sqrt(dx*dx + dy*dy + dz*dz)
+    local seg = Cube(len, width, rod_d, mass / 3)
+    seg.col = color
+    seg.trans = btTransform(alignVecX(dx, dy, dz), btVector3((p.x + q.x)/2, (p.y + q.y)/2, (p.z + q.z)/2))
+    seg.damp_ang = 0.15
+    add(seg)
+    segs[i] = seg
+  end
+  -- (a weld: the same world frame, at the point, seen from each body)
+  local function weld(a, b, p)
+    local W = btTransform(IDENTITY_QUAT, btVector3(p.x, p.y, p.z))
+    local c = btGeneric6DofConstraint(a.body, b.body, a.trans:inverseTimes(W), b.trans:inverseTimes(W), true)
+    c:setLinearLowerLimit(btVector3(0, 0, 0)); c:setLinearUpperLimit(btVector3(0, 0, 0))
+    c:setAngularLowerLimit(btVector3(0, 0, 0)); c:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(c)
+  end
+  weld(segs[1], lkA.pendant, PA)
+  weld(segs[1], segs[2], pts[2])
+  weld(segs[2], segs[3], pts[3])
+  weld(segs[3], lkB.pendant, PB)
+  return segs[2]
+end
+
 -- Labels: left = x=0, right = x=10, front = unmirrored, back = mirrored.
 --   linkage1 = left-front   linkage2 = right-front
 --   linkage3 = left-back    linkage4 = right-back
@@ -672,7 +711,15 @@ end
 -- so this may be worth revisiting on its own (a wider plate arguably
 -- wants more mass, not the same amount tuned for a thin bar) -- left
 -- unchanged here since only geometry was asked for.
-local diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S + (opts.braceRaise or 0), "slateblue", 1.0, 1.8 * S)   -- left-front <-> right-back -- the sole bottom brace now (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
+local diagonalBottom
+if opts.archRise then
+  local up = (12.4 + BODY_RAISE) * S   -- (the top brace's height above C)
+  diagonalBottom = buildArchedCrossbar(linkage1, linkage4,
+    { x = linkage1.C.x, y = linkage1.C.y + up, z = linkage1.z_pendant },
+    { x = linkage4.C.x, y = linkage4.C.y + up, z = linkage4.z_pendant }, opts.archRise, "slateblue", 1.0, 1.8 * S)
+else
+  diagonalBottom = buildDiagonalCrossbar(linkage1, linkage4, 1.4 * S + (opts.braceRaise or 0), "slateblue", 1.0, 1.8 * S)   -- left-front <-> right-back -- the sole bottom brace now (WALKER ROOM: opts.braceRaise, cm, lifts it clear of bumps)
+end
 
 -- TOP crossbar: same idea as the bottom pair, but attached near the
 -- TOP of the (now-extended) pendant instead of near C at the bottom.

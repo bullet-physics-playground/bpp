@@ -97,6 +97,13 @@ WIDE = (WIDE ~= false)
 -- far above the ground each walker's own braces sit (cm, measured
 -- walking on flat ground): as low as 0.9 cm. false: as built.
 BRACE_CLEARANCE = (BRACE_CLEARANCE == nil) and 7 or BRACE_CLEARANCE
+-- DIAG_ARCH (default on): a diag walker's two braces both over its body,
+-- the front-left/back-right one arched up (brace.rise, cm) to
+-- pass over the other where they cross. Its bottom brace, lifted clear of
+-- bumps (BRACE_CLEARANCE), passed through its body and its cranks; built
+-- low, as in its file, it catches on bumps. false: the bottom brace,
+-- lifted.
+if DIAG_ARCH == nil then DIAG_ARCH = true end
 -- DIAG_GIVE (default 0 degrees): how far a diag walker's bars may turn
 -- on the legs they are welded to. Their files allow 3 degrees (against
 -- crank drift, which LOCK_CRANKS now stops); with it each leg rocks
@@ -406,11 +413,11 @@ local WALKERS = {
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
   { name = "Chebyshev", look = { code = "C 4", colour = BLUE, spears = false, diag = false }, wide = { cube_d = 3.118 }, brace = { gap = 1.03 }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.368, linkageSpacing = 10.995, cube_d = 0.5 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 8.082 }, brace = { gap = 1.51, diag = true }, advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 8.082 }, brace = { gap = 1.51, diag = true, rise = 10 }, advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.019, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
   { name = "Chebyshev-Spears", look = { code = "C-S 4", colour = BLUE, spears = true, diag = false }, wide = { cube_d = 13.312 }, brace = { gap = 0.94 }, advance = 17.691, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.226, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180 } },
-  { name = "Chebyshev-Spears diag", look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 10.520 }, brace = { gap = 1.45, diag = true }, advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 10.520 }, brace = { gap = 1.45, diag = true, rise = 10 }, advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.651, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
   { name = "Hoecken 4-bar", look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, wide = { cube_d = 7.348 }, brace = { gap = 3.22 }, advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.182, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
@@ -680,7 +687,10 @@ local function addWalker(spec, x, z, heading)
   if WIDE then for k, val in pairs(spec.wide or {}) do opts[k] = val end end
   for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
   if SAME_FEET then opts.foot = FOOT end
-  if BRACE_CLEARANCE and spec.brace then
+  local arched = DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
+  if arched then
+    opts.archRise = spec.brace.rise             -- (cm)
+  elseif BRACE_CLEARANCE and spec.brace then
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
@@ -782,7 +792,7 @@ local function addWalker(spec, x, z, heading)
   -- walker's other parts as if built in a plane of its own (a free joint,
   -- holding nothing, to each of them turns off contact between the pair),
   -- and still meets the ground
-  if BRACE_CLEARANCE and spec.brace and spec.brace.diag then
+  if BRACE_CLEARANCE and spec.brace and spec.brace.diag and not arched then
     local I = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))
     for _, o in ipairs(w.bodies) do
       if made[o] == "buildDiagonalCrossbar" then

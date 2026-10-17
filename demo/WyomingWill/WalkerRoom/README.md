@@ -150,12 +150,21 @@ something wrong with its build.
   between the feet: on 4 cm bumps they touched 11-23% of the time. Every
   brace now stands at least 7 cm up (`BRACE_CLEARANCE`), above the
   tallest bumps: a plate loses that much off its bottom, its top staying
-  where it was, and a diag walker's low bar is moved up. Raised that far,
-  the diag bar would cross the circles its own cranks turn in and jam (2.5
-  cm/s on flat ground), so it passes the walker's other parts as if built
-  in a plane of its own, and still meets the ground. (Hoecken slider's
-  plates were already 6.5 cm up; Jansen, Klann and Spears 4-bar have
-  none.)
+  where it was. (Hoecken slider's plates were already 6.5 cm up; Jansen,
+  Klann and Spears 4-bar have none.) A diag walker's bottom brace can't
+  be lifted that far: it once was, passing through the walker's other
+  parts as if they weren't there, but lifted it went through the body
+  (all the time for Hoecken 4-bar diag, 2-31% for the others) and the
+  circles the cranks turn in. So both a diag walker's braces now ride
+  over its body (`DIAG_ARCH`), at the height of its own top brace on the
+  pendants -- no pendant longer -- the front-left/back-right one arched
+  up in the middle to pass over the other where they cross: three
+  straight pieces welded into one bent bar, its rise (`brace.rise`) the
+  least that kept the two from touching on flat ground, 6 cm waves,
+  logs and steps, plus 2 cm (10 cm; Spears lift 44 diag 14, Spears lift
+  53 diag 16, with its top braces at 4 units above the leg's end, not
+  2.75, where its file's top brace hit a link). Nothing of a diag walker
+  now passes through anything of its own.
 - **Same joints.** Jansen's and Klann's own files soften every hinge
   (constraint force mixing 0.1); no other walker's do. Under this
   gravity their joints gave, and four-legged they barely moved (0.3
@@ -422,17 +431,17 @@ cm/s; flat speed; air on flat / on bumps):
 
 | Linkage | Bracing | Timing | Direction | Flat | On bumps | Kept | Air | Next best |
 |---------|---------|--------|-----------|------|----------|------|-----|-----------|
-| Chebyshev-Spears | diagonal | trot | reversed | 9.02 | 8.85 | 98% | 7% / 7% | diagonal, trot, forward 8.38 |
-| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.38 | 8.31 | 99% | 7 / 7 | diagonal, trot, forward 7.85 |
-| Spears lift 44 | diagonal | trot | reversed | 7.67 | 8.16 | 106% | 2 / 4 | diagonal, trot, forward 8.06 |
+| Chebyshev-Spears | diagonal | trot | reversed | 8.93 | 8.53 | 96% | 5 / 11 | diagonal, trot, forward 7.96 |
+| Spears lift 44 | diagonal | trot | reversed | 7.81 | 8.38 | 107% | 9 / 5 | diagonal, trot, forward 7.95 |
+| Hoecken-Spears long-stance | diagonal | trot | forward | 8.11 | 8.33 | 103% | 14 / 20 | diagonal, trot, reversed 8.16 |
+| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.68 | 8.12 | 94% | 6 / 7 | plates, sides, reversed 7.60 |
 | Klann | own | trot | reversed | 8.95 | 8.03 | 90% | 0 / 0 | own, sides, reversed 7.88 |
-| Hoecken-Spears long-stance | guides | trot | reversed | 8.88 | 8.00 | 90% | 12 / 12 | diagonal, trot, reversed 7.98 |
 | Jansen | own | trot | reversed | 9.07 | 7.76 | 86% | 0 / 1 | own, sides, reversed 6.60 |
-| Spears lift 53 | diagonal | trot | reversed | 7.83 | 7.69 | 98% | 23 / 5 | diagonal, trot, forward 7.55 |
 | Hoecken 4-bar | guides | trot | reversed | 8.98 | 7.68 | 85% | 0 / 6 | guides, trot, forward 7.42 |
 | Hoecken-Spears slider | guides | trot | forward | 8.34 | 7.52 | 90% | 3 / 8 | guides, trot, reversed 7.48 |
 | Chebyshev | guides | trot | reversed | 9.07 | 7.45 | 82% | 0 / 0 | guides, trot, forward 7.13 |
 | Spears 4-bar | own | trot | reversed | 7.37 | 7.42 | 101% | 0 / 2 | own, sides, reversed 7.00 |
+| Spears lift 53 | diagonal | trot | forward | 7.20 | 7.39 | 103% | 22 / 10 | guides, trot, forward 7.22 |
 | Hoecken slider | guides | trot | reversed | 8.76 | 7.14 | 82% | 0 / 3 | guides, trot, forward 6.89 |
 
 The best two of each on all four terrains (speed on bumps, cm/s; air on
@@ -440,25 +449,25 @@ random / logs / steps), ranked by the mean of the four:
 
 | Linkage | Bracing | Timing | Direction | Waves | Random | Logs | Steps | Mean | Air |
 |---------|---------|--------|-----------|-------|--------|------|-------|------|-----|
-| Klann | own | trot | reversed | 8.03 | 8.49 | 7.24 | 8.30 | 8.01 | 2 / 1 / 0% |
+| Klann | own | trot | reversed | 8.03 | 8.49 | 7.24 | 8.30 | 8.01 | 2 / 1 / 0 |
 | Klann | own | sides | reversed | 7.88 | 8.40 | 7.39 | 8.06 | 7.93 | 2 / 1 / 0 |
-| Spears lift 44 | diagonal | trot | forward | 8.06 | 7.47 | 6.21 | 6.85 | 7.15 | 6 / 7 / 5 |
+| Spears lift 44 | diagonal | trot | forward | 7.95 | 7.37 | 6.44 | 6.65 | 7.10 | 7 / 7 / 6 |
+| Spears lift 44 | diagonal | trot | reversed | 8.38 | 7.89 | 3.93 | 6.98 | 6.79 | 5 / 15 / 6 |
 | Jansen | own | trot | reversed | 7.76 | 8.91 | 3.33 | 7.02 | 6.76 | 1 / 0 / 0 |
-| Spears lift 44 | diagonal | trot | reversed | 8.16 | 7.89 | 3.84 | 6.78 | 6.67 | 4 / 18 / 6 |
-| Spears lift 53 | diagonal | trot | reversed | 7.69 | 7.62 | 4.30 | 6.73 | 6.59 | 5 / 14 / 12 |
 | Spears 4-bar | own | trot | reversed | 7.42 | 7.82 | 5.38 | 5.50 | 6.53 | 3 / 1 / 1 |
-| Spears lift 53 | diagonal | trot | forward | 7.55 | 7.07 | 4.38 | 6.40 | 6.35 | 11 / 16 / 14 |
+| Spears lift 53 | guides | trot | forward | 7.22 | 7.07 | 5.29 | 6.03 | 6.40 | 2 / 4 / 2 |
 | Spears 4-bar | own | sides | reversed | 7.00 | 7.84 | 4.73 | 5.43 | 6.25 | 2 / 1 / 1 |
-| Chebyshev-Spears | diagonal | trot | reversed | 8.85 | 8.14 | 2.77 | 4.74 | 6.12 | 11 / 23 / 17 |
-| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.31 | 7.68 | 3.33 | 4.70 | 6.01 | 6 / 13 / 8 |
-| Chebyshev-Spears | diagonal | trot | forward | 8.38 | 7.83 | 3.26 | 4.34 | 5.95 | 10 / 19 / 15 |
-| Hoecken-Spears long-stance | guides | trot | reversed | 8.00 | 7.68 | 2.75 | 4.79 | 5.80 | 12 / 25 / 15 |
+| Chebyshev-Spears | diagonal | trot | reversed | 8.53 | 8.13 | 3.17 | 5.06 | 6.22 | 9 / 17 / 9 |
+| Spears lift 53 | diagonal | trot | forward | 7.39 | 6.96 | 4.07 | 5.99 | 6.10 | 12 / 17 / 15 |
+| Hoecken-Spears long-stance | diagonal | trot | reversed | 8.16 | 7.48 | 3.42 | 5.19 | 6.06 | 16 / 23 / 19 |
+| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.12 | 7.78 | 3.17 | 4.91 | 5.99 | 6 / 13 / 6 |
+| Hoecken-Spears 4-bar | plates | sides | reversed | 7.60 | 7.21 | 3.01 | 5.70 | 5.88 | 6 / 14 / 5 |
 | Jansen | own | sides | reversed | 6.60 | 7.27 | 3.10 | 6.22 | 5.80 | 1 / 0 / 0 |
-| Hoecken-Spears 4-bar | diagonal | trot | forward | 7.85 | 7.34 | 3.34 | 4.54 | 5.77 | 8 / 13 / 10 |
+| Hoecken-Spears long-stance | diagonal | trot | forward | 8.33 | 7.57 | 3.67 | 3.60 | 5.79 | 18 / 25 / 24 |
+| Chebyshev-Spears | diagonal | trot | forward | 7.96 | 7.81 | 3.23 | 4.09 | 5.77 | 9 / 16 / 15 |
 | Hoecken 4-bar | guides | trot | reversed | 7.68 | 7.05 | 2.56 | 5.17 | 5.61 | 3 / 6 / 2 |
 | Hoecken-Spears slider | guides | trot | reversed | 7.48 | 7.49 | 2.63 | 4.67 | 5.57 | 7 / 17 / 8 |
 | Hoecken 4-bar | guides | trot | forward | 7.42 | 7.30 | 2.75 | 4.69 | 5.54 | 3 / 6 / 4 |
-| Hoecken-Spears long-stance | diagonal | trot | reversed | 7.98 | 7.21 | 2.68 | 3.98 | 5.46 | 17 / 26 / 23 |
 | Hoecken-Spears slider | guides | trot | forward | 7.52 | 7.46 | 2.45 | 4.39 | 5.46 | 8 / 19 / 10 |
 | Hoecken slider | guides | trot | reversed | 7.14 | 7.13 | 2.52 | 4.73 | 5.38 | 3 / 6 / 1 |
 | Chebyshev | guides | trot | reversed | 7.45 | 7.19 | 2.50 | 4.25 | 5.35 | 2 / 5 / 1 |
@@ -466,21 +475,25 @@ random / logs / steps), ranked by the mean of the four:
 | Chebyshev | guides | trot | forward | 7.13 | 7.42 | 2.55 | 3.95 | 5.26 | 2 / 3 / 2 |
 
 - Trot is the best timing for every linkage, and reversed the best
-  direction for all but Spears lift 44 (on all four terrains) and
-  Hoecken-Spears slider (on the waves, by 0.04).
+  direction for most; Spears lift 44 and 53 do best forward over all
+  four terrains.
 - The waves alone mislead: Chebyshev-Spears is best there and sixth of
   the linkages over all four, held back by logs and steps.
 - On logs, the hard one, foot lift decides: Chebyshev-Spears (26% lift)
-  makes 2.77 cm/s, Spears lift 44 (44%) 6.21, second only to Klann.
-  Spears lift 53 lifts more and does no better: it hops more.
-- The Spears diagonal builds come off the ground on logs (7-26% of the
+  makes 3.17 cm/s, Spears lift 44 (44%) 6.44, second only to Klann.
+  Spears lift 53 lifts more and does no better.
+- The Spears diagonal builds come off the ground on logs (7-25% of the
   time); Klann, Jansen and Spears 4-bar stay down.
 - The diagonal builds of Spears lift 44 and 53 and the plated lift 53
   have their link planes closer together than their files' (see
   `spears-lift-walkers.lua`): with the files' spacing, their bodies had
   come out less than nothing deep (their legs crossing in the middle)
   to stand on the 38 cm stance. Their parts don't touch each other
-  walking with the closer spacing, and their results moved little.
+  walking with the closer spacing.
+- The diagonal builds have both braces over the body (Braces clear the
+  bumps, above); with the bottom brace lifted through the body, as at
+  first, they had done much the same (Chebyshev-Spears diag 6.12 over
+  the four, now 6.22; Spears lift 44 diag 7.15, now 7.10).
 
 `test-square.lua` shows the best of each walking on each terrain.
 
@@ -844,7 +857,9 @@ weight), `BAR_MASS` ({ density = 0.18, bolt = 0.15 }: every bar weighed
 by its length and joints; false: each file's own), `BODY_MASS` (40),
 `TOTAL_MASS` (100, with `BAR_MASS = false`), `BODY_BOX` (cm, {40, 3, 30}),
 `DIAG_GIVE` (degrees, 0: how far a diag build's braces may turn on the
-legs), `CRANK_SCALE` (a walker's crank speed times this: a number, or a
+legs), `DIAG_ARCH` (true: a diag build's braces both over its body, one
+arched; false: its bottom brace lifted by `BRACE_CLEARANCE`, through its
+body), `CRANK_SCALE` (a walker's crank speed times this: a number, or a
 table by name), `VIEWS` and `VIEW` (the test track's list of walkers to
 Tab through, each set its own way: see `test-square.lua`), `MOTOR_STRENGTH` (10;
 false: each walker's own file's motors), `SOLVER_ITERATIONS` (40; false:
