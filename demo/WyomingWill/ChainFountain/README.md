@@ -12,7 +12,37 @@ end, so it turns about its middle and pushes its other end down into the
 pile. The pile pushes back, and that push, on top of the pull of the
 falling chain, throws the chain up above the jar.
 
+Everything found about how faithful this simulation is, from the first
+fixes to the poured heap, is in [FINDINGS.md](FINDINGS.md).
+
 ## What it does
+
+A ball chain of the kind Biggins and Warner used (4.5 mm balls 6.5 mm
+apart, joints that bend at most 30 degrees), 9.75 m of it, lies in a
+jumbled heap in a glass jar on a stand 1.5 m above the floor, as it fell
+when it was poured in. An unseen hand draws the end up over the rim and
+down to the floor and lets go; the chain then runs out at about 4.3 m/s,
+so it starts at an eighth of real speed (Z: real speed). The fountain
+stands 11-18 cm above the rim (h2/h1 = 0.140 on this heap; their chain:
+0.14), and the jar is empty 2.25 s after letting go (about 23 s on screen,
+with the pause and the hand). R starts again; H changes to the coil the
+exhibit had before (below) and back.
+
+Every link of the heap within 4 cm of where the chain is being picked up
+moves; the rest lies still until the pick-up comes near (see Simulation).
+That is the fully simulated heap's fountain, within the spread from pour
+to pour, at about half its cost; it still needs an eighth of real speed
+to keep up with the screen (14 ms a frame; see the theory check).
+
+### The coil (H, or `CF_PILE=coil`)
+
+Until 16 Oct 2026 the exhibit had a coil of coarser chain, and H still
+shows it: about 16 m of chain (1.5 cm links, joints that bend at most 30
+degrees) coiled flat in the same jar, the lead over the rim to the floor,
+at a quarter of real speed. Its fountain stands only 3-8 cm above the rim
+most of the time (h2/h1 0.06-0.07), half the real one: a coil, and links
+this coarse in this jar, don't give the measured fountain (see the theory
+check). The jar is empty in about 4 seconds (17 at quarter speed).
 
 About 16 m of chain (1.5 cm links, joints that bend at most 30 degrees) is
 coiled in a glass jar on a stand 1.5 m above the floor. The lead hangs over
@@ -22,7 +52,7 @@ the time, at times up to 12 (the console reports it every quarter of a
 simulated second, so every second at quarter speed), and the jar is empty
 in about 4 seconds (17 at quarter speed). R starts again.
 
-How the bending limit matters, same jar (the whole run, from half a
+For the coil, how the bending limit matters, same jar (the whole run, from half a
 second in until the last of the coil is lifted; 10 layers, and in brackets
 14 layers):
 
@@ -45,8 +75,9 @@ change how fast you see it.
 
 ## The theory check
 
-At the end the console sets the steady part of the run (from 1 s in until
-the last of the coil is woken) against John Biggins and Mark Warner,
+At the end the console sets the steady part of the run (from 1 s after
+the chain is let go until ten links before the end of the heap, or the
+last of the coil is woken) against John Biggins and Mark Warner,
 "Understanding the chain fountain", Proc. R. Soc. A 470 (2014) 20130689
 (arXiv:1310.4056). In their notation h1 is the drop from the pick-up to the
 floor and h2 the top of the chain above the pick-up; the pile pushes up on
@@ -57,7 +88,41 @@ a = b = 0 would go at sqrt(g h1) and not rise at all. Here the floor never
 pulls (a landed link is frozen, its joint goes, and the frozen links don't
 collide), so b = 0 and the theory leaves nothing to choose:
 v = sqrt(g (h1 + h2)). v here is the rate the links land (links a second
-times 1.5 cm). The default run:
+times their length). The default run, the heap at an eighth of real speed:
+
+```
+--- 9.8 m of chain, 1500 links; the jar 150 cm up; joints bend 30 deg at most ---
+drawn over and let go (0.64 s)
+t= 0.25s  fountain 12.3 cm above the rim (average 11.3, highest 13.4); chain 529 cm/s; 564 links moving, 1.2 m out
+t= 0.50s  fountain 16.4 cm above the rim (average 15.1, highest 16.5); chain 489 cm/s; 691 links moving, 2.4 m out
+t= 0.75s  fountain 16.1 cm above the rim (average 16.3, highest 17.2); chain 435 cm/s; 580 links moving, 3.5 m out
+t= 1.00s  fountain 17.3 cm above the rim (average 17.5, highest 18.2); chain 451 cm/s; 529 links moving, 4.6 m out
+t= 1.25s  fountain 15.0 cm above the rim (average 14.9, highest 18.2); chain 444 cm/s; 482 links moving, 5.7 m out
+t= 1.50s  fountain 11.5 cm above the rim (average 12.5, highest 18.2); chain 413 cm/s; 425 links moving, 6.8 m out
+t= 1.75s  fountain 11.0 cm above the rim (average 11.1, highest 18.2); chain 379 cm/s; 302 links moving, 7.8 m out
+t= 2.00s  fountain -108.1 cm above the rim (average -64.4, highest 18.2); chain 636 cm/s; 172 links moving, 8.6 m out
+t= 2.25s  all of it out of the jar; the fountain stood up to 18.2 cm above the rim
+  theory (Biggins and Warner 2014), steady part t=1.00-1.64s; h1 = 148.3 cm, the pick-up above where a link lands (the rim is 7.2 cm above the pick-up)
+  chain 431 cm/s (the rate links land): an ideal chain (a = b = 0) would go sqrt(g h1) = 381 cm/s and not rise above the pick-up
+  top of the chain 20.7 cm above the pick-up on average (h2): h2/h1 = 0.140 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 407 cm/s
+  a = g h2/v^2 = 0.11 from the height, 1 - g h1/v^2 = 0.22 from the speed (the rod model gives none for balls on light rods; 1/6 for their three-ball links)
+  not steady: links land at 447 cm/s in the first half of that window and 416 in the second (the heap running out); the speed rule needs a steady chain, so its reading here is unreliable
+  the links reach the floor at 389 cm/s (rms), with 52% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
+```
+
+The fountain stands as high as theirs: h2/h1 = 0.140, against 0.14. The
+two readings of a disagree, 0.11 from the height and 0.22 from the speed,
+and the console says why: the heap is short (9.75 m is what the jar holds),
+so the steady part is short too (0.64 s), and the chain slows in it as the
+heap runs out (447 then 416 cm/s); the speed rule needs a steady chain.
+The falling chain is also wavy: its links land at 389 cm/s (rms), slower
+than the 431 cm/s the chain runs at. So read a from the height here. (The
+rod model, a = (1 - I/(m b^2/4))/2, gives no push at all for a link whose
+mass sits in the balls at its ends, as these; Biggins and Warner's
+three-ball link gives 1/6. The push here comes from the pile itself, as
+the heap test below shows.)
+
+The coil (`CF_PILE=coil`, or H), at a quarter of real speed:
 
 ```
 t= 4.25s  all of it out of the jar; the fountain stood up to 12.4 cm above the rim
@@ -342,8 +407,8 @@ chain is short, so the check starts at 0.5 s; two pours at 3600 steps
 spilled over the rim while pouring). So the exhibit's coarse chain stays
 low however it lies in this jar.
 
-**`CF_PILE=heap`: the exhibit from a poured heap (an option, 16 Oct
-2026).** The ball-chain-sized chain starts from a heap poured once
+**The poured heap: the exhibit's default since 16 Oct 2026.** The
+ball-chain-sized chain starts from a heap poured once
 beforehand (`chain-fountain-meshes/heap.txt`). Five heaps were poured for
 this (`CF_PILE=heap CF_POUR=1 CF_SEED=1..5 CF_SAVEHEAP=...`, true friction
 0.3); the one shipped is the second. The heap lies fixed, every link a fixed body, except in a
@@ -392,39 +457,25 @@ renderer (xvfb, no GPU) a frame with drawing takes 186 ms for the heap,
 one by one (bpp batches only fixed boxes and cylinders). On a real screen
 this is not measured.
 
-The fresh run (`CF_PILE=heap`, an eighth of real speed):
-
-```
---- 9.8 m of chain, 1500 links; the jar 150 cm up; joints bend 30 deg at most ---
-drawn over and let go (0.64 s)
-t= 0.25s  fountain 12.3 cm above the rim (average 11.3, highest 13.4); chain 529 cm/s; 564 links moving, 1.2 m out
-t= 1.00s  fountain 17.3 cm above the rim (average 17.5, highest 18.2); chain 451 cm/s; 529 links moving, 4.6 m out
-t= 2.25s  all of it out of the jar; the fountain stood up to 18.2 cm above the rim
-  theory (Biggins and Warner 2014), steady part t=1.00-1.64s; h1 = 148.3 cm, the pick-up above where a link lands (the rim is 7.2 cm above the pick-up)
-  chain 431 cm/s (the rate links land): an ideal chain (a = b = 0) would go sqrt(g h1) = 381 cm/s and not rise above the pick-up
-  top of the chain 20.7 cm above the pick-up on average (h2): h2/h1 = 0.140 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 407 cm/s
-  a = g h2/v^2 = 0.11 from the height, 1 - g h1/v^2 = 0.22 from the speed (rod model for one of these links: -0.10)
-  the links reach the floor at 389 cm/s (rms), with 52% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
-```
-
-(Two lines of the quarter-second report left out.) Two traps met on the
+Its run is the default run at the top of this section. Two traps met on the
 way, both fixed: reading a moving link's turn from bpp's `.trans` gave the
 turn drawn at the last frame, not the body's (`getOrientation()` now); and
 making new fixed bodies during the run made it differ in the Cabinet, so
 each link keeps one fixed body and parks it far below the floor while it
 moves.
 
-The coil stays the default. To make the heap the default, see the
-dossier.
+(Until 16 Oct 2026 this was an option, `CF_PILE=heap`, and the coil the
+default. Now the heap is the default and `CF_PILE=coil`, or H, gives the
+coil.)
 
 Friction in Bullet: Bullet takes the product of the two bodies' friction
-for a contact. So the friction slider's 0.3, set on the links, the glass
+for a contact. So the coil's friction slider at 0.3, set on the links, the glass
 and the disc alike, is 0.09 for every contact the chain makes. With
 friction set so that the product is 0.3 (0.548 each, `CF_MU=0.548`), the
 whole chain gives h2 = 8.6-9.8 cm at 30 degrees and 5.1-5.7 at 90 (three
 runs each), the same as with 0.09.
 
-The run is chaotic, so these numbers move from run to run: with the jar
+For the coil, the run is chaotic, so these numbers move from run to run: with the jar
 2 or 4 cm higher or lower, v is 414-448 cm/s, the push 0.15-0.41, and a
 from the height 0.05-0.07. With 3600 steps a second instead of 1800 they
 move by as much again (at 20 degrees v = 477 cm/s, push 0.39, h2 19.8 cm).
@@ -439,17 +490,66 @@ speed here is known to about a fifth.
 | Key | Action |
 |---|---|
 | `R` | start again |
+| `H` | the poured heap <-> the coil (starts again) |
 | `V` | the fountain close up <-> the whole drop |
-| `Z` | quarter speed <-> real speed |
+| `Z` | an eighth of real speed (the coil: a quarter) <-> real speed |
 
 Sliders: speed, steps, bending (degrees), height (the jar above the floor),
-layers (how much chain, 1.6 m a layer), friction. Moving the bending,
-height or layers slider starts it again with the new setting, half a second
-after you let go. Rest the mouse on the chain to see how fast it's going.
+layers (how much chain, 1.6 m a layer), friction. With the heap:
+
+* bending stays at 30 degrees: the heap was poured with joints that bend
+  30 degrees, and any other limit would kick them straight or let the heap
+  lie as it never could. The slider goes back to 30 (the console says so
+  once); H for the coil, where it can change.
+* layers does nothing (the heap is the 9.75 m it was poured with); it is
+  the coil's.
+* steps go no lower than 1800 a second: at 1200 the heap's fountain is
+  lower (0.118 against 0.14), not yet what finer steps give.
+* friction is each body's, and a contact has the two multiplied: 0.548 is
+  a true 0.3. Moving it starts again, as height does.
+
+H puts speed and friction to the other pile's own; the other sliders keep
+what they are. Moving the height, friction (heap) or bending and layers
+(coil) slider starts it again with the new setting, half a second after
+you let go. Rest the mouse on the chain to see how fast it's going.
 
 ## Simulation
 
-Simulating every link of 16 m of chain at once was too slow, so:
+The heap (the default):
+
+* It was poured once, offline: a hand 6 cm over the jar's floor, wandering
+  at random within 2 cm of the middle, let the 1500 links down one at a
+  time at 1 m/s, every link simulated, and the heap settled
+  (`CF_POUR=1 CF_SEED=2 CF_SAVEHEAP=...`). `chain-fountain-meshes/heap.txt`
+  holds where its joints lie.
+* In the exhibit the heap's links are fixed bodies, except a live zone:
+  every link within 4 cm across of the pick-up and no more than 0.5 cm
+  below it is simulated, and so are the ten links after the pick-up along
+  the chain. A link left 1 cm outside the zone, at rest, is fixed again
+  where it is; a moving link next to a fixed one is held to it by a joint,
+  as the heap would hold it. 4 cm is where the fountain stops changing as
+  the zone grows; with it the run matches every link simulated, within the
+  spread from pour to pour (see the theory check).
+* The links are capsules 0.65 cm long and 4.5 mm thick, with their mass
+  at their ends, joined by cone-twist joints that bend 30 degrees, true
+  friction 0.3, no bounce; 1800 physics steps a second, 20 solver
+  iterations, the joints' error correction 0.5 a step (Bullet's 0.2 lets
+  them give, and the run then changes with the step), only touching
+  contact points.
+* About 300-700 links move at a time, about 280 of them in the falling
+  chain. A frame takes 14 ms at an eighth of real speed (15 in the
+  Cabinet); at a quarter it would take 28-30.
+
+Both piles:
+
+* A link that reaches the floor (2.5 cm up) is frozen where it lands, and
+  from then on is only drawn: the chain coming down meets nothing there.
+* Waking, freezing and measuring are done after every physics step, and a
+  frame takes as many whole steps as its share of simulated time, so the
+  run is the same, line for line, at any speed.
+
+The coil (H, `CF_PILE=coil`): simulating every link of 16 m of chain at
+once was too slow, so:
 
 * The coil waits in the jar, drawn but not simulated, on a flat rigid pile
   (a disc lowered a layer at a time). Ten links ahead of the one being
@@ -457,13 +557,10 @@ Simulating every link of 16 m of chain at once was too slow, so:
   (no faster than 1200 links a simulated second). The last link woken is
   held by its far end where it lies, as the rest of the coil would hold it;
   without that the moving chain dragged the woken links off in a heap.
-* A link that reaches the floor (2.5 cm up) is frozen where it lands, and
-  from then on is only drawn: the chain coming down meets nothing there.
-* So only the moving chain is simulated: about 130-200 links, capsules
-  joined by cone-twist joints, 1800 physics steps a second, 20 solver
-  iterations. Waking, freezing and measuring are done after every physics
-  step, and a frame takes as many whole steps as its share of simulated
-  time, so the run is the same, line for line, at any speed.
+  This makes its fountain 1.2-2 times as tall as the coil simulated whole.
+* Only the moving chain is simulated: about 130-200 links, capsules 1.5 cm
+  long and 6 mm thick joined by cone-twist joints, 1800 physics steps a
+  second, 20 solver iterations.
 
 The coil is laid as flat spirals, outside in and then inside out, all
 turning the same way, every link 1.5 cm and no joint bent further than it
@@ -478,10 +575,11 @@ slider goes down to 20 degrees: a stiffer chain hardly coils in this jar.
 Because the pick-up runs round the spiral, the arch swings and loops more
 than a fountain from a jumbled heap would.
 
-Headless testing: `CF_SPEED`, `CF_STEPS`, `CF_BEND`, `CF_HEIGHT`,
-`CF_LAYERS`, `CF_LOG=file.csv`, `CF_PUSH=1` (measure the pile's push and
-what the chain carries). For experiments only (the defaults are the
-exhibit): `CF_LAYOUT=flake`, `CF_JAR=0`, `CF_ITER` (solver iterations, 20),
+Headless testing: `CF_PILE=heap|coil` (the heap by default), `CF_SPEED`,
+`CF_STEPS`, `CF_BEND`, `CF_HEIGHT`, `CF_LAYERS`, `CF_LOG=file.csv`,
+`CF_PUSH=1` (measure the pile's push and what the chain carries). The
+coil's experiments below need `CF_PILE=coil` now. For experiments only
+(the defaults are the exhibit): `CF_LAYOUT=flake`, `CF_JAR=0`, `CF_ITER` (solver iterations, 20),
 `CF_MU` (friction, 0.3), `CF_AHEAD` (links woken ahead, 10), `CF_STOP` (the
 joints' limit, if not the bending the chain is laid for), `CF_LINK` (links
 this many times as big; still drawn the usual size), `CF_LIVE=1` (every
@@ -511,9 +609,11 @@ simulates every link of the heap.
 ## Files
 
 * `chain-fountain.lua`: the exhibit. It runs on its own or in the Cabinet.
+* `FINDINGS.md`: everything found about this exhibit's physics, in order,
+  from the first fixes to the poured heap.
 * `chain-fountain-meshes/link.obj`: a link.
-* `chain-fountain-meshes/bead-link.obj`: a link of the ball-chain-sized
-  chain (`CF_PILE=heap`); `heap.txt`: its poured heap, the joint points
+* `chain-fountain-meshes/bead-link.obj`: a link of the ball chain (the
+  heap); `heap.txt`: its poured heap, the joint points
   from the end on, in cm over the jar's floor (`CF_PILE=heap CF_POUR=1
   CF_SEED=2 CF_SAVEHEAP=...`).
 * `reconstruction/gen-link.py`: makes the link meshes

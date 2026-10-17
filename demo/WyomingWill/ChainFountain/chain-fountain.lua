@@ -14,35 +14,41 @@
 -- of the falling chain, throws the chain up above the jar. A rope, which
 -- has no such links, just slides over the rim.
 --
--- THE CHAIN: 1.5 cm links (rods 6 mm thick) joined by joints that bend at
--- most 30 degrees (the bending slider), 0.5 g a link; about 16 m of it,
--- coiled flat in layers in a glass jar 1.5 m above the floor. It runs at
--- 3-5 m/s, so it starts at a quarter of real speed (Z: real speed).
+-- THE CHAIN (the default): a ball chain as Biggins and Warner used, 4.5 mm
+-- balls 6.5 mm apart, joints that bend at most 30 degrees; 9.75 m of it,
+-- poured into a glass jar 1.5 m above the floor as a jumbled heap. A hand
+-- draws its end over the rim to the floor and lets go. It runs at about
+-- 4 m/s, so it starts at an eighth of real speed (Z: real speed). H shows
+-- instead the coil of 1.5 cm links this exhibit had before (see below).
 --
 -- SIMULATION, to keep it to what a computer can do in time:
---  * The coil in the jar waits, drawn but not simulated, on a flat rigid
---    pile; ten links ahead of the one being picked up are simulated, and
---    more are woken as the chain comes for them. The last one woken is held
---    by its far end where it lies, as the rest of the coil would hold it.
+--  * The heap was poured once, every link simulated, and saved; here its
+--    links lie fixed, except every link within 4 cm of where the chain is
+--    being picked up, which moves (see heapFeed). That gives the fountain
+--    of the heap simulated whole, within the spread from pour to pour.
+--  * (The coil: it waits, drawn but not simulated, on a flat rigid pile;
+--    ten links ahead of the one being picked up are simulated, the last
+--    one held by its far end where it lies.)
 --  * A link that reaches the floor is frozen where it lands, and is only
 --    drawn from then on: the floor takes the chain without pulling on it.
---  * So only the moving chain is simulated, about 130-200 links, with
---    1800 physics steps a second and 20 solver iterations. Waking, freezing
---    and measuring are done after every step, so the chain does exactly
---    the same at any speed.
+--  * 1800 physics steps a second and 20 solver iterations. Waking,
+--    freezing and measuring are done after every step, so the chain does
+--    exactly the same at any speed.
 --
 -- At the end it prints the steady part of the run against Biggins and
 -- Warner's theory (see theory() below).
 --
 -- Keys
 --   R   start again
--- The bending, height and layers sliders start it again too, once you let
--- go of them (half a second after the last change).
+-- The height slider starts it again too, once you let go of it (half a
+-- second after the last change); so do friction (the heap), and bending
+-- and layers (the coil).
+--   H   the poured heap <-> the coil (starts again)
 --   V   the fountain close up <-> the whole drop
---   Z   quarter speed <-> real speed
+--   Z   an eighth (the coil: a quarter) of real speed <-> real speed
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: CF_SPEED, CF_STEPS, CF_BEND, CF_HEIGHT, CF_LAYERS, CF_LOG=file.csv,
+-- Headless testing: CF_PILE=heap|coil (heap by default), CF_SPEED, CF_STEPS, CF_BEND, CF_HEIGHT, CF_LAYERS, CF_LOG=file.csv,
 -- CF_PUSH=1 (measure the pile's push: see measurePush). For experiments
 -- (the defaults are the exhibit): CF_LAYOUT=flake (the chain laid in short
 -- back-and-forth runs: see flake()), CF_JAR=0 (no glass: the pile on a bare
@@ -78,23 +84,61 @@ end
 
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local G = 981
--- (CF_PILE=heap, an option: a finer chain, ball-chain sized, 0.65 cm a link
--- and 4.5 mm thick, with its mass at the joints, as a ball chain's is in its
--- balls, poured into the jar once beforehand as a jumbled heap
--- (chain-fountain-meshes/heap.txt, made with CF_POUR=1 CF_SAVEHEAP); see
--- the README. The heap lies fixed where it settled, except within 4 cm
--- across of the pick-up and down to 0.5 cm below it (CF_ZONE, CF_ZDEPTH),
--- where every link moves; links left behind at rest lie fixed again. Its
--- fountain is the fully simulated heap's within the spread from pour to
--- pour. True friction 0.3, joints' error correction 0.5 a step, contact
--- points only where touching. It starts at an eighth of real speed: at a
--- quarter a frame takes 29 ms.)
-local HEAPPILE = os.getenv("CF_PILE") == "heap"
-local SCALE = envnum("CF_LINK", HEAPPILE and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
-local L, RL = 1.5 * SCALE, envnum("CF_RADIUS", HEAPPILE and 0.225 or 0.3 * SCALE)  -- a link: joint to joint, and its radius (as in link.obj)
-local MASS = 0.0005 * SCALE
+-- Two piles, H switches between them (CF_PILE=heap or coil for headless
+-- runs; heap is the default):
+--  heap  a ball chain of the size Biggins and Warner used, 0.65 cm a link
+--        and 4.5 mm thick, its mass at the joints as a ball chain's is in its
+--        balls, poured into the jar once beforehand as a jumbled heap
+--        (chain-fountain-meshes/heap.txt, made with CF_POUR=1 CF_SAVEHEAP;
+--        see the README). It lies fixed where it settled, except within 4 cm
+--        across of the pick-up and down to 0.5 cm below it (CF_ZONE,
+--        CF_ZDEPTH), where every link moves; links left behind at rest lie
+--        fixed again. That gives the fully simulated heap's fountain within
+--        the spread from pour to pour. True friction 0.3, the joints' error
+--        correction 0.5 a step, contact points only where touching. It
+--        starts at an eighth of real speed (at a quarter a frame would take
+--        about 28 ms).
+--  coil  the 1.5 cm chain coiled flat in the jar, as this exhibit had it
+--        until 16 Oct 2026: see the README for what it gets wrong.
+local HEAPPILE, SWITCHED                -- (SWITCHED: the pile was changed with H)
+local SCALE, L, RL, MASS, LAYER_T, HEAPF, POUR, LIVE, HEAPSC, CPT, WAKE_RATE
+local SLOW, SPEEDHELP, ERP, SHAPE, LINK_OBJ, IP, INERTIA, WAKE_R, ZONE, ZDEPTH
+local function setMode(heap)
+  HEAPPILE = heap
+  SCALE = envnum("CF_LINK", heap and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
+  L, RL = 1.5 * SCALE, envnum("CF_RADIUS", heap and 0.225 or 0.3 * SCALE)  -- a link: joint to joint, and its radius (as in link.obj)
+  MASS = 0.0005 * SCALE
+  LAYER_T = 2 * RL + 0.05                -- the coil: one layer's thickness
+  -- (after H, the experiments' heap and pour settings no longer apply)
+  HEAPF = (not SWITCHED and os.getenv("CF_HEAP")) or (heap and DIR .. "heap.txt") or nil
+  POUR = SWITCHED and 0 or envnum("CF_POUR", 0)
+  if POUR == 0 and HEAPF then POUR = 3 end
+  LIVE = (not SWITCHED and envnum("CF_LIVE", 0) > 0) or POUR == 1 or POUR == 2
+  HEAPSC = POUR == 3 and not LIVE
+  CPT = tonumber(os.getenv("CF_CPT") or "") or (heap and 0 or nil)
+  WAKE_RATE = 1200 / SCALE               -- links woken a simulated second at most (18 m/s)
+  SLOW = heap and 0.125 or 0.25          -- (the speed it starts at, and Z goes back to)
+  SPEEDHELP = heap and "simulated seconds per real second (Z: 1/8 <-> 1)" or "simulated seconds per real second (Z: 1/4 <-> 1)"
+  -- (the joints' error correction a step: Bullet's 0.2 for the coil; 0.5
+  -- for the heap, which makes its fountain the same at 1800 steps a second
+  -- as at 3600 and 7200)
+  ERP = envnum("CF_ERP", heap and 0.5 or (SWITCHED and 0.2 or 0))
+  SHAPE = btCapsuleShapeX(RL, L - 2 * RL)
+  LINK_OBJ = DIR .. (heap and "bead-link.obj" or "link.obj")
+  IP = MASS * (L * L / 12 + RL * RL / 4)
+  INERTIA = btVector3(0.5 * MASS * RL * RL, IP, IP)
+  if envnum("CF_BEADI", heap and 1 or 0) > 0 then   -- (the mass in balls at the joints, as a ball chain's)
+    IP = MASS * (L * L / 4 + 0.4 * RL * RL)
+    INERTIA = btVector3(0.4 * MASS * RL * RL, IP, IP)
+  end
+  WAKE_R = L + 2 * RL + 0.2
+  ZONE = envnum("CF_ZONE", heap and 4 or 0)      -- (cm: see heapFeed; 0: none)
+  ZDEPTH = envnum("CF_ZDEPTH", heap and 0.5 or 0) -- (cm: see heapFeed; 0: a ball)
+  if ZONE <= 0 then ZONE = nil end
+  if ZDEPTH <= 0 then ZDEPTH = nil end
+end
+setMode((os.getenv("CF_PILE") or "heap") == "heap")
 local RJ, JH = 7, 8                     -- the jar: inside radius, height of its wall
-local LAYER_T = 2 * RL + 0.05           -- the coil: one layer's thickness
 local K_AHEAD = envnum("CF_AHEAD", 10)   -- links simulated ahead of the pick-up
 -- (experiments only: CF_LIVE=1 simulates every link from the start, no
 -- waking, no anchor; CF_SETTLE=s lets that pile settle s seconds, the lead
@@ -111,11 +155,6 @@ local K_AHEAD = envnum("CF_AHEAD", 10)   -- links simulated ahead of the pick-up
 -- CF_LIVE=1 every link simulated (the heap settles first), else only ten
 -- links ahead of the pick-up, as the exhibit does with its coil, the rest of
 -- the heap lying as fixed links that the moving chain lies on.)
-local HEAPF = os.getenv("CF_HEAP") or (HEAPPILE and DIR .. "heap.txt")
-local POUR = envnum("CF_POUR", 0)
-if POUR == 0 and HEAPF then POUR = 3 end
-local LIVE = envnum("CF_LIVE", 0) > 0 or POUR == 1 or POUR == 2
-local HEAPSC = POUR == 3 and not LIVE
 local SETTLE = envnum("CF_SETTLE", 0)
 local NOFREEZE = envnum("CF_NOFREEZE", 0) > 0
 -- (CF_WAKE=layer: the top layers of the coil, two or CF_LIVELAYERS, are
@@ -127,23 +166,33 @@ local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them a
 -- (experiments on cost: CF_SLEEP=1 lets Bullet put resting links to sleep;
 -- CF_CPT=d processes only contact points closer than d cm)
 local SLEEP = envnum("CF_SLEEP", 0) > 0
-local CPT = tonumber(os.getenv("CF_CPT") or "") or (HEAPPILE and 0 or nil)
 -- (CF_GLASSMU: friction of the jar's glass, if not the friction slider's)
 local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
-local WAKE_RATE = 1200 / SCALE          -- links woken a simulated second at most (18 m/s)
 local SAMPLE_DT, PRINT_DT = 1 / 240, 0.25   -- measure the fountain, and print, this often (simulated s)
 local T_STEADY = envnum("CF_T0", 1.0)   -- the theory check averages from here on (experiments: CF_T0)
 
 local function param(...) v:addParam(...) end
-local SLOW = HEAPPILE and 0.125 or 0.25      -- (the speed it starts at, and Z goes back to)
-local SPEEDHELP = HEAPPILE and "simulated seconds per real second (Z: 1/8 <-> 1)" or "simulated seconds per real second (Z: 1/4 <-> 1)"
 param("speed", envnum("CF_SPEED", SLOW), 0.05, 1, HEAPPILE and 0.025 or 0.05, SPEEDHELP)
-param("steps", envnum("CF_STEPS", 1800), 1200, 4800, 300, "physics steps per simulated second")
-param("bending", envnum("CF_BEND", 30), 20, 90, 5, "most a joint can bend, degrees (starts it again)")
+-- (the heap: 1800 steps and up, since below it its run isn't the same as
+-- at 3600; bending 30 only, since it was poured so; its own length)
+local function stepsParam(n)
+  param("steps", n, HEAPPILE and 1800 or 1200, 4800, 300, HEAPPILE and "physics steps per simulated second (the heap: 1800 and up)" or "physics steps per simulated second")
+end
+local function bendingParam(b)
+  param("bending", b, 20, 90, 5, HEAPPILE and "most a joint can bend, degrees: 30 for the heap, which was poured so (the coil: any; starts it again)" or "most a joint can bend, degrees (starts it again)")
+end
+local function layersParam(n)
+  param("layers", n, 2, 14, 1, HEAPPILE and "layers of the coil, 1.6 m each (the heap has its own 9.75 m: H for the coil)" or "layers of chain in the jar, 1.6 m each (starts it again)")
+end
+local function frictionParam(mu)
+  param("friction", mu, 0, 1, 0.05, HEAPPILE and "friction, chain on glass and chain (each body's: a contact has the two multiplied; 0.548 is 0.3; starts it again)" or "friction, chain on glass and chain")
+end
+stepsParam(math.max(envnum("CF_STEPS", 1800), HEAPPILE and 1800 or 1200))
+bendingParam(HEAPPILE and 30 or envnum("CF_BEND", 30))
 param("height", envnum("CF_HEIGHT", 150), 60, 200, 10, "the jar above the floor, cm (starts it again)")
-param("layers", envnum("CF_LAYERS", 10), 2, 14, 1, "layers of chain in the jar, 1.6 m each (starts it again)")
-param("friction", envnum("CF_MU", HEAPPILE and 0.548 or 0.3), 0, 1, 0.05, "friction, chain on glass and chain")
+layersParam(envnum("CF_LAYERS", 10))
+frictionParam(envnum("CF_MU", HEAPPILE and 0.548 or 0.3))
 
 -- The physics step is always 1/steps of a simulated second, whatever the
 -- speed: a frame takes as many whole steps as its share of simulated time
@@ -180,10 +229,6 @@ local function holdPre()            -- first thing before each step: true while 
 end
 applyTiming()
 v:setSolverIterations(envnum("CF_ITER", 20))
--- (the joints' error correction a step: Bullet's 0.2 unless CF_ERP says;
--- CF_PILE=heap 0.5, which makes the poured heap's fountain the same at 1800
--- steps a second as at 3600 and 7200)
-local ERP = envnum("CF_ERP", HEAPPILE and 0.5 or 0)
 if ERP > 0 then v:setErp(ERP) end     -- (and before every frame: see preSim)
 v.gravity = btVector3(0, -G, 0)
 
@@ -263,14 +308,6 @@ end
 -- ---------------------------------------------------------------------
 -- the chain
 -- ---------------------------------------------------------------------
-local SHAPE = btCapsuleShapeX(RL, L - 2 * RL)
-local LINK_OBJ = DIR .. (HEAPPILE and "bead-link.obj" or "link.obj")
-local IP = MASS * (L * L / 12 + RL * RL / 4)
-local INERTIA = btVector3(0.5 * MASS * RL * RL, IP, IP)
-if envnum("CF_BEADI", HEAPPILE and 1 or 0) > 0 then   -- (the mass in balls at the joints, as a ball chain's)
-  IP = MASS * (L * L / 4 + 0.4 * RL * RL)
-  INERTIA = btVector3(0.4 * MASS * RL * RL, IP, IP)
-end
 local LINK_COL = "#c9c3b4"
 
 local function quatAlong(dx, dy, dz)          -- turns +x onto (dx, dy, dz)
@@ -531,11 +568,6 @@ end
 -- joint to a neighbour that still lies fixed, as the rest of the heap would
 -- hold it. Fixed links are found by where they lie (heapGrid: cells of
 -- WAKE_R), so that a moving link can wake the ones it is about to touch.
-local WAKE_R = L + 2 * RL + 0.2
-local ZONE = envnum("CF_ZONE", HEAPPILE and 4 or 0)      -- (cm: see heapFeed; 0: none)
-local ZDEPTH = envnum("CF_ZDEPTH", HEAPPILE and 0.5 or 0) -- (cm: see heapFeed; 0: a ball)
-if ZONE <= 0 then ZONE = nil end
-if ZDEPTH <= 0 then ZDEPTH = nil end
 local heapGrid, heapTop
 local function cellKey(x, y, z)
   return math.floor(x / WAKE_R) + 1000 * (math.floor(y / WAKE_R) + 1000 * math.floor(z / WAKE_R))
@@ -651,7 +683,7 @@ local function start()
   H = v:getParam("height")
   MU = v:getParam("friction")
   LAYERS = math.floor(v:getParam("layers") + 0.5)
-  BEND = math.rad(v:getParam("bending"))
+  BEND = math.rad(HEAPPILE and 30 or v:getParam("bending"))
   STOP = os.getenv("CF_STOP") and math.rad(envnum("CF_STOP", 0)) or BEND
   buildJar()
   -- the coil, its top layer just under the rim
@@ -985,6 +1017,10 @@ local function sample()
     local s = run.steady
     if not s.t0 then s.t0, s.land0 = run.t, run.absorbed end
     s.n, s.t1, s.land1 = s.n + 1, run.t, run.absorbed
+    if HEAPPILE then                  -- (the heap: how the landing rate goes in the window)
+      s.trace = s.trace or {}
+      s.trace[#s.trace + 1] = { run.t, run.absorbed }
+    end
     s.h2, s.h1, s.rim = s.h2 + (top - pickY), s.h1 + (pickY - ABSORB_Y), s.rim + (rim - pickY)
   end
   if LOGF then LOGF:write(string.format("%.4f,%.2f,%.1f,%d,%.2f,%d,%d\n", run.t, run.top, sp, head - tail + 1, pickY, head, run.absorbed)) end
@@ -998,7 +1034,7 @@ end
 -- contacts every step, which makes the run two or three times slower in the
 -- Cabinet, so it is done only when asked for (CF_PUSH=1).
 local PUSH = envnum("CF_PUSH", 0) > 0
-local PUSH2 = PUSH and (envnum("CF_PUSH", 0) >= 2 or LIVE)
+local function push2() return PUSH and (envnum("CF_PUSH", 0) >= 2 or LIVE) end
 local function measurePush()
   local s = run.steady
   if not (PUSH and s.t0 and okey and discKey and run.t >= T_STEADY and coilLeft()) then return end
@@ -1006,7 +1042,7 @@ local function measurePush()
   -- (CF_PUSH=2, or CF_LIVE: also the push of the unmoved pile, the disc and
   -- every link from the pick-up on, on the links before it, less the weight
   -- of those it touches)
-  local P = PUSH2 and run.pick
+  local P = push2() and run.pick
   local upP, seenP, nP = 0, {}, 0
   v:eachContact(function(a, b, x, y, z, nx, ny, nz, d, imp)
     if imp <= 0 then return end
@@ -1098,8 +1134,25 @@ local function theory()
                       vm, math.sqrt(G * h1)))
   print(string.format("  top of the chain %.1f cm above the pick-up on average (h2): h2/h1 = %.3f (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = %.0f cm/s",
                       h2, h2 / h1, math.sqrt(G * (h1 + h2))))
-  print(string.format("  a = g h2/v^2 = %.2f from the height, 1 - g h1/v^2 = %.2f from the speed (rod model for one of these links: %.2f)",
-                      G * h2 / (vm * vm), 1 - G * h1 / (vm * vm), aRod))
+  if aRod > 0 then
+    print(string.format("  a = g h2/v^2 = %.2f from the height, 1 - g h1/v^2 = %.2f from the speed (rod model for one of these links: %.2f)",
+                        G * h2 / (vm * vm), 1 - G * h1 / (vm * vm), aRod))
+  else
+    -- (a link with its mass at its ends, as these balls on light rods: the
+    -- rod model gives it no push at all; the push here comes from the pile)
+    print(string.format("  a = g h2/v^2 = %.2f from the height, 1 - g h1/v^2 = %.2f from the speed (the rod model gives none for balls on light rods; 1/6 for their three-ball links)",
+                        G * h2 / (vm * vm), 1 - G * h1 / (vm * vm)))
+  end
+  local tr = s.trace
+  if tr and #tr > 4 then
+    -- (the heap is short: the window is too, and the chain slows in it as
+    -- the heap runs out; the speed rule needs a steady chain)
+    local m = math.floor(#tr / 2)
+    local r1 = (tr[m][2] - tr[1][2]) * L / (tr[m][1] - tr[1][1])
+    local r2 = (tr[#tr][2] - tr[m][2]) * L / (tr[#tr][1] - tr[m][1])
+    print(string.format("  not steady: links land at %.0f cm/s in the first half of that window and %.0f in the second (the heap running out); the speed rule needs a steady chain, so its reading here is unreliable",
+                        r1, r2))
+  end
   if s.landed > 0 then
     local v2 = s.v2 / s.landed
     print(string.format("  the links reach the floor at %.0f cm/s (rms), with %.0f%% of the energy of their drop (an ideal chain: 50%%; one the pile pushes, more)",
@@ -1111,7 +1164,7 @@ local function theory()
     print(string.format("  the pile's push, measured (its contact forces less the weight lying on it): a = %.2f; the rim holds the chain up with %.2f m v^2",
                         a, s.rimUp / s.steps / mv2))
     print(string.format("  with that push a steady narrow arch would stand h2 = a v^2/g = %.1f cm above the pick-up (it stood %.1f)", a * vm * vm / G, h2))
-    if PUSH2 then
+    if push2() then
       print(string.format("  the unmoved pile's push on the moving chain (disc and links from the pick-up on, less the weight they hold up): a = %.2f",
                           s.pushP / s.steps / mv2))
     end
@@ -1285,7 +1338,7 @@ local function afterStep()
     end
     f:close()
   end
-  if LIVE or LAYERWAKE or HEAPSC or PUSH2 then findPick() end
+  if LIVE or LAYERWAKE or HEAPSC or push2() then findPick() end
   absorb()
   measurePush()
   if HEAPSC then heapFeed() else feed() end
@@ -1342,39 +1395,97 @@ v:addShortcut("Z", function(N)
   v:addParam("speed", sp, 0.05, 1, HEAPPILE and 0.025 or 0.05, SPEEDHELP)
   applyTiming()
 end)
+-- H: the heap <-> the coil, and start again (each with its own speed and
+-- friction; the other sliders keep what they are)
+local setHelp
+local switching                 -- (while H puts the sliders as the other pile has them)
+v:addShortcut("H", function(N)
+  SWITCHED, switching = true, true
+  setMode(not HEAPPILE)
+  v:addParam("speed", SLOW, 0.05, 1, HEAPPILE and 0.025 or 0.05, SPEEDHELP)
+  stepsParam(math.max(v:getParam("steps"), HEAPPILE and 1800 or 1200))
+  bendingParam(HEAPPILE and 30 or v:getParam("bending"))
+  layersParam(v:getParam("layers"))
+  frictionParam(HEAPPILE and 0.548 or 0.3)
+  switching = false
+  if ERP > 0 then v:setErp(ERP) end
+  setHelp()
+  applyTiming()
+  restartIn = nil
+  print(HEAPPILE and "\n(H) the poured heap of ball chain" or "\n(H) the coil of 1.5 cm links")
+  start()
+end)
+local noted = {}
 v:onParamChanged(function(N, name, value)
   if name == "speed" or name == "steps" then applyTiming() end
+  if switching then return end
+  if HEAPPILE and name == "bending" and math.abs(value - 30) > 1e-6 then
+    -- (the heap was poured with joints that bend 30 degrees: any other
+    -- limit would kick its joints, or let it lie as it never could)
+    bendingParam(30)
+    if not noted.bending then noted.bending = true; print("(the heap was poured with joints that bend 30 degrees, so it stays at 30: H for the coil, where the bending can change)") end
+    return
+  end
+  if HEAPPILE and name == "layers" then
+    if not noted.layers then noted.layers = true; print("(layers is for the coil: the heap is the 9.75 m it was poured with; H for the coil)") end
+    return
+  end
   -- the chain's own settings: start again with them, once the slider has
   -- been still for half a second (not at every step of a drag); and not
   -- when it's set to what this run already has (bpp's Restart puts every
   -- slider back as it was)
-  local now = { bending = BEND and math.deg(BEND), height = H, layers = LAYERS }
+  local now = { bending = BEND and math.deg(BEND), height = H, layers = LAYERS, friction = HEAPPILE and MU or nil }
   if now[name] ~= nil and math.abs(now[name] - value) > 1e-6 then restartIn = 30 end
-  if name == "friction" then
+  if name == "friction" and not HEAPPILE then
     MU = value
     for i = tail, head do if links[i] and links[i].body then links[i].body:setFriction(MU) end end
   end
 end)
 
-v:setHelpText(table.concat({
-  "The chain fountain (Euler's Cabinet of Curiosities)",
-  "",
-  "A long bead chain pours out of a jar on its own -- and leaps",
-  "up over the rim in an arch on its way down to the floor.",
-  "",
-  "Why: each link is a short stiff rod, and the chain can only bend",
-  "so far between links. A link picked up by one end pushes its other",
-  "end down into the pile; the pile pushes back, and throws the chain up.",
-  "",
-  "R   start again (so do the bending, height and layers",
-  "    sliders, once you let go of them)",
-  "V   the fountain close up <-> the whole drop",
-  "Z   quarter speed <-> real speed",
-  "",
-  "Try bending 20 (stiffer) or 90 (floppier): the fountain stands",
-  "much the same, 3-9 cm above the rim most of the time.",
-  "Rest the mouse on the chain to see how fast it's going.",
-}, "\n"))
+function setHelp()
+  v:setHelpText(table.concat(HEAPPILE and {
+    "The chain fountain (Euler's Cabinet of Curiosities)",
+    "",
+    "A ball chain poured into a jar pours out of it on its own -- and",
+    "leaps up over the rim in an arch on its way down to the floor.",
+    "",
+    "Why: each link is a short stiff rod, and the chain can only bend",
+    "so far between links. A link picked up by one end pushes its other",
+    "end down into the pile; the pile pushes back, and throws the chain up.",
+    "",
+    "R   start again (so do the height and friction sliders,",
+    "    once you let go of them)",
+    "H   the poured heap <-> the coil it had before (starts again)",
+    "V   the fountain close up <-> the whole drop",
+    "Z   an eighth of real speed <-> real speed",
+    "",
+    "9.75 m of chain, 4.5 mm balls 6.5 mm apart, as Biggins and Warner",
+    "used, poured in at random. The fountain stands 10-18 cm above the",
+    "rim, as theirs did. Bending stays 30 degrees (the heap was poured",
+    "so); layers is for the coil.",
+    "Rest the mouse on the chain to see how fast it's going.",
+  } or {
+    "The chain fountain (Euler's Cabinet of Curiosities)",
+    "",
+    "A long bead chain pours out of a jar on its own -- and leaps",
+    "up over the rim in an arch on its way down to the floor.",
+    "",
+    "Why: each link is a short stiff rod, and the chain can only bend",
+    "so far between links. A link picked up by one end pushes its other",
+    "end down into the pile; the pile pushes back, and throws the chain up.",
+    "",
+    "R   start again (so do the bending, height and layers",
+    "    sliders, once you let go of them)",
+    "H   the coil <-> the poured heap (starts again)",
+    "V   the fountain close up <-> the whole drop",
+    "Z   quarter speed <-> real speed",
+    "",
+    "The coil of 1.5 cm links: the fountain stands only 3-9 cm above",
+    "the rim, half the real one's (see the README); H for the heap.",
+    "Rest the mouse on the chain to see how fast it's going.",
+  }, "\n"))
+end
+setHelp()
 
 if v.onHover then
   v:onHover(function(N, obj, x, y, z)
