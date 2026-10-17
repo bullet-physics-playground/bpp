@@ -56,8 +56,8 @@ is updated at the end of every milestone.
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–35 |
-| `lib/` | Shared code: `rng.lua` so far (`lib/README.md`) |
-| `checks/` | One check script per port; `rng_appendix.lua` so far |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua` so far (`lib/README.md`) |
+| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh` so far |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -93,6 +93,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   `SDL_AUDIODRIVER=dummy XDG_RUNTIME_DIR=/tmp/rt QT_QPA_PLATFORM=offscreen ~/bpp/release/bpp -f Formations-Lennard-Jones-Quadcopter.lua -n 1500`
   (`mkdir -p /tmp/rt` first). 5400 frames ≈ 180 s of flight, about a minute of
   wall time for 50 drones. Append a probe with `-l`.
+- **Batches:** `python3 lib/batch.py SCRIPT --seeds 1-3 --set name=a,b --probe FILE --out x.csv`
+  runs seeds × settings two at a time into one CSV, with `delayMs` 0 and
+  `SEED` set (`lib/README.md`). Prefer it to hand-written sweep scripts.
 - **GUI under a virtual display:** `Xvfb :99 -screen 0 1600x1000x24 +extension GLX &`,
   `DISPLAY=:99`; screenshot with `import -window root`; keys with `xdotool`.
 - **Plain Lua 5.1** (`lua5.1`) is handy for testing pure-Lua code such as the
@@ -133,7 +136,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      `os.time()`); point `Uniform_Coverage.lua`, the formations and
      `quadcopter/swarm.lua` at it; keep the appendix test as a check script.
      Check that Uniform Coverage gives identical results with the same seed.
-  2. `lib/batch`: a headless runner over seeds × settings writing CSV, two jobs
+  2. **Done:** `lib/batch`: a headless runner over seeds × settings writing CSV, two jobs
      in parallel.
   3. `lib/monitors.lua`: centre-of-mass drift, linear and angular momentum,
      energy, and a Lua integrator with a controllable time step.

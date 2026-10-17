@@ -89,3 +89,6 @@ export/*/*.pov
 
 # Shared Lua code for the Artificial Physics ports (not build output)
 !demo/WyomingWill/ArtificialPhysics/lib/
+# batch output (lib/batch.py) left in the Artificial Physics folder
+demo/WyomingWill/ArtificialPhysics/batch-*.csv
+demo/WyomingWill/ArtificialPhysics/*.csv.logs/

@@ -15,6 +15,7 @@ copies); the others are not applied unless marked.
    *Fix:* skip the throttle when running without a GUI, or default `delayMs`
    to 0 there. Workaround today: append
    `-l 'v:addParam("delayMs",0,0,100,1,"x")'`.
+   `lib/batch.py` does this for every run.
 
 2. **3D Newtonian triangle formation collapses particle pairs** —
    `Formations-Newtonian.lua`, default mode (3D, triangle).
