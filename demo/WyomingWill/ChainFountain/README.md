@@ -580,7 +580,8 @@ Headless testing: `CF_PILE=heap|coil` (the heap by default), `CF_SPEED`,
 `CF_PUSH=1` (measure the pile's push and what the chain carries). The
 coil's experiments below need `CF_PILE=coil` now. For experiments only
 (the defaults are the exhibit): `CF_LAYOUT=flake`, `CF_JAR=0`, `CF_ITER` (solver iterations, 20),
-`CF_MU` (friction, 0.3), `CF_AHEAD` (links woken ahead, 10), `CF_STOP` (the
+`CF_MU` (each body's friction: the heap 0.548, a true 0.3; the coil 0.3,
+a true 0.09), `CF_AHEAD` (links woken ahead, 10), `CF_STOP` (the
 joints' limit, if not the bending the chain is laid for), `CF_LINK` (links
 this many times as big; still drawn the usual size), `CF_LIVE=1` (every
 link simulated, no waking, no anchor), `CF_SETTLE` (with `CF_LIVE`: seconds

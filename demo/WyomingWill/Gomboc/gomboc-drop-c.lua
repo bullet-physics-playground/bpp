@@ -141,7 +141,7 @@ param("count", envnum("GC_COUNT", 6), 1, MAX_COUNT, 1, "how many gombocs to drop
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GC_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
 param("friction", 0.5, 0.05, 1.0, 0.05, "friction coefficient, 1 = grippiest (Bullet multiplies it by the table's 0.8)")
-param("restitution", envnum("GC_REST", 0.1), 0.0, 0.8, 0.05, "bounciness")
+param("restitution", envnum("GC_REST", 0.1), 0.0, 0.8, 0.05, "bounciness (Bullet multiplies it by the table's 0.2: 0.1 is 0.02)")
 param("rolling", envnum("GC_ROLL", 150), 0, 300, 5,
       "rolling resistance lever arm, microns (constant moment, any tilt)")
 param("spin friction", envnum("GC_SPIN", 0.7), 0, 5, 0.1,
@@ -183,6 +183,9 @@ local function slab(sx, sy, sz, x, y, z, col, rot)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
   c.col = col
+  -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
+  -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
+  -- 0.25 and 0.01)
   c.friction = 0.8
   c.restitution = 0.2
   v:add(c)

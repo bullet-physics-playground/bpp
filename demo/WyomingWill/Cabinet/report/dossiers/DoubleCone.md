@@ -6,7 +6,7 @@
 - **Double cone:** a `btCompoundShape` of two `btConeShapeZ` (R = 5 cm, H = 12 cm each), collision margin 0.01 cm, 400 g, solid. Inertia is I_axis = 3/10 m R² = 3.0 kg·cm² and I_perp = m(3/20 R² + H²/10).
 - **Cylinder:** a `btCylinderShapeZ` with r = 3 cm, length 26 cm, 400 g.
 - **Rails:** 8 mm brass rods (radius 0.4 cm), 50 cm long, 2.5 cm from the centre line at the low end and 9.5 cm at the high end, so tan φ = 0.14 per side. They rise 1.5 cm (tan θ = 0.03) at the back and middle tracks and 5 cm (tan θ = 0.10) at the front. For collision, each rail is a compound of 10 cm capsules laid end to end. The README says a single 54 cm cylinder gave an "invisible bump halfway up", and 3 cm pieces lost "a few per cent" of energy at the joins.
-- **Settings:** friction 0.9, restitution 0, damping 0, 30 solver iterations, 2400 steps per simulated second (DC_STEPS), integrated by Bullet's semi-implicit Euler.
+- **Settings:** friction 0.9 on rails and rollers, 0.81 at the contact (Bullet multiplies the two; the README and lua said 0.9 until 16 Oct 2026, they now give 0.81), restitution 0, damping 0, 30 solver iterations, 2400 steps per simulated second (DC_STEPS), integrated by Bullet's semi-implicit Euler.
 
 The script itself works out the exact predicted centre height at every x. It finds by bisection the height at which the rail's centre line just clears a cone enlarged by (ρ + margin)/cos(taper), allowing for the off-centre contact point on sloping rails. It also tracks the total energy, kinetic (translational plus rotational) plus potential.
 
@@ -47,7 +47,7 @@ The README's back-cone line (2.32 s, 36.8 cm, 1.045 cm, 0.0000 cm, 0.14%) matche
 - The "geometry" check is the script's own exact contact geometry, which includes the rail thickness and Bullet's collision margin. It shows that Bullet holds the body on the ideal surface; it is not an independent physical measurement. The simple thin-rail formula agrees to within 0.6%.
 - Energy is not exactly conserved. 0.1–0.3% of the energy released by the centre's fall is lost, and the loss roughly triples at 600 steps/s, so it is numerical (contact and solver dissipation), not physical rolling resistance. The losses also vary slightly from cycle to cycle (e.g. back 0.14–0.17%), because each restart begins from Bullet's leftover contact state.
 - The rails were segmented into 10 cm capsules specifically to avoid Bullet contact artefacts: a bump with one long cylinder, energy loss at joins with 3 cm pieces (README). This was tuned, not derived.
-- Friction 0.9 is high, chosen so that nothing slips. Rolling resistance and air drag are absent.
+- Friction 0.81 at the contact is high, chosen so that nothing slips; brass on brass is nearer 0.4. Tried 16 Oct 2026 (not adopted): with 0.4 at the contact (1800 frames) the times are the same, the heights within 0.001 cm, and each roll's energy loss moves by -0.03 to +0.06 points (0.11-0.25% of the centre's fall energy, against 0.09-0.26%), so the friction hardly matters here. Rolling resistance and air drag are absent.
 - The checks are reported only between 6.5 cm from each end (away from the stops). Behaviour at the stops is not checked.
 - Only the outcome (direction and centre descent) is checked. Times to reach the end (e.g. 2.32 s) are not compared with an analytic prediction.
 

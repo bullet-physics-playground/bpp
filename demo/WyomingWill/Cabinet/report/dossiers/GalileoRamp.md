@@ -9,7 +9,7 @@
 - brass hoop: 3 mm thick, 1.5 cm wide, 56.5 g; k = (r^2 + r_i^2)/(2 r^2) = 0.887
 - can: 40 g of tin plus 330 g of soup. Only the tin counts towards the spin inertia, which gives k = 0.094.
 
-Physics settings: friction 0.8 on both ramp and bodies, restitution 0, damping 0, g = 981 cm/s^2, 30 solver iterations, 2400 steps per simulated second by default (GR_STEPS). Bullet's integrator is its usual semi-implicit (symplectic) Euler. The ramp is 120 cm long, and the finish line is 100 cm below the start line. The script interpolates each finish crossing to within one physics step.
+Physics settings: friction 0.8 on both ramp and bodies, which Bullet multiplies to 0.64 at each contact (the README and lua said "friction 0.8" until 16 Oct 2026; they now give 0.64), restitution 0, damping 0, g = 981 cm/s^2, 30 solver iterations, 2400 steps per simulated second by default (GR_STEPS). Bullet's integrator is its usual semi-implicit (symplectic) Euler. The ramp is 120 cm long, and the finish line is 100 cm below the start line. The script interpolates each finish crossing to within one physics step.
 
 **Theory checks**
 
@@ -50,7 +50,7 @@ GR_STEPS=9600: Soup   1st across the line at 1.5994 s (theory 1.5994, -0.003%) .
 - The disc, hoop and can are spheres to the collision detector and are locked to planar motion with spin about their axes only. That is exact for an ideal line contact, but the model cannot show wobble, steering or edge effects. Collision shape and inertia are chosen separately, on purpose.
 - The can is an idealisation: the soup is treated as not turning at all, so it counts only towards translation. Real soup is viscous and slowly spins up, so a real can would sit somewhere between k = 0.094 and that of a solid cylinder (0.5).
 - All times are about 0.2 ms early (-0.01%). The error halves roughly with each doubling of the step rate (first-order integrator). At the default 2400 steps/s it is far below anything visible.
-- Friction 0.8 was chosen so that nothing slips. At 5° the friction needed is small (μ ≥ k tanθ/(1+k), at most 0.041 for the hoop), so this is comfortable. Rolling resistance and air drag are absent: the ramp is ideal.
+- Friction (0.64 at the contact) was chosen so that nothing slips. At 5° the friction needed is small (μ ≥ k tanθ/(1+k), at most 0.041 for the hoop), so this is comfortable. Rolling resistance and air drag are absent: the ramp is ideal.
 - The odd-number rule and acceleration fit are not printed by the exhibit. I computed them from the optional log. In the log, the ball passes the 114 cm end of the ramp before t = 2.0 s, so only the first three intervals (up to 1.5 s) were used.
 - The README's console excerpt matches this run exactly.
 

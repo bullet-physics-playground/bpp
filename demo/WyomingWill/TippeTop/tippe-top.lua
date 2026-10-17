@@ -127,6 +127,7 @@ local function block(sx, sy, sz, x, y, z, col, solid, q)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(q or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
   c.col = col
+  -- (friction 1: Bullet multiplies it by a top's, so the friction slider is the contact's)
   if solid then c.friction = 1.0 else c.collides = false end
   v:add(c)
   return c
@@ -331,8 +332,13 @@ local function stateOf(top, th)
 end
 local LOGF = os.getenv("TT_LOG") and io.open(os.getenv("TT_LOG"), "w")
 if LOGF then LOGF:write("t,which,tilt_deg,spin_up_rad_s,com_y\n") end
+-- (frames counted only while it runs, not while it stands still: the
+-- lines every 2 s come at the same moments with or without the pause)
+local runFrames = 0
 v:postSim(function(N)
   if holdNow then return end
+  runFrames = runFrames + 1
+  N = runFrames
   t = t + FRAME_DT
   for k, top in ipairs(TOPS) do
     copyTrans(top.stem, top.m)

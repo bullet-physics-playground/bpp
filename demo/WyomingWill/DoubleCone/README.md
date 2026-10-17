@@ -72,7 +72,9 @@ The console checks two things for each roller, all the way along:
   one long rod less surely: with a single 54 cm cylinder, the cone hit an
   invisible bump halfway up and rolled back. With 3 cm pieces it lost a few
   per cent of its energy at the joins. With 10 cm pieces both problems go.
-* Friction 0.9, so they roll without slipping. 2400 physics steps a second.
+* Friction 0.81 where a roller touches a rail (0.9 is set on each, and
+  Bullet multiplies the two): high, so they roll without slipping. 2400
+  physics steps a second.
 
 ## Files
 

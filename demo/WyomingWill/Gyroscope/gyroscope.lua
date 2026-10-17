@@ -28,8 +28,9 @@
 -- foot on the wire, a top's rule says it stays up while
 -- I3 w > 2 sqrt(I m g l) (l = 6.4 cm, I across the axle about the foot):
 -- above 46 turns a second. On a
--- still wire it comes off at 52 turns a second (friction 0.3) or 45
--- (0.005, the default); rocked 1 degree, at 38.
+-- still wire it comes off at 52 turns a second (the friction slider at
+-- 0.3: 0.15 at the foot) or 45 (the default, 0.005: 0.0025 at the foot);
+-- rocked 1 degree, at 38.
 --
 -- PHYSICS
 --  * Each gyroscope is one rigid body (hoop, axle and rotor together). The
@@ -53,8 +54,12 @@
 --    (and a quarter of it at the string's knot) against turning. That
 --    friction is what makes them sag: with none, the sag is only the
 --    wobble's, m g r I / (I3 w)^2, 3 degrees at 100 turns a second, 16 at
---    40. Foot and wire: 0.005, as if the foot were a little wheel (it
---    slides on any slope over 0.3 degrees).
+--    40. Foot and wire: 0.0025, as if the foot were a little wheel (it
+--    slides on any slope over 0.14 degrees). Bullet multiplies the two
+--    bodies' friction at a contact: the friction slider (0.005) is the
+--    wire's, the frame keeps Bullet's own 0.5, so the slider's value is
+--    twice what the foot has. (The frame on the table, if it falls: 0.6 x
+--    0.5 = 0.3.)
 --  * The wire is a kinematic body: tipped, Bullet gives it the speed it
 --    moves at, and the foot feels that. Tipped more than about a degree,
 --    the gyroscope is soon thrown over: each tip moves the way "up" is for
@@ -113,7 +118,7 @@ param("bearing", envnum("GY_BEAR", 1.0), 0, 5, 0.1, "the rotor's bearing frictio
 param("pivot friction", envnum("GY_PIVF", 0.5), 0, 20, 0.5, "friction against going round at the pedestal's point (x 1e-3 N m)")
 param("slope", envnum("GY_SLOPE", 0), 0, 20, 1, "the wire's slope, degrees, while it isn't rocked (spins them up again)")
 param("rock", envnum("GY_ROCK", 1), 0, 5, 0.5, "the tightrope: tip the wire this many degrees each way, to and fro, so the gyroscope slides (0: the wire stays at its slope; spins them up again)")
-param("friction", envnum("GY_MU", 0.005), 0, 1, 0.005, "friction between the foot and the wire")
+param("friction", envnum("GY_MU", 0.005), 0, 1, 0.005, "the wire's friction; Bullet multiplies it by the frame's 0.5, so at the foot it is half this (0.005: 0.0025)")
 param("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 param("steps", 2400, 1200, 9600, 600, "physics steps per simulated second")
 
@@ -556,8 +561,13 @@ local function say(g, s)
   end
 end
 local restartIn                 -- frames until a slider's respin (see onParamChanged)
+-- (frames counted only while it runs, not while it stands still: the
+-- lines every 2 s come at the same moments with or without the pause)
+local runFrames = 0
 v:postSim(function(N)
   if holdNow then return end
+  runFrames = runFrames + 1
+  N = runFrames
   if restartIn then
     restartIn = restartIn - 1
     if restartIn <= 0 then restartIn = nil; spinThem(); return end
@@ -659,7 +669,8 @@ v:setHelpText(table.concat({
   "Sliders: spin (turns/s), bearing, pivot friction,",
   "rock (degrees each way; 0: still), slope (when still);",
   "spin, rock and slope spin them up again once you let go",
-  "of the slider; friction (foot on wire), speed, steps.",
+  "of the slider; friction (the wire's: half at the foot),",
+  "speed, steps.",
   "Rest the mouse on a gyroscope to see what it's doing.",
 }, "\n"))
 

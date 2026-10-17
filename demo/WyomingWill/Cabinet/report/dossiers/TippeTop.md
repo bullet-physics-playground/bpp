@@ -59,5 +59,6 @@ t= 92.0s  stem from up, spin: Left   0 deg  1.2 t/s | Middle   0 deg  0.1 t/s | 
 - Text only; physics and console unchanged (hall vs standalone IDENTICAL, 900 frames).
 - The green "centred" top spins on for a long time (27.7 t/s at 120 s), slowed only by spin friction; it is "stem up" throughout.
 - The state labels (on its side, on ball and stem, up on its stem) come from tilt and height thresholds held for 0.33 s; reported times lag the actual change by that much.
+- Fixed 17 Oct 2026: **the start pause changed the console.** The `t=` lines every 2 s were printed on bpp's frame count (`N % 120`), which counts the pause's frames too, so with the pause they came at t = 1.5, 3.5, ... s instead of 2.0, 4.0, .... tippe-top.lua now counts only the frames it runs (the same for the log file). With HOLD_S=0 the output is byte-identical to before (1800 frames); HOLD_S=0 for 1800 frames is now a prefix of the default for 1830 (also at 900 and 2400); hall against standalone (cmp2.sh, 1800 frames): IDENTICAL (19 run lines).
 
 **References** — None cited in the README or code (the lua header mentions Bohr and Pauli watching one). The inversion condition 1 - alpha < I1/I3 < 1 + alpha is the standard result from the tippe-top literature, not referenced in the exhibit.

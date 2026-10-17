@@ -52,7 +52,8 @@
 -- CF_PUSH=1 (measure the pile's push: see measurePush). For experiments
 -- (the defaults are the exhibit): CF_LAYOUT=flake (the chain laid in short
 -- back-and-forth runs: see flake()), CF_JAR=0 (no glass: the pile on a bare
--- disc, a table), CF_ITER (solver iterations, 20), CF_MU (friction, 0.3),
+-- disc, a table), CF_ITER (solver iterations, 20), CF_MU (each body's
+-- friction: the heap 0.548, a true 0.3; the coil 0.3, a true 0.09),
 -- CF_AHEAD (links woken ahead of the pick-up, 10), CF_STOP (the joints'
 -- limit in degrees, if not the bending the chain is laid for), CF_LINK (links
 -- this many times as long, thick and heavy: the same chain, finer or coarser;
@@ -186,7 +187,7 @@ local function layersParam(n)
   param("layers", n, 2, 14, 1, HEAPPILE and "layers of the coil, 1.6 m each (the heap has its own 9.75 m: H for the coil)" or "layers of chain in the jar, 1.6 m each (starts it again)")
 end
 local function frictionParam(mu)
-  param("friction", mu, 0, 1, 0.05, HEAPPILE and "friction, chain on glass and chain (each body's: a contact has the two multiplied; 0.548 is 0.3; starts it again)" or "friction, chain on glass and chain")
+  param("friction", mu, 0, 1, 0.05, HEAPPILE and "friction, chain on glass and chain (each body's: a contact has the two multiplied; 0.548 is 0.3; starts it again)" or "friction, chain on glass and chain (each body's: a contact has the two multiplied; 0.3 is 0.09)")
 end
 stepsParam(math.max(envnum("CF_STEPS", 1800), HEAPPILE and 1800 or 1200))
 bendingParam(HEAPPILE and 30 or envnum("CF_BEND", 30))

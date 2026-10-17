@@ -33,8 +33,8 @@ rotor stops, at 100 seconds, and it just hangs.
 Sliders: spin (turns a second), bearing (how fast the rotors slow), pivot
 friction (at the pedestal's point; a quarter of it at the string's knot),
 rock (how far the wire is tipped each way, in degrees; 0 leaves it still),
-slope (of the wire, when it isn't rocked), friction (foot on wire), speed,
-steps. Moving the spin, rock or slope slider spins them up again with the
+slope (of the wire, when it isn't rocked), friction (the wire's; the foot
+has half of it: see below), speed, steps. Moving the spin, rock or slope slider spins them up again with the
 new setting, half a second after you let go.
 Rest the mouse on a gyroscope to see what it's doing, or on the wire or
 the gauge for its tilt. The console reports
@@ -62,8 +62,8 @@ in all. The balls are 6 cm from the centre.
   I3 w > 2 sqrt(I m g l), with l the height of its centre of mass above the
   point and I its moment of inertia across the axle about the point: here
   above 46 turns a second (46.7 to 48.2, as I is 7.36 or 7.85 kg cm^2,
-  in the hoop's plane or across it). On a still, rough wire it comes off
-  at 52.
+  in the hoop's plane or across it). On a still, rough wire (0.15 at the
+  foot) it comes off at 52.
 
 Getting the tightrope to work took some finding. The first gyroscope stood
 on the wire on its hoop, with a groove round the hoop for the wire. It can't
@@ -72,9 +72,12 @@ turns its axle over, and the axle soon lies along the wire, where the spin
 does nothing to hold it up. Standing on a foot at the end of its axle, it
 is a top on a point, and stays up.
 
-* **Sliding along the wire.** The foot's friction on the wire is 0.005,
+* **Sliding along the wire.** The foot's friction on the wire is 0.0025,
   as if it ran on a little wheel, so it slides on any slope steeper than
-  0.3 degrees. The attendant tips the wire 1 degree down to the right, and
+  0.14 degrees (still, it holds at 0.1 degrees and slides at 0.2). Bullet
+  multiplies the two bodies' friction at a contact; the friction slider
+  sets the wire's, 0.005, and the frame has Bullet's own 0.5, so the foot
+  has half the slider's value. The attendant tips the wire 1 degree down to the right, and
   then always up on the side the gyroscope is on (judged 0.3 s ahead, for
   the 0.6 s each tip takes), so it slides to and fro through the middle,
   as a ball rolls to and fro in a dip; each time it stops, the attendant
@@ -97,8 +100,8 @@ is a top on a point, and stays up.
   is tipping as soon as it can (4 cm early, its limit). Most likely its
   wobble, 17 to 28 degrees by then, pushes the foot along the wire too;
   that hasn't been taken apart from the slope's push.
-* **Why it lasts longer than on a still, rough wire.** There (friction
-  0.3) it comes off at 52 turns a second, near the rule's 46. The foot
+* **Why it lasts longer than on a still, rough wire.** There (the
+  friction slider at 0.3: 0.15 at the foot) it comes off at 52 turns a second, near the rule's 46. The foot
   that can slide along the wire lets it, there, keep its point under its
   middle, which is steadier (for a top on ice the rule has I about the
   middle, not about the point); still, it comes off at 45 turns a second,

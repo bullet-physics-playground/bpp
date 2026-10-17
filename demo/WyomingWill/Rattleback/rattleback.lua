@@ -136,7 +136,7 @@ local TABLE_Y = 0
 local top = Cube(80, 3, 40, 0)
 top.pos = btVector3(0, TABLE_Y - 1.5, 0)
 top.col = "#7a4a24"
-top.friction = 1.0
+top.friction = 1.0             -- (Bullet multiplies it by a rattleback's: so the friction slider is the contact's)
 v:add(top)
 for _, x in ipairs({ -36, 36 }) do
   for _, z in ipairs({ -16, 16 }) do
@@ -287,8 +287,13 @@ local LOGF = os.getenv("RB_LOG") and io.open(os.getenv("RB_LOG"), "w")
 if LOGF then LOGF:write("t,which,spin_rad_s,rock_deg,pitch_deg\n") end
 local function dirName(w) return w > 0 and "anticlockwise" or "clockwise" end
 
+-- (frames counted only while it runs, not while it stands still: the
+-- lines every 2 s come at the same moments with or without the pause)
+local runFrames = 0
 v:postSim(function(N)
   if holdNow then return end
+  runFrames = runFrames + 1
+  N = runFrames
   t = t + FRAME_DT
   for k, r in ipairs(RB) do
     local W = r.body:getAngularVelocity()

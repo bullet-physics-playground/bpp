@@ -28,7 +28,9 @@
 -- middle: each is a sphere of its radius to Bullet (Bullet's cylinders,
 -- touching along a line, jitter and lose 2% of their speed), with its own
 -- moment of inertia (the hoop's all at its rim, the can's its tin's).
--- Friction 0.8, so none slips. 2400 physics steps a second.
+-- Friction 0.64 where they touch the ramp, so none slips (at 5 degrees
+-- the hoop needs 0.041): 0.8 is set on the ramp and on each racer, and
+-- Bullet multiplies the two. 2400 physics steps a second.
 --
 -- Keys
 --   R   line them up and let them go again
@@ -122,7 +124,7 @@ do
   local ramp = Cube(RL, th, RW, 0)
   ramp.trans = btTransform(QR, btVector3(cx - NX * th / 2, cy - NY * th / 2, 0))
   ramp.col = "#c9a877"
-  ramp.friction = 0.8
+  ramp.friction = 0.8                     -- (x the racer's 0.8: 0.64 where they touch)
   v:add(ramp)
   block(3, Y0 - TABLE_Y, RW, X0 + 1.5, (Y0 + TABLE_Y) / 2 - 1, 0, "#6a4424")
   -- the lanes, painted; the start and finish lines

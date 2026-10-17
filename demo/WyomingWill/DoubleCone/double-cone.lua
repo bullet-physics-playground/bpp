@@ -30,8 +30,9 @@
 --
 -- PHYSICS: Bullet, its own contacts: the cone a compound of two cone shapes,
 -- the cylinder a cylinder shape, each rail a row of 10 cm capsules end to
--- end (Bullet finds contacts on one long rod less surely); friction 0.9
--- (no slipping). 2400 physics steps a second.
+-- end (Bullet finds contacts on one long rod less surely); friction 0.81
+-- where they touch (0.9 on the rails and on the rollers: Bullet multiplies
+-- the two), high, so nothing slips. 2400 physics steps a second.
 --
 -- Keys
 --   R   set them going again

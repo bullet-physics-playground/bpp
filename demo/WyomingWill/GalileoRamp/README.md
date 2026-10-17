@@ -65,7 +65,9 @@ the start.
   rim, the can's its tin's.
 * Bullet's own cylinders, touching along a line, jitter and lose 2% of
   their speed, which is why they aren't used.
-* Friction 0.8, so none slips. 2400 physics steps a second.
+* Friction 0.64 where a racer touches the ramp, so none slips (at 5
+  degrees the hoop needs 0.041): 0.8 is set on the ramp and on each racer,
+  and Bullet multiplies the two. 2400 physics steps a second.
 * The moment each crosses the line is caught to the physics step.
 
 ## Files
