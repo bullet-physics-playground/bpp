@@ -27,32 +27,39 @@
 -- to Gamma g (Gamma = A w^2 / g, A the amplitude, w the shaking in radians
 -- a second). Below Gamma = 1 the floor never drops away faster than the
 -- beads fall, and the bed rides on it: the floor's push on it never less
--- than (1 - Gamma) of its weight. Above, a rigid bed would leave the floor
--- each shake when the floor's downward acceleration passes g, at a phase
--- of arcsin(1 / Gamma) into the upswing. This one presses on much longer,
--- mostly because Bullet's contacts give a little: made stiffer (more steps,
--- more solver iterations) it leaves sooner (see README). The console gives
--- both (the push from how much the
--- heavy box is slowed), and the convection: how fast the beads in the
--- middle rise and those beside the walls fall.
+-- than (1 - Gamma) of its weight. Above, a rigid bed resting on the floor
+-- would leave it each shake when the floor's downward acceleration passes
+-- g, at a phase of arcsin(1 / Gamma) into the upswing (the completely
+-- inelastic bouncing ball). But this bed isn't resting on the floor then:
+-- it flies spread out and lands from the bottom up, and it's still landing
+-- at arcsin(1 / Gamma). It can't leave till it's down. The console gives
+-- where it leaves, how fast its middle is still coming down at
+-- arcsin(1 / Gamma), and where it's down. Stepped finer (BN_STEPS=4800) it
+-- leaves as soon as it's down, at about 40 degrees; at 2400 steps a second
+-- it presses on a few degrees longer, because Bullet's contacts give a
+-- little (see README). The floor's push is from the bed's momentum: how
+-- much it changes each step, and its weight. And the convection: how fast
+-- the beads in the middle rise and those beside the walls fall.
 --
 -- THE BEADS: glass, 0.95 to 1.05 cm across (140 a box), the big one 3 cm
 -- across; the boxes 15 cm wide inside. Shaken at 7 Hz: 4.1 mm (0.8 g),
 -- 15.2 mm (3 g).
 --
 -- PHYSICS: Bullet: the beads spheres held to the plane of the box (a layer
--- one bead thick, between glass), friction 0.8 (the walls 1.0), little
--- bounce (0.1); each box a heavy body moved exactly as the shaker moves it.
--- 2400 physics steps a second.
+-- one bead thick, between glass); friction 0.64 between beads and 0.8 on
+-- the walls and floor, and almost no bounce (0.01) -- Bullet multiplies the
+-- two bodies' own: 0.8 the beads', 1.0 the box's, and 0.1 each for bounce;
+-- each box a heavy body moved exactly as the shaker moves it. 2400 physics
+-- steps a second, 20 solver iterations.
 --
 -- Keys
 --   R   pour them again (the big bead at the bottom)
 --   Z   slow motion (1/4) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
--- Headless testing: BN_SPEED, BN_STEPS, BN_SEED, BN_HARD, BN_GENTLE (g),
--- BN_F (Hz), BN_POLY (the beads' spread in size), BN_MUB, BN_MUW, BN_E,
--- BN_LOG=file.csv.
+-- Headless testing: BN_SPEED, BN_STEPS, BN_ITER (solver iterations),
+-- BN_SEED, BN_HARD, BN_GENTLE (g), BN_F (Hz), BN_POLY (the beads' spread in
+-- size), BN_MUB, BN_MUW, BN_E, BN_LOG=file.csv.
 --
 
 local common = require "common"
@@ -97,7 +104,7 @@ local function holdPre()            -- first thing before each step: true while 
 end
 applyTiming()
 v.gravity = btVector3(0, -G, 0)
-v:setSolverIterations(20)
+v:setSolverIterations(envnum("BN_ITER", 20))
 
 local Q0 = btQuaternion(0, 0, 0, 1)
 local function block(sx, sy, sz, x, y, z, col)
@@ -257,13 +264,13 @@ local function pour()
     bx.reached, bx.upN, bx.upHalf = nil, 0, 0
     bx.conv = { midSum = 0, midN = 0, wallSum = 0, wallN = 0, upX = 0, upN = 0, downX = 0, downN = 0, trips = 0, zone = "bottom" }
     bx.lastSample = nil
-    bx.pushSum, bx.pushN = {}, {}
+    bx.pushSum, bx.pushN, bx.vrelSum = {}, {}, {}
   end
   for _, bx in ipairs(BOXES) do
     local g = v:getParam(bx.accel)
     print(string.format("  %-6s Gamma %.1f: %s", bx.short, g,
                         g < 1 and "below 1 -- the bed should never leave the floor"
-                        or string.format("the bed should leave the floor %.1f degrees into each upswing (arcsin 1/Gamma)",
+                        or string.format("the bed should leave the floor %.1f degrees into each upswing (arcsin 1/Gamma), if it has landed by then",
                                          math.deg(math.asin(1 / g)))))
   end
   -- let them settle a moment before the shaking starts
@@ -288,9 +295,31 @@ local function bedOff(bx, floorY)
   return lowest - R_S - floorY
 end
 
-local W_BED = 0
-for i = 1, N_S do W_BED = W_BED + RHO_GLASS * 4 / 3 * math.pi * smallR(i) ^ 3 * G end
--- (the bed's weight, above: for the box's push)
+-- each bed's beads' masses, its whole mass and its weight (the big or
+-- coloured bead too): for the box's push, and the bed's middle (its centre
+-- of mass)
+for _, bx in ipairs(BOXES) do
+  bx.mass, bx.M = {}, 0
+  for i = 1, N_S do
+    bx.mass[i] = RHO_GLASS * 4 / 3 * math.pi * smallR(i) ^ 3
+    bx.M = bx.M + bx.mass[i]
+  end
+  bx.specialM = bx.big and M_B or M_S
+  bx.M = bx.M + bx.specialM
+  bx.W = bx.M * G
+end
+local WATCH1, WATCH2 = 4, 32               -- (watched in shakes 5 to 32)
+-- the bed's momentum, up (kg cm/s)
+local function bedMomentum(bx)
+  local mv = 0
+  for i, s in ipairs(bx.beads) do
+    local _, w = getVelXYZ(s)
+    mv = mv + bx.mass[i] * w
+  end
+  local _, w = getVelXYZ(bx.special)
+  return mv + bx.specialM * w
+end
+local stepNo = 0
 v:preSim(function(N_)
   if holdPre() then return end
   for k = 1, NSTEPS do
@@ -304,22 +333,34 @@ v:preSim(function(N_)
       bx.body:setLinearVelocity(btVector3(0, bx.vset, 0))
     end
     if k < NSTEPS then
-      v:stepSimulation(STEP, 0, STEP)
-      -- the beads' push on the box over that step, from how much it slowed
-      -- the (heavy) box: when it drops to nothing, the bed is off the floor.
-      -- Watched in shakes 5 to 12, once it has settled.
+      -- the floor's push on the bed over the step, from how much the bed's
+      -- momentum changed (the push less its weight): when it drops to
+      -- nothing, the bed is off the floor. And how fast the bed's middle
+      -- (its centre of mass) is coming down onto the floor, or going up off
+      -- it. Watched in shakes 5 to 32, once it has settled.
       local cyc = math.floor(tt * F_HZ)
-      if cyc >= 4 and cyc < 12 then
+      local watch = cyc >= WATCH1 and cyc < WATCH2
+      if watch then
         for _, bx in ipairs(BOXES) do
+          if bx.Pat ~= stepNo then bx.P = bedMomentum(bx) end
+        end
+      end
+      v:stepSimulation(STEP, 0, STEP)
+      if watch then
+        for _, bx in ipairs(BOXES) do
+          local P = bedMomentum(bx)
+          local push = (P - bx.P) / STEP + bx.W
+          bx.P, bx.Pat = P, stepNo + 1
           local _, vy = getVelXYZ(bx.holder)
-          local push = (bx.vset - vy) * BIGM / STEP
           -- (summed by the phase of the shake, in 2-degree bins)
           local bin = math.floor((tt * F_HZ - cyc) * 180) + 1
           bx.pushSum[bin] = (bx.pushSum[bin] or 0) + push
+          bx.vrelSum[bin] = (bx.vrelSum[bin] or 0) + P / bx.M - vy
           bx.pushN[bin] = (bx.pushN[bin] or 0) + 1
         end
       end
     end
+    stepNo = stepNo + 1          -- (bpp takes the last step itself)
   end
 end)
 
@@ -394,28 +435,40 @@ v:postSim(function(N_)
       LOGF:write(string.format("%.3f,%d,%.3f,%.3f\n", t, k, ys - by, top - by))
     end
   end
-  if not reportedPhase and t > 1.25 then
+  if not reportedPhase and t > WATCH2 / F_HZ + 0.02 then
     reportedPhase = true
     for _, bx in ipairs(BOXES) do
-      -- the floor's push through the shake, averaged over shakes 5 to 12:
+      -- the floor's push through the shake, averaged over shakes 5 to 32:
       -- the first phase in the upswing where it falls below a tenth of the
-      -- bed's weight (a rigid bed's: W (1 - Gamma sin(phase)))
+      -- bed's weight (a rigid bed's: W (1 - Gamma sin(phase))); and the
+      -- first where the bed's middle has stopped coming down (it's landed)
       local g = v:getParam(bx.accel)
-      local off, least = nil, 1e9
+      local off, least, landed = nil, 1e9, nil
       for bin = 1, 45 do
         if bx.pushN[bin] then
-          local p = bx.pushSum[bin] / bx.pushN[bin] / W_BED
+          local p = bx.pushSum[bin] / bx.pushN[bin] / bx.W
           least = math.min(least, p)
           if not off and p < 0.1 then off = (bin - 1) * 2 end
+          if not landed and bx.vrelSum[bin] / bx.pushN[bin] >= 0 then landed = (bin - 1) * 2 end
         end
       end
       if not off then
-        print(string.format("  %-6s Gamma %.1f: the bed never left the floor (the floor's push never less than %.2f of its weight; a rigid bed's: %.2f)",
-                            bx.short, g, least, 1 - g))
+        print(string.format("  %-6s Gamma %.1f: the bed never left the floor (the floor's push never less than %.2f of its weight; %s)",
+                            bx.short, g, least, g < 1 and string.format("a rigid bed's: %.2f", 1 - g)
+                            or string.format("a rigid bed would leave at %.1f degrees", math.deg(math.asin(1 / g)))))
       else
-        print(string.format("  %-6s Gamma %.1f: the bed leaves the floor %d to %d degrees into the upswing (a rigid bed: arcsin 1/Gamma = %.1f;" ..
-                            "\n         this one presses on longer: Bullet's contacts give a little, and the stiffer they are, the sooner it leaves)",
-                            bx.short, g, off, off + 2, g > 1 and math.deg(math.asin(1 / g)) or 0))
+        -- (how fast its middle is still coming down 18 to 20 degrees in)
+        local b = math.floor(math.deg(math.asin(math.min(1, 1 / g))) / 2) + 1
+        local vdown = bx.pushN[b] and -bx.vrelSum[b] / bx.pushN[b] or 0
+        local second
+        if landed and landed <= (b - 1) * 2 then
+          second = string.format("it had landed (its middle stopped coming down) by %d to %d", landed, landed + 2)
+        else
+          second = string.format("it can't till it has landed: at %d to %d degrees its middle is still coming down (%.0f cm/s); landed at %s",
+                                 (b - 1) * 2, b * 2, vdown, landed and string.format("%d to %d", landed, landed + 2) or "90 or later")
+        end
+        print(string.format("  %-6s Gamma %.1f: the bed leaves the floor %d to %d degrees into the upswing (a rigid bed: arcsin 1/Gamma = %.1f);\n         %s",
+                            bx.short, g, off, off + 2, g > 1 and math.deg(math.asin(1 / g)) or 0, second))
       end
     end
   end
@@ -466,7 +519,8 @@ v:setHelpText(table.concat({
   "R   pour them again",
   "Z   slow motion (1/4) <-> real time",
   "",
-  "Sliders: hard, gentle (peak acceleration, g), speed, steps.",
+  "Sliders: hard, gentle (peak acceleration, g), speed, steps",
+  "(more steps: stiffer contacts -- the bed leaves the floor sooner).",
 }, "\n"))
 local KEYS = {}
 if v.onHover then

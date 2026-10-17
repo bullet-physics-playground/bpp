@@ -1,71 +1,68 @@
 ## The Brazil-Nut Effect
 
-**What it shows** — Three glass-fronted boxes, each holding a one-bead-thick layer of beads, are shaken vertically at 7 Hz. Shaken gently (peak 0.8 g), the bed never leaves the floor and nothing happens. Shaken hard (3 g), a big bead starting at the bottom rises to the top within seconds and stays there. A small coloured bead in the third box rises too, but then sinks again by a wall and circulates. This shows the convection rolls (up in the middle, down by the walls) that Knight, Jaeger and Nagel identified as the mechanism.
+**What it shows** — Three glass-fronted boxes, each holding a one-bead-thick layer of beads, are shaken vertically at 7 Hz. Shaken gently (peak 0.8 g), the bed never leaves the floor and nothing happens. Shaken hard (3 g), a big bead starting at the bottom rises to the top and stays there. A small coloured bead in the third box rises too, then sinks again by a wall and circulates. This shows the convection rolls (up in the middle, down by the walls) that Knight, Jaeger and Nagel identified as the mechanism.
 
 **Model** — Bullet does everything here; the script adds no custom contact or integration.
-- Beads: 140 glass spheres per box (density 0.0025 kg/cm^3), radius 0.5 cm, with a deterministic size spread of +/-5% (BN_POLY = 0.1) so they do not crystallise. Big bead: radius 1.5 cm. All beads are locked to the x-y plane (linear factor (1,1,0), rotation about z only).
-- Friction: 0.8 bead-bead, 1.0 walls. Restitution 0.1 for both.
-- Box: a 1e4 kg compound body (floor plus two walls, 15 cm wide inside, 24 cm tall) with its own gravity off. The script sets its position and velocity to the sinusoid y = A sin(wt) before every physics step. The front and back glass are not colliders; the planar constraint stands in for them.
-- Shaking: f = 7 Hz, A = Gamma g / w^2, which gives 4.1 mm for Gamma = 0.8 and 15.2 mm for Gamma = 3.
-- Stepping: 2400 physics steps per second, 20 solver iterations. Beads settle for 0.5 s before shaking starts. The boxes are re-poured every 90 s.
-- Floor push: the floor's push on the bed is measured from how much the heavy box is slowed in each step, binned by phase in 2-degree bins over shakes 5 to 12.
+- Beads: 140 glass spheres per box (density 0.0025 kg/cm^3), radius 0.5 cm with a deterministic +/-5% spread (BN_POLY = 0.1), big bead radius 1.5 cm. All locked to the x-y plane (linear factor (1,1,0), rotation about z only). btSphereShape, so contacts are exact sphere-sphere and sphere-box.
+- Friction and bounce: each body has its own (beads 0.8 and 0.1, box 1.0 and 0.1), and Bullet multiplies the pair's values. Effective: friction 0.64 bead-bead, 0.8 bead-wall and bead-floor; restitution 0.01 everywhere. (Before 16 Oct 2026 the README gave the per-body values as if they were the effective ones.)
+- Box: a 1e4 kg compound body (floor plus two walls, 15 cm wide inside, 24 cm tall) with its own gravity off. Its position and velocity are set to y = A sin(wt) before every physics step. The front and back glass are not colliders; the planar constraint stands in for them.
+- Shaking: f = 7 Hz, A = Gamma g / w^2: 4.1 mm for Gamma = 0.8, 15.2 mm for Gamma = 3.
+- Stepping: 2400 steps per second, 20 solver iterations (BN_STEPS, BN_ITER), Bullet's default contact ERP 0.2 and split impulse. Beads settle for 0.5 s before shaking. Re-poured every 90 s.
+- Measurement (changed 16 Oct 2026): the floor's push on the bed is taken from the bed's own momentum, (P_after - P_before)/dt + W, every step in shakes 5 to 32, binned by phase in 2-degree bins. W now includes the big or coloured bead. The bed's centre-of-mass velocity relative to the floor is binned the same way. Before, the push came from the change in the 1e4 kg box's velocity, which in single precision is quantised at about 0.85 W per step. W also left out the big bead, and the average stopped at shake 9.75 although the text said shake 12.
 
-**Theory checks** (two seeds; the default seed 7 is the README's)
+**Theory checks** (seed 7 is the README's; seed 8 as a second pour)
 
 | Quantity | Theory (formula / source) | Simulation, seed 7 | Seed 8 | Agreement |
 |---|---|---|---|---|
-| Amplitude for Gamma | A = Gamma g / (2 pi f)^2 | 4.1 mm (0.8 g), 15.2 mm (3 g) | same | exact (definition) |
-| Gamma = 0.8: bed stays on floor | min floor push = (1 - Gamma) W = 0.20 W (rigid bed) | never left; min push 0.18 W | 0.20 W | 0.02 W low / exact |
-| Gamma = 3: lift-off phase, middle box | rigid bed: arcsin(1/Gamma) = 19.5 deg (a perfectly inelastic rigid bed, iterated: lands at 1.4 deg, leaves at 19.5) | 46 to 48 deg | 46 to 48 deg | **Disagrees by about 27 deg; tested 15 Oct 2026: mostly Bullet's contact compliance** (next rows) |
-| Same, right box | 19.5 deg | 50 to 52 deg | 42 to 44 deg | as above |
-| Lift-off phase vs contact stiffness (seed 7; middle, right box) | should tend to 19.5 if the late lift-off is numerical softness | 2400 steps/s, 20 iterations (default): 46-48, 50-52; 4800/s: 36-38, 32-34; 100 iterations: 36-38, 38-40; 9600/s + 60 iterations: 28-30, 36-38 | moves toward 19.5 as contacts stiffen; not converged at the stiffest tried |
-| Lift-off phase vs bounce, friction (seed 7) | — | restitution 0: 42-44, 40-42; friction 0.3/0.3: 40-42, 54-56 | secondary |
-| Big bead rises (Brazil-nut effect) | qualitative (Knight et al. 1993: rises with convection) | top at 6.3 s (44 shakes), rose 8.4 cm | 21.4 s (149 shakes), rose 10.8 cm (re-run 15 Oct 2026: same) | qualitative yes; timing varies 3x with the pour. At 4800 steps/s (seed 7): 11.9 s (82 shakes); coloured bead 19.3 s |
-| Big bead stays up | qualitative | upper half 77% of the time | 91% | yes |
-| Convection, middle box | rise in middle, fall at walls | middle +5.5 mm/s, walls -10.1 mm/s | +4.8 / -9.5 mm/s | correct sign / pattern |
-| Convection, right box | same | +7.8 / -12.9 mm/s | +7.1 / -12.5 mm/s | correct sign / pattern |
-| Coloured bead circulates | up nearer the middle, down nearer the walls | 4 round trips; up 3.6 cm, down 4.6 cm from centre (walls at 7.5) | 4 trips; 2.6 / 3.4 cm | yes |
-| Coloured bead reaches top | qualitative | 11.6 s (81 shakes), rose 8.9 cm | 12.7 s (89 shakes), 9.3 cm | yes |
+| Amplitude | A = Gamma g / (2 pi f)^2 | 4.1 mm, 15.2 mm | same | exact (definition) |
+| Gamma = 0.8: bed stays on floor | min push = (1 - Gamma) W = 0.20 W (rigid bed) | never left; min 0.19 W | 0.18 W | 0.01-0.02 W low |
+| Gamma = 3: when the bed has landed (CoM stops descending relative to floor) | rigid, perfectly inelastic bed (Mehta and Luck 1990): lands at 1.4 deg, rests until 19.5 | middle, right: 42-44, 42-44 deg; still descending at 11 and 12 cm/s at 18-20 deg | 38-40, 42-44 | **Departs from the rigid model.** The bed flies dilated and lands bottom-up, as real layers do (Bougie et al. 2002; Pastor et al. 2007). Landing ends at 38-44 deg at every step rate tried (2400 to 9600 per s) |
+| Gamma = 3: lift-off phase | arcsin(1/Gamma) = 19.5 deg if the bed has landed by then; otherwise as soon as it has landed | 48-50, 44-46 deg | 44-46, 46-48 | 2-6 deg after landing at the default |
+| Lift-off convergence (seed 7, seed 8; middle, right) | stiff limit should stop changing | 2400/20: 48,44 / 44,46; 2400/50: 44,44 / 40,42; 3600/30: 38,38 / 42,44; 4800/20: 36,38 / 40,42; 9600/20: 42,36 / 42,42; also 2400/100: 42,44; 4800/50: 40,42; 4800/100: 36,40; 9600/50: 44,36 (seed 7) | | Converged at 4800 steps/s and above: 36-44, mean 40 (scatter +/-3 between pours and bins), equal to the landing end. Default 46 on average: **about 6 deg numerical, about 20 deg the landing** |
+| Lift-off vs bounce and friction (4800/20, seed 7) | — | restitution 0: 42, 40; friction 0.09: 44, 44; restitution 0.95 (glass): the bed never settles (push never below 0.2 W) | | insensitive to bounce 0-0.01 and to friction; glass-like bounce fluidises the bed in Bullet |
+| Big bead rises | qualitative (Knight et al. 1993) | 6.3 s (44 shakes), rose 8.4 cm | 21.4 s (149 shakes) | yes. **Not step-converged:** 4800/s 11.9 s; 9600/s 43.6 s; seed 8 at 4800/s not up within 60 s |
+| Big bead stays up | qualitative | upper half 77% | 91% | yes |
+| Convection, middle box | rise in middle, fall at walls | +5.5 / -10.1 mm/s | +4.8 / -9.5 | right sign. **Speed not converged:** 4800/s +3.2 / -8.0 (seed 8: +2.2 / -6.3); 9600/s +2.4 / -6.0 |
+| Convection, right box | same | +7.8 / -12.9 mm/s | +7.1 / -12.5 | right sign; 4800/s +5.3 / -9.9; 9600/s +4.9 / -8.5 |
+| Coloured bead circulates | up nearer the middle, down nearer the walls | 4 round trips; up 3.6 cm, down 4.6 cm from centre | 4; 2.6 / 3.4 cm | yes (4800/s: 1 trip) |
+| Coloured bead reaches top | qualitative | 11.6 s (81 shakes), 8.9 cm | 12.7 s (89 shakes), 9.3 cm | yes |
 
-The only quantitative theory comparisons are the Gamma < 1 floor push and the rigid-bed lift-off phase. Everything else checks direction, sign and pattern. There is no comparison with a measured rise rate or convection speed, and no conservation check (the system is driven and dissipative).
+The push profile at the default (seed 7, middle box): about 6-9 W from 336 to 0 deg (the landing), 2.6 W at 18-20 deg, 0.4 W at 36-38, below 0.1 W from 48. At 4800/s: 1.1 W at 18-20, 0.08 W at 36. The CoM approach speed at 18-20 deg is 11 cm/s at 2400/s and 7 cm/s at 4800/s (scratch copy that printed the bins). Separately (scratch, box-based measure, 2400/20): the lowest beads touch the floor at 322-342 deg, with the bed's CoM 0.5-1.3 cm above its packed height.
+
+**Cost** (this machine, 2 cores, shared). Default: 31-35 ms per frame standalone and 37-39 ms in the hall after the measuring window. Both are about 2x the 16.7 ms a 60 fps frame has. The new per-step momentum sum adds a few ms per frame during the 4 s window (shakes 5-32). Relative to the default: 2400/50 x1.33; 3600/30 x1.6; 4800/20 x1.8-1.9; 9600/20 about x4-5.
 
 **Run used**
 
 ```
-cd demo/WyomingWill/BrazilNut && HOLD_S=0 timeout 1500 ../../../release/bpp -f brazil-nut.lua -n 3700
-cd demo/WyomingWill/BrazilNut && BN_SEED=8 HOLD_S=0 timeout 1500 ../../../release/bpp -f brazil-nut.lua -n 3700
+cd demo/WyomingWill/BrazilNut && HOLD_S=0 timeout 3000 ../../../release/bpp -f brazil-nut.lua -n 3700
+  (and BN_SEED=8; BN_STEPS=4800, 9600; BN_ITER=50 with -n 3700; the grid above with -n 310)
 ```
-
 ```
-  Left   Gamma 0.8: the bed never left the floor (the floor's push never less than 0.18 of its weight; a rigid bed's: 0.20)
-  Middle Gamma 3.0: the bed leaves the floor 46 to 48 degrees into the upswing (a rigid bed: arcsin 1/Gamma = 19.5;
-  Right  Gamma 3.0: the bed leaves the floor 50 to 52 degrees into the upswing (a rigid bed: arcsin 1/Gamma = 19.5;
+  Left   Gamma 0.8: the bed never left the floor (the floor's push never less than 0.19 of its weight; a rigid bed's: 0.20)
+  Middle Gamma 3.0: the bed leaves the floor 48 to 50 degrees into the upswing (a rigid bed: arcsin 1/Gamma = 19.5);
+         it can't till it has landed: at 18 to 20 degrees its middle is still coming down (11 cm/s); landed at 42 to 44
+  Right  Gamma 3.0: the bed leaves the floor 44 to 46 degrees into the upswing (a rigid bed: arcsin 1/Gamma = 19.5);
+         it can't till it has landed: at 18 to 20 degrees its middle is still coming down (12 cm/s); landed at 42 to 44
   Middle the big bead reaches the top at 6.3 s (44 shakes), having risen 8.4 cm
   Right  the coloured bead reaches the top at 11.6 s (81 shakes), having risen 8.9 cm
   Middle from 5 s to a minute: beads in the middle rising 5.5 mm/s on average, beside the walls falling 10.1 mm/s
-  Middle the big bead, since reaching the top, has been in the bed's upper half 77% of the time
   Right  from 5 s to a minute: beads in the middle rising 7.8 mm/s on average, beside the walls falling 12.9 mm/s
-  Right  the coloured bead has gone round 4 times: going up it was 3.6 cm from the middle on average, going down 4.6 cm (the walls are 7.5 cm out)
-[seed 8] Middle the big bead reaches the top at 21.4 s (149 shakes), having risen 10.8 cm
 ```
-Seed 7 reproduced every console line in the README exactly. The README omits the "Right ... 50 to 52 degrees" line, but that is not a disagreement.
-
-Console after the 15 Oct 2026 text change (seed 7):
-```
-  Middle Gamma 3.0: the bed leaves the floor 46 to 48 degrees into the upswing (a rigid bed: arcsin 1/Gamma = 19.5;
-         this one presses on longer: Bullet's contacts give a little, and the stiffer they are, the sooner it leaves)
-```
-Stiffness runs: BN_STEPS=4800; BN_STEPS=9600 (and 60 iterations, scratch copy); 100 iterations (scratch copy); BN_E=0; BN_MUB=0.3 BN_MUW=0.3; each -n 110. BN_STEPS=4800 -n 1500 for the rise. BN_SEED=8 -n 1400.
-
-Pause and hall checks after the console change (15 Oct 2026): hall against standalone (cmp2.sh, 900 frames): IDENTICAL (7 run lines); HOLD_S=0 for 400 frames is a prefix of the default pause for 430 frames (10 lines).
+The README's console block matches this run. Hall against standalone (cmp2.sh, 900 frames): IDENTICAL (7 run lines). HOLD_S=0 for 400 frames is a prefix of the default pause for 430 frames (10 lines). BN_SPEED=0.25 (1250 frames): 50-52 / 42-44 deg, landed 42-44 / 42-44, the same as real time within the scatter. The trajectories differ bit for bit, as before, because the frame time accumulates differently.
 
 **Known departures and honest caveats**
-- **The parameters were tuned.** The README says that 7 Hz, 3 g and high friction "were found by trying". At 10 Hz and 2.5 g with less friction, the big bead rose "only now and then" (README; not re-run here).
-- The lift-off phase is far from the rigid-bed value: about 47 deg against 19.5 deg. The README used to explain it as a springy bed squeezed by its landing, untested. Tested 15 Oct 2026 (scratch copy that also printed the push-vs-phase profile and took a solver-iteration setting): stiffer contacts move the lift-off toward 19.5 (4800 steps/s: 36-38 deg; 100 iterations: 36-38; 9600 steps/s with 60 iterations: 28-30, middle box), so the late lift-off is mostly Bullet's soft, position-corrected contacts, not a property of glass beads. It had not converged at the stiffest setting tried, which is too slow for the exhibit. In the default profile the floor's push is 4-10 W from 0 to 18 deg (the landing; a rigid inelastic bed would land at 1.4 deg), 1.4 W at 30-36 deg, and drops below 0.1 W at 48 deg. The console line, lua header and README now say this ("this one presses on longer: Bullet's contacts give a little, and the stiffer they are, the sooner it leaves"); how much later than 19.5 deg a real bed of glass beads would leave is stated as not tested.
-- The rise time depends strongly on the initial packing: 6.3 s for seed 7, 21.4 s for seed 8 (re-run 15 Oct 2026). Since 15 Oct 2026 the README says so (and gives the 4800-steps/s rise, 11.9 s); its table now reads "comes up (within seconds with this pour; it can take twenty)".
-- The bed is 2-D (one bead thick) with high wall friction, which drives the wall-shear convection. A real 3-D jar of nuts has other mechanisms (percolation, void filling, inertia) that this setup neither isolates nor excludes.
-- The box is a kinematic driver (prescribed position and velocity on a 1e4 kg body), not a dynamic shaker. The floor-push measurement depends on that huge mass ratio.
-- Bead sizes come from a deterministic formula, and pouring uses the script's own linear congruential random-number generator, so each pour is identical for a given BN_SEED.
+- **The 19.5 deg comparison was the wrong theory for this bed** (fixed 16 Oct 2026). arcsin(1/Gamma) is when a bed *resting* on the floor leaves it. This bed is still landing then: it lands dilated, bottom-up, and its CoM only stops descending at about 40 deg, at every step rate. The console now prints both. The 15 Oct 2026 conclusion, "mostly Bullet's soft contacts, 28-30 deg at 9600/s + 60 iterations", came from 4.75-shake averages with the quantised box measure. With 28-shake averages, two pours and the momentum measure, the stiff limit is about 40 deg. Only about 6 deg of the 27 is numerical.
+- **The default is not the converged setting.** 2400/20 leaves about 6 deg late. The converged setting, 4800/20, costs about 1.9x the default, and the default is already about 2x over the 60 fps budget here, so the default stays. The slider reaches 4800.
+- **Convection speed and rise time are not step-converged.** Middle-box rise in the middle: 5.5 mm/s at 2400/s, 3.2 at 4800/s, 2.4 at 9600/s, still falling. Big-bead rise: 6.3 s, 11.9 s, 43.6 s. The default's softer contacts roughly double the rolls' speed. Direction and pattern are robust.
+- **Not glass.** Real glass-glass impacts give e about 0.92-0.97 and mu about 0.05-0.18 (Cornell impact table, 3 mm spheres; Foerster et al. 1994). The exhibit's effective e = 0.01 and mu = 0.64/0.8 were found by trying. With e = 0.95 the bed never settles in Bullet, which applies restitution to every contact closing faster than 0.2 cm/s, every step (btSequentialImpulseConstraintSolver::restitutionCurve; m_restingContactRestitutionThreshold is unused). That is a Bullet limitation, not glass behaviour.
+- **The rise time depends strongly on the pour:** 6.3 s for seed 7, 21.4 s for seed 8.
+- A 2-D bed (one bead thick) with high wall friction drives the wall-shear convection. A real 3-D jar has other mechanisms (percolation, void filling, inertia).
+- The box is a kinematic driver, not a dynamic shaker. Each pour is deterministic for a given BN_SEED.
+- What Lua cannot reach: bpp exposes setErp/setErp2/setCfm/setTau/setSolverIterations. It does not expose split impulse, its threshold (-0.04 world units = 0.4 mm here, so most bead penetrations are corrected by Baumgarte velocity), warm starting, solver mode or setContactStiffnessAndDamping. ERP2 0.05 changed nothing (48, 44); ERP2 0.8 made the lift-off later (60, 50).
 
 **References**
-- J. B. Knight, H. M. Jaeger, S. R. Nagel, Phys. Rev. Lett. 70, 3728 (1993): the big bead rises with the convection (README).
+- J. B. Knight, H. M. Jaeger, S. R. Nagel, Phys. Rev. Lett. 70, 3728 (1993) (README).
+- A. Mehta, J. M. Luck, "Novel temporal behavior of a nonlinear dynamical system: the completely inelastic bouncing ball", Phys. Rev. Lett. 65, 393 (1990).
+- J. Bougie, S. J. Moon, J. B. Swift, H. L. Swinney, "Shocks in vertically oscillated granular layers", Phys. Rev. E 66, 051301 (2002): MD with e = 0.9, 9 layers, Gamma = 3. The layer dilates in flight, and the compaction shock crosses it in about a quarter cycle before the layer leaves.
+- J. M. Pastor, D. Maza, I. Zuriguel, A. Garcimartin, J.-F. Boudet, "Time resolved particle dynamics in granular convection", Physica D 232, 128 (2007): the inelastic-ball model fits flight times for Gamma below about 2.7. Above Gamma about 3 the collision lasts about as long as the layer is stuck to the plate.
+- S. F. Foerster, M. Y. Louge, H. Chang, K. Allia, "Measurements of the collision properties of small spheres", Phys. Fluids 6, 1108 (1994); Cornell impact-results table.
