@@ -94,6 +94,7 @@
 --
 
 local common = require "common"
+local rng    = require "lib.rng" -- shared seedable generator (BOOK.md G2); math.random is glibc rand()
 local Quad   = require "quadcopter.flight"
 local Sound  = require "quadcopter.sound"
 
@@ -345,9 +346,9 @@ function generateField()
   local placed = 0
   for _ = 1, want * 60 do
     if placed >= want then break end
-    local r = FIELD_R_MIN + (FIELD_R_MAX - FIELD_R_MIN) * math.random()
-    local x = FIELD_X_FAR + (FIELD_X_NEAR - FIELD_X_FAR) * math.random()
-    local z = (math.random() * 2 - 1) * FIELD_HALF_Z
+    local r = FIELD_R_MIN + (FIELD_R_MAX - FIELD_R_MIN) * rng.random()
+    local x = FIELD_X_FAR + (FIELD_X_NEAR - FIELD_X_FAR) * rng.random()
+    local z = (rng.random() * 2 - 1) * FIELD_HALF_Z
     local ok = true
     for _, o in ipairs(obstacles) do
       local dx, dz = o.wx - x, o.wz - z
@@ -531,7 +532,7 @@ local function airTick(p, dtAir)
   -- gusts: an Ornstein-Uhlenbeck process (2 s correlation), shared by all
   local a = math.exp(-dtAir / 2.0)
   local sg = p.gust * math.sqrt(1 - a * a)
-  local function gauss() return math.sqrt(-2 * math.log(math.random() + 1e-12)) * math.cos(2 * math.pi * math.random()) end
+  local function gauss() return math.sqrt(-2 * math.log(rng.random() + 1e-12)) * math.cos(2 * math.pi * rng.random()) end
   gustX, gustZ = gustX * a + sg * gauss(), gustZ * a + sg * gauss()
 
   local wx, wz = gustX, p.windSpeed + gustZ
@@ -685,6 +686,7 @@ function launch(x, z, toAlt)   -- (the local declared above physicsStep)
 end
 
 function setup(n)
+  rng.reseed() -- a fixed seed (SEED or the seed parameter) repeats the same start
   for _, d in ipairs(drones) do Quad.remove(d) end
   for _, g in ipairs(goals) do v:remove(g.obj) end
   clearObstacles()
@@ -716,8 +718,8 @@ function setup(n)
   for _ = 1, n do
     local x, z
     for _ = 1, 2000 do
-      x = cx + (math.random() - 0.5) * side
-      z = (math.random() - 0.5) * side
+      x = cx + (rng.random() - 0.5) * side
+      z = (rng.random() - 0.5) * side
       local ok = true
       for _, q in ipairs(placed) do
         if (q[1] - x) ^ 2 + (q[2] - z) ^ 2 < minSep * minSep then ok = false; break end
@@ -740,7 +742,7 @@ function setup(n)
   local levelH = v:getParam(SEP) * s * (isSquareFormation and 1 or math.sqrt(2 / 3))
   local function bandAlt()
     local alt = ALT()
-    if is3D then alt = alt + (math.random() - 0.5) * jitter end
+    if is3D then alt = alt + (rng.random() - 0.5) * jitter end
     return math.max(MIN_ALT, alt)
   end
   for i, q in ipairs(placed) do
@@ -979,7 +981,7 @@ local function pick(filter)
   local c = {}
   for _, d in ipairs(drones) do if filter(d) then c[#c + 1] = d end end
   if #c == 0 then return nil end
-  return c[math.random(#c)]
+  return c[rng.random(#c)]
 end
 
 -- ]: launch one more drone from the ground under a random flying one
@@ -987,8 +989,8 @@ function addDrone()
   local t = pick(function(d) return d.state == "ap" end)
   if not t then return end
   local sep = v:getParam(SEP) * S()
-  local x = t.px + (math.random() - 0.5) * sep
-  local z = t.pz + (math.random() - 0.5) * sep
+  local x = t.px + (rng.random() - 0.5) * sep
+  local z = t.pz + (rng.random() - 0.5) * sep
   for _, d in ipairs(drones) do       -- keep clear of anything parked there
     if d.py < 1 and (d.px - x) ^ 2 + (d.pz - z) ^ 2 < 1 then x = x + 1.2 end
   end
@@ -1307,7 +1309,7 @@ function updateStatus(statsLine)
   lastModeLine = modeLine
 end
 
-math.randomseed(cfg.seed or os.time())
+rng.init(v, cfg.seed)   -- seed: SEED env, else the seed parameter, else cfg.seed, else the clock
 applyDefaults()
 setup(math.floor(v:getParam("numDrones")))
 drawCursor()

@@ -41,7 +41,7 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–33 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–35 so far) and the task READMEs up to date.
 
 ## 3. Where everything is
 
@@ -54,8 +54,10 @@ is updated at the end of every milestone.
 | `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder) |
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
-| `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes and the multiply-with-carry random number generator |
-| `FIXES.md` | Fixes 1–33 |
+| `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
+| `FIXES.md` | Fixes 1–35 |
+| `lib/` | Shared code: `rng.lua` so far (`lib/README.md`) |
+| `checks/` | One check script per port; `rng_appendix.lua` so far |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -106,10 +108,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **Random numbers:** BPP's Lua 5.1 `math.random` is glibc `random()`, the
   generator the book's appendix warns about. Run inside Lua 5.1 with the
   appendix's sampling (S extra calls per accepted point in the disk, 10⁶ points,
-  36 bins), it fails at S = 25 (χ² 321) and S = 27 (χ² 409) against a 99.9% cut
-  of 66.6. The multiply-with-carry generator in `Uniform_Coverage.lua` passes at
-  every S (χ² 26–41). It is local to that script and seeded from `os.time()`;
-  the formations and `quadcopter/swarm.lua` still use `math.random`.
+  36 bins), it fails at S = 25 (χ² 321), 26 (223) and 27 (409) against a 99.9%
+  cut of 66.6. The multiply-with-carry generator passes at every S (χ² 26–47).
+  It is now `lib/rng.lua`, used by every demo here and by the probes, seeded
+  from the `SEED` environment variable, else the `seed` parameter, else the
+  clock (FIXES 34). Use `SEED` for every measurement; the seed is printed.
 - **Drones:** Lennard-Jones settles on quadcopters; split-Newtonian keeps
   jostling. Ch. 13 explains why (the force flips sign at D) and gives four
   remedies, cheapest first: AR damping η, adaptive friction, static friction,
@@ -125,7 +128,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **Done:** the map, the workflow, the world-generator design, and this handoff
   with the probes, thesis digests and PDF tool now in the repo.
 - **Next: milestone M0** (build step 0 in `BOOK.md`, details in `WORKFLOW.md`):
-  1. `lib/rng.lua`: move the multiply-with-carry generator out of
+  1. **Done:** `lib/rng.lua`: move the multiply-with-carry generator out of
      `Uniform_Coverage.lua` into a shared module with a seed setting (not
      `os.time()`); point `Uniform_Coverage.lua`, the formations and
      `quadcopter/swarm.lua` at it; keep the appendix test as a check script.
@@ -142,7 +145,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   6. The `checks/` folder and a script that runs every check.
 - **After M0:** M1, Ch. 13's four fixes on the drones, each switchable,
   measured on Newtonian 2D and 3D with the Ch. 16.9 metrics.
-- **Open loose ends:** the Android app still has the two Uniform Coverage bugs
+- **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35);
+  the Android app still has the two Uniform Coverage bugs
   fixed in BPP; FIXES item 27 is documented, not fixed; an Info pane for BPP.
 
 ## 8. Opening message for the next chat

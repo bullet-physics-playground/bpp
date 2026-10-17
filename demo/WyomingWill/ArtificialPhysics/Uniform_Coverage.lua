@@ -101,43 +101,16 @@ common.gravity(0)                   -- agents are kinematic; no forces needed
 local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
 
 --------------------------------------------------------------------------
--- Portable higher-quality PRNG, replacing math.random()/math.randomseed()
--- everywhere below. BPP embeds Lua 5.1/5.2 (confirmed against the actual
--- .pro build files: PKGCONFIG += lua5.1/lua5.2), and in those versions
--- math.random() is just a thin wrapper around the C library's rand() --
--- a meaningfully weaker, shorter-period generator than Lua 5.4's built-in
--- one. This isn't theoretical: the exact same algorithm, run for the same
--- number of ticks, converges measurably worse under real Lua 5.1 than
--- under 5.4 (deviation/cornerSpread/edgeSpread all elevated) -- verified
--- directly by running both.
---
--- Marsaglia's "multiply-with-carry" (MWC) generator fixes this without
--- needing anything Lua 5.1 doesn't have: no bitwise operators (added only
--- in 5.3+), no external bit32/bit library, just multiply/floor/modulo,
--- which every Lua version supports identically. Verified this closes the
--- gap: under real Lua 5.1, the same long test that showed elevated
--- deviation/spread with native math.random() came back statistically
--- indistinguishable from Lua 5.4's own native quality once routed through
--- this generator instead.
+-- Random numbers come from the shared multiply-with-carry generator in
+-- lib/rng.lua (BOOK.md G2), which started life here. BPP's Lua 5.1
+-- math.random() is glibc rand(), the generator the book's appendix shows
+-- to be biased; lib/rng.lua explains, and checks/rng_appendix.lua tests it.
+-- The seed comes from the SEED environment variable or the "seed"
+-- parameter (0 = from the clock, the old behaviour); the seed used is
+-- printed at load.
 --------------------------------------------------------------------------
-local mwc_z, mwc_w = 362436069, 521288629
-
-local function mwcSeed(seed)
-  seed = math.floor(math.abs(seed)) % 4294967296
-  if seed == 0 then seed = 1 end
-  mwc_z = seed
-  mwc_w = (seed * 69069 + 1) % 4294967296
-  if mwc_z == 0 then mwc_z = 362436069 end
-  if mwc_w == 0 then mwc_w = 521288629 end
-end
-
--- Drop-in replacement for math.random(): returns a uniform float in
--- [0, 1), matching the only form this script actually uses.
-local function rnd()
-  mwc_z = 36969 * (mwc_z % 65536) + math.floor(mwc_z / 65536)
-  mwc_w = 18000 * (mwc_w % 65536) + math.floor(mwc_w / 65536)
-  return (((mwc_z % 65536) * 65536 + mwc_w) % 4294967296) / 4294967296.0
-end
+local rng = require "lib.rng"
+local rnd = rng.random   -- uniform float in [0, 1)
 
 -- btCollisionObject::CollisionFlags (Bullet's own enum values, same ones
 -- used in demo/claude/worlds-simplest-clock.lua). Nothing in this scene
@@ -424,6 +397,7 @@ local function resetStats()
 end
 
 local function setup(n)
+  rng.reseed() -- a fixed seed (SEED or the seed parameter) repeats the same start
   for _, a in ipairs(agents) do
     v:remove(a.obj)
   end
@@ -600,7 +574,7 @@ end)
 --------------------------------------------------------------------------
 common.setCamera(btVector3(0, 105, 130), btVector3(20, 0, 0))
 
-mwcSeed(os.time())
+rng.init(v)
 setup(math.floor(v:getParam("numParticles")))
 print("delayMs = " .. tostring(v:getParam("delayMs")))
 

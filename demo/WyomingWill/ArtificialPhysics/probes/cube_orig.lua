@@ -7,7 +7,7 @@ for seed = 1, tonumber(os.getenv("SEEDS") or "2") do
   if os.getenv("RANGE") then setParam("range", tonumber(os.getenv("RANGE"))) end
   if os.getenv("LAYER") then setParam("layerGain", tonumber(os.getenv("LAYER"))) end
   if isGoalEnabled then toggleGoal() end
-  math.randomseed(seed)
+  require("lib.rng").seed(seed)
   setup(50)
   for t = 1, tonumber(os.getenv("TICKS") or "6000") do
     simUpdate()

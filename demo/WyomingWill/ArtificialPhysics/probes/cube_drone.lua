@@ -6,7 +6,7 @@ if os.getenv("FIELD") == "0" then v:addParam("obstacleField", false, "") end
 for _, k in ipairs({ "launchOrder", "launchGap", "goalDelay", "layerGain", "downwash", "apHz", "range", "friction", "forceMax", "G", "timeStep" }) do
   local e = os.getenv(k:upper()); if e then v:addParam(k, tonumber(e), 0, 20000, 0.01, "") end
 end
-math.randomseed(tonumber(os.getenv("SEED") or "1"))
+require("lib.rng").seed(tonumber(os.getenv("SEED") or "1"))
 setup(50)
 local SEPR = (pcall(v.getParam, v, "rad") and v:getParam("rad")) or v:getParam("desiredSeparation")
 local ok, rr = pcall(function() return v:getParam("rad") end)

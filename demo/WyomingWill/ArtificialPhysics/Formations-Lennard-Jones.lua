@@ -89,6 +89,7 @@
 --
 
 local common = require "common"
+local rng    = require "lib.rng" -- shared seedable generator (BOOK.md G2); math.random is glibc rand()
 
 common.setTiming(1 / 30, 1, 1 / 30)
 common.gravity(0) -- every body here is hand-positioned; no forces needed
@@ -119,7 +120,7 @@ end
 
 local function randomElement(t)
   if #t == 0 then return nil end
-  return t[math.random(#t)]
+  return t[rng.random(#t)]
 end
 
 --------------------------------------------------------------------------
@@ -720,6 +721,7 @@ end
 -- setup() -- re-scatters a genuine 3D (or flat 2D) cluster.
 --------------------------------------------------------------------------
 function setup(n)
+  rng.reseed() -- a fixed seed (SEED or the seed parameter) repeats the same start
   for _, e in ipairs(particles) do v:remove(e.obj) end
   for _, e in ipairs(goals) do v:remove(e.obj) end
   for _, e in ipairs(obstacles) do v:remove(e.obj) end
@@ -735,9 +737,9 @@ function setup(n)
   local jitter = 2 * v:getParam("desiredSeparation")
 
   for i = 0, n - 1 do
-    local x = WORLD_WIDTH / 3 + math.random() * jitter - jitter / 2
-    local y = is3D and (math.random() * jitter - jitter / 2) or 0
-    local z = math.random() * jitter - jitter / 2
+    local x = WORLD_WIDTH / 3 + rng.random() * jitter - jitter / 2
+    local y = is3D and (rng.random() * jitter - jitter / 2) or 0
+    local z = rng.random() * jitter - jitter / 2
     local pt = newEntity(x, y, z, 1)
     pt.color = (i % 2 == 0) and 0 or 1
     particles[#particles + 1] = pt
@@ -813,9 +815,9 @@ function addParticle()
   if #particles == 0 then return end
   local sep = v:getParam("desiredSeparation")
   local template = randomElement(particles)
-  local x = template.x + math.random() * sep / 2 - sep / 4
-  local y = is3D and (template.y + math.random() * sep / 2 - sep / 4) or 0
-  local z = template.z + math.random() * sep / 2 - sep / 4
+  local x = template.x + rng.random() * sep / 2 - sep / 4
+  local y = is3D and (template.y + rng.random() * sep / 2 - sep / 4) or 0
+  local z = template.z + rng.random() * sep / 2 - sep / 4
   local pt = newEntity(x, y, z, 1)
   pt.color = (nextId % 2 == 0) and 0 or 1
   particles[#particles + 1] = pt
@@ -1033,7 +1035,7 @@ V         toggle neighbor-connection lines
 
 pcall(function() v:setHelpText(HELP_TEXT) end)
 
-math.randomseed(os.time())
+rng.init(v)   -- seed: SEED env, else the seed parameter, else the clock
 updateCamera()
 setup(math.floor(v:getParam("numParticles")))
 

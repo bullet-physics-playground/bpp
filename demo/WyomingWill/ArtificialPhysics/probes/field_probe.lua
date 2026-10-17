@@ -8,7 +8,7 @@ for _, k in ipairs({ "goalForce", "goalSpeed", "fieldDensity", "apHz", "layerGai
   local e = os.getenv(k:upper()) or os.getenv(({ layerGain = "LAYER", forceMax = "FMAX" })[k] or "")
   if e then v:addParam(k, tonumber(e), 0, 100, 0.01, "") end
 end
-if os.getenv("SEED") then math.randomseed(tonumber(os.getenv("SEED"))); setup(math.floor(v:getParam("numDrones"))) end
+if os.getenv("SEED") then require("lib.rng").seed(tonumber(os.getenv("SEED"))); setup(math.floor(v:getParam("numDrones"))) end
 
 local SEP = v:getParam(os.getenv("SEPNAME") or "rad") * v:getParam("metersPerUnit")
 local nextLog = 30

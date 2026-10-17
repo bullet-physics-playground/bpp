@@ -447,3 +447,35 @@ physically modelled quadcopter; see `quadcopter/README.md`).
 
     Default `launchOrder` 1 in 3D, 0 in 2D (set on 2/3 and F; press R to
     relaunch).
+
+## Shared code (milestone M0)
+
+34. **Every demo now draws from one seedable generator (`lib/rng.lua`).**
+    The formations and `quadcopter/swarm.lua` called `math.random`, which in
+    BPP's Lua 5.1 is glibc `rand()`, the generator the book's appendix shows
+    to be biased, and every script seeded from `os.time()`, so no run could
+    be repeated (and the probes' `math.randomseed` came after the launch had
+    already drawn its positions). The multiply-with-carry generator from
+    `Uniform_Coverage.lua` is now `lib/rng.lua`, used by Uniform Coverage,
+    both formations, the quadcopter harness and the probes.
+    - **Seed:** the `SEED` environment variable, else a new `seed` parameter,
+      else the clock. 0 (the default) keeps the old behaviour: a new seed
+      each load. The seed used is printed (`rng: MWC seed=…`).
+    - **Setup (R)** restarts the stream from a fixed seed, so it repeats the
+      same start; with seed 0 it carries on as before.
+    - **Measured:** Uniform Coverage at seed 12345 prints exactly what the
+      old code printed with `mwcSeed(12345)` over 3000 ticks. Same seed, same
+      result for Uniform Coverage, both particle formations (1500 ticks) and
+      both drone swarms (900 frames, Bullet included); a different seed
+      gives a different run.
+    - `checks/rng_appendix.lua` keeps Listing A.1 as a test: the shared
+      generator stays under the 99.9% cut (66.6) at every S (χ² 26–47);
+      `math.random` fails at S = 3 (70), 25 (321), 26 (223) and 27 (409).
+    - Drone results in `quadcopter/README.md` were measured with
+      `math.random`; they are statistics over seeds and should hold, but
+      the individual runs will not repeat bit for bit.
+
+35. **`probes/cube_orig.lua` no longer runs** (documented, not fixed). It
+    reads a global `PARAM_INFO` that the particle formations now keep local
+    (`attempt to index global 'PARAM_INFO'`). Not caused by item 34; it
+    fails the same way on the code before it.

@@ -75,16 +75,16 @@ These correct or extend the plan. Each is backed by the chapter notes.
    about 3.6× below Fig. 14.3's (~3.9), while the obstacle cap (4.32) matches
    Fig. 14.4. Hettiarachchi's thesis fills some
    of this (see the thesis digest).
-7. **BPP's `math.random` is the generator the appendix warns about, and a fix
-   already exists.** BPP links Lua 5.1, whose `math.random` calls glibc
-   `rand()`, i.e. `random()`. Run inside Lua 5.1 with Listing A.1's sampling
-   (S extra calls per accepted point, 10⁶ points, 36 bins), it fails at S = 25
-   (χ² 321) and S = 27 (χ² 409) against a 99.9% cut of 66.6. The Marsaglia
-   multiply-with-carry generator already in `Uniform_Coverage.lua` passes at
-   every S tried (χ² 26–41). It is local to that script, though: the
-   formations and `quadcopter/swarm.lua` still call `math.random`, and
-   Uniform Coverage seeds from `os.time()`. G2 is therefore a small job: move
-   the generator into a shared module and give it a seed setting.
+7. **BPP's `math.random` is the generator the appendix warns about; the
+   shared generator replaces it (G2, done).** BPP links Lua 5.1, whose
+   `math.random` calls glibc `rand()`, i.e. `random()`. Run inside Lua 5.1
+   with Listing A.1's sampling (S extra calls per accepted point, 10⁶ points,
+   36 bins), it fails at S = 25 (χ² 321), 26 (223) and 27 (409) against a
+   99.9% cut of 66.6. The Marsaglia multiply-with-carry generator from
+   `Uniform_Coverage.lua` passes at every S tried (χ² 26–47). It now lives in
+   `lib/rng.lua`, seeded from `SEED` or a `seed` parameter, and Uniform
+   Coverage, the formations, `quadcopter/swarm.lua` and the probes all use
+   it; `checks/rng_appendix.lua` is the regression test.
 8. **The Maxelbot sensor is planar.** Its parabolic cones confine sound to a
    horizontal plane (Ch. 10.5.4.1). A Maxelbot-faithful 3D swarm must either
    fly in levels or assume a different (4-receiver) sensor. Treat that as a
@@ -125,7 +125,7 @@ Most chapters need the same pieces. Build each once.
 | ID | Piece | Needed by |
 | --- | --- | --- |
 | G1 | **Verification monitors:** COM drift, linear and angular momentum, energy. A Lua integrator with controllable Δt for particle tests | 2, 3, 4, and every particle replica |
-| G2 | **RNG module:** move the multiply-with-carry generator from `Uniform_Coverage.lua` into a shared module, use it in the formations and the quadcopter harness, add a seed setting (not `os.time()`), and keep the appendix check as a regression test | 4, 7, 11, 12, 15, 17, 18, 19, A |
+| G2 | **RNG module (done, `lib/rng.lua`):** move the multiply-with-carry generator from `Uniform_Coverage.lua` into a shared module, use it in the formations and the quadcopter harness, add a seed setting (not `os.time()`), and keep the appendix check as a regression test | 4, 7, 11, 12, 15, 17, 18, 19, A |
 | G3 | **Headless batch runner:** seeds × configs, CSV out, 2 jobs in parallel, no drawing | 4, 6, 7, 9, 11, 12, 14, 15, 17, 18, 19 |
 | G4 | **Velocity commands** for the quad controller (fly this velocity, not this waypoint) | 4.4, 7, 11, 13, 17 |
 | G5 | **Point-mass vehicle with limits:** speed, acceleration and lag as parameters, for large swarms | 7, 11, 15, 17 |
@@ -171,7 +171,7 @@ Most chapters need the same pieces. Build each once.
 | 17 | Swarm engineering (Kazadi) | 9 | Hexagon Methods 1–2; quark model | particles, quads | G2, G3, G4 | plan / new |
 | 18 | APO for global optimisation (Xie, Tan, Zeng) | 8 | Table 18.2 as a headless benchmark | — | G2, G3 | new |
 | 19 | AP for noisy nonstationary environments (Spears) | 13 | apo.nlogo demo, N × D table, tracking | particles, quads | G3, G6 | plan |
-| A | Anomalous random() (Spears, Green) | 4 | RNG regression test and demo | — | G2 | new |
+| A | Anomalous random() (Spears, Green) | 4 | RNG regression test and demo | — | G2 | partly |
 
 ---
 
@@ -407,7 +407,7 @@ metrics.
 ### Appendix — Anomalous random() (PDF 646–652) · `book/ch20-appendix.md`
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
-| A.1 | Angle histogram with S extra calls (S = 25, 27 biased; ≥ 28 clean) | 646–648 | RNG regression test (G2); reproduced in BPP's Lua 5.1, and the existing MWC passes | new |
+| A.1 | Angle histogram with S extra calls (S = 25, 27 biased; ≥ 28 clean) | 646–648 | `checks/rng_appendix.lua` (G2): `math.random` biased at S = 3, 25, 26, 27; `lib/rng.lua` passes at every S | done |
 | A.2 | Spatial histogram in the disk | 649–650 | Visual demo: math.random vs the new RNG | new |
 | A.3 | Quarter-circle area (unaffected) | 651–652 | Control | new |
 | A.4 | drand48 and others are fine | 651–652 | Choice of generator | new |

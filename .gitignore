@@ -86,3 +86,6 @@ export/*/*.pov
 .gdb_history
 
 .DS_store
+
+# Shared Lua code for the Artificial Physics ports (not build output)
+!demo/WyomingWill/ArtificialPhysics/lib/
