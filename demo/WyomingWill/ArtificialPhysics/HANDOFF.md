@@ -56,8 +56,8 @@ is updated at the end of every milestone.
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–35 |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua` so far (`lib/README.md`) |
-| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh` so far |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua` so far (`lib/README.md`) |
+| `checks/` | One check script per port; `rng_appendix.lua`, `batch_repeat.sh`, `monitors.lua` so far |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
 effect; the basis of `BOOK.md` §7) and `demo/WyomingWill/Cabinet/`.
@@ -138,7 +138,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      Check that Uniform Coverage gives identical results with the same seed.
   2. **Done:** `lib/batch`: a headless runner over seeds × settings writing CSV, two jobs
      in parallel.
-  3. `lib/monitors.lua`: centre-of-mass drift, linear and angular momentum,
+  3. **Done:** `lib/monitors.lua`: centre-of-mass drift, linear and angular momentum,
      energy, and a Lua integrator with a controllable time step.
   4. `lib/world.lua`: the world generator's core (G21, `BOOK.md` §6), seeded,
      with the first book presets: Ch. 3's wall of 12 discs, Ch. 4's 84×84

@@ -124,7 +124,7 @@ Most chapters need the same pieces. Build each once.
 
 | ID | Piece | Needed by |
 | --- | --- | --- |
-| G1 | **Verification monitors:** COM drift, linear and angular momentum, energy. A Lua integrator with controllable Δt for particle tests | 2, 3, 4, and every particle replica |
+| G1 | **Verification monitors (done, `lib/monitors.lua`):** COM drift, linear and angular momentum, energy. A Lua integrator with controllable Δt for particle tests | 2, 3, 4, and every particle replica |
 | G2 | **RNG module (done, `lib/rng.lua`):** move the multiply-with-carry generator from `Uniform_Coverage.lua` into a shared module, use it in the formations and the quadcopter harness, add a seed setting (not `os.time()`), and keep the appendix check as a regression test | 4, 7, 11, 12, 15, 17, 18, 19, A |
 | G3 | **Headless batch runner (done, `lib/batch.py`):** seeds × configs, CSV out, 2 jobs in parallel, no drawing | 4, 6, 7, 9, 11, 12, 14, 15, 17, 18, 19 |
 | G4 | **Velocity commands** for the quad controller (fly this velocity, not this waypoint) | 4.4, 7, 11, 13, 17 |

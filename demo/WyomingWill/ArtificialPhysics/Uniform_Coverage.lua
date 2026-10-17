@@ -570,7 +570,7 @@ v:postSim(function(N)
   -- check which a batch > 1 could step straight over.
   if math.floor(ticks / STATS_EVERY) > math.floor(ticksBefore / STATS_EVERY) then
     print(string.format(
-      "ticks=%d  agents=%d  meanFreePath=%d  deviation=%.4f  theoreticalMFP=%.1f  cornerSpread=%.1f%%  edgeSpread=%.1f%%",
+      "ticks=%d  agents=%d  meanFreePath=%d  deviation=%.4g  theoreticalMFP=%.1f  cornerSpread=%.1f%%  edgeSpread=%.1f%%",
       ticks, #agents, mfp, uniformityDeviation(), theoreticalMeanFreePath(),
       categorySpread(CORNER_CELLS) * 100, categorySpread(EDGE_CELLS) * 100))
   end

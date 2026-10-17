@@ -8,6 +8,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | --- | --- | --- |
 | `rng.lua` | G2 | The shared multiply-with-carry generator, seedable, with independent streams |
 | `batch.py`, `batch.lua` | G3 | Headless runs over seeds × settings, two at a time, into one CSV |
+| `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 
 ## `rng.lua`
 
@@ -65,3 +66,36 @@ python3 lib/batch.py Formations-Newtonian-Quadcopter.lua --probe probes/batch_dr
 - **BPP binary:** `$BPP`, else the newer of `debug/bpp` and `release/bpp`.
 - **Speed:** a 3000-tick Uniform Coverage run takes about 3 s; 1800 frames
   of 50 drones about 11 s.
+
+## `monitors.lua`
+
+```lua
+local mon = require "lib.monitors"
+local ps = { { x = -30, m = 1 }, { x = 30, m = 1 } }      -- x, y, z, vx, vy, vz, m
+local law = {
+  pair      = function(r, a, b) return -10 * (r - 50) end, -- > 0 repels (swarm.lua's convention)
+  potential = function(r, a, b) return 5 * (r - 50)^2 end, -- optional, for the energy monitor
+  friction = 0, forceMax = nil, speedMax = nil,            -- optional
+}
+local t = mon.tracker(ps, law)
+for _ = 1, 20000 do mon.step(ps, 0.001, law) end
+print(mon.format(t:drift()))   -- com= dp= dl= de= relE=
+```
+
+- **The step is the book's** (Listings 2.1–2.6): friction `v ← (1 − FR)v`
+  first, then every force from the same snapshot, then semi-implicit Euler.
+  Δt is whatever you pass, unlike Bullet's fixed substeps.
+- **Pairs are applied equally and oppositely** by default, so momentum is
+  conserved to rounding. `asymmetric = true` evaluates the force on each
+  particle separately, for laws that break Newton's third law (Ch. 4.1's
+  triangle); the momentum monitor then shows the drift.
+- **`forceMax`** caps |F| per pair (Ch. 2.3's Force_Maximum); **`speedMax`**
+  caps each speed (Velocity_Maximum); **`external(p)`** adds a force.
+- **`measure`** gives the centre of mass and its velocity, P, L about the
+  centre of mass (a vector: a run in the x–z plane has only `ly`), KE, PE, E;
+  **`tracker`** reports drift from the first measurement.
+- `mon.frictionRate(FR, dt)` is the continuous damping rate the per-step
+  friction amounts to, −ln(1 − FR)/Δt. It depends on Δt (`book/ch02.md`).
+- `checks/monitors.lua` tests it against closed forms: two-body spring
+  periods, the Kepler period and conserved quantities, friction decay, an
+  external force, third-law violation and the caps.
