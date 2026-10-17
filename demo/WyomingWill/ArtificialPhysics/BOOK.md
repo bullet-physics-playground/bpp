@@ -621,6 +621,23 @@ agents out of a trap.
   drones can do what the bead chain does: arch up and over the wall rather
   than thread back out through the mouth.
 
+**What the fountain's latest runs add.** The arrangement of the pile decides
+the arch. Poured as a jumbled heap, as in the experiments, a ball chain stands
+at h₂/h₁ = 0.11–0.15 in Bullet against 0.12–0.14 measured (Biggins and Warner
+2014; Pantaleone 2019). Laid as the exhibit's tidy coil, the same chain is
+picked up at the wall, rides the rim and stands at only 0.06 (commits `1aa427a`,
+`f938b01`). For the swarm this suggests two things:
+
+- **The order of pick-up matters.** If stuck agents lie along the trap's wall
+  and the nearest one always joins the tail, the chain will ride the wall, like
+  the coil riding the rim. Recruiting from inside the cluster, away from the
+  walls, may give the clearance the heap gives.
+- **Only the agents near the pick-up need to act.** The fountain now simulates
+  only the links within 4 cm of the pick-up and keeps the rest of the heap
+  fixed, and still matches the full heap. In the same way, only stuck agents
+  near the chain's tail need to take part, so the method stays local as the
+  swarm grows.
+
 **What doesn't carry over.** The fountain's push comes from the pile pushing
 back on each link as it is lifted. Agents have no pile, so the arch height
 will not follow Biggins and Warner's relation for h₂. Whether a virtual
@@ -633,6 +650,7 @@ version of that push helps is an experiment, not a given.
 | ★ **Virtual chain law:** set distance to the agent ahead, bend limit, recruitment of the nearest stuck agent at the tail, goal force only outside the trap. 2D particles first | G9 | medium |
 | ★ **Compare escapes:** plain Lennard-Jones (baseline), kinetic-theory escape (Ch. 14.7), the chain-fountain escape, and the Ch. 12 chain law. Measures: share reaching the goal, time, collisions, agents out per second, clearance at the mouth | G3, G16 | medium |
 | ★ **Sweeps:** link length, bend limit and head speed; whether the outflow rate settles to a steady value as the fountain's does | G3 | easy |
+| ★ **Pick-up order:** stuck agents strung along the wall against clustered inside the pocket, and recruiting the nearest agent against one away from the walls; measure clearance at the mouth and wall contacts (the coil-versus-heap result) | G3, G8 | easy |
 | ★ **Vehicles:** ground robots round corners; quadcopters arching over the wall in 3D; fixed-wing aircraft, whose turn radius is the bend limit | G10, G12, G18 | medium |
 | ★ **In the capstone:** ground robots stuck in the docks or the storm drain, led out by a free one (§6) | §6 | — |
 
