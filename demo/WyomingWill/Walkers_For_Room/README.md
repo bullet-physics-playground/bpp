@@ -49,9 +49,20 @@ the engine's default, as in every other build -- in the room).
 Sixth, Chebyshev-Spears takes `sidePhase`: the phase of its back face's
 legs (90 degrees in its own file; the room uses 180, as Chebyshev's).
 
-Seventh, Chebyshev-Spears takes `geometry = { g, a, h, leg, legAngle,
-groundAngle }`: the ground link, crank, coupler-to-rocker-joint (= the
-rocker), the leg from that joint, the leg's angle off the coupler, and
-the ground link's angle, in its own units, so that the same file builds
-other linkages of its kind (the room's Hoecken-Spears 4-bar and long-stance). Unset, it
-is Chebyshev-Spears (2.5, 1.875, 5.729, 5.729, 90, -45).
+Seventh, Chebyshev-Spears takes `geometry = { g, a, h, r, leg, legAngle,
+groundAngle }`: the ground link, crank, coupler-to-rocker-joint, the
+rocker (unset: h), the leg from that joint, the leg's angle off the
+coupler, and the ground link's angle, in its own units, so that the same
+file builds other linkages of its kind (the room's Hoecken-Spears 4-bar
+and long-stance, and Spears lift 44 and 53). Unset, it is
+Chebyshev-Spears (2.5, 1.875, 5.729, 5.729, 5.729, 90, -45).
+Chebyshev-Spears diag takes the same `geometry`.
+
+Eighth, the two diag builds take `diagGive`: how far, in degrees, their
+braces may turn on the legs they are welded to (3 in their own files,
+against crank drift; the room uses 0, its cranks being locked).
+
+Jansen's and Klann's feet (`foot`) reach inward from the outer face of
+their outer links, as the other builds' do, so that every walker's
+stance is measured the same way, and grip as the others' (friction 0.8;
+0.9 in their own files).

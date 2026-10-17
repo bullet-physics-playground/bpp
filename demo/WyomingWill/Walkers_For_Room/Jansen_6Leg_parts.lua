@@ -539,20 +539,20 @@ local function buildFoot(lk, color)
   local foot_x, foot_y, foot_z = 9.0 * S, 1.4 * S, 8.0 * S
   local foot_mass = 1.5
   if opts.foot then   -- (the room: every walker's feet the same size, cm --
-    -- length along the walk, width across, thickness. Its inner edge is
-    -- at the inner face of the foot's own plane, so it reaches outward,
-    -- away from the leg's other planes, as the other walkers' feet do)
+    -- length along the walk, width across, thickness. Its outer edge is
+    -- at the outer face of the foot's own plane, so it reaches inward,
+    -- under the body, as the other walkers' feet do)
     foot_x, foot_y, foot_z = opts.foot.length, opts.foot.thick, opts.foot.width
     foot_mass = opts.foot.mass
     local dir = (z >= 0) and 1 or -1
-    z = z - dir * ROD_D * S / 2 + dir * foot_z / 2
+    z = z + dir * ROD_D * S / 2 - dir * foot_z / 2
   end
   local frameZ = lk.z_foot - z   -- the foot point, in the foot's own frame
 
   local foot = Cube(foot_x, foot_y, foot_z, foot_mass)
   foot.col = color
   foot.trans = btTransform(IDENTITY_QUAT, btVector3(F.x, F.y, z))
-  foot.friction = 0.9
+  foot.friction = 0.8
   add(foot)
 
   local rod_quat = lk.footRod.trans:getRotation()

@@ -251,14 +251,15 @@ local IMPULSE_SCALE = opts.impulseScale or 1
 local BODY_RAISE = opts.bodyRaise or 0
 local EXT_DOWN = EXT_DOWN + BODY_RAISE
 M.FLOOR_TOP_Y = -0.8 - p_len - BODY_RAISE
--- WALKER ROOM: opts.geometry = { g =, a =, h =, leg =, legAngle =,
+-- WALKER ROOM: opts.geometry = { g =, a =, h =, r =, leg =, legAngle =,
 -- groundAngle = } builds another linkage of the same kind (this
--- walker's own units: ground, crank, coupler-to-rocker-joint = rocker,
--- the leg from that joint, the leg's angle off the coupler in degrees,
+-- walker's own units: ground, crank, the coupler from the crank to the
+-- rocker joint, the rocker (unset: the same as h), the leg from that joint, the leg's angle off the coupler in degrees,
 -- and the ground link's angle) -- the Hoeckens-Spears 4-bar walkers.
 -- Unset, it is Chebyshev-Spears: g 2.5, a 1.875, h = leg 5.729, 90, -45.
 local LEG_LEN, LEG_ANGLE, GROUND_ANGLE = h_len, 90, -45
-local function lowestB(g, a, h, leg, legAngle, gAng)
+local r_len = h_len   -- the rocker (opts.geometry.r; unset, the same as the coupler's length to the rocker joint, h)
+local function lowestB(g, a, h, leg, legAngle, gAng, r)
   -- the lowest the leg's end B gets over a turn (after the flip, so the
   -- highest raw y), for placing the floor
   local O2 = { x = -(g/2)*math.cos(math.rad(gAng)), y = -(g/2)*math.sin(math.rad(gAng)) }
@@ -267,7 +268,7 @@ local function lowestB(g, a, h, leg, legAngle, gAng)
   for i = 0, 719 do
     local t = math.rad(i / 2)
     local A = { x = O2.x + a*math.cos(t), y = O2.y + a*math.sin(t) }
-    local Mp = circleIntersect(A, h, O4, h, true)
+    local Mp = circleIntersect(A, h, O4, r or h, true)
     local ux, uy = (Mp.x - A.x)/h, (Mp.y - A.y)/h
     local c, s = math.cos(math.rad(legAngle)), math.sin(math.rad(legAngle))
     local By = Mp.y + leg*(ux*s + uy*c)
@@ -280,11 +281,13 @@ if opts.geometry then
   local floor0 = lowestB(g_len, a_len, h_len, h_len, 90, -45)
   g_len, a_len, h_len = G.g, G.a, G.h
   f_len = 2 * h_len
+  r_len = G.r or h_len
   LEG_LEN, LEG_ANGLE, GROUND_ANGLE = G.leg or h_len, G.legAngle or 90, G.groundAngle or -45
-  M.FLOOR_TOP_Y = M.FLOOR_TOP_Y - (lowestB(g_len, a_len, h_len, LEG_LEN, LEG_ANGLE, GROUND_ANGLE) - floor0)
+  M.FLOOR_TOP_Y = M.FLOOR_TOP_Y - (lowestB(g_len, a_len, h_len, LEG_LEN, LEG_ANGLE, GROUND_ANGLE, r_len) - floor0)
 end
 local LEG_LEN = LEG_LEN * S
 local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len * S, f_len * S
+local r_len = r_len * S
 local rod_w, rod_d, plane_gap, EXT_DOWN = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S
 -- (the link masses above were worked out from the unscaled lengths, and
 -- stay as they are; the hand-worked coupler inertia below uses the scaled
@@ -374,7 +377,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   local a_ang0 = g_ang + 90 + phase
   local A_raw = { x = O2_raw.x + a_len*math.cos(math.rad(a_ang0)),
                    y = O2_raw.y + a_len*math.sin(math.rad(a_ang0)) }
-  local M_raw = circleIntersect(A_raw, f_len/2, O4_raw, h_len, true)   -- the "other" branch
+  local M_raw = circleIntersect(A_raw, f_len/2, O4_raw, r_len, true)   -- the "other" branch
 
   -- bend: rotate the A->M direction 90 degrees for the second half
   local ux, uy = (M_raw.x - A_raw.x)/(f_len/2), (M_raw.y - A_raw.y)/(f_len/2)
@@ -599,12 +602,12 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed, ext_down)
   -- M: coupler <-> rocker (free hinge -- the real four-bar joint, and
   -- now the ONLY constraint anchored at M)
   local pivotCoupler_M = btVector3(half_f/2, 0, 0)
-  local pivotRocker_M  = btVector3(-h_len/2, 0, z_coupler_l - z_rocker_l)
+  local pivotRocker_M  = btVector3(-r_len/2, 0, z_coupler_l - z_rocker_l)
   local hingeM = btHingeConstraint(coupler.body, rocker.body, pivotCoupler_M, pivotRocker_M, axis, axis)
   addConstraint(hingeM)
 
   -- O4: rocker <-> cube
-  local pivotRocker_O4 = btVector3(h_len/2, 0, z_ground_l - z_rocker_l)
+  local pivotRocker_O4 = btVector3(r_len/2, 0, z_ground_l - z_rocker_l)
   local pivotCube_O4   = btVector3(O4.x - cube.pos.x, O4.y - cube.pos.y, z_ground_l - cube.pos.z)
   local hingeO4 = btHingeConstraint(rocker.body, cube.body, pivotRocker_O4, pivotCube_O4, axis, axis)
   addConstraint(hingeO4)

@@ -625,7 +625,7 @@ local function buildDiagonalCrossbar(lkA, lkB, attach_height, color, mass, width
   -- frameRot_onBar's world rotation equals pendant_quat, which -- being
   -- built by zrotVec -- is always a pure Z-axis rotation, so its own Z
   -- axis maps to world Z regardless of angle.
-  local giveAngle = math.rad(3)   -- small and tunable -- widen if it's still fighting the drift, narrow if it looks too loose
+  local giveAngle = math.rad(opts.diagGive or 3)   -- small and tunable -- widen if it's still fighting the drift, narrow if it looks too loose (WALKER ROOM: opts.diagGive, degrees)
 
   local frameInBar_A = btTransform(frameRot_onBar, btVector3(-frameInBar_end, 0, 0))
   local frameInA      = btTransform(IDENTITY_QUAT, btVector3(pivotLocalX, 0, 0))

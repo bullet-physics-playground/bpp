@@ -15,6 +15,9 @@ of legs here instead of three. The two 2-leg Spears are left out (a side
 experiment: two legs can't be compared fairly with four); `TWO_LEGS =
 true` brings them back.
 
+`test-square.lua` shows each walker's best version on each kind of
+ground, one at a time (Test square, below).
+
 ## A fair comparison
 
 The aim: every walker the same in everything but its linkage, so that on
@@ -28,10 +31,14 @@ something wrong with its build.
   walker's step, and each foot lifts as high, for its stride, as its
   linkage lifts it (the "lift" of the linkage reference). Measured this
   way, every build's foot path matches its reference linkage's duty,
-  lift and flatness, except that the diag walkers' braces hold their
-  legs at a slightly different angle (Chebyshev diag: lift 13% against
-  16%; Chebyshev-Spears diag: 23-25% against 26%). Their sizes differ as
-  a result.
+  lift and flatness. Their sizes differ as a result. (The diag builds'
+  braces were welded to the legs with 3 degrees of give, against crank
+  drift, which `LOCK_CRANKS` now stops; with it each leg rocked about 6
+  degrees a turn and the diag builds' feet followed other paths --
+  Chebyshev diag lift 13% against 16%. The welds are rigid now,
+  `DIAG_GIVE = 0`, and the diag builds' feet trace the plated builds'
+  paths: Chebyshev diag stride 4.705, lift 16.2%, Chebyshev 4.705 and
+  16.3%.)
 - **Same flat-ground speed.** Each walker's cranks turn at the speed at
   which, if its feet never slipped, it would cross flat ground at 9 cm/s
   (`FLAT_SPEED`). A foot covers its stride while it is down, so a
@@ -82,14 +89,41 @@ something wrong with its build.
   walking back and forth. Every walker's cranks are now held at the timing
   they were built with, as one motor driving them all through gears would
   hold them (`LOCK_CRANKS`).
-- **Same weight.** Every walker weighs 100 in all (`TOTAL_MASS`): its
-  body makes up whatever its legs, feet and braces don't (from 38 for
-  Jansen, whose legs are heaviest, to 84 for Chebyshev diag), and turns
-  as a 40 x 3 x 30 cm box of that weight would (`BODY_BOX`). Before,
-  walkers weighed from 27 (Hoecken) to 282 (Jansen). Each body keeps its
-  own shape for drawing and for touching things; it rides 12 cm up,
-  clear of the ground, and its depth sets where the legs are mounted.
-  `SAME_BODY = false` gives each walker its own file's body weight again.
+- **Same material, same body.** Every bar of every walker -- links,
+  plates and diagonal braces -- weighs 0.18 per cm of its length plus
+  0.15 for each joint on it (a bolt), as if all were cut from the same
+  stock (`BAR_MASS`; 0.18 per cm is Jansen's and Klann's own 0.04 per
+  unit of their files, and 0.15 a joint their 0.3 a bar). A triangle
+  counts as its three sides, a plate as a bar its width long; the ideal
+  guides of `UNBRACED` weigh nothing. Every body weighs 40
+  (`BODY_MASS`), turning as a 40 x 3 x 30 cm box of that weight would
+  (`BODY_BOX`), and the legs add what they weigh: more legs, more
+  weight. Each body keeps its own shape for drawing and for touching
+  things; it rides 12 cm up, clear of the ground, and its depth sets
+  where the legs are mounted. Before, each file weighed its own links
+  (Chebyshev's 0.3-1.0 each, Spears 4-bar's 2-4) and every walker
+  weighed 100 in all, its body whatever its legs didn't, so moving legs
+  were from 16% (Chebyshev) to 62% (Jansen) of the weight. Now:
+
+  | Walker | Body | Legs | Braces | Feet | In all |
+  |--------|------|------|--------|------|--------|
+  | Jansen | 40 | 89.4 | 0 | 6 | 135 |
+  | Klann | 40 | 80.5 | 0 | 6 | 127 |
+  | Chebyshev diag | 40 | 48.7 | 16.5 | 6 | 111 |
+  | Hoecken 4-bar | 40 | 48.3 | 13.2 | 6 | 108 |
+  | Chebyshev | 40 | 47.6 | 13.2 | 6 | 107 |
+  | Chebyshev-Spears diag | 40 | 41.7 | 16.3 | 6 | 104 |
+  | Spears 4-bar | 40 | 55.5 | 0 | 6 | 102 |
+  | Hoecken slider | 40 | 42.4 | 13.2 | 6 | 102 |
+  | Hoecken-Spears 4-bar | 40 | 40.9 | 13.3 | 6 | 100 |
+  | Chebyshev-Spears | 40 | 39.3 | 13.2 | 6 | 99 |
+  | Hoecken-Spears slider | 40 | 32.3 | 13.2 | 6 | 92 |
+  | Hoecken-Spears long-stance | 40 | 30.6 | 13.3 | 6 | 90 |
+
+  `BAR_MASS = false` gives each file's own link weights and the old
+  rule (`TOTAL_MASS`, 100 in all); `SAME_BODY = false` each file's own
+  body weight. The results above the factorial runs (below) were
+  measured with the old weights.
 - **Same motors.** All of a walker's crank motors together can give at
   most 10 times its weight x gravity x stride of twisting effort
   (`MOTOR_STRENGTH`), the same for every walker. Their own files' motors
@@ -147,7 +181,7 @@ Not the same yet:
 | Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Chebyshev-Spears (here; a quarter turn apart in its own file), Hoecken, the two sliders, and (here) Jansen and Klann. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar (its design) |
 | Body shape | Each file's own box (its weight is now the same: see Same weight) |
 | Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann); all at least 7 cm up now |
-| Link weights, damping, foot friction | Each file's own (foot friction 0.9 for Jansen and Klann, 0.8 for the rest) |
+| Damping | Each file's own (foot friction is 0.8 for every walker now; Jansen's and Klann's files had 0.9) |
 
 Progress in the full room over 3 minutes (braces as built, before
 `BRACE_CLEARANCE`; cm/s, measured in 5 s steps,
@@ -358,6 +392,91 @@ Two pairs favour the Spears version on every terrain; Chebyshev-Spears
 on three of four; the sliders favour the original on every one. (On
 logs, a stopped walker's speed depends on where its first log falls, so
 4 starts give rough numbers there.)
+
+### The factorial runs
+
+Every walker in every way it can be built, timed and turned, under the
+same material and body (`BAR_MASS`, `BODY_MASS`) and rigid diag braces
+(`DIAG_GIVE = 0`), with no ankles: bracing (its own frame -- Jansen,
+Klann, Spears 4-bar --, side plates, diagonal braces, or guides),
+timing (sides: both legs on a side together; trot: diagonal legs
+together) and direction (forward, reversed). Plates fix the timing at
+sides and diagonal braces at trot; guides take either. The diagonal
+builds of Hoecken-Spears long-stance and Spears lift 44 and 53 are in
+`spears-lift-walkers.lua`; the sliders have none (their diagonal bars
+shook). 80 configurations in all, first on the waves (10 settings, 2 to
+4 starts), then the best two of each linkage on the other terrains (6
+settings, 2 starts).
+
+Flat speed was first set to 9 cm/s for each configuration by its crank
+speed. That rewarded walkers that slip on flat ground: Spears lift 44
+and 53 make only 7.4-7.6 cm/s on flat at their own crank speed, needed
+cranks 38-43% faster, and then bounded -- off the ground (the whole
+walker more than 0.5 cm up) 33-39% of the time, and faster on bumps
+than on flat. So no crank turns faster than its own speed here (a
+walker that slips on flat ground shows it), only slower (Klann's, by 5%).
+The test track's results now include `air`, that share of the time.
+
+The best configuration of each linkage on the waves (speed on bumps,
+cm/s; flat speed; air on flat / on bumps):
+
+| Linkage | Bracing | Timing | Direction | Flat | On bumps | Kept | Air | Next best |
+|---------|---------|--------|-----------|------|----------|------|-----|-----------|
+| Chebyshev-Spears | diagonal | trot | reversed | 9.02 | 8.85 | 98% | 7% / 7% | diagonal, trot, forward 8.38 |
+| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.38 | 8.31 | 99% | 7 / 7 | diagonal, trot, forward 7.85 |
+| Klann | own | trot | reversed | 8.95 | 8.03 | 90% | 0 / 0 | own, sides, reversed 7.88 |
+| Spears lift 44 | diagonal | trot | reversed | 7.67 | 8.02 | 105% | 3 / 3 | diagonal, trot, forward 7.88 |
+| Hoecken-Spears long-stance | guides | trot | reversed | 8.88 | 8.00 | 90% | 12 / 12 | diagonal, trot, reversed 7.98 |
+| Spears lift 53 | diagonal | trot | reversed | 8.07 | 7.94 | 98% | 26 / 7 | diagonal, trot, forward 7.66 |
+| Jansen | own | trot | reversed | 9.07 | 7.76 | 86% | 0 / 1 | own, sides, reversed 6.60 |
+| Hoecken 4-bar | guides | trot | reversed | 8.98 | 7.68 | 85% | 0 / 6 | guides, trot, forward 7.42 |
+| Hoecken-Spears slider | guides | trot | forward | 8.34 | 7.52 | 90% | 3 / 8 | guides, trot, reversed 7.48 |
+| Chebyshev | guides | trot | reversed | 9.07 | 7.45 | 82% | 0 / 0 | guides, trot, forward 7.13 |
+| Spears 4-bar | own | trot | reversed | 7.37 | 7.42 | 101% | 0 / 2 | own, sides, reversed 7.00 |
+| Hoecken slider | guides | trot | reversed | 8.76 | 7.14 | 82% | 0 / 3 | guides, trot, forward 6.89 |
+
+The best two of each on all four terrains (speed on bumps, cm/s; air on
+random / logs / steps), ranked by the mean of the four:
+
+| Linkage | Bracing | Timing | Direction | Waves | Random | Logs | Steps | Mean | Air |
+|---------|---------|--------|-----------|-------|--------|------|-------|------|-----|
+| Klann | own | trot | reversed | 8.03 | 8.49 | 7.24 | 8.30 | 8.01 | 2 / 1 / 0% |
+| Klann | own | sides | reversed | 7.88 | 8.40 | 7.39 | 8.06 | 7.93 | 2 / 1 / 0 |
+| Spears lift 44 | diagonal | trot | forward | 7.88 | 7.42 | 6.79 | 6.74 | 7.21 | 6 / 9 / 8 |
+| Spears lift 53 | diagonal | trot | reversed | 7.94 | 7.82 | 4.60 | 7.10 | 6.87 | 7 / 21 / 11 |
+| Jansen | own | trot | reversed | 7.76 | 8.91 | 3.33 | 7.02 | 6.76 | 1 / 0 / 0 |
+| Spears lift 44 | diagonal | trot | reversed | 8.02 | 7.69 | 4.55 | 6.75 | 6.75 | 2 / 11 / 5 |
+| Spears 4-bar | own | trot | reversed | 7.42 | 7.82 | 5.38 | 5.50 | 6.53 | 3 / 1 / 1 |
+| Spears 4-bar | own | sides | reversed | 7.00 | 7.84 | 4.73 | 5.43 | 6.25 | 2 / 1 / 1 |
+| Spears lift 53 | diagonal | trot | forward | 7.66 | 7.28 | 4.48 | 5.11 | 6.13 | 15 / 18 / 16 |
+| Chebyshev-Spears | diagonal | trot | reversed | 8.85 | 8.14 | 2.77 | 4.74 | 6.12 | 11 / 23 / 17 |
+| Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.31 | 7.68 | 3.33 | 4.70 | 6.01 | 6 / 13 / 8 |
+| Chebyshev-Spears | diagonal | trot | forward | 8.38 | 7.83 | 3.26 | 4.34 | 5.95 | 10 / 19 / 15 |
+| Hoecken-Spears long-stance | guides | trot | reversed | 8.00 | 7.68 | 2.75 | 4.79 | 5.80 | 12 / 25 / 15 |
+| Jansen | own | sides | reversed | 6.60 | 7.27 | 3.10 | 6.22 | 5.80 | 1 / 0 / 0 |
+| Hoecken-Spears 4-bar | diagonal | trot | forward | 7.85 | 7.34 | 3.34 | 4.54 | 5.77 | 8 / 13 / 10 |
+| Hoecken 4-bar | guides | trot | reversed | 7.68 | 7.05 | 2.56 | 5.17 | 5.61 | 3 / 6 / 2 |
+| Hoecken-Spears slider | guides | trot | reversed | 7.48 | 7.49 | 2.63 | 4.67 | 5.57 | 7 / 17 / 8 |
+| Hoecken 4-bar | guides | trot | forward | 7.42 | 7.30 | 2.75 | 4.69 | 5.54 | 3 / 6 / 4 |
+| Hoecken-Spears long-stance | diagonal | trot | reversed | 7.98 | 7.21 | 2.68 | 3.98 | 5.46 | 17 / 26 / 23 |
+| Hoecken-Spears slider | guides | trot | forward | 7.52 | 7.46 | 2.45 | 4.39 | 5.46 | 8 / 19 / 10 |
+| Hoecken slider | guides | trot | reversed | 7.14 | 7.13 | 2.52 | 4.73 | 5.38 | 3 / 6 / 1 |
+| Chebyshev | guides | trot | reversed | 7.45 | 7.19 | 2.50 | 4.25 | 5.35 | 2 / 5 / 1 |
+| Hoecken slider | guides | trot | forward | 6.89 | 7.36 | 2.59 | 4.24 | 5.27 | 2 / 4 / 3 |
+| Chebyshev | guides | trot | forward | 7.13 | 7.42 | 2.55 | 3.95 | 5.26 | 2 / 3 / 2 |
+
+- Trot is the best timing for every linkage, and reversed the best
+  direction for all but Spears lift 44 (on all four terrains) and
+  Hoecken-Spears slider (on the waves, by 0.04).
+- The waves alone mislead: Chebyshev-Spears is best there and sixth of
+  the linkages over all four, held back by logs and steps.
+- On logs, the hard one, foot lift decides: Chebyshev-Spears (26% lift)
+  makes 2.77 cm/s, Spears lift 44 (44%) 6.79, second only to Klann.
+  Spears lift 53 lifts more and does no better: it hops more.
+- The Spears diagonal builds come off the ground on logs (9-26% of the
+  time); Klann, Jansen and Spears 4-bar stay down.
+
+`test-square.lua` shows the best of each walking on each terrain.
 
 ### Hoecken-Spears 4-bar
 
@@ -617,6 +736,18 @@ version with more lift: Chebyshev 38% -> Chebyshev-Spears 77%, Chebyshev
 diag 16% -> Chebyshev-Spears diag 66%, Hoecken slider 37% ->
 Hoecken-Spears slider 49%.
 
+## Test square
+
+`test-square.lua`: the test track on a 7 m square, for watching the best
+version of each walker (The factorial runs) on each kind of ground. Click
+the 3D view, then Tab and Shift+Tab put the next or previous walker on
+it, built, timed and turned its own best way, and 1, 2, 3 and 4 change
+the ground (waves, random, logs, steps). The status line at the bottom
+shows its speed so far and how much of the time it has been off the
+ground (its lowest part more than 0.5 cm up); its body turns red
+whenever it is. The TerrainHeight and BumpLength sliders build it again
+(it starts at 4 cm and 15 cm).
+
 ## Telling the walkers apart
 
 Each walker's body (and the plates or bars between its legs) is painted
@@ -660,6 +791,7 @@ Click the 3D view first so it has keyboard focus.
 |-----------|--------------|
 | Tab       | Follow the next walker (on the test track: put the next walker on the track) |
 | Shift+Tab | Follow the one before (on the test track: put the one before on it) |
+| 1 2 3 4   | On the test track (and test square): the ground -- waves, random, logs, steps (built again) |
 | O         | Look over the whole room |
 | T         | Clear the trails |
 | Mouse     | Turn and zoom the view (it keeps following) |
@@ -702,7 +834,13 @@ ground any more.
 A script that sets these globals and then runs `walker-room.lua` changes
 the room: `STRIDE` (cm, 15),
 `GRAVITY` (cm/s^2, 70), `SAME_BODY` (false: each walker's own body
-weight), `TOTAL_MASS` (100), `BODY_BOX` (cm, {40, 3, 30}), `MOTOR_STRENGTH` (10;
+weight), `BAR_MASS` ({ density = 0.18, bolt = 0.15 }: every bar weighed
+by its length and joints; false: each file's own), `BODY_MASS` (40),
+`TOTAL_MASS` (100, with `BAR_MASS = false`), `BODY_BOX` (cm, {40, 3, 30}),
+`DIAG_GIVE` (degrees, 0: how far a diag build's braces may turn on the
+legs), `CRANK_SCALE` (a walker's crank speed times this: a number, or a
+table by name), `VIEWS` and `VIEW` (the test track's list of walkers to
+Tab through, each set its own way: see `test-square.lua`), `MOTOR_STRENGTH` (10;
 false: each walker's own file's motors), `SOLVER_ITERATIONS` (40; false:
 Bullet's default 10), `WIDE` (true; false: a 30-31 cm stance), `FLAT_SPEED` (cm/s, 9), `CRANK` (rad/s:
 every walker's crank at that speed instead), `TWO_LEGS` (true: the 2-leg

@@ -40,6 +40,12 @@ local STRIDE = STRIDE or 15  -- every walker's stride: the length of its foot's 
 -- speed instead (Walker Room1 and the gravity-70 version: 2.6 for all).
 local FLAT_SPEED = FLAT_SPEED or 9
 local CRANK = CRANK
+-- CRANK_SCALE: a walker's crank speed times this (a number for every
+-- walker, or a table by name) -- its measured speed on flat ground
+-- differs from FLAT_SPEED by its feet's slip, and differs again with
+-- each way it is built, timed and turned, so the test runs measure it
+-- for each and set this to bring its flat speed to FLAT_SPEED
+local CRANK_SCALE = CRANK_SCALE
 -- the chassis every four-legged walker is given (see `chassis` below),
 -- for STRIDE = 15; the chassis values in WALKERS were worked out for these
 local CLEARANCE, BASE, WIDTH = 12, 35, 30   -- cm: 0.8, 2.33 and 2 strides
@@ -60,6 +66,10 @@ SAME_FEET = (SAME_FEET ~= false)
 -- ground; its depth also sets where its legs are mounted).
 SAME_BODY = (SAME_BODY ~= false)
 local TOTAL_MASS = TOTAL_MASS or 100
+-- with BAR_MASS (below), the body weighs BODY_MASS in every walker
+-- instead, and its legs add what they weigh: more legs, more weight
+-- (TOTAL_MASS is then not used)
+local BODY_MASS = BODY_MASS or 40
 local BODY_BOX = BODY_BOX or { 40, 3, 30 }
 -- every walker's motors the same: MOTOR_STRENGTH (default 10) is the
 -- most twisting effort all of a walker's crank motors together can give,
@@ -87,6 +97,20 @@ WIDE = (WIDE ~= false)
 -- far above the ground each walker's own braces sit (cm, measured
 -- walking on flat ground): as low as 0.9 cm. false: as built.
 BRACE_CLEARANCE = (BRACE_CLEARANCE == nil) and 7 or BRACE_CLEARANCE
+-- DIAG_GIVE (default 0 degrees): how far a diag walker's bars may turn
+-- on the legs they are welded to. Their files allow 3 degrees (against
+-- crank drift, which LOCK_CRANKS now stops); with it each leg rocks
+-- about 6 degrees a turn, which bends its feet's path away from the
+-- plated build's. At 0 the two builds' feet trace the same path.
+DIAG_GIVE = DIAG_GIVE or 0
+-- BAR_MASS (default on): every bar of every walker weighed by one rule,
+-- `density` per cm of bar plus `bolt` for each joint on it (a joint
+-- between two bars puts a bolt's weight on each). A triangle counts as
+-- its three sides; a plate as a bar its width long; ideal guides weigh
+-- nothing; feet keep FOOT_MASS. 0.18 per cm is Jansen's and Klann's own
+-- 0.04 per unit of their files; 0.15 a joint matches their 0.3 a bar.
+-- false: each file's own masses.
+if BAR_MASS == nil then BAR_MASS = { density = 0.18, bolt = 0.15 } end
 -- MARKS (default on): each walker's body marked with its colours and
 -- code (see markBody). false: plain bodies, as the walkers' own files
 -- paint them.
@@ -171,39 +195,45 @@ local BUMP_MIN, BUMP_MAX = 11, 44
 -- TERRAIN_SEED (default SEED): which random landscape
 TERRAIN = TERRAIN or "waves"
 local TERRAIN_SEED = TERRAIN_SEED or SEED
-local tseed = TERRAIN_SEED * 7919 + 17
+local tseed
 local function trand()           -- its own random numbers, leaving the walkers' alone
   tseed = (tseed * 1103515245 + 12345) % 2147483648
   return tseed / 2147483648
 end
 local WAVES, RIDGES, LEDGES
-if TERRAIN == "random" then
-  WAVES = {}
-  for i = 1, 12 do
-    local th, lam = trand() * math.pi, 0.6 + trand()
-    WAVES[i] = { kx = math.cos(th) * 2 * math.pi / lam, kz = math.sin(th) * 2 * math.pi / lam,
-                 ph = trand() * 2 * math.pi, a = 0.5 + 0.5 * trand() }
+-- (made again by setTerrain, for the test track's 1-4 keys)
+local function makeTerrain()
+  tseed = TERRAIN_SEED * 7919 + 17
+  WAVES, RIDGES, LEDGES = nil, nil, nil
+  if TERRAIN == "random" then
+    WAVES = {}
+    for i = 1, 12 do
+      local th, lam = trand() * math.pi, 0.6 + trand()
+      WAVES[i] = { kx = math.cos(th) * 2 * math.pi / lam, kz = math.sin(th) * 2 * math.pi / lam,
+                   ph = trand() * 2 * math.pi, a = 0.5 + 0.5 * trand() }
+    end
+    -- (in units of BUMP) scaled so the highest point over a wide area is
+    -- 1, so AMP means the same as for "waves": the highest a bump reaches
+    -- (it is gentler on average: root-mean-square height about 0.3 AMP,
+    -- against 0.44 for "waves")
+    local m = 0
+    for i = -400, 400 do for j = -80, 80 do
+      local x, z, h = i * 0.12, j * 0.12, 0
+      for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * x + w.kz * z + w.ph) end
+      m = math.max(m, math.abs(h))
+    end end
+    for _, w in ipairs(WAVES) do w.a = w.a / m end
+  elseif TERRAIN == "logs" or TERRAIN == "steps" then
+    local list, u = {}, -60
+    local gap = (TERRAIN == "logs") and { 1.5, 2.5 } or { 2, 3 }
+    while u < 60 do               -- (in units of BUMP, along x, both ways from 0)
+      list[#list + 1] = { u = u, ang = math.rad(-15 + 30 * trand()) }
+      u = u + gap[1] + gap[2] * trand()
+    end
+    if TERRAIN == "logs" then RIDGES = list else LEDGES = list end
   end
-  -- (in units of BUMP) scaled so the highest point over a wide area is
-  -- 1, so AMP means the same as for "waves": the highest a bump reaches
-  -- (it is gentler on average: root-mean-square height about 0.3 AMP,
-  -- against 0.44 for "waves")
-  local m = 0
-  for i = -400, 400 do for j = -80, 80 do
-    local x, z, h = i * 0.12, j * 0.12, 0
-    for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * x + w.kz * z + w.ph) end
-    m = math.max(m, math.abs(h))
-  end end
-  for _, w in ipairs(WAVES) do w.a = w.a / m end
-elseif TERRAIN == "logs" or TERRAIN == "steps" then
-  local list, u = {}, -60
-  local gap = (TERRAIN == "logs") and { 1.5, 2.5 } or { 2, 3 }
-  while u < 60 do               -- (in units of BUMP, along x, both ways from 0)
-    list[#list + 1] = { u = u, ang = math.rad(-15 + 30 * trand()) }
-    u = u + gap[1] + gap[2] * trand()
-  end
-  if TERRAIN == "logs" then RIDGES = list else LEDGES = list end
 end
+makeTerrain()
 local function terrainHeight(x, z)
   if WAVES then
     local X, Z, h = x / BUMP, z / BUMP, 0
@@ -490,6 +520,7 @@ end
 
 local walkers = {}
 room = { walkers = walkers, groundAt = terrainHeight }   -- (global, for tests and the command line)
+local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test track's air measure)
 
 -- ---------------------------------------------------------------------
 -- marking the bodies (spec.look): the body and its braces painted its
@@ -517,6 +548,57 @@ local function decor(w, o, col, x, y, z, q)
   addObject(o)
   o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
   w.decor[#w.decor + 1] = { o = o, p = { x, y, z }, q = q or { 0, 0, 0, 1 } }
+end
+
+-- BAR_MASS: each bar of walker w reweighed, density x its length (cm)
+-- + a bolt for each joint on it, its turning inertia scaled with it (so
+-- a bar keeps its shape's own spread of mass). A body welded to a bar
+-- and under 5% of its weight only draws part of that bar (Chebyshev-
+-- Spears' bent coupler): its length counts toward the bar, its weld is
+-- no joint, and it keeps the same small share of the bar's new weight.
+function setBarMasses(w, barLen, joints, scale)
+  local isBar = {}
+  for _, o in ipairs(w.bodies) do
+    if o.mass > 0 and not rawequal(o, w.cube) and w.madeBy[o] ~= "buildFoot" then isBar[#isBar + 1] = o end
+  end
+  local function find(b)
+    if not b then return nil end
+    for _, o in ipairs(w.bodies) do if o.body == b then return o end end
+  end
+  local part = {}                        -- drawing-only body -> the bar it draws part of
+  local ends = {}
+  for _, j in ipairs(joints) do
+    local a, b = find(j[1]), find(j[2])
+    if rawequal(a, w.cube) then a = nil end
+    if rawequal(b, w.cube) then b = nil end
+    if j[3] and a and b and a.mass < 0.05 * b.mass then part[a] = b
+    elseif j[3] and a and b and b.mass < 0.05 * a.mass then part[b] = a
+    else
+      if a then ends[a] = (ends[a] or 0) + 1 end
+      if b then ends[b] = (ends[b] or 0) + 1 end
+    end
+  end
+  local L = {}
+  for _, o in ipairs(isBar) do
+    if not part[o] then L[o] = (L[o] or 0) + (barLen[o] or 0) end
+  end
+  for p, o in pairs(part) do L[o] = (L[o] or 0) + (barLen[p] or 0) end
+  local function reweigh(o, m)
+    local inv = o.body:getInvInertiaDiagLocal()
+    local k = m / o.mass
+    o.body:setMassProps(m, btVector3(k / inv.x, k / inv.y, k / inv.z))
+    o.body:updateInertiaTensor()
+    o.mass = m
+  end
+  local share = {}
+  for p, o in pairs(part) do share[p] = p.mass / o.mass end
+  for _, o in ipairs(isBar) do
+    if not part[o] then
+      assert(barLen[o], w.spec.name .. ": a bar of unknown length")
+      reweigh(o, BAR_MASS.density * L[o] + BAR_MASS.bolt * (ends[o] or 0))
+    end
+  end
+  for p, o in pairs(part) do reweigh(p, share[p] * o.mass) end
 end
 
 local function markBody(w, look)
@@ -597,11 +679,14 @@ local function addWalker(spec, x, z, heading)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
   opts.ankle = ANKLES
+  if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
   local unbraced = UNBRACED == true or (type(UNBRACED) == "table" and UNBRACED[spec.name])
   if unbraced then opts.noBraces = true; opts.legGuides = true end
   if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = GAIT end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
+  local k = (type(CRANK_SCALE) == "table") and CRANK_SCALE[spec.name] or CRANK_SCALE
+  if type(k) == "number" then crank = crank * k end
   local rev = REVERSE == true or (type(REVERSE) == "table" and REVERSE[spec.name])
   if rev then crank = -crank end
   w.crank = crank
@@ -642,17 +727,50 @@ local function addWalker(spec, x, z, heading)
   end
   -- (noting which bodies are braces and feet, for marking the walker
   -- below: the builds make them in functions named for them)
-  local made, realCube = {}, Cube
+  -- (and, for BAR_MASS, each bar's length and the joints the build
+  -- makes on it)
+  local made, realCube, realScad = {}, Cube, OpenSCAD
+  local barLen, joints, realJoint = {}, {}, {}
   Cube = function(...)
     local o = realCube(...)
     local f = debug.getinfo(2, "n")
     made[o] = f and f.name
+    barLen[o] = math.max(...)
     return o
   end
+  OpenSCAD = function(sdl, ...)
+    local o = realScad(sdl, ...)
+    local p = {}
+    local pts = sdl:match("points=%[(.-)%]%)")
+    for x, y in (pts or ""):gmatch("%[([-%d.]+),([-%d.]+)%]") do p[#p + 1] = { tonumber(x), tonumber(y) } end
+    local L = 0                          -- a triangle: its three sides
+    for i = 1, #p do
+      local q = p[i % #p + 1]
+      L = L + math.sqrt((q[1] - p[i][1]) ^ 2 + (q[2] - p[i][2]) ^ 2)
+    end
+    barLen[o] = L
+    return o
+  end
+  for _, n in ipairs({ "btHingeConstraint", "btSliderConstraint", "btGeneric6DofConstraint" }) do
+    realJoint[n] = _G[n]
+    _G[n] = function(A, B, ...)
+      local con = realJoint[n](A, B, ...)
+      local f = debug.getinfo(2, "n")
+      f = f and f.name or ""
+      -- (a Generic6Dof is a joint only as a diag bar's weld; elsewhere
+      -- it is a guide, which weighs nothing)
+      if n ~= "btGeneric6DofConstraint" or f:find("Crossbar") then
+        joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint" }
+      end
+      return con
+    end
+  end
   local ok, built = pcall(W.build, opts)
-  Cube = realCube
+  Cube, OpenSCAD = realCube, realScad
+  for n, f in pairs(realJoint) do _G[n] = f end
   if not ok then error(built, 0) end
   w.madeBy = made
+  if BAR_MASS then setBarMasses(w, barLen, joints, scale) end
   -- a diag walker's low brace, raised (BRACE_CLEARANCE), would cross the
   -- circles its own cranks turn in and jam on them: it passes the
   -- walker's other parts as if built in a plane of its own (a free joint,
@@ -677,8 +795,13 @@ local function addWalker(spec, x, z, heading)
   -- the same motors for every walker (MOTOR_STRENGTH, above): Bullet
   -- applies a motor's impulse once per physics step, so its most torque
   -- is impulse / FIXED
+  -- its weight in all: TOTAL_MASS, or with BAR_MASS its body's
+  -- BODY_MASS plus whatever its legs, feet and braces weigh
+  local rest = 0
+  for _, o in ipairs(w.bodies) do if o.mass > 0 and not rawequal(o, built.cube) then rest = rest + o.mass end end
+  w.totalMass = (SAME_BODY and BAR_MASS) and (BODY_MASS + rest) or TOTAL_MASS
   if MOTOR_STRENGTH and #w.motors > 0 then
-    local torque = MOTOR_STRENGTH * TOTAL_MASS * GRAVITY * STRIDE / #w.motors
+    local torque = MOTOR_STRENGTH * w.totalMass * GRAVITY * STRIDE / #w.motors
     for _, m in ipairs(w.motors) do
       m.impulse = torque * FIXED
       m.hinge:enableAngularMotor(true, m.speed, m.impulse)
@@ -702,9 +825,7 @@ local function addWalker(spec, x, z, heading)
   w.radius = 0.5 * math.sqrt((x1 - x0) ^ 2 + (z1 - z0) ^ 2)
   -- the same body for every walker (SAME_BODY, above)
   if SAME_BODY then
-    local rest = 0
-    for _, o in ipairs(w.bodies) do if o.mass > 0 and not rawequal(o, w.cube) then rest = rest + o.mass end end
-    local m = TOTAL_MASS - rest
+    local m = w.totalMass - rest
     assert(m > 0, spec.name .. ": TOTAL_MASS is less than its legs weigh")
     local x, y, z = BODY_BOX[1], BODY_BOX[2], BODY_BOX[3]
     w.cube.body:setMassProps(m, btVector3(m / 12 * (y * y + z * z), m / 12 * (x * x + z * z), m / 12 * (x * x + y * y)))
@@ -1135,6 +1256,19 @@ end
 
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
 v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
+-- VIEWS (test track): a list of { walker =, label =, reverse =, gait =,
+-- unbraced =, crank = } -- see test-square.lua. Tab goes through those
+-- instead of the walkers, each built, timed and turned its own way (the
+-- room's REVERSE, GAIT, UNBRACED and CRANK_SCALE, set for it); the track
+-- starts with VIEWS[VIEW or 1].
+local viewAt = 0
+local function setView(k)
+  local c = VIEWS[k]
+  viewAt = k
+  ONLY = c.walker
+  REVERSE, GAIT, UNBRACED, CRANK_SCALE = c.reverse or false, c.gait, c.unbraced or false, c.crank
+end
+if TEST_TRACK and VIEWS then setView(VIEW or 1) end
 buildRoom()
 
 -- ---------------------------------------------------------------------
@@ -1240,12 +1374,32 @@ v:preSim(function(N)
     -- (the test track: how far it got along x, reported once)
     if TEST_TRACK then
       local x, _, z = getPosXYZ(w.cube)
-      if not w.trackStart then w.trackStart = { x, z, simTime } end
+      if not w.trackStart then w.trackStart = { x, z, simTime }; w.airFrames, w.allFrames = 0, 0 end
+      -- (air: the share of frames its lowest moving part is more than
+      -- 0.5 cm above the ground under it -- the whole walker off the ground)
+      do
+        local gap = 1e9
+        for _, o in ipairs(w.bodies) do
+          if o.mass > 0 then
+            o.body:getAabb(trackLo, trackHi)
+            local top = -1e9
+            for i = 0, 2 do for j = 0, 2 do
+              top = math.max(top, terrainHeight(trackLo.x + (trackHi.x - trackLo.x) * i / 2, trackLo.z + (trackHi.z - trackLo.z) * j / 2))
+            end end
+            gap = math.min(gap, trackLo.y - top)
+          end
+        end
+        w.airGap = gap
+        if not w.trackDone then
+          w.allFrames = w.allFrames + 1
+          if gap > 0.5 then w.airFrames = w.airFrames + 1 end
+        end
+      end
       if not w.trackDone and simTime - w.trackStart[3] >= TRACK_SECS then
         w.trackDone = true
         local d = x - w.trackStart[1]
-        print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d",
-          w.spec.name, AMP, BUMP, SEED, d, d / TRACK_SECS, z - w.trackStart[2], w.stoodUp or 0))
+        print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d|air %.1f%%",
+          w.spec.name, AMP, BUMP, SEED, d, d / TRACK_SECS, z - w.trackStart[2], w.stoodUp or 0, 100 * w.airFrames / w.allFrames))
       end
     end
   end
@@ -1264,13 +1418,18 @@ local following, followX, followZ        -- the walker followed (nil: the overvi
 local function helpText()
   if TEST_TRACK then
     local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
+    if VIEWS and viewAt > 0 then h = h .. VIEWS[viewAt].label .. "\n\n" end
     h = h .. "Tab         put the next walker on the track (built again)\n"
     h = h .. "Shift+Tab   the one before\n"
+    h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
     h = h .. "O           look over the whole track\n"
     h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
     h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
-    h = h .. "pane) build the track again with the same walker.\n"
+    h = h .. "pane) build the track again with the same walker.\n\n"
+    h = h .. "The status line (bottom) shows its speed so far and how much of the\n"
+    h = h .. "time it has been off the ground (its lowest part more than 0.5 cm\n"
+    h = h .. "up); its body turns red whenever it is.\n"
     return h
   end
   local h = "WALKER ROOM -- " .. (following and ("following " .. following.spec.name .. " (" .. codeOf(following.spec) .. "trail " .. following.colour[1] .. ")")
@@ -1326,20 +1485,39 @@ end)
 
 -- on the test track, Tab and Shift+Tab put the next (or the one before)
 -- walker on the track instead: the track is built again with it
-local function trackNext(step)
-  local k = 1
-  for i, spec in ipairs(WALKERS) do if spec.name == ONLY then k = i end end
-  k = (k - 1 + step) % #WALKERS + 1
-  ONLY = WALKERS[k].name
+-- (with VIEWS it goes through those instead: see setView, above)
+local function rebuildTrack()
   teardownRoom()
+  makeTerrain()
   buildRoom()
   follow(walkers[1])
-  print("test track: " .. ONLY)
 end
+local function trackNext(step)
+  if VIEWS then
+    setView((viewAt - 1 + step) % #VIEWS + 1)
+  else
+    local k = 1
+    for i, spec in ipairs(WALKERS) do if spec.name == ONLY then k = i end end
+    k = (k - 1 + step) % #WALKERS + 1
+    ONLY = WALKERS[k].name
+  end
+  rebuildTrack()
+  print("test track: " .. ONLY .. (VIEWS and (" -- " .. VIEWS[viewAt].label) or ""))
+end
+-- the test track's ground: 1 waves, 2 random, 3 logs, 4 steps (built again)
+local TERRAIN_KEYS = { ["1"] = "waves", ["2"] = "random", ["3"] = "logs", ["4"] = "steps" }
 
 v:onKey(function(N, key, down)
   if TEST_TRACK and (key == "Tab" or key == "Backtab") then
     if down then trackNext(key == "Tab" and 1 or -1) end
+    return true
+  end
+  if TEST_TRACK and TERRAIN_KEYS[key] then
+    if down then
+      TERRAIN = TERRAIN_KEYS[key]
+      rebuildTrack()
+      print("test track: " .. TERRAIN)
+    end
     return true
   end
   if key == "Tab" or key == "Backtab" then
@@ -1382,8 +1560,24 @@ v:onParamChanged(function(N, name, value)
   if name == "TerrainHeight" then pendingAmp, pendingAt = value, draws end
   if name == "BumpLength" then pendingBump, pendingAt = value, draws end
 end)
+local AIR_COLOUR = "#FF2020"
 v:preDraw(function(N)
   draws = draws + 1
+  -- (the test track: the status line shows where the walker is at, and
+  -- its body turns red while it is off the ground)
+  local w = TEST_TRACK and walkers[1]
+  if w and w.allFrames then
+    local up = (w.airGap or 0) > 0.5
+    if w.bodyColour == nil then w.bodyColour = w.cube.col end
+    if up ~= w.shownUp then w.cube.col = up and AIR_COLOUR or w.bodyColour; w.shownUp = up end
+    if draws % 10 == 0 then
+      local x = getPosXYZ(w.cube)
+      local t = simTime - w.trackStart[3]
+      v.statusText = string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
+        w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", TERRAIN, t,
+        (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))
+    end
+  end
   if MARKS then for _, w in ipairs(walkers) do placeMarks(w) end end
   if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
     local amp, bump = pendingAmp or AMP, pendingBump or BUMP
