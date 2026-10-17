@@ -17,6 +17,7 @@ not move, so nothing that points at them breaks.
 | `WORKFLOW.md`, `WORKFLOW.pdf` | This file |
 | `HANDOFF.md` | How William likes to work, build and run steps, the current state and the next step. A new chat starts from the repo alone |
 | `FIXES.md` | Fixes, as now |
+| `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations of the book, new results, errors and divergences |
 | `lib/` (new) | Shared code: the random number generator, batch runner, momentum and energy checks, metrics, force-law table, sensing model, and the world generator (G21), which builds every world from the book's presets to the capstone harbour |
 | `quadcopter/` (exists), then `ground/`, `boat/`, `sub/`, `fixedwing/` | One folder per kind of vehicle, all behind the same interface (G18 in `BOOK.md`) |
 | `ch02/` … `ch19/`, `capstone/` | The ports, one folder per chapter. Each has a README with the book's numbers, ours, and the choices made where the sources are silent or disagree |
@@ -56,8 +57,9 @@ Every task goes through the same steps. Each step is one patch.
 4. **Take it to 3D**, where that makes sense.
 
 Each patch updates the task's README, its status in `BOOK.md` (new → partly →
-done) and `BOOK.pdf`, `FIXES.md` if anything was fixed, and `HANDOFF.md` at the
-end of a milestone.
+done) and `BOOK.pdf`, `FIXES.md` if anything was fixed, `FINDINGS.md` and
+`FINDINGS.pdf` with whatever it confirmed, found or corrected, and `HANDOFF.md`
+at the end of a milestone.
 
 ## 3. Checks protect earlier work
 
