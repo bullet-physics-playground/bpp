@@ -144,7 +144,7 @@ Most chapters need the same pieces. Build each once.
 | G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
 | G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
-| G21 | **Harbour world:** water, docks, buildings, a warehouse and a storm drain | ★capstone |
+| G21 | **World generator:** our own seeded, parameterised generator of 2D and 3D worlds, replacing the old Textron map maker. Presets for the book's worlds; harbour features (water with depth, quay, piers, ship, streets of varied building heights, warehouses, a storm-drain network with an outfall, a container yard with pockets, launch pads). Outputs BPP geometry, a grid in Zarzhitsky's map format, and masks for the metrics (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
 
 ---
 
@@ -271,7 +271,7 @@ metrics.
 | 9.1 | 1 versus 3 Maxelbots on ethanol: 22% vs 60% success | 285–286 | Small hardware replica (G10, G14) | new |
 | 9.2–9.3 | Smoke around a robot; 32-sensor flume | 287–288 | ★ downwash stirring the plume | new |
 | 9.4 | Finite-difference stencils | 291 | Library | plan |
-| 9.5 | Puff plume model | 291–295 | G14, the largest single build. The app's Chemical Plume Tracing is ported from Zarzhitsky's C/GTK tool (MapGen/PlumeGen/TraceGen) and is the best source for the constants the book omits | plan |
+| 9.5 | Puff plume model | 291–295 | G14, the largest single build. Zarzhitsky's CPT code (PlumeGen, TraceGen; kept outside the repo) gives the constants the book omits; the Android app's Chemical Plume Tracing is ported from it with a changed generator. Run the original on our generator's maps as an independent check | plan |
 | 9.6 | LJ variant F = D/r² − D^1.7/r^2.7 | 296–299 | Add to the force-law table | new |
 | 9.7 | Simulator loop, collision avoidance overrides tracing | 297–300 | Harness | plan |
 | 9.8 | 7-robot hexagon: casting, chemotaxis, anemotaxis, fluxotaxis | 300–306 | Particles → quads | plan |
@@ -566,11 +566,43 @@ work for the drones.
 | ★ Relay chain from the surface down to depth, over sound | G20, Ch. 12 | medium |
 | ★ Mixed-vehicle formations with typed force laws (Ch. 16) | G9, G18 | medium |
 | ★ Surface boats as sound-to-radio gateways linking underwater and air swarms | G20, G15 | medium |
-| ★ Harbour world and the full mission script | G21, everything above | hard |
+| ★ Harbour features of the world generator, and the full mission script | G21, everything above | hard |
 
 The benchmark matrix is four tasks × five kinds of vehicle, i.e. 20 runs, each
 over several seeds. That table is the scientific result; the mission
 demonstrates it.
+
+### The world generator (G21)
+The harbour is built by our own world generator, which replaces the old Textron
+map maker (`MakeMap.c` in the CPT code). It is designed around this mission
+but serves every chapter.
+
+| Feature | Serves |
+| --- | --- |
+| Water with a quay line, piers and a ship (the leak source), with depth for underwater vehicles | Boats, underwater plume and relay (Ch. 6, 8–9) |
+| Streets between buildings of varied heights | Urban canyons and wakes, rooftop against ground sources, 3D plume (Ch. 9) |
+| Warehouses with doorways and open interiors | Coverage and kinetic-theory sweeps (Ch. 7, 11) |
+| A storm-drain or tunnel network ending in an outfall at the harbour | Chain relays (Ch. 12) linking ground and water; chain-fountain escapes (§7) |
+| A container yard whose stacks form U-shaped pockets and a field of variable density | Cul-de-sacs (§7); obstacle density for Daedalus and scouts (Ch. 14–15) |
+| Launch pads | The launch-in-thirds start |
+
+- **Seeded and parameterised:** a seed from the shared generator (G2), plus
+  knobs for building density and height spread, street width, the number and
+  depth of pockets, obstacle density and the drain layout. The same seed always
+  gives the same world, and sweeps can vary one knob at a time.
+- **The book's worlds as presets:** Ch. 3's wall of 12 discs, Ch. 4's 84×84
+  coverage box, Ch. 7's corridor with an obstacle percentage, Ch. 11's
+  environments, Ch. 12's 35-vertex maze, Ch. 14's 900×700 field, so every
+  chapter port takes its world from one place.
+- **Three outputs from one description:** BPP geometry (boxes with heights, the
+  water plane, tunnels); a 2D grid in Zarzhitsky's map format, so his plume
+  generator and tracing program can run on our worlds as an independent check;
+  and masks the metrics need (coverage cells, Ch. 7's shadow cells, trap regions
+  for spotting stuck agents, the water area).
+- **Later:** a mean wind and a current that suit the layout, for the plume work.
+
+The core and the first book presets come in milestone M0; the harbour features
+arrive with the milestones that use them.
 
 ### Order
 Build G18 and the cross-vehicle benchmark early, right after the Ch. 13
@@ -660,11 +692,11 @@ version of that push helps is an experiment, not a given.
 
 This revises the plan's order using what the book says.
 
-Before porting a task, fetch its `.nlogo` from the book website, read the matching thesis digest, and check the Android app's version, if it has one. The book's chapters leave out values that the models and theses contain.
+Before porting a task, read its chapter note, fetch its `.nlogo` from the book website, examine the Android app's version (mostly built from the `.nlogo`; sometimes improved, sometimes wrong), and read the matching thesis digest. The book's chapters leave out values that the models and theses contain. `WORKFLOW.md` describes the steps every task goes through.
 
 | Step | Work | Why now |
 | --- | --- | --- |
-| 0 | **G2 shared RNG** (move the existing multiply-with-carry generator out of `Uniform_Coverage.lua`, add a seed setting) **+ G3 batch runner + G1 monitors**, then Ch. 2's three tests | Every measurement after this depends on them; small |
+| 0 | **G2 shared RNG** (move the existing multiply-with-carry generator out of `Uniform_Coverage.lua`, add a seed setting) **+ G3 batch runner + G1 monitors + G21 world generator** (core and the first book presets), then Ch. 2's three tests | Every measurement and every world after this depends on them |
 | 1 | **Ch. 13 on the drones:** η → adaptive friction → static friction → adaptive cap, each switchable, measured with the Ch. 16.9 metrics on Newtonian 2D/3D over several seeds | The plan's step 1, now with four parts and acceptance metrics |
 | 2 | ★ **G18 vehicle interface + cross-vehicle benchmark**, first with ground robots (G10) and surface boats (G11) alongside the quadcopters: formation and goal through obstacles (§6) | Tests the vehicle-independence claim early and cheaply |
 | 3 | Ch. 3 fidelity checks (G_t sweep incl. 3D, Disable One, Hooke, honeycomb) and Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19 | Cheap; firms up what is already "done" |
@@ -676,4 +708,4 @@ Before porting a task, fetch its `.nlogo` from the book website, read the matchi
 | 9 | G7/G8/G10 sensing and ground vehicles → Ch. 10 checks, Ch. 11 and 12 replicas, Ch. 12 chains, then ★ 3D shafts | Hardware-faithful track |
 | 10 | Ch. 8 unit tests → G14 plume → Ch. 9 → ★ fluxotaxis 3D | Flagship |
 | 11 | G11 ASV → Ch. 6 → ★ ROV and AUV (G19, G20); G12 fixed-wing → Ch. 13.7–13.12; complete the cross-vehicle benchmark with all five kinds of vehicle; Ch. 1 demos; Ch. 18 benchmark | Remaining vehicles and chapters |
-| 12 | ★ **Capstone:** G21 harbour world, underwater plume and relay, mixed-vehicle formations, the full mission (§6) | Needs nearly everything else |
+| 12 | ★ **Capstone:** the world generator's harbour (G21), underwater plume and relay, mixed-vehicle formations, the full mission (§6) | Needs nearly everything else |
