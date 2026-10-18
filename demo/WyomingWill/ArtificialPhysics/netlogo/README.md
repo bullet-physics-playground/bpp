@@ -17,7 +17,7 @@ is on the website.
 | `spring1D.nlogo` | 2.1 | `ch02/Spring1D.lua`; start and update order checked (FINDINGS F41) |
 | `spring2D.nlogo` | 2.2 | `ch02/Spring2D.lua`; random-heading start (F41) |
 | `solar_system.nlogo` | 2.3 | `ch02/SolarSystem.lua`; speed cap and force cap checked (F15) |
-| `formation_newton.nlogo` | 3 | `Formations-Newtonian.lua` (not yet checked against the model) |
+| `formation_newton.nlogo` | 3 | `Formations-Newtonian.lua`: the law checked against the model (same split, cap, views 1.5/1.3/1.7, √2 same-spin divisor, friction first); the defaults differ (F48). No Ch. 13 damping in the model |
 | `formation_hooke.nlogo` | 3 | not yet |
 | `formation_lj_goal_obs.nlogo` | 3 | `Formations-Lennard-Jones.lua` (not yet checked) |
 | `formation_goal_obs.nlogo` | 3.3 | world frame used by `lib/world.lua`'s Ch. 3 presets (F40) |

@@ -61,7 +61,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–38 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F40 so far), and
+  implementations, and our own mistakes once corrected (F1–F48 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -72,7 +72,7 @@ is updated at the end of every milestone.
 | `WORKFLOW.md`, `WORKFLOW.pdf` | Folders, the steps every task goes through, milestones |
 | `book/ch01.md` … `ch20-appendix.md` | Notes per chapter: algorithms, parameters, results to reproduce with page refs, decisions the book leaves open |
 | `book/theses/` | Digests of the seven theses (Heil, Hettiarachchi, Kerr, Kunkel, Maxim, Rebguns, Zarzhitsky) |
-| `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder) |
+| `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder); `settle_drones.lua` measures settling with the Ch. 16.9 metrics for `lib/batch.py` |
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
@@ -81,7 +81,7 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua` so far (`lib/README.md`) |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's book presets |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
@@ -181,6 +181,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   x₂ = 1, not the printed 1.001 (F14).
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
+- **Ch. 13's AR damping η settles the Newtonian drones** (M1 step 1,
+  `quadcopter/README.md` "Ch. 13 on the drones", FINDINGS F43–F47): with
+  `etaPower` 1 they settle as fast as LJ or faster, in every formation,
+  without crashes; the plain law dithers across D even as particles. In 2D
+  at range 1.5 D η settles the lattice at ~0.8 D (second neighbours come
+  into range); range 1.25 D keeps it at D. Power 1 beats the law's own
+  power. The stop rule does nothing without η. η's lattice is a quarter to
+  a third as stiff as LJ's at D, so it compresses under the goal's pull.
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
 
 ## 7. Where things stand and what's next
@@ -206,18 +214,27 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   models in `netlogo/`, with Ch. 2 and Ch. 3's world checked against them
   (F15, F40, F41); Listing 11.4 run on the book's own generator
   (`ch11/listing_11_4.lua`, F14); `ch02/Spring3D.lua` (F42).
-- **Next, William's choice between:**
-  - **The realistic world generator** (`BOOK.md` §6, option A): terrain and
-    water first, then zones, streets, lots and buildings, vegetation, mission
-    features; presets rural, suburban, city centre, industrial port, harbour
-    town. Real places (OSM, elevation, depth charts) are future work.
-  - **M1:** Ch. 13's four fixes on the drones, each switchable, measured on
-    Newtonian 2D and 3D with the Ch. 16.9 metrics, using `lib/batch.py` and
-    `probes/batch_drones.lua`. Why: the split-Newtonian quadcopter swarms
-    never settle (the force flips sign at D and the airframes lag, so they
-    overshoot forever; Lennard-Jones settles). Main question: does AR damping
-    alone make them settle like LJ? Check `netlogo/formation_newton.nlogo`
-    first. The 3D spring lattice below fits here.
+- **In progress: milestone M1** (build step 1), Ch. 13's four mechanisms
+  on the drones, one patch each, each a slider off at 0:
+  1. **Done: AR damping η + the stop rule** (`lib/ch13.lua`; sliders
+     `etaPower`, `stopForce`; metrics in `quadcopter/swarm.lua` and
+     `probes/settle_drones.lua`; lattice quality in `lib/lattice.lua`;
+     checks `ch13`, `lattice`). Answer to M1's main question: yes, η alone
+     makes them settle like LJ (see §6).
+  2. **Next: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
+     > 10; `book/ch13.md` E11a): per axis on the drones' AP velocity,
+     measured with the same probe against η, with and without it. Main
+     question: does it settle the plain law without η's loss of stiffness
+     (F47)?
+  3. Static friction (Eq. 13.25, with the corrected condition
+     μ·m·g < |ΣF·t̂|).
+  4. The adaptive speed cap (Eq. 13.24, k_less/k_more > 10).
+  Then the 3D spring lattice (below) and the M1 summary here.
+- **After M1, William's choice between** the realistic world generator
+  (`BOOK.md` §6, option A: terrain and water first, then zones, streets,
+  lots and buildings, vegetation, mission features; presets rural,
+  suburban, city centre, industrial port, harbour town) and M2 (the vehicle
+  interface, ground robot and surface boat).
 - **Ideas William liked (2026-10-18), to do when there is room:** truly 3D
   spring models, since two bodies always stay in one plane (spring3D, done,
   looks like spring2D tilted): **a spring tetrahedron** (four masses, six
@@ -227,8 +244,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   Details in `ch02/README.md`, "Not done yet".
 - **Check every port against its `.nlogo` first** (`netlogo/`): doing so for
   Ch. 2 and Ch. 3 found two guessed starts and the wrong Ch. 3 world frame
-  (FINDINGS F40, F41). The formation, honeycomb and Uniform Coverage ports have
-  not been checked against their models yet.
+  (FINDINGS F40, F41). `formation_newton.nlogo`'s law matches the Newtonian
+  ports (its defaults differ, F48); the honeycomb and Uniform Coverage ports
+  and the other formation models have not been checked yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
   Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES 4–5;
   its wall rule is kept, FIXES 36); FIXES item 27 is documented, not fixed; an
@@ -242,8 +260,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run checks/run_all.sh, and
-> continue with the next step in HANDOFF.md §7: [the realistic world
-> generator | milestone M1]. Deliver each step as a patch with git commands.
+> continue with the next step in HANDOFF.md §7: [milestone M1, step 2 |
+> the realistic world generator]. Deliver each step as a patch with git
+> commands.
 
 Attach the book PDF if the chat will need chapters beyond the notes,
 `ap.zip` if it will compare with the Android app, and `CPT.zip` for plume

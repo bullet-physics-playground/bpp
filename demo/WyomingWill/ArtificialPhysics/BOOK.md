@@ -41,9 +41,16 @@ These correct or extend the plan. Each is backed by the chapter notes.
    The book gives ratios but no absolute gains. Build all four as separate
    switches (old behaviour at 0) and measure them one at a time. With η and
    the stop threshold the Pioneers "settle into fixed lattice formations"
-   (PDF 454). Our expectation, not the book's, is that η alone makes the
+   (PDF 454). Our expectation, not the book's, was that η alone makes the
    Newtonian drones settle like LJ, because both are then smooth through
-   zero force at D.
+   zero force at D. **Measured (M1 step 1, FINDINGS F43–F47): it does.** On
+   50 drones, η alone takes the Newtonian swarm from never settling to
+   settled in 4–6 s (2D) and at the last launch wave (3D, like LJ), with
+   AR crossings falling from ~200–320 to ~0 per drone per minute. In 2D at
+   range 1.5 D it settles at 0.80–0.83 D, because η damps the nearest
+   neighbours' repulsion more than the second neighbours' attraction; range
+   1.25 D (the 3D default) keeps the spacing (0.99 D). The stop rule adds
+   nothing without η and holds the settled swarm still with it.
 2. **Fixed-wing is not a dumbbell.** §13.5 says a vehicle that can only turn
    needs a *single* heading particle; that is the torque law of §13.3
    (Eq. 13.15–13.18), which the chapter applies to its UAVs. The dumbbell
@@ -139,7 +146,7 @@ Most chapters need the same pieces. Build each once.
 | G13 | **Worlds:** wall polygons from vertex lists, corridors, mazes, and an obstacle-density generator | 4.3, 7, 11, 12, 14, 15 |
 | G14 | **Plume model:** Farrell-style puffs with wind, white-noise mixing and obstacles | 8, 9 |
 | G15 | **Neighbour messages:** sensed values as well as positions; flooding broadcast | 4.1, 6, 9, 12, 19 |
-| G16 | **Metrics:** lattice quality (angles, Delaunay CV), coverage grids and KL divergence, chain metrics (MST), suggested-versus-actual position gap, energy and path length, Q versus P | all |
+| G16 | **Metrics (lattice quality started, `lib/lattice.lua`; drone settling in `probes/settle_drones.lua`):** lattice quality (angles, Delaunay CV), coverage grids and KL divergence, chain metrics (MST), suggested-versus-actual position gap, energy and path length, Q versus P | all |
 | G17 | **Heading-dependent force terms:** elliptical zones, LOPF sectors | 4.2, 5, 12 |
 | G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
@@ -164,7 +171,7 @@ Most chapters need the same pieces. Build each once.
 | 10 | What is a Maxelbot? (Maxim) | 13 | Trilateration noise model + token ring | Maxelbot | G7, G8, G10 | new |
 | 11 | Uniform coverage (Maxim) | 13 | KL metric, wall-only control, f = 0.6 | particles, Maxelbot, quads | G3, G13, G16 | partly |
 | 12 | Chain formations (Maxim) | 18 | Listing 12.4 maze with the evolved law | particles, Maxelbots, quads | G3, G7, G8, G13, G17 | plan |
-| 13 | Motion control of constrained agents (Apker, Potter) | 13 | η, adaptive and static friction on the drones | quads, Pioneer, fixed-wing | G4, G10, G12 | plan (next) |
+| 13 | Motion control of constrained agents (Apker, Potter) | 13 | η, adaptive and static friction on the drones | quads, Pioneer, fixed-wing | G4, G10, G12 | partly (η on the drones) |
 | 14 | Adaptive learning, Daedalus (Hettiarachchi) | 7 | Offline three-law LJ obstacle course | particles, quads | G3, G8, G13 | plan |
 | 15 | Statistical scouts (Spears et al.) | 10 | Bernoulli vs Bayes on the Ch. 14 world | particles (drones for show) | G2, G3, G13 | plan |
 | 16 | Swarm design considerations (Wiegand, Ellis) | 9 | Type table; rings; protection | particles, quads | G9, G16 | new |
@@ -329,7 +336,7 @@ metrics.
 | --- | --- | --- | --- | --- |
 | 13.1–13.2 | Point-mass reachable space; the discontinuity at D | 447–448 | Explains the Newtonian jitter | done (observed) |
 | 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | Plots (G10) | new |
-| 13.5 | **AR damping η + stop threshold** | 453–454 | **First fix on the drones** | new |
+| 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`, sliders `etaPower`, `stopForce` on the drones; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F47) | done |
 | 13.6 | "Triangle of death" | 454–456 | Ground robots | new |
 | 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |
 | 13.9 | Heading-particle torque law | 460–462 | Fixed-wing (G12) | plan (corrected) |

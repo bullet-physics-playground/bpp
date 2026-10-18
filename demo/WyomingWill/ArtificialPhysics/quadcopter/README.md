@@ -173,7 +173,7 @@ horizontal levels.
 
 Set it to 0 to turn the levels off. See `../FIXES.md` items 30 and 32.
 
-**Sliders** beyond the originals': `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
+**Sliders** beyond the originals': `etaPower` and `stopForce` (Ch. 13, below), `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
 `goalSpeed`, `goalDelay`, `launchOrder`, `launchGap`, `lineTransparency` (neighbour lines, 0 = solid, default 0.6), `simSpeed`, `soundVolume`, `soundEmphasis`, and the `obstacleField` and
 `propStrikes` checkboxes.
@@ -314,6 +314,98 @@ The voices hush while the simulation is stopped. They also go into the
   0.5 m to stop from 2 m/s.
 
 The measurements behind these are in `../FIXES.md`, items 17–23.
+
+## Ch. 13 on the drones (milestone M1)
+
+Ch. 13 (Apker and Potter) explains why the split-Newtonian swarm never
+settles and gives four remedies (`book/ch13.md`). They are built one at a
+time in `../lib/ch13.lua`, each a slider that is off at 0.
+
+| Slider | What it does | Off |
+| --- | --- | --- |
+| `etaPower` | **AR damping η** (Eq. 13.9–13.10): every drone–drone force is multiplied by η = (\|D − r\|/D)^etaPower for r < 2D, so it goes smoothly through 0 at D (r is the spin-modified distance the law uses) | 0 |
+| `stopForce` | **Stop rule** (§13.2.2): when a drone's summed force \|F\| (drones, obstacles, levels, goal; AP force units) is below this, its AP velocity is set to 0 and its waypoint is where it is | 0 |
+
+While a switch is on, the status line shows it at the end (`eta p=1.0`,
+`stop |F|<0.030: 50 stopped`). Adaptive friction (Eq. 13.23), static
+friction (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next.
+
+**How it was measured.** `../probes/settle_drones.lua` with `lib/batch.py`:
+50 drones, compact launch, no obstacle field, no goal, 5600 frames (about
+170 s after AP engages), seeds 1–3. Every quantity is defined at the top of
+the probe; briefly: *settles* = the time after which the swarm's mean scalar
+acceleration (Ch. 16.9) stays below 0.1 m/s², *speed* and *gap* (the
+suggested-position difference, |position − last waypoint|) are means over
+the last 29 s, *crossings* are drone pairs changing side of D, per drone per
+minute, *bond* is the mean length of pairs closer than 1.2 × the spacing,
+and *Delaunay CV* is Ch. 16.9's lattice quality (2D only). Means of 3 seeds.
+
+**Triangle, 2D** (Newtonian defaults: range 1.5 D):
+
+| Law and switches | Settles | Speed | Crossings | Gap | Bond | Delaunay CV | Crashed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Newtonian | never | 0.27 m/s | 190 | 6.3 cm | 1.01 | 0.112 | 2, 2, 2 |
+| + η, power 1 | 6 s | 0.001 m/s | 0 | 0.03 mm | **0.83** | 0.104 | 0 |
+| + η, power 2.2 | 4 s | 0.001 m/s | 0 | 0.03 mm | **0.805** | 0.097 | 0 |
+| + η 1 + stop 0.03 | 6 s | 0.00007 m/s | 0 | 0.01 mm | 0.83 | 0.106 | 0 |
+| + stop 0.03 only | never | 0.27 m/s | 187 | 6.1 cm | 1.01 | 0.117 | 2, 2, 2 |
+| Newtonian, range 1.25 | never | 0.28 m/s | 194 | 6.4 cm | 1.01 | 0.109 | 0 |
+| range 1.25 + η, power 1 | 6 s | 0.003 m/s | 0.6 | 0.03 mm | 0.986 | **0.069** | 0 |
+| range 1.25 + η, power 2.2 | 4 s | 0.004 m/s | 0.1 | 0.03 mm | 0.87 | 0.113 | 0 |
+| Lennard-Jones | 20 s | 0.002 m/s | 0.3 | 0.03 mm | 1.00 | 0.092 | 6, 6, 6 |
+
+**Triangle, 3D** (range 1.25 D; launched in thirds, so nothing settles
+before the last wave joins, about 28 s after AP engages):
+
+| Law and switches | Settles | Speed | Crossings | Gap | Bond | Bond CV | Crashed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Newtonian | never | 0.47 m/s | 324 | 10.9 cm | 1.02 | 0.083 | 0 |
+| + η, power 1 | 29 s | 0.003 m/s | 1.0 | 0.09 mm | 1.01 | 0.063 | 0 |
+| + η, power 2.5 | 28–29 s | 0.001 m/s | 0 | 0.04 mm | 0.99 | 0.114 | 0 |
+| + η 1 + stop 0.03 | 29 s | 10⁻⁹ m/s | 0 | 0 | 1.00 | 0.075 | 0 |
+| + stop 0.03 only | never | 0.49 m/s | 320 | 11.1 cm | 1.02 | 0.084 | 0 |
+| Lennard-Jones | 31–33 s | 0.005 m/s | 2.7 | 0.11 mm | 1.01 | 0.044 | 0 |
+
+**Square and cube** (η power 1): the 2D square settles in 6 s (LJ 23–25 s)
+at 0.92–0.96 D, the cube in 27 s (LJ 33 s) at 0.98–1.01 D; without η they
+jitter at 0.33 and 0.63 m/s. LJ's cube is the more regular (bond CV
+0.007–0.03 against 0.07–0.09).
+
+**What this shows** (`../FINDINGS.md` F43–F47):
+
+- **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
+  or faster, in every formation, without crashes. The plain law's endless
+  jitter is the point mass's dither across the sign flip at D (the particle
+  replica does it too, at 0.55 AP units per tick), turned into flight.
+- **In 2D at range 1.5 D, η shrinks the lattice to ~0.8 D.** It damps the
+  nearest neighbours' repulsion near D more than the second neighbours'
+  attraction, which comes into range once the lattice shrinks. A balance
+  over an infinite lattice predicts 0.800 D (power 1); range 1.25 D keeps
+  the second neighbours out and the spacing at D, with the best lattice
+  measured. The 3D default range is already 1.25 D.
+- **Use η's power 1, not the law's power.** Power 2.2 makes a wide, nearly
+  flat zone round D; it settles no sooner and leaves the lattice smaller.
+- **The stop rule needs η.** On its own it almost never fires; with η it
+  holds the settled swarm still and does not freeze it early.
+- **The cost is stiffness.** Through the obstacle field after the moving
+  goal (640 s, 2 seeds), η's drones fly smoothly and lose none, and get a
+  little farther than the plain law (swarm centre at 632 s: −46 m against
+  −43 m in 2D; −47 against −41 m in 3D) but not as far as LJ (−50, −51 m).
+  Under the goal's pull their bonds shrink to 0.85–0.92 D (2D) and
+  0.94–0.95 D (3D), where LJ's hold 0.97–1.0 D: with η the law's slope at
+  D is a quarter to a third of LJ's.
+
+Reproduce, from the `ArtificialPhysics` folder:
+
+    python3 lib/batch.py Formations-Newtonian-Quadcopter.lua \
+      --probe probes/settle_drones.lua --env DIM=2 --seeds 1-3 \
+      --set obstacleField=false --set goalDelay=0 \
+      --set etaPower=0,1,2.2 --frames 5600 --out eta2d.csv --summary settleA
+
+(`--env DIM=3` for 3D, `--env SQUARE=1` for the square or cube, `--set
+range=1.25`, `--set stopForce=0.03`; for the crossing, drop the two
+`obstacleField`/`goalDelay` settings and use `--frames 20000 --env
+EVERY=3000`.) About 45 s per pair of runs.
 
 ## Limitations
 

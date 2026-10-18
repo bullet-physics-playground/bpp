@@ -81,6 +81,8 @@ if [ $QUICK = 1 ]; then export N_DEFAULT=200000; S="0,25,27,31"; else export N_D
 run monitors      lua_check monitors checks/monitors.lua
 run ch02          lua_check ch02 checks/ch02.lua
 run world         lua_check world checks/world.lua
+run lattice       lua_check lattice checks/lattice.lua
+run ch13          lua_check ch13 checks/ch13.lua
 export N=$N_DEFAULT                        # sample sizes for the two statistical checks
 [ -n "$S" ] && export S_LIST=$S
 run mfp_theory    lua_check mfp_theory checks/mfp_theory.lua

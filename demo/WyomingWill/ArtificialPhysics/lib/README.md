@@ -11,6 +11,8 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `status.lua` | — | The one-line status at the bottom of the BPP window: `label=value` fields of fixed width |
 | `world.lua` | G21 | The world generator's core: pieces, cells, masks, BPP geometry, the book's worlds as presets |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
+| `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
+| `ch13.lua` | — | Ch. 13's motion-control mechanisms, one function each: AR damping η and the stop rule so far |
 
 ## `rng.lua`
 
@@ -167,3 +169,46 @@ Values sit directly after their labels with padding after them, so each
 number reads with its own label; fields have fixed widths and are separated
 by ` | `, so nothing shifts (BPP shows the line in a fixed-pitch font). Put
 parts that appear and disappear at the end.
+
+## `lattice.lua`
+
+```lua
+local L = require "lib.lattice"
+local pts = { { x = 0, y = 0 }, { x = 3, y = 0 }, ... }   -- add z for 3D
+local tris, edges = L.delaunay2D(pts)  -- {i, j, k} triangles, {i, j} edges
+local cv, mean, n = L.delaunayCV(pts)  -- Ch. 16.9: edges inside 80% of the max radius
+local nncv = L.nnCV(pts)               -- nearest-neighbour distance CV, 2D or 3D
+local bcv, bond = L.bondCV(pts, sep)   -- pairs closer than 1.2 sep: CV, mean / sep
+```
+
+- **Ch. 16.9's lattice quality** (PDF 556): the Delaunay triangulation of the
+  settled agents, the nodes within 80% of the swarm's maximum radius from its
+  centroid, and the coefficient of variation (sd / mean) of the edge lengths
+  among them. 0 for a perfect triangular lattice.
+- **Compare like with like:** a perfect square lattice is degenerate (four
+  points on a circle), so a diagonal per cell gives it a CV of 0.171. For 3D
+  lattices use `nnCV` or `bondCV`.
+- Bowyer–Watson with a super-triangle 10⁴ × the points' span; a smaller one
+  (40 ×) lost a hull triangle in 32 of 200 random sets.
+- `checks/lattice.lua`: Euler's counts on 200 random sets, empty
+  circumcircles, perfect and jittered lattices, square and cubic lattices,
+  degenerate inputs (10 tests, < 1 s).
+
+## `ch13.lua`
+
+```lua
+local C13 = require "lib.ch13"
+f = C13.damp(f, r, D, pd)              -- Eq. 13.9-13.10: f x (|D - r|/D)^pd for r < 2D
+if C13.stopped(fx, fy, fz, thr) then   -- the stop rule: |F| < thr
+  vx, vy, vz = 0, 0, 0
+end
+```
+
+- **One function per Ch. 13 mechanism**, so every vehicle uses the same code.
+  Each is off at 0 (`pd = 0`, `thr = 0`), leaving the force bit for bit as it
+  was. Adaptive friction (Eq. 13.23), static friction (Eq. 13.25) and the
+  adaptive speed cap (Eq. 13.24) come in the next steps of milestone M1.
+- `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
+  spin-modified distance the law itself uses, and the stop rule to each
+  drone's summed force (sliders `etaPower`, `stopForce`).
+- `checks/ch13.lua` reproduces Fig. 13.3 and Fig. 13.8 (11 tests).

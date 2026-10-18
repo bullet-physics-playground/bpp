@@ -92,11 +92,40 @@
 -- through the flight model's axial-inflow term. Stacked 3D lattices feel
 -- this, as real ones do. Scale it with the `downwash` slider.
 --
+-- CH. 13 MOTION CONTROL (milestone M1; lib/ch13.lua; book/ch13.md E5).
+-- Switchable, the old behaviour at 0:
+--   etaPower   AR damping, Eq. 13.9-13.10: each drone-drone pair force is
+--              multiplied by eta = (|D - r| / D)^etaPower for r < 2D
+--              (D = rad or desiredSeparation; r the spin-modified distance
+--              the law itself uses), so the force goes smoothly through 0
+--              at D. 0 = off. The book uses the law's own distance power.
+--   stopForce  the stop rule of Sec. 13.2.2: when the drone's summed force
+--              |F| (drones, obstacles, levels, goal; AP force units) is
+--              below stopForce, its AP velocity is set to 0 and its
+--              waypoint is where it is. 0 = off.
+--
+-- METRICS for the Ch. 13 work (Ch. 16.9), accumulated every AP tick over
+-- the drones under AP control and read by probes through M.state().metrics
+-- (running totals; a probe differences two readings):
+--   ticks      AP ticks;  droneTicks  drone-ticks counted
+--   gapSum/gapN  suggested-position difference: |actual position now -
+--              the waypoint AP issued one tick ago|, metres (Ch. 16.9's
+--              "suggested position difference"; the old `track=`)
+--   accSum/accN  scalar acceleration: |actual velocity now - actual
+--              velocity one AP tick ago| x apHz, m/s^2 (Ch. 16.9's
+--              settling measure)
+--   crossings  AR-boundary crossings: drone pairs within range at two
+--              successive ticks whose distance moved from one side of D
+--              to the other (book/ch13.md E11's "passes across their
+--              mutual AR boundaries"), counted once per pair
+--   stops      drone-ticks held by the stop rule
+--
 
 local common = require "common"
 local rng    = require "lib.rng" -- shared seedable generator (BOOK.md G2); math.random is glibc rand()
 local Quad   = require "quadcopter.flight"
 local Sound  = require "quadcopter.sound"
+local C13    = require "lib.ch13"   -- Ch. 13: AR damping eta, stop rule
 
 local M = {}
 
@@ -140,6 +169,8 @@ for _, prm in ipairs(cfg.params) do defParam(prm[1], prm[2], prm[3], prm[4], prm
 defParam("range",        1.5,  1.0, 5.0,  0.1,  "interaction cutoff, as a multiple of " .. SEP)
 defParam("friction",     cfg.friction, 0, 1, 0.01, "fraction of AP velocity removed each AP tick")
 defParam("timeStep",     1.0,  0.01, 1,   0.01, "AP time per AP tick: waypoint offset = timeStep * v")
+defParam("etaPower",     0,    0,   5,    0.1,  "Ch. 13 AR damping (Eq. 13.9): drone-drone force x (|D-r|/D)^etaPower for r < 2D; 0 = off (the book uses the law's power)")
+defParam("stopForce",    0,    0,   1,    0.005, "Ch. 13 stop rule: summed |F| below this (AP force units) stops the drone where it is; 0 = off")
 defParam("goalForce",    0.25, 0,   1,    0.01, "constant-magnitude attraction toward the goal")
 defParam("obstacleSize", 40,   0,   100,  1,    "repulsion radius of obstacles placed with O (AP units); the solid column is a third of it")
 v:addParam("obstacleField", true, "Setup (R) scatters random columns between the launch area and the goal's stopping point")
@@ -212,6 +243,11 @@ local apEngaged = false
 local simTime, nextApTime, nextAirTime = 0, 0, 0
 local gustX, gustZ = 0, 0
 local stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
+local function newMetrics()  -- running totals for probes (see METRICS at the top)
+  return { ticks = 0, droneTicks = 0, gapSum = 0, gapN = 0, accSum = 0, accN = 0,
+           crossings = 0, stops = 0, lastStops = 0 }
+end
+local metrics = newMetrics()
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
 local obstacleObjs = {} -- solid obstacle objects
 local apEngagedAt = 0   -- simTime when AP engaged (for goalDelay)
@@ -429,11 +465,23 @@ local function apTick(p)
     end
     layerY0 = math.atan2(cy_, cx_) * layerH / (2 * math.pi)
   end
+  metrics.ticks = metrics.ticks + 1
+  local stopsThisTick = 0
   for _, d in ipairs(seen) do
     if d.state == "ap" then
       local fx, fy, fz = 0, 0, 0
       d.avx, d.avy, d.avz = d.avx * (1 - p.friction), d.avy * (1 - p.friction), d.avz * (1 - p.friction)
 
+      -- metrics: scalar acceleration of the real drone since the last tick
+      metrics.droneTicks = metrics.droneTicks + 1
+      if d.lastVx then
+        local ax_, ay_, az_ = d.vx - d.lastVx, d.vy - d.lastVy, d.vz - d.lastVz
+        metrics.accSum = metrics.accSum + math.sqrt(ax_ * ax_ + ay_ * ay_ + az_ * az_) * p.apHz
+        metrics.accN = metrics.accN + 1
+      end
+      d.lastVx, d.lastVy, d.lastVz = d.vx, d.vy, d.vz
+
+      local side = {}               -- which side of D each in-range neighbour is on
       for _, o in ipairs(seen) do
         if o ~= d then
           local dx, dy, dz = o.ax - d.ax, o.ay - d.ay, o.az - d.az
@@ -442,10 +490,18 @@ local function apTick(p)
           local view, modifiedR = neighborViewAndR(d.id, o.id, r, p, divisor, sameView, diffView)
           if modifiedR < view * p.sep then
             local f = cfg.force(modifiedR, p, d.apMass, o.apMass)   -- > 0 repels
+            f = C13.damp(f, modifiedR, p.sep, p.etaPower)           -- Eq. 13.10 (etaPower 0: unchanged)
             fx, fy, fz = fx - f * dx / r, fy - f * dy / r, fz - f * dz / r
+            local s_ = (modifiedR > p.sep) and 1 or -1
+            local was = d.arSide and d.arSide[o.id]
+            if was and was ~= s_ and (o.state ~= "ap" or d.id < o.id) then
+              metrics.crossings = metrics.crossings + 1
+            end
+            side[o.id] = s_
           end
         end
       end
+      d.arSide = side
 
       for _, obs in ipairs(obstacles) do
         -- distance to the column's axis (horizontal only), in AP units
@@ -474,9 +530,17 @@ local function apTick(p)
       end
 
       if not is3D then fy = 0 end
-      d.avx = d.avx + p.timeStep * fx / d.apMass
-      d.avy = d.avy + p.timeStep * fy / d.apMass
-      d.avz = d.avz + p.timeStep * fz / d.apMass
+      if C13.stopped(fx, fy, fz, p.stopForce) then
+        -- the stop rule (Sec. 13.2.2): too little force to act on; stay put
+        d.avx, d.avy, d.avz = 0, 0, 0
+        d.stopped = true
+        stopsThisTick = stopsThisTick + 1
+      else
+        d.stopped = false
+        d.avx = d.avx + p.timeStep * fx / d.apMass
+        d.avy = d.avy + p.timeStep * fy / d.apMass
+        d.avz = d.avz + p.timeStep * fz / d.apMass
+      end
 
       -- the waypoint: sensed position + this tick's AP displacement
       local wx, wy, wz = toWorld(d.ax + p.timeStep * d.avx, d.ay + p.timeStep * d.avy, d.az + p.timeStep * d.avz)
@@ -490,12 +554,16 @@ local function apTick(p)
       -- tracking error: how far the drone was from where it was told to be
       if d.lastSpx then
         local ex, ey, ez = d.px - d.lastSpx, d.py - d.lastSpy, d.pz - d.lastSpz
-        stats.trackSum = stats.trackSum + math.sqrt(ex * ex + ey * ey + ez * ez)
+        local e = math.sqrt(ex * ex + ey * ey + ez * ez)
+        stats.trackSum = stats.trackSum + e
         stats.trackN = stats.trackN + 1
+        metrics.gapSum, metrics.gapN = metrics.gapSum + e, metrics.gapN + 1
       end
       d.lastSpx, d.lastSpy, d.lastSpz = wx, wy, wz
     end
   end
+  metrics.stops = metrics.stops + stopsThisTick
+  metrics.lastStops = stopsThisTick
 
   -- with the obstacle field, the goal travels: from the field's near edge
   -- along -x at goalSpeed, until it stops in the clear beyond it
@@ -699,6 +767,7 @@ function setup(n)
   apEngaged = false
   pendingLaunch, allUpAt = {}, nil
   stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
+  metrics = newMetrics()
 
   -- A compact random cluster on the ground, as in the originals: they
   -- scatter the particles over a square 2 x sep wide (6 m here), much
@@ -1302,6 +1371,12 @@ function updateStatus(statsLine)
   if p.windSpeed > 0 or p.gust > 0 then
     parts[#parts + 1] = string.format("wind %4.1f m/s gust %4.2f", p.windSpeed, p.gust)
   end
+  -- Ch. 13 switches, only while on: eta's power; the stop threshold and how
+  -- many drones it held at the last AP tick
+  if p.etaPower > 0 then parts[#parts + 1] = string.format("eta p=%.1f", p.etaPower) end
+  if p.stopForce > 0 then
+    parts[#parts + 1] = string.format("stop |F|<%.3f: %2d stopped", p.stopForce, metrics.lastStops)
+  end
   if p.downwash <= 0 then parts[#parts + 1] = "no downwash" end
   if not v:getParam("propStrikes") then parts[#parts + 1] = "prop strikes off" end
   if Sound.available and v:getParam("soundVolume") <= 0 then parts[#parts + 1] = "sound off" end
@@ -1336,7 +1411,10 @@ updateCamera()
 updateStatus()
 
 -- for scripted (command-line) runs
-M.state = function() return { drones = drones, simTime = simTime, apEngaged = apEngaged, obstacles = obstacles } end
+M.state = function()
+  return { drones = drones, simTime = simTime, apEngaged = apEngaged, apEngagedAt = apEngagedAt,
+           obstacles = obstacles, metrics = metrics, is3D = is3D, isSquare = isSquareFormation }
+end
 M.formationStats = function() return formationStats(readParams()) end
 
 end -- M.run

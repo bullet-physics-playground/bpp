@@ -15,7 +15,11 @@
 -- MyPanel.java's makeDefault()), re-applied on every 2/3 or F.
 --
 -- Because |F| flips sign at rad instead of vanishing, this swarm never
--- comes to rest -- with drones you can watch them keep jostling.
+-- comes to rest -- with drones you can watch them keep jostling. Ch. 13's
+-- AR damping (slider etaPower, 1 = the recommended power; 0 = off, the
+-- default) makes it settle like Lennard-Jones; in 2D also set range 1.25,
+-- or the lattice settles at about 0.8 rad (quadcopter/README.md, "Ch. 13 on
+-- the drones"; FINDINGS.md F44-F47). stopForce adds the book's stop rule.
 --
 -- Run it from this folder (it loads quadcopter/*.lua and meshes by
 -- relative path), in the GUI or headless:

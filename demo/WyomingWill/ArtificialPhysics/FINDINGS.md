@@ -79,6 +79,32 @@ At equal visits (5×10⁷), MFP 30 / 50 give 0.0035 / 0.0158 with one agent
 and 0.00087 / 0.0035 with 100. Crowding adds turns, shortening the effective
 free path. Agents are near-independent only when they rarely meet.
 
+**F43. Ch. 13.2: the split-Newtonian point mass dithers across D** — 2026-10-18,
+Confirmed (E2, PDF 447–449). `checks/ch13.lua`, `probes/settle_drones.lua`.
+The book says the sign flip at D lets a point mass dither across it with
+almost no net motion. The 2D particle replica of the drone law (G 1500,
+power 2.2, forceMax 1.5, D 50, friction 0.6, 40 particles) does exactly that:
+after 1,500 ticks the bonds are at 0.99 D but every particle still moves
+0.55 units per tick. Flown by 50 drones the dither becomes real motion that
+never stops: 0.27 m/s (2D) and 0.47 m/s (3D) after 170 s, 190 and 324
+AR-boundary crossings per drone per minute, and a suggested-position gap
+of 6 and 11 cm (3 seeds each). Lennard-Jones on the same drones settles in
+20 s (2D) and at the last launch wave (3D).
+
+**F44. Ch. 13.5: AR damping η settles the Newtonian drones like LJ** —
+2026-10-18, Confirmed on drones (the book's Pioneers settle, PDF 454).
+`quadcopter/README.md` ("Ch. 13 on the drones"). With η (Eq. 13.9, power 1)
+and nothing else, the same 50 drones settle (scalar acceleration below
+0.1 m/s² from then on) 6 s after AP engages in 2D and 29 s in 3D, when the
+last launch wave joins (LJ: 20 s and 31–33 s); AR crossings fall to 0–1 per
+drone per minute, speed to 0.001–0.003 m/s, the gap to 0.03–0.09 mm, with no crashes
+(baseline 2 per 2D run). This answers `BOOK.md` §1 item 1's expectation:
+yes, η alone does it, because the law is then smooth through zero at D.
+The square and cube formations settle too: 6 s (2D square, LJ 23–25 s) and
+27 s (cube, LJ 33 s), against 0.33 and 0.63 m/s of endless jitter without
+η; LJ's cube is the more regular (bond CV 0.007–0.03 against η's
+0.07–0.09). The lattice η settles into is the subject of F45.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -132,6 +158,48 @@ is a different field (F37).
 **F42. spring3D stays in one plane** — 2026-10-18, New. `ch02/Spring3D.lua`:
 from random 3D starts, L keeps its direction to 2×10⁻¹² degrees.
 
+**F45. η shrinks the lattice when the range reaches second neighbours** —
+2026-10-18, New. `checks/ch13.lua`, `quadcopter/README.md`.
+In 2D at the default range 1.5 D, η settles the drones at 0.83 D (power 1)
+and 0.805 D (power 2.2) instead of D, on all 3 seeds; the particle replica
+gives 0.82–0.85 and 0.79–0.81, so this is the law, not the drones. η damps
+the nearest neighbours' repulsion near D far more than the attraction of
+the second neighbours, which come inside the range (at √3 a) once the
+lattice spacing a falls below 0.866 D. Balancing the two in an infinite
+triangular lattice gives a / D = (1 + c) / (1 + √3 c), with
+c = 3^((1 − P) / (2 p_η)) for law power P: 0.800 (p_η = 1) and 0.762
+(p_η = 2.2); a finite swarm's edge, with fewer second neighbours, sits a
+little wider, as measured. Keeping the second neighbours out restores the
+spacing: range 1.25 D gives 0.986 D on the drones (1.001 D as particles),
+with the best lattice of any run (Delaunay CV 0.069 against LJ's 0.092 and
+the baseline's 0.11). The 3D triangle's default range is already 1.25 D,
+and it settles at 1.01 D.
+
+**F46. The stop rule needs η** — 2026-10-18, New. With the sign flip, the
+summed force is almost never small: a stop threshold of 0.01 or 0.03 (AP
+units; in 2D the force just either side of D is ±0.27 per neighbour) held 0.04–0.3% of drone-ticks
+in 2D and none in 3D, and the swarms jittered on as before. With η it holds
+every drone once settled (residual speed 10⁻⁴ m/s in 2D, 10⁻⁹ m/s in 3D),
+with the same settling time and lattice as η alone, so it does not freeze
+the swarm before it has formed.
+
+**F47. η softens the lattice: smooth flight, but it gives under load** —
+2026-10-18, New. With η (power 1) the force's slope at D is F(D)/D: 0.0055
+per AP unit in 2D and 0.0085 in 3D, against LJ's c·p/D² = 0.024, so the
+lattice is a quarter to a third as stiff (the plain law has no slope at D,
+only a step). Under the same load η therefore needs about four times LJ's
+strain. Crossing
+the default obstacle field after the moving goal (640 s, 2 seeds), η's
+drones fly smoothly (acceleration below 0.1 m/s² throughout, mean speed
+0.10 m/s against the jittering baseline's 0.20 / 0.40 m/s), lose none, and
+travel slightly farther than the baseline but less far than LJ (swarm
+centre at 632 s: −46 m against −43 and −50 in 2D; −47 against −41 and −51
+in 3D). Under the goal's constant pull their bonds shrink to 0.85–0.92 D in
+2D and 0.94–0.95 D in 3D, where LJ's stay at 0.97–1.0. η at the law's own
+power (2.2 in 2D) settles no better than power 1 and leaves the lattice
+smaller (0.87 D at range 1.25, still creeping outward after 170 s), so
+power 1 is the better default.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -180,6 +248,16 @@ A text file of nx lines of ny characters, `' '` open, `'b'` blocked. His
 PlumeGen, rebuilt from source, loads a map written by our generator and
 reports the same coverage (3.6%). Its reader as shipped wants a square of at
 most 1024; ours writes any size.
+
+**F48. `formation_newton.nlogo`, the book and the BPP port use different
+defaults** — 2026-10-18, Divergence. The law is the same in all three
+(`netlogo/README.md`). The model's sliders are G 310, power 2, Force_Maximum
+1, Desired_Separation 30, Friction 0.15, Time_Step 1, 50 particles; the
+book's text gives G 400 for the same model (`book/ch03.md`); both are above
+the clustering threshold G_t = 259.8, so the model clusters by design. The
+BPP ports take their 2D defaults from the Android app's `MyPanel.java`: G
+1500, power 2.2, forceMax 1.5, D 50, friction 0.6, which is below its G_t
+(2368). Ch. 13's damping is in none of them.
 
 ## 5. Our own errors, corrected
 
@@ -278,5 +356,7 @@ the useful range. Same root as F31.
 - F18: the limits at MFP ≤ 17, which need about 10⁹ visits to resolve.
 - The 3D threshold G_t for the cube formation (`BOOK.md` §1 item 9), to
   measure with a G sweep.
-- Whether AR damping η alone makes the Newtonian drones settle like
-  Lennard-Jones (`BOOK.md` §1 item 1), for M1.
+- How to keep η's spacing at D in 2D at range 1.5 D (F45): a shorter range
+  works; scaling D by 1/0.8, or damping only the repulsive side, are
+  untested. And whether the next Ch. 13 mechanisms (adaptive and static
+  friction) settle the drones without η's loss of stiffness (F47).
