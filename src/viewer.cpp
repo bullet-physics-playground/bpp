@@ -57,6 +57,8 @@
 
 #include "objects/cam.h"
 
+#include "dembed.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -2829,6 +2831,7 @@ emit scriptStarts();
     Sphere::luaBind(L);
     Terrain::luaBind(L);
     Triangle::luaBind(L);
+    DemBed::luaBind(L);
     Viewer::luaBind(L);
 
     luabind::bind_class_info(L);
