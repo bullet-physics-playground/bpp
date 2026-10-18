@@ -33,7 +33,7 @@ double DemBed::get(const std::string &key) {
 void DemBed::init() {
   finish();
   core->init();
-  shown.assign(core->count(), nullptr);
+  shown.clear();
   for (int wall = 0; wall < 3; wall++)
     glued[wall].assign(core->gluedCount(wall), nullptr);
 }
@@ -76,11 +76,12 @@ int DemBed::gluedCount(int wall) { finish(); return wall >= 0 && wall < 3 ? core
 double DemBed::gluedX(int wall, int k) { return k >= 0 && k < gluedCount(wall) ? core->gluedX(wall, k) : 0; }
 double DemBed::gluedY(int wall, int k) { return k >= 0 && k < gluedCount(wall) ? core->gluedY(wall, k) : 0; }
 double DemBed::cpu() { finish(); return cpuSeconds; }
+double DemBed::angle(int i) { finish(); return i >= 0 && i < core->count() ? core->angle(i) : 0; }
 
 void DemBed::attach(int i, Object *o) {
   finish();
-  if (i >= 0 && i < (int)shown.size())
-    shown[i] = o;
+  if (i >= 0 && i < core->count() && o != nullptr)
+    shown.push_back(Shown{ i, o, o->getTransform().getRotation() });
 }
 
 void DemBed::attachGlued(int wall, int k, Object *o) {
@@ -89,13 +90,16 @@ void DemBed::attachGlued(int wall, int k, Object *o) {
     glued[wall][k] = o;
 }
 
-// (a display-only object put where it's drawn: its body and motion state)
-static void place(Object *o, double x, double y, double z) {
+// (a display-only object put where it's drawn, turned by a about the box's
+// normal from its own orientation q0: its body and motion state)
+static void place(Object *o, double x, double y, double z, double a = 0,
+                  const btQuaternion &q0 = btQuaternion::getIdentity()) {
   if (o == nullptr || o->body == nullptr)
     return;
   btTransform tr;
   tr.setIdentity();
   tr.setOrigin(btVector3(x, y, z));
+  tr.setRotation(btQuaternion(btVector3(0, 0, 1), a) * q0);
   o->body->setWorldTransform(tr);
   if (o->body->getMotionState() != nullptr)
     o->body->getMotionState()->setWorldTransform(tr);
@@ -103,8 +107,8 @@ static void place(Object *o, double x, double y, double z) {
 
 void DemBed::sync(double ox, double oy, double oz) {
   finish();
-  for (int i = 0; i < (int)shown.size(); i++)
-    place(shown[i], ox + core->posX(i), oy + core->posY(i), oz);
+  for (const auto &s : shown)
+    place(s.o, ox + core->posX(s.i), oy + core->posY(s.i), oz, core->angle(s.i), s.q0);
   double by = core->boxHeight();
   for (int wall = 0; wall < 3; wall++)
     for (int k = 0; k < (int)glued[wall].size(); k++)
@@ -142,6 +146,7 @@ void DemBed::luaBind(lua_State *s) {
                 .def("gluedX", &DemBed::gluedX)
                 .def("gluedY", &DemBed::gluedY)
                 .def("cpu", &DemBed::cpu)
+                .def("angle", &DemBed::angle)
                 .def("attach", &DemBed::attach)
                 .def("attachGlued", &DemBed::attachGlued)
                 .def("sync", &DemBed::sync)

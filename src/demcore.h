@@ -54,6 +54,9 @@ public:
   double posY(int i) const { return x[i][1]; }
   double radius(int i) const { return rad[i]; }
   double spin(int i) const { return w[i][2]; }
+  /** @brief The special bead's turn about the box's normal since it was
+   * poured, from its spin (radians; for drawing it; 0 for the others). */
+  double angle(int i) const { return i == N - 1 ? spinAngle : 0; }
   double boxHeight() const { return boxy; }
   int gluedCount(int wall) const { return nG[wall]; }
   /** @brief A glued sphere's centre, in the box's frame (x across, y up from
@@ -77,6 +80,7 @@ public:
   int FORCE3D = 0;
   // ---- added for the exhibit ----
   double H_IN = 24.0;                       // the walls' height (glued spheres up to H + 2)
+  double LID = 0;                           // a lid, LID cm above the floor (bead-bed.c's; 0: none)
   double GAMMA0 = -1, TG = 0, TR = 0;       // gentle opening (GAMMA0 < 0: none)
   int WATCH1 = 4, WATCH2 = 32;              // the push window, in shakes
   int GW1 = -1, GW2 = -1;                   // the gentle push window, in shakes
@@ -84,6 +88,8 @@ public:
   double RISE1 = 10, RISE2 = 12;            // heights (cm, the special bead's centre above the floor)
   double RISEW = 0;                         // ... reached by its mean over the last RISEW s (0: by itself)
   double LATE0 = -1, LATE1 = 1e30;          // the late window (LATE0 < 0: TEND - 20)
+  double LATEB0 = -1, LATEB1 = -1;          // a second, later window (LATEB0 < 0: none)
+  double TOPCHK = 1e30;                     // a height: how often any bead's top is above it
 
 private:
   typedef struct { int j; double s[3]; } Hist;
@@ -139,6 +145,7 @@ private:
   double smallR(int i);
   void pour(int which);
   void testDrop(void);
+  void testLid(void);
   void testIncline(void);
   void testGlued(void);
 
@@ -167,6 +174,12 @@ private:
   double riseBuf[600], riseSum = 0;         // (the special bead's height, the last RISEW s of frames)
   int riseN = 0, riseK = 0;
   int lateDone = 0;
+  long lateBN = 0, lateBUp = 0;
+  double lateBHsum = 0, lateBHmin = 1e30;
+  int lateBDone = 0;
+  double topMax = -1e30, topMaxT = -1;      // the highest any bead's top has been above the floor, and when
+  long topFrames = 0, topAbove = 0;         // frames since the shaking began; those with a bead's top above TOPCHK
+  double spinAngle = 0;                     // the special bead's turn (drawing only)
   double trMin = 1e30, trMinT = -1, trMinX = 0;   // the tracer's lowest (centre above the floor), when, and where
   double top = 0, special = 0;              // the bed's top and the special bead's centre, above the floor, at the last frame
 };

@@ -14,6 +14,8 @@
  * objects that sync() moves.
  */
 
+#include <btBulletDynamicsCommon.h>
+
 #include <string>
 #include <thread>
 #include <vector>
@@ -52,8 +54,13 @@ public:
   /** @brief The thread CPU time spent stepping, in seconds. */
   double cpu();
 
-  /** @brief Bead i is drawn by o (display-only: mass 0, collides false). */
+  /** @brief Bead i is drawn by o (display-only: mass 0, collides false);
+   * a bead may have several (a marking on it, say). Each keeps the
+   * orientation it has when attached, turned with the bead (the special
+   * bead's turn: see DemCore::angle). */
   void attach(int i, Object *o);
+  /** @brief The special bead's turn about the box's normal, in radians. */
+  double angle(int i);
   /** @brief Glued sphere k of a wall (0 left, 1 right, 2 floor) is drawn by o. */
   void attachGlued(int wall, int k, Object *o);
   /** @brief Moves the attached objects to their beads and glued spheres,
@@ -71,7 +78,9 @@ private:
   void run(double t);
   DemCore *core;
   std::thread worker;
-  std::vector<Object *> shown, glued[3];
+  struct Shown { int i; Object *o; btQuaternion q0; };
+  std::vector<Shown> shown;
+  std::vector<Object *> glued[3];
   double cpuSeconds;
 };
 

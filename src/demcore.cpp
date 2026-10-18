@@ -35,6 +35,7 @@
 #define RWALL (-3)
 #define FRONT (-4)
 #define BACK (-5)
+#define LIDW (-6)
 #define CS 1.1
 #define NCXMAX DEM_NCXMAX
 #define NCY DEM_NCY
@@ -396,6 +397,10 @@ void DemCore::forces(void)
     d = r - (W_IN / 2 - x[i][0]);
     if (d > 0) { double n[3] = { -1, 0, 0 }; contact(i, RWALL, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUW, zetaBW); }
     if (ROUGH) gluedForces(i, vb);
+    if (LID > 0) {
+      d = r - (boxy + LID - x[i][1]);
+      if (d > 0) { double n[3] = { 0, -1, 0 }; contact(i, LIDW, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUW, zetaBW); }
+    }
     if (PLATES) {
       d = r - (x[i][2] + GAP / 2);
       if (d > 0) { double n[3] = { 0, 0, 1 }; contact(i, BACK, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUP, zetaBW); }
@@ -547,6 +552,34 @@ void DemCore::testDrop(void)
   }
 }
 
+void DemCore::testLid(void)
+{
+  /* a bead rising into the lid (LID cm up), no gravity: the restitution it
+   * gives back, and the contact time, by closing speed (as TEST=drop) */
+  double speeds[] = { 1, 5, 20, 67, 200 };
+  if (LID <= 0) LID = 30;
+  out("# TEST=lid MODEL=%d LID %.1f EW=%g (nominal) NS=%d: measured e by closing speed\n", MODEL, LID, EW, NS);
+  for (int s = 0; s < 5; s++) {
+    double vin = speeds[s];
+    BIG = 0; LOCKZ = 1; AMP = 0; boxy = 0; boxv = 0; N = 1;
+    rad[0] = R_S; mass[0] = meanSmallMass(); inert[0] = 0.4 * mass[0] * R_S * R_S;
+    for (int k = 0; k < 3; k++) x[0][k] = v[0][k] = w[0][k] = a_old[0][k] = al_old[0][k] = 0;
+    memset(nh, 0, sizeof nh);
+    gvec[1] = 0;
+    x[0][1] = LID - R_S - 1e-6; v[0][1] = vin;
+    double tcol = 0, vout = 0;
+    int touching = 0, done = 0;
+    for (long it = 0; it < 100000000 && !done; it++) {
+      step();
+      int now = x[0][1] > LID - R_S;
+      if (now) { touching = 1; tcol += DT; }
+      if (touching && !now) { done = 1; vout = -v[0][1]; }
+    }
+    out("  closing %6.1f cm/s: e = %.4f, contact %.3g s (%.1f steps)\n", vin, vout / vin, tcol, tcol / DT);
+    gvec[1] = -G;
+  }
+}
+
 void DemCore::testIncline(void)
 {
   /* a bead on a floor tilted TH degrees (MUF its friction): free to roll,
@@ -688,8 +721,8 @@ bool DemCore::set(const std::string &key, double d) {
   D("ETH", ETH) D("ELOW", ELOW) I("ROUGH", ROUGH) I("ROUGHF", ROUGHF)
   I("TW", TW) I("N", NSM) I("FORCE3D", FORCE3D) I("SEED", SEED) I("MODEL", MODEL) I("NS", NS) I("PLATES", PLATES)
   I("BOX", BOX)
-  D("H", H_IN) D("GAMMA0", GAMMA0) D("TG", TG) D("TR", TR) I("WATCH1", WATCH1) I("WATCH2", WATCH2)
-  I("GW1", GW1) I("GW2", GW2) I("TRACER", TRACER) D("RISE1", RISE1) D("RISE2", RISE2) D("RISEW", RISEW) D("LATE0", LATE0) D("LATE1", LATE1)
+  D("H", H_IN) D("LID", LID) D("GAMMA0", GAMMA0) D("TG", TG) D("TR", TR) I("WATCH1", WATCH1) I("WATCH2", WATCH2)
+  I("GW1", GW1) I("GW2", GW2) I("TRACER", TRACER) D("RISE1", RISE1) D("RISE2", RISE2) D("RISEW", RISEW) D("LATE0", LATE0) D("LATE1", LATE1) D("LATEB0", LATEB0) D("LATEB1", LATEB1) D("TOPCHK", TOPCHK)
   else return false;
 #undef D
 #undef I
@@ -700,7 +733,7 @@ double DemCore::get(const std::string &key) const {
   const char *k = key.c_str();
 #define R(name, val) if (!strcmp(k, name)) return (val);
   // parameters, as the run has them
-  R("KN", KN) R("GAMMA", GAMMA) R("F", FHZ) R("AMP", AMP) R("DT", DT) R("TC", TC) R("NSUB", nsub) R("N", N) R("W", W_IN) R("H", H_IN)
+  R("KN", KN) R("GAMMA", GAMMA) R("F", FHZ) R("AMP", AMP) R("DT", DT) R("TC", TC) R("NSUB", nsub) R("N", N) R("W", W_IN) R("H", H_IN) R("LID", LID)
   R("RG", RG) R("ROUGH", ROUGH) R("REACH", ROUGH ? RG * (2 - 2 * GEMB) + GJIT * RG / 2 : 0) R("MASS", Mtot) R("TRACER", TRACER < 0 && !BIG ? N - 1 : TRACER)
   // the settled bed, just before the shaking starts
   R("settled", settleDone) R("settleKe", settleKe) R("settleOvMax", settleOvMax) R("settleOvMean", settleOvMean)
@@ -715,6 +748,9 @@ double DemCore::get(const std::string &key) const {
   R("late", lateDone) R("up20", lateN ? (double)lateUp / lateN : -1) R("top20", lateN ? (double)lateTop / lateN : -1)
   R("h20", lateN ? lateH / lateN : -1) R("hc20", lateN ? lateHC / lateN : -1)
   R("lateMean", lateN ? lateHsum / lateN : -1) R("lateMin", lateN ? lateHmin : -1)
+  R("lateB", lateBDone) R("lateBMean", lateBN ? lateBHsum / lateBN : -1) R("lateBMin", lateBN ? lateBHmin : -1)
+  R("lateBUp", lateBN ? (double)lateBUp / lateBN : -1)
+  R("topMax", topMax) R("topMaxT", topMaxT) R("topAbove", topFrames ? (double)topAbove / topFrames : 0)
   // the tracer
   R("tracerMin", trMin) R("tracerMinT", trMinT) R("tracerMinX", trMinX)
   R("trips", trips) R("upx", upNN ? upX / upNN : -1) R("downx", downNN ? downX / downNN : -1)
@@ -787,6 +823,7 @@ std::string DemCore::test(const std::string &name) {
   out("# damping: zeta(bead) %.5f zeta(wall) %.5f, k %.4g, DT %.3g\n", zetaBB, zetaBW, KN, DT);
   if (!strcmp(TEST, "incline")) testIncline();
   else if (!strcmp(TEST, "gdrop") || !strcmp(TEST, "ghollow")) testGlued();
+  else if (!strcmp(TEST, "lid")) testLid();
   else testDrop();
   return outBuf;
 }
@@ -823,6 +860,8 @@ void DemCore::substep() {
   nContacts = 0; sumOverlap = 0; maxOverlap = 0;
   step();
   stepNo++;
+  // (the special bead's turn, for drawing it: its spin, integrated)
+  spinAngle += w[N - 1][2] * DT;
   if (tt > 0) { ovSum += nContacts ? sumOverlap / nContacts : 0; ovN++; if (maxOverlap > ovMax) ovMax = maxOverlap; }
   else if (tt > -0.1) { if (maxOverlap > setMax) setMax = maxOverlap; setSum += nContacts ? sumOverlap / nContacts : 0; setN++; }
   if (tt < 0 && tt + DT >= 0) {
@@ -914,6 +953,21 @@ void DemCore::afterFrame() {
     if (ysp - by < lateHmin) lateHmin = ysp - by;
   }
   if (tf > LATE1) lateDone = 1;
+  if (LATEB0 >= 0 && tf > LATEB0 && tf <= LATEB1) {
+    lateBN++;
+    if (ysp - by > (topY - by) / 2) lateBUp++;
+    lateBHsum += ysp - by;
+    if (ysp - by < lateBHmin) lateBHmin = ysp - by;
+  }
+  if (LATEB0 >= 0 && tf > LATEB1) lateBDone = 1;
+  // the highest any bead's top has been above the floor (from the shaking's start)
+  if (tf > 0) {
+    double hi = -1e30;
+    for (int i = 0; i < N; i++) if (x[i][1] + rad[i] - by > hi) hi = x[i][1] + rad[i] - by;
+    if (hi > topMax) { topMax = hi; topMaxT = tf; }
+    topFrames++;
+    if (hi > TOPCHK) topAbove++;
+  }
   int tr = TRACER >= 0 ? TRACER : (!BIG ? N - 1 : -1);
   // the tracer's lowest point, from the shaking's start to CONVEND
   if (tr >= 0 && tf > 0 && tf <= CONVEND && x[tr][1] - by < trMin) { trMin = x[tr][1] - by; trMinT = tf; trMinX = x[tr][0]; }
