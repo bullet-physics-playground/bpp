@@ -58,7 +58,7 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–38 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–39 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
   implementations, and our own mistakes once corrected (F1–F48 so far), and
@@ -76,7 +76,7 @@ is updated at the end of every milestone.
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–38 |
+| `FIXES.md` | Fixes 1–39 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |

@@ -121,6 +121,19 @@
 --   stops      drone-ticks held by the stop rule
 --
 
+-- This file is the harness, not a scene. Opened on its own in BPP (no
+-- module name in `...`), it would fail on its first require -- lib/ is
+-- one folder up -- and would draw nothing even if it loaded, since it only
+-- defines M.run. Say which file to open instead.
+if select("#", ...) == 0 then
+  local msg = "quadcopter/swarm.lua is the shared harness, not a scene: open "
+           .. "Formations-Newtonian-Quadcopter.lua or Formations-Lennard-Jones-Quadcopter.lua "
+           .. "in the ArtificialPhysics folder"
+  print(msg)
+  if rawget(_G, "v") then pcall(function() v.statusText = msg end) end
+  return
+end
+
 local common = require "common"
 local rng    = require "lib.rng" -- shared seedable generator (BOOK.md G2); math.random is glibc rand()
 local Quad   = require "quadcopter.flight"

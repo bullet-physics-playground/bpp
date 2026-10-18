@@ -530,3 +530,12 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     edgeSpread, updated every frame via `lib/status.lua`, which the Ch. 2
     scenes now share. The console line is unchanged (`lib/batch.py` reads
     it); the same seed gives the same numbers as before.
+
+39. **Opening `quadcopter/swarm.lua` on its own failed with "module
+    'lib.rng' not found"** (found by William, 2026-10-18). It is the shared
+    harness behind the two `Formations-*-Quadcopter.lua` scenes, not a
+    scene: BPP runs a script in its own folder (FINDINGS F32), `lib/` is one
+    level up, and even loaded the file only defines `Swarm.run`, so it
+    would draw nothing. It now checks whether it was `require`d (a module
+    name in `...`); opened directly, it prints which scene to open, puts
+    the same on the status line, and stops. Both scenes run as before.
