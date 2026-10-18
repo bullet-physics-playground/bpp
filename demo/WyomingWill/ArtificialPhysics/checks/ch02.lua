@@ -142,6 +142,56 @@ do
         string.format("max separation by seed: %s", table.concat(detail, ", ")))
 end
 
+-- spring3D (ours): spring2D with a third axis. Two bodies on a spring move
+-- in the fixed plane perpendicular to L, so L must keep its direction too.
+-- DEFINITIONS: tilt = largest angle between L and its starting direction;
+-- offPlane = largest distance of the light mass from the plane through the
+-- centre of mass perpendicular to the starting L.
+print("-- spring3D (ours: AM 200, AMz 0 and 120, mass ratio 10, k 10, D 50, dt 0.001)")
+do
+  local worst = { p = 0, l = 0, tilt = 0, off = 0, drift = 0 }
+  local means = {}
+  for seed = 1, 5 do
+    for _, amz in ipairs({ 0, 120 }) do
+      local m = ch.spring3D({ seed = seed, angularMotionZ = amz })
+      local f = ch.measure(m)
+      local n = math.floor(20 / m.dt + 0.5)
+      local sepSum, ns, eHead, eTail = 0, 0, 0, 0
+      for i = 1, n do
+        ch.step(m)
+        if i % 10 == 0 then
+          local r = ch.measure(m)
+          worst.p = max(worst.p, r.p)
+          worst.l = max(worst.l, rel(r.l, f.l))
+          local cx = r.ly * f.lz - r.lz * f.ly                -- L x L0 and L . L0
+          local cy = r.lz * f.lx - r.lx * f.lz
+          local cz = r.lx * f.ly - r.ly * f.lx
+          local dot = r.lx * f.lx + r.ly * f.ly + r.lz * f.lz
+          worst.tilt = max(worst.tilt, math.deg(atan2(math.sqrt(cx * cx + cy * cy + cz * cz), dot)))
+          local q = m.ps[1]
+          local off = abs(((q.x - r.cx) * f.lx + (q.y - r.cy) * f.ly + ((q.z or 0) - r.cz) * f.lz) / f.l)
+          worst.off = max(worst.off, off)
+          sepSum, ns = sepSum + r.sep, ns + 1
+          if i <= n / 10 then eHead = eHead + r.e end
+          if i > n - n / 10 then eTail = eTail + r.e end
+        end
+      end
+      worst.drift = max(worst.drift, abs(eTail - eHead) / (n / 100) / abs(f.e))
+      means[#means + 1] = string.format("%.0f", sepSum / ns)
+    end
+  end
+  check("spring3D: linear momentum stays 0", worst.p < 1e-9, string.format("max |P| %.1g", worst.p))
+  check("spring3D: |L| constant and L keeps its direction", worst.l < 1e-10 and worst.tilt < 1e-6,
+        string.format("|L| spread %.1g, tilt %.1g degrees", worst.l, worst.tilt))
+  check("spring3D: the motion stays in one plane", worst.off < 1e-8,
+        string.format("light mass at most %.1g from the plane", worst.off))
+  check("spring3D: energy does not drift", worst.drift < 1e-3,
+        string.format("largest drift %.1g of E", worst.drift))
+  check("spring3D: mean separation greater than D", (function()
+    for _, x in ipairs(means) do if tonumber(x) <= 50 then return false end end
+    return true end)(), "means by run: " .. table.concat(means, ", "))
+end
+
 -------------------------------------------------------------------- 2.3
 print("-- 2.3 solar_system (sun 100 at the origin, planet at 15, G 20)")
 do

@@ -9,6 +9,7 @@ every later port stands on.
 | File | What |
 | --- | --- |
 | `models.lua` | The three models as plain Lua, with the book's slider defaults |
+| `Spring3D.lua` | Ours, not in the book: spring2D with a third axis, seen at an angle. Each particle starts in a random direction on the sphere; Angular_Motion_Z adds z velocity. The status line shows \|L\| and the tilt of L from its start instead of L |
 | `Spring1D.lua`, `Spring2D.lua`, `SolarSystem.lua` | BPP scenes with the NetLogo sliders (same names; the solar system's caps get tick boxes instead of the book's huge "off" values), seen from above; the status line shows t, separation, \|P\|, L, KE, PE and E. They run as soon as they load; R resets, S stops and restarts |
 | `scene.lua` | Their shared drawing and running |
 | `../checks/ch02.lua` | The book's results as 27 numeric checks, about 2 s |
@@ -56,6 +57,15 @@ All 27 checks pass (`lua5.1 checks/ch02.lua`).
   are right** (`book/ch02.md` had flagged them as odd): we get 5.50, 4.97,
   4.00, 9.00. For AM 4 and 9 the start is the closest point, so the peak is
   the starting speed; AM 0 falls straight through, and AM 1 nearly does.
+
+## spring3D (ours)
+
+Two bodies on a spring always move in the plane through their centre of mass
+perpendicular to L, so in 3D the spinning spring picks a tilted plane at
+random and stays in it. `checks/ch02.lua`, 5 seeds × Angular_Motion_Z 0 and
+120, 20 time units each: |P| ≤ 4×10⁻¹², |L| constant to 4×10⁻¹⁴, L's
+direction to 2×10⁻¹² degrees, the light mass within 3×10⁻¹² of the plane,
+energy drift ≤ 0.04%, mean separation 77–88 (above D = 50, as in 2D).
 
 ## Where the book is silent: the .nlogo models decide
 

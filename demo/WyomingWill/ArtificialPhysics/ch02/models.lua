@@ -24,6 +24,11 @@
 --     origin; then vx = Angular_Motion for particle 0, -AM/Mass_Ratio for 1.
 --     random(n) is NetLogo's integer 0..n-1. (If both land on the same
 --     point the force is undefined, as in NetLogo; about 1 seed in 18,000.)
+--   * spring3D (ours, not in the book): spring2D with a third axis. Each
+--     particle takes a random direction, uniform on the sphere (the 3D
+--     version of a random heading), and moves 1 + random(D) from the
+--     origin; vx as in spring2D, plus vz = Angular_Motion_Z for particle 0
+--     and -AMz/Mass_Ratio for particle 1.
 --   * solar_system's velocity cap scales the velocity down to Vmax,
 --     keeping its direction (solar_system.nlogo line 99); speedCapPerAxis =
 --     true clips each component instead, as an experiment (FINDINGS F15).
@@ -95,6 +100,30 @@ local function gravity(G, fmax)
     return -gm / r
   end
   return law
+end
+
+-- spring3D (ours; spring2D's defaults). opts as spring2D, plus
+-- angularMotionZ (default 0).
+function M.spring3D(o)
+  o = o or {}
+  local D = o.D or 50
+  local s = o.seed and rng.new(o.seed) or rng.shared
+  local function place()          -- a direction uniform on the sphere, 1 + random D away
+    local cz = 2 * s:random() - 1
+    local a = 2 * math.pi * s:random()
+    local sz = math.sqrt(1 - cz * cz)
+    local d = 1 + s:random(0, math.ceil(D) - 1)
+    return d * sz * math.cos(a), d * sz * math.sin(a), d * cz
+  end
+  local mr, am, amz = o.massRatio or 10, o.angularMotion or 200, o.angularMotionZ or 0
+  local m = { kind = "spring3D", D = D, k = o.k or 10, dt = o.dt or 0.001 }
+  local x1, y1, z1 = place()
+  local x2, y2, z2 = place()
+  m.ps = { { x = x1, y = y1, z = z1, vx = am, vz = amz, m = 1 },
+           { x = x2, y = y2, z = z2, vx = -am / mr, vz = -amz / mr, m = mr } }
+  m.law = spring(m.k, D)
+  m.law.friction = o.friction or 0
+  return m
 end
 
 -- solar_system (Fig. 2.11 defaults). opts: angularMotion 15, sunMass 100,

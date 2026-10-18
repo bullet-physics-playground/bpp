@@ -129,6 +129,9 @@ the model's world (701 × 401, goal at (−175.25, 0); F40) the field's centre
 is at (−8, −11); the closest gap is 5.2 patches ("narrowly spaced"). Fig. 3.26
 is a different field (F37).
 
+**F42. spring3D stays in one plane** — 2026-10-18, New. `ch02/Spring3D.lua`:
+from random 3D starts, L keeps its direction to 2×10⁻¹² degrees.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -162,10 +165,9 @@ MFP, worse only at 100. NetLogo is not maintained; the Android/BPP rule stays.
 
 **F17. Uniform Coverage: the two known Android bugs barely matter** —
 2026-10-17, Divergence. `FIXES.md` 4–5.
-The one-sided neighbour cone (0–30° instead of NetLogo's ±15°) and the
-dropped ninth move were real departures from NetLogo, but together they move
-the deviation by about 3%. That is why BPP and Android agree closely (MFP 30
-with 100 agents: 0.00087 against Android's 0.00085).
+The one-sided neighbour cone (0–30° for ±15°) and the dropped ninth move
+were real, but move the deviation about 3%, so BPP and Android agree (MFP 30,
+100 agents: 0.00087 against 0.00085).
 
 **F18. Earlier NetLogo and Android numbers at small MFP came from longer
 runs** — 2026-10-17, Open.
@@ -182,10 +184,8 @@ most 1024; ours writes any size.
 ## 5. Our own errors, corrected
 
 **F20. "NetLogo's MFP 30 and 50 values come from short runs"** — 2026-10-17,
-Our error. Found by measurement (F16): with NetLogo's wall rule BPP
-reproduces NetLogo's values exactly, so they were converged and the
-difference is the walk itself. A short run can only raise the deviation
-(noise adds in quadrature), never lower it, as at MFP 100.
+Our error. With NetLogo's wall rule BPP reproduces NetLogo's values (F16),
+so they had converged; a short run can only raise the deviation.
 
 **F21. The seed slider would not move** — 2026-10-17, Our error. `FIXES.md`
 34. Found by William. BPP stores slider ranges as floats and turns them into
@@ -263,9 +263,8 @@ them well inside ±2³¹ steps; values above 2²⁴ are not exact (F21).
 `../?.lua` to reach `lib/`.
 
 **F34. BPP's Lua depends on the build:** 5.1 or 5.2 (`bpp.pro`), not the
-standalone `lua` on the path: William's BPP is 5.2, the cloud build 5.1. Ask
-it with `bpp -l 'print(_VERSION)' -n 1`. Every check passes on 5.1–5.4 and the
-shared generator's stream is identical on each.
+standalone `lua`: William's is 5.2, the cloud build 5.1 (`bpp -l
+'print(_VERSION)' -n 1`). The checks and the generator's stream agree on 5.1–5.4.
 
 **F35. BPP runs a scene as soon as it loads;** S stops and restarts it. GUI
 tests that "pressed S to start" were stopping runs (our error).
