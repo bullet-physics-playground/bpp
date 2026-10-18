@@ -32,6 +32,23 @@ local rng = require "lib.rng"
 
 local S = {}
 
+-- A number in a field of constant width, so a status line does not shift
+-- as values change (BPP shows it in a fixed-pitch font). Plain decimals
+-- with `places` decimals while they fit the field; scientific notation for
+-- values too small to show (below 10^-places, e.g. |P| ~ 1e-14) or too
+-- large for the field. signed = true always shows + or -, so values that
+-- can change sign line up. Default width 10.
+function S.fixed(x, places, signed, width)
+  places, width = places or 3, width or 10
+  local a = math.abs(x)
+  local sign = signed and "+" or ""
+  local intDigits = width - places - 2            -- room left for the integer part
+  if x == 0 or (a >= 10 ^ -places and a < 10 ^ intDigits) then
+    return string.format("%" .. sign .. width .. "." .. places .. "f", x)
+  end
+  return string.format("%" .. sign .. width .. ".2e", x)
+end
+
 local CF_STATIC, CF_NO_CONTACT = 1, 4
 local function quiet(o)
   pcall(function() o.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end)
@@ -72,8 +89,9 @@ function S.run(opts)
       springObj = common.placeCylinder(P(a.x or 0, a.y or 0, 0), P(b.x or 0, b.y or 0, 0), 0.6, "#c8c8c8")
       if springObj then quiet(springObj) end
     end
-    local line = string.format("%s  |  t %.2f  sep %.2f  |P| %.3g  L %.6g  KE %.4g  PE %.4g  E %.6g",
-      opts.title, t, m.sep, m.p, m.lz, m.ke, m.pe, m.e)
+    local line = string.format("%s  |  t %s  sep %s  |P| %s  L %s  KE %s  PE %s  E %s",
+      opts.title, S.fixed(t, 2, false, 9), S.fixed(m.sep, 3, false, 8), S.fixed(m.p, 3, false, 9),
+      S.fixed(m.lz, 3, true), S.fixed(m.ke, 3, false), S.fixed(m.pe, 3, true), S.fixed(m.e, 3, true))
     pcall(function() v.statusText = line end)
   end
 

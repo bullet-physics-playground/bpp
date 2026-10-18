@@ -15,6 +15,7 @@
 #include <QProgressBar>
 #include <QDir>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QRegExp>
 #include <QScrollBar>
 
@@ -60,6 +61,9 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
   scriptStatusLabel = new QLabel(statusBar());
   scriptStatusLabel->setObjectName("bppScriptStatus");
   scriptStatusLabel->setTextFormat(Qt::PlainText);
+  // Fixed-pitch, so numbers a script pads to a fixed width stay in place as
+  // they change instead of shifting the rest of the line.
+  scriptStatusLabel->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
   scriptStatusLabel->setMinimumWidth(0);
   scriptStatusLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   scriptStatusLabel->hide();

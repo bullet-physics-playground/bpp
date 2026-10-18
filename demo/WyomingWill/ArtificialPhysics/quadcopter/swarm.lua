@@ -1267,31 +1267,38 @@ function updateStatus(statsLine)
   if statsLine then
     local len, sd = statsLine:match("len=([%d.]+)R sd=([%d.]+)R")
     local speed = statsLine:match("speed=([%d.]+)m/s")
-    if len and speed then lastStats = string.format("bonds %sR +-%s, %s m/s", len, sd, speed) end
+    -- fixed widths, so the status line does not shift as the numbers change
+    if len and speed then
+      lastStats = string.format("bonds %6.3fR +-%5.3f, %5.2f m/s", tonumber(len), tonumber(sd), tonumber(speed))
+    end
   end
   local c = { ap = 0, hold = 0, takeoff = 0, landing = 0, landed = 0, crashed = 0 }
   for _, d in ipairs(drones) do c[d.state] = (c[d.state] or 0) + 1 end
   local p = readParams()
 
-  local drones_ = { c.ap .. " flying" }
-  if c.hold > 0 then drones_[#drones_ + 1] = c.hold .. " holding" end
-  if c.takeoff > 0 then drones_[#drones_ + 1] = c.takeoff .. " taking off" end
-  if c.landing > 0 then drones_[#drones_ + 1] = c.landing .. " landing" end
-  if c.landed > 0 then drones_[#drones_ + 1] = c.landed .. " landed" end
-  if c.crashed > 0 then drones_[#drones_ + 1] = c.crashed .. " crashed" end
+  local function n3(k) return string.format("%3d", k) end   -- fixed width (status line)
+  local drones_ = { n3(c.ap) .. " flying" }
+  if c.hold > 0 then drones_[#drones_ + 1] = n3(c.hold) .. " holding" end
+  if c.takeoff > 0 then drones_[#drones_ + 1] = n3(c.takeoff) .. " taking off" end
+  if c.landing > 0 then drones_[#drones_ + 1] = n3(c.landing) .. " landing" end
+  if c.landed > 0 then drones_[#drones_ + 1] = n3(c.landed) .. " landed" end
+  if c.crashed > 0 then drones_[#drones_ + 1] = n3(c.crashed) .. " crashed" end
 
   local parts = {
     (cfg.title:gsub(" %-%- quadcopters", "")),
     (is3D and "3D " or "2D ") .. (isSquareFormation and (is3D and "cube" or "square") or "triangle"),
-    "goal " .. (not isGoalEnabled and "off"
+    "goal " .. string.format("%-7s", (not isGoalEnabled and "off"
                 or (goals[1] and goals[1].route and (goals[1].x <= GOAL_END_X / S() + 1e-6 and "stopped" or "moving"))
-                or "ON"),
-    #obstacles .. (#obstacles == 1 and " obstacle" or " obstacles"),
-    apEngaged and string.format("AP %d Hz", p.apHz) or "AP waits for takeoff",
-    table.concat(drones_, ", "),
+                or "ON")),
+    string.format("%3d", #obstacles) .. (#obstacles == 1 and " obstacle " or " obstacles"),
+    apEngaged and string.format("AP %2d Hz            ", p.apHz) or "AP waits for takeoff",
   }
+  -- The numbers (bond statistics) come next, before the parts that appear
+  -- and disappear (drone states, wind, flags), so they never shift.
+  local fixedCount = #parts
+  parts[#parts + 1] = table.concat(drones_, ", ")
   if p.windSpeed > 0 or p.gust > 0 then
-    parts[#parts + 1] = string.format("wind %.1f m/s gust %.2f", p.windSpeed, p.gust)
+    parts[#parts + 1] = string.format("wind %4.1f m/s gust %4.2f", p.windSpeed, p.gust)
   end
   if p.downwash <= 0 then parts[#parts + 1] = "no downwash" end
   if not v:getParam("propStrikes") then parts[#parts + 1] = "prop strikes off" end
@@ -1300,8 +1307,12 @@ function updateStatus(statsLine)
   local modeLine = table.concat(parts, "  |  ")
 
   if haveStatusLine then
-    local line = modeLine
-    if lastStats and apEngaged then line = line .. "  |  " .. lastStats end
+    -- same width as lastStats, so nothing moves when the first stats arrive
+    local statsText = (lastStats and apEngaged) and lastStats
+                      or string.format("bonds %6sR +-%5s, %5s m/s", "-", "-", "-")
+    local head = table.concat(parts, "  |  ", 1, fixedCount)
+    local tail = table.concat(parts, "  |  ", fixedCount + 1)
+    local line = head .. "  |  " .. statsText .. "  |  " .. tail
     v.statusText = line
   elseif modeLine ~= lastModeLine then
     print("MODE: " .. modeLine)

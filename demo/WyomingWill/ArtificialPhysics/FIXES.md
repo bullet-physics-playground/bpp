@@ -505,3 +505,17 @@ physically modelled quadcopter; see `quadcopter/README.md`).
       deviation by ~3%; that is why BPP and Android agree closely.
     - **Decision (William, 2026-10-17):** NetLogo is not maintained; keep
       the Android/BPP rule.
+
+37. **Status-line numbers shifted left and right as they changed** (found by
+    William). Two causes: numbers changed length (`%.4g` gives 5 to 9
+    characters), and the line used a proportional font.
+    - `src/gui.cpp`: the script status label (`v.statusText`) uses the
+      system's fixed-pitch font. Needs a rebuild (no qmake).
+    - `ch02/scene.lua`: every number in a fixed-width field
+      (`scene.fixed`): plain decimals while they fit, scientific notation
+      only when too small or too large to show; signed only where a value
+      can change sign.
+    - `quadcopter/swarm.lua`: counts and statistics padded to fixed widths,
+      the goal state padded, and the bond statistics moved before the parts
+      that appear and disappear (drone states, wind, flags), with a
+      same-width placeholder before the first statistics arrive.
