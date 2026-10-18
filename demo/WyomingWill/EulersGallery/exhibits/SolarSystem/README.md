@@ -332,9 +332,14 @@ its name (5f37ff963c99294c7dfa948b3b316dff):
 * In a run without a screen there's no question, no download and no
   music, and nothing about it in the console.
 
-Where each movement starts (`solar-music.lua`, **found by ear**, to be
-fine-tuned): Mars 0:00, Venus 6:15, Mercury 14:30, Jupiter 18:11, Saturn
-25:25, Uranus 32:35, Neptune 38:54; the end 44:41.
+Where each movement starts (`solar-music.lua`): where the sound begins
+after the silence between movements, found with ffmpeg's `silencedetect`
+(noise −35 dB, at least 0.3 s) near the times first found by ear. Mars
+0:01.5, Venus 6:22.5, Mercury 14:36.9, Jupiter 18:21.5, Saturn 25:34.9,
+Uranus 32:45.7, Neptune 39:02.7; the last sound 44:33.5. The gaps between
+movements are about 10 s of silence each (7 s at the end); within a
+movement nothing falls below −35 dB, so the 78-rpm side breaks are left as
+recorded.
 
 ## In the hall
 

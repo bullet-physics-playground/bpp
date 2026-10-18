@@ -21,18 +21,21 @@
 -- Loaded by solar-system.lua: makeMusic(v, say) returns the player.
 --
 
--- where each movement starts in the recording, in seconds. FOUND BY EAR
--- (from listening, to the second): fine-tune them here.
+-- where each movement starts in the recording, in seconds: where the sound
+-- begins after the silence between movements. Found with ffmpeg's
+-- silencedetect (noise=-35dB, d=0.3) on this file, near the times found by
+-- ear (in brackets). Each movement's own 78-rpm side breaks are not
+-- silences at that level, so they are left as recorded.
 local MOVEMENTS = {
-  { planet = "Mars", title = "Mars, the Bringer of War", at = 0 },             -- 0:00
-  { planet = "Venus", title = "Venus, the Bringer of Peace", at = 375 },       -- 6:15
-  { planet = "Mercury", title = "Mercury, the Winged Messenger", at = 870 },   -- 14:30
-  { planet = "Jupiter", title = "Jupiter, the Bringer of Jollity", at = 1091 },-- 18:11
-  { planet = "Saturn", title = "Saturn, the Bringer of Old Age", at = 1525 },  -- 25:25
-  { planet = "Uranus", title = "Uranus, the Magician", at = 1955 },            -- 32:35
-  { planet = "Neptune", title = "Neptune, the Mystic", at = 2334 },            -- 38:54
+  { planet = "Mars", title = "Mars, the Bringer of War", at = 1.5 },             -- 0:01.5   (0:00)
+  { planet = "Venus", title = "Venus, the Bringer of Peace", at = 382.5 },       -- 6:22.5   (6:15)
+  { planet = "Mercury", title = "Mercury, the Winged Messenger", at = 876.9 },   -- 14:36.9  (14:30)
+  { planet = "Jupiter", title = "Jupiter, the Bringer of Jollity", at = 1101.5 },-- 18:21.5  (18:11)
+  { planet = "Saturn", title = "Saturn, the Bringer of Old Age", at = 1534.9 },  -- 25:34.9  (25:25)
+  { planet = "Uranus", title = "Uranus, the Magician", at = 1965.7 },            -- 32:45.7  (32:35)
+  { planet = "Neptune", title = "Neptune, the Mystic", at = 2342.7 },            -- 39:02.7  (38:54)
 }
-local END = 2681                                                               -- 44:41, the end
+local END = 2673.5                                -- 44:33.5, the last sound (then 7 s of silence)
 local FILE = "Holst - The Planets (Columbia 1922-23).flac"
 -- the file's own address at Wikimedia: md5("Holst_-_The_Planets_(Columbia_1922-23).flac")
 -- = 5f37ff963c99294c7dfa948b3b316dff, so it's in /5/5f/
