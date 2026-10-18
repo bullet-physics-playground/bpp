@@ -61,20 +61,20 @@ The four-bar walkers are all descended from Chebyshev's Plantigrade Machine of t
 
 *   `WalkerRoom/walker-room.lua`: Ten of the walkers above (all but the 2-leg Spears; Jansen and Klann with four legs), a new Hoecken-Spears 4-bar (Hoecken changed as Chebyshev was into Chebyshev-Spears) and a Hoecken-Spears long-stance, on one meadow, each body marked with its colours and a code (J 8, C-S 4, ...), in a walled 10 m arena, each scaled to the same stride (the length of its foot's path), all under the same gravity and with each walker's cranks turning so that all would cross flat ground at the same speed, and given the same chassis (body clearance and spacing of its feet) and the same feet, with each walker's cranks kept in step, built from `Walkers_For_Room/<name>_parts.lua`: copies of the builds the standalone files use, with options added for the body height and the feet (`Walkers/` is left as it is). `WalkerRoom/test-track.lua` runs one walker straight down a strip of the same terrain and reports how far it got. Walkers turn smoothly away from walls and from each other; one that falls is stood up again. The `TerrainHeight` slider raises the bumps until some walkers can't cover ground. **Tab**/**Shift+Tab** follow a walker, **O** looks over the room, **T** clears the trails; rest the pointer on a walker or trail to see whose it is and how far it has gone. See `WalkerRoom/README.md`.
 
-## Euler's Cabinet of Curiosities
+## Euler's Gallery
 
-An L-shaped 18th-century walnut gallery of rigid-body curiosities. Only the exhibit you stand at runs; the others wait and carry on when you come back. Tab walks between them. See `Cabinet/README.md`.
+An L-shaped 18th-century walnut gallery of rigid-body curiosities. Only the exhibit you stand at runs; the others wait and carry on when you come back. Tab walks between them. See `EulersGallery/README.md`.
 
-*   `Cabinet/cabinet.lua`: The gallery -- open this one. Each exhibit below also runs on its own.
-*   `Gomboc/gomboc-drop-c.lua`, `Gomboc/gomboc-variety.lua`: Gombocs (and the Sloan beta shapes) dropped until they right themselves.
-*   `Bille/bille-drop.lua`: Bille, the weighted monostable tetrahedron, and the 21-, 26- and 37-corner spiral polyhedra.
-*   `Dzhanibekov/dzhanibekov.lua`: The Dzhanibekov (tennis-racket) effect: three T-handles spinning in zero gravity.
-*   `Rattleback/rattleback.lua`: Rattlebacks that reverse their spin.
-*   `TippeTop/tippe-top.lua`: Tippe tops that turn over onto their stems. See `TippeTop/README.md`.
-*   `ChainFountain/chain-fountain.lua`: A bead chain leaping out of a jar in an arch (the Mould effect). See `ChainFountain/README.md`.
-*   `Gyroscope/gyroscope.lua`: Toy gyroscopes on a pedestal, on a string and on a tightrope. See `Gyroscope/README.md`.
-*   `BicycleWheel/bicycle-wheel.lua`: A figure on a swivel stool turns a spinning bicycle wheel over, and the stool turns. See `BicycleWheel/README.md`.
-*   `Slinky/falling-slinky.lua`: A hanging Slinky let go: its bottom hangs still in mid-air until the collapse reaches it. See `Slinky/README.md`.
+*   `EulersGallery/gallery.lua`: The gallery -- open this one. Each exhibit below also runs on its own.
+*   `EulersGallery/exhibits/Gomboc/gomboc-drop-c.lua`, `EulersGallery/exhibits/Gomboc/gomboc-variety.lua`: Gombocs (and the Sloan beta shapes) dropped until they right themselves.
+*   `EulersGallery/exhibits/Bille/bille-drop.lua`: Bille, the weighted monostable tetrahedron, and the 21-, 26- and 37-corner spiral polyhedra.
+*   `EulersGallery/exhibits/Dzhanibekov/dzhanibekov.lua`: The Dzhanibekov (tennis-racket) effect: three T-handles spinning in zero gravity.
+*   `EulersGallery/exhibits/Rattleback/rattleback.lua`: Rattlebacks that reverse their spin.
+*   `EulersGallery/exhibits/TippeTop/tippe-top.lua`: Tippe tops that turn over onto their stems. See `EulersGallery/exhibits/TippeTop/README.md`.
+*   `EulersGallery/exhibits/ChainFountain/chain-fountain.lua`: A bead chain leaping out of a jar in an arch (the Mould effect). See `EulersGallery/exhibits/ChainFountain/README.md`.
+*   `EulersGallery/exhibits/Gyroscope/gyroscope.lua`: Toy gyroscopes on a pedestal, on a string and on a tightrope. See `EulersGallery/exhibits/Gyroscope/README.md`.
+*   `EulersGallery/exhibits/BicycleWheel/bicycle-wheel.lua`: A figure on a swivel stool turns a spinning bicycle wheel over, and the stool turns. See `EulersGallery/exhibits/BicycleWheel/README.md`.
+*   `EulersGallery/exhibits/Slinky/falling-slinky.lua`: A hanging Slinky let go: its bottom hangs still in mid-air until the collapse reaches it. See `EulersGallery/exhibits/Slinky/README.md`.
 
 ## Removed
 
