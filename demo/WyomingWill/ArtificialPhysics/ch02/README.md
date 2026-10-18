@@ -31,8 +31,8 @@ All 27 checks pass (`lua5.1 checks/ch02.lua`).
 
 **2.2 spring2D** (AM 200, mass ratio 10, k 10, D 50, Δt 0.001)
 - Linear momentum 0 (3×10⁻¹²); angular momentum constant to 2×10⁻¹⁴.
-- Mean separation 77.9, above D; the maximum exceeds 2D = 100 for every seed
-  tried (111–123).
+- Mean separation 77.8, above D; the maximum exceeds 2D = 100 for every seed
+  tried (111–118).
 
 **2.3 solar_system** (sun 100 at the origin, planet at 15, G 20)
 - **a.** Δt 0.1: AM 15 reaches 87 and AM 10 15 (its start is the far
@@ -57,16 +57,28 @@ All 27 checks pass (`lua5.1 checks/ch02.lua`).
   4.00, 9.00. For AM 4 and 9 the start is the closest point, so the peak is
   the starting speed; AM 0 falls straight through, and AM 1 nearly does.
 
-## Choices where the book is silent
+## Where the book is silent: the .nlogo models decide
 
-- **spring2D's starting geometry** is not stated: the masses start apart along
-  y, each 1 + random(D/2) from the origin as in spring1D, so the x velocities
-  set them spinning.
-- **The velocity cap** clips each particle's speed (its code is not shown).
-  Clipping each component instead (`speedCapPerAxis` in `ch02/models.lua`)
-  gives the same picture: 14.9–18.4 at Vmax 12 (`checks/ch02.lua`).
-- **The potential with a force cap** matches the capped force:
+Checked against `spring1D.nlogo`, `spring2D.nlogo` and `solar_system.nlogo`
+(from the book website, 2026-10-18):
+
+- **spring1D's start:** particle 0 (mass 1) moves 1 + random(D/2) right of the
+  origin, particle 1 (Mass_Ratio) as far left.
+- **spring2D's start:** each particle takes a random heading (0–359°) and
+  moves 1 + random(D) from the origin; particle 0 gets vx = Angular_Motion,
+  particle 1 −AM/Mass_Ratio. (Our first port guessed "apart along y"; the
+  book's results hold either way, FINDINGS F3.)
+- **The velocity cap** scales the velocity down to Vmax, keeping its
+  direction (`if (v > VMAX) [set vx (VMAX * vx / v) ...]`). Clipping each
+  component instead (`speedCapPerAxis`, an experiment) gives the same
+  picture: 14.9–18.4 at Vmax 12 (`checks/ch02.lua`).
+- **Order of updates:** every particle computes its force (`ask turtles
+  [ap]`) before any moves (`ask turtles [move]`), friction first, as ours.
+- **The potential with a force cap** matches the capped force, as the model's:
   −G m₁m₂/r outside rc = √(G m₁m₂/Fmax), and Fmax(r − rc) − G m₁m₂/rc inside.
+  NetLogo puts the zero at contact instead of at infinity (its PE is ours
+  plus 2G m₁m₂/rc), so its energy monitor reads higher by that constant
+  (about 89,000 with the cap off at 10⁶); changes in E are the same.
   With Fmax 1 the cap covers r < 44.7, the whole orbit, so the energy monitor
   would be meaningless with the plain −G m₁m₂/r.
 - **"Constant energy"** is tested as no drift between the first and last tenth

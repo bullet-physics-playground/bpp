@@ -15,12 +15,18 @@
 --   m.dt   the time step
 --   M.step(m) advances one step; M.measure(m) gives the monitors.
 --
--- Choices where the book is silent (also in ch02/README.md):
---   * spring2D's starting geometry is not stated: the masses start apart
---     along y, as spring1D's along x (each 1 + random(D/2) from the
---     origin), so the x velocities set them spinning.
---   * solar_system's velocity cap clips the speed (its code is not shown);
---     speedCapPerAxis = true clips each component instead (FINDINGS F15).
+-- Where the book's text is silent, the .nlogo models decide (also in
+-- ch02/README.md):
+--   * spring1D: particle 0 (mass 1) starts 1 + random(D/2) to the right of
+--     the origin (heading 90), particle 1 (Mass_Ratio) as far to the left.
+--   * spring2D: each particle takes a random heading (0-359 degrees,
+--     NetLogo's: 0 = +y, clockwise) and moves 1 + random(D) from the
+--     origin; then vx = Angular_Motion for particle 0, -AM/Mass_Ratio for 1.
+--     random(n) is NetLogo's integer 0..n-1. (If both land on the same
+--     point the force is undefined, as in NetLogo; about 1 seed in 18,000.)
+--   * solar_system's velocity cap scales the velocity down to Vmax,
+--     keeping its direction (solar_system.nlogo line 99); speedCapPerAxis =
+--     true clips each component instead, as an experiment (FINDINGS F15).
 --   * With a force cap, the potential is the one that matches the capped
 --     force: -G m1 m2 / r outside the cap radius rc = sqrt(G m1 m2 / Fmax),
 --     and Fmax (r - rc) - G m1 m2 / rc inside it, so the energy monitor
@@ -46,9 +52,9 @@ function M.spring1D(o)
   o = o or {}
   local D = o.D or 50
   local s = o.seed and rng.new(o.seed) or rng.shared
-  local function off() return 1 + s:random(0, math.floor(D / 2) - 1) end
+  local function off() return 1 + s:random(0, math.ceil(D / 2) - 1) end
   local m = { kind = "spring1D", D = D, k = o.k or 10, dt = o.dt or 0.001 }
-  m.ps = { { x = -off(), m = 1 }, { x = off(), m = o.massRatio or 1 } }
+  m.ps = { { x = off(), m = 1 }, { x = -off(), m = o.massRatio or 1 } }
   m.law = spring(m.k, D)
   m.law.friction = o.friction or 0
   return m
@@ -60,10 +66,16 @@ function M.spring2D(o)
   o = o or {}
   local D = o.D or 50
   local s = o.seed and rng.new(o.seed) or rng.shared
-  local function off() return 1 + s:random(0, math.floor(D / 2) - 1) end
+  local function place()          -- heading random 360, fd (1 + random D)
+    local h = math.rad(s:random(0, 359))
+    local d = 1 + s:random(0, math.ceil(D) - 1)
+    return d * math.sin(h), d * math.cos(h)
+  end
   local mr, am = o.massRatio or 10, o.angularMotion or 200
   local m = { kind = "spring2D", D = D, k = o.k or 10, dt = o.dt or 0.001 }
-  m.ps = { { y = -off(), vx = am, m = 1 }, { y = off(), vx = -am / mr, m = mr } }
+  local x1, y1 = place()
+  local x2, y2 = place()
+  m.ps = { { x = x1, y = y1, vx = am, m = 1 }, { x = x2, y = y2, vx = -am / mr, m = mr } }
   m.law = spring(m.k, D)
   m.law.friction = o.friction or 0
   return m

@@ -26,9 +26,8 @@ BPP's `math.random` is glibc `rand()` = `random()`, in Lua 5.1 and 5.2 alike
 (William's BPP links 5.2, the cloud build 5.1). Run with Listing
 A.1's sampling (S extra calls per accepted point in the unit disk, 10⁶
 points, 36 bins, 99.9% cut χ² 66.6), it fails at S = 25 (χ² 321) and 27
-(409), as the book shows (PDF 646–648); Lua 5.2 gives the same within noise (321, 410). Also at S = 26 (223) and S = 3 (70),
-which the book's sweep ("most values from one to 27") covers but does not
-single out. The multiply-with-carry generator now in `lib/rng.lua` passes at
+(409), as the book shows (PDF 646–648); Lua 5.2 the same (321, 410); also
+S = 26 (223) and 3 (70). The multiply-with-carry generator now in `lib/rng.lua` passes at
 every S tried (χ² 26–47).
 
 **F2. Ch. 2.1 spring1D, every result** — 2026-10-17, Confirmed.
@@ -41,9 +40,9 @@ to a new constant level (2641 to 998).
 
 **F3. Ch. 2.2 spring2D: angular momentum and the centrifugal stretch** —
 2026-10-17, Confirmed. `checks/ch02.lua`.
-Angular momentum constant to 2×10⁻¹⁴, linear momentum 3×10⁻¹²; mean
-separation 77.9 > D = 50; the maximum exceeds 2D = 100 for every seed tried
-(111–123).
+Angular momentum constant to 2×10⁻¹⁴, linear momentum 10⁻¹²; mean
+separation 77.8 > D = 50; the maximum exceeds 2D = 100 for every seed tried
+(111–118), with spring2D.nlogo's random start (F41).
 
 **F4. Ch. 2.3 solar_system, experiments a–e** — 2026-10-17, Confirmed.
 `checks/ch02.lua`.
@@ -123,11 +122,9 @@ the book means no drift.
 
 **F13. Ch. 3's obstacle field, measured from the figures** — 2026-10-17,
 New. `lib/world.lua` (`World.CH03_DISCS`).
-Both panels of Fig. 3.25 give the same 12 disc centres to within a pixel,
-shifted as a group (F40). The discs, drawn 2·obstacleF = 20 across, set the
-scale at 2.11 px per patch at 300 dpi, confirmed independently by the
-formation: its nodes are 63.3 px apart, D = 30 patches (G 400 > G_t 259.8, so
-particles pair up). The world is about 305 patches wide, the goal at
+Both panels of Fig. 3.25 give the same 12 disc centres within a pixel,
+shifted as a group (F40). Scale 2.11 px per patch at 300 dpi from the discs
+(20 across), confirmed by the formation's 63.3 px node spacing (D = 30). The world is about 305 patches wide, the goal at
 (−119, 4), the field's centre at (48, −7); the closest gap is 5.2 patches
 ("narrowly spaced"). Fig. 3.26 is a different field (F37).
 
@@ -141,10 +138,11 @@ gives 0.652454, 9 standard errors away, but 0.651711 = "0.6517" at x₂ = 1, so
 the text's run most likely used x₂ = 1 (inferred).
 
 **F15. Ch. 2.3d: the velocity cap's effect on the orbit's shape** —
-2026-10-17, Book discrepancy. `checks/ch02.lua`. At Vmax 12 the book says the orbit "runs well, with a slight linear-momentum
-change". It is slight (|P| ≤ 3.0), but the orbit shrinks unmentioned from
-15–87 to 15–18 (the cap cuts the start speed 15 to 12), whether the unshown
-cap clips the speed or each component (`speedCapPerAxis`: 14.9–18.4).
+2026-10-17, Book discrepancy. `checks/ch02.lua`. At Vmax 12 the book says
+the orbit "runs well, with a slight linear-momentum change". It is slight
+(|P| ≤ 3.0), but the orbit shrinks unmentioned from 15–87 to 15–18: the cap
+cuts the start speed 15 to 12. solar_system.nlogo caps as we do (scaling the
+speed, keeping the direction); clipping each component gives 14.9–18.4.
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
@@ -240,6 +238,11 @@ diff, so it reached master in step 4. Removed; diffs are now read first.
 
 **F40. Both figures' obstacles shift between panels** ((17, 21) patches in
 Fig. 3.26) — Open: pushed heavy particles, or cropping? Check the `.nlogo`.
+
+**F41. Ch. 2's starts guessed, then checked against the .nlogo** —
+2026-10-18, Our error (small). spring2D started "apart along y"; the model
+uses random headings, and spring1D's light mass starts on the right. Now as
+the models; F3's numbers barely move. NetLogo's PE has its zero at contact.
 
 ## 6. How BPP behaves (worth knowing for every port)
 
