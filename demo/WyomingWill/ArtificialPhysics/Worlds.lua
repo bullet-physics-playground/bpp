@@ -14,6 +14,13 @@
 --             50 x 250 cell grid; showShadow marks the "shadow" cells just
 --             downstream of obstacles in magenta.
 --
+-- DEFINITIONS (status line): the world's name and size in the book's units
+-- (patches for Ch. 3 and 4, inches for Ch. 7); its pieces by kind; the cell
+-- grid used by the metrics; for the corridor, "covered" = share of the
+-- corridor's area under obstacles (overlaps counted once) and "shadow
+-- cells" = free cells whose neighbour toward the start is more than half
+-- obstacle (Ch. 7's cells just downstream of obstacles, Fig. 7.9).
+--
 -- Sliders rebuild the world at once. worldSeed picks the random layout
 -- (preset 3); the same seed always gives the same corridor. Nothing moves:
 -- this is geometry only. Status line: the world's summary.

@@ -59,7 +59,8 @@ Every task goes through the same steps. Each step is one patch.
 Each patch updates the task's README, its status in `BOOK.md` (new → partly →
 done) and `BOOK.pdf`, `FIXES.md` if anything was fixed, `FINDINGS.md` and
 `FINDINGS.pdf` with whatever it confirmed, found or corrected, and `HANDOFF.md`
-at the end of a milestone.
+at the end of a milestone. Every script states near its top what each
+quantity it shows or prints means (formula, units, sign).
 
 ## 3. Checks protect earlier work
 

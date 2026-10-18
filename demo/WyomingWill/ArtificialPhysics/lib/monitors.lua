@@ -14,6 +14,20 @@
 --     step you choose (Bullet's own step is fixed at 1/60 s substeps), so
 --     the Ch. 2 Delta-t experiments can be reproduced.
 --
+-- DEFINITIONS (fields of M.measure and of tracker:drift()):
+--   mass                total mass M = sum m
+--   cx, cy, cz          centre of mass, sum m r / M
+--   vcx, vcy, vcz       its velocity, P / M
+--   px, py, pz, p       total linear momentum P = sum m v, and |P|
+--   lx, ly, lz, l       total angular momentum about the centre of mass,
+--                       L = sum m (r - c) x v, and |L|; a motion in the
+--                       x-y plane has only lz, a motion in x-z only ly
+--   ke, pe, e           kinetic sum m v^2 / 2, potential (sum of
+--                       law.potential over pairs, 0 without it), total
+--   drift: com          distance the centre of mass has moved since the start
+--          dp, dl       |P - P0|, |L - L0|
+--          de, relE     E - E0, and (E - E0) / |E0|
+--
 -- Particles are tables with x, y, z, vx, vy, vz and m (mass, default 1);
 -- missing coordinates count as 0. Each particle also gets fx, fy, fz (the
 -- last force) from M.step.

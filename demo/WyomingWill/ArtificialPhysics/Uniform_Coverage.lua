@@ -21,6 +21,28 @@
 -- ideal 1/9), which is the "uniform coverage" question the MFP idea (drawn
 -- from the mean free path of a gas molecule) is meant to improve.
 --
+-- DEFINITIONS (the printed statistics line and the sliders):
+--   ticks           simulation steps so far; each agent moves 1 unit per tick
+--   agents          number of agents (numParticles)
+--   meanFreePath    MFP: steps an agent walks straight before a random turn
+--   cells           the 80 x 80 arena (walls at +-40) split 3 x 3; cell
+--                   k = x + 3y with x, y = 0, 1, 2 from the low corner, so
+--                   corners are 0, 2, 6, 8, edges 1, 3, 5, 7, centre 4
+--   p_k             share of all visits spent in cell k:
+--                   count_k / (ticks x agents)
+--   deviation       sqrt( sum over the 9 cells of (p_k - 1/9)^2 ): the
+--                   Euclidean distance from uniform coverage; 0 is perfect,
+--                   0.9428 the worst (everything in one cell). Ch. 4.3 and
+--                   the NetLogo model's "Deviation from Uniformity"
+--   theoreticalMFP  0.65 x cell size = 0.65 x 80/3 = 17.3, the mean free
+--                   path that should give the best coverage (Ch. 11.3)
+--   cornerSpread    (largest - smallest) / largest visit count over the 4
+--                   corner cells, as a percentage; 0% when they are equal
+--   edgeSpread      the same over the 4 edge cells
+--   delayMs         wall-clock pause between steps (display only; set 0 for
+--                   measurements), ticksPerFrame steps per drawn frame
+--   seed            random number seed (lib/rng.lua): 0 = from the clock
+--
 -- WHAT CARRIED OVER EXACTLY: monitorAgent(), shouldTurn() and moveAgent()
 -- below are a straight line-for-line port of the Kotlin of the same name,
 -- including the constants (boundary = 40, the 0.0001 wall look-ahead, the

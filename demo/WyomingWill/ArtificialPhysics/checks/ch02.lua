@@ -4,6 +4,15 @@
 -- spring1D (2.1), spring2D (2.2) and solar_system (2.3), with the book's
 -- slider values. Each line says what the book reports and what we get.
 --
+-- DEFINITIONS (printed values): separation = distance between the two
+-- bodies; |P| total linear momentum; L angular momentum about the centre of
+-- mass; E total energy. "drift" = (mean E over the last tenth of the run -
+-- mean E over the first tenth) / |E at the start|: whether energy is
+-- conserved. "swing" = (max E - min E) / |E at the start|: how much it
+-- moves within each cycle, which the book's integrator always does (about
+-- dt x omega). "farthest" = largest distance from the sun; "advances N deg
+-- per orbit" = turn of the farthest point between successive orbits.
+--
 -- Run from the ArtificialPhysics folder (about half a minute):
 --   lua5.1 checks/ch02.lua
 --

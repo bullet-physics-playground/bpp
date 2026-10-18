@@ -1,9 +1,16 @@
 -- probes/batch_drones.lua -- a lib/batch.py probe for the *-Quadcopter.lua demos
 --
--- Every EVERY frames (default 900, 30 s of flight) and at the end, reports:
--- flight time, drones flying under AP, crashed, the swarm's centre, and the
--- nearest-neighbour distance over the formation spacing (10th, 50th and
--- 90th percentile; 1.00 = every drone at the spacing from its nearest).
+-- Every EVERY frames (default 900, 30 s of flight) and at the end, reports
+-- one row. DEFINITIONS:
+--   t           flight time, s
+--   drones      drones launched; flying = those under AP control or
+--               holding; crashed = those down
+--   cx, cy, cz  centre of the flying drones, m (BPP axes, y up)
+--   nn10/50/90  each flying drone's distance to its nearest neighbour,
+--               divided by the formation spacing (rad or
+--               desiredSeparation x metersPerUnit); the 10th, 50th and
+--               90th percentiles over the swarm. 1.00 = at the spacing
+--   final       1 on the row written when the run ends
 --
 --   python3 lib/batch.py Formations-Newtonian-Quadcopter.lua \
 --     --probe probes/batch_drones.lua --seeds 1-3 --set friction=0.3,0.5 \

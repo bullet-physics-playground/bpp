@@ -4,9 +4,25 @@
 -- Shared by Spring1D.lua, Spring2D.lua and SolarSystem.lua. The model's
 -- plane (x, y) is drawn as BPP (x, -z) with y up (lib/world.lua's
 -- mapping), seen from above. Each frame runs `stepsPerFrame` integrator
--- steps. BPP runs a scene as soon as it loads; S stops and restarts it. The status line shows
--- the book's monitors: time, separation, linear momentum, angular
--- momentum, kinetic, potential and total energy.
+-- steps. BPP runs a scene as soon as it loads; S stops and restarts it.
+--
+-- DEFINITIONS (the status line; units are the NetLogo models' own, patches
+-- and model time, with masses as set by the sliders):
+--   t     model time: steps x Time_Step
+--   sep   separation: distance between the two bodies
+--   |P|   size of the total linear momentum, |sum of m v| over both bodies;
+--         0 when the forces are equal and opposite and the start is at
+--         rest overall (the book shows its components, Lmx and Lmy)
+--   L     total angular momentum about the centre of mass,
+--         sum of m (r x v), its component out of the plane; negative means
+--         clockwise, as in the book
+--   KE    kinetic energy, sum of m v^2 / 2
+--   PE    potential energy of the pair: spring k (sep - D)^2 / 2; gravity
+--         -G m1 m2 / sep (with a force cap, the potential that matches the
+--         capped force, ch02/models.lua)
+--   E     total energy KE + PE; with the book's integrator it swings a
+--         little within each cycle but should not drift (FINDINGS F12)
+-- The red dot is the centre of mass; trails follow one body.
 --
 
 package.path = "../?.lua;" .. package.path

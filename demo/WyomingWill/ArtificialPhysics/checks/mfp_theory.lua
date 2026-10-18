@@ -5,6 +5,11 @@
 -- is within 4 standard errors of the exact value for the same entry
 -- point (x2 = 1.001, as in the book).
 --
+-- DEFINITIONS (printed values): f = mean free path / cell size, the exact
+-- integral (entry exactly on the shared side); "exact" = the same with the
+-- entry at x2 = 1.001, which the simulation estimates; s.e. = standard
+-- error of the simulated mean; z = (simulated - exact) / s.e.
+--
 -- Run from the ArtificialPhysics folder (about 5 s):
 --   lua5.1 checks/mfp_theory.lua            N=10000000 for the full run
 --

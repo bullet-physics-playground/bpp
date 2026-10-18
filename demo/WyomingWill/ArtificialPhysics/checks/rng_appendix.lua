@@ -7,7 +7,8 @@
 -- angle histogram at S = 25 (peaks at +-90 deg) and S = 27 (peaks at 0 and
 -- 180 deg). The shared generator (lib/rng.lua) must stay flat at every S.
 --
--- Test: 10^6 accepted points, 36 bins of 10 deg, chi-square against
+-- DEFINITIONS. S = extra draws discarded before each sample. Test: 10^6
+-- accepted points, 36 bins of 10 deg, chi-square against
 -- uniform (35 degrees of freedom, 99.9% cut 66.6), plus the cos 2theta
 -- moment (0 for a uniform angle; 1 sigma about 7e-4 at 10^6 points).
 --

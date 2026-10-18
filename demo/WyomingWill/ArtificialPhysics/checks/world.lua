@@ -1,6 +1,12 @@
 --
 -- checks/world.lua -- the world generator's core and its book presets
 --
+-- DEFINITIONS (printed values): "covers N%" = share of the area under
+-- obstacles, sampled on a grid, overlaps counted once; obstacle cells = cells
+-- more than half covered; shadow cells = free cells whose neighbour toward
+-- the start is an obstacle cell (Ch. 7); "gap" = edge-to-edge distance
+-- between discs. Units are the book's (patches, inches).
+--
 -- Run from the ArtificialPhysics folder (about half a minute):
 --   lua5.1 checks/world.lua
 -- or inside BPP: bpp -f checks/world.lua -n 1

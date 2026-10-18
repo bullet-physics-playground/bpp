@@ -38,6 +38,10 @@ is updated at the end of every milestone.
   correct earlier claims when new measurements disagree.
 - When he asks for an analysis ("no code yet"), give analysis only.
 - Experiments that change behaviour are switchable, with the old behaviour at 0.
+- **Every script states its definitions near the top:** each quantity it
+  shows or prints (status line, output columns, sliders), with its formula,
+  units and sign convention, so a reader never has to search the code for
+  what a number means (William, 2026-10-17).
 - No text drawn on the graphics pane; status goes in `v.statusText`. Cameras
   start at a useful view and are never locked.
 - Lennard-Jones should stay more fluid than Newtonian, even in formation.

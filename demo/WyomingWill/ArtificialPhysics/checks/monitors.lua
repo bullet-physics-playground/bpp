@@ -6,6 +6,13 @@
 -- (book/ch02.md). The Ch. 2 scenes themselves, and the book's own
 -- results, come in ch02/; this checks the machinery they stand on.
 --
+-- DEFINITIONS (printed values): |P| total linear momentum; L, Ly angular
+-- momentum about the centre of mass (lib/monitors.lua); relE relative
+-- energy change (E - E0)/|E0|; "relative drift" of L is |L - L0| / |L0|;
+-- periods are measured between upward crossings of the rest length (springs)
+-- or full turns of the planet about the sun (Kepler); mu = m1 m2/(m1 + m2)
+-- is the reduced mass, a = -G m1 m2 / (2E) the orbit's semi-major axis.
+--
 -- Run from the ArtificialPhysics folder (a few seconds):
 --   lua5.1 checks/monitors.lua
 -- or inside BPP: bpp -f checks/monitors.lua -n 1

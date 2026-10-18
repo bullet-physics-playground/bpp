@@ -9,6 +9,11 @@
 -- follows the light mass. It runs as soon as it loads; R resets, S stops
 -- and restarts.
 --
+-- Status line: t time, sep separation, |P| total linear momentum (should
+-- stay 0), L angular momentum about the centre of mass (negative =
+-- clockwise), KE / PE / E kinetic, potential and total energy. Full
+-- definitions in ch02/scene.lua.
+--
 package.path = "../?.lua;" .. package.path
 local scene = require "ch02.scene"
 local ch = require "ch02.models"
