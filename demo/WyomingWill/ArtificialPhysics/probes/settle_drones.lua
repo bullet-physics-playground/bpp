@@ -39,6 +39,10 @@
 -- formation (each re-applies the mode's defaults, then this run's --set
 -- values again, then sets up a new launch); EVERY, ACC_SETTLE, V_SETTLE;
 -- SERIES=1 also writes a row every second (series=1) for plotting.
+-- SWITCH_AT=t and SWITCH_SET="name=value;..." change those sliders t s
+-- after AP engages, as if moved by hand mid-run (e.g. turn etaPower on
+-- once the lattice has formed); the change is printed and the settling
+-- clock (settleA/V) then counts from the start of the run as before.
 --
 --   python3 lib/batch.py Formations-Newtonian-Quadcopter.lua \
 --     --probe probes/settle_drones.lua --env DIM=2 --seeds 1-3 \
@@ -90,9 +94,17 @@ local function apSpeed(st)
   return n > 0 and s / n or 0, n
 end
 
+local SWITCH_AT = tonumber(os.getenv("SWITCH_AT") or "")
+local switched = false
+
 local function sample()
   local st = Swarm.state()
   if not st.apEngaged then return end
+  if SWITCH_AT and not switched and st.simTime - st.apEngagedAt >= SWITCH_AT then
+    switched = true
+    for _, kv in ipairs(batch.settings(os.getenv("SWITCH_SET") or "")) do batch.set(kv[1], kv[2]) end
+    print(string.format("probe: t=%.1f s after AP: set %s", st.simTime - st.apEngagedAt, os.getenv("SWITCH_SET") or ""))
+  end
   local now = snapshot()
   if lastM and now.accN > lastM.accN then
     local t = st.simTime - st.apEngagedAt
@@ -155,7 +167,9 @@ local function report(extra)
   lastRow = now
 end
 
-batch.every(30, function()
+-- once a second of flight (checked every frame: a frame is ~0.032 s, so
+-- checking every 30 frames sampled only every ~1.9 s; FIXES 40)
+batch.every(1, function()
   local st = Swarm.state()
   if st.simTime - lastSampleT >= 0.999 then lastSampleT = st.simTime; sample() end
 end)

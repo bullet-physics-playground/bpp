@@ -58,10 +58,10 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–39 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–40 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F48 so far), and
+  implementations, and our own mistakes once corrected (F1–F49 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -76,7 +76,7 @@ is updated at the end of every milestone.
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–39 |
+| `FIXES.md` | Fixes 1–40 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
@@ -137,7 +137,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"` (the break keeps the last page from being nearly empty; drop or move it as the file grows).
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -187,7 +187,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   without crashes; the plain law dithers across D even as particles. In 2D
   at range 1.5 D η settles the lattice at ~0.8 D (second neighbours come
   into range); range 1.25 D keeps it at D. Power 1 beats the law's own
-  power. The stop rule does nothing without η. η's lattice is a quarter to
+  power. Switched on after the lattice forms, η keeps it at D (2D and
+  3D) and gives the most regular Newtonian lattice: annealing, with η as
+  the cooling (F49, William). The stop rule does nothing without η. η's lattice is a quarter to
   a third as stiff as LJ's at D, so it compresses under the goal's pull.
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
 
@@ -221,7 +223,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      `probes/settle_drones.lua`; lattice quality in `lib/lattice.lua`;
      checks `ch13`, `lattice`). Answer to M1's main question: yes, η alone
      makes them settle like LJ (see §6).
-  2. **Next: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
+  1b. **Next, from William's F49:** η as a cooling schedule (ramp
+     `etaPower` 0 → 1 over a set time; how fast can it cool and still
+     reach D?), measured like step 1.
+  2. **Then: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
      > 10; `book/ch13.md` E11a): per axis on the drones' AP velocity,
      measured with the same probe against η, with and without it. Main
      question: does it settle the plain law without η's loss of stiffness

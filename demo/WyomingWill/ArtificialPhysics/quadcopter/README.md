@@ -334,7 +334,7 @@ friction (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next.
 50 drones, compact launch, no obstacle field, no goal, 5600 frames (about
 170 s after AP engages), seeds 1–3. Every quantity is defined at the top of
 the probe; briefly: *settles* = the time after which the swarm's mean scalar
-acceleration (Ch. 16.9) stays below 0.1 m/s², *speed* and *gap* (the
+acceleration (Ch. 16.9) stays below 0.1 m/s² (sampled every ~1.9 s in these runs, FIXES 40), *speed* and *gap* (the
 suggested-position difference, |position − last waypoint|) are means over
 the last 29 s, *crossings* are drone pairs changing side of D, per drone per
 minute, *bond* is the mean length of pairs closer than 1.2 × the spacing,
@@ -371,7 +371,16 @@ at 0.92–0.96 D, the cube in 27 s (LJ 33 s) at 0.98–1.01 D; without η they
 jitter at 0.33 and 0.63 m/s. LJ's cube is the more regular (bond CV
 0.007–0.03 against 0.07–0.09).
 
-**What this shows** (`../FINDINGS.md` F43–F47):
+**Switching η on after the lattice has formed** (William's finding, F49):
+with η off until 60 s after AP engages, then 1, the swarm settles within
+about 2 s and stays at D — 0.96–0.97 D in 2D (against 0.83 D with η on
+from the launch), 1.00–1.01 D in 3D with bond CV 0.035–0.055, as regular
+as LJ. η from the launch is a quench; jitter first, then η, is annealing,
+with η as the cooling. In the GUI: start without η, wait until the
+lattice has spread, then move `etaPower` to 1 without pressing R.
+(`--env SWITCH_AT=60 --env SWITCH_SET=etaPower=1` in a batch.)
+
+**What this shows** (`../FINDINGS.md` F43–F47, F49):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
   or faster, in every formation, without crashes. The plain law's endless

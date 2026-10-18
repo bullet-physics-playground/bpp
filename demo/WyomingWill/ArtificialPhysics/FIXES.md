@@ -539,3 +539,10 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     would draw nothing. It now checks whether it was `require`d (a module
     name in `...`); opened directly, it prints which scene to open, puts
     the same on the status line, and stops. Both scenes run as before.
+
+40. **`probes/settle_drones.lua` sampled every ~1.9 s, not every second**
+    (found 2026-10-18 while checking F49). It checked once every 30 frames
+    whether a second had passed, but 30 frames are 0.96 s of flight, so
+    every other check fell just short. It now checks every frame. Settling
+    times measured before (F44–F47, `quadcopter/README.md`) are good to
+    about ±2 s; no conclusion changes.

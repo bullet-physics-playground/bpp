@@ -200,6 +200,23 @@ power (2.2 in 2D) settles no better than power 1 and leaves the lattice
 smaller (0.87 D at range 1.25, still creeping outward after 170 s), so
 power 1 is the better default.
 
+**F49. η has two resting states: switched on after forming, the lattice
+stays at D** — 2026-10-18, New; found by William in the GUI. With η on
+from the launch, the 2D swarm settles at 0.83 D (F45). Switched on once the
+plain law has spread the swarm (60 s after AP engages, 3 seeds), the same
+drones settle within about 2 s at 0.96–0.97 D in 2D, and at 1.00–1.01 D in
+3D with bond CV 0.035–0.055, the most regular Newtonian lattice measured
+(η from the start 0.063, LJ 0.044, plain law 0.083). The particle replica
+does the same (0.988 D; `checks/ch13.lua`). Both states are equilibria:
+from a compact cluster the expansion passes through spacings below
+0.866 D, where second neighbours are in range and η's balance stalls it;
+a lattice already near D has them out of range, and η only removes the
+dither. William's reading: it is annealing, with η as the cooling — the
+plain law's dither (Ch. 13's "jumpiness", PDF 449) is the heat that lets
+the lattice reach D, η from the start is a quench into the compressed
+state. Next: a cooling schedule (ramp `etaPower` 0 → 1) and the fastest
+cooling that still reaches D.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -357,6 +374,6 @@ the useful range. Same root as F31.
 - The 3D threshold G_t for the cube formation (`BOOK.md` §1 item 9), to
   measure with a G sweep.
 - How to keep η's spacing at D in 2D at range 1.5 D (F45): a shorter range
-  works; scaling D by 1/0.8, or damping only the repulsive side, are
-  untested. And whether the next Ch. 13 mechanisms (adaptive and static
+  works, and so does switching η on after the lattice forms (F49); a
+  gradual cooling schedule is untested. And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).

@@ -87,12 +87,13 @@ check("stop rule off (threshold 0 or nil) never stops",
 -- 1.2 D; speed = mean |v| in AP units per tick at the end.
 local rng = require "lib.rng"
 local D50 = 50
-local function particles(etaP, range, N, ticks, seed)
+local function particles(etaP, range, N, ticks, seed, etaFrom)
   local G, P, FMAX, FR = 1500, 2.2, 1.5, 0.6
   local s = rng.new(seed)
   local x, y, vx, vy = {}, {}, {}, {}
   for i = 1, N do x[i], y[i], vx[i], vy[i] = (s:random() * 2 - 1) * D50, (s:random() * 2 - 1) * D50, 0, 0 end
-  for _ = 1, ticks do
+  for tick = 1, ticks do
+    local pd = (tick > (etaFrom or 0)) and etaP or 0   -- eta on from tick etaFrom
     local fx, fy = {}, {}
     for i = 1, N do
       fx[i], fy[i] = 0, 0
@@ -105,7 +106,7 @@ local function particles(etaP, range, N, ticks, seed)
             local f = G / r ^ P
             if f > FMAX then f = FMAX end
             if r > D50 then f = -f end
-            f = C13.damp(f, r, D50, etaP)
+            f = C13.damp(f, r, D50, pd)
             fx[i], fy[i] = fx[i] - f * dx / r, fy[i] - f * dy / r
           end
         end
@@ -137,7 +138,12 @@ do
   local b2, s2 = particles(1, 1.25, N, T, 1)
   check("particles, eta p=1, range 1.25: settled at D",
     s2 < 0.01 and math.abs(b2 - 1) < 0.03, string.format("bond %.3f D, speed %.2g", b2, s2))
-  -- the infinite-lattice balance (FINDINGS F43): x = (1 + c) / (1 + sqrt(3) c),
+  -- eta switched on only once the lattice has formed (FINDINGS F49): it
+  -- settles where it is, at D, not at 0.8 D -- two resting states
+  local b3, s3 = particles(1, 1.5, N, T + 1500, 1, T)
+  check("particles, eta p=1 switched on after forming, range 1.5: settled at D",
+    s3 < 0.01 and math.abs(b3 - 1) < 0.03, string.format("bond %.3f D, speed %.2g", b3, s3))
+  -- the infinite-lattice balance (FINDINGS F45): x = (1 + c) / (1 + sqrt(3) c),
   -- c = 3^((1 - power) / (2 p_eta)), for second neighbours inside the range
   local c = 3 ^ ((1 - 2.2) / 2)
   local xinf = (1 + c) / (1 + math.sqrt(3) * c)
