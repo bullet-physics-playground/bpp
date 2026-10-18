@@ -872,9 +872,27 @@ public:
    *
    * Takes no mutex, for the reason setShowConstraints() gives.
    *
+   * Shadows are the user's: the View menu's Shadows and the saved setting
+   * (setShadowsPreference()). A script's v.shadows = ... is not this but
+   * setShadowsFromScript(), which changes nothing.
+   *
    * @param on True to cast shadows.
    */
   void setShadows(bool on);
+
+  /**
+   * @brief What a script's v.shadows = on does: nothing but say so, once a
+   *        load, when it asks for other than the user's setting.
+   *
+   * Whether the view has shadows is the user's choice (View > Shadows,
+   * kept in the settings), and every simulation starts with it. A script
+   * that wants something out of the shadows -- a big terrain whose shadow is
+   * costly, a ceiling -- sets that object's obj.castShadow = false instead.
+   * Reading v.shadows gives what is actually drawn.
+   *
+   * @param on What the script asked for.
+   */
+  void setShadowsFromScript(bool on);
 
   /**
    * @brief Returns whether shadows are being cast.
@@ -884,8 +902,8 @@ public:
 
   /**
    * @brief The user's choice of shadows (the View menu's Shadows): set now,
-   *        and set again each time a script loads, so that a script's
-   *        v.shadows lasts only as long as the script.
+   *        and set again each time a script loads; scripts can't change it
+   *        (see setShadowsFromScript()).
    */
   void setShadowsPreference(bool on);
 
@@ -1977,8 +1995,8 @@ signals:
   void simulationStateChanged(bool running);
 
   /**
-   * @brief Emitted when shadows are turned on or off, by the user or by a
-   *        script (v.shadows), so the View menu can show which.
+   * @brief Emitted when shadows are turned on or off, so the View menu
+   *        can show which.
    * @param on True if shadows are now cast.
    */
   void shadowsChanged(bool on);
@@ -2830,6 +2848,8 @@ private:
    */
   bool simHeld() const;
   bool _shadowsPref = true;      ///< See setShadowsPreference().
+  bool _shadowsNoted = false;    ///< This load's script has been told that
+                                 ///< its v.shadows is ignored.
   int _holdSim = 0;              ///< > 0 while a modal dialog (or a headless
                                  ///< event pump) runs inside a script call:
                                  ///< animate() and the device handlers, which

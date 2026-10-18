@@ -443,7 +443,9 @@ void Viewer::luaBind(lua_State *s) {
            .property("showConstraints", &Viewer::showConstraints,
                      &Viewer::setShowConstraints)
 
-           .property("shadows", &Viewer::shadows, &Viewer::setShadows)
+           // (the user's: a script's assignment is noted and ignored)
+           .property("shadows", &Viewer::shadows,
+                     &Viewer::setShadowsFromScript)
            .property("culling", &Viewer::culling, &Viewer::setCulling)
            .property("drawnObjects", &Viewer::drawnObjects)
            .property("shadowCasters", &Viewer::shadowCasters)
@@ -2368,6 +2370,22 @@ void Viewer::setShadowsPreference(bool on) {
 
 bool Viewer::shadowsPreference() const { return _shadowsPref; }
 
+void Viewer::setShadowsFromScript(bool on) {
+  if (on == _shadowsPref || _shadowsNoted)
+    return;
+  _shadowsNoted = true;
+  const QString note =
+      QString("(this script asked for shadows %1; your setting -- %2 -- is "
+              "kept: View > Shadows. To keep one object out of the shadows, "
+              "set its obj.castShadow = false)")
+          .arg(on ? "on" : "off", _shadowsPref ? "on" : "off");
+  // (headless, on stderr: a run's own output stays exactly what it was)
+  if (isHeadless())
+    fprintf(stderr, "%s\n", note.toUtf8().constData());
+  else
+    emitScriptOutput(note);
+}
+
 bool Viewer::shadows() const { return _shadows; }
 
 void Viewer::setCulling(bool on) { _culling = on; }
@@ -3170,9 +3188,10 @@ void Viewer::clear() {
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
   _light0Color = _light1Color = btVector4(1, 1, 1, 1);
 
-  // (and its music, and the shadows it chose: the user's again)
+  // (and its music; the shadows are the user's, see setShadowsFromScript())
   freeMusic();
   setShadows(_shadowsPref);
+  _shadowsNoted = false;
 
   // (a script's culling and shadow-record settings go with it, as the
   // lights do)
