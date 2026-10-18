@@ -43,14 +43,10 @@ These correct or extend the plan. Each is backed by the chapter notes.
    the stop threshold the Pioneers "settle into fixed lattice formations"
    (PDF 454). Our expectation, not the book's, was that η alone makes the
    Newtonian drones settle like LJ, because both are then smooth through
-   zero force at D. **Measured (M1 step 1, FINDINGS F43–F47): it does.** On
-   50 drones, η alone takes the Newtonian swarm from never settling to
-   settled in 4–6 s (2D) and at the last launch wave (3D, like LJ), with
-   AR crossings falling from ~200–320 to ~0 per drone per minute. In 2D at
-   range 1.5 D it settles at 0.80–0.83 D, because η damps the nearest
-   neighbours' repulsion more than the second neighbours' attraction; range
-   1.25 D (the 3D default) keeps the spacing (0.99 D). The stop rule adds
-   nothing without η and holds the settled swarm still with it.
+   zero force at D. **Measured (M1, FINDINGS F43–F50): it does,** in 2D
+   and 3D, as fast as LJ. With the book's band (r < 2D) a 2D launch
+   settles at ~0.8 D; damping only within 0.2 D of D (William) keeps D.
+   The stop rule adds nothing without η.
 2. **Fixed-wing is not a dumbbell.** §13.5 says a vehicle that can only turn
    needs a *single* heading particle; that is the torque law of §13.3
    (Eq. 13.15–13.18), which the chapter applies to its UAVs. The dumbbell

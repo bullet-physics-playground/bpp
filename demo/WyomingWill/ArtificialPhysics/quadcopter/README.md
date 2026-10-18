@@ -323,6 +323,7 @@ time in `../lib/ch13.lua`, each a slider that is off at 0.
 
 | Slider | What it does | Off |
 | --- | --- | --- |
+| `etaWidth` | η's band: it ramps from 1 at \|D − r\| = etaWidth × D to 0 at D (1 = the book's Eq. 13.9, r < 2D) | 1 |
 | `etaPower` | **AR damping η** (Eq. 13.9–13.10): every drone–drone force is multiplied by η = (\|D − r\|/D)^etaPower for r < 2D, so it goes smoothly through 0 at D (r is the spin-modified distance the law uses) | 0 |
 | `stopForce` | **Stop rule** (§13.2.2): when a drone's summed force \|F\| (drones, obstacles, levels, goal; AP force units) is below this, its AP velocity is set to 0 and its waypoint is where it is | 0 |
 
@@ -380,7 +381,28 @@ with η as the cooling. In the GUI: start without η, wait until the
 lattice has spread, then move `etaPower` to 1 without pressing R.
 (`--env SWITCH_AT=60 --env SWITCH_SET=etaPower=1` in a batch.)
 
-**What this shows** (`../FINDINGS.md` F43–F47, F49):
+**η in a band tied to D** (`etaWidth`, William's idea, F50): η ramps to 0
+only within |D − r| < etaWidth × D and leaves the force alone outside;
+1 is the book's band. From the launch (R pressed with η on), 3 seeds:
+
+| etaWidth | 2D bond | 2D Delaunay CV | 3D |
+| --- | --- | --- | --- |
+| 1 (book) | 0.83 | 0.104 | settles, bond 1.01 |
+| 0.5 | 0.85 | 0.121 | settles, bond 1.01 |
+| 0.25 | 0.98 | 0.108 | settles, bond CV 0.056 |
+| **0.2** | **0.994** | **0.077** | **settles, bond 1.01, CV 0.054** |
+| 0.15 | 0.999 | 0.064 | jitters in 2 of 3 runs |
+| 0.1 | 0.994, 4 crashed | 0.089 | jitters (0.32 m/s) |
+
+Too narrow a band makes the force too steep at D for the drones' lag:
+the edge is a slope F(D)/(w D) of about 0.04–0.05 per AP unit in both
+dimensions, so w ≈ F(D)/(0.04 D) — 0.14 in 2D, 0.21 in 3D. **Use
+etaPower 1 with etaWidth 0.2** in both. Crossing the obstacle field it
+holds its bonds (0.93–0.94 D in 2D, 1.00 D in 3D, against 0.85–0.95 with
+the book's band) but moves no faster than the plain law (swarm centre at
+632 s: −43 m; LJ −50 m).
+
+**What this shows** (`../FINDINGS.md` F43–F47, F49, F50):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
   or faster, in every formation, without crashes. The plain law's endless

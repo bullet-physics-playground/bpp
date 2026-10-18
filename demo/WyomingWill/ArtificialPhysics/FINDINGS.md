@@ -217,6 +217,28 @@ the lattice reach D, η from the start is a quench into the compressed
 state. Next: a cooling schedule (ramp `etaPower` 0 → 1) and the fastest
 cooling that still reaches D.
 
+**F50. η in a band tied to D: no trap, a stiffer lattice, and a stiffness
+limit set by the drones** — 2026-10-18, New; William's idea. Damping only
+within |D − r| < w·D (`etaWidth`; w = 1 is Eq. 13.9) leaves the far forces
+alone, so from the launch the 2D swarm no longer stalls: bonds 0.83 D
+(w 1), 0.85 (0.5), 0.98 (0.25), 0.999 (0.15) on 50 drones, 3 seeds each;
+the particle replica reaches D for w ≤ 0.2, as the F45 balance predicts
+(no trap for w below about 0.26). w 0.15 gives the best 2D lattice measured
+(Delaunay CV 0.064; LJ 0.092). Too narrow brings the jitter back: 2D at
+w 0.1 crashed 4 drones, and 3D at w 0.15 kept jittering in 2 of 3 runs, at
+0.1 fully (0.32 m/s). The edge falls at the same slope of the damped force
+at D, F(D)/(w·D), in both dimensions: 0.034–0.037 per AP unit settles,
+0.055–0.057 does not (LJ's slope is 0.024). So the band can be set from the
+law and the separation, w ≈ F(D)/(0.04 D): 0.14 in 2D, 0.21 in 3D. One
+w = 0.2 works in both: 2D settles in ~10 s at 0.994 D (Delaunay CV 0.077),
+3D at the last launch wave at 1.01 D (bond CV 0.054), no crashes. Crossing
+the obstacle field after the goal (2 seeds), w 0.2 holds its bonds at
+0.93–0.94 D (2D) and 1.00 D (3D), where w 1 gave 0.85–0.86 and 0.94–0.95
+and LJ 0.97 and 0.99, but it is slower: swarm centre at 632 s −43 m in 2D
+and 3D (w 1: −46, −47; plain law −43, −41; LJ −50, −51). The stiffer
+lattice threads the columns no faster than the jittering one; LJ is both
+stiff and fluid.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -374,6 +396,7 @@ the useful range. Same root as F31.
 - The 3D threshold G_t for the cube formation (`BOOK.md` §1 item 9), to
   measure with a G sweep.
 - How to keep η's spacing at D in 2D at range 1.5 D (F45): a shorter range
-  works, and so does switching η on after the lattice forms (F49); a
-  gradual cooling schedule is untested. And whether the next Ch. 13 mechanisms (adaptive and static
+  works, as do switching η on after the lattice forms (F49) and a narrow
+  band tied to D (F50). Whether the slope limit (~0.04–0.05 per AP unit)
+  follows from the drones' lag and AP rate, and holds for other apHz. And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).

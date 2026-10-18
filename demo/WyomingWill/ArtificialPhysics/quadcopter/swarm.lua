@@ -99,6 +99,9 @@
 --              (D = rad or desiredSeparation; r the spin-modified distance
 --              the law itself uses), so the force goes smoothly through 0
 --              at D. 0 = off. The book uses the law's own distance power.
+--   etaWidth   the damping band's half-width as a fraction of D: eta
+--              ramps from 1 at |D - r| = etaWidth x D to 0 at D, and is 1
+--              outside the band. 1 = the book's Eq. 13.9 (band 0 to 2D).
 --   stopForce  the stop rule of Sec. 13.2.2: when the drone's summed force
 --              |F| (drones, obstacles, levels, goal; AP force units) is
 --              below stopForce, its AP velocity is set to 0 and its
@@ -183,6 +186,7 @@ defParam("range",        1.5,  1.0, 5.0,  0.1,  "interaction cutoff, as a multip
 defParam("friction",     cfg.friction, 0, 1, 0.01, "fraction of AP velocity removed each AP tick")
 defParam("timeStep",     1.0,  0.01, 1,   0.01, "AP time per AP tick: waypoint offset = timeStep * v")
 defParam("etaPower",     0,    0,   5,    0.1,  "Ch. 13 AR damping (Eq. 13.9): drone-drone force x (|D-r|/D)^etaPower for r < 2D; 0 = off (the book uses the law's power)")
+defParam("etaWidth",     1,    0.05, 1,   0.05, "Ch. 13 AR damping band: half-width as a fraction of D (1 = the book's, r < 2D)")
 defParam("stopForce",    0,    0,   1,    0.005, "Ch. 13 stop rule: summed |F| below this (AP force units) stops the drone where it is; 0 = off")
 defParam("goalForce",    0.25, 0,   1,    0.01, "constant-magnitude attraction toward the goal")
 defParam("obstacleSize", 40,   0,   100,  1,    "repulsion radius of obstacles placed with O (AP units); the solid column is a third of it")
@@ -503,7 +507,7 @@ local function apTick(p)
           local view, modifiedR = neighborViewAndR(d.id, o.id, r, p, divisor, sameView, diffView)
           if modifiedR < view * p.sep then
             local f = cfg.force(modifiedR, p, d.apMass, o.apMass)   -- > 0 repels
-            f = C13.damp(f, modifiedR, p.sep, p.etaPower)           -- Eq. 13.10 (etaPower 0: unchanged)
+            f = C13.damp(f, modifiedR, p.sep, p.etaPower, p.etaWidth) -- Eq. 13.10 (etaPower 0: unchanged)
             fx, fy, fz = fx - f * dx / r, fy - f * dy / r, fz - f * dz / r
             local s_ = (modifiedR > p.sep) and 1 or -1
             local was = d.arSide and d.arSide[o.id]
@@ -1386,7 +1390,10 @@ function updateStatus(statsLine)
   end
   -- Ch. 13 switches, only while on: eta's power; the stop threshold and how
   -- many drones it held at the last AP tick
-  if p.etaPower > 0 then parts[#parts + 1] = string.format("eta p=%.1f", p.etaPower) end
+  if p.etaPower > 0 then
+    parts[#parts + 1] = string.format("eta p=%.1f", p.etaPower)
+                        .. (p.etaWidth < 1 and string.format(" w=%.2f", p.etaWidth) or "")
+  end
   if p.stopForce > 0 then
     parts[#parts + 1] = string.format("stop |F|<%.3f: %2d stopped", p.stopForce, metrics.lastStops)
   end

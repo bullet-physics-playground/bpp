@@ -198,7 +198,7 @@ local bcv, bond = L.bondCV(pts, sep)   -- pairs closer than 1.2 sep: CV, mean / 
 
 ```lua
 local C13 = require "lib.ch13"
-f = C13.damp(f, r, D, pd)              -- Eq. 13.9-13.10: f x (|D - r|/D)^pd for r < 2D
+f = C13.damp(f, r, D, pd, w)           -- Eq. 13.9-13.10: f x (|D - r|/(w D))^pd within w D of D (w = 1: the book's)
 if C13.stopped(fx, fy, fz, thr) then   -- the stop rule: |F| < thr
   vx, vy, vz = 0, 0, 0
 end
@@ -210,5 +210,5 @@ end
   adaptive speed cap (Eq. 13.24) come in the next steps of milestone M1.
 - `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
   spin-modified distance the law itself uses, and the stop rule to each
-  drone's summed force (sliders `etaPower`, `stopForce`).
+  drone's summed force (sliders `etaPower`, `etaWidth`, `stopForce`).
 - `checks/ch13.lua` reproduces Fig. 13.3 and Fig. 13.8 (11 tests).

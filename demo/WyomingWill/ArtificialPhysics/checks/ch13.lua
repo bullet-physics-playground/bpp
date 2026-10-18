@@ -72,6 +72,18 @@ check("p_d = 2.2 (the 2D drone law): eta(0.5D) = 0.5^2.2, eta(1.5D) = 0.5^2.2",
   near(C13.eta(25, 50, 2.2), 0.5 ^ 2.2, 1e-12) and near(C13.eta(75, 50, 2.2), 0.5 ^ 2.2, 1e-12),
   string.format("%.4f", C13.eta(25, 50, 2.2)))
 
+-- The band (etaWidth w): w = 1 is Eq. 13.9 exactly; a narrower band
+-- ramps over |D - r| < w D and leaves the force alone outside it.
+local sameW = true
+for i = 1, 400 do
+  local r = i / 100
+  if C13.eta(r, D, 1, 1) ~= C13.eta(r, D, 1) then sameW = false end
+end
+check("band w = 1 is the book's Eq. 13.9, bit for bit", sameW)
+check("band w = 0.2: eta(D +- 0.1 D) = 0.5, eta = 1 outside the band",
+  near(C13.eta(0.9, D, 1, 0.2), 0.5, 1e-12) and near(C13.eta(1.1, D, 1, 0.2), 0.5, 1e-12)
+  and C13.eta(0.79, D, 1, 0.2) == 1 and C13.eta(1.25, D, 1, 0.2) == 1 and C13.eta(0.5, D, 1, 0.2) == 1)
+
 -- The stop rule.
 check("stop rule: |F| below the threshold stops, at or above it does not",
   C13.stopped(3, 4, 0, 5.5) and not C13.stopped(3, 4, 0, 5) and not C13.stopped(3, 0, 4, 4.5)
@@ -87,7 +99,7 @@ check("stop rule off (threshold 0 or nil) never stops",
 -- 1.2 D; speed = mean |v| in AP units per tick at the end.
 local rng = require "lib.rng"
 local D50 = 50
-local function particles(etaP, range, N, ticks, seed, etaFrom)
+local function particles(etaP, range, N, ticks, seed, etaFrom, w)
   local G, P, FMAX, FR = 1500, 2.2, 1.5, 0.6
   local s = rng.new(seed)
   local x, y, vx, vy = {}, {}, {}, {}
@@ -106,7 +118,7 @@ local function particles(etaP, range, N, ticks, seed, etaFrom)
             local f = G / r ^ P
             if f > FMAX then f = FMAX end
             if r > D50 then f = -f end
-            f = C13.damp(f, r, D50, pd)
+            f = C13.damp(f, r, D50, pd, w)
             fx[i], fy[i] = fx[i] - f * dx / r, fy[i] - f * dy / r
           end
         end
@@ -143,6 +155,11 @@ do
   local b3, s3 = particles(1, 1.5, N, T + 1500, 1, T)
   check("particles, eta p=1 switched on after forming, range 1.5: settled at D",
     s3 < 0.01 and math.abs(b3 - 1) < 0.03, string.format("bond %.3f D, speed %.2g", b3, s3))
+  -- eta in a narrow band round D (etaWidth 0.2): no trap, even from the
+  -- launch (FINDINGS F50)
+  local b4, s4 = particles(1, 1.5, N, T, 1, nil, 0.2)
+  check("particles, eta p=1 in a band w=0.2 from the launch: settled at D",
+    s4 < 0.01 and math.abs(b4 - 1) < 0.03, string.format("bond %.3f D, speed %.2g", b4, s4))
   -- the infinite-lattice balance (FINDINGS F45): x = (1 + c) / (1 + sqrt(3) c),
   -- c = 3^((1 - power) / (2 p_eta)), for second neighbours inside the range
   local c = 3 ^ ((1 - 2.2) / 2)

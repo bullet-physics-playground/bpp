@@ -61,7 +61,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–40 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F49 so far), and
+  implementations, and our own mistakes once corrected (F1–F50 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -189,7 +189,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   into range); range 1.25 D keeps it at D. Power 1 beats the law's own
   power. Switched on after the lattice forms, η keeps it at D (2D and
   3D) and gives the most regular Newtonian lattice: annealing, with η as
-  the cooling (F49, William). The stop rule does nothing without η. η's lattice is a quarter to
+  the cooling (F49, William). Better still, η in a band of width
+  0.2 D round D (`etaWidth`, William's idea) settles at D from the launch,
+  in 2D and 3D, with a stiffer lattice; narrower bands jitter again (the
+  drones tolerate a slope of ~0.04 per AP unit at D; F50). The stop rule
+  does nothing without η. η's lattice is a quarter to
   a third as stiff as LJ's at D, so it compresses under the goal's pull.
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
 
@@ -223,10 +227,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      `probes/settle_drones.lua`; lattice quality in `lib/lattice.lua`;
      checks `ch13`, `lattice`). Answer to M1's main question: yes, η alone
      makes them settle like LJ (see §6).
-  1b. **Next, from William's F49:** η as a cooling schedule (ramp
-     `etaPower` 0 → 1 over a set time; how fast can it cool and still
-     reach D?), measured like step 1.
-  2. **Then: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
+  1b. **Done: η's band tied to D** (`etaWidth`, F50; replaces a cooling
+     schedule, which would need tuning per task). Open: whether the slope
+     limit follows from the lag and apHz.
+  2. **Next: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
      > 10; `book/ch13.md` E11a): per axis on the drones' AP velocity,
      measured with the same probe against η, with and without it. Main
      question: does it settle the plain law without η's loss of stiffness
