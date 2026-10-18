@@ -1,0 +1,357 @@
+/**
+ * @file demcore.cpp
+ * @brief The shaken bed of beads, by discrete elements: bead-bed.c's physics
+ * as a class (see demcore.h).
+ *
+ * Everything between "bead-bed.c, unchanged" and "end of bead-bed.c" is
+ * bead-bed.c's own code (demo/WyomingWill/BrazilNut/reconstruction/), its
+ * globals made members, its printf()s going to the test output; it was
+ * lifted mechanically (reconstruction/port/) and must stay that way: the
+ * numbers depend on every operation's order. The frame loop after it is
+ * bead-bed.c's main loop, cut into substeps.
+ */
+
+#include "demcore.h"
+
+#include <cmath>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <limits>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+// (bead-bed.c's names)
+#define G 981.0
+#define MAXB DEM_MAXB
+#define MAXC DEM_MAXC
+#define RHO 0.0025
+#define R_S 0.5
+#define FLOOR (-1)
+#define LWALL (-2)
+#define RWALL (-3)
+#define FRONT (-4)
+#define BACK (-5)
+#define CS 1.1
+#define NCXMAX DEM_NCXMAX
+#define NCY DEM_NCY
+#define MAXG DEM_MAXG
+#define SX(nn, aa) (tw == 2 ? (aa) : tw == 0 ? -W_IN / 2 + (nn) : W_IN / 2 - (nn))
+#define SY(nn, aa) (tw == 2 ? (nn) : (aa))
+#define DX(nn, aa) (tw == 2 ? (aa) : tw == 0 ? (nn) : -(nn))
+#define DY(nn, aa) (tw == 2 ? (nn) : (aa))
+
+using std::sqrt;
+
+DemCore::DemCore() {
+  // (bead-bed.c's globals start at zero)
+  memset(x, 0, sizeof x); memset(v, 0, sizeof v); memset(w, 0, sizeof w);
+  memset(f, 0, sizeof f); memset(tq, 0, sizeof tq);
+  memset(a_old, 0, sizeof a_old); memset(al_old, 0, sizeof al_old);
+  memset(rad, 0, sizeof rad); memset(mass, 0, sizeof mass); memset(inert, 0, sizeof inert);
+  memset(hist, 0, sizeof hist); memset(nh, 0, sizeof nh);
+  memset(cellHead, 0, sizeof cellHead); memset(cellNext, 0, sizeof cellNext);
+  memset(vp, 0, sizeof vp); memset(wp, 0, sizeof wp);
+  memset(nG, 0, sizeof nG); memset(gc, 0, sizeof gc); memset(gd, 0, sizeof gd); memset(gc0, 0, sizeof gc0);
+  memset(pushSum, 0, sizeof pushSum); memset(vrelSum, 0, sizeof vrelSum); memset(pushN, 0, sizeof pushN);
+  memset(pushSumG, 0, sizeof pushSumG); memset(vrelSumG, 0, sizeof vrelSumG); memset(pushNG, 0, sizeof pushNG);
+  memset(lastP, 0, sizeof lastP);
+  memset(riseBuf, 0, sizeof riseBuf);
+  nContacts = 0; sumOverlap = maxOverlap = 0; SQKT = SQKN = 0; zetaLow = 0;
+  zetaBB = zetaBW = zetaG = 0; lseed = 0;
+}
+
+void DemCore::out(const char *fmt, ...) {
+  char buf[1024];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof buf, fmt, ap);
+  va_end(ap);
+  outBuf += buf;
+}
+
+// ---------------------------------------------------------------------
+// bead-bed.c, unchanged
+// ---------------------------------------------------------------------
+@@DEFS@@
+// ---------------------------------------------------------------------
+// end of bead-bed.c
+// ---------------------------------------------------------------------
+
+double DemCore::gluedX(int wall, int k) const {
+  return wall == 0 ? -W_IN / 2 + gd[0][k] : wall == 1 ? W_IN / 2 - gd[1][k] : gc[2][k];
+}
+double DemCore::gluedY(int wall, int k) const { return wall < 2 ? gc[wall][k] : gd[2][k]; }
+
+bool DemCore::set(const std::string &key, double d) {
+  const char *k = key.c_str();
+#define D(name, var) else if (!strcmp(k, name)) var = d;
+#define I(name, var) else if (!strcmp(k, name)) var = (int)d;
+  if (false) {}
+  D("GAMMA", GAMMA) D("F", FHZ) D("POLY", POLY) D("MUB", MUB) D("MUW", MUW) D("MUF", MUF) D("MUP", MUP)
+  D("E", EB) D("EW", EW) D("TC", TC) D("YM", YM) D("NU", NU) D("KT", KT) D("ROLL", ROLL) D("GAP", GAP)
+  D("SETTLE", SETTLE) D("TEND", TEND) D("CONVEND", CONVEND) D("CONVSTART", CONVSTART) D("TH", TH) D("H0", H0) D("V0", V0)
+  D("W", W_IN) D("RB", R_B) D("RHOB", RHOB) D("RG", RG) D("SG", SG) D("GEMB", GEMB) D("GJIT", GJIT) D("MUG", MUG) D("EG", EG)
+  D("ETH", ETH) D("ELOW", ELOW) I("ROUGH", ROUGH) I("ROUGHF", ROUGHF)
+  I("TW", TW) I("N", NSM) I("FORCE3D", FORCE3D) I("SEED", SEED) I("MODEL", MODEL) I("NS", NS) I("PLATES", PLATES)
+  I("BOX", BOX)
+  D("H", H_IN) D("GAMMA0", GAMMA0) D("TG", TG) D("TR", TR) I("WATCH1", WATCH1) I("WATCH2", WATCH2)
+  I("GW1", GW1) I("GW2", GW2) I("TRACER", TRACER) D("RISE1", RISE1) D("RISE2", RISE2) D("RISEW", RISEW) D("LATE0", LATE0) D("LATE1", LATE1)
+  else return false;
+#undef D
+#undef I
+  return true;
+}
+
+double DemCore::get(const std::string &key) const {
+  const char *k = key.c_str();
+#define R(name, val) if (!strcmp(k, name)) return (val);
+  // parameters, as the run has them
+  R("KN", KN) R("GAMMA", GAMMA) R("F", FHZ) R("AMP", AMP) R("DT", DT) R("TC", TC) R("NSUB", nsub) R("N", N) R("W", W_IN) R("H", H_IN)
+  R("RG", RG) R("ROUGH", ROUGH) R("REACH", ROUGH ? RG * (2 - 2 * GEMB) + GJIT * RG / 2 : 0) R("MASS", Mtot) R("TRACER", TRACER < 0 && !BIG ? N - 1 : TRACER)
+  // the settled bed, just before the shaking starts
+  R("settled", settleDone) R("settleKe", settleKe) R("settleOvMax", settleOvMax) R("settleOvMean", settleOvMean)
+  // the push reports (hard window; gentle: "g" in front)
+  R("phase", phaseDone[0]) R("least", phaseLeast[0]) R("off", phaseOff[0]) R("landed", phaseLanded[0]) R("vdown", phaseVdown[0])
+  R("gphase", phaseDone[1]) R("gleast", phaseLeast[1]) R("goff", phaseOff[1]) R("glanded", phaseLanded[1]) R("gvdown", phaseVdown[1])
+  // the rolls (mm/s), once CONVEND has passed
+  R("conv", reportedConv) R("mid", convMid) R("wall", convWall)
+  // the special bead: at the top (as the lua had it), its rise, its late height
+  R("reached", reached) R("upper", upN ? (double)upHalf / upN : -1)
+  R("rise1", rise1T) R("rise2", rise2T) R("special", special) R("top", top)
+  R("late", lateDone) R("up20", lateN ? (double)lateUp / lateN : -1) R("top20", lateN ? (double)lateTop / lateN : -1)
+  R("h20", lateN ? lateH / lateN : -1) R("hc20", lateN ? lateHC / lateN : -1)
+  R("lateMean", lateN ? lateHsum / lateN : -1) R("lateMin", lateN ? lateHmin : -1)
+  // the tracer
+  R("tracerMin", trMin) R("tracerMinT", trMinT) R("tracerMinX", trMinX)
+  R("trips", trips) R("upx", upNN ? upX / upNN : -1) R("downx", downNN ? downX / downNN : -1)
+  // overlaps
+  R("ovmean", ovN ? ovSum / ovN : 0) R("ovmax", ovMax)
+  R("time", tf + kSub * DT) R("frame", frame)
+#undef R
+  return std::numeric_limits<double>::quiet_NaN();
+}
+
+// the box: y = A sin(w t) from t = 0 (at rest before). With a gentle opening
+// (GAMMA0 >= 0), A is GAMMA0's for TG s, then goes linearly to GAMMA's over
+// TR s (its speed then has A's rate of change in it too)
+void DemCore::boxAt(double te, double &y, double &vy) const {
+  if (GAMMA0 < 0) {
+    y = te > 0 ? AMP * sin(OMEGA * te) : 0;
+    vy = te > 0 ? AMP * OMEGA * cos(OMEGA * te) : 0;
+    return;
+  }
+  if (te <= 0) { y = vy = 0; return; }
+  double A0 = GAMMA0 * G / (OMEGA * OMEGA), A = AMP, dA = 0;
+  if (te < TG) A = A0;
+  else if (te < TG + TR) { dA = (AMP - A0) / TR; A = A0 + dA * (te - TG); }
+  y = A * sin(OMEGA * te);
+  vy = dA * sin(OMEGA * te) + A * OMEGA * cos(OMEGA * te);
+}
+
+// (what bead-bed.c's main does before its loop, test or run)
+void DemCore::init() {
+  if (MUF < 0) MUF = MUW;
+  if (MUP < 0) MUP = MUW;
+  if (EW < 0) EW = EB;
+  if (MUG < 0) MUG = MUW;
+  if (EG < 0) EG = EW;
+  NCX = (int)ceil(W_IN / CS);
+  if (NCX > NCXMAX) NCX = NCXMAX;
+  if (NSM + 1 > MAXB) NSM = MAXB - 1;
+  makeGlued();
+  if (KT < 0) KT = MODEL == 0 ? 2.0 / 7.0 : 2 * (1 - NU) / (2 - NU);
+  OMEGA = 2 * M_PI * FHZ;
+  which = BOX;
+  if (which == 0) { if (GAMMA < 0) GAMMA = 0.8; }
+  else if (which == 2) BIG = 0;
+  if (GAMMA < 0) GAMMA = 3.0;
+  AMP = GAMMA * G / (OMEGA * OMEGA);
+  if (TEST[0]) return;
+  LOCKZ = !PLATES;
+  if (PLATES && which != 2) PLATES = 0, LOCKZ = 1;
+  setStiffness();
+  pour(which);
+  nsub = (int)ceil((1.0 / 60) / DT);
+  DT = (1.0 / 60) / nsub;
+  Mtot = 0;
+  for (int i = 0; i < N; i++) Mtot += mass[i];
+  Wt = Mtot * G;
+  if (LATE0 < 0) LATE0 = TEND - 20;
+  tf = -SETTLE;
+  forces();
+  for (int i = 0; i < N; i++) for (int k = 0; k < 3; k++) { a_old[i][k] = f[i][k] / mass[i]; al_old[i][k] = tq[i][k] / inert[i]; }
+  ready = true;
+}
+
+std::string DemCore::test(const std::string &name) {
+  snprintf(TEST, sizeof TEST, "%s", name.c_str());
+  init();
+  outBuf.clear();
+  AMP = 0;
+  setStiffness();
+  if (MODEL == 0) { zetaBB = damping_for(0, EB); zetaBW = damping_for(0, EW); }
+  out("# damping: zeta(bead) %.5f zeta(wall) %.5f, k %.4g, DT %.3g\n", zetaBB, zetaBW, KN, DT);
+  if (!strcmp(TEST, "incline")) testIncline();
+  else if (!strcmp(TEST, "gdrop") || !strcmp(TEST, "ghollow")) testGlued();
+  else testDrop();
+  return outBuf;
+}
+
+// on to time t, in whole steps: the step count is what decides, so the run
+// is the same however the time is handed out
+void DemCore::stepTo(double t) {
+  if (!ready) return;
+  long target = (long)floor((t + SETTLE) * 60 * nsub + 0.5);
+  while (stepsDone < target) {
+    substep();
+    stepsDone++;
+    if (++kSub == nsub) {
+      kSub = 0;
+      tf += 1.0 / 60;
+      frame++;
+      afterFrame();
+    }
+  }
+}
+
+// one step of bead-bed.c's main loop (its inner loop's body, k = kSub)
+void DemCore::substep() {
+  int k = kSub;
+  double tt = tf + k * DT;
+  int cyc = (int)floor(tt * FHZ);
+  int watch = tt > 0 && cyc >= WATCH1 && cyc < WATCH2;
+  int watchG = tt > 0 && GAMMA0 >= 0 && cyc >= GW1 && cyc < GW2;
+  double P0 = 0;
+  if (watch || watchG) for (int i = 0; i < N; i++) P0 += mass[i] * v[i][1];
+  // the box at the end of this step
+  double te = tt + DT;
+  boxAt(te, boxy, boxv);
+  nContacts = 0; sumOverlap = 0; maxOverlap = 0;
+  step();
+  stepNo++;
+  if (tt > 0) { ovSum += nContacts ? sumOverlap / nContacts : 0; ovN++; if (maxOverlap > ovMax) ovMax = maxOverlap; }
+  else if (tt > -0.1) { if (maxOverlap > setMax) setMax = maxOverlap; setSum += nContacts ? sumOverlap / nContacts : 0; setN++; }
+  if (tt < 0 && tt + DT >= 0) {
+    // the settled bed, just before the shaking starts (RESULT_SETTLE)
+    double ke = 0;
+    for (int i = 0; i < N; i++) ke += 0.5 * mass[i] * dot(v[i], v[i]) + 0.5 * inert[i] * dot(w[i], w[i]);
+    settleOvMax = setMax;
+    settleOvMean = setN ? setSum / setN : 0;
+    settleKe = ke / N / (meanSmallMass() * G * 2 * R_S);
+    settleDone = 1;
+  }
+  if (watch || watchG) {
+    double P = 0;
+    for (int i = 0; i < N; i++) P += mass[i] * v[i][1];
+    double push = (P - P0) / DT + Wt;
+    int bin = (int)floor((tt * FHZ - cyc) * 180);
+    if (bin >= 0 && bin < 180) {
+      if (watch) { pushSum[bin] += push; vrelSum[bin] += P / Mtot - boxv; pushN[bin]++; }
+      if (watchG) { pushSumG[bin] += push; vrelSumG[bin] += P / Mtot - boxv; pushNG[bin]++; }
+    }
+  }
+}
+
+// the push report (bead-bed.c's): over the window's shakes, the least push in
+// 0-90 degrees, where it first drops below a tenth of the weight (lift-off),
+// where the bed's middle stops coming down (landed), and how fast it's still
+// coming down at arcsin(1 / Gamma)
+void DemCore::pushReport(bool gentle) {
+  int g = gentle ? 1 : 0;
+  const double *ps = gentle ? pushSumG : pushSum, *vs = gentle ? vrelSumG : vrelSum;
+  const long *pn = gentle ? pushNG : pushN;
+  double gam = gentle ? GAMMA0 : GAMMA;
+  int off = -1, landed = -1;
+  double least = 1e9;
+  for (int b = 0; b < 45; b++) {
+    if (!pn[b]) continue;
+    double p = ps[b] / pn[b] / Wt;
+    if (p < least) least = p;
+    if (off < 0 && p < 0.1) off = 2 * b;
+    if (landed < 0 && vs[b] / pn[b] >= 0) landed = 2 * b;
+  }
+  int b19 = (int)floor((gam > 1 ? asin(1 / gam) : M_PI / 2) * 180 / M_PI / 2);
+  double vdown = pn[b19] ? -vs[b19] / pn[b19] : 0;
+  phaseLeast[g] = least; phaseOff[g] = off; phaseLanded[g] = landed; phaseVdown[g] = vdown;
+  phaseDone[g] = 1;
+}
+
+// after each 1/60 s frame (bead-bed.c's main loop, after its inner loop)
+void DemCore::afterFrame() {
+  double by, byv;
+  boxAt(tf, by, byv);
+  double ys[MAXB];
+  for (int i = 0; i < NSM; i++) ys[i] = x[i][1];
+  for (int i = 1; i < NSM; i++) { double t = ys[i]; int j = i - 1; while (j >= 0 && ys[j] > t) { ys[j + 1] = ys[j]; j--; } ys[j + 1] = t; }
+  double sum = 0; int n = 0;
+  for (int i = (int)floor(NSM * 0.9) - 1; i < NSM; i++) { sum += ys[i]; n++; }
+  double topY = sum / n + R_S;
+  double ysp = x[N - 1][1], rs = rad[N - 1];
+  top = topY - by;
+  special = ysp - by;
+  if (tf > 0 && reached < 0 && ysp + rs > topY - 0.3) reached = tf;
+  if (reached >= 0 && BIG) { upN++; if (ysp - by > (topY - by) / 2) upHalf++; }
+  // its rise: when its height (or its mean over the last RISEW s, from the
+  // shaking's start) first reaches RISE1 and RISE2
+  double hr = ysp - by;
+  int nw = (int)floor(RISEW * 60 + 0.5);
+  if (nw > 600) nw = 600;
+  if (nw > 1 && tf > 0) {
+    if (riseN == nw) riseSum -= riseBuf[riseK]; else riseN++;
+    riseBuf[riseK] = hr;
+    riseSum += hr;
+    riseK = (riseK + 1) % nw;
+    hr = riseN == nw ? riseSum / nw : -1e30;
+  }
+  if (tf > 0 && rise1T < 0 && hr >= RISE1) rise1T = tf;
+  if (tf > 0 && rise2T < 0 && hr >= RISE2) rise2T = tf;
+  // the late window: the special bead's time in the upper half, at the top,
+  // its mean height (bottom 0, the bed's top 1), against twice the bed's
+  // centre of mass, and its centre's mean and least height
+  if (tf > LATE0 && tf <= LATE1) {
+    lateN++;
+    if (ysp - by > (topY - by) / 2) lateUp++;
+    if (ysp + rs > topY - 0.3) lateTop++;
+    double ycm = 0;
+    for (int q = 0; q < NSM; q++) ycm += x[q][1] - by;
+    lateHC += (ysp - by) / (2 * ycm / NSM);
+    lateH += (ysp - rs - by - (ROUGHF ? gluedReach() : 0)) / (topY - by - 2 * rs - (ROUGHF ? gluedReach() : 0));
+    lateHsum += ysp - by;
+    if (ysp - by < lateHmin) lateHmin = ysp - by;
+  }
+  if (tf > LATE1) lateDone = 1;
+  int tr = TRACER >= 0 ? TRACER : (!BIG ? N - 1 : -1);
+  // the tracer's lowest point, from the shaking's start to CONVEND
+  if (tr >= 0 && tf > 0 && tf <= CONVEND && x[tr][1] - by < trMin) { trMin = x[tr][1] - by; trMinT = tf; trMinX = x[tr][0]; }
+  if (tf > CONVSTART && (!haveSample || tf - lastT >= 0.5)) {
+    if (haveSample && !reportedConv) {
+      for (int i = 0; i < NSM; i++) {
+        double dx = fabs(lastP[i][0]), dy = ((x[i][1] - by) - lastP[i][1]) / (tf - lastT);
+        if (dx < 3) { midSum += dy; midN++; }
+        else if (dx > W_IN / 2 - 2.5) { wallSum += dy; wallN++; }
+      }
+      if (tr >= 0) {
+        double yt = x[tr][1], rt = rad[tr];
+        double h = yt - by - rt, depth = topY - by, sdx = fabs(x[tr][0]), dyS = yt - lastYs;
+        if (dyS > 0) { upX += sdx; upNN++; } else { downX += sdx; downNN++; }
+        if (h > depth * 2 / 3 && !zoneTop) zoneTop = 1;
+        if (h < depth / 3 && zoneTop) { zoneTop = 0; trips++; }
+      }
+    }
+    for (int i = 0; i < NSM; i++) { lastP[i][0] = x[i][0]; lastP[i][1] = x[i][1] - by; }
+    lastYs = tr >= 0 ? x[tr][1] : ysp;
+    lastT = tf;
+    haveSample = 1;
+  }
+  if (!phaseDone[0] && tf > WATCH2 / FHZ + 0.02 && tf - 1.0 / 60 <= WATCH2 / FHZ + 0.02) pushReport(false);
+  if (GAMMA0 >= 0 && !phaseDone[1] && tf > GW2 / FHZ + 0.02 && tf - 1.0 / 60 <= GW2 / FHZ + 0.02) pushReport(true);
+  if (!reportedConv && tf > CONVEND) {
+    reportedConv = 1;
+    convMid = midN ? midSum / midN * 10 : 0;
+    convWall = wallN ? wallSum / wallN * 10 : 0;
+  }
+}

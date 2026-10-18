@@ -156,8 +156,9 @@ EXHIBITS = EXHIBITS or {
             "Beside it, the same Slinky walks down a flight of stairs." },
   { dir = "../BrazilNut/", file = "brazil-nut.lua", name = "the Brazil-nut effect", label = "brazil-nut",
     prefix = "Brazil: ", floorY = -75,
-    about = "The Brazil-nut effect: shaken hard, a box of beads turns over slowly, and\n" ..
-            "the big bead comes up to the top and stays there." },
+    about = "The Brazil-nut effect, in real glass: two boxes of glass beads shaken hard.\n" ..
+            "With rough walls the beads go round and the big bead comes up; with smooth\n" ..
+            "glass walls they go round the other way and it stays down." },
   { dir = "../SolarSystem/", file = "solar-system.lua", name = "the solar system", label = "solar-system",
     prefix = "Solar: ", floorY = -75,
     about = "The solar system: the Sun, the planets, Pluto, five asteroids and 21 moons,\n" ..
