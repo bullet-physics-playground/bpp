@@ -22,6 +22,23 @@ is updated at the end of every milestone.
 
 ## 2. How William likes to work
 
+- **Simplicity and elegance are part of the project** (William,
+  2026-10-18). Physicomimetics exists because the alternative did not
+  scale: before AP, groups used complex control theory and reached about
+  three robots. A simulation with too many variables and controls has given
+  up simplicity; we want the simplest way to do a thing well. William's
+  chain formations once had more than 20 variables; the method used now has
+  a handful, and it works better. So:
+  - Add a tool (a slider, a mechanism, a rule) only when a measurement shows
+    it is needed, and say *where and when* it is needed (which vehicle,
+    which sensing, which task). Off by default, and never all of them on at
+    once just because they exist.
+  - Prefer a rule that follows from the physics or the geometry to a knob
+    to tune (e.g. η's band set from the law and the spacing, F50); prefer
+    one switch to several; fix a constant and state it rather than expose
+    it.
+  - When a tool turns out not to help, say so in `FINDINGS.md` and leave it
+    off, or take it out.
 - **Deliver changes as a patch plus the full git commands**
   (`git am ~/Downloads/<name>.patch`, then build if C++ changed, then
   `git push origin master`). He applies and pushes them himself. Fetch first

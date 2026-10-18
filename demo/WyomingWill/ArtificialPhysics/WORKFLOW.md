@@ -29,6 +29,10 @@ where they are, so they remain easy to find in BPP's file dialog.
 
 ## 2. How each task is done
 
+**Keep it simple** (`HANDOFF.md` §2): the fewest variables that do the job
+well; a new control only when a measurement needs it, off by default, with
+notes on where it is needed.
+
 Every task goes through the same steps. Each step is one patch.
 
 1. **Read the sources.** There are four (five for Ch. 8–9), and each can be right
@@ -64,18 +68,15 @@ quantity it shows or prints means (formula, units, sign).
 
 ## 3. Checks protect earlier work
 
-As the check scripts accumulate, running them all is a regression suite: a
-change to the shared code cannot quietly break an earlier result. "Measure
-before claiming" becomes something a script enforces. Checks use the shared
-random number generator with fixed seeds, so their results repeat exactly.
+Run together, the checks are a regression suite: a change to shared code
+cannot quietly break an earlier result. They use fixed seeds, so their
+results repeat exactly.
 
 ## 4. Patches
 
-As before: one patch per step, with the full git commands, checked to apply
-cleanly to the current `origin/master` (fetched first, since master moves). Each
-patch says whether a rebuild is needed (Lua-only patches need none; new C++
-files need `qmake` re-run). Experiments that change behaviour are switchable,
-with the old behaviour at 0, so they are easy to revert.
+One patch per step, with the full git commands, checked against the current
+`origin/master`, saying whether a rebuild is needed (`HANDOFF.md` §2).
+Experiments that change behaviour are switchable, the old behaviour at 0.
 
 ## 5. Chats and milestones
 
@@ -93,8 +94,7 @@ updating `HANDOFF.md`. The milestones follow the build order in `BOOK.md`:
 
 ## 6. What stays out of the repo
 
-The book PDF, the theses and Zarzhitsky's CPT code are not William's to
-publish, so they stay out of the repo; attach them to a chat that needs them.
-The Android app's code lives in its own project; attach `ap.zip` when a task
-needs it. Our chapter notes and the thesis digests are our own summaries and
-are in `book/`.
+The book PDF, the theses, Zarzhitsky's CPT code and the Android app's code
+are not William's to publish or live in their own projects; attach them to a
+chat that needs them. Our chapter notes and thesis digests in `book/` are
+our own summaries.
