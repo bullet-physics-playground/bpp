@@ -1,9 +1,11 @@
 --
 -- The Solar System -- Euler's Gallery
 --
--- The Sun, the eight planets, Pluto, five asteroids (Ceres, Pallas, Juno,
--- Vesta, Hygiea) and twenty-one moons, from 2026 January 1 on, moving as
--- gravity moves them -- worked out here, from where JPL had them that day.
+-- The Sun, the eight planets, Pluto, twenty-one moons, the giant planets'
+-- rings and the asteroid belt's thirty largest (five of them, Ceres,
+-- Pallas, Juno, Vesta and Hygiea, with their masses), from 2026 January 1
+-- on, moving as gravity moves them -- worked out here, from where JPL had
+-- them that day.
 --
 --   the orrery    the Sun on its column, the planets, Pluto and the
 --                 asteroids round it, on their orbits. Their distances
@@ -13,8 +15,8 @@
 --                 above and below the Earth's orbit (the ecliptic), are
 --                 true. The bodies are drawn much bigger than they are.
 --   the vitrines  along the back, each planet with its moons: the Earth
---                 and the Moon, Mars, Jupiter, Saturn (and its rings),
---                 Uranus (lying on its side), Neptune (Triton going round
+--                 and the Moon, Mars, Jupiter, Saturn, Uranus (lying on
+--                 its side, its rings upright), Neptune (Triton going round
 --                 backwards), Pluto and Charon (going round each other).
 --                 In each, distances from the planet are square-rooted
 --                 too; directions true. North -- the Earth's orbit's north
@@ -47,9 +49,25 @@
 --     Ganymede; how close Neptune and Pluto come (never closer than 17 AU,
 --     though their orbits cross); the energy and angular momentum.
 --
+-- THE OPENING (display and sound only; the music in solar-music.lua). You come in to a
+-- dark room. The Sun ignites -- it glows, and it is the only lamp: a
+-- point light at it, so every body's day side faces it -- and the bodies
+-- light up in the order its light reaches them, nearest first: the
+-- planets, their moons and rings, the asteroid belt (the thirty largest
+-- asteroids, from the Minor Planet Center's orbits, integrated with the
+-- rest). Each lights up after the time light really takes to reach it from
+-- the Sun, at its distance then: 1 second here for every 10 minutes (the
+-- Earth after 0.8 s, Neptune after 25). The console says each time once.
+-- With Holst's The Planets (Holst and the London Symphony Orchestra,
+-- Columbia, 1922-23; public domain), when it's been fetched: rest the
+-- mouse on a planet to hear its movement.
+--
 -- Keys
 --   1 2 3 4 5   a quarter of a day, 1, 5, 25, 100 days a second
 --   R           back to 2026 January 1
+--   L           the opening again (the Sun, then its light going out)
+--   M           the music on or off
+--   G           get the music (Holst's The Planets, 266 MB, from Wikimedia Commons)
 --
 -- Units: centimetres in the room; AU, days and the ICRF inside.
 -- Headless testing: SS_RATE (days a second), SS_YEARS (years before it
@@ -66,6 +84,9 @@ end
 local D = dofile(DIR .. "solar-data.lua")
 local makeEngine = dofile(DIR .. "solar-engine.lua")
 local ROT = dofile(DIR .. "solar-rotation.lua")
+local BELT = dofile(DIR .. "solar-belt.lua")         -- the asteroid belt (make-belt.py)
+local RINGS = dofile(DIR .. "solar-rings.lua")       -- the giant planets' rings (make-rings.py)
+local makeMusic = dofile(DIR .. "solar-music.lua")
 local MESH = DIR .. "solar-meshes/"
 local here = galleryPath or function(p) return p end      -- (in the hall, found from there)
 
@@ -105,11 +126,18 @@ local AUKM = D.AU_KM
 local Q0 = btQuaternion(0, 0, 0, 1)
 local HIDE = btTransform(Q0, btVector3(0, -500, 0))
 local KEYS = {}
+-- Nothing here casts a shadow. The only lamp is at the Sun, in the middle
+-- of everything, and bpp's shadows come from light 0 as from one fixed
+-- direction (a far sun overhead): from a lamp at the Sun they would all
+-- fall the wrong way. (Shadows are the viewer's choice, View > Shadows;
+-- with them on, the bodies are still lit from the Sun, per pixel.)
+local function noShadow(o) pcall(function() o.castShadow = false end); return o end
 local function block(sx, sy, sz, x, y, z, col)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(Q0, btVector3(x, y, z))
   c.col = col
   c.collides = false
+  noShadow(c)
   v:add(c)
   return c
 end
@@ -117,6 +145,7 @@ local function ball(r, col)
   local s = Sphere(r, 0)
   s.col = col
   s.collides = true          -- (for the mouse: bpp's hover only finds what collides; nothing here moves under physics)
+  noShadow(s)
   v:add(s)
   return s
 end
@@ -125,6 +154,7 @@ local function mesh(file, col, x, y, z)
   m.col = col
   m.collides = false
   m.trans = btTransform(Q0, btVector3(x or 0, y or 0, z or 0))
+  noShadow(m)
   v:add(m)
   return m
 end
@@ -133,8 +163,22 @@ local function column(x, y0, y1, z, r, col)
   c.trans = btTransform(btQuaternion(btVector3(1, 0, 0), pi / 2), btVector3(x, (y0 + y1) / 2, z))
   c.col = col
   c.collides = false
+  noShadow(c)
   v:add(c)
   return c
+end
+-- what lights up when the Sun's light reaches it (see "the opening", below):
+-- each body's objects, under the name of the body whose distance from the
+-- Sun decides when (a ring goes with its planet)
+local LIT = {}
+local function hexrgb(h) return tonumber(h:sub(2, 3), 16), tonumber(h:sub(4, 5), 16), tonumber(h:sub(6, 7), 16) end
+local function lit(obj, body, col)
+  local r, g, b = hexrgb(col or obj.col)
+  -- (a body wearing a map is drawn white under it, whatever its colour: it
+  -- is darkened instead by letting the dark room show through it)
+  local tex = ROT.models[body] ~= nil and (col or obj.col):lower() == "#ffffff"
+  LIT[#LIT + 1] = { obj = obj, body = body, r = r, g = g, b = b, f = -1, tex = tex }
+  return obj
 end
 
 -- ICRF -> the room's axes: x the ecliptic's x (toward the March equinox),
@@ -206,6 +250,7 @@ for _, x in ipairs({ -196, 196 }) do
 end
 local floor_ = Plane(0, 1, 0, TABLE_Y - 75, 500)
 floor_.col = "#3b3f45"
+noShadow(floor_)
 v:add(floor_)
 
 -- ---------------------------------------------------------------------
@@ -220,17 +265,46 @@ column(OC[1], TABLE_Y, OC[2] - 3, OC[3], 0.8, "#b08d3c")
 block(8, 1.2, 8, OC[1], TABLE_Y + 0.6, OC[3], "#b08d3c")
 KEYS[objectKey(sun)] = { kind = "sun" }
 local ORB = {}           -- the orrery's bodies: { i (main index), obj }
+-- a body's radius in the orrery: 0.33 cm times the square root of its
+-- radius in thousands of km (the planets: at least 0.35 cm, as before)
 local function orreryRadius(rkm)
   return math.max(0.35, 0.33 * sqrt(rkm / 1000))
 end
+-- the asteroids by the same rule, without the floor: Ceres 0.23 cm down
+-- to 0.10 for the belt's smallest here (194 km across)
+local function asteroidRadius(rkm) return 0.33 * sqrt(rkm / 1000) end
+local BELTBY = {}
+for k, a in ipairs(BELT.list) do
+  BELTBY[a.name] = a
+  a.k = k
+  -- (its name for the opening: the five in the main integration by their
+  -- names, the rest by number -- 52 Europa is not Jupiter's)
+  a.key = a.engine and a.name or ("#" .. a.no)
+  a.label = string.format("(%d) %s", a.no, a.name)
+end
 for i, b in ipairs(D.main) do
   if b.name ~= "Sun" and b.name ~= "Moon" then
-    local o = ball(b.asteroid and 0.35 or orreryRadius(b.r * AUKM), b.col)
+    local o = ball(b.asteroid and asteroidRadius(BELTBY[b.name].d / 2) or orreryRadius(b.r * AUKM), b.col)
     wear(o, b.name)
+    lit(o, b.name, o.col)
     ORB[#ORB + 1] = { i = i, obj = o, name = b.name, asteroid = b.asteroid }
     KEYS[objectKey(o)] = { kind = "orrery", i = i, name = b.name }
     local m = mesh("orbit-" .. b.name:lower() .. ".obj", b.asteroid and "#55595f" or "#6b6f76", OC[1], OC[2], OC[3])
     KEYS[objectKey(m)] = { kind = "orbit", name = b.name }
+  end
+end
+-- the asteroid belt: the thirty largest, of which these five above are
+-- also in the main integration with their masses; the other twenty-five,
+-- massless, integrated alongside (solar-engine.lua), from the Minor Planet
+-- Center's elements (solar-belt.lua). (The five's massless twins, from the
+-- same elements, are checked against Horizons, not drawn.)
+for k, a in ipairs(BELT.list) do
+  if not a.engine then
+    local col = ({ "#8f8a82", "#857f78", "#958c80", "#7d7a76" })[k % 4 + 1]
+    local o = ball(asteroidRadius(a.d / 2), col)
+    lit(o, a.key, col)
+    ORB[#ORB + 1] = { belt = k, obj = o, name = a.label, asteroid = true }
+    KEYS[objectKey(o)] = { kind = "orrery", belt = k, name = a.label }
   end
 end
 
@@ -257,6 +331,7 @@ for k, name in ipairs(VNAMES) do
   mesh("hoop.obj", "#8a6d2c", cx, cy, cz)
   V.planet = ball(size(RADIUS[name]), PCOL[name])
   wear(V.planet, name)
+  lit(V.planet, name, V.planet.col)
   KEYS[objectKey(V.planet)] = { kind = "vplanet", v = V }
   if name ~= "Pluto" then V.planet.trans = btTransform(Q0, btVector3(cx, cy, cz)) end
   if name == "Earth" then
@@ -266,13 +341,38 @@ for k, name in ipairs(VNAMES) do
       V.bodies[mk] = { obj = ball(size(m.r * AUKM), "#cfc8bd"), name = m.name, k = mk, rot = m.name }
     end
   end
-  for _, b in ipairs(V.bodies) do KEYS[objectKey(b.obj)] = { kind = "moon", v = V, b = b }; wear(b.obj, b.rot) end
-  if name == "Saturn" then
-    mesh("saturn-ring-c.obj", "#6e6553", cx, cy, cz)
-    mesh("saturn-ring-b.obj", "#d8c99a", cx, cy, cz)
-    mesh("saturn-ring-a.obj", "#b3a57d", cx, cy, cz)
+  for _, b in ipairs(V.bodies) do
+    KEYS[objectKey(b.obj)] = { kind = "moon", v = V, b = b }
+    wear(b.obj, b.rot)
+    lit(b.obj, b.rot, b.obj.col)
   end
   VIT[k] = V
+end
+
+-- ---------------------------------------------------------------------
+-- the giant planets' rings (make-rings.py): flat bands in each planet's
+-- equator, turned to its pole (the IAU's), not turning. In the orrery,
+-- ring against planet is true (both drawn at the same scale); in the
+-- vitrines, distances from the planet are square-rooted as its moons' are.
+-- The faint ones (Jupiter's, Uranus', Neptune's, Saturn's D ring) are
+-- drawn nearly see-through, and less so as you come close (see faintness,
+-- below): as faint as they are from where you stand, findable up close.
+-- ---------------------------------------------------------------------
+local RINGSETS = {}      -- { planet, obj, band, where ("orrery"/"vitrine"), op (now) }
+local VITBY = {}
+for _, V in ipairs(VIT) do VITBY[V.name] = V end
+for _, planet in ipairs({ "Jupiter", "Saturn", "Uranus", "Neptune" }) do
+  for _, band in ipairs(RINGS[planet]) do
+    for _, where in ipairs({ "orrery", "vitrine" }) do
+      local m = mesh(band[where], band.col)
+      m.trans = HIDE
+      m.transparency = 1 - band.op
+      lit(m, planet, band.col)
+      local R = { planet = planet, obj = m, band = band, where = where, op = band.op }
+      RINGSETS[#RINGSETS + 1] = R
+      KEYS[objectKey(m)] = { kind = "rings", planet = planet }
+    end
+  end
 end
 
 -- ---------------------------------------------------------------------
@@ -330,9 +430,137 @@ end
 -- ---------------------------------------------------------------------
 local E, t, nextCheck, nextH, stats
 local iSun, iEarth, iMoon = 0, 0, 0
+-- an asteroid's two-body orbit about the Sun, from its osculating elements
+-- (the ecliptic of J2000), at Julian date jd: heliocentric position and
+-- velocity in the ICRF, AU and AU/day
+local GMSUN = D.main[1].gm
+local function keplerState(a, jd)
+  local A, e = a.a, a.e
+  local i, O, w = math.rad(a.i), math.rad(a.node), math.rad(a.peri)
+  local n = sqrt(GMSUN / (A * A * A))
+  local M = math.rad(a.M) + n * (jd - BELT.EPOCH)
+  local Ea = M
+  for _ = 1, 30 do
+    local d = (Ea - e * sin(Ea) - M) / (1 - e * cos(Ea))
+    Ea = Ea - d
+    if abs(d) < 1e-15 then break end
+  end
+  local cE, sE = cos(Ea), sin(Ea)
+  local b = A * sqrt(1 - e * e)
+  local xp, yp = A * (cE - e), b * sE
+  local Edot = n / (1 - e * cE)
+  local vxp, vyp = -A * sE * Edot, b * cE * Edot
+  local cO, sO, cw, sw, ci, si = cos(O), sin(O), cos(w), sin(w), cos(i), sin(i)
+  local P = { cO * cw - sO * sw * ci, sO * cw + cO * sw * ci, sw * si }
+  local Q = { -cO * sw - sO * cw * ci, -sO * sw + cO * cw * ci, cw * si }
+  local function eq(X, Y, Z) return X, CE * Y - SE * Z, SE * Y + CE * Z end
+  local x, y, z = eq(P[1] * xp + Q[1] * yp, P[2] * xp + Q[2] * yp, P[3] * xp + Q[3] * yp)
+  local vx, vy, vz = eq(P[1] * vxp + Q[1] * vyp, P[2] * vxp + Q[2] * vyp, P[3] * vxp + Q[3] * vyp)
+  return x, y, z, vx, vy, vz
+end
+-- The belt's starting states, barycentric, at the start (2026-01-01): from
+-- the elements' epoch (2025-11-21), 41 days before, carried on with the
+-- planets pulling (RK4, quarter-day steps, about the Sun: the planets
+-- themselves on their Kepler orbits about it, back from DE421's places on
+-- 2026-01-01) -- Kepler alone puts Hygiea 6,000 km off in those 41 days,
+-- which would grow to a million km in five years -- plus the Sun's place
+-- then (DE421).
+local PL
+local function bridged(a)
+  local H, NSTEP = 0.25, floor((D.JD0 - BELT.EPOCH) / 0.25 + 0.5)
+  local s = D.main[1]
+  -- the planets, back from the start, every eighth of a day (heliocentric)
+  if not PL then PL = {}
+  for _, b in ipairs(D.main) do
+    if b.name ~= "Sun" and not b.asteroid then
+      local mu = GMSUN + b.gm
+      local x, y, z = b.x[1] - s.x[1], b.x[2] - s.x[2], b.x[3] - s.x[3]
+      local u, v_, w = b.v[1] - s.v[1], b.v[2] - s.v[2], b.v[3] - s.v[3]
+      local P = { gm = b.gm, x = {}, y = {}, z = {} }
+      local G = 2 * NSTEP
+      P.x[G], P.y[G], P.z[G] = x, y, z
+      local function acc(px, py, pz) local r2 = px * px + py * py + pz * pz; local f = -mu / (r2 * sqrt(r2)); return f * px, f * py, f * pz end
+      local h = -H / 2
+      for g = G - 1, 0, -1 do
+        local k1x, k1y, k1z = acc(x, y, z)
+        local k2x, k2y, k2z = acc(x + h / 2 * u, y + h / 2 * v_, z + h / 2 * w)
+        local k3x, k3y, k3z = acc(x + h / 2 * u + h * h / 4 * k1x, y + h / 2 * v_ + h * h / 4 * k1y, z + h / 2 * w + h * h / 4 * k1z)
+        local k4x, k4y, k4z = acc(x + h * u + h * h / 2 * k2x, y + h * v_ + h * h / 2 * k2y, z + h * w + h * h / 2 * k2z)
+        x, y, z = x + h * (u + h / 6 * (k1x + k2x + k3x)), y + h * (v_ + h / 6 * (k1y + k2y + k3y)), z + h * (w + h / 6 * (k1z + k2z + k3z))
+        u, v_, w = u + h / 6 * (k1x + 2 * k2x + 2 * k3x + k4x), v_ + h / 6 * (k1y + 2 * k2y + 2 * k3y + k4y), w + h / 6 * (k1z + 2 * k2z + 2 * k3z + k4z)
+        P.x[g], P.y[g], P.z[g] = x, y, z
+      end
+      PL[#PL + 1] = P
+    end
+  end
+  end
+  -- the asteroid, forward from the epoch
+  local function acc(g, x, y, z)
+    local r2 = x * x + y * y + z * z
+    local f = -GMSUN / (r2 * sqrt(r2))
+    local ax, ay, az = f * x, f * y, f * z
+    for _, P in ipairs(PL) do
+      local px, py, pz = P.x[g], P.y[g], P.z[g]
+      local dx, dy, dz = px - x, py - y, pz - z
+      local d2 = dx * dx + dy * dy + dz * dz
+      local p2 = px * px + py * py + pz * pz
+      local fd, fp = P.gm / (d2 * sqrt(d2)), P.gm / (p2 * sqrt(p2))
+      ax, ay, az = ax + fd * dx - fp * px, ay + fd * dy - fp * py, az + fd * dz - fp * pz
+    end
+    return ax, ay, az
+  end
+  local x, y, z, u, v_, w = keplerState(a, BELT.EPOCH)
+  local h = H
+  for n = 0, NSTEP - 1 do
+    local g = 2 * n
+    local k1x, k1y, k1z = acc(g, x, y, z)
+    local k2x, k2y, k2z = acc(g + 1, x + h / 2 * u, y + h / 2 * v_, z + h / 2 * w)
+    local k3x, k3y, k3z = acc(g + 1, x + h / 2 * u + h * h / 4 * k1x, y + h / 2 * v_ + h * h / 4 * k1y, z + h / 2 * w + h * h / 4 * k1z)
+    local k4x, k4y, k4z = acc(g + 2, x + h * u + h * h / 2 * k2x, y + h * v_ + h * h / 2 * k2y, z + h * w + h * h / 2 * k2z)
+    x, y, z = x + h * (u + h / 6 * (k1x + k2x + k3x)), y + h * (v_ + h / 6 * (k1y + k2y + k3y)), z + h * (w + h / 6 * (k1z + k2z + k3z))
+    u, v_, w = u + h / 6 * (k1x + 2 * k2x + 2 * k3x + k4x), v_ + h / 6 * (k1y + 2 * k2y + 2 * k3y + k4y), w + h / 6 * (k1z + 2 * k2z + 2 * k3z + k4z)
+  end
+  return x, y, z, u, v_, w
+end
+local function beltStart()
+  local s = D.main[1]
+  local list = {}
+  for k, a in ipairs(BELT.list) do
+    local x, y, z, vx, vy, vz = bridged(a)
+    list[k] = { s.x[1] + x, s.x[2] + y, s.x[3] + z, s.v[1] + vx, s.v[2] + vy, s.v[3] + vz }
+    for i, b in ipairs(D.main) do if b.name == a.name then list[k].skip = i end end   -- (its massive self)
+  end
+  return list
+end
+local BELT0 = beltStart()
+-- the belt against Horizons (the five that Horizons' files have), with the
+-- integration stopped at the date (h: Horizons' positions, barycentric),
+-- and what two-body Kepler alone would give
+local function checkBelt(date, jd, pos, start)
+  local sx, sy, sz = E.mainPos(iSun, E.t)
+  local parts, kep = {}, {}
+  for k, a in ipairs(BELT.list) do
+    local r = a.engine and pos(a.name)
+    if r then
+      local x, y, z = E.beltPos(k, E.t)
+      parts[#parts + 1] = string.format("%s %.0f", a.name, (sqrt((x - r[1]) ^ 2 + (y - r[2]) ^ 2 + (z - r[3]) ^ 2) * AUKM))
+      local kx, ky, kz = keplerState(a, jd)
+      kep[#kep + 1] = string.format("%s %.0f", a.name, (sqrt((sx + kx - r[1]) ^ 2 + (sy + ky - r[2]) ^ 2 + (sz + kz - r[3]) ^ 2) * AUKM))
+    end
+  end
+  if #parts > 0 and start then
+    print(string.format("  %s  the asteroid belt (the MPC's elements of 41 days before, carried here) against Horizons, km off: %s",
+                        date, table.concat(parts, ", ")))
+  elseif #parts > 0 then
+    print(string.format("  %s  the asteroid belt (from the MPC's elements, integrated) against Horizons, km off: %s" ..
+                        "\n              (two-body Kepler about the Sun alone: %s)", date, table.concat(parts, ", "),
+                        table.concat(kep, ", ")))
+  end
+end
+local beltSaid = false
 local function start()
   holdStart()
-  E = makeEngine(D)
+  E = makeEngine(D, BELT0)
   iSun, iEarth, iMoon = E.IDX.Sun, E.IDX.Earth, E.IDX.Moon
   t = 0
   nextCheck, nextH = 1, 1
@@ -357,6 +585,16 @@ local function start()
                       "\n  the Earth: on %s at 0h (TDB) the Sun is overhead at %.2f %s, %.2f %s (the IERS's Earth, its turning as" ..
                       "\n    measured, through Skyfield: 23.02 S, 178.87 W; the IAU's simpler model is within a tenth of a degree)",
                       dateStr(D.JD0), abs(la), la < 0 and "S" or "N", abs(lo), lo < 0 and "W" or "E"))
+  -- (new lines, once a run: the belt)
+  if not beltSaid then
+    beltSaid = true
+    print(string.format("  the asteroid belt: the %d largest, from the Minor Planet Center's elements (epoch %s, via Stellarium's" ..
+                        "\n    ssystem_minor.ini), massless, integrated with the rest (Newton); diameters from memory (make-belt.py)",
+                        #BELT.list, dateStr(BELT.EPOCH)))
+    local MAINBY = {}
+    for _, b in ipairs(D.main) do MAINBY[b.name] = b end
+    checkBelt(dateStr(D.JD0), D.JD0, function(n) return MAINBY[n] and MAINBY[n].source == "Horizons" and MAINBY[n].x end, true)
+  end
 end
 
 -- a moon's mean longitude about its planet, in the planet's equator
@@ -499,6 +737,7 @@ local function checks(tn)
       nextH = nextH + 1
       E.advance(hd)
       checkHorizons(h)
+      if dateStr(h.jd):sub(6) == "01-01" then checkBelt(dateStr(h.jd), h.jd, function(n) return h[n] end) end
     end
   end
 end
@@ -507,16 +746,37 @@ end
 -- drawing
 -- ---------------------------------------------------------------------
 local function at(obj, x, y, z, q) obj.trans = btTransform(q or Q0, btVector3(x, y, z)) end
+local ORRAT = {}         -- where each planet is in the orrery, this frame
+-- a ring's turn: the mesh's +y to the planet's pole (in the room)
+local function ringTurn(name, jd)
+  local _, _, p = ROT.rotation(name, jd)
+  local px, py, pz = room(p[1], p[2], p[3])
+  local ax, az = pz, -px                      -- (+y cross the pole)
+  local s = sqrt(ax * ax + az * az)
+  if s < 1e-12 then return Q0 end
+  return btQuaternion(btVector3(ax / s, 0, az / s), math.acos(math.max(-1, math.min(1, py))))
+end
 local function show()
   local jd = D.JD0 + t
   local sx, sy, sz = E.mainPos(iSun, t)
   at(sun, OC[1], OC[2], OC[3], turned("Sun", jd))
   for _, o in ipairs(ORB) do
-    local x, y, z = E.mainPos(o.i, t)
+    local x, y, z
+    if o.belt then x, y, z = E.beltPos(o.belt, t) else x, y, z = E.mainPos(o.i, t) end
     local X, Y, Z = room(x - sx, y - sy, z - sz)
     local r = sqrt(X * X + Y * Y + Z * Z)
     local f = S * sqrt(r) / r
-    at(o.obj, OC[1] + X * f, OC[2] + Y * f, OC[3] + Z * f, turned(o.name, jd))
+    local px, py, pz = OC[1] + X * f, OC[2] + Y * f, OC[3] + Z * f
+    at(o.obj, px, py, pz, turned(o.name, jd))
+    if not o.asteroid then ORRAT[o.name] = { px, py, pz } end
+  end
+  -- the rings, with their planets
+  local RQ = {}
+  for _, R in ipairs(RINGSETS) do
+    local q = RQ[R.planet]
+    if not q then q = ringTurn(R.planet, jd); RQ[R.planet] = q end
+    local c = R.where == "orrery" and ORRAT[R.planet] or VITBY[R.planet].c
+    at(R.obj, c[1], c[2], c[3], q)
   end
   for _, V in ipairs(VIT) do
     local cx, cy, cz = V.c[1], V.c[2], V.c[3]
@@ -552,8 +812,176 @@ local function show()
   showDate(dateStr(D.JD0 + t))
 end
 
+-- ---------------------------------------------------------------------
+-- the opening: a dark room; the Sun ignites; its light goes out, and each
+-- body lights up as it arrives -- after the time light takes from the
+-- Sun's centre to the body's, at its distance in the simulation then,
+-- shown here 1 second for every LT_SCALE (600) seconds: 10 minutes of the
+-- light's travel a second (the Earth 0.8 s, Jupiter 4, Neptune 25,
+-- Pluto 29).
+--
+-- Its clock is the exhibit's frames (60 a second), counted only while the
+-- simulation steps (not in the start's pause), never the wall clock: so
+-- the console says the same in the hall as on its own, and the same with
+-- or without the pause (only later). It replays each time you come into
+-- the bay (and with L), from the distances then; the console gives the
+-- light's times once a run, from the start (2026-01-01), at the frames the
+-- first opening on its own has them.
+-- ---------------------------------------------------------------------
+local INHALL = galleryPath ~= nil
+local LT_SCALE, FPS = 600, 60
+local F_DARK, F_SUN, F_BODY = 90, 60, 60      -- frames: dark, the Sun brightening, each body brightening
+local DARK = 0.05                              -- a body before the light reaches it: 5% of its colour
+local AMB = { dark = 0.02, lit = 0.05 }        -- v.glAmbient (each light's ambient share)
+local MAMB = { dark = 0.02, lit = 0.05 }       -- v.glModelAmbient
+local SUN_GLOW = { 1.0, 0.86, 0.56 }           -- the Sun's own light (its emission), lit
+local music = makeMusic(v, print)
+-- the light's time (seconds) from the Sun to each body, and its distance
+-- (AU), at time t
+local function lightTimes()
+  local sx, sy, sz = E.mainPos(iSun, t)
+  local T = {}
+  local function put(name, x, y, z)
+    local d = sqrt((x - sx) ^ 2 + (y - sy) ^ 2 + (z - sz) ^ 2)
+    T[name] = { s = d / D.C * 86400, au = d }
+  end
+  for i, b in ipairs(D.main) do
+    if b.name ~= "Sun" then
+      local x, y, z = E.mainPos(i, t)
+      local Sy = SYSBY[b.name] and E.SYS[SYSBY[b.name]]
+      if Sy then                               -- (the planet, from its system's barycentre; its moons)
+        local ox, oy, oz = E.planetOffset(Sy, t)
+        put(b.name, x + ox, y + oy, z + oz)
+        for k, m in ipairs(Sy.moons) do
+          local mx, my, mz = E.moonPos(Sy, k, t)
+          put(m.name, x + ox + mx, y + oy + my, z + oz + mz)
+        end
+      else
+        put(b.name, x, y, z)
+      end
+    end
+  end
+  for k, a in ipairs(BELT.list) do
+    if not a.engine then put(a.key, E.beltPos(k, t)) end
+  end
+  return T
+end
+local function smooth(x)
+  if x <= 0 then return 0 elseif x >= 1 then return 1 end
+  return x * x * (3 - 2 * x)
+end
+local function hms(s)
+  local n = floor(s + 0.5)
+  local h, m, sec = floor(n / 3600), floor(n % 3600 / 60), n % 60
+  if h > 0 then return string.format("%d h %02d min %02d s", h, m, sec) end
+  return string.format("%d min %02d s", m, sec)
+end
+local function arrives(T, name) return F_DARK + T[name].s / LT_SCALE * FPS end   -- (the frame its light arrives)
+
+-- the console's lines, once a run, from the distances at the start
+local SAY = { f = 0, lines = nil, next = 1 }
+local function planSay()
+  local T = lightTimes()
+  local L = { { f = F_DARK, s = 0, text = string.format("  the Sun ignites (%s): its light reaches each body after its distance" ..
+              " from the Sun over c (shown here 1 s for each %d min)", dateStr(D.JD0 + t), LT_SCALE / 60) } }
+  local function line(name, extra, label)
+    local x = T[name]
+    L[#L + 1] = { f = floor(arrives(T, name)), s = x.s, text = string.format("  sunlight reaches %s: %s after leaving the Sun (%.4f AU)%s",
+                  label or (name == "Earth" and "the Earth" or name), hms(x.s), x.au, extra or "") }
+  end
+  for _, name in ipairs({ "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto" }) do
+    local extra = ""
+    if name == "Earth" then
+      extra = "; the Moon: " .. hms(T.Moon.s)
+    elseif SYSBY[name] then
+      local ms = {}
+      for _, m in ipairs(E.SYS[SYSBY[name]].moons) do ms[#ms + 1] = m.name .. " " .. hms(T[m.name].s) end
+      extra = (#ms == 1 and "; its moon " or "; its moons ") .. table.concat(ms, ", ")
+    end
+    if RINGS[name] then extra = extra .. "; and its rings" end
+    line(name, extra)
+  end
+  for _, a in ipairs(BELT.list) do line(a.key, nil, a.label) end
+  table.sort(L, function(a, b) if a.f ~= b.f then return a.f < b.f end return a.s < b.s end)
+  SAY.lines, SAY.next = L, 1
+end
+
+-- the lights, and each body's brightness, at frame f of the opening
+local OPEN = { f = 0, T = nil, done = false, set = {} }
+local function setV(k, val, key)           -- (only when it changes)
+  if OPEN.set[k] ~= key then OPEN.set[k] = key; v[k] = val end
+end
+local function lights(f)
+  local s = smooth((f - F_DARK) / F_SUN)
+  local key = floor(s * 1000 + 0.5)
+  setV("glLight0Color", btVector4(s, s, s, 1), key)
+  setV("glAmbient", AMB.dark + (AMB.lit - AMB.dark) * s, key)
+  setV("glModelAmbient", MAMB.dark + (MAMB.lit - MAMB.dark) * s, key)
+  if OPEN.set.sun ~= key then
+    OPEN.set.sun = key
+    sun:setEmission(SUN_GLOW[1] * s, SUN_GLOW[2] * s, SUN_GLOW[3] * s)
+  end
+  local T, last = OPEN.T, 0
+  for _, l in ipairs(LIT) do
+    local a = arrives(T, l.body)
+    if a > last then last = a end
+    local b = DARK + (1 - DARK) * smooth((f - a) / F_BODY)
+    if abs(b - l.f) > 0.002 or (b == 1 and l.f ~= 1) then
+      l.f = b
+      if l.tex then
+        l.obj.transparency = b >= 1 and 0 or 1 - b
+      else
+        l.obj.col = string.format("#%02x%02x%02x", floor(l.r * b + 0.5), floor(l.g * b + 0.5), floor(l.b * b + 0.5))
+      end
+    end
+  end
+  OPEN.done = f > last + F_BODY and s >= 1
+end
+-- the opening from the start (as you come in, or L): from the distances now
+local function openingStart()
+  OPEN.f, OPEN.T, OPEN.done = 0, lightTimes(), false
+  lights(0)
+end
+-- each frame (advance: the simulation steps this frame)
+local function openingStep(advance)
+  if advance then
+    OPEN.f = OPEN.f + 1
+    SAY.f = SAY.f + 1
+    local L = SAY.lines
+    while L and L[SAY.next] and L[SAY.next].f <= SAY.f do
+      print(L[SAY.next].text)
+      SAY.next = SAY.next + 1
+    end
+  end
+  if not OPEN.done then lights(OPEN.f) end
+end
+
+-- the faint rings: as see-through as they are from where you stand (150 cm
+-- or more), and up to three times less so as you come close (to 30 cm)
+local function faintness()
+  local cp = v.cam.pos
+  local cx, cy, cz = cp.x, cp.y, cp.z
+  for _, R in ipairs(RINGSETS) do
+    if R.band.faint then
+      local c = R.where == "orrery" and ORRAT[R.planet] or VITBY[R.planet].c
+      if c then
+        local d = sqrt((cx - c[1]) ^ 2 + (cy - c[2]) ^ 2 + (cz - c[3]) ^ 2)
+        local op = math.min(0.9, R.band.op * (1 + 2 * smooth((150 - d) / 120)))
+        if abs(op - R.op) > 0.005 then R.op = op; R.obj.transparency = 1 - op end
+      end
+    end
+  end
+end
+
+-- the lamp: at the Sun, a point light (w = 1); the fill light off
+v.glLight0 = btVector4(OC[1], OC[2], OC[3], 1)
+v.glLight1Color = btVector4(0, 0, 0, 1)
+v.glSpecular = 0.2           -- (a lamp this close would put a glare on the table's top)
+
 v:preSim(function(N_)
-  if holdPre() then return end
+  music.sim()
+  if holdPre() then openingStep(false); return end
+  openingStep(true)
   local dt = v:getParam("days") / 60
   t = t + dt
   checks(t)          -- any check dates on the way, first (the year's figures end there)
@@ -607,20 +1035,45 @@ for k, r in ipairs(RATES) do
   v:addShortcut(tostring(k), function(N_) v:addParam("days", r, 0.05, 200, 0.05, "days a second (keys 1-5)") end)
 end
 v:addShortcut("R", function(N_) start(); show() end)
+v:addShortcut("L", function(N_) openingStart() end)
+v:addShortcut("M", function(N_) music.toggle() end)
+v:addShortcut("G", function(N_) music.get() end)
+v:preDraw(function(N_)
+  music.draw()
+  faintness()
+end)
+-- in the hall: you come into the bay (the opening again, and the music),
+-- and leave it (the music fades)
+if v.onEnter then
+  v:onEnter(function(N_) openingStart(); music.enter() end)
+  v:onLeave(function(N_) music.leave() end)
+end
 v:setHelpText(table.concat({
   "The solar system (Euler's Gallery)",
   "",
-  "The Sun, the planets, Pluto, five asteroids and 21 moons,",
-  "moved by gravity from where JPL had them on 2026-01-01.",
+  "The Sun, the planets, Pluto, 21 moons, the rings, and",
+  "the asteroid belt's 30 largest, moved by gravity from",
+  "where JPL had them on 2026-01-01.",
   "The orrery: distances from the Sun square-rooted, so all",
   "fit. Behind: each planet's moons, square-rooted the same.",
+  "",
+  "The Sun is the only lamp. Each body lights up as its light",
+  "arrives: 1 s here for each 10 min the light really takes.",
   "",
   "Each wears a map of its surface, and turns as it does:",
   "slow down (1: a quarter of a day a second) to watch.",
   "Rest the mouse on one for what it's like.",
   "",
+  "Music: Holst's The Planets, Holst conducting the London",
+  "Symphony Orchestra (Columbia, 1922-23; public domain, from",
+  "Wikimedia Commons). Rest the mouse on a planet to hear its",
+  "movement.",
+  "",
   "1-5  a quarter of a day, 1, 5, 25, 100 days a second",
   "R    back to 2026-01-01",
+  "L    the opening again (the Sun's light going out)",
+  "M    the music off / on",
+  "G    get the music (266 MB, once)",
   "",
   "Slider: days (a second).",
 }, "\n"))
@@ -661,6 +1114,43 @@ end
 for _, b in ipairs(D.main) do
   if not FACTS[b.name] then FACTS[b.name] = { r = b.r * AUKM } end
 end
+-- the belt: its size (from memory, see make-belt.py), its finding, its orbit
+for _, a in ipairs(BELT.list) do
+  local n = a.engine and a.name or a.label          -- (the hover's name for it)
+  local f = FACTS[n] or {}
+  if not a.engine then f.r = a.d / 2 end
+  f.note = string.format("(%d) %s, about %d km across (a published mean diameter, from memory). Found %s by %s." ..
+                         "\nIts orbit: a = %.3f AU, e = %.3f, i = %.1f degrees to the ecliptic (the Minor Planet Center's, %s);" ..
+                         "\n%s", a.no, a.name, floor(a.d + 0.5), a.found, a.by, a.a, a.e, a.i, dateStr(BELT.EPOCH),
+                         a.engine and "here integrated with its mass, from Horizons' place and speed on 2026-01-01."
+                                  or "here integrated from them, pulled by the Sun, the planets and the five biggest asteroids.")
+  FACTS[n] = f
+end
+-- the rings, for the mouse (radii and finding from memory: see make-rings.py)
+local RINGTEXT = {
+  Saturn = "Saturn's rings: D, C, B and A, with the Cassini Division between B and A and the Encke gap in A,\n" ..
+           "and the narrow F ring: 66,900 to 140,200 km from its centre (drawn true to Saturn's size here).\n" ..
+           "Water ice, in pieces from dust to houses, mostly tens of metres thick. B is the densest, C\n" ..
+           "half see-through, the Cassini Division nearly empty. (The faint G and E rings, further out, aren't drawn.)\n" ..
+           "Galileo saw them in 1610 as \"ears\"; Huygens saw that they are a ring (1655, published 1659);\n" ..
+           "Cassini found the division in 1675.",
+  Jupiter = "Jupiter's rings: the halo (92,000-122,500 km from its centre, a thick torus, drawn flat), the\n" ..
+            "main ring (122,500-129,000 km) and the gossamer rings of Amalthea and Thebe, out to 226,000 km.\n" ..
+            "Dark, reddish dust, knocked off its small inner moons: seen best from behind, against the Sun.\n" ..
+            "Found by Voyager 1, March 1979. From where you stand they're all but invisible, as they are;\n" ..
+            "come close and they show a little more.",
+  Uranus = "Uranus' rings: thirteen. Nine found in 1977, when they hid a star before and after Uranus did\n" ..
+           "(Elliot, Dunham and Mink, from the Kuiper Airborne Observatory): 6, 5, 4, alpha, beta, eta,\n" ..
+           "gamma, delta and epsilon; lambda and the dusty zeta by Voyager 2 (1986); nu and mu by the Hubble\n" ..
+           "Space Telescope (2003). 37,850 to 103,000 km from its centre. The nine are narrow (1 to 10 km;\n" ..
+           "epsilon 20 to 96), drawn far wider than they are so they show, and as dark as charcoal.\n" ..
+           "In Uranus' equator, which is tipped 98 degrees: they stand nearly upright to its orbit.",
+  Neptune = "Neptune's rings: Galle (42,000 km from its centre), Le Verrier (53,200), Lassell (53,200-57,200),\n" ..
+            "Arago (57,200) and Adams (62,930), named after the astronomers in its story. Arcs in the Adams\n" ..
+            "ring (Courage, Liberte, Egalite, Fraternite) were found when they hid stars, in 1984; Voyager 2\n" ..
+            "confirmed them and saw the whole rings in 1989. Dark, dusty and faint. Where the arcs are round\n" ..
+            "the ring is an example (they go round in 0.44 days).",
+}
 local function commas(x) return (string.format("%.0f", x):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")) end
 -- the pole it turns anticlockwise about (the IAU's north, or for a body
 -- turning the other way, its south)
@@ -695,12 +1185,21 @@ if v.onHover then
   v:onHover(function(N_, obj, x, y, z)
     local k = KEYS[objectKey(obj)]
     if not k then return nil end
+    -- (the music: a planet's movement, when the mouse rests on something of it)
+    music.hover((k.kind == "orrery" and k.name) or (k.v and k.v.name) or k.planet)
+    if k.kind == "rings" then return RINGTEXT[k.planet] end
     local sx, sy, sz = E.mainPos(iSun, t)
     local ex, ey, ez = E.mainPos(iEarth, t)
     -- a planet (or Pluto, or an asteroid) about the Sun
-    local function planet(name, i)
-      local bx, by, bz = E.mainPos(i, t)
-      local X, Y, Z, VX, VY, VZ = E.mainState(i)
+    local function planet(name, i, bk)
+      local bx, by, bz, X, Y, Z, VX, VY, VZ
+      if bk then                             -- (one of the belt's: massless)
+        bx, by, bz = E.beltPos(bk, t)
+        X, Y, Z, VX, VY, VZ = E.beltState(bk)
+      else
+        bx, by, bz = E.mainPos(i, t)
+        X, Y, Z, VX, VY, VZ = E.mainState(i)
+      end
       if name == "Earth" then                -- (the Earth and the Moon go round the Sun together)
         local mX, mY, mZ, mVX, mVY, mVZ = E.mainState(iMoon)
         local a, b = E.GM[iEarth], E.GM[iMoon]
@@ -710,7 +1209,7 @@ if v.onHover then
       end
       local _, _, _, SVX, SVY, SVZ = E.mainState(iSun)
       local P, hx, hy, hz = orbit(X - select(1, E.mainState(iSun)), Y - select(2, E.mainState(iSun)), Z - select(3, E.mainState(iSun)),
-                                  VX - SVX, VY - SVY, VZ - SVZ, E.GM[iSun] + E.GM[i] + (name == "Earth" and E.GM[iEarth] or 0))
+                                  VX - SVX, VY - SVY, VZ - SVZ, E.GM[iSun] + (bk and 0 or E.GM[i]) + (name == "Earth" and E.GM[iEarth] or 0))
       local de = sqrt((bx - ex) ^ 2 + (by - ey) ^ 2 + (bz - ez) ^ 2)
       local head = string.format("%s\n%.3f AU from the Sun; %s, a year of %s", name,
                                  sqrt((bx - sx) ^ 2 + (by - sy) ^ 2 + (bz - sz) ^ 2), name == "Earth" and "here" or
@@ -722,7 +1221,7 @@ if v.onHover then
     if k.kind == "sun" then
       return string.format("The Sun\n%s, going %g days a second\n%s", dateStr(D.JD0 + t), v:getParam("days"), about("Sun"))
     elseif k.kind == "orrery" then
-      return planet(k.name, k.i)
+      return planet(k.name, k.i, k.belt)
     elseif k.kind == "orbit" then
       return k.name .. "'s orbit (as it is in 2026; the orrery's distances are square-rooted)"
     elseif k.kind == "vplanet" then
@@ -764,3 +1263,6 @@ end
 
 start()
 show()
+planSay()
+openingStart()
+if not INHALL then music.enter() end       -- (in the hall: when you come into the bay)

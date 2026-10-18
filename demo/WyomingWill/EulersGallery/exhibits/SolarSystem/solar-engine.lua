@@ -22,10 +22,17 @@
 -- given as a kick, then Kepler again. Sixteen steps to the innermost
 -- moon's orbit. The Sun's position comes from the main integration.
 --
+-- THE ASTEROID BELT (belt0: starting states, barycentric): massless, so
+-- it changes nothing above. Each is pulled by the Sun, the planets, the
+-- Moon and the five asteroids with masses (Newton), their places from the
+-- main integration's steps; stepped by RK4 a day at a time, after each of
+-- its days. A twin of one of the five (belt0[k].skip, its index) isn't
+-- pulled by itself.
+--
 
 local sqrt, sin, cos, abs, floor = math.sqrt, math.sin, math.cos, math.abs, math.floor
 
-return function(D)
+return function(D, belt0)
   local E = {}
   local C2 = D.C * D.C
 
@@ -391,6 +398,83 @@ return function(D)
   end
 
   -- -------------------------------------------------------------------
+  -- the asteroid belt
+  -- -------------------------------------------------------------------
+  local belt = belt0 or {}
+  local NB = #belt
+  local BS, BA, BB = {}, {}, {}           -- state now (end of the day), and at the day's start and end, for drawing
+  local PULL = {}                          -- who pulls (all but the Newtonian Mercury)
+  for i = 1, N do PULL[#PULL + 1] = i end
+  local function beltReset()
+    for k, b in ipairs(belt) do
+      BS[k] = { b[1], b[2], b[3], b[4], b[5], b[6] }
+      BA[k] = { b[1], b[2], b[3], b[4], b[5], b[6] }
+      BB[k] = { b[1], b[2], b[3], b[4], b[5], b[6] }
+    end
+  end
+  beltReset()
+  local PX, PY, PZ = {}, {}, {}
+  local function places(t)                -- (the pullers at time t, from the main integration's step)
+    for _, i in ipairs(PULL) do PX[i], PY[i], PZ[i] = E.mainPos(i, t) end
+  end
+  local function beltAcc(k, x, y, z)
+    local sk = belt[k].skip
+    local ax, ay, az = 0, 0, 0
+    for _, j in ipairs(PULL) do
+      if j ~= sk then
+        local dx, dy, dz = PX[j] - x, PY[j] - y, PZ[j] - z
+        local r2 = dx * dx + dy * dy + dz * dz
+        local f = GM[j] / (r2 * sqrt(r2))
+        ax, ay, az = ax + f * dx, ay + f * dy, az + f * dz
+      end
+    end
+    return ax, ay, az
+  end
+  -- one day, t0 to t0 + 1 (the main integration already at its end)
+  local K = {}
+  local function beltDay(t0)
+    local h = 1
+    for k = 1, NB do K[k] = {} end
+    places(t0)
+    for k = 1, NB do local s = BS[k]; K[k][1], K[k][2], K[k][3] = beltAcc(k, s[1], s[2], s[3]) end
+    places(t0 + h / 2)
+    for k = 1, NB do
+      local s, q = BS[k], K[k]
+      q[4], q[5], q[6] = beltAcc(k, s[1] + h / 2 * s[4], s[2] + h / 2 * s[5], s[3] + h / 2 * s[6])
+      q[7], q[8], q[9] = beltAcc(k, s[1] + h / 2 * s[4] + h * h / 4 * q[1], s[2] + h / 2 * s[5] + h * h / 4 * q[2],
+                                 s[3] + h / 2 * s[6] + h * h / 4 * q[3])
+    end
+    places(t0 + h)
+    for k = 1, NB do
+      local s, q, a = BS[k], K[k], BA[k]
+      local ax, ay, az = beltAcc(k, s[1] + h * s[4] + h * h / 2 * q[4], s[2] + h * s[5] + h * h / 2 * q[5],
+                                 s[3] + h * s[6] + h * h / 2 * q[6])
+      for c = 1, 6 do a[c] = s[c] end
+      s[1] = s[1] + h * (s[4] + h / 6 * (q[1] + q[4] + q[7]))
+      s[2] = s[2] + h * (s[5] + h / 6 * (q[2] + q[5] + q[8]))
+      s[3] = s[3] + h * (s[6] + h / 6 * (q[3] + q[6] + q[9]))
+      s[4] = s[4] + h / 6 * (q[1] + 2 * q[4] + 2 * q[7] + ax)
+      s[5] = s[5] + h / 6 * (q[2] + 2 * q[5] + 2 * q[8] + ay)
+      s[6] = s[6] + h / 6 * (q[3] + 2 * q[6] + 2 * q[9] + az)
+      local b = BB[k]
+      for c = 1, 6 do b[c] = s[c] end
+    end
+  end
+  E.NB = NB
+  -- asteroid k of the belt at time t in [tB - H, tB] (cubic Hermite, as mainPos)
+  function E.beltPos(k, t)
+    local s = (t - (tB - H)) / H
+    local A, B = BA[k], BB[k]
+    if s >= 1 then return B[1], B[2], B[3] end
+    local s2, s3 = s * s, s * s * s
+    local h00, h10, h01, h11 = 2 * s3 - 3 * s2 + 1, s3 - 2 * s2 + s, -2 * s3 + 3 * s2, s3 - s2
+    return h00 * A[1] + H * h10 * A[4] + h01 * B[1] + H * h11 * B[4],
+           h00 * A[2] + H * h10 * A[5] + h01 * B[2] + H * h11 * B[5],
+           h00 * A[3] + H * h10 * A[6] + h01 * B[3] + H * h11 * B[6]
+  end
+  function E.beltState(k) local s = BS[k]; return s[1], s[2], s[3], s[4], s[5], s[6] end
+
+  -- -------------------------------------------------------------------
   -- the present: advance everything to time t (days from the start)
   -- -------------------------------------------------------------------
   -- (the moons' steps inside the present day are finished before the next
@@ -408,6 +492,7 @@ return function(D)
       bsStep(H)
       tB = tB + H
       keep(PB)
+      if NB > 0 then beltDay(tB - H) end
       for _, S in ipairs(SYS) do advanceSys(S, math.min(tB, t)) end
     end
     for _, S in ipairs(SYS) do advanceSys(S, t) end
@@ -516,6 +601,7 @@ return function(D)
     tB = 0
     keep(PA)
     keep(PB)
+    beltReset()
     for si, s in ipairs(D.systems) do
       local S = SYS[si]
       S.t = 0

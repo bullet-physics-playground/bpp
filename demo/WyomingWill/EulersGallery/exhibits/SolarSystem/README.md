@@ -1,12 +1,17 @@
 # The Solar System
 
-The Sun, the eight planets, Pluto, five asteroids (Ceres, Pallas, Juno,
-Vesta, Hygiea) and twenty-one moons, from 2026 January 1 on. They move as
-gravity moves them, worked out here from where JPL had them that day.
+The Sun, the eight planets, Pluto, twenty-one moons, the giant planets'
+rings and the asteroid belt's thirty largest, from 2026 January 1 on. They
+move as gravity moves them, worked out here from where JPL had them that day.
+
+It opens in the dark. The Sun ignites, and the bodies light up one by one in
+the order its light reaches them, each after the time light really takes to
+get there; with Holst's *The Planets*, Holst conducting the London Symphony
+Orchestra in 1922–23, if you let it fetch the recording.
 
 | Part | What's there |
 |---|---|
-| the orrery | The Sun on its column, with the planets, Pluto and the asteroids on their orbits. Distances from the Sun are square-rooted (Mercury 11 cm, the Earth 18 cm, Neptune 99 cm, Pluto out to 126 cm) so that all of them fit. Their directions, and their heights above and below the ecliptic, are true. The bodies are drawn far bigger than they are. |
+| the orrery | The Sun on its column, with the planets, Pluto and the asteroid belt on their orbits (the orbits drawn for the planets, Pluto and the five biggest asteroids). Distances from the Sun are square-rooted (Mercury 11 cm, the Earth 18 cm, Neptune 99 cm, Pluto out to 126 cm) so that all of them fit. Their directions, and their heights above and below the ecliptic, are true. The bodies are drawn far bigger than they are. |
 | the vitrines | Along the back, each planet with its moons: the Earth and the Moon, Mars (Phobos, Deimos), Jupiter (Io, Europa, Ganymede, Callisto), Saturn (Mimas to Iapetus, and the rings), Uranus (its moons going round it on its side), Neptune (Triton going round backwards), and Pluto and Charon going round each other. Distances from the planet are square-rooted too; directions are true. North, the ecliptic's, is up everywhere. |
 | the date | above the vitrines |
 
@@ -25,6 +30,9 @@ again: JPL's DE421, which it's checked against, ends in 2053.
 |---|---|
 | `1` `2` `3` `4` `5` | a quarter of a day, 1, 5, 25 or 100 days a second |
 | `R` | back to 2026 January 1 |
+| `L` | the opening again: the room dark, the Sun igniting, its light going out |
+| `M` | the music off, or on again (from Mars) |
+| `G` | get the music (266 MB, once), if you said "Not now" |
 
 Slider: days (a second). To watch them turn, slow down: at 5 days a second
 the Earth turns five times a second, and Jupiter twelve, faster than the
@@ -37,6 +45,258 @@ turn and its day (noon to noon), its axis's tilt to its orbit, its
 distances (and how long light takes from it to the Earth), and its year;
 for a moon, its distance from its planet, how long it takes to go round,
 and whether it keeps one face toward it. On the Sun, the date.
+
+## The opening
+
+You come in to a dark room: not black, but hard to make anything out. After
+a second and a half the Sun ignites. It glows (its own light, an emission),
+and it is the only lamp: a point light at its centre, the fill light off. So
+in the orrery every body's day side faces the Sun and its night side faces
+away. Then its light goes out, and each body lights up as the light reaches
+it, nearest first: Mercury, Venus, the Earth and the Moon, Mars and its
+moons, the asteroid belt, Jupiter and its moons and rings, and on out to
+Neptune and Pluto. Each brightens over a second, from 5% of its colour to
+its full look.
+
+**When**: after the time light takes from the Sun's centre to the body's, at
+its distance in the simulation at that moment (a planet's own place, not its
+system's barycentre; each moon's, each asteroid's), **shown 1 second for
+every 10 minutes of the light's travel**: Mercury 0.4 s, the Earth 0.8 s,
+the belt 1.8 to 3.2 s, Jupiter 4.3 s, Saturn 7.9 s, Uranus 16 s, Neptune 25
+s and Pluto 29.5 s after the Sun ignites. The console says each time once, as
+it lights up, from the distances on 2026-01-01:
+
+      the Sun ignites (2026-01-01): its light reaches each body after its distance from the Sun over c (shown here 1 s for each 10 min)
+      sunlight reaches Mercury: 3 min 51 s after leaving the Sun (0.4625 AU)
+      sunlight reaches Venus: 6 min 03 s after leaving the Sun (0.7274 AU)
+      sunlight reaches the Earth: 8 min 11 s after leaving the Sun (0.9833 AU); the Moon: 8 min 12 s
+      sunlight reaches Mars: 11 min 53 s after leaving the Sun (1.4287 AU); its moons Phobos 11 min 53 s, Deimos 11 min 53 s
+      sunlight reaches (4) Vesta: 18 min 19 s after leaving the Sun (2.2017 AU)
+      ... (the rest of the belt, out to (31) Euphrosyne: 31 min 37 s, 3.8006 AU)
+      sunlight reaches Jupiter: 43 min 21 s after leaving the Sun (5.2119 AU); its moons Io 43 min 20 s, Europa 43 min 19 s, Ganymede 43 min 19 s, Callisto 43 min 27 s; and its rings
+      sunlight reaches Saturn: 1 h 19 min 10 s after leaving the Sun (9.5185 AU); its moons Mimas 1 h 19 min 09 s, ... Titan 1 h 19 min 13 s, Iapetus 1 h 19 min 05 s; and its rings
+      sunlight reaches Uranus: 2 h 42 min 06 s after leaving the Sun (19.4901 AU); its moons Miranda 2 h 42 min 06 s, ...; and its rings
+      sunlight reaches Neptune: 4 h 08 min 33 s after leaving the Sun (29.8848 AU); its moon Triton 4 h 08 min 32 s; and its rings
+      sunlight reaches Pluto: 4 h 54 min 35 s after leaving the Sun (35.4214 AU); its moon Charon 4 h 54 min 35 s
+
+**Its clock is the exhibit's own frames** (60 a second), counted only while
+the simulation steps, never the wall clock. So the console says the same,
+line for line, in the hall as on its own, and the start's half-second pause
+only delays it; and since the times come from the start's distances, the
+lines are the same at any speed (where they fall among the check lines
+depends on the speed: at 5 days a second the Sun ignites on January 8 of the
+simulation, at 100 in late May).
+
+**Each time you come in** (in the hall: each time you arrive at the bay; on
+its own: at the start; and with `L`) the opening plays again, from the
+distances then. The console gives the times only once a run, at the frames
+the first opening on its own has them, so that the hall and the exhibit on
+its own print the same. (In the hall, the first frame is run as the hall
+loads, so the console's opening is one frame ahead of the one you see.)
+
+**No shadows.** Nothing here casts one. bpp's shadows (the View menu's
+Shadows: yours to turn on, not the exhibit's) come from light 0 as from a
+single fixed direction, a far sun overhead; from a lamp at the Sun, in the
+middle of everything, every shadow would fall the wrong way, so the rings
+don't shade their planets nor the planets their rings. With shadows on, the
+lighting is worked out per pixel, still from the Sun.
+
+**The vitrines are lit by the same lamp**, the orrery's Sun, in front of
+them: each planet's day side there faces the orrery's Sun, not the real
+Sun's direction from it (bpp has two lights; there's no lamp per vitrine).
+The Earth's comes out within about 45 degrees; Saturn's about 90.
+
+**How a body is darkened**: a body without a map by its colour. A body
+wearing a map is drawn white under it whatever its colour, so it is
+darkened instead by letting the dark room show through it (transparency 95%
+before its light arrives).
+
+The lights: `v.glLight0` at the Sun (w = 1); `v.glLight0Color` and the
+Sun's emission go from 0 to full over the Sun's second; `v.glAmbient` and
+`v.glModelAmbient` from 0.02 (the dark room) to 0.05 (night sides you can just
+see); `v.glLight1Color` 0 (no fill light); `v.glSpecular` 0.2 (a lamp this
+close put a glare on the table's top).
+
+## The asteroid belt
+
+**The thirty largest asteroids of the main belt**: everything over about
+190 km across, Ceres (939 km) down to Hermione (194). Ceres, Pallas, Juno,
+Vesta and Hygiea were in the integration already, with their masses; the
+other twenty-five are new: Interamnia, Europa, Davida, Sylvia, Eunomia,
+Euphrosyne, Cybele, Camilla, Bamberga, Patientia, Psyche, Thisbe, Doris,
+Ursula, Iris, Fortuna, Diotima, Herculina, Amphitrite, Aurora, Egeria,
+Eugenia, Elektra, Themis and Hermione.
+
+**Their orbits**: osculating elements (heliocentric, ecliptic and equinox
+of J2000) at epoch 2025-11-21 (JD 2461000.5 TT), the Minor Planet Center's,
+as Stellarium carries them in its `data/ssystem_minor.ini` (github.com,
+Stellarium/stellarium, master, fetched 2026-10-18), with each one's
+discoverer and date of discovery. JPL's Small-Body Database
+(ssd-api.jpl.nasa.gov) and Horizons (ssd.jpl.nasa.gov) were the sources
+asked for, but the network refused both where this was made, so the
+elements are not JPL's. The thirty entries are copied, unchanged, to
+`belt/ssystem_minor-excerpt.ini`; `make-belt.py` makes `solar-belt.lua` from
+them. (Stellarium has 532 Herculina cut short, as "Herculin".)
+
+**Their sizes are from memory**: published mean diameters (Dawn's for Ceres
+and Vesta, the VLT/SPHERE shape models of Vernazza and others, 2021, and
+Marsset and others, 2020, for most of the rest), each good to about 10%, not
+checked here against a source. They decide which thirty are the largest (a
+different source could swap the last few) and how big each is drawn: by the
+orrery's own rule, 0.33 cm times the square root of the radius in thousands
+of km, Ceres 0.23 cm down to 0.10 cm (without the planets' 0.35 cm floor;
+the five already there had been drawn 0.35 cm and are now drawn by the rule
+too).
+
+**How they move**: massless, pulled (Newton) by the Sun, the planets, the
+Moon, Pluto and the five asteroids with masses, at their places in the main
+integration, and stepped by RK4 a day at a time, after each of its days
+(`solar-engine.lua`). Being massless, they change nothing in the rest:
+every existing check line is the same, character for character. They start
+from the elements' epoch, 41 days before 2026-01-01, carried on to it with
+the planets pulling (RK4, quarter-day steps, the planets on Kepler orbits
+back from DE421's places), plus the Sun's place then.
+
+**Planetary perturbations matter** over the exhibit's 25 years: two-body
+Kepler about the Sun alone would be off by 60,000–800,000 km after one year
+and up to 3 million km (Juno) or 5 million (Hygiea) within five, which is a
+millimetre or more in the orrery, as big as the asteroids are drawn. Even
+the 41 days from the epoch to the start matter: Kepler for them puts Hygiea
+5,900 km off on 2026-01-01, which grew to a million km in five years before
+the bridge with the planets pulling was put in.
+
+**Checked against JPL Horizons**: Horizons' positions for Ceres, Pallas,
+Juno, Vesta and Hygiea (from `horizons/`, fetched earlier by
+`fetch-horizons.sh`), against massless twins of those five started from
+these elements and moved the same way (a twin isn't pulled by its massive
+self, which starts a few hundred km from it; the twins aren't drawn). At the
+start, and every January 1 to 2031 (Horizons' files end there), in km:
+
+| | Ceres | Vesta | Pallas | Hygiea | Juno |
+|---|---|---|---|---|---|
+| 2026-01-01 (the start) | 111 | 109 | 151 | 146 | 103 |
+| 2027-01-01 | 90 | 109 | 115 | 150 | 110 |
+| 2028-01-01 | 105 | 78 | 106 | 101 | 166 |
+| 2029-01-01 | 97 | 159 | 189 | 20 | 119 |
+| 2030-01-01 | 105 | 137 | 200 | 123 | 79 |
+| 2031-01-01 | 107 | 73 | 158 | 180 | 70 |
+| two-body Kepler alone, 2027 | 92,780 | 56,643 | 62,584 | 795,611 | 93,997 |
+| two-body Kepler alone, 2031 | 1,177,214 | 308,622 | 848,383 | 1,593,904 | 3,109,530 |
+
+So the integrated belt stays within about 200 km of Horizons over five
+years, about what the elements' last digit (0.00001 degree, 70 km at 2.8 AU)
+and the start allow; Horizons' orbits also have the other big asteroids
+pulling, which these don't. The console prints these lines (new lines: the
+check lines that were there are unchanged):
+
+      2026-01-01  the asteroid belt (the MPC's elements of 41 days before, carried here) against Horizons, km off: Ceres 111, Vesta 109, Pallas 151, Hygiea 146, Juno 103
+      2027-01-01  the asteroid belt (from the MPC's elements, integrated) against Horizons, km off: Ceres 90, Vesta 109, Pallas 115, Hygiea 150, Juno 110
+                  (two-body Kepler about the Sun alone: Ceres 92780, Vesta 56643, Pallas 62584, Hygiea 795611, Juno 93997)
+
+Resting the mouse on an asteroid gives its number and name, its size (and
+that it's from memory), who found it and when, its orbit's a, e and i (the
+MPC's), its distances and its year.
+
+## The rings
+
+**Saturn**: the D, C, B and A rings, the Cassini Division between B and A,
+the Encke gap in A, and the narrow F ring (66,900 to 140,200 km from its
+centre). B the densest (opaque), C half see-through, the Cassini Division
+nearly empty (dark, mostly see-through). **Jupiter**: the halo
+(92,000–122,500 km), the main ring (to 129,000) and the gossamer rings out
+to 226,000 km: faint, reddish dust. **Uranus**: thirteen rings, 37,850 to
+103,000 km: the nine narrow ones of 1977 (6, 5, 4, α, β, η, γ, δ, ε), λ,
+the dusty ζ, ν and μ; as dark as charcoal. **Neptune**: Galle, Le Verrier,
+Lassell, Arago and Adams (41,900 to 62,930 km), with the arcs in the Adams
+ring.
+
+**The ring data are from memory** (NASA's planetary fact sheets and the PDS
+Ring-Moon Systems Node's tables, which the network here refused):
+`make-rings.py` has them, with the colour and opacity of each band, and
+makes the meshes (`solar-meshes/rings-*.obj`) and `solar-rings.lua`.
+
+Each ring is a flat band in its planet's equator, turned to its pole (the
+IAU's, from `solar-rotation.lua`) and not turning. In the orrery they're
+scaled exactly as the planet is drawn: the planet's sphere stands for its
+mean radius, and a ring at r km is drawn at r over that radius times the
+sphere's, so ring against planet is true (Saturn's A ring reaches 2.35
+times its radius). In the vitrines, distances from the planet are
+square-rooted, as its moons' are, so the rings sit among the moons as they
+do (Mimas just outside the A ring), and they look narrower against the
+planet than they are. Uranus's rings stand nearly upright to its orbit:
+its equator is tipped 98 degrees.
+
+Saturn's rings look dim in 2026, and rightly: Saturn's equinox was in May
+2025, when the Sun crossed the ring plane, and on 2026-01-01 the Sun is
+only 3.6 degrees below it (the IAU pole against the integration's Saturn):
+lit almost edge-on, on their south face. They brighten over the years
+as the Sun climbs (faster at 25 or 100 days a second).
+
+The narrow rings are tens of km wide or less, far below a pixel: they're
+drawn 0.035 cm wide in the orrery and 0.05 cm in the vitrines, and say so.
+Where the Adams ring's arcs are round it is an example (they go round in
+0.44 days).
+
+**Faint rings, honestly**: Jupiter's, Uranus's, Neptune's and Saturn's D ring
+are drawn nearly see-through (Jupiter's main ring 10% opaque, its halo 4%,
+the gossamer rings 2–3%; Uranus's narrow rings dark grey, its dusty ones
+2–5%; Neptune's 4–45%): from where you stand they're barely there, as they
+are. As you come closer they show more, up to three times as opaque from
+150 cm in to 30 cm (and at most 90%), so that you can find them.
+
+They light up with their planets, and the mouse on them says what they are,
+their radii and who found them: Saturn's by Galileo (1610, as "ears") and
+recognised as a ring by Huygens (1655, published 1659), Cassini's division
+(1675); Uranus's by stellar occultation in 1977 (Elliot, Dunham and Mink,
+from the Kuiper Airborne Observatory), λ and ζ by Voyager 2 (1986), ν and μ
+by the Hubble Space Telescope (2003); Jupiter's by Voyager 1 (March 1979);
+Neptune's arcs by stellar occultations in 1984, confirmed, and the whole
+rings seen, by Voyager 2 in 1989 (from memory too).
+
+## The music
+
+**Holst's *The Planets*, Holst conducting the London Symphony Orchestra,
+recorded for Columbia in 1922–23**: public domain in the US (a sound
+recording published before 1926), from Wikimedia Commons,
+`File:Holst_-_The_Planets_(Columbia_1922-23).flac` (266 MB). It isn't in
+the repository. The file's own address is the standard one, from the md5 of
+its name (5f37ff963c99294c7dfa948b3b316dff):
+`https://upload.wikimedia.org/wikipedia/commons/5/5f/Holst_-_The_Planets_%28Columbia_1922-23%29.flac`.
+
+* **The first time you come in**, with no recording here, it asks: "The
+  solar system can play Holst's *The Planets*, Holst conducting the London
+  Symphony Orchestra in 1922–23 (public domain; from Wikimedia Commons, 266
+  MB). Download it?" *Yes* fetches it in the background into bpp's data
+  folder (`v:dataDir()`), saying how far it's got every 10% in the console,
+  and starts the music when it's done; *Not now* asks again the next run;
+  *Don't ask again* doesn't (bpp keeps the answer). `G` fetches it any time.
+* **When it's here**, it starts as you come in, in the dark, with Mars,
+  faded in over 4 seconds, and plays on through the suite (and round again).
+  **Rest the mouse on a planet** (in the orrery, in its vitrine, one of its
+  moons or its rings) and it crosses over (a 1.2 s fade, then 2 s in) to
+  that planet's movement. The Earth, the Moon, the Sun, Pluto and the
+  asteroids keep whatever is playing.
+* It **pauses with bpp's pause** (S, or the toolbar: when the simulation
+  hasn't stepped for three frames) and carries on with it; `M` fades it out
+  and stops it, and starts it again from Mars. In the hall it belongs to
+  this bay: it fades out over 1.5 s as you walk away, and starts again from
+  Mars when you come back.
+* In a run without a screen there's no question, no download and no
+  music, and nothing about it in the console.
+
+Where each movement starts (`solar-music.lua`, **found by ear**, to be
+fine-tuned): Mars 0:00, Venus 6:15, Mercury 14:30, Jupiter 18:11, Saturn
+25:25, Uranus 32:35, Neptune 38:54; the end 44:41.
+
+## In the hall
+
+The hall (`../../gallery.lua`) tells the exhibit when you arrive at its bay
+and when you leave (`v:onEnter`, `v:onLeave`, which bpp on its own doesn't
+have: the exhibit then starts as if you'd just come in), and gives it its
+own lights while you're there: where they are (a lamp, w = 1, goes with the
+bay), the ambient light, the lights' colours and the highlights, at once as
+it changes them, and the hall's again when you leave. Its dark room darkens
+the hall around it too, while you're at it.
 
 ## The surfaces, and the turning
 
@@ -115,7 +375,19 @@ against a Bulirsch–Stoer reference: on Saturn's system, 3 km out on Mimas
 after 20 days, less on the others.)
 
 **The cost** is about one second of computing per simulated year. At the
-usual 5 days a second that's under 2% of the time.
+usual 5 days a second that's under 2% of the time. Measured without a
+screen (3,000 frames), the exhibit's own work per frame is 1.1 ms at 5 days
+a second and 7.1 ms at 100 (before the belt, the rings and the opening:
+0.7 and 6.1 ms), within the 16.7 ms of a frame. The belt's daily RK4 is
+about a tenth of the main integration's cost. Drawing, under a software
+renderer (Xvfb, llvmpipe) with shadows on: 36–38 ms a frame against 34–37
+before (the screen pass up by about 12 ms, mostly the see-through rings and
+bodies; the shadow pass down by 10, nothing here casting); a graphics card
+does both in a small fraction of that.
+
+**The asteroid belt** (see above) is integrated alongside: massless, so
+nothing here changes; each asteroid pulled by the bodies above at their
+places in this integration, RK4, one-day steps.
 
 ## What the console checks
 
@@ -245,6 +517,15 @@ km³/s² (DE440: 975.5). DE421's 977.0 takes Charon 20,000 km off in a year.
   Pillow; it fetches Natural Earth's `ne_110m_land.geojson` from GitHub
   if it isn't beside it).
 * `fetch-horizons.sh`: the Horizons data.
+* `solar-belt.lua`: the asteroid belt's elements, sizes and discoveries,
+  made by `make-belt.py` from `belt/ssystem_minor-excerpt.ini` (Stellarium's
+  copy of the Minor Planet Center's elements; it fetches Stellarium's file
+  if the excerpt isn't there).
+* `solar-rings.lua`, `solar-meshes/rings-*.obj`: the rings, made by
+  `make-rings.py`. (`solar-meshes/saturn-ring-*.obj`, Saturn's old rings
+  made by `make-data.py`, aren't used any more.)
+* `solar-music.lua`: the music (Holst's *The Planets*): asking, fetching,
+  playing, following the mouse.
 
 Headless testing: `SS_RATE` (days a second), `SS_YEARS` (years before it
 starts again; at most 25).

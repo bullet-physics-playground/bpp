@@ -260,12 +260,14 @@ local ident = btQuaternion(0, 0, 0, 1)
 
 local CALLBACKS = { preSim = true, postSim = true, preDraw = true, postDraw = true, onKey = true,
                     onParamChanged = true, onCommand = true, onJoystick = true, onSpaceNavigator = true,
-                    onHover = true, cycleObject = true }
+                    onHover = true, cycleObject = true,
+                    onEnter = true, onLeave = true }      -- (the hall's own: you come into its bay, and leave it)
 local TIMING = { timeStep = true, fixedTimeStep = true, maxSubSteps = true, animationPeriod = true }
 
 -- Runs fn with the exhibit's world in use (and its random numbers), then
 -- puts back the world that was (see setRandom, below)
 local setRandom
+local LIGHTS, applyLight         -- (an exhibit's lights: see bayLight, below)
 local function inWorld(g, fn, ...)
   local was = realV:currentWorld()
   realV:useWorld(g.world)
@@ -373,6 +375,8 @@ local function makeExhibit(e, bay)
       if TIMING[k] then g.timing[k] = val; return end
       if k == "gravity" then realV.gravity = val; return end      -- (its world's)
       g.vset[k] = val        -- (lights, shadows and the like: the hall's own stay)
+      -- (its lights, while you're at it, at once: see LIGHTS)
+      if LIGHTS[k] and active == g then applyLight(g, k) end
     end,
   })
 
@@ -505,8 +509,31 @@ realV.glLight0 = HALL_LIGHT0
 -- defaults, or what it set), turned with its bay: so it is lit in the hall
 -- as on its own, whichever way its bay faces.
 local function bayLight(g, L)
+  -- (a lamp, w = 1, is a place in the exhibit: it goes where the bay is;
+  -- bpp's far lights, w below 1, are a direction, only turned)
+  if L:getW() == 1 then
+    local a = g.toScene(btVector3(L.x, L.y, L.z))
+    return btVector4(a.x, a.y, a.z, 1)
+  end
   local a, b = g.toScene(btVector3(L.x, L.y, L.z)), g.toScene(btVector3(0, 0, 0))
   return btVector4(a.x - b.x, a.y - b.y, a.z - b.z, L:getW())
+end
+-- The rest of an exhibit's lighting -- its ambient light, its lights'
+-- colours and its highlights (glSpecular) -- is its own too while you're
+-- at it (set as it runs, at once), and the hall's (bpp's) again when you
+-- leave.
+local HALL_LIGHTS = { glAmbient = realV.glAmbient, glModelAmbient = realV.glModelAmbient, glSpecular = realV.glSpecular,
+                      glLight0Color = realV.glLight0Color, glLight1Color = realV.glLight1Color }
+LIGHTS = { glLight0 = true, glLight1 = true, glAmbient = true, glModelAmbient = true, glSpecular = true,
+           glLight0Color = true, glLight1Color = true }
+applyLight = function(g, k)
+  local val = g and g.vset[k]
+  if k == "glLight0" then realV.glLight0 = g and bayLight(g, val or btVector4(500, 500, 500, 0.4)) or HALL_LIGHT0
+  elseif k == "glLight1" then realV.glLight1 = g and bayLight(g, val or HALL_LIGHT1) or HALL_LIGHT1
+  else
+    if val == nil then val = HALL_LIGHTS[k] end
+    realV[k] = val
+  end
 end
 
 -- the floor: parquet planks in two woods, running down each wing (solid:
@@ -806,6 +833,9 @@ local function goTo(s)
     local f = active.callbacks.onKey
     for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
     active.down = {}
+    -- (and tell it you're leaving, if it asked: v:onLeave)
+    f = active.callbacks.onLeave
+    if f then local ok, err = pcall(f, active.N); if not ok then print("GALLERY: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
   here = s
   -- (and where you are as a slider, "Gallery: stop": bpp's Restart runs the
@@ -827,7 +857,7 @@ local function goTo(s)
     if realV.showParams then realV:showParams("Gallery: ") end
     -- (bpp's markers on joints: not in the hall views)
     realV.showConstraints = false
-    realV.glLight0, realV.glLight1 = HALL_LIGHT0, HALL_LIGHT1
+    for k in pairs(LIGHTS) do applyLight(nil, k) end          -- (the hall's lights)
     c.pos = s.pos
     c.look = s.look        -- (in that order: the look turns the view from where it now is)
     realV:setHelpText(hallHelp(s))
@@ -841,14 +871,16 @@ local function goTo(s)
     -- (and bpp's markers on joints as the exhibit has them: on, unless it
     -- turns them off)
     realV.showConstraints = s.vset.showConstraints ~= false
-    realV.glLight0 = bayLight(s, s.vset.glLight0 or btVector4(500, 500, 500, 0.4))
-    realV.glLight1 = bayLight(s, s.vset.glLight1 or HALL_LIGHT1)
+    for k in pairs(LIGHTS) do applyLight(s, k) end            -- (its lights, as on its own)
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)
     c.pos = s.toScene(pos)
     c.look = s.toScene(look)
     realV:setHelpText(s.header() .. s.help)
+    -- (and tell it you've come, if it asked: v:onEnter)
+    local f = s.callbacks.onEnter
+    if f then local ok, err = pcall(f, s.N); if not ok then print("GALLERY: " .. s.name .. " onEnter: " .. tostring(err)) end end
   end
 end
 
