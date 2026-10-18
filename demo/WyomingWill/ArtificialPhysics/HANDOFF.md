@@ -45,18 +45,20 @@ is updated at the end of every milestone.
   shows or prints (status line, output columns, sliders), with its formula,
   units and sign convention, so a reader never has to search the code for
   what a number means (William, 2026-10-17).
-- No text drawn on the graphics pane; status goes in `v.statusText`. Numbers
-  there are written `label=value` with the padding *after* the value (units
-  with the number), in fixed-width fields separated by ` | ` (see
-  `ch02/scene.lua`'s `field`), and the parts of the line that appear and
-  disappear go last, so nothing shifts and each number reads with its own
-  label (BPP shows the line in a fixed-pitch font; FIXES 37). Cameras
+- No text drawn on the graphics pane. **Design decision (William,
+  2026-10-17): every simulation shows its most important information on the
+  status line at the bottom of the window** (`v.statusText`), one line where
+  only the numbers change, built with `lib/status.lua`: `label=value` with
+  the padding *after* the value (units with the number), fixed-width fields
+  separated by ` | `, parts that come and go last (BPP shows the line in a
+  fixed-pitch font; FIXES 37). Console output stays for logs and
+  `lib/batch.py`. Cameras
   start at a useful view and are never locked.
 - Lennard-Jones should stay more fluid than Newtonian, even in formation.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–37 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–38 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
   implementations, and our own mistakes once corrected (F1–F40 so far), and
@@ -74,7 +76,7 @@ is updated at the end of every milestone.
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–37 |
+| `FIXES.md` | Fixes 1–38 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system: BPP scenes and checks (`ch02/README.md`) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |

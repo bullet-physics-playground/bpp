@@ -21,7 +21,8 @@
 -- ideal 1/9), which is the "uniform coverage" question the MFP idea (drawn
 -- from the mean free path of a gas molecule) is meant to improve.
 --
--- DEFINITIONS (the printed statistics line and the sliders):
+-- DEFINITIONS (the status line at the bottom of the window, the same values
+-- printed to the console every ~1 s, and the sliders):
 --   ticks           simulation steps so far; each agent moves 1 unit per tick
 --   agents          number of agents (numParticles)
 --   meanFreePath    MFP: steps an agent walks straight before a random turn
@@ -132,6 +133,7 @@ local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
 -- printed at load.
 --------------------------------------------------------------------------
 local rng = require "lib.rng"
+local status = require "lib.status"   -- the one-line status at the bottom of the window
 local rnd = rng.random   -- uniform float in [0, 1)
 
 -- btCollisionObject::CollisionFlags (Bullet's own enum values, same ones
@@ -590,6 +592,16 @@ v:postSim(function(N)
   -- floor(ticks/STATS_EVERY) crossing an integer boundary fires once per
   -- ~STATS_EVERY ticks regardless of batch size, unlike a plain "% == 0"
   -- check which a batch > 1 could step straight over.
+  -- The status line (bottom of the window), every frame: the same
+  -- quantities as the console line below, which stays as it is because
+  -- lib/batch.py reads it (--match ticks=).
+  status.show({ "Uniform Coverage",
+    status.int("ticks", ticks, 10), status.int("agents", #agents, 3),
+    status.int("MFP", mfp, 3), status.num("deviation", uniformityDeviation(), 6, false, 9),
+    status.num("theoryMFP", theoreticalMeanFreePath(), 1, false, 5),
+    status.pct("cornerSpread", categorySpread(CORNER_CELLS) * 100, 1, 6),
+    status.pct("edgeSpread", categorySpread(EDGE_CELLS) * 100, 1, 6) })
+
   if math.floor(ticks / STATS_EVERY) > math.floor(ticksBefore / STATS_EVERY) then
     print(string.format(
       "ticks=%d  agents=%d  meanFreePath=%d  deviation=%.4g  theoreticalMFP=%.1f  cornerSpread=%.1f%%  edgeSpread=%.1f%%",

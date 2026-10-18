@@ -512,7 +512,7 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - `src/gui.cpp`: the script status label (`v.statusText`) uses the
       system's fixed-pitch font. Needs a rebuild (no qmake).
     - `ch02/scene.lua`: every number in a fixed-width field
-      (`scene.field`): plain decimals while they fit, scientific notation
+      (now `lib/status.lua`): plain decimals while they fit, scientific notation
       only when too small or too large to show; signed only where a value
       can change sign.
     - `quadcopter/swarm.lua`: counts and statistics padded to fixed widths,
@@ -524,3 +524,9 @@ physically modelled quadcopter; see `quadcopter/README.md`).
       next label. Values now follow their labels as `label=value`, with any
       padding after the value (units stay with the number), and the pairs
       are separated by ` | `.
+
+38. **Uniform Coverage's statistics now also show on the status line**
+    (William): ticks, agents, MFP, deviation, theoryMFP, cornerSpread and
+    edgeSpread, updated every frame via `lib/status.lua`, which the Ch. 2
+    scenes now share. The console line is unchanged (`lib/batch.py` reads
+    it); the same seed gives the same numbers as before.

@@ -29,28 +29,9 @@ package.path = "../?.lua;" .. package.path
 local common = require "common"
 local ch = require "ch02.models"
 local rng = require "lib.rng"
+local status = require "lib.status"   -- label=value fields, fixed widths
 
 local S = {}
-
--- One "label=value" pair of a status line, of constant width so the line
--- does not shift as values change (BPP shows it in a fixed-pitch font).
--- The value follows its label directly and any padding goes after it, so
--- each number reads with its own label. Plain decimals with `places`
--- decimals while they fit; scientific notation for values too small to
--- show (below 10^-places, e.g. |P| ~ 1e-14) or too large. signed = true
--- always shows + or -. width = characters for the value (default 10).
-function S.field(label, x, places, signed, width)
-  places, width = places or 3, width or 10
-  local a = math.abs(x)
-  local fmt = (signed and "%+" or "%")
-  local num
-  if x == 0 or (a >= 10 ^ -places and a < 10 ^ (width - places - 2)) then
-    num = string.format(fmt .. "." .. places .. "f", x)
-  else
-    num = string.format(fmt .. ".2e", x)
-  end
-  return label .. "=" .. string.format("%-" .. width .. "s", num)
-end
 
 local CF_STATIC, CF_NO_CONTACT = 1, 4
 local function quiet(o)
@@ -92,11 +73,10 @@ function S.run(opts)
       springObj = common.placeCylinder(P(a.x or 0, a.y or 0, 0), P(b.x or 0, b.y or 0, 0), 0.6, "#c8c8c8")
       if springObj then quiet(springObj) end
     end
-    local line = table.concat({ opts.title,
-      S.field("t", t, 2, false, 9), S.field("sep", m.sep, 3, false, 9),
-      S.field("|P|", m.p, 3, false, 9), S.field("L", m.lz, 3, true),
-      S.field("KE", m.ke, 3, false), S.field("PE", m.pe, 3, true), S.field("E", m.e, 3, true) }, " | ")
-    pcall(function() v.statusText = line end)
+    status.show({ opts.title,
+      status.num("t", t, 2, false, 9), status.num("sep", m.sep, 3, false, 9),
+      status.num("|P|", m.p, 3, false, 9), status.num("L", m.lz, 3, true),
+      status.num("KE", m.ke, 3, false), status.num("PE", m.pe, 3, true), status.num("E", m.e, 3, true) })
   end
 
   function setup()

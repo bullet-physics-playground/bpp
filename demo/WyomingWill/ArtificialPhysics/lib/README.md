@@ -8,6 +8,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | --- | --- | --- |
 | `rng.lua` | G2 | The shared multiply-with-carry generator, seedable, with independent streams |
 | `batch.py`, `batch.lua` | G3 | Headless runs over seeds × settings, two at a time, into one CSV |
+| `status.lua` | — | The one-line status at the bottom of the BPP window: `label=value` fields of fixed width |
 | `world.lua` | G21 | The world generator's core: pieces, cells, masks, BPP geometry, the book's worlds as presets |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 
@@ -144,3 +145,23 @@ w:writeGrid("corridor.txt")
 - **The realistic layers** (terrain, water with depth, zones, streets, lots,
   buildings, vegetation) are planned in `BOOK.md` §6 and come next.
 - `checks/world.lua`: 21 tests, about 10 s.
+
+## `status.lua`
+
+Every simulation shows its most important information on BPP's status line,
+one line where only the numbers change (design decision, 2026-10-17).
+
+```lua
+local status = require "lib.status"
+status.show({ "Uniform Coverage",
+              status.int("ticks", ticks, 10),                -- label=value, padded after
+              status.num("deviation", dev, 6, false, 9),     -- places, signed, width
+              status.num("speed", v, 2, false, 5, "m/s"),    -- unit stays with the number
+              status.pct("cornerSpread", spread, 1, 6),
+              status.text("goal", "off", 7) })
+```
+
+Values sit directly after their labels with padding after them, so each
+number reads with its own label; fields have fixed widths and are separated
+by ` | `, so nothing shifts (BPP shows the line in a fixed-pitch font). Put
+parts that appear and disappear at the end.
