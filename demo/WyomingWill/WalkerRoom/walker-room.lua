@@ -304,11 +304,18 @@ local function setCells()
 end
 setCells()
 
--- everything the room adds, to take it all down again for a rebuild
-local roomObjects, roomConstraints = {}, {}
+-- everything the room adds, to take it all down again for a rebuild (the
+-- ground and walls kept apart from the walkers, so the test track can put
+-- another walker on the same ground without building the ground again)
+local roomObjects, roomConstraints, groundObjects = {}, {}, {}
 local function addObject(o)
   v:add(o)
   roomObjects[#roomObjects + 1] = o
+  return o
+end
+local function addGround(o)
+  v:add(o)
+  groundObjects[#groundObjects + 1] = o
   return o
 end
 
@@ -355,7 +362,7 @@ local function buildTerrain()
   floor:build()
   floor.col = "#5a7a32"
   floor.friction = 0.8
-  addObject(floor)
+  addGround(floor)
   for i = 0, NX - 1 do
     for j = 0, NZ - 1 do paintCell(i, j, cellColour(i, j)) end
   end
@@ -371,7 +378,7 @@ local function buildTerrain()
     wall.pos = btVector3(x, WALL_H / 2 - AMP, z)
     wall.col = (side % 2 == 0) and "#8a8378" or "#827b70"
     wall.friction = 0.5
-    addObject(wall)
+    addGround(wall)
   end
 end
 
@@ -1302,10 +1309,10 @@ end
 
 local owner = {}            -- [objectKey(body)] = its walker (for the hover)
 
-local function buildRoom()
-  buildTerrain()
+-- the walkers alone, on the ground already built (with the ground: buildRoom)
+local function placeWalkers()
   buildWalkers()
-  owner, painted = {}, {}
+  owner = {}
   for k, w in ipairs(walkers) do
     w.colour = TRAIL_COLOURS[(k - 1) % #TRAIL_COLOURS + 1]
     w.index = k
@@ -1315,12 +1322,24 @@ local function buildRoom()
   room.turns, room.righted = {}, {}
   simTime = 0
 end
+local function buildRoom()
+  buildTerrain()
+  painted = {}
+  placeWalkers()
+end
 
-local function teardownRoom()
+-- the walkers taken down (the ground left as it is, its trails cleared)
+local function teardownWalkers()
   for _, con in ipairs(roomConstraints) do v:removeConstraint(con) end
   for _, o in ipairs(roomObjects) do v:remove(o) end
   roomObjects, roomConstraints = {}, {}
   for k = #walkers, 1, -1 do walkers[k] = nil end
+  clearTrails()
+end
+local function teardownRoom()
+  teardownWalkers()
+  for _, o in ipairs(groundObjects) do v:remove(o) end
+  groundObjects = {}
 end
 
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
@@ -1553,12 +1572,18 @@ v:postSim(function(N)
 end)
 
 -- on the test track, Tab and Shift+Tab put the next (or the one before)
--- walker on the track instead: the track is built again with it
+-- walker on the track instead, on the same ground (its trail cleared);
+-- a new ground (1-4) builds the track again
 -- (with VIEWS it goes through those instead: see setView, above)
 local function rebuildTrack()
   teardownRoom()
   makeTerrain()
   buildRoom()
+  follow(walkers[1])
+end
+local function replaceWalker()
+  teardownWalkers()
+  placeWalkers()
   follow(walkers[1])
 end
 local function trackNext(step)
@@ -1570,7 +1595,7 @@ local function trackNext(step)
     k = (k - 1 + step) % #WALKERS + 1
     ONLY = WALKERS[k].name
   end
-  rebuildTrack()
+  replaceWalker()
   print("test track: " .. ONLY .. (VIEWS and (" -- " .. VIEWS[viewAt].label) or ""))
 end
 -- the test track's ground: 1 waves, 2 random, 3 logs, 4 steps (built again)
