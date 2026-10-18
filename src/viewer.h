@@ -52,6 +52,8 @@ using namespace qglviewer;
 class Object;
 class Viewer;
 class QTimer;
+class QNetworkAccessManager;
+class QNetworkReply;
 class ShadowMap;
 class btSoftRigidDynamicsWorld;
 #if USE_VFE
@@ -255,6 +257,124 @@ public:
 
   /** Fades every synthesised voice out (v:silenceTones()). */
   void silenceTones();
+
+  // Streamed music (SDL_mixer's Mix_Music, one track at a time), see
+  // viewermedia.cpp. All of these are no-ops without audio or in a
+  // headless run (setHeadless()).
+
+  /**
+   * @brief Loads a music file (FLAC, OGG, MP3, ...) to be streamed from
+   *        disk, replacing the one loaded before (v:loadMusic(path)).
+   * @return True if it loaded; false if not, or with no audio or headless.
+   */
+  bool loadMusic(const QString &path);
+
+  /** @brief Plays the loaded music from the start (v:playMusic()). */
+  bool playMusic();
+
+  /**
+   * @brief Plays the loaded music from @p startSeconds, once, at the volume
+   *        last set (v:playMusic(startSeconds)).
+   * @return True if it started.
+   */
+  bool playMusic(double startSeconds);
+
+  /** @brief Stops the music (v:stopMusic()); it stays loaded. */
+  void stopMusic();
+
+  /**
+   * @brief Pauses the music where it is (v:pauseMusic()); musicPlaying()
+   *        is false and musicPosition() holds still till resumeMusic().
+   */
+  void pauseMusic();
+
+  /** @brief Carries on after pauseMusic() (v:resumeMusic()). */
+  void resumeMusic();
+
+  /**
+   * @brief Glides the music's volume to @p volume (0..1) over @p seconds
+   *        (0: at once), stepped by a timer every 20 ms
+   *        (v:fadeMusicTo(volume, seconds)).
+   */
+  void fadeMusicTo(double volume, double seconds);
+
+  /**
+   * @brief Where the music is, in seconds from the start of the track
+   *        (Mix_GetMusicPosition), or 0 when nothing plays
+   *        (v:musicPosition()).
+   */
+  double musicPosition();
+
+  /** @brief Whether music is playing (v:musicPlaying()). */
+  bool musicPlaying();
+
+  /**
+   * @brief Asks the visitor a question in a modal message box
+   *        (v:ask(title, text, buttons)).
+   *
+   * While the box is open the simulation does not step (see
+   * holdsSimulation()). With no one to ask (headless) nothing is shown and
+   * the "not now" answer is returned (see askDefault()).
+   *
+   * @param buttons A Lua table of button labels, e.g.
+   *        {"Yes", "Not now", "Don't ask again"}.
+   * @return The chosen button's index, counting from 1.
+   */
+  int ask(const QString &title, const QString &text,
+          const luabind::object &buttons);
+
+  /**
+   * @brief As ask(title, text, buttons), remembering a "don't ask again"
+   *        (v:ask(title, text, buttons, rememberKey)).
+   *
+   * If the answer to @p rememberKey has been remembered, returns it without
+   * asking. Otherwise asks, and if the chosen button reads like "don't ask
+   * again" (its label contains "again" or "never"), remembers its index in
+   * the settings under ask/<rememberKey>.
+   */
+  int ask(const QString &title, const QString &text,
+          const luabind::object &buttons, const QString &rememberKey);
+
+  /** @brief The remembered answer to @p key, or 0 (v:remembered(key)). */
+  int remembered(const QString &key) const;
+
+  /** @brief Forgets the remembered answer to @p key (v:forget(key)). */
+  void forget(const QString &key);
+
+  /**
+   * @brief Starts downloading @p url to @p path in the background
+   *        (v:download(url, path)).
+   *
+   * Writes to path..".part" and renames it to @p path once complete and of
+   * the announced size. Follows redirects. Asking again for a @p path that
+   * is still downloading returns that download's id.
+   *
+   * @return An id for downloadState().
+   */
+  int download(const QString &url, const QString &path);
+
+  /**
+   * @brief How download @p id is getting on (v:downloadState(id)).
+   * @return A Lua table {state = "running"|"done"|"failed", bytes = n,
+   *         total = n (-1 if unknown), error = "..." ("" unless failed)}.
+   */
+  luabind::object downloadState(int id);
+
+  /**
+   * @brief The per-user data folder (QStandardPaths::AppDataLocation),
+   *        created if missing (v:dataDir()).
+   */
+  QString dataDir() const;
+
+  /**
+   * @brief Marks this viewer as running without a window (bpp -f/-l/-i):
+   *        music is off, ask() answers by itself, and downloadState() pumps
+   *        the events a download needs, there being no event loop.
+   */
+  void setHeadless(bool on);
+
+  /** @brief Whether setHeadless() was set, or Qt runs offscreen. */
+  bool isHeadless() const;
 
   /**
    * @brief Reports where the time went whenever a frame comes late.
@@ -716,6 +836,26 @@ public:
   btVector4 getGLLight1() const;
 
   /**
+   * @brief Sets the main light's colour (v.glLight0Color).
+   *
+   * Multiplies glDiffuse and glSpecular for this light only, so (1,1,1)
+   * leaves it as it was and (0,0,0) switches its direct light off (its share
+   * of glAmbient stays). Reset to white when a script loads.
+   *
+   * @param col Red, green and blue from 0 to 1; w is ignored.
+   */
+  void setGLLight0Color(const btVector4 &col);
+
+  /** @brief The main light's colour, see setGLLight0Color(). */
+  btVector4 getGLLight0Color() const;
+
+  /** @brief As setGLLight0Color(), for the fill light (v.glLight1Color). */
+  void setGLLight1Color(const btVector4 &col);
+
+  /** @brief The fill light's colour, see setGLLight1Color(). */
+  btVector4 getGLLight1Color() const;
+
+  /**
    * @brief Turns shadow casting in the interactive view on or off.
    *
    * With shadows on the scene is drawn twice: once as depth only from the main
@@ -1009,8 +1149,9 @@ public:
   void setGLModelAmbientPercent(const btScalar am);
 
   /**
-   * @brief Returns the magnitude of the global ambient colour.
-   * @return The length of the model ambient vector.
+   * @brief Returns the grey level of the global ambient colour, so that
+   *        v.glModelAmbient = v.glModelAmbient changes nothing.
+   * @return The mean of its red, green and blue.
    */
   btScalar getGLModelAmbientPercent() const;
 
@@ -1021,8 +1162,9 @@ public:
   void setGLAmbientPercent(const btScalar am);
 
   /**
-   * @brief Returns the magnitude of the ambient colour.
-   * @return The length of the ambient vector.
+   * @brief Returns the grey level of the ambient colour, so that
+   *        v.glAmbient = v.glAmbient changes nothing.
+   * @return The mean of its red, green and blue.
    */
   btScalar getGLAmbientPercent() const;
 
@@ -2494,6 +2636,8 @@ private:
   btVector4 _light0; ///< Main light, as a homogeneous GL_POSITION: the light
                      ///< is at xyz/w, @see setGLLight0().
   btVector4 _light1; ///< Fill light, the same way. @see setGLLight1().
+  btVector4 _light0Color; ///< Main light's colour, @see setGLLight0Color().
+  btVector4 _light1Color; ///< Fill light's colour, @see setGLLight1Color().
 
   btVector3 _gl_ambient;       ///< Ambient light and material colour.
   btVector4 _gl_diffuse,  /**< Diffuse light and material colour. */
@@ -2652,6 +2796,42 @@ private:
   std::map<int, Mix_Chunk *> _soundChunks; ///< id -> loaded chunk.
   int _nextSoundId; ///< Monotonically increasing; never reused.
   ToneSynth _synth; ///< The voices of setTone().
+
+  // streamed music, ask() and downloads (viewermedia.cpp)
+  bool _headless = false;        ///< See setHeadless().
+  int _holdSim = 0;              ///< > 0 while a modal dialog (or a headless
+                                 ///< event pump) runs inside a script call:
+                                 ///< animate() and the device handlers, which
+                                 ///< would lock the mutex the script already
+                                 ///< holds, return at once instead.
+  Mix_Music *_music = nullptr;   ///< The loaded track, or null.
+  double _musicVolume = 1.0;     ///< Current volume, 0..1.
+  double _musicFadeFrom = 1.0;   ///< Volume the running fade started at.
+  double _musicFadeTo = 1.0;     ///< Volume it ends at.
+  double _musicFadeSecs = 0.0;   ///< How long it takes.
+  QElapsedTimer _musicFadeClock; ///< Time since it started.
+  QTimer *_musicFadeTimer = nullptr; ///< Steps it, every 20 ms.
+  double _musicStart = 0.0;      ///< Where playMusic() started the track, and
+  bool _musicPaused = false;     ///< Between pauseMusic() and resumeMusic().
+  QElapsedTimer _musicClock;     ///< the time since: musicPosition()'s
+                                 ///< fallback where the decoder can't tell.
+  void musicFadeStep();          ///< One step of the fade.
+  void freeMusic();              ///< Halts and frees the track (clear()).
+
+  struct Download {
+    QNetworkReply *reply = nullptr; ///< While running.
+    QFile *file = nullptr;          ///< path.part, while running.
+    QString path;                   ///< Where it ends up.
+    QString state;                  ///< "running", "done" or "failed".
+    qint64 bytes = 0;               ///< Received so far.
+    qint64 total = -1;              ///< Announced size, -1 if unknown.
+    QString error;                  ///< Why it failed.
+  };
+  QNetworkAccessManager *_nam = nullptr; ///< Made on the first download().
+  std::map<int, Download> _downloads;    ///< id -> download.
+  int _nextDownloadId = 1;               ///< Never reused.
+  void downloadFinished(int id);         ///< A reply has finished.
+  void freeDownloads();                  ///< Aborts any still running.
 
   // exported audio: the sounds played while exporting, mixed by saveWAV()
   // into a track that keeps in step with the exported frames

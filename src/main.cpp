@@ -381,6 +381,7 @@ int main(int argc, char **argv) {
     }
 
     Viewer *v = new Viewer(nullptr, settings);
+    v->setHeadless(true); // (no music, no dialogs: see Viewer::setHeadless())
 
     QObject::connect(v, &Viewer::scriptHasOutput,
                      [=](QString o) { qStdOut() << o << "\n"; });

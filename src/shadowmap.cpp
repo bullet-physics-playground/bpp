@@ -100,15 +100,22 @@ static const char *kVertexShader =
     "  gl_Position = gl_ProjectionMatrix * eye;\n"
     "}\n";
 
-// Two lights, ambient plus diffuse from gl_Color (which is what
+// The material's emission (an object's glow, see Object::setEmission()),
+// two lights, ambient plus diffuse from gl_Color (which is what
 // glColorMaterial(GL_AMBIENT_AND_DIFFUSE) makes the fixed-function pipeline
 // use) and specular from the material, then unit 0's texture modulated over
 // the top the way GL_MODULATE did. Only light 0 is shadowed; light 1 is the
 // fill light and has no depth map of its own.
 //
-// Unlike the fixed-function path this flips the normal on a back face, as
-// GL_LIGHT_MODEL_TWO_SIDE would: nothing is back-face culled here, so without
-// it the inside of an open shape goes black while POV-Ray lights it.
+// Unlike the fixed-function path this turns the normal to face the eye where
+// the eye sees the back of a surface, as GL_LIGHT_MODEL_TWO_SIDE would:
+// nothing is back-face culled here, so without it the inside of an open shape
+// goes black while POV-Ray lights it. Which side the eye is on comes from the
+// surface itself -- the cross product of the position's screen derivatives is
+// the face's normal turned towards the eye -- and not from gl_FrontFacing,
+// which goes by the order the corners were given in: glutils.cpp's spheres,
+// cylinders and cones are wound clockwise (a mesh can be either way), and
+// were lit from the wrong side.
 static const char *kFragmentShader =
     "#version 120\n"
     "uniform sampler2D uTexture;\n"
@@ -141,11 +148,12 @@ static const char *kFragmentShader =
     "\n"
     "void main() {\n"
     "  vec3 N = normalize(vNormal);\n"
-    "  if (!gl_FrontFacing) N = -N;\n"
+    "  if (dot(N, cross(dFdx(vEye), dFdy(vEye))) < 0.0) N = -N;\n"
     "  vec3 V = normalize(-vEye);\n"
     "  vec4 base = gl_Color;\n"
     "  float lit = mix(1.0 - uDarkness, 1.0, lightReaching());\n"
-    "  vec3 col = gl_LightModel.ambient.rgb * base.rgb;\n"
+    "  vec3 col = gl_FrontMaterial.emission.rgb +\n"
+    "             gl_LightModel.ambient.rgb * base.rgb;\n"
     "  for (int i = 0; i < 2; i++) {\n"
     "    vec4 lp = gl_LightSource[i].position;\n"
     "    vec3 L = (lp.w == 0.0) ? normalize(lp.xyz)\n"

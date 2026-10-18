@@ -267,6 +267,16 @@ void Object::luaBind(lua_State *s) {
             .property("col", (QString(Object::*)(void)) & Object::getColorString,
                       (void(Object::*)(const QString &)) & Object::setColor)
 
+           // a glow of its own: obj.emission = "#ffcc66", or
+           // obj:setEmission(r, g, b) from 0 to 1; black for none
+           .def("setEmission",
+                (void(Object::*)(btScalar, btScalar, btScalar)) &
+                    Object::setEmission)
+           .def("setEmission",
+                (void(Object::*)(const QString &)) & Object::setEmission)
+           .property("emission", &Object::getEmissionString,
+                     (void(Object::*)(const QString &)) & Object::setEmission)
+
            .property("transparency",
                      (btScalar(Object::*)(void)) & Object::getTransparency,
                      (void(Object::*)(btScalar)) & Object::setTransparency)
@@ -424,6 +434,12 @@ void Object::renderInLocalFramePost(btVector3 &oaabbmin, btVector3 &oaabbmax) {
     if (transparency > 0.0) {
       glDepthMask(GL_TRUE);
       glDisable(GL_BLEND);
+    }
+
+    if (mEmissionSet) {
+      const GLfloat none[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+      glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, none);
+      mEmissionSet = false;
     }
 
     if (body != nullptr && body->getMotionState() != nullptr)
@@ -673,6 +689,32 @@ void Object::setTransparency(btScalar t) {
 
 btScalar Object::getTransparency() const { return transparency; }
 
+void Object::setEmission(btScalar r, btScalar g, btScalar b) {
+  mEmission[0] = (float)qBound(btScalar(0), r, btScalar(1));
+  mEmission[1] = (float)qBound(btScalar(0), g, btScalar(1));
+  mEmission[2] = (float)qBound(btScalar(0), b, btScalar(1));
+}
+
+void Object::setEmission(const QString &c) {
+  QColor col(c);
+  if (!col.isValid()) {
+    setEmission(0, 0, 0);
+    return;
+  }
+  setEmission(col.redF(), col.greenF(), col.blueF());
+}
+
+QString Object::getEmissionString() const {
+  return QColor::fromRgbF(mEmission[0], mEmission[1], mEmission[2]).name();
+}
+
+void Object::povEmission(QTextStream *s) const {
+  if (s == nullptr || !hasEmission())
+    return;
+  *s << "  finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
+     << ", " << mEmission[2] << "> }" << "\n";
+}
+
 void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
                          const QString &mapOpts, const QString &xform) const {
   // The file is named as the script gave it: POV-Ray finds it along the same
@@ -694,7 +736,12 @@ void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
   if (!xform.isEmpty()) {
     *s << "\n    " << xform;
   }
-  *s << " } }" << "\n";
+  *s << " }";
+  if (hasEmission()) {
+    *s << " finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
+       << ", " << mEmission[2] << "> }";
+  }
+  *s << " }" << "\n";
 }
 
 void Object::povAxialImageMap(QTextStream *s, btScalar length) const {
@@ -727,10 +774,17 @@ void Object::povPigment(QTextStream *s) const {
 
   *s << "  pigment { rgbt <" << color[0] / 255.0 << ", " << color[1] / 255.0
      << ", " << color[2] / 255.0 << ", " << transparency << "> }" << "\n";
+  povEmission(s);
 }
 
 void Object::glApplyColor() const {
   GLubyte alpha = (GLubyte)((1.0 - transparency) * 255.0 + 0.5);
+  if (hasEmission()) {
+    // (taken off again in renderInLocalFramePost(), so nothing else glows)
+    const GLfloat e[4] = {mEmission[0], mEmission[1], mEmission[2], 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, e);
+    mEmissionSet = true;
+  }
   if (mTextureBound) {
     // The default texture environment multiplies the two, so white leaves the
     // image as it is -- the same way an image_map replaces a pigment rather

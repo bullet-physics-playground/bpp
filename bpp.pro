@@ -8,7 +8,7 @@ CONFIG  += precompile_header
 PRECOMPILED_HEADER = src/pch.h
 
 CONFIG  *= qt opengl warn_on shared thread debug_and_release
-QT      *= opengl xml gui core
+QT      *= opengl xml gui core network
 
 DEFINES += HAS_LIB_ASSIMP
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS

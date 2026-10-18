@@ -153,6 +153,33 @@ public:
   btScalar getTransparency() const;
 
   /**
+   * @brief Makes the object glow with its own light (glMaterial
+   *        GL_EMISSION while it is drawn, POV-Ray's finish emission).
+   *
+   * Lights nothing else: it only makes the object itself bright whatever the
+   * lights do, e.g. a Sun with a light placed inside it. Black turns it off.
+   *
+   * @param r Red, 0 to 1.
+   * @param g Green, 0 to 1.
+   * @param b Blue, 0 to 1.
+   */
+  void setEmission(btScalar r, btScalar g, btScalar b);
+
+  /**
+   * @brief As setEmission(r, g, b), from anything QColor accepts, such as
+   *        @c "#ffcc66"; an empty or unknown name turns it off.
+   */
+  void setEmission(const QString &c);
+
+  /** @brief The emission as @c "#rrggbb" (@c "#000000" for none). */
+  QString getEmissionString() const;
+
+  /** @brief Whether the object glows (setEmission()). */
+  bool hasEmission() const {
+    return mEmission[0] > 0 || mEmission[1] > 0 || mEmission[2] > 0;
+  }
+
+  /**
    * @brief Moves the object, keeping its orientation.
    * @param x New x position.
    * @param y New y position.
@@ -758,6 +785,16 @@ protected:
 
   unsigned char color[3];  ///< The object's colour, as red, green and blue.
   btScalar transparency;   ///< 0.0 for opaque, 1.0 for fully transparent.
+  float mEmission[3] = {0, 0, 0}; ///< Glow, red, green and blue 0..1.
+  mutable bool mEmissionSet = false; ///< True from glApplyColor() setting the
+                                     ///< glow till renderInLocalFramePost()
+                                     ///< takes it off again.
+
+  /**
+   * @brief Writes the glow as a POV-Ray finish, or nothing without one.
+   * @param s The stream to write to.
+   */
+  void povEmission(QTextStream *s) const;
 
   bool photons_enable;     ///< Whether to emit a POV-Ray photons block.
   bool photons_reflection; ///< Whether photons reflect off the object.

@@ -482,6 +482,31 @@ void Viewer::luaBind(lua_State *s) {
            .def("setTone", (void(Viewer::*)(int, double, double, double)) & Viewer::setTone)
            .def("setToneTimbre", &Viewer::setToneTimbre)
            .def("silenceTones", &Viewer::silenceTones)
+           // streamed music (no-ops returning false/0 without audio or
+           // headless), see viewermedia.cpp
+           .def("loadMusic", &Viewer::loadMusic)
+           .def("playMusic", (bool(Viewer::*)()) & Viewer::playMusic)
+           .def("playMusic", (bool(Viewer::*)(double)) & Viewer::playMusic)
+           .def("stopMusic", &Viewer::stopMusic)
+           .def("pauseMusic", &Viewer::pauseMusic)
+           .def("resumeMusic", &Viewer::resumeMusic)
+           .def("fadeMusicTo", &Viewer::fadeMusicTo)
+           .def("musicPosition", &Viewer::musicPosition)
+           .def("musicPlaying", &Viewer::musicPlaying)
+           // a question for the visitor, and remembered answers
+           .def("ask", (int(Viewer::*)(const QString &, const QString &,
+                                       const luabind::object &)) &
+                           Viewer::ask)
+           .def("ask", (int(Viewer::*)(const QString &, const QString &,
+                                       const luabind::object &,
+                                       const QString &)) &
+                           Viewer::ask)
+           .def("remembered", &Viewer::remembered)
+           .def("forget", &Viewer::forget)
+           // background downloads
+           .def("download", &Viewer::download)
+           .def("downloadState", &Viewer::downloadState)
+           .def("dataDir", &Viewer::dataDir)
 
            // Where a late frame's time went (0 = off), see setFrameTiming().
            .def("setFrameTiming", &Viewer::setFrameTiming)
@@ -496,6 +521,10 @@ void Viewer::luaBind(lua_State *s) {
                      &Viewer::setGLSpecularCol)
            .property("glLight0", &Viewer::getGLLight0, &Viewer::setGLLight0)
            .property("glLight1", &Viewer::getGLLight1, &Viewer::setGLLight1)
+           .property("glLight0Color", &Viewer::getGLLight0Color,
+                     &Viewer::setGLLight0Color)
+           .property("glLight1Color", &Viewer::getGLLight1Color,
+                     &Viewer::setGLLight1Color)
 
            .property("glAmbient", &Viewer::getGLAmbient, &Viewer::setGLAmbient)
            .property("glDiffuse", &Viewer::getGLDiffuse, &Viewer::setGLDiffuse)
@@ -1785,6 +1814,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   // Object::povMatrixFromGL()).
   _light0 = btVector4(500.0, 500.0, 500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
+  _light0Color = _light1Color = btVector4(1, 1, 1, 1);
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
   _gl_shininess = btScalar(100.0);
@@ -1926,6 +1956,8 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 }
 
 void Viewer::onJoystickData(const JoystickInfo &ji) {
+  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+    return;
   QMutexLocker locker(&mutex);
   if (_cb_onJoystick) {
     try {
@@ -1937,6 +1969,8 @@ void Viewer::onJoystickData(const JoystickInfo &ji) {
 }
 
 void Viewer::onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes) {
+  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+    return;
   QMutexLocker locker(&mutex);
 
   // A Lua onSpaceNavigator callback takes precedence over the built-in
@@ -1951,6 +1985,8 @@ void Viewer::onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes) {
 }
 
 void Viewer::onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes) {
+  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+    return;
   QMutexLocker locker(&mutex);
 
   // A Lua onSpaceNavigator callback takes precedence over the built-in
@@ -2224,6 +2260,8 @@ void Viewer::integrateSpaceNavigator(bool sustained) {
 }
 
 void Viewer::onSpaceNavigatorTick() {
+  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+    return;
   QMutexLocker locker(&mutex);
   // Sustaining timer: the SpaceNavigator is an absolute device that only
   // reports a new value when the cap moves, so while a deflection is held
@@ -2236,6 +2274,8 @@ void Viewer::onSpaceNavigatorTick() {
 }
 
 void Viewer::onSpaceNavigatorButton(int button, bool pressed) {
+  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+    return;
   QMutexLocker locker(&mutex);
   if (pressed) {
     if (button == 0) {
@@ -3116,6 +3156,10 @@ void Viewer::clear() {
   // Object::povMatrixFromGL()).
   _light0 = btVector4(500.0, 500.0, 500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
+  _light0Color = _light1Color = btVector4(1, 1, 1, 1);
+
+  // (and its music)
+  freeMusic();
 
   // (a script's culling and shadow-record settings go with it, as the
   // lights do)
@@ -3171,6 +3215,8 @@ Viewer::~Viewer() {
 
   // Free any loaded sound effects and shut audio down before anything
   // else that might still reference it.
+  freeDownloads();
+  freeMusic();
   if (_audioAvailable) {
     for (auto &kv : _soundChunks) {
       Mix_FreeChunk(kv.second);
@@ -3415,6 +3461,7 @@ void Viewer::init() {
   // Object::povMatrixFromGL()).
   _light0 = btVector4(500.0, 500.0, 500.0, 0.4);
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
+  _light0Color = _light1Color = btVector4(1, 1, 1, 1);
 
   _gl_ambient = btVector3(0.2f, 0.2f, 0.2f);
   _gl_diffuse = btVector4(0.7f, 0.7f, 0.7f, 1.0f);
@@ -3482,14 +3529,26 @@ void Viewer::draw() {
   GLfloat light_position1[] = {_light1.x(), _light1.y(), _light1.z(),
                                _light1.w()};
 
+  // (each light's own colour, see setGLLight0Color())
+  GLfloat light_diffuse0[4], light_specular0[4];
+  GLfloat light_diffuse1[4], light_specular1[4];
+  for (int i = 0; i < 3; ++i) {
+    light_diffuse0[i] = light_diffuse[i] * _light0Color[i];
+    light_specular0[i] = light_specular[i] * _light0Color[i];
+    light_diffuse1[i] = light_diffuse[i] * _light1Color[i];
+    light_specular1[i] = light_specular[i] * _light1Color[i];
+  }
+  light_diffuse0[3] = light_specular0[3] = 1.0f;
+  light_diffuse1[3] = light_specular1[3] = 1.0f;
+
   glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse0);
+  glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0);
   glLightfv(GL_LIGHT0, GL_POSITION, light_position0);
 
   glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-  glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse1);
+  glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1);
   glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
 
   glEnable(GL_LIGHTING);
@@ -3511,6 +3570,9 @@ void Viewer::draw() {
   glMaterialfv(GL_FRONT, GL_DIFFUSE, _gl_diffuse);
   glMaterialfv(GL_FRONT, GL_SPECULAR, _gl_specular);
   glMaterialf(GL_FRONT, GL_SHININESS, _gl_shininess);
+  // (nothing glows but what says so: see Object::setEmission())
+  const GLfloat noEmission[] = {0.0f, 0.0f, 0.0f, 1.0f};
+  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, noEmission);
 
   // (the drawing timer, when it's on: see setDrawTiming())
   QElapsedTimer dt;
@@ -3611,11 +3673,11 @@ int Viewer::screenMerged() const { return _screenMerged; }
 
 namespace {
 // What can go into the merge: a fixed box or cylinder, opaque, without an
-// image or a script's drawing.
+// image, a glow or a script's drawing.
 bool mergeable(Object *o) {
   return !o->placed && o->body != nullptr && o->body->isStaticObject() &&
          o->body->getMotionState() != nullptr && o->getTransparency() <= 0.0 &&
-         !o->hasTexture() && !o->hasRenderFunction() &&
+         !o->hasTexture() && !o->hasRenderFunction() && !o->hasEmission() &&
          (dynamic_cast<Cube *>(o) != nullptr || dynamic_cast<Cylinder *>(o) != nullptr);
 }
 
@@ -5934,6 +5996,10 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
+  // (a dialog is open in a script call, which holds the mutex: the world
+  // waits for it, see ask())
+  if (_holdSim > 0)
+    return;
   // (one step a picture: a tick before the last step has been drawn waits
   // for the next, unless nothing has been drawn for a while)
   if (_onePerFrame && _stepsSinceDraw > 0 && _lastDrawNs >= 0 &&
@@ -6091,6 +6157,14 @@ void Viewer::setGLLight1(const btVector4 &pos) { _light1 = pos; }
 
 btVector4 Viewer::getGLLight1() const { return _light1; }
 
+void Viewer::setGLLight0Color(const btVector4 &col) { _light0Color = col; }
+
+btVector4 Viewer::getGLLight0Color() const { return _light0Color; }
+
+void Viewer::setGLLight1Color(const btVector4 &col) { _light1Color = col; }
+
+btVector4 Viewer::getGLLight1Color() const { return _light1Color; }
+
 // Vector
 
 void Viewer::setGLAmbient(const btVector3 &am) { _gl_ambient = am; }
@@ -6115,7 +6189,9 @@ void Viewer::setGLAmbientPercent(const btScalar am) {
   _gl_ambient = btVector3(am, am, am);
 }
 
-btScalar Viewer::getGLAmbientPercent() const { return _gl_ambient.length(); }
+btScalar Viewer::getGLAmbientPercent() const {
+  return (_gl_ambient.x() + _gl_ambient.y() + _gl_ambient.z()) / 3;
+}
 
 void Viewer::setGLDiffusePercent(const btScalar col) {
   _gl_diffuse = btVector4(col, col, col, 1);
@@ -6134,7 +6210,8 @@ void Viewer::setGLModelAmbientPercent(const btScalar am) {
 }
 
 btScalar Viewer::getGLModelAmbientPercent() const {
-  return _gl_model_ambient.length();
+  return (_gl_model_ambient.x() + _gl_model_ambient.y() +
+          _gl_model_ambient.z()) / 3;
 }
 
 // POV-Ray properties
