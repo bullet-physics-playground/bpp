@@ -45,7 +45,8 @@ All 27 checks pass (`lua5.1 checks/ch02.lua`).
   drift); AM 0 still shoots off left (x = −36,312).
 - **d.** Velocity caps: Vmax 12 keeps AM 15 bound with a small momentum
   change (|P| up to 3.0), but the orbit shrinks to nearly circular (15–18
-  instead of 15–87), which the book does not describe. Vmax 9 drops the planet
+  instead of 15–87), which the book does not describe; the cap cuts the
+  starting speed from 15 to 12 (FINDINGS F15). Vmax 9 drops the planet
   into the sun (ends 1.1 away, |P| up to 891). AM 0 with any cap: |P| up to
   1188. Velocity capping fails, as the book concludes.
 - **e.** Force cap Fmax 1: every orbit stays bound, with energy and momentum
@@ -62,6 +63,8 @@ All 27 checks pass (`lua5.1 checks/ch02.lua`).
   y, each 1 + random(D/2) from the origin as in spring1D, so the x velocities
   set them spinning.
 - **The velocity cap** clips each particle's speed (its code is not shown).
+  Clipping each component instead (`speedCapPerAxis` in `ch02/models.lua`)
+  gives the same picture: 14.9–18.4 at Vmax 12 (`checks/ch02.lua`).
 - **The potential with a force cap** matches the capped force:
   −G m₁m₂/r outside rc = √(G m₁m₂/Fmax), and Fmax(r − rc) − G m₁m₂/rc inside.
   With Fmax 1 the cap covers r < 44.7, the whole orbit, so the energy monitor

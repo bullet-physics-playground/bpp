@@ -11,7 +11,8 @@ code; this file says what was learned.
 numbers, where the evidence lives (a check script, a README or a probe), and a
 status: **Confirmed** (the book's claim, reproduced by our own measurement),
 **New** (a result the book does not have), **Book error** (the book disagrees
-with its own code, figures or arithmetic), **Divergence** (NetLogo, the Android
+with its own code, figures or arithmetic), **Book discrepancy** (the same,
+but small or an omission, not changing the conclusion), **Divergence** (NetLogo, the Android
 app and BPP differ), **Our error** (something we got wrong, and how it was found
 and corrected) or **Open** (measured but not yet settled).
 
@@ -132,19 +133,18 @@ particles pair up). The world is about 305 patches wide, the goal at
 
 ## 3. Errors and discrepancies in the book
 
-**F14. Listing 11.4's printed result** — 2026-10-17, Book error (cosmetic).
-`ch11/README.md`.
-The listing puts the entry point at x₂ = 1.001, which raises the mean to
-0.6525 (exact; our simulation agrees), but the text prints 0.6517. That
-matches an entry at exactly 1 (0.65176). The same listing with glibc
-`random()` also gives 0.6525, so it is not the generator.
+**F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
+`ch11/listing_11_4.lua`, `ch11/README.md`.
+The listing's entry is at x₂ = 1.001 (exact mean 0.652501); the text prints
+0.6517. With the book's generator (glibc, srandom(1), Lua 5.1) the listing
+gives 0.652454, 9 standard errors away, but 0.651711 = "0.6517" at x₂ = 1, so
+the text's run most likely used x₂ = 1 (inferred).
 
 **F15. Ch. 2.3d: the velocity cap's effect on the orbit's shape** —
-2026-10-17, Open.
-At Vmax 12 the book says the orbit "runs well, with a slight linear-momentum
-change". We confirm the momentum change is slight (|P| up to 3.0) but the
-orbit shrinks from 15–87 to 15–18, nearly circular, which the book does not
-mention. The cap's code is not shown; we clip each speed.
+2026-10-17, Book discrepancy. `checks/ch02.lua`. At Vmax 12 the book says the orbit "runs well, with a slight linear-momentum
+change". It is slight (|P| ≤ 3.0), but the orbit shrinks unmentioned from
+15–87 to 15–18 (the cap cuts the start speed 15 to 12), whether the unshown
+cap clips the speed or each component (`speedCapPerAxis`: 14.9–18.4).
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
@@ -214,17 +214,13 @@ the first commit; an exception was added.
 keeps one `postSim` callback, so a probe that set its own stopped the
 simulation. Probes now use `preDraw` and `preStop` (`lib/batch.lua`).
 
-**F27. The 3D mean free path estimate** — 2026-10-17, refined. An earlier
-chat's Monte Carlo gave ≈ 0.7717 (4 M samples); the exact value is 0.771992
-(F9), within that estimate's error.
+**F27. The 3D mean free path estimate** — 2026-10-17, refined: an earlier
+≈ 0.7717 (4 M samples) is within error of the exact 0.771992 (F9).
 
 **F33. The checks assumed `lua5.1` was installed** — 2026-10-17, Our error.
-Found by William: on his machine (no `lua5.1`, a standalone Lua 5.3) every
-Lua check failed at 0 s, because the interpreter was missing, not because a
-test failed. Three files also used `math.atan2`, which Lua 5.3 dropped.
-`checks/run_all.sh` now runs the checks inside BPP itself, so they test
-BPP's own Lua, and falls back to any standalone Lua; all code runs on 5.1–5.4,
-and the generator's stream is identical on each.
+Found by William (Lua 5.3 only): every check failed for want of the
+interpreter, and three used `math.atan2`, gone in 5.3. `checks/run_all.sh` now
+runs them inside BPP, else any Lua; all code runs on 5.1–5.4.
 
 ---
 
@@ -276,7 +272,6 @@ the useful range. Same root as F31.
 
 ## 7. Open questions
 
-- F15: does the book's velocity cap clip speed, or each component?
 - F18: the limits at MFP ≤ 17, which need about 10⁹ visits to resolve.
 - The 3D threshold G_t for the cube formation (`BOOK.md` §1 item 9), to
   measure with a G sweep.

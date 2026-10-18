@@ -47,7 +47,10 @@
 -- evaluates pair(r, a, b) as the force on a only, for laws that break the
 -- third law (Ch. 4.1's triangle); the momentum monitor then shows it.
 -- opts.forceMax caps |F| per pair (Listing 2.8's Force_Maximum);
--- opts.speedMax caps each speed (Sec. 2.3d's Velocity_Maximum);
+-- opts.speedMax caps each speed (Sec. 2.3d's Velocity_Maximum): the
+-- velocity is scaled down to that speed, keeping its direction. With
+-- opts.speedCapPerAxis = true each component is clipped to +-speedMax
+-- instead (the other way the unshown code could do it; FINDINGS F15);
 -- opts.external(p) returns an extra force (fx, fy, fz) on one particle.
 --
 -- POTENTIAL ENERGY: opts.potential(r, a, b) for each pair, if given
@@ -188,7 +191,11 @@ function M.step(ps, dt, opts)
     p.vx = p.vx + dt * p.fx / m
     p.vy = p.vy + dt * p.fy / m
     p.vz = p.vz + dt * p.fz / m
-    if vmax then
+    if vmax and opts.speedCapPerAxis then
+      p.vx = math.max(-vmax, math.min(vmax, p.vx))
+      p.vy = math.max(-vmax, math.min(vmax, p.vy))
+      p.vz = math.max(-vmax, math.min(vmax, p.vz))
+    elseif vmax then
       local s = sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz)
       if s > vmax then
         local k = vmax / s

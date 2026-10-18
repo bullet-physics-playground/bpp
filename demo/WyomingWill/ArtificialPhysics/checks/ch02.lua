@@ -188,8 +188,8 @@ do
         string.format("planet at x = %.0f (should stay within 15 of the sun)", c0.ps[2].x))
 
   -- d. Velocity cap at Delta-t 0.1 (uncapped peak speed about 15)
-  local function vcap(am, vmax)
-    local m = ch.solar({ angularMotion = am, speedMax = vmax, dt = 0.1 })
+  local function vcap(am, vmax, perAxis)
+    local m = ch.solar({ angularMotion = am, speedMax = vmax, dt = 0.1, speedCapPerAxis = perAxis })
     local f, l, e = run(m, 400)
     return f, l, e
   end
@@ -198,6 +198,13 @@ do
   check("d: Vmax 12, AM 15: runs well, slight momentum change", e12.pMax > 1e-6 and e12.pMax < 10 and l12.sep < 3 * ed.sepMax and e12.sepMin > 5,
         string.format("uncapped peak speed %.1f; capped: max |P| %.1f, distance %.0f to %.0f",
                       ed.speedMax, e12.pMax, e12.sepMin, e12.sepMax))
+  -- F15: the orbit shrinks to nearly circular, whichever way the cap clips
+  local _, _, ea = vcap(15, 12, true)
+  local _, l9a, e9a = vcap(15, 9, true)
+  check("d: Vmax 12 shrinks the orbit, clipping speed or each component",
+        e12.sepMax < 25 and ea.sepMax < 25 and ed.sepMax > 80,
+        string.format("uncapped %.0f to %.0f; speed %.1f to %.1f; components %.1f to %.1f (|P| %.1f); Vmax 9 by components ends %.2f away",
+                      ed.sepMin, ed.sepMax, e12.sepMin, e12.sepMax, ea.sepMin, ea.sepMax, ea.pMax, l9a.sep))
   local f9, l9, e9 = vcap(15, 9)
   check("d: Vmax 9, AM 15: plunges into the sun and stays", l9.sep < 3 and e9.pMax > 1,
         string.format("ends %.2f from the sun; max |P| %.1f; E %.1f -> %.1f", l9.sep, e9.pMax, f9.e, l9.e))

@@ -19,7 +19,8 @@
 --   * spring2D's starting geometry is not stated: the masses start apart
 --     along y, as spring1D's along x (each 1 + random(D/2) from the
 --     origin), so the x velocities set them spinning.
---   * solar_system's velocity cap clips the speed (its code is not shown).
+--   * solar_system's velocity cap clips the speed (its code is not shown);
+--     speedCapPerAxis = true clips each component instead (FINDINGS F15).
 --   * With a force cap, the potential is the one that matches the capped
 --     force: -G m1 m2 / r outside the cap radius rc = sqrt(G m1 m2 / Fmax),
 --     and Fmax (r - rc) - G m1 m2 / rc inside it, so the energy monitor
@@ -96,6 +97,7 @@ function M.solar(o)
   local fmax = o.forceMax or 1e6
   m.law = gravity(m.G, fmax < 1e6 and fmax or nil)
   m.law.speedMax = (o.speedMax or 1000) < 1000 and o.speedMax or nil
+  m.law.speedCapPerAxis = o.speedCapPerAxis   -- clip each component (F15)
   return m
 end
 

@@ -92,7 +92,8 @@ print(mon.format(t:drift()))   -- com= dp= dl= de= relE=
   particle separately, for laws that break Newton's third law (Ch. 4.1's
   triangle); the momentum monitor then shows the drift.
 - **`forceMax`** caps |F| per pair (Ch. 2.3's Force_Maximum); **`speedMax`**
-  caps each speed (Velocity_Maximum); **`external(p)`** adds a force.
+  caps each speed (Velocity_Maximum), keeping the direction, or clips each
+  component with **`speedCapPerAxis`**; **`external(p)`** adds a force.
 - **`measure`** gives the centre of mass and its velocity, P, L about the
   centre of mass (a vector: a run in the x–z plane has only `ly`), KE, PE, E;
   **`tracker`** reports drift from the first measurement.

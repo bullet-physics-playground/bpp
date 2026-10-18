@@ -28,11 +28,14 @@ cube and the entry point uniform on a shared face.
   the book's Eq. 11.3–11.4 in one line. The 3D one is very strong evidence but
   not a proof; it uses the same constants as Robbins' mean distance between
   two random points in a cube.
-- **The book's printed 0.6517.** Listing 11.4 puts the entry at x₂ = 1.001,
-  which raises the mean to 0.6525 (exact, and our simulation agrees). The
-  printed 0.6517 matches an entry at exactly 1 (0.65176). The same listing
-  run with glibc `random()` (the appendix's generator) also gives 0.6525, so
-  it is not the generator; most likely the run used x₂ = 1. Cosmetic.
+- **The book's printed 0.6517** (FINDINGS F14). Listing 11.4 puts the entry
+  at x₂ = 1.001, which raises the mean to 0.6525 (exact, and our simulation
+  agrees). The printed 0.6517 matches an entry at exactly 1 (0.65176).
+  `listing_11_4.lua` runs the listing line for line with the book's own
+  generator and seed: x₂ = 1.001 gives 0.652454, about 9 standard errors
+  from 0.6517, while x₂ = 1 gives 0.651711, which prints as 0.6517. So the
+  run behind the text most likely used x₂ = 1 (our inference; the original
+  output is not available). Small: both support f ≈ 0.65.
 
 ## How it was done
 
@@ -43,6 +46,10 @@ cube and the entry point uniform on a shared face.
 - `mfp_theory.lua`: Listing 11.4 as written, extended to 3D (a third
   coordinate pair z₁, z₂) and to the buffer, on the shared generator
   (`lib/rng.lua`). `lua5.1 ch11/mfp_theory.lua`, about a minute.
+- `listing_11_4.lua`: Listing 11.4 exactly as printed, on the C library's
+  generator (glibc, srandom(1), as the book's C code), at x₂ = 1.001 and 1.
+  `lua5.1 ch11/listing_11_4.lua`, about 6 s; only Lua 5.1 gives the book's
+  exact stream (5.2 and 5.3 discard the first number after seeding).
 - `checks/mfp_theory.lua`: the simulation within 4 standard errors of the
   exact values, 10⁶ samples per case, about 5 s.
 

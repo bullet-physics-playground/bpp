@@ -4,9 +4,11 @@
 -- Sec. 11.3 (PDF 380-383): the mean free path is the average distance a
 -- robot travels to enter an adjacent cell. Listing 11.4 estimates it by
 -- simulation: the robot uniform in a unit cell at (x1, y1), the entry point
--- just inside the next cell at (1.001, y2), y2 uniform; the mean of the
--- distance is 0.6517 (10^7 samples), and Eq. 11.2-11.4 integrate it exactly
--- to 0.651757. Cells of size c then use a mean free path f * c.
+-- just inside the next cell at (1.001, y2), y2 uniform; the text prints a
+-- mean of 0.6517 (10^7 samples), and Eq. 11.2-11.4 integrate it exactly
+-- (entry at 1) to 0.651757. At 1.001 the mean is 0.6525 (FINDINGS F14;
+-- ch11/listing_11_4.lua runs the listing with the book's own generator).
+-- Cells of size c then use a mean free path f * c.
 --
 -- In 3D the cells are cubes with face neighbours, and the same construction
 -- puts the robot uniform in a unit cube at (x1, y1, z1) and the entry point
