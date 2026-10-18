@@ -110,25 +110,6 @@
 --              shrinks by muLess mu (the new mu acts from the next tick).
 --              On top of `friction`. muMore = 0 and muLess = 0: off (mu
 --              stays 0). The book: muMore / muLess > 10.
---   staticFriction  (checkbox; needs muMore/muLess) static friction,
---              Eq. 13.25 with its corrected condition (book/ch13.md E11d):
---              an axis's command is set to 0 unless mu x g' < |F| on that
---              axis, so a drone that has been oscillating (high mu) needs a
---              larger force to move at all. g' is not a knob: the book
---              compares mu m g, g = 9.81, with forces of ~100 at D (Fig.
---              13.3), so g' = STATIC_G_RATIO (0.098) x F(D), the law's own
---              force just inside D; m = the drone's AP mass (1).
---   speedCap   (checkbox) adaptive speed cap, Eq. 13.24 (PDF 465): each
---              drone's AP command speed |v| (m/s) is clipped to its own
---              cap u_max, which each tick grows by CAP_K_MORE (U_HI - u_max)
---              if the nearest thing (column surface or other drone) is
---              farther than CAP_NEAR, else shrinks by CAP_K_LESS
---              (u_max - U_LO). The Pioneer's 0.5 / 0.1 m/s and 1 m become
---              U_HI 1.5 m/s (what the airframe follows), U_LO 0.3 m/s (the
---              book's 1:5) and CAP_NEAR 1.5 m (two airframe lengths, as 1 m
---              is for a Pioneer); k_less / k_more = 12.5 (> 10, the book).
---              One reading per tick, the nearest one, so the rate does not
---              depend on a beam count (book/ch13.md E11c).
 --   stopForce  the stop rule of Sec. 13.2.2: when the drone's summed force
 --              |F| (drones, obstacles, levels, goal; AP force units) is
 --              below stopForce, its AP velocity is set to 0 and its
@@ -190,9 +171,6 @@ local MIN_ALT, MAX_ALT = 2.0, 60.0  -- geofence for waypoints (m)
 local CLIMB_RATE = 1.5              -- m/s, takeoff
 local LAND_RATE = 1.0               -- m/s, landing
 local HOLD_MASS = 100000
-local CAP_U_HI, CAP_U_LO, CAP_NEAR = 1.5, 0.3, 1.5   -- speedCap: m/s, m/s, m
-local CAP_K_MORE, CAP_K_LESS = 0.02, 0.25            -- speedCap gains per AP tick (ratio 12.5)
-local STATIC_G_RATIO = 9.81 / 100   -- staticFriction: g' / F(D), the book's g against Fig. 13.3's force at D
 
 --------------------------------------------------------------------------
 -- GUI parameters: the force law's own (from cfg), then the shared ones
@@ -223,8 +201,6 @@ defParam("muLess",       0,    0,   1,    0.005, "Ch. 13 adaptive friction: mu -
 defParam("stopForce",    0,    0,   1,    0.005, "Ch. 13 stop rule: summed |F| below this (AP force units) stops the drone where it is; 0 = off")
 defParam("goalForce",    0.25, 0,   1,    0.01, "constant-magnitude attraction toward the goal")
 defParam("obstacleSize", 40,   0,   100,  1,    "repulsion radius of obstacles placed with O (AP units); the solid column is a third of it")
-v:addParam("staticFriction", false, "Ch. 13 static friction (Eq. 13.25): an axis moves only if mu x g' < |F| on it, g' = 0.098 F(D) (needs muMore/muLess)")
-v:addParam("speedCap", false, "Ch. 13 adaptive speed cap (Eq. 13.24): command speed capped at 1.5 m/s in the open, falling toward 0.3 m/s within 1.5 m of a column or drone")
 v:addParam("obstacleField", true, "Setup (R) scatters random columns between the launch area and the goal's stopping point")
 defParam("fieldDensity", 2.5,  0,   8,    0.1,  "columns per 100 m^2 of the obstacle field, used by the next Setup (R)")
 defParam("goalSpeed",    0.2,  0,   2,    0.05, "how fast the goal moves through the obstacle field (m/s); it stops at the far side")
@@ -249,8 +225,6 @@ local function readParams()
   local p = {}
   for _, n in ipairs(PARAM_ORDER) do p[n] = v:getParam(n) end
   p.sep = p[SEP]
-  p.speedCap = v:getParam("speedCap")
-  p.staticFriction = v:getParam("staticFriction")
   return p
 end
 
@@ -302,7 +276,6 @@ local function newMetrics()  -- running totals for probes (see METRICS at the to
            crossings = 0, stops = 0, lastStops = 0, muSum = 0, lastMu = 0 }
 end
 local metrics = newMetrics()
-local capN, capSum = 0, 0  -- speedCap: this tick's mean cap, for the status line
 local muTick, muN = 0, 0   -- this AP tick's mean mu, for the status line
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
 local obstacleObjs = {} -- solid obstacle objects
@@ -523,7 +496,6 @@ local function apTick(p)
   end
   metrics.ticks = metrics.ticks + 1
   local stopsThisTick = 0
-  capN, capSum = 0, 0
   muTick, muN = 0, 0
   for _, d in ipairs(seen) do
     if d.state == "ap" then
@@ -604,14 +576,6 @@ local function apTick(p)
       if p.muMore > 0 or p.muLess > 0 then
         d.mux, d.muy, d.muz = d.mux or 0, d.muy or 0, d.muz or 0
         d.avx, d.avy, d.avz = d.avx * (1 - d.mux), d.avy * (1 - d.muy), d.avz * (1 - d.muz)
-        if p.staticFriction then
-          -- Eq. 13.25 (corrected): too little force for this axis's friction
-          local g_ = STATIC_G_RATIO * math.abs(cfg.force(p.sep * 0.999, p, 1, 1))
-          local m_ = d.apMass
-          if d.mux * m_ * g_ >= math.abs(fx) then d.avx = 0 end
-          if d.muy * m_ * g_ >= math.abs(fy) then d.avy = 0 end
-          if d.muz * m_ * g_ >= math.abs(fz) then d.avz = 0 end
-        end
         local ox, oy, oz = d.cmdx or 0, d.cmdy or 0, d.cmdz or 0
         d.mux = C13.adaptMu(d.mux, d.avx, ox, p.muMore, p.muLess)
         d.muy = C13.adaptMu(d.muy, d.avy, oy, p.muMore, p.muLess)
@@ -620,32 +584,6 @@ local function apTick(p)
         local m_ = is3D and (d.mux + d.muy + d.muz) / 3 or (d.mux + d.muz) / 2
         metrics.muSum = metrics.muSum + m_
         muTick, muN = muTick + m_, muN + 1
-      end
-
-      -- adaptive speed cap (Eq. 13.24): one reading, the nearest column
-      -- surface or drone, then clip the command speed
-      if p.speedCap then
-        local near = math.huge
-        for _, o in ipairs(seen) do
-          if o ~= d then
-            local r_ = math.sqrt((o.px - d.px) ^ 2 + (o.py - d.py) ^ 2 + (o.pz - d.pz) ^ 2)
-            if r_ < near then near = r_ end
-          end
-        end
-        for _, obs in ipairs(obstacles) do
-          local r_ = math.sqrt((obs.wx - d.px) ^ 2 + (obs.wz - d.pz) ^ 2) - obs.solidR
-          if r_ < near then near = r_ end
-        end
-        d.uMax = d.uMax or CAP_U_HI
-        if near > CAP_NEAR then d.uMax = d.uMax + CAP_K_MORE * (CAP_U_HI - d.uMax)
-        else d.uMax = d.uMax - CAP_K_LESS * (d.uMax - CAP_U_LO) end
-        local toMS = p.timeStep * s * p.apHz                -- AP units per tick -> m/s
-        local sp = math.sqrt(d.avx * d.avx + d.avy * d.avy + d.avz * d.avz) * toMS
-        if sp > d.uMax then
-          local k_ = d.uMax / sp
-          d.avx, d.avy, d.avz = d.avx * k_, d.avy * k_, d.avz * k_
-        end
-        capN, capSum = capN + 1, capSum + d.uMax
       end
 
       -- the waypoint: sensed position + this tick's AP displacement
@@ -669,7 +607,6 @@ local function apTick(p)
     end
   end
   metrics.stops = metrics.stops + stopsThisTick
-  metrics.lastCap = capN > 0 and capSum / capN or nil
   metrics.lastStops = stopsThisTick
   metrics.lastMu = muN > 0 and muTick / muN or 0
 
@@ -1487,10 +1424,6 @@ function updateStatus(statsLine)
   end
   if p.muMore > 0 or p.muLess > 0 then
     parts[#parts + 1] = string.format("mu k+=%.2f k-=%.3f mean=%.2f", p.muMore, p.muLess, metrics.lastMu)
-                        .. (p.staticFriction and " static" or "")
-  end
-  if p.speedCap then
-    parts[#parts + 1] = string.format("cap mean=%.2f m/s", metrics.lastCap or CAP_U_HI)
   end
   if p.stopForce > 0 then
     parts[#parts + 1] = string.format("stop |F|<%.3f: %2d stopped", p.stopForce, metrics.lastStops)
