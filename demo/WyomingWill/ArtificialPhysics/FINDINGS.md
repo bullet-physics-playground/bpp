@@ -124,9 +124,10 @@ the book means no drift.
 New. `lib/world.lua` (`World.CH03_DISCS`).
 Both panels of Fig. 3.25 give the same 12 disc centres within a pixel,
 shifted as a group (F40). Scale 2.11 px per patch at 300 dpi from the discs
-(20 across), confirmed by the formation's 63.3 px node spacing (D = 30). The world is about 305 patches wide, the goal at
-(−119, 4), the field's centre at (48, −7); the closest gap is 5.2 patches
-("narrowly spaced"). Fig. 3.26 is a different field (F37).
+(20 across), confirmed by the formation's 63.3 px node spacing (D = 30). In
+the model's world (701 × 401, goal at (−175.25, 0); F40) the field's centre
+is at (−8, −11); the closest gap is 5.2 patches ("narrowly spaced"). Fig. 3.26
+is a different field (F37).
 
 ## 3. Errors and discrepancies in the book
 
@@ -232,17 +233,17 @@ discrepancy (small). Radius 95 px at the scale confirmed by the lattice
 (F13); the field covers 24.8% of the panel, ours 24.6%.
 
 **F39. Code against William's instruction went out in a commit of ours** —
-Our error. Another session in the same checkout added a `cpt-textron` preset
-(Textron buildings from `MakeMap.c`); I staged the folder without reading the
-diff, so it reached master in step 4. Removed; diffs are now read first.
+Our error. Another session's `cpt-textron` preset reached master because I
+staged the folder unread. Removed; diffs are now read first.
 
-**F40. Both figures' obstacles shift between panels** ((17, 21) patches in
-Fig. 3.26) — Open: pushed heavy particles, or cropping? Check the `.nlogo`.
+**F40. Both figures' obstacles shift between panels: cropping** — 2026-10-18,
+Our error (small), settled by the `.nlogo` and Fig. 3.23: each panel crops
+~305 patches of a 701 × 401 world, which we took for the world. Pushing
+moves a heavy (10⁵) obstacle ≤ 0.01 patch/tick. Presets use the model's frame.
 
 **F41. Ch. 2's starts guessed, then checked against the .nlogo** —
-2026-10-18, Our error (small). spring2D started "apart along y"; the model
-uses random headings, and spring1D's light mass starts on the right. Now as
-the models; F3's numbers barely move. NetLogo's PE has its zero at contact.
+2026-10-18, Our error (small). spring2D now starts at random headings and
+spring1D's light mass on the right, as the models; F3 barely moves.
 
 ## 6. How BPP behaves (worth knowing for every port)
 

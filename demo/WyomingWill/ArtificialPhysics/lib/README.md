@@ -122,7 +122,8 @@ w:writeGrid("corridor.txt")
   `cells`, `scatter` builds your own.
 - **Presets** (`World.presets()`):
   - `ch03-obstacles`: Fig. 3.25's 12 discs of radius 10, measured from the
-    figure, goal and start;
+    figure, in `formation_goal_obs.nlogo`'s 701 × 401 world with its goal
+    (−175.25, 0) and start cloud (175.25, 0);
   - `ch03-wall`: Fig. 3.26's own field, 6 discs of radius 45 (measured; the
     text says 50) merged into a wall;
   - `ch04-coverage`: the coverage box, nine cells on ±40 (`netlogo = true`

@@ -6,7 +6,8 @@
 --
 --   preset 1  Ch. 3.6  formation_goal_obs, Fig. 3.25: 12 obstacle discs of
 --             radius 10 between the particles' start (green) and the goal
---             (blue), measured from the figure.
+--             (blue), measured from the figure, in the model's own 701 x 401
+--             patch world (goal and start a quarter of the way in).
 --   preset 2  Ch. 3.6, Fig. 3.26: a different field (obstacles are placed by
 --             mouse clicks), 6 discs of radius 45 merged into the wall the
 --             formation rotates around, measured from the figure.

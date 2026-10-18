@@ -56,19 +56,28 @@ do
         string.format("smallest gap %.1f patches", minGap))
   -- Fig. 3.26 is its own layout (6 discs of radius 45 measured from the
   -- figure), not Fig. 3.25's discs enlarged. Its grey covers 24.8% of the
-  -- panel (102,816 of 416,670 px at 300 dpi).
+  -- panel (102,816 of 416,670 px at 300 dpi, 2.11 px per patch): 23,200
+  -- square patches.
   local wall = World.preset("ch03-wall")
-  local frac = wall:obstacleFraction(300)
+  local b = wall.bounds
+  local area = wall:obstacleFraction(600) * (b.x1 - b.x0) * (b.y1 - b.y0)
+  local figArea = 102816 / 2.11 ^ 2
   local n = 0
   for _, p in ipairs(wall.pieces) do if p.tag == "obstacle" then n = n + 1 end end
   check("ch03-wall: Fig. 3.26's 6 discs of radius 45 cover what the figure does",
-        n == 6 and wall.pieces[1].r == 45 and math.abs(frac - 0.248) < 0.01,
-        string.format("covers %.1f%% (figure 24.8%%)", 100 * frac))
+        n == 6 and wall.pieces[1].r == 45 and math.abs(area / figArea - 1) < 0.04,
+        string.format("covers %.0f square patches (figure %.0f)", area, figArea))
+  local sx, sy = World.CH03_SHIFT[1], World.CH03_SHIFT[2]
   check("ch03-wall: one connected wall, goal clear",
-        wall:blocked(33.6, 0) and wall:blocked(10.3, 10) and not wall:blocked(-119, 4, "obstacle"))
+        wall:blocked(33.6 + sx, sy) and wall:blocked(10.3 + sx, 10 + sy)
+        and not wall:blocked(wall.regions.goal.x, wall.regions.goal.y, "obstacle"))
+  check("ch03: the model's world, goal and start (formation_goal_obs.nlogo)",
+        b.x1 - b.x0 == 701 and b.y1 - b.y0 == 401 and w.regions.goal.x == -175.25
+        and w.regions.goal.y == 0, w:summary())
+  local st = w.regions.start
   check("ch03: goal and start clear of the field",
         not w:blocked(w.regions.goal.x, w.regions.goal.y, "obstacle")
-        and not w:blocked(120, 0, "obstacle"))
+        and not w:blocked(175.25, 0, "obstacle") and not w:blocked(st.x0, 0, "obstacle"))
 end
 
 -- Ch. 4: the nine-cell coverage box.

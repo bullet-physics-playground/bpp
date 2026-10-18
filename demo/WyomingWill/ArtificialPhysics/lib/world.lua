@@ -517,6 +517,20 @@ end
 -- panels give the same layout to within a pixel. The scale is confirmed
 -- independently by the formation: its nodes are 63.3 px apart, D = 30
 -- patches (G 400 is above G_t 259.8, so particles pair up at nodes).
+--
+-- Coordinates are the model's (formation_goal_obs.nlogo): a world of
+-- 701 x 401 patches (pxcor -350..350, pycor -200..200, as its GRAPHICS-
+-- WINDOW and the book's Fig. 3.23 show), the goal at (-world-width/4, 0) =
+-- (-175.25, 0), the particles starting in a Gaussian cloud (sd 20) around
+-- (+175.25, 0). The book's figure panels are square crops about 305
+-- patches across, each placed differently (FINDINGS F40); the measurements
+-- were taken from the crop's centre and are moved by CH03_SHIFT, which takes
+-- Fig. 3.25's goal (-119, 4) onto the model's (-175.25, 0).
+World.CH03_SHIFT = { -56.25, -4 }
+World.CH03_GOAL = { -175.25, 0 }
+World.CH03_START = { 175.25, 0, 20 }          -- centre x, y and the cloud's sd
+World.CH03_BOUNDS = { -350.5, -200.5, 350.5, 200.5 }
+
 World.CH03_DISCS = {
   { -47.7, 3.9 }, { -35.6, 49.6 }, { -33.8, -25.7 }, { -16.4, -49.2 },
   { -10.4, 61.0 }, { -3.1, 25.0 }, { -1.1, -22.6 }, { 12.4, 0.6 },
@@ -531,16 +545,23 @@ local presets = {}
 -- Ch. 3.6 (formation_goal_obs.nlogo): a formation crossing a field of 12
 -- discs to a goal. opts.radius = obstacleF (10 in Fig. 3.25, 50 in Fig.
 -- 3.26, where the discs merge into a wall).
+local function ch03World(name, o)
+  local w = World.new({ name = name, units = "patches", bounds = World.CH03_BOUNDS,
+                        height = o.height or 10 })
+  local g, s = World.CH03_GOAL, World.CH03_START
+  w:region("goal", g[1], g[2])
+  w:region("start", s[1] - 3 * s[3], s[2] - 3 * s[3], s[1] + 3 * s[3], s[2] + 3 * s[3])
+  w.notes[#w.notes + 1] = "world, goal and start as formation_goal_obs.nlogo: 701 x 401 patches, goal (-175.25, 0), particles a Gaussian cloud (sd 20) around (175.25, 0); the start region is +-3 sd"
+  return w
+end
+
 presets["ch03-obstacles"] = function(o)
-  local w = World.new({ name = "ch03-obstacles", units = "patches",
-                        bounds = { -152, -152, 152, 152 }, height = o.height or 10 })
+  local w = ch03World("ch03-obstacles", o)
   local r = o.radius or 10
-  local cx, cy = o.cx or 48, o.cy or -7
+  local cx = o.cx or (48 + World.CH03_SHIFT[1])
+  local cy = o.cy or (-7 + World.CH03_SHIFT[2])
   for _, d in ipairs(World.CH03_DISCS) do w:disc(cx + d[1], cy + d[2], r) end
-  w:region("goal", o.goalX or -119, o.goalY or 4)
-  w:region("start", 90, -40, 150, 40)
-  w.notes[#w.notes + 1] = "disc layout, goal (-119, 4) and the field's centre (48, -7) measured from Fig. 3.25 (about +-2 patches); world size from the figure's scale (305 patches), not stated in the book"
-  w.notes[#w.notes + 1] = "start region: the particles start as a cloud on the right (text); its size is our choice"
+  w.notes[#w.notes + 1] = "disc layout measured from Fig. 3.25 (about +-2 patches), field centre (-8.25, -11)"
   return w
 end
 
@@ -548,8 +569,9 @@ end
 -- obstacles are placed by mouse clicks. Six discs fitted to its outline
 -- (Hough circles plus a search for one hidden behind the others; together
 -- they cover the grey to within 4%), radius 95 px = 45 patches at the same
--- 2.11 px per patch, in world patches with the goal at (-119, 4) as in Fig.
--- 3.25. The text says obstacle size 50; the figure measures 45.
+-- 2.11 px per patch, measured with the goal at (-119, 4) as in Fig. 3.25
+-- and moved by CH03_SHIFT like it. The text says obstacle size 50; the
+-- figure measures 45.
 World.CH03_WALL_DISCS = {
   { -0.6, -55.5 }, { -7.7, 45.9 }, { 51.6, -51.7 },
   { 64.8, -14.3 }, { 33.6, 19.8 }, { 10.3, -21.9 },
@@ -558,13 +580,11 @@ World.CH03_WALL_DISCS = {
 -- Ch. 3.6, Fig. 3.26: the obstacles merged into a wall that the formation
 -- rotates around. opts.radius (default 45, as measured).
 presets["ch03-wall"] = function(o)
-  local w = World.new({ name = "ch03-wall", units = "patches",
-                        bounds = { -152, -152, 152, 152 }, height = o.height or 10 })
+  local w = ch03World("ch03-wall", o)
   local r = o.radius or 45
-  for _, d in ipairs(World.CH03_WALL_DISCS) do w:disc(d[1], d[2], r) end
-  w:region("goal", -119, 4)
-  w:region("start", 90, -40, 150, 40)
-  w.notes[#w.notes + 1] = "Fig. 3.26's own layout: 6 discs of radius 45 measured from the figure (the text says size 50); goal as Fig. 3.25"
+  local sx, sy = World.CH03_SHIFT[1], World.CH03_SHIFT[2]
+  for _, d in ipairs(World.CH03_WALL_DISCS) do w:disc(d[1] + sx, d[2] + sy, r) end
+  w.notes[#w.notes + 1] = "Fig. 3.26's own layout: 6 discs of radius 45 measured from the figure (the text says size 50)"
   return w
 end
 
