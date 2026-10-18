@@ -173,6 +173,12 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   get 5.50 / 4.97 / 4.00 / 9.00). Energy with the book's integrator swings
   within a cycle (0.45% for the spring, up to 16% at a close orbital pass at
   Δt 0.1) but does not drift.
+- **The NetLogo models decide where the book is silent** (`netlogo/`):
+  solar_system caps speed by scaling the velocity (F15); spring2D starts at
+  random headings (F41); formation_goal_obs's world is 701 × 401 patches with
+  the goal at (−175.25, 0), and the book's figure panels are ~305-patch crops
+  of it (F40). The book's 0.6517 for Listing 11.4 comes from an entry at
+  x₂ = 1, not the printed 1.001 (F14).
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
@@ -194,7 +200,12 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   6. `checks/run_all.sh`: every check, about 1 min 40 s (`checks/README.md`).
 - **Also done in the M0 chat:** Ch. 11.7, the mean free path in 3D, exact
   and simulated (`ch11/`); the Uniform Coverage measurements and the wall-rule
-  decision (FIXES 36); the realistic generator's design (`BOOK.md` §6).
+  decision (FIXES 36); the realistic generator's design (`BOOK.md` §6);
+  `FINDINGS.md`/`.pdf`, the running record (F1–F42); the one-line status
+  design (`lib/status.lua`, BPP's fixed-pitch status font); William's NetLogo
+  models in `netlogo/`, with Ch. 2 and Ch. 3's world checked against them
+  (F15, F40, F41); Listing 11.4 run on the book's own generator
+  (`ch11/listing_11_4.lua`, F14); `ch02/Spring3D.lua` (F42).
 - **Next, William's choice between:**
   - **The realistic world generator** (`BOOK.md` §6, option A): terrain and
     water first, then zones, streets, lots and buildings, vegetation, mission
@@ -202,7 +213,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     town. Real places (OSM, elevation, depth charts) are future work.
   - **M1:** Ch. 13's four fixes on the drones, each switchable, measured on
     Newtonian 2D and 3D with the Ch. 16.9 metrics, using `lib/batch.py` and
-    `probes/batch_drones.lua`.
+    `probes/batch_drones.lua`. Why: the split-Newtonian quadcopter swarms
+    never settle (the force flips sign at D and the airframes lag, so they
+    overshoot forever; Lennard-Jones settles). Main question: does AR damping
+    alone make them settle like LJ? Check `netlogo/formation_newton.nlogo`
+    first. The 3D spring lattice below fits here.
 - **Ideas William liked (2026-10-18), to do when there is room:** truly 3D
   spring models, since two bodies always stay in one plane (spring3D, done,
   looks like spring2D tilted): **a spring tetrahedron** (four masses, six
