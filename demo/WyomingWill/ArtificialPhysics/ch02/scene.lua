@@ -4,7 +4,7 @@
 -- Shared by Spring1D.lua, Spring2D.lua and SolarSystem.lua. The model's
 -- plane (x, y) is drawn as BPP (x, -z) with y up (lib/world.lua's
 -- mapping), seen from above. Each frame runs `stepsPerFrame` integrator
--- steps; S starts and stops as in every BPP scene. The status line shows
+-- steps. BPP runs a scene as soon as it loads; S stops and restarts it. The status line shows
 -- the book's monitors: time, separation, linear momentum, angular
 -- momentum, kinetic, potential and total energy.
 --

@@ -9,7 +9,7 @@ every later port stands on.
 | File | What |
 | --- | --- |
 | `models.lua` | The three models as plain Lua, with the book's slider defaults |
-| `Spring1D.lua`, `Spring2D.lua`, `SolarSystem.lua` | BPP scenes with the NetLogo sliders (same names), seen from above; the status line shows t, separation, \|P\|, L, KE, PE and E. S starts and stops, R resets |
+| `Spring1D.lua`, `Spring2D.lua`, `SolarSystem.lua` | BPP scenes with the NetLogo sliders (same names; the solar system's caps get tick boxes instead of the book's huge "off" values), seen from above; the status line shows t, separation, \|P\|, L, KE, PE and E. They run as soon as they load; R resets, S stops and restarts |
 | `scene.lua` | Their shared drawing and running |
 | `../checks/ch02.lua` | The book's results as 27 numeric checks, about 2 s |
 

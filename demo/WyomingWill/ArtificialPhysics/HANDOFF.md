@@ -47,7 +47,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–36 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F34 so far), and
+  implementations, and our own mistakes once corrected (F1–F36 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is

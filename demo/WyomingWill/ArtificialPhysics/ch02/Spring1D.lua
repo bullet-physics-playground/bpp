@@ -7,7 +7,8 @@
 -- Friction 0; Mass_Ratio 10 makes the heavy mass barely move, with the
 -- red centre of mass beside it; Friction > 0 drains E to 0 and the
 -- separation settles at D; changing D or k mid-run moves E to a new
--- constant level. Keys: S start/stop, R reset.
+-- constant level. It runs as soon as it loads; R resets, S stops and
+-- restarts.
 --
 package.path = "../?.lua;" .. package.path
 local scene = require "ch02.scene"
@@ -39,6 +40,6 @@ scene.run({
   colors = { "#ffffff", "#ffd040" },
   springLine = true,
   camHeight = 75,
-  help = "spring1D (Ch. 2.1). S start/stop, R reset. Status: t, separation, |P|, L, KE, PE, E.",
+  help = "spring1D (Ch. 2.1). Runs at load; R resets, S stops and restarts. Status: t, separation, |P|, L, KE, PE, E.",
 })
 -- EOF

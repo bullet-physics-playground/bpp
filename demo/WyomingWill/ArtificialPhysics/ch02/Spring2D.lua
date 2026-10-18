@@ -6,7 +6,8 @@
 -- of mass while stretching and compressing; |P| stays 0 and L stays
 -- constant (negative L would be clockwise); the separation often exceeds
 -- 2D = 100 and averages more than D (centrifugal stretch). The blue trail
--- follows the light mass. Keys: S start/stop, R reset.
+-- follows the light mass. It runs as soon as it loads; R resets, S stops
+-- and restarts.
 --
 package.path = "../?.lua;" .. package.path
 local scene = require "ch02.scene"
@@ -40,6 +41,6 @@ scene.run({
   springLine = true,
   trail = 400, trailEvery = 5, trailOf = 1,
   camHeight = 190,
-  help = "spring2D (Ch. 2.2). S start/stop, R reset. Status: t, separation, |P|, L, KE, PE, E.",
+  help = "spring2D (Ch. 2.2). Runs at load; R resets, S stops and restarts. Status: t, separation, |P|, L, KE, PE, E.",
 })
 -- EOF

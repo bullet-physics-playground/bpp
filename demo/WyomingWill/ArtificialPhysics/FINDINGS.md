@@ -265,6 +265,13 @@ standalone `lua` on the path: William's BPP is 5.2, the cloud build 5.1. Ask
 it with `bpp -l 'print(_VERSION)' -n 1`. Every check passes on 5.1–5.4 and the
 shared generator's stream is identical on each.
 
+**F35. BPP runs a scene as soon as it loads;** S stops and restarts it. GUI
+tests that "pressed S to start" were stopping runs (our error).
+
+**F36. Huge "off" values make unusable sliders** (Force_Maximum 0.1–10⁶ could
+not be set to 1; found by William). Caps now get a tick box and a slider over
+the useful range. Same root as F31.
+
 ---
 
 ## 7. Open questions
