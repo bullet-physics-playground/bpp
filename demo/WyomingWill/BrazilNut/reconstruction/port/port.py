@@ -43,8 +43,12 @@ def take(lines):
                 i += 1; continue
             members.append('  ' + ln[len('static '):]); i += 1; continue
         defs.append(ln); i += 1
-take(L(155, 603))
-take(L(627, 790))
+# the two stretches lifted: from the helpers to the end of the pour, and the
+# validation tests (found by bead-bed.c's own section comments)
+def at(text):
+    return next(i for i, ln in enumerate(src, 1) if ln.startswith(text))
+take(L(at('static double dot('), at('/* ---------- arguments') - 1))
+take(L(at('/* ---------- validation tests'), at('/* ---------- the run') - 1))
 out = '\n'.join(defs)
 # tests: printf -> out(); the two exits -> a message and return
 out = re.sub(r'\{ fprintf\(stderr, ("[^"]*")\); exit\(1\); \}', r'{ out(\1); return; }', out)

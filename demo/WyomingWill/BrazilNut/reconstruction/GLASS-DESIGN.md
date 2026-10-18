@@ -2,7 +2,8 @@
 
 (Built the same day as the exhibit: the deep 5 Hz design with glued-bead
 walls beside its smooth-walled control, run by bpp's DemBed, the model below
-moved into bpp. The exhibit adds a 2 s gentle opening and 44 cm walls. Its
+moved into bpp. The exhibit adds a 2 s gentle opening and closes the boxes
+with a lid 44 cm up: in an open box beads fly up to 84 cm. Its
 README gives its numbers; HOOK.md describes the move.)
 
 Can the exhibit be rebuilt with realistic materials (real glass beads, e about

@@ -92,7 +92,8 @@
  *     ROUGH=1 (side walls lined with glued spheres) ROUGHF=1 (the floor too)
  *     RG=0.5 SG=1.0 GEMB=0.5 GJIT=0 MUG=(MUW) EG=(EW); ETH= ELOW=0.1 (a
  *     Bullet-like restitution threshold, unvalidated); TEST=gdrop|ghollow
- *     TW=0|1|2 (the glued spheres' validation); RESULT gains up20, top20,
+ *     TW=0|1|2 (the glued spheres' validation); LID= (a lid that many cm above
+ *     the floor; TEST=lid checks it); RESULT gains up20, top20,
  *     h20, hc20 (the special bead over the last 20 s).
  *
  * Units: cm, kg, s (forces kg cm / s^2).
@@ -115,6 +116,7 @@
 #define RWALL (-3)
 #define FRONT (-4)
 #define BACK (-5)
+#define LIDW (-6)
 
 typedef struct { int j; double s[3]; } Hist;
 
@@ -137,6 +139,9 @@ static double RG = 0.5, SG = 1.0, GEMB = 0.5, GJIT = 0, MUG = -1, EG = -1;
 /* restitution threshold (an emulation of Bullet's): a contact whose closing
  * speed at first touch is below ETH cm/s gets restitution ELOW instead */
 static double ETH = 0, ELOW = 0.1;
+/* a lid (EXHIBIT): a flat glass ceiling LID cm above the floor, moving with
+ * the box, met like the walls (MUW, EW); 0: none, the box open */
+static double LID = 0;
 static char LOGF[256] = "", TEST[16] = "";
 static double TH = 10, H0 = 1, V0 = 50;    /* tests */
 static int TW = 2;
@@ -489,6 +494,10 @@ static void forces(void)
     d = r - (W_IN / 2 - x[i][0]);
     if (d > 0) { double n[3] = { -1, 0, 0 }; contact(i, RWALL, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUW, zetaBW); }
     if (ROUGH) gluedForces(i, vb);
+    if (LID > 0) {
+      d = r - (boxy + LID - x[i][1]);
+      if (d > 0) { double n[3] = { 0, -1, 0 }; contact(i, LIDW, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUW, zetaBW); }
+    }
     if (PLATES) {
       d = r - (x[i][2] + GAP / 2);
       if (d > 0) { double n[3] = { 0, 0, 1 }; contact(i, BACK, n, d, r - d, 0, vp[i], wp[i], vb, zero, m, r, MUP, zetaBW); }
@@ -617,7 +626,7 @@ static void arg(const char *s)
   else if (!strcmp(k, "TEST")) snprintf(TEST, sizeof TEST, "%s", val);
   D("GAMMA", GAMMA) D("F", FHZ) D("POLY", POLY) D("MUB", MUB) D("MUW", MUW) D("MUF", MUF) D("MUP", MUP)
   D("E", EB) D("EW", EW) D("TC", TC) D("YM", YM) D("NU", NU) D("KT", KT) D("ROLL", ROLL) D("GAP", GAP)
-  D("SETTLE", SETTLE) D("TEND", TEND) D("CONVEND", CONVEND) D("CONVSTART", CONVSTART) D("TH", TH) D("H0", H0) D("V0", V0)
+  D("SETTLE", SETTLE) D("TEND", TEND) D("CONVEND", CONVEND) D("CONVSTART", CONVSTART) D("TH", TH) D("H0", H0) D("V0", V0) D("LID", LID)
   D("W", W_IN) D("RB", R_B) D("RHOB", RHOB) D("RG", RG) D("SG", SG) D("GEMB", GEMB) D("GJIT", GJIT) D("MUG", MUG) D("EG", EG)
   D("ETH", ETH) D("ELOW", ELOW) I("ROUGH", ROUGH) I("ROUGHF", ROUGHF)
   I("TW", TW) I("N", NSM) I("FORCE3D", FORCE3D) I("SEED", SEED) I("MODEL", MODEL) I("NS", NS) I("PLATES", PLATES)
@@ -658,6 +667,34 @@ static void testDrop(void)
       int now = (pair ? fabs(x[1][0] - x[0][0]) < 2 * R_S : x[0][1] < R_S);
       if (now) { touching = 1; tcol += DT; }
       if (touching && !now) { done = 1; vout = pair ? (v[1][0] - v[0][0]) : v[0][1]; }
+    }
+    printf("  closing %6.1f cm/s: e = %.4f, contact %.3g s (%.1f steps)\n", vin, vout / vin, tcol, tcol / DT);
+    gvec[1] = -G;
+  }
+}
+
+static void testLid(void)
+{
+  /* a bead rising into the lid (LID cm up), no gravity: the restitution it
+   * gives back, and the contact time, by closing speed (as TEST=drop) */
+  double speeds[] = { 1, 5, 20, 67, 200 };
+  if (LID <= 0) LID = 30;
+  printf("# TEST=lid MODEL=%d LID %.1f EW=%g (nominal) NS=%d: measured e by closing speed\n", MODEL, LID, EW, NS);
+  for (int s = 0; s < 5; s++) {
+    double vin = speeds[s];
+    BIG = 0; LOCKZ = 1; AMP = 0; boxy = 0; boxv = 0; N = 1;
+    rad[0] = R_S; mass[0] = meanSmallMass(); inert[0] = 0.4 * mass[0] * R_S * R_S;
+    for (int k = 0; k < 3; k++) x[0][k] = v[0][k] = w[0][k] = a_old[0][k] = al_old[0][k] = 0;
+    memset(nh, 0, sizeof nh);
+    gvec[1] = 0;
+    x[0][1] = LID - R_S - 1e-6; v[0][1] = vin;
+    double tcol = 0, vout = 0;
+    int touching = 0, done = 0;
+    for (long it = 0; it < 100000000 && !done; it++) {
+      step();
+      int now = x[0][1] > LID - R_S;
+      if (now) { touching = 1; tcol += DT; }
+      if (touching && !now) { done = 1; vout = -v[0][1]; }
     }
     printf("  closing %6.1f cm/s: e = %.4f, contact %.3g s (%.1f steps)\n", vin, vout / vin, tcol, tcol / DT);
     gvec[1] = -G;
@@ -817,6 +854,7 @@ int main(int argc, char **argv)
     printf("# damping: zeta(bead) %.5f zeta(wall) %.5f, k %.4g, DT %.3g\n", zetaBB, zetaBW, KN, DT);
     if (!strcmp(TEST, "incline")) testIncline();
     else if (!strcmp(TEST, "gdrop") || !strcmp(TEST, "ghollow")) testGlued();
+    else if (!strcmp(TEST, "lid")) testLid();
     else testDrop();
     return 0;
   }

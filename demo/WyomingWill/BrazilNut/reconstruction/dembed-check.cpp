@@ -59,6 +59,8 @@ int main(int argc, char **argv)
          " ovmean=%.2e ovmax=%.2e up20=%.3f top20=%.3f h20=%.3f hc20=%.3f\n",
          boxn.c_str(), c.GAMMA, c.MODEL, c.TC, c.NS, c.SEED, c.MUB, c.MUW, c.EB, c.PLATES, c.get("reached"), c.get("upper"), c.get("mid"), c.get("wall"),
          (int)c.get("trips"), c.get("upx"), c.get("downx"), c.get("ovmean"), c.get("ovmax"), c.get("up20"), c.get("top20"), c.get("h20"), c.get("hc20"));
-  printf("RESULT_EXTRA rise1=%.3f rise2=%.3f lateMean=%.4f lateMin=%.4f\n", c.get("rise1"), c.get("rise2"), c.get("lateMean"), c.get("lateMin"));
+  printf("RESULT_EXTRA rise1=%.3f rise2=%.3f lateMean=%.4f lateMin=%.4f lateBMean=%.4f lateBMin=%.4f lateBUp=%.3f topMax=%.3f topMaxT=%.3f topAbove=%.6f tracerMin=%.3f\n",
+         c.get("rise1"), c.get("rise2"), c.get("lateMean"), c.get("lateMin"), c.get("lateBMean"), c.get("lateBMin"), c.get("lateBUp"), c.get("topMax"),
+         c.get("topMaxT"), c.get("topAbove"), c.get("tracerMin"));
   return 0;
 }

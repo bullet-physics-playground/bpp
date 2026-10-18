@@ -15,8 +15,12 @@
 --           down the middle, and the big bead stays down
 --
 -- They are shaken gently first (peak acceleration 0.8 g: nothing happens,
--- the bed never leaves the floor), then hard (3 g). A red bead in each box
--- shows which way the beads go round.
+-- the bed never leaves the floor), then hard (3 g), and go on until you pour
+-- them again (R), so you can see where the big bead stays. Each big bead
+-- has a painted band round it, to show it turning; a red bead in each box,
+-- with a fading trail of where it has been, shows which way the beads go
+-- round. The boxes are closed by a lid: shaken hard, a bouncy glass bead now
+-- and then flies far above the bed, and would leave an open box.
 --
 -- Why: shaken hard, the bed leaves the floor for part of each shake and
 -- lands again. Rough walls hold back the beads beside them, so beads go down
@@ -29,7 +33,8 @@
 --
 -- THE BEADS: soda-lime glass, 0.95 to 1.05 cm across, bounce 0.95 and
 -- friction 0.1 (between beads, and with the walls and the glued beads), the
--- big one 3 cm across and solid glass too. The boxes are 15 cm wide inside.
+-- big one 3 cm across and solid glass too. The boxes are 15 cm wide and
+-- 44 cm high inside; their walls and lid count as glass too.
 -- Shaken at 5 Hz: 8.0 mm for 0.8 g, 29.8 mm for 3 g.
 --
 -- PHYSICS: not Bullet. Bullet can't run beads this bouncy (in a packed bed
@@ -40,7 +45,7 @@
 -- reconstruction/, number for number. Bullet only draws them.
 --
 -- Keys
---   R   pour them again
+--   R   pour them again (they run on until you do)
 --   Z   slow motion (1/4, the default) <-> real time
 --
 -- Units: centimetres, kilograms, seconds.
@@ -122,11 +127,12 @@ local OMEGA = 2 * math.pi * F_HZ
 local GENTLE = envnum("BN_GENTLE", 0.8)
 local T_GENTLE, T_RAMP = 2, 1               -- gently for 2 s, then up to hard over 1 s
 local T_HARD = T_GENTLE + T_RAMP
-local W_IN, H_IN, WALL = 15, 44, 1.0        -- inside the box; its walls (the bed is 20 cm deep at rest; shaken hard, its top beads fly well above that)
+local W_IN, H_IN, WALL = 15, 44, 1.0        -- inside the box, closed by a lid (the bed is 20 cm deep at rest;
+                                            -- shaken hard, a bead now and then flies far higher: see README); its walls
 local R_B = 1.5
 local N_S = 280
 local BASE_Y = TABLE_Y + 8                  -- the boxes' floors, at rest
-local POUR_S = 50                           -- each pour runs 50 s
+local TRAIL_N, TRAIL_DT = 24, 0.25         -- the red beads' trails: where each was, every 0.25 s, for the last 6 s
 local BOXES = {
   { name = "Left, walls lined with glued glass beads", short = "Left", x = -19, rough = true },
   { name = "Right, smooth glass walls", short = "Right", x = 19, rough = false },
@@ -137,7 +143,8 @@ local function settings(bx, hard)
   return {
     MODEL = 1, YM = envnum("BN_YM", 6.3e8), NS = envnum("BN_NS", 40),   -- Hertz-Mindlin; the stiffness (see README)
     E = 0.95, MUB = 0.1, MUW = 0.1, MUG = 0.1,                          -- glass
-    N = N_S, W = W_IN, H = H_IN, BOX = 1, RB = R_B,
+    N = N_S, W = W_IN, BOX = 1, RB = R_B,
+    LID = H_IN, H = H_IN - 2,                -- a lid (glass, as the walls) closes the box; the walls lined up to it
     ROUGH = bx.rough and 1 or 0, RG = 0.5, SG = 1.0,                     -- 1-cm glass beads glued, touching, half-embedded
     F = F_HZ, GAMMA = hard, GAMMA0 = GENTLE, TG = T_GENTLE, TR = T_RAMP,
     SEED = envnum("BN_SEED", 7),
@@ -145,6 +152,7 @@ local function settings(bx, hard)
     WATCH1 = 25, WATCH2 = 75,                -- the hard push: shakes 26 to 75 (5 to 15 s)
     CONVSTART = 8, CONVEND = 45,             -- the rolls: 8 to 45 s
     LATE0 = 25, LATE1 = 45,                  -- the big bead's height: 25 to 45 s
+    LATEB0 = 45, LATEB1 = 120,               -- and again from 45 s to 2 minutes
     RISE1 = 10, RISE2 = 12, RISEW = 2,       -- its rise: when its middle, averaged over 2 s, passes 10 and 12 cm
   }
 end
@@ -153,15 +161,17 @@ end
 -- reconstruction/dembed-check, the same code): the lowest and highest of
 -- each number (see README)
 local REF = {
-  Left = { push = { 0.18, 0.19 }, off = { 38, 40 }, landed = { 44, 46 }, rise = { 7.6, 10.6 },
-           mid = { 5.9, 7.5 }, wall = { -13.8, -11.7 }, late = { 15.7, 16.3 }, up = { 81, 88 } },
+  Left = { push = { 0.18, 0.19 }, off = { 40, 40 }, landed = { 44, 46 }, rise = { 7.5, 9.5 },
+           mid = { 5.4, 6.7 }, wall = { -14.0, -11.4 }, late = { 15.5, 16.1 }, up = { 83, 91 },
+           lateB = { 15.3, 16.0 }, upB = { 78, 89 } },
   Right = { push = { 0.19, 0.19 }, off = { 40, 42 }, landed = { 44, 46 },
-            mid = { -0.7, 0.4 }, wall = { 3.1, 4.0 }, late = { 7.9, 9.2 }, up = { 0, 0 } },
+            mid = { -0.6, 1.2 }, wall = { 3.1, 4.2 }, late = { 7.6, 10.4 }, up = { 0, 3 },
+            lateB = { 8.1, 10.9 }, upB = { 0, 3 } },
 }
 
 local GLASS, FRAME_COL = "#26343a", "#5a3418"     -- (the glass at the back drawn dark; the front pane left out)
 local BEAD_COLS = { "#c4d8d2", "#b6cdc6", "#d0e2dc" }   -- clear glass, a little green
-local GLUED_COL, BIG_COL, TRACER_COL = "#8fa9a2", "#2b5d8c", "#c0392b"
+local GLUED_COL, BIG_COL, TRACER_COL, BAND_COL = "#8fa9a2", "#2b5d8c", "#c0392b", "#e8d27a"
 
 if not DemBed then
   -- an older bpp: the boxes stand empty, and the console says why
@@ -169,6 +179,7 @@ if not DemBed then
     block(W_IN + 2 * WALL, WALL, 3, bx.x, BASE_Y - WALL / 2, 0, FRAME_COL)
     for _, s in ipairs({ -1, 1 }) do block(WALL, H_IN, 3, bx.x + s * (W_IN / 2 + WALL / 2), BASE_Y + H_IN / 2, 0, FRAME_COL) end
     block(W_IN, H_IN, 0.1, bx.x, BASE_Y + H_IN / 2, -1.3, GLASS)
+    block(W_IN + 2 * WALL, WALL, 3, bx.x, BASE_Y + H_IN + WALL / 2, 0, FRAME_COL)
   end
   local msg = "The Brazil-nut effect needs bpp from 17 October 2026 or later: its beads are\n" ..
               "simulated by bpp's DemBed, which this bpp hasn't got. Rebuild bpp to see it."
@@ -186,6 +197,7 @@ for _, bx in ipairs(BOXES) do
     { block(WALL, H_IN, 3, 0, 0, 0, FRAME_COL), -(W_IN / 2 + WALL / 2), H_IN / 2, 0 },
     { block(WALL, H_IN, 3, 0, 0, 0, FRAME_COL), W_IN / 2 + WALL / 2, H_IN / 2, 0 },
     { block(W_IN, H_IN, 0.1, 0, 0, 0, GLASS), 0, H_IN / 2, -1.3 },
+    { block(W_IN + 2 * WALL, WALL, 3, 0, 0, 0, FRAME_COL), 0, H_IN + WALL / 2, 0 },       -- the lid
   }
   bx.post = block(3, BASE_Y - WALL - TABLE_Y, 3, bx.x, 0, 0, "#3a3f46")
 end
@@ -229,6 +241,20 @@ local function pour()
         local col = i == N_S and BIG_COL or BEAD_COLS[i % 3 + 1]
         bx.shown[i] = ball(r, bx.x, BASE_Y + r, col)
       end
+      -- a painted band round the big bead, through its middle, seen edge-on
+      -- as a stripe across it: it turns as the bead turns
+      bx.band = Cylinder(R_B * 1.03, 0.35, 0)
+      bx.band.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(bx.x, BASE_Y + R_B, 0))
+      bx.band.col = BAND_COL
+      bx.band.collides = false
+      v:add(bx.band)
+      -- the red bead's trail
+      bx.trail = {}
+      for k = 1, TRAIL_N do
+        local d = ball(0.25, bx.x, BASE_Y, TRACER_COL)
+        d.transparency = 1
+        bx.trail[k] = d
+      end
       bx.glued = {}
       for wall = 0, 2 do
         for k = 0, bed:gluedCount(wall) - 1 do
@@ -240,6 +266,10 @@ local function pour()
       bx.shown[i].col = i == N_S and BIG_COL or (i == bi and TRACER_COL or BEAD_COLS[i % 3 + 1])
       bed:attach(i, bx.shown[i])
     end
+    bx.band.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(bx.x, BASE_Y + R_B, 0))
+    bed:attach(N_S, bx.band)
+    bx.path, bx.nextMark = {}, 0
+    for k = 1, TRAIL_N do bx.trail[k].transparency = 1 end
     for _, gl in ipairs(bx.glued) do bed:attachGlued(gl[1], gl[2], gl[3]) end
   end
   t = -0.5
@@ -256,6 +286,20 @@ local function drawBoxes()
     end
     bx.post.trans = btTransform(Q0, btVector3(bx.x, (by - WALL + TABLE_Y) / 2, 0))
     bx.bed:sync(bx.x, BASE_Y, 0)
+    -- the red bead's trail: where it has been in the box, every 0.25 s, the
+    -- newest strongest (drawn with the box, as it moves)
+    if t >= bx.nextMark then
+      table.insert(bx.path, 1, { bx.bed:x(bx.tracer), bx.bed:y(bx.tracer) - bx.bed:boxY() })
+      bx.path[TRAIL_N + 1] = nil
+      bx.nextMark = bx.nextMark + TRAIL_DT
+    end
+    for k, d in ipairs(bx.trail) do
+      local p = bx.path[k]
+      if p then
+        d.trans = btTransform(Q0, btVector3(bx.x + p[1], by + p[2], 0))
+        d.transparency = 0.1 + 0.65 * (k - 1) / TRAIL_N
+      end
+    end
   end
 end
 
@@ -332,12 +376,20 @@ local function report()
                           nm, b:get("tracerMin"), b:get("tracerMinT"), b:get("tracerMinX") + W_IN / 2))
     end
   end
+  for _, bx in ipairs(BOXES) do
+    local b, nm = bx.bed, bx.short
+    if b:get("lateB") == 1 and once(nm .. "B") then
+      local ref = REF[nm]
+      print(string.format("  %-5s the big bead from 45 s to 2 minutes: its middle %.1f cm above the floor on average, never below %.1f; in the bed's upper half %.0f%% of the time (the reference: %s cm, %s%%)",
+                          nm, b:get("lateBMean"), b:get("lateBMin"), b:get("lateBUp") * 100, range(ref.lateB, "%.1f"), range(ref.upB, "%.0f")))
+    end
+  end
   local L, R = BOXES[1].bed, BOXES[2].bed
   if not said.lesson and L:get("late") == 1 and R:get("late") == 1 and L:get("conv") == 1 and R:get("conv") == 1 then
     said.lesson = true
     local lw, rw = L:get("wall"), R:get("wall")
     local function way(w) return w < 0 and "down beside the walls and up the middle" or "up beside the walls" end
-    local function where(b) return b:get("rise2") > 0 and "comes up" or "stays down" end
+    local function where(b) return b:get("lateMean") >= 12 and "comes up" or "stays down" end
     print(string.format("  The walls decide: with rough walls the beads go %s (%+.1f mm/s by the walls) and the big bead %s (%.1f cm);\n" ..
                         "  with smooth glass walls they go %s (%+.1f mm/s) and it %s (%.1f cm).",
                         way(lw), lw, where(L), L:get("lateMean"), way(rw), rw, where(R), R:get("lateMean")))
@@ -358,8 +410,6 @@ v:postSim(function(N_)
       wallSum, stepSum, nTimed = 0, 0, 0
     end
   end
-  -- every pour runs 50 s
-  if t > POUR_S then pour() end
   startBoxes()
 end)
 
@@ -387,7 +437,7 @@ v:setHelpText(table.concat({
   "Right:  smooth glass walls -- the beads go round the other way,",
   "        and the big bead stays down",
   "",
-  "R   pour them again",
+  "R   pour them again (they run on until you do)",
   "Z   slow motion (1/4, the default) <-> real time",
   "",
   "Sliders: hard (peak acceleration, g, from the next pour), speed.",

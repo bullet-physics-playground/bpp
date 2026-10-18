@@ -29,7 +29,14 @@ and GLASS-DESIGN.md, moved into bpp:
     `bead-bed.c`);
   - the wall height `H`, a tracer bead `TRACER`, and the big bead's rise
     times (`RISE1`, `RISE2`, over `RISEW` s);
-  - its late height window (`LATE0`, `LATE1`).
+  - its late height windows (`LATE0`, `LATE1`; `LATEB0`, `LATEB1`);
+  - the highest any bead's top reaches (`topMax`), and how often a bead is
+    above `TOPCHK`;
+  - the big bead's turn, its spin integrated, for drawing only (`angle`).
+
+  The lid (`LID`, a flat ceiling met like the walls) is physics, so it was
+  added to `bead-bed.c` itself, with its test `TEST=lid`, and carried over
+  by the port. The port cuts `bead-bed.c` at its own section comments.
 - `src/dembed.h`, `src/dembed.cpp`: **DemBed**, DemCore for Lua, registered
   in `viewer.cpp`. Its API:
   - `set(key, value)`: `bead-bed.c`'s keys, with `BOX` 0, 1 or 2;
@@ -37,8 +44,9 @@ and GLASS-DESIGN.md, moved into bpp:
   - `step(t)`, or `start(t)` and `finish()`, which run one thread per box;
   - `get(name)`: parameters and measurements, listed in `demcore.cpp`;
   - `x(i)`, `y(i)`, `r(i)`, `boxY()`, `gluedCount`, `gluedX`, `gluedY`;
-  - `attach(i, obj)`, `attachGlued(wall, k, obj)` and `sync(ox, oy, oz)`,
-    which move display-only bpp objects;
+  - `attach(i, obj)` (several objects per bead; each keeps its own
+    orientation and turns with the bead), `attachGlued(wall, k, obj)` and
+    `sync(ox, oy, oz)`, which move display-only bpp objects; `angle(i)`;
   - `cpu()`, `test(name)`, and the global `demWallClock()`.
 
   A box shares nothing with another, so threads can't change its numbers.
@@ -79,11 +87,16 @@ and GLASS-DESIGN.md, moved into bpp:
   - its late height, 15.73 cm.
 
   So the hook in bpp, two threads and the frame clock change nothing.
+- **The lid** (18 Oct 2026). `TEST=lid` gives the same lines in `bead-bed`
+  and `dembed-check`: e = 0.9500-0.9504 from 1 to 200 cm/s, as the floor
+  gives. A 4 s design run with a low lid (`LID=22`, which the beads hit) is
+  the same bit for bit. Adding the lid left the defaults bit for bit as
+  before.
 - **DemBed inside bpp** (`hook-check.lua`):
-  - `bead-bed.c`'s validation tests run through the hook give the same 93
+  - `bead-bed.c`'s validation tests run through the hook give the same 100
     lines as `bead-bed TEST=...`: drop and pair (Hertz e 0.95, linear e 0.1),
     incline (Hertz mu 0.64, linear mu 0.1), gdrop and ghollow (glued
-    spheres, the left wall).
+    spheres, the left wall), and lid.
   - A 4 s run of the design (280 beads, 5 Hz, glued walls, 6.3 GPa) gives
     `bead-bed`'s settle, rolls (+14.68 / -16.93 mm/s) and overlaps exactly.
   - bpp is built with `-O3` and `bead-bed` with `-O2`. Neither contracts

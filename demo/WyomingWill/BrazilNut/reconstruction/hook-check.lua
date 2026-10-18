@@ -1,6 +1,6 @@
 --
 -- hook-check.lua: bpp's DemBed against bead-bed.c, through Lua. Runs
--- bead-bed.c's validation tests (TEST=drop, pair, incline, gdrop, ghollow)
+-- bead-bed.c's validation tests (TEST=drop, pair, incline, gdrop, ghollow, lid)
 -- and a short bed run through the hook, printing what bead-bed.c prints,
 -- so the two can be compared line for line (see HOOK.md):
 --
@@ -39,6 +39,7 @@ if CHECK == "tests" then
     "TEST=incline MODEL=0 TC=1e-4 MUW=0.1 NS=40",
     "TEST=gdrop ROUGH=1 ROUGHF=1 MODEL=1 YM=6.3e9 E=0.95 NS=80 RG=0.5 SG=1.0",
     "TEST=ghollow ROUGH=1 ROUGHF=1 MODEL=1 YM=6.3e9 E=0.95 NS=80 RG=0.5 SG=1.0 MUW=0.1 TW=0",
+    "TEST=lid MODEL=1 YM=6.3e8 E=0.95 NS=40 LID=44",
   }
   for _, line in ipairs(TESTS) do
     local a = parse(line)
