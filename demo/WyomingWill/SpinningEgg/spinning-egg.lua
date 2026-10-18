@@ -10,8 +10,9 @@
 --
 -- Three eggs, each in its own dish:
 --   left   (red band)    hard-boiled, spun at 25 turns a second: rises onto
---                        its end within a second or so, spins there, and
---                        falls back once it has slowed down enough
+--                        its end within a second, spins there, and leans
+--                        further and further as it slows, till it's back on
+--                        its side
 --   middle (blue band)   hard-boiled, spun at 40 turns a second: rises the
 --                        same way, and as it rises it jumps -- leaves the
 --                        table for a hundredth of a second or two, a
@@ -53,11 +54,19 @@
 --    gyroscopic term off), gravity, and its contact with the table, worked
 --    out exactly for the spheroid: its lowest point, an impulse that stops
 --    it going into the table (and none pulling it down: so it can leave the
---    table), and sliding friction (0.3) at that point, solved together a few
---    times over, as Bullet solves its contacts. The dish's rim the same way.
+--    table), and friction (0.3) at that point: enough to stop it slipping,
+--    if it can, and otherwise sliding friction against the slip (Coulomb),
+--    solved together a few times over, as Bullet solves its contacts. The
+--    dish's rim the same way.
 --  * Spin friction: a small moment against the spin about the upright
 --    (0.01 cm times the push of the table). Rolling resistance: a moment
---    against rolling (0.01 cm times the push).
+--    against rolling (0.01 cm times the push). Both in the same solve.
+--  * The step is second-order and the same run backwards as forwards (see
+--    "THE STEP" below): no slipping where the egg touches half a step on,
+--    where Bullet's move is centred; the gyroscopic term and sliding
+--    friction taken at the mean of before and after. So a rolling egg
+--    keeps its energy (with no spin friction or rolling resistance, to
+--    0.002 microjoules over 9 s) and the run is the same at any step.
 --  * The raw egg: its shell is the rigid body; the liquid that has to move
 --    when the shell turns about an axis across it (the shell isn't round) is
 --    added to it; the rest of the liquid is a second body inside, free to
@@ -67,13 +76,11 @@
 --    the egg then rolls on its side without sliding and never rises (at 25
 --    turns a second and friction 0.3, from 3 degrees or less; the faster
 --    the spin or the less the friction, the nearer level). Near that edge,
---    whether and when the egg breaks free and rises is decided by the
---    step's small errors: at
---    3 degrees the left egg rose at 0.50 s with 4800 steps a second, 2.45 s
---    with 19200, and not at all with 28800. From 6 degrees it slides from the
---    start and rises the same way at any step. (Up on its end it rolls
---    again, and there the step's errors still tip it slowly further up: how
---    long it stays up does depend on the step. See the README.)
+--    when the egg breaks free and rises depends a little on the step: from
+--    3 degrees the left egg never rises, at any step from 2400 to 38400 a
+--    second; from 3.5 it rises at 0.38 s with 4800 steps a second, 0.42 s
+--    with 19200. From 6 degrees it slides from the start and rises the same
+--    way at any step.
 --  * 4800 physics steps a second.
 --
 -- Keys
@@ -85,7 +92,8 @@
 -- Units: centimetres, kilograms, seconds.
 -- Headless testing: EG_SPIN, EG_FAST (turns/s), EG_MU, EG_KAPPA, EG_DELTA (microns),
 -- EG_SPEED, EG_STEPS, EG_TILT (degrees up from level at the start), EG_BALANCED=1 (start
--- the hard-boiled eggs in gyroscopic balance), EG_TOUCH_AT (s), EG_LOG=file.csv.
+-- the hard-boiled eggs in gyroscopic balance), EG_TOUCH_AT (s), EG_LOG=file.csv,
+-- EG_STATE=time:file (the left egg's state then, for reconstruction/rolling-check.py).
 --
 
 local common = require "common"
@@ -319,29 +327,53 @@ local function support(e, dx, dy, dz)
   local x1, x2, x3 = B * s1 / n, A * s2 / n, B * s3 / n
   return x1 * e.c1x + x2 * e.c2x + x3 * e.c3x, x1 * e.c1y + x2 * e.c2y + x3 * e.c3y, x1 * e.c1z + x2 * e.c2z + x3 * e.c3z
 end
--- an impulse (jx, jy, jz) at r from the centre
-local function apply(e, rx, ry, rz, jx, jy, jz)
-  e.vx, e.vy, e.vz = e.vx + jx / MASS, e.vy + jy / MASS, e.vz + jz / MASS
-  local ax, ay, az = iinv(e, ry * jz - rz * jy, rz * jx - rx * jz, rx * jy - ry * jx)
-  e.wx, e.wy, e.wz = e.wx + ax, e.wy + ay, e.wz + az
-  -- (its part in Jellett's J, if it isn't the table's)
-  return ry * jz - rz * jy, rz * jx - rx * jz, rx * jy - ry * jx
+-- the same, its long axis along (px, py, pz) (for a spheroid that's all it
+-- takes)
+local function supportAx(px, py, pz, dx, dy, dz)
+  local d2 = px * dx + py * dy + pz * dz
+  local n = math.sqrt(B * B * (dx * dx + dy * dy + dz * dz - d2 * d2) + A * A * d2 * d2)
+  local k = (A * A - B * B) * d2
+  return (B * B * dx + k * px) / n, (B * B * dy + k * py) / n, (B * B * dz + k * pz) / n
 end
--- the change of velocity at r for a unit impulse along (dx, dy, dz), along (ex, ey, ez)
-local function resp(e, rx, ry, rz, dx, dy, dz, ex, ey, ez)
-  local ax, ay, az = iinv(e, ry * dz - rz * dy, rz * dx - rx * dz, rx * dy - ry * dx)
-  local ux, uy, uz = ay * rz - az * ry, az * rx - ax * rz, ax * ry - ay * rx
-  return (dx / MASS + ux) * ex + (dy / MASS + uy) * ey + (dz / MASS + uz) * ez
+-- its long axis half a step on, turning at (wx, wy, wz) (as Bullet turns it)
+local function midAxis(e, h, wx, wy, wz)
+  local wl = math.sqrt(wx * wx + wy * wy + wz * wz)
+  if wl < 1e-12 then return e.c2x, e.c2y, e.c2z end
+  local kx, ky, kz = wx / wl, wy / wl, wz / wl
+  local c, s = math.cos(wl * h / 2), math.sin(wl * h / 2)
+  local px, py, pz = e.c2x, e.c2y, e.c2z
+  local kp = (kx * px + ky * py + kz * pz) * (1 - c)
+  return px * c + (ky * pz - kz * py) * s + kx * kp, py * c + (kz * px - kx * pz) * s + ky * kp,
+         pz * c + (kx * py - ky * px) * s + kz * kp
 end
-local function velAt(e, rx, ry, rz)
-  return e.vx + e.wy * rz - e.wz * ry, e.vy + e.wz * rx - e.wx * rz, e.vz + e.wx * ry - e.wy * rx
-end
--- a contact at r (from the centre), normal n (out of the surface it
--- touches), gap: sequential impulses, the normal one never pulling, the
--- friction one within mu times it. Returns the normal impulse, and the work
--- friction did.
+-- a contact, normal n (out of the surface it touches), gap. The impulses
+-- act at r (from the centre: where it touches now); it mustn't go into the
+-- surface, nor (if friction can stop it) slip, at b (where it will touch
+-- half a step on: see "the step", below; b = r for the rim). Sequential
+-- impulses, the normal one never pulling. If mu times the normal impulse
+-- can't stop the slip, it slides, and friction is mu times the normal
+-- impulse against the slip at r at the time of the kick: the mean of the
+-- slip before the step (e.pv, e.pw: the velocities it started with) and
+-- after. With moments: spin friction and rolling resistance too, in the
+-- same solve, so that the egg rolls after them. Returns the normal impulse,
+-- the friction impulse, and the moments' angular impulse.
 local ITER = 6
-local function contact(e, rx, ry, rz, nx, ny, nz, gap, h)
+local function contact(e, rx, ry, rz, nx, ny, nz, gap, h, bx, by, bz, moments)
+  bx, by, bz = bx or rx, by or ry, bz or rz
+  -- (all in plain numbers, for speed: the egg's velocities, and its inverse
+  -- moment of inertia in the world as a matrix)
+  local vx, vy, vz, wx, wy, wz = e.vx, e.vy, e.vz, e.wx, e.wy, e.wz
+  local pvx, pvy, pvz, pwx, pwy, pwz = e.pvx, e.pvy, e.pvz, e.pwx, e.pwy, e.pwz
+  local c1x, c1y, c1z, c2x, c2y, c2z, c3x, c3y, c3z = e.c1x, e.c1y, e.c1z, e.c2x, e.c2y, e.c2z, e.c3x, e.c3y, e.c3z
+  local I = e.I
+  local i1, i2, i3 = 1 / I[1], 1 / I[2], 1 / I[3]
+  local m11 = c1x * c1x * i1 + c2x * c2x * i2 + c3x * c3x * i3
+  local m12 = c1x * c1y * i1 + c2x * c2y * i2 + c3x * c3y * i3
+  local m13 = c1x * c1z * i1 + c2x * c2z * i2 + c3x * c3z * i3
+  local m22 = c1y * c1y * i1 + c2y * c2y * i2 + c3y * c3y * i3
+  local m23 = c1y * c1z * i1 + c2y * c2z * i2 + c3y * c3z * i3
+  local m33 = c1z * c1z * i1 + c2z * c2z * i2 + c3z * c3z * i3
+  local im = 1 / MASS
   -- two directions along the surface
   local tx, ty, tz
   if math.abs(ny) > 0.7 then tx, ty, tz = 1, 0, 0 else tx, ty, tz = 0, 1, 0 end
@@ -350,40 +382,105 @@ local function contact(e, rx, ry, rz, nx, ny, nz, gap, h)
   local tl = math.sqrt(tx * tx + ty * ty + tz * tz)
   tx, ty, tz = tx / tl, ty / tl, tz / tl
   local sx, sy, sz = ny * tz - nz * ty, nz * tx - nx * tz, nx * ty - ny * tx
-  local Kn = resp(e, rx, ry, rz, nx, ny, nz, nx, ny, nz)
-  local a11 = resp(e, rx, ry, rz, tx, ty, tz, tx, ty, tz)
-  local a12 = resp(e, rx, ry, rz, sx, sy, sz, tx, ty, tz)
-  local a21 = resp(e, rx, ry, rz, tx, ty, tz, sx, sy, sz)
-  local a22 = resp(e, rx, ry, rz, sx, sy, sz, sx, sy, sz)
+  -- the turning a unit impulse at r gives, along n, t and s
+  local qx, qy, qz = ry * nz - rz * ny, rz * nx - rx * nz, rx * ny - ry * nx
+  local anx, any, anz = m11 * qx + m12 * qy + m13 * qz, m12 * qx + m22 * qy + m23 * qz, m13 * qx + m23 * qy + m33 * qz
+  qx, qy, qz = ry * tz - rz * ty, rz * tx - rx * tz, rx * ty - ry * tx
+  local atx, aty, atz = m11 * qx + m12 * qy + m13 * qz, m12 * qx + m22 * qy + m23 * qz, m13 * qx + m23 * qy + m33 * qz
+  qx, qy, qz = ry * sz - rz * sy, rz * sx - rx * sz, rx * sy - ry * sx
+  local asx, asy, asz = m11 * qx + m12 * qy + m13 * qz, m12 * qx + m22 * qy + m23 * qz, m13 * qx + m23 * qy + m33 * qz
+  -- the change of velocity at b (and at r), along n, t, s, for unit impulses
+  local function k(ax, ay, az, px, py, pz, ex, ey, ez)
+    return (ay * pz - az * py) * ex + (az * px - ax * pz) * ey + (ax * py - ay * px) * ez
+  end
+  local Kn = im + k(anx, any, anz, bx, by, bz, nx, ny, nz)
+  local a11 = im + k(atx, aty, atz, bx, by, bz, tx, ty, tz)
+  local a12 = k(asx, asy, asz, bx, by, bz, tx, ty, tz)
+  local a21 = k(atx, aty, atz, bx, by, bz, sx, sy, sz)
+  local a22 = im + k(asx, asy, asz, bx, by, bz, sx, sy, sz)
   local det = a11 * a22 - a12 * a21
+  local b11 = im + k(atx, aty, atz, rx, ry, rz, tx, ty, tz)
+  local b12 = k(asx, asy, asz, rx, ry, rz, tx, ty, tz)
+  local b21 = k(atx, aty, atz, rx, ry, rz, sx, sy, sz)
+  local b22 = im + k(asx, asy, asz, rx, ry, rz, sx, sy, sz)
+  local ux0 = pvx + pwy * rz - pwz * ry
+  local uy0 = pvy + pwz * rx - pwx * rz
+  local uz0 = pvz + pwx * ry - pwy * rx
+  local s0t, s0s = ux0 * tx + uy0 * ty + uz0 * tz, ux0 * sx + uy0 * sy + uz0 * sz
+  -- (the moments: at most what stops the turning, about the upright and
+  -- about the level)
+  local ycap, hcap
+  if moments then
+    ycap = math.abs(wy) / m22
+    hcap = math.sqrt(pwx * pwx + pwz * pwz)
+  end
   -- (closing a gap in one step is allowed; a little overlap is pushed out
   -- gently)
   local bias = gap < 0 and (-0.2 * gap / h) or (-gap / h)
-  local jn, jt, js, W, Wn = 0, 0, 0, 0, 0
+  local jn, jt, js, mx, my, mz = 0, 0, 0, 0, 0, 0
   for _ = 1, ITER do
-    local ux, uy, uz = velAt(e, rx, ry, rz)
-    local un = ux * nx + uy * ny + uz * nz
-    local jnew = math.max(0, jn + (bias - un) / Kn)
+    local un = (vx + wy * bz - wz * by) * nx + (vy + wz * bx - wx * bz) * ny + (vz + wx * by - wy * bx) * nz
+    local jnew = jn + (bias - un) / Kn
+    if jnew < 0 then jnew = 0 end
     local dj = jnew - jn
     jn = jnew
-    if dj ~= 0 then apply(e, rx, ry, rz, dj * nx, dj * ny, dj * nz) end
-    ux, uy, uz = velAt(e, rx, ry, rz)
-    Wn = Wn + dj * (un + ux * nx + uy * ny + uz * nz) / 2
+    if dj ~= 0 then
+      vx, vy, vz = vx + dj * nx * im, vy + dj * ny * im, vz + dj * nz * im
+      wx, wy, wz = wx + dj * anx, wy + dj * any, wz + dj * anz
+    end
+    if moments and jn > 0 then
+      -- spin friction against the turning about the upright, kappa times
+      -- the push; rolling resistance against the level part of the turning
+      -- (the mean of before and after), delta times the push
+      local ny_ = KAPPA * jn
+      if ny_ > ycap then ny_ = ycap end
+      if pwy > 0 then ny_ = -ny_ end
+      local nx_, nz_ = 0, 0
+      local hx, hz = (pwx + wx) / 2, (pwz + wz) / 2
+      local wh = math.sqrt(hx * hx + hz * hz)
+      if wh > 1e-9 then
+        local ux_, uz_ = hx / wh, hz / wh
+        local tq = DELTA * jn
+        local cap = hcap / ((m11 * ux_ + m13 * uz_) * ux_ + (m13 * ux_ + m33 * uz_) * uz_)
+        if tq > cap then tq = cap end
+        nx_, nz_ = -tq * ux_, -tq * uz_
+      end
+      local dx, dy, dz = nx_ - mx, ny_ - my, nz_ - mz
+      if dx ~= 0 or dy ~= 0 or dz ~= 0 then
+        wx = wx + m11 * dx + m12 * dy + m13 * dz
+        wy = wy + m12 * dx + m22 * dy + m23 * dz
+        wz = wz + m13 * dx + m23 * dy + m33 * dz
+        mx, my, mz = nx_, ny_, nz_
+      end
+    end
+    local ux, uy, uz = vx + wy * bz - wz * by, vy + wz * bx - wx * bz, vz + wx * by - wy * bx
     local ut, us = ux * tx + uy * ty + uz * tz, ux * sx + uy * sy + uz * sz
     local nt = jt - (a22 * ut - a12 * us) / det
     local ns = js - (-a21 * ut + a11 * us) / det
     local nl = math.sqrt(nt * nt + ns * ns)
     local lim = MU * jn
-    if nl > lim then nt, ns = nt * lim / nl, ns * lim / nl end
+    if nl > lim then
+      -- sliding: against the mean slip at r, before and after (a few
+      -- rounds, as "after" depends on the impulse)
+      nt, ns = nt * lim / nl, ns * lim / nl
+      ux, uy, uz = vx + wy * rz - wz * ry, vy + wz * rx - wx * rz, vz + wx * ry - wy * rx
+      local ct, cs = ux * tx + uy * ty + uz * tz, ux * sx + uy * sy + uz * sz
+      for _ = 1, 3 do
+        local mt = s0t + ct + b11 * (nt - jt) + b21 * (ns - js)
+        local ms = s0s + cs + b12 * (nt - jt) + b22 * (ns - js)
+        local ml = math.sqrt(mt * mt + ms * ms)
+        if ml > 0 then nt, ns = -lim * mt / ml, -lim * ms / ml end
+      end
+    end
     local dt_, ds_ = nt - jt, ns - js
     jt, js = nt, ns
     if dt_ ~= 0 or ds_ ~= 0 then
-      apply(e, rx, ry, rz, dt_ * tx + ds_ * sx, dt_ * ty + ds_ * sy, dt_ * tz + ds_ * sz)
-      local vx, vy, vz = velAt(e, rx, ry, rz)
-      W = W + dt_ * (ut + (vx * tx + vy * ty + vz * tz)) / 2 + ds_ * (us + (vx * sx + vy * sy + vz * sz)) / 2
+      vx, vy, vz = vx + (dt_ * tx + ds_ * sx) * im, vy + (dt_ * ty + ds_ * sy) * im, vz + (dt_ * tz + ds_ * sz) * im
+      wx, wy, wz = wx + dt_ * atx + ds_ * asx, wy + dt_ * aty + ds_ * asy, wz + dt_ * atz + ds_ * asz
     end
   end
-  return jn, W, Wn, jt * tx + js * sx, jt * ty + js * sy, jt * tz + js * sz
+  e.vx, e.vy, e.vz, e.wx, e.wy, e.wz = vx, vy, vz, wx, wy, wz
+  return jn, jt * tx + js * sx, jt * ty + js * sy, jt * tz + js * sz, mx, my, mz
 end
 
 -- Euler's equations, torque-free (RK4), for the egg's own spin
@@ -406,6 +503,19 @@ local function euler(e, h)
   e.wx = e.c1x * w1 + e.c2x * w2 + e.c3x * w3
   e.wy = e.c1y * w1 + e.c2y * w2 + e.c3y * w3
   e.wz = e.c1z * w1 + e.c2z * w2 + e.c3z * w3
+end
+-- the change in w over h from Euler's equations, the gyroscopic term taken
+-- at (ox, oy, oz) (with the mean of w before and after: the implicit
+-- midpoint rule, which keeps the free egg's energy and angular momentum
+-- exactly)
+local function eulerMid(e, h, ox, oy, oz)
+  local I1, I2, I3 = e.I[1], e.I[2], e.I[3]
+  local w1 = e.c1x * ox + e.c1y * oy + e.c1z * oz
+  local w2 = e.c2x * ox + e.c2y * oy + e.c2z * oz
+  local w3 = e.c3x * ox + e.c3y * oy + e.c3z * oz
+  local k1, k2, k3 = h * (I2 - I3) / I1 * w2 * w3, h * (I3 - I1) / I2 * w3 * w1, h * (I1 - I2) / I3 * w1 * w2
+  return e.c1x * k1 + e.c2x * k2 + e.c3x * k3, e.c1y * k1 + e.c2y * k2 + e.c3y * k3,
+         e.c1z * k1 + e.c2z * k2 + e.c3z * k3
 end
 
 -- Jellett's J = L . (G - P), and what it says the spin about the upright
@@ -447,14 +557,29 @@ local function step(e, h)
       e.r30 = e.tt
     end
   end
+  -- THE STEP. Bullet then moves the egg on with the velocities this leaves:
+  -- the centre by h v, and turns it by h w. So those velocities belong to
+  -- the middle of Bullet's move, half a step on, and that's where the egg
+  -- must roll without slipping: at the lowest point half a step on. (Until
+  -- 17 Oct 2026 it was the lowest point now: that's only first-order right,
+  -- and up on its end, where the egg rolls, the error tipped it slowly
+  -- upright, faster the bigger the step.) The impulses act now, at the
+  -- lowest point now; Euler's gyroscopic term is taken at the mean of the
+  -- turning before and after (so is sliding friction, in contact()). Each
+  -- step is then the same run backwards as forwards, and second-order
+  -- right, rolling or sliding. The "after" isn't known until the contact
+  -- is solved: so solve it once with a first guess (Euler's equations by
+  -- RK4), then again from the start with the turning that gave.
+  e.pvx, e.pvy, e.pvz, e.pwx, e.pwy, e.pwz = e.vx, e.vy, e.vz, e.wx, e.wy, e.wz
   e.vy = e.vy - G * h
   euler(e, h)
   -- the raw egg: the shell drags the liquid round, and the liquid the shell
+  local lx, ly, lz = 0, 0, 0
   if e.raw then
     local f = e.wf
     local tx, ty, tz = C_LIQ * (f[1] - e.wx), C_LIQ * (f[2] - e.wy), C_LIQ * (f[3] - e.wz)
-    local ax, ay, az = iinv(e, tx * h, ty * h, tz * h)
-    e.wx, e.wy, e.wz = e.wx + ax, e.wy + ay, e.wz + az
+    lx, ly, lz = iinv(e, tx * h, ty * h, tz * h)
+    e.wx, e.wy, e.wz = e.wx + lx, e.wy + ly, e.wz + lz
     f[1], f[2], f[3] = f[1] - tx * h / I_LIQ, f[2] - ty * h / I_LIQ, f[3] - tz * h / I_LIQ
   end
   -- held by a finger: kept from moving along the table or turning
@@ -463,31 +588,28 @@ local function step(e, h)
   local rx, ry, rz = support(e, 0, -1, 0)
   local gap = e.gy + ry - TABLE_Y
   local N = 0
+  -- (the impulses, for the work they did: table, its friction, the moments;
+  -- the rim's, and where)
+  local tjn, tfx, tfy, tfz, tmx, tmy, tmz = 0, 0, 0, 0, 0, 0, 0
+  local rjx, rjy, rjz, rqx, rqy, rqz = 0, 0, 0, 0, 0, 0
   if gap < 0.05 then
-    local jn, W, Wn = contact(e, rx, ry, rz, 0, 1, 0, gap, h)
-    e.Wf, e.Wn = e.Wf + W, e.Wn + Wn
-    N = jn / h
-    if N > 0 then
-      -- spin friction and rolling resistance: moments against turning about
-      -- the upright and about a level axis
-      local o0x, o0y, o0z = e.wx, e.wy, e.wz
-      local _, Iy, _ = iinv(e, 0, 1, 0)
-      local ty = math.min(math.abs(e.wy) / Iy, KAPPA * N * h)
-      ty = e.wy > 0 and -ty or ty
-      local tx, tz = 0, 0
-      local wh = math.sqrt(e.wx * e.wx + e.wz * e.wz)
-      if wh > 1e-9 then
-        local ux, uz = e.wx / wh, e.wz / wh
-        local px, _, pz = iinv(e, ux, 0, uz)
-        local tq = math.min(wh / (px * ux + pz * uz), DELTA * N * h)
-        tx, tz = -tq * ux, -tq * uz
-      end
-      local ax, ay, az = iinv(e, tx, ty, tz)
-      e.wx, e.wy, e.wz = e.wx + ax, e.wy + ay, e.wz + az
-      e.Wf = e.Wf + tx * (o0x + e.wx) / 2 + ty * (o0y + e.wy) / 2 + tz * (o0z + e.wz) / 2
-      -- (their part in Jellett's J: the moment, along G - P)
-      e.Jc = e.Jc - (tx * rx + ty * ry + tz * rz)
-    end
+    local vx, vy, vz = e.vx, e.vy, e.vz
+    local px, py, pz = midAxis(e, h, e.wx, e.wy, e.wz)
+    local bx, by, bz = supportAx(px, py, pz, 0, -1, 0)
+    contact(e, rx, ry, rz, 0, 1, 0, gap, h, bx, by, bz, true)
+    -- (again, from the start)
+    local ox, oy, oz = e.wx, e.wy, e.wz
+    local gx, gy, gz = eulerMid(e, h, (e.pwx + ox) / 2, (e.pwy + oy) / 2, (e.pwz + oz) / 2)
+    e.vx, e.vy, e.vz = vx, vy, vz
+    e.wx, e.wy, e.wz = e.pwx + gx + lx, e.pwy + gy + ly, e.pwz + gz + lz
+    if e.held then e.vx, e.vz, e.wx, e.wy, e.wz = 0, 0, 0, 0, 0 end
+    px, py, pz = midAxis(e, h, ox, oy, oz)
+    bx, by, bz = supportAx(px, py, pz, 0, -1, 0)
+    tjn, tfx, tfy, tfz, tmx, tmy, tmz = contact(e, rx, ry, rz, 0, 1, 0, gap, h, bx, by, bz, true)
+    N = tjn / h
+    -- (spin friction's and rolling resistance's part in Jellett's J: their
+    -- moment, along G - P)
+    e.Jc = e.Jc - (tmx * rx + tmy * ry + tmz * rz)
   end
   e.N, e.gap = N, gap
   -- the dish's rim: the egg's furthest point out from the dish's middle
@@ -499,14 +621,27 @@ local function step(e, h)
     local out = hl + qx * hx + qz * hz
     local rgap = DISH_R - out
     if rgap < 0.05 and e.gy + qy < TABLE_Y + RIM_H then
-      local jn, W, Wn, fx, fy, fz = contact(e, qx, qy, qz, -hx, 0, -hz, rgap, h)
-      e.Wrim = e.Wrim + W + Wn
+      local jn, fx, fy, fz = contact(e, qx, qy, qz, -hx, 0, -hz, rgap, h)
+      rjx, rjy, rjz, rqx, rqy, rqz = -hx * jn + fx, fy, -hz * jn + fz, qx, qy, qz
       -- (and the rim's part in J: its moment about the centre, along G - P)
-      local jx, jy, jz = -hx * jn + fx, fy, -hz * jn + fz
-      local mx, my, mz = qy * jz - qz * jy, qz * jx - qx * jz, qx * jy - qy * jx
+      local mx, my, mz = qy * rjz - qz * rjy, qz * rjx - qx * rjz, qx * rjy - qy * rjx
       e.Jc = e.Jc - (mx * rx + my * ry + mz * rz)
       if jn > 0 then e.bumped = true end
     end
+  end
+  -- the work the impulses did: each impulse times the velocity where it
+  -- acts, the mean of the step's start and end (with Euler's term taken at
+  -- that mean, that's exactly what they did to the egg's energy)
+  local mvx, mvy, mvz = (e.pvx + e.vx) / 2, (e.pvy + e.vy) / 2, (e.pvz + e.vz) / 2
+  local mwx, mwy, mwz = (e.pwx + e.wx) / 2, (e.pwy + e.wy) / 2, (e.pwz + e.wz) / 2
+  if tjn > 0 then
+    local ux, uy, uz = mvx + mwy * rz - mwz * ry, mvy + mwz * rx - mwx * rz, mvz + mwx * ry - mwy * rx
+    e.Wf = e.Wf + tfx * ux + tfy * uy + tfz * uz + tmx * mwx + tmy * mwy + tmz * mwz
+    e.Wn = e.Wn + tjn * uy
+  end
+  if rjx ~= 0 or rjy ~= 0 or rjz ~= 0 then
+    local ux, uy, uz = mvx + mwy * rqz - mwz * rqy, mvy + mwz * rqx - mwx * rqz, mvz + mwx * rqy - mwy * rqx
+    e.Wrim = e.Wrim + rjx * ux + rjy * uy + rjz * uz
   end
   e.b:setLinearVelocity(btVector3(e.vx, e.vy, e.vz))
   e.b:setAngularVelocity(btVector3(e.wx, e.wy, e.wz))
@@ -613,6 +748,10 @@ end
 
 local LOGF = os.getenv("EG_LOG") and io.open(os.getenv("EG_LOG"), "w")
 if LOGF then LOGF:write("t,egg,tilt_deg,spin_up_turns,N_over_mg,gap_um,J,E,x,z\n") end
+-- (EG_STATE=time:file: the left egg's state at that time, for
+-- reconstruction/rolling-check.py)
+local STATE_T, STATE_F = (os.getenv("EG_STATE") or ""):match("^([%d.]+):(.+)$")
+STATE_T = tonumber(STATE_T)
 local restAll = 0
 v:postSim(function(N_)
   if holdNow then return end
@@ -711,6 +850,13 @@ v:postSim(function(N_)
       end
     else
       e.pending = nil
+    end
+    if STATE_T and k == 1 and t >= STATE_T - 1e-9 then
+      local f = io.open(STATE_F, "w")
+      f:write(string.format(string.rep("%.17g ", 19) .. "\n", t, e.gx - e.x, e.gy - TABLE_Y, e.gz, e.vx, e.vy, e.vz,
+                            e.wx, e.wy, e.wz, e.c1x, e.c1y, e.c1z, e.c2x, e.c2y, e.c2z, e.c3x, e.c3y, e.c3z))
+      f:close()
+      STATE_T = nil
     end
     if LOGF and N_ % 2 == 0 then
       LOGF:write(string.format("%.4f,%d,%.3f,%.4f,%.4f,%.2f,%.4f,%.4f,%.3f,%.3f\n", t, k, th, turns(e.wy), e.N / (MASS * G),
