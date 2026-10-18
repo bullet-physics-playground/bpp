@@ -330,7 +330,8 @@ time in `../lib/ch13.lua`, each a slider that is off at 0.
 
 While a switch is on, the status line shows it at the end (`eta p=1.0`,
 `stop |F|<0.030: 50 stopped`, `mu k+=0.50 k-=0.020 mean=0.84`). Static
-friction (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next.
+friction and the adaptive speed cap were measured and are not needed
+here (below).
 
 **How it was measured.** `../probes/settle_drones.lua` with `lib/batch.py`:
 50 drones, compact launch, no obstacle field, no goal, 5600 frames (about
@@ -420,6 +421,30 @@ before it adds static friction (PDF 465). On its own it freezes the swarm:
 the dither keeps μ at 0.8–0.9, which also damps the goal's pull. With η
 the dither is gone, μ decays to ~0.1, and it adds little to η.
 
+**Static friction and the adaptive speed cap** (Eq. 13.25, 13.24; F54,
+F55) were measured on the drones with two switches, `staticFriction` and
+`speedCap` (in the history: commit "AP M1 steps 3–4"), and then taken out
+of the drones again, since neither helped; both stay in `../lib/ch13.lua`
+for the ground robots. Static friction, with g set by the book's own scale
+(g′ = 0.098 F(D)) and even at 10× that, does not stop the dither: 123–367
+crossings per drone per minute, never formed, and the swarm stays frozen
+in the crossing, as with adaptive friction alone. The cap, crossing a field
+twice as dense after a goal twice as fast, changes nothing: no drone hits
+a column with or without it, because AP's commands (0.1–0.2 m/s) never
+reach it. A per-drone automatic η switch was tried too (F53) and does not
+work with a simple local rule.
+
+**Where each Ch. 13 mechanism belongs** (simplicity: `../HANDOFF.md` §2):
+
+| Mechanism | On these drones | Where it is needed |
+| --- | --- | --- |
+| η, Eq. 13.9 (`etaPower` 1, `etaWidth` 0.2) | **Yes**: the one that settles the split-Newtonian law | Any law with a step at D; not LJ, which is smooth at D already |
+| Stop rule (`stopForce`) | Only holds a settled η swarm still | Vehicles that must not creep (sensor noise, power) |
+| Adaptive friction, Eq. 13.23 (`muMore`, `muLess`) | No: damps but cannot stop the dither, and alone freezes the swarm | The book's Pioneers, with static friction; ground robots (M2) |
+| Static friction, Eq. 13.25 | No (switch removed) | A minimum speed (Pioneer, Maxelbot) or noisy positions (G7) |
+| Adaptive speed cap, Eq. 13.24 | No (switch removed) | Faster vehicles, ranging that sees obstacles late, ground robots |
+| Per-drone automatic η switch | Does not work (removed, F53) | — |
+
 **When is the lattice formed?** (F52, FIXES 41). The *Settles* times above
 come from the acceleration test, which a lattice still slowly growing
 passes. Timed as *formed* (bonds ≥ 0.97 of the spacing and speed below
@@ -441,7 +466,7 @@ law until the swarm has spread to D (about 150 s in 2D, 60 s in 3D), then
 move `etaPower` to 1 without pressing R; it forms about 7 s later. LJ
 forms fastest.
 
-**What this shows** (`../FINDINGS.md` F43–F47, F49–F52):
+**What this shows** (`../FINDINGS.md` F43–F47, F49–F55):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
   or faster, in every formation, without crashes. The plain law's endless

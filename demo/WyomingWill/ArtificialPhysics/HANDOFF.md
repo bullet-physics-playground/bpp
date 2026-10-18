@@ -78,7 +78,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F52 so far), and
+  implementations, and our own mistakes once corrected (F1–F55 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -154,7 +154,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"`. Look at the last pages: if one is nearly empty, move or drop the `--break` to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, a `--break "<section heading>"` can rebalance them (none needed at present).
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -253,12 +253,17 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      F51). The ratio > 10 holds; it damps the dither but cannot stop it,
      and alone it freezes the swarm (μ stuck at 0.8–0.9); with η it adds
      little.
-  3. **Next: static friction** (Eq. 13.25, PDF 465, with the corrected
-     condition μ·m·g < |ΣF·t̂|): per axis, using the adaptive μ. Main
-     question: does adaptive + static friction settle the plain law
-     without η, as on the Pioneers, and does it free the swarm to follow
-     the goal (F51)?
-  4. The adaptive speed cap (Eq. 13.24, k_less/k_more > 10).
+  3. **Done: static friction** (Eq. 13.25, g from the book's own scale;
+     F54) and 4. **the adaptive speed cap** (Eq. 13.24; F55): neither helps
+     the drones, so their switches were taken out again; both are in
+     `lib/ch13.lua` for M2. A per-drone automatic η switch was tried and
+     removed (F53).
+  **M1's answer:** on these drones only η is needed, in a band of 0.2 D
+  (`etaPower` 1, `etaWidth` 0.2), or switched on by hand once the plain
+  law has spread the swarm (F49, F52). `quadcopter/README.md` has the table
+  of where each mechanism belongs. Open question for William: whether to
+  take the `muMore`/`muLess` and `stopForce` sliders off the drones too
+  (they do not help there either; the functions would stay in the lib).
   Then the 3D spring lattice (below) and the M1 summary here.
 - **After M1, William's choice between** the realistic world generator
   (`BOOK.md` §6, option A: terrain and water first, then zones, streets,

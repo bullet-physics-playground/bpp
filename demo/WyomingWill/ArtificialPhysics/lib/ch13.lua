@@ -35,8 +35,28 @@
 --                        book needs kMore / kLess > 10 (PDF 464) and gives
 --                        no absolute gains.
 --
--- Not yet here (later steps of milestone M1): static friction
--- (Eq. 13.25), adaptive speed cap (Eq. 13.24).
+--   staticMoves(mu, m, g, f)
+--                        static friction, Eq. 13.25 (PDF 465) with its
+--                        corrected condition: true (the channel may move)
+--                        when mu m g < |f|, f the channel's force; false
+--                        sets that command to 0. The printed form compares
+--                        with f m and has no absolute value (book/ch13.md
+--                        E11d).
+--   adaptCap(uMax, near, uHi, uLo, rNear, kMore, kLess)
+--                        adaptive speed cap, Eq. 13.24 (PDF 465): for one
+--                        range reading `near`,
+--                          uMax + kMore (uHi - uMax)   if near > rNear
+--                          uMax - kLess (uMax - uLo)   otherwise
+--                        (the Pioneer: uHi 0.5, uLo 0.1 m/s, rNear 1 m,
+--                        kLess / kMore > 10).
+--
+-- WHERE EACH IS NEEDED (milestone M1, FINDINGS F43-F55): on the drones,
+-- with perfect sensing and no minimum speed, eta (in a band of 0.2 D)
+-- is what settles the split-Newtonian law; adaptive and static friction
+-- do not, and freeze the swarm; the stop rule only holds an eta swarm
+-- still. Static friction and the adaptive cap are written for vehicles
+-- with a minimum speed and real ranging (the Pioneer and Maxelbot of M2),
+-- and for sensor noise (G7).
 --
 -- Plain Lua 5.1-5.4; checks/ch13.lua tests it against Figs. 13.3 and 13.8.
 --
@@ -59,6 +79,15 @@ end
 function M.adaptMu(mu, uNew, uOld, kMore, kLess)
   if uNew * uOld < 0 then return mu + kMore * (1 - mu) end
   return mu - kLess * mu
+end
+
+function M.staticMoves(mu, m, g, f)
+  return mu * m * g < math.abs(f)
+end
+
+function M.adaptCap(uMax, near, uHi, uLo, rNear, kMore, kLess)
+  if near > rNear then return uMax + kMore * (uHi - uMax) end
+  return uMax - kLess * (uMax - uLo)
 end
 
 function M.stopped(fx, fy, fz, threshold)

@@ -337,7 +337,7 @@ metrics.
 | 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |
 | 13.9 | Heading-particle torque law | 460–462 | Fixed-wing (G12) | plan (corrected) |
 | 13.10 | Dumbbell agent | 462–463 | Pioneer | plan (corrected) |
-| 13.11 | **Pioneer recipe: adaptive friction (13.23), caps, adaptive cap (13.24), static friction (13.25); 3–5-robot camera ring with three-point turns** | 463–465 | On the drones: adaptive friction done (`muMore`, `muLess`, F51); static friction and the adaptive cap next; ring on Pioneers | partly |
+| 13.11 | **Pioneer recipe: adaptive friction (13.23), caps, adaptive cap (13.24), static friction (13.25); 3–5-robot camera ring with three-point turns** | 463–465 | On the drones all measured: only η is needed; adaptive and static friction and the adaptive cap are not (F51, F54, F55); the latter two kept in `lib/ch13.lua` for M2; ring on Pioneers | partly |
 | 13.12 | 5 UAVs and 10 targets, gravity vs torque law | 465–467 | Fixed-wing | new |
 | 13.13 | Four-step design procedure | 466–468 | Checklist | new |
 

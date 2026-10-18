@@ -294,6 +294,50 @@ the switch; but the plain law needs ~150 s of jitter to reach D in 2D
 the book's band in 3D; adaptive friction slows 2D and speeds only the
 narrow band in 3D. LJ forms fastest in both.
 
+**F53. Switching η on per drone by a local rule does not work** —
+2026-10-18, New (negative). To automate F49, each drone turned η on, and
+kept it on, by a local test of its own neighbours (one checkbox, no new
+number). Two tests, 285 s, 3 seeds, 2D and 3D, book band and 0.2 D band:
+*every neighbour within range at least 0.97 D* never forms a lattice in
+either dimension (a few drones never pass, keep jittering at 0.06–0.14 m/s
+and shake the rest; in 2D the early ones freeze patches at 0.93 D); *the
+mean distance to the neighbours within range at least 0.97 D* passes at
+once in the launch cluster (neighbours out to 1.5 D average near D), so it
+is η from the launch again (2D 0.83 D with the book band; 0.2 D band
+formed at 100–106 s, no better than without the switch). Anything between
+the two is a new number to tune, so the switch was taken out (HANDOFF §2,
+simplicity). The local rule that works is η in a band of 0.2 D from the
+launch (F50, F52); switching η on later is a choice made by hand.
+
+**F54. Ch. 13.4.1.4: static friction does not settle the drones** —
+2026-10-18, New. Eq. 13.25 with the corrected condition μ·m·g < |F|, per
+axis on the adaptive μ, the plain law without η (the book's whole Pioneer
+recipe). g is set by the book's own scale, not tuned: g = 9.81 against
+forces of ~100 at D (Fig. 13.3), so g′ = 0.098 F(D). At muMore 0.2 and 0.5
+(muLess 0.02), 3 seeds, no run forms: the drones keep crossing D 123–343
+times per drone per minute, as with adaptive friction alone (F51), and in
+the obstacle-field crossing the swarm is as frozen (centre +3 to +8 m in
+632 s). At 10× the book's g′ it is no better (128–367 crossings): blocking
+an axis zeroes its command, μ decays, and the drone moves again. The
+book's reasons for it — a minimum wheel speed and poor position estimates
+(PDF 465) — are absent on these drones (no minimum speed, perfect
+sensing); it belongs with the ground robots of M2 and with sensor noise
+(G7). With LJ, F(D) ≈ 0, so it would do nothing.
+
+**F55. Ch. 13.4.1.3: the adaptive speed cap is not needed on the drones**
+— 2026-10-18, New. Eq. 13.24 with one reading per tick (the nearest column
+surface or drone, so no beam count) and the Pioneer's values scaled to the
+quadcopter (1.5 / 0.3 m/s, 1.5 m, k_less/k_more 12.5). Crossing a field
+twice as dense (61–65 columns) after a goal twice as fast (0.4 m/s), 2
+seeds, LJ and Newtonian with η: no drone hit a column with or without the
+cap, and progress was the same within noise (e.g. Newtonian 3D centre at
+374 s −12.8 / −14.4 m without, −13.9 / −14.5 m with). The cap never binds:
+AP's commands stay at 0.1–0.2 m/s, because the obstacle repulsion was
+already made gentle for these airframes (FIXES 17–23). The only losses are
+drone–drone collisions in the 2D LJ launch, before the cap could matter.
+It belongs with faster swarms and with ground robots whose ranging sees
+obstacles late.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -454,6 +498,7 @@ the useful range. Same root as F31.
   works, as do switching η on after the lattice forms (F49) and a narrow
   band tied to D (F50). Whether the slope limit (~0.04–0.05 per AP unit)
   follows from the drones' lag and AP rate, and holds for other apHz.
-  Whether static friction (Eq. 13.25) stops the residual dither that
-  adaptive friction leaves (F51) without η, and without freezing the swarm. And whether the next Ch. 13 mechanisms (adaptive and static
+  Static friction and the adaptive speed cap on ground robots with a
+  minimum speed and real ranging (M2), and with sensor noise (G7); on the
+  drones they are not needed (F54, F55). And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).

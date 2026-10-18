@@ -106,6 +106,26 @@ do
     C13.adaptMu(0, -1, 1, 0, 0) == 0 and C13.adaptMu(0, 1, 1, 0, 0) == 0)
 end
 
+-- Static friction, Eq. 13.25 (corrected): moves only if mu m g < |f|.
+check("Eq. 13.25: moves only when mu m g < |f|, either sign of f",
+  C13.staticMoves(0.5, 1, 9.81, 5) and not C13.staticMoves(0.5, 1, 9.81, 4.9)
+  and C13.staticMoves(0.5, 1, 9.81, -5) and C13.staticMoves(0, 1, 9.81, 1e-9)
+  and not C13.staticMoves(0, 1, 9.81, 0))
+
+-- The adaptive speed cap, Eq. 13.24 with the Pioneer's values.
+do
+  local u = 0.5
+  for _ = 1, 200 do u = C13.adaptCap(u, 0.8, 0.5, 0.1, 1.0, 0.02, 0.25) end
+  local shrunk = u
+  for _ = 1, 400 do u = C13.adaptCap(u, 2.0, 0.5, 0.1, 1.0, 0.02, 0.25) end
+  check("Eq. 13.24: the cap shrinks toward 0.1 m/s near things, grows back to 0.5",
+    math.abs(shrunk - 0.1) < 1e-6 and math.abs(u - 0.5) < 1e-3,
+    string.format("%.4f then %.4f", shrunk, u))
+  check("Eq. 13.24: one step from 0.3 m/s",
+    near(C13.adaptCap(0.3, 2, 0.5, 0.1, 1, 0.02, 0.25), 0.304, 1e-12)
+    and near(C13.adaptCap(0.3, 1, 0.5, 0.1, 1, 0.02, 0.25), 0.25, 1e-12))
+end
+
 -- The stop rule.
 check("stop rule: |F| below the threshold stops, at or above it does not",
   C13.stopped(3, 4, 0, 5.5) and not C13.stopped(3, 4, 0, 5) and not C13.stopped(3, 0, 4, 4.5)

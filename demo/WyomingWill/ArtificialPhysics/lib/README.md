@@ -202,14 +202,21 @@ f = C13.damp(f, r, D, pd, w)           -- Eq. 13.9-13.10: f x (|D - r|/(w D))^pd
 if C13.stopped(fx, fy, fz, thr) then   -- the stop rule: |F| < thr
   vx, vy, vz = 0, 0, 0
 end
+mu = C13.adaptMu(mu, uNew, uOld, kMore, kLess)   -- Eq. 13.23
+if not C13.staticMoves(mu, m, g, f) then u = 0 end  -- Eq. 13.25 (corrected)
+uMax = C13.adaptCap(uMax, near, 0.5, 0.1, 1.0, kMore, kLess)  -- Eq. 13.24
 ```
 
 - **One function per Ch. 13 mechanism**, so every vehicle uses the same code.
   Each is off at 0 (`pd = 0`, `thr = 0`, `kMore = kLess = 0`), leaving the
-  behaviour bit for bit as it was. `adaptMu` is Eq. 13.23. Static friction
-  (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next in M1.
+  behaviour bit for bit as it was. `adaptMu` is Eq. 13.23, `staticMoves` Eq. 13.25
+  (corrected), `adaptCap` Eq. 13.24.
+- **Where each is needed** is in the module's header and
+  `quadcopter/README.md`: on the drones only η (in a 0.2 D band) is needed;
+  static friction and the adaptive cap are for the ground robots (M2) and
+  sensor noise (G7), and are not wired into the drone harness.
 - `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
   spin-modified distance the law itself uses, and the stop rule to each
   drone's summed force, and adaptive friction per axis (sliders `etaPower`,
   `etaWidth`, `stopForce`, `muMore`, `muLess`).
-- `checks/ch13.lua` reproduces Fig. 13.3 and Fig. 13.8 (11 tests).
+- `checks/ch13.lua` reproduces Figs. 13.3 and 13.8 and tests each mechanism (26 tests).
