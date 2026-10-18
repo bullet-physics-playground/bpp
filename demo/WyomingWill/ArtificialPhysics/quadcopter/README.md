@@ -420,7 +420,28 @@ before it adds static friction (PDF 465). On its own it freezes the swarm:
 the dither keeps μ at 0.8–0.9, which also damps the goal's pull. With η
 the dither is gone, μ decays to ~0.1, and it adds little to η.
 
-**What this shows** (`../FINDINGS.md` F43–F47, F49–F51):
+**When is the lattice formed?** (F52, FIXES 41). The *Settles* times above
+come from the acceleration test, which a lattice still slowly growing
+passes. Timed as *formed* (bonds ≥ 0.97 of the spacing and speed below
+0.01 m/s to the end; the probe's `formed` column), seconds after AP
+engages, 3 seeds:
+
+| | 2D formed | 2D bond CV | 3D formed | 3D bond CV |
+| --- | --- | --- | --- | --- |
+| η (book band) from the launch | never (0.83 D) | — | 42–57 | 0.063 |
+| η, etaWidth 0.2, from the launch | 76–96 | 0.066 | 66–154 | 0.053 |
+| etaWidth 0.2 + adaptive friction | 91–117 | 0.066 | 76–85 | 0.053 |
+| η (book) switched on at 60 s | never (0.96 D) | — | 68 | 0.044 |
+| **η (book) switched on at 150 s** | **157** | **0.046** | **158** | **0.020** |
+| etaWidth 0.2 switched on at 60 s | 88–106 | 0.063 | 72–79 | 0.047 |
+| Lennard-Jones | 30–35 | 0.023 | 51–64 | 0.015 |
+
+The most regular Newtonian lattice comes from William's way: run the plain
+law until the swarm has spread to D (about 150 s in 2D, 60 s in 3D), then
+move `etaPower` to 1 without pressing R; it forms about 7 s later. LJ
+forms fastest.
+
+**What this shows** (`../FINDINGS.md` F43–F47, F49–F52):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
   or faster, in every formation, without crashes. The plain law's endless

@@ -33,6 +33,12 @@
 --              -1 if the last second was still above (not settled)
 --   settleV    the same for the 1-s mean speed below V_SETTLE (default
 --              0.05 m/s)
+--   formed     the time t after which the lattice is formed and still to
+--              the end of the run: bond (below, sampled every second) at
+--              least B_FORMED (default 0.97) x the spacing AND mean speed
+--              below V_FORMED (default 0.01 m/s); -1 if not by the end.
+--              settleA and settleV alone miss a lattice that is still
+--              slowly growing (FIXES 41): use this one for "settled".
 --   final      1 on the row written when the run ends
 -- Lengths in metres; the spacing is rad or desiredSeparation x
 -- metersPerUnit (3 m by default).
@@ -58,6 +64,8 @@ local Lattice = require "lib.lattice"
 local ACC_SETTLE = tonumber(os.getenv("ACC_SETTLE") or "") or 0.10
 local V_SETTLE   = tonumber(os.getenv("V_SETTLE") or "") or 0.05
 local SERIES     = os.getenv("SERIES") == "1"
+local B_FORMED   = tonumber(os.getenv("B_FORMED") or "") or 0.97
+local V_FORMED   = tonumber(os.getenv("V_FORMED") or "") or 0.01
 
 -- the mode, then this run's own settings again (the mode's defaults would
 -- otherwise overwrite them), then a fresh launch
@@ -112,7 +120,13 @@ local function sample()
     local t = st.simTime - st.apEngagedAt
     local acc = (now.accSum - lastM.accSum) / (now.accN - lastM.accN)
     local speed = apSpeed(st)
-    series[#series + 1] = { t = t, acc = acc, speed = speed }
+    local pts = {}
+    for _, d in ipairs(st.drones) do
+      if d.state == "ap" or d.state == "hold" then pts[#pts + 1] = { x = d.px, y = d.pz, z = d.py } end
+    end
+    local _, bond = Lattice.bondCV(pts, sepMeters())
+    local formed = (bond and bond >= B_FORMED and speed < V_FORMED) and 0 or 1
+    series[#series + 1] = { t = t, acc = acc, speed = speed, unformed = formed }
     if SERIES then batch.row({ series = 1, t = string.format("%.1f", t), acc = acc, speed = speed }, { "series", "t" }) end
   end
   lastM = now
@@ -164,9 +178,10 @@ local function report(extra)
     mu = dTicks > 0 and (now.muSum - base.muSum) / dTicks or "",
     cv = cv or "", nncv = nncv or "", bond = bond or "", bondcv = bondcv or "",
     settleA = settleTime("acc", ACC_SETTLE), settleV = settleTime("speed", V_SETTLE),
+    formed = settleTime("unformed", 0.5),
   }
   for kk, val in pairs(extra or {}) do row[kk] = val end
-  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "stopped", "mu", "cv", "nncv", "bond", "bondcv", "settleA", "settleV" })
+  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "stopped", "mu", "cv", "nncv", "bond", "bondcv", "formed", "settleA", "settleV" })
   lastRow = now
 end
 

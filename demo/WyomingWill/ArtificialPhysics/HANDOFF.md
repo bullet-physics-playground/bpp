@@ -58,10 +58,10 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–40 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F51 so far), and
+  implementations, and our own mistakes once corrected (F1–F52 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -76,7 +76,7 @@ is updated at the end of every milestone.
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–40 |
+| `FIXES.md` | Fixes 1–41 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
@@ -137,7 +137,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, a `--break "<heading>"` before a section can rebalance them (none is needed now).
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"`. Look at the last pages: if one is nearly empty, move or drop the `--break` to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -187,8 +187,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   without crashes; the plain law dithers across D even as particles. In 2D
   at range 1.5 D η settles the lattice at ~0.8 D (second neighbours come
   into range); range 1.25 D keeps it at D. Power 1 beats the law's own
-  power. Switched on after the lattice forms, η keeps it at D (2D and
-  3D) and gives the most regular Newtonian lattice: annealing, with η as
+  power. Switched on once the plain law has spread the swarm to D (~150 s
+  in 2D, ~60 s in 3D), η forms the most regular Newtonian lattice ~7 s
+  later (F52; settling is timed by `formed`, not the acceleration test,
+  FIXES 41): annealing, with η as
   the cooling (F49, William). Better still, η in a band of width
   0.2 D round D (`etaWidth`, William's idea) settles at D from the launch,
   in 2D and 3D, with a stiffer lattice; narrower bands jitter again (the

@@ -95,7 +95,8 @@ of 6 and 11 cm (3 seeds each). Lennard-Jones on the same drones settles in
 2026-10-18, Confirmed on drones (the book's Pioneers settle, PDF 454).
 `quadcopter/README.md` ("Ch. 13 on the drones"). With η (Eq. 13.9, power 1)
 and nothing else, the same 50 drones settle (scalar acceleration below
-0.1 m/s² from then on) 6 s after AP engages in 2D and 29 s in 3D, when the
+0.1 m/s² from then on; but see F52 for when the lattice is formed) 6 s
+after AP engages in 2D and 29 s in 3D, when the
 last launch wave joins (LJ: 20 s and 31–33 s); AR crossings fall to 0–1 per
 drone per minute, speed to 0.001–0.003 m/s, the gap to 0.03–0.09 mm, with no crashes
 (baseline 2 per 2D run). This answers `BOOK.md` §1 item 1's expectation:
@@ -230,7 +231,8 @@ w 0.1 crashed 4 drones, and 3D at w 0.15 kept jittering in 2 of 3 runs, at
 at D, F(D)/(w·D), in both dimensions: 0.034–0.037 per AP unit settles,
 0.055–0.057 does not (LJ's slope is 0.024). So the band can be set from the
 law and the separation, w ≈ F(D)/(0.04 D): 0.14 in 2D, 0.21 in 3D. One
-w = 0.2 works in both: 2D settles in ~10 s at 0.994 D (Delaunay CV 0.077),
+w = 0.2 works in both: 2D settles (by the acceleration test; formed at
+76–96 s, F52) at 0.994 D (Delaunay CV 0.077),
 3D at the last launch wave at 1.01 D (bond CV 0.054), no crashes. Crossing
 the obstacle field after the goal (2 seeds), w 0.2 holds its bonds at
 0.93–0.94 D (2D) and 1.00 D (3D), where w 1 gave 0.85–0.86 and 0.94–0.95
@@ -257,12 +259,40 @@ seeds) the swarm's centre reaches only +4.5 m (2D) and +8.3 m (3D) in
 632 s, against −43 and −41 m for the plain law: the book's "too much
 damping impairs reactivity" (PDF 463). With η in its 0.2 D band (F50) the
 dither is gone, so mu decays (0.08–0.11 settled, 0.12–0.26 while following
-the goal): settling is a little faster (5 s 2D, 29–30 s 3D, against ~10 s
-and 32–33 s with η alone), the lattice the same (0.993 D, Delaunay CV
+the goal): by the acceleration test settling looked a little faster (5 s
+2D, 29–30 s 3D), but the lattice forms later in 2D (91–117 s against
+76–96 s, F52), the lattice the same (0.993 D, Delaunay CV
 0.082; 3D 1.01 D, bond CV 0.054), and the crossing slightly slower (−40,
 −38 m against −43, −43 m). In 2D alone it compresses the lattice (0.92–0.94
 D); in 3D at ratio 10 it gave the most regular lattice measured (bond CV
 0.023) while still moving at 0.08 m/s.
+
+**F52. Settling times corrected: when is the lattice formed?** —
+2026-10-18, Our error, corrected (FIXES 41; found by William in the GUI).
+The settling times in F44, F50 and F51 came from the acceleration test,
+which a slow outward creep passes: with η in its 0.2 D band the 2D bonds
+were still growing from 0.89 to 0.99 D over ~165 s while it said 5–10 s.
+Timed instead as *formed* (bonds ≥ 0.97 of the spacing and mean speed
+< 0.01 m/s from then to the end; 285 s runs, 3 seeds, seconds after AP
+engages):
+
+| | 2D formed | 2D bond CV | 3D formed | 3D bond CV |
+| --- | --- | --- | --- | --- |
+| η (book band) from the launch | never (0.83 D) | — | 42–57 | 0.063 |
+| η, band 0.2 D, from the launch | 76–96 | 0.066 | 66–154 | 0.053 |
+| η 0.2 D + adaptive friction | 91–117 | 0.066 | 76–85 | 0.053 |
+| η (book) switched on at 60 s | never (0.96 D) | — | 68 | 0.044 |
+| η (book) switched on at 150 s | 157 | 0.046 | 158 | 0.020 |
+| η 0.2 D switched on at 60 s | 88–106 | 0.063 | 72–79 | 0.047 |
+| Lennard-Jones | 30–35 | 0.023 | 51–64 | 0.015 |
+
+William's way — the plain law first, η once the swarm has spread to D
+(F49) — gives the most regular Newtonian lattices, formed about 7 s after
+the switch; but the plain law needs ~150 s of jitter to reach D in 2D
+(switched at 60 s, η freezes it at 0.96 D), while in 3D it is there by
+60 s. The narrow band is the fastest from the launch in 2D but slower than
+the book's band in 3D; adaptive friction slows 2D and speeds only the
+narrow band in 3D. LJ forms fastest in both.
 
 ## 3. Errors and discrepancies in the book
 

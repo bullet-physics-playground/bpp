@@ -546,3 +546,15 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     every other check fell just short. It now checks every frame. Settling
     times measured before (F44–F47, `quadcopter/README.md`) are good to
     about ±2 s; no conclusion changes.
+
+41. **"Settled" was claimed for drone lattices that were still growing**
+    (found by William in the GUI, 2026-10-18). `probes/settle_drones.lua`'s
+    settling time (`settleA`, Ch. 16.9's "mean scalar acceleration below a
+    threshold") and `settleV` (speed below 0.05 m/s) are passed by a slow,
+    smooth outward creep: with η in its 0.2 D band, with or without
+    adaptive friction, they said 5–10 s while the bonds were still growing
+    from 0.89 to 0.99 of the spacing over about 165 s. The probe now also
+    reports `formed`: the time after which the bonds stay at least 0.97 of
+    the spacing and the mean speed below 0.01 m/s, to the end of the run.
+    FINDINGS F44, F50 and F51 quoted the old times; they are corrected
+    with `formed` times (F52).
