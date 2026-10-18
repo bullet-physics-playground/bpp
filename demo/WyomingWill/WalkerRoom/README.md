@@ -25,6 +25,10 @@ flat ground they all go the same speed, and on bumps the differences are
 the linkages'. A walker that doesn't make the flat-ground speed has
 something wrong with its build.
 
+The speeds quoted in this section, and the results further down, were
+measured before the October 2026 geometry (Link planes, Balance and
+Earlier results, below) and are void until measured again.
+
 - **Same stride.** Each walker is scaled so its stride -- the length of
   its foot's path, measured with its body held still and its cranks
   turned slowly -- is 15 cm. A bump is then the same obstacle to every
@@ -66,23 +70,37 @@ something wrong with its build.
   (Walker Room1 and the gravity-70 version turned every crank at 2.6
   rad/s, so flat speeds differed from 3.8 to 15 cm/s.)
 - **Same chassis.** So that only the linkage differs, every walker gets
-  the same body clearance (12 cm: its body's lowest point above flat
-  ground) and the same front-to-back spacing of its feet (35 cm, between
-  the middles of its front and back feet's paths) and the same
-  side-to-side width (38 cm, outer foot edge to outer foot edge, as
-  Jansen's own file has it; measured, 38.1 to 38.7). This uses each
-  file's own leg-spacing and body-depth options and the room's
+  the same front-to-back spacing of its feet (35 cm, between the middles
+  of its front and back feet's paths) and the same side-to-side width
+  (38.0 cm, outer foot edge to outer foot edge, as Jansen's own file has
+  it). The width is measured on the walker as built, standing still, in
+  its body's own frame; it had been measured from the walker's outline
+  in the world while it walked, which swings with every step and came
+  out 38.1 to 38.7. Its body is 12 cm up (its lowest point above flat
+  ground), or higher where that would leave less than 1 cm between the
+  top of a foot and the lowest link above it: Spears lift 44 12.46 cm,
+  its diag build 13.13, Spears lift 53 14.33, its diag build 15.2. This
+  uses each file's own leg-spacing and body-depth options and the room's
   `bodyRaise` option, none of which change its foot path. A walker's
   body width is where its legs are mounted, so the bodies look
   different widths even though the feet stand on the same rectangle.
   `WIDE = false` gives every walker a 30-31 cm stance instead (until
   Walker Room 2, Jansen's feet were 38 cm apart, Klann's 35 and the
   others' about 30).
+- **Same links.** Every link is 0.3 cm thick (`LINK_THICK`), in planes
+  0.7 cm apart, centre to centre (`PLANE_GAP`), leaving 0.4 cm between
+  neighbouring faces; at 0.2 cm, loaded links, which twist a little at
+  their joints, rubbed their neighbours up to 10% of the time. Their
+  files' links were 0.18 to 0.46 cm thick, their planes 0.25 to 2.1 cm
+  apart. Each walker uses as few planes as keep its links apart (Link
+  planes, below).
 - **Same feet.** Every walker stands on the same flat feet: 8 cm long
-  (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5. Big feet get
-  over bumps by resting on them; small ones have to be lifted over. Their
-  own files' feet ranged from 2.6 cm long (Chebyshev-Spears diag) to
-  12.6 cm (the balanced 2-leg Spears), and Jansen and Klann had none.
+  (along the walk), 12 cm wide, 0.5 cm thick, weighing 1.5, each centred
+  under its leg (Jansen's and Klann's had been off-centre). Big
+  feet get over bumps by resting on them; small ones have to be lifted
+  over. Their own files' feet ranged from 2.6 cm long (Chebyshev-Spears
+  diag) to 12.6 cm (the balanced 2-leg Spears), and Jansen and Klann had
+  none.
 - **Cranks in step.** Most walkers have a motor for each crank, and
   nothing kept them in step: Chebyshev's cranks drifted 47 degrees apart
   in 10 s, Jansen's over 1000 degrees in a minute, and Klann ended up
@@ -98,9 +116,14 @@ something wrong with its build.
   guides of `UNBRACED` weigh nothing. Every body weighs 40
   (`BODY_MASS`), turning as a 40 x 3 x 30 cm box of that weight would
   (`BODY_BOX`), and the legs add what they weigh: more legs, more
-  weight. Each body keeps its own shape for drawing and for touching
-  things; it rides 12 cm up, clear of the ground, and its depth sets
-  where the legs are mounted. Before, each file weighed its own links
+  weight. (Until October 2026 that turning was each body's own shape's:
+  the room gave the body BODY_BOX's turning and then set its weight, and
+  in bpp setting an object's weight works its turning out again from its
+  shape. The order is now the other way round, so every body turns as
+  BODY_BOX says. Every result measured before then had each walker's own
+  body's turning.) The body is a frame carrying a load (Balance, below):
+  the frame spans the leg mounts, is drawn and can touch things, and its
+  depth sets where the legs are mounted. Before, each file weighed its own links
   (Chebyshev's 0.3-1.0 each, Spears 4-bar's 2-4) and every walker
   weighed 100 in all, its body whatever its legs didn't, so moving legs
   were from 16% (Chebyshev) to 62% (Jansen) of the weight. Now:
@@ -119,6 +142,13 @@ something wrong with its build.
   | Chebyshev-Spears | 40 | 39.3 | 13.2 | 6 | 99 |
   | Hoecken-Spears slider | 40 | 32.3 | 13.2 | 6 | 92 |
   | Hoecken-Spears long-stance | 40 | 30.6 | 13.3 | 6 | 90 |
+
+  Weighed again after the October 2026 geometry (thinner links weigh
+  the same: a bar's weight is its length and joints), every total is
+  within 0.5 of this. The builds not in the table weigh, in all:
+  Hoecken 4-bar diag 115, Hoecken-Spears 4-bar diag 106,
+  Hoecken-Spears long-stance diag 100, Spears lift 44 108 (diag 121),
+  Spears lift 53 113 (diag 128).
 
   `BAR_MASS = false` gives each file's own link weights and the old
   rule (`TOTAL_MASS`, 100 in all); `SAME_BODY = false` each file's own
@@ -188,9 +218,81 @@ Not the same yet:
 | What | How it differs |
 |------|----------------|
 | Gait (the timing between the legs) | Both legs on a side together, the sides opposite: Chebyshev, Chebyshev-Spears (here; a quarter turn apart in its own file), Hoecken, the two sliders, and (here) Jansen and Klann. Diagonal pairs: the two diag walkers. 0/225/180/225 degrees: Spears 4-bar (its design) |
-| Body shape | Each file's own box (its weight is now the same: see Same weight) |
+| Body length | Each frame spans its own leg mounts, 3 cm past the first and last: 41.0 to 49.8 cm, Spears 4-bar 59.9 (its mounts are 54 cm apart). Its weight and turning are the same for all: see Same material, same body |
 | Bracing between the legs | Side plates (Chebyshev, Hoecken, the sliders), diagonal braces (the diag walkers), none (Spears 4-bar, Jansen, Klann); all at least 7 cm up now |
 | Damping | Each file's own (foot friction is 0.8 for every walker now; Jansen's and Klann's files had 0.9) |
+
+### Link planes
+
+Each link moves in a plane parallel to the walker's side, and each
+walker uses as few planes as keep its links from touching (`spec.planes`:
+link to plane, counted out from the body's face). This was found by
+turning every walker's cranks through a full turn, its body held still,
+and logging where every link went:
+
+- links of the same leg may share a plane if they are never in the same
+  place at the same moment, with 0.2 cm to spare;
+- links of different legs may share one only if the areas they sweep
+  never meet, whatever the gait;
+- links hinged together are in different planes; links welded together
+  may share one;
+- where there are braces, the pendant (the link the foot hangs from) is
+  outermost.
+
+| Walker | Planes |
+|--------|--------|
+| Spears 4-bar | 2 |
+| Jansen (was 7), Klann (was 5) | 3 |
+| Chebyshev, Chebyshev diag, Chebyshev-Spears, Hoecken 4-bar and its diag build, Hoecken-Spears 4-bar and its diag build, Spears lift 44 and 53 and their diag builds | 3 |
+| Chebyshev-Spears diag, Hoecken-Spears long-stance and its diag build | 4 |
+| The two sliders | 2, their own layout (given others, they jammed) |
+
+With these, no walker jams, and links touch each other at most 0.7% of
+the time (Chebyshev-Spears diag, brief brushes; flat ground, 6 cm waves,
+4 cm logs and 4 cm steps, a minute each). `handover/walkers_from_above.png`
+shows every build from above.
+
+### Balance
+
+Most files mount their legs off the middle of the body, so the walkers'
+weight was shared unevenly between their front and back feet: Klann put
+77% of its on one pair. With `BALANCE` (on), each walker's 40 kg load is
+slid along the walk (`spec.bodyShift`) until the whole walker's centre of
+mass, averaged over a crank turn, sits midway between the middles of its
+front and back feet's paths; every walker is within 0.01 cm of that. The
+slides, in each file's own frame (cm):
+
+| Walker | Slide | Walker | Slide |
+|--------|-------|--------|-------|
+| Klann | -29.44 | Spears 4-bar | +19.44 |
+| Spears lift 53 | +17.77 | Spears lift 53 diag | +18.07 |
+| Spears lift 44 | +12.77 | Spears lift 44 diag | +12.99 |
+| Jansen | -5.94 | the other 4-bars and diag builds | +2.9 to +5.5 |
+| the sliders | about -0.3 | | |
+
+(A walker with `forward = -1` is turned round in the room, so its file's
+forward is the room's backward.)
+
+The body is one rigid body: the load, at the balance point, and a frame
+(`spec.frame`, a box spanning the leg mounts from 3 cm before the first
+to 3 cm past the last), set off from the load along the walk. The frame
+is what is drawn and what can touch the ground; the load's weight and
+turning are `BODY_BOX`'s whatever the frame's length. Klann's load sits
+0.2 cm off the back end of its frame. No body touches the ground in the
+checks above.
+
+The balance was a suspect for one pattern in the earlier results: a
+walker reversed often did better, though most foot paths are the same
+at both ends.
+
+### Earlier results
+
+Everything below this point that gives speeds, shares kept or ranks was
+measured before the geometry above (October 2026: uniform links, fewest
+planes, centred feet, the 38.0 cm stance measured at rest, the body
+height rule, balance, frame bodies and the turning fix) and is void. It
+is kept as a record of what was tried and why. The factorial runs are
+being redone with the new geometry.
 
 Progress in the full room over 3 minutes (braces as built, before
 `BRACE_CLEARANCE`; cm/s, measured in 5 s steps,
