@@ -338,6 +338,24 @@ drone–drone collisions in the 2D LJ launch, before the cap could matter.
 It belongs with faster swarms and with ground robots whose ranging sees
 obstacles late.
 
+**F56. Defaults that work out of the box: η on, band 0.2 D in 2D and
+0.5 D in 3D** — 2026-10-18, New. William's decision: the drones keep only
+`etaPower` and `etaWidth`, on by default in the Newtonian scene. Measured
+with no settings changed (285 s, 3 seeds; launch only, no field): with
+0.2 in every mode, the 2D triangle forms at 76–96 s (0.993–0.998 D), the
+2D square at 53–170 s (0.97–0.98 D), the 3D triangle at 66–154 s, but the
+3D cube keeps jittering in 2 of 3 runs (53 crossings per drone per
+minute): the 3D law's F(D) is 0.42, so the slope at D, F(D)/(w D), is
+0.042, at the edge found in F50. A 0.5 band forms the cube at 80–128 s
+(0.99 D) and the 3D triangle at 45–50 s (1.008 D, faster than LJ's
+51–64 s). So the band follows from the two limits — slope at D below about
+0.035 per AP unit (w ≥ 0.16 in 2D, ≥ 0.24 in 3D) and, in 2D at range
+1.5 D, w < 0.26 against the second-neighbour trap — and is set per mode:
+0.2 in 2D, 0.5 in 3D. The default scene (field, moving goal) loses no
+drones: swarm centre at 630 s −42 / −44 m in 2D and −45 / −46 m in 3D
+(plain law −43 and −41, LJ −50 and −51), bonds 0.93–0.98 D under the
+goal's pull.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

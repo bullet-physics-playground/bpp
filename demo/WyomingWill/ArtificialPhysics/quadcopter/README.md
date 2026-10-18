@@ -173,7 +173,7 @@ horizontal levels.
 
 Set it to 0 to turn the levels off. See `../FIXES.md` items 30 and 32.
 
-**Sliders** beyond the originals': `etaPower` and `stopForce` (Ch. 13, below), `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
+**Sliders** beyond the originals': `etaPower` and `etaWidth` (Ch. 13, below), `layerGain`, `numDrones`, `metersPerUnit`, `apHz`,
 `altitude`, `windSpeed`, `gust`, `downwash`, `padSpacing`, `fieldDensity`,
 `goalSpeed`, `goalDelay`, `launchOrder`, `launchGap`, `lineTransparency` (neighbour lines, 0 = solid, default 0.6), `simSpeed`, `soundVolume`, `soundEmphasis`, and the `obstacleField` and
 `propStrikes` checkboxes.
@@ -318,20 +318,29 @@ The measurements behind these are in `../FIXES.md`, items 17–23.
 ## Ch. 13 on the drones (milestone M1)
 
 Ch. 13 (Apker and Potter) explains why the split-Newtonian swarm never
-settles and gives four remedies (`book/ch13.md`). They are built one at a
-time in `../lib/ch13.lua`, each a slider that is off at 0.
+settles and gives four remedies (`book/ch13.md`). All four were built in
+`../lib/ch13.lua` and measured on the drones (below). Only one is needed
+here, so only one is on the drones, **on by default in the Newtonian
+scene**; the others stay in the library for the ground robots of M2.
 
-| Slider | What it does | Off |
-| --- | --- | --- |
-| `etaWidth` | η's band: it ramps from 1 at \|D − r\| = etaWidth × D to 0 at D (1 = the book's Eq. 13.9, r < 2D) | 1 |
-| `etaPower` | **AR damping η** (Eq. 13.9–13.10): every drone–drone force is multiplied by η = (\|D − r\|/D)^etaPower for r < 2D, so it goes smoothly through 0 at D (r is the spin-modified distance the law uses) | 0 |
-| `muMore`, `muLess` | **Adaptive friction** (Eq. 13.23, 13.21): one μ per axis of the AP velocity command, which is multiplied by (1 − μ); μ += muMore·(1 − μ) when that axis's command flips sign, else μ −= muLess·μ (on top of `friction`) | 0, 0 |
-| `stopForce` | **Stop rule** (§13.2.2): when a drone's summed force \|F\| (drones, obstacles, levels, goal; AP force units) is below this, its AP velocity is set to 0 and its waypoint is where it is | 0 |
+| Slider | What it does | Newtonian default | LJ default |
+| --- | --- | --- | --- |
+| `etaPower` | **AR damping η** (Eq. 13.9–13.10): every drone–drone force is multiplied by η = (\|D − r\|/(etaWidth·D))^etaPower within etaWidth·D of D, 1 outside, so it goes smoothly through 0 at D (r is the spin-modified distance the law uses). 0 = the original law | 1 | 0 (off) |
+| `etaWidth` | η's band, as a fraction of D (1 = the book's Eq. 13.9, r < 2D) | 0.2 in 2D, 0.5 in 3D | — |
 
-While a switch is on, the status line shows it at the end (`eta p=1.0`,
-`stop |F|<0.030: 50 stopped`, `mu k+=0.50 k-=0.020 mean=0.84`). Static
-friction and the adaptive speed cap were measured and are not needed
-here (below).
+The status line shows η at the end while it is on (`eta p=1.0 w=0.20`).
+The band is set per mode (F56): wide enough that the damped force's slope
+at D stays below about 0.035 per AP unit, or the drones jitter again, and
+in 2D narrow enough (< 0.26) that second neighbours cannot stall the
+expansion at 0.8 D. Out of the box the 2D triangle forms in 76–96 s, the
+2D square in 53–170 s, the 3D triangle in 45–50 s and the cube in
+80–128 s, all at D, and the default scene crosses the field with no drones
+lost.
+The tables below record every mechanism measured; the sliders for
+adaptive friction (`muMore`, `muLess`) and the stop rule (`stopForce`),
+and the switches for static friction and the speed cap, were on the drones
+while they were measured and were then taken off (FINDINGS F51, F54, F55;
+in the history).
 
 **How it was measured.** `../probes/settle_drones.lua` with `lib/batch.py`:
 50 drones, compact launch, no obstacle field, no goal, 5600 frames (about
@@ -438,9 +447,9 @@ work with a simple local rule.
 
 | Mechanism | On these drones | Where it is needed |
 | --- | --- | --- |
-| η, Eq. 13.9 (`etaPower` 1, `etaWidth` 0.2) | **Yes**: the one that settles the split-Newtonian law | Any law with a step at D; not LJ, which is smooth at D already |
-| Stop rule (`stopForce`) | Only holds a settled η swarm still | Vehicles that must not creep (sensor noise, power) |
-| Adaptive friction, Eq. 13.23 (`muMore`, `muLess`) | No: damps but cannot stop the dither, and alone freezes the swarm | The book's Pioneers, with static friction; ground robots (M2) |
+| η, Eq. 13.9 (`etaPower` 1, `etaWidth` 0.2 in 2D, 0.5 in 3D; the default) | **Yes**: the one that settles the split-Newtonian law | Any law with a step at D; not LJ, which is smooth at D already |
+| Stop rule | Only holds a settled η swarm still (slider removed) | Vehicles that must not creep (sensor noise, power) |
+| Adaptive friction, Eq. 13.23 | No: damps but cannot stop the dither, and alone freezes the swarm (sliders removed) | The book's Pioneers, with static friction; ground robots (M2) |
 | Static friction, Eq. 13.25 | No (switch removed) | A minimum speed (Pioneer, Maxelbot) or noisy positions (G7) |
 | Adaptive speed cap, Eq. 13.24 | No (switch removed) | Faster vehicles, ranging that sees obstacles late, ground robots |
 | Per-drone automatic η switch | Does not work (removed, F53) | — |
@@ -498,7 +507,7 @@ Reproduce, from the `ArtificialPhysics` folder:
       --set etaPower=0,1,2.2 --frames 5600 --out eta2d.csv --summary settleA
 
 (`--env DIM=3` for 3D, `--env SQUARE=1` for the square or cube, `--set
-range=1.25`, `--set stopForce=0.03`; for the crossing, drop the two
+range=1.25`; for the crossing, drop the two
 `obstacleField`/`goalDelay` settings and use `--frames 20000 --env
 EVERY=3000`.) About 45 s per pair of runs.
 

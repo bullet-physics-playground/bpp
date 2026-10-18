@@ -217,6 +217,6 @@ uMax = C13.adaptCap(uMax, near, 0.5, 0.1, 1.0, kMore, kLess)  -- Eq. 13.24
   sensor noise (G7), and are not wired into the drone harness.
 - `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
   spin-modified distance the law itself uses, and the stop rule to each
-  drone's summed force, and adaptive friction per axis (sliders `etaPower`,
-  `etaWidth`, `stopForce`, `muMore`, `muLess`).
+  drone's summed force (sliders `etaPower`, `etaWidth`; on by default in
+  the Newtonian scene, band 0.2 D in 2D and 0.5 D in 3D). The other functions are not wired into the drones.
 - `checks/ch13.lua` reproduces Figs. 13.3 and 13.8 and tests each mechanism (26 tests).

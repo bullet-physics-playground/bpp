@@ -23,7 +23,9 @@ is updated at the end of every milestone.
 ## 2. How William likes to work
 
 - **Simplicity and elegance are part of the project** (William,
-  2026-10-18). Physicomimetics exists because the alternative did not
+  2026-10-18; in the spirit of Edward Teller, *The Pursuit of Simplicity*,
+  Pepperdine University Press, 1980: science as the search for the simple,
+  elegant description underneath). Physicomimetics exists because the alternative did not
   scale: before AP, groups used complex control theory and reached about
   three robots. A simulation with too many variables and controls has given
   up simplicity; we want the simplest way to do a thing well. William's
@@ -78,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F55 so far), and
+  implementations, and our own mistakes once corrected (F1–F56 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -242,14 +244,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **In progress: milestone M1** (build step 1), Ch. 13's four mechanisms
   on the drones, one patch each, each a slider off at 0:
   1. **Done: AR damping η + the stop rule** (`lib/ch13.lua`; sliders
-     `etaPower`, `stopForce`; metrics in `quadcopter/swarm.lua` and
+     `etaPower`, `stopForce` (since removed); metrics in `quadcopter/swarm.lua` and
      `probes/settle_drones.lua`; lattice quality in `lib/lattice.lua`;
      checks `ch13`, `lattice`). Answer to M1's main question: yes, η alone
      makes them settle like LJ (see §6).
   1b. **Done: η's band tied to D** (`etaWidth`, F50; replaces a cooling
      schedule, which would need tuning per task). Open: whether the slope
      limit follows from the lag and apHz.
-  2. **Done: adaptive friction** (Eq. 13.23; sliders `muMore`, `muLess`;
+  2. **Done: adaptive friction** (Eq. 13.23; sliders `muMore`, `muLess`, since removed;
      F51). The ratio > 10 holds; it damps the dither but cannot stop it,
      and alone it freezes the swarm (μ stuck at 0.8–0.9); with η it adds
      little.
@@ -259,11 +261,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      `lib/ch13.lua` for M2. A per-drone automatic η switch was tried and
      removed (F53).
   **M1's answer:** on these drones only η is needed, in a band of 0.2 D
-  (`etaPower` 1, `etaWidth` 0.2), or switched on by hand once the plain
+  in 2D and 0.5 D in 3D (the defaults), or switched on by hand once the plain
   law has spread the swarm (F49, F52). `quadcopter/README.md` has the table
-  of where each mechanism belongs. Open question for William: whether to
-  take the `muMore`/`muLess` and `stopForce` sliders off the drones too
-  (they do not help there either; the functions would stay in the lib).
+  of where each mechanism belongs. William's decision (2026-10-18): the
+  drones keep only `etaPower` and `etaWidth`, on by default in the
+  Newtonian scene so it works out of the box (etaPower 1; etaWidth 0.2 in
+  2D, 0.5 in 3D, from the slope limit and the 2D trap, F56); the adaptive
+  friction and stop-rule sliders were taken off too (in the lib for M2).
+  **Next:** the M1 summary here, then (William's choice) the 3D spring
+  lattice, the realistic world generator, or M2.
   Then the 3D spring lattice (below) and the M1 summary here.
 - **After M1, William's choice between** the realistic world generator
   (`BOOK.md` §6, option A: terrain and water first, then zones, streets,

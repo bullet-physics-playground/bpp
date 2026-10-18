@@ -93,27 +93,19 @@
 -- this, as real ones do. Scale it with the `downwash` slider.
 --
 -- CH. 13 MOTION CONTROL (milestone M1; lib/ch13.lua; book/ch13.md E5).
--- Switchable, the old behaviour at 0:
+-- Of Ch. 13's mechanisms only AR damping is needed on these drones
+-- (quadcopter/README.md, "Where each Ch. 13 mechanism belongs"); the
+-- others are in lib/ch13.lua for the ground robots. Defaults come from the
+-- scene (cfg.etaPower, cfg.etaWidth): on for the Newtonian law, off for
+-- Lennard-Jones, which is smooth at D already.
 --   etaPower   AR damping, Eq. 13.9-13.10: each drone-drone pair force is
---              multiplied by eta = (|D - r| / D)^etaPower for r < 2D
---              (D = rad or desiredSeparation; r the spin-modified distance
---              the law itself uses), so the force goes smoothly through 0
---              at D. 0 = off. The book uses the law's own distance power.
---   etaWidth   the damping band's half-width as a fraction of D: eta
---              ramps from 1 at |D - r| = etaWidth x D to 0 at D, and is 1
---              outside the band. 1 = the book's Eq. 13.9 (band 0 to 2D).
---   muMore, muLess  adaptive friction, Eq. 13.23-13.21: each drone keeps
---              one friction coefficient mu per axis (x, y, z) of its AP
---              velocity command; after each tick's update the command is
---              multiplied by (1 - mu), and mu grows by muMore (1 - mu) if
---              that axis's command changed sign since the last tick, else
---              shrinks by muLess mu (the new mu acts from the next tick).
---              On top of `friction`. muMore = 0 and muLess = 0: off (mu
---              stays 0). The book: muMore / muLess > 10.
---   stopForce  the stop rule of Sec. 13.2.2: when the drone's summed force
---              |F| (drones, obstacles, levels, goal; AP force units) is
---              below stopForce, its AP velocity is set to 0 and its
---              waypoint is where it is. 0 = off.
+--              multiplied by eta = (|D - r| / (etaWidth D))^etaPower within
+--              etaWidth x D of D, 1 outside (D = rad or desiredSeparation; r
+--              the spin-modified distance the law itself uses), so the force
+--              goes smoothly through 0 at D. 0 = off (the original law).
+--   etaWidth   the damping band's half-width as a fraction of D. 1 = the
+--              book's Eq. 13.9 (band 0 to 2D); 0.2 settles at D from the
+--              launch in 2D and 3D (FINDINGS F50, F52).
 --
 -- METRICS for the Ch. 13 work (Ch. 16.9), accumulated every AP tick over
 -- the drones under AP control and read by probes through M.state().metrics
@@ -129,8 +121,6 @@
 --              successive ticks whose distance moved from one side of D
 --              to the other (book/ch13.md E11's "passes across their
 --              mutual AR boundaries"), counted once per pair
---   stops      drone-ticks held by the stop rule
---   muSum      sum over drone-ticks of the drone's mean mu (x, y, z)
 --
 
 -- This file is the harness, not a scene. Opened on its own in BPP (no
@@ -194,11 +184,8 @@ for _, prm in ipairs(cfg.params) do defParam(prm[1], prm[2], prm[3], prm[4], prm
 defParam("range",        1.5,  1.0, 5.0,  0.1,  "interaction cutoff, as a multiple of " .. SEP)
 defParam("friction",     cfg.friction, 0, 1, 0.01, "fraction of AP velocity removed each AP tick")
 defParam("timeStep",     1.0,  0.01, 1,   0.01, "AP time per AP tick: waypoint offset = timeStep * v")
-defParam("etaPower",     0,    0,   5,    0.1,  "Ch. 13 AR damping (Eq. 13.9): drone-drone force x (|D-r|/D)^etaPower for r < 2D; 0 = off (the book uses the law's power)")
-defParam("etaWidth",     1,    0.05, 1,   0.05, "Ch. 13 AR damping band: half-width as a fraction of D (1 = the book's, r < 2D)")
-defParam("muMore",       0,    0,   1,    0.01, "Ch. 13 adaptive friction (Eq. 13.23): mu += muMore (1-mu) when an axis's command flips sign; 0 = off")
-defParam("muLess",       0,    0,   1,    0.005, "Ch. 13 adaptive friction: mu -= muLess mu otherwise (book: muMore/muLess > 10)")
-defParam("stopForce",    0,    0,   1,    0.005, "Ch. 13 stop rule: summed |F| below this (AP force units) stops the drone where it is; 0 = off")
+defParam("etaPower",     cfg.etaPower or 0, 0, 5, 0.1, "Ch. 13 AR damping (Eq. 13.9): drone-drone force x (|D-r|/(etaWidth D))^etaPower near D; 0 = off, the original law")
+defParam("etaWidth",     cfg.etaWidth or 1, 0.05, 1, 0.05, "Ch. 13 AR damping band: half-width as a fraction of D (1 = the book's, r < 2D; 0.2 settles at D from the launch)")
 defParam("goalForce",    0.25, 0,   1,    0.01, "constant-magnitude attraction toward the goal")
 defParam("obstacleSize", 40,   0,   100,  1,    "repulsion radius of obstacles placed with O (AP units); the solid column is a third of it")
 v:addParam("obstacleField", true, "Setup (R) scatters random columns between the launch area and the goal's stopping point")
@@ -273,10 +260,9 @@ local gustX, gustZ = 0, 0
 local stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
 local function newMetrics()  -- running totals for probes (see METRICS at the top)
   return { ticks = 0, droneTicks = 0, gapSum = 0, gapN = 0, accSum = 0, accN = 0,
-           crossings = 0, stops = 0, lastStops = 0, muSum = 0, lastMu = 0 }
+           crossings = 0 }
 end
 local metrics = newMetrics()
-local muTick, muN = 0, 0   -- this AP tick's mean mu, for the status line
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
 local obstacleObjs = {} -- solid obstacle objects
 local apEngagedAt = 0   -- simTime when AP engaged (for goalDelay)
@@ -495,8 +481,6 @@ local function apTick(p)
     layerY0 = math.atan2(cy_, cx_) * layerH / (2 * math.pi)
   end
   metrics.ticks = metrics.ticks + 1
-  local stopsThisTick = 0
-  muTick, muN = 0, 0
   for _, d in ipairs(seen) do
     if d.state == "ap" then
       local fx, fy, fz = 0, 0, 0
@@ -560,31 +544,9 @@ local function apTick(p)
       end
 
       if not is3D then fy = 0 end
-      if C13.stopped(fx, fy, fz, p.stopForce) then
-        -- the stop rule (Sec. 13.2.2): too little force to act on; stay put
-        d.avx, d.avy, d.avz = 0, 0, 0
-        d.stopped = true
-        stopsThisTick = stopsThisTick + 1
-      else
-        d.stopped = false
-        d.avx = d.avx + p.timeStep * fx / d.apMass
-        d.avy = d.avy + p.timeStep * fy / d.apMass
-        d.avz = d.avz + p.timeStep * fz / d.apMass
-      end
-      -- adaptive friction (Eq. 13.23, 13.21), per axis, the old mu applied
-      -- to this tick's command, the new one from the next tick
-      if p.muMore > 0 or p.muLess > 0 then
-        d.mux, d.muy, d.muz = d.mux or 0, d.muy or 0, d.muz or 0
-        d.avx, d.avy, d.avz = d.avx * (1 - d.mux), d.avy * (1 - d.muy), d.avz * (1 - d.muz)
-        local ox, oy, oz = d.cmdx or 0, d.cmdy or 0, d.cmdz or 0
-        d.mux = C13.adaptMu(d.mux, d.avx, ox, p.muMore, p.muLess)
-        d.muy = C13.adaptMu(d.muy, d.avy, oy, p.muMore, p.muLess)
-        d.muz = C13.adaptMu(d.muz, d.avz, oz, p.muMore, p.muLess)
-        d.cmdx, d.cmdy, d.cmdz = d.avx, d.avy, d.avz
-        local m_ = is3D and (d.mux + d.muy + d.muz) / 3 or (d.mux + d.muz) / 2
-        metrics.muSum = metrics.muSum + m_
-        muTick, muN = muTick + m_, muN + 1
-      end
+      d.avx = d.avx + p.timeStep * fx / d.apMass
+      d.avy = d.avy + p.timeStep * fy / d.apMass
+      d.avz = d.avz + p.timeStep * fz / d.apMass
 
       -- the waypoint: sensed position + this tick's AP displacement
       local wx, wy, wz = toWorld(d.ax + p.timeStep * d.avx, d.ay + p.timeStep * d.avy, d.az + p.timeStep * d.avz)
@@ -606,9 +568,6 @@ local function apTick(p)
       d.lastSpx, d.lastSpy, d.lastSpz = wx, wy, wz
     end
   end
-  metrics.stops = metrics.stops + stopsThisTick
-  metrics.lastStops = stopsThisTick
-  metrics.lastMu = muN > 0 and muTick / muN or 0
 
   -- with the obstacle field, the goal travels: from the field's near edge
   -- along -x at goalSpeed, until it stops in the clear beyond it
@@ -1421,12 +1380,6 @@ function updateStatus(statsLine)
   if p.etaPower > 0 then
     parts[#parts + 1] = string.format("eta p=%.1f", p.etaPower)
                         .. (p.etaWidth < 1 and string.format(" w=%.2f", p.etaWidth) or "")
-  end
-  if p.muMore > 0 or p.muLess > 0 then
-    parts[#parts + 1] = string.format("mu k+=%.2f k-=%.3f mean=%.2f", p.muMore, p.muLess, metrics.lastMu)
-  end
-  if p.stopForce > 0 then
-    parts[#parts + 1] = string.format("stop |F|<%.3f: %2d stopped", p.stopForce, metrics.lastStops)
   end
   if p.downwash <= 0 then parts[#parts + 1] = "no downwash" end
   if not v:getParam("propStrikes") then parts[#parts + 1] = "prop strikes off" end

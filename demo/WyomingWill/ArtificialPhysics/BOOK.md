@@ -332,7 +332,7 @@ metrics.
 | --- | --- | --- | --- | --- |
 | 13.1–13.2 | Point-mass reachable space; the discontinuity at D | 447–448 | Explains the Newtonian jitter | done (observed) |
 | 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | Plots (G10) | new |
-| 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`, sliders `etaPower`, `stopForce` on the drones; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F47) | done |
+| 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`; on the drones `etaPower` 1, `etaWidth` 0.2 (2D) / 0.5 (3D), the Newtonian default; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F55) | done |
 | 13.6 | "Triangle of death" | 454–456 | Ground robots | new |
 | 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |
 | 13.9 | Heading-particle torque law | 460–462 | Fixed-wing (G12) | plan (corrected) |
