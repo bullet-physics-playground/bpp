@@ -441,7 +441,19 @@ local function hallAdd(o)
   realV:add(o)
   return o
 end
+-- Shadows: bpp's shadows come from one light above, as from the Sun, so
+-- in a closed hall its architecture (ceiling, walls, pilasters, frames,
+-- the wings' boards, the chandeliers) would shade everything under it. Only
+-- what stands on the floor casts: the exhibits (in their own worlds), their
+-- stands and plinths, the placards and the armillary sphere -- built with
+-- CASTING set. (An older bpp has no castShadow: everything casts, as before.)
+local CASTING = false
+local function noCast(o)
+  if not CASTING then pcall(function() o.castShadow = false end) end
+  return o
+end
 local function vis(o, col, tr)
+  noCast(o)
   o.col = col
   pcall(function() o.collides = false end)
   if tr then pcall(function() o.transparency = tr end) end
@@ -459,6 +471,7 @@ local function solid(x, y, z, sx, sy, sz, col, q, hover)
   c.col = col
   c.friction = 0.6
   c.restitution = 0.2
+  noCast(c)
   hallAdd(c)
   if hover and objectKey then HOVER[objectKey(c)] = hover end
   return c
@@ -485,7 +498,16 @@ end
 
 local WALNUT, DARK, PANEL, GILT, GOLD = "#4a2c14", "#2a1a0c", "#5a3418", "#b8932e", "#d4af37"
 local FELT, CREAM = "#1f4d3a", "#b9ae94"
-realV.glLight0 = btVector4(HW + LB / 2, 1600, -WW / 2 + 400, 0.4)
+local HALL_LIGHT0 = btVector4(HW + LB / 2, 1600, -WW / 2 + 400, 0.4)
+local HALL_LIGHT1 = btVector4(-200, 100, 200, 0.2)            -- (bpp's own)
+realV.glLight0 = HALL_LIGHT0
+-- At an exhibit, its lights come from where they would on its own (bpp's
+-- defaults, or what it set), turned with its bay: so it is lit in the hall
+-- as on its own, whichever way its bay faces.
+local function bayLight(g, L)
+  local a, b = g.toScene(btVector3(L.x, L.y, L.z)), g.toScene(btVector3(0, 0, 0))
+  return btVector4(a.x - b.x, a.y - b.y, a.z - b.z, L:getW())
+end
 
 -- the floor: parquet planks in two woods, running down each wing (solid:
 -- it's what anything falling off an exhibit lands on)
@@ -567,6 +589,7 @@ for _, x in ipairs({ -250, 250 }) do
   box(x, 235, ZN + 4, 130, 160, 3, GILT); box(x, 235, ZN + 5, 114, 144, 3, "#1d2a3a")
 end
 do
+  CASTING = true
   local cx, cz = 0, ZN / 2
   cyl(cx, 40, cz, 22, 80, WALNUT); cyl(cx, 81, cz, 28, 3, GILT)
   cyl(cx, 95, cz, 3, 26, GILT)
@@ -579,6 +602,7 @@ do
   local s = realSphere(5, 0); s.trans = btTransform(ident, btVector3(cx, 140, cz)); s.col = "#2a4a7a"
   hallAdd(s)
   if objectKey then HOVER[objectKey(s)] = "An armillary sphere: the heavens in brass rings,\nwith the Earth in the middle." end
+  CASTING = false
 end
 
 -- the wings' titles, each on a board hung over the aisle where its wing
@@ -638,6 +662,7 @@ local function bayFrame(b, labelKey, hoverText)
   local L = LABELS[labelKey] or LABELS.reserved
   local px, pz = rot(a, 0, BAY_D / 2 - 6)
   px, pz = b.x + px, b.z + pz
+  CASTING = true
   box(px, 45, pz, 6, 90, 6, DARK, q)
   local tiltQ = q * btQuaternion(btVector3(1, 0, 0), -math.rad(PLACARD_TILT))
   local bw = L.w + 12
@@ -651,6 +676,7 @@ local function bayFrame(b, labelKey, hoverText)
   local dy = -L.h / 2
   local cx, cy, cz = lx + ux * (-dy * nH), ly + dy * nY, lz + uz * (-dy * nH)
   mesh(MESH .. L.file, cx, cy, cz, GOLD, tiltQ)
+  CASTING = false
   return px, pz
 end
 
@@ -658,6 +684,7 @@ end
 local function coveredBay(b, e)
   bayFrame(b, e.label, e.about)
   local q = yq(b.a)
+  CASTING = true
   box(b.x, 40, b.z, 110, 80, 110, WALNUT, q)
   box(b.x, 81, b.z, 118, 3, 118, GILT, q)
   solid(b.x, 125, b.z, 92, 86, 92, CREAM, q, e.about)       -- the dust sheet, hanging in folds
@@ -666,13 +693,16 @@ local function coveredBay(b, e)
   local L = LABELS["in-preparation"]
   local dx, dz = rot(b.a, 0, 46.2)
   mesh(MESH .. L.file, b.x + dx, 150, b.z + dz, "#6a5a3a", q)
+  CASTING = false
 end
 local function emptyBay(b)
   local text = "An empty bay, waiting for the next curiosity."
   bayFrame(b, "reserved", text)
   local q = yq(b.a)
+  CASTING = true
   solid(b.x, 40, b.z, 110, 80, 110, WALNUT, q, text)
   box(b.x, 81, b.z, 118, 3, 118, GILT, q)
+  CASTING = false
 end
 
 -- ---------------------------------------------------------------------
@@ -691,11 +721,13 @@ for i, b in ipairs(BAYS) do
     g.bay = b
     bayFrame(b, e.label, e.about)
     if e.stand then
+      CASTING = true
       local top, q = off.y - 4, yq(b.a)
       box(b.x, top / 2, b.z, e.stand[1] - 10, top, e.stand[2] - 10, WALNUT, q)
       box(b.x, top - 3, b.z, e.stand[1] - 4, 6, e.stand[2] - 4, DARK, q)
       box(b.x, 5, b.z, e.stand[1], 10, e.stand[2], DARK, q)
       box(b.x, top - 8, b.z, e.stand[1] - 6, 2, e.stand[2] - 6, GILT, q)
+      CASTING = false
     end
     loading = g
     setRandom(g)
@@ -795,6 +827,7 @@ local function goTo(s)
     if realV.showParams then realV:showParams("Gallery: ") end
     -- (bpp's markers on joints: not in the hall views)
     realV.showConstraints = false
+    realV.glLight0, realV.glLight1 = HALL_LIGHT0, HALL_LIGHT1
     c.pos = s.pos
     c.look = s.look        -- (in that order: the look turns the view from where it now is)
     realV:setHelpText(hallHelp(s))
@@ -808,6 +841,8 @@ local function goTo(s)
     -- (and bpp's markers on joints as the exhibit has them: on, unless it
     -- turns them off)
     realV.showConstraints = s.vset.showConstraints ~= false
+    realV.glLight0 = bayLight(s, s.vset.glLight0 or btVector4(500, 500, 500, 0.4))
+    realV.glLight1 = bayLight(s, s.vset.glLight1 or HALL_LIGHT1)
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)
