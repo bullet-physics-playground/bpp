@@ -43,9 +43,11 @@ is updated at the end of every milestone.
   units and sign convention, so a reader never has to search the code for
   what a number means (William, 2026-10-17).
 - No text drawn on the graphics pane; status goes in `v.statusText`. Numbers
-  there sit in fixed-width fields (see `ch02/scene.lua`'s `fixed`), and the
-  parts of the line that appear and disappear go last, so nothing shifts
-  as values change (BPP shows the line in a fixed-pitch font; FIXES 37). Cameras
+  there are written `label=value` with the padding *after* the value (units
+  with the number), in fixed-width fields separated by ` | ` (see
+  `ch02/scene.lua`'s `field`), and the parts of the line that appear and
+  disappear go last, so nothing shifts and each number reads with its own
+  label (BPP shows the line in a fixed-pitch font; FIXES 37). Cameras
   start at a useful view and are never locked.
 - Lennard-Jones should stay more fluid than Newtonian, even in formation.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with

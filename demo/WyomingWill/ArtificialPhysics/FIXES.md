@@ -512,10 +512,15 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     - `src/gui.cpp`: the script status label (`v.statusText`) uses the
       system's fixed-pitch font. Needs a rebuild (no qmake).
     - `ch02/scene.lua`: every number in a fixed-width field
-      (`scene.fixed`): plain decimals while they fit, scientific notation
+      (`scene.field`): plain decimals while they fit, scientific notation
       only when too small or too large to show; signed only where a value
       can change sign.
     - `quadcopter/swarm.lua`: counts and statistics padded to fixed widths,
       the goal state padded, and the bond statistics moved before the parts
       that appear and disappear (drone states, wind, flags), with a
       same-width placeholder before the first statistics arrive.
+    - **Grouping** (also William): right-aligned numbers put the padding
+      between a label and its value, so each number seemed to belong to the
+      next label. Values now follow their labels as `label=value`, with any
+      padding after the value (units stay with the number), and the pairs
+      are separated by ` | `.

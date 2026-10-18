@@ -1269,14 +1269,16 @@ function updateStatus(statsLine)
     local speed = statsLine:match("speed=([%d.]+)m/s")
     -- fixed widths, so the status line does not shift as the numbers change
     if len and speed then
-      lastStats = string.format("bonds %6.3fR +-%5.3f, %5.2f m/s", tonumber(len), tonumber(sd), tonumber(speed))
+      lastStats = string.format("bonds=%-15s speed=%-9s",
+                                string.format("%.3fR +-%.3fR", tonumber(len), tonumber(sd)),
+                                string.format("%.2f m/s", tonumber(speed)))
     end
   end
   local c = { ap = 0, hold = 0, takeoff = 0, landing = 0, landed = 0, crashed = 0 }
   for _, d in ipairs(drones) do c[d.state] = (c[d.state] or 0) + 1 end
   local p = readParams()
 
-  local function n3(k) return string.format("%3d", k) end   -- fixed width (status line)
+  local function n3(k) return string.format("%d", k) end    -- count, then its word
   local drones_ = { n3(c.ap) .. " flying" }
   if c.hold > 0 then drones_[#drones_ + 1] = n3(c.hold) .. " holding" end
   if c.takeoff > 0 then drones_[#drones_ + 1] = n3(c.takeoff) .. " taking off" end
@@ -1290,8 +1292,8 @@ function updateStatus(statsLine)
     "goal " .. string.format("%-7s", (not isGoalEnabled and "off"
                 or (goals[1] and goals[1].route and (goals[1].x <= GOAL_END_X / S() + 1e-6 and "stopped" or "moving"))
                 or "ON")),
-    string.format("%3d", #obstacles) .. (#obstacles == 1 and " obstacle " or " obstacles"),
-    apEngaged and string.format("AP %2d Hz            ", p.apHz) or "AP waits for takeoff",
+    string.format("obstacles=%-3d", #obstacles),
+    "AP=" .. string.format("%-17s", apEngaged and string.format("%d Hz", p.apHz) or "waits for takeoff"),
   }
   -- The numbers (bond statistics) come next, before the parts that appear
   -- and disappear (drone states, wind, flags), so they never shift.
@@ -1309,7 +1311,7 @@ function updateStatus(statsLine)
   if haveStatusLine then
     -- same width as lastStats, so nothing moves when the first stats arrive
     local statsText = (lastStats and apEngaged) and lastStats
-                      or string.format("bonds %6sR +-%5s, %5s m/s", "-", "-", "-")
+                      or string.format("bonds=%-15s speed=%-9s", "-", "-")
     local head = table.concat(parts, "  |  ", 1, fixedCount)
     local tail = table.concat(parts, "  |  ", fixedCount + 1)
     local line = head .. "  |  " .. statsText .. "  |  " .. tail
