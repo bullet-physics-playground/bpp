@@ -80,8 +80,8 @@ EXHIBITS = EXHIBITS or {
             "all of uniform density. The white dot is each one's balancing point." },
   { dir = "exhibits/Bille/", file = "bille-drop.lua", name = "Bille and the polyhedra", label = "bille",
     prefix = "Bille: ", floorY = -80, stand = { 272, 210 },
-    about = "Bille Drop: the weighted monostable tetrahedron (Bille) and the 21-, 26- and\n" ..
-            "37-corner spiral polyhedra. An edge lights up when it lands on the table." },
+    about = "Bille Drop: the weighted monostable tetrahedron (Bille), the 21-, 26- and 37-\n" ..
+            "corner spiral polyhedra and a PLA-only one. Edges and corners light up on the table." },
   { dir = "exhibits/GalileoRamp/", file = "galileo-ramp.lua", name = "Galileo's ramp", label = "galileo-ramp",
     prefix = "Ramp: ", floorY = -75,
     about = "Galileo's ramp: a ball, a disc, a hoop and a can of soup race down a ramp.\n" ..

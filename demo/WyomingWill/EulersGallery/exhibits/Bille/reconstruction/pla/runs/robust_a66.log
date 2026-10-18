@@ -1,0 +1,23 @@
+design runs/a_6_6_t10.npy: rings 6:0,6:0,6:0,6:0,6:0,6:0 t=1.0 mm, 300 trials per row
+error model                   1 stable  1 unstable  1 unst. pt  min face margin mm
+nominal                         100.0%      100.0%      100.0%               12.35
+planes 0.1 mm                   100.0%       79.0%      100.0%               10.29
+planes 0.2 mm                   100.0%       79.0%       96.0%                9.33
+planes 0.3 mm                   100.0%       80.0%       92.0%                7.33
+planes 0.5 mm                   100.0%       81.3%       86.0%                3.84
+planes 1.0 mm                    89.0%       72.3%       73.7%               -5.35
+planes 2.0 mm                     6.3%       14.7%       14.7%              -20.29
+wall +0.2 mm                    100.0%      100.0%      100.0%               10.70
+wall -0.2 mm                    100.0%      100.0%      100.0%               13.60
+wall +0.4 mm                    100.0%      100.0%      100.0%                9.16
+dens perim/infill 3%            100.0%      100.0%      100.0%               11.43
+dens perim/infill 10%           100.0%      100.0%      100.0%                8.96
+dens gradient 2%                100.0%      100.0%      100.0%               12.23
+dens gradient 5%                100.0%      100.0%      100.0%               12.06
+dens cells 3%                   100.0%      100.0%      100.0%               12.09
+dens cells 10%                  100.0%      100.0%      100.0%               11.41
+elephant foot 0.3 mm            100.0%      100.0%      100.0%               12.10
+elephant foot 0.6 mm            100.0%      100.0%      100.0%               11.83
+combined (0.2 mm)               100.0%       76.7%       96.7%                7.51
+combined (0.3 mm)               100.0%       78.0%       88.0%                5.10
+combined (0.5 mm)               100.0%       78.3%       82.7%                2.01

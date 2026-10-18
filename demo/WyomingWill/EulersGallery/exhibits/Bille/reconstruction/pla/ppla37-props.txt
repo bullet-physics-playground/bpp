@@ -1,0 +1,21 @@
+rings 6:0,6:0,6:0,6:0,6:0,6:0; wall 1.0 mm; solid below 23.647 mm; height 150.00 mm; max vertex diameter 148.45 mm
+outer volume 1333.6908 cm^3, void 1066.5338 cm^3, PLA 267.1570 cm^3
+mass 331.275 g; COM height above base 23.6863 mm (x,y = -3.2e-15, -2.5e-15)
+inertia about COM (g cm^2): Ixx 5556.637 Iyy 5556.637 Izz 6171.788
+equilibria: stable 1 ['base'], unstable 1 ['apex']
+smallest margin: faces 12.346 mm, vertices 12.346 mm; base: foot 41.14 mm inside
+  face base  n_z -1.0000 h   23.686 mm  foot INSIDE  by  41.14 mm  -> None   (x1)
+  face S1    n_z -0.7072 h   45.835 mm  foot outside by  12.35 mm  -> base   (x6)
+  face S2    n_z -0.3880 h   54.531 mm  foot outside by  12.35 mm  -> S1   (x6)
+  face S3    n_z -0.0264 h   63.352 mm  foot outside by  12.35 mm  -> S2   (x6)
+  face S4    n_z +0.2428 h   70.685 mm  foot outside by  17.67 mm  -> S3   (x6)
+  face S5    n_z +0.5130 h   80.711 mm  foot outside by  22.73 mm  -> S4   (x6)
+  face S6    n_z +0.7072 h   89.330 mm  foot outside by  24.19 mm  -> S5   (x6)
+  vertex z    0.00 mm r  47.50 mm  COM distance to its equilibrium cone  20.41 mm   (x6)
+  vertex z   13.91 mm r  63.57 mm  COM distance to its equilibrium cone  19.00 mm   (x6)
+  vertex z   34.35 mm r  73.50 mm  COM distance to its equilibrium cone  12.91 mm   (x6)
+  vertex z   57.99 mm r  74.23 mm  COM distance to its equilibrium cone  12.35 mm   (x6)
+  vertex z   84.60 mm r  66.53 mm  COM distance to its equilibrium cone  12.35 mm   (x6)
+  vertex z  103.96 mm r  53.17 mm  COM distance to its equilibrium cone  12.35 mm   (x6)
+  vertex z  150.00 mm r   0.00 mm  COM distance to its equilibrium cone   0.00 mm  (UNSTABLE EQUILIBRIUM)   (x1)
+trimesh: watertight True, winding consistent True, is_volume True, bodies 2, volume 267.1570 cm^3 (exact 267.1570), mass at 1.24 331.275 g, COM z 23.6863 mm (exact 23.6863), extents [148.45 128.56 150.  ] mm

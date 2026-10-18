@@ -1,0 +1,42 @@
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+Audio unavailable (Mix_OpenAudio): ALSA: Couldn't open audio device: No such file or directory -- sound effects disabled, simulation continues normally.
+
+--- Set down on a face other than the stable one: 6 bodies ---
+    Red     PLA-only polyhedron, 15 cm tall, 331 g
+    Green   PLA-only polyhedron, 15 cm tall, 331 g
+    Yellow  PLA-only polyhedron, 15 cm tall, 331 g
+    Blue    PLA-only polyhedron, 15 cm tall, 331 g
+    Orange  PLA-only polyhedron, 15 cm tall, 331 g
+    Purple  PLA-only polyhedron, 15 cm tall, 331 g
+  Red     set down on S1; predicted: S1 -> base
+  Green   set down on S1; predicted: S1 -> base
+  Yellow  set down on S1; predicted: S1 -> base
+  Blue    set down on S1; predicted: S1 -> base
+  Orange  set down on S1; predicted: S1 -> base
+  Purple  set down on S1; predicted: S1 -> base
+t=  0.1s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t=  0.3s  on face (. = at rest): R:base G:base Y:base B:base O:base P:base
+t=  0.5s  on face (. = at rest): R:base G:base Y:base B:base O:base P:base
+  Orange  at rest on face base after  0.24 s; faces it lay on: S1 -> base -- Orange (PLA poly)
+  Blue    at rest on face base after  0.27 s; faces it lay on: S1 -> base -- Blue (PLA poly)
+  Yellow  at rest on face base after  0.28 s; faces it lay on: S1 -> base -- Yellow (PLA poly)
+  Purple  at rest on face base after  0.29 s; faces it lay on: S1 -> base -- Purple (PLA poly)
+  Red     at rest on face base after  0.30 s; faces it lay on: S1 -> base -- Red (PLA poly)
+t=  0.7s  on face (. = at rest): R:base. G:base Y:base. B:base. O:base. P:base.
+  Green   at rest on face base after  0.34 s; faces it lay on: S1 -> base -- Green (PLA poly)
+t=  0.9s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  1.1s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  1.3s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  1.5s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  1.7s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  1.9s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  2.1s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.
+t=  2.3s  on face (. = at rest): R:base. G:base. Y:base. B:base. O:base. P:base.

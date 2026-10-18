@@ -1,0 +1,197 @@
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-root'
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+Audio unavailable (Mix_OpenAudio): ALSA: Couldn't open audio device: No such file or directory -- sound effects disabled, simulation continues normally.
+
+--- Drop: 6 bodies ---
+    Red     PLA-only polyhedron, 40 cm tall, 6282 g
+    Green   PLA-only polyhedron, 24 cm tall, 1357 g
+    Yellow  PLA-only polyhedron, 52 cm tall, 13801 g
+    Blue    PLA-only polyhedron, 32 cm tall, 3216 g
+    Orange  PLA-only polyhedron, 46 cm tall, 9554 g
+    Purple  PLA-only polyhedron, 28 cm tall, 2155 g
+t=  0.1s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t=  0.3s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t=  0.5s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t=  0.7s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t=  0.9s  on face (. = at rest): R:- G:base Y:- B:- O:- P:base
+t=  1.1s  on face (. = at rest): R:base G:base Y:- B:base O:- P:base
+  Green   at rest on face base after  0.64 s; faces it lay on: (S2) -> base -- Green (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #2 (PLA poly)
+t=  1.3s  on face (. = at rest): R:base G:- Y:base B:base O:base P:base
+  Blue    at rest on face base after  0.90 s; faces it lay on: (S2) -> (S1) -> base -- Blue (PLA poly)
+  Purple  at rest on face base after  0.92 s; faces it lay on: base -- Purple (PLA poly)
+  Red     at rest on face base after  0.98 s; faces it lay on: base -- Red (PLA poly)
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #2 (PLA poly)
+t=  1.5s  on face (. = at rest): R:base. G:- Y:base B:base O:base P:base.
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #2 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #2 (PLA poly)
+  Orange  at rest on face base after  1.19 s; faces it lay on: base -- Orange (PLA poly)
+t=  1.7s  on face (. = at rest): R:- G:- Y:base B:- O:base. P:-
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #2 (PLA poly)
+t=  1.9s  on face (. = at rest): R:- G:S3 Y:base B:- O:- P:-
+  Yellow  at rest on face base after  1.50 s; faces it lay on: base -- Yellow (PLA poly)
+t=  2.1s  on face (. = at rest): R:- G:- Y:base. B:- O:- P:-
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #2 (PLA poly)
+t=  2.3s  on face (. = at rest): R:base G:- Y:- B:- O:S1 P:-
+t=  2.5s  on face (. = at rest): R:base G:- Y:- B:- O:- P:-
+t=  2.7s  on face (. = at rest): R:base G:base Y:- B:base O:S2 P:base
+t=  2.9s  on face (. = at rest): R:base G:base Y:- B:base O:- P:base
+  Purple  at rest on face base after  1.01 s; faces it lay on: base -- Purple #2 (PLA poly)
+  Blue    at rest on face base after  1.07 s; faces it lay on: (S1) -> base -- Blue #2 (PLA poly)
+t=  3.1s  on face (. = at rest): R:base G:base Y:- B:base O:- P:base
+  Green   at rest on face base after  1.40 s; faces it lay on: S3 -> (S2) -> base -- Green #2 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #3 (PLA poly)
+t=  3.3s  on face (. = at rest): R:base G:- Y:- B:base O:base P:-
+t=  3.5s  on face (. = at rest): R:base G:- Y:- B:base O:base P:base
+  Red     at rest on face base after  1.48 s; faces it lay on: base -- Red #2 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #3 (PLA poly)
+t=  3.7s  on face (. = at rest): R:- G:- Y:- B:base O:base P:base
+  Blue    at rest on face base after  1.72 s; faces it lay on: (S1) -> base -- Blue #2 (PLA poly)
+t=  3.9s  on face (. = at rest): R:- G:- Y:base B:base O:base P:-
+t=  4.1s  on face (. = at rest): R:- G:base Y:base B:base O:base P:base
+  Orange  at rest on face base after  1.93 s; faces it lay on: S1 -> S2 -> (S1) -> base -- Orange #2 (PLA poly)
+  Yellow  at rest on face base after  1.66 s; faces it lay on: (S2) -> (S1) -> base -- Yellow #2 (PLA poly)
+t=  4.3s  on face (. = at rest): R:- G:base Y:base. B:base O:base. P:base
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #3 (PLA poly)
+  Blue    at rest on face base after  2.36 s; faces it lay on: (S1) -> base -- Blue #2 (PLA poly)
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #3 (PLA poly)
+  Green   at rest on face base after  0.76 s; faces it lay on: (S1) -> base -- Green #3 (PLA poly)
+t=  4.5s  on face (. = at rest): R:- G:base. Y:- B:base O:- P:base
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #4 (PLA poly)
+t=  4.7s  on face (. = at rest): R:- G:- Y:- B:- O:- P:base
+t=  4.9s  on face (. = at rest): R:- G:- Y:- B:base O:- P:base
+t=  5.1s  on face (. = at rest): R:base G:- Y:- B:base O:- P:base
+  Blue    at rest on face base after  3.24 s; faces it lay on: (S1) -> base -- Blue #2 (PLA poly)
+  Purple  at rest on face base after  3.29 s; faces it lay on: base -- Purple #2 (PLA poly)
+t=  5.3s  on face (. = at rest): R:base G:- Y:base B:base. O:- P:base.
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #3 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #3 (PLA poly)
+  Red     at rest on face base after  1.27 s; faces it lay on: (S3) -> (S2) -> (S1) -> base -- Red #3 (PLA poly)
+t=  5.5s  on face (. = at rest): R:base. G:base Y:base B:- O:base P:-
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #4 (PLA poly)
+t=  5.7s  on face (. = at rest): R:- G:base Y:base B:- O:base P:-
+  Yellow  at rest on face base after  0.85 s; faces it lay on: base -- Yellow #3 (PLA poly)
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #4 (PLA poly)
+  Green   at rest on face base after  0.78 s; faces it lay on: (S3) -> (S2) -> (S1) -> base -- Green #4 (PLA poly)
+t=  5.9s  on face (. = at rest): R:- G:base. Y:- B:- O:base P:-
+  Orange  at rest on face base after  1.08 s; faces it lay on: base -- Orange #3 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #5 (PLA poly)
+=== 6 s: 16 finished runs ===
+    PLA-only polyhedron                   16 runs, 16 on the stable face, time to rest median 1.23 s; paths: (S1) -> base x2, (S2) -> (S1) -> base x2, (S2) -> base x1, (S3) -> (S2) -> (S1) -> base x2, S1 -> S2 -> (S1) -> base x1, S3 -> (S2) -> base x1, base x7
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #4 (PLA poly)
+t=  6.1s  on face (. = at rest): R:- G:- Y:- B:- O:- P:base
+t=  6.3s  on face (. = at rest): R:- G:- Y:- B:- O:- P:base
+t=  6.5s  on face (. = at rest): R:base G:- Y:- B:base O:- P:base
+  Purple  at rest on face base after  0.65 s; faces it lay on: base -- Purple #3 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #4 (PLA poly)
+t=  6.7s  on face (. = at rest): R:base G:- Y:- B:base O:- P:-
+t=  6.9s  on face (. = at rest): R:base G:base Y:- B:base O:- P:-
+t=  7.1s  on face (. = at rest): R:base G:base Y:base B:base O:base P:-
+t=  7.3s  on face (. = at rest): R:base G:base Y:base B:base O:base P:-
+  Green   at rest on face base after  0.88 s; faces it lay on: (S1) -> base -- Green #5 (PLA poly)
+  Blue    at rest on face base after  1.58 s; faces it lay on: base -- Blue #3 (PLA poly)
+  Red     at rest on face base after  1.40 s; faces it lay on: base -- Red #4 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #6 (PLA poly)
+  Orange  at rest on face base after  0.98 s; faces it lay on: (S3) -> (S2) -> (S1) -> base -- Orange #4 (PLA poly)
+  Yellow  at rest on face base after  1.18 s; faces it lay on: base -- Yellow #4 (PLA poly)
+t=  7.5s  on face (. = at rest): R:base. G:- Y:base. B:base. O:base. P:base
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #4 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #5 (PLA poly)
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #5 (PLA poly)
+t=  7.7s  on face (. = at rest): R:- G:- Y:base B:- O:- P:base
+t=  7.9s  on face (. = at rest): R:- G:- Y:base B:- O:- P:base
+t=  8.1s  on face (. = at rest): R:base G:- Y:base B:- O:- P:base
+t=  8.3s  on face (. = at rest): R:base G:- Y:base B:- O:- P:base
+  Purple  at rest on face base after  1.21 s; faces it lay on: base -- Purple #4 (PLA poly)
+  Yellow  at rest on face base after  2.08 s; faces it lay on: base -- Yellow #4 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #5 (PLA poly)
+t=  8.5s  on face (. = at rest): R:- G:base Y:base B:- O:- P:-
+t=  8.7s  on face (. = at rest): R:base G:base Y:base B:base O:- P:-
+  Green   at rest on face base after  0.83 s; faces it lay on: base -- Green #6 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #7 (PLA poly)
+  Yellow  at rest on face base after  2.58 s; faces it lay on: base -- Yellow #4 (PLA poly)
+t=  8.9s  on face (. = at rest): R:base G:base Y:base. B:base O:base P:-
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #5 (PLA poly)
+t=  9.1s  on face (. = at rest): R:base G:- Y:- B:base O:base P:-
+  Blue    at rest on face base after  1.14 s; faces it lay on: (S5) -> (S3) -> S2 -> (S1) -> base -- Blue #4 (PLA poly)
+  Red     at rest on face base after  1.20 s; faces it lay on: base -- Red #5 (PLA poly)
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #5 (PLA poly)
+  Orange  at rest on face base after  1.21 s; faces it lay on: base -- Orange #5 (PLA poly)
+t=  9.3s  on face (. = at rest): R:base. G:- Y:- B:- O:base. P:base
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #6 (PLA poly)
+t=  9.5s  on face (. = at rest): R:- G:- Y:- B:- O:base P:base
+t=  9.7s  on face (. = at rest): R:- G:- Y:- B:- O:base P:base
+  Purple  at rest on face base after  0.85 s; faces it lay on: base -- Purple #5 (PLA poly)
+t=  9.9s  on face (. = at rest): R:- G:base Y:- B:- O:base P:base.
+  Orange  at rest on face base after  1.82 s; faces it lay on: base -- Orange #5 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #6 (PLA poly)
+t= 10.1s  on face (. = at rest): R:- G:base Y:base B:- O:base P:-
+  Green   at rest on face base after  0.78 s; faces it lay on: base -- Green #7 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #8 (PLA poly)
+t= 10.3s  on face (. = at rest): R:- G:- Y:base B:base O:base P:-
+  Yellow  at rest on face base after  1.00 s; faces it lay on: base -- Yellow #5 (PLA poly)
+t= 10.5s  on face (. = at rest): R:base G:- Y:base. B:base O:base P:-
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #6 (PLA poly)
+  Orange  at rest on face base after  2.61 s; faces it lay on: base -- Orange #5 (PLA poly)
+t= 10.7s  on face (. = at rest): R:base G:- Y:- B:base O:base. P:base
+  Blue    at rest on face base after  0.97 s; faces it lay on: (S2) -> base -- Blue #5 (PLA poly)
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #6 (PLA poly)
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #6 (PLA poly)
+t= 10.9s  on face (. = at rest): R:base G:- Y:- B:- O:- P:base
+  Purple  at rest on face base after  0.59 s; faces it lay on: (S1) -> base -- Purple #6 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #7 (PLA poly)
+t= 11.1s  on face (. = at rest): R:base G:base Y:- B:- O:- P:base
+t= 11.3s  on face (. = at rest): R:base G:base Y:- B:- O:- P:-
+  Red     at rest on face base after  1.54 s; faces it lay on: base -- Red #6 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #7 (PLA poly)
+t= 11.5s  on face (. = at rest): R:- G:base Y:- B:- O:- P:-
+  Green   at rest on face base after  0.76 s; faces it lay on: base -- Green #8 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #9 (PLA poly)
+t= 11.7s  on face (. = at rest): R:- G:- Y:- B:base O:base P:-
+t= 11.9s  on face (. = at rest): R:S5 G:- Y:- B:base O:base P:base
+=== 12 s: 35 finished runs ===
+    PLA-only polyhedron                   35 runs, 35 on the stable face, time to rest median 1.08 s; paths: (S1) -> base x4, (S2) -> (S1) -> base x2, (S2) -> base x2, (S3) -> (S2) -> (S1) -> base x3, (S5) -> (S3) -> S2 -> (S1) -> base x1, S1 -> S2 -> (S1) -> base x1, S3 -> (S2) -> base x1, base x21
+  Blue    at rest on face base after  0.73 s; faces it lay on: base -- Blue #6 (PLA poly)
+t= 12.1s  on face (. = at rest): R:- G:- Y:- B:base. O:base P:base
+  Orange  at rest on face base after  0.83 s; faces it lay on: (S1) -> base -- Orange #6 (PLA poly)
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #7 (PLA poly)
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #7 (PLA poly)
+t= 12.3s  on face (. = at rest): R:- G:- Y:- B:- O:- P:base
+  Purple  at rest on face base after  0.71 s; faces it lay on: (S1) -> base -- Purple #7 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #8 (PLA poly)
+t= 12.5s  on face (. = at rest): R:- G:- Y:- B:- O:- P:-
+t= 12.7s  on face (. = at rest): R:base G:base Y:- B:- O:- P:-
+t= 12.9s  on face (. = at rest): R:base G:base Y:- B:- O:- P:-
+  Green   at rest on face base after  0.87 s; faces it lay on: (S5) -> (S3) -> (S2) -> (S1) -> base -- Green #9 (PLA poly)
+  Red     at rest on face base after  1.03 s; faces it lay on: (S6) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> base -- Red #7 (PLA poly)
+t= 13.1s  on face (. = at rest): R:base. G:base. Y:- B:base O:- P:-
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #10 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #8 (PLA poly)
+t= 13.3s  on face (. = at rest): R:- G:- Y:- B:base O:base P:base
+  Yellow  at rest on no face (propped?) after  2.26 s; faces it lay on: ?  ** NOT ON THE STABLE FACE **  -- may be touching Red -- Yellow #6 (PLA poly)
+  Yellow  PLA poly lifted away after 1 s at rest; dropping Yellow #7 (PLA poly)
+t= 13.5s  on face (. = at rest): R:- G:- Y:- B:base O:base P:base
+  Blue    at rest on face base after  0.90 s; faces it lay on: (S2) -> (S1) -> base -- Blue #7 (PLA poly)
+  Blue    PLA poly lifted away after 1 s at rest; dropping Blue #8 (PLA poly)
+  Orange  at rest on face base after  0.94 s; faces it lay on: (S1) -> base -- Orange #7 (PLA poly)
+  Purple  at rest on face base after  0.78 s; faces it lay on: (S2) -> (S1) -> base -- Purple #8 (PLA poly)
+t= 13.7s  on face (. = at rest): R:- G:- Y:- B:- O:base. P:base.
+  Orange  PLA poly lifted away after 1 s at rest; dropping Orange #8 (PLA poly)
+  Purple  PLA poly lifted away after 1 s at rest; dropping Purple #9 (PLA poly)
+t= 13.9s  on face (. = at rest): R:- G:base Y:- B:- O:- P:-
+t= 14.1s  on face (. = at rest): R:base G:base Y:- B:- O:- P:-
+t= 14.3s  on face (. = at rest): R:base G:base Y:- B:- O:- P:-
+  Green   at rest on face base after  0.70 s; faces it lay on: (S1) -> base -- Green #10 (PLA poly)
+  Green   PLA poly lifted away after 1 s at rest; dropping Green #11 (PLA poly)
+t= 14.5s  on face (. = at rest): R:base G:- Y:- B:- O:- P:-
+  Red     at rest on face base after  0.92 s; faces it lay on: (S1) -> base -- Red #8 (PLA poly)
+  Red     PLA poly lifted away after 1 s at rest; dropping Red #9 (PLA poly)
+t= 14.7s  on face (. = at rest): R:- G:- Y:base B:- O:base P:base
+t= 14.9s  on face (. = at rest): R:- G:- Y:base B:- O:base P:base

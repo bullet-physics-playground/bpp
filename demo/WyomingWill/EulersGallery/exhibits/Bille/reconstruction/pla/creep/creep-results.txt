@@ -1,0 +1,49 @@
+run                           tilt@2s  tiltrate     rot/s drift mm/s     w_med
+bille-def-1200                 0.0493   0.00000   0.00000    0.0000    0.0042   (tilt max 0.0493, rot max 0.0000 deg over 10 s)
+bille-def-3000                 0.0520   0.00000   0.00191    0.0002    0.0040   (tilt max 0.0520, rot max 0.0191 deg over 10 s)
+bille-def-4800                 0.0551   0.00000   0.00217    0.0000    0.0174   (tilt max 0.0551, rot max 0.0217 deg over 10 s)
+bille-noloss-1200              0.0507   0.00000   0.00000    0.0000    0.0037   (tilt max 0.0507, rot max 0.0000 deg over 10 s)
+bille-noloss-3000              0.0545   0.00000   0.00354    0.0020    0.0090   (tilt max 0.0545, rot max 0.0354 deg over 10 s)
+bille-noloss-4800              0.0516   0.00000   0.00240    0.0019    0.0068   (tilt max 0.0516, rot max 0.0240 deg over 10 s)
+p26-def-1200                   0.0000   0.00000   0.00258    0.0027    0.0033   (tilt max 0.0280, rot max 0.0531 deg over 10 s)
+p26-def-3000                   0.0000   0.00280   0.00417    0.0011    0.0068   (tilt max 0.0280, rot max 0.0505 deg over 10 s)
+p26-def-4800                   0.0000   0.00000   0.00248    0.0009    0.0021   (tilt max 0.0198, rot max 0.0428 deg over 10 s)
+p26-noloss-1200                0.0000   0.00000   0.00000    0.0107    0.0114   (tilt max 0.0280, rot max 0.0444 deg over 10 s)
+p26-noloss-3000                0.0000   0.00000   0.00269    0.0040    0.0033   (tilt max 0.0000, rot max 0.0269 deg over 10 s)
+p26-noloss-4800                0.0000   0.00000   0.00255    0.0084    0.0093   (tilt max 0.0000, rot max 0.0255 deg over 10 s)
+p37-def-1200                   0.0000   0.00198   0.00468    0.0020    0.0289   (tilt max 0.0280, rot max 0.0674 deg over 10 s)
+p37-def-3000                   0.0280  -0.00280   0.00481    0.0000    0.0019   (tilt max 0.0280, rot max 0.0688 deg over 10 s)
+p37-def-4800                   0.0000   0.00000   0.00000    0.0009    0.0029   (tilt max 0.0000, rot max 0.0000 deg over 10 s)
+p37-noloss-1200                0.0000   0.00000   0.00000    0.0037    0.0864   (tilt max 0.0280, rot max 0.0541 deg over 10 s)
+p37-noloss-3000                0.0000   0.00198   0.00000    0.0010    0.0557   (tilt max 0.0280, rot max 0.0421 deg over 10 s)
+p37-noloss-4800                0.0000   0.00000   0.00000    0.0000    0.0049   (tilt max 0.0000, rot max 0.0000 deg over 10 s)
+ppla-def-1200                  0.0000   0.00000   0.00324    0.0013    0.0017   (tilt max 0.0000, rot max 0.0324 deg over 10 s)
+ppla-def-3000                  0.0000   0.00000   0.00327    0.0000    0.0019   (tilt max 0.0000, rot max 0.0327 deg over 10 s)
+ppla-def-4800                  0.0000   0.00000   0.00086    0.0040    0.0044   (tilt max 0.0000, rot max 0.0086 deg over 10 s)
+ppla-noloss-1200               0.0000   0.00000   0.00125    0.0005    0.0004   (tilt max 0.0000, rot max 0.0125 deg over 10 s)
+ppla-noloss-3000               0.0000   0.00000   0.00000    0.0003    0.0013   (tilt max 0.0000, rot max 0.0000 deg over 10 s)
+ppla-noloss-4800               0.0000   0.00000   0.00151    0.0005    0.0012   (tilt max 0.0000, rot max 0.0258 deg over 10 s)
+
+bille-A-1200             tilt reaches 0.5/2/10 deg at 0.0217 0.0467 0.1050 s
+bille-A-3000             tilt reaches 0.5/2/10 deg at 0.0190 0.0427 0.0990 s
+bille-A-4800             tilt reaches 0.5/2/10 deg at 0.0217 0.0467 0.1033 s
+bille-C-1200             tilt reaches 0.5/2/10 deg at 0.0167 0.0400 0.0967 s
+bille-C-3000             tilt reaches 0.5/2/10 deg at 0.0123 0.0293 0.0810 s
+bille-C-4800             tilt reaches 0.5/2/10 deg at 0.0267 0.0500 0.1083 s
+p26-S1-1200              tilt reaches 0.5/2/10 deg at 0.0533 0.1150 0.2467 s
+p26-S1-3000              tilt reaches 0.5/2/10 deg at 0.0527 0.1133 0.2457 s
+p26-S1-4800              tilt reaches 0.5/2/10 deg at 0.0550 0.1150 0.2483 s
+p37-S1-1200              tilt reaches 0.5/2/10 deg at 0.0317 0.0617 nan s
+p37-S1-3000              tilt reaches 0.5/2/10 deg at 0.0307 0.0610 nan s
+p37-S1-4800              tilt reaches 0.5/2/10 deg at 0.0317 0.0617 nan s
+ppla-S1-1200             tilt reaches 0.5/2/10 deg at 0.0350 0.0717 0.1600 s
+ppla-S1-3000             tilt reaches 0.5/2/10 deg at 0.0350 0.0723 0.1613 s
+ppla-S1-4800             tilt reaches 0.5/2/10 deg at 0.0367 0.0733 0.1633 s
+contact processing threshold = Bullet default (BD_CPT=1e18), no script losses:
+run                           tilt@2s  tiltrate     rot/s drift mm/s     w_med
+p37-1200                       0.0000   0.00000   0.00000    0.0037    0.0864   (tilt max 0.0280, rot max 0.0541 deg over 10 s)
+p37-4800                       0.0000   0.00000   0.00000    0.0000    0.0049   (tilt max 0.0000, rot max 0.0000 deg over 10 s)
+
+Gomboc-C (gomboc-drop-c.lua, GC_COUNT=1 GC_REDROP=0 GC_SEED=1, GC_STEPS=1200/4800, GC_LOG):
+gc-1200.csv: settled by t=12.5s at tilt 1.13 deg; over the next 108 s: tilt 1.134 -> 1.348 deg (max |change| 0.217), total rotation 0.221 deg (max 0.263) = 0.123 deg/min, slide 1.016 mm, angvel median 0.0377 deg/s
+gc-4800.csv: settled by t=11.8s at tilt 3.90 deg; over the next 108 s: tilt 3.905 -> 3.896 deg (max |change| 0.009), total rotation 0.124 deg (max 0.153) = 0.069 deg/min, slide 0.003 mm, angvel median 0.0120 deg/s

@@ -47,3 +47,28 @@ Spiral polyhedra (bille-meshes/p21, p26, p37)
   band tips onto the one below it: ... -> S2 -> S1 -> base.
   genframe.py writes pNN-frame.obj: the polyhedra drawn as frames (balls on
   rods) for the "polyhedra look" slider; same body frame, drawing only.
+
+PLA-only polyhedron (bille-meshes/ppla37.obj, ppla37-data.lua; print files in ../print/)
+  The gallery's own design (not from a paper): an apex above 6 regular hexagons, 37 faces,
+  15 cm tall, printed in PLA only. Solid PLA up to 23.65 mm above the base, one closed air
+  void above it, 1.0 mm walls: 331 g, centre of mass 23.69 mm up. The fill level sits at the
+  centre-of-mass height, which is where it puts the centre of mass lowest. One stable face
+  (the base, foot 41.14 mm inside), one unstable vertex (the apex); smallest margin 12.35 mm
+  (faces and corners). In Bille Drop it is drawn 40 cm tall (40/15; mass x (40/15)^3).
+  Files in pla/:
+    core.py, test_core.py   exact polytope mass properties, equilibria, margins
+    opt2.py, opt3.py, opt4.py, sym.py   the shape/fill-level optimisation (opt3: any ring spec;
+                            supportless = no surface overhanging more than 45 deg)
+    scan_size.py            margin vs size and wall (runs/scan_size.log)
+    robust.py               print-error trials (runs/robust_a66.log = this design,
+                            runs/robust_size10.log = the 10 cm variant)
+    apexsplit.py            how the apex splits under plane errors (runs/apexsplit.log)
+    export.py               writes STL / OBJ / data.lua / cutaway / props (ppla37-props.txt)
+    check3d.py              3D check of a design;  verify_stl.py  independent check from the STL
+    ppla37-params.npy (= runs/a_6_6_t10.npy)  the design vector; runs/a_*_t10.npy.log  the
+                            optimisation logs for (5,6), (6,6), (6,8), (7,6) ring stacks
+    sim/                    pla-drop.lua (Bille Drop with only the body list changed, plus
+                            PP_SCALE / PP_FACE), run_tests.sh and its logs. run_tests.sh expects
+                            meshes/ppla-data.lua and meshes/ppla.obj = ppla37-data.lua / ppla37.obj.
+  Scripts were run with python3 + numpy + scipy (+ trimesh in export.py) from the folder they
+  are in; paths inside are relative (runs/...).

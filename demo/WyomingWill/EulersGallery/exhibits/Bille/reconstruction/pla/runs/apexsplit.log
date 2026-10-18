@@ -1,0 +1,4 @@
+planes 0.1 mm: one unstable vertex 82.0%; two+ 18.0% (max count 2); split: spread median 0.35 max 0.77 mm; distance-to-COM difference max 1.6 um; one stable face 100.0%
+planes 0.2 mm: one unstable vertex 81.7%; two+ 18.3% (max count 2); split: spread median 0.69 max 1.53 mm; distance-to-COM difference max 6.2 um; one stable face 100.0%
+planes 0.3 mm: one unstable vertex 81.0%; two+ 19.0% (max count 2); split: spread median 1.03 max 2.29 mm; distance-to-COM difference max 13.8 um; one stable face 100.0%
+planes 0.5 mm: one unstable vertex 81.3%; two+ 18.7% (max count 2); split: spread median 1.73 max 3.82 mm; distance-to-COM difference max 39.0 um; one stable face 100.0%

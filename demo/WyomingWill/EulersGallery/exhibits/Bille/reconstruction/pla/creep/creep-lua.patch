@@ -1,0 +1,38 @@
+--- bille-drop.lua	2026-10-18 11:57:41.750881448 -0600
++++ creep.lua	2026-10-18 12:00:56.136295546 -0600
+@@ -792,10 +792,12 @@
+   local s = spots(#bodies)
+   local starts = {}
+   for k, g in ipairs(bodies) do
+-    reshape(g, nextSpec(g))
++    reshape(g, os.getenv("CR_KIND") and spec(os.getenv("CR_KIND"), sizeOf(g.i)) or nextSpec(g))
+     local others = {}
+     for _, f in ipairs(g.sp.faces) do if f.name ~= g.sp.home then others[#others + 1] = f end end
+     local f = others[math.random(#others)]
++    if os.getenv("CR_FACE") then for _, ff in ipairs(g.sp.faces) do if ff.name == os.getenv("CR_FACE") then f = ff; break end end end
++    g.crFace = f
+     g.spot, g.run = s[k], 1
+     place(g, faceDownQuat(f.n, math.random() * 2 * math.pi), s[k][1], f.h + g.sp.margin + 0.02, s[k][2])
+     resetBody(g, f.name)
+@@ -990,8 +992,21 @@
+ local LOGF = os.getenv("BD_LOG") and io.open(os.getenv("BD_LOG"), "w")
+ if LOGF then LOGF:write("t,idx,name,body,run,face,angle_to_nearest_face_deg,angvel_deg_s,x,y,z\n") end
+ 
++local CRF = os.getenv("CR_LOG") and io.open(os.getenv("CR_LOG"), "w")
++local CR_EVERY = tonumber(os.getenv("CR_EVERY") or "") or 30
+ v:postSim(function(N)
+   if holdNow then return end
++  if CRF and N % CR_EVERY == 0 then
++    for _, g in ipairs(bodies) do
++      local q = g.body:getOrientation()
++      local px, py, pz = getPosXYZ(g.obj)
++      local hx, hy, hz = toWorld(g, g.crFace.n)
++      local wx, wy, wz = getAngVelXYZ(g.obj)
++      CRF:write(string.format("%.5f,%d,%s,%s,%.6f,%.9f,%.9f,%.9f,%.9f,%.6f,%.6f,%.6f,%.6f\n", race.t + FRAME_DT, g.i, g.sp.kind, g.crFace.name,
++        math.deg(math.acos(math.max(-1, math.min(1, -hy)))), q:getX(), q:getY(), q:getZ(), q:getW(), px, py, pz,
++        math.deg(math.sqrt(wx * wx + wy * wy + wz * wz))))
++    end
++  end
+   race.t = race.t + FRAME_DT
+   race.real = race.real + 1 / 60
+   for _, g in ipairs(bodies) do liftStep(g) end
