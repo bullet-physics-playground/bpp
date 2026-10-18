@@ -304,6 +304,15 @@ linux:link_pkgconfig {
       LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
+    contains(LSB_RELEASE_REL, 26.10) : {
+      PKGCONFIG += lua5.1
+      PKGCONFIG -= luabind
+      PKGCONFIG += bullet
+      PKGCONFIG += sdl2
+      PKGCONFIG += SDL2_mixer
+      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
+      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+    }
   }
 
   contains(LSB_RELEASE_ID, Debian): {
