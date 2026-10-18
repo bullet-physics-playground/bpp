@@ -814,9 +814,10 @@ local function buildFoot(lk, color)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
   local foot_x, foot_y = 4.1833 * S, 0.3 * S      -- foot_y (thickness) still deliberately unchanged -- only the X:Z footprint shape/size was re-optimized here
   if opts.foot then   -- (the room: every walker's feet the same size, cm --
-    -- length along the walk, width across, thickness; the outer edge stays put)
+    -- length along the walk, width across, thickness -- its middle under
+    -- the leg, as every walker's in the room)
     foot_x, foot_y, foot_z_len = opts.foot.length, opts.foot.thick, opts.foot.width
-    foot_center_z = foot_outer_z - dir * foot_z_len / 2
+    foot_center_z = zp
   end
 
   local foot = Cube(foot_x, foot_y, foot_z_len, opts.foot and opts.foot.mass or 1.5)   -- was 0.1 -- far too light against the now much-heavier cube (100) and pendant (3.0) it's rigidly welded to; a big local mass mismatch right at a weld (a 0-limit slider, very stiff) is its own source of jitter

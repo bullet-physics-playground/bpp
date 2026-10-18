@@ -1,0 +1,95 @@
+Jansen                           touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [10.33, 6.57, 0.26, 6.19]  []
+Klann                            touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [9.53, 7.9, 6.91, 8.34]  []
+Spears 4-bar                     touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.87, 5.84, 5.22, 1.3]  []
+Chebyshev                        touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.28, 6.74, 0.33, 0.46]  []
+Chebyshev diag                   touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [9.2, 7.65, 0.09, 0.48]  []
+Chebyshev-Spears                 touching   0.3%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.42, 8.23, 0.23, 6.16]  ['makeLink-makeLink 17']
+Chebyshev-Spears diag            touching   0.7%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.66, 8.65, 0.22, 0.45]  ['makeLink-makeLink 60', 'makeLink-makeLink 11']
+Hoecken 4-bar                    touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.39, 7.19, 0.18, 0.45]  []
+Hoecken 4-bar diag               touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.59, 7.28, 0.33, 0.52]  []
+Hoecken slider                   touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.23, 6.76, 0.25, 5.75]  []
+Hoecken-Spears slider            touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [7.79, 7.96, 1.9, 4.44]  []
+Hoecken-Spears 4-bar             touching   0.1%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.0, 7.97, 0.33, 6.17]  ['makeLink-makeLink 4']
+Hoecken-Spears 4-bar diag        touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.71, 8.13, 3.17, 2.85]  []
+Hoecken-Spears long-stance       touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.5, 8.19, 0.36, 0.48]  []
+Hoecken-Spears long-stance diag  touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [8.05, 8.04, 0.13, 2.87]  []
+Spears lift 44                   touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [7.97, 7.84, 7.39, 7.17]  []
+Spears lift 44 diag              touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [7.35, 7.99, 7.19, 6.8]  []
+Spears lift 53                   touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [7.63, 7.17, 6.86, 6.45]  []
+Spears lift 53 diag              touching   0.0%  body-on-ground   0.0%  speeds flat/waves6/logs/steps [7.7, 8.78, 6.42, 6.01]  []
+ROW Jansen waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 10.33
+ROW Jansen waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.57
+ROW Jansen logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.26
+ROW Jansen steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.19
+ROW Klann waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 9.53
+ROW Klann waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.9
+ROW Klann logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.91
+ROW Klann steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.34
+ROW Spears 4-bar waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.87
+ROW Spears 4-bar waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 5.84
+ROW Spears 4-bar logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 5.22
+ROW Spears 4-bar steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 1.3
+ROW Chebyshev waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.28
+ROW Chebyshev waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.74
+ROW Chebyshev logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.33
+ROW Chebyshev steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.46
+ROW Chebyshev diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 9.2
+ROW Chebyshev diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.65
+ROW Chebyshev diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.09
+ROW Chebyshev diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.48
+ROW Chebyshev-Spears waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.42
+ROW Chebyshev-Spears waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.23
+ROW Chebyshev-Spears logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.23
+ROW Chebyshev-Spears steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.16
+ROW Chebyshev-Spears diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.66
+ROW Chebyshev-Spears diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.65
+ROW Chebyshev-Spears diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.22
+ROW Chebyshev-Spears diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.45
+ROW Hoecken 4-bar waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.39
+ROW Hoecken 4-bar waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.19
+ROW Hoecken 4-bar logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.18
+ROW Hoecken 4-bar steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.45
+ROW Hoecken 4-bar diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.59
+ROW Hoecken 4-bar diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.28
+ROW Hoecken 4-bar diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.33
+ROW Hoecken 4-bar diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.52
+ROW Hoecken slider waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.23
+ROW Hoecken slider waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.76
+ROW Hoecken slider logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.25
+ROW Hoecken slider steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 5.75
+ROW Hoecken-Spears slider waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.79
+ROW Hoecken-Spears slider waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.96
+ROW Hoecken-Spears slider logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 1.9
+ROW Hoecken-Spears slider steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 4.44
+ROW Hoecken-Spears 4-bar waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.0
+ROW Hoecken-Spears 4-bar waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.97
+ROW Hoecken-Spears 4-bar logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.33
+ROW Hoecken-Spears 4-bar steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.17
+ROW Hoecken-Spears 4-bar diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.71
+ROW Hoecken-Spears 4-bar diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.13
+ROW Hoecken-Spears 4-bar diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 3.17
+ROW Hoecken-Spears 4-bar diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 2.85
+ROW Hoecken-Spears long-stance waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.5
+ROW Hoecken-Spears long-stance waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.19
+ROW Hoecken-Spears long-stance logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.36
+ROW Hoecken-Spears long-stance steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.48
+ROW Hoecken-Spears long-stance diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.05
+ROW Hoecken-Spears long-stance diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.04
+ROW Hoecken-Spears long-stance diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 0.13
+ROW Hoecken-Spears long-stance diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 2.87
+ROW Spears lift 44 waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.97
+ROW Spears lift 44 waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.84
+ROW Spears lift 44 logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.39
+ROW Spears lift 44 steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.17
+ROW Spears lift 44 diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.35
+ROW Spears lift 44 diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.99
+ROW Spears lift 44 diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.19
+ROW Spears lift 44 diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.8
+ROW Spears lift 53 waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.63
+ROW Spears lift 53 waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.17
+ROW Spears lift 53 logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.86
+ROW Spears lift 53 steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.45
+ROW Spears lift 53 diag waves 0 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 7.7
+ROW Spears lift 53 diag waves 6 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 8.78
+ROW Spears lift 53 diag logs 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.42
+ROW Spears lift 53 diag steps 4 bodyground 0.0 hitx 1000000000.0 -1000000000.0 speed 6.01

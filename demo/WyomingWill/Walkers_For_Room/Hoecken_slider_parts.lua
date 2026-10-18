@@ -367,6 +367,8 @@ local p_len = p_len + (opts.bodyRaise or 0)
 M.FLOOR_TOP_Y = -5.7 - (p_len - 14.0)
 local g_len, a_len, f_len, p_len = g_len * S, a_len * S, f_len * S, p_len * S
 local rod_w, rod_d, plane_gap = rod_w * S, rod_d * S, plane_gap * S
+plane_gap = opts.planeGapCm or plane_gap   -- (WALKER ROOM: the link planes' spacing, cm, the same for every walker)
+rod_d = opts.rodThickCm or rod_d   -- (WALKER ROOM: every walker's links the same thickness, cm)
 local cube_d = opts.cube_d * S       -- cube's own depth (Z) -- GUI slider -- z_ground below derives from this, so changing cube_d keeps every linkage plane aligned with the cube's actual face automatically
 local linkage_spacing = opts.linkageSpacing * S   -- GUI slider -- how far apart the two leg mounts on each face sit
 local cube_margin = 2.5 * S
@@ -392,11 +394,24 @@ local terrain_lift = opts.terrainLift
 local z_ground, z_crank, z_pendant, z_crossbar =
       cube_d/2, cube_d/2 + plane_gap, cube_d/2 + 2*plane_gap, cube_d/2 + 3*plane_gap
 local z_coupler = z_crank   -- slider bar shares the crank's plane -- see note above
+-- (WALKER ROOM: opts.planeOf = { crank = n, ... } puts that link in the
+-- plane n plane gaps out from the body's face, in place of the plane above)
+if opts.planeOf then
+  local P = opts.planeOf
+  if P.crank then z_crank = z_ground + P.crank * plane_gap end
+  if P.pendant then z_pendant = z_ground + P.pendant * plane_gap end
+  if P.coupler then z_coupler = z_ground + P.coupler * plane_gap end
+  local top = 0
+  for _, n in pairs(P) do top = math.max(top, n) end
+  z_crossbar = z_ground + (top + 1) * plane_gap   -- (the plates just outside the outermost link)
+end
 
 --cube = Cube(cube_w, 1.5, cube_d, 100.0)   -- small mass -> now dynamic, affected by gravity
 local cube = Cube(cube_w, 1.5 * S, cube_d, opts.cubeMass)   -- GUI slider -- small mass -> now dynamic, affected by gravity
 cube.col = "#29c235"
 cube.pos = btVector3(cube_center_x, terrain_lift, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
+if opts.bodyShift then cube.pos = btVector3(cube.pos.x + opts.bodyShift, cube.pos.y, cube.pos.z) end   -- (WALKER ROOM: opts.bodyShift, cm -- the body slid along the walk against its legs, to balance it over its feet)
+if opts.bodyFrame then cube = opts.bodyFrame(cube) end   -- (WALKER ROOM: its load stays here, at the balance point; its frame, the box you see and that can bump into things, spans its leg mounts)
 cube.friction = 0.5
 -- STRAIGHT-LINE FIX: cube.damp_ang=1.0 was found by running actual 600-frame
 -- physics trials (bpp -n 600, real Bullet, not just kinematics) and sweeping
@@ -681,9 +696,10 @@ local function buildFoot(lk, color)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
   local foot_x, foot_y = 2.0 * S, 0.3 * S      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
   if opts.foot then   -- (the room: every walker's feet the same size, cm --
-    -- length along the walk, width across, thickness; the outer edge stays put)
+    -- length along the walk, width across, thickness -- its middle under
+    -- the leg, as every walker's in the room)
     foot_x, foot_y, foot_z_len = opts.foot.length, opts.foot.thick, opts.foot.width
-    foot_center_z = foot_outer_z - dir * foot_z_len / 2
+    foot_center_z = zp
   end
 
   local foot = Cube(foot_x, foot_y, foot_z_len, opts.foot and opts.foot.mass or 1.5)   -- was 0.1 -- far too light against the now much-heavier cube (100) and pendant (3.0) it's rigidly welded to; a big local mass mismatch right at a weld (a 0-limit slider, very stiff) is its own source of jitter

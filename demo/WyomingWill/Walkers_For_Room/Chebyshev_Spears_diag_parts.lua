@@ -437,6 +437,8 @@ local g_len, a_len, h_len, p_len, f_len = g_len * S, a_len * S, h_len * S, p_len
 -- walker's own units -- closer for the walkers the room scales up most)
 local plane_gap = opts.planeGap or plane_gap
 local rod_w, rod_d, plane_gap, EXT_DOWN, EXT_UP = rod_w * S, rod_d * S, plane_gap * S, EXT_DOWN * S, EXT_UP * S
+plane_gap = opts.planeGapCm or plane_gap   -- (WALKER ROOM: the link planes' spacing, cm, the same for every walker)
+rod_d = opts.rodThickCm or rod_d   -- (WALKER ROOM: every walker's links the same thickness, cm)
 -- (the link masses above were worked out from the unscaled lengths, and
 -- stay as they are; the hand-worked coupler inertia below uses the scaled
 -- lengths, and so grows with the scale squared, as it should)
@@ -475,12 +477,23 @@ local terrain_lift = opts.terrainLift
 -- coupler < pendant) -- one more distinct plane overall (5, not 4).
 local z_ground, z_crank, z_rocker, z_coupler, z_pendant =
       cube_d/2, cube_d/2 + plane_gap, cube_d/2 + 2*plane_gap, cube_d/2 + 3*plane_gap, cube_d/2 + 4*plane_gap
+-- (WALKER ROOM: opts.planeOf = { crank = n, ... } puts that link in the
+-- plane n plane gaps out from the body's face, in place of the plane above)
+if opts.planeOf then
+  local P = opts.planeOf
+  if P.crank then z_crank = z_ground + P.crank * plane_gap end
+  if P.rocker then z_rocker = z_ground + P.rocker * plane_gap end
+  if P.coupler then z_coupler = z_ground + P.coupler * plane_gap end
+  if P.pendant then z_pendant = z_ground + P.pendant * plane_gap end
+end
 local cube = Cube(cube_w, 1.5 * S, cube_d, opts.cubeMass)   -- small mass -> dynamic, affected by gravity -- GUI slider
 --cube = Cube(cube_w, 1.5, cube_d, 10.0)   -- small mass -> dynamic, affected by gravity
 cube.damp_lin = DAMP_CUBE.lin
 cube.damp_ang = DAMP_CUBE.ang
 cube.col = "#29c235"
 cube.pos = btVector3(cube_center_x, terrain_lift, 0)   -- see terrain_lift above -- 0 when terrainAmp is 0, same starting position as before
+if opts.bodyShift then cube.pos = btVector3(cube.pos.x + opts.bodyShift, cube.pos.y, cube.pos.z) end   -- (WALKER ROOM: opts.bodyShift, cm -- the body slid along the walk against its legs, to balance it over its feet)
+if opts.bodyFrame then cube = opts.bodyFrame(cube) end   -- (WALKER ROOM: its load stays here, at the balance point; its frame, the box you see and that can bump into things, spans its leg mounts)
 cube.friction = 0.5
 add(cube)
 
@@ -1083,9 +1096,10 @@ local function buildFoot(lk, color)
   local foot_center_z = (foot_outer_z + foot_inner_z) / 2
   local foot_x, foot_y = 2.0 * S, 0.3 * S      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod
   if opts.foot then   -- (the room: every walker's feet the same size, cm --
-    -- length along the walk, width across, thickness; the outer edge stays put)
+    -- length along the walk, width across, thickness -- its middle under
+    -- the leg, as every walker's in the room)
     foot_x, foot_y, foot_z_len = opts.foot.length, opts.foot.thick, opts.foot.width
-    foot_center_z = foot_outer_z - dir * foot_z_len / 2
+    foot_center_z = zp
   end
   -- WMS 1.0 Best so far, smaller feet better. Larger feet worse.
   --local foot_x, foot_y = 1.0, 0.3      -- wide (x) and flat (y) -- much wider than the 0.18 pendant rod

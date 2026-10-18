@@ -378,6 +378,8 @@ local JANSEN_YMIN, FOOT_CLEARANCE, O_ABOVE_CUBE = JANSEN_YMIN * S, FOOT_CLEARANC
 -- ---------------------------------------------------------------------
 
 local plane_gap = 1.2 * S   -- > ROD_D, so adjacent planes' rod boxes never touch
+plane_gap = opts.planeGapCm or plane_gap   -- (WALKER ROOM: the link planes' spacing, cm, the same for every walker)
+ROD_D = opts.rodThickCm and opts.rodThickCm / S or ROD_D   -- (WALKER ROOM: every walker's links the same thickness, cm)
 local cube_d = (opts.cube_d or 150.0) * S     -- cube's own Z-depth (the room can set it: opts.cube_d)
 
 -- z_ground..z_triJ4 are read by buildJansenLeg() (defined inside this
@@ -392,6 +394,18 @@ local z_rodK   = z_ground + 4 * plane_gap
 local z_rodC   = z_ground + 5 * plane_gap
 local z_rodF   = z_ground + 6 * plane_gap
 local z_triJ4  = z_ground + 7 * plane_gap
+-- (WALKER ROOM: opts.planeOf = { crank = n, ... } puts that link in the
+-- plane n plane gaps out from the body's face, in place of the plane above)
+if opts.planeOf then
+  local P = opts.planeOf
+  if P.crank then z_crank = z_ground + P.crank * plane_gap end
+  if P.rodJ then z_rodJ = z_ground + P.rodJ * plane_gap end
+  if P.triG then z_triG = z_ground + P.triG * plane_gap end
+  if P.rodK then z_rodK = z_ground + P.rodK * plane_gap end
+  if P.rodC then z_rodC = z_ground + P.rodC * plane_gap end
+  if P.rodF then z_rodF = z_ground + P.rodF * plane_gap end
+  if P.triJ4 then z_triJ4 = z_ground + P.triJ4 * plane_gap end
+end
 
 -- O_MOUNT_Y must clear the TALLEST possible bump (FLOOR_TOP_Y+TERRAIN_AMP),
 -- not just the flat baseline -- otherwise a leg whose phase happens to
@@ -412,6 +426,8 @@ local CUBE_POS_Y     = O_MOUNT_Y - O_ABOVE_CUBE - CUBE_H / 2
 local cube = Cube(CUBE_W, CUBE_H, cube_d, 220.0)
 cube.col = "#29c235"
 cube.pos = btVector3(CUBE_CENTER_X, CUBE_POS_Y, 0)
+if opts.bodyShift then cube.pos = btVector3(cube.pos.x + opts.bodyShift, cube.pos.y, cube.pos.z) end   -- (WALKER ROOM: opts.bodyShift, cm -- the body slid along the walk against its legs, to balance it over its feet)
+if opts.bodyFrame then cube = opts.bodyFrame(cube) end   -- (WALKER ROOM: its load stays here, at the balance point; its frame, the box you see and that can bump into things, spans its leg mounts)
 cube.friction = 0.5
 cube.damp_ang = 1.0 -- WMS
 cube.damp_lim = 1.0 -- WMS
@@ -539,13 +555,10 @@ local function buildFoot(lk, color)
   local foot_x, foot_y, foot_z = 9.0 * S, 1.4 * S, 8.0 * S
   local foot_mass = 1.5
   if opts.foot then   -- (the room: every walker's feet the same size, cm --
-    -- length along the walk, width across, thickness. Its outer edge is
-    -- at the outer face of the foot's own plane, so it reaches inward,
-    -- under the body, as the other walkers' feet do)
+    -- length along the walk, width across, thickness -- its middle under
+    -- the leg, as every walker's in the room)
     foot_x, foot_y, foot_z = opts.foot.length, opts.foot.thick, opts.foot.width
     foot_mass = opts.foot.mass
-    local dir = (z >= 0) and 1 or -1
-    z = z + dir * ROD_D * S / 2 - dir * foot_z / 2
   end
   local frameZ = lk.z_foot - z   -- the foot point, in the foot's own frame
 
