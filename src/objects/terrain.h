@@ -11,6 +11,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include <QHash>
+#include <QVector>
 
 #include <array>
 
@@ -169,6 +170,16 @@ protected:
    * sized to getNumTriangles().
    */
   QHash<int, std::array<unsigned char, 3>> m_triColors;
+
+  /// Triangles per recorded OpenGL list (one list per chunk, by index).
+  static const int kChunk = 4096;
+  QVector<unsigned int> m_lists;   ///< One OpenGL display list per chunk (0: none).
+  QVector<bool> m_listDirty;       ///< A chunk whose triangles or colours changed.
+  unsigned char m_listColor[4] = {0, 0, 0, 0}; ///< Base colour and alpha recorded.
+  void markChunkDirty(int index);
+  void markAllDirty();
+  void freeLists();
+  void recordChunk(int chunk);
 };
 
 #endif // TERRAIN_H

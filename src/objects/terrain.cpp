@@ -14,6 +14,7 @@
 #endif
 
 #include <QDebug>
+#include <QOpenGLContext>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -137,6 +138,7 @@ Terrain::Terrain() {
 }
 
 Terrain::~Terrain() {
+  freeLists();
   if (body && body->getMotionState())
     delete body->getMotionState();
   delete m_shape;
@@ -147,6 +149,7 @@ Terrain::~Terrain() {
 void Terrain::addTriangle(const btVector3 &v0, const btVector3 &v1,
                           const btVector3 &v2) {
   m_mesh->addTriangle(v0, v1, v2);
+  markAllDirty();
 }
 
 int Terrain::getNumTriangles() const { return m_mesh->getNumTriangles(); }
@@ -156,6 +159,7 @@ void Terrain::setTriangleColor(int index, int r, int g, int b) {
                                     (unsigned char)qBound(0, g, 255),
                                     (unsigned char)qBound(0, b, 255)};
   m_triColors[index] = c;
+  markChunkDirty(index);
 }
 
 void Terrain::setTriangleColor(int index, const QString &col) {
@@ -171,7 +175,33 @@ QString Terrain::getTriangleColor(int index) const {
   return QColor(c[0], c[1], c[2]).name();
 }
 
-void Terrain::clearTriangleColors() { m_triColors.clear(); }
+void Terrain::clearTriangleColors() {
+  m_triColors.clear();
+  markAllDirty();
+}
+
+void Terrain::markChunkDirty(int index) {
+  int c = index / kChunk;
+  if (c >= 0 && c < m_listDirty.size())
+    m_listDirty[c] = true;
+}
+
+void Terrain::markAllDirty() {
+  for (int c = 0; c < m_listDirty.size(); c++)
+    m_listDirty[c] = true;
+}
+
+// The lists belong to the OpenGL context they were made in; with none current
+// (a terrain dropped outside drawing) they are left for the context to free.
+void Terrain::freeLists() {
+  if (QOpenGLContext::currentContext()) {
+    for (unsigned int l : m_lists)
+      if (l)
+        glDeleteLists(l, 1);
+  }
+  m_lists.clear();
+  m_listDirty.clear();
+}
 
 void Terrain::build() {
   if (body != nullptr) {
@@ -181,6 +211,7 @@ void Terrain::build() {
     body = nullptr;
   }
   delete m_shape;
+  freeLists();
 
   // true: use quantized AABB compression -- smaller BVH, and the standard
   // choice for a static (never-refit) terrain like this one.
@@ -366,8 +397,95 @@ void Terrain::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
   // setup above still applies but the draw color comes from the callback.
   GLubyte alpha = (GLubyte)((1.0 - transparency) * 255.0 + 0.5);
 
-  TerrainGlDrawCallback drawCallback(m_triColors, color, alpha);
-  btVector3 aabbMin(-1e99, -1e99, -1e99);
-  btVector3 aabbMax(1e99, 1e99, 1e99);
-  m_shape->processAllTriangles(&drawCallback, aabbMin, aabbMax);
+  // Without a context to record into, draw as before, triangle by triangle.
+  if (!QOpenGLContext::currentContext()) {
+    TerrainGlDrawCallback drawCallback(m_triColors, color, alpha);
+    btVector3 aabbMin(-1e99, -1e99, -1e99);
+    btVector3 aabbMax(1e99, 1e99, 1e99);
+    m_shape->processAllTriangles(&drawCallback, aabbMin, aabbMax);
+    return;
+  }
+
+  // The triangles never move (build() makes them a static body), so each
+  // chunk of them is recorded once as an OpenGL list and replayed every
+  // frame, and recorded again only when its triangles or colours change
+  // (setTriangleColor marks just the chunk that holds that triangle). The
+  // same triangles, colours and normals as drawing them one by one.
+  if (color[0] != m_listColor[0] || color[1] != m_listColor[1] ||
+      color[2] != m_listColor[2] || alpha != m_listColor[3]) {
+    markAllDirty();
+    m_listColor[0] = color[0];
+    m_listColor[1] = color[1];
+    m_listColor[2] = color[2];
+    m_listColor[3] = alpha;
+  }
+  int chunks = (getNumTriangles() + kChunk - 1) / kChunk;
+  if (m_lists.size() != chunks) {
+    freeLists();
+    m_lists.fill(0, chunks);
+    m_listDirty.fill(true, chunks);
+  }
+  for (int c = 0; c < chunks; c++) {
+    if (m_listDirty[c] || m_lists[c] == 0)
+      recordChunk(c);
+    glCallList(m_lists[c]);
+  }
+}
+
+void Terrain::recordChunk(int chunk) {
+  if (m_lists[chunk] == 0)
+    m_lists[chunk] = glGenLists(1);
+
+  const unsigned char *vbase = nullptr, *ibase = nullptr;
+  int nverts = 0, vstride = 0, istride = 0, nfaces = 0;
+  PHY_ScalarType vtype, itype;
+  m_mesh->getLockedReadOnlyVertexIndexBase(&vbase, nverts, vtype, vstride,
+                                           &ibase, istride, nfaces, itype, 0);
+  const btVector3 &s = m_shape->getLocalScaling();
+  auto vertex = [&](unsigned int k) {
+    const unsigned char *p = vbase + (size_t)k * vstride;
+    if (vtype == PHY_DOUBLE) {
+      const double *d = (const double *)p;
+      return btVector3(d[0] * s.x(), d[1] * s.y(), d[2] * s.z());
+    }
+    const float *f = (const float *)p;
+    return btVector3(f[0] * s.x(), f[1] * s.y(), f[2] * s.z());
+  };
+  auto index = [&](int face, int j) -> unsigned int {
+    const unsigned char *p = ibase + (size_t)face * istride;
+    if (itype == PHY_SHORT)
+      return ((const unsigned short *)p)[j];
+    if (itype == PHY_UCHAR)
+      return p[j];
+    return ((const unsigned int *)p)[j];
+  };
+
+  // One glBegin/glEnd for the whole chunk (colour and normal may change
+  // inside it): the driver then keeps it as one draw, not one per triangle.
+  int first = chunk * kChunk, last = qMin(nfaces, first + kChunk);
+  glNewList(m_lists[chunk], GL_COMPILE);
+  glBegin(GL_TRIANGLES);
+  for (int t = first; t < last; t++) {
+    btVector3 a = vertex(index(t, 0)), b = vertex(index(t, 1)),
+              c = vertex(index(t, 2));
+    btVector3 n = (b - a).cross(c - a);
+    n.normalize();
+    auto it = m_triColors.constFind(t);
+    if (it != m_triColors.constEnd())
+      glColor4ub(it.value()[0], it.value()[1], it.value()[2], m_listColor[3]);
+    else
+      glColor4ub(m_listColor[0], m_listColor[1], m_listColor[2], m_listColor[3]);
+    glNormal3d(n.x(), n.y(), n.z());
+    glVertex3d(a.x(), a.y(), a.z());
+    glVertex3d(b.x(), b.y(), b.z());
+    glVertex3d(c.x(), c.y(), c.z());
+    glNormal3d(-n.x(), -n.y(), -n.z());
+    glVertex3d(c.x(), c.y(), c.z());
+    glVertex3d(b.x(), b.y(), b.z());
+    glVertex3d(a.x(), a.y(), a.z());
+  }
+  glEnd();
+  glEndList();
+  m_mesh->unLockReadOnlyVertexBase(0);
+  m_listDirty[chunk] = false;
 }
