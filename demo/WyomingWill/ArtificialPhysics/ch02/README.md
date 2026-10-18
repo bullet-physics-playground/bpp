@@ -100,4 +100,14 @@ Checked against `spring1D.nlogo`, `spring2D.nlogo` and `solar_system.nlogo`
 
 ★ The drone versions (two drones on a virtual spring; one drone orbiting under
 a capped 1/r² law, where the drone's speed limit is a velocity cap), and the
-3D variants (an off-plane spin, an inclined orbit, two planets).
+other 3D variants (an inclined orbit, two planets). The off-plane spin is
+spring3D.
+
+★ **William liked these (2026-10-18), next for 3D springs.** Two bodies always
+stay in one plane, so spring3D looks like spring2D tilted. These need three or
+more masses and are truly 3D:
+- **A spring tetrahedron:** four masses on six springs, started spinning about
+  a tilted axis. It tumbles, wobbles and breathes, with |L| and E constant: a
+  3D integrator test no 2D model gives.
+- **A small 3D spring lattice:** a cube of masses on springs, the first step
+  of the Ch. 3 formations in 3D (counts toward M1's 3D work).

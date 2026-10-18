@@ -78,7 +78,8 @@ is updated at the end of every milestone.
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–38 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
-| `ch02/` | Ch. 2's springs and solar system: BPP scenes and checks (`ch02/README.md`) |
+| `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
+| `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua` so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's book presets |
@@ -97,7 +98,7 @@ live in their own projects.
 | The book, `apbook1.pdf` (674 pages; page refs in `BOOK.md` are PDF pages, book page = PDF − 31) | Anything the chapter notes don't settle |
 | The Android app, `ap.zip` (Kotlin; 10 simulations, all with book counterparts) | Step 1 of every task: mostly built from the `.nlogo` files, sometimes improved, sometimes wrong |
 | Zarzhitsky's CPT code, `CPT.zip` (PlumeGen, TraceGen, viewer; C/GTK2) | Ch. 8–9: the plume and robot constants the book omits. **Its map makers (`MakeMap.c` for Textron, `MapGen.c`) are not used**: our own 3D world generator (`BOOK.md` §6) builds every world. `lib/world.lua` writes his map format (`writeCPT`) so PlumeGen and TraceGen can run on our worlds as a check; PlumeGen builds from `PlumeGen.c` + `MapUtils.c` with glib only. The app's version changes the plume generator |
-| The original NetLogo models | The book website, sites.google.com/view/artificialphysics, page `/netlogo-simulations` (Dropbox links; the cloud shell usually can't reach Dropbox, so ask William to attach them) |
+| `lopf.nlogo` (Ch. 5) | The only model not in `netlogo/` (it did not convert to NetLogo 6); its NetLogo 5 version is on the book website, sites.google.com/view/artificialphysics, page `/netlogo-simulations` |
 | The thesis PDFs | Only to check a detail the digests don't cover |
 
 ## 5. Building, running, measuring
@@ -202,10 +203,21 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   - **M1:** Ch. 13's four fixes on the drones, each switchable, measured on
     Newtonian 2D and 3D with the Ch. 16.9 metrics, using `lib/batch.py` and
     `probes/batch_drones.lua`.
+- **Ideas William liked (2026-10-18), to do when there is room:** truly 3D
+  spring models, since two bodies always stay in one plane (spring3D, done,
+  looks like spring2D tilted): **a spring tetrahedron** (four masses, six
+  springs, spun about a tilted axis; tumbles and wobbles with |L| and E
+  constant) and **a small 3D spring lattice** (a cube of masses on springs;
+  the first step of the Ch. 3 formations in 3D, so it fits M1's 3D work).
+  Details in `ch02/README.md`, "Not done yet".
+- **Check every port against its `.nlogo` first** (`netlogo/`): doing so for
+  Ch. 2 and Ch. 3 found two guessed starts and the wrong Ch. 3 world frame
+  (FINDINGS F40, F41). The formation, honeycomb and Uniform Coverage ports have
+  not been checked against their models yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
   Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES 4–5;
   its wall rule is kept, FIXES 36); FIXES item 27 is documented, not fixed; an
-  Info pane for BPP; the Ch. 2 drone and 3D variants (`ch02/README.md`).
+  Info pane for BPP; the Ch. 2 drone and remaining 3D variants (`ch02/README.md`).
 - **Sources for the next chat:** attach `CPT.zip` again for any plume work
   (it is not in the repo), the book PDF for chapters beyond the notes, and
   `ap.zip` / `Android_AP.zip` to compare with the app.

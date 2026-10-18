@@ -34,7 +34,7 @@ Every task goes through the same steps. Each step is one patch.
 1. **Read the sources.** There are four (five for Ch. 8–9), and each can be right
    where the others are wrong:
    - the chapter note in `book/` (and the book itself for anything unclear);
-   - the original `.nlogo` model from the book website, the reference
+   - the original `.nlogo` model in `netlogo/`, the reference
      implementation;
    - **the Android app's version**, which was mostly built from the `.nlogo`
      files. It sometimes improves on them, and it can also contain errors,

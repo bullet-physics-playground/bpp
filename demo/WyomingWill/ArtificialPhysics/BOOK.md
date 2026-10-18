@@ -710,7 +710,7 @@ version of that push helps is an experiment, not a given.
 
 This revises the plan's order using what the book says.
 
-Before porting a task, read its chapter note, fetch its `.nlogo` from the book website, examine the Android app's version (mostly built from the `.nlogo`; sometimes improved, sometimes wrong), and read the matching thesis digest. The book's chapters leave out values that the models and theses contain. `WORKFLOW.md` describes the steps every task goes through.
+Before porting a task, read its chapter note, read its `.nlogo` in `netlogo/`, examine the Android app's version (mostly built from the `.nlogo`; sometimes improved, sometimes wrong), and read the matching thesis digest. The book's chapters leave out values that the models and theses contain. `WORKFLOW.md` describes the steps every task goes through.
 
 | Step | Work | Why now |
 | --- | --- | --- |
