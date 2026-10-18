@@ -20,6 +20,7 @@ local function check(name, ok, detail)
   print(string.format("%s %-58s %s", ok and "ok  " or "FAIL", name, detail or ""))
 end
 local abs, max, min = math.abs, math.max, math.min
+local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3+ dropped atan2
 
 -- Run a model for `time` units; returns first and last measurements and
 -- the extremes of a few monitors.
@@ -224,7 +225,7 @@ do
     ch.step(m)
     local p, s = m.ps[2], m.ps[1]
     local rr = math.sqrt((p.x - s.x) ^ 2 + (p.y - s.y) ^ 2)
-    if rising and rr < prevR then angles[#angles + 1] = math.deg(math.atan2(p.y - s.y, p.x - s.x)) end
+    if rising and rr < prevR then angles[#angles + 1] = math.deg(atan2(p.y - s.y, p.x - s.x)) end
     rising = rr > prevR
     prevR = rr
   end

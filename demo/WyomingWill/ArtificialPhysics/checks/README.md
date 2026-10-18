@@ -1,7 +1,15 @@
 # Checks: the regression suite
 
 `bash checks/run_all.sh` runs every check and exits 0 only if all pass
-(about 1 min 40 s; `--quick` about 45 s with smaller samples). Run it before
+(about 1 min 40 s; `--quick` about 45 s with smaller samples).
+
+**Which Lua.** The Lua checks run *inside BPP* when a BPP is built, so they
+test the Lua the demos really use; BPP links Lua 5.1 or 5.2 depending on the
+build, and the first line of the output names it. Without BPP (or with
+`BPP=none`) they run in a standalone Lua: `$LUA`, else the first of `lua5.1`,
+`lua5.2`, `lua5.3`, `lua5.4`, `lua`. Every check and `lib/` module runs on
+Lua 5.1 to 5.4, and the shared generator gives the same numbers on all of
+them. Run it before
 sending any patch that touches shared code (`WORKFLOW.md` §3). Each check
 prints `ok`/`FAIL` lines and ends with `PASS` or `FAIL`; each can also be run
 on its own from the `ArtificialPhysics` folder.

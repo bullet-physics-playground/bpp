@@ -20,6 +20,7 @@
 --   lua5.1 checks/rng_appendix.lua            (all S below)
 --   lua5.1 checks/rng_appendix.lua 0 25 27    (chosen S values)
 --   N=200000 lua5.1 checks/rng_appendix.lua   (quicker, less power)
+--   S_LIST=0,25,27 (environment) chooses S where there are no arguments
 -- It also runs inside BPP: bpp -f checks/rng_appendix.lua -n 1
 --
 
@@ -37,6 +38,9 @@ local S_LIST = { 0, 1, 3, 10, 25, 26, 27, 28, 31 }
 if arg and #arg > 0 then
   S_LIST = {}
   for i = 1, #arg do S_LIST[#S_LIST + 1] = tonumber(arg[i]) end
+elseif os.getenv("S_LIST") then                 -- e.g. inside BPP, which has no arg
+  S_LIST = {}
+  for x in os.getenv("S_LIST"):gmatch("[^,%s]+") do S_LIST[#S_LIST + 1] = tonumber(x) end
 end
 
 local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end

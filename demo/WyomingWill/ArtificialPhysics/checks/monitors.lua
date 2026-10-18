@@ -17,6 +17,7 @@ else package.path = "./?.lua;../?.lua;" .. package.path end
 local mon = require "lib.monitors"
 
 local pi, sqrt, abs = math.pi, math.sqrt, math.abs
+local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3+ dropped atan2
 local fails, count = 0, 0
 local function check(name, ok, detail)
   count = count + 1
@@ -161,7 +162,7 @@ do
   local steps = math.floor(3.2 * T / dt)
   for s = 1, steps do
     mon.step(ps, dt, opts)
-    local ang = math.atan2(ps[2].z - ps[1].z, ps[2].x - ps[1].x)
+    local ang = atan2(ps[2].z - ps[1].z, ps[2].x - ps[1].x)
     local da = ang - prev
     if da > pi then da = da - 2 * pi elseif da < -pi then da = da + 2 * pi end
     angle, prev = angle + da, ang

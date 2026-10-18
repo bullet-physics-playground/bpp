@@ -10,7 +10,7 @@ is updated at the end of every milestone.
 - William M. Spears, co-author of *Physicomimetics: Physics-Based Swarm
   Intelligence* (Springer 2011). Artificial Physics (AP) is his research.
 - Repository: **github.com/bullet-physics-playground/bpp** (BPP), branch
-  `master`. Qt5, QGLViewer, Bullet, Lua 5.1 + luabind, SDL2_mixer.
+  `master`. Qt5, QGLViewer, Bullet, Lua 5.1 or 5.2 (by build) + luabind, SDL2_mixer.
 - This folder, `demo/WyomingWill/ArtificialPhysics/`, holds the AP work.
 - **The aim of the research:** large-swarm results with few agents. Prefer
   metrics that show it, such as time to a target quality against N (agents
@@ -47,7 +47,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–36 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F32 so far), and
+  implementations, and our own mistakes once corrected (F1–F34 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -93,7 +93,7 @@ git clone https://github.com/bullet-physics-playground/bpp ~/bpp && cd ~/bpp
 apt-get update   # needed first in a fresh cloud workspace
 apt-get install -y libbullet-dev libluabind-dev liblua5.1-0-dev liblua5.2-dev \
   libqglviewer-dev-qt5 libsdl2-mixer-dev libassimp-dev qtbase5-dev libglew-dev \
-  xvfb xdotool imagemagick lua5.1
+  xvfb xdotool imagemagick lua5.1   # lua5.1 optional: checks run inside BPP
 qmake bpp.pro CONFIG+=release && rm -rf release/bpp.gch
 nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 ```
@@ -110,8 +110,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   `SEED` set (`lib/README.md`). Prefer it to hand-written sweep scripts.
 - **GUI under a virtual display:** `Xvfb :99 -screen 0 1600x1000x24 +extension GLX &`,
   `DISPLAY=:99`; screenshot with `import -window root`; keys with `xdotool`.
-- **Plain Lua 5.1** (`lua5.1`) is handy for testing pure-Lua code such as the
-  random number generator outside BPP.
+- **Which Lua:** BPP links Lua 5.1 or 5.2 depending on the build (`bpp.pro`
+  picks 5.2 on some Ubuntu releases; William's build is 5.2, the cloud
+  workspace's 5.1); ask it with
+  `bpp -l 'print(_VERSION)' -n 1`. A standalone `lua` on the path may be a
+  different version. All our Lua (`lib/`, `checks/`, `ch*/`) runs on 5.1–5.4;
+  write new code the same way (no `math.atan2` without a fallback, no
+  `unpack`, `loadstring`, `setfenv`). `checks/run_all.sh` runs the checks
+  inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
@@ -121,8 +127,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 
 ## 6. Facts established so far
 
-- **Random numbers:** BPP's Lua 5.1 `math.random` is glibc `random()`, the
-  generator the book's appendix warns about. Run inside Lua 5.1 with the
+- **Random numbers:** BPP's `math.random` (Lua 5.1 and 5.2 alike) is glibc
+  `random()`, the generator the book's appendix warns about. Run inside Lua 5.1 or 5.2 with the
   appendix's sampling (S extra calls per accepted point in the disk, 10⁶ points,
   36 bins), it fails at S = 25 (χ² 321), 26 (223) and 27 (409) against a 99.9%
   cut of 66.6. The multiply-with-carry generator passes at every S (χ² 26–47).

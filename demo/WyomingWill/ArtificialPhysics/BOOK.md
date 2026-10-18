@@ -76,7 +76,7 @@ These correct or extend the plan. Each is backed by the chapter notes.
    Fig. 14.4. Hettiarachchi's thesis fills some
    of this (see the thesis digest).
 7. **BPP's `math.random` is the generator the appendix warns about; the
-   shared generator replaces it (G2, done).** BPP links Lua 5.1, whose
+   shared generator replaces it (G2, done).** BPP links Lua 5.1 or 5.2, whose
    `math.random` calls glibc `rand()`, i.e. `random()`. Run inside Lua 5.1
    with Listing A.1's sampling (S extra calls per accepted point, 10⁶ points,
    36 bins), it fails at S = 25 (χ² 321), 26 (223) and 27 (409) against a

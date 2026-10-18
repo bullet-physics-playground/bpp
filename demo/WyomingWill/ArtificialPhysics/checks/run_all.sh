@@ -2,17 +2,25 @@
 # checks/run_all.sh -- run every check; the regression suite (WORKFLOW.md §3)
 #
 # Run from anywhere:   bash checks/run_all.sh          (about 2 minutes)
-#                      bash checks/run_all.sh --quick  (about 30 s: smaller samples)
+#                      bash checks/run_all.sh --quick  (about 45 s: smaller samples)
 # Prints one line per check and a summary; exits 0 only if all pass.
-# Pure-Lua checks run in lua5.1; checks that need BPP find it as
-# lib/batch.py does ($BPP, else the newest debug/bpp or release/bpp), and
-# are skipped (not failed) when no BPP is built.
+#
+# The Lua checks run INSIDE BPP when a BPP is built, so they test the Lua
+# the demos actually run on (BPP links Lua 5.1 or 5.2 depending on the
+# build). Without BPP they run in a standalone Lua: $LUA if set, else the
+# first of lua5.1, lua5.2, lua5.3, lua5.4, lua. Every check runs on 5.1-5.4.
+# BPP is found as lib/batch.py finds it: $BPP, else the newer of debug/bpp
+# and release/bpp in the repository; BPP=none forces the standalone Lua.
+# Checks that need BPP are skipped, not failed, when none is built.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 QUICK=0; [ "${1:-}" = "--quick" ] && QUICK=1
 LOG=$(mktemp -d); trap 'rm -rf "$LOG"' EXIT
+export SDL_AUDIODRIVER=${SDL_AUDIODRIVER:-dummy} QT_QPA_PLATFORM=${QT_QPA_PLATFORM:-offscreen}
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/tmp/rt-checks}; mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null
 
 find_bpp() {
+  [ "${BPP:-}" = "none" ] && return          # BPP=none: use a standalone Lua
   [ -n "${BPP:-}" ] && { echo "$BPP"; return; }
   local d=$PWD
   while [ "$d" != "/" ]; do
@@ -24,34 +32,60 @@ find_bpp() {
     d=$(dirname "$d")
   done
 }
+find_lua() {
+  if [ -n "${LUA:-}" ]; then command -v "$LUA" >/dev/null 2>&1 && echo "$LUA"; return; fi
+  for l in lua5.1 lua5.2 lua5.3 lua5.4 lua; do command -v "$l" >/dev/null 2>&1 && { echo "$l"; return; }; done
+}
 BPP_BIN=$(find_bpp)
+LUA_BIN=$(find_lua)
+
+if [ -n "$BPP_BIN" ]; then
+  RUNNER="bpp"
+  VER=$("$BPP_BIN" -l 'print("LUAVERSION " .. _VERSION)' -n 1 2>/dev/null | grep -o 'LUAVERSION.*' | cut -d' ' -f2-)
+  WHERE="inside BPP ($BPP_BIN, ${VER:-Lua ?})"
+elif [ -n "$LUA_BIN" ]; then
+  RUNNER="lua"
+  WHERE="in $($LUA_BIN -v 2>&1 | head -1 | awk '{print $1, $2}') ($LUA_BIN); no BPP built"
+else
+  echo "checks: no BPP and no Lua interpreter found (install lua5.1, or build BPP, or set BPP= / LUA=)"
+  exit 1
+fi
+
+# One Lua check: runs it, and passes only if it exits 0 AND its last
+# PASS/FAIL line says PASS (BPP does not pass a script's exit status on).
+lua_check() { # name, file
+  if [ $RUNNER = bpp ]; then "$BPP_BIN" -f "$2" -n 1; else "$LUA_BIN" "$2"; fi
+}
 
 pass=0; fail=0; skip=0; failed=()
 run() { # name, command...
   local name=$1; shift
   local t0=$(date +%s)
-  if "$@" > "$LOG/$name.txt" 2>&1; then
-    pass=$((pass + 1)); printf "PASS  %-14s %4ds  %s\n" "$name" $(( $(date +%s) - t0 )) "$(grep -E '^(PASS|ok)' "$LOG/$name.txt" | tail -1)"
+  "$@" > "$LOG/$name.txt" 2>&1
+  local rc=$?
+  local verdict
+  verdict=$(grep -E '^(PASS|FAIL)' "$LOG/$name.txt" | tail -1)
+  if [ $rc -eq 0 ] && [ "${verdict%% *}" = "PASS" ]; then
+    pass=$((pass + 1)); printf "PASS  %-14s %4ds  %s\n" "$name" $(( $(date +%s) - t0 )) "$verdict"
   else
     fail=$((fail + 1)); failed+=("$name")
     printf "FAIL  %-14s %4ds\n" "$name" $(( $(date +%s) - t0 ))
-    grep -E "^(FAIL|error)|FAIL " "$LOG/$name.txt" | head -5 | sed 's/^/        /'
+    { grep -E "^(FAIL|error)|FAIL |rror" "$LOG/$name.txt" || tail -3 "$LOG/$name.txt"; } | head -5 | sed 's/^/        /'
   fi
 }
 skipped() { skip=$((skip + 1)); printf "SKIP  %-14s       %s\n" "$1" "$2"; }
 
-echo "checks: $(date '+%Y-%m-%d %H:%M'), lua5.1 $(lua5.1 -v 2>&1 | awk '{print $2}'), bpp ${BPP_BIN:-none}"
-if [ $QUICK = 1 ]; then N_RNG=200000; N_MFP=200000; else N_RNG=1000000; N_MFP=1000000; fi
+echo "checks: $(date '+%Y-%m-%d %H:%M'), Lua checks run $WHERE"
+if [ $QUICK = 1 ]; then export N_DEFAULT=200000; S="0,25,27,31"; else export N_DEFAULT=1000000; S=""; fi
 
-run monitors      lua5.1 checks/monitors.lua
-run ch02          lua5.1 checks/ch02.lua
-run world         lua5.1 checks/world.lua
-run mfp_theory    env N=$N_MFP lua5.1 checks/mfp_theory.lua
-if [ $QUICK = 1 ]; then
-  run rng_appendix env N=$N_RNG lua5.1 checks/rng_appendix.lua 0 25 27 31
-else
-  run rng_appendix env N=$N_RNG lua5.1 checks/rng_appendix.lua
-fi
+run monitors      lua_check monitors checks/monitors.lua
+run ch02          lua_check ch02 checks/ch02.lua
+run world         lua_check world checks/world.lua
+export N=$N_DEFAULT                        # sample sizes for the two statistical checks
+[ -n "$S" ] && export S_LIST=$S
+run mfp_theory    lua_check mfp_theory checks/mfp_theory.lua
+run rng_appendix  lua_check rng_appendix checks/rng_appendix.lua
+unset N S_LIST
 if [ -n "$BPP_BIN" ]; then
   export BPP="$BPP_BIN"
   run batch_repeat bash checks/batch_repeat.sh

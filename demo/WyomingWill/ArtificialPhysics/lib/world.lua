@@ -40,6 +40,7 @@ local World = {}
 World.__index = World
 
 local sqrt, floor, abs, cos, sin, pi = math.sqrt, math.floor, math.abs, math.cos, math.sin, math.pi
+local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3+ dropped atan2
 
 -- A new, empty world. opts: name, units, bounds = { x0, y0, x1, y1 } (the
 -- interior agents may use), height (default obstacle height), seed.
@@ -82,7 +83,7 @@ end
 function World:wall(x0, y0, x1, y1, thick, h)
   local dx, dy = x1 - x0, y1 - y0
   local len = sqrt(dx * dx + dy * dy)
-  return self:rect((x0 + x1) / 2, (y0 + y1) / 2, len, thick or 1, math.atan2(dy, dx), "wall", h)
+  return self:rect((x0 + x1) / 2, (y0 + y1) / 2, len, thick or 1, atan2(dy, dx), "wall", h)
 end
 
 -- Walls just outside the bounds, so the interior is exactly the bounds.

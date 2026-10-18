@@ -26,10 +26,11 @@ Page numbers are PDF pages of `apbook1.pdf`; book page = PDF − 31.
 
 **F1. Appendix A: glibc `random()` is biased, and BPP uses it** — 2026-10-17,
 Confirmed. `checks/rng_appendix.lua`.
-BPP's Lua 5.1 `math.random` is glibc `rand()` = `random()`. Run with Listing
+BPP's `math.random` is glibc `rand()` = `random()`, in Lua 5.1 and 5.2 alike
+(William's BPP links 5.2, the cloud build 5.1). Run with Listing
 A.1's sampling (S extra calls per accepted point in the unit disk, 10⁶
 points, 36 bins, 99.9% cut χ² 66.6), it fails at S = 25 (χ² 321) and 27
-(409), as the book shows (PDF 646–648). Also at S = 26 (223) and S = 3 (70),
+(409), as the book shows (PDF 646–648); Lua 5.2 gives the same within noise (321, 410). Also at S = 26 (223) and S = 3 (70),
 which the book's sweep ("most values from one to 27") covers but does not
 single out. The multiply-with-carry generator now in `lib/rng.lua` passes at
 every S tried (χ² 26–47).
@@ -229,6 +230,14 @@ simulation. Probes now use `preDraw` and `preStop` (`lib/batch.lua`).
 chat's Monte Carlo gave ≈ 0.7717 (4 M samples); the exact value is 0.771992
 (F9), within that estimate's error.
 
+**F33. The checks assumed `lua5.1` was installed** — 2026-10-17, Our error.
+Found by William: on his machine (no `lua5.1`, a standalone Lua 5.3) every
+Lua check failed at 0 s, because the interpreter was missing, not because a
+test failed. Three files also used `math.atan2`, which Lua 5.3 dropped.
+`checks/run_all.sh` now runs the checks inside BPP itself, so they test
+BPP's own Lua, and falls back to any standalone Lua; all code runs on 5.1–5.4,
+and the generator's stream is identical on each.
+
 ---
 
 ## 6. How BPP behaves (worth knowing for every port)
@@ -250,6 +259,11 @@ ranges must stay well inside ±2³¹ steps, and values above 2²⁴ are not exac
 **F32. Scripts run in their own folder** in the GUI (BPP changes directory on
 open), so `require` finds modules relative to the script's folder; scripts in
 subfolders add `../?.lua` to reach `lib/`.
+
+**F34. BPP's Lua depends on the build:** 5.1 or 5.2 (`bpp.pro`), not the
+standalone `lua` on the path: William's BPP is 5.2, the cloud build 5.1. Ask
+it with `bpp -l 'print(_VERSION)' -n 1`. Every check passes on 5.1–5.4 and the
+shared generator's stream is identical on each.
 
 ---
 
