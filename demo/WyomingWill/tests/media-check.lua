@@ -103,6 +103,14 @@ sun.emission = ""
 check("emission cleared", sun.emission == "#000000", sun.emission)
 check("no emission in POV", sun.pov:find("emission") == nil)
 
+-- 4b. casting no shadow
+check("castShadow default true", sun.castShadow == true)
+sun.castShadow = false
+check("castShadow false", sun.castShadow == false)
+check("no_shadow in POV", sun.pov:find("no_shadow") ~= nil)
+sun.castShadow = true
+check("no no_shadow in POV", sun.pov:find("no_shadow") == nil)
+
 -- 5. lights: dim the room, a point light at the Sun, restore
 local saved = {
   ambient = v.glAmbient, modelAmbient = v.glModelAmbient,

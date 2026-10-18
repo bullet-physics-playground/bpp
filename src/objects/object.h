@@ -174,6 +174,17 @@ public:
   /** @brief The emission as @c "#rrggbb" (@c "#000000" for none). */
   QString getEmissionString() const;
 
+  /**
+   * @brief Whether the object throws a shadow (obj.castShadow, default
+   *        true). One that doesn't is left out of the shadow map, and out of
+   *        a POV-Ray render's shadows (no_shadow); it is still lit, and
+   *        still shadowed by others. For a room's ceiling, say, which would
+   *        otherwise shadow everything under it from a light above.
+   */
+  void setCastShadow(bool on) { mCastShadow = on; }
+  /** @brief See setCastShadow(). */
+  bool getCastShadow() const { return mCastShadow; }
+
   /** @brief Whether the object glows (setEmission()). */
   bool hasEmission() const {
     return mEmission[0] > 0 || mEmission[1] > 0 || mEmission[2] > 0;
@@ -786,12 +797,14 @@ protected:
   unsigned char color[3];  ///< The object's colour, as red, green and blue.
   btScalar transparency;   ///< 0.0 for opaque, 1.0 for fully transparent.
   float mEmission[3] = {0, 0, 0}; ///< Glow, red, green and blue 0..1.
+  bool mCastShadow = true;        ///< See setCastShadow().
   mutable bool mEmissionSet = false; ///< True from glApplyColor() setting the
                                      ///< glow till renderInLocalFramePost()
                                      ///< takes it off again.
 
   /**
-   * @brief Writes the glow as a POV-Ray finish, or nothing without one.
+   * @brief Writes the glow as a POV-Ray finish, and @c no_shadow for an
+   *        object that casts none; nothing for neither.
    * @param s The stream to write to.
    */
   void povEmission(QTextStream *s) const;

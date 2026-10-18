@@ -1956,7 +1956,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 }
 
 void Viewer::onJoystickData(const JoystickInfo &ji) {
-  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+  if (simHeld()) // (a dialog is open: see simHeld())
     return;
   QMutexLocker locker(&mutex);
   if (_cb_onJoystick) {
@@ -1969,7 +1969,7 @@ void Viewer::onJoystickData(const JoystickInfo &ji) {
 }
 
 void Viewer::onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes) {
-  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+  if (simHeld()) // (a dialog is open: see simHeld())
     return;
   QMutexLocker locker(&mutex);
 
@@ -1985,7 +1985,7 @@ void Viewer::onSpaceNavigatorAxes(const SpaceNavigator::Axes &axes) {
 }
 
 void Viewer::onSpaceNavigatorNorm(const SpaceNavigator::AxesNorm &axes) {
-  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+  if (simHeld()) // (a dialog is open: see simHeld())
     return;
   QMutexLocker locker(&mutex);
 
@@ -2260,7 +2260,7 @@ void Viewer::integrateSpaceNavigator(bool sustained) {
 }
 
 void Viewer::onSpaceNavigatorTick() {
-  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+  if (simHeld()) // (a dialog is open: see simHeld())
     return;
   QMutexLocker locker(&mutex);
   // Sustaining timer: the SpaceNavigator is an absolute device that only
@@ -2274,7 +2274,7 @@ void Viewer::onSpaceNavigatorTick() {
 }
 
 void Viewer::onSpaceNavigatorButton(int button, bool pressed) {
-  if (_holdSim > 0) // (a dialog is open in a script call: see ask())
+  if (simHeld()) // (a dialog is open: see simHeld())
     return;
   QMutexLocker locker(&mutex);
   if (pressed) {
@@ -2354,7 +2354,19 @@ bool Viewer::showConstraints() const { return _showConstraints; }
 // there. _shadowMap exists from the constructor on, and only reaches for GL
 // resources on the render thread, in renderShadowDepth() and
 // drawSceneInternal().
-void Viewer::setShadows(bool on) { _shadows = on; }
+void Viewer::setShadows(bool on) {
+  if (_shadows == on)
+    return;
+  _shadows = on;
+  emit shadowsChanged(on);
+}
+
+void Viewer::setShadowsPreference(bool on) {
+  _shadowsPref = on;
+  setShadows(on);
+}
+
+bool Viewer::shadowsPreference() const { return _shadowsPref; }
 
 bool Viewer::shadows() const { return _shadows; }
 
@@ -3158,8 +3170,9 @@ void Viewer::clear() {
   _light1 = btVector4(-200.0, 100.0, 200.0, 0.2);
   _light0Color = _light1Color = btVector4(1, 1, 1, 1);
 
-  // (and its music)
+  // (and its music, and the shadows it chose: the user's again)
   freeMusic();
+  setShadows(_shadowsPref);
 
   // (a script's culling and shadow-record settings go with it, as the
   // lights do)
@@ -4111,6 +4124,8 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
     // (what cullObjects() decided for this frame)
     if (_culled && !(shadowPass ? o->drawInShadow : o->drawOnScreen))
       continue;
+    if (shadowPass && !o->getCastShadow())  // (see Object::setCastShadow())
+      continue;
     if (skipFixed && o->shadowListed)
       continue;
     if (!shadowPass && o->mergeDrawn && _mergeReady)  // (drawn by drawMerged())
@@ -4257,6 +4272,7 @@ void Viewer::cullObjects() {
 
 bool Viewer::isFixedCaster(const Object *o) {
   return !o->placed && o->body != nullptr && o->body->isStaticObject() &&
+         o->getCastShadow() &&
          o->body->getCollisionShape() != nullptr && !o->hasRenderFunction() &&
          dynamic_cast<const SoftBody *>(o) == nullptr;
 }
@@ -5966,6 +5982,22 @@ void Viewer::frameTimingReport(qint64 now) {
   emitScriptOutput(out);
 }
 
+bool Viewer::simHeld() const {
+  return _holdSim > 0 || QApplication::activeModalWidget() != nullptr;
+}
+
+void Viewer::timerEvent(QTimerEvent *e) {
+  // QGLViewer's animation tick steps (animate()) and repaints (update()). With
+  // a modal dialog open neither happens, so the dialog gets the event loop to
+  // itself; the steps are fixed, so the world carries on from where it
+  // stopped when the dialog closes. (And the pause is not a late frame.)
+  if (simHeld()) {
+    _frameTimingLast = -1;
+    return;
+  }
+  QGLViewer::timerEvent(e);
+}
+
 void Viewer::startAnimation() {
   if (_cb_preStart) {
     try {
@@ -5996,9 +6028,8 @@ void Viewer::stopAnimation() {
 }
 
 void Viewer::animate() {
-  // (a dialog is open in a script call, which holds the mutex: the world
-  // waits for it, see ask())
-  if (_holdSim > 0)
+  // (a dialog is open: the world waits for it, see simHeld())
+  if (simHeld())
     return;
   // (one step a picture: a tick before the last step has been drawn waits
   // for the next, unless nothing has been drawn for a while)

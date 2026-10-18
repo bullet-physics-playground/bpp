@@ -18,6 +18,7 @@
 #include <QFontDatabase>
 #include <QRegExp>
 #include <QScrollBar>
+#include <QSignalBlocker>
 
 /**
  * @brief Writes a Gui's description to a standard stream.
@@ -122,6 +123,13 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
   connect(ui.viewer, &Viewer::simulationStateChanged, this,
           &Gui::toggleSimButton);
   connect(ui.viewer, &Viewer::POVStateChanged, this, &Gui::togglePOVExport);
+  // (the menu shows what is drawn: a script's v.shadows too, which would
+  // otherwise leave it ticked with shadows off, so that it took two clicks to
+  // get them back)
+  connect(ui.viewer, &Viewer::shadowsChanged, this, [this](bool on) {
+    QSignalBlocker block(ui.actionShadows);
+    ui.actionShadows->setChecked(on);
+  });
   connect(ui.viewer, &Viewer::deactivationStateChanged, this,
           &Gui::toggleDeactivation);
 
@@ -220,7 +228,9 @@ void Gui::toggleShowConstraints(bool checked) {
   ui.viewer->setShowConstraints(checked);
 }
 
-void Gui::toggleShadows(bool checked) { ui.viewer->setShadows(checked); }
+void Gui::toggleShadows(bool checked) {
+  ui.viewer->setShadowsPreference(checked);
+}
 
 void Gui::postDraw(int /* frame */) {
   // QPixmap p = QPixmap::grabWidget(this);
@@ -882,8 +892,10 @@ void Gui::fileOpen(const QString &path) {
   }
 
   editor->blockSignals(true);
-  editor->load(path);
+  const bool loaded = editor->load(path);
   editor->blockSignals(false);
+  if (!loaded) // (the dialog cancelled: the running script carries on)
+    return;
   ui.viewer->clearParams();
   shortcutsText->clear();
   setCurrentFile(editor->scriptFile());
@@ -1076,7 +1088,7 @@ void Gui::saveSettings() {
 
   settings->setValue("showConstraints", ui.actionShowConstraints->isChecked());
 
-  settings->setValue("shadows", ui.actionShadows->isChecked());
+  settings->setValue("shadows", ui.viewer->shadowsPreference());
 
   settings->endGroup();
 

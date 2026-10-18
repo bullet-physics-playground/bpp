@@ -277,6 +277,9 @@ void Object::luaBind(lua_State *s) {
            .property("emission", &Object::getEmissionString,
                      (void(Object::*)(const QString &)) & Object::setEmission)
 
+           .property("castShadow", &Object::getCastShadow,
+                     &Object::setCastShadow)
+
            .property("transparency",
                      (btScalar(Object::*)(void)) & Object::getTransparency,
                      (void(Object::*)(btScalar)) & Object::setTransparency)
@@ -709,10 +712,13 @@ QString Object::getEmissionString() const {
 }
 
 void Object::povEmission(QTextStream *s) const {
-  if (s == nullptr || !hasEmission())
+  if (s == nullptr)
     return;
-  *s << "  finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
-     << ", " << mEmission[2] << "> }" << "\n";
+  if (hasEmission())
+    *s << "  finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
+       << ", " << mEmission[2] << "> }" << "\n";
+  if (!mCastShadow)
+    *s << "  no_shadow" << "\n";
 }
 
 void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
@@ -742,6 +748,8 @@ void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
        << ", " << mEmission[2] << "> }";
   }
   *s << " }" << "\n";
+  if (!mCastShadow)
+    *s << "  no_shadow" << "\n";
 }
 
 void Object::povAxialImageMap(QTextStream *s, btScalar length) const {

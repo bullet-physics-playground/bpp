@@ -883,6 +883,16 @@ public:
   bool shadows() const;
 
   /**
+   * @brief The user's choice of shadows (the View menu's Shadows): set now,
+   *        and set again each time a script loads, so that a script's
+   *        v.shadows lasts only as long as the script.
+   */
+  void setShadowsPreference(bool on);
+
+  /** @brief See setShadowsPreference(). */
+  bool shadowsPreference() const;
+
+  /**
    * @brief Turns culling on or off: skipping, each frame, the objects that
    *        can't be seen.
    *
@@ -1631,6 +1641,12 @@ public slots:
   void keyPressEvent(QKeyEvent *e) override;
 
   /**
+   * @brief The animation tick: skipped, stepping and drawing alike, while
+   *        simHeld().
+   */
+  void timerEvent(QTimerEvent *e) override;
+
+  /**
    * @brief Reports key releases to the onKey() hook, if one is set.
    * @param e The key event.
    */
@@ -1959,6 +1975,13 @@ signals:
    * @param running True if it is now running.
    */
   void simulationStateChanged(bool running);
+
+  /**
+   * @brief Emitted when shadows are turned on or off, by the user or by a
+   *        script (v.shadows), so the View menu can show which.
+   * @param on True if shadows are now cast.
+   */
+  void shadowsChanged(bool on);
 
   /**
    * @brief Emitted when POV-Ray frame export is turned on or off.
@@ -2799,6 +2822,14 @@ private:
 
   // streamed music, ask() and downloads (viewermedia.cpp)
   bool _headless = false;        ///< See setHeadless().
+  /**
+   * @brief Whether the simulation waits: while an application-modal dialog
+   *        is open (a file dialog, Preferences, a message box, v:ask()), or
+   *        while a script call holds it (_holdSim). animate(), its timer and
+   *        the device handlers then return at once.
+   */
+  bool simHeld() const;
+  bool _shadowsPref = true;      ///< See setShadowsPreference().
   int _holdSim = 0;              ///< > 0 while a modal dialog (or a headless
                                  ///< event pump) runs inside a script call:
                                  ///< animate() and the device handlers, which

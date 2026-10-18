@@ -468,6 +468,15 @@ local function cyl(x, y, z, r, h, col, q)
   c.trans = btTransform(q or UP, btVector3(x, y, z))
   return vis(c, col)
 end
+-- What's overhead (the ceiling, its coffers, the walls and their cornices)
+-- throws no shadow: bpp's light 0 shines from far above, so they would
+-- shadow the whole hall. Everything in the hall is still lit, and the
+-- chandeliers, exhibits and furniture still throw shadows. (An older bpp
+-- without obj.castShadow: as before.)
+local function overhead(o)
+  pcall(function() o.castShadow = false end)
+  return o
+end
 local function mesh(file, x, y, z, col, q)
   local m = realMesh(file, 0, false)
   m.trans = btTransform(q or ident, btVector3(x, y, z))
@@ -500,8 +509,9 @@ local function wall(x0, z0, x1, z1, panels)
   local a = math.atan2(x1 - x0, z1 - z0) + math.pi / 2     -- (the wall runs along its own x)
   local q = yq(a)
   local cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
-  box(cx, H / 2, cz, L, H, 4, WALNUT, q)
-  for _, y in ipairs({ 95, H - 14 }) do box(cx, y, cz, L, 6, 7, DARK, q) end
+  overhead(box(cx, H / 2, cz, L, H, 4, WALNUT, q))
+  box(cx, 95, cz, L, 6, 7, DARK, q)                                      -- dado rail
+  overhead(box(cx, H - 14, cz, L, 6, 7, DARK, q))                        -- cornice
   box(cx, 4, cz, L, 8, 6, DARK, q)                                       -- skirting
   if panels then
     local nx, nz = (x1 - x0) / L, (z1 - z0) / L
@@ -525,17 +535,17 @@ box(XE - 5, 230, ZN / 2, 4, 284, 6, GILT); box(XE - 5, 230, ZN / 2, 4, 6, 204, G
 -- and a large empty frame on the corner's west wall, facing wing B
 box(-HW + 3, 240, ZN / 2, 4, 190, 150, GILT); box(-HW + 4, 240, ZN / 2, 4, 174, 134, "#1d2a3a")
 -- the entrance wall, with a door in it
-box(-HW / 2 - 50, H / 2, ZS, HW - 100, H, 4, WALNUT)
-box(HW / 2 + 50, H / 2, ZS, HW - 100, H, 4, WALNUT)
-box(0, (H + 260) / 2, ZS, 200, H - 260, 4, WALNUT)
+overhead(box(-HW / 2 - 50, H / 2, ZS, HW - 100, H, 4, WALNUT))
+overhead(box(HW / 2 + 50, H / 2, ZS, HW - 100, H, 4, WALNUT))
+overhead(box(0, (H + 260) / 2, ZS, 200, H - 260, 4, WALNUT))
 box(-104, 130, ZS - 3, 10, 270, 8, GILT); box(104, 130, ZS - 3, 10, 270, 8, GILT); box(0, 265, ZS - 3, 218, 12, 8, GILT)
 box(0, 130, ZS + 6, 200, 260, 2, "#1a0f06")
 
 -- the ceiling, coffered
-box(0, H, ZS / 2, WW, 4, ZS, "#3a2210")
-box((XE - HW) / 2, H, ZN / 2, XE + HW, 4, -ZN, "#3a2210")
-for z = 0, ZS, 140 do box(0, H - 7, z, WW, 12, 9, DARK) end
-for x = -HW, XE, 140 do box(x, H - 7, ZN / 2, 9, 12, -ZN, DARK) end
+overhead(box(0, H, ZS / 2, WW, 4, ZS, "#3a2210"))
+overhead(box((XE - HW) / 2, H, ZN / 2, XE + HW, 4, -ZN, "#3a2210"))
+for z = 0, ZS, 140 do overhead(box(0, H - 7, z, WW, 12, 9, DARK)) end
+for x = -HW, XE, 140 do overhead(box(x, H - 7, ZN / 2, 9, 12, -ZN, DARK)) end
 
 -- chandeliers down the middle of each wing and one in the corner
 local function chandelier(x, z)
