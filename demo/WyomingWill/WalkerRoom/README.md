@@ -869,6 +869,10 @@ ground (its lowest part more than 0.5 cm up); its body turns red
 whenever it is. The TerrainHeight and BumpLength sliders build it again
 (it starts at 4 cm and 15 cm).
 
+`test-square-all.lua` is the same square, but Tab goes through all 19
+builds, each as built (its own timing, forward, its own crank speed), for
+looking them over.
+
 ## Telling the walkers apart
 
 Each walker's body (and the plates or bars between its legs) is painted
