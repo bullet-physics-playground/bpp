@@ -325,10 +325,11 @@ time in `../lib/ch13.lua`, each a slider that is off at 0.
 | --- | --- | --- |
 | `etaWidth` | η's band: it ramps from 1 at \|D − r\| = etaWidth × D to 0 at D (1 = the book's Eq. 13.9, r < 2D) | 1 |
 | `etaPower` | **AR damping η** (Eq. 13.9–13.10): every drone–drone force is multiplied by η = (\|D − r\|/D)^etaPower for r < 2D, so it goes smoothly through 0 at D (r is the spin-modified distance the law uses) | 0 |
+| `muMore`, `muLess` | **Adaptive friction** (Eq. 13.23, 13.21): one μ per axis of the AP velocity command, which is multiplied by (1 − μ); μ += muMore·(1 − μ) when that axis's command flips sign, else μ −= muLess·μ (on top of `friction`) | 0, 0 |
 | `stopForce` | **Stop rule** (§13.2.2): when a drone's summed force \|F\| (drones, obstacles, levels, goal; AP force units) is below this, its AP velocity is set to 0 and its waypoint is where it is | 0 |
 
 While a switch is on, the status line shows it at the end (`eta p=1.0`,
-`stop |F|<0.030: 50 stopped`). Adaptive friction (Eq. 13.23), static
+`stop |F|<0.030: 50 stopped`, `mu k+=0.50 k-=0.020 mean=0.84`). Static
 friction (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next.
 
 **How it was measured.** `../probes/settle_drones.lua` with `lib/batch.py`:
@@ -402,7 +403,24 @@ holds its bonds (0.93–0.94 D in 2D, 1.00 D in 3D, against 0.85–0.95 with
 the book's band) but moves no faster than the plain law (swarm centre at
 632 s: −43 m; LJ −50 m).
 
-**What this shows** (`../FINDINGS.md` F43–F47, F49, F50):
+**Adaptive friction** (Eq. 13.23, F51), plain law, from the launch, 3 seeds
+(crossings per drone per minute; centre = swarm centre at 632 s of the
+obstacle-field crossing, 2 seeds):
+
+| muMore / muLess | 2D | 3D |
+| --- | --- | --- |
+| 0.05 / 0.02 | 0.12 m/s, 161 crossings | 0.22 m/s, 282 crossings |
+| 0.2 / 0.02 | 0.04 m/s, 125 crossings | 0.08 m/s, 298 crossings, bond CV 0.023 |
+| 0.5 / 0.02 | 0.014 m/s, 104 crossings; centre +4.5 m | 0.023 m/s, 220 crossings; centre +8.3 m |
+| 0.5 / 0.02 with η (w 0.2) | settles 5 s, 0.993 D; centre −40 m | settles 29–30 s, 1.01 D; centre −38 m |
+
+The book's ratio condition (> 10) holds, and adaptive friction removes
+most of the motion, but the drones still dither across D, as the book says
+before it adds static friction (PDF 465). On its own it freezes the swarm:
+the dither keeps μ at 0.8–0.9, which also damps the goal's pull. With η
+the dither is gone, μ decays to ~0.1, and it adds little to η.
+
+**What this shows** (`../FINDINGS.md` F43–F47, F49–F51):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
   or faster, in every formation, without crashes. The plain law's endless

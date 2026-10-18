@@ -61,7 +61,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–40 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F50 so far), and
+  implementations, and our own mistakes once corrected (F1–F51 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -137,7 +137,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"` (the break keeps the last page from being nearly empty; drop or move it as the file grows).
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, a `--break "<heading>"` before a section can rebalance them (none is needed now).
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -230,13 +230,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   1b. **Done: η's band tied to D** (`etaWidth`, F50; replaces a cooling
      schedule, which would need tuning per task). Open: whether the slope
      limit follows from the lag and apHz.
-  2. **Next: adaptive friction** (Eq. 13.23; two integrators, k_more/k_less
-     > 10; `book/ch13.md` E11a): per axis on the drones' AP velocity,
-     measured with the same probe against η, with and without it. Main
-     question: does it settle the plain law without η's loss of stiffness
-     (F47)?
-  3. Static friction (Eq. 13.25, with the corrected condition
-     μ·m·g < |ΣF·t̂|).
+  2. **Done: adaptive friction** (Eq. 13.23; sliders `muMore`, `muLess`;
+     F51). The ratio > 10 holds; it damps the dither but cannot stop it,
+     and alone it freezes the swarm (μ stuck at 0.8–0.9); with η it adds
+     little.
+  3. **Next: static friction** (Eq. 13.25, PDF 465, with the corrected
+     condition μ·m·g < |ΣF·t̂|): per axis, using the adaptive μ. Main
+     question: does adaptive + static friction settle the plain law
+     without η, as on the Pioneers, and does it free the swarm to follow
+     the goal (F51)?
   4. The adaptive speed cap (Eq. 13.24, k_less/k_more > 10).
   Then the 3D spring lattice (below) and the M1 summary here.
 - **After M1, William's choice between** the realistic world generator

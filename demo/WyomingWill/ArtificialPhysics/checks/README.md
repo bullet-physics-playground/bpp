@@ -20,7 +20,7 @@ on its own from the `ArtificialPhysics` folder.
 | `ch02.lua` | Ch. 2's results on `ch02/models.lua`: spring1D, spring2D, solar_system experiments a–e (27 tests) | 2 s |
 | `world.lua` | `lib/world.lua` and its book presets: point tests, cells, corridor coverage, seeds, shadow cells, grids, CPT format (20 tests) | 10 s |
 | `lattice.lua` | `lib/lattice.lua`: Delaunay triangulation (Euler's counts on 200 random sets, empty circumcircles), Ch. 16.9's edge CV on perfect, jittered and square lattices, 3D nearest-neighbour and bond CV (10 tests) | < 1 s |
-| `ch13.lua` | `lib/ch13.lua` against Figs. 13.3 and 13.8: AR damping η, smooth through D, minimum −50 at 2D, off at p_d = 0 bit for bit; the stop rule; the 2D particle replica of the drone law: dithers without η, settles at ~0.8 D with η at range 1.5, at D with range 1.25 or when switched on after forming, or in a band w = 0.2 (FINDINGS F43, F45, F49, F50; 19 tests) | 1 s |
+| `ch13.lua` | `lib/ch13.lua` against Figs. 13.3 and 13.8: AR damping η, smooth through D, minimum −50 at 2D, off at p_d = 0 bit for bit; the stop rule; the 2D particle replica of the drone law: dithers without η, settles at ~0.8 D with η at range 1.5, at D with range 1.25 or when switched on after forming, or in a band w = 0.2; Eq. 13.23's adaptive friction (FINDINGS F43, F45, F49, F50; 23 tests) | 1 s |
 | `mfp_theory.lua` | Listing 11.4 in 2D and 3D against the exact mean free path | 4 s |
 | `rng_appendix.lua` | The appendix's Listing A.1: `lib/rng.lua` flat at every S, `math.random` biased at S = 25–27 | 1 min |
 | `batch_repeat.sh` | `lib/batch.py` gives the same CSV serially and in parallel (needs BPP; skipped if none is built) | 30 s |

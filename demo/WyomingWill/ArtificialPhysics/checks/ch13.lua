@@ -84,6 +84,28 @@ check("band w = 0.2: eta(D +- 0.1 D) = 0.5, eta = 1 outside the band",
   near(C13.eta(0.9, D, 1, 0.2), 0.5, 1e-12) and near(C13.eta(1.1, D, 1, 0.2), 0.5, 1e-12)
   and C13.eta(0.79, D, 1, 0.2) == 1 and C13.eta(1.25, D, 1, 0.2) == 1 and C13.eta(0.5, D, 1, 0.2) == 1)
 
+-- Adaptive friction, Eq. 13.23.
+check("Eq. 13.23: a sign change grows mu by kMore (1 - mu)",
+  near(C13.adaptMu(0.2, -1, 1, 0.5, 0.05), 0.6, 1e-12) and near(C13.adaptMu(0, 1, -2, 0.2, 0.02), 0.2, 1e-12))
+check("Eq. 13.23: same sign or a zero command shrinks mu by kLess mu",
+  near(C13.adaptMu(0.5, 1, 2, 0.5, 0.1), 0.45, 1e-12) and near(C13.adaptMu(0.5, 0, 2, 0.5, 0.1), 0.45, 1e-12)
+  and near(C13.adaptMu(0.5, 0, 0, 0.5, 0.1), 0.45, 1e-12))
+do
+  -- a command that flips sign every tick drives mu toward 1; a steady
+  -- one drives it to 0; mu stays in [0, 1]
+  local mu, ok = 0, true
+  for i = 1, 400 do
+    mu = C13.adaptMu(mu, (i % 2 == 0) and 1 or -1, (i % 2 == 0) and -1 or 1, 0.2, 0.02)
+    if mu < 0 or mu > 1 then ok = false end
+  end
+  local mu2 = mu
+  for _ = 1, 400 do mu2 = C13.adaptMu(mu2, 1, 1, 0.2, 0.02) end
+  check("Eq. 13.23: oscillating command -> mu near 1; steady -> mu near 0",
+    ok and mu > 0.99 and mu2 < 1e-3, string.format("%.4f then %.2g", mu, mu2))
+  check("adaptive friction off (kMore = kLess = 0): mu stays 0",
+    C13.adaptMu(0, -1, 1, 0, 0) == 0 and C13.adaptMu(0, 1, 1, 0, 0) == 0)
+end
+
 -- The stop rule.
 check("stop rule: |F| below the threshold stops, at or above it does not",
   C13.stopped(3, 4, 0, 5.5) and not C13.stopped(3, 4, 0, 5) and not C13.stopped(3, 0, 4, 4.5)

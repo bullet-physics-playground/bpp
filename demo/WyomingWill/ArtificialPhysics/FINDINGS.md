@@ -239,6 +239,31 @@ and 3D (w 1: −46, −47; plain law −43, −41; LJ −50, −51). The stiffer
 lattice threads the columns no faster than the jittering one; LJ is both
 stiff and fluid.
 
+**F51. Ch. 13.4.1.1: adaptive friction damps the dither but cannot stop
+it, and alone it freezes the swarm** — 2026-10-18, Confirmed in part (PDF
+463–465), New in part. `quadcopter/README.md`. Eq. 13.23 per axis on the
+drones' AP velocity (`muMore`, `muLess`), plain Newtonian law, from the
+launch, 3 seeds. The book's ratio condition holds: at kMore/kLess 2.5 and
+10 (kLess 0.02) the swarm keeps moving (2D 0.12 and 0.04 m/s, 3D 0.22 and
+0.08 m/s); at 25 it falls below 0.1 m/s² in 6 s (2D) and 30–32 s (3D).
+But the drones still cross D 104 (2D) and 220 (3D) times per drone per
+minute, at 0.014 and 0.023 m/s: the small-amplitude oscillation that the
+book says remains after adaptive friction and that its static friction
+removes (§13.4.1.4, PDF 465). Our acceleration test alone calls these runs
+settled; the crossing count shows they are not. The cost is mobility:
+that residual dither keeps flipping the commands' signs, so mu stays at
+0.8–0.9 and damps the goal's pull too. Crossing the obstacle field (2
+seeds) the swarm's centre reaches only +4.5 m (2D) and +8.3 m (3D) in
+632 s, against −43 and −41 m for the plain law: the book's "too much
+damping impairs reactivity" (PDF 463). With η in its 0.2 D band (F50) the
+dither is gone, so mu decays (0.08–0.11 settled, 0.12–0.26 while following
+the goal): settling is a little faster (5 s 2D, 29–30 s 3D, against ~10 s
+and 32–33 s with η alone), the lattice the same (0.993 D, Delaunay CV
+0.082; 3D 1.01 D, bond CV 0.054), and the crossing slightly slower (−40,
+−38 m against −43, −43 m). In 2D alone it compresses the lattice (0.92–0.94
+D); in 3D at ratio 10 it gave the most regular lattice measured (bond CV
+0.023) while still moving at 0.08 m/s.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -398,5 +423,7 @@ the useful range. Same root as F31.
 - How to keep η's spacing at D in 2D at range 1.5 D (F45): a shorter range
   works, as do switching η on after the lattice forms (F49) and a narrow
   band tied to D (F50). Whether the slope limit (~0.04–0.05 per AP unit)
-  follows from the drones' lag and AP rate, and holds for other apHz. And whether the next Ch. 13 mechanisms (adaptive and static
+  follows from the drones' lag and AP rate, and holds for other apHz.
+  Whether static friction (Eq. 13.25) stops the residual dither that
+  adaptive friction leaves (F51) without η, and without freezing the swarm. And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).

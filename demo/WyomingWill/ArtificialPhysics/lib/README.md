@@ -205,10 +205,11 @@ end
 ```
 
 - **One function per Ch. 13 mechanism**, so every vehicle uses the same code.
-  Each is off at 0 (`pd = 0`, `thr = 0`), leaving the force bit for bit as it
-  was. Adaptive friction (Eq. 13.23), static friction (Eq. 13.25) and the
-  adaptive speed cap (Eq. 13.24) come in the next steps of milestone M1.
+  Each is off at 0 (`pd = 0`, `thr = 0`, `kMore = kLess = 0`), leaving the
+  behaviour bit for bit as it was. `adaptMu` is Eq. 13.23. Static friction
+  (Eq. 13.25) and the adaptive speed cap (Eq. 13.24) come next in M1.
 - `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
   spin-modified distance the law itself uses, and the stop rule to each
-  drone's summed force (sliders `etaPower`, `etaWidth`, `stopForce`).
+  drone's summed force, and adaptive friction per axis (sliders `etaPower`,
+  `etaWidth`, `stopForce`, `muMore`, `muLess`).
 - `checks/ch13.lua` reproduces Fig. 13.3 and Fig. 13.8 (11 tests).

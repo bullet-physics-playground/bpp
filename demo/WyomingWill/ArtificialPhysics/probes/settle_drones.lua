@@ -19,6 +19,8 @@
 --              distance changed side of D between two AP ticks, each pair
 --              once, x 2 / drones; book/ch13.md E11)
 --   stopped    fraction of drone-ticks held by the stop rule (stopForce)
+--   mu         mean adaptive-friction coefficient over drones, axes (x, z
+--              in 2D) and AP ticks (muMore/muLess; 0 when off)
 --   cv         Ch. 16.9 lattice quality: CV (sd/mean) of the Delaunay edge
 --              lengths between drones within 80% of the swarm's maximum
 --              radius from its centroid, in the horizontal plane. 2D only
@@ -83,7 +85,7 @@ local function snapshot()
   local st = Swarm.state()
   local m = st.metrics
   return { accSum = m.accSum, accN = m.accN, gapSum = m.gapSum, gapN = m.gapN,
-           crossings = m.crossings, stops = m.stops, droneTicks = m.droneTicks, t = st.simTime }
+           crossings = m.crossings, stops = m.stops, droneTicks = m.droneTicks, muSum = m.muSum, t = st.simTime }
 end
 
 local function apSpeed(st)
@@ -129,7 +131,7 @@ end
 local function report(extra)
   local st = Swarm.state()
   local now = snapshot()
-  local base = lastRow or { accSum = 0, accN = 0, gapSum = 0, gapN = 0, crossings = 0, stops = 0, droneTicks = 0, t = st.apEngagedAt }
+  local base = lastRow or { accSum = 0, accN = 0, gapSum = 0, gapN = 0, crossings = 0, stops = 0, droneTicks = 0, muSum = 0, t = st.apEngagedAt }
   local fly, crashed, pts2, pts3, sx = 0, 0, {}, {}, 0
   for _, d in ipairs(st.drones) do
     if d.state == "crashed" then crashed = crashed + 1
@@ -159,11 +161,12 @@ local function report(extra)
     gap = now.gapN > base.gapN and (now.gapSum - base.gapSum) / (now.gapN - base.gapN) or "",
     cross = (fly > 0 and minutes > 0) and 2 * (now.crossings - base.crossings) / fly / minutes or "",
     stopped = dTicks > 0 and (now.stops - base.stops) / dTicks or "",
+    mu = dTicks > 0 and (now.muSum - base.muSum) / dTicks or "",
     cv = cv or "", nncv = nncv or "", bond = bond or "", bondcv = bondcv or "",
     settleA = settleTime("acc", ACC_SETTLE), settleV = settleTime("speed", V_SETTLE),
   }
   for kk, val in pairs(extra or {}) do row[kk] = val end
-  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "stopped", "cv", "nncv", "bond", "bondcv", "settleA", "settleV" })
+  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "stopped", "mu", "cv", "nncv", "bond", "bondcv", "settleA", "settleV" })
   lastRow = now
 end
 

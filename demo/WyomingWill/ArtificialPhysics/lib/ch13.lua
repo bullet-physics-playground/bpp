@@ -25,8 +25,18 @@
 --                        below threshold (AP force units); the vehicle is
 --                        then told to stop. threshold <= 0 never stops.
 --
--- Not yet here (later steps of milestone M1): adaptive friction
--- (Eq. 13.23), static friction (Eq. 13.25), adaptive speed cap (Eq. 13.24).
+--   adaptMu(mu, uNew, uOld, kMore, kLess)
+--                        adaptive friction, Eq. 13.23 (PDF 464): the new
+--                        friction coefficient for one command channel
+--                          mu + kMore (1 - mu)   if uNew * uOld < 0
+--                          mu - kLess mu         otherwise (same sign or 0)
+--                        mu in [0, 1] stays there for 0 <= k <= 1. The
+--                        command is used as u (1 - mu) (Eq. 13.21). The
+--                        book needs kMore / kLess > 10 (PDF 464) and gives
+--                        no absolute gains.
+--
+-- Not yet here (later steps of milestone M1): static friction
+-- (Eq. 13.25), adaptive speed cap (Eq. 13.24).
 --
 -- Plain Lua 5.1-5.4; checks/ch13.lua tests it against Figs. 13.3 and 13.8.
 --
@@ -44,6 +54,11 @@ end
 
 function M.damp(f, r, D, pd, w)
   return f * M.eta(r, D, pd, w)
+end
+
+function M.adaptMu(mu, uNew, uOld, kMore, kLess)
+  if uNew * uOld < 0 then return mu + kMore * (1 - mu) end
+  return mu - kLess * mu
 end
 
 function M.stopped(fx, fy, fz, threshold)
