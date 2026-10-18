@@ -119,8 +119,10 @@ w:writeGrid("corridor.txt")
   `World.new{}` plus `disc`, `rect`, `tri`, `wall`, `boxWalls`, `region`,
   `cells`, `scatter` builds your own.
 - **Presets** (`World.presets()`):
-  - `ch03-obstacles`: the 12 discs of Figs. 3.25–3.26, measured from the
-    figure (`radius` 10 or 50), goal and start;
+  - `ch03-obstacles`: Fig. 3.25's 12 discs of radius 10, measured from the
+    figure, goal and start;
+  - `ch03-wall`: Fig. 3.26's own field, 6 discs of radius 45 (measured; the
+    text says 50) merged into a wall;
   - `ch04-coverage`: the coverage box, nine cells on ±40 (`netlogo = true`
     moves the walls to NetLogo's ±42);
   - `ch07-corridor`: 1000″ × 5000″, random rectangles, triangles and circles
@@ -141,4 +143,4 @@ w:writeGrid("corridor.txt")
   human-readable `#`/`.` grid.
 - **The realistic layers** (terrain, water with depth, zones, streets, lots,
   buildings, vegetation) are planned in `BOOK.md` §6 and come next.
-- `checks/world.lua`: 20 tests, about 10 s.
+- `checks/world.lua`: 21 tests, about 10 s.

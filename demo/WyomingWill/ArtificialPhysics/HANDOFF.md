@@ -28,6 +28,9 @@ is updated at the end of every milestone.
   and check every patch applies cleanly to the current `origin/master`; master
   moves. If an earlier patch hasn't been applied yet, fold it into the new one
   and say so.
+- **Read the full diff of every commit before making it**, and stage only
+  the files you changed. Another session can edit the same checkout; a
+  "changed on disk" notice on a file is a warning (FINDINGS F39).
 - Say whether a rebuild is needed. Lua-only patches need none. New C++ files
   need `qmake` re-run (the .pro globs `src/*.cpp` at qmake time). He builds the
   **debug** config (`debug/.obj`), so give `rm -rf debug/bpp.gch release/bpp.gch`
@@ -56,7 +59,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–37 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F36 so far), and
+  implementations, and our own mistakes once corrected (F1–F40 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is

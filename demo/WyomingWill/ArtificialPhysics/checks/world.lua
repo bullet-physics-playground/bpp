@@ -54,10 +54,18 @@ do
   check("ch03: 12 discs of radius 10", n == 12 and w.pieces[1].r == 10, w:summary())
   check("ch03: narrowly spaced at radius 10 (gaps > 0)", minGap > 0 and minGap < 10,
         string.format("smallest gap %.1f patches", minGap))
-  local big = World.preset("ch03-obstacles", { radius = 50 })
-  local frac = big:obstacleFraction(300)
-  check("ch03: at radius 50 the discs merge into one wall", big:blocked(48, -7) and frac > 0.15,
-        string.format("covers %.0f%% of the world", 100 * frac))
+  -- Fig. 3.26 is its own layout (6 discs of radius 45 measured from the
+  -- figure), not Fig. 3.25's discs enlarged. Its grey covers 24.8% of the
+  -- panel (102,816 of 416,670 px at 300 dpi).
+  local wall = World.preset("ch03-wall")
+  local frac = wall:obstacleFraction(300)
+  local n = 0
+  for _, p in ipairs(wall.pieces) do if p.tag == "obstacle" then n = n + 1 end end
+  check("ch03-wall: Fig. 3.26's 6 discs of radius 45 cover what the figure does",
+        n == 6 and wall.pieces[1].r == 45 and math.abs(frac - 0.248) < 0.01,
+        string.format("covers %.1f%% (figure 24.8%%)", 100 * frac))
+  check("ch03-wall: one connected wall, goal clear",
+        wall:blocked(33.6, 0) and wall:blocked(10.3, 10) and not wall:blocked(-119, 4, "obstacle"))
   check("ch03: goal and start clear of the field",
         not w:blocked(w.regions.goal.x, w.regions.goal.y, "obstacle")
         and not w:blocked(120, 0, "obstacle"))

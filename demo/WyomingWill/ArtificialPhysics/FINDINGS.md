@@ -8,19 +8,14 @@ each time. `BOOK.md` says what to build and `FIXES.md` what was fixed in the
 code; this file says what was learned.
 
 **How to read an entry.** Each has an ID, the date, what was done, the
-numbers, where the evidence lives (a check script, a README or a probe), and
-a status:
-
-- **Confirmed:** the book's claim, reproduced by our own measurement.
-- **New:** a result the book does not have.
-- **Book error:** the book disagrees with its own code, figures or arithmetic.
-- **Divergence:** two implementations (NetLogo, the Android app, BPP) differ.
-- **Our error:** something we got wrong, and how it was found and corrected.
-- **Open:** measured but not yet settled.
+numbers, where the evidence lives (a check script, a README or a probe), and a
+status: **Confirmed** (the book's claim, reproduced by our own measurement),
+**New** (a result the book does not have), **Book error** (the book disagrees
+with its own code, figures or arithmetic), **Divergence** (NetLogo, the Android
+app and BPP differ), **Our error** (something we got wrong, and how it was found
+and corrected) or **Open** (measured but not yet settled).
 
 Page numbers are PDF pages of `apbook1.pdf`; book page = PDF − 31.
-
----
 
 ## 1. The book's results, reproduced
 
@@ -84,8 +79,6 @@ At equal visits (5×10⁷), MFP 30 / 50 give 0.0035 / 0.0158 with one agent
 and 0.00087 / 0.0035 with 100. Crowding adds turns, shortening the effective
 free path. Agents are near-independent only when they rarely meet.
 
----
-
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -129,14 +122,13 @@ the book means no drift.
 
 **F13. Ch. 3's obstacle field, measured from the figures** — 2026-10-17,
 New. `lib/world.lua` (`World.CH03_DISCS`).
-Both panels of Fig. 3.25 give the same 12 disc centres to within a pixel
-(shifted by a constant crop). The discs, drawn 2·obstacleF = 20 across, set
-the scale at 2.11 px per patch at 300 dpi, so the world is about 305 patches
-wide, the goal at (−119, 4) and the field's centre at (48, −7). Fig. 3.26 uses
-the same centres at radius 50. The closest gap at radius 10 is 5.2 patches
-("narrowly spaced").
-
----
+Both panels of Fig. 3.25 give the same 12 disc centres to within a pixel,
+shifted as a group (F40). The discs, drawn 2·obstacleF = 20 across, set the
+scale at 2.11 px per patch at 300 dpi, confirmed independently by the
+formation: its nodes are 63.3 px apart, D = 30 patches (G 400 > G_t 259.8, so
+particles pair up). The world is about 305 patches wide, the goal at
+(−119, 4), the field's centre at (48, −7); the closest gap is 5.2 patches
+("narrowly spaced"). Fig. 3.26 is a different field (F37).
 
 ## 3. Errors and discrepancies in the book
 
@@ -157,8 +149,6 @@ mention. The cap's code is not shown; we clip each speed.
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
 measurement and will be entered here as each chapter is ported.
-
----
 
 ## 4. Differences between implementations
 
@@ -189,8 +179,6 @@ A text file of nx lines of ny characters, `' '` open, `'b'` blocked. His
 PlumeGen, rebuilt from source, loads a map written by our generator and
 reports the same coverage (3.6%). Its reader as shipped wants a square of at
 most 1024; ours writes any size.
-
----
 
 ## 5. Our own errors, corrected
 
@@ -240,25 +228,39 @@ and the generator's stream is identical on each.
 
 ---
 
+**F37. Fig. 3.26 drawn as Fig. 3.25's discs enlarged** — Our error, found by
+William. Obstacles are placed by mouse clicks, so Fig. 3.26 has its own field:
+six discs fitted to its outline (preset `ch03-wall`); drawn over the figure,
+they trace it.
+
+**F38. Fig. 3.26's discs measure radius 45, the text says 50** — Book
+discrepancy (small). Radius 95 px at the scale confirmed by the lattice
+(F13); the field covers 24.8% of the panel, ours 24.6%.
+
+**F39. Code against William's instruction went out in a commit of ours** —
+Our error. Another session in the same checkout added a `cpt-textron` preset
+(Textron buildings from `MakeMap.c`); I staged the folder without reading the
+diff, so it reached master in step 4. Removed; diffs are now read first.
+
+**F40. Both figures' obstacles shift between panels** ((17, 21) patches in
+Fig. 3.26) — Open: pushed heavy particles, or cropping? Check the `.nlogo`.
+
 ## 6. How BPP behaves (worth knowing for every port)
 
-**F28. Headless results depend on `delayMs`** — `FIXES.md` 1. The throttle
-compares wall-clock time, so a headless run's result depends on machine speed
-unless `delayMs` is 0. `lib/batch.py` sets it in every run.
+**F28. Headless results depend on `delayMs`** (FIXES 1): its throttle uses
+wall-clock time; `lib/batch.py` sets it to 0.
 
 **F29. R reloads the script and resets every slider** unless a scene binds R
-itself; BPP's toolbar restart restores the sliders after reloading (F22).
+itself; the toolbar restart restores the sliders after reloading (F22).
 
-**F30. One callback of each kind:** `v:postSim`, `v:preDraw`, `v:preStop` and
-`v:onParamChanged` each hold one function; setting another replaces it (F26).
+**F30. One callback of each kind:** `v:postSim`, `v:preDraw`, `v:preStop`,
+`v:onParamChanged`; setting another replaces it (F26).
 
-**F31. Slider ranges are floats turned into integers** (value / step), so
-ranges must stay well inside ±2³¹ steps, and values above 2²⁴ are not exact
-(F21).
+**F31. Slider ranges are floats turned into integers** (value / step): keep
+them well inside ±2³¹ steps; values above 2²⁴ are not exact (F21).
 
-**F32. Scripts run in their own folder** in the GUI (BPP changes directory on
-open), so `require` finds modules relative to the script's folder; scripts in
-subfolders add `../?.lua` to reach `lib/`.
+**F32. Scripts run in their own folder** in the GUI; scripts in subfolders add
+`../?.lua` to reach `lib/`.
 
 **F34. BPP's Lua depends on the build:** 5.1 or 5.2 (`bpp.pro`), not the
 standalone `lua` on the path: William's BPP is 5.2, the cloud build 5.1. Ask
@@ -271,8 +273,6 @@ tests that "pressed S to start" were stopping runs (our error).
 **F36. Huge "off" values make unusable sliders** (Force_Maximum 0.1–10⁶ could
 not be set to 1; found by William). Caps now get a tick box and a slider over
 the useful range. Same root as F31.
-
----
 
 ## 7. Open questions
 

@@ -3,7 +3,8 @@
 --
 -- One description of a world, built from simple pieces, gives every output a
 -- port needs: BPP geometry, an occupancy grid, and masks for the metrics. It
--- replaces the old Textron map maker. M0 has the core and three book
+-- is our own; nothing in it comes from the old map makers of Zarzhitsky's CPT
+-- code (MakeMap.c for Textron, MapGen.c). M0 has the core and the book's
 -- presets; the harbour features (BOOK.md section 6) come with the
 -- milestones that use them.
 --
@@ -287,47 +288,6 @@ function World:writeGrid(path, occ)
   f:close()
 end
 
--- The map format of Zarzhitsky's CPT code (PlumeGen, TraceGen; MapUtils.h):
--- plain text, no header, a square of n lines of n characters, 'b' for
--- blocked and ' ' for open. His readers take line l as map x = l and
--- character c as map y = c, a point (x, y) belonging to cell
--- (round x, round y); PlumeGen accepts only square maps up to 1024. We
--- write the picture the way MakeMap.c does: line 0 at the top of the
--- world (largest y), characters left to right in x, cell (l, c) covering
--- [x0 + c d, x0 + (c+1) d) by [y1 - (l+1) d, y1 - l d), d = cell size.
--- opts: n (cells a side; default from cell), cell (world units per cell),
--- tag (only these pieces count; default obstacles and walls), padBlocked
--- (default true: the square beyond a non-square world is blocked).
--- A cell is blocked when its centre is. Returns n and the cell size, and
--- the transform from world (x, y) to his map (X, Y):
---   X = (y1 - y) / d - 0.5,  Y = (x - x0) / d - 0.5
-function World:writeZarzhitsky(path, opts)
-  opts = opts or {}
-  local b = self.bounds
-  local side = math.max(b.x1 - b.x0, b.y1 - b.y0)
-  local d = opts.cell or (side / (opts.n or 128))
-  local n = opts.n or math.ceil(side / d - 1e-9)
-  assert(n <= 1024, "PlumeGen reads at most 1024 x 1024")
-  local x0, y1 = b.x0, b.y0 + n * d    -- the square grows up and to the right
-  if (b.y1 - b.y0) >= (b.x1 - b.x0) then y1 = b.y1 end
-  local pad = opts.padBlocked ~= false
-  local f = assert(io.open(path, "w"))
-  for l = 0, n - 1 do
-    local row = {}
-    for c = 0, n - 1 do
-      local x, y = x0 + (c + 0.5) * d, y1 - (l + 0.5) * d
-      local blk
-      if x < b.x0 or x > b.x1 or y < b.y0 or y > b.y1 then blk = pad
-      elseif opts.tag then blk = self:blocked(x, y, opts.tag)
-      else blk = self:blocked(x, y, "obstacle") or self:blocked(x, y, "wall") end
-      row[#row + 1] = blk and "b" or " "
-    end
-    f:write(table.concat(row), "\n")
-  end
-  f:close()
-  return n, d, { x0 = x0, y1 = y1, cell = d }
-end
-
 -- Zarzhitsky's map format, as read by his PlumeGen and TraceGen (CPT code,
 -- MapUtils.h, PlumeGen.c read_map_file): a text file of nx lines of ny
 -- characters, ' ' open and 'b' blocked, line i holding x cell i and
@@ -551,10 +511,12 @@ end
 -- The book's worlds
 --------------------------------------------------------------------------
 
--- The 12 obstacle discs of Figs. 3.25-3.26 (PDF 120-121), relative to their
--- centroid, in NetLogo patches. Measured from the figure: the discs are 42 px
--- across at 300 dpi and drawn at size 2 x obstacleF = 20, so 2.11 px per
--- patch; both panels of Fig. 3.25 give the same layout to within a pixel.
+-- The 12 obstacle discs of Fig. 3.25 (PDF 120), relative to their centroid,
+-- in NetLogo patches. Measured from the figure: the discs are 42 px across at
+-- 300 dpi and drawn at size 2 x obstacleF = 20, so 2.11 px per patch; both
+-- panels give the same layout to within a pixel. The scale is confirmed
+-- independently by the formation: its nodes are 63.3 px apart, D = 30
+-- patches (G 400 is above G_t 259.8, so particles pair up at nodes).
 World.CH03_DISCS = {
   { -47.7, 3.9 }, { -35.6, 49.6 }, { -33.8, -25.7 }, { -16.4, -49.2 },
   { -10.4, 61.0 }, { -3.1, 25.0 }, { -1.1, -22.6 }, { 12.4, 0.6 },
@@ -579,6 +541,30 @@ presets["ch03-obstacles"] = function(o)
   w:region("start", 90, -40, 150, 40)
   w.notes[#w.notes + 1] = "disc layout, goal (-119, 4) and the field's centre (48, -7) measured from Fig. 3.25 (about +-2 patches); world size from the figure's scale (305 patches), not stated in the book"
   w.notes[#w.notes + 1] = "start region: the particles start as a cloud on the right (text); its size is our choice"
+  return w
+end
+
+-- Fig. 3.26 (PDF 121) is a different field, not Fig. 3.25's discs enlarged:
+-- obstacles are placed by mouse clicks. Six discs fitted to its outline
+-- (Hough circles plus a search for one hidden behind the others; together
+-- they cover the grey to within 4%), radius 95 px = 45 patches at the same
+-- 2.11 px per patch, in world patches with the goal at (-119, 4) as in Fig.
+-- 3.25. The text says obstacle size 50; the figure measures 45.
+World.CH03_WALL_DISCS = {
+  { -0.6, -55.5 }, { -7.7, 45.9 }, { 51.6, -51.7 },
+  { 64.8, -14.3 }, { 33.6, 19.8 }, { 10.3, -21.9 },
+}
+
+-- Ch. 3.6, Fig. 3.26: the obstacles merged into a wall that the formation
+-- rotates around. opts.radius (default 45, as measured).
+presets["ch03-wall"] = function(o)
+  local w = World.new({ name = "ch03-wall", units = "patches",
+                        bounds = { -152, -152, 152, 152 }, height = o.height or 10 })
+  local r = o.radius or 45
+  for _, d in ipairs(World.CH03_WALL_DISCS) do w:disc(d[1], d[2], r) end
+  w:region("goal", -119, 4)
+  w:region("start", 90, -40, 150, 40)
+  w.notes[#w.notes + 1] = "Fig. 3.26's own layout: 6 discs of radius 45 measured from the figure (the text says size 50); goal as Fig. 3.25"
   return w
 end
 
@@ -614,54 +600,6 @@ presets["ch07-corridor"] = function(o)
   end
   w.notes[#w.notes + 1] = "obstacle sizes 60-240 inches, overlaps allowed, and 200-inch clear strips at both ends are our choices; the book gives only the shapes and the covered percentage"
   w.notes[#w.notes + 1] = "shadow cells: free cells whose upstream neighbour (toward the start) is more than half obstacle"
-  return w
-end
-
--- Ch. 9 (Zarzhitsky's CPT code, MakeMap.c by WMS for Textron): the 32
--- buildings of the Webots Textron world, a 32-unit square written at 4
--- cells per unit as map.textron (128 x 128). Webots puts the origin at
--- the centre with +x to the LEFT; here x is flipped so +x is to the right.
--- writeZarzhitsky(path, { n = 128 }) reproduces map.textron exactly.
-World.TEXTRON = {   -- Webots centre x, centre y, width (x), height (y)
-  { 12.5, -11.5, 3, 3 },
-  { 6.0, -11.5, 6, 3 },
-  { -1.5, -11.5, 5, 3 },
-  { -8.0, -10.5, 4, 1 },
-  { -10.0, -13.0, 8, 2 },
-  { -13.0, -10.0, 2, 8 },
-  { -6.5, -7.0, 7, 2 },
-  { -0.5, -7.0, 1, 2 },
-  { 4.5, -5.0, 5, 6 },
-  { 11.0, -7.5, 4, 1 },
-  { 12.0, -5.0, 2, 4 },
-  { 13.0, 1.0, 2, 4 },
-  { 9.0, 1.5, 2, 1 },
-  { 4.0, 2.5, 4, 1 },
-  { 4.0, 0.5, 4, 1 },
-  { -3.0, 3.0, 2, 4 },
-  { -3.0, -0.5, 2, 1 },
-  { -3.0, -2.5, 2, 1 },
-  { -6.0, -1.5, 2, 3 },
-  { -10.0, 0.5, 2, 1 },
-  { -10.0, -2.5, 2, 1 },
-  { -10.0, 2.5, 2, 1 },
-  { -10.0, 4.5, 2, 1 },
-  { -6.0, 4.5, 2, 1 },
-  { -6.0, 2.5, 2, 1 },
-  { -13.0, 2.5, 2, 5 },
-  { 11.0, 7.0, 4, 2 },
-  { 11.0, 13.0, 6, 2 },
-  { 4.0, 9.0, 4, 2 },
-  { -9.0, 13.0, 10, 2 },
-  { -3.0, 9.0, 2, 2 },
-  { -9.0, 9.0, 8, 2 },
-}
-
-presets["cpt-textron"] = function(o)
-  local w = World.new({ name = "cpt-textron", units = "Webots units", bounds = { -16, -16, 16, 16 },
-                        height = o.height or 3 })
-  for _, b in ipairs(World.TEXTRON) do w:rect(-b[1], b[2], b[3], b[4], 0) end
-  w.notes[#w.notes + 1] = "buildings from MakeMap.c (MakeMap.Textron.c); heights are not in the map, so all are o.height"
   return w
 end
 
