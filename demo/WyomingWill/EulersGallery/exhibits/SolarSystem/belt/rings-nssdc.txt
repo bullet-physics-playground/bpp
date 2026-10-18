@@ -1,0 +1,41 @@
+# NASA NSSDC ring fact sheets (D. R. Williams, last updated 14 Oct 2015), fetched 18 Oct 2026.
+# https://nssdc.gsfc.nasa.gov/planetary/factsheet/satringfact.html
+SATURN (eq. radius 60,268 km); radius km | R/Req | optical depth | albedo | thickness m
+D inner 66,900 1.110 1e-5 ; D outer 74,510 1.236
+C inner 74,658 1.239 tau 0.05-0.35 albedo 0.12-0.30 thick 5 ; Titan ringlet 77,871 ; Maxwell gap/ringlet 87,491
+C outer 91,975 1.526 ; B inner 91,975 1.526 tau 0.4-2.5 albedo 0.4-0.6 thick 5-10 ; B outer 117,507 1.950
+Cassini division (between B outer and A inner): tau 0-0.1 albedo 0.2-0.4
+A inner 122,340 2.030 tau 0.4-1.0 albedo 0.4-0.6 thick 10-30 ; Encke gap 133,410 2.214 ; Keeler gap 136,487 2.265 ; A outer 136,780 2.270
+F ring 139,826 2.320 tau 0.1 albedo 0.6 e 0.0026
+G 166,000-173,000 tau 1e-6 ; E 180,000-480,000 tau 1e-6
+Note: rings, ringlets and gaps narrower than 1000 km are listed by inner edge radius.
+# https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranringfact.html
+URANUS (eq. radius 25,559 km); radius km | R/Req | tau | albedo x1e-3 | width km | e
+6 41,837 1.637 ~0.3 ~15 1.5 0.0010
+5 42,234 1.652 ~0.5 ~15 ~2 0.0019
+4 42,571 1.666 ~0.3 ~15 ~2 0.0011
+Alpha 44,718 1.750 ~0.4 ~15 4-10 0.0008
+Beta 45,661 1.786 ~0.3 ~15 5-11 0.0004
+Eta 47,176 1.834 ~0.4 ~15 1.6
+Gamma 47,627 1.863 ~0.3 ~15 1-4 0.0011
+Delta 48,300 1.900 ~0.5 ~15 3-7 0.0004
+Lambda 50,024 1.957 ~0.1 ~15 ~2
+Epsilon 51,149 2.006 0.5-2.3 ~18 20-96 0.0079
+R/2003 U 2 (nu) 67,300 2.633 <<0.01 width 3,800
+R/2003 U 1 (mu) 97,700 3.823 <<0.01 width 17,000
+# https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupringfact.html
+JUPITER (eq. radius 71,492 km); inner-outer km | thickness km | tau | albedo
+Halo 89,400-123,000 ~10,000 3e-6
+Main 123,000-128,940 <~100 5e-6 ~0.015
+Amalthea (gossamer) 128,940-181,350 2,600 1e-7
+Thebe (gossamer) 181,350-221,900 8,800 1e-7
+Thebe extension 221,900-280,000 8,800 1e-7
+# https://nssdc.gsfc.nasa.gov/planetary/factsheet/nepringfact.html
+NEPTUNE (eq. radius 24,766 km); radius km | R/Req | tau | albedo x1e-3 | width km
+Galle ~41,900 1.692 ~0.0001 ~15 ~2000
+LeVerrier ~53,200 2.148 ~0.01 ~15 <100
+Lassell ~53,200 2.148 ~0.0001 ~15 ~4000   (Lassell extends outward from LeVerrier)
+Arago ~57,200 2.310 (sheet lists "<100" in the tau column; likely the width)
+Unnamed (indistinct) 61,953 2.501
+Adams 62,933 2.541 tau 0.01-0.1 ~15 width ~15
+Arcs in Adams: Courage, Liberte, Egalite 1, Egalite 2, Fraternite: tau 0.12, width ~15 (Egalite albedo ~40e-3); no arc longitudes given

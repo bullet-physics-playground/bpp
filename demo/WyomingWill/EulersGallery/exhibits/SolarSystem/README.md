@@ -119,34 +119,54 @@ close put a glare on the table's top).
 
 ## The asteroid belt
 
-**The thirty largest asteroids of the main belt**: everything over about
-190 km across, Ceres (939 km) down to Hermione (194). Ceres, Pallas, Juno,
-Vesta and Hygiea were in the integration already, with their masses; the
-other twenty-five are new: Interamnia, Europa, Davida, Sylvia, Eunomia,
-Euphrosyne, Cybele, Camilla, Bamberga, Patientia, Psyche, Thisbe, Doris,
-Ursula, Iris, Fortuna, Diotima, Herculina, Amphitrite, Aurora, Egeria,
-Eugenia, Elektra, Themis and Hermione.
+**The thirty largest asteroids of the main belt**, by JPL's Small-Body
+Database: its Query API's 40 largest asteroids by diameter, with the
+diameter's sigma, a, e and i, fetched 18 Oct 2026 and kept in
+`belt/sbdb-largest-40.txt`
+(`https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=full_name,diameter,diameter_sigma,a,e,i&sb-kind=a&sort=-diameter&limit=40`).
+
+**The main belt is taken as 2.0 AU < a < 3.6 AU**: out to the 7:4
+resonance with Jupiter at 3.58 AU, which bounds the Cybele group (Cybele,
+Hermione, Sylvia and Camilla, 3.41–3.50 AU), commonly counted as the outer
+main belt. That leaves out, from the 40, the trans-Neptunian objects and
+Centaurs (Varuna, 1993 SC, Chariklo, 2002 GZ32, Typhon, Pholus), the Jupiter
+Trojan Hektor (5.28 AU) and the Hilda Chicago (3.94 AU, in the 3:2
+resonance). The thirty, largest first, with SBDB's diameter (km) ± sigma:
+
+| | | | |
+|---|---|---|---|
+| (1) Ceres 939.4 ± 0.2 | (4) Vesta 522.77 ± 0.1 | (2) Pallas 513 ± 6 | (10) Hygiea 407.12 ± 6.8 |
+| (704) Interamnia 306.31 ± 1.03 | (52) Europa 303.92 ± 3.5 | (511) Davida 270.33 ± 1.04 | (31) Euphrosyne 267.08 ± 2.61 |
+| (451) Patientia 253.90 ± 2.78 | (87) Sylvia 253.05 ± 2.95 | (3) Juno 246.60 ± 10.59 | (65) Cybele 237.26 ± 4.2 |
+| (88) Thisbe 232 (sigma null) | (15) Eunomia 231.69 ± 2.23 | (16) Psyche 222 (sigma −1) | (324) Bamberga 220.69 ± 1.44 |
+| (48) Doris 216.47 ± 4.76 | (375) Ursula 216 (sigma null) | (107) Camilla 210.37 ± 8.33 | (121) Hermione 209.00 ± 4.7 |
+| (117) Lomia 208.97 ± 1.21 | (106) Dione 207.87 ± 2.16 | (41) Daphne 205.50 ± 1.88 | (94) Aurora 204.89 ± 3.6 |
+| (13) Egeria 202.64 ± 50.08 | (45) Eugenia 202.33 ± 2.17 | (19) Fortuna 200 (sigma null) | (7) Iris 199.83 ± 10 |
+| (24) Themis 198 (sigma null) | (154) Bertha 192.61 ± 2.19 | | |
+
+Where SBDB gives no sigma (null: Thisbe, Ursula, Fortuna, Themis; −1:
+Psyche) the hover says so. Egeria's ± 50 km is as wide as the gaps between
+the last eleven, so the last places are uncertain; next would come (702)
+Alauda 190.98 and (9) Metis 190. Ceres, Pallas, Juno, Vesta and Hygiea were
+in the integration already, with their masses; the other twenty-five are
+new. (106) Dione, the asteroid, is not Saturn's moon: the belt's bodies go by
+their numbers.
 
 **Their orbits**: osculating elements (heliocentric, ecliptic and equinox
 of J2000) at epoch 2025-11-21 (JD 2461000.5 TT), the Minor Planet Center's,
 as Stellarium carries them in its `data/ssystem_minor.ini` (github.com,
 Stellarium/stellarium, master, fetched 2026-10-18), with each one's
-discoverer and date of discovery. JPL's Small-Body Database
-(ssd-api.jpl.nasa.gov) and Horizons (ssd.jpl.nasa.gov) were the sources
-asked for, but the network refused both where this was made, so the
-elements are not JPL's. The thirty entries are copied, unchanged, to
+discoverer and date of discovery: the SBDB query has a, e and i but no
+epoch or angles. The thirty entries are copied, unchanged, to
 `belt/ssystem_minor-excerpt.ini`; `make-belt.py` makes `solar-belt.lua` from
-them. (Stellarium has 532 Herculina cut short, as "Herculin".)
+them and the SBDB file, and checks that the two agree on a, e and i (within
+0.0065 AU, 0.0015 and 0.022 degrees: osculating elements at different
+epochs).
 
-**Their sizes are from memory**: published mean diameters (Dawn's for Ceres
-and Vesta, the VLT/SPHERE shape models of Vernazza and others, 2021, and
-Marsset and others, 2020, for most of the rest), each good to about 10%, not
-checked here against a source. They decide which thirty are the largest (a
-different source could swap the last few) and how big each is drawn: by the
-orrery's own rule, 0.33 cm times the square root of the radius in thousands
-of km, Ceres 0.23 cm down to 0.10 cm (without the planets' 0.35 cm floor;
-the five already there had been drawn 0.35 cm and are now drawn by the rule
-too).
+**Their sizes** are SBDB's diameters, drawn by the orrery's own rule, 0.33
+cm times the square root of the radius in thousands of km: Ceres 0.23 cm
+down to 0.10 cm for Bertha (without the planets' 0.35 cm floor; the five
+already there had been drawn 0.35 cm and are now drawn by the rule too).
 
 **How they move**: massless, pulled (Newton) by the Sun, the planets, the
 Moon, Pluto and the five asteroids with masses, at their places in the main
@@ -193,34 +213,68 @@ check lines that were there are unchanged):
       2027-01-01  the asteroid belt (from the MPC's elements, integrated) against Horizons, km off: Ceres 90, Vesta 109, Pallas 115, Hygiea 150, Juno 110
                   (two-body Kepler about the Sun alone: Ceres 92780, Vesta 56643, Pallas 62584, Hygiea 795611, Juno 93997)
 
-Resting the mouse on an asteroid gives its number and name, its size (and
-that it's from memory), who found it and when, its orbit's a, e and i (the
+Resting the mouse on an asteroid gives its number and name, its diameter
+and sigma (SBDB's), who found it and when, its orbit's a, e and i (the
 MPC's), its distances and its year.
 
 ## The rings
 
-**Saturn**: the D, C, B and A rings, the Cassini Division between B and A,
-the Encke gap in A, and the narrow F ring (66,900 to 140,200 km from its
-centre). B the densest (opaque), C half see-through, the Cassini Division
-nearly empty (dark, mostly see-through). **Jupiter**: the halo
-(92,000–122,500 km), the main ring (to 129,000) and the gossamer rings out
-to 226,000 km: faint, reddish dust. **Uranus**: thirteen rings, 37,850 to
-103,000 km: the nine narrow ones of 1977 (6, 5, 4, α, β, η, γ, δ, ε), λ,
-the dusty ζ, ν and μ; as dark as charcoal. **Neptune**: Galle, Le Verrier,
-Lassell, Arago and Adams (41,900 to 62,930 km), with the arcs in the Adams
-ring.
+**The ring data are NASA's**: the NSSDC ring fact sheets (D. R. Williams,
+updated 14 Oct 2015), fetched 18 Oct 2026 and summarised in
+`belt/rings-nssdc.txt`:
+`https://nssdc.gsfc.nasa.gov/planetary/factsheet/satringfact.html`,
+`.../uranringfact.html`, `.../jupringfact.html`, `.../nepringfact.html`.
+The sheets give a ring, ringlet or gap narrower than 1000 km by its inner
+edge, so a narrow ring here runs out from its listed radius by its width.
 
-**The ring data are from memory** (NASA's planetary fact sheets and the PDS
-Ring-Moon Systems Node's tables, which the network here refused):
-`make-rings.py` has them, with the colour and opacity of each band, and
-makes the meshes (`solar-meshes/rings-*.obj`) and `solar-rings.lua`.
+| Ring | Radius, km (NSSDC) | Optical depth | Albedo |
+|---|---|---|---|
+| Saturn D | 66,900–74,510 | 1e-5 | (not given: 0.12, C's lowest) |
+| Saturn C | 74,658–91,975 | 0.05–0.35 | 0.12–0.30 |
+| Saturn B | 91,975–117,507 | 0.4–2.5 | 0.4–0.6 |
+| Cassini Division | 117,507–122,340 | 0–0.1 | 0.2–0.4 |
+| Saturn A | 122,340–136,780, the Encke gap from 133,410 | 0.4–1.0 | 0.4–0.6 |
+| Saturn F | 139,826 (inner edge) | 0.1 | 0.6 |
+| Jupiter halo | 89,400–123,000 | 3e-6 | (not given: 0.015) |
+| Jupiter main | 123,000–128,940 | 5e-6 | ~0.015 |
+| Amalthea gossamer | 128,940–181,350 | 1e-7 | (0.015) |
+| Thebe gossamer, and its extension | 181,350–221,900, 221,900–280,000 | 1e-7 | (0.015) |
+| Uranus 6, 5, 4 | 41,837, 42,234, 42,571 (widths 1.5, ~2, ~2) | 0.3, 0.5, 0.3 | ~0.015 |
+| Uranus α, β, η, γ, δ | 44,718, 45,661, 47,176, 47,627, 48,300 (widths 4–10, 5–11, 1.6, 1–4, 3–7) | 0.4, 0.3, 0.4, 0.3, 0.5 | ~0.015 |
+| Uranus λ, ε | 50,024 (~2), 51,149 (20–96) | 0.1, 0.5–2.3 | 0.015, 0.018 |
+| Uranus ν, μ (R/2003 U 2, U 1) | 67,300 (3,800 wide), 97,700 (17,000) | ≪0.01 (taken as 1e-5) | (0.015) |
+| Neptune Galle | ~41,900 (~2,000 wide) | ~1e-4 | ~0.015 |
+| Neptune Le Verrier, Lassell | 53,200 (<100), 53,200–57,200 | ~0.01, ~1e-4 | ~0.015 |
+| Neptune Arago | 57,200 (<100) | (not given: Lassell's) | (0.015) |
+| Neptune Adams, and its arcs | 62,933 (~15) | 0.01–0.1; arcs 0.12 | 0.015; Egalité ~0.04 |
+
+Not on the sheets, and so not cited: the Encke gap's width (325 km), the F
+ring's (50 km), the arcs' span (40 degrees) and where they are round the
+ring (an example), and Uranus's ζ ring (37,850–41,350 km), the thirteenth:
+the sheet lists twelve, the nine of 1977, λ, ν and μ. Not drawn: Saturn's
+G and E rings (optical depth 1e-6), the Keeler gap, Neptune's indistinct
+unnamed ring at 61,953 km.
+
+**How optical depth and albedo are drawn**, one rule for all
+(`make-rings.py`): **opacity** is the larger of 1 − e^(−τ), the light a ring
+stops seen face on, and 0.012 (log10 τ + 7.5), a floor for the dusty rings
+whose true opacity nobody could see (τ = 1e-7 gives 0.006, 1e-5 0.03, 1e-2
+0.066), at most 0.97; the ranges' middles are used. So Saturn's B is 77%
+opaque, A 50%, C 18%, the Cassini Division 7%, F 10%, D 3%; Uranus's ε 75%,
+its other narrow rings 10–39%; Jupiter's rings 0.6–2.6%; Neptune's 4–7%
+(the arcs 11%). **Brightness** is the ring's hue times (albedo / 0.6)^(1/2.2):
+its reflectance against Saturn's brightest, in the screen's gamma: albedo
+0.5 is 92% of the hue, 0.21 62%, 0.015 19% (Uranus's, Jupiter's and
+Neptune's rings come out charcoal). The faint rings (τ < 0.05) also become
+up to three times as opaque as you come close, from 150 cm to 30 cm, at most
+90%, so that you can find them.
 
 Each ring is a flat band in its planet's equator, turned to its pole (the
 IAU's, from `solar-rotation.lua`) and not turning. In the orrery they're
 scaled exactly as the planet is drawn: the planet's sphere stands for its
 mean radius, and a ring at r km is drawn at r over that radius times the
 sphere's, so ring against planet is true (Saturn's A ring reaches 2.35
-times its radius). In the vitrines, distances from the planet are
+times its mean radius, 2.27 times its equatorial). In the vitrines, distances from the planet are
 square-rooted, as its moons' are, so the rings sit among the moons as they
 do (Mimas just outside the A ring), and they look narrower against the
 planet than they are. Uranus's rings stand nearly upright to its orbit:
@@ -237,13 +291,6 @@ drawn 0.035 cm wide in the orrery and 0.05 cm in the vitrines, and say so.
 Where the Adams ring's arcs are round it is an example (they go round in
 0.44 days).
 
-**Faint rings, honestly**: Jupiter's, Uranus's, Neptune's and Saturn's D ring
-are drawn nearly see-through (Jupiter's main ring 10% opaque, its halo 4%,
-the gossamer rings 2–3%; Uranus's narrow rings dark grey, its dusty ones
-2–5%; Neptune's 4–45%): from where you stand they're barely there, as they
-are. As you come closer they show more, up to three times as opaque from
-150 cm in to 30 cm (and at most 90%), so that you can find them.
-
 They light up with their planets, and the mouse on them says what they are,
 their radii and who found them: Saturn's by Galileo (1610, as "ears") and
 recognised as a ring by Huygens (1655, published 1659), Cassini's division
@@ -251,7 +298,8 @@ recognised as a ring by Huygens (1655, published 1659), Cassini's division
 from the Kuiper Airborne Observatory), λ and ζ by Voyager 2 (1986), ν and μ
 by the Hubble Space Telescope (2003); Jupiter's by Voyager 1 (March 1979);
 Neptune's arcs by stellar occultations in 1984, confirmed, and the whole
-rings seen, by Voyager 2 in 1989 (from memory too).
+rings seen, by Voyager 2 in 1989. (Who found them isn't on the NSSDC
+sheets: that is from memory.)
 
 ## The music
 
@@ -518,9 +566,11 @@ km³/s² (DE440: 975.5). DE421's 977.0 takes Charon 20,000 km off in a year.
   if it isn't beside it).
 * `fetch-horizons.sh`: the Horizons data.
 * `solar-belt.lua`: the asteroid belt's elements, sizes and discoveries,
-  made by `make-belt.py` from `belt/ssystem_minor-excerpt.ini` (Stellarium's
-  copy of the Minor Planet Center's elements; it fetches Stellarium's file
-  if the excerpt isn't there).
+  made by `make-belt.py` from `belt/sbdb-largest-40.txt` (JPL SBDB: which
+  thirty, and their diameters) and `belt/ssystem_minor-excerpt.ini`
+  (Stellarium's copy of the Minor Planet Center's elements; it fetches
+  Stellarium's file if an entry is missing).
+* `belt/rings-nssdc.txt`: the NSSDC ring fact sheets' numbers, as fetched.
 * `solar-rings.lua`, `solar-meshes/rings-*.obj`: the rings, made by
   `make-rings.py`. (`solar-meshes/saturn-ring-*.obj`, Saturn's old rings
   made by `make-data.py`, aren't used any more.)

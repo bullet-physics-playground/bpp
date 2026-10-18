@@ -271,7 +271,7 @@ local function orreryRadius(rkm)
   return math.max(0.35, 0.33 * sqrt(rkm / 1000))
 end
 -- the asteroids by the same rule, without the floor: Ceres 0.23 cm down
--- to 0.10 for the belt's smallest here (194 km across)
+-- to 0.10 for the belt's smallest here (Bertha, 193 km across)
 local function asteroidRadius(rkm) return 0.33 * sqrt(rkm / 1000) end
 local BELTBY = {}
 for k, a in ipairs(BELT.list) do
@@ -589,7 +589,7 @@ local function start()
   if not beltSaid then
     beltSaid = true
     print(string.format("  the asteroid belt: the %d largest, from the Minor Planet Center's elements (epoch %s, via Stellarium's" ..
-                        "\n    ssystem_minor.ini), massless, integrated with the rest (Newton); diameters from memory (make-belt.py)",
+                        "\n    ssystem_minor.ini), massless, integrated with the rest (Newton); diameters JPL SBDB's (make-belt.py)",
                         #BELT.list, dateStr(BELT.EPOCH)))
     local MAINBY = {}
     for _, b in ipairs(D.main) do MAINBY[b.name] = b end
@@ -1114,42 +1114,49 @@ end
 for _, b in ipairs(D.main) do
   if not FACTS[b.name] then FACTS[b.name] = { r = b.r * AUKM } end
 end
--- the belt: its size (from memory, see make-belt.py), its finding, its orbit
+-- the belt: its size (JPL SBDB's diameter, see make-belt.py), its finding, its orbit
 for _, a in ipairs(BELT.list) do
   local n = a.engine and a.name or a.label          -- (the hover's name for it)
   local f = FACTS[n] or {}
-  if not a.engine then f.r = a.d / 2 end
-  f.note = string.format("(%d) %s, about %d km across (a published mean diameter, from memory). Found %s by %s." ..
+  f.r = a.d / 2
+  f.note = string.format("(%d) %s, %s km across (JPL's Small-Body Database). Found %s by %s." ..
                          "\nIts orbit: a = %.3f AU, e = %.3f, i = %.1f degrees to the ecliptic (the Minor Planet Center's, %s);" ..
-                         "\n%s", a.no, a.name, floor(a.d + 0.5), a.found, a.by, a.a, a.e, a.i, dateStr(BELT.EPOCH),
+                         "\n%s", a.no, a.name,
+                         a.sigma and string.format("%g +/- %g", a.d, a.sigma) or string.format("%g (no uncertainty given)", a.d), a.found, a.by, a.a, a.e, a.i, dateStr(BELT.EPOCH),
                          a.engine and "here integrated with its mass, from Horizons' place and speed on 2026-01-01."
                                   or "here integrated from them, pulled by the Sun, the planets and the five biggest asteroids.")
   FACTS[n] = f
 end
--- the rings, for the mouse (radii and finding from memory: see make-rings.py)
+-- the rings, for the mouse: radii, tau and albedo from NASA's NSSDC ring
+-- fact sheets (nssdc.gsfc.nasa.gov/planetary/factsheet/*ringfact.html,
+-- fetched 2026-10-18; see make-rings.py); who found them, which the sheets
+-- don't give, from memory
 local RINGTEXT = {
-  Saturn = "Saturn's rings: D, C, B and A, with the Cassini Division between B and A and the Encke gap in A,\n" ..
-           "and the narrow F ring: 66,900 to 140,200 km from its centre (drawn true to Saturn's size here).\n" ..
-           "Water ice, in pieces from dust to houses, mostly tens of metres thick. B is the densest, C\n" ..
-           "half see-through, the Cassini Division nearly empty. (The faint G and E rings, further out, aren't drawn.)\n" ..
+  Saturn = "Saturn's rings: D (66,900-74,510 km from its centre), C (to 91,975), B (to 117,507), the Cassini\n" ..
+           "Division, A (122,340-136,780, the Encke gap at 133,410 in it) and the narrow F (139,826); drawn\n" ..
+           "true to Saturn's size here. Water ice, about 5 to 30 m thick. B the densest (optical depth 0.4-2.5,\n" ..
+           "albedo 0.4-0.6), C half see-through (0.05-0.35), the Cassini Division nearly empty (0-0.1).\n" ..
+           "(The faint G and E rings, further out, optical depth a millionth, aren't drawn.) [NASA NSSDC]\n" ..
            "Galileo saw them in 1610 as \"ears\"; Huygens saw that they are a ring (1655, published 1659);\n" ..
            "Cassini found the division in 1675.",
-  Jupiter = "Jupiter's rings: the halo (92,000-122,500 km from its centre, a thick torus, drawn flat), the\n" ..
-            "main ring (122,500-129,000 km) and the gossamer rings of Amalthea and Thebe, out to 226,000 km.\n" ..
-            "Dark, reddish dust, knocked off its small inner moons: seen best from behind, against the Sun.\n" ..
-            "Found by Voyager 1, March 1979. From where you stand they're all but invisible, as they are;\n" ..
-            "come close and they show a little more.",
-  Uranus = "Uranus' rings: thirteen. Nine found in 1977, when they hid a star before and after Uranus did\n" ..
-           "(Elliot, Dunham and Mink, from the Kuiper Airborne Observatory): 6, 5, 4, alpha, beta, eta,\n" ..
-           "gamma, delta and epsilon; lambda and the dusty zeta by Voyager 2 (1986); nu and mu by the Hubble\n" ..
-           "Space Telescope (2003). 37,850 to 103,000 km from its centre. The nine are narrow (1 to 10 km;\n" ..
-           "epsilon 20 to 96), drawn far wider than they are so they show, and as dark as charcoal.\n" ..
-           "In Uranus' equator, which is tipped 98 degrees: they stand nearly upright to its orbit.",
-  Neptune = "Neptune's rings: Galle (42,000 km from its centre), Le Verrier (53,200), Lassell (53,200-57,200),\n" ..
-            "Arago (57,200) and Adams (62,930), named after the astronomers in its story. Arcs in the Adams\n" ..
-            "ring (Courage, Liberte, Egalite, Fraternite) were found when they hid stars, in 1984; Voyager 2\n" ..
-            "confirmed them and saw the whole rings in 1989. Dark, dusty and faint. Where the arcs are round\n" ..
-            "the ring is an example (they go round in 0.44 days).",
+  Jupiter = "Jupiter's rings: the halo (89,400-123,000 km from its centre, about 10,000 km thick, drawn flat), the\n" ..
+            "main ring (123,000-128,940 km) and the gossamer rings of Amalthea and Thebe, with the Thebe ring's\n" ..
+            "extension out to 280,000 km. Dark dust (albedo 0.015), optical depth a few millionths: from where\n" ..
+            "you stand all but invisible, as they are; come close and they show a little more. [NASA NSSDC]\n" ..
+            "Found by Voyager 1, March 1979.",
+  Uranus = "Uranus' rings: 6, 5, 4, alpha, beta, eta, gamma, delta, lambda and epsilon, 41,837 to 51,149 km\n" ..
+           "from its centre (1.5 to 11 km wide; epsilon 20-96), drawn far wider than they are so they show;\n" ..
+           "albedo 0.015, as dark as charcoal; and the faint, wide nu (67,300 km) and mu (97,700). [NASA NSSDC]\n" ..
+           "Also zeta, inside ring 6 (37,850-41,350 km; not on NASA's sheet). In Uranus' equator, tipped\n" ..
+           "98 degrees: they stand nearly upright to its orbit. Nine found in 1977 when they hid a star\n" ..
+           "(Elliot, Dunham and Mink, Kuiper Airborne Observatory); lambda and zeta by Voyager 2 (1986);\n" ..
+           "nu and mu by the Hubble Space Telescope (2003).",
+  Neptune = "Neptune's rings: Galle (about 41,900 km from its centre, 2,000 wide), Le Verrier (53,200),\n" ..
+            "Lassell (53,200-57,200), Arago (57,200) and Adams (62,933, about 15 km wide), named after the\n" ..
+            "astronomers in its story; dark (albedo 0.015) and faint. [NASA NSSDC] The arcs in the Adams ring\n" ..
+            "(Courage, Liberte, Egalite 1 and 2, Fraternite; optical depth 0.12) were found when they hid stars,\n" ..
+            "in 1984; Voyager 2 confirmed them and saw the whole rings in 1989. Where the arcs are round the\n" ..
+            "ring, and their 40 degrees, are an example.",
 }
 local function commas(x) return (string.format("%.0f", x):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")) end
 -- the pole it turns anticlockwise about (the IAU's north, or for a body

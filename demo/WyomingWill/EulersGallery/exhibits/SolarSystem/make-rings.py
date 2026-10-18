@@ -16,11 +16,32 @@ the vitrines', whose distances from the planet are square-rooted as its
 moons' are (VITRINE_R sqrt(r / reach)), so that the rings sit among the
 moons as they do.
 
-THE RING DATA ARE FROM MEMORY, not checked here against a source (NASA's
-planetary fact sheets and the PDS Ring-Moon Systems Node's ring tables, which
-could not be reached from where this was made; JPL's and the Rings Node's
-sites were refused by the network). Radii to a few hundred km at worst;
-the optical character (how dense, how bright) as those sources describe it.
+THE RING DATA are NASA's: the NSSDC ring fact sheets (D. R. Williams,
+updated 14 Oct 2015), fetched 18 Oct 2026:
+  https://nssdc.gsfc.nasa.gov/planetary/factsheet/satringfact.html
+  https://nssdc.gsfc.nasa.gov/planetary/factsheet/uranringfact.html
+  https://nssdc.gsfc.nasa.gov/planetary/factsheet/jupringfact.html
+  https://nssdc.gsfc.nasa.gov/planetary/factsheet/nepringfact.html
+Their radii, optical depths (tau), albedos and widths. The sheets list a
+ring, ringlet or gap narrower than 1000 km by its INNER EDGE: so a narrow
+ring here runs from its listed radius out by its width ("edge" below). The
+wide faint ones the sheets give by a radius and a width (Galle, Uranus' nu
+and mu) are centred on it. What isn't on the sheets is marked NOT ON THE
+SHEETS: the Encke gap's width (325 km), the F ring's width (50 km), Uranus'
+zeta ring (37,850-41,350 km; the sheet lists 12 rings, not 13), the arcs'
+span (40 degrees, and where round the ring: an example), and the taus or
+albedos the sheets leave out (taken as said where used).
+
+HOW tau AND albedo ARE DRAWN, the same rule for every ring:
+  opacity = the larger of 1 - exp(-tau) (the light a ring stops, seen face
+            on) and 0.012 (log10 tau + 7.5) (a floor for the faint dusty
+            rings, whose true opacity, 1e-7 to 1e-4, nobody could see: on
+            it, tau 1e-7 is 0.006, 1e-5 0.03, 1e-2 0.066), at most 0.97;
+  brightness = the ring's hue times (albedo / 0.6) ** (1/2.2): its
+            reflectance against Saturn's brightest (0.6), in the screen's
+            gamma (so albedo 0.5 is 92% of the hue, 0.2 61%, 0.015 19%).
+The faint rings (tau below 0.05) also become up to three times as opaque as
+you come close (solar-system.lua), so that you can find them.
 
 Narrow rings (Uranus' nine main ones and its epsilon ring, Neptune's Le
 Verrier, Arago and Adams, Saturn's F) are tens of km wide or less: far below
@@ -42,54 +63,67 @@ MIN_W = {"orrery": 0.035, "vitrine": 0.05}   # cm: the narrowest a ring is drawn
 # solar-system.lua's RADIUS table for the vitrines)
 R_MEAN = {"Jupiter": 69911, "Saturn": 58232, "Uranus": 25362, "Neptune": 24622}
 
-# each band: name, (inner, outer) radius (km; for a narrow ring, ("narrow",
-# centre, width)), colour, opacity (0 to 1: how much it hides what's behind), faint
-# (opacity rises as you come close, see solar-system.lua)
-# FROM MEMORY: see above.
+# each band: name, radii (km: (inner, outer); ("edge", inner, width); ("centre",
+# radius, width); ("arc", inner, width, from, to degrees)), tau, albedo, hue
+# (its colour at albedo 0.6), what's not on the NSSDC sheets
+SATURN, DUST, GREY, RED = "#f4e8c8", "#c9a88a", "#d8d8dc", "#d6b8a0"
 RINGS = {
     "Saturn": [
-        ("D", (66900, 74510), "#6f6658", 0.06, True),
-        ("C", (74658, 92000), "#8f8470", 0.35, False),
-        ("B (inner)", (92000, 99000), "#cdbd98", 0.75, False),
-        ("B", (99000, 117580), "#e6d9b6", 0.97, False),
-        ("Cassini Division", (117580, 122170), "#5e5547", 0.18, False),
-        ("A", (122170, 133423), "#cfc19c", 0.8, False),       # (the Encke gap, 133,423 to 133,745, between)
-        ("A (outer)", (133745, 136775), "#c4b691", 0.7, False),
-        ("F", ("narrow", 140180, 50), "#c9bfa6", 0.5, False),
+        ("D", (66900, 74510), 1e-5, 0.12, SATURN, "albedo not on the sheet: taken as C's lowest"),
+        ("C", (74658, 91975), 0.2, 0.21, SATURN, ""),            # tau 0.05-0.35, albedo 0.12-0.30
+        ("B", (91975, 117507), 1.45, 0.5, SATURN, ""),           # tau 0.4-2.5, albedo 0.4-0.6
+        ("Cassini Division", (117507, 122340), 0.05, 0.3, SATURN, ""),   # tau 0-0.1, albedo 0.2-0.4
+        ("A", (122340, 133410), 0.7, 0.5, SATURN, ""),           # tau 0.4-1.0, albedo 0.4-0.6
+        ("A (outside the Encke gap)", (133735, 136780), 0.7, 0.5, SATURN,
+         "the Encke gap's width, 325 km, not on the sheet (it gives its inner edge, 133,410)"),
+        ("F", ("edge", 139826, 50), 0.1, 0.6, SATURN, "its width, 50 km, not on the sheet"),
     ],
     "Jupiter": [
-        ("halo", (92000, 122500), "#6e5644", 0.04, True),
-        ("main ring", (122500, 129000), "#7d6150", 0.10, True),
-        ("Amalthea gossamer ring", (129000, 182000), "#6e5644", 0.03, True),
-        ("Thebe gossamer ring", (182000, 226000), "#6e5644", 0.02, True),
+        ("halo", (89400, 123000), 3e-6, 0.015, DUST, "albedo not on the sheet: taken as the main ring's"),
+        ("main ring", (123000, 128940), 5e-6, 0.015, DUST, ""),
+        ("Amalthea gossamer ring", (128940, 181350), 1e-7, 0.015, DUST, "albedo: as the main ring's"),
+        ("Thebe gossamer ring", (181350, 221900), 1e-7, 0.015, DUST, "albedo: as the main ring's"),
+        ("Thebe ring's extension", (221900, 280000), 1e-7, 0.015, DUST, "albedo: as the main ring's"),
     ],
     "Uranus": [
-        ("zeta", (37850, 41350), "#3a3c40", 0.05, True),
-        ("6", ("narrow", 41837, 1.5), "#4a4b4e", 0.6, True),
-        ("5", ("narrow", 42234, 2), "#4a4b4e", 0.6, True),
-        ("4", ("narrow", 42571, 2.5), "#4a4b4e", 0.6, True),
-        ("alpha", ("narrow", 44718, 7), "#4a4b4e", 0.6, True),
-        ("beta", ("narrow", 45661, 8), "#4a4b4e", 0.6, True),
-        ("eta", ("narrow", 47176, 1.6), "#4a4b4e", 0.6, True),
-        ("gamma", ("narrow", 47627, 3), "#4a4b4e", 0.6, True),
-        ("delta", ("narrow", 48300, 6), "#4a4b4e", 0.6, True),
-        ("lambda", ("narrow", 50023, 2), "#4a4b4e", 0.5, True),
-        ("epsilon", ("narrow", 51149, 58), "#56575a", 0.75, True),
-        ("nu", (66100, 69900), "#5a4a40", 0.03, True),
-        ("mu", (86000, 103000), "#4a5a78", 0.02, True),
+        ("zeta", (37850, 41350), 1e-5, 0.015, GREY,
+         "NOT ON THE SHEETS (radii from memory; tau and albedo assumed)"),
+        ("6", ("edge", 41837, 1.5), 0.3, 0.015, GREY, ""),
+        ("5", ("edge", 42234, 2), 0.5, 0.015, GREY, ""),
+        ("4", ("edge", 42571, 2), 0.3, 0.015, GREY, ""),
+        ("alpha", ("edge", 44718, 7), 0.4, 0.015, GREY, ""),          # width 4-10
+        ("beta", ("edge", 45661, 8), 0.3, 0.015, GREY, ""),           # width 5-11
+        ("eta", ("edge", 47176, 1.6), 0.4, 0.015, GREY, ""),
+        ("gamma", ("edge", 47627, 2.5), 0.3, 0.015, GREY, ""),        # width 1-4
+        ("delta", ("edge", 48300, 5), 0.5, 0.015, GREY, ""),          # width 3-7
+        ("lambda", ("edge", 50024, 2), 0.1, 0.015, GREY, ""),
+        ("epsilon", ("edge", 51149, 58), 1.4, 0.018, GREY, ""),       # width 20-96, tau 0.5-2.3
+        ("nu (R/2003 U 2)", ("centre", 67300, 3800), 1e-5, 0.015, GREY, "tau '<<0.01' on the sheet: taken as 1e-5; albedo not on it"),
+        ("mu (R/2003 U 1)", ("centre", 97700, 17000), 1e-5, 0.015, GREY, "tau '<<0.01' on the sheet: taken as 1e-5; albedo not on it"),
     ],
     "Neptune": [
-        ("Galle", (40900, 42900), "#5c4a42", 0.05, True),
-        ("Le Verrier", ("narrow", 53200, 113), "#6a5a50", 0.45, True),
-        ("Lassell", (53300, 57200), "#5c4a42", 0.04, True),
-        ("Arago", ("narrow", 57200, 100), "#6a5a50", 0.3, True),
-        ("Adams", ("narrow", 62932, 50), "#6a5a50", 0.4, True),
-        # the arcs in the Adams ring (Courage, Liberte, Egalite 1 and 2,
-        # Fraternite), about 40 degrees of it: where they are round the ring
-        # is an example (they go round in 0.44 days)
-        ("Adams arcs", ("arc", 62932, 50, 0.0, 40.0), "#8a7868", 0.85, True),
+        ("Galle", ("centre", 41900, 2000), 1e-4, 0.015, RED, ""),
+        ("Le Verrier", ("edge", 53200, 100), 0.01, 0.015, RED, ""),   # width <100
+        ("Lassell", ("edge", 53200, 4000), 1e-4, 0.015, RED, ""),     # out from Le Verrier
+        ("Arago", ("edge", 57200, 100), 1e-4, 0.015, RED, "its tau not on the sheet (its column reads '<100', likely the width): taken as Lassell's"),
+        ("Adams", ("edge", 62933, 15), 0.05, 0.015, RED, ""),         # tau 0.01-0.1
+        ("Adams arcs", ("arc", 62933, 15, 0.0, 40.0), 0.12, 0.04, RED,
+         "their span (40 degrees) and place round the ring not on the sheet: an example"),
     ],
 }
+# (not drawn: Saturn's G and E rings, tau 1e-6, 166,000-173,000 and
+# 180,000-480,000 km, beyond the vitrine's moons' rule and as faint as
+# Jupiter's; the Keeler gap (inner edge 136,487 km); Neptune's indistinct
+# unnamed ring at 61,953 km)
+
+
+def opacity(tau):
+    return min(0.97, max(1 - math.exp(-tau), 0.012 * (math.log10(tau) + 7.5)))
+
+
+def shade(hue, albedo):
+    f = min(1.0, albedo / 0.6) ** (1 / 2.2)
+    return "#%02x%02x%02x" % tuple(int(round(int(hue[i:i + 2], 16) * f)) for i in (1, 3, 5))
 
 
 def reach_of(planet):
@@ -128,23 +162,30 @@ def annulus(s0, s1, a0=0.0, a1=360.0, n=None):
 
 
 def main():
+    for f in os.listdir(MESH):                  # (the old ones: the bands are numbered)
+        if f.startswith("rings-") and f.endswith(".obj"):
+            os.remove(os.path.join(MESH, f))
     L = ["-- The giant planets' rings, made by make-rings.py: don't edit.",
-         "-- Radii in km (from memory: see make-rings.py); each band's meshes, orrery and vitrine.",
+         "-- Radii in km, tau and albedo from NASA's NSSDC ring fact sheets (fetched 2026-10-18; see make-rings.py);",
+         "-- op and col drawn from them by make-rings.py's rule; each band's meshes, orrery and vitrine.",
          "return {"]
     for planet, bands in RINGS.items():
         reach = reach_of(planet) * AU
         R = R_MEAN[planet]
         sphere = 0.33 * math.sqrt(R / 1000)
         L.append('  %s = {' % planet)
-        for k, (name, r, col, op, faint) in enumerate(bands):
+        for k, (name, r, tau, albedo, hue, note) in enumerate(bands):
             a0, a1 = 0.0, 360.0
-            if isinstance(r[0], str):           # ("narrow", centre, width) or ("arc", centre, width, from, to)
-                rc, w = r[1], r[2]
-                if r[0] == "arc":
-                    a0, a1 = r[3], r[4]
-                r0, r1, narrow = rc - w / 2, rc + w / 2, True
+            narrow = False
+            if r[0] == "edge":
+                r0, r1, narrow = r[1], r[1] + r[2], r[2] < 1000
+            elif r[0] == "centre":
+                r0, r1 = r[1] - r[2] / 2, r[1] + r[2] / 2
+            elif r[0] == "arc":
+                r0, r1, narrow, a0, a1 = r[1], r[1] + r[2], True, r[3], r[4]
             else:
-                r0, r1, narrow = r[0], r[1], False
+                r0, r1 = r
+            op, col, faint = opacity(tau), shade(hue, albedo), tau < 0.05
             files = {}
             for which in ("orrery", "vitrine"):
                 if which == "orrery":
@@ -158,10 +199,10 @@ def main():
                 fn = "rings-%s-%s-%d.obj" % (which, planet.lower(), k + 1)
                 write_obj(os.path.join(MESH, fn), V, F, "%s's %s ring, %s: %.4f to %.4f cm" % (planet, name, which, s0, s1))
                 files[which] = fn
-            L.append('    { name = "%s", r0 = %g, r1 = %g, col = "%s", op = %g, faint = %s, narrow = %s,'
-                     ' orrery = "%s", vitrine = "%s" },'
-                     % (name, r0, r1, col, op, "true" if faint else "false", "true" if narrow else "false",
-                        files["orrery"], files["vitrine"]))
+            L.append('    { name = "%s", r0 = %g, r1 = %g, tau = %g, albedo = %g, col = "%s", op = %.3f, faint = %s,'
+                     ' narrow = %s, orrery = "%s", vitrine = "%s"%s },'
+                     % (name, r0, r1, tau, albedo, col, op, "true" if faint else "false", "true" if narrow else "false",
+                        files["orrery"], files["vitrine"], (', note = "%s"' % note.replace('"', "'")) if note else ""))
         L.append('  },')
     L += ["}", ""]
     with open(os.path.join(HERE, "solar-rings.lua"), "w") as fo:
