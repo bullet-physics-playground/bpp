@@ -1,5 +1,19 @@
 # The Brazil-Nut Effect, in real glass
 
+**What to watch** (times simulated: in the default slow motion they take four
+times as long):
+
+- **Left, rough walls.** Within about 10 s the big blue bead comes up from
+  the floor and stays up. The coloured layers bow up in the middle and down
+  at the walls. The red bead goes down by a wall and up the middle, round in
+  about 40 s.
+- **Right, smooth walls.** The big bead stays low, about a third of the way
+  up. The layers stay nearly level for the first half minute, and the red bead
+  stays near the top.
+- **The band on each big bead** shows it turning. On the left it turns
+  counterclockwise when it's left of the middle and clockwise right of it:
+  the two rolls turn it. On the right it turns no way in particular.
+
 Shake a jar of mixed nuts and the Brazil nuts come up to the top: the
 biggest rise, though they're the heaviest. Here two glass-fronted boxes of
 real glass beads, a layer one bead thick and 20 cm deep, are shaken up and
@@ -12,11 +26,17 @@ bottom of each. The boxes differ only in their side walls:
 | right | smooth glass | the rolls turn the other way, up beside the walls, and the big bead stays down |
 
 Both are shaken gently first (peak acceleration 0.8 g for 2 s: the bed
-never leaves the floor and nothing happens), then hard (3 g, from 3 s). A
-red bead in each, poured at the top by the left wall, trails a fading line
-of where it has been in the last 6 s, showing which way the beads go round.
-Each big bead has a painted band round it, so you see it turn. The boxes are
-closed by a lid. They run on until you pour them again (`R`): where the big
+never leaves the floor and nothing happens), then hard (3 g, from 3 s).
+- **Layers.** The small beads are coloured in five layers as poured, clear
+  and amber glass in turn. This is how experiments make granular flow
+  visible: Möbius et al. prepared their bed "with equally spaced layers of
+  black and white glass beads" (arXiv:cond-mat/0502622).
+- **The red bead.** One red bead in each box, poured at the top by the left
+  wall, trails a fading line of where it has been in the last 6 s.
+- **The band.** Each big bead has a painted band round it, so you see it
+  turn.
+
+The boxes are closed by a lid. They run on until you pour them again (`R`): where the big
 bead is after minutes is part of the point. The exhibit
 runs at a quarter of real time.
 
@@ -65,6 +85,13 @@ rise time goes with that speed (Hejmady et al.). See
 
 ```
 --- poured: 280 glass beads a box, shaken at 5 Hz: gently (0.8 g, 8.0 mm) for 2 s, then hard (3.0 g, 29.8 mm) from 3 s ---
+  What to watch (times simulated; in the default slow motion they take four times as long):
+  Left, rough walls: within about 10 s the big blue bead comes up from the floor and stays up; the coloured
+    layers bow up in the middle and down at the walls; the red bead goes down by a wall and up the middle, round
+    in about 40 s. Right, smooth walls: the big bead stays low, about a third of the way up; the layers stay
+    nearly level (for the first half minute); the red bead stays near the top. The band on each big bead shows it turning: on the left,
+    counterclockwise when it's left of the middle and clockwise right of it (the two rolls turn it); on the right,
+    no way in particular.
   Gamma 0.8: below 1 -- the bed should never leave the floor; Gamma 3.0: it should leave it 19.5 degrees into each upswing (arcsin 1/Gamma), if it has landed by then
   Left  Gamma 0.8: the bed never left the floor (the floor's push never less than 0.19 of its weight; a rigid bed's: 0.20; the reference: 0.18 to 0.19)
   Right Gamma 0.8: the bed never left the floor (the floor's push never less than 0.19 of its weight; a rigid bed's: 0.20; the reference: 0.19 to 0.19)
@@ -118,15 +145,34 @@ of the four, so its numbers equal the reference's seed 7 exactly.
     10.9 cm from 45 s to 2 minutes. It is in the upper half at most 3% of the
     time. In one pour of the four its 2 s average reached 12 cm once, at
     41 s.
-- **The red bead.** It starts at the top beside the left wall, and its
-  trail shows where it has been.
-  - In the run shown, with rough walls it worked across the top and down
-    beside the right wall: its lowest point by 45 s was 7.9 cm, at 45 s.
-  - With smooth walls its lowest point was 9.2 cm, at 27 s, 2.3 cm from the
-    left wall.
-
-  One bead's path is slow and varies from pour to pour; the rolls' averages
-  above are the measure.
+- **What the colours show** (four 3-minute pours, `BN_SEED` 1, 2, 7, 8,
+  logged headless):
+  - **The layers.** With rough walls the top two layers bow up in the
+    middle against the walls by 3 to 13 cm within 10 s. The bed then turns
+    over: by 30 s the bottom layer has risen 8 to 13 cm and the top one sunk
+    5 to 10 cm. With smooth walls the layers stay level to within about 2 cm
+    for 30 s, with no consistent bow. After two or three minutes the layers
+    of both boxes are mixed (seen in a run at full speed), so the layers are
+    worth watching just after a pour (`R`).
+  - **The red bead, rough walls.** It goes round 3 or 4 times in 3 minutes,
+    a loop (top to bottom and back) taking 32 to 78 s, typically about 40. It
+    goes down near the walls (on average 4.3 to 4.7 cm out from the middle)
+    and up near the middle (2.6 to 2.9 cm out).
+  - **The red bead, smooth walls.** It visits the bottom 0 to 2 times in 3
+    minutes, and is above 14 cm 42 to 65% of the time. The smooth bed barely
+    turns over: its only flow is a weak rise of 3 to 4 mm/s beside the
+    walls, with no clear sinking in the middle, so what is on top stays on
+    top.
+  - **The big beads, 30 s means.** Rough walls: 11 to 12 cm in the first 30
+    s, then 14 to 16 cm for the whole 3 minutes. Smooth walls: 6 cm at
+    first, then between 6 and 11 cm. That is about a third of the shaken
+    bed, whose lively top reaches 25 to 28 cm.
+  - **The band, rough walls.** Left of the middle the bead turns
+    counterclockwise (+0.5 to +1.4 rad/s on average, pour by pour), right of
+    it clockwise (-0.6 to -1.6 rad/s): the senses of the two rolls. That is
+    about a turn every 4 to 6 s. Its net turns over 3 minutes vary with
+    where it spends its time.
+  - **The band, smooth walls.** No systematic sense (-0.4 to +0.2 rad/s).
 - **The walls decide.** The two boxes have the same beads and the same
   shaking, and are poured alike (the rough box inside its lining, 1 cm
   narrower). Only the walls differ, and they set which way the bed turns and
@@ -182,7 +228,10 @@ bpp's **DemBed**: soft spheres, the reference model of
   duration (5.0 microseconds; 3326 steps per 1/60 s). Beads held to the
   box's plane, spinning about its normal, as in a one-bead-thick cell.
 - **The band** on each big bead turns with the bead. It is drawn turned by
-  the bead's spin in the model, integrated step by step.
+  the bead's spin in the model, integrated step by step. With rough walls the
+  rolls turn the bead counterclockwise left of the middle and clockwise right
+  of it (see "What the colours show"); with smooth walls there is no
+  systematic turn.
   - The spin is the model's own, from the contacts' friction. Through the
     hook, bead-bed.c's incline test gives free rolling at a = 5/7 g sin(theta)
     and slipping from tan(theta) = 3.5 mu.
@@ -240,7 +289,9 @@ bpp's **DemBed**: soft spheres, the reference model of
   - `HOOK.md`: how bpp's DemBed is `bead-bed.c`;
   - `bead-bed.c`: the reference model;
   - `dembed-check.cpp`, `hook-check.lua`: the checks;
-  - `port/`: the tools that carried `bead-bed.c` into bpp.
+  - `port/`: the tools that carried `bead-bed.c` into bpp;
+  - `monitor/`: the headless log of the colours' story (`monitor.lua`,
+    `analyse.py`).
 
 Headless testing: `BN_SPEED`, `BN_SEED`, `BN_HARD`, `BN_GENTLE` (g), `BN_F`
 (Hz), `BN_YM` (Pa), `BN_NS` (steps per contact time), `BN_TIMING=1` (prints

@@ -171,6 +171,13 @@ local REF = {
 
 local GLASS, FRAME_COL = "#26343a", "#5a3418"     -- (the glass at the back drawn dark; the front pane left out)
 local BEAD_COLS = { "#c4d8d2", "#b6cdc6", "#d0e2dc" }   -- clear glass, a little green
+-- the small beads coloured in five layers as poured, clear and amber glass
+-- in turn, as experiments colour layers of beads to see the flow (e.g.
+-- Moebius et al., arXiv:cond-mat/0502622: "layers of black and white glass
+-- beads"): with rough walls they bow up in the middle and down at the walls
+-- within seconds; with smooth walls they stay nearly level
+local LAYER_COLS = { { "#c4d8d2", "#b6cdc6", "#d0e2dc" }, { "#d9a95b", "#cf9c4c", "#e0b56c" } }
+local N_LAYERS = 5
 local GLUED_COL, BIG_COL, TRACER_COL, BAND_COL = "#8fa9a2", "#2b5d8c", "#c0392b", "#e8d27a"
 
 if not DemBed then
@@ -206,6 +213,16 @@ end
 -- pouring: a DemBed per box (the beads simulated in C++), its beads and
 -- glued beads drawn by display-only spheres
 -- ---------------------------------------------------------------------
+-- what to watch (the console at each pour, and the help)
+local WATCH = {
+  "What to watch (times simulated; in the default slow motion they take four times as long):",
+  "Left, rough walls: within about 10 s the big blue bead comes up from the floor and stays up; the coloured",
+  "  layers bow up in the middle and down at the walls; the red bead goes down by a wall and up the middle, round",
+  "  in about 40 s. Right, smooth walls: the big bead stays low, about a third of the way up; the layers stay",
+  "  nearly level (for the first half minute); the red bead stays near the top. The band on each big bead shows it turning: on the left,",
+  "  counterclockwise when it's left of the middle and clockwise right of it (the two rolls turn it); on the right,",
+  "  no way in particular.",
+}
 local t = 0
 local ahead = nil      -- the time the boxes are stepping on to, in their threads, while the last frame is drawn
 local said
@@ -216,6 +233,7 @@ local function pour()
   local hard = v:getParam("hard")
   print(string.format("\n--- poured: %d glass beads a box, shaken at %d Hz: gently (%.1f g, %.1f mm) for %d s, then hard (%.1f g, %.1f mm) from %d s ---",
                       N_S, F_HZ, GENTLE, amplitude(GENTLE) * 10, T_GENTLE, hard, amplitude(hard) * 10, T_HARD))
+  for _, line in ipairs(WATCH) do print("  " .. line) end
   print(string.format("  Gamma %.1f: below 1 -- the bed should never leave the floor; Gamma %.1f: it should leave it %.1f degrees into each upswing (arcsin 1/Gamma), if it has landed by then",
                       GENTLE, hard, math.deg(math.asin(1 / hard))))
   for _, bx in ipairs(BOXES) do
@@ -262,8 +280,15 @@ local function pour()
         end
       end
     end
+    -- the layers: by height as poured (display only)
+    local order = {}
+    for i = 0, N_S - 1 do order[#order + 1] = i end
+    table.sort(order, function(a, c) return bed:y(a) < bed:y(c) or (bed:y(a) == bed:y(c) and a < c) end)
+    local layerOf = {}
+    for r, i in ipairs(order) do layerOf[i] = math.min(N_LAYERS, math.floor((r - 1) * N_LAYERS / N_S) + 1) end
     for i = 0, N_S do
-      bx.shown[i].col = i == N_S and BIG_COL or (i == bi and TRACER_COL or BEAD_COLS[i % 3 + 1])
+      local col = i == N_S and BIG_COL or (i == bi and TRACER_COL or LAYER_COLS[(layerOf[i] - 1) % 2 + 1][i % 3 + 1])
+      bx.shown[i].col = col
       bed:attach(i, bx.shown[i])
     end
     bx.band.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(bx.x, BASE_Y + R_B, 0))
@@ -431,11 +456,18 @@ v:setHelpText(table.concat({
   "",
   "Two boxes of glass beads shaken up and down five times a second,",
   "gently (0.8 g) for 2 s, then hard (3 g). A big glass bead at the",
-  "bottom of each; a red bead to show which way the beads go round.",
-  "Left:   walls lined with glued glass beads -- the beads go up the",
-  "        middle and down the walls, and the big bead comes up",
-  "Right:  smooth glass walls -- the beads go round the other way,",
-  "        and the big bead stays down",
+  "bottom of each, with a painted band to show it turning; the beads",
+  "coloured in layers, and a red bead with a trail, to show the flow.",
+  "",
+  "Left (rough walls): within about 10 s (40 s in the default slow",
+  "  motion) the big blue bead comes up and stays up; the layers bow up",
+  "  in the middle and down at the walls; the red bead goes down by a",
+  "  wall and up the middle, round in about 40 s (nearly 3 minutes slow).",
+  "  The big bead turns counterclockwise left of the middle, clockwise",
+  "  right of it: the two rolls turn it.",
+  "Right (smooth walls): the big bead stays low, about a third of the way",
+  "  up; the layers stay nearly level for the first half minute; the red",
+  "  bead stays near the top; the big bead turns no way in particular.",
   "",
   "R   pour them again (they run on until you do)",
   "Z   slow motion (1/4, the default) <-> real time",
