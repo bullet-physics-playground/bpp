@@ -1,0 +1,3 @@
+# made by each exhibit's make-stls.sh from its OpenSCAD sources
+exhibits/*/stl/
+__pycache__/
