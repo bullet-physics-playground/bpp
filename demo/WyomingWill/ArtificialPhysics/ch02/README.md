@@ -10,16 +10,16 @@ every later port stands on.
 | --- | --- |
 | `models.lua` | The three models as plain Lua, with the book's slider defaults |
 | `Tetrahedron.lua` | Ours: four masses (1–4) on six springs, spinning about a chosen principal axis; about the middle one it flips over and over (the tennis-racket effect) |
-| `Planets.lua` | Ours: a sun and 1–6 planets in slightly tilted orbits, solar_system's law without caps |
-| `SpringLattice.lua` | Ours: a cube of 8, 27 or 64 masses on springs (edges and face diagonals); spins and rings, settles with friction |
+| `Planets.lua` | Ours: a sun and 1–6 planets on elliptical, slightly tilted orbits, solar_system's law without caps; spacing and Δt follow two rules that keep it stable |
+| `SpringLattice.lua` | Ours: a cube of 8, 27 or 64 masses on springs (edges and face diagonals), springs coloured by strain (blue compressed, white at rest, red stretched) and masses by layer; spins and rings, settles with friction |
 | `Spring3D.lua` | Ours, not in the book: spring2D with a third axis, seen at an angle. Each particle starts in a random direction on the sphere; Angular_Motion_Z adds z velocity. The status line shows \|L\| and the tilt of L from its start instead of L |
 | `Spring1D.lua`, `Spring2D.lua`, `SolarSystem.lua` | BPP scenes with the NetLogo sliders (same names; the solar system's caps get tick boxes instead of the book's huge "off" values), seen from above; the status line shows t, separation, \|P\|, L, KE, PE and E. They run as soon as they load; R resets, S stops and restarts |
 | `scene.lua` | Their shared drawing and running |
-| `../checks/ch02.lua` | The book's results and our 3D models as 44 numeric checks, about 7 s |
+| `../checks/ch02.lua` | The book's results and our 3D models as 47 numeric checks, about 8 s |
 
 ## The book's results and ours
 
-All 44 checks pass (`lua5.1 checks/ch02.lua`).
+All 47 checks pass (`lua5.1 checks/ch02.lua`).
 
 **2.1 spring1D** (k 10, D 50, Δt 0.001)
 - Momentum stays exactly 0 (|P| = 0, not just small).
@@ -124,11 +124,27 @@ tug on each other. Each 1/100 of the sun: stable for 30 orbits but radii
 swing ±30%, and one of three seeds broke up by 150. Each 3/100, or spaced
 only 1.3× apart: a planet is thrown out. What makes a system stable, in
 order: light planets, wide spacing, a time step of a few hundred per inner
-orbit, the sun given its share of momentum, circular starting speeds
-√(G M / r), and no force or velocity cap.
+orbit, the sun given its share of momentum, the right starting speeds, and
+no force or velocity cap.
+
+**Elliptical orbits** (F58; `Eccentricity`, default 0.3). Circles were
+never the hard part; ellipses are, for two reasons, and the scene applies a
+rule for each on every R:
+- *Spacing:* an ellipse reaches from a(1 − e) to a(1 + e). Keep the `Gap`
+  — the outer orbit's nearest point over the inner one's farthest — at 1.8,
+  as for circles; the semi-major axes then grow by 1.8 (1 + e)/(1 − e).
+  Every run held at e 0.3–0.7; at Gap 1 (orbits touching) heavy planets
+  broke up in 11 of 12 runs.
+- *Time step:* the nearest-point pass takes about √(rp³/GM), rp = a(1 − e).
+  `Time_Step` is set to give about 50 steps across it (0.026 for circles,
+  0.009 at e 0.5, 0.0008 at e 0.9), and `stepsPerFrame` to keep the same
+  pace on screen. With 4 steps (e 0.9 at 0.01) the energy swings 88% at
+  each pass and the orbit turns.
+
+Lower `Gap` or raise `Time_Step` after R to watch each rule matter.
 
 **Spring lattice** (`SpringLattice.lua`; 3 × 3 × 3 unit masses, spacing
-50, k 10). Springs join every pair closer than 1.5 × 50: the 54 edges and
+50, k 10; springs coloured by strain, full blue or red at 5%). Springs join every pair closer than 1.5 × 50: the 54 edges and
 72 face diagonals (126). Edges alone would let the cube shear flat, as a
 truss without braces. Displaced at random by up to 10% and spun, it turns
 and rings for ever (strain 5.8% to 4.3% after 30 time units, energy within

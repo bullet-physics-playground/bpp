@@ -10,6 +10,12 @@
 -- random by up to Jitter x 50, and the whole cube spins at Spin about a
 -- random axis. R gives a new start (the seed slider repeats one).
 --
+-- Colours: each spring is coloured by its strain (r - rest) / rest, blue
+-- compressed, white at rest, red stretched, full colour at 5% (so the
+-- ringing shows as colour flickering through the cube); the masses are
+-- coloured by their starting layer (yellow, white, blue, and green for a
+-- fourth), so the turning is easy to follow.
+--
 -- What to see: the cube turns and rings -- every mass oscillating about
 -- its place -- for ever without friction, with |P| = 0 and L fixed exactly
 -- and E not drifting. With Friction the ringing dies away and the cube
@@ -26,6 +32,20 @@ package.path = "../?.lua;" .. package.path
 local scene = require "ch02.scene"
 local ch = require "ch02.models"
 local status = require "lib.status"
+local mon = require "lib.monitors"
+
+-- strain -> colour: blue (compressed) - white (at rest) - red (stretched),
+-- saturating at FULL_STRAIN
+local FULL_STRAIN = 0.05
+local function strainColor(m, bd)
+  local s = (mon.dist(m.ps[bd[1]], m.ps[bd[2]]) - bd.rest) / bd.rest
+  local t = math.max(-1, math.min(1, s / FULL_STRAIN))
+  local r, g, b
+  if t >= 0 then r, g, b = 255, 255 - 190 * t, 255 - 210 * t      -- white -> red
+  else r, g, b = 255 + 205 * t, 255 + 120 * t, 255 end               -- white -> blue
+  return string.format("#%02x%02x%02x", math.floor(r + 0.5), math.floor(g + 0.5), math.floor(b + 0.5))
+end
+local LAYER = { "#ffd040", "#ffffff", "#5090ff", "#50d070" }
 
 v:addParam("Size", 3, 2, 4, 1, "masses along each edge of the cube (27 at 3); applies on R")
 v:addParam("Jitter", 0.1, 0, 0.3, 0.01, "starting random displacement, as a fraction of the spacing; applies on R")
@@ -57,10 +77,15 @@ scene.run({
     end
     return edges
   end,
-  lineRadius = 0.5,
+  lineRadius = 0.6,
+  lineColor = strainColor,
   extra = function(m) return { status.num("strain", 100 * ch.strain(m), 2, false, 6, "%") } end,
   radius = function() return 2.5 end,
-  colors = setmetatable({}, { __index = function() return "#ffffff" end }),
+  -- masses are made layer by layer in z (models.lua), n x n per layer
+  colors = setmetatable({}, { __index = function(_, i)
+    local n = math.floor(v:getParam("Size") + 0.5)
+    return LAYER[((i - 1) % n) % #LAYER + 1]
+  end }),
   trail = 0,
   camHeight = 420,
   help = "spring lattice (ours): a cube of masses on springs (edges drawn, face diagonals hidden). It spins and rings for ever; with Friction it settles into a perfect cube. R: new start; S: stop/start. Status: t, |P|, |L|, tilt of L, strain, KE, PE, E.",

@@ -377,6 +377,33 @@ diagonals (126; edges alone shear flat): it rings without end with P = 0
 and L fixed, and with friction settles into the perfect cube (strain 6% to
 10⁻⁸).
 
+**F58. Elliptical orbits: two rules keep several planets stable** —
+2026-10-18, New (William's question: circles worked, ellipses did not).
+`ch02/Planets.lua`, `checks/ch02.lua`. Measured with the book's integrator
+(3 planets, 6 seeds, 20 outer orbits unless stated):
+(a) **Spacing.** An ellipse swings between a(1 − e) and a(1 + e), so the
+spacing that works for circles lets elliptical orbits approach or cross.
+Keeping the *gap* — the outer orbit's nearest point over the inner orbit's
+farthest point — at the circles' 1.8 (ratio of semi-major axes
+1.8 (1 + e)/(1 − e)) holds them: at e 0.3 and 0.5 every orbit stays within
+1–6% of its shape for light planets (1/1000 of the sun) and within 16%
+for heavy ones (1/100), 12 of 12 runs; e 0.7 also holds. At gap 1 (orbits
+touching) light planets are scrambled (up to 42% past their farthest
+point) and heavy ones break up in 11 of 12 runs; at circular spacing with
+e 0.3–0.5, 4 of 12 light runs broke.
+(b) **Time step.** The nearest-point pass lasts about √(rp³/GM),
+rp = a(1 − e), much shorter than the orbit. With about 50 steps across it
+(Δt = √(rp³/GM)/50) one planet keeps its energy within 1% (e 0.5) to 7%
+(e 0.9) and its orbit does not turn; with 4 steps (e 0.9 at Δt 0.01) the
+energy swings 88% at each pass and the orbit turns about 1° per orbit; with
+1 step, 640% and 157° — and with neighbours, the system breaks. The book's
+integrator keeps a lone orbit's size even then (it is symplectic), so the
+damage shows in the energy and the turning, not the size.
+*Our error, corrected:* the first measure of "broke" used each planet's
+osculating semi-major axis about the sun, which heavy planets distort by
+moving the sun; it called stable heavy systems broken. Farthest and nearest
+distances against the orbit's own a(1 ± e) are the right test.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

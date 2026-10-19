@@ -199,7 +199,7 @@ detail.
 | --- | --- | --- | --- | --- |
 | 2.1 | `spring1D`: Hooke oscillation, momentum 0, energy flat, friction drains it | 58–72 | `ch02/`: scene and checks, all results reproduced | done |
 | 2.2 | `spring2D`: angular momentum conserved, centrifugal stretch > 2D | 73–77 | `ch02/`: scene and checks, reproduced; ★ 3D off-plane spin; ★ spinning tetrahedron (tennis-racket flips); ★ 3D spring lattice | done |
-| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | `ch02/`: scene and checks, all five experiments reproduced (peak speeds 5.5, 5.0, 4.0, 9.0 as printed); ★ several planets in tilted orbits, stable when light and well spaced | done |
+| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | `ch02/`: scene and checks, all five experiments reproduced (peak speeds 5.5, 5.0, 4.0, 9.0 as printed); ★ several planets on tilted elliptical orbits, stable with a gap of 1.8 between orbits and ~50 steps per nearest-point pass (F58) | done |
 
 ### Ch. 3 — NetLogo and physicomimetics (PDF 86–123) · `book/ch03.md`
 | # | Entry | Pages | BPP | Status |

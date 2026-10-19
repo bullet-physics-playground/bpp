@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F57 so far), and
+  implementations, and our own mistakes once corrected (F1–F58 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -278,8 +278,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   interface, ground robot and surface boat).
 - **Done (2026-10-18): three truly 3D Ch. 2 models** (`ch02/`, F57): a
   spinning tetrahedron that flips over about its middle axis (the
-  tennis-racket effect), several planets in tilted orbits (stable when
-  light and well spaced; William had never got several planets stable),
+  tennis-racket effect), several planets on tilted elliptical orbits
+  (William's circles worked, ellipses did not: two rules fix it, a gap of
+  1.8 between orbits and ~50 steps per nearest-point pass, F58),
   and a 3 × 3 × 3 spring lattice. An inclined single orbit adds nothing
   (spring3D again) and is covered by the planets. The Ch. 2 drone versions
   are dropped (William).

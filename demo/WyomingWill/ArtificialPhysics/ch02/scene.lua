@@ -54,7 +54,9 @@ end
 -- change was applied without a reset. For more bodies: lines(model) -> a
 -- list of {i, j} to draw as springs (instead of springLine); trails = a
 -- list of {of = i, color = "#..."} (instead of trailOf); extra(model, m)
--- -> status fields placed after L (m = ch.measure(model)); noSep drops sep.
+-- -> status fields placed after L (m = ch.measure(model)); noSep drops sep;
+-- lineColor(model, pair) -> a colour for each line (default grey);
+-- camHeight and trailRadius may be functions of the model.
 function S.run(opts)
   common.setTiming(1 / 30, 1, 1 / 30)
   common.gravity(0)
@@ -90,7 +92,8 @@ function S.run(opts)
       lineObjs = {}
       for _, pr in ipairs(opts.lines(model)) do
         local a, b = model.ps[pr[1]], model.ps[pr[2]]
-        local o = common.placeCylinder(P(a.x or 0, a.y or 0, Z(a)), P(b.x or 0, b.y or 0, Z(b)), opts.lineRadius or 0.6, "#c8c8c8")
+        local col = opts.lineColor and opts.lineColor(model, pr) or "#c8c8c8"
+        local o = common.placeCylinder(P(a.x or 0, a.y or 0, Z(a)), P(b.x or 0, b.y or 0, Z(b)), opts.lineRadius or 0.6, col)
         if o then lineObjs[#lineObjs + 1] = quiet(o) end
       end
     elseif opts.springLine then
@@ -164,7 +167,8 @@ function S.run(opts)
           local p = model.ps[tr.of]
           local dot = trail[trailNext]
           if not dot then
-            dot = quiet(Sphere(opts.trailRadius or 0.35, 0)); dot.col = tr.color or "#7090ff"; v:add(dot)
+            local tr_r = type(opts.trailRadius) == "function" and opts.trailRadius(model) or opts.trailRadius or 0.35
+            dot = quiet(Sphere(tr_r, 0)); dot.col = tr.color or "#7090ff"; v:add(dot)
             trail[trailNext] = dot
           end
           dot.pos = P(p.x or 0, p.y or 0, opts.threeD and (p.z or 0) or -0.3)
@@ -179,7 +183,8 @@ function S.run(opts)
     -- from the front, above and to one side, at the centre of mass (fixed,
     -- since |P| = 0)
     setup()
-    local h, c = opts.camHeight or 150, ch.measure(model)
+    local h = type(opts.camHeight) == "function" and opts.camHeight(model) or opts.camHeight or 150
+    local c = ch.measure(model)
     local tx, ty, tz = c.cx, c.cz, -c.cy
     common.setCamera(btVector3(tx + 0.55 * h, ty + 0.45 * h, tz + 0.75 * h), btVector3(tx, ty, tz))
   else

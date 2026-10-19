@@ -306,7 +306,7 @@ do
         string.format("%.2f, %.2f, %.2f, %.2f", peaks[0][1], peaks[1][1], peaks[4][1], peaks[9][1]))
 end
 
--- Three truly 3D models (ours; ch02/README.md, FINDINGS F57). "axis
+-- Three truly 3D models (ours; ch02/README.md, FINDINGS F57, F58). "axis
 -- angle" = angle between the tetrahedron's chosen principal axis, carried
 -- with the body, and L; a "flip" = that angle crossing 90 degrees. "tilt" of
 -- a planet's orbit = angle between its angular momentum about the sun and
@@ -388,6 +388,59 @@ do
   end)
   check("planets: heavy ones (1/10 of the sun) throw one out", far > 5 * 15 * 1.8 ^ 3,
     string.format("farthest %.0f against an outer orbit of %.0f", far, 15 * 1.8 ^ 3))
+end
+
+print("-- elliptical planets (ours: the gap and time-step rules, FINDINGS F58)")
+do
+  -- each planet's farthest / nearest distance from the sun against its
+  -- orbit's a (1 + e) and a (1 - e); "held" = within [0.5, 2] of them
+  local function excursion(o, outerOrbits)
+    o.dt = o.dt or ch.planetsTimeStep(o)
+    local m = ch.planets(o)
+    local ratio = (o.gap or 1.8) * (1 + o.ecc) / (1 - o.ecc)
+    local a = {}
+    for i = 1, o.n do a[i] = 15 * ratio ^ (i - 1) end
+    local T = 2 * math.pi * math.sqrt(a[o.n] ^ 3 / (20 * 100))
+    local n = math.floor(outerOrbits * T / m.dt)
+    local outF, inF = 1, 1
+    for k = 1, n do
+      ch.step(m)
+      if k % 100 == 0 then
+        for i = 1, o.n do
+          local r = mon.dist(m.ps[1], m.ps[i + 1])
+          outF = max(outF, r / (a[i] * (1 + o.ecc)))
+          inF = min(inF, r / (a[i] * (1 - o.ecc)))
+        end
+        if outF > 2 or inF < 0.5 then break end
+      end
+    end
+    return outF, inF
+  end
+  local o1, i1 = excursion({ n = 2, ecc = 0.5, seed = 1 }, 10)
+  check("e 0.5, gap 1.8, rule time step: orbits keep their shape",
+    o1 < 1.1 and i1 > 0.9, string.format("farthest x%.3f, nearest x%.3f of the orbit's", o1, i1))
+  local broke = 0
+  for seed = 1, 2 do
+    local of, inf = excursion({ n = 3, ecc = 0.5, gap = 1.0, planetMass = 1, seed = seed }, 20)
+    if of > 2 or inf < 0.5 then broke = broke + 1 end
+  end
+  check("e 0.5, orbits touching (gap 1), planets 1/100: they break up", broke == 2,
+    string.format("%d of 2 seeds thrown out or dropped in", broke))
+  -- one planet at e 0.9: the largest energy swing |E/E0 - 1| over 10 orbits
+  local function swing(dt)
+    local m = ch.planets({ n = 1, ecc = 0.9, seed = 1, dt = dt })
+    local E0, w = mon.measure(m.ps, m.law).e, 0
+    local n = math.floor(10 * 2 * math.pi * math.sqrt(15 ^ 3 / 2000) / dt)
+    for k = 1, n do
+      ch.step(m)
+      if k % 10 == 0 then w = max(w, abs(mon.measure(m.ps, m.law).e / E0 - 1)) end
+    end
+    return w
+  end
+  local good, bad = swing(ch.planetsTimeStep({ ecc = 0.9 })), swing(0.01)
+  check("e 0.9: 50 steps per nearest-point pass keep E within 10%; dt 0.01 does not",
+    good < 0.1 and bad > 0.5, string.format("swing %.0f%% at dt %.5f, %.0f%% at dt 0.01", 100 * good,
+    ch.planetsTimeStep({ ecc = 0.9 }), 100 * bad))
 end
 
 print("-- spring lattice (ours: 3 x 3 x 3 unit masses, spacing 50, k 10, jitter 0.1, spin 0.3, dt 0.002)")

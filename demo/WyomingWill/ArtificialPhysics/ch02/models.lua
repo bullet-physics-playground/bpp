@@ -301,26 +301,36 @@ function M.bodyAxis(m)
   return x / n, y / n, z / n
 end
 
--- planets: a sun and n planets on circular starts, the book's solar_system
--- law (G m1 m2 / r^2, no caps) and units (G 20, sun 100). Planet i is at
--- r1 ratio^(i-1) from the sun, at a random phase, in a plane tilted by a
--- random angle up to `tilt` degrees about a random line through the sun;
--- its speed is circular, sqrt(G (Msun + m) / r). The centre of mass starts
--- at rest. Stable when the planets are light and well spaced (FINDINGS F57).
--- opts: n 4, planetMass 0.1, tilt 10, r1 15, ratio 1.8, G 20, sunMass 100,
--- dt 0.01, seed.
+-- planets: a sun and n planets, the book's solar_system law (G m1 m2 /
+-- r^2, no caps) and units (G 20, sun 100). Planet i's orbit has
+-- semi-major axis r1 ratio^(i-1) and eccentricity `ecc` (0 = circular); it
+-- starts at its farthest point, at a random phase, in a plane tilted by a
+-- random angle up to `tilt` degrees about a random line through the sun.
+-- The centre of mass starts at rest. The spacing follows from `gap`, the
+-- outer orbit's nearest point over the inner orbit's farthest point:
+-- ratio = gap (1 + ecc) / (1 - ecc); 1.8 is what keeps circles stable, and
+-- the same gap keeps ellipses stable (FINDINGS F57, F58).
+-- opts: n 4, planetMass 0.1, tilt 10, ecc 0, gap 1.8 (or ratio), r1 15,
+-- G 20, sunMass 100, dt 0.01, seed.
 function M.planets(o)
   o = o or {}
   local s = o.seed and rng.new(o.seed) or rng.shared
   local G, ms, mp = o.G or 20, o.sunMass or 100, o.planetMass or 0.1
-  local n, r1, ratio = math.floor(o.n or 4), o.r1 or 15, o.ratio or 1.8
+  local e0 = o.ecc or 0
+  local n, r1 = math.floor(o.n or 4), o.r1 or 15
+  local ratio = o.ratio or (o.gap or 1.8) * (1 + e0) / (1 - e0)
   local tmax = math.rad(o.tilt or 10)
   local m = { kind = "planets", dt = o.dt or 0.01, G = G }
   m.ps = { { x = 0, y = 0, z = 0, vx = 0, vy = 0, vz = 0, m = ms, name = "sun" } }
   for i = 1, n do
     local r = r1 * ratio ^ (i - 1)
     local ph, node, inc = 2 * math.pi * s:random(), 2 * math.pi * s:random(), tmax * s:random()
-    local v = sqrt(G * (ms + mp) / r)
+    -- r is the orbit's semi-major axis a; with eccentricity e the planet
+    -- starts at its farthest point a (1 + e), moving at the speed that
+    -- gives that ellipse, sqrt(G M (1 - e) / (a (1 + e))) (e = 0: circular)
+    local e = o.ecc or 0
+    local v = sqrt(G * (ms + mp) * (1 - e) / (r * (1 + e)))
+    r = r * (1 + e)
     -- in the orbit's own plane, then tilted by inc about the line at angle
     -- `node` in the x-y plane
     local px, py = r * math.cos(ph), r * math.sin(ph)
@@ -343,6 +353,15 @@ function M.planets(o)
   for _, p in ipairs(m.ps) do p.vx, p.vy, p.vz = p.vx - px / mt, p.vy - py / mt, p.vz - pz / mt end
   m.law = gravity(G, nil)
   return m
+end
+
+-- The time step the planets need: about 50 steps across the innermost
+-- orbit's nearest-point pass, whose time scale is sqrt(rp^3 / (G M)), rp =
+-- r1 (1 - ecc). Fewer, and the fast pass is under-sampled (F58).
+function M.planetsTimeStep(o)
+  o = o or {}
+  local rp = (o.r1 or 15) * (1 - (o.ecc or 0))
+  return math.sqrt(rp ^ 3 / ((o.G or 20) * ((o.sunMass or 100) + (o.planetMass or 0.1)))) / 50
 end
 
 -- planet i's orbit: distance from the sun, and the tilt (degrees) of its
