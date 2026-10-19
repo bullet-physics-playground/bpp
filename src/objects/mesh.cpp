@@ -632,6 +632,8 @@ void Mesh::drawTriangles() {
 
           if (mesh->mNormals != nullptr)
             glNormal3fv(&mesh->mNormals[index].x);
+          if (mesh->mTextureCoords[0] != nullptr)
+            glTexCoord2fv(&mesh->mTextureCoords[0][index].x);
           glVertex3fv(&mesh->mVertices[index].x);
         }
         glEnd();
