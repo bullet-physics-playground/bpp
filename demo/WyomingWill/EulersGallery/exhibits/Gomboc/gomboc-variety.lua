@@ -13,9 +13,10 @@
 -- because of where their mass is -- are in ../Bille/bille-drop.lua.)
 --
 -- Each colour keeps its colour and runs through the cycle: when it has been
--- at rest for `redrop` seconds it is lifted away and the NEXT shape is
--- dropped in its place. (The colours start at different places in the
--- cycle, so the table is mixed from the start.)
+-- at rest for `redrop` seconds it is pulled away (up and off to the side)
+-- while the NEXT shape, in its colour, is let down from high above its drop
+-- spot and dropped. (The colours start at different places in the cycle,
+-- so the table is mixed from the start.)
 --
 -- A WHITE DOT marks each body's balancing point (its one unstable
 -- equilibrium: the point farthest from the centre of mass). The balancing
@@ -194,7 +195,7 @@ param("rolling", envnum("GV_ROLL", 150), 0, 300, 5, "rolling resistance lever ar
 param("spin friction", envnum("GV_SPIN", 0.7), 0, 5, 0.1, "deceleration of spin about the vertical, rad/s^2")
 param("air drag", envnum("GV_DRAG", 0), 0, 1.5, 0.05, "Bullet velocity damping; real air drag is ~0")
 param("redrop", envnum("GV_REDROP", 5), 0, 30, 1,
-      "seconds at rest before one is lifted away and the next shape dropped in its colour (0 = off)")
+      "seconds at rest before one is pulled away and the next shape let down and dropped in its colour (0 = off)")
 
 local STEP, NSTEPS, FRAME_DT = 1 / 1200, 20, 1 / 60
 local function applyTiming()
@@ -354,13 +355,26 @@ local function toWorldPoint(g, p)
 end
 
 -- the white dot on the balancing point: drawn only, it touches nothing
+-- (body vector p turned by quaternion q = {x, y, z, w})
+local function turn(q, p)
+  local qx, qy, qz, qw = q[1], q[2], q[3], q[4]
+  local tx, ty, tz = 2 * (qy * p[3] - qz * p[2]), 2 * (qz * p[1] - qx * p[3]), 2 * (qx * p[2] - qy * p[1])
+  return p[1] + qw * tx + (qy * tz - qz * ty), p[2] + qw * ty + (qz * tx - qx * tz), p[3] + qw * tz + (qx * ty - qy * tx)
+end
 local function placeDot(g)
+  local L = g.lift
+  if L and L.copy then                    -- (being let down: on its copy)
+    local x, y, z = turn(L.q1, g.sp.top)
+    g.dot.pos = btVector3(L.p1[1] + x, L.y + y, L.p1[3] + z)
+    return
+  end
   local x, y, z = toWorldPoint(g, g.sp.top)
   g.dot.pos = btVector3(x, y, z)
 end
 
 local function reshape(g, sp)
-  if g.obj then v:remove(g.obj) end
+  if g.obj and not g.out then v:remove(g.obj) end
+  g.out = nil
   if g.dot then v:remove(g.dot) end
   local dot = Sphere(0.09 * sp.topHeight, 0)
   dot.col = "#ffffff"
@@ -424,12 +438,37 @@ local function restPose(g, x, z)
 end
 
 -- ---------------------------------------------------------------------
--- an attendant's lift: a body to be dropped isn't put straight into the
--- air; it's carried there from where it lies, over LIFT_S seconds (up
--- first, then across, turning as it goes), and let go.
--- While it's carried it's out of the race, with no gravity of its own.
+-- the attendant: a body to be dropped isn't put straight into the air.
+-- Each move takes GRIP_S + LIFT_S seconds (a moment to take hold, then
+-- the move); while it lasts the body is out of the race, with no gravity
+-- of its own, and it's let go at the end.
+--  * A body that is NEW on the table (at the start, or one more) rests
+--    there first; then it's lifted from where it lies to where it's let
+--    go, up first, then across, turning as it goes.
+--  * A body that REPLACES one (a re-drop, R, U, the sliders) is let down
+--    from high above its drop spot (DOWN_FROM), already turned as it will
+--    be let go, while AT THE SAME TIME the one it replaces is pulled away:
+--    up and off to the side, out of view, and gone. Neither can touch
+--    anything on the way: both are drawn by display-only copies (they
+--    collide with nothing). The old one's rigid body has left the world;
+--    the new one's waits out of the world too, and goes into it, in its
+--    copy's place, at the moment it's let go.
+-- Either way it is let go at the same pose, with the same spin, drawn
+-- from the same random numbers: only the way it gets there differs.
 -- ---------------------------------------------------------------------
 local LIFT_S, GRIP_S = 0.8, 0.2         -- (a moment to take hold of it, then the lift)
+local GRIP_N, LIFT_N = math.floor(GRIP_S * 60 + 0.5), math.floor(LIFT_S * 60 + 0.5)
+local AWAY_UP, AWAY_SIDE, DOWN_FROM = 120, 120, 80    -- cm: where the old one goes, where the new one comes from
+local function smooth(f) return f * f * (3 - 2 * f) end
+-- a display-only copy of a mesh (it collides with nothing), or nil
+local function copyOf(file, col, q, x, y, z)
+  local m = Mesh(file, 0, false)
+  m.col = col
+  if not pcall(function() m.collides = false end) then return nil end
+  v:add(m)
+  m.trans = btTransform(q, btVector3(x, y, z))
+  return m
+end
 local function poseOf(g)
   local x, y, z = getPosXYZ(g.obj)
   return { q = qOf(g.body:getCenterOfMassTransform():getRotation()), p = { x, y, z } }
@@ -446,16 +485,23 @@ local function liftStep(g)
   if not L then return end
   L.n = L.n + 1
   local f = math.max(0, math.min(1, L.n / L.N))
-  local s = f * f * (3 - 2 * f)
-  local up = math.min(1, 1.6 * s)
-  local q = {}
-  local n = 0
-  for i = 1, 4 do q[i] = L.q0[i] + (L.q1[i] - L.q0[i]) * s; n = n + q[i] * q[i] end
-  n = math.sqrt(n)
-  setPose(g, btQuaternion(q[1] / n, q[2] / n, q[3] / n, q[4] / n), L.p0[1] + (L.p1[1] - L.p0[1]) * s,
-          L.p0[2] + (L.p1[2] - L.p0[2]) * up, L.p0[3] + (L.p1[3] - L.p0[3]) * s)
+  local s = smooth(f)
+  if L.copy then                          -- (let down: only its copy moves; the body is out of the world)
+    L.y = L.p1[2] + DOWN_FROM * (1 - s)
+    L.copy.trans = btTransform(btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), btVector3(L.p1[1], L.y, L.p1[3]))
+  else
+    local up = math.min(1, 1.6 * s)
+    local q = {}
+    local n = 0
+    for i = 1, 4 do q[i] = L.q0[i] + (L.q1[i] - L.q0[i]) * s; n = n + q[i] * q[i] end
+    n = math.sqrt(n)
+    setPose(g, btQuaternion(q[1] / n, q[2] / n, q[3] / n, q[4] / n), L.p0[1] + (L.p1[1] - L.p0[1]) * s,
+            L.p0[2] + (L.p1[2] - L.p0[2]) * up, L.p0[3] + (L.p1[3] - L.p0[3]) * s)
+  end
   liftDecor(g)
   if f >= 1 then
+    if L.copy then v:remove(L.copy) end
+    if g.out then v:add(g.obj); g.out = nil end
     g.lift = nil
     g.body:setGravity(btVector3(0, -G, 0))
     place(g, btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), L.p1[1], L.p1[2], L.p1[3], nil, L.spin)
@@ -475,6 +521,61 @@ local function liftTo(g, from, q, x, y, z, spin, onDone)
   g.body:setGravity(btVector3(0, 0, 0))
   setPose(g, btQuaternion(q0[1], q0[2], q0[3], q0[4]), from.p[1], from.p[2], from.p[3])
   liftDecor(g)
+end
+-- let g down from DOWN_FROM above (q; x, y, z) and drop it there with `spin`
+local function letDown(g, q, x, y, z, spin, onDone)
+  g.lift = { copy = copyOf(g.sp.file, SHADES[g.i][0], q, x, y + DOWN_FROM, z), q1 = qOf(q), p1 = { x, y, z },
+             y = y + DOWN_FROM, spin = spin, done = onDone, n = -GRIP_N, N = LIFT_N }
+  g.body:setGravity(btVector3(0, 0, 0))
+  setPose(g, q, x, y, z)                  -- (where it will be let go: what the others see of it)
+  if not g.out then v:remove(g.obj); g.out = true end   -- (and out of the world till then)
+  liftDecor(g)
+end
+
+-- the bodies being pulled away: display-only copies (with their dots),
+-- carried up and to the side, then gone
+local leaving = {}
+-- take g off the table (or out of the air, if it was still being carried):
+-- a copy of it goes, and g's own rigid body is free to be replaced
+local function pullAway(g)
+  local L, copy, q, p = g.lift, nil, nil, nil
+  if L and L.copy then                      -- (still being let down: its copy turns back)
+    copy, q, p = L.copy, L.q1, { L.p1[1], L.y, L.p1[3] }
+  elseif g.obj then
+    local pose = poseOf(g)
+    q, p = pose.q, pose.p
+    copy = copyOf(g.sp.file, SHADES[g.i][math.max(0, g.shade)], btQuaternion(q[1], q[2], q[3], q[4]), p[1], p[2], p[3])
+  end
+  g.lift = nil
+  if not copy then return nil end
+  local dx, dy, dz = turn(q, g.sp.top)
+  local r = { obj = copy, q = q, p = p, n = -GRIP_N, side = (g.i % 2 == 1) and -1 or 1, dot = g.dot, dp = { dx, dy, dz } }
+  g.dot = nil                               -- (its dot goes with it)
+  leaving[#leaving + 1] = r
+  return r
+end
+-- which way it goes: away from where the new one comes down, else outwards
+local function sideAway(r, x)
+  if r then
+    if math.abs(r.p[1] - x) > 3 then r.side = (r.p[1] > x) and 1 or -1
+    elseif math.abs(r.p[1]) > 1 then r.side = (r.p[1] > 0) and 1 or -1 end
+  end
+end
+local function leaveStep()
+  for k = #leaving, 1, -1 do
+    local r = leaving[k]
+    r.n = r.n + 1
+    local f = math.max(0, math.min(1, r.n / LIFT_N))
+    local s = smooth(f)
+    local x, y, z = r.p[1] + r.side * AWAY_SIDE * s, r.p[2] + AWAY_UP * math.min(1, 1.6 * s), r.p[3]
+    r.obj.trans = btTransform(btQuaternion(r.q[1], r.q[2], r.q[3], r.q[4]), btVector3(x, y, z))
+    if r.dot then r.dot.pos = btVector3(x + r.dp[1], y + r.dp[2], z + r.dp[3]) end
+    if f >= 1 then
+      v:remove(r.obj)
+      if r.dot then v:remove(r.dot) end
+      table.remove(leaving, k)
+    end
+  end
 end
 
 local function spots(n)
@@ -584,7 +685,9 @@ local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
   while #bodies > n do
     local g = table.remove(bodies)
-    v:remove(g.obj); if g.dot then v:remove(g.dot) end
+    pullAway(g)
+    if not g.out then v:remove(g.obj) end
+    if g.dot then v:remove(g.dot) end
   end
   while #bodies < n do bodies[#bodies + 1] = { i = #bodies + 1 } end
 end
@@ -598,12 +701,17 @@ local function drop()
   setCount(v:getParam("count"))
   local s = spots(#bodies)
   for k, g in ipairs(bodies) do
-    local from = g.body and not g.lift and poseOf(g)
+    local away = g.body and pullAway(g)    -- (one there now is pulled away; the new one is let down)
     reshape(g, nextSpec(g))
     g.spot = s[k]
-    from = from or restPose(g, s[k][1], s[k][2])
-    liftTo(g, from, randomQuat(), s[k][1], g.sp.topHeight + 7.5 + 4 * k + math.random() * 6, s[k][2], randomSpin(),
-           function() resetBody(g) end)          -- (its clock starts when it's let go)
+    local q, y, spin = randomQuat(), g.sp.topHeight + 7.5 + 4 * k + math.random() * 6, randomSpin()
+    local done = function() resetBody(g) end          -- (its clock starts when it's let go)
+    if away then
+      letDown(g, q, s[k][1], y, s[k][2], spin, done)
+      sideAway(away, s[k][1])
+    else                                    -- (new on the table: it rests at its spot, to be lifted from there)
+      liftTo(g, restPose(g, s[k][1], s[k][2]), q, s[k][1], y, s[k][2], spin, done)
+    end
   end
   resetRace("Drop")
 end
@@ -623,7 +731,7 @@ local function touching(g)
   local R = g.sp.topHeight
   if TABLE_W / 2 - math.abs(px) < R or TABLE_D / 2 - math.abs(pz) < R then return "the rim" end
   for _, o in ipairs(bodies) do
-    if o ~= g then
+    if o ~= g and not o.out then          -- (one being let down touches nothing yet)
       local ox, _, oz = getPosXYZ(o.obj)
       if math.sqrt((px - ox) ^ 2 + (pz - oz) ^ 2) < R + o.sp.topHeight then return NAMES[o.i] end
     end
@@ -631,14 +739,15 @@ local function touching(g)
   return nil
 end
 
--- (the lift waits for the start pause to end, so the pause changes nothing:
--- the bodies rest on the table through it, then are carried up)
+-- (the attendant waits for the start pause to end, so the pause changes
+-- nothing: new bodies rest on the table through it, then are carried up;
+-- replaced ones stay where they are until they are pulled away)
 
 local function redrop(g)
   race.done[#race.done + 1] = { title = g.sp.title, upright = g.rightedAt and g.rightedAt - g.t0,
                                 rest = g.restedAt - g.t0, tilt = g.tilt }
   local was = g.sp.title
-  local from = poseOf(g)
+  local away = pullAway(g)
   reshape(g, nextSpec(g))
   local x, z = g.spot and g.spot[1] or 0, g.spot and g.spot[2] or 0
   for try = 1, 40 do
@@ -647,10 +756,11 @@ local function redrop(g)
     z = (math.random() - 0.5) * (FLAT_D - 20)
   end
   g.run = g.run + 1
-  liftTo(g, from, randomQuat(), x, g.sp.topHeight + 9.5 + math.random() * 8, z, randomSpin(),
-         function() resetBody(g) end)
+  local q, y, spin = randomQuat(), g.sp.topHeight + 9.5 + math.random() * 8, randomSpin()
+  letDown(g, q, x, y, z, spin, function() resetBody(g) end)
+  sideAway(away, x)
   resetBody(g)
-  print(string.format("  %-7s %s lifted away after %g s at rest; dropping %s", NAMES[g.i], was,
+  print(string.format("  %-7s %s pulled away after %g s at rest; dropping a new one, %s", NAMES[g.i], was,
                       v:getParam("redrop"), label(g)))
 end
 
@@ -684,21 +794,32 @@ local function headstand()
   setCount(v:getParam("count"))
   local s = spots(#bodies)
   for k, g in ipairs(bodies) do
+    local away = g.body and pullAway(g)
     reshape(g, nextSpec(g))
     local yaw = btQuaternion(btVector3(0, 1, 0), math.random() * 2 * math.pi)
     local a = math.random() * 2 * math.pi
     local nudge = btQuaternion(btVector3(math.cos(a), 0, math.sin(a)), math.rad(1 + 2 * math.random()))
     g.spot = s[k]
-    place(g, nudge * yaw * pointDown(g.sp.top), s[k][1], g.sp.topHeight + g.sp.margin + 0.1, s[k][2])
+    local q, y = nudge * yaw * pointDown(g.sp.top), g.sp.topHeight + g.sp.margin + 0.1
+    if away then                -- (replacing one: let down onto its head, while the old one goes)
+      letDown(g, q, s[k][1], y, s[k][2], nil, function() resetBody(g) end)
+      sideAway(away, s[k][1])
+    else
+      place(g, q, s[k][1], y, s[k][2])
+    end
   end
   resetRace("Headstand")
 end
 
 local function kick()
   for _, g in ipairs(bodies) do
-    g.body:setLinearVelocity(btVector3((math.random() - 0.5) * 40, 120 + math.random() * 80, (math.random() - 0.5) * 40))
-    g.body:setAngularVelocity(btVector3((math.random() - 0.5) * 30, (math.random() - 0.5) * 10, (math.random() - 0.5) * 30))
-    g.body:activate(true)
+    local vel = btVector3((math.random() - 0.5) * 40, 120 + math.random() * 80, (math.random() - 0.5) * 40)
+    local spin = btVector3((math.random() - 0.5) * 30, (math.random() - 0.5) * 10, (math.random() - 0.5) * 30)
+    if not g.lift then              -- (one being carried is in the attendant's hands)
+      g.body:setLinearVelocity(vel)
+      g.body:setAngularVelocity(spin)
+      g.body:activate(true)
+    end
   end
   resetRace("Kick")
 end
@@ -788,6 +909,7 @@ end)
 
 v:postSim(function(N)
   if holdNow then return end
+  leaveStep()
   for _, g in ipairs(bodies) do placeDot(g) end
   if not race.running then return end
   race.t = race.t + FRAME_DT

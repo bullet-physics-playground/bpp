@@ -61,9 +61,15 @@
 -- Units are centimetres, kilograms and seconds.
 --
 -- Re-drop: once a gomboc has been at rest for `redrop` seconds (slider,
--- default 5; 0 = off), it is lifted away and a new one of the same colour
--- is dropped in its place, so the table keeps going. The console reports
--- each gomboc's times from its own drop, and a tally every minute.
+-- default 5; 0 = off), an attendant pulls it away (up and off to the side,
+-- out of view) and, at the same time, lets a new one of the same colour
+-- down from high above a clear drop spot and drops it there, so the table
+-- keeps going (R and U, with gombocs already on the table, do the same).
+-- Neither touches anything on the way: both are drawn by display-only
+-- copies, and the new one's rigid body joins the world only as it's let go
+-- (GRIP_S + LIFT_S = 1 s after the old one was taken), at the drop pose
+-- and spin drawn as before. The console reports each gomboc's times from
+-- its own drop (the moment it's let go), and a tally every minute.
 --
 -- Keys
 --   R   drop them all again, at random orientations
@@ -150,7 +156,7 @@ param("air drag", envnum("GC_DRAG", 0), 0, 1.5, 0.05,
       "Bullet velocity damping; real air drag is ~0")
 param("taps", envnum("GC_TAPS", 0), 0, 1, 1, "1: nudge stalled gombocs home (version B's taps)")
 param("redrop", envnum("GC_REDROP", 5), 0, 30, 1,
-      "seconds at rest before a gomboc is lifted away and a new one of its colour dropped (0 = off)")
+      "seconds at rest before a gomboc is pulled away and a new one of its colour let down and dropped (0 = off)")
 
 -- Timing: 60 frames a second; each frame simulates `speed` sixtieths of a
 -- second in `steps`-per-second physics steps. The script takes all but the
@@ -441,7 +447,7 @@ local function obstacle(g)
   if TABLE_W / 2 - math.abs(px) < CLEAR then ax = -px / math.abs(px); why = "the rim" end
   if TABLE_D / 2 - math.abs(pz) < CLEAR then az = -pz / math.abs(pz); why = "the rim" end
   for _, o in ipairs(gombocs) do
-    if o ~= g then
+    if o ~= g and not o.out then          -- (one being let down touches nothing yet)
       local ox, _, oz = getPosXYZ(o.obj)
       local dx, dz = px - ox, pz - oz
       local d = math.sqrt(dx * dx + dz * dz)
@@ -461,7 +467,7 @@ local function touching(g)
     return "the rim"
   end
   for _, o in ipairs(gombocs) do
-    if o ~= g then
+    if o ~= g and not o.out then          -- (one being let down touches nothing yet)
       local ox, _, oz = getPosXYZ(o.obj)
       if math.sqrt((px - ox) ^ 2 + (pz - oz) ^ 2) < 2 * HULL.topHeight then return NAMES[o.i] end
     end
@@ -502,9 +508,14 @@ end
 -- the moves
 -- ---------------------------------------------------------------------
 
+local pullAway                        -- (below: takes one off the table, out of the world)
 local function setCount(n)
   n = math.max(1, math.min(MAX_COUNT, math.floor(n)))
-  while #gombocs > n do v:remove(table.remove(gombocs).obj) end
+  while #gombocs > n do
+    local g = table.remove(gombocs)
+    pullAway(g)
+    if not g.out then v:remove(g.obj) end
+  end
   while #gombocs < n do gombocs[#gombocs + 1] = newGomboc(#gombocs + 1) end
   applyMaterials()
 end
@@ -513,17 +524,128 @@ local function randomSpin()
   return btVector3((math.random() - 0.5) * 6, (math.random() - 0.5) * 6, (math.random() - 0.5) * 6)
 end
 
+-- ---------------------------------------------------------------------
+-- the attendant: when a gomboc on the table is replaced (a re-drop, R, U),
+-- the old one is pulled away -- up and off to the side, out of view, and
+-- gone -- while AT THE SAME TIME a new one is let down from DOWN_FROM above
+-- its drop spot, already turned as it will be let go, and let go there.
+-- Each move takes GRIP_S + LIFT_S seconds (a moment to take hold, then the
+-- move). Neither can touch anything on the way: both are drawn by
+-- display-only copies (they collide with nothing). The gomboc's rigid body
+-- leaves the world as the old one is taken and goes back into it, as the
+-- new one, at the moment it's let go -- at the pose and with the spin the
+-- drop always had, drawn from the same random numbers; so the new one is
+-- a fresh gomboc, identical to the old. While it's carried it's out of the
+-- race. (Gombocs new on the table, at the start, are put straight at
+-- their drop poses, as always.)
+-- ---------------------------------------------------------------------
+local LIFT_S, GRIP_S = 0.8, 0.2
+local GRIP_N, LIFT_N = math.floor(GRIP_S * 60 + 0.5), math.floor(LIFT_S * 60 + 0.5)
+local AWAY_UP, AWAY_SIDE, DOWN_FROM = 120, 120, 80    -- cm: where the old one goes, where the new one comes from
+local function smooth(f) return f * f * (3 - 2 * f) end
+local function qOf(q) return { q:getX(), q:getY(), q:getZ(), q:getW() } end
+-- a display-only copy of the gomboc (it collides with nothing), or nil
+local function copyOf(col, q, x, y, z)
+  local m = Mesh(MESH_DIR .. "gomboc.obj", 0, false)
+  m.col = col
+  if not pcall(function() m.collides = false end) then return nil end
+  v:add(m)
+  m.trans = btTransform(q, btVector3(x, y, z))
+  return m
+end
+
+-- let g down from DOWN_FROM above (q; x, y, z) and drop it there with `spin`
+local function letDown(g, q, x, y, z, spin, onDone)
+  g.lift = { copy = copyOf(SHADES[g.i][0], q, x, y + DOWN_FROM, z), q1 = qOf(q), p1 = { x, y, z }, y = y + DOWN_FROM,
+             spin = spin, done = onDone, n = -GRIP_N, N = LIFT_N }
+  g.body:setGravity(btVector3(0, 0, 0))
+  place(g, q, x, y, z)                    -- (where it will be let go: what the others see of it)
+  if not g.out then v:remove(g.obj); g.out = true end   -- (and out of the world till then)
+end
+local function liftStep(g)
+  local L = g.lift
+  if not L then return end
+  L.n = L.n + 1
+  local f = math.max(0, math.min(1, L.n / L.N))
+  L.y = L.p1[2] + DOWN_FROM * (1 - smooth(f))
+  if L.copy then
+    L.copy.trans = btTransform(btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), btVector3(L.p1[1], L.y, L.p1[3]))
+  end
+  if f >= 1 then
+    if L.copy then v:remove(L.copy) end
+    if g.out then v:add(g.obj); g.out = nil end
+    g.lift = nil
+    g.body:setGravity(btVector3(0, -G, 0))
+    place(g, btQuaternion(L.q1[1], L.q1[2], L.q1[3], L.q1[4]), L.p1[1], L.p1[2], L.p1[3], nil, L.spin)
+    if L.done then L.done() end
+  end
+end
+
+-- the gombocs being pulled away: display-only copies, carried up and to
+-- the side, then gone
+local leaving = {}
+-- take g off the table (or out of the air, if it was still being let down)
+function pullAway(g)
+  local L, copy, q, p = g.lift, nil, nil, nil
+  if L and L.copy then                      -- (still being let down: its copy turns back)
+    copy, q, p = L.copy, L.q1, { L.p1[1], L.y, L.p1[3] }
+  elseif g.placed then
+    local x, y, z = getPosXYZ(g.obj)
+    q, p = qOf(g.body:getCenterOfMassTransform():getRotation()), { x, y, z }
+    copy = copyOf(SHADES[g.i][math.max(0, g.shade)], btQuaternion(q[1], q[2], q[3], q[4]), x, y, z)
+  end
+  g.lift = nil
+  if not copy then return nil end
+  local r = { obj = copy, q = q, p = p, n = -GRIP_N, side = (g.i % 2 == 1) and -1 or 1 }
+  leaving[#leaving + 1] = r
+  return r
+end
+-- which way it goes: away from where the new one comes down, else outwards
+local function sideAway(r, x)
+  if r then
+    if math.abs(r.p[1] - x) > 3 then r.side = (r.p[1] > x) and 1 or -1
+    elseif math.abs(r.p[1]) > 1 then r.side = (r.p[1] > 0) and 1 or -1 end
+  end
+end
+local function leaveStep()
+  for k = #leaving, 1, -1 do
+    local r = leaving[k]
+    r.n = r.n + 1
+    local f = math.max(0, math.min(1, r.n / LIFT_N))
+    local s = smooth(f)
+    r.obj.trans = btTransform(btQuaternion(r.q[1], r.q[2], r.q[3], r.q[4]),
+                              btVector3(r.p[1] + r.side * AWAY_SIDE * s, r.p[2] + AWAY_UP * math.min(1, 1.6 * s), r.p[3]))
+    if f >= 1 then
+      v:remove(r.obj)
+      table.remove(leaving, k)
+    end
+  end
+end
+-- drop g at (q; x, y, z) with `spin`: straight there if it's new on the
+-- table, else let down while the one there now is pulled away
+local function dropAt(g, q, x, y, z, spin, onDone)
+  local away = pullAway(g)
+  if away then
+    letDown(g, q, x, y, z, spin, onDone)
+    sideAway(away, x)
+  else
+    place(g, q, x, y, z, nil, spin)
+  end
+  g.placed = true
+end
+
 local function drop()
   setCount(v:getParam("count"))
   local s = spots(#gombocs)
   for k, g in ipairs(gombocs) do
     g.spot = s[k]
-    place(g, randomQuat(), s[k][1], 12 + 4 * k + math.random() * 6, s[k][2], nil, randomSpin())
+    local q, y, spin = randomQuat(), 12 + 4 * k + math.random() * 6, randomSpin()
+    dropAt(g, q, s[k][1], y, s[k][2], spin, function() resetGomboc(g) end)   -- (its clock starts when it's let go)
   end
   resetRace("Drop")
 end
 
--- Lift a resting gomboc away and drop a new one of its colour: over its
+-- Pull a resting gomboc away and drop a new one of its colour: over its
 -- own drop spot if that is clear, otherwise over a clear spot on the flat.
 local function clearOf(g, x, z)
   for _, o in ipairs(gombocs) do
@@ -545,9 +667,10 @@ local function redrop(g)
   race.done[#race.done + 1] = { name = NAMES[g.i], upright = g.rightedAt and g.rightedAt - g.t0,
                                 rest = g.restedAt - g.t0, tilt = g.tilt }
   g.run = g.run + 1
-  place(g, randomQuat(), x, 14 + math.random() * 8, z, nil, randomSpin())
+  local q, y, spin = randomQuat(), 14 + math.random() * 8, randomSpin()
+  dropAt(g, q, x, y, z, spin, function() resetGomboc(g) end)
   resetGomboc(g)
-  print(string.format("  %-9s lifted away after %g s at rest; dropping %s", NAMES[g.i],
+  print(string.format("  %-9s pulled away after %g s at rest; dropping a new one, %s", NAMES[g.i],
                       v:getParam("redrop"), label(g)))
 end
 
@@ -576,18 +699,20 @@ local function headstand()
     local a = math.random() * 2 * math.pi
     local nudge = btQuaternion(btVector3(math.cos(a), 0, math.sin(a)), math.rad(1 + 2 * math.random()))
     g.spot = s[k]
-    place(g, nudge * yaw * flip, s[k][1], HULL.topHeight + MARGIN + 0.1, s[k][2])
+    dropAt(g, nudge * yaw * flip, s[k][1], HULL.topHeight + MARGIN + 0.1, s[k][2], nil, function() resetGomboc(g) end)
   end
   resetRace("Headstand")
 end
 
 local function kick()
   for _, g in ipairs(gombocs) do
-    g.body:setLinearVelocity(btVector3((math.random() - 0.5) * 40, 120 + math.random() * 80,
-                                       (math.random() - 0.5) * 40))
-    g.body:setAngularVelocity(btVector3((math.random() - 0.5) * 30, (math.random() - 0.5) * 10,
-                                        (math.random() - 0.5) * 30))
-    g.body:activate(true)
+    local vel = btVector3((math.random() - 0.5) * 40, 120 + math.random() * 80, (math.random() - 0.5) * 40)
+    local spin = btVector3((math.random() - 0.5) * 30, (math.random() - 0.5) * 10, (math.random() - 0.5) * 30)
+    if not g.lift then              -- (one being carried is in the attendant's hands)
+      g.body:setLinearVelocity(vel)
+      g.body:setAngularVelocity(spin)
+      g.body:activate(true)
+    end
   end
   resetRace("Kick")
 end
@@ -631,7 +756,8 @@ pcall(function()
     "  ]  one more     [  one fewer\n" ..
     "Dark = tipped over, bright = upright.\n" ..
     "The console reports upright and at-rest times.\n" ..
-    "At rest for 'redrop' s: lifted away, a new one dropped.")
+    "At rest for 'redrop' s: pulled away, a new one let down\n" ..
+    "and dropped.")
 end)
 
 -- ---------------------------------------------------------------------
@@ -667,10 +793,15 @@ v:postSim(function(N)
     LOGF:flush()
   end
 
-  if not race.running then return end
+  leaveStep()
+  if not race.running then
+    for _, g in ipairs(gombocs) do liftStep(g) end
+    return
+  end
   race.t = race.t + FRAME_DT
+  for _, g in ipairs(gombocs) do liftStep(g) end      -- (as in Gomboc Variety: let go after the clock ticks)
   local upright, rested = 0, 0
-  for _, g in ipairs(gombocs) do
+  for _, g in ipairs(gombocs) do if not g.lift then
     local tilt = tiltDeg(g.body)
     g.tilt = tilt
 
@@ -717,13 +848,13 @@ v:postSim(function(N)
       g.restedAt, g.restSeenAt = nil, nil          -- (it moved again)
     end
     if g.restedAt then rested = rested + 1 end
-  end
+  end end
 
   -- re-drop the ones that have been at rest long enough
   local wait = v:getParam("redrop")
   if wait > 0 then
     for _, g in ipairs(gombocs) do
-      if g.restSeenAt and race.t - g.restSeenAt >= wait then
+      if not g.lift and g.restSeenAt and race.t - g.restSeenAt >= wait then
         rested = rested - 1
         redrop(g)
       end
@@ -737,7 +868,7 @@ v:postSim(function(N)
   if race.t >= race.nextReport then
     race.nextReport = race.nextReport + (race.t < 20 and 1 or 5)
     local tilts = {}
-    for _, g in ipairs(gombocs) do tilts[#tilts + 1] = string.format("%3.0f", g.tilt) end
+    for _, g in ipairs(gombocs) do tilts[#tilts + 1] = g.tilt and string.format("%3.0f", g.tilt) or "  -" end
     print(string.format("t=%5.1fs  upright %d/%d  at rest %d/%d  tilt(deg): %s", race.t,
                         upright, #gombocs, rested, #gombocs, table.concat(tilts, " ")))
   end

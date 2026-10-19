@@ -24,8 +24,14 @@ gömböcs and the Billes, which are dropped, start resting on the table:
 they rest there through the pause; then an attendant's lift takes hold of
 each (0.2 s), carries it up to where it's let go (0.8 s), and lets go. (The
 lift waits for the pause to end, so that, as everywhere, the pause changes
-nothing.) When one is dropped again, it's carried up from where it came to
-rest. Each one's clock starts when it's let go.
+nothing.) When one is replaced (each comes to rest, then makes way for
+the next), the attendant pulls the old one away, up and off to the side
+and out of view, and at the same time lets the new one down from high above
+its drop spot and lets go: the old one doesn't come back. Neither touches
+anything on the way (they are drawn by copies that collide with nothing,
+and the new one's body joins the physics only as it's let go), and the
+drop itself (where, how it's turned, its spin) is what it always was.
+Each one's clock starts when it's let go.
 
 ## Running it
 
