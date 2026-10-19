@@ -6,6 +6,11 @@ up to 23.65 mm above the base. Above that is a single closed air void with 1.0 m
 the centre of mass sits 23.7 mm up. Set down on any other face, it tips band by band
 (S6 → … → S1) onto its base. `ppla37-cutaway.png` shows the section.
 
+In effect it is a faceted Weeble, a self-righting toy with flat faces. The fill's top is
+level with the centre of mass, which is the fill level that puts the centre of mass lowest
+(the soda-can puzzle). Being bottom-heavy is not enough on its own for flat faces: the shape
+and the fill were fitted together so it cannot rest on any of its 36 other faces.
+
 This is the gallery's own design, not one from a paper. The design scripts and logs are in
 `../reconstruction/pla/`.
 

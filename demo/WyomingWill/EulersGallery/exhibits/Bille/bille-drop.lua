@@ -67,9 +67,26 @@
 -- hexagons (37 faces, 37 corners), but with NO added weights: one print in
 -- PLA, 15 cm tall, 331 g. Below 23.65 mm (above the base) it is solid PLA;
 -- above that is one closed air void with 1.0 mm walls. So it is
--- bottom-heavy: the centre of mass is 23.7 mm above the base, and the trick
--- is the fill level -- solid up to just the height of the centre of mass
--- (filling a little higher or lower would both raise it). Statics (exact
+-- bottom-heavy: the centre of mass is 23.7 mm above the base. In effect it
+-- is a FACETED WEEBLE, a self-righting toy with flat faces. Being bottom-
+-- heavy is not enough on its own for a polyhedron: a round-bottomed toy rolls
+-- smoothly home, but a polyhedron tips face to face and can stop on any face
+-- whose centre-of-mass foot falls inside it (the 37-corner shape as PLA, its
+-- bottom 10-40% solid, 0.8-1.2 mm walls, rests on 13-25 faces in all but one
+-- knife-edge case: reconstruction/pla/bottomfill-check.py, a Monte Carlo
+-- estimate). Here shape and fill were fitted
+-- together so all 36 other faces fail. It is an engineering exercise, not a
+-- mathematical one: the weight may go anywhere inside. Compare the Gomboc
+-- (../Gomboc/: uniform density, shape alone) and the 21-corner body (equal
+-- masses only at the corners), where the constraint is the point.
+-- THE FILL LEVEL: solid up to just the height of the centre of mass, the
+-- level that puts it lowest. A thin layer added below the centre of mass
+-- pulls it down, one above it pulls it up; so filling stops where the fill's
+-- top meets the centre of mass -- the soda-can puzzle (a can is steadiest
+-- when the drink's surface is level with the centre of mass of can plus
+-- drink). The design's optimiser, which maximised the tipping margin, landed
+-- there by itself: fill 23.65 mm, centre of mass 23.69 mm (at the minimum the
+-- centre of mass barely moves with the fill; levels 10-45 mm all work). Statics (exact
 -- polyhedral mass properties, scripts in reconstruction/pla/; mass, centre
 -- of mass and resting faces re-checked independently from the STL by
 -- verify_stl.py): exactly 1 stable face (the base, its centre-of-mass foot
@@ -184,7 +201,7 @@ do
   -- as the other polyhedra's (0.31 cm on 9 cm)
   local p = load("ppla37-data")
   KIND.ppla = { title = "PLA-only polyhedron (no weights)", short = "PLA-only",
-                note = "one PLA print, 15 cm, 331 g: solid to 23.65 mm,\na closed air void above it, 1 mm walls",
+                note = "a faceted Weeble: one PLA print, 15 cm, 331 g,\nsolid to 23.65 mm, a closed air void above it.\nThe fill's top is level with the centre of mass,\nthe level that puts it lowest. Being bottom-heavy\nis not enough for flat faces: shape and fill were\nfitted so it can't rest on any of its 36 other faces.\n(Unlike the Gomboc, its weight may go anywhere.)",
                 obj = "ppla37.obj", scale = 40 / p.size, corners = true, ballR = 0.31 * p.size / 9,
                 points = p.vertices, faces = p.faces, home = "base", top = p.top, mass = p.mass,
                 K2 = p.inertia, margin = p.margin, sizeName = "tall", sizeRef = 40 }
@@ -941,7 +958,8 @@ pcall(function()
     "  ]  one more     [  one fewer\n" ..
     "Red, Yellow, Orange: Billes. Green, Blue, Purple:\n" ..
     "spiral polyhedra, 21, 26, 37 corners (weighted)\n" ..
-    "and the PLA-only one (solid base, air above) in turn\n" ..
+    "and the PLA-only one in turn: a faceted Weeble,\n" ..
+    "solid base, air above, fill top = centre of mass\n" ..
     "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..
     "A Bille's edge lights up white while it lies flat\n" ..
     "on the table (as it rolls from face to face).\n" ..

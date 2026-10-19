@@ -1,0 +1,36 @@
+p37.obj height 9.00 cm faces 37
+  wall 0.8 mm, solid bottom  0%: stable faces 19 , mass 14 g
+  wall 0.8 mm, solid bottom 10%: stable faces 19 , mass 26 g
+  wall 0.8 mm, solid bottom 20%: stable faces 1 BASE ONLY, mass 51 g
+  wall 0.8 mm, solid bottom 30%: stable faces 13 , mass 79 g
+  wall 0.8 mm, solid bottom 40%: stable faces 19 , mass 110 g
+  wall 1.2 mm, solid bottom  0%: stable faces 19 , mass 21 g
+  wall 1.2 mm, solid bottom 10%: stable faces 25 , mass 32 g
+  wall 1.2 mm, solid bottom 20%: stable faces 13 , mass 55 g
+  wall 1.2 mm, solid bottom 30%: stable faces 16 , mass 84 g
+  wall 1.2 mm, solid bottom 40%: stable faces 25 , mass 114 g
+  uniform solid: stable faces 19 mass 182 g
+p26.obj height 9.00 cm faces 36
+  wall 0.8 mm, solid bottom  0%: stable faces 11 , mass 10 g
+  wall 0.8 mm, solid bottom 10%: stable faces 26 , mass 18 g
+  wall 0.8 mm, solid bottom 20%: stable faces 21 , mass 34 g
+  wall 0.8 mm, solid bottom 30%: stable faces 21 , mass 53 g
+  wall 0.8 mm, solid bottom 40%: stable faces 21 , mass 73 g
+  wall 1.2 mm, solid bottom  0%: stable faces 11 , mass 15 g
+  wall 1.2 mm, solid bottom 10%: stable faces 21 , mass 22 g
+  wall 1.2 mm, solid bottom 20%: stable faces 26 , mass 37 g
+  wall 1.2 mm, solid bottom 30%: stable faces 26 , mass 56 g
+  wall 1.2 mm, solid bottom 40%: stable faces 21 , mass 75 g
+  uniform solid: stable faces 11 mass 106 g
+p21.obj height 9.00 cm faces 31
+  wall 0.8 mm, solid bottom  0%: stable faces 11 , mass 9 g
+  wall 0.8 mm, solid bottom 10%: stable faces 21 , mass 14 g
+  wall 0.8 mm, solid bottom 20%: stable faces 21 , mass 27 g
+  wall 0.8 mm, solid bottom 30%: stable faces 21 , mass 43 g
+  wall 0.8 mm, solid bottom 40%: stable faces 21 , mass 57 g
+  wall 1.2 mm, solid bottom  0%: stable faces 11 , mass 13 g
+  wall 1.2 mm, solid bottom 10%: stable faces 21 , mass 18 g
+  wall 1.2 mm, solid bottom 20%: stable faces 21 , mass 30 g
+  wall 1.2 mm, solid bottom 30%: stable faces 21 , mass 46 g
+  wall 1.2 mm, solid bottom 40%: stable faces 21 , mass 58 g
+  uniform solid: stable faces 16 mass 78 g
