@@ -14,6 +14,7 @@ Demos by [@koppi](https://github.com/koppi)
 * **hanoi.lua**: A port of qthanoi (Towers of Hanoi), with a configurable stone count, rainbow-colored disks, a rotating turntable, and a sound for each stone picked and set down.
 * **hcw.lua**: A simulation of a Hoberman Clockwork (WIP).
 * **ibex.lua**: A simulation of an IBEX sculpture (WIP).
+* **iridium.lua**: A simulation of the Iridium satellite fleet: a NASA Blue Marble Earth (demo/koppi/earth-nasa.jpg) turning once a sidereal day, with all 80 satellites of demo/koppi/iridium.tle (Celestrak, refreshable from the header's curl) placed at their positions for the current date and time at real speed, each dragging a yellow trail above its blue, hexagon-outlined coverage cell laid on the globe below, flying a three-part Iridium NEXT model; resting the mouse on one brings up its name and position, and the simulated date and time tick in the status bar.
 * **juggling-robot.lua**: A simulation of Claude Shannon's juggling robot.
 * **lego.lua**: A demonstration of a parametric Lego brick created with OpenSCAD.
 * **marblerun.lua**: A marble run simulation (WIP).
