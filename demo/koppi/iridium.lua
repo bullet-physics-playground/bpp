@@ -58,6 +58,13 @@
 -- trails half transparent, so the map still reads through the fleet's
 -- overlapping cells.
 --
+-- A POV-Ray render wants the cells fainter than the view's 80%: the
+-- fleet's cells lie on top of one another, eight of them deep over the
+-- poles, and at that depth they bury the map under a sheet of blue.  So
+-- the two cells get a material of their own for the render, nearly
+-- transparent, written out by hand in an sdl block like the satellites'
+-- materials above.
+--
 -- Trails after https://github.com/Sec42/xplanet-anim (satellites/mk_marker).
 --
 -- Usage: bpp -f demo/koppi/iridium.lua
@@ -111,6 +118,14 @@ fh:close()
 local TEX = DIR .. "earth-nasa.jpg"
 local COV = DIR .. "iridium-coverage.obj"
 local EDGE = DIR .. "iridium-coverage-outline.obj"
+
+-- The colours of the coverage cells: the tint of the ground a satellite
+-- can see, and the near-white blue of the rim round it.  Each of them is
+-- needed twice -- once for the view, once for the POV-Ray material below.
+local COV_COL = "#3399ff"
+local COV_EMIT = "#0f3c8c"               -- the night side reads too
+local EDGE_COL = "#e6f2ff"
+local EDGE_EMIT = "#4477cc"              -- the night side reads too
 
 -- The parts of one satellite: three meshes in the same coordinate frame,
 -- so the same transform stands all three -- that is what makes the
@@ -168,6 +183,27 @@ for _, f in ipairs({ COV, EDGE }) do
   local fh = assert(io.open(f, "r"),
                     f .. " not found beside this script or in demo/koppi/")
   fh:close()
+end
+
+-- ---------------------------------------------------------------------------
+-- the POV-Ray materials of the coverage cells
+-- ---------------------------------------------------------------------------
+-- A hex colour as the three numbers between 0 and 1 that POV-Ray wants.
+local function povRGB(hex)
+  local r, g, b = color.col2rgb(hex)
+  return string.format("%.6f, %.6f, %.6f", r / 255, g / 255, b / 255)
+end
+
+-- The material of a coverage cell in a POV-Ray render: the colour and the
+-- glow of the view, but as see-through as the render wants it.  An sdl
+-- block replaces the exporter's own pigment and finish, and the no_shadow
+-- that goes with them, so all of it is written out here.
+local function povTint(col, emit, transmit)
+  return string.format([[
+  pigment { rgbt <%s> }
+  finish { emission rgb <%s> }
+  no_shadow
+]], povRGB(col) .. ", " .. transmit, povRGB(emit))
 end
 
 -- ---------------------------------------------------------------------------
@@ -317,11 +353,12 @@ for _, s in ipairs(sats) do
   -- aims its local z at the satellite -- which place() does each frame.
   -- The tint is 80% transparent, so the map shows through it.
   local cov = Mesh(COV, 0, false)
-  cov.col = "#3399ff"
-  cov.emission = "#0f3c8c"               -- the night side reads too
+  cov.col = COV_COL
+  cov.emission = COV_EMIT
   cov.transparency = 0.8
   cov.castShadow = false
   cov.collides = false
+  cov.sdl = povTint(COV_COL, COV_EMIT, 0.98)   -- the render wants it fainter
   v:add(cov)
   s.cov = cov
 
@@ -329,11 +366,12 @@ for _, s in ipairs(sats) do
   -- above the tint so it draws over it, in near-white blue -- which is
   -- what makes the cells read as a grid of hexagons.
   local edge = Mesh(EDGE, 0, false)
-  edge.col = "#e6f2ff"
-  edge.emission = "#4477cc"              -- the night side reads too
+  edge.col = EDGE_COL
+  edge.emission = EDGE_EMIT
   edge.transparency = 0.35
   edge.castShadow = false
   edge.collides = false
+  edge.sdl = povTint(EDGE_COL, EDGE_EMIT, 0.7)
   v:add(edge)
   s.edge = edge
 
