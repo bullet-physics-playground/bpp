@@ -11,16 +11,22 @@
 -- What is different is the shape and the physics, chosen to be realistic
 -- rather than tuned:
 --
--- SHAPE -- the GOMBOC900 SolidWorks CAD model (Kiss Attila, 2013), scaled to
---   9 cm. Its exact surfaces were checked to have one stable and one
---   unstable equilibrium. The physics shape is the convex hull of a fine
---   tessellation of those surfaces (13,476 points, all on the true surface);
---   its flat facets add tiny extra resting faces, but all lie within 16 deg
---   of the true resting point and the deepest needs only a 0.53 micron lift
---   to leave. No hand correction is needed. (Version B's printable STL
---   differs from this shape by up to 2.2 mm; even after B's corrections its
---   hull keeps 27 resting faces deeper than 5 microns, some 50-115 deg from
---   upright.) Centre of mass and inertia are the exact CAD values.
+-- SHAPE -- the GOMBOC900 SolidWorks CAD model: "Gömböc" Convex, homogeneous
+--   three-dimensional body, by Istenes József, published on GrabCAD on
+--   5 December 2024,
+--   https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1
+--   (licence not checked: the page could not be reached from here). This
+--   file used to credit "Kiss Attila, 2013"; where that came from is not
+--   known (no CAD file, file properties or notes are in the repository), so
+--   it is not confirmed. Scaled to 9 cm. Its exact surfaces were checked to
+--   have one stable and one unstable equilibrium. The physics shape is the
+--   convex hull of a fine tessellation of those surfaces (13,476 points, all
+--   on the true surface); its flat facets add tiny extra resting faces (34),
+--   but all lie within 16.3 deg of the true resting point and the deepest
+--   needs only a 0.53 micron lift to leave. No hand correction is needed.
+--   (Version B's printable STL differs from this shape by up to 2.2 mm;
+--   even after B's corrections its hull keeps 27 resting faces deeper than
+--   5 microns, some 50-115 deg from upright.) Centre of mass and inertia are the exact CAD values.
 --
 -- ENERGY LOSS -- a real gomboc loses energy at the table, not in the air:
 --   * rolling resistance: a constant moment  M = delta * m * g  opposing the
@@ -46,13 +52,24 @@
 --
 -- What to expect (defaults, 6 gombocs; tested with 3 drops + 2 headstands):
 --   * all upright within about 15 s, all at rest within 16-22 s;
---   * they stop 0.3-8 deg short of exactly upright (7.9 deg the most
---     seen, on the 75% one in Gomboc Variety: the smaller, the further off,
---     since gravity's lever home grows with size and the rolling lever arm
---     doesn't). That is real: a constant rolling-resistance moment holds a gomboc wherever gravity's
---     pull home is weaker than it, and this gomboc's resting valley is so
---     flat that gravity's pull stays tiny for several degrees. More
---     "rolling" = quicker to stop, further from exactly upright;
+--   * they stop short of exactly upright: mostly 0.3-8 deg, but up to
+--     11.7 deg has been seen at 9 cm (12.5 deg at 125% in Gomboc Variety),
+--     with nothing touching. Why: a constant rolling-resistance moment
+--     holds a gomboc wherever gravity's lever home (the horizontal distance
+--     from the contact to the centre of mass) is shorter than delta, and the
+--     resting valley is a narrow trough (tilting about the body's x axis)
+--     so flat that the lever stays short for several degrees. On the true
+--     smooth surface it reaches delta = 150 microns at about 7 deg at 9 cm
+--     (about 9.4 deg at 75%, 5.9 deg at 125%: the lever grows with size,
+--     delta doesn't). The hull's 1.2 mm facets move the contact by up to
+--     half a facet either way, so on the hull the lever falls below delta
+--     in narrow bands further out, up to ~21 deg at 9 cm. The 11.4-11.7 deg
+--     stops sit on one of the hull's extra resting faces, 11.72 deg off
+--     upright (its foot 63 microns inside the downhill edge, 0.06 micron
+--     deep), or tipped up to 0.35 deg off it, where the lever is still
+--     under delta (3.49 cm x 0.35 deg - 63 microns = 150 microns). Such a
+--     stop can creep off later. (report/dossiers/Gomboc.md has the
+--     numbers.) More "rolling" = quicker to stop, further from upright;
 --   * gombocs that roll into each other can stay propped together for a
 --     long time, as real ones do (the console says "touching ...");
 --   * at rest, the contact solver still lets one creep by up to ~0.3 deg

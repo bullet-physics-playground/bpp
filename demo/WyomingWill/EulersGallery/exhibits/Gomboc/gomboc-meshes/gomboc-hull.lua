@@ -1,11 +1,15 @@
--- Collision hull for gomboc.obj: GOMBOC900 (SolidWorks CAD by Kiss Attila, 2013),
+-- Collision hull for gomboc.obj: GOMBOC900 (SolidWorks CAD), from "Gömböc" Convex,
+-- homogeneous three-dimensional body, by Istenes József, published on GrabCAD on
+-- 5 December 2024: https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1
+-- (licence not checked). Earlier credited to "Kiss Attila, 2013"; the source
+-- of that credit is not known (no CAD file or notes kept), so it is unconfirmed.
 -- scaled to 9 cm, in cm, centred on the exact centre of mass of the CAD solid,
 -- upright = local +y up (stable resting point straight down, unstable tip up).
 --
 -- The points are the convex-hull vertices of a 1.2 mm (at 9 cm) tessellation of
 -- the exact B-spline surfaces; every point lies on the true surface. Checked:
 -- the exact CAD surface has one stable and one unstable equilibrium. Any flat
--- hull has tiny extra resting faces; on this one all 34 lie within 16 deg of
+-- hull has tiny extra resting faces; on this one all 34 lie within 16.3 deg of
 -- the true resting point and the deepest needs a 0.53 micron lift to leave,
 -- far below what any rocking supplies. (No hand correction was needed.)
 -- inertia = squared radii of gyration about local x, y, z (cm^2), exact CAD.

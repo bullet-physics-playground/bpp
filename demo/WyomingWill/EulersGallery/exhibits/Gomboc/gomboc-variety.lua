@@ -26,8 +26,11 @@
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
---   Gomboc-C    the GOMBOC900 CAD model of Gomboc Drop C, uniform resin
---               (1.2 g/cm^3), at 9 cm and scaled to 75% and 125%. Rights
+--   Gomboc-C    the GOMBOC900 CAD model of Gomboc Drop C ("Gömböc" Convex,
+--               homogeneous three-dimensional body, by Istenes József,
+--               published on GrabCAD on 5 December 2024,
+--               https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1;
+--               licence not checked), uniform resin (1.2 g/cm^3), at 9 cm and scaled to 75% and 125%. Rights
 --               itself every time; a bigger one takes longer (time grows
 --               with the square root of size).
 --
