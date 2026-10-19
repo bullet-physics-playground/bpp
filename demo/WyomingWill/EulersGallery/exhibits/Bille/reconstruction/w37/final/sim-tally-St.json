@@ -1,0 +1,341 @@
+{
+ "files": {
+  "drop-real-s1.txt": {
+   "rests": 25,
+   "on_base": 25,
+   "faces": {
+    "base": 25
+   },
+   "set_down_on": [],
+   "median_time": 9.65,
+   "paths": [
+    [
+     "(S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S2) -> (S1) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "(S3) -> (S1) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S4) -> (S3) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ]
+   ]
+  },
+  "drop-real-s2.txt": {
+   "rests": 27,
+   "on_base": 27,
+   "faces": {
+    "base": 27
+   },
+   "set_down_on": [],
+   "median_time": 9.66,
+   "paths": [
+    [
+     "(S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     2
+    ],
+    [
+     "(S3) -> (S2) -> (S3) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "(S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S6) -> (S5) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ]
+   ]
+  },
+  "drop-real-s3.txt": {
+   "rests": 26,
+   "on_base": 26,
+   "faces": {
+    "base": 26
+   },
+   "set_down_on": [],
+   "median_time": 10.1,
+   "paths": [
+    [
+     "(S2) -> (S1) -> (base) -> (S1) -> (S2) -> S1 -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "(S4) -> (S3) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "(S4) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f1.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S1"
+   ],
+   "median_time": 1.48,
+   "paths": [
+    [
+     "S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     3
+    ],
+    [
+     "S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base -> (S1) -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f13.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S3"
+   ],
+   "median_time": 6.86,
+   "paths": [
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f19.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S4"
+   ],
+   "median_time": 8.4,
+   "paths": [
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f25.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S5"
+   ],
+   "median_time": 10.08,
+   "paths": [
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base -> S1 -> base -> (S1) -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f31.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S6"
+   ],
+   "median_time": 10.34,
+   "paths": [
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S3) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> S5 -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S6 -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S5) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S4) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> S4 -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> (S3) -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> (S2) -> S3 -> (S2) -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> S2 -> (S1) -> (base) -> (S1) -> (S2) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ]
+   ]
+  },
+  "setdown-real-f7.txt": {
+   "rests": 6,
+   "on_base": 6,
+   "faces": {
+    "base": 6
+   },
+   "set_down_on": [
+    "S2"
+   ],
+   "median_time": 5.51,
+   "paths": [
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ],
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> (S1) -> base",
+     1
+    ],
+    [
+     "S2 -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> (S1) -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> (base) -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base -> S1 -> base",
+     1
+    ]
+   ]
+  }
+ },
+ "total": 114,
+ "on_base": 114,
+ "drops": [
+  78,
+  78
+ ],
+ "setdowns": [
+  36,
+  36
+ ],
+ "bands_set_down": [
+  "S1",
+  "S2",
+  "S3",
+  "S4",
+  "S5",
+  "S6"
+ ]
+}

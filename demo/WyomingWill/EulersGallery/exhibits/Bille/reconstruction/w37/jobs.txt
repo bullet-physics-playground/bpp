@@ -1,0 +1,9 @@
+W-cyl-3/8x.44 200 _seeded
+W-cyl-3/8x.44 180 _seeded
+St-dowel-10x24 220 _
+W-ball-12 220 _cylstart
+Pb-ball-.535 220 _cylstart
+W-cyl-3/8x.44 190 _seeded
+St-dowel-8x24 200 _
+St-ball-1/2 200 _cylstart
+W-cyl-3/8x.44 160 _seeded

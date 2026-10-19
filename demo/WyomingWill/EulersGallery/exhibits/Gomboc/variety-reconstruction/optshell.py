@@ -1,6 +1,7 @@
-"""Fit a Conway (n,k)-spiral polyhedron that works as a REAL object: a thin
-polycarbonate shell (all faces) with a tungsten weight in every corner, its
-centre INSET cm inside the corner (towards the body's middle)."""
+"""Fit a Conway (n,k)-spiral polyhedron for a shell + corner-weight model: a thin
+polycarbonate shell (all faces) with a tungsten weight in every corner, taken as a
+point INSET cm inside the corner (towards the body's middle). An idealisation: at
+9 cm, real 5.2 g weights 3 mm in do not fit (../../Bille/reconstruction/w37/fitcheck.py)."""
 import numpy as np, sys
 from scipy.optimize import minimize
 import opt21s as o

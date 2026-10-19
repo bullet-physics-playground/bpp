@@ -1,0 +1,4 @@
+# binary files: never diff or line-convert them (report/ and exhibits/Bille/print/ have their own too)
+*.pdf binary
+*.png binary
+*.npy binary

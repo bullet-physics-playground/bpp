@@ -1,0 +1,90 @@
+{
+ "meta": {
+  "cm3": 79.84,
+  "g": 99.0,
+  "time": "13h 53m 26s"
+ },
+ "pla_design_g": 100.19282627185079,
+ "pockets": [
+  {
+   "group": "apex",
+   "pause_after_z": 187.6,
+   "open_layers": 58,
+   "first_open": 176.2,
+   "closest_extrusion_to_pocket_centre_while_open": 5.105314483375425,
+   "pocket_radius": 4.9125,
+   "next_layer": 187.8,
+   "closest_extrusion_in_next_layer": 0.2307011717527918,
+   "ok": true
+  },
+  {
+   "group": "ring 0",
+   "pause_after_z": 12.8,
+   "open_layers": 57,
+   "first_open": 1.6,
+   "closest_extrusion_to_pocket_centre_while_open": 5.1002379363552475,
+   "pocket_radius": 4.9125,
+   "next_layer": 13.0,
+   "closest_extrusion_in_next_layer": 0.22700000000000387,
+   "ok": true
+  },
+  {
+   "group": "ring 1",
+   "pause_after_z": 14.8,
+   "open_layers": 58,
+   "first_open": 3.4,
+   "closest_extrusion_to_pocket_centre_while_open": 5.098992421842442,
+   "pocket_radius": 4.9125,
+   "next_layer": 15.0,
+   "closest_extrusion_in_next_layer": 0.23241095334361017,
+   "ok": true
+  },
+  {
+   "group": "ring 2",
+   "pause_after_z": 19.6,
+   "open_layers": 58,
+   "first_open": 8.2,
+   "closest_extrusion_to_pocket_centre_while_open": 5.101828164135737,
+   "pocket_radius": 4.9125,
+   "next_layer": 19.8,
+   "closest_extrusion_in_next_layer": 0.2319263631083874,
+   "ok": true
+  },
+  {
+   "group": "ring 3",
+   "pause_after_z": 29.0,
+   "open_layers": 58,
+   "first_open": 17.6,
+   "closest_extrusion_to_pocket_centre_while_open": 5.102598498030095,
+   "pocket_radius": 4.9125,
+   "next_layer": 29.2,
+   "closest_extrusion_in_next_layer": 0.23212623464972212,
+   "ok": true
+  },
+  {
+   "group": "ring 4",
+   "pause_after_z": 48.2,
+   "open_layers": 58,
+   "first_open": 36.8,
+   "closest_extrusion_to_pocket_centre_while_open": 5.0922773639967245,
+   "pocket_radius": 4.9125,
+   "next_layer": 48.4,
+   "closest_extrusion_in_next_layer": 0.22959781105065225,
+   "ok": true
+  },
+  {
+   "group": "ring 5",
+   "pause_after_z": 78.2,
+   "open_layers": 58,
+   "first_open": 66.8,
+   "closest_extrusion_to_pocket_centre_while_open": 5.0942662768993285,
+   "pocket_radius": 4.9125,
+   "next_layer": 78.4,
+   "closest_extrusion_in_next_layer": 0.1715231376470631,
+   "ok": true
+  }
+ ],
+ "void_closest_extrusion_to_axis_mm": 36.641999999999996,
+ "layers": 999,
+ "all_pockets_ok": true
+}

@@ -1,4 +1,19 @@
-# Printing the PLA-only monostable polyhedron (ppla37)
+# Printable monostable polyhedra
+
+There are two print projects here. Both are polyhedra that rest on only one face, and
+**neither has been printed or tested yet**: everything about them is calculated (exact
+mass properties, simulated print errors, Bullet runs).
+
+| project | what | files | effort |
+|---|---|---|---|
+| **ppla37** (this folder) | PLA only, no weights: a "faceted Weeble". 150 mm, 331 g, solid at the bottom with a closed void above. One print, no pauses. Smallest margin 12.35 mm | `ppla37.stl`, `ppla37-cutaway.png`; scripts in `../reconstruction/pla/` | easy and forgiving |
+| **w37** ([`w37/`](w37/README.md)) | The Domokos–Kovács construction itself, with equal weights in all 37 corners: 37 tungsten cylinders (0.5 oz) sealed into a PLA print during 7 pauses. 200 mm, 626 g. Smallest margin 4.16 mm | `w37/w37-W.stl`, the build guide `w37/w37-build-guide.pdf`, fit-test coupons; scripts in `../reconstruction/w37/` | harder: needs accurate faces, matched weights and 7 pauses |
+
+The gallery's 9 cm 26- and 37-corner bodies (`../bille-meshes/p26.lua`, `p37.lua`: a 0.5 mm
+shell with 5.2 g weights 3 mm inside the corners) are idealised designs, not print projects.
+They cannot be built as stated (see `w37/README.md`). w37 is the buildable version.
+
+## ppla37: the PLA-only monostable polyhedron
 
 `ppla37.stl` is a polyhedron that rests on only one of its 37 faces: an apex above six
 regular hexagons, 150 mm tall. It has no added weights. It is one PLA print that is solid
@@ -18,7 +33,7 @@ The STL is in millimetres with the base on z = 0. It holds two shells: the outer
 and the void as an inward-facing inner surface. Together they form one watertight solid of
 267.16 cm³. Its size is 148.5 × 128.6 × 150.0 mm.
 
-## Settings
+### Settings
 
 | setting | value |
 |---|---|
@@ -29,7 +44,7 @@ and the void as an inward-facing inner surface. Together they form one watertigh
 | perimeters | at least 2 |
 | material | PLA, 1.24 g/cm³ assumed |
 
-## The slicer must keep the void
+### The slicer must keep the void
 
 The design only works if the void stays empty. Some slicers merge the inner shell into the
 outer one and fill the whole body solid. A filled body weighs 1.65 kg and its centre of
@@ -44,7 +59,7 @@ side faces except the top one, so it will **not** be monostable.
   way up to the closed top.
 - **Check the estimate:** about 267 cm³, which is about 111 m of 1.75 mm filament.
 
-## Check the print
+### Check the print
 
 Weigh it:
 
@@ -55,7 +70,7 @@ Weigh it:
 
 Then set it down on each band of side faces. It should always end up on the base.
 
-## How much error it tolerates (calculated, not tested on a real print)
+### How much error it tolerates (calculated, not tested on a real print)
 
 `../reconstruction/pla/robust.py` runs 300 random builds per row, with exact mass
 properties for each. It still has exactly one stable face in 100% of builds in each of these

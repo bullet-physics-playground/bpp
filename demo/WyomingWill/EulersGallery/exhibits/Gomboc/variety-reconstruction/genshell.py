@@ -1,6 +1,10 @@
-"""Write pNN.obj / pNN.lua for a Conway (n,k)-spiral polyhedron built as a real
-object: 0.5 mm polycarbonate shell + a 5.2 g tungsten weight centred 3 mm inside
-each corner. Checks equilibria with the true centre of mass, and robustness."""
+"""Write pNN.obj / pNN.lua for a Conway (n,k)-spiral polyhedron with an idealised
+shell + corner-weight mass model: 0.5 mm polycarbonate shell + a 5.2 g weight taken
+as a point 3 mm inside each corner. (Not buildable as such at 9 cm: real 5.2 g
+tungsten pieces would overlap and stick out; ../../Bille/reconstruction/w37/fitcheck.py.)
+Checks equilibria with the model's centre of mass, and robustness.
+The Bille copies (../../Bille/bille-meshes/p26.lua, p37.lua) carry hand-written
+headers since corrected; regenerate them with care."""
 import numpy as np, sys
 from scipy.spatial import ConvexHull
 from collections import defaultdict
@@ -62,9 +66,9 @@ def build(n,k):
     with open(f"out/{name}.lua","w") as f:
         f.write(f"""-- A {nv}-vertex polyhedron with one stable face and one unstable vertex: a
 -- Conway ({n},{k})-spiral (Domokos & Kovacs 2023): an apex above {n} horizontal
--- regular {k}-gons, {len(faces)} faces. Unlike the 21-vertex one, this is a REAL
--- object, not an idealisation: a {T_MM} mm polycarbonate shell (1.2 g/cm^3) with
--- a {M_W*1e3:.1f} g tungsten weight in every corner, centred {INSET*10:.0f} mm inside it.
+-- regular {k}-gons, {len(faces)} faces. An IDEALISED design: a {T_MM} mm
+-- polycarbonate shell (1.2 g/cm^3) plus a {M_W*1e3:.1f} g weight per corner taken as a point
+-- {INSET*10:.0f} mm inside it (real tungsten weights of that mass would not fit at 9 cm).
 -- Ring radii and heights fitted for that build (variety-reconstruction/
 -- optshell.py): every other face tips it by at least {margin*10:.2f} mm, every other
 -- corner by at least as much (9 cm tall). Still exactly one stable face and one

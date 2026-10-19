@@ -5,7 +5,7 @@
 #   setdown:  6 bodies at a time, each on a given wrong face (PP_FACE..PP_FACE+5)
 # Real print size (PP_SCALE=1, BD_SPREAD=0) at speed 0.1 (step 1/1200 s),
 # and the gallery's look: 40 cm tall (PP_SCALE=40/size) at the default speed 0.02.
-BPP=${BPP:-/tmp/claude-0/-home-claude/27345db2-594b-591b-b841-2c308bf66463/scratchpad/upstream/release/bpp}
+BPP=${BPP:-$(cd "$(dirname "$0")/../../../../../../../.." && pwd)/release/bpp}
 cd "$(dirname "$0")"
 mkdir -p logs
 for seed in 1 2 3 4; do

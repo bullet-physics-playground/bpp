@@ -1,0 +1,26 @@
+5.2 g pure tungsten (19.25 g/cm3): ball 8.02 mm, cube 6.46 mm (cube half-diagonal 5.60 mm); W heavy alloy 18.0: ball 8.20 mm
+
+p26: mass 141.67 g (26 x 5.2 = 135.2 g weights), height 90.00 mm, stable 1 unstable 1
+  margins, gallery measure (opt21s.margins_c): face 1.43  vert 1.43  bottom 8.45  top 60.61 mm -> min 1.43
+  margins, COM distance (core.summary_margin): face 1.43  vertex 0.71 mm; base foot 8.45 mm inside
+  weight centre -> nearest outer face plane: min 1.11  max 2.46 mm (inner shell surface 0.61..1.96 mm); a 8.02 mm ball needs 4.01 mm
+  weight centre-to-centre: min 3.78 mm (ball needs 8.02); pairs closer than 8.02 mm: 15
+  rings numbered from the top (0) to the base ring; z = height above the base
+  ring 0 (z  29.39 mm, r  29.82): corner spacing in ring  35.05, to next ring  18.77 mm | weight centres in ring  31.99, to next ring  17.31 | centre->face plane 1.76 mm
+  ring 1 (z  11.20 mm, r  25.19): corner spacing in ring  29.61, to next ring   9.78 mm | weight centres in ring  26.09, to next ring   8.84 | centre->face plane 2.00 mm
+  ring 2 (z   4.15 mm, r  18.41): corner spacing in ring  21.64, to next ring   4.62 mm | weight centres in ring  18.42, to next ring   4.05 | centre->face plane 2.34 mm
+  ring 3 (z   1.63 mm, r  14.54): corner spacing in ring  17.09, to next ring   4.40 mm | weight centres in ring  14.25, to next ring   3.78 | centre->face plane 2.46 mm
+  ring 4 (z   0.00 mm, r  10.45): corner spacing in ring  12.29, to next ring    nan mm | weight centres in ring  10.01, to next ring    nan | centre->face plane 2.29 mm
+
+p37: mass 201.15 g (37 x 5.2 = 192.4 g weights), height 90.00 mm, stable 1 unstable 1
+  margins, gallery measure (opt21s.margins_c): face 3.36  vert 3.36  bottom 7.91  top 49.16 mm -> min 3.36
+  margins, COM distance (core.summary_margin): face 3.36  vertex 2.41 mm; base foot 7.91 mm inside
+  weight centre -> nearest outer face plane: min 1.54  max 2.45 mm (inner shell surface 1.04..1.95 mm); a 8.02 mm ball needs 4.01 mm
+  weight centre-to-centre: min 2.46 mm (ball needs 8.02); pairs closer than 8.02 mm: 24
+  rings numbered from the top (0) to the base ring; z = height above the base
+  ring 0 (z  40.84 mm, r  33.88): corner spacing in ring  33.88, to next ring  23.71 mm | weight centres in ring  31.56, to next ring  22.25 | centre->face plane 1.90 mm
+  ring 1 (z  17.18 mm, r  32.42): corner spacing in ring  32.42, to next ring  13.33 mm | weight centres in ring  29.44, to next ring  12.31 | centre->face plane 2.04 mm
+  ring 2 (z   6.04 mm, r  25.09): corner spacing in ring  25.09, to next ring  10.90 mm | weight centres in ring  22.20, to next ring   9.92 | centre->face plane 2.06 mm
+  ring 3 (z   0.55 mm, r  15.68): corner spacing in ring  15.68, to next ring   3.79 mm | weight centres in ring  13.32, to next ring   3.46 | centre->face plane 2.11 mm
+  ring 4 (z   0.12 mm, r  11.91): corner spacing in ring  11.91, to next ring   2.78 mm | weight centres in ring   9.87, to next ring   2.46 | centre->face plane 2.28 mm
+  ring 5 (z   0.00 mm, r   9.14): corner spacing in ring   9.14, to next ring    nan mm | weight centres in ring   7.41, to next ring    nan | centre->face plane 2.45 mm

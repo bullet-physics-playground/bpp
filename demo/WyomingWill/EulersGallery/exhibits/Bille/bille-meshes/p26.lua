@@ -1,14 +1,29 @@
 -- A 26-vertex polyhedron with one stable face and one unstable vertex: a
 -- Conway (5,5)-spiral (Domokos & Kovacs 2023): an apex above 5 horizontal
--- regular 5-gons, 26 faces. Unlike the 21-vertex one, this is a REAL
--- object, not an idealisation: a 0.5 mm polycarbonate shell (1.2 g/cm^3) with
--- a 5.2 g tungsten weight in every corner, centred 3 mm inside it.
--- Ring radii and heights fitted for that build (variety-reconstruction/
--- optshell.py): every other face tips it by at least 1.43 mm, every other
--- corner by at least as much (9 cm tall). Build errors (variety-reconstruction/
--- robust2.py): with accurate flat panels, ring sizes/heights and weight
--- positions off by 0.2 / 0.5 / 1.0 mm and weights scattered 3% in mass, it
--- still has exactly one of each in 75% / 27% / 5% of 300 trials.
+-- regular 5-gons, 26 faces.
+-- AN IDEALISED DESIGN, NOT A BUILDABLE OBJECT (corrected 19 Oct 2026; this
+-- header used to call it "a REAL object, not an idealisation"). The mass
+-- model is a 0.5 mm polycarbonate shell (1.2 g/cm^3) over the faces plus a
+-- 5.2 g weight per corner, treated as a POINT 3 mm inside the corner (towards
+-- the mean of the corners; its own inertia taken as an 8 mm ball's). The
+-- mass, centre of mass and inertia below are exact for that model, and the
+-- simulation uses them as they are. Real 5.2 g tungsten weights (an 8.0 mm
+-- ball or a 6.5 mm cube) cannot be placed like that at 9 cm: a centre 3 mm
+-- in is only 1.1-2.5 mm from the face planes, so the weight would stick out
+-- through the shell; and in the bottom three rings the weight centres are
+-- 3.8-4.1 mm from the next ring's (corners 4.4-4.6 mm apart), so neighbouring
+-- weights would overlap (15 pairs closer than 8 mm). Checked with
+-- ../reconstruction/w37/fitcheck.py (runs/fitcheck.log).
+-- Ring radii and heights fitted for the idealised model (../../Gomboc/
+-- variety-reconstruction/optshell.py): every other face tips it by at least
+-- 1.43 mm and every other corner by at least as much on the fit's own
+-- measure (9 cm tall); measured as the distance the centre of mass would have
+-- to move, the nearest other corner is 0.71 mm away. Build errors in the same
+-- idealised model (robust2.py): with accurate flat panels, ring sizes/heights
+-- and weight positions off by 0.2 / 0.5 / 1.0 mm and weights scattered 3% in
+-- mass, it still has exactly one of each in 75% / 27% / 5% of 300 trials.
+-- A weighted spiral that CAN be built (37 corners, 200 mm, tungsten cylinders
+-- in a PLA print; designed and simulated, not yet printed): ../print/w37/.
 -- Stable: the bottom 5-gon. Unstable: the apex.
 -- Units cm, kg. Body frame: z up through the apex, origin at the centre of mass.
 return {

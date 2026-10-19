@@ -1,0 +1,8 @@
+{
+ "text": [
+  "<b>Recommended build:</b> 88 of 88 random drops ended on the base (3 runs \u00d7 6 bodies, each re-dropped 1 s after coming to rest), and 36 of 36 set-downs ended on the base: each of the 36 wrong faces once (6 per band, S1\u2026S6). Time to rest: median 9.0\u20139.3 s per drop run.",
+  "<b>Steel-dowel build:</b> 78 of 78 drops and 36 of 36 set-downs ended on the base.",
+  "<b>How it moves.</b> From a high band it tips band by band to the base, then <i>rocks back up</i> through the low bands (in the simulation, at most up to S5 after a set-down on S6) with decreasing swings, and settles after 5\u201310 s. It does not stop on any band on the way. That is what a low centre of mass and nearly flat bottom bands give: a faceted Weeble. Real PLA damps the impacts more than the simulation's restitution, so expect a quicker settle.",
+  "Run at the real size (PP_SCALE = 1), 1/1200 s steps, in a copy of the gallery's Bille Drop harness (exhibits/Bille/reconstruction/w37/sim/w37-drop.lua, made via reconstruction/pla/sim/pla-drop.lua) with only the body list and its label changed. Contact, losses and detection are unchanged, and nothing was tuned."
+ ]
+}

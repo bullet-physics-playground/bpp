@@ -1,5 +1,6 @@
 """Re-fit the 21-vertex polyhedron as a SOLID-LOOKING object: a thin polycarbonate
-shell (closed faces) with a tungsten weight glued into each corner."""
+shell (closed faces) with a tungsten weight glued into each corner (each weight
+taken as a point INSET inside its corner; its real size is not checked)."""
 import numpy as np
 from scipy.spatial import ConvexHull
 from scipy.optimize import minimize

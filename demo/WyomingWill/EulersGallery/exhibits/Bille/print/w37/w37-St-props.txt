@@ -1,0 +1,32 @@
+design final/w37-St.npy: weight St-dowel-10x20 (cyl [10.0, 20.0] mm, 12.331 g), wall 0.8 mm, boss wall 0.8 mm, glue 0.03 g/pocket
+x (R0..R5, Z1..Z5, H; mm) = [12.1183, 29.1687, 42.0544, 55.6551, 68.8049, 72.7655, 0.5712, 6.8534, 18.2099, 39.3235, 82.7927, 220.0]
+height 220.00 mm, vertex circle diameter 145.53 mm, base hexagon circumradius 12.12 mm
+volumes (mm^3): outer 1500864.6, shell 55449.0, bosses (union, incl. pockets) 122972.0, pockets 62892.1, PLA 115528.9
+mass: PLA 143.26 g + weights 456.24 g + glue 1.11 g = 600.60 g
+COM height above base 42.650 mm; inertia about COM (g mm^2) Ixx 1687538 Iyy 1687538 Izz 1214710
+equilibria: stable 1 ['base'], unstable 1 ['apex']
+smallest margin: faces 1.370 mm, vertices 1.372 mm; base: foot 10.49 mm inside
+  face base  n_z -1.0000 (overhang  0.0 deg from vertical)  h   42.650 mm  foot INSIDE  by  10.49 mm  -> None   (x1)
+  face S1    n_z -0.9993 (overhang 87.8 deg from vertical)  h   43.024 mm  foot outside by   8.84 mm  -> base   (x6)
+  face S2    n_z -0.8714 (overhang 60.6 deg from vertical)  h   49.060 mm  foot outside by   1.37 mm  -> S1   (x6)
+  face S3    n_z -0.7199 (overhang 46.0 deg from vertical)  h   51.048 mm  foot outside by   1.37 mm  -> S2   (x6)
+  face S4    n_z -0.4747 (overhang 28.3 deg from vertical)  h   54.024 mm  foot outside by   1.37 mm  -> S3   (x6)
+  face S5    n_z -0.0787 (overhang  4.5 deg from vertical)  h   59.664 mm  foot outside by   1.37 mm  -> S4   (x6)
+  face S6    n_z +0.4174 (overhang  0.0 deg from vertical)  h   74.020 mm  foot outside by  10.18 mm  -> S5   (x6)
+  vertex z    0.00 mm r  12.12 mm  COM distance to its equilibrium cone  10.68 mm   (x6)
+  vertex z    0.57 mm r  29.17 mm  COM distance to its equilibrium cone   7.78 mm   (x6)
+  vertex z    6.85 mm r  42.05 mm  COM distance to its equilibrium cone   9.34 mm   (x6)
+  vertex z   18.21 mm r  55.66 mm  COM distance to its equilibrium cone   8.68 mm   (x6)
+  vertex z   39.32 mm r  68.80 mm  COM distance to its equilibrium cone   2.93 mm   (x6)
+  vertex z   82.79 mm r  72.77 mm  COM distance to its equilibrium cone   1.37 mm   (x6)
+  vertex z  220.00 mm r   0.00 mm  COM distance to its equilibrium cone -156.68 mm  (UNSTABLE EQUILIBRIUM)   (x1)
+pockets: cyl pocket radius/half-side 5.15 mm, height 20.40 mm; smallest wall between two pockets 1.24 mm
+layer 0.2 mm (first 0.2 mm); PrusaSlicer slices at mid-layer
+  apex    x1: pocket centre r   0.00 z 196.67 (corner 23.33 mm away); floor 186.47 top 206.87; PAUSE after the layer ending at Z = 206.80 mm (weight top as printed 206.40 mm)
+  ring 0  x6: pocket centre r  11.74 z  11.19 (corner 11.19 mm away); floor   0.99 top  21.39; PAUSE after the layer ending at Z = 21.40 mm (weight top as printed 21.00 mm)
+  ring 1  x6: pocket centre r  23.65 z  11.90 (corner 12.60 mm away); floor   1.70 top  22.10; PAUSE after the layer ending at Z = 22.00 mm (weight top as printed 21.60 mm)
+  ring 2  x6: pocket centre r  35.55 z  17.70 (corner 12.65 mm away); floor   7.50 top  27.90; PAUSE after the layer ending at Z = 28.00 mm (weight top as printed 27.60 mm)
+  ring 3  x6: pocket centre r  47.65 z  27.80 (corner 12.49 mm away); floor  17.60 top  38.00; PAUSE after the layer ending at Z = 38.00 mm (weight top as printed 37.60 mm)
+  ring 4  x6: pocket centre r  59.19 z  45.31 (corner 11.33 mm away); floor  35.11 top  55.51; PAUSE after the layer ending at Z = 55.60 mm (weight top as printed 55.20 mm)
+  ring 5  x6: pocket centre r  63.11 z  77.67 (corner 10.93 mm away); floor  67.47 top  87.87; PAUSE after the layer ending at Z = 87.80 mm (weight top as printed 87.40 mm)
+STL check: {"watertight": true, "winding": true, "volume": 115525.99186485233, "exact_volume": 115528.86543551806, "com_z": 63.30481208752704, "exact_pla_com_z": 63.3030975293652, "extents": [145.53089904785156, 126.03345489501953, 220.0], "shells": 39, "positive_shells": 1, "genus": -32, "dup_positions": 0}

@@ -55,7 +55,7 @@ beta ~0.09" for the second basin is the rounded form of the scan above.
               20 g weights 2 mm in: just (0.05 mm margin); 20 g right at the
               corners: yes (0.54 mm)
 
-More corners, and real builds (p26, p37; see also gomboc-findings.pdf)
+More corners, and shell + corner-weight models (p26, p37; see also gomboc-findings.pdf)
   table1.py   rebuilds every row of the paper's Table 1 from its angles: the
               listed z_C is not reproduced for any row (probably our misreading)
   optnk.py    fits any Conway (n,k)-spiral for the largest margin; 13, 16, 17,
@@ -64,7 +64,15 @@ More corners, and real builds (p26, p37; see also gomboc-findings.pdf)
               p21 now uses nk_4_5.npy.
   shellgrid.py  margins with a plastic skin and corner weights set inside
   optshell.py   refits (5,5) and (6,6) for 0.5 mm skin + 5.2 g weights 3 mm in
-  genshell.py   writes p26/p37 (.obj, .lua) for that build
+  genshell.py   writes p26/p37 (.obj, .lua) for that model
+  CORRECTED 19 Oct 2026: that model is an idealisation, not a buildable object.
+              The weights are points 3 mm inside the corners; real 5.2 g tungsten
+              pieces (an 8 mm ball, a 6.5 mm cube) would stick out through the shell
+              and overlap their neighbours near the base, at 9 cm. See
+              ../../Bille/reconstruction/w37/fitcheck.py. A buildable weighted
+              37-corner design (200 mm, tungsten cylinders in a PLA print) is in
+              ../../Bille/print/w37/. gomboc-findings.pdf (Sections 1, 3 and 6) still
+              says 37 corners "can be built" in this form; see its erratum page.
   robust2.py    build-error tolerance (accurate panels; rings, weights off)
 
 Mass-distribution scale (gomboc-findings.pdf, Section 7)

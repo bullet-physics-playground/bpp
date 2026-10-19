@@ -1,0 +1,4 @@
+# keep patches clean: never diff or line-convert these
+*.pdf binary
+*.png binary
+*.stl binary

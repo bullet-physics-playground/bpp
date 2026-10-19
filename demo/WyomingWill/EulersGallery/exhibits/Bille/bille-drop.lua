@@ -54,11 +54,19 @@
 --   21 corners (4 pentagons): the fewest for which this design works. The
 --      physics is the paper's idealisation -- all the mass in the corners, a
 --      weightless skin; a real one is practically impossible to build.
---   26 corners (5 pentagons) and 37 corners (6 hexagons): simulated as REAL
---      objects -- a thin polycarbonate shell with a tungsten weight in each
---      corner -- with shapes fitted for that build. The 37 tolerates 0.5 mm
---      build errors. See bille-meshes/p21.lua, p26.lua, p37.lua and
---      ../Gomboc/variety-reconstruction/.
+--   26 corners (5 pentagons) and 37 corners (6 hexagons): also IDEALISED
+--      designs, a step closer to a real object. Their mass model is a thin
+--      (0.5 mm) polycarbonate shell plus a 5.2 g weight per corner, treated
+--      as a point 3 mm inside it, with shapes fitted for that model; the 37
+--      tolerates 0.5 mm errors in it. They CANNOT be built as that model says
+--      at 9 cm: a 5.2 g tungsten weight is an 8 mm ball or a 6.5 mm cube,
+--      which would stick out through the shell 3 mm from a corner, and the
+--      bottom rings' corners are only 2.8-4.6 mm apart, so the weights would
+--      overlap (corrected 19 Oct 2026; this header used to call them "REAL
+--      objects"). A weighted 37-corner spiral that can be built -- 200 mm,
+--      626 g, 37 tungsten cylinders in a PLA print; designed and simulated,
+--      not yet printed -- is in print/w37/. See bille-meshes/p21.lua,
+--      p26.lua, p37.lua and ../Gomboc/variety-reconstruction/.
 --   Here they are scaled up 4.5x (40 cm tall) to stand beside Bille; size
 --   does not change where a body can rest, only how fast it tips (the
 --   masses scale with size^3).
@@ -191,7 +199,12 @@ do
                  margin = B.tubeRadius, sizeName = "longest edge" , sizeRef = 50 }
   for _, nv in ipairs({ 21, 26, 37 }) do
     local p = load("p" .. nv)
+    -- (the titles are printed in the console tallies, so they stay as they
+    -- were; "shell + weights" names the mass model, which is idealised: the
+    -- hover note says so)
     KIND["p" .. nv] = { title = nv .. "-corner polyhedron" .. (nv == 21 and " (ideal)" or " (shell + weights)"),
+                        note = (nv == 21) and "the paper's idealisation: all the mass in the\ncorners, a weightless skin (practically\nimpossible to build)." or
+                               "idealised: a 0.5 mm shell and 5.2 g weights taken\nas points 3 mm inside the corners. Real 5.2 g\ntungsten pieces (8 mm) would overlap and stick\nout of the shell, so it can't be built at 9 cm.\nA buildable 37-corner design is in print/w37/.",
                         short = nv .. "-corner", obj = "p" .. nv .. ".obj", frameObj = "p" .. nv .. "-frame.obj",
                         scale = POLY_SCALE,
                         points = p.vertices, faces = p.faces, home = "base", top = p.top, mass = p.mass,
@@ -1071,7 +1084,8 @@ pcall(function()
     "  Z  slow motion (50x) <-> 10x slower\n" ..
     "  ]  one more     [  one fewer\n" ..
     "Red, Yellow, Orange: Billes. Green, Blue, Purple:\n" ..
-    "spiral polyhedra, 21, 26, 37 corners (weighted)\n" ..
+    "spiral polyhedra, 21, 26, 37 corners (idealised\n" ..
+    "corner weights; a buildable one: print/w37/)\n" ..
     "and the PLA-only one in turn: a faceted Weeble,\n" ..
     "solid base, air above, fill top = centre of mass\n" ..
     "('bodies' slider: 1 = Billes only, 2 = polyhedra).\n" ..

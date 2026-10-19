@@ -55,10 +55,13 @@
 --   21 corners (4 pentagons): the fewest for which this design works. The
 --      physics is the paper's idealisation -- all the mass in the corners, a
 --      weightless skin; a real one is practically impossible to build.
---   26 corners (5 pentagons) and 37 corners (6 hexagons): simulated as REAL
---      objects -- a thin polycarbonate shell with a tungsten weight in each
---      corner -- with shapes fitted for that build. The 37 tolerates 0.5 mm
---      build errors. See bille-meshes/p21.lua, p26.lua, p37.lua and
+--   26 corners (5 pentagons) and 37 corners (6 hexagons): also idealised
+--      designs (a 0.5 mm shell plus 5.2 g weights taken as points 3 mm inside
+--      the corners), NOT buildable as stated at 9 cm: real 5.2 g tungsten
+--      pieces would overlap and stick out of the shell. (Corrected 19 Oct
+--      2026 in this test copy too; it used to call them "REAL objects".)
+--      A buildable weighted 37-corner design: ../../../print/w37/. See
+--      bille-meshes/p21.lua, p26.lua, p37.lua and
 --      ../Gomboc/variety-reconstruction/.
 --   Here they are scaled up 4.5x (40 cm tall) to stand beside Bille; size
 --   does not change where a body can rest, only how fast it tips (the

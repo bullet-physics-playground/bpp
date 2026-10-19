@@ -1,0 +1,611 @@
+{
+ "W": {
+  "wm": 14.17,
+  "comb3": "59",
+  "p2": "95"
+ },
+ "St": {
+  "wm": 12.330751165339937,
+  "comb3": "11"
+ },
+ "answer": "Yes, but the <b>shape</b> of the weight matters as much as its density. All 37 weights must be equal, each pressed as close to its corner as the walls allow. The three bottom rings form a nearly flat dish whose corners are only about 13 mm apart along each spoke. Tall, narrow, dense pieces win. <b>Recommended:</b> tungsten pinewood-derby cylinders, 3/8\" \u00d7 0.44\" (0.5 oz, 14.17 g), in a 200 mm body: smallest margin <b>4.2 mm</b>. <b>Other weights that work:</b> 12 mm tungsten-alloy balls (3.7 mm), tungsten putty (2.7 mm), 3/8\" lead rod cut to 0.6\" (2.7 mm; toxic), and cast or cut bismuth cylinders 10 \u00d7 12 mm (2.3 mm; non-toxic). <b>Steel only works as narrow dowel pins</b> (10 \u00d7 20 mm, 1.4 mm), and that build is fragile: only 85% of builds with 0.1 mm face errors and 22% at 0.2 mm keep one rest face. <b>Steel balls, lead balls, brass, coins and loose shot do not work</b> (Section 2).",
+ "sec1": [
+  "This is a convex polyhedron with 37 flat faces and 37 corners: a pointed apex above six horizontal regular hexagons, each turned and sized so that the side faces form a spiral of bands (S1 next to the base, up to S6 under the apex). Set down on any face, it tips onto the face below it, band by band (S6 \u2192 S5 \u2192 \u2026 \u2192 S1 \u2192 base), and it stays only on its base. Stood on its apex it falls off; no other corner can balance it. So it has exactly <b>one stable</b> and <b>one unstable</b> equilibrium. That makes it a <i>mono-monostatic</i> body, a discrete relative of the G\u00f6mb\u00f6c.",
+  "The G\u00f6mb\u00f6c (V\u00e1rkonyi &amp; Domokos, 2006) is a smooth, uniform solid with one stable and one unstable balance point. For polyhedra, Conway and Guy (1969) built a uniform one that rests on only one face but has several unstable corners. Whether a <i>uniform</i> polyhedron can have one of each is still open. Domokos and Kov\u00e1cs (2023) showed that a polyhedron <b>can</b> if its mass is concentrated in equal point masses at its corners, with weightless faces. Their example is Conway's spiral with 21 corners. This body is the 37-corner (6,6) member of the same family, which is what the gallery uses. The extra corners make it far more tolerant of real faces that have weight. Here the 'point masses' are real tungsten (or steel) pieces in printed pockets, and the 'weightless faces' are 0.8 mm PLA walls, which make up 16% of the mass. The ring sizes and heights were refitted for that real mass distribution."
+ ],
+ "theory": [
+  "<b>Faces.</b> A body can rest on a face only if the point straight below its centre of mass falls <i>inside</i> that face. If it falls outside, the body tips over the nearest edge. The design puts the foot of the centre of mass just outside every side face, on the side of the band below, and well inside the base (10.6 mm in from the base's edge).",
+  "<b>Corners.</b> A corner can balance the body only if the centre of mass lies inside that corner's narrow 'balance cone', which is set by the faces that meet there. Only the apex's cone contains it.",
+  "<b>Margin.</b> This is how far the centre of mass would have to move before a second rest face or balance corner appeared. Every other face's foot is at least <b>4.16 mm</b> outside it, and the centre of mass is at least <b>4.16 mm</b> from any other corner's cone. Build errors move the centre of mass and tilt the faces. They break the body only if they add up to more than this.",
+  "<b>Why weights in the corners.</b> Equal weights at the corners pull the centre of mass to where the spiral shape needs it: low, and close to the axis. Plastic spread over the faces pulls the centre of mass back toward the middle of the shape. The gallery's study found that the 37-corner spiral survives only up to about 18% of its mass spread evenly over the faces. Weights set in from the corners also work against it, because the design wants the mass <i>at</i> the corners. The design is a balance of these effects. A <b>denser</b> weight has a smaller volume for the same mass, so its centre can sit closer to the corner tip, and the plastic is a smaller share of the total mass."
+ ],
+ "cap_section": "Cut through two opposite corners, as designed: PLA in blue, tungsten cylinders in grey, centre of mass (+) 36.3 mm above the bed. Dashed lines mark the seven pauses. Each corner has a pocket in a small solid block whose underside slopes at 45\u00b0, so it prints without support. The rest of the inside is a closed, empty void.",
+ "real": [
+  "<b>The gallery's own 9 cm design cannot be built as stated.</b> A 5.2 g tungsten weight is an 8.0 mm ball or a 6.5 mm cube. It cannot sit 3 mm inside a corner, and the corners of the three bottom rings are only 2.8\u20133.8 mm apart, so neighbouring weights would overlap. The same holds for its 26-corner sibling (weights 3.8\u20134.1 mm apart near the base, centres 1.1\u20132.5 mm from the face planes). The gallery now describes both as idealised designs (exhibits/Bille/reconstruction/w37/fitcheck.py). Every design here uses real pocket geometry: each weight is placed as close to its corner as 0.8 mm walls allow (worked out exactly from the faces that meet there), with at least 0.8 mm of PLA between neighbouring pockets. The rings were then refitted.",
+  "<b>Size.</b> A bigger body makes the shell heavier (it grows with size\u00b2) while the weights stay the same. A smaller one crowds the bottom pockets. For the 0.5 oz cylinders the best height is about 200 mm. One optimiser run per size gave margins of 1.9, 3.7, 3.9, 4.0, 4.0 and 2.5 mm at 160, 180, 190, 200, 220 and 240 mm; the refined 200 mm design reaches 4.16 mm.",
+  "<b>Printing.</b> The body is printed base-down in one piece, with a pause at each ring height to drop the weights into open pockets. The bottom band S1 rises only 1.36 mm (83\u00b0 from vertical), so it is printed in the first 7 layers, and S2 overhangs 63\u00b0 up to 6.9 mm. Mid-layer slicing and some droop make these bands slightly flatter, which only enlarges the base (tested in Section 8)."
+ ],
+ "sec2": [
+  "Every option below was treated the same way. The weight's real shape sets its pocket, and its pocket sets how close to the corner it can sit. The ring radii and heights were refitted for that weight at the size shown, with exact mass properties: PLA shell, pocket blocks, pocket voids, weights and glue. The <b>margin</b> is the smallest distance the centre of mass could move before the body gains a second rest face or balance corner. Negative means the refitted body is still not monostable. Densities are nominal; <b>weigh your pieces</b>."
+ ],
+ "mat_table": [
+  [
+   "weight (stock form)",
+   "density g/cm\u00b3",
+   "mass each",
+   "height mm",
+   "margin mm",
+   "PLA share",
+   "notes"
+  ],
+  [
+   "tungsten cylinder 3/8\" \u00d7 0.44\" (0.5 oz, pinewood derby)",
+   "17.8",
+   "14.2 g",
+   "200",
+   "<b>+4.2</b>",
+   "16%",
+   "<b>recommended</b>; \u2248 US$5 each in derby sets; 95% at 0.2 mm face errors"
+  ],
+  [
+   "tungsten-alloy ball 12 mm (W-Ni-Fe)",
+   "\u224818",
+   "16.3 g",
+   "220",
+   "<b>+3.7</b>",
+   "19%",
+   "good; industrial or balancing suppliers"
+  ],
+  [
+   "tungsten putty, 9.9 g pressed into a 10 \u00d7 12 mm pocket",
+   "\u224810.5",
+   "9.9 g",
+   "220",
+   "<b>+2.7</b>",
+   "23%",
+   "easy to make equal by weighing; density varies by brand"
+  ],
+  [
+   "lead rod 3/8\", cut 0.6\" long",
+   "11.34",
+   "12.3 g",
+   "220",
+   "<b>+2.7</b>",
+   "21%",
+   "cheap; toxic (Section 7); cut long and file down to the mass"
+  ],
+  [
+   "bismuth cylinder 10 \u00d7 12 mm (cast or cut)",
+   "9.78",
+   "9.2 g",
+   "200",
+   "<b>+2.3</b>",
+   "24%",
+   "non-toxic; cast at 271 \u00b0C in a metal mould; weigh"
+  ],
+  [
+   "hardened steel dowel pin 10 \u00d7 20 mm (ISO 8734)",
+   "7.85",
+   "12.3 g",
+   "220",
+   "<b>+1.4</b>",
+   "24%",
+   "cheapest that works (\u2248 $0.2\u20130.5 each) but <b>fragile</b>: 85% at 0.1 mm, 22% at 0.2 mm face errors"
+  ],
+  [
+   "steel dowel pin 10 \u00d7 16 mm",
+   "7.85",
+   "9.9 g",
+   "200",
+   "<b>+1.3</b>",
+   "25%",
+   "works, thin margin"
+  ],
+  [
+   "steel dowel pin 10 \u00d7 24 mm",
+   "7.85",
+   "14.8 g",
+   "220",
+   "<b>+0.9</b>",
+   "22%",
+   "too tall: centre sits higher"
+  ],
+  [
+   "steel dowel pin 8 \u00d7 24 mm",
+   "7.85",
+   "9.5 g",
+   "200",
+   "<b>-0.7</b>",
+   "26%",
+   "too light and tall: fails"
+  ],
+  [
+   "tungsten-alloy ball 10 mm",
+   "\u224818",
+   "9.4 g",
+   "200",
+   "<b>+2.7</b>",
+   "23%",
+   "works; lighter and cheaper than 12 mm"
+  ],
+  [
+   "lead round ball .535\" (230 gr)",
+   "11.34",
+   "14.9 g",
+   "220",
+   "<b>+0.8</b>",
+   "23%",
+   "marginal: not recommended"
+  ],
+  [
+   "lead round ball .440\" (128 gr)",
+   "11.34",
+   "8.3 g",
+   "200",
+   "<b>+1.3</b>",
+   "28%",
+   "fails"
+  ],
+  [
+   "lead round ball .570\" (278 gr)",
+   "11.34",
+   "18.0 g",
+   "220",
+   "<b>-0.1</b>",
+   "21%",
+   "fails"
+  ],
+  [
+   "steel bearing ball 5/8\"",
+   "7.83",
+   "16.4 g",
+   "220",
+   "<b>-2.1</b>",
+   "26%",
+   "fails"
+  ],
+  [
+   "steel bearing ball 1/2\"",
+   "7.83",
+   "8.4 g",
+   "200",
+   "<b>-4.2</b>",
+   "31%",
+   "fails"
+  ],
+  [
+   "steel bearing ball 9/16\"",
+   "7.83",
+   "12.0 g",
+   "200",
+   "<b>-4.4</b>",
+   "29%",
+   "fails"
+  ],
+  [
+   "steel bearing ball 7/16\"",
+   "7.83",
+   "5.6 g",
+   "150",
+   "<b>-6.4</b>",
+   "31%",
+   "fails"
+  ],
+  [
+   "steel bearing ball 3/4\"",
+   "7.83",
+   "28.3 g",
+   "220",
+   "<b>-12.4</b>",
+   "22%",
+   "fails badly"
+  ]
+ ],
+ "mat_note": "Each margin is the best of one to four local optimiser runs (Nelder\u2013Mead from two different starting shapes). They are lower bounds and comparable to about \u00b10.5 mm. For the balls, starting from the cylinder optimum instead of the gallery's shape raised the 12 mm tungsten ball from +2.0 to +3.7 mm, so treat small differences with care. Tungsten 1/4\" cubes (4.7 g, the commonest derby weight): one run at 180 mm gave \u22120.8 mm, so they are too light. Not modelled numerically: bismuth shot (9.8 g/cm\u00b3 as metal, but loose shot packs to about 60%, so \u22486 g/cm\u00b3, worse than steel); brass balls (8.5 g/cm\u00b3, behave like steel balls: fail); coins (a US 5\u00a2 coin is 5.000 g but 21.2 mm wide, far wider than the 10 mm the bottom rings allow).",
+ "cap_mat": "Best margin for each stock weight after refitting the shape (exact mass model). Dense, narrow, upright cylinders do best. Balls need more room between the bottom-ring corners and a heavier pocket block.",
+ "sec2b": [
+  "<b>Density is not everything.</b> Lead (11.3 g/cm\u00b3) as round balls is marginal at best (+0.8 to +1.3 mm). The same lead as a narrow rod gives +2.7 mm. Every steel ball fails, but steel dowel pins work, just. The bottom three rings are a nearly flat dish. A narrow upright piece fits between their corners, sits low, and needs only a light pocket block. A ball as heavy needs a wider pocket, so the corners must be spread out, and that costs margin.",
+  "<b>The physics behind the trade-off.</b> A lighter set of weights makes the plastic a bigger share of the mass (the 37-corner spiral fails above about 18% spread over the faces). A bulkier weight sits further from its corner tip and needs a heavier pocket block. Both move the centre of mass the wrong way.",
+  "<b>Margin and robustness go together.</b> With 0.2 mm random face errors, 95% of tungsten builds keep a single rest face, against 22% for steel dowels. The other working options fall in between (200 trials each): lead rod 76%, 12 mm tungsten balls 92%, tungsten putty 82%, bismuth 71%. All of them are 100% under the layer-by-layer FDM error model (Section 8).",
+  "<b>Mixing is not allowed.</b> All 37 weights must be the same kind and matched in mass (Section 8: a \u00b13% spread is fine; \u00b15% starts to cost).",
+  "<b>Tungsten putty and bismuth</b> are the non-toxic ways to make weights by mass rather than by shape. With putty, weigh 9.90 g \u00b1 0.05 g portions and press each one firmly into its 10 mm pocket. Bismuth melts at 271 \u00b0C and can be cast into 10 mm rod in a steel or high-temperature silicone mould (never in PLA), then cut and filed to 9.2 g. Both margins were computed for plugs that fill a 10 \u00d7 12 mm cylinder (putty at 10.5 g/cm\u00b3, bismuth at 9.78 g/cm\u00b3). Densities vary, so <b>weigh</b> every piece."
+ ],
+ "bom_W": [
+  [
+   "item",
+   "qty",
+   "spec",
+   "mass"
+  ],
+  [
+   "tungsten cylinder",
+   "37 (+3 spare)",
+   "3/8\" (9.53 mm) dia \u00d7 0.44\" (11.2 mm), 0.5 oz; e.g. pinewood-derby 'incremental' or 0.5 oz cylinder sets. Must fit a 9.83 mm \u00d7 11.58 mm pocket",
+   "14.17 g nominal each; 37 = 524.3 g. Weigh: all within \u00b11% (ideal \u00b10.5%)"
+  ],
+  [
+   "PLA filament",
+   "1 spool",
+   "1.75 mm PLA, density 1.24 g/cm\u00b3 assumed (check the spool's datasheet)",
+   "100 g in the part (slicer: 99 g incl. skirt)"
+  ],
+  [
+   "thin CA glue",
+   "1 bottle",
+   "one small drop per pocket (\u2264 0.03 g), optional",
+   "1.1 g allowed in the design"
+  ],
+  [
+   "finished body",
+   "",
+   "200 mm tall, 132 mm across corners",
+   "<b>626 g</b>"
+  ]
+ ],
+ "bom_St": [
+  [
+   "item",
+   "qty",
+   "spec",
+   "mass"
+  ],
+  [
+   "hardened steel dowel pin",
+   "37 (+3 spare)",
+   "10 mm \u00d7 20 mm, ISO 8734 / DIN 6325 (m6), plain steel (not stainless, which is lighter at 7.9\u20138.0: fine too). Must fit a 10.30 mm \u00d7 20.40 mm pocket",
+   "12.33 g nominal each; 37 = 456.2 g. Weigh: within \u00b11%"
+  ],
+  [
+   "PLA filament",
+   "1 spool",
+   "1.75 mm PLA, density 1.24 g/cm\u00b3 assumed (check the spool's datasheet)",
+   "143 g in the part (slicer: 143 g incl. skirt)"
+  ],
+  [
+   "thin CA glue",
+   "1 bottle",
+   "one small drop per pocket (\u2264 0.03 g), optional",
+   "1.1 g allowed in the design"
+  ],
+  [
+   "finished body",
+   "",
+   "220 mm tall, 146 mm across corners",
+   "<b>601 g</b>"
+  ]
+ ],
+ "bom_notes": [
+  "Also needed: a kitchen or jewellery scale reading 0.01 g, tweezers, a printer that can pause mid-print (M600/M601/M0 or the firmware's pause), and a flat, hard table for testing.",
+  "Where to buy (types, not endorsements): tungsten cylinders from pinewood-derby suppliers (Pinewood Pro, Derby Worx, Maximum Velocity); tungsten-alloy balls and putty from fishing-tackle or industrial-ball suppliers; dowel pins from McMaster-Carr, Misumi, Accu or any fastener shop; lead rod from roofing or casting suppliers.",
+  "Vendor masses are nominal. The 0.5 oz cylinder is 14.17 g, which implies 17.8 g/cm\u00b3 for its stated size. Alloys run from 17 to 18.5 g/cm\u00b3. If your pieces average more than 2% away from the design mass, see Section 6. A mass error shared equally by all 37 is fine (it is a scale factor, \u00b15% tested); a <i>spread</i> between pieces is what matters."
+ ],
+ "settings": [
+  [
+   "setting",
+   "value",
+   "why"
+  ],
+  [
+   "orientation",
+   "base down, as the STL comes",
+   "no supports needed; the base is the only face on the bed"
+  ],
+  [
+   "nozzle / layer",
+   "0.4 mm / 0.2 mm (first layer 0.2)",
+   "pause heights in Section 5 assume 0.2 mm layers"
+  ],
+  [
+   "perimeters",
+   "2 (Arachne)",
+   "walls are 0.8 mm = two 0.4 mm lines"
+  ],
+  [
+   "infill",
+   "100 %",
+   "the pocket blocks must be solid, as designed"
+  ],
+  [
+   "top / bottom layers",
+   "5 / 4",
+   "the base wall is 0.8 mm"
+  ],
+  [
+   "supports",
+   "none",
+   "pocket blocks have 45\u00b0 undersides; outer bands overhang S1 83\u00b0 (first 1.4 mm), S2 63\u00b0, S3 47\u00b0 from vertical (printable with full cooling)"
+  ],
+  [
+   "brim",
+   "8\u201310 mm, then trim",
+   "the base hexagon is only 25 mm across corners under a 200 mm part"
+  ],
+  [
+   "cooling",
+   "100 % after layer 3",
+   "for the S2 overhang and the bridges over the pockets"
+  ],
+  [
+   "speed",
+   "\u2264 60 mm/s outer walls; slow above 150 mm",
+   "a tall, narrow top; vibration at the tip"
+  ],
+  [
+   "elephant-foot comp.",
+   "0 (or default)",
+   "a slightly larger base is harmless"
+  ],
+  [
+   "XY hole compensation",
+   "tune with the coupon",
+   "the weights must drop in without force"
+  ],
+  [
+   "pauses",
+   "7, at the Z heights in Section 5",
+   "one per ring of pockets plus the apex"
+  ]
+ ],
+ "slicer_notes": [
+  "<b>Checked with PrusaSlicer 2.7.2 (CLI)</b> using these settings: in every layer from each pocket's floor up to its pause, no extrusion lies within the pocket (closest line 5.09 mm from the centre for a 4.91 mm pocket radius). In the layer after each pause a bridge crosses the pocket. The inner void stays empty (no extrusion within 37 mm of the axis at mid-height). Filament 99 g against 100 g designed; time 13h 53m 26s.",
+  "<b>The slicer must keep the cavities.</b> The STL holds one outer surface and inner cavities as separate, inward-facing shells: the void and 37 pockets (in w37-W.stl also six thin closed slivers of air, 9.4 mm\u00b3 each, between the top ring's pocket blocks and the wall; if the slicer fills them the body gains 0.07 g, which does not matter). Do not use 'close holes' or any 'make solid' repair. In Cura, turn 'Union Overlapping Volumes' off and 'Remove All Holes' off (not tested in Cura). In the preview, scroll to mid-height: you should see only the two wall lines around an empty middle, plus small solid blocks at the six corners near the pause heights.",
+  "If the slicer estimates about 1.7 kg of filament instead of about 99 g, it has filled the void. Re-slice."
+ ],
+ "pause_W": [
+  [
+   "pockets",
+   "count",
+   "pocket floor (mm)",
+   "weight top as printed",
+   "pocket top (mm)",
+   "<b>PAUSE after the layer ending at Z =</b>"
+  ],
+  [
+   "ring 0",
+   "6",
+   "1.32",
+   "12.58",
+   "12.89",
+   "<b>12.80 mm</b> (layer 64)"
+  ],
+  [
+   "ring 1",
+   "6",
+   "3.27",
+   "14.38",
+   "14.85",
+   "<b>14.80 mm</b> (layer 74)"
+  ],
+  [
+   "ring 2",
+   "6",
+   "8.09",
+   "19.18",
+   "19.66",
+   "<b>19.60 mm</b> (layer 98)"
+  ],
+  [
+   "ring 3",
+   "6",
+   "17.50",
+   "28.58",
+   "29.07",
+   "<b>29.00 mm</b> (layer 145)"
+  ],
+  [
+   "ring 4",
+   "6",
+   "36.55",
+   "47.78",
+   "48.13",
+   "<b>48.20 mm</b> (layer 241)"
+  ],
+  [
+   "ring 5",
+   "6",
+   "66.65",
+   "77.78",
+   "78.22",
+   "<b>78.20 mm</b> (layer 391)"
+  ],
+  [
+   "apex",
+   "1",
+   "175.95",
+   "187.18",
+   "187.52",
+   "<b>187.60 mm</b> (layer 938)"
+  ]
+ ],
+ "pause_St": [
+  [
+   "pockets",
+   "count",
+   "pocket floor (mm)",
+   "weight top as printed",
+   "pocket top (mm)",
+   "<b>PAUSE after the layer ending at Z =</b>"
+  ],
+  [
+   "ring 0",
+   "6",
+   "0.99",
+   "21.00",
+   "21.39",
+   "<b>21.40 mm</b> (layer 107)"
+  ],
+  [
+   "ring 1",
+   "6",
+   "1.70",
+   "21.60",
+   "22.10",
+   "<b>22.00 mm</b> (layer 110)"
+  ],
+  [
+   "ring 2",
+   "6",
+   "7.50",
+   "27.60",
+   "27.90",
+   "<b>28.00 mm</b> (layer 140)"
+  ],
+  [
+   "ring 3",
+   "6",
+   "17.60",
+   "37.60",
+   "38.00",
+   "<b>38.00 mm</b> (layer 190)"
+  ],
+  [
+   "ring 4",
+   "6",
+   "35.11",
+   "55.20",
+   "55.51",
+   "<b>55.60 mm</b> (layer 278)"
+  ],
+  [
+   "ring 5",
+   "6",
+   "67.47",
+   "87.40",
+   "87.87",
+   "<b>87.80 mm</b> (layer 439)"
+  ],
+  [
+   "apex",
+   "1",
+   "186.47",
+   "206.40",
+   "206.87",
+   "<b>206.80 mm</b> (layer 1034)"
+  ]
+ ],
+ "pause_note": "'Ring 0' is the base hexagon; 'ring 5' is the widest ring under the apex band. The layer number counts from 1 = the first layer (0\u20130.2 mm). PrusaSlicer, Orca and Cura slice at mid-layer, so the pocket is open in every layer whose middle lies inside it. The weight's top then lies at least 0.2 mm below the pause plane, so the nozzle cannot hit it. If your slicer shows Z as the top of the layer, use these numbers as they are. Always confirm in the preview.",
+ "sec5": "One piece, base down, printed straight through with seven pauses. At each pause the six (or one) pockets for the next ring are open-topped cylinders. Drop the weights in. The next layer bridges over them and seals them in for good. Nothing else needs gluing, and no part needs supports.",
+ "steps": [
+  "<b>Fit test (30 min).</b> Print <i>coupon-W.stl</i> (three pockets exactly like the body's) with the same settings, pausing after the layer ending at Z = 12.80 mm. A weight must drop in freely and sit flat, without being forced, and wobble by no more than about 0.3 mm. Resume and let it close. If the weights jam, raise 'XY hole compensation' by 0.05\u20130.1 mm and repeat. If you can see daylight round the weight, the fit is still fine: a drop of glue holds it.",
+  "<b>Weigh and match the weights.</b> Weigh every piece to 0.01 g and write the masses down. Use the 37 closest together; aim for all within \u00b10.5% (\u00b10.07 g for 14.17 g). The shape tolerates \u00b13% at random (Section 8), but matching costs nothing. Keep 3 spares.",
+  "<b>Slice</b> with the settings in Section 4 and add the seven pauses at the Z heights in the table. PrusaSlicer: in the preview, drag the slider to that layer \u2192 '+' \u2192 'Add pause print (M601)'. Orca/Bambu: right-click the layer \u2192 'Add pause'. Cura: Extensions \u2192 Post Processing \u2192 'Pause at height', once per pause, by layer number. Check in the preview that each pocket is open in the paused layer and bridged in the next one.",
+  "<b>Print</b> with a brim. Watch the first layers: the near-flat band S1 and the overhang S2 are printed in the first 7 mm.",
+  "<b>At each pause</b> (the nozzle parks): optionally put one <i>small</i> drop of thin CA glue on each pocket floor, then lower each weight in with tweezers, flat end down. Press gently until it sits on the floor. Make sure nothing (weight, glue, strings) sticks up above the top layer, and that no glue is on the top surface. Do not push on the print or shift it on the bed. Resume. Do not forget a ring: count six weights per ring and one at the apex, 37 in all.",
+  "<b>After printing</b>, let it cool, then lift it off and trim the brim with a deburring tool. Remove only the brim lip. Do not sand the base or any face flat: the margins are a few millimetres, and sanding a face changes its plane.",
+  "<b>Check it</b> (Section 6): weigh it and test it on every band."
+ ],
+ "cap_bottom": "Close-up of the bottom rings. Rings 0\u20132 lie within 6.9 mm of the bed but their corners spread out to 38 mm radius, so their pockets stand side by side on the base wall, at least 0.8 mm of PLA apart.",
+ "checks": [
+  [
+   "check",
+   "expected",
+   "if not"
+  ],
+  [
+   "weigh the body",
+   "<b>626 g \u00b1 15 g</b> (weights 524 g + PLA 100 g \u00b1 8% + glue). Better: your weighed weights + slicer filament estimate, \u00b1 8 g",
+   "\u2248 611 g: one weight missing (it will rest on faces on that side). Far more than expected: the void was filled; reprint after re-slicing."
+  ],
+  [
+   "shake gently",
+   "no rattle, or a faint click if you skipped the glue",
+   "a loud knock: a weight is loose. Usually harmless (\u2264 0.4 mm of play, Section 8)."
+  ],
+  [
+   "set it on each band",
+   "on a hard, flat table, put it down on a face of each band S6 \u2026 S1 (and on several faces round the body). It must always end on the base, tipping band by band",
+   "see below"
+  ],
+  [
+   "drop it from 1\u20132 cm, many times",
+   "it ends on the base every time",
+   "see below"
+  ],
+  [
+   "balance on the apex",
+   "it falls off (an unstable balance point)",
+   "\u2013"
+  ]
+ ],
+ "fixes": [
+  "<b>It stays on one of the lowest bands (S1/S2) all round.</b> The centre of mass is too high or the plastic too heavy. Check the mass. Check that the table is hard and flat: a cloth or soft mat can hold a body on a nearly flat face. The bottom band S1 leans only 7\u00b0 from the base.",
+  "<b>It stays on faces on one side only.</b> The centre of mass is off the axis: a light or missing weight, a weight from the wrong batch, or a large glue blob. A sealed body cannot be corrected from inside. Gluing a small counterweight on the outside opposite the problem side will shift the centre of mass, but it also changes a face, so put it on the base only, flat and thin (e.g. 0.1 mm lead or tungsten tape, a few grams, near the base's edge). That is a repair, not the design. The clean fix is a reprint with matched weights.",
+  "<b>It rocks between the base and S1 before settling.</b> This is normal. S1 is almost coplanar with the base.",
+  "<b>It ends on the base but tips slowly or hesitates on S5/S6.</b> This is normal. The upper bands tip over edges with leverage of only a few millimetres."
+ ],
+ "safety": [
+  "<b>Lead</b> (only if you choose the lead-rod option): toxic by ingestion. Wear gloves or wash your hands after handling; do not eat or drink while working with it. Cut it with a saw or cutter, never by melting or grinding. Collect swarf on paper and dispose of it as hazardous waste. Keep it away from children and pets. Label the finished body 'contains lead'. Once sealed in PLA it is not exposed, but a cracked body is.",
+  "<b>Tungsten and steel</b> are not a chemical hazard in this form. Tungsten putty: wash your hands after use; some putties are not for children.",
+  "<b>Weight.</b> The finished body is about 0.63 kg with a point on top. Do not drop it on glass tables or feet. The small dense weights are a swallowing hazard before they are sealed in.",
+  "<b>During pauses</b> the nozzle stays at about 200 \u00b0C and the bed at 60 \u00b0C. Keep your fingers away from the nozzle and use tweezers. Some printers 'home' or move when you resume, so clear your hands first.",
+  "<b>CA glue</b> bonds skin in seconds and gives off irritating fumes. Use a tiny drop and ventilate."
+ ],
+ "sec8": "Every number in this guide comes from an exact mass model. The PLA solid is the outer polyhedron minus the inner void, plus the union of the 37 pocket blocks, minus the 37 pocket voids. Weights and glue are added at their real positions, and the volume integrals are exact (no sampling). It was checked independently from the STL with trimesh (volume 80.800 cm\u00b3 against 80.801 cm\u00b3 exact; the difference is the polygonal pocket walls) and against the gallery's own 9 cm design (margin and mass reproduced). The equilibria of every simulated build were counted exactly: faces whose centre-of-mass foot falls inside, and corners whose balance cone contains the centre of mass. <b>The weak point is face accuracy.</b> The margin of a few millimetres is measured at the centre of mass, which sits 36 mm above the base. A face that is tilted or shifted by a fraction of a millimetre moves its own edges, and the foot of the centre of mass on it, by far more. This is worst between the nearly coplanar bottom bands and on the small upper faces. So random, independent errors on every face hurt most: the 'planes' rows. A real FDM print does not fail like that. Its faces are built from the same layers, so their errors are correlated. The 'as sliced' rows rebuild the outer surface layer by layer, as PrusaSlicer slices it, with random layer shifts and size errors, and every one of those builds keeps exactly one rest face.",
+ "robust_note": "'One rest face' = monostable (the body rests on one face only). 'One balance point' = only the tip balances it, counting unstable corners less than 1 mm apart as one; plane errors split the six-face apex into several corners, and the printed tip is a tiny flat. 'Strict' = exactly one unstable vertex as well, the mathematical definition of a discrete G\u00f6mb\u00f6c. Error models: weight masses \u00d7 (1+N(0,s)); weight centres moved N(0,s) in x, y, z; a CA drop of U(0,g) g at a random point in every pocket; PLA density \u00d7 (1+N(0,s)) and a linear gradient; 'planes': every outer face plane and every inner wall plane moved and tilted independently by N(0,s) (the gallery's PLA test); 'wall': all walls thicker or thinner; 'bottom droop': rings 1\u20133 lowered toward the bed; 'rings': ring radii and heights N(0,s), with weights off by s and \u00b13% in mass (the gallery's robust2 test of its 9 cm design: 100/98/67% at 0.2/0.5/1.0 mm); 'sliced': the outer surface rebuilt from 0.2 mm layers, each shifted N(0,xy) and grown by N(0,xy), first layer +0.4 mm; 'combined' = planes s + walls N(0,s/2) + weights 3% + positions 0.3 mm + glue 0.1 g + density 3% + gradient 2%.",
+ "dyn": [
+  "<b>Recommended build:</b> 88 of 88 random drops ended on the base (3 runs \u00d7 6 bodies, each re-dropped 1 s after coming to rest), and 36 of 36 set-downs ended on the base: each of the 36 wrong faces once (6 per band, S1\u2026S6). Time to rest: median 9.0\u20139.3 s per drop run.",
+  "<b>Steel-dowel build:</b> 78 of 78 drops and 36 of 36 set-downs ended on the base.",
+  "<b>How it moves.</b> From a high band it tips band by band to the base, then <i>rocks back up</i> through the low bands (in the simulation, at most up to S5 after a set-down on S6) with decreasing swings, and settles after 5\u201310 s. It does not stop on any band on the way. That is what a low centre of mass and nearly flat bottom bands give: a faceted Weeble. Real PLA damps the impacts more than the simulation's restitution, so expect a quicker settle.",
+  "Run at the real size (PP_SCALE = 1), 1/1200 s steps, in a copy of the gallery's Bille Drop harness (exhibits/Bille/reconstruction/w37/sim/w37-drop.lua, made via reconstruction/pla/sim/pla-drop.lua) with only the body list and its label changed. Contact, losses and detection are unchanged, and nothing was tuned."
+ ],
+ "unc": [
+  "<b>Nothing here has been built yet.</b> All results are calculated: exact statics, Monte-Carlo build errors and rigid-body simulation.",
+  "<b>The optimiser is local</b> (Nelder\u2013Mead, one to four runs per option). Margins are lower bounds: restarting the 12 mm tungsten ball from a different shape raised it from 2.0 to 3.7 mm. The ranking is reliable at the level of 'works / marginal / fails', not to \u00b10.5 mm.",
+  "<b>Face accuracy is the limit.</b> With independent 0.2 / 0.3 / 0.5 mm errors on every face, 95 / 81 / 27% of tungsten builds keep a single rest face. With the layer-by-layer model it is 100%. Which is closer to your printer is the main open question. Print slowly, calibrate the extrusion, and test the faces (Section 6).",
+  "<b>Weight masses and sizes</b> come from vendor statements and density. Real tungsten alloys run 17\u201318.5 g/cm\u00b3. Measure the pieces, run the coupon test, and match the masses.",
+  "<b>PLA</b> was taken as solid at 1.24 g/cm\u00b3. Real prints have a few % voids and filaments run 1.21\u20131.30 g/cm\u00b3. Global density changes of \u00b15% and gradients were tested.",
+  "<b>Printing the bottom.</b> The bottom band S1 rises only 1.4 mm and S2 overhangs 63\u00b0. The as-printed planes there will be off by a few tenths of a millimetre. Drooping and plane errors were tested, and both make the near-flat bottom flatter, which is safe. A badly sagging S2 could change it more than modelled.",
+  "<b>Surfaces.</b> On soft or rough surfaces, rolling resistance can hold a body on a nearly flat face. The statics assume a hard, flat table.",
+  "<b>Dynamics</b> use Bullet (the gallery's harness, unchanged physics): rigid, convex-hull contact, the table's restitution and rolling friction as the gallery sets them. Real PLA is a little elastic. A falling body can hop, but where it ends is decided by the statics above."
+ ],
+ "files": [
+  [
+   "file (in exhibits/Bille/print/w37/ unless a folder is given)",
+   "what"
+  ],
+  [
+   "w37-W.stl",
+   "recommended body, mm, base on z = 0; 200 mm tall; one outer shell + 44 inner cavity shells (the void, 37 pockets, 6 thin air slivers by the top ring's pocket blocks); trimesh: watertight, consistent winding"
+  ],
+  [
+   "w37-St.stl",
+   "steel-dowel body (same layout; 38 inner cavity shells: the void and 37 pockets)"
+  ],
+  [
+   "coupon-W.stl, coupon-St.stl",
+   "fit-test coupons, three pockets each"
+  ],
+  [
+   "w37-W-props.txt, w37-St-props.txt",
+   "design numbers: ring radii/heights, every face and corner margin, pocket positions, pause table"
+  ],
+  [
+   "w37-W-*.png, materials.png",
+   "the figures in this guide (cutaway, section, bottom close-up, materials chart); w37-St-*.png: the same for the steel-dowel body"
+  ],
+  [
+   "../../reconstruction/w37/final/robust-W.log, robust-St.log",
+   "robustness runs (300 trials per row); robust-alt-*.log: the other working weights (200 per row)"
+  ],
+  [
+   "w37-W.gcode.check.json, w37-St.gcode.check.json",
+   "PrusaSlicer check: pockets open/closed at the pauses, void empty, filament mass"
+  ],
+  [
+   "../../reconstruction/w37/sim/, sim-W/, sim-St/",
+   "bpp harness copy (w37-drop.lua), run script and logs; final/sim-tally*.json"
+  ],
+  [
+   "../../reconstruction/w37/",
+   "scripts: w37.py (mass model), opt.py (refit), robust.py, export.py, meshbuild.py, figs.py, slicecheck.py, coupon.py, gather.py, matfig.py, make_extra.py + build_guide.py (this guide); runs/ (optimiser logs, design vectors); README.md says how to run them"
+  ]
+ ],
+ "refs": [
+  "G. Domokos, F. Kov\u00e1cs, 'Conway's spiral and a discrete G\u00f6mb\u00f6c with 21 point masses', Amer. Math. Monthly 130 (2023); arXiv:2103.13727.",
+  "P. L. V\u00e1rkonyi, G. Domokos, 'Mono-monostatic bodies: the answer to Arnold's question', Math. Intelligencer 28 (2006) 34\u201338.",
+  "J. H. Conway, R. K. Guy, 'Stability of polyhedra', SIAM Review 11 (1969) 78\u201382.",
+  "Euler's Gallery: exhibits/Bille (p37.lua, the idealised 9 cm shell-and-corner-weights design, not buildable as stated; reconstruction/pla, the PLA-only body) and exhibits/Gomboc/variety-reconstruction (optshell.py, robust2.py, frac.py).",
+  "Stock data: pinewood-derby tungsten cubes and cylinders (derbydust.com, maximum-velocity.com, pinewoodpro.com); tungsten-alloy spheres (\u224818 g/cm\u00b3); Hornady lead round balls (.440\" = 128 gr); 52100 chrome-steel bearing balls; ISO 8734 dowel pins. Checked October 2026; prices and stock change."
+ ],
+ "ppla_note": "The gallery also has a PLA-only design (exhibits/Bille/print/ppla37.stl, 150 mm, 331 g, no weights). It is solid up to the height of its centre of mass and hollow above. Its smallest margin is 12.3 mm and it passed 0.5 mm face errors in 100% of trials. It is much easier to print and far more forgiving, and it needs one print and no pauses. It is a different object, though: a faceted Weeble whose weight may go anywhere, not a body with equal masses at its corners. Build this weighted one if you want the Domokos\u2013Kov\u00e1cs construction itself."
+}

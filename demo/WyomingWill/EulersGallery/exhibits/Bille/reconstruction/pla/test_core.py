@@ -11,9 +11,9 @@ mp=mass_props(P,fs,0.5,2.5)
 # expected: void = [1.5,2.5]x[0.5,2.5]x[2.5,5.5] vol=1*2*3=6
 print(mp['void_vol'], mp['vol'], mp['com'])
 # compare with p26 in eq.py
-sys.path.insert(0,'/tmp/claude-0/-home-claude/27345db2-594b-591b-b841-2c308bf66463/scratchpad/chk2/demo/WyomingWill/EulersGallery/exhibits/Gomboc/variety-reconstruction')
+sys.path.insert(0,'../../../Gomboc/variety-reconstruction')
 import eq
-txt=open('/tmp/claude-0/-home-claude/27345db2-594b-591b-b841-2c308bf66463/scratchpad/chk2/demo/WyomingWill/EulersGallery/exhibits/Bille/bille-meshes/p26.lua').read()
+txt=open('../../bille-meshes/p26.lua').read()
 import re
 blk=txt.split('vertices = {')[1].split('}')[0]
 V=np.array([float(x) for x in re.findall(r'-?\d+\.\d+',blk)]).reshape(-1,3)

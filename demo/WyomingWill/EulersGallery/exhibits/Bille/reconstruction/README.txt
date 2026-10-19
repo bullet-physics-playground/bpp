@@ -47,6 +47,26 @@ Spiral polyhedra (bille-meshes/p21, p26, p37)
   band tips onto the one below it: ... -> S2 -> S1 -> base.
   genframe.py writes pNN-frame.obj: the polyhedra drawn as frames (balls on
   rods) for the "polyhedra look" slider; same body frame, drawing only.
+  CORRECTED 19 Oct 2026: p26 and p37 are IDEALISED designs, not real objects
+  (their headers used to say "a REAL object, not an idealisation"). Their mass
+  model is a 0.5 mm polycarbonate shell plus 5.2 g corner weights taken as
+  points 3 mm inside the corners. A real 5.2 g tungsten weight (8.0 mm ball,
+  6.5 mm cube) cannot be placed there at 9 cm: its centre would be only
+  1.1-2.5 mm from the face planes, and neighbouring weights near the base
+  would be 2.5-4.1 mm apart, so they would overlap (w37/fitcheck.py,
+  w37/runs/fitcheck.log). Measured as the distance the centre of mass must
+  move, the nearest corner margin is 0.71 mm (p26) and 2.41 mm (p37), against
+  1.43 / 3.36 mm on the fit's own measure. The simulation is unchanged: it
+  uses the mass properties of the idealised model as computed.
+
+Weighted 37-corner print (w37/; print files in ../print/w37/)
+  The buildable counterpart of p37: 37 tungsten pinewood-derby cylinders
+  (3/8" x 0.44", 0.5 oz, 14.17 g) in pockets in a 0.8 mm PLA shell, 200 mm
+  tall, 626 g, smallest margin 4.16 mm; 7 pauses during the print to insert
+  the weights. Face-plane errors of 0.1 / 0.2 / 0.3 / 0.5 mm: 100 / 95 / 81 /
+  27% of simulated builds keep one stable face. In bpp: 88/88 drops and 36/36
+  set-downs ended on the base. Designed and simulated, not yet printed. See
+  w37/README.md (scripts, logs, how to rerun) and ../print/w37/README.md.
 
 PLA-only polyhedron (bille-meshes/ppla37.obj, ppla37-data.lua; print files in ../print/)
   The gallery's own design (not from a paper): an apex above 6 regular hexagons, 37 faces,
