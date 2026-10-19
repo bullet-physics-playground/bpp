@@ -1,0 +1,5 @@
+# made by each exhibit's make-stls.sh from its OpenSCAD sources
+exhibits/*/stl/
+__pycache__/
+# bpp's top-level .gitignore ignores *.scad; the hall's parts files are sources
+!*.scad
