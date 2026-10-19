@@ -77,6 +77,10 @@ Two things about bpp that cost time, and how the exhibits handle them:
   compounds of convex hulls (one per tooth, plus the body) they mesh well.
   See `exhibits/Differential/FINDINGS.md`; `parts/make-hulls.py` there makes
   them from the same OpenSCAD source.
+- **`.scad` files and git.** bpp's top-level `.gitignore` ignores `*.scad`,
+  so a new exhibit's parts files are silently left out of a commit. The
+  hall's own `.gitignore` has `!*.scad` to keep them; check with
+  `git status` that they are there.
 - **One source of geometry.** The Pascaline keeps every moving part's shape
   as primitives in a Lua file; the simulation builds its bodies from them and
   writes `geometry.scad`, from which OpenSCAD builds the printed parts.
