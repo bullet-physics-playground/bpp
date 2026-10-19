@@ -46,6 +46,10 @@
 -- so linear momentum is conserved to rounding. opts.asymmetric = true
 -- evaluates pair(r, a, b) as the force on a only, for laws that break the
 -- third law (Ch. 4.1's triangle); the momentum monitor then shows it.
+-- opts.bonds = { {i, j, ...}, ... } limits the pairs to these (springs
+-- in a structure); each bond table is passed to pair and potential as a
+-- fourth argument (e.g. its own rest length). Without bonds, every pair
+-- interacts. Bonds are always equal and opposite.
 -- opts.forceMax caps |F| per pair (Listing 2.8's Force_Maximum);
 -- opts.speedMax caps each speed (Sec. 2.3d's Velocity_Maximum): the
 -- velocity is scaled down to that speed, keeping its direction. With
@@ -88,7 +92,12 @@ function M.measure(ps, opts)
     lz = lz + m * (rx * vy - ry * vx)
   end
   local pe = 0
-  if opts.potential then
+  if opts.potential and opts.bonds then
+    for _, bd in ipairs(opts.bonds) do
+      local a, b = ps[bd[1]], ps[bd[2]]
+      pe = pe + opts.potential(M.dist(a, b), a, b, bd)
+    end
+  elseif opts.potential then
     for i = 1, #ps do
       local a = ps[i]
       local ax, ay, az = comp(a)
@@ -136,11 +145,11 @@ end
 
 -- Add the force between a and b to a (and the opposite to b if not
 -- asymmetric). f > 0 repels.
-local function pairForce(a, b, opts, both)
+local function pairForce(a, b, opts, both, bond)
   local dx, dy, dz = (b.x or 0) - (a.x or 0), (b.y or 0) - (a.y or 0), (b.z or 0) - (a.z or 0)
   local r = sqrt(dx * dx + dy * dy + dz * dz)
   if r == 0 then return end              -- coincident: direction undefined
-  local f = opts.pair(r, a, b)
+  local f = opts.pair(r, a, b, bond)
   local cap = opts.forceMax
   if cap then
     if f > cap then f = cap elseif f < -cap then f = -cap end
@@ -164,7 +173,9 @@ function M.step(ps, dt, opts)
     end
     p.fx, p.fy, p.fz = 0, 0, 0
   end
-  if opts.pair then
+  if opts.pair and opts.bonds then
+    for _, bd in ipairs(opts.bonds) do pairForce(ps[bd[1]], ps[bd[2]], opts, true, bd) end
+  elseif opts.pair then
     if opts.asymmetric then
       for i = 1, n do
         for j = 1, n do

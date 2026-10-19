@@ -93,6 +93,9 @@ print(mon.format(t:drift()))   -- com= dp= dl= de= relE=
   conserved to rounding. `asymmetric = true` evaluates the force on each
   particle separately, for laws that break Newton's third law (Ch. 4.1's
   triangle); the momentum monitor then shows the drift.
+- **`bonds`** limits the pairs to a list `{ {i, j, ...}, ... }` (springs in a
+  structure); each bond table is passed to `pair` and `potential` as a
+  fourth argument, e.g. its own rest length (`ch02/models.lua`'s lattice).
 - **`forceMax`** caps |F| per pair (Ch. 2.3's Force_Maximum); **`speedMax`**
   caps each speed (Velocity_Maximum), keeping the direction, or clips each
   component with **`speedCapPerAxis`**; **`external(p)`** adds a force.

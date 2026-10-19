@@ -3,6 +3,7 @@
 --
 -- spring1D (2.1), spring2D (2.2) and solar_system (2.3), with the book's
 -- slider values. Each line says what the book reports and what we get.
+-- Then our own 3D models: spring3D, the tetrahedron, planets and lattice.
 --
 -- DEFINITIONS (printed values): separation = distance between the two
 -- bodies; |P| total linear momentum; L angular momentum about the centre of
@@ -303,6 +304,105 @@ do
   for am, bp in pairs(bookPeaks) do if abs(peaks[am][1] - bp) > 0.15 then okPeaks = false end end
   check("e: peak planet speeds as printed (5.6, 5, 4, 9 for AM 0, 1, 4, 9)", okPeaks,
         string.format("%.2f, %.2f, %.2f, %.2f", peaks[0][1], peaks[1][1], peaks[4][1], peaks[9][1]))
+end
+
+-- Three truly 3D models (ours; ch02/README.md, FINDINGS F57). "axis
+-- angle" = angle between the tetrahedron's chosen principal axis, carried
+-- with the body, and L; a "flip" = that angle crossing 90 degrees. "tilt" of
+-- a planet's orbit = angle between its angular momentum about the sun and
+-- the total L. "strain" = mean |r - rest| / rest over the lattice's springs.
+local mon = require "lib.monitors"
+local function track(m, time, every, fn)
+  local tr = mon.tracker(m.ps, m.law)
+  local n = math.floor(time / m.dt + 0.5)
+  for i = 1, n do
+    ch.step(m)
+    if fn and i % every == 0 then fn(m) end
+  end
+  return tr:drift(), tr
+end
+
+print("-- tetrahedron (ours: masses 1-4, k 10, D 50, spin 0.5, tilt 2 deg, dt 0.002)")
+do
+  local res = {}
+  for _, ax in ipairs({ 1, 2, 3 }) do
+    local m = ch.tetra({ axis = ax, tilt = 2, spin = 0.5, dt = 0.002 })
+    local amax, flips, side = 0, 0, nil
+    local d = track(m, 300, 50, function(mm)
+      local me = mon.measure(mm.ps, mm.law)
+      local x, y, z = ch.bodyAxis(mm)
+      local ang = math.deg(math.acos(math.max(-1, math.min(1, (x * me.lx + y * me.ly + z * me.lz) / me.l))))
+      amax = max(amax, ang)
+      local sd = ang > 90
+      if side ~= nil and sd ~= side then flips = flips + 1 end
+      side = sd
+    end)
+    res[ax] = { amax = amax, flips = flips, d = d }
+  end
+  check("tetrahedron: three different principal moments",
+    (function() local m = ch.tetra({}); return m.moments[2] - m.moments[1] > 100 and m.moments[3] - m.moments[2] > 100 end)())
+  check("tetrahedron: spin about the smallest and largest axes is steady",
+    res[1].amax < 10 and res[3].amax < 10 and res[1].flips == 0 and res[3].flips == 0,
+    string.format("axis angle at most %.1f and %.1f deg", res[1].amax, res[3].amax))
+  check("tetrahedron: spin about the middle axis flips over (tennis racket)",
+    res[2].amax > 170 and res[2].flips >= 2, string.format("%d flips in 300 time units, up to %.0f deg", res[2].flips, res[2].amax))
+  local worst = { p = 0, l = 0, e = 0 }
+  for ax = 1, 3 do
+    local d = res[ax].d
+    worst.p, worst.l, worst.e = max(worst.p, d.dp), max(worst.l, d.dl / d.now.l), max(worst.e, abs(d.relE))
+  end
+  check("tetrahedron: P stays 0, L fixed, E does not drift",
+    worst.p < 1e-9 and worst.l < 1e-10 and worst.e < 1e-3,
+    string.format("|dP| %.0e, |dL|/|L| %.0e, |dE|/E %.0e", worst.p, worst.l, worst.e))
+end
+
+print("-- planets (ours: sun 100, G 20, 4 planets at 15 x 1.8^i, tilts up to 10 deg, dt 0.01)")
+do
+  local outer = 2 * math.pi * math.sqrt((15 * 1.8 ^ 3) ^ 3 / (20 * 100))
+  local worst, okR, iSpan = { l = 0, e = 0 }, true, 0
+  for seed = 1, 2 do
+    local m = ch.planets({ seed = seed })
+    local r0, imin, imax = {}, {}, {}
+    for i = 1, 4 do r0[i] = 15 * 1.8 ^ (i - 1); imin[i], imax[i] = 180, 0 end
+    local d = track(m, 10 * outer, 200, function(mm)
+      local me = mon.measure(mm.ps, mm.law)
+      for i = 1, 4 do
+        local r, inc = ch.planetOrbit(mm, i, { me.lx, me.ly, me.lz })
+        if abs(r / r0[i] - 1) > 0.05 then okR = false end
+        imin[i], imax[i] = min(imin[i], inc), max(imax[i], inc)
+      end
+    end)
+    worst.l, worst.e = max(worst.l, d.dl / d.now.l), max(worst.e, abs(d.relE))
+    for i = 1, 4 do iSpan = max(iSpan, imax[i] - imin[i]) end
+  end
+  check("planets (light, 1/1000 of the sun): every orbit within 5% of its radius",
+    okR, "10 outer orbits, 2 seeds")
+  check("planets: L fixed, E does not drift", worst.l < 1e-10 and worst.e < 1e-3,
+    string.format("|dL|/|L| %.0e, |dE|/E %.0e", worst.l, worst.e))
+  check("planets: the orbital planes' tilts change (they tug on each other)", iSpan > 0.5,
+    string.format("largest change %.1f deg", iSpan))
+  local h = ch.planets({ seed = 1, planetMass = 10 })
+  local far = 0
+  track(h, 10 * outer, 200, function(mm)
+    for i = 2, #mm.ps do far = max(far, mon.dist(mm.ps[1], mm.ps[i])) end
+  end)
+  check("planets: heavy ones (1/10 of the sun) throw one out", far > 5 * 15 * 1.8 ^ 3,
+    string.format("farthest %.0f against an outer orbit of %.0f", far, 15 * 1.8 ^ 3))
+end
+
+print("-- spring lattice (ours: 3 x 3 x 3 unit masses, spacing 50, k 10, jitter 0.1, spin 0.3, dt 0.002)")
+do
+  local m = ch.lattice({ seed = 1, dt = 0.002 })
+  check("lattice: 126 springs, edges and face diagonals", #m.bonds == 126, string.format("%d springs", #m.bonds))
+  local s0 = ch.strain(m)
+  local d = track(m, 30)
+  check("lattice: rings without friction; P stays 0, L fixed, E does not drift",
+    ch.strain(m) > 0.3 * s0 and d.dp < 1e-9 and d.dl / d.now.l < 1e-10 and abs(d.relE) < 1e-3,
+    string.format("strain %.3f -> %.3f, |dL|/|L| %.0e, |dE|/E %.0e", s0, ch.strain(m), d.dl / d.now.l, abs(d.relE)))
+  local f = ch.lattice({ seed = 1, dt = 0.002, friction = 0.002 })
+  track(f, 30)
+  check("lattice: with friction it settles into the perfect cube", ch.strain(f) < 1e-6,
+    string.format("strain %.3f -> %.1e", s0, ch.strain(f)))
 end
 
 if fails == 0 then print(string.format("PASS ch02: %d tests", count))

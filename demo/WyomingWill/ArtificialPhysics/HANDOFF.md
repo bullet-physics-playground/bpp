@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F56 so far), and
+  implementations, and our own mistakes once corrected (F1–F57 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -97,7 +97,7 @@ is updated at the end of every milestone.
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–41 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
-| `ch02/` | Ch. 2's springs and solar system, plus our spring3D: BPP scenes and checks (`ch02/README.md`) |
+| `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
@@ -156,7 +156,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, a `--break "<section heading>"` can rebalance them (none needed at present).
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"`. Look at the last pages: if one is nearly empty, move or drop the `--break` to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -268,21 +268,21 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   Newtonian scene so it works out of the box (etaPower 1; etaWidth 0.2 in
   2D, 0.5 in 3D, from the slope limit and the 2D trap, F56); the adaptive
   friction and stop-rule sliders were taken off too (in the lib for M2).
-  **Next:** the M1 summary here, then (William's choice) the 3D spring
-  lattice, the realistic world generator, or M2.
+  **Next:** the M1 summary here, then (William's choice) the realistic
+  world generator or M2.
   Then the 3D spring lattice (below) and the M1 summary here.
 - **After M1, William's choice between** the realistic world generator
   (`BOOK.md` §6, option A: terrain and water first, then zones, streets,
   lots and buildings, vegetation, mission features; presets rural,
   suburban, city centre, industrial port, harbour town) and M2 (the vehicle
   interface, ground robot and surface boat).
-- **Ideas William liked (2026-10-18), to do when there is room:** truly 3D
-  spring models, since two bodies always stay in one plane (spring3D, done,
-  looks like spring2D tilted): **a spring tetrahedron** (four masses, six
-  springs, spun about a tilted axis; tumbles and wobbles with |L| and E
-  constant) and **a small 3D spring lattice** (a cube of masses on springs;
-  the first step of the Ch. 3 formations in 3D, so it fits M1's 3D work).
-  Details in `ch02/README.md`, "Not done yet".
+- **Done (2026-10-18): three truly 3D Ch. 2 models** (`ch02/`, F57): a
+  spinning tetrahedron that flips over about its middle axis (the
+  tennis-racket effect), several planets in tilted orbits (stable when
+  light and well spaced; William had never got several planets stable),
+  and a 3 × 3 × 3 spring lattice. An inclined single orbit adds nothing
+  (spring3D again) and is covered by the planets. The Ch. 2 drone versions
+  are dropped (William).
 - **Check every port against its `.nlogo` first** (`netlogo/`): doing so for
   Ch. 2 and Ch. 3 found two guessed starts and the wrong Ch. 3 world frame
   (FINDINGS F40, F41). `formation_newton.nlogo`'s law matches the Newtonian

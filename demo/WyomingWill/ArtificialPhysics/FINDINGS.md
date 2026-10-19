@@ -356,6 +356,27 @@ drones: swarm centre at 630 s −42 / −44 m in 2D and −45 / −46 m in 3D
 (plain law −43 and −41, LJ −50 and −51), bonds 0.93–0.98 D under the
 goal's pull.
 
+**F57. Three truly 3D models: a flipping tetrahedron, stable planets, a
+ringing lattice** — 2026-10-18, New. `ch02/README.md`, `checks/ch02.lua`.
+Two bodies always move in one plane (F42); these need three or more.
+(a) **Tetrahedron**, masses 1–4 on six springs: an asymmetric top
+(moments 4390 / 5840 / 7270). Spun 2° off the smallest or largest axis it
+stays within 3–4° of L for 48 turns; off the middle axis it flips end for
+end 7 times in 48 turns (5–10 for tilts 0.5–5°, spin 0.3–0.5, k 10–40):
+the tennis-racket (Dzhanibekov) effect from springs alone, with |L| fixed
+to 10⁻¹⁴ and E to 6×10⁻⁵. (b) **Planets**, solar_system's law and units
+without caps, 4 planets at 15 × 1.8ⁱ⁻¹ tilted up to 10°: at 1/1000 and
+3/1000 of the sun each, all radii stay within 1–3% for 150 outer orbits
+(3 seeds); at 1/100 one seed of three breaks up by 150 orbits; at 3/100,
+1/10, or spaced 1.3× apart, a planet is thrown out. The orbits' tilts
+drift by degrees as the planets tug on each other. Stability needs light,
+widely spaced planets, a time step of a few hundred per inner orbit,
+momentum balanced at the start and circular speeds — and no caps. (c)
+**Spring lattice**, 3 × 3 × 3 masses with springs on edges and face
+diagonals (126; edges alone shear flat): it rings without end with P = 0
+and L fixed, and with friction settles into the perfect cube (strain 6% to
+10⁻⁸).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

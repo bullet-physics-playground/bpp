@@ -156,7 +156,7 @@ Most chapters need the same pieces. Build each once.
 | Ch. | Title (author) | Entries | First BPP target | Vehicles | Groundwork | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Nature is lazy (Spears) | 8 | Potential-well height map; Q-vs-P metric | particles, ★ magnets | G6, G3 | new |
-| 2 | NetLogo and physics (Spears) | 3 | Springs and solar system as integrator tests | particles, ★ 2 drones | G1 | partly |
+| 2 | NetLogo and physics (Spears) | 3 | Springs and solar system as integrator tests | particles | G1 | partly |
 | 3 | NetLogo and physicomimetics (Spears) | 7 | Check the existing formations against the book; add Hooke, honeycomb, events | particles, quads | G1, G9, G16 | partly |
 | 4 | Pushing the envelope (Spears) | 5 | Couette flow (2 closed forms); perfect square | particles, quads | G1, G3, G4, G15, G17 | partly / plan / new |
 | 5 | Local oriented potential fields (Bravi et al.) | 9 | Square, line, star, tree by sector forces | holonomic particles, quads | G9, G17 | new |
@@ -198,8 +198,8 @@ detail.
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
 | 2.1 | `spring1D`: Hooke oscillation, momentum 0, energy flat, friction drains it | 58–72 | `ch02/`: scene and checks, all results reproduced | done |
-| 2.2 | `spring2D`: angular momentum conserved, centrifugal stretch > 2D | 73–77 | `ch02/`: scene and checks, reproduced; ★ 3D off-plane spin; ★ 2 drones on a virtual spring | partly |
-| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | `ch02/`: scene and checks, all five experiments reproduced (peak speeds 5.5, 5.0, 4.0, 9.0 as printed); ★ one drone orbiting under a capped 1/r² law (velocity cap = drone speed limit) | partly |
+| 2.2 | `spring2D`: angular momentum conserved, centrifugal stretch > 2D | 73–77 | `ch02/`: scene and checks, reproduced; ★ 3D off-plane spin; ★ spinning tetrahedron (tennis-racket flips); ★ 3D spring lattice | done |
+| 2.3 | `solar_system`: Δt failures, velocity cap fails, force cap works (precession) | 78–85 | `ch02/`: scene and checks, all five experiments reproduced (peak speeds 5.5, 5.0, 4.0, 9.0 as printed); ★ several planets in tilted orbits, stable when light and well spaced | done |
 
 ### Ch. 3 — NetLogo and physicomimetics (PDF 86–123) · `book/ch03.md`
 | # | Entry | Pages | BPP | Status |

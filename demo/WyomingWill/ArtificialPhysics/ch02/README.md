@@ -9,14 +9,17 @@ every later port stands on.
 | File | What |
 | --- | --- |
 | `models.lua` | The three models as plain Lua, with the book's slider defaults |
+| `Tetrahedron.lua` | Ours: four masses (1–4) on six springs, spinning about a chosen principal axis; about the middle one it flips over and over (the tennis-racket effect) |
+| `Planets.lua` | Ours: a sun and 1–6 planets in slightly tilted orbits, solar_system's law without caps |
+| `SpringLattice.lua` | Ours: a cube of 8, 27 or 64 masses on springs (edges and face diagonals); spins and rings, settles with friction |
 | `Spring3D.lua` | Ours, not in the book: spring2D with a third axis, seen at an angle. Each particle starts in a random direction on the sphere; Angular_Motion_Z adds z velocity. The status line shows \|L\| and the tilt of L from its start instead of L |
 | `Spring1D.lua`, `Spring2D.lua`, `SolarSystem.lua` | BPP scenes with the NetLogo sliders (same names; the solar system's caps get tick boxes instead of the book's huge "off" values), seen from above; the status line shows t, separation, \|P\|, L, KE, PE and E. They run as soon as they load; R resets, S stops and restarts |
 | `scene.lua` | Their shared drawing and running |
-| `../checks/ch02.lua` | The book's results as 27 numeric checks, about 2 s |
+| `../checks/ch02.lua` | The book's results and our 3D models as 44 numeric checks, about 7 s |
 
 ## The book's results and ours
 
-All 27 checks pass (`lua5.1 checks/ch02.lua`).
+All 44 checks pass (`lua5.1 checks/ch02.lua`).
 
 **2.1 spring1D** (k 10, D 50, Δt 0.001)
 - Momentum stays exactly 0 (|P| = 0, not just small).
@@ -96,18 +99,51 @@ Checked against `spring1D.nlogo`, `spring2D.nlogo` and `solar_system.nlogo`
 - **The toroidal world** of NetLogo (the D = 500 artefact, Fig. 2.7) does not
   exist in BPP and is not reproduced.
 
+## Truly 3D: three or more bodies (ours)
+
+Two bodies on a spring always move in one plane (spring3D). These three
+need three or more bodies, and are 3D in earnest (FINDINGS F57). All three
+keep |P| at 0 and L fixed to rounding, and their energy does not drift.
+
+**Tetrahedron** (`Tetrahedron.lua`; masses 1, 2, 3, 4, edges 50, k 10).
+Unequal masses make an asymmetric top: principal moments about 4390, 5840
+and 7270. Started spinning at 0.5 a few degrees off one principal axis:
+about the smallest or largest axis the spin is steady (the axis stays
+within 3–4° of L for 48 turns); about the middle axis it flips over
+again and again, 0° to 180° and back, 7 times in 48 turns, whatever the
+tilt (0.5–5°) or spin (0.3–0.5) or spring constant (10, 40) — the
+tennis-racket (Dzhanibekov) effect, in a body that is only springs.
+Equal masses would make a spherical top, which never tumbles.
+
+**Planets** (`Planets.lua`; G 20 and sun 100 as in solar_system, no
+caps; planets at 15 × 1.8ⁱ⁻¹ on circular starts in planes tilted up to
+10°). Light planets (each 1/1000 of the sun, about Jupiter's share) are
+stable: every radius within 1–3% for 150 orbits of the outermost planet,
+3 seeds, also at 3/1000; the planes' tilts drift slowly as the planets
+tug on each other. Each 1/100 of the sun: stable for 30 orbits but radii
+swing ±30%, and one of three seeds broke up by 150. Each 3/100, or spaced
+only 1.3× apart: a planet is thrown out. What makes a system stable, in
+order: light planets, wide spacing, a time step of a few hundred per inner
+orbit, the sun given its share of momentum, circular starting speeds
+√(G M / r), and no force or velocity cap.
+
+**Spring lattice** (`SpringLattice.lua`; 3 × 3 × 3 unit masses, spacing
+50, k 10). Springs join every pair closer than 1.5 × 50: the 54 edges and
+72 face diagonals (126). Edges alone would let the cube shear flat, as a
+truss without braces. Displaced at random by up to 10% and spun, it turns
+and rings for ever (strain 5.8% to 4.3% after 30 time units, energy within
+3×10⁻⁴); with friction 0.002 it settles into the perfect cube (strain
+10⁻⁸). The book's friction slows every velocity, so the spin stops too.
+The springs are fixed bonds; the Ch. 3 formations choose their neighbours
+by distance instead, the next step toward them in 3D.
+
+**An inclined orbit** (one planet in a tilted plane) is only the same
+ellipse tipped over, as spring3D is; tilt matters only between planets,
+so it is covered by `Planets.lua`.
+
 ## Not done yet
 
-★ The drone versions (two drones on a virtual spring; one drone orbiting under
-a capped 1/r² law, where the drone's speed limit is a velocity cap), and the
-other 3D variants (an inclined orbit, two planets). The off-plane spin is
-spring3D.
-
-★ **William liked these (2026-10-18), next for 3D springs.** Two bodies always
-stay in one plane, so spring3D looks like spring2D tilted. These need three or
-more masses and are truly 3D:
-- **A spring tetrahedron:** four masses on six springs, started spinning about
-  a tilted axis. It tumbles, wobbles and breathes, with |L| and E constant: a
-  3D integrator test no 2D model gives.
-- **A small 3D spring lattice:** a cube of masses on springs, the first step
-  of the Ch. 3 formations in 3D (counts toward M1's 3D work).
+The other 3D variant planned earlier, two planets, is covered by
+`Planets.lua`. The drone versions of these models (two drones on a virtual
+spring; one drone orbiting under a capped 1/r² law) are dropped (William,
+2026-10-18).
