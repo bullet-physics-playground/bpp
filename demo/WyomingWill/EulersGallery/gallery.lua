@@ -235,6 +235,7 @@ realV.gravity = btVector3(0, -981, 0)
 -- ---------------------------------------------------------------------
 local exhibits = {}        -- the live ones, in walking order
 local active = nil         -- the exhibit you're at (nil: one of the views)
+local flight = nil         -- the camera on its way to the next stop (see "walking on")
 local loading = nil        -- the exhibit being loaded
 
 local function loadIn(file, env)
@@ -320,7 +321,7 @@ local function makeExhibit(e, bay)
       if type(val) == "function" then
         local fn = camFns[k]
         if not fn then
-          fn = function(self, ...) if active == g or loading == g then return val(realV.cam, ...) end end
+          fn = function(self, ...) if (active == g and not flight) or loading == g then return val(realV.cam, ...) end end
           camFns[k] = fn
         end
         return fn
@@ -330,10 +331,10 @@ local function makeExhibit(e, bay)
     __newindex = function(_, k, val)
       if k == "pos" or k == "look" then
         if loading == g then g.view[k] = val
-        elseif active == g then realV.cam[k] = toScene(val) end
+        elseif active == g and not flight then realV.cam[k] = toScene(val) end
         return
       end
-      if active == g or loading == g then realV.cam[k] = val end
+      if (active == g and not flight) or loading == g then realV.cam[k] = val end
     end,
   })
 
@@ -392,7 +393,11 @@ local function makeExhibit(e, bay)
   -- hall's floor is drawn there, at the same height: it's drawn a hundredth
   -- of a centimetre across)
   env.Plane = function(nx, ny, nz, c)
-    return realPlane(nx, ny, nz, c, 0.01)      -- (drawn a hundredth of a cm across)
+    local p = realPlane(nx, ny, nz, c, 0.01)   -- (drawn a hundredth of a cm across)
+    -- (and not in a POV-Ray scene, where a plane has no size: it would lie
+    -- across the whole floor, at the floor's own height)
+    pcall(function() p.pov_export = false end)
+    return p
   end
   -- its random numbers: the same sequence it gets on its own (see setRandom)
   env.math = setmetatable({
@@ -826,7 +831,111 @@ local function hallHelp(s)
          "the mouse          looks round as usual\n"
 end
 
-local function goTo(s)
+-- ---------------------------------------------------------------------
+-- walking on: the camera flies from where it is to the next stop, out
+-- along the aisle and into the next bay, rather than jumping there.
+-- GALLERY_FLY=0: it jumps, as before. (The exhibit you're going to runs at once;
+-- its own camera moves wait until you've arrived.)
+-- ---------------------------------------------------------------------
+local FLY_ON = os.getenv("GALLERY_FLY") ~= "0"
+local FLY_SPEED = 900          -- cm/s along the way; each flight takes 1.2 to 3.5 s
+-- the aisle beside a point: wing A's centre line (x = 0) north of the
+-- corner, wing B's (z = ZN / 2) in the corner and east of it; going from
+-- one wing to the other, round by the corner's middle
+local function aisleOf(p)
+  if p.z > 0 then return btVector3(0, 0, p.z), "A" end
+  return btVector3(math.max(p.x, 0), 0, ZN / 2), "B"
+end
+local function route(p0, p1)
+  local a0, w0 = aisleOf(p0)
+  local a1, w1 = aisleOf(p1)
+  if w0 == w1 then return { a0, a1 } end
+  return { a0, btVector3(0, 0, ZN / 2), a1 }
+end
+local function catmull(a, b, c, d, t)
+  local t2, t3 = t * t, t * t * t
+  local function k(p0, p1, p2, p3)
+    return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (3 * p1 - p0 - 3 * p2 + p3) * t3)
+  end
+  return btVector3(k(a.x, b.x, c.x, d.x), k(a.y, b.y, c.y, d.y), k(a.z, b.z, c.z, d.z))
+end
+local function yawPitch(d)
+  local l = math.max(d:length(), 1e-9)
+  return math.atan2(d.x, d.z), math.asin(math.max(-1, math.min(1, d.y / l)))
+end
+local function dirOf(yaw, pitch)
+  return btVector3(math.sin(yaw) * math.cos(pitch), math.sin(pitch), math.cos(yaw) * math.cos(pitch))
+end
+local function ease(t) if t < 0.5 then return 4 * t * t * t end local u = -2 * t + 2; return 1 - u * u * u / 2 end
+local function startFlight(pos1, look1)
+  local c = realV.cam
+  local pos0 = c.pos
+  -- the way: the camera, the aisle beside it, (round any corner,) the aisle
+  -- beside the next stop, the stop; heights in between from one to the other
+  local raw = route(pos0, pos1)
+  local pts = { pos0 }
+  for i, p in ipairs(raw) do
+    local f = i / (#raw + 1)
+    pts[#pts + 1] = btVector3(p.x, pos0.y + (pos1.y - pos0.y) * f, p.z)
+  end
+  pts[#pts + 1] = pos1
+  local way = { pts[1] }
+  for i = 2, #pts do
+    local last = way[#way]
+    if (pts[i] - last):length() > 40 or i == #pts then way[#way + 1] = pts[i] end
+  end
+  -- along it, in small pieces, measured
+  local S, L = { way[1] }, { 0 }
+  for i = 1, #way - 1 do
+    local a, b, cc, d = way[math.max(i - 1, 1)], way[i], way[i + 1], way[math.min(i + 2, #way)]
+    for k = 1, 24 do
+      local p = catmull(a, b, cc, d, k / 24)
+      L[#L + 1] = L[#L] + (p - S[#S]):length()
+      S[#S + 1] = p
+    end
+  end
+  local total = L[#L]
+  local yaw0, pitch0 = yawPitch(c.dir)
+  local yaw1, pitch1 = yawPitch(look1 - pos1)
+  local dy = (yaw1 - yaw0 + math.pi) % (2 * math.pi) - math.pi        -- (the short way round)
+  flight = { S = S, L = L, total = total, t0 = realV:getTime(),
+             T = math.max(1.2, math.min(3.5, 0.6 + total / FLY_SPEED)),
+             yaw0 = yaw0, dyaw = dy, pitch0 = pitch0, dpitch = pitch1 - pitch0, pos1 = pos1, look1 = look1 }
+end
+local function stepFlight()
+  local f = flight
+  if not f then return end
+  local c = realV.cam
+  local t = (realV:getTime() - f.t0) / f.T
+  if t >= 1 then
+    flight = nil
+    c.pos = f.pos1
+    c:setUpVector(btVector3(0, 1, 0), true)
+    c.look = f.look1                -- (in that order: the look turns the view from where it now is)
+    return
+  end
+  local u = ease(math.max(0, t))
+  local s = u * f.total
+  local i = 2
+  while i < #f.L and f.L[i] < s do i = i + 1 end
+  local span = f.L[i] - f.L[i - 1]
+  local w = span > 0 and (s - f.L[i - 1]) / span or 1
+  local p = f.S[i - 1] + (f.S[i] - f.S[i - 1]) * w
+  c.pos = p
+  c:setUpVector(btVector3(0, 1, 0), true)     -- (upright first: the look keeps the horizon level)
+  c.look = p + dirOf(f.yaw0 + f.dyaw * u, f.pitch0 + f.dpitch * u) * 100
+end
+-- the camera to a stop: flown there, or put there at once (instant: as the
+-- hall starts, and with GALLERY_FLY=0)
+local function moveCam(pos, look, instant)
+  if FLY_ON and not instant then startFlight(pos, look); return end
+  flight = nil
+  local c = realV.cam
+  c.pos = pos
+  c.look = look            -- (in that order: the look turns the view from where it now is)
+end
+
+local function goTo(s, instant)
   -- let go of any keys still held at the exhibit we're leaving (its world
   -- then waits, untouched, until you come back)
   if active then
@@ -858,8 +967,7 @@ local function goTo(s)
     -- (bpp's markers on joints: not in the hall views)
     realV.showConstraints = false
     for k in pairs(LIGHTS) do applyLight(nil, k) end          -- (the hall's lights)
-    c.pos = s.pos
-    c.look = s.look        -- (in that order: the look turns the view from where it now is)
+    moveCam(s.pos, s.look, instant)
     realV:setHelpText(hallHelp(s))
   else
     active = s
@@ -875,8 +983,7 @@ local function goTo(s)
     local view = s.view
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)
-    c.pos = s.toScene(pos)
-    c.look = s.toScene(look)
+    moveCam(s.toScene(pos), s.toScene(look), instant)
     realV:setHelpText(s.header() .. s.help)
     -- (and tell it you've come, if it asked: v:onEnter)
     local f = s.callbacks.onEnter
@@ -909,7 +1016,7 @@ realV:preSim(function(N)
   end
 end)
 realV:postSim(function(N) callActive("postSim") end)
-realV:preDraw(function(N) callActive("preDraw") end)
+realV:preDraw(function(N) stepFlight(); callActive("preDraw") end)
 realV:postDraw(function(N) callActive("postDraw") end)
 
 local HELD_BACK = { S = true, D = true, R = true, P = true }
@@ -996,6 +1103,6 @@ if START then
   for _, g in ipairs(exhibits) do if g.name:lower():find(START:lower(), 1, true) then here = g end end
   if START == "corner" then here = VIEW_B end
 end
-goTo(here)
+goTo(here, true)
 print(string.format("GALLERY: %d exhibits on show, %d in preparation, %d empty bays; wings %.0f and %.0f m long",
                     #exhibits, #EXHIBITS - #exhibits, #BAYS - #EXHIBITS, (LA + WW) / 100, (LB + WW) / 100))

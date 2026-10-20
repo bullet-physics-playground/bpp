@@ -1,5 +1,7 @@
 # Euler's Gallery
 
+`README.pdf` beside this file is a typeset copy of it.
+
 An 18th-century walnut gallery, L-shaped, for WyomingWill's rigid-body
 curiosities. Walnut panelling with gilded frames, parquet floor, a
 coffered ceiling with chandeliers, the title in gilt on the wall at the
@@ -48,6 +50,11 @@ Click the 3D view first so it has the keyboard.
 |---|---|
 | `Tab` | walk on: the view from the entrance, the exhibits in wing A, the view from the corner down wing B, the exhibits in wing B, then back to the entrance |
 | `Shift+Tab` | walk back |
+
+On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
+the aisle (round by the corner between the wings) and into the next bay, in
+1.2 to 3.5 seconds. The exhibit you're going to starts at once; its own camera
+moves wait until you've arrived. `GALLERY_FLY=0` jumps instead, as before.
 
 Everything else goes to the exhibit you're at, with the same keys as when
 it runs on its own; the Shortcuts pane shows them. The Params pane shows
@@ -215,6 +222,13 @@ you're at it; its other physics settings belong to its world.
 `GALLERY_START=<part of a name>` starts at that exhibit (`corner` for the
 view down wing B), for trying one out. (`CABINET_START`, its old name,
 still works.) The hall's console lines start with `GALLERY:`.
+
+**POV-Ray.** The gallery renders in POV-Ray (File, or `bpp -e`) as on the
+screen. This needs a bpp that exports each object moved to where its world is
+drawn (an exhibit's world is placed in its bay with `v:placeWorld`); an older
+bpp exports every exhibit at its own coordinates, piled up in the middle of
+the hall. The exhibits' ground planes, invisible on the screen, are left out
+of the scene: in POV-Ray a plane has no edges and would cover the floor.
 
 ## Files
 
