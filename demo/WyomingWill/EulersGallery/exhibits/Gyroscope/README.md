@@ -19,7 +19,7 @@ up to 100 turns a second and set down:
 
 As the rotors slow, the left two go round faster and sag lower; the right
 one wobbles in wider and wider circles. After 37 seconds the pedestal
-one slides off its point; after a minute, at 38 turns a second, the
+one slides off its point; after a minute, at 39 turns a second, the
 tightrope one comes off the wire; the one on the string sags on until its
 rotor stops, at 100 seconds, and it just hangs.
 
@@ -63,7 +63,8 @@ in all. The balls are 6 cm from the centre.
   point and I its moment of inertia across the axle about the point: here
   above 46 turns a second (46.7 to 48.2, as I is 7.36 or 7.85 kg cm^2,
   in the hoop's plane or across it). On a still, rough wire (0.15 at the
-  foot) it comes off at 52.
+  foot) it starts to wobble at 47 turns a second, as the rule says, and
+  comes off at 45.
 
 Getting the tightrope to work took some finding. The first gyroscope stood
 on the wire on its hoop, with a groove round the hoop for the wire. It can't
@@ -82,30 +83,39 @@ is a top on a point, and stays up.
   the 0.6 s each tip takes), so it slides to and fro through the middle,
   as a ball rolls to and fro in a dip; each time it stops, the attendant
   tips a little later or sooner next time, to keep it going about 9 cm
-  each way (5 to 12 cm; the first time 14, before it has the timing).
+  each way (4 to 13 cm; the first time 14, before it has the timing: a
+  point sliding on the wire with the foot's friction, tipped as the wire
+  is tipped, goes 13.4).
   The console gives where it is on the wire and the wire's tilt.
 * **Why only a degree.** To a gyroscope on a tipped wire, "up" is square
   to the wire, so each tip moves its up a little, and it wobbles round its
   new up. Its wobble goes round every 2.3 s, and the tips come about as
-  often, so they build it up. Rocked 1 degree, it stays up longer than on
-  a still wire (62 s, against 55); rocked 1.5 degrees, not so long (49 s,
-  at 51 turns a second); rocked 2 degrees, it's thrown over in 13 s; 3
-  degrees, in 6 s. Try the rock slider.
-* **Rocked 1.5 degrees, it goes further than 9 cm.** Each tip is half as
-  big again, and it wobbles wider (9 to 17 degrees from upright, where
-  rocked 1 degree it wobbles 2 to 8). The attendant's timing is only a
-  guess from where it last stopped, and at 1.5 degrees the same mistake in
-  timing sends it half as far again: it stops anywhere from 1 to 15 cm out.
-  In its last 6 seconds it goes 14 to 15 cm each way, though the attendant
-  is tipping as soon as it can (4 cm early, its limit). Most likely its
-  wobble, 17 to 28 degrees by then, pushes the foot along the wire too;
-  that hasn't been taken apart from the slope's push.
+  often, so they build it up. Rocked 1 degree, it stays up a little
+  longer than on a still wire (61 s, against 58); rocked 1.5 degrees,
+  about as long (63 s; but see below); rocked 2 degrees, it's thrown
+  over in 9 s; 3 degrees, in 6 s. Try the rock slider.
+* **Rocked 1.5 degrees.** Its first two slides run to the end of the
+  wire, where the foot meets the post (14.6 cm out): tipped as the
+  attendant first tips it, a point sliding on the wire would go 16 cm.
+  After that it goes 1 to 13 cm each way, 9 on average. But it is on an
+  edge: whether its wobble builds up depends on the smallest differences.
+  At the default 2400 steps a second (and at 4800) it stays small, 3 to
+  11 degrees, and it lasts 63 s (64); at 1200 it builds up, to 12 to 26
+  degrees, the attendant can't hold it to 9 cm (it tips as early as it
+  can, 4 cm), it runs into the posts again in its last 5 seconds and
+  comes off at 47 s. The wobble doesn't push it along the wire: along the wire only the slope and the foot's
+  friction act on it, and its centre turns where a point sliding on the
+  tipped wire with that friction turns, to 0.1 cm (0.3 rocked 1.5
+  degrees), except where a post stops it. A wide wobble only puts the
+  foot, which is what the attendant watches, up to 3 cm to one side of
+  the centre.
 * **Why it lasts longer than on a still, rough wire.** There (the
-  friction slider at 0.3: 0.15 at the foot) it comes off at 52 turns a second, near the rule's 46. The foot
-  that can slide along the wire lets it, there, keep its point under its
+  friction slider at 0.3: 0.15 at the foot) it starts to wobble at 47
+  turns a second, as the rule says, and comes off at 45. The foot that
+  can slide along the wire lets it, there, keep its point under its
   middle, which is steadier (for a top on ice the rule has I about the
-  middle, not about the point); still, it comes off at 45 turns a second,
-  and rocked, at 38.
+  middle, not about the point); still, it comes off at 42 turns a second,
+  and rocked 1 degree, at 39.
 
 ## Physics
 
@@ -115,9 +125,17 @@ is a top on a point, and stays up.
   Bullet never has to turn a body 100 times a second.
 * Bullet's gyroscopic term is off. The body's gyroscopic torque,
   -w x (I w + h), with h the rotor's angular momentum, is handed to Bullet
-  as a torque before every step, so the pivot, the string and the wire
-  answer it as they would any other force. It's taken from the last two
-  steps (Adams-Bashforth). Taken from this step alone, the gyroscope wobbles
+  before every step, as the turn it gives the body in the step (an angular
+  impulse), so the pivot, the string and the wire answer it as they would
+  any other force. (Until 20 Oct 2026 it was handed over as a torque, with
+  applyTorque, and Bullet 3.24's friction leaves such a torque out: it
+  holds the foot still against everything else, so a foot held by
+  friction slid, at h C dt / I: h the foot's distance from the centre, C
+  the torque, I the moment of inertia, dt the step. On the still, rough
+  wire the foot slid 0.04 cm/s, as that predicts, and the top started to
+  wobble at 66 turns a second instead of the rule's 47, and at 61 to 69
+  as the step changed; now it does at 47 or 48 at 1200, 2400 and 4800
+  steps a second.) It's taken from the last two steps (Adams-Bashforth). Taken from this step alone, the gyroscope wobbles
   more and more; turned straight into a change of spin (as the tops do), it
   sags steadily, because the pivot takes energy out every step.
 * The pedestal's point is a ball joint at the ball's centre; the string is a

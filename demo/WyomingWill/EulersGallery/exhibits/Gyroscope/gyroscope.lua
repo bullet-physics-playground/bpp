@@ -16,7 +16,7 @@
 -- As the rotors slow (air, bearings), the pedestal's and the string's go
 -- round faster and sag lower; the tightrope one wobbles in wider and wider
 -- circles. After 37 s the pedestal one slides off its point; after a
--- minute (38 turns a second) the tightrope one comes off the wire; the
+-- minute (39 turns a second) the tightrope one comes off the wire; the
 -- one on the string sags on until, its rotor stopped (100 s), it just
 -- hangs. R spins them up again.
 --
@@ -27,10 +27,10 @@
 -- (precession rate m g r / (I w) = 2.56 rad/s); it does that. On its
 -- foot on the wire, a top's rule says it stays up while
 -- I3 w > 2 sqrt(I m g l) (l = 6.4 cm, I across the axle about the foot):
--- above 46 turns a second. On a
--- still wire it comes off at 52 turns a second (the friction slider at
--- 0.3: 0.15 at the foot) or 45 (the default, 0.005: 0.0025 at the foot);
--- rocked 1 degree, at 38.
+-- above 46 turns a second (46.7 to 48.2). On a still, rough wire (the
+-- friction slider at 0.3: 0.15 at the foot) it starts to wobble at 47
+-- and comes off at 45; on a still wire with the default (0.005: 0.0025 at
+-- the foot) it comes off at 42; rocked 1 degree, at 39.
 --
 -- PHYSICS
 --  * Each gyroscope is one rigid body (hoop, axle and rotor together). The
@@ -39,7 +39,9 @@
 --    turning, but Bullet never has to turn a body 100 times a second.
 --  * Bullet's gyroscopic term is off. The body's gyroscopic torque,
 --    -w x (I w + h) with h the rotor's angular momentum, is handed to
---    Bullet as a torque before every step, so the pivot, the string and
+--    Bullet before every step, as the angular impulse it gives in the step
+--    (not with applyTorque, which Bullet's friction leaves out: the foot
+--    slid on a rough wire), so the pivot, the string and
 --    the wire answer it as they would any force. It's taken from the last
 --    two steps (Adams-Bashforth): taken from this step alone, the gyroscope
 --    wobbles more and more; turned into a change of spin directly (as the
@@ -65,9 +67,13 @@
 --    the gyroscope is soon thrown over: each tip moves the way "up" is for
 --    it, and it wobbles round the new up, and tips come about as often as
 --    its wobble goes round (2.3 s), so they build it up. Rocked 1
---    degree it lasts 62 s (still: 55 s); 1.5 degrees, 49 s (and it slides
---    out to 14-15 cm, not 9, before it falls: it wobbles wider, and most
---    likely the wobble pushes the foot along too); 2, 13 s; 3, 6 s.
+--    degree it lasts 61 s (still: 58 s); 2, 9 s; 3, 6 s. 1.5 degrees is
+--    on an edge: 63 s at the default 2400 steps a second (64 at 4800),
+--    but at 1200 its wobble builds up and it comes off at 47 s, having
+--    run into the posts at the wire's ends (15 cm out; its first two
+--    slides do too). Along the wire only the slope and the
+--    foot's friction act: its centre turns where a point sliding on the
+--    tipped wire turns, to 0.1 cm (0.3 rocked 1.5 degrees).
 --  * 2400 physics steps a second.
 --
 -- Keys
@@ -323,7 +329,7 @@ for _, g in ipairs(GYROS) do
   body:setActivationState(4)
   body:setDamping(0, 0)
   body:setRestitution(0)
-  body:setFlags(0)                          -- gyroscopic term: handed over as a torque, below
+  body:setFlags(0)                          -- gyroscopic term: handed over as an angular impulse, below
   local rotor = Mesh(DIR .. "gyro-rotor.obj", 0, false)
   rotor.col = "#b08a2e"
   rotor.collides = false
@@ -528,7 +534,15 @@ local function prestep(h)
       local k = f * math.min(1, wn / 0.05) / math.max(wn, 1e-9)
       ax, ay, az = ax - k * W.x, ay - k * W.y, az - k * W.z
     end
-    b:applyTorque(btVector3(ax, ay, az))
+    -- as the angular impulse it gives in the step, just before it, not
+    -- with applyTorque: Bullet 3.24 leaves a torque set with applyTorque
+    -- out of the speed its friction holds to zero (it has it in the push
+    -- and in the speed the step leaves), so a foot held by friction slid
+    -- at h*C*dt/I, every step (on a still, rough wire: 0.04 cm/s, under a
+    -- degree from upright, as predicted; it set the top wobbling at 66 turns/s,
+    -- not the rule's 47; changed 20 Oct 2026). As an impulse it is in
+    -- every part of the solve.
+    b:applyTorqueImpulse(btVector3(ax * h, ay * h, az * h))
   end
 end
 
