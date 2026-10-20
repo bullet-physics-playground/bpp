@@ -11,22 +11,24 @@
 -- What is different is the shape and the physics, chosen to be realistic
 -- rather than tuned:
 --
--- SHAPE -- the GOMBOC900 SolidWorks CAD model: "Gömböc" Convex, homogeneous
---   three-dimensional body, by Istenes József, published on GrabCAD on
---   5 December 2024,
+-- SHAPE -- the GOMBOC900 SolidWorks 2010 CAD model by Kiss Attila
+--   (organisation 'e.v.', 12 December 2013, per its STEP file's header),
+--   published as "Gömböc" Convex, homogeneous three-dimensional body by
+--   Istenes József on GrabCAD on 5 December 2024,
 --   https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1
---   (licence not checked: the page could not be reached from here). This
---   file used to credit "Kiss Attila, 2013"; where that came from is not
---   known (no CAD file, file properties or notes are in the repository), so
---   it is not confirmed. Scaled to 9 cm. Its exact surfaces were checked to
---   have one stable and one unstable equilibrium. The physics shape is the
---   convex hull of a fine tessellation of those surfaces (13,476 points, all
---   on the true surface); its flat facets add tiny extra resting faces (34),
---   but all lie within 16.3 deg of the true resting point and the deepest
---   needs only a 0.53 micron lift to leave. No hand correction is needed.
---   (Version B's printable STL differs from this shape by up to 2.2 mm;
---   even after B's corrections its hull keeps 27 resting faces deeper than
---   5 microns, some 50-115 deg from upright.) Centre of mass and inertia are the exact CAD values.
+--   (licence not checked). Scaled to 9 cm. Its exact surfaces have one
+--   stable and one unstable equilibrium. It rests and rocks on a cylinder
+--   (radius 3.6 cm, axis along the body's x, 1.147 mm above the centre of
+--   mass). The physics shape is the convex hull of 15,548 points, all on the
+--   true surfaces: a 1.2 mm tessellation everywhere but that cylinder, and
+--   1229 whole straight lines across the cylinder, 30 microns apart at the
+--   bottom (gomboc-meshes/gomboc-hull.lua; made from the STEP file by
+--   hull-reconstruction/, see its README.txt). Its only extra resting faces
+--   are 32 thin strips within 0.74 deg of upright (the deepest needs a
+--   0.003 micron lift to leave). (Version B's printable STL differs from
+--   this shape by up to 2.2 mm; even after B's corrections its hull keeps
+--   27 resting faces deeper than 5 microns, some 50-115 deg from upright.)
+--   Centre of mass and inertia are the exact CAD values.
 --
 -- ENERGY LOSS -- a real gomboc loses energy at the table, not in the air:
 --   * rolling resistance: a constant moment  M = delta * m * g  opposing the
@@ -48,32 +50,35 @@
 -- "steps" slider sets physics steps per simulated second. At 1200 (the
 -- default), with every loss switched off, a lone gomboc's energy stays
 -- level, with no steady gain, so the losses above are what bring it to rest.
--- 2400 was no better.
+-- 2400 was no better. (Re-checked 19 Oct 2026: level from 40 s to 120 s,
+-- after a rise of 0.07 cm x m x g in the first 40 s; old hull, the same
+-- after 0.05 cm in 15 s.)
 --
--- What to expect (defaults, 6 gombocs; tested with 3 drops + 2 headstands):
---   * all upright within about 15 s, all at rest within 16-22 s;
---   * they stop short of exactly upright: mostly 0.3-8 deg, but up to
---     11.7 deg has been seen at 9 cm (12.5 deg at 125% in Gomboc Variety),
+-- What to expect (defaults, 6 gombocs; tested 19 Oct 2026 with 3 drops and
+-- 2 headstands, GC_SEED=1-3, re-drop off):
+--   * all upright within about 13-23 s, all at rest within about 25-30 s
+--     (in two of the five tests one was still settling at 30 s);
+--   * they stop short of exactly upright: 0.1-5.3 deg at 9 cm in the tests,
 --     with nothing touching. Why: a constant rolling-resistance moment
 --     holds a gomboc wherever gravity's lever home (the horizontal distance
---     from the contact to the centre of mass) is shorter than delta, and the
---     resting valley is a narrow trough (tilting about the body's x axis)
---     so flat that the lever stays short for several degrees. On the true
---     smooth surface it reaches delta = 150 microns at about 7 deg at 9 cm
---     (about 9.4 deg at 75%, 5.9 deg at 125%: the lever grows with size,
---     delta doesn't). The hull's 1.2 mm facets move the contact by up to
---     half a facet either way, so on the hull the lever falls below delta
---     in narrow bands further out, up to ~21 deg at 9 cm. The 11.4-11.7 deg
---     stops sit on one of the hull's extra resting faces, 11.72 deg off
---     upright (its foot 63 microns inside the downhill edge, 0.06 micron
---     deep), or tipped up to 0.35 deg off it, where the lever is still
---     under delta (3.49 cm x 0.35 deg - 63 microns = 150 microns). Such a
---     stop can creep off later. (report/dossiers/Gomboc.md has the
---     numbers.) More "rolling" = quicker to stop, further from upright;
+--     from the contact to the centre of mass) is shorter than delta. It
+--     rests and rocks on the cylinder above, tilting about its x axis, and
+--     there the lever is 1.147 mm x sin(tilt), so delta = 150 microns holds
+--     it out to 7.5 deg at 9 cm (10.0 deg at 75%, 6.0 deg at 125%: the
+--     lever grows with size, delta doesn't). The hull's lines across the
+--     cylinder hold it the same to within 0.7 deg. (Before 19 Oct 2026 the
+--     hull was 1.2 mm facets there too; they held it in narrow bands out
+--     to 21 deg, and stops of 11.4-11.7 deg were seen. report/dossiers/
+--     Gomboc.md has the numbers.) More "rolling" = quicker to stop, further
+--     from upright;
+--   * once at rest it still creeps slowly toward upright: about 0.06
+--     deg/s near 6 deg, 0.02 deg/s at 2-3 deg. That is numerical (the step
+--     and the contact solver), not physics: a real one held by rolling
+--     resistance stays put. A creeping one can be reported at rest again;
+--   * from a headstand one can stay balanced on its head for a few seconds
+--     (the top is a crease that is nearly level) before it rolls home;
 --   * gombocs that roll into each other can stay propped together for a
---     long time, as real ones do (the console says "touching ...");
---   * at rest, the contact solver still lets one creep by up to ~0.3 deg
---     and ~0.7 mm per minute -- invisible, but it is there.
+--     long time, as real ones do (the console says "touching ...").
 --
 -- Units are centimetres, kilograms and seconds.
 --
@@ -97,9 +102,10 @@
 -- Sliders: count, speed, steps, friction, restitution, rolling (microns),
 --          spin friction, air drag, taps, redrop.
 --
--- Speed: the physics is the cost (the 13,476-point hull, 1200 steps/s);
--- on a 2.1 GHz server core six gombocs run at about 1/5 of real time
--- without graphics. Lowering "steps" to 600 halves the cost; with every
+-- Speed: the physics is the cost (the 15,548-point hull, 1200 steps/s);
+-- on a 2.1 GHz server core six gombocs run at about 1/4 of real time
+-- without graphics (12% slower than with the 13,476-point hull of before
+-- 19 Oct 2026). Lowering "steps" to 600 halves the cost; with every
 -- loss off, 600 also showed no steady energy gain. Thinning the hull
 -- instead would bring back deep false resting spots (tested: at 1.4 mm
 -- spacing, 6 deeper than 1 micron, some up to 103 deg from upright).
@@ -399,7 +405,8 @@ end
 -- in any REST_HOLD-second window. (Judged by where it is, not by its speed:
 -- the contact solver makes a gomboc at rest buzz in place -- brief speed
 -- spikes that never add up to visible movement, though they do let it creep
--- about 0.1 mm per 10 s.)
+-- about 0.1 mm per 10 s; and it rolls slowly toward upright, see the
+-- header.)
 local UPRIGHT_DEG, HOLD = 15, 2.0
 local REST_TURN = math.rad(0.2)           -- rad
 local REST_MOVE = 0.02                    -- cm

@@ -26,13 +26,17 @@
 --
 -- THE SHAPES (all in gomboc-meshes/):
 --
---   Gomboc-C    the GOMBOC900 CAD model of Gomboc Drop C ("Gömböc" Convex,
---               homogeneous three-dimensional body, by Istenes József,
---               published on GrabCAD on 5 December 2024,
+--   Gomboc-C    the GOMBOC900 CAD model of Gomboc Drop C (SolidWorks 2010,
+--               by Kiss Attila, 2013, per its STEP file; published as
+--               "Gömböc" Convex, homogeneous three-dimensional body by
+--               Istenes József on GrabCAD on 5 December 2024,
 --               https://grabcad.com/library/gomboc-convex-homogeneous-three-dimensional-body-1;
---               licence not checked), uniform resin (1.2 g/cm^3), at 9 cm and scaled to 75% and 125%. Rights
---               itself every time; a bigger one takes longer (time grows
---               with the square root of size).
+--               licence not checked), uniform resin (1.2 g/cm^3), at 9 cm
+--               and scaled to 75% and 125%. Rights itself every time; a
+--               bigger one takes longer (time grows with the square root of
+--               size). Its hull is fine along the trough it rests in (see
+--               gomboc-drop-c.lua), so where it stops short of upright is
+--               set by the rolling resistance, as on the true surface.
 --
 --   Sloan beta  M. L. Sloan's analytic Gombocs ("An Analytical Gomboc", 2023,
 --               via MathWorld): a lumpy ball whose radius in direction
