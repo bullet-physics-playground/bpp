@@ -65,16 +65,16 @@ pieces are 230 x 140 mm.
 |---|---|---|---|
 | `digit-cam.stl` | 2 | 72 x 83 x 43 | units and tens. Cam on the bed; supports under the pin wheel |
 | `digit-last.stl` | 1 | 59 x 59 x 32 | hundreds (no cam) |
-| `dial.stl` | 3 | 88 x 88 x 6 | press onto the hub's end; paint the raised numbers |
+| `dial.stl` | 3 | 88 x 88 x 6 | press onto the hub's end. Print it light (ivory or white) and paint the raised numbers dark |
 | `sautoir-0.stl`, `sautoir-1.stl` | 1 each | 215 x 28 x 40/52 | supports under the pawl's carrier arm |
 | `pawl-0.stl`, `pawl-1.stl` | 1 each | 31 x 23 x 8 | |
-| `frame-front-left/right.stl` | 1 each | 230 x 140 x 6 | the front plate, the digits' bearings and pointers |
+| `frame-front-left/right.stl` | 1 each | 230 x 140 x 15 | the front plate, the digits' bearings, and the pointers standing on it |
 | `frame-back-left/right.stl` | 1 each | 230 x 140 x 6 | the back plate, the sautoirs' pivots |
 | `frame-base-left/right.stl` | 1 each | 230 x 110 x 8 | |
 | `frame-end.stl` | 2 | 58 x 132 x 8 | joins the plates at each end |
 
 Instead of printing the plates you can cut them from 6 mm acrylic (clear,
-so the works show) or plywood: `stl/cut-front-plate.svg` and
+so the works show) or plywood, gluing on three printed `pointer.stl`: `stl/cut-front-plate.svg` and
 `stl/cut-back-plate.svg` are their outlines.
 
 **Also needed**

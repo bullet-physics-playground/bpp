@@ -40,7 +40,9 @@ with the tour:
   don't spin.
 - **Turn them opposite ways:** the spiders spin and the ring stays still.
 
-Each counter is read at the front, where its brass pointer points.
+Each counter is read at the front, where its brass pointer points. The
+pointers stand just outside the numbers, the drums' on their outer sides, so
+nothing that turns can touch them.
 
 ## Building it
 
@@ -53,7 +55,7 @@ turned to print without supports.
 | `spider.stl` | 2 | the spider gears |
 | `carrier-half.stl` | 2 | the carrier, in two halves glued together at the ring's middle |
 | `drum.stl` | 2 | the input counters, 0 to 9 (paint the raised numbers) |
-| `crank.stl` | 2 | |
+| `crank.stl` | 2 | mount them mirror images: both handles point outward |
 | `frame.stl` | 1 | base, posts and pointers |
 
 You also need:
@@ -68,7 +70,7 @@ You also need:
    pin between them, and glue the halves.
 3. Slide the drums onto the rods, and the rods through the posts.
 4. Glue the drums and cranks to the rods with both drums and the ring
-   showing 0 at the pointers.
+   showing 0 at the pointers, each crank's handle pointing outward.
 
 **Print settings:** PLA, 0.2 mm layers, 50% infill. The simulation's masses
 assume about 0.8 g/cm³.

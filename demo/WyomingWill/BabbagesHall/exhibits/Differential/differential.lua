@@ -258,7 +258,8 @@ for _, k in ipairs(os.getenv("DF_NORIDERS") and {} or { "A", "B" }) do
         btTransform(qa(1, 0, 0, 180), btVector3(0, 0, 0.5)), "#c0c0c0")
   rider("drum(false)", k, btTransform(qa(0, 1, 0, s * 90), btVector3(0, 0, -(DRUM_X - APEX))), "#ede3c8")
   rider("drumNumbers()", k, btTransform(qa(0, 1, 0, s * 90), btVector3(0, 0, -(DRUM_X - APEX))), "#2a2018")
-  rider("crank()", k, btTransform(qa(0, 1, 0, s * 90), btVector3(0, 0, -(CRANK_X - APEX))), "#333333")
+  -- (the crank's handle along its own +x: turned so that it points outward on both sides)
+  rider("crank()", k, btTransform(qa(0, 1, 0, 90), btVector3(0, 0, -(CRANK_X - APEX))), "#333333")
 end
 local function moveRiders()
   ringNumbers.trans = carrier:getCenterOfMassTransform()

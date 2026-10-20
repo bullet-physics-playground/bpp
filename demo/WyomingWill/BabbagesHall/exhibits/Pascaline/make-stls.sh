@@ -29,6 +29,7 @@ part pawl-1.stl         -D 'PART="print-pawl1"'
 for p in front-left front-right back-left back-right base-left base-right end; do
   part "frame-$p.stl" -D "PART=\"print-$p\""
 done
+part pointer.stl         -D 'PART="print-pointer"'
 part cut-front-plate.svg -D 'PART="cut-front"'
 part cut-back-plate.svg  -D 'PART="cut-back"'
-echo "Print: digit-cam x2, digit-last x1, dial x3, sautoir-0, sautoir-1, pawl-0, pawl-1, frame-end x2, and the other frame pieces once each."
+echo "Print: digit-cam x2, digit-last x1, dial x3, sautoir-0, sautoir-1, pawl-0, pawl-1, frame-end x2, and the other frame pieces once each (pointer x3 only with cut plates)."

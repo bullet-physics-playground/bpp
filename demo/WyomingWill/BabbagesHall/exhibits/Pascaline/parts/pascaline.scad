@@ -17,6 +17,7 @@
 //   pawl0/1     their pawls
 //   frame       the base, the front plate (axles, pointers) and the back
 //               plate (the sautoirs' pivots)
+//   pointer     3, only to glue on front plates cut from acrylic or plywood
 
 include <geometry.scad>
 
@@ -35,8 +36,8 @@ module prims(P) for (p = P) prim(p);
 DIAL_R = 44; DIAL_Z0 = 24; DIAL_Z1 = 29;  // the dial, in front of the front plate
 module dialNumbers()
   for (k = [0 : 9]) rotate(k * STEP)      // (value k comes to the top when the digit has turned k steps clockwise)
-    translate([0, DIAL_R - 8, DIAL_Z1]) linear_extrude(1.2)
-      text(str(k), size = 7, halign = "center", valign = "center", font = FONT);
+    translate([0, DIAL_R - 10, DIAL_Z1]) linear_extrude(1.2)
+      text(str(k), size = 11, halign = "center", valign = "center", font = FONT);
 // the digit, printed in one piece from its cam up to the end of its hub
 // (the hub turns in the front plate; the dial is pressed on in front)
 module digit(withCam) {
@@ -47,11 +48,13 @@ module digit(withCam) {
   hz = withCam ? S * CZ0 : -4.5;
   translate([0, 0, hz]) cylinder(r = 6, h = DIAL_Z0 + 3 - hz, $fn = 32);
 }
-// the dial: pressed onto the hub's end, its numbers raised (paint them)
-module dial() difference() {
+// the dial: pressed onto the hub's end, its numbers raised (paint them dark
+// on a light face; numbers = false: the face alone, as the simulation draws
+// the numbers apart, in another colour)
+module dial(numbers = true) difference() {
   union() {
     translate([0, 0, DIAL_Z0]) cylinder(r = DIAL_R, h = DIAL_Z1 - DIAL_Z0, $fn = 96);
-    dialNumbers();
+    if (numbers) dialNumbers();
   }
   translate([0, 0, DIAL_Z0 - 1]) cylinder(r = 6.1, h = 3.2, $fn = 32);    // (the hub's end goes in)
 }
@@ -83,7 +86,12 @@ module pawl(i) {
 // ---- the frame: base, front plate, back plate ----
 FP_Z0 = 16; FP_Z1 = 22;                   // the front plate (between the pawls' carriers and the dials)
 BP_Z0 = -48; BP_Z1 = -42;                 // the back plate (behind the sautoirs)
-module frame() {
+// the pointers over the dials' tops (part of the front plate; the
+// simulation draws them apart, in brass)
+module pointers()
+  for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0 + DIAL_R + 3, FP_Z1])
+    linear_extrude(DIAL_Z1 - FP_Z1 + 2) polygon([[-4, 8], [4, 8], [0, 0]]);
+module frame(withPointers = true) {
   x0 = S * (-(ND - 1) * D - PA) - 30;     // (left of the last sautoir's pivot)
   x1 = S * R1 + 60;
   ybase = S * Y0 - 70;
@@ -96,9 +104,7 @@ module frame() {
     translate([x0, ybase, FP_Z0]) cube([x1 - x0, ytop - ybase, FP_Z1 - FP_Z0]);
     for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0, 0]) cylinder(d = 12.4, h = 100, center = true, $fn = 48);
   }
-  // the pointers over the dials' tops
-  for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0 + DIAL_R + 3, FP_Z1])
-    linear_extrude(DIAL_Z1 - FP_Z1 + 2) polygon([[-4, 8], [4, 8], [0, 0]]);
+  if (withPointers) pointers();
   // the back plate, with the sautoirs' pivot pins
   difference() {
     translate([x0, ybase, BP_Z0]) cube([x1 - x0, ytop - ybase, BP_Z1 - BP_Z0]);
@@ -115,7 +121,11 @@ FX0 = S * (-(ND - 1) * D - PA) - 30;      // (as in frame())
 FX1 = S * R1 + 60;
 FXM = (FX0 + FX1) / 2;
 module half(which) intersection() { children(); translate([which == 0 ? -1000 : FXM, -1000, -1000]) cube([which == 0 ? 1000 + FXM : 1000, 2000, 2000]); }
-module frontPlate() intersection() { frame(); translate([-1000, -1000, FP_Z0]) cube([2000, 2000, FP_Z1 - FP_Z0]); }
+// (the front plate with its pointers standing on it; the cut outline without)
+module frontPlate(withPointers = true) {
+  intersection() { frame(false); translate([-1000, -1000, FP_Z0]) cube([2000, 2000, FP_Z1 - FP_Z0]); }
+  if (withPointers) pointers();
+}
 module backPlate() intersection() { frame(); translate([-1000, -1000, BP_Z0]) cube([2000, 2000, BP_Z1 - BP_Z0]); }
 if (PART == "print-digitcam") translate([0, 0, -S * CZ0]) digit(true);                    // its cam on the bed
 if (PART == "print-digitlast") translate([0, 0, 4.5]) digit(false);                    // its wheel on the bed
@@ -135,7 +145,9 @@ module endPiece() cube([FP_Z0 - BP_Z1, FYT - FYB, 8]);      // a bar joining the
 if (PART == "print-base-left") translate([0, 0, 0]) rotate([90, 0, 0]) translate([0, -FYB + 8, 0]) half(0) basePiece();
 if (PART == "print-base-right") rotate([90, 0, 0]) translate([0, -FYB + 8, 0]) half(1) basePiece();
 if (PART == "print-end") endPiece();
-if (PART == "cut-front") projection(cut = true) translate([0, 0, -(FP_Z0 + FP_Z1) / 2]) frontPlate();
+if (PART == "cut-front") projection(cut = true) translate([0, 0, -(FP_Z0 + FP_Z1) / 2]) frontPlate(false);
+// a pointer on its own, to glue on a cut plate (3 of them)
+if (PART == "print-pointer") translate([0, -(S * Y0 + DIAL_R + 3), -FP_Z1]) intersection() { pointers(); translate([-20, -1000, -1000]) cube([40, 2000, 2000]); }
 if (PART == "cut-back") projection(cut = true) translate([0, 0, -(BP_Z0 + BP_Z1) / 2]) backPlate();
 if (PART == "digitcam") digit(true);
 if (PART == "digitlast") digit(false);

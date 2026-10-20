@@ -133,17 +133,24 @@ module crank() {
 
 // the frame (as it stands: y up): a base, the two posts the rods turn in,
 // and three pointers on stalks from the base, each beside a drum or the
-// ring at the front, pointing at the number that is read
+// ring at the front, pointing at the number that is read. Each stands just
+// outside its rim's numbers, where nothing that turns can reach it: the
+// ring's pointer outside the circle the carrier's cage sweeps, the drums'
+// on their outer sides, between the drum and its post (inside, the cage's
+// end plates turn).
 AXIS_H = RING_R + RING_T + 22;          // the axis's height above the base
-BASE_W = 110;
-module pointer(px, r, w) {
-  // the tip just left of the rim's front, at the axis's height, pointing right
-  tipx = px - w / 2 - 1;
+BASE_W = 2 * (RING_R + RING_T + 12);    // (deep enough for the pointers' stalks)
+PT_GAP = 2;                             // the pointers' clearance from the numbers
+module pointer(px, r, w, side) {
+  // r: the rim's radius with its numbers; side -1: on the rim's left, pointing
+  // right; +1: on its right, pointing left. Its tip at the axis's height.
+  tipx = px + side * (w / 2 + 1);
+  z0 = r + PT_GAP;
   hull() {
-    translate([tipx - 0.5, -0.5, r - 3]) cube([0.5, 1, 1]);
-    translate([tipx - 9, -3, r - 4]) cube([3, 6, 3]);
+    translate([tipx - 0.25, -0.5, z0]) cube([0.5, 1, 1]);
+    translate([tipx + side * 7 - 1.5, -3, z0]) cube([3, 6, 3]);
   }
-  translate([tipx - 9, -AXIS_H, r - 4]) cube([3, AXIS_H - 2, 3]);       // its stalk, down to the base
+  translate([tipx + side * 7 - 1.5, -AXIS_H, z0]) cube([3, AXIS_H - 2, 3]);    // its stalk, down to the base
 }
 module frame(pointers = true) {
   translate([-POST_X - 20, -AXIS_H - 8, -BASE_W / 2]) cube([2 * POST_X + 40, 8, BASE_W]);       // the base, under it all
@@ -157,9 +164,9 @@ module frame(pointers = true) {
   if (pointers) pointers();
 }
 module pointers() {
-  pointer(-DRUM_X, DRUM_R + 1, DRUM_W);
-  pointer(DRUM_X, DRUM_R + 1, DRUM_W);
-  pointer(0, RING_R + RING_T + 1, RING_W);
+  pointer(-DRUM_X, DRUM_R + 1, DRUM_W, -1);
+  pointer(DRUM_X, DRUM_R + 1, DRUM_W, 1);
+  pointer(0, RING_R + RING_T + 1, RING_W, -1);
 }
 
 // FOR THE SIMULATION: Bullet handles convex shapes best, so each gear is
@@ -212,7 +219,7 @@ module assembly() {
   }
   color("SaddleBrown", 0.8) carrier();
   color("Ivory") for (s = [-1, 1]) translate([s * DRUM_X, 0, 0]) drum();
-  color("DimGray") for (s = [-1, 1]) translate([s * CRANK_X, 0, 0]) crank();
+  color("DimGray") for (s = [-1, 1]) translate([s * CRANK_X, 0, 0]) mirror([s < 0 ? 1 : 0, 0, 0]) crank();   // handles outward
   color("Silver") for (s = [-1, 1]) translate([s * (APEX + HUB_L / 2 + 20), 0, 0]) rotate([0, 90, 0]) cylinder(d = 5, h = HUB_L + 60, center = true, $fn = 16);
   color("DarkSlateGray") frame();
 }

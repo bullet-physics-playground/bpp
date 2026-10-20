@@ -188,7 +188,11 @@ local floor = Plane(0, 1, 0, -75, 300)
 floor.col = "#3b3f45"
 v:add(floor)
 
-local frame = part("frame()")
+local pointers = part("pointers()")
+pointers.col = "#d4af37"
+v:add(pointers)
+pointers.trans = btTransform(ident, MO)
+local frame = part("frame(false)")
 frame.col = "#3a2a1a"
 pcall(function() frame.transparency = 0.35 end)        -- (to see the works through it)
 v:add(frame)
@@ -261,7 +265,7 @@ for i = 0, ND - 1 do
     else c:addChildShape(btTransform(ident, btVector3(p[2], p[3], p[4])), shapeOf(p)) end
   end
   local pos = W(G.xd(i), G.Y0, 0)
-  local o = part(i < ND - 1 and "digitAll(true)" or "digitAll(false)", true)
+  local o = part(i < ND - 1 and "digit(true)" or "digit(false)", true)
   local body = btRigidBody(G.DIGIT_MASS, btDefaultMotionState(btTransform(ident, pos)), c, btVector3(0.05, 0.05, 0.1))
   o.body = body
   o.col = "#c8a456"
@@ -272,6 +276,21 @@ for i = 0, ND - 1 do
   local h = btHingeConstraint(anchor.body, body, btTransform(ident, pos), btTransform(ident, btVector3(0, 0, 0)))
   v:addConstraint(h)
   digits[i] = { body = body, hinge = h, obj = o, pos = pos }
+end
+-- each digit's dial, drawn apart so its numbers can be dark on a light face
+-- (printed, it is one piece: paint the raised numbers); they go round with it
+local dials = {}
+for i = 0, ND - 1 do
+  for _, d in ipairs({ { "dial(false)", "#efe6cf" }, { "dialNumbers()", "#1e1812" } }) do
+    local m = part(d[1])
+    m.col = d[2]
+    v:add(m)
+    m.trans = btTransform(ident, digits[i].pos)
+    dials[#dials + 1] = { obj = m, i = i }
+  end
+end
+local function moveDials()
+  for _, d in ipairs(dials) do d.obj.trans = digits[d.i].body:getCenterOfMassTransform() end
 end
 
 -- the sautoirs and their pawls
@@ -381,6 +400,7 @@ v:preSim(function(N)
 end)
 
 v:postSim(function(N)
+  moveDials()
   if holdNow then return end
   if not started then started = true; if tour then tourStep() end end
   -- the hand: the next move when it is free
