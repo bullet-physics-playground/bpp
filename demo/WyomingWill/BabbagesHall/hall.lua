@@ -83,7 +83,8 @@ EXHIBITS = EXHIBITS or {
     prefix = "Pascaline: ", floorY = -75,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
             "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
-            "the next wheel on by one. Watch 99 + 1 ripple to 100. Keys 1/2/3 add one." },
+            "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
+            "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -75,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..

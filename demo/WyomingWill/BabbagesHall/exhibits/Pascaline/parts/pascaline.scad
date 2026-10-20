@@ -137,6 +137,10 @@ module plateNumbers()
   for (i = [0 : ND - 1], n = [1 : 9]) translate([S * (-i * D), S * Y0, FP_Z1])
     rotate(-(STOP_A - n * STEP)) translate([0, PN_R, 0]) rotate(STOP_A - n * STEP)
       linear_extrude(1) text(str(n), size = 6, halign = "center", valign = "center", font = FONT);
+// the marker under the wheel the keys will turn (the simulation's only:
+// drawn on the plate below the chosen dial, between the plate's 8 and 9)
+module selMarker() translate([0, S * Y0 - PN_R, FP_Z1]) linear_extrude(1.5) polygon([[-4, -4], [4, -4], [0, 3]]);
+
 // the finger stop for digit i: a bracket screwed to the front plate outside
 // the dial, reaching in over the dial's face (2 mm above it) across the
 // holes' circle; a stylus in a hole, turned clockwise, comes up against its

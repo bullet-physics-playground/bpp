@@ -32,9 +32,20 @@ side of the cam). Pascal subtracted by adding the complement: to take 3
 from a three-digit number, add 997 and let the carry out of the hundreds
 fall away.
 
-In the simulation the hand that turns a digit is a motor on its axle; the
-stylus is drawn doing it: into the hole by the plate's number, round with
-the dial to the stop, and back onto the table.
+In the simulation you drive it the same way, with the mouse or the keys:
+
+- **The mouse:** rest it on a hole of any dial. The stylus goes into that
+  hole, and the tooltip says what it will add ("add 7 to the units: 000
+  becomes 007"). Press **Space** and it turns to the stop. Nothing turns
+  until you press Space, so the mouse can wander freely. (bpp asks about
+  the mouse once it has been still for half a second.)
+- **The keys:** `U`, `T` or `H` chooses the units, tens or hundreds (a brass
+  mark appears below that dial); `1` to `9` adds that much to it, in one
+  stroke: the stylus goes into the hole by the plate's number and round to
+  the stop.
+
+The hand that turns the digit is a motor on its axle; the stylus is drawn
+doing it, and lies on the table in front between strokes.
 
 ## Running it
 
@@ -45,9 +56,11 @@ carry), + 84 = 99, + 1 = 100 (a double ripple). It prints
 
 | Key | |
 |---|---|
-| `1` `2` `3` | add one to the units, tens, hundreds |
+| `U` `T` `H` | choose the units, tens or hundreds |
+| `1` to `9` | add that much to the chosen wheel |
+| `Space` | turn the stylus in the hole the mouse chose to the stop |
 | `R` | reset to 000 |
-| `T` | the tour again |
+| `D` | the tour again |
 | `Z` | slow motion (1/4 speed) on and off |
 
 Sliders: `friction` (0.15 to 0.45 checked), `turn rate` (how fast the hand

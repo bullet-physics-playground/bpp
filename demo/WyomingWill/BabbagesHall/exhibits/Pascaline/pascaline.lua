@@ -15,10 +15,13 @@
 -- which drives the tens past 9, which sends the tens' sautoir down, which
 -- drives the hundreds on. Here it does exactly that, by contact and gravity.
 --
--- KEYS
---   T     the tour: 7, + 8 = 15, + 84 = 99, + 1 = 100 (it starts with it)
---   1/2/3 turn the units / tens / hundreds on by one, as with Pascal's stylus
---         (drawn: into the hole by the plate's number, round to the finger stop)
+-- DRIVING IT, as Pascal's was: a stylus in the dial's hole beside the
+-- plate's number n, turned clockwise to the finger stop, adds n.
+--   the mouse  rest it on a hole: the stylus goes in, and the tooltip says
+--              what it will add; Space turns it to the stop
+--   U/T/H      choose the units / tens / hundreds (a brass mark below it)
+--   1 to 9     add that much to the chosen wheel, in one stroke
+--   D     the tour: 7, + 8 = 15, + 84 = 99, + 1 = 100 (it starts with it)
 --   R     set it back to 000
 --   Z     slow motion (1/4) <-> real time
 --
@@ -324,6 +327,7 @@ v:add(stylus)
 local STYLUS_PARK = btTransform(btQuaternion(btVector3(0, 1, 0), math.pi / 2), W(-15, -G.Y0 - 8 + 0.4, 9))
 stylus.trans = STYLUS_PARK
 local stylusOn = nil                       -- { digit, its place in the digit's frame }
+local chosen = nil                         -- { digit, n }: the hole the mouse chose (Space turns it)
 local function moveDials()
   for _, d in ipairs(dials) do d.obj.trans = digits[d.i].body:getCenterOfMassTransform() end
   if stylusOn then
@@ -536,6 +540,7 @@ v:postSim(function(N)
   if not hand and #queue > 0 then
     local m = table.remove(queue, 1)
     hand = m[1]; handTarget = math.floor(value(hand) + 0.5) + m[2]
+    chosen = nil
     -- the stylus into the hole by the plate's number m[2] (that many steps
     -- short of the stop), in the digit's own frame (turned clockwise by its
     -- value)
@@ -579,11 +584,32 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help
 -- ---------------------------------------------------------------------
-for i, key in ipairs({ "1", "2", "3" }) do
-  v:addShortcut(key, function() tour = nil; queue[#queue + 1] = { i - 1, 1 } end)
+-- the wheel the keys turn, marked below it on the plate
+local WHEEL = { "the units", "the tens", "the hundreds" }
+local sel = 0
+local selMark = part("selMarker()")
+selMark.col = "#d4af37"
+v:add(selMark)
+local function showSel() selMark.trans = btTransform(ident, W(G.xd(sel), 0, 0)) end
+showSel()
+for i, key in ipairs({ "U", "T", "H" }) do
+  v:addShortcut(key, function() sel = i - 1; showSel(); print("PASCALINE: " .. WHEEL[i] .. " chosen") end)
 end
-v:addShortcut("R", function() tour = nil; reset() end)
-v:addShortcut("T", function() reset(); tour = 1; fails = 0; started = false; print("\nthe tour") end)
+-- 1 to 9: that much onto the chosen wheel, one stroke of the stylus
+for n = 1, 9 do
+  v:addShortcut(tostring(n), function() tour = nil; queue[#queue + 1] = { sel, n } end)
+end
+-- the mouse: resting on a hole puts the stylus in it (see onHover, below);
+-- Space turns it to the stop
+v:addShortcut("Space", function()
+  if chosen and not hand and #queue == 0 then
+    tour = nil
+    queue[#queue + 1] = { chosen[1], chosen[2] }
+    chosen = nil
+  end
+end)
+v:addShortcut("R", function() tour = nil; chosen = nil; reset() end)
+v:addShortcut("D", function() reset(); chosen = nil; tour = 1; fails = 0; started = false; print("\nthe tour") end)
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -610,15 +636,49 @@ pcall(function()
     "  tens' sautoir, which drives the hundreds -- the carry ripples along,",
     "  paid for by weights lifted earlier.",
     "",
+    "DRIVING IT, as Pascal's was",
+    "  Each dial has ten holes; round it, the plate has the numbers 1 to 9",
+    "  and a finger stop. A stylus in the hole beside the plate's n, turned",
+    "  clockwise to the stop, adds n, whatever the dial showed.",
+    "  The mouse: rest it on a hole -- the stylus goes in, and the tooltip",
+    "  says what it will add. Space turns it to the stop.",
+    "  The keys: U / T / H choose the units, tens or hundreds (a brass mark",
+    "  below the dial); 1 to 9 add that much to it, in one stroke.",
+    "",
     "KEYS",
-    "  1 / 2 / 3  turn the units / tens / hundreds on by one",
-    "  T  the tour      R  back to 000      Z  slow motion",
+    "  U T H  choose a wheel     1-9  add to it     Space  turn the chosen hole",
+    "  D  the tour      R  back to 000      Z  slow motion",
   }, "\n"))
 end)
 if v.onHover then
   local KEY = {}
   for i = 0, ND - 1 do KEY[objectKey(digits[i].obj)] = ({ "the units", "the tens", "the hundreds" })[i + 1] end
   v:onHover(function(N, obj, x, y, z)
+    -- over a dial's ring of holes? the hole by the plate's n (the holes turn
+    -- with the dial: at each unit they stand by the plate's numbers)
+    for i = 0, ND - 1 do
+      local c = W(G.xd(i), G.Y0, 0)
+      local dx, dy = x - c.x, y - c.y
+      local r = math.sqrt(dx * dx + dy * dy)
+      if r < 4.6 and z > c.z + 1.4 then
+        if math.abs(r - G.STYLUS_R) > 0.9 then
+          return string.format("%s, reading %d (the machine: %03d)\nrest the mouse on one of its holes to put the stylus in it",
+                               WHEEL[i + 1], shown(i), number())
+        end
+        if hand or #queue > 0 then return "the stylus is busy: wait for the dial to stop" end
+        local a = math.deg(math.atan2(dx, dy)) % 360             -- (clockwise from the top)
+        local n = math.floor((G.STOP_A - a) / G.STEP + 0.5) % 10
+        if n == 0 then
+          chosen, stylusOn = nil, nil
+          return "this hole is at the finger stop: it adds nothing"
+        end
+        chosen = { i, n }
+        local ang = math.rad(G.STOP_A - G.STEP * n - G.STEP * value(i))
+        stylusOn = { i = i, local_ = btTransform(ident, btVector3(G.STYLUS_R * math.sin(ang), G.STYLUS_R * math.cos(ang), 0)) }
+        return string.format("the stylus in the hole by the plate's %d: add %d to %s\n%03d becomes %03d -- press Space to turn it to the stop",
+                             n, n, WHEEL[i + 1], number(), (number() + n * 10 ^ i) % 1000)
+      end
+    end
     local s = KEY[objectKey(obj)]
     if not s then return nil end
     return string.format("%s: a wheel of ten pins, its cam behind\nthe machine reads %03d", s, number())
