@@ -404,6 +404,34 @@ osculating semi-major axis about the sun, which heavy planets distort by
 moving the sun; it called stable heavy systems broken. Farthest and nearest
 distances against the orbit's own a(1 ± e) are the right test.
 
+**F59. A pile from a truck: η from the launch is still the best way** —
+2026-10-19, New (William: in wartime the drones are dropped as a pile, not
+placed). The default launch is that pile: drones 1 m apart on the ground,
+so in 2D, where all fly at one altitude, neighbours start ~0.86 D apart
+(D = 3 m) and the swarm must expand; in 3D the thirds climb to their own
+levels already ~D apart. Without η the plain law's jitter needs ~150 s to
+shake out the 2D pile's defects (the 10th percentile of each drone's mean
+first-shell distance stays ≤ 0.90 D for over 100 s). From the pile, 2D,
+280 s, 3 seeds (formed, s / bond CV / drones lost):
+η from the launch (default) 76, 87, 96 / 0.066 / 0;
+take-off in thirds, η on 106, 171, 138 / 0.057 / 0;
+one drone at a time, η on 185, 167, 148 / 0.066 / 0;
+a per-drone switch latched on once its own first shell (within 1.25 D)
+averages 0.97 D: 123, 172, 275 / 0.061 / 2 every run;
+the same switch two-way (η on only while the shell is at D) never forms
+(bonds 0.95–0.98 D, CV 0.13) / 2 every run, and with the take-off in
+thirds never (CV 0.13).
+The two-way switch was meant as local annealing, but drones near the
+threshold keep turning η off, and each time they jitter again: the heat
+never falls. Later waves must push into a lattice already damped. In 3D
+the latched switch formed at 42–53 s (CV 0.060) and the two-way one at
+63–277 s, no gain over the defaults. With the drones placed 1.8 m apart
+(neighbours ~0.96 D), η from the launch forms at 27–33 s, but that is not
+a pile. So nothing was added (HANDOFF §2): the defaults already get a good
+lattice from the pile, about 1.5 min in 2D and under 1 min in 3D, and the
+switch code was removed. LJ forms from the same pile in 30–35 s (CV
+0.023): the faster way is in the force law's shape, not in a switch.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -568,3 +596,5 @@ the useful range. Same root as F31.
   minimum speed and real ranging (M2), and with sensor noise (G7); on the
   drones they are not needed (F54, F55). And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).
+- Getting a 2D lattice from a pile faster than η's ~1.5 min (F59): LJ
+  does it in 30–35 s, so the lead is the shape of the force law near D.

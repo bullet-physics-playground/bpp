@@ -156,7 +156,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"`. Look at the last pages: if one is nearly empty, move or drop the `--break` to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -201,7 +201,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
 - **Ch. 13 on the drones (M1; `quadcopter/README.md` "Ch. 13 on the
-  drones", FINDINGS F43–F56):** the split-Newtonian drones jitter because
+  drones", FINDINGS F43–F56, F59):** the split-Newtonian drones jitter because
   the point mass dithers across the sign flip at D (the particle replica
   does it too). AR damping η alone settles them as fast as LJ or faster,
   in every formation, without crashes. η's band matters: the book's (r < 2D)
@@ -211,6 +211,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   lag brings the jitter back, so 3D needs 0.5 D. These are the Newtonian
   scene's defaults. Switching η on by hand once the plain law has spread
   the swarm gives the most regular lattice (annealing, William, F49, F52).
+  From a pile (William's wartime case: dropped from a truck, the default
+  1 m launch) η from the launch is still the best found: 2D formed in
+  76–96 s, 3D in 45–50 s. Waves, one-at-a-time take-off and per-drone
+  switches (latched, or two-way as local annealing) were slower, more
+  ragged or lost drones, and were not kept (F53, F59).
   Adaptive friction, static friction and the adaptive speed cap do not
   help the drones (F51, F54, F55) and stay in `lib/ch13.lua` for M2. With
   η the lattice is a quarter to a third as stiff as LJ's at D, so it
@@ -254,8 +259,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   - **Also in the M1 chat:** the simplicity principle (§2, William); Ch. 2
     in 3D: `ch02/Tetrahedron.lua`, `ch02/Planets.lua` (elliptical orbits),
     `ch02/SpringLattice.lua` (F57, F58); `formation_newton.nlogo` checked
-    against the ports (F48); FINDINGS F43–F58, FIXES 39–41.
-  - **Open from M1:** whether the drones' slope limit at D (~0.035 per AP
+    against the ports (F48); FINDINGS F43–F59, FIXES 39–41.
+  - **Open from M1:** a faster 2D lattice from a pile (LJ forms in
+    30–35 s, so look at the force law's shape near D, not a switch; F59);
+    whether the drones' slope limit at D (~0.035 per AP
     unit) follows from their lag and AP rate, and moves with `apHz`; a 3D
     G_t for the cube (`BOOK.md` §1 item 9).
 - **Next, William's choice between:**

@@ -475,6 +475,14 @@ law until the swarm has spread to D (about 150 s in 2D, 60 s in 3D), then
 move `etaPower` to 1 without pressing R; it forms about 7 s later. LJ
 forms fastest.
 
+**From a pile** (F59; William: in wartime the drones are dropped as a
+pile from a truck). The default launch is that pile (1 m apart), and the
+defaults are already the best way found: η from the launch forms the 2D
+lattice in 76–96 s and the 3D one in 45–50 s, losing no drones. Taking
+off in waves, one at a time, or a per-drone switch that turns η on (or on
+and off) by its own neighbours' spacing is slower, more ragged, or loses
+drones; none was kept. LJ forms from the same pile in 30–35 s.
+
 **What this shows** (`../FINDINGS.md` F43–F47, F49–F55):
 
 - **η alone makes the Newtonian drones settle**, as fast as Lennard-Jones
