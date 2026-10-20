@@ -71,14 +71,14 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              is where the hall's floor goes
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
-  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
-    prefix = "Sieve: ", floorY = -75,
-    about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
-            "stop when their holes all line up -- finding factors. In preparation." },
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
     prefix = "Differential: ", floorY = -75,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
             "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
+  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
+    prefix = "Sieve: ", floorY = -75,
+    about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
+            "stop when their holes all line up and a ball drops through -- finding factors. In preparation." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
     prefix = "Pascaline: ", floorY = -75,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
