@@ -22,6 +22,10 @@ report against the code, the READMEs and fresh runs.
 * `build.py`: builds the PDF from `front.py` and the dossiers.
 * `cmp2.sh`: the hall-identity check: runs an exhibit in the hall and on
   its own and compares everything it prints.
+* `gyro-free-test.lua`, `gyro-probe.lua`: the check of Bullet's gyroscopic
+  term (20 Oct 2026): its modes on free tumbling bodies against the exact
+  motion, and, run around an exhibit, the energy the term makes there
+  (the Gömböc, Bille, Slinky and Dzhanibekov dossiers give the numbers).
 
 ## Rebuilding
 

@@ -536,6 +536,18 @@ The heap (the default):
   iterations, the joints' error correction 0.5 a step (Bullet's 0.2 lets
   them give, and the run then changes with the step), only touching
   contact points.
+* The links get no gyroscopic term (the w x Iw of Euler's equations):
+  Bullet's own is skipped for bodies this light in kg and cm (its 3x3
+  solve needs a determinant over 1.2e-7; a link's is 3e-15). That is an
+  error: a link spinning about its axis (they spin at about 200 rad/s) is
+  turned as if its spin had the inertia across it, an error of 13-32% of the
+  links' angular accelerations. Added from the script, before each step,
+  the term makes a jointed chain gain energy without end (tested: even a
+  hanging chain flails); solved together with the joints it is stable,
+  but that needs a change to bpp (`reconstruction/bpp-gyro-midpoint.diff`,
+  not merged; `CF_GYRO=solver` uses it). With it, every link simulated,
+  the fountain stands h2/h1 = 0.13 clear of the rim against 0.14 without:
+  the same within the spread from heap to heap (FINDINGS.md, section 14).
 * About 300-700 links move at a time, about 280 of them in the falling
   chain. A frame takes 14 ms at an eighth of real speed (15 in the
   Gallery); at a quarter it would take 28-30.
@@ -599,7 +611,11 @@ coiled on the jar's floor instead), `CF_SAVEHEAP=file` and `CF_HEAP=file`
 (save a settled heap, start from one; with `CF_LIVE=1` every link
 simulated), `CF_RADIUS` (the links' radius), `CF_BEADI=1` (a link's mass
 in balls at its ends), `CF_T0` (the theory check from this time on, 1 s),
-`CF_DUMP=t:file` (where every moving link is at time t). The heap test's
+`CF_DUMP=t:file` (where every moving link is at time t), `CF_GYRO`
+(the links' gyroscopic term: `bullet`, Bullet's own, never applied to
+these links, the default; `solver`, solved with the joints, needs a bpp
+with `reconstruction/bpp-gyro-midpoint.diff`; `0`; `exact`, `midpoint`,
+`implicit`: added before each step, unstable, for comparison). The heap test's
 chain: `CF_LINK=0.4333 CF_RADIUS=0.225 CF_BEADI=1 CF_NLINKS=1500`, or
 `CF_PILE=heap`, which also starts from the poured heap (see the theory
 check), with `CF_ZONE` and `CF_ZDEPTH` (the live zone, 4 and 0.5 cm; 0:
@@ -617,6 +633,11 @@ simulates every link of the heap.
   heap); `heap.txt`: its poured heap, the joint points
   from the end on, in cm over the jar's floor (`CF_PILE=heap CF_POUR=1
   CF_SEED=2 CF_SAVEHEAP=...`).
+* `reconstruction/bpp-gyro-midpoint.diff`: a proposed change to bpp
+  (src/viewer.cpp) that solves a marked body's gyroscopic term with its
+  joints and contacts; `gyro-freebody.lua`, `gyro-hang.lua`,
+  `gyro-mimic.py`: its tests (a free link, a hanging chain of spinning
+  links, a Python copy of Bullet's step).
 * `reconstruction/gen-link.py`: makes the link meshes
   (`python3 gen-link.py ../chain-fountain-meshes/bead-link.obj 0.225 0.65`).
 * `reconstruction/bead-chain.c`: the bead chain outside Bullet (see the

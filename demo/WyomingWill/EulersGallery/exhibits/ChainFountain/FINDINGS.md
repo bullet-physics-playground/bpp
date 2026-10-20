@@ -2,7 +2,8 @@
 
 What was found about how faithful this exhibit's physics is, 15-16 Oct
 2026, in the order it was found. Sections 1-10 are about the coil the
-exhibit had; 11-12 about a poured heap; 13 makes the heap the default.
+exhibit had; 11-12 about a poured heap; 13 makes the heap the default;
+14 (20 Oct 2026) is about the links' gyroscopic term.
 Every number is from a run of the exhibit (or of the reference programs in
 reconstruction/) unless it is marked as read from a paper or as from
 memory. Paths are relative to this folder unless they start with demo/.
@@ -35,6 +36,20 @@ repeat them now, add CF_PILE=coil.
   in the Gallery), so the exhibit starts there; at a quarter it would take
   28-30 ms. The cost is Bullet's per-body and per-joint work for about 280
   links falling and a few hundred in the zone, not solver iterations.
+- **The links' gyroscopic term (20 Oct 2026, section 14).** Bullet never
+  applies it to links this light (a 3x3 solve skipped below a determinant
+  of 1.2e-7; a link's is 3.3e-15), and that is a real error: it treats a
+  link's spin about its axis as if it had the inertia across it, an error
+  of 13-32% of the links' angular accelerations. But the term cannot be added
+  from Lua: every form tried, applied before the step, makes a jointed
+  chain gain energy without end. Solved with the joints (a proposed bpp
+  change, reconstruction/bpp-gyro-midpoint.diff, tested here, not merged)
+  it is stable, and the heap's fountain with it, every link simulated, is
+  h2/h1 = 0.13-0.14 in the runs clear of the rim at 1800, 3600 and 7200
+  steps a second (without: 0.14), with the chain caught on the rim a little
+  more often (6 runs in 30 against 2). The exhibit is unchanged
+  (CF_GYRO=solver with the patched bpp). The earlier scratch result
+  (0.164-0.166 with the term) was the instability.
 - **Still open.** The theory's speed reading disagrees with the height
   reading in the heap's short, slowing window (section 13); the zone's pile
   push is about a quarter low; about one run in ten catches the rim; GPU
@@ -772,3 +787,207 @@ t= 2.25s  all of it out of the jar; the fountain stood up to 18.2 cm above the r
 - Cost at the default speed, during the flow / whole run: standalone 14.0
   / 11.2 ms a frame, Gallery 14.8 / 12.1 (coil at its 1/4: 4.6 / 4.7,
   Gallery 5.3 / 5.4).
+
+## 14. The links' gyroscopic term (20 Oct 2026)
+
+A free rigid body keeps its angular momentum L = I w, not its angular
+velocity: Euler's equations, I dw/dt = -w x I w + torque. Bullet's
+integrator moves a body with its angular velocity held fixed over the
+step, and supplies the w x I w term separately (its "gyroscopic" flags).
+The previous audit (scratch, 20 Oct) found that term missing for these
+links and, adding it from Lua, got h2/h1 = 0.164-0.166 against 0.137
+without. This round checked that, and found the Lua way of adding it
+unsound. Raw runs, logs and scripts not kept in the repo are working files;
+the test programs are in reconstruction/ (gyro-freebody.lua,
+gyro-hang.lua, gyro-mimic.py, bpp-gyro-midpoint.diff).
+
+### 14.1 Bullet's term never acts on these links (verified)
+
+- Bullet 3.24 (the system's libbullet 3.24+dfsg, float; source checked
+  against upstream tag 3.24): every btRigidBody starts with
+  BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY (8) (btRigidBody.cpp:91); bpp
+  never changes it (src/ only binds setFlags), so the links have it.
+  btSequentialImpulseConstraintSolver::convertBodies adds
+  computeGyroscopicImpulseImplicit_Body (btRigidBody.cpp:297), one Newton
+  step of backward Euler in the body frame, solved by
+  btMatrix3x3::solve33, which divides by the determinant only if it is over
+  SIMD_EPSILON = FLT_EPSILON = 1.19e-7 (btMatrix3x3.h:655), and otherwise
+  multiplies by it: the answer comes out det^2 (1e-29) of the right one.
+- A heap link (m = 0.217 g; I = 4.39e-6 about its axis, 2.73e-5 across,
+  kg cm^2): the determinant is 3.26e-15 at rest, 3.3e-15 at 200 + 200
+  rad/s, 4.0e-15 at 1000 + 600 rad/s. So the term is zero. On a free
+  link-sized body spinning 1000 rad/s about its axis and 600 across, flag 8
+  and flag 0 give the same motion (L turns 82 deg in 1 s, as with no term).
+- A unit change: the links' mass and inertia x 1024 (a power of two), with
+  the term off, gives the exhibit's run byte for byte (18 lines; so the
+  rescale changes nothing else), and with flag 8 turns Bullet's term on
+  (default heap: 0.150 against 0.138). But that is Bullet's own formula,
+  which is not acceptable here (14.3).
+
+### 14.2 Is it physically significant?
+
+- Links spin. Measured in the default run (scratch probe, CF_SPEED=1,
+  window 1.0-1.6 s): rms spin about the axis 150-220 rad/s, about as much
+  as the turning across (130-190 rad/s in the jar, 40-60 falling).
+- What leaving it out does: with the angular velocity held fixed, a
+  spinning link that is turned carries its spin round as if the spin had
+  the inertia across the link, IP = 6.2 IA: the joints and contacts must
+  supply (IP - IA) s de/dt where the true torque is IA s de/dt (s the
+  spin, e the axis). Per step this missing change of angular velocity is
+  0.13-0.32 (rms) of the change the solver makes (falling and in the jar,
+  1800-7200 steps a second, with and without the term). So dropping it is a real error, not a
+  negligible one.
+- The true gyroscopic torque, IA s de/dt, is small: at the pick-up (a link
+  turned at v/L ~ 660 rad/s within L/v ~ 1.6 ms, s ~ 200 rad/s) about 5% of
+  the torque that turns it; in the arch (turning at v/R ~ 80 rad/s) the
+  transverse force it needs is 0.2% of the tension. The real chain has the
+  same term (each ball's spin about the chain must turn with the chain;
+  for thin-shelled balls IA is 2/3 m r^2 rather than the model's 0.4).
+
+### 14.3 The forms of the term on a free link (exact answer known)
+
+A torque-free link (symmetric, IA, IP, IP) at 1000 rad/s about its axis and
+600 across, 1800 steps a second: E and L must stay; for a symmetric body
+the spin stays and the turning across keeps its size
+(reconstruction/gyro-freebody.lua). After 0.5 / 2 s:
+
+| form | dE/E | d|L|/|L| | L direction |
+|---|---|---|---|
+| none (Bullet as used) | 0 | 0 | 48 / 50 deg (wanders up to 83) |
+| Bullet's own (flag 8, mass x 1024), = its formula in Lua | -0.69 | -0.74 | the turning across is gone in under 0.5 s |
+| explicit (forward Euler) | blows up (NaN) | | |
+| implicit midpoint (iterated) | 1e-5 | 1e-5 | 23 / 24 deg (bounded, phase error) |
+| exact for a symmetric body (the turning across rotated by -(IP-IA)/IP s dt) | 1e-5 | 1e-5 | 1.3 / 5.3 deg |
+| solved with the solver (14.5) | 1e-5 | 1e-5 | 23 / 24 deg; asymmetric body: E 8e-5, 0.7 deg at 2 s |
+
+So Bullet's formula is strongly dissipative (it lets a spinning link only
+spin), and the exact rotation is the best free-body step.
+
+### 14.4 In a jointed chain, every form added before the step is unstable
+
+The exact rotation was put into the exhibit (spinLinks, CF_GYRO=exact). In
+the fountain it shook the falling chain: rms turning across 273 rad/s at
+1800 steps a second against 43 without, 97 at 3600, 66 at 7200. A test
+with an exact answer: a chain of heap links hanging from a point, every
+link spinning 300 rad/s about its axis (an equilibrium; the twist is free),
+no contacts (reconstruction/gyro-hang.lua). Physically nothing can grow:
+the term does no work. Results (60 links): without the term, the turning
+across stays 1-1.5 rad/s and the energy constant for 2 s at any step. With
+the exact term the energy grows without end: at 1800 steps a second the
+turning across reaches 113 rad/s and the energy 8x the spin energy in
+0.5 s; the growth rate falls with the step (e-fold about 0.1 s at 1800,
+0.3 s at 7200, 0.5 at 14400, 1.2 at 28800): a numerical instability of
+order dt. The same with the implicit midpoint, Bullet's backward-Euler
+formula (slower), forward Euler, Adams-Bashforth (the Gyroscope exhibit's
+cure), the "gyrostat" form (the spin kept in Lua, only the small true
+precession applied), ERP 0.2 or 0.01, 100 or 400 iterations, plain ball
+joints, and 3 or 10 links (a single pinned link is stable). A small Python
+copy of Bullet's step (gyro-mimic.py: sequential impulses with ERP,
+exp-map turning) shows the same, and shows the cure: the term must be
+inside the solve. With the body answering the joints' impulses through
+(I + dt/2 Jg)^-1, Jg = d(w x Iw)/dw (the linearly implicit midpoint
+rule), the hanging chain stays at 1 rad/s and keeps its energy; applied
+after the solve but before the move it is still unstable; backward Euler
+inside the solve is stable but damps.
+
+So the previous audit's 0.164-0.166 came with this instability, and no
+script-level form is correct.
+
+### 14.5 Solved with the joints: a proposed bpp change (tested, not merged)
+
+reconstruction/bpp-gyro-midpoint.diff (src/viewer.cpp only; applies to
+this tree): a pre-tick callback on every world (bpp's own and the
+Gallery's) that, for bodies a script marks with flag BPP_GYRO_MIDPOINT
+(1024; Bullet's own gyroscopic flags off), takes the linearly implicit
+midpoint step of Euler's equations, (I + dt/2 Jg) dw = -dt w x I w, and
+sets the body's inverse world inertia to (I + dt/2 Jg)^-1 for the step
+(Bullet resets it when it moves the body at the end of the step); a Lua
+global BPP_GYRO_MIDPOINT says the bpp has it. Built in a copy of the build
+tree (scratch), not in release/. Tests with it: free bodies as in 14.3; the
+hanging chain, 60 links at 300 rad/s and 10 at 1000 rad/s, 1800 and 7200
+steps a second: the turning across stays 0.4-2 rad/s over 3 s, the energy
+constant to 1e-4 of the spin energy. In the fountain the falling chain's
+turning across is 38 (1800) and 58 rad/s (7200), as without the term (43,
+59). With no body flagged, its output is byte-identical to the stock bpp
+(a heap run). The exhibit with CF_GYRO=solver: hall identical (cmp2,
+1500 frames, 16 lines).
+
+### 14.6 The heap study with the term
+
+The protocol of section 12: the same five heaps (12.1), CF_SPEED=1,
+HOLD_S=0, steady window as always; every link simulated (CF_LIVE=1, the
+reference) and the exhibit's zone; without the term (CF_GYRO=bullet, the
+exhibit; its 1800 runs reproduce section 12 exactly) and with it
+(CF_GYRO=solver, patched bpp). Some runs fall into the slow state in which
+the chain is caught on the rim (energy at landing 26-34%, v 326-360 cm/s;
+two checked with CF_PUSH=2: the rim holds it up with 0.55 and 0.81 m v^2,
+the falling chain carries -0.41 and -0.50). Mean of the runs clear of the
+rim (and of all five):
+
+| | steps/s | without the term | with it (solved) | caught on the rim (without / with) |
+|---|---|---|---|---|
+| every link | 1800 | 0.140 +- 0.018 (0.140), v 421 | 0.132 +- 0.022 (0.119), v 424 | 0 / 1 |
+| every link | 3600 | 0.137 +- 0.032 (0.137), v 441 | 0.133 +- 0.013 (0.109), v 444 | 0 / 3 |
+| every link | 7200 | 0.140 +- 0.026 (0.126), v 455 | 0.131 +- 0.019 (0.131), v 455 | 1 / 0 |
+| zone (exhibit) | 1800 | 0.147 +- 0.027 (0.147), v 430 | 0.157 +- 0.022 (0.157), v 440 | 0 / 0 |
+| zone | 3600 | 0.164 +- 0.023 (0.145), v 452 | 0.169 +- 0.007 (0.135), v 448 | 1 / 2 |
+| zone | 7200 | 0.170 +- 0.015 (0.170), v 474 | 0.160 +- 0.020 (0.141), v 447 | 0 / 1 |
+
+(+- the spread from heap to heap; the "caught" rule is landing energy
+under 35%; one with-term run at 3600, heap 3, ran slow at 33% but stood
+0.162.) The term as added from Lua before the step (unstable, 14.4), for
+comparison: zone 1800 0.154 (0.133-0.182), v 451; zone 7200 0.122, three
+of five slow.
+
+- **Result.** With the term solved correctly, the fountain of the heap
+  simulated whole is h2/h1 = 0.131-0.133 clear of the rim at every step,
+  against 0.137-0.140 without: the same within the spread (paired by heap
+  and step, over the 10 pairs both clear of the rim, the shift is -0.007 +-
+  0.008, standard error). Speed the same (0.78-0.84 sqrt(2 g h1)).
+  Experiments: 0.12-0.14 (B&W; Pantaleone 0.12 +- 0.01), v about 0.70: the
+  agreement in height is unchanged, the speed still 10-20% high (no air
+  drag). The one change beyond the spread may be that the chain catches
+  the rim more often (6 runs in 30 against 2 in 30; with five runs a cell
+  that is not certain).
+- **Not tuned:** nothing was changed but the term; the 1800-step choice
+  and ERP 0.5 are the ones of section 12.
+- **Found on the way (no term involved):** the zone shortcut is not
+  step-converged beyond 3600: clear of the rim it stands 0.147 / 0.164 /
+  0.170 at 1800 / 3600 / 7200 while every link simulated stays at
+  0.137-0.140. Section 12 had 0.147 / 0.145 (the 3600 mean included a run
+  caught on the rim). So the exhibit's 0.147 matching the reference's
+  0.140 at 1800 is partly the step; with the term its zone stands 0.157
+  against the reference's 0.132.
+
+### 14.7 What was changed
+
+- chain-fountain.lua: CF_GYRO (default bullet: the exhibit as before, byte
+  for byte); solver (needs BPP_GYRO_MIDPOINT, else a console note and the
+  default); 0 (Bullet's flag off); exact, midpoint, implicit (spinLinks:
+  the term before each step, experiments only, documented as unstable).
+  IA and GYRO_K set in setMode (INERTIA unchanged). Header: the missing
+  term and why it is not added.
+- reconstruction/: bpp-gyro-midpoint.diff, gyro-freebody.lua,
+  gyro-hang.lua, gyro-mimic.py.
+- README (Simulation), this section, the dossier.
+
+### 14.8 Checks
+
+- Default heap (1500 frames, pause) and CF_PILE=coil (1230): byte-identical
+  to before this round (18, 24 lines). cmp2 heap 1500: IDENTICAL (16);
+  coil 1200: IDENTICAL (22). Pause prefix: HOLD_S=0 1400 frames exact
+  (18). Patched bpp, CF_GYRO=solver: cmp2 IDENTICAL (16).
+- CF_PUSH=2 leaves a run unchanged (h2/h1 0.070 and 0.075 with and
+  without it).
+
+### 14.9 Still open
+
+- Adopting it needs the bpp change merged and the zone re-checked against
+  every link with the term (its 0.157 against 0.132 at 1800), or a zone
+  that converges; and the heaps were poured without the term (a pour with
+  it was not run; the spins in a slow pour are small).
+- Why the chain is caught on the rim more often with the term, and whether
+  that is real: five runs a cell can't tell 6/30 from 2/30 reliably.
+- The model's IA (0.4 m r^2) is a solid ball's; a real ball chain's
+  thin-shelled balls would have 2/3 m r^2, and their spin is shared
+  between two links; spin rates in real fountains are not measured.

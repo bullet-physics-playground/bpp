@@ -34,6 +34,14 @@
 --  * 1800 physics steps a second and 20 solver iterations. Waking,
 --    freezing and measuring are done after every step, so the chain does
 --    exactly the same at any speed.
+--  * The links get no gyroscopic term (w x Iw): Bullet's own is skipped
+--    for bodies this light in kg and cm (see spinLinks). That is an error
+--    (a link spinning about its axis turns as if its spin had the inertia
+--    across it), but adding the term from the script, before each step,
+--    makes a jointed chain shake itself apart; it has to be solved with
+--    the joints, which needs a change to bpp (CF_GYRO=solver; FINDINGS.md
+--    section 14). With it the heap's fountain is the same within the
+--    spread from heap to heap.
 --
 -- At the end it prints the steady part of the run against Biggins and
 -- Warner's theory (see theory() below).
@@ -70,6 +78,8 @@
 -- into the jar and settled, then its end drawn over the rim by hand),
 -- CF_POUR=2 (the same chain coiled on the jar's floor instead), CF_NLINKS,
 -- CF_SEED, CF_POURH, CF_FEED, CF_PULL, CF_SAVEHEAP=file, CF_HEAP=file,
+-- CF_GYRO=bullet|solver|0|exact|midpoint|implicit (the links' gyroscopic
+-- term, see spinLinks; 20 Oct 2026),
 -- CF_RADIUS (links this thick), CF_BEADI=1 (a link's mass in balls at its
 -- ends), CF_T0 (the theory check from t = CF_T0 s), CF_DUMP=t:file; and an
 -- option, CF_PILE=heap: a ball-chain-sized chain from a poured heap.
@@ -104,6 +114,7 @@ local G = 981
 local HEAPPILE, SWITCHED                -- (SWITCHED: the pile was changed with H)
 local SCALE, L, RL, MASS, LAYER_T, HEAPF, POUR, LIVE, HEAPSC, CPT, WAKE_RATE
 local SLOW, SPEEDHELP, ERP, SHAPE, LINK_OBJ, IP, INERTIA, WAKE_R, ZONE, ZDEPTH
+local IA, GYRO_K                        -- a link's moment about its axis; (IP - IA) / IP
 local function setMode(heap)
   HEAPPILE = heap
   SCALE = envnum("CF_LINK", heap and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
@@ -126,12 +137,12 @@ local function setMode(heap)
   ERP = envnum("CF_ERP", heap and 0.5 or (SWITCHED and 0.2 or 0))
   SHAPE = btCapsuleShapeX(RL, L - 2 * RL)
   LINK_OBJ = DIR .. (heap and "bead-link.obj" or "link.obj")
-  IP = MASS * (L * L / 12 + RL * RL / 4)
-  INERTIA = btVector3(0.5 * MASS * RL * RL, IP, IP)
+  IP, IA = MASS * (L * L / 12 + RL * RL / 4), 0.5 * MASS * RL * RL
   if envnum("CF_BEADI", heap and 1 or 0) > 0 then   -- (the mass in balls at the joints, as a ball chain's)
-    IP = MASS * (L * L / 4 + 0.4 * RL * RL)
-    INERTIA = btVector3(0.4 * MASS * RL * RL, IP, IP)
+    IP, IA = MASS * (L * L / 4 + 0.4 * RL * RL), 0.4 * MASS * RL * RL
   end
+  INERTIA = btVector3(IA, IP, IP)
+  GYRO_K = (IP - IA) / IP
   WAKE_R = L + 2 * RL + 0.2
   ZONE = envnum("CF_ZONE", heap and 4 or 0)      -- (cm: see heapFeed; 0: none)
   ZDEPTH = envnum("CF_ZDEPTH", heap and 0.5 or 0) -- (cm: see heapFeed; 0: a ball)
@@ -167,6 +178,17 @@ local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them a
 -- (experiments on cost: CF_SLEEP=1 lets Bullet put resting links to sleep;
 -- CF_CPT=d processes only contact points closer than d cm)
 local SLEEP = envnum("CF_SLEEP", 0) > 0
+-- (a link's gyroscopic term, see spinLinks: CF_GYRO=bullet (Bullet's own,
+-- which for links this light is never applied: the default), solver (the
+-- term solved with the joints and contacts: needs a bpp with
+-- BPP_GYRO_MIDPOINT, see spinLinks), 0 (none, Bullet's off too); exact,
+-- midpoint, implicit: the term as a change of spin before each step,
+-- which makes a jointed chain unstable (experiments only))
+local GYRO = os.getenv("CF_GYRO") or "bullet"
+if GYRO == "solver" and not BPP_GYRO_MIDPOINT then
+  print("(CF_GYRO=solver needs a bpp with BPP_GYRO_MIDPOINT; this one has none: Bullet's own term instead)")
+  GYRO = "bullet"
+end
 -- (CF_GLASSMU: friction of the jar's glass, if not the friction slider's)
 local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
@@ -485,6 +507,7 @@ local function wake(i)
   body:setFriction(MU)
   body:setRestitution(0)
   body:setDamping(0, 0)
+  if GYRO ~= "bullet" then body:setFlags(GYRO == "solver" and BPP_GYRO_MIDPOINT or 0) end   -- (its gyroscopic term: spinLinks)
   l.obj, l.body, l.rest, l.active = m, body, mid, true
   links[i] = l
   if links[i - 1] and links[i - 1].active then join(links[i - 1], l) end
@@ -645,6 +668,7 @@ local function wakeHeap(j)
   body:setFriction(MU)
   body:setRestitution(0)
   body:setDamping(0, 0)
+  if GYRO ~= "bullet" then body:setFlags(GYRO == "solver" and BPP_GYRO_MIDPOINT or 0) end   -- (its gyroscopic term: spinLinks)
   l.obj, l.body, l.rest, l.active = m, body, mid, true
   if p and p.active then
     join(p, l)
@@ -1361,6 +1385,60 @@ local function afterStep()
   end
 end
 
+-- (Experiments only, CF_GYRO=exact|midpoint|implicit; the exhibit does
+-- none of this.) Euler's equations for the links, before every step. A free link keeps
+-- its angular momentum, not its angular velocity: one spinning about its
+-- own axis while it turns end over end carries that spin round with it.
+-- Bullet does this with its gyroscopic term, but it solves a 3x3 system
+-- for it and skips it when the determinant is under 1.2e-7 (FLT_EPSILON,
+-- btMatrix3x3::solve33): for a 0.2 g link in kg and cm that is 3e-15, so
+-- it never acted. Bullet's formula (one Newton step of backward Euler)
+-- would also take a spinning link's tumbling out within a fraction of a
+-- second. A link is symmetric about its axis (moments IA, IP, IP), and
+-- for that Euler's equations are solved exactly: the spin s about the
+-- axis stays, the turning across it goes round the axis at -(IP - IA)/IP s.
+-- That is done here, as a change of the link's angular velocity before the
+-- step (so the joints and friction see it); Bullet then turns the link
+-- through the step. A free link then keeps its energy and angular momentum,
+-- but a jointed chain does not: the joints are solved after the change,
+-- without it, and a hanging chain of spinning links gains energy until it
+-- flails (growing e-fold in about 0.1 s at 1800 steps a second, 0.3 s at
+-- 7200; slower at smaller steps, but never stopping). Solved with the joints (CF_GYRO=solver, a bpp with
+-- BPP_GYRO_MIDPOINT: the linearly implicit midpoint step, the body
+-- answering impulses through (I + dt/2 d(w x Iw)/dw)^-1) it is stable
+-- and keeps energy.
+local function spinLinks(dt)
+  if GYRO == "bullet" or GYRO == "0" or GYRO == "solver" then return end
+  for i = tail, #pts - 1 do
+    local l = links[i]
+    if l and l.active and l.obj then
+      local q = l.body:getOrientation()
+      local x, y, z, w = q:getX(), q:getY(), q:getZ(), q:getW()
+      local ex, ey, ez = 1 - 2 * (y * y + z * z), 2 * (x * y + w * z), 2 * (x * z - w * y)  -- its axis
+      local Wx, Wy, Wz = getAngVelXYZ(l.obj)
+      local s = Wx * ex + Wy * ey + Wz * ez                      -- spin about the axis
+      local px, py, pz = Wx - s * ex, Wy - s * ey, Wz - s * ez   -- turning across it
+      local cx, cy, cz = ey * pz - ez * py, ez * px - ex * pz, ex * py - ey * px
+      local c, sn
+      if GYRO == "exact" then
+        local th = -GYRO_K * s * dt
+        c, sn = math.cos(th), math.sin(th)
+      elseif GYRO == "midpoint" then
+        -- (the implicit midpoint rule: the same turn, by 2 atan(th/2))
+        local h = -GYRO_K * s * dt / 2
+        c, sn = (1 - h * h) / (1 + h * h), 2 * h / (1 + h * h)
+      else
+        -- (implicit: btRigidBody::computeGyroscopicImpulseImplicit_Body for
+        -- this body, one Newton step of backward Euler: the turning across
+        -- the axis shrinks by 1 / (1 + th^2) and turns by th / (1 + th^2))
+        local th = -GYRO_K * s * dt
+        c, sn = 1 / (1 + th * th), th / (1 + th * th)
+      end
+      setAngVelXYZ(l.obj, s * ex + c * px + sn * cx, s * ey + c * py + sn * cy, s * ez + c * pz + sn * cz)
+    end
+  end
+end
+
 v:preSim(function(N)
   -- (in the Gallery the script is loaded before its own world is the one
   -- in use, so the joints' error correction is set again here)
@@ -1370,9 +1448,11 @@ v:preSim(function(N)
   local n = math.max(1, math.floor(stepAcc + 1e-9))
   stepAcc = stepAcc - n
   for k = 1, n - 1 do
+    spinLinks(STEP)
     v:stepSimulation(STEP, 0, STEP)
     afterStep()
   end
+  spinLinks(STEP)
   -- (and bpp takes the last step itself)
 end)
 
