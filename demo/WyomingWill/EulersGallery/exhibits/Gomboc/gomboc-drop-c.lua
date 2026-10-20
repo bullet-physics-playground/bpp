@@ -42,9 +42,18 @@
 --   * spin friction: a constant moment opposing spinning about the vertical.
 --   * air drag: Bullet's velocity damping, default 0 (real air drag on a
 --     9 cm gomboc is hundreds of times smaller than any useful setting).
---   Both are applied for EVERY physics step (this script steps the world
+--   * static friction where Bullet leaves it out (rolling.anchor): at rest
+--     Bullet's friction acts along one fixed direction only, so a slow
+--     slide across it (or turning about the vertical) was never stopped;
+--     before each step the contact point's sliding, and on a line of
+--     contact the turning, is stopped by an impulse there, if within what
+--     Coulomb friction has left after Bullet's own (Changed 20 Oct 2026).
+--   All are applied for EVERY physics step (this script steps the world
 --   itself, see stepWorld), not once per frame; the rolling resistance as a
---   torque that Bullet's step takes in with gravity (demo/module/rolling.lua).
+--   couple that Bullet's step takes in with gravity (demo/module/rolling.lua;
+--   given as an angular impulse just before the step: Bullet's friction
+--   leaves out a torque set with applyTorque, which made a held gomboc
+--   slide 0.4-3.2 mm a minute until 20 Oct 2026).
 --   (Changed 20 Oct 2026. Before, it was a cut in the rolling speed before
 --   each step; that cannot cancel what gravity adds within the step, so a
 --   gomboc that should have been held crept home at about
@@ -78,28 +87,32 @@
 --     (in two of the five tests one was still settling at 30 s);
 --   * they stop short of exactly upright: 0.1-5.3 deg at 9 cm in the tests
 --     (0.1-7.2 deg with the static rolling resistance of 20 Oct 2026, which
---     no longer lets them creep home: inside the 7.5 deg below), with
---     nothing touching. Why: a constant rolling-resistance moment
+--     no longer lets them creep home; with static friction, later that
+--     day, 0.2-8.4 deg: see below), with nothing touching. Why: a constant rolling-resistance moment
 --     holds a gomboc wherever gravity's lever home (the horizontal distance
 --     from the contact to the centre of mass) is shorter than delta. It
 --     rests and rocks on the cylinder above, tilting about its x axis, and
 --     there the lever is 1.147 mm x sin(tilt), so delta = 150 microns holds
 --     it out to 7.5 deg at 9 cm (10.0 deg at 75%, 6.0 deg at 125%: the
 --     lever grows with size, delta doesn't). The hull's lines across the
---     cylinder hold it the same to within 0.7 deg. (Before 19 Oct 2026 the
+--     cylinder hold it the same to within 0.7 deg (and, with Bullet's
+--     micron-scale contact, a little further: 8.1 and 8.4 deg were seen
+--     once each). (Before 19 Oct 2026 the
 --     hull was 1.2 mm facets there too; they held it in narrow bands out
 --     to 21 deg, and stops of 11.4-11.7 deg were seen. report/dossiers/
 --     Gomboc.md has the numbers.) More "rolling" = quicker to stop, further
 --     from upright;
---   * once at rest it stays put: one gomboc, GC_SEED=1-7, 30-140 s after
---     the drop: 0.00002-0.0008 deg/s in five, and two that moved 0.6 and
---     1.2 deg after first being declared at rest (one away from upright)
---     and then held. (Before 20 Oct 2026 every one crept home, at
---     0.009-0.030 deg/s.) What still moves them is Bullet's contact: it
---     lets them slide 0.4-3.2 mm a minute, and on a busy table one can
---     still be reported at rest again;
---   * from a headstand one can stay balanced on its head for a few seconds
---     (the top is a crease that is nearly level) before it rolls home;
+--   * once at rest it stays put: one gomboc, GC_SEED=1-7, 40-140 s after
+--     the drop: no movement the log can see (0.1 micron, 0.001 deg) in six,
+--     0.6 micron and 0.009 deg in one. (Before 20 Oct 2026 every one crept
+--     home, at 0.009-0.030 deg/s; then, held, they slid 0.4-3.2 mm a
+--     minute, until static friction was added later that day.) On a busy
+--     table one can still be reported at rest again: Bullet's contact can
+--     make one rock in place, or a neighbour knocks it;
+--   * from a headstand one can stay balanced on its head (the top is a
+--     crease that is nearly level: the lever across it can be under delta,
+--     so rolling resistance holds it there; one of 12 in the tests stayed
+--     for good) or for a few seconds before it rolls home;
 --   * gombocs that roll into each other can stay propped together for a
 --     long time, as real ones do (the console says "touching ...").
 --
@@ -191,6 +204,7 @@ local function param(name, value, lo, hi, step, info)
   v:addParam(name, value, lo, hi, step, info)
 end
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
+local CPT = envnum("GC_CPT", 0.001)        -- contact processing threshold, cm (set on each body below)
 param("count", envnum("GC_COUNT", 6), 1, MAX_COUNT, 1, "how many gombocs to drop")
 param("speed", 1, 0.25, 4, 0.25, "simulated seconds per real second")
 param("steps", envnum("GC_STEPS", 1200), 300, 4800, 300, "physics steps per simulated second")
@@ -233,6 +247,7 @@ local TABLE_D = FLAT_D + 2 * RAMP_W
 local RAMP_TOP = RAMP_W * math.tan(math.rad(RAMP_DEG))
 
 local WOOD, RIM_WOOD = "#7a4a24", "#4e2e15"
+local TABLE_FRICTION = 0.8
 local function slab(sx, sy, sz, x, y, z, col, rot)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
@@ -240,7 +255,7 @@ local function slab(sx, sy, sz, x, y, z, col, rot)
   -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
   -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
   -- 0.25 and 0.01)
-  c.friction = 0.8
+  c.friction = TABLE_FRICTION
   c.restitution = 0.2
   v:add(c)
   return c
@@ -321,7 +336,7 @@ local function newGomboc(i)
   -- (from version B) only contact points within 10 microns of the table
   -- are handed to the solver; this quietens the buzzing of a gomboc at rest
   -- about 4x here (median 0.30 -> 0.07 deg/s)
-  body:setContactProcessingThreshold(envnum("GC_CPT", 0.001))
+  body:setContactProcessingThreshold(CPT)
   v:add(m)
   return { obj = m, body = body, i = i, shade = 0 }
 end
@@ -366,13 +381,20 @@ local function spots(n)
 end
 
 -- ---------------------------------------------------------------------
--- rolling resistance and spin friction, before every physics step
+-- rolling resistance, spin and static friction, before every physics step
 -- ---------------------------------------------------------------------
 -- Rolling resistance: a couple of at most delta*m*g, applied with the step
 -- itself (demo/module/rolling.lua): while a gomboc rolls, delta*m*g against
 -- its rolling; once it has stopped, whatever holds it, up to delta*m*g,
 -- against the moment of the table's push where Bullet pushed in the last
--- step. Only while it touches the table.
+-- step. Only while it touches the table. (Given as the angular impulse
+-- couple*dt just before the step, not with applyTorque, whose torque
+-- Bullet's friction leaves out: changed 20 Oct 2026, see the module.)
+-- Static friction (rolling.anchor, first): the impulse at the contact that
+-- stops it sliding along the table (and turning about the normal, on a
+-- line of contact), if within friction times the last step's normal
+-- impulse less the friction Bullet gave in it; Bullet's own friction at
+-- rest acts along one direction only.
 -- Spin friction: on the table (centre of mass no higher above the surface
 -- than the gomboc's tip), the spin about the vertical loses `spin friction`
 -- per second; it can't reverse the spin: below one step's bite it stops.
@@ -387,12 +409,13 @@ local rolling = require "rolling"
 local onTable = {}                            -- the gombocs' objects, as keys
 
 local function resist(dt)
-  if ROLL_DELTA <= 0 and SPIN_DECEL <= 0 then return end
   for k in pairs(onTable) do onTable[k] = nil end
   for _, g in ipairs(gombocs) do onTable[g.obj] = true end
-  local C = ROLL_DELTA > 0 and rolling.contacts(v, onTable) or {}
+  local C = rolling.contacts(v, onTable, CPT)
+  local mu = v:getParam("friction") * TABLE_FRICTION
   for _, g in ipairs(gombocs) do
     g.rr = g.rr or {}
+    rolling.anchor(g.rr, g.obj, g.body, C[g.obj], mu, G, dt)
     rolling.couple(g.rr, g.obj, g.body, C[g.obj], MASS, G, ROLL_DELTA, K2, dt)
     local px, py, pz = getPosXYZ(g.obj)
     local r = py - tableHeight(px, pz) - MARGIN

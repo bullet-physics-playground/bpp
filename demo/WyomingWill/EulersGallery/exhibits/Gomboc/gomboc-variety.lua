@@ -70,8 +70,10 @@
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
 -- rolling resistance (a couple of at most delta*m*g through each physics
 -- step, demo/module/rolling.lua: it now holds a body still where gravity's
--- lever is under delta; changed 20 Oct 2026, see gomboc-drop-c.lua) and spin
--- friction, 1200 steps per second, no air drag, no taps.
+-- lever is under delta; changed 20 Oct 2026, see gomboc-drop-c.lua), spin
+-- friction, and static friction where Bullet leaves it out (so a body at
+-- rest no longer slides; changed 20 Oct 2026), 1200 steps per second, no
+-- air drag, no taps.
 -- Rolling resistance (a lever arm in microns) is a property of the
 -- materials, so it is the same for every shape and size.
 --
@@ -193,6 +195,7 @@ common.gravity(-G)
 local MAX_COUNT = 12
 local function param(name, value, lo, hi, step, info) v:addParam(name, value, lo, hi, step, info) end
 local function envnum(name, default) return tonumber(os.getenv(name) or "") or default end
+local CPT = envnum("GV_CPT", 0.001)        -- contact processing threshold, cm (set on each body below)
 param("count", envnum("GV_COUNT", 6), 1, MAX_COUNT, 1, "how many to drop")
 param("shapes", envnum("GV_SHAPES", 0), 0, 2, 1,
       "0 = Gomboc-C, beta, Gomboc-C resized, beta, ...; 1 = Gomboc-C only; 2 = beta only")
@@ -251,6 +254,7 @@ local TABLE_D = FLAT_D + 2 * RAMP_W
 local RAMP_TOP = RAMP_W * math.tan(math.rad(RAMP_DEG))
 
 local WOOD, RIM_WOOD = "#7a4a24", "#4e2e15"
+local TABLE_FRICTION = 0.8
 local function slab(sx, sy, sz, x, y, z, col, rot)
   local c = Cube(sx, sy, sz, 0)
   c.trans = btTransform(rot or btQuaternion(0, 0, 0, 1), btVector3(x, y, z))
@@ -258,7 +262,7 @@ local function slab(sx, sy, sz, x, y, z, col, rot)
   -- (Bullet multiplies these by a body's own: with the sliders' 0.5 and
   -- 0.1, friction 0.4 and restitution 0.02 at the table; body on body,
   -- 0.25 and 0.01)
-  c.friction = 0.8
+  c.friction = TABLE_FRICTION
   c.restitution = 0.2
   v:add(c)
   return c
@@ -396,7 +400,7 @@ local function reshape(g, sp)
   m.body = body
   m.col = SHADES[g.i][0]
   body:setActivationState(4)
-  body:setContactProcessingThreshold(envnum("GV_CPT", 0.001))
+  body:setContactProcessingThreshold(CPT)
   v:add(m)
   g.obj, g.body, g.sp, g.shade = m, body, sp, -1
   applyMaterial(g)
@@ -620,21 +624,25 @@ local function tiltDeg(g)
 end
 
 -- ---------------------------------------------------------------------
--- rolling resistance and spin friction before every physics step
--- (as in Gomboc Drop C: rolling resistance a couple of at most delta*m*g
--- through the step, demo/module/rolling.lua; changed 20 Oct 2026)
+-- rolling resistance, spin friction and static friction before every
+-- physics step (as in Gomboc Drop C: rolling resistance a couple of at most
+-- delta*m*g through the step, demo/module/rolling.lua, changed 20 Oct 2026;
+-- given as an angular impulse, and static friction completed where Bullet
+-- leaves it out, rolling.anchor: changed again 20 Oct 2026, it let a held
+-- body slide 0.4-3.2 mm a minute)
 -- ---------------------------------------------------------------------
 local ROLL_DELTA, SPIN_DECEL = 0.015, 0.7
 local rolling = require "rolling"
 local onTable = {}
 
 local function resist(dt)
-  if ROLL_DELTA <= 0 and SPIN_DECEL <= 0 then return end
   for k in pairs(onTable) do onTable[k] = nil end
   for _, g in ipairs(bodies) do if g.obj then onTable[g.obj] = true end end
-  local C = ROLL_DELTA > 0 and rolling.contacts(v, onTable) or {}
+  local C = rolling.contacts(v, onTable, CPT)
+  local mu = v:getParam("friction") * TABLE_FRICTION
   for _, g in ipairs(bodies) do if g.obj then
     g.rr = g.rr or {}
+    rolling.anchor(g.rr, g.obj, g.body, C[g.obj], mu, G, dt)
     rolling.couple(g.rr, g.obj, g.body, C[g.obj], g.sp.mass, G, ROLL_DELTA, g.sp.K2, dt)
     local px, py, pz = getPosXYZ(g.obj)
     local r = py - tableHeight(px, pz) - g.sp.margin
