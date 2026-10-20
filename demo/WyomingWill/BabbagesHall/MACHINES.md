@@ -45,13 +45,13 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 | 14 | Planimeter (Amsler's polar) | 1856 | trace a shape's outline and a rolling wheel reads its area | one wheel rolling and slipping on paper; small and clear | 4 | 2 | |
 | 15 | Ball-and-disk integrator | 1876 | James Thomson's: a ball between a turning disc and a cylinder; the cylinder turns as the integral | the ball must roll without slipping; the integrator the tide predictor's brother and the analyser's ancestor | 4 | 2 | |
 | 16 | Integraph | 1880s | follows a curve and draws its integral | a wheel steering by its knife edge; a small step on from the planimeter | 4 | 3 | |
-| 17 | "Basic Mechanisms" kit | 1953 | the US Navy fire-control course's set: differential, cam function generator, slide multiplier, component solver | each a small exhibit; together, one bay that explains the aiming machines | 4 | 2 | 
+| 17 | "Basic Mechanisms" kit | 1953 | the US Navy fire-control course's set: differential, cam function generator, slide multiplier, component solver | each a small exhibit; together, one bay that explains the aiming machines | 4 | 2 |
 | 18 | Kelvin's harmonic analyser | 1878 | integrators find the Fourier coefficients of a measured curve (the tide predictor in reverse) | ball-and-disk integrators in a row | 4 | 3 | |
 | 19 | Thomas Arithmometer | 1820 | the first mass-produced calculator: stepped drums, a sliding carriage | a stepped drum per digit and a carry; a fine follow-on to the Pascaline | 4 | 3 | |
 | 20 | Leibniz's stepped reckoner | 1694 | the first four-function calculator: the stepped drum | the stepped drum is the heart of the next three machines | 4 | 3 | |
 | 21 | Odhner pinwheel calculator (Brunsviga, Facit) | 1873 | pinwheels with retractable pins set the figures; turn the crank | flat pinwheels print well; the carry is the work | 4 | 3 | |
 | 22 | Automatic Totalisator | 1913 | racetrack betting: a great shaft adder of differentials counts tickets and sets the odds | differentials (built) chained; the first real-time computer, the Science Museum says | 4 | 3 | |
-| 23 | Hagelin M-209 | 1940 | a fully mechanical cipher machine: six pin wheels and a drum of 27 lugged bars | all mechanical, but many small parts: pins, lugs, a print wheel | 4 | 5 | 
+| 23 | Hagelin M-209 | 1940 | a fully mechanical cipher machine: six pin wheels and a drum of 27 lugged bars | all mechanical, but many small parts: pins, lugs, a print wheel | 4 | 5 |
 | 24 | Torres Quevedo's algebraic machines | 1890s | find the roots of polynomials with his "endless spindle" logarithmic gearing | special gearing; little known and striking | 4 | 4 | |
 | 25 | Kelvin's equation solver (and Wilbur's) | 1878 / 1936 | tilting plates on pulleys and cords solve simultaneous linear equations | plates, pulleys, cords: the cords are the hard part | 4 | 3 | |
 | 26 | Michelson and Stratton's harmonic analyser | 1898 | 80 springs sum and analyse waves; it showed the Gibbs overshoot | springs and levers: Bullet springs, many of them | 4 | 3 | |
@@ -59,7 +59,7 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 | 28 | Digi-Comp I | 1963 | plastic sliders and pegs: three flip-flops and programmable logic | slides, pegs and a lever: simple parts, many of them | 4 | 2 | |
 | 29 | Dr. Nim | 1965 | a marble machine that plays Nim, and wins | a few flip-flops and marbles: a little cousin of the Digi-Comp II | 4 | 2 | |
 | 30 | Marble adders (Turing Tumble, Wandel's) | modern | marbles flip levers to add binary numbers | contact and gravity; very like the Digi-Comp II | 4 | 2 | |
-| 31 | Argo clock and Dreyer table | 1912 / 1911 | WWI battleship fire control: plotting the target's course and range by integrators and a plotting table | integrators (as the ball-and-disk) and a plotting pen | 4 | 4 | 
+| 31 | Argo clock and Dreyer table | 1912 / 1911 | WWI battleship fire control: plotting the target's course and range by integrators and a plotting table | integrators (as the ball-and-disk) and a plotting pen | 4 | 4 |
 | 32 | Torpedo Data Computer | 1940s | a submarine's analogue fire control | like the rangekeeper, smaller; partly electrical | 4 | 5 | |
 | 33 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | printable wheels with holes in place of chains, and a falling probe; simple shafts | 4 | 3 | bay
 | 34 | The Differential | 1827 | gears that add and subtract (Pecqueur's patent; older in clocks) | built: printed bevel gears | 3 | 2 | built |
@@ -68,11 +68,11 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 | 37 | Millionaire | 1893 | the first direct multiplier: a "multiplication body" of tongues gives each product at once | complex, dense | 3 | 5 | |
 | 38 | Scheutz difference engine | 1853 | the first working difference engine, with a printer | as Babbage's; one of them is enough | 3 | 5 | |
 | 39 | Three-dimensional cams | 1930s | a cam shaped by two inputs gives a function of both (fire control's tables) | one shaped cam and a follower; prints well | 3 | 2 | |
-| 40 | Petrol-pump price computer | 1930s | multiplies the litres pumped by the price per litre, continuously, with variable-ratio gearing | a variator and counters; small | 3 | 2 | 
-| 41 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay | 3 | 2 | 
-| 42 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | beads and rods under gravity: easy | 3 | 1 | 
+| 40 | Petrol-pump price computer | 1930s | multiplies the litres pumped by the price per litre, continuously, with variable-ratio gearing | a variator and counters; small | 3 | 2 |
+| 41 | Linkage function generators (the Peaucellier–Lipkin inverter and others) | 1864 / 1900s | bar linkages that compute a product, a square, a log; Peaucellier's computes 1/x | a few hinged bars each; a set of them would make one bay | 3 | 2 |
+| 42 | Bead sort and spaghetti sort | modern | physical sorting: beads fall on rods, or rods are stood on end | beads and rods under gravity: easy | 3 | 1 |
 | 43 | Slide adder (troncet, Addiator) | 1889 / 1920 | slides moved with a stylus add and carry by a hook | flat slides; the carry hook is the trick | 3 | 2 | |
-| 44 | Mechanical combination lock | | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 | 
+| 44 | Mechanical combination lock | | the wheels' notches must line up: a lock that tests a number | wheels and a fence; simple | 2 | 2 |
 | 45 | Napier's bones, Genaille–Lucas rulers | 1617 / 1891 | rods laid side by side give a product to read off | no moving mechanism: printable, nothing to simulate | 2 | 1 | |
 | 46 | Slide rule | 1620s | multiplies by adding logarithms | one slide; nothing to simulate | 2 | 1 | |
 | 47 | Abacus, suanpan | ancient | beads | nothing to simulate | 1 | 1 | |
