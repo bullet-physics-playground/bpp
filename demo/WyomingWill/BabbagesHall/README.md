@@ -9,21 +9,22 @@ be 3D printed and built**: each exhibit's folder holds its OpenSCAD sources,
 a script that makes its STL files, and a README saying what else to buy and
 how to put it together. What is printed is what is simulated.
 
-Down the west side are machines that **count**, down the east side machines
-that **measure**. The bays still waiting for their machines stand covered,
+The machines get **more interesting as you walk on**, from Lehmer's sieve at
+the entrance to Babbage's own Difference Engine at the far end: a bay on the
+west side, then the one facing it on the east, and on. The bays still waiting for their machines stand covered,
 "in preparation". When an exhibit's script turns up in its folder, its bay
 comes to life.
 
 | Bay | Exhibit | |
 |---|---|---|
-| west 1 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| west 1 | Lehmer's number sieve | in preparation |
 | east 1 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
-| west 2 | The Digi-Comp II | in preparation |
-| east 2 | Kelvin's tide predictor | in preparation |
-| west 3 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| east 3 | The Differential Analyser | in preparation |
-| west 4 | The Difference Engine | in preparation |
-| east 4 | Lehmer's number sieve | in preparation |
+| west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| east 2 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| west 3 | The Digi-Comp II | in preparation |
+| east 3 | Kelvin's tide predictor | in preparation |
+| west 4 | The Differential Analyser | in preparation |
+| east 4 | The Difference Engine | in preparation |
 
 ## Running it
 

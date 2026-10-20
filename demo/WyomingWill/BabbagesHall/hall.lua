@@ -2,8 +2,8 @@
 -- BABBAGE'S HALL -- a Victorian engineering hall for the Bullet Physics
 -- Playground: cast-iron columns, a glass roof, brick and brass, holding
 -- machines that compute, each in its own folder in exhibits/, every part of
--- them printable. Down one side, machines that COUNT; down the other,
--- machines that MEASURE. Bays still waiting for their machines stand
+-- them printable. They get more interesting as you walk on, ending with
+-- Babbage's Difference Engine. Bays still waiting for their machines stand
 -- covered, "in preparation".
 --
 -- Only the exhibit you are standing at runs. Walk away and it stops where
@@ -59,8 +59,9 @@ local MESH = HERE .. "hall-meshes/"
 local LABELS = dofile(MESH .. "labels.lua")
 
 -- ---------------------------------------------------------------------
--- the exhibits, in the order you walk past them: west side (counting),
--- east side (measuring), a pair at a time
+-- the exhibits, in the order you walk past them (a bay on the west side,
+-- then the one facing it on the east, and on): the least interesting first,
+-- each more so than the last, the hall's namesake at the end
 -- ---------------------------------------------------------------------
 --   dir, file  the script (dir from this folder). Not there: a covered bay.
 --   name       what the header and Tab call it
@@ -70,15 +71,24 @@ local LABELS = dofile(MESH .. "labels.lua")
 --              is where the hall's floor goes
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
+  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
+    prefix = "Sieve: ", floorY = -75,
+    about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
+            "stop when their holes all line up -- finding factors. In preparation." },
+  { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
+    prefix = "Differential: ", floorY = -75,
+    about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
+            "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
+  { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
+    prefix = "Pascaline: ", floorY = -75,
+    about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
+            "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
+            "the next wheel on by one. Watch 99 + 1 ripple to 100. Keys 1/2/3 add one." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
     prefix = "Dominoes: ", floorY = -75,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
             "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
             "running toward it; a wave can cut another line. That is enough for XOR and AND." },
-  { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
-    prefix = "Differential: ", floorY = -75,
-    about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
-            "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
   { dir = "exhibits/DigiComp2/", file = "digicomp2.lua", name = "the Digi-Comp II", label = "digicomp",
     prefix = "Digi-Comp: ", floorY = -75,
     about = "The Digi-Comp II (1968): marbles rolling down a board of flip-flops count,\n" ..
@@ -87,11 +97,6 @@ EXHIBITS = EXHIBITS or {
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..
             "added up by a chain over their pulleys, draw the tide a year ahead. In preparation." },
-  { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
-    prefix = "Pascaline: ", floorY = -75,
-    about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
-            "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
-            "the next wheel on by one. Watch 99 + 1 ripple to 100. Keys 1/2/3 add one." },
   { dir = "exhibits/DifferentialAnalyser/", file = "differential-analyser.lua", name = "the Differential Analyser",
     label = "differential-analyser", prefix = "Analyser: ", floorY = -75,
     about = "The Differential Analyser (1931): integrators, wheels on spinning discs,\n" ..
@@ -100,10 +105,6 @@ EXHIBITS = EXHIBITS or {
     label = "difference-engine", prefix = "Engine: ", floorY = -75,
     about = "Babbage's Difference Engine: columns of figure wheels that tabulate a\n" ..
             "polynomial by adding differences, with no multiplying at all. In preparation." },
-  { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
-    prefix = "Sieve: ", floorY = -75,
-    about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
-            "stop when their holes all line up -- finding factors. In preparation." },
 }
 SPARE_BAYS = SPARE_BAYS or 0
 -- (opened from elsewhere, as from the repository's top folder: the
