@@ -30,8 +30,9 @@
 --    Euler's equations (RK4) before every physics step. (Bullet's default
 --    drains spin energy, which hides half the rattleback's behaviour.)
 --  * Rolling resistance: a constant moment delta*m*g against rolling, at the
---    contact, before every step (as in Gomboc Drop C). It matters here:
---    checked against an independent model (a rigid ellipsoid rolling without
+--    contact, before every step (as Gomboc Drop C had it until 20 Oct
+--    2026; it can't hold a body against a steady pull, but nothing here
+--    rests on one). It matters here: checked against an independent model (a rigid ellipsoid rolling without
 --    slipping, energy exactly conserved), this rattleback is unstable in BOTH
 --    directions -- strongly the wrong way (growth 8.9/s at 1 turn/s; 8.5/s
 --    at 6 rad/s), weakly its own way (1.7/s). Real rattlebacks reverse only

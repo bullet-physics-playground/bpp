@@ -31,16 +31,29 @@
 --   Centre of mass and inertia are the exact CAD values.
 --
 -- ENERGY LOSS -- a real gomboc loses energy at the table, not in the air:
---   * rolling resistance: a constant moment  M = delta * m * g  opposing the
---     rolling, at the contact, whenever the gomboc is on the table (any tilt).
---     delta is the rolling-resistance lever arm (slider, microns). A constant
---     moment, unlike speed-proportional damping, brings motion to a complete
---     stop in finite time -- as real rolling resistance does.
+--   * rolling resistance: a couple of at most  M = delta * m * g  against
+--     the rolling, whenever the gomboc touches the table (any tilt). delta
+--     is the rolling-resistance lever arm (slider, microns). Kinetic: M
+--     against the rolling. Static: once the rolling has stopped, whatever
+--     holds it still, up to M -- so it stays put wherever gravity's lever
+--     (the level distance from the contact to the centre of mass) is under
+--     delta, as a real one does. A constant moment, unlike speed-proportional
+--     damping, brings motion to a complete stop in finite time.
 --   * spin friction: a constant moment opposing spinning about the vertical.
 --   * air drag: Bullet's velocity damping, default 0 (real air drag on a
 --     9 cm gomboc is hundreds of times smaller than any useful setting).
---   Both moments are applied before EVERY physics step (this script steps
---   the world itself, see stepWorld), not once per frame.
+--   Both are applied for EVERY physics step (this script steps the world
+--   itself, see stepWorld), not once per frame; the rolling resistance as a
+--   torque that Bullet's step takes in with gravity (demo/module/rolling.lua).
+--   (Changed 20 Oct 2026. Before, it was a cut in the rolling speed before
+--   each step; that cannot cancel what gravity adds within the step, so a
+--   gomboc that should have been held crept home at about
+--   g*lever*dt/(k^2+r^2), 0.016-0.031 deg/s at 3-6 deg (measured:
+--   0.009-0.030). Shown on a test sphere with the gomboc's 1.147 mm offset
+--   of the centre of mass, mass and inertia, on a single point of contact,
+--   held at 5 deg: creep 0.049/0.029/0.016/0.0064 deg/s at 600/1200/2400/
+--   4800 steps/s, in proportion to the step, 1.0-1.3x that formula; with
+--   the couple, none: under 0.001 deg in 30 s.)
 --
 -- NO TAPS by default: nothing pushes a gomboc home. (Version B's taps are
 -- available with the "taps" slider, for comparison.)
@@ -52,14 +65,21 @@
 -- level, with no steady gain, so the losses above are what bring it to rest.
 -- 2400 was no better. (Re-checked 19 Oct 2026: level from 40 s to 120 s,
 -- after a rise of 0.07 cm x m x g in the first 40 s; old hull, the same
--- after 0.05 cm in 15 s.)
+-- after 0.05 cm in 15 s. Found 20 Oct 2026: the rise is Bullet pushing the
+-- body out of the table where its contact points sit, off the true line of
+-- contact (error reduction 0.2; split impulse is used only for overlaps
+-- deeper than 0.04 units, 0.4 mm here): with that set to 0, the energy of a
+-- gomboc set down at 5 deg, losses off, drops 0.014 cm x m x g in 4 s and
+-- then stays within 0.007 for 60 s; with 0.2 it gains 0.2 cm in 20 s.)
 --
 -- What to expect (defaults, 6 gombocs; tested 19 Oct 2026 with 3 drops and
 -- 2 headstands, GC_SEED=1-3, re-drop off):
 --   * all upright within about 13-23 s, all at rest within about 25-30 s
 --     (in two of the five tests one was still settling at 30 s);
---   * they stop short of exactly upright: 0.1-5.3 deg at 9 cm in the tests,
---     with nothing touching. Why: a constant rolling-resistance moment
+--   * they stop short of exactly upright: 0.1-5.3 deg at 9 cm in the tests
+--     (0.1-7.2 deg with the static rolling resistance of 20 Oct 2026, which
+--     no longer lets them creep home: inside the 7.5 deg below), with
+--     nothing touching. Why: a constant rolling-resistance moment
 --     holds a gomboc wherever gravity's lever home (the horizontal distance
 --     from the contact to the centre of mass) is shorter than delta. It
 --     rests and rocks on the cylinder above, tilting about its x axis, and
@@ -71,10 +91,13 @@
 --     to 21 deg, and stops of 11.4-11.7 deg were seen. report/dossiers/
 --     Gomboc.md has the numbers.) More "rolling" = quicker to stop, further
 --     from upright;
---   * once at rest it still creeps slowly toward upright: about 0.06
---     deg/s near 6 deg, 0.02 deg/s at 2-3 deg. That is numerical (the step
---     and the contact solver), not physics: a real one held by rolling
---     resistance stays put. A creeping one can be reported at rest again;
+--   * once at rest it stays put: one gomboc, GC_SEED=1-7, 30-140 s after
+--     the drop: 0.00002-0.0008 deg/s in five, and two that moved 0.6 and
+--     1.2 deg after first being declared at rest (one away from upright)
+--     and then held. (Before 20 Oct 2026 every one crept home, at
+--     0.009-0.030 deg/s.) What still moves them is Bullet's contact: it
+--     lets them slide 0.4-3.2 mm a minute, and on a busy table one can
+--     still be reported at rest again;
 --   * from a headstand one can stay balanced on its head for a few seconds
 --     (the top is a crease that is nearly level) before it rolls home;
 --   * gombocs that roll into each other can stay propped together for a
@@ -105,7 +128,9 @@
 -- Speed: the physics is the cost (the 15,548-point hull, 1200 steps/s);
 -- on a 2.1 GHz server core six gombocs run at about 1/4 of real time
 -- without graphics (12% slower than with the 13,476-point hull of before
--- 19 Oct 2026). Lowering "steps" to 600 halves the cost; with every
+-- 19 Oct 2026; a few per cent more since 20 Oct 2026, for reading Bullet's
+-- contacts every step for the rolling resistance). Lowering "steps" to 600
+-- halves the cost; with every
 -- loss off, 600 also showed no steady energy gain. Thinning the hull
 -- instead would bring back deep false resting spots (tested: at 1.4 mm
 -- spacing, 6 deeper than 1 micron, some up to 103 deg from upright).
@@ -343,55 +368,38 @@ end
 -- ---------------------------------------------------------------------
 -- rolling resistance and spin friction, before every physics step
 -- ---------------------------------------------------------------------
--- On the table (centre of mass no higher above the surface than the
--- gomboc's tip), each step:
---   * the rolling part of the spin (about horizontal axes) loses
---       alpha = delta * g / (k^2 + r^2)
---     per second, where r is the centre of mass's height above the table,
---     k^2 the squared radius of gyration about the rolling axis, so
---     k^2 + r^2 is the moment of inertia (per unit mass) about the contact:
---     a constant moment delta*m*g about the contact point. The centre of
---     mass's velocity changes to match (rolling about the contact point
---     below it), so the contact point itself isn't made to slide.
---   * the spin about the vertical loses `spin friction` per second.
--- Neither can reverse the motion: below one step's bite it stops.
--- (Approximations: the contact point is taken straight below the centre of
--- mass, and "vertical" is world up even on the 8-degree slopes.)
+-- Rolling resistance: a couple of at most delta*m*g, applied with the step
+-- itself (demo/module/rolling.lua): while a gomboc rolls, delta*m*g against
+-- its rolling; once it has stopped, whatever holds it, up to delta*m*g,
+-- against the moment of the table's push where Bullet pushed in the last
+-- step. Only while it touches the table.
+-- Spin friction: on the table (centre of mass no higher above the surface
+-- than the gomboc's tip), the spin about the vertical loses `spin friction`
+-- per second; it can't reverse the spin: below one step's bite it stops.
+-- ("Vertical" is world up even on the 8-degree slopes.)
+-- (Changed 20 Oct 2026. Until then the rolling part too was a cut in the
+-- turning speed before each step, delta*g/(k^2+r^2) per second, about the
+-- point straight below the centre of mass: it could not cancel what gravity
+-- adds within the step, so a gomboc that should be held kept rolling home
+-- at about g*lever*dt/(k^2+r^2); see the header.)
 local ROLL_DELTA, SPIN_DECEL = 0.005, 0.7     -- cm, rad/s^2 (set from sliders)
+local rolling = require "rolling"
+local onTable = {}                            -- the gombocs' objects, as keys
 
 local function resist(dt)
   if ROLL_DELTA <= 0 and SPIN_DECEL <= 0 then return end
+  for k in pairs(onTable) do onTable[k] = nil end
+  for _, g in ipairs(gombocs) do onTable[g.obj] = true end
+  local C = ROLL_DELTA > 0 and rolling.contacts(v, onTable) or {}
   for _, g in ipairs(gombocs) do
+    g.rr = g.rr or {}
+    rolling.couple(g.rr, g.obj, g.body, C[g.obj], MASS, G, ROLL_DELTA, K2, dt)
     local px, py, pz = getPosXYZ(g.obj)
     local r = py - tableHeight(px, pz) - MARGIN
-    if r < HULL.topHeight + 0.05 and r > 0 then
+    if SPIN_DECEL > 0 and r < HULL.topHeight + 0.05 and r > 0 then
       local wx, wy, wz = getAngVelXYZ(g.obj)
-      local vx, vy, vz = getVelXYZ(g.obj)
-      local w = math.sqrt(wx * wx + wz * wz)
-      if w > 0 and ROLL_DELTA > 0 then
-        -- squared radius of gyration about the rolling axis (body frame)
-        local B = g.body:getCenterOfMassTransform():getBasis()
-        local ax, az = wx / w, wz / w
-        local k2 = 0
-        for c = 0, 2 do
-          local e = B:getColumn(c)                     -- body axis c in the world
-          local d = ax * e.x + az * e.z
-          k2 = k2 + K2[c + 1] * d * d
-        end
-        local alpha = ROLL_DELTA * G / (k2 + r * r)
-        local dw = math.min(w, alpha * dt)
-        local dwx, dwz = -dw * ax, -dw * az
-        wx, wz = wx + dwx, wz + dwz
-        -- keep the contact point (r straight below) from sliding:
-        -- dv = dw x (0, r, 0)
-        vx, vz = vx - dwz * r, vz + dwx * r
-      end
-      if SPIN_DECEL > 0 then
-        local dws = math.min(math.abs(wy), SPIN_DECEL * dt)
-        wy = wy - (wy > 0 and dws or -dws)
-      end
-      setAngVelXYZ(g.obj, wx, wy, wz)
-      setVelXYZ(g.obj, vx, vy, vz)
+      local dws = math.min(math.abs(wy), SPIN_DECEL * dt)
+      setAngVelXYZ(g.obj, wx, wy - (wy > 0 and dws or -dws), wz)
     end
   end
 end

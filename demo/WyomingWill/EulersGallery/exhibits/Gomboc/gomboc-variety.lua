@@ -68,8 +68,10 @@
 --               design of the real one. ("shapes" 1 leaves them out.)
 --
 -- Physics as in Gomboc Drop C: convex-hull contact, exact mass and inertia,
--- rolling resistance and spin friction as constant moments at the table
--- before every physics step, 1200 steps per second, no air drag, no taps.
+-- rolling resistance (a couple of at most delta*m*g through each physics
+-- step, demo/module/rolling.lua: it now holds a body still where gravity's
+-- lever is under delta; changed 20 Oct 2026, see gomboc-drop-c.lua) and spin
+-- friction, 1200 steps per second, no air drag, no taps.
 -- Rolling resistance (a lever arm in microns) is a property of the
 -- materials, so it is the same for every shape and size.
 --
@@ -619,42 +621,29 @@ end
 
 -- ---------------------------------------------------------------------
 -- rolling resistance and spin friction before every physics step
--- (as in Gomboc Drop C)
+-- (as in Gomboc Drop C: rolling resistance a couple of at most delta*m*g
+-- through the step, demo/module/rolling.lua; changed 20 Oct 2026)
 -- ---------------------------------------------------------------------
 local ROLL_DELTA, SPIN_DECEL = 0.015, 0.7
+local rolling = require "rolling"
+local onTable = {}
 
 local function resist(dt)
   if ROLL_DELTA <= 0 and SPIN_DECEL <= 0 then return end
-  for _, g in ipairs(bodies) do
+  for k in pairs(onTable) do onTable[k] = nil end
+  for _, g in ipairs(bodies) do if g.obj then onTable[g.obj] = true end end
+  local C = ROLL_DELTA > 0 and rolling.contacts(v, onTable) or {}
+  for _, g in ipairs(bodies) do if g.obj then
+    g.rr = g.rr or {}
+    rolling.couple(g.rr, g.obj, g.body, C[g.obj], g.sp.mass, G, ROLL_DELTA, g.sp.K2, dt)
     local px, py, pz = getPosXYZ(g.obj)
     local r = py - tableHeight(px, pz) - g.sp.margin
-    if r < g.sp.topHeight + 0.05 and r > 0 then
+    if SPIN_DECEL > 0 and r < g.sp.topHeight + 0.05 and r > 0 then
       local wx, wy, wz = getAngVelXYZ(g.obj)
-      local vx, vy, vz = getVelXYZ(g.obj)
-      local w = math.sqrt(wx * wx + wz * wz)
-      if w > 0 and ROLL_DELTA > 0 then
-        local B = g.body:getCenterOfMassTransform():getBasis()
-        local ax, az = wx / w, wz / w
-        local k2 = 0
-        for c = 0, 2 do
-          local e = B:getColumn(c)
-          local d = ax * e.x + az * e.z
-          k2 = k2 + g.sp.K2[c + 1] * d * d
-        end
-        local alpha = ROLL_DELTA * G / (k2 + r * r)
-        local dw = math.min(w, alpha * dt)
-        local dwx, dwz = -dw * ax, -dw * az
-        wx, wz = wx + dwx, wz + dwz
-        vx, vz = vx - dwz * r, vz + dwx * r
-      end
-      if SPIN_DECEL > 0 then
-        local dws = math.min(math.abs(wy), SPIN_DECEL * dt)
-        wy = wy - (wy > 0 and dws or -dws)
-      end
-      setAngVelXYZ(g.obj, wx, wy, wz)
-      setVelXYZ(g.obj, vx, vy, vz)
+      local dws = math.min(math.abs(wy), SPIN_DECEL * dt)
+      setAngVelXYZ(g.obj, wx, wy - (wy > 0 and dws or -dws), wz)
     end
-  end
+  end end
 end
 
 -- ---------------------------------------------------------------------

@@ -117,7 +117,13 @@
 --
 -- Physics as in Gomboc Drop C: contact through the convex hull, exact mass
 -- and inertia, rolling resistance and spin friction as constant moments at
--- the table before every physics step, no air drag, no taps.
+-- the table before every physics step, no air drag, no taps. (Drop C's
+-- rolling resistance became a couple through the step on 20 Oct 2026, so
+-- that it can hold a body against gravity; here it is the cut in speed
+-- before each step as before. That cut can't hold a body still against a
+-- steady pull (it lets it roll on at gravity's turning rate times the
+-- step), but every body here rests on a face, which holds it, and no face
+-- is within delta = 50 microns of tipping, so nothing here relies on it.)
 --
 -- The time step: "steps" (1200) is the physics steps per simulated second
 -- asked for, but there is always at least one step a frame. In the default
@@ -640,7 +646,8 @@ end
 
 -- ---------------------------------------------------------------------
 -- rolling resistance and spin friction before every physics step
--- (as in Gomboc Drop C: constant moments at the contact, on the table only)
+-- (as Gomboc Drop C had them until 20 Oct 2026: constant moments at the
+-- contact, on the table only)
 -- ---------------------------------------------------------------------
 local ROLL_DELTA, SPIN_DECEL = 0.005, 0.7
 
