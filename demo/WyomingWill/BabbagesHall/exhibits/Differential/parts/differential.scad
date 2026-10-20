@@ -93,6 +93,9 @@ module drum(numbers = true) {
 RING_R = sqrt(2) * (APEX + 2) + 4;      // inside radius
 RING_T = 6; RING_W = 14;
 module drumNumbers() rimNumbers(DRUM_R, 10, DRUM_W, 8);
+// the cross pin: a 5 mm steel rod through the carrier's bosses, the spider
+// gears turning on it (bought, not printed; drawn by the simulation)
+module crossPin() rotate([90, 0, 0]) cylinder(d = 5, h = 2 * (RING_R + 2), center = true, $fn = 16);
 module carrierNumbers() rimNumbers(RING_R + RING_T, 20, RING_W, 8);
 module carrier(numbers = true) {
   difference() {

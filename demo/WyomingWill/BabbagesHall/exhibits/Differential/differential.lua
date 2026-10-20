@@ -223,7 +223,7 @@ v:add(ringNumbers)
 
 -- the hinges: everything turns about the axis (world x) through O, the
 -- spiders about their pin. A hinge's frames have their z along its axis.
-local anchor = Cube(1, 1, 1, 0)
+local anchor = Cube(0.01, 0.01, 0.01, 0)     -- (only for the hinges to hold to: too small to see)
 anchor.collides = false
 v:add(anchor)
 anchor.trans = btTransform(ident, O)
@@ -261,8 +261,13 @@ for _, k in ipairs(os.getenv("DF_NORIDERS") and {} or { "A", "B" }) do
   -- (the crank's handle along its own +x: turned so that it points outward on both sides)
   rider("crank()", k, btTransform(qa(0, 1, 0, 90), btVector3(0, 0, -(CRANK_X - APEX))), "#333333")
 end
+-- the cross pin the spiders turn on, going round with the carrier
+local crossPin = part("crossPin()")
+crossPin.col = "#9a9da3"
+v:add(crossPin)
 local function moveRiders()
   ringNumbers.trans = carrier:getCenterOfMassTransform()
+  crossPin.trans = carrier:getCenterOfMassTransform()
   for _, r in ipairs(riders) do
     local tr = btTransform()
     tr:mult(G[r.g].body:getCenterOfMassTransform(), r.off)        -- (the gear's, then the offset)

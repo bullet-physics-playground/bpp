@@ -227,7 +227,7 @@ pcall(function() frame.transparency = 0.35 end)        -- (to see the works thro
 v:add(frame)
 frame.trans = btTransform(ident, MO)
 
-local anchor = Cube(1, 1, 1, 0)
+local anchor = Cube(0.01, 0.01, 0.01, 0)     -- (only for the hinges to hold to: too small to see)
 anchor.collides = false
 v:add(anchor)
 anchor.trans = btTransform(ident, btVector3(0, 0, 0))
