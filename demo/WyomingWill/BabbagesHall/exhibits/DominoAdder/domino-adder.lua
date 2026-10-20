@@ -104,7 +104,7 @@ local function checksum(paths)
   end
   return sum
 end
-local SCAD_SUM = checksum({ SCAD })
+local SCAD_SUM = checksum({ SCAD, (SCAD:gsub("domino%-adder%.scad$", "layout.scad")) })
 local function part(call, mass)
   return OpenSCAD("// " .. SCAD_SUM .. "\ninclude <" .. SCAD .. ">\nscale(0.1) " .. call .. ";\n", mass or 0, false)
 end

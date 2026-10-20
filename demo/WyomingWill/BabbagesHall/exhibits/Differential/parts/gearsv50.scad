@@ -1,3 +1,6 @@
+// Babbage's Hall: assign() replaced by let() and polyhedron(triangles=) by
+// faces=, which newer OpenSCAD requires (it drops the old forms, and the
+// teeth with them). Otherwise GregFrost's file as published.
 // GregFrost's Parametric Involute Bevel and Spur Gears v5.0 (GPL), as
 // carried in bpp's demo/module/scad/gearsv50.lua, unchanged.
 
@@ -258,13 +261,13 @@ module involute_bevel_gear_tooth (
 	{
 		for (i=[1:res])
 		{
-			assign (
+			let (
 				point1=
 					involute (base_radius*2,start_angle+(stop_angle - start_angle)*(i-1)/res),
 				point2=
 					involute (base_radius*2,start_angle+(stop_angle - start_angle)*(i)/res))
 			{
-				assign (
+				let (
 					side1_point1 = rotate_point (centre_angle, point1),
 					side1_point2 = rotate_point (centre_angle, point2),
 					side2_point1 = mirror_point (rotate_point (centre_angle, point1)),
@@ -278,7 +281,7 @@ module involute_bevel_gear_tooth (
 							[side2_point2[0],side2_point2[1],0],
 							[side2_point1[0],side2_point1[1],0],
 							[0.1,0,0]],
-						triangles=[[0,1,2],[0,2,3],[0,3,4],[0,5,1],[1,5,2],[2,5,3],[3,5,4],[0,4,5]]);
+						faces=[[0,1,2],[0,2,3],[0,3,4],[0,5,1],[1,5,2],[2,5,3],[3,5,4],[0,4,5]]);
 				}
 			}
 		}
@@ -436,11 +439,11 @@ module involute_gear_tooth (
 	union ()
 	{
 		for (i=[1:res])
-		assign (
+		let (
 			point1=involute (base_radius,start_angle+(stop_angle - start_angle)*(i-1)/res),
 			point2=involute (base_radius,start_angle+(stop_angle - start_angle)*i/res))
 		{
-			assign (
+			let (
 				side1_point1=rotate_point (centre_angle, point1),
 				side1_point2=rotate_point (centre_angle, point2),
 				side2_point1=mirror_point (rotate_point (centre_angle, point1)),

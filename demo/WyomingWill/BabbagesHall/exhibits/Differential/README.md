@@ -76,7 +76,9 @@ You also need:
 assume about 0.8 g/cm³.
 
 The gears are GregFrost's parametric involute bevel gears (GPL), in
-`parts/gearsv50.scad`.
+`parts/gearsv50.scad`, brought up to date for current OpenSCAD (its `assign()` and
+`polyhedron(triangles=)` are gone from newer versions, and the teeth with
+them; the gears come out exactly as before).
 
 ## The simulation
 
