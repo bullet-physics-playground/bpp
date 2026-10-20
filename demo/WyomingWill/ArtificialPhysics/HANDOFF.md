@@ -200,110 +200,96 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   x₂ = 1, not the printed 1.001 (F14).
 - **Mean free path in 3D:** 0.7720 × cube edge (0.7138 with a 5% buffer),
   with a closed form found by PSLQ (`ch11/README.md`).
-- **Ch. 13's AR damping η settles the Newtonian drones** (M1 step 1,
-  `quadcopter/README.md` "Ch. 13 on the drones", FINDINGS F43–F47): with
-  `etaPower` 1 they settle as fast as LJ or faster, in every formation,
-  without crashes; the plain law dithers across D even as particles. In 2D
-  at range 1.5 D η settles the lattice at ~0.8 D (second neighbours come
-  into range); range 1.25 D keeps it at D. Power 1 beats the law's own
-  power. Switched on once the plain law has spread the swarm to D (~150 s
-  in 2D, ~60 s in 3D), η forms the most regular Newtonian lattice ~7 s
-  later (F52; settling is timed by `formed`, not the acceleration test,
-  FIXES 41): annealing, with η as
-  the cooling (F49, William). Better still, η in a band of width
-  0.2 D round D (`etaWidth`, William's idea) settles at D from the launch,
-  in 2D and 3D, with a stiffer lattice; narrower bands jitter again (the
-  drones tolerate a slope of ~0.04 per AP unit at D; F50). The stop rule
-  does nothing without η. η's lattice is a quarter to
-  a third as stiff as LJ's at D, so it compresses under the goal's pull.
+- **Ch. 13 on the drones (M1; `quadcopter/README.md` "Ch. 13 on the
+  drones", FINDINGS F43–F56):** the split-Newtonian drones jitter because
+  the point mass dithers across the sign flip at D (the particle replica
+  does it too). AR damping η alone settles them as fast as LJ or faster,
+  in every formation, without crashes. η's band matters: the book's (r < 2D)
+  traps a 2D launch at ~0.8 D, because second neighbours come into range;
+  a band of 0.2 D round D (William's idea) avoids the trap, and the damped
+  force's slope at D must stay below ~0.035 per AP unit or the drones'
+  lag brings the jitter back, so 3D needs 0.5 D. These are the Newtonian
+  scene's defaults. Switching η on by hand once the plain law has spread
+  the swarm gives the most regular lattice (annealing, William, F49, F52).
+  Adaptive friction, static friction and the adaptive speed cap do not
+  help the drones (F51, F54, F55) and stay in `lib/ch13.lua` for M2. With
+  η the lattice is a quarter to a third as stiff as LJ's at D, so it
+  compresses under the goal's pull.
+- **Ch. 2 in 3D (F57, F58):** a spring tetrahedron with unequal masses
+  flips about its middle axis (the tennis-racket effect); several planets
+  stay stable on elliptical orbits with a gap of 1.8 between orbits (outer
+  nearest point / inner farthest point) and ~50 steps per nearest-point
+  pass; a 3 × 3 × 3 spring lattice rings for ever and settles with
+  friction.
+- **Settling is timed by `formed`** (bonds ≥ 0.97 of the spacing and speed
+  < 0.01 m/s to the end of the run), not by the acceleration test, which a
+  slow outward creep passes (FIXES 41).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
 
 ## 7. Where things stand and what's next
 
-- **Done: milestone M0** (build step 0), all on `master`:
-  1. `lib/rng.lua`: the shared multiply-with-carry generator, seeded from
-     `SEED`, the `seed` slider (0–1000) or the clock; every demo and probe
-     uses it (FIXES 34).
-  2. `lib/batch.py` + `lib/batch.lua`: seeds × settings, two at a time, one
-     CSV; `--match` reads a script's own `key=value` lines.
-  3. `lib/monitors.lua`: COM drift, momentum, angular momentum, energy, and
-     the book's integrator with a chosen Δt.
-  4. `lib/world.lua` + `Worlds.lua`: the generator's core and the book
-     presets (Ch. 3 discs, Ch. 4 box, Ch. 7 corridor); `writeCPT` for
-     Zarzhitsky's tools.
-  5. `ch02/`: the three Ch. 2 models as scenes and checks.
-  6. `checks/run_all.sh`: every check, about 1 min 40 s (`checks/README.md`).
-- **Also done in the M0 chat:** Ch. 11.7, the mean free path in 3D, exact
-  and simulated (`ch11/`); the Uniform Coverage measurements and the wall-rule
-  decision (FIXES 36); the realistic generator's design (`BOOK.md` §6);
-  `FINDINGS.md`/`.pdf`, the running record (F1–F42); the one-line status
-  design (`lib/status.lua`, BPP's fixed-pitch status font); William's NetLogo
-  models in `netlogo/`, with Ch. 2 and Ch. 3's world checked against them
-  (F15, F40, F41); Listing 11.4 run on the book's own generator
-  (`ch11/listing_11_4.lua`, F14); `ch02/Spring3D.lua` (F42).
-- **In progress: milestone M1** (build step 1), Ch. 13's four mechanisms
-  on the drones, one patch each, each a slider off at 0:
-  1. **Done: AR damping η + the stop rule** (`lib/ch13.lua`; sliders
-     `etaPower`, `stopForce` (since removed); metrics in `quadcopter/swarm.lua` and
-     `probes/settle_drones.lua`; lattice quality in `lib/lattice.lua`;
-     checks `ch13`, `lattice`). Answer to M1's main question: yes, η alone
-     makes them settle like LJ (see §6).
-  1b. **Done: η's band tied to D** (`etaWidth`, F50; replaces a cooling
-     schedule, which would need tuning per task). Open: whether the slope
-     limit follows from the lag and apHz.
-  2. **Done: adaptive friction** (Eq. 13.23; sliders `muMore`, `muLess`, since removed;
-     F51). The ratio > 10 holds; it damps the dither but cannot stop it,
-     and alone it freezes the swarm (μ stuck at 0.8–0.9); with η it adds
-     little.
-  3. **Done: static friction** (Eq. 13.25, g from the book's own scale;
-     F54) and 4. **the adaptive speed cap** (Eq. 13.24; F55): neither helps
-     the drones, so their switches were taken out again; both are in
-     `lib/ch13.lua` for M2. A per-drone automatic η switch was tried and
-     removed (F53).
-  **M1's answer:** on these drones only η is needed, in a band of 0.2 D
-  in 2D and 0.5 D in 3D (the defaults), or switched on by hand once the plain
-  law has spread the swarm (F49, F52). `quadcopter/README.md` has the table
-  of where each mechanism belongs. William's decision (2026-10-18): the
-  drones keep only `etaPower` and `etaWidth`, on by default in the
-  Newtonian scene so it works out of the box (etaPower 1; etaWidth 0.2 in
-  2D, 0.5 in 3D, from the slope limit and the 2D trap, F56); the adaptive
-  friction and stop-rule sliders were taken off too (in the lib for M2).
-  **Next:** the M1 summary here, then (William's choice) the realistic
-  world generator or M2.
-  Then the 3D spring lattice (below) and the M1 summary here.
-- **After M1, William's choice between** the realistic world generator
-  (`BOOK.md` §6, option A: terrain and water first, then zones, streets,
-  lots and buildings, vegetation, mission features; presets rural,
-  suburban, city centre, industrial port, harbour town) and M2 (the vehicle
-  interface, ground robot and surface boat).
-- **Done (2026-10-18): three truly 3D Ch. 2 models** (`ch02/`, F57): a
-  spinning tetrahedron that flips over about its middle axis (the
-  tennis-racket effect), several planets on tilted elliptical orbits
-  (William's circles worked, ellipses did not: two rules fix it, a gap of
-  1.8 between orbits and ~50 steps per nearest-point pass, F58),
-  and a 3 × 3 × 3 spring lattice. An inclined single orbit adds nothing
-  (spring3D again) and is covered by the planets. The Ch. 2 drone versions
-  are dropped (William).
-- **Check every port against its `.nlogo` first** (`netlogo/`): doing so for
-  Ch. 2 and Ch. 3 found two guessed starts and the wrong Ch. 3 world frame
-  (FINDINGS F40, F41). `formation_newton.nlogo`'s law matches the Newtonian
-  ports (its defaults differ, F48); the honeycomb and Uniform Coverage ports
-  and the other formation models have not been checked yet.
+- **Done: milestone M0** (build step 0): `lib/rng.lua`, `lib/batch.py` +
+  `lib/batch.lua`, `lib/monitors.lua`, `lib/world.lua` + `Worlds.lua` with
+  the book presets, `ch02/` (Ch. 2's three models), `checks/run_all.sh`;
+  plus Ch. 11.7's mean free path in 3D (`ch11/`), the Uniform Coverage
+  measurements (FIXES 36), the realistic generator's design (`BOOK.md` §6),
+  `FINDINGS.md`, the one-line status (`lib/status.lua`), William's NetLogo
+  models (`netlogo/`) and `ch02/Spring3D.lua`.
+- **Done: milestone M1** (build step 1, 2026-10-18), Ch. 13 on the drones.
+  - **Built:** `lib/ch13.lua` (η with its band, the stop rule, adaptive
+    friction, static friction, the adaptive speed cap, each tested in
+    `checks/ch13.lua`); `lib/lattice.lua` (Ch. 16.9's Delaunay CV, bond
+    and nearest-neighbour CV; `checks/lattice.lua`); per-tick metrics in
+    `quadcopter/swarm.lua` and `probes/settle_drones.lua` (settling as
+    `formed`, crossings of D, suggested-position gap, `SWITCH_AT` to move a
+    slider mid-run); optional bonds in `lib/monitors.lua`.
+  - **Answer to M1's question** (does η alone make the Newtonian drones
+    settle like LJ?): **yes** (§6). Only η is needed on these drones; it is
+    on by default in `Formations-Newtonian-Quadcopter.lua` (`etaPower` 1,
+    `etaWidth` 0.2 in 2D and 0.5 in 3D). Every other Ch. 13 mechanism was
+    measured, found not to help, and taken off the drones (William's
+    decision; `quadcopter/README.md` has the table of where each belongs:
+    static friction and the speed cap for vehicles with a minimum speed or
+    real ranging, and for sensor noise).
+  - **Also in the M1 chat:** the simplicity principle (§2, William); Ch. 2
+    in 3D: `ch02/Tetrahedron.lua`, `ch02/Planets.lua` (elliptical orbits),
+    `ch02/SpringLattice.lua` (F57, F58); `formation_newton.nlogo` checked
+    against the ports (F48); FINDINGS F43–F58, FIXES 39–41.
+  - **Open from M1:** whether the drones' slope limit at D (~0.035 per AP
+    unit) follows from their lag and AP rate, and moves with `apHz`; a 3D
+    G_t for the cube (`BOOK.md` §1 item 9).
+- **Next, William's choice between:**
+  - **The realistic world generator** (`BOOK.md` §6, option A): terrain
+    and water first, then zones, streets, lots and buildings, vegetation,
+    mission features; presets rural, suburban, city centre, industrial
+    port, harbour town.
+  - **M2:** the vehicle interface (G18), a ground robot (G10) and a surface
+    boat (G11), and the first cross-vehicle benchmark (formation, and goal
+    through obstacles) on drones, ground robots and boats. Ch. 13's
+    static friction and speed cap get their real test there (ground robots
+    have a minimum speed).
+- **Keep it simple** (§2): add a control only when a measurement shows it
+  is needed, off by default, with notes on where it is needed.
+- **Check every port against its `.nlogo` first** (`netlogo/`): it found
+  two guessed starts and the wrong Ch. 3 world frame (F40, F41).
+  `formation_newton.nlogo` is checked (F48); the honeycomb, Uniform
+  Coverage and other formation models are not yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
-  Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES 4–5;
-  its wall rule is kept, FIXES 36); FIXES item 27 is documented, not fixed; an
-  Info pane for BPP; the Ch. 2 drone and remaining 3D variants (`ch02/README.md`).
-- **Sources for the next chat:** attach `CPT.zip` again for any plume work
-  (it is not in the repo), the book PDF for chapters beyond the notes, and
-  `ap.zip` / `Android_AP.zip` to compare with the app.
+  Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES
+  4–5; its wall rule is kept, FIXES 36); FIXES item 27 is documented, not
+  fixed; an Info pane for BPP.
+- **Sources for the next chat:** the book PDF (`apbook1.pdf`; William
+  attaches it — read pages with the PDF tool, PDF page = book page + 31);
+  `CPT.zip` for plume work and `ap.zip` / `Android_AP.zip` to compare with
+  the app (neither is in the repo).
 
 ## 8. Opening message for the next chat
 
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run checks/run_all.sh, and
-> continue with the next step in HANDOFF.md §7: [milestone M1, step 2 |
-> the realistic world generator]. Deliver each step as a patch with git
+> continue with the next step in HANDOFF.md §7: [the realistic world
+> generator | milestone M2]. Deliver each step as a patch with git
 > commands.
 
 Attach the book PDF if the chat will need chapters beyond the notes,
