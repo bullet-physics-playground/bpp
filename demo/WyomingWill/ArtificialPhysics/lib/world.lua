@@ -513,30 +513,36 @@ function World:toBPP(viewer, opts)
   -- book y -> BPP -z, so a camera looking down -z with y up sees the world
   -- as the book draws it (x to the right, y up the page)
   local function Z(y) return -y * S end
+  if self.buildings then
+    local m = require("lib.buildings").toBPP(self, viewer, { scale = S, base = base, contact = opts.contact })
+    if m then objs[#objs + 1] = m end
+  end
   for k, p in ipairs(self.pieces) do
-    local c = (p.tag == "wall") and (col.wall or "#ffff00") or (col[p.tag] or col.obstacle or "#888888")
-    -- overlapping pieces of one height would share a top face and flicker
-    -- (z-fighting), so the drawn height is staggered by under 1%
-    local h = hS(p) * (1 + 0.0013 * (k % 7))
-    local pb = base + (p.base or 0) * S
-    if p.kind == "disc" then
-      local o = Cylinder(p.r * S, h, 0)
-      o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), pi / 2), btVector3(p.x * S, pb + h / 2, Z(p.y)))
-      put(o, c)
-    elseif p.kind == "rect" then
-      local o = Cube(p.sx * S, h, p.sy * S, 0)
-      -- with y -> -z, a turn by a about book-up is +a about BPP y
-      o.trans = btTransform(btQuaternion(btVector3(0, 1, 0), p.a), btVector3(p.x * S, pb + h / 2, Z(p.y)))
-      put(o, c)
-    else
-      local q = p.p
-      local function V(k, y) return btVector3(q[2 * k - 1] * S, y, Z(q[2 * k])) end
-      local top, bot = pb + h, pb
-      put(Triangle(V(1, top), V(2, top), V(3, top), 0), c)
-      for k = 1, 3 do
-        local k2 = k % 3 + 1
-        put(Triangle(V(k, bot), V(k2, bot), V(k2, top), 0), c)
-        put(Triangle(V(k, bot), V(k2, top), V(k, top), 0), c)
+    if not p.inMesh then                   -- buildings are drawn as one mesh
+      local c = (p.tag == "wall") and (col.wall or "#ffff00") or (col[p.tag] or col.obstacle or "#888888")
+      -- overlapping pieces of one height would share a top face and flicker
+      -- (z-fighting), so the drawn height is staggered by under 1%
+      local h = hS(p) * (1 + 0.0013 * (k % 7))
+      local pb = base + (p.base or 0) * S
+      if p.kind == "disc" then
+        local o = Cylinder(p.r * S, h, 0)
+        o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), pi / 2), btVector3(p.x * S, pb + h / 2, Z(p.y)))
+        put(o, c)
+      elseif p.kind == "rect" then
+        local o = Cube(p.sx * S, h, p.sy * S, 0)
+        -- with y -> -z, a turn by a about book-up is +a about BPP y
+        o.trans = btTransform(btQuaternion(btVector3(0, 1, 0), p.a), btVector3(p.x * S, pb + h / 2, Z(p.y)))
+        put(o, c)
+      else
+        local q = p.p
+        local function V(k, y) return btVector3(q[2 * k - 1] * S, y, Z(q[2 * k])) end
+        local top, bot = pb + h, pb
+        put(Triangle(V(1, top), V(2, top), V(3, top), 0), c)
+        for k = 1, 3 do
+          local k2 = k % 3 + 1
+          put(Triangle(V(k, bot), V(k2, bot), V(k2, top), 0), c)
+          put(Triangle(V(k, bot), V(k2, top), V(k, top), 0), c)
+        end
       end
     end
   end

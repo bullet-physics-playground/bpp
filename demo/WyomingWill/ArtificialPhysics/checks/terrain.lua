@@ -11,7 +11,9 @@
 --                         straight distance per bend, in channel widths
 --   depth                 water level - ground
 --
--- Run from the ArtificialPhysics folder (about 10 s):
+-- The presets are built to their terrain only (layers = 1).
+--
+-- Run from the ArtificialPhysics folder (about 7 s):
 --   lua5.1 checks/terrain.lua
 -- or inside BPP: bpp -f checks/terrain.lua -n 1
 --
@@ -45,11 +47,11 @@ local worlds, t0 = {}, os.clock()
 local okRepeat, okDiffer, times = true, true, {}
 for _, name in ipairs(Places.names()) do
   local c0 = os.clock()
-  local w = World.preset(name, { seed = 1 })
+  local w = World.preset(name, { seed = 1, layers = 1 })
   times[#times + 1] = string.format("%s %.2f", name, os.clock() - c0)
   worlds[name] = w
-  if World.preset(name, { seed = 1 }).terrain:checksum() ~= w.terrain:checksum() then okRepeat = false end
-  if World.preset(name, { seed = 2 }).terrain:checksum() == w.terrain:checksum() then okDiffer = false end
+  if World.preset(name, { seed = 1, layers = 1 }).terrain:checksum() ~= w.terrain:checksum() then okRepeat = false end
+  if World.preset(name, { seed = 2, layers = 1 }).terrain:checksum() == w.terrain:checksum() then okDiffer = false end
 end
 check("the same seed repeats each preset exactly", okRepeat)
 check("different seeds give different terrain", okDiffer, "s: " .. table.concat(times, ", "))
@@ -58,7 +60,7 @@ do
   rng.seed(42)
   local a = rng.random()
   rng.seed(42)
-  World.preset("rural", { seed = 9 })
+  World.preset("rural", { seed = 9, layers = 1 })
   check("building terrain leaves the shared random stream alone", rng.random() == a)
 end
 

@@ -28,7 +28,10 @@
 --             coloured by Local Climate Zone (greys for built zones, from
 --             dark high-rise to light industry; greens for open low-rise,
 --             sparse, park, woods; yellow-green fields), streets in dark
---             grey, bridges lighter, cul-de-sacs with turning circles.
+--             grey, bridges lighter, cul-de-sacs with turning circles;
+--             and their lots and buildings (lib/buildings.lua): whole
+--             floors, coloured by type (glass towers, brick mid-rise,
+--             houses with red roofs, grey sheds, white tanks).
 --             worldSeed picks the layout.
 --
 -- DEFINITIONS (status line): the world's name and size in the book's units
@@ -42,7 +45,8 @@
 -- depth, m; steepest = steepest dry triangle, rise over run in % (the
 -- slope rule keeps every dry slope along the grid within 15%, so a
 -- triangle across it within 21%); streets = total street length, km;
--- built = seconds to generate (terrain, zones and streets).
+-- buildings = how many; built = seconds to generate (terrain, zones,
+-- streets, lots and buildings).
 --
 -- Sliders rebuild the world at once. worldSeed picks the random layout
 -- (preset 4); the same seed always gives the same corridor. Nothing moves:
@@ -144,7 +148,8 @@ local function build(moveCamera)
                          status.num("deepest", st.deepest, 1, false, 5, "m"),
                          status.pct("steepest", 100 * st.maxSlope, 1, 6),
                          status.num("streets", km, 1, false, 5, "km"),
-                         status.num("built", w.terrain.buildTime + w.town.buildTime, 2, false, 5, "s") })
+                         status.int("buildings", #w.buildings, 5),
+                         status.num("built", w.terrain.buildTime + w.town.buildTime + w.buildTimeBuildings, 1, false, 4, "s") })
   else
     line = w:summary() .. extra
     pcall(function() v.statusText = line end)
@@ -176,8 +181,8 @@ preset 2  Ch. 3.6 obstacle wall, Fig. 3.26 (6 discs, radius 45)
 preset 3  Ch. 4.3 / Ch. 11 coverage box, nine cells
 preset 4  Ch. 7 corridor (obstaclePercent, worldSeed; magenta = shadow cells)
 preset 5-9  rural, suburban, city centre, industrial port, harbour town
-            (terrain, water, zones and streets so far; worldSeed picks
-            the layout)
+            (terrain, water, zones, streets and buildings so far;
+            worldSeed picks the layout)
 
 Sliders rebuild at once. The camera moves only when the preset changes.]]) end)
 

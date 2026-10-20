@@ -9,10 +9,10 @@
 --   reached     share of street sample points (every 5 m) reached from an
 --               arterial through the streets themselves (rasterised on a
 --               4 m grid, 8-neighbours), independently of lib/town.lua
---   clearance   distance from a cul-de-sac's points (every 10 m) to any
---               street's centreline but its own and the road it leaves
 --
--- Run from the ArtificialPhysics folder (about 15 s):
+-- The presets are built to their streets (layers = 2).
+--
+-- Run from the ArtificialPhysics folder (about 10 s):
 --   lua5.1 checks/town.lua
 -- or inside BPP: bpp -f checks/town.lua -n 1
 --
@@ -38,7 +38,7 @@ print("town: " .. _VERSION .. ", presets: " .. table.concat(Places.names(), ", "
 
 local t0 = os.clock()
 local worlds = {}
-for _, name in ipairs(Places.names()) do worlds[name] = World.preset(name, { seed = 1 }) end
+for _, name in ipairs(Places.names()) do worlds[name] = World.preset(name, { seed = 1, layers = 2 }) end
 
 -- Points along every street, every 5 m: { x, y, street }.
 local function samples(town, step)
@@ -138,17 +138,17 @@ do
   local okRepeat, okDiffer = true, true
   for _, name in ipairs(Places.names()) do
     local a = streetsSum(worlds[name].town)
-    if streetsSum(World.preset(name, { seed = 1 }).town) ~= a then okRepeat = false end
+    if streetsSum(World.preset(name, { seed = 1, layers = 2 }).town) ~= a then okRepeat = false end
     -- the industrial port's streets are all straight grids and arterials,
     -- the same for every seed by design
-    if name ~= "industrial-port" and streetsSum(World.preset(name, { seed = 2 }).town) == a then okDiffer = false end
+    if name ~= "industrial-port" and streetsSum(World.preset(name, { seed = 2, layers = 2 }).town) == a then okDiffer = false end
   end
   check("the same seed repeats the streets exactly", okRepeat)
   check("different seeds give different streets (not the port's)", okDiffer)
   rng.seed(42)
   local a = rng.random()
   rng.seed(42)
-  World.preset("suburban", { seed = 9 })
+  World.preset("suburban", { seed = 9, layers = 2 })
   check("building zones and streets leaves the shared stream alone", rng.random() == a)
 end
 
@@ -264,9 +264,10 @@ do
         n .. " grid pieces")
 end
 
--- Cul-de-sacs: length, turning circle, clearance.
+-- Cul-de-sacs: each starts on a collector (its open end), runs at most the
+-- fire code's 229 m and ends in a 15 m turning circle; locals never bridge.
 do
-  local okLen, okBulb, worst, n = true, true, math.huge, 0
+  local okLen, okBulb, okStart, n = true, true, true, 0
   for _, name in ipairs(Places.names()) do
     local town = worlds[name].town
     for _, s in ipairs(town.streets) do
@@ -274,24 +275,21 @@ do
         n = n + 1
         local p, L = s.pts, 0
         for q = 1, #p - 3, 2 do L = L + sqrt((p[q + 2] - p[q]) ^ 2 + (p[q + 3] - p[q + 1]) ^ 2) end
-        if L > Town.CUL_LENGTH + 1e-6 or L < 50 - 1e-6 then okLen = false end
-        if not s.bulb or s.bulb[3] ~= 15 or s.bulb[1] ~= p[#p - 1] then okBulb = false end
-        -- clearance from every street but itself and the road it leaves
-        for q = 3, #p - 1, 2 do
-          local x, y = p[q], p[q + 1]
-          for _, o in ipairs(town.streets) do
-            if o ~= s and o ~= s.parent then
-              local op = o.pts
-              for r = 1, #op - 3, 2 do worst = min(worst, (Land.segDist(x, y, op[r], op[r + 1], op[r + 2], op[r + 3]))) end
-            end
+        if L > Town.CUL_MAX + 1e-6 or L < Town.MIN_RUN - 10 then okLen = false end
+        if not s.bulb or s.bulb[3] ~= 15 or s.bulb[1] ~= p[#p - 1] or s.bulb[2] ~= p[#p] then okBulb = false end
+        local near = math.huge
+        for _, o in ipairs(town.streets) do
+          if o.kind == "collector" then
+            local op = o.pts
+            for r = 1, #op - 3, 2 do near = min(near, (Land.segDist(p[1], p[2], op[r], op[r + 1], op[r + 2], op[r + 3]))) end
           end
         end
+        if near > 1 then okStart = false end
       end
     end
   end
-  check("cul-de-sacs 50-150 m long, ending in a 15 m turning circle", okLen and okBulb and n > 50, n .. " cul-de-sacs")
-  check("cul-de-sacs keep 80 m from other streets", worst >= Town.CLEARANCE - 1e-9,
-        worst == math.huge and "none closer than 80 m" or string.format("closest %.0f m", worst))
+  check("cul-de-sacs up to 229 m, ending in a 15 m turning circle", okLen and okBulb and n > 50, n .. " cul-de-sacs")
+  check("every cul-de-sac starts on a collector", okStart)
 end
 
 print(string.format("all presets built in %.1f s", os.clock() - t0))

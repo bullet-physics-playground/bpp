@@ -480,6 +480,46 @@ trap: a Lua local named `Terrain` (our terrain module) hides BPP's global
 module is now `Land` there. Zones and streets build in 0.02–0.3 s and a
 seed gives identical streets on Lua 5.1–5.4.
 
+**F62. Buildings calibrated to the published LCZ ranges, and what it took**
+— 2026-10-20, New and Our error, corrected. `lib/buildings.lua`,
+`checks/buildings.lua`. (a) **Result.** Every built zone covering ≥ 3%
+of a preset now falls inside Stewart and Oke's ranges, on seeds 1–3
+(building fraction / mean height): city compact high-rise 41–45% / 56–64 m
+(40–60%, > 25 m); compact mid-rise 40–46% / 18–19 m (40–70%, 10–25 m); open
+mid-rise 23% / 18 m (20–40%, 10–25 m); harbour-town compact low-rise
+45–48% / 7 m (40–70%, 3–10 m); open low-rise 22–24% / 5 m in the suburb and
+the harbour town (20–40%, 3–10 m); sparsely built 12.5–13% / 5 m (10–20%);
+port large low-rise 33–35% / 8 m (30–50%, 3–10 m); heavy industry 22–23% /
+11–12 m (20–30%, 5–15 m). The city's skyline has a heavy tail (median
+17.5 m, 99th percentile 80.5 m, tallest 171.5 m, 49 floors), and its mean
+height falls from 65 m within 150 m of the centre to 31 m and then levels
+at 18 m, as Schläpfer et al. (2015) describe (heights fall near the centre,
+then settle). (b) **The suburb's streets were too sparse.** Cul-de-sacs
+hung off collectors 400 m apart left block interiors empty: open
+low-rise 10.6% and sparsely built 5.3% built, a third of the published
+range. Measuring where the land went (28% street, 47% lots, 25% neither)
+pointed at the network, not the houses. Local streets 80 m apart between
+the collectors, half of them cut midway into cul-de-sacs, now carry the
+lots (55 km of street in the suburb, about 2,300 houses). Cutting needed
+care: a piece was first assumed to meet a collector at its uncut end, but
+an end at a zone's edge meets nothing, and those pieces were reversed,
+trimmed and dropped; locals are now split where they actually cross the
+collectors. (c) **The gap rule and the setbacks interact.** Back-to-back
+compact buildings with 1–2 m rear setbacks stood 2–4 m apart, inside the
+forbidden 0–3 m, so the rule narrowed them and left gaps along the
+streets; compact zones now have a rear setback of half the minimum gap
+(1.5 m), and a building breaking the rule gives up depth before width.
+(d) *Our error, corrected:* lots were first tested against the streets at
+3 × 3 points, and on 110–150 m industrial lots whole 20 m streets passed
+between the points: lots straddled streets and the port's heavy industry
+read 21.5% built where the honest figure was 18%. The test is now exact
+(distance from each street segment and turning circle to the lot's
+rectangle), with water sampled every half cell. (e) The city's centre
+first sat on its river, which took a quarter of the high-rise zone's land
+and held it at 36–39% built; it now lies 150 m north. (f) A Lua trap:
+`goto` does not exist in Lua 5.1 (BPP's cloud build). Lots and buildings
+take 0.8–3.4 s per preset in Lua 5.1 and are identical on 5.1–5.4.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

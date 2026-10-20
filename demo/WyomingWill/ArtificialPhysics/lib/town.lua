@@ -18,8 +18,9 @@
 --                      block spacing and widths (Manhattan, Chicago);
 --           collectors curving roads on a coarse warped grid in the zones
 --                      whose style is "collectors" (suburbs);
---           cul-de-sacs off collectors and arterials in those zones, bent,
---                      each ending in a turning circle.
+--           locals     between them, parallel to one family of collectors,
+--                      LOCAL_SPACING apart; half are cut midway into two
+--                      cul-de-sacs, each ending in a turning circle.
 --           Then one rule: every street must connect to the arterials
 --           (or, with none, to the largest network); the rest are dropped.
 --
@@ -32,21 +33,24 @@
 --                ranges of building fraction and mean height)
 --   width        a street's right of way, m (building line to building
 --                line in a compact core; carriageway and pavements)
---   street kind  "arterial", "grid", "collector", "culdesac", "bridge"
+--   street kind  "arterial", "grid", "collector", "local", "culdesac",
+--                "bridge"
 --
 -- FIXED CONSTANTS (stated, not knobs):
 --   BRIDGE_MAX 150 m      longest water a street may bridge (arterials, a
 --                         grid's long family and one in four of its short
 --                         family); collectors bridge up to 60 m (creeks);
---                         cul-de-sacs never
---   CUL_LENGTH 150 m      a cul-de-sac's longest run (US subdivision rules;
---                         the fire code allows dead ends to 750 ft, 229 m,
---                         with a 96 ft, 29.3 m, turnaround: radius 15 m)
---   CUL_BEND 0.5 rad      a cul-de-sac turns by up to this much along it
---   CUL_SPACING 90 m      stations along a road, alternating sides
---   CLEARANCE 80 m        between a new cul-de-sac and any other street:
---                         two suburban lots (32 m deep) back to back plus a
---                         15 m right of way
+--                         locals and cul-de-sacs never
+--   LOCAL_SPACING 80 m    between parallel local streets: two suburban lots
+--                         (32 m deep) back to back plus a 15 m right of way
+--   CUT 0.5               the chance that a local is cut between two
+--                         collectors into two cul-de-sacs
+--   CUL_GAP 80 m          the length cut out of a local: room for the two
+--                         turning circles and a lot behind each (as
+--                         LOCAL_SPACING leaves room for two lots)
+--   CUL_MAX 229 m         a cul-de-sac's longest run: the fire code's limit
+--                         for dead ends, 750 ft, with a 96 ft (29.3 m)
+--                         turnaround: our turning circles' radius 15 m
 --   MIN_RUN 30 m          shorter street pieces are dropped
 --
 -- RANDOMNESS: its own stream, rng.new(seed + 1000), never the shared one.
@@ -65,11 +69,11 @@ local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3
 
 Town.BRIDGE_MAX = 150
 Town.COLLECTOR_BRIDGE_MAX = 60
-Town.CUL_LENGTH = 150
+Town.LOCAL_SPACING = 80
+Town.CUT = 0.5
+Town.CUL_GAP = 80
+Town.CUL_MAX = 229
 Town.CUL_RADIUS = 15
-Town.CUL_BEND = 0.5
-Town.CUL_SPACING = 90
-Town.CLEARANCE = 80
 Town.MIN_RUN = 30
 
 -- Local Climate Zones (Stewart and Oke 2012, Table 3): building surface
@@ -197,13 +201,46 @@ function Town:streetDistance(x, y, r)
       end
     end
   end
-  for _, s in ipairs(self.streets) do
-    if s.bulb then
-      local d = sqrt((x - s.bulb[1]) ^ 2 + (y - s.bulb[2]) ^ 2) - s.bulb[3]
-      if d < best then best, bs = d, s end
+  local rb = r + Town.CUL_RADIUS                   -- a circle's centre may lie beyond r
+  for i = floor((x - rb) / BUCKET), floor((x + rb) / BUCKET) do
+    for j = floor((y - rb) / BUCKET), floor((y + rb) / BUCKET) do
+      local list = self.bulbs[i * 100003 + j]
+      if list then
+        for _, s in ipairs(list) do
+          local d = sqrt((x - s.bulb[1]) ^ 2 + (y - s.bulb[2]) ^ 2) - s.bulb[3]
+          if d < best then best, bs = d, s end
+        end
+      end
     end
   end
   return best, bs
+end
+
+-- Calls fn(street, x0, y0, x1, y1) for every street segment indexed near
+-- the box (x0, y0)-(x1, y1), and fn(street) with street.bulb for every
+-- turning circle near it; stops when fn returns true (and returns true).
+function Town:near(x0, y0, x1, y1, fn)
+  for i = floor(x0 / BUCKET), floor(x1 / BUCKET) do
+    for j = floor(y0 / BUCKET), floor(y1 / BUCKET) do
+      local list = self.index.cells[i * 100003 + j]
+      if list then
+        for _, e in ipairs(list) do
+          local s, q = e[1], e[2]
+          local p = s.pts
+          if fn(s, p[q], p[q + 1], p[q + 2], p[q + 3]) then return true end
+        end
+      end
+    end
+  end
+  local r = Town.CUL_RADIUS
+  for i = floor((x0 - r) / BUCKET), floor((x1 + r) / BUCKET) do
+    for j = floor((y0 - r) / BUCKET), floor((y1 + r) / BUCKET) do
+      for _, s in ipairs(self.bulbs[i * 100003 + j] or {}) do
+        if fn(s) then return true end
+      end
+    end
+  end
+  return false
 end
 
 --------------------------------------------------------------------------
@@ -211,10 +248,11 @@ end
 --------------------------------------------------------------------------
 
 -- Samples P(s) for s in [s0, s1] every ds and cuts it into street pieces:
--- runs where pred(x, y) holds on dry land, with water inside a run bridged
+-- runs where pred(x, y, s) holds on dry land, with water inside a run bridged
 -- when it is no longer than bridgeMax (0: never) and split otherwise.
 -- straight = true keeps only the pieces' ends. Returns a list of
--- { pts, kind } with kind "bridge" for the bridges.
+-- { pts, ts, kind }: ts the parameter s of each point, kind "bridge" for
+-- the bridges.
 local function trace(town, P, s0, s1, ds, pred, bridgeMax, straight)
   local b = town.bounds
   local S = {}
@@ -222,20 +260,21 @@ local function trace(town, P, s0, s1, ds, pred, bridgeMax, straight)
   while s <= s1 + 1e-9 do
     local x, y = P(s)
     local inb = x >= b[1] and x <= b[3] and y >= b[2] and y <= b[4]
-    local ok = inb and pred(x, y)
-    S[#S + 1] = { x = x, y = y, ok = ok, wet = ok and town.terrain:water(x, y) ~= nil }
+    local ok = inb and pred(x, y, s)
+    S[#S + 1] = { x = x, y = y, s = s, ok = ok, wet = ok and town.terrain:water(x, y) ~= nil }
     s = s + ds
   end
   local out = {}
   local function emit(i0, i1, kind)
     if (i1 - i0) * ds < (kind == "bridge" and 0 or Town.MIN_RUN) then return end
-    local pts = {}
+    local pts, ts = {}, {}
     for i = i0, i1 do
       if not straight or i == i0 or i == i1 then
         pts[#pts + 1] = S[i].x; pts[#pts + 1] = S[i].y
+        ts[#ts + 1] = S[i].s
       end
     end
-    out[#out + 1] = { pts = pts, kind = kind }
+    out[#out + 1] = { pts = pts, ts = ts, kind = kind }
   end
   local i, n = 1, #S
   while i <= n do
@@ -336,81 +375,152 @@ local function layGrid(town, F)
   end
 end
 
--- Collectors: frame = { angle, spacing, warp (m), wavelength (m), width }:
--- a grid of lines `spacing` apart, each bent sideways by up to `warp`.
-local function layCollectors(town, C, s)
+-- The part of a traced piece between parameters a and b (a < b), as a
+-- polyline, reversed if rev.
+local function slice(piece, a, b, rev)
+  local p, ts = piece.pts, piece.ts
+  local out = {}
+  local function lerp(q)                          -- point at parameter q
+    for k = 1, #ts - 1 do
+      if q <= ts[k + 1] or k == #ts - 1 then
+        local f = (q - ts[k]) / (ts[k + 1] - ts[k])
+        f = min(1, max(0, f))
+        return p[2 * k - 1] + f * (p[2 * k + 1] - p[2 * k - 1]), p[2 * k] + f * (p[2 * k + 2] - p[2 * k])
+      end
+    end
+  end
+  local x, y = lerp(a)
+  out[#out + 1] = x; out[#out + 1] = y
+  for k = 1, #ts do
+    if ts[k] > a and ts[k] < b then out[#out + 1] = p[2 * k - 1]; out[#out + 1] = p[2 * k] end
+  end
+  x, y = lerp(b)
+  out[#out + 1] = x; out[#out + 1] = y
+  if rev then
+    local r = {}
+    for q = #out - 1, 1, -2 do r[#r + 1] = out[q]; r[#r + 1] = out[q + 1] end
+    out = r
+  end
+  return out
+end
+
+-- A cul-de-sac from its open end (first point) to its dead end, no longer
+-- than CUL_MAX, with its turning circle.
+local function addCulDeSac(town, p, width)
+  local L, out = 0, { p[1], p[2] }
+  for q = 1, #p - 3, 2 do
+    local d = sqrt((p[q + 2] - p[q]) ^ 2 + (p[q + 3] - p[q + 1]) ^ 2)
+    if L + d >= Town.CUL_MAX then
+      local g = (Town.CUL_MAX - L) / d
+      out[#out + 1] = p[q] + g * (p[q + 2] - p[q]); out[#out + 1] = p[q + 1] + g * (p[q + 3] - p[q + 1])
+      break
+    end
+    L = L + d
+    out[#out + 1] = p[q + 2]; out[#out + 1] = p[q + 3]
+  end
+  local st = addStreet(town, out, width, "culdesac")
+  st.bulb = { out[#out - 1], out[#out], Town.CUL_RADIUS }
+end
+
+-- Collectors and the local streets between them: frame = { angle,
+-- spacing, warp (m), wavelength (m), width }.
+-- Collectors: a grid of lines `spacing` apart, each bent sideways by up
+-- to `warp` by its own noise.
+-- Locals (localWidth wide): between neighbouring collectors of the first
+-- family, a line every spacing / n (n = spacing / LOCAL_SPACING, rounded),
+-- its bend blended between the two collectors' so it runs parallel to
+-- them; locals never bridge. Midway between the second family's
+-- collectors a local is cut, with probability CUT, CUL_GAP long. Each
+-- traced piece is then split where it crosses the second family: between
+-- two crossings it is a through local; from a crossing to a cut, a
+-- cul-de-sac (turning circle, no longer than CUL_MAX); from a crossing to
+-- the zone's edge, a dead-end local; with no crossing it is dropped.
+local function layCollectors(town, C, s, localWidth)
   local c, sn = cos(C.angle or 0), sin(C.angle or 0)
   local b = town.bounds
   local cx, cy = (b[1] + b[3]) / 2, (b[2] + b[4]) / 2
   local R = sqrt((b[3] - b[1]) ^ 2 + (b[4] - b[2]) ^ 2) / 2 + 50
-  local N = math.ceil(R / C.spacing)
+  local S = C.spacing
+  local N = math.ceil(R / S)
   local lam = C.wavelength or 500
   local noise = Land.newNoise(s, 2 * R + 10, (2 * N + 3) * 4 * lam, lam, 2)
-  local pred = function(x, y) return town:entry(x, y, true).streets == "collectors" end
+  local zoneOK = function(x, y) return town:entry(x, y, true).streets == "collectors" end
+  local bend = { {}, {} }                         -- each line's bend, by family
+  local exists = {}                               -- second-family lines that were laid
   for fam = 1, 2 do
     local ex, ey = (fam == 1) and c or -sn, (fam == 1) and sn or c
     local nx, ny = -ey, ex
     for i = -N, N do
       local row = ((fam - 1) * (2 * N + 1) + i + N) * 2 * lam + 0.5
+      local warp = function(t) return (C.warp or 0) * Land.fbm(noise, max(-R, min(R, t)) + R, row) end
+      bend[fam][i] = warp
       local P = function(t)
-        local off = i * C.spacing + (C.warp or 0) * Land.fbm(noise, t + R, row)
+        local off = i * S + warp(t)
         return cx + t * ex + off * nx, cy + t * ey + off * ny
       end
-      addTraced(town, trace(town, P, -R, R, 10, pred, Town.COLLECTOR_BRIDGE_MAX, false),
-                C.width or 20, "collector")
+      local pieces = trace(town, P, -R, R, 10, zoneOK, Town.COLLECTOR_BRIDGE_MAX, false)
+      if fam == 2 then exists[i] = pieces end
+      addTraced(town, pieces, C.width or 20, "collector")
     end
   end
-end
-
--- Cul-de-sacs off the collectors and arterials, where the zone's style is
--- "collectors": every CUL_SPACING along the road, alternating sides; each
--- runs from the road's edge, turning steadily by up to CUL_BEND, and stops
--- at CUL_LENGTH, at water, out of the zone, or CLEARANCE from any other
--- street; kept if at least 50 m long.
-local function layCulDeSacs(town, width, s)
-  local roads = {}
-  for _, st in ipairs(town.streets) do
-    if st.kind == "collector" or st.kind == "arterial" then roads[#roads + 1] = st end
-  end
-  local b = town.bounds
-  for _, road in ipairs(roads) do
-    local p = road.pts
-    local acc, nextAt, side = 0, Town.CUL_SPACING / 2, 1
-    for q = 1, #p - 3, 2 do
-      local dx, dy = p[q + 2] - p[q], p[q + 3] - p[q + 1]
-      local len = sqrt(dx * dx + dy * dy)
-      while len > 0 and acc + len >= nextAt do
-        local f = (nextAt - acc) / len
-        local x, y = p[q] + f * dx, p[q + 1] + f * dy
-        local nx, ny = -dy / len * side, dx / len * side
-        nextAt = nextAt + Town.CUL_SPACING / 2
-        side = -side
-        local e = town:entry(x + nx * (road.width / 2 + 10), y + ny * (road.width / 2 + 10))
-        if e.streets == "collectors" then
-          local heading = atan2(ny, nx)
-          local bend = Town.CUL_BEND * (2 * s:random() - 1)
-          local px, py = x + nx * road.width / 2, y + ny * road.width / 2
-          local pts, L = { px, py }, 0
-          while L < Town.CUL_LENGTH do
-            local th = heading + bend * (L / Town.CUL_LENGTH)
-            local qx, qy = px + 10 * cos(th), py + 10 * sin(th)
-            local m = Town.CUL_RADIUS + 15
-            if qx < b[1] + m or qx > b[3] - m or qy < b[2] + m or qy > b[4] - m then break end
-            local ez = town:entry(qx, qy)
-            if ez.streets ~= "collectors" then break end
-            local d = indexNearest(town.index, qx, qy, Town.CLEARANCE, road)
-            if d < Town.CLEARANCE then break end
-            px, py, L = qx, qy, L + 10
-            pts[#pts + 1] = px; pts[#pts + 1] = py
+  local n = max(1, floor(S / Town.LOCAL_SPACING + 0.5))
+  local ex, ey, nx, ny = c, sn, -sn, c
+  for i = -N, N - 1 do
+    for k = 1, n - 1 do
+      local f = k / n
+      local function off(t) return (i + f) * S + (1 - f) * bend[1][i](t) + f * bend[1][i + 1](t) end
+      local P = function(t)
+        local o = off(t)
+        return cx + t * ex + o * nx, cy + t * ey + o * ny
+      end
+      -- where the second family crosses this line: second-family line j
+      -- sits at e1-coordinate -(j S + its bend at e2-coordinate off(t))
+      local crossings = {}
+      for j = -N, N do
+        local t = -j * S
+        for _ = 1, 4 do t = -(j * S + bend[2][j](off(t))) end
+        -- only where that collector was laid (it can be cut by the zone)
+        local x, y = P(t)
+        for _, pc in ipairs(exists[j] or {}) do
+          local q = pc.pts
+          local hit = false
+          for r = 1, #q - 3, 2 do
+            if segDist(x, y, q[r], q[r + 1], q[r + 2], q[r + 3]) < 1 then hit = true; break end
           end
-          if L >= 50 then
-            local st = addStreet(town, pts, width, "culdesac")
-            st.bulb = { px, py, Town.CUL_RADIUS }
-            st.parent = road
+          if hit then crossings[#crossings + 1] = t; break end
+        end
+      end
+      table.sort(crossings)
+      local cuts = {}
+      for j = -N, N - 1 do
+        if s:random() < Town.CUT then cuts[#cuts + 1] = (j + 0.5) * S end
+      end
+      local pred = function(x, y, t)
+        for _, tc in ipairs(cuts) do if abs(t - tc) < Town.CUL_GAP / 2 then return false end end
+        return zoneOK(x, y)
+      end
+      local function atCut(t)
+        for _, tc in ipairs(cuts) do if abs(abs(t - tc) - Town.CUL_GAP / 2) < 15 then return true end end
+        return false
+      end
+      for _, piece in ipairs(trace(town, P, -R, R, 10, pred, 0, false)) do
+        local a, z = piece.ts[1], piece.ts[#piece.ts]
+        local inside = {}
+        for _, t in ipairs(crossings) do if t > a and t < z then inside[#inside + 1] = t end end
+        if #inside > 0 then
+          local c1, ck = inside[1], inside[#inside]
+          if ck > c1 then addStreet(town, slice(piece, c1, ck), localWidth, "local") end
+          -- the two ends beyond the outer crossings
+          for _, e in ipairs({ { a, c1, true }, { ck, z, false } }) do
+            local p0, p1, rev = e[1], e[2], e[3]
+            if p1 - p0 >= Town.MIN_RUN then
+              local pts = slice(piece, p0, p1, rev)         -- from the crossing outward
+              if atCut(rev and p0 or p1) then addCulDeSac(town, pts, localWidth)
+              else addStreet(town, pts, localWidth, "local") end
+            end
           end
         end
       end
-      acc = acc + len
     end
   end
 end
@@ -497,7 +607,15 @@ local function connect(town)
   town.streets = keep
   town.dropped = dropped
   town.index = newIndex()
-  for _, s in ipairs(keep) do indexAdd(town.index, s) end
+  town.bulbs = {}                                  -- turning circles, by bucket
+  for _, s in ipairs(keep) do
+    indexAdd(town.index, s)
+    if s.bulb then
+      local key = floor(s.bulb[1] / BUCKET) * 100003 + floor(s.bulb[2] / BUCKET)
+      town.bulbs[key] = town.bulbs[key] or {}
+      table.insert(town.bulbs[key], s)
+    end
+  end
 end
 
 --------------------------------------------------------------------------
@@ -555,8 +673,7 @@ function Town.build(terrain, spec)
   for _, e in ipairs(town.ladder) do if e.grid and not seen[e.grid] then seen[e.grid] = true; frames[#frames + 1] = e.grid end end
   for _, e in ipairs(town.districts) do if e.grid and not seen[e.grid] then seen[e.grid] = true; frames[#frames + 1] = e.grid end end
   for _, F in ipairs(frames) do layGrid(town, F) end
-  if St.collectors then layCollectors(town, St.collectors, s) end
-  layCulDeSacs(town, St["local"] or 15, s)
+  if St.collectors then layCollectors(town, St.collectors, s, St["local"] or 15) end
   connect(town)
   town.buildTime = os.clock() - t0
   return town

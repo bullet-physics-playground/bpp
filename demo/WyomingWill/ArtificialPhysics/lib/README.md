@@ -12,6 +12,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `world.lua` | G21 | The world generator's core: pieces, cells, masks, BPP geometry, the book's worlds as presets |
 | `terrain.lua` | G21 | The realistic worlds' ground and water: a heightfield with sea, rivers and ponds, depths, dredged channels and quays |
 | `town.lua` | G21 | The realistic worlds' zones (Local Climate Zones) and streets (arterials, grids, collectors, cul-de-sacs) |
+| `buildings.lua` | G21 | The realistic worlds' lots and buildings: frontage lots, rect/L/T/U footprints, whole floors, the gap rule, calibrated to the LCZ ranges |
 | `places.lua` | G21 | The five realistic presets (rural, suburban, city centre, industrial port, harbour town) as parameter tables |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 | `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
@@ -164,8 +165,10 @@ w:writeGrid("corridor.txt")
   instead of the floor, and the streets (`contact = true` lets bodies land
   on the ground and the streets).
 - **The realistic layers** so far: terrain and water (`terrain.lua`), zones
-  and streets (`town.lua`). Lots and buildings, vegetation and the mission
-  features come next (`BOOK.md` §6).
+  and streets (`town.lua`), lots and buildings (`buildings.lua`; as World
+  pieces tagged `building`, standing on their own `base`, so `blocked`,
+  `blockedAt` and `writeCPT` see them, drawn as one mesh). Vegetation and
+  the mission features come next (`BOOK.md` §6).
 - `checks/world.lua`: 22 tests, about 7 s.
 
 ## `terrain.lua`
@@ -230,15 +233,19 @@ w.town:stats()                 -- zone shares, km of street by kind
   and bridge rivers; grids fill the zones whose style is `grid`, at a
   city's spacing and widths (Manhattan: streets 18.3 m every 80 m, avenues
   30.5 m every 274 m; Chicago: 20.1 m, 100 × 200 m); curving collectors
-  (a warped grid) fill the zones whose style is `collectors`, with
-  cul-de-sacs off them and off the arterials. Kinds: `arterial`, `grid`,
-  `collector`, `culdesac`, `bridge`.
+  (a warped grid, 400 m) fill the zones whose style is `collectors`, with
+  local streets between them, parallel and 80 m apart (two 32 m lots back
+  to back and a 15 m street); half of the locals are cut midway between
+  collectors into two cul-de-sacs, so each block has through streets and
+  dead ends. Kinds: `arterial`, `grid`, `collector`, `local`, `culdesac`,
+  `bridge`.
 - **Fixed rules, stated in the file:** bridges up to 150 m (arterials, a
   grid's long family and one in four of its short family; collectors up to
-  60 m, cul-de-sacs never); cul-de-sacs every 90 m along a road, alternate
-  sides, up to 150 m long, bending up to 0.5 rad, ending in a 15 m turning
-  circle (the fire code's 96 ft), and 80 m clear of other streets (two
-  32 m lots back to back and a 15 m street); pieces under 30 m dropped.
+  60 m, locals never); a local is split where it crosses the collectors:
+  through streets between crossings, cul-de-sacs (up to the fire code's
+  229 m, a 15 m turning circle, the 96 ft turnaround) from a crossing to a
+  cut, dead ends to a zone's edge; pieces with no crossing and pieces under
+  30 m are dropped.
 - **One rule keeps the network whole:** every street must connect to an
   arterial (or to the largest network, without one); the rest are dropped.
   `checks/town.lua` confirms it independently, with a raster flood.
@@ -248,6 +255,40 @@ w.town:stats()                 -- zone shares, km of street by kind
 - Seeded from its own stream (`seed + 1000`); identical on Lua 5.1–5.4.
 - `checks/town.lua`: 16 tests, about 8 s.
 
+## `buildings.lua`
+
+```lua
+local w = World.preset("city-centre", { seed = 1 })
+w.lots                         -- rectangles along the streets: x, y, ux, uy, hu, hv, zone
+w.buildings                    -- { parts, zone, floors, height, base, top } each
+w:blockedAt(x, y, z)           -- buildings are World pieces tagged "building"
+require("lib.buildings").stats(w)   -- per zone: building fraction, share under lots, mean height
+```
+
+- **Lots** are laid frontage first: along each side of each street (grids,
+  arterials, collectors, locals, cul-de-sacs, in that order), one after
+  another at the zone's frontage, as deep as the zone's lot depth or as
+  deep as fits (bisection); each cul-de-sac gets a lot at its head. A lot
+  must lie in its zone, be dry, keep clear of every right of way and
+  turning circle (exactly; its own curved street may cut its front corners
+  by up to 1 m, the sagitta) and of earlier lots.
+- **Buildings,** one per lot inside the setbacks: rectangles, L, T or U;
+  whole floors of 3.5 m from a lognormal (heavy-tailed) clamped to the
+  zone's range; sheds (large low-rise, industry) and tanks have heights.
+  Farmsteads (a house, a barn, a shed) every 400–900 m along rural roads.
+- **The gap rule** (the Android app's): two buildings touch (closed, as
+  party walls are) or stand at least 3 m apart (two 1.5 m side setbacks);
+  a building that breaks it is made shallower, then narrower, then left
+  out. Compact zones' rear setback is 1.5 m, so back-to-back lots leave
+  exactly 3 m.
+- **Calibrated:** each built zone's footprint and lot numbers are set so
+  that its measured building fraction and mean height fall in Stewart and
+  Oke's published ranges, in every preset where the zone covers ≥ 3% of
+  the area, on seeds 1–3 (`B.TYPES`; `FINDINGS.md` F62).
+- Drawn as one mesh: walls from the lowest ground under the building
+  (so no gap shows on a slope), flat roofs, a small tint per building.
+- `checks/buildings.lua`: 13 tests, about 30 s.
+
 ## `places.lua`
 
 The realistic presets as parameter tables, one per place; the layers hold
@@ -255,9 +296,9 @@ the rules, this file the numbers and where they come from.
 
 | Preset | Area | Ground and water | Zones and streets |
 | --- | --- | --- | --- |
-| `rural` | 3 × 3 km, 10 m cells | Rolling farmland (hills to 18 m, ~1.2 km apart), a 20 m river, two ponds | Fields, a quarter of them wooded; two winding 10 m roads crossing at a hamlet (sparsely built) |
-| `suburban` | 2 × 2 km, 8 m cells | Gentle relief (10 m), a 12 m creek, a pond for a park | Open low-rise to ~760 m from the centre, sparsely built beyond; collectors 400 m apart with cul-de-sacs; two arterials; a shopping centre (large low-rise) at the crossroads; a park round the pond |
-| `city-centre` | 1.6 × 1.6 km, 8 m cells | Nearly flat (3 m), a 60 m river | A Manhattan grid turned 29°: compact high-rise, compact mid-rise, open mid-rise outward; open low-rise with collectors in the corners; a park of 2 × 4 blocks; bridges on the avenues; one diagonal avenue |
+| `rural` | 3 × 3 km, 10 m cells | Rolling farmland (hills to 18 m, ~1.2 km apart), a 20 m river, two ponds | Fields, a quarter of them wooded; two winding 10 m roads crossing at a hamlet (sparsely built), farmsteads along them |
+| `suburban` | 2 × 2 km, 8 m cells | Gentle relief (10 m), a 12 m creek, a pond for a park | Open low-rise to ~760 m from the centre, sparsely built beyond; collectors 400 m apart, locals 80 m apart, half cut into cul-de-sacs; two arterials; a shopping centre (large low-rise) at the crossroads; a park round the pond; ~2,300 houses |
+| `city-centre` | 1.6 × 1.6 km, 8 m cells | Nearly flat (3 m), a 60 m river | A Manhattan grid turned 29° to the edges: compact high-rise just north of the river, compact mid-rise, then open mid-rise; a park of 2 × 4 blocks; bridges on the avenues; one diagonal avenue; ~1,100 buildings, the tallest ~170 m |
 | `industrial-port` | 2 × 2 km, 8 m cells | Coastal plain; a quay platform at +4 m with a 1.5 km quay face and two basins 180 × 700 m (vertical walls, 16 m); a 24 m approach into a turning basin 500 m across | The platform a terminal (large low-rise) on a 150 × 300 m road grid; heavy industry behind on a 200 × 250 m grid; two arterials along their shared edge and inland |
 | `harbour-town` | 3 × 2.5 km, 10 m cells | Hills behind a bay; a 25 m river into the bay's head; a 400 m quay at +4 m with a 16 m berth; a 24 m approach, a 16 m main channel, a turning basin 400 m across; a pond | An old town on a Chicago grid by the bay (compact mid- then low-rise), suburbs on the hills (collectors, cul-de-sacs), the quay large low-rise, an industrial estate east of it, a park round the pond, woods on 30% of the open land, a coast road and two roads inland |
 
@@ -265,7 +306,9 @@ Depths follow Los Angeles (main channel 53 ft, 16.2 m) and Long Beach
 (approach 76 ft, 23.2 m); grids follow Manhattan's 1811 plan and Chicago;
 layouts, sizes, centres and the ladders' bands are ours, and each preset's
 `notes` say so. `opts.seed` picks the layout, `opts.cell` and
-`opts.maxSlope` override the grid and the slope rule.
+`opts.maxSlope` override the grid and the slope rule, and `opts.layers`
+stops early (1 the terrain only, 2 with zones and streets, 3, the default,
+with buildings) for a port that needs only the ground or the streets.
 
 ## `status.lua`
 

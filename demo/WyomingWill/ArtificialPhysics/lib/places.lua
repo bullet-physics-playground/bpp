@@ -12,10 +12,12 @@
 --   w.terrain:ground(x, y)   -- metres above sea level
 --   w:zoneAt(x, y)           -- Local Climate Zone
 --   w.town.streets           -- { pts, width, kind } each
+--   w.buildings              -- { parts, zone, floors, height, base, top } each
+--   World.preset(name, { seed = 3, layers = 1 })   -- the terrain only (2: + streets)
 --
 -- So far: terrain and water (lib/terrain.lua), zones and streets
--- (lib/town.lua). Lots and buildings, vegetation and the mission features
--- come next, in that order.
+-- (lib/town.lua), lots and buildings (lib/buildings.lua). Vegetation and
+-- the mission features come next.
 --
 -- UNITS: metres; x east, y north; elevation above sea level. The sea, when
 -- there is one, is to the south.
@@ -129,30 +131,28 @@ presets["suburban"] = function(o)
 end
 
 -- City centre: nearly flat, on a wide river; a Manhattan grid turned 29
--- degrees, high-rise at the centre falling to mid-rise and open mid-rise,
--- a park of 2 x 4 blocks. 1.6 x 1.6 km.
+-- degrees to the edges, high-rise at the centre (just north of the river)
+-- falling to mid-rise and open mid-rise, a park of 2 x 4 blocks. 1.6 x
+-- 1.6 km.
 presets["city-centre"] = function(o)
-  local F = grid(800, 850, 0.5, MANHATTAN)
+  local F = grid(800, 1000, 0.5, MANHATTAN)
   return {
     name = "city-centre", bounds = { 0, 0, 1600, 1600 }, cell = 8,
     land = { height = 8, rise = 0.002, relief = 3, wavelength = 1000, octaves = 2 },
     rivers = { { from = { 0, 950 }, to = { 1600, 650 }, width = 60 } },
     zones = {
-      centres = { { x = 800, y = 850, r = 450 } },
+      centres = { { x = 800, y = 1000, r = 450 } },
       ladder = { { u = 0.62, lcz = "1", streets = "grid" },
                  { u = 0.40, lcz = "2", streets = "grid" },
-                 { u = 0.20, lcz = "5", streets = "grid" },
-                 { u = 0, lcz = "6", streets = "collectors" } },
-      districts = { { shape = blocks(F, -1, 0, 3, 6), lcz = "B" } },
+                 { u = 0, lcz = "5", streets = "grid" } },
+      districts = { { shape = blocks(F, -1, 0, 2, 5), lcz = "B" } },
     },
     streets = {
       grid = F,
       arterials = { { pts = { 0, 300, 1600, 1400 }, width = 30.5, wander = 0 } },
-      collectors = { angle = 0.5, spacing = 300, warp = 30, wavelength = 400, width = 20 },
-      ["local"] = 15,
     },
     notes = { "1.6 x 1.6 km, nearly flat (relief 3 m), on a 60 m river running east (our choices)",
-              "a Manhattan grid (streets 18.3 m every 80 m, avenues 30.5 m every 274 m) turned 29 degrees as Manhattan's is; compact high-rise within ~215 m of the centre, compact mid-rise to ~410 m, open mid-rise to ~720 m; a park 2 x 4 blocks; one diagonal avenue (our choices)" },
+              "a Manhattan grid (streets 18.3 m every 80 m, avenues 30.5 m every 274 m) turned 29 degrees as Manhattan's is; compact high-rise within ~215 m of the centre, compact mid-rise to ~410 m, open mid-rise to the edges; a park 2 x 4 blocks; one diagonal avenue (our choices)" },
   }
 end
 
@@ -275,16 +275,20 @@ function P.names()
   return { "rural", "suburban", "city-centre", "industrial-port", "harbour-town" }
 end
 
--- A World holding the preset's terrain, zones and streets (lib/world.lua
--- does the rest).
+-- A World holding the preset's terrain, zones and streets, lots and
+-- buildings (lib/world.lua does the rest). opts.layers stops early: 1 the
+-- terrain only, 2 with zones and streets, 3 (default) with buildings.
 function P.build(World, name, opts)
+  opts = opts or {}
+  local layers = opts.layers or 3
   local Terrain = require "lib.terrain"
   local Town = require "lib.town"
   local spec = P.spec(name, opts)
   local t = Terrain.generate(spec)
   local w = World.new({ name = name, units = "m", bounds = { t.x0, t.y0, t.x1, t.y1 },
                         height = 0, seed = spec.seed, terrain = t })
-  w.town = Town.build(t, spec)
+  if layers >= 2 then w.town = Town.build(t, spec) end
+  if layers >= 3 then require("lib.buildings").build(w, spec.seed) end
   for _, n in ipairs(spec.notes or {}) do w.notes[#w.notes + 1] = n end
   return w
 end
