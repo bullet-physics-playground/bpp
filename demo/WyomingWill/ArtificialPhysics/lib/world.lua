@@ -31,6 +31,10 @@
 --   w:waterAt(x, y)          -- water level, depth, kind, or nil
 --   w:blockedAt(x, y, z)     -- below the ground or inside a piece at height z?
 --   w:zoneAt(x, y)           -- Local Climate Zone code (realistic presets)
+--   w:raster(kind, cell, opts)   -- ground, depth, zone or occupancy grids
+--   w:writeRaster(path, kind, cell, opts)
+--   w:sight(x1, y1, z1, x2, y2, z2)  -- line of sight
+--   w:traps(cell, opts)      -- open ground unreachable from the streets
 --
 -- RANDOM WORLDS draw from their own stream (rng.new(seed)), never the shared
 -- one, so building a world does not change the agents' random numbers, and
@@ -222,12 +226,15 @@ function World:zoneAt(x, y)
 end
 
 -- Is the point (x, y) at height z blocked: outside the bounds, below the
--- ground, or inside a piece (a piece stands from its base, default 0, to
--- base + h)? Water does not block.
+-- ground (unless inside a tunnel: lib/features.lua's storm drain), inside
+-- a wood's canopy (lib/vegetation.lua), or inside a piece (a piece stands
+-- from its base, default 0, to base + h)? Water does not block.
 function World:blockedAt(x, y, z)
   local b = self.bounds
   if x < b.x0 or x > b.x1 or y < b.y0 or y > b.y1 then return true end
-  if z < self:groundAt(x, y) then return true end
+  local g = self:groundAt(x, y)
+  if z < g and not (self.tunnels and require("lib.features").inTunnel(self, x, y, z)) then return true end
+  if self.canopy and z >= g and z < g + self.canopy(x, y) then return true end
   local idx = index(self)
   local list = idx.cells[floor((x - idx.x0) / idx.size) * 100003 + floor((y - idx.y0) / idx.size)]
   if not list then return false end
@@ -238,6 +245,112 @@ function World:blockedAt(x, y, z)
        and inPiece(p, x, y) then return true end
   end
   return false
+end
+
+--------------------------------------------------------------------------
+-- Outputs for the ports: rasters, line of sight, traps
+--------------------------------------------------------------------------
+
+-- A raster over the bounds (or opts.area = { x0, y0, x1, y1 }) sampled at
+-- cell centres: kind "ground" (m above sea level), "depth" (water depth,
+-- m, 0 if dry), "zone" (Local Climate Zone code), "occupancy" (1 if
+-- blockedAt(x, y, z), else 0; z is a height above sea level, or with
+-- opts.above, above the ground there). Returns { kind, cell, nx, ny, x0,
+-- y0, v } with v row-major from the low corner (v[j * nx + i + 1]).
+function World:raster(kind, cell, opts)
+  opts = opts or {}
+  local a = opts.area or { self.bounds.x0, self.bounds.y0, self.bounds.x1, self.bounds.y1 }
+  local nx, ny = floor((a[3] - a[1]) / cell), floor((a[4] - a[2]) / cell)
+  local r = { kind = kind, cell = cell, nx = nx, ny = ny, x0 = a[1], y0 = a[2], v = {} }
+  for j = 0, ny - 1 do
+    for i = 0, nx - 1 do
+      local x, y = a[1] + (i + 0.5) * cell, a[2] + (j + 0.5) * cell
+      local val
+      if kind == "ground" then val = self:groundAt(x, y)
+      elseif kind == "depth" then local _, d = self:waterAt(x, y); val = d or 0
+      elseif kind == "zone" then val = self:zoneAt(x, y) or "-"
+      else
+        local z = opts.z or 0
+        if opts.above then z = z + self:groundAt(x, y) end
+        val = self:blockedAt(x, y, z) and 1 or 0
+      end
+      r.v[j * nx + i + 1] = val
+    end
+  end
+  return r
+end
+
+-- The raster as text: a header line "# <world> <kind> cell nx ny x0 y0"
+-- then ny lines, the top (highest y) first, values separated by spaces
+-- (metres to 0.01, zone codes, 0/1).
+function World:writeRaster(path, kind, cell, opts)
+  local r = self:raster(kind, cell, opts)
+  local f = assert(io.open(path, "w"))
+  f:write(string.format("# %s %s cell=%g nx=%d ny=%d x0=%g y0=%g%s\n", self.name, kind, cell, r.nx, r.ny,
+                        r.x0, r.y0, opts and opts.z and string.format(" z=%g%s", opts.z, opts.above and " above ground" or "") or ""))
+  for j = r.ny - 1, 0, -1 do
+    local row = {}
+    for i = 0, r.nx - 1 do
+      local v = r.v[j * r.nx + i + 1]
+      row[#row + 1] = type(v) == "number" and (kind == "occupancy" and string.format("%d", v) or string.format("%.2f", v)) or v
+    end
+    f:write(table.concat(row, " "), "\n")
+  end
+  f:close()
+  return r
+end
+
+-- Line of sight from (x1, y1, z1) to (x2, y2, z2): true if every point on
+-- the way (every `step` m, default 1) is open; else false and the
+-- distance to the first blocked point. Ground, buildings, trees, hedges
+-- and the woods' canopy all block sight.
+function World:sight(x1, y1, z1, x2, y2, z2, step)
+  step = step or 1
+  local L = sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2)
+  local n = math.max(1, math.ceil(L / step))
+  for k = 1, n - 1 do
+    local f = k / n
+    if self:blockedAt(x1 + f * (x2 - x1), y1 + f * (y2 - y1), z1 + f * (z2 - z1)) then return false, f * L end
+  end
+  return true
+end
+
+-- Traps: open ground (dry, and open 0.5 m above the ground) that cannot be
+-- reached from a street over open ground, on a raster of `cell` m (4-
+-- neighbours) over the bounds or opts.area: enclosed courtyards and yards.
+-- Gaps narrower than about a cell may read as closed. Returns the set of
+-- trap cells (indices as raster()), their count, the count of open cells,
+-- and the raster's geometry.
+function World:traps(cell, opts)
+  opts = opts or {}
+  local occ = self:raster("occupancy", cell, { area = opts.area, z = 0.5, above = true })
+  local nx, ny = occ.nx, occ.ny
+  local open, seen, stack, nOpen = {}, {}, {}, 0
+  for j = 0, ny - 1 do
+    for i = 0, nx - 1 do
+      local k = j * nx + i + 1
+      local x, y = occ.x0 + (i + 0.5) * cell, occ.y0 + (j + 0.5) * cell
+      if occ.v[k] == 0 and not self:waterAt(x, y) then
+        open[k] = true
+        nOpen = nOpen + 1
+        if self.town and self.town:streetDistance(x, y, cell * 2) < 0 then seen[k] = true; stack[#stack + 1] = k end
+      end
+    end
+  end
+  while #stack > 0 do
+    local k = table.remove(stack)
+    local i, j = (k - 1) % nx, floor((k - 1) / nx)
+    for _, d in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+      local i2, j2 = i + d[1], j + d[2]
+      if i2 >= 0 and j2 >= 0 and i2 < nx and j2 < ny then
+        local q = j2 * nx + i2 + 1
+        if open[q] and not seen[q] then seen[q] = true; stack[#stack + 1] = q end
+      end
+    end
+  end
+  local traps, n = {}, 0
+  for k in pairs(open) do if not seen[k] then traps[k] = true; n = n + 1 end end
+  return traps, n, nOpen, occ
 end
 
 -- Per-cell obstacle fraction of the cell tiling, sampled on k x k points per
@@ -516,6 +629,12 @@ function World:toBPP(viewer, opts)
   if self.buildings then
     local m = require("lib.buildings").toBPP(self, viewer, { scale = S, base = base, contact = opts.contact })
     if m then objs[#objs + 1] = m end
+    m = require("lib.features").toBPP(self, viewer, { scale = S, base = base })
+    if m then objs[#objs + 1] = m end
+  end
+  if self.trees then
+    local m = require("lib.vegetation").toBPP(self, viewer, { scale = S, base = base, contact = opts.contact })
+    if m then objs[#objs + 1] = m end
   end
   for k, p in ipairs(self.pieces) do
     if not p.inMesh then                   -- buildings are drawn as one mesh
@@ -566,7 +685,9 @@ function World:toBPP(viewer, opts)
     o.pos = btVector3((b.x0 + b.x1) / 2 * S, base - 0.25, Z((b.y0 + b.y1) / 2))
     put(o, col.floor or "#303038")
   end
-  for name, r in pairs(self.regions) do
+  -- the realistic worlds' regions (ship, pads, leak, outfall) are data,
+  -- drawn by their own layers (lib/features.lua marks the leak)
+  for name, r in pairs(self.terrain and {} or self.regions) do
     local c = col[name] or (name == "goal" and "#3070ff" or "#40c040")
     if r.x then
       local o = Sphere((opts.markerSize or 2) * S, 0)

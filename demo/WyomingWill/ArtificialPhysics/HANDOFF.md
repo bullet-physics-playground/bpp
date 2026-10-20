@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F62 so far), and
+  implementations, and our own mistakes once corrected (F1–F63 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -100,8 +100,8 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua` and `places.lua` (the realistic worlds' ground and water, zones and streets, lots and buildings, and their five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
-| `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9) |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
+| `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9: rural, suburban, city centre, industrial port, harbour town) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
@@ -230,6 +230,24 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   < 0.01 m/s to the end of the run), not by the acceleration test, which a
   slow outward creep passes (FIXES 41).
 - The full quadcopter findings are in `quadcopter/README.md` and `FIXES.md`.
+- **The realistic world generator (G21, F60–F63):** `World.preset(name,
+  { seed = n })` for `rural`, `suburban`, `city-centre`,
+  `industrial-port`, `harbour-town` builds terrain and water, zones and
+  streets, lots and buildings, mission features and vegetation in
+  0.4–3.5 s (Lua 5.1), identically on Lua 5.1–5.4. Each layer is a few
+  stated rules: one slope rule (≤ 15% along the grid) keeps the land
+  drivable and shapes valleys and banks; rivers are sine-generated
+  (sinuosity 1/J0(1.1)); density falls exponentially from centres
+  (Clark) into Local Climate Zones; every street connects to the
+  arterials; the gap rule (touch or ≥ 3 m). Building fraction and mean
+  height land inside Stewart and Oke's published ranges for every built
+  zone (≥ 3% of a preset, seeds 1–3); the city's skyline is heavy-tailed
+  and falls outward. The harbour town carries the capstone's ship (leak
+  at `w.leak`), piers, a container yard with dead-end pockets, warehouses
+  with doorways, a storm drain whose last 35 m lie below sea level, and
+  launch pads. Buildings, trees and features are World pieces, so
+  `blocked`, `blockedAt`, `writeCPT`, `raster`, `sight` and `traps` see
+  them; each layer draws as one mesh.
 
 ## 7. Where things stand and what's next
 
@@ -265,20 +283,31 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     whether the drones' slope limit at D (~0.035 per AP
     unit) follows from their lag and AP rate, and moves with `apHz`; a 3D
     G_t for the cube (`BOOK.md` §1 item 9).
-- **In progress: the realistic world generator** (`BOOK.md` §6, chosen
-  2026-10-20), one patch per layer group:
-  1. **terrain and water: done** (`lib/terrain.lua`, the five presets in
+- **Done: the realistic world generator** (`BOOK.md` §6, 2026-10-20), in
+  four patches:
+  1. terrain and water (`lib/terrain.lua`, the five presets in
      `lib/places.lua`, `Worlds.lua` presets 5–9, `checks/terrain.lua`;
      F60);
-  2. **zones and streets: done** (`lib/town.lua`, `checks/town.lua`; F61);
-  3. **lots and buildings: done** (`lib/buildings.lua`,
-     `checks/buildings.lua`; F62), calibrated to the LCZ ranges;
-  4. vegetation and the mission features.
-- **After it, M2:** the vehicle interface (G18), a ground robot (G10) and
-  a surface boat (G11), and the first cross-vehicle benchmark (formation,
+  2. zones and streets (`lib/town.lua`, `checks/town.lua`; F61, which
+     also corrected two LCZ numbers in `BOOK.md`);
+  3. lots and buildings (`lib/buildings.lua`, `checks/buildings.lua`;
+     F62), calibrated to the LCZ ranges;
+  4. mission features and vegetation (`lib/features.lua`,
+     `lib/vegetation.lua`), the outputs (`World:raster`, `writeRaster`,
+     `sight`, `traps`), `checks/features.lua` (F63).
+  - **Open from it:** wind with height and currents (`BOOK.md` §6
+    "Later"); importing real places (OpenStreetMap, elevation, charts);
+    trees and hedges are solid to `blockedAt` and must be treated as
+    porous by the plume (G14); the drain's manholes are drawn, not open
+    shafts; generation takes up to 3.5 s, so a viewer slider rebuild is
+    not instant.
+- **Next: M2:** the vehicle interface (G18), a ground robot (G10) and a
+  surface boat (G11), and the first cross-vehicle benchmark (formation,
   and goal through obstacles) on drones, ground robots and boats. Ch. 13's
   static friction and speed cap get their real test there (ground robots
-  have a minimum speed).
+  have a minimum speed). The generator's worlds are ready for it:
+  `toBPP(v, { contact = true })` gives ground and streets that bodies can
+  drive on, `waterAt` the surface for boats.
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
@@ -299,9 +328,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run checks/run_all.sh, and
-> continue with the next step in HANDOFF.md §7: [the realistic world
-> generator | milestone M2]. Deliver each step as a patch with git
-> commands.
+> continue with the next step in HANDOFF.md §7: milestone M2. Deliver each
+> step as a patch with git commands.
 
 Attach the book PDF if the chat will need chapters beyond the notes,
 `ap.zip` if it will compare with the Android app, and `CPT.zip` for plume

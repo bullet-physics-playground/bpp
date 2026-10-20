@@ -147,7 +147,7 @@ Most chapters need the same pieces. Build each once.
 | G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
 | G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
-| G21 | **World generator (core and book presets done, `lib/world.lua`; terrain, water, zones, streets, lots and buildings done, `lib/terrain.lua`, `lib/town.lua`, `lib/buildings.lua`, with the five realistic presets in `lib/places.lua`; vegetation and mission features next):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
+| G21 | **World generator (core and book presets done, `lib/world.lua`; realistic layers done: `lib/terrain.lua`, `lib/town.lua`, `lib/buildings.lua`, `lib/features.lua`, `lib/vegetation.lua`, with the five realistic presets in `lib/places.lua`; wind and currents later):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
 
 ---
 
@@ -597,8 +597,8 @@ it would then also calibrate the statistics.
 | Zones (**done**, `lib/town.lua`) | Districts around centres, density falling exponentially outward, typed by Local Climate Zone (compact/open high-, mid-, low-rise, large low-rise, sparsely built, heavy industry; trees, fields, paved, soil, water); districts for ports, parks, industry; woods a stated share of open land | Clark (1951); Stewart and Oke (2012), building fraction: compact high-rise 40–60%, > 25 m; open low-rise 20–40%, 3–10 m; sparsely built 10–20% (corrected, F61) |
 | Streets (**done**, `lib/town.lua`) | Arterials through everything, grids in cores, curving collectors and cul-de-sacs in suburbs, winding rural roads; bridges; every street connected to the arterials | Manhattan 1811: streets 60 ft every ~264 ft, avenues 100 ft every ~900 ft (80 × 274 m); Chicago 66 ft streets, 100 × 200 m; fire code: dead ends to 750 ft, 96 ft turnaround |
 | Lots, buildings (**done**, `lib/buildings.lua`) | Frontage lots with setbacks; rectangles and L, T, U footprints along streets; whole floors (3.5 m), heavy-tailed, lower toward the edge; farmsteads; the gap rule; each zone's building fraction and mean height inside the published LCZ ranges | Schläpfer et al. (2015): one-storey buildings peak at 3.5 m, heavy tail, height falls from the centre; US median new lot 8,400 sq ft (2023); Stewart and Oke (2012) ranges (F62) |
-| Vegetation | Woods, hedgerows, street trees, gardens; trees block sight and sound, are porous to air | LCZ land covers |
-| Mission features | Quay, piers, ship at a berth (the leak), warehouses with doorways, container yard with pockets, storm drains and outfall, launch pads | The capstone |
+| Vegetation (**done**, `lib/vegetation.lua`) | Woods as a canopy over zone A, hedgerows on field boundaries, street trees, garden and park trees (trunk and raised crown); trees block sight and sound, are porous to air (for the plume, later) | LCZ land covers; canopy 20 m, street trees 12 m apart, fields 250 m |
+| Mission features (**done**, `lib/features.lua`) | Quay, piers, ship at a berth (the leak), warehouses with doorways, container yard with pockets, storm drain and outfall, launch pads | The capstone; 20 ft containers (6.1 × 2.44 × 2.59 m) |
 
 **Presets** (parameter tables for one generator): **rural** (fields, woods,
 hedgerows, farmsteads, a river and pond, winding roads, rolling terrain);
@@ -614,10 +614,11 @@ port's rule); worlds are seeded from their own stream, so a seed always gives
 the same world and sweeps vary one knob at a time; distant districts are
 merged into static meshes, with full detail only in the mission area.
 
-**Outputs:** BPP geometry (terrain, water and seabed, buildings, trees,
-tunnels); grids of ground height, water depth, zone and occupancy at a chosen
-height (2D ports, CPT format); line-of-sight occluders; metric masks (cells,
-shadow cells, traps, water). **Later:** wind with height and currents.
+**Outputs (done):** BPP geometry (terrain, water and seabed, buildings,
+trees, the drain's manholes); grids of ground height, water depth, zone and
+occupancy at a chosen height (`raster`, `writeRaster`; `writeCPT` for
+Zarzhitsky's tools); line of sight (`sight`); metric masks (cells, shadow
+cells, `traps`, water). **Later:** wind with height and currents.
 
 **The book's worlds stay as the book draws them,** as presets for the chapter
 ports: Ch. 3's 12 discs, Ch. 4's coverage box, Ch. 7's corridor (Fig. 7.2's
@@ -626,9 +627,10 @@ core and these presets came in M0 (`lib/world.lua`, `Worlds.lua`); the
 realistic layers follow in the table's order, one patch each: terrain and
 water are done (`lib/terrain.lua`; the five presets in `lib/places.lua`,
 shown by `Worlds.lua` presets 5–9; `checks/terrain.lua`), zones and
-streets (`lib/town.lua`, `checks/town.lua`), and lots and buildings
-(`lib/buildings.lua`, `checks/buildings.lua`); vegetation and the mission
-features are next.
+streets (`lib/town.lua`, `checks/town.lua`), lots and buildings
+(`lib/buildings.lua`, `checks/buildings.lua`), and the mission features
+and vegetation (`lib/features.lua`, `lib/vegetation.lua`,
+`checks/features.lua`). All five presets are complete (FINDINGS F60–F63).
 
 ### Order
 Build G18 and the cross-vehicle benchmark early, right after the Ch. 13

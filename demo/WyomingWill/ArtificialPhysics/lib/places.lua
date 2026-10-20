@@ -173,12 +173,22 @@ presets["industrial-port"] = function(o)
     { name = "basin east", shape = { kind = "rect", x = 1300, y = 900, sx = 180, sy = 700 }, depth = 16, run = 0 },
   }
   local platform = { kind = "rect", x = 1000, y = 950, sx = 1500, sy = 800 }
+  local features = {
+    -- a 300 m container ship (beam 40 m, draft 13 m) along the west
+    -- basin's east quay (x = 790), off it by a cell (8 m) and 1 m of
+    -- fenders, its leak on the basin side
+    ship = { x = 761, y = 900, length = 300, beam = 40, draft = 13, freeboard = 10, angle = math.pi / 2, seaward = 1 },
+    yard = { zone = "8" },
+    warehouses = { zone = "8", count = 3 },
+    pads = { { 1550, 1150 } },
+  }
   return {
     name = "industrial-port", bounds = { 0, 0, 2000, 2000 }, cell = 8,
     coast = { y = 800, wobble = 20, wavelength = 700, shelf = 0.0125 },
     land = { height = 2, rise = 0.003, relief = 4, wavelength = 900, octaves = 2, flatNearCoast = 400 },
     fill = { { shape = platform, height = 4, run = 2 } },
     dredge = dredge,
+    features = features,
     zones = {
       districts = {
         { shape = { kind = "rect", x = 1000, y = 1660, sx = 2000, sy = 680 }, lcz = "10",
@@ -194,7 +204,8 @@ presets["industrial-port"] = function(o)
                     { pts = { 0, 1320, 2000, 1320 }, width = 30, wander = 0 } },
     },
     notes = { "2 x 2 km; a quay platform 1.5 x 0.8 km at +4 m reclaimed out over the shore, a 1.5 km quay face and two basins 180 x 700 m with vertical walls, 16 m deep; a 24 m approach from the south edge into a turning basin 500 m across, 16 m deep (layout ours, depths from Los Angeles / Long Beach)",
-              "the platform a terminal (large low-rise) on a 150 x 300 m road grid, heavy industry behind it on a 200 x 250 m grid, two 30 m arterials (our choices)" },
+              "the platform a terminal (large low-rise) on a 150 x 300 m road grid, heavy industry behind it on a 200 x 250 m grid, two 30 m arterials (our choices)",
+              "a 300 m container ship at the west basin's east quay (draft 13 m), a container yard, three warehouses with doorways, a launch pad (our choices)" },
   }
 end
 
@@ -211,8 +222,33 @@ presets["harbour-town"] = function(o)
     { name = "berth", shape = { kind = "rect", x = 1730, y = 800, sx = 80, sy = 400 }, depth = 16, run = 0 },
   }
   local F = grid(1300, 1300, 0.12, CHICAGO)
+  local features = {
+    -- the capstone's ship: a 180 m tanker (beam 28 m, draft 10 m) in the
+    -- berth along the quay's face (x = 1770), off it by a cell (10 m) and
+    -- 1 m of fenders, its leak on the bay side
+    ship = { x = 1745, y = 800, length = 180, beam = 28, draft = 10, freeboard = 8, angle = math.pi / 2, seaward = 1 },
+    yard = { zone = "8" },
+    warehouses = { zone = "8", count = 2 },
+    -- two piers of a marina on the bay's west shore
+    piers = function(t)
+      local out = {}
+      for _, x in ipairs({ 1180, 1240 }) do
+        local y = t.coastY(x)
+        out[#out + 1] = { from = { x, y + 2 }, to = { x, y - 140 }, width = 6 }
+      end
+      return out
+    end,
+    -- the storm drain: from the old town down to the bay's head
+    drain = function(t) return { pts = { 1250, 1500, 1380, t.coastY(1380) - 60 } } end,
+    -- launch pads: on the quay, and by the pond
+    pads = function(t)
+      local p = t.ponds[1]
+      return { { 1880, 700 }, p and { p.x, p.y - p.r - 80 } or { 1000, 1800 } }
+    end,
+  }
   return {
     name = "harbour-town", bounds = { 0, 0, 3000, 2500 }, cell = 10,
+    features = features,
     coast = { y = 600, wobble = 30, wavelength = 800, shelf = 0.012,
               bay = { x = 1500, depth = 450, width = 350 } },
     land = { height = 2, rise = 0.012, relief = 25, wavelength = 1000, octaves = 3, flatNearCoast = 450 },
@@ -254,7 +290,8 @@ presets["harbour-town"] = function(o)
       ["local"] = 15,
     },
     notes = { "3 x 2.5 km: a bay 450 m deep into the coast, hills rising 12 m per km behind it (relief 25 m), a 25 m river into the bay's head, a 400 m quay at +4 m on the bay's east side with a 16 m berth; a 24 m approach to the bay's mouth, a 16 m main channel and a turning basin 400 m across in the bay (layout ours)",
-              "an old town on a Chicago grid by the bay (compact mid-rise within ~240 m of its centre, compact low-rise to ~480 m), suburbs on the hills, the quay a large low-rise district, an industrial estate east of it, a park round the pond, a coast road 140 m inland (our choices)" },
+              "an old town on a Chicago grid by the bay (compact mid-rise within ~240 m of its centre, compact low-rise to ~480 m), suburbs on the hills, the quay a large low-rise district, an industrial estate east of it, a park round the pond, a coast road 140 m inland (our choices)",
+              "the capstone's features: a 180 m tanker at the berth with its leak on the bay side, a container yard and two warehouses with doorways on the quay, two piers of a marina, a storm drain from the old town to an outfall at the bay's head, launch pads on the quay and by the pond (our choices)" },
   }
 end
 
@@ -276,11 +313,13 @@ function P.names()
 end
 
 -- A World holding the preset's terrain, zones and streets, lots and
--- buildings (lib/world.lua does the rest). opts.layers stops early: 1 the
--- terrain only, 2 with zones and streets, 3 (default) with buildings.
+-- buildings, mission features and vegetation (lib/world.lua does the
+-- rest). opts.layers stops early: 1 the terrain only, 2 with zones and
+-- streets, 3 with lots, buildings and features, 4 (default) with trees.
 function P.build(World, name, opts)
   opts = opts or {}
-  local layers = opts.layers or 3
+  local t0 = os.clock()
+  local layers = opts.layers or 4
   local Terrain = require "lib.terrain"
   local Town = require "lib.town"
   local spec = P.spec(name, opts)
@@ -288,7 +327,15 @@ function P.build(World, name, opts)
   local w = World.new({ name = name, units = "m", bounds = { t.x0, t.y0, t.x1, t.y1 },
                         height = 0, seed = spec.seed, terrain = t })
   if layers >= 2 then w.town = Town.build(t, spec) end
-  if layers >= 3 then require("lib.buildings").build(w, spec.seed) end
+  if layers >= 3 then
+    local B = require "lib.buildings"
+    B.build(w, spec.seed)
+    require("lib.features").build(w, spec)
+    if layers >= 4 then require("lib.vegetation").build(w, spec) end
+    B.addPieces(w)
+    if layers >= 4 then require("lib.vegetation").addPieces(w) end
+  end
+  w.buildTime = os.clock() - t0                    -- seconds, every layer
   for _, n in ipairs(spec.notes or {}) do w.notes[#w.notes + 1] = n end
   return w
 end

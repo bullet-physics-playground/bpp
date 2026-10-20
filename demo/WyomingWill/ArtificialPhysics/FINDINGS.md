@@ -520,6 +520,35 @@ and held it at 36–39% built; it now lies 150 m north. (f) A Lua trap:
 `goto` does not exist in Lua 5.1 (BPP's cloud build). Lots and buildings
 take 0.8–3.4 s per preset in Lua 5.1 and are identical on 5.1–5.4.
 
+**F63. Mission features and trees: what measuring them corrected** —
+2026-10-20, New and Our error, corrected. `lib/features.lua`,
+`lib/vegetation.lua`, `checks/features.lua`. (a) **The storm drain must
+flood at its outfall.** With the culvert's roof kept under 1 m of cover,
+a 2 m culvert needs 3 m of ground over its floor; the bay's head is a low
+shore (~1 m), so the drain leaves the land below sea level: its last 35 m
+of 458 lie under water, a tide-locked outfall, which real low shores have
+too. It is recorded (`flooded`) rather than hidden, and matters to the
+capstone: robots in the drain cannot leave by the sea end. (b) *Our
+errors, corrected:* the port's ship first sat 2 m off a quay wall that the
+terrain mesh draws as a slope one 8 m cell wide, and its corner read as
+aground (−7 m clearance); ships now stand off by a cell and 1 m of
+fenders (under-keel clearance 3–6 m). A warehouse on a slope had doors
+5 m over its lowest ground, which left the uphill door less than 2 m
+high; doors are now 5 m over the ground at each door. (c) **The gap rule
+is about obstacles, not pairs.** Container stacks two rows apart are
+2.44 m apart, under the 3 m rule, but the row between them closes the gap;
+the check now merges touching buildings into one obstacle before applying
+the rule (what the Android app's rule means: gaps between obstacles fit an
+agent or are closed). (d) **Counts** (seed 1): street trees 7,900 in the
+suburb, 4,300 in the city, 5,200 in the harbour town; the rural preset has
+1,640 lengths of hedgerow and woods as a canopy over 25% of its open land;
+the harbour town's yard holds 130 stacks in 3 blocks with 6 pockets, the
+port's 345. (e) **Traps** (open ground no street reaches, 2 m raster):
+0.54% of the harbour town's old town and 0.04% of the city core; few,
+because U-shaped courts open to the rear and back-to-back lots leave
+3 m passages. A whole preset builds in 0.4–3.5 s in Lua 5.1, identically
+on 5.1–5.4.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

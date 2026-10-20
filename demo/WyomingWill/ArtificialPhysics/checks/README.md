@@ -1,7 +1,7 @@
 # Checks: the regression suite
 
 `bash checks/run_all.sh` runs every check and exits 0 only if all pass
-(about 2 min 10 s; `--quick` about 1 min 20 s with smaller samples).
+(about 2 min 40 s; `--quick` about 1 min 50 s with smaller samples).
 
 **Which Lua.** The Lua checks run *inside BPP* when a BPP is built, so they
 test the Lua the demos really use; BPP links Lua 5.1 or 5.2 depending on the
@@ -21,7 +21,8 @@ on its own from the `ArtificialPhysics` folder.
 | `world.lua` | `lib/world.lua` and its book presets: point tests, cells, corridor coverage, seeds, shadow cells, grids, CPT format (22 tests) | 7 s |
 | `terrain.lua` | `lib/terrain.lua` and the five realistic presets (`lib/places.lua`): seeds repeat on every Lua, the shared stream untouched, ground() is the drawn mesh, the slope rule (15% along the grid, 21.2% across), river levels and depths, a long river's sinuosity 1/J0(1.1) and meander wavelength 11 widths, ponds hold water, the sea and its shelf, dredged depths, 1:3 sides and vertical quay walls, the world cut at a height (20 tests) | 7 s |
 | `town.lua` | `lib/town.lua` on the five presets: the LCZ table, Clark's exponential, zones stepping down the ladder outward, water as zone G, woods' share of open land, seeds, streets on dry land except bridges (≤ 150 m), every street reached from an arterial (an independent raster flood), the city's Manhattan spacing and widths, cul-de-sacs up to 229 m with a 15 m turning circle, each starting on a collector (16 tests) | 10 s |
-| `buildings.lua` | `lib/buildings.lua` on the five presets: every built zone covering ≥ 3% of a preset inside Stewart and Oke's ranges of building fraction and mean height, whole floors, the city's heavy-tailed skyline falling outward then level, the gap rule (touching or ≥ 3 m), buildings off the streets and out of the water, farmsteads, seeds, the shared stream, `blockedAt` and `writeCPT` with buildings (13 tests) | 30 s |
+| `buildings.lua` | `lib/buildings.lua` on the five presets: every built zone covering ≥ 3% of a preset inside Stewart and Oke's ranges of building fraction and mean height, whole floors, the city's heavy-tailed skyline falling outward then level, the gap rule (touching buildings make one obstacle; obstacles ≥ 3 m apart), buildings off the streets and out of the water, farmsteads, seeds, the shared stream, `blockedAt` and `writeCPT` with buildings (13 tests) | 35 s |
+| `features.lua` | `lib/features.lua`, `lib/vegetation.lua` and the outputs: the ship afloat with its leak, piers, warehouses' doorways, the container yard, the storm drain (falling invert, cover, open inside, outfall), launch pads, the woods' canopy, trees and hedgerows, rasters, line of sight, traps, seeds (18 tests) | 17 s |
 | `lattice.lua` | `lib/lattice.lua`: Delaunay triangulation (Euler's counts on 200 random sets, empty circumcircles), Ch. 16.9's edge CV on perfect, jittered and square lattices, 3D nearest-neighbour and bond CV (10 tests) | < 1 s |
 | `ch13.lua` | `lib/ch13.lua` against Figs. 13.3 and 13.8: AR damping η, smooth through D, minimum −50 at 2D, off at p_d = 0 bit for bit; the stop rule; the 2D particle replica of the drone law: dithers without η, settles at ~0.8 D with η at range 1.5, at D with range 1.25 or when switched on after forming, or in a band w = 0.2; Eqs. 13.23–13.25: adaptive and static friction, the adaptive speed cap (FINDINGS F43, F45, F49, F50; 26 tests) | 1 s |
 | `mfp_theory.lua` | Listing 11.4 in 2D and 3D against the exact mean free path | 4 s |

@@ -521,19 +521,30 @@ function B.build(W, seed)
       end
     end
   end
-  -- the buildings as World pieces, so blocked(), blockedAt() and writeCPT()
-  -- see them; drawn by B.toBPP as one mesh, not piece by piece
+  for id, bld in ipairs(W.buildings) do bld.id = id end
+  W.buildTimeBuildings = os.clock() - t0
+end
+
+-- Every building's parts as World pieces, so blocked(), blockedAt() and
+-- writeCPT() see them; drawn by B.toBPP as one mesh, not piece by piece.
+-- A part spans its own z0..z1 if it has them (a roof slab, a ship's hull),
+-- else its building's base..top; its tag is the building's (default
+-- "building"). Called once the features (lib/features.lua) are in.
+function B.addPieces(W)
   for id, bld in ipairs(W.buildings) do
     bld.id = id
     for _, p in ipairs(bld.parts) do
+      local z0, z1 = p.z0 or bld.base, p.z1 or bld.top
       local piece
-      if p.kind == "disc" then piece = W:disc(p.x, p.y, p.r, "building", bld.top - bld.base)
-      else piece = W:rect(p.x, p.y, 2 * p.hu, 2 * p.hv, atan2(p.uy, p.ux), "building", bld.top - bld.base) end
-      piece.base, piece.inMesh, piece.building = bld.base, true, id
+      if p.kind == "disc" then piece = W:disc(p.x, p.y, p.r, bld.tag or "building", z1 - z0)
+      else piece = W:rect(p.x, p.y, 2 * p.hu, 2 * p.hv, atan2(p.uy, p.ux), bld.tag or "building", z1 - z0) end
+      piece.base, piece.inMesh, piece.building = z0, true, id
     end
   end
-  W.buildTimeBuildings = os.clock() - t0
 end
+
+B.rectPart, B.discPart, B.rectsOverlap, B.footprint, B.partBox, B.segRectDist =
+  rectPart, discPart, rectsOverlap, footprint, partBox, segRectDist
 
 --------------------------------------------------------------------------
 -- Measures
@@ -598,8 +609,14 @@ function B.toBPP(W, viewer, opts)
     local wall = { min(255, floor(wr * k)), min(255, floor(wg * k)), min(255, floor(wb * k)) }
     local roof = { min(255, floor(rr * k)), min(255, floor(rg * k)), min(255, floor(rb * k)) }
     local shade = { floor(wall[1] * 0.82), floor(wall[2] * 0.82), floor(wall[3] * 0.82) }
-    local lo, hi = bld.base, bld.top
     for _, p in ipairs(bld.parts) do
+      local lo, hi = p.z0 or bld.base, p.z1 or bld.top
+      local wall, roof, shade = wall, roof, shade
+      if p.color then                              -- a part's own colour (a ship's hull)
+        local r, g, b2 = rgb(p.color)
+        wall, roof = { r, g, b2 }, { r, g, b2 }
+        shade = { floor(r * 0.82), floor(g * 0.82), floor(b2 * 0.82) }
+      end
       local ring = {}
       if p.kind == "disc" then
         for a = 0, 15 do ring[#ring + 1] = p.x + p.r * cos(a * pi / 8); ring[#ring + 1] = p.y + p.r * sin(a * pi / 8) end

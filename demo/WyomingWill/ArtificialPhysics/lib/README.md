@@ -13,6 +13,8 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `terrain.lua` | G21 | The realistic worlds' ground and water: a heightfield with sea, rivers and ponds, depths, dredged channels and quays |
 | `town.lua` | G21 | The realistic worlds' zones (Local Climate Zones) and streets (arterials, grids, collectors, cul-de-sacs) |
 | `buildings.lua` | G21 | The realistic worlds' lots and buildings: frontage lots, rect/L/T/U footprints, whole floors, the gap rule, calibrated to the LCZ ranges |
+| `features.lua` | G21 | The mission features: ship and leak, piers, warehouses with doorways, a container yard with pockets, a storm drain, launch pads |
+| `vegetation.lua` | G21 | Woods (a canopy), street, garden and park trees, hedgerows |
 | `places.lua` | G21 | The five realistic presets (rural, suburban, city centre, industrial port, harbour town) as parameter tables |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 | `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
@@ -164,11 +166,21 @@ w:writeGrid("corridor.txt")
   height h. `toBPP` draws the terrain's ground (coloured by zone) and water
   instead of the floor, and the streets (`contact = true` lets bodies land
   on the ground and the streets).
-- **The realistic layers** so far: terrain and water (`terrain.lua`), zones
-  and streets (`town.lua`), lots and buildings (`buildings.lua`; as World
-  pieces tagged `building`, standing on their own `base`, so `blocked`,
-  `blockedAt` and `writeCPT` see them, drawn as one mesh). Vegetation and
-  the mission features come next (`BOOK.md` §6).
+- **The realistic layers:** terrain and water (`terrain.lua`), zones and
+  streets (`town.lua`), lots and buildings (`buildings.lua`), mission
+  features (`features.lua`) and vegetation (`vegetation.lua`). Buildings,
+  features, trees (`tree`) and hedges (`hedge`) are World pieces standing
+  on their own `base`, so `blocked`, `blockedAt` and `writeCPT` see them;
+  `blockedAt` also knows the woods' canopy and the storm drain's inside.
+  Each layer draws as one mesh (merged static meshes throughout), and a
+  realistic world's regions (`ship`, `leak`, `pad1`, `outfall`) are data,
+  not drawn.
+- **Outputs for the ports:** `w:raster(kind, cell, opts)` and
+  `w:writeRaster(path, ...)` give grids of `ground`, `depth`, `zone` or
+  `occupancy` (at height `opts.z`, or `z` above the ground with
+  `opts.above`); `w:sight(x1, y1, z1, x2, y2, z2)` is line of sight
+  (ground, buildings, trees, hedges and canopy block it); `w:traps(cell,
+  opts)` finds open ground no street reaches (enclosed courtyards).
 - `checks/world.lua`: 22 tests, about 7 s.
 
 ## `terrain.lua`
@@ -289,6 +301,44 @@ require("lib.buildings").stats(w)   -- per zone: building fraction, share under 
   (so no gap shows on a slope), flat roofs, a small tint per building.
 - `checks/buildings.lua`: 13 tests, about 30 s.
 
+## `features.lua`
+
+The capstone's harbour features, from a preset's `features` table (the
+harbour town and the industrial port have them):
+
+- **Ship** at its berth, standing off the quay by one terrain cell and 1 m
+  of fenders: hull from keel (−draft) to deck, a bridge house; the leak
+  on its seaward side at the waterline (`w.leak`, region `leak`).
+- **Piers:** decks 2.5–3.5 m over the water on piles every 8 m.
+- **Warehouses:** the largest sheds of a zone become shells, walls 0.4 m,
+  a roof slab, a 6 × 5 m doorway in each wall (5 m over the ground there),
+  open inside (`w.warehouses`).
+- **Container yard:** the zone's largest lot as blocks of 20 ft boxes
+  (6.1 × 2.44 × 2.59 m), 6 rows by up to 20 bays, stacks 1–5 high, 15 m
+  lanes, two pockets a block (a bay emptied 2–4 rows deep from a lane: the
+  dead ends of `BOOK.md` §7; `w.yard`).
+- **Storm drain:** a 2.4 × 2 m culvert from inland to an outfall at the
+  shore, its invert falling, never rising, 1 m of cover all the way; on a
+  low shore its last stretch lies below sea level and is flooded
+  (`w.tunnels[1].flooded`); manholes every 60 m; a headwall.
+- **Launch pads:** 30 m squares, dry, level within 1.5 m, clear of
+  buildings and streets, nearest a target (`w.pads`, regions `pad1`, …).
+- `checks/features.lua` (with the vegetation and outputs): 18 tests,
+  about 17 s.
+
+## `vegetation.lua`
+
+- **Woods** (zone A) are a canopy: `blockedAt` is true from the ground to
+  20 m (±25%) over it; drawn as the terrain lifted, walled at its edges.
+- **Trees:** street trees every 12 m along streets in zones 5, 6, 9; a tree
+  behind 60% of houses; a tree every 15 m in parks. Each is a trunk and a
+  crown from 40% of its height (pieces tagged `tree`), so vehicles pass
+  under; trees keep off buildings, other streets, water and pads.
+- **Hedgerows** along field boundaries on open land (fields 250 m), 2 m
+  wide, 3 m high, one 25 m length in seven left out (gaps and gates).
+- Trees, hedges and the canopy block sight and movement; for the plume
+  (G14) they are to be porous.
+
 ## `places.lua`
 
 The realistic presets as parameter tables, one per place; the layers hold
@@ -307,8 +357,9 @@ Depths follow Los Angeles (main channel 53 ft, 16.2 m) and Long Beach
 layouts, sizes, centres and the ladders' bands are ours, and each preset's
 `notes` say so. `opts.seed` picks the layout, `opts.cell` and
 `opts.maxSlope` override the grid and the slope rule, and `opts.layers`
-stops early (1 the terrain only, 2 with zones and streets, 3, the default,
-with buildings) for a port that needs only the ground or the streets.
+stops early (1 the terrain only, 2 with zones and streets, 3 with lots,
+buildings and features, 4, the default, with trees) for a port that needs
+only the ground or the streets. `w.buildTime` is the seconds it took.
 
 ## `status.lua`
 

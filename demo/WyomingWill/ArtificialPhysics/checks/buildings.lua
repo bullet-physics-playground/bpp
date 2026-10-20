@@ -12,7 +12,9 @@
 --   ring        buildings whose first part lies 0-150, 150-300, ... m from
 --               the city's centre
 --
--- Run from the ArtificialPhysics folder (about 20 s):
+-- The presets are built to their buildings and features (layers = 3).
+--
+-- Run from the ArtificialPhysics folder (about 30 s):
 --   lua5.1 checks/buildings.lua
 -- or inside BPP: bpp -f checks/buildings.lua -n 1
 --
@@ -37,7 +39,7 @@ local abs, sqrt, max, min, floor = math.abs, math.sqrt, math.max, math.min, math
 print("buildings: " .. _VERSION .. ", presets: " .. table.concat(Places.names(), ", "))
 local t0 = os.clock()
 local worlds = {}
-for _, name in ipairs(Places.names()) do worlds[name] = World.preset(name, { seed = 1 }) end
+for _, name in ipairs(Places.names()) do worlds[name] = World.preset(name, { seed = 1, layers = 3 }) end
 
 local function bsum(w)
   local s = 0
@@ -70,13 +72,15 @@ do
   for k = 1, #lines, 4 do print("        " .. table.concat(lines, "; ", k, min(#lines, k + 3))) end
 end
 
--- Whole floors; sheds and tanks within their ranges.
+-- Whole floors; sheds and tanks within their ranges (the mission
+-- features, b.kind, are checked by checks/features.lua).
 do
   local ok, nf, nh = true, 0, 0
   for _, name in ipairs(Places.names()) do
     for _, b in ipairs(worlds[name].buildings) do
       local T = B.TYPES[b.zone]
-      if b.floors then
+      if b.kind then
+      elseif b.floors then
         nf = nf + 1
         if b.height ~= b.floors * B.FLOOR then ok = false end
         if T.floors and (b.floors < T.floors[3] or b.floors > T.floors[4]) then ok = false end
@@ -119,32 +123,42 @@ do
   check("city: mean height falls outward, then levels", ok, "rings of 150 m: " .. table.concat(parts, ", ") .. " m")
 end
 
--- The gap rule: two buildings touch or stand at least 3 m apart.
+-- The gap rule: buildings that touch make one obstacle (a row of houses,
+-- a block of container stacks); two obstacles stand at least 3 m apart.
 do
   local ok, n, closed, worst = true, 0, 0, math.huge
   for _, name in ipairs(Places.names()) do
     local w = worlds[name]
-    local cells = {}
+    local cells, owner, parent = {}, {}, {}
     local function key(i, j) return i * 100003 + j end
+    local function root(b) while parent[b] ~= b do parent[b] = parent[parent[b]]; b = parent[b] end return b end
     for _, b in ipairs(w.buildings) do
+      parent[b] = b
       for _, p in ipairs(b.parts) do
+        owner[p] = b
         local i, j = floor(p.x / 100), floor(p.y / 100)
         cells[key(i, j)] = cells[key(i, j)] or {}
         table.insert(cells[key(i, j)], p)
       end
     end
+    local pairs_ = {}
     for _, b in ipairs(w.buildings) do
       for _, p in ipairs(b.parts) do
         local i, j = floor(p.x / 100), floor(p.y / 100)
         for di = -1, 1 do
           for dj = -1, 1 do
             for _, q in ipairs(cells[key(i + di, j + dj)] or {}) do
-              if q.building ~= b and q.building.id > b.id then
+              local c = owner[q]
+              if c ~= b and c.id > b.id then
                 local d = B.partDist(p, q)
                 if d < 10 then
                   n = n + 1
-                  if d <= 1e-6 then closed = closed + 1 else worst = min(worst, d) end
-                  if d > 1e-6 and d < B.MIN_GAP - 1e-9 then ok = false end
+                  if d <= 1e-6 then
+                    closed = closed + 1
+                    parent[root(b)] = root(c)              -- touching: one obstacle
+                  else
+                    pairs_[#pairs_ + 1] = { b, c, d }
+                  end
                 end
               end
             end
@@ -152,9 +166,15 @@ do
         end
       end
     end
+    for _, pr in ipairs(pairs_) do
+      if root(pr[1]) ~= root(pr[2]) then
+        worst = min(worst, pr[3])
+        if pr[3] < B.MIN_GAP - 1e-9 then ok = false end
+      end
+    end
   end
-  check("gap rule: touching (closed) or at least 3 m apart", ok,
-        string.format("%d close pairs, %d closed, narrowest open %.2f m", n, closed, worst))
+  check("gap rule: obstacles touch (closed) or stand 3 m+ apart", ok,
+        string.format("%d close pairs, %d touching, narrowest open gap %.2f m", n, closed, worst))
 end
 
 -- Buildings off the streets and out of the water, inside their lots'
@@ -164,7 +184,9 @@ do
   for _, name in ipairs(Places.names()) do
     local w = worlds[name]
     for _, b in ipairs(w.buildings) do
-      for _, p in ipairs(b.parts) do
+      -- a ship, piers and the drain's headwall (at the shore) stand in the
+      -- water by design
+      for _, p in ipairs((b.kind == "ship" or b.kind == "pier" or b.kind == "outfall") and {} or b.parts) do
         local pts = p.kind == "disc" and { p.x + p.r, p.y, p.x - p.r, p.y, p.x, p.y + p.r, p.x, p.y - p.r, p.x, p.y }
                     or { p.c[1], p.c[2], p.c[3], p.c[4], p.c[5], p.c[6], p.c[7], p.c[8], p.x, p.y }
         for k = 1, #pts, 2 do
@@ -193,14 +215,14 @@ do
   local okR, okD = true, true
   for _, name in ipairs({ "suburban", "harbour-town" }) do
     local a = bsum(worlds[name])
-    if bsum(World.preset(name, { seed = 1 })) ~= a then okR = false end
-    if bsum(World.preset(name, { seed = 2 })) == a then okD = false end
+    if bsum(World.preset(name, { seed = 1, layers = 3 })) ~= a then okR = false end
+    if bsum(World.preset(name, { seed = 2, layers = 3 })) == a then okD = false end
   end
   check("the same seed repeats the buildings; another seed changes them", okR and okD)
   rng.seed(42)
   local a = rng.random()
   rng.seed(42)
-  World.preset("industrial-port", { seed = 9 })
+  World.preset("industrial-port", { seed = 9, layers = 3 })
   check("building lots and buildings leaves the shared stream alone", rng.random() == a)
 end
 
