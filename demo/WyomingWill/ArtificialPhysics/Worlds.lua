@@ -22,10 +22,14 @@
 --             downstream of obstacles in magenta.
 --   preset 5-9  the realistic presets (BOOK.md §6, lib/places.lua): rural,
 --             suburban, city centre, industrial port, harbour town. So far
---             their terrain and water (lib/terrain.lua): ground coloured
---             by height (sand by the sea), seabed and river beds darker
---             with depth under translucent water. worldSeed picks the
---             layout.
+--             their terrain and water (lib/terrain.lua): seabed and river
+--             beds darker with depth under translucent water, sand by the
+--             sea; and their zones and streets (lib/town.lua): the ground
+--             coloured by Local Climate Zone (greys for built zones, from
+--             dark high-rise to light industry; greens for open low-rise,
+--             sparse, park, woods; yellow-green fields), streets in dark
+--             grey, bridges lighter, cul-de-sacs with turning circles.
+--             worldSeed picks the layout.
 --
 -- DEFINITIONS (status line): the world's name and size in the book's units
 -- (patches for Ch. 3 and 4, inches for Ch. 7); its pieces by kind; the cell
@@ -37,7 +41,8 @@
 -- water = share under water (sea, rivers, ponds); deepest = greatest water
 -- depth, m; steepest = steepest dry triangle, rise over run in % (the
 -- slope rule keeps every dry slope along the grid within 15%, so a
--- triangle across it within 21%); built = seconds to generate.
+-- triangle across it within 21%); streets = total street length, km;
+-- built = seconds to generate (terrain, zones and streets).
 --
 -- Sliders rebuild the world at once. worldSeed picks the random layout
 -- (preset 4); the same seed always gives the same corridor. Nothing moves:
@@ -131,12 +136,15 @@ local function build(moveCamera)
   local line
   if REAL[p] then
     local st = w.terrain:stats()
+    local km = 0
+    for _, v in pairs(w.town:stats(10).km) do km = km + v end
     line = status.show({ status.text(nil, w.name, 15),
                          status.text("size", string.format("%gx%g m", b.x1 - b.x0, b.y1 - b.y0), 11),
                          status.pct("land", 100 * st.land, 1, 6), status.pct("water", 100 * (1 - st.land), 1, 6),
                          status.num("deepest", st.deepest, 1, false, 5, "m"),
                          status.pct("steepest", 100 * st.maxSlope, 1, 6),
-                         status.num("built", w.terrain.buildTime, 2, false, 5, "s") })
+                         status.num("streets", km, 1, false, 5, "km"),
+                         status.num("built", w.terrain.buildTime + w.town.buildTime, 2, false, 5, "s") })
   else
     line = w:summary() .. extra
     pcall(function() v.statusText = line end)
@@ -168,7 +176,8 @@ preset 2  Ch. 3.6 obstacle wall, Fig. 3.26 (6 discs, radius 45)
 preset 3  Ch. 4.3 / Ch. 11 coverage box, nine cells
 preset 4  Ch. 7 corridor (obstaclePercent, worldSeed; magenta = shadow cells)
 preset 5-9  rural, suburban, city centre, industrial port, harbour town
-            (terrain and water so far; worldSeed picks the layout)
+            (terrain, water, zones and streets so far; worldSeed picks
+            the layout)
 
 Sliders rebuild at once. The camera moves only when the preset changes.]]) end)
 

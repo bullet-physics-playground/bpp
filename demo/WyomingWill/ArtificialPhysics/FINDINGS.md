@@ -456,6 +456,30 @@ first result when g returns several (Lua cuts a call's results to one
 unless it is the last argument). (d) Each preset builds in 0.1–0.4 s in
 Lua 5.1, and a seed gives identical terrain on Lua 5.1–5.4.
 
+**F61. Zones and streets: the published LCZ fractions, and a connected
+network from one rule** — 2026-10-20, Our error, corrected, and New.
+`lib/town.lua`, `checks/town.lua`. (a) *Our error:* `BOOK.md` §6 gave
+the open low-rise zone 15–25% built and the sparsely built 5–15%.
+Stewart and Oke's table (2012, Table 3) gives 20–40% and 10–20%
+(compact high-rise 40–60% and > 25 m, as we had). `Town.LCZ` now holds the
+published ranges for all ten built zones, and the buildings (next patch)
+will be calibrated to them. (b) **One rule makes the network whole:** keep
+only the streets connected to an arterial. Without it, grid streets cut
+off by the city's river, stubs at the edges of zones and the port's
+grids (which stopped 24 m short of their arterial) were left as islands:
+15 pieces in the city, 11 in the harbour town, 14 in the port, 1 in the
+suburb. With it every street is reached from an arterial, which
+`checks/town.lua` confirms independently by flooding a 4 m raster of the
+streets (39,441 sample points, all reached). The port's districts were
+then laid to meet their arterial, so it drops none. (c) **Woods'
+share** has to be calibrated on the land it applies to: a noise cut taken
+over the whole area gave woods on 25% and 40% of the open land when 30%
+was asked; taken over the open land alone it gives 30.0%. (d) A BPP
+trap: a Lua local named `Terrain` (our terrain module) hides BPP's global
+`Terrain` mesh class in that file, and the viewer showed nothing; the
+module is now `Land` there. Zones and streets build in 0.02–0.3 s and a
+seed gives identical streets on Lua 5.1–5.4.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

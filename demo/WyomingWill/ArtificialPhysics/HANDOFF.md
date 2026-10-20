@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F60 so far), and
+  implementations, and our own mistakes once corrected (F1–F61 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -100,7 +100,7 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua` and `places.lua` (the realistic worlds' ground and water, and their five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua` and `places.lua` (the realistic worlds' ground and water, zones and streets, and their five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
@@ -270,8 +270,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   1. **terrain and water: done** (`lib/terrain.lua`, the five presets in
      `lib/places.lua`, `Worlds.lua` presets 5–9, `checks/terrain.lua`;
      F60);
-  2. zones and streets; 3. lots and buildings; 4. vegetation and the
-     mission features.
+  2. **zones and streets: done** (`lib/town.lua`, `checks/town.lua`; F61);
+  3. lots and buildings; 4. vegetation and the mission features.
 - **After it, M2:** the vehicle interface (G18), a ground robot (G10) and
   a surface boat (G11), and the first cross-vehicle benchmark (formation,
   and goal through obstacles) on drones, ground robots and boats. Ch. 13's

@@ -139,6 +139,8 @@ local function fbm(n, x, y)  -- x, y measured from the area's low corner
   return sum / n.total
 end
 
+T.newNoise, T.fbm = newNoise, fbm    -- shared with lib/town.lua
+
 local function smoothstep(e0, e1, x)
   local t = min(1, max(0, (x - e0) / (e1 - e0)))
   return t * t * (3 - 2 * t)
@@ -705,6 +707,13 @@ function T:triangleColor(a, b, c, hiRef)
   if hm < 1.5 and self.nearSea and (self.nearSea[a] or self.nearSea[b] or self.nearSea[c]) then
     return C.sand[1], C.sand[2], C.sand[3]
   end
+  if self.landColor then                         -- e.g. by zone (lib/town.lua)
+    local xa, ya = self:nodeXY(a)
+    local xb, yb = self:nodeXY(b)
+    local xc, yc = self:nodeXY(c)
+    local r, g, bl = self.landColor((xa + xb + xc) / 3, (ya + yb + yc) / 3)
+    if r then return r, g, bl end
+  end
   local r, g, bl = mix(C.low, C.high, (hm - self.loRef) / max(1, hiRef - self.loRef))
   return r, g, bl
 end
@@ -716,7 +725,8 @@ local CF_STATIC, CF_NO_CONTACT = 1, 4
 -- ground stands above it) and a flat quad at the water level for every
 -- river or pond cell. opts: scale (m -> BPP units, default 1), base (BPP
 -- y of sea level, default 0), contact = true to let bodies collide with
--- the ground (default: no contact response, like the rest of lib/world).
+-- the ground (default: no contact response, like the rest of lib/world),
+-- landColor = function(x, y) -> r, g, b (or nil) for dry ground.
 -- Returns { ground, water }.
 function T:toBPP(viewer, opts)
   opts = opts or {}
@@ -754,6 +764,7 @@ function T:toBPP(viewer, opts)
     for k in pairs(add) do self.nearSea[k] = true end
   end
   self.loRef = lo
+  self.landColor = opts.landColor
   local ground = Terrain()
   local idx = 0
   local colours = {}

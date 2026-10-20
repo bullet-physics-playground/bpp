@@ -30,6 +30,7 @@
 --   w:groundAt(x, y)         -- ground elevation (0 without terrain)
 --   w:waterAt(x, y)          -- water level, depth, kind, or nil
 --   w:blockedAt(x, y, z)     -- below the ground or inside a piece at height z?
+--   w:zoneAt(x, y)           -- Local Climate Zone code (realistic presets)
 --
 -- RANDOM WORLDS draw from their own stream (rng.new(seed)), never the shared
 -- one, so building a world does not change the agents' random numbers, and
@@ -212,6 +213,12 @@ end
 function World:waterAt(x, y)
   if not self.terrain then return nil end
   return self.terrain:water(x, y)
+end
+
+-- The Local Climate Zone at (x, y) ("1".."10", "A".."G"; lib/town.lua),
+-- or nil for a world without zones.
+function World:zoneAt(x, y)
+  return self.town and self.town:zone(x, y) or nil
 end
 
 -- Is the point (x, y) at height z blocked: outside the bounds, below the
@@ -474,7 +481,8 @@ end
 -- Uniform_Coverage does, mask = a set of cell indices to highlight, colors.
 -- With a terrain, its ground and water meshes are drawn instead of the
 -- floor (contact = true lets bodies collide with the ground), and pieces
--- stand on their own base elevation.
+-- stand on their own base elevation; with zones and streets (lib/town.lua)
+-- the ground is coloured by zone and the streets are one more mesh.
 -- Returns the list of objects (to remove with v:remove later).
 local CF_STATIC, CF_NO_CONTACT = 1, 4
 
@@ -492,9 +500,14 @@ function World:toBPP(viewer, opts)
     return o
   end
   if self.terrain then
-    local t = self.terrain:toBPP(viewer, { scale = S, base = base, contact = opts.contact })
+    local t = self.terrain:toBPP(viewer, { scale = S, base = base, contact = opts.contact,
+                                           landColor = self.town and self.town:groundColor() })
     objs[#objs + 1] = t.ground
     if t.water then objs[#objs + 1] = t.water end
+  end
+  if self.town then
+    local m = self.town:toBPP(viewer, { scale = S, base = base, contact = opts.contact })
+    if m then objs[#objs + 1] = m end
   end
   local hS = function(p) return (p.h or self.height) * S end
   -- book y -> BPP -z, so a camera looking down -z with y up sees the world

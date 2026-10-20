@@ -82,6 +82,7 @@ run monitors      lua_check monitors checks/monitors.lua
 run ch02          lua_check ch02 checks/ch02.lua
 run world         lua_check world checks/world.lua
 run terrain       lua_check terrain checks/terrain.lua
+run town          lua_check town checks/town.lua
 run lattice       lua_check lattice checks/lattice.lua
 run ch13          lua_check ch13 checks/ch13.lua
 export N=$N_DEFAULT                        # sample sizes for the two statistical checks
