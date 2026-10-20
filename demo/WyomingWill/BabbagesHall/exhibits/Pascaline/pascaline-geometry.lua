@@ -42,6 +42,13 @@ G.TIPX, G.TIPY = 2.25, -0.17  -- the pawl's tip at rest, from digit i+1's axle
 G.TAIL = 0.008                -- the pawl's tail weight (kg): it holds the pawl against its stop
 G.PAWL_LO, G.PAWL_HI = -50, 0 -- the pawl's swing (degrees): it yields one way only
 
+-- driving it, as Pascal's was: a stylus in one of the dial's ten holes
+-- (between its numbers), turned clockwise until it meets the finger stop.
+-- The plate's fixed numbers, round the dial, say which hole: the hole by
+-- the plate's n is n steps short of the stop.
+G.STYLUS_R = 3.4              -- the holes' circle on the dial
+G.STOP_A = 126                -- the stop, clockwise from the top (degrees: about 4 o'clock, between two holes' places)
+
 -- the detent on each digit: a printed PLA leaf spring, rising from a block
 -- screwed to the back of the front plate, its round nose resting between
 -- two pins at 9 o'clock (where, at each unit, two pins stand either side,

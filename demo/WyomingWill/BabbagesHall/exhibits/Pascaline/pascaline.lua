@@ -18,6 +18,7 @@
 -- KEYS
 --   T     the tour: 7, + 8 = 15, + 84 = 99, + 1 = 100 (it starts with it)
 --   1/2/3 turn the units / tens / hundreds on by one, as with Pascal's stylus
+--         (drawn: into the hole by the plate's number, round to the finger stop)
 --   R     set it back to 000
 --   Z     slow motion (1/4) <-> real time
 --
@@ -76,7 +77,7 @@ local function writeGeometry(path)
   local f = assert(io.open(path, "w"))
   f:write("// made by pascaline.lua from pascaline-geometry.lua: do not edit (cm)\n")
   for _, k in ipairs({ "ND", "D", "Y0", "STEP", "RP", "PIN_R", "PZ0", "PZ1", "CZ0", "CZ1", "R0", "R1", "PA",
-                       "DET_NR", "DET_L", "DET_T", "DET_Z0", "DET_Z1", "DET_PRE" }) do
+                       "DET_NR", "DET_L", "DET_T", "DET_Z0", "DET_Z1", "DET_PRE", "STYLUS_R", "STOP_A" }) do
     f:write(string.format("%s = %s;\n", k, tostring(G[k])))
   end
   f:write("DIGIT_CAM = " .. scadPrims(G.digit(0)) .. ";\n")
@@ -205,6 +206,18 @@ local pointers = part("pointers()")
 pointers.col = "#d4af37"
 v:add(pointers)
 pointers.trans = btTransform(ident, MO)
+-- the plate's numbers round each dial (which hole to put the stylus in),
+-- and the finger stops it is turned to
+local plateNums = part("plateNumbers()")
+plateNums.col = "#efe6cf"
+v:add(plateNums)
+plateNums.trans = btTransform(ident, MO)
+for i = 0, G.ND - 1 do
+  local st = part("stop(" .. i .. ")")
+  st.col = "#3c3c40"
+  v:add(st)
+  st.trans = btTransform(ident, MO)
+end
 local frame = part("frame(false)")
 frame.col = "#3a2a1a"
 pcall(function() frame.transparency = 0.35 end)        -- (to see the works through it)
@@ -302,8 +315,24 @@ for i = 0, ND - 1 do
     dials[#dials + 1] = { obj = m, i = i }
   end
 end
+-- the stylus: drawn in the hole the hand uses, going round with the digit
+-- until it meets the stop; between moves it lies on the table in front.
+-- (It is drawn: the hand that turns the digit is the motor, as before.)
+local stylus = part("stylus()")
+stylus.col = "#2a2622"
+v:add(stylus)
+local STYLUS_PARK = btTransform(btQuaternion(btVector3(0, 1, 0), math.pi / 2), W(-15, -G.Y0 - 8 + 0.4, 9))
+stylus.trans = STYLUS_PARK
+local stylusOn = nil                       -- { digit, its place in the digit's frame }
 local function moveDials()
   for _, d in ipairs(dials) do d.obj.trans = digits[d.i].body:getCenterOfMassTransform() end
+  if stylusOn then
+    local tr = btTransform()
+    tr:mult(digits[stylusOn.i].body:getCenterOfMassTransform(), stylusOn.local_)
+    stylus.trans = tr
+  else
+    stylus.trans = STYLUS_PARK
+  end
 end
 
 -- the sautoirs and their pawls
@@ -412,7 +441,7 @@ local function reset()
     b:setLinearVelocity(btVector3(0, 0, 0)); b:setAngularVelocity(btVector3(0, 0, 0))
   end
   for i = 0, ND - 1 do value(i) end
-  hand, queue = nil, {}
+  hand, queue, stylusOn = nil, {}, nil
   holdStart()
 end
 
@@ -507,10 +536,15 @@ v:postSim(function(N)
   if not hand and #queue > 0 then
     local m = table.remove(queue, 1)
     hand = m[1]; handTarget = math.floor(value(hand) + 0.5) + m[2]
+    -- the stylus into the hole by the plate's number m[2] (that many steps
+    -- short of the stop), in the digit's own frame (turned clockwise by its
+    -- value)
+    local a = math.rad(G.STOP_A - G.STEP * m[2] - G.STEP * value(hand))
+    stylusOn = { i = hand, local_ = btTransform(ident, btVector3(G.STYLUS_R * math.sin(a), G.STYLUS_R * math.cos(a), 0)) }
   end
   if hand and math.abs(value(hand) - handTarget) < 0.02 then
     wait = wait + FRAME_DT
-    if wait > 0.3 then hand, wait = nil, 0 end
+    if wait > 0.3 then hand, wait, stylusOn = nil, 0, nil end
   end
   -- the tour: when the hand is done and everything has settled, read it
   if tour and not hand and #queue == 0 then

@@ -2,11 +2,11 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
-Babbage's Hall, west bay 3. Blaise Pascal's adding machine (1642), with
+Babbage's Hall, west bay 2. Blaise Pascal's adding machine (1642), with
 three digits and his own carry: the **sautoir** ("jumper").
 
-Each digit wheel carries ten pins (the hand turns it by these, like a
-dial telephone) and, behind them, a snail cam. As the units count from 0
+Each digit wheel carries ten pins and, behind them, a snail cam; in front
+of the plate, its dial shows the digit. As the units count from 0
 to 9 the cam slowly lifts a weighted lever, the sautoir. As the units pass
 9 the cam's step drops away under it, the weight falls, and a pawl on the
 lever's end kicks the tens wheel on by one pin. On the way up the pawl
@@ -15,6 +15,26 @@ a weight that was lifted earlier, a carry that ripples (99 + 1 = 100)
 needs no more force from the hand than any other step. This was Pascal's
 answer to the problem that wrecked earlier calculators: a long ripple
 carry jams a machine that drives it straight through gears.
+
+## Using it
+
+As with Pascal's own, by hand, with a stylus. Each dial has ten holes
+between its numbers, and round each dial the front plate has the numbers 1
+to 9, with a finger stop at about 4 o'clock. To add 7 to a digit, put the
+stylus in the dial's hole beside the plate's 7 and turn it clockwise until
+it meets the stop: the digit goes on by exactly 7, whatever it showed. To
+add 84, turn the units by 4 and the tens by 8. The total is read under the
+pointers. A digit passing 9 carries one into the next by itself, on the
+weight it lifted on the way.
+
+It only goes forward (turned back, the sautoir's nose would meet the steep
+side of the cam). Pascal subtracted by adding the complement: to take 3
+from a three-digit number, add 997 and let the carry out of the hundreds
+fall away.
+
+In the simulation the hand that turns a digit is a motor on its axle; the
+stylus is drawn doing it: into the hole by the plate's number, round with
+the dial to the stop, and back onto the table.
 
 ## Running it
 
@@ -76,8 +96,10 @@ pieces are 230 x 140 mm.
 | `dial.stl` | 3 | 88 x 88 x 6 | press onto the hub's end. Print it light (ivory or white) and paint the raised numbers dark |
 | `sautoir-0.stl`, `sautoir-1.stl` | 1 each | 215 x 28 x 40/52 | supports under the pawl's carrier arm |
 | `pawl-0.stl`, `pawl-1.stl` | 1 each | 31 x 23 x 8 | |
+| `stop.stl` | 3 | 13 x 32 x 5 | the finger stops: printed on their side, screwed to the front plate |
+| `stylus.stl` | 1 | 8 x 8 x 30 | or use any 4 mm rod |
 | `detent.stl` | 3 | 19 x 55 x 14 | the leaf springs. PLA, standing as it lies (no supports), 100% infill; the leaf is 1.2 mm, three lines of a 0.4 mm nozzle |
-| `frame-front-left/right.stl` | 1 each | 230 x 140 x 15 | the front plate, the digits' bearings, and the pointers standing on it |
+| `frame-front-left/right.stl` | 1 each | 230 x 140 x 15 | the front plate, the digits' bearings, the pointers and the numbers round each dial (paint them) |
 | `frame-back-left/right.stl` | 1 each | 230 x 140 x 6 | the back plate, the sautoirs' pivots |
 | `frame-base-left/right.stl` | 1 each | 230 x 110 x 8 | |
 | `frame-end.stl` | 2 | 58 x 132 x 8 | joins the plates at each end |
@@ -97,18 +119,22 @@ so the works show) or plywood, gluing on three printed `pointer.stl`: `stl/cut-f
   plate) and 2 for the pawls.
 - **3 M3 screws,** about 16 mm, one through the front plate into each
   detent's block (its 2.5 mm hole is for the screw to tap).
+- **3 M3 screws,** about 8 mm, one through each finger stop into the front
+  plate (tapped into its 2.5 mm hole).
 - Glue or M3 screws for the frame joints; a little dry PTFE or graphite on
   the cams and pins.
 
 **Assembly.** Glue the plate halves and the base halves. Fit the sautoirs
 on their pins in the back plate, and the pawls on theirs. Slide each digit's
 hub, cam first, from behind through the front plate, then press its dial on
-with 0 at the top under the pointer. Set the units and tens to 0 with each
+with 0 at the top under the pointer (its holes then stand by the plate's
+numbers). Set the units and tens to 0 with each
 sautoir resting at the bottom of its cam. Screw a detent behind each
 wheel, its block against the back of the front plate and its nose dropped
 between the two pins at 9 o'clock (lift the nose over a pin to fit it).
-Join the plates with the end pieces and the base. Then turn the units by
-its pins and watch the tens step on as it passes 9.
+Join the plates with the end pieces and the base. Screw a finger stop
+beside each dial, its arm reaching in over the dial's face. Then add with
+the stylus (see "Using it") and watch the tens step on as the units pass 9.
 
 The detents' thickness matters: the simulation's carry works with leaves
 from 1.0 to 1.6 mm thick (see `FINDINGS.md`), and 1.2 mm is in the middle.

@@ -16,6 +16,8 @@
 //   lever0/1    the sautoirs, one for each carry
 //   pawl0/1     their pawls
 //   detent      the leaf springs that hold each digit at a unit: 3
+//   stop        the finger stops the stylus is turned to: 3
+//   stylus      the stylus itself: 1
 //   frame       the base, the front plate (axles, pointers) and the back
 //               plate (the sautoirs' pivots)
 //   pointer     3, only to glue on front plates cut from acrylic or plywood
@@ -58,6 +60,19 @@ module dial(numbers = true) difference() {
     if (numbers) dialNumbers();
   }
   translate([0, 0, DIAL_Z0 - 1]) cylinder(r = 6.1, h = 3.2, $fn = 32);    // (the hub's end goes in)
+  dialHoles();
+}
+// the stylus's holes: ten, between the numbers (clockwise from the top,
+// half a step and then a step apart: at each unit they stand where the
+// plate's numbers are)
+HOLE_D = 5;
+module dialHoles()
+  for (k = [0 : 9]) rotate(-(STEP / 2 + k * STEP)) translate([0, S * STYLUS_R, 0]) cylinder(d = HOLE_D, h = 200, center = true, $fn = 24);
+// the stylus: a 4 mm rod with a knob, in a hole (its tip at the hole's
+// back), long enough to meet the stop above the dial
+module stylus() translate([0, 0, DIAL_Z0]) {
+  cylinder(d = 4, h = 16, $fn = 20);
+  translate([0, 0, 16]) cylinder(d1 = 6, d2 = 8, h = 14, $fn = 24);
 }
 // as the simulation draws it: the digit and its dial, one body
 module digitAll(withCam) { digit(withCam); dial(); }
@@ -114,6 +129,33 @@ module detentPart(i) {
 // ---- the frame: base, front plate, back plate ----
 FP_Z0 = 16; FP_Z1 = 22;                   // the front plate (between the pawls' carriers and the dials)
 BP_Z0 = -48; BP_Z1 = -42;                 // the back plate (behind the sautoirs)
+// the plate's numbers round each dial, 1 to 9: put the stylus in the hole
+// by n, turn it to the stop, and the digit goes on by n (raised 1 mm on
+// the front plate; paint them)
+PN_R = 50;
+module plateNumbers()
+  for (i = [0 : ND - 1], n = [1 : 9]) translate([S * (-i * D), S * Y0, FP_Z1])
+    rotate(-(STOP_A - n * STEP)) translate([0, PN_R, 0]) rotate(STOP_A - n * STEP)
+      linear_extrude(1) text(str(n), size = 6, halign = "center", valign = "center", font = FONT);
+// the finger stop for digit i: a bracket screwed to the front plate outside
+// the dial, reaching in over the dial's face (2 mm above it) across the
+// holes' circle; a stylus in a hole, turned clockwise, comes up against its
+// side with the hole at STOP_A. (Its side is that far on from STOP_A: the
+// stylus's radius and half the arm.)
+STOP_W = 5;                                // the arm across
+STOP_OFF = (2 + STOP_W / 2) / (S * STYLUS_R) * 180 / PI;
+STOP_R0 = S * STYLUS_R - 5;                // the arm reaches in to here
+STOP_PAD = [47, 61];                       // the pad on the plate, out from the axle
+module stopFrame(i) translate([S * (-i * D), S * Y0, 0]) rotate(-(STOP_A + STOP_OFF)) children();
+module stop(i) stopFrame(i) difference() {
+  union() {
+    translate([-STOP_W / 2, STOP_PAD[0], FP_Z1]) cube([STOP_W, STOP_PAD[1] - STOP_PAD[0], 3]);            // the pad
+    translate([-STOP_W / 2, STOP_PAD[0], FP_Z1]) cube([STOP_W, 4, DIAL_Z1 + 6 - FP_Z1]);                  // up past the dial
+    translate([-STOP_W / 2, STOP_R0, DIAL_Z1 + 2]) cube([STOP_W, STOP_PAD[0] + 4 - STOP_R0, 4]);          // in over it
+  }
+  translate([0, 56, 0]) cylinder(d = 3.4, h = 100, $fn = 16);                                            // its M3 screw
+}
+
 // the pointers over the dials' tops (part of the front plate; the
 // simulation draws them apart, in brass)
 module pointers()
@@ -131,6 +173,8 @@ module frame(withPointers = true) {
   difference() {
     translate([x0, ybase, FP_Z0]) cube([x1 - x0, ytop - ybase, FP_Z1 - FP_Z0]);
     for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0, 0]) cylinder(d = 12.4, h = 100, center = true, $fn = 48);
+    // the finger stops' screws (M3, tapped into the plate)
+    for (i = [0 : ND - 1]) stopFrame(i) translate([0, 56, 0]) cylinder(d = 2.5, h = 100, center = true, $fn = 16);
     // the detents' screws (M3, from the front into their blocks)
     for (i = [0 : ND - 1]) translate([S * DETENT_ROOTS[i][0], S * DETENT_ROOTS[i][1] - DB_H / 2, 0]) cylinder(d = 3.4, h = 100, center = true, $fn = 16);
   }
@@ -154,7 +198,7 @@ module half(which) intersection() { children(); translate([which == 0 ? -1000 : 
 // (the front plate with its pointers standing on it; the cut outline without)
 module frontPlate(withPointers = true) {
   intersection() { frame(false); translate([-1000, -1000, FP_Z0]) cube([2000, 2000, FP_Z1 - FP_Z0]); }
-  if (withPointers) pointers();
+  if (withPointers) { pointers(); plateNumbers(); }
 }
 module backPlate() intersection() { frame(); translate([-1000, -1000, BP_Z0]) cube([2000, 2000, BP_Z1 - BP_Z0]); }
 if (PART == "print-digitcam") translate([0, 0, -S * CZ0]) digit(true);                    // its cam on the bed
@@ -163,6 +207,8 @@ if (PART == "print-dial") translate([0, 0, -DIAL_Z0]) dial();                   
 if (PART == "print-lever0") translate([0, 0, -S * (-2.1 - 0.3)]) lever(0);              // its plane on the bed (the pawl's arm needs support)
 if (PART == "print-lever1") translate([0, 0, -S * (-3.3 - 0.3)]) lever(1);
 if (PART == "print-pawl0") translate([0, 0, -S * (PZ0 + PZ1) / 2 + 4]) pawl(0);
+if (PART == "print-stop") rotate([0, -90, 0]) translate([STOP_W / 2, 0, 0]) rotate(STOP_A + STOP_OFF) translate([0, -S * Y0, 0]) stop(0);   // on its side
+if (PART == "print-stylus") translate([0, 0, -DIAL_Z0]) stylus();    // standing on its tip
 if (PART == "print-detent") translate([-S * DETENT_ROOTS[0][0], -S * DETENT_ROOTS[0][1], -S * DET_Z0]) detentPart(0);   // the wheel's side down
 if (PART == "print-pawl1") translate([0, 0, -S * (PZ0 + PZ1) / 2 + 4]) pawl(1);
 if (PART == "print-front-left") rotate([0, 0, 0]) translate([0, 0, -FP_Z0]) half(0) frontPlate();
@@ -193,6 +239,8 @@ module assembly(withFrame = true) {
   for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0, 0]) color("Goldenrod") digit(i < ND - 1);
   for (i = [0 : ND - 2]) { color("SlateGray") lever(i); color("DarkGoldenrod") pawl(i); }
   for (i = [0 : ND - 1]) color("Wheat") { detentMoving(i); detentRoot(i); }
+  for (i = [0 : ND - 1]) color("DimGray") stop(i);
+  if (withFrame) color("Ivory") plateNumbers();
   if (withFrame) color("SaddleBrown", 0.3) frame();
 }
 if (PART == "assembly") assembly();
