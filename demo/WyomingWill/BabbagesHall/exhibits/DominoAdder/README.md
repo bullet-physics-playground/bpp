@@ -107,3 +107,5 @@ Units are centimetres, kilograms and seconds.
 Headless testing: `bpp -f domino-adder.lua -n 1750` runs the tour and prints
 `RESULT domino-adder tour: PASS` or `FAIL`. `DA_IN=AB DA_TOUR=0` runs one sum,
 and `DA_DEBUG=1` prints which lines fell.
+Between runs, once nothing is moving, it rests (stops stepping) until the
+next push; `DA_REST=0` never rests, `DA_REST_LOG=1` shows when it does.

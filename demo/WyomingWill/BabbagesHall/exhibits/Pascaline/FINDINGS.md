@@ -69,3 +69,14 @@ parts do not overlap at rest (manifold3d).
   yield easily over a pin. Adjust by adding or removing a nut.
 - **The click** in the simulation is gentle. A real detent spring that is
   too strong will need a heavier weight to overcome.
+
+## Resting
+
+Once the hand has nothing to do and nothing has moved for half a second,
+the Pascaline stops stepping until there is something to do again. Stepped at
+2400 steps a second, a machine at rest costs as much as one running, and
+its parts never quite stop (their sleeping is turned off, as it must be
+while they work): what was left once it had settled was about 0.005 cm/s and 0.008 rad/s.
+"Not moving" is set just above that: 0.05 cm/s and 0.02 rad/s. Resting can't change a
+result: woken, it carries on from exactly the state it stopped in,
+speeds and all. The sweep above was run again with resting on: 6/6.

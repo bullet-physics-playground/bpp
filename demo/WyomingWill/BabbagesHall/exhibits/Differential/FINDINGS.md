@@ -75,3 +75,14 @@ exhibit uses 20.
 | hand speed 0.8 turns/s | PASS |
 
 The ring agrees with A + B to 0.01 units every time.
+
+## Resting
+
+Once the hand has nothing to do and nothing has moved for half a second,
+the Differential stops stepping until there is something to do again. Stepped at
+2400 steps a second, a machine at rest costs as much as one running, and
+its parts never quite stop (their sleeping is turned off, as it must be
+while they work): what was left once it had settled was up to about 0.05 cm/s and 0.03 rad/s (the gears in their backlash).
+"Not moving" is set just above that: 0.1 cm/s and 0.05 rad/s. Resting can't change a
+result: woken, it carries on from exactly the state it stopped in,
+speeds and all. Its sweep (friction 0.1, 0.3, 0.5; hand 0.2 and 0.8 turns a second) was run again with resting on: 6/6. Over a 70 s run, 79 s of computing became 16 s.

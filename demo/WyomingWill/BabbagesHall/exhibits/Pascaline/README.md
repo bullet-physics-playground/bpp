@@ -35,7 +35,12 @@ turns a digit), `speed`.
 
 Environment, for testing: `PA_TOUR=0` (no tour), `PA_FRICTION`, `PA_RATE`,
 `PA_DEBUG=1` (prints the digits' values and the levers' and pawls'
-angles), `PA_EXPORT=1` (rewrites `parts/geometry.scad`).
+angles), `PA_EXPORT=1` (rewrites `parts/geometry.scad`), `PA_REST=0` (never
+rest: see below), `PA_REST_LOG=1` (says when it rests).
+
+Once the hand is done and nothing moves, the machine rests: it stops
+stepping until the next key or tour step, which saves the processor and
+changes nothing it computes.
 
 ## How it is built
 

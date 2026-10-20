@@ -410,8 +410,63 @@ local function startCase()
 end
 if tour then print("\nDOMINO HALF ADDER -- the tour: all four sums") end
 
+-- (the moving parts, for telling when they've stopped)
+local restBodies = {}
+for _, d in ipairs(dominoes) do restBodies[#restBodies + 1] = d.obj.body end
+for _, tl in pairs(tells) do restBodies[#restBodies + 1] = tl.body end
+-- ---------------------------------------------------------------------
+-- at rest: once the hand has nothing to do and nothing has moved for
+-- REST_S, the simulation stops stepping. Nothing would change but the
+-- processor's work (a machine at rest, stepped 2400 times a second, costs
+-- as much as one running). The next thing for the hand to do starts it
+-- again. (DA_REST=0: never rest; DA_REST_LOG=1: print the fastest
+-- part's speeds each second while the hand is idle, to set REST_V, REST_W)
+-- ---------------------------------------------------------------------
+local REST_S = 0.5
+local REST_V, REST_W = 0.3, 0.1   -- cm/s and rad/s: "not moving" (just above what is left when it has settled)
+local REST_ON = os.getenv("DA_REST") ~= "0"
+local REST_LOG = os.getenv("DA_REST_LOG")
+local restFor, resting, restLogT = 0, false, 0
+local function fastest()
+  local mv, mw = 0, 0
+  for _, b in ipairs(restBodies) do
+    mv = math.max(mv, b:getLinearVelocity():length())
+    mw = math.max(mw, b:getAngularVelocity():length())
+  end
+  return mv, mw
+end
+-- (in preSim: true while at rest, and the step is skipped)
+local function restPre()
+  if not resting then return false end
+  if (running or goPending) then
+    resting, restFor = false, 0
+    applyTiming()
+    if REST_LOG then print('  (stepping again)') end
+    return false
+  end
+  v.timeStep = 0
+  return true
+end
+-- (in postSim, after a stepped frame)
+local function restPost()
+  if resting then return end
+  if (running or goPending) then restFor = 0; return end
+  local mv, mw = fastest()
+  if REST_LOG then
+    restLogT = restLogT + FRAME_DT
+    if restLogT >= 1 then restLogT = 0; print(string.format("  at rest? fastest part %.4f cm/s, %.4f rad/s", mv, mw)) end
+  end
+  if mv < REST_V and mw < REST_W then restFor = restFor + FRAME_DT else restFor = 0 end
+  if REST_ON and restFor >= REST_S then
+    resting = true
+    v.timeStep = 0
+    if REST_LOG then print('  (at rest: not stepping)') end
+  end
+end
+
 v:preSim(function(N)
   if holdPre() then return end
+  if restPre() then return end
   for k = 1, NSTEPS - 1 do v:stepSimulation(STEP, 0, STEP) end
 end)
 
@@ -419,6 +474,7 @@ local fails = 0
 v:postSim(function(N)
   carryInlays()
   if holdNow then return end
+  restPost()
   if goPending then goPending = false; push(); return end
   if not running then return end
   t = t + FRAME_DT

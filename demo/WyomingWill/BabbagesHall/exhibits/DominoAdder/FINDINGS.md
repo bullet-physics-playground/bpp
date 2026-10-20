@@ -102,3 +102,14 @@ Two faults were found on the way:
   inputs 0.
 - **Paths:** the parts file was looked for by `$PWD`, which is wrong when bpp
   has moved into the script's folder; the real working directory is used now.
+
+## Resting
+
+Once the hand has nothing to do and nothing has moved for half a second,
+the Domino Half Adder stops stepping until there is something to do again. Stepped at
+2400 steps a second, a machine at rest costs as much as one running, and
+its parts never quite stop (their sleeping is turned off, as it must be
+while they work): what was left once it had settled was up to about 0.15 cm/s and 0.07 rad/s (fallen dominoes rocking against each other).
+"Not moving" is set just above that: 0.3 cm/s and 0.1 rad/s. Resting can't change a
+result: woken, it carries on from exactly the state it stopped in,
+speeds and all. It rests only between runs, so the runs themselves are as before. Over a 50 s run, 165 s of computing became 88 s.

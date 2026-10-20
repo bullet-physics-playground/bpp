@@ -102,3 +102,6 @@ Units are centimetres, kilograms and seconds.
 Headless testing: `bpp -f differential.lua -n 2400` runs the tour and prints
 `RESULT differential tour: PASS` or `FAIL`. `DF_A`, `DF_B` and `DF_TOUR=0`
 turn the inputs to given values; `DF_LOG=1` prints the readings each second.
+Once the hand is done and the gears are still, it rests (stops stepping)
+until there's something to do; `DF_REST=0` never rests, `DF_REST_LOG=1`
+shows when it does.

@@ -161,6 +161,54 @@ end
 realV.gravity = btVector3(0, -981, 0)
 
 -- ---------------------------------------------------------------------
+-- the cost meter (after the Rec Room's): every METER_PRINT seconds the
+-- console shows what each frame spent its time on, in ms -- physics (the
+-- exhibit's steps and bpp's own), the exhibit's scripts, garbage, and
+-- drawing -- and how often the exhibit you're at was resting (see each
+-- exhibit's "at rest"). HALL_METER=0: off.
+-- ---------------------------------------------------------------------
+local METER = os.getenv("HALL_METER") ~= "0"
+local METER_PRINT = tonumber(os.getenv("HALL_METER_S") or "") or 10
+local METER_FILE = os.getenv("HALL_METER_FILE")       -- (and appended to this file, if set)
+-- Two stopwatches, as in the Rec Room: bpp's (v:getTime) for real time, and
+-- for short pieces of work the same if it is fine-grained enough, else the
+-- processor clock.
+local realMs = function() return realV:getTime() * 1000 end
+local now
+do
+  local t0 = realV:getTime()
+  local t1 = t0
+  repeat t1 = realV:getTime() until t1 ~= t0
+  local t2 = t1
+  repeat t2 = realV:getTime() until t2 ~= t1
+  if t2 - t1 < 0.0001 then now = realMs else now = function() return os.clock() * 1000 end end
+end
+local meter = { phys = 0, scripts = 0, gc = 0, draw = 0, frames = 0, draws = 0, resting = 0, t0 = nil, longest = 0 }
+local lastShown = nil      -- (when the last frame was shown: for the freeze log)
+local function resetMeter(t)
+  meter.phys, meter.scripts, meter.gc, meter.draw, meter.frames, meter.draws, meter.resting = 0, 0, 0, 0, 0, 0, 0
+  meter.t0, meter.longest = t, 0
+end
+-- Garbage: Lua's own collector, which works a little at a time as garbage
+-- is made, unless HALL_GC_MS is set: then, as in the Rec Room, up to that
+-- many ms are spent collecting every frame, so garbage never piles up into
+-- one long collection. The Rec Room needs that (its games share one large
+-- heap, and a collection's last step could hold it up for a tenth of a
+-- second); here the heap is small, and it cost 0.4 ms every frame, as much
+-- again as a resting exhibit costs. Turn it on if the freeze log shows
+-- pauses.
+local GC_BUDGET = tonumber(os.getenv("HALL_GC_MS") or "") or 0
+local function collectSome()
+  if GC_BUDGET <= 0 then return end
+  local t = now()
+  repeat until collectgarbage("step", 0) or now() - t >= GC_BUDGET
+  meter.gc = meter.gc + (now() - t)
+end
+-- A frame that takes longer than FREEZE_LOG_MS (250; 0: never) is noted in
+-- the console with the time of day it ended.
+local FREEZE_LOG_MS = tonumber(os.getenv("HALL_FREEZE_MS") or "") or 250
+
+-- ---------------------------------------------------------------------
 -- the sandboxes
 -- ---------------------------------------------------------------------
 local exhibits = {}        -- the live ones, in walking order
@@ -280,6 +328,13 @@ local function makeExhibit(e, bay)
     end,
     setStatusText = function(_, text) if active == g and text and text ~= "" then print(text) end end,
     loadSound = function(_, path) return realV:loadSound(fix(path)) end,
+    -- (its own steps, timed for the meter)
+    stepSimulation = function(_, ...)
+      local t = now()
+      local r = realV:stepSimulation(...)
+      meter.phys = meter.phys + (now() - t)
+      return r
+    end,
     -- (the worlds are the hall's to arrange)
     newWorld = function() error("an exhibit can't make worlds of its own in the hall") end,
     useWorld = function() end,
@@ -741,6 +796,8 @@ local function goTo(s)
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
   here = s
+  resetMeter(realMs())
+  lastShown = nil          -- (walking on isn't a freeze)
   -- (and where you are as a slider, "Gallery: stop": bpp's Restart runs the
   -- hall again from the start, then puts every slider back as it was --
   -- this one included, which brings you back here. Drag it to jump.)
@@ -804,16 +861,80 @@ local function callActive(k)
   end
 end
 
+-- (each frame timed for the meter: the exhibit's preSim, less the steps it
+-- takes itself, is its scripts; from there to postSim is bpp's own step)
+local tStep = nil
+local function meterLine(t)
+  local el = (t - meter.t0) / 1000
+  local n, d = math.max(meter.frames, 1), math.max(meter.draws, 1)
+  local phys, scripts, gc, draw = meter.phys / n, meter.scripts / n, meter.gc / d, meter.draw / d
+  local fps = meter.draws / el
+  local busy = (meter.frames > 0 and phys + scripts or 0) + gc + draw
+  local where
+  if not active then where = "at " .. here.name .. ": nothing is stepped"
+  else
+    where = string.format("at %s: resting (not stepping) in %.0f%% of the frames", active.name,
+                          100 * meter.resting / n)
+  end
+  return string.format("HALL METER -- ms per frame, averaged over the last %.0f s (HALL_METER=0: off)\n" ..
+                       "  %.0f frames a second; %s\n" ..
+                       "  physics %.2f   scripts %.2f   garbage %s   drawing %.2f\n" ..
+                       "  busy    %.1f ms of each %.1f ms frame (%.0f%%); longest frame %.0f ms\n" ..
+                       "  outside the hall's code %.1f ms a frame (bpp itself, the graphics driver, waiting for the screen)\n",
+                       el, fps, where, phys, scripts, GC_BUDGET > 0 and string.format("%.2f", gc) or "(Lua's own)", draw, busy, 1000 / math.max(fps, 1),
+                       100 * busy * fps / 1000, meter.longest, math.max(0, 1000 / math.max(fps, 1) - busy))
+end
 realV:preSim(function(N)
+  local t = now()
   if active then
     active.N = active.N + 1
+    local p0 = meter.phys
     callActive("preSim")
     if active then applyTiming(active.timing) end
+    meter.scripts = meter.scripts + (now() - t) - (meter.phys - p0)
+    if active and active.timing.timeStep == 0 then meter.resting = meter.resting + 1 end
+  end
+  tStep = now()
+end)
+realV:postSim(function(N)
+  local t = now()
+  if tStep and active then meter.phys = meter.phys + (t - tStep) end
+  meter.frames = meter.frames + 1
+  callActive("postSim")
+  meter.scripts = meter.scripts + (now() - t)
+  collectSome()
+end)
+local tDraw = nil
+realV:preDraw(function(N)
+  callActive("preDraw")
+  tDraw = now()
+end)
+realV:postDraw(function(N)
+  local t = now()
+  if tDraw then meter.draw = meter.draw + (t - tDraw); meter.draws = meter.draws + 1 end
+  callActive("postDraw")
+  local w = realMs()
+  if lastShown then
+    local gap = w - lastShown
+    meter.longest = math.max(meter.longest, gap)
+    if FREEZE_LOG_MS > 0 and gap > FREEZE_LOG_MS and meter.t0 and w - meter.t0 > 0 then
+      print(string.format("HALL: a %.0f ms freeze, ending at %s", gap, os.date("%H:%M:%S")))
+    end
+  end
+  lastShown = w
+  if METER then
+    if not meter.t0 then resetMeter(w)
+    elseif w - meter.t0 >= METER_PRINT * 1000 then
+      local line = meterLine(w)
+      print(line)
+      if METER_FILE then
+        local fh = io.open(METER_FILE, "a")
+        if fh then fh:write(os.date("%H:%M:%S "), line, "\n"); fh:close() end
+      end
+      resetMeter(w)
+    end
   end
 end)
-realV:postSim(function(N) callActive("postSim") end)
-realV:preDraw(function(N) callActive("preDraw") end)
-realV:postDraw(function(N) callActive("postDraw") end)
 
 local HELD_BACK = { S = true, D = true, R = true, P = true }
 realV:onKey(function(N, key, down)

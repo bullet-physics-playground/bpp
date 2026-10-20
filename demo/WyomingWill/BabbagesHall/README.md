@@ -55,6 +55,59 @@ The machinery is Euler's Gallery's, unchanged; the building around it is new.
   to hand OpenSCAD the full path to their parts files.
 - **Requirement:** a bpp with separate worlds (`v:newWorld`).
 
+## What it costs the computer
+
+Only the exhibit you're standing at is stepped; the others wait where they
+are, and at the two views nothing is. And each exhibit **rests** when it has
+nothing to do: once its hand is idle and nothing has moved for half a
+second, it stops stepping until there's something to do again (a key, or
+the tour's next step). The physics is the expensive part. The exhibits take
+2400 steps a simulated second, which the gear teeth and the dominoes need,
+and a machine standing still costs as much to step as one running. Resting
+changes nothing it computes: woken, it carries on from exactly where it was.
+Measured over a 70 s run on its own, the Differential took 79 s of
+computing without resting and 16 s with it (its tour ends after about 20 s);
+over 50 s, the Domino Half Adder took 165 s and 88 s.
+
+The **cost meter** (after the Rec Room's) shows in the console every 10
+seconds what each frame spends its time on, in milliseconds. Here, at the
+Differential during its tour, and then resting after it, on a computer
+drawing in software (no graphics card), so its drawing is slow:
+
+```
+HALL METER -- ms per frame, averaged over the last 10 s (HALL_METER=0: off)
+  7 frames a second; at the Differential: resting (not stepping) in 0% of the frames
+  physics 22.27   scripts 0.82   garbage (Lua's own)   drawing 25.28
+  busy    48.4 ms of each 153.5 ms frame (32%); longest frame 219 ms
+  outside the hall's code 105.2 ms a frame (bpp itself, the graphics driver, waiting for the screen)
+
+HALL METER -- ms per frame, averaged over the last 10 s (HALL_METER=0: off)
+  9 frames a second; at the Differential: resting (not stepping) in 100% of the frames
+  physics 0.01   scripts 0.10   garbage (Lua's own)   drawing 22.66
+  busy    23.9 ms of each 113.1 ms frame (21%); longest frame 148 ms
+  outside the hall's code 89.2 ms a frame (bpp itself, the graphics driver, waiting for the screen)
+```
+
+- **physics:** the exhibit's steps, and bpp's own.
+- **scripts:** the exhibit's own Lua, every frame.
+- **garbage:** Lua's own collector by default, which works a little at a
+  time. `HALL_GC_MS=2` collects up to 2 ms every frame instead, as the Rec
+  Room does, so garbage never piles up into one long collection; here it
+  cost 0.4 ms every frame, so it's off unless the freeze log shows pauses.
+- **drawing:** the processor's side of drawing the frame. The graphics
+  card's own work isn't in it; bpp's `v.drawTiming = true` shows that.
+- **busy:** all of it, against the time a frame has. bpp runs on one
+  processor core, so a busy core shows as 100% in `top`.
+- **outside the hall's code:** the rest of the frame: bpp's own work, the
+  graphics driver finishing the picture, and waiting for the screen.
+
+`HALL_METER_S` sets how often it prints; `HALL_METER_FILE=path` also
+appends each report to that file.
+
+A frame that takes longer than a quarter of a second is noted in the
+console with the time of day (`HALL_FREEZE_MS`, 250; 0: never).
+`HALL_METER_S` sets how often the meter prints.
+
 The placards' lettering is made by `python3 make-labels.py` (needs Pillow,
 NumPy and the DejaVu fonts) into `hall-meshes/`.
 
