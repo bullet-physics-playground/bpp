@@ -98,6 +98,8 @@ void Cone::toPOV(QTextStream *s) const {
     btTransform trans;
 
     body->getMotionState()->getWorldTransform(trans);
+    if (placed)               // (in a world drawn elsewhere: moved there, as on the screen)
+      trans = place * trans;
     trans.getOpenGLMatrix(matrix);
     povMatrixFromGL(matrix, matrix);
   }

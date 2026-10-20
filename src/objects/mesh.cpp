@@ -466,6 +466,8 @@ QString Mesh::toPOV(const QString &sceneDir) const {
   if (body != nullptr && body->getMotionState() != nullptr) {
     btTransform trans;
     body->getMotionState()->getWorldTransform(trans);
+    if (placed)               // (in a world drawn elsewhere: moved there, as on the screen)
+      trans = place * trans;
     trans.getOpenGLMatrix(matrix);
     povMatrixFromGL(matrix, matrix);
   }

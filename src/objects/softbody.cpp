@@ -166,7 +166,8 @@ void SoftBody::toPOV(QTextStream *s) const {
   for (int i = 0; i < faces.size(); ++i) {
     const btSoftBody::Face &f = faces[i];
     for (int k = 0; k < 3; ++k) {
-      const btVector3 &x = f.m_n[k]->m_x;
+      // (in a world drawn elsewhere: moved there, as on the screen)
+      const btVector3 x = placed ? place * f.m_n[k]->m_x : f.m_n[k]->m_x;
       *s << ", <" << x.x() << "," << x.y() << "," << -x.z() << ">";
     }
   }
