@@ -26,6 +26,9 @@ comes to life.
 | west 4 | The Differential Analyser | in preparation |
 | east 4 | The Difference Engine | in preparation |
 
+`MACHINES.md` lists every machine considered for the hall (41 of them),
+ranked by interest, with how each would be simulated and printed.
+
 ## Running it
 
 Open `hall.lua` in bpp, or from the repository's top folder run
