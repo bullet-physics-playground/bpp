@@ -36,7 +36,8 @@ turns a digit), `speed`.
 Environment, for testing: `PA_TOUR=0` (no tour), `PA_FRICTION`, `PA_RATE`,
 `PA_DEBUG=1` (prints the digits' values and the levers' and pawls'
 angles), `PA_EXPORT=1` (rewrites `parts/geometry.scad`), `PA_REST=0` (never
-rest: see below), `PA_REST_LOG=1` (says when it rests).
+rest: see below), `PA_REST_LOG=1` (says when it rests), `PA_DET_T_MM`
+(the detents' leaves this thick, in mm, to try others).
 
 Once the hand is done and nothing moves, the machine rests: it stops
 stepping until the next key or tour step, which saves the processor and
@@ -54,9 +55,11 @@ changes nothing it computes.
   sautoirs pivot on pins in the back plate, at the axles' height; each pawl
   is hinged to its sautoir, limited so it yields one way only, and held
   against its stop by a small tail weight.
-- **The click.** A real Pascaline has a spring detent on each wheel. Here it
-  is a weak pull toward the nearest whole digit, applied by the hinge's
-  motor.
+- **The detents.** Each wheel is held at its digit by a printed PLA leaf
+  spring, whose round nose rests between two pins at 9 o'clock and centres
+  the wheel. It is simulated as a body (nose and leaf) on a hinge at the
+  leaf's root, turned back by the leaf's own stiffness, worked out from PLA
+  (3EI/L), with the 0.5 mm preload it has in place.
 - **The hand** turns one digit at a time by its hinge's motor, one step per
   press, then lets go.
 
@@ -73,6 +76,7 @@ pieces are 230 x 140 mm.
 | `dial.stl` | 3 | 88 x 88 x 6 | press onto the hub's end. Print it light (ivory or white) and paint the raised numbers dark |
 | `sautoir-0.stl`, `sautoir-1.stl` | 1 each | 215 x 28 x 40/52 | supports under the pawl's carrier arm |
 | `pawl-0.stl`, `pawl-1.stl` | 1 each | 31 x 23 x 8 | |
+| `detent.stl` | 3 | 19 x 55 x 14 | the leaf springs. PLA, standing as it lies (no supports), 100% infill; the leaf is 1.2 mm, three lines of a 0.4 mm nozzle |
 | `frame-front-left/right.stl` | 1 each | 230 x 140 x 15 | the front plate, the digits' bearings, and the pointers standing on it |
 | `frame-back-left/right.stl` | 1 each | 230 x 140 x 6 | the back plate, the sautoirs' pivots |
 | `frame-base-left/right.stl` | 1 each | 230 x 110 x 8 | |
@@ -91,6 +95,8 @@ so the works show) or plywood, gluing on three printed `pointer.stl`: `stl/cut-f
   the pawl swings out instead of catching.
 - **3 mm steel rod** for pivot pins: 2 for the sautoirs (into the back
   plate) and 2 for the pawls.
+- **3 M3 screws,** about 16 mm, one through the front plate into each
+  detent's block (its 2.5 mm hole is for the screw to tap).
 - Glue or M3 screws for the frame joints; a little dry PTFE or graphite on
   the cams and pins.
 
@@ -98,12 +104,14 @@ so the works show) or plywood, gluing on three printed `pointer.stl`: `stl/cut-f
 on their pins in the back plate, and the pawls on theirs. Slide each digit's
 hub, cam first, from behind through the front plate, then press its dial on
 with 0 at the top under the pointer. Set the units and tens to 0 with each
-sautoir resting at the bottom of its cam. Join the plates with the end
-pieces and the base. Then turn the units by its pins and watch the tens
-step on as it passes 9.
+sautoir resting at the bottom of its cam. Screw a detent behind each
+wheel, its block against the back of the front plate and its nose dropped
+between the two pins at 9 o'clock (lift the nose over a pin to fit it).
+Join the plates with the end pieces and the base. Then turn the units by
+its pins and watch the tens step on as it passes 9.
 
-A spring detent on each wheel (a strip of spring steel or a printed leaf
-pressing on the pins) keeps the digits from being nudged; the simulation's
-click stands in for it.
+The detents' thickness matters: the simulation's carry works with leaves
+from 1.0 to 1.6 mm thick (see `FINDINGS.md`), and 1.2 mm is in the middle.
+If your printer makes them thicker or thinner, the carry still has room.
 
 See `FINDINGS.md` for how the numbers were arrived at.

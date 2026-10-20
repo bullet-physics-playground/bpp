@@ -26,9 +26,11 @@
 -- PHYSICS: the digits' pins and cams, the sautoirs and their pawls are the
 -- printed parts' own primitives (pascaline-geometry.lua); they push each
 -- other only by contact. A digit is turned by a hand (a motor steered to
--- where the keys put it), forward only; between turns it sits in its click
--- (a spring detent, here a weak pull to the nearest unit). The sautoir's
--- weight is 60 g of steel; the pawl's tail, 8 g. Friction 0.3 (a slider:
+-- where the keys put it), forward only; between turns it is held by its
+-- detent, a printed PLA leaf spring whose nose rests between two pins
+-- (simulated as a body on a hinge at the leaf's root, turned back by the
+-- leaf's own stiffness, worked out from PLA's). The sautoir's weight is
+-- 60 g of steel; the pawl's tail, 8 g. Friction 0.3 (a slider:
 -- 0.15 to 0.45 checked), 2400 steps a second.
 --
 -- Units: centimetres, kilograms, seconds.
@@ -49,6 +51,8 @@ for _, d in ipairs({ "", "demo/WyomingWill/BabbagesHall/exhibits/Pascaline/" }) 
 end
 assert(DIR, "The Pascaline: can't find its folder")
 local G = dofile(DIR .. "pascaline-geometry.lua")
+-- (PA_DET_T_MM: the detents' leaves this thick instead, in mm, for trying)
+if os.getenv("PA_DET_T_MM") then G.DET_T = tonumber(os.getenv("PA_DET_T_MM")) / 10 end
 local ND = G.ND
 
 -- geometry.scad: the primitives, for OpenSCAD (written from the geometry,
@@ -71,7 +75,8 @@ end
 local function writeGeometry(path)
   local f = assert(io.open(path, "w"))
   f:write("// made by pascaline.lua from pascaline-geometry.lua: do not edit (cm)\n")
-  for _, k in ipairs({ "ND", "D", "Y0", "STEP", "RP", "PIN_R", "PZ0", "PZ1", "CZ0", "CZ1", "R0", "R1", "PA" }) do
+  for _, k in ipairs({ "ND", "D", "Y0", "STEP", "RP", "PIN_R", "PZ0", "PZ1", "CZ0", "CZ1", "R0", "R1", "PA",
+                       "DET_NR", "DET_L", "DET_T", "DET_Z0", "DET_Z1", "DET_PRE" }) do
     f:write(string.format("%s = %s;\n", k, tostring(G[k])))
   end
   f:write("DIGIT_CAM = " .. scadPrims(G.digit(0)) .. ";\n")
@@ -90,6 +95,14 @@ local function writeGeometry(path)
   f:write("LEVER_PIVOTS = [" .. table.concat(LP, ",") .. "];\n")
   f:write("PAWL_HINGES = [" .. table.concat(PH, ",") .. "];\n")
   f:write("WEIGHT_AT = [" .. table.concat(WA, ",") .. "];\n")
+  local DT, DR = {}, {}
+  for i = 0, ND - 1 do
+    local dp, root = G.detent(i)
+    DT[#DT + 1] = scadPrims(dp)
+    DR[#DR + 1] = string.format("[%.4f,%.4f,%.4f]", root.x, root.y, root.z)
+  end
+  f:write("DETENTS = [" .. table.concat(DT, ",\n") .. "];\n")
+  f:write("DETENT_ROOTS = [" .. table.concat(DR, ",") .. "];\n")
   f:close()
 end
 do
@@ -310,17 +323,37 @@ for i = 0, ND - 2 do
   levers[i] = { body = body, hinge = h, pawl = pbody, pawlHinge = ph, rest = btTransform(ident, W(com.x, com.y, com.z)),
                 prest = btTransform(ident, W(pcom.x, pcom.y, pcom.z)) }
 end
+-- the detents: each a body (its nose and leaf) on a hinge at the leaf's
+-- root; the leaf's stiffness turns it back (see steer). Its root block,
+-- screwed to the front plate, doesn't move: drawn with the frame.
+local detents = {}
+local DET_K = G.detentStiffness()
+local DET_PRE_A = G.DET_PRE / G.DET_L           -- (the preload, as a turn of the leaf about its root)
+for i = 0, ND - 1 do
+  local dp, root = G.detent(i)
+  local body, com = bodyOf(dp, "detentMoving(" .. i .. ")", "#ddd3b8")
+  local h = btHingeConstraint(anchor.body, body, btTransform(ident, W(root.x, root.y, root.z)),
+                              btTransform(ident, btVector3(root.x - com.x, root.y - com.y, root.z - com.z)))
+  v:addConstraint(h)
+  pcall(function() body:setDamping(0, 0.5) end)
+  detents[i] = { body = body, hinge = h, rest = btTransform(ident, W(com.x, com.y, com.z)) }
+  local r = part("detentRoot(" .. i .. ")")
+  r.col = "#ddd3b8"
+  v:add(r)
+  r.trans = btTransform(ident, MO)
+end
 pcall(function() v.showConstraints = false end)
 
 local function applyFriction()
   local f = v:getParam("friction")
   for i = 0, ND - 1 do digits[i].body:setFriction(f) end
   for i = 0, ND - 2 do levers[i].body:setFriction(f); levers[i].pawl:setFriction(f) end
+  for i = 0, ND - 1 do detents[i].body:setFriction(f) end
 end
 applyFriction()
 
 -- ---------------------------------------------------------------------
--- reading the digits; the hand; the clicks
+-- reading the digits; the hand; the detents
 -- ---------------------------------------------------------------------
 -- (Bullet's hinge angle here counts clockwise as you see it: the way the
 -- digits count)
@@ -349,9 +382,14 @@ local function steer()
       local err = (handTarget - x) * math.rad(G.STEP)
       d.hinge:enableAngularMotor(true, math.max(-rate, math.min(rate, 8 * err)), 1)
     else
-      local err = (math.floor(x + 0.5) - x) * math.rad(G.STEP)
-      d.hinge:enableAngularMotor(true, G.CLICK_K * err, G.CLICK_IMP)
+      d.hinge:enableAngularMotor(false, 0, 0)       -- (free: its detent holds it)
     end
+  end
+  -- each detent's leaf, bent, pushes its nose back in (Bullet's hinge angle
+  -- counts clockwise as you see it: the nose's way in)
+  for i = 0, ND - 1 do
+    local dt = detents[i]
+    dt.body:applyTorque(btVector3(0, 0, DET_K * (dt.hinge:getHingeAngle() - DET_PRE_A)))
   end
 end
 
@@ -367,6 +405,11 @@ local function reset()
     local L = levers[i]
     L.body:setCenterOfMassTransform(L.rest); L.pawl:setCenterOfMassTransform(L.prest)
     for _, b in ipairs({ L.body, L.pawl }) do b:setLinearVelocity(btVector3(0, 0, 0)); b:setAngularVelocity(btVector3(0, 0, 0)) end
+  end
+  for i = 0, ND - 1 do
+    local b = detents[i].body
+    b:setCenterOfMassTransform(detents[i].rest)
+    b:setLinearVelocity(btVector3(0, 0, 0)); b:setAngularVelocity(btVector3(0, 0, 0))
   end
   for i = 0, ND - 1 do value(i) end
   hand, queue = nil, {}
@@ -395,6 +438,7 @@ if tour then print("\nTHE PASCALINE -- the tour") end
 local restBodies = {}
 for i = 0, ND - 1 do restBodies[#restBodies + 1] = digits[i].body end
 for i = 0, ND - 2 do restBodies[#restBodies + 1] = levers[i].body; restBodies[#restBodies + 1] = levers[i].pawl end
+for i = 0, ND - 1 do restBodies[#restBodies + 1] = detents[i].body end
 -- ---------------------------------------------------------------------
 -- at rest: once the hand has nothing to do and nothing has moved for
 -- REST_S, the simulation stops stepping. Nothing would change but the

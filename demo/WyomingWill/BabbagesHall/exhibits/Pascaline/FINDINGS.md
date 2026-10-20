@@ -28,8 +28,8 @@ problems turned up. All the numbers live in `pascaline-geometry.lua`.
 6. **The pawl swung out as the lever dropped.** A pawl that yields one way
    must also be held against its stop, or the jolt of the drop throws it
    open and it misses the pin. A tail weight of 8 g (`TAIL`) holds it.
-7. **The kick fell short** (about 0.88 of a step) and the click pulled the
-   tens back. Two changes: the pawl's tip lowered (`TIPY` -0.17 cm) so it
+7. **The kick fell short** (about 0.88 of a step) and the click (the
+   detent, then simulated as a pull to the nearest unit) pulled the tens back. Two changes: the pawl's tip lowered (`TIPY` -0.17 cm) so it
    pushes the pin for more of the drop, and the weight raised to 60 g.
 8. **The ripple (99 + 1) failed.** The tens' sautoir dropped while the units'
    pawl was still on its way back, so the second carry came before the
@@ -67,8 +67,9 @@ parts do not overlap at rest (manifold3d).
   more friction, may want more than 60 g.
 - **The pawl's tail** must hold the pawl against its stop firmly but let it
   yield easily over a pin. Adjust by adding or removing a nut.
-- **The click** in the simulation is gentle. A real detent spring that is
-  too strong will need a heavier weight to overcome.
+- **The detents** must hold a wheel without fighting the carry: see below.
+  A real one printed outside 1.0 to 1.6 mm, or in a stiffer plastic than
+  PLA, may stop the carry or let a wheel overshoot.
 
 ## Resting
 
@@ -80,3 +81,33 @@ while they work): what was left once it had settled was about 0.005 cm/s and 0.0
 "Not moving" is set just above that: 0.05 cm/s and 0.02 rad/s. Resting can't change a
 result: woken, it carries on from exactly the state it stopped in,
 speeds and all. The sweep above was run again with resting on: 6/6.
+
+## The detents
+
+The simulated click (a weak pull to the nearest unit) became a printed
+part, simulated as itself: a PLA leaf spring for each wheel, its round nose
+(14 mm) resting between the two pins at 9 o'clock, rising from a block
+screwed to the back of the front plate. In the simulation it is a body on a
+hinge at the leaf's root, turned back by the leaf's stiffness worked out
+from PLA (a cantilever: 3EI/L, E = 3.5 GPa), with a 0.5 mm preload. To let
+a pin by, the nose rides out 4.7 mm.
+
+Its thickness was found by running the tour at each (stiffness goes as the
+cube of it):
+
+| leaf | result | the readings' digits (tens and hundreds at 015, 099, 100) |
+|---|---|---|
+| 0.5, 0.6, 0.7 mm | FAIL | 99 + 1 gives 200: too weak to stop the hundreds, which overshoots |
+| 0.8 mm | PASS | but the tens rests at 0.94 at 015: the units' pawl, riding a pin, holds it back |
+| 1.0 to 1.6 mm | PASS | every wheel centred (1.00, 9.00, 1.00) |
+| 1.8 mm and up | FAIL | too stiff: the sautoir's drop can't push the next wheel past its detent |
+
+The window is 1.0 to 1.6 mm, four times in stiffness; 1.2 mm is near its
+middle on that scale and is three lines of a 0.4 mm nozzle. At 1.2 mm the
+leaf bends to at most 0.5% strain, well within PLA's.
+
+With 1.2 mm leaves, the sweep (friction 0.15, 0.3, 0.45; the hand at 0.15
+and 0.6 turns a second; and both at once) passes 6/6, every reading
+centred, and the tour passes inside the hall. The parts don't overlap at
+rest (manifold3d); `detent.stl` is a single watertight solid.
+

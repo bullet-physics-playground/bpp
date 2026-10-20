@@ -15,6 +15,7 @@
 //   digitlast   the last digit (hundreds), no cam: 1
 //   lever0/1    the sautoirs, one for each carry
 //   pawl0/1     their pawls
+//   detent      the leaf springs that hold each digit at a unit: 3
 //   frame       the base, the front plate (axles, pointers) and the back
 //               plate (the sautoirs' pivots)
 //   pointer     3, only to glue on front plates cut from acrylic or plywood
@@ -83,6 +84,33 @@ module pawl(i) {
   }
 }
 
+// ---- the detents: a leaf spring for each digit ----
+// The moving part (nose and leaf) as assembled, the nose touching two pins;
+// the simulation draws this, and turns it about the leaf's root.
+module detentMoving(i) prims(DETENTS[i]);
+// Its root: a block, screwed to the back of the front plate with an M3
+// screw from the front (a 2.5 mm hole to tap), holding the leaf's foot.
+DB_W = 10; DB_H = 8;                       // the block across (x) and down from the leaf's root (y)
+module detentRoot(i) {
+  r = DETENT_ROOTS[i];
+  difference() {
+    translate([S * r[0] - DB_W / 2, S * r[1] - DB_H, S * DET_Z0]) cube([DB_W, DB_H, FP_Z0 - S * DET_Z0]);
+    translate([S * r[0], S * r[1] - DB_H / 2, 0]) cylinder(d = 2.5, h = 100, $fn = 16);
+  }
+}
+// The part as printed: one piece, the leaf straight as it is when free --
+// a little further in than when it is in place, pressed out by the pins
+// (DET_PRE: the preload) -- standing on the face that lies toward the
+// wheel, the leaf upright. Print it in PLA, 100% infill for the leaf (it
+// is 1.2 mm: three lines of a 0.4 mm nozzle), perimeters along it.
+module detentPart(i) {
+  r = DETENT_ROOTS[i];
+  union() {
+    translate(S * [r[0], r[1], 0]) rotate(-atan(DET_PRE / DET_L)) translate(-S * [r[0], r[1], 0]) detentMoving(i);
+    detentRoot(i);
+  }
+}
+
 // ---- the frame: base, front plate, back plate ----
 FP_Z0 = 16; FP_Z1 = 22;                   // the front plate (between the pawls' carriers and the dials)
 BP_Z0 = -48; BP_Z1 = -42;                 // the back plate (behind the sautoirs)
@@ -103,6 +131,8 @@ module frame(withPointers = true) {
   difference() {
     translate([x0, ybase, FP_Z0]) cube([x1 - x0, ytop - ybase, FP_Z1 - FP_Z0]);
     for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0, 0]) cylinder(d = 12.4, h = 100, center = true, $fn = 48);
+    // the detents' screws (M3, from the front into their blocks)
+    for (i = [0 : ND - 1]) translate([S * DETENT_ROOTS[i][0], S * DETENT_ROOTS[i][1] - DB_H / 2, 0]) cylinder(d = 3.4, h = 100, center = true, $fn = 16);
   }
   if (withPointers) pointers();
   // the back plate, with the sautoirs' pivot pins
@@ -133,6 +163,7 @@ if (PART == "print-dial") translate([0, 0, -DIAL_Z0]) dial();                   
 if (PART == "print-lever0") translate([0, 0, -S * (-2.1 - 0.3)]) lever(0);              // its plane on the bed (the pawl's arm needs support)
 if (PART == "print-lever1") translate([0, 0, -S * (-3.3 - 0.3)]) lever(1);
 if (PART == "print-pawl0") translate([0, 0, -S * (PZ0 + PZ1) / 2 + 4]) pawl(0);
+if (PART == "print-detent") translate([-S * DETENT_ROOTS[0][0], -S * DETENT_ROOTS[0][1], -S * DET_Z0]) detentPart(0);   // the wheel's side down
 if (PART == "print-pawl1") translate([0, 0, -S * (PZ0 + PZ1) / 2 + 4]) pawl(1);
 if (PART == "print-front-left") rotate([0, 0, 0]) translate([0, 0, -FP_Z0]) half(0) frontPlate();
 if (PART == "print-front-right") translate([0, 0, -FP_Z0]) half(1) frontPlate();
@@ -161,6 +192,7 @@ if (PART == "frame") frame();
 module assembly(withFrame = true) {
   for (i = [0 : ND - 1]) translate([S * (-i * D), S * Y0, 0]) color("Goldenrod") digit(i < ND - 1);
   for (i = [0 : ND - 2]) { color("SlateGray") lever(i); color("DarkGoldenrod") pawl(i); }
+  for (i = [0 : ND - 1]) color("Wheat") { detentMoving(i); detentRoot(i); }
   if (withFrame) color("SaddleBrown", 0.3) frame();
 }
 if (PART == "assembly") assembly();

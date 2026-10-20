@@ -42,9 +42,28 @@ G.TIPX, G.TIPY = 2.25, -0.17  -- the pawl's tip at rest, from digit i+1's axle
 G.TAIL = 0.008                -- the pawl's tail weight (kg): it holds the pawl against its stop
 G.PAWL_LO, G.PAWL_HI = -50, 0 -- the pawl's swing (degrees): it yields one way only
 
--- the click on each digit (a spring detent, simulated as a weak pull to the
--- nearest unit): its stiffness and its strength
-G.CLICK_K, G.CLICK_IMP = 30, 0.03
+-- the detent on each digit: a printed PLA leaf spring, rising from a block
+-- screwed to the back of the front plate, its round nose resting between
+-- two pins at 9 o'clock (where, at each unit, two pins stand either side,
+-- 18 degrees off). It holds the digit at a unit and centres it there; to
+-- turn the digit on, the nose has to ride out over a pin.
+G.DET_NR = 0.7                -- the nose's radius
+G.DET_L = 4.0                 -- the leaf's length, from its root (below the axle) up to the nose
+G.DET_T = 0.12                -- its thickness: 1.2 mm (1.0 to 1.6 work: see FINDINGS.md)
+G.DET_Z0, G.DET_Z1 = 0.2, 1.45  -- its depth: the pins' plane, and up to 1.5 mm short of the front plate
+G.DET_PRE = 0.05              -- how far the nose is pressed out of its free position at rest (preload)
+G.PLA_E = 3.5e9               -- PLA's Young's modulus (Pa)
+G.PLA_RHO = 1.24              -- its density (g/cm^3)
+-- where the nose touches both pins: its centre, out from the axle
+local s18, c18 = math.sin(math.rad(G.STEP / 2)), math.cos(math.rad(G.STEP / 2))
+G.DET_RN = G.RP * c18 + math.sqrt((G.PIN_R + G.DET_NR) ^ 2 - (G.RP * s18) ^ 2)
+-- the leaf's stiffness against turning about its root (a cantilever bent by
+-- a load at its end: torque = 3EI/L per radian), in the simulation's units
+-- (kg cm^2 / s^2 per radian; 1 N m = 1e4 of them)
+function G.detentStiffness()
+  local b, t, L = (G.DET_Z1 - G.DET_Z0) / 100, G.DET_T / 100, G.DET_L / 100   -- (m)
+  return 3 * G.PLA_E * (b * t ^ 3 / 12) / L * 1e4
+end
 
 function G.xd(i) return -i * G.D end
 local function zPlane(i) return -2.1 - 1.2 * i end    -- lever i's plane (behind the cams, staggered)
@@ -130,6 +149,20 @@ function G.pawl(i)
     { "box", ax + 0.9, hy, pz, 1.4, 0.6, 0.6, G.TAIL },                              -- the tail weight (its mass at ax + 0.9; the block reaches back to the link)
   }
   return P, { x = ax, y = hy, z = pz }
+end
+
+-- digit i's detent, in the machine's frame, assembled (the nose touching
+-- both pins), and where it bends (its root)
+function G.detent(i)
+  local xn, yn = G.xd(i) - G.DET_RN, G.Y0
+  local zc, h = (G.DET_Z0 + G.DET_Z1) / 2, G.DET_Z1 - G.DET_Z0
+  local lx = xn - G.DET_NR + G.DET_T / 2                    -- (the leaf along the nose's outer side)
+  local rho = G.PLA_RHO / 1000                               -- (kg/cm^3)
+  local P = {
+    { "cylz", xn, yn, zc, G.DET_NR, h, rho * math.pi * G.DET_NR ^ 2 * h * 0.5 },   -- the nose (printed half solid)
+    { "box", lx, yn - G.DET_L / 2, zc, G.DET_T, G.DET_L, h, rho * G.DET_T * G.DET_L * h },   -- the leaf
+  }
+  return P, { x = lx, y = yn - G.DET_L, z = zc }
 end
 
 -- where a primitive's mass is
