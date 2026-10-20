@@ -872,7 +872,8 @@ whenever it is. The TerrainHeight and BumpLength sliders build it again
 `test-square-all.lua` is the same square, but Tab goes through all 19
 builds, each as built (its own timing, forward, its own crank speed), for
 looking them over. `test-square-soft.lua` is that, with every foot on a soft-spring
-ankle (`ANKLE_SPRING`, below).
+ankle (`ANKLE_SPRING`, below). `test-square-yaw.lua` is that with the body free to pitch and
+roll (`YAW_DAMP`, below), then the builds that can trot, trotting.
 
 ## Telling the walkers apart
 
@@ -991,7 +992,13 @@ and degrees: both ends of every foot turned up, the foot as long, wide and
 heavy in all), `FOOT_ROD` (r, cm: every foot a round rod r in radius across
 the walk), `FOOT_POINT` (r, cm: no foot, each leg ending in a ball r in
 radius; each body widened so the outer edges of the points are as far
-apart as a flat foot's were), `BRACE_CLEARANCE` (cm, 7: braces at
+apart as a flat foot's were), `BODY_ANG_DAMP` (0-1: the body's turning
+damped this much about every axis, instead of its file's 1.0, which stops
+it pitching and rolling as well as turning off course), `YAW_DAMP` (0-1:
+the body's turning about the vertical damped this much each frame, its
+pitch and roll left free; with it a walker standing on one side's feet
+tips toward the lifted side, as a four-legged walker would, and the
+trotting walkers keep going), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `TERRAIN` ("waves", "random", "logs" or
 "steps"; `TERRAIN_SEED` picks the landscape, default `SEED`), `REVERSE` (true: every walker's cranks run

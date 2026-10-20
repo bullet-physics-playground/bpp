@@ -181,6 +181,14 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- as long in all along the walk (FOOT_LENGTH), as wide and as heavy. nil:
 -- flat feet.
 if FOOT_TIPS then FOOT.flat = FOOT.length - 2 * FOOT_TIPS.length * math.cos(math.rad(FOOT_TIPS.angle)) end
+-- BODY_ANG_DAMP = d (0-1): every walker's body's turning damped by d about
+-- every axis, instead of its file's value (1.0 in every file, which stops
+-- the body turning off course but also stops it pitching and rolling: it
+-- loses all its turning speed every physics step). nil: its file's.
+-- YAW_DAMP = d (0-1): the body's turning about the vertical damped by d each
+-- frame (its turning speed about the vertical times 1 - d), its pitch and
+-- roll left free (its own damping BODY_ANG_DAMP, or 0) -- the files'
+-- straight-line fix without holding the body's tilt. nil: off.
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
 -- or Klann's and Jansen's own legs); nothing across the walk, so the
@@ -964,6 +972,9 @@ local function addWalker(spec, x, z, heading)
   end
   w.cube = built.cube
   w.parts = built
+  if BODY_ANG_DAMP or YAW_DAMP then
+    w.cube.body:setDamping(w.cube.body:getLinearDamping(), BODY_ANG_DAMP or 0)
+  end
   -- sprung ankles (ANKLE_SPRING, above): each foot, hinged to its leg,
   -- also held level to the body by an angular spring about the same axis
   -- (its position left to the hinge), as a parallel link would hold it
@@ -1509,6 +1520,10 @@ v:preSim(function(N)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
     if LOCK_CRANKS then lockCranks(w) end
+    if YAW_DAMP then   -- (its turning about the vertical damped: YAW_DAMP)
+      local ax, ay, az = getAngVelXYZ(w.cube)
+      setAngVelXYZ(w.cube, ax, ay * (1 - YAW_DAMP), az)
+    end
     if TURN_TEST then
       -- (a test: every walker turns 90 degrees to the left every 10 s)
       if not w.turnLeft and simTime >= (w.nextTest or 10) then
