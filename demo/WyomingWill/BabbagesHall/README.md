@@ -41,6 +41,11 @@ exhibit you're at, with the same keys as when it runs on its own; the
 Shortcuts pane lists them. `HALL_START=differential` (any part of a name)
 starts at that exhibit, and `HALL_START=end` at the title wall.
 
+On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
+the aisle and into the next bay, in 1.2 to 3.5 seconds. The exhibit you're
+going to starts at once; its own camera moves wait until you've arrived.
+`HALL_FLY=0` jumps instead, as before.
+
 ## How it works
 
 The machinery is Euler's Gallery's, unchanged; the building around it is new.
@@ -54,6 +59,12 @@ The machinery is Euler's Gallery's, unchanged; the building around it is new.
   `hallPath(name)` gives a file's path from bpp's folder; the exhibits use it
   to hand OpenSCAD the full path to their parts files.
 - **Requirement:** a bpp with separate worlds (`v:newWorld`).
+- **POV-Ray.** The hall renders in POV-Ray (File, or `bpp -e`) as on the
+  screen, with a bpp that exports each object moved to where its world is
+  drawn (`v:placeWorld`); an older one exports every exhibit at its own
+  coordinates, piled up in the middle of the nave. The exhibits' ground
+  planes, invisible on the screen, are left out: in POV-Ray a plane has no
+  edges and would cover the tiled floor.
 
 ## What it costs the computer
 
