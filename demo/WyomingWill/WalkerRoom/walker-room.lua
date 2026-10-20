@@ -152,6 +152,11 @@ MARKS = (MARKS ~= false)
 -- side-to-side axis, like ankles (as the 2-leg Spears' own files have
 -- them), instead of welded (Walker Room1: welded)
 ANKLES = ANKLES or false
+-- ANKLE_SPRING = { stiffness =, damping = }: ankles as ANKLES, each foot
+-- also held level to the body by a spring about the ankle's axis (as a
+-- parallel link would hold it), so it swings level and lands level but
+-- can still rock on a bump; stiffness in weight-units x cm^2/s^2 per
+-- radian. nil: off.
 -- REVERSE: true runs every walker's cranks backward (a table of names,
 -- { ["Spears 4-bar"] = true }, just those): each foot goes round its path
 -- the other way, so the walker walks the other way, and the end of its
@@ -170,6 +175,21 @@ GAIT = GAIT or nil
 -- among them
 UNBRACED = UNBRACED or false
 local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT_THICK or 0.5, mass = FOOT_MASS or 1.5 }
+-- FOOT_TIPS = { length =, angle = } (cm, degrees): every foot's ends turned
+-- up, toe and heel alike (a walker reversed leads with its heel), as two
+-- tips that long, rising at that angle, welded to a flat middle; the foot
+-- as long in all along the walk (FOOT_LENGTH), as wide and as heavy. nil:
+-- flat feet.
+if FOOT_TIPS then FOOT.flat = FOOT.length - 2 * FOOT_TIPS.length * math.cos(math.rad(FOOT_TIPS.angle)) end
+-- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
+-- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
+-- or Klann's and Jansen's own legs); nothing across the walk, so the
+-- walker stands only on its leg planes. nil: flat feet.
+-- FOOT_ROD = r (cm): every foot a round rod across the walk instead, r in
+-- radius, as wide as a flat foot (FOOT_WIDTH) and as heavy -- like a ski
+-- pole's tip: it meets the ground along a line, rolls over an edge, and is
+-- the same whichever way it is turned (an ankle does nothing for it).
+-- nil: flat feet.
 local ARENA = ARENA or 1000 -- the arena is ARENA x ARENA cm, centred on 0 ...
 local ARENA_X = ARENA_X or ARENA   -- ... or ARENA_X long (along x) and ARENA_Z wide
 local ARENA_Z = ARENA_Z or ARENA
@@ -699,6 +719,16 @@ end
 
 -- each marking part to where the body now is
 local function placeMarks(w)
+  for _, d in ipairs(w.tips or {}) do   -- (a foot's tips, drawn on it: FOOT_TIPS)
+    if d.o then
+      local t = d.foot.body:getCenterOfMassTransform()
+      local p, q = d.foot.body:getCenterOfMassPosition(), t:getRotation()
+      local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
+      local dx, dy, dz = qrot(qx, qy, qz, qw, d.p[1], d.p[2], d.p[3])
+      local rx, ry, rz, rw = qmul(qx, qy, qz, qw, d.q[1], d.q[2], d.q[3], d.q[4])
+      d.o.trans = btTransform(btQuaternion(rx, ry, rz, rw), btVector3(p.x + dx, p.y + dy, p.z + dz))
+    end
+  end
   if not w.decor or #w.decor == 0 then return end
   local t = w.cube.body:getCenterOfMassTransform()
   local p, q = w.cube.body:getCenterOfMassPosition(), t:getRotation()
@@ -720,8 +750,20 @@ local function addWalker(spec, x, z, heading)
   -- tests, overrides it
   for k, val in pairs(spec.chassis or {}) do opts[k] = val end
   if WIDE then for k, val in pairs(spec.wide or {}) do opts[k] = val end end
+  -- (with FOOT_POINT, its legs moved out so the outer edges of its points
+  -- are as far apart as a flat foot's outer edges were: a flat foot reaches
+  -- FOOT.width / 2 past its leg, a point FOOT_POINT, and each side moves
+  -- out by half the change in body depth)
+  if WIDE and FOOT_POINT and SAME_FEET and opts.cube_d then
+    opts.cube_d = opts.cube_d + (FOOT.width - 2 * FOOT_POINT) / scale
+  end
   for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
-  if SAME_FEET then opts.foot = FOOT end
+  if SAME_FEET then
+    opts.foot = FOOT
+    if FOOT.flat then opts.foot = { length = FOOT.flat, width = FOOT.width, thick = FOOT.thick, mass = FOOT.mass } end
+    if FOOT_POINT then opts.foot = { length = 1.4 * FOOT_POINT, width = 1.4 * FOOT_POINT, thick = 1.4 * FOOT_POINT, mass = FOOT.mass } end   -- (the box hidden inside the ball)
+    if FOOT_ROD then opts.foot = { length = 1.4 * FOOT_ROD, width = FOOT.width, thick = 1.4 * FOOT_ROD, mass = FOOT.mass } end   -- (the box hidden inside the rod)
+  end
   local arched = DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
   if arched then
     opts.archRise = spec.brace.rise             -- (cm)
@@ -729,7 +771,7 @@ local function addWalker(spec, x, z, heading)
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
-  opts.ankle = ANKLES
+  opts.ankle = ANKLES or (ANKLE_SPRING and true)
   if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
   if PLANE_GAP then opts.planeGapCm = PLANE_GAP; opts.planeOf = opts.planeOf or spec.planes end
   if BALANCE and spec.bodyShift then opts.bodyShift = spec.bodyShift end
@@ -806,10 +848,44 @@ local function addWalker(spec, x, z, heading)
   -- makes on it)
   local made, realCube, realScad = {}, Cube, OpenSCAD
   local barLen, joints, realJoint = {}, {}, {}
+  local ankleHinges = {}   -- (the hinges its buildFoot makes: ANKLES)
   Cube = function(...)
     local o = realCube(...)
     local f = debug.getinfo(2, "n")
     made[o] = f and f.name
+    if FOOT_POINT and SAME_FEET and made[o] == "buildFoot" then
+      -- (a point: one body, a ball at the leg's tip, drawn by a look-only ball on it)
+      local m, r = select(4, ...), FOOT_POINT
+      o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), btSphereShape(r),
+        btVector3(0.4 * m * r * r, 0.4 * m * r * r, 0.4 * m * r * r))
+      w.tips = w.tips or {}
+      w.tips[#w.tips + 1] = { foot = o, p = { 0, 0, 0 }, q = { 0, 0, 0, 1 }, ball = r }
+    elseif FOOT_ROD and SAME_FEET and made[o] == "buildFoot" then
+      -- (a rod foot: one body, a cylinder across the walk, drawn by a look-only rod on it)
+      local L, T, D, m = ...
+      local r = FOOT_ROD
+      o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), btCylinderShapeZ(btVector3(r, r, D / 2)),
+        btVector3(m / 12 * (3 * r * r + D * D), m / 12 * (3 * r * r + D * D), m / 2 * r * r))
+      w.tips = w.tips or {}
+      w.tips[#w.tips + 1] = { foot = o, p = { 0, 0, 0 }, q = { 0, 0, 0, 1 }, rod = { r, D } }
+    elseif FOOT.flat and SAME_FEET and made[o] == "buildFoot" then
+      -- (a foot with tips: one body, its shape the flat middle and the two
+      -- tips; it turns as a flat foot of its whole length would)
+      local L, T, D, m = ...
+      local tl, a = FOOT_TIPS.length, math.rad(FOOT_TIPS.angle)
+      local shape = btCompoundShape(true)
+      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), btBoxShape(btVector3(L / 2, T / 2, D / 2)))
+      w.tips = w.tips or {}
+      for _, sgn in ipairs({ 1, -1 }) do
+        local q = { 0, 0, math.sin(sgn * a / 2), math.cos(sgn * a / 2) }
+        local px, py = sgn * (L / 2 + tl / 2 * math.cos(a)), tl / 2 * math.sin(a)
+        shape:addChildShape(btTransform(btQuaternion(q[1], q[2], q[3], q[4]), btVector3(px, py, 0)), btBoxShape(btVector3(tl / 2, T / 2, D / 2)))
+        w.tips[#w.tips + 1] = { foot = o, p = { px, py, 0 }, q = q, len = tl, T = T, D = D }
+      end
+      local Lt = FOOT.length
+      o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), shape,
+        btVector3(m / 12 * (T * T + D * D), m / 12 * (Lt * Lt + D * D), m / 12 * (Lt * Lt + T * T)))
+    end
     barLen[o] = math.max(...)
     return o
   end
@@ -837,6 +913,7 @@ local function addWalker(spec, x, z, heading)
       if n ~= "btGeneric6DofConstraint" or f:find("Crossbar") then
         joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint" }
       end
+      if n == "btHingeConstraint" and f == "buildFoot" then ankleHinges[#ankleHinges + 1] = con end
       return con
     end
   end
@@ -887,6 +964,36 @@ local function addWalker(spec, x, z, heading)
   end
   w.cube = built.cube
   w.parts = built
+  -- sprung ankles (ANKLE_SPRING, above): each foot, hinged to its leg,
+  -- also held level to the body by an angular spring about the same axis
+  -- (its position left to the hinge), as a parallel link would hold it
+  if ANKLE_SPRING then
+    -- (the ankle hinge's +-90 degree limit counts from its leg link's own
+    -- length, not from the foot as built, so a level foot under a steep
+    -- link -- Klann's -- sat at the limit; with the spring it has none)
+    for _, h in ipairs(ankleHinges) do h:setLimit(1, -1, 0.9, 0.3, 1.0) end
+    local cubeT = w.cube.body:getCenterOfMassTransform()
+    for _, o in ipairs(w.bodies) do
+      if made[o] == "buildFoot" then
+        local footT = o.body:getCenterOfMassTransform()
+        local inFoot = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))
+        local inCube = cubeT:inverseTimes(footT)   -- (the foot's frame in the body's)
+        local spring = btGeneric6DofSpring2Constraint(o.body, w.cube.body, inFoot, inCube)
+        spring:setLinearLowerLimit(btVector3(1, 1, 1)); spring:setLinearUpperLimit(btVector3(-1, -1, -1))   -- (free: the hinge holds it)
+        spring:setAngularLowerLimit(btVector3(1, 1, 1)); spring:setAngularUpperLimit(btVector3(-1, -1, -1))   -- (free: the hinge holds it; the spring turns it)
+        spring:enableSpring(5, true)
+        spring:setStiffness(5, ANKLE_SPRING.stiffness, false)
+        spring:setDamping(5, ANKLE_SPRING.damping or 0, false)
+        spring:setEquilibriumPoint(5, 0)
+        opts.addConstraint(spring)
+        if SOLVER_ITERATIONS then spring:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+        -- (the hinged foot's own turning left undamped: its files damp it
+        -- fully, 1.0, which would hold it against the spring; the spring's
+        -- damping does that job)
+        o.body:setDamping(0.1, 0)
+      end
+    end
+  end
   -- its radius: half the diagonal of its moving bodies' footprint (from
   -- the moving bodies only: static ones would make it look huge)
   local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
@@ -917,6 +1024,12 @@ local function addWalker(spec, x, z, heading)
   local cp = w.cube.body:getCenterOfMassPosition()
   local cx, cz = cp.x, cp.z
   local yaw0 = (w.forward > 0) and 0 or math.pi
+  for _, t in ipairs(w.tips or {}) do
+    t.o = t.ball and Sphere(t.ball, 0) or t.rod and Cylinder(t.rod[1], t.rod[2], 0) or Cube(t.len, t.T, t.D, 0)
+    t.o.col = "#3C3C3C"   -- (the feet's colour, below)
+    addObject(t.o)
+    t.o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
+  end
   if MARKS then markBody(w, spec.look) end
   if w.frame then decor(w, Cube(w.frame.L, w.frame.H, w.frame.D, 0), w.cube.col, 0, 0, 0) end   -- (the frame, drawn)
   moveWalker(w, cx, cz, heading - yaw0, x - cx, -(W.FLOOR_TOP_Y or 0) * scale, z - cz)

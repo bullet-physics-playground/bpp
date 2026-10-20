@@ -871,7 +871,8 @@ whenever it is. The TerrainHeight and BumpLength sliders build it again
 
 `test-square-all.lua` is the same square, but Tab goes through all 19
 builds, each as built (its own timing, forward, its own crank speed), for
-looking them over.
+looking them over. `test-square-soft.lua` is that, with every foot on a soft-spring
+ankle (`ANKLE_SPRING`, below).
 
 ## Telling the walkers apart
 
@@ -979,7 +980,18 @@ by default it follows the bump length), `AMP`
 `FOOT_THICK` (cm: 8, 12, 0.5) and `FOOT_MASS` (1.5), `SAME_FEET` (false:
 each walker keeps its own file's feet), `LOCK_CRANKS` (false: the cranks
 run free, as in the standalone files), `ANKLES` (true: every walker's
-feet hinged like ankles; Walker Room1 has them welded), `BRACE_CLEARANCE` (cm, 7: braces at
+feet hinged like ankles; Walker Room1 has them welded), `ANKLE_SPRING`
+({ stiffness =, damping = }: ankles as `ANKLES`, each foot also held level
+to the body by an angular spring about the ankle's axis, as a parallel link
+would hold it, so it swings and lands level but can rock on a bump; the
+ankle's +-90 degree limit, which counts from the leg link and held a level
+foot under a steep link at its stop, is lifted; the soft one tried is
+{ stiffness = 3000, damping = 300 }), `FOOT_TIPS` ({ length =, angle = }, cm
+and degrees: both ends of every foot turned up, the foot as long, wide and
+heavy in all), `FOOT_ROD` (r, cm: every foot a round rod r in radius across
+the walk), `FOOT_POINT` (r, cm: no foot, each leg ending in a ball r in
+radius; each body widened so the outer edges of the points are as far
+apart as a flat foot's were), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `TERRAIN` ("waves", "random", "logs" or
 "steps"; `TERRAIN_SEED` picks the landscape, default `SEED`), `REVERSE` (true: every walker's cranks run
