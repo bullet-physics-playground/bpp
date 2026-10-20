@@ -125,6 +125,7 @@ v.gravity = btVector3(0, -981, 0)
 
 local games = {}          -- in Tab order
 local active = nil        -- the game you're at (nil: looking round the room)
+local flight = nil        -- the camera on its way to a game (see "walking over")
 
 local function wrapped(o) return type(o) == "table" and rawget(o, "__real") or o end
 
@@ -292,7 +293,7 @@ local function makeGame(name, dir, offset, opts)
       if type(val) == "function" then
         local fn = camFns[k]
         if not fn then
-          fn = function(self, ...) if active == g and not opts.noCamera then return val(realV.cam, ...) end end
+          fn = function(self, ...) if active == g and not opts.noCamera and not flight then return val(realV.cam, ...) end end
           camFns[k] = fn
         end
         return fn
@@ -300,7 +301,7 @@ local function makeGame(name, dir, offset, opts)
       return val
     end,
     __newindex = function(_, k, val)
-      if active ~= g or opts.noCamera then return end
+      if active ~= g or opts.noCamera or flight then return end
       local c = realV.cam
       if k == "pos" or k == "look" then c[k] = toWorld(val)
       else c[k] = val end
@@ -1163,7 +1164,99 @@ if #extras > 0 then
 end
 
 local resumeNow = function() end          -- (see "suspending games" below)
-local function goTo(g)
+-- ---------------------------------------------------------------------
+-- walking over: on Tab and Shift+Tab the camera flies from where it is to
+-- the next game's view, rather than jumping there. Each game (or the room)
+-- sets its view as before; the room notes where that put the camera, puts
+-- it back, and flies it there: up over the tables on a smooth curve, eased,
+-- 1.2 to 3.5 s, then sets the view exactly as the game did. The game you're
+-- going to plays at once; its own camera moves wait until you've arrived.
+-- REC_FLY=0: it jumps, as before.
+-- ---------------------------------------------------------------------
+local FLY_ON = os.getenv("REC_FLY") ~= "0"
+local FLY_SPEED = 900          -- cm/s along the way
+local FLY_ABOVE = FLOOR + 200  -- the middle of the way at least this high
+local function catmull(a, b, c, d, t)
+  local t2, t3 = t * t, t * t * t
+  local function k(p0, p1, p2, p3)
+    return 0.5 * (2 * p1 + (p2 - p0) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (3 * p1 - p0 - 3 * p2 + p3) * t3)
+  end
+  return btVector3(k(a.x, b.x, c.x, d.x), k(a.y, b.y, c.y, d.y), k(a.z, b.z, c.z, d.z))
+end
+local function yawPitch(d)
+  local l = math.max(d:length(), 1e-9)
+  -- (kept short of straight up or down: there "up" would be no help in
+  -- turning the view; a view straight down is set exactly on arrival)
+  return math.atan2(d.x, d.z), math.max(-1.48, math.min(1.48, math.asin(math.max(-1, math.min(1, d.y / l)))))
+end
+local function dirOf(yaw, pitch)
+  return btVector3(math.sin(yaw) * math.cos(pitch), math.sin(pitch), math.cos(yaw) * math.cos(pitch))
+end
+local function ease(t) if t < 0.5 then return 4 * t * t * t end local u = -2 * t + 2; return 1 - u * u * u / 2 end
+-- the camera as it is (for flying from), and as a view left it (to fly to)
+local function camNow()
+  local c = realV.cam
+  return { pos = c.pos, look = c.look, dir = c.dir, up = c.up }
+end
+local function startFlight(from, to)
+  local p0, p1 = from.pos, to.pos
+  local mid = (p0 + p1) * 0.5
+  mid = btVector3(mid.x, math.max(mid.y, FLY_ABOVE), mid.z)
+  local way = { p0, mid, p1 }
+  if (p1 - p0):length() < 60 then way = { p0, p1 } end
+  local S, L = { way[1] }, { 0 }
+  for i = 1, #way - 1 do
+    local a, b, cc, d = way[math.max(i - 1, 1)], way[i], way[i + 1], way[math.min(i + 2, #way)]
+    for k = 1, 24 do
+      local p = catmull(a, b, cc, d, k / 24)
+      L[#L + 1] = L[#L] + (p - S[#S]):length()
+      S[#S + 1] = p
+    end
+  end
+  local total = L[#L]
+  local yaw0, pitch0 = yawPitch(from.dir)
+  local yaw1, pitch1 = yawPitch(to.dir)
+  -- (a view straight down has no direction to turn to: keep the way you face)
+  if math.abs(to.dir.y) > 0.999 then yaw1 = yaw0 end
+  local dy = (yaw1 - yaw0 + math.pi) % (2 * math.pi) - math.pi        -- (the short way round)
+  flight = { S = S, L = L, total = total, t0 = v:getTime(),
+             T = math.max(1.2, math.min(3.5, 0.6 + total / FLY_SPEED)),
+             yaw0 = yaw0, dyaw = dy, pitch0 = pitch0, dpitch = pitch1 - pitch0, to = to }
+  -- back where it was, to fly from
+  local c = realV.cam
+  c:setUpVector(btVector3(0, 1, 0), true)
+  c.pos = p0
+  c.look = p0 + dirOf(yaw0, pitch0) * 100
+end
+local function stepFlight()
+  local f = flight
+  if not f then return end
+  local c = realV.cam
+  local t = (v:getTime() - f.t0) / f.T
+  if t >= 1 then
+    flight = nil
+    -- the view exactly as the game set it
+    c:setUpVector(f.to.up, true)
+    c.pos = f.to.pos
+    c.look = f.to.look
+    return
+  end
+  local u = ease(math.max(0, t))
+  local s = u * f.total
+  local i = 2
+  while i < #f.L and f.L[i] < s do i = i + 1 end
+  local span = f.L[i] - f.L[i - 1]
+  local w = span > 0 and (s - f.L[i - 1]) / span or 1
+  local p = f.S[i - 1] + (f.S[i] - f.S[i - 1]) * w
+  c.pos = p
+  c:setUpVector(btVector3(0, 1, 0), true)     -- (upright first: the look keeps the horizon level)
+  c.look = p + dirOf(f.yaw0 + f.dyaw * u, f.pitch0 + f.dpitch * u) * 100
+end
+
+local function goTo(g, instant)
+  -- (where the camera is now, to fly from; a flight under way ends here)
+  local from = camNow()
+  flight = nil
   if g and g.suspended then resumeNow(g) end   -- (you've come to it: it plays)
   -- let go of any keys still held at the game we're leaving
   if active then
@@ -1209,6 +1302,11 @@ local function goTo(g)
     c.pos = ROOM_VIEW.pos
     c.look = ROOM_VIEW.look
     showHelp(roomHelp)
+  end
+  -- the view is set: fly there from where the camera was
+  if FLY_ON and not instant then
+    local to = camNow()
+    if (to.pos - from.pos):length() > 1 then startFlight(from, to) end
   end
 end
 
@@ -1835,6 +1933,7 @@ GC_MIN_KB = GC_MIN_KB or 2048
 local gcBase, gcBusy = nil, false
 local tDraw, drawScripts = 0, 0
 v:preDraw(function(N)
+  stepFlight()
   local tg = now()
   if not gcBase then gcBase = collectgarbage("count") end
   -- (a bpp that collects garbage itself, BPP_GC_AUTO, needs none of this:
@@ -1948,4 +2047,4 @@ if clock and v.animationPeriod then v.animationPeriod = CAN_STEP and 16 or 12 en
 -- a little faster than a 60 Hz screen, and without this, a few times a
 -- second two steps fall between two pictures and that picture jumps
 if v.onePerFrame ~= nil then v.onePerFrame = true end
-goTo(pinball)
+goTo(pinball, true)          -- (where the room starts: put there, not flown)

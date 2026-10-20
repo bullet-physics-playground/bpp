@@ -1,5 +1,7 @@
 # Rec Room
 
+`README.pdf` beside this file is a typeset copy of it.
+
 A 1970s basement games room, about 11 by 11 metres, with four playable
 games in it:
 
@@ -57,6 +59,12 @@ Click the 3D view first so it has keyboard focus.
 |---|---|
 | `Tab` | walk to the next spot: the pinball machine, the pool table, the snooker table, the bumper pool table, the clock, each of the "More games" (the marble run, the walker), a view of the whole room, then back to the pinball machine |
 | `Shift+Tab` | walk the other way |
+
+On Tab and Shift+Tab the camera flies to the next spot rather than jumping:
+up over the tables on a smooth curve, in 1.2 to 3.5 seconds, ending on the
+view the game sets for itself. The game you're going to plays at once; its
+own camera moves wait until you've arrived. `REC_FLY=0` jumps instead, as
+before.
 
 Everything else goes to the game you are standing at, and its keys are the
 same as when it runs by itself (the Shortcuts pane shows them, headed with
