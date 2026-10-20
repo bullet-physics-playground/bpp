@@ -10,6 +10,8 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `batch.py`, `batch.lua` | G3 | Headless runs over seeds × settings, two at a time, into one CSV |
 | `status.lua` | — | The one-line status at the bottom of the BPP window: `label=value` fields of fixed width |
 | `world.lua` | G21 | The world generator's core: pieces, cells, masks, BPP geometry, the book's worlds as presets |
+| `terrain.lua` | G21 | The realistic worlds' ground and water: a heightfield with sea, rivers and ponds, depths, dredged channels and quays |
+| `places.lua` | G21 | The five realistic presets (rural, suburban, city centre, industrial port, harbour town) as parameter tables |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 | `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
 | `ch13.lua` | — | Ch. 13's motion-control mechanisms, one function each: AR damping η and the stop rule so far |
@@ -149,9 +151,77 @@ w:writeGrid("corridor.txt")
   (built from `PlumeGen.c` + `MapUtils.c` with glib) loads it and reports the
   same coverage. His map makers are not used. `writeGrid` writes a
   human-readable `#`/`.` grid.
-- **The realistic layers** (terrain, water with depth, zones, streets, lots,
-  buildings, vegetation) are planned in `BOOK.md` §6 and come next.
-- `checks/world.lua`: 21 tests, about 10 s.
+- **The realistic presets** (`rural`, `suburban`, `city-centre`,
+  `industrial-port`, `harbour-town`) come through the same
+  `World.preset(name, { seed = n })`; `lib/places.lua` holds their
+  parameters. A world with a terrain also answers `w:groundAt(x, y)`,
+  `w:waterAt(x, y)` (level, depth, kind) and `w:blockedAt(x, y, z)`
+  (below the ground or inside a piece at height z; pieces stand on their
+  own `base`); `writeCPT(path, nx, ny, { z = h })` writes the world cut at
+  height h. `toBPP` draws the terrain's ground and water instead of the
+  floor (`contact = true` lets bodies land on the ground).
+- **The realistic layers** so far: terrain and water (`terrain.lua`).
+  Zones, streets, lots and buildings, vegetation and the mission features
+  come next (`BOOK.md` §6).
+- `checks/world.lua`: 22 tests, about 7 s.
+
+## `terrain.lua`
+
+```lua
+local Terrain = require "lib.terrain"
+local t = Terrain.generate(spec)   -- spec: a table from lib/places.lua
+t:ground(x, y)                     -- elevation, m above sea level (seabed < 0)
+t:water(x, y)                      -- level, depth, kind ("sea"|"river"|"pond") or nil
+t:slope(x, y)                      -- rise over run of the triangle there
+t:stats()                          -- land, sea, river, pond shares; deepest; steepest
+t:toBPP(v, { contact = true })     -- one ground mesh, one translucent water mesh
+```
+
+- **Metres, x east, y north, elevation above sea level**, the sea (when
+  there is one) to the south. In BPP (x, y, z) becomes (x, z, −y), as for
+  every world.
+- **Eight layers in a fixed order:** land (a coastal plain rising inland,
+  hills 0 to `relief` above it from fractal value noise, fading out toward
+  the shore); fill (reclaimed platforms); rivers; ponds; dredging with 1:3
+  sides; the slope rule; quay walls (vertical, after the slope rule); the
+  sea (everything below 0 connected to the open boundary).
+- **One rule makes the land drivable:** no dry slope along the grid steeper
+  than `MAX_SLOPE` = 15% (a triangle across the grid up to √2 × that,
+  21.2%). It lowers, never raises, and it also shapes the river valleys'
+  walls, the ponds' banks and the dry part of a dredged cut, so none of
+  them needs its own setting.
+- **Rivers** are sine-generated curves (Langbein and Leopold 1966): angle to
+  the valley 1.1 sin φ, sinuosity 1/J0(1.1) = 1.39, meander wavelength 11
+  widths (Leopold and Wolman 1960), each bend ±30% in length; channels 12
+  times wider than deep, on a floodplain 0.5 m above the water, two widths
+  each side. The water level only falls downstream and reaches 0 at the sea.
+- **Ponds** sit 0.3 m below the lowest ground on a ring of 1.3 radii, so
+  their rim holds them.
+- **`ground(x, y)` is the drawn and collided surface:** linear on the mesh's
+  triangles, split the same way everywhere.
+- **Seeded** from its own stream; the same seed gives the same terrain on Lua
+  5.1–5.4, and building one leaves the shared stream alone.
+- All constants are fixed and stated at the top of the file, with their
+  sources.
+- `checks/terrain.lua`: 20 tests, about 7 s.
+
+## `places.lua`
+
+The realistic presets as parameter tables, one per place; the layers hold
+the rules, this file the numbers and where they come from.
+
+| Preset | Area | Ground and water |
+| --- | --- | --- |
+| `rural` | 3 × 3 km, 10 m cells | Rolling farmland (hills to 18 m, ~1.2 km apart), a 20 m river, two ponds |
+| `suburban` | 2 × 2 km, 8 m cells | Gentle relief (10 m), a 12 m creek, a pond for a park |
+| `city-centre` | 1.6 × 1.6 km, 8 m cells | Nearly flat (3 m), a 60 m river |
+| `industrial-port` | 2 × 2 km, 8 m cells | Coastal plain; a quay platform at +4 m with a 1.5 km quay face and two basins 180 × 700 m (vertical walls, 16 m); a 24 m approach into a turning basin 500 m across |
+| `harbour-town` | 3 × 2.5 km, 10 m cells | Hills behind a bay; a 25 m river into the bay's head; a 400 m quay at +4 m with a 16 m berth; a 24 m approach, a 16 m main channel, a turning basin 400 m across; a pond |
+
+Depths follow Los Angeles (main channel 53 ft, 16.2 m) and Long Beach
+(approach 76 ft, 23.2 m); layouts and sizes are ours, and each preset's
+`notes` say so. `opts.seed` picks the layout, `opts.cell` and
+`opts.maxSlope` override the grid and the slope rule.
 
 ## `status.lua`
 

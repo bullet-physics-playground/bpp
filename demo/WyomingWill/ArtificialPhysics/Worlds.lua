@@ -1,8 +1,9 @@
 --
--- Worlds -- a viewer for the world generator's book presets (lib/world.lua)
+-- Worlds -- a viewer for the world generator's presets (lib/world.lua)
 --
 -- Shows the worlds every chapter port will take from one place (BOOK.md
--- G21), so they can be checked by eye against the book's figures:
+-- G21), so they can be checked by eye against the book's figures and
+-- against real places:
 --
 --   preset 1  Ch. 3.6  formation_goal_obs, Fig. 3.25: 12 obstacle discs of
 --             radius 10 between the particles' start (green) and the goal
@@ -19,6 +20,12 @@
 --             triangles and circles covering obstaclePercent of it, on the
 --             50 x 250 cell grid; showShadow marks the "shadow" cells just
 --             downstream of obstacles in magenta.
+--   preset 5-9  the realistic presets (BOOK.md §6, lib/places.lua): rural,
+--             suburban, city centre, industrial port, harbour town. So far
+--             their terrain and water (lib/terrain.lua): ground coloured
+--             by height (sand by the sea), seabed and river beds darker
+--             with depth under translucent water. worldSeed picks the
+--             layout.
 --
 -- DEFINITIONS (status line): the world's name and size in the book's units
 -- (patches for Ch. 3 and 4, inches for Ch. 7); its pieces by kind; the cell
@@ -26,6 +33,11 @@
 -- corridor's area under obstacles (overlaps counted once) and "shadow
 -- cells" = free cells whose neighbour toward the start is more than half
 -- obstacle (Ch. 7's cells just downstream of obstacles, Fig. 7.9).
+-- For presets 5-9: size in metres; land = share of the area that is dry;
+-- water = share under water (sea, rivers, ponds); deepest = greatest water
+-- depth, m; steepest = steepest dry triangle, rise over run in % (the
+-- slope rule keeps every dry slope along the grid within 15%, so a
+-- triangle across it within 21%); built = seconds to generate.
 --
 -- Sliders rebuild the world at once. worldSeed picks the random layout
 -- (preset 4); the same seed always gives the same corridor. Nothing moves:
@@ -34,20 +46,22 @@
 
 local common = require "common"
 local World = require "lib.world"
+local status = require "lib.status"
 
 common.setTiming(1 / 30, 1, 1 / 30)
 common.gravity(0)
 
-v:addParam("preset", 1, 1, 4, 1, "1 = Ch. 3 Fig. 3.25, 2 = Ch. 3 Fig. 3.26, 3 = Ch. 4 coverage box, 4 = Ch. 7 corridor")
+v:addParam("preset", 1, 1, 9, 1, "1 = Ch. 3 Fig. 3.25, 2 = Ch. 3 Fig. 3.26, 3 = Ch. 4 coverage box, 4 = Ch. 7 corridor, 5 = rural, 6 = suburban, 7 = city centre, 8 = industrial port, 9 = harbour town")
 local RADIUS_COMMENT = "Ch. 3: obstacleF, the discs' radius (Fig. 3.25: 10; Fig. 3.26: 45 measured, 50 in the text)"
 v:addParam("obstacleRadius", 10, 5, 60, 1, RADIUS_COMMENT)
 v:addParam("obstaclePercent", 30, 0, 50, 1, "Ch. 7: share of the corridor covered by obstacles")
-v:addParam("worldSeed", 1, 1, 1000, 1, "Ch. 7: random layout; the same seed gives the same corridor")
+v:addParam("worldSeed", 1, 1, 1000, 1, "Ch. 7 and presets 5-9: random layout; the same seed gives the same world")
 v:addParam("showCells", true, "colour the metric cells")
 v:addParam("showShadow", true, "Ch. 7: mark the shadow cells (just downstream of obstacles)")
 
 local objs, lastKey = {}, nil
-local SCALE = { 0.25, 0.25, 1, 0.02 }  -- world units -> BPP units, per preset
+local SCALE = { 0.25, 0.25, 1, 0.02, 1, 1, 1, 1, 1 }  -- world units -> BPP units, per preset
+local REAL = { [5] = "rural", [6] = "suburban", [7] = "city-centre", [8] = "industrial-port", [9] = "harbour-town" }
 
 local function clear()
   for _, o in ipairs(objs) do v:remove(o) end
@@ -63,6 +77,8 @@ local function build(moveCamera)
     w = World.preset("ch03-wall", { radius = v:getParam("obstacleRadius") })
   elseif p == 3 then
     w = World.preset("ch04-coverage")
+  elseif REAL[p] then
+    w = World.preset(REAL[p], { seed = math.floor(v:getParam("worldSeed")) })
   else
     w = World.preset("ch07-corridor", { percent = v:getParam("obstaclePercent"),
                                         seed = math.floor(v:getParam("worldSeed")) })
@@ -92,7 +108,10 @@ local function build(moveCamera)
   local cx, cz = (b.x0 + b.x1) / 2 * S, World.bppZ((b.y0 + b.y1) / 2, S)
   local span = math.max(b.x1 - b.x0, b.y1 - b.y0) * S
   if moveCamera then
-    if p == 4 then
+    if REAL[p] then
+      -- from above the south-east, looking at the middle
+      common.setCamera(btVector3(cx + 0.45 * span, 0.55 * span, cz + 0.85 * span), btVector3(cx, 0, cz))
+    elseif p == 4 then
       -- from just behind the start, looking down the corridor toward the goal
       local z0 = World.bppZ(b.y0, S)
       common.setCamera(btVector3(cx + 0.12 * span, 0.16 * span, z0 + 0.10 * span),
@@ -109,8 +128,19 @@ local function build(moveCamera)
     local _, nShadow = w:shadowCells()
     extra = string.format("  |  covered %.1f%%  |  %d shadow cells", 100 * (w.reached or 0), nShadow)
   end
-  local line = w:summary() .. extra
-  pcall(function() v.statusText = line end)
+  local line
+  if REAL[p] then
+    local st = w.terrain:stats()
+    line = status.show({ status.text(nil, w.name, 15),
+                         status.text("size", string.format("%gx%g m", b.x1 - b.x0, b.y1 - b.y0), 11),
+                         status.pct("land", 100 * st.land, 1, 6), status.pct("water", 100 * (1 - st.land), 1, 6),
+                         status.num("deepest", st.deepest, 1, false, 5, "m"),
+                         status.pct("steepest", 100 * st.maxSlope, 1, 6),
+                         status.num("built", w.terrain.buildTime, 2, false, 5, "s") })
+  else
+    line = w:summary() .. extra
+    pcall(function() v.statusText = line end)
+  end
   print(line)
   for _, n in ipairs(w.notes) do print("  note: " .. n) end
 end
@@ -131,12 +161,14 @@ v:onParamChanged(function(N, name, value)
 end)
 
 pcall(function() v:setHelpText([[
-Worlds: the world generator's book presets (lib/world.lua)
+Worlds: the world generator's presets (lib/world.lua)
 
 preset 1  Ch. 3.6 obstacle discs, Fig. 3.25 (radius 10)
 preset 2  Ch. 3.6 obstacle wall, Fig. 3.26 (6 discs, radius 45)
 preset 3  Ch. 4.3 / Ch. 11 coverage box, nine cells
 preset 4  Ch. 7 corridor (obstaclePercent, worldSeed; magenta = shadow cells)
+preset 5-9  rural, suburban, city centre, industrial port, harbour town
+            (terrain and water so far; worldSeed picks the layout)
 
 Sliders rebuild at once. The camera moves only when the preset changes.]]) end)
 

@@ -147,7 +147,7 @@ Most chapters need the same pieces. Build each once.
 | G18 | **One interface for every vehicle:** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
 | G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
-| G21 | **World generator (core and book presets done, `lib/world.lua`; realistic layers next):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
+| G21 | **World generator (core and book presets done, `lib/world.lua`; terrain and water done, `lib/terrain.lua`, with the five realistic presets in `lib/places.lua`; zones, streets, buildings next):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
 
 ---
 
@@ -592,8 +592,8 @@ it would then also calibrate the statistics.
 
 | Layer | What | Based on |
 | --- | --- | --- |
-| Terrain | Heightfield: coastal plain, rolling relief, river valleys; slopes drivable | Fractal noise and a few large features |
-| Water | Sea, harbour, rivers, ponds with depth grids; dredged approach, channels, turning basin, berths, shoaling margins | Los Angeles: main channel ~16 m, approach ~25 m; Long Beach 11–23 m |
+| Terrain (**done**, `lib/terrain.lua`) | Heightfield: coastal plain, hills on it fading toward the shore, river valleys; one rule keeps every dry slope drivable (≤ 15% along the grid) and also shapes valley walls and banks | Fractal value noise; meanders as sine-generated curves, sinuosity 1/J0(1.1) = 1.39, wavelength 11 widths (Langbein and Leopold 1966; Leopold and Wolman 1960) |
+| Water (**done**, `lib/terrain.lua`) | Sea, harbour, rivers, ponds with depth; dredged approach, channels, turning basin, berths with 1:3 sides, quay walls vertical; shelf shoaling to the shore | Los Angeles main channel 53 ft (16.2 m); Long Beach approach 76 ft (23.2 m): ours 24 m and 16 m |
 | Zones | Districts around centres, density falling outward, typed by Local Climate Zone (compact/open high-, mid-, low-rise, large low-rise, sparsely built, heavy industry; trees, fields, paved, soil, water) | Compact high-rise >40% built, >25 m; open low-rise 15–25%, 3–10 m; sparse 5–15% |
 | Streets | Grids in cores, curves and cul-de-sacs in suburbs, sparse winding rural roads | Blocks ~80 × 274 m (Manhattan), 100 × 200 m (Chicago) |
 | Lots, buildings | Lots with setbacks; rectangles and L, T, U footprints along streets; whole floors (~3.5 m), heavy-tailed, lower away from the centre | Peaks at whole floors, heavy tail, height falls outward; US median new lot ~0.2 acre |
@@ -623,7 +623,10 @@ shadow cells, traps, water). **Later:** wind with height and currents.
 ports: Ch. 3's 12 discs, Ch. 4's coverage box, Ch. 7's corridor (Fig. 7.2's
 shapes), later Ch. 11's environments, Ch. 12's maze and Ch. 14's field. The
 core and these presets came in M0 (`lib/world.lua`, `Worlds.lua`); the
-realistic layers come next, terrain and water first.
+realistic layers follow in the table's order, one patch each: terrain and
+water are done (`lib/terrain.lua`; the five presets in `lib/places.lua`,
+shown by `Worlds.lua` presets 5–9; `checks/terrain.lua`), zones and streets
+are next.
 
 ### Order
 Build G18 and the cross-vehicle benchmark early, right after the Ch. 13

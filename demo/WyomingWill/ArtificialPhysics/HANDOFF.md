@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F58 so far), and
+  implementations, and our own mistakes once corrected (F1–F60 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -100,8 +100,8 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
-| `Worlds.lua` | Viewer for the world generator's book presets |
+| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua` and `places.lua` (the realistic worlds' ground and water, and their five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
+| `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
 Related elsewhere in the repo: `demo/WyomingWill/ChainFountain/` (the Mould
@@ -154,7 +154,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
   and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
@@ -265,16 +265,18 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     whether the drones' slope limit at D (~0.035 per AP
     unit) follows from their lag and AP rate, and moves with `apHz`; a 3D
     G_t for the cube (`BOOK.md` §1 item 9).
-- **Next, William's choice between:**
-  - **The realistic world generator** (`BOOK.md` §6, option A): terrain
-    and water first, then zones, streets, lots and buildings, vegetation,
-    mission features; presets rural, suburban, city centre, industrial
-    port, harbour town.
-  - **M2:** the vehicle interface (G18), a ground robot (G10) and a surface
-    boat (G11), and the first cross-vehicle benchmark (formation, and goal
-    through obstacles) on drones, ground robots and boats. Ch. 13's
-    static friction and speed cap get their real test there (ground robots
-    have a minimum speed).
+- **In progress: the realistic world generator** (`BOOK.md` §6, chosen
+  2026-10-20), one patch per layer group:
+  1. **terrain and water: done** (`lib/terrain.lua`, the five presets in
+     `lib/places.lua`, `Worlds.lua` presets 5–9, `checks/terrain.lua`;
+     F60);
+  2. zones and streets; 3. lots and buildings; 4. vegetation and the
+     mission features.
+- **After it, M2:** the vehicle interface (G18), a ground robot (G10) and
+  a surface boat (G11), and the first cross-vehicle benchmark (formation,
+  and goal through obstacles) on drones, ground robots and boats. Ch. 13's
+  static friction and speed cap get their real test there (ground robots
+  have a minimum speed).
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found

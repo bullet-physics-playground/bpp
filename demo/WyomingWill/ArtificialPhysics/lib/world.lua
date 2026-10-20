@@ -5,8 +5,10 @@
 -- port needs: BPP geometry, an occupancy grid, and masks for the metrics. It
 -- is our own; nothing in it comes from the old map makers of Zarzhitsky's CPT
 -- code (MakeMap.c for Textron, MapGen.c). M0 has the core and the book's
--- presets; the harbour features (BOOK.md section 6) come with the
--- milestones that use them.
+-- presets; the realistic layers (BOOK.md section 6) are added one at a
+-- time: terrain and water (lib/terrain.lua) so far, with the five
+-- realistic presets in lib/places.lua (rural, suburban, city-centre,
+-- industrial-port, harbour-town).
 --
 -- A world is 2D footprints with heights, in the book's own units (NetLogo
 -- patches, inches, ...): discs, rotated rectangles, triangles and walls
@@ -25,6 +27,9 @@
 --   w:toBPP(v, { scale = 0.1 })   -- builds static, non-colliding objects
 --   w:writeGrid(path)        -- the occupancy grid as text
 --   w:checksum()             -- a number that changes if any piece changes
+--   w:groundAt(x, y)         -- ground elevation (0 without terrain)
+--   w:waterAt(x, y)          -- water level, depth, kind, or nil
+--   w:blockedAt(x, y, z)     -- below the ground or inside a piece at height z?
 --
 -- RANDOM WORLDS draw from their own stream (rng.new(seed)), never the shared
 -- one, so building a world does not change the agents' random numbers, and
@@ -44,7 +49,8 @@ local sqrt, floor, abs, cos, sin, pi = math.sqrt, math.floor, math.abs, math.cos
 local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3+ dropped atan2
 
 -- A new, empty world. opts: name, units, bounds = { x0, y0, x1, y1 } (the
--- interior agents may use), height (default obstacle height), seed.
+-- interior agents may use), height (default obstacle height), seed,
+-- terrain (a lib/terrain.lua terrain under the pieces).
 function World.new(opts)
   opts = opts or {}
   local w = setmetatable({}, World)
@@ -57,6 +63,7 @@ function World.new(opts)
   w.pieces = {}            -- { kind = "disc"|"rect"|"tri", tag, ... }
   w.regions = {}           -- name -> { x0, y0, x1, y1 } or { x, y }
   w.notes = {}             -- choices made where the book is silent
+  w.terrain = opts.terrain
   return w
 end
 
@@ -196,6 +203,36 @@ function World:blocked(x, y, tag)
   return false
 end
 
+-- The ground under (x, y): the terrain's elevation, or 0 without one.
+function World:groundAt(x, y)
+  return self.terrain and self.terrain:ground(x, y) or 0
+end
+
+-- Water at (x, y): level, depth and kind ("sea", "river", "pond"), or nil.
+function World:waterAt(x, y)
+  if not self.terrain then return nil end
+  return self.terrain:water(x, y)
+end
+
+-- Is the point (x, y) at height z blocked: outside the bounds, below the
+-- ground, or inside a piece (a piece stands from its base, default 0, to
+-- base + h)? Water does not block.
+function World:blockedAt(x, y, z)
+  local b = self.bounds
+  if x < b.x0 or x > b.x1 or y < b.y0 or y > b.y1 then return true end
+  if z < self:groundAt(x, y) then return true end
+  local idx = index(self)
+  local list = idx.cells[floor((x - idx.x0) / idx.size) * 100003 + floor((y - idx.y0) / idx.size)]
+  if not list then return false end
+  for _, k in ipairs(list) do
+    local p = self.pieces[k]
+    local bb, base = p.bb, p.base or 0
+    if z >= base and z <= base + p.h and x >= bb[1] and x <= bb[3] and y >= bb[2] and y <= bb[4]
+       and inPiece(p, x, y) then return true end
+  end
+  return false
+end
+
 -- Per-cell obstacle fraction of the cell tiling, sampled on k x k points per
 -- cell (default 8). Returns a table indexed like cellOf().
 function World:occupancy(k)
@@ -267,6 +304,11 @@ function World:summary()
   for k, n in pairs(counts) do parts[#parts + 1] = n .. " " .. k end
   table.sort(parts)
   local b = self.bounds
+  if self.terrain then
+    local st = self.terrain:stats()
+    parts[#parts + 1] = string.format("land %.0f%%, water %.0f%% (deepest %.1f m)", 100 * st.land,
+                                      100 * (1 - st.land), st.deepest)
+  end
   return string.format("%s: %g x %g %s, %s%s", self.name, b.x1 - b.x0, b.y1 - b.y0, self.units,
     table.concat(parts, ", "), self.grid and string.format(", %d x %d cells", self.grid.nx, self.grid.ny) or "")
 end
@@ -300,9 +342,10 @@ end
 -- emitter at cell (12, 39); for other sizes change those in a copy of his
 -- code.
 -- opts: x0, y0 (low corner) and dx (cell size; default: the bounds split
--- into nx by ny cells), k = samples per cell side (default 3). A cell is
--- blocked when more than half its samples are; cells outside the bounds
--- are blocked. Returns the blocked share.
+-- into nx by ny cells), k = samples per cell side (default 3), z = a
+-- height: the map is then the world cut at that height (blockedAt), for
+-- worlds with terrain. A cell is blocked when more than half its samples
+-- are; cells outside the bounds are blocked. Returns the blocked share.
 function World:writeCPT(path, nx, ny, opts)
   opts = opts or {}
   local b = self.bounds
@@ -320,7 +363,10 @@ function World:writeCPT(path, nx, ny, opts)
       local hits = 0
       for a = 0, k - 1 do
         for c = 0, k - 1 do
-          if self:blocked(x0 + (i + (a + 0.5) / k) * dx, y0 + (j + (c + 0.5) / k) * dy) then hits = hits + 1 end
+          local px, py = x0 + (i + (a + 0.5) / k) * dx, y0 + (j + (c + 0.5) / k) * dy
+          local isB
+          if opts.z then isB = self:blockedAt(px, py, opts.z) else isB = self:blocked(px, py) end
+          if isB then hits = hits + 1 end
         end
       end
       local isB = hits * 2 > k * k
@@ -426,6 +472,9 @@ end
 -- BPP units, default 1), base (BPP y of the floor, default 0), floor = true
 -- to lay a floor, cellFloor = true to colour the cell tiling as
 -- Uniform_Coverage does, mask = a set of cell indices to highlight, colors.
+-- With a terrain, its ground and water meshes are drawn instead of the
+-- floor (contact = true lets bodies collide with the ground), and pieces
+-- stand on their own base elevation.
 -- Returns the list of objects (to remove with v:remove later).
 local CF_STATIC, CF_NO_CONTACT = 1, 4
 
@@ -442,6 +491,11 @@ function World:toBPP(viewer, opts)
     objs[#objs + 1] = o
     return o
   end
+  if self.terrain then
+    local t = self.terrain:toBPP(viewer, { scale = S, base = base, contact = opts.contact })
+    objs[#objs + 1] = t.ground
+    if t.water then objs[#objs + 1] = t.water end
+  end
   local hS = function(p) return (p.h or self.height) * S end
   -- book y -> BPP -z, so a camera looking down -z with y up sees the world
   -- as the book draws it (x to the right, y up the page)
@@ -451,19 +505,20 @@ function World:toBPP(viewer, opts)
     -- overlapping pieces of one height would share a top face and flicker
     -- (z-fighting), so the drawn height is staggered by under 1%
     local h = hS(p) * (1 + 0.0013 * (k % 7))
+    local pb = base + (p.base or 0) * S
     if p.kind == "disc" then
       local o = Cylinder(p.r * S, h, 0)
-      o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), pi / 2), btVector3(p.x * S, base + h / 2, Z(p.y)))
+      o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), pi / 2), btVector3(p.x * S, pb + h / 2, Z(p.y)))
       put(o, c)
     elseif p.kind == "rect" then
       local o = Cube(p.sx * S, h, p.sy * S, 0)
       -- with y -> -z, a turn by a about book-up is +a about BPP y
-      o.trans = btTransform(btQuaternion(btVector3(0, 1, 0), p.a), btVector3(p.x * S, base + h / 2, Z(p.y)))
+      o.trans = btTransform(btQuaternion(btVector3(0, 1, 0), p.a), btVector3(p.x * S, pb + h / 2, Z(p.y)))
       put(o, c)
     else
       local q = p.p
       local function V(k, y) return btVector3(q[2 * k - 1] * S, y, Z(q[2 * k])) end
-      local top, bot = base + h, base
+      local top, bot = pb + h, pb
       put(Triangle(V(1, top), V(2, top), V(3, top), 0), c)
       for k = 1, 3 do
         local k2 = k % 3 + 1
@@ -486,7 +541,7 @@ function World:toBPP(viewer, opts)
         put(o, c)
       end
     end
-  elseif opts.floor ~= false then
+  elseif opts.floor ~= false and not self.terrain then
     local b = self.bounds
     local o = Cube((b.x1 - b.x0) * S, 0.5, (b.y1 - b.y0) * S, 0)
     o.pos = btVector3((b.x0 + b.x1) / 2 * S, base - 0.25, Z((b.y0 + b.y1) / 2))
@@ -623,7 +678,14 @@ presets["ch07-corridor"] = function(o)
   return w
 end
 
--- World.preset(name, opts) builds one of the book's worlds.
+-- The realistic presets (BOOK.md section 6): their parameter tables are in
+-- lib/places.lua; opts.seed picks the layout.
+for _, name in ipairs({ "rural", "suburban", "city-centre", "industrial-port", "harbour-town" }) do
+  presets[name] = function(o) return require("lib.places").build(World, name, o) end
+end
+
+-- World.preset(name, opts) builds one of the book's worlds, or one of the
+-- realistic presets.
 function World.preset(name, opts)
   local f = presets[name]
   if not f then

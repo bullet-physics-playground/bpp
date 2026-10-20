@@ -432,6 +432,30 @@ lattice from the pile, about 1.5 min in 2D and under 1 min in 3D, and the
 switch code was removed. LJ forms from the same pile in 30–35 s (CV
 0.023): the faster way is in the force law's shape, not in a switch.
 
+**F60. The world generator's terrain and water: meanders, the slope rule,
+and two mistakes of ours** — 2026-10-20, New and Our error, corrected.
+`lib/terrain.lua`, `checks/terrain.lua`. (a) **Meanders.** A river drawn
+as a sine-generated curve (heading 1.1 sin φ to the valley; Langbein and
+Leopold 1966) has sinuosity 1/J0(1.1) = 1.390: a 41.7 km test river
+measures 1.391 and a meander wavelength of 10.9 widths (Leopold and Wolman:
+10–14; ours 11). Varying each bend's length by ±30%, so meanders are not
+all alike, keeps the sinuosity, because a bend's sinuosity does not depend
+on its length. The presets' rivers measure 1.39–1.40, the city's (only 2.5
+meanders long) 1.43. (b) **The slope rule** (no dry slope steeper than
+15% along the grid, by lowering only) also makes the river valleys' walls,
+the ponds' banks and the dry part of dredged cuts, so none needs its own
+setting. Across a triangle it allows up to √2 × 15% = 21.2%, and four of
+the five presets reach that on valley walls; that is what "drivable" means
+here. (c) *Our errors, corrected:* dredging with 1:3 sides after the slope
+rule left 33% dry banks where a channel ran up into land; sloped cuts now
+come before the rule and only vertical quay walls after it. Hills drawn as
+noise of either sign dug an inland hollow 15 m below sea level behind the
+harbour town (245 nodes); hills now stand on the plain (0 to their
+height). And a Lua trap worth knowing: `f(t, g(), fn)` passes only g's
+first result when g returns several (Lua cuts a call's results to one
+unless it is the last argument). (d) Each preset builds in 0.1–0.4 s in
+Lua 5.1, and a seed gives identical terrain on Lua 5.1–5.4.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
