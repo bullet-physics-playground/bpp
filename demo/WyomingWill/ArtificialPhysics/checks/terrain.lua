@@ -7,6 +7,8 @@
 --                         8 grid directions, between dry nodes
 --   steepest triangle     the steepest dry triangle's slope (all 3 nodes dry)
 --   sinuosity             channel length / straight distance between ends
+--   autocorrelation       of the channel's direction, between points three
+--                         meanders apart along it (1 = perfectly periodic)
 --   wavelength            meander wavelength along the valley: twice the
 --                         straight distance per bend, in channel widths
 --   depth                 water level - ground
@@ -32,15 +34,10 @@ local function check(name, ok, detail)
   if not ok then fails = fails + 1 end
   print(string.format("%s %-58s %s", ok and "ok  " or "FAIL", name, detail or ""))
 end
-local abs, sqrt, max, min = math.abs, math.sqrt, math.max, math.min
+local abs, sqrt, max, min, floor = math.abs, math.sqrt, math.max, math.min, math.floor
 local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end
 
 print("terrain: " .. _VERSION .. ", presets: " .. table.concat(Places.names(), ", "))
-
--- J0 and the sine-generated curve's sinuosity.
-check("J0(1) and J0(1.1) (tables: 0.7651977, 0.7196220)",
-      abs(Terrain.J0(1) - 0.7651977) < 1e-7 and abs(Terrain.J0(1.1) - 0.7196220) < 1e-7,
-      string.format("1/J0(1.1) = %.4f", 1 / Terrain.J0(1.1)))
 
 -- Build every preset once (two seeds), keep seed 1.
 local worlds, t0 = {}, os.clock()
@@ -151,31 +148,67 @@ do
   check("deepest river node = width/12, none deeper", okDepth, table.concat(lines, ", "))
 end
 
--- A long river on flat ground: sinuosity 1/J0(1.1) and meander wavelength
--- 11 widths (Langbein and Leopold 1966; Leopold and Wolman 1960).
+-- Long rivers on flat ground (30 km, 20 m wide, three seeds): the
+-- disturbed periodic model (Ferguson 1976) gives sinuosity 1.4 and a
+-- meander wavelength of 11 widths on average, with no lasting period (the
+-- direction's autocorrelation three meanders apart near 0; a
+-- sine-generated curve's stays near 1), disturbances within the natural
+-- sigma < 0.3 a width (Limaye et al. 2021), and no channel touching itself
+-- (the neck cutoffs).
 do
-  local t = Terrain.generate({ bounds = { 0, 0, 30000, 4000 }, cell = 10, seed = 3,
-                               land = { height = 30, rise = 0, relief = 0 },
-                               rivers = { { from = { 0, 2000 }, to = { 30000, 2000 }, width = 20 } } })
-  local r = t.rivers[1]
-  local p = r.pts
-  -- bends = sign changes of the heading's deviation from the valley (east)
-  local bends, last = 0, 0
-  for q = 1, #p / 2 - 1 do
-    local dev = atan2(p[2 * q + 2] - p[2 * q], p[2 * q + 1] - p[2 * q - 1])
-    local sgn = dev > 0.05 and 1 or (dev < -0.05 and -1 or 0)
-    if sgn ~= 0 and sgn ~= last then
-      if last ~= 0 then bends = bends + 1 end
-      last = sgn
+  local m = Terrain.meanderModel()
+  local S, Wl, A3, touch = 0, 0, 0, 0
+  for seed = 1, 3 do
+    local t = Terrain.generate({ bounds = { 0, 0, 30000, 6000 }, cell = 20, seed = seed,
+                                 land = { height = 30, rise = 0, relief = 0 },
+                                 rivers = { { from = { 0, 3000 }, to = { 30000, 3000 }, width = 20 } } })
+    local r = t.rivers[1]
+    local p = r.pts
+    local dev = {}
+    for q = 1, #p / 2 - 1 do dev[#dev + 1] = atan2(p[2 * q + 2] - p[2 * q], p[2 * q + 1] - p[2 * q - 1]) end
+    -- bends = sign changes of the heading's deviation from the valley (east)
+    local bends, last = 0, 0
+    for _, d in ipairs(dev) do
+      local sgn = d > 0.05 and 1 or (d < -0.05 and -1 or 0)
+      if sgn ~= 0 and sgn ~= last then
+        if last ~= 0 then bends = bends + 1 end
+        last = sgn
+      end
+    end
+    local step = r.length / #dev
+    local mean = 0
+    for _, d in ipairs(dev) do mean = mean + d end
+    mean = mean / #dev
+    local k = floor(3 * m.P * r.width / step + 0.5)
+    local a, b = 0, 0
+    for q = 1, #dev - k do a = a + (dev[q] - mean) * (dev[q + k] - mean) end
+    for q = 1, #dev do b = b + (dev[q] - mean) ^ 2 end
+    S, Wl, A3 = S + r.length / r.straight / 3, Wl + 2 * r.straight / bends / r.width / 3, A3 + a / b / 3
+    -- the channel never comes within 1.5 widths of itself 6 widths on
+    local n, cell = #p / 2, {}
+    for q = 1, n do
+      local key = floor(p[2 * q - 1] / 40) * 100003 + floor(p[2 * q] / 40)
+      cell[key] = cell[key] or {}
+      table.insert(cell[key], q)
+    end
+    local back = floor(6 * r.width / step)
+    for q = 1, n do
+      local x, y = p[2 * q - 1], p[2 * q]
+      for di = -1, 1 do
+        for dj = -1, 1 do
+          for _, o in ipairs(cell[(floor(x / 40) + di) * 100003 + floor(y / 40) + dj] or {}) do
+            if o < q - back and (p[2 * o - 1] - x) ^ 2 + (p[2 * o] - y) ^ 2 < (1.5 * r.width - 2) ^ 2 then touch = touch + 1 end
+          end
+        end
+      end
     end
   end
-  local sin_ = r.length / r.straight
-  local theory = 1 / Terrain.J0(Terrain.OMEGA)
-  local wave = 2 * r.straight / bends / r.width
-  check("long river: sinuosity 1/J0(1.1) = 1.390 within 2%", abs(sin_ / theory - 1) < 0.02,
-        string.format("%.3f over %.1f km", sin_, r.length / 1000))
-  check("long river: meander wavelength 11 widths within 10%", abs(wave / Terrain.MEANDER - 1) < 0.1,
-        string.format("%.1f widths, %d bends", wave, bends))
+  check("long rivers: mean sinuosity 1.4 +- 0.1", abs(S - 1.4) < 0.1, string.format("%.3f over three 30 km rivers", S))
+  check("long rivers: meander wavelength 11 widths +- 15%", abs(Wl / Terrain.MEANDER - 1) < 0.15,
+        string.format("%.1f widths", Wl))
+  check("long rivers: no lasting period (direction autocorrelation)", abs(A3) < 0.15 and m.sigma < 0.3,
+        string.format("%.2f three meanders apart; disturbances %.2f rad a width", A3, m.sigma))
+  check("long rivers: the channel never touches itself (cutoffs)", touch == 0)
 end
 
 -- The harbour town's river reaches the sea at level 0.

@@ -31,8 +31,9 @@
 --     the industrial port (300 m ships), 400 m in the harbour town.
 --   * dredged side slopes 1:3; quay walls vertical; quay decks about 4 m
 --     above sea level.
---   * rivers: width over depth 12, meander wavelength 11 widths, sinuosity
---     1.39 (lib/terrain.lua's constants and their sources).
+--   * rivers: width over depth 12, meander wavelength 11 widths, mean
+--     sinuosity 1.4, irregular as natural meanders are (lib/terrain.lua's
+--     constants and their sources).
 --   * offshore shelf 1:80 to 1:100 near the shore.
 --   * zones: Local Climate Zones (Stewart and Oke 2012); density falling
 --     exponentially from a centre (Clark 1951). Each preset's ladder of

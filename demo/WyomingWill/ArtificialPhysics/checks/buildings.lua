@@ -99,13 +99,21 @@ end
 -- The city's skyline: a heavy tail, and heights falling from the centre
 -- to the open mid-rise, then level.
 do
+  -- a heavy right tail: skewness over 3 (a normal distribution's is 0) and
+  -- the tallest at least 5 x the median; seeds 1-4 measure 4.1-5.7 and
+  -- 6.6-10 x (the 99th percentile, 3.4-4.8 x, rests on a few dozen towers
+  -- and is too unsteady to test)
   local w = worlds["city-centre"]
-  local h = {}
-  for _, b in ipairs(w.buildings) do h[#h + 1] = b.height end
+  local h, mean = {}, 0
+  for _, b in ipairs(w.buildings) do if not b.kind then h[#h + 1] = b.height; mean = mean + b.height end end
   table.sort(h)
-  local med, p99 = h[floor(#h / 2)], h[floor(0.99 * #h)]
-  check("city: heavy tail (99th percentile >= 4 x the median)", p99 >= 4 * med,
-        string.format("median %.1f m, 99th %.1f m, tallest %.1f m", med, p99, h[#h]))
+  mean = mean / #h
+  local m2, m3 = 0, 0
+  for _, v in ipairs(h) do m2, m3 = m2 + (v - mean) ^ 2, m3 + (v - mean) ^ 3 end
+  local skew = (m3 / #h) / (m2 / #h) ^ 1.5
+  local med = h[floor(#h / 2)]
+  check("city: heavy tail (skewness > 3, tallest >= 5 x the median)", skew > 3 and h[#h] >= 5 * med,
+        string.format("median %.1f m, tallest %.1f m, skewness %.1f", med, h[#h], skew))
   local c = w.town.centres[1]
   local ring = {}
   for _, b in ipairs(w.buildings) do

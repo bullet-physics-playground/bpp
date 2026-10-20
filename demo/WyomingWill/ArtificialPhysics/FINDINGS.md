@@ -549,6 +549,35 @@ because U-shaped courts open to the rear and back-to-back lots leave
 3 m passages. A whole preset builds in 0.4–3.5 s in Lua 5.1, identically
 on 5.1–5.4.
 
+**F64. Rivers: the sine-generated curve was far too periodic** —
+2026-10-20, Our error, corrected (found by William). `lib/terrain.lua`,
+`checks/terrain.lua`. F60's rivers followed Langbein and Leopold's
+sine-generated curve, the *most probable* meander shape, with each bend's
+length varied by ±30%. Every bend still had the same amplitude and
+shape, and the rivers read as a pattern: the direction's autocorrelation
+between points three meanders apart was 0.98. Natural meanders are
+irregular; Ferguson (1975) found their direction autocorrelograms are
+*damped* oscillations, and modelled the channel's direction as a damped
+oscillator kicked by random disturbances (the disturbed periodic model,
+Ferguson 1976; an AR(2) process with one step a channel width, as fitted
+to rivers worldwide by Limaye et al. 2021, who note disturbances σ ≥ 0.3
+a width are rare). Ours: period 11 × 1.4 widths along the channel, memory
+falling to 1/e over one meander, the direction smoothed over ~2 widths
+(no bend tighter than about two widths, Leopold and Wolman), and neck
+cutoffs where the channel meets itself. Over three 30 km rivers:
+sinuosity 1.39, wavelength 11.0 widths, autocorrelation three meanders
+apart 0.02, σ 0.21 a width, no channel touching itself. Steering toward
+the river's end, the cutoffs and the rounding each take some sinuosity
+away (1.36 → 1.30), so the disturbances' variance carries a measured gain
+of 1.5 that restores the mean to 1.4. Downstream every layer moved with
+the rivers and was measured again: every built zone stays inside its LCZ
+ranges on seeds 1–3. *Two of our checks were too tight for the new
+layouts:* F62's heavy-tail test (99th percentile ≥ 4 × the median) rests
+on a few dozen towers and varies 3.4–4.8 × across seeds; it is now
+skewness > 3 (measured 4.1–5.7) and tallest ≥ 5 × the median (6.6–10 ×).
+And the harbour town's quay now holds two large lots, so the yard takes one
+and one warehouse is made, as many as there are sheds.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

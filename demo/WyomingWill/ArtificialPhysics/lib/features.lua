@@ -13,7 +13,8 @@
 --                waterline: w.leak = { x, y, z }, region "leak".
 --   PIERS        decks 2.5-3.5 m above the water on piles every 8 m along
 --                both edges, from the shore out over the water.
---   WAREHOUSES   the largest sheds of the given zone turned into shells
+--   WAREHOUSES   the largest sheds of the given zone (up to the count; as
+--                many as are left once the yard has its lot) turned into shells
 --                with doorways: walls 0.4 m thick, a 0.5 m roof slab, one
 --                door 6 m wide and 5 m high (over the ground there) in the
 --                middle of each wall,

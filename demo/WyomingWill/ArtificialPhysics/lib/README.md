@@ -208,10 +208,15 @@ t:toBPP(v, { contact = true })     -- one ground mesh, one translucent water mes
   21.2%). It lowers, never raises, and it also shapes the river valleys'
   walls, the ponds' banks and the dry part of a dredged cut, so none of
   them needs its own setting.
-- **Rivers** are sine-generated curves (Langbein and Leopold 1966): angle to
-  the valley 1.1 sin φ, sinuosity 1/J0(1.1) = 1.39, meander wavelength 11
-  widths (Leopold and Wolman 1960), each bend ±30% in length; channels 12
-  times wider than deep, on a floodplain 0.5 m above the water, two widths
+- **Rivers** follow Ferguson's (1976) disturbed periodic model: the
+  channel's direction is a damped oscillator kicked by random disturbances
+  (an AR(2) process, one step a width), smoothed so no bend is tighter
+  than about two widths, with neck cutoffs where the channel meets itself.
+  On average: sinuosity 1.4, meander wavelength 11 widths (Leopold and
+  Wolman 1960); the direction forgets over about one meander, so no two
+  stretches look alike (autocorrelation three meanders apart ~0.02,
+  against ~1 for a sine-generated curve). Channels are 12 times wider than
+  deep, on a floodplain 0.5 m above the water, two widths
   each side. The water level only falls downstream and reaches 0 at the sea.
 - **Ponds** sit 0.3 m below the lowest ground on a ring of 1.3 radii, so
   their rim holds them.

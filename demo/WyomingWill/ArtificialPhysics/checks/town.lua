@@ -279,7 +279,7 @@ do
         if not s.bulb or s.bulb[3] ~= 15 or s.bulb[1] ~= p[#p - 1] or s.bulb[2] ~= p[#p] then okBulb = false end
         local near = math.huge
         for _, o in ipairs(town.streets) do
-          if o.kind == "collector" then
+          if o.kind == "collector" or o.kind == "bridge" then   -- a collector's bridge is the collector
             local op = o.pts
             for r = 1, #op - 3, 2 do near = min(near, (Land.segDist(p[1], p[2], op[r], op[r + 1], op[r + 2], op[r + 3]))) end
           end
@@ -289,7 +289,7 @@ do
     end
   end
   check("cul-de-sacs up to 229 m, ending in a 15 m turning circle", okLen and okBulb and n > 50, n .. " cul-de-sacs")
-  check("every cul-de-sac starts on a collector", okStart)
+  check("every cul-de-sac starts on a collector (or its bridge)", okStart)
 end
 
 print(string.format("all presets built in %.1f s", os.clock() - t0))

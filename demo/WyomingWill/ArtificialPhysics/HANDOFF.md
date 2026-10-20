@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F63 so far), and
+  implementations, and our own mistakes once corrected (F1–F64 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -156,7 +156,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "5. Our own errors, corrected"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -236,8 +236,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   streets, lots and buildings, mission features and vegetation in
   0.4–3.5 s (Lua 5.1), identically on Lua 5.1–5.4. Each layer is a few
   stated rules: one slope rule (≤ 15% along the grid) keeps the land
-  drivable and shapes valleys and banks; rivers are sine-generated
-  (sinuosity 1/J0(1.1)); density falls exponentially from centres
+  drivable and shapes valleys and banks; rivers follow Ferguson's
+  disturbed periodic model (irregular meanders, sinuosity 1.4, neck
+  cutoffs; F64); density falls exponentially from centres
   (Clark) into Local Climate Zones; every street connects to the
   arterials; the gap rule (touch or ≥ 3 m). Building fraction and mean
   height land inside Stewart and Oke's published ranges for every built
@@ -294,7 +295,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      F62), calibrated to the LCZ ranges;
   4. mission features and vegetation (`lib/features.lua`,
      `lib/vegetation.lua`), the outputs (`World:raster`, `writeRaster`,
-     `sight`, `traps`), `checks/features.lua` (F63).
+     `sight`, `traps`), `checks/features.lua` (F63);
+  5. irregular rivers (William: the sine-generated ones were far too
+     periodic): Ferguson's disturbed periodic model with neck cutoffs
+     (F64).
   - **Open from it:** wind with height and currents (`BOOK.md` §6
     "Later"); importing real places (OpenStreetMap, elevation, charts);
     trees and hedges are solid to `blockedAt` and must be treated as

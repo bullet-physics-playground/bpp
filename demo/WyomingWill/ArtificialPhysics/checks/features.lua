@@ -91,10 +91,12 @@ do
   check("piers: decks over the water, piles to the seabed", ok and n == 2, n .. " piers")
 end
 
--- Warehouses: a doorway in every wall, open inside, roofed.
+-- Warehouses: as many as asked, or as the zone has sheds left once the
+-- yard has its lot; a doorway in every wall, open inside, roofed.
 do
   local ok, n = true, 0
   for _, w in ipairs({ H, P }) do
+    if not w.warehouses or #w.warehouses == 0 then ok = false end
     for _, b in ipairs(w.warehouses or {}) do
       n = n + 1
       local roof = b.parts[#b.parts]
@@ -112,7 +114,8 @@ do
       end
     end
   end
-  check("warehouses: a doorway in each wall, open inside, roofed", ok and n == 5, n .. " warehouses")
+  check("warehouses: a doorway in each wall, open inside, roofed", ok,
+        string.format("%d in the harbour town, %d in the port", #(H.warehouses or {}), #(P.warehouses or {})))
 end
 
 -- The container yard: whole boxes, pockets open from above.

@@ -9,7 +9,8 @@
 --               (fractal value noise, 0 to `relief` above the plain) that
 --               fade out toward the coast
 --   2. fill     raised platforms (reclaimed quays), with sloped edges
---   3. rivers   a meandering channel cut to a water level that only falls
+--   3. rivers   a meandering channel (Ferguson's disturbed periodic model,
+--               with neck cutoffs) cut to a water level that only falls
 --               downstream, on a floodplain just above it
 --   4. ponds    bowls below their own rim
 --   5. dredge   approach and main channels, turning basin: cut to their
@@ -38,6 +39,9 @@
 --                  nodes in the 8 grid directions
 --   sinuosity      a river's length along its channel over the straight
 --                  distance between its ends
+--   wavelength     a meander's length along the valley: twice the straight
+--                  distance per bend, a bend running between turns of the
+--                  channel's direction across the valley's
 --
 -- FIXED CONSTANTS (stated, not knobs; a preset may override MAX_SLOPE):
 --   MAX_SLOPE 0.15     steepest dry slope along the grid. 15% is about the
@@ -47,12 +51,23 @@
 --   WIDTH_DEPTH 12     a river's width over its depth (lowland rivers 10-20)
 --   MEANDER 11         meander wavelength along the valley over the width
 --                      (Leopold and Wolman 1960: 10-14)
---   OMEGA 1.1 rad      the sine-generated curve's largest angle to the
---                      valley (Langbein and Leopold 1966); its sinuosity is
---                      1 / J0(OMEGA) = 1.39
---   BEND_SPREAD 0.3    each bend's length varies by up to +-30% (uniform),
---                      so meanders are not all alike; a bend's sinuosity
---                      does not depend on its length, so it stays 1.39
+--   SINUOSITY 1.4      a river's mean sinuosity (the sine-generated curve
+--                      of Langbein and Leopold 1966 with its usual 1.1 rad
+--                      gives 1.39; natural rivers mostly 1-2.5)
+--   MEMORY 1           meanders over which the channel's direction
+--                      "forgets" (its correlation falls to 1/e): natural
+--                      meanders are irregular, their direction
+--                      autocorrelation a damped oscillation (Ferguson 1975);
+--                      the disturbed periodic model (Ferguson 1976) makes
+--                      them so. Our choice; with GAIN it gives disturbances
+--                      of 0.21 rad a width, within the natural < 0.3
+--                      (Limaye et al. 2021)
+--   GAIN 1.5           the disturbances' variance over what the model
+--                      alone needs for SINUOSITY: steering toward the
+--                      river's end, the neck cutoffs and the final rounding
+--                      take some sinuosity away; 1.5 restores the mean,
+--                      measured over eight 30 km rivers (1.40, wavelength
+--                      11.1 widths)
 --   BANK 0.5 m         floodplain above the river's water
 --   FLOODPLAIN 2       floodplain on each side, in channel widths
 --   POND_BANK 0.3 m    a pond's rim above its water
@@ -81,24 +96,13 @@ local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3
 T.MAX_SLOPE = 0.15
 T.WIDTH_DEPTH = 12
 T.MEANDER = 11
-T.OMEGA = 1.1
-T.BEND_SPREAD = 0.3
+T.SINUOSITY = 1.4
+T.MEMORY = 1
+T.GAIN = 1.5
 T.BANK = 0.5
 T.FLOODPLAIN = 2
 T.POND_BANK = 0.3
 T.DREDGE_RUN = 3
-
--- Bessel J0 by its series (|x| < 3 is all we need): the sine-generated
--- curve's sinuosity is 1 / J0(omega).
-function T.J0(x)
-  local s, term, k = 0, 1, 0
-  repeat
-    s = s + term
-    k = k + 1
-    term = -term * (x / 2) ^ 2 / (k * k)
-  until abs(term) < 1e-15
-  return s
-end
 
 --------------------------------------------------------------------------
 -- Fractal value noise
@@ -354,36 +358,113 @@ local function layFill(t, f)
   end)
 end
 
--- The centreline of a river: a sine-generated curve (direction to the
--- valley omega sin(phi), phi advancing 2 pi per meander length M) steered
--- toward its end, each bend (half a meander) M x (1 +- BEND_SPREAD) long.
--- Ends where it reaches the end point or leaves the area.
+-- The parameters of the disturbed periodic model (Ferguson 1976): the
+-- channel's direction to its valley, sampled every channel width, is the
+-- AR(2) process theta_i = b1 theta_(i-1) + b2 theta_(i-2) + eps_i, a
+-- damped oscillator kicked by random disturbances eps ~ N(0, sigma^2).
+-- Its natural period P = MEANDER x SINUOSITY widths along the channel
+-- (MEANDER widths along the valley); its memory decays to 1/e over
+-- MEMORY meanders, r = exp(-1 / (MEMORY P)), b1 = 2 r cos(2 pi / P),
+-- b2 = -r^2; sigma is set so that the direction, after the smoothing
+-- below, has the variance GAIN x 2 ln SINUOSITY (for normal directions
+-- sinuosity = 1 / E[cos theta] = exp(var / 2)): the AR(2)'s own variance
+-- and the smoothing filter's effect on it are both exact; GAIN makes up
+-- what steering, cutoffs and rounding take away.
+local SMOOTH = { 1 / 16, 4 / 16, 6 / 16, 4 / 16, 1 / 16 }   -- [1 2 1]/4 twice
+
+function T.meanderModel()
+  local P = T.MEANDER * T.SINUOSITY
+  local r = math.exp(-1 / (T.MEMORY * P))
+  local b1, b2 = 2 * r * cos(2 * pi / P), -r * r
+  -- the AR(2)'s autocorrelation at lags 0..4, and the variance factors
+  local rho = { [0] = 1, [1] = b1 / (1 - b2) }
+  for k = 2, 4 do rho[k] = b1 * rho[k - 1] + b2 * rho[k - 2] end
+  local smooth = 0
+  for i = 1, 5 do for j = 1, 5 do smooth = smooth + SMOOTH[i] * SMOOTH[j] * rho[abs(i - j)] end end
+  local own = (1 - b2) / ((1 + b2) * ((1 - b2) ^ 2 - b1 ^ 2))
+  local sigma = sqrt(T.GAIN * 2 * math.log(T.SINUOSITY) / (own * smooth))
+  return { P = P, r = r, b1 = b1, b2 = b2, sigma = sigma }
+end
+
+-- The centreline of a river from `from` toward `to`: the disturbed
+-- periodic direction series (one value per channel width), smoothed
+-- with SMOOTH so the channel cannot turn sharply within a width, added
+-- to the direction toward the end, and walked in steps of at most half a
+-- terrain cell. A neck cutoff, as rivers make them: where the channel
+-- comes back within 1.5 widths of itself (banks touching) at least 6
+-- widths further along, the loop between is cut out. A last light
+-- smoothing (over a width) rounds the cut necks. Ends at the end point or
+-- where it leaves the area.
 local function riverLine(t, r, s)
   local w = r.width
-  local lambda = T.MEANDER * w                 -- along the valley
-  local M = lambda / T.J0(T.OMEGA)             -- along the channel
-  local ds = min(t.cell, w) / 2
-  local x, y = r.from[1], r.from[2]
+  local m = T.meanderModel()
   local ex, ey = r.to[1], r.to[2]
-  local phi = s:random() * 2 * pi
-  local bend, bendM = -1, M
-  local pts, sAcc = { x, y }, 0
-  local margin = 4 * t.cell
-  for _ = 1, 200000 do
-    local dx, dy = ex - x, ey - y
-    if dx * dx + dy * dy < (2 * ds) ^ 2 then break end
-    if floor(phi / pi) ~= bend then                -- a new bend: its own length
-      bend = floor(phi / pi)
-      bendM = M * (1 + T.BEND_SPREAD * (2 * s:random() - 1))
-    end
-    local th = atan2(dy, dx) + T.OMEGA * sin(phi)
-    x, y = x + ds * cos(th), y + ds * sin(th)
-    phi = phi + 2 * pi * ds / bendM
-    sAcc = sAcc + ds
-    pts[#pts + 1] = x; pts[#pts + 1] = y
-    if x < t.x0 - margin or x > t.x1 + margin or y < t.y0 - margin or y > t.y1 + margin then break end
+  local straight = sqrt((ex - r.from[1]) ^ 2 + (ey - r.from[2]) ^ 2)
+  local N = math.ceil(4 * straight / w) + 10
+  local raw = { 0, 0 }
+  for i = 3, N + 4 do raw[i] = m.b1 * raw[i - 1] + m.b2 * raw[i - 2] + m.sigma * s:gauss() end
+  local th = {}
+  for i = 1, N do
+    local v = 0
+    for k = 1, 5 do v = v + SMOOTH[k] * raw[i + k - 1] end
+    th[i] = v
   end
-  return pts, sAcc
+  local sub = math.max(1, math.ceil(w / (min(t.cell, w) / 2)))
+  local ds = w / sub
+  local x, y = r.from[1], r.from[2]
+  local px, py = { x }, { y }
+  local B, size = {}, 2 * w                         -- points by bucket, for the cutoffs
+  local function bucketAdd(k)
+    local key = floor(px[k] / size) * 100003 + floor(py[k] / size)
+    B[key] = B[key] or {}
+    table.insert(B[key], k)
+  end
+  bucketAdd(1)
+  local margin = 4 * t.cell
+  local back = 6 * sub
+  local done = false
+  for i = 1, N - 1 do
+    for k = 0, sub - 1 do
+      local dx, dy = ex - x, ey - y
+      if dx * dx + dy * dy < (2 * ds) ^ 2 then done = true; break end
+      local a = atan2(dy, dx) + th[i] + (th[i + 1] - th[i]) * k / sub
+      local nx, ny = x + ds * cos(a), y + ds * sin(a)
+      -- a neck cutoff?
+      local n, hit = #px, nil
+      local bi, bj = floor(nx / size), floor(ny / size)
+      for di = -1, 1 do
+        for dj = -1, 1 do
+          for _, q in ipairs(B[(bi + di) * 100003 + bj + dj] or {}) do
+            if q <= n - back and (px[q] - nx) ^ 2 + (py[q] - ny) ^ 2 < (1.5 * w) ^ 2 and (not hit or q < hit) then hit = q end
+          end
+        end
+      end
+      if hit then
+        for q = n, hit + 1, -1 do
+          local key = floor(px[q] / size) * 100003 + floor(py[q] / size)
+          local list = B[key]
+          for z = #list, 1, -1 do if list[z] == q then table.remove(list, z) end end
+          px[q], py[q] = nil, nil
+        end
+      end
+      x, y = nx, ny
+      px[#px + 1], py[#py + 1] = x, y
+      bucketAdd(#px)
+      if x < t.x0 - margin or x > t.x1 + margin or y < t.y0 - margin or y > t.y1 + margin then done = true; break end
+    end
+    if done then break end
+  end
+  -- round the necks: average over a width (the ends stay put)
+  local n = #px
+  local pts, len = {}, 0
+  for q = 1, n do
+    local sx, sy, c = 0, 0, 0
+    local h = (q == 1 or q == n) and 0 or min(sub, q - 1, n - q)
+    for z = q - h, q + h do sx, sy, c = sx + px[z], sy + py[z], c + 1 end
+    pts[#pts + 1] = sx / c; pts[#pts + 1] = sy / c
+    if q > 1 then len = len + sqrt((pts[#pts - 1] - pts[#pts - 3]) ^ 2 + (pts[#pts] - pts[#pts - 2]) ^ 2) end
+  end
+  return pts, len
 end
 
 -- 3. Rivers: { from = {x, y}, to = {x, y}, width (m) }. The water level
