@@ -919,7 +919,7 @@ local function addWalker(spec, x, z, heading)
       -- (a Generic6Dof is a joint only as a diag bar's weld; elsewhere
       -- it is a guide, which weighs nothing)
       if n ~= "btGeneric6DofConstraint" or f:find("Crossbar") then
-        joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint" }
+        joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint", con, n }
       end
       if n == "btHingeConstraint" and f == "buildFoot" then ankleHinges[#ankleHinges + 1] = con end
       return con
@@ -931,6 +931,19 @@ local function addWalker(spec, x, z, heading)
   if not ok then error(built, 0) end
   w.madeBy = made
   if BAR_MASS then setBarMasses(w, barLen, joints, scale) end
+  -- DIAG_LIGHT = k (a test; off): every brace (plates, diag and arched
+  -- bars) weighs k times what it would, to see what their weight costs
+  if DIAG_LIGHT then
+    for _, o in ipairs(w.bodies) do
+      if (made[o] or ""):find("Crossbar") and o.mass > 0 then
+        local inv, m = o.body:getInvInertiaDiagLocal(), o.mass * DIAG_LIGHT
+        o.body:setMassProps(m, btVector3(DIAG_LIGHT / inv.x, DIAG_LIGHT / inv.y, DIAG_LIGHT / inv.z))
+        o.body:updateInertiaTensor()
+        o.mass = m
+      end
+    end
+  end
+  w.joints = joints        -- { body A, body B or nil, slider?, constraint, kind }
   -- a diag walker's low brace, raised (BRACE_CLEARANCE), would cross the
   -- circles its own cranks turn in and jam on them: it passes the
   -- walker's other parts as if built in a plane of its own (a free joint,

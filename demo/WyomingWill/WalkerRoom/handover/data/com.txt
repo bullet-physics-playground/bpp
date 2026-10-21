@@ -1,0 +1,14 @@
+Chebyshev|guides|mass 93.3|COM height 16.14 cm|body centre 14.61 cm
+Chebyshev diag|diag|mass 111.9|COM height 19.17 cm|body centre 13.95 cm
+Chebyshev-Spears|guides|mass 84.8|COM height 11.49 cm|body centre 13.03 cm
+Chebyshev-Spears diag|diag|mass 104.7|COM height 14.03 cm|body centre 12.73 cm
+Hoecken 4-bar|guides|mass 94.0|COM height 15.87 cm|body centre 14.27 cm
+Hoecken 4-bar diag|diag|mass 115.3|COM height 20.01 cm|body centre 14.05 cm
+Hoecken-Spears 4-bar|guides|mass 86.3|COM height 11.63 cm|body centre 13.12 cm
+Hoecken-Spears 4-bar diag|diag|mass 106.0|COM height 14.23 cm|body centre 12.81 cm
+Hoecken-Spears long-stance|guides|mass 75.9|COM height 10.75 cm|body centre 12.77 cm
+Hoecken-Spears long-stance diag|diag|mass 99.8|COM height 13.70 cm|body centre 12.62 cm
+Spears lift 44|guides|mass 94.6|COM height 12.81 cm|body centre 14.13 cm
+Spears lift 44 diag|diag|mass 121.4|COM height 16.92 cm|body centre 14.55 cm
+Spears lift 53|guides|mass 99.6|COM height 14.59 cm|body centre 16.20 cm
+Spears lift 53 diag|diag|mass 128.3|COM height 19.46 cm|body centre 16.68 cm

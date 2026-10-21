@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 22 (this handover's update).
+Number patches `walker-room-NN-<what>.patch`. The last was 23 (this handover's update: the diag-brace findings and open issues).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -171,7 +171,7 @@ All forward. Raw data: `data/damp6.txt`. Freeing the body costs every walker som
 | Spears lift 44 | 8.92 / 8.82 | 6.95 / 2.27 | 7.92 / 8.16 | 8.37 / 8.15 |
 | Spears lift 53 | 8.89 / 8.90 | 5.48 / 0.63 | 7.45 / 7.22 | 7.92 / 7.95 |
 
-Same on flat; on waves every diag build is far slower (and turns: headings 270–335° at the end, against about 0° on guides); closer on logs and steps. One seed, so single numbers are noisy, but the waves gap is in all seven. The cause is not known yet; worth watching a diag build on waves in the GUI. **So both bracings stay in the factorial**, and the tables show what the bracing costs.
+Same on flat; on waves every diag build is far slower (and turns: headings 270–335° at the end, against about 0° on guides); closer on logs and steps. One seed, so single numbers are noisy, but the waves gap is in all seven. Watching on waves 4, William saw Chebyshev-Spears diag run fine and then get stuck, its guides build not; Hoecken-Spears 4-bar diag looked like its guides build but slipped more. **Why diag is slower is only partly understood: see 'Diag braces: what was found' below and the open issues in section 7.**
 
 **The body now counts, not just the linkage** (21 October). William, watching at the new standard: "Now that the body can pitch, and the gravity has increased, the body can dip on one side, raising the feet on the other side. Some walkers can now clear logs of height 7." Agreed, after some discussion:
 - The **free-body result is the main result**. A real build rocks too.
@@ -179,6 +179,24 @@ Same on flat; on waves every diag build is far slower (and turns: headings 270�
 - The **body's share** is the log height cleared minus the lift.
 - With the standards held, rocking differences come from the linkage (hip height, foot path, landing, leg mass) except for **gait and bracing**, which are choices. They are table columns, so they stay visible.
 - Report **two tables**: everyone at trot (same gait; guides, or the own frame for Jansen, Klann and Spears 4-bar), the controlled comparison; and the best of each linkage, where each gets its own best gait and bracing. They can disagree.
+
+**Diag braces: what was found** (21 October, waves 4, Earth standard, `tools/diagprobe.lua`, `tools/diag_runs.sh`, `data/diag.txt`, `data/com.txt`). Chebyshev-Spears is "CS", Hoecken-Spears 4-bar "HS4"; cm/s, seed 1 unless said:
+
+| Build | Speed | What the probe showed |
+|---|---|---|
+| CS guides | 7.40 (seed 2: 7.57) | legs' pendants held within 0.4° of the body; links touch ground 3–4% |
+| CS diag | 2.11 (seed 2: 1.89) | cranks turn fully, never stall; welds give ≤0.04 cm, ≤1.3°; parts touch each other ≤0.8%; **pendants and braces swing up to 5–12° against the body**; links touch ground 10–20%, the body 3–5% |
+| CS diag, braces weightless (DIAG_LIGHT=0.05) | 1.14 | worse, but the welds went soft (0.36 cm) with the light bars, so not a clean test |
+| CS diag, low brace (DIAG_ARCH=false) | 2.59 | barely better; links touch ground 4.6% |
+| CS diag, SOLVER_ITERATIONS 200 | 4.37 | swing down to ≤1.9°; twice as fast, still far below guides |
+| HS4 guides | 7.73 | |
+| HS4 diag | 2.75 | |
+| HS4 diag, SOLVER_ITERATIONS 200 | 2.39 | swing ≤2.6°; no faster |
+
+- **Centre of mass** (`tools/comprobe.lua`, at build, above the feet's bottoms): the braces add 19–29 mass units (20–30%), all high, raising the centre of mass 2.5–4.9 cm (e.g. CS 11.5 → 14.0 cm, Hoecken 4-bar 15.9 → 20.0). William's reason for once putting one brace below the body.
+- **The swing:** each leg is a 4-bar hinged to the body, with a pendant on its coupler. Guides hold the pendant's angle to the body. Diag braces weld pendant to pendant across the body, which holds the pendants only through the hinges' resistance to twisting off their axes; in Bullet that stiffness comes from the solver, so at 40 iterations the leg assemblies swing. A real build's bearings would not. **This is a simulation artefact that handicaps the diag builds.** More iterations mostly remove it, but cost 1.6× the time (200 s a run against 127) and don't close the gap.
+- **Ruled out:** weld flex, link collisions, stalled cranks. **Not settled:** the weight and height (the weightless test was spoiled by soft welds), and what is left of the gap at 200 iterations.
+- **The low brace** (DIAG_ARCH=false, picture `cs_diag_braces.png`): the bottom brace lifted to 7 cm (BRACE_CLEARANCE), under the body. At that height it crosses the circles the cranks turn in, so the room turns off its contact with the walker's own parts (a real one would jam); it still meets the ground. It flatters the build a little.
 
 ## 6. Raw data from the last session (`data/`)
 
@@ -190,13 +208,22 @@ Same on flat; on waves every diag build is far slower (and turns: headings 270�
 | `conv.txt` | Step-size check at 70 and 981, with SINK (foot depth) |
 | `gaits_s4.txt` | Spears 4-bar's gaits, old standard |
 | `gd.txt` | Guides against diag braces, Earth standard (tools/gd.py) |
+| `diag.txt` | The diag diagnosis runs (diag_runs.sh, then 200 iterations and the FRAME lines) |
+| `com.txt` | Mass and centre-of-mass height, guides against diag (comprobe.lua) |
 | `logs_flat8.txt`, `logs_soft.txt`, `logs_rod.txt`, `logs_tips.txt`, `logs_tips_soft.txt` | Every build as built on logs, AMP 2/4/6, gravity 70, by foot (logs_all3.py); LOGS lines count face hits and kick-backs |
 
-All but `gd.txt` come before the current standard and are for the record, not results.
+All but `gd.txt`, `diag.txt` and `com.txt` come before the current standard and are for the record, not results.
 
 ## 7. Next: the factorial runs
 
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
+
+**Open issues to settle with William first** (they change what the factorial measures):
+
+1. **Diag builds and solver iterations.** At SOLVER_ITERATIONS 40 the diag builds' legs swing against the body (section 5), a simulation artefact that slows them. Choices: (a) everyone at 200 iterations: fair and equal, factorial about 1.6× longer (about 43 hours instead of 27); (b) only the diag builds at 200: cheaper but unequal settings; (c) keep 40 and say in the results that diag builds are handicapped by the simulation. Check first whether 200 changes the guides and own-frame builds at all (a few runs); if not, (b) is equal in effect.
+2. **What else makes diag slow.** Even at 200 iterations, CS diag 4.37 and HS4 diag 2.39 against about 7.5 on guides. Next tests (about 6 runs, 10 minutes, waves 4): weightless braces at 200 iterations (separates weight and height from the swing); both bracings at 200 on random, logs and steps. Watch a diag build in the GUI for the moment it sticks (William saw CS diag run fine, then stick).
+3. **The low brace.** William once put one brace below the body to lower the centre of mass; it was hard for some walkers (it crosses the crank circles). The room's version (DIAG_ARCH=false) passes through the cranks, which a real build can't. Decide whether to make a buildable low brace (under the crank circles), or leave the arched braces.
+4. **Cuts still open:** testing direction at trot only, and picking 1 best per linkage instead of 2 (below). Mirror-image walks are already cut.
 
 **Configurations: 70** (`tools/factorial7/run7.py list` prints them).
 - Jansen, Klann and Spears 4-bar on their own frames: trot, bound, and four 4-beat walks (6 gaits; Spears 4-bar adds its own 0/225/180/225 for 7). Of the six orders of 90/180/270, two pairs are the same walk with the sides swapped, so one of each pair is run (William: "That is safe.").
@@ -225,7 +252,7 @@ Ways to cut, if he wants:
 - Full at seed 1 only: halves stage B (about 9 hours), but one start is noisy (see the step check).
 - Test direction at trot only, and run the gait search in the better direction: drops about 22 configurations. Risk: the best direction may depend on the gait.
 - Pick 1 best per linkage instead of 2, and its trot in the better direction only: stage B from about 36 to about 24 configurations (about 12 hours). Risk: a runner-up that would do better on the full set never gets there.
-- **Not** guides: they run differently from diag braces (section 5), so both stay.
+- **Not** guides: they run differently from diag braces (section 5), so both stay. (If diag ends up handicapped by the simulation, guides are the fair stand-in for a braced build: see open issue 1.)
 - Shorter logs sweep (5, 6, 7 cm): saves about 15% of stage B.
 
 **Report to William**
@@ -273,6 +300,9 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 | File | Adds |
 |---|---|
 | `tiltprobe.lua` | `TILT`: largest pitch and roll, heading change |
+| `diagprobe.lua` with `diag_runs.sh` | `TILT`, `CRANK` (turns, stalls), `WELD` (brace weld drift), `SELF` (parts touching, by pair), `GROUND` (non-foot parts on the ground), `FRAME` (parts turning least against the body). Needs `w.joints`, which walker-room.lua keeps since patch 23 |
+| `comprobe.lua` | Mass and centre-of-mass height at build (env `COM_OUT`, global `LABEL`) |
+| `lowshot.lua` | Screenshot of the test-track walker at frame SHOT_AT, camera CAM = {dx, y, dz, look y} from the body. Run under `xvfb-run -a -s "-screen 0 1600x1000x24" bpp -geometry 1600x1000+0+0 file.lua` with env SHOT_OUT; needs xwd and convert |
 | `standprobe.lua` | Body height (mean, lowest), roll, how far joints pull apart |
 | `sinkprobe.lua` | `SINK`: how deep feet go into the ground |
 | `linkprobe3.lua` with `jamcheck2.py ["extra lua"]` | Links touching, body on ground, on four terrains |

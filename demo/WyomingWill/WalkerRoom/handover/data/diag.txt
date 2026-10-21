@@ -1,0 +1,73 @@
+== CS guides seed 1
+TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 444.1 cm|7.40 cm/s|sideways -71.4 cm|stood up 0|air 0.1%
+TILT Chebyshev-Spears|pitch max 12.1|roll max 11.8
+CRANK Chebyshev-Spears|turns 28.6|wanted 30.4|nearly stopped 0.0 s
+WELD Chebyshev-Spears|0 welds|drift max 0.000 cm, mean 0.0000 cm|angle max 0.00, mean 0.000 deg
+SELF Chebyshev-Spears|any 0.0%|
+GROUND Chebyshev-Spears|makeLink 4.2%
+== CS diag seed 1
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 126.7 cm|2.11 cm/s|sideways 78.9 cm|stood up 0|air 0.0%
+TILT Chebyshev-Spears diag|pitch max 10.1|roll max 10.7
+CRANK Chebyshev-Spears diag|turns 30.1|wanted 32.8|nearly stopped 0.0 s
+WELD Chebyshev-Spears diag|2 welds|drift max 0.037 cm, mean 0.0015 cm|angle max 1.26, mean 0.037 deg
+SELF Chebyshev-Spears diag|any 0.2%|makeLink-makeLink 0.2%
+GROUND Chebyshev-Spears diag|body 3.1%, makeLink 20.3%
+== CS diag low brace seed 1
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 155.3 cm|2.59 cm/s|sideways 72.1 cm|stood up 0|air 0.0%
+TILT Chebyshev-Spears diag|pitch max 8.0|roll max 16.1
+CRANK Chebyshev-Spears diag|turns 32.9|wanted 32.8|nearly stopped 0.0 s
+WELD Chebyshev-Spears diag|4 welds|drift max 0.110 cm, mean 0.0047 cm|angle max 1.30, mean 0.051 deg
+SELF Chebyshev-Spears diag|any 0.2%|makeLink-makeLink 0.2%
+GROUND Chebyshev-Spears diag|body 2.8%, makeLink 4.6%
+== CS diag light seed 1
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 68.3 cm|1.14 cm/s|sideways 5.8 cm|stood up 0|air 0.0%
+TILT Chebyshev-Spears diag|pitch max 10.0|roll max 13.0
+CRANK Chebyshev-Spears diag|turns 33.0|wanted 32.8|nearly stopped 0.0 s
+WELD Chebyshev-Spears diag|2 welds|drift max 0.359 cm, mean 0.0340 cm|angle max 2.24, mean 0.217 deg
+SELF Chebyshev-Spears diag|any 0.0%|
+GROUND Chebyshev-Spears diag|makeLink 7.0%
+== CS guides seed 2
+TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 454.1 cm|7.57 cm/s|sideways 33.5 cm|stood up 0|air 0.1%
+TILT Chebyshev-Spears|pitch max 11.2|roll max 14.2
+CRANK Chebyshev-Spears|turns 28.5|wanted 30.4|nearly stopped 0.0 s
+WELD Chebyshev-Spears|0 welds|drift max 0.000 cm, mean 0.0000 cm|angle max 0.00, mean 0.000 deg
+SELF Chebyshev-Spears|any 0.0%|
+GROUND Chebyshev-Spears|makeLink 3.2%
+== CS diag seed 2
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 113.7 cm|1.89 cm/s|sideways 67.6 cm|stood up 0|air 0.1%
+TILT Chebyshev-Spears diag|pitch max 20.5|roll max 15.9
+CRANK Chebyshev-Spears diag|turns 32.8|wanted 32.8|nearly stopped 0.0 s
+WELD Chebyshev-Spears diag|2 welds|drift max 0.034 cm, mean 0.0013 cm|angle max 1.30, mean 0.036 deg
+SELF Chebyshev-Spears diag|any 0.8%|makeLink-makeLink 0.8%
+GROUND Chebyshev-Spears diag|body 5.4%, makeLink 10.4%
+== HS4 guides seed 1
+TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 463.8 cm|7.73 cm/s|sideways 84.7 cm|stood up 0|air 0.1%
+TILT Hoecken-Spears 4-bar|pitch max 10.8|roll max 15.3
+CRANK Hoecken-Spears 4-bar|turns 27.2|wanted 28.3|nearly stopped 0.0 s
+WELD Hoecken-Spears 4-bar|0 welds|drift max 0.000 cm, mean 0.0000 cm|angle max 0.00, mean 0.000 deg
+SELF Hoecken-Spears 4-bar|any 0.0%|
+GROUND Hoecken-Spears 4-bar|makeLink 7.0%
+== HS4 diag seed 1
+TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 165.1 cm|2.75 cm/s|sideways 75.0 cm|stood up 0|air 0.1%
+TILT Hoecken-Spears 4-bar diag|pitch max 9.4|roll max 13.1
+CRANK Hoecken-Spears 4-bar diag|turns 29.8|wanted 30.1|nearly stopped 0.0 s
+WELD Hoecken-Spears 4-bar diag|2 welds|drift max 0.028 cm, mean 0.0018 cm|angle max 0.80, mean 0.060 deg
+SELF Hoecken-Spears 4-bar diag|any 0.0%|makeLink-makeLink 0.0%
+GROUND Hoecken-Spears 4-bar diag|makeLink 13.9%
+DG DONE
+== solver iterations 200, seed 1
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 262.2 cm|4.37 cm/s|sideways 80.0 cm|stood up 0|air 0.0%
+WELD Chebyshev-Spears diag|2 welds|drift max 0.003 cm, mean 0.0002 cm|angle max 0.23, mean 0.003 deg
+GROUND Chebyshev-Spears diag|makeLink 10.2%
+FRAME Chebyshev-Spears diag|parts turning least against the body, mean/max deg|makeLink 0.05/0.7, makeLink 0.05/0.7, buildDiagonalCrossbar 0.05/0.7, makeLink 0.07/1.6, buildArchedCrossbar 0.07/1.6, makeLink 0.09/1.8, buildArchedCrossbar 0.09/1.6, buildArchedCrossbar 0.09/1.9
+202 s
+TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 143.5 cm|2.39 cm/s|sideways 77.8 cm|stood up 0|air 0.1%
+WELD Hoecken-Spears 4-bar diag|2 welds|drift max 0.005 cm, mean 0.0001 cm|angle max 0.23, mean 0.014 deg
+GROUND Hoecken-Spears 4-bar diag|body 0.2%, makeLink 7.8%
+FRAME Hoecken-Spears 4-bar diag|parts turning least against the body, mean/max deg|makeLink 0.03/0.8, makeLink 0.03/0.8, buildDiagonalCrossbar 0.03/0.8, makeLink 0.08/1.4, buildArchedCrossbar 0.09/1.5, makeLink 0.10/2.1, buildArchedCrossbar 0.10/1.6, buildArchedCrossbar 0.10/2.6
+200 s
+== FRAME lines, 40 iterations, seed 1
+TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 444.1 cm|7.40 cm/s|sideways -71.4 cm|stood up 0|air 0.1%
+FRAME Chebyshev-Spears|parts turning least against the body, mean/max deg|makeLink 0.01/0.1, makeLink 0.01/0.4, makeLink 0.03/0.3, makeLink 0.05/0.3, buildFoot 10.95/41.9, buildFoot 11.52/37.2, buildFoot 12.69/45.5, buildFoot 12.93/91.8
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 126.7 cm|2.11 cm/s|sideways 78.9 cm|stood up 0|air 0.0%
+FRAME Chebyshev-Spears diag|parts turning least against the body, mean/max deg|buildDiagonalCrossbar 0.33/4.9, makeLink 0.33/4.8, makeLink 0.34/4.8, buildArchedCrossbar 0.90/7.8, buildArchedCrossbar 0.91/7.8, makeLink 0.95/7.8, makeLink 0.98/9.9, buildArchedCrossbar 1.03/11.8

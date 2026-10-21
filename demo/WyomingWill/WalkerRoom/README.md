@@ -1004,7 +1004,8 @@ it pitching and rolling as well as turning off course), `YAW_DAMP` (0-1:
 the body's turning about the vertical damped this much each frame, its
 pitch and roll left free; with it a walker standing on one side's feet
 tips toward the lifted side, as a four-legged walker would, and the
-trotting walkers keep going), `BRACE_CLEARANCE` (cm, 7: braces at
+trotting walkers keep going), `DIAG_LIGHT` (k, a test: every brace --
+plates, diag and arched bars -- weighs k times what it would), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
 walkers, as in `foot-path-variants.lua`), `TERRAIN` ("waves", "random", "logs" or
 "steps"; `TERRAIN_SEED` picks the landscape, default `SEED`), `REVERSE` (true: every walker's cranks run
