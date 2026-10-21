@@ -418,9 +418,11 @@ end
 --   turned slowly (the mean over its feet). The scale is STRIDE /
 --   stride. Measured the same way, every build's foot path matches
 --   Walking_Linkages.lua's (and the linkage reference's) duty, lift and
---   flatness, except that the diag walkers' braces hold their legs at a
---   slightly different angle (Chebyshev diag: lift 13% against 16%;
---   Chebyshev-Spears diag: 23-25% against 26%).
+--   flatness. (Four diag builds -- Chebyshev, Chebyshev-Spears, Hoecken
+--   4-bar and Hoecken-Spears 4-bar diag -- had their stride recorded
+--   10-24% too long, so they were built 9-19% too small, with lower
+--   lift; the "different angle" once blamed for their lower lift was
+--   that. Now each walks the 15 cm stride on its guides cousin's path.)
 -- chassis: the build options that give it the room's chassis, so that
 --   only its linkage differs from the others': body clearance CLEARANCE
 --   (its body's lowest point above flat ground, walking), front-to-back
@@ -474,11 +476,11 @@ local WALKERS = {
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
   { name = "Chebyshev", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = false }, wide = { cube_d = 6.848 }, brace = { gap = 1.03 }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.239, linkageSpacing = 10.995, cube_d = 0.5 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", bodyShift = 3.83, frame = { length = 46.1, x = -3.83 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 8.469 }, brace = { gap = 1.51, diag = true, rise = 10 }, advance = 20.003, parts = "Chebyshev_diag_parts.lua", stride = 5.827, chassis = { bodyRaise = 0.073, linkageSpacing = 13.596, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 6.839 }, brace = { gap = 1.83, diag = true, rise = 10 }, advance = 24.794, parts = "Chebyshev_diag_parts.lua", stride = 4.7057, chassis = { bodyRaise = -0.778, linkageSpacing = 10.981, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
   { name = "Chebyshev-Spears", bodyShift = 3.36, frame = { length = 43.5, x = -3.36 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = false }, wide = { cube_d = 15.221 }, brace = { gap = 0.94 }, advance = 17.691, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.296, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180 } },
-  { name = "Chebyshev-Spears diag", bodyShift = 2.95, frame = { length = 43.3, x = -2.95 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 15.719 }, brace = { gap = 1.45, diag = true, rise = 10 }, advance = 16.374, parts = "Chebyshev_Spears_diag_parts.lua", stride = 11.558, chassis = { bodyRaise = 2.490, linkageSpacing = 26.969, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", bodyShift = 3.42, frame = { length = 43.5, x = -3.42 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 14.245 }, brace = { gap = 1.60, diag = true, rise = 10 }, advance = 18.088, parts = "Chebyshev_Spears_diag_parts.lua", stride = 10.4745, chassis = { bodyRaise = 1.722, linkageSpacing = 24.441, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
   { name = "Hoecken 4-bar", bodyShift = 5.52, frame = { length = 47.8, x = -5.52 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, wide = { cube_d = 8.001 }, brace = { gap = 3.22 }, advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.319, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },

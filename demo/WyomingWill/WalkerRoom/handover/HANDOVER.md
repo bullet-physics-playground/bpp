@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 23 (this handover's update: the diag-brace findings and open issues).
+Number patches `walker-room-NN-<what>.patch`. The last was 24 (four diag builds brought to the 15 cm stride, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -59,7 +59,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 23 (this handover's u
 - `view-all.lua` may sit untracked in the room folder. It isn't ours; leave it.
 
 **Build**
-- Packages (Ubuntu 24.04): see the repo's `Dockerfile` and `debian/`. Also install `xvfb imagemagick lua5.1` (luac, for checking generated Lua).
+- Packages (Ubuntu 24.04): see the repo's `Dockerfile` and `debian/`. Also install `xvfb imagemagick lua5.1` (luac, for checking generated Lua), **`openscad`** and `pip install --break-system-packages shapely matplotlib`. Without OpenSCAD the body letters aren't made; they are look-only, but the missing objects change a chaotic run (CS diag, waves 4, seed 1: 1.77 against 2.11 with them), so runs don't repeat earlier ones.
 - Qt5 qmake, out of tree:
   ```
   mkdir -p /home/claude/build && cd /home/claude/build
@@ -198,6 +198,13 @@ Same on flat; on waves every diag build is far slower (and turns: headings 270�
 - **Ruled out:** weld flex, link collisions, stalled cranks. **Not settled:** the weight and height (the weightless test was spoiled by soft welds), and what is left of the gap at 200 iterations.
 - **The low brace** (DIAG_ARCH=false, picture `cs_diag_braces.png`): the bottom brace lifted to 7 cm (BRACE_CLEARANCE), under the body. At that height it crosses the circles the cranks turn in, so the room turns off its contact with the walker's own parts (a real one would jam); it still meets the ground. It flatters the build a little.
 
+**Four diag builds were built too small** (patch 24, 21 October; picture `diag_stride_fix.png`). Chebyshev diag, Chebyshev-Spears diag, Hoecken 4-bar diag and Hoecken-Spears 4-bar diag had their `stride` recorded 10–24% too long, so the room built them 9–19% too small: foot travel 12.1, 13.6, 12.8 and 13.5 cm instead of 15, lift 2.31, 4.22, 2.60, 4.39 against their guides cousins' 2.86, 4.65, 3.05, 4.88. For CS and HS4 diag every link was 0.90 of its guides cousin's (crank, coupler), so it was size, not a different path; Chebyshev and Hoecken 4-bar diag use different files from their cousins, so only their paths were compared. (Long-stance, lift 44 and lift 53 diag were right.) Fixed by fitting, with the sweep: stride to 15.00 cm, `linkageSpacing` to base 35.00, `bodyShift` to balance within 0.01 cm (frame.x = −bodyShift), frame to the leg mounts ±3 cm, `bodyRaise` to the guides cousin's body clearance, `wide.cube_d` to the 38 cm stance (stancefix.py), `brace.gap` measured, and `advance` scaled by the measured change. CS diag and HS4 diag fitted to their cousins' own stride and spacing (10.4745 against 10.473, 24.441 against 24.436), as they should for the same linkage. Each fixed foot path lies on its cousin's. Checks: links touch ≤0.3%, body never on the ground, no jams (jamcheck2 on four terrains); every link >4 cm from the feet. **So every guides-against-diag number above for those four builds compared unequal walkers and is void** (`gd.txt`, `diag.txt`, `com.txt`); the patterns below are what to re-check.
+
+**Diag on waves, what else was found** (same day, before the size fix, waves 4, Earth standard; tools `stallprobe.lua`, `pathprobe.lua`):
+- Not the 2 m track's walls: CS diag stalls 50 cm from the wall; on a 20 m wide track it still stalls. Diag veers right from the first second; guides don't.
+- In a stall the cranks turn at full speed, the feet slide (8 cm/s against 4 on guides) and a leg's link drags on the ground (front-right, 14% against 3%).
+- Holding each brace piece at its angle to the body (as guides hold the legs; `HOLD_BRACES=true` in stallprobe.lua) roughly doubled speed (CS 2.53 → 4.15, 3 seeds; HS4 2.75 → 5.17; lift 44 diag, which was full size, 2.27 → 5.96 against 6.95 on guides) and cut CS's stuck time from 19 s to 4 s: the twisting is a large part. Held and nearly weightless (DIAG_LIGHT=0.05), CS 6.09 against 6.94 on guides; HS4 5.37 against 7.75, the rest then unexplained; possibly its size, now fixed, but untested.
+
 ## 6. Raw data from the last session (`data/`)
 
 | File | What it is |
@@ -212,7 +219,7 @@ Same on flat; on waves every diag build is far slower (and turns: headings 270�
 | `com.txt` | Mass and centre-of-mass height, guides against diag (comprobe.lua) |
 | `logs_flat8.txt`, `logs_soft.txt`, `logs_rod.txt`, `logs_tips.txt`, `logs_tips_soft.txt` | Every build as built on logs, AMP 2/4/6, gravity 70, by foot (logs_all3.py); LOGS lines count face hits and kick-backs |
 
-All but `gd.txt`, `diag.txt` and `com.txt` come before the current standard and are for the record, not results.
+All but `gd.txt`, `diag.txt` and `com.txt` come before the current standard and are for the record, not results. In those three, the rows for Chebyshev, Chebyshev-Spears, Hoecken 4-bar and Hoecken-Spears 4-bar diag are void too (built too small; patch 24).
 
 ## 7. Next: the factorial runs
 
@@ -300,6 +307,9 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 | File | Adds |
 |---|---|
 | `tiltprobe.lua` | `TILT`: largest pitch and roll, heading change |
+| `stallprobe.lua` | `STALL` each second: x, z, heading, tilt, crank turns, feet down (FL/FR/BL/BR), foot slide, other parts on the ground. `HOLD_BRACES=true` also holds each diag brace piece at its angle to the body |
+| `pathprobe.lua` | `PATH` each second: x, z, heading |
+| `clearprobe.lua` with `clear.sh` | `CLEAR`: body's clearance on flat (mean, lowest), feet, low brace. Reads about 0.1 cm above the lost chassisprobe2, so match builds to each other with it, not to 12 |
 | `diagprobe.lua` with `diag_runs.sh` | `TILT`, `CRANK` (turns, stalls), `WELD` (brace weld drift), `SELF` (parts touching, by pair), `GROUND` (non-foot parts on the ground), `FRAME` (parts turning least against the body). Needs `w.joints`, which walker-room.lua keeps since patch 23 |
 | `comprobe.lua` | Mass and centre-of-mass height at build (env `COM_OUT`, global `LABEL`) |
 | `lowshot.lua` | Screenshot of the test-track walker at frame SHOT_AT, camera CAM = {dx, y, dz, look y} from the body. Run under `xvfb-run -a -s "-screen 0 1600x1000x24" bpp -geometry 1600x1000+0+0 file.lua` with env SHOT_OUT; needs xwd and convert |
@@ -312,6 +322,9 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 
 | File | What it does |
 |---|---|
+| `geo.py` | From a sweep: stride, lift, base, balance offset, advance (advance within 0–4% of the recorded values) |
+| `fit.py`, `fitraise.py` | Fit one build's stride, linkageSpacing, bodyShift (and frame.x, advance); its bodyRaise to a clearance. Patch 24 |
+| `draw24.py` | Patch 24's picture |
 | `footlift.py` → `footlift.json` | Foot lift over the path from `sweep2/` (made by `sweep_all.sh`). The json was made 18 October, after patch 13; an7.py uses its "lift" values. The sweeps themselves were lost in a container restart, so rerun `sweep_all.sh` before regenerating. |
 | `mountprobe.lua`, `mount_all.sh` | Frame ends and leg mounts |
 | `planprobe.lua`, `plan_all.sh OUT` (absolute path), `plan_draw.py` | Top-view picture of all builds |
