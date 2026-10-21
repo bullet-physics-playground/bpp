@@ -874,6 +874,12 @@ builds, each as built (its own timing, forward, its own crank speed), for
 looking them over. `test-square-soft.lua` is that, with every foot on a soft-spring
 ankle (`ANKLE_SPRING`, below). `test-square-yaw.lua` is that with the body free to pitch and
 roll (`YAW_DAMP`, below), then the builds that can trot, trotting.
+`test-square-earth.lua` is that at Earth gravity (`GRAVITY = 981`), with
+the physics step 4 times shorter (`FIXED = 1/3840`: everything happens
+3.7 times faster than at 70, and at 1/960 the joints give and the feet
+sink -- Jansen trotting on flat ground made 3.6 cm/s with its body 3 cm
+low and rolling 23 degrees, at 1/3840 10.0 cm/s, 0.5 cm low and 1 degree)
+and the ankle springs 14 times stiffer.
 
 ## Telling the walkers apart
 
