@@ -10,7 +10,7 @@
 #
 # Resumable: finished runs are skipped. 2 runs at once (2 CPUs).
 # Lines written: <terrain>|TRACK ...|TILT ...
-import json, os, re, subprocess, sys, tempfile, itertools
+import json, os, re, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 ROOM = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"
 BPP = "/home/claude/build/release/bpp"
@@ -24,7 +24,10 @@ TW = 'dofile("trotting-walkers.lua")'
 # Leg order in GAIT: side A leg 1, side A leg 2, side B leg 1, side B leg 2.
 TROT = (0, 180, 180, 0)
 GAITS = {"trot": TROT, "bound": (0, 180, 0, 180)}
-for p in itertools.permutations((90, 180, 270)):            # the six 4-beat walks
+# The 4-beat walks: of the six orders of 90/180/270, two pairs are the same
+# walk with the sides swapped (0/90/270/180 = 0/270/90/180, 0/180/90/270 =
+# 0/180/270/90), so one of each pair; the other two are their own mirrors.
+for p in ((90, 180, 270), (270, 180, 90), (90, 270, 180), (180, 90, 270)):
     GAITS["walk " + "-".join(str(x) for x in (0,) + p)] = (0,) + p
 OWN_S4 = (0, 225, 180, 225)                                  # Spears 4-bar as built
 def G(t): return "GAIT={%d,%d,%d,%d}" % t

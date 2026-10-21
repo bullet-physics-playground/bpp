@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 21 (this handover).
+Number patches `walker-room-NN-<what>.patch`. The last was 22 (this handover's update).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -118,7 +118,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 21 (this handover).
 | YAW_DAMP | **1**. The body is free to pitch and roll; only its turning about the vertical is damped (in preSim). The walkers' own files set angular damping 1.0 every way (a "straight-line fix"), which held up walkers standing on one side's feet. | set per run |
 | ANKLE_SPRING | **{stiffness = 42000, damping = 4200}**. Soft-spring ankles: each foot hinged to its leg and held level to the body by a soft spring, so it lands level and can rock on a bump. ×14 the value at gravity 70 (3000/300), to match. William: "I like the soft feet. It looks natural." | set per run |
 | SAME_BODY, SAME_FEET, WIDE, LINK_THICK, PLANE_GAP, BALANCE, BAR_MASS, SOLVER_ITERATIONS 40, LOCK_CRANKS | as patch 13 (section 8) | walker-room.lua defaults |
-| Gaits | **No sides gaits.** Trot, bound, the six 4-beat walks, and Spears 4-bar's own timing. | run7.py |
+| Gaits | **No sides gaits.** Trot, bound, four 4-beat walks (the other two are mirror images), and Spears 4-bar's own timing. | run7.py |
 
 `test-square-earth.lua` is this standard for watching.
 
@@ -159,6 +159,20 @@ All forward. Raw data: `data/damp6.txt`. Freeing the body costs every walker som
 
 **Spears 4-bar gaits** (`data/gaits_s4.txt`, old standard, now void): with damping 1.0 and welded feet, sides reversed was best at 7.00. Not valid under the free body.
 
+**Guides are not diag braces** (21 October, `data/gd.txt`, `tools/gd.py`). Guides (UNBRACED) are an ideal, weightless joint holding each leg at its angle to the body; diag braces are real bars, weighed like the rest, welded leg to leg across the body. Both trot. Earth standard, forward, own crank speed, seed 1, cm/s, guides / diag:
+
+| Linkage | Flat | Waves 4 | Logs 5 | Steps 4 |
+|---|---|---|---|---|
+| Chebyshev | 9.04 / 9.11 | 4.73 / 2.11 | 4.02 / 0.59 | 6.76 / 5.78 |
+| Chebyshev-Spears | 9.40 / 9.45 | 7.40 / 2.11 | 7.22 / 4.59 | 8.48 / 8.31 |
+| Hoecken 4-bar | 9.01 / 8.55 | 6.61 / 2.22 | 1.52 / 2.19 | 6.83 / 5.76 |
+| Hoecken-Spears 4-bar | 9.20 / 8.90 | 7.73 / 2.75 | 6.63 / 5.26 | 8.27 / 7.97 |
+| Hoecken-Spears long-stance | 9.51 / 8.84 | 8.39 / 5.49 | 2.21 / 2.18 | 8.33 / 7.70 |
+| Spears lift 44 | 8.92 / 8.82 | 6.95 / 2.27 | 7.92 / 8.16 | 8.37 / 8.15 |
+| Spears lift 53 | 8.89 / 8.90 | 5.48 / 0.63 | 7.45 / 7.22 | 7.92 / 7.95 |
+
+Same on flat; on waves every diag build is far slower (and turns: headings 270–335° at the end, against about 0° on guides); closer on logs and steps. One seed, so single numbers are noisy, but the waves gap is in all seven. The cause is not known yet; worth watching a diag build on waves in the GUI. **So both bracings stay in the factorial**, and the tables show what the bracing costs.
+
 **The body now counts, not just the linkage** (21 October). William, watching at the new standard: "Now that the body can pitch, and the gravity has increased, the body can dip on one side, raising the feet on the other side. Some walkers can now clear logs of height 7." Agreed, after some discussion:
 - The **free-body result is the main result**. A real build rocks too.
 - The **linkage alone** is measured by the foot's lift from the geometry (`tools/footlift.py` → `footlift.json`; the "lift" values). It's cleaner than any locked-body run, because a damped body is neither the real machine nor the linkage alone.
@@ -175,16 +189,17 @@ All forward. Raw data: `data/damp6.txt`. Freeing the body costs every walker som
 | `grav.txt` | Gravity 70 against 981 (981 lines here are at the old step and invalid; the valid 981 check is in `conv.txt`) |
 | `conv.txt` | Step-size check at 70 and 981, with SINK (foot depth) |
 | `gaits_s4.txt` | Spears 4-bar's gaits, old standard |
+| `gd.txt` | Guides against diag braces, Earth standard (tools/gd.py) |
 | `logs_flat8.txt`, `logs_soft.txt`, `logs_rod.txt`, `logs_tips.txt`, `logs_tips_soft.txt` | Every build as built on logs, AMP 2/4/6, gravity 70, by foot (logs_all3.py); LOGS lines count face hits and kick-backs |
 
-All of these come before the current standard and are for the record, not results.
+All but `gd.txt` come before the current standard and are for the record, not results.
 
 ## 7. Next: the factorial runs
 
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
-**Configurations: 82** (`tools/factorial7/run7.py list` prints them).
-- Jansen, Klann and Spears 4-bar on their own frames: trot, bound, and the six 4-beat walks (8 gaits; Spears 4-bar adds its own 0/225/180/225 for 9).
+**Configurations: 70** (`tools/factorial7/run7.py list` prints them).
+- Jansen, Klann and Spears 4-bar on their own frames: trot, bound, and four 4-beat walks (6 gaits; Spears 4-bar adds its own 0/225/180/225 for 7). Of the six orders of 90/180/270, two pairs are the same walk with the sides swapped, so one of each pair is run (William: "That is safe.").
 - The other nine linkages (Chebyshev, Chebyshev-Spears, Hoecken 4-bar, Hoecken slider, Hoecken-Spears slider, Hoecken-Spears 4-bar, Hoecken-Spears long-stance, Spears lift 44, Spears lift 53): trot on diag braces (not the sliders) and trot on guides.
 - Each both forward and reversed.
 - Leg order in GAIT: side A leg 1, side A leg 2, side B leg 1, side B leg 2. Trot is {0,180,180,0}, bound {0,180,0,180}, sides (dropped) {0,0,180,180}.
@@ -202,13 +217,15 @@ Run each stage with `setsid nohup python3 /home/claude/bpp/demo/WyomingWill/Walk
 
 | Stage | Runs | Time |
 |---|---|---|
-| Screen | 82 × (2–6 calibration + 4), about 550–650 | about 10–12 hours |
+| Screen | 70 × (2–6 calibration + 4), about 470–550 | about 8.5–10 hours |
 | Full | about 36 picked × 28, about 1000 | about 18 hours |
-| Total | | **about 30 hours** |
+| Total | | **about 27 hours** |
 
 Ways to cut, if he wants:
 - Full at seed 1 only: halves stage B (about 9 hours), but one start is noisy (see the step check).
-- Screen the 4-beat walks only for Spears 4-bar: drops 24 configurations, about 3.5 hours.
+- Test direction at trot only, and run the gait search in the better direction: drops about 22 configurations. Risk: the best direction may depend on the gait.
+- Pick 1 best per linkage instead of 2, and its trot in the better direction only: stage B from about 36 to about 24 configurations (about 12 hours). Risk: a runner-up that would do better on the full set never gets there.
+- **Not** guides: they run differently from diag braces (section 5), so both stay.
 - Shorter logs sweep (5, 6, 7 cm): saves about 15% of stage B.
 
 **Report to William**
@@ -271,7 +288,7 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 | `sweepprobe.lua`, `sweep_all.sh`, `sweep_roles.sh`, `planes.py` | Link sweeps and fewest planes |
 | `balance.py`, `footclear.py`, `raisefix2.py`, `stancefix.py`, `plan_an.py` | Balance, foot clearance, body height, stance |
 
-**Older drivers** (resumable; paths and settings at the top): `terrains.py` (feet), `damp6.py` (damping), `gaits_s4.py` (Spears 4-bar gaits), `logs_all3.py` (every build on logs).
+**Older drivers** (resumable; paths and settings at the top): `gd.py` (guides against diag), `terrains.py` (feet), `damp6.py` (damping), `gaits_s4.py` (Spears 4-bar gaits), `logs_all3.py` (every build on logs).
 
 ## 10. Lessons
 
