@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F65 so far), and
+  implementations, and our own mistakes once corrected (F1–F68 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -94,13 +94,15 @@ is updated at the end of every milestone.
 | `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder); `settle_drones.lua` measures settling with the Ch. 16.9 metrics for `lib/batch.py` |
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
+| `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
+| `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–41 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
+| `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9: rural, suburban, city centre, industrial port, harbour town) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
@@ -149,6 +151,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   `SEED` set (`lib/README.md`). Prefer it to hand-written sweep scripts.
 - **GUI under a virtual display:** `Xvfb :99 -screen 0 1600x1000x24 +extension GLX &`,
   `DISPLAY=:99`; screenshot with `import -window root`; keys with `xdotool`.
+  Open a scene in the GUI by naming it without `-f` (`bpp Formations-Lennard-Jones-Boat.lua`);
+  `-f` always runs without the GUI. The window starts small: `xdotool
+  windowsize` it. Software GL renders ~8 frames a second.
 - **Which Lua:** BPP links Lua 5.1 or 5.2 depending on the build (`bpp.pro`
   picks 5.2 on some Ubuntu releases; William's build is 5.2, the cloud
   workspace's 5.1); ask it with
@@ -159,9 +164,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"`
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -255,6 +260,26 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   `blocked`, `blockedAt`, `writeCPT`, `raster`, `sight` and `traps` see
   them; each layer draws as one mesh.
 
+- **The vehicle interface (G18, M2):** `lib/swarm.lua` is the harness for
+  every vehicle (it was `quadcopter/swarm.lua`, now an alias). AP senses,
+  runs the law and hands each agent one command: reach a point by the next
+  AP tick. A vehicle module (`quadcopter/vehicle.lua`, `ground/vehicle.lua`,
+  `boat/vehicle.lua`, `lib/ideal.lua`) does the rest; its fields are listed
+  in `lib/swarm.lua`'s header. The drones are bit for bit what they were.
+  New scenes: `Formations-<law>-<Vehicle>.lua` with `lib/laws.lua`.
+- **Ground robots and boats (M2; `BENCHMARK.md`, F66–F68):** the boats
+  (holonomic, 0.79 m/s) form and cross the field like the ideal particles
+  and the drones. The Pioneer robots (book: 0.5 m/s, 0.4 rad/s, wheels 0 or
+  ≥ 0.1 m/s) freeze where the force falls under friction × 0.1 m/s /
+  (metersPerUnit × apHz) = 0.2 AP units: LJ at 0.98–0.99 D, the split law
+  with η at 0.89 D (never formed), and in the field those caught behind
+  columns stay there (60–80% through). With the minimum set to 0 they match
+  the boats, so the minimum speed is the whole difference. Without η the
+  split law dithers at the minimum speed; Ch. 13's adaptive and static
+  friction do not get it to D (static friction's book scale is ~10% of
+  F(D), the dither is driven by the full step), and no vehicle touched a
+  column, so the speed cap has nothing to do. None was kept.
+
 ## 7. Where things stand and what's next
 
 - **Done: milestone M0** (build step 0): `lib/rng.lua`, `lib/batch.py` +
@@ -310,13 +335,30 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     porous by the plume (G14); the drain's manholes are drawn, not open
     shafts; generation takes up to 3.5 s, so a viewer slider rebuild is
     not instant.
-- **Next: M2:** the vehicle interface (G18), a ground robot (G10) and a
-  surface boat (G11), and the first cross-vehicle benchmark (formation,
-  and goal through obstacles) on drones, ground robots and boats. Ch. 13's
-  static friction and speed cap get their real test there (ground robots
-  have a minimum speed). The generator's worlds are ready for it:
-  `toBPP(v, { contact = true })` gives ground and streets that bodies can
-  drive on, `waterAt` the surface for boats.
+- **Done: milestone M2** (build step 2, 2026-10-21), in four patches:
+  1. the vehicle interface (`lib/swarm.lua`, `quadcopter/vehicle.lua`,
+     `lib/ideal.lua`, `checks/vehicles.sh`);
+  2. the ground robot (`ground/`, `lib/laws.lua`, the probe's contact and
+     field measures, `checks/vehicle_physics.lua`; F66);
+  3. the surface boat (`boat/`; F67);
+  4. the benchmark (`BENCHMARK.md`, `probes/benchmark.sh`; F68).
+  - **Answer to M2's question** (is the method vehicle-independent?):
+    **yes for the holonomic vehicles; for ground robots only without a
+    minimum speed** (§6).
+  - **Open from M2:** small moves for vehicles with a minimum speed, to
+    finish a lattice and leave a stall (the threshold formula is in §6;
+    candidates: the law's stiffness near D, a hop at the minimum speed for
+    the right time, apHz); the robot on the generator's streets
+    (`toBPP(v, { contact = true })`) and the boat on its water (`waterAt`)
+    instead of flat ground and a still sea; the Maxelbot (skid-steer,
+    G10); Ch. 13's dumbbell and the triangle of death (E6) on the robot;
+    benchmark tasks 3–4 and the other vehicles (`BOOK.md` §6).
+- **Next: M3** (build steps 3–5, `WORKFLOW.md` §5): Ch. 3 fidelity checks
+  (the G_t sweep with 3D, Disable One, Hooke, honeycomb), Ch. 4.3/Ch. 11
+  coverage against Tables 4.2, 11.1 and Fig. 4.19, then Ch. 4.1's perfect
+  formations, then velocity commands (G4), the point-mass vehicle (G5) and
+  kinetic theory (Ch. 4.4, Ch. 7). The vehicle interface makes the point
+  mass (G5) one more vehicle module.
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
@@ -337,7 +379,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
-> and continue with the next step in HANDOFF.md §7: milestone M2. Deliver each
+> and continue with the next step in HANDOFF.md §7: milestone M3. Deliver each
 > step as a patch with git commands.
 
 Attach the book PDF if the chat will need chapters beyond the notes,

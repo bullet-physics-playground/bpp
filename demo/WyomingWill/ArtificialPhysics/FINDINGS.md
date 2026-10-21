@@ -619,6 +619,25 @@ particles' 31–38 s and 72–116 s at the same lattices, and the drones'
 vehicle without a minimum speed needs none of Ch. 13's mechanisms beyond
 what the drones need.
 
+**F68. The cross-vehicle benchmark: the method is vehicle-independent
+except for a minimum speed** — 2026-10-21, New. Milestone M2,
+`BENCHMARK.md` (reproduce: `probes/benchmark.sh`). The same two tasks and
+law settings on ideal particles, quadcopters, ground robots and boats, 50
+agents, 2D triangle, seeds 1–3. Formation (formed, s; bond): LJ 31–38 /
+30–35 / 32 / 36–42 s at 1.00–1.01 D except the robots' 0.98–0.99;
+Newtonian with η 72–116 / 76–96 / never (0.89 D) / 78–98 s. Goal through
+the obstacle field (90% past its far edge): LJ 591–666 / 601–638 / never
+(60–70% past at 960 s) / 698–763 s; Newtonian 688–763 / 679–745 / never
+(68–80%) / 688–744 s. No vehicle touched a column. The holonomic vehicles
+match the particles. The robots fail only through the minimum wheel speed
+(F66): with it set to 0 as a control, the same robots, turning and all,
+form in 38–39 s (LJ) and 96–134 s (Newtonian) at 1.00 D and get through
+in 616–680 s and 694–778 s. In the field the minimum turns the slow escape
+of agents caught behind columns, which particles, drones and boats make,
+into a permanent stall: a robot whose summed force is under 0.2 AP units
+never moves again. The drones form the 3D lattices in 45–64 s, the ideal
+particles (launched at once, not in thirds) in 23–46 s.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -790,13 +809,14 @@ the field in Preferences) to get the default path back.
   works, as do switching η on after the lattice forms (F49) and a narrow
   band tied to D (F50). Whether the slope limit (~0.04–0.05 per AP unit)
   follows from the drones' lag and AP rate, and holds for other apHz.
-  Static friction and the adaptive speed cap on ground robots with a
-  minimum speed and real ranging (M2), and with sensor noise (G7); on the
-  drones they are not needed (F54, F55). And whether the next Ch. 13 mechanisms (adaptive and static
+  Static friction and the adaptive speed cap with sensor noise (G7) and
+  real ranging; on the drones they are not needed (F54, F55), and on ground
+  robots with perfect sensing static friction does not settle the split
+  law and the cap has no collisions to prevent (F66, F68). And whether the next Ch. 13 mechanisms (adaptive and static
   friction) settle the drones without η's loss of stiffness (F47).
 - Getting a 2D lattice from a pile faster than η's ~1.5 min (F59): LJ
   does it in 30–35 s, so the lead is the shape of the force law near D.
-- Ground robots with a minimum speed (F66): how to make the small moves
-  that finish a lattice and escape a stall behind a column. The
+- Ground robots with a minimum speed (F66, F68): how to make the small
+  moves that finish a lattice and escape a stall behind a column. The
   threshold is friction × v_min / (metersPerUnit × apHz) in AP force
   units, so the law's stiffness near D, apHz and friction all move it.

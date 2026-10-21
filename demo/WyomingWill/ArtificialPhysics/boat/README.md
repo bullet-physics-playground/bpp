@@ -57,7 +57,8 @@ goal, 180 s, seeds 1–3, `../probes/settle_drones.lua` (definitions in
 
 Within a few seconds of the ideal particles' times (LJ 31–38 s, Newtonian
 72–116 s) and with the same lattice: a holonomic vehicle with no minimum
-speed follows AP's point mass closely, as the drones do.
+speed follows AP's point mass closely, as the drones do. The other vehicles
+are in `../BENCHMARK.md`.
 
 ## Goal through obstacles (benchmark task 2)
 

@@ -66,9 +66,8 @@ changing side of D, per robot per minute):
 | Newtonian (η, the default) | never | 0.89 | 0.19–0.21 | 0 | 10⁻⁶ m/s (still) | 0 |
 | Newtonian without η | never | 0.93 | 0.17–0.18 | 141–151 | 0.09 m/s | 0 |
 
-The ideal particles and the drones form at 1.00 D (LJ 31–38 s and
-30–35 s, Newtonian 72–116 s and 76–96 s), and so do these robots with the
-minimum speed set to 0
+The ideal particles, drones and boats are in `../BENCHMARK.md`: they all
+form at 1.00 D, and so do these robots with the minimum speed set to 0
 (LJ in 38–39 s, CV 0.03; Newtonian in 96–134 s), so the minimum speed is
 the whole difference.
 
@@ -121,7 +120,7 @@ field's far edge.
 The robots that stop behind columns stay there for good: where the
 goal's pull and the columns' and neighbours' pushes nearly balance, the
 net force is under 0.2 and every wheel is in the gap, while particles,
-and drones creep out (both get 90% through in 590–760 s). A
+drones and boats creep out (all of them get 90% through in 590–760 s). A
 robot is also slower in the open: it must turn before it can follow a
 sideways command. No robot touched a column, so the adaptive speed cap
 (Eq. 13.24) has nothing to prevent here.

@@ -144,7 +144,7 @@ Most chapters need the same pieces. Build each once.
 | G15 | **Neighbour messages:** sensed values as well as positions; flooding broadcast | 4.1, 6, 9, 12, 19 |
 | G16 | **Metrics (lattice quality started, `lib/lattice.lua`; drone settling in `probes/settle_drones.lua`):** lattice quality (angles, Delaunay CV), coverage grids and KL divergence, chain metrics (MST), suggested-versus-actual position gap, energy and path length, Q versus P | all |
 | G17 | **Heading-dependent force terms:** elliptical zones, LOPF sectors | 4.2, 5, 12 |
-| G18 | **One interface for every vehicle (started, `lib/swarm.lua`: the quadcopter and the ideal vehicle, `lib/ideal.lua`):** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
+| G18 | **One interface for every vehicle (done, `lib/swarm.lua`: the quadcopter, the ideal vehicle `lib/ideal.lua`, the ground robot and the boat; the laws shared in `lib/laws.lua`):** physicomimetics outputs a desired velocity; an adapter per vehicle turns it into commands. Vehicles that cannot move sideways use Ch. 13's heading particle or dumbbell | 13, ★capstone, every vehicle port |
 | G19 | **Water:** the surface as a boundary, buoyancy, drag and currents (forces in Lua; BPP has no fluid simulation), and a plume carried by the current | 6, ★9, ★capstone |
 | G20 | **Underwater sensing and comms:** sound only, ~1500 m/s, delayed and low-bandwidth; no GPS or radio below the surface; surface boats as gateways between sound and radio | ★6, ★capstone |
 | G21 | **World generator (core and book presets done, `lib/world.lua`; realistic layers done: `lib/terrain.lua`, `lib/town.lua`, `lib/buildings.lua`, `lib/features.lua`, `lib/vegetation.lua`, with the five realistic presets in `lib/places.lua`; wind and currents later):** our own seeded, parameterised 3D generator, modelled on real places: terrain, water with depth, zones from rural to city centre, streets, lots, buildings of varied footprint and floor count, vegetation, and the capstone's harbour features. Presets: rural, suburban, city centre, industrial port, harbour town, and the book's worlds. Nothing from the CPT map makers; it writes Zarzhitsky's map format only so his plume tools can check our port (§6) | 3, 4, 7, 9, 11, 12, 14, 15, ★§7, ★capstone |
@@ -557,9 +557,9 @@ work for the drones.
 ### New tasks
 | Task | Needs | Effort |
 | --- | --- | --- |
-| ★ **Cross-vehicle benchmark:** the same task with the same force-law settings on all five kinds of vehicle (quadcopter, fixed-wing, ground robot, surface boat, underwater vehicle), reporting the Ch. 16.9 measures for each: settling time, lattice quality, losses, and the gap between suggested and actual position | G18, G10, G11, G12 | medium |
-| ★ Benchmark task 1: formation (2D lattice; 3D for the vehicles that can) | G18 | easy per vehicle |
-| ★ Benchmark task 2: goal through obstacles (Ch. 3.6) | G18 | easy per vehicle |
+| ★ **Cross-vehicle benchmark** (started, `BENCHMARK.md`: quadcopters, ground robots, boats and the ideal particles, tasks 1–2; F68): the same task with the same force-law settings on all five kinds of vehicle (quadcopter, fixed-wing, ground robot, surface boat, underwater vehicle), reporting the Ch. 16.9 measures for each: settling time, lattice quality, losses, and the gap between suggested and actual position | G18, G10, G11, G12 | medium |
+| ★ Benchmark task 1: formation (2D lattice; 3D for the vehicles that can) (done for four vehicles) | G18 | easy per vehicle |
+| ★ Benchmark task 2: goal through obstacles (Ch. 3.6) (done for four vehicles) | G18 | easy per vehicle |
 | ★ Benchmark task 3: uniform coverage (Ch. 11) | G18, G4 | medium |
 | ★ Benchmark task 4: chain formation (Ch. 12) | G18, G8 | medium |
 | ★ ROV-style underwater vehicle (holonomic, hovers) | G11, G19 | medium |
@@ -726,7 +726,7 @@ Before porting a task, read its chapter note, read its `.nlogo` in `netlogo/`, e
 | --- | --- | --- |
 | 0 | **G2 shared RNG** (move the existing multiply-with-carry generator out of `Uniform_Coverage.lua`, add a seed setting) **+ G3 batch runner + G1 monitors + G21 world generator** (core and the first book presets), then Ch. 2's three tests | Every measurement and every world after this depends on them |
 | 1 | **Ch. 13 on the drones:** η → adaptive friction → static friction → adaptive cap, each switchable, measured with the Ch. 16.9 metrics on Newtonian 2D/3D over several seeds | The plan's step 1, now with four parts and acceptance metrics |
-| 2 | ★ **G18 vehicle interface + cross-vehicle benchmark**, first with ground robots (G10) and surface boats (G11) alongside the quadcopters: formation and goal through obstacles (§6) | Tests the vehicle-independence claim early and cheaply |
+| 2 | ★ **G18 vehicle interface + cross-vehicle benchmark**, first with ground robots (G10) and surface boats (G11) alongside the quadcopters: formation and goal through obstacles (§6). **Done (M2):** the claim holds for the holonomic vehicles; ground robots fail only through the minimum wheel speed (`BENCHMARK.md`, F68) | Tests the vehicle-independence claim early and cheaply |
 | 3 | Ch. 3 fidelity checks (G_t sweep incl. 3D, Disable One, Hooke, honeycomb) and Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19 | Cheap; firms up what is already "done" |
 | 4 | Ch. 4.1 perfect square → cube, then the triangle; Ch. 17 Method 2 as the alternative | The plan's step 2 |
 | 5 | G4 velocity commands + G5 point mass; Ch. 4.4 Couette and Ch. 7 theory checks | Opens all the kinetic-theory and quark work |
