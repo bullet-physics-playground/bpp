@@ -48,6 +48,48 @@
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 
+// A rigid body's gyroscopic term, solved together with its contacts and
+// joints, for bodies a script marks (body.gyroSolved = true: the flag
+// BPP_GYRO_MIDPOINT, Bullet's own gyroscopic flags off). Euler's equations
+// in the world frame are I dw/dt = -w x I w + torque. Before every step the
+// body's spin takes the linearly implicit midpoint step of them,
+// (I + dt/2 Jg) dw = -dt w x I w with Jg = d(w x I w)/dw = [w]x I - [I w]x,
+// and for this step the body answers the solver's impulses through
+// (I + dt/2 Jg)^-1 instead of I^-1, so the joints and contacts are solved
+// with the gyroscopic coupling in them. Bullet puts I^-1 back when it moves
+// the body at the end of the step (proceedToTransform). A free body keeps
+// its energy and angular momentum; a jointed chain of spinning bodies stays
+// stable, which it does not when the term is applied before the solve.
+// (Bullet's own term, applied outside the solve by backward Euler, takes
+// energy out of a tumbling body, and is not applied at all to a body whose
+// inertia's determinant is under FLT_EPSILON, as for small bodies in kg and
+// cm.) Unmarked bodies are untouched. No state of its own: one world's
+// step touches only that world's bodies.
+static void bppGyroPreTick(btDynamicsWorld *world, btScalar dt) {
+  btCollisionObjectArray &objs = world->getCollisionObjectArray();
+  for (int i = 0; i < objs.size(); i++) {
+    btRigidBody *b = btRigidBody::upcast(objs[i]);
+    if (b == nullptr || !(b->getFlags() & BPP_GYRO_MIDPOINT) ||
+        b->getInvMass() == 0 || !b->isActive() ||
+        b->isStaticOrKinematicObject())
+      continue;
+    const btMatrix3x3 &R = b->getWorldTransform().getBasis();
+    const btMatrix3x3 I = R.scaled(b->getLocalInertia()) * R.transpose();
+    const btVector3 w = b->getAngularVelocity();
+    const btVector3 Iw = I * w;
+    btMatrix3x3 Sw, SIw;                       // [w]x and [I w]x
+    w.getSkewSymmetricMatrix(&Sw[0], &Sw[1], &Sw[2]);
+    Iw.getSkewSymmetricMatrix(&SIw[0], &SIw[1], &SIw[2]);
+    const btMatrix3x3 A = I + (Sw * I - SIw) * (btScalar(0.5) * dt);
+    const btMatrix3x3 Ainv = A.inverse();
+    b->setAngularVelocity(w - Ainv * (w.cross(Iw) * dt));
+    // (Bullet hands out only a const reference to the body's inverse world
+    // inertia; the body is not const, and the next proceedToTransform
+    // overwrites it)
+    const_cast<btMatrix3x3 &>(b->getInvInertiaTensorWorld()) = Ainv;
+  }
+}
+
 #ifdef HAS_LIB_ASSIMP
 #include "objects/mesh.h"
 #include "objects/openscad.h"
@@ -910,6 +952,7 @@ int Viewer::newWorld() {
   w.dispatcher = new RestSkippingDispatcher(w.cfg);
   w.solver = new btSequentialImpulseConstraintSolver();
   w.world = new btSoftRigidDynamicsWorld(w.dispatcher, w.broadphase, w.solver, w.cfg);
+  w.world->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   w.world->setDebugDrawer(_debugDrawer);
   w.world->setGravity(btVector3(0.0f, -9.81f, 0.0f));      // (G, as clear() sets it)
   w.world->getWorldInfo().m_broadphase = w.broadphase;
@@ -1837,6 +1880,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _aabbSeen.clear();
   dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
+  dynamicsWorld->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   dynamicsWorld->getWorldInfo().m_broadphase = broadphase;
   dynamicsWorld->getWorldInfo().m_dispatcher = dispatcher;
   dynamicsWorld->getWorldInfo().m_gravity = dynamicsWorld->getGravity();
@@ -3157,6 +3201,7 @@ void Viewer::clear() {
   _aabbSeen.clear();
   dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
+  dynamicsWorld->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   dynamicsWorld->setDebugDrawer(_debugDrawer);
   dynamicsWorld->setGravity(btVector3(0.0f, -G, 0.0f));
   dynamicsWorld->getWorldInfo().m_broadphase = broadphase;

@@ -2,8 +2,8 @@
 -- 20 iterations, no contacts), every link spinning about its own axis at HG_S rad/s, a little
 -- turning across (HG_P rad/s, random). Physics: the spin is an equilibrium (twist is free); the
 -- links' turning across should stay small and the total energy should not grow.
--- HG_GYRO = exact | midpoint | implicit (Lua, before each step) | ab2 | euler1 | gyrostat | solver (needs a bpp
--- with reconstruction/bpp-gyro-midpoint.diff) | 0 ; HG_STEPS steps a second, HG_N links, HG_ERP, HG_IT, HG_P2P=1
+-- HG_GYRO = exact | midpoint | implicit (Lua, before each step) | ab2 | euler1 | gyrostat | solver (body.gyroSolved,
+-- flag 1024: bpp since 20 Oct 2026) | 0 ; HG_STEPS steps a second, HG_N links, HG_ERP, HG_IT, HG_P2P=1
 -- (ball joints). Run: xvfb-run -a bpp -f gyro-hang.lua -n 40. (conefix: an attempt, broken, ignore.)
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local G = 981

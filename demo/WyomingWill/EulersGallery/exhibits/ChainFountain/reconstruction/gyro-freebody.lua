@@ -2,7 +2,7 @@
 -- Exact answer: energy E and the world angular momentum vector L stay constant; for a symmetric
 -- body (I2 = I3) also the spin about the axis w1 and |w_perp| in the body frame.
 -- FB_SHAPE=link (the chain-fountain heap link, kg/cm) or asym; FB_W="w1,w2,w3" (rad/s, body frame);
--- FB_STEPS (steps a second), frames (-n) of FB_PER steps. "solver" needs a bpp with bpp-gyro-midpoint.diff.
+-- FB_STEPS (steps a second), frames (-n) of FB_PER steps. "solver": body.gyroSolved (flag 1024), in bpp since 20 Oct 2026.
 v.gravity = btVector3(0, 0, 0)
 local function envnum(n, d) return tonumber(os.getenv(n) or "") or d end
 local SCALE_M = 1024

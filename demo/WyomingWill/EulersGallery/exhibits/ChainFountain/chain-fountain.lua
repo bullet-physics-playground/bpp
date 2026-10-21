@@ -23,9 +23,10 @@
 --
 -- SIMULATION, to keep it to what a computer can do in time:
 --  * The heap was poured once, every link simulated, and saved; here its
---    links lie fixed, except every link within 4 cm of where the chain is
---    being picked up, which moves (see heapFeed). That gives the fountain
---    of the heap simulated whole, within the spread from pour to pour.
+--    links lie fixed, except every link within 4 cm across of where the
+--    chain is being picked up and down to 1.5 cm below it, which moves
+--    (see heapFeed). That gives the fountain of the heap simulated whole,
+--    within the spread from pour to pour.
 --  * (The coil: it waits, drawn but not simulated, on a flat rigid pile;
 --    ten links ahead of the one being picked up are simulated, the last
 --    one held by its far end where it lies.)
@@ -34,14 +35,13 @@
 --  * 1800 physics steps a second and 20 solver iterations. Waking,
 --    freezing and measuring are done after every step, so the chain does
 --    exactly the same at any speed.
---  * The links get no gyroscopic term (w x Iw): Bullet's own is skipped
---    for bodies this light in kg and cm (see spinLinks). That is an error
---    (a link spinning about its axis turns as if its spin had the inertia
---    across it), but adding the term from the script, before each step,
---    makes a jointed chain shake itself apart; it has to be solved with
---    the joints, which needs a change to bpp (CF_GYRO=solver; FINDINGS.md
---    section 14). With it the heap's fountain is the same within the
---    spread from heap to heap.
+--  * The links keep their angular momentum as Euler's equations say (the
+--    gyroscopic term, w x Iw): bpp solves it with the joints and contacts
+--    (body.gyroSolved, since 20 Oct 2026). Bullet's own term is skipped for
+--    bodies this light in kg and cm, and added from the script before each
+--    step it makes a jointed chain shake itself apart (see spinLinks;
+--    FINDINGS.md sections 14-15). A bpp without it gives Bullet's (none),
+--    and says so.
 --
 -- At the end it prints the steady part of the run against Biggins and
 -- Warner's theory (see theory() below).
@@ -102,19 +102,29 @@ local G = 981
 --        balls, poured into the jar once beforehand as a jumbled heap
 --        (chain-fountain-meshes/heap.txt, made with CF_POUR=1 CF_SAVEHEAP;
 --        see the README). It lies fixed where it settled, except within 4 cm
---        across of the pick-up and down to 0.5 cm below it (CF_ZONE,
---        CF_ZDEPTH), where every link moves; links left behind at rest lie
---        fixed again. That gives the fully simulated heap's fountain within
---        the spread from pour to pour. True friction 0.3, the joints' error
---        correction 0.5 a step, contact points only where touching. It
---        starts at an eighth of real speed (at a quarter a frame would take
---        about 28 ms).
+--        across of the pick-up and down to 1.5 cm below it (CF_ZONE,
+--        CF_ZDEPTH; 0.5 cm until 20 Oct 2026, which was not the same at
+--        7200 steps a second as at 1800), where every link moves; links
+--        left behind at rest lie fixed again. That gives the fully
+--        simulated heap's fountain within the spread from pour to pour.
+--        True friction 0.3, the joints' error correction 0.5 a step,
+--        contact points only where touching. It starts at an eighth of real
+--        speed (at a quarter a frame would take about 35 ms).
 --  coil  the 1.5 cm chain coiled flat in the jar, as this exhibit had it
 --        until 16 Oct 2026: see the README for what it gets wrong.
 local HEAPPILE, SWITCHED                -- (SWITCHED: the pile was changed with H)
 local SCALE, L, RL, MASS, LAYER_T, HEAPF, POUR, LIVE, HEAPSC, CPT, WAKE_RATE
 local SLOW, SPEEDHELP, ERP, SHAPE, LINK_OBJ, IP, INERTIA, WAKE_R, ZONE, ZDEPTH
 local IA, GYRO_K                        -- a link's moment about its axis; (IP - IA) / IP
+-- (a link's gyroscopic term, see spinLinks: CF_GYRO=solver (the term
+-- solved with the joints and contacts, body.gyroSolved: the heap's
+-- default since 20 Oct 2026; a bpp older than that lacks it, and then the
+-- links get Bullet's own), bullet (Bullet's own, which for links this light
+-- is never applied: the coil's default, as the exhibit was until 20 Oct
+-- 2026), 0 (none, Bullet's off too); exact, midpoint, implicit: the term as
+-- a change of spin before each step, which makes a jointed chain unstable
+-- (experiments only))
+local GYRO, gyroNoted
 local function setMode(heap)
   HEAPPILE = heap
   SCALE = envnum("CF_LINK", heap and 0.65 / 1.5 or 1)  -- (experiments only: links this many times as long, as thick, as heavy)
@@ -139,13 +149,22 @@ local function setMode(heap)
   LINK_OBJ = DIR .. (heap and "bead-link.obj" or "link.obj")
   IP, IA = MASS * (L * L / 12 + RL * RL / 4), 0.5 * MASS * RL * RL
   if envnum("CF_BEADI", heap and 1 or 0) > 0 then   -- (the mass in balls at the joints, as a ball chain's)
-    IP, IA = MASS * (L * L / 4 + 0.4 * RL * RL), 0.4 * MASS * RL * RL
+    -- (a ball's own moment, BALLI m r^2: 0.4 a solid ball's, the default;
+    -- the real balls are hollow (Pantaleone, arXiv:1910.03125), up to 2/3
+    -- for a thin shell; their wall is not measured: CF_BALLI)
+    local BALLI = envnum("CF_BALLI", 0.4)
+    IP, IA = MASS * (L * L / 4 + BALLI * RL * RL), BALLI * MASS * RL * RL
   end
   INERTIA = btVector3(IA, IP, IP)
   GYRO_K = (IP - IA) / IP
+  GYRO = (not SWITCHED and os.getenv("CF_GYRO")) or (heap and "solver" or "bullet")
+  if GYRO == "solver" and not BPP_GYRO_MIDPOINT then
+    if not gyroNoted then gyroNoted = true; print("(this bpp can't solve the links' gyroscopic term with their joints (body.gyroSolved, bpp of 20 Oct 2026 on): Bullet's own term instead, which these links never get)") end
+    GYRO = "bullet"
+  end
   WAKE_R = L + 2 * RL + 0.2
   ZONE = envnum("CF_ZONE", heap and 4 or 0)      -- (cm: see heapFeed; 0: none)
-  ZDEPTH = envnum("CF_ZDEPTH", heap and 0.5 or 0) -- (cm: see heapFeed; 0: a ball)
+  ZDEPTH = envnum("CF_ZDEPTH", heap and 1.5 or 0) -- (cm: see heapFeed; 0: a ball)
   if ZONE <= 0 then ZONE = nil end
   if ZDEPTH <= 0 then ZDEPTH = nil end
 end
@@ -178,17 +197,6 @@ local STATIC_LAYERS = envnum("CF_STATICLAYERS", 0) -- (and how many under them a
 -- (experiments on cost: CF_SLEEP=1 lets Bullet put resting links to sleep;
 -- CF_CPT=d processes only contact points closer than d cm)
 local SLEEP = envnum("CF_SLEEP", 0) > 0
--- (a link's gyroscopic term, see spinLinks: CF_GYRO=bullet (Bullet's own,
--- which for links this light is never applied: the default), solver (the
--- term solved with the joints and contacts: needs a bpp with
--- BPP_GYRO_MIDPOINT, see spinLinks), 0 (none, Bullet's off too); exact,
--- midpoint, implicit: the term as a change of spin before each step,
--- which makes a jointed chain unstable (experiments only))
-local GYRO = os.getenv("CF_GYRO") or "bullet"
-if GYRO == "solver" and not BPP_GYRO_MIDPOINT then
-  print("(CF_GYRO=solver needs a bpp with BPP_GYRO_MIDPOINT; this one has none: Bullet's own term instead)")
-  GYRO = "bullet"
-end
 -- (CF_GLASSMU: friction of the jar's glass, if not the friction slider's)
 local GLASSMU = tonumber(os.getenv("CF_GLASSMU") or "")
 local ABSORB_Y = 2.5                    -- links lower than this are on the floor
@@ -507,7 +515,7 @@ local function wake(i)
   body:setFriction(MU)
   body:setRestitution(0)
   body:setDamping(0, 0)
-  if GYRO ~= "bullet" then body:setFlags(GYRO == "solver" and BPP_GYRO_MIDPOINT or 0) end   -- (its gyroscopic term: spinLinks)
+  if GYRO == "solver" then body.gyroSolved = true elseif GYRO ~= "bullet" then body:setFlags(0) end   -- (its gyroscopic term: spinLinks)
   l.obj, l.body, l.rest, l.active = m, body, mid, true
   links[i] = l
   if links[i - 1] and links[i - 1].active then join(links[i - 1], l) end
@@ -668,7 +676,7 @@ local function wakeHeap(j)
   body:setFriction(MU)
   body:setRestitution(0)
   body:setDamping(0, 0)
-  if GYRO ~= "bullet" then body:setFlags(GYRO == "solver" and BPP_GYRO_MIDPOINT or 0) end   -- (its gyroscopic term: spinLinks)
+  if GYRO == "solver" then body.gyroSolved = true elseif GYRO ~= "bullet" then body:setFlags(0) end   -- (its gyroscopic term: spinLinks)
   l.obj, l.body, l.rest, l.active = m, body, mid, true
   if p and p.active then
     join(p, l)
@@ -696,7 +704,7 @@ local function freezeHeap(i)
   local rot = l.body:getOrientation()     -- (the body's own: in the Gallery .trans is where the hall shows it)
   if okey then linkOf[okey(l.obj)] = nil end
   v:remove(l.obj)
-  l.obj, l.body, l.active, l.chk = nil, nil, false, nil
+  l.obj, l.body, l.active, l.chk, l.zlast = nil, nil, false, nil, nil
   fixHeap(i, btVector3(x, y, z), rot)
   if p and p.active then p.holdNext = holdJoint(p.body, l.st.body) end
   if n and n.active then n.holdPrev = holdJoint(l.st.body, n.body) end
@@ -906,9 +914,10 @@ local function heapFeed()
     -- (CF_ZONE=R) every link of the heap within R of the pick-up moves
     -- (with CF_ZDEPTH=d: within R across and no more than d below it; it is
     -- looked round again once the pick-up has moved 5 mm); every 1/100 s a
-    -- moving link of the heap further out than that by 1 cm and slower than
-    -- 1 cm/s lies fixed again. R and d: the smallest for which the fountain
-    -- no longer changes as they grow (see the README).
+    -- moving link of the heap further out than that by 1 cm and at rest
+    -- lies fixed again. R and d: the smallest for which the fountain no
+    -- longer changes as they grow, at 1800 to 7200 steps a second (see the
+    -- README).
     local l = links[pick]
     if not l then return end
     local px, py, pz
@@ -933,16 +942,23 @@ local function heapFeed()
       table.sort(woke)
       for _, j in ipairs(woke) do wakeHeap(j) end
     end
+    -- (every 1/100 s of simulated time, whatever the step; "at rest": it
+    -- moved less than 0.1 mm since the last look, 1 cm/s on average. Until
+    -- 20 Oct 2026 it was every 18 steps and the speed at that instant,
+    -- which made links lie fixed again sooner at finer steps)
     run.zstep = (run.zstep or 0) + 1
-    if run.zstep % 18 == 0 then
+    local every = math.max(1, math.floor(0.01 / STEP + 0.5))
+    if run.zstep % every == 0 then
       local F2 = (ZONE + 1) ^ 2
       for i = pick + K_AHEAD + 1, head do
         local m = links[i]
         if m.active then
           local x, y, z = getPosXYZ(m.obj)
-          if not inZone(x - px, y - py, z - pz, F2, 1) then
-            local vx, vy, vz = getVelXYZ(m.obj)
-            if vx * vx + vy * vy + vz * vz < 1 then freezeHeap(i) end
+          local last = m.zlast
+          m.zlast = { x, y, z }
+          if last and not inZone(x - px, y - py, z - pz, F2, 1)
+             and (x - last[1]) ^ 2 + (y - last[2]) ^ 2 + (z - last[3]) ^ 2 < (every * STEP) ^ 2 then
+            freezeHeap(i)
           end
         end
       end
@@ -1170,13 +1186,19 @@ local function theory()
   end
   local tr = s.trace
   if tr and #tr > 4 then
-    -- (the heap is short: the window is too, and the chain slows in it as
-    -- the heap runs out; the speed rule needs a steady chain)
+    -- (the heap is short: the window is too, and the chain may slow in it
+    -- as the heap runs out; the speed rule needs a steady chain. Steady
+    -- here: the two halves within 3%)
     local m = math.floor(#tr / 2)
     local r1 = (tr[m][2] - tr[1][2]) * L / (tr[m][1] - tr[1][1])
     local r2 = (tr[#tr][2] - tr[m][2]) * L / (tr[#tr][1] - tr[m][1])
-    print(string.format("  not steady: links land at %.0f cm/s in the first half of that window and %.0f in the second (the heap running out); the speed rule needs a steady chain, so its reading here is unreliable",
-                        r1, r2))
+    if math.abs(r2 - r1) > 0.03 * (r1 + r2) / 2 then
+      print(string.format("  not steady: links land at %.0f cm/s in the first half of that window and %.0f in the second (the heap running out); the speed rule needs a steady chain, so its reading here is unreliable",
+                          r1, r2))
+    else
+      print(string.format("  steady: links land at %.0f cm/s in the first half of that window and %.0f in the second",
+                          r1, r2))
+    end
   end
   if s.landed > 0 then
     local v2 = s.v2 / s.landed
@@ -1403,10 +1425,12 @@ end
 -- but a jointed chain does not: the joints are solved after the change,
 -- without it, and a hanging chain of spinning links gains energy until it
 -- flails (growing e-fold in about 0.1 s at 1800 steps a second, 0.3 s at
--- 7200; slower at smaller steps, but never stopping). Solved with the joints (CF_GYRO=solver, a bpp with
--- BPP_GYRO_MIDPOINT: the linearly implicit midpoint step, the body
--- answering impulses through (I + dt/2 d(w x Iw)/dw)^-1) it is stable
--- and keeps energy.
+-- 7200; slower at smaller steps, but never stopping). Solved with the
+-- joints (CF_GYRO=solver, the heap's default: body.gyroSolved, bpp's
+-- linearly implicit midpoint step, the body answering impulses through
+-- (I + dt/2 d(w x Iw)/dw)^-1) it keeps a free link's energy and angular
+-- momentum, and a hanging chain of spinning links stays still for many
+-- seconds (FINDINGS.md section 15 for how long).
 local function spinLinks(dt)
   if GYRO == "bullet" or GYRO == "0" or GYRO == "solver" then return end
   for i = tail, #pts - 1 do

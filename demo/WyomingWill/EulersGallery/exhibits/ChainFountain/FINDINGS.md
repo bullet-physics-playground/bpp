@@ -3,7 +3,9 @@
 What was found about how faithful this exhibit's physics is, 15-16 Oct
 2026, in the order it was found. Sections 1-10 are about the coil the
 exhibit had; 11-12 about a poured heap; 13 makes the heap the default;
-14 (20 Oct 2026) is about the links' gyroscopic term.
+14 (20 Oct 2026) is about the links' gyroscopic term; 15 (the same day)
+merges the bpp change that solves it, makes it the default, and fixes the
+live zone's step dependence.
 Every number is from a run of the exhibit (or of the reference programs in
 reconstruction/) unless it is marked as read from a paper or as from
 memory. Paths are relative to this folder unless they start with demo/.
@@ -16,8 +18,9 @@ repeat them now, add CF_PILE=coil.
   2026; H or CF_PILE=coil gives the old coil). 9.75 m of chain the size
   Biggins and Warner used (4.5 mm balls 6.5 mm apart, 30 degrees a joint)
   lies in the jar as it fell when poured in; a hand draws the end over and
-  lets go. Its fountain: h2/h1 = 0.140, against 0.12-0.14 measured on real
-  ball chains (Biggins and Warner 2014; Pantaleone 2019).
+  lets go. Its fountain: h2/h1 = 0.143 (since 20 Oct 2026; 0.140 before),
+  against 0.12-0.14 measured on real ball chains (Biggins and Warner 2014;
+  Pantaleone 2019).
 - **Why the coil was wrong.** Both Bullet with every link simulated and an
   independent bead-and-rod reference (reconstruction/bead-pour.c) give
   h2/h1 = 0.11-0.19 from a poured heap and about 0.06 from the exhibit's
@@ -28,33 +31,45 @@ repeat them now, add CF_PILE=coil.
   can't form a heap in this 7 cm jar at all: poured, they lay rings round
   the wall (0.08-0.11).
 - **How the heap is simulated.** The heap is fixed bodies except a live
-  zone 4 cm across and 0.5 cm deep round the pick-up; this matches every
-  link simulated within the spread from pour to pour (0.147 against 0.140
-  over five heaps; section 12). Bullet's joints needed an error correction
-  of 0.5 a step, not its 0.2, for the result not to change with the step.
+  zone 4 cm across and 1.5 cm deep round the pick-up (0.5 cm deep until
+  20 Oct 2026, which was not step-converged: section 15). Over ten runs a
+  cell (five heaps, two jar heights) it matches every link simulated at
+  1800 steps a second to 0.003 in h2/h1, with and without the gyroscopic
+  term; at 3600 and 7200 it stands 0.007-0.029 higher (within about two
+  standard errors). Bullet's joints needed an error correction of 0.5 a
+  step, not its 0.2, for the result not to change with the step.
 - **Cost.** 14 ms a frame during the flow at an eighth of real speed (15
-  in the Gallery), so the exhibit starts there; at a quarter it would take
-  28-30 ms. The cost is Bullet's per-body and per-joint work for about 280
+  in the Gallery) with the 0.5 cm zone; the 1.5 cm zone costs about 15%
+  more (measured here 17-18 ms against 15, over the 16.7 ms of a 60 Hz
+  frame on this 2-core machine during the 1.75 s of flow); at a quarter it
+  would take about twice that. The cost is Bullet's per-body and per-joint work for about 280
   links falling and a few hundred in the zone, not solver iterations.
-- **The links' gyroscopic term (20 Oct 2026, section 14).** Bullet never
+- **The links' gyroscopic term (20 Oct 2026, sections 14-15).** Bullet never
   applies it to links this light (a 3x3 solve skipped below a determinant
   of 1.2e-7; a link's is 3.3e-15), and that is a real error: it treats a
   link's spin about its axis as if it had the inertia across it, an error
   of 13-32% of the links' angular accelerations. But the term cannot be added
   from Lua: every form tried, applied before the step, makes a jointed
-  chain gain energy without end. Solved with the joints (a proposed bpp
-  change, reconstruction/bpp-gyro-midpoint.diff, tested here, not merged)
-  it is stable, and the heap's fountain with it, every link simulated, is
-  h2/h1 = 0.13-0.14 in the runs clear of the rim at 1800, 3600 and 7200
-  steps a second (without: 0.14), with the chain caught on the rim a little
-  more often (6 runs in 30 against 2). The exhibit is unchanged
-  (CF_GYRO=solver with the patched bpp). The earlier scratch result
-  (0.164-0.166 with the term) was the instability.
+  chain gain energy without end. Solved with the joints it is stable; bpp
+  now does that (body.gyroSolved, src/viewer.cpp; merged 20 Oct 2026), and
+  it is the heap's default. With it, every link simulated, ten runs a cell:
+  h2/h1 = 0.138 / 0.120 / 0.138 clear of the rim at 1800 / 3600 / 7200
+  steps a second (without: 0.140 / 0.138 / 0.144; paired shift -0.009 +-
+  0.006), speed 0.80-0.85 sqrt(2 g h1). The rim catches more often with it
+  in five runs a cell (6/30 against 2/30) did not hold up in ten (every
+  link: 5/30 against 3/30). The earlier scratch result (0.164-0.166 with the
+  term) was the instability.
 - **Still open.** The theory's speed reading disagrees with the height
-  reading in the heap's short, slowing window (section 13); the zone's pile
-  push is about a quarter low; about one run in ten catches the rim; GPU
-  drawing cost of about 3000 individually drawn links is not measured; a
-  faithful run at a quarter of real speed would need bpp/Bullet changes.
+  reading (section 13; in the new default run the window is steady and
+  they still disagree, 0.23 against 0.11); the every-link reference's speed
+  is not step-converged (0.79 / 0.82 / 0.84 sqrt(2 g h1) at 1800 / 3600 /
+  7200) though its height is, and it is 10-20% above the experiments'
+  0.70; the zone's residual 0.01 excess at 3600-7200; the zone's pile push
+  is about a quarter low; about one run in ten catches the rim; GPU drawing
+  cost of about 3000 individually drawn links is not measured; a faithful
+  run at a quarter of real speed would need bpp/Bullet changes; at 1800
+  steps a second the solved term lets a long-hanging chain of fast-spinning
+  links slowly shake (e-folding in 2-4 s; section 15).
 
 ## 1. The theory (Biggins and Warner 2014)
 
@@ -991,3 +1006,193 @@ of five slow.
 - The model's IA (0.4 m r^2) is a solid ball's; a real ball chain's
   thin-shelled balls would have 2/3 m r^2, and their spin is shared
   between two links; spin rates in real fountains are not measured.
+
+## 15. The term solved in bpp, made the default; the zone made step-converged (20 Oct 2026)
+
+The user approved merging the bpp change of 14.5, making the zone
+step-converged and re-running the heap study. Raw runs and scripts are
+working files, not in the repo.
+
+### 15.1 The bpp change (src/)
+
+- src/viewer.cpp: `bppGyroPreTick`, a pre-tick callback on every world bpp
+  makes (its own, after a clear, and each Gallery world). For each active,
+  dynamic rigid body with bpp's flag (1 << 10, `BPP_GYRO_MIDPOINT`; Bullet
+  leaves that bit unused) it takes the linearly implicit midpoint step of
+  Euler's equations, (I + dt/2 Jg) dw = -dt w x I w, Jg = [w]x I - [I w]x,
+  in world axes, and sets the body's inverse world inertia to
+  (I + dt/2 Jg)^-1 for the step, so the solver's contacts and joints see
+  the coupling. Bullet restores I^-1 when it moves the body
+  (proceedToTransform, at the end of the same step, for every body the
+  callback touched: both skip inactive and static/kinematic bodies). The
+  solver uses only the quadratic form t.(A^-1 t) of a non-symmetric A^-1,
+  which is positive while the symmetric part of A is, i.e. while
+  dt |w| (IP - IA) is small next to IA: for these links at 1800 steps a
+  second, |w| up to about 1800 rad/s (they turn at up to about 660).
+  Reviewed: the scratch diff's formula, unchanged (the same results bit
+  for bit: a reference run of 14.6 reproduced exactly); the callback has no
+  state and touches only the world being stepped (bpp steps worlds on the
+  GUI thread; nothing in bpp used Bullet's tick callbacks before);
+  unmarked bodies are not touched.
+- Lua: `body.gyroSolved = true` (src/lua_bullet_3.cpp; also turns Bullet's
+  own gyroscopic flags off for that body, so the term is not counted
+  twice; `false` clears only bpp's flag) and the global
+  `BPP_GYRO_MIDPOINT` = 1024 (nil in an older bpp, so a script can tell).
+  Documented in src/lua_bullet.h, src/README.md and the test.
+- New test tests/09-gyro.lua (bpp's tests/ style): the flag API; a free
+  link and a free asymmetric body, 1 s at 1800 steps: energy and |L| to
+  1e-4, L's direction within 30 deg (an unmarked body's angular velocity
+  untouched); a hanging chain of 20 spinning links, 2 s: turning across
+  under 5 rad/s, energy within 1e-3 of the spin's. 9 of 9 pass (the stock
+  bpp: 4 fail, as it should).
+- Free bodies (reconstruction/gyro-freebody.lua, 2 s): energy and |L| kept
+  to 1e-5 at 1800 and 6e-5 at 7200 (float); L's direction 24 deg off at
+  1800 steps a second and 5 at 7200 (the midpoint rule's phase error, at
+  1000 rad/s spin), against 50-83 for no term.
+- Hanging chain (gyro-hang.lua, 60 links spinning 300 rad/s, no contacts),
+  longer than before: at 3600 and 7200 steps a second it stays still for
+  20 s (turning across 1.0-1.3 and 0.5-0.8 rad/s), at 600 rad/s as well (3 s).
+  At 1800 it shakes slowly: turning across 1.4 rad/s at 1 s, 3.3 at 5 s,
+  10 at 9 s, 50-60 by 15-20 s (e-folding in about 3.5 s; at 600 rad/s in
+  about 2 s, 1.5 -> 3.2 rad/s from 1 to 3 s), its energy within 4% of the
+  spin energy until 10 s. Without the term the same chain also drifts at
+  1800, more slowly (0.9 -> 6 rad/s in 20 s). Ten links at 1000 rad/s stay
+  at 0.2-0.9 rad/s for 9 s at 1800 and 7200. So the solved form is stable
+  on the fountain's time scale (a link is in flight under 1 s; growth under
+  1.5x from a 1 rad/s seed, against 40-60 rad/s of real turning in the
+  falling chain), not unconditionally at 1800. Before the step every form
+  e-folded in 0.1 s (14.4).
+- Regressions: tests/00-08 and demo/WyomingWill/tests/media-check.lua give
+  the same output with the stock and the new bpp (08-remove's "bytes kept"
+  figure varies 0-38 from run to run with either; 02-openscad fails with
+  both: openscad exits 255 here). Byte-identical, stock against new bpp:
+  Gomboc Variety GV_SEED=3 (1200 frames, 37 lines), Bille BD_SEED=2 (15),
+  Gyroscope (12), Dzhanibekov (12), the Gallery's hall (600 frames, 158
+  lines), this exhibit as it was (heap 18, coil 24).
+
+### 15.2 Why the zone was not step-converged
+
+Clear of the rim, the 0.5 cm-deep zone stood 0.147 / 0.164 / 0.170 at
+1800 / 3600 / 7200 steps a second (five heaps), every link 0.137-0.140.
+Tested at 7200 (five heaps, no term; mean of the runs clear of the rim,
+four or five of the five; the reference 0.140):
+
+| change to the zone | h2/h1 | v cm/s (mean) |
+|---|---|---|
+| none (4 cm, 0.5 deep) | 0.170 | 474 |
+| refreezing by simulated time (every 1/100 s, not every 18 steps) and by the distance moved since the last look (not the speed at that instant) | 0.172 | 454 |
+| no refreezing at all | 0.159 | 460 |
+| 1.5 cm deep | 0.151 | 450 |
+| 1 cm deep | 0.150 | 448 |
+| a ball 4 cm round (no depth limit) | 0.149 | 459 |
+| 6 cm across, 0.5 deep | 0.145 | 451 |
+| 3 / 30 links woken ahead along the chain | 0.143 / 0.154 | 468 / 463 |
+
+- The refreezing rule did depend on the step (every 18 steps, i.e. four
+  times as often at 7200, and a resting link's jitter speed, about g dt,
+  is smaller at finer steps), but it is not what lifted the fountain:
+  made step-independent, nothing changes.
+- The zone's depth is. 0.5 cm is about one ball (0.45 cm): the moving
+  chain lay on links that could not move. In the every-link runs
+  (scratch probe: where each heap link not yet picked up first moves
+  1 mm, relative to the pick-up), 38% of those first moves lie more than
+  0.5 cm below the pick-up at 1800 steps a second and 53% at 7200, but
+  only 10-11% more than 1.5 cm below at either. So at finer steps the
+  layer between 0.5 and 1.5 cm below the pick-up gives way more, and the
+  old zone held exactly that layer fixed. (Why the full heap's layer gives
+  more at finer steps while its fountain does not change was not found.)
+- The fix: the zone 1.5 cm deep (CF_ZDEPTH default 1.5; 4 cm across
+  unchanged), and the refreezing made step-independent anyway (every
+  1/100 s of simulated time; at rest = moved under 0.1 mm since the last
+  look). 1.5 rather than 1: 1 cm at 1800 / 3600 / 7200 gave 0.140 / 0.158 /
+  0.150, 1.5 cm 0.142 / 0.145 / 0.151 (old refreezing, five heaps).
+  Chosen by convergence across the step, not to hit a value.
+- Not the remaining excess (15.3): 6 cm across with 1.5 deep gives the
+  same as 4 cm (ten runs a cell: no term 0.148 / 0.149 / 0.153; with the
+  term 0.135 / 0.146 / 0.137) at 10% more cost.
+
+### 15.3 The heap study again (section 12's protocol)
+
+The five heaps of 12.1, CF_SPEED=1, HOLD_S=0, the steady window as always;
+each heap run with the jar at 150 cm and, to halve the scatter, at 152 cm
+too (ten runs a cell). Every link simulated (CF_LIVE=1; the 150 cm runs
+are 14.6's; six of them re-run with the merged bpp came out identical) and the new zone;
+the term off (CF_GYRO=bullet) and solved (CF_GYRO=solver). Clear of the
+rim (landing energy 35% and over): mean +- standard error; v as a
+fraction of sqrt(2 g h1); caught = runs on the rim.
+
+| steps/s | every link, no term | every link, term | zone, no term | zone, term |
+|---|---|---|---|---|
+| 1800 | 0.140 +- 0.007, 0.79, 2 caught | 0.138 +- 0.006, 0.80, 2 | 0.139 +- 0.009, 0.78, 1 | 0.135 +- 0.007, 0.79, 0 |
+| 3600 | 0.138 +- 0.007, 0.82, 0 | 0.120 +- 0.008, 0.82, 3 | 0.149 +- 0.008, 0.82, 0 | 0.149 +- 0.009, 0.82, 0 |
+| 7200 | 0.144 +- 0.010, 0.84, 1 | 0.138 +- 0.007, 0.85, 0 | 0.151 +- 0.009, 0.82, 1 | 0.157 +- 0.006, 0.85, 1 |
+| all | 0.140 (sd 0.023), 0.82, 3/30 | 0.133 (sd 0.022), 0.82, 5/30 | 0.146 (sd 0.027), 0.81, 2/30 | 0.146 (sd 0.025), 0.82, 1/30 |
+
+(Standard deviations within a cell 0.017-0.030.)
+
+- **The zone against every link:** -0.001 / +0.011 / +0.007 without the
+  term, -0.003 / +0.029 / +0.019 with it (+- 0.009-0.014), at 1800 /
+  3600 / 7200. At 1800, the exhibit's step, it matches. Its change from
+  1800 to 7200 is now +0.012 +- 0.013 (no term) and +0.022 +- 0.009 (term);
+  every link: +0.004 and 0.000; the old zone (five runs): +0.023 without
+  the term, and with it 0.157 / 0.169 / 0.160 against every link's 0.132 /
+  0.133 / 0.131. So the step dependence without the term is about halved,
+  and each cell is within about two standard errors of every link, but
+  over all six cells the zone stands 0.010 +- 0.005 (7%) high,
+  and its cause is not found (not the zone's size; not refreezing). The
+  every-link term cell at 3600 (0.120) is itself low against its
+  neighbours (0.138 at 1800 and 7200).
+- **The term** lowers the every-link fountain by 0.009 +- 0.006 (paired
+  by heap and height, 23 pairs) and leaves the zone's unchanged (+0.001 +-
+  0.005, 28 pairs): no effect beyond the spread either way.
+- **Rim catches.** 14.6's 6 of 30 with the term against 2 of 30 without did
+  not hold up: in ten runs a cell, every link 5/30 against 3/30, the zone
+  1/30 against 2/30 (Fisher's exact test: no difference). The catches
+  look alike with or without the term: a snag in the heap slows the chain
+  (235-356 cm/s within 0.5-1.5 s, against 362-428 in runs that stay
+  clear), the arch drops onto the rim at 1.0-1.75 s and stays there,
+  held by the rim (14.6: 0.55-0.81 m v^2). A two-state flow, not the term.
+- **Against experiment:** h2/h1 = 0.133 +- 0.004 (every link, term, all
+  steps; sd 0.022) and 0.135 +- 0.007 for the exhibit's zone at its 1800
+  steps a second; measured 0.14 (Biggins and Warner), 0.12 +- 0.01
+  (Pantaleone, ball chains). Speed 0.79-0.85 sqrt(2 g h1) against 0.69-0.71
+  measured: 10-20% fast, and the every-link reference's speed itself rises
+  with the step (0.79 / 0.82 / 0.84; its height does not), so the speed is
+  not step-converged; there is no air drag.
+
+### 15.4 The balls' own moment of inertia
+
+Neither paper measures it. Biggins and Warner's chain is nickel-plated
+brass, 4.5 mm balls on 2 mm rods; Pantaleone (arXiv:1910.03125) says his
+balls are hollow ("The balls and bars are hollow and are connected by
+small rods that are flared on the ends") and takes the metal's thickness
+as uniform, with no thickness given; his large ball chain is 34.0 g/m for
+D = 0.44 cm, L = 0.63 cm, and the model here is 33.3 g/m. So the solid
+ball's 0.4 m r^2 is too small, and 2/3 m r^2 (a thin shell) the upper
+limit. A brass shell holding all of a link's 0.217 g in a 4.5 mm ball
+would be about 0.5 mm thick, 0.54 m r^2; the rods' share of the mass would
+make it thinner, toward 2/3. Not measured, so the default is unchanged
+(CF_BALLI, default 0.4, is new). The upper limit, 2/3, at 1800 steps a
+second with the term, five heaps: every link 0.143 (0.100-0.162, none on
+the rim) against 0.138 with 0.4; the zone 0.136 (one on the rim) against
+0.135. No change beyond the spread.
+
+### 15.5 What changed
+
+- src/viewer.cpp, src/lua_bullet.h, src/lua_bullet_3.cpp, src/README.md;
+  tests/09-gyro.lua (new). bpp must be rebuilt (qmake && make).
+- chain-fountain.lua: CF_GYRO default `solver` for the heap (body.gyroSolved;
+  a bpp without it prints a note and runs as before), `bullet` for the
+  coil, whose output is unchanged byte for byte; the zone 1.5 cm deep and
+  the step-independent refreezing; CF_BALLI; the heap's "not steady"
+  console line printed only when the two halves of the window differ by
+  more than 3% (otherwise "steady: ..."), since in the new default run
+  they do not (433 and 438 cm/s). Header and comments.
+- reconstruction/bpp-gyro-midpoint.diff removed (merged); the gyro tests'
+  notes point at body.gyroSolved.
+- README, this section, the dossier, report/front.py.
+
+The new default run: h2/h1 = 0.143 (h2 21.2 cm, h1 148.3 cm), v 436 cm/s
+(0.81 sqrt(2 g h1)), landing energy 52%; a = 0.11 from the height, 0.23
+from the speed, the window steady (433 and 438 cm/s), so the disagreement
+of the two readings (section 13) is not only the heap running out.

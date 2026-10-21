@@ -21,6 +21,17 @@
 #pragma GCC diagnostic pop
 
 /**
+ * @brief A btRigidBody flag of bpp's own (Bullet leaves bit 10 unused): the
+ *        body's gyroscopic term is solved together with its contacts and
+ *        joints (see bppGyroPreTick in viewer.cpp).
+ *
+ * In Lua: body.gyroSolved = true (which also turns Bullet's own gyroscopic
+ * flags off), or body:setFlags(BPP_GYRO_MIDPOINT). The global
+ * BPP_GYRO_MIDPOINT is nil in a bpp without it.
+ */
+const int BPP_GYRO_MIDPOINT = 1 << 10;
+
+/**
  * @brief Binds the Bullet Physics API into a Lua interpreter.
  *
  * The class carries no state of its own; it exists so the binding code has a

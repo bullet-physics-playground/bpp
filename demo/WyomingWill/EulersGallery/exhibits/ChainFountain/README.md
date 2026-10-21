@@ -23,16 +23,19 @@ jumbled heap in a glass jar on a stand 1.5 m above the floor, as it fell
 when it was poured in. An unseen hand draws the end up over the rim and
 down to the floor and lets go; the chain then runs out at about 4.3 m/s,
 so it starts at an eighth of real speed (Z: real speed). The fountain
-stands 11-18 cm above the rim (h2/h1 = 0.140 on this heap; their chain:
+stands 10-16 cm above the rim (h2/h1 = 0.143 on this heap; their chain:
 0.14), and the jar is empty 2.25 s after letting go (about 23 s on screen,
 with the pause and the hand). R starts again; H changes to the coil the
 exhibit had before (below) and back.
 
-Every link of the heap within 4 cm of where the chain is being picked up
-moves; the rest lies still until the pick-up comes near (see Simulation).
-That is the fully simulated heap's fountain, within the spread from pour
-to pour, at about half its cost; it still needs an eighth of real speed
-to keep up with the screen (14 ms a frame; see the theory check).
+Every link of the heap within 4 cm across of where the chain is being
+picked up, and down to 1.5 cm below it, moves; the rest lies still until
+the pick-up comes near (see Simulation). That is the fully simulated
+heap's fountain, within the spread from pour to pour, at about half its
+cost; it still needs an eighth of real speed to keep up with the screen
+(17-18 ms a frame during the flow here; see the theory check). The links
+keep their angular momentum as Euler's equations say: bpp solves their
+gyroscopic term with the joints (since 20 Oct 2026; FINDINGS.md section 15).
 
 ### The coil (H, or `CF_PILE=coil`)
 
@@ -93,30 +96,35 @@ times their length). The default run, the heap at an eighth of real speed:
 ```
 --- 9.8 m of chain, 1500 links; the jar 150 cm up; joints bend 30 deg at most ---
 drawn over and let go (0.64 s)
-t= 0.25s  fountain 12.3 cm above the rim (average 11.3, highest 13.4); chain 529 cm/s; 564 links moving, 1.2 m out
-t= 0.50s  fountain 16.4 cm above the rim (average 15.1, highest 16.5); chain 489 cm/s; 691 links moving, 2.4 m out
-t= 0.75s  fountain 16.1 cm above the rim (average 16.3, highest 17.2); chain 435 cm/s; 580 links moving, 3.5 m out
-t= 1.00s  fountain 17.3 cm above the rim (average 17.5, highest 18.2); chain 451 cm/s; 529 links moving, 4.6 m out
-t= 1.25s  fountain 15.0 cm above the rim (average 14.9, highest 18.2); chain 444 cm/s; 482 links moving, 5.7 m out
-t= 1.50s  fountain 11.5 cm above the rim (average 12.5, highest 18.2); chain 413 cm/s; 425 links moving, 6.8 m out
-t= 1.75s  fountain 11.0 cm above the rim (average 11.1, highest 18.2); chain 379 cm/s; 302 links moving, 7.8 m out
-t= 2.00s  fountain -108.1 cm above the rim (average -64.4, highest 18.2); chain 636 cm/s; 172 links moving, 8.6 m out
-t= 2.25s  all of it out of the jar; the fountain stood up to 18.2 cm above the rim
-  theory (Biggins and Warner 2014), steady part t=1.00-1.64s; h1 = 148.3 cm, the pick-up above where a link lands (the rim is 7.2 cm above the pick-up)
-  chain 431 cm/s (the rate links land): an ideal chain (a = b = 0) would go sqrt(g h1) = 381 cm/s and not rise above the pick-up
-  top of the chain 20.7 cm above the pick-up on average (h2): h2/h1 = 0.140 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 407 cm/s
-  a = g h2/v^2 = 0.11 from the height, 1 - g h1/v^2 = 0.22 from the speed (the rod model gives none for balls on light rods; 1/6 for their three-ball links)
-  not steady: links land at 447 cm/s in the first half of that window and 416 in the second (the heap running out); the speed rule needs a steady chain, so its reading here is unreliable
+t= 0.25s  fountain  6.5 cm above the rim (average  7.5, highest 10.2); chain 504 cm/s; 544 links moving, 1.2 m out
+t= 0.50s  fountain  9.5 cm above the rim (average  7.4, highest 10.2); chain 505 cm/s; 851 links moving, 2.4 m out
+t= 0.75s  fountain 12.6 cm above the rim (average 11.8, highest 12.9); chain 437 cm/s; 749 links moving, 3.5 m out
+t= 1.00s  fountain 13.9 cm above the rim (average 13.7, highest 14.8); chain 428 cm/s; 695 links moving, 4.6 m out
+t= 1.25s  fountain 14.3 cm above the rim (average 14.5, highest 15.2); chain 441 cm/s; 552 links moving, 5.7 m out
+t= 1.50s  fountain 13.1 cm above the rim (average 14.2, highest 15.6); chain 422 cm/s; 448 links moving, 6.8 m out
+t= 1.75s  fountain 10.4 cm above the rim (average 11.1, highest 15.6); chain 413 cm/s; 292 links moving, 7.9 m out
+t= 2.00s  fountain -133.4 cm above the rim (average -85.1, highest 15.6); chain 686 cm/s; 130 links moving, 8.9 m out
+t= 2.25s  all of it out of the jar; the fountain stood up to 15.6 cm above the rim
+  theory (Biggins and Warner 2014), steady part t=1.00-1.65s; h1 = 148.3 cm, the pick-up above where a link lands (the rim is 7.2 cm above the pick-up)
+  chain 436 cm/s (the rate links land): an ideal chain (a = b = 0) would go sqrt(g h1) = 381 cm/s and not rise above the pick-up
+  top of the chain 21.2 cm above the pick-up on average (h2): h2/h1 = 0.143 (their chain: 0.14); b = 0 here, so v = sqrt(g (h1 + h2)) = 408 cm/s
+  a = g h2/v^2 = 0.11 from the height, 1 - g h1/v^2 = 0.23 from the speed (the rod model gives none for balls on light rods; 1/6 for their three-ball links)
+  steady: links land at 433 cm/s in the first half of that window and 438 in the second
   the links reach the floor at 389 cm/s (rms), with 52% of the energy of their drop (an ideal chain: 50%; one the pile pushes, more)
 ```
 
-The fountain stands as high as theirs: h2/h1 = 0.140, against 0.14. The
-two readings of a disagree, 0.11 from the height and 0.22 from the speed,
-and the console says why: the heap is short (9.75 m is what the jar holds),
-so the steady part is short too (0.64 s), and the chain slows in it as the
-heap runs out (447 then 416 cm/s); the speed rule needs a steady chain.
-The falling chain is also wavy: its links land at 389 cm/s (rms), slower
-than the 431 cm/s the chain runs at. So read a from the height here. (The
+The fountain stands as high as theirs: h2/h1 = 0.143, against 0.14. The
+two readings of a disagree, 0.11 from the height and 0.23 from the speed.
+The heap is short (9.75 m is what the jar holds), so the steady part is
+short too (0.65 s), and on other heaps (and on this one before 20 Oct
+2026) the chain slows in it as the heap runs out, which the speed rule
+can't allow for; the console then says "not steady". Here it ran steadily
+(433 then 438 cm/s), and the readings still disagree: the chain runs
+faster than its height says, as it does with every link simulated (0.79-0.84
+of sqrt(2 g h1), against the experiments' 0.70; that speed is not
+settled with the step either: FINDINGS.md section 15). The falling chain is
+also wavy: its links land at 389 cm/s (rms), slower than the 436 cm/s the
+chain runs at. So read a from the height here. (The
 rod model, a = (1 - I/(m b^2/4))/2, gives no push at all for a link whose
 mass sits in the balls at its ends, as these; Biggins and Warner's
 three-ball link gives 1/6. The push here comes from the pile itself, as
@@ -413,8 +421,10 @@ beforehand (`chain-fountain-meshes/heap.txt`). Five heaps were poured for
 this (`CF_PILE=heap CF_POUR=1 CF_SEED=1..5 CF_SAVEHEAP=...`, true friction
 0.3); the one shipped is the second. The heap lies fixed, every link a fixed body, except in a
 live zone round the pick-up: every link within 4 cm across of it and no
-more than 0.5 cm below it moves (`CF_ZONE`, `CF_ZDEPTH`), and a moving link
-of the heap that is left 1 cm outside the zone, at rest, lies fixed again.
+more than 1.5 cm below it moves (`CF_ZONE`, `CF_ZDEPTH`; 0.5 cm until 20 Oct
+2026, see below), and a moving link of the heap that is left 1 cm outside
+the zone, at rest (moved under 0.1 mm in the last 1/100 s), lies fixed
+again.
 Where a moving link's neighbour lies fixed, a joint holds it to that fixed
 link. The hand draws the end over the rim as above, and lets go. Friction
 is a true 0.3 (0.548 a body), only touching contact points count
@@ -467,6 +477,32 @@ moves.
 (Until 16 Oct 2026 this was an option, `CF_PILE=heap`, and the coil the
 default. Now the heap is the default and `CF_PILE=coil`, or H, gives the
 coil.)
+
+**20 Oct 2026: the zone made deeper, and the links' gyroscopic term.**
+Checked at 7200 steps a second too, the 0.5 cm zone was not settled with
+the step: 0.147 / 0.164 / 0.170 at 1800 / 3600 / 7200, every link
+0.137-0.140. 0.5 cm is about one ball: the chain lay on links that could
+not move, and with every link simulated the layer 0.5-1.5 cm under the
+pick-up gives way more at finer steps (38% of the heap's first moves
+lie below 0.5 cm at 1800, 53% at 7200; 10-11% below 1.5 cm at both).
+Refreezing (every 18 steps, by the speed at that instant) also depended on
+the step, but making it depend on time instead changed nothing. So the
+zone is now 1.5 cm deep, and refreezing goes by time. Over ten runs a
+cell (five heaps, the jar at 150 and 152 cm), clear of the rim:
+
+| steps a second | every link, no term | every link, term solved | zone, no term | zone, term solved (the exhibit) |
+|---|---|---|---|---|
+| 1800 | 0.140 +- 0.007 | 0.138 +- 0.006 | 0.139 +- 0.009 | 0.135 +- 0.007 |
+| 3600 | 0.138 +- 0.007 | 0.120 +- 0.008 | 0.149 +- 0.008 | 0.149 +- 0.009 |
+| 7200 | 0.144 +- 0.010 | 0.138 +- 0.007 | 0.151 +- 0.009 | 0.157 +- 0.006 |
+
+(+- the standard error; speeds 0.78-0.85 sqrt(2 g h1); 0-3 runs in ten
+caught on the rim, with or without the term.) At the exhibit's 1800
+steps the zone is every link simulated; at 3600-7200 it stands about 0.01
+higher (two standard errors at most in a cell), a residue whose cause was
+not found (a zone 6 cm across gives the same). The deeper zone costs
+about 15% more: 17-18 ms a frame during the flow at an eighth of real
+speed here, against 15 for the old one (budget 16.7).
 
 Friction in Bullet: Bullet takes the product of the two bodies' friction
 for a contact. So the coil's friction slider at 0.3, set on the links, the glass
@@ -523,34 +559,41 @@ The heap (the default):
   (`CF_POUR=1 CF_SEED=2 CF_SAVEHEAP=...`). `chain-fountain-meshes/heap.txt`
   holds where its joints lie.
 * In the exhibit the heap's links are fixed bodies, except a live zone:
-  every link within 4 cm across of the pick-up and no more than 0.5 cm
+  every link within 4 cm across of the pick-up and no more than 1.5 cm
   below it is simulated, and so are the ten links after the pick-up along
-  the chain. A link left 1 cm outside the zone, at rest, is fixed again
-  where it is; a moving link next to a fixed one is held to it by a joint,
-  as the heap would hold it. 4 cm is where the fountain stops changing as
-  the zone grows; with it the run matches every link simulated, within the
-  spread from pour to pour (see the theory check).
+  the chain. A link left 1 cm outside the zone, at rest (it moved under
+  0.1 mm in the last 1/100 s), is fixed again where it is; a moving link
+  next to a fixed one is held to it by a joint, as the heap would hold it.
+  4 cm across and 1.5 cm deep is where the fountain stops changing as the
+  zone grows, at 1800 to 7200 steps a second; with it the run matches every
+  link simulated, within the spread from pour to pour (see the theory
+  check).
 * The links are capsules 0.65 cm long and 4.5 mm thick, with their mass
   at their ends, joined by cone-twist joints that bend 30 degrees, true
   friction 0.3, no bounce; 1800 physics steps a second, 20 solver
   iterations, the joints' error correction 0.5 a step (Bullet's 0.2 lets
   them give, and the run then changes with the step), only touching
   contact points.
-* The links get no gyroscopic term (the w x Iw of Euler's equations):
-  Bullet's own is skipped for bodies this light in kg and cm (its 3x3
-  solve needs a determinant over 1.2e-7; a link's is 3e-15). That is an
-  error: a link spinning about its axis (they spin at about 200 rad/s) is
-  turned as if its spin had the inertia across it, an error of 13-32% of the
-  links' angular accelerations. Added from the script, before each step,
-  the term makes a jointed chain gain energy without end (tested: even a
-  hanging chain flails); solved together with the joints it is stable,
-  but that needs a change to bpp (`reconstruction/bpp-gyro-midpoint.diff`,
-  not merged; `CF_GYRO=solver` uses it). With it, every link simulated,
-  the fountain stands h2/h1 = 0.13 clear of the rim against 0.14 without:
-  the same within the spread from heap to heap (FINDINGS.md, section 14).
-* About 300-700 links move at a time, about 280 of them in the falling
-  chain. A frame takes 14 ms at an eighth of real speed (15 in the
-  Gallery); at a quarter it would take 28-30.
+* The links keep their angular momentum: bpp solves their gyroscopic
+  term (the w x Iw of Euler's equations) together with the joints and
+  contacts (`body.gyroSolved`, since 20 Oct 2026). Bullet's own term is
+  skipped for bodies this light in kg and cm (its 3x3 solve needs a
+  determinant over 1.2e-7; a link's is 3e-15), so before then the links had
+  none: a link spinning about its axis (they spin at about 200 rad/s) was
+  turned as if its spin had the inertia across it, an error of 13-32% of
+  the links' angular accelerations. Added from the script, before each
+  step, the term makes a jointed chain gain energy without end; solved
+  with the joints it does not. Its effect on the fountain is within the
+  spread (every link simulated: -0.009 +- 0.006 in h2/h1; FINDINGS.md
+  sections 14-15). A bpp from before then has no `gyroSolved`; the exhibit
+  then says so and runs without the term. The balls' own moment of inertia
+  is a solid ball's, 0.4 m r^2; the real balls are hollow (up to 2/3 m r^2;
+  their wall is not measured), and 2/3 changes nothing beyond the spread
+  (`CF_BALLI`).
+* About 300-850 links move at a time, about 280 of them in the falling
+  chain. A frame takes about 17-18 ms during the flow at an eighth of real
+  speed (here, a 2-core machine; 14 with the shallower zone before 20 Oct
+  2026); at a quarter it would take about twice that.
 
 Both piles:
 
@@ -612,13 +655,14 @@ coiled on the jar's floor instead), `CF_SAVEHEAP=file` and `CF_HEAP=file`
 simulated), `CF_RADIUS` (the links' radius), `CF_BEADI=1` (a link's mass
 in balls at its ends), `CF_T0` (the theory check from this time on, 1 s),
 `CF_DUMP=t:file` (where every moving link is at time t), `CF_GYRO`
-(the links' gyroscopic term: `bullet`, Bullet's own, never applied to
-these links, the default; `solver`, solved with the joints, needs a bpp
-with `reconstruction/bpp-gyro-midpoint.diff`; `0`; `exact`, `midpoint`,
-`implicit`: added before each step, unstable, for comparison). The heap test's
+(the links' gyroscopic term: `solver`, solved with the joints, the heap's
+default (needs a bpp of 20 Oct 2026 or later); `bullet`, Bullet's own,
+never applied to these links, the coil's default; `0`; `exact`,
+`midpoint`, `implicit`: added before each step, unstable, for comparison),
+`CF_BALLI` (a ball's own moment of inertia in m r^2, 0.4). The heap test's
 chain: `CF_LINK=0.4333 CF_RADIUS=0.225 CF_BEADI=1 CF_NLINKS=1500`, or
 `CF_PILE=heap`, which also starts from the poured heap (see the theory
-check), with `CF_ZONE` and `CF_ZDEPTH` (the live zone, 4 and 0.5 cm; 0:
+check), with `CF_ZONE` and `CF_ZDEPTH` (the live zone, 4 and 1.5 cm; 0:
 none, or a ball), `CF_ERP` (the joints' error correction a step: 0.5 there,
 Bullet's 0.2 otherwise) and `CF_CPT` (0 there); `CF_PILE=heap CF_LIVE=1`
 simulates every link of the heap.
@@ -633,11 +677,10 @@ simulates every link of the heap.
   heap); `heap.txt`: its poured heap, the joint points
   from the end on, in cm over the jar's floor (`CF_PILE=heap CF_POUR=1
   CF_SEED=2 CF_SAVEHEAP=...`).
-* `reconstruction/bpp-gyro-midpoint.diff`: a proposed change to bpp
-  (src/viewer.cpp) that solves a marked body's gyroscopic term with its
-  joints and contacts; `gyro-freebody.lua`, `gyro-hang.lua`,
-  `gyro-mimic.py`: its tests (a free link, a hanging chain of spinning
-  links, a Python copy of Bullet's step).
+* `reconstruction/gyro-freebody.lua`, `gyro-hang.lua`, `gyro-mimic.py`:
+  the tests of the links' gyroscopic term (a free link, a hanging chain of
+  spinning links, a Python copy of Bullet's step); bpp's own test of
+  `body.gyroSolved` is tests/09-gyro.lua at the top of the repository.
 * `reconstruction/gen-link.py`: makes the link meshes
   (`python3 gen-link.py ../chain-fountain-meshes/bead-link.obj 0.225 0.65`).
 * `reconstruction/bead-chain.c`: the bead chain outside Bullet (see the

@@ -9,6 +9,21 @@
 
 #include "lua_bullet_p.h"
 
+// body.gyroSolved: the body's gyroscopic term solved with its contacts and
+// joints (BPP_GYRO_MIDPOINT, see lua_bullet.h). Setting it true turns
+// Bullet's own gyroscopic flags off (the term would be counted twice);
+// false clears only bpp's flag, leaving Bullet's as they are.
+static bool luaGetGyroSolved(const btRigidBody &b) {
+  return (b.getFlags() & BPP_GYRO_MIDPOINT) != 0;
+}
+static void luaSetGyroSolved(btRigidBody &b, bool on) {
+  const int bullet = BT_ENABLE_GYROSCOPIC_FORCE_EXPLICIT |
+                     BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD |
+                     BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_BODY;
+  b.setFlags(on ? (b.getFlags() & ~bullet) | BPP_GYRO_MIDPOINT
+                : b.getFlags() & ~BPP_GYRO_MIDPOINT);
+}
+
 /**
  * @brief Registers the third quarter of the Bullet API.
  * @param s The Lua state to register in.
@@ -337,6 +352,10 @@ void luaBindBulletPart3(lua_State *s) {
                 .def(tostring(const_self))
                 .def(const_self == const_self)];
 
+  // (the flag of body.gyroSolved; nil in a bpp without it)
+  lua_pushinteger(s, BPP_GYRO_MIDPOINT);
+  lua_setglobal(s, "BPP_GYRO_MIDPOINT");
+
   module(s) // https://pybullet.org/Bullet/BulletFull/classbtRigidBody.html
       [class_<btRigidBody, btCollisionObject>("btRigidBody")
            // (dependency: the motion state and shape a script made stay alive
@@ -426,6 +445,7 @@ void luaBindBulletPart3(lua_State *s) {
            .def("getNumConstraintRefs", &btRigidBody::getNumConstraintRefs)
            .def("setFlags", &btRigidBody::setFlags)
            .def("getFlags", &btRigidBody::getFlags)
+           .property("gyroSolved", &luaGetGyroSolved, &luaSetGyroSolved)
            .def(tostring(const_self))
            .def(const_self == const_self)
        // not in the headers .def("getDeltaLinearVelocity",

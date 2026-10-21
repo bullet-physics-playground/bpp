@@ -68,7 +68,11 @@ Main application window with:
 ### Lua Bindings (`lua_bullet.cpp`)
 Exposes Bullet Physics classes to Lua via luabind:
 - Collision shapes (`btSphereShape`, `btBoxShape`, `btGImpactMeshShape`, etc.)
-- Rigid bodies (`btRigidBody`)
+- Rigid bodies (`btRigidBody`); `body.gyroSolved = true` has the body's
+  gyroscopic term (w x Iw) solved with its joints and contacts, as a
+  linearly implicit midpoint step (bpp's own, in `viewer.cpp`; Bullet's term
+  is turned off for that body). Use it for small spinning bodies, for which
+  Bullet's own term is skipped, or jointed ones (`tests/09-gyro.lua`)
 - Constraints (`btHingeConstraint`, `btSliderConstraint`, etc.)
 - Vehicles (`btRaycastVehicle`)
 - Math types (`btVector3`, `btQuaternion`, `btTransform`)
