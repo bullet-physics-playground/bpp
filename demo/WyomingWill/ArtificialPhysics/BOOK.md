@@ -137,7 +137,7 @@ Most chapters need the same pieces. Build each once.
 | G8 | **Rays:** line of sight between agents, and IR, sonar-ring and laser rangefinders (Bullet ray tests) | 5, 7, 9, 10, 11, 12, 13, 14 |
 | G9 | **Force-law table** keyed by (source type, target type): asymmetric, with wildcards and virtual particles, and one sign convention | 3.4, 3.5, 5, 16, 17 |
 | G10 | **Ground vehicles (Pioneer 3-AT done, `ground/`; Maxelbot to come):** skid-steer Maxelbot (MMP-5) and differential-drive Pioneer 3-AT | 9, 10, 11, 12, 13 |
-| G11 | **Water vehicles:** a holonomic round ASV (Voith–Schneider); an ROV-style multi-thruster vehicle that can hover and move sideways; a torpedo-shaped AUV that cannot | 6, ★9, ★capstone |
+| G11 | **Water vehicles (the ASV done, `boat/`):** a holonomic round ASV (Voith–Schneider); an ROV-style multi-thruster vehicle that can hover and move sideways; a torpedo-shaped AUV that cannot | 6, ★9, ★capstone |
 | G12 | **Fixed-wing aircraft** (constant speed, bank limit) with the heading-particle torque law, plus the dumbbell agent | 3.1 ★, 13 |
 | G13 | **Worlds:** wall polygons from vertex lists, corridors, mazes, and an obstacle-density generator | 4.3, 7, 11, 12, 14, 15 |
 | G14 | **Plume model:** Farrell-style puffs with wind, white-noise mixing and obstacles | 8, 9 |
@@ -246,7 +246,7 @@ metrics.
 | 6.4 | Max/min tasks: rising H1, U-shaped H2 with N = 6 best; time curves; 1295/1313/1292 ticks with no chemical | 198–209 | ~12,000 particle runs (G3); then ASVs | plan |
 | 6.5 | Multi-drone simulator (asynchronous clocks, comms, fuel) | 210–218 | Our harness plus G7, G15 and fuel accounting | plan |
 | 6.6 | 20-drone plume demo | 216–217 | Demo | plan |
-| 6.7 | Holonomic ASV hull (18″, two Voith–Schneider propellers) | 218–222 | New vehicle (G11); ★ AUV next | plan |
+| 6.7 | Holonomic ASV hull (18″, two Voith–Schneider propellers) | 218–222 | `boat/vehicle.lua` (G11): the book's hull, mass and thrust chosen; follows AP like the drones (F67); ★ AUV next | done |
 
 ### Ch. 7 — Gas-mimetic swarms (PDF 224–253) · `book/ch07.md`
 | # | Entry | Pages | BPP | Status |

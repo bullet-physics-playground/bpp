@@ -590,7 +590,7 @@ every wheel is in the gap and it stands exactly still (10⁻⁶ m/s), the
 book's "agents get stuck in low-energy formations because the forces are
 too small to move them" (Fig. 13.7). Lennard-Jones, stiff at D, freezes
 within 1–2% of D: formed at 31.7 s, bond 0.98–0.99 D, bond CV
-0.068–0.074 (drones 0.022–0.034). The split Newtonian law has
+0.068–0.074 (boats and drones 0.022–0.034). The split Newtonian law has
 only 0.28 at D, and η (band 0.2 D) damps it under 0.2 out to ~0.14 D from
 D: frozen at 0.89 D, CV 0.19–0.21, never formed. Without η the robots
 dither across D at the minimum speed (141–151 crossings per robot per
@@ -607,6 +607,17 @@ is kept (HANDOFF §2). *The guidance found two rules in its own check*
 a robot asked to creep spun on the spot at 0.4 rad/s, and a pivot on a
 wheel stopped in the gap reached 0.56 rad/s until the other wheel was held
 to 2 r_diff Ω_max.
+
+**F67. Surface boats follow AP as closely as the drones** — 2026-10-21,
+New. Milestone M2, `boat/README.md`. 50 round ASVs (the book's 0.46 m
+hull, two Voith–Schneider propellers; mass 12 kg, thrust 12 N, top speed
+0.79 m/s chosen), same laws, settings and runs as F66: Lennard-Jones forms
+in 36–42 s at 1.00–1.01 D (bond CV 0.025–0.030), the split Newtonian law
+with η in 78–98 s at 0.99–1.00 D (CV 0.057–0.065), against the ideal
+particles' 31–38 s and 72–116 s at the same lattices, and the drones'
+30–35 s (6 lost each, F59's 2D launch losses) and 76–96 s. A holonomic
+vehicle without a minimum speed needs none of Ch. 13's mechanisms beyond
+what the drones need.
 
 ## 3. Errors and discrepancies in the book
 

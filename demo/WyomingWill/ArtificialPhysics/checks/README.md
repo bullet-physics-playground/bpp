@@ -28,7 +28,7 @@ on its own from the `ArtificialPhysics` folder.
 | `mfp_theory.lua` | Listing 11.4 in 2D and 3D against the exact mean free path | 4 s |
 | `rng_appendix.lua` | The appendix's Listing A.1: `lib/rng.lua` flat at every S, `math.random` biased at S = 25–27 | 1 min |
 | `batch_repeat.sh` | `lib/batch.py` gives the same CSV serially and in parallel (needs BPP; skipped if none is built) | 30 s |
-| `vehicles.sh` | The vehicle interface (`lib/swarm.lua`, G18): every vehicle module provides it; each vehicle meets its specification (`vehicle_physics.lua`: the ground robot's speed and turn caps and minimum-speed gap); the harness on the ideal vehicle forms the LJ 2D triangle at D (needs BPP) | 20 s |
+| `vehicles.sh` | The vehicle interface (`lib/swarm.lua`, G18): every vehicle module provides it; each vehicle meets its specification (`vehicle_physics.lua`: the ground robot's speed and turn caps and minimum-speed gap; the boat's draft, top speed, righting and sideways motion); the harness on the ideal vehicle forms the LJ 2D triangle at D (needs BPP) | 20 s |
 
 A new port adds its check here and to `run_all.sh`. Checks use fixed seeds,
 so their numbers repeat exactly.

@@ -82,7 +82,7 @@ the whole difference.
   because the forces are too small to move them; the minimum step sets the
   achievable lattice quality"). Lennard-Jones is stiff enough at D that
   this happens within 1–2% of D. The split Newtonian law is not: its force
-  at D is only 0.28, and η, which removes its jitter on drones,
+  at D is only 0.28, and η, which removes its jitter on drones and boats,
   damps it below 0.2 out to 0.14 D from D, so the robots stop at 0.89 D in
   an irregular lattice.
 - **Without η the plain law dithers at the minimum speed**, as the book

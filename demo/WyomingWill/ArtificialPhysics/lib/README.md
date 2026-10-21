@@ -457,8 +457,8 @@ Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..
   `swarm.lua`'s header.
 - **Vehicles so far:** the quadcopter (`quadcopter/vehicle.lua`, the
   default; it was built into the harness until M2, and its results are bit
-  for bit what they were), the ideal vehicle (`ideal.lua`) and the ground
-  robot (`ground/vehicle.lua`).
+  for bit what they were), the ideal vehicle (`ideal.lua`), the ground
+  robot (`ground/vehicle.lua`) and the surface boat (`boat/vehicle.lua`).
 - **`laws.lua`** holds the two laws as configurations, so every vehicle's
   scene runs the same law with the same settings (the cross-vehicle
   benchmark's premise): `local cfg = require("lib.laws").newtonian()`,
