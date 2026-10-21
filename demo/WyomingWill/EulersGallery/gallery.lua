@@ -852,6 +852,18 @@ local function route(p0, p1)
   if w0 == w1 then return { a0, a1 } end
   return { a0, btVector3(0, 0, ZN / 2), a1 }
 end
+-- (and every point of the way kept inside the walls, ceiling and floor --
+-- wing A's east wall north of the corner, wing B's walls east of it -- so
+-- the curve can never swing out through one)
+local function inside(p)
+  local m = 15
+  local x = math.max(-HW + m, math.min(XE - m, p.x))
+  local z = math.max(ZN + m, math.min(ZS - m, p.z))
+  if z > 0 then x = math.min(HW - m, x) end
+  if x > HW then z = math.min(-m, z) end
+  return btVector3(x, math.max(m, math.min(H - m, p.y)), z)
+end
+local FLY_LOG = os.getenv("GALLERY_FLY_LOG")     -- (1: print each flight's extent; a file name: there too)
 local function catmull(a, b, c, d, t)
   local t2, t3 = t * t, t * t * t
   local function k(p0, p1, p2, p3)
@@ -879,22 +891,35 @@ local function startFlight(pos1, look1)
     pts[#pts + 1] = btVector3(p.x, pos0.y + (pos1.y - pos0.y) * f, p.z)
   end
   pts[#pts + 1] = pos1
+  -- (a point too near the last, or an aisle point at the same place on the
+  -- floor as the end -- right under a view's camera, say -- left out:
+  -- arriving there along the aisle, the curve would overshoot the end)
+  local function flat(a, b) return math.sqrt((a.x - b.x) ^ 2 + (a.z - b.z) ^ 2) end
   local way = { pts[1] }
   for i = 2, #pts do
     local last = way[#way]
-    if (pts[i] - last):length() > 40 or i == #pts then way[#way + 1] = pts[i] end
+    local keep = (pts[i] - last):length() > 40 and flat(pts[i], last) > 40
+    if i < #pts and flat(pts[i], pts[#pts]) < 40 then keep = false end
+    if keep or i == #pts then way[#way + 1] = pts[i] end
   end
   -- along it, in small pieces, measured
   local S, L = { way[1] }, { 0 }
   for i = 1, #way - 1 do
     local a, b, cc, d = way[math.max(i - 1, 1)], way[i], way[i + 1], way[math.min(i + 2, #way)]
     for k = 1, 24 do
-      local p = catmull(a, b, cc, d, k / 24)
+      local p = inside(catmull(a, b, cc, d, k / 24))
       L[#L + 1] = L[#L] + (p - S[#S]):length()
       S[#S + 1] = p
     end
   end
   local total = L[#L]
+  if FLY_LOG then
+    local zl, zh, xl, xh = 1e9, -1e9, 1e9, -1e9
+    for _, p in ipairs(S) do zl, zh, xl, xh = math.min(zl, p.z), math.max(zh, p.z), math.min(xl, p.x), math.max(xh, p.x) end
+    local line = string.format("FLY %d points; x %.0f to %.0f, z %.0f to %.0f (walls: z %.0f to %.0f)", #way, xl, xh, zl, zh, ZN, ZS)
+    print(line)
+    if FLY_LOG ~= "1" then local fh = io.open(FLY_LOG, "a"); if fh then fh:write(line, "\n"); fh:close() end end
+  end
   local yaw0, pitch0 = yawPitch(c.dir)
   local yaw1, pitch1 = yawPitch(look1 - pos1)
   local dy = (yaw1 - yaw0 + math.pi) % (2 * math.pi) - math.pi        -- (the short way round)

@@ -48,7 +48,8 @@ starts at that exhibit, and `HALL_START=end` at the title wall.
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle and into the next bay, in 1.2 to 3.5 seconds. The exhibit you're
 going to starts at once; its own camera moves wait until you've arrived.
-`HALL_FLY=0` jumps instead, as before.
+`HALL_FLY=0` jumps instead, as before. The way stays inside the hall's walls
+(`HALL_FLY_LOG=1` prints each flight's extent, or `=file` writes it there).
 
 ## How it works
 

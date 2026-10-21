@@ -55,6 +55,8 @@ On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along
 the aisle (round by the corner between the wings) and into the next bay, in
 1.2 to 3.5 seconds. The exhibit you're going to starts at once; its own camera
 moves wait until you've arrived. `GALLERY_FLY=0` jumps instead, as before.
+The way stays inside the gallery's walls (`GALLERY_FLY_LOG=1` prints each
+flight's extent, or `=file` writes it there).
 
 Everything else goes to the exhibit you're at, with the same keys as when
 it runs on its own; the Shortcuts pane shows them. The Params pane shows
