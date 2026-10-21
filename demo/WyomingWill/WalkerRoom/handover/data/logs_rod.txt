@@ -1,0 +1,228 @@
+TRACK Jansen|height 2.00|length 15.0|seed 1|forward 474.0 cm|7.90 cm/s|sideways 4.1 cm|stood up 0|air 0.0%
+LOGS Jansen|amp 2|bump 15|seed 1|face 0.6%|kicked back 0.8% of half-seconds|airborne in 0 of 1 kicks|worst back 2.6 cm
+TRACK Jansen|height 2.00|length 15.0|seed 2|forward 403.6 cm|6.73 cm/s|sideways -5.3 cm|stood up 0|air 0.0%
+LOGS Jansen|amp 2|bump 15|seed 2|face 0.9%|kicked back 3.3% of half-seconds|airborne in 0 of 4 kicks|worst back 1.7 cm
+TRACK Jansen|height 4.00|length 15.0|seed 1|forward 82.2 cm|1.37 cm/s|sideways -31.1 cm|stood up 0|air 1.7%
+LOGS Jansen|amp 4|bump 15|seed 1|face 13.4%|kicked back 40.0% of half-seconds|airborne in 15 of 48 kicks|worst back 8.6 cm
+TRACK Jansen|height 4.00|length 15.0|seed 2|forward 306.5 cm|5.11 cm/s|sideways -7.8 cm|stood up 0|air 0.4%
+LOGS Jansen|amp 4|bump 15|seed 2|face 20.0%|kicked back 15.0% of half-seconds|airborne in 1 of 18 kicks|worst back 7.3 cm
+TRACK Jansen|height 6.00|length 15.0|seed 1|forward 18.8 cm|0.31 cm/s|sideways 4.1 cm|stood up 0|air 1.9%
+LOGS Jansen|amp 6|bump 15|seed 1|face 5.7%|kicked back 35.0% of half-seconds|airborne in 19 of 42 kicks|worst back 12.9 cm
+TRACK Jansen|height 6.00|length 15.0|seed 2|forward 40.1 cm|0.67 cm/s|sideways -1.2 cm|stood up 0|air 0.6%
+LOGS Jansen|amp 6|bump 15|seed 2|face 19.2%|kicked back 32.5% of half-seconds|airborne in 8 of 39 kicks|worst back 10.5 cm
+TRACK Klann|height 2.00|length 15.0|seed 1|forward 465.0 cm|7.75 cm/s|sideways -1.3 cm|stood up 0|air 0.3%
+LOGS Klann|amp 2|bump 15|seed 1|face 0.2%|kicked back 4.2% of half-seconds|airborne in 0 of 5 kicks|worst back 3.2 cm
+TRACK Klann|height 2.00|length 15.0|seed 2|forward 454.6 cm|7.58 cm/s|sideways 0.1 cm|stood up 0|air 0.0%
+LOGS Klann|amp 2|bump 15|seed 2|face 0.1%|kicked back 10.8% of half-seconds|airborne in 0 of 13 kicks|worst back 2.8 cm
+TRACK Klann|height 4.00|length 15.0|seed 1|forward 344.0 cm|5.73 cm/s|sideways 2.9 cm|stood up 0|air 0.6%
+LOGS Klann|amp 4|bump 15|seed 1|face 13.7%|kicked back 20.0% of half-seconds|airborne in 1 of 24 kicks|worst back 5.5 cm
+TRACK Klann|height 4.00|length 15.0|seed 2|forward 337.3 cm|5.62 cm/s|sideways -2.9 cm|stood up 0|air 0.2%
+LOGS Klann|amp 4|bump 15|seed 2|face 13.4%|kicked back 21.7% of half-seconds|airborne in 2 of 26 kicks|worst back 5.7 cm
+TRACK Klann|height 6.00|length 15.0|seed 1|forward 11.2 cm|0.19 cm/s|sideways 19.0 cm|stood up 0|air 0.6%
+LOGS Klann|amp 6|bump 15|seed 1|face 31.5%|kicked back 48.3% of half-seconds|airborne in 0 of 58 kicks|worst back 7.8 cm
+TRACK Klann|height 6.00|length 15.0|seed 2|forward 158.1 cm|2.64 cm/s|sideways -1.0 cm|stood up 0|air 0.1%
+LOGS Klann|amp 6|bump 15|seed 2|face 28.0%|kicked back 37.5% of half-seconds|airborne in 0 of 45 kicks|worst back 7.5 cm
+TRACK Spears 4-bar|height 2.00|length 15.0|seed 1|forward 357.2 cm|5.95 cm/s|sideways 4.7 cm|stood up 0|air 0.0%
+LOGS Spears 4-bar|amp 2|bump 15|seed 1|face 0.2%|kicked back 20.0% of half-seconds|airborne in 0 of 24 kicks|worst back 6.3 cm
+TRACK Spears 4-bar|height 2.00|length 15.0|seed 2|forward 358.5 cm|5.98 cm/s|sideways 16.2 cm|stood up 0|air 0.1%
+LOGS Spears 4-bar|amp 2|bump 15|seed 2|face 1.5%|kicked back 20.0% of half-seconds|airborne in 0 of 24 kicks|worst back 7.7 cm
+TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 95.3 cm|1.59 cm/s|sideways 12.7 cm|stood up 0|air 0.2%
+LOGS Spears 4-bar|amp 4|bump 15|seed 1|face 15.3%|kicked back 36.7% of half-seconds|airborne in 1 of 44 kicks|worst back 9.0 cm
+TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 55.6 cm|0.93 cm/s|sideways -13.4 cm|stood up 0|air 0.5%
+LOGS Spears 4-bar|amp 4|bump 15|seed 2|face 26.5%|kicked back 41.7% of half-seconds|airborne in 2 of 50 kicks|worst back 6.8 cm
+TRACK Spears 4-bar|height 6.00|length 15.0|seed 1|forward 25.9 cm|0.43 cm/s|sideways 0.6 cm|stood up 0|air 0.0%
+LOGS Spears 4-bar|amp 6|bump 15|seed 1|face 0.6%|kicked back 37.5% of half-seconds|airborne in 0 of 45 kicks|worst back 9.9 cm
+TRACK Spears 4-bar|height 6.00|length 15.0|seed 2|forward 6.2 cm|0.10 cm/s|sideways -20.5 cm|stood up 0|air 0.0%
+LOGS Spears 4-bar|amp 6|bump 15|seed 2|face 21.8%|kicked back 40.0% of half-seconds|airborne in 0 of 48 kicks|worst back 10.0 cm
+TRACK Chebyshev|height 2.00|length 15.0|seed 1|forward 443.3 cm|7.39 cm/s|sideways -7.5 cm|stood up 0|air 0.3%
+LOGS Chebyshev|amp 2|bump 15|seed 1|face 0.2%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.4 cm
+TRACK Chebyshev|height 2.00|length 15.0|seed 2|forward 416.4 cm|6.94 cm/s|sideways -9.4 cm|stood up 0|air 0.6%
+LOGS Chebyshev|amp 2|bump 15|seed 2|face 0.3%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 21.4 cm|0.36 cm/s|sideways 1.5 cm|stood up 0|air 4.3%
+LOGS Chebyshev|amp 4|bump 15|seed 1|face 0.6%|kicked back 38.3% of half-seconds|airborne in 25 of 46 kicks|worst back 8.7 cm
+TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 123.8 cm|2.06 cm/s|sideways 4.0 cm|stood up 0|air 3.3%
+LOGS Chebyshev|amp 4|bump 15|seed 2|face 13.6%|kicked back 35.8% of half-seconds|airborne in 17 of 43 kicks|worst back 10.0 cm
+TRACK Chebyshev|height 6.00|length 15.0|seed 1|forward 23.7 cm|0.39 cm/s|sideways 4.4 cm|stood up 0|air 4.1%
+LOGS Chebyshev|amp 6|bump 15|seed 1|face 0.6%|kicked back 37.5% of half-seconds|airborne in 18 of 45 kicks|worst back 10.4 cm
+TRACK Chebyshev|height 6.00|length 15.0|seed 2|forward 41.1 cm|0.68 cm/s|sideways -8.2 cm|stood up 0|air 2.1%
+LOGS Chebyshev|amp 6|bump 15|seed 2|face 9.7%|kicked back 27.5% of half-seconds|airborne in 19 of 33 kicks|worst back 15.7 cm
+TRACK Chebyshev diag|height 2.00|length 15.0|seed 1|forward 391.5 cm|6.52 cm/s|sideways -6.7 cm|stood up 0|air 0.9%
+LOGS Chebyshev diag|amp 2|bump 15|seed 1|face 1.3%|kicked back 3.3% of half-seconds|airborne in 1 of 4 kicks|worst back 3.1 cm
+TRACK Chebyshev diag|height 2.00|length 15.0|seed 2|forward 395.1 cm|6.59 cm/s|sideways 5.4 cm|stood up 0|air 0.8%
+LOGS Chebyshev diag|amp 2|bump 15|seed 2|face 0.6%|kicked back 3.3% of half-seconds|airborne in 0 of 4 kicks|worst back 1.6 cm
+TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 27.1 cm|0.45 cm/s|sideways 17.6 cm|stood up 0|air 6.4%
+LOGS Chebyshev diag|amp 4|bump 15|seed 1|face 0.4%|kicked back 35.0% of half-seconds|airborne in 31 of 42 kicks|worst back 11.4 cm
+TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 1.9 cm|0.03 cm/s|sideways -21.7 cm|stood up 0|air 2.9%
+LOGS Chebyshev diag|amp 4|bump 15|seed 2|face 5.1%|kicked back 37.5% of half-seconds|airborne in 21 of 45 kicks|worst back 10.2 cm
+TRACK Chebyshev diag|height 6.00|length 15.0|seed 1|forward 22.4 cm|0.37 cm/s|sideways 7.2 cm|stood up 0|air 4.3%
+LOGS Chebyshev diag|amp 6|bump 15|seed 1|face 0.2%|kicked back 37.5% of half-seconds|airborne in 27 of 45 kicks|worst back 11.2 cm
+TRACK Chebyshev diag|height 6.00|length 15.0|seed 2|forward 0.2 cm|0.00 cm/s|sideways -26.1 cm|stood up 0|air 1.9%
+LOGS Chebyshev diag|amp 6|bump 15|seed 2|face 2.9%|kicked back 37.5% of half-seconds|airborne in 9 of 45 kicks|worst back 10.6 cm
+TRACK Chebyshev-Spears|height 2.00|length 15.0|seed 1|forward 480.8 cm|8.01 cm/s|sideways 9.2 cm|stood up 0|air 4.6%
+LOGS Chebyshev-Spears|amp 2|bump 15|seed 1|face 0.3%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.1 cm
+TRACK Chebyshev-Spears|height 2.00|length 15.0|seed 2|forward 468.4 cm|7.81 cm/s|sideways 5.4 cm|stood up 0|air 4.4%
+LOGS Chebyshev-Spears|amp 2|bump 15|seed 2|face 0.1%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 331.7 cm|5.53 cm/s|sideways -1.2 cm|stood up 0|air 12.1%
+LOGS Chebyshev-Spears|amp 4|bump 15|seed 1|face 12.4%|kicked back 18.3% of half-seconds|airborne in 20 of 22 kicks|worst back 6.1 cm
+TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 235.1 cm|3.92 cm/s|sideways 5.4 cm|stood up 0|air 14.3%
+LOGS Chebyshev-Spears|amp 4|bump 15|seed 2|face 14.6%|kicked back 25.8% of half-seconds|airborne in 26 of 31 kicks|worst back 8.1 cm
+TRACK Chebyshev-Spears|height 6.00|length 15.0|seed 1|forward 29.1 cm|0.48 cm/s|sideways 46.0 cm|stood up 0|air 17.8%
+LOGS Chebyshev-Spears|amp 6|bump 15|seed 1|face 6.4%|kicked back 34.2% of half-seconds|airborne in 34 of 41 kicks|worst back 10.3 cm
+TRACK Chebyshev-Spears|height 6.00|length 15.0|seed 2|forward -6.6 cm|-0.11 cm/s|sideways -8.1 cm|stood up 0|air 19.2%
+LOGS Chebyshev-Spears|amp 6|bump 15|seed 2|face 11.6%|kicked back 30.8% of half-seconds|airborne in 32 of 37 kicks|worst back 15.8 cm
+TRACK Chebyshev-Spears diag|height 2.00|length 15.0|seed 1|forward 450.3 cm|7.51 cm/s|sideways -2.7 cm|stood up 0|air 8.2%
+LOGS Chebyshev-Spears diag|amp 2|bump 15|seed 1|face 0.1%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Chebyshev-Spears diag|height 2.00|length 15.0|seed 2|forward 443.9 cm|7.40 cm/s|sideways 4.0 cm|stood up 0|air 8.1%
+LOGS Chebyshev-Spears diag|amp 2|bump 15|seed 2|face 0.2%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 132.0 cm|2.20 cm/s|sideways 6.9 cm|stood up 0|air 17.3%
+LOGS Chebyshev-Spears diag|amp 4|bump 15|seed 1|face 15.5%|kicked back 32.5% of half-seconds|airborne in 32 of 39 kicks|worst back 7.1 cm
+TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 300.2 cm|5.00 cm/s|sideways 12.8 cm|stood up 0|air 12.2%
+LOGS Chebyshev-Spears diag|amp 4|bump 15|seed 2|face 18.9%|kicked back 11.7% of half-seconds|airborne in 12 of 14 kicks|worst back 7.1 cm
+TRACK Chebyshev-Spears diag|height 6.00|length 15.0|seed 1|forward 21.3 cm|0.36 cm/s|sideways -16.3 cm|stood up 0|air 19.1%
+LOGS Chebyshev-Spears diag|amp 6|bump 15|seed 1|face 9.6%|kicked back 38.3% of half-seconds|airborne in 40 of 46 kicks|worst back 13.0 cm
+TRACK Chebyshev-Spears diag|height 6.00|length 15.0|seed 2|forward -6.0 cm|-0.10 cm/s|sideways 18.9 cm|stood up 0|air 16.0%
+LOGS Chebyshev-Spears diag|amp 6|bump 15|seed 2|face 15.3%|kicked back 35.8% of half-seconds|airborne in 34 of 43 kicks|worst back 17.7 cm
+TRACK Hoecken 4-bar|height 2.00|length 15.0|seed 1|forward 440.5 cm|7.34 cm/s|sideways -0.2 cm|stood up 0|air 0.4%
+LOGS Hoecken 4-bar|amp 2|bump 15|seed 1|face 0.3%|kicked back 1.7% of half-seconds|airborne in 0 of 2 kicks|worst back 1.4 cm
+TRACK Hoecken 4-bar|height 2.00|length 15.0|seed 2|forward 414.6 cm|6.91 cm/s|sideways -3.1 cm|stood up 0|air 0.3%
+LOGS Hoecken 4-bar|amp 2|bump 15|seed 2|face 0.2%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.5 cm
+TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 23.3 cm|0.39 cm/s|sideways 3.6 cm|stood up 0|air 3.2%
+LOGS Hoecken 4-bar|amp 4|bump 15|seed 1|face 0.4%|kicked back 42.5% of half-seconds|airborne in 22 of 51 kicks|worst back 8.9 cm
+TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 120.4 cm|2.01 cm/s|sideways 4.8 cm|stood up 0|air 4.6%
+LOGS Hoecken 4-bar|amp 4|bump 15|seed 2|face 10.7%|kicked back 29.2% of half-seconds|airborne in 16 of 35 kicks|worst back 8.8 cm
+TRACK Hoecken 4-bar|height 6.00|length 15.0|seed 1|forward 22.2 cm|0.37 cm/s|sideways 4.5 cm|stood up 0|air 4.2%
+LOGS Hoecken 4-bar|amp 6|bump 15|seed 1|face 0.2%|kicked back 39.2% of half-seconds|airborne in 19 of 47 kicks|worst back 9.0 cm
+TRACK Hoecken 4-bar|height 6.00|length 15.0|seed 2|forward 52.0 cm|0.87 cm/s|sideways -17.1 cm|stood up 0|air 3.6%
+LOGS Hoecken 4-bar|amp 6|bump 15|seed 2|face 10.3%|kicked back 28.3% of half-seconds|airborne in 13 of 34 kicks|worst back 16.2 cm
+TRACK Hoecken 4-bar diag|height 2.00|length 15.0|seed 1|forward 407.5 cm|6.79 cm/s|sideways -5.2 cm|stood up 0|air 0.8%
+LOGS Hoecken 4-bar diag|amp 2|bump 15|seed 1|face 0.1%|kicked back 1.7% of half-seconds|airborne in 1 of 2 kicks|worst back 3.2 cm
+TRACK Hoecken 4-bar diag|height 2.00|length 15.0|seed 2|forward 404.2 cm|6.74 cm/s|sideways 3.9 cm|stood up 0|air 0.5%
+LOGS Hoecken 4-bar diag|amp 2|bump 15|seed 2|face 0.4%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.3 cm
+TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 25.5 cm|0.42 cm/s|sideways -2.9 cm|stood up 0|air 5.1%
+LOGS Hoecken 4-bar diag|amp 4|bump 15|seed 1|face 0.6%|kicked back 35.8% of half-seconds|airborne in 27 of 43 kicks|worst back 10.7 cm
+TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward -2.4 cm|-0.04 cm/s|sideways -11.9 cm|stood up 0|air 1.1%
+LOGS Hoecken 4-bar diag|amp 4|bump 15|seed 2|face 3.4%|kicked back 32.5% of half-seconds|airborne in 6 of 39 kicks|worst back 10.7 cm
+TRACK Hoecken 4-bar diag|height 6.00|length 15.0|seed 1|forward 23.5 cm|0.39 cm/s|sideways 22.2 cm|stood up 0|air 6.5%
+LOGS Hoecken 4-bar diag|amp 6|bump 15|seed 1|face 0.3%|kicked back 33.3% of half-seconds|airborne in 31 of 40 kicks|worst back 13.4 cm
+TRACK Hoecken 4-bar diag|height 6.00|length 15.0|seed 2|forward -4.6 cm|-0.08 cm/s|sideways -12.4 cm|stood up 0|air 1.0%
+LOGS Hoecken 4-bar diag|amp 6|bump 15|seed 2|face 5.0%|kicked back 30.8% of half-seconds|airborne in 1 of 37 kicks|worst back 10.8 cm
+TRACK Hoecken slider|height 2.00|length 15.0|seed 1|forward 431.8 cm|7.20 cm/s|sideways 0.7 cm|stood up 0|air 0.3%
+LOGS Hoecken slider|amp 2|bump 15|seed 1|face 0.6%|kicked back 0.8% of half-seconds|airborne in 0 of 1 kicks|worst back 0.9 cm
+TRACK Hoecken slider|height 2.00|length 15.0|seed 2|forward 405.5 cm|6.76 cm/s|sideways -8.3 cm|stood up 0|air 0.2%
+LOGS Hoecken slider|amp 2|bump 15|seed 2|face 0.3%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.4 cm
+TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 24.1 cm|0.40 cm/s|sideways 2.5 cm|stood up 0|air 1.7%
+LOGS Hoecken slider|amp 4|bump 15|seed 1|face 0.4%|kicked back 38.3% of half-seconds|airborne in 15 of 46 kicks|worst back 8.1 cm
+TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 245.7 cm|4.10 cm/s|sideways -2.0 cm|stood up 0|air 2.8%
+LOGS Hoecken slider|amp 4|bump 15|seed 2|face 25.8%|kicked back 17.5% of half-seconds|airborne in 7 of 21 kicks|worst back 7.6 cm
+TRACK Hoecken slider|height 6.00|length 15.0|seed 1|forward 23.8 cm|0.40 cm/s|sideways 8.4 cm|stood up 0|air 5.7%
+LOGS Hoecken slider|amp 6|bump 15|seed 1|face 2.7%|kicked back 35.0% of half-seconds|airborne in 34 of 42 kicks|worst back 9.0 cm
+TRACK Hoecken slider|height 6.00|length 15.0|seed 2|forward 35.8 cm|0.60 cm/s|sideways 7.4 cm|stood up 0|air 7.7%
+LOGS Hoecken slider|amp 6|bump 15|seed 2|face 22.0%|kicked back 28.3% of half-seconds|airborne in 25 of 34 kicks|worst back 17.2 cm
+TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 1|forward 444.6 cm|7.41 cm/s|sideways -1.4 cm|stood up 0|air 4.4%
+LOGS Hoecken-Spears slider|amp 2|bump 15|seed 1|face 0.3%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back 0.2 cm
+TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 2|forward 429.0 cm|7.15 cm/s|sideways -11.2 cm|stood up 0|air 3.8%
+LOGS Hoecken-Spears slider|amp 2|bump 15|seed 2|face 0.2%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 242.9 cm|4.05 cm/s|sideways -26.3 cm|stood up 0|air 15.7%
+LOGS Hoecken-Spears slider|amp 4|bump 15|seed 1|face 8.9%|kicked back 19.2% of half-seconds|airborne in 19 of 23 kicks|worst back 5.7 cm
+TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 290.5 cm|4.84 cm/s|sideways 2.1 cm|stood up 0|air 13.1%
+LOGS Hoecken-Spears slider|amp 4|bump 15|seed 2|face 8.6%|kicked back 16.7% of half-seconds|airborne in 16 of 20 kicks|worst back 6.0 cm
+TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 1|forward 28.4 cm|0.47 cm/s|sideways 28.1 cm|stood up 0|air 14.7%
+LOGS Hoecken-Spears slider|amp 6|bump 15|seed 1|face 2.6%|kicked back 37.5% of half-seconds|airborne in 32 of 45 kicks|worst back 12.2 cm
+TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 2|forward 5.0 cm|0.08 cm/s|sideways -49.6 cm|stood up 0|air 19.1%
+LOGS Hoecken-Spears slider|amp 6|bump 15|seed 2|face 7.7%|kicked back 31.7% of half-seconds|airborne in 34 of 38 kicks|worst back 13.8 cm
+TRACK Hoecken-Spears 4-bar|height 2.00|length 15.0|seed 1|forward 450.0 cm|7.50 cm/s|sideways 1.6 cm|stood up 0|air 3.6%
+LOGS Hoecken-Spears 4-bar|amp 2|bump 15|seed 1|face 0.2%|kicked back 0.8% of half-seconds|airborne in 1 of 1 kicks|worst back 0.7 cm
+TRACK Hoecken-Spears 4-bar|height 2.00|length 15.0|seed 2|forward 454.5 cm|7.57 cm/s|sideways -3.1 cm|stood up 0|air 2.8%
+LOGS Hoecken-Spears 4-bar|amp 2|bump 15|seed 2|face 0.5%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 232.9 cm|3.88 cm/s|sideways 8.3 cm|stood up 0|air 11.8%
+LOGS Hoecken-Spears 4-bar|amp 4|bump 15|seed 1|face 11.3%|kicked back 23.3% of half-seconds|airborne in 25 of 28 kicks|worst back 6.6 cm
+TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 387.1 cm|6.45 cm/s|sideways -5.2 cm|stood up 0|air 5.7%
+LOGS Hoecken-Spears 4-bar|amp 4|bump 15|seed 2|face 11.8%|kicked back 4.2% of half-seconds|airborne in 4 of 5 kicks|worst back 5.8 cm
+TRACK Hoecken-Spears 4-bar|height 6.00|length 15.0|seed 1|forward 29.3 cm|0.49 cm/s|sideways 46.1 cm|stood up 0|air 16.2%
+LOGS Hoecken-Spears 4-bar|amp 6|bump 15|seed 1|face 6.1%|kicked back 34.2% of half-seconds|airborne in 37 of 41 kicks|worst back 11.5 cm
+TRACK Hoecken-Spears 4-bar|height 6.00|length 15.0|seed 2|forward -6.3 cm|-0.11 cm/s|sideways -12.9 cm|stood up 0|air 17.5%
+LOGS Hoecken-Spears 4-bar|amp 6|bump 15|seed 2|face 9.4%|kicked back 30.0% of half-seconds|airborne in 29 of 36 kicks|worst back 15.4 cm
+TRACK Hoecken-Spears 4-bar diag|height 2.00|length 15.0|seed 1|forward 428.8 cm|7.15 cm/s|sideways -9.6 cm|stood up 0|air 4.8%
+LOGS Hoecken-Spears 4-bar diag|amp 2|bump 15|seed 1|face 0.5%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears 4-bar diag|height 2.00|length 15.0|seed 2|forward 434.9 cm|7.25 cm/s|sideways -3.2 cm|stood up 0|air 5.5%
+LOGS Hoecken-Spears 4-bar diag|amp 2|bump 15|seed 2|face 0.1%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 209.5 cm|3.49 cm/s|sideways 17.6 cm|stood up 0|air 10.9%
+LOGS Hoecken-Spears 4-bar diag|amp 4|bump 15|seed 1|face 11.6%|kicked back 23.3% of half-seconds|airborne in 26 of 28 kicks|worst back 6.8 cm
+TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 280.5 cm|4.67 cm/s|sideways 19.9 cm|stood up 0|air 8.8%
+LOGS Hoecken-Spears 4-bar diag|amp 4|bump 15|seed 2|face 17.6%|kicked back 15.0% of half-seconds|airborne in 16 of 18 kicks|worst back 5.2 cm
+TRACK Hoecken-Spears 4-bar diag|height 6.00|length 15.0|seed 1|forward 24.7 cm|0.41 cm/s|sideways 6.5 cm|stood up 0|air 12.2%
+LOGS Hoecken-Spears 4-bar diag|amp 6|bump 15|seed 1|face 11.4%|kicked back 37.5% of half-seconds|airborne in 37 of 45 kicks|worst back 10.6 cm
+TRACK Hoecken-Spears 4-bar diag|height 6.00|length 15.0|seed 2|forward -17.0 cm|-0.28 cm/s|sideways 47.7 cm|stood up 0|air 15.4%
+LOGS Hoecken-Spears 4-bar diag|amp 6|bump 15|seed 2|face 21.2%|kicked back 33.3% of half-seconds|airborne in 33 of 40 kicks|worst back 16.3 cm
+TRACK Hoecken-Spears long-stance|height 2.00|length 15.0|seed 1|forward 481.8 cm|8.03 cm/s|sideways -2.9 cm|stood up 0|air 11.5%
+LOGS Hoecken-Spears long-stance|amp 2|bump 15|seed 1|face 0.1%|kicked back 0.8% of half-seconds|airborne in 1 of 1 kicks|worst back 0.8 cm
+TRACK Hoecken-Spears long-stance|height 2.00|length 15.0|seed 2|forward 478.7 cm|7.98 cm/s|sideways -0.9 cm|stood up 0|air 11.6%
+LOGS Hoecken-Spears long-stance|amp 2|bump 15|seed 2|face 0.1%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 244.1 cm|4.07 cm/s|sideways -3.0 cm|stood up 0|air 25.7%
+LOGS Hoecken-Spears long-stance|amp 4|bump 15|seed 1|face 4.7%|kicked back 25.8% of half-seconds|airborne in 31 of 31 kicks|worst back 8.7 cm
+TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 274.4 cm|4.57 cm/s|sideways 3.5 cm|stood up 0|air 22.7%
+LOGS Hoecken-Spears long-stance|amp 4|bump 15|seed 2|face 8.5%|kicked back 20.0% of half-seconds|airborne in 24 of 24 kicks|worst back 10.9 cm
+TRACK Hoecken-Spears long-stance|height 6.00|length 15.0|seed 1|forward 18.3 cm|0.31 cm/s|sideways 7.3 cm|stood up 0|air 24.8%
+LOGS Hoecken-Spears long-stance|amp 6|bump 15|seed 1|face 2.2%|kicked back 31.7% of half-seconds|airborne in 34 of 38 kicks|worst back 12.9 cm
+TRACK Hoecken-Spears long-stance|height 6.00|length 15.0|seed 2|forward -6.1 cm|-0.10 cm/s|sideways 6.1 cm|stood up 0|air 31.1%
+LOGS Hoecken-Spears long-stance|amp 6|bump 15|seed 2|face 11.8%|kicked back 34.2% of half-seconds|airborne in 37 of 41 kicks|worst back 14.4 cm
+TRACK Hoecken-Spears long-stance diag|height 2.00|length 15.0|seed 1|forward 437.7 cm|7.29 cm/s|sideways -9.9 cm|stood up 0|air 17.1%
+LOGS Hoecken-Spears long-stance diag|amp 2|bump 15|seed 1|face 0.1%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears long-stance diag|height 2.00|length 15.0|seed 2|forward 434.2 cm|7.24 cm/s|sideways -3.5 cm|stood up 0|air 17.9%
+LOGS Hoecken-Spears long-stance diag|amp 2|bump 15|seed 2|face 0.0%|kicked back 0.0% of half-seconds|airborne in 0 of 0 kicks|worst back -0.0 cm
+TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 447.4 cm|7.46 cm/s|sideways -0.9 cm|stood up 0|air 16.0%
+LOGS Hoecken-Spears long-stance diag|amp 4|bump 15|seed 1|face 11.6%|kicked back 5.8% of half-seconds|airborne in 4 of 7 kicks|worst back 2.5 cm
+TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 321.2 cm|5.35 cm/s|sideways -41.0 cm|stood up 0|air 22.2%
+LOGS Hoecken-Spears long-stance diag|amp 4|bump 15|seed 2|face 9.6%|kicked back 12.5% of half-seconds|airborne in 15 of 15 kicks|worst back 4.6 cm
+TRACK Hoecken-Spears long-stance diag|height 6.00|length 15.0|seed 1|forward 19.5 cm|0.33 cm/s|sideways -30.0 cm|stood up 0|air 29.1%
+LOGS Hoecken-Spears long-stance diag|amp 6|bump 15|seed 1|face 9.7%|kicked back 36.7% of half-seconds|airborne in 39 of 44 kicks|worst back 14.1 cm
+TRACK Hoecken-Spears long-stance diag|height 6.00|length 15.0|seed 2|forward 35.3 cm|0.59 cm/s|sideways 40.2 cm|stood up 0|air 26.3%
+LOGS Hoecken-Spears long-stance diag|amp 6|bump 15|seed 2|face 13.9%|kicked back 32.5% of half-seconds|airborne in 33 of 39 kicks|worst back 14.4 cm
+TRACK Spears lift 44|height 2.00|length 15.0|seed 1|forward 468.7 cm|7.81 cm/s|sideways 2.8 cm|stood up 0|air 0.5%
+LOGS Spears lift 44|amp 2|bump 15|seed 1|face 0.2%|kicked back 0.8% of half-seconds|airborne in 0 of 1 kicks|worst back 0.5 cm
+TRACK Spears lift 44|height 2.00|length 15.0|seed 2|forward 455.3 cm|7.59 cm/s|sideways 2.2 cm|stood up 0|air 0.6%
+LOGS Spears lift 44|amp 2|bump 15|seed 2|face 0.1%|kicked back 0.8% of half-seconds|airborne in 0 of 1 kicks|worst back 0.9 cm
+TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 435.8 cm|7.26 cm/s|sideways 1.0 cm|stood up 0|air 2.5%
+LOGS Spears lift 44|amp 4|bump 15|seed 1|face 4.8%|kicked back 6.7% of half-seconds|airborne in 1 of 8 kicks|worst back 3.0 cm
+TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 454.8 cm|7.58 cm/s|sideways -0.9 cm|stood up 0|air 2.9%
+LOGS Spears lift 44|amp 4|bump 15|seed 2|face 5.6%|kicked back 2.5% of half-seconds|airborne in 0 of 3 kicks|worst back 1.0 cm
+TRACK Spears lift 44|height 6.00|length 15.0|seed 1|forward 87.0 cm|1.45 cm/s|sideways 8.0 cm|stood up 0|air 2.6%
+LOGS Spears lift 44|amp 6|bump 15|seed 1|face 4.4%|kicked back 40.0% of half-seconds|airborne in 13 of 48 kicks|worst back 6.2 cm
+TRACK Spears lift 44|height 6.00|length 15.0|seed 2|forward 266.9 cm|4.45 cm/s|sideways -0.8 cm|stood up 0|air 2.3%
+LOGS Spears lift 44|amp 6|bump 15|seed 2|face 3.3%|kicked back 21.7% of half-seconds|airborne in 2 of 26 kicks|worst back 5.8 cm
+TRACK Spears lift 44 diag|height 2.00|length 15.0|seed 1|forward 449.1 cm|7.49 cm/s|sideways -3.6 cm|stood up 0|air 10.6%
+LOGS Spears lift 44 diag|amp 2|bump 15|seed 1|face 0.2%|kicked back 1.7% of half-seconds|airborne in 1 of 2 kicks|worst back 1.0 cm
+TRACK Spears lift 44 diag|height 2.00|length 15.0|seed 2|forward 459.2 cm|7.65 cm/s|sideways 8.8 cm|stood up 0|air 11.1%
+LOGS Spears lift 44 diag|amp 2|bump 15|seed 2|face 0.4%|kicked back 1.7% of half-seconds|airborne in 1 of 2 kicks|worst back 1.4 cm
+TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 444.9 cm|7.41 cm/s|sideways -3.5 cm|stood up 0|air 11.4%
+LOGS Spears lift 44 diag|amp 4|bump 15|seed 1|face 8.7%|kicked back 9.2% of half-seconds|airborne in 5 of 11 kicks|worst back 3.0 cm
+TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 426.0 cm|7.10 cm/s|sideways -5.1 cm|stood up 0|air 12.7%
+LOGS Spears lift 44 diag|amp 4|bump 15|seed 2|face 10.6%|kicked back 5.8% of half-seconds|airborne in 4 of 7 kicks|worst back 2.1 cm
+TRACK Spears lift 44 diag|height 6.00|length 15.0|seed 1|forward 122.1 cm|2.04 cm/s|sideways -3.3 cm|stood up 0|air 14.6%
+LOGS Spears lift 44 diag|amp 6|bump 15|seed 1|face 7.2%|kicked back 32.5% of half-seconds|airborne in 31 of 39 kicks|worst back 7.9 cm
+TRACK Spears lift 44 diag|height 6.00|length 15.0|seed 2|forward 232.2 cm|3.87 cm/s|sideways 4.3 cm|stood up 0|air 13.7%
+LOGS Spears lift 44 diag|amp 6|bump 15|seed 2|face 7.4%|kicked back 20.0% of half-seconds|airborne in 15 of 24 kicks|worst back 8.2 cm
+TRACK Spears lift 53|height 2.00|length 15.0|seed 1|forward 428.2 cm|7.14 cm/s|sideways 1.3 cm|stood up 0|air 4.5%
+LOGS Spears lift 53|amp 2|bump 15|seed 1|face 0.1%|kicked back 1.7% of half-seconds|airborne in 0 of 2 kicks|worst back 1.7 cm
+TRACK Spears lift 53|height 2.00|length 15.0|seed 2|forward 430.4 cm|7.17 cm/s|sideways -4.8 cm|stood up 0|air 5.6%
+LOGS Spears lift 53|amp 2|bump 15|seed 2|face 0.1%|kicked back 1.7% of half-seconds|airborne in 1 of 2 kicks|worst back 1.2 cm
+TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 379.7 cm|6.33 cm/s|sideways 5.1 cm|stood up 0|air 7.5%
+LOGS Spears lift 53|amp 4|bump 15|seed 1|face 2.6%|kicked back 6.7% of half-seconds|airborne in 2 of 8 kicks|worst back 3.4 cm
+TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 396.9 cm|6.61 cm/s|sideways -1.5 cm|stood up 0|air 8.4%
+LOGS Spears lift 53|amp 4|bump 15|seed 2|face 3.9%|kicked back 8.3% of half-seconds|airborne in 4 of 10 kicks|worst back 2.9 cm
+TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 118.4 cm|1.97 cm/s|sideways -1.9 cm|stood up 0|air 7.5%
+LOGS Spears lift 53|amp 6|bump 15|seed 1|face 4.9%|kicked back 33.3% of half-seconds|airborne in 15 of 40 kicks|worst back 6.8 cm
+TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 77.4 cm|1.29 cm/s|sideways -4.4 cm|stood up 0|air 8.5%
+LOGS Spears lift 53|amp 6|bump 15|seed 2|face 2.5%|kicked back 35.8% of half-seconds|airborne in 24 of 43 kicks|worst back 7.4 cm
+TRACK Spears lift 53 diag|height 2.00|length 15.0|seed 1|forward 430.7 cm|7.18 cm/s|sideways -1.1 cm|stood up 0|air 20.9%
+LOGS Spears lift 53 diag|amp 2|bump 15|seed 1|face 0.1%|kicked back 7.5% of half-seconds|airborne in 7 of 9 kicks|worst back 2.2 cm
+TRACK Spears lift 53 diag|height 2.00|length 15.0|seed 2|forward 428.1 cm|7.14 cm/s|sideways 0.3 cm|stood up 0|air 17.5%
+LOGS Spears lift 53 diag|amp 2|bump 15|seed 2|face 0.3%|kicked back 5.8% of half-seconds|airborne in 4 of 7 kicks|worst back 2.9 cm
+TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 341.5 cm|5.69 cm/s|sideways -7.2 cm|stood up 0|air 19.5%
+LOGS Spears lift 53 diag|amp 4|bump 15|seed 1|face 10.6%|kicked back 15.0% of half-seconds|airborne in 13 of 18 kicks|worst back 4.8 cm
+TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 365.0 cm|6.08 cm/s|sideways 2.6 cm|stood up 0|air 19.3%
+LOGS Spears lift 53 diag|amp 4|bump 15|seed 2|face 7.3%|kicked back 13.3% of half-seconds|airborne in 10 of 16 kicks|worst back 4.2 cm
+TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 372.2 cm|6.20 cm/s|sideways -2.8 cm|stood up 0|air 19.9%
+LOGS Spears lift 53 diag|amp 6|bump 15|seed 1|face 7.9%|kicked back 11.7% of half-seconds|airborne in 8 of 14 kicks|worst back 6.9 cm
+TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 348.0 cm|5.80 cm/s|sideways 15.9 cm|stood up 0|air 19.5%
+LOGS Spears lift 53 diag|amp 6|bump 15|seed 2|face 12.2%|kicked back 15.8% of half-seconds|airborne in 16 of 19 kicks|worst back 4.2 cm

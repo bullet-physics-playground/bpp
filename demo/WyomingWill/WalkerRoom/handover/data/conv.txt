@@ -1,0 +1,48 @@
+g70 1/960|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 598.5 cm|9.97 cm/s|sideways 0.3 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.15 cm|typical 0.01 cm
+g70 1/1920|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 601.3 cm|10.02 cm/s|sideways -1.1 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.10 cm|typical 0.00 cm
+g981 1/3840|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 599.9 cm|10.00 cm/s|sideways -26.0 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.08 cm|typical 0.01 cm
+g981 1/7680|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 599.4 cm|9.99 cm/s|sideways -14.8 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.02 cm|typical 0.00 cm
+g70 1/960|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 301.6 cm|5.03 cm/s|sideways 12.8 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.33 cm|typical 0.02 cm
+g70 1/1920|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 265.3 cm|4.42 cm/s|sideways -70.5 cm|stood up 0|air 0.1% SINK Jansen|deepest 0.14 cm|typical 0.00 cm
+g981 1/3840|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 443.0 cm|7.38 cm/s|sideways -50.4 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.15 cm|typical 0.01 cm
+g981 1/7680|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 467.2 cm|7.79 cm/s|sideways 8.7 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.12 cm|typical 0.00 cm
+g70 1/960|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 403.8 cm|6.73 cm/s|sideways 16.2 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.22 cm|typical 0.02 cm
+g70 1/1920|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 393.2 cm|6.55 cm/s|sideways 53.4 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.11 cm|typical 0.00 cm
+g981 1/3840|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 491.6 cm|8.19 cm/s|sideways -67.2 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.15 cm|typical 0.01 cm
+g981 1/7680|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 508.7 cm|8.48 cm/s|sideways -33.4 cm|stood up 0|air 0.0% SINK Jansen|deepest 0.13 cm|typical 0.00 cm
+g70 1/960|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 504.2 cm|8.40 cm/s|sideways 59.1 cm|stood up 0|air 0.0% SINK Klann|deepest 0.17 cm|typical 0.01 cm
+g70 1/1920|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 512.9 cm|8.55 cm/s|sideways 78.9 cm|stood up 0|air 0.0% SINK Klann|deepest 0.14 cm|typical 0.00 cm
+g981 1/3840|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 547.3 cm|9.12 cm/s|sideways 51.7 cm|stood up 0|air 0.0% SINK Klann|deepest 0.12 cm|typical 0.01 cm
+g981 1/7680|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 549.0 cm|9.15 cm/s|sideways 47.4 cm|stood up 0|air 0.0% SINK Klann|deepest 0.08 cm|typical 0.00 cm
+g70 1/960|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 331.5 cm|5.52 cm/s|sideways 23.7 cm|stood up 0|air 0.5% SINK Klann|deepest 0.27 cm|typical 0.01 cm
+g70 1/1920|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 333.9 cm|5.56 cm/s|sideways 47.2 cm|stood up 0|air 0.5% SINK Klann|deepest 0.13 cm|typical 0.00 cm
+g981 1/3840|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 483.9 cm|8.07 cm/s|sideways -47.8 cm|stood up 0|air 0.1% SINK Klann|deepest 0.24 cm|typical 0.01 cm
+g981 1/7680|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 482.1 cm|8.04 cm/s|sideways -56.6 cm|stood up 0|air 0.1% SINK Klann|deepest 0.13 cm|typical 0.00 cm
+g70 1/960|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 400.7 cm|6.68 cm/s|sideways 27.7 cm|stood up 0|air 0.0% SINK Klann|deepest 0.24 cm|typical 0.01 cm
+g70 1/1920|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 405.6 cm|6.76 cm/s|sideways 24.5 cm|stood up 0|air 0.0% SINK Klann|deepest 0.11 cm|typical 0.00 cm
+g981 1/3840|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 488.4 cm|8.14 cm/s|sideways -49.6 cm|stood up 0|air 0.0% SINK Klann|deepest 0.20 cm|typical 0.01 cm
+g981 1/7680|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 472.1 cm|7.87 cm/s|sideways 88.1 cm|stood up 0|air 0.0% SINK Klann|deepest 0.17 cm|typical 0.00 cm
+g70 1/960|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 490.1 cm|8.17 cm/s|sideways 18.6 cm|stood up 0|air 4.0% SINK Spears lift 44 diag|deepest 0.15 cm|typical 0.02 cm
+g70 1/1920|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 522.9 cm|8.71 cm/s|sideways 37.5 cm|stood up 0|air 1.9% SINK Spears lift 44 diag|deepest 0.16 cm|typical 0.00 cm
+g981 1/3840|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 530.4 cm|8.84 cm/s|sideways -44.6 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.04 cm|typical 0.01 cm
+g981 1/7680|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 534.6 cm|8.91 cm/s|sideways -27.3 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.01 cm|typical 0.00 cm
+g70 1/960|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 439.6 cm|7.33 cm/s|sideways -2.3 cm|stood up 0|air 3.1% SINK Spears lift 44 diag|deepest 0.20 cm|typical 0.02 cm
+g70 1/1920|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 459.8 cm|7.66 cm/s|sideways 30.0 cm|stood up 0|air 1.4% SINK Spears lift 44 diag|deepest 0.13 cm|typical 0.00 cm
+g981 1/3840|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 491.2 cm|8.19 cm/s|sideways -73.5 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.18 cm|typical 0.01 cm
+g981 1/7680|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 490.4 cm|8.17 cm/s|sideways -40.7 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.13 cm|typical 0.00 cm
+g70 1/960|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 451.2 cm|7.52 cm/s|sideways 44.1 cm|stood up 0|air 2.2% SINK Spears lift 44 diag|deepest 0.37 cm|typical 0.02 cm
+g70 1/1920|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 476.3 cm|7.94 cm/s|sideways 51.3 cm|stood up 0|air 1.7% SINK Spears lift 44 diag|deepest 0.17 cm|typical 0.00 cm
+g981 1/3840|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 489.1 cm|8.15 cm/s|sideways 4.3 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.17 cm|typical 0.01 cm
+g981 1/7680|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 503.5 cm|8.39 cm/s|sideways -12.0 cm|stood up 0|air 0.1% SINK Spears lift 44 diag|deepest 0.08 cm|typical 0.00 cm
+g70 1/960|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 539.7 cm|9.00 cm/s|sideways 2.0 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.15 cm|typical 0.01 cm
+g70 1/1920|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 542.9 cm|9.05 cm/s|sideways 4.5 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.04 cm|typical 0.00 cm
+g981 1/3840|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 542.2 cm|9.04 cm/s|sideways -6.5 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.01 cm|typical 0.00 cm
+g981 1/7680|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 545.4 cm|9.09 cm/s|sideways -3.3 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.00 cm|typical 0.00 cm
+g70 1/960|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 130.5 cm|2.18 cm/s|sideways 17.9 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.18 cm|typical 0.01 cm
+g70 1/1920|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 131.3 cm|2.19 cm/s|sideways 8.0 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.14 cm|typical 0.00 cm
+g981 1/3840|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 181.8 cm|3.03 cm/s|sideways 44.7 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.14 cm|typical 0.01 cm
+g981 1/7680|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 313.3 cm|5.22 cm/s|sideways 37.4 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.13 cm|typical 0.00 cm
+g70 1/960|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 223.1 cm|3.72 cm/s|sideways 9.0 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.25 cm|typical 0.01 cm
+g70 1/1920|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 222.5 cm|3.71 cm/s|sideways 30.6 cm|stood up 0|air 0.3% SINK Chebyshev|deepest 0.15 cm|typical 0.00 cm
+g981 1/3840|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 405.4 cm|6.76 cm/s|sideways 45.9 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.13 cm|typical 0.00 cm
+g981 1/7680|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 389.1 cm|6.48 cm/s|sideways 75.6 cm|stood up 0|air 0.1% SINK Chebyshev|deepest 0.11 cm|typical 0.00 cm

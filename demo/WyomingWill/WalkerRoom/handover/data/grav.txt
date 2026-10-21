@@ -1,0 +1,54 @@
+g981|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g70|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g70|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g981|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g70|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g981|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '44'
+g70|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 598.5 cm|9.97 cm/s|sideways 0.3 cm|stood up 0|air 0.0% TILT Jansen|pitch max 1.7|roll max 2.4|heading 358.5 deg
+g981|Jansen|AMP=0|TRACK Jansen|height 0.00|length 15.0|seed 1|forward 215.7 cm|3.59 cm/s|sideways 46.3 cm|stood up 0|air 0.0% TILT Jansen|pitch max 16.2|roll max 20.5|heading 341.2 deg
+g70|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 301.6 cm|5.03 cm/s|sideways 12.8 cm|stood up 0|air 0.0% TILT Jansen|pitch max 11.8|roll max 10.7|heading 349.4 deg
+g981|Jansen|TERRAIN="logs"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 140.8 cm|2.35 cm/s|sideways 58.6 cm|stood up 0|air 0.0% TILT Jansen|pitch max 16.3|roll max 19.3|heading 272.8 deg
+g70|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 403.8 cm|6.73 cm/s|sideways 16.2 cm|stood up 0|air 0.0% TILT Jansen|pitch max 14.3|roll max 13.6|heading 3.6 deg
+g981|Jansen|TERRAIN="steps"; AMP=4|TRACK Jansen|height 4.00|length 15.0|seed 1|forward 110.7 cm|1.84 cm/s|sideways 19.5 cm|stood up 0|air 0.0% TILT Jansen|pitch max 17.3|roll max 29.2|heading 280.0 deg
+g70|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 504.2 cm|8.40 cm/s|sideways 59.1 cm|stood up 0|air 0.0% TILT Klann|pitch max 10.4|roll max 14.0|heading -14.1 deg
+g981|Klann|AMP=0|TRACK Klann|height 0.00|length 15.0|seed 1|forward 78.0 cm|1.30 cm/s|sideways 11.4 cm|stood up 0|air 0.0% TILT Klann|pitch max 24.5|roll max 30.5|heading 6.7 deg
+g70|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 331.5 cm|5.52 cm/s|sideways 23.7 cm|stood up 0|air 0.5% TILT Klann|pitch max 15.1|roll max 16.4|heading -15.3 deg
+g981|Klann|TERRAIN="logs"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 49.4 cm|0.82 cm/s|sideways 19.0 cm|stood up 0|air 0.1% TILT Klann|pitch max 37.1|roll max 42.6|heading -36.4 deg
+g70|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 400.7 cm|6.68 cm/s|sideways 27.7 cm|stood up 0|air 0.0% TILT Klann|pitch max 17.1|roll max 17.5|heading 1.4 deg
+g981|Klann|TERRAIN="steps"; AMP=4|TRACK Klann|height 4.00|length 15.0|seed 1|forward 23.7 cm|0.40 cm/s|sideways 5.7 cm|stood up 0|air 0.0% TILT Klann|pitch max 24.2|roll max 23.4|heading -32.3 deg
+g981|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g70|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g70|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g981|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g70|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g981|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: unexpected symbol near '4'
+g70|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 539.7 cm|9.00 cm/s|sideways 2.0 cm|stood up 0|air 0.3% TILT Chebyshev|pitch max 1.1|roll max 1.4|heading 359.9 deg
+g981|Chebyshev|AMP=0|TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 477.5 cm|7.96 cm/s|sideways -9.8 cm|stood up 0|air 0.1% TILT Chebyshev|pitch max 5.5|roll max 6.4|heading 8.8 deg
+g70|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 130.5 cm|2.18 cm/s|sideways 17.9 cm|stood up 0|air 0.3% TILT Chebyshev|pitch max 9.4|roll max 12.5|heading 1.8 deg
+g981|Chebyshev|TERRAIN="logs"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 261.5 cm|4.36 cm/s|sideways 3.3 cm|stood up 0|air 0.1% TILT Chebyshev|pitch max 9.7|roll max 9.8|heading 356.8 deg
+g70|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 223.1 cm|3.72 cm/s|sideways 9.0 cm|stood up 0|air 0.3% TILT Chebyshev|pitch max 11.7|roll max 10.0|heading 348.5 deg
+g981|Chebyshev|TERRAIN="steps"; AMP=4|TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 358.5 cm|5.97 cm/s|sideways 82.7 cm|stood up 0|air 0.1% TILT Chebyshev|pitch max 11.6|roll max 11.3|heading 350.3 deg
+g981|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g70|Spears|AMP=0|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g981|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g70|Spears|TERRAIN="logs"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g981|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g70|Spears|TERRAIN="steps"; AMP=4|error: [string "dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua..."]:1: '=' expected near '53'
+g70|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 490.1 cm|8.17 cm/s|sideways 18.6 cm|stood up 0|air 4.0% TILT Spears lift 44 diag|pitch max 5.7|roll max 8.9|heading 358.9 deg
+g981|Spears lift 44 diag|AMP=0|TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 482.2 cm|8.04 cm/s|sideways -28.9 cm|stood up 0|air 0.1% TILT Spears lift 44 diag|pitch max 16.2|roll max 29.1|heading 0.5 deg
+g70|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 439.6 cm|7.33 cm/s|sideways -2.3 cm|stood up 0|air 3.1% TILT Spears lift 44 diag|pitch max 11.9|roll max 14.5|heading 7.2 deg
+g981|Spears lift 44 diag|TERRAIN="logs"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 257.7 cm|4.30 cm/s|sideways -34.8 cm|stood up 1|air 0.1% TILT Spears lift 44 diag|pitch max 20.9|roll max 86.4|heading 20.1 deg
+g70|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 451.2 cm|7.52 cm/s|sideways 44.1 cm|stood up 0|air 2.2% TILT Spears lift 44 diag|pitch max 15.2|roll max 14.4|heading 355.2 deg
+g981|Spears lift 44 diag|TERRAIN="steps"; AMP=4|TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward -34.6 cm|-0.58 cm/s|sideways 63.1 cm|stood up 3|air 0.1% TILT Spears lift 44 diag|pitch max 81.3|roll max 84.9|heading 235.5 deg
+g70|Spears 4-bar|AMP=0|TRACK Spears 4-bar|height 0.00|length 15.0|seed 1|forward 408.6 cm|6.81 cm/s|sideways -5.7 cm|stood up 0|air 0.0% TILT Spears 4-bar|pitch max 7.9|roll max 10.8|heading 359.8 deg
+g981|Spears 4-bar|AMP=0|TRACK Spears 4-bar|height 0.00|length 15.0|seed 1|forward 458.9 cm|7.65 cm/s|sideways 82.8 cm|stood up 0|air 0.0% TILT Spears 4-bar|pitch max 11.1|roll max 19.0|heading 355.5 deg
+g70|Spears 4-bar|TERRAIN="logs"; AMP=4|TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 17.9 cm|0.30 cm/s|sideways 0.9 cm|stood up 0|air 0.2% TILT Spears 4-bar|pitch max 8.1|roll max 14.1|heading 6.6 deg
+g981|Spears 4-bar|TERRAIN="logs"; AMP=4|TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 175.4 cm|2.92 cm/s|sideways 2.8 cm|stood up 0|air 0.0% TILT Spears 4-bar|pitch max 15.6|roll max 30.0|heading 35.2 deg
+g70|Spears 4-bar|TERRAIN="steps"; AMP=4|TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 96.4 cm|1.61 cm/s|sideways 0.5 cm|stood up 0|air 0.0% TILT Spears 4-bar|pitch max 14.3|roll max 13.7|heading 353.5 deg
+g981|Spears 4-bar|TERRAIN="steps"; AMP=4|TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 288.4 cm|4.81 cm/s|sideways 18.1 cm|stood up 0|air 0.0% TILT Spears 4-bar|pitch max 17.6|roll max 18.4|heading 8.9 deg
+g70|Spears lift 53|AMP=0|TRACK Spears lift 53|height 0.00|length 15.0|seed 1|forward 496.7 cm|8.28 cm/s|sideways 18.5 cm|stood up 0|air 0.4% TILT Spears lift 53|pitch max 4.6|roll max 6.1|heading 357.2 deg
+g981|Spears lift 53|AMP=0|TRACK Spears lift 53|height 0.00|length 15.0|seed 1|forward 446.3 cm|7.44 cm/s|sideways 15.8 cm|stood up 0|air 0.1% TILT Spears lift 53|pitch max 17.5|roll max 24.0|heading 15.2 deg
+g70|Spears lift 53|TERRAIN="logs"; AMP=4|TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 445.7 cm|7.43 cm/s|sideways 44.8 cm|stood up 0|air 1.0% TILT Spears lift 53|pitch max 10.4|roll max 14.0|heading 350.9 deg
+g981|Spears lift 53|TERRAIN="logs"; AMP=4|TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 315.9 cm|5.26 cm/s|sideways -76.6 cm|stood up 0|air 0.1% TILT Spears lift 53|pitch max 19.7|roll max 23.3|heading 7.2 deg
+g70|Spears lift 53|TERRAIN="steps"; AMP=4|TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 460.2 cm|7.67 cm/s|sideways 3.5 cm|stood up 0|air 0.6% TILT Spears lift 53|pitch max 16.5|roll max 13.0|heading 1.4 deg
+g981|Spears lift 53|TERRAIN="steps"; AMP=4|TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 448.6 cm|7.48 cm/s|sideways 22.7 cm|stood up 0|air 0.1% TILT Spears lift 53|pitch max 26.8|roll max 26.2|heading 359.3 deg

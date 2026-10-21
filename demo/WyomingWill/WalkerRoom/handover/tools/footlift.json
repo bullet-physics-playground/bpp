@@ -1,0 +1,78 @@
+{
+ "Chebyshev-Spears": {
+  "lift": 4.653749999999999,
+  "corner": 4.653749999999999
+ },
+ "Chebyshev-Spears diag": {
+  "lift": 4.218249999999999,
+  "corner": 4.217499999999999
+ },
+ "Chebyshev": {
+  "lift": 2.862,
+  "corner": 2.862
+ },
+ "Chebyshev diag": {
+  "lift": 2.3142499999999995,
+  "corner": 2.3142500000000004
+ },
+ "Hoecken-Spears 4-bar": {
+  "lift": 4.875125,
+  "corner": 4.875
+ },
+ "Hoecken-Spears 4-bar diag": {
+  "lift": 4.393000000000001,
+  "corner": 4.39325
+ },
+ "Hoecken-Spears long-stance": {
+  "lift": 5.0806249999999995,
+  "corner": 5.0805
+ },
+ "Hoecken-Spears long-stance diag": {
+  "lift": 5.076250000000002,
+  "corner": 5.0715
+ },
+ "Hoecken-Spears slider": {
+  "lift": 4.72625,
+  "corner": 4.72625
+ },
+ "Hoecken 4-bar": {
+  "lift": 3.0500000000000007,
+  "corner": 3.0500000000000007
+ },
+ "Hoecken 4-bar diag": {
+  "lift": 2.600125,
+  "corner": 2.60025
+ },
+ "Hoecken slider": {
+  "lift": 3.6975000000000007,
+  "corner": 3.6975000000000007
+ },
+ "Jansen": {
+  "lift": 4.9415,
+  "corner": 6.065249999999999
+ },
+ "Klann": {
+  "lift": 7.8425,
+  "corner": 8.31625
+ },
+ "Spears 4-bar": {
+  "lift": 5.5806249999999995,
+  "corner": 4.97325
+ },
+ "Spears lift 44": {
+  "lift": 7.7101250000000014,
+  "corner": 7.710000000000001
+ },
+ "Spears lift 44 diag": {
+  "lift": 7.703,
+  "corner": 7.7017500000000005
+ },
+ "Spears lift 53": {
+  "lift": 9.277750000000001,
+  "corner": 9.277750000000001
+ },
+ "Spears lift 53 diag": {
+  "lift": 9.22025,
+  "corner": 9.2185
+ }
+}

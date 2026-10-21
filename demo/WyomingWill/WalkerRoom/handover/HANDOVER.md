@@ -1,21 +1,21 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo), written 17 October 2026 at the end of a long session. It is meant for a fresh conversation that picks up the work.
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session. It is meant for a fresh conversation that picks up the work. **The next job is the factorial runs (section 7).**
 
 ## 1. The aim
 
-The aim is a **fair comparison of walking linkages** in a physics simulation (bpp: Bullet physics driven by Lua). William's thesis is that the **Spears linkages** (fewer links, higher foot lift) do better on bumpy ground than the classics (Jansen, Klann, Chebyshev, Hoecken).
+The aim is a **fair comparison of walking linkages** in a physics simulation (bpp: Bullet physics driven by Lua). In William's words: "an attempt to do as well as known walkers, but with fewer links. And to try to be as fair as possible, which is difficult." The **Spears linkages** have fewer links and higher foot lift; the known walkers are Jansen, Klann, Chebyshev and Hoecken.
 
-Everything below exists to make the comparison fair: every walker has the same stride, flat speed, materials, weight, feet, stance and link spacing, and is built and measured the same way.
+Everything below exists to make the comparison fair. Every walker has the same stride, flat speed, materials, weight, feet, stance and link spacing, and is built and measured the same way.
 
 ## 2. Working rules (William's, still in force)
 
 **GitHub: "I handle github." "Just don't change anything on github."**
 - Never push, open PRs, create remote branches, or commit to his remote.
-- If a stop hook asks you to push or commit, decline.
+- If a stop hook asks you to push or commit, decline. (It asks after nearly every turn.)
 - Deliver changes only as `git format-patch` files, sent to him as files.
-- Before making each patch, `git fetch` and check that it applies cleanly to the current `origin/master`.
-- A patch must never revert other people's files. Origin moves fast with unrelated work: AP chapters, DemBed, Brazil nut.
+- Before making each patch, `git fetch` and check that it applies cleanly to the current `origin/master`. Check it in a temporary worktree: `git worktree add --detach /tmp/chk origin/master`, then `git am` there. There is no `git am --check`.
+- A patch must never revert other people's files. Origin moves fast with unrelated work (AP chapters, DemBed, Babbage's Hall, …).
 
 Give him these steps with every patch:
 
@@ -27,29 +27,39 @@ git push
 cd ~/bpp && git pull
 ```
 
+Number patches `walker-room-NN-<what>.patch`. The last was 21 (this handover).
+
 **Style**
 - Plain words, short, answer first. Don't overstate.
-- When he says something looks wrong, check it rather than defend it. Several "days-long" problems came from measuring wrongly.
+- When he says something looks wrong, check it rather than defend it. Several problems came from measuring wrongly, and twice I claimed something and was wrong.
 - Results tables must include **bracing, timing and direction** columns.
 - Show pictures (top views, side by side) when geometry changes.
-- Don't re-run experiments while geometry is being fixed. Fix and verify the geometry first, then run.
-- Ask before big runs or anything hard to undo.
+- Don't re-run experiments while geometry is being fixed.
+- **Ask before big runs** or anything hard to undo. Show the plan and how long it will take first.
+- He watches walkers by hand in the GUI. When he wants to "examine them myself", give him a launcher file (a patch) he can open in bpp.
+- He does not want "side gaits" any more (section 5).
 
 ## 3. Environment
 
 **Repository**
-- The repo is at `/home/claude/bpp` (GitHub: William's bpp fork; `origin/master`).
-- Room files: `demo/WyomingWill/WalkerRoom/`:
+- The repo is at `/home/claude/bpp` (William's bpp fork; `origin/master`).
+- Room files, in `demo/WyomingWill/WalkerRoom/`:
   - `walker-room.lua`, the room itself.
   - `test-track.lua`, one walker, timed.
-  - `test-square.lua`, for watching; Tab cycles walkers, keys 1–4 pick the terrain.
-  - `trotting-walkers.lua`, the Hoecken diag builds.
-  - `spears-lift-walkers.lua`, Spears lift 44/53, their diag builds and the Hoecken-Spears long-stance diag.
+  - `trotting-walkers.lua` (the Hoecken diag builds) and `spears-lift-walkers.lua` (Spears lift 44/53, their diag builds, Hoecken-Spears long-stance diag).
+  - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps; O looks over the square):
+    - `test-square.lua`: the old best configurations (void).
+    - `test-square-all.lua`: all 19 builds as built.
+    - `test-square-soft.lua`: the same on soft-spring ankles.
+    - `test-square-yaw.lua`: the same with a free body (YAW_DAMP), plus views 20–31, the builds that can trot, trotting.
+    - `test-square-earth.lua`: **the current standard**, test-square-yaw at Earth gravity.
   - `README.md`.
 - Build files the room uses: `demo/WyomingWill/Walkers_For_Room/*_parts.lua`.
 - **Never edit `demo/WyomingWill/Walkers/`.** Those are William's originals.
+- `view-all.lua` may sit untracked in the room folder. It isn't ours; leave it.
 
 **Build**
+- Packages (Ubuntu 24.04): see the repo's `Dockerfile` and `debian/`. Also install `xvfb imagemagick lua5.1` (luac, for checking generated Lua).
 - Qt5 qmake, out of tree:
   ```
   mkdir -p /home/claude/build && cd /home/claude/build
@@ -57,240 +67,218 @@ cd ~/bpp && git pull
   make -j2
   ```
   This produces `/home/claude/build/release/bpp`.
-- Ubuntu 24.04, Qt 5.15, Bullet from `/usr/include/bullet`, plus assimp, boost and luabind as the `.pro` file needs. The repo's `Dockerfile` and `debian/` list the packages.
 
 **Headless runs**
 - Run from `WalkerRoom`:
   ```
-  QT_QPA_PLATFORM=offscreen /home/claude/build/release/bpp -f script.lua -n FRAMES
+  QT_QPA_PLATFORM=offscreen /home/claude/build/release/bpp -f script.lua -n 3700
   ```
-- Test-track runs use `-n 3700` (60 s at 60 frames per second plus a start).
-- A script sets globals, then calls `dofile("test-track.lua")`, for example:
+  `-f` means no GUI; a bare filename opens the GUI. `-n 3700` is 60 s at 60 frames per second plus a start.
+- A script sets globals, then calls `dofile("test-track.lua")`, for example (the current standard):
   ```lua
   dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua")
-  ONLY="Spears lift 44"; AMP=4; BUMP=15; TERRAIN="steps"; SEED=2; REVERSE=true; GAIT={0,180,180,0}
+  ONLY="Klann"; TERRAIN="logs"; AMP=4; BUMP=15; SEED=1; GAIT={0,180,180,0}; REVERSE=true
+  GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}
   dofile("test-track.lua")
   ```
-- The output line looks like:
+- **Lua 5.1: no empty statements.** `a=1; ; b=2` fails. Join non-empty parts only.
+- The output line:
   ```
   TRACK <name>|height A|length B|seed S|forward X cm|V cm/s|sideways Y cm|stood up N|air P%
   ```
-  `air` is the share of frames in which the whole walker is more than 0.5 cm off the ground.
+  `air` is the share of frames in which the whole walker is more than 0.5 cm off the ground. Running `tools/tiltprobe.lua` in place of `test-track.lua` adds `TILT <name>|pitch max|roll max|heading`.
+- In the GUI, `print` goes to bpp's console, not to a terminal. Probes write files instead.
 - The ALSA errors in the output are harmless.
+- **One run at the current standard takes about 2 minutes** (127 s measured; Klann, logs 4). Two at once on 2 CPUs gives about 65 s per run.
 
 **Container**
-- The container has 2 CPUs. Run 2 jobs at once.
-- It is reclaimed when idle, so start long jobs with `setsid nohup … &`. Poll at intervals of 5 minutes or less, or use a Monitor/background wait.
-- **Gotcha:** `pgrep -f jamcheck2.py` inside a wait loop matches the loop's own command line, so the loop never ends. Wait on the output instead, for example a row count, or `pgrep -f "bpp -f"`.
+- 2 CPUs: run 2 jobs at once.
+- It is reclaimed when idle, and it restarted several times in the last session, killing batches. Start long jobs with `setsid nohup … > log 2>&1 &`, make them resumable (all the drivers here are), and check every 4–5 minutes or wait on output with a background until-loop.
+- **Gotcha:** `pgrep -f name.py` inside a wait loop matches the loop's own command line. Wait on the output (a row count) or `pgrep -f "bpp -f"`.
+- Bash `read` splits names at spaces; use `IFS=$'\t'`.
 
-**Patches**
-- Patches 8–12 are on GitHub. The last walker commit there is "Walker room: diag walkers' braces both over the body, one arched".
-- **Patch 13**, `walker-room-13-geometry.patch`, holds all the geometry work described below, plus this handover. It lives in `demo/WyomingWill/WalkerRoom/handover/` with the top-view picture and the tools. If you can read this in the repo, the patch is pushed.
-- Copy the tools to the work folder before use: `mkdir -p /home/claude/work/fac5 && cp demo/WyomingWill/WalkerRoom/handover/tools/*.* /home/claude/work/ && cp demo/WyomingWill/WalkerRoom/handover/tools/factorial/*.py /home/claude/work/fac5/`. The factorial scripts find each other and write their results in `/home/claude/work/fac5`; run them as `python3 /home/claude/work/fac5/run.py`, then `st2.py`.
+**Tools**
+- Copy the tools before use:
+  ```
+  cd /home/claude/bpp/demo/WyomingWill/WalkerRoom/handover
+  mkdir -p /home/claude/work/fac7
+  cp tools/*.* /home/claude/work/
+  ```
+  The factorial scripts stay where they are (`tools/factorial7/`) and write to `/home/claude/work/fac7`. They read `/home/claude/work/tiltprobe.lua` and `/home/claude/work/footlift.json`.
+- `data/` holds the raw results of the last session (section 6).
 
-## 4. What the room does (settings in walker-room.lua, defaults)
+## 4. The current standard (agreed 21 October 2026)
 
-| Setting | Default | What it does |
+| Setting | Value | Where |
 |---|---|---|
-| STRIDE | 15 cm | Every walker is scaled so its foot path is 15 cm long. |
-| FLAT_SPEED | 9 cm/s | Sets each walker's crank speed. CRANK_SCALE multiplies it. |
-| GRAVITY | 70 cm/s² | The same for every walker. |
-| FIXED | 1/960 s | Physics step. SOLVER_ITERATIONS 40, MOTOR_STRENGTH 10, LOCK_CRANKS on. |
-| BAR_MASS | {density 0.18 per cm, bolt 0.15 per joint end} | Every bar weighed by one rule. |
-| SAME_BODY | on | Body mass is BODY_MASS 40. Its turning inertia is that of a BODY_BOX of 40 × 3 × 30 cm, the same for every walker. **Total mass varies**: 40 plus the legs, about 90–115. |
-| SAME_FEET | on | Every foot is 8 × 12 × 0.5 cm, mass 1.5, **centred under its leg**. |
-| WIDE | on | Every walker is 38.0 cm between the outer foot edges (`wide.cube_d` per spec). |
-| LINK_THICK | 0.3 cm | Every link's thickness. |
-| PLANE_GAP | 0.7 cm | Centre-to-centre spacing of link planes, leaving a 0.4 cm gap between faces. At 0.2 cm, neighbouring links rubbed up to 10% of the time. |
-| spec.planes | — | Each link's plane, as few planes as keep links from touching (section 5). |
-| BALANCE | on | Body slid to balance; body built as a frame plus a load (section 5). |
-| DIAG_ARCH | on | On diag walkers both diagonal braces run over the body; the second arches up by spec.brace.rise cm. |
-| DIAG_GIVE | 0 | Diag braces are rigid. |
-| BRACE_CLEARANCE | 7 | Cuts or raises brace plates for clearance. |
-| ANKLES | false | Hinged feet off. |
-| REVERSE, GAIT, UNBRACED | — | Direction, timing (TROT = {0,180,180,0}) and bracing (guides instead of plates). |
-| MARKS | on | Colours, gold trim (Spears), diagonal line (diag) and code letters on the body. These are decorations with no contact response. |
+| STRIDE | 15 cm. **The** fairness standard (William: "stick with stride as the standard"). Hip height was tried and rejected; total bar length was considered and not used. | walker-room.lua default |
+| FLAT_SPEED | 9 cm/s, crank scale k calibrated per configuration, **capped at 1** (never faster than the walker's own crank) | run7.py |
+| GRAVITY | **981** cm/s² (Earth). The room default is still 70, the old value. William: 981 "looks more realistic". | set per run |
+| FIXED | **1/3840 s**. Timescales shrink by √(981/70) ≈ 3.7 at Earth gravity, so the step must be about 4× shorter than the old 1/960. At 1/960 the joints gave, the feet sank and cranks jammed. That was an error of the step, not physics. | set per run |
+| YAW_DAMP | **1**. The body is free to pitch and roll; only its turning about the vertical is damped (in preSim). The walkers' own files set angular damping 1.0 every way (a "straight-line fix"), which held up walkers standing on one side's feet. | set per run |
+| ANKLE_SPRING | **{stiffness = 42000, damping = 4200}**. Soft-spring ankles: each foot hinged to its leg and held level to the body by a soft spring, so it lands level and can rock on a bump. ×14 the value at gravity 70 (3000/300), to match. William: "I like the soft feet. It looks natural." | set per run |
+| SAME_BODY, SAME_FEET, WIDE, LINK_THICK, PLANE_GAP, BALANCE, BAR_MASS, SOLVER_ITERATIONS 40, LOCK_CRANKS | as patch 13 (section 8) | walker-room.lua defaults |
+| Gaits | **No sides gaits.** Trot, bound, the six 4-beat walks, and Spears 4-bar's own timing. | run7.py |
 
-## 5. The geometry rework (patch 13)
+`test-square-earth.lua` is this standard for watching.
 
-All of this is new since the last factorial runs, so **every earlier result is void.**
+## 5. What was found in the last session (17–21 October)
 
-1. **Links uniform.** Every link is 0.3 cm thick, in planes 0.7 cm apart.
+**Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.
 
-2. **Fewest planes.** Each walker uses as few planes as keep its links from touching (`spec.planes`, link → plane, counted out from the body face). The test was made by sweeping every link through a full crank turn:
-   - Links of the same leg may share a plane if they are never in the same place at the same moment (with 0.2 cm spare).
-   - Links of different legs may share only if the areas they sweep never meet, whatever the gait.
-   - Hinged pairs must be in different planes. Welded pairs may share.
-   - The pendant is outermost where there are braces.
-   - Pins aren't checked (the simulation has none).
+**GUI speed** (patch 17, `src/objects/terrain.cpp/.h`). The terrain was drawn triangle by triangle every frame, which was slow and kept the CPU at 100% even when nothing moved. It now uses OpenGL display lists in chunks of 4096 triangles, re-recorded only when a chunk's colours change. Tab no longer rebuilds the terrain (patch 16: `replaceWalker`, `rebuildTrack`).
 
-   Result:
+**Feet** (patch 18: ANKLE_SPRING, ANKLES, FOOT_TIPS, FOOT_ROD, FOOT_POINT in walker-room.lua). Mean speed over the four bumpy terrains, as built, forward, gravity 70, cm/s:
 
-   | Walker | Planes |
-   |---|---|
-   | Jansen (was 7) | 3 |
-   | Klann (was 5) | 3 |
-   | Spears 4-bar | 2 |
-   | Most 4-bars | 3 |
-   | Chebyshev-Spears diag, Hoecken-Spears long-stance and its diag | 4 |
-   | Both sliders | 2, their own layout (reassigning their planes made them jam) |
+| Feet | Mean |
+|---|---|
+| Soft spring | 5.97 |
+| Flat 8 × 12 cm, welded | 5.87 |
+| Point (ski-pole tip, no foot) | 5.11 |
 
-3. **Feet centred under the leg.** `foot_center_z = zp`; Jansen and Klann lost their offset.
+By terrain (soft / flat / point): waves 7.52 / 7.68 / 5.37, random 7.73 / 7.51 / 6.88, logs 4.22 / 3.81 / 4.14, steps 4.39 / 4.49 / 4.06. The soft spring's gain is mostly on logs. It was chosen. Rods (FOOT_ROD) and toe tips (FOOT_TIPS) were tried on logs only: rod 4.07, tips 3.80, tips with the spring 3.95, against soft 4.22. Raw data: `data/feet_*.txt` (waves, random, steps; logs for point) and `data/logs_*.txt` (logs, AMP 2/4/6).
 
-4. **Stance exactly 38.0 cm** between outer foot edges, measured from the static geometry at build, in the body frame. The old measure used world bounding-box maxima while walking, which was wrong; it caused days of trouble.
+**Leg size.** At the 15 cm stride the leg heights are Spears lift 44 27.4 cm, Klann 31.0, Jansen 31.9. The Spears lift walkers don't win by being bigger.
 
-5. **Body height.** The body is at 12 cm, or higher if needed to leave 1 cm between the top of a foot and the lowest link (`chassis.bodyRaise`):
+**Body damping** (patch 19, BODY_ANG_DAMP and YAW_DAMP). The walkers' files damp body rotation at 1.0, which kills pitch and roll and props up the sides gait. With the body free (yaw only), sides walkers tip over and stall, and trotting ones are fine. Gravity 70, soft feet, mean of 26 runs (flat, and the four terrains at AMP 2/4/6, seeds 1–2), cm/s:
 
-   | Walker | Body height (cm) |
-   |---|---|
-   | Spears lift 44 | 12.46 |
-   | Spears lift 44 diag | 13.13 |
-   | Spears lift 53 | 14.33 |
-   | Spears lift 53 diag | 15.2 |
-   | All others | 12 |
+| Walker | Bracing | Timing | Damping 1.0 | Damping 0.1 | Yaw only |
+|---|---|---|---|---|---|
+| Klann | own | sides | 7.01 | 0.39 | 0.39 |
+| Jansen | own | sides | 6.44 | 0.25 | 0.24 |
+| Chebyshev-Spears | plates | sides | 6.45 | 1.31 | 1.83 |
+| Spears lift 44 | plates | sides | 7.78 | 3.36 | 3.34 |
+| Spears 4-bar | own | its own (0/225/180/225) | 4.58 | 0.78 | 1.71 |
+| Klann | own | trot | 7.47 | 5.78 | 5.53 |
+| Jansen | own | trot | 7.17 | 6.06 | 6.33 |
+| Spears lift 44 diag | diag | trot | 7.68 | 6.84 | 7.59 |
 
-6. **Balance (BALANCE, spec.bodyShift).**
-   - Most files mounted their legs off the body's middle; Klann put 77% of its weight on one pair of feet. Each walker's 40 kg load is now slid along the walk so that the whole walker's centre of mass, averaged over a crank turn, sits midway between its front and back feet's path middles. Every walker is now within 0.01 cm.
-   - The slides, in cm, in each file's own frame:
+All forward. Raw data: `data/damp6.txt`. Freeing the body costs every walker something, trotting ones least. Spears 4-bar's own timing fails too, which is why its gaits get searched. **So the sides gaits were dropped** (William: "Just not 'side gaits'"). Plated builds force sides, so the plated configurations are gone too.
 
-     | Walker | Slide | Walker | Slide |
-     |---|---|---|---|
-     | Klann | −29.44 | Spears 4-bar | +19.44 |
-     | Spears lift 53 | 17.77 | Spears lift 53 diag | 18.07 |
-     | Spears lift 44 | 12.77 | Spears lift 44 diag | 12.99 |
-     | Jansen | −5.94 | 4-bars and diag builds | 2.9–5.5 |
-     | Sliders | about −0.3 | | |
+**Gravity** (patch 20). Gravity 70 let walkers jump and float down slowly. At 981 with step 1/3840: Jansen trot 10.00 cm/s on flat, roll about 1°. Step check (`data/conv.txt`): halving the step changes speeds by 0.21 cm/s on average at 70 (1/960 → 1/1920) and 0.32 at 981 (1/3840 → 1/7680); the largest change was Chebyshev on logs (3.03 → 5.22), likely chance on one start. At 981, obstacles go better, especially for Klann (logs 4 cm: 5.52 → 8.07) and Jansen (5.03 → 7.38), against Spears lift 44 diag's 8.19 (`data/grav.txt`).
 
-   - **Sign trap:** walkers with `forward = -1` are turned 180° in the room, so a file-frame x is the negative of world x.
-   - The motive was William's remark that "reverse is better" showed up suspiciously often, though most foot paths are symmetric. Imbalance may have been the cause. The rerun will tell.
+**Spears 4-bar gaits** (`data/gaits_s4.txt`, old standard, now void): with damping 1.0 and welded feet, sides reversed was best at 7.00. Not valid under the free body.
 
-7. **Frame plus load (spec.frame = { length, x }).**
-   - The body is one rigid body. Its centre of mass (the load) sits at the balance point. Its box, a `btCompoundShape` child that is drawn and can collide, spans the leg mounts, from 3 cm before the first to 3 cm past the last, and is offset `x` cm from the load in the file frame.
-   - Lengths:
+**The body now counts, not just the linkage** (21 October). William, watching at the new standard: "Now that the body can pitch, and the gravity has increased, the body can dip on one side, raising the feet on the other side. Some walkers can now clear logs of height 7." Agreed, after some discussion:
+- The **free-body result is the main result**. A real build rocks too.
+- The **linkage alone** is measured by the foot's lift from the geometry (`tools/footlift.py` → `footlift.json`; the "lift" values). It's cleaner than any locked-body run, because a damped body is neither the real machine nor the linkage alone.
+- The **body's share** is the log height cleared minus the lift.
+- With the standards held, rocking differences come from the linkage (hip height, foot path, landing, leg mass) except for **gait and bracing**, which are choices. They are table columns, so they stay visible.
+- Report **two tables**: everyone at trot (same gait; guides, or the own frame for Jansen, Klann and Spears 4-bar), the controlled comparison; and the best of each linkage, where each gets its own best gait and bracing. They can disagree.
 
-     | Walker | Length (cm) |
-     |---|---|
-     | Most | 41–50 |
-     | Spears 4-bar | 59.9 (its mounts are 54 cm apart) |
+## 6. Raw data from the last session (`data/`)
 
-   - Klann's load sits 0.2 cm off the back end of its frame.
-   - Implementation:
-     - `opts.bodyFrame(cube)` is defined in `addWalker`. Each `_parts.lua` calls it right after the bodyShift line: `if opts.bodyFrame then cube = opts.bodyFrame(cube) end`.
-     - It returns a new tiny Cube whose body is the compound.
-     - The visible frame is a decor box, and the marks shift by `frame.x` in `decor()`.
-     - `placeMarks` now runs every frame, whatever MARKS is.
-   - The new body copies the old one's damping, friction and restitution. Without the damping, which some files set before the swap, Chebyshev-Spears and others slowed to 2–4 cm/s.
-   - An earlier attempt lengthened the box symmetrically about the load. That gave bodies up to 100 cm long, and William rightly objected.
+| File | What it is |
+|---|---|
+| `feet_soft.txt`, `feet_flat8.txt`, `feet_point.txt` | Feet comparison (terrains.py), gravity 70 |
+| `damp6.txt` | Damping test (damp6.py): damping 1.0 / 0.1 / yaw only |
+| `grav.txt` | Gravity 70 against 981 (981 lines here are at the old step and invalid; the valid 981 check is in `conv.txt`) |
+| `conv.txt` | Step-size check at 70 and 981, with SINK (foot depth) |
+| `gaits_s4.txt` | Spears 4-bar's gaits, old standard |
+| `logs_flat8.txt`, `logs_soft.txt`, `logs_rod.txt`, `logs_tips.txt`, `logs_tips_soft.txt` | Every build as built on logs, AMP 2/4/6, gravity 70, by foot (logs_all3.py); LOGS lines count face hits and kick-backs |
 
-8. **Bug fixed — body inertia.**
-   - The room set `w.cube.body:setMassProps(m, BODY_BOX inertia)` and then `w.cube.mass = m`. In bpp, setting `.mass` recomputes inertia from the object's own shape, so BODY_BOX never took effect. Every earlier run had each walker's own body-box inertia.
-   - The order is now swapped, and each body's turning inertia is BODY_BOX's (3030 / 8333 / 5363).
-   - **This is another reason all earlier results are void.**
-   - `setBarMasses` uses the same set-then-assign pattern for bars. It is harmless there, because shape inertia scales with mass.
+All of these come before the current standard and are for the record, not results.
 
-### Verified after the rework
+## 7. Next: the factorial runs
 
-- **Mounts.** Every frame spans its leg mounts with 2.95–3 cm to spare (`tools/mount_all.sh` → `mounts3.txt`).
-- **Touching check** (`tools/jamcheck2.py`): flat, 6 cm waves, 4 cm logs and 4 cm steps, seed 2, 60 s each:
-  - No jams.
-  - Links touch each other at most 0.2% of the time.
-  - The body never touches the ground.
-  - The numbers after the frame change are in section 9.
-- **Top views.** `walkers_from_above.png`, next to this file, (`tools/plan_all.sh` then `tools/plan_draw.py`). The red square marks the load.
+This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
-## 6. The factorial runs (to redo)
+**Configurations: 82** (`tools/factorial7/run7.py list` prints them).
+- Jansen, Klann and Spears 4-bar on their own frames: trot, bound, and the six 4-beat walks (8 gaits; Spears 4-bar adds its own 0/225/180/225 for 9).
+- The other nine linkages (Chebyshev, Chebyshev-Spears, Hoecken 4-bar, Hoecken slider, Hoecken-Spears slider, Hoecken-Spears 4-bar, Hoecken-Spears long-stance, Spears lift 44, Spears lift 53): trot on diag braces (not the sliders) and trot on guides.
+- Each both forward and reversed.
+- Leg order in GAIT: side A leg 1, side A leg 2, side B leg 1, side B leg 2. Trot is {0,180,180,0}, bound {0,180,0,180}, sides (dropped) {0,0,180,180}.
 
-- **Configurations: 80.**
-  - Each linkage × bracing (own frame for Jansen, Klann and Spears 4-bar; plates; diag braces; guides = UNBRACED) × timing (sides; trot) × direction (forward; reversed).
-  - Plates force sides; diag forces trot; guides take either. The sliders have no diag build.
-  - The list is in `tools/factorial/run.py`.
-- **Calibration.** Find the crank scale `k` that gives 9 cm/s on flat (waves, AMP 0, BUMP 22, seeds 1 and 2). **Cap `k` at 1**: a crank never turns faster than its own speed. Without the cap, Spears lift 44 and 53 needed cranks 38–43% faster, bounded off the ground 33–39% of the time, and were faster on bumps than on flat. `run.py` now enforces the cap.
-- **Stage 1.** Waves at 10 settings: (0,22) (2,11) (2,15) (2,22) (4,11) (4,15) (4,22) (6,11) (6,15) (6,22). The pairs are (AMP, BUMP) in cm, seeds 1 and 2.
-- **Stage 2** (`st2.py`). The top 2 configurations per linkage go on to random, logs and steps at (2,11) (2,22) (4,11) (4,22) (6,11) (6,22), seeds 1 and 2.
-- **Analysis.** `an.py` (stage 1) and `st2an.py` (stage 2).
-- **Run time.** About 80 × (cal + 20 runs) at about 75 s per run on 2 CPUs, many hours. Run it in the background with `setsid nohup`.
-- **Folder.** Results go to `/home/claude/work/fac5` (set in the scripts).
+**Stages**
+1. **Smoke test** first: `python3 run7.py screen Klann_own_trot_fwd`. Check that `cal.json` and `A_Klann_own_trot_fwd.txt` look right (TRACK and TILT on each line). If the calibrated flat speed is well below 9 with k at its cap of 1, note it; at gravity 981 some walkers may be slower.
+2. **Screen (stage A)**: `run7.py screen`. Calibrate on flat (waves AMP 0, BUMP 22, seeds 1–2, up to 3 iterations), then 4 runs at seed 1: waves 4, random 4, logs 5, steps 4. Writes `A_<id>.txt`.
+3. **Pick**: `run7.py pick`. Per linkage, the 2 best screened configurations, plus its trot on guides or its own frame both ways (for the everyone-at-trot table). Writes `picks.json`. **Show William the picks** before stage B.
+4. **Full (stage B)**: `run7.py full`. Waves, random and steps at AMP 2/4/6, plus logs at 4/5/6/7/8 cm, BUMP 15, seeds 1–2: 28 runs per picked config. Writes `B_<id>.txt`.
+5. **Analysis**: `python3 an7.py` prints the two tables (with bracing, timing, direction, each terrain, the highest log cleared, the foot lift, and "body adds"), then forward against reversed for every pair. "Clears" is the highest log height with a mean of at least 2 cm/s.
 
-The previous best configurations (old geometry, now void) are in README "The factorial runs" and in `test-square.lua`'s VIEWS list. After the rerun, both must be updated: the README tables and the VIEWS order, labels and crank values.
+Run each stage with `setsid nohup python3 /home/claude/bpp/demo/WyomingWill/WalkerRoom/handover/tools/factorial7/run7.py screen > /home/claude/work/fac7/screen.log 2>&1 &`. Every stage resumes where it stopped if rerun.
 
-## 7. Still to do, in order
+**Time** (at about 65 s per run, two at once):
 
-1. Check patch 13 is pushed. If not, apply it locally.
-2. **Update README.md** for the new geometry. It still says the body is at 12 cm everywhere, says nothing about planes, centred feet, the 38 cm static stance, balance, the frame, or the inertia fix, and holds the old factorial tables. Send it as its own patch.
-3. **Rerun the factorial runs** (section 6). Report best per linkage on waves and on the other terrains, with bracing, timing and direction columns. Note whether "reversed is better" still dominates now that the walkers are balanced.
-4. Update `test-square.lua` VIEWS to the new best configurations. Update README "The factorial runs", "The best version of each walker" and "Other terrains".
-5. Patch, check it against origin, send, with the steps in section 2.
+| Stage | Runs | Time |
+|---|---|---|
+| Screen | 82 × (2–6 calibration + 4), about 550–650 | about 10–12 hours |
+| Full | about 36 picked × 28, about 1000 | about 18 hours |
+| Total | | **about 30 hours** |
 
-## 8. Tools (`handover/tools/`, copied to /home/claude/work)
+Ways to cut, if he wants:
+- Full at seed 1 only: halves stage B (about 9 hours), but one start is noisy (see the step check).
+- Screen the 4-beat walks only for Spears 4-bar: drops 24 configurations, about 3.5 hours.
+- Shorter logs sweep (5, 6, 7 cm): saves about 15% of stage B.
 
-All of these assume `/home/claude/bpp`, `/home/claude/build/release/bpp` and `/home/claude/work`. Edit the paths if they differ.
+**Report to William**
+- The best of each linkage, with bracing, timing and direction columns.
+- Everyone at trot.
+- Foot lift against log height cleared, and how much the body adds.
+- Whether "reversed is better" still shows up now that the walkers are balanced and the body is free. (Old runs showed it suspiciously often, though most foot paths are symmetric; the balance fix in patch 13 was aimed at that.)
+- One start is noisy; say so where differences are small.
 
-**Probes and checks**
+**Then**
+1. Make a launcher (or update `test-square-earth.lua`'s VIEWS) with the best configuration of each linkage, so William can watch them, with crank values from `cal.json`.
+2. Update the README: "The factorial runs", "The best version of each walker" and "Other terrains" still hold the old, void results. Describe the current standard (section 4) as the measuring conditions.
+3. Patch, check against origin, send, with the steps in section 2.
+
+## 8. The geometry rework (patch 13, still in force)
+
+All of this came before the last session's work. Every result before it is void.
+
+1. **Links uniform.** Every link is 0.3 cm thick, in planes 0.7 cm apart (0.4 cm gap between faces).
+2. **Fewest planes** per walker (`spec.planes`), from sweeping every link through a full crank turn: Jansen 3 (was 7), Klann 3 (was 5), Spears 4-bar 2, most 4-bars 3, Chebyshev-Spears diag and Hoecken-Spears long-stance (and its diag) 4. Both sliders keep their own 2-plane layout: **don't change the sliders' planes**; they jam.
+3. **Feet centred under the leg.**
+4. **Stance exactly 38.0 cm** between outer foot edges, measured from the static geometry at build, in the body frame. (FOOT_POINT keeps it by widening the body.)
+5. **Body height** 12 cm, or higher to leave 1 cm between a foot's top and the lowest link: Spears lift 44 12.46, 44 diag 13.13, 53 14.33, 53 diag 15.2.
+6. **Balance.** Each walker's 40 kg load is slid along the walk so the centre of mass, averaged over a crank turn, sits midway between front and back feet (within 0.01 cm). Walkers with `forward = -1` are turned 180° in the room, so a file-frame x is the negative of world x.
+7. **Frame plus load.** The body is one rigid body: load at the balance point, a box (compound child) spanning the leg mounts 3 cm past each end. `opts.bodyFrame(cube)` in `addWalker`; each `_parts.lua` calls it after its bodyShift line. The new body copies the old one's damping, friction and restitution.
+8. **Body inertia fix.** Inertia is BODY_BOX's (40 × 3 × 30 cm) for every walker. In bpp, setting `obj.mass` recomputes inertia from the shape, so set the mass before `setMassProps`.
+
+Checks after the rework: no jams; links touch at most 0.7% of the time; the body never touches the ground. Top views: `walkers_from_above.png`.
+
+## 9. Tools (`handover/tools/`)
+
+All of them assume `/home/claude/bpp`, `/home/claude/build/release/bpp` and `/home/claude/work`.
+
+**Factorial (`tools/factorial7/`)**
 
 | File | What it does |
 |---|---|
-| `mountprobe.lua`, `mount_all.sh [out]` | Each walker's frame ends and leg mount range, x from the load (world frame). |
-| `planprobe.lua`, `plan_all.sh OUT` (absolute path!), `plan_draw.py` | Top-view picture of all 19 builds. Reads `plan.txt` in the cwd. |
-| `sweepprobe.lua`, `sweep_all.sh` (→ `sweep2/`), `sweep_roles.sh` (→ `sweep/`, every link in its own plane) | Holds the walker 200 cm up, cranks it one turn, and logs every link outline. |
-| `planes.py` | Fewest planes from `sweep/`, written to `planes.json`. |
-| `balance.py` | Centre of mass against the support middle, from `sweep2/`, written to `balance.json`. |
-| `footclear.py`, `raisefix2.py` | Foot-to-link clearance and body height. |
-| `stancefix.py`, `plan_an.py` | Static stance. |
-| `jamcheck2.py ["extra lua"]` with `linkprobe3.lua` | Self-contact and body-on-ground (decorations excluded) on 4 terrains, plus speed. |
-| `bodyhit.lua` | What the body is touching. |
+| `run7.py list / screen / pick / full [id part]` | The factorial at the current standard (section 7) |
+| `an7.py` | Its tables |
 
-**Factorial**
+The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous design, kept for reference.
+
+**Probes** (each runs `test-track.lua` and adds a line)
+
+| File | Adds |
+|---|---|
+| `tiltprobe.lua` | `TILT`: largest pitch and roll, heading change |
+| `standprobe.lua` | Body height (mean, lowest), roll, how far joints pull apart |
+| `sinkprobe.lua` | `SINK`: how deep feet go into the ground |
+| `linkprobe3.lua` with `jamcheck2.py ["extra lua"]` | Links touching, body on ground, on four terrains |
+| `bodyhit.lua` | What the body touches |
+
+**Geometry**
 
 | File | What it does |
 |---|---|
-| `factorial/run.py` | Calibration, then stage 1. |
-| `factorial/st2.py` | Stage 2. |
-| `factorial/an.py`, `factorial/st2an.py` | Analysis. |
+| `footlift.py` → `footlift.json` | Foot lift over the path from `sweep2/` (made by `sweep_all.sh`). The json was made 18 October, after patch 13; an7.py uses its "lift" values. The sweeps themselves were lost in a container restart, so rerun `sweep_all.sh` before regenerating. |
+| `mountprobe.lua`, `mount_all.sh` | Frame ends and leg mounts |
+| `planprobe.lua`, `plan_all.sh OUT` (absolute path), `plan_draw.py` | Top-view picture of all builds |
+| `sweepprobe.lua`, `sweep_all.sh`, `sweep_roles.sh`, `planes.py` | Link sweeps and fewest planes |
+| `balance.py`, `footclear.py`, `raisefix2.py`, `stancefix.py`, `plan_an.py` | Balance, foot clearance, body height, stance |
 
-## 9. Last check (frame plus load, inertia fixed)
+**Older drivers** (resumable; paths and settings at the top): `terrains.py` (feet), `damp6.py` (damping), `gaits_s4.py` (Spears 4-bar gaits), `logs_all3.py` (every build on logs).
 
-`jamcheck2.py` after the frame change and the inertia fix, with damping carried over. Seed 2, one 60 s run each, so these are a sanity check, not results.
-
-| Walker | Links touching (max) | Body on ground | Flat | Waves 6 | Logs 4 | Steps 4 (cm/s) |
-|---|---|---|---|---|---|---|
-| Jansen | 0.0% | 0 | 10.33 | 6.57 | 0.26 | 6.19 |
-| Klann | 0.0% | 0 | 9.53 | 7.90 | 6.91 | 8.34 |
-| Spears 4-bar | 0.0% | 0 | 8.87 | 5.84 | 5.22 | 1.30 |
-| Chebyshev | 0.0% | 0 | 8.28 | 6.74 | 0.33 | 0.46 |
-| Chebyshev diag | 0.0% | 0 | 9.20 | 7.65 | 0.09 | 0.48 |
-| Chebyshev-Spears | 0.3% | 0 | 8.42 | 8.23 | 0.23 | 6.16 |
-| Chebyshev-Spears diag | 0.7% | 0 | 8.66 | 8.65 | 0.22 | 0.45 |
-| Hoecken 4-bar | 0.0% | 0 | 8.39 | 7.19 | 0.18 | 0.45 |
-| Hoecken 4-bar diag | 0.0% | 0 | 8.59 | 7.28 | 0.33 | 0.52 |
-| Hoecken slider | 0.0% | 0 | 8.23 | 6.76 | 0.25 | 5.75 |
-| Hoecken-Spears slider | 0.0% | 0 | 7.79 | 7.96 | 1.90 | 4.44 |
-| Hoecken-Spears 4-bar | 0.1% | 0 | 8.00 | 7.97 | 0.33 | 6.17 |
-| Hoecken-Spears 4-bar diag | 0.0% | 0 | 8.71 | 8.13 | 3.17 | 2.85 |
-| Hoecken-Spears long-stance | 0.0% | 0 | 8.50 | 8.19 | 0.36 | 0.48 |
-| Hoecken-Spears long-stance diag | 0.0% | 0 | 8.05 | 8.04 | 0.13 | 2.87 |
-| Spears lift 44 | 0.0% | 0 | 7.97 | 7.84 | 7.39 | 7.17 |
-| Spears lift 44 diag | 0.0% | 0 | 7.35 | 7.99 | 7.19 | 6.80 |
-| Spears lift 53 | 0.0% | 0 | 7.63 | 7.17 | 6.86 | 6.45 |
-| Spears lift 53 diag | 0.0% | 0 | 7.70 | 8.78 | 6.42 | 6.01 |
-
-How the check was run:
-- Default build for each walker: no GAIT; REVERSE except lift 44, lift 44 diag and lift 53.
-- Crank at its own speed, not calibrated.
-- "Body on ground" excludes the body's own decorations. An earlier version of the check counted them by mistake.
-
-What it shows:
-- No jams.
-- Links touch at most 0.7% of the time (Chebyshev-Spears diag, brief brushes).
-- The body never touches the ground.
-- Only Klann and the Spears lift walkers keep going on 4 cm logs.
-
-## 10. Lessons from this project
+## 10. Lessons
 
 - Measure geometry statically, in the body frame. Never use world bounding boxes while walking.
-- Check each new measuring script against something known before reporting from it. A body-on-ground count once reported up to 39% because it counted decorations.
+- Check each new measuring script against something known before reporting from it.
+- When changing gravity, scale the step (and springs) with it. Check by halving the step.
+- Don't blame physics before checking the step. (I claimed a large roll at 981 was real; it was the step.)
+- Don't drop a contender from a comparison without saying why. (I left the soft spring out of one feet comparison; William caught it.)
+- In bpp: setting `obj.mass` resets inertia; swapping an object's body loses what was set on the old one; `btTransform` has no `*` in Lua (use `inverseTimes`); `getOrigin` isn't bound (use `getCenterOfMassPosition`); constraint setters need their full argument lists.
 - Look at pictures from above after every geometry change.
-- In bpp, setting `obj.mass` resets inertia from the object's shape.
-- Swapping an object's body loses anything set on the old body.
-- `plan_all.sh` needs an absolute output path.
-- Don't change the slider walkers' plane layout; they jam.
-
