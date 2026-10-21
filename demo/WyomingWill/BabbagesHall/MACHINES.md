@@ -61,7 +61,7 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 | 30 | Marble adders (Turing Tumble, Wandel's) | modern | marbles flip levers to add binary numbers | contact and gravity; very like the Digi-Comp II | 4 | 2 | |
 | 31 | Argo clock and Dreyer table | 1912 / 1911 | WWI battleship fire control: plotting the target's course and range by integrators and a plotting table | integrators (as the ball-and-disk) and a plotting pen | 4 | 4 |
 | 32 | Torpedo Data Computer | 1940s | a submarine's analogue fire control | like the rangekeeper, smaller; partly electrical | 4 | 5 | |
-| 33 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | printable wheels with holes in place of chains, and a falling probe; simple shafts | 4 | 3 | bay
+| 33 | Lehmer's number sieve | 1926 / 1932 | factors numbers: loops of different lengths (bicycle chains, later toothed wheels) turn until gaps line up, and a ball or pin drops through to stop it | built: four Geneva-driven wheels of 9, 8, 7 and 5 places with pegged holes, and a cam-lifted probe; factors by Fermat's way | 4 | 3 | built |
 | 34 | The Differential | 1827 | gears that add and subtract (Pecqueur's patent; older in clocks) | built: printed bevel gears | 3 | 2 | built |
 | 35 | Schickard's calculating clock | 1623 | the first known calculator: adding wheels and Napier's bones | a one-tooth carry gear (it jams on long carries: worth showing beside the Pascaline) | 3 | 3 | |
 | 36 | Jacquard's card reader | 1804 | punched cards choose which hooks lift: the first stored program | needles, cards and hooks; a reader for a programmable exhibit | 3 | 3 | |
@@ -115,9 +115,9 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 ## How the hall uses this list
 
 The hall's bays are walked in rising interest, so a new exhibit goes in its
-place by its interest score. With eight bays, the hall holds the three built
-and the five with bays (Lehmer's sieve now second, after the Differential); the Enigma would make a ninth (a fifth row of bays,
-one spare).
+place by its interest score. With eight bays, the hall holds the four built
+(Lehmer's sieve second, after the Differential) and the four with bays; the
+Enigma would make a ninth (a fifth row of bays, one spare).
 
 **Rope.** bpp has no rope (its soft bodies are cloth). A rope of small
 spheres joined by ball joints works, tested as an Atwood machine over a

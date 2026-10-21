@@ -76,9 +76,11 @@ EXHIBITS = EXHIBITS or {
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
             "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
   { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
-    prefix = "Sieve: ", floorY = -75,
-    about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
-            "stop when their holes all line up and a ball drops through -- finding factors. In preparation." },
+    prefix = "Sieve: ", floorY = -100,
+    about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..
+            "place by every turn of the handle. Pegs close the holes of the numbers that fail;\n" ..
+            "where every wheel has an open hole, the probe falls right through. It factors\n" ..
+            "1241 by Fermat's way. G: turn until it stops; Space: one turn; N: another number." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
     prefix = "Pascaline: ", floorY = -100,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..

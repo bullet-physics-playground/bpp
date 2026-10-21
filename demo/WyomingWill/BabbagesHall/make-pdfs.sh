@@ -13,3 +13,5 @@ pdf exhibits/Differential/README.md    --sub "West bay 1: bevel gears that add a
 pdf exhibits/Differential/FINDINGS.md  --sub "West bay 1: the Differential"
 pdf exhibits/Pascaline/README.md       --sub "West bay 2: Pascal's adding machine (1642)"
 pdf exhibits/Pascaline/FINDINGS.md     --sub "West bay 2: the Pascaline"
+pdf exhibits/LehmerSieve/README.md     --sub "East bay 1: wheels that sieve for factors"
+pdf exhibits/LehmerSieve/FINDINGS.md   --sub "East bay 1: Lehmer's number sieve"

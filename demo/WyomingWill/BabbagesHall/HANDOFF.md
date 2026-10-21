@@ -23,10 +23,11 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   in FINDINGS.
 - **The walk gets more interesting as you go**, least interesting first,
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
-- Built so far: **the Differential** (west 1), **the Pascaline** (west 2),
-  **the Domino Half Adder** (east 2). Covered bays wait for Lehmer's sieve
-  (east 1), the Digi-Comp II (west 3), Kelvin's tide predictor (east 3),
-  the Differential Analyser (west 4) and the Difference Engine (east 4).
+- Built so far: **the Differential** (west 1), **Lehmer's number sieve**
+  (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2).
+  Covered bays wait for the Digi-Comp II (west 3), Kelvin's tide predictor
+  (east 3), the Differential Analyser (west 4) and the Difference Engine
+  (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -148,6 +149,27 @@ there, in `release/`, or on the path; or set `BPP`.
   down) but no clicks; keys override bpp's own one-letter keys.
 - `btTransform` has no `getOrigin` in bpp's Lua; `.trans`, `:mult` and
   `getCenterOfMassTransform` are what there is.
+- **Compounds:** a `btCompoundShape` in bpp's Lua takes only a few dozen
+  children (each costs one of luabind's few dependency slots; past them bpp
+  stops with an assertion in `object_rep.cpp`). Build big bodies as trees
+  of small compounds, neighbours together (Lehmer's sieve's `tree()`), and
+  don't add and remove children over and over: move them
+  (`updateChildTransform`), as the sieve's pegs do.
+- **Cylinders:** bpp's Lua has `btCylinderShapeX` and `btCylinderShapeZ`
+  but no constructor for the upright `btCylinderShape`: stand a Z one up.
+- **Convex pieces** from a 2D outline: `exhibits/LehmerSieve/parts/make-geometry.py`
+  (shapely's constrained triangulation, merged while convex); check that the
+  pieces' areas add up to the outline's. Corners inside an outline cost
+  pieces; draw holes and inner arcs coarser for the contacts than for the
+  print.
+- **An OpenSCAD part made a body** must be set to collide before `v:add`
+  (the exhibits' `part()` turns collisions off).
+- `v:eachContact(fn)` calls `fn(a, b, x, y, z, nx, ny, nz, distance,
+  impulse)` for every contact: the quickest way to find what jams.
+- **Geneva drives** index well but their locking disc only bounds a star's
+  turn (about a degree either way): a sprung detent per star puts it on its
+  place, and the disc's relief must clear the star's lead and lag
+  (`exhibits/LehmerSieve/FINDINGS.md`).
 - `.gitignore` at the top ignores `*.scad`: the hall's own `.gitignore` has
   `!*.scad`, and STL files are not kept (each `make-stls.sh` makes them).
 
@@ -172,9 +194,16 @@ there, in `release/`, or on the path; or set `BPP`.
 
 ## 7. Where things stand and what's next
 
+- **Done (2026-10-21): Lehmer's number sieve** (east 1): four Geneva stars
+  of 9, 8, 7 and 5 places on one axle, driven from one shaft, detents to
+  centre them, pegged holes, a cam-lifted probe; it factors 1241 (and 1679,
+  1157, 2813: `N`) by Fermat's way. William hasn't seen it in the GUI yet:
+  the wheels' colours, the cam (drawn see-through, so the drive shows) and
+  the camera are first guesses. It is the dearest exhibit to step (a 25 s
+  tour took about three minutes here, headless): if it is slow on his
+  computer, `LS_HZ=1200` halves that and still passes.
 - **Next: more exhibits**, in the order of the covered bays, each its own
-  step: **Lehmer's number sieve** (east 1: toothed wheels with holes and a
-  falling ball probe; simple, a good first), then **the Digi-Comp II**
+  step: **the Digi-Comp II**
   (west 3: marbles and flip-flops; `demo/claude/digicomp.lua` is a start),
   **Kelvin's tide predictor** (east 3: cranks and a bead rope over pulleys),
   **the Differential Analyser** (west 4) and **the Difference Engine**
@@ -196,6 +225,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
 > there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next exhibit, e.g. Lehmer's number sieve].
+> HANDOFF.md section 7: [the next exhibit, e.g. the Digi-Comp II].
 > Deliver each step as a patch, with its documents and PDFs, and the git
 > commands.
