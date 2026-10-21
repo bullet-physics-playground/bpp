@@ -192,8 +192,11 @@ local function W(x, y, z) return btVector3(MO.x + x, MO.y + y, MO.z + z) end
 -- machine's footprint plus 30 cm all round)
 local TABLE
 do
-  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
-  if setfenv then setfenv(f, getfenv(1)) end
+  -- (into this exhibit's own environment: Lua 5.1 sets it after loading,
+  -- 5.2 and later give it to loadfile)
+  local path, f = DIR .. "../../exhibit-table.lua"
+  if setfenv then f = assert(loadfile(path)); setfenv(f, getfenv(1))
+  else f = assert(loadfile(path, "t", _ENV)) end
   TABLE = f()
 end
 TABLE.build(46, 11, { x = -1, z = 0.7, floor = 300 })   -- (the frame: x -24 to 22, z -4.8 to 6.2)

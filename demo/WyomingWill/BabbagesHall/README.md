@@ -26,7 +26,8 @@ comes to life.
 | west 4 | The Differential Analyser | in preparation |
 | east 4 | The Difference Engine | in preparation |
 
-`MACHINES.md` lists every machine considered for the hall (47 of them),
+`HANDOFF.md` is where a new chat starts: how to work, build and test, and
+what's next. `MACHINES.md` lists every machine considered for the hall (47 of them),
 ranked by interest, with how each would be simulated and printed.
 
 ## Running it
@@ -154,14 +155,16 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
 An exhibit builds its table with
 
 ```lua
-local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
-if setfenv then setfenv(f, getfenv(1)) end
+local path, f = DIR .. "../../exhibit-table.lua"
+if setfenv then f = assert(loadfile(path)); setfenv(f, getfenv(1))   -- (Lua 5.1)
+else f = assert(loadfile(path, "t", _ENV)) end                        -- (Lua 5.2 on)
 local TABLE = f()
 local top = TABLE.build(machineWidth, machineDepth, { x = cx, z = cz })
 ```
 
 (loaded into its own environment, so in the hall it builds in its own
-world), and it runs on its own just the same.
+world, with the exhibit's own `Plane` and globals; Lua 5.1 and 5.2 do that
+differently, as above), and it runs on its own just the same.
 
 ## Notes for exhibit authors
 

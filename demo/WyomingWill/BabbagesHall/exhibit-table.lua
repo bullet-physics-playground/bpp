@@ -12,8 +12,9 @@
 -- An exhibit loads this into its own environment (so in the hall it builds
 -- in the exhibit's world, with the exhibit's Cube and Plane):
 --
---   local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
---   if setfenv then setfenv(f, getfenv(1)) end
+--   local path, f = DIR .. "../../exhibit-table.lua"
+--   if setfenv then f = assert(loadfile(path)); setfenv(f, getfenv(1))   -- (Lua 5.1)
+--   else f = assert(loadfile(path, "t", _ENV)) end                        -- (Lua 5.2 on)
 --   local TABLE = f()
 --   local top = TABLE.build(machineWidth, machineDepth, { x = cx, z = cz })
 --

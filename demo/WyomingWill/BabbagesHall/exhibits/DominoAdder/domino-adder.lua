@@ -192,8 +192,11 @@ v.gravity = btVector3(0, -G, 0)
 -- machine's footprint plus 30 cm all round)
 local TABLE
 do
-  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
-  if setfenv then setfenv(f, getfenv(1)) end
+  -- (into this exhibit's own environment: Lua 5.1 sets it after loading,
+  -- 5.2 and later give it to loadfile)
+  local path, f = DIR .. "../../exhibit-table.lua"
+  if setfenv then f = assert(loadfile(path)); setfenv(f, getfenv(1))
+  else f = assert(loadfile(path, "t", _ENV)) end
   TABLE = f()
 end
 -- (the machine: the template, the layout and its margin)

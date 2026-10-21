@@ -142,8 +142,11 @@ local O = btVector3(0, Y0, 0)                 -- the gears' common centre
 -- machine's footprint plus 30 cm all round)
 local TABLE
 do
-  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
-  if setfenv then setfenv(f, getfenv(1)) end
+  -- (into this exhibit's own environment: Lua 5.1 sets it after loading,
+  -- 5.2 and later give it to loadfile)
+  local path, f = DIR .. "../../exhibit-table.lua"
+  if setfenv then f = assert(loadfile(path)); setfenv(f, getfenv(1))
+  else f = assert(loadfile(path, "t", _ENV)) end
   TABLE = f()
 end
 TABLE.build(19, 13.5, { floor = 300 })      -- (the frame's base: 190 x 134.5 mm)
