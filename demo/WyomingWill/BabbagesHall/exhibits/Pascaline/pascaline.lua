@@ -188,22 +188,15 @@ local ident = btQuaternion(0, 0, 0, 1)
 local MO = btVector3(11, 8.0, 0)            -- (the units' axle, above the table top at y = 0)
 local function W(x, y, z) return btVector3(MO.x + x, MO.y + y, MO.z + z) end
 
-local top = Cube(70, 3, 40, 0)
-top.pos = btVector3(0, -1.5, 0)
-top.col = "#5b3a1e"
-v:add(top)
-for _, sx in ipairs({ -1, 1 }) do
-  for _, sz in ipairs({ -1, 1 }) do
-    local leg = Cylinder(1.6, 72, 0)
-    leg.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(sx * 32, -3 - 36, sz * 17))
-    leg.col = "#2a2a2a"
-    leg.collides = false
-    v:add(leg)
-  end
+-- the table, by the hall's standard (exhibit-table.lua: 100 cm high, the
+-- machine's footprint plus 30 cm all round)
+local TABLE
+do
+  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
+  if setfenv then setfenv(f, getfenv(1)) end
+  TABLE = f()
 end
-local floor = Plane(0, 1, 0, -75, 300)
-floor.col = "#3b3f45"
-v:add(floor)
+TABLE.build(46, 11, { x = -1, z = 0.7, floor = 300 })   -- (the frame: x -24 to 22, z -4.8 to 6.2)
 
 local pointers = part("pointers()")
 pointers.col = "#d4af37"

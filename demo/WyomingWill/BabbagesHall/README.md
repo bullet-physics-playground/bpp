@@ -131,6 +131,37 @@ them all (needs `pip install markdown playwright`). The STL files are not
 kept in the repository: each exhibit's `make-stls.sh` makes them from its
 OpenSCAD sources.
 
+## Exhibit standard
+
+Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
+
+- **Height:** the table top is 100 cm above the floor, just above the
+  placard's board (95 cm), so the machine stands above its label. The top
+  is the exhibit's y = 0, its floor plane at y = -100, and its `floorY` in
+  `hall.lua` is -100.
+- **Size:** the machine's footprint plus 30 cm on every side, rounded up to
+  the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
+  real, printable size: the Differential's table is 80 x 80, the
+  Pascaline's 110 x 80, the Domino Half Adder's 180 x 230.
+- **Place:** the hall moves each exhibit forward in its bay until the
+  table's front edge is 60 cm behind the rail (`TABLE_GAP`), so the machine
+  is seen close from the aisle. A table too deep for that stays in the
+  middle of its bay.
+- **Look:** an oak top, 4 cm, with a brass edge; an apron; cast-iron legs
+  with stretchers.
+
+An exhibit builds its table with
+
+```lua
+local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
+if setfenv then setfenv(f, getfenv(1)) end
+local TABLE = f()
+local top = TABLE.build(machineWidth, machineDepth, { x = cx, z = cz })
+```
+
+(loaded into its own environment, so in the hall it builds in its own
+world), and it runs on its own just the same.
+
 ## Notes for exhibit authors
 
 Two things about bpp that cost time, and how the exhibits handle them:

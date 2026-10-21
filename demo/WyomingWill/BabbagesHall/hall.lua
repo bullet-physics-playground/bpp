@@ -72,7 +72,7 @@ local LABELS = dofile(MESH .. "labels.lua")
 --   about      what the placard says when the mouse rests on it
 EXHIBITS = EXHIBITS or {
   { dir = "exhibits/Differential/", file = "differential.lua", name = "the Differential", label = "differential",
-    prefix = "Differential: ", floorY = -75,
+    prefix = "Differential: ", floorY = -100,
     about = "The Differential: gears that add. The carrier turns (A + B) / 2, and its\n" ..
             "ring, with twice as many numbers, reads A + B. Turn one input back and it subtracts." },
   { dir = "exhibits/LehmerSieve/", file = "lehmer-sieve.lua", name = "Lehmer's number sieve", label = "lehmer",
@@ -80,13 +80,13 @@ EXHIBITS = EXHIBITS or {
     about = "Lehmer's number sieve (1926): wheels of different sizes, turning together,\n" ..
             "stop when their holes all line up and a ball drops through -- finding factors. In preparation." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
-    prefix = "Pascaline: ", floorY = -75,
+    prefix = "Pascaline: ", floorY = -100,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..
             "lifts a weighted lever, the sautoir; passing 9 it drops, and its pawl kicks\n" ..
             "the next wheel on by one. Watch 99 + 1 ripple to 100. To add: rest the mouse\n" ..
             "on a dial's hole and press Space, or U/T/H to choose a wheel and 1-9." },
   { dir = "exhibits/DominoAdder/", file = "domino-adder.lua", name = "the Domino Half Adder", label = "domino-adder",
-    prefix = "Dominoes: ", floorY = -75,
+    prefix = "Dominoes: ", floorY = -100,
     about = "The Domino Half Adder: 268 dominoes that add two one-bit numbers.\n" ..
             "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
             "running toward it; a wave can cut another line. That is enough for XOR and AND." },
@@ -122,6 +122,7 @@ end
 -- of the iron columns' bays.
 -- ---------------------------------------------------------------------
 local BAY_W, BAY_D, AISLE = 440, 360, 420      -- a bay's width along the nave, its depth; the aisle
+local TABLE_GAP = 60                            -- an exhibit's table: its front edge this far behind the rail
 local WW = 2 * BAY_D + AISLE                    -- the hall's width (1140)
 local HW = WW / 2
 local H = 560                                   -- the eaves
@@ -277,6 +278,12 @@ local function makeExhibit(e, bay)
     return btVector3(x * cs - z * sn, q.y - oy, x * sn + z * cs)
   end
   g.toScene, g.toLocal = toScene, toLocal
+  -- moved dz toward the aisle (its +z) from the bay's middle: see
+  -- TABLE_GAP (its world, its views and what the mouse finds all go with it)
+  g.shift = function(dz)
+    ox, oz = bay.x + dz * sn, bay.z + dz * cs
+    realV:placeWorld(g.world, btTransform(btQuaternion(btVector3(0, 1, 0), a), btVector3(ox, oy, oz)))
+  end
   local dir = e.dir
   local function fix(path)
     if type(path) ~= "string" or path:sub(1, 1) == "/" or path:match("^%a:[/\\]") then return path end
@@ -726,6 +733,15 @@ for i, b in ipairs(BAYS) do
     setRandom(g)
     local ok, err = inWorld(g, g.load)
     loading = nil
+    -- its table forward, its front edge TABLE_GAP behind the rail, so the
+    -- machine is seen close from the aisle (the exhibit says where its
+    -- table is: exhibit-table.lua)
+    local t = ok and g.env.EXHIBIT_TABLE
+    if t then
+      local want = BAY_D / 2 - 12 - TABLE_GAP       -- (the rail is 12 cm in from the bay's edge)
+      local front = t.z + t.d / 2
+      if want > front then g.shift(want - front) end
+    end
     if ok then
       exhibits[#exhibits + 1] = g
       print(string.format("HALL: %s is in its bay (%s%s)", g.name, e.dir, e.file))

@@ -188,24 +188,17 @@ v.gravity = btVector3(0, -G, 0)
 -- ---------------------------------------------------------------------
 -- the table
 -- ---------------------------------------------------------------------
-local TW, TD = (xmax - xmin) + 2 * MARGIN + 16, (zmax - zmin) + 2 * MARGIN + 24
-local top = Cube(TW, 4, TD, 0)
-top.pos = btVector3(0, -2, 0)
-top.col = "#5b3a1e"
-top.friction = 1.0          -- (Bullet multiplies the two: the slider is what counts)
-v:add(top)
-for _, sx in ipairs({ -1, 1 }) do
-  for _, sz in ipairs({ -1, 1 }) do
-    local leg = Cylinder(3, 71, 0)
-    leg.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(sx * (TW / 2 - 8), -4 - 35.5, sz * (TD / 2 - 8)))
-    leg.col = "#2a2a2a"
-    leg.collides = false
-    v:add(leg)
-  end
+-- the table, by the hall's standard (exhibit-table.lua: 100 cm high, the
+-- machine's footprint plus 30 cm all round)
+local TABLE
+do
+  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
+  if setfenv then setfenv(f, getfenv(1)) end
+  TABLE = f()
 end
-local floor = Plane(0, 1, 0, -75, 400)
-floor.col = "#3b3f45"
-v:add(floor)
+-- (the machine: the template, the layout and its margin)
+local top, TW, TD = TABLE.build((xmax - xmin) + 2 * MARGIN, (zmax - zmin) + 2 * MARGIN, { floor = 500 })
+top.friction = 1.0          -- (Bullet multiplies the two: the slider is what counts)
 
 -- ---------------------------------------------------------------------
 -- the template's pocket walls (fixed), and the dominoes
@@ -566,5 +559,5 @@ if v.onHover then
   end)
 end
 
-common.setCamera(btVector3(0, 95, TD / 2 + 70), btVector3(0, 0, -5))
+common.setCamera(btVector3(0, 95, (zmax - zmin) / 2 + MARGIN + 12 + 70), btVector3(0, 0, -5))   -- (as before the standard table)
 startCase()

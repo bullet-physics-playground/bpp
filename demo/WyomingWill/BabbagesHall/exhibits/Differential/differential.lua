@@ -138,22 +138,15 @@ local ident = btQuaternion(0, 0, 0, 1)
 local function qa(ax, ay, az, deg) return btQuaternion(btVector3(ax, ay, az), math.rad(deg)) end
 local O = btVector3(0, Y0, 0)                 -- the gears' common centre
 
-local top = Cube(40, 3, 30, 0)
-top.pos = btVector3(0, -1.5, 0)
-top.col = "#5b3a1e"
-v:add(top)
-for _, sx in ipairs({ -1, 1 }) do
-  for _, sz in ipairs({ -1, 1 }) do
-    local leg = Cylinder(1.6, 72, 0)
-    leg.trans = btTransform(qa(1, 0, 0, 90), btVector3(sx * 17, -3 - 36, sz * 12))
-    leg.col = "#2a2a2a"
-    leg.collides = false
-    v:add(leg)
-  end
+-- the table, by the hall's standard (exhibit-table.lua: 100 cm high, the
+-- machine's footprint plus 30 cm all round)
+local TABLE
+do
+  local f = assert(loadfile(DIR .. "../../exhibit-table.lua"))
+  if setfenv then setfenv(f, getfenv(1)) end
+  TABLE = f()
 end
-local floor = Plane(0, 1, 0, -75, 300)
-floor.col = "#3b3f45"
-v:add(floor)
+TABLE.build(19, 13.5, { floor = 300 })      -- (the frame's base: 190 x 134.5 mm)
 
 local frame = part("frame(false)")
 frame.col = "#2f3b3a"
