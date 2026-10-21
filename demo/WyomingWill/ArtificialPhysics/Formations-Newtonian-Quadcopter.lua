@@ -5,8 +5,9 @@
 -- modelled quadcopter. Artificial Physics senses the drones' real
 -- positions five times a second and turns the force law into each drone's
 -- next waypoint; the drone's own flight controller has to fly there.
--- See quadcopter/swarm.lua for how the two are coupled and
--- quadcopter/flight.lua for the airframe, rotors, air and controller.
+-- See lib/swarm.lua for how the two are coupled, quadcopter/vehicle.lua
+-- for the drone behind the vehicle interface, and quadcopter/flight.lua
+-- for the airframe, rotors, air and controller.
 --
 -- THE FORCE LAW is the original's: netF = G*m1*m2/r^power, hard-clamped to
 -- forceMax, repulsive inside rad and attractive outside it (a hard switch,
@@ -32,7 +33,7 @@
 -- camera, P camera view, =/- sim speed. Full list in the Shortcuts panel.
 --
 
-local Swarm = require "quadcopter.swarm"
+local Swarm = require "lib.swarm"
 
 Swarm.run({
   title    = "AP: Newtonian -- quadcopters",

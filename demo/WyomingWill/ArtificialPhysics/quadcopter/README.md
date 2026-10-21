@@ -32,7 +32,8 @@ Shortcuts pane holds just the keys.
 | File | What it is |
 | --- | --- |
 | `flight.lua` | One quadcopter: rigid body, rotors, motors, air, flight controller |
-| `swarm.lua` | The AP formation harness: sensing, force laws, waypoints, launch/land, obstacles, wind, downwash, prop strikes, camera, stats, keys |
+| `vehicle.lua` | The quadcopter behind the vehicle interface (`../lib/swarm.lua`, BOOK.md G18): waypoint trajectories, takeoff and landing, wind and downwash, prop strikes, sound |
+| `../lib/swarm.lua` | The AP formation harness, the same for every vehicle: sensing, force laws, commands, launch, obstacles, camera, stats, keys (here until M2; `swarm.lua` is now an alias for it) |
 | `sound.lua` | Rotor sound: drives BPP's synthesised voices from the motor speeds, heard from the camera |
 | `meshes/*.obj` | Frame, front arms (red), prop discs. Regenerate with `python3 gen-meshes.py meshes` |
 
@@ -69,7 +70,7 @@ Shortcuts pane holds just the keys.
     peaking at 5.2 m/s and the 35° tilt limit
   - in an 8 m/s crosswind it leans about 15° and recovers its position
 
-## How AP drives the drones (`swarm.lua`)
+## How AP drives the drones (`../lib/swarm.lua`)
 
 At `apHz` (default 5 Hz) each AP tick runs these steps:
 

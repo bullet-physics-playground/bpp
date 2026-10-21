@@ -19,6 +19,8 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 | `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
 | `ch13.lua` | — | Ch. 13's motion-control mechanisms, one function each: AR damping η and the stop rule so far |
+| `swarm.lua` | G18 | The formation harness for every vehicle: the AP force laws, goal and obstacle field, metrics, status line, camera, keys; each agent a vehicle behind one interface |
+| `ideal.lua` | G18 | The ideal vehicle: perfect tracking, i.e. the original particle, as a reference for every vehicle |
 
 ## `rng.lua`
 
@@ -431,8 +433,37 @@ uMax = C13.adaptCap(uMax, near, 0.5, 0.1, 1.0, kMore, kLess)  -- Eq. 13.24
   `quadcopter/README.md`: on the drones only η (in a 0.2 D band) is needed;
   static friction and the adaptive cap are for the ground robots (M2) and
   sensor noise (G7), and are not wired into the drone harness.
-- `quadcopter/swarm.lua` applies η to every drone–drone pair force with the
+- `lib/swarm.lua` applies η to every drone–drone pair force with the
   spin-modified distance the law itself uses, and the stop rule to each
   drone's summed force (sliders `etaPower`, `etaWidth`; on by default in
   the Newtonian scene, band 0.2 D in 2D and 0.5 D in 3D). The other functions are not wired into the drones.
 - `checks/ch13.lua` reproduces Figs. 13.3 and 13.8 and tests each mechanism (26 tests).
+
+## `swarm.lua` and the vehicle interface
+
+```lua
+local Swarm = require "lib.swarm"
+Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..., params = ...,
+            vehicle = require "quadcopter.vehicle" })   -- the default vehicle
+```
+
+- **One interface for every vehicle (G18).** AP senses each agent's actual
+  position at `apHz`, runs the force law, and hands the vehicle one command:
+  `command(d, wx, wy, wz, T, t)`, reach the point w in T seconds (the
+  desired velocity is (w − p)/T). The vehicle's own controller works out
+  how. Everything else a vehicle provides (deploying, holding, leaving, its
+  sliders, whether it can go 3D and whether a touch is a loss) is listed in
+  `swarm.lua`'s header.
+- **Vehicles so far:** the quadcopter (`quadcopter/vehicle.lua`, the
+  default; it was built into the harness until M2, and its results are bit
+  for bit what they were) and the ideal vehicle (`ideal.lua`).
+- **`VEHICLE=lib.ideal`** (environment) runs any scene on the ideal
+  vehicle: it goes exactly where AP sends it, so the scene is the original
+  particle demo. Use it to tell what AP does from what a vehicle adds, e.g.
+  `python3 lib/batch.py Formations-Lennard-Jones-Quadcopter.lua --env VEHICLE=lib.ideal --env DIM=2 ...`.
+  The ideal LJ 2D triangle forms (50 particles, compact launch) in 37–38 s
+  at 1.00–1.01 D (seeds 1–2), the drones' in 30–35 s.
+- `quadcopter/swarm.lua` is kept as a one-line alias, so `require
+  "quadcopter.swarm"` still works.
+- `checks/vehicles.sh`: every vehicle module has the whole interface, and
+  the ideal vehicle forms the LJ triangle at D.

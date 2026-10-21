@@ -5,7 +5,8 @@
 -- physically modelled quadcopter. Artificial Physics senses the drones'
 -- real positions five times a second and turns the force law into each
 -- drone's next waypoint; the drone's own flight controller has to fly
--- there. See quadcopter/swarm.lua for how the two are coupled and
+-- there. See lib/swarm.lua for how the two are coupled,
+-- quadcopter/vehicle.lua for the drone behind the vehicle interface, and
 -- quadcopter/flight.lua for the airframe, rotors, air and controller.
 --
 -- THE FORCE LAW is the original's smooth dual-power curve, independent of
@@ -24,7 +25,7 @@
 -- camera, P camera view, =/- sim speed. Full list in the Shortcuts panel.
 --
 
-local Swarm = require "quadcopter.swarm"
+local Swarm = require "lib.swarm"
 
 Swarm.run({
   title    = "AP: Lennard-Jones -- quadcopters",

@@ -95,8 +95,10 @@ unset N S_LIST
 if [ -n "$BPP_BIN" ]; then
   export BPP="$BPP_BIN"
   run batch_repeat bash checks/batch_repeat.sh
+  run vehicles     bash checks/vehicles.sh
 else
   skipped batch_repeat "no BPP binary (build BPP or set BPP=)"
+  skipped vehicles     "no BPP binary (build BPP or set BPP=)"
 fi
 
 echo "---"
