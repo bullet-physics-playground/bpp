@@ -21,6 +21,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `ch13.lua` | — | Ch. 13's motion-control mechanisms, one function each: AR damping η and the stop rule so far |
 | `swarm.lua` | G18 | The formation harness for every vehicle: the AP force laws, goal and obstacle field, metrics, status line, camera, keys; each agent a vehicle behind one interface |
 | `ideal.lua` | G18 | The ideal vehicle: perfect tracking, i.e. the original particle, as a reference for every vehicle |
+| `laws.lua` | G18 | The split Newtonian and Lennard-Jones laws with their defaults, shared by every vehicle's scenes |
 
 ## `rng.lua`
 
@@ -456,7 +457,17 @@ Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..
   `swarm.lua`'s header.
 - **Vehicles so far:** the quadcopter (`quadcopter/vehicle.lua`, the
   default; it was built into the harness until M2, and its results are bit
-  for bit what they were) and the ideal vehicle (`ideal.lua`).
+  for bit what they were), the ideal vehicle (`ideal.lua`) and the ground
+  robot (`ground/vehicle.lua`).
+- **`laws.lua`** holds the two laws as configurations, so every vehicle's
+  scene runs the same law with the same settings (the cross-vehicle
+  benchmark's premise): `local cfg = require("lib.laws").newtonian()`,
+  then set `cfg.title` and `cfg.vehicle` and call `Swarm.run(cfg)`.
+- **Metrics for probes** (`Swarm.state()`): `metrics` (running totals, in
+  the header: ticks, gap, acceleration, crossings, and `contacts` and
+  `hits`, agent–agent and agent–column touches), `goal` (in metres, with
+  `on` and `stopped`), `field` (the obstacle field's near and far edges,
+  if the last Setup scattered one) and `vehicle` (its name).
 - **`VEHICLE=lib.ideal`** (environment) runs any scene on the ideal
   vehicle: it goes exactly where AP sends it, so the scene is the original
   particle demo. Use it to tell what AP does from what a vehicle adds, e.g.

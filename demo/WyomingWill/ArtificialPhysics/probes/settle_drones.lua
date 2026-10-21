@@ -1,5 +1,6 @@
 -- probes/settle_drones.lua -- a lib/batch.py probe: does the drone lattice
--- settle? Ch. 16.9's measures for the Ch. 13 work (milestone M1)
+-- settle? Ch. 16.9's measures for the Ch. 13 work (milestone M1), and for
+-- every vehicle behind lib/swarm.lua since M2 ("drones" below = agents)
 --
 -- Samples the swarm once a second of flight and reports a row every EVERY
 -- frames (default 900, about 29 s of flight) and at the end. DEFINITIONS
@@ -36,6 +37,16 @@
 --              below V_FORMED (default 0.01 m/s); -1 if not by the end.
 --              settleA and settleV alone miss a lattice that is still
 --              slowly growing (FIXES 41): use this one for "settled".
+--   goaldist   horizontal distance from the flying drones' centroid to the
+--              goal, m (snapshot)
+--   past       with the obstacle field: the share of the flying drones
+--              beyond the field's far edge (x < -38 m; snapshot)
+--   through    the first t at which past >= 0.9 (90% of the swarm through
+--              the field), s; -1 if not (yet). Sampled once a second
+--   near4      the share of the flying drones within 4 spacings of the
+--              goal (Ch. 14's "reached the goal", Eq. 14.5; snapshot)
+--   contacts   agent-agent touches since Setup (lib/swarm.lua METRICS)
+--   hits       agent-column touches since Setup
 --   final      1 on the row written when the run ends
 -- Lengths in metres; the spacing is rad or desiredSeparation x
 -- metersPerUnit (3 m by default).
@@ -101,6 +112,33 @@ local function apSpeed(st)
   return n > 0 and s / n or 0, n
 end
 
+-- the centroid's horizontal distance to the goal, m (nil without one)
+local function goalDist(st)
+  if not st.goal then return nil end
+  local n, x, z = 0, 0, 0
+  for _, d in ipairs(st.drones) do
+    if d.state == "ap" or d.state == "hold" then n = n + 1; x, z = x + d.px, z + d.pz end
+  end
+  if n == 0 then return nil end
+  return math.sqrt((x / n - st.goal.x) ^ 2 + (z / n - st.goal.z) ^ 2)
+end
+local throughT = nil
+-- the share of the flying drones past the field's far edge, and within 4
+-- spacings of the goal (nil without a field / goal)
+local function shares(st)
+  local n, past, near = 0, 0, 0
+  local r4 = 4 * sepMeters()
+  for _, d in ipairs(st.drones) do
+    if d.state == "ap" or d.state == "hold" then
+      n = n + 1
+      if st.field and d.px < st.field.xFar then past = past + 1 end
+      if st.goal and (d.px - st.goal.x) ^ 2 + (d.pz - st.goal.z) ^ 2 < r4 * r4 then near = near + 1 end
+    end
+  end
+  if n == 0 then return nil, nil end
+  return st.field and past / n or nil, st.goal and near / n or nil
+end
+
 local SWITCH_AT = tonumber(os.getenv("SWITCH_AT") or "")
 local switched = false
 
@@ -113,6 +151,8 @@ local function sample()
     print(string.format("probe: t=%.1f s after AP: set %s", st.simTime - st.apEngagedAt, os.getenv("SWITCH_SET") or ""))
   end
   local now = snapshot()
+  local past = shares(st)
+  if not throughT and past and past >= 0.9 then throughT = st.simTime - st.apEngagedAt end
   if lastM and now.accN > lastM.accN then
     local t = st.simTime - st.apEngagedAt
     local acc = (now.accSum - lastM.accSum) / (now.accN - lastM.accN)
@@ -174,9 +214,12 @@ local function report(extra)
     cv = cv or "", nncv = nncv or "", bond = bond or "", bondcv = bondcv or "",
     settleA = settleTime("acc", ACC_SETTLE), settleV = settleTime("speed", V_SETTLE),
     formed = settleTime("unformed", 0.5),
+    contacts = st.metrics.contacts, hits = st.metrics.hits,
+    goaldist = goalDist(st) or "", past = (shares(st)) or "", near4 = select(2, shares(st)) or "",
+    through = st.field and (throughT and string.format("%.1f", throughT) or -1) or "",
   }
   for kk, val in pairs(extra or {}) do row[kk] = val end
-  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "cv", "nncv", "bond", "bondcv", "formed", "settleA", "settleV" })
+  batch.row(row, { "t", "flying", "crashed", "cx", "speed", "acc", "gap", "cross", "cv", "nncv", "bond", "bondcv", "formed", "settleA", "settleV", "contacts", "hits", "goaldist", "past", "through", "near4" })
   lastRow = now
 end
 

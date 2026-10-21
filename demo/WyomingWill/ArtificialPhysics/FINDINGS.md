@@ -578,6 +578,36 @@ skewness > 3 (measured 4.1–5.7) and tallest ≥ 5 × the median (6.6–10 ×).
 And the harbour town's quay now holds two large lots, so the yard takes one
 and one warehouse is made, as many as there are sheds.
 
+**F66. Ground robots freeze in the minimum-speed gap, as the book
+predicts; Ch. 13's frictions do not get the split law to D** — 2026-10-21,
+Confirmed (book's prediction, PDF 452–453) and New (the numbers).
+Milestone M2, `ground/README.md`. 50 Pioneer 3-AT robots (book: r_diff
+0.3 m, wheels 0 or 0.1–0.5 m/s, u_max 0.5 m/s, Ω_max 0.4 rad/s) under the
+quadcopter scenes' laws and settings, 2D triangle, compact launch, 180 s,
+seeds 1–3. A robot moves only while the force on it exceeds
+friction × 0.1 m/s / (metersPerUnit × apHz) = 0.2 AP units; below that
+every wheel is in the gap and it stands exactly still (10⁻⁶ m/s), the
+book's "agents get stuck in low-energy formations because the forces are
+too small to move them" (Fig. 13.7). Lennard-Jones, stiff at D, freezes
+within 1–2% of D: formed at 31.7 s, bond 0.98–0.99 D, bond CV
+0.068–0.074 (drones 0.022–0.034). The split Newtonian law has
+only 0.28 at D, and η (band 0.2 D) damps it under 0.2 out to ~0.14 D from
+D: frozen at 0.89 D, CV 0.19–0.21, never formed. Without η the robots
+dither across D at the minimum speed (141–151 crossings per robot per
+minute), the oscillation the book says the Pioneers had before static
+friction (E11d). Adaptive friction 0.5/0.02 (Eq. 13.23) cuts that to
+44–47; static friction (Eq. 13.25) at the book's scale (g′ = 0.098 F(D))
+leaves 38–56 and at g′ = F(D) 75–85: the book's threshold is ~10% of the
+force at D, and this dither is driven by the full step at D, so static
+friction cannot stop it. η in a band of 0.05 D freezes at 0.93 D; η at
+range 1.25 D at 0.94 D with CV 0.12–0.14, the best Newtonian lattice on
+robots (range 1.25 was the best on drones too, F45). None forms, so none
+is kept (HANDOFF §2). *The guidance found two rules in its own check*
+(`checks/vehicle_physics.lua`): without a turn-rate limit of |u_d| / r_diff
+a robot asked to creep spun on the spot at 0.4 rad/s, and a pivot on a
+wheel stopped in the gap reached 0.56 rad/s until the other wheel was held
+to 2 r_diff Ω_max.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -755,3 +785,7 @@ the field in Preferences) to get the default path back.
   friction) settle the drones without η's loss of stiffness (F47).
 - Getting a 2D lattice from a pile faster than η's ~1.5 min (F59): LJ
   does it in 30–35 s, so the lead is the shape of the force law near D.
+- Ground robots with a minimum speed (F66): how to make the small moves
+  that finish a lattice and escape a stall behind a column. The
+  threshold is friction × v_min / (metersPerUnit × apHz) in AP force
+  units, so the law's stiffness near D, apHz and friction all move it.

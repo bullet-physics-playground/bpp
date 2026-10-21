@@ -154,6 +154,10 @@
 --              successive ticks whose distance moved from one side of D
 --              to the other (book/ch13.md E11's "passes across their
 --              mutual AR boundaries"), counted once per pair
+--   contacts   agent-agent touches (Bullet contact points, checked once a
+--              frame; a pair counts again only after it has separated)
+--   hits       agent-column touches, counted the same way; for fragile
+--              vehicles (drones) each touch is also a loss
 --
 
 -- This file is the harness, not a scene. Opened on its own in BPP (no
@@ -298,7 +302,7 @@ local simTime, nextApTime, nextAirTime = 0, 0, 0
 local stats = { contacts = 0, satSteps = 0, steps = 0, maxTilt = 0, trackSum = 0, trackN = 0 }
 local function newMetrics()  -- running totals for probes (see METRICS at the top)
   return { ticks = 0, droneTicks = 0, gapSum = 0, gapN = 0, accSum = 0, accN = 0,
-           crossings = 0 }
+           crossings = 0, contacts = 0, hits = 0 }
 end
 local metrics = newMetrics()
 local objToDrone = {}   -- frame object -> drone (for contact lookups)
@@ -307,6 +311,7 @@ local apEngagedAt = 0   -- simTime when AP engaged (for goalDelay)
 local pendingLaunch = {} -- drones still to take off: {x, z, alt, t}
 local allUpAt = nil      -- simTime the last drone of a staged launch joined AP
 local goalAutoDone = false
+local fieldOn = false     -- the last Setup scattered the obstacle field
 
 -- The obstacle field and the goal's route, in metres. The launch cluster
 -- sits at x ~ +14 and spreads to x ~ +3 (2D, 50 drones), so the field
@@ -397,9 +402,10 @@ end
 -- repR as the size); the solid column has radius solidR.
 local function buildObstacleObj(obs)
   if obs.obj then v:remove(obs.obj); obstacleObjs[obs.obj] = nil end
-  local h = ALT() + 2 * v:getParam(SEP) * S() + 8     -- well above the formation
+  local floor = Veh.floorY or 0                       -- from the ground (or seabed)
+  local h = ALT() + 2 * v:getParam(SEP) * S() + 8 - floor  -- to well above the formation
   local o = Cylinder(math.max(0.05, obs.solidR), h, 0)
-  o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(obs.wx, h / 2, obs.wz))  -- local z -> up
+  o.trans = btTransform(btQuaternion(btVector3(1, 0, 0), math.pi / 2), btVector3(obs.wx, floor + h / 2, obs.wz))  -- local z -> up
   o.col = COL_OBS
   v:add(o)
   obs.obj = o
@@ -814,7 +820,8 @@ function setup(n)
 
   isGoalEnabled, goalAutoDone = false, false
   local goal
-  if v:getParam("obstacleField") then
+  fieldOn = v:getParam("obstacleField")
+  if fieldOn then
     generateField()
     goal = { x = GOAL_START_X / s, y = 0, z = 0, vx = 0, vy = 0, vz = 0, mass = HOLD_MASS, route = true }
   else
@@ -822,7 +829,7 @@ function setup(n)
   end
   goal.obj = ghost(Sphere(0.4, 0), COL_GOAL)
   goals[1] = goal
-  print(string.format("setup: %d drones on the launch grid (%s)", n, is3D and "3D" or "2D"))
+  print(string.format("setup: %d %s on the launch grid (%s)", n, Veh.noun, is3D and "3D" or "2D"))
   if updateStatus then updateStatus() end
 end
 
@@ -1153,7 +1160,7 @@ local function checkContacts(strikesOn)
       local key = math.min(da.id, db.id) * 100000 + math.max(da.id, db.id)
       if not now[key] then
         now[key] = true
-        if not touching[key] then stats.contacts = stats.contacts + 1 end
+        if not touching[key] then stats.contacts = stats.contacts + 1; metrics.contacts = metrics.contacts + 1 end
         if strikesOn then
           strike(da, "collided with drone " .. db.id)
           strike(db, "collided with drone " .. da.id)
@@ -1161,6 +1168,13 @@ local function checkContacts(strikesOn)
       end
     elseif da or db then
       local d, other = da or db, da and b or a
+      if obstacleObjs[other] then
+        local key = d.id .. ":" .. tostring(other)
+        if not now[key] then
+          now[key] = true
+          if not touching[key] then metrics.hits = metrics.hits + 1 end
+        end
+      end
       if strikesOn and obstacleObjs[other] then strike(d, "hit an obstacle")
       elseif strikesOn and other == ground and inFlight(d) then strike(d, "hit the ground") end
     end
@@ -1395,8 +1409,17 @@ updateStatus()
 
 -- for scripted (command-line) runs
 M.state = function()
+  -- the goal in metres; on = attracting; stopped = at the end of its route
+  local g, goal = goals[1], nil
+  if g then
+    local gx, gy, gz = toWorld(g.x, g.y, g.z)
+    goal = { x = gx, y = gy, z = gz, on = isGoalEnabled,
+             stopped = (g.route and g.x <= GOAL_END_X / S() + 1e-6) or false }
+  end
   return { drones = drones, simTime = simTime, apEngaged = apEngaged, apEngagedAt = apEngagedAt,
-           obstacles = obstacles, metrics = metrics, is3D = is3D, isSquare = isSquareFormation }
+           obstacles = obstacles, metrics = metrics, is3D = is3D, isSquare = isSquareFormation,
+           goal = goal, vehicle = Veh.name,
+           field = fieldOn and { xNear = FIELD_X_NEAR, xFar = FIELD_X_FAR } or nil }
 end
 M.formationStats = function() return formationStats(readParams()) end
 

@@ -9,8 +9,8 @@
 -- quadcopter/vehicle.lua for the drone behind the vehicle interface, and
 -- quadcopter/flight.lua for the airframe, rotors, air and controller.
 --
--- THE FORCE LAW is the original's smooth dual-power curve, independent of
--- mass, crossing zero exactly at desiredSeparation:
+-- THE FORCE LAW (lib/laws.lua) is the original's smooth dual-power
+-- curve, independent of mass, crossing zero exactly at desiredSeparation:
 --   f = lennardJonesConstant * (d^2p / r^(2p+1) - d^p / r^(p+1)),
 -- with the repulsive side capped at forceMaximum. It settles: once the
 -- lattice forms, the drones come to a near-stop.
@@ -26,27 +26,9 @@
 --
 
 local Swarm = require "lib.swarm"
-
-Swarm.run({
-  title    = "AP: Lennard-Jones -- quadcopters",
-  sepParam = "desiredSeparation",
-  layerGain = 0.05,   -- flight levels in 3D triangle (FIXES.md item 30)
-  friction = 0.5,
-  params = {
-    -- name,                 default, min, max, step, comment
-    { "lennardJonesConstant", 10,     1,   50,  1,    "overall strength of the particle-particle force" },
-    { "power",                6,      1,   10,  0.1,  "steepness of the force curve" },
-    { "forceMaximum",         1,      1,   5,   0.1,  "hard cap on the repulsive force magnitude" },
-    { "desiredSeparation",    50,     2,   100, 1,    "particle-particle equilibrium distance" },
-  },
-  -- smooth dual-power curve, zero at desiredSeparation; > 0 repels
-  force = function(modifiedR, p)
-    local d = p.desiredSeparation
-    local f = p.lennardJonesConstant * ((d ^ (2 * p.power)) / (modifiedR ^ (2 * p.power + 1))
-                                        - (d ^ p.power) / (modifiedR ^ (p.power + 1)))
-    if f > p.forceMaximum then f = p.forceMaximum end
-    return f
-  end,
-})
+local cfg = require("lib.laws").lennardJones()      -- the law and its defaults (lib/laws.lua)
+cfg.title = "AP: Lennard-Jones -- quadcopters"
+cfg.vehicle = require "quadcopter.vehicle"
+Swarm.run(cfg)
 
 -- EOF

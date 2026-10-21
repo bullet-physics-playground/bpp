@@ -136,7 +136,7 @@ Most chapters need the same pieces. Build each once.
 | G7 | **Neighbour sensing model:** range and bearing noise, maximum range, token-ring staleness (120 ms × N), 1-bit/packet payload, a Maxelbot preset calibrated to Fig. 10.14 | 3.4, 6, 10, 11, 12, 15 |
 | G8 | **Rays:** line of sight between agents, and IR, sonar-ring and laser rangefinders (Bullet ray tests) | 5, 7, 9, 10, 11, 12, 13, 14 |
 | G9 | **Force-law table** keyed by (source type, target type): asymmetric, with wildcards and virtual particles, and one sign convention | 3.4, 3.5, 5, 16, 17 |
-| G10 | **Ground vehicles:** skid-steer Maxelbot (MMP-5) and differential-drive Pioneer 3-AT | 9, 10, 11, 12, 13 |
+| G10 | **Ground vehicles (Pioneer 3-AT done, `ground/`; Maxelbot to come):** skid-steer Maxelbot (MMP-5) and differential-drive Pioneer 3-AT | 9, 10, 11, 12, 13 |
 | G11 | **Water vehicles:** a holonomic round ASV (Voith–Schneider); an ROV-style multi-thruster vehicle that can hover and move sideways; a torpedo-shaped AUV that cannot | 6, ★9, ★capstone |
 | G12 | **Fixed-wing aircraft** (constant speed, bank limit) with the heading-particle torque law, plus the dumbbell agent | 3.1 ★, 13 |
 | G13 | **Worlds:** wall polygons from vertex lists, corridors, mazes, and an obstacle-density generator | 4.3, 7, 11, 12, 14, 15 |
@@ -167,7 +167,7 @@ Most chapters need the same pieces. Build each once.
 | 10 | What is a Maxelbot? (Maxim) | 13 | Trilateration noise model + token ring | Maxelbot | G7, G8, G10 | new |
 | 11 | Uniform coverage (Maxim) | 13 | KL metric, wall-only control, f = 0.6 | particles, Maxelbot, quads | G3, G13, G16 | partly |
 | 12 | Chain formations (Maxim) | 18 | Listing 12.4 maze with the evolved law | particles, Maxelbots, quads | G3, G7, G8, G13, G17 | plan |
-| 13 | Motion control of constrained agents (Apker, Potter) | 13 | η, adaptive and static friction on the drones | quads, Pioneer, fixed-wing | G4, G10, G12 | partly (η on the drones) |
+| 13 | Motion control of constrained agents (Apker, Potter) | 13 | η, adaptive and static friction on the drones | quads, Pioneer, fixed-wing | G4, G10, G12 | partly (η on the drones; the Pioneer measured) |
 | 14 | Adaptive learning, Daedalus (Hettiarachchi) | 7 | Offline three-law LJ obstacle course | particles, quads | G3, G8, G13 | plan |
 | 15 | Statistical scouts (Spears et al.) | 10 | Bernoulli vs Bayes on the Ch. 14 world | particles (drones for show) | G2, G3, G13 | plan |
 | 16 | Swarm design considerations (Wiegand, Ellis) | 9 | Type table; rings; protection | particles, quads | G9, G16 | new |
@@ -331,13 +331,13 @@ metrics.
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
 | 13.1–13.2 | Point-mass reachable space; the discontinuity at D | 447–448 | Explains the Newtonian jitter | done (observed) |
-| 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | Plots (G10) | new |
+| 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | `ground/vehicle.lua` (G10): the Pioneer with the book's r_diff, wheel range and caps; the minimum-speed gap freezes the lattice as Fig. 13.7 predicts (F66); plots to come | partly |
 | 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`; on the drones `etaPower` 1, `etaWidth` 0.2 (2D) / 0.5 (3D), the Newtonian default; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F55) | done |
 | 13.6 | "Triangle of death" | 454–456 | Ground robots | new |
 | 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |
 | 13.9 | Heading-particle torque law | 460–462 | Fixed-wing (G12) | plan (corrected) |
 | 13.10 | Dumbbell agent | 462–463 | Pioneer | plan (corrected) |
-| 13.11 | **Pioneer recipe: adaptive friction (13.23), caps, adaptive cap (13.24), static friction (13.25); 3–5-robot camera ring with three-point turns** | 463–465 | On the drones all measured: only η is needed; adaptive and static friction and the adaptive cap are not (F51, F54, F55); the latter two kept in `lib/ch13.lua` for M2; ring on Pioneers | partly |
+| 13.11 | **Pioneer recipe: adaptive friction (13.23), caps, adaptive cap (13.24), static friction (13.25); 3–5-robot camera ring with three-point turns** | 463–465 | On the drones all measured: only η is needed; adaptive and static friction and the adaptive cap are not (F51, F54, F55). On the Pioneers (M2): adaptive and static friction do not settle the split law at D, and the cap has no collisions to prevent (F66, F68); ring on Pioneers to come | partly |
 | 13.12 | 5 UAVs and 10 targets, gravity vs torque law | 465–467 | Fixed-wing | new |
 | 13.13 | Four-step design procedure | 466–468 | Checklist | new |
 

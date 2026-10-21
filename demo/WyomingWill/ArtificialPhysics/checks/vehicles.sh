@@ -2,13 +2,16 @@
 # checks/vehicles.sh -- the vehicle interface (lib/swarm.lua, BOOK.md G18)
 #
 #   1. every vehicle module provides what lib/swarm.lua's header lists;
-#   2. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
+#   2. each physical vehicle meets its specification
+#      (checks/vehicle_physics.lua: speed and turn caps, the minimum-speed
+#      gap);
+#   3. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length
 #      0.99-1.02 of desiredSeparation, nothing lost; seeds 1-2.
 #
 # Needs BPP (the modules build Bullet objects). Run from the
-# ArtificialPhysics folder (about 10 s):  bash checks/vehicles.sh
+# ArtificialPhysics folder (about 20 s):  bash checks/vehicles.sh
 # Prints ok/FAIL lines and PASS or FAIL; exits 0 or 1.
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -21,7 +24,7 @@ T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 fail=0
 
 # 1. the interface
-VEHICLES="quadcopter.vehicle lib.ideal"
+VEHICLES="quadcopter.vehicle lib.ideal ground.vehicle"
 "$BPP" -n 1 -l "
 local need = { 'name', 'noun', 'moving', 'floorY', 'planeY', 'new', 'remove', 'setColor', 'sync',
                'guide', 'join', 'command', 'hold', 'step' }
@@ -39,7 +42,14 @@ grep -E "^(ok|FAIL)" "$T/iface.txt"
 grep -q "^FAIL" "$T/iface.txt" && fail=1
 [ "$(grep -c '^ok' "$T/iface.txt")" = "$(echo $VEHICLES | wc -w)" ] || { [ $fail = 1 ] || { echo "FAIL vehicles: interface check did not run"; tail -3 "$T/iface.txt"; }; fail=1; }
 
-# 2. the ideal vehicle forms the LJ lattice
+# 2. each vehicle against its specification
+for vv in ground:1300; do
+  VEH=${vv%:*} "$BPP" -f checks/vehicle_physics.lua -n ${vv#*:} > "$T/phys.txt" 2>&1
+  grep -E "^(ok|FAIL)" "$T/phys.txt"
+  grep -q "^PASS" "$T/phys.txt" || { fail=1; grep -q "^FAIL" "$T/phys.txt" || { echo "FAIL vehicles: vehicle_physics ${vv%:*} did not finish"; tail -3 "$T/phys.txt"; }; }
+done
+
+# 3. the ideal vehicle forms the LJ lattice
 python3 lib/batch.py Formations-Lennard-Jones-Quadcopter.lua --probe probes/settle_drones.lua \
   --env VEHICLE=lib.ideal --env DIM=2 --seeds 1-2 --set obstacleField=false --set goalDelay=0 \
   --frames 3000 --out "$T/ideal.csv" > "$T/ideal.txt" 2>&1 || { echo "FAIL vehicles: the ideal run failed"; tail -3 "$T/ideal.txt"; fail=1; }
