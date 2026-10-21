@@ -729,6 +729,17 @@ tests that "pressed S to start" were stopping runs (our error).
 not be set to 1; found by William). Caps now get a tick box and a slider over
 the useful range. Same root as F31.
 
+**F65. A saved Lua path wins over the script's own folder** (found by
+William, 2026-10-20): BPP uses `lua/path` from its settings
+(`~/.config/bullet-physics-playground.github.io/bpp.conf`, `[lua] path=`)
+whenever every folder in it exists, and falls back to the default path
+(the script's folder and its parents, then `demo/`) only when one is
+missing (`src/viewer.cpp`, `src/prefs.cpp`). Pressing OK in Preferences
+saves the path shown, which is computed from where BPP was started. With
+two checkouts, a path saved in one is used by the other, so
+`require "common"` failed for `batch_repeat` there. Clear the line (or
+the field in Preferences) to get the default path back.
+
 ## 7. Open questions
 
 - F18: the limits at MFP ≤ 17, which need about 10⁹ visits to resolve.

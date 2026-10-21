@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F64 so far), and
+  implementations, and our own mistakes once corrected (F1–F65 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -134,7 +134,12 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 
 - **Precompiled-header pitfall (FIXES 27):** after re-running qmake, or on a
   new day, `rm -rf release/bpp.gch` before `make`.
-- **Before sending a patch:** `bash checks/run_all.sh` (all must pass).
+- **Before sending a patch:** `bash checks/run_all.sh` (all must pass; the
+  script is not executable, so run it with `bash`).
+- **Saved Lua path pitfall (F65):** if a check fails with
+  `module 'common' not found`, BPP is using a `[lua] path=` saved in
+  `~/.config/bullet-physics-playground.github.io/bpp.conf`, often from
+  another checkout; delete that line (or clear the field in Preferences).
 - **Headless run:** from this folder,
   `SDL_AUDIODRIVER=dummy XDG_RUNTIME_DIR=/tmp/rt QT_QPA_PLATFORM=offscreen ~/bpp/release/bpp -f Formations-Lennard-Jones-Quadcopter.lua -n 1500`
   (`mkdir -p /tmp/rt` first). 5400 frames ≈ 180 s of flight, about a minute of
@@ -285,7 +290,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     unit) follows from their lag and AP rate, and moves with `apHz`; a 3D
     G_t for the cube (`BOOK.md` §1 item 9).
 - **Done: the realistic world generator** (`BOOK.md` §6, 2026-10-20), in
-  four patches:
+  five patches:
   1. terrain and water (`lib/terrain.lua`, the five presets in
      `lib/places.lua`, `Worlds.lua` presets 5–9, `checks/terrain.lua`;
      F60);
@@ -331,8 +336,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
-> WORKFLOW.md. Build BPP as described there, run checks/run_all.sh, and
-> continue with the next step in HANDOFF.md §7: milestone M2. Deliver each
+> WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
+> and continue with the next step in HANDOFF.md §7: milestone M2. Deliver each
 > step as a patch with git commands.
 
 Attach the book PDF if the chat will need chapters beyond the notes,
