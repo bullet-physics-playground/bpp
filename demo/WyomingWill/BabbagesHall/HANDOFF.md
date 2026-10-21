@@ -57,8 +57,7 @@ git push
   the Co-Authored-By trailer for Claude. Stage only the files you changed.
 - He looks at the exhibits in the GUI and reports what he sees with
   screenshots: take his reports seriously and reproduce them before
-  answering (one, the Pascaline's stylus "going through" an object, is
-  still open: §7).
+  answering, and measure when the pictures don't settle it.
 - Plain explanations; measure before claiming; say what was and wasn't
   tested.
 - **His bpp is built with Lua 5.2;** a cloud workspace's is usually 5.1.
@@ -182,14 +181,15 @@ there, in `release/`, or on the path; or set `BPP`.
   (east 4). New bays (the hall grows by a row of two) would suit the
   Galton board and planimeter (quick and clear) or the Enigma and the
   Antikythera mechanism (striking, within reach).
-- **Open:** William saw the Pascaline's stylus pass through "the object in
-  front of the dial"; measured, it never overlaps the finger stop (closest
-  7.63 degrees, touching at 7.58), so a screenshot from him is needed.
-  Euler's Gallery's tables (75 cm, sized by hand) await his decision on the
-  exhibit standard. The Rec Room's flight into a table's top-down view is
-  untested. POV-Ray finds textures only with `+L` the bpp folder. A printed
-  detent (`detent.stl`, 1.2 mm leaf) would test the stiffness worked out
-  from PLA.
+- **Settled (2026-10-21):** William has tried the Pascaline (the mouse and
+  the keys) and it works well; the stylus collision he thought he saw
+  wasn't one. Euler's Gallery keeps its own tables as they are; the exhibit
+  standard is the hall's. The Rec Room's camera flights look good, the
+  top-down table view included.
+- **Open, for later:** POV-Ray finds textures only with `+L` the bpp folder
+  (their paths are relative to it): Jakob has it. A printed detent
+  (`detent.stl`, 1.2 mm leaf) would test the stiffness worked out from PLA;
+  William will print one some other time.
 
 ## 8. Opening message for the next chat
 
