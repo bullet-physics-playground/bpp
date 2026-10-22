@@ -21,8 +21,7 @@ package.path = "./?.lua;" .. package.path
 local name, seed = arg[1] or "harbour-town", tonumber(arg[2] or "1")
 
 -- a stand-in for the BPP calls World:toBPP makes
-local out = {}
-local function emit(s) out[#out + 1] = s end
+local function emit(s) io.write(s, "\n") end   -- (written as it goes: a big world's print is GBs in memory)
 local function num(x) if x == 0 then x = 0 end return string.format("%.17g", x) end   -- -0 as 0
 local function vec(t) return num(t.x) .. "," .. num(t.y) .. "," .. num(t.z) end
 local Obj = {}
@@ -102,5 +101,4 @@ for i, o in ipairs(drawn) do
   for k, val in pairs(o) do if k ~= "tris" and k ~= "cols" and k ~= "body" then o2[k] = val end end
   dump(o2, "drawn" .. i)
 end
-io.write(table.concat(out, "\n"), "\n")
 io.write(string.format("TIME generate %.2f s  draw %.2f s\n", c1 - c0, c2 - c1))

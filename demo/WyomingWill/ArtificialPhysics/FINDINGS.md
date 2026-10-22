@@ -659,6 +659,28 @@ triangles, mostly creating vectors), the zone lookups (the woods' noise,
 tenfold gain needs compiled code for those (C, or LuaJIT). The viewer's
 repeated rebuilds were a larger cost than any of it (FIXES 42).
 
+**F70. Woods as trees: a closed canopy that drones can fly under** —
+2026-10-22, New (William: "the forests are just blobs, not trees, so
+drones couldn't go through them"). Zone A was a canopy, a solid volume
+from the ground to ~20 m. It is now trees at 300 trunks a hectare
+(William's choice; mature temperate woodland has roughly 200-400), on a
+jittered grid, crowns of radius 0.15 × height from half the height up:
+66,159 trees over 221 ha in the rural preset (300 a hectare), about 16,000
+in the harbour town's 55 ha. In the rural woods 1.2% of points are
+blocked 5 m above the ground (trunks only; the lowest crown starts at
+6.4 m) and 73% are under a crown at 14 m, so the canopy is closed above
+and the floor open between trunks ~5 m apart. The woods' trees come from
+their own random stream after every other tree, so the rest of each world
+is unchanged (`tools/worldprint.lua`: identical but for trees, pieces and
+drawing). Cost, generation + drawing (seed 1, FIXES 42's measure): rural
+5.0 s (2.9 s with the canopy, 4.2 s before FIXES 42), harbour town 5.2 s;
+placing 66,000 trees is ~1.5 s of noise and zone lookups at 270,000 grid
+points, drawing them ~2 s of BPP's mesh making (1.2 million triangles,
+lighter than the other trees: 6-sided crowns, 3-sided trunks). Removing
+the canopy also removed a zone lookup per terrain triangle from every
+preset's drawing, so the suburb and the city centre got faster (3.7 s and
+3.1 s).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

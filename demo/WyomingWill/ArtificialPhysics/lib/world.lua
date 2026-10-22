@@ -226,15 +226,15 @@ function World:zoneAt(x, y)
 end
 
 -- Is the point (x, y) at height z blocked: outside the bounds, below the
--- ground (unless inside a tunnel: lib/features.lua's storm drain), inside
--- a wood's canopy (lib/vegetation.lua), or inside a piece (a piece stands
--- from its base, default 0, to base + h)? Water does not block.
+-- ground (unless inside a tunnel: lib/features.lua's storm drain), or
+-- inside a piece (a piece stands from its base, default 0, to base + h;
+-- trees, the woods' among them, are a trunk and a crown)? Water does not
+-- block.
 function World:blockedAt(x, y, z)
   local b = self.bounds
   if x < b.x0 or x > b.x1 or y < b.y0 or y > b.y1 then return true end
   local g = self:groundAt(x, y)
   if z < g and not (self.tunnels and require("lib.features").inTunnel(self, x, y, z)) then return true end
-  if self.canopy and z >= g and z < g + self.canopy(x, y) then return true end
   local idx = index(self)
   local list = idx.cells[floor((x - idx.x0) / idx.size) * 100003 + floor((y - idx.y0) / idx.size)]
   if not list then return false end
@@ -302,8 +302,8 @@ end
 
 -- Line of sight from (x1, y1, z1) to (x2, y2, z2): true if every point on
 -- the way (every `step` m, default 1) is open; else false and the
--- distance to the first blocked point. Ground, buildings, trees, hedges
--- and the woods' canopy all block sight.
+-- distance to the first blocked point. Ground, buildings, trees (the
+-- woods' among them) and hedges all block sight.
 function World:sight(x1, y1, z1, x2, y2, z2, step)
   step = step or 1
   local L = sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2)
@@ -633,8 +633,8 @@ function World:toBPP(viewer, opts)
     if m then objs[#objs + 1] = m end
   end
   if self.trees then
-    local m = require("lib.vegetation").toBPP(self, viewer, { scale = S, base = base, contact = opts.contact })
-    if m then objs[#objs + 1] = m end
+    local ms = require("lib.vegetation").toBPP(self, viewer, { scale = S, base = base, contact = opts.contact })
+    for _, m in ipairs(ms or {}) do objs[#objs + 1] = m end
   end
   for k, p in ipairs(self.pieces) do
     if not p.inMesh then                   -- buildings are drawn as one mesh

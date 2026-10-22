@@ -4,9 +4,16 @@
 --
 -- Built last, on the zones, streets, buildings and mission features:
 --
---   WOODS        zone A is a canopy: the ground is covered up to the
---                canopy's height (CANOPY m, varying +-25% with a noise
---                field); one volume, not tens of thousands of trees.
+--   WOODS        zone A is trees: WOOD_DENSITY trunks a hectare on a
+--                jittered grid (each point moved up to 30% of the spacing
+--                either way), each as tall as the canopy there (CANOPY m,
+--                varying +-25% with a noise field) times 0.85-1.15; their
+--                crowns (radius WOOD_CROWN x height, from WOOD_BASE x
+--                height up) just touch, so the canopy is closed above and
+--                open below, between the trunks. Trunks keep 1 m off the
+--                streets (crowns may hang over them), off water, pads and
+--                buildings (with their crowns). From their own random
+--                stream, so the other trees and hedges are unchanged.
 --   STREET TREES every STREET_SPACING along both sides of the streets in
 --                the built zones but the compact ones (1, 2, 3) and
 --                industry (8, 10), 1.5 m inside the right of way's edge.
@@ -20,14 +27,24 @@
 --
 -- A tree is a trunk (radius 0.3 m, from the ground to the crown) and a
 -- crown (a disc of radius 0.3 x its height, from 40% of its height to the
--- top), both World pieces tagged "tree", so vehicles pass under crowns.
+-- top; a wood's tree: WOOD_CROWN, from WOOD_BASE), both World pieces
+-- tagged "tree", so vehicles pass under crowns.
 -- Trees and hedges keep off buildings, streets (but a street tree's crown
 -- may hang over its street), water and launch pads. Trees block sight and
 -- sound; for air they are porous (the plume code will treat the tags
--- "tree", "hedge" and the canopy as porous, not solid).
+-- "tree" and "hedge" as porous, not solid).
 --
 -- FIXED CONSTANTS (stated, not knobs):
 --   CANOPY 20 m          temperate woodland canopy height (typically 15-30 m)
+--   WOOD_DENSITY 300/ha  trunks per hectare (William, 2026-10-22; mature
+--                        temperate woodland has roughly 200-400): 5.8 m
+--                        apart on the grid
+--   WOOD_CROWN 0.15      crown radius / height in a closed stand: ~3 m at
+--                        20 m, so neighbours' crowns just touch (open-grown
+--                        trees' crowns are wider: 0.3)
+--   WOOD_BASE 0.5        crowns from half the height (trees in a dense
+--                        stand lose their lower branches): ~10 m of clear
+--                        air under a 20 m canopy
 --   STREET_SPACING 12 m  street trees 25-40 ft apart in common city
 --                        guidelines; we take 12 m (40 ft)
 --   GARDEN 0.6           share of houses with a tree behind
@@ -35,7 +52,8 @@
 --   FIELD 250 m          fields about 6 ha, within the common 4-10 ha
 --   heights: street trees 7-13 m, garden 5-11 m, park 10-18 m
 --
--- RANDOMNESS: its own stream, rng.new(seed + 4000).
+-- RANDOMNESS: its own stream, rng.new(seed + 4000); the woods' trees
+-- rng.new(seed + 4100).
 --
 
 local rng = require "lib.rng"
@@ -48,6 +66,9 @@ local floor, sqrt, abs, min, max, cos, sin, pi = math.floor, math.sqrt, math.abs
   math.cos, math.sin, math.pi
 
 V.CANOPY = 20
+V.WOOD_DENSITY = 300
+V.WOOD_CROWN = 0.15
+V.WOOD_BASE = 0.5
 V.STREET_SPACING = 12
 V.GARDEN = 0.6
 V.PARK_SPACING = 15
@@ -77,10 +98,13 @@ local function clearOf(W, x, y, r, idx)
   return true
 end
 
-local function addTree(W, x, y, h, kind)
+local function addTree(W, x, y, h, kind, r)
   local g = W.terrain:ground(x, y)
-  W.trees[#W.trees + 1] = { x = x, y = y, h = h, r = 0.3 * h, g = g, kind = kind }
+  W.trees[#W.trees + 1] = { x = x, y = y, h = h, r = r or 0.3 * h, g = g, kind = kind }
 end
+
+-- Where a tree's crown starts, as a fraction of its height.
+local function crownBase(tr) return tr.kind == "wood" and V.WOOD_BASE or 0.4 end
 
 function V.build(W, spec)
   local t0 = os.clock()
@@ -101,13 +125,10 @@ function V.build(W, spec)
       end
     end
   end
-  -- woods: a canopy over zone A
+  -- the woods' height (their trees are placed last, below)
   local W2, H2 = t.x1 - t.x0, t.y1 - t.y0
   local noise = Land.newNoise(s, W2, H2, 150, 2)
-  W.canopy = function(x, y)
-    if town:zone(x, y) ~= "A" then return 0 end
-    return V.CANOPY * (1 + 0.25 * Land.fbm(noise, x - t.x0, y - t.y0))
-  end
+  local function canopy(x, y) return V.CANOPY * (1 + 0.25 * Land.fbm(noise, x - t.x0, y - t.y0)) end
   -- street trees
   for _, st in ipairs(town.streets) do
     if st.kind ~= "bridge" then
@@ -190,6 +211,22 @@ function V.build(W, spec)
       end
     end
   end
+  -- woods: trees on a jittered grid over zone A
+  local sw = rng.new((spec.seed or 1) + 4100)
+  local sp = sqrt(10000 / V.WOOD_DENSITY)
+  for x = b.x0 + sp / 2, b.x1, sp do
+    for y = b.y0 + sp / 2, b.y1, sp do
+      local jx, jy = x + (sw:random() - 0.5) * sp * 0.6, y + (sw:random() - 0.5) * sp * 0.6
+      local f = 0.85 + 0.3 * sw:random()          -- (three draws at every point, in or out)
+      if town:zone(jx, jy) == "A" and not t:water(jx, jy) then
+        local h = canopy(jx, jy) * f
+        local r = V.WOOD_CROWN * h
+        if town:streetDistance(jx, jy, 20) > 1 and clearOf(W, jx, jy, r, idx) then
+          addTree(W, jx, jy, h, "wood", r)
+        end
+      end
+    end
+  end
   W.buildTimeVegetation = os.clock() - t0
 end
 
@@ -197,10 +234,11 @@ end
 -- "hedge", drawn by V.toBPP.
 function V.addPieces(W)
   for _, tr in ipairs(W.trees or {}) do
-    local trunk = W:disc(tr.x, tr.y, 0.3, "tree", 0.4 * tr.h + 0.3)
+    local cb = crownBase(tr)
+    local trunk = W:disc(tr.x, tr.y, 0.3, "tree", cb * tr.h + 0.3)
     trunk.base, trunk.inMesh = tr.g - 0.3, true
-    local crown = W:disc(tr.x, tr.y, tr.r, "tree", 0.6 * tr.h)
-    crown.base, crown.inMesh = tr.g + 0.4 * tr.h, true
+    local crown = W:disc(tr.x, tr.y, tr.r, "tree", (1 - cb) * tr.h)
+    crown.base, crown.inMesh = tr.g + cb * tr.h, true
   end
   for _, hd in ipairs(W.hedges or {}) do
     local p = hd.part
@@ -216,36 +254,74 @@ end
 
 local CF_STATIC, CF_NO_CONTACT = 1, 4
 
--- One mesh: crowns as 8-sided double cones (a point at the top and one at
--- the crown's base), trunks as 4-sided prisms, hedges as boxes, and the
--- woods' canopy over zone A (the terrain's triangles lifted by the
--- canopy's height, walled at its edges).
+-- Trees and hedges in one mesh: crowns as 8-sided double cones (a point
+-- at the top and one at the crown's base, the widest ring a third of the
+-- way up the crown), trunks as 4-sided prisms, hedges as boxes. The woods'
+-- trees, tens of thousands of them, are lighter: 6-sided crowns and
+-- 3-sided trunks, in four meshes of one colour each (three greens and
+-- bark), so no triangle needs a colour of its own. Each tree's corners are
+-- made once and shared by its triangles (the meshes copy them). Returns
+-- the meshes (a list), or nil.
 function V.toBPP(W, viewer, opts)
   opts = opts or {}
   local S, base = opts.scale or 1, opts.base or 0
-  local mesh = Terrain()
-  local cols, n = {}, 0
   local function P(x, y, h) return btVector3(x * S, base + h * S, -y * S) end
-  local function tri(a, b, c, col) mesh:addTriangle(a, b, c); cols[n] = col; n = n + 1 end
   local leaf = { { 62, 110, 52 }, { 74, 124, 58 }, { 54, 98, 46 } }
   local bark = { 96, 74, 52 }
-  for i, tr in ipairs(W.trees or {}) do
-    local col = leaf[i % 3 + 1]
+  local function circle(m, turn)
+    local c, sn = {}, {}
+    for k = 0, m - 1 do c[k] = cos(k * 2 * pi / m + turn); sn[k] = sin(k * 2 * pi / m + turn) end
+    return c, sn
+  end
+  -- adds a tree to crown mesh `cm` and trunk mesh `tm` (with colours if
+  -- `tri` records them): an mc-sided crown, an mt-sided trunk
+  local function tree(tr, mc, Cc, Sc, mt, Ct, St, crownTri, trunkTri)
     local g, h, r = tr.g, tr.h, tr.r
-    local z0, zm, z1 = g + 0.4 * h, g + 0.6 * h, g + h
-    for k = 0, 7 do
-      local a0, a1 = k * pi / 4, (k + 1) * pi / 4
-      local x0, y0 = tr.x + r * cos(a0), tr.y + r * sin(a0)
-      local x1, y1 = tr.x + r * cos(a1), tr.y + r * sin(a1)
-      tri(P(x0, y0, zm), P(x1, y1, zm), P(tr.x, tr.y, z1), col)
-      tri(P(x1, y1, zm), P(x0, y0, zm), P(tr.x, tr.y, z0), col)
+    local cb = crownBase(tr)
+    local z0 = g + cb * h
+    local zm, z1 = z0 + (1 - cb) * h / 3, g + h
+    local ring = {}
+    for k = 0, mc - 1 do ring[k] = P(tr.x + r * Cc[k], tr.y + r * Sc[k], zm) end
+    local top, bot = P(tr.x, tr.y, z1), P(tr.x, tr.y, z0)
+    for k = 0, mc - 1 do
+      local k1 = (k + 1) % mc
+      crownTri(ring[k], ring[k1], top)
+      crownTri(ring[k1], ring[k], bot)
     end
-    for k = 0, 3 do
-      local a0, a1 = k * pi / 2 + pi / 4, (k + 1) * pi / 2 + pi / 4
-      local x0, y0 = tr.x + 0.3 * cos(a0), tr.y + 0.3 * sin(a0)
-      local x1, y1 = tr.x + 0.3 * cos(a1), tr.y + 0.3 * sin(a1)
-      tri(P(x0, y0, g - 0.3), P(x1, y1, g - 0.3), P(x1, y1, z0), bark)
-      tri(P(x0, y0, g - 0.3), P(x1, y1, z0), P(x0, y0, z0), bark)
+    local lo, hi = {}, {}
+    for k = 0, mt - 1 do
+      lo[k] = P(tr.x + 0.3 * Ct[k], tr.y + 0.3 * St[k], g - 0.3)
+      hi[k] = P(tr.x + 0.3 * Ct[k], tr.y + 0.3 * St[k], z0)
+    end
+    for k = 0, mt - 1 do
+      local k1 = (k + 1) % mt
+      trunkTri(lo[k], lo[k1], hi[k1])
+      trunkTri(lo[k], hi[k1], hi[k])
+    end
+  end
+  local out = {}
+  local function finish(mesh, n, col, cols)
+    if n == 0 then return end
+    mesh:build()
+    mesh.col = col
+    if cols then for i = 0, n - 1 do mesh:setTriangleColor(i, cols[i][1], cols[i][2], cols[i][3]) end end
+    viewer:add(mesh)
+    if not opts.contact then pcall(function() mesh.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end) end
+    out[#out + 1] = mesh
+  end
+
+  -- the street, garden and park trees and the hedges: one mesh, coloured
+  local mesh, cols, n = Terrain(), {}, 0
+  local function tri(a, b, c, col) mesh:addTriangle(a, b, c); cols[n] = col; n = n + 1 end
+  local C8, S8 = circle(8, 0)
+  local C4, S4 = circle(4, pi / 4)
+  local col
+  local function crownTri(a, b, c) tri(a, b, c, col) end
+  local function trunkTri(a, b, c) tri(a, b, c, bark) end
+  for i, tr in ipairs(W.trees or {}) do
+    if tr.kind ~= "wood" then
+      col = leaf[i % 3 + 1]
+      tree(tr, 8, C8, S8, 4, C4, S4, crownTri, trunkTri)
     end
   end
   local hedge = { 70, 112, 50 }
@@ -260,64 +336,48 @@ function V.toBPP(W, viewer, opts)
     tri(P(c[1], c[2], hi), P(c[3], c[4], hi), P(c[5], c[6], hi), hedge)
     tri(P(c[1], c[2], hi), P(c[5], c[6], hi), P(c[7], c[8], hi), hedge)
   end
-  -- the canopy: each terrain triangle whose centre is in zone A, lifted
-  local t = W.terrain
-  if W.canopy then
-    local woods = {}
-    local s = t.stride
-    local function key(k, upper) return upper and k or -k end
-    t:eachTriangle(function(k, upper, a, b2, c)
-      local xa, ya = t:nodeXY(a)
-      local xb, yb = t:nodeXY(b2)
-      local xc, yc = t:nodeXY(c)
-      if W.town:zone((xa + xb + xc) / 3, (ya + yb + yc) / 3) == "A" then woods[key(k, upper)] = { a, b2, c } end
-    end)
-    local cache = {}
-    local function H(k)
-      if not cache[k] then
-        local x, y = t:nodeXY(k)
-        local c = W.canopy(x, y)
-        if c == 0 then c = V.CANOPY end            -- an edge node outside zone A
-        cache[k] = t.h[k] + c
+  finish(mesh, n, "#3e6e34", cols)
+
+  -- the woods' trees: three crown meshes (one green each) and one of trunks
+  -- (written out: tens of thousands of trees, 18 triangles each)
+  local crowns, nc = { Terrain(), Terrain(), Terrain() }, { 0, 0, 0 }
+  local trunks, nt = Terrain(), 0
+  local add = trunks.addTriangle                   -- (fetched once)
+  local C6, S6 = circle(6, 0)
+  local C3, S3 = circle(3, pi / 6)
+  local ring, lo, hi = {}, {}, {}
+  for i, tr in ipairs(W.trees or {}) do
+    if tr.kind == "wood" then
+      local which = i % 3 + 1
+      local cm = crowns[which]
+      local x, y, g, h, r = tr.x, tr.y, tr.g, tr.h, tr.r
+      local z0 = g + V.WOOD_BASE * h
+      local zm, z1 = z0 + (1 - V.WOOD_BASE) * h / 3, g + h
+      for k = 0, 5 do ring[k] = P(x + r * C6[k], y + r * S6[k], zm) end
+      local top, bot = P(x, y, z1), P(x, y, z0)
+      for k = 0, 5 do
+        local k1 = k < 5 and k + 1 or 0
+        add(cm, ring[k], ring[k1], top)
+        add(cm, ring[k1], ring[k], bot)
       end
-      return cache[k]
-    end
-    local canopyCol = { 50, 92, 44 }
-    local edgeCol = { 44, 80, 38 }
-    for kk, tr3 in pairs(woods) do
-      local a, b2, c = tr3[1], tr3[2], tr3[3]
-      local xa, ya = t:nodeXY(a)
-      local xb, yb = t:nodeXY(b2)
-      local xc, yc = t:nodeXY(c)
-      tri(P(xa, ya, H(a)), P(xb, yb, H(b2)), P(xc, yc, H(c)), canopyCol)
-    end
-    -- walls on the edges between a wooded triangle and one that is not:
-    -- an edge is shared by two triangles; count each edge's wooded owners
-    local edges = {}
-    for _, tr3 in pairs(woods) do
-      for e = 1, 3 do
-        local p, q = tr3[e], tr3[e % 3 + 1]
-        local kx = p < q and (p .. ":" .. q) or (q .. ":" .. p)
-        local rec = edges[kx]
-        if rec then rec.n = rec.n + 1 else edges[kx] = { n = 1, p = p, q = q } end
+      nc[which] = nc[which] + 12
+      for k = 0, 2 do
+        lo[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], g - 0.3)
+        hi[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], z0)
       end
-    end
-    for _, e in pairs(edges) do
-      if e.n == 1 then
-        local xp, yp = t:nodeXY(e.p)
-        local xq, yq = t:nodeXY(e.q)
-        tri(P(xp, yp, t.h[e.p]), P(xq, yq, t.h[e.q]), P(xq, yq, H(e.q)), edgeCol)
-        tri(P(xp, yp, t.h[e.p]), P(xq, yq, H(e.q)), P(xp, yp, H(e.p)), edgeCol)
+      for k = 0, 2 do
+        local k1 = k < 2 and k + 1 or 0
+        add(trunks, lo[k], lo[k1], hi[k1])
+        add(trunks, lo[k], hi[k1], hi[k])
       end
+      nt = nt + 6
     end
   end
-  if n == 0 then return nil end
-  mesh:build()
-  mesh.col = "#3e6e34"
-  for i = 0, n - 1 do mesh:setTriangleColor(i, cols[i][1], cols[i][2], cols[i][3]) end
-  viewer:add(mesh)
-  if not opts.contact then pcall(function() mesh.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end) end
-  return mesh
+  local function hex(c) return string.format("#%02x%02x%02x", c[1], c[2], c[3]) end
+  for k = 1, 3 do finish(crowns[k], nc[k], hex(leaf[k])) end
+  finish(trunks, nt, hex(bark))
+  if #out == 0 then return nil end
+  return out
 end
 
 return V

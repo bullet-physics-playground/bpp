@@ -14,7 +14,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `town.lua` | G21 | The realistic worlds' zones (Local Climate Zones) and streets (arterials, grids, collectors, cul-de-sacs) |
 | `buildings.lua` | G21 | The realistic worlds' lots and buildings: frontage lots, rect/L/T/U footprints, whole floors, the gap rule, calibrated to the LCZ ranges |
 | `features.lua` | G21 | The mission features: ship and leak, piers, warehouses with doorways, a container yard with pockets, a storm drain, launch pads |
-| `vegetation.lua` | G21 | Woods (a canopy), street, garden and park trees, hedgerows |
+| `vegetation.lua` | G21 | Woods (trees, 300 a hectare), street, garden and park trees, hedgerows |
 | `places.lua` | G21 | The five realistic presets (rural, suburban, city centre, industrial port, harbour town) as parameter tables |
 | `monitors.lua` | G1 | Centre-of-mass drift, linear and angular momentum, energy; the book's integrator with a chosen Δt |
 | `lattice.lua` | G16 | Lattice quality: Delaunay triangulation, Ch. 16.9's edge-length CV, nearest-neighbour and bond CV (2D and 3D) |
@@ -181,7 +181,7 @@ w:writeGrid("corridor.txt")
   features (`features.lua`) and vegetation (`vegetation.lua`). Buildings,
   features, trees (`tree`) and hedges (`hedge`) are World pieces standing
   on their own `base`, so `blocked`, `blockedAt` and `writeCPT` see them;
-  `blockedAt` also knows the woods' canopy and the storm drain's inside.
+  `blockedAt` also knows the storm drain's inside.
   Each layer draws as one mesh (merged static meshes throughout), and a
   realistic world's regions (`ship`, `leak`, `pad1`, `outfall`) are data,
   not drawn.
@@ -189,7 +189,7 @@ w:writeGrid("corridor.txt")
   `w:writeRaster(path, ...)` give grids of `ground`, `depth`, `zone` or
   `occupancy` (at height `opts.z`, or `z` above the ground with
   `opts.above`); `w:sight(x1, y1, z1, x2, y2, z2)` is line of sight
-  (ground, buildings, trees, hedges and canopy block it); `w:traps(cell,
+  (ground, buildings, trees and hedges block it); `w:traps(cell,
   opts)` finds open ground no street reaches (enclosed courtyards).
 - `checks/world.lua`: 22 tests, about 7 s.
 
@@ -343,15 +343,21 @@ harbour town and the industrial port have them):
 
 ## `vegetation.lua`
 
-- **Woods** (zone A) are a canopy: `blockedAt` is true from the ground to
-  20 m (±25%) over it; drawn as the terrain lifted, walled at its edges.
+- **Woods** (zone A) are trees (F70): 300 trunks a hectare on a jittered
+  grid, as tall as the canopy there (20 m ±25%) × 0.85–1.15, crowns of
+  radius 0.15 × height from half the height up, so neighbours' crowns just
+  touch: closed above (73% of the ground under crowns at 14 m in the rural
+  preset) and open below (1% blocked at 5 m, by trunks), so a drone can fly
+  between the trunks. From their own random stream, after the other trees:
+  the rest of the world is unchanged by them. Drawn lighter than the other
+  trees (6-sided crowns, 3-sided trunks, four one-colour meshes).
 - **Trees:** street trees every 12 m along streets in zones 5, 6, 9; a tree
   behind 60% of houses; a tree every 15 m in parks. Each is a trunk and a
   crown from 40% of its height (pieces tagged `tree`), so vehicles pass
   under; trees keep off buildings, other streets, water and pads.
 - **Hedgerows** along field boundaries on open land (fields 250 m), 2 m
   wide, 3 m high, one 25 m length in seven left out (gaps and gates).
-- Trees, hedges and the canopy block sight and movement; for the plume
+- Trees and hedges block sight and movement; for the plume
   (G14) they are to be porous.
 
 ## `places.lua`

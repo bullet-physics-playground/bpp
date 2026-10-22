@@ -50,8 +50,8 @@
 -- slope rule keeps every dry slope along the grid within 15%, so a
 -- triangle across it within 21%); streets = total street length, km;
 -- buildings = how many (houses, sheds, container stacks, the ship and
--- piers each count once); trees = how many (the woods are a canopy, not
--- counted); built = seconds to generate every layer.
+-- piers each count once); trees = how many (the woods' trees included);
+-- built = seconds to generate every layer.
 --
 -- A slider rebuilds the world at the next frame (once per frame while it
 -- is dragged), and only the shown preset's own sliders do (presets 5-9:

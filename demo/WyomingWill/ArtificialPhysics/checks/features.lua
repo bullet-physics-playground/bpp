@@ -187,21 +187,46 @@ end
 
 -- Vegetation.
 do
-  -- woods: the canopy blocks up to its height
+  -- woods: trees at WOOD_DENSITY a hectare, open under the crowns, closed above
   local w = R
-  local okW, tested = true, 0
   local b = w.bounds
-  for i = 1, 60 do
-    for j = 1, 60 do
-      local x, y = b.x0 + i * 49, b.y0 + j * 49
-      if w:zoneAt(x, y) == "A" then
-        tested = tested + 1
-        local g = w:groundAt(x, y)
-        if not w:blockedAt(x, y, g + 5) or w:blockedAt(x, y, g + V.CANOPY * 1.26) then okW = false end
+  local nWood, okWhere = 0, true
+  for _, tr in ipairs(w.trees) do
+    if tr.kind == "wood" then
+      nWood = nWood + 1
+      if w:zoneAt(tr.x, tr.y) ~= "A" or w:waterAt(tr.x, tr.y) or w.town:streetDistance(tr.x, tr.y, 20) <= 1 then
+        okWhere = false
       end
     end
   end
-  check("woods: the canopy blocks up to its height", okW and tested > 100, tested .. " points in zone A")
+  local inA = 0
+  for x = b.x0 + 5, b.x1, 10 do
+    for y = b.y0 + 5, b.y1, 10 do
+      if w:zoneAt(x, y) == "A" and not w:waterAt(x, y) then inA = inA + 1 end
+    end
+  end
+  local perHa = nWood / (inA * 100 / 1e4)
+  check("woods: trees at WOOD_DENSITY a hectare", perHa > 0.85 * V.WOOD_DENSITY and perHa <= 1.03 * V.WOOD_DENSITY,
+        string.format("%d trees over %.0f ha of zone A: %.0f a hectare (%d)", nWood, inA / 100, perHa, V.WOOD_DENSITY))
+  check("woods: trunks in zone A, off water and streets", okWhere, nWood .. " trees")
+  -- below every crown (the lowest is at WOOD_BASE x 0.75 x 0.85 x CANOPY
+  -- = 6.4 m) only trunks block: nearly all open; at 70% of the canopy's
+  -- height the crowns cover most of the ground
+  local low, high, tested = 0, 0, 0
+  local zl, zh = 5, 0.7 * V.CANOPY
+  for i = 1, 60 do
+    for j = 1, 60 do
+      local x, y = b.x0 + i * 49, b.y0 + j * 49
+      if w:zoneAt(x, y) == "A" and not w:waterAt(x, y) and w.town:streetDistance(x, y, 20) > 8 then
+        tested = tested + 1
+        local g = w:groundAt(x, y)
+        if w:blockedAt(x, y, g + zl) then low = low + 1 end
+        if w:blockedAt(x, y, g + zh) then high = high + 1 end
+      end
+    end
+  end
+  check("woods: open between the trunks, closed above", tested > 100 and low / tested < 0.03 and high / tested > 0.5,
+        string.format("%d points: %.1f%% blocked at %g m, %.0f%% at %g m", tested, 100 * low / tested, zl, 100 * high / tested, zh))
   -- trees: zones, clear of buildings and other streets; crowns over open trunks
   local okZ, okClear, okUnder, n = true, true, true, 0
   for _, ww in ipairs({ Sb, H }) do
