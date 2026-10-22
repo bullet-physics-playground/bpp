@@ -558,3 +558,24 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     the spacing and the mean speed below 0.01 m/s, to the end of the run.
     FINDINGS F44, F50 and F51 quoted the old times; they are corrected
     with `formed` times (F52).
+
+42. **The world viewer rebuilt the whole world for every slider event, and
+    the generator spent most of its time asking the same geometric questions**
+    (found by William, 2026-10-22: "world generation is very very slow").
+    `Worlds.lua` generated the world before checking whether anything it
+    shows had changed, so every slider event paid a full build (seconds for
+    presets 5-9), including sliders the preset does not use, and dragging
+    `preset` from 1 to 9 built every preset on the way: 22 s, then 6 s per
+    `worldSeed` step. It now checks first (each preset's own sliders only)
+    and builds at the next frame, once per frame drawn however many slider
+    events arrived: the same drag is one build. The generator itself is
+    1.5-2.6 times faster (FINDINGS F69), with every world identical to the
+    bit: `tools/worldprint.lua` prints a world in full (every layer's data
+    and every drawn triangle), and all 40 prints (5 presets, seeds 1-2, Lua
+    5.1-5.4) are the same before and after. The changes, each exact: a
+    bounding-box test before the exact distance in lot fitting, the gap
+    rule, lot overlap, the trees' clearance and street crossings; a count
+    of wet nodes instead of sampling water under lots far from any; the
+    lot-street distance and rectangle overlap written without tables; the
+    noise sum without `ipairs`; and one vertex per terrain node, shared by
+    its triangles, instead of three per triangle.

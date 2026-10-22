@@ -539,6 +539,18 @@ local function connect(town)
     for q = 1, #p, 2 do a, b2, c, d = min(a, p[q]), min(b2, p[q + 1]), max(c, p[q]), max(d, p[q + 1]) end
     box[k] = { a - s.width, b2 - s.width, c + s.width, d + s.width }
   end
+  -- each segment's bounding box, x0, y0, x1, y1 at 2q - 1 .. 2q + 2 for
+  -- the segment starting at pts[q] (cached on the street while connecting)
+  local function segBoxes(st)
+    if st._segBoxes then return st._segBoxes end
+    local p, b = st.pts, {}
+    for q = 1, #p - 3, 2 do
+      b[2 * q - 1], b[2 * q] = min(p[q], p[q + 2]), min(p[q + 1], p[q + 3])
+      b[2 * q + 1], b[2 * q + 2] = max(p[q], p[q + 2]), max(p[q + 1], p[q + 3])
+    end
+    st._segBoxes = b
+    return b
+  end
   local function touch(A, B)
     local tol = max(A.width, B.width) / 2 + 1
     local pa, pb = A.pts, B.pts
@@ -551,15 +563,20 @@ local function connect(town)
       if d <= tol then return true end
     end
     -- crossing segments without a vertex near the other
+    local ba, bb = segBoxes(A), segBoxes(B)
     for q = 1, #pa - 3, 2 do
+      local ax0, ay0, ax1, ay1 = ba[2 * q - 1], ba[2 * q], ba[2 * q + 1], ba[2 * q + 2]
       for r = 1, #pb - 3, 2 do
-        local x1, y1, x2, y2 = pa[q], pa[q + 1], pa[q + 2], pa[q + 3]
-        local x3, y3, x4, y4 = pb[r], pb[r + 1], pb[r + 2], pb[r + 3]
-        local d1 = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
-        local d2 = (x4 - x3) * (y2 - y3) - (y4 - y3) * (x2 - x3)
-        local d3 = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
-        local d4 = (x2 - x1) * (y4 - y1) - (y2 - y1) * (x4 - x1)
-        if d1 * d2 < 0 and d3 * d4 < 0 then return true end
+        -- (segments that cross have overlapping bounding boxes)
+        if ax1 >= bb[2 * r - 1] and bb[2 * r + 1] >= ax0 and ay1 >= bb[2 * r] and bb[2 * r + 2] >= ay0 then
+          local x1, y1, x2, y2 = pa[q], pa[q + 1], pa[q + 2], pa[q + 3]
+          local x3, y3, x4, y4 = pb[r], pb[r + 1], pb[r + 2], pb[r + 3]
+          local d1 = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)
+          local d2 = (x4 - x3) * (y2 - y3) - (y4 - y3) * (x2 - x3)
+          local d3 = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)
+          local d4 = (x2 - x1) * (y4 - y1) - (y2 - y1) * (x4 - x1)
+          if d1 * d2 < 0 and d3 * d4 < 0 then return true end
+        end
       end
     end
     return false
@@ -602,7 +619,7 @@ local function connect(town)
     local c = comp[i]
     if (anyArt and hasArt[c]) or (not anyArt and c == biggest) then keep[#keep + 1] = S[i]
     else dropped = dropped + 1 end
-    S[i].cells = nil
+    S[i].cells, S[i]._segBoxes = nil, nil
   end
   town.streets = keep
   town.dropped = dropped

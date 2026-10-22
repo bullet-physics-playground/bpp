@@ -130,6 +130,13 @@ local objs = w:toBPP(v, { scale = 0.02, cellFloor = true })
 w:writeGrid("corridor.txt")
 ```
 
+- **Changing the generator without changing its worlds:**
+  `lua5.1 tools/worldprint.lua harbour-town 1 > a.txt` prints a world in
+  full (every layer's data and every triangle `toBPP` draws, through a
+  stand-in for BPP); compare the prints before and after (any Lua
+  5.1–5.4). The speed-ups of FIXES 42 were checked this way on all five
+  presets, seeds 1–2, on Lua 5.1–5.4.
+
 - **A world** is 2D footprints with heights in the book's units: discs,
   turned rectangles, triangles, walls, named regions and a cell tiling.
   `World.new{}` plus `disc`, `rect`, `tri`, `wall`, `boxWalls`, `region`,

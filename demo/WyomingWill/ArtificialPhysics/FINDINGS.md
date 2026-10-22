@@ -638,6 +638,27 @@ into a permanent stall: a robot whose summed force is under 0.2 AP units
 never moves again. The drones form the 3D lattices in 45–64 s, the ideal
 particles (launched at once, not in thirds) in 23–46 s.
 
+**F69. Where the world generator's time went** — 2026-10-22, New
+(William: "very very slow"; FIXES 42). Measured inside BPP (Lua 5.1),
+seed 1, generation + drawing: rural 4.2 s, suburban 8.5 s, city centre
+5.5 s, industrial port 4.4 s, harbour town 9.0 s. The time was in a few
+places, not spread over the language: the lots' street clearance (the
+exact segment-rectangle distance, for every street segment within 20 m of
+every candidate lot, five times per lot for the depth search) and the
+water samples under each lot, 40-60% of the buildings layer; the ground's
+colouring (a zone lookup per terrain triangle, 0.3 s for 150,000) and
+three new vectors per triangle when drawing; the woods' canopy (a zone
+lookup per triangle again). Exact shortcuts (bounding boxes first, a
+count of wet nodes, shared vertices) give rural 2.9 s, suburban 4.6 s,
+city centre 3.7 s, industrial port 1.7 s, harbour town 5.6 s (1.5-2.6x),
+with every world the same to the bit on Lua 5.1-5.4
+(`tools/worldprint.lua`). What is left is near the floor for this
+interpreter: BPP's own cost of making a mesh (~0.45 s per 150,000
+triangles, mostly creating vectors), the zone lookups (the woods' noise,
+~1.3 µs a call) and the exact distance tests that cannot be skipped. A
+tenfold gain needs compiled code for those (C, or LuaJIT). The viewer's
+repeated rebuilds were a larger cost than any of it (FIXES 42).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

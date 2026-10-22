@@ -123,16 +123,19 @@ end
 -- Do two rectangles overlap by more than `inset` (separating axes)?
 local function rectsOverlap(a, b, inset)
   inset = inset or 0
-  for _, R in ipairs({ a, b }) do
-    for _, ax in ipairs({ { R.ux, R.uy }, { -R.uy, R.ux } }) do
-      local amin, amax, bmin, bmax = math.huge, -math.huge, math.huge, -math.huge
-      for k = 1, 7, 2 do
-        local pa = a.c[k] * ax[1] + a.c[k + 1] * ax[2]
-        local pb = b.c[k] * ax[1] + b.c[k + 1] * ax[2]
-        amin, amax, bmin, bmax = min(amin, pa), max(amax, pa), min(bmin, pb), max(bmax, pb)
-      end
-      if amax - inset <= bmin or bmax - inset <= amin then return false end
+  local ac, bc = a.c, b.c
+  -- the four axes, in the same order as before: a's u, a's v, b's u, b's v
+  for n = 1, 4 do
+    local R = n <= 2 and a or b
+    local x, y
+    if n % 2 == 1 then x, y = R.ux, R.uy else x, y = -R.uy, R.ux end
+    local amin, amax, bmin, bmax = math.huge, -math.huge, math.huge, -math.huge
+    for k = 1, 7, 2 do
+      local pa = ac[k] * x + ac[k + 1] * y
+      local pb = bc[k] * x + bc[k + 1] * y
+      amin, amax, bmin, bmax = min(amin, pa), max(amax, pa), min(bmin, pb), max(bmax, pb)
     end
+    if amax - inset <= bmin or bmax - inset <= amin then return false end
   end
   return true
 end
@@ -211,18 +214,23 @@ end
 -- Distance from the segment (ax, ay)-(bx, by) to a rectangle part (0 if
 -- they meet): in the rectangle's own axes, the segment against the box.
 local function segRectDist(R, ax, ay, bx, by)
-  local function loc(x, y)
-    local dx, dy = x - R.x, y - R.y
-    return dx * R.ux + dy * R.uy, -dx * R.uy + dy * R.ux
-  end
-  local u0, v0 = loc(ax, ay)
-  local u1, v1 = loc(bx, by)
+  -- (written without tables or closures: it is the generator's innermost
+  -- test; the arithmetic is the same, so the results are the same bits)
+  local Rx, Ry, Rux, Ruy, hu, hv = R.x, R.y, R.ux, R.uy, R.hu, R.hv
+  local dx, dy = ax - Rx, ay - Ry
+  local u0, v0 = dx * Rux + dy * Ruy, -dx * Ruy + dy * Rux
+  dx, dy = bx - Rx, by - Ry
+  local u1, v1 = dx * Rux + dy * Ruy, -dx * Ruy + dy * Rux
   -- does the segment cross the box? (clip it, Liang-Barsky)
   local t0, t1 = 0, 1
   local du, dv = u1 - u0, v1 - v0
   local crosses = true
-  for _, c in ipairs({ { -du, u0 + R.hu }, { du, R.hu - u0 }, { -dv, v0 + R.hv }, { dv, R.hv - v0 } }) do
-    local p, q = c[1], c[2]
+  for c = 1, 4 do
+    local p, q
+    if c == 1 then p, q = -du, u0 + hu
+    elseif c == 2 then p, q = du, hu - u0
+    elseif c == 3 then p, q = -dv, v0 + hv
+    else p, q = dv, hv - v0 end
     if p == 0 then
       if q < 0 then crosses = false; break end
     else
@@ -232,13 +240,39 @@ local function segRectDist(R, ax, ay, bx, by)
     end
   end
   if crosses then return 0 end
-  local function boxDist(u, v)
-    local qu, qv = max(abs(u) - R.hu, 0), max(abs(v) - R.hv, 0)
-    return sqrt(qu * qu + qv * qv)
-  end
-  local d = min(boxDist(u0, v0), boxDist(u1, v1))
-  for k = 1, 7, 2 do d = min(d, segDist(R.c[k], R.c[k + 1], ax, ay, bx, by)) end
+  local qu, qv = max(abs(u0) - hu, 0), max(abs(v0) - hv, 0)
+  local d = sqrt(qu * qu + qv * qv)
+  qu, qv = max(abs(u1) - hu, 0), max(abs(v1) - hv, 0)
+  d = min(d, sqrt(qu * qu + qv * qv))
+  local c = R.c
+  for k = 1, 7, 2 do d = min(d, segDist(c[k], c[k + 1], ax, ay, bx, by)) end
   return d
+end
+
+-- wetCounter(t)(x0, y0, x1, y1): is any node wet (t.wl) among those that
+-- are the nearest node (t:water's rounding) of some point in the box? A
+-- table of running counts of wet nodes answers it in four lookups.
+local function wetCounter(t)
+  local nx, ny, wl = t.nx, t.ny, t.wl
+  local W1 = nx + 2
+  local C = {}                                    -- C[j * W1 + i]: wet nodes in [0, i) x [0, j)
+  for i = 0, nx + 1 do C[i] = 0 end
+  for j = 0, ny do
+    local run = 0
+    C[(j + 1) * W1] = 0
+    for i = 0, nx do
+      if wl[j * t.stride + i + 1] then run = run + 1 end
+      C[(j + 1) * W1 + i + 1] = C[j * W1 + i + 1] + run
+    end
+  end
+  return function(x0, y0, x1, y1)
+    local i0 = max(0, floor((x0 - t.x0) / t.cell + 0.5))
+    local j0 = max(0, floor((y0 - t.y0) / t.cell + 0.5))
+    local i1 = min(nx, floor((x1 - t.x0) / t.cell + 0.5))
+    local j1 = min(ny, floor((y1 - t.y0) / t.cell + 0.5))
+    if i0 > i1 or j0 > j1 then return false end
+    return C[(j1 + 1) * W1 + i1 + 1] - C[j0 * W1 + i1 + 1] - C[(j1 + 1) * W1 + i0] + C[j0 * W1 + i0] > 0
+  end
 end
 
 -- Does the lot (a rectangle part) fit: inside the area, its zone the
@@ -257,6 +291,10 @@ local function lotFits(W, lot, zone, own)
   end
   if town:zone(lot.x, lot.y) ~= zone then return false end
   local nu, nv = math.ceil(4 * lot.hu / t.cell), math.ceil(4 * lot.hv / t.cell)
+  -- (t:water looks at the node nearest each point: with no wet node among
+  -- those nearest any point of the lot's box, every sample is dry)
+  local bx0, by0, bx1, by1 = partBox(lot)
+  if W._wet and not W._wet(bx0, by0, bx1, by1) then nu, nv = -1, -1 end
   for a = 0, nu do
     for e = 0, nv do
       local fu, fv = (a / nu * 2 - 1) * lot.hu, (e / nv * 2 - 1) * lot.hv
@@ -264,13 +302,32 @@ local function lotFits(W, lot, zone, own)
     end
   end
   local x0, y0, x1, y1 = partBox(lot)
+  -- (a segment whose bounding box is farther from the lot's than the
+  -- clearance cannot be nearer the lot itself: skipped without the exact
+  -- test, which would say the same; 1e-6 m covers rounding)
+  local function far(sx0, sy0, sx1, sy1, r)
+    local gx = max(0, sx0 - x1, x0 - sx1)
+    local gy = max(0, sy0 - y1, y0 - sy1)
+    return gx * gx + gy * gy > (r + 1e-6) * (r + 1e-6)
+  end
   local hit = town:near(x0 - 20, y0 - 20, x1 + 20, y1 + 20, function(st, ax, ay, bx, by)
-    if ax then return segRectDist(lot, ax, ay, bx, by) < st.width / 2 - (st == own and B.SAGITTA or 1e-6) end
+    if ax then
+      local r = st.width / 2 - (st == own and B.SAGITTA or 1e-6)
+      if r > 0 and far(min(ax, bx), min(ay, by), max(ax, bx), max(ay, by), r) then return false end
+      return segRectDist(lot, ax, ay, bx, by) < r
+    end
     local bl = st.bulb
-    return segRectDist(lot, bl[1], bl[2], bl[1], bl[2]) < bl[3] - 1e-6
+    local r = bl[3] - 1e-6
+    if r > 0 and far(bl[1], bl[2], bl[1], bl[2], r) then return false end
+    return segRectDist(lot, bl[1], bl[2], bl[1], bl[2]) < r
   end)
   if hit then return false end
-  return not indexNear(W.lotIndex, x0, y0, x1, y1, function(o) return rectsOverlap(lot, o, 0.05) end)
+  return not indexNear(W.lotIndex, x0, y0, x1, y1, function(o)
+    -- (rectangles whose bounding boxes are apart are apart too)
+    local ox0, oy0, ox1, oy1 = partBox(o)
+    if ox0 > x1 or ox1 < x0 or oy0 > y1 or oy1 < y0 then return false end
+    return rectsOverlap(lot, o, 0.05)
+  end)
 end
 
 -- Points and tangents along a polyline: returns a function s -> x, y, ux, uy
@@ -343,6 +400,10 @@ local function gapOK(W, parts, self)
     local g = B.MIN_GAP
     local bad = indexNear(W.partIndex, x0 - g, y0 - g, x1 + g, y1 + g, function(o)
       if o.building == self then return false end
+      -- (bounding boxes MIN_GAP apart: the parts are too, so no breach)
+      local ox0, oy0, ox1, oy1 = partBox(o)
+      local gx, gy = max(0, ox0 - x1, x0 - ox1), max(0, oy0 - y1, y0 - oy1)
+      if gx * gx + gy * gy > (g + 1e-6) * (g + 1e-6) then return false end
       local d = partDist(p, o)
       return d > 1e-6 and d < B.MIN_GAP
     end)
@@ -442,6 +503,7 @@ function B.build(W, seed)
   local s = rng.new((seed or 1) + 2000)
   W.lots, W.buildings = {}, {}
   W.lotIndex, W.partIndex = newIndex(), newIndex()
+  W._wet = wetCounter(W.terrain)            -- (for lotFits; dropped at the end)
   local order = { grid = 1, arterial = 2, collector = 3, ["local"] = 4, culdesac = 5 }
   local streets = {}
   for _, st in ipairs(W.town.streets) do if order[st.kind] then streets[#streets + 1] = st end end
@@ -522,6 +584,7 @@ function B.build(W, seed)
     end
   end
   for id, bld in ipairs(W.buildings) do bld.id = id end
+  W._wet = nil
   W.buildTimeBuildings = os.clock() - t0
 end
 

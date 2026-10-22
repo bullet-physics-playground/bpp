@@ -53,7 +53,9 @@
 -- piers each count once); trees = how many (the woods are a canopy, not
 -- counted); built = seconds to generate every layer.
 --
--- Sliders rebuild the world at once. worldSeed picks the random layout
+-- A slider rebuilds the world at the next frame (once per frame while it
+-- is dragged), and only the shown preset's own sliders do (presets 5-9:
+-- worldSeed). worldSeed picks the random layout
 -- (preset 4); the same seed always gives the same corridor. Nothing moves:
 -- this is geometry only. Status line: the world's summary.
 --
@@ -82,8 +84,26 @@ local function clear()
   objs = {}
 end
 
+-- What the shown world depends on: the preset and only its own sliders.
+-- An unchanged key means nothing to rebuild.
+local function wantedKey()
+  local p = math.floor(v:getParam("preset") + 0.5)
+  local k = { p }
+  if p == 1 or p == 2 then k[2] = v:getParam("obstacleRadius")
+  elseif p == 3 then k[2] = tostring(v:getParam("showCells"))
+  elseif REAL[p] then k[2] = math.floor(v:getParam("worldSeed"))
+  else
+    k[2], k[3] = v:getParam("obstaclePercent"), math.floor(v:getParam("worldSeed"))
+    k[4], k[5] = tostring(v:getParam("showCells")), tostring(v:getParam("showShadow"))
+  end
+  return table.concat(k, "|")
+end
+
 local function build(moveCamera)
   local p = math.floor(v:getParam("preset") + 0.5)
+  local key = wantedKey()
+  if key == lastKey then return end
+  lastKey = key
   local w
   if p == 1 then
     w = World.preset("ch03-obstacles", { radius = v:getParam("obstacleRadius") })
@@ -97,11 +117,6 @@ local function build(moveCamera)
     w = World.preset("ch07-corridor", { percent = v:getParam("obstaclePercent"),
                                         seed = math.floor(v:getParam("worldSeed")) })
   end
-  local key = table.concat({ p, v:getParam("obstacleRadius"), v:getParam("obstaclePercent"),
-                             v:getParam("worldSeed"), tostring(v:getParam("showCells")),
-                             tostring(v:getParam("showShadow")) }, "|")
-  if key == lastKey then return end
-  lastKey = key
   clear()
 
   local S = SCALE[p]
@@ -164,19 +179,29 @@ local function build(moveCamera)
   for _, n in ipairs(w.notes) do print("  note: " .. n) end
 end
 
+-- A slider change asks for a build at the next frame, so a drag through
+-- many values (preset 1 -> 9, worldSeed 1 -> 20) builds once per frame
+-- drawn, not once per value passed (each realistic preset takes seconds).
 local lastPreset = nil
+local pending = nil        -- nil: nothing to build; else whether to move the camera
 v:onParamChanged(function(N, name, value)
   local p = math.floor(v:getParam("preset") + 0.5)
   if name == "preset" and p ~= lastPreset and (p == 1 or p == 2) then
+    -- the figure's own radius (this addParam calls back here)
     lastPreset = p
-    -- the figure's own radius; this addParam calls back here and rebuilds
     v:addParam("obstacleRadius", p == 1 and 10 or 45, 5, 60, 1, RADIUS_COMMENT)
-    lastKey = nil
-    build(true)
+    pending = true
     return
   end
-  build(p ~= lastPreset)
+  pending = pending or (p ~= lastPreset)
   lastPreset = p
+end)
+v:preDraw(function(N)
+  if pending ~= nil then
+    local move = pending
+    pending = nil
+    build(move)
+  end
 end)
 
 pcall(function() v:setHelpText([[
@@ -190,7 +215,9 @@ preset 5-9  rural, suburban, city centre, industrial port, harbour town
             (terrain, water, zones, streets, buildings, trees and the
             mission features; worldSeed picks the layout)
 
-Sliders rebuild at once. The camera moves only when the preset changes.]]) end)
+Sliders rebuild at the next frame (once per frame while dragging); only
+the preset's own sliders rebuild it. The camera moves only when the
+preset changes.]]) end)
 
 lastPreset = math.floor(v:getParam("preset") + 0.5)
 build(true)

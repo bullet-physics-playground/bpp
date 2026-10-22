@@ -111,7 +111,6 @@ T.DREDGE_RUN = 3
 -- A lattice of random values in [-1, 1], one per octave, with smooth
 -- (quintic) interpolation between them. fbm() sums octaves of halving
 -- amplitude and doubling frequency, normalised so |fbm| <= 1.
-local function fade(t) return t * t * t * (t * (t * 6 - 15) + 10) end
 
 local function newNoise(s, width, height, wavelength, octaves)
   local n = { octaves = {} }
@@ -131,13 +130,20 @@ local function newNoise(s, width, height, wavelength, octaves)
 end
 
 local function fbm(n, x, y)  -- x, y measured from the area's low corner
+  -- (the generator's most called function: a numeric loop and the quintic
+  -- fade written out; the same arithmetic in the same order as before)
   local sum = 0
-  for _, o in ipairs(n.octaves) do
-    local u, v = x / o.lam + o.du, y / o.lam + o.dv
+  local oc = n.octaves
+  for q = 1, #oc do
+    local o = oc[q]
+    local lam, nu = o.lam, o.nu
+    local u, v = x / lam + o.du, y / lam + o.dv
     local i, j = floor(u), floor(v)
-    local fu, fv = fade(u - i), fade(v - j)
-    local L, k = o.L, j * o.nu + i + 1
-    local a, b, c, d = L[k], L[k + 1], L[k + o.nu], L[k + o.nu + 1]
+    local tu, tv = u - i, v - j
+    local fu = tu * tu * tu * (tu * (tu * 6 - 15) + 10)
+    local fv = tv * tv * tv * (tv * (tv * 6 - 15) + 10)
+    local L, k = o.L, j * nu + i + 1
+    local a, b, c, d = L[k], L[k + 1], L[k + nu], L[k + nu + 1]
     sum = sum + o.amp * (a + (b - a) * fu + (c - a) * fv + (a - b - c + d) * fu * fv)
   end
   return sum / n.total
@@ -848,20 +854,24 @@ function T:toBPP(viewer, opts)
   self.landColor = opts.landColor
   local ground = Terrain()
   local idx = 0
-  local colours = {}
+  -- one vector per node, shared by the triangles that meet there (the
+  -- mesh copies them), and the colours in three flat arrays: far fewer
+  -- objects to make than three vectors and a table per triangle
+  local VX = {}
+  for k = 1, s * (self.ny + 1) do VX[k] = V(k) end
+  local cr, cg, cb = {}, {}, {}
   self:eachTriangle(function(k, upper, a, b, c)
     -- (x, y, z) -> (x, z, -y) is a rotation, so the corners keep their
     -- order and faces point up
-    ground:addTriangle(V(a), V(b), V(c))
+    ground:addTriangle(VX[a], VX[b], VX[c])
     local r, g, bl = self:triangleColor(a, b, c, hi)
-    colours[idx] = { r, g, bl }
+    cr[idx], cg[idx], cb[idx] = r, g, bl
     idx = idx + 1
   end)
   ground:build()
   ground.col = "#6f9a4c"
   for i = 0, idx - 1 do
-    local col = colours[i]
-    ground:setTriangleColor(i, floor(col[1] + 0.5), floor(col[2] + 0.5), floor(col[3] + 0.5))
+    ground:setTriangleColor(i, floor(cr[i] + 0.5), floor(cg[i] + 0.5), floor(cb[i] + 0.5))
   end
   viewer:add(ground)
   if not opts.contact then pcall(function() ground.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end) end

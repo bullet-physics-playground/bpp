@@ -77,10 +77,10 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–41 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–42 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F68 so far), and
+  implementations, and our own mistakes once corrected (F1–F69 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -93,11 +93,12 @@ is updated at the end of every milestone.
 | `book/theses/` | Digests of the seven theses (Heil, Hettiarachchi, Kerr, Kunkel, Maxim, Rebguns, Zarzhitsky) |
 | `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder); `settle_drones.lua` measures settling with the Ch. 16.9 metrics for `lib/batch.py` |
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
+| `tools/worldprint.lua` | Prints a generated world in full (every layer's data, every drawn triangle), in any Lua 5.1-5.4 without BPP: compare prints before and after a change to the generator (FIXES 42) |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–41 |
+| `FIXES.md` | Fixes 1–42 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
@@ -166,7 +167,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -244,7 +245,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   { seed = n })` for `rural`, `suburban`, `city-centre`,
   `industrial-port`, `harbour-town` builds terrain and water, zones and
   streets, lots and buildings, mission features and vegetation in
-  0.4–3.5 s (Lua 5.1), identically on Lua 5.1–5.4. Each layer is a few
+  0.6–2.7 s (Lua 5.1; drawing 0.8–2.9 s more), identically on Lua
+  5.1–5.4 (F69). Each layer is a few
   stated rules: one slope rule (≤ 15% along the grid) keeps the land
   drivable and shapes valleys and banks; rivers follow Ferguson's
   disturbed periodic model (irregular meanders, sinuosity 1.4, neck
@@ -333,8 +335,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     "Later"); importing real places (OpenStreetMap, elevation, charts);
     trees and hedges are solid to `blockedAt` and must be treated as
     porous by the plume (G14); the drain's manholes are drawn, not open
-    shafts; generation takes up to 3.5 s, so a viewer slider rebuild is
-    not instant.
+    shafts; generation and drawing take up to 5.6 s, so a viewer slider
+    rebuild is not instant (it is built once per frame while dragging).
 - **Done: milestone M2** (build step 2, 2026-10-21), in four patches:
   1. the vehicle interface (`lib/swarm.lua`, `quadcopter/vehicle.lua`,
      `lib/ideal.lua`, `checks/vehicles.sh`);

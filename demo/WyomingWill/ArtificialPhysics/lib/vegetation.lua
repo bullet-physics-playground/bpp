@@ -63,10 +63,14 @@ local function clearOf(W, x, y, r, idx)
     if abs(x - pad.x) < pad.size / 2 + r and abs(y - pad.y) < pad.size / 2 + r then return false end
   end
   local d = B.discPart(x, y, r + 0.5)
+  local R = r + 0.5 + 1e-6
   for i = -1, 1 do
     for j = -1, 1 do
       for _, p in ipairs(idx[(floor(x / 50) + i) * 100003 + floor(y / 50) + j] or {}) do
-        if B.partDist(d, p) <= 0 then return false end
+        -- (a part whose bounding box is farther than the disc's radius
+        -- cannot touch it)
+        local x0, y0, x1, y1 = B.partBox(p)
+        if x - R <= x1 and x + R >= x0 and y - R <= y1 and y + R >= y0 and B.partDist(d, p) <= 0 then return false end
       end
     end
   end
