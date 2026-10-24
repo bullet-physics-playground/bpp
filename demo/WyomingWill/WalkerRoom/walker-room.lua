@@ -119,8 +119,8 @@ DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
 -- 4-bar diag's two braces built outside the pendants instead, each a run
 -- along the walk on the outside face of each of its pendants and a
 -- diagonal across between them, all at one height: one just over the body,
--- the other at the feet's lift above them (the top one clears the raised
--- letters on the body too). Their pendants then need no
+-- the other just under it (the top one clears the raised letters on the
+-- body too). Their pendants then need no
 -- extension, so they are built as long as their guides cousins'. The
 -- places come from a check through a whole crank turn against every link,
 -- foot, the body and its letters (0.3 cm or more from all of them): OUTSIDE_FIT, per
@@ -128,8 +128,8 @@ DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
 -- runFront, runBack = how far each run reaches from its pendant } (cm).
 DIAG_OUTSIDE = DIAG_OUTSIDE or false
 local OUTSIDE_FIT = {
-  ["Chebyshev-Spears diag"] = { top = { yRel = 14.52, runFront = 1.31, runBack = 10.19 }, bottom = { yRel = 4.61, runFront = 1.59, runBack = 5.68 } },
-  ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.72, runFront = 1.24, runBack = 10.52 }, bottom = { yRel = 4.84, runFront = 3.11, runBack = 7.66 } },
+  ["Chebyshev-Spears diag"] = { top = { yRel = 14.52, runFront = 1.31, runBack = 10.19 }, bottom = { yRel = 5.75, runFront = 3.84, runBack = 7.68 } },
+  ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.72, runFront = 1.24, runBack = 10.52 }, bottom = { yRel = 5.63, runFront = 4.61, runBack = 8.91 } },
 }
 -- PENDANT_HOLD: true (or a table of names; default off): each leg's
 -- pendant (the link its foot hangs from) also held at its angle to the
