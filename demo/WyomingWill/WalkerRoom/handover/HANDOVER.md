@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 32 (this handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 33 (outside braces on the other five diag builds, section 4b). 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -156,6 +156,52 @@ Number patches `walker-room-NN-<what>.patch`. The last was 32 (this handover upd
 - Then the factorial runs (section 7), with the plan, timing and William's yes first.
 
 **bpp notes from this session:** the GUI steps a fixed simulated time per drawn frame, so a build that just misses the 60 Hz refresh plays at half speed (the diag costs about 30% more per frame; simulated speeds are unaffected). Setting `o.mass` after `setMassProps` recomputes inertia from the shape (it broke a mass-scaling test; harmless for simple boxes). The terrain is one object, so it is drawn whole whenever any of it is in view.
+
+## 4b. Fourth session (24 October): outside braces on every diag build
+
+**Answer first:** Chebyshev diag, Hoecken 4-bar diag, Hoecken-Spears long-stance diag, Spears lift 44 diag and Spears lift 53 diag now have outside braces too (patch 33; `DIAG_OUTSIDE` covers all seven diag builds). No speed runs yet. Pictures: `outside_braces_top.png`, `outside_braces_side.png` (old braces against new). Data: `data/outside5.txt`, `data/outz5.json`.
+
+**How:** `outz5.py` is `outz.py` generalised (pairs read from the joins; letters per build). Checked first against the recorded CS and HS4 fits: same to 0.01 cm in height, 0.07 in run length. Same rules: top brace 0.3 over the body or its letters at its lowest, bottom brace 0.3 under the body at its highest, runs outside the pendants, the shortest diagonal clear of every link and foot (12 wide) through a whole turn. The five new fits use 0.4 cm against links and feet (fitted on sweeps with the braces built, `sweep6.sh`), because the independent check (`verify5.py`: the braces as built, diagonals cut into slices) found the 0.3-cm fits came out at 0.21–0.27 on some. Bars 1.074 cm tall (`bar` in OUTSIDE_FIT). Chebyshev_diag_parts.lua got `buildOutsideCrossbar` (copied), `opts.extUp` and B in each linkage.
+
+**Pendant extensions:** long-stance's and lift 53's top braces reach 0.73 cm above their pendants' tops, so their pendants go 0.8 cm higher (`extUp` in OUTSIDE_FIT, cm). The others need none.
+
+**Checks** (geometry, whole turn; simulation 20 s on flat and waves 4, trot, Earth standard):
+
+| Build | Closest link or foot (top / bottom brace) | Under body | Over letters (sim) | Contacts in sim |
+|---|---|---|---|---|
+| Chebyshev diag | 0.45 / 0.48 | 0.28 | 0.30 | none |
+| Hoecken 4-bar diag | 0.52 / 0.44 | 0.29 | 0.30 | none |
+| H-S long-stance diag | 0.55 / 0.55 | 0.29 | 0.31 | none |
+| Spears lift 44 diag | 0.54 / 0.48 | 0.30 | 0.30 | waves: one incident, a foot flipped 86° on its ankle into the bottom run (0.5% of frames), then the bottom diagonal grazed a crest (0.7%) |
+| Spears lift 53 diag | 0.49 / 0.45 | 0.30 | 0.30 | none |
+| (CS, HS4 diag, patch 28–30, for reference) | 0.31 / 0.34, 0.25 / 0.31 | 0.29, 0.25 | 0.29, 0.29 | |
+
+Pendant–ground and foot–link contacts occur on the guides cousins too (data/outside5.txt), so they are the legs and feet, not the braces.
+
+**Weight and CoM** (dumps at build, CoM above the feet's bottoms, cm):
+
+| Build | Weight outside / old / guides | Braces outside / old | CoM outside / old / guides | Roll, pitch, yaw inertia vs guides |
+|---|---|---|---|---|
+| Chebyshev diag | 111.4 / 120.7 / 93.9 | 17.6 / 17.4 | 15.68 / 21.42 / 16.13 | 1.13, 1.10, 1.11 |
+| Hoecken 4-bar diag | 113.0 / 122.6 / 94.6 | 17.6 / 17.4 | 15.95 / 21.86 / 15.86 | 1.17, 1.13, 1.13 |
+| H-S long-stance diag | 94.2 / 100.9 / 76.9 | 16.9 / 17.4 | 10.72 / 13.74 / 10.75 | 1.19, 1.13, 1.13 |
+| Spears lift 44 diag | 113.2 / 122.0 / 95.2 | 17.7 / 18.4 | 13.03 / 16.91 / 12.80 | 1.18, 1.09, 1.10 |
+| Spears lift 53 diag | 119.1 / 129.2 / 100.2 | 17.9 / 19.0 | 14.96 / 19.52 / 14.57 | 1.18, 1.10, 1.10 |
+
+The old builds were heavier for their long pendants (extended up for the old braces).
+
+**Things to know:**
+- Lift 44's and lift 53's bottom braces sit low by the rule: about 3.7 and 4.3 cm above the feet in stance, under the 4–8 cm logs. William to decide.
+- Pendants are not quite the guides cousins' length: Hoecken 4-bar diag +1.0 cm, long-stance +0.6 (plus the 0.8 extension), lift 44 +0.4, lift 53 +0.5 (plus 0.8); CS and HS4 −0.1 and −0.2. These are differences between the build files (where B sits), not the braces.
+- HS4 diag's outside bars are 1.12 cm tall (0.75 of its own units), not the 1.074 its fit assumed, so its bottom brace is 0.25 under the body rather than 0.3. Left as it is.
+- The handover's CS and HS4 outside weights (101.6, 103.3) were estimates; the dumps say 102.2 and 103.9.
+- `letterprobe.lua` compared the letters' box in world axes with the brace in the body's axes; for walkers turned 180° with off-centre bodies (lift 44, 53) that is wrong. `letterprobe2.lua` fixes it; CS and HS4 still measure 0.29.
+- Contacts with the look-only letters show up in the contact lists of every outside build (CS too, 4–11% of frames) with points outside the letters. They are how Bullet reports look-only parts; `vibprobe.lua` already leaves them out, and the letters' real clearance is measured by `letterprobe2.lua`.
+- Long-stance's pendants turn up to 2.8° in the held-body sweep (the others 0.5° or less); its braces clear by 0.55, so it doesn't matter here.
+
+**The plated builds** (measured 24 October, not yet changed): each side plate is welded to both pendants on its side, so those two legs must be in phase: no trot; the room builds them at sides (sidePhase 180). The plates add 13.8 on every build (the weight rule counts a plate as a bar its length long, so height adds nothing); CoM 0.0–0.3 cm above guides; pendants at guides' length (0.15 heavier, the weld bolt); plate bottoms now at 7.0–7.2 cm above the feet in stance (BRACE_CLEARANCE).
+
+**New tools** (`tools/`): `sweep5.sh`, `sweep6.sh`, `sweep_old.sh` (sweeps of the seven diag builds: pendants at guides' length / outside braces built / old braces), `outz5.py` (fit; `--sweeps`, `--links`), `verify5.py` (check as built), `contacts5.sh`, `contacts5b.sh`, `vibprobe_at.lua` (contacts reported at `CONTACT_AT`), `bracehit.lua` (what each brace piece touches), `letterprobe2.lua`, `draw33.py` (the pictures).
 
 ## 5. What was found in the last session (17–21 October)
 

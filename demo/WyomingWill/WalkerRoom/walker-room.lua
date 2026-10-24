@@ -115,8 +115,8 @@ DIAG_LOW = DIAG_LOW or false
 -- same way too; the two cross in the middle, so only for braces made to
 -- touch nothing.
 DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
--- DIAG_OUTSIDE (default off): Chebyshev-Spears diag's and Hoecken-Spears
--- 4-bar diag's two braces built outside the pendants instead, each a run
+-- DIAG_OUTSIDE (default off): every diag build's two braces built
+-- outside the pendants instead, each a run
 -- along the walk on the outside face of each of its pendants and a
 -- diagonal across between them, all at one height: one just over the body,
 -- the other just under it (the top one clears the raised letters on the
@@ -125,11 +125,23 @@ DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
 -- places come from a check through a whole crank turn against every link,
 -- foot, the body and its letters (0.3 cm or more from all of them): OUTSIDE_FIT, per
 -- walker, { yRel = the brace's bottom above its pendants' lower ends,
--- runFront, runBack = how far each run reaches from its pendant } (cm).
+-- runFront, runBack = how far each run reaches from its pendant } (cm),
+-- and for the five fitted later (handover/tools/outz5.py, 0.4 cm from
+-- every link and foot, so 0.3 or more as built) bar = the bars'
+-- height, 1.074 cm (Chebyshev-Spears diag's; Hoecken-Spears 4-bar diag's
+-- are 1.12, 0.75 of its own units), and extUp = how far its pendants
+-- reach above their hinges to the couplers (cm; Hoecken-Spears long-stance
+-- diag's and Spears lift 53 diag's top braces reach 0.73 cm above the
+-- hinges, so their pendants go 0.8 higher).
 DIAG_OUTSIDE = DIAG_OUTSIDE or false
 local OUTSIDE_FIT = {
   ["Chebyshev-Spears diag"] = { top = { yRel = 14.52, runFront = 1.31, runBack = 10.19 }, bottom = { yRel = 5.75, runFront = 3.84, runBack = 7.68 } },
   ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.72, runFront = 1.24, runBack = 10.52 }, bottom = { yRel = 5.63, runFront = 4.61, runBack = 8.91 } },
+  ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.35, runBack = 14.90 }, bottom = { yRel = 7.72, runFront = 2.81, runBack = 2.70 } },
+  ["Hoecken 4-bar diag"] = { bar = 1.074, top = { yRel = 17.58, runFront = 8.54, runBack = 15.46 }, bottom = { yRel = 7.62, runFront = 2.73, runBack = 2.77 } },
+  ["Hoecken-Spears long-stance diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.15, runFront = 1.74, runBack = 8.30 }, bottom = { yRel = 5.30, runFront = 4.43, runBack = 8.58 } },
+  ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.91, runFront = 1.84, runBack = 14.36 }, bottom = { yRel = 3.99, runFront = 4.97, runBack = 13.22 } },
+  ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.65, runFront = 1.93, runBack = 15.58 }, bottom = { yRel = 4.54, runFront = 3.99, runBack = 15.27 } },
 }
 -- PENDANT_HOLD: true (or a table of names; default off): each leg's
 -- pendant (the link its foot hangs from) also held at its angle to the
@@ -821,7 +833,7 @@ local function addWalker(spec, x, z, heading)
   if outside then
     opts.outside = outside
     opts.forward = spec.forward                 -- (front and back as built)
-    opts.extUp = 0                              -- (its pendants as long as its guides cousin's)
+    opts.extUp = (outside.extUp or 0) / scale   -- (its pendants as long as its guides cousin's, or as its fit says; the files take their own units)
   elseif low then
     opts.lowBrace = DIAG_LOW                    -- (cm)
     opts.lowBoth = DIAG_LOW_BOTH

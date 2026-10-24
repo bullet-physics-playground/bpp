@@ -359,6 +359,7 @@ if opts.geometry then
   M.FLOOR_TOP_Y = M.FLOOR_TOP_Y + (lowestB(g_len, a_len, h_len) - before)
 end
 local g_len, a_len, f_len, h_len, p_len = g_len * S, a_len * S, f_len * S, h_len * S, p_len * S
+if opts.extUp then p_top_extend = opts.extUp end   -- (WALKER ROOM: opts.extUp, how far each pendant reaches above B, this file's units; 0 for the outside braces, which need no extension)
 local p_top_extend, rod_w, rod_d, plane_gap = p_top_extend * S, rod_w * S, rod_d * S, plane_gap * S
 plane_gap = opts.planeGapCm or plane_gap   -- (WALKER ROOM: the link planes' spacing, cm, the same for every walker)
 rod_d = opts.rodThickCm or rod_d   -- (WALKER ROOM: every walker's links the same thickness, cm)
@@ -511,7 +512,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
 
   return {
     pendant = pendant, hingeO2 = hingeO2,
-    z_pendant = z_pendant_l, C = C,
+    z_pendant = z_pendant_l, C = C, B = B,
   }
 end
 
@@ -600,6 +601,65 @@ local function buildLowCrossbar(lkA, lkB, low, color, mass, width)
   weld(segs[2], segs[3], pts[3])
   weld(segs[3], lkB.pendant, pts[4])
   return segs[2]
+end
+
+-- WALKER ROOM: opts.outside builds both braces outside the pendants instead
+-- (as Chebyshev_Spears_diag_parts.lua's, the same function),
+-- each in three pieces at one height, seen from above as
+--     front pendant |=====\
+--                          \
+--                           \=====| back pendant
+-- a run along the walk on the outside face of each pendant, toward the
+-- other one, and a diagonal across between the runs' ends. Outside the
+-- pendants nothing of the walker moves (its links are all inside them);
+-- the diagonal crosses the walker where nothing reaches at its height (the
+-- room's fits: the top brace just over the body, the other at the feet's
+-- lift above them). opts.outside = { top = b, bottom = b }, b = { yRel =
+-- its bottom above the pendant's lower end, runFront =, runBack = how far
+-- each run reaches from its pendant } (cm), and opts.outside.bar, the
+-- bars' height (cm; unset: 0.75 of this file's units); opts.forward, the
+-- way the room walks it, tells front from back.
+local function buildOutsideCrossbar(lkA, lkB, b, color, width)
+  local f = opts.forward or 1
+  local front, back = lkA, lkB
+  if (lkB.B.x - lkA.B.x) * f > 0 then front, back = lkB, lkA end   -- (front: furthest the way it walks)
+  local y = front.C.y + b.yRel + width / 2
+  local function outZ(lk) return lk.z_pendant + (lk.z_pendant > 0 and 1 or -1) * rod_d end
+  local function toward(lk, other, run) return lk.B.x + (other.B.x > lk.B.x and 1 or -1) * run end
+  local pts = { { x = front.B.x, y = y, z = outZ(front) }, { x = toward(front, back, b.runFront), y = y, z = outZ(front) },
+                { x = toward(back, front, b.runBack), y = y, z = outZ(back) }, { x = back.B.x, y = y, z = outZ(back) } }
+  local owner, len, total = {}, {}, 0
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    len[i] = math.sqrt((q.x - p.x)^2 + (q.y - p.y)^2 + (q.z - p.z)^2); total = total + len[i]
+  end
+  for i = 1, 3 do
+    local p, q, L = pts[i], pts[i + 1], len[i]
+    if L > 0.05 then
+      if q.x < p.x then p, q = q, p end   -- (built from its other end: alignVecX can't point a bar straight back along -x)
+      local seg = Cube(L, width, rod_d, 1.0 * L / total)   -- (the room reweighs it by its length: BAR_MASS)
+      seg.col = color
+      seg.trans = btTransform(alignVecX(q.x - p.x, q.y - p.y, q.z - p.z), btVector3((p.x + q.x)/2, (p.y + q.y)/2, (p.z + q.z)/2))
+      seg.damp_ang = 0.15
+      add(seg)
+      owner[i] = seg
+    end
+  end
+  local function weld(a, c, p)
+    local W = btTransform(IDENTITY_QUAT, btVector3(p.x, p.y, p.z))
+    local k = btGeneric6DofConstraint(a.body, c.body, a.trans:inverseTimes(W), c.trans:inverseTimes(W), true)
+    k:setLinearLowerLimit(btVector3(0, 0, 0)); k:setLinearUpperLimit(btVector3(0, 0, 0))
+    k:setAngularLowerLimit(btVector3(0, 0, 0)); k:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(k)
+  end
+  -- each piece welded to the next, the end pieces to their pendants (a run too short to build: the
+  -- diagonal welded to that pendant itself)
+  local first, last = owner[1] or owner[2], owner[3] or owner[2]
+  weld(first, front.pendant, owner[1] and pts[1] or pts[2])
+  if owner[1] then weld(owner[1], owner[2], pts[2]) end
+  if owner[3] then weld(owner[2], owner[3], pts[3]) end
+  weld(last, back.pendant, owner[3] and pts[4] or pts[3])
+  return owner[2]
 end
 
 -- Labels: left = x=0, right = x=10, front = unmirrored, back = mirrored.
@@ -773,7 +833,9 @@ end
 -- wants more mass, not the same amount tuned for a thin bar) -- left
 -- unchanged here since only geometry was asked for.
 local diagonalBottom
-if opts.lowBrace then
+if opts.outside then
+  diagonalBottom = buildOutsideCrossbar(linkage1, linkage4, opts.outside.bottom, "slateblue", opts.outside.bar or 1.8 * S)
+elseif opts.lowBrace then
   diagonalBottom = buildLowCrossbar(linkage1, linkage4, opts.lowBrace, "slateblue", 1.0, 1.8 * S)
 elseif opts.archRise then
   local up = (12.4 + BODY_RAISE) * S   -- (the top brace's height above C)
@@ -812,7 +874,9 @@ end
 -- (WALKER ROOM: opts.lowBoth, a test, builds this brace low too, as buildLowCrossbar -- the two
 -- then cross each other in the middle, so it is only for braces that touch nothing)
 local diagonalTop
-if opts.lowBoth and opts.lowBrace then
+if opts.outside then
+  diagonalTop = buildOutsideCrossbar(linkage2, linkage3, opts.outside.top, "firebrick", opts.outside.bar or 1.8 * S)
+elseif opts.lowBoth and opts.lowBrace then
   diagonalTop = buildLowCrossbar(linkage2, linkage3, opts.lowBrace, "firebrick", 1.0, 1.8 * S)
 else
   diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, (12.4 + BODY_RAISE) * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now

@@ -1055,8 +1055,9 @@ end
 -- room's fits: the top brace just over the body, the other at the feet's
 -- lift above them). opts.outside = { top = b, bottom = b }, b = { yRel =
 -- its bottom above the pendant's lower end, runFront =, runBack = how far
--- each run reaches from its pendant } (cm); opts.forward, the way the
--- room walks it, tells front from back.
+-- each run reaches from its pendant } (cm), and opts.outside.bar, the
+-- bars' height (cm; unset: 0.75 of this file's units); opts.forward, the
+-- way the room walks it, tells front from back.
 local function buildOutsideCrossbar(lkA, lkB, b, color, width)
   local f = opts.forward or 1
   local front, back = lkA, lkB
@@ -1122,7 +1123,7 @@ local TOP_UP = (opts.topUp or 2.75) * S
 -- then cross each other in the middle, so it is only for braces that touch nothing)
 local diagonalTop
 if opts.outside then
-  diagonalTop = buildOutsideCrossbar(linkage2, linkage3, opts.outside.top, "firebrick", 0.75 * S)
+  diagonalTop = buildOutsideCrossbar(linkage2, linkage3, opts.outside.top, "firebrick", opts.outside.bar or 0.75 * S)
 elseif opts.lowBoth and opts.lowBrace then
   diagonalTop = buildLowCrossbar(linkage2, linkage3, opts.lowBrace, "firebrick", 1.0, 0.75 * S)
 else
@@ -1160,7 +1161,7 @@ end
 -- the other not at all.
 local diagonalBottom
 if opts.outside then
-  diagonalBottom = buildOutsideCrossbar(linkage1, linkage4, opts.outside.bottom, "slateblue", 0.75 * S)
+  diagonalBottom = buildOutsideCrossbar(linkage1, linkage4, opts.outside.bottom, "slateblue", opts.outside.bar or 0.75 * S)
 elseif opts.lowBrace then
   diagonalBottom = buildLowCrossbar(linkage1, linkage4, opts.lowBrace, "slateblue", 1.0, 0.75 * S)
 elseif opts.archRise then

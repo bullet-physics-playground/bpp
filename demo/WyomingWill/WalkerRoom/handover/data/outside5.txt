@@ -1,0 +1,57 @@
+# Patch 33: outside braces on the five other diag builds. Contact checks: 20 s, waves BUMP 15, seed 1, Earth standard, trot, forward (contacts5.sh, contacts5b.sh).
+# CONTACTS lines leave out foot-ground and the look-only letters (vibprobe.lua's rule). AMP 0 = flat.
+C_a0	TRACK Chebyshev diag|height 0.00|length 15.0|seed 1|forward 183.9 cm|9.20 cm/s|sideways 0.5 cm|stood up 0|air 0.3%	CONTACTS Chebyshev diag|none
+H4_a0	TRACK Hoecken 4-bar diag|height 0.00|length 15.0|seed 1|forward 171.9 cm|8.60 cm/s|sideways 0.4 cm|stood up 0|air 0.3%	CONTACTS Hoecken 4-bar diag|none
+HSLS_a0	TRACK Hoecken-Spears long-stance diag|height 0.00|length 15.0|seed 1|forward 181.0 cm|9.05 cm/s|sideways 0.4 cm|stood up 0|air 0.2%	CONTACTS Hoecken-Spears long-stance diag|none
+L44_a0	TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 177.1 cm|8.85 cm/s|sideways 0.9 cm|stood up 0|air 0.2%	CONTACTS Spears lift 44 diag|none
+L53_a0	TRACK Spears lift 53 diag|height 0.00|length 15.0|seed 1|forward 179.7 cm|8.99 cm/s|sideways 0.6 cm|stood up 0|air 0.2%	CONTACTS Spears lift 53 diag|none
+C_a4	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 75.0 cm|3.75 cm/s|sideways 24.8 cm|stood up 0|air 0.4%	CONTACTS Chebyshev diag|ground-pendant 44.4%
+H4_a4	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 119.4 cm|5.97 cm/s|sideways 32.0 cm|stood up 0|air 0.4%	CONTACTS Hoecken 4-bar diag|ground-pendant 29.4%
+HSLS_a4	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 139.7 cm|6.99 cm/s|sideways 43.6 cm|stood up 0|air 0.2%	CONTACTS Hoecken-Spears long-stance diag|ground-pendant 9.2%
+L44_a4	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 137.4 cm|6.87 cm/s|sideways 41.0 cm|stood up 0|air 0.3%	CONTACTS Spears lift 44 diag|ground-pendant 8.7%, buildOutsideCrossbar-ground 0.7%, buildOutsideCrossbar-foot 0.5%, foot-link 0.2%
+L53_a4	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 105.7 cm|5.29 cm/s|sideways 56.8 cm|stood up 0|air 0.3%	CONTACTS Spears lift 53 diag|ground-pendant 8.3%, ground-link 7.3%, foot-link 0.8%
+C_guides	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 123.3 cm|6.17 cm/s|sideways 37.6 cm|stood up 0|air 0.4%	CONTACTS Chebyshev|ground-pendant 24.1%
+H4_guides	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 135.4 cm|6.77 cm/s|sideways 23.8 cm|stood up 0|air 0.4%	CONTACTS Hoecken 4-bar|ground-pendant 16.6%
+HSLS_guides	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 170.0 cm|8.50 cm/s|sideways -19.7 cm|stood up 0|air 0.3%	CONTACTS Hoecken-Spears long-stance|ground-pendant 0.4%
+L44_guides	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 138.9 cm|6.95 cm/s|sideways 43.5 cm|stood up 0|air 0.4%	CONTACTS Spears lift 44|ground-pendant 9.2%, foot-link 0.9%
+L53_guides	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 106.1 cm|5.31 cm/s|sideways 57.1 cm|stood up 0|air 0.4%	CONTACTS Spears lift 53|ground-link 6.9%, ground-pendant 5.4%, foot-link 1.2%
+L44_old	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 118.2 cm|5.91 cm/s|sideways 11.4 cm|stood up 0|air 0.3%	CONTACTS Spears lift 44 diag|ground-pendant 8.8%, foot-link 1.2%
+L53_old	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 137.1 cm|6.86 cm/s|sideways -17.1 cm|stood up 0|air 0.3%	CONTACTS Spears lift 53 diag|ground-pendant 3.7%, foot-link 0.2%
+CS_out	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 152.5 cm|7.62 cm/s|sideways 40.3 cm|stood up 0|air 0.2%	CONTACTS Chebyshev-Spears diag|ground-pendant 11.1%
+# verify5.py (sweep6, built braces, whole turn):
+Chebyshev-Spears diag            top    closest part  0.31 cm (7, 'makeLink', '', 'diag', 153); body over by 0.73, over letters 0.28; run bottom +14.48 above pendant end, run top -2.92 vs pendant top (210 moments)
+Chebyshev-Spears diag            bottom closest part  0.34 cm (2, 'makeLink', '', 'diag', 132); body under by 0.29; run bottom +5.69 above pendant end, run top -11.62 vs pendant top (210 moments)
+Hoecken-Spears 4-bar diag        top    closest part  0.25 cm (7, 'makeLink', '', 'diag', 150); body over by 0.74, over letters 0.28; run bottom +14.69 above pendant end, run top -3.22 vs pendant top (210 moments)
+Hoecken-Spears 4-bar diag        bottom closest part  0.31 cm (1, 'makeLink', '', 'diag', 88); body under by 0.25; run bottom +5.59 above pendant end, run top -12.26 vs pendant top (210 moments)
+Chebyshev diag                   top    closest part  0.45 cm (11, 'makeLink', '', 'diag', 106); body over by 0.75, over letters 0.29; run bottom +17.32 above pendant end, run top -12.58 vs pendant top (210 moments)
+Chebyshev diag                   bottom closest part  0.48 cm (16, 'makeLink', 'own pendant', 'diag', 197); body under by 0.28; run bottom +7.72 above pendant end, run top -22.19 vs pendant top (210 moments)
+Hoecken 4-bar diag               top    closest part  0.52 cm (11, 'makeLink', '', 'diag', 108); body over by 0.75, over letters 0.29; run bottom +17.57 above pendant end, run top -13.19 vs pendant top (210 moments)
+Hoecken 4-bar diag               bottom closest part  0.44 cm (4, 'makeLink', 'own pendant', 'diag', 23); body under by 0.29; run bottom +7.62 above pendant end, run top -23.16 vs pendant top (210 moments)
+Hoecken-Spears long-stance diag  top    closest part  0.55 cm (13, 'makeLink', '', 'diag', 195); body over by 0.75, over letters 0.30; run bottom +15.01 above pendant end, run top -0.07 vs pendant top (210 moments)
+Hoecken-Spears long-stance diag  bottom closest part  0.55 cm (2, 'makeLink', '', 'diag', 85); body under by 0.29; run bottom +5.19 above pendant end, run top -9.92 vs pendant top (210 moments)
+Spears lift 44 diag              top    closest part  0.54 cm (7, 'makeLink', '', 'diag', 153); body over by 0.74, over letters 0.28; run bottom +16.87 above pendant end, run top -1.15 vs pendant top (210 moments)
+Spears lift 44 diag              bottom closest part  0.48 cm (2, 'makeLink', '', 'diag', 105); body under by 0.30; run bottom +3.95 above pendant end, run top -14.06 vs pendant top (210 moments)
+Spears lift 53 diag              top    closest part  0.49 cm (15, 'makeLink', 'own pendant', 'diag', 180); body over by 0.73, over letters 0.28; run bottom +19.61 above pendant end, run top -0.04 vs pendant top (210 moments)
+Spears lift 53 diag              bottom closest part  0.45 cm (2, 'makeLink', '', 'diag', 106); body under by 0.30; run bottom +4.47 above pendant end, run top -15.13 vs pendant top (210 moments)
+# BRACEHIT detail, Spears lift 44 diag, waves 4 (bracehit.lua): foot contact frames 248-254, the foot tipped 86-87 deg on its ankle; ground contact frames 320-331, bottom diagonal
+BRACEHIT 248|bottom run z-|foot x+4 z-13|at 11.6 -3.7 -13.4 (body frame)|foot tipped 87 deg
+BRACEHIT 248|bottom run z-|foot x+4 z-13|at 11.6 -3.7 -13.1 (body frame)|foot tipped 87 deg
+BRACEHIT 249|bottom run z-|foot x+4 z-13|at 11.0 -3.4 -13.4 (body frame)|foot tipped 86 deg
+BRACEHIT 249|bottom run z-|foot x+4 z-13|at 11.0 -3.4 -13.1 (body frame)|foot tipped 86 deg
+BRACEHIT 250|bottom run z-|foot x+4 z-13|at 10.4 -3.3 -13.4 (body frame)|foot tipped 86 deg
+BRACEHIT 250|bottom run z-|foot x+4 z-13|at 10.4 -3.3 -13.1 (body frame)|foot tipped 86 deg
+BRACEHIT 251|bottom run z-|foot x+4 z-13|at 9.8 -3.1 -13.4 (body frame)|foot tipped 86 deg
+BRACEHIT 251|bottom run z-|foot x+4 z-13|at 9.8 -3.1 -13.1 (body frame)|foot tipped 86 deg
+BRACEHIT 253|bottom run z-|foot x+4 z-13|at 8.2 -2.9 -13.4 (body frame)|foot tipped 86 deg
+BRACEHIT 253|bottom run z-|foot x+4 z-13|at 8.2 -2.9 -13.1 (body frame)|foot tipped 86 deg
+BRACEHIT 254|bottom run z-|foot x+4 z-13|at 7.4 -2.9 -13.4 (body frame)|foot tipped 86 deg
+BRACEHIT 254|bottom run z-|foot x+4 z-13|at 7.4 -2.9 -13.1 (body frame)|foot tipped 86 deg
+BRACEHIT 320|bottom diag|ground|at -6.3 -10.6 -11.2 (body frame)
+BRACEHIT 321|bottom diag|ground|at -6.3 -10.6 -11.1 (body frame)
+BRACEHIT 322|bottom diag|ground|at -6.2 -10.6 -11.1 (body frame)
+BRACEHIT 323|bottom diag|ground|at -6.1 -10.6 -11.1 (body frame)
+BRACEHIT 324|bottom diag|ground|at -6.0 -10.6 -11.1 (body frame)
+BRACEHIT 328|bottom diag|ground|at -5.5 -10.6 -11.1 (body frame)
+BRACEHIT 329|bottom diag|ground|at -5.4 -10.6 -11.1 (body frame)
+BRACEHIT 330|bottom diag|ground|at -5.3 -10.6 -11.1 (body frame)
+BRACEHIT 331|bottom diag|ground|at -5.2 -10.5 -11.0 (body frame)
