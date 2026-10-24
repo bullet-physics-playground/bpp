@@ -554,6 +554,54 @@ local function buildArchedCrossbar(lkA, lkB, PA, PB, rise, color, mass, width)
   return segs[2]
 end
 
+-- WALKER ROOM: opts.lowBrace (cm) builds the front-left/back-right brace
+-- low instead, near the feet, in three pieces seen from above as
+--     front  --
+--              |
+--              |
+--               --  back
+-- one across from the front pendant (just above its foot, over its ankle
+-- line, where the foot's rocking barely changes its height) to the
+-- walker's middle, one along the middle to the back, and one across to the
+-- back pendant. The middle under the body holds only the pendants and
+-- feet, 7 cm or more out to each side, so it passes nothing of the walker
+-- (it does meet bumps higher than it is). lowBrace: the brace's bottom
+-- above the feet's bottoms (cm).
+local function buildLowCrossbar(lkA, lkB, low, color, mass, width)
+  local footThick = (opts.foot and opts.foot.thick) or 0.3 * S
+  local y = lkA.C.y - footThick / 2 + low + width / 2
+  local pts = { { x = lkA.C.x, y = y, z = lkA.z_pendant }, { x = lkA.C.x, y = y, z = 0 },
+                { x = lkB.C.x, y = y, z = 0 }, { x = lkB.C.x, y = y, z = lkB.z_pendant } }
+  local L, segs = {}, {}
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    L[i] = math.sqrt((q.x - p.x)^2 + (q.y - p.y)^2 + (q.z - p.z)^2)
+  end
+  local total = L[1] + L[2] + L[3]
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    if q.x < p.x then p, q = q, p end   -- (built from its other end: alignVecX can't point a bar straight back along -x)
+    local seg = Cube(L[i], width, rod_d, mass * L[i] / total)
+    seg.col = color
+    seg.trans = btTransform(alignVecX(q.x - p.x, q.y - p.y, q.z - p.z), btVector3((p.x + q.x)/2, (p.y + q.y)/2, (p.z + q.z)/2))
+    seg.damp_ang = 0.15
+    add(seg)
+    segs[i] = seg
+  end
+  local function weld(a, b, p)
+    local W = btTransform(IDENTITY_QUAT, btVector3(p.x, p.y, p.z))
+    local c = btGeneric6DofConstraint(a.body, b.body, a.trans:inverseTimes(W), b.trans:inverseTimes(W), true)
+    c:setLinearLowerLimit(btVector3(0, 0, 0)); c:setLinearUpperLimit(btVector3(0, 0, 0))
+    c:setAngularLowerLimit(btVector3(0, 0, 0)); c:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(c)
+  end
+  weld(segs[1], lkA.pendant, pts[1])
+  weld(segs[1], segs[2], pts[2])
+  weld(segs[2], segs[3], pts[3])
+  weld(segs[3], lkB.pendant, pts[4])
+  return segs[2]
+end
+
 -- Labels: left = x=0, right = x=10, front = unmirrored, back = mirrored.
 --   linkage1 = left-front   linkage2 = right-front
 --   linkage3 = left-back    linkage4 = right-back
@@ -725,7 +773,9 @@ end
 -- wants more mass, not the same amount tuned for a thin bar) -- left
 -- unchanged here since only geometry was asked for.
 local diagonalBottom
-if opts.archRise then
+if opts.lowBrace then
+  diagonalBottom = buildLowCrossbar(linkage1, linkage4, opts.lowBrace, "slateblue", 1.0, 1.8 * S)
+elseif opts.archRise then
   local up = (12.4 + BODY_RAISE) * S   -- (the top brace's height above C)
   diagonalBottom = buildArchedCrossbar(linkage1, linkage4,
     { x = linkage1.C.x, y = linkage1.C.y + up, z = linkage1.z_pendant },
@@ -759,7 +809,14 @@ end
 -- (same footprint the old pair occupied), but whether it stays clear of
 -- the crank/coupler/rocker through a full rotation isn't something I
 -- can verify without actually running it.
-local diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, (12.4 + BODY_RAISE) * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now
+-- (WALKER ROOM: opts.lowBoth, a test, builds this brace low too, as buildLowCrossbar -- the two
+-- then cross each other in the middle, so it is only for braces that touch nothing)
+local diagonalTop
+if opts.lowBoth and opts.lowBrace then
+  diagonalTop = buildLowCrossbar(linkage2, linkage3, opts.lowBrace, "firebrick", 1.0, 1.8 * S)
+else
+  diagonalTop = buildDiagonalCrossbar(linkage2, linkage3, (12.4 + BODY_RAISE) * S, "firebrick", 0.385, 1.8 * S)  -- right-front <-> left-back -- the sole top brace now
+end
 
 -- ---------------------------------------------------------------------
 -- foot builder: a wide, flat pad welded (not hinged) to the bottom of

@@ -104,6 +104,38 @@ BRACE_CLEARANCE = (BRACE_CLEARANCE == nil) and 7 or BRACE_CLEARANCE
 -- low, as in its file, it catches on bumps. false: the bottom brace,
 -- lifted.
 if DIAG_ARCH == nil then DIAG_ARCH = true end
+-- DIAG_LOW (cm; default off): a diag walker's front-left/back-right brace
+-- built low instead of arched, near the feet, in three pieces (across from
+-- the front pendant to the middle, along the middle, across to the back
+-- pendant), its bottom DIAG_LOW cm above the feet's bottoms. It passes
+-- nothing of the walker; it meets bumps higher than it is. Overrides
+-- DIAG_ARCH for that brace.
+DIAG_LOW = DIAG_LOW or false
+-- DIAG_LOW_BOTH (a test; off): with DIAG_LOW, the other brace built low the
+-- same way too; the two cross in the middle, so only for braces made to
+-- touch nothing.
+DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
+-- DIAG_OUTSIDE (default off): Chebyshev-Spears diag's and Hoecken-Spears
+-- 4-bar diag's two braces built outside the pendants instead, each a run
+-- along the walk on the outside face of each of its pendants and a
+-- diagonal across between them, all at one height: one just over the body,
+-- the other at the feet's lift above them. Their pendants then need no
+-- extension, so they are built as long as their guides cousins'. The
+-- places come from a check through a whole crank turn against every link,
+-- foot and the body (0.3 cm or more from all of them): OUTSIDE_FIT, per
+-- walker, { yRel = the brace's bottom above its pendants' lower ends,
+-- runFront, runBack = how far each run reaches from its pendant } (cm).
+DIAG_OUTSIDE = DIAG_OUTSIDE or false
+local OUTSIDE_FIT = {
+  ["Chebyshev-Spears diag"] = { top = { yRel = 14.07, runFront = 1.31, runBack = 10.19 }, bottom = { yRel = 4.61, runFront = 1.59, runBack = 5.68 } },
+  ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.26, runFront = 1.24, runBack = 10.77 }, bottom = { yRel = 4.84, runFront = 3.11, runBack = 7.66 } },
+}
+-- PENDANT_HOLD: true (or a table of names; default off): each leg's
+-- pendant (the link its foot hangs from) also held at its angle to the
+-- body, free to move with its leg -- as a rigid build's braces hold it,
+-- without the give of the long chain of joints between them in the
+-- simulation
+PENDANT_HOLD = PENDANT_HOLD or false
 -- LINK_THICK (default 0.3 cm) and PLANE_GAP (default 0.7 cm): every
 -- walker's links the same thickness across, and the planes they move in
 -- the same distance apart: 0.4 cm between neighbouring links' faces, the
@@ -774,8 +806,17 @@ local function addWalker(spec, x, z, heading)
     if FOOT_POINT then opts.foot = { length = 1.4 * FOOT_POINT, width = 1.4 * FOOT_POINT, thick = 1.4 * FOOT_POINT, mass = FOOT.mass } end   -- (the box hidden inside the ball)
     if FOOT_ROD then opts.foot = { length = 1.4 * FOOT_ROD, width = FOOT.width, thick = 1.4 * FOOT_ROD, mass = FOOT.mass } end   -- (the box hidden inside the rod)
   end
-  local arched = DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
-  if arched then
+  local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and OUTSIDE_FIT[spec.name]
+  local low = not outside and DIAG_LOW and spec.brace and spec.brace.diag
+  local arched = not outside and not low and DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
+  if outside then
+    opts.outside = outside
+    opts.forward = spec.forward                 -- (front and back as built)
+    opts.extUp = 0                              -- (its pendants as long as its guides cousin's)
+  elseif low then
+    opts.lowBrace = DIAG_LOW                    -- (cm)
+    opts.lowBoth = DIAG_LOW_BOTH
+  elseif arched then
     opts.archRise = spec.brace.rise             -- (cm)
   elseif BRACE_CLEARANCE and spec.brace then
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
@@ -783,6 +824,7 @@ local function addWalker(spec, x, z, heading)
   end
   opts.ankle = ANKLES or (ANKLE_SPRING and true)
   if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
+  if DIAG_EXT_UP and spec.brace and spec.brace.diag then opts.extUp = DIAG_EXT_UP end   -- (a test: see the diag files' opts.extUp)
   if PLANE_GAP then opts.planeGapCm = PLANE_GAP; opts.planeOf = opts.planeOf or spec.planes end
   if BALANCE and spec.bodyShift then opts.bodyShift = spec.bodyShift end
   if BALANCE and spec.frame then
@@ -951,7 +993,7 @@ local function addWalker(spec, x, z, heading)
   -- walker's other parts as if built in a plane of its own (a free joint,
   -- holding nothing, to each of them turns off contact between the pair),
   -- and still meets the ground
-  if BRACE_CLEARANCE and spec.brace and spec.brace.diag and not arched then
+  if BRACE_CLEARANCE and spec.brace and spec.brace.diag and not arched and not low and not outside then
     local I = btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))
     for _, o in ipairs(w.bodies) do
       if made[o] == "buildDiagonalCrossbar" then
@@ -1017,6 +1059,30 @@ local function addWalker(spec, x, z, heading)
         -- fully, 1.0, which would hold it against the spring; the spring's
         -- damping does that job)
         o.body:setDamping(0.1, 0)
+      end
+    end
+  end
+  -- each pendant held at its angle to the body (PENDANT_HOLD, above): the
+  -- links hinged to a foot, each held by a joint to the body that leaves it
+  -- free to move but not to turn
+  if PENDANT_HOLD == true or (type(PENDANT_HOLD) == "table" and PENDANT_HOLD[spec.name]) then
+    local function obj(b) for _, o in ipairs(w.bodies) do if o.body == b then return o end end end
+    local held = {}
+    local cubeT = w.cube.body:getCenterOfMassTransform()
+    for _, j in ipairs(joints) do
+      if j[5] == "btHingeConstraint" and j[2] then
+        local a, b = obj(j[1]), obj(j[2])
+        local fa, fb = a and made[a] == "buildFoot", b and made[b] == "buildFoot"
+        local p = (fa and not fb) and b or ((fb and not fa) and a or nil)
+        if p and not held[p] then
+          held[p] = true
+          local g = btGeneric6DofConstraint(w.cube.body, p.body, cubeT:inverseTimes(p.body:getCenterOfMassTransform()),
+                                            btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), true)
+          g:setLinearLowerLimit(btVector3(1, 1, 1)); g:setLinearUpperLimit(btVector3(-1, -1, -1))   -- (free to move)
+          g:setAngularLowerLimit(btVector3(0, 0, 0)); g:setAngularUpperLimit(btVector3(0, 0, 0))     -- (not to turn)
+          opts.addConstraint(g)
+          if SOLVER_ITERATIONS then g:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+        end
       end
     end
   end
