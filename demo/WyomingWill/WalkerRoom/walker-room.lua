@@ -329,6 +329,7 @@ local function makeTerrain()
 end
 makeTerrain()
 local function terrainHeight(x, z)
+  if TERRAIN_MIRROR then z = -z end   -- (a test: the same ground mirrored left for right)
   if WAVES then
     local X, Z, h = x / BUMP, z / BUMP, 0
     for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * X + w.kz * Z + w.ph) end
@@ -348,6 +349,13 @@ local function terrainHeight(x, z)
     return AMP * level
   end
   local r = 22 / BUMP
+  -- (TERRAIN_STRAIGHT, a test: the waves turned 14 degrees, so the troughs of
+  -- their second term -- the long ones nearly along the walk -- run straight
+  -- along x, the way the test track walks)
+  if TERRAIN_STRAIGHT then
+    local c, s = math.cos(math.rad(14.04)), math.sin(math.rad(14.04))
+    x, z = x * c - z * s, x * s + z * c
+  end
   return AMP * (0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
                 0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
                 0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1))

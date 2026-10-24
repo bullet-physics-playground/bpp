@@ -1,0 +1,58 @@
+WEIGHT TEST (waves 4, bump 15, 60 s, Earth standard, trot, forward; equal cranks; springs scaled to weight)
+                                             speed per seed  mean   sd | stuck slip turns/s | pitch  roll | spin  jit
+Chebyshev-Spears diag, outside bra   7.39  7.31  7.46  7.28  7.36 0.08 |   0.8  4.4   0.436 |   5.4   7.8 |   39  3.6 | sideways +46 +116 +60 +97
+                                   contacts: ground-pendant 6.1% / ground-pendant 5.0% / ground-pendant 3.7% / ground-pendant 6.0%
+Chebyshev-Spears diag, outside bra   7.99  7.21  7.63  6.67  7.38 0.57 |   0.5  4.3   0.441 |   5.3   7.4 |   39  3.8 | sideways +28 +89 +38 +100
+                                   contacts: ground-pendant 6.9% / ground-pendant 7.6% / ground-pendant 6.2% / ground-pendant 8.9%
+Chebyshev-Spears diag, outside bra   7.87  6.90  7.57  6.92  7.32 0.48 |   0.2  4.1   0.450 |   5.1   7.1 |   38  3.8 | sideways -5 +154 +32 +118
+                                   contacts: ground-pendant 6.6% / ground-pendant 3.3% / ground-pendant 5.1% / ground-pendant 3.6%
+Chebyshev-Spears guides              7.50  6.92  7.13  7.39  7.23 0.26 |   0.5  4.5   0.448 |   5.5   7.9 |   39  4.5 | sideways -5 -2 -2 -21
+                                   contacts: ground-pendant 7.5% / ground-pendant 0.6% / ground-pendant 1.9% / ground-pendant 4.5%
+Hoecken-Spears 4-bar diag, outside   7.48  7.15  6.38  6.81  6.96 0.47 |   1.8  4.3   0.412 |   5.8   8.7 |   37  3.3 | sideways +60 +70 +152 +49
+                                   contacts: ground-pendant 4.9% / ground-pendant 13.7% / ground-pendant 4.7% / ground-pendant 2.7%
+Hoecken-Spears 4-bar diag, outside   7.12  6.73  7.40  6.79  7.01 0.31 |   0.8  4.2   0.415 |   5.6   8.0 |   37  3.3 | sideways +111 +104 +26 +76
+                                   contacts: ground-pendant 11.1% / ground-pendant 4.3% / ground-pendant 7.4% / ground-pendant 4.6%
+Hoecken-Spears 4-bar diag, outside   7.33  6.71  7.16  7.34  7.13 0.30 |   0.2  4.0   0.430 |   5.6   8.0 |   36  3.3 | sideways +58 +134 +68 +76
+                                   contacts: ground-pendant 3.9% / ground-pendant 9.3% / ground-pendant 4.1% / ground-pendant 2.7%
+Hoecken-Spears 4-bar guides          7.50  7.02  7.66  7.74  7.48 0.32 |   0.2  4.3   0.429 |   5.6   8.3 |   36  3.8 | sideways -2 +28 +10 +7
+                                   contacts: ground-pendant 7.5% / ground-pendant 3.4% / ground-pendant 2.8% / ground-pendant 0.7%
+
+(the same, mirrored ground: TERRAIN_MIRROR)
+CS seed 1 mirrored: 7.78 cm/s|sideways -51.8 cm   balanced (0.9 on the light side): 7.69 cm/s|sideways 50.5 cm
+CS seed 2 mirrored: 7.74 cm/s|sideways -7.2 cm   balanced (0.9 on the light side): 7.00 cm/s|sideways 134.6 cm
+CS seed 3 mirrored: 6.54 cm/s|sideways -108.2 cm   balanced (0.9 on the light side): 7.55 cm/s|sideways 40.0 cm
+CS seed 4 mirrored: 6.98 cm/s|sideways -78.5 cm   balanced (0.9 on the light side): 7.27 cm/s|sideways 74.0 cm
+H4 seed 1 mirrored: 7.58 cm/s|sideways -41.5 cm   balanced (0.9 on the light side): 7.57 cm/s|sideways 43.1 cm
+H4 seed 2 mirrored: 7.29 cm/s|sideways -37.2 cm   balanced (0.9 on the light side): 7.23 cm/s|sideways 78.6 cm
+H4 seed 3 mirrored: 7.49 cm/s|sideways -74.7 cm   balanced (0.9 on the light side): 7.26 cm/s|sideways 73.9 cm
+H4 seed 4 mirrored: 7.62 cm/s|sideways -18.7 cm   balanced (0.9 on the light side): 7.11 cm/s|sideways 72.4 cm
+
+2 m track, original waves (walls in reach -- see section 4a):
+WEIGHT TEST (waves 4, bump 15, 60 s, Earth standard, trot, forward; equal cranks; springs scaled to weight)
+                                             speed per seed  mean   sd | stuck slip turns/s | pitch  roll | spin  jit
+Chebyshev-Spears diag, outside bra   7.19  5.33  7.11  6.51  6.54 0.86 |   1.8  4.9   0.406 |   5.4   7.8 |   42  3.4
+                                   contacts: ground-pendant 8.4% / ground-pendant 8.8% / ground-pendant 5.5% / ground-pendant 6.6%
+Chebyshev-Spears diag, outside bra   6.37  6.90  7.22  7.10  6.90 0.38 |   0.5  4.8   0.421 |   5.1   7.3 |   41  3.6
+                                   contacts: ground-pendant 2.0% / ground-pendant 10.8% / ground-pendant 3.0% / ground-pendant 4.7%
+Chebyshev-Spears diag, outside bra   6.87  7.23  6.87  7.23  7.05 0.21 |   0.8  4.7   0.430 |   5.2   7.2 |   43  3.7
+                                   contacts: ground-pendant 4.8% / ground-pendant 6.8% / ground-pendant 8.0% / ground-pendant 4.4%
+Chebyshev-Spears guides              5.35  7.34  7.00  4.60  6.07 1.31 |   2.0  4.1   0.418 |   5.2   7.8 |   34  3.9
+                                   contacts: ground-pendant 3.0% / ground-pendant 3.8% / ground-pendant 2.1% / ground-pendant 3.3%, ground-link 0.9%
+Hoecken-Spears 4-bar diag, outside   6.83  6.36  6.78  6.93  6.72 0.25 |   1.2  5.0   0.395 |   5.8   8.1 |   40  3.1
+                                   contacts: ground-pendant 8.7% / ground-pendant 6.5% / ground-pendant 9.0% / ground-pendant 8.5%
+Hoecken-Spears 4-bar diag, outside   6.52  6.69  6.52  6.73  6.62 0.11 |   0.8  5.1   0.401 |   5.7   8.1 |   42  3.3
+                                   contacts: ground-pendant 9.7% / ground-pendant 6.8% / ground-pendant 8.4% / ground-pendant 5.9%
+Hoecken-Spears 4-bar diag, outside   6.35  7.09  7.15  6.79  6.84 0.37 |   0.8  4.8   0.413 |   5.7   7.9 |   41  3.3
+                                   contacts: ground-pendant 5.7% / ground-pendant 10.3% / ground-pendant 8.7% / ground-pendant 8.0%
+Hoecken-Spears 4-bar guides          7.26  7.21  7.04  6.83  7.08 0.19 |   0.5  4.6   0.427 |   5.7   8.3 |   38  3.9
+                                   contacts: ground-pendant 6.0% / ground-pendant 5.1% / ground-pendant 3.5% / ground-pendant 6.6%
+
+GROUND CONTACTS AT HEIGHT 6 (seed 1, outside braces x1, pendants held)
+  CS_logs        speed  5.83  stuck  3 s  contacts: ground-pendant 0.6%
+  CS_random      speed  7.41  stuck  0 s  contacts: ground-pendant 0.1%
+  CS_steps       speed  6.89  stuck  3 s  contacts: ground-pendant 0.6%
+  CS_waves       speed  5.00  stuck  2 s  contacts: ground-pendant 10.3%
+  H4_logs        speed  4.98  stuck  6 s  contacts: buildOutsideCrossbar-ground 3.9%, ground-pendant 1.0%
+  H4_random      speed  6.83  stuck  0 s  contacts: none
+  H4_steps       speed  6.09  stuck  1 s  contacts: ground-pendant 0.7%
+  H4_waves       speed  4.71  stuck  5 s  contacts: ground-pendant 9.3%

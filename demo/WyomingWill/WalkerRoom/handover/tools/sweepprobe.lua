@@ -50,7 +50,7 @@ local fh = io.open(os.getenv("SWEEP_OUT"), "w")
 local cp = w.cube.body:getCenterOfMassPosition()
 local lo, hi = btVector3(0,0,0), btVector3(0,0,0)
 w.cube.body:getAabb(lo, hi)
-fh:write(string.format("WALKER %s|scale %.5f|bodyhalfz %.4f\n", w.spec.name, w.scale, (hi.z - lo.z) / 2 - 0.04))
+fh:write(string.format("WALKER %s|scale %.5f|bodyhalfz %.4f|bodybox %.3f %.3f %.3f %.3f\n", w.spec.name, w.scale, (hi.z - lo.z) / 2 - 0.04, lo.x - cp.x + 0.04, hi.x - cp.x - 0.04, lo.y - cp.y + 0.04, hi.y - cp.y - 0.04))
 for k, L in ipairs(links) do
   local T = L.o.body:getCenterOfMassTransform():inverse()
   local c = T:invXform(btVector3(0, 0, 0))

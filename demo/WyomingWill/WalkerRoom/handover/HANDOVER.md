@@ -1,6 +1,6 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session. It is meant for a fresh conversation that picks up the work. **The next job is the factorial runs (section 7).**
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read section 4a first: the diag builds are fixed, and the test track needs changing before the factorial runs (section 7).**
 
 ## 1. The aim
 
@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 27 (Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 32 (this handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -121,6 +121,41 @@ Number patches `walker-room-NN-<what>.patch`. The last was 27 (Hoecken-Spears 4-
 | Gaits | **No sides gaits.** Trot, bound, four 4-beat walks (the other two are mirror images), and Spears 4-bar's own timing. | run7.py |
 
 `test-square-earth.lua` is this standard for watching.
+
+## 4a. The third session (22–24 October): the diag builds fixed
+
+**Answer first:** Chebyshev-Spears diag and Hoecken-Spears 4-bar diag, rebuilt with **outside braces** and **held pendants**, now walk as well as their guides cousins (the "ghost guides" ideal) within the noise of 4 seeds. Brace weight barely matters any more.
+
+**Why the old diag builds were slow** (in order of size):
+- *Wrong size* (patches 24–27): four diag builds were 9–19% too small. Every build is now stride 14.96–15.01, base 34.94–35.02.
+- *Pendant swing*: the long chain of joints let each pendant rock, shaking the feet. `PENDANT_HOLD` holds each pendant at its angle to the body (free to move), as a rigid build's braces would.
+- *High weight*: the high braces and the pendants' upward extensions raised the CoM 3 cm above guides' (14.4 against 11.5 cm), shrinking the safe tilt on two feet (the base is then the strip between two foot pads) from 17° to 13.7° (`stabprobe.lua`: CoM over the base of support, every frame).
+- *Weight out of proportion*: 17 extra on the body costs guides about 1.2 cm/s even with motors and springs scaled; the same weight spread over every part in proportion costs nothing (tested both ways, ×0.79 on diag and ×1.204 on guides). Bullet is scale-invariant here.
+- *Unequal cranks* (patch 31): each pair's recorded advances differed, so the diags' cranks turned 2.2% (CS) and 4.4% (HS4) slower. Measured again in trot (geo.py on a trot sweep), each pair agrees to 0.4%; both now use the mean (18.46, 19.57).
+
+**The outside braces** (William's design; patches 28–30; `DIAG_OUTSIDE`, `OUTSIDE_FIT` in walker-room.lua, `buildOutsideCrossbar` in Chebyshev_Spears_diag_parts.lua): each brace is a *run* along the walk on the outside face of each of its two pendants and a *diagonal* across between the runs' ends, all at one height. Outside the pendants nothing of the walker moves, so the runs can't hit links; the diagonal crosses where nothing reaches at its height. Top brace 0.3 cm over the body's raised letters (look-only in the simulation but real on a machine), bottom brace 0.3 cm under the body (6.0 and 5.9 cm above its feet). Pendants at guides' length on both pairs. Fitted by `outz.py` (whole crank turn, every link, foot at its full 12 cm width, the body, margin 0.3; the diagonal also clear of its own pendants), checked by `verify_outz.py` and in the simulation (no contacts; `letterprobe.lua` for the letters). Total weight 101.6 / 103.3 against 85.4 / 87.0; CoM 11.32 below guides' 11.48; roll, pitch, yaw inertia 1.15×, 1.10×, 1.11× (`combos2.py`). `test-square-outside.lua` shows both next to their guides cousins.
+
+**Results** (`data/outside_braces.txt`; waves 4 with straight troughs, 6 m track, 60 s, Earth standard, trot, forward, equal cranks, springs scaled to weight, 4 seeds):
+
+| Walker | Bracing | Mean | Mirrored ground |
+|---|---|---|---|
+| CS | diag, outside braces ×1 / ×0.5 / ×0.02 | 7.36 / 7.38 / 7.32 | 7.26 (×1) |
+| CS | guides | 7.23 | |
+| HS4 | diag, outside braces ×1 / ×0.5 / ×0.02 | 6.96 / 7.01 / 7.13 | 7.50 (×1) |
+| HS4 | guides | 7.48 | |
+
+**The test track must change before the factorial runs:**
+- *Side walls*: the track is 2 m wide; nearly every run drifted 70–85 cm sideways and rubbed a wall (the probes count walls as ground). Every earlier track result has this, the old factorial results too. Use `ARENA_Z = 600`.
+- *Tilted waves*: the second of the waves' three sine terms has troughs 14° off the walk; walkers follow them. `TERRAIN_STRAIGHT` (patch 32, a test) turns the waves so those troughs run straight ahead (guides then go straight), `TERRAIN_MIRROR` mirrors the ground left for right. The diags still veer 0.4–0.8 m on straight-trough waves, and the veer flips with the mirror: it is the terrain (the other two terms), not the brace layout (a 0.9 balance weight that centred the CoM, 0.12 cm off, changed nothing). For a fair ground: all three terms aligned with the walk, or every run on normal and mirrored ground.
+- *All advances*: re-measure every build's advance the same way (trot sweep, geo.py); they are 0–4% off.
+
+**For later** (William's list):
+- Why the diags follow tilted ground more than guides. Candidates: the braces tying each diagonal pair's feet together; for their weight they turn about 8% more easily (yaw inertia 1.11× against weight 1.20×). Their measured pitch and roll swings equal guides'.
+- **The plated builds** (side plates): do the same. William: the plates are outside, so they can never hit anything else on the walker; to be fair, their bottoms go at the same ground clearance as their diag cousins' bottom braces. Measure first, from build dumps: each plated build's CoM against its guides cousin's, plate weight and height, any pendant extensions the plates need.
+- Outside braces for the other diag builds (long-stance, lift 44, lift 53).
+- Then the factorial runs (section 7), with the plan, timing and William's yes first.
+
+**bpp notes from this session:** the GUI steps a fixed simulated time per drawn frame, so a build that just misses the 60 Hz refresh plays at half speed (the diag costs about 30% more per frame; simulated speeds are unaffected). Setting `o.mass` after `setMassProps` recomputes inertia from the shape (it broke a mass-scaling test; harmless for simple boxes). The terrain is one object, so it is drawn whole whenever any of it is in view.
 
 ## 5. What was found in the last session (17–21 October)
 
@@ -225,7 +260,9 @@ All but `gd.txt`, `diag.txt` and `com.txt` come before the current standard and 
 
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
-**Open issues to settle with William first** (they change what the factorial measures):
+**Section 4a settles open issues 1–3** (the diag builds and the low brace), and adds three test-track changes to make first.
+
+**Open issues to settle with William first** (they change what the factorial measures; 1–3 are superseded by section 4a):
 
 1. **Diag builds and solver iterations.** At SOLVER_ITERATIONS 40 the diag builds' legs swing against the body (section 5), a simulation artefact that slows them. Choices: (a) everyone at 200 iterations: fair and equal, factorial about 1.6× longer (about 43 hours instead of 27); (b) only the diag builds at 200: cheaper but unequal settings; (c) keep 40 and say in the results that diag builds are handicapped by the simulation. Check first whether 200 changes the guides and own-frame builds at all (a few runs); if not, (b) is equal in effect.
 2. **What else makes diag slow.** Even at 200 iterations, CS diag 4.37 and HS4 diag 2.39 against about 7.5 on guides. Next tests (about 6 runs, 10 minutes, waves 4): weightless braces at 200 iterations (separates weight and height from the swing); both bracings at 200 on random, logs and steps. Watch a diag build in the GUI for the moment it sticks (William saw CS diag run fine, then stick).
@@ -318,6 +355,20 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 | `linkprobe3.lua` with `jamcheck2.py ["extra lua"]` | Links touching, body on ground, on four terrains |
 | `bodyhit.lua` | What the body touches |
 
+**Third session** (section 4a; probes chain: `VIB_BASE`, `STAB_BASE`, `LETTER_BASE` point the outer probe at `stallprobe.lua`)
+
+| File | What it does |
+|---|---|
+| `stallprobe.lua` (updated) | Adds test switches: `PENDANT_GUIDES`, `GUIDES_FOR_BRACES`, `EXTRA_BLOCKS={{m,x,y,z},...}`, `EXTRA_WEIGHT`, `MASS_SCALE`, `PENDANT_MASS`, `GHOST_BRACES` |
+| `vibprobe.lua` | Foot shaking (`VIB`), and every contact by the kinds of parts (`CONTACTS`) |
+| `stabprobe.lua` | CoM over the base of support every frame: margin, CoM height, tip angle (env `STAB_OUT`) |
+| `comzprobe.lua`, `letterprobe.lua`, `boxprobe.lua`, `dumpprobe.lua` | CoM across the walk; top brace over the letters; the body's box; every body and joint (env `DUMP_OUT`) |
+| `sweepprobe.lua` (updated) | Also records the body's box |
+| `topz.py`, `outz.py`, `verify_outz.py` | Fit and check braces against every link, foot and the body through a whole turn (`outz.json`, copied to `data/`) |
+| `stab_calc.py`, `combos2.py` | Weight, CoM height, tip angle, roll, pitch, yaw from dumps |
+| `comside.py` | CoM against the stance line, walking in the air |
+| `outb_run.sh`, `wt_an.py` | Run one walker with the probes; the weight-test table |
+
 **Geometry**
 
 | File | What it does |
@@ -342,3 +393,5 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 - Don't drop a contender from a comparison without saying why. (I left the soft spring out of one feet comparison; William caught it.)
 - In bpp: setting `obj.mass` resets inertia; swapping an object's body loses what was set on the old one; `btTransform` has no `*` in Lua (use `inverseTimes`); `getOrigin` isn't bound (use `getCenterOfMassPosition`); constraint setters need their full argument lists.
 - Look at pictures from above after every geometry change.
+- A clearance check must include everything a part can meet: its own pendants (a diagonal not welded to them), the body's look-only letters, the feet at their full width.
+- Check what a test track can do to a result: walls in reach and tilted bumps both steered these walkers.
