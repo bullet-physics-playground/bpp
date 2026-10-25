@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F72 so far), and
+  implementations, and our own mistakes once corrected (F1–F75 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -99,9 +99,10 @@ is updated at the end of every milestone.
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
-| `FIXES.md` | Fixes 1–42 |
+| `FIXES.md` | Fixes 1–43 |
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
+| `ch03/` | Ch. 3's formation models (`formation_newton`, `formation_hooke`, `formation_goal_obs`) line for line in plain Lua, with the book's results checked (`checks/ch03.lua`, `ch03/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
@@ -371,18 +372,26 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     instead of flat ground and a still sea; the Maxelbot (skid-steer,
     G10); Ch. 13's dumbbell and the triangle of death (E6) on the robot;
     benchmark tasks 3–4 and the other vehicles (`BOOK.md` §6).
-- **Next: M3** (build steps 3–5, `WORKFLOW.md` §5): Ch. 3 fidelity checks
-  (the G_t sweep with 3D, Disable One, Hooke, honeycomb), Ch. 4.3/Ch. 11
-  coverage against Tables 4.2, 11.1 and Fig. 4.19, then Ch. 4.1's perfect
-  formations, then velocity commands (G4), the point-mass vehicle (G5) and
-  kinetic theory (Ch. 4.4, Ch. 7). The vehicle interface makes the point
-  mass (G5) one more vehicle module.
+- **Now: M3** (William, 2026-10-25: "Let's do 1, 2, 3, 4"; build steps
+  3–5, `WORKFLOW.md` §5), one patch per step:
+  1. Ch. 3 fidelity checks: the split Newtonian and Hooke models, goal,
+     obstacles and Disable One (**done**, `ch03/`, `checks/ch03.lua`,
+     F73–F75: G_t and its hysteresis confirmed, G_t in 3D = G_t/√2,
+     Eq. 3.5 fits the Java/BPP force direction but not the `.nlogo`'s,
+     Disable One's threshold is a bound); the honeycomb (next);
+  2. Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19;
+  3. Ch. 4.1's perfect formations;
+  4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
+     theory (Ch. 4.4, Ch. 7); the vehicle interface makes the point mass
+     (G5) one more vehicle module.
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
   two guessed starts and the wrong Ch. 3 world frame (F40, F41).
-  `formation_newton.nlogo` is checked (F48); the honeycomb, Uniform
-  Coverage and other formation models are not yet.
+  `formation_newton.nlogo`, `formation_hooke.nlogo` and
+  `formation_goal_obs.nlogo` are checked line for line (`ch03/`, F48,
+  F74); the honeycomb, Uniform Coverage and other formation models are
+  not yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
   Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES
   4–5; its wall rule is kept, FIXES 36); FIXES item 27 is documented, not

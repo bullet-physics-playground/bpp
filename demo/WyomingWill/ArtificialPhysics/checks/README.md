@@ -1,7 +1,7 @@
 # Checks: the regression suite
 
 `bash checks/run_all.sh` runs every check and exits 0 only if all pass
-(about 3 min 40 s; `--quick` about 3 min with smaller samples).
+(about 5 min 30 s; `--quick` about 4 min 30 s with smaller samples).
 
 **Which Lua.** The Lua checks run *inside BPP* when a BPP is built, so they
 test the Lua the demos really use; BPP links Lua 5.1 or 5.2 depending on the
@@ -18,6 +18,7 @@ on its own from the `ArtificialPhysics` folder.
 | --- | --- | --- |
 | `monitors.lua` | `lib/monitors.lua` and the book's integrator against closed forms: spring periods, Kepler period, conservation, friction decay, external force, third-law violation, caps (22 tests) | < 1 s |
 | `ch02.lua` | Ch. 2's results on `ch02/models.lua`: spring1D, spring2D, solar_system experiments a–e; our spring3D, tetrahedron (tennis-racket flips), planets (circular and elliptical: the gap and time-step rules) and spring lattice (47 tests) | 8 s |
+| `ch03.lua` | Ch. 3's formation models on `ch03/models.lua` (the `.nlogo` step): G_t and its hysteresis, Fig. 3.16's robustness, the square lattice's G_t2 under both force directions, G_t in 3D, Hooke's law and its failures, Kill/Born, the goal, Disable One and Figs. 3.25–3.26's obstacles (25 tests) | 70 s |
 | `world.lua` | `lib/world.lua` and its book presets: point tests, cells, corridor coverage, seeds, shadow cells, grids, CPT format (22 tests) | 7 s |
 | `terrain.lua` | `lib/terrain.lua` and the five realistic presets (`lib/places.lua`): seeds repeat on every Lua, the shared stream untouched, ground() is the drawn mesh, the slope rule (15% along the grid, 21.2% across), river levels and depths, long rivers' mean sinuosity 1.4 and meander wavelength 11 widths, no lasting period, natural disturbances, no channel touching itself, ponds hold water, the sea and its shelf, dredged depths, 1:3 sides and vertical quay walls, the world cut at a height (21 tests) | 8 s |
 | `town.lua` | `lib/town.lua` on the five presets: the LCZ table, Clark's exponential, zones stepping down the ladder outward, water as zone G, woods' share of open land, seeds, streets on dry land except bridges (≤ 150 m), every street reached from an arterial (an independent raster flood), the city's Manhattan spacing and widths, cul-de-sacs up to 229 m with a 15 m turning circle, each starting on a collector (16 tests) | 10 s |

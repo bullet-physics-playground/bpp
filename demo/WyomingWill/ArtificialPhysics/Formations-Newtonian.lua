@@ -772,6 +772,9 @@ function setup(n)
   print(string.format("setup: %d particles", n))
 end
 
+-- the particles, for probes (probes/ch03_scene.lua); read only
+function apParticles() return particles end
+
 --------------------------------------------------------------------------
 -- Defaults per dimension/formation -- see the header note for how these
 -- were derived from the Java source. Re-applied automatically on every

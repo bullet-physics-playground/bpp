@@ -80,6 +80,7 @@ if [ $QUICK = 1 ]; then export N_DEFAULT=200000; S="0,25,27,31"; else export N_D
 
 run monitors      lua_check monitors checks/monitors.lua
 run ch02          lua_check ch02 checks/ch02.lua
+run ch03          lua_check ch03 checks/ch03.lua
 run world         lua_check world checks/world.lua
 run terrain       lua_check terrain checks/terrain.lua
 run town          lua_check town checks/town.lua

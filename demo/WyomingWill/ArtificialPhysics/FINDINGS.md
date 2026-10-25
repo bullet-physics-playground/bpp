@@ -106,6 +106,50 @@ The square and cube formations settle too: 6 s (2D square, LJ 23–25 s) and
 η; LJ's cube is the more regular (bond CV 0.007–0.03 against η's
 0.07–0.09). The lattice η settles into is the subject of F45.
 
+**F73. Ch. 3.2.2: the clustering transition G_t, its hysteresis, and G_t
+in 3D** — 2026-10-25, Confirmed (2D) and New (3D). `ch03/README.md`,
+`checks/ch03.lua`. On a line-for-line copy of `formation_newton.nlogo`
+(`ch03/models.lua`) at the book's settings (G 400, p 2, D 30, friction
+0.5, Δt 1, 50 particles): Fmax 1 clusters (21–24 nodes; the book's Fig.
+3.16 has 21), Fmax 5 does not; from the starting cloud nothing clusters
+at 0.9 G_t and 68–80% of the particles do at 1.2 G_t; lowering G slowly
+from a clustered lattice, the clusters loosen and then break up at
+0.94–1.00 G_t (all but two pairs, 6 seeds), the last pairs, held by
+lattice defects with more than six neighbours, at 0.80–0.96 G_t. Raising G
+on a formed lattice makes 3 pairs at most; raising it and adding 10
+particles clusters 33–43%; removing 25 of 50 clustered particles leaves
+16–21 of 21–22 nodes (the book: 19 of 21). Eq. 3.4 is exact for the
+model's triangle. *3D (ours):* the book's argument (the ring around a
+cluster pushes a displaced particle back with G/D^p per neighbour,
+projected on the displacement; the cluster holds while that beats Fmax
+in its weakest direction) gives, for close packing's 12 neighbours,
+**G_t3 = Fmax D^p / (2√6) = G_t / √2**; measured with a 1.3 D view, the
+clusters break up at 0.92–1.12 G_t3. The book's 1.5 D view reaches close
+packing's second shell (√2 D) and shrinks the 3D lattice to 0.64 D. The
+BPP scene `Formations-Newtonian.lua` at the book's sliders shows the same
+transition (none at 0.9 G_t, 62–74% at 1.2 G_t, 19–22 nodes at G 400;
+`probes/ch03_scene.lua`); its own defaults are below their G_t in 2D and
+3D, so it does not cluster.
+
+**F75. Ch. 3.2.1 and 3.3: Hooke's law, the goal and obstacles reproduce;
+Disable One's threshold is a bound, not the threshold** — 2026-10-25,
+Confirmed and New. `ch03/README.md`, `checks/ch03.lua`. Hooke's law at
+the book's settings forms a good lattice by 200 steps (nn 0.95 D, then
+0.99 D and still); Fmax 3 cannot expand (radius of gyration 32 against
+80), Fmax 5 stays in flux (11.6 patches a tick), k 0.25 is poor (nn 0.46
+D), and a 2.5 D range cannot expand (29), all as Figs. 3.8–3.12 say; Kill
+One and One is Born are absorbed. On `formation_goal_obs.nlogo`'s world,
+goal force 2 brings the formation in 8× faster than 0.25 and compressed
+(34 against 48); the twelve discs of Fig. 3.25 are crossed by all 50
+(674–787 ticks, 606–637 without them), and the wall of Fig. 3.26 is
+passed round its north end by every particle (8 runs, at the text's size
+50 and the measured 45). *Disable One:* the book says goalF must exceed
+Fmax (the Abandon Goal Force monitor, 1). For a lone neighbour that is
+exact (it stays at 0.99, leaves at 1.01); in a formation 0–2 neighbours
+stay at goalF 0.2–0.5 and none at 0.7 or more (8 seeds): the rest of the
+lattice, leaving, pulls them off, so the monitor's value is a bound that
+always suffices, not the threshold.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -751,6 +795,19 @@ the orbit "runs well, with a slight linear-momentum change". It is slight
 (|P| ≤ 3.0), but the orbit shrinks unmentioned from 15–87 to 15–18: the cap
 cuts the start speed 15 to 12. solar_system.nlogo caps as we do (scaling the
 speed, keeping the direction); clipping each component gives 14.9–18.4.
+
+**F74. Ch. 3.2.3: Eq. 3.5 does not fit the model's own square lattice**
+— 2026-10-25, Book error. `ch03/README.md`, `checks/ch03.lua`. Eq. 3.5
+gives the square lattice's G_t2 = Fmax D^p / (2 + 2√2) = 186.4. In
+`formation_newton.nlogo` the clusters break up at 1.12–1.52 G_t2 (median
+1.18, 6 seeds). The model renormalises a like pair's distance (r / √2)
+and also divides its direction by that shorter r, so a like pair's force
+is √2 longer than the law's; the book's derivation treats it as normal.
+With the √2 the same argument gives S = 4√2 and G_t2 = Fmax D^p / 4 = 225
+= 1.21 × Eq. 3.5, which fits. With the direction from the true distance,
+as `Formations-Newtonian.lua` and the Java app compute it, the break-up
+is at 1.02–1.12 G_t2 and Eq. 3.5 holds. The model and the text disagree;
+the triangle (Eq. 3.4) is unaffected.
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by

@@ -17,10 +17,10 @@ is on the website.
 | `spring1D.nlogo` | 2.1 | `ch02/Spring1D.lua`; start and update order checked (FINDINGS F41) |
 | `spring2D.nlogo` | 2.2 | `ch02/Spring2D.lua`; random-heading start (F41) |
 | `solar_system.nlogo` | 2.3 | `ch02/SolarSystem.lua`; speed cap and force cap checked (F15) |
-| `formation_newton.nlogo` | 3 | `Formations-Newtonian.lua`: the law checked against the model (same split, cap, views 1.5/1.3/1.7, √2 same-spin divisor, friction first); the defaults differ (F48). No Ch. 13 damping in the model |
-| `formation_hooke.nlogo` | 3 | not yet |
+| `formation_newton.nlogo` | 3 | `ch03/models.lua` (line for line); `Formations-Newtonian.lua`: the same split, cap, views 1.5/1.3/1.7, √2 same-spin divisor and friction first, but a like pair's direction from the true distance, where the model's is √2 longer (F74); the defaults differ (F48). No Ch. 13 damping in the model |
+| `formation_hooke.nlogo` | 3 | `ch03/models.lua` (line for line; `checks/ch03.lua`) |
 | `formation_lj_goal_obs.nlogo` | 3 | `Formations-Lennard-Jones.lua` (not yet checked) |
-| `formation_goal_obs.nlogo` | 3.3 | world frame used by `lib/world.lua`'s Ch. 3 presets (F40) |
+| `formation_goal_obs.nlogo` | 3.3 | world frame used by `lib/world.lua`'s Ch. 3 presets (F40); goal, obstacles and Disable One in `ch03/models.lua` |
 | `honeycomb.nlogo` | 3 | not yet |
 | `flock.nlogo` | 3 | not yet |
 | `formation_chain.nlogo` | 4 | not yet |
