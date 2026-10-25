@@ -1571,16 +1571,18 @@ end
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
 v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
 -- VIEWS (test track): a list of { walker =, label =, reverse =, gait =,
--- unbraced =, crank = } -- see test-square.lua. Tab goes through those
+-- unbraced =, crank =, hold = } -- see test-square.lua. Tab goes through those
 -- instead of the walkers, each built, timed and turned its own way (the
--- room's REVERSE, GAIT, UNBRACED and CRANK_SCALE, set for it); the track
--- starts with VIEWS[VIEW or 1].
+-- room's REVERSE, GAIT, UNBRACED and CRANK_SCALE, set for it, and
+-- PENDANT_HOLD when the view gives hold); the track starts with
+-- VIEWS[VIEW or 1].
 local viewAt = 0
 local function setView(k)
   local c = VIEWS[k]
   viewAt = k
   ONLY = c.walker
   REVERSE, GAIT, UNBRACED, CRANK_SCALE = c.reverse or false, c.gait, c.unbraced or false, c.crank
+  if c.hold ~= nil then PENDANT_HOLD = c.hold end
 end
 if TEST_TRACK and VIEWS then setView(VIEW or 1) end
 buildRoom()

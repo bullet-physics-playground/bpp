@@ -1,5 +1,5 @@
 #!/bin/bash
-# one-turn sweeps of the diag builds, pendants at guides' length (DIAG_EXT_UP=0) and held; CS and HS4 diag as built outside
+# one-turn sweeps of the diag builds, pendants at guides' length (DIAG_EXT_UP=0); CS and HS4 diag as built outside. (No ankles here, so PENDANT_HOLD finds no pendants and is not on.)
 cd /home/claude/bpp/demo/WyomingWill/WalkerRoom
 one() {
   n="$1"; extra="$2"
