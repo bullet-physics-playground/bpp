@@ -143,6 +143,27 @@ local OUTSIDE_FIT = {
   ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.91, runFront = 1.84, runBack = 14.36 }, bottom = { yRel = 3.99, runFront = 4.97, runBack = 13.22 } },
   ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.65, runFront = 1.93, runBack = 15.58 }, bottom = { yRel = 4.54, runFront = 3.99, runBack = 15.27 } },
 }
+-- OUTSIDE_V (default off; with DIAG_OUTSIDE): each diag build's bottom
+-- outside brace as a V seen from the side (William, 25 October): its middle
+-- piece straight across under the body (as nearly as fits: Spears lift 53
+-- diag's reaches 0.25 cm along the walk), at the height the bottom brace has
+-- now, and its runs rising from there to their pendants, their ends higher
+-- by half the room between the brace's bottom at its lowest and the body's
+-- bottom. Only the middle piece is that low, so less bar runs near the
+-- ground. Fitted by handover/tools/vfit.py (0.3 cm or more from every link,
+-- foot and the top brace through a whole turn): OUTSIDE_V_FIT, per walker,
+-- the bottom brace's runFront, runBack (from each pendant to the middle
+-- piece's end) and rise (cm); its yRel stays OUTSIDE_FIT's.
+OUTSIDE_V = OUTSIDE_V or false
+local OUTSIDE_V_FIT = {
+  ["Chebyshev-Spears diag"] = { runFront = 22.38, runBack = 12.61, rise = 3.02 },
+  ["Hoecken-Spears 4-bar diag"] = { runFront = 21.90, runBack = 13.11, rise = 3.13 },
+  ["Chebyshev diag"] = { runFront = 19.56, runBack = 15.44, rise = 2.12 },
+  ["Hoecken 4-bar diag"] = { runFront = 19.48, runBack = 15.52, rise = 2.21 },
+  ["Hoecken-Spears long-stance diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
+  ["Spears lift 44 diag"] = { runFront = 16.47, runBack = 18.47, rise = 4.54 },
+  ["Spears lift 53 diag"] = { runFront = 13.74, runBack = 21.02, rise = 5.33 },
+}
 -- PLATE_LOW (default off): each plated build's side plates built as a bar
 -- 1.074 cm tall (the outside braces' bars) instead of the pendants' height,
 -- low on the pendants: its bottom, at its lowest in a crank turn, as high
@@ -855,6 +876,11 @@ local function addWalker(spec, x, z, heading)
   local low = not outside and DIAG_LOW and spec.brace and spec.brace.diag
   local arched = not outside and not low and DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
   if outside then
+    if OUTSIDE_V and OUTSIDE_V_FIT[spec.name] then
+      local v = OUTSIDE_V_FIT[spec.name]
+      outside = { bar = outside.bar, extUp = outside.extUp, top = outside.top,
+                  bottom = { yRel = outside.bottom.yRel, runFront = v.runFront, runBack = v.runBack, rise = v.rise } }
+    end
     opts.outside = outside
     opts.forward = spec.forward                 -- (front and back as built)
     opts.extUp = (outside.extUp or 0) / scale   -- (its pendants as long as its guides cousin's, or as its fit says; the files take their own units)

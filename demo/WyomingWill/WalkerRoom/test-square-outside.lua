@@ -4,7 +4,8 @@
 -- long-stance, Spears lift 44 and 53) with both braces built outside its
 -- pendants (walker-room.lua, DIAG_OUTSIDE) and its pendants held at their
 -- angle to the body (PENDANT_HOLD), each next to its guides cousin, at the
--- Earth standard (as test-square-earth.lua).
+-- Earth standard (as test-square-earth.lua). Each bottom brace is a V seen
+-- from the side: straight across under the body, rising to its pendants.
 --
 -- Open this file in bpp and click the 3D view first, then:
 --   Tab, Shift+Tab   the next (or the one before) walker
@@ -25,6 +26,8 @@ ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1
 
 DIAG_OUTSIDE = true
+-- the bottom brace a V seen from the side (OUTSIDE_V); false: flat, as patch 33 built it
+if OUTSIDE_V == nil then OUTSIDE_V = true end
 PENDANT_HOLD = { ["Chebyshev-Spears diag"] = true, ["Hoecken-Spears 4-bar diag"] = true, ["Chebyshev diag"] = true,
   ["Hoecken 4-bar diag"] = true, ["Hoecken-Spears long-stance diag"] = true, ["Spears lift 44 diag"] = true,
   ["Spears lift 53 diag"] = true }

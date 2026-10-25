@@ -616,7 +616,8 @@ end
 -- room's fits: the top brace just over the body, the other at the feet's
 -- lift above them). opts.outside = { top = b, bottom = b }, b = { yRel =
 -- its bottom above the pendant's lower end, runFront =, runBack = how far
--- each run reaches from its pendant } (cm), and opts.outside.bar, the
+-- each run reaches from its pendant, rise = how much higher the runs'
+-- ends at the pendants are than the rest (unset: 0) } (cm), and opts.outside.bar, the
 -- bars' height (cm; unset: 0.75 of this file's units); opts.forward, the
 -- way the room walks it, tells front from back.
 local function buildOutsideCrossbar(lkA, lkB, b, color, width)
@@ -626,8 +627,9 @@ local function buildOutsideCrossbar(lkA, lkB, b, color, width)
   local y = front.C.y + b.yRel + width / 2
   local function outZ(lk) return lk.z_pendant + (lk.z_pendant > 0 and 1 or -1) * rod_d end
   local function toward(lk, other, run) return lk.B.x + (other.B.x > lk.B.x and 1 or -1) * run end
-  local pts = { { x = front.B.x, y = y, z = outZ(front) }, { x = toward(front, back, b.runFront), y = y, z = outZ(front) },
-                { x = toward(back, front, b.runBack), y = y, z = outZ(back) }, { x = back.B.x, y = y, z = outZ(back) } }
+  local ye = y + (b.rise or 0)   -- (b.rise, cm: the runs' ends at the pendants that much higher -- a V seen from the side)
+  local pts = { { x = front.B.x, y = ye, z = outZ(front) }, { x = toward(front, back, b.runFront), y = y, z = outZ(front) },
+                { x = toward(back, front, b.runBack), y = y, z = outZ(back) }, { x = back.B.x, y = ye, z = outZ(back) } }
   local owner, len, total = {}, {}, 0
   for i = 1, 3 do
     local p, q = pts[i], pts[i + 1]
