@@ -9,8 +9,9 @@
 --               left, peak turn rate Omega_max = 0.4 rad/s (0.38-0.41),
 --               ending pointed at it (within 5 deg) with no swing back
 --               faster than 0.1 rad/s
---     gap       told to move 4 cm in 1 s: does not move (< 5 mm), since
---               the wheels would need less than the 0.1 m/s minimum
+--     small     told to move 4 cm in 1 s (wheels below the 0.1 m/s
+--               minimum): makes the move at the minimum speed, ending
+--               within 1 cm of the point
 --   VEH=boat    boat/vehicle.lua, the Ch. 6 ASV:
 --     float     dropped 5 cm high: floats at its draft (centre within
 --               2 mm of planeY, |v_y| < 1 cm/s after 3 s)
@@ -70,9 +71,9 @@ if which == "ground" then
         local err = math.deg(math.abs(math.atan2(d.hx * (s.tz - d.pz) - d.hz * (s.tx - d.px), d.hx * (s.tx - d.px) + d.hz * (s.tz - d.pz))))
         check("turn", s.wmax >= 0.38 and s.wmax <= 0.41 and s.wmin > -0.1 and err < 5,
         string.format("peak turn rate %.3f rad/s left (Omega_max 0.4), %.3f back; %.1f deg off the target", s.wmax, -s.wmin, err)) end },
-    { name = "gap", secs = 5, start = function(d, s) s.x0 = d.px; V.command(d, d.px + 0.04, Y0, d.pz, 1, t) end,
-      finish = function(d, s) check("gap", math.abs(d.px - s.x0) < 0.005,
-        string.format("moved %.4f m of 0.04 (wheels below 0.1 m/s stay still)", d.px - s.x0)) end },
+    { name = "small", secs = 5, start = function(d, s) s.x0 = d.px; V.command(d, d.px + 0.04, Y0, d.pz, 1, t) end,
+      finish = function(d, s) check("small", math.abs(d.px - s.x0 - 0.04) < 0.01,
+        string.format("moved %.4f m of 0.04 (at the 0.1 m/s minimum)", d.px - s.x0)) end },
   }
 else
   tests = {

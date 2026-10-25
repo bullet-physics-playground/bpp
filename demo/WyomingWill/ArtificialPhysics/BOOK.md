@@ -331,7 +331,7 @@ metrics.
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
 | 13.1–13.2 | Point-mass reachable space; the discontinuity at D | 447–448 | Explains the Newtonian jitter | done (observed) |
-| 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | `ground/vehicle.lua` (G10): the Pioneer with the book's r_diff, wheel range and caps; the minimum-speed gap freezes the lattice as Fig. 13.7 predicts (F66); plots to come | partly |
+| 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | `ground/vehicle.lua` (G10): the Pioneer with the book's r_diff, wheel range and caps; read as stopping the wheel, the minimum speed freezes the lattice as Fig. 13.7 predicts (F66); read as turning it at 0.1 m/s, the robots reach D and get through the obstacle field (F72); plots to come | partly |
 | 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`; on the drones `etaPower` 1, `etaWidth` 0.2 (2D) / 0.5 (3D), the Newtonian default; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F55) | done |
 | 13.6 | "Triangle of death" | 454–456 | Ground robots | new |
 | 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |

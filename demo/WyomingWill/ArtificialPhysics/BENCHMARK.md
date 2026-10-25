@@ -13,7 +13,7 @@ the capstone's benchmark matrix; this is its first part (milestone M2:
 | --- | --- | --- | --- |
 | Ideal particles | `lib/ideal.lua` | exactly where AP says | none (the reference: the original particle demos) |
 | Quadcopters | `quadcopter/` | holonomic, in 3D | 35° tilt, ~2.7 s for a 10 m step, motor and controller lag |
-| Ground robots (Pioneer 3-AT) | `ground/` | forwards, backwards and turning only | 0.5 m/s, 0.4 rad/s, **no wheel slower than 0.1 m/s** |
+| Ground robots (Pioneer 3-AT) | `ground/` | forwards, backwards and turning only | 0.5 m/s, 0.4 rad/s, **no wheel slower than 0.1 m/s** (a smaller command turns it at 0.1, F72) |
 | Surface boats (Ch. 6 ASV) | `boat/` | holonomic, on the surface | 12 N thrust (0.79 m/s), 0.3 s thrust lag, water drag |
 
 All four take the same command: reach a point by the next AP tick (5 Hz).
@@ -45,7 +45,8 @@ From the launch cluster, no obstacles or goal, 180 s.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ideal particles | 31–38 | 1.00–1.01 | 0.000–0.037 | 0 | 0.0–1.5 | 0 | 0 |
 | quadcopters | 30–35 | 1.00–1.01 | 0.023–0.034 | 0.002–0.003 | 0.0–0.4 | 6 | 3–9 |
-| ground robots | 32 | 0.98–0.99 | 0.067–0.073 | 1.1 | 0 | 0 | 0–13 |
+| ground robots | 106–175 | 1.00 | 0.021–0.023 | 0.06–0.15 | 3.0–9.0 | 0 | 5–11 |
+| *ground robots before F72 (wheels below 0.1 m/s stopped)* | 32 | 0.98–0.99 | 0.067–0.073 | 1.1 | 0 | 0 | 0–13 |
 | boats | 36–42 | 1.00–1.01 | 0.025–0.030 | 0.002–0.008 | 0.4–2.2 | 0 | 0–4 |
 | *ground robots without the 0.1 m/s minimum* | 38–39 | 1.00–1.01 | 0.029–0.035 | 0.08–0.11 | 1.5–3.4 | 0 | 2–22 |
 
@@ -55,7 +56,8 @@ From the launch cluster, no obstacles or goal, 180 s.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ideal particles | 72–116 | 0.99 | 0.061–0.074 | 0 | 0.0–2.2 | 0 | 0 |
 | quadcopters | 76–96 | 0.99–1.00 | 0.065–0.083 | 0.002–0.03 | 0.0–0.7 | 0 | 0 |
-| ground robots | never | 0.89–0.90 | 0.189–0.205 | 1.1 | 0 | 0 | 0 |
+| ground robots | 113–159 | 0.99–1.00 | 0.053–0.076 | 0.04–0.08 | 0.0–1.5 | 0 | 0 |
+| *ground robots before F72* | never | 0.89–0.90 | 0.189–0.205 | 1.1 | 0 | 0 | 0 |
 | boats | 78–98 | 0.99–1.00 | 0.057–0.065 | 0.003–0.017 | 0.0–1.1 | 0 | 0 |
 | *ground robots without the 0.1 m/s minimum* | 96–134 | 1.00 | 0.059–0.074 | 0.12–0.17 | 0.0–1.1 | 0 | 0 |
 
@@ -76,7 +78,8 @@ crosses the field at 0.2 m/s, stopping in the clear 16 m beyond it
 | --- | --- | --- | --- | --- |
 | ideal particles | 591–666 | 98–100% / 96–98% | 688–763 | 98–100% / 98–100% |
 | quadcopters | 601–638 | 100% / 100% | 679–745 | 100% / 100% |
-| ground robots | never | 60–70% / 52–62% | never | 68–80% / 54–70% |
+| ground robots | 590–673 | 98–100% / 98% | 632–666 | 98–100% / 98–100% |
+| *ground robots before F72* | never | 60–70% / 52–62% | never | 68–80% / 54–70% |
 | boats | 698–763 | 98–100% / 86–90% | 688–744 | 98–100% / 98–100% |
 | *ground robots without the 0.1 m/s minimum* | 616–680 | 98–100% / 98–100% | 694–778 | 98–100% / 98–100% |
 
@@ -93,18 +96,21 @@ LJ launch (F59), before the field.
   through the field (LJ). AP's commands are gentle enough (≤ ~1.5 m/s at
   the launch, 0.1–0.2 m/s in the field) for both to follow within
   hundredths of a millimetre to a few tenths of a millimetre per tick.
-- **It holds for the ground robots too, except for one limit: the
-  minimum wheel speed.** With the book's 0.1 m/s minimum (Fig. 13.7) a
-  robot stands still whenever the force on it is below
+- **It holds for the ground robots too, once a small move is made at the
+  minimum wheel speed rather than not at all.** With the book's 0.1 m/s
+  minimum (Fig. 13.7) read as "a slower command stops the wheel", a robot
+  stood still whenever the force on it was below
   friction × 0.1 m/s / (metersPerUnit × apHz) = 0.2 AP units, so the
-  lattice freezes where the forces fall below that: within 1–2% of D for
-  LJ, at 0.89 D for the split Newtonian law (whose force at D is only
-  0.28, and less under η); and in the field the robots caught behind
-  columns, where the goal's pull and the repulsions nearly balance, stay
-  there, where particles, drones and boats creep out. Remove the minimum
-  and the same robots, turning and all, match the boats in every cell:
-  the non-holonomic turning costs at most ~40 s (Newtonian formation),
-  never the result (`ground/README.md`; FINDINGS F66, F68).
+  lattice froze where the forces fell below that (within 1–2% of D for
+  LJ, at 0.89 D for the split Newtonian law), and robots caught behind
+  columns stayed there (F66, F68). Read as "a slower command turns the
+  wheel at 0.1 m/s" (William, F72), the robots reach the particles'
+  lattices and get through the field as fast as the ideal particles;
+  they count as formed later (106–175 s) because their last corrections
+  are made at 0.1 m/s. The one robot left in the field in two of six
+  runs is held between two columns 2.6 m apart whose repulsion zones
+  overlap, a stable equilibrium of AP itself (the ideal particles are
+  held at the same two points; `ground/README.md`).
 - **Ch. 13's mechanisms, on the vehicles they were written for.** η is
   what the split law needs on the drones and the boats. On the robots,
   adaptive friction (Eq. 13.23) and static friction (Eq. 13.25) do not get
@@ -113,7 +119,5 @@ LJ launch (F59), before the field.
 
 ## Open
 
-- A way for robots with a minimum speed to make the small moves the last
-  part of a lattice, or an escape from a stall, needs (`HANDOFF.md` §7).
 - Tasks 3 and 4 (uniform coverage, chains), and the fixed-wing and
   underwater vehicles, complete the matrix (`BOOK.md` §6).

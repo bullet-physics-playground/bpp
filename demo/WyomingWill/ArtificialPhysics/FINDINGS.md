@@ -606,7 +606,8 @@ is kept (HANDOFF §2). *The guidance found two rules in its own check*
 (`checks/vehicle_physics.lua`): without a turn-rate limit of |u_d| / r_diff
 a robot asked to creep spun on the spot at 0.4 rad/s, and a pivot on a
 wheel stopped in the gap reached 0.56 rad/s until the other wheel was held
-to 2 r_diff Ω_max.
+to 2 r_diff Ω_max. *Since F72 a wheel below the minimum turns at 0.1 m/s
+instead, and the robots reach D.*
 
 **F67. Surface boats follow AP as closely as the drones** — 2026-10-21,
 New. Milestone M2, `boat/README.md`. 50 round ASVs (the book's 0.46 m
@@ -636,7 +637,9 @@ in 616–680 s and 694–778 s. In the field the minimum turns the slow escape
 of agents caught behind columns, which particles, drones and boats make,
 into a permanent stall: a robot whose summed force is under 0.2 AP units
 never moves again. The drones form the 3D lattices in 45–64 s, the ideal
-particles (launched at once, not in thirds) in 23–46 s.
+particles (launched at once, not in thirds) in 23–46 s. *The robots'
+rows are superseded by F72: with small moves made at the minimum speed
+they match the ideal particles in both tasks.*
 
 **F69. Where the world generator's time went** — 2026-10-22, New
 (William: "very very slow"; FIXES 42). Measured inside BPP (Lua 5.1),
@@ -700,6 +703,38 @@ Bullet's, for meshes that are only drawn (they are made with no contact
 response; collisions with trees are the World pieces' job, in Lua), and
 the next is the placement logic itself, which would have to move to C
 whole to get much faster.
+
+**F72. Ground robots: a small move at the minimum wheel speed, not
+none, finishes the lattice and gets them through the field** —
+2026-10-25, New (William: rounding up; "if a robot gets stuck, determine
+whether there is a gap it can't get through"). Supersedes F66's freeze
+and F68's robot rows. `ground/vehicle.lua` now turns a wheel asked for
+less than 0.1 m/s (but not 0) at 0.1 m/s instead of stopping it; where
+that is against the other wheel's direction the faster wheel is eased,
+since rounding up alone turned the robot at 0.56 rad/s (the check's
+limit is the book's 0.4). Same runs as F66/F68, seeds 1–3: formation, LJ
+formed in 106–175 s at 1.00 D (bond CV 0.021–0.023; before, frozen at
+0.98–0.99 D), Newtonian with η formed in 113–159 s at 0.99–1.00 D (CV
+0.053–0.076; before, never, 0.89 D); the ideal particles' lattices, later
+counted as formed because the last corrections are made at 0.1 m/s (crossings 0–9 per robot per minute). Obstacle field: 90%
+through in 590–673 s (LJ) and 632–666 s (Newtonian), as the ideal
+particles (591–666, 688–763 s); before, never (60–80% past). No robot
+stays behind a single column: there the goal's pull and the repulsion
+balance only on a line, an unstable equilibrium a moving robot slides
+off. One robot in two of the six runs is left in the field, each time
+between two columns 2.61–2.65 m apart surface to surface: room for the
+0.5 m robot, but the columns' 1.6 m repulsion zones overlap by
+0.55–0.59 m, and the goal's pull and both repulsions balance there
+stably; the robot stands still. `probes/stuck_robots.lua` finds them
+and measures the gaps; no stuck robot was next to a gap narrower than
+itself. The ideal particles stop at the same two points to the
+centimetre (LJ seeds 1 and 3, Newtonian seed 3), so this is AP's
+equilibrium, not the vehicle's. William's per-wheel rounding without
+the easing gave the same picture (LJ formed 82–158 s, through 575–649
+s; Newtonian 127–168 s, 615–656 s, the same two gaps) but broke the turn
+limit; scaling both wheels up only when both are under 0.1 m/s kept the
+limit but left the lattice dithering (mean speed 0.02 m/s, never
+formed).
 
 ## 3. Errors and discrepancies in the book
 

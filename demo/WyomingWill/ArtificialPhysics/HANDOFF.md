@@ -77,10 +77,10 @@ is updated at the end of every milestone.
 - **When `BOOK.md` or `WORKFLOW.md` changes, rebuild its PDF** with
   `tools/md2pdf.py` (§5) and include the PDF in the same patch. Look at the
   pages before sending: no nearly empty pages, build order on one page.
-- Keep `FIXES.md` (items 1–42 so far) and the task READMEs up to date.
+- Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F71 so far), and
+  implementations, and our own mistakes once corrected (F1–F72 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -286,6 +286,16 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   friction do not get it to D (static friction's book scale is ~10% of
   F(D), the dither is driven by the full step), and no vehicle touched a
   column, so the speed cap has nothing to do. None was kept.
+- **Small moves at the minimum speed (F72, 2026-10-25):** a wheel asked
+  for less than 0.1 m/s now turns at 0.1 m/s instead of stopping
+  (William's rounding up; the faster wheel is eased so turns stay within
+  0.4 rad/s). The robots then reach the particles' lattices (LJ 1.00 D,
+  Newtonian 0.99–1.00 D, both formed) and get 98–100% through the field
+  in 590–673 s (LJ) and 632–666 s (Newtonian). Behind a single column
+  nobody stays (an unstable balance); the one robot left in two of six
+  runs sits between two columns 2.6 m apart whose 1.6 m repulsion zones
+  overlap, a stable balance of AP itself: the ideal particles stop at the
+  same two points (`probes/stuck_robots.lua`).
 
 ## 7. Where things stand and what's next
 
@@ -353,13 +363,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   3. the surface boat (`boat/`; F67);
   4. the benchmark (`BENCHMARK.md`, `probes/benchmark.sh`; F68).
   - **Answer to M2's question** (is the method vehicle-independent?):
-    **yes for the holonomic vehicles; for ground robots only without a
-    minimum speed** (§6).
-  - **Open from M2:** small moves for vehicles with a minimum speed, to
-    finish a lattice and leave a stall (the threshold formula is in §6;
-    candidates: the law's stiffness near D, a hop at the minimum speed for
-    the right time, apHz); the robot on the generator's streets
-    (`toBPP(v, { contact = true })`) and the boat on its water (`waterAt`)
+    **yes for the holonomic vehicles; for ground robots once a small move
+    is made at the minimum wheel speed rather than not at all** (§6, F72).
+  - **Open from M2:** gaps that AP's column repulsion closes though a
+    robot fits (two columns 2.5–3.2 m apart; F72); the robot on the
+    generator's streets (`toBPP(v, { contact = true })`) and the boat on its water (`waterAt`)
     instead of flat ground and a still sea; the Maxelbot (skid-steer,
     G10); Ch. 13's dumbbell and the triangle of death (E6) on the robot;
     benchmark tasks 3–4 and the other vehicles (`BOOK.md` §6).

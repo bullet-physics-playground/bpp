@@ -3,8 +3,8 @@
 #
 #   1. every vehicle module provides what lib/swarm.lua's header lists;
 #   2. each physical vehicle meets its specification
-#      (checks/vehicle_physics.lua: speed and turn caps, the minimum-speed
-#      gap, floating, righting);
+#      (checks/vehicle_physics.lua: speed and turn caps, small moves at
+#      the minimum speed, floating, righting);
 #   3. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length

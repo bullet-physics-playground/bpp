@@ -5,7 +5,7 @@
 -- THE ROBOT is the book's Pioneer 3-AT as Ch. 13 describes it (PDF
 -- 449-453, 463-465; book/ch13.md E3, E4, E11): two driven sides r_diff =
 -- 0.3 m either side of the centre, each wheel speed 0 or 0.1-0.5 m/s in
--- either direction (Fig. 13.7's minimum-speed gap), forward speed capped
+-- either direction (Fig. 13.7's minimum speed), forward speed capped
 -- at u_max = 0.5 m/s and turn rate at Omega_max = 0.4 rad/s. Body: a
 -- 12 kg box 0.51 x 0.28 x 0.50 m (the P3-AT's datasheet size and mass).
 --
@@ -38,13 +38,18 @@
 --                                                (rad/s, + = left turn)
 --   u     = |u_d| cos(phi), capped at u_max - |Omega| r_diff  (Eq. 13.6)
 --   v_right, v_left = u +- Omega r_diff          (Eqs. 13.4-13.5)
--- and a wheel commanded below V_MIN in magnitude gets 0 (the
--- minimum-speed gap: small corrections are impossible, Fig. 13.7). The
--- If one wheel falls in the gap it stops and the robot pivots on it; the
--- other is then held to 2 r_diff Omega_max, so the turn rate stays within
--- Omega_max (without this, a pivot reached 0.56 rad/s). The
--- turn-rate limit |u_d| / r_diff keeps every wheel no faster than the
--- speed AP asks for, so a robot asked to creep does not spin on the spot
+-- and a wheel commanded below V_MIN in magnitude (but not 0) turns at
+-- V_MIN: the wheels cannot turn slower (Fig. 13.7), so a small correction
+-- is made at the minimum speed rather than not at all (William,
+-- 2026-10-25; rounding down to 0 froze the robots short of the lattice
+-- and behind columns, F66, F68, F72). A wheel rounded up against the
+-- other's direction would turn the robot faster than Omega_max, so the
+-- faster wheel is then eased to keep (v_right - v_left) / (2 r_diff)
+-- within Omega_max (without this, 0.56 rad/s in the turn check). A wheel
+-- commanded exactly 0 stops, and the robot pivots on it with the other
+-- held to 2 r_diff Omega_max. The turn-rate limit |u_d| / r_diff keeps
+-- every wheel no faster than the speed AP asks for (but for the minimum),
+-- so a robot asked to creep does not spin on the spot
 -- (it did, at the full 0.4 rad/s, before this rule). AP's
 -- desired velocity is a point-mass velocity; the robot can only follow
 -- its component along its heading while it turns -- the lag Ch. 13
@@ -133,9 +138,9 @@ function V.command(d, wx, wy, wz, T, simTime)
 end
 
 local function clamp(x, lo, hi) if x < lo then return lo elseif x > hi then return hi end return x end
-local function wheel(c)           -- the minimum-speed gap and the cap
+local function wheel(c)           -- the minimum speed (rounded up; 0 stays 0) and the cap
   local a = math.abs(c)
-  if a < P.vMin then return 0 end
+  if a == 0 then return 0 elseif a < P.vMin then a = P.vMin end
   return (c > 0 and 1 or -1) * math.min(a, P.vMax)
 end
 
@@ -163,8 +168,13 @@ function V.guide(d, st, simTime, dt)
   if u < 0 then u = 0 end
   u = d.dir * u
   local cr, cl = wheel(u + omega * P.rDiff), wheel(u - omega * P.rDiff)
-  -- one wheel in the gap stops: the robot pivots on it, so the other is
-  -- held to 2 r_diff Omega_max to keep the turn rate within Omega_max
+  -- a wheel rounded up against the other's direction would turn the robot
+  -- faster than Omega_max (0.56 rad/s in the check): the faster is eased
+  local lim = 2 * P.rDiff * P.omegaMax
+  if cr - cl > lim then if math.abs(cr) >= math.abs(cl) then cr = cl + lim else cl = cr - lim end
+  elseif cl - cr > lim then if math.abs(cl) >= math.abs(cr) then cl = cr + lim else cr = cl - lim end end
+  -- one wheel at 0: the robot pivots on it, so the other is held to
+  -- 2 r_diff Omega_max to keep the turn rate within Omega_max
   local pivot = 2 * P.rDiff * P.omegaMax
   if cl == 0 then cr = clamp(cr, -pivot, pivot) end
   if cr == 0 then cl = clamp(cl, -pivot, pivot) end
