@@ -150,6 +150,22 @@ stay at goalF 0.2–0.5 and none at 0.7 or more (8 seeds): the rest of the
 lattice, leaving, pulls them off, so the monitor's value is a bound that
 always suffices, not the threshold.
 
+**F77. Ch. 3.2.4: the honeycomb traps particles at cell centres, and
+`honeycomb.nlogo`'s switching frees them by mixing the two rules** —
+2026-10-25, Confirmed and New. `ch03/README.md`, `checks/ch03.lua`. On a
+line-for-line copy of the model (201 particles, D 20, G = G_t): with the
+honeycomb rule alone 29–39% of the particles have two neighbours under
+90° apart at 500 ticks, and 21–38% still at 3000 (particles held at cell
+centres, as the book says); with the model's switching 6% at 500 and
+4–5% at 3000. The book says the model switches periodically between the
+square and honeycomb lattices. It does not, over time: each particle
+counts the neighbours it looks at (in a random order every tick) and
+uses the square rule for 100 and the honeycomb rule for the next 100, so
+every tick a random half of its pairs feel each rule. The lattice is a
+hybrid, like neighbours at 1.55 D between √2 and √3 D. A true periodic
+switch (ours, 100 ticks each) also works, more slowly: 42–53% at 500
+ticks, 0–10% from 1800.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.

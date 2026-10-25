@@ -208,7 +208,7 @@ detail.
 | 3.2 | Hooke lattice (`formation_hooke`): k 0.5, Fmax 1; fails at Fmax 3 and 5; kill and birth | 96–103 | `ch03/models.lua`: the lattice by 200 steps and every failure reproduced (`checks/ch03.lua`, F75); drones to come | partly |
 | 3.3 | Split-Newtonian triangle, G_t = Fmax·D^p/(2√3), hysteresis, 50 → 21 nodes | 103–108 | Done; G_t, hysteresis and robustness confirmed on the model and the BPP scene; 3D G_t = G_t/√2 derived and measured (`ch03/`, F73) | done |
 | 3.4 | Square with two types, defect removal by noise, 500 particles | 108–113 | Done; Eq. 3.5 fits the Java/BPP force direction, not the .nlogo's (F74); add annealing, type flips, toggling, a quality metric; ★ NaCl in 3D | partly |
-| 3.5 | Honeycomb: √3 renormalisation, 120°/60° repair, square↔honeycomb toggle | 113–115 | Particles → one altitude; ★ diamond lattice | plan |
+| 3.5 | Honeycomb: √3 renormalisation, 120°/60° repair, square↔honeycomb toggle | 113–115 | `ch03/models.lua` (`honeycomb.nlogo` line for line): centres trap particles, the model's switching (a random mix of the two rules per pair, F77) frees them; McLurkin's repair not given in the text; drones at one altitude, ★ diamond lattice to come | partly |
 | 3.6 | Goal and obstacles; Disable One; abandon threshold goalF > Fmax | 115–121 | Done; Figs. 3.24–3.26 reproduced on the model; the threshold is exact for a lone neighbour, a bound in a formation (F75) | done |
 | 3.7 | Hardware requirements (GPS, IR, trilateration) | 121–123 | Sensing model (G7, G8) | new |
 

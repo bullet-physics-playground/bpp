@@ -5,7 +5,8 @@
 -- The split Newtonian law's clustering transition G_t (Eq. 3.4, 3.5) in
 -- 2D, its 3D counterpart (ours), hysteresis and robustness (Fig. 3.16);
 -- Hooke's law and its parameter cases (Figs. 3.9-3.12); the goal, Disable
--- One and the obstacle fields of Figs. 3.25-3.26. Each line says what the
+-- One and the obstacle fields of Figs. 3.25-3.26; the honeycomb
+-- (honeycomb.nlogo) with and without its lattice switching. Each line says what the
 -- book reports and what we get.
 --
 -- DEFINITIONS (printed values; NetLogo units, patches and ticks):
@@ -29,6 +30,10 @@
 --              4000 ticks of the goal force
 --   arrived    tick at which every particle is within 120 patches of the
 --              goal (the formation's radius is ~80)
+--   honeycomb  share of particles with two neighbours (0.85-1.15 D) under
+--              90 degrees apart (none in a perfect honeycomb, 120; a
+--              particle trapped at a cell's centre makes 60), and with
+--              exactly 3 such neighbours
 --
 -- Run from the ArtificialPhysics folder (about a minute):
 --   lua5.1 checks/ch03.lua
@@ -266,6 +271,34 @@ do
   check("Fig. 3.25: 12 discs of size 10, all reach the goal", res[1].t ~= nil, string.format("arrived at %s ticks", tostring(res[1].t)))
   check("Fig. 3.26: size 50, the whole formation goes round the north end", res[2].t ~= nil and res[2].north == 50,
     string.format("%d of 50 passed north of the wall, arrived at %s", res[2].north, tostring(res[2].t)))
+end
+
+-- 8. the honeycomb (honeycomb.nlogo: 201 particles, D 20, G = G_t)
+do
+  local function hc(sw)
+    local m = C.new({ n = 201, D = 20, G = C.Gt(1, 20, 2), honeycomb = true, switch = sw, seed = 1 })
+    C.run(m, 500)
+    local three, bad = C.honeycombQuality(m)
+    local u, l = {}, {}
+    for _, a in ipairs(m.ps) do
+      local bu, bl = math.huge, math.huge
+      for _, b in ipairs(m.ps) do
+        if b ~= a then
+          local d = sqrt((a.x - b.x) ^ 2 + (a.y - b.y) ^ 2)
+          if a.who % 2 == b.who % 2 then bl = math.min(bl, d) else bu = math.min(bu, d) end
+        end
+      end
+      u[#u + 1], l[#l + 1] = bu / 20, bl / 20
+    end
+    table.sort(u); table.sort(l)
+    return three, bad, u[101], l[101]
+  end
+  local _, badH = hc(nil)
+  local threeS, badS, uS, lS = hc("nlogo")
+  check("Sec. 3.2.4: honeycomb alone traps particles at cell centres", badH >= 0.2, string.format("%.0f%% with neighbours under 90 deg apart", 100 * badH))
+  check("Sec. 3.2.4: honeycomb.nlogo's switching frees them", badS <= 0.1, string.format("%.0f%% (3 neighbours: %.0f%%)", 100 * badS, 100 * threeS))
+  check("... its lattice: unlike at D, like between sqrt 2 and sqrt 3 D", uS > 0.85 and uS < 1.05 and lS > 1.45 and lS < 1.7,
+    string.format("median nearest unlike %.2f D, like %.2f D", uS, lS))
 end
 
 print(string.format("ch03: %d checks, %d failed, %.0f s", count, fails, os.clock() - t0))

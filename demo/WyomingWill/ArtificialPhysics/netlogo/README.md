@@ -21,7 +21,7 @@ is on the website.
 | `formation_hooke.nlogo` | 3 | `ch03/models.lua` (line for line; `checks/ch03.lua`) |
 | `formation_lj_goal_obs.nlogo` | 3 | `Formations-Lennard-Jones.lua` (not yet checked) |
 | `formation_goal_obs.nlogo` | 3.3 | world frame used by `lib/world.lua`'s Ch. 3 presets (F40); goal, obstacles and Disable One in `ch03/models.lua` |
-| `honeycomb.nlogo` | 3 | not yet |
+| `honeycomb.nlogo` | 3 | `ch03/models.lua` (line for line; `checks/ch03.lua`, F77) |
 | `flock.nlogo` | 3 | not yet |
 | `formation_chain.nlogo` | 4 | not yet |
 | `formation_perfect.nlogo` | 4 | not yet |

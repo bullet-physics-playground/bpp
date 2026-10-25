@@ -3,8 +3,8 @@
 -- operation as the .nlogo files do them
 --
 -- formation_newton.nlogo (split Newtonian, triangular and square lattices),
--- formation_hooke.nlogo (Hooke's law) and formation_goal_obs.nlogo (goal,
--- obstacles, Disable One) from netlogo/ (PDF 96-121, book/ch03.md). Used
+-- honeycomb.nlogo (the honeycomb and its switching), formation_hooke.nlogo
+-- (Hooke's law) and formation_goal_obs.nlogo (goal, obstacles, Disable One) from netlogo/ (PDF 96-121, book/ch03.md). Used
 -- by checks/ch03.lua. Our 3D version adds a z axis to the split Newtonian
 -- model (the book's models are 2D).
 --
@@ -24,7 +24,19 @@
 --                    same-parity pair's force is sqrt 2 times longer, as
 --                    in the model
 --                    (rawDirection: the unit vector of the true distance,
---                    as Formations-Newtonian.lua and the Java app do)
+--                    as Formations-Newtonian.lua and the Java app do).
+--                    Honeycomb (honeycomb.nlogo): like pairs measure
+--                    r / sqrt 3 instead, the views as for the square
+--   switching        honeycomb.nlogo's cure for particles trapped at a
+--                    cell's centre: each particle keeps a counter that
+--                    goes up by one per neighbour it looks at, in a new
+--                    random order every tick, and uses the square rule
+--                    while it runs 0..100 and the honeycomb rule while it
+--                    runs -100..0 (switch = "nlogo"); with 200 neighbours
+--                    that is both rules every tick, each for a random
+--                    half of the pairs. switch = N (ours): every particle
+--                    on the square rule for N ticks, then the honeycomb
+--                    rule for N ticks, and so on
 --   Hooke            F = k (r - D) for r < range D (range 1.5), capped at
 --                    Fmax on the attractive side only, as in the model
 --   goal             a constant force goalF toward it at any range (off
@@ -69,6 +81,7 @@ function M.new(o)
     law = o.law or "newton", G = o.G or 400, p = o.p or 2, Fmax = o.Fmax or 1,
     FR = o.friction or 0.5, dt = o.dt or 1, D = o.D or 30, k = o.k or 0.5,
     view = o.view or 1.5, square = o.square or false, dim = o.dim or 2, rawDirection = o.rawDirection,
+    honeycomb = o.honeycomb or false, switch = o.switch,
     goalF = o.goalF or 0.25, obstacleF = o.obstacleF or 10, goalOn = false,
     s = rng.new(o.seed or 1), ps = {}, obstacles = {}, nextWho = 0, ticks = 0,
   }
@@ -89,21 +102,40 @@ function M.addObstacle(m, x, y)
   m.obstacles[#m.obstacles + 1] = { x = x, y = y, z = 0, vx = 0, vy = 0, vz = 0, mass = HEAVY }
 end
 
-local SQ2 = sqrt(2)
+local SQ2, SQ3 = sqrt(2), sqrt(3)
 
 -- the force on particle a from all the others (and obstacles, goal)
 local function force(m, a)
   local Fx, Fy, Fz = 0, 0, 0
   local D, G, p, Fmax = m.D, m.G, m.p, m.Fmax
   local newton = m.law == "newton"
-  for _, b in ipairs(m.ps) do
+  local order = m.ps
+  if m.switch == "nlogo" then                      -- [who] of other particles: a random order
+    order = {}
+    for i, b in ipairs(m.ps) do order[i] = b end
+    for i = #order, 2, -1 do local j = m.s:random(i); order[i], order[j] = order[j], order[i] end
+  end
+  local periodSquare = type(m.switch) == "number" and math.floor(m.ticks / m.switch) % 2 == 0
+  for _, b in ipairs(order) do
     if b ~= a then
       local dx, dy, dz = b.x - a.x, b.y - a.y, b.z - a.z
       local r = sqrt(dx * dx + dy * dy + dz * dz)
       if newton then
         local view = m.view
-        if m.square then
+        local square, honey = m.square, m.honeycomb
+        if m.switch == "nlogo" then
+          a.counter = a.counter or 0
+          if a.counter == 0 then a.sq = true end
+          if a.counter > 100 then a.sq = false; a.counter = -100 end
+          a.counter = a.counter + 1
+          square, honey = a.sq or false, not a.sq
+        elseif type(m.switch) == "number" then
+          square, honey = periodSquare, not periodSquare
+        end
+        if square then
           if a.who % 2 == b.who % 2 then view = 1.3; r = r / SQ2 else view = 1.7 end
+        elseif honey then
+          if a.who % 2 == b.who % 2 then view = 1.3; r = r / SQ3 else view = 1.7 end
         end
         if r < view * D then
           local F = G * a.mass * b.mass / (p == 2 and r * r or r ^ p)
@@ -261,6 +293,33 @@ function M.lattice(m)
     if bonds >= 1 then good = good + 1 end
   end
   return sum / n / m.D, good / n, sqrt(rg / n)
+end
+
+-- the honeycomb: the share of particles with exactly 3 neighbours within
+-- 0.85-1.15 D (a perfect honeycomb's inside), and the share with two such
+-- neighbours less than 90 degrees apart, seen from it (in a perfect
+-- honeycomb they are 120 degrees apart; a particle at a cell's centre
+-- makes 60: McLurkin's test, Sec. 3.2.4)
+function M.honeycombQuality(m)
+  local n, three, bad = #m.ps, 0, 0
+  local lo, hi = 0.85 * m.D, 1.15 * m.D
+  for _, a in ipairs(m.ps) do
+    local nb = {}
+    for _, b in ipairs(m.ps) do
+      if b ~= a then
+        local dx, dy = b.x - a.x, b.y - a.y
+        local d = sqrt(dx * dx + dy * dy)
+        if d > lo and d < hi then nb[#nb + 1] = { dx / d, dy / d } end
+      end
+    end
+    if #nb == 3 then three = three + 1 end
+    local close = false
+    for i = 1, #nb do for j = i + 1, #nb do
+      if nb[i][1] * nb[j][1] + nb[i][2] * nb[j][2] > 0 then close = true end   -- under 90 degrees
+    end end
+    if close then bad = bad + 1 end
+  end
+  return three / n, bad / n
 end
 
 -- mean speed of the particles of mass 1

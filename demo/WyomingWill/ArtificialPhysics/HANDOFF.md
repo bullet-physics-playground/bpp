@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F76 so far), and
+  implementations, and our own mistakes once corrected (F1–F77 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -379,7 +379,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      obstacles and Disable One (**done**, `ch03/`, `checks/ch03.lua`,
      F73–F75: G_t and its hysteresis confirmed, G_t in 3D = G_t/√2,
      Eq. 3.5 fits the Java/BPP force direction but not the `.nlogo`'s,
-     Disable One's threshold is a bound); the honeycomb (next);
+     Disable One's threshold is a bound); the honeycomb (**done**, F77:
+     the centres trap particles, the model's switching mixes the two
+     rules per pair);
   2. Ch. 4.3/Ch. 11 coverage against Tables 4.2, 11.1 and Fig. 4.19;
   3. Ch. 4.1's perfect formations;
   4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
@@ -395,9 +397,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
   two guessed starts and the wrong Ch. 3 world frame (F40, F41).
   `formation_newton.nlogo`, `formation_hooke.nlogo` and
-  `formation_goal_obs.nlogo` are checked line for line (`ch03/`, F48,
-  F74); the honeycomb, Uniform Coverage and other formation models are
-  not yet.
+  `formation_goal_obs.nlogo` and `honeycomb.nlogo` are checked line for
+  line (`ch03/`, F48, F74, F77); Uniform Coverage and the other models
+  are not yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
   Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES
   4–5; its wall rule is kept, FIXES 36); FIXES item 27 is documented, not

@@ -1,16 +1,16 @@
 # Ch. 3 — NetLogo and physicomimetics: the formation models checked
 
-`BOOK.md` entries 3.2, 3.3, 3.4 and 3.6 (PDF 96–121, `book/ch03.md`). The
-book's formation models, `formation_newton`, `formation_hooke` and
-`formation_goal_obs` (`../netlogo/`), as plain Lua that does what each
+`BOOK.md` entries 3.2–3.6 (PDF 96–121, `book/ch03.md`). The book's
+formation models, `formation_newton`, `formation_hooke`,
+`formation_goal_obs` and `honeycomb` (`../netlogo/`), as plain Lua that does what each
 `.nlogo` does, operation for operation, and the book's results checked on
 it. The BPP scene `../Formations-Newtonian.lua` is checked at the book's
 settings against the same results.
 
 | File | What |
 | --- | --- |
-| `models.lua` | The three models: split Newtonian (triangle and square lattices; our 3D version), Hooke's law, the goal, obstacles and the buttons (Kill One, One is Born, Disable One); the lattice measures |
-| `../checks/ch03.lua` | The book's results as 25 checks, about a minute (`lua5.1 checks/ch03.lua`; any Lua 5.1–5.4, the same numbers on each) |
+| `models.lua` | The four models: split Newtonian (triangle, square and honeycomb lattices, the honeycomb's switching; our 3D version), Hooke's law, the goal, obstacles and the buttons (Kill One, One is Born, Disable One); the lattice measures |
+| `../checks/ch03.lua` | The book's results as 28 checks, about two minutes (`lua5.1 checks/ch03.lua`; any Lua 5.1–5.4, the same numbers on each) |
 | `../probes/ch03_scene.lua` | The BPP scene at the book's sliders, for `lib/batch.py` |
 
 **Where the book's text is silent, the `.nlogo` decides:** each particle
@@ -100,8 +100,35 @@ from the figures (`lib/world.lua`, F40).
 | 12 discs of size 10: the formation twists through; all reached the goal in that run (Fig. 3.25) | All 50 within 120 patches of the goal after 674–787 ticks (606–637 without obstacles; 4 seeds) |
 | Size 50: a wall; the whole formation rotates round its northern end (Fig. 3.26) | All 50 pass north of the wall (4 seeds; at the measured radius 45 too) |
 
+## The honeycomb (Sec. 3.2.4)
+
+`honeycomb.nlogo`: 201 particles, D 20, G = G_t (the model computes it),
+Fmax 1, friction 0.5, Δt 1; like pairs (same parity) renormalised by √3
+instead of √2, views 1.3 and 1.7 as for the square. *Defects* below are
+the particles with two neighbours (0.85–1.15 D) less than 90° apart: none
+in a perfect honeycomb (120°), and a particle trapped at a cell's centre
+makes 60° (McLurkin's test).
+
+| Book | Ours (seeds 1–2) |
+| --- | --- |
+| A particle at a cell's centre is caught in a potential well | Honeycomb rule alone: 29–39% defects at 500 ticks, 21–38% still at 3000 |
+| Periodically switching between square and honeycomb lets them escape; `honeycomb.nlogo` "provides the details" | The model's switching: 6% at 500 ticks, 4–5% at 3000; 56–64% of the particles with exactly 3 neighbours (the edge has fewer) |
+| — | Our periodic switch (100 ticks square, 100 honeycomb, measured after a honeycomb phase): slower, 42–53% at 500 ticks, then 0–10% at 1800–3000, 68–75% with 3 neighbours |
+
+**What the model's switching is (F77).** It is not a switch between two
+lattices over time. Each particle counts the neighbours it looks at, in
+a new random order every tick, and uses the square rule for 100 of them
+and the honeycomb rule for the next 100; with 200 neighbours, every tick
+half its pairs (at random) feel the square rule and half the honeycomb.
+The force is a random mix, and the lattice it settles in is a hybrid:
+unlike neighbours at 0.92 D, like ones at 1.55 D, between the square's
+√2 D and the honeycomb's √3 D (pure honeycomb: 0.96 D and 1.65 D). It
+works, faster than a true periodic switch. McLurkin's own repair
+(perturbing a particle that sees neighbours 60° apart, Fig. 3.22) has no
+parameters in the text and is not ported.
+
 ## Not yet
 
-Honeycomb (Sec. 3.2.4, the next patch); the square lattice's annealing
+The square lattice's annealing
 tricks and 500 particles (Fig. 3.19–3.20); boids (Sec. 3.1); Hooke's law
 and the events in the BPP scenes and on vehicles.
