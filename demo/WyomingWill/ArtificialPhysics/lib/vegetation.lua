@@ -55,12 +55,17 @@
 -- RANDOMNESS: its own stream, rng.new(seed + 4000); the woods' trees
 -- rng.new(seed + 4100).
 --
+-- SPEED: inside BPP the woods' meshes are made by BPP's compiled helpers
+-- (geo.woods, src/geo.cpp), corner for corner as the Lua below makes them
+-- (checks/geo.lua compares the two); under plain Lua the Lua runs.
+--
 
 local rng = require "lib.rng"
 local B = require "lib.buildings"
 local Land = require "lib.terrain"
 
 local V = {}
+local geo = rawget(_G, "geo")         -- BPP's compiled helpers, or nil
 
 local floor, sqrt, abs, min, max, cos, sin, pi = math.floor, math.sqrt, math.abs, math.min, math.max,
   math.cos, math.sin, math.pi
@@ -346,31 +351,36 @@ function V.toBPP(W, viewer, opts)
   local C6, S6 = circle(6, 0)
   local C3, S3 = circle(3, pi / 6)
   local ring, lo, hi = {}, {}, {}
-  for i, tr in ipairs(W.trees or {}) do
-    if tr.kind == "wood" then
-      local which = i % 3 + 1
-      local cm = crowns[which]
-      local x, y, g, h, r = tr.x, tr.y, tr.g, tr.h, tr.r
-      local z0 = g + V.WOOD_BASE * h
-      local zm, z1 = z0 + (1 - V.WOOD_BASE) * h / 3, g + h
-      for k = 0, 5 do ring[k] = P(x + r * C6[k], y + r * S6[k], zm) end
-      local top, bot = P(x, y, z1), P(x, y, z0)
-      for k = 0, 5 do
-        local k1 = k < 5 and k + 1 or 0
-        add(cm, ring[k], ring[k1], top)
-        add(cm, ring[k1], ring[k], bot)
+  if geo and type(trunks) == "userdata" then       -- (not a stand-in mesh)
+    nc[1], nc[2], nc[3], nt = geo.woods(W.trees or {}, crowns[1], crowns[2], crowns[3], trunks, S, base,
+                                        V.WOOD_BASE, C6, S6, C3, S3)
+  else
+    for i, tr in ipairs(W.trees or {}) do
+      if tr.kind == "wood" then
+        local which = i % 3 + 1
+        local cm = crowns[which]
+        local x, y, g, h, r = tr.x, tr.y, tr.g, tr.h, tr.r
+        local z0 = g + V.WOOD_BASE * h
+        local zm, z1 = z0 + (1 - V.WOOD_BASE) * h / 3, g + h
+        for k = 0, 5 do ring[k] = P(x + r * C6[k], y + r * S6[k], zm) end
+        local top, bot = P(x, y, z1), P(x, y, z0)
+        for k = 0, 5 do
+          local k1 = k < 5 and k + 1 or 0
+          add(cm, ring[k], ring[k1], top)
+          add(cm, ring[k1], ring[k], bot)
+        end
+        nc[which] = nc[which] + 12
+        for k = 0, 2 do
+          lo[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], g - 0.3)
+          hi[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], z0)
+        end
+        for k = 0, 2 do
+          local k1 = k < 2 and k + 1 or 0
+          add(trunks, lo[k], lo[k1], hi[k1])
+          add(trunks, lo[k], hi[k1], hi[k])
+        end
+        nt = nt + 6
       end
-      nc[which] = nc[which] + 12
-      for k = 0, 2 do
-        lo[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], g - 0.3)
-        hi[k] = P(x + 0.3 * C3[k], y + 0.3 * S3[k], z0)
-      end
-      for k = 0, 2 do
-        local k1 = k < 2 and k + 1 or 0
-        add(trunks, lo[k], lo[k1], hi[k1])
-        add(trunks, lo[k], hi[k1], hi[k])
-      end
-      nt = nt + 6
     end
   end
   local function hex(c) return string.format("#%02x%02x%02x", c[1], c[2], c[3]) end

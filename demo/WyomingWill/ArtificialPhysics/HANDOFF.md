@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–42 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F70 so far), and
+  implementations, and our own mistakes once corrected (F1–F71 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -94,6 +94,7 @@ is updated at the end of every milestone.
 | `probes/` | Measurement probes from the quadcopter work (set `PROBES` to this folder); `settle_drones.lua` measures settling with the Ch. 16.9 metrics for `lib/batch.py` |
 | `tools/md2pdf.py` | Typesets the plan files as PDFs |
 | `tools/worldprint.lua` | Prints a generated world in full (every layer's data, every drawn triangle), in any Lua 5.1-5.4 without BPP: compare prints before and after a change to the generator (FIXES 42) |
+| `src/geo.cpp` (BPP's, at the repository root) | BPP's compiled helpers for the world generator (the Lua table `geo`: noise, zone lookup, the ground's and the woods' meshes), the Lua's arithmetic operation for operation; `checks/geo.lua` compares the two (FIXES 43, F71) |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
@@ -259,7 +260,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   at `w.leak`), piers, a container yard with dead-end pockets, warehouses
   with doorways, a storm drain whose last 35 m lie below sea level, and
   launch pads. The woods are trees (300 a hectare, crowns from half
-  their height, so drones fly between the trunks; F70). Buildings, trees
+  their height, so drones fly between the trunks; F70). Inside BPP the
+  noise, the zone lookups and the biggest meshes run compiled (`geo`,
+  `src/geo.cpp`), with the same worlds to the bit (FIXES 43, F71). Buildings, trees
   and features are World pieces, so
   `blocked`, `blockedAt`, `writeCPT`, `raster`, `sight` and `traps` see
   them; each layer draws as one mesh.
@@ -337,8 +340,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     "Later"); importing real places (OpenStreetMap, elevation, charts);
     trees and hedges are solid to `blockedAt` and must be treated as
     porous by the plume (G14); the drain's manholes are drawn, not open
-    shafts; generation and drawing take up to 5.6 s, so a viewer slider
-    rebuild is not instant (it is built once per frame while dragging).
+    shafts; generation and drawing take up to 3.6 s inside BPP (F71), so a
+    viewer slider rebuild is not instant (it is built once per frame while
+    dragging). The next costs (F71): Bullet's BVH for meshes that are only
+    drawn (~1.1 s of rural's 2.9 s; a BPP change), then the woods'
+    placement in Lua (0.9 s).
 - **Done: milestone M2** (build step 2, 2026-10-21), in four patches:
   1. the vehicle interface (`lib/swarm.lua`, `quadcopter/vehicle.lua`,
      `lib/ideal.lua`, `checks/vehicles.sh`);

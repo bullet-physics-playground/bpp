@@ -1,7 +1,7 @@
 # Checks: the regression suite
 
 `bash checks/run_all.sh` runs every check and exits 0 only if all pass
-(about 2 min 40 s; `--quick` about 1 min 50 s with smaller samples).
+(about 3 min 40 s; `--quick` about 3 min with smaller samples).
 
 **Which Lua.** The Lua checks run *inside BPP* when a BPP is built, so they
 test the Lua the demos really use; BPP links Lua 5.1 or 5.2 depending on the
@@ -29,6 +29,7 @@ on its own from the `ArtificialPhysics` folder.
 | `rng_appendix.lua` | The appendix's Listing A.1: `lib/rng.lua` flat at every S, `math.random` biased at S = 25–27 | 1 min |
 | `batch_repeat.sh` | `lib/batch.py` gives the same CSV serially and in parallel (needs BPP; skipped if none is built) | 30 s |
 | `vehicles.sh` | The vehicle interface (`lib/swarm.lua`, G18): every vehicle module provides it; each vehicle meets its specification (`vehicle_physics.lua`: the ground robot's speed and turn caps and minimum-speed gap; the boat's draft, top speed, righting and sideways motion); the harness on the ideal vehicle forms the LJ 2D triangle at D (needs BPP) | 20 s |
+| `geo.lua` | BPP's compiled helpers (`geo`, `src/geo.cpp`) against the generator's Lua: each of the five presets built both ways gives the same full print (every layer's data) and the same drawn meshes, corner for corner; `geo.fbm` and `geo.zone` equal the Lua at 20,000 random points (needs BPP; skipped if none is built; 17 tests) | 70 s |
 
 A new port adds its check here and to `run_all.sh`. Checks use fixed seeds,
 so their numbers repeat exactly.

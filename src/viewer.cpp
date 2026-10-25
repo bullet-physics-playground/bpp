@@ -100,6 +100,7 @@ static void bppGyroPreTick(btDynamicsWorld *world, btScalar dt) {
 #include "objects/cam.h"
 
 #include "dembed.h"
+#include "geo.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -2946,6 +2947,7 @@ emit scriptStarts();
     Terrain::luaBind(L);
     Triangle::luaBind(L);
     DemBed::luaBind(L);
+    Geo::luaBind(L);
     Viewer::luaBind(L);
 
     luabind::bind_class_info(L);

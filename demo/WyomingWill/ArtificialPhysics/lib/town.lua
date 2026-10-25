@@ -55,6 +55,12 @@
 --
 -- RANDOMNESS: its own stream, rng.new(seed + 1000), never the shared one.
 --
+-- SPEED: inside BPP, Town:entry's land rules (districts, centres, ladder,
+-- woods) run in BPP's compiled helpers (the global `geo`, src/geo.cpp) on
+-- a copy of the zoning made in Town.build, with the same arithmetic in the
+-- same order, so every zone is the same (checks/geo.lua compares them);
+-- under plain Lua this file's own code runs.
+--
 
 local rng = require "lib.rng"
 local Land = require "lib.terrain"   -- (not "Terrain": that is BPP's mesh class)
@@ -65,6 +71,7 @@ Town.__index = Town
 local floor, sqrt, abs, min, max, sin, cos, exp, pi = math.floor, math.sqrt, math.abs, math.min,
   math.max, math.sin, math.cos, math.exp, math.pi
 local segDist = Land.segDist
+local geo = rawget(_G, "geo")         -- BPP's compiled helpers, or nil
 local atan2 = math.atan2 or function(y, x) return math.atan(y, x) end -- Lua 5.3+ dropped atan2
 
 Town.BRIDGE_MAX = 150
@@ -121,6 +128,8 @@ end
 -- deciding where streets bridge).
 function Town:entry(x, y, ignoreWater)
   if not ignoreWater and self.terrain:water(x, y) then return self.waterEntry end
+  local g = self._geo
+  if g then return self._codes[geo.zone(g, x, y)] end
   for k = #self.districts, 1, -1 do
     local d = self.districts[k]
     if Land.shapeDist(d.shape, x, y) <= 0 then return d end
@@ -666,6 +675,16 @@ function Town.build(terrain, spec)
   town.waterEntry = { lcz = "G" }
   town.openEntry = { lcz = Z.open or "D" }
   town.woodsEntry = { lcz = "A" }
+  -- the zoning's compiled copy (geo.zone's codes: district k, then the
+  -- ladder's steps, 0 open land, -1 woods), made again once the woods' cut
+  -- is known
+  local function compile()
+    if not geo then return end
+    town._geo, town._codes = geo.zones(town), { [0] = town.openEntry, [-1] = town.woodsEntry }
+    for k, e in ipairs(town.districts) do town._codes[k] = e end
+    for l, e in ipairs(town.ladder) do town._codes[#town.districts + l] = e end
+  end
+  compile()
   if (Z.woods or 0) > 0 then
     local W, H = terrain.x1 - terrain.x0, terrain.y1 - terrain.y0
     town.woodsNoise = Land.newNoise(s, W, H, Z.woodsWavelength or 400, 3)
@@ -680,6 +699,7 @@ function Town.build(terrain, spec)
     end
     table.sort(v)
     if #v > 0 then town.woodsCut = v[min(#v, floor((1 - Z.woods) * #v) + 1)] end
+    compile()
   end
   town.streets, town.index = {}, newIndex()
   local arts = St.arterials or {}

@@ -681,6 +681,26 @@ the canopy also removed a zone lookup per terrain triangle from every
 preset's drawing, so the suburb and the city centre got faster (3.7 s and
 3.1 s).
 
+**F71. Compiled helpers: what they bought, and where the rest goes** —
+2026-10-24, New (FIXES 43). With BPP's `geo` helpers (src/geo.cpp), seed
+1, generation + drawing inside BPP (Lua 5.1, release build, best of two;
+before, F70's measure): rural 2.9 s (5.0), suburban 2.7 s (3.7), city
+centre 2.4 s (3.1), industrial port 1.1 s (1.6), harbour town 3.6 s
+(5.2): 1.3-1.8x, every world the same to the bit (`checks/geo.lua`).
+Making the woods' 1.2 million triangles fell from ~2 s to 0.18 s and the
+terrain's grid to 0.03 s; a noise sample costs 0.15 µs instead of
+0.94 µs and a zone lookup 0.30 µs instead of 2.1 µs (harbour town). Rural's 2.9 s is now: ~1.1 s Bullet building the
+search trees (BVH) of the woods' and the ground's meshes in
+`Terrain:build()` (0.9 µs a triangle, measured on its own), 0.9 s placing
+the woods' trees (Lua: three random draws at each of 66,000 grid points,
+the clearance tests, the water and street distances), 0.4 s colouring the
+ground (a zone lookup per triangle, from Lua), and 0.6 s for the rest.
+The tenfold gain asked for is not there: the biggest single cost is now
+Bullet's, for meshes that are only drawn (they are made with no contact
+response; collisions with trees are the World pieces' job, in Lua), and
+the next is the placement logic itself, which would have to move to C
+whole to get much faster.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

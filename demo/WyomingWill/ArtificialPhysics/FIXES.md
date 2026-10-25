@@ -579,3 +579,20 @@ physically modelled quadcopter; see `quadcopter/README.md`).
     lot-street distance and rectangle overlap written without tables; the
     noise sum without `ipairs`; and one vertex per terrain node, shared by
     its triangles, instead of three per triangle.
+
+43. **The world generator's hottest code runs compiled inside BPP** (William,
+    2026-10-24, "Let's go with #1": a small C++ helper in BPP). `src/geo.cpp` registers a Lua
+    table `geo` of plain functions (no luabind per call) that repeat the
+    generator's Lua operation for operation: the noise (`geo.noise`,
+    `geo.fbm`), Town:entry's land rules on a packed copy of the zoning
+    (`geo.zones`, `geo.zone`; water stays in Lua), the terrain's ground
+    triangles and colours (`geo.grid`, `geo.colors`) and the woods' trees
+    (`geo.woods`). `lib/terrain.lua`, `lib/town.lua` and `lib/vegetation.lua`
+    use them when `geo` is there and run their own Lua otherwise (plain
+    `lua`, `tools/worldprint.lua`'s stand-in meshes). Worlds are the same
+    to the bit: `checks/geo.lua` builds each preset both ways inside BPP
+    and compares the full print and every drawn mesh corner for corner,
+    and the plain-Lua prints (5 presets, seeds 1-2, Lua 5.1-5.4) are
+    unchanged. The file turns off multiply-add fusion, which compilers may
+    do by default on ARM and Lua never does. Generation + drawing 1.3-1.8x
+    faster (FINDINGS F71); needs `qmake` and a rebuild (a new source file).

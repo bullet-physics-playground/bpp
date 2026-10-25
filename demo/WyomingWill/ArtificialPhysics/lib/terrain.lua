@@ -83,11 +83,19 @@
 --   t:slope(x, y); t:stats(); t:checksum()
 --   t:toBPP(v, opts)                    -- ground and water meshes
 --
+-- SPEED: inside BPP the noise and the ground mesh are made by BPP's
+-- compiled helpers (the global table `geo`, src/geo.cpp), which repeat
+-- this file's arithmetic operation for operation, so the terrain is the
+-- same, bit for bit (checks/geo.lua compares them); under plain Lua this
+-- file's own code runs.
+--
 
 local rng = require "lib.rng"
 
 local T = {}
 T.__index = T
+
+local geo = rawget(_G, "geo")         -- BPP's compiled helpers, or nil
 
 local floor, sqrt, abs, min, max, sin, cos, pi = math.floor, math.sqrt, math.abs, math.min, math.max,
   math.sin, math.cos, math.pi
@@ -126,12 +134,15 @@ local function newNoise(s, width, height, wavelength, octaves)
     amp = amp / 2
   end
   n.total = total
+  if geo then n._c = geo.noise(n) end   -- (a packed copy for geo.fbm)
   return n
 end
 
 local function fbm(n, x, y)  -- x, y measured from the area's low corner
   -- (the generator's most called function: a numeric loop and the quintic
   -- fade written out; the same arithmetic in the same order as before)
+  local c = n._c
+  if c then return geo.fbm(c, x, y) end
   local sum = 0
   local oc = n.octaves
   for q = 1, #oc do
@@ -854,24 +865,32 @@ function T:toBPP(viewer, opts)
   self.landColor = opts.landColor
   local ground = Terrain()
   local idx = 0
-  -- one vector per node, shared by the triangles that meet there (the
-  -- mesh copies them), and the colours in three flat arrays: far fewer
-  -- objects to make than three vectors and a table per triangle
-  local VX = {}
-  for k = 1, s * (self.ny + 1) do VX[k] = V(k) end
-  local cr, cg, cb = {}, {}, {}
+  -- (x, y, z) -> (x, z, -y) is a rotation, so the corners keep their
+  -- order and faces point up
+  local fast = geo and type(ground) == "userdata"  -- (not a stand-in mesh)
+  if fast then
+    geo.grid(ground, self.h, self.nx, self.ny, self.x0, self.y0, self.cell, S, base)
+  else
+    -- one vector per node, shared by the triangles that meet there (the
+    -- mesh copies them): far fewer objects than three per triangle
+    local VX = {}
+    for k = 1, s * (self.ny + 1) do VX[k] = V(k) end
+    self:eachTriangle(function(k, upper, a, b, c) ground:addTriangle(VX[a], VX[b], VX[c]) end)
+  end
+  local cr, cg, cb = {}, {}, {}       -- (three flat arrays, not a table per triangle)
   self:eachTriangle(function(k, upper, a, b, c)
-    -- (x, y, z) -> (x, z, -y) is a rotation, so the corners keep their
-    -- order and faces point up
-    ground:addTriangle(VX[a], VX[b], VX[c])
     local r, g, bl = self:triangleColor(a, b, c, hi)
     cr[idx], cg[idx], cb[idx] = r, g, bl
     idx = idx + 1
   end)
   ground:build()
   ground.col = "#6f9a4c"
-  for i = 0, idx - 1 do
-    ground:setTriangleColor(i, floor(cr[i] + 0.5), floor(cg[i] + 0.5), floor(cb[i] + 0.5))
+  if fast then
+    geo.colors(ground, cr, cg, cb, idx)
+  else
+    for i = 0, idx - 1 do
+      ground:setTriangleColor(i, floor(cr[i] + 0.5), floor(cg[i] + 0.5), floor(cb[i] + 0.5))
+    end
   end
   viewer:add(ground)
   if not opts.contact then pcall(function() ground.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end) end

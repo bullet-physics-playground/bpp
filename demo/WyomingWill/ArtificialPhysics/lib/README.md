@@ -137,6 +137,13 @@ w:writeGrid("corridor.txt")
   5.1–5.4). The speed-ups of FIXES 42 were checked this way on all five
   presets, seeds 1–2, on Lua 5.1–5.4.
 
+- **Compiled helpers inside BPP:** `terrain.lua`, `town.lua` and
+  `vegetation.lua` hand their noise, zone lookups and biggest meshes to
+  BPP's `geo` table (`src/geo.cpp`) when it is there, and run their own
+  Lua otherwise. `geo` repeats the Lua operation for operation, so the
+  worlds are the same; a change to one of those functions must be made in
+  both, and `checks/geo.lua` (inside BPP) catches a mismatch (FIXES 43).
+
 - **A world** is 2D footprints with heights in the book's units: discs,
   turned rectangles, triangles, walls, named regions and a cell tiling.
   `World.new{}` plus `disc`, `rect`, `tri`, `wall`, `boxWalls`, `region`,
