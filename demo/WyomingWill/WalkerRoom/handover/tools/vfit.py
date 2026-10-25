@@ -16,7 +16,7 @@ from shapely import affinity
 M, H, T, ZS = 0.3, 1.074, 0.3, 13 + 0.15 + 0.15
 BUILDS = ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
           "Hoecken-Spears_long-stance_diag", "Spears_lift_44_diag", "Spears_lift_53_diag"]
-def load(b, d="sweep6"):
+def load(b, d=__import__("os").environ.get("SWEEP6", "sweep6")):
     path = f"/home/claude/work/{d}/{b}.txt"
     name, L, S, bb, hz = topz.load(path)
     J = [l.split() for l in open(path) if l.startswith("JOIN")]
@@ -110,4 +110,4 @@ if __name__ == "__main__":
               f'room {r["room"]:5.2f}, ends raised {r["rise"]:5.2f}; brace bottom {r["ground"]:.2f} above the ground at its lowest; '
               f'closest part {r["worst"]:.2f} {r["who"]}')
         print(f'    bottom = {{ yRel = (as now), runFront = {rf:.2f}, runBack = {rb:.2f}, rise = {r["rise"]:.2f} }}')
-    json.dump(res, open("/home/claude/work/vfit.json", "w"), indent=1, default=str)
+    json.dump(res, open("/home/claude/work/vfit_" + __import__("os").environ.get("SWEEP6", "sweep6") + ".json", "w"), indent=1, default=str)

@@ -1,0 +1,80 @@
+# LINK_WIDTH 1.0 (25 October). Fewest planes (planesW.py; GAP 0.7): today's widths (sweepR0) reproduce the room's planes; at 1.0 (sweepW1) every build keeps its planes, Chebyshev-Spears diag could drop 4 -> 3.
+Chebyshev                        widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Chebyshev diag                   widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Chebyshev-Spears                 widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Chebyshev-Spears diag            widths now 4 {'crank': 1, 'coupler': 3, 'rocker': 2, 'pendant': 4} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Hoecken 4-bar                    widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Hoecken 4-bar diag               widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Hoecken slider                   widths now 3 {'crank': 1, 'coupler': 2, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'pendant': 3}
+Hoecken-Spears 4-bar             widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Hoecken-Spears 4-bar diag        widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Hoecken-Spears long-stance       widths now 4 {'crank': 1, 'coupler': 3, 'rocker': 2, 'pendant': 4} | at 1.0 4 {'crank': 1, 'coupler': 3, 'rocker': 2, 'pendant': 4}
+Hoecken-Spears long-stance diag  widths now 4 {'crank': 1, 'coupler': 3, 'rocker': 2, 'pendant': 4} | at 1.0 4 {'crank': 1, 'coupler': 3, 'rocker': 2, 'pendant': 4}
+Hoecken-Spears slider            widths now 3 {'crank': 1, 'coupler': 2, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'pendant': 3}
+Jansen                           widths now 3 {'crank': 1, 'rodJ': 2, 'triG': 1, 'rodK': 3, 'rodC': 2, 'rodF': 2, 'triJ4': 1} | at 1.0 3 {'crank': 1, 'rodJ': 2, 'triG': 1, 'rodK': 3, 'rodC': 2, 'rodF': 2, 'triJ4': 1}
+Klann                            widths now 3 {'crank': 1, 'triA': 2, 'rockerLower': 1, 'triB': 3, 'rockerUpper': 1} | at 1.0 3 {'crank': 1, 'triA': 2, 'rockerLower': 1, 'triB': 3, 'rockerUpper': 1}
+Spears 4-bar                     widths now 2 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 1} | at 1.0 2 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 1}
+Spears lift 44                   widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Spears lift 44 diag              widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Spears lift 53                   widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+Spears lift 53 diag              widths now 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3} | at 1.0 3 {'crank': 1, 'coupler': 2, 'rocker': 1, 'pendant': 3}
+# Link to foot, side view (footclearW.py): today (sweepR0) / at 1.0 (sweepW1) / at 1.0 with the new lift bodies (sweepW2)
+Chebyshev-Spears                 closest link to a foot: sweepR0  4.77  sweepW2  4.57  change -0.20
+Chebyshev-Spears diag            closest link to a foot: sweepR0  4.41  sweepW2  4.46  change +0.05
+Chebyshev                        closest link to a foot: sweepR0 14.44  sweepW2 14.42  change -0.02
+Chebyshev diag                   closest link to a foot: sweepR0 13.93  sweepW2 14.31  change +0.38
+Hoecken-Spears 4-bar             closest link to a foot: sweepR0  4.56  sweepW2  4.37  change -0.19
+Hoecken-Spears 4-bar diag        closest link to a foot: sweepR0  4.12  sweepW2  4.19  change +0.07
+Hoecken-Spears long-stance       closest link to a foot: sweepR0  4.71  sweepW2  4.47  change -0.23
+Hoecken-Spears long-stance diag  closest link to a foot: sweepR0  4.11  sweepW2  4.31  change +0.20
+Hoecken-Spears slider            closest link to a foot: sweepR0  8.61  sweepW2  8.62  change +0.01
+Hoecken 4-bar                    closest link to a foot: sweepR0 13.46  sweepW2 13.38  change -0.09
+Hoecken 4-bar diag               closest link to a foot: sweepR0 13.86  sweepW2 14.37  change +0.51
+Hoecken slider                   closest link to a foot: sweepR0  9.94  sweepW2  9.93  change -0.00
+Jansen                           closest link to a foot: sweepR0  7.89  sweepW2  7.92  change +0.03
+Klann                            closest link to a foot: sweepR0  3.21  sweepW2  3.22  change +0.00
+Spears 4-bar                     closest link to a foot: sweepR0  8.31  sweepW2  8.31  change -0.00
+Spears lift 44                   closest link to a foot: sweepR0  1.14  sweepW2  1.00  change -0.13
+Spears lift 44 diag              closest link to a foot: sweepR0  1.08  sweepW2  1.00  change -0.07
+Spears lift 53                   closest link to a foot: sweepR0  1.15  sweepW2  1.00  change -0.16
+Spears lift 53 diag              closest link to a foot: sweepR0  1.01  sweepW2  1.01  change +0.00
+# Jam checks (jamW.py; 30 s, seed 2, Earth standard, trot, forward, as run): at 1.0, four grounds
+Chebyshev-Spears diag            touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.95 steps4 8.12 waves0 8.83 waves6 6.96; pairs (frames) {}
+Chebyshev-Spears                 touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.76 steps4 8.21 waves0 8.94 waves6 5.06; pairs (frames) {}
+Chebyshev diag                   touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 2.77 steps4 6.15 waves0 8.96 waves6 5.28; pairs (frames) {}
+Chebyshev                        touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 4.80 steps4 6.31 waves0 8.89 waves6 4.11; pairs (frames) {}
+Hoecken-Spears 4-bar diag        touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.70 steps4 7.84 waves0 8.76 waves6 6.10; pairs (frames) {}
+Hoecken-Spears 4-bar             touching up to  0.1% (waves6); body on ground up to  0.0%; speeds logs4 6.91 steps4 7.95 waves0 8.89 waves6 4.68; pairs (frames) {'makeLink-makeLink': 4}
+Hoecken-Spears long-stance diag  touching up to  0.2% (waves6); body on ground up to  0.0%; speeds logs4 7.04 steps4 8.25 waves0 8.94 waves6 5.85; pairs (frames) {'buildOutsideCrossbar-makeLink': 4}
+Hoecken-Spears long-stance       touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.87 steps4 8.17 waves0 8.95 waves6 6.97; pairs (frames) {}
+Hoecken-Spears slider            touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 5.98 steps4 8.36 waves0 9.00 waves6 3.86; pairs (frames) {}
+Hoecken 4-bar diag               touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 3.82 steps4 6.54 waves0 9.01 waves6 5.15; pairs (frames) {}
+Hoecken 4-bar                    touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 5.02 steps4 6.50 waves0 8.90 waves6 4.61; pairs (frames) {}
+Hoecken slider                   touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 4.39 steps4 6.91 waves0 9.03 waves6 2.77; pairs (frames) {}
+Jansen                           touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 5.79 steps4 7.23 waves0 9.09 waves6 3.93; pairs (frames) {}
+Klann                            touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.90 steps4 8.31 waves0 9.00 waves6 5.21; pairs (frames) {}
+Spears 4-bar                     touching up to  3.3% (waves6); body on ground up to  0.0%; speeds logs4 2.63 steps4 6.15 waves0 9.11 waves6 3.59; pairs (frames) {'bodyFrame-makeLink': 61}
+Spears lift 44 diag              touching up to  0.6% (waves6); body on ground up to  0.0%; speeds logs4 7.21 steps4 8.35 waves0 8.87 waves6 6.00; pairs (frames) {'buildFoot-makeLink': 15}
+Spears lift 44                   touching up to 12.1% (waves6); body on ground up to  0.0%; speeds logs4 7.63 steps4 8.47 waves0 8.92 waves6 5.71; pairs (frames) {'buildFoot-makeLink': 266}
+Spears lift 53 diag              touching up to  4.1% (waves6); body on ground up to  0.0%; speeds logs4 7.05 steps4 8.19 waves0 8.91 waves6 5.07; pairs (frames) {'buildFoot-makeLink': 97}
+Spears lift 53                   touching up to  1.7% (waves6); body on ground up to  0.0%; speeds logs4 7.08 steps4 7.89 waves0 8.94 waves6 5.84; pairs (frames) {'buildFoot-makeLink': 40, 'makeLink-makeLink': 2}
+# the same at today's widths, waves 6 and logs 4
+Chebyshev-Spears diag            touching up to  2.1% (waves6); body on ground up to  0.0%; speeds logs4 7.30 waves6 6.30; pairs (frames) {'buildOutsideCrossbar-makeLink': 74}
+Chebyshev-Spears                 touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 7.23 waves6 4.56; pairs (frames) {}
+Chebyshev diag                   touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 2.81 waves6 4.45; pairs (frames) {}
+Chebyshev                        touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 4.82 waves6 4.58; pairs (frames) {}
+Hoecken-Spears 4-bar diag        touching up to  0.2% (waves6); body on ground up to  0.0%; speeds logs4 7.13 waves6 5.82; pairs (frames) {'buildOutsideCrossbar-makeLink': 9}
+Hoecken-Spears 4-bar             touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.76 waves6 5.80; pairs (frames) {}
+Hoecken-Spears long-stance diag  touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 7.12 waves6 6.10; pairs (frames) {}
+Hoecken-Spears long-stance       touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.86 waves6 7.00; pairs (frames) {}
+Hoecken-Spears slider            touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.76 waves6 4.26; pairs (frames) {}
+Hoecken 4-bar diag               touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 5.20 waves6 5.30; pairs (frames) {}
+Hoecken 4-bar                    touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 4.37 waves6 4.67; pairs (frames) {}
+Hoecken slider                   touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 4.94 waves6 4.07; pairs (frames) {}
+Jansen                           touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.63 waves6 4.35; pairs (frames) {}
+Klann                            touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 6.82 waves6 5.25; pairs (frames) {}
+Spears 4-bar                     touching up to  0.0% (logs4); body on ground up to  0.0%; speeds logs4 3.42 waves6 3.04; pairs (frames) {}
+Spears lift 44 diag              touching up to  9.9% (waves6); body on ground up to  0.0%; speeds logs4 7.26 waves6 5.24; pairs (frames) {'buildFoot-makeLink': 236}
+Spears lift 44                   touching up to 15.0% (waves6); body on ground up to  0.0%; speeds logs4 7.35 waves6 5.67; pairs (frames) {'buildFoot-makeLink': 381}
+Spears lift 53 diag              touching up to  2.2% (waves6); body on ground up to  0.0%; speeds logs4 7.07 waves6 5.30; pairs (frames) {'buildFoot-makeLink': 78}
+Spears lift 53                   touching up to  1.3% (waves6); body on ground up to  0.0%; speeds logs4 7.21 waves6 5.63; pairs (frames) {'buildFoot-makeLink': 33}

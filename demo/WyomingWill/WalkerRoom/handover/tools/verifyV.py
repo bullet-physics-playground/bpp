@@ -15,7 +15,7 @@ def raw(path):
             p = l.split(); R[int(p[1])].append([tuple(map(float, q.split(","))) for q in p[2].split(";")])
     return R
 def run(b):
-    path = f"/home/claude/work/sweepV/{b}.txt"
+    path = f"/home/claude/work/{__import__('os').environ.get('SWEEPV', 'sweepV')}/{b}.txt"
     name, L, S, bb, hz = topz.load(path); R = raw(path)
     J = [l.split() for l in open(path) if l.startswith("JOIN")]
     n = min(len(R[i]) for i in L)

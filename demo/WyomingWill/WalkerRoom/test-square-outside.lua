@@ -24,6 +24,8 @@ GRAVITY = 981
 FIXED = 1 / 3840
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1
+-- every bar 1.0 cm wide (LINK_WIDTH, handover section 4b); false: each file's own width
+if LINK_WIDTH == nil then LINK_WIDTH = 1.0 end
 
 DIAG_OUTSIDE = true
 -- the bottom brace a V seen from the side (OUTSIDE_V); false: flat, as patch 33 built it

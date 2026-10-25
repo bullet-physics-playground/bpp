@@ -164,6 +164,16 @@ local OUTSIDE_V_FIT = {
   ["Spears lift 44 diag"] = { runFront = 16.47, runBack = 18.47, rise = 4.54 },
   ["Spears lift 53 diag"] = { runFront = 13.74, runBack = 21.02, rise = 5.33 },
 }
+-- OUTSIDE_V_FIT_W: the same, at LINK_WIDTH 1.0 (vfit.py on sweep6W)
+local OUTSIDE_V_FIT_W = {
+  ["Chebyshev-Spears diag"] = { runFront = 22.39, runBack = 12.61, rise = 3.02 },
+  ["Hoecken-Spears 4-bar diag"] = { runFront = 21.90, runBack = 13.10, rise = 3.13 },
+  ["Chebyshev diag"] = { runFront = 21.17, runBack = 13.83, rise = 2.12 },
+  ["Hoecken 4-bar diag"] = { runFront = 20.88, runBack = 14.12, rise = 2.22 },
+  ["Hoecken-Spears long-stance diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
+  ["Spears lift 44 diag"] = { runFront = 16.72, runBack = 18.22, rise = 4.54 },
+  ["Spears lift 53 diag"] = { runFront = 14.24, runBack = 20.77, rise = 5.33 },
+}
 -- PLATE_LOW (default off): each plated build's side plates built as a bar
 -- 1.074 cm tall (the outside braces' bars) instead of the pendants' height,
 -- low on the pendants: its bottom, at its lowest in a crank turn, as high
@@ -175,11 +185,30 @@ local OUTSIDE_V_FIT = {
 -- the bar's middle is below the pendants' middles (cm), fitted from a crank
 -- turn (handover/tools/platefit.py).
 PLATE_LOW = PLATE_LOW or false
+-- PLATE_FIT_W: the same, at LINK_WIDTH 1.0 (the diag cousins' bottom braces then
+-- 3.84-7.95 cm up)
+local PLATE_FIT_W = {
+  ["Chebyshev"] = { drop = 7.30 }, ["Chebyshev-Spears"] = { drop = 3.08 }, ["Hoecken 4-bar"] = { drop = 7.28 },
+  ["Hoecken-Spears 4-bar"] = { drop = 3.48 }, ["Hoecken-Spears long-stance"] = { drop = 2.08 },
+  ["Spears lift 44"] = { drop = 5.25 }, ["Spears lift 53"] = { drop = 5.17 },
+  ["Hoecken slider"] = { drop = 7.30 }, ["Hoecken-Spears slider"] = { drop = 5.25 },
+}
 local PLATE_FIT = {
   ["Chebyshev"] = { drop = 7.28 }, ["Chebyshev-Spears"] = { drop = 3.05 }, ["Hoecken 4-bar"] = { drop = 7.26 },
   ["Hoecken-Spears 4-bar"] = { drop = 3.46 }, ["Hoecken-Spears long-stance"] = { drop = 2.09 },
   ["Spears lift 44"] = { drop = 4.84 }, ["Spears lift 53"] = { drop = 4.67 },
   ["Hoecken slider"] = { drop = 7.30 }, ["Hoecken-Spears slider"] = { drop = 5.25 },
+}
+-- OUTSIDE_FIT_W: the same, at LINK_WIDTH 1.0 (outz5.py on sweep4W, 0.4 cm
+-- from every link and foot), every build's bars 1.074 cm tall
+local OUTSIDE_FIT_W = {
+  ["Chebyshev-Spears diag"] = { bar = 1.074, top = { yRel = 14.52, runFront = 1.32, runBack = 10.44 }, bottom = { yRel = 5.75, runFront = 4.60, runBack = 8.67 } },
+  ["Hoecken-Spears 4-bar diag"] = { bar = 1.074, top = { yRel = 14.72, runFront = 1.24, runBack = 10.77 }, bottom = { yRel = 5.63, runFront = 4.86, runBack = 9.16 } },
+  ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.12, runBack = 14.38 }, bottom = { yRel = 7.71, runFront = 1.25, runBack = 1.26 } },
+  ["Hoecken 4-bar diag"] = { bar = 1.074, top = { yRel = 17.58, runFront = 8.06, runBack = 14.93 }, bottom = { yRel = 7.61, runFront = 1.19, runBack = 1.05 } },
+  ["Hoecken-Spears long-stance diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.14, runFront = 1.67, runBack = 7.83 }, bottom = { yRel = 5.30, runFront = 4.17, runBack = 8.59 } },
+  ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.54, runFront = 1.11, runBack = 14.09 }, bottom = { yRel = 3.59, runFront = 4.98, runBack = 13.23 } },
+  ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.16, runFront = 1.45, runBack = 15.05 }, bottom = { yRel = 4.01, runFront = 3.75, runBack = 15.26 } },
 }
 -- PENDANT_HOLD: true (or a table of names; default off): each leg's
 -- pendant (the link its foot hangs from) also held at its angle to the
@@ -195,6 +224,28 @@ PENDANT_HOLD = PENDANT_HOLD or false
 -- 0.18 to 0.46 cm thick, their planes 0.25 to 2.1 cm apart. false: each
 -- file's own.
 if LINK_THICK == nil then LINK_THICK = 0.3 end
+-- LINK_WIDTH (cm; default off): every bar of every walker (what its build
+-- makes with makeLink) this wide, as LINK_THICK makes them all as thick
+-- (William, 25 October: 1.0, about Jansen's and Klann's own). Off, each
+-- keeps its own file's width times the room's scale: 0.43 to 4.28 cm.
+-- Triangles (Jansen's, Klann's), the sliders' guide blocks, braces, plates
+-- and feet keep their shapes. Weight doesn't change (bars are weighed by
+-- length); turning inertia does a little; so do the clearances between
+-- bars in a plane, so some walkers need other planes (planesFor).
+LINK_WIDTH = LINK_WIDTH or false
+-- WIDTH_FIT: what LINK_WIDTH = 1.0 changes in a build besides its bars
+-- (handover section 4b): bodyRaise (the 1 cm between a foot's top and the
+-- lowest link, which sets the Spears lifts' bodies), cube_d (its 38 cm
+-- stance), planes (the fewest planes at that width: Chebyshev-Spears diag 3,
+-- as its guides cousin), bodyShift (balance), in the build's own units as
+-- in its entry below. Builds not named keep theirs.
+local WIDTH_FIT = {
+  ["Spears lift 44"] = { bodyRaise = -1.048 },
+  ["Spears lift 44 diag"] = { bodyRaise = -2.548 },
+  ["Spears lift 53"] = { bodyRaise = -2.188 },
+  ["Spears lift 53 diag"] = { bodyRaise = -3.678 },
+  ["Chebyshev-Spears diag"] = { planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, cube_d = 15.223 },
+}
 if PLANE_GAP == nil then PLANE_GAP = 0.7 end
 -- With PLANE_GAP, each walker's links in the fewest planes that keep them
 -- from touching (spec.planes: link -> plane, counted out from the body's
@@ -858,6 +909,11 @@ local function addWalker(spec, x, z, heading)
   -- tests, overrides it
   for k, val in pairs(spec.chassis or {}) do opts[k] = val end
   if WIDE then for k, val in pairs(spec.wide or {}) do opts[k] = val end end
+  local wfit = LINK_WIDTH and WIDTH_FIT[spec.name]   -- (LINK_WIDTH's refits: see WIDTH_FIT)
+  if wfit then
+    if wfit.bodyRaise then opts.bodyRaise = wfit.bodyRaise end
+    if wfit.cube_d and WIDE then opts.cube_d = wfit.cube_d end
+  end
   -- (with FOOT_POINT, its legs moved out so the outer edges of its points
   -- are as far apart as a flat foot's outer edges were: a flat foot reaches
   -- FOOT.width / 2 past its leg, a point FOOT_POINT, and each side moves
@@ -872,12 +928,13 @@ local function addWalker(spec, x, z, heading)
     if FOOT_POINT then opts.foot = { length = 1.4 * FOOT_POINT, width = 1.4 * FOOT_POINT, thick = 1.4 * FOOT_POINT, mass = FOOT.mass } end   -- (the box hidden inside the ball)
     if FOOT_ROD then opts.foot = { length = 1.4 * FOOT_ROD, width = FOOT.width, thick = 1.4 * FOOT_ROD, mass = FOOT.mass } end   -- (the box hidden inside the rod)
   end
-  local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and OUTSIDE_FIT[spec.name]
+  local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and (LINK_WIDTH and OUTSIDE_FIT_W or OUTSIDE_FIT)[spec.name]
   local low = not outside and DIAG_LOW and spec.brace and spec.brace.diag
   local arched = not outside and not low and DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
   if outside then
-    if OUTSIDE_V and OUTSIDE_V_FIT[spec.name] then
-      local v = OUTSIDE_V_FIT[spec.name]
+    local vfits = LINK_WIDTH and OUTSIDE_V_FIT_W or OUTSIDE_V_FIT
+    if OUTSIDE_V and vfits[spec.name] then
+      local v = vfits[spec.name]
       outside = { bar = outside.bar, extUp = outside.extUp, top = outside.top,
                   bottom = { yRel = outside.bottom.yRel, runFront = v.runFront, runBack = v.runBack, rise = v.rise } }
     end
@@ -893,12 +950,13 @@ local function addWalker(spec, x, z, heading)
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
-  if PLATE_LOW and PLATE_FIT[spec.name] then opts.plate = { height = 1.074, drop = PLATE_FIT[spec.name].drop } end
+  local pfits = LINK_WIDTH and PLATE_FIT_W or PLATE_FIT
+  if PLATE_LOW and pfits[spec.name] then opts.plate = { height = 1.074, drop = pfits[spec.name].drop } end
   opts.ankle = ANKLES or (ANKLE_SPRING and true)
   if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
   if DIAG_EXT_UP and spec.brace and spec.brace.diag then opts.extUp = DIAG_EXT_UP end   -- (a test: see the diag files' opts.extUp)
-  if PLANE_GAP then opts.planeGapCm = PLANE_GAP; opts.planeOf = opts.planeOf or spec.planes end
-  if BALANCE and spec.bodyShift then opts.bodyShift = spec.bodyShift end
+  if PLANE_GAP then opts.planeGapCm = PLANE_GAP; opts.planeOf = opts.planeOf or (wfit and wfit.planes) or spec.planes end
+  if BALANCE and spec.bodyShift then opts.bodyShift = (wfit and wfit.bodyShift) or spec.bodyShift end
   if BALANCE and spec.frame then
     -- its body as a frame spanning its leg mounts, carrying its load at the
     -- balance point: one body, its centre of mass where the load is and its
@@ -911,12 +969,13 @@ local function addWalker(spec, x, z, heading)
       local c = Cube(0.01, 0.01, 0.01, cube.mass)   -- (its own drawing hidden inside the frame's)
       c.col = cube.col
       local shape = btCompoundShape(true)
-      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(spec.frame.x, 0, 0)), btBoxShape(btVector3(L / 2, H / 2, D / 2)))
+      local fx = (wfit and wfit.bodyShift) and -wfit.bodyShift or spec.frame.x   -- (frame.x = -bodyShift)
+      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(fx, 0, 0)), btBoxShape(btVector3(L / 2, H / 2, D / 2)))
       local p = cube.pos
       c.body = btRigidBody(cube.mass, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(p.x, p.y, p.z))), shape, btVector3(1, 1, 1))
       c.damp_lin, c.damp_ang = cube.damp_lin, cube.damp_ang   -- (what its file gave the body so far)
       c.friction, c.restitution = cube.friction, cube.restitution
-      w.frame = { x = spec.frame.x, L = L, H = H, D = D }
+      w.frame = { x = fx, L = L, H = H, D = D }
       return c
     end
   end
@@ -974,8 +1033,15 @@ local function addWalker(spec, x, z, heading)
   local barLen, joints, realJoint = {}, {}, {}
   local ankleHinges = {}   -- (the hinges its buildFoot makes: ANKLES)
   Cube = function(...)
-    local o = realCube(...)
     local f = debug.getinfo(2, "n")
+    local o
+    if LINK_WIDTH and f and f.name == "makeLink" then   -- (every bar LINK_WIDTH wide: see LINK_WIDTH)
+      local a = { ... }
+      a[2] = LINK_WIDTH
+      o = realCube(unpack(a, 1, select("#", ...)))
+    else
+      o = realCube(...)
+    end
     made[o] = f and f.name
     if FOOT_POINT and SAME_FEET and made[o] == "buildFoot" then
       -- (a point: one body, a ball at the leg's tip, drawn by a look-only ball on it)
