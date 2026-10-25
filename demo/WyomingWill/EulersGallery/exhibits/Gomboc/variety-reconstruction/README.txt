@@ -27,6 +27,14 @@ for beta 0.07 (4.6 deg) but not for beta 0.08 (34.6 deg, from the `down` and
 `top` in the .lua files), and Section 5 of the same PDF says the balancing
 point sits ~35 deg off the top on beta 0.08 at home. Its summary's "above
 beta ~0.09" for the second basin is the rounded form of the scan above.
+Also (21 Oct 2026): its Table 6's "median time to rest upright from a
+headstand in 8.8 / 13.2 / 14.3 s" are times to come UPRIGHT (the exhibit's
+"upright after"), not to rest: the study-era script (commit c3d7bee) gives
+8.91 / 13.09 / 15.92 s upright and 11.96 / 16.45 / 18.36 s at rest, medians of
+30 seeds. The current script takes 11.35 / 17.29 / 19.81 s to come upright.
+  headstand-times.sh   the 30 seeds (one Gomboc-C of each size a run)
+  headstand-times.py   per-seed times, medians, quartiles, ranges
+  headstand-times.log  both sets, per seed
   lever.py    where rolling resistance can hold a shape (tipping lever below
               the rolling-resistance lever arm)
   hulleq.py   older facet check (local barriers only)
