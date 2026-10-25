@@ -1,0 +1,40 @@
+# chk36 (patch 36): new track (6 m wide), new advances; waves 4, BUMP 15, 60 s, Earth standard (standard ankle springs), trot, forward, seeds 1-4 on normal and mirrored ground. chk36_an.py:
+| Walker | Bracing | Timing | Direction | Normal ground, seeds 1-4 (cm/s) | Mirrored | Mean normal / mirrored / both | Sideways at end, normal / mirrored (cm) | Farthest from middle (cm) |
+|---|---|---|---|---|---|---|---|---|
+| Chebyshev-Spears | guides | trot | forward | 6.54 7.13 6.07 7.30 | 5.05 6.49 5.49 5.74 | 6.76 / 5.69 / 6.23 (sd 0.79, 8 runs) | -89 +76 -124 +104 / -271 -142 -251 -201 | 276 |
+| Chebyshev-Spears | diag, outside braces, held pendants | trot | forward | 7.55 6.74 7.37 6.45 | 6.62 7.06 6.23 7.33 | 7.03 / 6.81 / 6.92 (sd 0.48, 8 runs) | +100 +138 +66 +165 / -152 -141 -148 -70 | 167 |
+| Hoecken-Spears 4-bar | guides | trot | forward | 7.64 7.55 7.23 7.52 | 6.35 6.06 5.46 6.23 | 7.48 / 6.03 / 6.75 (sd 0.83, 8 runs) | +101 +102 +114 +104 / -138 -145 -249 -163 | 256 |
+| Hoecken-Spears 4-bar | diag, outside braces, held pendants | trot | forward | 7.21 7.20 7.40 6.81 | 7.68 6.93 6.45 7.17 | 7.16 / 7.06 / 7.11 (sd 0.38, 8 runs) | +150 +129 +144 +169 / -131 -98 -153 -89 | 178 |
+# TRACK lines
+CS_guides_s1_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 303.3 cm|5.05 cm/s|sideways -270.6 cm|stood up 0|air 0.1%|ground mirrored
+CS_guides_s1_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 392.6 cm|6.54 cm/s|sideways -88.6 cm|stood up 0|air 0.1%
+CS_guides_s2_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 389.6 cm|6.49 cm/s|sideways -142.0 cm|stood up 0|air 0.1%|ground mirrored
+CS_guides_s2_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 427.9 cm|7.13 cm/s|sideways 76.2 cm|stood up 0|air 0.1%
+CS_guides_s3_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 3|forward 329.3 cm|5.49 cm/s|sideways -250.8 cm|stood up 0|air 0.1%|ground mirrored
+CS_guides_s3_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 3|forward 364.2 cm|6.07 cm/s|sideways -124.1 cm|stood up 0|air 0.1%
+CS_guides_s4_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 4|forward 344.2 cm|5.74 cm/s|sideways -200.9 cm|stood up 0|air 0.1%|ground mirrored
+CS_guides_s4_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 4|forward 437.9 cm|7.30 cm/s|sideways 103.6 cm|stood up 0|air 0.1%
+CS_outside_s1_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 397.4 cm|6.62 cm/s|sideways -151.9 cm|stood up 0|air 0.1%|ground mirrored
+CS_outside_s1_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 453.1 cm|7.55 cm/s|sideways 99.9 cm|stood up 0|air 0.1%
+CS_outside_s2_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 423.7 cm|7.06 cm/s|sideways -141.4 cm|stood up 0|air 0.1%|ground mirrored
+CS_outside_s2_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 404.4 cm|6.74 cm/s|sideways 137.9 cm|stood up 0|air 0.1%
+CS_outside_s3_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 3|forward 374.0 cm|6.23 cm/s|sideways -148.3 cm|stood up 0|air 0.1%|ground mirrored
+CS_outside_s3_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 3|forward 442.2 cm|7.37 cm/s|sideways 66.5 cm|stood up 0|air 0.1%
+CS_outside_s4_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 4|forward 440.0 cm|7.33 cm/s|sideways -69.7 cm|stood up 0|air 0.1%|ground mirrored
+CS_outside_s4_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 4|forward 386.9 cm|6.45 cm/s|sideways 165.2 cm|stood up 0|air 0.1%
+HS4_guides_s1_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 380.9 cm|6.35 cm/s|sideways -138.0 cm|stood up 0|air 0.1%|ground mirrored
+HS4_guides_s1_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 458.3 cm|7.64 cm/s|sideways 100.9 cm|stood up 0|air 0.1%
+HS4_guides_s2_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 363.8 cm|6.06 cm/s|sideways -145.3 cm|stood up 0|air 0.1%|ground mirrored
+HS4_guides_s2_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 453.1 cm|7.55 cm/s|sideways 101.5 cm|stood up 0|air 0.1%
+HS4_guides_s3_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 3|forward 327.9 cm|5.46 cm/s|sideways -249.1 cm|stood up 0|air 0.1%|ground mirrored
+HS4_guides_s3_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 3|forward 433.8 cm|7.23 cm/s|sideways 113.7 cm|stood up 0|air 0.1%
+HS4_guides_s4_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 4|forward 373.8 cm|6.23 cm/s|sideways -162.8 cm|stood up 0|air 0.1%|ground mirrored
+HS4_guides_s4_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 4|forward 450.9 cm|7.52 cm/s|sideways 104.2 cm|stood up 0|air 0.1%
+HS4_outside_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 460.7 cm|7.68 cm/s|sideways -130.6 cm|stood up 0|air 0.1%|ground mirrored
+HS4_outside_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 432.3 cm|7.21 cm/s|sideways 149.9 cm|stood up 0|air 0.1%
+HS4_outside_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 415.7 cm|6.93 cm/s|sideways -98.2 cm|stood up 0|air 0.1%|ground mirrored
+HS4_outside_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 432.1 cm|7.20 cm/s|sideways 129.2 cm|stood up 0|air 0.1%
+HS4_outside_s3_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 3|forward 386.8 cm|6.45 cm/s|sideways -152.9 cm|stood up 0|air 0.1%|ground mirrored
+HS4_outside_s3_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 3|forward 443.7 cm|7.40 cm/s|sideways 143.9 cm|stood up 0|air 0.1%
+HS4_outside_s4_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 4|forward 430.1 cm|7.17 cm/s|sideways -88.7 cm|stood up 0|air 0.1%|ground mirrored
+HS4_outside_s4_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 4|forward 408.4 cm|6.81 cm/s|sideways 168.8 cm|stood up 0|air 0.1%

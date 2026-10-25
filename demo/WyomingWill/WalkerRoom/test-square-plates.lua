@@ -15,8 +15,8 @@
 --
 -- What to look for: with the body free to pitch and roll, the sides gait
 -- tips the body onto one side's feet (why the sides gaits were dropped).
--- The two sliders' cranks jam with their pendants held (40 solver
--- iterations; they turn at 200).
+-- With the body free, held pendants slow the cranks (the sliders' most);
+-- with the body damped they walk about as fast held as free.
 -- To see them with the body damped every way, as the walkers' own files
 -- have it (they walked that way before 21 October), set BODY_ANG_DAMP = 1
 -- below.

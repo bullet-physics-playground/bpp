@@ -358,7 +358,7 @@ local function makeTerrain()
 end
 makeTerrain()
 local function terrainHeight(x, z)
-  if TERRAIN_MIRROR then z = -z end   -- (a test: the same ground mirrored left for right)
+  if TERRAIN_MIRROR then z = -z end   -- (the same ground mirrored left for right: every terrain)
   if WAVES then
     local X, Z, h = x / BUMP, z / BUMP, 0
     for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * X + w.kz * Z + w.ph) end
@@ -512,7 +512,13 @@ end
 --   air, cranks turned slowly and in step: at each moment its lowest foot
 --   is the one standing, and the body moves as fast as that foot sweeps
 --   back). Its crank speed is 2 pi FLAT_SPEED / advance, so that every
---   walker would cross flat ground at the same speed.
+--   walker would cross flat ground at the same speed. Measured again 24
+--   October 2026 in trot (guides for the plated builds, outside braces for
+--   the diag builds, ankles on, each scaled to exactly one crank turn;
+--   Chebyshev-Spears, Hoecken-Spears 4-bar and long-stance diag with their
+--   pendants free, since held their cranks fell behind in the sweep:
+--   handover/tools/advtrot.py); a guides build and its diag cousin share
+--   the mean of theirs (they agree within 0.7%), so their cranks turn alike.
 -- fixed: its own physics step; the room steps at FIXED, so its motors'
 --   impulse (applied once per step) is scaled by FIXED / fixed
 -- lift: how its build is told about the bumps -- "groundTop" (the
@@ -540,32 +546,32 @@ end
 local RED, PURPLE, BLUE, MAGENTA, WHITE, GOLD = "#D62828", "#7B2CBF", "#1F6FEB", "#E5007E", "#F2F2F2", "#FFC300"
 
 local WALKERS = {
-  { name = "Jansen", bodyShift = -5.94, frame = { length = 49.4, x = 1.74 }, planes = { crank = 1, rodJ = 2, triG = 1, rodK = 3, rodC = 2, rodF = 2, triJ4 = 1 }, look = { code = "J 8", colour = RED, spears = false, diag = false }, wide = { cube_d = 111.366 }, advance = 25.308, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -33.430, rowSpacing = 158.44, cube_d = 114.8 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
+  { name = "Jansen", bodyShift = -5.94, frame = { length = 49.4, x = 1.74 }, planes = { crank = 1, rodJ = 2, triG = 1, rodK = 3, rodC = 2, rodF = 2, triJ4 = 1 }, look = { code = "J 8", colour = RED, spears = false, diag = false }, wide = { cube_d = 111.366 }, advance = 27.97, parts = "Jansen_6Leg_parts.lua", stride = 67.908, chassis = { bodyRaise = -33.430, rowSpacing = 158.44, cube_d = 114.8 }, fixed = 1 / 240, lift = "groundTop", forward = -1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Klann", bodyShift = -29.44, frame = { length = 49.8, x = 25.05 }, planes = { crank = 1, triA = 2, rockerLower = 1, triB = 3, rockerUpper = 1 }, look = { code = "K 6", colour = PURPLE, spears = false, diag = false }, wide = { cube_d = 102.634 }, advance = 29.542, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 12.356, rowSpacing = 164.79, cube_d = 129.8 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
+  { name = "Klann", bodyShift = -29.44, frame = { length = 49.8, x = 25.05 }, planes = { crank = 1, triA = 2, rockerLower = 1, triB = 3, rockerUpper = 1 }, look = { code = "K 6", colour = PURPLE, spears = false, diag = false }, wide = { cube_d = 102.634 }, advance = 29.71, parts = "Klann_6Leg_parts.lua", stride = 70.619, chassis = { bodyRaise = 12.356, rowSpacing = 164.79, cube_d = 129.8 }, fixed = 1 / 240, lift = "groundTop", forward = 1,
     opts = { speed = 2.5, rows = 2, rowPhase = 0, sidePhase = 180, hingeCFM = 0 } },
-  { name = "Chebyshev", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = false }, wide = { cube_d = 6.848 }, brace = { gap = 1.03 }, advance = 25.104, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.239, linkageSpacing = 10.995, cube_d = 0.5 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = false }, wide = { cube_d = 6.848 }, brace = { gap = 1.03 }, advance = 25.46, parts = "Chebyshev_normal_parts.lua", stride = 4.712, chassis = { bodyRaise = -0.239, linkageSpacing = 10.995, cube_d = 0.5 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 50, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Chebyshev diag", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 6.839 }, brace = { gap = 1.83, diag = true, rise = 10 }, advance = 24.794, parts = "Chebyshev_diag_parts.lua", stride = 4.7057, chassis = { bodyRaise = -0.778, linkageSpacing = 10.981, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev diag", bodyShift = 5.04, frame = { length = 47.4, x = -5.04 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C 4", colour = BLUE, spears = false, diag = true }, wide = { cube_d = 6.839 }, brace = { gap = 1.83, diag = true, rise = 10 }, advance = 25.46, parts = "Chebyshev_diag_parts.lua", stride = 4.7057, chassis = { bodyRaise = -0.778, linkageSpacing = 10.981, cube_d = 5.029 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0 } },
-  { name = "Chebyshev-Spears", bodyShift = 3.36, frame = { length = 43.5, x = -3.36 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = false }, wide = { cube_d = 15.221 }, brace = { gap = 0.94 }, advance = 18.46, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.296, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears", bodyShift = 3.36, frame = { length = 43.5, x = -3.36 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = false }, wide = { cube_d = 15.221 }, brace = { gap = 0.94 }, advance = 18.60, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.473, chassis = { bodyRaise = 3.296, linkageSpacing = 24.436, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180 } },
-  { name = "Chebyshev-Spears diag", bodyShift = 3.42, frame = { length = 43.5, x = -3.42 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 14.245 }, brace = { gap = 1.60, diag = true, rise = 10 }, advance = 18.46, parts = "Chebyshev_Spears_diag_parts.lua", stride = 10.4745, chassis = { bodyRaise = 1.722, linkageSpacing = 24.441, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Chebyshev-Spears diag", bodyShift = 3.42, frame = { length = 43.5, x = -3.42 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "C-S 4", colour = BLUE, spears = true, diag = true }, wide = { cube_d = 14.245 }, brace = { gap = 1.60, diag = true, rise = 10 }, advance = 18.60, parts = "Chebyshev_Spears_diag_parts.lua", stride = 10.4745, chassis = { bodyRaise = 1.722, linkageSpacing = 24.441, cube_d = 5.209 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6 } },
-  { name = "Hoecken 4-bar", bodyShift = 5.52, frame = { length = 47.8, x = -5.52 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, wide = { cube_d = 8.001 }, brace = { gap = 3.22 }, advance = 25.372, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.319, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken 4-bar", bodyShift = 5.52, frame = { length = 47.8, x = -5.52 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H 4", colour = MAGENTA, spears = false, diag = false }, wide = { cube_d = 8.001 }, brace = { gap = 3.22 }, advance = 25.67, parts = "Hoecken_normal_parts.lua", stride = 5.505, chassis = { bodyRaise = 1.319, linkageSpacing = 12.845, cube_d = 4.419 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken slider", bodyShift = -0.28, frame = { length = 41.0, x = 0.28 }, look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, wide = { cube_d = 12.958 }, brace = { gap = 6.54 }, advance = 25.207, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.692, linkageSpacing = 19.549, cube_d = 2.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken slider", bodyShift = -0.28, frame = { length = 41.0, x = 0.28 }, look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, wide = { cube_d = 12.958 }, brace = { gap = 6.54 }, advance = 24.67, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.692, linkageSpacing = 19.549, cube_d = 2.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", bodyShift = -0.32, frame = { length = 41.0, x = 0.32 }, look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, wide = { cube_d = 13.037 }, brace = { gap = 3.02 }, advance = 17.719, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.4291, chassis = { bodyRaise = 2.558, linkageSpacing = 19.641, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears slider", bodyShift = -0.32, frame = { length = 41.0, x = 0.32 }, look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, wide = { cube_d = 13.037 }, brace = { gap = 3.02 }, advance = 18.31, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.4291, chassis = { bodyRaise = 2.558, linkageSpacing = 19.641, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Spears 4-bar", bodyShift = 19.44, frame = { length = 59.9, x = -19.44 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 1 }, look = { code = "S 4", colour = GOLD, spears = false, diag = false }, wide = { cube_d = 13.651 }, advance = 29.019, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.367, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  { name = "Spears 4-bar", bodyShift = 19.44, frame = { length = 59.9, x = -19.44 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 1 }, look = { code = "S 4", colour = GOLD, spears = false, diag = false }, wide = { cube_d = 13.651 }, advance = 26.58, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.367, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
   -- (linkages of Chebyshev-Spears' kind, built by its file with other
   -- link lengths: see README.md)
-  { name = "Hoecken-Spears 4-bar", bodyShift = 3.80, frame = { length = 43.8, x = -3.80 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H-S 4", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 14.582 }, brace = { gap = 1.00 }, advance = 19.57, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.0334, chassis = { bodyRaise = 3.149, linkageSpacing = 23.411, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears 4-bar", bodyShift = 3.80, frame = { length = 43.8, x = -3.80 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H-S 4", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 14.582 }, brace = { gap = 1.00 }, advance = 19.68, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.0334, chassis = { bodyRaise = 3.149, linkageSpacing = 23.411, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.6138, h = 5.8331, leg = 5.8331, legAngle = 90, groundAngle = -45 } } },
-  { name = "Hoecken-Spears long-stance", bodyShift = 2.97, frame = { length = 44.7, x = -2.97 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "H-S 4L", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 11.381 }, brace = { gap = 1.12 }, advance = 16.058, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.3680, chassis = { bodyRaise = -0.907, linkageSpacing = 19.525, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears long-stance", bodyShift = 2.97, frame = { length = 44.7, x = -2.97 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "H-S 4L", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 11.381 }, brace = { gap = 1.12 }, advance = 17.21, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.3680, chassis = { bodyRaise = -0.907, linkageSpacing = 19.525, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.1842, h = 2.8129, leg = 2.8129, legAngle = 39.80, groundAngle = -20.14 } } },
   { name = "Spears 2-leg", look = { code = "S 4", colour = GOLD, spears = false, diag = false }, twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
@@ -1201,6 +1207,7 @@ local function buildWalkers()
         -- and across by SEED, so each seed meets the bumps differently)
         x = X0 + 60 + random() * BUMP
         z = (random() - 0.5) * BUMP
+        if TERRAIN_MIRROR then z = -z end   -- (on mirrored ground, the start mirrored too: the seed's run, left for right)
         heading = 0
       end
       -- (a railed walker starts along an axis: see `railed` above)
@@ -1736,8 +1743,9 @@ v:preSim(function(N)
       if not w.trackDone and simTime - w.trackStart[3] >= TRACK_SECS then
         w.trackDone = true
         local d = x - w.trackStart[1]
-        print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d|air %.1f%%",
-          w.spec.name, AMP, BUMP, SEED, d, d / TRACK_SECS, z - w.trackStart[2], w.stoodUp or 0, 100 * w.airFrames / w.allFrames))
+        print(string.format("TRACK %s|height %.2f|length %.1f|seed %d|forward %.1f cm|%.2f cm/s|sideways %.1f cm|stood up %d|air %.1f%%%s",
+          w.spec.name, AMP, BUMP, SEED, d, d / TRACK_SECS, z - w.trackStart[2], w.stoodUp or 0, 100 * w.airFrames / w.allFrames,
+          TERRAIN_MIRROR and "|ground mirrored" or ""))
       end
     end
   end

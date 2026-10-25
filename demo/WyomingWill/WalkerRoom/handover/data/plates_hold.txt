@@ -35,3 +35,12 @@ Hoecken-Spears long-stance   pendants 4  turn  0.10 /  0.00 deg  pair apart 0.05
 Spears lift 44               pendants 4  turn  0.12 /  0.00 deg  pair apart 0.072 / 0.001 cm  foot travel  15.00 /  15.00 cm  (210/210 moments)  [as built / held]
 Spears lift 53               pendants 4  turn  0.14 /  0.00 deg  pair apart 0.087 / 0.001 cm  foot travel  15.00 /  14.99 cm  (210/210 moments)  [as built / held]
 # Chebyshev-Spears plated, BODY_ANG_DAMP=1, same run: 7.02 cm/s plain, 7.58 held
+# sljam (24 October): sliders, low plates, waves 4, BUMP 15, seed 1, 30 s, Earth standard, sides (as built), forward; free / damped body (BODY_ANG_DAMP=1), pendants free / held
+HSL_damp         crank turns/s mean 0.16 min 0.10; TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 48.9 cm|1.63 cm/s|sideways 4.7 cm|stood up 0|air 0.2%
+HSL_damp_hold    crank turns/s mean 0.19 min 0.06; TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 66.0 cm|2.20 cm/s|sideways 9.3 cm|stood up 0|air 0.2%
+HSL_free         crank turns/s mean 0.35 min 0.29; TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 0.5 cm|0.02 cm/s|sideways 8.2 cm|stood up 0|air 0.2%
+HSL_free_hold    crank turns/s mean 0.17 min 0.06; TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward -8.0 cm|-0.27 cm/s|sideways -6.1 cm|stood up 0|air 0.2%
+HSSL_damp        crank turns/s mean 0.44 min 0.02; TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 222.6 cm|7.42 cm/s|sideways 9.6 cm|stood up 0|air 0.2%
+HSSL_damp_hold   crank turns/s mean 0.47 min 0.05; TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 212.0 cm|7.07 cm/s|sideways 5.9 cm|stood up 0|air 0.2%
+HSSL_free        crank turns/s mean 0.49 min 0.01; TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward -29.1 cm|-0.97 cm/s|sideways -19.5 cm|stood up 0|air 0.2%
+HSSL_free_hold   crank turns/s mean 0.31 min 0.14; TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 10.8 cm|0.36 cm/s|sideways -15.4 cm|stood up 0|air 0.2%

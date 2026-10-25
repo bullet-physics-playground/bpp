@@ -1,0 +1,36 @@
+# crankw (24 October): outside braces, trot, forward, seed 1, 20 s, Earth standard, AMP 0 / 4; pendants held / free. Last field: crank turns each second (stallprobe)
+CS_a0_free	TRACK Chebyshev-Spears diag|height 0.00|length 15.0|seed 1|forward 191.8 cm|9.59 cm/s|sideways -1.5 cm|stood up 0|air 0.0%	turns 0.02 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49 0.49
+CS_a0_hold	TRACK Chebyshev-Spears diag|height 0.00|length 15.0|seed 1|forward 179.0 cm|8.95 cm/s|sideways 1.3 cm|stood up 0|air 0.0%	turns 0.04 0.48 0.48 0.48 0.48 0.48 0.48 0.47 0.47 0.48 0.48 0.48 0.48 0.48 0.48 0.48 0.48 0.48 0.48 0.48 0.48
+CS_a4_free	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 115.0 cm|5.75 cm/s|sideways 36.7 cm|stood up 0|air 0.2%	turns 0.04 0.48 0.49 0.48 0.48 0.48 0.48 0.48 0.49 0.48 0.48 0.48 0.48 0.49 0.49 0.49 0.48 0.48 0.49 0.48 0.49
+CS_a4_hold	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 152.3 cm|7.61 cm/s|sideways 17.5 cm|stood up 0|air 0.2%	turns 0.13 0.47 0.46 0.45 0.44 0.45 0.43 0.47 0.39 0.45 0.47 0.46 0.45 0.41 0.39 0.42 0.42 0.44 0.44 0.46 0.46
+HS4_a0_free	TRACK Hoecken-Spears 4-bar diag|height 0.00|length 15.0|seed 1|forward 184.5 cm|9.22 cm/s|sideways -2.4 cm|stood up 0|air 0.0%	turns 0.08 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.46
+HS4_a0_hold	TRACK Hoecken-Spears 4-bar diag|height 0.00|length 15.0|seed 1|forward 176.9 cm|8.84 cm/s|sideways 0.9 cm|stood up 0|air 0.0%	turns 0.09 0.45 0.45 0.45 0.46 0.46 0.46 0.45 0.45 0.45 0.45 0.45 0.45 0.45 0.45 0.46 0.46 0.46 0.45 0.45 0.45
+HS4_a4_free	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 80.6 cm|4.03 cm/s|sideways 25.1 cm|stood up 0|air 0.2%	turns 0.09 0.46 0.46 0.46 0.46 0.46 0.46 0.46 0.45 0.45 0.44 0.45 0.45 0.46 0.46 0.45 0.46 0.31 0.17 0.17 0.18
+HS4_a4_hold	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 146.6 cm|7.33 cm/s|sideways 27.6 cm|stood up 0|air 0.2%	turns 0.19 0.45 0.46 0.39 0.44 0.41 0.35 0.42 0.44 0.44 0.45 0.42 0.35 0.43 0.43 0.42 0.45 0.31 0.41 0.45 0.39
+HSLS_a0_free	TRACK Hoecken-Spears long-stance diag|height 0.00|length 15.0|seed 1|forward 171.7 cm|8.59 cm/s|sideways -2.3 cm|stood up 0|air 0.2%	turns 0.06 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53
+HSLS_a0_hold	TRACK Hoecken-Spears long-stance diag|height 0.00|length 15.0|seed 1|forward 180.9 cm|9.04 cm/s|sideways 0.3 cm|stood up 0|air 0.2%	turns 0.04 0.52 0.52 0.52 0.52 0.52 0.52 0.52 0.52 0.52 0.52 0.52 0.51 0.51 0.52 0.52 0.52 0.52 0.52 0.52 0.52
+HSLS_a4_free	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 130.2 cm|6.51 cm/s|sideways 32.8 cm|stood up 0|air 0.2%	turns 0.05 0.53 0.53 0.53 0.53 0.53 0.53 0.52 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53 0.53
+HSLS_a4_hold	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 138.6 cm|6.93 cm/s|sideways 43.6 cm|stood up 0|air 0.2%	turns 0.02 0.48 0.51 0.52 0.46 0.48 0.49 0.50 0.52 0.51 0.49 0.51 0.50 0.51 0.49 0.49 0.51 0.51 0.51 0.50 0.50
+# advances in trot (advtrot.py)
+Chebyshev-Spears.txt                         Chebyshev-Spears                 crank 352.7 deg  advance per turn  18.57  stride 14.99  lift 4.65
+Chebyshev-Spears_diag.txt                    Chebyshev-Spears diag            crank 328.6 deg  advance per turn  18.52  stride 14.97  lift 4.41
+Chebyshev.txt                                Chebyshev                        crank 358.9 deg  advance per turn  25.43  stride 14.97  lift 2.86
+Chebyshev_diag.txt                           Chebyshev diag                   crank 359.3 deg  advance per turn  25.48  stride 15.00  lift 2.87
+Hoecken-Spears_4-bar.txt                     Hoecken-Spears 4-bar             crank 354.4 deg  advance per turn  19.68  stride 15.00  lift 4.89
+Hoecken-Spears_4-bar_diag.txt                Hoecken-Spears 4-bar diag        crank 337.4 deg  advance per turn  19.63  stride 14.96  lift 4.89
+Hoecken-Spears_long-stance.txt               Hoecken-Spears long-stance       crank 355.5 deg  advance per turn  17.20  stride 15.00  lift 5.18
+Hoecken-Spears_long-stance_diag.txt          Hoecken-Spears long-stance diag  crank 338.1 deg  advance per turn  17.34  stride 14.92  lift 5.17
+Hoecken-Spears_slider.txt                    Hoecken-Spears slider            crank 351.8 deg  advance per turn  18.31  stride 14.90  lift 4.89
+Hoecken_4-bar.txt                            Hoecken 4-bar                    crank 358.9 deg  advance per turn  25.58  stride 14.98  lift 3.05
+Hoecken_4-bar_diag.txt                       Hoecken 4-bar diag               crank 359.3 deg  advance per turn  25.75  stride 15.00  lift 3.05
+Hoecken_slider.txt                           Hoecken slider                   crank 350.3 deg  advance per turn  24.67  stride 14.94  lift 3.70
+Jansen.txt                                   Jansen                           crank 357.2 deg  advance per turn  27.97  stride 15.00  lift 4.94
+Klann.txt                                    Klann                            crank 352.1 deg  advance per turn  29.71  stride 15.00  lift 7.84
+Spears_4-bar.txt                             Spears 4-bar                     crank 358.9 deg  advance per turn  26.58  stride 15.00  lift 5.58
+Spears_lift_44.txt                           Spears lift 44                   crank 358.3 deg  advance per turn  20.29  stride 14.99  lift 7.71
+Spears_lift_44_diag.txt                      Spears lift 44 diag              crank 356.0 deg  advance per turn  20.25  stride 14.99  lift 7.70
+Spears_lift_53.txt                           Spears lift 53                   crank 358.8 deg  advance per turn  21.11  stride 14.99  lift 9.28
+Spears_lift_53_diag.txt                      Spears lift 53 diag              crank 357.4 deg  advance per turn  21.19  stride 15.00  lift 9.28
+nohold_CS.txt                                Chebyshev-Spears diag            crank 358.7 deg  advance per turn  18.63  stride 14.99  lift 4.66
+nohold_HS4.txt                               Hoecken-Spears 4-bar diag        crank 358.7 deg  advance per turn  19.68  stride 15.00  lift 4.89
+nohold_HSLS.txt                              Hoecken-Spears long-stance diag  crank 359.6 deg  advance per turn  17.22  stride 14.99  lift 5.17
