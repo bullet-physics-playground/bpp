@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 34 (launcher for the plated builds, held pendants on them; section 4b). 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 35 (low side plates, PLATE_LOW; section 4b). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -205,9 +205,23 @@ The old builds were heavier for their long pendants (extended up for the old bra
 
 **The plated builds don't walk with a free body** (data/plates_hold.txt): at sides, every one is between −1.2 and +0.5 cm/s on waves 4, held or not; they tip onto one side's feet. With the body damped every way (BODY_ANG_DAMP = 1, the old standard) plated CS walks 7.02 cm/s, 7.58 held. Open: keep them (on a damped body?) or set them aside. `test-square-plates.lua` (patch 34) shows all nine, unheld then held; views take `hold =` (walker-room.lua's setView).
 
+**Low side plates** (patch 35, `PLATE_LOW`, default off; `test-square-plates.lua` turns it on). William: the plates can be much less tall, lowering the CoM. Each plate is now a bar 1.074 cm tall (the outside braces' bars), its bottom at its lowest in a turn at the diag cousin's bottom brace's clearance (William's rule); the sliders (no diag cousin) by the diag braces' rule, top 0.3 under the body's bottom at its highest (the plates are outside the body across the walk, so it is only the rule, not a clash). `opts.plate = { height, drop }` in the five plated parts files; drops in PLATE_FIT, fitted by `platefit.py` from `sweepL.sh` sweeps (with ankles). Weight unchanged (the rule weighs a plate by its length). Checks: every plate on its target to 0.01 cm, 3.9 cm or more inside its pendants' height (it can be bolted on), 3.7 cm or more from every other part; walking 20 s on flat and waves 4 (body damped, held pendants but the sliders), no plate touches anything (`lowc.sh`). Picture: `low_plates_side.png`. The sliders still jam when held.
+
+| Build | Bracing | Plate bottom (cm above ground, lowest) | Weight low / tall / guides | CoM low / tall / guides / outside diag | Roll, pitch, yaw vs guides |
+|---|---|---|---|---|---|
+| Chebyshev | low plates | 7.97 | 107.7 / 107.7 / 93.9 | 15.20 / 16.46 / 16.13 / 15.68 | 1.20, 1.10, 1.13 |
+| Chebyshev-Spears | low plates | 5.99 | 99.2 / 99.2 / 85.4 | 10.81 / 11.62 / 11.48 / 11.31 | 1.24, 1.10, 1.15 |
+| Hoecken 4-bar | low plates | 7.87 | 108.4 / 108.4 / 94.6 | 14.96 / 16.07 / 15.86 / 15.95 | 1.20, 1.10, 1.13 |
+| Hoecken-Spears 4-bar | low plates | 5.88 | 100.8 / 100.8 / 87.0 | 10.93 / 11.78 / 11.62 / 11.40 | 1.24, 1.10, 1.14 |
+| H-S long-stance | low plates | 5.53 | 90.7 / 90.7 / 76.9 | 10.06 / 10.79 / 10.75 / 10.72 | 1.28, 1.11, 1.17 |
+| Spears lift 44 | low plates | 4.23 | 109.0 / 109.0 / 95.2 | 11.96 / 12.90 / 12.80 / 13.03 | 1.23, 1.08, 1.11 |
+| Spears lift 53 | low plates | 4.77 | 114.0 / 114.0 / 100.2 | 13.66 / 14.53 / 14.57 / 14.96 | 1.22, 1.07, 1.09 |
+| Hoecken slider | low plates | 7.36 | 102.4 / 102.4 / 88.6 | 13.79 / 14.76 / 14.66 / – | 1.21, 1.10, 1.14 |
+| Hoecken-Spears slider | low plates | 5.85 | 92.9 / 92.9 / 79.1 | 11.79 / 12.82 / 12.69 / – | 1.26, 1.11, 1.16 |
+
 **The plated builds** (measured 24 October): each side plate is welded to both pendants on its side, so those two legs must be in phase: no trot; the room builds them at sides (sidePhase 180). The plates add 13.8 on every build (the weight rule counts a plate as a bar its length long, so height adds nothing); CoM 0.0–0.3 cm above guides; pendants at guides' length (0.15 heavier, the weld bolt); plate bottoms now at 7.0–7.2 cm above the feet in stance (BRACE_CLEARANCE).
 
-**New tools** (`tools/`): `sweepP.sh`, `platecheck.py` (plated builds held / not, with ankles), `plsw.sh` (plated builds walking, held / not), `sweep5.sh`, `sweep6.sh`, `sweep_old.sh` (sweeps of the seven diag builds: pendants at guides' length / outside braces built / old braces), `outz5.py` (fit; `--sweeps`, `--links`), `verify5.py` (check as built), `contacts5.sh`, `contacts5b.sh`, `vibprobe_at.lua` (contacts reported at `CONTACT_AT`), `bracehit.lua` (what each brace piece touches), `letterprobe2.lua`, `draw33.py` (the pictures).
+**New tools** (`tools/`): `sweepL.sh`, `platefit.py` (fit / check the low plates), `lowc.sh` (their contacts walking), `draw34.py` (the picture), `sweepP.sh`, `platecheck.py` (plated builds held / not, with ankles), `plsw.sh` (plated builds walking, held / not), `sweep5.sh`, `sweep6.sh`, `sweep_old.sh` (sweeps of the seven diag builds: pendants at guides' length / outside braces built / old braces), `outz5.py` (fit; `--sweeps`, `--links`), `verify5.py` (check as built), `contacts5.sh`, `contacts5b.sh`, `vibprobe_at.lua` (contacts reported at `CONTACT_AT`), `bracehit.lua` (what each brace piece touches), `letterprobe2.lua`, `draw33.py` (the pictures).
 
 ## 5. What was found in the last session (17–21 October)
 

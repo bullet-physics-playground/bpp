@@ -447,13 +447,18 @@ local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
   -- bottom, its top staying where it was, so the plate clears bumps)
   local cut = math.min(opts.braceCut or 0, bar_height - rod_d)
   bar_height = bar_height - cut
+  -- (WALKER ROOM: opts.plate = { height =, drop = } (cm) builds the plate that
+  -- tall instead, its middle drop below the pendants' middles; braceCut is
+  -- then not used)
+  local dy = cut / 2
+  if opts.plate then bar_height, dy = opts.plate.height, -opts.plate.drop end
   local PA, PB = lkA.pendant.pos, lkB.pendant.pos
   local len = math.sqrt((PB.x-PA.x)^2 + (PB.y-PA.y)^2)   -- should equal linkage_spacing, by symmetry
   local mid_x = (PA.x + PB.x) / 2
 
   local bar = Cube(len, bar_height, rod_d, 1.0)
   bar.col = color
-  bar.trans = btTransform(IDENTITY_QUAT, btVector3(mid_x, PA.y + cut / 2, z_pos))   -- centered ON the pendant's own line -- no attach_height offset needed now there's only one bar
+  bar.trans = btTransform(IDENTITY_QUAT, btVector3(mid_x, PA.y + dy, z_pos))   -- centered ON the pendant's own line -- no attach_height offset needed now there's only one bar
   bar.damp_ang = 0.15
   add(bar)
 
@@ -462,14 +467,14 @@ local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
   -- correct weld-frame rotation for both ends.
   local pendant_quat = lkA.pendant.trans:getRotation()
 
-  local frameInBar_A = btTransform(pendant_quat, btVector3(-len/2, -cut / 2, lkA.z_pendant - z_pos))
+  local frameInBar_A = btTransform(pendant_quat, btVector3(-len/2, -dy, lkA.z_pendant - z_pos))
   local frameInA      = btTransform(IDENTITY_QUAT, btVector3(0, 0, 0))
   local weldA = btSliderConstraint(bar.body, lkA.pendant.body, frameInBar_A, frameInA, true)
   weldA:setLowerLinLimit(0)   -- btSliderConstraint defaults to FREE translation unless set --
   weldA:setUpperLinLimit(0)   -- these two calls are what actually makes this a rigid weld
   addConstraint(weldA)
 
-  local frameInBar_B = btTransform(pendant_quat, btVector3(len/2, -cut / 2, lkB.z_pendant - z_pos))
+  local frameInBar_B = btTransform(pendant_quat, btVector3(len/2, -dy, lkB.z_pendant - z_pos))
   local frameInB      = btTransform(IDENTITY_QUAT, btVector3(0, 0, 0))
   local weldB = btSliderConstraint(bar.body, lkB.pendant.body, frameInBar_B, frameInB, true)
   weldB:setLowerLinLimit(0)

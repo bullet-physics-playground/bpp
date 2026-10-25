@@ -4,7 +4,9 @@
 -- sides gait, the two sides half a turn apart), each without and then with
 -- its pendants held at their angle to the body (PENDANT_HOLD, as the diag
 -- builds with outside braces have them), at the Earth standard (as
--- test-square-earth.lua).
+-- test-square-earth.lua). The plates are low (PLATE_LOW): each a 1.074 cm
+-- bar at its diag cousin's bottom brace's clearance; PLATE_LOW = false
+-- below shows them as built.
 --
 -- Open this file in bpp and click the 3D view first, then:
 --   Tab, Shift+Tab   the next (or the one before) walker
@@ -29,6 +31,7 @@ FIXED = 1 / 3840
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1
 -- BODY_ANG_DAMP = 1
+if PLATE_LOW == nil then PLATE_LOW = true end
 
 local PLATED = { "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance",
                  "Spears lift 44", "Spears lift 53", "Hoecken slider", "Hoecken-Spears slider" }

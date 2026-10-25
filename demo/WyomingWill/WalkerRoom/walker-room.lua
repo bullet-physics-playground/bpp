@@ -143,6 +143,23 @@ local OUTSIDE_FIT = {
   ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.91, runFront = 1.84, runBack = 14.36 }, bottom = { yRel = 3.99, runFront = 4.97, runBack = 13.22 } },
   ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.65, runFront = 1.93, runBack = 15.58 }, bottom = { yRel = 4.54, runFront = 3.99, runBack = 15.27 } },
 }
+-- PLATE_LOW (default off): each plated build's side plates built as a bar
+-- 1.074 cm tall (the outside braces' bars) instead of the pendants' height,
+-- low on the pendants: its bottom, at its lowest in a crank turn, as high
+-- above the ground as its diag cousin's bottom brace's (William: the same
+-- clearance), and for the two sliders (no diag cousin) by the diag braces'
+-- rule, where a diag build's bottom brace would go: its top 0.3 cm under
+-- the body's bottom at its highest. The plates are outside every
+-- link, so nothing else limits them. PLATE_FIT: per walker, drop = how far
+-- the bar's middle is below the pendants' middles (cm), fitted from a crank
+-- turn (handover/tools/platefit.py).
+PLATE_LOW = PLATE_LOW or false
+local PLATE_FIT = {
+  ["Chebyshev"] = { drop = 7.28 }, ["Chebyshev-Spears"] = { drop = 3.05 }, ["Hoecken 4-bar"] = { drop = 7.26 },
+  ["Hoecken-Spears 4-bar"] = { drop = 3.46 }, ["Hoecken-Spears long-stance"] = { drop = 2.09 },
+  ["Spears lift 44"] = { drop = 4.84 }, ["Spears lift 53"] = { drop = 4.67 },
+  ["Hoecken slider"] = { drop = 7.30 }, ["Hoecken-Spears slider"] = { drop = 5.25 },
+}
 -- PENDANT_HOLD: true (or a table of names; default off): each leg's
 -- pendant (the link its foot hangs from) also held at its angle to the
 -- body, free to move with its leg -- as a rigid build's braces hold it,
@@ -843,6 +860,7 @@ local function addWalker(spec, x, z, heading)
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
+  if PLATE_LOW and PLATE_FIT[spec.name] then opts.plate = { height = 1.074, drop = PLATE_FIT[spec.name].drop } end
   opts.ankle = ANKLES or (ANKLE_SPRING and true)
   if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
   if DIAG_EXT_UP and spec.brace and spec.brace.diag then opts.extUp = DIAG_EXT_UP end   -- (a test: see the diag files' opts.extUp)

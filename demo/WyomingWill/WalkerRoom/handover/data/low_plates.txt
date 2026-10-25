@@ -1,0 +1,41 @@
+# Low plates (PLATE_LOW). platefit.py check (sweepL, with the fitted drops, ankles on, no hold):
+Chebyshev                    plate z -13.7: 1.079 tall, bottom at its lowest  7.97 (target 7.97), lift  2.86; top under the body by  0.40; inside its pendants by  7.71; closest other part  7.47 ('buildFoot', -13.0)
+Chebyshev                    plate z +13.7: 1.074 tall, bottom at its lowest  7.97 (target 7.97), lift  2.86; top under the body by  0.40; inside its pendants by  7.72; closest other part  7.47 ('buildFoot', 13.0)
+Chebyshev-Spears             plate z -13.7: 1.074 tall, bottom at its lowest  5.99 (target 5.99), lift  4.65; top under the body by  0.42; inside its pendants by  5.64; closest other part  5.48 ('buildFoot', -13.0)
+Chebyshev-Spears             plate z +13.7: 1.076 tall, bottom at its lowest  5.99 (target 5.99), lift  4.66; top under the body by  0.42; inside its pendants by  5.64; closest other part  5.48 ('buildFoot', 13.0)
+Hoecken 4-bar                plate z -13.7: 1.078 tall, bottom at its lowest  7.87 (target 7.87), lift  3.05; top under the body by  0.43; inside its pendants by  7.61; closest other part  7.37 ('buildFoot', -13.0)
+Hoecken 4-bar                plate z +13.7: 1.074 tall, bottom at its lowest  7.87 (target 7.87), lift  3.05; top under the body by  0.43; inside its pendants by  7.62; closest other part  7.37 ('buildFoot', 13.0)
+Hoecken-Spears 4-bar         plate z -13.7: 1.074 tall, bottom at its lowest  5.88 (target 5.88), lift  4.89; top under the body by  0.47; inside its pendants by  5.54; closest other part  5.37 ('buildFoot', -13.0)
+Hoecken-Spears 4-bar         plate z +13.7: 1.079 tall, bottom at its lowest  5.88 (target 5.88), lift  4.89; top under the body by  0.47; inside its pendants by  5.54; closest other part  5.37 ('buildFoot', 13.0)
+Hoecken-Spears long-stance   plate z -13.7: 1.075 tall, bottom at its lowest  5.53 (target 5.53), lift  5.19; top under the body by  0.49; inside its pendants by  5.22; closest other part  5.02 ('buildFoot', -13.0)
+Hoecken-Spears long-stance   plate z +13.7: 1.075 tall, bottom at its lowest  5.53 (target 5.53), lift  5.18; top under the body by  0.49; inside its pendants by  5.22; closest other part  5.02 ('buildFoot', 13.0)
+Spears lift 44               plate z -13.7: 1.074 tall, bottom at its lowest  4.23 (target 4.23), lift  7.71; top under the body by -0.12; inside its pendants by  3.91; closest other part  3.72 ('buildFoot', -13.0)
+Spears lift 44               plate z +13.7: 1.138 tall, bottom at its lowest  4.23 (target 4.23), lift  7.71; top under the body by -0.13; inside its pendants by  3.91; closest other part  3.72 ('buildFoot', 13.0)
+Spears lift 53               plate z -13.7: 1.074 tall, bottom at its lowest  4.77 (target 4.77), lift  9.28; top under the body by -0.20; inside its pendants by  4.43; closest other part  4.26 ('buildFoot', -13.0)
+Spears lift 53               plate z +13.7: 1.113 tall, bottom at its lowest  4.77 (target 4.77), lift  9.28; top under the body by -0.19; inside its pendants by  4.44; closest other part  4.26 ('buildFoot', 13.0)
+Hoecken slider               plate z -13.7: 1.162 tall, bottom at its lowest  7.36 (target: 0.3 under the body), lift  3.70; top under the body by  0.30; inside its pendants by  6.95; closest other part  6.84 ('buildFoot', -13.0)
+Hoecken slider               plate z +13.7: 1.074 tall, bottom at its lowest  7.36 (target: 0.3 under the body), lift  3.70; top under the body by  0.30; inside its pendants by  7.10; closest other part  6.85 ('buildFoot', 13.0)
+Hoecken-Spears slider        plate z -13.7: 1.088 tall, bottom at its lowest  5.85 (target: 0.3 under the body), lift  4.90; top under the body by  0.30; inside its pendants by  5.40; closest other part  5.33 ('buildFoot', -13.0)
+Hoecken-Spears slider        plate z +13.7: 1.074 tall, bottom at its lowest  5.85 (target: 0.3 under the body), lift  4.90; top under the body by  0.30; inside its pendants by  5.59; closest other part  5.35 ('buildFoot', 13.0)
+# lowc.sh: 20 s, waves BUMP 15, seed 1, Earth standard with BODY_ANG_DAMP=1, sides (as built), forward, PENDANT_HOLD except the sliders; AMP 0 and 4
+CS_a0	TRACK Chebyshev-Spears|height 0.00|length 15.0|seed 1|forward 167.9 cm|8.39 cm/s|sideways 0.0 cm|stood up 0|air 0.2%	CONTACTS Chebyshev-Spears|none
+CS_a4	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 151.7 cm|7.58 cm/s|sideways 5.5 cm|stood up 0|air 0.2%	CONTACTS Chebyshev-Spears|ground-pendant 1.7%
+C_a0	TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 121.1 cm|6.06 cm/s|sideways -0.9 cm|stood up 0|air 0.3%	CONTACTS Chebyshev|none
+C_a4	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 62.0 cm|3.10 cm/s|sideways 3.8 cm|stood up 0|air 0.4%	CONTACTS Chebyshev|ground-pendant 20.1%
+H4_a0	TRACK Hoecken 4-bar|height 0.00|length 15.0|seed 1|forward 125.2 cm|6.26 cm/s|sideways -1.0 cm|stood up 0|air 0.3%	CONTACTS Hoecken 4-bar|none
+H4_a4	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 65.3 cm|3.27 cm/s|sideways 5.4 cm|stood up 0|air 0.4%	CONTACTS Hoecken 4-bar|ground-pendant 43.5%
+HS4_a0	TRACK Hoecken-Spears 4-bar|height 0.00|length 15.0|seed 1|forward 162.5 cm|8.13 cm/s|sideways -0.5 cm|stood up 0|air 0.2%	CONTACTS Hoecken-Spears 4-bar|none
+HS4_a4	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 142.8 cm|7.14 cm/s|sideways 2.8 cm|stood up 0|air 0.2%	CONTACTS Hoecken-Spears 4-bar|ground-pendant 2.9%
+HSLS_a0	TRACK Hoecken-Spears long-stance|height 0.00|length 15.0|seed 1|forward 176.2 cm|8.81 cm/s|sideways 1.8 cm|stood up 0|air 0.3%	CONTACTS Hoecken-Spears long-stance|none
+HSLS_a4	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 165.4 cm|8.27 cm/s|sideways 5.8 cm|stood up 0|air 0.3%	CONTACTS Hoecken-Spears long-stance|ground-pendant 1.8%
+HSL_a0	TRACK Hoecken slider|height 0.00|length 15.0|seed 1|forward 134.8 cm|6.74 cm/s|sideways -2.1 cm|stood up 0|air 0.2%	CONTACTS Hoecken slider|none
+HSL_a4	TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 39.1 cm|1.95 cm/s|sideways 3.0 cm|stood up 0|air 0.3%	CONTACTS Hoecken slider|ground-pendant 16.3%
+HSSL_a0	TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 1|forward 178.8 cm|8.94 cm/s|sideways -1.7 cm|stood up 0|air 0.2%	CONTACTS Hoecken-Spears slider|none
+HSSL_a4	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 158.6 cm|7.93 cm/s|sideways 5.8 cm|stood up 0|air 0.3%	CONTACTS Hoecken-Spears slider|ground-pendant 1.4%
+L44_a0	TRACK Spears lift 44|height 0.00|length 15.0|seed 1|forward 164.1 cm|8.20 cm/s|sideways -0.8 cm|stood up 0|air 0.3%	CONTACTS Spears lift 44|none
+L44_a4	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 157.0 cm|7.85 cm/s|sideways 5.1 cm|stood up 0|air 0.4%	CONTACTS Spears lift 44|ground-pendant 2.7%
+L53_a0	TRACK Spears lift 53|height 0.00|length 15.0|seed 1|forward 150.7 cm|7.54 cm/s|sideways -0.2 cm|stood up 0|air 0.3%	CONTACTS Spears lift 53|none
+L53_a4	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 143.7 cm|7.18 cm/s|sideways 4.4 cm|stood up 0|air 0.4%	CONTACTS Spears lift 53|ground-pendant 4.7%
+# held sliders with low plates (sweepL, held-body turn): still jam
+Hoecken-Spears slider held: crank 289 deg, foot travel 13.23, lift 0.11 (free: 359, 15.02, 4.90)
+Hoecken slider held: crank 295 deg, lift 0.83 (free: 359, 3.70)
