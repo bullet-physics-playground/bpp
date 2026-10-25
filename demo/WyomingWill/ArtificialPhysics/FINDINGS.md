@@ -166,6 +166,29 @@ hybrid, like neighbours at 1.55 D between √2 and √3 D. A true periodic
 switch (ours, 100 ticks each) also works, more slowly: 42–53% at 500
 ticks, 0–10% from 1800.
 
+**F78. Ch. 4.3: uniform coverage reproduces Table 4.2, Fig. 4.19 and
+William's NetLogo runs; below a mean free path of 17 the runs are noise**
+— 2026-10-25, Confirmed. `ch04/README.md`, `checks/ch04.lua`. On a
+line-for-line copy of `uniform.nlogo` and `uniform_mfpl.nlogo`
+(`ch04/coverage.lua`), every run stopped by one rule (doubling blocks of
+agent steps from 2 × 10⁷, stop within 1%, at most 2 × 10⁸, the book's
+budget): Table 4.2's 0.027 / 0.026 / 0.016 / 0.004 for 1 / 10 / 100 /
+1000 particles come out 0.0272 / 0.0265 / 0.0168 / 0.0045; Fig. 4.17's
+corners > edges > centre; Fig. 4.19's curves, including one particle's
+dip (0.0231 at MFP 50, 0.0037 at 65, 0.0184 at 80) where the book says
+53–65; MFP 120 equals no mean free path to the last digit (the longest
+path is 113). William's NetLogo deviations (`ch04/uniform_data.txt`) are
+reproduced to within a few percent at MFP 17–100 for 1–100 agents and
+~10% for 1000 (e.g. one agent 0.0039 / 0.0073 / 0.0231 / 0.0267 against
+0.0038 / 0.0072 / 0.023 / 0.026 at MFP 17 / 30 / 50 / 100), and the BPP
+scene `Uniform_Coverage.lua` reproduces his Android column the same way
+(one agent 0.0018 / 0.0157 / 0.0367 against 0.0019 / 0.016 / 0.036 at
+17 / 50 / 100). Below MFP 17 nothing settles in 2 × 10⁸ agent steps: an
+agent turning every few steps random-walks between cells, and the
+deviation is sampling noise falling as ~1/√(steps) (one agent at MFP 4:
+0.0009–0.0020 over four seeds, against William's 0.0004, which needs
+~10⁹–10¹⁰ ticks).
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.

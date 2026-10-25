@@ -381,6 +381,9 @@ local function uniformityDeviation()
   return math.sqrt(sumSq)
 end
 
+-- ticks, agents and deviation, for probes (probes/coverage_sweep.lua)
+function coverageStats() return ticks, #agents, uniformityDeviation() end
+
 local function theoreticalMeanFreePath()
   return 0.65 * (2.0 * BOUNDARY / 3.0)
 end

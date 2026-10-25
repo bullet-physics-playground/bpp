@@ -26,8 +26,8 @@ is on the website.
 | `formation_chain.nlogo` | 4 | not yet |
 | `formation_perfect.nlogo` | 4 | not yet |
 | `kt.nlogo` | 4 (kinetic theory) | not yet |
-| `uniform.nlogo` | 4.3 | `Uniform_Coverage.lua` (via the Android app; wall rule kept by decision, FIXES 36) |
-| `uniform_mfpl.nlogo` | 4.3, 11 | measured against BPP (FINDINGS F16) |
+| `uniform.nlogo` | 4.3 | `ch04/coverage.lua` (line for line; `checks/ch04.lua`, F78); `Uniform_Coverage.lua` (via the Android app; wall rule kept by decision, FIXES 36) |
+| `uniform_mfpl.nlogo` | 4.3, 11 | `ch04/coverage.lua` (line for line; `ch04/README.md`, F78); measured against BPP (FINDINGS F16) |
 | `dinos.nlogo` | 6 (dinoflagellates) | not yet |
 | `apo.nlogo` | 19.1 | not yet |
 | `dla.nlogo` | not in the book (May 2012): robot recharging after Mullins, "Autonomous Recharging of Swarm Robots" | — |
