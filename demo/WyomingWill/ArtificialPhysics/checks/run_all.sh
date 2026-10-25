@@ -88,6 +88,7 @@ run buildings     lua_check buildings checks/buildings.lua
 run features      lua_check features checks/features.lua
 run lattice       lua_check lattice checks/lattice.lua
 run ch13          lua_check ch13 checks/ch13.lua
+run fixedwing     lua_check fixedwing checks/fixedwing.lua
 export N=$N_DEFAULT                        # sample sizes for the two statistical checks
 [ -n "$S" ] && export S_LIST=$S
 run mfp_theory    lua_check mfp_theory checks/mfp_theory.lua

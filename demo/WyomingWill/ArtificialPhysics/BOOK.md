@@ -138,7 +138,7 @@ Most chapters need the same pieces. Build each once.
 | G9 | **Force-law table** keyed by (source type, target type): asymmetric, with wildcards and virtual particles, and one sign convention | 3.4, 3.5, 5, 16, 17 |
 | G10 | **Ground vehicles (Pioneer 3-AT done, `ground/`; Maxelbot to come):** skid-steer Maxelbot (MMP-5) and differential-drive Pioneer 3-AT | 9, 10, 11, 12, 13 |
 | G11 | **Water vehicles (the ASV done, `boat/`):** a holonomic round ASV (Voith–Schneider); an ROV-style multi-thruster vehicle that can hover and move sideways; a torpedo-shaped AUV that cannot | 6, ★9, ★capstone |
-| G12 | **Fixed-wing aircraft** (constant speed, bank limit) with the heading-particle torque law, plus the dumbbell agent | 3.1 ★, 13 |
+| G12 | **Fixed-wing aircraft (kinematic model done, `fixedwing/`; Ch. 13 experiments in `ch13/`):** constant speed, bank limit, with the heading-particle torque law | 3.1 ★, 13 |
 | G13 | **Worlds:** wall polygons from vertex lists, corridors, mazes, and an obstacle-density generator | 4.3, 7, 11, 12, 14, 15 |
 | G14 | **Plume model:** Farrell-style puffs with wind, white-noise mixing and obstacles | 8, 9 |
 | G15 | **Neighbour messages:** sensed values as well as positions; flooding broadcast | 4.1, 6, 9, 12, 19 |
@@ -334,11 +334,11 @@ metrics.
 | 13.3–13.4 | Differential-drive and Pioneer reachable space | 449–453 | `ground/vehicle.lua` (G10): the Pioneer with the book's r_diff, wheel range and caps; read as stopping the wheel, the minimum speed freezes the lattice as Fig. 13.7 predicts (F66); read as turning it at 0.1 m/s, the robots reach D and get through the obstacle field (F72); plots to come | partly |
 | 13.5 | **AR damping η + stop threshold** | 453–454 | `lib/ch13.lua`; on the drones `etaPower` 1, `etaWidth` 0.2 (2D) / 0.5 (3D), the Newtonian default; measured 2D/3D against LJ (`quadcopter/README.md`, F43–F55) | done |
 | 13.6 | "Triangle of death" | 454–456 | Ground robots | new |
-| 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | G12 | new |
-| 13.9 | Heading-particle torque law | 460–462 | Fixed-wing (G12) | plan (corrected) |
+| 13.7–13.8 | Fixed-wing reachable space (13 m/s, 20° bank); single-attractor behaviours. Eq. 13.14 gives a ~101 m turn radius, which matches Fig. 13.16's loops; a coordinated turn would give ~47 m | 457–459 | `fixedwing/model.lua`, `ch13/UAV-Attractor.lua`: the three outcomes of Fig. 13.13 reproduced (F76) | done |
+| 13.9 | Heading-particle torque law | 460–462 | `ch13/uav.lua` on the fixed-wing (Eqs. 13.15–13.18; repulsion turns away from the neighbour, F76) | done |
 | 13.10 | Dumbbell agent | 462–463 | Pioneer | plan (corrected) |
 | 13.11 | **Pioneer recipe: adaptive friction (13.23), caps, adaptive cap (13.24), static friction (13.25); 3–5-robot camera ring with three-point turns** | 463–465 | On the drones all measured: only η is needed; adaptive and static friction and the adaptive cap are not (F51, F54, F55). On the Pioneers (M2): adaptive and static friction do not settle the split law at D, and the cap has no collisions to prevent (F66, F68); ring on Pioneers to come | partly |
-| 13.12 | 5 UAVs and 10 targets, gravity vs torque law | 465–467 | Fixed-wing | new |
+| 13.12 | 5 UAVs and 10 targets, gravity vs torque law | 465–467 | `ch13/UAV-Targets.lua`, 20 seeds: the torque law 1.6× the time over the targets and a tighter spread; not the lower turning (F76) | done |
 | 13.13 | Four-step design procedure | 466–468 | Checklist | new |
 
 ### Ch. 14 — Adaptive learning, Daedalus (PDF 472–505) · `book/ch14.md`

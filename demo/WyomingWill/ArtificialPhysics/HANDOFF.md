@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F75 so far), and
+  implementations, and our own mistakes once corrected (F1–F76 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -97,6 +97,7 @@ is updated at the end of every milestone.
 | `src/geo.cpp` (BPP's, at the repository root) | BPP's compiled helpers for the world generator (the Lua table `geo`: noise, zone lookup, the ground's and the woods' meshes), the Lua's arithmetic operation for operation; `checks/geo.lua` compares the two (FIXES 43, F71) |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
+| `ch13/`, `fixedwing/` | Ch. 13's constrained vehicles: the fixed-wing UAV (kinematic, 13 m/s, 101 m turns) with the point-mass and torque laws (`UAV-Attractor.lua`, `UAV-Targets.lua`; F76) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–43 |
@@ -384,6 +385,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
      theory (Ch. 4.4, Ch. 7); the vehicle interface makes the point mass
      (G5) one more vehicle module.
+- **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
+  fixed-wing UAV with the point-mass and torque laws (**done** before M3,
+  `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
+  the camera ring (§13.4, E10–E11b); (3) the triangle of death (E6); (4) a
+  torpedo-shaped AUV that cannot hover or move sideways (G11).
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found

@@ -780,6 +780,37 @@ limit; scaling both wheels up only when both are under 0.1 m/s kept the
 limit but left the lattice dithering (mean speed 0.02 m/s, never
 formed).
 
+**F76. Fixed-wing UAVs: the torque law keeps them over the targets; the
+book's lower turning is not reproduced** — 2026-10-25, Confirmed (Fig.
+13.13, Fig. 13.16's loops) and New. `ch13/README.md`,
+`checks/fixedwing.lua`. The book's aircraft as a kinematic model
+(`fixedwing/model.lua`): 13 m/s, Ω_max = g sin 20° / (2v) = 0.1290 rad/s
+(Eq. 13.14; radius 100.7 m, the ~100 m loops of Fig. 13.16; a coordinated
+turn would give 0.275 rad/s, 47 m, and the factor 2 is unexplained), 10 Hz.
+One UAV, one attractor, gravity law (Fig. 13.13): directly behind it flies
+away (1760 m after 120 s); outside the unreachable zones it overflies the
+attractor again and again (12 passes in 600 s, to 0.04 m); inside one
+it orbits for ever exactly at the closest reachable distance (50.00 m =
+101 − 51). The torque law turns round for an attractor behind. Five UAVs
+over ten targets, seeds 1–20, 120–600 s: time over the targets'
+rectangle 12.2% (11.0–14.2) with the torque law against 7.8% (4.7–10.0)
+with the gravity law, spread 137 m against 147 m, in overlapping loops
+that cross the targets once per orbit, as the book shows. Mean |Ω| is
+0.129 against 0.127 rad/s: both laws turn at nearly the limit, since a
+loop of the smallest radius is what both fly, so the book's "less
+turning" is not reproduced; a memoryless torque law with κ shared among
+the targets turns at half the limit but circles them 205 m out and never
+crosses them (0% over). Two hazards in the printed law: its repulsion
+"+κθ" is zero for a neighbour dead ahead (we turn away from the
+neighbour instead, κ wrap(θ + π)); and with any friction on Ω (Eq.
+13.22's (1 − μ_Ω), 0.01–0.05) a UAV leaving with the targets straight
+behind stays on course in 3–4 runs of 20, the springs to targets either
+side of its tail cancelling in a stable balance, so the torque law is
+used as printed (Eq. 13.18, no friction). In one plane the UAVs come
+within a metre of each other in most runs under both laws (the book does
+not say); real ones would need height separation. Our choices: G 20,000,
+μ 0.5, repulsion within 50 m, κΔt/I = Ω_max/π per pair (the book's rule).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
