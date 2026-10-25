@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 36 (6 m track, mirrored ground, advances in trot; section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 37 (`test-square-check.lua`, M and N keys). 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -218,6 +218,7 @@ The old builds were heavier for their long pendants (extended up for the old bra
 
 - Mirrored ground matters: both guides builds are 1.1–1.5 cm/s slower on it; the diag builds 0.1–0.2. A walker isn't its own mirror image (its trot puts different legs together), so the two grounds are not the same test. Every walker drifts the other way on mirrored ground.
 - Over both grounds the diag builds are as fast as their guides cousins or faster (6.92 against 6.23; 7.11 against 6.75), with less spread. Not comparable to section 4a's numbers (straight-trough waves, springs scaled to weight, old advances).
+- `test-square-check.lua` (patch 37) shows these four builds on the same track; on the test track, M mirrors the ground and N steps the seed 1–4 (both rebuild the track, as 1–4 do). Checked headless: it reproduces the check runs exactly (CS diag mirrored seed 1 6.62, HS4 guides seed 2 7.55).
 - Walls: no walker touched one, but CS guides on mirrored seed 1 ended 276 cm from the middle (its feet reach about 19 cm out; walls at 300). Logs and steps may drift farther: a wider track (ARENA_Z 800) or shorter runs may be needed for the factorial.
 
 **What the hold costs while walking** (`crankw`, picture `crank_hold.png` bottom row; outside braces, trot, forward, seed 1, 20 s): held cranks run up to about 7% below the driven speed on waves 4 (dips at crests), 2% or less on flat; the held builds still go farther on waves (CS 7.61 / 5.75 cm/s held / free, HS4 7.33 / 4.03, long-stance 6.93 / 6.51). A small drag the hold adds in the simulation, far smaller than the swing it removes.

@@ -317,6 +317,7 @@ local BUMP_MIN, BUMP_MAX = 11, 44
 --     turns, 2 to 5 BUMPs apart, at random angles (up to 15 degrees)
 -- TERRAIN_SEED (default SEED): which random landscape
 TERRAIN = TERRAIN or "waves"
+local TERRAIN_SEED_SET = TERRAIN_SEED   -- (set: the N key leaves the landscape alone)
 local TERRAIN_SEED = TERRAIN_SEED or SEED
 local tseed
 local function trand()           -- its own random numbers, leaving the walkers' alone
@@ -1768,6 +1769,8 @@ local function helpText()
     h = h .. "Tab         put the next walker on the track (built again)\n"
     h = h .. "Shift+Tab   the one before\n"
     h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
+    h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
+    h = h .. "N           the next seed, 1 to 4 (now " .. SEED .. ")\n"
     h = h .. "O           look over the whole track\n"
     h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
@@ -1858,6 +1861,9 @@ local function trackNext(step)
 end
 -- the test track's ground: 1 waves, 2 random, 3 logs, 4 steps (built again)
 local TERRAIN_KEYS = { ["1"] = "waves", ["2"] = "random", ["3"] = "logs", ["4"] = "steps" }
+-- (and M: the same ground mirrored left for right, or back; N: the next
+-- seed, 1 to 4 -- where it starts, and the random landscape -- as the
+-- headless runs' SEED)
 
 v:onKey(function(N, key, down)
   if TEST_TRACK and (key == "Tab" or key == "Backtab") then
@@ -1869,6 +1875,18 @@ v:onKey(function(N, key, down)
       TERRAIN = TERRAIN_KEYS[key]
       rebuildTrack()
       print("test track: " .. TERRAIN)
+    end
+    return true
+  end
+  if TEST_TRACK and (key == "M" or key == "N") then
+    if down then
+      if key == "M" then TERRAIN_MIRROR = not TERRAIN_MIRROR
+      else
+        SEED = SEED % 4 + 1
+        if not TERRAIN_SEED_SET then TERRAIN_SEED = SEED end
+      end
+      rebuildTrack()
+      print("test track: " .. TERRAIN .. (TERRAIN_MIRROR and ", mirrored" or "") .. ", seed " .. SEED)
     end
     return true
   end
