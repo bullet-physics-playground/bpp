@@ -218,7 +218,7 @@ detail.
 | 4.1 | Perfect formations (`formation_perfect`): (m, n) slots; the triangle breaks Newton's third law | 124–130 | `ch04/perfect.lua` (the `.nlogo` line for line): both lattices perfect, the momentum signature, One is Born, live D (F82); toggles rebuild turned 11–15°; question (a): the third law can be kept, 5–12× slower (F83); ★ (m, n, k) cube; questions (b), (c) open | done |
 | 4.2 | Chains (`formation_chain`): elliptical law; Table 4.1 (561 → 350) | 131–138 | Particles with heading (G17), 50-run batches; ★ prolate spheroid in 3D | plan |
 | 4.3a | Coverage baseline (`uniform`): 84×84, 9 cells; Table 4.2 | 139–144 | `ch04/coverage.lua` (`uniform.nlogo` line for line): Table 4.2 and Fig. 4.17 reproduced (F78) | done |
-| 4.3b | Mean free path (`uniform_mfpl`): bound 17⅓; Fig. 4.19 dip at 53–65 | 144–147 | Fig. 4.19 and its dip reproduced; William's NetLogo runs reproduced at MFP ≥ 17, below it noise-limited at 2 × 10⁸ agent steps; the BPP scene matches his Android runs (`ch04/`, F78); ★ 27 cells in 3D | done |
+| 4.3b | Mean free path (`uniform_mfpl`): bound 17⅓; Fig. 4.19 dip at 53–65 | 144–147 | Fig. 4.19 and its dip reproduced; William's NetLogo runs reproduced at MFP ≥ 17, below it noise-limited at 2 × 10⁸ agent steps; the BPP scene matches his Android runs (`ch04/`, F78); one agent run 5 × 10⁹ steps: below 0.003 for MFP ≤ 28, the bound confirmed (F84); ★ 27 cells in 3D | done |
 | 4.4 | Couette flow (`kt`): slope V/6 with r > 0.999; v̄ = 1.2617√T (theory 1.2533) | 147–156 | Particles (two closed-form tests) → point mass → quads; ★ 3D slab | new |
 
 ### Ch. 5 — Local oriented potential fields (PDF 160–175) · `book/ch05.md`
@@ -305,7 +305,7 @@ metrics.
 | 11.1–11.3 | Maxim's simulator, cell tiling, KL metric (natural log) | 373–376 | Metric (G16) | partly |
 | 11.4 | Markov-chain existence proof | 376–377 | Analytic test | new |
 | 11.5 | Turns at walls only: centre least visited (negative control) | 378–379 | Particles | new |
-| 11.6 | Mean-free-path turns at f = 0.6 × cell: KL 0.000060 | 379–381 | Particles (ported, check KL) | partly |
+| 11.6 | Mean-free-path turns at f = 0.6 × cell: KL 0.000060 | 379–381 | Particles (ported, check KL); Maxim's simulator: 3x3 at f = 0.6 KL 0.00008, f from 0.05 to 4 on all 12 environments, 0.65 an upper bound (`ch11/`, F84) | partly |
 | 11.7 | Mean free path theory 0.6518 (0.6079 with buffer) | 380–383 | `ch11/`: 2D reproduced (exact 0.651757, buffer 0.6079); ★ 3D 0.7720 × edge (buffer 0.7138), with a closed form | done |
 | 11.8 | 12 environments × 5 cell sizes (Table 11.1) | 383–386 | `ch11/`: Maxim's simulator and environments (William, 2026-10-25) and an exact Lua copy; every entry from his files, one misprint (F79, F80); rerun 40–160M steps: the small environments settle, the large ones' KL keeps falling with run length; his robot can stick on a wall (F81) | done |
 | 11.9 | Multi-robot formula 1 − (1 − 1/C)^N | 384 | Check with N drones ★ | new |

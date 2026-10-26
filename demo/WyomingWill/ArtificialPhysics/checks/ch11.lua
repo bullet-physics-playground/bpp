@@ -6,6 +6,8 @@
 -- 1. The Lua copy reproduces the C exactly: the visit counts of five short
 --    runs of the C (2 x 10^5 steps each, ch11/c_reference.txt) to the last
 --    visit.
+--    With fixed = true and a seed it is also the C with FINDINGS F81's fix
+--    and a seed argument (ch11/maxim_fixed.diff; ch11/c_reference_fixed.txt).
 -- 2. The C falls back to fixed seeds: RandomInitialise(1, time(NULL)) gets
 --    a kl above 30081 and uses (1802, 9373), so every run draws the same
 --    numbers.
@@ -62,6 +64,16 @@ for _, r in ipairs(readCounts(here .. "/ch11/c_reference.txt")) do
   for i = 1, #r.counts do same = same and m.counts[i] == r.counts[i] end
   check(string.format("the Lua copy is the C: %s, size %d, %d steps", r.label, r.size, r.t), same,
     string.format("KL %.5f (C %.5f)", X.kl(m.counts), X.kl(r.counts)))
+end
+
+-- 1b. the fixed, seeded build (ch11/maxim_fixed.diff): 84cell, f 0.375, seed 3
+for _, r in ipairs(readCounts(here .. "/ch11/c_reference_fixed.txt")) do
+  local env = X.readEnvironment(string.format("%s/ch11/maxim/%s.environment/environment_%d.ini", here, r.label, r.size))
+  local m = X.new({ env = env, f = 0.375, seed = { 1, 3 }, fixed = true })
+  X.run(m, r.t)
+  local same = #m.counts == #r.counts
+  for i = 1, #r.counts do same = same and m.counts[i] == r.counts[i] end
+  check(string.format("the Lua copy is the fixed C: %s, f 0.375, seed 3", r.label), same, string.format("%d steps", r.t))
 end
 
 -- 2. the fallback seeds

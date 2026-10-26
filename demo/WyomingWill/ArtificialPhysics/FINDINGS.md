@@ -231,6 +231,29 @@ gives distinct slots for 100 square and 127 triangular positions; the
 The Android port matches the model except for details that do not
 change these results.
 
+**F84. Ch. 4.3 and Ch. 11: the mean free path's 0.65 × cell size holds as
+an upper bound, on the Android rule and on Maxim's simulator** —
+2026-10-26, Confirmed. `ch04/README.md`, `ch11/README.md`. The book's
+question (PDF 144–146): the largest mean free path at which one robot,
+given time, covers as evenly as the 10,000-particle swarm (deviation
+0.003). One agent of the Android rule (`ch04/coverage1.c`), MFP 1–100,
+5.12 × 10⁹ steps (William's run, `ch04/coverage1_william.txt`): every MFP
+1–28 is below 0.003 (0.0002–0.0008 for 1–14, at most 0.0017 at 15–21),
+above about 30 worse and no better with time (0.037 at 100). Below about
+15 it still improves 2–4 times from 2 × 10⁸ to 5.12 × 10⁹ steps; from 17
+up the value is set by 2 × 10⁸. Layout dips at MFP 22–27 and 53–65.
+Maxim's simulator (F81's fix, seed 1, cell 20, 1.6 × 10⁸ steps, `ch11/
+mfp_sweep.lua`): at f = 0.6 every one of his 12 environments is at or
+below the book's KL target 0.001 (0.00004–0.00086; 84cell and 82cell
+0.00107, 0.00124); the largest f that stays below it is 0.6–0.65 in the
+hardest (4cellRoll, 22cell), larger in the rectangles; above, KL rises
+to the walls-only values (0.0035–0.014) whatever the run length. On the
+3x3 the two simulators agree in f = MFP / cell width (good to 1.0, worse
+from 1.05, dips just under 1 and at 2.3–2.4, walls only 0.035). Maxim's
+simulator has a floor the Android rule does not (deviation 0.0033 on
+the 3x3, KL 0.00005; centre most, corners least): his robot stops a
+response range short of a wall.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.

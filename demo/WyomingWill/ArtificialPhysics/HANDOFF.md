@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F83 so far), and
+  implementations, and our own mistakes once corrected (F1–F84 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -389,7 +389,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      environments (**done**, `ch11/`, F79–F81: every entry from his files,
      one misprint; rerun 40–160M steps, the small environments settle and
      the large ones' KL keeps falling with run length; his robot can stick
-     on a wall);
+     on a wall); the mean free path's bound (0.65 × cell) confirmed on
+     the Android rule run long and on all 12 of Maxim's environments
+     (F84);
   3. Ch. 4.1's perfect formations (**done**, `ch04/perfect.lua`,
      `checks/ch04_perfect.lua`, F82–F83: both lattices form perfectly with
      the book's momentum signature; Toggle Formation rebuilds them turned

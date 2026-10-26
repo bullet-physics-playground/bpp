@@ -126,11 +126,13 @@ local PI = 3.141592653589793238462643
 local RESPONSE = 1.0
 
 -- A simulation. o: env (from readEnvironment), f (0.6), seed ({ij, kl};
--- default the C's fallback)
+-- default the C's fallback; the seeded build, maxim_fixed.diff, is
+-- {1, SEED}), fixed (true: move to the point the sensor tested, as that
+-- build does; FINDINGS F81)
 function M.new(o)
   local e = o.env
   local rnd = o.rnd or newRandom((o.seed or { 1, 2 ^ 31 })[1], (o.seed or { 1, 2 ^ 31 })[2])
-  local m = { env = e, rnd = rnd, f = o.f or 0.6, counts = {}, steps = 0, moveCounter = 0,
+  local m = { env = e, rnd = rnd, f = o.f or 0.6, fixed = o.fixed, counts = {}, steps = 0, moveCounter = 0,
               heading = PI / 2 }
   for i = 1, #e.cells do m.counts[i] = 0 end
   local W = e.walls
@@ -182,7 +184,7 @@ end
 
 function M.run(m, steps)
   local cells, counts = m.env.cells, m.counts
-  local limit = floor(m.env.size * m.f)
+  local limit = floor(f32(m.env.size * f32(m.f)))  -- (int)(cell_size * (float)f), in floats as the C
   local rnd = m.rnd
   local nc = #cells
   for _ = 1, steps do
@@ -194,8 +196,13 @@ function M.run(m, steps)
       m.moveCounter = 0
       flag = blocked(m)
     end
-    m.x = f32(m.x + f32(cos(m.heading)))
-    m.y = f32(m.y + f32(sin(m.heading)))
+    if m.fixed then                              -- to the point the sensor tested (F81's fix)
+      m.x = f32(cos(m.heading) * RESPONSE + m.x)
+      m.y = f32(sin(m.heading) * RESPONSE + m.y)
+    else
+      m.x = f32(m.x + f32(cos(m.heading)))
+      m.y = f32(m.y + f32(sin(m.heading)))
+    end
     m.steps = m.steps + 1
     -- record_cell_visits
     local x, y = m.x, m.y

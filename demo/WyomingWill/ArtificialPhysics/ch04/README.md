@@ -106,6 +106,7 @@ Android runs (`uniform_data.txt`); and the BPP scene `../Uniform_Coverage.lua`
 | `coverage.lua` | The two models: the world, the agents' step and the deviation (Eq. 4.1) |
 | `sweep.lua` | The deviation over agents and mean free paths, with the stopping rule below |
 | `uniform_data.txt` | William's runs, as he sent them (2026-10-25): NetLogo and Android deviations for 1–1000 agents, MFP 1–120, and two BPP columns (before and after FIXES 4–5). Run lengths were not recorded (tens of millions of ticks, depending on the agents) |
+| `Uniform.ods` | William's sheet (Nov–Dec 2025): NetLogo and Android, one agent, and NetLogo's 1000 agents at MFP 1–100, with a chart; its numbers are those in `uniform_data.txt` |
 | `../checks/ch04.lua` | The book's results as 8 short checks, about 40 s (any Lua 5.1–5.4) |
 | `../probes/coverage_sweep.lua` | The BPP scene under the same stopping rule, for `lib/batch.py` |
 
@@ -184,6 +185,59 @@ sampling noise falling as ~1/√(agent steps): one agent at MFP 1, 4 and
 against William's 0.00057, 0.0004 and 0.0014. Reaching his values would
 take ~10⁹–10¹⁰ ticks, so his small-MFP numbers come from much longer runs
 (or are the lucky end of the spread); they are not a disagreement.
+
+### One agent run long: the mean free path as an upper bound
+
+What Fig. 4.19 tests (PDF 144–146): the theory's 0.65 × cell size (17⅓
+here) is an **upper bound**. Very short mean free paths give excellent
+uniformity but carry a robot across the region slowly; the aim is the
+largest mean free path whose coverage matches the 10,000-particle
+swarm, a deviation of 0.003, given time. `coverage1.c` is one agent of
+the Android rule (as `../Uniform_Coverage.lua`) in C, about 20 million
+steps a second; `coverage1_sweep.sh` runs it for MFP 120 down to 1.
+
+| File | What |
+| --- | --- |
+| `coverage1.c`, `coverage1_sweep.sh` | The program and the sweep (one seed: the time average stands for the ensemble, Sec. 11.2.6) |
+| `coverage1_william.txt` | William's run of it, 2026-10-26: MFP 1–100, 5.12 × 10⁹ steps each, as he sent it |
+| `coverage1_runs.txt` | Ours: every checkpoint from 1.25 × 10⁷ steps, doubling through Fig. 4.19's 2 × 10⁸, until no improvement at two checkpoints in a row (at most 1.6 × 10⁹) |
+
+| MFP | 2 × 10⁸ steps | 5.12 × 10⁹ (William) | ratio |
+| --- | --- | --- | --- |
+| 1 | 0.0030 | 0.0008 | 3.7 |
+| 2 | 0.0019 | 0.0008 | 2.3 |
+| 5 | 0.0008 | 0.0005 | 1.8 |
+| 9 | 0.0007 | 0.0002 | 3.5 |
+| 12 | 0.0011 | 0.0005 | 2.3 |
+| 15 | 0.0012 | 0.0009 | 1.3 |
+| 17 | 0.0016 | 0.0015 | 1.05 |
+| 20 | 0.0014 | 0.0014 | 1.00 |
+| 24 | 0.0006 | 0.0003 | 2.5 |
+| 28 | 0.0012 | 0.0014 | 0.9 |
+| 30 | 0.0033 | 0.0034 | 0.95 |
+| 50 | 0.0157 | 0.0157 | 1.00 |
+| 62 | 0.0069 | 0.0068 | 1.01 |
+| 100 | 0.0371 | 0.0369 | 1.01 |
+
+- **At or below the bound one agent beats the swarm's 0.003**: at 5.12 ×
+  10⁹ steps every MFP from 1 to 28 is below it, 0.0002–0.0008 for MFP
+  1–14 and at most 0.0017 for 15–21.
+- **Below about 15 the coverage keeps improving with time** (2–4 times
+  better from 2 × 10⁸ to 5.12 × 10⁹ steps; the shortest paths, which
+  cross the region slowest, need the longest runs: MFP 1 only just meets
+  0.003 at the book's budget). **From about 17 up the value is fixed by 2
+  × 10⁸ steps**, a property of the turning rule, not of the run: 0.0013–
+  0.0017 at 15–21, still good; from about 30, worse than the goal and no
+  better with time (0.037 at 100). Good uniformity "at about 15 or less"
+  with the bound at 17⅓, as the book says.
+- **The layout's own good regions**, as the book explains for 53–65: a
+  dip at 22–27 (to 0.00025 at 24, near one cell width, 26⅔) and the dip
+  at 53–65 (deepest 0.0068 at 62). They are this environment's, so 0.65
+  × cell size stays the safe choice.
+- The Android rule is lower than the book's NetLogo curve below about 50
+  (the wall rule, F16), with the same shape. Our runs and William's agree
+  to 3–4 digits where both are settled (MFP 84: 0.02913 at 1.6 × 10⁹,
+  0.02913 at 5.12 × 10⁹), as they should: same program, same seed.
 
 ### The book's results
 
