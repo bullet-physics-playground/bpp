@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F78 so far), and
+  implementations, and our own mistakes once corrected (F1–F81 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -106,7 +106,7 @@ is updated at the end of every milestone.
 | `ch03/` | Ch. 3's formation models (`formation_newton`, `formation_hooke`, `formation_goal_obs`) line for line in plain Lua, with the book's results checked (`checks/ch03.lua`, `ch03/README.md`) |
 | `ch04/` | Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04.lua`, `ch04/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
-| `ch11/` | The mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
+| `ch11/` | Table 11.1 on Maxim's simulator (`maxim/`, his C and environments; `maxim.lua`, an exact Lua copy; the counts behind the table) and the mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9: rural, suburban, city centre, industrial port, harbour town) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
@@ -385,8 +385,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      rules per pair);
   2. Ch. 4.3 coverage against Table 4.2, Fig. 4.19 and William's NetLogo
      and Android runs (**done**, `ch04/`, F78: reproduced at MFP ≥ 17,
-     noise-limited below it); Table 11.1 needs Maxim's environments, which
-     are not in the book;
+     noise-limited below it); Table 11.1 on Maxim's own simulator and
+     environments (**done**, `ch11/`, F79–F81: every entry from his files,
+     one misprint; rerun 40–160M steps, the small environments settle and
+     the large ones' KL keeps falling with run length; his robot can stick
+     on a wall);
   3. Ch. 4.1's perfect formations;
   4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
      theory (Ch. 4.4, Ch. 7); the vehicle interface makes the point mass

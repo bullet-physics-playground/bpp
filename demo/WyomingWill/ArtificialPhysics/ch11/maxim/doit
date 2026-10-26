@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Takes one argument - the magic constant - WMS
+
+# environment generation executable
+a=env_gen
+# environment generation configuration file
+b=env_gen_config.ini
+
+# coverage simulator executables
+c=coverage_sim
+# coverage simulator configuration file
+d=config.ini
+
+make clean
+make all
+
+# if the environment generation executable exists
+#if [ -f $a -a -f $b ]  
+#then 
+#   ./$a $b
+   # if the coverage simulator executable and its config file exist
+   if [ -f $c -a -f $d ]
+   then
+      # for each environment generated previously
+      for file in environment_*.ini
+      do
+         echo
+         echo Processing $file...
+         ./$c $d $file $1 # Pass in magic constant
+         echo 
+         echo "***********************************************"
+      done
+   else
+      echo "ERROR: $c or $d do not exist in the current directory."
+      exit
+   fi
+   make clean 
+#else
+#   echo "ERROR: $a or $b do not exist in the current directory."
+#   exit
+#fi
+
+exit

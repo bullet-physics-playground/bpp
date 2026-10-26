@@ -105,8 +105,7 @@ take ~10⁹–10¹⁰ ticks, so his small-MFP numbers come from much longer runs
 
 ## Not done
 
-Table 11.1 (Ch. 11.8): Maxim's simulator on 12 environments; the
-environments are described in his papers [156, 239], not in the book, so
-they cannot be rebuilt from it. Ch. 11.5–11.6 (turns at walls only, then
-mean-free-path turns, on Maxim's cell-based simulator) are the same
-questions as Table 4.2 and Fig. 4.19 on a different simulator.
+Ch. 11.5–11.6 (turns at walls only, then mean-free-path turns, on Maxim's
+cell-based simulator) are the same questions as Table 4.2 and Fig. 4.19 on
+a different simulator. Table 11.1 (Ch. 11.8) is done on Maxim's own
+simulator: `../ch11/README.md`.

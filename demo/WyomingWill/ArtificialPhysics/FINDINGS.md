@@ -189,6 +189,28 @@ deviation is sampling noise falling as ~1/√(steps) (one agent at MFP 4:
 0.0009–0.0020 over four seeds, against William's 0.0004, which needs
 ~10⁹–10¹⁰ ticks).
 
+**F79. Ch. 11.8: Table 11.1 reproduced from Maxim's files and
+simulator; the large environments have not settled** — 2026-10-26,
+Confirmed. `ch11/README.md`, `checks/ch11.lua`. Maxim's simulator and
+environments (`ch11/maxim/`) and a Lua copy of his C that matches it
+visit for visit (`ch11/maxim.lua`). The KL of the counts in his own
+result files gives every entry of Table 11.1 (F80 has the exceptions).
+Every run of the C draws the same random numbers (the seed time(NULL) is
+above the generator's limit, so it falls back to (1802, 9373)), and his
+C built today reproduces his 2009 runs (6x6, 82cell, 84cell, 40 million
+steps) exactly; his 2008 runs (the other 9 environments, 10 million
+steps) used a stream we could not recover. One run per entry, as Sec.
+11.2.6's ergodicity allows, from 40 million steps, doubling to 160
+million until the KL moved less than 5%: 31 of the 60 entries settle,
+most in the small environments, whose bias is real (7cell 0.0006–0.0010,
+4cellRoll 0.0007–0.0009). The rest do not: the large environments' KL is
+mostly sampling noise and keeps falling with the run length, 2–6× from
+10 to 160 million steps (35cell size 30: 0.00067 → 0.00026; 10x10 size
+25: 0.00048 → 0.00011), with swings on the way (82cell size 10: 0.00223,
+0.00108, 0.00181 at 40, 80, 160 million). For those, the table's values
+measure the run length as much as the environment; the big, irregular
+environments (82cell, 84cell, 22cell, 35cell) stay the least uniform.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -879,6 +901,15 @@ as `Formations-Newtonian.lua` and the Java app compute it, the break-up
 is at 1.02–1.12 G_t2 and Eq. 3.5 holds. The model and the text disagree;
 the triangle (Eq. 3.4) is unaffected.
 
+**F80. Table 11.1: one misprint, mixed run lengths** — 2026-10-26, Book
+error. `ch11/README.md`, `checks/ch11.lua`. 10x10 size 20 is printed
+0.00009; Maxim's file gives 0.00053. The text says 40 million steps
+(PDF 383), but only 6x6, 82cell and 84cell come from 40 million; the
+other 9 environments come from 10 million (22cell size 20 is 0.00188 at
+10 million, the printed value, and 0.00050 at 40 million in another of
+his files). Three values are cut rather than rounded to five places
+(0.0000953 printed 0.00009, 0.0006773 as 0.00067, 0.0005972 as 0.00059).
+
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
 measurement and will be entered here as each chapter is ported.
@@ -921,6 +952,22 @@ the clustering threshold G_t = 259.8, so the model clusters by design. The
 BPP ports take their 2D defaults from the Android app's `MyPanel.java`: G
 1500, power 2.2, forceMax 1.5, D 50, friction 0.6, which is below its G_t
 (2368). Ch. 13's damping is in none of them.
+
+**F81. Maxim's simulator: the robot can get stuck on a wall** —
+2026-10-26, Divergence (kept: his simulator as it is). `ch11/wedge.lua`,
+`ch11/README.md`. The C checks the way ahead with the sensor's end point
+(float)(cos h + x), rounded once, and moves to x + (float)cos h, which
+rounds cos h first; the two differ in the last bit, so a move can land
+exactly on a wall the sensor found clear (4cellRoll size 10, step
+6,882,789: sensor at x = 119.999992, robot moved to 120.0). On a wall
+every sensor line touches it except lines along it, so the robot creeps
+along the wall on headings within ~10⁻⁵ rad of it, or makes no progress
+at all. It happened in 6 of our 60 runs (4cellRoll 10, 4cellL 10, 15cell
+20, 35cell 10, 22cell 15, 82cell 15, at 6.9 to 141 million steps; about
+once per 10⁹ steps), never in Maxim's files. The stream is fixed, so a
+run sticks at the same step every time; those entries end at the last
+sample before it. Moving to the point the sensor tested would fix it but
+change every run after the first step that differs.
 
 ## 5. Our own errors, corrected
 

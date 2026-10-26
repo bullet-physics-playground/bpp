@@ -1,0 +1,10 @@
+tail -22 cell0.1 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.2 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.3 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.4 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.5 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.6 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.7 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.8 | awk '{print $2}' | gstat | grep standard
+tail -22 cell0.9 | awk '{print $2}' | gstat | grep standard
+tail -22 cell1.0 | awk '{print $2}' | gstat | grep standard
