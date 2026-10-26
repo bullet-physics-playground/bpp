@@ -191,6 +191,15 @@ there, in `release/`, or on the path; or set `BPP`.
    the parts table, what to buy, assembly; both PDFs; a `make-pdfs.sh` line.
 6. In the hall: its EXHIBITS entry (`floorY = -100`), placard lettering
    (`make-labels.py`), `tools/check-all.sh` (add it there), screenshots.
+7. **Make it show its working in the 3D view from the start**, not only in
+   the console and tooltips: William watches in the GUI. Lehmer's sieve
+   first showed nothing of N, x or the answer, and its probe's depth was
+   hidden; it got a board of number drums (the exhibit's, said so) and a
+   printed depth scale. When a machine runs on by itself, pause between
+   steps so each reading can be seen (the sieve's "through" drum was
+   cleared in the frame it was set). Say what the machine computes and
+   what the script does for the operator (the sieve only says "maybe";
+   the square test is Lua's).
 
 ## 7. Where things stand and what's next
 
@@ -203,12 +212,30 @@ there, in `release/`, or on the path; or set `BPP`.
   and at a stop x*x - N, the verdict and the factors; a printed depth
   scale on the probe's guide reads how far the probe went; `T` runs the
   tour for the number `N` chose. The wheels' colours and the see-through
-  cam are still first guesses. It is the dearest exhibit to step (a 25 s
-  tour took about three minutes here, headless): if it is slow on his
-  computer, `LS_HZ=1200` halves that and still passes.
-- **Next: more exhibits**, in the order of the covered bays, each its own
-  step: **the Digi-Comp II**
-  (west 3: marbles and flip-flops; `demo/claude/digicomp.lua` is a start),
+  cam are still first guesses. **2026-10-26:** the depth now stays on the
+  board between turns, and the camera is further back; William's window
+  is narrower than the virtual screen (about 1450 px of 3D view, not
+  1658), so frame views with room to spare. He asked whether the cam is
+  one print: it is (one watertight solid); only the simulation's contact
+  shape is 72 convex wedges. Offered, not done: finer cam steps (5 degree
+  flats now). It is the dearest exhibit to step (a 25 s tour took about
+  three minutes here, headless): if it is slow on his computer,
+  `LS_HZ=1200` halves that and still passes.
+- **Next: the Digi-Comp II** (west 3), agreed 2026-10-26: of the four
+  machines with covered bays it ranks lowest (10; the tide predictor 9,
+  the analyser 4, the Difference Engine 1), so it comes next on the walk.
+  The other 39 machines in MACHINES.md have no bays: adding any grows the
+  hall by a row of two, each going in by its rank (the Galton board, 13,
+  and the planimeter, 14, would go in after the sieve, before the
+  Pascaline). The plan, in two patches: (1) prototype one printable,
+  passive toggle (a ball tips it and it stays; the next ball goes the
+  other way: by its shape and weight alone), measure it, and build a
+  counter (a chute, three toggles, a feeder: 0 to 7); (2) the full board
+  that adds and multiplies, with its readout designed in. Note that
+  `demo/claude/digicomp.lua` drives its toggles with motors: that breaks
+  the hall's rule (what is printed is what is simulated), so take ideas
+  from it, not its toggle.
+- **Then, in the order of the covered bays,** each its own step:
   **Kelvin's tide predictor** (east 3: cranks and a bead rope over pulleys),
   **the Differential Analyser** (west 4) and **the Difference Engine**
   (east 4). New bays (the hall grows by a row of two) would suit the
