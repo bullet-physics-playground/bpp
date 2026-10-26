@@ -34,6 +34,8 @@ v.pre_sdl = [[
 #include "colors.inc"
 #include "metals.inc"
 #include "glass.inc"
+#include "bpp_lightsys.inc"
+#include "bpp_lightsys_constants.inc"
 ]]
 
 -- ---------------------------------------------------------------------------
@@ -127,6 +129,13 @@ local function addBuilt(o, ownerType, ownerObj)
   return o
 end
 
+local function hexToRGB(col)
+  if type(col) ~= "string" then return "0.2,0.22,0.25" end
+  local r,g,b = col:match("#(%x%x)(%x%x)(%x%x)")
+  if not r then return "0.2,0.22,0.25" end
+  return string.format("%g,%g,%g", tonumber(r,16)/255, tonumber(g,16)/255, tonumber(b,16)/255)
+end
+
 local function box(ownerType, ownerObj, w, h, d, x, y, z, col, emission)
   local o = Cube(w, h, d, 0)
   o.pos = btVector3(x, y, z)
@@ -135,6 +144,45 @@ local function box(ownerType, ownerObj, w, h, d, x, y, z, col, emission)
   if emission then
     o.emission = emission
   end
+  return addBuilt(o, ownerType, ownerObj)
+end
+
+local function metalBox(ownerType, ownerObj, w, h, d, x, y, z, col, emission, gloss)
+  local o = Cube(w, h, d, 0)
+  o.pos = btVector3(x, y, z)
+  o.col = col
+  o.friction = 0.8
+  if emission then
+    o.emission = emission
+  end
+  local g = gloss or 0.6
+  local r = math.min(0.25, g * 0.25)
+  o.sdl = [[
+    texture {
+      pigment { color rgb <]] .. hexToRGB(col) .. [[> }
+      finish { ambient 0.08 diffuse 0.55 specular ]] .. tostring(g) .. [[ roughness 0.008 reflection ]] .. tostring(r) .. [[ metallic }
+    }
+  ]]
+  return addBuilt(o, ownerType, ownerObj)
+end
+
+local function glassBox(ownerType, ownerObj, w, h, d, x, y, z, col, emission)
+  local o = Cube(w, h, d, 0)
+  o.pos = btVector3(x, y, z)
+  o.col = col or "#76b900"
+  o.friction = 0.8
+  if emission then
+    o.emission = emission
+  else
+    o.emission = col or "#76b900"
+  end
+  o.sdl = [[
+    texture {
+      pigment { color rgb <]] .. hexToRGB(o.col) .. [[> transmit 0.3 }
+      finish { ambient 0.02 diffuse 0.4 specular 0.9 roughness 0.001 reflection 0.4 }
+    }
+    interior { ior 1.5 }
+  ]]
   return addBuilt(o, ownerType, ownerObj)
 end
 
@@ -151,29 +199,60 @@ local function flowPipe(w,h,d,x,y,z,col,dir,speed)
           [0.00 color rgb <]] .. string.match(col,"#(%x%x)(%x%x)(%x%x)") and
             string.format("%g,%g,%g", tonumber(string.match(col,"#(%x%x)%x%x%x%x") or "00",16)/255,
                                         tonumber(string.match(col,"#%x%x(%x%x)%x%x") or "00",16)/255,
-                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.4]
-          [0.25 color rgb <1,1,1> * 1.6]
-          [0.50 color rgb <]] .. string.match(col,"#(%x%x)(%x%x)(%x%x)") and
+                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.3]
+          [0.15 color rgb <1,1,1> * 2.0]
+          [0.3 color rgb <]] .. string.match(col,"#(%x%x)(%x%x)(%x%x)") and
             string.format("%g,%g,%g", tonumber(string.match(col,"#(%x%x)%x%x%x%x") or "00",16)/255,
                                         tonumber(string.match(col,"#%x%x(%x%x)%x%x") or "00",16)/255,
-                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.4]
-          [0.75 color rgb <1,1,1> * 1.6]
+                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.3]
+          [0.5 color rgb <1,1,1> * 2.0]
+          [0.7 color rgb <]] .. string.match(col,"#(%x%x)(%x%x)(%x%x)") and
+            string.format("%g,%g,%g", tonumber(string.match(col,"#(%x%x)%x%x%x%x") or "00",16)/255,
+                                        tonumber(string.match(col,"#%x%x(%x%x)%x%x") or "00",16)/255,
+                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.3]
+          [0.85 color rgb <1,1,1> * 2.0]
           [1.00 color rgb <]] .. string.match(col,"#(%x%x)(%x%x)(%x%x)") and
             string.format("%g,%g,%g", tonumber(string.match(col,"#(%x%x)%x%x%x%x") or "00",16)/255,
                                         tonumber(string.match(col,"#%x%x(%x%x)%x%x") or "00",16)/255,
-                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.4]
+                                        tonumber(string.match(col,"#%x%x%x%x(%x%x)") or "00",16)/255) or "0.12,0.61,1.0" .. [[> * 0.3]
         }
-        turbulence 0.08
-        scale <1, 0.18, 1>
+        turbulence 0.18
+        scale <1, 0.12, 1>
         translate y * clock
       }
-      finish { diffuse 0.7 specular 0.4 roughness 0.02 }
+      finish { ambient 0.08 diffuse 0.65 specular 0.8 roughness 0.008 }
     }
   ]]
   o.collides = false
   v:add(o)
   built[#built + 1] = o
   flowPipes[#flowPipes + 1] = { obj = o, phase = math.random()*10, dir = dir or 1, speed = speed or 1.0 }
+  -- metallic pipe support
+  local sup = Cube(w * 1.05, h * 1.3, d * 0.6, 0)
+  sup.pos = btVector3(x, y, z)
+  sup.col = "#b8bcc2"
+  sup.friction = 0.8
+  sup.collides = false
+  sup.sdl = [[
+    texture {
+      pigment { color rgb <0.72,0.74,0.76> }
+      finish { ambient 0.1 diffuse 0.5 specular 0.9 roughness 0.005 reflection 0.15 metallic }
+    }
+  ]]
+  v:add(sup)
+  built[#built + 1] = sup
+  return o
+end
+
+local function pipeElbow(x,y,z,r,axis,col)
+  local o = Cube(r*2, r*2, r*2, 0)
+  o.pos = btVector3(x,y,z)
+  o.col = col
+  o.friction = 0.8
+  o.collides = false
+  v:add(o)
+  built[#built + 1] = o
+  flowPipes[#flowPipes + 1] = { obj = o, phase = math.random()*10, dir = 1, speed = 0.8 }
   return o
 end
 
@@ -212,16 +291,20 @@ local function addRack(x, z, front, row, col)
   local midY = SLAB_H + BASE_H + (RACK_H - BASE_H) / 2
 
   -- plinth, chassis and top cap
-  box("rack", rack, RACK_W, BASE_H, RACK_D, x, SLAB_H + BASE_H / 2, z, "#101316")
-  box("rack", rack, RACK_W - 0.5, RACK_H - BASE_H - 0.3, RACK_D - 0.4,
-      x, SLAB_H + midY, z, "#272d33")
-  box("rack", rack, RACK_W + 0.12, 0.35, RACK_D + 0.12,
-      x, SLAB_H + RACK_H + 0.08, z, "#0c0e10")
+  metalBox("rack", rack, RACK_W, BASE_H, RACK_D, x, SLAB_H + BASE_H / 2, z, "#0b0e12", nil, 0.75)
+  metalBox("rack", rack, RACK_W - 0.38, RACK_H - BASE_H - 0.22, RACK_D - 0.32,
+      x, SLAB_H + midY, z, "#181d24", nil, 0.7)
+  metalBox("rack", rack, 0.09, RACK_H - BASE_H - 0.28, RACK_D - 0.36,
+      x - RACK_W / 2 + 0.27, SLAB_H + midY, z, "#101419", nil, 0.8)
+  metalBox("rack", rack, 0.09, RACK_H - BASE_H - 0.28, RACK_D - 0.36,
+      x + RACK_W / 2 - 0.27, SLAB_H + midY, z, "#101419", nil, 0.8)
+  metalBox("rack", rack, RACK_W + 0.16, 0.4, RACK_D + 0.16,
+      x, SLAB_H + RACK_H + 0.1, z, "#07090b", nil, 0.85)
 
   -- Recessed front bezel
-  local bezelZ = z + front * (RACK_D / 2 + 0.16)
-  box("rack", rack, RACK_W - 0.55, RACK_H - 1.15, 0.30,
-      x, SLAB_H + (1.0 + RACK_H - 0.15) / 2, bezelZ, "#0d1012")
+  local bezelZ = z + front * (RACK_D / 2 + 0.18)
+  metalBox("rack", rack, RACK_W - 0.52, RACK_H - 1.12, 0.32,
+      x, SLAB_H + (1.0 + RACK_H - 0.12) / 2, bezelZ, "#0a0d11", nil, 0.65)
 
   -- Tray faces
   local trayBottom = 1.0
@@ -233,64 +316,73 @@ local function addRack(x, z, front, row, col)
 
   for t = 1, COMPUTE_TRAYS do
     local y = trayBottom + (t - 0.5) * pitch
-    local shade = (t % 3 == 0) and "#2c333a" or "#21272d"
-    box("rack", rack, RACK_W - 1.05, pitch * 0.72, 0.18, x, SLAB_H + y, faceZ, shade)
+    local shade = (t % 3 == 0) and "#242a32" or "#1d232a"
+    metalBox("rack", rack, RACK_W - 1.02, pitch * 0.74, 0.2, x, SLAB_H + y, faceZ, shade, nil, 0.55)
+    metalBox("rack", rack, RACK_W - 1.0, pitch * 0.08, 0.01, x, SLAB_H + y + pitch * 0.38, faceZ + 0.105, "#15191f", nil, 0.7)
 
     local ledCol
-    local m = (t * 7 + row * 3 + col + t) % 13
-    if m == 0 then
-      ledCol = "#ffb020"
-    elseif m < 4 then
-      ledCol = "#35d6ff"
-    elseif m < 8 then
-      ledCol = "#39ff88"
-    else
-      ledCol = "#9dffb3"
+    local m = (t * 11 + row * 3 + col + t * 2) % 17
+    if m == 0 then ledCol = "#ffb020"
+    elseif m < 5 then ledCol = "#35d6ff"
+    elseif m < 10 then ledCol = "#39ff88"
+    else ledCol = "#9dffb3"
     end
-    local led = box("rack", rack, 0.24, math.min(0.16, pitch * 0.26), 0.07,
-                    x - RACK_W / 2 + 0.78, SLAB_H + y, ledZ, ledCol, ledCol)
+    local led = glassBox("rack", rack, 0.26, math.min(0.18, pitch * 0.28), 0.08,
+                    x - RACK_W / 2 + 0.8, SLAB_H + y, ledZ, ledCol)
+    led.emission = ledCol
     rack.leds = rack.leds or {}
-    rack.leds[#rack.leds + 1] = { obj = led, base = ledCol, phase = (t + row * 5 + col * 7) }
+    rack.leds[#rack.leds + 1] = { obj = led, base = ledCol, phase = (t + row * 6 + col * 9) }
   end
 
-  -- Switch tray block
-  local switchBottom = computeTop + 0.35
-  local switchPitch  = (switchH - 0.55) / SWITCH_TRAYS
+  -- Switch tray block with ports
+  local switchBottom = computeTop + 0.4
+  local switchPitch  = (switchH - 0.6) / SWITCH_TRAYS
   for t = 1, SWITCH_TRAYS do
     local y = switchBottom + (t - 0.5) * switchPitch
-    box("rack", rack, RACK_W - 1.05, switchPitch * 0.55, 0.16,
-        x, SLAB_H + y, faceZ, "#1a2025")
+    metalBox("rack", rack, RACK_W - 1.02, switchPitch * 0.58, 0.18,
+        x, SLAB_H + y, faceZ, "#161b22", nil, 0.6)
+    for px = 1, 4 do
+      metalBox("rack", rack, 0.16, 0.1, 0.01,
+          x - RACK_W / 2 + 1.0 + (px-1)*0.22, SLAB_H + y, faceZ + 0.095, "#090b0d", nil, 0.8)
+    end
   end
 
-  -- NVIDIA green edge bars
-  local stripX = RACK_W / 2 - 0.23
+  -- NVIDIA green edge bars and badge
+  local stripX = RACK_W / 2 - 0.24
   for _, sx in ipairs({ -1, 1 }) do
-    local bar = box("rack", rack, 0.13, RACK_H - 2.2, 0.10,
-                    x + sx * stripX, SLAB_H + (2.0 + RACK_H - 0.2) / 2,
-                    z + front * (RACK_D / 2 + 0.25),
-                    "#76b900", "#76b900")
+    local bar = glassBox("rack", rack, 0.14, RACK_H - 2.0, 0.12,
+                    x + sx * stripX, SLAB_H + (2.1 + RACK_H - 0.1) / 2,
+                    z + front * (RACK_D / 2 + 0.28),
+                    "#76b900")
     rack.bars[#rack.bars + 1] = bar
   end
-  box("rack", rack, RACK_W - 0.8, 0.16, 0.16,
-      x, SLAB_H + RACK_H - 0.38, z + front * (RACK_D / 2 + 0.30),
-      "#76b900", "#76b900")
+  glassBox("rack", rack, RACK_W - 0.78, 0.18, 0.18,
+      x, SLAB_H + RACK_H - 0.36, z + front * (RACK_D / 2 + 0.32),
+      "#76b900")
+  metalBox("rack", rack, 0.9, 0.12, 0.01,
+      x, SLAB_H + RACK_H - 0.36, z + front * (RACK_D / 2 + 0.42), "#d6ff9d", "#d6ff9d", 0.9)
 
   -- Status LED
-  rack.blink = box("rack", rack, 0.30, 0.18, 0.08,
-                   x + RACK_W / 2 - 0.85, SLAB_H + RACK_H - 0.75,
-                   z + front * (RACK_D / 2 + 0.38),
-                   "#39ff88", "#39ff88")
+  rack.blink = glassBox("rack", rack, 0.32, 0.2, 0.1,
+                   x + RACK_W / 2 - 0.88, SLAB_H + RACK_H - 0.72,
+                   z + front * (RACK_D / 2 + 0.4),
+                   "#39ff88")
+  if rack.blink then 
+    rack.blink.emission = "#39ff88"
+  end
 
   -- D2C liquid manifolds (rear/top) - supply/return pipes and manifold block
-  local rearZ = z - front * (RACK_D / 2 + 0.2)
-  box("rack", rack, RACK_W - 0.9, 1.6, 0.4,
-      x, SLAB_H + RACK_H - 1.0, rearZ, "#2a3138")
-  -- supply pipe (cold) with animated flow
-  flowPipe(RACK_W - 1.0, 0.18, 0.22,
-      x - 0.8, SLAB_H + RACK_H - 0.6, rearZ + 0.35, "#1f9bff", 1, 1.2)
-  -- return pipe (warm) with animated flow
-  flowPipe(RACK_W - 1.0, 0.18, 0.22,
-      x + 0.8, SLAB_H + RACK_H - 0.6, rearZ + 0.35, "#ff5a2a", -1, 1.0)
+  local rearZ = z - front * (RACK_D / 2 + 0.22)
+  metalBox("rack", rack, RACK_W - 0.88, 1.7, 0.44,
+      x, SLAB_H + RACK_H - 0.98, rearZ, "#262c33", nil, 0.7)
+  flowPipe(RACK_W - 0.98, 0.2, 0.24,
+      x - 0.8, SLAB_H + RACK_H - 0.58, rearZ + 0.38, "#1f9bff", 1, 1.2)
+  flowPipe(RACK_W - 0.98, 0.2, 0.24,
+      x + 0.8, SLAB_H + RACK_H - 0.58, rearZ + 0.38, "#ff5a2a", -1, 1.0)
+  for _, qx in ipairs({ -0.8, 0.8 }) do
+    metalBox("rack", rack, 0.28, 0.28, 0.12,
+        x + qx, SLAB_H + RACK_H - 0.58, rearZ + 0.52, "#3a424a", nil, 0.75)
+  end
 
   racks[#racks + 1] = rack
   return rack
@@ -308,18 +400,21 @@ local function addCDU(x, y, z, idx)
     flow = 0.9,
   }
   -- chassis
-  box("cdu", cdu, 14.0, 3.0, 6.0, x, y, z, "#262b32")
-  box("cdu", cdu, 13.6, 2.6, 5.6, x, y, z - 0.1, "#2f363d")
+  metalBox("cdu", cdu, 14.0, 3.0, 6.0, x, y, z, "#242a31", nil, 0.7)
+  metalBox("cdu", cdu, 13.6, 2.6, 5.6, x, y, z - 0.1, "#2b323a", nil, 0.68)
   -- coil/heat exchanger (copper)
-  box("cdu", cdu, 13.0, 0.6, 5.0, x, y - 0.8, z - 0.1, "#b87333")
+  metalBox("cdu", cdu, 13.0, 0.6, 5.0, x, y - 0.8, z - 0.1, "#b87333", "#ffb347", 0.5)
   -- pumps/headers
-  box("cdu", cdu, 2.0, 2.2, 1.2, x - 5.0, y + 0.2, z + 2.8, "#1a1f24")
-  box("cdu", cdu, 2.0, 2.2, 1.2, x + 5.0, y + 0.2, z + 2.8, "#1a1f24")
-  -- supply/return manifolds (cold/hot)
-  box("cdu", cdu, 13.2, 0.16, 0.24, x, y + 1.2, z + 3.0, "#1f9bff", "#1f9bff")
-  box("cdu", cdu, 13.2, 0.16, 0.24, x, y + 0.8, z + 3.0, "#ff5a2a", "#ff5a2a")
+  metalBox("cdu", cdu, 2.0, 2.2, 1.2, x - 5.0, y + 0.2, z + 2.8, "#171c22", nil, 0.75)
+  metalBox("cdu", cdu, 2.0, 2.2, 1.2, x + 5.0, y + 0.2, z + 2.8, "#171c22", nil, 0.75)
+  -- supply/return manifolds (cold/hot) with flow
+  flowPipe(13.2, 0.16, 0.24, x, y + 1.2, z + 3.0, "#1f9bff", 1, 1.0)
+  flowPipe(13.2, 0.16, 0.24, x, y + 0.8, z + 3.0, "#ff5a2a", -1, 0.9)
   -- status indicators
-  cdu.led = box("cdu", cdu, 0.6, 0.25, 0.12, x + 6.0, y + 1.25, z + 3.1, "#39ff88", "#39ff88")
+  cdu.led = glassBox("cdu", cdu, 0.6, 0.25, 0.12, x + 6.0, y + 1.25, z + 3.1, "#39ff88")
+  if cdu.led then 
+    cdu.led.emission = "#39ff88"
+  end
   cdus[#cdus + 1] = cdu
   return cdu
 end
@@ -383,79 +478,166 @@ local function build()
       box(nil, nil, rowWidth + 5.0, 0.32, 1.4,
           0, SLAB_H + RACK_H + 2.2, z + dz, "#3b4146")
       -- liquid supply/return on trays with flow
-      flowPipe(rowWidth + 4.6, 0.14, 0.26,
-          0, SLAB_H + RACK_H + 2.35, z + dz - 0.25, "#1f9bff", 1, 0.9)
-      flowPipe(rowWidth + 4.6, 0.14, 0.26,
-          0, SLAB_H + RACK_H + 2.35, z + dz + 0.25, "#ff5a2a", -1, 0.8)
+      flowPipe(rowWidth + 4.6, 0.16, 0.28,
+          0, SLAB_H + RACK_H + 2.38, z + dz - 0.3, "#1f9bff", 1, 1.0)
+      flowPipe(rowWidth + 4.6, 0.16, 0.28,
+          0, SLAB_H + RACK_H + 2.38, z + dz + 0.3, "#ff5a2a", -1, 0.9)
+      -- electrical busway
+      box(nil, nil, rowWidth + 4.4, 0.14, 0.22,
+          0, SLAB_H + RACK_H + 2.42, z + dz, "#c0c0c0")
+      box(nil, nil, rowWidth + 4.2, 0.1, 0.16,
+          0, SLAB_H + RACK_H + 2.42, z + dz, "#ffd700", "#ffd700")
+      -- power conduits
+      box(nil, nil, rowWidth + 3.8, 0.08, 0.08,
+          0, SLAB_H + RACK_H + 2.55, z + dz - 0.12, "#ff6b00")
+      box(nil, nil, rowWidth + 3.8, 0.08, 0.08,
+          0, SLAB_H + RACK_H + 2.55, z + dz + 0.12, "#ff6b00")
     end
   end
 
-  -- Room walls (75% transparent)
-  local function wall(x,y,z,w,h,d)
-    local o = box(nil, nil, w,h,d,x,y,z,"#1a1f24")
-    if o then o.transparency = 0.75 end
+  -- Room walls - only edges painted, walls translucent
+  local function wallEdge(x,y,z,w,h,d)
+    local o = box(nil, nil, w,h,d,x,y,z,"#76b900")
+    if o then 
+      o.transparency = 0.95
+      o.emission = "#76b900"
+      o.sdl = [[
+        texture {
+          pigment { color rgb <0.46,0.725,0> transmit 0.95 }
+          finish { ambient 0.1 diffuse 0.4 specular 0.8 roughness 0.01 emission 0.3 }
+        }
+      ]]
+    end
     return o
   end
-  wall(0, SLAB_H + roomH / 2, -roomD / 2, roomW, roomH, 0.6)
-  wall(0, SLAB_H + roomH / 2, roomD / 2, roomW, roomH, 0.6)
-  wall(-roomW / 2, SLAB_H + roomH / 2, 0, 0.6, roomH, roomD)
-  wall(roomW / 2, SLAB_H + roomH / 2, 0, 0.6, roomH, roomD)
-  -- ceiling (transparent)
-  local ceil = box(nil, nil, roomW, 0.8, roomD, 0, SLAB_H + roomH - 0.4, 0, "#15181c")
-  if ceil then ceil.transparency = 0.75 end
+  local function wallPanel(x,y,z,w,h,d)
+    local o = box(nil, nil, w,h,d,x,y,z,"#1a1f24")
+    if o then 
+      o.transparency = 0.9
+      o.sdl = [[
+        texture {
+          pigment { color rgb <0.1,0.12,0.15> transmit 0.9 }
+          finish { ambient 0.02 diffuse 0.2 specular 0.4 roughness 0.01 }
+        }
+      ]]
+    end
+    return o
+  end
+  -- corners/edges only
+  wallEdge(0, SLAB_H + 0.3, -roomD / 2, roomW, 0.6, 0.8)
+  wallEdge(0, SLAB_H + roomH - 0.3, -roomD / 2, roomW, 0.6, 0.8)
+  wallEdge(0, SLAB_H + 0.3, roomD / 2, roomW, 0.6, 0.8)
+  wallEdge(0, SLAB_H + roomH - 0.3, roomD / 2, roomW, 0.6, 0.8)
+  wallEdge(-roomW / 2, SLAB_H + 0.3, 0, 0.8, 0.6, roomD)
+  wallEdge(-roomW / 2, SLAB_H + roomH - 0.3, 0, 0.8, 0.6, roomD)
+  wallEdge(roomW / 2, SLAB_H + 0.3, 0, 0.8, 0.6, roomD)
+  wallEdge(roomW / 2, SLAB_H + roomH - 0.3, 0, 0.8, 0.6, roomD)
+  -- thin translucent panels
+  wallPanel(0, SLAB_H + roomH / 2, -roomD / 2, roomW, roomH - 1.2, 0.3)
+  wallPanel(0, SLAB_H + roomH / 2, roomD / 2, roomW, roomH - 1.2, 0.3)
+  wallPanel(-roomW / 2, SLAB_H + roomH / 2, 0, 0.3, roomH - 1.2, roomD)
+  wallPanel(roomW / 2, SLAB_H + roomH / 2, 0, 0.3, roomH - 1.2, roomD)
+  -- ceiling edges only
+  box(nil, nil, roomW, 0.4, 0.6, 0, SLAB_H + roomH - 0.2, -roomD / 2 + 0.1, "#76b900", "#76b900")
+  box(nil, nil, roomW, 0.4, 0.6, 0, SLAB_H + roomH - 0.2, roomD / 2 - 0.1, "#76b900", "#76b900")
+  box(nil, nil, 0.6, 0.4, roomD, -roomW / 2 + 0.1, SLAB_H + roomH - 0.2, 0, "#76b900", "#76b900")
+  box(nil, nil, 0.6, 0.4, roomD, roomW / 2 - 0.1, SLAB_H + roomH - 0.2, 0, "#76b900", "#76b900")
 
   -- Liquid cooling plant on top of the room (roof)
   local roofY = SLAB_H + roomH + 1.6
   local plantW = math.min(roomW + 16.0, 72.0)
   -- chiller skid
-  box(nil, nil, plantW * 0.5, 3.0, 10.0, -roomW * 0.25, roofY, -roomD * 0.25, "#2a3138")
-  box(nil, nil, plantW * 0.48, 2.6, 9.0, -roomW * 0.25, roofY + 0.1, -roomD * 0.25, "#333a42")
-  box(nil, nil, plantW * 0.5, 3.0, 10.0, roomW * 0.25, roofY, -roomD * 0.25, "#2a3138")
-  box(nil, nil, plantW * 0.48, 2.6, 9.0, roomW * 0.25, roofY + 0.1, -roomD * 0.25, "#333a42")
+  metalBox(nil, nil, plantW * 0.5, 3.0, 10.0, -roomW * 0.25, roofY, -roomD * 0.25, "#23282f", nil, 0.72)
+  metalBox(nil, nil, plantW * 0.48, 2.6, 9.0, -roomW * 0.25, roofY + 0.1, -roomD * 0.25, "#2c333b", nil, 0.7)
+  metalBox(nil, nil, plantW * 0.5, 3.0, 10.0, roomW * 0.25, roofY, -roomD * 0.25, "#23282f", nil, 0.72)
+  metalBox(nil, nil, plantW * 0.48, 2.6, 9.0, roomW * 0.25, roofY + 0.1, -roomD * 0.25, "#2c333b", nil, 0.7)
+  -- electrical transformers/PDUs
+  metalBox(nil, nil, 10.0, 3.0, 6.0, roomW * 0.1, roofY, roomD * 0.25, "#2a2f36", nil, 0.7)
+  box(nil, nil, 9.6, 2.6, 5.6, roomW * 0.1, roofY + 0.1, roomD * 0.25, "#353a42")
+  box(nil, nil, 0.4, 2.0, 0.4, roomW * 0.1, roofY + 0.5, roomD * 0.25 + 3.2, "#ffd700", "#ffd700")
   -- cooling towers
   for _, cx in ipairs({ -roomW * 0.18, -roomW * 0.12, roomW * 0.12, roomW * 0.18 }) do
-    box(nil, nil, 5.0, 6.0, 5.0, cx, roofY + 4.0, roomD * 0.18, "#3b424a")
-    box(nil, nil, 4.6, 5.6, 4.6, cx, roofY + 4.1, roomD * 0.18, "#444b54")
-    box(nil, nil, 4.0, 0.4, 4.0, cx, roofY + 7.0, roomD * 0.18, "#5a626a", "#9dffb3")
+    metalBox(nil, nil, 5.0, 6.0, 5.0, cx, roofY + 4.0, roomD * 0.18, "#343a42", nil, 0.68)
+    metalBox(nil, nil, 4.6, 5.6, 4.6, cx, roofY + 4.1, roomD * 0.18, "#3a4149", nil, 0.66)
+    metalBox(nil, nil, 4.0, 0.4, 4.0, cx, roofY + 7.0, roomD * 0.18, "#5a626a", "#9dffb3", 0.6)
   end
   -- main headers on roof with flow
-  flowPipe(roomW + 20.0, 0.4, 0.6, 0, roofY + 3.2, -roomD * 0.25, "#1f9bff", 1, 1.4)
-  flowPipe(roomW + 20.0, 0.4, 0.6, 0, roofY + 2.8, -roomD * 0.25, "#ff5a2a", -1, 1.2)
-  -- risers down to room with flow
+  flowPipe(roomW + 32.0, 0.7, 0.9, 0, roofY + 3.8, -roomD * 0.25, "#1f9bff", 1, 1.7)
+  flowPipe(roomW + 32.0, 0.7, 0.9, 0, roofY + 3.2, -roomD * 0.25, "#ff5a2a", -1, 1.5)
+  -- connect headers to chillers/towers
+  flowPipe(12.0, 0.6, 0.6, -roomW * 0.25, roofY + 3.8, -roomD * 0.25 + 5.0, "#1f9bff", 1, 1.4)
+  flowPipe(12.0, 0.6, 0.6, -roomW * 0.25, roofY + 3.2, -roomD * 0.25 + 5.0, "#ff5a2a", -1, 1.3)
+  flowPipe(12.0, 0.6, 0.6, roomW * 0.25, roofY + 3.8, -roomD * 0.25 + 5.0, "#1f9bff", 1, 1.4)
+  flowPipe(12.0, 0.6, 0.6, roomW * 0.25, roofY + 3.2, -roomD * 0.25 + 5.0, "#ff5a2a", -1, 1.3)
+  pipeElbow(0, roofY + 3.8, -roomD * 0.25, 0.3, "z", "#1f9bff")
+  pipeElbow(0, roofY + 3.2, -roomD * 0.25, 0.3, "z", "#ff5a2a")
+  -- risers down to room with flow (connected)
   for _, rx in ipairs({ -rowWidth / 3, 0, rowWidth / 3 }) do
-    flowPipe(0.6, (roomH - PLENUM_H + 6.0), 0.6, rx, SLAB_H + (roomH - PLENUM_H + 6.0) / 2, -roomD / 2 - 1.2, "#1f9bff", 1, 1.0)
-    flowPipe(0.6, (roomH - PLENUM_H + 6.0), 0.6, rx + 1.0, SLAB_H + (roomH - PLENUM_H + 6.0) / 2, -roomD / 2 - 1.2, "#ff5a2a", -1, 0.9)
+    flowPipe(0.9, (roomH - PLENUM_H + 12.0), 0.9, rx, SLAB_H + (roomH - PLENUM_H + 12.0) / 2, -roomD / 2 - 1.8, "#1f9bff", 1, 1.3)
+    flowPipe(0.9, (roomH - PLENUM_H + 12.0), 0.9, rx + 1.6, SLAB_H + (roomH - PLENUM_H + 12.0) / 2, -roomD / 2 - 1.8, "#ff5a2a", -1, 1.2)
+    pipeElbow(rx, SLAB_H + roomH + 0.7, -roomD / 2 - 1.8, 0.45, "z", "#1f9bff")
+    pipeElbow(rx + 1.6, SLAB_H + roomH + 0.7, -roomD / 2 - 1.8, 0.45, "z", "#ff5a2a")
+    flowPipe(0.3, 8.0, 0.3, rx, roofY - 2.0, -roomD / 2 - 1.8, "#1f9bff", 1, 1.0)
+    flowPipe(0.3, 8.0, 0.3, rx + 1.6, roofY - 2.0, -roomD / 2 - 1.8, "#ff5a2a", -1, 1.0)
+    pipeElbow(rx, roofY + 3.5, -roomD / 2 - 1.8, 0.35, "z", "#1f9bff")
+    pipeElbow(rx + 1.6, roofY + 3.0, -roomD / 2 - 1.8, 0.35, "z", "#ff5a2a")
   end
 
-  -- Overhead CDUs/heat exchangers on ceiling trusses
+  -- Overhead CDUs/heat exchangers on ceiling trusses above every rack
   local cduY = SLAB_H + roomH - 4.2
-  if rows >= 2 then
-    addCDU(-rowWidth / 4, cduY, -rowZ[1] - ROW_GAP * 0.25, 1)
-    addCDU(rowWidth / 4, cduY, -rowZ[1] - ROW_GAP * 0.25, 2)
+  local cduIdx = 0
+  for i = 1, rows do
+    local z = rowZ[i]
+    for j = 1, racksPerRow do
+      local x = (j - (racksPerRow + 1) / 2) * RACK_PITCH
+      cduIdx = cduIdx + 1
+      addCDU(x, cduY, z, cduIdx)
+    end
   end
-  if rows >= 2 then
-    addCDU(-rowWidth / 4, cduY, rowZ[2] - ROW_GAP * 0.25, 3)
-    addCDU(rowWidth / 4, cduY, rowZ[2] - ROW_GAP * 0.25, 4)
-  end
-  if rows >= 3 then
-    addCDU(-rowWidth / 4, cduY, rowZ[3] - ROW_GAP * 0.25, 5)
-    addCDU(rowWidth / 4, cduY, rowZ[3] - ROW_GAP * 0.25, 6)
-  end
-  if rows >= 4 then
-    addCDU(-rowWidth / 4, cduY, rowZ[4] - ROW_GAP * 0.25, 7)
-    addCDU(rowWidth / 4, cduY, rowZ[4] - ROW_GAP * 0.25, 8)
-  end
-  -- supply/return mains between CDUs and rows with flow
+  -- supply/return mains between CDUs and roof with flow
   for i = 1, #cdus do
     local c = cdus[i]
-    local mz = nil
-    if i <= 2 then mz = -rowZ[1] - ROW_GAP * 0.25
-    elseif i <= 4 then mz = rowZ[2] - ROW_GAP * 0.25
-    elseif i <= 6 then mz = rowZ[3] - ROW_GAP * 0.25
-    else mz = rowZ[4] - ROW_GAP * 0.25
+    local mz = rowZ[math.min(rows, math.ceil(i / math.max(1, racksPerRow)))] or 0
+    local hx = (i % math.max(1, racksPerRow) == 0) and (racksPerRow) or (i % math.max(1, racksPerRow))
+    hx = (hx - (racksPerRow + 1) / 2) * RACK_PITCH
+    -- connect each CDU to main headers
+    flowPipe(math.abs(hx) + 24.0, 0.34, 0.34, hx / 2, cduY + 2.2, mz, "#1f9bff", 1, 1.2)
+    flowPipe(math.abs(hx) + 24.0, 0.34, 0.34, hx / 2, cduY + 1.8, mz, "#ff5a2a", -1, 1.2)
+    pipeElbow(hx, cduY + 2.0, mz - 2.4, 0.17, "z", "#1f9bff")
+    pipeElbow(hx, cduY + 1.6, mz - 2.4, 0.17, "z", "#ff5a2a")
+    -- connect to rack trays
+    flowPipe(0.32, 7.0, 0.32, hx, cduY - 2.0, mz + RACK_D * 0.36, "#1f9bff", 1, 1.3)
+    flowPipe(0.32, 7.0, 0.32, hx, cduY - 2.8, mz - RACK_D * 0.36, "#ff5a2a", -1, 1.3)
+    pipeElbow(hx, cduY + 1.0, mz + RACK_D * 0.36, 0.16, "z", "#1f9bff")
+    pipeElbow(hx, cduY + 0.4, mz - RACK_D * 0.36, 0.16, "z", "#ff5a2a")
+    flowPipe(0.3, 2.6, 0.3, hx, SLAB_H + RACK_H + 2.2, mz + RACK_D * 0.36, "#1f9bff", 1, 1.2)
+    flowPipe(0.3, 2.6, 0.3, hx, SLAB_H + RACK_H + 2.0, mz - RACK_D * 0.36, "#ff5a2a", -1, 1.2)
+    -- connect to CDU manifold
+    flowPipe(0.34, 2.2, 0.34, hx, cduY - 0.5, mz - 3.6, "#1f9bff", 1, 1.2)
+    flowPipe(0.34, 2.2, 0.34, hx, cduY - 0.9, mz - 3.6, "#ff5a2a", -1, 1.2)
+    -- add junctions
+    pipeElbow(hx, cduY + 1.9, mz + RACK_D * 0.1, 0.16, "z", "#1f9bff")
+    pipeElbow(hx, cduY + 1.5, mz - RACK_D * 0.1, 0.16, "z", "#ff5a2a")
+  end
+
+  -- Add lightsys fluorescent area lights between rows / in cold aisles
+  if not v.post_sdl then v.post_sdl = "" end
+  local aisleLightCount = math.max(2, rows + 1)
+  for i = 1, aisleLightCount do
+    local az = (i - (aisleLightCount + 1) / 2) * ROW_GAP
+    if math.abs(az) < roomD / 2 - 10 then
+      local ly = SLAB_H + roomH - 2.0
+      local lightSdl = "\nlight_source {\n" ..
+        "  <" .. tostring(0) .. ", " .. tostring(ly) .. ", " .. tostring(az) .. ">\n" ..
+        "  color rgb <0.9,1.0,0.95> * 3.0\n" ..
+        "  area_light <4.0, 0, 0>, <0, 0, 1.0>, 4, 1\n" ..
+        "  adaptive 1\n" ..
+        "  jitter\n" ..
+        "}\n"
+      v.post_sdl = v.post_sdl .. lightSdl
+      -- add visible fixture
+      metalBox(nil, nil, 8.0, 0.3, 2.8, 0, ly + 0.1, az, "#252a31", nil, 0.72)
     end
-    flowPipe(0.24, 0.24, rowWidth + 12.0, 0, cduY + 1.6, mz, "#1f9bff", 1, 0.8)
-    flowPipe(0.24, 0.24, rowWidth + 12.0, 0, cduY + 1.25, mz, "#ff5a2a", -1, 0.7)
   end
 
   -- Camera looking down cold aisle
