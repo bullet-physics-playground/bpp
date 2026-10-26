@@ -163,6 +163,11 @@ stack, and nothing showed N, x or the answer. Now:
   and at the end (1241 = 17 x 73); and choosing 1679 with `N` and running
   its tour with `T` (48: 23 x 73).
 - `T` now runs the tour for the number `N` chose, not always 1241's.
+- When it turns by itself (the tour, `G`), the hand waits 0.6 s between
+  turns, and the board keeps the depth up until the cam begins to lift the
+  probe: at first the next turn started in the same frame as the reading,
+  and the depth was never seen (William's report). Checked in the GUI:
+  0, 4, 2, 1 shown for x = 38 to 41, blank while the probe is up.
 - The hole numbers on the wheels are larger (5.5 mm, from 4.2).
 
 The table grew to 120 x 80 to hold the board.

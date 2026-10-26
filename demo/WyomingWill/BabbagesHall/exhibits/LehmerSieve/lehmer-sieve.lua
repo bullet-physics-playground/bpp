@@ -779,12 +779,14 @@ end
 -- stepping
 -- ---------------------------------------------------------------------
 local logT = 0
+local boardCleared = true
+local PAUSE = 0.6                         -- (seconds between turns when it goes on by itself: time to read the depth)
 local function oneTurn()
   if turning then return end
   turning = true
   target = target + 1
   wait = 0
-  boardTurning()
+  boardCleared = false                    -- (the depth stays up until the cam starts to lift the probe)
 end
 -- after a reading: stop if the probe fell right through; the tour goes on
 -- past a false stop, and ends at the true one
@@ -797,8 +799,9 @@ local function afterReading(stop)
     print("RESULT lehmer-sieve tour: " .. ((fails == 0 and okF) and "PASS" or "FAIL"))
   elseif tour then
     running = true
-    if stop then wait = -1.0 end            -- (a moment to look)
+    if stop then wait = -1.5 end            -- (a moment to look)
   end
+  if running and wait >= 0 then wait = -PAUSE end
 end
 v:preSim(function(N_)
   if holdPre() then return end
@@ -838,6 +841,12 @@ v:postSim(function(N_)
       afterReading(stop)
     end
     return
+  end
+  -- the board: the depth and the working blanked once the cam begins to
+  -- lift the probe (the reading they showed no longer stands)
+  if turning and not boardCleared and driveTurns() - (target - 1) > G.RISE[1] / 360 then
+    boardCleared = true
+    boardTurning()
   end
   -- the hand: done with a turn when the handle is back at rest and it has
   -- had a moment to settle; then the next, if it is going on
@@ -962,6 +971,6 @@ if v.onHover then
   end)
 end
 
-common.setCamera(btVector3(-18, 25, 47), btVector3(-15.5, 7, 0))
+common.setCamera(btVector3(-19, 30, 60), btVector3(-15.5, 7, 0))
 moveRiders()
 holdStart()
