@@ -1,0 +1,514 @@
+# Option A (cmpA.sh, 25 October): patch 37's walkers (base) against V, width 1.0, both; 60 s, Earth standard, trot, forward, 6 m track, waves 4 and logs 5 (bump 15), seeds 1-2 on normal and mirrored ground
+
+waves4: mean cm/s (runs); change from base
+| Walker | Base | V | Width | Both |
+|---|---|---|---|---|
+| Chebyshev | 5.96 (4) | – | 5.54 (4), -0.42 | – |
+| Chebyshev-Spears | 6.30 (4) | – | 6.28 (4), -0.03 | – |
+| Hoecken-Spears 4-bar | 6.90 (4) | – | 6.21 (4), -0.69 | – |
+| Hoecken-Spears long-stance | 7.06 (4) | – | 6.90 (4), -0.16 | – |
+| Hoecken-Spears slider | 5.31 (4) | – | 6.12 (4), +0.80 | – |
+| Hoecken 4-bar | 6.33 (4) | – | 6.19 (4), -0.14 | – |
+| Hoecken slider | 5.64 (4) | – | 6.68 (4), +1.04 | – |
+| Jansen | 7.00 (4) | – | 6.97 (4), -0.03 | – |
+| Klann | 6.77 (4) | – | 7.38 (4), +0.62 | – |
+| Spears 4-bar | 5.41 (4) | – | 5.53 (4), +0.12 | – |
+| Spears lift 44 | 6.57 (4) | – | 6.76 (4), +0.19 | – |
+| Spears lift 53 | 4.58 (4) | – | 4.31 (4), -0.27 | – |
+| Chebyshev-Spears diag | 6.99 (4) | 7.02 (4), +0.03 | 6.80 (4), -0.19 | 7.31 (4), +0.32 |
+| Chebyshev diag | 4.83 (4) | 4.45 (4), -0.38 | 5.59 (4), +0.76 | 4.77 (4), -0.06 |
+| Hoecken-Spears 4-bar diag | 7.25 (4) | 6.91 (4), -0.34 | 7.23 (4), -0.02 | 6.87 (4), -0.38 |
+| Hoecken-Spears long-stance diag | 6.64 (4) | 6.39 (4), -0.25 | 6.71 (4), +0.08 | 6.29 (4), -0.35 |
+| Hoecken 4-bar diag | 5.75 (4) | 5.32 (4), -0.44 | 6.49 (4), +0.74 | 5.89 (4), +0.14 |
+| Spears lift 44 diag | 6.47 (4) | 6.35 (4), -0.12 | 6.10 (4), -0.36 | 6.05 (4), -0.42 |
+| Spears lift 53 diag | 5.03 (4) | 4.34 (4), -0.69 | 3.77 (4), -1.26 | 4.53 (4), -0.50 |
+  V: mean change -0.31 over 7 builds; better in 1, worse in 6
+  width: mean change +0.04 over 19 builds; better in 8, worse in 11
+  both: mean change -0.18 over 7 builds; better in 2, worse in 5
+
+logs5: mean cm/s (runs); change from base
+| Walker | Base | V | Width | Both |
+|---|---|---|---|---|
+| Chebyshev | 2.92 (4) | – | 2.36 (4), -0.56 | – |
+| Chebyshev-Spears | 5.61 (4) | – | 5.86 (4), +0.25 | – |
+| Hoecken-Spears 4-bar | 6.19 (4) | – | 6.84 (4), +0.66 | – |
+| Hoecken-Spears long-stance | 5.23 (4) | – | 5.13 (4), -0.10 | – |
+| Hoecken-Spears slider | 4.83 (4) | – | 4.01 (4), -0.81 | – |
+| Hoecken 4-bar | 1.57 (4) | – | 2.36 (4), +0.79 | – |
+| Hoecken slider | 2.31 (4) | – | 2.73 (4), +0.41 | – |
+| Jansen | 5.34 (4) | – | 5.56 (4), +0.22 | – |
+| Klann | 6.61 (4) | – | 6.73 (4), +0.12 | – |
+| Spears 4-bar | 3.21 (4) | – | 2.71 (4), -0.49 | – |
+| Spears lift 44 | 8.10 (4) | – | 8.11 (4), +0.00 | – |
+| Spears lift 53 | 7.29 (4) | – | 7.54 (4), +0.24 | – |
+| Chebyshev-Spears diag | 6.97 (4) | 6.79 (4), -0.18 | 6.97 (4), -0.00 | 6.83 (4), -0.15 |
+| Chebyshev diag | 1.01 (4) | 1.28 (4), +0.27 | 1.78 (4), +0.77 | 2.71 (4), +1.70 |
+| Hoecken-Spears 4-bar diag | 6.83 (4) | 6.82 (4), -0.01 | 6.86 (4), +0.03 | 6.87 (4), +0.04 |
+| Hoecken-Spears long-stance diag | 7.18 (4) | 7.11 (4), -0.08 | 7.07 (4), -0.12 | 6.84 (4), -0.34 |
+| Hoecken 4-bar diag | 2.54 (4) | 1.68 (4), -0.86 | 1.76 (4), -0.78 | 1.86 (4), -0.68 |
+| Spears lift 44 diag | 7.88 (4) | 7.71 (4), -0.18 | 8.01 (4), +0.13 | 7.92 (4), +0.03 |
+| Spears lift 53 diag | 7.27 (4) | 7.27 (4), -0.00 | 7.21 (4), -0.06 | 7.46 (4), +0.19 |
+  V: mean change -0.15 over 7 builds; better in 1, worse in 6
+  width: mean change +0.04 over 19 builds; better in 11, worse in 8
+  both: mean change +0.11 over 7 builds; better in 4, worse in 3
+
+Contacts to watch (slider guide block, body):
+  ('Chebyshev-Spears', 'base') ['body-ground 0.6%']
+  ('Hoecken-Spears_slider', 'base') ['body-ground 0.2%']
+  ('Spears_4-bar', 'base') ['body-ground 0.1%', 'body-ground 0.2%']
+  ('Spears_4-bar', 'width') ['body-ground 1.4%', 'body-pendant 0.0%', 'body-pendant 0.1%', 'body-pendant 0.2%', 'body-pendant 0.3%', 'body-pendant 0.6%', 'body-pendant 0.8%']
+  ('Spears_lift_44_diag', 'both') ['body-ground 1.1%']
+  ('Spears_lift_44_diag', 'width') ['body-ground 1.0%']
+  ('Spears_lift_53', 'base') ['body-ground 0.4%']
+  ('Spears_lift_53', 'width') ['body-ground 0.3%']
+  ('Spears_lift_53_diag', 'both') ['body-ground 0.7%']
+# Spears lift 53, waves 6, bump 15, seeds 1-4, normal / mirrored (l53.sh)
+d_w0_s1_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 166.4 cm|2.77 cm/s|sideways -159.5 cm|stood up 0|air 0.1%|ground mirrored
+d_w0_s1_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 146.0 cm|2.43 cm/s|sideways 96.4 cm|stood up 0|air 0.1%
+d_w0_s2_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 321.1 cm|5.35 cm/s|sideways 14.5 cm|stood up 0|air 0.1%|ground mirrored
+d_w0_s2_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 336.1 cm|5.60 cm/s|sideways -117.1 cm|stood up 0|air 0.1%
+d_w0_s3_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 3|forward 62.4 cm|1.04 cm/s|sideways -17.2 cm|stood up 0|air 0.1%|ground mirrored
+d_w0_s3_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 3|forward 217.6 cm|3.63 cm/s|sideways 246.1 cm|stood up 0|air 0.1%
+d_w0_s4_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 4|forward 26.0 cm|0.43 cm/s|sideways -4.3 cm|stood up 0|air 0.1%|ground mirrored
+d_w0_s4_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 4|forward 330.3 cm|5.51 cm/s|sideways -96.5 cm|stood up 0|air 0.1%
+d_w1_s1_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 26.3 cm|0.44 cm/s|sideways -13.5 cm|stood up 0|air 0.1%|ground mirrored
+d_w1_s1_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 166.3 cm|2.77 cm/s|sideways 167.0 cm|stood up 0|air 0.1%
+d_w1_s2_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 209.5 cm|3.49 cm/s|sideways -110.8 cm|stood up 0|air 0.1%|ground mirrored
+d_w1_s2_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 226.9 cm|3.78 cm/s|sideways 19.7 cm|stood up 0|air 0.1%
+d_w1_s3_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 3|forward 75.5 cm|1.26 cm/s|sideways -16.0 cm|stood up 0|air 0.1%|ground mirrored
+d_w1_s3_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 3|forward 25.8 cm|0.43 cm/s|sideways 12.1 cm|stood up 0|air 0.1%
+d_w1_s4_mirrored	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 4|forward 32.7 cm|0.55 cm/s|sideways -5.8 cm|stood up 0|air 0.1%|ground mirrored
+d_w1_s4_normal	TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 4|forward 366.3 cm|6.11 cm/s|sideways -114.3 cm|stood up 0|air 0.1%
+g_w0_s1_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 176.4 cm|2.94 cm/s|sideways -115.1 cm|stood up 0|air 0.1%|ground mirrored
+g_w0_s1_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 148.6 cm|2.48 cm/s|sideways 135.3 cm|stood up 0|air 0.2%
+g_w0_s2_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 238.8 cm|3.98 cm/s|sideways -55.6 cm|stood up 0|air 0.2%|ground mirrored
+g_w0_s2_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 356.9 cm|5.95 cm/s|sideways -108.6 cm|stood up 0|air 0.1%
+g_w0_s3_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 3|forward 183.7 cm|3.06 cm/s|sideways -205.3 cm|stood up 0|air 0.1%|ground mirrored
+g_w0_s3_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 3|forward 117.8 cm|1.96 cm/s|sideways 35.1 cm|stood up 0|air 0.2%
+g_w0_s4_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 4|forward 31.8 cm|0.53 cm/s|sideways -2.2 cm|stood up 0|air 0.2%|ground mirrored
+g_w0_s4_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 4|forward 356.1 cm|5.94 cm/s|sideways -101.2 cm|stood up 0|air 0.1%
+g_w1_s1_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 21.9 cm|0.36 cm/s|sideways -6.9 cm|stood up 0|air 0.1%|ground mirrored
+g_w1_s1_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 128.6 cm|2.14 cm/s|sideways 95.1 cm|stood up 0|air 0.2%
+g_w1_s2_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 215.0 cm|3.58 cm/s|sideways -169.5 cm|stood up 0|air 0.2%|ground mirrored
+g_w1_s2_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 336.5 cm|5.61 cm/s|sideways -141.9 cm|stood up 0|air 0.1%
+g_w1_s3_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 3|forward 225.1 cm|3.75 cm/s|sideways -219.0 cm|stood up 0|air 0.1%|ground mirrored
+g_w1_s3_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 3|forward 220.9 cm|3.68 cm/s|sideways 245.6 cm|stood up 0|air 0.2%
+g_w1_s4_mirrored	TRACK Spears lift 53|height 6.00|length 15.0|seed 4|forward 206.6 cm|3.44 cm/s|sideways -162.6 cm|stood up 0|air 0.2%|ground mirrored
+g_w1_s4_normal	TRACK Spears lift 53|height 6.00|length 15.0|seed 4|forward 356.6 cm|5.94 cm/s|sideways -108.4 cm|stood up 0|air 0.1%
+# TRACK lines, option A
+Chebyshev-Spears_base_logs5_s1_mirrored	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 381.5 cm|6.36 cm/s|sideways 43.3 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_base_logs5_s1_normal	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 372.3 cm|6.20 cm/s|sideways -46.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_base_logs5_s2_mirrored	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 280.8 cm|4.68 cm/s|sideways -105.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_base_logs5_s2_normal	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 311.2 cm|5.19 cm/s|sideways -6.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_base_waves4_s1_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 303.3 cm|5.05 cm/s|sideways -270.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_base_waves4_s1_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 392.6 cm|6.54 cm/s|sideways -88.6 cm|stood up 0|air 0.1%
+Chebyshev-Spears_base_waves4_s2_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 389.6 cm|6.49 cm/s|sideways -142.0 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_base_waves4_s2_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 427.9 cm|7.13 cm/s|sideways 76.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_V_logs5_s1_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 421.5 cm|7.03 cm/s|sideways -35.9 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_V_logs5_s1_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 413.5 cm|6.89 cm/s|sideways 19.1 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_V_logs5_s2_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 399.5 cm|6.66 cm/s|sideways -90.1 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_V_logs5_s2_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 394.7 cm|6.58 cm/s|sideways 15.1 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_V_waves4_s1_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 442.8 cm|7.38 cm/s|sideways -122.9 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_V_waves4_s1_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 423.9 cm|7.06 cm/s|sideways 68.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_V_waves4_s2_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 403.4 cm|6.72 cm/s|sideways -158.8 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_V_waves4_s2_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 414.9 cm|6.91 cm/s|sideways 140.0 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_base_logs5_s1_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 435.0 cm|7.25 cm/s|sideways -41.4 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_base_logs5_s1_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 420.8 cm|7.01 cm/s|sideways -67.6 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_base_logs5_s2_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 425.5 cm|7.09 cm/s|sideways -22.1 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_base_logs5_s2_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 392.8 cm|6.55 cm/s|sideways 6.5 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_base_waves4_s1_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 397.4 cm|6.62 cm/s|sideways -151.9 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_base_waves4_s1_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 453.1 cm|7.55 cm/s|sideways 99.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_base_waves4_s2_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 423.7 cm|7.06 cm/s|sideways -141.4 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_base_waves4_s2_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 404.4 cm|6.74 cm/s|sideways 137.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_both_logs5_s1_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 430.3 cm|7.17 cm/s|sideways -45.0 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_both_logs5_s1_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 405.6 cm|6.76 cm/s|sideways -63.4 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_both_logs5_s2_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 390.9 cm|6.51 cm/s|sideways -44.6 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_both_logs5_s2_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 412.1 cm|6.87 cm/s|sideways 8.7 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_both_waves4_s1_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 462.6 cm|7.71 cm/s|sideways -104.3 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_both_waves4_s1_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 453.6 cm|7.56 cm/s|sideways 97.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_both_waves4_s2_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 406.1 cm|6.77 cm/s|sideways -153.9 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_both_waves4_s2_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 433.4 cm|7.22 cm/s|sideways 120.4 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_width_logs5_s1_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 413.1 cm|6.88 cm/s|sideways 62.6 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_width_logs5_s1_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 414.0 cm|6.90 cm/s|sideways -64.5 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_width_logs5_s2_mirrored	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 425.6 cm|7.09 cm/s|sideways -19.6 cm|stood up 0|air 0.0%|ground mirrored
+Chebyshev-Spears_diag_width_logs5_s2_normal	TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 421.4 cm|7.02 cm/s|sideways 36.4 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_width_waves4_s1_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 424.6 cm|7.08 cm/s|sideways -111.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_width_waves4_s1_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 433.0 cm|7.22 cm/s|sideways 114.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_width_waves4_s2_mirrored	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 382.2 cm|6.37 cm/s|sideways 88.9 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_diag_width_waves4_s2_normal	TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 393.2 cm|6.55 cm/s|sideways 159.8 cm|stood up 0|air 0.1%
+Chebyshev-Spears_width_logs5_s1_mirrored	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 361.8 cm|6.03 cm/s|sideways -2.0 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_width_logs5_s1_normal	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 326.2 cm|5.44 cm/s|sideways -14.3 cm|stood up 0|air 0.1%
+Chebyshev-Spears_width_logs5_s2_mirrored	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 410.1 cm|6.83 cm/s|sideways -22.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_width_logs5_s2_normal	TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 308.2 cm|5.14 cm/s|sideways -18.3 cm|stood up 0|air 0.1%
+Chebyshev-Spears_width_waves4_s1_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 354.1 cm|5.90 cm/s|sideways -202.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_width_waves4_s1_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 408.1 cm|6.80 cm/s|sideways -87.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_width_waves4_s2_mirrored	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 306.4 cm|5.11 cm/s|sideways -251.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev-Spears_width_waves4_s2_normal	TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 438.2 cm|7.30 cm/s|sideways 113.0 cm|stood up 0|air 0.1%
+Chebyshev_base_logs5_s1_mirrored	TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 238.1 cm|3.97 cm/s|sideways -28.3 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_base_logs5_s1_normal	TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 239.4 cm|3.99 cm/s|sideways -26.9 cm|stood up 0|air 0.1%
+Chebyshev_base_logs5_s2_mirrored	TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 40.1 cm|0.67 cm/s|sideways 133.2 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_base_logs5_s2_normal	TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 182.9 cm|3.05 cm/s|sideways -8.7 cm|stood up 0|air 0.1%
+Chebyshev_base_waves4_s1_mirrored	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 410.0 cm|6.83 cm/s|sideways -86.8 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_base_waves4_s1_normal	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 316.6 cm|5.28 cm/s|sideways 101.6 cm|stood up 0|air 0.1%
+Chebyshev_base_waves4_s2_mirrored	TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 388.4 cm|6.47 cm/s|sideways -112.9 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_base_waves4_s2_normal	TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 316.8 cm|5.28 cm/s|sideways 138.7 cm|stood up 0|air 0.1%
+Chebyshev_diag_V_logs5_s1_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 135.7 cm|2.26 cm/s|sideways -5.2 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_V_logs5_s1_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 119.4 cm|1.99 cm/s|sideways 137.1 cm|stood up 0|air 0.1%
+Chebyshev_diag_V_logs5_s2_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 32.4 cm|0.54 cm/s|sideways 102.0 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_V_logs5_s2_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 20.7 cm|0.35 cm/s|sideways -63.9 cm|stood up 0|air 0.1%
+Chebyshev_diag_V_waves4_s1_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 286.3 cm|4.77 cm/s|sideways -112.0 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_V_waves4_s1_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 249.9 cm|4.17 cm/s|sideways 131.0 cm|stood up 0|air 0.1%
+Chebyshev_diag_V_waves4_s2_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 237.2 cm|3.95 cm/s|sideways -177.7 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_V_waves4_s2_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 295.4 cm|4.92 cm/s|sideways 136.5 cm|stood up 0|air 0.1%
+Chebyshev_diag_base_logs5_s1_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 79.8 cm|1.33 cm/s|sideways -4.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_base_logs5_s1_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 94.9 cm|1.58 cm/s|sideways -83.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_base_logs5_s2_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 35.7 cm|0.60 cm/s|sideways 113.7 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_base_logs5_s2_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 32.3 cm|0.54 cm/s|sideways -108.8 cm|stood up 0|air 0.1%
+Chebyshev_diag_base_waves4_s1_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 265.9 cm|4.43 cm/s|sideways -136.8 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_base_waves4_s1_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 277.4 cm|4.62 cm/s|sideways 163.0 cm|stood up 0|air 0.1%
+Chebyshev_diag_base_waves4_s2_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 268.6 cm|4.48 cm/s|sideways -108.7 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_base_waves4_s2_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 346.7 cm|5.78 cm/s|sideways 98.3 cm|stood up 0|air 0.1%
+Chebyshev_diag_both_logs5_s1_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 238.1 cm|3.97 cm/s|sideways 74.3 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_both_logs5_s1_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 248.0 cm|4.13 cm/s|sideways -30.3 cm|stood up 0|air 0.1%
+Chebyshev_diag_both_logs5_s2_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 33.0 cm|0.55 cm/s|sideways 105.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_both_logs5_s2_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 130.6 cm|2.18 cm/s|sideways 18.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_both_waves4_s1_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 254.0 cm|4.23 cm/s|sideways -98.5 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_both_waves4_s1_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 176.8 cm|2.95 cm/s|sideways 95.5 cm|stood up 0|air 0.1%
+Chebyshev_diag_both_waves4_s2_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 377.7 cm|6.29 cm/s|sideways -120.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_both_waves4_s2_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 336.5 cm|5.61 cm/s|sideways 131.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_width_logs5_s1_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 132.9 cm|2.21 cm/s|sideways 15.5 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_width_logs5_s1_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 230.2 cm|3.84 cm/s|sideways -64.5 cm|stood up 0|air 0.1%
+Chebyshev_diag_width_logs5_s2_mirrored	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 30.6 cm|0.51 cm/s|sideways 88.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_width_logs5_s2_normal	TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 33.9 cm|0.57 cm/s|sideways -118.2 cm|stood up 0|air 0.1%
+Chebyshev_diag_width_waves4_s1_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 314.8 cm|5.25 cm/s|sideways -112.7 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_width_waves4_s1_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 361.8 cm|6.03 cm/s|sideways 96.9 cm|stood up 0|air 0.1%
+Chebyshev_diag_width_waves4_s2_mirrored	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 347.4 cm|5.79 cm/s|sideways -128.0 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_diag_width_waves4_s2_normal	TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 318.2 cm|5.30 cm/s|sideways 136.4 cm|stood up 0|air 0.1%
+Chebyshev_width_logs5_s1_mirrored	TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 271.1 cm|4.52 cm/s|sideways 23.4 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_width_logs5_s1_normal	TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 233.2 cm|3.89 cm/s|sideways -40.3 cm|stood up 0|air 0.1%
+Chebyshev_width_logs5_s2_mirrored	TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 35.2 cm|0.59 cm/s|sideways 110.6 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_width_logs5_s2_normal	TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 25.9 cm|0.43 cm/s|sideways -87.1 cm|stood up 0|air 0.1%
+Chebyshev_width_waves4_s1_mirrored	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 393.8 cm|6.56 cm/s|sideways -73.8 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_width_waves4_s1_normal	TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 338.1 cm|5.63 cm/s|sideways 105.7 cm|stood up 0|air 0.1%
+Chebyshev_width_waves4_s2_mirrored	TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 283.9 cm|4.73 cm/s|sideways -111.1 cm|stood up 0|air 0.1%|ground mirrored
+Chebyshev_width_waves4_s2_normal	TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 314.3 cm|5.24 cm/s|sideways 140.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_base_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 379.0 cm|6.32 cm/s|sideways -65.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_base_logs5_s1_normal	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 380.3 cm|6.34 cm/s|sideways -61.7 cm|stood up 0|air 1.4%
+Hoecken-Spears_4-bar_base_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 356.5 cm|5.94 cm/s|sideways -118.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_base_logs5_s2_normal	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 368.9 cm|6.15 cm/s|sideways -62.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_base_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 380.9 cm|6.35 cm/s|sideways -138.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_base_waves4_s1_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 458.3 cm|7.64 cm/s|sideways 100.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_base_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 363.8 cm|6.06 cm/s|sideways -145.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_base_waves4_s2_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 453.1 cm|7.55 cm/s|sideways 101.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_V_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 424.7 cm|7.08 cm/s|sideways -0.5 cm|stood up 0|air 0.0%|ground mirrored
+Hoecken-Spears_4-bar_diag_V_logs5_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 411.1 cm|6.85 cm/s|sideways -66.0 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_V_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 394.8 cm|6.58 cm/s|sideways -1.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_V_logs5_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 407.1 cm|6.78 cm/s|sideways -31.3 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_V_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 385.7 cm|6.43 cm/s|sideways -143.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_V_waves4_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 440.0 cm|7.33 cm/s|sideways 86.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_V_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 427.7 cm|7.13 cm/s|sideways -134.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_V_waves4_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 405.4 cm|6.76 cm/s|sideways 171.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_base_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 411.0 cm|6.85 cm/s|sideways -8.5 cm|stood up 0|air 0.0%|ground mirrored
+Hoecken-Spears_4-bar_diag_base_logs5_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 406.7 cm|6.78 cm/s|sideways -62.5 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_base_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 416.9 cm|6.95 cm/s|sideways 5.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_base_logs5_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 404.1 cm|6.73 cm/s|sideways 9.9 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_base_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 460.7 cm|7.68 cm/s|sideways -130.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_base_waves4_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 432.3 cm|7.21 cm/s|sideways 149.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_base_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 415.7 cm|6.93 cm/s|sideways -98.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_base_waves4_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 432.1 cm|7.20 cm/s|sideways 129.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_both_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 402.2 cm|6.70 cm/s|sideways -79.2 cm|stood up 0|air 0.0%|ground mirrored
+Hoecken-Spears_4-bar_diag_both_logs5_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 430.4 cm|7.17 cm/s|sideways -50.4 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_both_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 399.7 cm|6.66 cm/s|sideways -35.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_both_logs5_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 416.0 cm|6.93 cm/s|sideways -3.4 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_both_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 397.7 cm|6.63 cm/s|sideways -173.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_both_waves4_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 442.2 cm|7.37 cm/s|sideways 121.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_both_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 428.3 cm|7.14 cm/s|sideways -113.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_both_waves4_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 380.7 cm|6.34 cm/s|sideways 156.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_width_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 423.7 cm|7.06 cm/s|sideways -39.2 cm|stood up 0|air 0.0%|ground mirrored
+Hoecken-Spears_4-bar_diag_width_logs5_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 427.6 cm|7.13 cm/s|sideways 8.7 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_width_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 397.5 cm|6.63 cm/s|sideways -5.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_width_logs5_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 397.5 cm|6.62 cm/s|sideways 5.2 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_width_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 430.8 cm|7.18 cm/s|sideways -139.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_width_waves4_s1_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 441.5 cm|7.36 cm/s|sideways 108.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_width_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 424.8 cm|7.08 cm/s|sideways -139.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_diag_width_waves4_s2_normal	TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 438.3 cm|7.31 cm/s|sideways 113.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_width_logs5_s1_mirrored	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 421.9 cm|7.03 cm/s|sideways -40.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_width_logs5_s1_normal	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 393.8 cm|6.56 cm/s|sideways -98.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_width_logs5_s2_mirrored	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 392.6 cm|6.54 cm/s|sideways -43.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_width_logs5_s2_normal	TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 434.7 cm|7.24 cm/s|sideways 13.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_width_waves4_s1_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 342.3 cm|5.70 cm/s|sideways -180.5 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_width_waves4_s1_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 411.8 cm|6.86 cm/s|sideways 82.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_width_waves4_s2_mirrored	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 335.8 cm|5.60 cm/s|sideways -204.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_4-bar_width_waves4_s2_normal	TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 401.3 cm|6.69 cm/s|sideways 112.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_base_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 129.4 cm|2.16 cm/s|sideways -0.8 cm|stood up 0|air 2.0%|ground mirrored
+Hoecken-Spears_long-stance_base_logs5_s1_normal	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 339.8 cm|5.66 cm/s|sideways -16.7 cm|stood up 0|air 0.2%
+Hoecken-Spears_long-stance_base_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 452.3 cm|7.54 cm/s|sideways -11.9 cm|stood up 0|air 0.2%|ground mirrored
+Hoecken-Spears_long-stance_base_logs5_s2_normal	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 334.3 cm|5.57 cm/s|sideways 75.8 cm|stood up 0|air 0.2%
+Hoecken-Spears_long-stance_base_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 393.7 cm|6.56 cm/s|sideways -153.4 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_base_waves4_s1_normal	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 411.6 cm|6.86 cm/s|sideways 103.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_base_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 449.4 cm|7.49 cm/s|sideways -75.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_base_waves4_s2_normal	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 440.8 cm|7.35 cm/s|sideways -33.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_V_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 436.7 cm|7.28 cm/s|sideways 96.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_V_logs5_s1_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 419.1 cm|6.99 cm/s|sideways -29.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_V_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 420.8 cm|7.01 cm/s|sideways -96.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_V_logs5_s2_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 428.9 cm|7.15 cm/s|sideways 19.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_V_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 402.2 cm|6.70 cm/s|sideways -156.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_V_waves4_s1_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 358.2 cm|5.97 cm/s|sideways 181.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_V_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 366.0 cm|6.10 cm/s|sideways -146.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_V_waves4_s2_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 406.6 cm|6.78 cm/s|sideways 113.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_base_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 427.1 cm|7.12 cm/s|sideways 69.5 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_base_logs5_s1_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 406.8 cm|6.78 cm/s|sideways 58.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_base_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 442.9 cm|7.38 cm/s|sideways -76.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_base_logs5_s2_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 447.1 cm|7.45 cm/s|sideways 7.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_base_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 395.4 cm|6.59 cm/s|sideways -147.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_base_waves4_s1_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 368.0 cm|6.13 cm/s|sideways 170.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_base_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 439.3 cm|7.32 cm/s|sideways -94.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_base_waves4_s2_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 390.7 cm|6.51 cm/s|sideways 144.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_both_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 443.9 cm|7.40 cm/s|sideways 67.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_both_logs5_s1_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 427.7 cm|7.13 cm/s|sideways -16.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_both_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 396.8 cm|6.61 cm/s|sideways -115.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_both_logs5_s2_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 373.8 cm|6.23 cm/s|sideways 134.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_both_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 387.2 cm|6.45 cm/s|sideways -158.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_both_waves4_s1_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 361.8 cm|6.03 cm/s|sideways 167.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_both_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 368.5 cm|6.14 cm/s|sideways -132.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_both_waves4_s2_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 391.9 cm|6.53 cm/s|sideways 98.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_width_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 429.3 cm|7.16 cm/s|sideways 47.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_width_logs5_s1_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 430.2 cm|7.17 cm/s|sideways -20.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_width_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 419.3 cm|6.99 cm/s|sideways -108.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_width_logs5_s2_normal	TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 417.3 cm|6.95 cm/s|sideways 12.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_width_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 395.2 cm|6.59 cm/s|sideways -154.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_width_waves4_s1_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 394.2 cm|6.57 cm/s|sideways 155.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_width_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 416.2 cm|6.94 cm/s|sideways -113.4 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_diag_width_waves4_s2_normal	TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 405.5 cm|6.76 cm/s|sideways 111.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_width_logs5_s1_mirrored	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 403.9 cm|6.73 cm/s|sideways 37.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_width_logs5_s1_normal	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 136.1 cm|2.27 cm/s|sideways -4.8 cm|stood up 0|air 0.2%
+Hoecken-Spears_long-stance_width_logs5_s2_mirrored	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 411.1 cm|6.85 cm/s|sideways 25.1 cm|stood up 0|air 0.2%|ground mirrored
+Hoecken-Spears_long-stance_width_logs5_s2_normal	TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 281.5 cm|4.69 cm/s|sideways -48.1 cm|stood up 0|air 0.5%
+Hoecken-Spears_long-stance_width_waves4_s1_mirrored	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 438.8 cm|7.31 cm/s|sideways -128.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_width_waves4_s1_normal	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 464.3 cm|7.74 cm/s|sideways -73.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_width_waves4_s2_mirrored	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 338.5 cm|5.64 cm/s|sideways -244.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_long-stance_width_waves4_s2_normal	TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 415.0 cm|6.92 cm/s|sideways 111.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_base_logs5_s1_mirrored	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 305.9 cm|5.10 cm/s|sideways 40.4 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_base_logs5_s1_normal	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 218.8 cm|3.65 cm/s|sideways -2.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_base_logs5_s2_mirrored	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 342.7 cm|5.71 cm/s|sideways 32.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_base_logs5_s2_normal	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 290.6 cm|4.84 cm/s|sideways 108.8 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_base_waves4_s1_mirrored	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 356.2 cm|5.94 cm/s|sideways 132.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_base_waves4_s1_normal	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 278.5 cm|4.64 cm/s|sideways 271.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_base_waves4_s2_mirrored	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 403.2 cm|6.72 cm/s|sideways 113.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_base_waves4_s2_normal	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 237.0 cm|3.95 cm/s|sideways 264.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_width_logs5_s1_mirrored	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 302.4 cm|5.04 cm/s|sideways 22.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_width_logs5_s1_normal	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 405.1 cm|6.75 cm/s|sideways -3.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_width_logs5_s2_mirrored	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 123.0 cm|2.05 cm/s|sideways -4.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_width_logs5_s2_normal	TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 133.1 cm|2.22 cm/s|sideways 21.1 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_width_waves4_s1_mirrored	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 415.8 cm|6.93 cm/s|sideways 107.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_width_waves4_s1_normal	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 300.9 cm|5.02 cm/s|sideways 270.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_width_waves4_s2_mirrored	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 406.4 cm|6.77 cm/s|sideways 120.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken-Spears_slider_width_waves4_s2_normal	TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 344.6 cm|5.74 cm/s|sideways 255.2 cm|stood up 0|air 0.1%
+Hoecken_4-bar_base_logs5_s1_mirrored	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 95.4 cm|1.59 cm/s|sideways 102.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_base_logs5_s1_normal	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 205.0 cm|3.42 cm/s|sideways 54.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_base_logs5_s2_mirrored	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 31.8 cm|0.53 cm/s|sideways 108.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_base_logs5_s2_normal	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 45.3 cm|0.76 cm/s|sideways -150.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_base_waves4_s1_mirrored	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 407.7 cm|6.79 cm/s|sideways -81.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_base_waves4_s1_normal	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 385.7 cm|6.43 cm/s|sideways 99.7 cm|stood up 0|air 0.1%
+Hoecken_4-bar_base_waves4_s2_mirrored	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 414.9 cm|6.92 cm/s|sideways -82.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_base_waves4_s2_normal	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 309.6 cm|5.16 cm/s|sideways 174.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_V_logs5_s1_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 97.6 cm|1.63 cm/s|sideways 85.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_V_logs5_s1_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 91.4 cm|1.52 cm/s|sideways -81.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_V_logs5_s2_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 41.0 cm|0.68 cm/s|sideways 128.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_V_logs5_s2_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 173.0 cm|2.88 cm/s|sideways 43.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_V_waves4_s1_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 320.7 cm|5.35 cm/s|sideways -145.4 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_V_waves4_s1_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 338.3 cm|5.64 cm/s|sideways 128.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_V_waves4_s2_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 334.9 cm|5.58 cm/s|sideways -105.5 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_V_waves4_s2_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 282.3 cm|4.70 cm/s|sideways 114.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_base_logs5_s1_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 62.7 cm|1.04 cm/s|sideways -97.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_base_logs5_s1_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 273.5 cm|4.56 cm/s|sideways -28.7 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_base_logs5_s2_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 43.6 cm|0.73 cm/s|sideways 140.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_base_logs5_s2_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 228.7 cm|3.81 cm/s|sideways -16.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_base_waves4_s1_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 355.9 cm|5.93 cm/s|sideways -112.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_base_waves4_s1_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 353.3 cm|5.89 cm/s|sideways 129.2 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_base_waves4_s2_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 325.8 cm|5.43 cm/s|sideways -126.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_base_waves4_s2_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 346.1 cm|5.77 cm/s|sideways 145.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_both_logs5_s1_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 272.0 cm|4.53 cm/s|sideways 28.8 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_both_logs5_s1_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 91.7 cm|1.53 cm/s|sideways -84.0 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_both_logs5_s2_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 45.2 cm|0.75 cm/s|sideways 143.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_both_logs5_s2_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 37.4 cm|0.62 cm/s|sideways -136.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_both_waves4_s1_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 259.2 cm|4.32 cm/s|sideways -269.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_both_waves4_s1_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 391.8 cm|6.53 cm/s|sideways 96.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_both_waves4_s2_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 366.1 cm|6.10 cm/s|sideways -130.2 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_both_waves4_s2_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 396.5 cm|6.61 cm/s|sideways 72.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_width_logs5_s1_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 217.2 cm|3.62 cm/s|sideways 80.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_width_logs5_s1_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 134.1 cm|2.23 cm/s|sideways 23.7 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_width_logs5_s2_mirrored	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 42.6 cm|0.71 cm/s|sideways 133.6 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_width_logs5_s2_normal	TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 28.0 cm|0.47 cm/s|sideways -101.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_width_waves4_s1_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 373.2 cm|6.22 cm/s|sideways -118.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_width_waves4_s1_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 400.9 cm|6.68 cm/s|sideways 93.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_width_waves4_s2_mirrored	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 408.9 cm|6.82 cm/s|sideways -104.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_diag_width_waves4_s2_normal	TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 375.2 cm|6.25 cm/s|sideways 105.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_width_logs5_s1_mirrored	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 253.2 cm|4.22 cm/s|sideways 2.4 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_width_logs5_s1_normal	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 237.4 cm|3.96 cm/s|sideways -35.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_width_logs5_s2_mirrored	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 36.4 cm|0.61 cm/s|sideways 126.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_width_logs5_s2_normal	TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 39.4 cm|0.66 cm/s|sideways -144.7 cm|stood up 0|air 0.1%
+Hoecken_4-bar_width_waves4_s1_mirrored	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 416.5 cm|6.94 cm/s|sideways -74.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_width_waves4_s1_normal	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 386.3 cm|6.44 cm/s|sideways 99.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_width_waves4_s2_mirrored	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 299.4 cm|4.99 cm/s|sideways -123.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_4-bar_width_waves4_s2_normal	TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 382.0 cm|6.37 cm/s|sideways 108.0 cm|stood up 0|air 0.1%
+Hoecken_slider_base_logs5_s1_mirrored	TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 213.9 cm|3.56 cm/s|sideways 21.7 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_base_logs5_s1_normal	TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 181.6 cm|3.03 cm/s|sideways 34.9 cm|stood up 0|air 0.1%
+Hoecken_slider_base_logs5_s2_mirrored	TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 32.5 cm|0.54 cm/s|sideways 95.5 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_base_logs5_s2_normal	TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 127.8 cm|2.13 cm/s|sideways 6.9 cm|stood up 0|air 0.1%
+Hoecken_slider_base_waves4_s1_mirrored	TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 414.0 cm|6.90 cm/s|sideways -70.9 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_base_waves4_s1_normal	TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 397.5 cm|6.62 cm/s|sideways 76.3 cm|stood up 0|air 0.1%
+Hoecken_slider_base_waves4_s2_mirrored	TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 278.0 cm|4.63 cm/s|sideways -89.1 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_base_waves4_s2_normal	TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 265.7 cm|4.43 cm/s|sideways 232.3 cm|stood up 0|air 0.1%
+Hoecken_slider_width_logs5_s1_mirrored	TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 140.6 cm|2.34 cm/s|sideways -5.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_width_logs5_s1_normal	TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 224.9 cm|3.75 cm/s|sideways 22.3 cm|stood up 0|air 0.1%
+Hoecken_slider_width_logs5_s2_mirrored	TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 41.8 cm|0.70 cm/s|sideways 147.3 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_width_logs5_s2_normal	TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 246.8 cm|4.11 cm/s|sideways 40.7 cm|stood up 0|air 0.1%
+Hoecken_slider_width_waves4_s1_mirrored	TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 412.5 cm|6.88 cm/s|sideways -75.5 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_width_waves4_s1_normal	TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 368.6 cm|6.14 cm/s|sideways 67.4 cm|stood up 0|air 0.1%
+Hoecken_slider_width_waves4_s2_mirrored	TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 426.7 cm|7.11 cm/s|sideways -66.0 cm|stood up 0|air 0.1%|ground mirrored
+Hoecken_slider_width_waves4_s2_normal	TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 395.8 cm|6.60 cm/s|sideways 97.3 cm|stood up 0|air 0.1%
+Jansen_base_logs5_s1_mirrored	TRACK Jansen|height 5.00|length 15.0|seed 1|forward 357.0 cm|5.95 cm/s|sideways 33.9 cm|stood up 0|air 0.0%|ground mirrored
+Jansen_base_logs5_s1_normal	TRACK Jansen|height 5.00|length 15.0|seed 1|forward 356.7 cm|5.94 cm/s|sideways -52.5 cm|stood up 0|air 0.0%
+Jansen_base_logs5_s2_mirrored	TRACK Jansen|height 5.00|length 15.0|seed 2|forward 322.2 cm|5.37 cm/s|sideways 74.1 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_base_logs5_s2_normal	TRACK Jansen|height 5.00|length 15.0|seed 2|forward 245.5 cm|4.09 cm/s|sideways -95.5 cm|stood up 0|air 0.0%
+Jansen_base_waves4_s1_mirrored	TRACK Jansen|height 4.00|length 15.0|seed 1|forward 419.0 cm|6.98 cm/s|sideways -40.7 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_base_waves4_s1_normal	TRACK Jansen|height 4.00|length 15.0|seed 1|forward 389.7 cm|6.50 cm/s|sideways 132.2 cm|stood up 0|air 0.1%
+Jansen_base_waves4_s2_mirrored	TRACK Jansen|height 4.00|length 15.0|seed 2|forward 429.1 cm|7.15 cm/s|sideways -37.1 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_base_waves4_s2_normal	TRACK Jansen|height 4.00|length 15.0|seed 2|forward 441.6 cm|7.36 cm/s|sideways 63.3 cm|stood up 0|air 0.1%
+Jansen_width_logs5_s1_mirrored	TRACK Jansen|height 5.00|length 15.0|seed 1|forward 355.2 cm|5.92 cm/s|sideways -3.0 cm|stood up 0|air 0.0%|ground mirrored
+Jansen_width_logs5_s1_normal	TRACK Jansen|height 5.00|length 15.0|seed 1|forward 243.3 cm|4.05 cm/s|sideways -135.4 cm|stood up 0|air 0.0%
+Jansen_width_logs5_s2_mirrored	TRACK Jansen|height 5.00|length 15.0|seed 2|forward 408.1 cm|6.80 cm/s|sideways -70.7 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_width_logs5_s2_normal	TRACK Jansen|height 5.00|length 15.0|seed 2|forward 328.3 cm|5.47 cm/s|sideways 47.7 cm|stood up 0|air 0.0%
+Jansen_width_waves4_s1_mirrored	TRACK Jansen|height 4.00|length 15.0|seed 1|forward 390.7 cm|6.51 cm/s|sideways -144.0 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_width_waves4_s1_normal	TRACK Jansen|height 4.00|length 15.0|seed 1|forward 439.1 cm|7.32 cm/s|sideways 30.4 cm|stood up 0|air 0.1%
+Jansen_width_waves4_s2_mirrored	TRACK Jansen|height 4.00|length 15.0|seed 2|forward 403.6 cm|6.73 cm/s|sideways -96.9 cm|stood up 0|air 0.1%|ground mirrored
+Jansen_width_waves4_s2_normal	TRACK Jansen|height 4.00|length 15.0|seed 2|forward 438.5 cm|7.31 cm/s|sideways 34.1 cm|stood up 0|air 0.1%
+Klann_base_logs5_s1_mirrored	TRACK Klann|height 5.00|length 15.0|seed 1|forward 407.8 cm|6.80 cm/s|sideways -32.4 cm|stood up 0|air 0.2%|ground mirrored
+Klann_base_logs5_s1_normal	TRACK Klann|height 5.00|length 15.0|seed 1|forward 426.2 cm|7.10 cm/s|sideways 58.3 cm|stood up 0|air 0.1%
+Klann_base_logs5_s2_mirrored	TRACK Klann|height 5.00|length 15.0|seed 2|forward 401.5 cm|6.69 cm/s|sideways 103.7 cm|stood up 0|air 0.0%|ground mirrored
+Klann_base_logs5_s2_normal	TRACK Klann|height 5.00|length 15.0|seed 2|forward 351.6 cm|5.86 cm/s|sideways -33.0 cm|stood up 0|air 0.0%
+Klann_base_waves4_s1_mirrored	TRACK Klann|height 4.00|length 15.0|seed 1|forward 444.7 cm|7.41 cm/s|sideways 81.7 cm|stood up 0|air 0.1%|ground mirrored
+Klann_base_waves4_s1_normal	TRACK Klann|height 4.00|length 15.0|seed 1|forward 282.3 cm|4.70 cm/s|sideways 192.1 cm|stood up 0|air 0.0%
+Klann_base_waves4_s2_mirrored	TRACK Klann|height 4.00|length 15.0|seed 2|forward 455.2 cm|7.59 cm/s|sideways 65.3 cm|stood up 0|air 0.1%|ground mirrored
+Klann_base_waves4_s2_normal	TRACK Klann|height 4.00|length 15.0|seed 2|forward 442.0 cm|7.37 cm/s|sideways -51.6 cm|stood up 0|air 0.1%
+Klann_width_logs5_s1_mirrored	TRACK Klann|height 5.00|length 15.0|seed 1|forward 416.2 cm|6.94 cm/s|sideways -55.9 cm|stood up 0|air 0.2%|ground mirrored
+Klann_width_logs5_s1_normal	TRACK Klann|height 5.00|length 15.0|seed 1|forward 412.3 cm|6.87 cm/s|sideways -26.7 cm|stood up 0|air 0.1%
+Klann_width_logs5_s2_mirrored	TRACK Klann|height 5.00|length 15.0|seed 2|forward 395.3 cm|6.59 cm/s|sideways 180.3 cm|stood up 0|air 0.0%|ground mirrored
+Klann_width_logs5_s2_normal	TRACK Klann|height 5.00|length 15.0|seed 2|forward 391.9 cm|6.53 cm/s|sideways 106.7 cm|stood up 0|air 0.0%
+Klann_width_waves4_s1_mirrored	TRACK Klann|height 4.00|length 15.0|seed 1|forward 429.0 cm|7.15 cm/s|sideways 52.1 cm|stood up 0|air 0.1%|ground mirrored
+Klann_width_waves4_s1_normal	TRACK Klann|height 4.00|length 15.0|seed 1|forward 435.5 cm|7.26 cm/s|sideways -53.4 cm|stood up 0|air 0.0%
+Klann_width_waves4_s2_mirrored	TRACK Klann|height 4.00|length 15.0|seed 2|forward 440.2 cm|7.34 cm/s|sideways -70.8 cm|stood up 0|air 0.1%|ground mirrored
+Klann_width_waves4_s2_normal	TRACK Klann|height 4.00|length 15.0|seed 2|forward 467.7 cm|7.79 cm/s|sideways -128.8 cm|stood up 0|air 0.1%
+Spears_4-bar_base_logs5_s1_mirrored	TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 128.0 cm|2.13 cm/s|sideways -4.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_base_logs5_s1_normal	TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 164.9 cm|2.75 cm/s|sideways 45.6 cm|stood up 0|air 0.0%
+Spears_4-bar_base_logs5_s2_mirrored	TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 198.6 cm|3.31 cm/s|sideways -11.8 cm|stood up 0|air 0.0%|ground mirrored
+Spears_4-bar_base_logs5_s2_normal	TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 277.5 cm|4.63 cm/s|sideways -3.1 cm|stood up 0|air 0.1%
+Spears_4-bar_base_waves4_s1_mirrored	TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 380.8 cm|6.35 cm/s|sideways -97.0 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_base_waves4_s1_normal	TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 329.3 cm|5.49 cm/s|sideways 137.3 cm|stood up 0|air 0.0%
+Spears_4-bar_base_waves4_s2_mirrored	TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 361.9 cm|6.03 cm/s|sideways 126.5 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_base_waves4_s2_normal	TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 225.9 cm|3.77 cm/s|sideways 146.9 cm|stood up 0|air 0.1%
+Spears_4-bar_width_logs5_s1_mirrored	TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 205.2 cm|3.42 cm/s|sideways 80.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_width_logs5_s1_normal	TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 128.6 cm|2.14 cm/s|sideways 35.4 cm|stood up 0|air 0.0%
+Spears_4-bar_width_logs5_s2_mirrored	TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 123.8 cm|2.06 cm/s|sideways -10.4 cm|stood up 0|air 0.0%|ground mirrored
+Spears_4-bar_width_logs5_s2_normal	TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 194.1 cm|3.23 cm/s|sideways -41.1 cm|stood up 0|air 0.1%
+Spears_4-bar_width_waves4_s1_mirrored	TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 375.8 cm|6.26 cm/s|sideways -113.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_width_waves4_s1_normal	TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 336.7 cm|5.61 cm/s|sideways 114.0 cm|stood up 0|air 0.0%
+Spears_4-bar_width_waves4_s2_mirrored	TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 235.8 cm|3.93 cm/s|sideways -42.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_4-bar_width_waves4_s2_normal	TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 379.5 cm|6.32 cm/s|sideways -29.3 cm|stood up 0|air 0.1%
+Spears_lift_44_base_logs5_s1_mirrored	TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 470.3 cm|7.84 cm/s|sideways 39.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_base_logs5_s1_normal	TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 488.0 cm|8.13 cm/s|sideways -67.0 cm|stood up 0|air 0.1%
+Spears_lift_44_base_logs5_s2_mirrored	TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 488.5 cm|8.14 cm/s|sideways -6.0 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_base_logs5_s2_normal	TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 498.0 cm|8.30 cm/s|sideways -7.0 cm|stood up 0|air 0.2%
+Spears_lift_44_base_waves4_s1_mirrored	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 375.0 cm|6.25 cm/s|sideways -194.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_base_waves4_s1_normal	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 385.3 cm|6.42 cm/s|sideways 185.8 cm|stood up 0|air 0.1%
+Spears_lift_44_base_waves4_s2_mirrored	TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 385.3 cm|6.42 cm/s|sideways -185.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_base_waves4_s2_normal	TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 431.5 cm|7.19 cm/s|sideways 146.9 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_V_logs5_s1_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 483.0 cm|8.05 cm/s|sideways -101.5 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_V_logs5_s1_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 471.9 cm|7.86 cm/s|sideways -67.0 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_V_logs5_s2_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 413.7 cm|6.90 cm/s|sideways -167.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_V_logs5_s2_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 480.7 cm|8.01 cm/s|sideways 23.4 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_V_waves4_s1_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 401.7 cm|6.69 cm/s|sideways -130.9 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_V_waves4_s1_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 410.8 cm|6.85 cm/s|sideways 159.6 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_V_waves4_s2_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 353.1 cm|5.89 cm/s|sideways -225.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_V_waves4_s2_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 357.7 cm|5.96 cm/s|sideways 183.9 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_base_logs5_s1_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 473.8 cm|7.90 cm/s|sideways 63.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_base_logs5_s1_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 472.1 cm|7.87 cm/s|sideways -83.8 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_base_logs5_s2_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 467.7 cm|7.80 cm/s|sideways -78.1 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_base_logs5_s2_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 477.3 cm|7.96 cm/s|sideways 23.4 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_base_waves4_s1_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 383.6 cm|6.39 cm/s|sideways 179.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_base_waves4_s1_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 401.0 cm|6.68 cm/s|sideways 169.1 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_base_waves4_s2_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 372.8 cm|6.21 cm/s|sideways -114.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_base_waves4_s2_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 395.2 cm|6.59 cm/s|sideways 170.7 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_both_logs5_s1_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 492.8 cm|8.21 cm/s|sideways -27.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_both_logs5_s1_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 463.6 cm|7.73 cm/s|sideways 11.6 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_both_logs5_s2_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 471.9 cm|7.86 cm/s|sideways -91.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_both_logs5_s2_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 471.9 cm|7.86 cm/s|sideways -9.7 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_both_waves4_s1_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 379.4 cm|6.32 cm/s|sideways -152.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_both_waves4_s1_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 344.8 cm|5.75 cm/s|sideways 267.2 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_both_waves4_s2_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 391.6 cm|6.53 cm/s|sideways -152.9 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_both_waves4_s2_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 335.9 cm|5.60 cm/s|sideways 188.6 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_width_logs5_s1_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 496.3 cm|8.27 cm/s|sideways -28.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_width_logs5_s1_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 476.8 cm|7.95 cm/s|sideways 29.2 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_width_logs5_s2_mirrored	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 458.7 cm|7.64 cm/s|sideways -101.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_width_logs5_s2_normal	TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 491.4 cm|8.19 cm/s|sideways -3.2 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_width_waves4_s1_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 389.9 cm|6.50 cm/s|sideways 145.3 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_width_waves4_s1_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 413.1 cm|6.88 cm/s|sideways 146.9 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_width_waves4_s2_mirrored	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 390.2 cm|6.50 cm/s|sideways -153.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_diag_width_waves4_s2_normal	TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 271.7 cm|4.53 cm/s|sideways 248.3 cm|stood up 0|air 0.1%
+Spears_lift_44_width_logs5_s1_mirrored	TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 508.5 cm|8.48 cm/s|sideways 52.9 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_width_logs5_s1_normal	TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 487.8 cm|8.13 cm/s|sideways -75.2 cm|stood up 0|air 0.1%
+Spears_lift_44_width_logs5_s2_mirrored	TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 465.2 cm|7.75 cm/s|sideways -10.4 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_width_logs5_s2_normal	TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 483.8 cm|8.06 cm/s|sideways 30.0 cm|stood up 0|air 0.2%
+Spears_lift_44_width_waves4_s1_mirrored	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 419.7 cm|6.99 cm/s|sideways -112.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_width_waves4_s1_normal	TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 412.0 cm|6.87 cm/s|sideways 172.6 cm|stood up 0|air 0.1%
+Spears_lift_44_width_waves4_s2_mirrored	TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 404.9 cm|6.75 cm/s|sideways -166.2 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_44_width_waves4_s2_normal	TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 385.3 cm|6.42 cm/s|sideways 139.6 cm|stood up 0|air 0.1%
+Spears_lift_53_base_logs5_s1_mirrored	TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 465.5 cm|7.76 cm/s|sideways 30.2 cm|stood up 0|air 0.3%|ground mirrored
+Spears_lift_53_base_logs5_s1_normal	TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 428.4 cm|7.14 cm/s|sideways -73.3 cm|stood up 0|air 0.1%
+Spears_lift_53_base_logs5_s2_mirrored	TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 430.3 cm|7.17 cm/s|sideways 8.9 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_base_logs5_s2_normal	TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 426.1 cm|7.10 cm/s|sideways -68.5 cm|stood up 0|air 0.1%
+Spears_lift_53_base_waves4_s1_mirrored	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 286.0 cm|4.77 cm/s|sideways -264.1 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_base_waves4_s1_normal	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 197.6 cm|3.29 cm/s|sideways 261.5 cm|stood up 1|air 0.1%
+Spears_lift_53_base_waves4_s2_mirrored	TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 313.8 cm|5.23 cm/s|sideways -151.4 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_base_waves4_s2_normal	TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 302.1 cm|5.03 cm/s|sideways 236.7 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_V_logs5_s1_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 439.5 cm|7.32 cm/s|sideways 78.7 cm|stood up 0|air 0.2%|ground mirrored
+Spears_lift_53_diag_V_logs5_s1_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 426.6 cm|7.11 cm/s|sideways -95.6 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_V_logs5_s2_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 455.3 cm|7.59 cm/s|sideways 36.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_V_logs5_s2_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 422.3 cm|7.04 cm/s|sideways 15.0 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_V_waves4_s1_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 277.6 cm|4.63 cm/s|sideways -250.0 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_V_waves4_s1_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 250.4 cm|4.17 cm/s|sideways 139.2 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_V_waves4_s2_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 238.6 cm|3.98 cm/s|sideways -222.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_V_waves4_s2_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 274.3 cm|4.57 cm/s|sideways 197.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_base_logs5_s1_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 449.4 cm|7.49 cm/s|sideways 44.0 cm|stood up 0|air 0.3%|ground mirrored
+Spears_lift_53_diag_base_logs5_s1_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 436.1 cm|7.27 cm/s|sideways 73.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_base_logs5_s2_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 431.1 cm|7.18 cm/s|sideways -10.3 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_base_logs5_s2_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 428.4 cm|7.14 cm/s|sideways -89.5 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_base_waves4_s1_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 296.3 cm|4.94 cm/s|sideways -245.9 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_base_waves4_s1_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 278.8 cm|4.65 cm/s|sideways 227.8 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_base_waves4_s2_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 296.2 cm|4.94 cm/s|sideways -181.1 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_base_waves4_s2_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 335.0 cm|5.58 cm/s|sideways 128.4 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_both_logs5_s1_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 473.6 cm|7.89 cm/s|sideways 51.6 cm|stood up 0|air 0.2%|ground mirrored
+Spears_lift_53_diag_both_logs5_s1_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 449.6 cm|7.49 cm/s|sideways -51.7 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_both_logs5_s2_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 417.4 cm|6.96 cm/s|sideways 33.3 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_both_logs5_s2_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 449.5 cm|7.49 cm/s|sideways -56.7 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_both_waves4_s1_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 277.0 cm|4.62 cm/s|sideways -176.3 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_both_waves4_s1_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 283.4 cm|4.72 cm/s|sideways 235.7 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_both_waves4_s2_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 216.9 cm|3.62 cm/s|sideways -238.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_both_waves4_s2_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 308.6 cm|5.14 cm/s|sideways 90.8 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_width_logs5_s1_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 449.4 cm|7.49 cm/s|sideways 37.9 cm|stood up 0|air 0.2%|ground mirrored
+Spears_lift_53_diag_width_logs5_s1_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 448.0 cm|7.47 cm/s|sideways -33.8 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_width_logs5_s2_mirrored	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 409.0 cm|6.82 cm/s|sideways -95.7 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_width_logs5_s2_normal	TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 424.0 cm|7.07 cm/s|sideways -84.6 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_width_waves4_s1_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 358.3 cm|5.97 cm/s|sideways -108.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_width_waves4_s1_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 67.2 cm|1.12 cm/s|sideways 17.4 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_width_waves4_s2_mirrored	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 199.0 cm|3.32 cm/s|sideways -114.6 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_diag_width_waves4_s2_normal	TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 279.6 cm|4.66 cm/s|sideways 153.2 cm|stood up 0|air 0.1%
+Spears_lift_53_width_logs5_s1_mirrored	TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 466.9 cm|7.78 cm/s|sideways 32.1 cm|stood up 0|air 0.3%|ground mirrored
+Spears_lift_53_width_logs5_s1_normal	TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 452.9 cm|7.55 cm/s|sideways -47.8 cm|stood up 0|air 0.1%
+Spears_lift_53_width_logs5_s2_mirrored	TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 430.3 cm|7.17 cm/s|sideways -125.8 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_width_logs5_s2_normal	TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 458.4 cm|7.64 cm/s|sideways -53.3 cm|stood up 0|air 0.1%
+Spears_lift_53_width_waves4_s1_mirrored	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 153.1 cm|2.55 cm/s|sideways -221.8 cm|stood up 1|air 0.1%|ground mirrored
+Spears_lift_53_width_waves4_s1_normal	TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 294.0 cm|4.90 cm/s|sideways 172.3 cm|stood up 0|air 0.1%
+Spears_lift_53_width_waves4_s2_mirrored	TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 280.0 cm|4.67 cm/s|sideways -161.5 cm|stood up 0|air 0.1%|ground mirrored
+Spears_lift_53_width_waves4_s2_normal	TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 306.5 cm|5.11 cm/s|sideways 189.4 cm|stood up 0|air 0.1%

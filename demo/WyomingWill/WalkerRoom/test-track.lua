@@ -28,7 +28,7 @@ TRACK_SECS = TRACK_SECS or 60       -- how long it walks, s
 
 TEST_TRACK = true
 ARENA_X = ARENA_X or 1000           -- the strip: 10 m long ...
-ARENA_Z = ARENA_Z or 600            -- ... and 6 m wide (was 2 m until 24 October 2026: walkers drifting
-                                    -- 70-85 cm sideways rubbed its walls)
+ARENA_Z = ARENA_Z or 800            -- ... and 8 m wide (2 m until 24 October 2026: walkers drifting 70-85 cm
+                                    -- sideways rubbed its walls; 6 m until 25 October: some drifted 2.6 m)
 
 dofile("walker-room.lua")

@@ -1,7 +1,7 @@
 --
 -- Test square, one link width: every walker that goes into the runs, as it
 -- is run (Jansen, Klann and Spears 4-bar on their own frames, the others on
--- guides, and the diag builds with outside V braces and held pendants),
+-- guides, and the diag builds with outside braces and held pendants),
 -- trotting forward, with every bar 1.0 cm wide (walker-room.lua, LINK_WIDTH;
 -- handover section 4b), at the Earth standard. LINK_WIDTH = false below
 -- shows them with their own files' widths, to compare.
@@ -24,7 +24,7 @@ ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1
 if LINK_WIDTH == nil then LINK_WIDTH = 1.0 end
 DIAG_OUTSIDE = true
-if OUTSIDE_V == nil then OUTSIDE_V = true end
+OUTSIDE_V = OUTSIDE_V or false   -- (true: V bottom braces; left off, 25 October)
 
 local TROT = { 0, 180, 180, 0 }
 VIEWS = {}
@@ -34,7 +34,7 @@ end
 for _, n in ipairs({ "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance",
                      "Spears lift 44", "Spears lift 53" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "guides, trot, forward", gait = TROT, unbraced = true, hold = false }
-  VIEWS[#VIEWS + 1] = { walker = n .. " diag", label = "outside V braces, pendants held (trot), forward", hold = true }
+  VIEWS[#VIEWS + 1] = { walker = n .. " diag", label = "outside braces, pendants held (trot), forward", hold = true }
 end
 for _, n in ipairs({ "Hoecken slider", "Hoecken-Spears slider" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "guides, trot, forward", gait = TROT, unbraced = true, hold = false }
@@ -50,4 +50,4 @@ BUMP = BUMP or 15
 SEED = SEED or 1
 TRACK_SECS = TRACK_SECS or 60
 
-dofile("test-track.lua")            -- (the 6 m track)
+dofile("test-track.lua")            -- (the 8 m track)

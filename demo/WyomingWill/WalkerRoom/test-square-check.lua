@@ -43,4 +43,6 @@ BUMP = BUMP or 15
 SEED = SEED or 1
 TRACK_SECS = TRACK_SECS or 60
 
-dofile("test-track.lua")            -- (the track as the check runs had it: 10 m long, 6 m wide)
+dofile("test-track.lua")            -- (the test track: 10 m long, 8 m wide since 25 October. The check runs had
+                                    -- 6 m; a different width changes runs a little, as another start would, so
+                                    -- for the check runs themselves add ARENA_Z = 600 at the top of this file)

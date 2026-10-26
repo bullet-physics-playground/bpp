@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 39 (one link width, `LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 40 (8 m track, the V left off, option A's results). 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -244,6 +244,22 @@ Bottom brace on the ground, flat against V (`vgc.sh`; logs 6, 20 s, seed 1, trot
 - Advances: unchanged (the width and the body raises don't change the foot paths' shapes).
 - Jam checks (`jamW.py`, 30 s, seed 2, Earth standard, trot, forward, as run): no body on the ground anywhere; parts touching on waves 6, today → 1.0: lift 44 15.0 → 12.1%, lift 44 diag 9.9 → 0.6, CS diag 2.1 → 0, lift 53 diag 2.2 → 4.1, lift 53 1.3 → 1.7 (all feet against links: rocking feet on 6 cm waves), **Spears 4-bar 0 → 3.3% (its links against its body)**: its links are 0.63 cm outside the body across the walk at both widths, so they touch it only when a leg twists, and a 1.0 cm bar's corner reaches further than its 0.54 cm bar did. Own-frame walkers have no hold. Watch it.
 - **Balance** (still to do, William agreed after the width): the rule balances along the walk with braces left out; diag builds' braces now put the CoM up to 0.25 cm off along and 0.42 across, and the sliders and lifts read 0.1–0.3 off by the trot-sweep measure. Rebalance, including the braces and across, is the next step.
+
+**Option A: each change against patch 37's walkers** (patch 40; `cmpA.sh`, `cmpA_an.py`, data/option_a.txt; 416 runs: every run build as run, trot, forward, 60 s, Earth standard, 6 m track, waves 4 and logs 5, seeds 1–2 on normal and mirrored ground; base = flat outside braces and each file's own widths). Mean change over builds (cm/s):
+
+| Change | Builds | Waves 4 | Logs 5 | Both | Worse in |
+|---|---|---|---|---|---|
+| V | 7 diag | −0.31 | −0.15 | −0.23 (se 0.08) | 12 of 14 |
+| Width 1.0 | 19 | +0.04 | +0.04 | +0.04 (se 0.08) | 19 of 38 |
+| Both | 7 diag | −0.18 | +0.11 | −0.03 (se 0.15) | 8 of 14 |
+
+The 4 runs of a cell spread about 0.5 cm/s (se of one build's change about 0.34). Largest single width changes: Spears lift 53 diag on waves 4 −1.26 (se 1.05; one run stuck), Hoecken slider +1.04, Hoecken-Spears slider −0.81 / +0.80. Lift 53 diag was also slower at 1.0 on waves 6 (`l53.sh`, seeds 1–4: 2.35 against 3.34, guides 3.56 against 3.35); its body is 0.52 cm lower at 1.0 (the foot rule; I lowered it as part of the width refits without pointing it out, and it's the main suspect). Not yet tested: lift 53 diag at 1.0 with its old body height. Contacts: the slider crank never touched its guide block; Spears 4-bar's legs against its body 0–0.8% of frames at 1.0; bodies on the ground at most 1.4% (base too).
+
+**William (25 October): leave the V off** (`OUTSIDE_V` stays a switch, off; the launchers no longer turn it on).
+
+**Item 4 (diags following tilted ground) is answered:** in option A's base runs guides and diag drift sideways alike (waves 4: mean 140 cm against 144 after 60 s; logs 5: 55 against 53; 28 runs each), both with the ground and the other way on mirrored ground. Section 4a's straight-going guides were on straight-trough waves.
+
+**Track 8 m wide** (patch 40; `test-track.lua` ARENA_Z 800). Lift 53 guides ended 262–264 cm from the middle on 6 m (walls at 300). A different track width changes runs a little, as another start would: the check runs come out 7.20 and 7.30 on 8 m against 7.55 and 6.62 on 6 m (on 6 m they still reproduce exactly). Not the grid (tried anchoring it at the middle line: no change), most likely the engine's indexing of the ground mesh by its size. So 8 m results compare with 6 m ones over many runs, not run for run; `test-square-check.lua` needs ARENA_Z = 600 to repeat the check runs.
 
 **What the hold costs while walking** (`crankw`, picture `crank_hold.png` bottom row; outside braces, trot, forward, seed 1, 20 s): held cranks run up to about 7% below the driven speed on waves 4 (dips at crests), 2% or less on flat; the held builds still go farther on waves (CS 7.61 / 5.75 cm/s held / free, HS4 7.33 / 4.03, long-stance 6.93 / 6.51). A small drag the hold adds in the simulation, far smaller than the swing it removes.
 
