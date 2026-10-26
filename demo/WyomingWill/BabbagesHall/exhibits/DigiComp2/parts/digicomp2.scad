@@ -1,4 +1,4 @@
-// The Digi-Comp II -- Babbage's Hall (step 2a: the accumulator)
+// The Digi-Comp II -- Babbage's Hall (step 2b: the accumulator, memory, MQ and distributor)
 //
 // Every printed part, in millimetres. The shapes that balls, rockers and
 // flaps touch are built from the very numbers the simulation uses
@@ -12,9 +12,9 @@
 // simulation shows them; the print- parts lie them on the bed.
 //
 // PARTS
-//   rocker      a flip-flop's top (roof, cups, tail, the pocket for its steel ball): 7
-//   foot        its stem and foot, under the plate (glued into the rocker's hub): 7
-//   flap        a switch's flap: 2 (CLEAR, COUNT)
+//   rocker      a flip-flop's top (roof, cups, tail, the pocket for its steel ball): 13
+//   foot        its stem and foot, under the plate (glued into the rocker's hub): 13
+//   flap        a switch's flap: 7 (MULTIPLY, CLEAR, COUNT, M1 .. M4)
 //   wheel, knob the feeder (START): 1 each
 //   upper-i-j   the upper plate, in tiles: its walls, stop pegs, holes, lettering
 //   lower-i-j   the lower level, in tiles: a 2 mm floor with its walls,
@@ -125,19 +125,8 @@ module lower() difference() {
 
 // ---- the lettering ----
 module label(t, x, z, size = 5) translate([S * x, -S * z]) text(t, size = size, halign = "center", valign = "center", font = FONT);
-module marks2d() {
-  for (i = [0 : len(TOGGLES) - 1]) {
-    t = TOGGLES[i];
-    // (the apex leans right for 1, left for 0)
-    label("0", t[0] - 1.7, t[1] - 1.9, 6); label("1", t[0] + 1.7, t[1] - 1.9, 6);
-    label(str(pow(2, i)), t[0] - 3.1, t[1] - 4.6, 7);
-  }
-  k = SWITCHES[0]; c = SWITCHES[1];
-  label("CLEAR", k[0] - 3.4, k[1] - 1.2, 5); label("on", k[0] - 1.67, k[1] + 3.9, 4); label("off", k[0] + 1.67 + 1.8, k[1] + 3.0, 4);
-  label("COUNT", c[0] + 3.6, c[1] - 1.2, 5); label("on", c[0] - 1.67 - 1.6, c[1] + 2.4, 4); label("off", c[0] + 1.67, c[1] + 3.9, 4);
-  label("START", WHEEL_AT[0] + 4.2, WHEEL_AT[1], 5);
-  label("OVERFLOW", OVERFLOW[0] + 0.3, OVERFLOW[1] + 2.0, 4);
-}
+// (where each label goes is set in digicomp2-geometry.lua: MARKS)
+module marks2d() for (m = MARKS) label(m[0], m[1], m[2], m[3]);
 module lowerMarks2d() label("COLLECTOR", (LOWER[0] + LOWER[1]) / 2, LOWER[3] - 1.0, 6);
 module boardMarks() {
   translate([0, -MARK_D + 0.05, 0]) slab(0, MARK_D / S) marks2d();
@@ -145,7 +134,7 @@ module boardMarks() {
 }
 
 // ---- the tiles: each a piece of the plate (or the lower level) ----
-NX = 2; NZ_U = 5; NZ_L = 5;
+NX = 2; NZ_U = 7; NZ_L = 7;
 function cut(a, b, n, i) = a + (b - a) * i / n;
 module tileOf(box, i, j, nz, y0, y1) intersection() {
   children();
@@ -196,7 +185,7 @@ for (i = [0 : len(TOGGLES) - 1]) {
   if (PART == str("rest-rocker", i)) translate(S * [TOGGLES[i][0], 0, TOGGLES[i][1]]) rotate([0, F_ALPHA - 0.3, 0]) rocker();
   if (PART == str("rest-foot", i)) translate(S * [TOGGLES[i][0], 0, TOGGLES[i][1]]) rotate([0, F_ALPHA - 0.3, 0]) foot();
 }
-for (i = [0 : 1]) if (PART == str("rest-flap", i)) translate(S * [SWITCHES[i][0], 0, SWITCHES[i][1]]) rotate([0, (i == 0 ? 1 : -1) * (S_ANG - 0.5), 0]) flap();
+for (i = [0 : len(SWITCHES) - 1]) if (PART == str("rest-flap", i)) translate(S * [SWITCHES[i][0], 0, SWITCHES[i][1]]) rotate([0, SWITCHES[i][2] * (S_ANG - 0.5), 0]) flap();
 if (PART == "rest-wheel") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) wheel();
 if (PART == "rest-knob") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) knob();
 if (PART == "assembly") rotate([90, 0, 0]) { upper(); lower(); for (t = TOGGLES) translate(S * [t[0], 0, t[1]]) rotate([0, F_ALPHA - 0.3, 0]) { rocker(); foot(); }

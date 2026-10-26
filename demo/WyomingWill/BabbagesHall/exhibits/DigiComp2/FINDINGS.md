@@ -7,6 +7,144 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Step 2b: adding and multiplying
+
+### Laying it out
+
+Thirteen flip-flops, seven switches and the lanes between them have to fit
+on one level, and lanes cannot cross there (a ball can go down to the lower
+level, never back up). The board was laid out in a plan drawn from the
+geometry (every wall, hole and peg, the lanes coloured by kind) and changed
+until nothing touched. These settled most of it:
+
+- **The order of the memory.** The memory's switches stand beside A1 to
+  A4, down the accumulator's staircase, so the lanes reaching them, from
+  above and the left, must keep their order: the leftmost of the
+  distributor's four outlets can only go to the lowest, M4. So D2's left
+  goes to the MQ and on to M4, D2's right to M3, D3's left to M2, D3's
+  right to M1, and with the distributor set to start, the balls of a cycle
+  go to the MQ (and M4), M1, M3, M2. The manual's order after the MQ is M2,
+  M3, M1; the sum is the same.
+- **The distributor is a tree,** not the original's ring: D1 sends the
+  balls to D2 and D3 by turns, each of them by turns to its two sides.
+  D2 is where the next step of a staircase would be, so D1's left drops
+  straight into its funnel, and D2's left straight into MQ1's; D1's right,
+  and every other outlet, falls into a **catch** (a funnel where the next
+  flip-flop's would be) and runs on down a lane. D3 must stand far enough
+  from D2 that D2's right catch and D3's left don't overlap (8 cm right of
+  D1), and low enough that the lane to it falls steeply enough (14.2 cm
+  below D1).
+- **Lanes** fall at least 35 degrees from across the board (the geometry
+  warns of any that don't); the flattest, D1's to D3, falls 39 degrees.
+  The longest are MULTIPLY's down to CLEAR and D2's to M3, 27 cm each.
+
+The board grew from 322 x 878 to 424 x 1216 mm (14 tiles a level), and its
+table from 100 x 150 to 110 x 180 cm.
+
+### Two ways into one funnel
+
+A1 to A4 each take balls from two places: the carry from the flip-flop
+above (or COUNT, for A1) and the memory. The carry was traced first
+(a copy of `tests/toggle.lua` printing the ball's centre every 1/60 s): it leaves the cup
+moving 11 cm/s across and crosses the next funnel's mouth 4 mm left of its
+centre, so its left half is not free for a lane ending over it. Instead
+each of these funnels has a **long left wall**, out 35 mm and up 15.7 mm
+(31 degrees), and the memory's outlet ends over that wall, 26 mm left of
+the throat: its ball drops onto the wall and rolls down it into the throat,
+beside the carry's path, not across it (`tests/junction.lua`: the carry and
+the memory's balls in turn, nine of nine right).
+
+- **Under the lane's end.** With the outlet ending 19.7 mm above the
+  throat, the memory's ball stuck at once: rolling down the long wall, it
+  had to pass under the end of the outlet's own right-hand wall, which left
+  8 mm. It ends 28 mm above the throat now. The MQ's done balls join the
+  same way (a long right wall under MQ2's and MQ3's catches, mirrored), and
+  stuck there the same way, first.
+- **COUNT** at first ended over the right half of A1's funnel; its ball
+  stuck under its own outlet's left wall, as the memory's had. Centred over
+  the throat, it worked, but with the pins' friction at 2 or 3 A1 stopped
+  near the middle (+4 to +6 degrees) after the first ball, and the next
+  went the wrong way: the ball has run 40 cm down from MULTIPLY, and came
+  into the top of A1's run at 34 cm/s (the toggle test's ball starts there
+  at rest). A1's
+  funnel has a long right wall too now, and COUNT's outlet ends over it as
+  the memory's do over the left: the ball drops onto the wall and rolls in
+  slowly.
+- **The clear lane** starts at CLEAR's drop, right of COUNT now, and bends
+  left at once to pass where COUNT's off balls land. Coming down straight
+  to A1's foot, the clear ball was pushed by the narrowing past its line
+  into A1's wedge (at 0), and with the pins' friction at 0.1 its rubbing
+  dragged A1 over to 1. The lane now overshoots to the left and comes back
+  a little to the right, so the ball meets the foot running along the
+  right wall, as at every other foot.
+
+### The memory's switches
+
+The same switches as CLEAR and COUNT, but a 0 has to drop the ball before
+it can reach the next switch's inlet, only 5 cm below: so the "0" outlet
+ends at once in a hole just under the flap's pin, its walls round it. The
+first one stood the hole's inner wall where the divider's slope begins:
+the ball rested on its end, beside the flap. The wall now begins where the
+divider's slope ends. A ball dropped there rolls down a wall on the lower
+level (40 degrees) to the **return lane** down the left edge, and on to
+the collector, away from the clear lane.
+
+### The MQ
+
+Three flip-flops down a staircase like the accumulator's, read the other
+way: a ball that finds one at 1 (apex left, as it is lettered) sets it to 0
+and leaves to the right (done); one that finds it at 0 sets it to 1 and
+goes on to the next (the borrow). So each ball takes one away, the same
+parts as the accumulator adding one. A borrow out of MQ3, when the MQ was 0,
+drops through STOP: the hand watches it (as you watch the machine in
+MANUAL) and turns no more. The done balls of MQ1, MQ2 and MQ3 run together
+through the catches under MQ2 and MQ3 (each takes the lane from the one
+before on its long right wall) and on to M4.
+
+### On the board
+
+The tour (README.md): COUNT 0 to 2, CLEAR, ADD 37 + 11 (five balls: 48,
+then STOP), CLEAR, MULTIPLY 13 x 3 (thirteen balls: 39, then STOP),
+twenty-two balls. After each ball it checks the accumulator, the MQ, the
+three distributor flip-flops and STOP against what one more ball should
+make of them, and that the ball reached the collector. The hand puts balls
+from the collector back into the input when fewer than four are waiting. It
+passed in every one of these:
+
+- friction 0.1, 0.3, 0.6
+- pin friction 0.1, 0.4, 1, 2, 3
+- slope 12, 15, 20, 25 degrees
+- tilted across 1 and 2 degrees either way
+- 1200, 2400, 4800 steps a second
+- the hand's torque on the knob 30, 50, 1000 kg cm^2/s^2
+
+(eighteen runs, each the whole tour). Before the two changes to A1 above
+(COUNT onto a long wall, and the clear lane's bend), pin friction 0.1, 2
+and 3 failed there; the others tried then (friction 0.1 and 0.6, 1200 and
+4800 steps, the hand's torque 30 and 1000, slope 25, tilted 2 degrees)
+passed. `tests/junction.lua` passed (nine of nine) at friction 0.1 and 0.6, pin friction 0.1 and 3,
+and slopes 12 and 25 degrees.
+
+The computing was right the first time the balls could get through: the
+distributor, the MQ and the memory gave 48 and 39 once the three places
+above (the two funnels and the memory's hole) let the balls by.
+
+### The printed parts
+
+Every STL (`make-stls.sh`: 14 upper and 14 lower tiles now, 212 mm across)
+is one watertight solid. Put where they are at rest, no two parts overlap
+but each foot's stem in its rocker's socket (0.3 mm^3, where they are
+glued), for all thirteen flip-flops and seven flaps.
+
+### What it costs
+
+About 430 fixed boxes (320 walls, the plate round its holes, the pegs
+and posts), twelve balls, thirteen rockers, seven flaps and the wheel. The
+tour, about 180 simulated seconds, took about three and a half minutes of
+computing headless here (twice the rockers and twice the length of 2a's);
+between balls, and when it is done, the exhibit rests and costs nearly
+nothing.
+
 ## Step 2a: the accumulator
 
 ### Two levels

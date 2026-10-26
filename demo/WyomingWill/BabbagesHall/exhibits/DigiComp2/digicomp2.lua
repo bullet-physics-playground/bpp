@@ -1,41 +1,53 @@
 --
--- The Digi-Comp II -- Babbage's Hall (step 2a: the accumulator)
+-- The Digi-Comp II -- Babbage's Hall (step 2b: counting, adding, multiplying)
 --
 -- E.S.R.'s Digi-Comp II (1968) was a computer of marbles: a sloping
 -- two-level board of flip-flops and switches that balls roll down one at a
 -- time, and that counts, adds, subtracts, multiplies and divides in binary.
--- This is its first part: the ACCUMULATOR, seven flip-flops that hold a
--- number from 0 to 127, with the START feeder at the top and two of its
--- switches, CLEAR and COUNT. With COUNT on, each ball adds one; with CLEAR
--- on, one ball sets the whole accumulator to 0. (Memory, the multiplier and
--- the distributor, for adding and multiplying, come next; then complement,
--- for subtracting and dividing.)
+-- Built so far: the ACCUMULATOR (seven flip-flops, 0 to 127), the MEMORY
+-- (four switches), the MQ (three flip-flops), the DISTRIBUTOR (three), the
+-- START feeder and the switches MULTIPLY, CLEAR and COUNT. It counts, clears,
+-- adds and multiplies. (The complement, for subtracting and dividing, and
+-- AUTO come next.)
 --
 -- THE FLIP-FLOP is a rocker on a pin, its centre of mass a little up the
 -- slope from the pin, so it falls over to one side or the other and stays
 -- there, its tail on a stop peg. Apex to the right reads 1, to the left 0.
 -- A ball rolling straight down meets the roof on its raised side, rolls into
 -- that cup, and its weight takes the rocker over; at the end of the swing
--- the cup tips it out. Found at 0, the rocker is set to 1 and the ball drops
--- through a hole on its right to the lower level: done. Found at 1, it is
--- set to 0 and the ball goes left, down to the next flip-flop: the carry.
--- So each ball adds one, carrying as far as it must. A carry out of the last
--- (the 64s) drops through the overflow hole.
+-- the cup tips it out. Found at 0, the rocker is set to 1 and the ball
+-- leaves to the right; found at 1, it is set to 0 and the ball leaves to
+-- the left. All thirteen are alike; where each side leads makes the register:
+--   A: right, through a done hole to the lower level; left, the carry, on
+--      to the next (out of A7, the overflow). So each ball adds one at the
+--      place it comes in.
+--   D: a tree. D1 sends the balls to D2 and D3 by turns, each of them by
+--      turns to its two sides: four balls, four ways.
+--   MQ: a staircase like A's, read the other way (1 with the apex left), so
+--      each ball takes one away; a borrow out of MQ3 drops through STOP.
 --
--- CLEAR: under each rocker, on the lower level, is its foot, a wedge that
--- leans into the clear lane when the rocker reads 1. A ball sent down the
--- clear lane pushes every wedge it meets out of its way, which turns that
--- rocker to 0, and passes the rockers already at 0.
+-- CLEAR: under each of A's rockers, on the lower level, is its foot, a wedge
+-- that leans into the clear lane when the rocker reads 1. A ball sent down
+-- the clear lane pushes every wedge it meets out of its way, which turns
+-- that rocker to 0, and passes the rockers already at 0.
+--
+-- MULTIPLY on sends the balls to the distributor: the first of every four
+-- through the MQ and on to M4, the others to M1, M3, M2. A memory switch at
+-- 1 sends its ball into A at its place; at 0 it drops. So every four balls
+-- add the memory to A, once for each count of the MQ; then a ball drops
+-- through STOP and the hand stops. ADD is the same with the MQ at 1.
 --
 -- THE SWITCHES are flaps, set by hand: each closes one of its two outlets,
 -- and a ball only presses it harder against that wall.
 --
 -- KEYS
 --   Space  START: a quarter turn of the feeder's knob, one ball
---   C      CLEAR on <-> off (by hand)      N  COUNT on <-> off (by hand)
---   1..7   set that flip-flop over by hand (1 is the 1s, 7 the 64s)
+--   M, C, N  MULTIPLY, CLEAR, COUNT on <-> off (by hand)
+--   1..7   set a flip-flop of A over by hand (1 is the 1s, 7 the 64s)
+--   H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s
+--   D      set the distributor to start a cycle
 --   T      the tour (it starts with it)
---   R      set it back: the balls to the top, A to 0, COUNT on, CLEAR off
+--   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
 --   Z      slow motion (1/4) <-> real time
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. What is printed is
@@ -44,11 +56,13 @@
 -- is written.
 --
 -- PHYSICS: 1/2 inch steel balls (8.35 g); PLA rockers with a 1/4 inch steel
--- ball pressed into each and a PLA foot (5.9 g in all), friction 0.3, no
+-- ball pressed into each and a PLA foot (5.45 g in all), friction 0.3, no
 -- bounce, the board at 15 degrees, 2400 steps a second. The rockers and
 -- flaps turn on their pins against a friction torque (DC_PF, 0.4 kg
 -- cm^2/s^2: see FINDINGS.md). The feeder's knob is turned by the hand (a
--- motor: the operator's), and the hand sets the switches and flip-flops.
+-- motor: the operator's), and the hand sets the switches and flip-flops,
+-- puts balls from the collector back into the input when it runs low, and
+-- stops at STOP.
 --
 -- Units: centimetres, kilograms, seconds.
 -- Headless: DC_TOUR=0 (no tour), DC_FRICTION, DC_PF (pivot friction,
@@ -253,7 +267,8 @@ v:add(stand)
 stand.trans = btTransform(BQ, W3(0, 0, 0))
 
 local WALL_COL = { housing = "#9b1c1c", queue = "#9b1c1c", rim = "#7a5a3a", switch = "#c9a14a",
-                   done = "#d9d4c5", overflow = "#9b1c1c", clear = "#2f8c5a", drop = "#c9a14a", collector = "#7a5a3a" }
+                   done = "#d9d4c5", overflow = "#9b1c1c", clear = "#2f8c5a", drop = "#c9a14a", collector = "#7a5a3a",
+                   lane = "#d9d4c5", router = "#9fb7cc", stop = "#9b1c1c", ["return"] = "#8a8f96" }
 local ROLE_TEXT = {
   housing = "the feeder's housing: it holds the balls in the wheel's notches",
   queue = "the INPUT channel: the balls waiting at the feeder",
@@ -262,7 +277,11 @@ local ROLE_TEXT = {
   done = "a done hole: a ball that set its flip-flop to 1 drops through it to the lower level",
   overflow = "OVERFLOW: a carry out of the 64s (the 128th ball) drops through here",
   clear = "the clear lane (lower level): a ball here pushes every flip-flop at 1 back to 0",
-  drop = "COUNT off: the ball drops to the lower level and counts nothing",
+  drop = "a drop hole: the ball goes down to the lower level and counts nothing",
+  lane = "a lane: it carries the ball on to the next part",
+  router = "the distributor's and the MQ's channels and funnels",
+  stop = "STOP: a borrow out of the MQ (it was 0) drops through here, and the hand stops turning the knob",
+  ["return"] = "the return lane (lower level): what the memory drops, and STOP's ball, roll down it to the collector",
   collector = "the COLLECTOR: every ball ends here",
 }
 local function addWall(w, y0, y1)
@@ -326,23 +345,24 @@ local function pinned(body, x, y, z, cx, cz)
 end
 
 -- ---------------------------------------------------------------------
--- the flip-flops: rocker, steel ball, stem and foot, one body on its pin
+-- the flip-flops: rocker, steel ball, stem and foot, one body on its pin;
+-- thirteen alike: A1 .. A7, D1 .. D3, MQ1 .. MQ3
 -- ---------------------------------------------------------------------
 local PF = envnum("DC_PF", 0.4)        -- the pins' friction (kg cm^2/s^2): see FINDINGS
-local flips = {}
+local flips, flip = {}, {}
 local yc = F.Y0 + F.H / 2
 local flipPieces = {}
 for _, pc in ipairs(F.pieces) do flipPieces[#flipPieces + 1] = { pc, F.Y0, F.H } end
 for _, l in ipairs(F.lower) do flipPieces[#flipPieces + 1] = l end
 local LEAN = math.rad(F.ALPHA - 0.3)              -- (set by hand: just short of its stop, then it settles)
 local function flipPose(t, b) return poseAt(t.x, t.z, F.cx, yc, F.cz, b == 1 and -LEAN or LEAN) end
-for k, t in ipairs(G.toggles) do
+for i, t in ipairs(G.rockers) do
   local tr = flipPose(t, 0)
   local body = btRigidBody(F.mass, btDefaultMotionState(tr), piecesShape(flipPieces, F.cx, yc, F.cz), btVector3(F.I, F.I, F.I))
   local frame = string.format("translate([%.4f, %.4f, %.4f])", -F.cx * 10, -yc * 10, -F.cz * 10)
   local o = part(frame .. " rocker()")
   o.body = body
-  o.col = "#f4ecd6"
+  o.col = t.kind == "A" and "#f4ecd6" or (t.kind == "D" and "#d7e4ef" or "#efd9d2")
   o.collides = true
   v:add(o)
   body:setCenterOfMassTransform(tr)
@@ -353,7 +373,7 @@ for k, t in ipairs(G.toggles) do
   wt.col = "#9a9da3"
   v:add(wt)
   local foot = part(frame .. " foot()")
-  foot.col = "#2f8c5a"
+  foot.col = t.kind == "A" and "#2f8c5a" or "#8a8f96"
   v:add(foot)
   -- its pin (drawn only: the hinge is the pin), from the lower board up
   local pin = Cylinder(F.PIN_R, F.Y0 + F.H + 0.1 - YL, 0)
@@ -361,36 +381,43 @@ for k, t in ipairs(G.toggles) do
   pin.col = "#b8bcc2"
   v:add(pin)
   pin.trans = btTransform(BQ * zToY, W3(t.x, (YL + F.Y0 + F.H + 0.1) / 2, t.z))
-  flips[k] = { t = t, body = body, hinge = h, obj = o, weight = 2 ^ (k - 1), riders = { wt, foot } }
-  key(o, { flip = k }); key(foot, { foot = k })
+  flips[i] = { t = t, name = t.name, body = body, hinge = h, obj = o, riders = { wt, foot } }
+  flip[t.name] = flips[i]
+  key(o, { flip = t.name }); key(foot, { foot = t.name })
 end
-local function bit(k)
-  -- (1: its apex to the right, a clockwise lean as you look)
-  local a = flips[k].body:getCenterOfMassTransform():getBasis():getColumn(0)
+-- a flip-flop's lean: 1 with its apex to the right (a clockwise lean as you
+-- look), and the lean in degrees
+local function lean(name)
+  local a = flip[name].body:getCenterOfMassTransform():getBasis():getColumn(0)
   local bz = -a.y * sT + a.z * cT
   return bz > 0 and 1 or 0, math.deg(math.atan2(bz, a.x))
 end
+local function bitOf(n, k) return math.floor(n / 2 ^ (k - 1)) % 2 end
+local function bit(k) return (lean("A" .. k)) end
+-- the accumulator; the MQ (read the other way: 1 with the apex left)
 local function count()
   local n = 0
-  for k = 1, G.NBITS do n = n + bit(k) * flips[k].weight end
+  for k = 1, G.NBITS do n = n + bit(k) * 2 ^ (k - 1) end
   return n
 end
-local function bits()
+local function mq()
+  local n = 0
+  for k = 1, 3 do n = n + (1 - lean("MQ" .. k)) * 2 ^ (k - 1) end
+  return n
+end
+local function binary(n, w)
   local s = ""
-  for k = G.NBITS, 1, -1 do s = s .. bit(k) end
+  for k = (w or G.NBITS) - 1, 0, -1 do s = s .. math.floor(n / 2 ^ k) % 2 end
   return s
 end
-local function binary(n)
-  local s = ""
-  for k = G.NBITS - 1, 0, -1 do s = s .. math.floor(n / 2 ^ k) % 2 end
-  return s
-end
+local function bits() return binary(count()) end
 
 -- ---------------------------------------------------------------------
--- the switches: CLEAR and COUNT, flaps on pins, set by hand
+-- the switches: flaps on pins, set by hand
 -- ---------------------------------------------------------------------
--- (a flap closing its LEFT outlet sends the ball right. CLEAR on sends it
--- left, into the clear lane; COUNT on sends it left, into A1)
+-- (a flap against its RIGHT wall sends the ball left. Each switch's "on"
+-- sends the ball one way: MULTIPLY left, to the distributor; CLEAR right,
+-- into the clear lane; COUNT left, into A1; the memory's right, into A)
 local SW = G.SWITCH
 local switches = {}
 local swAng = math.rad(SW.ANG - 0.5)
@@ -398,30 +425,36 @@ local scz = -SW.FL / 2
 local syc = SW.Y0 + SW.H / 2
 local flapPieces = { { { { -SW.FT / 2, -SW.FL }, { SW.FT / 2, -SW.FL }, { SW.FT / 2, 0 }, { -SW.FT / 2, 0 } }, SW.Y0, SW.H } }
 local function swPose(s, on)
-  -- on: the flap against the RIGHT wall (closing the right outlet): the ball goes left
-  return poseAt(s.x, s.z, 0, syc, scz, on and -swAng or swAng)
+  local left = (on and s.on == -1) or (not on and s.on == 1)      -- (the ball goes left)
+  return poseAt(s.x, s.z, 0, syc, scz, left and -swAng or swAng)
 end
-for _, name in ipairs({ "CLEAR", "COUNT" }) do
-  local s = G.switches[name]
-  local on = name == "COUNT"
-  local tr = swPose(s, on)
+for _, s in ipairs(G.switchList) do
+  local tr = swPose(s, false)
   local body = btRigidBody(SW.mass, btDefaultMotionState(tr), piecesShape(flapPieces, 0, syc, scz), btVector3(SW.I, SW.I, SW.I))
   local o = part(string.format("translate([0, %.4f, %.4f]) flap()", -syc * 10, -scz * 10))
   o.body = body
-  o.col = "#c9a14a"
+  o.col = s.name:sub(1, 1) == "M" and s.name ~= "MULTIPLY" and "#b5543c" or "#c9a14a"
   o.collides = true
   v:add(o)
   body:setCenterOfMassTransform(tr)
   body:setActivationState(4)
   local h = pinned(body, s.x, syc, s.z, 0, scz)
   if PF > 0 then h:enableAngularMotor(true, 0, PF * STEP) end
-  switches[name] = { s = s, body = body, hinge = h, obj = o, name = name }
-  key(o, { switch = name })
+  switches[s.name] = { s = s, body = body, hinge = h, obj = o, name = s.name }
+  key(o, { switch = s.name })
 end
--- which way a flap leans: on (its end against the right wall)?
+-- is a switch on (its flap sending the ball its "on" way)?
 local function isOn(name)
-  local a = switches[name].body:getCenterOfMassTransform():getBasis():getColumn(2)   -- (its z axis: from its end to its pin)
-  return a.x < 0
+  local sw = switches[name]
+  local a = sw.body:getCenterOfMassTransform():getBasis():getColumn(2)   -- (its z axis: from its end to its pin)
+  local left = a.x < 0
+  return (left and sw.s.on == -1) or (not left and sw.s.on == 1)
+end
+-- the memory, as its switches are set
+local function mem()
+  local n = 0
+  for k = 1, 4 do if isOn("M" .. k) then n = n + 2 ^ (k - 1) end end
+  return n
 end
 
 -- ---------------------------------------------------------------------
@@ -527,30 +560,63 @@ local function nCollected()
   for _, b in ipairs(balls) do if collected(b) then n = n + 1 end end
   return n
 end
+-- waiting at the feeder: in the INPUT channel or the wheel
+local function waiting(b)
+  local x, y, z = ballAt(b)
+  return y > -PT and math.abs(x - WH.x) < 1.6 and z < WH.z + 0.5
+end
 
 -- ---------------------------------------------------------------------
--- the hand: sets a flip-flop or a switch, puts the balls back
+-- the hand: sets the flip-flops and the switches, turns the knob, puts the
+-- balls back
 -- ---------------------------------------------------------------------
-local function setBit(k, b) place(flips[k].body, flipPose(flips[k].t, b)) end
-local function setA(n) for k = 1, G.NBITS do setBit(k, math.floor(n / 2 ^ (k - 1)) % 2) end end
+local function setFlip(name, b) place(flip[name].body, flipPose(flip[name].t, b)) end
+local function setBit(k, b) setFlip("A" .. k, b) end
+local function setA(n) for k = 1, G.NBITS do setBit(k, bitOf(n, k)) end end
+local function setMQ(n) for k = 1, 3 do setFlip("MQ" .. k, 1 - bitOf(n, k)) end end
+-- the distributor set to begin a cycle: the first ball of every four goes to the MQ
+local D_START = { 1, 1, 0 }
+local function setD() for k = 1, 3 do setFlip("D" .. k, D_START[k]) end end
 local function setSwitch(name, on) local s = switches[name]; place(s.body, swPose(s.s, on)) end
+local function setM(n) for k = 1, 4 do setSwitch("M" .. k, bitOf(n, k) == 1) end end
 local function reload()
   place(wheel.body, btTransform(BQ, W3(WH.x, wheel.y, WH.z)))
   wheel.turned, wheel.target, wheel.last = 0, 0, wheel.hinge:getHingeAngle()
   for i, b in ipairs(balls) do place(b.body, btTransform(ident, ballHome(i))) end
 end
+-- when the INPUT runs low, the hand takes balls from the collector and puts
+-- them in at its top (as you would: there are twelve balls, and a multiply
+-- can take more)
+local REFILL_AT = 4
+local refilled = 0
+local function refill()
+  local w, top = 0, WH.z - WH.ballR
+  for _, b in ipairs(balls) do
+    if waiting(b) then local _, _, z = ballAt(b); w = w + 1; top = math.min(top, z) end
+  end
+  if w >= REFILL_AT then return false end
+  local n = 0
+  for _, b in ipairs(balls) do
+    if collected(b) and w + n < 10 then
+      n = n + 1
+      place(b.body, btTransform(ident, W3(WH.x, G.R + 0.002, top - n * (2 * G.R + 0.005))))
+    end
+  end
+  refilled = refilled + n
+  return n > 0
+end
 
 -- ---------------------------------------------------------------------
 -- the sign beside it, the exhibit's (not the machine's): what the
--- accumulator reads, in binary and as a number. The machine shows it by its
--- rockers' lean (and the 0 and 1 printed either side of each apex); the
--- script reads them for the sign.
+-- registers read. The machine shows them by its rockers' lean and its
+-- switches (and the 0 and 1 printed beside them); the script reads them
+-- for the sign.
 -- ---------------------------------------------------------------------
 local sign
 do
   local SX, SZ, TILT = -(BW / 2 + 14), BD / 2 - 30, math.rad(-25)
   local q = btQuaternion(btVector3(1, 0, 0), TILT)
-  local SW_, SH_ = 20, 11
+  local SW_, SH_ = 22, 15
   local back = Cube(SW_, SH_, 0.8, 0)
   back.col = "#1d1712"
   v:add(back)
@@ -563,7 +629,8 @@ do
   stem.col = "#2b2b2b"; stem.collides = false
   v:add(stem)
   stem.trans = btTransform(ident, btVector3(SX, 2, SZ))
-  key(back, "the exhibit's sign, not the machine's: the script reads the rockers for it")
+  key(back, "the exhibit's sign, not the machine's: the script reads the rockers and switches for it")
+  local L0 = -SW_ / 2 + 1.0
   local function line(t, size, u, w)
     local m = part(string.format('signText("%s", %d)', t, size))
     m.col = "#efe6cf"
@@ -571,7 +638,7 @@ do
     m.trans = btTransform(q, at(u, w, 0.45))
     return m
   end
-  line("THE ACCUMULATOR", 10, -SW_ / 2 + 1.0, 3.4)
+  line("THE DIGI-COMP II", 10, L0, 5.4)
   local AWAY = btTransform(ident, btVector3(0, -500, 0))
   -- a cell that shows one of several characters
   local function cell(chars, size, u, w)
@@ -592,17 +659,30 @@ do
     end
     return c
   end
-  local bitCells, decCells = {}, {}
-  for i = 1, G.NBITS do bitCells[i] = cell("01", 11, -SW_ / 2 + 1.0 + (i - 1) * 1.25, 0) end
-  line("=", 11, -SW_ / 2 + 10.2, 0)
-  for i = 1, 3 do decCells[i] = cell("0123456789", 11, -SW_ / 2 + 12.0 + (i - 1) * 1.25, 0) end
-  local bal = { cell("0123456789", 7, -SW_ / 2 + 9.2, -3.6), cell("0123456789", 7, -SW_ / 2 + 10.0, -3.6) }
-  line("balls in:", 7, -SW_ / 2 + 1.0, -3.6)
-  sign = function(n, nb)
-    local b = binary(n)
-    for i = 1, G.NBITS do bitCells[i].show(b:sub(i, i)) end
-    local d = string.format("%3d", n)
-    for i = 1, 3 do local ch = d:sub(i, i); decCells[i].show(ch ~= " " and ch or nil) end
+  -- a register: its name, its bits, "=", the number
+  local function register(name, nb, nd, size, w)
+    line(name, size, L0, w)
+    local p = size / 9
+    local bc, dc = {}, {}
+    local u = L0 + 3.2 * p
+    for i = 1, nb do bc[i] = cell("01", size, u + (i - 1) * 1.15 * p, w) end
+    u = u + nb * 1.15 * p + 0.3
+    line("=", size, u, w)
+    for i = 1, nd do dc[i] = cell("0123456789", size, u + 1.6 * p + (i - 1) * 1.15 * p, w) end
+    return function(n)
+      local b = binary(n, nb)
+      for i = 1, nb do bc[i].show(b:sub(i, i)) end
+      local d = string.format("%" .. nd .. "d", n)
+      for i = 1, nd do local ch = d:sub(i, i); dc[i].show(ch ~= " " and ch or nil) end
+    end
+  end
+  local showA = register("A", G.NBITS, 3, 10, 2.3)
+  local showM = register("M", 4, 2, 8, -0.8)
+  local showQ = register("MQ", 3, 1, 8, -3.4)
+  local bal = { cell("0123456789", 7, L0 + 8.2, -6.0), cell("0123456789", 7, L0 + 9.0, -6.0) }
+  line("balls in:", 7, L0, -6.0)
+  sign = function(n, m, q_, nb)
+    showA(n); showM(m); showQ(q_)
     local e = string.format("%2d", math.min(nb, 99))
     bal[1].show(e:sub(1, 1) ~= " " and e:sub(1, 1) or nil); bal[2].show(e:sub(2, 2))
   end
@@ -647,37 +727,74 @@ local function restPost()
 end
 local function handMoved() wake, still = 0.3, 0 end
 
+-- STOP: the hand watches for a ball dropping through it
+local stopSeen = false
+local function watchStop()
+  for _, b in ipairs(balls) do
+    local x, y, z = ballAt(b)
+    if y < 0 and math.abs(x - G.stop[1]) < 1.2 and math.abs(z - G.stop[2]) < 1.2 then stopSeen = true end
+  end
+end
+
 local dropped = 0
 local function feed() queue = queue + 1 end
 local function setUp()
-  setA(0)
-  setSwitch("COUNT", true); setSwitch("CLEAR", false)
+  setA(0); setMQ(0); setD(); setM(0)
+  setSwitch("MULTIPLY", false); setSwitch("CLEAR", false); setSwitch("COUNT", true)
   reload()
   applyFriction()
-  dropped = 0
+  dropped, refilled, stopSeen = 0, 0, false
   handMoved()
   holdStart()
 end
 
 -- ---------------------------------------------------------------------
--- the tour: counting, a carry right through and the overflow, CLEAR, and
--- a ball with both switches off; every reading checked
+-- the tour: counting and clearing; adding (a multiply by 1); multiplying.
+-- Every ball checked against what the machine should do with it
 -- ---------------------------------------------------------------------
 local LOG = os.getenv("DC_LOG")
 local TOUR = {
-  { say = "COUNT on, from 0: four balls", A = 0, COUNT = true, CLEAR = false, balls = 4 },
-  { say = "125 set by hand: three balls carry through to 126, 127, and over to 0", A = 125, balls = 3 },
-  { say = "90 set by hand, CLEAR on: one ball clears it", A = 90, CLEAR = true, balls = 1 },
-  { say = "127 set by hand: one ball clears all seven", A = 127, balls = 1 },
-  { say = "CLEAR again, at 0: nothing changes", balls = 1 },
-  { say = "5 set by hand, both switches off: the ball counts nothing", A = 5, COUNT = false, CLEAR = false, balls = 1 },
+  { say = "COUNT on, from 0: two balls count 1, 2", A = 0, MQ = 0, M = 0, D = true,
+    MULTIPLY = false, CLEAR = false, COUNT = true, balls = 2 },
+  { say = "CLEAR on: one ball clears the accumulator", CLEAR = true, balls = 1 },
+  { say = "ADD: 37 in the accumulator, 11 in the memory, MQ 1, MULTIPLY on: balls until STOP",
+    A = 37, M = 11, MQ = 1, D = true, MULTIPLY = true, CLEAR = false, untilStop = true },
+  { say = "MULTIPLY off, CLEAR on: one ball clears the accumulator", MULTIPLY = false, CLEAR = true, balls = 1 },
+  { say = "MULTIPLY: 13 in the memory, 3 in the MQ: balls until STOP (13 x 3)",
+    M = 13, MQ = 3, D = true, MULTIPLY = true, CLEAR = false, untilStop = true },
 }
 local tour = (os.getenv("DC_TOUR") or "1") ~= "0" and { i = 0 } or nil
 local TOUR_PAUSE = envnum("DC_PAUSE", 1.0)
 local CONTACTS = tonumber(os.getenv("DC_CONTACTS") or "")
 local fails = 0
+local frameNow = 0
+-- what the machine reads now, and what one more ball should make of it
+local function reading()
+  return { A = count(), MQ = mq(), d = { (lean("D1")), (lean("D2")), (lean("D3")) }, M = mem(),
+           mult = isOn("MULTIPLY"), clear = isOn("CLEAR"), count = isOn("COUNT") }
+end
+local function predict(s)
+  local p = { A = s.A, MQ = s.MQ, d = { s.d[1], s.d[2], s.d[3] }, stop = false }
+  if s.mult then
+    -- (a flip-flop at 1 sends the ball left and goes to 0; at 0, right and to 1)
+    local out
+    if p.d[1] == 1 then
+      p.d[1] = 0
+      if p.d[2] == 1 then p.d[2] = 0; out = "MQ" else p.d[2] = 1; out = 3 end
+    else
+      p.d[1] = 1
+      if p.d[3] == 1 then p.d[3] = 0; out = 2 else p.d[3] = 1; out = 1 end
+    end
+    if out == "MQ" then
+      if p.MQ == 0 then p.MQ, p.stop, out = 7, true, nil else p.MQ, out = p.MQ - 1, 4 end
+    end
+    if out and bitOf(s.M, out) == 1 then p.A = (p.A + 2 ^ (out - 1)) % 128 end
+  elseif s.clear then p.A = 0
+  elseif s.count then p.A = (p.A + 1) % 128 end
+  return p
+end
 local function startTour()
-  print("\nDIGI-COMP II -- the tour: the accumulator")
+  print("\nDIGI-COMP II -- the tour: counting, adding and multiplying")
   tour = { i = 0, wait = 0 }
   fails = 0
   setUp()
@@ -686,35 +803,42 @@ local function nextStep()
   tour.i = tour.i + 1
   local s = TOUR[tour.i]
   if not s then
-    print(fails == 0 and "  all right." or string.format("  %d WRONG.", fails))
+    print((fails == 0 and "  all right" or string.format("  %d WRONG", fails)) .. string.format(" (frame %d).", frameNow))
     print("RESULT digicomp2 tour: " .. (fails == 0 and "PASS" or "FAIL"))
     tour = nil
     return
   end
   print("  " .. s.say)
   if s.A then setA(s.A) end
-  if s.COUNT ~= nil then setSwitch("COUNT", s.COUNT) end
-  if s.CLEAR ~= nil then setSwitch("CLEAR", s.CLEAR) end
-  -- (what the machine should read after each ball)
-  tour.left = s.balls
-  tour.expect = s.A or count()
+  if s.MQ then setMQ(s.MQ) end
+  if s.M then setM(s.M) end
+  if s.D then setD() end
+  for _, n in ipairs({ "MULTIPLY", "CLEAR", "COUNT" }) do
+    if s[n] ~= nil then setSwitch(n, s[n]) end
+  end
+  tour.left = s.balls or 40
+  tour.untilStop = s.untilStop
+  tour.n = 0
+  tour.wantBalls = s.untilStop and 4 * s.MQ + 1 or nil
   tour.phase, tour.wait = "settle", 0
   handMoved()
 end
 local function checkBall()
-  local clear, cnt = isOn("CLEAR"), isOn("COUNT")
-  local want = clear and 0 or (cnt and (tour.expect + 1) % 128 or tour.expect)
-  tour.expect = want
-  local n = count()
+  local now = reading()
+  local p = predict(tour.before)
   local c = nCollected()
-  local ok = n == want and c == dropped
-  local an = {}
-  if LOG then for k = 1, G.NBITS do local _, a = bit(k); an[#an + 1] = string.format("%.0f", a) end end
+  local ok = now.A == p.A and now.MQ == p.MQ and now.d[1] == p.d[1] and now.d[2] == p.d[2] and now.d[3] == p.d[3]
+             and stopSeen == p.stop and c + refilled == dropped
+  local why = ok and "right" or string.format("WRONG: should be A %d, MQ %d, D %d%d%d%s", p.A, p.MQ, p.d[1], p.d[2], p.d[3],
+                                              p.stop and ", STOP" or "")
   if LOG == "3" then
     for _, b in ipairs(balls) do local x, y, z = ballAt(b); print(string.format("      ball %d at %.1f %.1f %.1f%s", b.n, x, y, z, collected(b) and " (collected)" or "")) end
   end
-  print(string.format("    ball %d:  reads %s = %d  (%d in the collector)  %s%s", dropped, bits(), n, c,
-                      ok and "right" or ("WRONG: should be " .. want), LOG and ("   leans " .. table.concat(an, " ")) or ""))
+  local an = {}
+  if LOG then for _, fl in ipairs(flips) do local _, a = lean(fl.name); an[#an + 1] = string.format("%s %.0f", fl.name, a) end end
+  print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s  (%d in the collector)  %s%s", dropped, bits(), now.A, now.MQ,
+                      now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", c, why,
+                      LOG and ("\n      leans " .. table.concat(an, ", ")) or ""))
   return ok
 end
 
@@ -731,6 +855,7 @@ v:preSim(function(N)
   handBusy = handPre()
 end)
 
+local refillWait = 0
 local function startTurn()
   queue = queue - 1
   wheel.target = wheel.target + math.pi / 2
@@ -740,11 +865,12 @@ local function startTurn()
 end
 
 v:postSim(function(N)
+  frameNow = N
   carryRiders()
-  sign(count(), dropped)
+  sign(count(), mem(), mq(), dropped)
   if CONTACTS and N == CONTACTS then
     local names = {}
-    for k, fl in ipairs(flips) do names[fl.obj] = "flip" .. k end
+    for _, fl in ipairs(flips) do names[fl.obj] = fl.name end
     for n, s in pairs(switches) do names[s.obj] = n end
     names[wheel.obj] = "wheel"
     for i, b in ipairs(balls) do names[b.obj] = "ball" .. i end
@@ -759,31 +885,46 @@ v:postSim(function(N)
   if holdNow then return end
   if wake > 0 then wake = wake - FRAME_DT end
   restPost()
-  if queue > 0 and not handBusy then startTurn() end
+  watchStop()
+  if refillWait > 0 then refillWait = refillWait - FRAME_DT end
+  if queue > 0 and not handBusy and refillWait <= 0 then
+    if refill() then refillWait = 0.6; handMoved() else startTurn() end
+  end
   if LOG == "2" and N % 15 == 0 then
     local t = {}
     for _, b in ipairs(balls) do
       if b.body:getLinearVelocity():length() > REST_V then local x, y, z = ballAt(b); t[#t + 1] = string.format("%d (%.1f %.1f %.1f)", b.n, x, y, z) end
     end
-    if #t > 0 then print(string.format("  frame %d: reads %s; moving: %s", N, bits(), table.concat(t, ", "))) end
+    if #t > 0 then print(string.format("  frame %d: A %s; moving: %s", N, bits(), table.concat(t, ", "))) end
   end
   if tour then
     tour.wait = (tour.wait or 0) + FRAME_DT
+    local function ball() tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false; feed() end
     if tour.i == 0 then
       if tour.wait > 0.6 then nextStep() end
     elseif tour.phase == "settle" then
       if tour.wait > 0.6 and not busy() then
-        if tour.left > 0 then tour.phase, tour.wait = "ball", 0; feed() else nextStep() end
+        if tour.left > 0 then ball() else nextStep() end
       end
     elseif tour.phase == "ball" then
-      if not busy() and tour.wait > 0.5 and (still > 0.4 or tour.wait > 8) then
+      if not busy() and refillWait <= 0 and tour.wait > 0.5 and (still > 0.4 or tour.wait > 15) then
         if not checkBall() then fails = fails + 1 end
         tour.left = tour.left - 1
+        tour.n = tour.n + 1
+        if tour.untilStop and stopSeen then
+          if tour.n ~= tour.wantBalls then
+            fails = fails + 1
+            print(string.format("    WRONG: STOP after %d balls, not %d", tour.n, tour.wantBalls))
+          else
+            print(string.format("    STOP after %d balls (4 x MQ + 1): the hand stops; the accumulator reads %d", tour.n, count()))
+          end
+          tour.left = 0
+        end
         tour.phase, tour.wait = "pause", 0
       end
     elseif tour.phase == "pause" then
       if tour.wait > TOUR_PAUSE then
-        if tour.left > 0 then tour.phase, tour.wait = "ball", 0; feed() else nextStep() end
+        if tour.left > 0 then ball() else nextStep() end
       end
     end
   end
@@ -792,12 +933,19 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help, hover
 -- ---------------------------------------------------------------------
-v:addShortcut("Space", function() if not tour then feed() end end)
-v:addShortcut("C", function() if not tour then setSwitch("CLEAR", not isOn("CLEAR")); handMoved() end end)
-v:addShortcut("N", function() if not tour then setSwitch("COUNT", not isOn("COUNT")); handMoved() end end)
-for k = 1, G.NBITS do
-  v:addShortcut(tostring(k), function() if not tour then setBit(k, 1 - bit(k)); handMoved() end end)
+local function byHand(fn) return function() if not tour then fn(); handMoved() end end end
+v:addShortcut("Space", function() if not tour then stopSeen = false; feed() end end)
+v:addShortcut("M", byHand(function() setSwitch("MULTIPLY", not isOn("MULTIPLY")) end))
+v:addShortcut("C", byHand(function() setSwitch("CLEAR", not isOn("CLEAR")) end))
+v:addShortcut("N", byHand(function() setSwitch("COUNT", not isOn("COUNT")) end))
+for k = 1, G.NBITS do v:addShortcut(tostring(k), byHand(function() setBit(k, 1 - bit(k)) end)) end
+for k, key_ in ipairs({ "H", "J", "K", "L" }) do
+  v:addShortcut(key_, byHand(function() setSwitch("M" .. k, not isOn("M" .. k)) end))
 end
+for k, key_ in ipairs({ "8", "9", "0" }) do
+  v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end))
+end
+v:addShortcut("D", byHand(setD))
 v:addShortcut("T", function() startTour() end)
 v:addShortcut("R", function() tour = nil; queue = 0; setUp() end)
 v:addShortcut("Z", function()
@@ -812,59 +960,98 @@ end)
 
 pcall(function()
   v:setHelpText(table.concat({
-    "THE DIGI-COMP II  (Babbage's Hall) -- the accumulator",
+    "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying",
     "",
-    "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1968). The seven",
-    "rockers are flip-flops: each leans one way or the other and stays. Apex",
-    "right is 1, left 0; together, bottom (64s) to top (1s), they read the",
-    "accumulator in binary, 0 to 127.",
+    "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1968). The rockers",
+    "are flip-flops: each leans one way or the other and stays. Apex right is 1,",
+    "left 0 (the MQ's the other way round). The seven down the right, read bottom",
+    "(64s) to top (1s), are the accumulator, A: 0 to 127.",
     "",
     "WHAT TO WATCH",
     "  COUNT on: a ball meets the 1s rocker on its raised side and tips it over.",
     "  Found at 0, it is set to 1 and the ball drops through the hole on its",
     "  right: done. Found at 1, it is set to 0 and the ball goes on to the next:",
     "  the carry. So every ball adds one.",
-    "  CLEAR on: the ball drops to the lower level and runs down the green lane,",
-    "  pushing every foot of a rocker at 1 out of its way: all go to 0.",
-    "  The switches are flaps the hand sets; a ball only presses them harder.",
+    "  CLEAR on: the ball runs down the green lane on the lower level, pushing",
+    "  every foot of a rocker at 1 out of its way: all go to 0.",
+    "  MULTIPLY on: the balls go to the distributor (D1, D2, D3), which sends",
+    "  them four ways by turns: the first of every four through the MQ, which",
+    "  takes one away, and on to the memory's 8s; the others to its 1s, 2s, 4s.",
+    "  A memory switch at 1 sends its ball into the accumulator at that place.",
+    "  So every four balls add the memory to A, once for each count of the MQ;",
+    "  when the MQ is used up the next ball drops through STOP. ADD is the same",
+    "  with the MQ at 1.",
     "",
     "KEYS",
-    "  Space  START: one ball          C  CLEAR on/off    N  COUNT on/off",
-    "  1..7   set a rocker over by hand (1 = the 1s ... 7 = the 64s)",
+    "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
+    "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
+    "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
+    "  D      set the distributor to start a cycle",
     "  T      the tour                  R  set it back     Z  slow motion",
     "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
   }, "\n"))
 end)
 
+local MEM_KEY = { "H", "J", "K", "L" }
+local MQ_KEY = { "8", "9", "0" }
 if v.onHover then
   v:onHover(function(N, obj, x, y, z)
     local d = KEY[objectKey(obj)]
     if not d then return nil end
     if type(d) == "string" then return d end
     if d.flip then
-      local b = bit(d.flip)
-      return string.format("A%d, the %ds flip-flop: it reads %d (apex %s)\n" ..
-                           "the next ball here goes %s\nthe accumulator: %s = %d", d.flip, flips[d.flip].weight, b,
-                           b == 1 and "right" or "left",
-                           b == 1 and "left, to the next flip-flop (a carry), and sets it to 0" or
-                                      "right, through its done hole, and sets it to 1", bits(), count())
+      local name = d.flip
+      local b = lean(name)
+      local k = tonumber(name:match("%d+$"))
+      local goes = b == 1 and "left, and sets it to 0" or "right, and sets it to 1"
+      if name:sub(1, 1) == "A" then
+        return string.format("%s, the accumulator's %ds: it reads %d (apex %s)\nthe next ball here goes %s\nthe accumulator: %s = %d",
+                             name, 2 ^ (k - 1), b, b == 1 and "right" or "left",
+                             b == 1 and "left, to the next flip-flop (a carry), and sets it to 0" or
+                                        "right, through its done hole, and sets it to 1", bits(), count())
+      elseif name:sub(1, 2) == "MQ" then
+        return string.format("%s, the MQ's %ds (key %s): it reads %d (apex %s: the MQ reads the other way)\n" ..
+                             "the next ball here goes %s%s\nthe MQ: %s = %d", name, 2 ^ (k - 1), MQ_KEY[k], 1 - b,
+                             b == 1 and "right" or "left", goes,
+                             b == 1 and (k < 3 and " (a borrow, to the next)" or " (a borrow out of the MQ: STOP)") or " (done: on to the memory's 8s)",
+                             binary(mq(), 3), mq())
+      else
+        local outs = { D1 = { "D2", "D3" }, D2 = { "the MQ", "the memory's 4s" }, D3 = { "the memory's 2s", "the memory's 1s" } }
+        local o = outs[name]
+        return string.format("%s, the distributor (D sets it to start): it reads %d (apex %s)\nthe next ball here goes %s",
+                             name, b, b == 1 and "right" or "left", b == 1 and ("left, to " .. o[1]) or ("right, to " .. o[2]))
+      end
     end
     if d.foot then
-      return string.format("A%d's foot, on the lower level: when the rocker reads 1 its wedge leans\n" ..
-                           "into the clear lane, and a clear ball pushes it back to 0 (now: %d)", d.foot, bit(d.foot))
+      if d.foot:sub(1, 1) == "A" then
+        return string.format("%s's foot, on the lower level: when the rocker reads 1 its wedge leans\n" ..
+                             "into the clear lane, and a clear ball pushes it back to 0 (now: %d)", d.foot, lean(d.foot))
+      end
+      return string.format("%s's foot: every flip-flop is the same part; only the accumulator's\nhave a clear lane beside them", d.foot)
     end
     if d.switch then
-      local on = isOn(d.switch)
-      local what = d.switch == "CLEAR" and "the ball drops into the clear lane, which sets every flip-flop to 0"
-                                        or "the ball goes into A1 and adds one"
-      return string.format("the %s switch (%s: %s to change it by hand)\non: %s", d.switch, on and "ON" or "OFF",
-                           d.switch == "CLEAR" and "C" or "N", what)
+      local n = d.switch
+      local on = isOn(n)
+      local what = {
+        MULTIPLY = { "M", "the ball goes to the distributor, and from it to the MQ and the memory",
+                     "the ball goes down to CLEAR and COUNT" },
+        CLEAR = { "C", "the ball drops into the clear lane, which sets every flip-flop of A to 0", "the ball goes on to COUNT" },
+        COUNT = { "N", "the ball goes into A1 and adds one", "the ball drops to the lower level and counts nothing" },
+      }
+      local w = what[n]
+      if not w then
+        local k = tonumber(n:sub(2))
+        return string.format("the memory's %ds (%s, key %s): it reads %d\n%s", 2 ^ (k - 1), n, MEM_KEY[k], on and 1 or 0,
+                             on and string.format("a ball from the distributor goes into A%d: it adds %d", k, 2 ^ (k - 1))
+                                or "a ball from the distributor drops through its hole and adds nothing")
+      end
+      return string.format("the %s switch (%s: %s to change it by hand)\n%s", n, on and "ON" or "OFF", w[1], on and w[2] or w[3])
     end
     if d.ball then return string.format("a ball: 1/2 inch steel, 8.35 g\n%d let in; the accumulator reads %d", dropped, count()) end
     return nil
   end)
 end
 
-common.setCamera(btVector3(-6, 112, 78), btVector3(-6, 6, -6))
+common.setCamera(btVector3(-6, 150, 105), btVector3(-6, 6, -8))
 if tour then startTour() else setUp() end

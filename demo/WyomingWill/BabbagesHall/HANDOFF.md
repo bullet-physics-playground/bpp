@@ -25,8 +25,8 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
 - Built so far: **the Differential** (west 1), **Lehmer's number sieve**
   (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
-  and the **Digi-Comp II's accumulator** (west 3; its other registers are
-  next).
+  and the **Digi-Comp II** (west 3: it counts, adds and multiplies; the
+  complement, for subtracting and dividing, is next).
   Covered bays wait for Kelvin's tide predictor (east 3), the Differential
   Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -83,7 +83,7 @@ git push
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
-| `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane), and one switch |
+| `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
 Related: `../EulersGallery/` (the gallery the hall's machinery came from;
@@ -154,6 +154,12 @@ there, in `release/`, or on the path; or set `BPP`.
   squeeze past, which may be nowhere near where the part should end up: to
   push it all the way, guide the ball (the Digi-Comp's clear lane narrows
   beside each foot).
+- **Two ways into one place:** trace the ball that comes in first (its
+  position every frame) before giving the other one a way in; a ball
+  rolling down a wall must pass under the ends of the walls above it with
+  room for the ball (the Digi-Comp's joining funnels, `FINDINGS.md`).
+  Lanes on one level can't cross: their order is fixed by where they start
+  and end, so plan a board in a drawing of every wall first.
 - **A part with holes** (the Digi-Comp's upper plate) is a static body of
   boxes round the holes, drawn not by them (`transparency = 1`) but by the
   OpenSCAD part. `transparency` near 0.35 draws a see-through plate well.
@@ -261,19 +267,26 @@ there, in `release/`, or on the path; or set `BPP`.
   **switches** (flaps) for CLEAR and COUNT, and START (the feeder wheel,
   turned by hand). Keys: Space START, C and N the switches, 1 to 7 set a
   bit by hand. Board 322 x 878 mm, 10 upper and 10 lower tiles; table
-  100 x 150. Not yet seen by William.
-- **Next: step 2b, add and multiply:** the memory (4 bits, read without
-  being changed: in the original a 1 sends the ball into the accumulator
-  at that bit, a 0 drops it through a hole), the MQ (3 flip-flops, counted
-  down by one ball in four, which asks whether it was 0) and the
-  distributor (3 flip-flops, a ring counter sending successive balls to
-  M4, M2, M3, M1, then the MQ), and the MULTIPLY switch. Each new part
-  alone first, in `tests/`. A memory bit entering the accumulator needs a
-  way into each flip-flop's funnel from the side: the left half of the
-  plate is free for them. Then **AUTO** (the START lever: see FINDINGS for
-  why the first escapement failed) and **step 2c**, subtract and divide
-  (the complement: T1 to T6, CF1, CF2, the COMPLEMENT switch; the manual
-  describes its four-ball sequence). William pointed to a replica too:
+  100 x 150.
+- **Done (2026-10-26, while William slept): step 2b, add and multiply.**
+  The memory (four hand-set switches beside A1 to A4: 1 sends the ball
+  into that flip-flop's funnel, by a long left wall the carry doesn't
+  cross; 0 drops it), the MQ (three flip-flops read the other way, so a
+  ball takes one away; a borrow out of it drops through STOP and the hand
+  stops), the distributor (a tree of three flip-flops: the MQ and M4, M1,
+  M3, M2 by turns; the manual's is a ring) and MULTIPLY, all thirteen
+  flip-flops the same part. CLEAR's "on" outlet is on its right now (the
+  memory's lane needs A1's left). Tour: count, clear, 37 + 11 = 48,
+  13 x 3 = 39, every ball checked; the hand puts balls back from the
+  collector. Keys: M, C, N; 1 to 7; H J K L the memory; 8 9 0 the MQ; D the
+  distributor. Board 424 x 1216 mm, 14 + 14 tiles; table 110 x 180. Not
+  yet seen by William.
+- **Next: AUTO and step 2c.** AUTO is the START lever (see FINDINGS for
+  why the first escapement failed): a ball at the bottom lets the next go,
+  and the ball through STOP lets none. Step 2c, subtract and divide, is the
+  complement: T1 to T6, CF1, CF2 and the COMPLEMENT switch (the manual
+  describes its four-ball sequence); the board's lower left and the space
+  left of the MQ are free. William pointed to a replica too:
   www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
   fetched here: the original's frame is about 14 x 28 inches).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
@@ -301,6 +314,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
 > there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's step 2b].
+> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's AUTO, or step 2c].
 > Deliver each step as a patch, with its documents and PDFs, and the git
 > commands.

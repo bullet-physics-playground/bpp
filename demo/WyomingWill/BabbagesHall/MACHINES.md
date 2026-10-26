@@ -38,7 +38,7 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 7 | Ford Rangekeeper Mk I | 1917 | a battleship's fire-control computer: integrators, differentials and cams solve where the target will be | its parts each are doable (the Differential, integrators, cams); together, a big job | 5 | 5 | |
 | 8 | Curta | 1948 | a pocket four-function calculator: one stepped drum, nines' complements for subtraction | small and dense: the stepped drum and carry are doable, the whole machine very hard; best as an oversized cutaway (first left out as too dense) | 5 | 4 | |
 | 9 | Kelvin's tide predictor | 1872 | adds ten or more sine waves (the Sun's and Moon's tides) and draws a year of tides | cranks and slotted yokes are easy; the cord over the pulleys that adds them: bpp has no rope, but a rope of linked beads works if it isn't much lighter than its weights (tested: see below) | 5 | 3 | bay |
-| 10 | Digi-Comp II | 1968 | marbles rolling down a board of flip-flops count, add and multiply in binary | its accumulator built: a two-level board, seven printed rockers tipped over by the balls alone (a steel ball in each for weight, a foot below for CLEAR), hand-set switches, a notched feeder; memory, MQ and distributor next | 5 | 3 | built (accumulator) |
+| 10 | Digi-Comp II | 1968 | marbles rolling down a board of flip-flops count, add and multiply in binary | built to add and multiply: a two-level board, thirteen printed rockers tipped over by the balls alone (a steel ball in each for weight, a foot below for CLEAR) make the accumulator, MQ and distributor; hand-set switches (MULTIPLY, CLEAR, COUNT, the memory), a notched feeder; the complement (subtract, divide) and AUTO next | 5 | 3 | built (add, multiply) |
 | 11 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 4 | 2 | built |
 | 12 | Pascaline | 1642 | adds, with Pascal's falling-weight carry | built: three digits, sautoirs, detents, stylus and stop | 4 | 3 | built |
 | 13 | Galton board | 1873 | balls falling through pins pile up into the normal curve | balls and pins only; easy, and a good opener | 4 | 1 | |
@@ -116,8 +116,8 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 
 The hall's bays are walked in rising interest, so a new exhibit goes in its
 place by its interest score. With eight bays, the hall holds the five built
-(Lehmer's sieve second, after the Differential; the Digi-Comp II's
-accumulator fifth) and the three with bays; the Enigma would make a ninth (a fifth row
+(Lehmer's sieve second, after the Differential; the Digi-Comp II
+fifth) and the three with bays; the Enigma would make a ninth (a fifth row
 of bays, one spare).
 
 **Rope.** bpp has no rope (its soft bodies are cloth). A rope of small

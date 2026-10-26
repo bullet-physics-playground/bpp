@@ -1,4 +1,4 @@
-# The Digi-Comp II: the accumulator
+# The Digi-Comp II: counting, adding, multiplying
 
 `README.pdf` beside this file is a typeset copy of it.
 
@@ -8,15 +8,14 @@ switches that balls rolled down one at a time. Set up with its switches, it
 counted, cleared, added, subtracted, multiplied and divided binary numbers.
 Its manual names four registers: the **accumulator** (7 flip-flops), the
 **memory** (4 bits), the **MQ** (3 flip-flops: multiplier and quotient) and
-the **distributor** (3 flip-flops working as a ring counter), and the
-switches MULTIPLY, CLEAR, COUNT, COMPLEMENT, OVERFLOW and AUTO/MANUAL.
+the **distributor** (3 flip-flops), and the switches MULTIPLY, CLEAR,
+COUNT, COMPLEMENT, OVERFLOW and AUTO/MANUAL.
 
 It is being built here in steps. The first (October 2026) was a counter of
-three flip-flops. This, the second, is **the accumulator**: seven
-flip-flops holding a number from 0 to 127, the **START** feeder at the
-top, and the **CLEAR** and **COUNT** switches. Next come the memory, MQ and
-distributor (adding and multiplying), then the complement (subtracting and
-dividing).
+three flip-flops; the second (2a) the accumulator, with START, CLEAR and
+COUNT. This, step 2b, adds **the memory, the MQ, the distributor and
+MULTIPLY**: it adds and multiplies. Next comes the complement (subtracting
+and dividing).
 
 ## What it does
 
@@ -32,37 +31,64 @@ to one side or the other and stays there: a memory of one bit. Apex to the
 right reads **1**, to the left **0** (printed either side of each apex). A
 ball rolling straight down meets the roof on its raised side, rolls into
 that cup, and its weight takes the rocker over; at the end of the swing the
-cup tips it out. Nothing else turns the rockers: their shape and weight do
-it.
+cup tips it out. A ball that finds a flip-flop at 0 sets it to 1 and leaves
+to the right; one that finds it at 1 sets it to 0 and leaves to the left.
+Nothing else turns the rockers: their shape and weight do it. All thirteen
+are the same part; where each side leads makes the register.
 
-**The accumulator** is seven of them down a staircase, A1 (the 1s) at the
-top to A7 (the 64s) at the bottom:
+**The accumulator, A** is seven of them down a staircase, A1 (the 1s) at
+the top right to A7 (the 64s):
 
 - A ball that finds a flip-flop at **0** sets it to 1 and leaves to the
   right, through that flip-flop's **done hole**, to the lower level.
 - One that finds it at **1** sets it to 0 and leaves to the left, down to
   the next flip-flop: the **carry**.
 
-So a ball let into A1 adds one, carrying as far as it must: 0111111 (63)
-and a ball makes 1000000 (64), the ball carrying past six flip-flops. A
-carry out of A7 (from 127) drops through the **overflow** hole, and all
-seven read 0 again.
+So a ball let into A1 adds one, carrying as far as it must; a ball let into
+A3 adds four. A carry out of A7 drops through the **overflow** hole.
 
-**CLEAR.** Under each rocker, on the lower level, is its **foot**: an arm
-up the slope from the pin, joined to the rocker by a stem through the
-plate, ending in a wedge. When the rocker reads 1 the wedge leans into the
-**clear lane** (green), which runs down the lower level past every foot. A
-ball sent down the clear lane meets each wedge in its way and pushes it
-aside, which turns that rocker to 0; it passes the rockers already at 0. So
-one ball clears the whole accumulator.
+**CLEAR.** Under each of A's rockers, on the lower level, is its **foot**:
+an arm up the slope from the pin, joined to the rocker by a stem through
+the plate, ending in a wedge. When the rocker reads 1 the wedge leans into
+the **clear lane** (green), which runs down the lower level past every
+foot. A ball sent down the clear lane meets each wedge in its way and
+pushes it aside, which turns that rocker to 0. So one ball clears the
+whole accumulator. (The other six flip-flops have their feet too, being
+the same part, but no lane beside them.)
 
 **The switches** are flaps, set by hand. Each sits at the tip of the divider
 between two outlets, its free end against one wall of the inlet, closing
 that outlet: a ball only presses it harder against the wall and leaves by
-the other. The ball from START meets **CLEAR** first: on, it drops through a
-hole into the clear lane; off, it goes on to **COUNT**: on, it runs into A1
-and adds one; off, it drops to the lower level and counts nothing. (In
-E.S.R.'s machine MULTIPLY comes before CLEAR; it comes in the next step.)
+the other. A ball from START meets **MULTIPLY** first. Off, it runs down to
+**CLEAR**: on, it drops into the clear lane; off, it goes on to **COUNT**:
+on, it runs into A1 and adds one; off, it drops to the lower level and
+counts nothing.
+
+**The memory, M** is four switches, M1 (1s) to M4 (8s), one beside each of
+A1 to A4. Set to 1, a ball that reaches it runs into that flip-flop of the
+accumulator (into its funnel, by the funnel's long left wall): M3 at 1 adds
+four. Set to 0, the ball drops through a hole beside it, and rolls down the
+lower level to the **return lane** at the board's left edge, and on to the
+collector.
+
+**MULTIPLY on** sends the balls to **the distributor, D**: D1 sends them to
+D2 and D3 by turns, and each of those by turns to its two sides, so four
+balls go four ways, and the fifth begins again. Set to start (D1 1, D2 1,
+D3 0), the first ball of every four goes from D2 into **the MQ**, the second
+to M1, the third to M3, the fourth to M2.
+
+**The MQ** (multiplier-quotient) is three flip-flops down a staircase like
+the accumulator's, MQ1 (1s) to MQ3 (4s), but read the other way: **1 with
+the apex to the left** (it says so beside each). So a ball through it
+takes one away: the borrow runs on to the left. A ball that leaves the MQ
+on the right (done) runs on, through the funnels under MQ2 and MQ3, to M4.
+A borrow out of MQ3, when the MQ was 0, drops through **STOP**.
+
+So with MULTIPLY on, every four balls add the memory to the accumulator,
+once for each count of the MQ, and when the MQ is used up the next ball
+drops through STOP and the hand stops turning: the MQ times the memory,
+added to what was in the accumulator, in 4 x MQ + 1 balls. **ADD** is the
+same with the MQ at 1 (five balls), as in E.S.R.'s manual.
 
 **START** is the feeder: a wheel with four notches under the **input**
 channel of waiting balls. Each quarter turn of its knob carries one ball
@@ -73,35 +99,48 @@ round from the top and lets it out at the bottom.
 | Key | |
 |---|---|
 | `Space` | START: a quarter turn of the knob, one ball |
-| `C` | CLEAR on and off (by hand) |
-| `N` | COUNT on and off (by hand) |
-| `1` to `7` | set that flip-flop over by hand (`1` the 1s ... `7` the 64s), as you set the original's |
+| `M`, `C`, `N` | MULTIPLY, CLEAR, COUNT on and off (by hand) |
+| `1` to `7` | set that flip-flop of the accumulator over by hand (`1` the 1s ... `7` the 64s), as you set the original's |
+| `H`, `J`, `K`, `L` | the memory's 1s, 2s, 4s, 8s (M1 to M4) on and off |
+| `8`, `9`, `0` | set the MQ's 1s, 2s, 4s over by hand |
+| `D` | set the distributor to start a cycle (D1 1, D2 1, D3 0) |
 | `T` | the tour (it starts with it) |
-| `R` | set it back by hand: the balls to the top, the accumulator to 0, COUNT on, CLEAR off |
+| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
 | `Z` | slow motion (1/4 speed) on and off |
+
+To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
+number and the MQ to the other, `D`, MULTIPLY on, and `Space` until a ball
+drops through STOP. To add, the same with the MQ at 1 and the accumulator
+holding the first number.
 
 **Where to look.**
 
-- **The rockers**, against the 0 and 1 printed either side of each apex,
-  and the 1, 2, 4 ... 64 beside them: the machine's own reading. Read them
-  bottom (64s) to top (1s) for the number written the usual way.
-- **The switches'** flaps, against the on and off printed at their outlets.
-- **The lower level** through the plate: done balls rolling down, and a
-  clear ball running down the green lane past the feet.
-- **The sign** on the table, THE ACCUMULATOR: what the rockers read, in
-  binary and as a number, and how many balls have been let in. It is the
-  exhibit's, not part of the machine: the script reads the rockers for it.
+- **The rockers**, against the 0 and 1 printed either side of each apex
+  (the MQ's the other way round), and the 1, 2, 4 ... 64 beside A's: the
+  machine's own reading. Read A bottom (64s) to top (1s) for the number
+  written the usual way.
+- **The switches'** flaps, against the on and off (the memory's 1 and 0)
+  printed at their outlets.
+- **The lower level** through the plate: done balls rolling down, a clear
+  ball running down the green lane past the feet, and the memory's dropped
+  balls going to the return lane on the left.
+- **The sign** on the table: what the accumulator, the memory and the MQ
+  read, in binary and as numbers, and how many balls have been let in. It
+  is the exhibit's, not part of the machine: the script reads the rockers
+  and switches for it.
 
 Rest the mouse on a rocker, a foot, a flap, the feeder or a wall to see what
 it is and what it is doing.
 
-**The tour** (`T`): COUNT on from 0, four balls (1, 2, 3, 4); 125 set by
-hand and three balls (126, 127, and the carry right through to the
-overflow: 0); 90 set by hand and CLEAR on, one ball (0); 127 and one ball
-(0); CLEAR again at 0 (still 0); 5 set by hand with both switches off, one ball (still 5). After
-each ball it checks the reading and that the ball reached the collector,
-and prints `RESULT digicomp2 tour: PASS`. It takes about 70 simulated
-seconds, and about a minute of computing here, headless.
+**The tour** (`T`): COUNT from 0, two balls; CLEAR; **ADD** 37 + 11 (the
+memory 11, the MQ 1, MULTIPLY on: five balls, the last to STOP: 48);
+CLEAR; **MULTIPLY** 13 x 3 (thirteen balls: 39). After each ball it checks
+everything the ball should have changed (the accumulator, the MQ, the
+distributor, STOP) and that the ball reached the collector, and prints
+`RESULT digicomp2 tour: PASS`. It takes about 180 simulated seconds, and
+about three and a half minutes of computing here, headless. Twelve balls are not
+enough for the multiply: when the input runs low the hand takes balls from
+the collector and puts them back at its top, as you would.
 
 Sliders: `friction` (0.1 to 0.6 checked), `speed`, `steps`.
 
@@ -113,48 +152,50 @@ Environment, for testing: `DC_TOUR=0` (no tour), `DC_FRICTION`, `DC_PF`
 slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
 (steps a second, 2400), `DC_HAND` (the most torque the hand turns the knob
 with, 50), `DC_PAUSE` (seconds between a reading and the next ball, 1),
-`DC_LOG=1` (the rockers' leans at each reading), `DC_LOG=2` (also every
+`DC_LOG=1` (every rocker's lean at each reading), `DC_LOG=2` (also every
 moving ball four times a second), `DC_LOG=3` (where every ball is at each
-reading), `DC_CONTACTS=frame` (every contact of the
-balls, rockers, flaps and wheel at that frame), `DC_REST=0` (never rest),
-`DC_EXPORT=1` (rewrite `parts/geometry.scad`).
+reading), `DC_CONTACTS=frame` (every contact of the balls, rockers, flaps
+and wheel at that frame), `DC_REST=0` (never rest), `DC_EXPORT=1` (rewrite
+`parts/geometry.scad`).
 
 `tests/toggle.lua` is one flip-flop alone, with its foot, its done hole and
-the clear lane; `tests/switch.lua` is one switch alone. Each prints `RESULT`
-lines; their headers list their settings, and `FINDINGS.md` has what they
-showed.
+the clear lane; `tests/switch.lua` is one switch alone; `tests/junction.lua`
+is the piece of the board where the memory meets the accumulator (A1, A2
+and M2: the carry and the memory's balls into the same funnel). Each prints
+`RESULT` lines; their headers list their settings, and `FINDINGS.md` has
+what they showed.
 
 ## Printing and building
 
 `./make-stls.sh` (needs OpenSCAD, and bpp to refresh `geometry.scad`)
 writes every part into `stl/`, each turned to lie on the bed. Every shape a
 ball, a rocker or a flap touches comes from `digicomp2-geometry.lua`, the
-same numbers the simulation uses. The largest pieces are the tiles, 162 x
-184 mm.
+same numbers the simulation uses. The largest pieces are the tiles, 212 x 174 mm (on a 220 mm bed, or turned on a 250 x 210 one).
 
 | Part | Print | Size (mm) | Notes |
 |---|---|---|---|
-| `upper-i-j.stl` | 1 each (10) | 162 x 174 x 16 | the upper plate in tiles, two across and five down: its 4 mm face with the holes, the walls (12 mm high), the stop pegs, the bosses under the flaps and the wheel, the lettering cut 0.6 mm deep (fill it with paint, or change filament at that layer) |
-| `lower-i-j.stl` | 1 each (10) | 162 x 184 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the collector's wall (30 mm), the posts that hold the plate up, and the bosses the feet stand on |
-| `rocker.stl` | 7 | 44 x 19 x 9 | a flip-flop's top. 100% infill |
-| `foot.stl` | 7 | 12 x 24 x 22 | its stem and foot: the stem glues up into the rocker's hub, through the plate's square hole. 100% infill |
-| `flap.stl` | 2 | 3 x 19 x 9 | a switch's flap |
+| `upper-i-j.stl` | 1 each (14) | 212 x 167 x 16 | the upper plate in tiles, two across and seven down: its 4 mm face with the holes, the walls (12 mm high), the stop pegs, the bosses under the flaps and the wheel, the lettering cut 0.6 mm deep (fill it with paint, or change filament at that layer) |
+| `lower-i-j.stl` | 1 each (14) | 212 x 174 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the return lane, the collector's wall (30 mm), the posts that hold the plate up, and the bosses the feet stand on |
+| `rocker.stl` | 13 | 44 x 19 x 9 | a flip-flop's top. 100% infill |
+| `foot.stl` | 13 | 12 x 24 x 22 | its stem and foot: the stem glues up into the rocker's hub, through the plate's square hole. 100% infill |
+| `flap.stl` | 7 | 3 x 19 x 9 | a switch's flap |
 | `wheel.stl` | 1 | 39 x 39 x 9 | the feeder's wheel |
 | `knob.stl` | 1 | 28 x 28 x 14 | glued onto the wheel's hub; its four marks are the quarter turns |
-| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 124 x 30, 30 x 128 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty) |
+| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 165 x 30, 30 x 169 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty) |
 | `foot-front.stl` | 2 | 30 x 21 x 30 | its low front feet |
 
 **Also needed**
 
-- **12 steel balls, 1/2 inch (12.7 mm)**, 8.35 g each (and a few spare).
-- **7 steel balls, 1/4 inch (6.35 mm)**, 1.04 g: the rockers' weights,
+- **12 steel balls, 1/2 inch (12.7 mm)**, 8.35 g each (and a few spare;
+  with more, a long multiply needs fewer trips to the collector).
+- **13 steel balls, 1/4 inch (6.35 mm)**, 1.04 g: the rockers' weights,
   pressed into the pocket under each apex, flush.
-- **3 mm steel dowel pins**: seven 32 mm long for the flip-flops (pressed
-  into the lower tiles' bosses, up through foot, stem and rocker), two
-  16 mm for the flaps and one 20 mm for the wheel (pressed into the upper
-  plate).
-- A **lower board** of 6 mm plywood, 322 x 878 mm, the lower tiles glued on
-  it edge to edge, and the feet glued under it at its corners.
+- **3 mm steel dowel pins**: thirteen 32 mm long for the flip-flops
+  (pressed into the lower tiles' bosses, up through foot, stem and rocker),
+  seven 16 mm for the flaps and one 20 mm for the wheel (pressed into the
+  upper plate).
+- A **lower board** of 6 mm plywood, 424 x 1216 mm, the lower tiles glued
+  on it edge to edge, and the feet glued under it at its corners.
 - Glue; a little dry PTFE or graphite on the pins.
 
 **Assembly.** Glue the lower tiles onto the plywood, edge to edge, the
@@ -167,9 +208,9 @@ each rocker onto its stem, roof up the slope. Press the flaps' and wheel's
 pins into the plate, fit them, and glue the knob on the wheel. Glue the
 tall feet under the back corners and the low ones under the front, so the
 board slopes at 15 degrees toward you, and **level it across** (within 2
-degrees; see `FINDINGS.md`). Set the accumulator to 0 (every apex to the
-left), COUNT on and CLEAR off, put the balls in the input channel, and turn
-the knob a quarter turn at a time.
+degrees; see `FINDINGS.md`). Set every flip-flop to 0 (apex left; the MQ's
+read 0 with the apex right), COUNT on and the other switches off, put the
+balls in the input channel, and turn the knob a quarter turn at a time.
 
 The knob's first quarter turn after loading fills the wheel: balls come out
 from the second. (In the simulation, the hand loads the wheel's two notches
@@ -179,12 +220,18 @@ as it puts the balls back, so the first turn lets one out.)
 
 - **The hand.** The knob is turned by the hand, a quarter turn at a time: in
   the simulation a motor on the wheel's pin, strong enough not to stall. The
-  hand sets the switches and flip-flops, and puts the balls back, by placing
-  them.
+  hand sets the switches and flip-flops, puts the balls back, by placing
+  them, and watches STOP: it turns no more once a ball has dropped through.
 - **AUTO.** E.S.R.'s machine can run by itself: in AUTO, a ball at the
-  bottom rolls under the START lever and lets the next ball go from the top.
-  That is not built yet (`FINDINGS.md` says why); here every ball is let in
-  by a turn of the knob, as in the original's MANUAL.
+  bottom rolls under the START lever and lets the next ball go from the top,
+  and the ball through STOP lets none. That is not built yet (`FINDINGS.md`
+  says why); here every ball is let in by a turn of the knob, as in the
+  original's MANUAL.
+- **The layout** is this machine's own, not E.S.R.'s: the registers do what
+  the manual says, but where each part sits on the board was worked out
+  here. The distributor is a tree of three flip-flops, and after the MQ and
+  M4 it serves M1, M3, M2 (the manual's order is M2, M3, M1; the sum is the
+  same).
 - **The pins** are hinges with a constant friction torque, 0.4 kg cm^2/s^2
   (`DC_PF`): PLA on PLA at a boss, worked out in `FINDINGS.md`.
 - **The lettering** is drawn on the plate's face, not cut into it; the plate

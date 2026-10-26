@@ -96,9 +96,10 @@ EXHIBITS = EXHIBITS or {
   { dir = "exhibits/DigiComp2/", file = "digicomp2.lua", name = "the Digi-Comp II", label = "digicomp",
     prefix = "Digi-Comp: ", floorY = -100,
     about = "The Digi-Comp II (1968): balls rolling down a two-level board of flip-flops\n" ..
-            "count, add, subtract, multiply and divide in binary. Here, its accumulator: seven\n" ..
-            "rockers, each tipped over by the balls alone, hold 0 to 127; COUNT adds one a ball,\n" ..
-            "CLEAR sets them all to 0. Space: START (one ball); C, N: the switches; T: the tour." },
+            "count, add, subtract, multiply and divide in binary. Here it counts, clears, adds\n" ..
+            "and multiplies: thirteen rockers, tipped over by the balls alone, make the\n" ..
+            "accumulator, the MQ and the distributor; four switches are the memory.\n" ..
+            "Space: START (one ball); M, C, N: the switches; T: the tour (37 + 11, 13 x 3)." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..
