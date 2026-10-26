@@ -19,6 +19,13 @@
 -- through to the bell at the bottom. The hand stops turning when it falls
 -- right through, as Lehmer's motor was stopped.
 --
+-- THE BOARD on the table beside it shows what an operator would write up:
+-- N and x, each wheel's hole under the probe (green open, red pegged), how
+-- far the probe went, and at a stop x*x - N, whether it is a square, and
+-- the factors. It is the exhibit's: nothing in the machine drives it. The
+-- scale on the probe's guide is the machine's own (printed): the pointer on
+-- the probe's top reads how many wheels it went through.
+--
 -- WHAT IT SIEVES: Fermat's way of factoring N. Look for x with x^2 - N a
 -- square, y^2: then N = (x - y)(x + y). A square leaves only certain
 -- remainders when divided by m, so x^2 - N can be a square only if x mod m
@@ -33,10 +40,10 @@
 -- KEYS
 --   Space  one turn of the handle
 --   G      go: turn until the probe falls right through (G again: stop)
---   N      the next number to factor (re-pegs the wheels and sets them to
---          its first x): 1241, 1679, 1157, 2813
+--   N      choose the next number to factor (re-pegs the wheels and sets
+--          them to its first x): 1241, 1679, 1157, 2813
 --   R      set the wheels back to the first x
---   T      the tour: factor 1241 (it starts with it)
+--   T      the tour for the number chosen (it starts with 1241's)
 --   Z      slow motion (1/4) <-> real time
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. The wheels, the
@@ -152,7 +159,8 @@ do
   else f = assert(loadfile(path, "t", _ENV)) end
   TABLE = f()
 end
-TABLE.build(27, 19, { x = 1.5, floor = 300 })     -- (the base: x -12 to 15, z -9.5 to 9.5)
+-- (the base: x -12 to 15, z -9.5 to 9.5; the board, on its left, from x -44)
+TABLE.build(59, 19, { x = -14.5, floor = 300 })
 
 local function still(call, col, tr)
   local m = part(call)
@@ -166,6 +174,7 @@ local frame = still("base(); feet(); bearing(); shaftWasher(); guide()", "#4a352
 still("axle(); axleTop()", "#9a9da3")
 still("washers()", "#c9a14a")
 local bell = still("bell()", "#d4af37")
+local scaleMarks = still("depthScaleNumbers()", "#efe6cf")
 
 local anchor = Cube(0.01, 0.01, 0.01, 0)     -- (only for the hinges to hold to: too small to see)
 anchor.collides = false
@@ -376,7 +385,10 @@ do
   local ballObj = part(string.format("translate([%.4f, %.4f, %.4f]) ball()", -P.com[1], -P.com[2], -P.com[3]))
   ballObj.col = "#d8dadc"
   v:add(ballObj)
-  probe = { body = b, slider = s, obj = o, riders = { arm, ballObj }, com = P.com }
+  local pointer = part(string.format("translate([%.4f, %.4f, %.4f]) probePointer()", -P.com[1], -P.com[2], -P.com[3]))
+  pointer.col = "#c9a14a"
+  v:add(pointer)
+  probe = { body = b, slider = s, obj = o, riders = { arm, ballObj, pointer }, com = P.com }
 end
 pcall(function() v.showConstraints = false end)
 
@@ -402,6 +414,101 @@ local function moveRiders()
   local tp = probe.body:getCenterOfMassTransform()
   for _, r in ipairs(probe.riders) do r.trans = tp end
 end
+
+-- ---------------------------------------------------------------------
+-- the board: what the operator would write up, on drums like a counter's
+-- (the exhibit's, not the machine's: nothing in the machine drives it).
+-- N and x; the hole under the probe on each wheel, green if open, red if
+-- pegged; how many wheels the probe went through; at a stop, x*x - N and
+-- whether it is a square; and, when it is, y and the factors.
+-- ---------------------------------------------------------------------
+local BOARD
+do
+  local W, H = 25, 18
+  local DW, PITCH = 0.8, 0.9                   -- a digit drum's width, and their spacing
+  local ROW = { 15.2, 11.1, 7.0, 2.9 }
+  local wins, labels, drums = {}, {}, {}
+  local function label(t, x, row, size) labels[#labels + 1] = string.format('["%s", %.2f, %.2f, %.2f]', t, x, ROW[row], size or 0.75) end
+  -- a run of n digit drums, left to right from x
+  local function digits(name, x, row, n)
+    local d = {}
+    for k = 1, n do
+      local cx = x + (k - 1) * PITCH
+      wins[#wins + 1] = string.format("[%.2f, %.2f, %.2f]", cx, ROW[row], DW)
+      d[k] = { x = cx, y = ROW[row], w = DW, words = false }
+    end
+    drums[name] = d
+  end
+  label("N", 0.8, 1); digits("N", 2.6, 1, 4)
+  label("x", 8.0, 1); digits("x", 9.8, 1, 3)
+  for j, m in ipairs({ 5, 7, 8, 9 }) do
+    label("mod " .. m, 0.8 + (j - 1) * 4.4, 2, 0.6); digits("r" .. m, 4.1 + (j - 1) * 4.4, 2, 1)
+  end
+  label("through", 18.2, 2, 0.6); digits("through", 22.1, 2, 1); label("of 4", 22.9, 2, 0.6)
+  label("x\\u00b2\\u2212N", 0.8, 3); digits("xsq", 3.7, 3, 5)
+  wins[#wins + 1] = string.format("[%.2f, %.2f, %.2f]", 11.9, ROW[3], 6.6)
+  drums.verdict = { { x = 11.9, y = ROW[3], w = 6.6, words = true } }
+  label("y", 15.9, 3); digits("y", 17.5, 3, 3)
+  label("factors", 0.8, 4); digits("f1", 4.7, 4, 3); label("\\u00d7", 7.5, 4); digits("f2", 8.9, 4, 3)
+  -- where it stands: turned 20 degrees toward the machine, its front bottom
+  -- left corner here
+  local q = qa(0, 1, 0, 20)
+  local tr = btTransform(q, btVector3(-42.5, 1.5, 6))
+  local box = part(string.format("boardBox(%.2f, %.2f, [%s])", W, H, table.concat(wins, ",")))
+  box.col = "#3a2818"
+  v:add(box)
+  box.trans = tr
+  local lab = part(string.format("boardLabels([%s])", table.concat(labels, ",")))
+  lab.col = "#e8d7a8"
+  v:add(lab)
+  lab.trans = tr
+  local ZC = -0.35 - 1.7                       -- (a drum's axis behind the face: DRUM_R in lehmer-sieve.scad)
+  for _, list in pairs(drums) do
+    for _, d in ipairs(list) do
+      d.body = part(string.format("drumBody(%.2f)", d.w))
+      d.body.col = "#efe6cf"
+      v:add(d.body)
+      d.face = part(d.words and "drumWords()" or "drumDigits()")
+      d.face.col = "#1e1812"
+      v:add(d.face)
+      d.cur, d.want = 10, 10                    -- (the blank face; the word drum's is 0)
+      if d.words then d.cur, d.want = 0, 0 end
+    end
+  end
+  BOARD = { tr = tr, drums = drums, box = box, labels = lab, zc = ZC }
+end
+local DRUM_A = 360 / 11
+local function placeDrum(d)
+  local t = btTransform()
+  t:mult(BOARD.tr, btTransform(qa(1, 0, 0, -d.cur * DRUM_A), btVector3(d.x, d.y, BOARD.zc)))
+  d.body.trans = t
+  d.face.trans = t
+end
+-- each drum turns forward to its new face, as a counter's do
+local function turnDrums()
+  for _, list in pairs(BOARD.drums) do
+    for _, d in ipairs(list) do
+      if d.cur ~= d.want then
+        local delta = (d.want - d.cur) % 11
+        local step = math.max(0.08, delta * 0.2)
+        if delta <= step then d.cur = d.want else d.cur = (d.cur + step) % 11 end
+        placeDrum(d)
+      end
+    end
+  end
+end
+-- a number on a run of drums, right-aligned (nil: blank)
+local function showNumber(name, value)
+  local list = BOARD.drums[name]
+  local s = value and tostring(math.floor(value)) or ""
+  if #s > #list then s = string.rep("9", #list) end
+  for k = 1, #list do
+    local j = #s - (#list - k)
+    list[k].want = (j >= 1) and tonumber(s:sub(j, j)) or 10
+  end
+end
+local function showWords(k) BOARD.drums.verdict[1].want = k end
+for _, list in pairs(BOARD.drums) do for _, d in ipairs(list) do placeDrum(d) end end
 
 -- ---------------------------------------------------------------------
 -- reading the machine
@@ -498,11 +605,45 @@ local function setTo(x)
   probe.body:setLinearVelocity(btVector3(0, 0, 0)); probe.body:setAngularVelocity(btVector3(0, 0, 0))
   turnsDone, X = 0, x
 end
+-- the board, from the machine as it stands (stopped: what the probe found)
+local function boardShow(n)
+  showNumber("N", N)
+  showNumber("x", X)
+  for i, w in ipairs(wheels) do
+    local r = residue(i)
+    local d = BOARD.drums["r" .. w.m][1]
+    d.want = r
+    d.body.col = OPEN[i][r] and "#9fd29a" or "#e39b93"
+  end
+  showNumber("through", n)
+  if n == NW then
+    local y2 = X * X - N
+    local y = isqrt(y2)
+    showNumber("xsq", y2)
+    if y * y == y2 then
+      showWords(2); showNumber("y", y); showNumber("f1", X - y); showNumber("f2", X + y)
+    else
+      showWords(1); showNumber("y", nil)
+    end
+  else
+    showNumber("xsq", nil); showWords(0); showNumber("y", nil)
+  end
+end
+-- while the wheels turn: only N and x stay up
+local function boardTurning()
+  showNumber("through", nil); showNumber("xsq", nil); showWords(0); showNumber("y", nil)
+end
+local function boardClear()
+  boardTurning(); showNumber("f1", nil); showNumber("f2", nil)
+  for _, w in ipairs(wheels) do BOARD.drums["r" .. w.m][1].body.col = "#efe6cf" end
+end
 local function setProblem(n)
   N = n
   X0 = isqrt(N); if X0 * X0 < N then X0 = X0 + 1 end
   setPegs()
   setTo(X0)
+  boardClear()
+  showNumber("N", N); showNumber("x", X0)
   print(string.format("LEHMER'S SIEVE: N = %d; x from %d (the first whose square is past N)", N, X0))
   for i = NW, 1, -1 do print(string.format("  the wheel of %d: open at %s", wheels[i].m, holesText(i))) end
 end
@@ -555,6 +696,7 @@ end
 local found = nil
 local function endOfTurn()
   local n, want = through(), expectedThrough(X)
+  boardShow(n)
   local shows = crt()
   local ok = (n == want) and (shows == X % 2520)
   if not ok then fails = fails + 1 end
@@ -642,6 +784,7 @@ local function oneTurn()
   turning = true
   target = target + 1
   wait = 0
+  boardTurning()
 end
 -- after a reading: stop if the probe fell right through; the tour goes on
 -- past a false stop, and ends at the true one
@@ -667,6 +810,7 @@ v:preSim(function(N_)
 end)
 v:postSim(function(N_)
   moveRiders()
+  turnDrums()
   if holdNow then return end
   restPost()
   if LOG == "2" then
@@ -736,7 +880,7 @@ v:addShortcut("N", function()
   restart(PROBLEMS[k])
 end)
 v:addShortcut("R", function() stopTour(); restart(N) end)
-v:addShortcut("T", function() restart(PROBLEMS[1], true) end)
+v:addShortcut("T", function() restart(N, true) end)       -- (the tour for the number N chose)
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -768,8 +912,14 @@ pcall(function()
     "",
     "KEYS",
     "  Space  one turn         G  turn until the probe falls through",
-    "  N      the next number  R  back to its first x",
-    "  T      the tour (1241)  Z  slow motion",
+    "  N      choose the next number (1241, 1679, 1157, 2813)",
+    "  T      the tour for that number   R  back to its first x",
+    "  Z      slow motion",
+    "",
+    "THE BOARD on the left shows N and x; the hole under the probe on each",
+    "wheel (green: open, red: pegged); how many wheels the probe went through;",
+    "and at a stop, x*x - N, whether it is a square, and the factors.",
+    "The scale beside the probe's top reads how many wheels it went through.",
   }, "\n"))
 end)
 if v.onHover then
@@ -781,6 +931,9 @@ if v.onHover then
   P_KEY[objectKey(drive.obj)] = "drive"
   for _, r in ipairs(drive.riders) do P_KEY[objectKey(r)] = "drive" end
   P_KEY[objectKey(bell)] = "bell"
+  P_KEY[objectKey(BOARD.box)] = "board"; P_KEY[objectKey(BOARD.labels)] = "board"
+  for _, list in pairs(BOARD.drums) do for _, d in ipairs(list) do P_KEY[objectKey(d.body)] = "board"; P_KEY[objectKey(d.face)] = "board" end end
+  P_KEY[objectKey(scaleMarks)] = "scale"
   v:onHover(function(N_, obj, x, y, z)
     local i = KEY[objectKey(obj)]
     local head = string.format("N = %d, x = %d (x*x - N = %d)", N, X, X * X - N)
@@ -797,11 +950,18 @@ if v.onHover then
              "the cam on top lifts the probe while they move\n" .. head
     elseif k == "bell" then
       return "the bell: the probe reaches it only through an open hole in every wheel\n" .. head
+    elseif k == "board" then
+      return "the board (the exhibit's, not the machine's): N and x; the hole under the probe on\n" ..
+             "each wheel, green if open, red if pegged; how many wheels the probe went through;\n" ..
+             "at a stop, x*x - N, whether it is a square, and the factors. N chooses the number, T its tour."
+    elseif k == "scale" then
+      return string.format("the depth scale: the pointer on the probe's top reads how many wheels\n" ..
+                           "it has gone through (4: right through, onto the bell). Now %d.\n%s", through(), head)
     end
     return nil
   end)
 end
 
-common.setCamera(btVector3(-7, 18, 28), btVector3(0, 6, 0))
+common.setCamera(btVector3(-18, 25, 47), btVector3(-15.5, 7, 0))
 moveRiders()
 holdStart()

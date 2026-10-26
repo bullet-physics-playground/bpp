@@ -38,8 +38,8 @@ module wheelNumbers(i) {
   plate(star_y(i) + STAR_T, 0.05)
     for (k = [0 : m - 1]) {
       a = 180 + k * 360 / m;
-      translate([1.45 * cos(a), 1.45 * sin(a)]) rotate(a + 90)
-        text(str(k), size = 0.42, halign = "center", valign = "center");
+      translate([1.42 * cos(a), 1.42 * sin(a)]) rotate(a + 90)
+        text(str(k), size = 0.55, halign = "center", valign = "center");
     }
   // the wheel's number of places, by the axle
   plate(star_y(i) + STAR_T, 0.05) translate([0.95, 0]) rotate(90)
@@ -222,12 +222,78 @@ module guide() {
     translate([-RHO, 0, 0]) plate(GUIDE_Y0 - 1, 3) circle(r = PROBE_R + 0.03, $fn = 24);
   }
   translate([-11, 0, 0]) plate(BASE_TOP - 1.5, 1.5) circle(r = 0.4);      // (its foot, into the base)
+  depthScale();
+}
+// the depth scale: a post on the guide beside the probe's top, a mark for
+// each number of wheels the probe can fall through (4: right through, onto
+// the bell), read against the pointer on the probe's top
+function tipRest(n) = (n == len(MODS)) ? TIP_LOW : star_y(len(MODS) - 1 - n) + STAR_T;
+function markY(n) = tipRest(n) + PROBE_LEN - 0.25;
+SCALE_X0 = -RHO - 2.4; SCALE_X1 = -RHO - 1.0;
+module depthScale() {
+  translate([SCALE_X0, GUIDE_Y1 - 0.01, -0.6]) cube([SCALE_X1 - SCALE_X0, markY(0) + 1.0 - GUIDE_Y1, 0.6]);
+  for (n = [0 : len(MODS)]) {
+    translate([SCALE_X1 - 0.55, markY(n) - 0.04, 0]) cube([0.55, 0.08, 0.05]);
+    translate([SCALE_X0 + 0.45, markY(n), 0]) linear_extrude(0.05) text(str(n), size = 0.5, halign = "center", valign = "center");
+  }
+}
+module depthScaleNumbers() for (n = [0 : len(MODS)]) {
+  translate([SCALE_X1 - 0.55, markY(n) - 0.04, -0.01]) cube([0.55, 0.08, 0.07]);
+  translate([SCALE_X0 + 0.45, markY(n), -0.01]) linear_extrude(0.07) text(str(n), size = 0.5, halign = "center", valign = "center");
+}
+// the pointer: a collar on the probe's top, its arm reaching over the marks
+module probePointer() {
+  top = TIP_HIGH + PROBE_LEN;
+  difference() {
+    union() {
+      translate([-RHO, 0, 0]) plate(top - 0.4, 0.3) circle(r = 0.45, $fn = 24);
+      translate([SCALE_X1 - 0.5, top - 0.4, 0.1]) cube([-RHO - SCALE_X1 + 0.5, 0.3, 0.25]);
+      translate([-RHO - 0.3, top - 0.4, 0]) cube([0.3, 0.3, 0.35]);
+    }
+    translate([-RHO, 0, 0]) plate(top - 1, 2) circle(r = PROBE_R, $fn = 24);
+  }
 }
 module bell() translate([-RHO, 0, 0]) {
   plate(BASE_TOP, TIP_LOW - BASE_TOP) circle(r = 0.7);           // the probe comes to rest on its floor
   plate(TIP_LOW, 0.3) difference() { circle(r = 0.7); circle(r = 0.5); }
 }
 module frame() { base(); feet(); bearing(); shaftWasher(); axle(); axleTop(); guide(); }
+
+// ---------------------------------------------------------------------------
+// the board (the exhibit's, not part of the machine: what an operator would
+// write up, shown on drums like a counter's). Its own frame: x along it, y
+// up, z out of its face; the face at z = 0, its bottom left corner at 0, 0.
+// The simulation lays it out (the windows and the labels) and turns the drums.
+// ---------------------------------------------------------------------------
+DRUM_R = 1.7;                                   // a drum's flat faces, from its axis
+DRUM_N = 11;                                    // 0 to 9, and a blank
+DRUM_A = 360 / DRUM_N;
+DRUM_FACE = 2 * DRUM_R * tan(DRUM_A / 2);
+BOARD_D = 0.35 + 2 * DRUM_R / cos(DRUM_A / 2) + 0.5;
+module drumBody(w) {
+  for (k = [0 : DRUM_N - 1]) rotate([k * DRUM_A, 0, 0]) translate([-w / 2, -DRUM_FACE / 2, DRUM_R - 0.25]) cube([w, DRUM_FACE, 0.25]);
+  rotate([0, 90, 0]) cylinder(r = DRUM_R - 0.2, h = w, center = true, $fn = 22);
+}
+module drumDigits() for (k = [0 : 9])
+  rotate([k * DRUM_A, 0, 0]) translate([0, 0, DRUM_R]) linear_extrude(0.05)
+    text(str(k), size = 0.7, halign = "center", valign = "center");
+WORDS = ["", "is not a square", "is a square"];
+module drumWords() for (k = [0 : len(WORDS) - 1])
+  rotate([k * DRUM_A, 0, 0]) translate([0, 0, DRUM_R]) linear_extrude(0.05)
+    text(WORDS[k], size = 0.55, halign = "center", valign = "center");
+// wins: [x, y, width] of each drum's window (its centre); the box stands on
+// a plinth 1.5 cm high
+module boardBox(W, H, wins) difference() {
+  translate([0, -1.5, -BOARD_D]) cube([W, H + 1.5, BOARD_D]);
+  for (w = wins) {
+    translate([w[0] - w[2] / 2 - 0.05, w[1] - 0.6, -0.5]) cube([w[2] + 0.1, 1.2, 1]);
+    translate([w[0] - w[2] / 2 - 0.1, w[1] - DRUM_R / cos(DRUM_A / 2) - 0.15, -BOARD_D + 0.2])
+      cube([w[2] + 0.2, 2 * DRUM_R / cos(DRUM_A / 2) + 0.3, BOARD_D - 0.5]);
+  }
+}
+// labels: [text, x, y, size]
+module boardLabels(labels) for (l = labels)
+  translate([l[1], l[2], 0]) linear_extrude(0.06) text(l[0], size = l[3], valign = "center");
 
 // ---------------------------------------------------------------------------
 // for printing: each part turned to lie on the bed, in millimetres
@@ -261,6 +327,7 @@ if (PART == "print-peg") scale(10) cylinder(r = HOLE_R - 0.02, h = STAR_T, $fn =
 if (PART == "print-cam") bed(star_y(len(MODS) - 1) + STAR_T + 0.1) translate([-C, 0, 0]) cam();
 if (PART == "print-handle") bed(SHAFT_TOP - 0.4) translate([-C, 0, 0]) handle();
 if (PART == "print-probe-arm") bed(FOLLOW_Y) translate([RHO, 0, 0]) probeArm();
+if (PART == "print-probe-pointer") bed(TIP_HIGH + PROBE_LEN - 0.4) translate([RHO, 0, 0]) probePointer();
 if (PART == "print-washer") scale(10) difference() { cylinder(r = 0.9, h = 0.56); translate([0, 0, -1]) cylinder(r = AXLE_R + 0.02, h = 3); }
 if (PART == "print-washer-low") scale(10) difference() { cylinder(r = 0.9, h = star_y(0) - BASE_TOP - 0.04); translate([0, 0, -1]) cylinder(r = AXLE_R + 0.02, h = 3); }
 if (PART == "print-guide") scale(10) translate([11.6, -(BASE_TOP - 1.5), 0.6]) guide();      // (on its side)

@@ -66,22 +66,39 @@ chain sieve tried about 60 numbers a second, his gear sieve about 5000.
 
 ## Using it
 
-The hand turns the handle a whole turn at a time. Watch the probe: it goes
-down into the stack as far as the first pegged hole. When it goes right
-through, the tour (and `G`) stops, and the console says whether x * x - N
-is a square.
+Choose a number with `N`, then run its tour with `T`, or turn the handle
+yourself with `G` or `Space`. The hand turns the handle a whole turn at a
+time. Watch the probe: it goes down into the stack as far as the first
+pegged hole. When it goes right through, `G` stops; the tour stops only at
+the true answer, carrying on past a false stop.
+
+**Where to look.**
+
+- **The board** on the table to the left shows what an operator would write
+  up. N and x; under "mod 5", "mod 7", "mod 8" and "mod 9", the hole now under
+  the probe on each wheel, green if it is open and red if it is pegged; how
+  many wheels the probe went through (blank while the wheels move). When the
+  probe goes right through, it shows x * x - N and whether that is a square,
+  and if it is, y and the two factors. The board is the exhibit's, not part
+  of the machine: nothing in the machine drives it.
+- **The depth scale,** a post on the probe's guide beside its top, is the
+  machine's own (printed). The pointer on the probe's top reads 0 to 4, the
+  number of wheels the probe went through; 4 is right through, onto the bell.
+- **The console** prints each turn's reading, and at each stop the working:
+  x * x - N, and whether it is a square.
 
 | Key | |
 |---|---|
 | `Space` | one turn of the handle |
 | `G` | go: turn until the probe falls right through (`G` again: stop) |
-| `N` | the next number to factor: 1241, 1679, 1157, 2813 (re-pegs the wheels and sets them to its first x) |
+| `N` | choose the next number to factor: 1241, 1679, 1157, 2813 (re-pegs the wheels and sets them to its first x) |
 | `R` | set the wheels back to the first x |
-| `T` | the tour: factoring 1241 (it starts with it) |
+| `T` | the tour for the number chosen: it turns until the factors are found (it starts with 1241's) |
 | `Z` | slow motion (1/4 speed) on and off |
 
 Rest the mouse on a wheel to see which hole is under the probe and which
-are open; on the probe, how far it has gone through.
+are open; on the probe or the scale, how far it has gone through; on the
+board, what it shows.
 
 Sliders: `friction` (0.1 to 0.4 checked), `turn rate` (how fast the hand
 turns the handle, 0.25 to 1 turn a second checked), `speed`.
@@ -128,6 +145,8 @@ it computes.
   (Lehmer's photocell and relay did that); here a person watching would. The
   wheels are set to their first x by hand (lift each off its axle, turn it,
   put it back), as the simulation does by placing them.
+- **The board** is the exhibit's display, not the machine's: an operator
+  would write the same things on a slate.
 
 ## Printing and building
 
@@ -145,7 +164,8 @@ turned to lie on the bed. The largest is the 9-place wheel, 150 x 152 mm.
 | `detent-9.stl` ... `-5` | 1 each | 10 to 23 x 37 to 42 x 5 | PLA, 100% infill; the leaf is 1.2 mm, three lines of a 0.4 mm nozzle; its root goes on 6 mm past the hinge, into the post's slot |
 | `detent-post-9.stl` ... `-5` | 1 each | 24 to 57 tall | the leaf's root presses into the slot in its block |
 | `probe-arm.stl` | 1 | 79 x 12 x 13 | the ball is glued into the socket under its end |
-| `guide.stl` | 1 | 99 x 77 x 12 | printed on its side |
+| `probe-pointer.stl` | 1 | 20 x 9 x 3 | on the probe's top: it reads the depth scale |
+| `guide.stl` | 1 | 99 x 152 x 12 | printed on its side; the depth scale's marks stand 0.5 mm proud (paint them) |
 | `washer.stl` x3, `washer-low.stl` x1 | | 18 across | between the wheels on the axle |
 | `bell.stl`, `bearing.stl`, `shaft-washer.stl`, `axle-nut.stl`, `foot.stl` x4 | | | the bearing goes under the base; the shaft washer on it, under the lowest crank |
 

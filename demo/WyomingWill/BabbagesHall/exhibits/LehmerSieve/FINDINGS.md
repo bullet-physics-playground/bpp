@@ -145,6 +145,28 @@ and still passes (see the table), but it stays at the hall's 2400. Resting
 (it stops stepping once the hand is idle and nothing has moved for half a
 second) makes it free between turns.
 
+## Seeing what it computes
+
+The first version showed its working only in the console and in the
+mouse's tooltips; in the 3D view the probe's depth was hidden inside the
+stack, and nothing showed N, x or the answer. Now:
+
+- **A depth scale** on the probe's guide (printed with it) and a pointer
+  on the probe's top read how many wheels the probe went through. Its marks
+  are where the probe's tip rests on each wheel (and on the bell), from the
+  same geometry; the simulated probe comes to rest there to within 0.01 cm
+  (6.50, 5.40, 4.30, 3.20, 2.25 cm, from the logs).
+- **A board** (the exhibit's) shows N, x, each wheel's hole under the probe
+  in green or red, the depth, and at a stop x * x - N, whether it is a
+  square, y and the factors, on drums like a counter's, each turning
+  forward to its new figure. Checked in the GUI: mid-tour, at a false stop,
+  and at the end (1241 = 17 x 73); and choosing 1679 with `N` and running
+  its tour with `T` (48: 23 x 73).
+- `T` now runs the tour for the number `N` chose, not always 1241's.
+- The hole numbers on the wheels are larger (5.5 mm, from 4.2).
+
+The table grew to 120 x 80 to hold the board.
+
 ## Resting
 
 Once the hand has nothing to do and nothing has moved for half a second,

@@ -80,7 +80,8 @@ EXHIBITS = EXHIBITS or {
     about = "Lehmer's number sieve (1926): wheels of 9, 8, 7 and 5 places, each moved on one\n" ..
             "place by every turn of the handle. Pegs close the holes of the numbers that fail;\n" ..
             "where every wheel has an open hole, the probe falls right through. It factors\n" ..
-            "1241 by Fermat's way. G: turn until it stops; Space: one turn; N: another number." },
+            "N by Fermat's way; the board beside it shows the working. N: choose a number;\n" ..
+            "T: its tour; G: turn until the probe falls through; Space: one turn." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
     prefix = "Pascaline: ", floorY = -100,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..

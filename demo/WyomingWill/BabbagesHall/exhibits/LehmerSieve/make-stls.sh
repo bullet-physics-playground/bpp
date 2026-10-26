@@ -24,6 +24,7 @@ part peg.stl          -D 'PART="print-peg"'
 part cam.stl          -D 'PART="print-cam"'
 part handle.stl       -D 'PART="print-handle"'
 part probe-arm.stl    -D 'PART="print-probe-arm"'
+part probe-pointer.stl -D 'PART="print-probe-pointer"'
 part guide.stl        -D 'PART="print-guide"'
 part bell.stl         -D 'PART="print-bell"'
 part washer.stl       -D 'PART="print-washer"'
@@ -34,5 +35,5 @@ part foot.stl         -D 'PART="print-foot"'
 part axle-nut.stl     -D 'PART="print-axle-nut"'
 part cut-base.svg     -D 'PART="cut-base"'
 echo "Print: one of each wheel, crank, lock, detent and detent post (9, 8, 7, 5); peg x20; washer x3,"
-echo "washer-low x1, foot x4; cam, handle, probe-arm, guide, bell, bearing, shaft-washer and axle-nut once each."
+echo "washer-low x1, foot x4; cam, handle, probe-arm, probe-pointer, guide, bell, bearing, shaft-washer and axle-nut once each."
 echo "Cut the base from 12 mm plywood: stl/cut-base.svg."

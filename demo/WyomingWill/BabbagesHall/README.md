@@ -144,7 +144,7 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
   real, printable size: the Differential's table is 80 x 80, Lehmer's
-  sieve's 90 x 80, the Pascaline's 110 x 80, the Domino Half Adder's
+  sieve's 120 x 80 (with its board), the Pascaline's 110 x 80, the Domino Half Adder's
   180 x 230.
 - **Place:** the hall moves each exhibit forward in its bay until the
   table's front edge is 60 cm behind the rail (`TABLE_GAP`), so the machine

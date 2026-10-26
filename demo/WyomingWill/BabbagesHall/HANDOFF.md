@@ -197,9 +197,13 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Done (2026-10-21): Lehmer's number sieve** (east 1): four Geneva stars
   of 9, 8, 7 and 5 places on one axle, driven from one shaft, detents to
   centre them, pegged holes, a cam-lifted probe; it factors 1241 (and 1679,
-  1157, 2813: `N`) by Fermat's way. William hasn't seen it in the GUI yet:
-  the wheels' colours, the cam (drawn see-through, so the drive shows) and
-  the camera are first guesses. It is the dearest exhibit to step (a 25 s
+  1157, 2813: `N`) by Fermat's way. **2026-10-25:** William found it hard
+  to see what it computed: now a board beside it (the exhibit's) shows N,
+  x, each wheel's hole under the probe (green open, red pegged), the depth,
+  and at a stop x*x - N, the verdict and the factors; a printed depth
+  scale on the probe's guide reads how far the probe went; `T` runs the
+  tour for the number `N` chose. The wheels' colours and the see-through
+  cam are still first guesses. It is the dearest exhibit to step (a 25 s
   tour took about three minutes here, headless): if it is slow on his
   computer, `LS_HZ=1200` halves that and still passes.
 - **Next: more exhibits**, in the order of the covered bays, each its own
