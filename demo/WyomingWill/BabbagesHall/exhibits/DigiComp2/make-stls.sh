@@ -1,6 +1,6 @@
 #!/bin/sh
-# make-stls.sh -- every printable part of the Digi-Comp II counter, into
-# stl/, each turned to lie on the printer's bed (millimetres).
+# make-stls.sh -- every printable part of the Digi-Comp II (the accumulator,
+# so far), into stl/, each turned to lie on the printer's bed (millimetres).
 #
 #   ./make-stls.sh            (needs openscad; bpp to refresh geometry.scad)
 #   BPP=/path/to/bpp ./make-stls.sh
@@ -21,13 +21,19 @@ else
 fi
 cd parts
 part() { out=$1; shift; echo "  stl/$out"; "$OPENSCAD" -o "../stl/$out" "$@" digicomp2.scad >/dev/null 2>&1; }
-part rocker.stl  -D 'PART="print-rocker"'
-part wheel.stl   -D 'PART="print-wheel"'
-part knob.stl    -D 'PART="print-knob"'
-part tile-0.stl  -D 'PART="print-tile0"'
-part tile-1.stl  -D 'PART="print-tile1"'
-part tile-2.stl  -D 'PART="print-tile2"'
-part foot-back.stl  -D 'PART="print-foot-back"'
+part rocker.stl     -D 'PART="print-rocker"'
+part foot.stl       -D 'PART="print-foot"'
+part flap.stl       -D 'PART="print-flap"'
+part wheel.stl      -D 'PART="print-wheel"'
+part knob.stl       -D 'PART="print-knob"'
+for i in 0 1; do
+  for j in 0 1 2 3 4; do
+    part "upper-$i-$j.stl" -D "PART=\"print-upper-$i-$j\""
+    part "lower-$i-$j.stl" -D "PART=\"print-lower-$i-$j\""
+  done
+done
+part foot-back-1.stl -D 'PART="print-foot-back-1"'
+part foot-back-2.stl -D 'PART="print-foot-back-2"'
 part foot-front.stl -D 'PART="print-foot-front"'
-echo "Print: rocker x3, foot-back x2, foot-front x2; wheel, knob and tile-0, tile-1, tile-2 once each."
-echo "Cut the backing sheet from 6 mm plywood to the board's size (README.md)."
+echo "Print: rocker x7, foot x7, flap x2, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, knob and every"
+echo "upper-i-j and lower-i-j tile once. Cut the lower board from 6 mm plywood (README.md)."

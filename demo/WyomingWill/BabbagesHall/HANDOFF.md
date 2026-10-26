@@ -25,7 +25,8 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
 - Built so far: **the Differential** (west 1), **Lehmer's number sieve**
   (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
-  and the **Digi-Comp II's counter** (west 3; the full board is next).
+  and the **Digi-Comp II's accumulator** (west 3; its other registers are
+  next).
   Covered bays wait for Kelvin's tide predictor (east 3), the Differential
   Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -82,7 +83,7 @@ git push
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
-| `exhibits/DigiComp2/tests/toggle.lua` | One Digi-Comp flip-flop alone, balls let go one at a time |
+| `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane), and one switch |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
 Related: `../EulersGallery/` (the gallery the hall's machinery came from;
@@ -146,7 +147,18 @@ there, in `release/`, or on the path; or set `BPP`.
   Digi-Comp's rockers have a steel ball pressed in) and test both extremes.
 - **Walls as boxes** run past their ends by half their thickness if made
   `length + thickness` long, so the joints are solid: check where such an
-  end meets a moving part (the Digi-Comp's feeder wheel rubbed two).
+  end meets a moving part (the Digi-Comp's feeder wheel rubbed two), or
+  narrows a channel (two jammed the Digi-Comp's clear lane). Mitre a lane's
+  walls at its bends (`laneWalls` in the Digi-Comp's geometry).
+- **A ball pushing a part out of its way** pushes it only until it can
+  squeeze past, which may be nowhere near where the part should end up: to
+  push it all the way, guide the ball (the Digi-Comp's clear lane narrows
+  beside each foot).
+- **A part with holes** (the Digi-Comp's upper plate) is a static body of
+  boxes round the holes, drawn not by them (`transparency = 1`) but by the
+  OpenSCAD part. `transparency` near 0.35 draws a see-through plate well.
+- **Luabind objects** from `v:eachContact` can't be compared with `==`; look
+  them up as table keys (`names[obj]`).
 - **Small steps:** the exhibits take 2400 steps a simulated second, stepped
   by hand in `preSim` (`common.setTiming(STEP, 0, STEP)`); the teeth and the
   dominoes need it. Sleeping is off for moving parts (state 4), so each
@@ -233,36 +245,37 @@ there, in `release/`, or on the path; or set `BPP`.
   flats now). It is the dearest exhibit to step (a 25 s tour took about
   three minutes here, headless): if it is slow on his computer,
   `LS_HZ=1200` halves that and still passes.
-- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (west 3).
-  The flip-flop is a printed rocker on a 3 mm pin: a roof with a cup at each
-  end (a 5 mm lip leaning out 67 degrees), a tail onto two stop pegs, and a
-  1/4 inch steel ball pressed in under the apex for weight; a ball meets
-  the raised side of the roof, rolls into that cup, tips it over and is
-  tipped out: by shape and weight alone (no motors). Three of them down a
-  staircase count 1/2 inch steel balls from 0 to 7 (4s, 2s, 1s; done balls
-  go right to their bins, carries left to the next; the eighth to the
-  overflow). A wheel of four notches under a channel of balls is the feeder:
-  the hand turns its knob a quarter turn a ball (Space). The rockers' 0 and
-  1 are printed on the board; THE COUNT sign (the exhibit's) shows balls let
-  in and the reading. `tests/toggle.lua` is the rocker alone. Measured
-  (FINDINGS): it works for friction 0.1 to 0.6, slopes 8 to 25 degrees, pin
-  friction to 7 times the estimate, but the board must be level across
-  within 2 degrees (1 to be sure). Board 185 x 467 mm in three printed
-  tiles on 6 mm plywood; table 80 x 110. Not yet seen by William.
-- **Next: the Digi-Comp II, step 2: the full board** that adds and
-  multiplies (E.S.R.'s has a register of flip-flops for each number, and
-  switches that route the balls), with its readout designed in, built from
-  the same rocker. Things to settle first: the original's layout (look up
-  E.S.R.'s manual; not checked in this chat), whether to make the next
-  ball's release automatic, as the original's is said to be (a ball reaching
-  the bottom trips a lever that lets the next one go: check), and the
-  switches' shapes (each tested alone first, as `tests/toggle.lua` does).
-  The board may grow past three tiles: plan them for a 200 mm bed. William
-  pointed to a replica: www.instructables.com/Digi-Comp-II-Replica/ (ten
-  steps with pictures; only its summary could be fetched here: the original's
-  frame is about 14 x 28 inches). Read it there first. Note that
-  `demo/claude/digicomp.lua` drives its toggles with motors: that breaks
-  the hall's rule, so take ideas from it, not its toggle.
+- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (west 3):
+  three printed rockers, tipped over by the balls alone, and a feeder
+  wheel. **The same day, step 2a, the accumulator,** which replaces it.
+  William asked for the rest of the real machine; its manual (Evil Mad
+  Scientist's copy, cdn.evilmadscientist.com/KitInstrux/DCII-manual.pdf)
+  gives the registers: accumulator 7 flip-flops, memory 4 bits, MQ 3,
+  distributor 3 (a ring counter), mode flip-flops T1 to T6 and complement
+  CF1, CF2; switches MULTIPLY, CLEAR, COUNT, COMPLEMENT, OVERFLOW
+  (run/halt) and AUTO/MANUAL; the ball's path INPUT, MULTIPLY, CLEAR, COUNT,
+  then down the accumulator. Built now: a **two-level** board (balls that
+  are done drop through holes to the lower level and roll to the
+  collector), the 7-bit accumulator (each rocker has a foot on the lower
+  level for CLEAR: a wedge a clear ball pushes back to 0), hand-set
+  **switches** (flaps) for CLEAR and COUNT, and START (the feeder wheel,
+  turned by hand). Keys: Space START, C and N the switches, 1 to 7 set a
+  bit by hand. Board 322 x 878 mm, 10 upper and 10 lower tiles; table
+  100 x 150. Not yet seen by William.
+- **Next: step 2b, add and multiply:** the memory (4 bits, read without
+  being changed: in the original a 1 sends the ball into the accumulator
+  at that bit, a 0 drops it through a hole), the MQ (3 flip-flops, counted
+  down by one ball in four, which asks whether it was 0) and the
+  distributor (3 flip-flops, a ring counter sending successive balls to
+  M4, M2, M3, M1, then the MQ), and the MULTIPLY switch. Each new part
+  alone first, in `tests/`. A memory bit entering the accumulator needs a
+  way into each flip-flop's funnel from the side: the left half of the
+  plate is free for them. Then **AUTO** (the START lever: see FINDINGS for
+  why the first escapement failed) and **step 2c**, subtract and divide
+  (the complement: T1 to T6, CF1, CF2, the COMPLEMENT switch; the manual
+  describes its four-ball sequence). William pointed to a replica too:
+  www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
+  fetched here: the original's frame is about 14 x 28 inches).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the
@@ -288,6 +301,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
 > there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's full board].
+> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's step 2b].
 > Deliver each step as a patch, with its documents and PDFs, and the git
 > commands.
