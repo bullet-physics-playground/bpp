@@ -15,3 +15,5 @@ pdf exhibits/Pascaline/README.md       --sub "West bay 2: Pascal's adding machin
 pdf exhibits/Pascaline/FINDINGS.md     --sub "West bay 2: the Pascaline"
 pdf exhibits/LehmerSieve/README.md     --sub "East bay 1: wheels that sieve for factors"
 pdf exhibits/LehmerSieve/FINDINGS.md   --sub "East bay 1: Lehmer's number sieve"
+pdf exhibits/DigiComp2/README.md       --sub "West bay 3: balls that count in binary"
+pdf exhibits/DigiComp2/FINDINGS.md     --sub "West bay 3: the Digi-Comp II counter"

@@ -24,10 +24,10 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
 - **The walk gets more interesting as you go**, least interesting first,
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
 - Built so far: **the Differential** (west 1), **Lehmer's number sieve**
-  (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2).
-  Covered bays wait for the Digi-Comp II (west 3), Kelvin's tide predictor
-  (east 3), the Differential Analyser (west 4) and the Difference Engine
-  (east 4).
+  (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
+  and the **Digi-Comp II's counter** (west 3; the full board is next).
+  Covered bays wait for Kelvin's tide predictor (east 3), the Differential
+  Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -82,6 +82,7 @@ git push
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
+| `exhibits/DigiComp2/tests/toggle.lua` | One Digi-Comp flip-flop alone, balls let go one at a time |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
 Related: `../EulersGallery/` (the gallery the hall's machinery came from;
@@ -134,7 +135,18 @@ there, in `release/`, or on the path; or set `BPP`.
   hulls (one per tooth plus the body, from the same SCAD source) meshes
   well (`exhibits/Differential/FINDINGS.md`).
 - **Hinge angles** (`getHingeAngle`) are clockwise-positive as seen down the
-  hinge's axis, the opposite of a right-handed turn.
+  hinge's axis, the opposite of a right-handed turn. A hinge's motor speed
+  counts the same way as its angle (measured on the Digi-Comp's wheel).
+- **A pin's friction** can be had from a hinge's motor held at no speed with
+  a small impulse a step (`enableAngularMotor(true, 0, torque * step)`); the
+  Digi-Comp's rockers use it, from PLA on PLA at the boss.
+- **Over-centre parts** (a rocker whose centre of mass is above its pin) rest
+  in a very shallow dip: with no friction they bounced back out of it, with
+  pin friction they stop wherever they're left. Give them weight high up (the
+  Digi-Comp's rockers have a steel ball pressed in) and test both extremes.
+- **Walls as boxes** run past their ends by half their thickness if made
+  `length + thickness` long, so the joints are solid: check where such an
+  end meets a moving part (the Digi-Comp's feeder wheel rubbed two).
 - **Small steps:** the exhibits take 2400 steps a simulated second, stepped
   by hand in `preSim` (`common.setTiming(STEP, 0, STEP)`); the teeth and the
   dominoes need it. Sleeping is off for moving parts (state 4), so each
@@ -221,20 +233,40 @@ there, in `release/`, or on the path; or set `BPP`.
   flats now). It is the dearest exhibit to step (a 25 s tour took about
   three minutes here, headless): if it is slow on his computer,
   `LS_HZ=1200` halves that and still passes.
-- **Next: the Digi-Comp II** (west 3), agreed 2026-10-26: of the four
-  machines with covered bays it ranks lowest (10; the tide predictor 9,
-  the analyser 4, the Difference Engine 1), so it comes next on the walk.
-  The other 39 machines in MACHINES.md have no bays: adding any grows the
+- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (west 3).
+  The flip-flop is a printed rocker on a 3 mm pin: a roof with a cup at each
+  end (a 5 mm lip leaning out 67 degrees), a tail onto two stop pegs, and a
+  1/4 inch steel ball pressed in under the apex for weight; a ball meets
+  the raised side of the roof, rolls into that cup, tips it over and is
+  tipped out: by shape and weight alone (no motors). Three of them down a
+  staircase count 1/2 inch steel balls from 0 to 7 (4s, 2s, 1s; done balls
+  go right to their bins, carries left to the next; the eighth to the
+  overflow). A wheel of four notches under a channel of balls is the feeder:
+  the hand turns its knob a quarter turn a ball (Space). The rockers' 0 and
+  1 are printed on the board; THE COUNT sign (the exhibit's) shows balls let
+  in and the reading. `tests/toggle.lua` is the rocker alone. Measured
+  (FINDINGS): it works for friction 0.1 to 0.6, slopes 8 to 25 degrees, pin
+  friction to 7 times the estimate, but the board must be level across
+  within 2 degrees (1 to be sure). Board 185 x 467 mm in three printed
+  tiles on 6 mm plywood; table 80 x 110. Not yet seen by William.
+- **Next: the Digi-Comp II, step 2: the full board** that adds and
+  multiplies (E.S.R.'s has a register of flip-flops for each number, and
+  switches that route the balls), with its readout designed in, built from
+  the same rocker. Things to settle first: the original's layout (look up
+  E.S.R.'s manual; not checked in this chat), whether to make the next
+  ball's release automatic, as the original's is said to be (a ball reaching
+  the bottom trips a lever that lets the next one go: check), and the
+  switches' shapes (each tested alone first, as `tests/toggle.lua` does).
+  The board may grow past three tiles: plan them for a 200 mm bed. William
+  pointed to a replica: www.instructables.com/Digi-Comp-II-Replica/ (ten
+  steps with pictures; only its summary could be fetched here: the original's
+  frame is about 14 x 28 inches). Read it there first. Note that
+  `demo/claude/digicomp.lua` drives its toggles with motors: that breaks
+  the hall's rule, so take ideas from it, not its toggle.
+- The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the
-  Pascaline). The plan, in two patches: (1) prototype one printable,
-  passive toggle (a ball tips it and it stays; the next ball goes the
-  other way: by its shape and weight alone), measure it, and build a
-  counter (a chute, three toggles, a feeder: 0 to 7); (2) the full board
-  that adds and multiplies, with its readout designed in. Note that
-  `demo/claude/digicomp.lua` drives its toggles with motors: that breaks
-  the hall's rule (what is printed is what is simulated), so take ideas
-  from it, not its toggle.
+  Pascaline).
 - **Then, in the order of the covered bays,** each its own step:
   **Kelvin's tide predictor** (east 3: cranks and a bead rope over pulleys),
   **the Differential Analyser** (west 4) and **the Difference Engine**
@@ -256,6 +288,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
 > there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next exhibit, e.g. the Digi-Comp II].
+> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's full board].
 > Deliver each step as a patch, with its documents and PDFs, and the git
 > commands.

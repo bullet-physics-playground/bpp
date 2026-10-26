@@ -22,8 +22,8 @@ ball that drops when the holes line up), then 3; it is 4 here. The Curta and
 the Enigma were left out there (too dense; electromechanical) and are in
 here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 
-**Status:** *built*: in the hall, with its STL files; *bay*: has a covered bay
-"in preparation"; blank: not yet planned.
+**Status:** *built*: in the hall, with its STL files (*built (counter)*: its
+first step); *bay*: has a covered bay "in preparation"; blank: not yet planned.
 
 ## The ranked list
 
@@ -38,7 +38,7 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 | 7 | Ford Rangekeeper Mk I | 1917 | a battleship's fire-control computer: integrators, differentials and cams solve where the target will be | its parts each are doable (the Differential, integrators, cams); together, a big job | 5 | 5 | |
 | 8 | Curta | 1948 | a pocket four-function calculator: one stepped drum, nines' complements for subtraction | small and dense: the stepped drum and carry are doable, the whole machine very hard; best as an oversized cutaway (first left out as too dense) | 5 | 4 | |
 | 9 | Kelvin's tide predictor | 1872 | adds ten or more sine waves (the Sun's and Moon's tides) and draws a year of tides | cranks and slotted yokes are easy; the cord over the pulleys that adds them: bpp has no rope, but a rope of linked beads works if it isn't much lighter than its weights (tested: see below) | 5 | 3 | bay |
-| 10 | Digi-Comp II | 1968 | marbles rolling down a board of flip-flops count, add and multiply in binary | marbles and levers: contact only, like the dominoes; tuning the flip-flops is the work | 5 | 3 | bay |
+| 10 | Digi-Comp II | 1968 | marbles rolling down a board of flip-flops count, add and multiply in binary | its counter built: three printed rockers, each tipped over by the balls alone (a steel ball in each for weight), a notched feeder wheel, steel balls; the full board next | 5 | 3 | built (counter) |
 | 11 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 4 | 2 | built |
 | 12 | Pascaline | 1642 | adds, with Pascal's falling-weight carry | built: three digits, sautoirs, detents, stylus and stop | 4 | 3 | built |
 | 13 | Galton board | 1873 | balls falling through pins pile up into the normal curve | balls and pins only; easy, and a good opener | 4 | 1 | |
@@ -115,9 +115,10 @@ here: the Curta as a cutaway, the Enigma for its mechanical stepping.
 ## How the hall uses this list
 
 The hall's bays are walked in rising interest, so a new exhibit goes in its
-place by its interest score. With eight bays, the hall holds the four built
-(Lehmer's sieve second, after the Differential) and the four with bays; the
-Enigma would make a ninth (a fifth row of bays, one spare).
+place by its interest score. With eight bays, the hall holds the five built
+(Lehmer's sieve second, after the Differential; the Digi-Comp II's counter
+fifth) and the three with bays; the Enigma would make a ninth (a fifth row
+of bays, one spare).
 
 **Rope.** bpp has no rope (its soft bodies are cloth). A rope of small
 spheres joined by ball joints works, tested as an Atwood machine over a

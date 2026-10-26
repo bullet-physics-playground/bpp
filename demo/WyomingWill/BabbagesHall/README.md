@@ -21,7 +21,7 @@ comes to life.
 | east 1 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
 | west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
 | east 2 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| west 3 | The Digi-Comp II | in preparation |
+| west 3 | **The Digi-Comp II**: balls that count in binary on a board of flip-flops (its counter, so far) | `exhibits/DigiComp2/` |
 | east 3 | Kelvin's tide predictor | in preparation |
 | west 4 | The Differential Analyser | in preparation |
 | east 4 | The Difference Engine | in preparation |
@@ -145,7 +145,7 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
   real, printable size: the Differential's table is 80 x 80, Lehmer's
   sieve's 120 x 80 (with its board), the Pascaline's 110 x 80, the Domino Half Adder's
-  180 x 230.
+  180 x 230, the Digi-Comp II's 80 x 110.
 - **Place:** the hall moves each exhibit forward in its bay until the
   table's front edge is 60 cm behind the rail (`TABLE_GAP`), so the machine
   is seen close from the aisle. A table too deep for that stays in the

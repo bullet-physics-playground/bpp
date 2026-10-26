@@ -94,9 +94,10 @@ EXHIBITS = EXHIBITS or {
             "Waves meeting head-on stop each other; a branch is taken only by a wave\n" ..
             "running toward it; a wave can cut another line. That is enough for XOR and AND." },
   { dir = "exhibits/DigiComp2/", file = "digicomp2.lua", name = "the Digi-Comp II", label = "digicomp",
-    prefix = "Digi-Comp: ", floorY = -75,
-    about = "The Digi-Comp II (1968): marbles rolling down a board of flip-flops count,\n" ..
-            "add and multiply in binary. In preparation." },
+    prefix = "Digi-Comp: ", floorY = -100,
+    about = "The Digi-Comp II (1968): balls rolling down a board of flip-flops count,\n" ..
+            "add and multiply in binary. Here, its counter: three rockers, each tipped over by\n" ..
+            "every ball that reaches it, count the balls from 0 to 7. Space: one ball; T: the tour." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..
