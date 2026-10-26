@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F81 so far), and
+  implementations, and our own mistakes once corrected (F1–F83 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -104,7 +104,7 @@ is updated at the end of every milestone.
 | `FINDINGS.md`, `FINDINGS.pdf` | The running record of experiments: confirmations, new results, errors (ours and the book's) |
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `ch03/` | Ch. 3's formation models (`formation_newton`, `formation_hooke`, `formation_goal_obs`) line for line in plain Lua, with the book's results checked (`checks/ch03.lua`, `ch03/README.md`) |
-| `ch04/` | Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04.lua`, `ch04/README.md`) |
+| `ch04/` | Ch. 4.1's perfect formations (`formation_perfect`) and Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04_perfect.lua`, `checks/ch04.lua`, `ch04/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | Table 11.1 on Maxim's simulator (`maxim/`, his C and environments; `maxim.lua`, an exact Lua copy; the counts behind the table) and the mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
@@ -390,7 +390,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      one misprint; rerun 40–160M steps, the small environments settle and
      the large ones' KL keeps falling with run length; his robot can stick
      on a wall);
-  3. Ch. 4.1's perfect formations;
+  3. Ch. 4.1's perfect formations (**done**, `ch04/perfect.lua`,
+     `checks/ch04_perfect.lua`, F82–F83: both lattices form perfectly with
+     the book's momentum signature; Toggle Formation rebuilds them turned
+     11–15° off the compass; question (a) answered: the third law can be
+     kept, at 5–12 times the formation time);
   4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
      theory (Ch. 4.4, Ch. 7); the vehicle interface makes the point mass
      (G5) one more vehicle module.
@@ -405,8 +409,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   two guessed starts and the wrong Ch. 3 world frame (F40, F41).
   `formation_newton.nlogo`, `formation_hooke.nlogo` and
   `formation_goal_obs.nlogo`, `honeycomb.nlogo`, `uniform.nlogo` and
-  `uniform_mfpl.nlogo` are checked line for line (`ch03/`, `ch04/`, F48,
-  F74, F77, F78); the other models are not yet.
+  `uniform_mfpl.nlogo` and `formation_perfect.nlogo` are checked line for
+  line (`ch03/`, `ch04/`, F48, F74, F77, F78, F82); the other models are
+  not yet.
 - **Open loose ends:** `probes/cube_orig.lua` no longer runs (FIXES 35); the
   Android app still has the two Uniform Coverage bugs fixed in BPP (FIXES
   4–5; its wall rule is kept, FIXES 36); FIXES item 27 is documented, not

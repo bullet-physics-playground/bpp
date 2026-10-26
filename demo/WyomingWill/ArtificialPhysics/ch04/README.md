@@ -1,4 +1,97 @@
-# Ch. 4.3 — Uniform coverage checked against the book and William's runs
+# Ch. 4 — Perfect formations (4.1) and uniform coverage (4.3), checked against the book
+
+## Ch. 4.1 — Perfect formations
+
+`BOOK.md` entry 4.1 (PDF 124–130, Listing 4.1, `book/ch04.md`).
+`formation_perfect.nlogo` as plain Lua, operation for operation, run at
+the model's own defaults (100 particles, G 1000, p 2.5, Fmax 1, friction
+0.5, Δt 1, D 25, square first, a start in a normal cluster of sd 20).
+Each particle has an attribute (m, n), its slot: a smaller m belongs to
+the left, a smaller n below, in a frame shared through a compass. Inside D
+a pair attracts instead of repelling when it is in the wrong order for its
+attributes; for the triangle, two special cases push a pair apart along
+one axis only, which breaks Newton's third law (PDF 128–130).
+
+| File | What |
+| --- | --- |
+| `perfect.lua` | The model: `init-m-n` as written, Listing 4.1's rules, Toggle Formation, One is Born, the momenta; the fit of the ideal lattice that measures "perfect"; and our third-law variant for the author's question (a) |
+| `../checks/ch04_perfect.lua` | The results as 12 short checks, about 10 s (any Lua 5.1–5.4, and BPP) |
+
+**How "perfect" is measured** (the book shows pictures only). The ideal
+lattice the attributes describe (square: D (m, n); triangle: D (m/2,
+n√3/2)) is fitted to the particles by least squares, moved, turned and
+scaled. A formation is **formed** when every particle is within 0.25 D of
+its own slot; the fit also gives the RMS distance, the lattice's angle
+from the compass axes and its spacing. A wrong order shows as a particle
+about one spacing from its slot.
+
+**Results** (10 seeds each, with three toggles after each start;
+"formed" within 5,000 ticks of the start or 20,000 of a toggle; the
+particles never stop: they dither about their slots at about 1–2
+patches a tick, as the split law does at D):
+
+| Run | Formed | Ticks to form | Angle | RMS / worst (D) | Momenta |
+| --- | --- | --- | --- | --- | --- |
+| Square from the start | 9 of 10 | 120–200 (median 160) | −1.4 to 1.9° | 0.03 / 0.06–0.09 | \|L\| < 10⁻¹¹, \|P\| < 10⁻¹² |
+| Triangle from the start | 10 of 10 | 170–200 (median 190) | −0.9 to 1.2° | 0.02 / 0.05–0.06 | \|L\| up to 300–850, \|P\| < 10⁻¹² |
+| Toggled to the triangle | 25 of 30 | 210–390 (median 280) | **+11.3 to +13.2°** | 0.02 / 0.04–0.07 | \|L\| up to 330–650 |
+| Toggled to the square | 29 of 30 | 150–2330 (median 180) | **−11.8 to −15.2°** | 0.03 / 0.06–0.09 | \|L\| up to 24 (left from the triangle) |
+| Triangle, third law kept (question a) | 6 of 10 in 20,000 ticks | 850–2230 | −1.2 to 1.8° | 0.03–0.09 / 0.06–0.24 | \|L\| < 10⁻¹¹ |
+
+- **Both lattices form perfectly** from the model's start: every particle
+  in its own slot, spacing within 0.4% of D, in 120–200 ticks.
+- **Momenta as the book says:** linear momentum is conserved by both
+  lattices (to rounding), angular momentum by the square only; the
+  triangle's special cases inject it while the particles sort themselves
+  (|L| up to 850), and it falls back to about 0 once they are in order.
+- **Toggle Formation rebuilds the other lattice, perfectly, but turned.**
+  Every rebuilt lattice has each particle in its slot, but the lattice
+  sits 11–15° off the compass axes: triangles +11° to +13°, squares −12°
+  to −15°, and it stays there (followed to 50,000 ticks). During a
+  rebuild the formation turns as a whole (seed 1: from about 40° to 12°,
+  with L negative throughout) and stops where the order constraints are
+  all met. The rules only test which side of each other two particles
+  are, so nothing turns a lattice back to the axes once it is in order. A
+  lattice fitted without turning shows the rebuilt ones 0.7–0.8 D from
+  "ideal", which is what first looked like a failure. Fig. 4.4's last
+  panel may well be turned too; at its size we cannot tell.
+- **One is Born works:** of 60 clones added one at a time (3 seeds × 10
+  per lattice), 57 reached their slots in 10–210 ticks; 3 square clones
+  waited until the next clone arrived. At 110 particles both lattices were
+  perfect.
+- **Changing D** abruptly from 25 to 30 is followed within 100–200 ticks
+  (3 seeds per lattice; spacing within 1% of the new D), and so are 25 →
+  20 and a slow climb to 30 (1 every 50 ticks); a jump from 20 to 30 left
+  the triangle disordered (worst 0.4 D) for 200 ticks, perfect again by
+  500. Slowly down to 15 breaks the formation: G 1000 is then 4 times Eq.
+  3.4's G_t (251), where Ch. 3's particles cluster; the model's Good
+  Gravitational Constant monitor says to lower G with D.
+- **The author's question (a), perfect triangles without breaking the
+  third law** (ours: the two special cases repulse along the line, like
+  every other case): yes, but only 6 of 10 starts formed within 20,000
+  ticks, in 850–2230 ticks against the model's 170–200, with angular
+  momentum conserved. The broken third law is what makes the triangle
+  form fast, as the book says.
+- **Failures seen** (the two followed to 100,000 ticks did not heal): (1) a
+  particle left more than its sensing range (1.3–1.7 D) from all others
+  never joins (square, seed 7: 2.2 D from the nearest, 4.2 D from its
+  slot); (2) in 4 of the other 29 toggles to the triangle the worst
+  particle stays 0.72–0.75 D from its slot; in the one we looked at (seed
+  1) a short edge row of 3 particles sits one place along from its slots.
+  An edge row has few neighbours to put it in order.
+- **`init-m-n`** gives 100 distinct square slots on a checkerboard of the
+  particles' parity (who mod 2, as the square law needs) and 127 distinct
+  triangle slots; the 128th particle repeats a slot (the code says "good
+  up to 126 particles"), so One is Born past 127 cannot form a perfect
+  triangle.
+
+**The Android app** (`perfect/ParticleSimulation.kt`) follows the model
+except: single precision; r below 0.1 is raised to 0.1 (NetLogo would
+divide by zero); a clone starts at rest (NetLogo's `hatch` copies the
+velocity); its angular momentum skips particles slower than 0.01. None
+changes the results above.
+
+## Ch. 4.3 — Uniform coverage checked against the book and William's runs
 
 `BOOK.md` entries 4.3a and 4.3b (PDF 139–147, `book/ch04.md`). The two
 coverage models, `uniform.nlogo` (turn only at walls and other agents)
@@ -35,7 +128,7 @@ earlier, or at 2 × 10⁸ agent steps, the book's budget for Fig. 4.19 (one
 particle 2 × 10⁸ ticks, 100 particles 2 × 10⁶). A run that hit the cap
 without meeting the 1% test is marked \*.
 
-## William's runs, reproduced
+### William's runs, reproduced
 
 Seed 1. "NetLogo copy" is `coverage.lua`; "BPP scene" is
 `Uniform_Coverage.lua` (the Android rule: turns only when the next step
@@ -92,7 +185,7 @@ against William's 0.00057, 0.0004 and 0.0014. Reaching his values would
 take ~10⁹–10¹⁰ ticks, so his small-MFP numbers come from much longer runs
 (or are the lucky end of the spread); they are not a disagreement.
 
-## The book's results
+### The book's results
 
 | Book | Ours (`coverage.lua`) |
 | --- | --- |
@@ -103,7 +196,7 @@ take ~10⁹–10¹⁰ ticks, so his small-MFP numbers come from much longer runs
 | Fig. 4.19, 100 particles: ~0.002–0.005 to MFP 55, then up to ~0.017 | 17: 0.0017, 30: 0.0032, 50: 0.0029, 55: 0.0027, 60: 0.0062, 65: 0.0095, 80: 0.0153, 120: 0.0168 |
 | MFP 120 is "none": the longest straight path, 80√2 ≈ 113, is shorter | MFP 120 and no MFP give the same deviation to the last digit (0.02722) |
 
-## Not done
+### Not done
 
 Ch. 11.5–11.6 (turns at walls only, then mean-free-path turns, on Maxim's
 cell-based simulator) are the same questions as Table 4.2 and Fig. 4.19 on

@@ -215,7 +215,7 @@ detail.
 ### Ch. 4 — Pushing the envelope (PDF 124–157) · `book/ch04.md`
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
-| 4.1 | Perfect formations (`formation_perfect`): (m, n) slots; the triangle breaks Newton's third law | 124–130 | Square first (momentum-clean), then triangle; ★ (m, n, k) cube; the author's 3 open questions | plan |
+| 4.1 | Perfect formations (`formation_perfect`): (m, n) slots; the triangle breaks Newton's third law | 124–130 | `ch04/perfect.lua` (the `.nlogo` line for line): both lattices perfect, the momentum signature, One is Born, live D (F82); toggles rebuild turned 11–15°; question (a): the third law can be kept, 5–12× slower (F83); ★ (m, n, k) cube; questions (b), (c) open | done |
 | 4.2 | Chains (`formation_chain`): elliptical law; Table 4.1 (561 → 350) | 131–138 | Particles with heading (G17), 50-run batches; ★ prolate spheroid in 3D | plan |
 | 4.3a | Coverage baseline (`uniform`): 84×84, 9 cells; Table 4.2 | 139–144 | `ch04/coverage.lua` (`uniform.nlogo` line for line): Table 4.2 and Fig. 4.17 reproduced (F78) | done |
 | 4.3b | Mean free path (`uniform_mfpl`): bound 17⅓; Fig. 4.19 dip at 53–65 | 144–147 | Fig. 4.19 and its dip reproduced; William's NetLogo runs reproduced at MFP ≥ 17, below it noise-limited at 2 × 10⁸ agent steps; the BPP scene matches his Android runs (`ch04/`, F78); ★ 27 cells in 3D | done |

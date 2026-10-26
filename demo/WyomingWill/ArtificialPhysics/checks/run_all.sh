@@ -82,6 +82,7 @@ run monitors      lua_check monitors checks/monitors.lua
 run ch02          lua_check ch02 checks/ch02.lua
 run ch03          lua_check ch03 checks/ch03.lua
 run ch04          lua_check ch04 checks/ch04.lua
+run ch04_perfect  lua_check ch04_perfect checks/ch04_perfect.lua
 run ch11          lua_check ch11 checks/ch11.lua
 run world         lua_check world checks/world.lua
 run terrain       lua_check terrain checks/terrain.lua

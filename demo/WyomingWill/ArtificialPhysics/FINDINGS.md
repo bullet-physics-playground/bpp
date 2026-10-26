@@ -211,6 +211,26 @@ mostly sampling noise and keeps falling with the run length, 2–6× from
 measure the run length as much as the environment; the big, irregular
 environments (82cell, 84cell, 22cell, 35cell) stay the least uniform.
 
+**F82. Ch. 4.1: perfect square and triangular lattices reproduced, with
+the book's momentum signature** — 2026-10-26, Confirmed. `ch04/README.md`,
+`checks/ch04_perfect.lua`. `formation_perfect.nlogo` as plain Lua
+(`ch04/perfect.lua`) at its defaults (100 particles, G 1000, p 2.5, D 25).
+"Perfect" measured by fitting the attributes' ideal lattice (moved,
+turned, scaled) and asking every particle to be within 0.25 D of its own
+slot: from the model's start the square forms in 120–200 ticks (9 of 10
+seeds) and the triangle in 170–200 (10 of 10), spacing within 0.4% of D,
+RMS 0.02–0.03 D. Linear momentum is conserved by both (< 10⁻¹²);
+angular momentum by the square only (< 10⁻¹¹), while the triangle's
+special cases inject up to 300–850 as the particles sort themselves (PDF
+130). One is Born: 57 of 60 clones reached their slots in 10–210 ticks
+(the other 3 when the next clone arrived). D changed live from 25 to 20
+or 30 is followed within 100–500 ticks; down to 15 the formation
+breaks, G 1000 being 4 G_t there (the model's Good G monitor). `init-m-n`
+gives distinct slots for 100 square and 127 triangular positions; the
+128th particle repeats a triangle slot (the code says "good up to 126").
+The Android port matches the model except for details that do not
+change these results.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -871,6 +891,27 @@ used as printed (Eq. 13.18, no friction). In one plane the UAVs come
 within a metre of each other in most runs under both laws (the book does
 not say); real ones would need height separation. Our choices: G 20,000,
 μ 0.5, repulsion within 50 m, κΔt/I = Ω_max/π per pair (the book's rule).
+
+**F83. Ch. 4.1: Toggle Formation rebuilds a perfect lattice turned
+11–15° off the compass; keeping the third law makes the triangle 5–12×
+slower** — 2026-10-26, New. `ch04/README.md`, `checks/ch04_perfect.lua`.
+After Toggle Formation every particle reaches its slot again (25 of 30
+toggles to the triangle in 210–390 ticks, 29 of 30 to the square in
+150–2330), but the lattice is turned: triangles +11.3° to +13.2°,
+squares −11.8° to −15.2°, and it stays turned (50,000 ticks). The
+formation turns as a whole during the rebuild (seed 1: about 40° to 12°)
+and stops once every pair is in order; the rules test only which side of
+each other two particles are, so nothing brings a lattice back to the
+axes. Fitted without turning, the rebuilt lattices look 0.7–0.8 D off,
+which first read as a failure. The author's question (a), perfect
+triangles without breaking Newton's third law (the two special cases
+repulse along the line instead): yes, with angular momentum conserved,
+but 6 of 10 starts formed in 20,000 ticks, in 850–2230 ticks against
+170–200, which supports the book's reason for breaking it. Two lasting
+failures: a particle left beyond sensing range (1.3–1.7 D) never joins
+(square, seed 7); and in 4 of 29 toggles to the triangle one particle
+stays 0.72–0.75 D off (seed 1: a short edge row one place along its
+slots).
 
 ## 3. Errors and discrepancies in the book
 
