@@ -1,6 +1,8 @@
 # The Digi-Comp II: counting, adding, multiplying
 
-`README.pdf` beside this file is a typeset copy of it.
+`README.pdf` beside this file is a typeset copy of it. **`MANUAL.md`** (and
+`MANUAL.pdf`) is an illustrated manual: how each operation works, ball by
+ball, the ones still to be built too, and which parts each one needs.
 
 Babbage's Hall, west bay 3. The Digi-Comp II, made by E.S.R. Inc. in 1968,
 was a computer of marbles: a sloping two-level board of flip-flops and

@@ -17,3 +17,4 @@ pdf exhibits/LehmerSieve/README.md     --sub "East bay 1: wheels that sieve for 
 pdf exhibits/LehmerSieve/FINDINGS.md   --sub "East bay 1: Lehmer's number sieve"
 pdf exhibits/DigiComp2/README.md       --sub "West bay 3: balls that compute in binary"
 pdf exhibits/DigiComp2/FINDINGS.md     --sub "West bay 3: the Digi-Comp II"
+pdf exhibits/DigiComp2/MANUAL.md       --sub "West bay 3: how the Digi-Comp II computes, operation by operation"

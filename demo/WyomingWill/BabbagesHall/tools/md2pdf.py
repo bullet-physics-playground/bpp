@@ -15,7 +15,7 @@ can't be reached.
 
 --break starts the section whose heading begins with that text on a new page.
 """
-import argparse, datetime, os, re, sys
+import argparse, base64, datetime, os, re, sys
 import markdown
 from playwright.sync_api import sync_playwright
 
@@ -40,13 +40,29 @@ table { border-collapse:collapse; width:100%; margin:4pt 0 10pt; font-size:8pt; 
 th { text-align:left; background:var(--band); border-bottom:1.5px solid var(--brass); padding:3pt 4pt; font-weight:600; }
 td { border-bottom:1px solid var(--rule); padding:2.6pt 4pt; vertical-align:top; }
 tr { break-inside:avoid; }
-img { max-width:100%; }
+img { max-width:100%; max-height:6.0in; display:block; margin:6pt auto 3pt; }
+figure { margin:6pt 0 10pt; break-inside:avoid; }
+figcaption { font-size:8pt; font-style:italic; color:var(--muted); text-align:center; margin:0 0.4in; }
 """
 
-def to_html(md, title, sub, breaks):
+def embed_images(body, base):
+    """images given by a path relative to the .md file go into the page itself (the page has no folder)"""
+    def one(m):
+        src = m.group(2)
+        path = os.path.join(base, src)
+        if re.match(r"[a-z]+:", src) or not os.path.exists(path):
+            return m.group(0)
+        kind = {"png": "png", "jpg": "jpeg", "jpeg": "jpeg", "svg": "svg+xml"}.get(src.rsplit(".", 1)[-1].lower(), "png")
+        data = base64.b64encode(open(path, "rb").read()).decode()
+        return f'{m.group(1)}data:image/{kind};base64,{data}{m.group(3)}'
+    body = re.sub(r'(<img[^>]*?src=")([^"]+)(")', one, body)
+    # (an image alone in its paragraph is a figure, its alt text the caption)
+    return re.sub(r'<p>(<img[^>]*?alt="([^"]*)"[^>]*>)</p>', r'<figure>\1<figcaption>\2</figcaption></figure>', body)
+
+def to_html(md, title, sub, breaks, base="."):
     md = re.sub(r"\A# (.*)\n", "", md, count=1)                    # the file's own title (shown above)
     md = re.sub(r"(?m)^`[^`]+\.pdf` beside this file is a typeset copy of it\.\n\n?", "", md)
-    body = markdown.markdown(md, extensions=["tables", "sane_lists", "fenced_code"])
+    body = embed_images(markdown.markdown(md, extensions=["tables", "sane_lists", "fenced_code"]), base)
     for b in breaks:
         body = body.replace(f"<h2>{b}", f'<h2 style="break-before:page">{b}', 1)
     return f"""<!doctype html><html><head><meta charset="utf-8">
@@ -68,7 +84,7 @@ def main():
     m = re.match(r"# (.*)", md)
     title = m.group(1) if m else os.path.basename(o.src)
     date = datetime.date.today().strftime("%-d %B %Y")
-    html = to_html(md, title, f"{o.sub} &middot; {date}" if o.sub else date, o.breaks)
+    html = to_html(md, title, f"{o.sub} &middot; {date}" if o.sub else date, o.breaks, os.path.dirname(os.path.abspath(o.src)))
     footer = ('<div style="font-family:Georgia,serif;font-size:7.5pt;color:#6b5d4f;width:100%;padding:0 0.65in;'
               'display:flex;justify-content:space-between"><span>Babbage\'s Hall &middot; ' + title +
               '</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>')

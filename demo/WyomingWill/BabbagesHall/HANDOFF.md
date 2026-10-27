@@ -84,6 +84,7 @@ git push
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
 | `tools/rope-test.lua` | The rope experiment (for the tide predictor) |
 | `exhibits/DigiComp2/tests/toggle.lua`, `tests/switch.lua`, `tests/junction.lua` | One Digi-Comp flip-flop alone (with its foot, done hole and clear lane); one switch; the piece of board where the memory meets the accumulator |
+| `exhibits/DigiComp2/MANUAL.md`, `manual/` | The Digi-Comp's illustrated manual; `manual/make-figures.sh` redraws its figures from the geometry (lua, python3, matplotlib). `tools/md2pdf.py` puts a `.md` file's images into its PDF |
 | `exhibits/<Name>/` | One folder per exhibit: its script, `parts/` (OpenSCAD), `make-stls.sh`, `README.md`/`.pdf`, `FINDINGS.md`/`.pdf` |
 
 Related: `../EulersGallery/` (the gallery the hall's machinery came from;
@@ -281,6 +282,12 @@ there, in `release/`, or on the path; or set `BPP`.
   collector. Keys: M, C, N; 1 to 7; H J K L the memory; 8 9 0 the MQ; D the
   distributor. Board 424 x 1216 mm, 14 + 14 tiles; table 110 x 180. Not
   yet seen by William.
+- **2026-10-27:** William asked for an illustrated manual of every
+  operation, now and to come, and which parts each needs (for building
+  part of the machine): `exhibits/DigiComp2/MANUAL.md`. Its figures are
+  drawn from the geometry. Keep it up to date as steps are added; its
+  section 6 (complement, subtract, divide, AUTO) follows E.S.R.'s manual,
+  whose chapter on remainders could not be read here.
 - **Next: AUTO and step 2c.** AUTO is the START lever (see FINDINGS for
   why the first escapement failed): a ball at the bottom lets the next go,
   and the ball through STOP lets none. Step 2c, subtract and divide, is the
