@@ -563,7 +563,17 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local frameInBlock  = btTransform(IDENTITY_QUAT, btVector3(0, 0, 0))
   local barLocalOffset = adist - f_len/2   -- where O4 currently sits along the bar, in the bar's own centered local frame
   local frameInCoupler = btTransform(IDENTITY_QUAT, btVector3(barLocalOffset, 0, 0))
-  local sliderO4 = btSliderConstraint(block.body, coupler.body, frameInBlock, frameInCoupler, true)
+  -- (WALKER ROOM: SLIDER_6DOF, set by walker-room.lua, on there by default: the same joint as a generic 6-dof
+  -- constraint, free only along the bar. Bullet's slider constraint let the bar twist up to 10-15 degrees against
+  -- the block under load, which a pin through a hole would not; the 6-dof one holds it under 1 degree.)
+  local sliderO4
+  if SLIDER_6DOF then
+    sliderO4 = btGeneric6DofConstraint(block.body, coupler.body, frameInBlock, frameInCoupler, true)
+    sliderO4:setLinearLowerLimit(btVector3(1, 0, 0)); sliderO4:setLinearUpperLimit(btVector3(-1, 0, 0))   -- (lower above upper: free along the bar)
+    sliderO4:setAngularLowerLimit(btVector3(0, 0, 0)); sliderO4:setAngularUpperLimit(btVector3(0, 0, 0))
+  else
+    sliderO4 = btSliderConstraint(block.body, coupler.body, frameInBlock, frameInCoupler, true)
+  end
   addConstraint(sliderO4)
 
   -- B: coupler <-> pendant (free hinge, no motor -- it just swings)

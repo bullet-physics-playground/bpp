@@ -84,6 +84,13 @@ MOTOR_STRENGTH = (MOTOR_STRENGTH == nil) and 10 or MOTOR_STRENGTH
 -- Bullet's default (and 40 for the balanced 2-leg Spears, as its own
 -- file has it).
 SOLVER_ITERATIONS = (SOLVER_ITERATIONS == nil) and 40 or SOLVER_ITERATIONS
+-- SLIDER_6DOF (default on): the two sliders' sliding pivot (the bar through
+-- its block) made as a generic 6-dof joint, free only along the bar.
+-- Bullet's own slider joint let the bar twist up to 10-15 degrees against
+-- its block under load, which shook the walker (Hoecken-Spears slider
+-- most: its foot link swings about 3 times as fast as the original's).
+-- false: the files' slider joint, as before 27 October 2026.
+SLIDER_6DOF = (SLIDER_6DOF ~= false)
 -- WIDE (default on): every walker's feet about 38 cm apart side to side
 -- (outer foot edge to outer foot edge, as Jansen's own file has them),
 -- each walker's body made wide enough for that (see `wide`). false:
@@ -233,6 +240,10 @@ if LINK_THICK == nil then LINK_THICK = 0.3 end
 -- length); turning inertia does a little; so do the clearances between
 -- bars in a plane, so some walkers need other planes (planesFor).
 LINK_WIDTH = LINK_WIDTH or false
+-- WIDTH_REFITS_OFF (a test; a table of names): with LINK_WIDTH, those builds
+-- get the width but none of its refits (their bodies, planes, braces and
+-- plates as with each file's own widths)
+WIDTH_REFITS_OFF = WIDTH_REFITS_OFF or {}
 -- WIDTH_FIT: what LINK_WIDTH = 1.0 changes in a build besides its bars
 -- (handover section 4b): bodyRaise (the 1 cm between a foot's top and the
 -- lowest link, which sets the Spears lifts' bodies), cube_d (its 38 cm
@@ -909,7 +920,8 @@ local function addWalker(spec, x, z, heading)
   -- tests, overrides it
   for k, val in pairs(spec.chassis or {}) do opts[k] = val end
   if WIDE then for k, val in pairs(spec.wide or {}) do opts[k] = val end end
-  local wfit = LINK_WIDTH and WIDTH_FIT[spec.name]   -- (LINK_WIDTH's refits: see WIDTH_FIT)
+  local refit = LINK_WIDTH and not WIDTH_REFITS_OFF[spec.name]   -- (LINK_WIDTH's refits, unless WIDTH_REFITS_OFF)
+  local wfit = refit and WIDTH_FIT[spec.name]   -- (see WIDTH_FIT)
   if wfit then
     if wfit.bodyRaise then opts.bodyRaise = wfit.bodyRaise end
     if wfit.cube_d and WIDE then opts.cube_d = wfit.cube_d end
@@ -928,11 +940,11 @@ local function addWalker(spec, x, z, heading)
     if FOOT_POINT then opts.foot = { length = 1.4 * FOOT_POINT, width = 1.4 * FOOT_POINT, thick = 1.4 * FOOT_POINT, mass = FOOT.mass } end   -- (the box hidden inside the ball)
     if FOOT_ROD then opts.foot = { length = 1.4 * FOOT_ROD, width = FOOT.width, thick = 1.4 * FOOT_ROD, mass = FOOT.mass } end   -- (the box hidden inside the rod)
   end
-  local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and (LINK_WIDTH and OUTSIDE_FIT_W or OUTSIDE_FIT)[spec.name]
+  local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and (refit and OUTSIDE_FIT_W or OUTSIDE_FIT)[spec.name]
   local low = not outside and DIAG_LOW and spec.brace and spec.brace.diag
   local arched = not outside and not low and DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
   if outside then
-    local vfits = LINK_WIDTH and OUTSIDE_V_FIT_W or OUTSIDE_V_FIT
+    local vfits = refit and OUTSIDE_V_FIT_W or OUTSIDE_V_FIT
     if OUTSIDE_V and vfits[spec.name] then
       local v = vfits[spec.name]
       outside = { bar = outside.bar, extUp = outside.extUp, top = outside.top,
@@ -950,7 +962,7 @@ local function addWalker(spec, x, z, heading)
     local d = math.max(0, BRACE_CLEARANCE - spec.brace.gap)
     if spec.brace.diag then opts.braceRaise = d else opts.braceCut = d end
   end
-  local pfits = LINK_WIDTH and PLATE_FIT_W or PLATE_FIT
+  local pfits = refit and PLATE_FIT_W or PLATE_FIT
   if PLATE_LOW and pfits[spec.name] then opts.plate = { height = 1.074, drop = pfits[spec.name].drop } end
   opts.ankle = ANKLES or (ANKLE_SPRING and true)
   if DIAG_GIVE then opts.diagGive = DIAG_GIVE end
@@ -1035,7 +1047,7 @@ local function addWalker(spec, x, z, heading)
   Cube = function(...)
     local f = debug.getinfo(2, "n")
     local o
-    if LINK_WIDTH and f and f.name == "makeLink" then   -- (every bar LINK_WIDTH wide: see LINK_WIDTH)
+    if LINK_WIDTH and f and f.name == "makeLink" and not (LINK_WIDTH_KEEP_OVER and select(1, ...) > LINK_WIDTH_KEEP_OVER) then   -- (every bar LINK_WIDTH wide: see LINK_WIDTH; LINK_WIDTH_KEEP_OVER, a test: bars longer than that, cm, keep their own width)
       local a = { ... }
       a[2] = LINK_WIDTH
       o = realCube(unpack(a, 1, select("#", ...)))

@@ -1,0 +1,160 @@
+Hoecken-Spears_slider_flat_s1 TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 1|forward 540.6 cm|9.01 cm/s|sideways -1.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_flat_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.044|twist mean 0.012 max 0.069|drift mean 0.000 max 0.003|links damped: 12
+Hoecken-Spears_slider_flat_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_flat_s1 VIB Hoecken-Spears slider|feet 4|spin 2 deg/s|>200 0.0%|jitter 2.71 cm/s|bounce 0.13 cm/s|chatter 2.95 /s|pend 0.3 deg/s
+Hoecken-Spears_slider_flat_s2 TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 2|forward 540.6 cm|9.01 cm/s|sideways -1.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_flat_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.044|twist mean 0.013 max 0.069|drift mean 0.000 max 0.003|links damped: 12
+Hoecken-Spears_slider_flat_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_flat_s2 VIB Hoecken-Spears slider|feet 4|spin 2 deg/s|>200 0.0%|jitter 2.73 cm/s|bounce 0.14 cm/s|chatter 2.95 /s|pend 0.3 deg/s
+Hoecken-Spears_slider_logs3_s1 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 1|forward 501.8 cm|8.36 cm/s|sideways -3.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs3_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.044|twist mean 0.013 max 0.244|drift mean 0.000 max 0.009|links damped: 12
+Hoecken-Spears_slider_logs3_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs3_s1 VIB Hoecken-Spears slider|feet 4|spin 19 deg/s|>200 1.2%|jitter 3.64 cm/s|bounce 0.90 cm/s|chatter 1.79 /s|pend 1.2 deg/s
+Hoecken-Spears_slider_logs3_s2 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 2|forward 491.6 cm|8.19 cm/s|sideways 24.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs3_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.045|twist mean 0.014 max 0.247|drift mean 0.000 max 0.008|links damped: 12
+Hoecken-Spears_slider_logs3_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs3_s2 VIB Hoecken-Spears slider|feet 4|spin 20 deg/s|>200 1.1%|jitter 3.74 cm/s|bounce 0.94 cm/s|chatter 1.90 /s|pend 1.3 deg/s
+Hoecken-Spears_slider_logs5_s1 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 414.2 cm|6.90 cm/s|sideways 50.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs5_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.056|twist mean 0.015 max 0.551|drift mean 0.000 max 0.018|links damped: 12
+Hoecken-Spears_slider_logs5_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_logs5_s1 VIB Hoecken-Spears slider|feet 4|spin 27 deg/s|>200 2.3%|jitter 4.50 cm/s|bounce 1.67 cm/s|chatter 2.09 /s|pend 1.8 deg/s
+Hoecken-Spears_slider_logs5_s2 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 356.8 cm|5.95 cm/s|sideways 88.8 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_logs5_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.062|twist mean 0.015 max 0.697|drift mean 0.000 max 0.018|links damped: 12
+Hoecken-Spears_slider_logs5_s2 CONTACTS Hoecken-Spears slider|ground-pendant 0.0%
+Hoecken-Spears_slider_logs5_s2 VIB Hoecken-Spears slider|feet 4|spin 31 deg/s|>200 2.7%|jitter 4.77 cm/s|bounce 1.79 cm/s|chatter 2.17 /s|pend 2.0 deg/s
+Hoecken-Spears_slider_logs7_s1 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 1|forward 131.2 cm|2.19 cm/s|sideways 121.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs7_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.097|twist mean 0.016 max 1.073|drift mean 0.001 max 0.026|links damped: 12
+Hoecken-Spears_slider_logs7_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs7_s1 VIB Hoecken-Spears slider|feet 4|spin 33 deg/s|>200 3.4%|jitter 6.10 cm/s|bounce 2.68 cm/s|chatter 2.93 /s|pend 2.8 deg/s
+Hoecken-Spears_slider_logs7_s2 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 2|forward 6.9 cm|0.11 cm/s|sideways -18.8 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_logs7_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.076|twist mean 0.015 max 0.343|drift mean 0.001 max 0.025|links damped: 12
+Hoecken-Spears_slider_logs7_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs7_s2 VIB Hoecken-Spears slider|feet 4|spin 31 deg/s|>200 3.2%|jitter 8.16 cm/s|bounce 3.18 cm/s|chatter 4.08 /s|pend 3.2 deg/s
+Hoecken-Spears_slider_steps3_s1 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 1|forward 504.0 cm|8.40 cm/s|sideways 48.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps3_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.044|twist mean 0.013 max 0.360|drift mean 0.000 max 0.007|links damped: 12
+Hoecken-Spears_slider_steps3_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps3_s1 VIB Hoecken-Spears slider|feet 4|spin 13 deg/s|>200 0.7%|jitter 3.37 cm/s|bounce 0.69 cm/s|chatter 1.69 /s|pend 0.9 deg/s
+Hoecken-Spears_slider_steps3_s2 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 2|forward 503.2 cm|8.39 cm/s|sideways 2.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps3_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.045|twist mean 0.013 max 0.360|drift mean 0.000 max 0.005|links damped: 12
+Hoecken-Spears_slider_steps3_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps3_s2 VIB Hoecken-Spears slider|feet 4|spin 12 deg/s|>200 0.6%|jitter 3.37 cm/s|bounce 0.68 cm/s|chatter 1.88 /s|pend 0.8 deg/s
+Hoecken-Spears_slider_steps5_s1 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 396.8 cm|6.61 cm/s|sideways 30.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps5_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.077|twist mean 0.014 max 0.516|drift mean 0.000 max 0.015|links damped: 12
+Hoecken-Spears_slider_steps5_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_steps5_s1 VIB Hoecken-Spears slider|feet 4|spin 21 deg/s|>200 1.8%|jitter 4.64 cm/s|bounce 1.15 cm/s|chatter 2.23 /s|pend 1.5 deg/s
+Hoecken-Spears_slider_steps5_s2 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 250.7 cm|4.18 cm/s|sideways 13.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps5_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.086|twist mean 0.016 max 0.959|drift mean 0.000 max 0.027|links damped: 12
+Hoecken-Spears_slider_steps5_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps5_s2 VIB Hoecken-Spears slider|feet 4|spin 35 deg/s|>200 3.6%|jitter 6.43 cm/s|bounce 1.87 cm/s|chatter 2.69 /s|pend 2.3 deg/s
+Hoecken-Spears_slider_steps7_s1 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 1|forward 37.9 cm|0.63 cm/s|sideways -13.2 cm|stood up 1|air 0.1%
+Hoecken-Spears_slider_steps7_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.097|twist mean 0.017 max 1.283|drift mean 0.001 max 0.048|links damped: 12
+Hoecken-Spears_slider_steps7_s1 CONTACTS Hoecken-Spears slider|ground-pendant 1.1%, ground-link 0.9%, body-ground 0.2%
+Hoecken-Spears_slider_steps7_s1 VIB Hoecken-Spears slider|feet 4|spin 50 deg/s|>200 5.9%|jitter 7.88 cm/s|bounce 3.30 cm/s|chatter 2.60 /s|pend 3.0 deg/s
+Hoecken-Spears_slider_steps7_s2 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 2|forward 33.8 cm|0.56 cm/s|sideways 19.7 cm|stood up 0|air 0.3%
+Hoecken-Spears_slider_steps7_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.077|twist mean 0.017 max 0.628|drift mean 0.000 max 0.026|links damped: 12
+Hoecken-Spears_slider_steps7_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps7_s2 VIB Hoecken-Spears slider|feet 4|spin 32 deg/s|>200 3.9%|jitter 8.48 cm/s|bounce 1.95 cm/s|chatter 5.60 /s|pend 2.9 deg/s
+Hoecken-Spears_slider_waves2_s1 TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 1|forward 465.8 cm|7.76 cm/s|sideways 126.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves2_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.060|twist mean 0.013 max 0.793|drift mean 0.000 max 0.014|links damped: 12
+Hoecken-Spears_slider_waves2_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_waves2_s1 VIB Hoecken-Spears slider|feet 4|spin 23 deg/s|>200 1.3%|jitter 3.71 cm/s|bounce 0.86 cm/s|chatter 2.21 /s|pend 1.0 deg/s
+Hoecken-Spears_slider_waves2_s2 TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 2|forward 494.3 cm|8.24 cm/s|sideways 32.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves2_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.053|twist mean 0.014 max 0.634|drift mean 0.000 max 0.009|links damped: 12
+Hoecken-Spears_slider_waves2_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_waves2_s2 VIB Hoecken-Spears slider|feet 4|spin 24 deg/s|>200 1.4%|jitter 3.88 cm/s|bounce 0.91 cm/s|chatter 2.44 /s|pend 1.0 deg/s
+Hoecken-Spears_slider_waves4_s1 TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 401.5 cm|6.69 cm/s|sideways 148.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves4_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.061|twist mean 0.015 max 0.494|drift mean 0.000 max 0.022|links damped: 12
+Hoecken-Spears_slider_waves4_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_waves4_s1 VIB Hoecken-Spears slider|feet 4|spin 37 deg/s|>200 3.8%|jitter 4.40 cm/s|bounce 1.72 cm/s|chatter 2.06 /s|pend 1.5 deg/s
+Hoecken-Spears_slider_waves4_s2 TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 398.6 cm|6.64 cm/s|sideways 144.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves4_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.063|twist mean 0.015 max 0.540|drift mean 0.000 max 0.018|links damped: 12
+Hoecken-Spears_slider_waves4_s2 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_waves4_s2 VIB Hoecken-Spears slider|feet 4|spin 38 deg/s|>200 3.7%|jitter 4.34 cm/s|bounce 1.67 cm/s|chatter 2.27 /s|pend 1.5 deg/s
+Hoecken-Spears_slider_waves6_s1 TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 1|forward 233.5 cm|3.89 cm/s|sideways 84.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves6_s1 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.088|twist mean 0.018 max 0.953|drift mean 0.001 max 0.033|links damped: 12
+Hoecken-Spears_slider_waves6_s1 CONTACTS Hoecken-Spears slider|ground-pendant 1.5%
+Hoecken-Spears_slider_waves6_s1 VIB Hoecken-Spears slider|feet 4|spin 62 deg/s|>200 7.7%|jitter 6.21 cm/s|bounce 3.28 cm/s|chatter 2.59 /s|pend 2.4 deg/s
+Hoecken-Spears_slider_waves6_s2 TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 2|forward 216.8 cm|3.61 cm/s|sideways 191.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves6_s2 SLIDER Hoecken-Spears slider|off mean 0.005 max 0.076|twist mean 0.017 max 0.874|drift mean 0.001 max 0.023|links damped: 12
+Hoecken-Spears_slider_waves6_s2 CONTACTS Hoecken-Spears slider|ground-pendant 1.7%
+Hoecken-Spears_slider_waves6_s2 VIB Hoecken-Spears slider|feet 4|spin 63 deg/s|>200 7.6%|jitter 6.01 cm/s|bounce 3.22 cm/s|chatter 2.51 /s|pend 2.2 deg/s
+Hoecken_slider_flat_s1 TRACK Hoecken slider|height 0.00|length 15.0|seed 1|forward 545.1 cm|9.09 cm/s|sideways -8.8 cm|stood up 0|air 0.1%
+Hoecken_slider_flat_s1 SLIDER Hoecken slider|off mean 0.002 max 0.007|twist mean 0.012 max 0.069|drift mean 0.000 max 0.003|links damped: 12
+Hoecken_slider_flat_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_flat_s1 VIB Hoecken slider|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.84 cm/s|bounce 0.14 cm/s|chatter 0.74 /s|pend 0.4 deg/s
+Hoecken_slider_flat_s2 TRACK Hoecken slider|height 0.00|length 15.0|seed 2|forward 544.8 cm|9.08 cm/s|sideways -7.8 cm|stood up 0|air 0.1%
+Hoecken_slider_flat_s2 SLIDER Hoecken slider|off mean 0.002 max 0.007|twist mean 0.012 max 0.079|drift mean 0.000 max 0.004|links damped: 12
+Hoecken_slider_flat_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_flat_s2 VIB Hoecken slider|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.85 cm/s|bounce 0.15 cm/s|chatter 0.75 /s|pend 0.4 deg/s
+Hoecken_slider_logs3_s1 TRACK Hoecken slider|height 3.00|length 15.0|seed 1|forward 446.8 cm|7.45 cm/s|sideways -29.1 cm|stood up 0|air 0.1%
+Hoecken_slider_logs3_s1 SLIDER Hoecken slider|off mean 0.002 max 0.013|twist mean 0.013 max 0.213|drift mean 0.000 max 0.007|links damped: 12
+Hoecken_slider_logs3_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_logs3_s1 VIB Hoecken slider|feet 4|spin 16 deg/s|>200 0.8%|jitter 1.63 cm/s|bounce 0.89 cm/s|chatter 1.07 /s|pend 1.3 deg/s
+Hoecken_slider_logs3_s2 TRACK Hoecken slider|height 3.00|length 15.0|seed 2|forward 479.8 cm|8.00 cm/s|sideways -15.1 cm|stood up 0|air 0.1%
+Hoecken_slider_logs3_s2 SLIDER Hoecken slider|off mean 0.002 max 0.021|twist mean 0.013 max 0.158|drift mean 0.000 max 0.011|links damped: 12
+Hoecken_slider_logs3_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_logs3_s2 VIB Hoecken slider|feet 4|spin 17 deg/s|>200 0.8%|jitter 1.62 cm/s|bounce 1.03 cm/s|chatter 1.20 /s|pend 1.2 deg/s
+Hoecken_slider_logs5_s1 TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 326.5 cm|5.44 cm/s|sideways -97.7 cm|stood up 0|air 0.1%
+Hoecken_slider_logs5_s1 SLIDER Hoecken slider|off mean 0.002 max 0.027|twist mean 0.017 max 0.667|drift mean 0.001 max 0.023|links damped: 12
+Hoecken_slider_logs5_s1 CONTACTS Hoecken slider|ground-pendant 0.6%
+Hoecken_slider_logs5_s1 VIB Hoecken slider|feet 4|spin 31 deg/s|>200 2.7%|jitter 2.85 cm/s|bounce 2.10 cm/s|chatter 1.65 /s|pend 2.0 deg/s
+Hoecken_slider_logs5_s2 TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 244.9 cm|4.08 cm/s|sideways 32.4 cm|stood up 0|air 0.1%
+Hoecken_slider_logs5_s2 SLIDER Hoecken slider|off mean 0.002 max 0.026|twist mean 0.018 max 0.513|drift mean 0.001 max 0.017|links damped: 12
+Hoecken_slider_logs5_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_logs5_s2 VIB Hoecken slider|feet 4|spin 35 deg/s|>200 3.2%|jitter 3.29 cm/s|bounce 2.49 cm/s|chatter 1.77 /s|pend 2.4 deg/s
+Hoecken_slider_logs7_s1 TRACK Hoecken slider|height 7.00|length 15.0|seed 1|forward 26.5 cm|0.44 cm/s|sideways -3.7 cm|stood up 0|air 0.1%
+Hoecken_slider_logs7_s1 SLIDER Hoecken slider|off mean 0.002 max 0.013|twist mean 0.017 max 0.250|drift mean 0.001 max 0.014|links damped: 12
+Hoecken_slider_logs7_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_logs7_s1 VIB Hoecken slider|feet 4|spin 31 deg/s|>200 3.6%|jitter 3.73 cm/s|bounce 2.68 cm/s|chatter 1.98 /s|pend 3.3 deg/s
+Hoecken_slider_logs7_s2 TRACK Hoecken slider|height 7.00|length 15.0|seed 2|forward 6.4 cm|0.11 cm/s|sideways -2.8 cm|stood up 0|air 0.1%
+Hoecken_slider_logs7_s2 SLIDER Hoecken slider|off mean 0.002 max 0.022|twist mean 0.017 max 0.224|drift mean 0.001 max 0.019|links damped: 12
+Hoecken_slider_logs7_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_logs7_s2 VIB Hoecken slider|feet 4|spin 34 deg/s|>200 4.5%|jitter 4.11 cm/s|bounce 3.07 cm/s|chatter 2.37 /s|pend 3.4 deg/s
+Hoecken_slider_steps3_s1 TRACK Hoecken slider|height 3.00|length 15.0|seed 1|forward 477.3 cm|7.96 cm/s|sideways -19.0 cm|stood up 0|air 0.1%
+Hoecken_slider_steps3_s1 SLIDER Hoecken slider|off mean 0.002 max 0.016|twist mean 0.014 max 0.277|drift mean 0.000 max 0.010|links damped: 12
+Hoecken_slider_steps3_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_steps3_s1 VIB Hoecken slider|feet 4|spin 13 deg/s|>200 0.5%|jitter 1.50 cm/s|bounce 0.77 cm/s|chatter 0.96 /s|pend 1.0 deg/s
+Hoecken_slider_steps3_s2 TRACK Hoecken slider|height 3.00|length 15.0|seed 2|forward 464.7 cm|7.75 cm/s|sideways -28.7 cm|stood up 0|air 0.1%
+Hoecken_slider_steps3_s2 SLIDER Hoecken slider|off mean 0.002 max 0.016|twist mean 0.013 max 0.250|drift mean 0.000 max 0.007|links damped: 12
+Hoecken_slider_steps3_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_steps3_s2 VIB Hoecken slider|feet 4|spin 12 deg/s|>200 0.5%|jitter 1.45 cm/s|bounce 0.71 cm/s|chatter 0.98 /s|pend 0.9 deg/s
+Hoecken_slider_steps5_s1 TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 386.5 cm|6.44 cm/s|sideways 48.8 cm|stood up 0|air 0.1%
+Hoecken_slider_steps5_s1 SLIDER Hoecken slider|off mean 0.002 max 0.030|twist mean 0.016 max 0.519|drift mean 0.001 max 0.018|links damped: 12
+Hoecken_slider_steps5_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_steps5_s1 VIB Hoecken slider|feet 4|spin 18 deg/s|>200 1.0%|jitter 1.91 cm/s|bounce 1.27 cm/s|chatter 1.04 /s|pend 1.5 deg/s
+Hoecken_slider_steps5_s2 TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 396.0 cm|6.60 cm/s|sideways -32.2 cm|stood up 0|air 0.1%
+Hoecken_slider_steps5_s2 SLIDER Hoecken slider|off mean 0.002 max 0.017|twist mean 0.016 max 0.390|drift mean 0.001 max 0.017|links damped: 12
+Hoecken_slider_steps5_s2 CONTACTS Hoecken slider|ground-pendant 0.2%
+Hoecken_slider_steps5_s2 VIB Hoecken slider|feet 4|spin 18 deg/s|>200 1.1%|jitter 1.89 cm/s|bounce 1.19 cm/s|chatter 1.08 /s|pend 1.5 deg/s
+Hoecken_slider_steps7_s1 TRACK Hoecken slider|height 7.00|length 15.0|seed 1|forward 2.9 cm|0.05 cm/s|sideways 1.2 cm|stood up 0|air 0.1%
+Hoecken_slider_steps7_s1 SLIDER Hoecken slider|off mean 0.002 max 0.014|twist mean 0.024 max 0.268|drift mean 0.001 max 0.017|links damped: 12
+Hoecken_slider_steps7_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_steps7_s1 VIB Hoecken slider|feet 4|spin 41 deg/s|>200 3.1%|jitter 3.32 cm/s|bounce 2.98 cm/s|chatter 1.72 /s|pend 2.9 deg/s
+Hoecken_slider_steps7_s2 TRACK Hoecken slider|height 7.00|length 15.0|seed 2|forward 152.6 cm|2.54 cm/s|sideways -28.3 cm|stood up 0|air 0.1%
+Hoecken_slider_steps7_s2 SLIDER Hoecken slider|off mean 0.002 max 0.036|twist mean 0.018 max 0.324|drift mean 0.001 max 0.031|links damped: 12
+Hoecken_slider_steps7_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_steps7_s2 VIB Hoecken slider|feet 4|spin 25 deg/s|>200 2.5%|jitter 3.00 cm/s|bounce 1.86 cm/s|chatter 1.39 /s|pend 2.3 deg/s
+Hoecken_slider_waves2_s1 TRACK Hoecken slider|height 2.00|length 15.0|seed 1|forward 495.5 cm|8.26 cm/s|sideways -11.8 cm|stood up 0|air 0.1%
+Hoecken_slider_waves2_s1 SLIDER Hoecken slider|off mean 0.002 max 0.019|twist mean 0.013 max 0.277|drift mean 0.000 max 0.013|links damped: 12
+Hoecken_slider_waves2_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_waves2_s1 VIB Hoecken slider|feet 4|spin 19 deg/s|>200 0.7%|jitter 1.77 cm/s|bounce 0.92 cm/s|chatter 1.55 /s|pend 1.0 deg/s
+Hoecken_slider_waves2_s2 TRACK Hoecken slider|height 2.00|length 15.0|seed 2|forward 490.8 cm|8.18 cm/s|sideways 23.3 cm|stood up 0|air 0.1%
+Hoecken_slider_waves2_s2 SLIDER Hoecken slider|off mean 0.002 max 0.018|twist mean 0.013 max 0.379|drift mean 0.000 max 0.015|links damped: 12
+Hoecken_slider_waves2_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_waves2_s2 VIB Hoecken slider|feet 4|spin 21 deg/s|>200 0.7%|jitter 1.94 cm/s|bounce 0.99 cm/s|chatter 1.58 /s|pend 1.1 deg/s
+Hoecken_slider_waves4_s1 TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 409.8 cm|6.83 cm/s|sideways 92.9 cm|stood up 0|air 0.1%
+Hoecken_slider_waves4_s1 SLIDER Hoecken slider|off mean 0.002 max 0.026|twist mean 0.015 max 0.231|drift mean 0.001 max 0.013|links damped: 12
+Hoecken_slider_waves4_s1 CONTACTS Hoecken slider|ground-pendant 0.1%
+Hoecken_slider_waves4_s1 VIB Hoecken slider|feet 4|spin 34 deg/s|>200 2.4%|jitter 2.52 cm/s|bounce 1.85 cm/s|chatter 1.55 /s|pend 1.6 deg/s
+Hoecken_slider_waves4_s2 TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 426.8 cm|7.11 cm/s|sideways 88.2 cm|stood up 0|air 0.1%
+Hoecken_slider_waves4_s2 SLIDER Hoecken slider|off mean 0.002 max 0.027|twist mean 0.014 max 0.237|drift mean 0.001 max 0.014|links damped: 12
+Hoecken_slider_waves4_s2 CONTACTS Hoecken slider|ground-pendant 1.2%
+Hoecken_slider_waves4_s2 VIB Hoecken slider|feet 4|spin 32 deg/s|>200 2.3%|jitter 2.52 cm/s|bounce 1.74 cm/s|chatter 1.66 /s|pend 1.4 deg/s
+Hoecken_slider_waves6_s1 TRACK Hoecken slider|height 6.00|length 15.0|seed 1|forward 326.7 cm|5.45 cm/s|sideways -25.0 cm|stood up 0|air 0.1%
+Hoecken_slider_waves6_s1 SLIDER Hoecken slider|off mean 0.002 max 0.031|twist mean 0.019 max 0.523|drift mean 0.001 max 0.018|links damped: 12
+Hoecken_slider_waves6_s1 CONTACTS Hoecken slider|ground-pendant 0.4%
+Hoecken_slider_waves6_s1 VIB Hoecken slider|feet 4|spin 44 deg/s|>200 4.3%|jitter 3.18 cm/s|bounce 2.57 cm/s|chatter 1.67 /s|pend 1.9 deg/s
+Hoecken_slider_waves6_s2 TRACK Hoecken slider|height 6.00|length 15.0|seed 2|forward 121.5 cm|2.03 cm/s|sideways 180.9 cm|stood up 0|air 0.1%
+Hoecken_slider_waves6_s2 SLIDER Hoecken slider|off mean 0.002 max 0.032|twist mean 0.018 max 0.566|drift mean 0.001 max 0.024|links damped: 12
+Hoecken_slider_waves6_s2 CONTACTS Hoecken slider|ground-pendant 0.9%
+Hoecken_slider_waves6_s2 VIB Hoecken slider|feet 4|spin 50 deg/s|>200 5.7%|jitter 3.80 cm/s|bounce 2.72 cm/s|chatter 1.94 /s|pend 2.2 deg/s

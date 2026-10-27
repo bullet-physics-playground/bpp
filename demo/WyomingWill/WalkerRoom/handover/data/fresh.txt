@@ -1,0 +1,1140 @@
+Chebyshev-Spears_diag_flat_s1 TRACK Chebyshev-Spears diag|height 0.00|length 15.0|seed 1|forward 532.1 cm|8.87 cm/s|sideways 10.7 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_flat_s1 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_flat_s1 VIB Chebyshev-Spears diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 2.58 cm/s|bounce 0.20 cm/s|chatter 2.87 /s|pend 0.4 deg/s
+Chebyshev-Spears_diag_flat_s2 TRACK Chebyshev-Spears diag|height 0.00|length 15.0|seed 2|forward 532.1 cm|8.87 cm/s|sideways 10.2 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_flat_s2 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_flat_s2 VIB Chebyshev-Spears diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 2.55 cm/s|bounce 0.19 cm/s|chatter 2.86 /s|pend 0.4 deg/s
+Chebyshev-Spears_diag_logs3_s1 TRACK Chebyshev-Spears diag|height 3.00|length 15.0|seed 1|forward 498.4 cm|8.31 cm/s|sideways 14.5 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs3_s1 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_logs3_s1 VIB Chebyshev-Spears diag|feet 4|spin 21 deg/s|>200 1.3%|jitter 3.31 cm/s|bounce 0.99 cm/s|chatter 1.69 /s|pend 1.2 deg/s
+Chebyshev-Spears_diag_logs3_s2 TRACK Chebyshev-Spears diag|height 3.00|length 15.0|seed 2|forward 484.1 cm|8.07 cm/s|sideways 15.3 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs3_s2 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_logs3_s2 VIB Chebyshev-Spears diag|feet 4|spin 23 deg/s|>200 1.4%|jitter 3.42 cm/s|bounce 1.10 cm/s|chatter 1.70 /s|pend 1.5 deg/s
+Chebyshev-Spears_diag_logs5_s1 TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 425.2 cm|7.09 cm/s|sideways 35.5 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs5_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 0.4%
+Chebyshev-Spears_diag_logs5_s1 VIB Chebyshev-Spears diag|feet 4|spin 30 deg/s|>200 2.6%|jitter 3.94 cm/s|bounce 1.95 cm/s|chatter 1.75 /s|pend 2.2 deg/s
+Chebyshev-Spears_diag_logs5_s2 TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 416.8 cm|6.95 cm/s|sideways 19.3 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs5_s2 CONTACTS Chebyshev-Spears diag|ground-pendant 0.3%
+Chebyshev-Spears_diag_logs5_s2 VIB Chebyshev-Spears diag|feet 4|spin 31 deg/s|>200 2.7%|jitter 4.04 cm/s|bounce 1.91 cm/s|chatter 1.79 /s|pend 2.4 deg/s
+Chebyshev-Spears_diag_logs7_s1 TRACK Chebyshev-Spears diag|height 7.00|length 15.0|seed 1|forward 171.0 cm|2.85 cm/s|sideways 13.3 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs7_s1 CONTACTS Chebyshev-Spears diag|buildOutsideCrossbar-ground 7.7%, ground-pendant 2.0%
+Chebyshev-Spears_diag_logs7_s1 VIB Chebyshev-Spears diag|feet 4|spin 40 deg/s|>200 4.6%|jitter 4.52 cm/s|bounce 3.01 cm/s|chatter 1.82 /s|pend 3.3 deg/s
+Chebyshev-Spears_diag_logs7_s2 TRACK Chebyshev-Spears diag|height 7.00|length 15.0|seed 2|forward 129.3 cm|2.15 cm/s|sideways 19.5 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_logs7_s2 CONTACTS Chebyshev-Spears diag|buildOutsideCrossbar-ground 5.4%, ground-pendant 0.1%
+Chebyshev-Spears_diag_logs7_s2 VIB Chebyshev-Spears diag|feet 4|spin 42 deg/s|>200 4.6%|jitter 4.51 cm/s|bounce 2.93 cm/s|chatter 1.70 /s|pend 3.8 deg/s
+Chebyshev-Spears_diag_steps3_s1 TRACK Chebyshev-Spears diag|height 3.00|length 15.0|seed 1|forward 500.6 cm|8.34 cm/s|sideways 5.6 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps3_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 0.2%
+Chebyshev-Spears_diag_steps3_s1 VIB Chebyshev-Spears diag|feet 4|spin 15 deg/s|>200 1.0%|jitter 3.11 cm/s|bounce 0.78 cm/s|chatter 1.46 /s|pend 1.0 deg/s
+Chebyshev-Spears_diag_steps3_s2 TRACK Chebyshev-Spears diag|height 3.00|length 15.0|seed 2|forward 490.7 cm|8.18 cm/s|sideways 4.1 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps3_s2 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_steps3_s2 VIB Chebyshev-Spears diag|feet 4|spin 16 deg/s|>200 1.1%|jitter 3.30 cm/s|bounce 0.90 cm/s|chatter 1.74 /s|pend 1.1 deg/s
+Chebyshev-Spears_diag_steps5_s1 TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 1|forward 461.9 cm|7.70 cm/s|sideways -1.4 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps5_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 0.4%
+Chebyshev-Spears_diag_steps5_s1 VIB Chebyshev-Spears diag|feet 4|spin 19 deg/s|>200 1.6%|jitter 3.41 cm/s|bounce 1.23 cm/s|chatter 1.50 /s|pend 1.4 deg/s
+Chebyshev-Spears_diag_steps5_s2 TRACK Chebyshev-Spears diag|height 5.00|length 15.0|seed 2|forward 432.2 cm|7.20 cm/s|sideways 9.3 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps5_s2 CONTACTS Chebyshev-Spears diag|ground-pendant 0.1%
+Chebyshev-Spears_diag_steps5_s2 VIB Chebyshev-Spears diag|feet 4|spin 21 deg/s|>200 1.6%|jitter 3.44 cm/s|bounce 1.27 cm/s|chatter 1.59 /s|pend 1.3 deg/s
+Chebyshev-Spears_diag_steps7_s1 TRACK Chebyshev-Spears diag|height 7.00|length 15.0|seed 1|forward 66.8 cm|1.11 cm/s|sideways 21.7 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps7_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 0.8%, ground-link 0.0%
+Chebyshev-Spears_diag_steps7_s1 VIB Chebyshev-Spears diag|feet 4|spin 29 deg/s|>200 1.9%|jitter 2.63 cm/s|bounce 1.64 cm/s|chatter 0.92 /s|pend 2.4 deg/s
+Chebyshev-Spears_diag_steps7_s2 TRACK Chebyshev-Spears diag|height 7.00|length 15.0|seed 2|forward 366.5 cm|6.11 cm/s|sideways 19.4 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_steps7_s2 CONTACTS Chebyshev-Spears diag|ground-pendant 0.8%
+Chebyshev-Spears_diag_steps7_s2 VIB Chebyshev-Spears diag|feet 4|spin 27 deg/s|>200 2.3%|jitter 3.67 cm/s|bounce 1.74 cm/s|chatter 1.53 /s|pend 2.0 deg/s
+Chebyshev-Spears_diag_waves2_s1 TRACK Chebyshev-Spears diag|height 2.00|length 15.0|seed 1|forward 495.7 cm|8.26 cm/s|sideways 72.2 cm|stood up 0|air 0.0%
+Chebyshev-Spears_diag_waves2_s1 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_waves2_s1 VIB Chebyshev-Spears diag|feet 4|spin 28 deg/s|>200 1.7%|jitter 3.50 cm/s|bounce 1.10 cm/s|chatter 2.16 /s|pend 1.6 deg/s
+Chebyshev-Spears_diag_waves2_s2 TRACK Chebyshev-Spears diag|height 2.00|length 15.0|seed 2|forward 485.3 cm|8.09 cm/s|sideways 110.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_waves2_s2 CONTACTS Chebyshev-Spears diag|none
+Chebyshev-Spears_diag_waves2_s2 VIB Chebyshev-Spears diag|feet 4|spin 28 deg/s|>200 1.6%|jitter 3.57 cm/s|bounce 1.11 cm/s|chatter 2.24 /s|pend 1.6 deg/s
+Chebyshev-Spears_diag_waves4_s1 TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 1|forward 439.4 cm|7.32 cm/s|sideways 54.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_waves4_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 0.4%
+Chebyshev-Spears_diag_waves4_s1 VIB Chebyshev-Spears diag|feet 4|spin 39 deg/s|>200 3.6%|jitter 3.59 cm/s|bounce 1.90 cm/s|chatter 1.69 /s|pend 2.1 deg/s
+Chebyshev-Spears_diag_waves4_s2 TRACK Chebyshev-Spears diag|height 4.00|length 15.0|seed 2|forward 405.6 cm|6.76 cm/s|sideways 158.0 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_waves4_s2 CONTACTS Chebyshev-Spears diag|ground-pendant 3.8%
+Chebyshev-Spears_diag_waves4_s2 VIB Chebyshev-Spears diag|feet 4|spin 41 deg/s|>200 3.8%|jitter 3.65 cm/s|bounce 2.05 cm/s|chatter 1.64 /s|pend 2.1 deg/s
+Chebyshev-Spears_diag_waves6_s1 TRACK Chebyshev-Spears diag|height 6.00|length 15.0|seed 1|forward 336.4 cm|5.61 cm/s|sideways 89.7 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_waves6_s1 CONTACTS Chebyshev-Spears diag|ground-pendant 8.7%
+Chebyshev-Spears_diag_waves6_s1 VIB Chebyshev-Spears diag|feet 4|spin 52 deg/s|>200 6.1%|jitter 3.55 cm/s|bounce 2.69 cm/s|chatter 1.33 /s|pend 2.4 deg/s
+Chebyshev-Spears_diag_waves6_s2 TRACK Chebyshev-Spears diag|height 6.00|length 15.0|seed 2|forward 307.3 cm|5.12 cm/s|sideways 191.3 cm|stood up 0|air 0.1%
+Chebyshev-Spears_diag_waves6_s2 CONTACTS Chebyshev-Spears diag|ground-pendant 2.2%
+Chebyshev-Spears_diag_waves6_s2 VIB Chebyshev-Spears diag|feet 4|spin 50 deg/s|>200 6.0%|jitter 3.97 cm/s|bounce 3.01 cm/s|chatter 1.36 /s|pend 2.8 deg/s
+Chebyshev-Spears_flat_s1 TRACK Chebyshev-Spears|height 0.00|length 15.0|seed 1|forward 536.8 cm|8.95 cm/s|sideways -0.8 cm|stood up 0|air 0.1%
+Chebyshev-Spears_flat_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_flat_s1 VIB Chebyshev-Spears|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.61 cm/s|bounce 0.17 cm/s|chatter 2.92 /s|pend 0.3 deg/s
+Chebyshev-Spears_flat_s2 TRACK Chebyshev-Spears|height 0.00|length 15.0|seed 2|forward 536.9 cm|8.95 cm/s|sideways -0.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_flat_s2 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_flat_s2 VIB Chebyshev-Spears|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.60 cm/s|bounce 0.16 cm/s|chatter 2.90 /s|pend 0.3 deg/s
+Chebyshev-Spears_logs3_s1 TRACK Chebyshev-Spears|height 3.00|length 15.0|seed 1|forward 489.4 cm|8.16 cm/s|sideways -39.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_logs3_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_logs3_s1 VIB Chebyshev-Spears|feet 4|spin 20 deg/s|>200 1.3%|jitter 3.56 cm/s|bounce 0.97 cm/s|chatter 1.82 /s|pend 1.0 deg/s
+Chebyshev-Spears_logs3_s2 TRACK Chebyshev-Spears|height 3.00|length 15.0|seed 2|forward 495.6 cm|8.26 cm/s|sideways 19.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_logs3_s2 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_logs3_s2 VIB Chebyshev-Spears|feet 4|spin 21 deg/s|>200 1.5%|jitter 3.76 cm/s|bounce 1.14 cm/s|chatter 2.05 /s|pend 1.0 deg/s
+Chebyshev-Spears_logs5_s1 TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 411.7 cm|6.86 cm/s|sideways 31.4 cm|stood up 0|air 0.1%
+Chebyshev-Spears_logs5_s1 CONTACTS Chebyshev-Spears|ground-pendant 0.3%
+Chebyshev-Spears_logs5_s1 VIB Chebyshev-Spears|feet 4|spin 30 deg/s|>200 2.8%|jitter 4.36 cm/s|bounce 1.98 cm/s|chatter 1.91 /s|pend 1.5 deg/s
+Chebyshev-Spears_logs5_s2 TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 336.1 cm|5.60 cm/s|sideways 28.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_logs5_s2 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_logs5_s2 VIB Chebyshev-Spears|feet 4|spin 33 deg/s|>200 3.1%|jitter 4.74 cm/s|bounce 1.99 cm/s|chatter 2.25 /s|pend 1.6 deg/s
+Chebyshev-Spears_logs7_s1 TRACK Chebyshev-Spears|height 7.00|length 15.0|seed 1|forward 20.7 cm|0.35 cm/s|sideways -2.8 cm|stood up 0|air 0.1%
+Chebyshev-Spears_logs7_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_logs7_s1 VIB Chebyshev-Spears|feet 4|spin 29 deg/s|>200 3.0%|jitter 2.96 cm/s|bounce 1.69 cm/s|chatter 1.34 /s|pend 1.6 deg/s
+Chebyshev-Spears_logs7_s2 TRACK Chebyshev-Spears|height 7.00|length 15.0|seed 2|forward 5.0 cm|0.08 cm/s|sideways -14.3 cm|stood up 0|air 0.2%
+Chebyshev-Spears_logs7_s2 CONTACTS Chebyshev-Spears|ground-pendant 0.2%
+Chebyshev-Spears_logs7_s2 VIB Chebyshev-Spears|feet 4|spin 28 deg/s|>200 3.0%|jitter 3.03 cm/s|bounce 1.56 cm/s|chatter 1.24 /s|pend 1.8 deg/s
+Chebyshev-Spears_steps3_s1 TRACK Chebyshev-Spears|height 3.00|length 15.0|seed 1|forward 505.6 cm|8.43 cm/s|sideways 13.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps3_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_steps3_s1 VIB Chebyshev-Spears|feet 4|spin 12 deg/s|>200 0.7%|jitter 3.29 cm/s|bounce 0.71 cm/s|chatter 1.72 /s|pend 0.7 deg/s
+Chebyshev-Spears_steps3_s2 TRACK Chebyshev-Spears|height 3.00|length 15.0|seed 2|forward 502.8 cm|8.38 cm/s|sideways 16.6 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps3_s2 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_steps3_s2 VIB Chebyshev-Spears|feet 4|spin 14 deg/s|>200 0.8%|jitter 3.34 cm/s|bounce 0.76 cm/s|chatter 1.75 /s|pend 0.7 deg/s
+Chebyshev-Spears_steps5_s1 TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 463.7 cm|7.73 cm/s|sideways 19.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps5_s1 CONTACTS Chebyshev-Spears|ground-pendant 0.0%
+Chebyshev-Spears_steps5_s1 VIB Chebyshev-Spears|feet 4|spin 21 deg/s|>200 1.7%|jitter 3.90 cm/s|bounce 1.23 cm/s|chatter 1.79 /s|pend 1.0 deg/s
+Chebyshev-Spears_steps5_s2 TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 2|forward 402.9 cm|6.71 cm/s|sideways -51.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps5_s2 CONTACTS Chebyshev-Spears|ground-pendant 0.5%
+Chebyshev-Spears_steps5_s2 VIB Chebyshev-Spears|feet 4|spin 21 deg/s|>200 1.7%|jitter 3.64 cm/s|bounce 1.25 cm/s|chatter 1.83 /s|pend 1.1 deg/s
+Chebyshev-Spears_steps7_s1 TRACK Chebyshev-Spears|height 7.00|length 15.0|seed 1|forward 320.2 cm|5.34 cm/s|sideways 21.1 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps7_s1 CONTACTS Chebyshev-Spears|ground-pendant 3.9%
+Chebyshev-Spears_steps7_s1 VIB Chebyshev-Spears|feet 4|spin 27 deg/s|>200 2.6%|jitter 3.89 cm/s|bounce 1.70 cm/s|chatter 1.82 /s|pend 1.3 deg/s
+Chebyshev-Spears_steps7_s2 TRACK Chebyshev-Spears|height 7.00|length 15.0|seed 2|forward 284.7 cm|4.74 cm/s|sideways 14.6 cm|stood up 0|air 0.1%
+Chebyshev-Spears_steps7_s2 CONTACTS Chebyshev-Spears|ground-pendant 3.5%
+Chebyshev-Spears_steps7_s2 VIB Chebyshev-Spears|feet 4|spin 27 deg/s|>200 2.2%|jitter 4.01 cm/s|bounce 1.61 cm/s|chatter 1.67 /s|pend 1.4 deg/s
+Chebyshev-Spears_waves2_s1 TRACK Chebyshev-Spears|height 2.00|length 15.0|seed 1|forward 512.1 cm|8.54 cm/s|sideways -4.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves2_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_waves2_s1 VIB Chebyshev-Spears|feet 4|spin 25 deg/s|>200 1.4%|jitter 3.93 cm/s|bounce 1.08 cm/s|chatter 2.44 /s|pend 1.0 deg/s
+Chebyshev-Spears_waves2_s2 TRACK Chebyshev-Spears|height 2.00|length 15.0|seed 2|forward 485.3 cm|8.09 cm/s|sideways 112.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves2_s2 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_waves2_s2 VIB Chebyshev-Spears|feet 4|spin 26 deg/s|>200 1.5%|jitter 3.88 cm/s|bounce 1.01 cm/s|chatter 2.27 /s|pend 1.1 deg/s
+Chebyshev-Spears_waves4_s1 TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 366.3 cm|6.10 cm/s|sideways -100.5 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves4_s1 CONTACTS Chebyshev-Spears|none
+Chebyshev-Spears_waves4_s1 VIB Chebyshev-Spears|feet 4|spin 32 deg/s|>200 2.2%|jitter 4.48 cm/s|bounce 1.47 cm/s|chatter 2.28 /s|pend 1.5 deg/s
+Chebyshev-Spears_waves4_s2 TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 2|forward 439.3 cm|7.32 cm/s|sideways 65.3 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves4_s2 CONTACTS Chebyshev-Spears|ground-pendant 0.9%
+Chebyshev-Spears_waves4_s2 VIB Chebyshev-Spears|feet 4|spin 39 deg/s|>200 3.6%|jitter 4.16 cm/s|bounce 1.90 cm/s|chatter 1.77 /s|pend 1.4 deg/s
+Chebyshev-Spears_waves6_s1 TRACK Chebyshev-Spears|height 6.00|length 15.0|seed 1|forward 408.3 cm|6.81 cm/s|sideways -63.7 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves6_s1 CONTACTS Chebyshev-Spears|ground-pendant 1.3%
+Chebyshev-Spears_waves6_s1 VIB Chebyshev-Spears|feet 4|spin 44 deg/s|>200 4.4%|jitter 4.79 cm/s|bounce 2.40 cm/s|chatter 2.05 /s|pend 1.6 deg/s
+Chebyshev-Spears_waves6_s2 TRACK Chebyshev-Spears|height 6.00|length 15.0|seed 2|forward 343.0 cm|5.72 cm/s|sideways -117.2 cm|stood up 0|air 0.1%
+Chebyshev-Spears_waves6_s2 CONTACTS Chebyshev-Spears|ground-pendant 0.9%
+Chebyshev-Spears_waves6_s2 VIB Chebyshev-Spears|feet 4|spin 41 deg/s|>200 3.8%|jitter 4.30 cm/s|bounce 2.06 cm/s|chatter 1.72 /s|pend 1.6 deg/s
+Chebyshev_diag_flat_s1 TRACK Chebyshev diag|height 0.00|length 15.0|seed 1|forward 537.6 cm|8.96 cm/s|sideways 5.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_flat_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_flat_s1 VIB Chebyshev diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.13 cm/s|chatter 0.71 /s|pend 0.3 deg/s
+Chebyshev_diag_flat_s2 TRACK Chebyshev diag|height 0.00|length 15.0|seed 2|forward 537.8 cm|8.96 cm/s|sideways 5.0 cm|stood up 0|air 0.1%
+Chebyshev_diag_flat_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_flat_s2 VIB Chebyshev diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.14 cm/s|chatter 0.70 /s|pend 0.3 deg/s
+Chebyshev_diag_logs3_s1 TRACK Chebyshev diag|height 3.00|length 15.0|seed 1|forward 406.5 cm|6.78 cm/s|sideways -10.2 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs3_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_logs3_s1 VIB Chebyshev diag|feet 4|spin 20 deg/s|>200 1.4%|jitter 1.90 cm/s|bounce 1.13 cm/s|chatter 1.40 /s|pend 0.9 deg/s
+Chebyshev_diag_logs3_s2 TRACK Chebyshev diag|height 3.00|length 15.0|seed 2|forward 399.6 cm|6.66 cm/s|sideways -28.9 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs3_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_logs3_s2 VIB Chebyshev diag|feet 4|spin 24 deg/s|>200 1.8%|jitter 1.99 cm/s|bounce 1.25 cm/s|chatter 1.60 /s|pend 1.0 deg/s
+Chebyshev_diag_logs5_s1 TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 89.8 cm|1.50 cm/s|sideways -53.3 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs5_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_logs5_s1 VIB Chebyshev diag|feet 4|spin 28 deg/s|>200 2.2%|jitter 2.39 cm/s|bounce 1.66 cm/s|chatter 1.45 /s|pend 1.2 deg/s
+Chebyshev_diag_logs5_s2 TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 217.7 cm|3.63 cm/s|sideways 71.5 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs5_s2 CONTACTS Chebyshev diag|ground-pendant 0.4%
+Chebyshev_diag_logs5_s2 VIB Chebyshev diag|feet 4|spin 34 deg/s|>200 3.9%|jitter 3.17 cm/s|bounce 2.24 cm/s|chatter 2.02 /s|pend 1.3 deg/s
+Chebyshev_diag_logs7_s1 TRACK Chebyshev diag|height 7.00|length 15.0|seed 1|forward 27.6 cm|0.46 cm/s|sideways 8.0 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs7_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_logs7_s1 VIB Chebyshev diag|feet 4|spin 28 deg/s|>200 3.4%|jitter 4.16 cm/s|bounce 2.41 cm/s|chatter 2.25 /s|pend 1.7 deg/s
+Chebyshev_diag_logs7_s2 TRACK Chebyshev diag|height 7.00|length 15.0|seed 2|forward -0.5 cm|-0.01 cm/s|sideways 6.2 cm|stood up 0|air 0.1%
+Chebyshev_diag_logs7_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_logs7_s2 VIB Chebyshev diag|feet 4|spin 29 deg/s|>200 3.5%|jitter 4.25 cm/s|bounce 2.51 cm/s|chatter 2.23 /s|pend 1.7 deg/s
+Chebyshev_diag_steps3_s1 TRACK Chebyshev diag|height 3.00|length 15.0|seed 1|forward 431.9 cm|7.20 cm/s|sideways 4.7 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps3_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_steps3_s1 VIB Chebyshev diag|feet 4|spin 14 deg/s|>200 0.6%|jitter 1.49 cm/s|bounce 0.80 cm/s|chatter 0.92 /s|pend 0.6 deg/s
+Chebyshev_diag_steps3_s2 TRACK Chebyshev diag|height 3.00|length 15.0|seed 2|forward 423.8 cm|7.06 cm/s|sideways -41.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps3_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_steps3_s2 VIB Chebyshev diag|feet 4|spin 15 deg/s|>200 0.8%|jitter 1.52 cm/s|bounce 0.80 cm/s|chatter 1.05 /s|pend 0.6 deg/s
+Chebyshev_diag_steps5_s1 TRACK Chebyshev diag|height 5.00|length 15.0|seed 1|forward 216.8 cm|3.61 cm/s|sideways 29.0 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps5_s1 CONTACTS Chebyshev diag|ground-pendant 0.2%
+Chebyshev_diag_steps5_s1 VIB Chebyshev diag|feet 4|spin 27 deg/s|>200 2.3%|jitter 2.78 cm/s|bounce 1.85 cm/s|chatter 1.53 /s|pend 1.1 deg/s
+Chebyshev_diag_steps5_s2 TRACK Chebyshev diag|height 5.00|length 15.0|seed 2|forward 252.9 cm|4.21 cm/s|sideways 3.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps5_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_steps5_s2 VIB Chebyshev diag|feet 4|spin 27 deg/s|>200 2.6%|jitter 2.55 cm/s|bounce 1.71 cm/s|chatter 1.48 /s|pend 1.0 deg/s
+Chebyshev_diag_steps7_s1 TRACK Chebyshev diag|height 7.00|length 15.0|seed 1|forward 1.4 cm|0.02 cm/s|sideways 2.1 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps7_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_steps7_s1 VIB Chebyshev diag|feet 4|spin 41 deg/s|>200 3.0%|jitter 3.77 cm/s|bounce 2.34 cm/s|chatter 1.56 /s|pend 1.5 deg/s
+Chebyshev_diag_steps7_s2 TRACK Chebyshev diag|height 7.00|length 15.0|seed 2|forward 60.8 cm|1.01 cm/s|sideways -3.9 cm|stood up 0|air 0.1%
+Chebyshev_diag_steps7_s2 CONTACTS Chebyshev diag|ground-pendant 1.6%
+Chebyshev_diag_steps7_s2 VIB Chebyshev diag|feet 4|spin 39 deg/s|>200 4.0%|jitter 3.37 cm/s|bounce 2.39 cm/s|chatter 1.28 /s|pend 1.5 deg/s
+Chebyshev_diag_waves2_s1 TRACK Chebyshev diag|height 2.00|length 15.0|seed 1|forward 484.2 cm|8.07 cm/s|sideways -9.6 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves2_s1 CONTACTS Chebyshev diag|none
+Chebyshev_diag_waves2_s1 VIB Chebyshev diag|feet 4|spin 22 deg/s|>200 0.8%|jitter 1.83 cm/s|bounce 1.03 cm/s|chatter 1.62 /s|pend 0.7 deg/s
+Chebyshev_diag_waves2_s2 TRACK Chebyshev diag|height 2.00|length 15.0|seed 2|forward 469.8 cm|7.83 cm/s|sideways 35.3 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves2_s2 CONTACTS Chebyshev diag|none
+Chebyshev_diag_waves2_s2 VIB Chebyshev diag|feet 4|spin 22 deg/s|>200 0.9%|jitter 2.03 cm/s|bounce 1.03 cm/s|chatter 1.76 /s|pend 0.9 deg/s
+Chebyshev_diag_waves4_s1 TRACK Chebyshev diag|height 4.00|length 15.0|seed 1|forward 324.3 cm|5.40 cm/s|sideways 122.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves4_s1 CONTACTS Chebyshev diag|ground-pendant 0.2%
+Chebyshev_diag_waves4_s1 VIB Chebyshev diag|feet 4|spin 45 deg/s|>200 4.6%|jitter 3.36 cm/s|bounce 2.34 cm/s|chatter 2.17 /s|pend 1.4 deg/s
+Chebyshev_diag_waves4_s2 TRACK Chebyshev diag|height 4.00|length 15.0|seed 2|forward 364.8 cm|6.08 cm/s|sideways 60.8 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves4_s2 CONTACTS Chebyshev diag|ground-pendant 1.4%
+Chebyshev_diag_waves4_s2 VIB Chebyshev diag|feet 4|spin 44 deg/s|>200 4.3%|jitter 3.00 cm/s|bounce 2.15 cm/s|chatter 2.00 /s|pend 1.3 deg/s
+Chebyshev_diag_waves6_s1 TRACK Chebyshev diag|height 6.00|length 15.0|seed 1|forward 231.7 cm|3.86 cm/s|sideways 45.4 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves6_s1 CONTACTS Chebyshev diag|ground-pendant 2.0%
+Chebyshev_diag_waves6_s1 VIB Chebyshev diag|feet 4|spin 70 deg/s|>200 10.1%|jitter 4.59 cm/s|bounce 3.84 cm/s|chatter 2.40 /s|pend 2.0 deg/s
+Chebyshev_diag_waves6_s2 TRACK Chebyshev diag|height 6.00|length 15.0|seed 2|forward 209.3 cm|3.49 cm/s|sideways 55.6 cm|stood up 0|air 0.1%
+Chebyshev_diag_waves6_s2 CONTACTS Chebyshev diag|ground-pendant 2.9%
+Chebyshev_diag_waves6_s2 VIB Chebyshev diag|feet 4|spin 80 deg/s|>200 11.5%|jitter 4.69 cm/s|bounce 4.11 cm/s|chatter 2.34 /s|pend 1.9 deg/s
+Chebyshev_flat_s1 TRACK Chebyshev|height 0.00|length 15.0|seed 1|forward 534.0 cm|8.90 cm/s|sideways -7.7 cm|stood up 0|air 0.1%
+Chebyshev_flat_s1 CONTACTS Chebyshev|none
+Chebyshev_flat_s1 VIB Chebyshev|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.74 cm/s|bounce 0.12 cm/s|chatter 0.72 /s|pend 0.3 deg/s
+Chebyshev_flat_s2 TRACK Chebyshev|height 0.00|length 15.0|seed 2|forward 534.0 cm|8.90 cm/s|sideways -8.0 cm|stood up 0|air 0.1%
+Chebyshev_flat_s2 CONTACTS Chebyshev|none
+Chebyshev_flat_s2 VIB Chebyshev|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.13 cm/s|chatter 0.73 /s|pend 0.3 deg/s
+Chebyshev_logs3_s1 TRACK Chebyshev|height 3.00|length 15.0|seed 1|forward 404.5 cm|6.74 cm/s|sideways -19.8 cm|stood up 0|air 0.1%
+Chebyshev_logs3_s1 CONTACTS Chebyshev|ground-pendant 0.3%
+Chebyshev_logs3_s1 VIB Chebyshev|feet 4|spin 21 deg/s|>200 1.5%|jitter 1.92 cm/s|bounce 1.23 cm/s|chatter 1.35 /s|pend 1.2 deg/s
+Chebyshev_logs3_s2 TRACK Chebyshev|height 3.00|length 15.0|seed 2|forward 399.8 cm|6.66 cm/s|sideways -30.7 cm|stood up 0|air 0.1%
+Chebyshev_logs3_s2 CONTACTS Chebyshev|none
+Chebyshev_logs3_s2 VIB Chebyshev|feet 4|spin 22 deg/s|>200 1.3%|jitter 1.95 cm/s|bounce 1.22 cm/s|chatter 1.55 /s|pend 1.2 deg/s
+Chebyshev_logs5_s1 TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 275.9 cm|4.60 cm/s|sideways -74.2 cm|stood up 0|air 0.1%
+Chebyshev_logs5_s1 CONTACTS Chebyshev|ground-pendant 0.6%
+Chebyshev_logs5_s1 VIB Chebyshev|feet 4|spin 35 deg/s|>200 3.4%|jitter 2.93 cm/s|bounce 2.20 cm/s|chatter 1.78 /s|pend 1.9 deg/s
+Chebyshev_logs5_s2 TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 200.3 cm|3.34 cm/s|sideways 81.7 cm|stood up 0|air 0.1%
+Chebyshev_logs5_s2 CONTACTS Chebyshev|ground-pendant 0.0%
+Chebyshev_logs5_s2 VIB Chebyshev|feet 4|spin 34 deg/s|>200 3.6%|jitter 2.94 cm/s|bounce 2.33 cm/s|chatter 1.66 /s|pend 1.8 deg/s
+Chebyshev_logs7_s1 TRACK Chebyshev|height 7.00|length 15.0|seed 1|forward 29.1 cm|0.48 cm/s|sideways 3.8 cm|stood up 0|air 0.1%
+Chebyshev_logs7_s1 CONTACTS Chebyshev|ground-pendant 0.4%
+Chebyshev_logs7_s1 VIB Chebyshev|feet 4|spin 28 deg/s|>200 3.5%|jitter 3.49 cm/s|bounce 2.38 cm/s|chatter 1.99 /s|pend 2.3 deg/s
+Chebyshev_logs7_s2 TRACK Chebyshev|height 7.00|length 15.0|seed 2|forward 3.2 cm|0.05 cm/s|sideways 3.1 cm|stood up 0|air 0.1%
+Chebyshev_logs7_s2 CONTACTS Chebyshev|none
+Chebyshev_logs7_s2 VIB Chebyshev|feet 4|spin 29 deg/s|>200 3.4%|jitter 3.47 cm/s|bounce 2.48 cm/s|chatter 1.80 /s|pend 2.4 deg/s
+Chebyshev_steps3_s1 TRACK Chebyshev|height 3.00|length 15.0|seed 1|forward 434.4 cm|7.24 cm/s|sideways 0.4 cm|stood up 0|air 0.1%
+Chebyshev_steps3_s1 CONTACTS Chebyshev|ground-pendant 0.2%
+Chebyshev_steps3_s1 VIB Chebyshev|feet 4|spin 16 deg/s|>200 0.9%|jitter 1.63 cm/s|bounce 0.95 cm/s|chatter 1.04 /s|pend 0.9 deg/s
+Chebyshev_steps3_s2 TRACK Chebyshev|height 3.00|length 15.0|seed 2|forward 423.5 cm|7.06 cm/s|sideways -41.9 cm|stood up 0|air 0.1%
+Chebyshev_steps3_s2 CONTACTS Chebyshev|ground-pendant 0.1%
+Chebyshev_steps3_s2 VIB Chebyshev|feet 4|spin 16 deg/s|>200 0.7%|jitter 1.53 cm/s|bounce 0.84 cm/s|chatter 1.11 /s|pend 0.9 deg/s
+Chebyshev_steps5_s1 TRACK Chebyshev|height 5.00|length 15.0|seed 1|forward 65.3 cm|1.09 cm/s|sideways 20.1 cm|stood up 0|air 0.1%
+Chebyshev_steps5_s1 CONTACTS Chebyshev|none
+Chebyshev_steps5_s1 VIB Chebyshev|feet 4|spin 29 deg/s|>200 3.3%|jitter 3.01 cm/s|bounce 2.20 cm/s|chatter 1.31 /s|pend 1.9 deg/s
+Chebyshev_steps5_s2 TRACK Chebyshev|height 5.00|length 15.0|seed 2|forward 182.2 cm|3.04 cm/s|sideways -10.4 cm|stood up 0|air 0.1%
+Chebyshev_steps5_s2 CONTACTS Chebyshev|ground-pendant 0.1%
+Chebyshev_steps5_s2 VIB Chebyshev|feet 4|spin 27 deg/s|>200 2.4%|jitter 2.50 cm/s|bounce 1.98 cm/s|chatter 1.40 /s|pend 1.6 deg/s
+Chebyshev_steps7_s1 TRACK Chebyshev|height 7.00|length 15.0|seed 1|forward 4.2 cm|0.07 cm/s|sideways 3.6 cm|stood up 0|air 0.1%
+Chebyshev_steps7_s1 CONTACTS Chebyshev|none
+Chebyshev_steps7_s1 VIB Chebyshev|feet 4|spin 38 deg/s|>200 3.1%|jitter 3.16 cm/s|bounce 2.32 cm/s|chatter 1.20 /s|pend 2.3 deg/s
+Chebyshev_steps7_s2 TRACK Chebyshev|height 7.00|length 15.0|seed 2|forward 64.4 cm|1.07 cm/s|sideways -2.0 cm|stood up 0|air 0.1%
+Chebyshev_steps7_s2 CONTACTS Chebyshev|ground-pendant 2.3%
+Chebyshev_steps7_s2 VIB Chebyshev|feet 4|spin 36 deg/s|>200 3.4%|jitter 3.11 cm/s|bounce 2.37 cm/s|chatter 1.40 /s|pend 2.3 deg/s
+Chebyshev_waves2_s1 TRACK Chebyshev|height 2.00|length 15.0|seed 1|forward 456.0 cm|7.60 cm/s|sideways 21.9 cm|stood up 0|air 0.1%
+Chebyshev_waves2_s1 CONTACTS Chebyshev|none
+Chebyshev_waves2_s1 VIB Chebyshev|feet 4|spin 20 deg/s|>200 0.7%|jitter 1.84 cm/s|bounce 0.98 cm/s|chatter 1.61 /s|pend 0.9 deg/s
+Chebyshev_waves2_s2 TRACK Chebyshev|height 2.00|length 15.0|seed 2|forward 459.7 cm|7.66 cm/s|sideways 21.6 cm|stood up 0|air 0.1%
+Chebyshev_waves2_s2 CONTACTS Chebyshev|none
+Chebyshev_waves2_s2 VIB Chebyshev|feet 4|spin 21 deg/s|>200 0.6%|jitter 1.74 cm/s|bounce 0.94 cm/s|chatter 1.49 /s|pend 0.8 deg/s
+Chebyshev_waves4_s1 TRACK Chebyshev|height 4.00|length 15.0|seed 1|forward 319.5 cm|5.32 cm/s|sideways 131.9 cm|stood up 0|air 0.1%
+Chebyshev_waves4_s1 CONTACTS Chebyshev|ground-pendant 2.7%
+Chebyshev_waves4_s1 VIB Chebyshev|feet 4|spin 43 deg/s|>200 4.0%|jitter 2.87 cm/s|bounce 2.21 cm/s|chatter 1.82 /s|pend 1.5 deg/s
+Chebyshev_waves4_s2 TRACK Chebyshev|height 4.00|length 15.0|seed 2|forward 356.0 cm|5.93 cm/s|sideways 112.4 cm|stood up 0|air 0.1%
+Chebyshev_waves4_s2 CONTACTS Chebyshev|ground-pendant 0.3%
+Chebyshev_waves4_s2 VIB Chebyshev|feet 4|spin 40 deg/s|>200 4.0%|jitter 2.73 cm/s|bounce 2.15 cm/s|chatter 1.74 /s|pend 1.4 deg/s
+Chebyshev_waves6_s1 TRACK Chebyshev|height 6.00|length 15.0|seed 1|forward 84.4 cm|1.41 cm/s|sideways 39.3 cm|stood up 0|air 0.1%
+Chebyshev_waves6_s1 CONTACTS Chebyshev|ground-pendant 2.7%
+Chebyshev_waves6_s1 VIB Chebyshev|feet 4|spin 78 deg/s|>200 11.8%|jitter 4.07 cm/s|bounce 4.11 cm/s|chatter 1.77 /s|pend 2.1 deg/s
+Chebyshev_waves6_s2 TRACK Chebyshev|height 6.00|length 15.0|seed 2|forward 43.8 cm|0.73 cm/s|sideways 6.9 cm|stood up 0|air 0.1%
+Chebyshev_waves6_s2 CONTACTS Chebyshev|ground-pendant 5.3%
+Chebyshev_waves6_s2 VIB Chebyshev|feet 4|spin 78 deg/s|>200 12.1%|jitter 3.31 cm/s|bounce 3.67 cm/s|chatter 1.22 /s|pend 1.7 deg/s
+Hoecken-Spears_4-bar_diag_flat_s1 TRACK Hoecken-Spears 4-bar diag|height 0.00|length 15.0|seed 1|forward 527.4 cm|8.79 cm/s|sideways 9.8 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_flat_s1 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_flat_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.00 cm/s|bounce 0.11 cm/s|chatter 0.91 /s|pend 0.2 deg/s
+Hoecken-Spears_4-bar_diag_flat_s2 TRACK Hoecken-Spears 4-bar diag|height 0.00|length 15.0|seed 2|forward 527.5 cm|8.79 cm/s|sideways 9.4 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_flat_s2 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_flat_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 1.99 cm/s|bounce 0.11 cm/s|chatter 0.93 /s|pend 0.2 deg/s
+Hoecken-Spears_4-bar_diag_logs3_s1 TRACK Hoecken-Spears 4-bar diag|height 3.00|length 15.0|seed 1|forward 494.3 cm|8.24 cm/s|sideways 5.8 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs3_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 1.0%
+Hoecken-Spears_4-bar_diag_logs3_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 20 deg/s|>200 1.1%|jitter 3.03 cm/s|bounce 1.05 cm/s|chatter 1.38 /s|pend 1.3 deg/s
+Hoecken-Spears_4-bar_diag_logs3_s2 TRACK Hoecken-Spears 4-bar diag|height 3.00|length 15.0|seed 2|forward 487.9 cm|8.13 cm/s|sideways 58.1 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs3_s2 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_logs3_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 21 deg/s|>200 1.3%|jitter 2.88 cm/s|bounce 0.97 cm/s|chatter 1.29 /s|pend 1.2 deg/s
+Hoecken-Spears_4-bar_diag_logs5_s1 TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 448.6 cm|7.48 cm/s|sideways 10.5 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs5_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.3%
+Hoecken-Spears_4-bar_diag_logs5_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 28 deg/s|>200 2.5%|jitter 3.39 cm/s|bounce 1.73 cm/s|chatter 1.47 /s|pend 1.8 deg/s
+Hoecken-Spears_4-bar_diag_logs5_s2 TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 404.7 cm|6.75 cm/s|sideways 8.5 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs5_s2 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.0%
+Hoecken-Spears_4-bar_diag_logs5_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 29 deg/s|>200 2.5%|jitter 3.46 cm/s|bounce 1.89 cm/s|chatter 1.50 /s|pend 2.1 deg/s
+Hoecken-Spears_4-bar_diag_logs7_s1 TRACK Hoecken-Spears 4-bar diag|height 7.00|length 15.0|seed 1|forward 239.4 cm|3.99 cm/s|sideways -4.5 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs7_s1 CONTACTS Hoecken-Spears 4-bar diag|buildOutsideCrossbar-ground 7.9%, ground-pendant 2.5%
+Hoecken-Spears_4-bar_diag_logs7_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 44 deg/s|>200 5.4%|jitter 4.37 cm/s|bounce 3.13 cm/s|chatter 1.57 /s|pend 3.5 deg/s
+Hoecken-Spears_4-bar_diag_logs7_s2 TRACK Hoecken-Spears 4-bar diag|height 7.00|length 15.0|seed 2|forward 128.1 cm|2.14 cm/s|sideways 19.9 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_logs7_s2 CONTACTS Hoecken-Spears 4-bar diag|buildOutsideCrossbar-ground 8.6%, ground-pendant 0.9%
+Hoecken-Spears_4-bar_diag_logs7_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 41 deg/s|>200 5.0%|jitter 4.46 cm/s|bounce 3.05 cm/s|chatter 1.84 /s|pend 3.8 deg/s
+Hoecken-Spears_4-bar_diag_steps3_s1 TRACK Hoecken-Spears 4-bar diag|height 3.00|length 15.0|seed 1|forward 496.9 cm|8.28 cm/s|sideways 19.9 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps3_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.0%
+Hoecken-Spears_4-bar_diag_steps3_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 12 deg/s|>200 0.7%|jitter 2.54 cm/s|bounce 0.69 cm/s|chatter 1.05 /s|pend 0.8 deg/s
+Hoecken-Spears_4-bar_diag_steps3_s2 TRACK Hoecken-Spears 4-bar diag|height 3.00|length 15.0|seed 2|forward 496.9 cm|8.28 cm/s|sideways 23.5 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps3_s2 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.1%
+Hoecken-Spears_4-bar_diag_steps3_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 13 deg/s|>200 0.7%|jitter 2.55 cm/s|bounce 0.67 cm/s|chatter 1.09 /s|pend 0.8 deg/s
+Hoecken-Spears_4-bar_diag_steps5_s1 TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 1|forward 454.3 cm|7.57 cm/s|sideways -2.2 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps5_s1 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_steps5_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 18 deg/s|>200 1.4%|jitter 2.90 cm/s|bounce 1.11 cm/s|chatter 1.24 /s|pend 1.2 deg/s
+Hoecken-Spears_4-bar_diag_steps5_s2 TRACK Hoecken-Spears 4-bar diag|height 5.00|length 15.0|seed 2|forward 448.1 cm|7.47 cm/s|sideways 24.3 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps5_s2 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_steps5_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 18 deg/s|>200 1.5%|jitter 3.02 cm/s|bounce 1.17 cm/s|chatter 1.32 /s|pend 1.3 deg/s
+Hoecken-Spears_4-bar_diag_steps7_s1 TRACK Hoecken-Spears 4-bar diag|height 7.00|length 15.0|seed 1|forward 380.6 cm|6.34 cm/s|sideways 35.3 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps7_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 1.8%
+Hoecken-Spears_4-bar_diag_steps7_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 25 deg/s|>200 2.5%|jitter 3.16 cm/s|bounce 1.78 cm/s|chatter 1.24 /s|pend 1.6 deg/s
+Hoecken-Spears_4-bar_diag_steps7_s2 TRACK Hoecken-Spears 4-bar diag|height 7.00|length 15.0|seed 2|forward 284.7 cm|4.75 cm/s|sideways 16.0 cm|stood up 0|air 0.0%
+Hoecken-Spears_4-bar_diag_steps7_s2 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.5%, ground-link 0.1%
+Hoecken-Spears_4-bar_diag_steps7_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 30 deg/s|>200 3.0%|jitter 3.53 cm/s|bounce 2.07 cm/s|chatter 1.52 /s|pend 1.9 deg/s
+Hoecken-Spears_4-bar_diag_waves2_s1 TRACK Hoecken-Spears 4-bar diag|height 2.00|length 15.0|seed 1|forward 487.1 cm|8.12 cm/s|sideways 125.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves2_s1 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_waves2_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 24 deg/s|>200 1.2%|jitter 3.14 cm/s|bounce 1.04 cm/s|chatter 1.84 /s|pend 1.5 deg/s
+Hoecken-Spears_4-bar_diag_waves2_s2 TRACK Hoecken-Spears 4-bar diag|height 2.00|length 15.0|seed 2|forward 488.8 cm|8.15 cm/s|sideways 87.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves2_s2 CONTACTS Hoecken-Spears 4-bar diag|none
+Hoecken-Spears_4-bar_diag_waves2_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 23 deg/s|>200 1.3%|jitter 3.12 cm/s|bounce 1.06 cm/s|chatter 1.73 /s|pend 1.5 deg/s
+Hoecken-Spears_4-bar_diag_waves4_s1 TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 1|forward 413.0 cm|6.88 cm/s|sideways 197.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves4_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.7%
+Hoecken-Spears_4-bar_diag_waves4_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 38 deg/s|>200 3.2%|jitter 3.17 cm/s|bounce 1.89 cm/s|chatter 1.42 /s|pend 1.9 deg/s
+Hoecken-Spears_4-bar_diag_waves4_s2 TRACK Hoecken-Spears 4-bar diag|height 4.00|length 15.0|seed 2|forward 396.5 cm|6.61 cm/s|sideways 163.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves4_s2 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 0.3%
+Hoecken-Spears_4-bar_diag_waves4_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 40 deg/s|>200 4.0%|jitter 3.29 cm/s|bounce 1.93 cm/s|chatter 1.53 /s|pend 1.9 deg/s
+Hoecken-Spears_4-bar_diag_waves6_s1 TRACK Hoecken-Spears 4-bar diag|height 6.00|length 15.0|seed 1|forward 326.4 cm|5.44 cm/s|sideways 102.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves6_s1 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 6.9%
+Hoecken-Spears_4-bar_diag_waves6_s1 VIB Hoecken-Spears 4-bar diag|feet 4|spin 49 deg/s|>200 5.4%|jitter 3.48 cm/s|bounce 2.65 cm/s|chatter 1.40 /s|pend 2.4 deg/s
+Hoecken-Spears_4-bar_diag_waves6_s2 TRACK Hoecken-Spears 4-bar diag|height 6.00|length 15.0|seed 2|forward 260.5 cm|4.34 cm/s|sideways 117.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_diag_waves6_s2 CONTACTS Hoecken-Spears 4-bar diag|ground-pendant 3.2%
+Hoecken-Spears_4-bar_diag_waves6_s2 VIB Hoecken-Spears 4-bar diag|feet 4|spin 50 deg/s|>200 5.8%|jitter 3.31 cm/s|bounce 2.84 cm/s|chatter 1.15 /s|pend 2.5 deg/s
+Hoecken-Spears_4-bar_flat_s1 TRACK Hoecken-Spears 4-bar|height 0.00|length 15.0|seed 1|forward 533.4 cm|8.89 cm/s|sideways -2.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_flat_s1 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_flat_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 2 deg/s|>200 0.0%|jitter 1.93 cm/s|bounce 0.08 cm/s|chatter 0.92 /s|pend 0.2 deg/s
+Hoecken-Spears_4-bar_flat_s2 TRACK Hoecken-Spears 4-bar|height 0.00|length 15.0|seed 2|forward 533.4 cm|8.89 cm/s|sideways -2.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_flat_s2 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_flat_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 2 deg/s|>200 0.0%|jitter 1.93 cm/s|bounce 0.09 cm/s|chatter 0.93 /s|pend 0.2 deg/s
+Hoecken-Spears_4-bar_logs3_s1 TRACK Hoecken-Spears 4-bar|height 3.00|length 15.0|seed 1|forward 485.5 cm|8.09 cm/s|sideways -23.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs3_s1 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_logs3_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 19 deg/s|>200 1.2%|jitter 3.00 cm/s|bounce 0.96 cm/s|chatter 1.32 /s|pend 0.9 deg/s
+Hoecken-Spears_4-bar_logs3_s2 TRACK Hoecken-Spears 4-bar|height 3.00|length 15.0|seed 2|forward 491.7 cm|8.19 cm/s|sideways 39.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs3_s2 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_logs3_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 18 deg/s|>200 1.2%|jitter 3.01 cm/s|bounce 0.98 cm/s|chatter 1.34 /s|pend 1.0 deg/s
+Hoecken-Spears_4-bar_logs5_s1 TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 417.8 cm|6.96 cm/s|sideways -36.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs5_s1 CONTACTS Hoecken-Spears 4-bar|ground-pendant 0.1%
+Hoecken-Spears_4-bar_logs5_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 29 deg/s|>200 2.6%|jitter 3.72 cm/s|bounce 1.80 cm/s|chatter 1.68 /s|pend 1.4 deg/s
+Hoecken-Spears_4-bar_logs5_s2 TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 402.2 cm|6.70 cm/s|sideways 21.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs5_s2 CONTACTS Hoecken-Spears 4-bar|ground-pendant 0.8%
+Hoecken-Spears_4-bar_logs5_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 27 deg/s|>200 2.4%|jitter 3.59 cm/s|bounce 1.76 cm/s|chatter 1.61 /s|pend 1.4 deg/s
+Hoecken-Spears_4-bar_logs7_s1 TRACK Hoecken-Spears 4-bar|height 7.00|length 15.0|seed 1|forward 127.8 cm|2.13 cm/s|sideways -8.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs7_s1 CONTACTS Hoecken-Spears 4-bar|ground-pendant 0.9%
+Hoecken-Spears_4-bar_logs7_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 41 deg/s|>200 4.7%|jitter 5.00 cm/s|bounce 2.70 cm/s|chatter 2.12 /s|pend 2.2 deg/s
+Hoecken-Spears_4-bar_logs7_s2 TRACK Hoecken-Spears 4-bar|height 7.00|length 15.0|seed 2|forward 237.3 cm|3.96 cm/s|sideways 63.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_logs7_s2 CONTACTS Hoecken-Spears 4-bar|ground-pendant 0.7%
+Hoecken-Spears_4-bar_logs7_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 34 deg/s|>200 3.6%|jitter 4.40 cm/s|bounce 2.40 cm/s|chatter 1.79 /s|pend 2.1 deg/s
+Hoecken-Spears_4-bar_steps3_s1 TRACK Hoecken-Spears 4-bar|height 3.00|length 15.0|seed 1|forward 501.8 cm|8.36 cm/s|sideways -2.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps3_s1 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_steps3_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 11 deg/s|>200 0.5%|jitter 2.61 cm/s|bounce 0.66 cm/s|chatter 1.17 /s|pend 0.6 deg/s
+Hoecken-Spears_4-bar_steps3_s2 TRACK Hoecken-Spears 4-bar|height 3.00|length 15.0|seed 2|forward 494.2 cm|8.24 cm/s|sideways -6.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps3_s2 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_steps3_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 11 deg/s|>200 0.5%|jitter 2.66 cm/s|bounce 0.68 cm/s|chatter 1.27 /s|pend 0.6 deg/s
+Hoecken-Spears_4-bar_steps5_s1 TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 1|forward 440.4 cm|7.34 cm/s|sideways -7.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps5_s1 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_steps5_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 20 deg/s|>200 1.7%|jitter 3.21 cm/s|bounce 1.31 cm/s|chatter 1.37 /s|pend 1.0 deg/s
+Hoecken-Spears_4-bar_steps5_s2 TRACK Hoecken-Spears 4-bar|height 5.00|length 15.0|seed 2|forward 463.5 cm|7.72 cm/s|sideways 37.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps5_s2 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_steps5_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 18 deg/s|>200 1.3%|jitter 3.06 cm/s|bounce 1.16 cm/s|chatter 1.33 /s|pend 0.9 deg/s
+Hoecken-Spears_4-bar_steps7_s1 TRACK Hoecken-Spears 4-bar|height 7.00|length 15.0|seed 1|forward 230.9 cm|3.85 cm/s|sideways 22.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps7_s1 CONTACTS Hoecken-Spears 4-bar|ground-pendant 2.6%
+Hoecken-Spears_4-bar_steps7_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 30 deg/s|>200 2.8%|jitter 3.46 cm/s|bounce 2.10 cm/s|chatter 1.15 /s|pend 1.4 deg/s
+Hoecken-Spears_4-bar_steps7_s2 TRACK Hoecken-Spears 4-bar|height 7.00|length 15.0|seed 2|forward 287.0 cm|4.78 cm/s|sideways -20.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_steps7_s2 CONTACTS Hoecken-Spears 4-bar|ground-pendant 1.1%, ground-link 0.1%
+Hoecken-Spears_4-bar_steps7_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 34 deg/s|>200 3.5%|jitter 3.94 cm/s|bounce 2.24 cm/s|chatter 1.47 /s|pend 1.5 deg/s
+Hoecken-Spears_4-bar_waves2_s1 TRACK Hoecken-Spears 4-bar|height 2.00|length 15.0|seed 1|forward 493.4 cm|8.22 cm/s|sideways 130.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves2_s1 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_waves2_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 23 deg/s|>200 1.3%|jitter 3.43 cm/s|bounce 1.01 cm/s|chatter 1.96 /s|pend 1.1 deg/s
+Hoecken-Spears_4-bar_waves2_s2 TRACK Hoecken-Spears 4-bar|height 2.00|length 15.0|seed 2|forward 498.4 cm|8.31 cm/s|sideways 102.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves2_s2 CONTACTS Hoecken-Spears 4-bar|none
+Hoecken-Spears_4-bar_waves2_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 21 deg/s|>200 1.1%|jitter 3.24 cm/s|bounce 0.98 cm/s|chatter 1.85 /s|pend 1.1 deg/s
+Hoecken-Spears_4-bar_waves4_s1 TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 1|forward 465.3 cm|7.76 cm/s|sideways 116.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves4_s1 CONTACTS Hoecken-Spears 4-bar|ground-pendant 1.1%
+Hoecken-Spears_4-bar_waves4_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 36 deg/s|>200 3.0%|jitter 3.78 cm/s|bounce 1.78 cm/s|chatter 1.84 /s|pend 1.4 deg/s
+Hoecken-Spears_4-bar_waves4_s2 TRACK Hoecken-Spears 4-bar|height 4.00|length 15.0|seed 2|forward 442.2 cm|7.37 cm/s|sideways 85.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves4_s2 CONTACTS Hoecken-Spears 4-bar|ground-pendant 3.9%
+Hoecken-Spears_4-bar_waves4_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 38 deg/s|>200 3.8%|jitter 4.02 cm/s|bounce 1.97 cm/s|chatter 1.92 /s|pend 1.5 deg/s
+Hoecken-Spears_4-bar_waves6_s1 TRACK Hoecken-Spears 4-bar|height 6.00|length 15.0|seed 1|forward 190.4 cm|3.17 cm/s|sideways 45.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves6_s1 CONTACTS Hoecken-Spears 4-bar|ground-pendant 4.4%
+Hoecken-Spears_4-bar_waves6_s1 VIB Hoecken-Spears 4-bar|feet 4|spin 53 deg/s|>200 6.2%|jitter 3.94 cm/s|bounce 2.99 cm/s|chatter 1.32 /s|pend 2.0 deg/s
+Hoecken-Spears_4-bar_waves6_s2 TRACK Hoecken-Spears 4-bar|height 6.00|length 15.0|seed 2|forward 329.1 cm|5.49 cm/s|sideways 51.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_4-bar_waves6_s2 CONTACTS Hoecken-Spears 4-bar|ground-pendant 2.7%
+Hoecken-Spears_4-bar_waves6_s2 VIB Hoecken-Spears 4-bar|feet 4|spin 52 deg/s|>200 6.3%|jitter 4.29 cm/s|bounce 2.90 cm/s|chatter 1.55 /s|pend 2.0 deg/s
+Hoecken-Spears_long-stance_diag_flat_s1 TRACK Hoecken-Spears long-stance diag|height 0.00|length 15.0|seed 1|forward 538.0 cm|8.97 cm/s|sideways 4.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_flat_s1 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_flat_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 4 deg/s|>200 0.1%|jitter 4.03 cm/s|bounce 0.19 cm/s|chatter 2.13 /s|pend 0.6 deg/s
+Hoecken-Spears_long-stance_diag_flat_s2 TRACK Hoecken-Spears long-stance diag|height 0.00|length 15.0|seed 2|forward 537.9 cm|8.97 cm/s|sideways 4.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_flat_s2 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_flat_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 4 deg/s|>200 0.1%|jitter 4.04 cm/s|bounce 0.19 cm/s|chatter 2.16 /s|pend 0.6 deg/s
+Hoecken-Spears_long-stance_diag_logs3_s1 TRACK Hoecken-Spears long-stance diag|height 3.00|length 15.0|seed 1|forward 484.6 cm|8.08 cm/s|sideways -47.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs3_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.2%
+Hoecken-Spears_long-stance_diag_logs3_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 23 deg/s|>200 1.3%|jitter 5.11 cm/s|bounce 1.02 cm/s|chatter 2.13 /s|pend 1.5 deg/s
+Hoecken-Spears_long-stance_diag_logs3_s2 TRACK Hoecken-Spears long-stance diag|height 3.00|length 15.0|seed 2|forward 479.6 cm|7.99 cm/s|sideways -41.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs3_s2 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_logs3_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 26 deg/s|>200 1.6%|jitter 5.14 cm/s|bounce 1.06 cm/s|chatter 1.98 /s|pend 1.6 deg/s
+Hoecken-Spears_long-stance_diag_logs5_s1 TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 415.7 cm|6.93 cm/s|sideways -44.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs5_s1 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_logs5_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 31 deg/s|>200 2.5%|jitter 5.47 cm/s|bounce 1.85 cm/s|chatter 2.03 /s|pend 2.2 deg/s
+Hoecken-Spears_long-stance_diag_logs5_s2 TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 431.2 cm|7.19 cm/s|sideways 0.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs5_s2 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.1%
+Hoecken-Spears_long-stance_diag_logs5_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 31 deg/s|>200 2.4%|jitter 5.58 cm/s|bounce 1.91 cm/s|chatter 1.98 /s|pend 2.4 deg/s
+Hoecken-Spears_long-stance_diag_logs7_s1 TRACK Hoecken-Spears long-stance diag|height 7.00|length 15.0|seed 1|forward 133.3 cm|2.22 cm/s|sideways 15.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs7_s1 CONTACTS Hoecken-Spears long-stance diag|buildOutsideCrossbar-ground 13.7%, ground-pendant 0.6%
+Hoecken-Spears_long-stance_diag_logs7_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 45 deg/s|>200 5.9%|jitter 6.74 cm/s|bounce 3.82 cm/s|chatter 2.15 /s|pend 3.6 deg/s
+Hoecken-Spears_long-stance_diag_logs7_s2 TRACK Hoecken-Spears long-stance diag|height 7.00|length 15.0|seed 2|forward 133.9 cm|2.23 cm/s|sideways 23.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_logs7_s2 CONTACTS Hoecken-Spears long-stance diag|buildOutsideCrossbar-ground 19.2%, ground-pendant 0.3%
+Hoecken-Spears_long-stance_diag_logs7_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 45 deg/s|>200 5.6%|jitter 6.01 cm/s|bounce 3.22 cm/s|chatter 2.32 /s|pend 3.5 deg/s
+Hoecken-Spears_long-stance_diag_steps3_s1 TRACK Hoecken-Spears long-stance diag|height 3.00|length 15.0|seed 1|forward 507.3 cm|8.46 cm/s|sideways -14.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps3_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.1%
+Hoecken-Spears_long-stance_diag_steps3_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 15 deg/s|>200 1.0%|jitter 4.80 cm/s|bounce 0.74 cm/s|chatter 1.68 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_diag_steps3_s2 TRACK Hoecken-Spears long-stance diag|height 3.00|length 15.0|seed 2|forward 490.4 cm|8.17 cm/s|sideways -3.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps3_s2 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_steps3_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 17 deg/s|>200 0.9%|jitter 4.84 cm/s|bounce 0.79 cm/s|chatter 1.70 /s|pend 1.2 deg/s
+Hoecken-Spears_long-stance_diag_steps5_s1 TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 1|forward 442.2 cm|7.37 cm/s|sideways 9.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps5_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.1%
+Hoecken-Spears_long-stance_diag_steps5_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 22 deg/s|>200 1.7%|jitter 5.07 cm/s|bounce 1.21 cm/s|chatter 1.72 /s|pend 1.6 deg/s
+Hoecken-Spears_long-stance_diag_steps5_s2 TRACK Hoecken-Spears long-stance diag|height 5.00|length 15.0|seed 2|forward 428.0 cm|7.13 cm/s|sideways -62.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps5_s2 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_steps5_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 25 deg/s|>200 1.8%|jitter 5.13 cm/s|bounce 1.40 cm/s|chatter 1.82 /s|pend 1.7 deg/s
+Hoecken-Spears_long-stance_diag_steps7_s1 TRACK Hoecken-Spears long-stance diag|height 7.00|length 15.0|seed 1|forward 342.3 cm|5.71 cm/s|sideways 40.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps7_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 1.6%, buildOutsideCrossbar-ground 0.0%
+Hoecken-Spears_long-stance_diag_steps7_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 31 deg/s|>200 2.7%|jitter 5.25 cm/s|bounce 1.85 cm/s|chatter 1.84 /s|pend 2.1 deg/s
+Hoecken-Spears_long-stance_diag_steps7_s2 TRACK Hoecken-Spears long-stance diag|height 7.00|length 15.0|seed 2|forward 366.6 cm|6.11 cm/s|sideways 17.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_steps7_s2 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.4%, buildOutsideCrossbar-ground 0.0%
+Hoecken-Spears_long-stance_diag_steps7_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 29 deg/s|>200 2.5%|jitter 5.32 cm/s|bounce 1.81 cm/s|chatter 1.90 /s|pend 2.1 deg/s
+Hoecken-Spears_long-stance_diag_waves2_s1 TRACK Hoecken-Spears long-stance diag|height 2.00|length 15.0|seed 1|forward 471.3 cm|7.85 cm/s|sideways 101.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves2_s1 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_waves2_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 29 deg/s|>200 2.0%|jitter 5.24 cm/s|bounce 1.04 cm/s|chatter 2.83 /s|pend 1.6 deg/s
+Hoecken-Spears_long-stance_diag_waves2_s2 TRACK Hoecken-Spears long-stance diag|height 2.00|length 15.0|seed 2|forward 483.2 cm|8.05 cm/s|sideways 92.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves2_s2 CONTACTS Hoecken-Spears long-stance diag|none
+Hoecken-Spears_long-stance_diag_waves2_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 26 deg/s|>200 1.9%|jitter 5.12 cm/s|bounce 0.99 cm/s|chatter 2.81 /s|pend 1.7 deg/s
+Hoecken-Spears_long-stance_diag_waves4_s1 TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 1|forward 378.2 cm|6.30 cm/s|sideways 172.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves4_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 3.9%
+Hoecken-Spears_long-stance_diag_waves4_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 43 deg/s|>200 3.8%|jitter 4.99 cm/s|bounce 1.85 cm/s|chatter 1.87 /s|pend 2.2 deg/s
+Hoecken-Spears_long-stance_diag_waves4_s2 TRACK Hoecken-Spears long-stance diag|height 4.00|length 15.0|seed 2|forward 406.6 cm|6.78 cm/s|sideways 101.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves4_s2 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 0.1%
+Hoecken-Spears_long-stance_diag_waves4_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 41 deg/s|>200 3.6%|jitter 4.94 cm/s|bounce 1.84 cm/s|chatter 1.89 /s|pend 1.9 deg/s
+Hoecken-Spears_long-stance_diag_waves6_s1 TRACK Hoecken-Spears long-stance diag|height 6.00|length 15.0|seed 1|forward 349.2 cm|5.82 cm/s|sideways 130.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves6_s1 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 2.8%
+Hoecken-Spears_long-stance_diag_waves6_s1 VIB Hoecken-Spears long-stance diag|feet 4|spin 52 deg/s|>200 5.8%|jitter 5.07 cm/s|bounce 2.89 cm/s|chatter 1.75 /s|pend 2.5 deg/s
+Hoecken-Spears_long-stance_diag_waves6_s2 TRACK Hoecken-Spears long-stance diag|height 6.00|length 15.0|seed 2|forward 334.2 cm|5.57 cm/s|sideways 89.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_diag_waves6_s2 CONTACTS Hoecken-Spears long-stance diag|ground-pendant 4.8%
+Hoecken-Spears_long-stance_diag_waves6_s2 VIB Hoecken-Spears long-stance diag|feet 4|spin 57 deg/s|>200 6.6%|jitter 4.98 cm/s|bounce 3.04 cm/s|chatter 1.76 /s|pend 2.5 deg/s
+Hoecken-Spears_long-stance_flat_s1 TRACK Hoecken-Spears long-stance|height 0.00|length 15.0|seed 1|forward 536.5 cm|8.94 cm/s|sideways 1.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_flat_s1 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_flat_s1 VIB Hoecken-Spears long-stance|feet 4|spin 3 deg/s|>200 0.0%|jitter 5.24 cm/s|bounce 0.17 cm/s|chatter 2.12 /s|pend 0.5 deg/s
+Hoecken-Spears_long-stance_flat_s2 TRACK Hoecken-Spears long-stance|height 0.00|length 15.0|seed 2|forward 536.7 cm|8.94 cm/s|sideways 0.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_flat_s2 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_flat_s2 VIB Hoecken-Spears long-stance|feet 4|spin 3 deg/s|>200 0.0%|jitter 5.23 cm/s|bounce 0.16 cm/s|chatter 2.15 /s|pend 0.4 deg/s
+Hoecken-Spears_long-stance_logs3_s1 TRACK Hoecken-Spears long-stance|height 3.00|length 15.0|seed 1|forward 492.4 cm|8.21 cm/s|sideways 46.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_logs3_s1 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_logs3_s1 VIB Hoecken-Spears long-stance|feet 4|spin 21 deg/s|>200 1.2%|jitter 6.20 cm/s|bounce 0.94 cm/s|chatter 1.76 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_logs3_s2 TRACK Hoecken-Spears long-stance|height 3.00|length 15.0|seed 2|forward 486.6 cm|8.11 cm/s|sideways -45.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_logs3_s2 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_logs3_s2 VIB Hoecken-Spears long-stance|feet 4|spin 24 deg/s|>200 1.5%|jitter 6.42 cm/s|bounce 1.00 cm/s|chatter 2.25 /s|pend 1.2 deg/s
+Hoecken-Spears_long-stance_logs5_s1 TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 183.2 cm|3.05 cm/s|sideways 13.5 cm|stood up 0|air 0.5%
+Hoecken-Spears_long-stance_logs5_s1 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.3%
+Hoecken-Spears_long-stance_logs5_s1 VIB Hoecken-Spears long-stance|feet 4|spin 40 deg/s|>200 4.3%|jitter 8.48 cm/s|bounce 2.22 cm/s|chatter 2.99 /s|pend 1.8 deg/s
+Hoecken-Spears_long-stance_logs5_s2 TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 379.1 cm|6.32 cm/s|sideways 43.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_logs5_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.1%
+Hoecken-Spears_long-stance_logs5_s2 VIB Hoecken-Spears long-stance|feet 4|spin 31 deg/s|>200 2.8%|jitter 6.67 cm/s|bounce 1.84 cm/s|chatter 2.26 /s|pend 1.4 deg/s
+Hoecken-Spears_long-stance_logs7_s1 TRACK Hoecken-Spears long-stance|height 7.00|length 15.0|seed 1|forward 46.3 cm|0.77 cm/s|sideways 29.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_logs7_s1 CONTACTS Hoecken-Spears long-stance|ground-pendant 1.2%
+Hoecken-Spears_long-stance_logs7_s1 VIB Hoecken-Spears long-stance|feet 4|spin 39 deg/s|>200 4.2%|jitter 7.57 cm/s|bounce 2.23 cm/s|chatter 2.97 /s|pend 2.0 deg/s
+Hoecken-Spears_long-stance_logs7_s2 TRACK Hoecken-Spears long-stance|height 7.00|length 15.0|seed 2|forward 42.1 cm|0.70 cm/s|sideways 20.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_logs7_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 3.0%
+Hoecken-Spears_long-stance_logs7_s2 VIB Hoecken-Spears long-stance|feet 4|spin 35 deg/s|>200 3.8%|jitter 6.41 cm/s|bounce 2.08 cm/s|chatter 2.51 /s|pend 2.0 deg/s
+Hoecken-Spears_long-stance_steps3_s1 TRACK Hoecken-Spears long-stance|height 3.00|length 15.0|seed 1|forward 506.5 cm|8.44 cm/s|sideways 7.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps3_s1 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_steps3_s1 VIB Hoecken-Spears long-stance|feet 4|spin 14 deg/s|>200 0.9%|jitter 6.08 cm/s|bounce 0.78 cm/s|chatter 1.75 /s|pend 0.8 deg/s
+Hoecken-Spears_long-stance_steps3_s2 TRACK Hoecken-Spears long-stance|height 3.00|length 15.0|seed 2|forward 500.7 cm|8.35 cm/s|sideways -25.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps3_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.0%
+Hoecken-Spears_long-stance_steps3_s2 VIB Hoecken-Spears long-stance|feet 4|spin 16 deg/s|>200 0.9%|jitter 6.13 cm/s|bounce 0.82 cm/s|chatter 1.93 /s|pend 0.9 deg/s
+Hoecken-Spears_long-stance_steps5_s1 TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 1|forward 464.8 cm|7.75 cm/s|sideways -13.4 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps5_s1 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.7%
+Hoecken-Spears_long-stance_steps5_s1 VIB Hoecken-Spears long-stance|feet 4|spin 22 deg/s|>200 1.6%|jitter 6.59 cm/s|bounce 1.28 cm/s|chatter 1.93 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_steps5_s2 TRACK Hoecken-Spears long-stance|height 5.00|length 15.0|seed 2|forward 445.8 cm|7.43 cm/s|sideways -7.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps5_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 1.3%
+Hoecken-Spears_long-stance_steps5_s2 VIB Hoecken-Spears long-stance|feet 4|spin 23 deg/s|>200 2.0%|jitter 6.49 cm/s|bounce 1.27 cm/s|chatter 1.82 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_steps7_s1 TRACK Hoecken-Spears long-stance|height 7.00|length 15.0|seed 1|forward 221.0 cm|3.68 cm/s|sideways 4.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps7_s1 CONTACTS Hoecken-Spears long-stance|ground-pendant 3.6%, ground-link 0.0%
+Hoecken-Spears_long-stance_steps7_s1 VIB Hoecken-Spears long-stance|feet 4|spin 33 deg/s|>200 3.0%|jitter 6.60 cm/s|bounce 1.80 cm/s|chatter 2.28 /s|pend 1.6 deg/s
+Hoecken-Spears_long-stance_steps7_s2 TRACK Hoecken-Spears long-stance|height 7.00|length 15.0|seed 2|forward 234.6 cm|3.91 cm/s|sideways -37.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_steps7_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.1%
+Hoecken-Spears_long-stance_steps7_s2 VIB Hoecken-Spears long-stance|feet 4|spin 34 deg/s|>200 3.0%|jitter 7.15 cm/s|bounce 1.94 cm/s|chatter 2.34 /s|pend 1.9 deg/s
+Hoecken-Spears_long-stance_waves2_s1 TRACK Hoecken-Spears long-stance|height 2.00|length 15.0|seed 1|forward 478.6 cm|7.98 cm/s|sideways 105.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves2_s1 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_waves2_s1 VIB Hoecken-Spears long-stance|feet 4|spin 25 deg/s|>200 1.7%|jitter 6.38 cm/s|bounce 0.85 cm/s|chatter 2.38 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_waves2_s2 TRACK Hoecken-Spears long-stance|height 2.00|length 15.0|seed 2|forward 478.7 cm|7.98 cm/s|sideways -48.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves2_s2 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_waves2_s2 VIB Hoecken-Spears long-stance|feet 4|spin 23 deg/s|>200 1.4%|jitter 6.69 cm/s|bounce 0.75 cm/s|chatter 2.67 /s|pend 1.1 deg/s
+Hoecken-Spears_long-stance_waves4_s1 TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 1|forward 464.4 cm|7.74 cm/s|sideways -75.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves4_s1 CONTACTS Hoecken-Spears long-stance|none
+Hoecken-Spears_long-stance_waves4_s1 VIB Hoecken-Spears long-stance|feet 4|spin 28 deg/s|>200 2.0%|jitter 6.70 cm/s|bounce 1.11 cm/s|chatter 2.28 /s|pend 1.2 deg/s
+Hoecken-Spears_long-stance_waves4_s2 TRACK Hoecken-Spears long-stance|height 4.00|length 15.0|seed 2|forward 420.7 cm|7.01 cm/s|sideways 48.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves4_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.5%
+Hoecken-Spears_long-stance_waves4_s2 VIB Hoecken-Spears long-stance|feet 4|spin 39 deg/s|>200 3.6%|jitter 6.49 cm/s|bounce 1.81 cm/s|chatter 2.19 /s|pend 1.3 deg/s
+Hoecken-Spears_long-stance_waves6_s1 TRACK Hoecken-Spears long-stance|height 6.00|length 15.0|seed 1|forward 450.1 cm|7.50 cm/s|sideways -72.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves6_s1 CONTACTS Hoecken-Spears long-stance|ground-pendant 0.4%
+Hoecken-Spears_long-stance_waves6_s1 VIB Hoecken-Spears long-stance|feet 4|spin 41 deg/s|>200 3.9%|jitter 6.72 cm/s|bounce 2.02 cm/s|chatter 2.12 /s|pend 1.6 deg/s
+Hoecken-Spears_long-stance_waves6_s2 TRACK Hoecken-Spears long-stance|height 6.00|length 15.0|seed 2|forward 364.0 cm|6.07 cm/s|sideways 73.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_long-stance_waves6_s2 CONTACTS Hoecken-Spears long-stance|ground-pendant 5.8%
+Hoecken-Spears_long-stance_waves6_s2 VIB Hoecken-Spears long-stance|feet 4|spin 49 deg/s|>200 5.6%|jitter 6.45 cm/s|bounce 2.63 cm/s|chatter 1.95 /s|pend 1.2 deg/s
+Hoecken-Spears_slider_flat_s1 TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 1|forward 540.2 cm|9.00 cm/s|sideways 9.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_flat_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_flat_s1 VIB Hoecken-Spears slider|feet 4|spin 5 deg/s|>200 0.0%|jitter 4.95 cm/s|bounce 0.30 cm/s|chatter 3.10 /s|pend 1.1 deg/s
+Hoecken-Spears_slider_flat_s2 TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 2|forward 540.4 cm|9.01 cm/s|sideways 8.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_flat_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_flat_s2 VIB Hoecken-Spears slider|feet 4|spin 6 deg/s|>200 0.0%|jitter 4.98 cm/s|bounce 0.31 cm/s|chatter 3.12 /s|pend 1.1 deg/s
+Hoecken-Spears_slider_logs3_s1 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 1|forward 502.1 cm|8.37 cm/s|sideways 25.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs3_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs3_s1 VIB Hoecken-Spears slider|feet 4|spin 22 deg/s|>200 1.6%|jitter 5.68 cm/s|bounce 1.15 cm/s|chatter 2.18 /s|pend 1.9 deg/s
+Hoecken-Spears_slider_logs3_s2 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 2|forward 488.5 cm|8.14 cm/s|sideways 35.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs3_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs3_s2 VIB Hoecken-Spears slider|feet 4|spin 23 deg/s|>200 1.5%|jitter 5.77 cm/s|bounce 1.20 cm/s|chatter 2.10 /s|pend 1.8 deg/s
+Hoecken-Spears_slider_logs5_s1 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 389.1 cm|6.48 cm/s|sideways 43.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs5_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.0%
+Hoecken-Spears_slider_logs5_s1 VIB Hoecken-Spears slider|feet 4|spin 32 deg/s|>200 3.0%|jitter 6.68 cm/s|bounce 2.02 cm/s|chatter 2.50 /s|pend 2.7 deg/s
+Hoecken-Spears_slider_logs5_s2 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 397.5 cm|6.62 cm/s|sideways 31.5 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_logs5_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs5_s2 VIB Hoecken-Spears slider|feet 4|spin 32 deg/s|>200 2.7%|jitter 6.45 cm/s|bounce 1.97 cm/s|chatter 2.17 /s|pend 2.7 deg/s
+Hoecken-Spears_slider_logs7_s1 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 1|forward 23.9 cm|0.40 cm/s|sideways 4.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_logs7_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_logs7_s1 VIB Hoecken-Spears slider|feet 4|spin 24 deg/s|>200 1.9%|jitter 4.51 cm/s|bounce 1.48 cm/s|chatter 1.74 /s|pend 2.7 deg/s
+Hoecken-Spears_slider_logs7_s2 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 2|forward 1.8 cm|0.03 cm/s|sideways 17.1 cm|stood up 0|air 0.2%
+Hoecken-Spears_slider_logs7_s2 CONTACTS Hoecken-Spears slider|ground-pendant 1.5%
+Hoecken-Spears_slider_logs7_s2 VIB Hoecken-Spears slider|feet 4|spin 25 deg/s|>200 2.5%|jitter 4.21 cm/s|bounce 1.59 cm/s|chatter 1.68 /s|pend 2.7 deg/s
+Hoecken-Spears_slider_steps3_s1 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 1|forward 511.7 cm|8.53 cm/s|sideways 34.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps3_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps3_s1 VIB Hoecken-Spears slider|feet 4|spin 16 deg/s|>200 0.9%|jitter 5.79 cm/s|bounce 0.92 cm/s|chatter 1.93 /s|pend 1.5 deg/s
+Hoecken-Spears_slider_steps3_s2 TRACK Hoecken-Spears slider|height 3.00|length 15.0|seed 2|forward 509.1 cm|8.48 cm/s|sideways 14.3 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps3_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps3_s2 VIB Hoecken-Spears slider|feet 4|spin 17 deg/s|>200 0.9%|jitter 5.77 cm/s|bounce 0.92 cm/s|chatter 1.98 /s|pend 1.6 deg/s
+Hoecken-Spears_slider_steps5_s1 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 391.4 cm|6.52 cm/s|sideways 47.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps5_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.0%
+Hoecken-Spears_slider_steps5_s1 VIB Hoecken-Spears slider|feet 4|spin 23 deg/s|>200 1.9%|jitter 6.59 cm/s|bounce 1.42 cm/s|chatter 2.33 /s|pend 2.1 deg/s
+Hoecken-Spears_slider_steps5_s2 TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 2|forward 470.4 cm|7.84 cm/s|sideways 3.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps5_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_steps5_s2 VIB Hoecken-Spears slider|feet 4|spin 22 deg/s|>200 1.7%|jitter 6.32 cm/s|bounce 1.35 cm/s|chatter 1.91 /s|pend 2.0 deg/s
+Hoecken-Spears_slider_steps7_s1 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 1|forward 181.1 cm|3.02 cm/s|sideways 22.7 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps7_s1 CONTACTS Hoecken-Spears slider|ground-pendant 1.0%
+Hoecken-Spears_slider_steps7_s1 VIB Hoecken-Spears slider|feet 4|spin 33 deg/s|>200 3.6%|jitter 7.99 cm/s|bounce 2.10 cm/s|chatter 3.73 /s|pend 3.9 deg/s
+Hoecken-Spears_slider_steps7_s2 TRACK Hoecken-Spears slider|height 7.00|length 15.0|seed 2|forward 27.4 cm|0.46 cm/s|sideways 21.6 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_steps7_s2 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_steps7_s2 VIB Hoecken-Spears slider|feet 4|spin 37 deg/s|>200 4.4%|jitter 8.97 cm/s|bounce 1.96 cm/s|chatter 5.18 /s|pend 4.5 deg/s
+Hoecken-Spears_slider_waves2_s1 TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 1|forward 396.9 cm|6.61 cm/s|sideways 255.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves2_s1 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_waves2_s1 VIB Hoecken-Spears slider|feet 4|spin 29 deg/s|>200 1.8%|jitter 6.15 cm/s|bounce 1.29 cm/s|chatter 2.66 /s|pend 1.7 deg/s
+Hoecken-Spears_slider_waves2_s2 TRACK Hoecken-Spears slider|height 2.00|length 15.0|seed 2|forward 473.2 cm|7.89 cm/s|sideways 154.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves2_s2 CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_waves2_s2 VIB Hoecken-Spears slider|feet 4|spin 29 deg/s|>200 2.0%|jitter 6.07 cm/s|bounce 1.14 cm/s|chatter 2.67 /s|pend 1.7 deg/s
+Hoecken-Spears_slider_waves4_s1 TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 272.3 cm|4.54 cm/s|sideways 314.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves4_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.1%
+Hoecken-Spears_slider_waves4_s1 VIB Hoecken-Spears slider|feet 4|spin 43 deg/s|>200 4.1%|jitter 6.68 cm/s|bounce 2.14 cm/s|chatter 2.75 /s|pend 2.3 deg/s
+Hoecken-Spears_slider_waves4_s2 TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 2|forward 312.0 cm|5.20 cm/s|sideways 310.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves4_s2 CONTACTS Hoecken-Spears slider|ground-pendant 1.2%
+Hoecken-Spears_slider_waves4_s2 VIB Hoecken-Spears slider|feet 4|spin 42 deg/s|>200 3.7%|jitter 6.23 cm/s|bounce 1.91 cm/s|chatter 2.11 /s|pend 2.1 deg/s
+Hoecken-Spears_slider_waves6_s1 TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 1|forward 110.2 cm|1.84 cm/s|sideways 68.0 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves6_s1 CONTACTS Hoecken-Spears slider|ground-pendant 0.5%
+Hoecken-Spears_slider_waves6_s1 VIB Hoecken-Spears slider|feet 4|spin 52 deg/s|>200 5.9%|jitter 5.09 cm/s|bounce 2.82 cm/s|chatter 1.48 /s|pend 2.5 deg/s
+Hoecken-Spears_slider_waves6_s2 TRACK Hoecken-Spears slider|height 6.00|length 15.0|seed 2|forward 130.1 cm|2.17 cm/s|sideways 60.2 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_waves6_s2 CONTACTS Hoecken-Spears slider|ground-pendant 1.4%
+Hoecken-Spears_slider_waves6_s2 VIB Hoecken-Spears slider|feet 4|spin 50 deg/s|>200 5.0%|jitter 5.29 cm/s|bounce 2.80 cm/s|chatter 1.71 /s|pend 2.7 deg/s
+Hoecken_4-bar_diag_flat_s1 TRACK Hoecken 4-bar diag|height 0.00|length 15.0|seed 1|forward 540.6 cm|9.01 cm/s|sideways 5.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_flat_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_flat_s1 VIB Hoecken 4-bar diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.16 cm/s|chatter 0.72 /s|pend 0.3 deg/s
+Hoecken_4-bar_diag_flat_s2 TRACK Hoecken 4-bar diag|height 0.00|length 15.0|seed 2|forward 540.8 cm|9.01 cm/s|sideways 4.2 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_flat_s2 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_flat_s2 VIB Hoecken 4-bar diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.74 cm/s|bounce 0.15 cm/s|chatter 0.70 /s|pend 0.2 deg/s
+Hoecken_4-bar_diag_logs3_s1 TRACK Hoecken 4-bar diag|height 3.00|length 15.0|seed 1|forward 423.2 cm|7.05 cm/s|sideways 59.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs3_s1 CONTACTS Hoecken 4-bar diag|ground-pendant 0.0%
+Hoecken_4-bar_diag_logs3_s1 VIB Hoecken 4-bar diag|feet 4|spin 24 deg/s|>200 2.0%|jitter 2.01 cm/s|bounce 1.36 cm/s|chatter 1.41 /s|pend 0.9 deg/s
+Hoecken_4-bar_diag_logs3_s2 TRACK Hoecken 4-bar diag|height 3.00|length 15.0|seed 2|forward 439.5 cm|7.33 cm/s|sideways -15.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs3_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 0.2%
+Hoecken_4-bar_diag_logs3_s2 VIB Hoecken 4-bar diag|feet 4|spin 24 deg/s|>200 1.8%|jitter 2.00 cm/s|bounce 1.38 cm/s|chatter 1.62 /s|pend 0.9 deg/s
+Hoecken_4-bar_diag_logs5_s1 TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 92.9 cm|1.55 cm/s|sideways -79.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs5_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_logs5_s1 VIB Hoecken 4-bar diag|feet 4|spin 28 deg/s|>200 2.2%|jitter 2.36 cm/s|bounce 1.81 cm/s|chatter 1.21 /s|pend 1.1 deg/s
+Hoecken_4-bar_diag_logs5_s2 TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 26.3 cm|0.44 cm/s|sideways -95.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs5_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 0.0%
+Hoecken_4-bar_diag_logs5_s2 VIB Hoecken 4-bar diag|feet 4|spin 34 deg/s|>200 3.3%|jitter 2.68 cm/s|bounce 2.10 cm/s|chatter 1.35 /s|pend 1.4 deg/s
+Hoecken_4-bar_diag_logs7_s1 TRACK Hoecken 4-bar diag|height 7.00|length 15.0|seed 1|forward 23.4 cm|0.39 cm/s|sideways 4.0 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs7_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_logs7_s1 VIB Hoecken 4-bar diag|feet 4|spin 30 deg/s|>200 3.8%|jitter 4.05 cm/s|bounce 2.54 cm/s|chatter 2.03 /s|pend 1.7 deg/s
+Hoecken_4-bar_diag_logs7_s2 TRACK Hoecken 4-bar diag|height 7.00|length 15.0|seed 2|forward -3.8 cm|-0.06 cm/s|sideways -4.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_logs7_s2 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_logs7_s2 VIB Hoecken 4-bar diag|feet 4|spin 29 deg/s|>200 3.5%|jitter 4.22 cm/s|bounce 2.68 cm/s|chatter 2.58 /s|pend 1.6 deg/s
+Hoecken_4-bar_diag_steps3_s1 TRACK Hoecken 4-bar diag|height 3.00|length 15.0|seed 1|forward 456.4 cm|7.61 cm/s|sideways -23.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps3_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_steps3_s1 VIB Hoecken 4-bar diag|feet 4|spin 16 deg/s|>200 0.8%|jitter 1.56 cm/s|bounce 0.90 cm/s|chatter 0.99 /s|pend 0.7 deg/s
+Hoecken_4-bar_diag_steps3_s2 TRACK Hoecken 4-bar diag|height 3.00|length 15.0|seed 2|forward 454.2 cm|7.57 cm/s|sideways -45.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps3_s2 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_steps3_s2 VIB Hoecken 4-bar diag|feet 4|spin 15 deg/s|>200 0.8%|jitter 1.50 cm/s|bounce 0.82 cm/s|chatter 1.07 /s|pend 0.6 deg/s
+Hoecken_4-bar_diag_steps5_s1 TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 1|forward 8.9 cm|0.15 cm/s|sideways -4.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps5_s1 CONTACTS Hoecken 4-bar diag|ground-pendant 0.1%
+Hoecken_4-bar_diag_steps5_s1 VIB Hoecken 4-bar diag|feet 4|spin 39 deg/s|>200 4.3%|jitter 4.24 cm/s|bounce 2.57 cm/s|chatter 2.43 /s|pend 1.6 deg/s
+Hoecken_4-bar_diag_steps5_s2 TRACK Hoecken 4-bar diag|height 5.00|length 15.0|seed 2|forward 179.1 cm|2.98 cm/s|sideways -4.0 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps5_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 0.3%
+Hoecken_4-bar_diag_steps5_s2 VIB Hoecken 4-bar diag|feet 4|spin 30 deg/s|>200 3.0%|jitter 2.96 cm/s|bounce 2.09 cm/s|chatter 1.58 /s|pend 1.1 deg/s
+Hoecken_4-bar_diag_steps7_s1 TRACK Hoecken 4-bar diag|height 7.00|length 15.0|seed 1|forward 2.5 cm|0.04 cm/s|sideways 5.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps7_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_steps7_s1 VIB Hoecken 4-bar diag|feet 4|spin 41 deg/s|>200 3.9%|jitter 3.90 cm/s|bounce 2.58 cm/s|chatter 1.43 /s|pend 1.4 deg/s
+Hoecken_4-bar_diag_steps7_s2 TRACK Hoecken 4-bar diag|height 7.00|length 15.0|seed 2|forward 63.6 cm|1.06 cm/s|sideways -3.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_steps7_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 0.9%
+Hoecken_4-bar_diag_steps7_s2 VIB Hoecken 4-bar diag|feet 4|spin 39 deg/s|>200 4.2%|jitter 3.37 cm/s|bounce 2.56 cm/s|chatter 1.21 /s|pend 1.5 deg/s
+Hoecken_4-bar_diag_waves2_s1 TRACK Hoecken 4-bar diag|height 2.00|length 15.0|seed 1|forward 485.2 cm|8.09 cm/s|sideways -16.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves2_s1 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_waves2_s1 VIB Hoecken 4-bar diag|feet 4|spin 23 deg/s|>200 0.9%|jitter 1.99 cm/s|bounce 1.02 cm/s|chatter 1.66 /s|pend 0.8 deg/s
+Hoecken_4-bar_diag_waves2_s2 TRACK Hoecken 4-bar diag|height 2.00|length 15.0|seed 2|forward 484.2 cm|8.07 cm/s|sideways 52.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves2_s2 CONTACTS Hoecken 4-bar diag|none
+Hoecken_4-bar_diag_waves2_s2 VIB Hoecken 4-bar diag|feet 4|spin 23 deg/s|>200 0.9%|jitter 2.01 cm/s|bounce 1.11 cm/s|chatter 1.84 /s|pend 0.8 deg/s
+Hoecken_4-bar_diag_waves4_s1 TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 1|forward 379.5 cm|6.32 cm/s|sideways 98.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves4_s1 CONTACTS Hoecken 4-bar diag|ground-pendant 0.2%
+Hoecken_4-bar_diag_waves4_s1 VIB Hoecken 4-bar diag|feet 4|spin 43 deg/s|>200 4.4%|jitter 3.25 cm/s|bounce 2.47 cm/s|chatter 1.88 /s|pend 1.4 deg/s
+Hoecken_4-bar_diag_waves4_s2 TRACK Hoecken 4-bar diag|height 4.00|length 15.0|seed 2|forward 384.3 cm|6.41 cm/s|sideways 92.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves4_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 1.5%
+Hoecken_4-bar_diag_waves4_s2 VIB Hoecken 4-bar diag|feet 4|spin 42 deg/s|>200 4.0%|jitter 3.02 cm/s|bounce 2.20 cm/s|chatter 1.94 /s|pend 1.4 deg/s
+Hoecken_4-bar_diag_waves6_s1 TRACK Hoecken 4-bar diag|height 6.00|length 15.0|seed 1|forward 197.0 cm|3.28 cm/s|sideways 42.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves6_s1 CONTACTS Hoecken 4-bar diag|ground-pendant 4.4%
+Hoecken_4-bar_diag_waves6_s1 VIB Hoecken 4-bar diag|feet 4|spin 88 deg/s|>200 14.1%|jitter 5.05 cm/s|bounce 4.62 cm/s|chatter 2.29 /s|pend 2.0 deg/s
+Hoecken_4-bar_diag_waves6_s2 TRACK Hoecken 4-bar diag|height 6.00|length 15.0|seed 2|forward 40.2 cm|0.67 cm/s|sideways 5.2 cm|stood up 0|air 0.1%
+Hoecken_4-bar_diag_waves6_s2 CONTACTS Hoecken 4-bar diag|ground-pendant 0.9%
+Hoecken_4-bar_diag_waves6_s2 VIB Hoecken 4-bar diag|feet 4|spin 70 deg/s|>200 9.7%|jitter 4.92 cm/s|bounce 3.90 cm/s|chatter 2.53 /s|pend 2.1 deg/s
+Hoecken_4-bar_flat_s1 TRACK Hoecken 4-bar|height 0.00|length 15.0|seed 1|forward 534.4 cm|8.91 cm/s|sideways -4.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_flat_s1 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_flat_s1 VIB Hoecken 4-bar|feet 4|spin 4 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.15 cm/s|chatter 0.71 /s|pend 0.3 deg/s
+Hoecken_4-bar_flat_s2 TRACK Hoecken 4-bar|height 0.00|length 15.0|seed 2|forward 534.2 cm|8.90 cm/s|sideways -4.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_flat_s2 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_flat_s2 VIB Hoecken 4-bar|feet 4|spin 4 deg/s|>200 0.0%|jitter 0.76 cm/s|bounce 0.15 cm/s|chatter 0.72 /s|pend 0.3 deg/s
+Hoecken_4-bar_logs3_s1 TRACK Hoecken 4-bar|height 3.00|length 15.0|seed 1|forward 425.8 cm|7.10 cm/s|sideways -44.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs3_s1 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_logs3_s1 VIB Hoecken 4-bar|feet 4|spin 20 deg/s|>200 1.6%|jitter 1.83 cm/s|bounce 1.19 cm/s|chatter 1.50 /s|pend 1.1 deg/s
+Hoecken_4-bar_logs3_s2 TRACK Hoecken 4-bar|height 3.00|length 15.0|seed 2|forward 453.0 cm|7.55 cm/s|sideways 7.2 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs3_s2 CONTACTS Hoecken 4-bar|ground-pendant 0.0%
+Hoecken_4-bar_logs3_s2 VIB Hoecken 4-bar|feet 4|spin 20 deg/s|>200 1.2%|jitter 1.63 cm/s|bounce 1.11 cm/s|chatter 1.39 /s|pend 1.0 deg/s
+Hoecken_4-bar_logs5_s1 TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 326.7 cm|5.45 cm/s|sideways 27.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs5_s1 CONTACTS Hoecken 4-bar|ground-pendant 0.2%
+Hoecken_4-bar_logs5_s1 VIB Hoecken 4-bar|feet 4|spin 30 deg/s|>200 3.0%|jitter 2.71 cm/s|bounce 2.11 cm/s|chatter 1.69 /s|pend 1.7 deg/s
+Hoecken_4-bar_logs5_s2 TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 236.7 cm|3.95 cm/s|sideways 49.4 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs5_s2 CONTACTS Hoecken 4-bar|ground-pendant 0.8%
+Hoecken_4-bar_logs5_s2 VIB Hoecken 4-bar|feet 4|spin 31 deg/s|>200 3.3%|jitter 2.80 cm/s|bounce 2.14 cm/s|chatter 1.56 /s|pend 1.8 deg/s
+Hoecken_4-bar_logs7_s1 TRACK Hoecken 4-bar|height 7.00|length 15.0|seed 1|forward 25.1 cm|0.42 cm/s|sideways 8.7 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs7_s1 CONTACTS Hoecken 4-bar|ground-pendant 0.3%
+Hoecken_4-bar_logs7_s1 VIB Hoecken 4-bar|feet 4|spin 30 deg/s|>200 3.7%|jitter 3.58 cm/s|bounce 2.63 cm/s|chatter 1.92 /s|pend 2.3 deg/s
+Hoecken_4-bar_logs7_s2 TRACK Hoecken 4-bar|height 7.00|length 15.0|seed 2|forward -2.5 cm|-0.04 cm/s|sideways 12.0 cm|stood up 0|air 0.1%
+Hoecken_4-bar_logs7_s2 CONTACTS Hoecken 4-bar|ground-pendant 0.3%
+Hoecken_4-bar_logs7_s2 VIB Hoecken 4-bar|feet 4|spin 30 deg/s|>200 3.6%|jitter 3.63 cm/s|bounce 2.67 cm/s|chatter 2.03 /s|pend 2.5 deg/s
+Hoecken_4-bar_steps3_s1 TRACK Hoecken 4-bar|height 3.00|length 15.0|seed 1|forward 457.4 cm|7.62 cm/s|sideways -2.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps3_s1 CONTACTS Hoecken 4-bar|ground-pendant 0.1%
+Hoecken_4-bar_steps3_s1 VIB Hoecken 4-bar|feet 4|spin 14 deg/s|>200 0.7%|jitter 1.53 cm/s|bounce 0.91 cm/s|chatter 1.07 /s|pend 0.8 deg/s
+Hoecken_4-bar_steps3_s2 TRACK Hoecken 4-bar|height 3.00|length 15.0|seed 2|forward 451.5 cm|7.53 cm/s|sideways -31.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps3_s2 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_steps3_s2 VIB Hoecken 4-bar|feet 4|spin 14 deg/s|>200 0.7%|jitter 1.45 cm/s|bounce 0.84 cm/s|chatter 1.09 /s|pend 0.7 deg/s
+Hoecken_4-bar_steps5_s1 TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 1|forward 60.7 cm|1.01 cm/s|sideways 35.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps5_s1 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_steps5_s1 VIB Hoecken 4-bar|feet 4|spin 35 deg/s|>200 4.9%|jitter 2.84 cm/s|bounce 2.42 cm/s|chatter 1.32 /s|pend 1.9 deg/s
+Hoecken_4-bar_steps5_s2 TRACK Hoecken 4-bar|height 5.00|length 15.0|seed 2|forward 292.1 cm|4.87 cm/s|sideways 62.8 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps5_s2 CONTACTS Hoecken 4-bar|ground-pendant 0.0%
+Hoecken_4-bar_steps5_s2 VIB Hoecken 4-bar|feet 4|spin 23 deg/s|>200 1.9%|jitter 2.14 cm/s|bounce 1.56 cm/s|chatter 1.32 /s|pend 1.2 deg/s
+Hoecken_4-bar_steps7_s1 TRACK Hoecken 4-bar|height 7.00|length 15.0|seed 1|forward 4.5 cm|0.07 cm/s|sideways 7.0 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps7_s1 CONTACTS Hoecken 4-bar|ground-pendant 0.6%
+Hoecken_4-bar_steps7_s1 VIB Hoecken 4-bar|feet 4|spin 38 deg/s|>200 3.1%|jitter 3.23 cm/s|bounce 2.47 cm/s|chatter 1.30 /s|pend 2.1 deg/s
+Hoecken_4-bar_steps7_s2 TRACK Hoecken 4-bar|height 7.00|length 15.0|seed 2|forward 65.6 cm|1.09 cm/s|sideways -2.1 cm|stood up 0|air 0.1%
+Hoecken_4-bar_steps7_s2 CONTACTS Hoecken 4-bar|ground-pendant 3.2%
+Hoecken_4-bar_steps7_s2 VIB Hoecken 4-bar|feet 4|spin 33 deg/s|>200 3.5%|jitter 3.03 cm/s|bounce 2.51 cm/s|chatter 1.01 /s|pend 2.1 deg/s
+Hoecken_4-bar_waves2_s1 TRACK Hoecken 4-bar|height 2.00|length 15.0|seed 1|forward 493.0 cm|8.22 cm/s|sideways -17.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves2_s1 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_waves2_s1 VIB Hoecken 4-bar|feet 4|spin 21 deg/s|>200 0.7%|jitter 1.84 cm/s|bounce 1.06 cm/s|chatter 1.78 /s|pend 0.8 deg/s
+Hoecken_4-bar_waves2_s2 TRACK Hoecken 4-bar|height 2.00|length 15.0|seed 2|forward 489.4 cm|8.16 cm/s|sideways -22.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves2_s2 CONTACTS Hoecken 4-bar|none
+Hoecken_4-bar_waves2_s2 VIB Hoecken 4-bar|feet 4|spin 21 deg/s|>200 0.7%|jitter 1.70 cm/s|bounce 0.98 cm/s|chatter 1.55 /s|pend 0.8 deg/s
+Hoecken_4-bar_waves4_s1 TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 1|forward 365.3 cm|6.09 cm/s|sideways 129.5 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves4_s1 CONTACTS Hoecken 4-bar|ground-pendant 0.1%
+Hoecken_4-bar_waves4_s1 VIB Hoecken 4-bar|feet 4|spin 39 deg/s|>200 3.5%|jitter 2.67 cm/s|bounce 2.22 cm/s|chatter 1.60 /s|pend 1.4 deg/s
+Hoecken_4-bar_waves4_s2 TRACK Hoecken 4-bar|height 4.00|length 15.0|seed 2|forward 418.4 cm|6.97 cm/s|sideways 59.9 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves4_s2 CONTACTS Hoecken 4-bar|ground-pendant 0.1%
+Hoecken_4-bar_waves4_s2 VIB Hoecken 4-bar|feet 4|spin 37 deg/s|>200 2.9%|jitter 2.69 cm/s|bounce 2.03 cm/s|chatter 1.76 /s|pend 1.5 deg/s
+Hoecken_4-bar_waves6_s1 TRACK Hoecken 4-bar|height 6.00|length 15.0|seed 1|forward 123.5 cm|2.06 cm/s|sideways 52.3 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves6_s1 CONTACTS Hoecken 4-bar|ground-pendant 2.4%
+Hoecken_4-bar_waves6_s1 VIB Hoecken 4-bar|feet 4|spin 78 deg/s|>200 11.9%|jitter 3.71 cm/s|bounce 4.26 cm/s|chatter 1.18 /s|pend 1.9 deg/s
+Hoecken_4-bar_waves6_s2 TRACK Hoecken 4-bar|height 6.00|length 15.0|seed 2|forward 124.7 cm|2.08 cm/s|sideways 26.6 cm|stood up 0|air 0.1%
+Hoecken_4-bar_waves6_s2 CONTACTS Hoecken 4-bar|ground-pendant 4.4%
+Hoecken_4-bar_waves6_s2 VIB Hoecken 4-bar|feet 4|spin 75 deg/s|>200 10.4%|jitter 3.70 cm/s|bounce 3.78 cm/s|chatter 1.45 /s|pend 1.9 deg/s
+Hoecken_slider_flat_s1 TRACK Hoecken slider|height 0.00|length 15.0|seed 1|forward 541.6 cm|9.03 cm/s|sideways -20.0 cm|stood up 0|air 0.1%
+Hoecken_slider_flat_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_flat_s1 VIB Hoecken slider|feet 4|spin 4 deg/s|>200 0.0%|jitter 1.06 cm/s|bounce 0.16 cm/s|chatter 0.73 /s|pend 0.9 deg/s
+Hoecken_slider_flat_s2 TRACK Hoecken slider|height 0.00|length 15.0|seed 2|forward 541.4 cm|9.02 cm/s|sideways -18.1 cm|stood up 0|air 0.1%
+Hoecken_slider_flat_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_flat_s2 VIB Hoecken slider|feet 4|spin 4 deg/s|>200 0.0%|jitter 1.07 cm/s|bounce 0.16 cm/s|chatter 0.75 /s|pend 0.9 deg/s
+Hoecken_slider_logs3_s1 TRACK Hoecken slider|height 3.00|length 15.0|seed 1|forward 446.9 cm|7.45 cm/s|sideways -21.2 cm|stood up 0|air 0.1%
+Hoecken_slider_logs3_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_logs3_s1 VIB Hoecken slider|feet 4|spin 18 deg/s|>200 0.9%|jitter 3.28 cm/s|bounce 1.04 cm/s|chatter 1.20 /s|pend 2.2 deg/s
+Hoecken_slider_logs3_s2 TRACK Hoecken slider|height 3.00|length 15.0|seed 2|forward 426.1 cm|7.10 cm/s|sideways 30.8 cm|stood up 0|air 0.1%
+Hoecken_slider_logs3_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_logs3_s2 VIB Hoecken slider|feet 4|spin 19 deg/s|>200 0.9%|jitter 3.05 cm/s|bounce 1.05 cm/s|chatter 1.21 /s|pend 2.2 deg/s
+Hoecken_slider_logs5_s1 TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 261.2 cm|4.35 cm/s|sideways 19.9 cm|stood up 0|air 0.1%
+Hoecken_slider_logs5_s1 CONTACTS Hoecken slider|ground-pendant 0.6%
+Hoecken_slider_logs5_s1 VIB Hoecken slider|feet 4|spin 28 deg/s|>200 2.1%|jitter 3.69 cm/s|bounce 1.75 cm/s|chatter 1.42 /s|pend 3.1 deg/s
+Hoecken_slider_logs5_s2 TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 129.5 cm|2.16 cm/s|sideways 22.1 cm|stood up 0|air 0.1%
+Hoecken_slider_logs5_s2 CONTACTS Hoecken slider|ground-pendant 0.1%
+Hoecken_slider_logs5_s2 VIB Hoecken slider|feet 4|spin 28 deg/s|>200 2.2%|jitter 3.81 cm/s|bounce 1.84 cm/s|chatter 1.48 /s|pend 3.5 deg/s
+Hoecken_slider_logs7_s1 TRACK Hoecken slider|height 7.00|length 15.0|seed 1|forward 30.3 cm|0.51 cm/s|sideways -0.7 cm|stood up 0|air 0.1%
+Hoecken_slider_logs7_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_logs7_s1 VIB Hoecken slider|feet 4|spin 16 deg/s|>200 0.2%|jitter 2.01 cm/s|bounce 0.89 cm/s|chatter 0.47 /s|pend 2.7 deg/s
+Hoecken_slider_logs7_s2 TRACK Hoecken slider|height 7.00|length 15.0|seed 2|forward 3.3 cm|0.05 cm/s|sideways 3.3 cm|stood up 0|air 0.1%
+Hoecken_slider_logs7_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_logs7_s2 VIB Hoecken slider|feet 4|spin 18 deg/s|>200 0.7%|jitter 2.09 cm/s|bounce 1.14 cm/s|chatter 0.57 /s|pend 2.9 deg/s
+Hoecken_slider_steps3_s1 TRACK Hoecken slider|height 3.00|length 15.0|seed 1|forward 471.7 cm|7.86 cm/s|sideways -1.3 cm|stood up 0|air 0.1%
+Hoecken_slider_steps3_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_steps3_s1 VIB Hoecken slider|feet 4|spin 15 deg/s|>200 0.6%|jitter 2.87 cm/s|bounce 0.93 cm/s|chatter 1.14 /s|pend 1.9 deg/s
+Hoecken_slider_steps3_s2 TRACK Hoecken slider|height 3.00|length 15.0|seed 2|forward 456.3 cm|7.61 cm/s|sideways -35.9 cm|stood up 0|air 0.1%
+Hoecken_slider_steps3_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_steps3_s2 VIB Hoecken slider|feet 4|spin 15 deg/s|>200 0.7%|jitter 2.89 cm/s|bounce 0.81 cm/s|chatter 0.97 /s|pend 2.0 deg/s
+Hoecken_slider_steps5_s1 TRACK Hoecken slider|height 5.00|length 15.0|seed 1|forward 404.3 cm|6.74 cm/s|sideways 1.5 cm|stood up 0|air 0.1%
+Hoecken_slider_steps5_s1 CONTACTS Hoecken slider|ground-pendant 0.1%
+Hoecken_slider_steps5_s1 VIB Hoecken slider|feet 4|spin 20 deg/s|>200 1.3%|jitter 3.38 cm/s|bounce 1.30 cm/s|chatter 1.15 /s|pend 2.5 deg/s
+Hoecken_slider_steps5_s2 TRACK Hoecken slider|height 5.00|length 15.0|seed 2|forward 370.8 cm|6.18 cm/s|sideways -11.5 cm|stood up 0|air 0.1%
+Hoecken_slider_steps5_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_steps5_s2 VIB Hoecken slider|feet 4|spin 20 deg/s|>200 1.2%|jitter 3.42 cm/s|bounce 1.23 cm/s|chatter 1.28 /s|pend 2.6 deg/s
+Hoecken_slider_steps7_s1 TRACK Hoecken slider|height 7.00|length 15.0|seed 1|forward 9.6 cm|0.16 cm/s|sideways 9.3 cm|stood up 0|air 0.1%
+Hoecken_slider_steps7_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_steps7_s1 VIB Hoecken slider|feet 4|spin 24 deg/s|>200 1.2%|jitter 3.75 cm/s|bounce 1.46 cm/s|chatter 0.73 /s|pend 3.3 deg/s
+Hoecken_slider_steps7_s2 TRACK Hoecken slider|height 7.00|length 15.0|seed 2|forward 65.4 cm|1.09 cm/s|sideways -6.2 cm|stood up 0|air 0.1%
+Hoecken_slider_steps7_s2 CONTACTS Hoecken slider|ground-pendant 8.0%
+Hoecken_slider_steps7_s2 VIB Hoecken slider|feet 4|spin 28 deg/s|>200 1.9%|jitter 4.02 cm/s|bounce 1.96 cm/s|chatter 0.93 /s|pend 3.8 deg/s
+Hoecken_slider_waves2_s1 TRACK Hoecken slider|height 2.00|length 15.0|seed 1|forward 484.7 cm|8.08 cm/s|sideways -2.4 cm|stood up 0|air 0.1%
+Hoecken_slider_waves2_s1 CONTACTS Hoecken slider|none
+Hoecken_slider_waves2_s1 VIB Hoecken slider|feet 4|spin 21 deg/s|>200 0.6%|jitter 3.87 cm/s|bounce 1.00 cm/s|chatter 1.99 /s|pend 2.0 deg/s
+Hoecken_slider_waves2_s2 TRACK Hoecken slider|height 2.00|length 15.0|seed 2|forward 477.5 cm|7.96 cm/s|sideways 6.8 cm|stood up 0|air 0.1%
+Hoecken_slider_waves2_s2 CONTACTS Hoecken slider|none
+Hoecken_slider_waves2_s2 VIB Hoecken slider|feet 4|spin 21 deg/s|>200 0.8%|jitter 3.95 cm/s|bounce 0.97 cm/s|chatter 1.97 /s|pend 2.0 deg/s
+Hoecken_slider_waves4_s1 TRACK Hoecken slider|height 4.00|length 15.0|seed 1|forward 401.3 cm|6.69 cm/s|sideways 79.2 cm|stood up 0|air 0.1%
+Hoecken_slider_waves4_s1 CONTACTS Hoecken slider|ground-pendant 0.9%
+Hoecken_slider_waves4_s1 VIB Hoecken slider|feet 4|spin 37 deg/s|>200 2.9%|jitter 4.92 cm/s|bounce 2.09 cm/s|chatter 1.72 /s|pend 2.9 deg/s
+Hoecken_slider_waves4_s2 TRACK Hoecken slider|height 4.00|length 15.0|seed 2|forward 378.6 cm|6.31 cm/s|sideways 109.5 cm|stood up 0|air 0.1%
+Hoecken_slider_waves4_s2 CONTACTS Hoecken slider|ground-pendant 2.0%
+Hoecken_slider_waves4_s2 VIB Hoecken slider|feet 4|spin 36 deg/s|>200 2.7%|jitter 4.66 cm/s|bounce 1.96 cm/s|chatter 1.76 /s|pend 2.8 deg/s
+Hoecken_slider_waves6_s1 TRACK Hoecken slider|height 6.00|length 15.0|seed 1|forward 114.5 cm|1.91 cm/s|sideways 36.3 cm|stood up 0|air 0.1%
+Hoecken_slider_waves6_s1 CONTACTS Hoecken slider|ground-pendant 0.3%
+Hoecken_slider_waves6_s1 VIB Hoecken slider|feet 4|spin 53 deg/s|>200 5.9%|jitter 4.41 cm/s|bounce 2.82 cm/s|chatter 1.55 /s|pend 3.5 deg/s
+Hoecken_slider_waves6_s2 TRACK Hoecken slider|height 6.00|length 15.0|seed 2|forward 97.4 cm|1.62 cm/s|sideways 36.4 cm|stood up 0|air 0.1%
+Hoecken_slider_waves6_s2 CONTACTS Hoecken slider|ground-pendant 9.4%
+Hoecken_slider_waves6_s2 VIB Hoecken slider|feet 4|spin 41 deg/s|>200 4.1%|jitter 3.44 cm/s|bounce 2.16 cm/s|chatter 1.09 /s|pend 2.8 deg/s
+Jansen_flat_s1 TRACK Jansen|height 0.00|length 15.0|seed 1|forward 544.6 cm|9.08 cm/s|sideways -20.3 cm|stood up 0|air 0.0%
+Jansen_flat_s1 CONTACTS Jansen|none
+Jansen_flat_s1 VIB Jansen|feet 4|spin 9 deg/s|>200 0.4%|jitter 1.14 cm/s|bounce 0.32 cm/s|chatter 0.67 /s|pend 41.7 deg/s
+Jansen_flat_s2 TRACK Jansen|height 0.00|length 15.0|seed 2|forward 544.4 cm|9.07 cm/s|sideways -19.2 cm|stood up 0|air 0.0%
+Jansen_flat_s2 CONTACTS Jansen|none
+Jansen_flat_s2 VIB Jansen|feet 4|spin 9 deg/s|>200 0.4%|jitter 1.18 cm/s|bounce 0.34 cm/s|chatter 0.67 /s|pend 41.7 deg/s
+Jansen_logs3_s1 TRACK Jansen|height 3.00|length 15.0|seed 1|forward 437.7 cm|7.30 cm/s|sideways 122.7 cm|stood up 0|air 0.0%
+Jansen_logs3_s1 CONTACTS Jansen|ground-pendant 0.1%
+Jansen_logs3_s1 VIB Jansen|feet 4|spin 24 deg/s|>200 1.9%|jitter 1.93 cm/s|bounce 1.32 cm/s|chatter 1.15 /s|pend 41.1 deg/s
+Jansen_logs3_s2 TRACK Jansen|height 3.00|length 15.0|seed 2|forward 446.7 cm|7.45 cm/s|sideways 52.2 cm|stood up 0|air 0.0%
+Jansen_logs3_s2 CONTACTS Jansen|ground-pendant 0.3%
+Jansen_logs3_s2 VIB Jansen|feet 4|spin 21 deg/s|>200 1.7%|jitter 1.86 cm/s|bounce 1.26 cm/s|chatter 1.19 /s|pend 40.9 deg/s
+Jansen_logs5_s1 TRACK Jansen|height 5.00|length 15.0|seed 1|forward 341.5 cm|5.69 cm/s|sideways -31.4 cm|stood up 0|air 0.0%
+Jansen_logs5_s1 CONTACTS Jansen|ground-pendant 6.3%
+Jansen_logs5_s1 VIB Jansen|feet 4|spin 32 deg/s|>200 3.1%|jitter 2.70 cm/s|bounce 2.09 cm/s|chatter 1.71 /s|pend 41.0 deg/s
+Jansen_logs5_s2 TRACK Jansen|height 5.00|length 15.0|seed 2|forward 270.6 cm|4.51 cm/s|sideways -66.2 cm|stood up 0|air 0.0%
+Jansen_logs5_s2 CONTACTS Jansen|ground-pendant 5.7%
+Jansen_logs5_s2 VIB Jansen|feet 4|spin 38 deg/s|>200 3.9%|jitter 2.82 cm/s|bounce 2.40 cm/s|chatter 1.56 /s|pend 40.7 deg/s
+Jansen_logs7_s1 TRACK Jansen|height 7.00|length 15.0|seed 1|forward 32.8 cm|0.55 cm/s|sideways -147.3 cm|stood up 0|air 0.0%
+Jansen_logs7_s1 CONTACTS Jansen|ground-pendant 3.8%, ground-link 0.3%
+Jansen_logs7_s1 VIB Jansen|feet 4|spin 31 deg/s|>200 2.6%|jitter 2.59 cm/s|bounce 2.19 cm/s|chatter 1.06 /s|pend 40.9 deg/s
+Jansen_logs7_s2 TRACK Jansen|height 7.00|length 15.0|seed 2|forward -21.9 cm|-0.36 cm/s|sideways 102.8 cm|stood up 0|air 0.0%
+Jansen_logs7_s2 CONTACTS Jansen|ground-pendant 5.7%, ground-link 2.4%
+Jansen_logs7_s2 VIB Jansen|feet 4|spin 38 deg/s|>200 3.7%|jitter 3.02 cm/s|bounce 2.51 cm/s|chatter 1.33 /s|pend 31.5 deg/s
+Jansen_steps3_s1 TRACK Jansen|height 3.00|length 15.0|seed 1|forward 483.9 cm|8.06 cm/s|sideways -52.9 cm|stood up 0|air 0.0%
+Jansen_steps3_s1 CONTACTS Jansen|none
+Jansen_steps3_s1 VIB Jansen|feet 4|spin 18 deg/s|>200 1.1%|jitter 1.75 cm/s|bounce 1.02 cm/s|chatter 1.01 /s|pend 41.5 deg/s
+Jansen_steps3_s2 TRACK Jansen|height 3.00|length 15.0|seed 2|forward 478.3 cm|7.97 cm/s|sideways -4.8 cm|stood up 0|air 0.0%
+Jansen_steps3_s2 CONTACTS Jansen|none
+Jansen_steps3_s2 VIB Jansen|feet 4|spin 19 deg/s|>200 1.3%|jitter 1.68 cm/s|bounce 1.06 cm/s|chatter 0.99 /s|pend 41.4 deg/s
+Jansen_steps5_s1 TRACK Jansen|height 5.00|length 15.0|seed 1|forward 369.8 cm|6.16 cm/s|sideways 85.7 cm|stood up 0|air 0.0%
+Jansen_steps5_s1 CONTACTS Jansen|ground-pendant 0.4%, ground-link 0.1%
+Jansen_steps5_s1 VIB Jansen|feet 4|spin 28 deg/s|>200 2.6%|jitter 2.62 cm/s|bounce 1.89 cm/s|chatter 1.58 /s|pend 41.2 deg/s
+Jansen_steps5_s2 TRACK Jansen|height 5.00|length 15.0|seed 2|forward 401.0 cm|6.68 cm/s|sideways 13.9 cm|stood up 0|air 0.0%
+Jansen_steps5_s2 CONTACTS Jansen|ground-pendant 1.3%
+Jansen_steps5_s2 VIB Jansen|feet 4|spin 24 deg/s|>200 2.0%|jitter 2.01 cm/s|bounce 1.55 cm/s|chatter 0.96 /s|pend 41.0 deg/s
+Jansen_steps7_s1 TRACK Jansen|height 7.00|length 15.0|seed 1|forward 335.9 cm|5.60 cm/s|sideways 28.0 cm|stood up 0|air 0.0%
+Jansen_steps7_s1 CONTACTS Jansen|ground-pendant 2.0%, body-ground 0.5%, ground-link 0.2%
+Jansen_steps7_s1 VIB Jansen|feet 4|spin 33 deg/s|>200 3.4%|jitter 2.63 cm/s|bounce 2.15 cm/s|chatter 1.22 /s|pend 41.2 deg/s
+Jansen_steps7_s2 TRACK Jansen|height 7.00|length 15.0|seed 2|forward 244.6 cm|4.08 cm/s|sideways -7.1 cm|stood up 0|air 0.0%
+Jansen_steps7_s2 CONTACTS Jansen|ground-pendant 8.6%, ground-link 0.1%
+Jansen_steps7_s2 VIB Jansen|feet 4|spin 32 deg/s|>200 3.2%|jitter 2.94 cm/s|bounce 2.05 cm/s|chatter 1.34 /s|pend 40.8 deg/s
+Jansen_waves2_s1 TRACK Jansen|height 2.00|length 15.0|seed 1|forward 484.2 cm|8.07 cm/s|sideways 62.8 cm|stood up 0|air 0.0%
+Jansen_waves2_s1 CONTACTS Jansen|none
+Jansen_waves2_s1 VIB Jansen|feet 4|spin 25 deg/s|>200 1.1%|jitter 2.07 cm/s|bounce 1.19 cm/s|chatter 1.54 /s|pend 41.1 deg/s
+Jansen_waves2_s2 TRACK Jansen|height 2.00|length 15.0|seed 2|forward 496.6 cm|8.28 cm/s|sideways 9.1 cm|stood up 0|air 0.1%
+Jansen_waves2_s2 CONTACTS Jansen|none
+Jansen_waves2_s2 VIB Jansen|feet 4|spin 24 deg/s|>200 1.0%|jitter 1.99 cm/s|bounce 1.12 cm/s|chatter 1.49 /s|pend 41.1 deg/s
+Jansen_waves4_s1 TRACK Jansen|height 4.00|length 15.0|seed 1|forward 442.1 cm|7.37 cm/s|sideways -0.0 cm|stood up 0|air 0.1%
+Jansen_waves4_s1 CONTACTS Jansen|ground-pendant 1.0%
+Jansen_waves4_s1 VIB Jansen|feet 4|spin 36 deg/s|>200 2.9%|jitter 2.69 cm/s|bounce 1.86 cm/s|chatter 1.67 /s|pend 41.2 deg/s
+Jansen_waves4_s2 TRACK Jansen|height 4.00|length 15.0|seed 2|forward 403.0 cm|6.72 cm/s|sideways 113.4 cm|stood up 0|air 0.1%
+Jansen_waves4_s2 CONTACTS Jansen|ground-pendant 1.5%
+Jansen_waves4_s2 VIB Jansen|feet 4|spin 39 deg/s|>200 3.4%|jitter 2.58 cm/s|bounce 2.08 cm/s|chatter 1.53 /s|pend 40.9 deg/s
+Jansen_waves6_s1 TRACK Jansen|height 6.00|length 15.0|seed 1|forward 354.1 cm|5.90 cm/s|sideways 78.8 cm|stood up 0|air 0.1%
+Jansen_waves6_s1 CONTACTS Jansen|ground-pendant 6.2%
+Jansen_waves6_s1 VIB Jansen|feet 4|spin 72 deg/s|>200 10.2%|jitter 3.77 cm/s|bounce 3.76 cm/s|chatter 1.87 /s|pend 39.9 deg/s
+Jansen_waves6_s2 TRACK Jansen|height 6.00|length 15.0|seed 2|forward 327.3 cm|5.45 cm/s|sideways 64.1 cm|stood up 0|air 0.1%
+Jansen_waves6_s2 CONTACTS Jansen|ground-pendant 4.3%
+Jansen_waves6_s2 VIB Jansen|feet 4|spin 71 deg/s|>200 10.0%|jitter 3.87 cm/s|bounce 3.75 cm/s|chatter 1.74 /s|pend 39.7 deg/s
+Klann_flat_s1 TRACK Klann|height 0.00|length 15.0|seed 1|forward 537.4 cm|8.96 cm/s|sideways 54.8 cm|stood up 0|air 0.0%
+Klann_flat_s1 CONTACTS Klann|none
+Klann_flat_s1 VIB Klann|feet 4|spin 19 deg/s|>200 1.2%|jitter 2.84 cm/s|bounce 2.47 cm/s|chatter 2.22 /s|pend 23.1 deg/s
+Klann_flat_s2 TRACK Klann|height 0.00|length 15.0|seed 2|forward 545.9 cm|9.10 cm/s|sideways 65.4 cm|stood up 0|air 0.0%
+Klann_flat_s2 CONTACTS Klann|none
+Klann_flat_s2 VIB Klann|feet 4|spin 19 deg/s|>200 1.0%|jitter 2.69 cm/s|bounce 2.47 cm/s|chatter 2.16 /s|pend 23.1 deg/s
+Klann_logs3_s1 TRACK Klann|height 3.00|length 15.0|seed 1|forward 455.7 cm|7.59 cm/s|sideways 137.0 cm|stood up 0|air 0.1%
+Klann_logs3_s1 CONTACTS Klann|?-ground 0.0%
+Klann_logs3_s1 VIB Klann|feet 4|spin 28 deg/s|>200 1.8%|jitter 2.66 cm/s|bounce 2.40 cm/s|chatter 1.79 /s|pend 22.8 deg/s
+Klann_logs3_s2 TRACK Klann|height 3.00|length 15.0|seed 2|forward 495.4 cm|8.26 cm/s|sideways -8.6 cm|stood up 0|air 0.0%
+Klann_logs3_s2 CONTACTS Klann|none
+Klann_logs3_s2 VIB Klann|feet 4|spin 28 deg/s|>200 1.9%|jitter 2.46 cm/s|bounce 2.41 cm/s|chatter 1.79 /s|pend 22.8 deg/s
+Klann_logs5_s1 TRACK Klann|height 5.00|length 15.0|seed 1|forward 431.7 cm|7.19 cm/s|sideways -45.5 cm|stood up 0|air 0.1%
+Klann_logs5_s1 CONTACTS Klann|ground-link 0.1%
+Klann_logs5_s1 VIB Klann|feet 4|spin 34 deg/s|>200 3.1%|jitter 2.72 cm/s|bounce 2.81 cm/s|chatter 1.71 /s|pend 22.6 deg/s
+Klann_logs5_s2 TRACK Klann|height 5.00|length 15.0|seed 2|forward 367.5 cm|6.12 cm/s|sideways -70.3 cm|stood up 0|air 0.0%
+Klann_logs5_s2 CONTACTS Klann|ground-link 0.6%, ?-ground 0.4%
+Klann_logs5_s2 VIB Klann|feet 4|spin 37 deg/s|>200 3.5%|jitter 2.74 cm/s|bounce 2.79 cm/s|chatter 1.52 /s|pend 22.2 deg/s
+Klann_logs7_s1 TRACK Klann|height 7.00|length 15.0|seed 1|forward 156.7 cm|2.61 cm/s|sideways -173.0 cm|stood up 0|air 0.1%
+Klann_logs7_s1 CONTACTS Klann|ground-link 3.4%, ?-ground 0.8%, body-ground 0.3%
+Klann_logs7_s1 VIB Klann|feet 4|spin 35 deg/s|>200 3.9%|jitter 2.56 cm/s|bounce 2.94 cm/s|chatter 1.52 /s|pend 21.8 deg/s
+Klann_logs7_s2 TRACK Klann|height 7.00|length 15.0|seed 2|forward 239.5 cm|3.99 cm/s|sideways 86.9 cm|stood up 0|air 0.0%
+Klann_logs7_s2 CONTACTS Klann|ground-link 1.3%, ?-ground 0.2%
+Klann_logs7_s2 VIB Klann|feet 4|spin 35 deg/s|>200 3.2%|jitter 2.81 cm/s|bounce 2.78 cm/s|chatter 1.56 /s|pend 21.5 deg/s
+Klann_steps3_s1 TRACK Klann|height 3.00|length 15.0|seed 1|forward 511.3 cm|8.52 cm/s|sideways -26.1 cm|stood up 0|air 0.0%
+Klann_steps3_s1 CONTACTS Klann|ground-link 0.0%
+Klann_steps3_s1 VIB Klann|feet 4|spin 23 deg/s|>200 1.4%|jitter 2.46 cm/s|bounce 2.34 cm/s|chatter 1.79 /s|pend 22.9 deg/s
+Klann_steps3_s2 TRACK Klann|height 3.00|length 15.0|seed 2|forward 521.0 cm|8.68 cm/s|sideways -6.8 cm|stood up 0|air 0.0%
+Klann_steps3_s2 CONTACTS Klann|ground-link 0.1%, ?-ground 0.0%
+Klann_steps3_s2 VIB Klann|feet 4|spin 24 deg/s|>200 1.7%|jitter 2.41 cm/s|bounce 2.22 cm/s|chatter 1.70 /s|pend 22.8 deg/s
+Klann_steps5_s1 TRACK Klann|height 5.00|length 15.0|seed 1|forward 430.8 cm|7.18 cm/s|sideways -158.1 cm|stood up 0|air 0.0%
+Klann_steps5_s1 CONTACTS Klann|ground-link 1.0%, ?-ground 0.0%
+Klann_steps5_s1 VIB Klann|feet 4|spin 25 deg/s|>200 1.6%|jitter 2.36 cm/s|bounce 2.31 cm/s|chatter 1.55 /s|pend 22.6 deg/s
+Klann_steps5_s2 TRACK Klann|height 5.00|length 15.0|seed 2|forward 397.5 cm|6.63 cm/s|sideways -7.8 cm|stood up 0|air 0.0%
+Klann_steps5_s2 CONTACTS Klann|ground-link 0.8%, ?-ground 0.1%
+Klann_steps5_s2 VIB Klann|feet 4|spin 26 deg/s|>200 2.0%|jitter 2.46 cm/s|bounce 2.63 cm/s|chatter 1.55 /s|pend 22.4 deg/s
+Klann_steps7_s1 TRACK Klann|height 7.00|length 15.0|seed 1|forward 174.9 cm|2.92 cm/s|sideways 60.1 cm|stood up 0|air 0.0%
+Klann_steps7_s1 CONTACTS Klann|ground-link 5.4%, body-ground 1.1%, ?-ground 0.4%
+Klann_steps7_s1 VIB Klann|feet 4|spin 33 deg/s|>200 3.3%|jitter 2.73 cm/s|bounce 3.29 cm/s|chatter 1.30 /s|pend 21.4 deg/s
+Klann_steps7_s2 TRACK Klann|height 7.00|length 15.0|seed 2|forward 167.4 cm|2.79 cm/s|sideways 19.8 cm|stood up 0|air 0.0%
+Klann_steps7_s2 CONTACTS Klann|ground-link 0.8%, body-ground 0.5%
+Klann_steps7_s2 VIB Klann|feet 4|spin 39 deg/s|>200 5.0%|jitter 2.97 cm/s|bounce 3.79 cm/s|chatter 1.37 /s|pend 21.3 deg/s
+Klann_waves2_s1 TRACK Klann|height 2.00|length 15.0|seed 1|forward 440.5 cm|7.34 cm/s|sideways 224.8 cm|stood up 0|air 0.0%
+Klann_waves2_s1 CONTACTS Klann|none
+Klann_waves2_s1 VIB Klann|feet 4|spin 33 deg/s|>200 1.6%|jitter 2.40 cm/s|bounce 2.08 cm/s|chatter 1.74 /s|pend 22.8 deg/s
+Klann_waves2_s2 TRACK Klann|height 2.00|length 15.0|seed 2|forward 480.7 cm|8.01 cm/s|sideways 80.6 cm|stood up 0|air 0.0%
+Klann_waves2_s2 CONTACTS Klann|none
+Klann_waves2_s2 VIB Klann|feet 4|spin 31 deg/s|>200 1.4%|jitter 2.41 cm/s|bounce 1.95 cm/s|chatter 1.73 /s|pend 22.7 deg/s
+Klann_waves4_s1 TRACK Klann|height 4.00|length 15.0|seed 1|forward 419.5 cm|6.99 cm/s|sideways 91.6 cm|stood up 0|air 0.0%
+Klann_waves4_s1 CONTACTS Klann|none
+Klann_waves4_s1 VIB Klann|feet 4|spin 41 deg/s|>200 3.1%|jitter 2.43 cm/s|bounce 2.54 cm/s|chatter 1.48 /s|pend 22.3 deg/s
+Klann_waves4_s2 TRACK Klann|height 4.00|length 15.0|seed 2|forward 429.6 cm|7.16 cm/s|sideways -29.8 cm|stood up 0|air 0.1%
+Klann_waves4_s2 CONTACTS Klann|none
+Klann_waves4_s2 VIB Klann|feet 4|spin 38 deg/s|>200 2.5%|jitter 2.38 cm/s|bounce 2.26 cm/s|chatter 1.36 /s|pend 22.2 deg/s
+Klann_waves6_s1 TRACK Klann|height 6.00|length 15.0|seed 1|forward 297.2 cm|4.95 cm/s|sideways 110.4 cm|stood up 0|air 0.1%
+Klann_waves6_s1 CONTACTS Klann|ground-link 0.8%
+Klann_waves6_s1 VIB Klann|feet 4|spin 57 deg/s|>200 6.9%|jitter 2.81 cm/s|bounce 3.45 cm/s|chatter 1.26 /s|pend 21.0 deg/s
+Klann_waves6_s2 TRACK Klann|height 6.00|length 15.0|seed 2|forward 299.8 cm|5.00 cm/s|sideways 105.4 cm|stood up 0|air 0.1%
+Klann_waves6_s2 CONTACTS Klann|ground-link 1.1%
+Klann_waves6_s2 VIB Klann|feet 4|spin 65 deg/s|>200 9.2%|jitter 2.98 cm/s|bounce 3.89 cm/s|chatter 1.16 /s|pend 21.0 deg/s
+Spears_4-bar_flat_s1 TRACK Spears 4-bar|height 0.00|length 15.0|seed 1|forward 552.2 cm|9.20 cm/s|sideways 74.5 cm|stood up 0|air 0.0%
+Spears_4-bar_flat_s1 CONTACTS Spears 4-bar|none
+Spears_4-bar_flat_s1 VIB Spears 4-bar|feet 4|spin 16 deg/s|>200 0.7%|jitter 3.76 cm/s|bounce 1.54 cm/s|chatter 2.55 /s|pend 29.3 deg/s
+Spears_4-bar_flat_s2 TRACK Spears 4-bar|height 0.00|length 15.0|seed 2|forward 554.0 cm|9.23 cm/s|sideways 51.8 cm|stood up 0|air 0.0%
+Spears_4-bar_flat_s2 CONTACTS Spears 4-bar|none
+Spears_4-bar_flat_s2 VIB Spears 4-bar|feet 4|spin 17 deg/s|>200 0.8%|jitter 3.76 cm/s|bounce 1.54 cm/s|chatter 2.53 /s|pend 29.2 deg/s
+Spears_4-bar_logs3_s1 TRACK Spears 4-bar|height 3.00|length 15.0|seed 1|forward 426.7 cm|7.11 cm/s|sideways 108.4 cm|stood up 0|air 0.0%
+Spears_4-bar_logs3_s1 CONTACTS Spears 4-bar|ground-pendant 0.3%
+Spears_4-bar_logs3_s1 VIB Spears 4-bar|feet 4|spin 26 deg/s|>200 1.4%|jitter 3.96 cm/s|bounce 1.82 cm/s|chatter 2.12 /s|pend 29.4 deg/s
+Spears_4-bar_logs3_s2 TRACK Spears 4-bar|height 3.00|length 15.0|seed 2|forward 447.8 cm|7.46 cm/s|sideways 3.5 cm|stood up 0|air 0.1%
+Spears_4-bar_logs3_s2 CONTACTS Spears 4-bar|ground-pendant 0.6%, body-pendant 0.1%
+Spears_4-bar_logs3_s2 VIB Spears 4-bar|feet 4|spin 29 deg/s|>200 1.6%|jitter 4.07 cm/s|bounce 1.99 cm/s|chatter 2.29 /s|pend 29.4 deg/s
+Spears_4-bar_logs5_s1 TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 204.2 cm|3.40 cm/s|sideways 11.7 cm|stood up 0|air 0.0%
+Spears_4-bar_logs5_s1 CONTACTS Spears 4-bar|ground-pendant 1.2%, body-pendant 0.1%
+Spears_4-bar_logs5_s1 VIB Spears 4-bar|feet 4|spin 40 deg/s|>200 3.3%|jitter 5.15 cm/s|bounce 2.79 cm/s|chatter 2.01 /s|pend 30.1 deg/s
+Spears_4-bar_logs5_s2 TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 170.2 cm|2.84 cm/s|sideways -5.5 cm|stood up 0|air 0.1%
+Spears_4-bar_logs5_s2 CONTACTS Spears 4-bar|ground-pendant 1.5%, body-ground 0.3%, body-pendant 0.2%
+Spears_4-bar_logs5_s2 VIB Spears 4-bar|feet 4|spin 39 deg/s|>200 3.0%|jitter 4.89 cm/s|bounce 2.97 cm/s|chatter 2.03 /s|pend 30.1 deg/s
+Spears_4-bar_logs7_s1 TRACK Spears 4-bar|height 7.00|length 15.0|seed 1|forward 74.5 cm|1.24 cm/s|sideways 62.9 cm|stood up 0|air 0.0%
+Spears_4-bar_logs7_s1 CONTACTS Spears 4-bar|ground-pendant 1.7%, body-ground 0.2%, body-pendant 0.0%
+Spears_4-bar_logs7_s1 VIB Spears 4-bar|feet 4|spin 49 deg/s|>200 5.5%|jitter 5.99 cm/s|bounce 3.64 cm/s|chatter 2.02 /s|pend 30.5 deg/s
+Spears_4-bar_logs7_s2 TRACK Spears 4-bar|height 7.00|length 15.0|seed 2|forward 44.8 cm|0.75 cm/s|sideways -194.9 cm|stood up 0|air 0.1%
+Spears_4-bar_logs7_s2 CONTACTS Spears 4-bar|body-pendant 0.7%, ground-pendant 0.6%, body-ground 0.1%
+Spears_4-bar_logs7_s2 VIB Spears 4-bar|feet 4|spin 57 deg/s|>200 6.3%|jitter 6.03 cm/s|bounce 3.95 cm/s|chatter 2.62 /s|pend 30.9 deg/s
+Spears_4-bar_steps3_s1 TRACK Spears 4-bar|height 3.00|length 15.0|seed 1|forward 453.1 cm|7.55 cm/s|sideways 126.6 cm|stood up 0|air 0.0%
+Spears_4-bar_steps3_s1 CONTACTS Spears 4-bar|ground-pendant 0.5%
+Spears_4-bar_steps3_s1 VIB Spears 4-bar|feet 4|spin 23 deg/s|>200 1.2%|jitter 3.15 cm/s|bounce 1.60 cm/s|chatter 1.61 /s|pend 29.1 deg/s
+Spears_4-bar_steps3_s2 TRACK Spears 4-bar|height 3.00|length 15.0|seed 2|forward 477.3 cm|7.96 cm/s|sideways 26.0 cm|stood up 0|air 0.0%
+Spears_4-bar_steps3_s2 CONTACTS Spears 4-bar|ground-pendant 0.5%, body-pendant 0.0%
+Spears_4-bar_steps3_s2 VIB Spears 4-bar|feet 4|spin 22 deg/s|>200 1.0%|jitter 3.34 cm/s|bounce 1.67 cm/s|chatter 1.88 /s|pend 29.1 deg/s
+Spears_4-bar_steps5_s1 TRACK Spears 4-bar|height 5.00|length 15.0|seed 1|forward 1.2 cm|0.02 cm/s|sideways -4.2 cm|stood up 0|air 0.0%
+Spears_4-bar_steps5_s1 CONTACTS Spears 4-bar|ground-pendant 0.1%
+Spears_4-bar_steps5_s1 VIB Spears 4-bar|feet 4|spin 45 deg/s|>200 4.4%|jitter 5.89 cm/s|bounce 3.37 cm/s|chatter 2.02 /s|pend 30.6 deg/s
+Spears_4-bar_steps5_s2 TRACK Spears 4-bar|height 5.00|length 15.0|seed 2|forward 58.7 cm|0.98 cm/s|sideways 1.2 cm|stood up 0|air 0.0%
+Spears_4-bar_steps5_s2 CONTACTS Spears 4-bar|ground-pendant 0.2%
+Spears_4-bar_steps5_s2 VIB Spears 4-bar|feet 4|spin 41 deg/s|>200 4.4%|jitter 5.31 cm/s|bounce 3.38 cm/s|chatter 1.60 /s|pend 30.0 deg/s
+Spears_4-bar_steps7_s1 TRACK Spears 4-bar|height 7.00|length 15.0|seed 1|forward -3.8 cm|-0.06 cm/s|sideways -3.6 cm|stood up 0|air 0.0%
+Spears_4-bar_steps7_s1 CONTACTS Spears 4-bar|body-pendant 0.0%
+Spears_4-bar_steps7_s1 VIB Spears 4-bar|feet 4|spin 50 deg/s|>200 5.3%|jitter 5.34 cm/s|bounce 3.58 cm/s|chatter 1.79 /s|pend 30.2 deg/s
+Spears_4-bar_steps7_s2 TRACK Spears 4-bar|height 7.00|length 15.0|seed 2|forward 57.1 cm|0.95 cm/s|sideways -8.7 cm|stood up 0|air 0.0%
+Spears_4-bar_steps7_s2 CONTACTS Spears 4-bar|ground-pendant 0.4%
+Spears_4-bar_steps7_s2 VIB Spears 4-bar|feet 4|spin 48 deg/s|>200 4.8%|jitter 5.10 cm/s|bounce 3.72 cm/s|chatter 1.69 /s|pend 30.1 deg/s
+Spears_4-bar_waves2_s1 TRACK Spears 4-bar|height 2.00|length 15.0|seed 1|forward 457.2 cm|7.62 cm/s|sideways 9.9 cm|stood up 0|air 0.0%
+Spears_4-bar_waves2_s1 CONTACTS Spears 4-bar|ground-pendant 1.3%
+Spears_4-bar_waves2_s1 VIB Spears 4-bar|feet 4|spin 33 deg/s|>200 1.4%|jitter 3.77 cm/s|bounce 1.54 cm/s|chatter 2.09 /s|pend 29.0 deg/s
+Spears_4-bar_waves2_s2 TRACK Spears 4-bar|height 2.00|length 15.0|seed 2|forward 447.5 cm|7.46 cm/s|sideways 66.1 cm|stood up 0|air 0.1%
+Spears_4-bar_waves2_s2 CONTACTS Spears 4-bar|ground-pendant 1.3%, body-pendant 0.1%
+Spears_4-bar_waves2_s2 VIB Spears 4-bar|feet 4|spin 33 deg/s|>200 1.3%|jitter 4.08 cm/s|bounce 1.66 cm/s|chatter 1.99 /s|pend 29.4 deg/s
+Spears_4-bar_waves4_s1 TRACK Spears 4-bar|height 4.00|length 15.0|seed 1|forward 243.6 cm|4.06 cm/s|sideways 103.4 cm|stood up 0|air 0.0%
+Spears_4-bar_waves4_s1 CONTACTS Spears 4-bar|ground-pendant 2.5%, body-pendant 0.6%
+Spears_4-bar_waves4_s1 VIB Spears 4-bar|feet 4|spin 58 deg/s|>200 5.8%|jitter 6.23 cm/s|bounce 3.17 cm/s|chatter 2.22 /s|pend 30.5 deg/s
+Spears_4-bar_waves4_s2 TRACK Spears 4-bar|height 4.00|length 15.0|seed 2|forward 304.0 cm|5.07 cm/s|sideways 108.9 cm|stood up 0|air 0.1%
+Spears_4-bar_waves4_s2 CONTACTS Spears 4-bar|ground-pendant 4.5%, body-pendant 1.0%
+Spears_4-bar_waves4_s2 VIB Spears 4-bar|feet 4|spin 54 deg/s|>200 5.2%|jitter 5.39 cm/s|bounce 2.91 cm/s|chatter 1.87 /s|pend 29.9 deg/s
+Spears_4-bar_waves6_s1 TRACK Spears 4-bar|height 6.00|length 15.0|seed 1|forward 66.9 cm|1.11 cm/s|sideways 21.6 cm|stood up 0|air 0.1%
+Spears_4-bar_waves6_s1 CONTACTS Spears 4-bar|ground-pendant 8.2%, body-pendant 1.1%
+Spears_4-bar_waves6_s1 VIB Spears 4-bar|feet 4|spin 82 deg/s|>200 11.6%|jitter 7.42 cm/s|bounce 5.07 cm/s|chatter 1.74 /s|pend 31.2 deg/s
+Spears_4-bar_waves6_s2 TRACK Spears 4-bar|height 6.00|length 15.0|seed 2|forward 230.8 cm|3.85 cm/s|sideways 52.8 cm|stood up 0|air 0.1%
+Spears_4-bar_waves6_s2 CONTACTS Spears 4-bar|ground-pendant 2.6%, body-pendant 0.9%
+Spears_4-bar_waves6_s2 VIB Spears 4-bar|feet 4|spin 78 deg/s|>200 10.6%|jitter 6.14 cm/s|bounce 4.44 cm/s|chatter 1.87 /s|pend 30.4 deg/s
+Spears_lift_44_diag_flat_s1 TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 1|forward 533.5 cm|8.89 cm/s|sideways 3.3 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_flat_s1 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_flat_s1 VIB Spears lift 44 diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 2.04 cm/s|bounce 0.15 cm/s|chatter 0.89 /s|pend 0.5 deg/s
+Spears_lift_44_diag_flat_s2 TRACK Spears lift 44 diag|height 0.00|length 15.0|seed 2|forward 533.6 cm|8.89 cm/s|sideways 4.3 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_flat_s2 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_flat_s2 VIB Spears lift 44 diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.03 cm/s|bounce 0.15 cm/s|chatter 0.89 /s|pend 0.5 deg/s
+Spears_lift_44_diag_logs3_s1 TRACK Spears lift 44 diag|height 3.00|length 15.0|seed 1|forward 517.1 cm|8.62 cm/s|sideways -46.2 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_logs3_s1 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_logs3_s1 VIB Spears lift 44 diag|feet 4|spin 22 deg/s|>200 1.4%|jitter 3.24 cm/s|bounce 1.61 cm/s|chatter 1.53 /s|pend 1.6 deg/s
+Spears_lift_44_diag_logs3_s2 TRACK Spears lift 44 diag|height 3.00|length 15.0|seed 2|forward 504.9 cm|8.41 cm/s|sideways 68.1 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_logs3_s2 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_logs3_s2 VIB Spears lift 44 diag|feet 4|spin 24 deg/s|>200 1.5%|jitter 3.19 cm/s|bounce 1.72 cm/s|chatter 1.50 /s|pend 1.5 deg/s
+Spears_lift_44_diag_logs5_s1 TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 485.4 cm|8.09 cm/s|sideways -79.5 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_logs5_s1 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 9.2%, ground-pendant 0.1%
+Spears_lift_44_diag_logs5_s1 VIB Spears lift 44 diag|feet 4|spin 29 deg/s|>200 2.1%|jitter 3.56 cm/s|bounce 2.35 cm/s|chatter 1.84 /s|pend 1.9 deg/s
+Spears_lift_44_diag_logs5_s2 TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 480.9 cm|8.02 cm/s|sideways 9.2 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_logs5_s2 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 14.5%, buildOutsideCrossbar-foot 0.8%, foot-link 0.3%, ground-pendant 0.1%
+Spears_lift_44_diag_logs5_s2 VIB Spears lift 44 diag|feet 4|spin 34 deg/s|>200 3.1%|jitter 3.77 cm/s|bounce 2.53 cm/s|chatter 1.81 /s|pend 2.0 deg/s
+Spears_lift_44_diag_logs7_s1 TRACK Spears lift 44 diag|height 7.00|length 15.0|seed 1|forward 337.5 cm|5.62 cm/s|sideways -110.5 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_logs7_s1 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 25.6%, foot-link 2.1%, buildOutsideCrossbar-foot 0.8%, ground-pendant 0.6%, ground-link 0.3%
+Spears_lift_44_diag_logs7_s1 VIB Spears lift 44 diag|feet 4|spin 47 deg/s|>200 4.5%|jitter 4.26 cm/s|bounce 3.52 cm/s|chatter 1.72 /s|pend 3.2 deg/s
+Spears_lift_44_diag_logs7_s2 TRACK Spears lift 44 diag|height 7.00|length 15.0|seed 2|forward 386.9 cm|6.45 cm/s|sideways 18.2 cm|stood up 0|air 0.2%
+Spears_lift_44_diag_logs7_s2 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 23.8%, ground-link 0.9%, ground-pendant 0.7%, foot-link 0.4%, buildOutsideCrossbar-foot 0.3%
+Spears_lift_44_diag_logs7_s2 VIB Spears lift 44 diag|feet 4|spin 42 deg/s|>200 4.1%|jitter 4.32 cm/s|bounce 3.43 cm/s|chatter 1.79 /s|pend 2.9 deg/s
+Spears_lift_44_diag_steps3_s1 TRACK Spears lift 44 diag|height 3.00|length 15.0|seed 1|forward 507.8 cm|8.46 cm/s|sideways 17.1 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps3_s1 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_steps3_s1 VIB Spears lift 44 diag|feet 4|spin 17 deg/s|>200 0.9%|jitter 2.94 cm/s|bounce 1.28 cm/s|chatter 1.24 /s|pend 1.3 deg/s
+Spears_lift_44_diag_steps3_s2 TRACK Spears lift 44 diag|height 3.00|length 15.0|seed 2|forward 517.0 cm|8.62 cm/s|sideways 26.8 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps3_s2 CONTACTS Spears lift 44 diag|ground-pendant 0.1%
+Spears_lift_44_diag_steps3_s2 VIB Spears lift 44 diag|feet 4|spin 17 deg/s|>200 1.2%|jitter 3.03 cm/s|bounce 1.24 cm/s|chatter 1.26 /s|pend 1.3 deg/s
+Spears_lift_44_diag_steps5_s1 TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 1|forward 486.6 cm|8.11 cm/s|sideways -23.3 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps5_s1 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 1.5%, ground-pendant 0.3%
+Spears_lift_44_diag_steps5_s1 VIB Spears lift 44 diag|feet 4|spin 23 deg/s|>200 1.7%|jitter 3.26 cm/s|bounce 1.81 cm/s|chatter 1.25 /s|pend 1.6 deg/s
+Spears_lift_44_diag_steps5_s2 TRACK Spears lift 44 diag|height 5.00|length 15.0|seed 2|forward 472.9 cm|7.88 cm/s|sideways 7.9 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps5_s2 CONTACTS Spears lift 44 diag|ground-link 0.3%, buildOutsideCrossbar-ground 0.3%, ground-pendant 0.1%
+Spears_lift_44_diag_steps5_s2 VIB Spears lift 44 diag|feet 4|spin 24 deg/s|>200 1.7%|jitter 3.40 cm/s|bounce 1.91 cm/s|chatter 1.32 /s|pend 1.7 deg/s
+Spears_lift_44_diag_steps7_s1 TRACK Spears lift 44 diag|height 7.00|length 15.0|seed 1|forward 444.0 cm|7.40 cm/s|sideways -54.8 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps7_s1 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 7.3%, ground-pendant 2.4%, foot-link 1.3%, ground-link 1.0%
+Spears_lift_44_diag_steps7_s1 VIB Spears lift 44 diag|feet 4|spin 29 deg/s|>200 2.2%|jitter 3.70 cm/s|bounce 2.48 cm/s|chatter 1.50 /s|pend 1.9 deg/s
+Spears_lift_44_diag_steps7_s2 TRACK Spears lift 44 diag|height 7.00|length 15.0|seed 2|forward 392.6 cm|6.54 cm/s|sideways -13.8 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_steps7_s2 CONTACTS Spears lift 44 diag|buildOutsideCrossbar-ground 4.7%, foot-link 1.1%, ground-link 0.3%, buildOutsideCrossbar-foot 0.1%
+Spears_lift_44_diag_steps7_s2 VIB Spears lift 44 diag|feet 4|spin 32 deg/s|>200 2.6%|jitter 3.84 cm/s|bounce 2.63 cm/s|chatter 1.50 /s|pend 2.3 deg/s
+Spears_lift_44_diag_waves2_s1 TRACK Spears lift 44 diag|height 2.00|length 15.0|seed 1|forward 447.5 cm|7.46 cm/s|sideways 196.9 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves2_s1 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_waves2_s1 VIB Spears lift 44 diag|feet 4|spin 35 deg/s|>200 2.0%|jitter 3.95 cm/s|bounce 2.30 cm/s|chatter 2.13 /s|pend 2.2 deg/s
+Spears_lift_44_diag_waves2_s2 TRACK Spears lift 44 diag|height 2.00|length 15.0|seed 2|forward 450.7 cm|7.51 cm/s|sideways 163.0 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves2_s2 CONTACTS Spears lift 44 diag|none
+Spears_lift_44_diag_waves2_s2 VIB Spears lift 44 diag|feet 4|spin 34 deg/s|>200 2.0%|jitter 3.97 cm/s|bounce 2.21 cm/s|chatter 2.33 /s|pend 2.4 deg/s
+Spears_lift_44_diag_waves4_s1 TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 1|forward 350.8 cm|5.85 cm/s|sideways 205.2 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves4_s1 CONTACTS Spears lift 44 diag|foot-link 1.3%, buildOutsideCrossbar-ground 0.1%
+Spears_lift_44_diag_waves4_s1 VIB Spears lift 44 diag|feet 4|spin 48 deg/s|>200 4.2%|jitter 3.83 cm/s|bounce 2.72 cm/s|chatter 1.69 /s|pend 2.5 deg/s
+Spears_lift_44_diag_waves4_s2 TRACK Spears lift 44 diag|height 4.00|length 15.0|seed 2|forward 399.7 cm|6.66 cm/s|sideways 159.1 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves4_s2 CONTACTS Spears lift 44 diag|ground-pendant 1.8%, foot-link 0.7%
+Spears_lift_44_diag_waves4_s2 VIB Spears lift 44 diag|feet 4|spin 47 deg/s|>200 3.9%|jitter 3.98 cm/s|bounce 2.61 cm/s|chatter 1.84 /s|pend 2.6 deg/s
+Spears_lift_44_diag_waves6_s1 TRACK Spears lift 44 diag|height 6.00|length 15.0|seed 1|forward 337.1 cm|5.62 cm/s|sideways 192.1 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves6_s1 CONTACTS Spears lift 44 diag|foot-link 7.3%, buildOutsideCrossbar-ground 4.7%, ground-pendant 2.8%, buildOutsideCrossbar-foot 1.1%, ground-link 0.3%
+Spears_lift_44_diag_waves6_s1 VIB Spears lift 44 diag|feet 4|spin 62 deg/s|>200 7.4%|jitter 4.65 cm/s|bounce 3.85 cm/s|chatter 1.70 /s|pend 3.5 deg/s
+Spears_lift_44_diag_waves6_s2 TRACK Spears lift 44 diag|height 6.00|length 15.0|seed 2|forward 314.3 cm|5.24 cm/s|sideways 128.3 cm|stood up 0|air 0.1%
+Spears_lift_44_diag_waves6_s2 CONTACTS Spears lift 44 diag|foot-link 7.7%, buildOutsideCrossbar-ground 5.5%, ground-pendant 5.3%, buildOutsideCrossbar-foot 2.5%, ground-link 0.2%
+Spears_lift_44_diag_waves6_s2 VIB Spears lift 44 diag|feet 4|spin 60 deg/s|>200 6.8%|jitter 4.64 cm/s|bounce 3.62 cm/s|chatter 1.65 /s|pend 3.6 deg/s
+Spears_lift_44_flat_s1 TRACK Spears lift 44|height 0.00|length 15.0|seed 1|forward 536.4 cm|8.94 cm/s|sideways 1.6 cm|stood up 0|air 0.1%
+Spears_lift_44_flat_s1 CONTACTS Spears lift 44|none
+Spears_lift_44_flat_s1 VIB Spears lift 44|feet 4|spin 3 deg/s|>200 0.1%|jitter 2.05 cm/s|bounce 0.15 cm/s|chatter 0.89 /s|pend 0.4 deg/s
+Spears_lift_44_flat_s2 TRACK Spears lift 44|height 0.00|length 15.0|seed 2|forward 536.6 cm|8.94 cm/s|sideways -0.6 cm|stood up 0|air 0.1%
+Spears_lift_44_flat_s2 CONTACTS Spears lift 44|none
+Spears_lift_44_flat_s2 VIB Spears lift 44|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.05 cm/s|bounce 0.14 cm/s|chatter 0.89 /s|pend 0.4 deg/s
+Spears_lift_44_logs3_s1 TRACK Spears lift 44|height 3.00|length 15.0|seed 1|forward 518.9 cm|8.65 cm/s|sideways -55.2 cm|stood up 0|air 0.1%
+Spears_lift_44_logs3_s1 CONTACTS Spears lift 44|none
+Spears_lift_44_logs3_s1 VIB Spears lift 44|feet 4|spin 21 deg/s|>200 1.2%|jitter 3.18 cm/s|bounce 1.57 cm/s|chatter 1.48 /s|pend 1.3 deg/s
+Spears_lift_44_logs3_s2 TRACK Spears lift 44|height 3.00|length 15.0|seed 2|forward 509.5 cm|8.49 cm/s|sideways 31.4 cm|stood up 0|air 0.2%
+Spears_lift_44_logs3_s2 CONTACTS Spears lift 44|none
+Spears_lift_44_logs3_s2 VIB Spears lift 44|feet 4|spin 23 deg/s|>200 1.4%|jitter 3.15 cm/s|bounce 1.57 cm/s|chatter 1.36 /s|pend 1.3 deg/s
+Spears_lift_44_logs5_s1 TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 491.0 cm|8.18 cm/s|sideways -74.0 cm|stood up 0|air 0.1%
+Spears_lift_44_logs5_s1 CONTACTS Spears lift 44|ground-pendant 0.1%
+Spears_lift_44_logs5_s1 VIB Spears lift 44|feet 4|spin 28 deg/s|>200 2.0%|jitter 3.46 cm/s|bounce 2.16 cm/s|chatter 1.63 /s|pend 1.5 deg/s
+Spears_lift_44_logs5_s2 TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 492.0 cm|8.20 cm/s|sideways 37.7 cm|stood up 0|air 0.2%
+Spears_lift_44_logs5_s2 CONTACTS Spears lift 44|foot-link 0.3%
+Spears_lift_44_logs5_s2 VIB Spears lift 44|feet 4|spin 30 deg/s|>200 2.5%|jitter 3.63 cm/s|bounce 2.34 cm/s|chatter 1.56 /s|pend 1.6 deg/s
+Spears_lift_44_logs7_s1 TRACK Spears lift 44|height 7.00|length 15.0|seed 1|forward 444.3 cm|7.40 cm/s|sideways 72.2 cm|stood up 0|air 0.1%
+Spears_lift_44_logs7_s1 CONTACTS Spears lift 44|ground-link 1.2%, ground-pendant 0.5%, foot-link 0.1%
+Spears_lift_44_logs7_s1 VIB Spears lift 44|feet 4|spin 34 deg/s|>200 2.9%|jitter 4.01 cm/s|bounce 2.99 cm/s|chatter 1.72 /s|pend 2.0 deg/s
+Spears_lift_44_logs7_s2 TRACK Spears lift 44|height 7.00|length 15.0|seed 2|forward 423.5 cm|7.06 cm/s|sideways -55.9 cm|stood up 0|air 0.2%
+Spears_lift_44_logs7_s2 CONTACTS Spears lift 44|foot-link 2.6%, ground-pendant 0.7%
+Spears_lift_44_logs7_s2 VIB Spears lift 44|feet 4|spin 43 deg/s|>200 4.1%|jitter 4.37 cm/s|bounce 3.36 cm/s|chatter 1.79 /s|pend 2.3 deg/s
+Spears_lift_44_steps3_s1 TRACK Spears lift 44|height 3.00|length 15.0|seed 1|forward 515.6 cm|8.59 cm/s|sideways -21.8 cm|stood up 0|air 0.1%
+Spears_lift_44_steps3_s1 CONTACTS Spears lift 44|none
+Spears_lift_44_steps3_s1 VIB Spears lift 44|feet 4|spin 15 deg/s|>200 0.8%|jitter 2.95 cm/s|bounce 1.13 cm/s|chatter 1.28 /s|pend 1.1 deg/s
+Spears_lift_44_steps3_s2 TRACK Spears lift 44|height 3.00|length 15.0|seed 2|forward 520.3 cm|8.67 cm/s|sideways 29.6 cm|stood up 0|air 0.1%
+Spears_lift_44_steps3_s2 CONTACTS Spears lift 44|none
+Spears_lift_44_steps3_s2 VIB Spears lift 44|feet 4|spin 15 deg/s|>200 0.9%|jitter 3.04 cm/s|bounce 1.19 cm/s|chatter 1.19 /s|pend 1.0 deg/s
+Spears_lift_44_steps5_s1 TRACK Spears lift 44|height 5.00|length 15.0|seed 1|forward 488.8 cm|8.15 cm/s|sideways -1.3 cm|stood up 0|air 0.1%
+Spears_lift_44_steps5_s1 CONTACTS Spears lift 44|ground-link 0.3%, ground-pendant 0.2%, foot-link 0.0%
+Spears_lift_44_steps5_s1 VIB Spears lift 44|feet 4|spin 21 deg/s|>200 1.2%|jitter 3.38 cm/s|bounce 1.76 cm/s|chatter 1.32 /s|pend 1.2 deg/s
+Spears_lift_44_steps5_s2 TRACK Spears lift 44|height 5.00|length 15.0|seed 2|forward 492.6 cm|8.21 cm/s|sideways -5.5 cm|stood up 0|air 0.1%
+Spears_lift_44_steps5_s2 CONTACTS Spears lift 44|ground-link 0.4%, ground-pendant 0.1%, foot-link 0.1%
+Spears_lift_44_steps5_s2 VIB Spears lift 44|feet 4|spin 23 deg/s|>200 1.9%|jitter 3.47 cm/s|bounce 1.95 cm/s|chatter 1.39 /s|pend 1.4 deg/s
+Spears_lift_44_steps7_s1 TRACK Spears lift 44|height 7.00|length 15.0|seed 1|forward 409.4 cm|6.82 cm/s|sideways 59.1 cm|stood up 0|air 0.1%
+Spears_lift_44_steps7_s1 CONTACTS Spears lift 44|ground-link 3.8%, foot-link 1.2%, ground-pendant 0.5%
+Spears_lift_44_steps7_s1 VIB Spears lift 44|feet 4|spin 30 deg/s|>200 2.4%|jitter 3.79 cm/s|bounce 2.46 cm/s|chatter 1.41 /s|pend 1.7 deg/s
+Spears_lift_44_steps7_s2 TRACK Spears lift 44|height 7.00|length 15.0|seed 2|forward 413.2 cm|6.89 cm/s|sideways -39.8 cm|stood up 0|air 0.1%
+Spears_lift_44_steps7_s2 CONTACTS Spears lift 44|ground-link 1.3%, foot-link 0.7%, ground-pendant 0.1%
+Spears_lift_44_steps7_s2 VIB Spears lift 44|feet 4|spin 32 deg/s|>200 2.5%|jitter 3.86 cm/s|bounce 2.64 cm/s|chatter 1.47 /s|pend 1.7 deg/s
+Spears_lift_44_waves2_s1 TRACK Spears lift 44|height 2.00|length 15.0|seed 1|forward 476.9 cm|7.95 cm/s|sideways 130.3 cm|stood up 0|air 0.1%
+Spears_lift_44_waves2_s1 CONTACTS Spears lift 44|none
+Spears_lift_44_waves2_s1 VIB Spears lift 44|feet 4|spin 32 deg/s|>200 1.8%|jitter 3.90 cm/s|bounce 1.98 cm/s|chatter 2.09 /s|pend 1.9 deg/s
+Spears_lift_44_waves2_s2 TRACK Spears lift 44|height 2.00|length 15.0|seed 2|forward 473.4 cm|7.89 cm/s|sideways 176.0 cm|stood up 0|air 0.1%
+Spears_lift_44_waves2_s2 CONTACTS Spears lift 44|none
+Spears_lift_44_waves2_s2 VIB Spears lift 44|feet 4|spin 30 deg/s|>200 1.9%|jitter 3.82 cm/s|bounce 1.99 cm/s|chatter 1.97 /s|pend 1.9 deg/s
+Spears_lift_44_waves4_s1 TRACK Spears lift 44|height 4.00|length 15.0|seed 1|forward 396.4 cm|6.61 cm/s|sideways 156.9 cm|stood up 0|air 0.1%
+Spears_lift_44_waves4_s1 CONTACTS Spears lift 44|foot-link 4.6%, ground-pendant 0.6%
+Spears_lift_44_waves4_s1 VIB Spears lift 44|feet 4|spin 46 deg/s|>200 3.8%|jitter 3.89 cm/s|bounce 2.51 cm/s|chatter 1.66 /s|pend 2.0 deg/s
+Spears_lift_44_waves4_s2 TRACK Spears lift 44|height 4.00|length 15.0|seed 2|forward 430.0 cm|7.17 cm/s|sideways 144.4 cm|stood up 0|air 0.1%
+Spears_lift_44_waves4_s2 CONTACTS Spears lift 44|foot-link 0.7%
+Spears_lift_44_waves4_s2 VIB Spears lift 44|feet 4|spin 44 deg/s|>200 3.5%|jitter 4.13 cm/s|bounce 2.52 cm/s|chatter 1.90 /s|pend 2.2 deg/s
+Spears_lift_44_waves6_s1 TRACK Spears lift 44|height 6.00|length 15.0|seed 1|forward 294.3 cm|4.91 cm/s|sideways 242.9 cm|stood up 0|air 0.1%
+Spears_lift_44_waves6_s1 CONTACTS Spears lift 44|foot-link 8.1%, ground-pendant 2.9%, ground-link 0.3%
+Spears_lift_44_waves6_s1 VIB Spears lift 44|feet 4|spin 59 deg/s|>200 6.2%|jitter 4.89 cm/s|bounce 3.65 cm/s|chatter 1.75 /s|pend 2.9 deg/s
+Spears_lift_44_waves6_s2 TRACK Spears lift 44|height 6.00|length 15.0|seed 2|forward 403.5 cm|6.72 cm/s|sideways 19.3 cm|stood up 0|air 0.2%
+Spears_lift_44_waves6_s2 CONTACTS Spears lift 44|ground-pendant 6.0%, foot-link 2.7%
+Spears_lift_44_waves6_s2 VIB Spears lift 44|feet 4|spin 52 deg/s|>200 5.2%|jitter 4.42 cm/s|bounce 3.16 cm/s|chatter 1.74 /s|pend 2.4 deg/s
+Spears_lift_53_diag_flat_s1 TRACK Spears lift 53 diag|height 0.00|length 15.0|seed 1|forward 533.2 cm|8.89 cm/s|sideways 0.2 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_flat_s1 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_flat_s1 VIB Spears lift 53 diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 2.08 cm/s|bounce 0.18 cm/s|chatter 0.85 /s|pend 0.5 deg/s
+Spears_lift_53_diag_flat_s2 TRACK Spears lift 53 diag|height 0.00|length 15.0|seed 2|forward 533.0 cm|8.88 cm/s|sideways -1.8 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_flat_s2 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_flat_s2 VIB Spears lift 53 diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 2.05 cm/s|bounce 0.16 cm/s|chatter 0.84 /s|pend 0.4 deg/s
+Spears_lift_53_diag_logs3_s1 TRACK Spears lift 53 diag|height 3.00|length 15.0|seed 1|forward 491.3 cm|8.19 cm/s|sideways 61.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_logs3_s1 CONTACTS Spears lift 53 diag|ground-pendant 0.1%
+Spears_lift_53_diag_logs3_s1 VIB Spears lift 53 diag|feet 4|spin 26 deg/s|>200 2.0%|jitter 3.76 cm/s|bounce 2.14 cm/s|chatter 1.72 /s|pend 2.0 deg/s
+Spears_lift_53_diag_logs3_s2 TRACK Spears lift 53 diag|height 3.00|length 15.0|seed 2|forward 477.9 cm|7.97 cm/s|sideways 48.1 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_logs3_s2 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_logs3_s2 VIB Spears lift 53 diag|feet 4|spin 28 deg/s|>200 2.0%|jitter 3.72 cm/s|bounce 2.14 cm/s|chatter 1.81 /s|pend 1.9 deg/s
+Spears_lift_53_diag_logs5_s1 TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 465.4 cm|7.76 cm/s|sideways -49.7 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_logs5_s1 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 5.8%, ground-pendant 0.0%
+Spears_lift_53_diag_logs5_s1 VIB Spears lift 53 diag|feet 4|spin 30 deg/s|>200 2.2%|jitter 4.04 cm/s|bounce 2.58 cm/s|chatter 1.87 /s|pend 2.2 deg/s
+Spears_lift_53_diag_logs5_s2 TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 455.8 cm|7.60 cm/s|sideways -61.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_logs5_s2 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 3.9%, ground-pendant 0.6%
+Spears_lift_53_diag_logs5_s2 VIB Spears lift 53 diag|feet 4|spin 38 deg/s|>200 3.5%|jitter 4.15 cm/s|bounce 2.96 cm/s|chatter 1.74 /s|pend 2.6 deg/s
+Spears_lift_53_diag_logs7_s1 TRACK Spears lift 53 diag|height 7.00|length 15.0|seed 1|forward 77.8 cm|1.30 cm/s|sideways -340.4 cm|stood up 0|air 0.2%
+Spears_lift_53_diag_logs7_s1 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 17.2%, ground-link 1.1%, foot-link 0.2%
+Spears_lift_53_diag_logs7_s1 VIB Spears lift 53 diag|feet 4|spin 28 deg/s|>200 1.7%|jitter 4.24 cm/s|bounce 3.06 cm/s|chatter 2.10 /s|pend 2.8 deg/s
+Spears_lift_53_diag_logs7_s2 TRACK Spears lift 53 diag|height 7.00|length 15.0|seed 2|forward 150.7 cm|2.51 cm/s|sideways -266.9 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_logs7_s2 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 10.2%, foot-link 0.5%, link-pendant 0.0%
+Spears_lift_53_diag_logs7_s2 VIB Spears lift 53 diag|feet 4|spin 38 deg/s|>200 2.8%|jitter 4.79 cm/s|bounce 3.36 cm/s|chatter 2.10 /s|pend 3.7 deg/s
+Spears_lift_53_diag_steps3_s1 TRACK Spears lift 53 diag|height 3.00|length 15.0|seed 1|forward 497.1 cm|8.29 cm/s|sideways -29.0 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps3_s1 CONTACTS Spears lift 53 diag|ground-pendant 0.1%
+Spears_lift_53_diag_steps3_s1 VIB Spears lift 53 diag|feet 4|spin 19 deg/s|>200 1.3%|jitter 3.39 cm/s|bounce 1.61 cm/s|chatter 1.44 /s|pend 1.5 deg/s
+Spears_lift_53_diag_steps3_s2 TRACK Spears lift 53 diag|height 3.00|length 15.0|seed 2|forward 505.1 cm|8.42 cm/s|sideways -36.5 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps3_s2 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_steps3_s2 VIB Spears lift 53 diag|feet 4|spin 18 deg/s|>200 1.1%|jitter 3.28 cm/s|bounce 1.45 cm/s|chatter 1.42 /s|pend 1.5 deg/s
+Spears_lift_53_diag_steps5_s1 TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 1|forward 473.6 cm|7.89 cm/s|sideways -4.6 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps5_s1 CONTACTS Spears lift 53 diag|ground-pendant 0.5%
+Spears_lift_53_diag_steps5_s1 VIB Spears lift 53 diag|feet 4|spin 26 deg/s|>200 2.1%|jitter 3.56 cm/s|bounce 2.18 cm/s|chatter 1.42 /s|pend 1.9 deg/s
+Spears_lift_53_diag_steps5_s2 TRACK Spears lift 53 diag|height 5.00|length 15.0|seed 2|forward 460.7 cm|7.68 cm/s|sideways -29.1 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps5_s2 CONTACTS Spears lift 53 diag|foot-link 0.0%
+Spears_lift_53_diag_steps5_s2 VIB Spears lift 53 diag|feet 4|spin 27 deg/s|>200 1.9%|jitter 3.80 cm/s|bounce 2.31 cm/s|chatter 1.59 /s|pend 1.8 deg/s
+Spears_lift_53_diag_steps7_s1 TRACK Spears lift 53 diag|height 7.00|length 15.0|seed 1|forward 385.4 cm|6.42 cm/s|sideways -104.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps7_s1 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 3.2%, ground-link 1.4%, foot-link 0.5%, ground-pendant 0.1%
+Spears_lift_53_diag_steps7_s1 VIB Spears lift 53 diag|feet 4|spin 34 deg/s|>200 3.1%|jitter 3.99 cm/s|bounce 2.80 cm/s|chatter 1.62 /s|pend 2.2 deg/s
+Spears_lift_53_diag_steps7_s2 TRACK Spears lift 53 diag|height 7.00|length 15.0|seed 2|forward 357.6 cm|5.96 cm/s|sideways -39.6 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_steps7_s2 CONTACTS Spears lift 53 diag|buildOutsideCrossbar-ground 3.8%, foot-link 1.8%, ground-link 0.9%, ground-pendant 0.0%
+Spears_lift_53_diag_steps7_s2 VIB Spears lift 53 diag|feet 4|spin 34 deg/s|>200 2.7%|jitter 4.36 cm/s|bounce 3.04 cm/s|chatter 1.76 /s|pend 2.5 deg/s
+Spears_lift_53_diag_waves2_s1 TRACK Spears lift 53 diag|height 2.00|length 15.0|seed 1|forward 430.8 cm|7.18 cm/s|sideways 168.9 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves2_s1 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_waves2_s1 VIB Spears lift 53 diag|feet 4|spin 36 deg/s|>200 1.9%|jitter 4.38 cm/s|bounce 2.45 cm/s|chatter 2.39 /s|pend 2.8 deg/s
+Spears_lift_53_diag_waves2_s2 TRACK Spears lift 53 diag|height 2.00|length 15.0|seed 2|forward 429.2 cm|7.15 cm/s|sideways 172.2 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves2_s2 CONTACTS Spears lift 53 diag|none
+Spears_lift_53_diag_waves2_s2 VIB Spears lift 53 diag|feet 4|spin 37 deg/s|>200 2.2%|jitter 4.09 cm/s|bounce 2.50 cm/s|chatter 2.05 /s|pend 2.4 deg/s
+Spears_lift_53_diag_waves4_s1 TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 1|forward 251.4 cm|4.19 cm/s|sideways 277.3 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves4_s1 CONTACTS Spears lift 53 diag|foot-link 1.1%, ground-pendant 0.8%
+Spears_lift_53_diag_waves4_s1 VIB Spears lift 53 diag|feet 4|spin 54 deg/s|>200 4.5%|jitter 4.48 cm/s|bounce 2.82 cm/s|chatter 1.92 /s|pend 3.5 deg/s
+Spears_lift_53_diag_waves4_s2 TRACK Spears lift 53 diag|height 4.00|length 15.0|seed 2|forward 286.8 cm|4.78 cm/s|sideways 231.9 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves4_s2 CONTACTS Spears lift 53 diag|foot-link 0.8%, ground-pendant 0.3%
+Spears_lift_53_diag_waves4_s2 VIB Spears lift 53 diag|feet 4|spin 56 deg/s|>200 4.9%|jitter 4.64 cm/s|bounce 3.05 cm/s|chatter 2.07 /s|pend 3.4 deg/s
+Spears_lift_53_diag_waves6_s1 TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 1|forward 21.5 cm|0.36 cm/s|sideways 13.2 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves6_s1 CONTACTS Spears lift 53 diag|foot-link 2.7%, ground-pendant 0.3%, buildOutsideCrossbar-ground 0.2%
+Spears_lift_53_diag_waves6_s1 VIB Spears lift 53 diag|feet 4|spin 70 deg/s|>200 7.7%|jitter 6.13 cm/s|bounce 4.23 cm/s|chatter 2.09 /s|pend 5.1 deg/s
+Spears_lift_53_diag_waves6_s2 TRACK Spears lift 53 diag|height 6.00|length 15.0|seed 2|forward 110.9 cm|1.85 cm/s|sideways -13.8 cm|stood up 0|air 0.1%
+Spears_lift_53_diag_waves6_s2 CONTACTS Spears lift 53 diag|foot-link 0.8%, buildOutsideCrossbar-ground 0.8%, ground-pendant 0.1%, buildOutsideCrossbar-foot 0.1%
+Spears_lift_53_diag_waves6_s2 VIB Spears lift 53 diag|feet 4|spin 68 deg/s|>200 7.5%|jitter 5.62 cm/s|bounce 4.10 cm/s|chatter 1.88 /s|pend 4.7 deg/s
+Spears_lift_53_flat_s1 TRACK Spears lift 53|height 0.00|length 15.0|seed 1|forward 535.7 cm|8.93 cm/s|sideways -1.4 cm|stood up 0|air 0.1%
+Spears_lift_53_flat_s1 CONTACTS Spears lift 53|none
+Spears_lift_53_flat_s1 VIB Spears lift 53|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.05 cm/s|bounce 0.14 cm/s|chatter 0.85 /s|pend 0.3 deg/s
+Spears_lift_53_flat_s2 TRACK Spears lift 53|height 0.00|length 15.0|seed 2|forward 535.4 cm|8.92 cm/s|sideways -1.0 cm|stood up 0|air 0.1%
+Spears_lift_53_flat_s2 CONTACTS Spears lift 53|none
+Spears_lift_53_flat_s2 VIB Spears lift 53|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.08 cm/s|bounce 0.16 cm/s|chatter 0.86 /s|pend 0.4 deg/s
+Spears_lift_53_logs3_s1 TRACK Spears lift 53|height 3.00|length 15.0|seed 1|forward 489.0 cm|8.15 cm/s|sideways 79.2 cm|stood up 0|air 0.1%
+Spears_lift_53_logs3_s1 CONTACTS Spears lift 53|ground-pendant 0.0%
+Spears_lift_53_logs3_s1 VIB Spears lift 53|feet 4|spin 24 deg/s|>200 1.5%|jitter 3.67 cm/s|bounce 2.03 cm/s|chatter 1.61 /s|pend 1.7 deg/s
+Spears_lift_53_logs3_s2 TRACK Spears lift 53|height 3.00|length 15.0|seed 2|forward 489.7 cm|8.16 cm/s|sideways -7.6 cm|stood up 0|air 0.1%
+Spears_lift_53_logs3_s2 CONTACTS Spears lift 53|ground-pendant 0.3%
+Spears_lift_53_logs3_s2 VIB Spears lift 53|feet 4|spin 27 deg/s|>200 1.8%|jitter 3.83 cm/s|bounce 2.11 cm/s|chatter 1.76 /s|pend 1.7 deg/s
+Spears_lift_53_logs5_s1 TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 432.7 cm|7.21 cm/s|sideways -62.4 cm|stood up 0|air 0.1%
+Spears_lift_53_logs5_s1 CONTACTS Spears lift 53|ground-pendant 0.3%, foot-link 0.0%
+Spears_lift_53_logs5_s1 VIB Spears lift 53|feet 4|spin 32 deg/s|>200 2.3%|jitter 4.09 cm/s|bounce 2.53 cm/s|chatter 1.76 /s|pend 2.0 deg/s
+Spears_lift_53_logs5_s2 TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 466.7 cm|7.78 cm/s|sideways 19.4 cm|stood up 0|air 0.1%
+Spears_lift_53_logs5_s2 CONTACTS Spears lift 53|ground-pendant 0.4%, foot-link 0.4%
+Spears_lift_53_logs5_s2 VIB Spears lift 53|feet 4|spin 36 deg/s|>200 3.2%|jitter 4.21 cm/s|bounce 2.87 cm/s|chatter 1.74 /s|pend 2.0 deg/s
+Spears_lift_53_logs7_s1 TRACK Spears lift 53|height 7.00|length 15.0|seed 1|forward 452.9 cm|7.55 cm/s|sideways 15.2 cm|stood up 0|air 0.1%
+Spears_lift_53_logs7_s1 CONTACTS Spears lift 53|ground-link 0.7%, foot-link 0.6%, ground-pendant 0.1%
+Spears_lift_53_logs7_s1 VIB Spears lift 53|feet 4|spin 37 deg/s|>200 3.4%|jitter 4.34 cm/s|bounce 3.14 cm/s|chatter 1.81 /s|pend 2.2 deg/s
+Spears_lift_53_logs7_s2 TRACK Spears lift 53|height 7.00|length 15.0|seed 2|forward 177.9 cm|2.96 cm/s|sideways -280.5 cm|stood up 0|air 0.1%
+Spears_lift_53_logs7_s2 CONTACTS Spears lift 53|foot-link 0.8%, ground-pendant 0.3%
+Spears_lift_53_logs7_s2 VIB Spears lift 53|feet 4|spin 34 deg/s|>200 2.6%|jitter 4.53 cm/s|bounce 2.87 cm/s|chatter 1.99 /s|pend 2.6 deg/s
+Spears_lift_53_steps3_s1 TRACK Spears lift 53|height 3.00|length 15.0|seed 1|forward 498.0 cm|8.30 cm/s|sideways -15.0 cm|stood up 0|air 0.1%
+Spears_lift_53_steps3_s1 CONTACTS Spears lift 53|none
+Spears_lift_53_steps3_s1 VIB Spears lift 53|feet 4|spin 19 deg/s|>200 1.2%|jitter 3.41 cm/s|bounce 1.59 cm/s|chatter 1.45 /s|pend 1.3 deg/s
+Spears_lift_53_steps3_s2 TRACK Spears lift 53|height 3.00|length 15.0|seed 2|forward 504.3 cm|8.40 cm/s|sideways -16.0 cm|stood up 0|air 0.1%
+Spears_lift_53_steps3_s2 CONTACTS Spears lift 53|ground-pendant 0.2%
+Spears_lift_53_steps3_s2 VIB Spears lift 53|feet 4|spin 19 deg/s|>200 1.1%|jitter 3.45 cm/s|bounce 1.59 cm/s|chatter 1.42 /s|pend 1.4 deg/s
+Spears_lift_53_steps5_s1 TRACK Spears lift 53|height 5.00|length 15.0|seed 1|forward 477.6 cm|7.96 cm/s|sideways 4.1 cm|stood up 0|air 0.1%
+Spears_lift_53_steps5_s1 CONTACTS Spears lift 53|ground-link 0.4%, ground-pendant 0.3%
+Spears_lift_53_steps5_s1 VIB Spears lift 53|feet 4|spin 26 deg/s|>200 1.8%|jitter 3.76 cm/s|bounce 2.18 cm/s|chatter 1.53 /s|pend 1.5 deg/s
+Spears_lift_53_steps5_s2 TRACK Spears lift 53|height 5.00|length 15.0|seed 2|forward 448.7 cm|7.48 cm/s|sideways 7.1 cm|stood up 0|air 0.1%
+Spears_lift_53_steps5_s2 CONTACTS Spears lift 53|ground-pendant 0.2%, ground-link 0.1%, foot-link 0.1%
+Spears_lift_53_steps5_s2 VIB Spears lift 53|feet 4|spin 28 deg/s|>200 1.9%|jitter 3.85 cm/s|bounce 2.30 cm/s|chatter 1.58 /s|pend 1.6 deg/s
+Spears_lift_53_steps7_s1 TRACK Spears lift 53|height 7.00|length 15.0|seed 1|forward 408.9 cm|6.82 cm/s|sideways -52.4 cm|stood up 0|air 0.1%
+Spears_lift_53_steps7_s1 CONTACTS Spears lift 53|ground-link 2.8%, foot-link 0.4%, ground-pendant 0.3%
+Spears_lift_53_steps7_s1 VIB Spears lift 53|feet 4|spin 31 deg/s|>200 2.2%|jitter 4.11 cm/s|bounce 2.64 cm/s|chatter 1.59 /s|pend 1.8 deg/s
+Spears_lift_53_steps7_s2 TRACK Spears lift 53|height 7.00|length 15.0|seed 2|forward 371.1 cm|6.19 cm/s|sideways 85.1 cm|stood up 0|air 0.1%
+Spears_lift_53_steps7_s2 CONTACTS Spears lift 53|foot-link 0.9%, ground-link 0.3%, ground-pendant 0.2%
+Spears_lift_53_steps7_s2 VIB Spears lift 53|feet 4|spin 36 deg/s|>200 3.0%|jitter 4.51 cm/s|bounce 3.29 cm/s|chatter 1.67 /s|pend 2.1 deg/s
+Spears_lift_53_waves2_s1 TRACK Spears lift 53|height 2.00|length 15.0|seed 1|forward 424.6 cm|7.08 cm/s|sideways 171.0 cm|stood up 0|air 0.1%
+Spears_lift_53_waves2_s1 CONTACTS Spears lift 53|none
+Spears_lift_53_waves2_s1 VIB Spears lift 53|feet 4|spin 35 deg/s|>200 2.0%|jitter 4.26 cm/s|bounce 2.41 cm/s|chatter 2.16 /s|pend 2.2 deg/s
+Spears_lift_53_waves2_s2 TRACK Spears lift 53|height 2.00|length 15.0|seed 2|forward 429.9 cm|7.16 cm/s|sideways 145.0 cm|stood up 0|air 0.1%
+Spears_lift_53_waves2_s2 CONTACTS Spears lift 53|ground-pendant 0.0%
+Spears_lift_53_waves2_s2 VIB Spears lift 53|feet 4|spin 38 deg/s|>200 2.3%|jitter 4.50 cm/s|bounce 2.62 cm/s|chatter 2.29 /s|pend 2.3 deg/s
+Spears_lift_53_waves4_s1 TRACK Spears lift 53|height 4.00|length 15.0|seed 1|forward 278.7 cm|4.64 cm/s|sideways 231.4 cm|stood up 0|air 0.1%
+Spears_lift_53_waves4_s1 CONTACTS Spears lift 53|foot-link 0.8%, ground-pendant 0.2%
+Spears_lift_53_waves4_s1 VIB Spears lift 53|feet 4|spin 55 deg/s|>200 4.9%|jitter 5.00 cm/s|bounce 3.33 cm/s|chatter 2.14 /s|pend 2.8 deg/s
+Spears_lift_53_waves4_s2 TRACK Spears lift 53|height 4.00|length 15.0|seed 2|forward 307.6 cm|5.13 cm/s|sideways 156.8 cm|stood up 0|air 0.1%
+Spears_lift_53_waves4_s2 CONTACTS Spears lift 53|ground-pendant 1.8%, foot-link 1.0%
+Spears_lift_53_waves4_s2 VIB Spears lift 53|feet 4|spin 53 deg/s|>200 4.6%|jitter 4.84 cm/s|bounce 3.19 cm/s|chatter 2.07 /s|pend 2.7 deg/s
+Spears_lift_53_waves6_s1 TRACK Spears lift 53|height 6.00|length 15.0|seed 1|forward 47.5 cm|0.79 cm/s|sideways 15.3 cm|stood up 0|air 0.2%
+Spears_lift_53_waves6_s1 CONTACTS Spears lift 53|foot-link 1.3%, ground-pendant 0.4%
+Spears_lift_53_waves6_s1 VIB Spears lift 53|feet 4|spin 84 deg/s|>200 11.8%|jitter 6.57 cm/s|bounce 4.68 cm/s|chatter 2.41 /s|pend 3.6 deg/s
+Spears_lift_53_waves6_s2 TRACK Spears lift 53|height 6.00|length 15.0|seed 2|forward 260.8 cm|4.35 cm/s|sideways 62.3 cm|stood up 0|air 0.1%
+Spears_lift_53_waves6_s2 CONTACTS Spears lift 53|foot-link 3.8%, ground-pendant 3.1%, ground-link 0.1%
+Spears_lift_53_waves6_s2 VIB Spears lift 53|feet 4|spin 68 deg/s|>200 7.4%|jitter 5.86 cm/s|bounce 4.09 cm/s|chatter 2.11 /s|pend 3.3 deg/s

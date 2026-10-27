@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 40 (8 m track, the V left off, option A's results). 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 41 (the sliders' 6-dof joint, the fresh table, section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -280,6 +280,76 @@ The 4 runs of a cell spread about 0.5 cm/s (se of one build's change about 0.34)
 **The plated builds** (measured 24 October): each side plate is welded to both pendants on its side, so those two legs must be in phase: no trot; the room builds them at sides (sidePhase 180). The plates add 13.8 on every build (the weight rule counts a plate as a bar its length long, so height adds nothing); CoM 0.0–0.3 cm above guides; pendants at guides' length (0.15 heavier, the weld bolt); plate bottoms now at 7.0–7.2 cm above the feet in stance (BRACE_CLEARANCE).
 
 **New tools** (`tools/`): `widthcheck.py` (the wrong pre-pass, kept for the record), `planesW.py`, `sweep_roles_R0.sh`, `sweep_roles_W1.sh`, `sweep_roles_W2.sh`, `footclearW.py`, `sweepTW.sh`, `sweepTW2.sh`, `sweep4W.sh`, `sweep6W.sh`, `sweepVW.sh`, `sweepLW.sh` (width sweeps), `jamW.py`, `jamW_an.py`, `linkprobe3_at.lua` (jam checks), `drawW.py`; `verify5.py` (env SWEEP6), `verifyV.py` (env SWEEPV), `vfit.py` (env SWEEP6), `verifyV.py`, `sweepV.sh`, `vgc.sh`, `drawV.py` (the V braces), `sweepL.sh`, `platefit.py` (fit / check the low plates), `lowc.sh` (their contacts walking), `draw34.py` (the picture), `sweepP.sh`, `platecheck.py` (plated builds held / not, with ankles), `plsw.sh` (plated builds walking, held / not), `sweep5.sh`, `sweep6.sh`, `sweep_old.sh` (sweeps of the seven diag builds: pendants at guides' length / outside braces built / old braces), `outz5.py` (fit; `--sweeps`, `--links`), `verify5.py` (check as built), `contacts5.sh`, `contacts5b.sh`, `vibprobe_at.lua` (contacts reported at `CONTACT_AT`), `bracehit.lua` (what each brace piece touches), `letterprobe2.lua`, `draw33.py` (the pictures).
+
+## 4c. Fifth session (25–27 October): a fresh table, and the sliders' joint
+
+**Answer first:** every run build on 10 terrains (the first full table since the outside braces, held pendants, 8 m track and 1.0 cm links). The Spears builds average 6.22 cm/s over the nine rough terrains, the others 4.74 (old slider joint). The two sliders were held back by Bullet's slider joint, which let the bar twist up to 10–15° against its pivot block; `SLIDER_6DOF` (patch 41, default on) makes that pivot a generic 6-dof joint, free only along the bar.
+
+**Width rule** (William, 25 October): 1.0 cm links everywhere (`LINK_WIDTH = 1.0` in the runs; the room default is still false). Option A's data: footing lost by the foot-carrying link at 1.0 doesn't go with speed lost (correlation −0.05 over 38 build-terrains); only Spears lift 53 diag consistently pays (waves, and logs 7 in the table below). Bodies by the foot rule. `WIDTH_REFITS_OFF` (a table of names) and `LINK_WIDTH_KEEP_OVER` (cm) are test switches from that work.
+
+**The fresh table** (`data/fresh_table.md`, `data/fresh.txt`, `data/fresh6d.txt`; `tools/fresh.sh`, `fresh6d.sh`, `fresh_table.py`): trot, forward, Earth standard, 1.0 cm links, no V, diag builds with outside braces and held pendants, guides `UNBRACED`, 8 m track, 60 s, bump 15, normal ground only (William: no mirroring), seeds 1–2. Flat; waves 2/4/6; logs 3/5/7; steps 3/5/7 (William's set; random left out). The sliders here are with `SLIDER_6DOF`. Mean cm/s; the last column is the mean over the nine rough terrains.
+
+| Walker | Bracing | Timing | Direction | Flat | Waves 2 | Waves 4 | Waves 6 | Logs 3 | Logs 5 | Logs 7 | Steps 3 | Steps 5 | Steps 7 | Mean |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Spears lift 44 | guides | trot | forward | 8.94 | 7.92 | 6.89 | 5.81 | 8.57 | 8.19 | 7.23 | 8.63 | 8.18 | 6.86 | 7.59 |
+| Spears lift 44 diag | outside, held | trot | forward | 8.89 | 7.48 | 6.25 | 5.43 | 8.52 | 8.05 | 6.04 | 8.54 | 7.99 | 6.97 | 7.25 |
+| Hoecken-Spears 4-bar diag | outside, held | trot | forward | 8.79 | 8.13 | 6.75 | 4.89 | 8.19 | 7.12 | 3.07 | 8.28 | 7.52 | 5.54 | 6.61 |
+| Hoecken-Spears long-stance diag | outside, held | trot | forward | 8.97 | 7.95 | 6.54 | 5.70 | 8.04 | 7.06 | 2.23 | 8.32 | 7.25 | 5.91 | 6.55 |
+| Hoecken-Spears 4-bar | guides | trot | forward | 8.89 | 8.27 | 7.56 | 4.33 | 8.14 | 6.83 | 3.04 | 8.30 | 7.53 | 4.32 | 6.48 |
+| Spears lift 53 | guides | trot | forward | 8.93 | 7.12 | 4.88 | 2.57 | 8.16 | 7.50 | 5.25 | 8.35 | 7.72 | 6.51 | 6.45 |
+| Chebyshev-Spears diag | outside, held | trot | forward | 8.87 | 8.18 | 7.04 | 5.37 | 8.19 | 7.02 | 2.50 | 8.26 | 7.45 | 3.61 | 6.40 |
+| Chebyshev-Spears | guides | trot | forward | 8.95 | 8.31 | 6.71 | 6.26 | 8.21 | 6.23 | 0.21 | 8.41 | 7.22 | 5.04 | 6.29 |
+| Klann | own | trot | forward | 9.03 | 7.67 | 7.08 | 4.97 | 7.92 | 6.66 | 3.30 | 8.60 | 6.90 | 2.85 | 6.22 |
+| Hoecken-Spears long-stance | guides | trot | forward | 8.94 | 7.98 | 7.38 | 6.79 | 8.16 | 4.69 | 0.73 | 8.39 | 7.59 | 3.79 | 6.17 |
+| Spears lift 53 diag | outside, held | trot | forward | 8.89 | 7.17 | 4.49 | 1.10 | 8.08 | 7.68 | 1.90 | 8.36 | 7.79 | 6.19 | 5.86 |
+| Jansen | own | trot | forward | 9.07 | 8.18 | 7.04 | 5.68 | 7.38 | 5.10 | 0.10 | 8.02 | 6.42 | 4.84 | 5.86 |
+| Hoecken-Spears slider | guides | trot | forward | 9.01 | 8.00 | 6.67 | 3.75 | 8.27 | 6.43 | 1.15 | 8.39 | 5.39 | 0.59 | 5.41 |
+| Hoecken slider | guides | trot | forward | 9.09 | 8.22 | 6.97 | 3.74 | 7.72 | 4.76 | 0.28 | 7.86 | 6.52 | 1.29 | 5.26 |
+| Hoecken 4-bar | guides | trot | forward | 8.91 | 8.19 | 6.53 | 2.07 | 7.32 | 4.70 | 0.19 | 7.58 | 2.94 | 0.58 | 4.46 |
+| Chebyshev diag | outside, held | trot | forward | 8.96 | 7.95 | 5.74 | 3.67 | 6.72 | 2.56 | 0.23 | 7.13 | 3.91 | 0.52 | 4.27 |
+| Chebyshev | guides | trot | forward | 8.90 | 7.63 | 5.62 | 1.07 | 6.70 | 3.97 | 0.27 | 7.15 | 2.06 | 0.57 | 3.89 |
+| Spears 4-bar | own | trot | forward | 9.21 | 7.54 | 4.56 | 2.48 | 7.29 | 3.12 | 0.99 | 7.75 | 0.50 | 0.44 | 3.85 |
+| Hoecken 4-bar diag | outside, held | trot | forward | 9.01 | 8.08 | 6.37 | 1.97 | 7.19 | 0.99 | 0.17 | 7.59 | 1.56 | 0.55 | 3.83 |
+
+The two seeds of a cell differ by 0.68 cm/s on average, at times 4–5 (high logs and steps most). Contacts under stress (vibprobe): the slider crank never touched its guide block; Spears 4-bar's legs touched its body in 0.6–1.1% of frames (waves 4 and 6); bodies on the ground at most 1.1% (Klann, steps 7). Runs here must be started as a background job the session tracks (Bash `run_in_background`, at most 2 hours; restart to resume): a detached job (`setsid nohup`) is stopped a few minutes after a reply ends, which lost a night's runs.
+
+**Spears against the originals.** Lift and time flat on the ground (within 0.5 cm of the lowest) from the trot sweeps (`tools/stance.py`, sweepT/, body held, one turn), and from the ideal paths in `Walking_Linkages.lua` (`tools/paths4.py`, picture `paths4.png`, each scaled to stride 15):
+
+| Walker | Lift (cm) | Flat on the ground | Duty (Walking_Linkages' measure) | Foot link's swing, fastest (x crank speed) |
+|---|---|---|---|---|
+| Chebyshev | 2.86 | 73% | 72% | 65°, 1.0 |
+| Chebyshev-Spears | 4.65 | 82% | 83% | 99°, 3.0 |
+| Hoecken slider | 3.70 | 69% | 69% | 60°, 1.0 |
+| Hoecken-Spears slider | 4.89 | 82% | 84% | 100°, 3.3 |
+| Hoecken 4-bar | 3.05 | 68% | – | – |
+| Hoecken-Spears 4-bar | 4.89 | 76% | – | – |
+| Jansen / Klann | 4.94 / 7.84 | 54% / 31% | – | – |
+| Spears 4-bar | 5.58 | 58% | – | – |
+| H-S long-stance | 5.18 | 48% | – | – |
+| Spears lift 44 / 53 | 7.71 / 9.28 | 47% / 38% | – | – |
+
+(Names: lift 44 and 53 are the hill-climb's foot lift, 44% and 53% where Chebyshev-Spears is 26%; long-stance was named for its 85% duty, its stance long but not flat to 0.5 cm. William is considering new names.)
+
+**The sliders' joint** (`tools/slidertest.lua`, `slt.sh`, `slt_an.py`; `data/slider_tests.md`, `data/slt.txt`). William: the Hoecken slider's path is close to Chebyshev's and the two Spears paths are nearly the same, so the slider's Spears gain should be like Chebyshev's; it was +0.5 against +2.4. The Spears slider's feet shook twice as much as Chebyshev-Spears' even on flat (foot jitter, frame to frame, 4.95 against 2.61 cm/s). Tests on flat (seed 1) and waves 4 (seeds 1–2), guides, as the table:
+
+| Walker | Test | Waves 4 (mean of 2) | Foot jitter flat / waves 4 (cm/s) | Bar twist against its block, waves 4, mean / max (°) |
+|---|---|---|---|---|
+| Hoecken-Spears slider | as run | 4.87 | 4.95 / 6.46 | 0.25 / 9.97 |
+| Hoecken-Spears slider | 200 solver iterations | 5.57 | 2.92 / 5.27 | 0.05 / 2.68 |
+| Hoecken-Spears slider | 6-dof joint | 7.37 | 2.71 / 4.11 | 0.01 / 0.74 |
+| Hoecken-Spears slider | bar at half mass | 5.04 | 5.45 / 6.55 | 0.40 / 14.6 |
+| Hoecken-Spears slider | links undamped | 5.19 | 5.00 / 6.11 | 0.23 / 8.85 |
+| Hoecken slider | as run | 6.50 | 1.06 / 4.79 | 0.30 / 13.2 |
+| Hoecken slider | 200 solver iterations | 7.07 | 0.86 / 3.30 | 0.05 / 2.19 |
+| Hoecken slider | 6-dof joint | 6.92 | 0.85 / 2.63 | 0.01 / 0.27 |
+| Chebyshev-Spears | as run | 6.71 | 2.61 / 4.32 | – |
+| Chebyshev-Spears | 200 solver iterations | 6.96 | 2.60 / 4.29 | – |
+
+Bullet's slider constraint gives under load (a pin through a hole would not); the faster-swinging Spears bar loads it more. With `SLIDER_6DOF` on all 10 terrains (2 seeds; old joint → 6-dof): Hoecken-Spears slider 5.17 → 5.41 (waves 2/4/6 7.25 → 8.00, 4.87 → 6.67, 2.00 → 3.75; logs 7 0.22 → 1.15; but steps 5 7.18 → 5.39 and steps 7 1.74 → 0.59, seeds 6.61 / 4.18 and 0.63 / 0.56), Hoecken slider 4.66 → 5.26. The twist now stays under 1.3°. On steps 7 the Spears slider is still far behind Chebyshev-Spears (0.59 against 5.04): not yet explained. (The 6-dof test inside `slidertest.lua` added the joint after the build, outside the room's addConstraint; built in the file, waves 4 came out 6.67 rather than 7.37.)
+
+**Link damping differs between files** (not yet changed): the sliders damp bar, block and pendant (0.1–0.3), Chebyshev-Spears and the Spears lifts nothing, Chebyshev and Hoecken 4-bar their braces (0.15), Jansen and Klann 0.05. Turning it off didn't change the sliders' speed (above). It should be one rule for all (0 is simplest); William: later.
+
+**New tools**: `fresh.sh`, `fresh6d.sh`, `fresh_an.py`, `fresh_table.py` (the table), `stance.py` (lift and time flat from sweeps), `paths4.py` (ideal paths), `slidertest.lua` (slider joint errors; `SL_6DOF`, `SL_BAR_HALF`, `SL_NODAMP`), `slt.sh`, `slt_an.py`.
 
 ## 5. What was found in the last session (17–21 October)
 
