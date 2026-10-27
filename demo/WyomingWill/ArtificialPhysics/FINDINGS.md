@@ -224,8 +224,11 @@ angular momentum by the square only (< 10⁻¹¹), while the triangle's
 special cases inject up to 300–850 as the particles sort themselves (PDF
 130). One is Born: 57 of 60 clones reached their slots in 10–210 ticks
 (the other 3 when the next clone arrived). D changed live from 25 to 20
-or 30 is followed within 100–500 ticks; down to 15 the formation
-breaks, G 1000 being 4 G_t there (the model's Good G monitor). `init-m-n`
+or 30 is followed within 100–500 ticks; shrunk slowly, the square breaks
+into clusters at D 16.5 and the triangle at 14.5–15, where G 1000 is
+4–4.4 × G_t (Eqs. 3.4, 3.5) but just reaches Fmax D^p: a formed lattice
+holds above G_t (Ch. 3's hysteresis) until the force at D reaches the cap
+(an earlier note here, "4 G_t", read it wrongly as G_t). `init-m-n`
 gives distinct slots for 100 square and 127 triangular positions; the
 128th particle repeats a triangle slot (the code says "good up to 126").
 The Android port matches the model except for details that do not
@@ -925,7 +928,9 @@ squares −11.8° to −15.2°, and it stays turned (50,000 ticks). The
 formation turns as a whole during the rebuild (seed 1: about 40° to 12°)
 and stops once every pair is in order; the rules test only which side of
 each other two particles are, so nothing brings a lattice back to the
-axes. Fitted without turning, the rebuilt lattices look 0.7–0.8 D off,
+axes. The rules have no handedness (the problem mirrored in x, positions
+and m, gives exactly the opposite angle); it comes from `init-m-n`'s
+numbering of the two lattices' rings. Fitted without turning, the rebuilt lattices look 0.7–0.8 D off,
 which first read as a failure. The author's question (a), perfect
 triangles without breaking Newton's third law (the two special cases
 repulse along the line instead): yes, with angular momentum conserved,

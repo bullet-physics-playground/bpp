@@ -51,7 +51,14 @@ patches a tick, as the split law does at D):
   rebuild the formation turns as a whole (seed 1: from about 40° to 12°,
   with L negative throughout) and stops where the order constraints are
   all met. The rules only test which side of each other two particles
-  are, so nothing turns a lattice back to the axes once it is in order. A
+  are, so nothing turns a lattice back to the axes once it is in order.
+  The rules have no handedness: with the whole problem mirrored left to
+  right (positions and every m) the angle comes out exactly opposite
+  (+10.6° and −10.6°, −12.7° and +12.7°, from ideal starts); the
+  handedness is `init-m-n`'s, whose square and triangle rings number the
+  particles in different rotational orders. The final angle does not
+  depend on the start's (an ideal square turned −12° or +12° still ends
+  at +11° to +12°); why 11–13° in particular we have not found. A
   lattice fitted without turning shows the rebuilt ones 0.7–0.8 D from
   "ideal", which is what first looked like a failure. Fig. 4.4's last
   panel may well be turned too; at its size we cannot tell.
@@ -63,9 +70,17 @@ patches a tick, as the split law does at D):
   (3 seeds per lattice; spacing within 1% of the new D), and so are 25 →
   20 and a slow climb to 30 (1 every 50 ticks); a jump from 20 to 30 left
   the triangle disordered (worst 0.4 D) for 200 ticks, perfect again by
-  500. Slowly down to 15 breaks the formation: G 1000 is then 4 times Eq.
-  3.4's G_t (251), where Ch. 3's particles cluster; the model's Good
-  Gravitational Constant monitor says to lower G with D.
+  500. **Shrinking D slowly (0.5 every 200 ticks, 3 seeds) breaks the
+  formation into clusters at D = 16.5 for the square (all seeds) and
+  14.5–15 for the triangle.** That is not at G_t: there G 1000 is already
+  4.4 × Eq. 3.5's G_t2 (square) and 4.0–4.3 × Eq. 3.4's G_t (triangle); a
+  formed lattice holds far above G_t (Ch. 3's hysteresis). It breaks where
+  the force at D reaches the cap, G / D^p ≈ Fmax (0.90 for the square, 1.1–
+  1.25 for the triangle), i.e. at G ≈ Fmax D^p = S × G_t, S = 2 + 2√2 or
+  2√3: every force near D is then the same capped size and the rules can
+  no longer hold the slots. (We first put it down to G > G_t, citing Eq.
+  3.4 for both lattices: wrong.) The model's Good Gravitational Constant
+  monitor tells the user to lower G with D.
 - **The author's question (a), perfect triangles without breaking the
   third law** (ours: the two special cases repulse along the line, like
   every other case): yes, but only 6 of 10 starts formed within 20,000
