@@ -257,6 +257,22 @@ simulator has a floor the Android rule does not (deviation 0.0033 on
 the 3x3, KL 0.00005; centre most, corners least): his robot stops a
 response range short of a wall.
 
+**F86. Ch. 4.4: Couette flow's linear profile and conserved momentum
+reproduced; V/6 holds to a few percent** — 2026-10-27, Confirmed.
+`ch04/README.md`, `checks/ch04_couette.lua`. `kt.nlogo` as plain Lua
+(`ch04/couette.lua`) and, bit for bit, in C (`ch04/couette1.c`), at its
+defaults (1000 particles, T 0.010). With the walls moving at ±V the left
+half of the corridor sweeps down and the right half up, the 13 bars rise
+linearly (correlation 0.998–0.9995 at the book's 5,000 samples,
+0.9994–0.9995 at Fig. 4.22's 15,032 ticks against its 0.99954), and the
+momenta stay within 3 standard errors of 0. The slope is close to the
+book's 2V/12 = V/6 but not exactly it: it moves with density and
+temperature (V = 1: N 500, 1000, 2000 give 0.960, 1.027, 1.075 × V/6;
+T 0.001, 0.01, 0.04 give 1.050, 1.027, 0.990), and the profile is a
+slight S, flatter by the walls (end bars 0.96–0.97 V). Steady by 5,000
+ticks (100,000 give the same). F85 has what the `.nlogo`'s walls do to
+the two figures.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -1037,6 +1053,36 @@ once per 10⁹ steps), never in Maxim's files. The stream is fixed, so a
 run sticks at the same step every time; those entries end at the last
 sample before it. Moving to the point the sensor tested would fix it but
 change every run after the first step that differs.
+
+**F85. `kt.nlogo`'s walls emit hotter than the Rayleigh they draw; the
+book's Figs. 4.23 and 4.24 fit walls that thermalise only particles
+moving into them** — 2026-10-27, Divergence (the `.nlogo` kept as the
+default; ours a switch). `ch04/README.md`, `checks/ch04_couette.lua`.
+A particle within 1 of a wall patch is given a new velocity, Rayleigh
+(s = √T) away from the wall; but the wall zone is about one step deep,
+so it is often still inside after the move and is drawn again, every
+tick, until a draw carries it out. The wall therefore emits a size-biased
+Rayleigh: particles leaving it carry |vx| = 1.40–1.42 √T and vx² =
+2.38–2.44 T, against 1.2533 and 2. The whole gas runs hot (the mean
+speed away from the walls equals the mean of all; our first guess, that
+wall particles inflate the average, was wrong). Fig. 4.24 (walls at
+rest, √T 0.01–0.20, 100,000 ticks, Resample at 50,000): v̄ = 1.358–1.363
+√T + 0.0002, r = 0.99999 (2 seeds), against the book's 1.2617 √T +
+0.0013 and the theory's 1.2533. Fig. 4.23: slopes 1.007, 1.024, 1.016,
+1.006 × V/6 at V = 0.5–2.0 (10 seeds, sd ~0.4%), where the book's curve
+lies on V/6 to a pixel (0.0004) up to V = 1.5 and at ~0.3297 for 2.0;
+Fig. 4.22's 0.16256 is 0.1646–0.1660 here. Thermalising only particles
+moving into the wall (`inward`) brings the emission to the Rayleigh
+(|vx| 1.27–1.28 √T) and Fig. 4.23 onto the book's: 0.995, 1.005,
+0.998, 0.989 × V/6 (0.3295 at V = 2). Its Fig. 4.24 at 1000 particles is
+v̄ = 1.294–1.298 √T + 0.0004–0.0006 (2 seeds); with fewer particles it falls to the
+book's value: 1.271, 1.256, 1.268 √T at N 30, 100, 300 (√T 0.1, 3 seeds,
+±0.01), while the `.nlogo`'s stays at 1.34–1.37 at every N. So the
+book's runs behave like walls that leave outgoing particles alone, and
+its Fig. 4.24 like a lower density than 1000 (its scatter, r = 0.9996,
+also points to fewer particles); the NetLogo 5 model they ran is not
+here to say which. The Android app has the `.nlogo`'s wall and the same
+slopes (1.012, 1.024, 1.007 × V/6).
 
 ## 5. Our own errors, corrected
 

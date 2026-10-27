@@ -25,7 +25,7 @@ is on the website.
 | `flock.nlogo` | 3 | not yet |
 | `formation_chain.nlogo` | 4 | not yet |
 | `formation_perfect.nlogo` | 4 | not yet |
-| `kt.nlogo` | 4 (kinetic theory) | not yet |
+| `kt.nlogo` | 4 (kinetic theory) | `ch04/couette.lua` (line for line; `checks/ch04_couette.lua`, F85, F86): its walls emit hotter than the Rayleigh they draw |
 | `uniform.nlogo` | 4.3 | `ch04/coverage.lua` (line for line; `checks/ch04.lua`, F78); `Uniform_Coverage.lua` (via the Android app; wall rule kept by decision, FIXES 36) |
 | `uniform_mfpl.nlogo` | 4.3, 11 | `ch04/coverage.lua` (line for line; `ch04/README.md`, F78); measured against BPP (FINDINGS F16) |
 | `dinos.nlogo` | 6 (dinoflagellates) | not yet |

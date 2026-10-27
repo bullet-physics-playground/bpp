@@ -1,7 +1,7 @@
 # Checks: the regression suite
 
 `bash checks/run_all.sh` runs every check and exits 0 only if all pass
-(about 7 min 30 s; `--quick` about 6 min 30 s with smaller samples).
+(about 10 min; `--quick` about 9 min with smaller samples).
 
 **Which Lua.** The Lua checks run *inside BPP* when a BPP is built, so they
 test the Lua the demos really use; BPP links Lua 5.1 or 5.2 depending on the
@@ -21,6 +21,7 @@ on its own from the `ArtificialPhysics` folder.
 | `ch03.lua` | Ch. 3's formation models on `ch03/models.lua` (the `.nlogo` step): G_t and its hysteresis, Fig. 3.16's robustness, the square lattice's G_t2 under both force directions, G_t in 3D, Hooke's law and its failures, Kill/Born, the goal, Disable One and Figs. 3.25–3.26's obstacles, the honeycomb with and without its switching (28 tests) | 110 s |
 | `ch04.lua` | Ch. 4.3's coverage on `ch04/coverage.lua` (the `.nlogo` step): the starting 0.9428, Table 4.2 for 1 and 100 agents, Fig. 4.17's corner > edge > centre, Fig. 4.19's good MFP 17, poor MFP 50 and one agent's dip at 65 (8 tests; the full sweep is in `ch04/README.md`) | 40 s |
 | `ch04_perfect.lua` | Ch. 4.1's perfect formations on `ch04/perfect.lua` (the `.nlogo` step): `init-m-n`'s slots, the square and the triangle forming perfectly, their momenta (L conserved by the square only), Toggle Formation both ways (perfect, turned 8–16°), One is Born, a new D, question (a) with the third law kept, and a particle lost beyond sensing range (12 tests) | 10 s |
+| `ch04_couette.lua` | Ch. 4.4's Couette flow on `ch04/couette.lua` (the `.nlogo` step): the Lua equals `ch04/couette1.c` to the last bit; Fig. 4.23's rising, linear profile; the momenta near 0; the `.nlogo`'s slope ~2% above V/6 because its walls emit hotter than their Rayleigh, and V/6 with walls thermalising inward only (FINDINGS F85; 9 tests; the full Figs. 4.23–4.24 are in `ch04/README.md`) | 75 s |
 | `ch11.lua` | Ch. 11's Table 11.1 on Maxim's simulator: the Lua copy (`ch11/maxim.lua`) reproduces five short runs of his C to the last visit; the C's seeds fall back to (1802, 9373); every entry of Table 11.1 from the counts in Maxim's own files (10x10 size 20 a misprint); the Lua copy with F81's fix is the fixed, seeded C; our runs of his C equal his 2009 runs visit for visit (20 tests; the full table is in `ch11/README.md`) | 6 s |
 | `world.lua` | `lib/world.lua` and its book presets: point tests, cells, corridor coverage, seeds, shadow cells, grids, CPT format (22 tests) | 7 s |
 | `terrain.lua` | `lib/terrain.lua` and the five realistic presets (`lib/places.lua`): seeds repeat on every Lua, the shared stream untouched, ground() is the drawn mesh, the slope rule (15% along the grid, 21.2% across), river levels and depths, long rivers' mean sinuosity 1.4 and meander wavelength 11 widths, no lasting period, natural disturbances, no channel touching itself, ponds hold water, the sea and its shelf, dredged depths, 1:3 sides and vertical quay walls, the world cut at a height (21 tests) | 8 s |

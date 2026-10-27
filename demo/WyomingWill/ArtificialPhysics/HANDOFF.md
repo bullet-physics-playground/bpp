@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F84 so far), and
+  implementations, and our own mistakes once corrected (F1–F86 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -169,7 +169,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "2. Shared groundwork" --break "8. Build order"`
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "8. Build order"` (2026-10-27: the break before "2. Shared groundwork" left a nearly empty page 20; §2 starts a page without it)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
   and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
@@ -399,7 +399,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
      kept, at 5–12 times the formation time);
   4. velocity commands (G4), the point-mass vehicle (G5) and kinetic
      theory (Ch. 4.4, Ch. 7); the vehicle interface makes the point mass
-     (G5) one more vehicle module.
+     (G5) one more vehicle module. William, 2026-10-27: Couette flow
+     first, then G5, then G4.
+     - **Couette flow (done,** `ch04/couette.lua`, `ch04/couette1.c`,
+       `checks/ch04_couette.lua`, F85–F86): the linear profile and
+       momenta reproduced; `kt.nlogo`'s walls emit hotter than the
+       Rayleigh they draw (a particle still in the wall zone is drawn
+       again), so its slope is 1–2.5% above V/6 and v̄ = 1.36√T; walls
+       thermalising only incoming particles (`inward`, off by default)
+       give the book's Fig. 4.23, and its Fig. 4.24 at N ≤ 300.
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and

@@ -1,4 +1,4 @@
-# Ch. 4 — Perfect formations (4.1) and uniform coverage (4.3), checked against the book
+# Ch. 4 — Perfect formations (4.1), uniform coverage (4.3) and Couette flow (4.4), checked against the book
 
 ## Ch. 4.1 — Perfect formations
 
@@ -271,3 +271,144 @@ Ch. 11.5–11.6 (turns at walls only, then mean-free-path turns, on Maxim's
 cell-based simulator) are the same questions as Table 4.2 and Fig. 4.19 on
 a different simulator. Table 11.1 (Ch. 11.8) is done on Maxim's own
 simulator: `../ch11/README.md`.
+
+## Ch. 4.4 — Couette flow (kinetic theory)
+
+`BOOK.md` entry 4.4 (PDF 147–156, Listing 4.5, Eqs. 4.2–4.6,
+`book/ch04.md`). `kt.nlogo` as plain Lua, operation for operation:
+particles with no forces, only velocities, in a corridor between a yellow
+wall moving down and a red wall moving up at Wall_Velocity V. A particle
+with any other within 2 picks one at random and the two exchange velocity
+as in a collision at a random angle (momentum and relative speed kept); a
+particle within 1 of a wall patch is given a new velocity, the normal
+part Rayleigh (s = √T, away from the wall) and the tangential part
+Gaussian (σ = √T) plus the wall's velocity. Defaults: 1000 particles,
+V 1.0, T 0.010.
+
+| File | What |
+| --- | --- |
+| `couette.lua` | The model (the world, the step, the 13-column histogram, compute-stats, Resample), with two switches of ours: `split` (measures, changes nothing) and `inward` (below) |
+| `couette1.c` | The same model in C, about 200 times faster, for the long runs: the same random numbers in the same order, so the same numbers to the last bit (checked on Lua 5.1, 5.2, 5.3 and 5.4) |
+| `couette1_reference.txt` | Two short runs of the C, which the check repeats in Lua |
+| `../checks/ch04_couette.lua` | 9 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
+
+**Where the book's text is silent, the `.nlogo` decides:** a world of
+patches −42…42 that wraps in x and y; the walls are the three patch
+columns at each side (pxcor 40–42 red, −42…−40 yellow), and "near" is a
+patch centre within 1, so a wall acts from x ≈ ±39; a red check then a
+yellow one, so across the wrap (x ≥ 42) yellow wins; particles start at
+7/8 of a uniform position with speed 1.2533√T in a random integer
+direction; every tick all collide, one at a time in a new random order,
+then all move; collision angles are integer degrees; the 13 columns
+split −42…42 with strict edges; the setup's state is the first sample.
+The `.nlogo` sums the speeds but has no mean-speed monitor; the book
+"adds one" (PDF 154), which we read as the mean of |v| over the particles
+and the samples since Resample.
+
+### What the walls do (FINDINGS F85)
+
+A particle that steps into a wall zone (x beyond ±39) is given its new
+velocity, but it is often still in the zone after the next move, and then
+it is drawn again; it leaves only on a draw large enough to carry it out.
+So the wall emits the size-biased Rayleigh, not the Rayleigh it draws:
+particles leaving a wall carry |vx| = 1.40–1.42 √T and vx² = 2.38–2.44 T,
+against 1.2533 and 2 (a fully size-biased Rayleigh has 1.596 and 3; the
+zone is about one step deep, so the bias is partial). The gas is heated
+past T, everywhere, not just at the walls: the mean speed of the
+particles away from the walls is the same as the mean of all.
+
+`inward` (ours, off by default) thermalises a particle only while it moves
+into the wall, so a particle on its way out is left alone: the emission
+is then close to the Rayleigh (|vx| 1.27–1.28 √T, vx² 2.03–2.09 T).
+
+### Fig. 4.23: the velocity profile
+
+The book: V = 0.5, 1.0, 1.5, 2.0, 10,000 ticks each with Resample at
+5,000; the slope agrees "almost perfectly" with 2V/12 = V/6, slightly
+below at 2.0, correlation > 0.999 always. Read off the figure at 400 dpi
+(one pixel is 0.0004 in slope): on V/6 to within a pixel to V ≈ 1.5, and
+about 0.3297 at 2.0. Ours, 10 seeds each (sd 0.0005–0.0010 in slope):
+
+| V | V/6 | `.nlogo` slope | ratio | corr | `inward` slope | ratio | corr |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 0.5 | 0.0833 | 0.0839 | 1.007 | 0.9980–0.9991 | 0.0829 | 0.995 | 0.9979–0.9989 |
+| 1.0 | 0.1667 | 0.1707 | 1.024 | 0.9987–0.9991 | 0.1676 | 1.005 | 0.9986–0.9991 |
+| 1.5 | 0.2500 | 0.2540 | 1.016 | 0.9992–0.9994 | 0.2495 | 0.998 | 0.9992–0.9994 |
+| 2.0 | 0.3333 | 0.3352 | 1.006 | 0.9995 | 0.3295 | 0.989 | 0.9995–0.9996 |
+
+- **The profile is linear, as the book says,** and the left half sweeps
+  down and the right half up (Fig. 4.22). It is not quite straight: a
+  slight S, flatter by the walls (end bars at 0.96–0.97 V), steeper in
+  the middle.
+- **As written, the `.nlogo` sits 1–2.5% above V/6**, a difference the
+  book's figure would show (12 pixels at V = 1); with `inward` it lies on
+  V/6 within 0.6% up to V = 1.5 and at 0.3295 for V = 2 against the
+  figure's ~0.3297. Fig. 4.22 (V = 1, 15,032 ticks, no Resample) says the
+  same: 0.16256 in the book, 0.1646–0.1660 for the `.nlogo` (5 seeds).
+  The book's runs behave like `inward`; why, we cannot say without the
+  NetLogo 5 model they ran.
+- **V/6 is a good rule, not an exact law here.** The slope moves with
+  the gas's density and temperature (`.nlogo`, V = 1, 3 seeds): N 500,
+  1000, 2000 give 0.960, 1.027, 1.075 × V/6; T 0.001, 0.01, 0.04 give
+  1.050, 1.027, 0.990. "Almost perfect" holds to a few percent.
+- **The correlation** is 0.998–0.9995 at 5,000 samples, a little under
+  the book's "always > 0.999" for V ≤ 1; it is averaging noise: run
+  15,032 ticks as for Fig. 4.22 we get 0.9994–0.9995 against its
+  0.99954.
+- **Steady by 5,000 ticks:** 100,000 ticks (Resample at 50,000) give
+  0.1701–0.1707 at V = 1, the same as 10,000.
+- **The momenta stay near 0** (Fig. 4.22's −0.002, −0.008): ours are
+  within 3 standard errors of the mean of 1000 velocities, |P| ≲ 0.03.
+
+### Fig. 4.24: mean speed against temperature, walls at rest
+
+The book: √T = 0.01…0.20 in steps of 0.01, 100,000 ticks each with
+Resample at 50,000; fit v̄ = 1.2617 √T + 0.0013, r = 0.9996 (Eq. 4.6),
+against the theory's 1.2533 √T (Eq. 4.5, 2D, k = m = 1).
+
+Ours, 2 seeds per rule (`couette1.c`, the book's protocol, 1000
+particles; the speed is the mean over particles and the samples since
+Resample):
+
+| Rule | Fit (each seed) | r |
+| --- | --- | --- |
+| book (Eq. 4.6) | 1.2617 √T + 0.0013 | 0.9996 |
+| `.nlogo` | 1.3584 √T + 0.0003; 1.3631 √T + 0.0001 | 0.99999 |
+| `inward` | 1.2981 √T + 0.0004; 1.2940 √T + 0.0006 | 0.99997 |
+
+| √T | `.nlogo` v̄/√T | `inward` v̄/√T |
+| --- | --- | --- |
+| 0.01 | 1.346–1.388 | 1.289–1.315 |
+| 0.02 | 1.355–1.368 | 1.296–1.319 |
+| 0.05 | 1.364–1.370 | 1.311–1.327 |
+| 0.10 | 1.360–1.372 | 1.300–1.310 |
+| 0.15 | 1.358–1.365 | 1.295–1.303 |
+| 0.20 | 1.357–1.367 | 1.290–1.298 |
+
+- **v̄ is proportional to √T, as the theory says** (r = 0.99997 or
+  better, intercepts under 0.001), at every temperature: the model has
+  no scale of its own in speed.
+- **As written, the `.nlogo` gives 1.36 √T, 8.5% above Eq. 4.5** and
+  7.8% above the book's fit: its walls heat the gas (above). The mean
+  speed away from the walls is the same as the mean of all, so it is not
+  the wall particles that raise the average (our first guess, wrong).
+- **`inward` gives 1.30 √T at 1000 particles, and the book's value at
+  fewer:** at √T 0.1 (3 seeds, ±0.01 each) N = 30, 100, 300, 1000 give
+  1.271, 1.256, 1.268, 1.304, while the `.nlogo`'s stays at 1.360,
+  1.352, 1.340, 1.366. The book's 1.2617 fits walls that leave outgoing
+  particles alone at a density below 1000 particles; its scatter
+  (r = 0.9996, against our 0.99997 at 1000) also suggests fewer
+  particles. Which N it used, the book does not say.
+
+The Android app (`kinetic/KineticTheorySimulation.kt`) follows the model
+except: x is clamped to ±42 instead of wrapping; the wall zone is
+|x| ≥ 39 whatever y; neighbours strictly within 2; collision angles are
+continuous; every particle is binned, ±42 included. With all five in our
+C (5 seeds) its slopes are 1.012, 1.024 and 1.007 × V/6 at V = 0.5, 1
+and 2, the `.nlogo`'s: it has the same wall, and the same heating.
+
+### Not done
+
+Couette flow on vehicles (the point-mass vehicle, G5, then the drones,
+with velocity commands, G4) is the next step of M3. ★ 3D (a slab between
+two planes) is open.
