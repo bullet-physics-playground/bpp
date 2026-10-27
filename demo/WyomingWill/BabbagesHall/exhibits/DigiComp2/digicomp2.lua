@@ -1,14 +1,14 @@
 --
--- The Digi-Comp II -- Babbage's Hall (step 2b: counting, adding, multiplying)
+-- The Digi-Comp II -- Babbage's Hall (step 2c: counting, adding, multiplying, subtracting, dividing)
 --
 -- E.S.R.'s Digi-Comp II (1968) was a computer of marbles: a sloping
 -- two-level board of flip-flops and switches that balls roll down one at a
 -- time, and that counts, adds, subtracts, multiplies and divides in binary.
 -- Built so far: the ACCUMULATOR (seven flip-flops, 0 to 127), the MEMORY
 -- (four switches), the MQ (three flip-flops), the DISTRIBUTOR (three), the
--- START feeder and the switches MULTIPLY, CLEAR and COUNT. It counts, clears,
--- adds and multiplies. (The complement, for subtracting and dividing, and
--- AUTO come next.)
+-- START feeder, the switches MULTIPLY, CLEAR and COUNT, and COMPLEMENT. It
+-- counts, clears, adds, multiplies, complements, subtracts and divides.
+-- (AUTO comes next.)
 --
 -- THE FLIP-FLOP is a rocker on a pin, its centre of mass a little up the
 -- slope from the pin, so it falls over to one side or the other and stays
@@ -37,6 +37,15 @@
 -- add the memory to A, once for each count of the MQ; then a ball drops
 -- through STOP and the hand stops. ADD is the same with the MQ at 1.
 --
+-- COMPLEMENT: A1 .. A6's done holes have shutters, all on one bar. Closed,
+-- a ball that sets a flip-flop to 1 rolls over its hole and down a lane into
+-- the next, so it turns over every flip-flop from where it came in to A7.
+-- One ball with COUNT on makes A 127 - A; COMPLEMENT off, one more adds 1:
+-- 128 - A, the two's complement. Adding it subtracts (the carry out of A7
+-- is lost). Dividing: the divisor added to the dividend's complement, cycle
+-- by cycle, the MQ counting, until A overflows (the hand watches OVERFLOW,
+-- and stops at the end of that cycle).
+--
 -- THE SWITCHES are flaps, set by hand: each closes one of its two outlets,
 -- and a ball only presses it harder against that wall.
 --
@@ -46,6 +55,7 @@
 --   1..7   set a flip-flop of A over by hand (1 is the 1s, 7 the 64s)
 --   H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s
 --   D      set the distributor to start a cycle
+--   X      COMPLEMENT on <-> off
 --   T      the tour (it starts with it)
 --   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
 --   Z      slow motion (1/4) <-> real time
@@ -146,7 +156,7 @@ end
 -- sliders, timing, the pause at every start
 -- ---------------------------------------------------------------------
 local G_ = 981
-v:addParam("friction", envnum("DC_FRICTION", 0.3), 0.1, 0.6, 0.05, "ball on wall, rocker and board (0.1 to 0.6 checked)")
+v:addParam("friction", envnum("DC_FRICTION", 0.3), 0.1, 0.6, 0.05, "ball on wall, rocker and board (0.2 to 0.6 checked)")
 v:addParam("speed", 1, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
 v:addParam("steps", envnum("DC_HZ", 2400), 1200, 4800, 600, "physics steps per simulated second")
 
@@ -270,7 +280,7 @@ stand.trans = btTransform(BQ, W3(0, 0, 0))
 
 local WALL_COL = { housing = "#9b1c1c", queue = "#9b1c1c", rim = "#7a5a3a", switch = "#c9a14a",
                    done = "#d9d4c5", overflow = "#9b1c1c", clear = "#2f8c5a", drop = "#c9a14a", collector = "#7a5a3a",
-                   lane = "#d9d4c5", router = "#9fb7cc", stop = "#9b1c1c", ["return"] = "#8a8f96" }
+                   lane = "#d9d4c5", doneLane = "#b9b2d6", guide = "#d9d4c5", router = "#9fb7cc", stop = "#9b1c1c", ["return"] = "#8a8f96" }
 local ROLE_TEXT = {
   housing = "the feeder's housing: it holds the balls in the wheel's notches",
   queue = "the INPUT channel: the balls waiting at the feeder",
@@ -281,6 +291,8 @@ local ROLE_TEXT = {
   clear = "the clear lane (lower level): a ball here pushes every flip-flop at 1 back to 0",
   drop = "a drop hole: the ball goes down to the lower level and counts nothing",
   lane = "a lane: it carries the ball on to the next part",
+  guide = "a guide: it keeps a carry, falling to the next flip-flop, from drifting out past its funnel",
+  doneLane = "a done lane: with COMPLEMENT on (the done hole covered) it carries the ball on into the next flip-flop",
   router = "the distributor's and the MQ's channels and funnels",
   stop = "STOP: a borrow out of the MQ (it was 0) drops through here, and the hand stops turning the knob",
   ["return"] = "the return lane (lower level): what the memory drops, and STOP's ball, roll down it to the collector",
@@ -460,6 +472,45 @@ local function mem()
 end
 
 -- ---------------------------------------------------------------------
+-- COMPLEMENT: the six shutters over A1 .. A6's done holes, their pins and
+-- the bar joining them: one rigid thing, slid across by hand (X). To the
+-- left (on), every done hole is covered, and a ball turns over every
+-- flip-flop below where it came in; to the right (off), they are open
+-- ---------------------------------------------------------------------
+local SHT = G.SHUTTER
+local comp = { on = false }
+do
+  local pcs = {}
+  local function circ(x, z, r, n)
+    local c = {}
+    for j = 0, n - 1 do local a = 2 * math.pi * j / n; c[#c + 1] = { x + r * math.cos(a), z + r * math.sin(a) } end
+    return c
+  end
+  for _, sh in ipairs(G.shutters) do
+    pcs[#pcs + 1] = { sh.pieces[1], -SHT.T, SHT.T }
+    pcs[#pcs + 1] = { circ(sh.pin[1], sh.pin[2], SHT.PIN[2], 8), 0, SHT.BAR_Y0 }
+  end
+  pcs[#pcs + 1] = { SHT.bar, SHT.BAR_Y0, SHT.BAR_H }
+  pcs[#pcs + 1] = { circ(SHT.knob[1], SHT.knob[2], SHT.KNOB_R, 12), SHT.BAR_Y0 + SHT.BAR_H, SHT.KNOB_H }
+  local tr = btTransform(BQ, W3(SHT.TRAVEL, 0, 0))
+  local body = btRigidBody(0, btDefaultMotionState(tr), piecesShape(pcs, 0, 0, 0), btVector3(0, 0, 0))
+  local o = part("union() { for (i = [0 : len(SHUTTERS) - 1]) shutter(i); complementBar(); compKnob(); }")
+  o.body = body
+  o.col = "#6c7a89"
+  o.collides = true
+  v:add(o)
+  o.trans = tr
+  fixed[#fixed + 1] = o
+  comp.obj, comp.body = o, body
+  key(o, { comp = true })
+end
+local function setComplement(on)
+  comp.on = on
+  comp.obj.trans = btTransform(BQ, W3(on and 0 or SHT.TRAVEL, 0, 0))
+end
+local function isComplement() return comp.on end
+
+-- ---------------------------------------------------------------------
 -- the feeder: a wheel of four notches on a pin, turned by the knob (START)
 -- ---------------------------------------------------------------------
 local wheel
@@ -630,6 +681,11 @@ local SAYINGS = {
   M2 = "D1, D3, M2: adds 2",
   M2z = "D1, D3, M2 is 0: adds nothing",
   stop = "D1, D2, the MQ is 0: STOP",
+  countC = "COMPLEMENT: into A1, it turns every bit over",
+  M4C = "D1, D2, the MQ less one, M4: turns over the 8s and up",
+  M1C = "D1, D3, M1: turns over every bit",
+  M3C = "D1, D2, M3: turns over the 4s and up",
+  M2C = "D1, D3, M2: turns over the 2s and up",
 }
 do
   -- (laid out at a size, then everything drawn K times as large)
@@ -791,14 +847,25 @@ local function watchStop()
   end
 end
 
+-- OVERFLOW: the hand watches for a ball dropping through it too (dividing,
+-- it stops at the end of that cycle; see the tour)
+local overSeen = false
+local function watchOverflow()
+  for _, b in ipairs(balls) do
+    local x, y, z = ballAt(b)
+    if y < 0 and math.abs(x - G.overflow[1]) < 1.2 and math.abs(z - G.overflow[2]) < 1.2 then overSeen = true end
+  end
+end
+
 local dropped = 0
 local function feed() queue = queue + 1 end
 local function setUp()
   setA(0); setMQ(0); setD(); setM(0)
   setSwitch("MULTIPLY", false); setSwitch("CLEAR", false); setSwitch("COUNT", true)
+  setComplement(false)
   reload()
   applyFriction()
-  dropped, refilled, stopSeen = 0, 0, false
+  dropped, refilled, stopSeen, overSeen = 0, 0, false, false
   handMoved()
   holdStart()
 end
@@ -817,6 +884,18 @@ local TOUR = {
   { say = "MULTIPLY off, CLEAR on: one ball clears the accumulator", MULTIPLY = false, CLEAR = true, balls = 1 },
   { say = "MULTIPLY: 13 in the memory, 3 in the MQ: balls until STOP (13 x 3)",
     M = 13, MQ = 3, D = true, MULTIPLY = true, CLEAR = false, untilStop = true },
+  { say = "COMPLEMENT: 25 in the accumulator, MULTIPLY off, COUNT and COMPLEMENT on: one ball turns every bit over (102)",
+    A = 25, MULTIPLY = false, CLEAR = false, COUNT = true, COMPLEMENT = true, balls = 1 },
+  { say = "COMPLEMENT off: one ball adds 1: 103, the complement of 25 (128 - 25)", COMPLEMENT = false, balls = 1 },
+  { say = "SUBTRACT 12 - 4: 4 in the accumulator; COMPLEMENT on, one ball", A = 4, COMPLEMENT = true, balls = 1 },
+  { say = "COMPLEMENT off, one ball: 124, the complement of 4", COMPLEMENT = false, balls = 1 },
+  { say = "12 in the memory, MQ 1, MULTIPLY on: balls until STOP. 124 + 12 = 136, over 128: 8",
+    M = 12, MQ = 1, D = true, MULTIPLY = true, untilStop = true },
+  { say = "DIVIDE 13 / 5: 13 in the accumulator, MULTIPLY off; COMPLEMENT on, one ball", A = 13, MULTIPLY = false,
+    COMPLEMENT = true, balls = 1 },
+  { say = "COMPLEMENT off, one ball: 115, the complement of 13", COMPLEMENT = false, balls = 1 },
+  { say = "5 in the memory, MQ 7, MULTIPLY on: balls until A overflows, then on to the end of that cycle",
+    M = 5, MQ = 7, D = true, MULTIPLY = true, untilOverflow = true, divide = { 13, 5 } },
 }
 local tour = (os.getenv("DC_TOUR") or "1") ~= "0" and { i = 0 } or nil
 local TOUR_PAUSE = envnum("DC_PAUSE", 1.0)
@@ -827,10 +906,21 @@ local frameNow = 0
 -- what the machine reads now, and what one more ball should make of it
 local function reading()
   return { A = count(), MQ = mq(), d = { (lean("D1")), (lean("D2")), (lean("D3")) }, M = mem(),
-           mult = isOn("MULTIPLY"), clear = isOn("CLEAR"), count = isOn("COUNT") }
+           mult = isOn("MULTIPLY"), clear = isOn("CLEAR"), count = isOn("COUNT"), comp = isComplement() }
+end
+-- (a ball into A at place k: counting on, or with COMPLEMENT on, turning
+-- over every flip-flop from k up; over, if it goes out of A7 to the left)
+local function intoA(a, k, c)
+  if c then
+    local over = bitOf(a, G.NBITS) == 1
+    for j = k, G.NBITS do a = a + (1 - 2 * bitOf(a, j)) * 2 ^ (j - 1) end
+    return a, over
+  end
+  local n = a + 2 ^ (k - 1)
+  return n % 128, n >= 128
 end
 local function predict(s)
-  local p = { A = s.A, MQ = s.MQ, d = { s.d[1], s.d[2], s.d[3] }, stop = false }
+  local p = { A = s.A, MQ = s.MQ, d = { s.d[1], s.d[2], s.d[3] }, stop = false, over = false }
   if s.mult then
     -- (a flip-flop at 1 sends the ball left and goes to 0; at 0, right and to 1)
     local out
@@ -844,9 +934,9 @@ local function predict(s)
     if out == "MQ" then
       if p.MQ == 0 then p.MQ, p.stop, out = 7, true, nil else p.MQ, out = p.MQ - 1, 4 end
     end
-    if out and bitOf(s.M, out) == 1 then p.A = (p.A + 2 ^ (out - 1)) % 128 end
+    if out and bitOf(s.M, out) == 1 then p.A, p.over = intoA(p.A, out, s.comp) end
   elseif s.clear then p.A = 0
-  elseif s.count then p.A = (p.A + 1) % 128 end
+  elseif s.count then p.A, p.over = intoA(p.A, 1, s.comp) end
   return p
 end
 -- ---------------------------------------------------------------------
@@ -869,14 +959,21 @@ local function route(s)
     for i, p in ipairs(G.lanes[name]) do if i >= (from or 1) then add(p) end end
   end
   local function drop(p) add(p); low = { p, { p[1], p[2] + 1.5 } } end
-  -- into A at place k: on through every 1 (the carry), out at the first 0
+  -- into A at place k: on through every 1 (the carry), out at the first 0;
+  -- with COMPLEMENT on, through every flip-flop to the end (a 0's done lane
+  -- leads on to the next)
   local function intoA(k)
     while true do
       local t = G.rocker["A" .. k]
       into(t)
-      if bitOf(s.A, k) == 0 then out(t, 1); drop(t.done); return end
-      out(t, -1)
-      if k == G.NBITS then drop(G.overflow); return end
+      if bitOf(s.A, k) == 0 then
+        out(t, 1)
+        if not s.comp or k == G.NBITS then drop(t.done); return end
+        add(t.done); lane("done " .. k, 2)
+      else
+        out(t, -1)
+        if k == G.NBITS then drop(G.overflow); return end
+      end
       k = k + 1
     end
   end
@@ -884,7 +981,7 @@ local function route(s)
   local function memory(k)
     local m = G.switches["M" .. k]
     add(swPin(m))
-    if bitOf(s.M, k) == 1 then add(swOut(m, 1)); intoA(k); key = "M" .. k
+    if bitOf(s.M, k) == 1 then add(swOut(m, 1)); intoA(k); key = "M" .. k .. (s.comp and "C" or "")
     else drop(m.dropHole); key = "M" .. k .. "z" end
   end
   local Wd = WH.ballR
@@ -937,7 +1034,7 @@ local function route(s)
       add(swOut(c, -1))
       local n = G.switches.COUNT
       add(swPin(n))
-      if s.count then add(swOut(n, -1)); intoA(1); key = "count"
+      if s.count then add(swOut(n, -1)); intoA(1); key = s.comp and "countC" or "count"
       else add(swOut(n, 1)); drop(G.countOffDrop); key = "none" end
     end
   end
@@ -1021,8 +1118,11 @@ local function nextStep()
   for _, n in ipairs({ "MULTIPLY", "CLEAR", "COUNT" }) do
     if s[n] ~= nil then setSwitch(n, s[n]) end
   end
+  if s.COMPLEMENT ~= nil then setComplement(s.COMPLEMENT) end
   tour.left = s.balls or 40
   tour.untilStop = s.untilStop
+  tour.untilOverflow, tour.divide = s.untilOverflow, s.divide
+  overSeen = false
   tour.n = 0
   tour.wantBalls = s.untilStop and 4 * s.MQ + 1 or nil
   tour.phase, tour.wait = "settle", 0
@@ -1033,16 +1133,16 @@ local function checkBall()
   local p = predict(tour.before)
   local c = nCollected()
   local ok = now.A == p.A and now.MQ == p.MQ and now.d[1] == p.d[1] and now.d[2] == p.d[2] and now.d[3] == p.d[3]
-             and stopSeen == p.stop and c + refilled == dropped
-  local why = ok and "right" or string.format("WRONG: should be A %d, MQ %d, D %d%d%d%s", p.A, p.MQ, p.d[1], p.d[2], p.d[3],
-                                              p.stop and ", STOP" or "")
+             and stopSeen == p.stop and tour.overNow == p.over and c + refilled == dropped
+  local why = ok and "right" or string.format("WRONG: should be A %d, MQ %d, D %d%d%d%s%s", p.A, p.MQ, p.d[1], p.d[2], p.d[3],
+                                              p.stop and ", STOP" or "", p.over and ", OVERFLOW" or "")
   if LOG == "3" then
     for _, b in ipairs(balls) do local x, y, z = ballAt(b); print(string.format("      ball %d at %.1f %.1f %.1f%s", b.n, x, y, z, collected(b) and " (collected)" or "")) end
   end
   local an = {}
   if LOG then for _, fl in ipairs(flips) do local _, a = lean(fl.name); an[#an + 1] = string.format("%s %.0f", fl.name, a) end end
-  print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s  (%d in the collector)  %s%s", dropped, bits(), now.A, now.MQ,
-                      now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", c, why,
+  print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s%s  (%d in the collector)  %s%s", dropped, bits(), now.A, now.MQ,
+                      now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", tour.overNow and ", OVERFLOW" or "", c, why,
                       LOG and ("\n      leans " .. table.concat(an, ", ")) or ""))
   return ok
 end
@@ -1091,6 +1191,7 @@ v:postSim(function(N)
   if wake > 0 then wake = wake - FRAME_DT end
   restPost()
   watchStop()
+  watchOverflow()
   if refillWait > 0 then refillWait = refillWait - FRAME_DT end
   if queue > 0 and not handBusy and refillWait <= 0 then
     if refill() then refillWait = 0.6; handMoved() else startTurn() end
@@ -1114,9 +1215,13 @@ v:postSim(function(N)
         if tour.left > 0 then ball() else nextStep() end
       end
     elseif tour.phase == "show" then
-      if tour.wait > SHOW_S then tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false; feed() end
+      if tour.wait > SHOW_S then
+        tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false
+        tour.overBefore = overSeen; feed()
+      end
     elseif tour.phase == "ball" then
       if not busy() and refillWait <= 0 and tour.wait > 0.5 and (still > 0.4 or tour.wait > 15) then
+        tour.overNow = overSeen and not tour.overBefore
         if not checkBall() then fails = fails + 1 end
         tour.left = tour.left - 1
         tour.n = tour.n + 1
@@ -1128,6 +1233,23 @@ v:postSim(function(N)
             print(string.format("    STOP after %d balls (4 x MQ + 1): the hand stops; the accumulator reads %d", tour.n, count()))
           end
           tour.left = 0
+        end
+        -- (dividing: once A has overflowed, the hand lets the cycle finish,
+        -- and stops when the next ball would go to the MQ)
+        if tour.untilOverflow and overSeen and not stopSeen then
+          local r = reading()
+          if r.d[1] == 1 and r.d[2] == 1 then
+            tour.left = 0
+            local c = 7 - r.MQ                          -- (the cycles: the MQ's lower numbers)
+            local q, rem = c, 0
+            if r.A ~= 0 then q, rem = c - 1, r.M - r.A end
+            local d = tour.divide
+            local right = d and q == math.floor(d[1] / d[2]) and rem == d[1] % d[2]
+            if not right then fails = fails + 1 end
+            print(string.format("    A overflowed; the cycle is done, the hand stops. MQ %d: %d cycles (its lower numbers, %s). " ..
+                                "A reads %d, so the quotient is %d, the remainder %d%s", r.MQ, c, binary(c, 3), r.A, q, rem,
+                                d and (right and string.format(": %d / %d = %d, remainder %d", d[1], d[2], q, rem) or "  WRONG") or ""))
+          end
         end
         tour.phase, tour.wait = "pause", 0
       end
@@ -1155,6 +1277,7 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
   v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end))
 end
 v:addShortcut("D", byHand(setD))
+v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
 v:addShortcut("T", function() startTour() end)
 v:addShortcut("R", function() tour = nil; queue = 0; setUp(); hidePath() end)
 v:addShortcut("Z", function()
@@ -1169,7 +1292,7 @@ end)
 
 pcall(function()
   v:setHelpText(table.concat({
-    "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying",
+    "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying, subtracting, dividing",
     "",
     "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1968). The rockers",
     "are flip-flops: each leans one way or the other and stays. Apex right is 1,",
@@ -1190,12 +1313,19 @@ pcall(function()
     "  So every four balls add the memory to A, once for each count of the MQ;",
     "  when the MQ is used up the next ball drops through STOP. ADD is the same",
     "  with the MQ at 1.",
+    "  COMPLEMENT on (X): the done holes of the 1s to the 32s are covered, and a",
+    "  ball rolls on over its hole and down a lane into the next rocker: so it",
+    "  turns over every rocker below where it came in. With COUNT on, one ball",
+    "  turns over all seven: 127 - A. COMPLEMENT off, one more ball adds 1:",
+    "  128 - A, the complement, which subtracts when it is added. Dividing is",
+    "  adding the divisor to the dividend's complement until A overflows.",
     "  Before each ball, a yellow dashed line on the board shows where it will",
     "  go, and the sign beside it (THIS BALL) says what it will do and what the",
     "  accumulator was and will be. Then watch it do that (Z: slow motion).",
     "",
     "KEYS",
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
+    "  X      COMPLEMENT on/off (the shutters over the done holes)",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
@@ -1260,10 +1390,16 @@ if v.onHover then
       end
       return string.format("the %s switch (%s: %s to change it by hand)\n%s", n, on and "ON" or "OFF", w[1], on and w[2] or w[3])
     end
+    if d.comp then
+      return string.format("COMPLEMENT (X): six shutters on one bar, now %s\n%s", isComplement() and "ON" or "OFF",
+                           isComplement() and "the done holes of A1 to A6 are covered: a ball rolls on down each one's lane\n" ..
+                                              "into the next flip-flop, and turns over every one below where it came in"
+                                          or "the done holes are open: a ball that sets a flip-flop to 1 drops through, done")
+    end
     if d.ball then return string.format("a ball: 1/2 inch steel, 8.35 g\n%d let in; the accumulator reads %d", dropped, count()) end
     return nil
   end)
 end
 
-common.setCamera(btVector3(-6, 150, 105), btVector3(-6, 6, -8))
+common.setCamera(btVector3(-6, 185, 135), btVector3(-6, 6, -8))
 if tour then startTour() else setUp() end

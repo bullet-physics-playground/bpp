@@ -47,7 +47,7 @@ local PT, YL = G.PT, G.YL
 -- the piece of board: everything within this box
 local A1, A2, M2 = G.rocker.A1, G.rocker.A2, G.switches.M2
 local X0, X1 = M2.x - 4, A1.x + 5
-local Z0, Z1 = M2.z - S.FL - S.DROP - 1, A2.z + 3
+local Z0, Z1 = math.min(M2.z - S.FL - S.DROP, A1.z - F.A - 1.4 - R - F.RUN) - 1, A2.z + 3
 local function inBox(x, z) return x > X0 and x < X1 and z > Z0 and z < Z1 end
 
 local function box(x0, x1, y0, y1, z0, z1)

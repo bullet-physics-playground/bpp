@@ -29,7 +29,11 @@ for _, w in ipairs(G.lwalls) do d.lwalls[#d.lwalls + 1] = seg(w) end
 for _, h in ipairs(G.holes) do d.holes[#d.holes + 1] = seg(h) end
 d.pegs = G.pegs
 d.rockers = {}
-for _, t in ipairs(G.rockers) do d.rockers[#d.rockers + 1] = { x = t.x, z = t.z, name = t.name, kind = t.kind } end
+for _, t in ipairs(G.rockers) do d.rockers[#d.rockers + 1] = { x = t.x, z = t.z, name = t.name, kind = t.kind, done = t.done } end
+d.shutters = {}
+for _, sh in ipairs(G.shutters) do d.shutters[#d.shutters + 1] = { piece = sh.pieces[1], pin = sh.pin, hole = sh.hole } end
+local SH = G.SHUTTER
+d.shutter = { bar = SH.bar, knob = SH.knob, knobR = SH.KNOB_R, pinR = SH.PIN[2], travel = SH.TRAVEL }
 d.switches = {}
 for _, s in ipairs(G.switchList) do
   d.switches[#d.switches + 1] = { x = s.x, z = s.z, name = s.name, on = s.on, top = s.top }
@@ -47,7 +51,7 @@ local F, S = G.FLIP, G.SWITCH
 d.flip = { pieces = F.pieces, foot = { F.lower[2][1], F.lower[3][1] }, alpha = F.ALPHA, A = F.A, run = F.RUN,
            pegX = F.pegX, pegZ = F.pegZ, pegR = F.PEG_R, weightZ = F.WEIGHT_Z, weightR = F.WEIGHT_R, LF = F.LF }
 d.sw = { FL = S.FL, FT = S.FT, IW = S.IW, OX = S.OX, OUT = S.OUT, DROP = S.DROP, ANG = S.ANG }
-d.R, d.CHAN, d.HOLE, d.DX, d.DZ = G.R, G.CHAN, G.HOLE, G.DX, G.DZ
+d.R, d.CHAN, d.HOLE, d.DX, d.DZ, d.ADZ = G.R, G.CHAN, G.HOLE, G.DX, G.DZ, G.ADZ
 d.FUNNEL, d.JOIN, d.DONE, d.XC, d.XRET, d.ZCOL = G.FUNNEL, G.JOIN, G.DONE, G.XC, G.XRET, G.ZCOL
 d.runtop = F.A + 1.4 + G.R + F.RUN
 local f = assert(io.open(arg[2], "w"))

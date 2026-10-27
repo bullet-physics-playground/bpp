@@ -1,4 +1,4 @@
-// The Digi-Comp II -- Babbage's Hall (step 2b: the accumulator, memory, MQ and distributor)
+// The Digi-Comp II -- Babbage's Hall (step 2c: the accumulator, memory, MQ, distributor and COMPLEMENT)
 //
 // Every printed part, in millimetres. The shapes that balls, rockers and
 // flaps touch are built from the very numbers the simulation uses
@@ -16,6 +16,10 @@
 //   foot        its stem and foot, under the plate (glued into the rocker's hub): 13
 //   flap        a switch's flap: 7 (MULTIPLY, CLEAR, COUNT, M1 .. M4)
 //   wheel, knob the feeder (START): 1 each
+//   shutter     COMPLEMENT: a done hole's shutter, sliding in its groove: 6
+//               (each with a 3 mm steel pin, 21 mm, pressed in); the bar
+//               joining the pins is a 3 x 5 mm aluminium strip (README.md),
+//   comp-knob   its handle, glued on its top end: 1
 //   upper-i-j   the upper plate, in tiles: its walls, stop pegs, holes, lettering
 //   lower-i-j   the lower level, in tiles: a 2 mm floor with its walls,
 //               the posts that hold the plate up, the bosses the feet stand on
@@ -87,6 +91,24 @@ module knob() translate([0, S * KNOB_Y, 0]) rotate([-90, 0, 0]) difference() {
   translate([0, 0, -1]) cylinder(r = S * F_PIN_R + 0.2, h = 8);
 }
 
+// ---- COMPLEMENT: the shutters (closed: over their holes), their pins, the
+// bar and its knob; open, all SH_TRAVEL to the right ----
+module shutter(i) difference() {
+  slab(-SH_T, SH_T) outline(SHUTTERS[i]);
+  translate(S * [SH_PINS[i][0], 0, SH_PINS[i][1]]) pinHole(-SH_T, SH_T);
+}
+module complementBar() {
+  difference() {
+    slab(SH_BAR_Y0, SH_BAR_H) outline(SH_BAR);
+    for (p = SH_PINS) translate(S * [p[0], 0, p[1]]) pinHole(SH_BAR_Y0, SH_BAR_H);
+  }
+  for (p = SH_PINS) cylY(p[0], p[1], SH_PIN_R, -SH_T, SH_BAR_Y0 + SH_BAR_H + SH_T);
+}
+module compKnob() cylY(SH_KNOB[0], SH_KNOB[1], SH_KNOB_R, SH_BAR_Y0 + SH_BAR_H, SH_KNOB_H);
+// (its groove in the plate: where it is closed and open, 0.3 mm clear round)
+module grooves() for (i = [0 : len(SHUTTERS) - 1])
+  slab(-SH_T - 0.03, SH_T + 0.1) offset(delta = 0.3) hull() { outline(SHUTTERS[i]); translate([S * SH_TRAVEL, 0]) outline(SHUTTERS[i]); }
+
 // ---- the upper plate: its face, holes, walls, stop pegs, the bosses under
 // the flaps and the wheel, the lettering cut into it ----
 module holes() for (h = HOLES) translate(S * [h[0], -PT - 0.1, h[2]]) cube(S * [h[1] - h[0], PT + 0.2, h[3] - h[2]]);
@@ -107,6 +129,7 @@ module upper() difference() {
     cylY(WHEEL_AT[0], WHEEL_AT[1], F_BOSS_R, 0, W_Y0);
   }
   holes();
+  grooves();
   upperPins();
   translate([0, -MARK_D, 0]) slab(0, MARK_D / S + 0.01) marks2d();
 }
@@ -134,7 +157,7 @@ module boardMarks() {
 }
 
 // ---- the tiles: each a piece of the plate (or the lower level) ----
-NX = 2; NZ_U = 7; NZ_L = 7;
+NX = 2; NZ_U = 9; NZ_L = 9;
 function cut(a, b, n, i) = a + (b - a) * i / n;
 module tileOf(box, i, j, nz, y0, y1) intersection() {
   children();
@@ -163,6 +186,8 @@ if (PART == "print-foot") rotate([90, 0, 0]) translate([0, -S * F_FY0, 0]) foot(
 if (PART == "print-flap") rotate([90, 0, 0]) translate([0, -S * S_Y0, 0]) flap();
 if (PART == "print-wheel") rotate([90, 0, 0]) translate([0, -S * W_Y0, 0]) wheel();
 if (PART == "print-knob") rotate([90, 0, 0]) translate([0, -S * KNOB_Y, 0]) knob();
+if (PART == "print-shutter") rotate([90, 0, 0]) translate([-S * SH_PINS[0][0], S * SH_T, -S * SH_PINS[0][1]]) shutter(0);
+if (PART == "print-comp-knob") rotate([90, 0, 0]) translate([-S * SH_KNOB[0], -S * (SH_BAR_Y0 + SH_BAR_H), -S * SH_KNOB[1]]) compKnob();
 for (i = [0 : NX - 1], j = [0 : NZ_U - 1]) if (PART == str("print-upper-", i, "-", j))
   rotate([90, 0, 0]) translate([0, S * PT, -S * cut(BOARD[2], BOARD[3], NZ_U, j)]) tileOf(BOARD, i, j, NZ_U, -PT - 0.1, WALL_H + 0.1) upper();
 for (i = [0 : NX - 1], j = [0 : NZ_L - 1]) if (PART == str("print-lower-", i, "-", j))
@@ -188,5 +213,9 @@ for (i = [0 : len(TOGGLES) - 1]) {
 for (i = [0 : len(SWITCHES) - 1]) if (PART == str("rest-flap", i)) translate(S * [SWITCHES[i][0], 0, SWITCHES[i][1]]) rotate([0, SWITCHES[i][2] * (S_ANG - 0.5), 0]) flap();
 if (PART == "rest-wheel") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) wheel();
 if (PART == "rest-knob") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) knob();
+// (COMPLEMENT as the hand sets it up: off, the shutters to the right)
+for (i = [0 : len(SHUTTERS) - 1]) if (PART == str("rest-shutter", i)) translate([S * SH_TRAVEL, 0, 0]) shutter(i);
+if (PART == "rest-comp-bar") translate([S * SH_TRAVEL, 0, 0]) { complementBar(); compKnob(); }
 if (PART == "assembly") rotate([90, 0, 0]) { upper(); lower(); for (t = TOGGLES) translate(S * [t[0], 0, t[1]]) rotate([0, F_ALPHA - 0.3, 0]) { rocker(); foot(); }
-                          translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) { wheel(); knob(); } }
+                          translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) { wheel(); knob(); }
+                          translate([S * SH_TRAVEL, 0, 0]) { for (i = [0 : len(SHUTTERS) - 1]) shutter(i); complementBar(); compKnob(); } }

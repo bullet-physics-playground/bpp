@@ -2,16 +2,17 @@
 
 `MANUAL.pdf` beside this file is a typeset copy of it.
 
-How Babbage's Hall's Digi-Comp II computes, operation by operation: the
-ones it does now (count, clear, add, multiply, and what follows from them)
-and the ones still to be built (complement, subtract, divide, AUTO), with
-the parts each one needs, for anyone who wants to build only some of it.
+How Babbage's Hall's Digi-Comp II computes, operation by operation: count,
+clear, add, multiply, complement, subtract and divide, and what follows
+from them (AUTO is still to be built), with the parts each one needs, for
+anyone who wants to build only some of it.
 
 Every picture of the board is drawn from `digicomp2-geometry.lua`, the same
 numbers the simulation and the printed parts use (`manual/make-figures.sh`
-redraws them); only the arrows and labels are added. The procedures for the
-operations still to come are E.S.R.'s, from the original's manual (Evil Mad
-Scientist's copy: cdn.evilmadscientist.com/KitInstrux/DCII-manual.pdf).
+redraws them); only the arrows and labels are added. Where this board does
+a thing differently from E.S.R.'s, the original's way is given too, from its
+manual (Evil Mad Scientist's copy:
+cdn.evilmadscientist.com/KitInstrux/DCII-manual.pdf).
 
 **The whole idea in one paragraph.** A flip-flop is a rocker that a ball
 always tips over, and the ball leaves on the side the rocker used to read.
@@ -21,7 +22,10 @@ set of switches (the memory) choose where balls go into it, and they add a
 number. Let three flip-flops (the distributor) deal the balls out to those
 switches in turn, and every four balls add the memory once. Let three
 more (the MQ) count those turns down, and stop when they run out, and the
-machine multiplies. Everything else on the board is lanes and holes.
+machine multiplies. Cover the holes where balls finish, so a ball goes on
+through every flip-flop and turns each one over, and the machine finds a
+number's complement, which subtracts. Everything else on the board is lanes
+and holes.
 
 **Contents**
 
@@ -30,7 +34,7 @@ machine multiplies. Everything else on the board is lanes and holes.
 3. Clearing
 4. Adding
 5. Multiplying, and what else that does
-6. Still to be built: the complement, subtracting, dividing, AUTO
+6. The complement: subtracting, counting out, dividing; AUTO (still to come)
 7. Which parts each operation needs, and building only part of it
 8. Settings at a glance
 
@@ -94,6 +98,7 @@ side, printed on the plate.
 | **D**, the distributor | three flip-flops, D1 to D3 | deals the balls out four ways, in turn |
 | **STOP** | a hole beside MQ3 | a ball dropping through it means "finished" |
 | **OVERFLOW** | a hole beside A7 | a carry out of A7 (past 127) drops through it |
+| **COMPLEMENT** | six shutters over A1 to A6's done holes, on one bar with a handle | on: a ball goes on through every flip-flop below where it comes in, turning each over (section 6) |
 
 ### Reading binary
 
@@ -232,12 +237,7 @@ These need nothing more than the multiply set-up, with different numbers.
   reads **0111001**. (The MQ's 7 limits this to 79; split bigger numbers,
   as the original manual does for 123 = 64 + 59.)
 
-## 6. Still to be built: the complement, subtracting, dividing
-
-These need parts not yet on this board: the **COMPLEMENT** switch, the
-complement flip-flops **CF1** and **CF2**, six **mode** flip-flops **T1 to
-T6**, and the **OVERFLOW** switch (RUN or HALT). The procedures below are
-E.S.R.'s; how the parts will be laid out here is for the next step (2c).
+## 6. The complement: subtracting, counting out, dividing
 
 ### The complement
 
@@ -248,65 +248,101 @@ Turn every bit over (the **ones' complement**), then add one:
 | | binary | |
 |---|---|---|
 | 25 | 0011001 | |
-| every bit turned over | 1100110 | the ones' complement |
+| every bit turned over | 1100110 | the ones' complement: 102, which is 127 - 25 |
 | plus one | **1100111** | the complement: 103, which is 128 - 25 |
 
-**On the original:** A = the number, COMPLEMENT on, START: **four balls.**
-The mode flip-flops T1 to T6 sit between A's flip-flops. In ADD mode (all
-left) a carry passes on only when a bit turns from 1 to 0, as in counting.
-In COMPLEMENT mode (all right) a ball passes every bit and turns each
-one over. CF1 and CF2 sequence the four balls:
+![COMPLEMENT on: one ball goes through all seven flip-flops of A and turns each one over. Where it sets one to 1, the done hole is covered, so it rolls on down that one's done lane into the next.](manual/fig-complement.png)
 
-| Ball | What it does | A (from 25) |
-|---|---|---|
-| 1 | sets T1 to T6 to COMPLEMENT mode | 0011001 |
-| 2 | passes every bit of A, turning each over | 1100110 |
-| 3 | sets T1 to T6 back to ADD mode | 1100110 |
-| 4 | adds one | **1100111** |
+**On this board.** Each of A1 to A6 has, below its done hole, a **done
+lane** that runs down and across into the next flip-flop's funnel. The
+hole is open as a rule, and a ball that sets the flip-flop to 1 drops
+through it, done; the lane below is never reached. The **COMPLEMENT**
+switch is six **shutters**, one over each of those holes, all on one bar
+(its handle is beside A1): slid to the left (on), they cover the holes. Now
+a ball that sets a flip-flop to 1 rolls over the covered hole and down the
+done lane into the next flip-flop, just as one that sets it to 0 goes on to
+the next by the carry. Either way it goes on, so it turns over every
+flip-flop from where it came in to A7. (Out of A7 it drops through A7's
+done hole, which has no shutter, or through OVERFLOW.)
+
+1. A = the number (count it in, or set it). COUNT on, MULTIPLY and CLEAR
+   off.
+2. COMPLEMENT on, START: **one ball**. A now holds 127 - A.
+3. COMPLEMENT off, START: **one ball** adds one. A holds 128 - A, the
+   complement.
+
+**On the original** it is one START with COMPLEMENT on, and the machine
+does four balls by itself (in AUTO): six **mode** flip-flops T1 to T6
+between A's flip-flops, and two more, CF1 and CF2, to sequence them. Ball
+1 sets T1 to T6 to COMPLEMENT mode, ball 2 passes every bit of A and turns
+each over, ball 3 sets them back to ADD mode, ball 4 adds one. This board
+has no AUTO yet, so the hand does what CF1 and CF2 do: it turns COMPLEMENT
+off between the two balls. The shutters do the work of T1 to T6.
 
 **Negative numbers.** Read this way, a number whose leftmost bit is 1 is
 negative: 1100111 is -25. Seven bits hold -64 to +63.
 
 ### Subtracting
 
-**On the original:** A = the number to take away; COMPLEMENT on; START
-(four balls: A now holds its complement). Then MULTIPLY on, COMPLEMENT off,
-M = the number to take it from, MQ = 1, START (five balls: an add).
+A = the number to take away. Complement it (two balls, as above). Then
+MULTIPLY on, M = the number to take it from, MQ = 1, D set to start, START
+until STOP (five balls: an add). With COMPLEMENT off the adding is ordinary.
 
-**Example: 12 - 4.** A = 4 (0000100); complement: 1111100 (124). Add M =
-12: 124 + 12 = 136, which overflows 128 and leaves **0001000 = 8**. With
-OVERFLOW on RUN, the overflow is simply lost, which is what makes the
-complement subtract.
+**Example: 12 - 4** (in the tour). A = 4 (0000100); complemented: 1111100
+(124). Add M = 12: 124 + 12 = 136, which goes over 128: the ball that
+carries out of A7 drops through OVERFLOW, and A is left with **0001000 =
+8**. The overflow is simply lost, which is what makes the complement
+subtract.
 
 ### Counting out a number of balls
 
-**On the original:** A = N; complement it; then COUNT on, OVERFLOW on
-HALT, and START. A counts up from 128 - N and overflows after exactly **N
-balls**, and the machine halts. The manual's example counts out nine.
+A = N; complement it (two balls); then COUNT on, MULTIPLY off. A counts up
+from 128 - N, and the **N-th ball** carries out of A7 through OVERFLOW.
+Stop there: that is N balls. (On the original, OVERFLOW set to HALT stops
+the machine in AUTO; here the hand watches the OVERFLOW hole. The tour
+doesn't run this one: it is counting, which the tour checks, from a
+complement.)
 
 ### Dividing
 
 Dividing is subtracting over and over, counting how many times: adding the
-divisor to the dividend's complement until the sum overflows, with the MQ
-counting the cycles.
+divisor to the dividend's complement until the sum goes over 128, while
+the MQ counts the cycles.
 
-**On the original:** MQ = 111 (7); A = the dividend; M = the divisor;
-COMPLEMENT on; START (four balls: A holds the dividend's complement). Then
-COMPLEMENT off, MULTIPLY on, OVERFLOW on HALT, START. Each cycle the
-distributor adds M to A and takes one from the MQ; when A overflows, the
-machine halts. The quotient is read from the MQ's **lower numbers**, the
-other reading of its rockers, which counts up as the upper numbers count
-down. On this board the plate shows only the upper numbers; the lower are
-their complement (upper 010 is lower 101).
+1. A = the dividend; complement it (two balls).
+2. M = the divisor, MQ = 7 (111), D set to start, MULTIPLY on.
+3. START, ball after ball. Each cycle of four balls adds M to A and takes
+   one from the MQ (its first ball). When a ball drops through
+   **OVERFLOW**, go on to **the end of that cycle**: stop when the next ball
+   would go to the MQ (D1 and D2 both read 1, as D sets them to start).
+4. Read the MQ's **lower numbers** (the other reading of its rockers: lower
+   = 7 - upper; upper 100 is lower 011): that many cycles were begun.
+   - **A reads 0**: the divisor went exactly. The quotient is the cycles,
+     the remainder 0.
+   - **Otherwise** the last cycle went over: the quotient is one less than
+     the cycles, and the **remainder is M - A**.
 
-**Example: 25 / 5.** A = 25, complemented: 103. Then 108, 113, 118, 123 in
-four cycles, and the fifth reaches 128, which overflows and halts. The MQ
-was taken from five times: lower numbers **101 = 5**.
+**Example: 13 / 5** (in the tour). 13 complemented is 115. The cycles add
+5: 120, 125, and in the third 130, which goes over (the ball that adds 4
+drops through OVERFLOW) and leaves 2. The cycle ends; the MQ reads upper
+100, lower 011 = 3 cycles. A is 2, not 0: quotient 3 - 1 = **2**, remainder
+5 - 2 = **3**. (13 = 2 x 5 + 3.)
 
-The manual's chapter on remainders was not in the copy that could be read
-here. When the divisor doesn't go exactly (26 / 5, say), counting this way
-stops one cycle later than the quotient. How the original reads the
-remainder will be worked out when the complement is built.
+**Example: 25 / 5.** 25 complemented is 103; 108, 113, 118, 123, and in the
+fifth cycle 128: over, leaving 0. Five cycles, A = 0: quotient **5**,
+remainder 0.
+
+**Why to the end of the cycle.** A cycle adds M one bit at a time (on this
+board its 8s, then 1s, 4s, 2s), and A may go over 128 on any of them.
+Stopping at that ball would leave the rest of M unadded, and the remainder
+wrong; finished, the cycle has added all of M, and A = cycles x M -
+dividend. (E.S.R.'s manual stops at the overflow, in AUTO, and has a
+chapter on remainders that could not be read here; this rule is this
+board's own, and it is what the tour checks.)
+
+**Limits.** With the MQ at 7, at most seven cycles: quotients up to 6 (7
+when exact). If the MQ runs out first, a ball drops through STOP: the
+quotient was too big for it.
 
 ### Running by itself: AUTO
 
@@ -325,17 +361,17 @@ still to be built (`FINDINGS.md` has the tries so far).
 
 ![Which parts of this board each kind of operation uses.](manual/fig-parts.png)
 
-| Operation | Feeder | A | CLEAR, clear lane | COUNT | MULTIPLY | D, MQ, STOP | M | COMPLEMENT, CF, T | OVERFLOW switch |
+| Operation | Feeder | A | CLEAR, clear lane | COUNT | MULTIPLY | D, MQ, STOP | M | COMPLEMENT (shutters, done lanes) | OVERFLOW (watched) |
 |---|---|---|---|---|---|---|---|---|---|
 | Count | yes | yes | | yes | (off) | | | | |
 | Clear | yes | yes | yes | | (off) | | | | |
 | Add | yes | yes | | | yes | yes | yes | | |
 | Multiply, multiply-add, square, shift | yes | yes | | | yes | yes | yes | | |
 | Decimal to binary | yes | yes | | | yes | yes | yes | | |
-| Complement *(to come)* | yes | yes | | | | | | yes | |
-| Subtract *(to come)* | yes | yes | | | yes | yes | yes | yes | |
-| Count out N balls *(to come)* | yes | yes | | yes | | | | yes | yes |
-| Divide *(to come)* | yes | yes | | | yes | yes | yes | yes | yes |
+| Complement | yes | yes | | yes | (off) | | | yes | |
+| Subtract | yes | yes | | yes | yes | yes | yes | yes | |
+| Count out N balls | yes | yes | | yes | (off) | | | yes | yes |
+| Divide | yes | yes | | yes | yes | yes | yes | yes | yes |
 
 (MULTIPLY "(off)": on this board every ball passes the MULTIPLY switch on
 its way down; a board without it would feed CLEAR directly.)
@@ -350,7 +386,8 @@ list and `make-stls.sh`:
 |---|---|---|---|
 | A three-bit counter, one level, balls into bins | step 1 (commit `cb8bb07`) | count to 7 | the smallest |
 | The accumulator with START, CLEAR and COUNT, two levels | step 2a (commit `201ee23`) | count to 127, clear | 322 x 878 mm, 10 + 10 tiles |
-| Everything so far | this folder (step 2b) | count, clear, add, multiply, and section 5's uses | 424 x 1216 mm, 14 + 14 tiles |
+| Count, clear, add, multiply | step 2b (commit `71d155a`) | and section 5's uses | 424 x 1216 mm, 14 + 14 tiles |
+| Everything so far | this folder (step 2c) | all of the above, and complement, subtract, divide | 424 x 1573 mm, 18 + 18 tiles |
 
 To get an earlier step's files without changing your checkout:
 
@@ -368,6 +405,10 @@ Its README lists the parts to print and buy. Some other ways to build less:
   `digicomp2-geometry.lua` and has only been built and tested as it is.
 - **For adding only**, the MQ is still needed: it is what stops the fifth
   ball.
+- **Without COMPLEMENT**, leave out the shutters and their bar: the done
+  holes stay open, the done lanes are never reached, and the board is what
+  step 2b's was, only longer. (A shorter board without the lanes is step
+  2b's.)
 
 ## 8. Settings at a glance
 
@@ -378,11 +419,16 @@ Its README lists the parts to print and buy. Some other ways to build less:
 | Add A + M | A | M | 1 | start | on | | | 5 |
 | Multiply M x MQ | 0 | M | MQ | start | on | | | 4 x MQ + 1 |
 | Multiply-add A + M x MQ | A | M | MQ | start | on | | | 4 x MQ + 1 |
+| Complement A | A | | | | off | off | on | 1 with COMPLEMENT on, 1 with it off |
+| Subtract M - A | complement of A | M | 1 | start | on | | | 5 |
+| Count out N | complement of N | | | | off | off | on | until OVERFLOW: N |
+| Divide A / M | complement of A | M | 7 | start | on | | | until OVERFLOW, then to the end of that cycle |
 
 On this board, by hand (keys in the simulation): A's rockers `1` to `7`,
 the memory `H J K L`, the MQ `8 9 0`, the distributor to start `D`,
-MULTIPLY `M`, CLEAR `C`, COUNT `N`, START `Space`. The tour (`T`) runs
-counting, clearing, 37 + 11 and 13 x 3. Before each ball, in the tour or
+MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, START `Space`. The
+tour (`T`) runs counting, clearing, 37 + 11, 13 x 3, the complement of 25,
+12 - 4 and 13 / 5. Before each ball, in the tour or
 with `Space`, the exhibit draws the way the ball will go as a yellow dashed
 line on the board, and its sign says what the ball will do and what the
 accumulator was and will be: a good way to follow this manual on the

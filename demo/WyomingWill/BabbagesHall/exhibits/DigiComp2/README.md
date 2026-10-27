@@ -1,8 +1,8 @@
-# The Digi-Comp II: counting, adding, multiplying
+# The Digi-Comp II: counting, adding, multiplying, subtracting, dividing
 
 `README.pdf` beside this file is a typeset copy of it. **`MANUAL.md`** (and
 `MANUAL.pdf`) is an illustrated manual: how each operation works, ball by
-ball, the ones still to be built too, and which parts each one needs.
+ball, and which parts each one needs.
 
 Babbage's Hall, west bay 3. The Digi-Comp II, made by E.S.R. Inc. in 1968,
 was a computer of marbles: a sloping two-level board of flip-flops and
@@ -15,9 +15,9 @@ COUNT, COMPLEMENT, OVERFLOW and AUTO/MANUAL.
 
 It is being built here in steps. The first (October 2026) was a counter of
 three flip-flops; the second (2a) the accumulator, with START, CLEAR and
-COUNT. This, step 2b, adds **the memory, the MQ, the distributor and
-MULTIPLY**: it adds and multiplies. Next comes the complement (subtracting
-and dividing).
+COUNT; then (2b) **the memory, the MQ, the distributor and MULTIPLY**, to
+add and multiply. This, step 2c, adds **COMPLEMENT**: it subtracts and
+divides. Next comes AUTO.
 
 ## What it does
 
@@ -92,6 +92,26 @@ drops through STOP and the hand stops turning: the MQ times the memory,
 added to what was in the accumulator, in 4 x MQ + 1 balls. **ADD** is the
 same with the MQ at 1 (five balls), as in E.S.R.'s manual.
 
+**COMPLEMENT.** Below each of A1 to A6's done holes a **done lane** runs
+down and across into the next flip-flop's funnel. As a rule the hole is
+open and the ball drops through it. COMPLEMENT is six **shutters**, one
+over each of those holes, on one bar high over the walls (its handle beside
+A1, `X`): slid left (on), they cover the holes, and a ball that sets a
+flip-flop to 1 rolls over its hole and down its done lane into the next,
+as a carry would. So it goes through every flip-flop from where it came in
+to A7 and turns each over. With COUNT on, one ball makes A 127 - A;
+COMPLEMENT off, one more adds 1: 128 - A, the two's complement. Add that to
+a number and the sum goes over 128 (the carry drops through OVERFLOW and is
+lost): it has subtracted. **Dividing** is adding the divisor to the
+dividend's complement, cycle by cycle, while the MQ (set to 7) counts the
+cycles, until A goes over: the hand watches the OVERFLOW hole and stops at
+the end of that cycle. The MQ read the other way gives the cycles; if A
+reads 0 that is the quotient, otherwise the quotient is one less and the
+remainder is M - A (`MANUAL.md`, section 6). E.S.R.'s machine does this
+with six more flip-flops (T1 to T6) and two to sequence them (CF1, CF2) in
+four balls; this one does it with the shutters in two balls, the hand
+moving COMPLEMENT between them.
+
 **START** is the feeder: a wheel with four notches under the **input**
 channel of waiting balls. Each quarter turn of its knob carries one ball
 round from the top and lets it out at the bottom.
@@ -106,6 +126,7 @@ round from the top and lets it out at the bottom.
 | `H`, `J`, `K`, `L` | the memory's 1s, 2s, 4s, 8s (M1 to M4) on and off |
 | `8`, `9`, `0` | set the MQ's 1s, 2s, 4s over by hand |
 | `D` | set the distributor to start a cycle (D1 1, D2 1, D3 0) |
+| `X` | COMPLEMENT on and off (the shutters over the done holes) |
 | `T` | the tour (it starts with it) |
 | `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
 | `Z` | slow motion (1/4 speed) on and off |
@@ -113,7 +134,8 @@ round from the top and lets it out at the bottom.
 To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
 number and the MQ to the other, `D`, MULTIPLY on, and `Space` until a ball
 drops through STOP. To add, the same with the MQ at 1 and the accumulator
-holding the first number.
+holding the first number. To subtract, complement the number to take away
+(COUNT on, MULTIPLY off: `X`, `Space`, `X`, `Space`), then add the other.
 
 **Where to look.**
 
@@ -141,15 +163,19 @@ it is and what it is doing.
 
 **The tour** (`T`): COUNT from 0, two balls; CLEAR; **ADD** 37 + 11 (the
 memory 11, the MQ 1, MULTIPLY on: five balls, the last to STOP: 48);
-CLEAR; **MULTIPLY** 13 x 3 (thirteen balls: 39). After each ball it checks
-everything the ball should have changed (the accumulator, the MQ, the
-distributor, STOP) and that the ball reached the collector, and prints
-`RESULT digicomp2 tour: PASS`. It takes about 215 simulated seconds, and
-about four minutes of computing here, headless. Twelve balls are not
+CLEAR; **MULTIPLY** 13 x 3 (thirteen balls: 39); the **COMPLEMENT** of 25
+(102, then 103); **SUBTRACT** 12 - 4 (4 complemented to 124, then 12 added:
+8, over 128); **DIVIDE** 13 / 5 (13 complemented to 115, then 5 added until
+A goes over, in the third cycle: quotient 2, remainder 3). After each ball
+it checks everything the ball should have changed (the accumulator, the
+MQ, the distributor, STOP, OVERFLOW) and that the ball reached the
+collector, and at the end of the division the quotient and remainder, and
+prints `RESULT digicomp2 tour: PASS`. It takes about 460 simulated seconds,
+and about ten minutes of computing here, headless. Twelve balls are not
 enough for the multiply: when the input runs low the hand takes balls from
 the collector and puts them back at its top, as you would.
 
-Sliders: `friction` (0.1 to 0.6 checked), `speed`, `steps`.
+Sliders: `friction` (0.2 to 0.6 checked), `speed`, `steps`.
 
 ## Running it
 
@@ -171,6 +197,8 @@ and wheel at that frame), `DC_REST=0` (never rest), `DC_EXPORT=1` (rewrite
 the clear lane; `tests/switch.lua` is one switch alone; `tests/junction.lua`
 is the piece of the board where the memory meets the accumulator (A1, A2
 and M2: the carry and the memory's balls into the same funnel);
+`tests/complement.lua` is A1 to A3 with their done lanes and shutters, each
+ball checked with the shutters open and closed;
 `tests/escapement.lua` is the feeder wheel driven by a weight and held by
 the anchor that AUTO will trip (not on the board yet). Each prints
 `RESULT` lines; their headers list their settings, and `FINDINGS.md` has
@@ -181,18 +209,20 @@ what they showed.
 `./make-stls.sh` (needs OpenSCAD, and bpp to refresh `geometry.scad`)
 writes every part into `stl/`, each turned to lie on the bed. Every shape a
 ball, a rocker or a flap touches comes from `digicomp2-geometry.lua`, the
-same numbers the simulation uses. The largest pieces are the tiles, 212 x 174 mm (on a 220 mm bed, or turned on a 250 x 210 one).
+same numbers the simulation uses. The largest pieces are the tiles, 214 x 182 mm (on a 220 mm bed, or turned on a 250 x 210 one).
 
 | Part | Print | Size (mm) | Notes |
 |---|---|---|---|
-| `upper-i-j.stl` | 1 each (14) | 212 x 167 x 16 | the upper plate in tiles, two across and seven down: its 4 mm face with the holes, the walls (12 mm high), the stop pegs, the bosses under the flaps and the wheel, the lettering cut 0.6 mm deep (fill it with paint, or change filament at that layer) |
-| `lower-i-j.stl` | 1 each (14) | 212 x 174 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the return lane, the collector's wall (30 mm), the posts that hold the plate up, and the bosses the feet stand on |
+| `upper-i-j.stl` | 1 each (18) | 214 x 176 x 16 | the upper plate in tiles, two across and nine down: its 4 mm face with the holes and the shutters' grooves (2 mm deep), the walls (12 mm high), the stop pegs, the bosses under the flaps and the wheel, the lettering cut 0.6 mm deep (fill it with paint, or change filament at that layer) |
+| `lower-i-j.stl` | 1 each (18) | 214 x 182 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the return lane, the collector's wall (30 mm), the posts that hold the plate up, and the bosses the feet stand on |
 | `rocker.stl` | 13 | 44 x 19 x 9 | a flip-flop's top. 100% infill |
 | `foot.stl` | 13 | 12 x 24 x 22 | its stem and foot: the stem glues up into the rocker's hub, through the plate's square hole. 100% infill |
 | `flap.stl` | 7 | 3 x 19 x 9 | a switch's flap |
 | `wheel.stl` | 1 | 39 x 39 x 9 | the feeder's wheel |
 | `knob.stl` | 1 | 28 x 28 x 14 | glued onto the wheel's hub; its four marks are the quarter turns |
-| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 165 x 30, 30 x 169 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty) |
+| `shutter.stl` | 6 | 28 x 22 x 2 | COMPLEMENT: a done hole's shutter, sliding in its groove in the plate; a pin pressed into its hole |
+| `comp-knob.stl` | 1 | 10 x 10 x 12 | COMPLEMENT's handle, glued on the top end of its bar |
+| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 219 x 30, 30 x 223 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
 | `foot-front.stl` | 2 | 30 x 21 x 30 | its low front feet |
 
 **Also needed**
@@ -205,7 +235,12 @@ same numbers the simulation uses. The largest pieces are the tiles, 212 x 174 mm
   (pressed into the lower tiles' bosses, up through foot, stem and rocker),
   seven 16 mm for the flaps and one 20 mm for the wheel (pressed into the
   upper plate).
-- A **lower board** of 6 mm plywood, 424 x 1216 mm, the lower tiles glued
+- For COMPLEMENT: six more 3 mm pins, 21 mm long (one in each shutter),
+  and the **bar**: a strip of aluminium (or hardwood) 5 x 3 mm, 792 mm
+  long, drilled 3.4 mm for the pins, the first 30 mm from its top end and
+  the others every 151.6 mm after it (the pins' places are `SH_PINS` in
+  `parts/geometry.scad`).
+- A **lower board** of 6 mm plywood, 424 x 1573 mm, the lower tiles glued
   on it edge to edge, and the feet glued under it at its corners.
 - Glue; a little dry PTFE or graphite on the pins.
 
@@ -216,10 +251,12 @@ their bosses. Glue the upper tiles together at their edges into one plate
 pin, wedge up the slope; lay the plate on its posts, the stems coming up
 through the square holes; press the steel balls into the rockers and glue
 each rocker onto its stem, roof up the slope. Press the flaps' and wheel's
-pins into the plate, fit them, and glue the knob on the wheel. Glue the
+pins into the plate, fit them, and glue the knob on the wheel. Put the
+shutters in their grooves, pins up, slip the bar over the pins and glue its
+knob on. Glue the
 tall feet under the back corners and the low ones under the front, so the
-board slopes at 15 degrees toward you, and **level it across** (within 2
-degrees; see `FINDINGS.md`). Set every flip-flop to 0 (apex left; the MQ's
+board slopes at 15 degrees toward you, and **level it across** (within 1
+degree; see `FINDINGS.md`). Set every flip-flop to 0 (apex left; the MQ's
 read 0 with the apex right), COUNT on and the other switches off, put the
 balls in the input channel, and turn the knob a quarter turn at a time.
 
@@ -233,6 +270,9 @@ as it puts the balls back, so the first turn lets one out.)
   the simulation a motor on the wheel's pin, strong enough not to stall. The
   hand sets the switches and flip-flops, puts the balls back, by placing
   them, and watches STOP: it turns no more once a ball has dropped through.
+  Dividing, it watches OVERFLOW too, and stops at the end of that cycle. It
+  moves COMPLEMENT between the two balls of a complement, which E.S.R.'s
+  machine does itself with CF1 and CF2.
 - **AUTO.** E.S.R.'s machine can run by itself: in AUTO, a ball at the
   bottom rolls under the START lever and lets the next ball go from the top,
   and the ball through STOP lets none. That is not on the board yet: its
@@ -245,7 +285,9 @@ as it puts the balls back, so the first turn lets one out.)
   the manual says, but where each part sits on the board was worked out
   here. The distributor is a tree of three flip-flops, and after the MQ and
   M4 it serves M1, M3, M2 (the manual's order is M2, M3, M1; the sum is the
-  same).
+  same). The complement is done with shutters and done lanes, not E.S.R.'s
+  mode flip-flops; it made the board longer (the accumulator's steps are
+  147.5 mm apart, for the lanes between them).
 - **The pins** are hinges with a constant friction torque, 0.4 kg cm^2/s^2
   (`DC_PF`): PLA on PLA at a boss, worked out in `FINDINGS.md`.
 - **The lettering** is drawn on the plate's face, not cut into it; the plate

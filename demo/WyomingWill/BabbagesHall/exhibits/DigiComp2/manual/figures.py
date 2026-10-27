@@ -36,8 +36,12 @@ def rot(pts, a, cx=0.0, cz=0.0):
     return [(cx + x * c + z * s, cz - x * s + z * c) for x, z in pts]
 
 
-def board(ax, state=None, flaps=None, lower=True, upper=True, dim=False, marks=False, region=None):
-    """the board seen from above: z down the page. state: rocker name -> 0/1; flaps: switch name -> True (ball goes left)"""
+SHUT = "#5d6d7e"
+
+
+def board(ax, state=None, flaps=None, lower=True, upper=True, dim=False, marks=False, region=None, comp=False):
+    """the board seen from above: z down the page. state: rocker name -> 0/1; flaps: switch name -> True (ball goes
+    left); comp: COMPLEMENT on (the shutters over the done holes)"""
     state = state or {}
     flaps = flaps or {}
     b, l = D["board"], D["lower"]
@@ -71,6 +75,14 @@ def board(ax, state=None, flaps=None, lower=True, upper=True, dim=False, marks=F
         w = D["wheel"]
         for pc in D["wheelPieces"]:
             ax.add_patch(Polygon([(w[0] + x, w[1] + z) for x, z in pc], fc="#c9a14a", ec="none", alpha=a, zorder=3))
+        # COMPLEMENT: the shutters (on: over the holes; off: to the right), their pins, the bar over them
+        sh = D["shutter"]
+        dx = 0 if comp else sh["travel"]
+        for t in D["shutters"]:
+            ax.add_patch(Polygon([(x + dx, z) for x, z in t["piece"]], fc=SHUT, ec="none", alpha=0.8 * a, zorder=1.7))
+            ax.add_patch(Circle((t["pin"][0] + dx, t["pin"][1]), sh["pinR"] * 1.6, fc="#2c3e50", ec="none", alpha=a, zorder=3.6))
+        ax.add_patch(Polygon([(x + dx, z) for x, z in sh["bar"]], fc=SHUT, ec="none", alpha=0.45 * a, zorder=3.5))
+        ax.add_patch(Circle((sh["knob"][0] + dx, sh["knob"][1]), sh["knobR"], fc="#2c3e50", ec="none", alpha=a, zorder=3.6))
     if marks:
         for m in D["marks"]:
             ax.text(m[1], m[2], m[0], ha="center", va="center", fontsize=m[3] * 0.75, color="#1f3b4d", zorder=4, clip_on=True)
@@ -105,7 +117,7 @@ def throat(r): return (r["x"], r["z"] - RUNTOP)
 def apex(r): return (r["x"], r["z"] - D["flip"]["A"] - R * 0.5)
 def exitp(r, side): return (r["x"] + side * 2.3, r["z"] + 0.2)
 def catch(r, side): return (r["x"] + side * DX, r["z"] + DZ - RUNTOP)
-def done(r): return (r["x"] + D["DONE"][0], r["z"] + D["DONE"][1])
+def done(r): return tuple(r["done"])
 def lane(name): return [tuple(p) for p in D["lanes"][name]]
 def joinend(t, side): return (t[0] + side * J3, t[1] - J4)
 def wheel_out():
@@ -167,15 +179,15 @@ def label(ax, x, z, t, size=9, col=INK, ha="center", weight="bold", bg=True):
 
 # ---- 1: the whole board ----
 def fig_board():
-    fig, ax = plt.subplots(figsize=(6.2, 14))
+    fig, ax = plt.subplots(figsize=(6.2, 17))
     board(ax)
     b = D["board"]
     w = D["wheel"]
     L = b[0] - 1.0
     Rr = b[1] + 1.0
-    def tag(x, z, t, side, tx=None):
+    def tag(x, z, t, side, tx=None, tz=None):
         tx = tx if tx is not None else (L if side < 0 else Rr)
-        ax.annotate(t, xy=(x, z), xytext=(tx, z), ha="right" if side < 0 else "left", va="center", fontsize=9,
+        ax.annotate(t, xy=(x, z), xytext=(tx, z if tz is None else tz), ha="right" if side < 0 else "left", va="center", fontsize=9,
                     weight="bold", color=INK, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.7), zorder=9)
     tag(w[0], w[4] + 3, "INPUT (the balls)", 1)
     tag(w[0] + w[2], w[1], "START (the feeder wheel)", 1)
@@ -195,6 +207,12 @@ def fig_board():
         r = Rk["A%d" % k]
         tag(r["x"] + 2.2, r["z"] - 0.5, "A%d  (%ds)" % (k, 2 ** (k - 1)) + ("  the ACCUMULATOR" if k == 1 else ""), 1)
     tag(D["overflow"][0], D["overflow"][1], "OVERFLOW", -1)
+    sh = D["shutter"]
+    tag(sh["knob"][0] + sh["travel"], sh["knob"][1], "COMPLEMENT (its handle: off)", 1, tz=sh["knob"][1] - 3.2)
+    t3 = D["shutters"][2]
+    tag(t3["pin"][0] + sh["travel"], t3["pin"][1], "a done hole's shutter (open)", 1)
+    l3 = lane("done 3")
+    tag((l3[1][0] + l3[2][0]) / 2, (l3[1][1] + l3[2][1]) / 2, "a done lane", 1, tx=D["board"][1] + 1.0)
     tag(D["clearLane"][-1][0] + 1, D["clearLane"][-1][1], "clear lane (lower level)", 1)
     tag(D["XRET"], D["ZCOL"] - 8, "return lane (lower level)", -1)
     tag((b[0] + b[1]) / 2, D["ZCOL"] + 1.2, "COLLECTOR", 1)
@@ -262,41 +280,41 @@ def fig_switch():
 
 # ---- 4: counting, and a carry ----
 def fig_count():
-    fig, ax = plt.subplots(figsize=(7.0, 7.5))
+    fig, ax = plt.subplots(figsize=(6.6, 10.5))
     st = {"A1": 1, "A2": 1, "A3": 1}
     board(ax, state=st, flaps={"MULTIPLY": False, "CLEAR": True, "COUNT": True}, marks=True,
-          region=(-14, 19, -30, 30))
+          region=(-15, 19, -30, 50))
     p = p_count()
     a = [Rk["A%d" % k] for k in range(1, 5)]
     p += [exitp(a[0], -1)] + into(a[1]) + [exitp(a[1], -1)] + into(a[2]) + [exitp(a[2], -1)] + into(a[3]) + [exitp(a[3], 1), done(a[3])]
     path(ax, [q for q in p if q[1] > -30.5], PATH[0])
-    label(ax, -13.5, -27, "COUNT on: 7 (0000111) and one ball", 9, ha="left")
+    label(ax, -14.5, -27, "COUNT on: 7 (0000111) and one ball", 9, ha="left")
     for k, t in enumerate(("A1: 1 -> 0, carry", "A2: 1 -> 0, carry", "A3: 1 -> 0, carry", "A4: 0 -> 1, done")):
         r = a[k]
-        label(ax, r["x"] + 4.6, r["z"] + 0.8, t, 8, ha="left", weight="normal")
-    label(ax, -13.5, 29, "the result: 8 (0001000)", 9, ha="left")
+        label(ax, r["x"] + 6.4, r["z"] - 1.6, t, 8, ha="left", weight="normal")
+    label(ax, -14.5, 49, "the result: 8 (0001000)", 9, ha="left")
     save(fig, "fig-count.png")
 
 
 # ---- 5: clearing ----
 def fig_clear():
-    fig, ax = plt.subplots(figsize=(7.0, 7.5))
+    fig, ax = plt.subplots(figsize=(5.6, 12.5))
     st = {"A2": 1, "A4": 1, "A5": 1, "A7": 1}
-    board(ax, state=st, flaps={"MULTIPLY": False, "CLEAR": False}, upper=True, dim=True, region=(-24, 11, -20, 56))
+    board(ax, state=st, flaps={"MULTIPLY": False, "CLEAR": False}, upper=True, dim=True, region=(-26, 11, -20, 96))
     d = D["clearDrop"]
     p = [(S["CLEAR"]["x"], S["CLEAR"]["top"]), pin(S["CLEAR"]), outl(S["CLEAR"], 1), tuple(d)] + [tuple(q) for q in D["clearLane"][1:]]
     path(ax, p, PATH[2])
-    label(ax, -23, -16, "CLEAR on, the accumulator at 90 (1011010):\nthe ball drops through CLEAR's hole to the\nlower level and runs down the clear lane", 8.5, ha="left")
-    label(ax, -23, 10, "Each rocker of A at 1 has its foot's\nwedge in the lane: the ball pushes\nit out, which turns the rocker to 0.\nRockers at 0 are passed by.", 8.5, ha="left", weight="normal")
+    label(ax, -25, -16, "CLEAR on, the accumulator at 90 (1011010):\nthe ball drops through CLEAR's hole to the\nlower level and runs down the clear lane", 8.5, ha="left")
+    label(ax, -25, 14, "Each rocker of A at 1 has its foot's\nwedge in the lane: the ball pushes\nit out, which turns the rocker to 0.\nRockers at 0 are passed by.", 8.5, ha="left", weight="normal")
     save(fig, "fig-clear.png")
 
 
 # ---- 6: multiplying: one cycle of four balls, and STOP ----
 def fig_multiply():
-    fig, ax = plt.subplots(figsize=(7.4, 10.4))
+    fig, ax = plt.subplots(figsize=(7.0, 12.6))
     st = {"D1": 1, "D2": 1, "D3": 0, "MQ1": 0, "MQ2": 1, "MQ3": 1}
     board(ax, state=st, flaps={"MULTIPLY": True, "M1": False, "M2": False, "M3": False, "M4": False}, dim=False,
-          region=(-34, 10, -52, 27))
+          region=(-34, 10, -52, 48))
     names = ["ball 1: D1, D2, the MQ (one less), M4 -> A4",
              "ball 2: D1, D3, M1 -> A1",
              "ball 3: D1, D2, M3 -> A3",
@@ -308,11 +326,48 @@ def fig_multiply():
     save(fig, "fig-multiply.png")
 
 
-# ---- 7: which parts each operation uses ----
+# ---- 7: the complement: one ball through all seven ----
+def fig_complement():
+    fig, ax = plt.subplots(figsize=(7.0, 14.0))
+    n = 25
+    bits = [(n >> k) & 1 for k in range(7)]
+    st = {"A%d" % (k + 1): bits[k] for k in range(7)}
+    board(ax, state=st, flaps={"MULTIPLY": False, "CLEAR": True, "COUNT": True}, marks=True, comp=True,
+          region=(-26, 26, -14, 103))
+    p = p_count()[-2:]
+    for k in range(1, 8):
+        r = Rk["A%d" % k]
+        if k > 1:
+            p += into(r)
+        if bits[k - 1] == 0:
+            p += [exitp(r, 1)]
+            if k < 7:
+                p += [done(r)] + lane("done %d" % k)[1:]
+            else:
+                p += [done(r)]
+        else:
+            p += [exitp(r, -1)]
+            if k == 7:
+                p += [tuple(D["overflow"])]
+    path(ax, p, PATH[3])
+    for k in range(1, 8):
+        r = Rk["A%d" % k]
+        b = bits[k - 1]
+        t = "A%d: %d -> %d, %s" % (k, b, 1 - b, ("its hole covered:\non down its lane" if k < 7 else "done") if b == 0
+                                   else ("carry" if k < 7 else "over"))
+        label(ax, r["x"] + 4.8, r["z"] + (4.5 if b == 0 else 3.0), t, 7.5, ha="left", weight="normal")
+    label(ax, -25, -11, "COMPLEMENT on (the shutters left, over\nthe done holes), COUNT on: 25 (0011001)\nand one ball",
+          8.5, ha="left")
+    label(ax, -25, 100, "the result: 102 (1100110), every bit\nturned over. COMPLEMENT off and one more\nball: 103, the complement",
+          8.5, ha="left")
+    save(fig, "fig-complement.png")
+
+
+# ---- 8: which parts each operation uses ----
 def fig_parts():
-    fig, ax = plt.subplots(figsize=(6.4, 14))
+    fig, ax = plt.subplots(figsize=(6.4, 17))
     board(ax, dim=True)
-    ALL, CC, AM = "#9a7413", "#2e7d32", "#b03a2e"
+    ALL, CC, AM, CM = "#9a7413", "#2e7d32", "#b03a2e", "#6c3483"
     def blob(x, z, r, col):
         ax.add_patch(Circle((x, z), r, fc=col, ec=col, alpha=0.28, lw=1.2, zorder=4))
     def line(pts, col, lw=7):
@@ -334,22 +389,28 @@ def fig_parts():
     for k in (1, 2, 3, 4):
         blob(S["M%d" % k]["x"], S["M%d" % k]["z"] - 1, 3.0, AM)
     for n, p in D["lanes"].items():
-        if n != "MULTIPLY off":
+        if n != "MULTIPLY off" and not n.startswith("done"):
             line([tuple(q) for q in p], AM)
     for r in D["returns"]:
         line([(r[0], r[1]), (r[2], r[3])], AM, lw=4)
     line([(D["XRET"], D["stop"][1]), (D["XRET"], D["ZCOL"] - 1.5)], AM, lw=4)
     blob(D["stop"][0], D["stop"][1], 1.6, AM)
+    for k in range(1, 7):
+        line(lane("done %d" % k), CM, lw=5)
+    sh = D["shutter"]
+    tv = sh["travel"]
+    line([(sh["knob"][0] + tv, sh["knob"][1]), (sh["bar"][1][0] + tv, sh["bar"][1][1])], CM, lw=4)
+    blob(D["overflow"][0], D["overflow"][1], 1.6, CM)
     from matplotlib.lines import Line2D
-    h = [Line2D([], [], color=c, lw=8, alpha=0.5) for c in (ALL, CC, AM)]
+    h = [Line2D([], [], color=c, lw=8, alpha=0.5) for c in (ALL, CC, AM, CM)]
     ax.legend(h, ["used by every operation: the feeder, MULTIPLY\n(on or off), the accumulator, the collector",
                   "count and clear: MULTIPLY's lane down,\nCLEAR, COUNT, the clear lane and A's feet",
-                  "add and multiply: the distributor, the MQ,\nthe memory, STOP and the return lane"],
+                  "add and multiply: the distributor, the MQ,\nthe memory, STOP and the return lane",
+                  "complement (subtract, divide): the shutters,\ntheir bar, the done lanes; OVERFLOW watched"],
               loc="upper center", fontsize=8, framealpha=0.95, bbox_to_anchor=(0.5, 0.0))
-    label(ax, -28.2, 37, "to come here:\nsubtract and divide\n(COMPLEMENT, CF1,\nCF2, T1 to T6,\nOVERFLOW)", 7, col="#6c3483")
     save(fig, "fig-parts.png")
 
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    fig_board(); fig_flipflop(); fig_switch(); fig_count(); fig_clear(); fig_multiply(); fig_parts()
+    fig_board(); fig_flipflop(); fig_switch(); fig_count(); fig_clear(); fig_multiply(); fig_complement(); fig_parts()

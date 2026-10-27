@@ -1,6 +1,6 @@
 #!/bin/sh
 # make-stls.sh -- every printable part of the Digi-Comp II (as built so far,
-# step 2b), into stl/, each turned to lie on the printer's bed (millimetres).
+# step 2c), into stl/, each turned to lie on the printer's bed (millimetres).
 #
 #   ./make-stls.sh            (needs openscad; bpp to refresh geometry.scad)
 #   BPP=/path/to/bpp ./make-stls.sh
@@ -26,8 +26,10 @@ part foot.stl       -D 'PART="print-foot"'
 part flap.stl       -D 'PART="print-flap"'
 part wheel.stl      -D 'PART="print-wheel"'
 part knob.stl       -D 'PART="print-knob"'
+part shutter.stl    -D 'PART="print-shutter"'
+part comp-knob.stl  -D 'PART="print-comp-knob"'
 for i in 0 1; do
-  for j in 0 1 2 3 4 5 6; do
+  for j in 0 1 2 3 4 5 6 7 8; do
     part "upper-$i-$j.stl" -D "PART=\"print-upper-$i-$j\""
     part "lower-$i-$j.stl" -D "PART=\"print-lower-$i-$j\""
   done
@@ -35,5 +37,6 @@ done
 part foot-back-1.stl -D 'PART="print-foot-back-1"'
 part foot-back-2.stl -D 'PART="print-foot-back-2"'
 part foot-front.stl -D 'PART="print-foot-front"'
-echo "Print: rocker x13, foot x13, flap x7, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, knob and every"
+echo "Print: rocker x13, foot x13, flap x7, shutter x6, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, knob,"
+echo "comp-knob and every"
 echo "upper-i-j and lower-i-j tile once. Cut the lower board from 6 mm plywood (README.md)."

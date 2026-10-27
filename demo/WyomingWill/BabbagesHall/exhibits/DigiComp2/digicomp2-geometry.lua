@@ -233,10 +233,17 @@ S.I = S.mass * S.FL * S.FL / 3
 --     right side is done; a borrow out of MQ3 (MQ was 0) drops through STOP
 G.NBITS = 7
 G.DX, G.DZ = 3.5, 8.0         -- each flip-flop of a staircase this far across and down from the last
+G.ADZ = 14.75                 -- (the accumulator's: farther down, for the done lanes between, below)
 G.FUNNEL = { 2.0, 1.4 }       -- a funnel's half-width at its mouth, and its depth
 G.JOIN = { 3.5, 1.565, 2.6, 2.8 }   -- a joining funnel: one wall long, out to JOIN[1] across and
                               -- JOIN[2] up from the throat; a lane coming in ends JOIN[3] across, JOIN[4] up
-G.DONE = { 3.1, 1.3 }         -- a done hole's centre from its flip-flop's pin
+G.DONE = { 3.1, 1.3 }         -- a done hole's centre from its flip-flop's pin (a square HOLE's)
+G.DONE_L = 2.0                -- the accumulator's done holes run this far down the slope (from the same
+                              -- top edge), so a ball drops in with no wall below to stop it ...
+G.DONE_W = 1.8                -- ... and this far across (out to the left: their right edges as before), so
+                              -- it drops in even running down off the hole's middle (a square one, 1.45,
+                              -- left only 0.9 mm either side of the ball: tilted, it rode the edge and on)
+G.DONE_LANE = { 0.5, 1.0 }    -- a done lane: straight down this far past its hole, and into the next funnel
 G.XC = 1.45                   -- the clear lane's centre, right of each pin (on the lower level)
 G.CLEAR_MARGIN = 0.05         -- past each foot, the lane narrows to hold the ball this far clear of
                               -- the wedge of a rocker at 0 (see footWalls, below)
@@ -248,7 +255,7 @@ local function runTop(t) return t.z - RUNTOP end
 local function mouthZ(t) return runTop(t) - G.FUNNEL[2] end
 
 G.toggles = {}
-for k = 0, G.NBITS - 1 do G.toggles[k + 1] = { x = -k * G.DX, z = k * G.DZ, name = "A" .. (k + 1), kind = "A" } end
+for k = 0, G.NBITS - 1 do G.toggles[k + 1] = { x = -k * G.DX, z = k * G.ADZ, name = "A" .. (k + 1), kind = "A" } end
 G.D1 = { -13.0, -34.0 }       -- the distributor's first flip-flop
 G.D3OFF = { 8.0, 14.2 }       -- D3, from D1 (D2 is the next step of a staircase down to the left)
 G.routers = {}
@@ -632,13 +639,89 @@ end
 -- funnel's throat (where the next flip-flop's would be)
 local function catchAt(t, s) return { t.x + s * G.DX, t.z + G.DZ - RUNTOP } end
 
--- the accumulator: A1 .. A4's funnels take the memory's lanes from the
--- left (and A1's COUNT from the right)
-for k, t in ipairs(G.toggles) do
-  flipWalls(t, k == 1 and 2 or (k <= 4 and -1 or nil))
-  t.done = sideHole(t, 1, "done")
+-- the accumulator: every funnel has both walls long. A1 .. A4's take the
+-- memory's lanes from the left; every one takes a lane from the right (A1's
+-- from COUNT, the others' the done lane from the one before). (A5 .. A7's
+-- left walls are long for the carry: falling the length of a step, it drifts
+-- left, and a short wall let it by)
+for k, t in ipairs(G.toggles) do flipWalls(t, 2) end
+-- (and A5 .. A7's long left walls go on straight up the slope, to above
+-- the flip-flop before: a guide for the carry, which drifts out to the very
+-- end of that wall (at 1200 steps a second, or tilted 2 degrees across,
+-- past it). A2 .. A4's have the memory's lanes there instead)
+for k = 5, G.NBITS do
+  local t, u = G.toggles[k], G.toggles[k - 1]
+  local x = t.x - G.JOIN[1]
+  wall(x, runTop(t) - G.JOIN[2], x, u.z - 2.0, "guide")
 end
 G.overflow = sideHole(G.toggles[G.NBITS], -1, "overflow")
+-- COMPLEMENT: A1 .. A6's done holes are long (DONE_L) and open below, onto a
+-- lane, the DONE LANE, that runs down and across into the next flip-flop's
+-- funnel (on its long right wall). Open, the hole takes the ball, as any
+-- done hole. Closed by its SHUTTER, the ball rolls over it and down the lane
+-- into the next flip-flop, so every ball goes on through every flip-flop
+-- below where it came in, turning each over, whichever way it finds it.
+-- A7's done hole is square and walled below, as before.
+-- Each shutter is a thin tile sliding flush in a groove in the plate,
+-- across the slope: to the left, it covers the hole; to the right, it lies
+-- under the lane's right wall and beyond it, out of the lane (so the groove
+-- it leaves is never in a ball's way). A pin stands up from its right end,
+-- outside the lane. One bar, high over the walls (a ball passes under it),
+-- joins the six pins: the COMPLEMENT switch. Its handle is at its top end,
+-- beside A1: to the left, every hole is covered (COMPLEMENT on); to the
+-- right, every one is open.
+local SH = {}
+G.SHUTTER = SH
+SH.T = 0.2                    -- the shutter's thickness (its groove's depth)
+SH.M = 0.1                    -- it reaches this far past the hole all round
+SH.TRAVEL = G.DONE_W + 2 * SH.M   -- how far it slides: open, it is this far to the right
+SH.EXT = 1.6                  -- closed, it reaches this far right of the hole's centre
+SH.PIN = { 1.35, 0.15 }       -- the pin: this far right of the hole's centre (closed), its radius
+SH.BAR_Y0, SH.BAR_H, SH.BAR_W = 1.6, 0.3, 0.5   -- the bar: over the walls (1.2) and the balls (1.27)
+SH.HANDLE = 3.0               -- the bar runs on this far up the slope past A1's pin, to the handle
+SH.KNOB_R, SH.KNOB_H = 0.5, 1.2                 -- the handle: a knob standing on the bar's end
+G.shutters = {}
+for k, t in ipairs(G.toggles) do
+  if k < G.NBITS then
+    local hx, hz0 = t.x + G.DONE[1], t.z + G.DONE[2] - HS / 2
+    local hz1 = hz0 + G.DONE_L
+    local hx0 = hx + HS / 2 - G.DONE_W
+    G.holes[#G.holes + 1] = { hx0, hx + HS / 2, hz0, hz1, role = "done" }
+    t.done = { hx, (hz0 + hz1) / 2 }
+    local m = SH.M
+    G.shutters[k] = { x = hx, z0 = hz0, z1 = hz1,
+      hole = { hx0, hx + HS / 2, hz0, hz1 },
+      -- (closed; open, each is TRAVEL farther to the right)
+      pieces = { { { hx0 - m, hz0 - m }, { hx + SH.EXT, hz0 - m }, { hx + SH.EXT, hz1 + m }, { hx0 - m, hz1 + m } } },
+      pin = { hx + SH.PIN[1], (hz0 + hz1) / 2 } }
+    local n = G.toggles[k + 1]
+    local e = joinEnd(n.x, runTop(n), 1)
+    local P = { { hx, hz0 - 0.6 }, { hx, hz1 + G.DONE_LANE[1] }, { e[1], e[2] - G.DONE_LANE[2] }, e }
+    -- (its left wall open beside the hole and above it, where the ball comes in)
+    laneWalls(P, { { -1, hz0 - 0.6, hz1 + 0.15 } }, wall, "doneLane")
+    G.lanes["done " .. k] = P
+    local dx, dz = P[2][1] - P[3][1], P[3][2] - P[2][2]
+    if math.deg(math.atan2(dz, dx)) < G.MINSLOPE - 1e-6 then
+      G.warnings[#G.warnings + 1] = string.format("done lane %d runs %.1f degrees down (under %d)", k, math.deg(math.atan2(dz, dx)), G.MINSLOPE)
+    end
+  else
+    t.done = sideHole(t, 1, "done")
+  end
+end
+-- the bar (closed: COMPLEMENT on), along the pins, on up to the handle
+do
+  local p1, p6 = G.shutters[1].pin, G.shutters[G.NBITS - 1].pin
+  local dx, dz = p6[1] - p1[1], p6[2] - p1[2]
+  local l = math.sqrt(dx * dx + dz * dz)
+  local ux, uz = dx / l, dz / l
+  local nx, nz = -uz, ux
+  local a = { p1[1] - ux * SH.HANDLE, p1[2] - uz * SH.HANDLE }
+  local b = { p6[1] + ux * 0.4, p6[2] + uz * 0.4 }
+  local w = SH.BAR_W / 2
+  SH.bar = { { a[1] - w * nx, a[2] - w * nz }, { b[1] - w * nx, b[2] - w * nz },
+             { b[1] + w * nx, b[2] + w * nz }, { a[1] + w * nx, a[2] + w * nz } }
+  SH.knob = { a[1] + ux * SH.KNOB_R, a[2] + uz * SH.KNOB_R }
+end
 
 -- the distributor and the MQ
 do
@@ -720,9 +803,10 @@ do
     -- below, past the narrowing (the right wall there, below); under the
     -- done hole, the right wall open)
     gaps[#gaps + 1] = { -1, zf - 1.6, zf + 2.3 }
-    gaps[#gaps + 1] = { 1, zf - 1.0, t.z + 2.2 }
+    local zd = t.z + 2.2 + (k < G.NBITS and G.DONE_L - HS or 0)    -- (past the done hole)
+    gaps[#gaps + 1] = { 1, zf - 1.0, zd }
     for _, w in ipairs(G.footWalls(t)) do lwall(w[1], w[2], w[3], w[4], "clear") end
-    if k < G.NBITS then P[#P + 1] = { x, t.z + 2.2 } end
+    if k < G.NBITS then P[#P + 1] = { x, zd } end
   end
   local last = G.toggles[G.NBITS]
   P[#P + 1] = { last.x + G.XC, G.ZCOL - 3.5 }        -- (it ends well short of the collector's wall,
@@ -856,6 +940,10 @@ do
   mark("START", Wh.x + 4.2, Wh.z, 5)
   mark("OVERFLOW", G.overflow[1] + 0.3, G.overflow[2] + 2.0, 4)
   mark("STOP", G.stop[1] + 0.3, G.stop[2] + 2.0, 4)
+  -- (COMPLEMENT: its handle, up the slope (on: the holes covered) or down)
+  local kx, kz = G.SHUTTER.knob[1], G.SHUTTER.knob[2]
+  mark("COMPLEMENT", kx + 0.8, kz - 3.0, 4)
+  mark("on", kx, kz - 1.5, 4); mark("off", kx + G.SHUTTER.TRAVEL + 0.2, kz - 1.5, 4)
 end
 function G.writeScad(path)
   local f = assert(io.open(path, "w"))
@@ -881,6 +969,15 @@ function G.writeScad(path)
   list("W_PIECES", Wh.pieces, outline)
   f:write(string.format("WHEEL_AT = [%.5f,%.5f];\n", Wh.x, Wh.z))
   list("TOGGLES", G.rockers, function(t) return pts2({ t.x, t.z }) end)
+  -- (COMPLEMENT: the shutters closed, and their pins; the bar and its knob;
+  -- open, all TRAVEL farther to the right)
+  local SH = G.SHUTTER
+  num("SH_T", SH.T); num("SH_TRAVEL", SH.TRAVEL); num("SH_PIN_R", SH.PIN[2])
+  num("SH_BAR_Y0", SH.BAR_Y0); num("SH_BAR_H", SH.BAR_H); num("SH_KNOB_R", SH.KNOB_R); num("SH_KNOB_H", SH.KNOB_H)
+  list("SHUTTERS", G.shutters, function(sh) return outline(sh.pieces[1]) end)
+  list("SH_PINS", G.shutters, function(sh) return pts2(sh.pin) end)
+  f:write("SH_BAR = " .. outline(SH.bar) .. ";\n")
+  f:write(string.format("SH_KNOB = [%.5f,%.5f];\n", SH.knob[1], SH.knob[2]))
   -- (each switch: where its pin is, and which way its flap leans set up as
   -- the hand sets it: 1 against the left wall, -1 the right)
   list("SWITCHES", G.switchList, function(s) return string.format("[%.5f,%.5f,%d]", s.x, s.z, s.rest or 1) end)

@@ -286,25 +286,38 @@ there, in `release/`, or on the path; or set `BPP`.
   operation, now and to come, and which parts each needs (for building
   part of the machine): `exhibits/DigiComp2/MANUAL.md`. Its figures are
   drawn from the geometry. Keep it up to date as steps are added; its
-  section 6 (complement, subtract, divide, AUTO) follows E.S.R.'s manual,
-  whose chapter on remainders could not be read here.
+  section 6 (complement, subtract, divide, AUTO) gives E.S.R.'s ways and
+  this board's.
 - **Done the same night: the narrated tour.** Before each ball a yellow
   dashed line on the board shows the way it will go, and the sign's THIS
   BALL says what it will do and what A was and will be (`route()`,
   `preview()` in `digicomp2.lua`; also on `Space`). `DC_STEP` starts the
   tour at a later step, for testing.
-- **Next: AUTO and step 2c.** AUTO is the START lever: a ball at the
-  bottom lets the next go, and the ball through STOP lets none. Its
-  escapement works alone (`tests/escapement.lua`, `G.ANCHOR`): the wheel
-  turned by a wound weight with a fly, held by an anchor with straight
-  fingers on rollers; FINDINGS has the three tries and what each needed.
-  Still to do: the weight and fly as parts, the trip (the bottom ball
-  pushing the anchor's arm), STOP's bypass, and the AUTO/MANUAL switch. Step 2c, subtract and divide, is the
-  complement: T1 to T6, CF1, CF2 and the COMPLEMENT switch (the manual
-  describes its four-ball sequence); the board's lower left and the space
-  left of the MQ are free. William pointed to a replica too:
-  www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
-  fetched here: the original's frame is about 14 x 28 inches).
+- **Done (2026-10-27): step 2c, the complement: subtract and divide.**
+  William chose the longer board (more visible) over a lower-level
+  inverting lane. Not E.S.R.'s T1 to T6, CF1, CF2: under each of A1 to
+  A6's done holes a **done lane** runs on into the next flip-flop's funnel,
+  and six **shutters** (one bar, high over the walls: the COMPLEMENT
+  switch, `X`) cover the holes, so a ball goes on through every flip-flop
+  to A7 and turns each over. Complement = two balls, the hand moving
+  COMPLEMENT between them (CF1 and CF2's job). Dividing: MQ 7, the hand
+  watches OVERFLOW and stops at the end of that cycle; quotient and
+  remainder from the cycles and A (MANUAL section 6; FINDINGS says why the
+  end of the cycle). A's steps are 14.75 cm apart now (`G.ADZ`), all its
+  funnels have both walls long. Tour adds the complement of 25, 12 - 4 and
+  13 / 5 (about 27 600 frames; check-all allows 29 000). Board 424 x 1573
+  mm, 18 + 18 tiles; table 110 x 220. `tests/complement.lua`. The camera
+  stands farther back for the longer board.
+- **Next: AUTO.** The START lever: a ball at the bottom lets the next go,
+  and the ball through STOP lets none. Its escapement works alone
+  (`tests/escapement.lua`, `G.ANCHOR`): the wheel turned by a wound weight
+  with a fly, held by an anchor with straight fingers on rollers; FINDINGS
+  has the three tries and what each needed. Still to do: the weight and fly
+  as parts, the trip (the bottom ball pushing the anchor's arm), STOP's
+  bypass, and the AUTO/MANUAL switch; in AUTO, OVERFLOW on HALT would stop
+  it too (at the end of a cycle, for dividing). William pointed to a replica
+  too: www.instructables.com/Digi-Comp-II-Replica/ (only its summary could
+  be fetched here: the original's frame is about 14 x 28 inches).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the
@@ -330,6 +343,6 @@ there, in `release/`, or on the path; or set `BPP`.
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
 > there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's AUTO, or step 2c].
+> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's AUTO].
 > Deliver each step as a patch, with its documents and PDFs, and the git
 > commands.

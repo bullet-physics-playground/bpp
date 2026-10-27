@@ -7,6 +7,130 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Step 2c: the complement, subtracting and dividing
+
+### Done lanes and shutters
+
+E.S.R.'s machine complements with six mode flip-flops between A's (T1 to
+T6) and two more to sequence them (CF1, CF2). Here the same thing is done
+with fewer moving parts: under each of A1 to A6's done holes a **done
+lane** runs on into the next flip-flop's funnel, and a **shutter** covers
+the hole. Closed, a ball leaving a flip-flop on its "done" side rolls over
+the hole and on into the next one, as a carry does, so it turns over every
+flip-flop to A7. Open, the hole takes the ball as before. All six shutters
+are on one bar: the COMPLEMENT switch.
+
+- **The lanes needed room.** A done lane runs from the hole (3.1 cm right of
+  its flip-flop, 1.3 down) 4 cm across to the next funnel's long right wall,
+  and no lane may run flatter than 35 degrees. So the accumulator's steps
+  went from 8 cm down the slope to 14.75 (`G.ADZ`; the distributor's and
+  MQ's stay 8): the board went from 1216 to 1573 mm long.
+- **The carry drifts.** Falling 14.75 cm instead of 8, a carry (which leaves
+  its flip-flop moving left) drifted out past the short left wall of A5's
+  funnel: on the board, the complement of 25 stopped at A4 (25 -> 22, the
+  ball lost). Every one of A's funnels now has both walls long, as A1 to
+  A4's had already (for the memory's lanes); then it went right. Traced,
+  the carries into A5 to A7 still reached the very end of that long wall
+  (4.5 cm left of where they left), and at 1200 steps a second one went
+  past it. So A5 to A7's long left walls go on straight up the slope as
+  **guides**, to the level of the flip-flop above. (A2 to A4 have the
+  memory's lanes there, whose walls do the same.)
+- **The hole has no wall below it.** Before, each done hole had a wall
+  just below it that stopped the ball over it. With the lane going on below,
+  there is none: the ball must drop in as it passes. In the test it did,
+  every time, square (14.5 mm) or longer down the slope (20 mm), at friction
+  0.1 to 0.5, pin friction 0.1 to 3 and slopes 8 to 25 degrees. But on the
+  board tilted 2 degrees across (down to the left), balls rode over the
+  done holes and on down the lanes, adding wrongly: a square hole leaves
+  only 0.9 mm either side of the ball, and a ball running down a little off
+  its middle rides one edge. So the holes are 20 mm down the slope and 18
+  mm across (`G.DONE_L`, `G.DONE_W`; wider to the left, where nothing
+  stands), 2.7 mm either side; the test then passed tilted 2 degrees either
+  way (3 degrees fails, as everything did before).
+- **The shutters slide across, not down.** Sliding down the slope, a
+  shutter leaves its groove open in the lane's floor, a 2 mm pit the ball
+  must cross. Sliding across, to the right, the groove it leaves is under the
+  lane's right wall and outside the lane, and when it is open, the groove
+  left is the hole itself. Each shutter is a 2 mm tile in a groove in the
+  plate's face, flush; a pin stands up from its right end outside the lane,
+  and the bar joins the pins 16 mm over the plate, above the walls (12 mm)
+  and the balls (12.7 mm): nothing that rolls touches it.
+
+`tests/complement.lua` (three flip-flops of A and their lanes, from the
+exhibit's geometry): thirteen balls, every case of the three with the
+shutters closed and the ordinary counting cases with them open, each
+checked for what it turned over and where it went. With the board as it is
+now, it passed for A1 to A3, A2 to A4, A3 to A5 and A4 to A6, at friction
+0.1, 0.3 and 0.5, pin friction 0.1, 0.4 and 3, slopes 8, 15 and 25 degrees,
+and tilted 1 degree across either way.
+
+### Two balls, and the hand
+
+The complement is two balls here: COMPLEMENT on, one ball (127 - A);
+COMPLEMENT off, one more (+1). The hand moves COMPLEMENT between them, the
+job CF1 and CF2 do on the original. When AUTO is built, that is the one
+step of the complement it won't do by itself.
+
+### Dividing, and the remainder
+
+E.S.R.'s manual divides by adding the divisor to the dividend's complement
+until A overflows (OVERFLOW on HALT), the MQ counting the cycles; its chapter
+on remainders could not be read here. Working it through on this board:
+a cycle adds M a bit at a time (8s, 1s, 4s, 2s), and A can go over on any of
+those balls. Stopped at once, the rest of M is never added, and A then says
+nothing useful: 11 / 5 goes over on the third cycle's 1s ball (127 + 1) and
+would stop with A = 0, as 10 / 5 does, and read as 3 exactly. Finished to
+the end of the cycle (its 4s ball too), A = 4. In general, finished, A =
+cycles x M - dividend, so:
+
+- A = 0: it went exactly, the quotient is the cycles;
+- otherwise the quotient is the cycles less one, the remainder M - A.
+
+So the hand watches OVERFLOW and stops at the end of the cycle (when the
+next ball would go to the MQ). The tour divides 13 by 5 this way: the
+third cycle goes over (on its 4s ball), A is left at 2, the MQ has counted
+three cycles: quotient 2, remainder 3.
+
+### On the board
+
+The tour (now also the complement of 25, 12 - 4 and 13 / 5, 75 balls in
+all, every one checked, and the quotient and remainder) passed in every
+one of these:
+
+- friction 0.2, 0.3, 0.6
+- pin friction 0.1, 0.4, 3
+- slope 10, 15, 20 degrees
+- 1200, 2400, 4800 steps a second
+- tilted across 1 degree either way, and 2 degrees down to the right
+
+and failed:
+
+- **tilted 2 degrees down to the left.** Carries that fall the length of
+  the longer step arrive slowly, after the guide and the funnel's long
+  walls, and the tilt carries a slow ball over the apex of a flip-flop at 0
+  to its far side, past it unturned (traced in `tests/complement.lua`,
+  CP_FROM=3, CP_ROLL=-2). Step 2b passed 2 degrees either way. So: **level
+  across within 1 degree** now.
+- **friction 0.1,** once in 75 balls: D3, the distributor's, left the
+  previous ball's swing at 5 degrees of its 12 (the ball slid out of its
+  cup before the swing was done, and the pin's friction held it there), and
+  the next ball read it the other way. The distributor is as it was in 2b
+  (step 2b's own tour, run again now at friction 0.1, fails the same way, on
+  its 17th ball, with D3 at 5 and 6 degrees after several balls. Its list
+  below says it passed; it doesn't now. The narrated tour, since, changed
+  the timing between balls, which may be why; not looked into further).
+  So: friction 0.2 to 0.6. A stronger over-centre
+  pull on the rockers would be the cure; not tried.
+
+
+### The printed parts
+
+Every STL is one watertight solid (`make-stls.sh`: 18 upper and 18 lower
+tiles now, 214 x 182 mm at most; the shutter; the bar's knob). Put where
+they are at rest, COMPLEMENT off, no two parts overlap but each foot's stem
+in its rocker's socket, as before: the shutters lie in their grooves, the
+bar clears every wall, peg and rocker.
+
 ## Step 2b: adding and multiplying
 
 ### Laying it out
