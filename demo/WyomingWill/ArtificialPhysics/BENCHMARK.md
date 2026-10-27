@@ -7,7 +7,7 @@ that claim directly (`BOOK.md` §6): the same tasks, the same force laws
 with the same settings (`lib/laws.lua`), on every vehicle behind the
 vehicle interface (`lib/swarm.lua`, G18). It is the scientific result of
 the capstone's benchmark matrix; this is its first part (milestone M2:
-2 tasks × 4 vehicles × 2 laws, 3 seeds each).
+2 tasks × 4 vehicles × 2 laws, 3 seeds each; the point mass, G5, added in M3).
 
 | Vehicle | Folder | Moves | Limits that matter here |
 | --- | --- | --- | --- |
@@ -15,6 +15,7 @@ the capstone's benchmark matrix; this is its first part (milestone M2:
 | Quadcopters | `quadcopter/` | holonomic, in 3D | 35° tilt, ~2.7 s for a 10 m step, motor and controller lag |
 | Ground robots (Pioneer 3-AT) | `ground/` | forwards, backwards and turning only | 0.5 m/s, 0.4 rad/s, **no wheel slower than 0.1 m/s** (a smaller command turns it at 0.1, F72) |
 | Surface boats (Ch. 6 ASV) | `boat/` | holonomic, on the surface | 12 N thrust (0.79 m/s), 0.3 s thrust lag, water drag |
+| Point masses (G5) | `lib/pointmass.lua` | holonomic, in 3D, touching nothing | the drone's three limits: 6 m/s, 6.87 m/s², 0.45 s lag (`lib/README.md`) |
 
 All four take the same command: reach a point by the next AP tick (5 Hz).
 Scale and law are shared: 6 cm per AP unit, spacing D = 3 m, 50 agents
@@ -45,6 +46,7 @@ From the launch cluster, no obstacles or goal, 180 s.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ideal particles | 31–38 | 1.00–1.01 | 0.000–0.037 | 0 | 0.0–1.5 | 0 | 0 |
 | quadcopters | 30–35 | 1.00–1.01 | 0.023–0.034 | 0.002–0.003 | 0.0–0.4 | 6 | 3–9 |
+| point masses | 32–39 | 1.00 | 0.001–0.026 | 0.0002–0.0003 | 0.0–1.1 | 0 | — |
 | ground robots | 106–175 | 1.00 | 0.021–0.023 | 0.06–0.15 | 3.0–9.0 | 0 | 5–11 |
 | *ground robots before F72 (wheels below 0.1 m/s stopped)* | 32 | 0.98–0.99 | 0.067–0.073 | 1.1 | 0 | 0 | 0–13 |
 | boats | 36–42 | 1.00–1.01 | 0.025–0.030 | 0.002–0.008 | 0.4–2.2 | 0 | 0–4 |
@@ -56,6 +58,7 @@ From the launch cluster, no obstacles or goal, 180 s.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | ideal particles | 72–116 | 0.99 | 0.061–0.074 | 0 | 0.0–2.2 | 0 | 0 |
 | quadcopters | 76–96 | 0.99–1.00 | 0.065–0.083 | 0.002–0.03 | 0.0–0.7 | 0 | 0 |
+| point masses | 79–129 | 0.99 | 0.074–0.083 | 0.0001–0.004 | 0.0–1.1 | 0 | — |
 | ground robots | 113–159 | 0.99–1.00 | 0.053–0.076 | 0.04–0.08 | 0.0–1.5 | 0 | 0 |
 | *ground robots before F72* | never | 0.89–0.90 | 0.189–0.205 | 1.1 | 0 | 0 | 0 |
 | boats | 78–98 | 0.99–1.00 | 0.057–0.065 | 0.003–0.017 | 0.0–1.1 | 0 | 0 |
@@ -78,6 +81,7 @@ crosses the field at 0.2 m/s, stopping in the clear 16 m beyond it
 | --- | --- | --- | --- | --- |
 | ideal particles | 591–666 | 98–100% / 96–98% | 688–763 | 98–100% / 98–100% |
 | quadcopters | 601–638 | 100% / 100% | 679–745 | 100% / 100% |
+| point masses | 582–662 | 98–100% / 94–100% | 689–743 | 100% / 100% |
 | ground robots | 590–673 | 98–100% / 98% | 632–666 | 98–100% / 98–100% |
 | *ground robots before F72* | never | 60–70% / 52–62% | never | 68–80% / 54–70% |
 | boats | 698–763 | 98–100% / 86–90% | 688–744 | 98–100% / 98–100% |
@@ -116,6 +120,21 @@ LJ launch (F59), before the field.
   adaptive friction (Eq. 13.23) and static friction (Eq. 13.25) do not get
   the Newtonian lattice to D (F66), and the adaptive speed cap (Eq. 13.24)
   has no collisions to prevent here. None is kept.
+
+## The point mass as a stand-in for the drones (G5)
+
+The point-mass vehicle (`lib/pointmass.lua`) has only the drone's three
+limits: its controller's 6 m/s, its tilt's 6.87 m/s² and the 0.45 s lag
+fitted to its response to AP's commands. It has no body, so it touches
+nothing and cannot be lost; "touches" is blank. In both tasks and both
+laws it lands inside the ideal particles' seed spread and next to the
+drones'. AP's commands are gentle enough that the three limits seldom
+bind. It costs a quarter to a half of the drones' wall time: 10–20 s
+against 42–48 s for task 1 (50 agents, one core each); 26 s against 93 s
+at 100 agents, where the drones lost 14 at the crowded launch and formed
+with 86 (42 s), the point masses with all 100 (52 s). At 100 the
+harness's all-pairs AP step is already a large share of the cost, so
+swarms well past 100 need work in the harness, not the vehicle.
 
 ## Open
 

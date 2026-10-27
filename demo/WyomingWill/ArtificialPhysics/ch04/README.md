@@ -345,8 +345,11 @@ about 0.3297 at 2.0. Ours, 10 seeds each (sd 0.0005–0.0010 in slope):
   V/6 within 0.6% up to V = 1.5 and at 0.3295 for V = 2 against the
   figure's ~0.3297. Fig. 4.22 (V = 1, 15,032 ticks, no Resample) says the
   same: 0.16256 in the book, 0.1646–0.1660 for the `.nlogo` (5 seeds).
-  The book's runs behave like `inward`; why, we cannot say without the
-  NetLogo 5 model they ran.
+  The book's runs behave like `inward`. `kt.nlogo` is the book's own
+  model (William's NetLogo 6 conversion; the converter changed only
+  `foreach` syntax, not `go-particles`), and its wall has no direction
+  test, so the book's figures came from another version of the code or
+  other settings; the book does not say which.
 - **V/6 is a good rule, not an exact law here.** The slope moves with
   the gas's density and temperature (`.nlogo`, V = 1, 3 seeds): N 500,
   1000, 2000 give 0.960, 1.027, 1.075 × V/6; T 0.001, 0.01, 0.04 give

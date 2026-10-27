@@ -354,7 +354,7 @@ the swarm before it has formed.
 **F47. η softens the lattice: smooth flight, but it gives under load** —
 2026-10-18, New. With η (power 1) the force's slope at D is F(D)/D: 0.0055
 per AP unit in 2D and 0.0085 in 3D, against LJ's c·p/D² = 0.024, so the
-lattice is a quarter to a third as stiff (the plain law has no slope at D,
+lattice is a quarter to a half as stiff (the plain law has no slope at D,
 only a step). Under the same load η therefore needs about four times LJ's
 strain. Crossing
 the default obstacle field after the moving goal (640 s, 2 seeds), η's
@@ -957,6 +957,25 @@ failures: a particle left beyond sensing range (1.3–1.7 D) never joins
 stays 0.72–0.75 D off (seed 1: a short edge row one place along its
 slots).
 
+**F87. A point mass with the drone's three limits stands in for the
+drones on the benchmark, at a quarter to a half of the cost** —
+2026-10-27, New. `lib/pointmass.lua`, `BENCHMARK.md`, `lib/README.md`,
+`probes/step_response.lua`. G5's point-mass vehicle has a top speed, a
+top acceleration and a first-order lag, and nothing else. Taken from the
+quadcopter: its controller's 6 m/s, its tilt limit's g tan 35° = 6.87
+m/s², and the lag that best fits its velocity response to AP's legs at
+1, 2 and 4 m/s, 0.45 s (RMS 6.5% of the commanded speed; the drone's
+t63 is 0.4–0.6 s after a ~0.15 s dead time a first-order lag cannot
+have). On both benchmark tasks and both laws (seeds 1–3) it lands inside
+the ideal particles' spread and next to the drones': LJ formed in 32–39 s
+(ideal 31–38, drones 30–35), Newtonian 79–129 s (72–116, 76–96);
+through the obstacle field in 582–662 s and 689–743 s (ideal 591–666 and
+688–763, drones 601–638 and 679–745). Wall time 10–20 s against the
+drones' 42–48 s for 50 agents, 26 s against 93 s for 100, where the
+harness's all-pairs AP step is already much of the cost. It has no body,
+so it says nothing about collisions: at 100 agents the drones lost 14 at
+the crowded launch, the point masses none.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1080,8 +1099,12 @@ book's value: 1.271, 1.256, 1.268 √T at N 30, 100, 300 (√T 0.1, 3 seeds,
 ±0.01), while the `.nlogo`'s stays at 1.34–1.37 at every N. So the
 book's runs behave like walls that leave outgoing particles alone, and
 its Fig. 4.24 like a lower density than 1000 (its scatter, r = 0.9996,
-also points to fewer particles); the NetLogo 5 model they ran is not
-here to say which. The Android app has the `.nlogo`'s wall and the same
+also points to fewer particles). `kt.nlogo` is the book's own model:
+William's NetLogo 6 conversion of the NetLogo 5 file, and the converter
+rewrote only syntax (`foreach`'s `?`); `go-particles`, with the wall
+rule, is the NetLogo 5 code unchanged. So the book's figures did not come
+from this code at 1000 particles; they came from another version of it
+or other settings, and the book does not say which. The Android app has the `.nlogo`'s wall and the same
 slopes (1.012, 1.024, 1.007 × V/6).
 
 ## 5. Our own errors, corrected

@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F86 so far), and
+  implementations, and our own mistakes once corrected (F1–F87 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -107,7 +107,7 @@ is updated at the end of every milestone.
 | `ch04/` | Ch. 4.1's perfect formations (`formation_perfect`) and Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04_perfect.lua`, `checks/ch04.lua`, `ch04/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | Table 11.1 on Maxim's simulator (`maxim/`, his C and environments; `maxim.lua`, an exact Lua copy; the counts behind the table) and the mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
-| `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
+| `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `pointmass.lua` (G5, the point mass with the drone's limits; `VEHICLE=lib.pointmass`), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
 | `Worlds.lua` | Viewer for the world generator's presets: the book's (1–4) and the five realistic ones (5–9: rural, suburban, city centre, industrial port, harbour town) |
 | `checks/` | One check per port and `run_all.sh`, which runs them all (`checks/README.md`) |
 
@@ -169,7 +169,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "8. Build order"` (2026-10-27: the break before "2. Shared groundwork" left a nearly empty page 20; §2 starts a page without it)
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"` (2026-10-27: §2 starts a page without a break; the end of §7 kept spilling one table row onto a page of its own, and a break before §7 avoids it; breaks act only on `##` headings)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
   and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
@@ -233,7 +233,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   ragged or lost drones, and were not kept (F53, F59).
   Adaptive friction, static friction and the adaptive speed cap do not
   help the drones (F51, F54, F55) and stay in `lib/ch13.lua` for M2. With
-  η the lattice is a quarter to a third as stiff as LJ's at D, so it
+  η the lattice is a quarter to a half as stiff as LJ's at D, so it
   compresses under the goal's pull.
 - **Ch. 2 in 3D (F57, F58):** a spring tetrahedron with unequal masses
   flips about its middle axis (the tennis-racket effect); several planets
@@ -408,6 +408,12 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        again), so its slope is 1–2.5% above V/6 and v̄ = 1.36√T; walls
        thermalising only incoming particles (`inward`, off by default)
        give the book's Fig. 4.23, and its Fig. 4.24 at N ≤ 300.
+     - **The point-mass vehicle, G5 (done,** `lib/pointmass.lua`,
+       `probes/step_response.lua`, F87): top speed, top acceleration and
+       lag as sliders, the drone's by default (6 m/s, 6.87 m/s², 0.45 s
+       fitted); on the benchmark it matches the drones at a quarter to a
+       third of the cost (`VEHICLE=lib.pointmass`). Past ~100 agents the
+       harness's all-pairs AP step, not the vehicle, is the cost.
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and

@@ -131,7 +131,7 @@ Most chapters need the same pieces. Build each once.
 | G2 | **RNG module (done, `lib/rng.lua`):** move the multiply-with-carry generator from `Uniform_Coverage.lua` into a shared module, use it in the formations and the quadcopter harness, add a seed setting (not `os.time()`), and keep the appendix check as a regression test | 4, 7, 11, 12, 15, 17, 18, 19, A |
 | G3 | **Headless batch runner (done, `lib/batch.py`):** seeds × configs, CSV out, 2 jobs in parallel, no drawing | 4, 6, 7, 9, 11, 12, 14, 15, 17, 18, 19 |
 | G4 | **Velocity commands** for the quad controller (fly this velocity, not this waypoint) | 4.4, 7, 11, 13, 17 |
-| G5 | **Point-mass vehicle with limits:** speed, acceleration and lag as parameters, for large swarms | 7, 11, 15, 17 |
+| G5 | **Point-mass vehicle with limits (done, `lib/pointmass.lua`):** speed, acceleration and lag as parameters, for large swarms; the drone's by default (F87) | 7, 11, 15, 17 |
 | G6 | **Scalar fields:** analytic functions, grids and diffusion, drawn as a ground texture or 3D slices | 1.5, 6, 8, 9, 10, 19 |
 | G7 | **Neighbour sensing model:** range and bearing noise, maximum range, token-ring staleness (120 ms × N), 1-bit/packet payload, a Maxelbot preset calibrated to Fig. 10.14 | 3.4, 6, 10, 11, 12, 15 |
 | G8 | **Rays:** line of sight between agents, and IR, sonar-ring and laser rangefinders (Bullet ray tests) | 5, 7, 9, 10, 11, 12, 13, 14 |

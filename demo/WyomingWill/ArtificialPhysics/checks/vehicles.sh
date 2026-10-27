@@ -4,7 +4,8 @@
 #   1. every vehicle module provides what lib/swarm.lua's header lists;
 #   2. each physical vehicle meets its specification
 #      (checks/vehicle_physics.lua: speed and turn caps, small moves at
-#      the minimum speed, floating, righting);
+#      the minimum speed, floating, righting; the point mass's speed,
+#      acceleration and lag);
 #   3. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length
@@ -24,7 +25,7 @@ T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 fail=0
 
 # 1. the interface
-VEHICLES="quadcopter.vehicle lib.ideal ground.vehicle boat.vehicle"
+VEHICLES="quadcopter.vehicle lib.ideal lib.pointmass ground.vehicle boat.vehicle"
 "$BPP" -n 1 -l "
 local need = { 'name', 'noun', 'moving', 'floorY', 'planeY', 'new', 'remove', 'setColor', 'sync',
                'guide', 'join', 'command', 'hold', 'step' }
@@ -43,7 +44,7 @@ grep -q "^FAIL" "$T/iface.txt" && fail=1
 [ "$(grep -c '^ok' "$T/iface.txt")" = "$(echo $VEHICLES | wc -w)" ] || { [ $fail = 1 ] || { echo "FAIL vehicles: interface check did not run"; tail -3 "$T/iface.txt"; }; fail=1; }
 
 # 2. each vehicle against its specification
-for vv in ground:1300 boat:1600; do
+for vv in ground:1300 boat:1600 pointmass:500; do
   VEH=${vv%:*} "$BPP" -f checks/vehicle_physics.lua -n ${vv#*:} > "$T/phys.txt" 2>&1
   grep -E "^(ok|FAIL)" "$T/phys.txt"
   grep -q "^PASS" "$T/phys.txt" || { fail=1; grep -q "^FAIL" "$T/phys.txt" || { echo "FAIL vehicles: vehicle_physics ${vv%:*} did not finish"; tail -3 "$T/phys.txt"; }; }

@@ -21,6 +21,7 @@ script's folder on the Lua path. They also run in plain `lua5.1`.
 | `ch13.lua` | — | Ch. 13's motion-control mechanisms, one function each: AR damping η and the stop rule so far |
 | `swarm.lua` | G18 | The formation harness for every vehicle: the AP force laws, goal and obstacle field, metrics, status line, camera, keys; each agent a vehicle behind one interface |
 | `ideal.lua` | G18 | The ideal vehicle: perfect tracking, i.e. the original particle, as a reference for every vehicle |
+| `pointmass.lua` | G5 | The point-mass vehicle with limits: top speed, top acceleration and a lag, the drone's by default; a cheap stand-in for vehicles in large swarms |
 | `laws.lua` | G18 | The split Newtonian and Lennard-Jones laws with their defaults, shared by every vehicle's scenes |
 
 ## `rng.lua`
@@ -478,7 +479,8 @@ Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..
 - **Vehicles so far:** the quadcopter (`quadcopter/vehicle.lua`, the
   default; it was built into the harness until M2, and its results are bit
   for bit what they were), the ideal vehicle (`ideal.lua`), the ground
-  robot (`ground/vehicle.lua`) and the surface boat (`boat/vehicle.lua`).
+  robot (`ground/vehicle.lua`), the surface boat (`boat/vehicle.lua`) and
+  the point mass (`pointmass.lua`, G5).
 - **`laws.lua`** holds the two laws as configurations, so every vehicle's
   scene runs the same law with the same settings (the cross-vehicle
   benchmark's premise): `local cfg = require("lib.laws").newtonian()`,
@@ -494,7 +496,19 @@ Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..
   `python3 lib/batch.py Formations-Lennard-Jones-Quadcopter.lua --env VEHICLE=lib.ideal --env DIM=2 ...`.
   The ideal LJ 2D triangle forms (50 particles, compact launch) in 37–38 s
   at 1.00–1.01 D (seeds 1–2), the drones' in 30–35 s.
+- **`VEHICLE=lib.pointmass`** runs any scene on the point-mass vehicle
+  (G5): no body, three limits as sliders, `pmSpeed` (m/s), `pmAccel`
+  (m/s²) and `pmLag` (s, the time constant of its velocity's response to
+  the leg's velocity (w − p)/T). The defaults are the quadcopter's: its
+  controller's horizontal limit (6 m/s, `vMaxH`), its 35° tilt (g tan 35°
+  = 6.87 m/s²), and the lag that best fits its velocity response when AP
+  asks for 1, 2 and 4 m/s (0.45 s; RMS 6.5% of the commanded speed,
+  0.40–0.55 s all fit within 7%; the rest is the drone's ~0.15 s dead
+  time). With `pmLag` 0 and the caps out of reach it is the ideal
+  vehicle. On the benchmark it matches the drones and the ideal particles
+  at a quarter to a half of the drones' cost (`BENCHMARK.md`, F87).
 - `quadcopter/swarm.lua` is kept as a one-line alias, so `require
   "quadcopter.swarm"` still works.
-- `checks/vehicles.sh`: every vehicle module has the whole interface, and
-  the ideal vehicle forms the LJ triangle at D.
+- `checks/vehicles.sh`: every vehicle module has the whole interface, the
+  point mass meets its three limits, and the ideal vehicle forms the LJ
+  triangle at D.

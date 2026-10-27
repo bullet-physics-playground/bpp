@@ -20,15 +20,28 @@
 --     righting  started heeled 20 deg: upright within 1 deg after 4 s
 --     sideways  told to go 90 deg to the side: moves that way (> 3 m in
 --               10 s) without turning (yaw < 2 deg) or drifting (< 5 cm)
+--   VEH=pointmass  lib/pointmass.lua (G5) at its defaults, the drone's:
+--     speed     told to go 100 m in 10 s: top speed pmSpeed = 6 m/s
+--               (5.99-6.0)
+--     accel     the same, from rest: peak acceleration pmAccel = 6.87
+--               m/s^2 (within 0.5%)
+--     lag       told to move at 1 m/s (the cap not reached): 63% of it
+--               after pmLag = 0.45 s (within a step)
+--     ideal     pmLag 0 and caps out of reach: a 0.2 s leg ends at its
+--               point (within 1e-9 m) and stops there, as lib/ideal.lua
+--     hold      moving at 2 m/s, then D: the speed decays with its lag,
+--               below 1 mm/s after pmLag ln(2000) = 3.42 s (within 1%),
+--               braking no harder than pmAccel
 --
 -- Run from the ArtificialPhysics folder, inside BPP:
 --   VEH=ground bpp -f checks/vehicle_physics.lua -n 1300
 --   VEH=boat   bpp -f checks/vehicle_physics.lua -n 1600
+--   VEH=pointmass bpp -f checks/vehicle_physics.lua -n 500
 -- Prints ok/FAIL lines and ends with PASS or FAIL.
 --
 local common = require "common"
 local which = os.getenv("VEH") or "ground"
-local V = require(which .. ".vehicle")
+local V = require(which == "pointmass" and "lib.pointmass" or which .. ".vehicle")
 
 local DT = 1 / 250
 local STEPS = 8                       -- per frame, as lib/swarm.lua
@@ -74,6 +87,38 @@ if which == "ground" then
     { name = "small", secs = 5, start = function(d, s) s.x0 = d.px; V.command(d, d.px + 0.04, Y0, d.pz, 1, t) end,
       finish = function(d, s) check("small", math.abs(d.px - s.x0 - 0.04) < 0.01,
         string.format("moved %.4f m of 0.04 (at the 0.1 m/s minimum)", d.px - s.x0)) end },
+  }
+elseif which == "pointmass" then
+  local SPD, ACC, LAG = V.limits()
+  local function speed(d) return math.sqrt(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz) end
+  tests = {
+    { name = "speed", secs = 5, start = function(d, s) s.vmax = 0; V.command(d, d.px + 100, Y0, d.pz, 10, t) end,
+      during = function(d, s) s.vmax = math.max(s.vmax, speed(d)) end,
+      finish = function(d, s) check("speed", s.vmax >= 5.99 and s.vmax <= SPD + 1e-9,
+        string.format("top speed %.4f m/s (pmSpeed %.2f)", s.vmax, SPD)) end },
+    { name = "accel", secs = 2, start = function(d, s) s.amax, s.v0 = 0, 0; V.command(d, d.px + 100, Y0, d.pz, 10, t) end,
+      during = function(d, s) local sp = speed(d); s.amax = math.max(s.amax, (sp - s.v0) / DT); s.v0 = sp end,
+      finish = function(d, s) check("accel", math.abs(s.amax / ACC - 1) < 0.005,
+        string.format("peak acceleration %.3f m/s^2 (pmAccel %.2f)", s.amax, ACC)) end },
+    { name = "lag", secs = 3, start = function(d, s) s.t0 = t; V.command(d, d.px + 10, Y0, d.pz, 10, t) end,
+      during = function(d, s) if not s.t63 and d.vx >= 0.632 then s.t63 = t + DT - s.t0 end end,
+      finish = function(d, s) check("lag", s.t63 and math.abs(s.t63 - LAG) <= DT,
+        string.format("63%% of 1 m/s after %.3f s (pmLag %.2f)", s.t63 or -1, LAG)) end },
+    { name = "ideal", secs = 1, start = function(d, s)
+        V.limits(1e9, 1e9, 0)
+        s.wx, s.wz = d.px + 0.3, d.pz - 0.1
+        V.command(d, s.wx, Y0, s.wz, 0.2, t) end,
+      finish = function(d, s)
+        local e = math.sqrt((d.px - s.wx) ^ 2 + (d.pz - s.wz) ^ 2)
+        check("ideal", e < 1e-9 and speed(d) == 0,
+          string.format("%.1e m from the leg's end, speed %.1e m/s (pmLag 0, no caps)", e, speed(d)))
+        V.limits(SPD, ACC, LAG) end },
+    { name = "hold", secs = 4, start = function(d, s) d.vx, s.v0, s.amax = 2, 2, 0; V.hold(d); s.t0 = t end,
+      during = function(d, s) local sp = speed(d); s.amax = math.max(s.amax, (s.v0 - sp) / DT); s.v0 = sp
+        if not s.tStop and sp < 0.001 then s.tStop = t + DT - s.t0 end end,
+      finish = function(d, s) local want = LAG * math.log(2 / 0.001)
+        check("hold", s.tStop and math.abs(s.tStop / want - 1) < 0.01 and s.amax <= ACC * 1.0001,
+        string.format("below 1 mm/s from 2 m/s after %.3f s (pmLag ln 2000 = %.3f), braking at most %.2f m/s^2", s.tStop or -1, want, s.amax)) end },
   }
 else
   tests = {

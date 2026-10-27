@@ -9,7 +9,8 @@
 #     the goal switching on after 20 s and crossing it at 0.2 m/s), 30000
 #     frames (~960 s).
 # Vehicles: ideal (VEHICLE=lib.ideal on the quadcopter scene: perfect
-# tracking, the original particles), Quadcopter, Ground, Boat; laws
+# tracking, the original particles), Quadcopter, Ground, Boat, pointmass
+# (VEHICLE=lib.pointmass on the quadcopter scene: the drone's limits); laws
 # Lennard-Jones and Newtonian; seeds 1-3 (SEEDS= to change).
 #
 # Run from the ArtificialPhysics folder; writes OUT/task1-LAW-VEH.csv and
@@ -19,7 +20,7 @@
 #   bash probes/benchmark.sh out "Ground Boat" Newtonian 1
 set -u
 cd "$(dirname "$0")/.." || exit 1
-OUT=${1:-benchmark-out}; VEHS=${2:-"ideal Quadcopter Ground Boat"}
+OUT=${1:-benchmark-out}; VEHS=${2:-"ideal Quadcopter Ground Boat pointmass"}
 LAWS=${3:-"Lennard-Jones Newtonian"}; TASKS=${4:-"1 2"}; SEEDS=${SEEDS:-1-3}
 mkdir -p "$OUT"
 for task in $TASKS; do
@@ -27,6 +28,7 @@ for task in $TASKS; do
     for law in $LAWS; do
       env=(); scene=$veh
       [ "$veh" = ideal ] && { env=(--env VEHICLE=lib.ideal); scene=Quadcopter; }
+      [ "$veh" = pointmass ] && { env=(--env VEHICLE=lib.pointmass); scene=Quadcopter; }
       if [ "$task" = 1 ]; then
         args=(--set obstacleField=false --set goalDelay=0 --frames 5600)
       else
