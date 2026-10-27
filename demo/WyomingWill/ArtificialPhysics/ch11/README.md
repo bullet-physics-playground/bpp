@@ -24,6 +24,7 @@ floor(0.6 × cell size) steps; KL = Σ p_i ln(p_i C) over the C cells.
 | `wedge.lua` | Finds the step at which the robot gets stuck on a wall (below) |
 | `maxim_fixed.diff`, `c_reference_fixed.txt` | His C with F81's fix and a seed argument (`./coverage_sim config.ini env.ini F SEED`), used for the mean free path sweep; a short run of it, the check's reference |
 | `mfp_sweep.lua`, `mfp_sweep_counts.txt` | The mean free path sweep on all 12 environments (below) and its counts |
+| `plot_mfp_sweep.py`, `environments.png`, `mfp_sweep.png` | The figures: the 12 environments' walls and cells at cell size 20, and each one's KL against f after 4 × 10⁷ and 1.6 × 10⁸ steps (`python3 ch11/plot_mfp_sweep.py`, matplotlib) |
 | `../checks/ch11.lua` | 20 tests, 6 s |
 
 **Stopping rule** (William: one seed, starting at the text's 40 million
@@ -183,6 +184,10 @@ argument (`maxim_fixed.diff`; the Lua copy with `fixed = true` matches it,
 `checks/ch11.lua`), 1.6 × 10⁸ steps (the 3x3: every turn length 1–80, 3.2
 × 10⁸ steps). `mfp_sweep.lua` prints the tables from
 `mfp_sweep_counts.txt`; f = turn length / 20.
+
+![Maxim's 12 environments](environments.png)
+
+![KL against the mean free path, all 12 environments](mfp_sweep.png)
 
 KL at the end of each run (`lua5.4 ch11/mfp_sweep.lua`; the book's target
 for simulation is 0.001):
