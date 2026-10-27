@@ -291,6 +291,7 @@ V 1.0, T 0.010.
 | `couette1.c` | The same model in C, about 200 times faster, for the long runs: the same random numbers in the same order, so the same numbers to the last bit (checked on Lua 5.1, 5.2, 5.3 and 5.4) |
 | `couette1_reference.txt` | Two short runs of the C, which the check repeats in Lua |
 | `../checks/ch04_couette.lua` | 9 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
+| `Couette-Vehicles.lua` | The model flown by vehicles through velocity commands (G4; below), on any vehicle with `velocity()` |
 
 **Where the book's text is silent, the `.nlogo` decides:** a world of
 patches −42…42 that wraps in x and y; the walls are the three patch
@@ -410,8 +411,62 @@ continuous; every particle is binned, ±42 included. With all five in our
 C (5 seeds) its slopes are 1.012, 1.024 and 1.007 × V/6 at V = 0.5, 1
 and 2, the `.nlogo`'s: it has the same wall, and the same heating.
 
+### Couette flow on vehicles (G4, FINDINGS F88, F89)
+
+`Couette-Vehicles.lua` runs `kt.nlogo`'s step on vehicles through
+velocity commands (`velocity()`, G4): every KT tick (5 Hz) it senses the
+vehicles' actual positions and velocities, records the profile of the
+actual velocities, runs one tick of collisions and walls
+(`couette.lua`'s `collide`) and commands each vehicle its new velocity.
+The world is the model's (85 × 85 units, 1 unit = 0.5 m, so V = 1 is
+2.5 m/s and the collision range 1 m), wrapping along the corridor. KT
+keeps its own velocities, the ones it commanded, as the formation
+harness keeps AP's and Kerr's robots carry theirs; `senseVelocity`
+collides the sensed ones instead. V 1, T 0.01, `.nlogo` walls, 10,000
+ticks with Resample at 5,000; "lag" is the mean |actual − commanded|
+velocity at sensing over the mean commanded speed.
+
+| Vehicles | N | Slope / (V/6) | corr | Mean speed / √T | Lag | Wall overshoots / 1000 ticks |
+| --- | --- | --- | --- | --- | --- | --- |
+| ideal (2 seeds) | 100 | 0.911, 0.940 | 0.9994 | 8.04–8.07 | 0 | 0 |
+| point mass, the drone's limits (2 seeds) | 100 | 0.957, 0.916 | 0.9986–0.9992 | 8.19–8.27 | 0.12 | 5–6 |
+| point mass, lag 0.6 / 0.9 / 1.5 s | 100 | 0.952 / 0.911 / 0.768 | 0.996 / 0.991 / 0.938 | 8.3–8.7 | 0.14–0.18 | 12 / 39 / 72 |
+| quadcopters (2 seeds) | 100 | 0.208, 0.184 | 0.90–0.96 | 1.44–1.81 | 0.72–0.75 | 11–16 |
+| ideal | 1000 | 1.023 | 0.9988 | 8.34 | 0 | 0 |
+| point mass, lag 0.1 / 0.45 / 0.9 s | 1000 | 1.019 / 1.022 / 1.041 | 0.9976–0.9988 | 8.27–8.31 | 0.11 / 0.27 / 0.35 | 0 / 0.1 / 3.6 |
+| point mass, sensed velocities | 1000 | 0.002 | 0.49 | 0.04 | — | 0 |
+| point mass, sensed velocities (2 seeds) | 100 | 0.04, 0.08 | 0.68–0.86 | 0.81–0.82 | — | 0 |
+
+- **The ideal vehicle is the model:** through the whole sense → collide
+  → command loop it gives `couette1.c`'s 1.02 × V/6 at N 1000; at N 100
+  the slope is 0.91–0.94 (F86: it falls with density).
+- **Lag does not break the profile** while KT keeps its own velocities.
+  At N 1000 a vehicle collides about every 0.25 s, yet point masses with
+  lags of 0.1, 0.45 and 0.9 s keep the slope (1.02–1.04) and the gas's
+  energy; at N 100 it holds to 0.9 s and weakens at 1.5 s (0.77), where
+  vehicles overshoot the walls 72 times per 1000 ticks. Lag moves the
+  vehicles late; it does not act like extra viscosity, as `BOOK.md` §5
+  guessed.
+- **Colliding the sensed velocities freezes the gas.** A vehicle sensed
+  part-way to the velocity its last collision gave it takes that mix
+  into the next collision, which loses energy as an inelastic collision
+  does: the mean speed falls to 0.04–0.8 √T, vehicles stop reaching the
+  walls and the profile is gone (0.002–0.08). So a robot must carry its
+  KT velocity as state, not measure it.
+- **The drones crash into each other.** Their velocity-mode response is
+  only a little slower than with waypoints (t63 0.6–0.7 s), and a point
+  mass with even more lag keeps the profile; but KT's collisions are
+  virtual, nothing keeps two airframes apart, and 40 of 100 drones were
+  down by 300 s (seed 1, 1500 ticks), each failing with a neighbour 0.16–
+  0.53 m away. Down drones answer no command, which is the 0.72–0.75
+  "lag" and the lost profile. Kerr's robots had low-level routines that
+  prevented real collisions (his thesis, pp. 47–48, `book/theses/Kerr.md`);
+  KT on drones needs one too. Which (a short-range repulsion under the
+  KT command, or a larger virtual collision range) is the next decision.
+
 ### Not done
 
-Couette flow on vehicles (the point-mass vehicle, G5, then the drones,
-with velocity commands, G4) is the next step of M3. ★ 3D (a slab between
-two planes) is open.
+Collision avoidance under KT for the drones (above); the boats (they
+have `velocity()`; at 0.79 m/s the model's V must be scaled down) and the
+ground robots (no `velocity()` yet). ★ 3D (a slab between two planes) is
+open.

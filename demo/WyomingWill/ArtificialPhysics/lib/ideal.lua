@@ -4,7 +4,8 @@
 --
 -- It goes exactly where AP sends it: given command(d, w, T) at time t0 it
 -- moves along the straight line from where it is to w, arriving at
--- t0 + T, and stays there, so at every AP tick AP senses the position it
+-- t0 + T, and stays there (given velocity(d, v), G4, it moves at v until
+-- the next command), so at every AP tick AP senses the position it
 -- commanded and the formation is the original particle demo's. It has no
 -- mass, no limits and no lag, and touches nothing (a sphere drawn at its
 -- position, out of every collision group: particles in the originals
@@ -49,6 +50,7 @@ function V.setColor(d, col) d.obj.col = col end
 function V.sync(d) d.obj.pos = btVector3(d.px, d.py, d.pz) end
 
 local function rest(d)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = d.px, d.py, d.pz
   d.sx, d.sy, d.sz, d.trT = d.px, d.py, d.pz, 0
   d.vx, d.vy, d.vz = 0, 0, 0
@@ -58,15 +60,24 @@ function V.join(d, simTime) rest(d) end
 function V.hold(d) rest(d) end
 
 function V.command(d, wx, wy, wz, T, simTime)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = wx, wy, wz
   d.sx, d.sy, d.sz = d.px, d.py, d.pz
   d.t0, d.trT = simTime, T
   d.vx, d.vy, d.vz = (wx - d.px) / T, (wy - d.py) / T, (wz - d.pz) / T
 end
 
+-- G4: fly the velocity (vx, vy, vz) (m/s) until the next command
+function V.velocity(d, vx, vy, vz, simTime)
+  d.velMode, d.trT = true, 0
+  d.vx, d.vy, d.vz = vx, vy, vz
+end
+
 function V.guide(d, st, simTime, dt)
   if st == "takeoff" then
     d.ready = true
+  elseif st == "ap" and d.velMode then
+    d.px, d.py, d.pz = d.px + d.vx * dt, d.py + d.vy * dt, d.pz + d.vz * dt
   elseif st == "ap" and d.trT > 0 then
     local u = simTime + dt - d.t0          -- where it is at the end of this step
     if u >= d.trT then

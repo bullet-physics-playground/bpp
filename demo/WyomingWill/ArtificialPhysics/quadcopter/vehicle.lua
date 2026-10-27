@@ -13,6 +13,10 @@
 --            sp = start + vf (t - t0) with velocity feed-forward
 --            vf = (w - start) / T (m/s), then it holds w. Its PX4-style
 --            flight controller (quadcopter/flight.lua) flies it.
+--   VELOCITY velocity(d, vx, vy, vz, t) (G4): fly this velocity (m/s)
+--            until the next command, as PX4's velocity mode: the position
+--            setpoint follows the drone (no position error), the
+--            feed-forward is the velocity. Height is the caller's to hold.
 --   DEPLOY   takeoff: straight up at CLIMB_RATE (1.5 m/s) to its starting
 --            altitude; ready (d.ready) once within 0.3 m of it and slower
 --            than 0.3 m/s vertically.
@@ -84,6 +88,7 @@ V.step     = Quad.step
 
 -- hand over to AP: hold where it is until the first command
 function V.join(d, simTime)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = d.px, d.py, d.pz
   d.t0, d.trT, d.sx, d.sy, d.sz = simTime, 1e9, d.px, d.py, d.pz
   d.vfx, d.vfy, d.vfz = 0, 0, 0
@@ -91,14 +96,22 @@ end
 
 -- AP's command: reach (wx, wy, wz) in T s, by a straight-line trajectory
 function V.command(d, wx, wy, wz, T, simTime)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = wx, wy, wz
   d.t0, d.trT = simTime, T
   d.sx, d.sy, d.sz = d.px, d.py, d.pz
   d.vfx, d.vfy, d.vfz = (wx - d.px) / T, (wy - d.py) / T, (wz - d.pz) / T
 end
 
+-- G4: fly this velocity until the next command
+function V.velocity(d, vx, vy, vz, simTime)
+  d.velMode = true
+  d.vfx, d.vfy, d.vfz = vx, vy, vz
+end
+
 -- D: position hold where it is
 function V.hold(d)
+  d.velMode = false
   d.spx, d.spy, d.spz, d.vfx, d.vfy, d.vfz = d.px, d.py, d.pz, 0, 0, 0
 end
 
@@ -119,6 +132,8 @@ function V.guide(d, st, simTime, dt)
       d.vfy = 0
       d.ready = math.abs(d.py - d.toAlt) < 0.3 and math.abs(d.vy) < 0.3
     end
+  elseif st == "ap" and d.velMode then
+    d.spx, d.spy, d.spz = d.px, d.py, d.pz        -- velocity mode: no position error
   elseif st == "ap" then
     -- follow the current AP leg: sp = start + vff * (t - t0), until the waypoint
     local u = simTime - d.t0

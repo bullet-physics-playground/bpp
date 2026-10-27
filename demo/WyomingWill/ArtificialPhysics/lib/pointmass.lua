@@ -18,6 +18,8 @@
 --            p = p + v dt
 --          With pmLag 0 and both caps out of reach it is the ideal
 --          vehicle (lib/ideal.lua): v = u for the leg, so it arrives at w.
+-- VELOCITY velocity(d, v, t) (G4): the desired velocity is v (m/s) until
+--          the next command, with the same lag and caps.
 -- HOLD     D: the desired velocity is 0; it brakes at pmAccel.
 -- DEPLOY   placed at its starting height on Setup, ready at once.
 -- Nothing touches it (particles in the originals overlap freely), so
@@ -96,6 +98,12 @@ function V.command(d, wx, wy, wz, T, simTime)
   readLimits()
   d.ux, d.uy, d.uz = (wx - d.px) / T, (wy - d.py) / T, (wz - d.pz) / T
   d.legLeft = T
+end
+
+function V.velocity(d, vx, vy, vz, simTime)
+  readLimits()
+  d.ux, d.uy, d.uz = vx, vy, vz
+  d.legLeft = math.huge
 end
 
 -- one step of the motion (also used by checks): dt in s

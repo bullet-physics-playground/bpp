@@ -507,6 +507,16 @@ Swarm.run({ title = "AP: Newtonian -- quadcopters", sepParam = "rad", force = ..
   time). With `pmLag` 0 and the caps out of reach it is the ideal
   vehicle. On the benchmark it matches the drones and the ideal particles
   at a quarter to a half of the drones' cost (`BENCHMARK.md`, F87).
+- **Velocity commands (G4):** a vehicle may also have `velocity(d, vx,
+  vy, vz, t)`: fly this velocity (m/s) until the next command, for
+  controllers that decide velocities, not points (kinetic theory). The
+  ideal vehicle moves at it exactly; the point mass follows it with its
+  lag and caps; the quadcopter flies it as PX4's velocity mode (the
+  position setpoint follows the drone, so nothing pulls it back to a
+  point; height is the caller's to hold); the boat sails it. The ground
+  robot does not have it yet. `checks/velocity.lua` (run by
+  `checks/vehicles.sh`) checks that each flies it and stops on 0;
+  `ch04/Couette-Vehicles.lua` uses it.
 - `quadcopter/swarm.lua` is kept as a one-line alias, so `require
   "quadcopter.swarm"` still works.
 - `checks/vehicles.sh`: every vehicle module has the whole interface, the

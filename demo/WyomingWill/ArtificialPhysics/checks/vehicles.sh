@@ -6,6 +6,8 @@
 #      (checks/vehicle_physics.lua: speed and turn caps, small moves at
 #      the minimum speed, floating, righting; the point mass's speed,
 #      acceleration and lag);
+#   2b. the vehicles with velocity() (G4) fly a commanded velocity and
+#      stop on velocity 0 (checks/velocity.lua);
 #   3. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length
@@ -48,6 +50,13 @@ for vv in ground:1300 boat:1600 pointmass:500; do
   VEH=${vv%:*} "$BPP" -f checks/vehicle_physics.lua -n ${vv#*:} > "$T/phys.txt" 2>&1
   grep -E "^(ok|FAIL)" "$T/phys.txt"
   grep -q "^PASS" "$T/phys.txt" || { fail=1; grep -q "^FAIL" "$T/phys.txt" || { echo "FAIL vehicles: vehicle_physics ${vv%:*} did not finish"; tail -3 "$T/phys.txt"; }; }
+done
+
+# 2b. velocity commands (G4): each vehicle with velocity() flies it
+for vv in lib.ideal:700 lib.pointmass:700 boat.vehicle:700 quadcopter.vehicle:1100; do
+  VMOD=${vv%:*} "$BPP" -f checks/velocity.lua -n ${vv#*:} > "$T/vel.txt" 2>&1
+  grep -E "^(ok|FAIL)" "$T/vel.txt"
+  grep -q "^PASS" "$T/vel.txt" || { fail=1; grep -q "^FAIL" "$T/vel.txt" || { echo "FAIL vehicles: velocity ${vv%:*} did not finish"; tail -3 "$T/vel.txt"; }; }
 done
 
 # 3. the ideal vehicle forms the LJ lattice

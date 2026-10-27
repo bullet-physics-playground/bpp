@@ -36,6 +36,11 @@
 --   join(d, t)           hand over to AP: hold where it is
 --   command(d, wx, wy, wz, T, t)   AP's output: reach the point w (m) in
 --                        T s, i.e. the desired velocity (w - p) / T
+--   velocity(d, vx, vy, vz, t)  optional (G4): fly this velocity (m/s)
+--                        until the next command or velocity (kinetic
+--                        theory's output; ch04/Couette-Vehicles.lua).
+--                        The ideal vehicle, the point mass, the
+--                        quadcopter and the boat have it
 --   hold(d)              D: stop and hold where it is
 --   land(d)              [: start leaving (nil if the vehicle cannot)
 --   step(d, dt)          its controller and forces, before each Bullet step

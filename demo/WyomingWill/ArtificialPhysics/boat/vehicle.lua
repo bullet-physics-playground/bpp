@@ -110,6 +110,7 @@ function V.setColor(d, col) d.obj.col = col end
 function V.sync(d) end
 
 local function rest(d)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = d.px, d.py, d.pz
   d.sx, d.sz, d.vfx, d.vfz, d.trT = d.px, d.pz, 0, 0, 0
 end
@@ -117,10 +118,18 @@ function V.join(d, simTime) rest(d) end
 function V.hold(d) rest(d) end
 
 function V.command(d, wx, wy, wz, T, simTime)
+  d.velMode = false
   d.wpx, d.wpy, d.wpz = wx, wy, wz
   d.sx, d.sz = d.px, d.pz
   d.t0, d.trT = simTime, T
   d.vfx, d.vfz = (wx - d.px) / T, (wz - d.pz) / T
+end
+
+-- G4: sail at the horizontal velocity (vx, vz) (m/s) until the next
+-- command: u_d = v, with no pull back onto a leg (vy is ignored)
+function V.velocity(d, vx, vy, vz, simTime)
+  d.velMode = true
+  d.vfx, d.vfz = vx, vz
 end
 
 local function drag(vx, vz)      -- horizontal water drag on velocity (vx, vz), N
@@ -135,7 +144,9 @@ function V.guide(d, st, simTime, dt)
   if st ~= "ap" and st ~= "hold" then d.cx, d.cz = 0, 0; return end
   local spx, spz, vfx, vfz = d.wpx, d.wpz, 0, 0
   local u_ = simTime - d.t0
-  if d.trT > 0 and u_ < d.trT then
+  if d.velMode then
+    spx, spz, vfx, vfz = d.px, d.pz, d.vfx, d.vfz
+  elseif d.trT > 0 and u_ < d.trT then
     spx, spz, vfx, vfz = d.sx + d.vfx * u_, d.sz + d.vfz * u_, d.vfx, d.vfz
   end
   local ux, uz = vfx + P.kPos * (spx - d.px), vfz + P.kPos * (spz - d.pz)

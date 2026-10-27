@@ -976,6 +976,31 @@ harness's all-pairs AP step is already much of the cost. It has no body,
 so it says nothing about collisions: at 100 agents the drones lost 14 at
 the crowded launch, the point masses none.
 
+**F88. Couette flow survives the vehicles' lag if kinetic theory keeps
+its own velocities; colliding the sensed ones freezes the gas** —
+2026-10-27, New. `ch04/README.md`, `ch04/Couette-Vehicles.lua`. The
+model run on vehicles through velocity commands (G4), KT sensing actual
+positions each 5 Hz tick. With KT's own (commanded) velocities in the
+collisions, point masses with lags of 0.1–0.9 s keep the slope at N 1000
+(1.02–1.04 × V/6, ideal 1.02), although a vehicle collides about every
+0.25 s; at N 100 to 0.9 s (0.91–0.96, ideal 0.91–0.94), weaker at 1.5 s
+(0.77). With the sensed velocities in the collisions, a lagging vehicle
+takes a mix of its old and new velocity into the next collision, which
+loses energy like an inelastic collision: the gas freezes (mean speed
+0.04 √T at N 1000) and the profile is gone (0.002). A robot must carry
+its KT velocity as state, as Kerr's did, not measure it; and lag is not
+the "extra viscosity" `BOOK.md` §5 guessed.
+
+**F89. Kinetic theory on drones needs collision avoidance underneath** —
+2026-10-27, New. `ch04/README.md`. On 100 quadcopters (velocity mode,
+t63 0.6–0.7 s) the profile collapses to 0.18–0.21 × V/6, because the
+drones fly into each other: KT's collisions are virtual and nothing keeps
+two airframes apart; 40 of 100 were down by 300 s, each with a neighbour
+0.16–0.53 m away when it failed. The point masses, which touch nothing,
+keep the profile with more lag than the drones have, so the loss is the
+collisions, not the lag. Kerr's robots had low-level routines that
+prevented real collisions (thesis pp. 47–48). Which one to add is open.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1104,7 +1129,13 @@ William's NetLogo 6 conversion of the NetLogo 5 file, and the converter
 rewrote only syntax (`foreach`'s `?`); `go-particles`, with the wall
 rule, is the NetLogo 5 code unchanged. So the book's figures did not come
 from this code at 1000 particles; they came from another version of it
-or other settings, and the book does not say which. The Android app has the `.nlogo`'s wall and the same
+or other settings, and the book does not say which. Kerr's thesis
+(2005; `book/theses/Kerr.md`, its pp. 38, 43), the KT code behind the
+chapter, takes the wall from Garcia's DSMC simulation: a particle is
+thermalised "when a step would cross a wall", once per contact and only
+while it moves into the wall, which is `inward`; `kt.nlogo`'s "within 1
+of a wall patch" re-draws it every tick it stays near. So the book's
+figures fit Kerr's rule (to check against the thesis itself). The Android app has the `.nlogo`'s wall and the same
 slopes (1.012, 1.024, 1.007 × V/6).
 
 ## 5. Our own errors, corrected

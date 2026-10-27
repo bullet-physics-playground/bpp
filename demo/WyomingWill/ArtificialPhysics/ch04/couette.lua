@@ -161,64 +161,76 @@ function M.monitor(m)
   m.sample = m.sample + 1
 end
 
-function M.run(m, ticks)
-  local s, n, T, V, inward, split = m.s, m.n, m.T, m.V, m.inward, m.split
-  local X, Y, VX, VY, SP, order = m.x, m.y, m.vx, m.vy, m.v, m.order
+-- 1. one tick's collisions and walls, the particles one at a time in a
+-- new random order: every velocity in m.vx, m.vy is updated from the
+-- positions m.x, m.y, which do not change here. M.run uses it each tick;
+-- ch04/Couette-Vehicles.lua (G4) calls it on the vehicles' sensed
+-- positions and KT's own velocities, then commands the new velocities.
+function M.collide(m)
+  local s, n, T, V, inward = m.s, m.n, m.T, m.V, m.inward
+  local X, Y, VX, VY, order = m.x, m.y, m.vx, m.vy, m.order
   local s2T, sT = sqrt(2 * T), sqrt(T)
-  local cellOf, grid, near = {}, {}, {}
-  for _ = 1, ticks do
-    -- positions do not change while the particles collide, so the
-    -- neighbours within 2 are found once per tick (a torus grid)
-    for k = 0, NC * NC - 1 do grid[k] = nil end
-    for i = 1, n do
-      local k = floor((X[i] + MAX + 0.5) / CW) % NC + NC * (floor((Y[i] + MAX + 0.5) / CW) % NC)
-      cellOf[i] = k
-      local l = grid[k]; if not l then l = {}; grid[k] = l end
-      l[#l + 1] = i
-    end
-    for i = n, 2, -1 do local j = s:random(i); order[i], order[j] = order[j], order[i] end
-    for q = 1, n do
-      local i = order[q]
-      local x, y = X[i], Y[i]
-      -- a. collision with one of the particles within 2
-      local k = cellOf[i]
-      local cx, cy = k % NC, floor(k / NC)
-      local cntN = 0
-      for a = -1, 1 do
-        for b = -1, 1 do
-          local l = grid[(cx + a) % NC + NC * ((cy + b) % NC)]
-          if l then
-            for _, j in ipairs(l) do
-              if j ~= i then
-                local dx, dy = X[j] - x, Y[j] - y
-                if dx > MAX + 0.5 then dx = dx - W elseif dx < -(MAX + 0.5) then dx = dx + W end
-                if dy > MAX + 0.5 then dy = dy - W elseif dy < -(MAX + 0.5) then dy = dy + W end
-                if dx * dx + dy * dy <= 4 then cntN = cntN + 1; near[cntN] = j end
-              end
+  m.cellOf, m.grid, m.near = m.cellOf or {}, m.grid or {}, m.near or {}
+  local cellOf, grid, near = m.cellOf, m.grid, m.near
+  -- positions do not change while the particles collide, so the
+  -- neighbours within 2 are found once per tick (a torus grid)
+  for k = 0, NC * NC - 1 do grid[k] = nil end
+  for i = 1, n do
+    local k = floor((X[i] + MAX + 0.5) / CW) % NC + NC * (floor((Y[i] + MAX + 0.5) / CW) % NC)
+    cellOf[i] = k
+    local l = grid[k]; if not l then l = {}; grid[k] = l end
+    l[#l + 1] = i
+  end
+  for i = n, 2, -1 do local j = s:random(i); order[i], order[j] = order[j], order[i] end
+  for q = 1, n do
+    local i = order[q]
+    local x, y = X[i], Y[i]
+    -- a. collision with one of the particles within 2
+    local k = cellOf[i]
+    local cx, cy = k % NC, floor(k / NC)
+    local cntN = 0
+    for a = -1, 1 do
+      for b = -1, 1 do
+        local l = grid[(cx + a) % NC + NC * ((cy + b) % NC)]
+        if l then
+          for _, j in ipairs(l) do
+            if j ~= i then
+              local dx, dy = X[j] - x, Y[j] - y
+              if dx > MAX + 0.5 then dx = dx - W elseif dx < -(MAX + 0.5) then dx = dx + W end
+              if dy > MAX + 0.5 then dy = dy - W elseif dy < -(MAX + 0.5) then dy = dy + W end
+              if dx * dx + dy * dy <= 4 then cntN = cntN + 1; near[cntN] = j end
             end
           end
         end
       end
-      if cntN > 0 then
-        local f = near[s:random(cntN)]
-        local dvx, dvy = VX[i] - VX[f], VY[i] - VY[f]
-        local rel = sqrt(dvx * dvx + dvy * dvy)
-        local cmx, cmy = 0.5 * (VX[i] + VX[f]), 0.5 * (VY[i] + VY[f])
-        local th = s:random(0, 359)
-        local rx, ry = rel * S[th], rel * Cs[th]
-        VX[i], VY[i] = cmx + 0.5 * rx, cmy + 0.5 * ry
-        VX[f], VY[f] = cmx - 0.5 * rx, cmy - 0.5 * ry
-      end
-      -- b. the walls
-      if nearWall(dxRed(x), y) and not (inward and VX[i] < 0) then
-        VX[i] = -s2T * sqrt(-log(1 - s:random()))
-        VY[i] = s:gauss() * sT + V
-      end
-      if nearWall(dxYellow(x), y) and not (inward and VX[i] > 0) then
-        VX[i] = s2T * sqrt(-log(1 - s:random()))
-        VY[i] = s:gauss() * sT - V
-      end
     end
+    if cntN > 0 then
+      local f = near[s:random(cntN)]
+      local dvx, dvy = VX[i] - VX[f], VY[i] - VY[f]
+      local rel = sqrt(dvx * dvx + dvy * dvy)
+      local cmx, cmy = 0.5 * (VX[i] + VX[f]), 0.5 * (VY[i] + VY[f])
+      local th = s:random(0, 359)
+      local rx, ry = rel * S[th], rel * Cs[th]
+      VX[i], VY[i] = cmx + 0.5 * rx, cmy + 0.5 * ry
+      VX[f], VY[f] = cmx - 0.5 * rx, cmy - 0.5 * ry
+    end
+    -- b. the walls
+    if nearWall(dxRed(x), y) and not (inward and VX[i] < 0) then
+      VX[i] = -s2T * sqrt(-log(1 - s:random()))
+      VY[i] = s:gauss() * sT + V
+    end
+    if nearWall(dxYellow(x), y) and not (inward and VX[i] > 0) then
+      VX[i] = s2T * sqrt(-log(1 - s:random()))
+      VY[i] = s:gauss() * sT - V
+    end
+  end
+end
+
+function M.run(m, ticks)
+  local n, split = m.n, m.split
+  local X, Y, VX, VY, SP = m.x, m.y, m.vx, m.vy, m.v
+  for _ = 1, ticks do
+    M.collide(m)
     -- 2. move
     for i = 1, n do
       local vx, vy = VX[i], VY[i]

@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F87 so far), and
+  implementations, and our own mistakes once corrected (F1–F89 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -171,7 +171,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"` (2026-10-27: §2 starts a page without a break; the end of §7 kept spilling one table row onto a page of its own, and a break before §7 avoids it; breaks act only on `##` headings)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves"`. Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-10-27: no break; the one before "6. How BPP behaves" left a nearly empty page). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 
 ## 6. Facts established so far
@@ -414,6 +414,19 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        fitted); on the benchmark it matches the drones at a quarter to a
        third of the cost (`VEHICLE=lib.pointmass`). Past ~100 agents the
        harness's all-pairs AP step, not the vehicle, is the cost.
+     - **Velocity commands, G4 (done,** `velocity()` in the vehicle
+       interface for the ideal vehicle, point mass, quad and boat;
+       `checks/velocity.lua`; `ch04/Couette-Vehicles.lua`, F88–F89):
+       Couette flow on vehicles. The profile survives lag (point masses,
+       lag to 0.9 s) when KT keeps its own velocities; colliding the
+       sensed velocities freezes the gas. The drones collide in mid-air
+       (40 of 100 down by 300 s): KT needs collision avoidance under it,
+       as Kerr's robots had. **Next decision for William:** which
+       avoidance (a short-range repulsion under the KT command, or a
+       larger virtual collision range).
+- **Kerr's thesis PDF** (William's Dropbox link, 2026-10-27) could not be
+  fetched from the workspace; attach it to check F85's wall rule (the
+  digest says Garcia's crossing rule, i.e. `inward`).
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
