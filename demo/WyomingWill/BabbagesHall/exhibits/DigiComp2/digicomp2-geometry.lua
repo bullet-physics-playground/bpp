@@ -344,6 +344,128 @@ do
   Wh.mass, cx, cz, Wh.I = G.massOf(Wh.pieces, Wh.H, { { 0, 0, F.PIN_R } }, 0.02)
 end
 
+-- START and AUTO (not on the board yet: tests/escapement.lua tries them).
+-- A weight the hand winds up turns the wheel, as a clock's turns its
+-- train, through a fly (an air brake) that keeps it slow; an ANCHOR holds
+-- it, a quarter turn at a time, as a clock's escapement holds its wheel.
+-- (The balls' own weight can't turn it: letting one ball go means pushing
+-- the next back up against all the balls above it. FINDINGS.md.) On the
+-- wheel, above the balls, is the escape star: four pins. The anchor, on a
+-- pin to the wheel's right, has two fingers: at rest the first stops a pin;
+-- tripped (by START), the first lets it go and the second stops the next
+-- pin an eighth of a turn on; let go again, the first stops the pin after
+-- that. So each trip lets the wheel round one quarter turn, however long it
+-- lasts, and lets one ball out. Each finger lies along the line from the
+-- anchor's pin through the point where it stops a pin, so the wheel's push
+-- on it passes through the anchor's pin and can't turn the anchor. The
+-- first stops a pin coming toward the anchor's pin, so it lies on the near
+-- side of that point; the second stops one moving away, so it lies beyond
+-- it, carried by a bar over the pins. The anchor's arm runs up the slope;
+-- START pushes its end across.
+Wh.STAR_Y0, Wh.STAR_H = 1.32, 0.10            -- the star's disc and spokes (just over the balls)
+Wh.PIN_RP, Wh.PIN_R, Wh.PIN_Y1 = 2.0, 0.15, 1.82  -- its pins: their circle, radius, top
+Wh.PIN_A0 = 22.5                              -- the pins' angles, clockwise from the top: this + 90 k
+do
+  local pcs = {}
+  local function circ(x, z, r, n)
+    local pc = {}
+    for j = 0, n - 1 do local a = 2 * math.pi * j / n; pc[#pc + 1] = { x + r * math.cos(a), z + r * math.sin(a) } end
+    return pc
+  end
+  pcs[#pcs + 1] = { circ(0, 0, 0.7, 12), Wh.STAR_Y0, Wh.STAR_H }
+  Wh.pins = {}
+  for k = 0, 3 do
+    local a = math.rad(Wh.PIN_A0 + 90 * k)
+    local px, pz = Wh.PIN_RP * math.sin(a), -Wh.PIN_RP * math.cos(a)
+    local ux, uz = math.sin(a), -math.cos(a)
+    local nx, nz = -uz, ux
+    local w = 0.12
+    pcs[#pcs + 1] = { { { 0.5 * ux - w * nx, 0.5 * uz - w * nz }, { px - w * nx, pz - w * nz },
+                        { px + w * nx, pz + w * nz }, { 0.5 * ux + w * nx, 0.5 * uz + w * nz } }, Wh.STAR_Y0, Wh.STAR_H }
+    pcs[#pcs + 1] = { circ(px, pz, Wh.PIN_R, 10), Wh.STAR_Y0, Wh.PIN_Y1 - Wh.STAR_Y0 }
+    Wh.pins[k + 1] = { px, pz }
+  end
+  Wh.starPieces = pcs
+  local m, I = 0, 0
+  for _, p in ipairs(pcs) do
+    local pm, px, pz, pI = G.massOf({ p[1] }, p[3], nil, 0.02)
+    m = m + pm; I = I + pI + pm * (px * px + pz * pz)
+  end
+  Wh.starMass, Wh.starI = m, I
+end
+local A = {}
+G.ANCHOR = A
+A.FW = 0.3                    -- its fingers' width
+A.Y0, A.Y1 = 1.46, 1.86       -- the fingers' height: the pins'
+A.ARM_Y0, A.ARM_Y1 = 1.92, 2.22   -- the hub and arm, over the star
+A.ARM = 6.0                   -- the arm's length, up the slope from the anchor's pin
+A.LEAN = 8                    -- degrees: at rest it is turned this far one way, tripped the other
+A.CW_X = -2.6                 -- its counterweight (a 1/2 inch steel ball, as the machine's), on an arm
+                              -- this far across, toward the wheel: it turns the anchor back to rest
+do
+  local b = math.rad(67.5)                    -- (half the angle between the two pins it stops)
+  local d = Wh.PIN_RP / math.cos(b)
+  A.d = d
+  A.x, A.z = Wh.x + d, Wh.z                   -- its pin: to the wheel's right
+  -- (in its own frame: its pin at 0, 0, x right, z down the slope, turned
+  -- neither way)
+  -- (each finger lies along its line when the anchor is turned to where
+  -- that finger stops a pin: the first at rest (REST), the second tripped
+  -- (TRIP); so in its own frame each is turned back by that much)
+  local function rot(px, pz, phi) return px * math.cos(phi) + pz * math.sin(phi), -px * math.sin(phi) + pz * math.cos(phi) end
+  local finger0
+  local function finger(ang, engaged, far)
+    local pts, c, e = finger0(ang, far)
+    for i, p in ipairs(pts) do pts[i] = { rot(p[1], p[2], -engaged) } end
+    if e then e = { rot(e[1], e[2], -engaged) } end
+    return pts, c, e
+  end
+  finger0 = function(ang, far)
+    local a = math.rad(ang)
+    local cx, cz = -d + Wh.PIN_RP * math.sin(a), -Wh.PIN_RP * math.cos(a)   -- (where it stops a pin)
+    local l = math.sqrt(cx * cx + cz * cz)
+    local ux, uz = cx / l, cz / l
+    local nx, nz = -uz, ux
+    local t = l - Wh.PIN_R - 0.01
+    local h = A.FW / 2
+    if far then
+      -- (beyond the stop point, along the same line: for a pin moving away
+      -- from the anchor's pin; a bar over the pins carries it)
+      local t0, t1 = l + Wh.PIN_R + 0.01, l + Wh.PIN_R + 0.9
+      return { { t0 * ux - h * nx, t0 * uz - h * nz }, { t1 * ux - h * nx, t1 * uz - h * nz },
+               { t1 * ux + h * nx, t1 * uz + h * nz }, { t0 * ux + h * nx, t0 * uz + h * nz } }, { cx, cz }, { t1 * ux, t1 * uz }
+    end
+    return { { 0.2 * ux - h * nx, 0.2 * uz - h * nz }, { t * ux - h * nx, t * uz - h * nz },
+             { t * ux + h * nx, t * uz + h * nz }, { 0.2 * ux + h * nx, 0.2 * uz + h * nz } }, { cx, cz }
+  end
+  local L = math.rad(A.LEAN)
+  A.REST, A.TRIP = L, -L
+  local f1, c1 = finger(Wh.PIN_A0, A.REST)   -- (the first: at rest it stops the pin at 157.5 degrees)
+  local f2, c2, e2 = finger(Wh.PIN_A0 + 135, A.TRIP, true)   -- (the second, tripped: the next, at 22.5)
+  A.stops = { c1, c2 }
+  local hub = {}
+  for j = 0, 11 do local a = 2 * math.pi * j / 12; hub[#hub + 1] = { 0.4 * math.cos(a), 0.4 * math.sin(a) } end
+  local w = 0.15
+  local el = math.sqrt(e2[1] ^ 2 + e2[2] ^ 2)
+  local bx, bz = -e2[2] / el * 0.15, e2[1] / el * 0.15
+  local bar = { { bx, bz }, { e2[1] + bx, e2[2] + bz }, { e2[1] - bx, e2[2] - bz }, { -bx, -bz } }
+  A.pieces = {
+    { f1, A.Y0, A.ARM_Y1 - A.Y0 }, { f2, A.Y0, A.ARM_Y1 - A.Y0 }, { bar, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
+    { hub, A.Y0, A.ARM_Y1 - A.Y0 },
+    { { { -w, -A.ARM }, { w, -A.ARM }, { w, 0 }, { -w, 0 } }, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
+    { { { A.CW_X - 0.2, -w }, { 0, -w }, { 0, w }, { A.CW_X - 0.2, w } }, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
+  }
+  local m, sx, sz, I = 0, 0, 0, 0
+  for _, p in ipairs(A.pieces) do
+    local pm, px, pz, pI = G.massOf({ p[1] }, p[3], nil, 0.01)
+    m = m + pm; sx = sx + pm * px; sz = sz + pm * pz; I = I + pI + pm * (px * px + pz * pz)
+  end
+  -- (and the counterweight, on top of the arm's left end)
+  m = m + G.BALL_MASS; sx = sx + G.BALL_MASS * A.CW_X; I = I + G.BALL_MASS * A.CW_X ^ 2
+  A.mass, A.cx, A.cz = m, sx / m, sz / m
+  A.I = I - m * (A.cx ^ 2 + A.cz ^ 2)
+  A.CW_Y = A.ARM_Y1 + G.R
+end
 -- ---------------------------------------------------------------------
 -- the fixed parts: walls { x1, z1, x2, z2 } (centre lines, WALL_T thick)
 -- on the upper level and on the lower; pegs; holes { x0, x1, z0, z1 }

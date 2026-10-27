@@ -170,7 +170,9 @@ and wheel at that frame), `DC_REST=0` (never rest), `DC_EXPORT=1` (rewrite
 `tests/toggle.lua` is one flip-flop alone, with its foot, its done hole and
 the clear lane; `tests/switch.lua` is one switch alone; `tests/junction.lua`
 is the piece of the board where the memory meets the accumulator (A1, A2
-and M2: the carry and the memory's balls into the same funnel). Each prints
+and M2: the carry and the memory's balls into the same funnel);
+`tests/escapement.lua` is the feeder wheel driven by a weight and held by
+the anchor that AUTO will trip (not on the board yet). Each prints
 `RESULT` lines; their headers list their settings, and `FINDINGS.md` has
 what they showed.
 
@@ -233,9 +235,12 @@ as it puts the balls back, so the first turn lets one out.)
   them, and watches STOP: it turns no more once a ball has dropped through.
 - **AUTO.** E.S.R.'s machine can run by itself: in AUTO, a ball at the
   bottom rolls under the START lever and lets the next ball go from the top,
-  and the ball through STOP lets none. That is not built yet (`FINDINGS.md`
-  says why); here every ball is let in by a turn of the knob, as in the
-  original's MANUAL.
+  and the ball through STOP lets none. That is not on the board yet: its
+  heart, the wheel turned by a wound weight and held by an anchor that lets
+  it round a quarter turn (one ball) each time it is tripped, works alone
+  (`tests/escapement.lua`; `FINDINGS.md` has the three tries); the trip and
+  the STOP bypass are still to come. Here every ball is let in by a turn of
+  the knob, as in the original's MANUAL.
 - **The layout** is this machine's own, not E.S.R.'s: the registers do what
   the manual says, but where each part sits on the board was worked out
   here. The distributor is a tree of three flip-flops, and after the MQ and

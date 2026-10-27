@@ -314,7 +314,12 @@ On the original, AUTO lets a ball reaching the bottom roll under the START
 lever and release the next ball, so a whole multiply runs by itself. The
 ball through STOP takes a way that misses the lever, so the machine stops.
 Here every ball is let in by turning the knob, which is the original's
-MANUAL. A first try at the lever failed (`FINDINGS.md` says why).
+MANUAL. For AUTO, this machine will let a wound weight turn the wheel,
+held by an anchor, as a clock's weight turns its wheels and its escapement
+holds them: each push on the anchor's arm lets the wheel round a quarter
+turn, one ball. That part works on its own (`tests/escapement.lua`); the
+ball at the bottom pushing the arm, and STOP's ball not pushing it, are
+still to be built (`FINDINGS.md` has the tries so far).
 
 ## 7. Which parts each operation needs
 

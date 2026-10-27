@@ -229,7 +229,7 @@ times in ten (set by hand left and right in turn, then a ball) at friction
 ball run in from 1 or 15 cm above (`tests/switch.lua`). The divider's tip
 must stay 5.5 mm below the flap's pin: at 1.5 mm the flap jammed against it.
 
-### AUTO: the START lever (not built yet)
+### AUTO: the START lever (the escapement works; not on the board yet)
 
 The original's AUTO lets a ball reaching the bottom release the next from
 the top, through the START lever. A long lever on the lower level was
@@ -242,6 +242,77 @@ and with the lever's pin 9 cm away that was enough to hold the lever pushed
 balls out at once. The next design needs teeth whose faces meet the balls
 square on, on a lever whose pin is in line with the channel, so the balls'
 weight turns it neither way.
+
+**Second attempt (2026-10-27): the wheel held by an anchor.** The feeder
+wheel itself as the escapement: let the balls' weight turn it, and hold it
+a quarter turn at a time with a clock's anchor (two fingers on a pin to
+the wheel's right, catching four pins on an escape star above the balls).
+Each finger lay along the line its pin moves on, through the anchor's pin,
+so the wheel's push could not turn the anchor. In a test of the wheel
+and anchor alone, the anchor (a 1/2 inch steel ball its counterweight)
+swung to tripped when pushed and back by itself when let go (not quite
+home: against a pin that had stopped short). But the wheel would not
+turn:
+
+- **Balls coming down onto the top of the wheel** (as now): the next ball
+  in the channel dips into the notch as the ball in it is carried away,
+  and the notch's edge must then push it, and every ball above it, back up
+  the channel. The hand's knob can (it is allowed 50 kg cm^2/s^2); the
+  weight of one ball in the wheel gives about 3, and the wheel stopped 12
+  degrees round.
+- **A paddle wheel fed from the side,** the channel coming down in line
+  with its left-hand space so the balls' weight pulled it round: the next
+  ball still follows the one being carried away, and the vane coming round
+  next must sweep through the channel and push it back. It stopped 58
+  degrees round, a ball jammed between the vane and the channel's wall.
+
+Whatever lets one ball go must at some point push the next back against
+the balls above it. So that push has to come from somewhere other than the
+balls in the wheel: from the trip (a ball arriving at the bottom has fallen
+over a metre, but loses most of that at the collector's wall), or, more
+surely, from a weight the hand winds up, as a clock's, turning the wheel
+through the anchor, which already worked. That is the next thing to try.
+
+**Third attempt (2026-10-27): a wound weight, a fly, and straight fingers.**
+The wheel driven by a steady torque (the weight) with a top speed (a fly,
+the air brake on a clock's striking train), and held by the anchor
+(digicomp2-geometry.lua, G.ANCHOR; tests/escapement.lua). It works: at
+rest nothing comes out, and each trip, from a tenth of a second to two
+seconds long, lets out exactly one ball and the anchor comes back home.
+What it took:
+
+- **Each finger on its own side of the pin it stops.** The first finger
+  stops a pin coming toward the anchor's pin, and lies on the near side of
+  the stopping point; the second stops a pin moving away, and must lie
+  beyond it, on a bar carried over the pins. With both on the near side
+  the second never touched its pin.
+- **Straight fingers, not curved ones.** Fingers curved as a deadbeat
+  clock's (arcs about the anchor's pin, so the pin slides along them while
+  the anchor swings) held the anchor tripped whenever the wheel was driven:
+  the pin caught on the arc's edge, and the push there no longer passed
+  through the anchor's pin (it turned the anchor half as hard as the
+  counterweight, the other way). Straight fingers along the line through
+  the anchor's pin have no such edge.
+- **Rollers on the fingers** (no friction at the anchor): it passed with
+  friction 0, 0.05 and 0.1 there; with the curved fingers any friction
+  held it.
+- **A weight big enough to push the column back.** At the board's 15
+  degrees, a torque of 20 to 60 kg cm^2/s^2 on the wheel works and 10 does
+  not (the wheel can't push the next ball back up the channel); at 25
+  degrees 30 is too little for a short trip, and 50 works.
+- **A fly.** With the top speed 1.5 to 12 radians a second (a quarter turn
+  in a fifth of a second to a second) every trip let out one ball; with no
+  limit one trip in eight let none.
+
+It passed (eight trips each) with friction 0.1, 0.3, 0.5; pin friction
+0.1, 0.4, 2; slope 8, 15, 20 degrees; 4 and 9 balls in the channel; the
+hand's push 100 and 300.
+
+Still to do before AUTO is on the board: the weight, its winding and the
+fly as parts (here a torque and a speed limit on the wheel's pin); the
+trip, a ball arriving at the bottom pushing the anchor's arm across; STOP,
+whose ball must not; and the AUTO/MANUAL switch between the hand's knob and
+the weight.
 
 ### The accumulator on the board
 

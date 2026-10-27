@@ -293,9 +293,13 @@ there, in `release/`, or on the path; or set `BPP`.
   BALL says what it will do and what A was and will be (`route()`,
   `preview()` in `digicomp2.lua`; also on `Space`). `DC_STEP` starts the
   tour at a later step, for testing.
-- **Next: AUTO and step 2c.** AUTO is the START lever (see FINDINGS for
-  why the first escapement failed): a ball at the bottom lets the next go,
-  and the ball through STOP lets none. Step 2c, subtract and divide, is the
+- **Next: AUTO and step 2c.** AUTO is the START lever: a ball at the
+  bottom lets the next go, and the ball through STOP lets none. Its
+  escapement works alone (`tests/escapement.lua`, `G.ANCHOR`): the wheel
+  turned by a wound weight with a fly, held by an anchor with straight
+  fingers on rollers; FINDINGS has the three tries and what each needed.
+  Still to do: the weight and fly as parts, the trip (the bottom ball
+  pushing the anchor's arm), STOP's bypass, and the AUTO/MANUAL switch. Step 2c, subtract and divide, is the
   complement: T1 to T6, CF1, CF2 and the COMPLEMENT switch (the manual
   describes its four-ball sequence); the board's lower left and the space
   left of the MQ are free. William pointed to a replica too:
