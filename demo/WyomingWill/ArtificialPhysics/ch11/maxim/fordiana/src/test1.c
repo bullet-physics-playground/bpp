@@ -9,7 +9,7 @@ double x, y, z;
 {
 
   double term, temp1, temp2, sqrt(), log();
-  
+
   term = sqrt(y*y - 2*z*y + (1.0-x)*(1.0-x) + z*z);
 
   temp1 = 3*y*y*y*y - 28*z*y*y*y + 42*z*z*y*y;
@@ -25,7 +25,7 @@ double x, y, z;
 
   if ((((1.0-x) == 0) || (z == 0)) && ((y - z + term) == 0)) {}
   else temp1 = temp1 + 48*(1.0-x)*(1.0-x)*(1.0-x)*z*log(y - z + term);
-  
+
   temp1 = temp1 + 24*(1.0-x)*(1.0-x)*(1.0-x)*term;
 
   temp1 = temp1 - 36*(1.0-x)*z*z*term;
@@ -55,9 +55,9 @@ int main( int argc, char** argv )
   // when cell size = 20. Must renormalize by 1/(b-a) for all 3 integrals
   printf("solution = %f\n",
 	 (1.0/0.95)*(1.0/0.90)*(1.0/0.90)*
-	 (f(1.00,0.95,0.95) - f(1.00,0.05,0.95) - 
+	 (f(1.00,0.95,0.95) - f(1.00,0.05,0.95) -
 	  f(0.05,0.95,0.95) + f(0.05,0.05,0.95) -
-	  f(1.00,0.95,0.05) + f(1.00,0.05,0.05) + 
+	  f(1.00,0.95,0.05) + f(1.00,0.05,0.05) +
 	  f(0.05,0.95,0.05) - f(0.05,0.05,0.05)));
 
   return 0;   /* ISO C requires main to return int. */

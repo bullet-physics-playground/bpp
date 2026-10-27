@@ -99,7 +99,7 @@ void RandomInitialise(int ij,int kl)
    test = TRUE;
 }
 
-/* 
+/*
    This is the random number generator proposed by George Marsaglia in
    Florida State University Report: FSU-SCRI-87-50
 */
@@ -108,8 +108,8 @@ double RandomUniform(void)
    double uni;
 
    /* Make sure the initialisation routine has been called */
-   if (!test) 
-   	RandomInitialise(1802,9373);
+   if (!test)
+	RandomInitialise(1802,9373);
 
    uni = u[i97-1] - u[j97-1];
    if (uni <= 0.0)
@@ -146,23 +146,23 @@ double RandomGaussian(double mean,double stddev)
 {
    double  q,u,v,x,y;
 
-	/*  
-		Generate P = (u,v) uniform in rect. enclosing acceptance region 
+	/*
+		Generate P = (u,v) uniform in rect. enclosing acceptance region
       Make sure that any random numbers <= 0 are rejected, since
       gaussian() requires uniforms > 0, but RandomUniform() delivers >= 0.
 	*/
    do {
       u = RandomUniform();
       v = RandomUniform();
-   	if (u <= 0.0 || v <= 0.0) {
-       	u = 1.0;
-       	v = 1.0;
-   	}
+	if (u <= 0.0 || v <= 0.0) {
+	u = 1.0;
+	v = 1.0;
+	}
       v = 1.7156 * (v - 0.5);
 
       /*  Evaluate the quadratic form */
       x = u - 0.449871;
-   	y = fabs(v) + 0.386595;
+	y = fabs(v) + 0.386595;
       q = x * x + y * (0.19600 * y - 0.25472 * x);
 
       /* Accept P if inside inner ellipse */
@@ -191,4 +191,3 @@ double RandomDouble(double lower,double upper)
 {
    return((upper - lower) * RandomUniform() + lower);
 }
-

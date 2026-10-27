@@ -16,8 +16,8 @@ make clean
 make all
 
 # if the environment generation executable exists
-#if [ -f $a -a -f $b ]  
-#then 
+#if [ -f $a -a -f $b ]
+#then
 #   ./$a $b
    # if the coverage simulator executable and its config file exist
    if [ -f $c -a -f $d ]
@@ -28,14 +28,14 @@ make all
          echo
          echo Processing $file...
          ./$c $d $file $1 # Pass in magic constant
-         echo 
+         echo
          echo "***********************************************"
       done
    else
       echo "ERROR: $c or $d do not exist in the current directory."
       exit
    fi
-   make clean 
+   make clean
 #else
 #   echo "ERROR: $a or $b do not exist in the current directory."
 #   exit

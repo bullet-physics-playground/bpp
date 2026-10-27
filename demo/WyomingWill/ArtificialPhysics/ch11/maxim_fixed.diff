@@ -2,15 +2,15 @@
 +++ maxim/src/coverage_simulation.c (fixed, seeded)
 @@ -847,8 +847,9 @@
          agent->velocity.y = sin(agent->heading);
-         
+
          // update agent position and heading
 -        agent->temp_position.x += agent->velocity.x;
 -        agent->temp_position.y += agent->velocity.y;
 +        // fix (FINDINGS F81): move to the point the sensor tested, rounded once as it was
 +        agent->temp_position.x = cos(agent->heading) * params.response_range + agent->temp_position.x;
 +        agent->temp_position.y = sin(agent->heading) * params.response_range + agent->temp_position.y;
-        	agent->temp_heading     = agent->heading; 
-    	
+	agent->temp_heading     = agent->heading;
+
  //        printf ("*********\n");
 @@ -1662,7 +1663,7 @@
   */
@@ -20,4 +20,3 @@
 +    params.random_seed = argc > 4 ? atoi( argv[4] ) : (int)time( NULL ); // seed (0-30081) from argv[4]
      //srandom( params.random_seed );
      RandomInitialise(1, params.random_seed); // WMS
- 

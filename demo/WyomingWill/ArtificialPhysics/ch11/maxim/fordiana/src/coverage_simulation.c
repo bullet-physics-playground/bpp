@@ -45,7 +45,7 @@ typedef struct s_vec2f
 
 } Vector2f;
 
-// used to collect the number of visits / cell 
+// used to collect the number of visits / cell
 typedef struct s_cells
 {
 	Vector2f coords;
@@ -64,7 +64,7 @@ typedef struct s_agent
 
         Vector2f init_position;    		// agent deployment position
         Vector2f position;              // agent position vector
-        Vector2f temp_position;			
+        Vector2f temp_position;
         Vector2f previous_position;
         Vector2f velocity;              // agent velocity vector
         Vector2f prior_force;
@@ -72,14 +72,14 @@ typedef struct s_agent
         double heading;					// agent heading (radians)
         double temp_heading;
         double previous_heading;
-        
+
         double radius;                   // agent size
         double mass;                     // agent mass
 
         GLfloat color[3];
         Vector2f *intersection_points;	// the intersection points between each sensor range and walls
         bool *intersection_flags;		// flag if an intersection for any of the sensors took place
-        
+
 } Agent;
 
 typedef enum e_force_law
@@ -120,10 +120,10 @@ typedef struct s_params
     double response_range_temp;	// store the initial value of the response range for later use
     double response_range_step;
     double response_range_max;
-    
+
     unsigned int time_steps;
     unsigned int sampling_step;
-    
+
     Force_Law agent_agent_force_law;
     Force_Law agent_wall_force_law;
 
@@ -133,12 +133,12 @@ typedef struct s_params
     double k;				// spring constant - Hooke's law
     double friction;
     double step;
-    
+
     double PI;
-    
+
     unsigned int cell_number;
     unsigned int cell_size;
-    
+
     int random_seed;
 } Parameters;
 
@@ -146,7 +146,7 @@ typedef struct s_statistics
 {
 	unsigned int time_step;
 	unsigned int counter;
-	
+
 } Statistics;
 
 GLfloat agent_color[3] = { 65. / 255, 105. / 255 , 225. / 255  };	// royal blue
@@ -185,12 +185,12 @@ int read_config_file( char *p_filename )
 	int i;
 	FILE *p_config;
 	p_config = fopen( p_filename, "r" );
-	
+
 	if ( p_config != NULL )
 	{
 		char first_string[100];
 		char second_string[100];
-		
+
 		// read the number of active sensors
 		fscanf( p_config, "%100s%100s%*[^\n]", first_string, second_string);
 		if ( strcmp( "sensor_number", first_string ) == 0 )
@@ -201,12 +201,12 @@ int read_config_file( char *p_filename )
 		{
 			printf( "WARNING: Unknown parameter [%s]\n", first_string );
 		}
-		
+
 		// read the angles of the sensors
 		if( params.sensor_number )
 		{
 			sensor_angle = ( double * ) calloc( params.sensor_number, sizeof( double ) );
-			
+
 			if( sensor_angle == NULL )
 			{
 				printf( "Error while allocating memory for sensor angle array!" );
@@ -220,8 +220,8 @@ int read_config_file( char *p_filename )
 				sensor_angle[i] = atof( first_string ) * 0.017453293;
 			}
 		}
-				
-		// read the remaining parameters		
+
+		// read the remaining parameters
 		while( fscanf( p_config, "%100s%100s%*[^\n]", first_string, second_string ) != EOF )
 		{
 			if( strcmp( "world_width", first_string ) == 0 )
@@ -331,9 +331,9 @@ int read_config_file( char *p_filename )
 		printf ("Error opening configuration file: \"%s\"!\n", p_filename );
 		return EXIT_FAILURE;
 	}
-	
+
 	fclose( p_config );
-	
+
 	return 0;
 }
 
@@ -342,7 +342,7 @@ int read_environment_file( char *p_filename )
 	int i;
 	FILE *p_env;
 	p_env = fopen( p_filename, "r" );
-	
+
 	if ( p_env != NULL )
 	{
 		char first_string[100];
@@ -362,7 +362,7 @@ int read_environment_file( char *p_filename )
 		if( params.vertix_number )
 		{
 			maze = ( Vector2f * ) calloc( params.vertix_number, sizeof( Vector2f ) );
-			
+
 			if( maze == NULL )
 			{
 				printf( "Error while allocating memory for maze!" );
@@ -412,9 +412,9 @@ int read_environment_file( char *p_filename )
 		printf ("Error opening environment configuration file: \"%s\"!\n", p_filename );
 		return EXIT_FAILURE;
 	}
-	
+
 	fclose( p_env );
-	
+
 	return 0;
 }
 
@@ -422,13 +422,13 @@ Agent *create_agent( int id )
 {
 	unsigned int i = 0;
 	Agent *agent = ( Agent * ) malloc( sizeof( Agent ) );
-	
+
 	if ( agent == NULL )
 	{
 		printf( "Error while allocating memory for an agent!" );
 		return NULL;
 	}
-	
+
 	agent->id = id;
 	agent->heading = agent->temp_heading = agent->previous_heading = params.PI / 2;
 	agent->mass = params.agent_mass;
@@ -446,9 +446,9 @@ Agent *create_agent( int id )
 	agent->velocity.y =  0.0f;
 	agent->prior_force.x =  0.0f;
 	agent->prior_force.y =  0.0f;
-	
+
 	memcpy( agent->color, agent_color, 3 * sizeof( double ) );
-	
+
 	agent->intersection_points = ( Vector2f * ) calloc ( params.sensor_number, sizeof ( Vector2f ) );
 
 	if ( agent->intersection_points == NULL )
@@ -464,7 +464,7 @@ Agent *create_agent( int id )
 		printf( "Error while allocating memory for an agent's intersection flags!" );
 		return NULL;
 	}
-	
+
 	for ( i = 0; i < params.sensor_number; i++)
 	{
 		agent->intersection_flags[ i ] = false;
@@ -492,7 +492,7 @@ int create_swarm( void )
 
 	/******************** Initialize agents ******************************/
 	agents = ( Agent ** ) calloc( params.agent_number, sizeof( Agent * ) );
-	
+
 	if ( agents == NULL )
 	{
 		printf( "Error while allocating memory for agents array!" );
@@ -502,7 +502,7 @@ int create_swarm( void )
 	for ( i = 0; i < params.agent_number; i++ )
 	{
 		agents[i] = create_agent( i );
-		
+
 		if ( agents[i] == NULL )
 		{
 			printf( "Error while allocating memory for agent %d!", i );
@@ -515,7 +515,7 @@ int create_swarm( void )
 
 void free_memory(void){
 	int i;
-	
+
 	/** Free memory used by the swarm **/
 	for( i = 0; i < params.agent_number; i++ )
 	{
@@ -548,9 +548,9 @@ void draw_string( char *s )
 
     for( i = 0; i < strlen( s ); i++ )
     {
-    	glutBitmapCharacter( GLUT_BITMAP_8_BY_13, s[i] );
-//    	glutBitmapCharacter( GLUT_BITMAP_HELVETICA_10, s[i] );	
-//    	glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_10, s[i] );	
+	glutBitmapCharacter( GLUT_BITMAP_8_BY_13, s[i] );
+//    	glutBitmapCharacter( GLUT_BITMAP_HELVETICA_10, s[i] );
+//    	glutBitmapCharacter( GLUT_BITMAP_TIMES_ROMAN_10, s[i] );
     }
 }
 
@@ -575,14 +575,14 @@ bool intersect( const Vector2f m, const Vector2f n, const Vector2f o, const Vect
 	}
 	intersect_point->x = 0.0f;
 	intersect_point->y = 0.0f;
-	
+
 	dx = x2 - x1;
 	dy = y2 - y1;
 	da = a2 - a1;
 	db = b2 - b1;
-	
+
 	if ( ( da * dy - db * dx ) == 0 )
-	{		
+	{
 		// The segments are parallel.
 		if (DEBUG) printf ( "\tLine segments are parallel.\n" );
 		intersect = false;
@@ -605,7 +605,7 @@ bool intersect( const Vector2f m, const Vector2f n, const Vector2f o, const Vect
 			if (DEBUG) printf ( "\tLine segments do not intersect.\n" );
 			intersect = false;
 		}
-	}	
+	}
     return intersect;
 }
 
@@ -629,51 +629,51 @@ double calculate_hooke_force( const double distance )
 
 int change_agent_number( int agent_number )
 {
-	int i;	
+	int i;
 	int delta = agent_number - params.agent_number;
-	
+
 	if ( delta > 0 )
 	{
 		agents = ( Agent ** ) realloc( agents, agent_number * sizeof( Agent * ) );
-		
+
 		if ( agents == NULL )
 		{
 			printf( "Error while expanding memory for agents array!" );
 			return EXIT_FAILURE;
 		}
-		
+
 		for ( i = params.agent_number; i < agent_number; i++ )
 		{
 			agents[i] = create_agent( i );
 		}
-		
+
 		params.agent_number = agent_number;
 	}
 	else if ( delta < 0 && abs( delta ) < params.agent_number )
 	{
 		agents = ( Agent ** ) realloc( agents, agent_number * sizeof( Agent * ) );
-		
+
 		if ( agents == NULL )
 		{
 			printf( "Error while shrinking memory for agents array!" );
 			return EXIT_FAILURE;
 		}
-		
+
 		params.agent_number = agent_number;
 	}
 	else if ( delta < 0 && abs( delta ) >= params.agent_number )
 	{
 		agents = ( Agent ** ) realloc( agents, sizeof( Agent * ) );
-		
+
 		if ( agents == NULL )
 		{
 			printf( "Error while shrinking memory for agents array!" );
 			return EXIT_FAILURE;
 		}
-		
+
 		params.agent_number = 1;
 	}
-	
+
 	return EXIT_SUCCESS;
 }
 
@@ -704,10 +704,10 @@ void move_agent( void )
 	for (a = 0; a < params.agent_number; a++)
 		for (b = 0; b < params.agent_number; b++)
 			line_of_sight_matrix[a][b] = false;
-		
+
 	//*****************For each agent************************
-	
-	for ( a = 0; a < params.agent_number; a++ ) 
+
+	for ( a = 0; a < params.agent_number; a++ )
 	{
 		//*****************Calculate agent-wall force************************
 
@@ -715,7 +715,7 @@ void move_agent( void )
 
 		wall_force.x = 0.0f;
 		wall_force.y = 0.0f;
-		
+
 		// add a small attractive force forward
 		// WMS
 		//agent_force.x = 0.01f * cos( agent->heading );
@@ -724,41 +724,41 @@ void move_agent( void )
 //		agent_force.y = 0.3 * agent->prior_force.y;
 		agent_force.x = 0.0f;
 		agent_force.y = 0.0f;
-		
+
         //*****************For each sensor************************
 		agent->intersection_flags[0] = false;
-		
+
 		// compute the end coordinate of the sensor range
 		// params.sensor_range = 80 cm
 		sensor_range_v.x = cos ( sensor_angle[s] + agent->heading ) * params.response_range + agent->position.x;
 		sensor_range_v.y = sin ( sensor_angle[s] + agent->heading ) * params.response_range + agent->position.y;
-	
+
 		//*****************For each wall************************
 		for ( v = 0; v < params.vertix_number; v++ )
 		{
 			wall_begin = maze[v];
-	
+
 			// maze array stores the unique vertices of the maze
 			if (v == (params.vertix_number - 1))
 			{
 				wall_end = maze[0];
 			}
-			else 
+			else
 			{
 				wall_end = maze[v + 1];
-			}	
-	
+			}
+
 			if ( intersect( agent->position, sensor_range_v, wall_begin, wall_end, &intersection_point ) )
 			{
 				// check if this sensor has already detected a wall
 				if ( agent->intersection_flags[s] )
 				{
 					// check which wall is closer and keep the closest one
-					distance_to_wall_old = sqrt ( pow ( agent->position.x - agent->intersection_points[s].x, 2 ) + 
+					distance_to_wall_old = sqrt ( pow ( agent->position.x - agent->intersection_points[s].x, 2 ) +
 											  pow ( agent->position.y - agent->intersection_points[s].y, 2 ) );
-					distance_to_wall = sqrt ( pow ( agent->position.x - intersection_point.x, 2 ) + 
-	       								  pow ( agent->position.y - intersection_point.y, 2 ) );
-	       		
+					distance_to_wall = sqrt ( pow ( agent->position.x - intersection_point.x, 2 ) +
+									  pow ( agent->position.y - intersection_point.y, 2 ) );
+
 					if ( distance_to_wall < distance_to_wall_old )
 					{
 						agent->intersection_points[s].x = intersection_point.x;
@@ -768,17 +768,17 @@ void move_agent( void )
 				else
 				{
 					agent->intersection_flags[s] = true;
-		   			agent->intersection_points[s].x = intersection_point.x;
-		   			agent->intersection_points[s].y = intersection_point.y;
+					agent->intersection_points[s].x = intersection_point.x;
+					agent->intersection_points[s].y = intersection_point.y;
 				}
-		   	}
+			}
 		}
 
 		move_counter++; // WMS
 		//while (agent->intersection_flags[0] || (move_counter == (int)(params.cell_size * 0.6)))
 		while (agent->intersection_flags[0] || (move_counter == (int)(params.cell_size * magic_constant)))
 		  //while (agent->intersection_flags[0])
-		{	    		
+		{
 		  agent->heading = u01() * params.PI * 2;
 		  /* Bad turns - do NOT alternate turning
 		     if (sign == 0) {
@@ -794,38 +794,38 @@ void move_agent( void )
 
 		  //*****************For each sensor************************
 			agent->intersection_flags[0] = false;
-			
+
 			// compute the end coordinate of the sensor range
 			// params.sensor_range = 80 cm
 			sensor_range_v.x = cos ( sensor_angle[s] + agent->heading ) * params.response_range + agent->position.x;
 			sensor_range_v.y = sin ( sensor_angle[s] + agent->heading ) * params.response_range + agent->position.y;
-		
+
 			//*****************For each wall************************
 			for ( v = 0; v < params.vertix_number; v++ )
 			{
 				wall_begin = maze[v];
-		
+
 				// maze array stores the unique vertices of the maze
 				if (v == (params.vertix_number - 1))
 				{
 					wall_end = maze[0];
 				}
-				else 
+				else
 				{
 					wall_end = maze[v + 1];
-				}	
-		
+				}
+
 				if ( intersect( agent->position, sensor_range_v, wall_begin, wall_end, &intersection_point ) )
 				{
 					// check if this sensor has already detected a wall
 					if ( agent->intersection_flags[s] )
 					{
 						// check which wall is closer and keep the closest one
-						distance_to_wall_old = sqrt ( pow ( agent->position.x - agent->intersection_points[s].x, 2 ) + 
+						distance_to_wall_old = sqrt ( pow ( agent->position.x - agent->intersection_points[s].x, 2 ) +
 												  pow ( agent->position.y - agent->intersection_points[s].y, 2 ) );
-						distance_to_wall = sqrt ( pow ( agent->position.x - intersection_point.x, 2 ) + 
-		       								  pow ( agent->position.y - intersection_point.y, 2 ) );
-		       		
+						distance_to_wall = sqrt ( pow ( agent->position.x - intersection_point.x, 2 ) +
+										  pow ( agent->position.y - intersection_point.y, 2 ) );
+
 						if ( distance_to_wall < distance_to_wall_old )
 						{
 							agent->intersection_points[s].x = intersection_point.x;
@@ -835,27 +835,27 @@ void move_agent( void )
 					else
 					{
 						agent->intersection_flags[s] = true;
-			   			agent->intersection_points[s].x = intersection_point.x;
-			   			agent->intersection_points[s].y = intersection_point.y;
+						agent->intersection_points[s].x = intersection_point.x;
+						agent->intersection_points[s].y = intersection_point.y;
 					}
-			   	}
+				}
 			}
 		}
-			    
+
         // update agent velocity vector
         agent->velocity.x = cos(agent->heading);
         agent->velocity.y = sin(agent->heading);
-        
+
         // update agent position and heading
         agent->temp_position.x += agent->velocity.x;
         agent->temp_position.y += agent->velocity.y;
-       	agent->temp_heading     = agent->heading; 
-   	
+	agent->temp_heading     = agent->heading;
+
 //        printf ("*********\n");
 	}
-	
+
 	// update all the agent positions at once
-	for ( a = 0; a < params.agent_number; a++ ) 
+	for ( a = 0; a < params.agent_number; a++ )
 	{
 		agent = agents[a];
 		agent->previous_position.x = agent->position.x;
@@ -867,46 +867,46 @@ void move_agent( void )
 		// WMS
 		agent->heading  = agent->temp_heading;
 	}
-	
+
 	++stats.time_step;
-	
+
 	glutPostRedisplay();
 }
 
 void write_cell_visit_cnt_array_to_file( void )
 {
         int i;
-    	// store the filename here	
-    	char fn [50];
-    	// store the starting position here
-    	char temp_str[10];
-    	if ( agent_starting_position == corner )
-    	{
-    		strcpy(temp_str, "corner");		
-    	}
-    	else if ( agent_starting_position == side )
-    	{
-    		strcpy(temp_str, "side");		
-    	}
-    	sprintf( fn, "cell_visit_counter_%d_%.2f_%s_%d.out", (int)params.cell_size, params.response_range, temp_str,
-    			params.random_seed);
+	// store the filename here
+	char fn [50];
+	// store the starting position here
+	char temp_str[10];
+	if ( agent_starting_position == corner )
+	{
+		strcpy(temp_str, "corner");
+	}
+	else if ( agent_starting_position == side )
+	{
+		strcpy(temp_str, "side");
+	}
+	sprintf( fn, "cell_visit_counter_%d_%.2f_%s_%d.out", (int)params.cell_size, params.response_range, temp_str,
+			params.random_seed);
         FILE *p_cvca;
         // append to file
         p_cvca = fopen( fn, "a" );
 
         if ( p_cvca != NULL )
         {
-        	// write the time step
-        	fprintf(p_cvca, "%d\n", (int)stats.time_step);
-        	// write the cell_visit_cnt_array
-        	for (i = 0; i < params.cell_number; i++)
-        	{
-        		fprintf(p_cvca, "%d %d\n", i, (int)cell_visit_cnt_array[i].counter);
-        	}
+	// write the time step
+	fprintf(p_cvca, "%d\n", (int)stats.time_step);
+	// write the cell_visit_cnt_array
+	for (i = 0; i < params.cell_number; i++)
+	{
+		fprintf(p_cvca, "%d %d\n", i, (int)cell_visit_cnt_array[i].counter);
+	}
         }
         else
         {
-        	printf( "Error opening output file: \"%s\"!\n", fn);
+	printf( "Error opening output file: \"%s\"!\n", fn);
         }
 
         fclose( p_cvca );
@@ -917,15 +917,15 @@ void write_to_file( void )
 	int i;
 	// store the starting position here
 	char temp_str[10];
-	// store the filename here	
+	// store the filename here
 	char fn [50];
 	if ( agent_starting_position == corner )
 	{
-		strcpy(temp_str, "corner");		
+		strcpy(temp_str, "corner");
 	}
 	else if ( agent_starting_position == side )
 	{
-		strcpy(temp_str, "side");		
+		strcpy(temp_str, "side");
 	}
 	sprintf( fn, "cell_visit_counter_%d_%.2f_%s_%d.out", (int)params.cell_size, params.response_range, temp_str,
 			params.random_seed);
@@ -938,14 +938,14 @@ void write_to_file( void )
 		fprintf(p_cvca, "total number of cells\ncell number\tx y coordinates of each cell's lower left corner\n");
 		fprintf(p_cvca, "cell size\nsensor range\nstarting position of the agent\n");
 		fprintf(p_cvca, "time step\ncell number\tnumber of visits\n");
-      		
+
 		// write the total number of cells
 		fprintf(p_cvca, "%d\n", (int)params.cell_number);
 		// write lower left corner of each cell
 		for ( i = 0; i < params.cell_number; i++ )
 		{
 			fprintf(p_cvca, "%d\t%d\t%d\n", i,
-					(int)cell_visit_cnt_array[i].coords.x, 
+					(int)cell_visit_cnt_array[i].coords.x,
 					(int)cell_visit_cnt_array[i].coords.y);
 		}
 		// write the size of the cell
@@ -1009,7 +1009,7 @@ bool change_response_range( void )
 		if ( temp <= (double)params.cell_size )
 		{
 			params.response_range = temp;
-			flag = true;			
+			flag = true;
 		}
 	}
 	return flag;
@@ -1026,13 +1026,13 @@ int find_cell( double x, double y)
 			{
 				counter = i;
 				break;
-			}		
+			}
 		}
 	}
 	return counter;
 }
 
-// adjust the starting position 
+// adjust the starting position
 bool change_starting_position(void)
 {
 	int random_number;
@@ -1041,7 +1041,7 @@ bool change_starting_position(void)
 
 //	printf("agent_starting_position = %d\n", (int)agent_starting_position);
 	if ( (int)agent_starting_position < (int)side )
-	{	
+	{
 		agent_starting_position += 2;
 //		printf("agent_starting_position = %d\n", (int)agent_starting_position);
 		switch (agent_starting_position)
@@ -1049,18 +1049,18 @@ bool change_starting_position(void)
 		case corner:
 			random_number = (int)((params.vertix_number - 1) * u01());
 			temp = find_cell(maze[random_number].x, maze[random_number].y);
-	    	if ( temp >= 0)
-	    	{
-	    		agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x = 
-	    			cell_visit_cnt_array[temp].coords.x + (double)params.cell_size / 2;
-	    		agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
-	    			cell_visit_cnt_array[temp].coords.y + (double)params.cell_size / 2;
-	    		printf("Init position set to corner: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
-	    	}
-	    	else{
-	    		printf("ERROR: Could not find a corner starting position.\n");
-		    	exit( EXIT_FAILURE );
-	    	}
+		if ( temp >= 0)
+		{
+			agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x =
+				cell_visit_cnt_array[temp].coords.x + (double)params.cell_size / 2;
+			agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
+				cell_visit_cnt_array[temp].coords.y + (double)params.cell_size / 2;
+			printf("Init position set to corner: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
+		}
+		else{
+			printf("ERROR: Could not find a corner starting position.\n");
+			exit( EXIT_FAILURE );
+		}
 			break;
 		case side:
 			random_number = (int)((params.vertix_number - 1) * u01());
@@ -1080,18 +1080,18 @@ bool change_starting_position(void)
 				}
 //	    		printf("%d, %d, %d\n", (int)random_number, (int)temp_y, (int)maze[random_number].x);
 				temp = find_cell(maze[random_number].x, temp_y);
-		    	if ( temp >= 0)
-		    	{
-		    		agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x = 
-		    			cell_visit_cnt_array[temp].coords.x + params.cell_size / 2;
-		    		agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
-		    			cell_visit_cnt_array[temp].coords.y + params.cell_size / 2;
-		    		printf("Init position set to side: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
-		    	}
-		    	else{
-		    		printf("ERROR 1: Could not find a side starting position.\n");
-			    	exit( EXIT_FAILURE );
-		    	}
+			if ( temp >= 0)
+			{
+				agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x =
+					cell_visit_cnt_array[temp].coords.x + params.cell_size / 2;
+				agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
+					cell_visit_cnt_array[temp].coords.y + params.cell_size / 2;
+				printf("Init position set to side: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
+			}
+			else{
+				printf("ERROR 1: Could not find a side starting position.\n");
+				exit( EXIT_FAILURE );
+			}
 			}
 			// if Y is the same
 			else
@@ -1108,19 +1108,19 @@ bool change_starting_position(void)
 				}
 // 	    		printf("%d, %d, %d\n", (int)random_number, (int)temp_x, (int)maze[random_number].y);
 				temp = find_cell(temp_x, maze[random_number].y);
-		    	if ( temp >= 0)
-		    	{
-		    		agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x = 
-		    			cell_visit_cnt_array[temp].coords.x + params.cell_size / 2;
-		    		agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
-		    			cell_visit_cnt_array[temp].coords.y + params.cell_size / 2;
-		    		printf("Init position set to side: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
-		    	}
-		    	else{
-		    		printf("ERROR 2: Could not find a side starting position.\n");
-			    	exit( EXIT_FAILURE );
-		    	}
-				
+			if ( temp >= 0)
+			{
+				agents[0]->temp_position.x = agents[0]->position.x = agents[0]->previous_position.x =
+					cell_visit_cnt_array[temp].coords.x + params.cell_size / 2;
+				agents[0]->temp_position.y = agents[0]->position.y = agents[0]->previous_position.y =
+					cell_visit_cnt_array[temp].coords.y + params.cell_size / 2;
+				printf("Init position set to side: %d, %d\n", (int)agents[0]->position.x, (int)agents[0]->position.y);
+			}
+			else{
+				printf("ERROR 2: Could not find a side starting position.\n");
+				exit( EXIT_FAILURE );
+			}
+
 			}
 			break;
 		default:
@@ -1128,7 +1128,7 @@ bool change_starting_position(void)
 		}
 		return_flag = true;
 	}
-	
+
 	return return_flag;
 }
 
@@ -1136,18 +1136,18 @@ void run_GUI(int time)
 {
 	int i;
 	if ( run_gui )
-	{		
+	{
 		move_agent();
-		record_cell_visits();		
+		record_cell_visits();
 		if ( stats.time_step % params.time_steps == 0 )
 		{
 			// if no more response ranges
 			if ( !change_response_range() )
-			{				
-				
- 				// if no more starting positions
+			{
+
+				// if no more starting positions
 //				if ( !change_starting_position() )
-//				{				
+//				{
 					exit( EXIT_SUCCESS );
 //				}
 				// reset sensor response range
@@ -1163,7 +1163,7 @@ void run_GUI(int time)
 			}
 			write_to_file();
 		}
-		
+
 		if ( step_by_step )
 		{
 			run_gui = false;
@@ -1190,13 +1190,13 @@ void display_agent( Agent *agent )
 
 	glLineWidth( 3.0 );
 	glColor3f( 1.0f, 99.f / 255 , 71.f / 255 );		// tomato
-	 		
+
 	for ( i = 0; i < params.sensor_number; i++)
 	{
 		// compute the offsets to display the sensors' range
 	    x_offset = cos( agent->previous_heading + sensor_angle[i] ) * params.sensor_range;
 	    y_offset = sin( agent->previous_heading + sensor_angle[i] ) * params.sensor_range;
-	 
+
 	    // draw the range of the sensor
 		glBegin(GL_LINES);
 		   glVertex2f( agent->previous_position.x + x_offset,
@@ -1206,7 +1206,7 @@ void display_agent( Agent *agent )
 		glEnd();
 
 	}
-		
+
 	// draw the sensor range intersection points
 	glColor3f( 1.0f, 0.0f , 0.0f );	// red
 
@@ -1217,18 +1217,18 @@ void display_agent( Agent *agent )
 		    glPushMatrix();
 				glTranslatef( agent->intersection_points[i].x,
 							  agent->intersection_points[i].y, 0.0f );
-		    	gluDisk( qobj, 0.0, 3.0, 10, 1 );
+			gluDisk( qobj, 0.0, 3.0, 10, 1 );
 	        glPopMatrix();
 		}
 	}
-		
+
 	// draw the agent
 	glColor3fv( agent->color );
-	
+
     // make a copy of the top matrix and place it on top
     glPushMatrix();
-    	glTranslatef( agent->previous_position.x, agent->previous_position.y, 0.0 );
-    	gluDisk( qobj, 0.0, agent->radius, 10, 1 );
+	glTranslatef( agent->previous_position.x, agent->previous_position.y, 0.0 );
+	gluDisk( qobj, 0.0, agent->radius, 10, 1 );
     // destory the copy on top
     glPopMatrix();
 
@@ -1238,21 +1238,21 @@ void display_agent( Agent *agent )
 	// compute the offsets to display the heading mark
     x_offset = cos( agent->previous_heading ) * agent->radius;
     y_offset = sin( agent->previous_heading ) * agent->radius;
- 
+
     // make a copy to the top matrix and place it on top
     glPushMatrix();
-    	glTranslatef( agent->previous_position.x + x_offset,
-    				  agent->previous_position.y + y_offset, 0.0 );
-    	gluDisk( qobj, 0.0, agent->radius / 2.0f, 6, 1 );
+	glTranslatef( agent->previous_position.x + x_offset,
+				  agent->previous_position.y + y_offset, 0.0 );
+	gluDisk( qobj, 0.0, agent->radius / 2.0f, 6, 1 );
     // destory the copy on top
     glPopMatrix();
-    
+
 	glutPostRedisplay();
 }
 
 void display_rectangle(void)
 {
-    glColor3f( 1.0f, 1.0f , 1.0f );	
+    glColor3f( 1.0f, 1.0f , 1.0f );
 	glBegin(GL_POLYGON);
 	   glVertex2f(-65.0, 385.0);
 	   glVertex2f(-65.0, 460.0);
@@ -1270,7 +1270,7 @@ void display_line_of_sight( void )
 
 	glLineWidth( 3.0 );
 	glColor3f( 0.0f, 119.0f / 255 , 0.0f );		// green
-	 		
+
 	for ( a = 0; a < params.agent_number; a++)
 	{
 		for ( b = 0; b < params.agent_number; b++)
@@ -1284,18 +1284,18 @@ void display_line_of_sight( void )
 				   glVertex2f( agents[b]->previous_position.x,
 						       agents[b]->previous_position.y );
 				glEnd();
-		
+
 			}
 		}
 	}
-		    
+
 	glutPostRedisplay();
-}	
+}
 
 void display_params(void)
 {
 	char label[100];
-	
+
 //    glColor3f( 0.7f, 0.0f, 0.6f );
     glColor3f( 0.0f, 0.0f, 1.0f );
 
@@ -1333,7 +1333,7 @@ void display_params(void)
 void display_legend(void)
 {
 	char label[100];
-	
+
 //    glColor3f( 0.7f, 0.0f, 0.6f );
     glColor3f( 0.0f, 0.0f, 1.0f );
 
@@ -1368,7 +1368,7 @@ void display_legend(void)
     glRasterPos2i( 130, -90 );
     sprintf( label, "PGUP/PGDOWN - increase/decrease agents" );
     draw_string( label );
-    
+
     glutPostRedisplay();
 }
 
@@ -1399,15 +1399,15 @@ void display(void)
 }
 
 void reset_statistics( void ){
-	
+
 	stats.time_step = 0;
-	
+
 }
 
 int reset_simulation(void)
 {
 	free_memory();
-	reset_statistics();	
+	reset_statistics();
 
 	// Initialize simulation parameters to sane defaults,
 	// in case some information is missing from config file
@@ -1429,19 +1429,19 @@ int reset_simulation(void)
 	params.p = 2.0f;
 	params.friction = 1.0f;
 	params.cell_size = 20;
-	
+
 	// Read in simulation parameters from config file
 	if ( read_config_file( p_filename ) != 0 )
 	{
 		return EXIT_FAILURE;
 	}
-	
+
 	// create swarm
 	if ( create_swarm() != 0 )
-	{ 
+	{
 		return EXIT_FAILURE;
 	}
-	
+
     // give an impulse to the agent
     impulse_agent(0);
 	/*  clear all pixels				*/
@@ -1452,7 +1452,7 @@ int reset_simulation(void)
 
 void print_parameters(void){
 	int i;
-	
+
 	/*****************************************************************/
 	printf( "vertix_number = %d\n", params.vertix_number );
 	for ( i = 0; i < params.vertix_number; i++ )
@@ -1490,7 +1490,7 @@ void print_cell_coordinates(void)
 	printf("cell number: (lower left corner), (upper right corner)\n");
 	for ( i = 0; i < params.cell_number; i++){
 		printf("cell %d: (%3d, %3d), (%3d, %3d)\n", i,
-				(int)cell_visit_cnt_array[i].coords.x, 
+				(int)cell_visit_cnt_array[i].coords.x,
 				(int)cell_visit_cnt_array[i].coords.y,
 				(int)( cell_visit_cnt_array[i].coords.x + (double)params.cell_size ),
 				(int)( cell_visit_cnt_array[i].coords.y + (double)params.cell_size ));
@@ -1523,13 +1523,13 @@ int init_simulation(void)
 	params.friction = 1.0f;
 
 	params.cell_size = 20;
-	
+
 	// Read in simulation parameters from config file
 	if ( read_config_file( p_filename ) != 0 )
 	{
 		return EXIT_FAILURE;
 	}
-	
+
 	// Read in environment configuration from config file
 	if ( read_environment_file( p_filename_2 ) != 0 )
 	{
@@ -1537,21 +1537,21 @@ int init_simulation(void)
 	}
 
 	stats.time_step = 0;
-	
+
 	// create swarm
 	if ( create_swarm() != 0 )
-	{ 
+	{
 		return EXIT_FAILURE;
 	}
 
     change_starting_position();
-    
+
 	if ( DEBUG ) print_parameters();
 	if ( DEBUG ) print_cell_coordinates();
 	write_to_file();
-	
+
 	stats.counter = 0;
-	
+
 	return 0;
 }
 
@@ -1610,11 +1610,11 @@ void keyboard_normal(unsigned char key, int x, int y)
 //	   	write_cell_visit_cnt_array_to_file();
 		free_memory();
 		exit( EXIT_SUCCESS );
-    	break;
+	break;
 	default:
 		break;
     }
-	
+
 	glutPostRedisplay();
 }
 
@@ -1653,7 +1653,7 @@ void keyboard_special( int key, int x, int y )
 	glutPostRedisplay();
 }
 
-/* 
+/*
  *  Declare initial window size, position, and display mode
  * (single buffer and RGBA).  Open window with "hello"
  *  in its title bar.  Call initialization routines.
@@ -1672,9 +1672,9 @@ int main( int argc, char** argv )
 		printf( "usage: %s configuration_filename environment_configuration_filename\n", argv[0] );
 		return EXIT_FAILURE;
 	}
-	
+
 	p_filename = argv[1];
-	p_filename_2 = argv[2]; 
+	p_filename_2 = argv[2];
 	magic_constant = atof(argv[3]);
 
 	if ( init_simulation() != 0 )
@@ -1685,20 +1685,20 @@ int main( int argc, char** argv )
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_DOUBLE | GLUT_RGB );
 
-    glutInitWindowSize( params.world_width, params.world_height ); 
-//    glutInitWindowSize( 400, 1 ); 
+    glutInitWindowSize( params.world_width, params.world_height );
+//    glutInitWindowSize( 400, 1 );
 
     glutInitWindowPosition( 250, 0 );
 
     //WMS GRAPHICS
     glutCreateWindow( "Linear formations - OpenGL" );
     ////    glutCreateWindow( "Linear formations - No Graphics" );
-   
+
     init_graphics();
-   
+
     // WMS
     // uncomment the next line to have graphics
-    glutDisplayFunc( display ); 
+    glutDisplayFunc( display );
 
     // comment the next three lines when no graphics is desired
 
@@ -1707,14 +1707,14 @@ int main( int argc, char** argv )
 
     // give an impulse to the agent
     impulse_agent(0);
-    
+
     // start the simulatin immediately
     run_gui = !run_gui;
-    
+
     glutTimerFunc( params.sim_speed_ms, run_GUI, stats.time_step );
     glutMainLoop();
-    
+
     free_memory();
-    
+
     return 0;   /* ISO C requires main to return int. */
 }
