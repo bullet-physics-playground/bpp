@@ -136,12 +136,22 @@ is one watertight solid. Put where they are at rest, no two parts overlap
 but each foot's stem in its rocker's socket (0.3 mm^3, where they are
 glued), for all thirteen flip-flops and seven flaps.
 
+### Showing where the ball will go
+
+Before each ball the exhibit works out, from what the rockers and switches
+read, the way the ball will take and what it will do, draws the way as a
+yellow dashed line on the board (360 short dashes, all alike, moved into
+place) and says it on the sign (THIS BALL). It is the same reckoning the
+tour checks each ball against (the accumulator, the MQ, the distributor
+and STOP after every ball), so a tour that passes did what the line and
+the sign said, ball by ball.
+
 ### What it costs
 
 About 430 fixed boxes (320 walls, the plate round its holes, the pegs
 and posts), twelve balls, thirteen rockers, seven flaps and the wheel. The
-tour, about 180 simulated seconds, took about three and a half minutes of
-computing headless here (twice the rockers and twice the length of 2a's);
+tour, about 215 simulated seconds (each ball's way is shown for 1.5 s
+before it goes), took about four minutes of computing headless here (twice the rockers and twice the length of 2a's);
 between balls, and when it is done, the exhibit rests and costs nearly
 nothing.
 

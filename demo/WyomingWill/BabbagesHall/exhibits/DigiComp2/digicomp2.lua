@@ -73,7 +73,9 @@
 -- every moving ball four times a second), DC_LOG=3 (where every ball is at
 -- each reading), DC_CONTACTS=frame (every contact
 -- of the balls, flaps and wheel at that frame: what jams), DC_PAUSE (s
--- between a reading and the next ball in the tour, 1), DC_REST=0.
+-- between a reading and the next ball in the tour, 1), DC_SHOW (s the next
+-- ball's path is shown before it is let go, 1.5), DC_STEP (begin the tour
+-- at that step), DC_REST=0.
 --
 
 local common = require "common"
@@ -610,19 +612,37 @@ end
 -- the sign beside it, the exhibit's (not the machine's): what the
 -- registers read. The machine shows them by its rockers' lean and its
 -- switches (and the 0 and 1 printed beside them); the script reads them
--- for the sign.
+-- for the sign. Under them, THIS BALL: what the next ball will do, and
+-- what the accumulator was and will be (worked out from the readings, as
+-- you would: see "where the next ball goes", below).
 -- ---------------------------------------------------------------------
-local sign
+local sign, say
+local SAYINGS = {
+  count = "COUNT: into A1, it adds 1",
+  clear = "CLEAR: down the clear lane, A to 0",
+  none = "both off: it drops out, adds nothing",
+  M4 = "D1, D2, the MQ less one, M4: adds 8",
+  M4z = "D1, D2, the MQ less one, M4 is 0",
+  M1 = "D1, D3, M1: adds 1",
+  M1z = "D1, D3, M1 is 0: adds nothing",
+  M3 = "D1, D2, M3: adds 4",
+  M3z = "D1, D2, M3 is 0: adds nothing",
+  M2 = "D1, D3, M2: adds 2",
+  M2z = "D1, D3, M2 is 0: adds nothing",
+  stop = "D1, D2, the MQ is 0: STOP",
+}
 do
-  local SX, SZ, TILT = -(BW / 2 + 14), BD / 2 - 30, math.rad(-25)
+  -- (laid out at a size, then everything drawn K times as large)
+  local K = 1.35
+  local SW_, SH_ = 24, 23
+  local SX, SZ, TILT = -(BW / 2 + 1.2 + SW_ * K / 2), BD / 2 - 30, math.rad(-25)   -- (on the table, left of the board)
   local q = btQuaternion(btVector3(1, 0, 0), TILT)
-  local SW_, SH_ = 22, 15
-  local back = Cube(SW_, SH_, 0.8, 0)
+  local back = Cube(SW_ * K, SH_ * K, 0.8, 0)
   back.col = "#1d1712"
   v:add(back)
   local up = btVector3(0, math.cos(TILT), math.sin(TILT))      -- (the sign's own up, leaning back)
   local function at(u, w, d)                                    -- (across, up, out of its face)
-    return btVector3(SX + u, SH_ / 2 + 2 + up.y * w, SZ + up.z * w + d * math.cos(TILT))
+    return btVector3(SX + u * K, SH_ * K / 2 + 2 + up.y * w * K, SZ + up.z * w * K + d * math.cos(TILT))
   end
   back.trans = btTransform(q, at(0, 0, 0))
   local stem = Cube(2, 4, 2, 0)
@@ -632,20 +652,20 @@ do
   key(back, "the exhibit's sign, not the machine's: the script reads the rockers and switches for it")
   local L0 = -SW_ / 2 + 1.0
   local function line(t, size, u, w)
-    local m = part(string.format('signText("%s", %d)', t, size))
+    local m = part(string.format('signText("%s", %d)', t, math.floor(size * K + 0.5)))
     m.col = "#efe6cf"
     v:add(m)
     m.trans = btTransform(q, at(u, w, 0.45))
     return m
   end
-  line("THE DIGI-COMP II", 10, L0, 5.4)
+  line("THE DIGI-COMP II", 10, L0, 9.4)
   local AWAY = btTransform(ident, btVector3(0, -500, 0))
   -- a cell that shows one of several characters
   local function cell(chars, size, u, w)
     local c = { parts = {}, shown = nil, tr = btTransform(q, at(u, w, 0.45)) }
     for i = 1, #chars do
       local ch = chars:sub(i, i)
-      local m = part(string.format('signText("%s", %d)', ch, size))
+      local m = part(string.format('signText("%s", %d)', ch, math.floor(size * K + 0.5)))
       m.col = "#efe6cf"
       v:add(m)
       m.trans = AWAY
@@ -676,15 +696,50 @@ do
       for i = 1, nd do local ch = d:sub(i, i); dc[i].show(ch ~= " " and ch or nil) end
     end
   end
-  local showA = register("A", G.NBITS, 3, 10, 2.3)
-  local showM = register("M", 4, 2, 8, -0.8)
-  local showQ = register("MQ", 3, 1, 8, -3.4)
-  local bal = { cell("0123456789", 7, L0 + 8.2, -6.0), cell("0123456789", 7, L0 + 9.0, -6.0) }
-  line("balls in:", 7, L0, -6.0)
+  local showA = register("A", G.NBITS, 3, 10, 6.3)
+  local showM = register("M", 4, 2, 8, 3.2)
+  local showQ = register("MQ", 3, 1, 8, 0.6)
+  local bal = { cell("0123456789", 7, L0 + 8.2, -2.0), cell("0123456789", 7, L0 + 9.0, -2.0) }
+  line("balls in:", 7, L0, -2.0)
+  local rule = Cube((SW_ - 2) * K, 0.12, 0.1, 0)
+  rule.col = "#c9a14a"; rule.collides = false
+  v:add(rule)
+  rule.trans = btTransform(q, at(0, -3.6, 0.45))
+  line("THIS BALL", 7, L0, -5.0)
+  -- (each saying a part of its own, shown in its place when it is the one)
+  local says, shown = {}, nil
+  local sayTr = btTransform(q, at(L0, -7.6, 0.45))
+  for k, t in pairs(SAYINGS) do
+    local m = part(string.format('signText("%s", %d)', t, math.floor(6 * K + 0.5)))
+    m.col = "#f2c94c"
+    v:add(m)
+    m.trans = AWAY
+    says[k] = m
+  end
+  line("A was", 6, L0, -10.1)
+  line("and will be", 6, L0 + 6.2, -10.1)
+  local was, will = {}, {}
+  for i = 1, 3 do
+    was[i] = cell("0123456789", 6, L0 + 3.4 + (i - 1) * 0.75, -10.1)
+    will[i] = cell("0123456789", 6, L0 + 11.6 + (i - 1) * 0.75, -10.1)
+  end
+  local function digits(cs, n)
+    local d = n and string.format("%3d", n) or "   "
+    for i = 1, 3 do local ch = d:sub(i, i); cs[i].show(ch ~= " " and ch or nil) end
+  end
   sign = function(n, m, q_, nb)
     showA(n); showM(m); showQ(q_)
     local e = string.format("%2d", math.min(nb, 99))
     bal[1].show(e:sub(1, 1) ~= " " and e:sub(1, 1) or nil); bal[2].show(e:sub(2, 2))
+  end
+  -- what the next ball will do (key: one of SAYINGS; nil clears it)
+  say = function(k, a0, a1)
+    if shown ~= k then
+      if shown then says[shown].trans = AWAY end
+      if k then says[k].trans = sayTr end
+      shown = k
+    end
+    digits(was, k and a0); digits(will, k and a1)
   end
 end
 
@@ -765,6 +820,7 @@ local TOUR = {
 }
 local tour = (os.getenv("DC_TOUR") or "1") ~= "0" and { i = 0 } or nil
 local TOUR_PAUSE = envnum("DC_PAUSE", 1.0)
+local SHOW_S = envnum("DC_SHOW", 1.5)          -- (s: the next ball's path shown before it is let go)
 local CONTACTS = tonumber(os.getenv("DC_CONTACTS") or "")
 local fails = 0
 local frameNow = 0
@@ -793,11 +849,160 @@ local function predict(s)
   elseif s.count then p.A = (p.A + 1) % 128 end
   return p
 end
+-- ---------------------------------------------------------------------
+-- where the next ball goes: worked out from what the machine reads now (as
+-- you would, from the rockers and the switches), drawn on the board as a
+-- path, and said on the sign. The exhibit's, not the machine's: the ball
+-- goes where the rockers send it, and the tour checks that it went there.
+-- ---------------------------------------------------------------------
+local RT = F.A + 1.4 + G.R + F.RUN                -- a flip-flop's run: its top, up from the pin
+local function swTop(s) return { s.x, s.z - SW.FL - SW.DROP } end
+local function swPin(s) return { s.x, s.z - 0.4 } end
+local function swOut(s, side) return { s.x + side * SW.OX, s.z + SW.OUT } end
+local function route(s)
+  local up, low = {}, {}                          -- (points on the upper level; then on the lower)
+  local key
+  local function add(p) up[#up + 1] = p end
+  local function into(t) add({ t.x, t.z - RT }); add({ t.x, t.z - F.A - G.R * 0.5 }) end
+  local function out(t, side) add({ t.x + side * 2.3, t.z + 0.2 }) end
+  local function lane(name, from)
+    for i, p in ipairs(G.lanes[name]) do if i >= (from or 1) then add(p) end end
+  end
+  local function drop(p) add(p); low = { p, { p[1], p[2] + 1.5 } } end
+  -- into A at place k: on through every 1 (the carry), out at the first 0
+  local function intoA(k)
+    while true do
+      local t = G.rocker["A" .. k]
+      into(t)
+      if bitOf(s.A, k) == 0 then out(t, 1); drop(t.done); return end
+      out(t, -1)
+      if k == G.NBITS then drop(G.overflow); return end
+      k = k + 1
+    end
+  end
+  -- a memory switch: at 1, into A; at 0, it drops
+  local function memory(k)
+    local m = G.switches["M" .. k]
+    add(swPin(m))
+    if bitOf(s.M, k) == 1 then add(swOut(m, 1)); intoA(k); key = "M" .. k
+    else drop(m.dropHole); key = "M" .. k .. "z" end
+  end
+  local Wd = WH.ballR
+  add({ WH.x, WH.z - Wd }); add({ WH.x + Wd, WH.z }); add({ WH.x, WH.z + Wd })
+  local mu = G.switches.MULTIPLY
+  add(swTop(mu)); add(swPin(mu))
+  if s.mult then
+    add(swOut(mu, -1))
+    local R_ = G.rocker
+    into(R_.D1)
+    if s.d[1] == 1 then
+      out(R_.D1, -1); into(R_.D2)
+      if s.d[2] == 1 then
+        out(R_.D2, -1)
+        -- the MQ: a borrow on to the left while it finds its apex right
+        local k = 1
+        while true do
+          local t = R_["MQ" .. k]
+          into(t)
+          if bitOf(s.MQ, k) == 0 then
+            out(t, -1)
+            if k == 3 then drop(G.stop); key = "stop"; return up, low, key end
+            k = k + 1
+          else
+            out(t, 1)
+            for j = k, 2 do lane("MQ" .. j .. " on"); add({ R_["MQ" .. (j + 1)].x + G.DX, R_["MQ" .. (j + 1)].z + G.DZ - RT }) end
+            lane("MQ to M4", k == 3 and 1 or 2)
+            break
+          end
+        end
+        memory(4)
+      else
+        out(R_.D2, 1); lane("D2 to M3"); memory(3)
+      end
+    else
+      out(R_.D1, 1); lane("D1 to D3"); into(R_.D3)
+      if s.d[3] == 1 then out(R_.D3, -1); lane("D3 to M2"); memory(2)
+      else out(R_.D3, 1); lane("D3 to M1"); memory(1) end
+    end
+  else
+    add(swOut(mu, 1)); lane("MULTIPLY off", 2)
+    local c = G.switches.CLEAR
+    add(swPin(c))
+    if s.clear then
+      add(swOut(c, 1)); add(G.clearDrop)
+      low = {}
+      for _, p in ipairs(G.clearLane) do low[#low + 1] = p end
+      key = "clear"
+    else
+      add(swOut(c, -1))
+      local n = G.switches.COUNT
+      add(swPin(n))
+      if s.count then add(swOut(n, -1)); intoA(1); key = "count"
+      else add(swOut(n, 1)); drop(G.countOffDrop); key = "none" end
+    end
+  end
+  return up, low, key
+end
+-- the path, drawn: a dashed line a little over the plate (and over the
+-- lower level), not part of the machine (nothing touches it). The dashes
+-- are all alike, so the same few hundred serve every path.
+local DASH, GAPD, DASH_N = 0.55, 0.35, 360
+local dashes = {}
+local DASH_AWAY = btTransform(ident, btVector3(0, -500, 0))
+local function showPath(up, low)
+  local n = 0
+  local function line(P, y)
+    local carry = 0                                 -- (how far along the next dash starts)
+    for i = 1, #(P or {}) - 1 do
+      local a, b = P[i], P[i + 1]
+      local dx, dz = b[1] - a[1], b[2] - a[2]
+      local len = math.sqrt(dx * dx + dz * dz)
+      if len > 1e-6 then
+        local q = yq(math.atan2(-dz, dx))
+        local t = carry
+        while t + DASH / 2 <= len do
+          n = n + 1
+          if n > DASH_N then return end
+          local c = dashes[n]
+          if not c then
+            c = Cube(DASH, 0.04, 0.4, 0)
+            c.collides = false
+            c.col = "#ffd23f"
+            v:add(c)
+            dashes[n] = c
+          end
+          local f = (t + DASH / 2) / len
+          c.trans = btTransform(q, W3(a[1] + dx * f, y, a[2] + dz * f))
+          t = t + DASH + GAPD
+        end
+        carry = t - len
+      end
+    end
+  end
+  line(up, 0.04)
+  line(low, YL + 0.04)
+  for i = n + 1, #dashes do dashes[i].trans = DASH_AWAY end
+end
+local function hidePath() showPath(nil, nil); say(nil) end
+-- before a ball: where it will go, on the board and the sign
+local function preview()
+  local s = reading()
+  local up, low, k = route(s)
+  local p = predict(s)
+  showPath(up, low)
+  say(k, s.A, p.A)
+  local text = SAYINGS[k] .. string.format(" (A %d -> %d)", s.A, p.A)
+  pcall(function() v:setStatusText(text) end)
+  return text
+end
+
 local function startTour()
   print("\nDIGI-COMP II -- the tour: counting, adding and multiplying")
-  tour = { i = 0, wait = 0 }
+  -- (DC_STEP: begin at that step of the tour, for testing)
+  tour = { i = math.max(0, envnum("DC_STEP", 1) - 1), wait = 0 }
   fails = 0
   setUp()
+  hidePath()
 end
 local function nextStep()
   tour.i = tour.i + 1
@@ -899,13 +1104,17 @@ v:postSim(function(N)
   end
   if tour then
     tour.wait = (tour.wait or 0) + FRAME_DT
-    local function ball() tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false; feed() end
-    if tour.i == 0 then
+    -- (each ball: first where it will go, on the board and the sign; then
+    -- the hand lets it go)
+    local function ball() tour.phase, tour.wait = "show", 0; print("      next: " .. preview()) end
+    if tour.n == nil then
       if tour.wait > 0.6 then nextStep() end
     elseif tour.phase == "settle" then
       if tour.wait > 0.6 and not busy() then
         if tour.left > 0 then ball() else nextStep() end
       end
+    elseif tour.phase == "show" then
+      if tour.wait > SHOW_S then tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false; feed() end
     elseif tour.phase == "ball" then
       if not busy() and refillWait <= 0 and tour.wait > 0.5 and (still > 0.4 or tour.wait > 15) then
         if not checkBall() then fails = fails + 1 end
@@ -933,8 +1142,8 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help, hover
 -- ---------------------------------------------------------------------
-local function byHand(fn) return function() if not tour then fn(); handMoved() end end end
-v:addShortcut("Space", function() if not tour then stopSeen = false; feed() end end)
+local function byHand(fn) return function() if not tour then fn(); hidePath(); handMoved() end end end
+v:addShortcut("Space", function() if not tour then stopSeen = false; preview(); feed() end end)
 v:addShortcut("M", byHand(function() setSwitch("MULTIPLY", not isOn("MULTIPLY")) end))
 v:addShortcut("C", byHand(function() setSwitch("CLEAR", not isOn("CLEAR")) end))
 v:addShortcut("N", byHand(function() setSwitch("COUNT", not isOn("COUNT")) end))
@@ -947,7 +1156,7 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
 end
 v:addShortcut("D", byHand(setD))
 v:addShortcut("T", function() startTour() end)
-v:addShortcut("R", function() tour = nil; queue = 0; setUp() end)
+v:addShortcut("R", function() tour = nil; queue = 0; setUp(); hidePath() end)
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
@@ -981,6 +1190,9 @@ pcall(function()
     "  So every four balls add the memory to A, once for each count of the MQ;",
     "  when the MQ is used up the next ball drops through STOP. ADD is the same",
     "  with the MQ at 1.",
+    "  Before each ball, a yellow dashed line on the board shows where it will",
+    "  go, and the sign beside it (THIS BALL) says what it will do and what the",
+    "  accumulator was and will be. Then watch it do that (Z: slow motion).",
     "",
     "KEYS",
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",

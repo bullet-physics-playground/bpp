@@ -377,4 +377,8 @@ Its README lists the parts to print and buy. Some other ways to build less:
 On this board, by hand (keys in the simulation): A's rockers `1` to `7`,
 the memory `H J K L`, the MQ `8 9 0`, the distributor to start `D`,
 MULTIPLY `M`, CLEAR `C`, COUNT `N`, START `Space`. The tour (`T`) runs
-counting, clearing, 37 + 11 and 13 x 3.
+counting, clearing, 37 + 11 and 13 x 3. Before each ball, in the tour or
+with `Space`, the exhibit draws the way the ball will go as a yellow dashed
+line on the board, and its sign says what the ball will do and what the
+accumulator was and will be: a good way to follow this manual on the
+machine itself.

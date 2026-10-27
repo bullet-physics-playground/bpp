@@ -127,9 +127,14 @@ holding the first number.
   ball running down the green lane past the feet, and the memory's dropped
   balls going to the return lane on the left.
 - **The sign** on the table: what the accumulator, the memory and the MQ
-  read, in binary and as numbers, and how many balls have been let in. It
-  is the exhibit's, not part of the machine: the script reads the rockers
-  and switches for it.
+  read, in binary and as numbers, and how many balls have been let in.
+  Under them, **THIS BALL**: before each ball, what it will do ("D1, D3,
+  M1: adds 1") and what the accumulator was and will be. At the same time
+  a **yellow dashed line** on the board shows the way it will go, through
+  the switches and flip-flops, carries and all; then the hand lets it go,
+  and you can watch it do just that (`Z` for slow motion). The sign and the
+  line are the exhibit's, not part of the machine: the script works them
+  out from the rockers and switches, as you would.
 
 Rest the mouse on a rocker, a foot, a flap, the feeder or a wall to see what
 it is and what it is doing.
@@ -139,8 +144,8 @@ memory 11, the MQ 1, MULTIPLY on: five balls, the last to STOP: 48);
 CLEAR; **MULTIPLY** 13 x 3 (thirteen balls: 39). After each ball it checks
 everything the ball should have changed (the accumulator, the MQ, the
 distributor, STOP) and that the ball reached the collector, and prints
-`RESULT digicomp2 tour: PASS`. It takes about 180 simulated seconds, and
-about three and a half minutes of computing here, headless. Twelve balls are not
+`RESULT digicomp2 tour: PASS`. It takes about 215 simulated seconds, and
+about four minutes of computing here, headless. Twelve balls are not
 enough for the multiply: when the input runs low the hand takes balls from
 the collector and puts them back at its top, as you would.
 
@@ -154,7 +159,9 @@ Environment, for testing: `DC_TOUR=0` (no tour), `DC_FRICTION`, `DC_PF`
 slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
 (steps a second, 2400), `DC_HAND` (the most torque the hand turns the knob
 with, 50), `DC_PAUSE` (seconds between a reading and the next ball, 1),
-`DC_LOG=1` (every rocker's lean at each reading), `DC_LOG=2` (also every
+`DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
+`DC_STEP` (begin the tour at that step), `DC_LOG=1` (every rocker's lean at
+each reading), `DC_LOG=2` (also every
 moving ball four times a second), `DC_LOG=3` (where every ball is at each
 reading), `DC_CONTACTS=frame` (every contact of the balls, rockers, flaps
 and wheel at that frame), `DC_REST=0` (never rest), `DC_EXPORT=1` (rewrite

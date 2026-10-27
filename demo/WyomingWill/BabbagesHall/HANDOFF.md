@@ -288,6 +288,11 @@ there, in `release/`, or on the path; or set `BPP`.
   drawn from the geometry. Keep it up to date as steps are added; its
   section 6 (complement, subtract, divide, AUTO) follows E.S.R.'s manual,
   whose chapter on remainders could not be read here.
+- **Done the same night: the narrated tour.** Before each ball a yellow
+  dashed line on the board shows the way it will go, and the sign's THIS
+  BALL says what it will do and what A was and will be (`route()`,
+  `preview()` in `digicomp2.lua`; also on `Space`). `DC_STEP` starts the
+  tour at a later step, for testing.
 - **Next: AUTO and step 2c.** AUTO is the START lever (see FINDINGS for
   why the first escapement failed): a ball at the bottom lets the next go,
   and the ball through STOP lets none. Step 2c, subtract and divide, is the
