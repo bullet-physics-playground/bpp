@@ -107,8 +107,8 @@ EXHIBITS = EXHIBITS or {
             "count, add, subtract, multiply and divide in binary. Thirteen rockers, tipped over\n" ..
             "by the balls alone, make the accumulator, the MQ and the distributor; four switches\n" ..
             "are the memory; six shutters on one bar are COMPLEMENT.\n" ..
-            "Space: START; M, C, N, X: the switches; T: the tour (37 + 11, 13 x 3, 12 - 4, 13 / 5);\n" ..
-            "G: run the program the \"program\" slider chooses, line by line." },
+            "Space: START; M, C, N, X: the switches; G: run the program the \"program\" slider\n" ..
+            "chooses, line by line; T: the tour, every program in turn." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..
@@ -183,9 +183,11 @@ realV.gravity = btVector3(0, -981, 0)
 -- console shows what each frame spent its time on, in ms -- physics (the
 -- exhibit's steps and bpp's own), the exhibit's scripts, garbage, and
 -- drawing -- and how often the exhibit you're at was resting (see each
--- exhibit's "at rest"). HALL_METER=0: off.
+-- exhibit's "at rest"). Off unless asked for: the "Hall: meter" slider
+-- (in the Params pane at the two views down the hall) or HALL_METER=1.
 -- ---------------------------------------------------------------------
-local METER = os.getenv("HALL_METER") ~= "0"
+local METER = os.getenv("HALL_METER") == "1"
+local METER_PARAM = "Hall: meter"
 local METER_PRINT = tonumber(os.getenv("HALL_METER_S") or "") or 10
 local METER_FILE = os.getenv("HALL_METER_FILE")       -- (and appended to this file, if set)
 -- Two stopwatches, as in the Rec Room: bpp's (v:getTime) for real time, and
@@ -223,7 +225,7 @@ local function collectSome()
   meter.gc = meter.gc + (now() - t)
 end
 -- A frame that takes longer than FREEZE_LOG_MS (250; 0: never) is noted in
--- the console with the time of day it ended.
+-- the console with the time of day it ended, while the meter is on.
 local FREEZE_LOG_MS = tonumber(os.getenv("HALL_FREEZE_MS") or "") or 250
 
 -- ---------------------------------------------------------------------
@@ -1099,7 +1101,7 @@ local function meterLine(t)
     where = string.format("at %s: resting (not stepping) in %.0f%% of the frames", active.name,
                           100 * meter.resting / n)
   end
-  return string.format("HALL METER -- ms per frame, averaged over the last %.0f s (HALL_METER=0: off)\n" ..
+  return string.format("HALL METER -- ms per frame, averaged over the last %.0f s (the \"Hall: meter\" slider: off)\n" ..
                        "  %.0f frames a second; %s\n" ..
                        "  physics %.2f   scripts %.2f   garbage %s   drawing %.2f\n" ..
                        "  busy    %.1f ms of each %.1f ms frame (%.0f%%); longest frame %.0f ms\n" ..
@@ -1142,7 +1144,7 @@ realV:postDraw(function(N)
   if lastShown then
     local gap = w - lastShown
     meter.longest = math.max(meter.longest, gap)
-    if FREEZE_LOG_MS > 0 and gap > FREEZE_LOG_MS and meter.t0 and w - meter.t0 > 0 then
+    if METER and FREEZE_LOG_MS > 0 and gap > FREEZE_LOG_MS and meter.t0 and w - meter.t0 > 0 then
       print(string.format("HALL: a %.0f ms freeze, ending at %s", gap, os.date("%H:%M:%S")))
     end
   end
@@ -1198,6 +1200,15 @@ realV:onKey(function(N, key, down)
 end)
 
 realV:onParamChanged(function(N, name, value)
+  if name == METER_PARAM then
+    local on = value >= 0.5
+    if on ~= METER then
+      METER = on
+      meter.t0 = nil                       -- (it starts counting afresh)
+      print("HALL: the meter is " .. (on and "on: a line every " .. METER_PRINT .. " s" or "off"))
+    end
+    return
+  end
   if name == STOP_PARAM then
     local i = math.max(1, math.min(#stops, math.floor(value + 0.5)))
     stopShown = i
@@ -1239,6 +1250,7 @@ if realV.onHover then
 end
 
 if realV.onePerFrame ~= nil then realV.onePerFrame = true end
+realV:addParam(METER_PARAM, METER and 1 or 0, 0, 1, 1, "the cost meter in the console every " .. METER_PRINT .. " s: 1 on, 0 off")
 -- (START: begin at that exhibit's name, for trying one out)
 local START = os.getenv("HALL_START")
 if START then

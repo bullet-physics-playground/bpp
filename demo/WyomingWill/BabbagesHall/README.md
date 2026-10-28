@@ -96,18 +96,21 @@ computing without resting and 16 s with it (its tour ends after about 20 s);
 over 50 s, the Domino Half Adder took 165 s and 88 s.
 
 The **cost meter** (after the Rec Room's) shows in the console every 10
-seconds what each frame spends its time on, in milliseconds. Here, at the
+seconds what each frame spends its time on, in milliseconds. It is off
+unless you turn it on: the **Hall: meter** slider (1 on, 0 off), in the
+Params pane at the two views down the hall (the entrance and the title
+wall), or `HALL_METER=1`. Here, at the
 Differential during its tour, and then resting after it, on a computer
 drawing in software (no graphics card), so its drawing is slow:
 
 ```
-HALL METER -- ms per frame, averaged over the last 10 s (HALL_METER=0: off)
+HALL METER -- ms per frame, averaged over the last 10 s (the "Hall: meter" slider: off)
   7 frames a second; at the Differential: resting (not stepping) in 0% of the frames
   physics 22.27   scripts 0.82   garbage (Lua's own)   drawing 25.28
   busy    48.4 ms of each 153.5 ms frame (32%); longest frame 219 ms
   outside the hall's code 105.2 ms a frame (bpp itself, the graphics driver, waiting for the screen)
 
-HALL METER -- ms per frame, averaged over the last 10 s (HALL_METER=0: off)
+HALL METER -- ms per frame, averaged over the last 10 s (the "Hall: meter" slider: off)
   9 frames a second; at the Differential: resting (not stepping) in 100% of the frames
   physics 0.01   scripts 0.10   garbage (Lua's own)   drawing 22.66
   busy    23.9 ms of each 113.1 ms frame (21%); longest frame 148 ms
@@ -130,9 +133,9 @@ HALL METER -- ms per frame, averaged over the last 10 s (HALL_METER=0: off)
 `HALL_METER_S` sets how often it prints; `HALL_METER_FILE=path` also
 appends each report to that file.
 
-A frame that takes longer than a quarter of a second is noted in the
-console with the time of day (`HALL_FREEZE_MS`, 250; 0: never).
-`HALL_METER_S` sets how often the meter prints.
+While the meter is on, a frame that takes longer than a quarter of a
+second is noted in the console with the time of day (`HALL_FREEZE_MS`,
+250; 0: never).
 
 The placards' lettering is made by `python3 make-labels.py` (needs Pillow,
 NumPy and the DejaVu fonts) into `hall-meshes/`.

@@ -128,7 +128,7 @@ round from the top and lets it out at the bottom.
 | `D` | set the distributor to start a cycle (D1 1, D2 1, D3 0) |
 | `X` | COMPLEMENT on and off (the shutters over the done holes) |
 | `G` | run the program the **program** slider chooses (`G` again stops it) |
-| `T` | the tour (it starts with it) |
+| `T` | the tour: every program in the library, in turn (it starts with it) |
 | `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
 | `Z` | slow motion (1/4 speed) on and off |
 
@@ -162,19 +162,21 @@ holding the first number. To subtract, complement the number to take away
 Rest the mouse on a rocker, a foot, a flap, the feeder or a wall to see what
 it is and what it is doing.
 
-**The tour** (`T`): COUNT from 0, two balls; CLEAR; **ADD** 37 + 11 (the
-memory 11, the MQ 1, MULTIPLY on: five balls, the last to STOP: 48);
-CLEAR; **MULTIPLY** 13 x 3 (thirteen balls: 39); the **COMPLEMENT** of 25
-(102, then 103); **SUBTRACT** 12 - 4 (4 complemented to 124, then 12 added:
-8, over 128); **DIVIDE** 13 / 5 (13 complemented to 115, then 5 added until
-A goes over, in the third cycle: quotient 2, remainder 3). After each ball
-it checks everything the ball should have changed (the accumulator, the
-MQ, the distributor, STOP, OVERFLOW) and that the ball reached the
-collector, and at the end of the division the quotient and remainder, and
-prints `RESULT digicomp2 tour: PASS`. It takes about 460 simulated seconds,
-and about ten minutes of computing here, headless. Twelve balls are not
-enough for the multiply: when the input runs low the hand takes balls from
-the collector and puts them back at its top, as you would.
+**The tour** (`T`; it starts with the exhibit) runs the program library
+(below), one program after another: count to 5; clear; **ADD** 37 + 11
+(five balls, the last to STOP: 48); **MULTIPLY** 13 x 3 (thirteen balls:
+39); the **COMPLEMENT** of 25 (102, then 103); **SUBTRACT** 12 - 4 (4
+complemented to 124, then 12 added: 8, over 128); **DIVIDE** 13 / 5 ball
+by ball (quotient 2, remainder 3) and 25 / 5 with loops; and counting out
+nine balls. Each program's listing is in the Shortcuts pane, the line being
+done in the status bar. After each ball it checks everything the ball
+should have changed (the accumulator, the MQ, the distributor, STOP,
+OVERFLOW) and that the ball reached the collector, and each program's
+`CHECK` lines, and prints `RESULT digicomp2 tour: PASS`. It takes about 880
+simulated seconds, and about twelve minutes of computing here, headless.
+Twelve balls are not enough for the multiply: when the input runs low the
+hand takes balls from the collector and puts them back at its top, as you
+would.
 
 **Programs.** The procedures can be written down and run: text files in
 `programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`
@@ -197,9 +199,9 @@ slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
 (steps a second, 2400), `DC_HAND` (the most torque the hand turns the knob
 with, 50), `DC_PAUSE` (seconds between a reading and the next ball, 1),
 `DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
-`DC_STEP` (begin the tour at that step), `DC_PROGRAM=name` (run that
-program from the library instead of the tour; `all`: every one in turn,
-then `RESULT digicomp2 programs: PASS`), `DC_LOG=1` (every rocker's lean at
+`DC_STEP` (begin the tour at that program of the library),
+`DC_PROGRAM=name` (run only that program; `all`: every one in turn, as the
+tour, then `RESULT digicomp2 programs: PASS`), `DC_LOG=1` (every rocker's lean at
 each reading), `DC_LOG=2` (also every
 moving ball four times a second), `DC_LOG=3` (where every ball is at each
 reading), `DC_CONTACTS=frame` (every contact of the balls, rockers, flaps

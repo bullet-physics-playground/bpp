@@ -58,7 +58,7 @@
 --   X      COMPLEMENT on <-> off
 --   G      run the program chosen with the "program" slider (G again: stop;
 --          see PROGRAMS, below)
---   T      the tour (it starts with it)
+--   T      the tour: every program in the library, in turn (it starts with it)
 --   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
 --   Z      slow motion (1/4) <-> real time
 --
@@ -87,7 +87,8 @@
 -- of the balls, flaps and wheel at that frame: what jams), DC_PAUSE (s
 -- between a reading and the next ball in the tour, 1), DC_SHOW (s the next
 -- ball's path is shown before it is let go, 1.5), DC_STEP (begin the tour
--- at that step), DC_REST=0.
+-- at that program of the library), DC_PROGRAM (one program, or "all"),
+-- DC_REST=0.
 --
 
 local common = require "common"
@@ -882,37 +883,14 @@ local function setUp()
 end
 
 -- ---------------------------------------------------------------------
--- the tour: counting and clearing; adding (a multiply by 1); multiplying.
--- Every ball checked against what the machine should do with it
+-- the tour: the program library (programs/; see PROGRAMS, below), one
+-- after another, every ball checked against what the machine should do
 -- ---------------------------------------------------------------------
 local LOG = os.getenv("DC_LOG")
-local TOUR = {
-  { say = "COUNT on, from 0: two balls count 1, 2", A = 0, MQ = 0, M = 0, D = true,
-    MULTIPLY = false, CLEAR = false, COUNT = true, balls = 2 },
-  { say = "CLEAR on: one ball clears the accumulator", CLEAR = true, balls = 1 },
-  { say = "ADD: 37 in the accumulator, 11 in the memory, MQ 1, MULTIPLY on: balls until STOP",
-    A = 37, M = 11, MQ = 1, D = true, MULTIPLY = true, CLEAR = false, untilStop = true },
-  { say = "MULTIPLY off, CLEAR on: one ball clears the accumulator", MULTIPLY = false, CLEAR = true, balls = 1 },
-  { say = "MULTIPLY: 13 in the memory, 3 in the MQ: balls until STOP (13 x 3)",
-    M = 13, MQ = 3, D = true, MULTIPLY = true, CLEAR = false, untilStop = true },
-  { say = "COMPLEMENT: 25 in the accumulator, MULTIPLY off, COUNT and COMPLEMENT on: one ball turns every bit over (102)",
-    A = 25, MULTIPLY = false, CLEAR = false, COUNT = true, COMPLEMENT = true, balls = 1 },
-  { say = "COMPLEMENT off: one ball adds 1: 103, the complement of 25 (128 - 25)", COMPLEMENT = false, balls = 1 },
-  { say = "SUBTRACT 12 - 4: 4 in the accumulator; COMPLEMENT on, one ball", A = 4, COMPLEMENT = true, balls = 1 },
-  { say = "COMPLEMENT off, one ball: 124, the complement of 4", COMPLEMENT = false, balls = 1 },
-  { say = "12 in the memory, MQ 1, MULTIPLY on: balls until STOP. 124 + 12 = 136, over 128: 8",
-    M = 12, MQ = 1, D = true, MULTIPLY = true, untilStop = true },
-  { say = "DIVIDE 13 / 5: 13 in the accumulator, MULTIPLY off; COMPLEMENT on, one ball", A = 13, MULTIPLY = false,
-    COMPLEMENT = true, balls = 1 },
-  { say = "COMPLEMENT off, one ball: 115, the complement of 13", COMPLEMENT = false, balls = 1 },
-  { say = "5 in the memory, MQ 7, MULTIPLY on: balls until A overflows, then on to the end of that cycle",
-    M = 5, MQ = 7, D = true, MULTIPLY = true, untilOverflow = true, divide = { 13, 5 } },
-}
-local tour = (os.getenv("DC_TOUR") or "1") ~= "0" and { i = 0 } or nil
+local TOUR_AT_START = (os.getenv("DC_TOUR") or "1") ~= "0"
 local TOUR_PAUSE = envnum("DC_PAUSE", 1.0)
 local SHOW_S = envnum("DC_SHOW", 1.5)          -- (s: the next ball's path shown before it is let go)
 local CONTACTS = tonumber(os.getenv("DC_CONTACTS") or "")
-local fails = 0
 local frameNow = 0
 -- what the machine reads now, and what one more ball should make of it
 local function reading()
@@ -1103,43 +1081,7 @@ local function preview()
   return text
 end
 
-local function startTour()
-  print("\nDIGI-COMP II -- the tour: counting, adding and multiplying")
-  -- (DC_STEP: begin at that step of the tour, for testing)
-  tour = { i = math.max(0, envnum("DC_STEP", 1) - 1), wait = 0 }
-  fails = 0
-  setUp()
-  hidePath()
-end
-local function nextStep()
-  tour.i = tour.i + 1
-  local s = TOUR[tour.i]
-  if not s then
-    print((fails == 0 and "  all right" or string.format("  %d WRONG", fails)) .. string.format(" (frame %d).", frameNow))
-    print("RESULT digicomp2 tour: " .. (fails == 0 and "PASS" or "FAIL"))
-    tour = nil
-    return
-  end
-  print("  " .. s.say)
-  if s.A then setA(s.A) end
-  if s.MQ then setMQ(s.MQ) end
-  if s.M then setM(s.M) end
-  if s.D then setD() end
-  for _, n in ipairs({ "MULTIPLY", "CLEAR", "COUNT" }) do
-    if s[n] ~= nil then setSwitch(n, s[n]) end
-  end
-  if s.COMPLEMENT ~= nil then setComplement(s.COMPLEMENT) end
-  tour.left = s.balls or 40
-  tour.untilStop = s.untilStop
-  tour.untilOverflow, tour.divide = s.untilOverflow, s.divide
-  overSeen = false
-  tour.n = 0
-  tour.wantBalls = s.untilStop and 4 * s.MQ + 1 or nil
-  tour.phase, tour.wait = "settle", 0
-  handMoved()
-end
 local function checkBall(t)
-  t = t or tour
   local now = reading()
   local p = predict(t.before)
   local c = nCollected()
@@ -1296,7 +1238,6 @@ local function handKey(k)
 end
 local function regValue(r) if r == "A" then return count() elseif r == "M" then return mem() else return mq() end end
 local function startProgram(p)
-  tour = nil
   queue = 0
   PR.prog = { p = p, i = 1, phase = "next", wait = 0 }
   print(string.format("\nDIGI-COMP II -- program: %s (programs/%s)", p.title, p.file))
@@ -1316,8 +1257,8 @@ local function stopProgram(why)
     PR.run.i = PR.run.i + 1
     if PR.run.list[PR.run.i] then startProgram(PR.run.list[PR.run.i])
     else
-      print(string.format("  (frame %d)", frameNow))
-      print("RESULT digicomp2 programs: " .. (PR.fails == 0 and "PASS" or "FAIL"))
+      print(string.format("  %s (frame %d)", PR.fails == 0 and "all right" or (PR.fails .. " WRONG"), frameNow))
+      print("RESULT digicomp2 " .. (PR.run.tour and "tour" or "programs") .. ": " .. (PR.fails == 0 and "PASS" or "FAIL"))
       PR.run = nil
     end
   end
@@ -1405,6 +1346,17 @@ PR.step, PR.start, PR.stopIt, PR.library, PR.libraryText, PR.listing, PR.setStat
   progStep, startProgram, stopProgram, library, libraryText, listing, setStatus
 end
 
+-- the tour: every program in the library, in turn
+local function startTour()
+  print("\nDIGI-COMP II -- the tour: the program library, one after another")
+  PR.fails = 0
+  local list = {}
+  -- (DC_STEP: begin at that program, for testing)
+  for i = math.max(1, math.floor(envnum("DC_STEP", 1))), #PR.library do list[#list + 1] = PR.library[i] end
+  setUp()
+  if #list > 0 then PR.run = { list = list, i = 1, tour = true }; PR.start(list[1]) end
+end
+
 -- ---------------------------------------------------------------------
 -- stepping
 -- ---------------------------------------------------------------------
@@ -1423,7 +1375,6 @@ local function startTurn()
   wheel.target = wheel.target + math.pi / 2
   dropped = dropped + 1
   still = 0
-  if tour then tour.wait = 0 end
   if PR.prog then PR.prog.wait = 0 end
 end
 
@@ -1462,69 +1413,13 @@ v:postSim(function(N)
     if #t > 0 then print(string.format("  frame %d: A %s; moving: %s", N, bits(), table.concat(t, ", "))) end
   end
   if PR.prog then PR.step() end
-  if tour then
-    tour.wait = (tour.wait or 0) + FRAME_DT
-    -- (each ball: first where it will go, on the board and the sign; then
-    -- the hand lets it go)
-    local function ball() tour.phase, tour.wait = "show", 0; print("      next: " .. preview()) end
-    if tour.n == nil then
-      if tour.wait > 0.6 then nextStep() end
-    elseif tour.phase == "settle" then
-      if tour.wait > 0.6 and not busy() then
-        if tour.left > 0 then ball() else nextStep() end
-      end
-    elseif tour.phase == "show" then
-      if tour.wait > SHOW_S then
-        tour.phase, tour.wait = "ball", 0; tour.before = reading(); stopSeen = false
-        tour.overBefore = overSeen; feed()
-      end
-    elseif tour.phase == "ball" then
-      if not busy() and refillWait <= 0 and tour.wait > 0.5 and (still > 0.4 or tour.wait > 15) then
-        tour.overNow = overSeen and not tour.overBefore
-        if not checkBall() then fails = fails + 1 end
-        tour.left = tour.left - 1
-        tour.n = tour.n + 1
-        if tour.untilStop and stopSeen then
-          if tour.n ~= tour.wantBalls then
-            fails = fails + 1
-            print(string.format("    WRONG: STOP after %d balls, not %d", tour.n, tour.wantBalls))
-          else
-            print(string.format("    STOP after %d balls (4 x MQ + 1): the hand stops; the accumulator reads %d", tour.n, count()))
-          end
-          tour.left = 0
-        end
-        -- (dividing: once A has overflowed, the hand lets the cycle finish,
-        -- and stops when the next ball would go to the MQ)
-        if tour.untilOverflow and overSeen and not stopSeen then
-          local r = reading()
-          if r.d[1] == 1 and r.d[2] == 1 then
-            tour.left = 0
-            local c = 7 - r.MQ                          -- (the cycles: the MQ's lower numbers)
-            local q, rem = c, 0
-            if r.A ~= 0 then q, rem = c - 1, r.M - r.A end
-            local d = tour.divide
-            local right = d and q == math.floor(d[1] / d[2]) and rem == d[1] % d[2]
-            if not right then fails = fails + 1 end
-            print(string.format("    A overflowed; the cycle is done, the hand stops. MQ %d: %d cycles (its lower numbers, %s). " ..
-                                "A reads %d, so the quotient is %d, the remainder %d%s", r.MQ, c, binary(c, 3), r.A, q, rem,
-                                d and (right and string.format(": %d / %d = %d, remainder %d", d[1], d[2], q, rem) or "  WRONG") or ""))
-          end
-        end
-        tour.phase, tour.wait = "pause", 0
-      end
-    elseif tour.phase == "pause" then
-      if tour.wait > TOUR_PAUSE then
-        if tour.left > 0 then ball() else nextStep() end
-      end
-    end
-  end
 end)
 
 -- ---------------------------------------------------------------------
 -- keys, sliders, help, hover
 -- ---------------------------------------------------------------------
-local function byHand(fn) return function() if not tour then fn(); hidePath(); handMoved() end end end
-v:addShortcut("Space", function() if not tour then stopSeen = false; preview(); feed() end end)
+local function byHand(fn) return function() if not PR.prog then fn(); hidePath(); handMoved() end end end
+v:addShortcut("Space", function() if not PR.prog then stopSeen = false; preview(); feed() end end)
 v:addShortcut("M", byHand(function() setSwitch("MULTIPLY", not isOn("MULTIPLY")) end))
 v:addShortcut("C", byHand(function() setSwitch("CLEAR", not isOn("CLEAR")) end))
 v:addShortcut("N", byHand(function() setSwitch("COUNT", not isOn("COUNT")) end))
@@ -1538,14 +1433,14 @@ end
 v:addShortcut("D", byHand(setD))
 v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
 v:addShortcut("T", function() PR.prog = nil; PR.run = nil; startTour() end)
-v:addShortcut("R", function() tour = nil; PR.prog = nil; PR.run = nil; queue = 0; setUp(); hidePath(); PR.setStatus("") end)
+v:addShortcut("R", function() PR.prog = nil; PR.run = nil; queue = 0; setUp(); hidePath(); PR.setStatus("") end)
 -- programs: the slider chooses, G runs it (G again: stop)
 local progSel = 1
 if #PR.library > 0 then
   v:addParam("program", 1, 1, #PR.library, 1, "a program from the library (programs/): G runs it")
 end
 v:addShortcut("G", function()
-  if PR.prog then PR.stopIt("stopped by hand"); return end
+  if PR.prog then PR.run = nil; PR.stopIt("stopped by hand"); return end
   local p = PR.library[progSel]
   if p then PR.start(p) end
 end)
@@ -1606,7 +1501,7 @@ pcall(function()
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
-    "  T      the tour                  R  set it back     Z  slow motion",
+    "  T      the tour: the library, in turn   R  set it back   Z  slow motion",
     "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
   }, "\n")
@@ -1683,7 +1578,6 @@ common.setCamera(btVector3(-6, 185, 135), btVector3(-6, 6, -8))
 -- (DC_PROGRAM=name: that program from the library, headless; "all": each in turn)
 local DC_PROGRAM = os.getenv("DC_PROGRAM")
 if DC_PROGRAM then
-  tour = nil
   local list = {}
   for _, p in ipairs(PR.library) do
     if DC_PROGRAM == "all" or p.file == DC_PROGRAM or p.file == DC_PROGRAM .. ".dc2" then list[#list + 1] = p end
@@ -1691,4 +1585,4 @@ if DC_PROGRAM then
   setUp()
   if #list > 0 then PR.run = { list = list, i = 1 }; PR.start(list[1])
   else print("DIGI-COMP II: no program " .. DC_PROGRAM .. " in programs/LIBRARY") end
-elseif tour then startTour() else setUp() end
+elseif TOUR_AT_START then startTour() else setUp() end

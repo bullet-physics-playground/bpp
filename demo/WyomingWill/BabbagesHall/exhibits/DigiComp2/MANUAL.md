@@ -300,9 +300,8 @@ subtract.
 A = N; complement it (two balls); then COUNT on, MULTIPLY off. A counts up
 from 128 - N, and the **N-th ball** carries out of A7 through OVERFLOW.
 Stop there: that is N balls. (On the original, OVERFLOW set to HALT stops
-the machine in AUTO; here the hand watches the OVERFLOW hole. The tour
-doesn't run this one: it is counting, which the tour checks, from a
-complement.)
+the machine in AUTO; here the hand watches the OVERFLOW hole. The tour runs
+it: `programs/count-out-9.dc2`.)
 
 ### Dividing
 
@@ -428,9 +427,10 @@ Its README lists the parts to print and buy. Some other ways to build less:
 On this board, by hand (keys in the simulation): A's rockers `1` to `7`,
 the memory `H J K L`, the MQ `8 9 0`, the distributor to start `D`,
 MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, START `Space`. The
-tour (`T`) runs counting, clearing, 37 + 11, 13 x 3, the complement of 25,
-12 - 4 and 13 / 5. Before each ball, in the tour or
-with `Space`, the exhibit draws the way the ball will go as a yellow dashed
+tour (`T`) runs the program library (section 9), one after another:
+counting, clearing, 37 + 11, 13 x 3, the complement of 25, 12 - 4, 13 / 5,
+25 / 5 and counting out nine. Before each ball, in the tour or with
+`Space`, the exhibit draws the way the ball will go as a yellow dashed
 line on the board, and its sign says what the ball will do and what the
 accumulator was and will be: a good way to follow this manual on the
 machine itself.
@@ -521,7 +521,8 @@ CHECK MQ 4
 ### Running one
 
 In the exhibit, the **program** slider chooses one from the library and
-`G` runs it (`G` again stops it). While it runs, the listing is in the
+`G` runs it (`G` again stops it). The tour (`T`, and as the exhibit
+starts) runs them all, one after another. While it runs, the listing is in the
 Shortcuts pane, the line being done first and marked `->`, and the status
 bar at the bottom of the window shows that line. Every ball is shown before
 it goes (the yellow dashed line, the sign's THIS BALL) and checked after,

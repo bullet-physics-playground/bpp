@@ -321,12 +321,18 @@ there, in `release/`, or on the path; or set `BPP`.
   with a library. `programs/*.dc2` (listed in `programs/LIBRARY`): the
   keys, plus `SET`, `UNTIL STOP|OVERFLOW|CYCLE`, `CHECK`; the "program"
   slider and `G` run one, the listing in the Shortcuts pane and the line in
-  the status bar; `DC_PROGRAM=all` runs the library (check-all does: 53 000
-  frames, 12 minutes here; check-all now takes about 40).
+  the status bar; `DC_PROGRAM=all` runs the library (53 000 frames, 12
+  minutes here).
   MANUAL section 9. (The hall's and the exhibits' status lines were never
   shown: bpp's `statusText` is a property, not a `setStatusText` method;
   the hall passes it on now.) A board in the 3D view showing the listing
   would be easier to read than the Shortcuts pane; not done.
+- **Then: the tour is the library, the meter is off.** William asked for
+  the tour to run the programs (so what starts by itself is a program, line
+  by line), and for the hall's cost meter to be off unless asked for (the
+  "Hall: meter" slider at the views, or `HALL_METER=1`; the freeze log goes
+  with it). The Digi-Comp's tour is now ~53 000 frames; check-all allows
+  56 000 (and no longer runs the library separately).
 - **Next: AUTO.** The START lever: a ball at the bottom lets the next go,
   and the ball through STOP lets none. Its escapement works alone
   (`tests/escapement.lua`, `G.ANCHOR`): the wheel turned by a wound weight
