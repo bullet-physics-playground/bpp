@@ -106,9 +106,10 @@ EXHIBITS = EXHIBITS or {
     about = "The Digi-Comp II (1968): balls rolling down a two-level board of flip-flops\n" ..
             "count, add, subtract, multiply and divide in binary. Thirteen rockers, tipped over\n" ..
             "by the balls alone, make the accumulator, the MQ and the distributor; four switches\n" ..
-            "are the memory; six shutters on one bar are COMPLEMENT.\n" ..
-            "Space: START; M, C, N, X: the switches; G: run the program the \"program\" slider\n" ..
-            "chooses, line by line, on the board behind it (B: close up); T: every program in turn." },
+            "are the memory; six shutters on one bar are COMPLEMENT. In AUTO (U) each ball at\n" ..
+            "the bottom lets the next go. Space: START; M, C, N, X: the switches; G: run the\n" ..
+            "program the \"program\" slider chooses, line by line, on the board behind it\n" ..
+            "(B: close up); T: every program in turn." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..

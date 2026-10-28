@@ -1,0 +1,16 @@
+; Multiply in AUTO: 13 x 5
+; The same as Multiply, but the machine runs itself: each ball, reaching
+; the bottom, lifts the trip lever, whose push rod trips the anchor, and the
+; next ball goes. The ball that drops through STOP trips nothing, and the
+; machine stops. The hand only presses START once (and keeps the INPUT
+; filled from the store).
+
+R            ; reset: A = 0, MANUAL
+SET M 13     ; M = 1101 = 13
+SET MQ 5     ; MQ = 101 = 5
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+AUTO         ; the latch pin in
+RUN          ; START once: 21 balls, by themselves
+CHECK A 65
+MANUAL       ; the latch pin out

@@ -25,8 +25,9 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
 - Built so far: **the Differential** (west 1), **Lehmer's number sieve**
   (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
-  and the **Digi-Comp II** (west 3: it counts, adds and multiplies; the
-  complement, for subtracting and dividing, is next).
+  and the **Digi-Comp II** (west 3: it counts, adds, multiplies,
+  subtracts and divides, runs programs, and in AUTO runs a multiply by
+  itself; OVERFLOW's halt is next).
   Covered bays wait for Kelvin's tide predictor (east 3), the Differential
   Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -325,24 +326,43 @@ there, in `release/`, or on the path; or set `BPP`.
   minutes here).
   MANUAL section 9. (The hall's and the exhibits' status lines were never
   shown: bpp's `statusText` is a property, not a `setStatusText` method;
-  the hall passes it on now.) A board in the 3D view showing the listing
-  would be easier to read than the Shortcuts pane; not done.
+  the hall passes it on now.)
+- **Then: the program board.** A board on a stand behind the machine
+  shows the program, its line lit, scrolling with it; `B` flies the camera
+  to it and back (set the camera's up vector, then its place, then its
+  look, as separate statements: Lua's multiple assignment has no order).
 - **Then: the tour is the library, the meter is off.** William asked for
   the tour to run the programs (so what starts by itself is a program, line
   by line), and for the hall's cost meter to be off unless asked for (the
   "Hall: meter" slider at the views, or `HALL_METER=1`; the freeze log goes
   with it). The Digi-Comp's tour is now ~53 000 frames; check-all allows
   56 000 (and no longer runs the library separately).
-- **Next: AUTO.** The START lever: a ball at the bottom lets the next go,
-  and the ball through STOP lets none. Its escapement works alone
-  (`tests/escapement.lua`, `G.ANCHOR`): the wheel turned by a wound weight
-  with a fly, held by an anchor with straight fingers on rollers; FINDINGS
-  has the three tries and what each needed. Still to do: the weight and fly
-  as parts, the trip (the bottom ball pushing the anchor's arm), STOP's
-  bypass, and the AUTO/MANUAL switch; in AUTO, OVERFLOW on HALT would stop
-  it too (at the end of a cycle, for dividing). William pointed to a replica
-  too: www.instructables.com/Digi-Comp-II-Replica/ (only its summary could
-  be fetched here: the original's frame is about 14 x 28 inches).
+- **Then: AUTO (step 2d).** The escapement is on the board (the knob is
+  gone: the weight, a torque, turns the wheel, the fly caps its speed, the
+  anchor holds it; Space pushes the START lever). Every ball goes down a
+  trip channel at the bottom right, under a trip lever (an arm trailing
+  down the slope from an axle: a ball can only lift it; a steel ball
+  hanging just below its axle, beyond the channel's wall, balances the
+  push rod's weight), to the store. A push rod from the
+  lever's post works a crank on the anchor's pin; in AUTO (`U`) a latch pin
+  locks the crank to the anchor, which trips: the next ball goes. STOP's ball drops into a pocket
+  and trips nothing. Programs have `AUTO`, `MANUAL` and `RUN` (each ball
+  checked at the lever, the next in flight); `multiply-auto.dc2` does 13 x
+  5 in 21 balls from one START. The library (the tour) is now ~81 000
+  frames; check-all allows 86 000. FINDINGS, step 2d, has the tries (a lever
+  reaching up the slope only jammed; a rod of even 1 g stopped an
+  unbalanced lever, and balancing it took five tries: a counterweight over
+  the axle tips over, one on the crank or a thread round a pulley stopped
+  the balls; at friction 0.6 a ball stuck under the lever, so its underside
+  is PTFE). The rod in the sim is 4 g, straight, and
+  touches nothing (`DC_ROD`); its guides, and the weight and fly as parts,
+  are not done.
+- **Next: OVERFLOW's halt**, so dividing and counting out run in AUTO (a
+  flap under the OVERFLOW hole and a pocket, as STOP's; dividing stops at
+  the end of the cycle, so it needs the distributor's say too). William
+  pointed to a replica: www.instructables.com/Digi-Comp-II-Replica/ (only
+  its summary could be fetched here: the original's frame is about 14 x 28
+  inches).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the

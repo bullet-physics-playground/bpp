@@ -49,8 +49,16 @@
 -- THE SWITCHES are flaps, set by hand: each closes one of its two outlets,
 -- and a ball only presses it harder against that wall.
 --
+-- START AND AUTO: a weight turns the feeder wheel and an anchor holds it;
+-- each push on the anchor's arm (the START lever) lets one ball out. At the
+-- bottom every ball lifts the trip lever; in AUTO a push rod from it pushes
+-- the anchor's other arm, and the next ball goes, until one drops through
+-- STOP (into a pocket: it reaches no lever). The rod works a crank on the
+-- anchor's pin: a latch pin locks it to the anchor (AUTO), or not (MANUAL).
+--
 -- KEYS
---   Space  START: a quarter turn of the feeder's knob, one ball
+--   Space  START: a push on the START lever, one ball (AUTO: and on, to STOP)
+--   U      AUTO <-> MANUAL (the latch pin in or out)
 --   M, C, N  MULTIPLY, CLEAR, COUNT on <-> off (by hand)
 --   1..7   set a flip-flop of A over by hand (1 is the 1s, 7 the 64s)
 --   H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s
@@ -60,28 +68,33 @@
 --          see PROGRAMS, below)
 --   B      the camera to the program board, close enough to read; again: back
 --   T      the tour: every program in the library, in turn (it starts with it)
---   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
+--   R      set it back: the balls to the top, all to 0, COUNT on, the rest off,
+--          MANUAL
 --   Z      slow motion (1/4) <-> real time
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. What is printed is
--- what is simulated: every wall, peg, hole, rocker, foot, flap and the wheel
--- are the shapes in digicomp2-geometry.lua, from which parts/geometry.scad
+-- what is simulated: every wall, peg, hole, rocker, foot, flap, the wheel,
+-- the anchor and the trip lever are the shapes in digicomp2-geometry.lua, from which parts/geometry.scad
 -- is written.
 --
 -- PHYSICS: 1/2 inch steel balls (8.35 g); PLA rockers with a 1/4 inch steel
 -- ball pressed into each and a PLA foot (5.45 g in all), friction 0.3, no
 -- bounce, the board at 15 degrees, 2400 steps a second. The rockers and
 -- flaps turn on their pins against a friction torque (DC_PF, 0.4 kg
--- cm^2/s^2: see FINDINGS.md). The feeder's knob is turned by the hand (a
--- motor: the operator's), and the hand sets the switches and flip-flops,
--- puts balls from the collector back into the input when it runs low, and
--- stops at STOP.
+-- cm^2/s^2: see FINDINGS.md). The weight and the fly are a torque on the
+-- wheel's pin and a top speed (not parts yet); the push rod is a link
+-- pinned at both ends. The hand pushes the START lever, sets the switches
+-- and flip-flops, puts balls from the store back into the input when it
+-- runs low, and in MANUAL stops at STOP.
 --
 -- Units: centimetres, kilograms, seconds.
 -- Headless: DC_TOUR=0 (no tour), DC_FRICTION, DC_PF (pivot friction,
 -- kg cm^2/s^2), DC_TH (the slope, degrees), DC_HZ (steps a second),
 -- DC_ROLL (degrees: the table not level across, down to the right),
--- DC_HAND (the hand's torque), DC_EXPORT=1 (write parts/geometry.scad),
+-- DC_WEIGHT (the weight's torque, 30), DC_FLY (the fly's top speed, 3
+-- rad/s), DC_PUSH (the hand's push on the START lever, 300), DC_ROD (the
+-- push rod's mass, grams, 4),
+-- DC_EXPORT=1 (write parts/geometry.scad),
 -- DC_LOG=1 (each ball's reading and the rockers' leans), DC_LOG=2 (also
 -- every moving ball four times a second), DC_LOG=3 (where every ball is at
 -- each reading), DC_CONTACTS=frame (every contact
@@ -307,9 +320,9 @@ local ROLE_TEXT = {
   guide = "a guide: it keeps a carry, falling to the next flip-flop, from drifting out past its funnel",
   doneLane = "a done lane: with COMPLEMENT on (the done hole covered) it carries the ball on into the next flip-flop",
   router = "the distributor's and the MQ's channels and funnels",
-  stop = "STOP: a borrow out of the MQ (it was 0) drops through here, and the hand stops turning the knob",
-  ["return"] = "the return lane (lower level): what the memory drops, and STOP's ball, roll down it to the collector",
-  collector = "the COLLECTOR: every ball ends here",
+  stop = "STOP: a borrow out of the MQ (it was 0) drops through here, into a pocket: the hand stops (in AUTO, the machine does: it reaches no trip lever)",
+  ["return"] = "the return lane (lower level): what the memory drops rolls down it to the collector",
+  collector = "the COLLECTOR: every ball turns down the trip channel at its right (under the trip lever) to the store below, where it waits for the hand",
 }
 local function addWall(w, y0, y1)
   local dx, dz = w[3] - w[1], w[4] - w[2]
@@ -333,6 +346,9 @@ local function post(x, z, r, y0, y1, col, what)
 end
 for _, p in ipairs(G.pegs) do post(p[1], p[2], p[3], 0, G.WALL_H, "#9a9da3", "a stop peg: the flip-flop's tail rests on it") end
 for _, p in ipairs(G.posts) do post(p[1], p[2], 0.5, YL, -PT, "#7a5a3a", "a post: it holds the upper plate over the lower level") end
+for _, p in ipairs(G.ANCHOR.posts) do
+  post(p[1], p[2], p[3], 0, p[4], "#9a9da3", "a stop for the anchor's arm: at rest it lies against one, pushed (START) against the other")
+end
 -- the lettering on the board
 local marks = part("boardMarks()")
 marks.col = "#efe6cf"
@@ -343,6 +359,7 @@ local anchor = Cube(0.01, 0.01, 0.01, 0)          -- (only for the hinges to hol
 anchor.collides = false
 v:add(anchor)
 anchor.trans = btTransform(ident, btVector3(0, 0, 0))
+local ground = anchor                              -- (the escapement's anchor takes the name below)
 
 -- a body's shape: convex pieces { outline { {x, z}, ... }, y0, h } about (cx, cy, cz)
 local function piecesShape(pieces, cx, cy, cz)
@@ -524,15 +541,28 @@ end
 local function isComplement() return comp.on end
 
 -- ---------------------------------------------------------------------
--- the feeder: a wheel of four notches on a pin, turned by the knob (START)
+-- the feeder: a wheel of four notches on a pin (START)
 -- ---------------------------------------------------------------------
-local wheel
+-- START: the feeder wheel, now turned by a weight (wound up by hand) and
+-- held by an ANCHOR, as a clock's wheel is by its escapement (see
+-- G.ANCHOR in digicomp2-geometry.lua): each push on the anchor's arm (the
+-- START lever) lets the wheel round a quarter turn, one ball. The hand
+-- pushes it (Space); in AUTO, a ball arriving at the bottom does.
+-- (The weight and its fly, the air brake that keeps the wheel slow, are a
+-- steady torque on the wheel's pin with a top speed: WEIGHT_T, FLY_W.)
+local WEIGHT_T = envnum("DC_WEIGHT", 30)  -- the weight's torque on the wheel (kg cm^2/s^2)
+local FLY_W = envnum("DC_FLY", 3)         -- the fly's top speed (radians a second)
+local PUSH_T = envnum("DC_PUSH", 300)     -- the hand's push on the START lever (torque at the anchor's pin)
+local PUSH_S = 0.3                        -- (s: how long the hand pushes it)
+local wheel, anchor
 do
   local wy = WH.Y0 + WH.H / 2
   local wp = {}
   for _, pc in ipairs(WH.pieces) do wp[#wp + 1] = { pc, WH.Y0, WH.H } end
+  for _, pc in ipairs(WH.starPieces) do wp[#wp + 1] = pc end
+  local wm, wI = WH.mass + WH.starMass, WH.I + WH.starI
   local tr = btTransform(BQ, W3(WH.x, wy, WH.z))
-  local body = btRigidBody(WH.mass, btDefaultMotionState(tr), piecesShape(wp, 0, wy, 0), btVector3(WH.I, WH.I, WH.I))
+  local body = btRigidBody(wm, btDefaultMotionState(tr), piecesShape(wp, 0, wy, 0), btVector3(wI, wI, wI))
   local o = part(string.format("translate([0, %.4f, 0]) wheel()", -wy * 10))
   o.body = body
   o.col = "#c9a14a"
@@ -541,39 +571,145 @@ do
   body:setCenterOfMassTransform(tr)
   body:setActivationState(4)
   local h = pinned(body, WH.x, wy, WH.z, 0, 0)
-  local knob = part(string.format("translate([0, %.4f, 0]) knob()", -wy * 10))
-  knob.col = "#2a2622"
-  v:add(knob)
-  wheel = { body = body, hinge = h, obj = o, knob = knob, y = wy, turned = 0, target = 0, last = 0 }
-  key(o, "START: the feeder. Each quarter turn of its knob (Space) carries one ball round and lets it out")
-  key(knob, "START: the feeder's knob. Space turns it a quarter turn: one ball")
+  local star = part(string.format("translate([0, %.4f, 0]) star()", -wy * 10))
+  star.col = "#8a6d2a"
+  v:add(star)
+  wheel = { body = body, hinge = h, obj = o, star = star, y = wy }
+  key(o, "START: the feeder wheel. A weight turns it, the anchor beside it holds it; each push on the START lever lets one ball out")
+  key(star, "the escape star: its four pins are what the anchor's fingers stop")
+  -- the anchor, at rest, its counterweight a 1/2 inch steel ball on its arm
+  local A = G.ANCHOR
+  local ay = (A.Y0 + A.ARM_Y1) / 2
+  local atr = poseAt(A.x, A.z, A.cx, ay, A.cz, A.REST)
+  local ab = btRigidBody(A.mass, btDefaultMotionState(atr), piecesShape(A.pieces, A.cx, ay, A.cz), btVector3(A.I, A.I, A.I))
+  local ao = part(string.format("translate([%.4f, %.4f, %.4f]) anchor()", -A.cx * 10, -ay * 10, -A.cz * 10))
+  ao.body = ab
+  ao.col = "#b8bcc2"
+  ao.collides = true
+  v:add(ao)
+  ab:setCenterOfMassTransform(atr)
+  ab:setActivationState(4)
+  local ah = pinned(ab, A.x, ay, A.z, A.cx, A.cz)
+  local cw = part(string.format("translate([%.4f, %.4f, %.4f]) anchorWeight()", -A.cx * 10, -ay * 10, -A.cz * 10))
+  cw.col = "#9aa0a8"
+  v:add(cw)
+  anchor = { body = ab, hinge = ah, obj = ao, rider = cw, y = ay, push = 0 }
+  key(ao, "the ANCHOR, the escapement: its fingers hold the wheel; push its arm's end (the START lever, Space) and it lets the wheel round a quarter turn, one ball")
 end
--- how far it has turned (radians, clockwise as you look: the way it is turned)
-local function wheelAngle()
-  local a = wheel.hinge:getHingeAngle()
-  local d = a - wheel.last
-  if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
-  wheel.last = a
-  wheel.turned = wheel.turned + d
-  return wheel.turned
-end
-local TURN_W = 6.0                    -- the hand's turn, radians a second
-local HAND_T = envnum("DC_HAND", 50)  -- the most the hand turns it with (kg cm^2/s^2: 0.005 N m)
--- (the hinge's angle and its motor's speed both count clockwise as you look:
--- measured in step 1, a negative speed took the balls the other way round)
-local function handPre()
-  local a = wheelAngle()
-  local left = wheel.target - a
-  if math.abs(left) > 0.01 then
-    local w = math.min(TURN_W, math.abs(left) * 20 + 0.5)
-    wheel.hinge:enableAngularMotor(true, left > 0 and w or -w, HAND_T * STEP)
-    return true
+-- AUTO: the trip lever at the bottom (G.TRIP), on an axle across the trip
+-- channel, and the push rod from its post to the AUTO crank on the anchor's
+-- pin: latched to the anchor in AUTO, idle in MANUAL (the lever still lifts
+-- for every ball, and nothing follows). The rod is a link pinned at both
+-- ends, touching nothing; the lever's counterweight balances its weight.
+local trip = { auto = false, events = 0 }
+do
+  local T, A = G.TRIP, G.ANCHOR
+  local yE, postH = T.yEnd - T.yA, T.yT - T.yA
+  local function hull(pts, c)
+    local hs = btConvexHullShape()
+    for _, q in ipairs(pts) do hs:addPoint(btVector3(q[1] - c[1], q[2] - c[2], q[3] - c[3]), false) end
+    hs:recalcLocalAabb(); hs:setMargin(0.005)
+    return hs
   end
-  wheel.hinge:enableAngularMotor(true, 0, HAND_T * STEP)    -- (the hand holds the knob still)
-  return false
+  -- (its centre of mass: the lever's own, in the arm, with its
+  -- counterweight's, hanging below the axle; and its inertia about that)
+  local CW = T.CW
+  local M = T.mass + CW.m
+  local cl = { 0, yE / 2, 0.6 * T.A }
+  local c = { CW.m * CW.x / M, (T.mass * cl[2] + CW.m * CW.y) / M, (T.mass * cl[3] - CW.m * CW.d) / M }
+  local cs = btCompoundShape(true)
+  for _, pts in ipairs(T.hulls) do cs:addChildShape(btTransform(ident, btVector3(0, 0, 0)), hull(pts, c)) end
+  cs:addChildShape(btTransform(ident, btVector3(0, 0, 0)), hull(T.cwArm, c))
+  local I = T.mass * (T.A * T.A + postH * postH) / 3 + CW.m * ((CW.y - c[2]) ^ 2 + (CW.d + c[3]) ^ 2 + (CW.x - c[1]) ^ 2)
+  local tr = btTransform(BQ, W3(T.xc + c[1], T.yA + c[2], T.zp + c[3]))
+  local body = btRigidBody(M, btDefaultMotionState(tr), cs, btVector3(I, I, I))
+  local o = part(string.format("translate([%.4f, %.4f, %.4f]) { tripLever(); tripCwArm(); }", -c[1] * 10, -c[2] * 10, -c[3] * 10))
+  local wt = part(string.format("translate([%.4f, %.4f, %.4f]) tripWeight()", -c[1] * 10, -c[2] * 10, -c[3] * 10))
+  wt.col = "#9aa0a8"
+  v:add(wt)
+  trip.rider = wt
+  o.body = body
+  o.col = "#c9a14a"
+  o.collides = true
+  v:add(o)
+  body:setCenterOfMassTransform(tr)
+  body:setActivationState(4)
+  -- (its axle: across the channel, the board's x)
+  local h = btHingeConstraint(ground.body, body, btTransform(yq(math.pi / 2), W3(T.xc, T.yA, T.zp)),
+                              btTransform(btQuaternion(btVector3(0, 1, 0), math.pi / 2), btVector3(-c[1], -c[2], -c[3])))
+  v:addConstraint(h)
+  h:setLimit(0, 0.45, 0.9, 0.3, 1.0)                -- (0: at rest, the arm's end down; lifted, its angle grows)
+  h:enableAngularMotor(true, 0, 0.05 * STEP)
+  trip.body, trip.hinge, trip.obj, trip.c, trip.tr0 = body, h, o, c, tr
+  local axle = part("tripAxle()")              -- (its axle, a wire: drawn only; the hinge is the axle)
+  axle.col = "#9aa0a8"
+  pcall(function() axle.collides = false end)
+  v:add(axle)
+  axle.trans = btTransform(BQ, W3(0, 0, 0))
+  key(o, "the TRIP LEVER (AUTO): a ball rolling under its arm lifts it, and its post pushes the rod: the anchor lets the next ball go. Its counterweight, below the axle beside the channel, balances the rod")
+  -- the rod: from the post's top up to the AUTO crank's end (at rest)
+  local ay = anchor.y
+  local x1, z1, len = T.rod.x1, T.rod.z1, T.rod.len
+  local yaw = math.atan2(-(T.zp - z1), T.xc - x1)
+  local mid = W3((x1 + T.xc) / 2, (T.yT + T.yC) / 2, (z1 + T.zp) / 2)
+  local pitch = math.atan2(T.yT - T.yC, T.rod.lh)                          -- (sloping down to the lever)
+  local link = Cube(len, 0.03, 0.03, envnum("DC_ROD", T.ROD_M * 1000) / 1000)   -- (its mass: DC_ROD, grams; 4)
+  link.col = "#e8e2d0"
+  pcall(function() link.collides = false end)
+  link.trans = btTransform(yq(yaw) * btQuaternion(btVector3(0, 0, 1), pitch), mid)
+  v:add(link)
+  link.body:setActivationState(4)
+  trip.link = link
+  key(link, "the PUSH ROD (AUTO): from the trip lever at the bottom to the AUTO crank by the anchor; a ball lifting the lever pushes it (latched, AUTO: the anchor trips, and the next ball goes)")
+  -- the AUTO crank, on the anchor's pin over its arm, at rest
+  local AC = A.autoCrank
+  local cy = AC.Y0 + AC.H / 2
+  local ctr = poseAt(A.x, A.z, AC.cx, cy, AC.cz, A.REST)
+  local cb = btRigidBody(AC.mass, btDefaultMotionState(ctr), piecesShape({ { AC.pieces[1], AC.Y0, AC.H }, { AC.pieces[2], AC.Y0, AC.H } }, AC.cx, cy, AC.cz),
+                         btVector3(AC.I, AC.I, AC.I))
+  local co = part(string.format("translate([%.4f, %.4f, %.4f]) autoCrank()", -AC.cx * 10, -cy * 10, -AC.cz * 10))
+  co.body = cb
+  co.col = "#c9a14a"
+  pcall(function() co.collides = false end)
+  v:add(co)
+  cb:setCenterOfMassTransform(ctr)
+  cb:setActivationState(4)
+  trip.crank = { body = cb, hinge = pinned(cb, A.x, cy, A.z, AC.cx, AC.cz), tr0 = ctr }
+  key(co, "the AUTO crank: the push rod's end. AUTO (U): latched to the anchor's arm, so the trip lever trips the anchor; MANUAL: it swings idle")
+  -- (the rod, pinned at both ends, for good)
+  local rA = btVector3(A.CRANK - AC.cx, T.yC - cy, 0 - AC.cz)
+  local rB = btVector3(-c[1], T.yT - T.yA - c[2], -c[3])
+  v:addConstraint(btPoint2PointConstraint(cb, link.body, rA, btVector3(-len / 2, 0, 0)))
+  v:addConstraint(btPoint2PointConstraint(link.body, body, btVector3(len / 2, 0, 0), rB))
+  -- (the latch: the crank's end held to the anchor's arm's end, below it)
+  trip.latchA = btVector3(A.CRANK - A.cx, cy - ay, 0 - A.cz)
+  trip.latchC = btVector3(A.CRANK - AC.cx, 0, 0 - AC.cz)
+end
+
+-- (each step: the weight turns the wheel, as fast as the fly lets it; the
+-- anchor turns on its pin against its friction, or is pushed by the hand)
+local function handPre()
+  wheel.hinge:enableAngularMotor(true, FLY_W, WEIGHT_T * STEP)
+  if anchor.push > 0 then
+    anchor.push = anchor.push - STEP
+    anchor.hinge:enableAngularMotor(true, 3.0, PUSH_T * STEP)
+  else
+    anchor.hinge:enableAngularMotor(true, 0, PF * STEP)
+  end
+  -- (busy: the hand pushing, the wheel turning, or the anchor not yet back
+  -- at rest: it can take half a second to come home, its finger sliding off
+  -- a pin; at most 3 s)
+  local w = wheel.body:getAngularVelocity():length()
+  local a = anchor.body:getCenterOfMassTransform():getBasis():getColumn(0)
+  local lean = math.atan2(-a.y * sT + a.z * cT, a.x)
+  anchor.since = (anchor.push > 0) and 0 or ((anchor.since or 99) + STEP)
+  local home = math.abs(lean + G.ANCHOR.REST) < math.rad(1.5)
+  return anchor.push > 0 or w > 0.3 or (not home and anchor.since < 3)
 end
 local function carryRiders()
-  wheel.knob.trans = wheel.body:getCenterOfMassTransform()
+  wheel.star.trans = wheel.body:getCenterOfMassTransform()
+  anchor.rider.trans = anchor.body:getCenterOfMassTransform()
+  trip.rider.trans = trip.body:getCenterOfMassTransform()
   for _, fl in ipairs(flips) do
     local tr = fl.body:getCenterOfMassTransform()
     for _, r in ipairs(fl.riders) do r.trans = tr end
@@ -608,18 +744,46 @@ local function place(body, tr)
   body:clearForces()
   body:activate(true)
 end
+local function setAuto(on)
+  if on == trip.auto then return end
+  trip.auto = on
+  if on then
+    -- (the latch pin in: the crank and the anchor both at rest, so the holes
+    -- line up)
+    place(trip.crank.body, trip.crank.tr0)
+    trip.latch = btPoint2PointConstraint(anchor.body, trip.crank.body, trip.latchA, trip.latchC)
+    v:addConstraint(trip.latch)
+  else
+    v:removeConstraint(trip.latch)
+    trip.latch = nil
+  end
+end
+local function isAuto() return trip.auto end
 local function applyFriction()
   local f = v:getParam("friction")
   for _, b in ipairs(balls) do b.body:setFriction(f); b.body:setRestitution(0) end
   for _, fl in ipairs(flips) do fl.body:setFriction(f); fl.body:setRestitution(0) end
   for _, s in pairs(switches) do s.body:setFriction(f); s.body:setRestitution(0) end
   wheel.body:setFriction(f); wheel.body:setRestitution(0)
+  anchor.body:setFriction(0); anchor.body:setRestitution(0)     -- (its fingers roll: FINDINGS, AUTO)
+  -- (the trip lever's underside is faced with PTFE tape: 0.1 on the steel
+  -- ball, whatever the slider says; Bullet multiplies the two)
+  trip.body:setFriction(0.1 / math.max(f, 0.01)); trip.body:setRestitution(0)
   for _, c in ipairs(fixed) do c.body:setFriction(1.0); c.body:setRestitution(0) end   -- (Bullet multiplies the two: the slider is what counts)
 end
 local function ballAt(b) return L3(b.obj.pos) end
+-- (done: below the plate, past the collector's wall, or in STOP's pocket;
+-- at rest where the hand takes it from: the store, or the pocket)
+local function inPocket(x, y, z)
+  return y < -PT and math.abs(x - G.stopPocket[1]) < 1.2 and math.abs(z - G.stopPocket[2]) < 1.6
+end
 local function collected(b)
   local x, y, z = ballAt(b)
-  return y < -PT and z > G.ZCOL - 3
+  return (y < -PT and z > G.ZCOL - 3) or inPocket(x, y, z)
+end
+local function atRest(b)
+  local x, y, z = ballAt(b)
+  return (y < -PT and z > G.TRIP.ZB - 2.5) or inPocket(x, y, z)
 end
 local function nCollected()
   local n = 0
@@ -633,7 +797,7 @@ local function waiting(b)
 end
 
 -- ---------------------------------------------------------------------
--- the hand: sets the flip-flops and the switches, turns the knob, puts the
+-- the hand: sets the flip-flops and the switches, pushes START, puts the
 -- balls back
 -- ---------------------------------------------------------------------
 local function setFlip(name, b) place(flip[name].body, flipPose(flip[name].t, b)) end
@@ -647,10 +811,14 @@ local function setSwitch(name, on) local s = switches[name]; place(s.body, swPos
 local function setM(n) for k = 1, 4 do setSwitch("M" .. k, bitOf(n, k) == 1) end end
 local function reload()
   place(wheel.body, btTransform(BQ, W3(WH.x, wheel.y, WH.z)))
-  wheel.turned, wheel.target, wheel.last = 0, 0, wheel.hinge:getHingeAngle()
+  do
+    local A = G.ANCHOR
+    place(anchor.body, poseAt(A.x, A.z, A.cx, anchor.y, A.cz, A.REST))
+    anchor.push = 0
+  end
   for i, b in ipairs(balls) do place(b.body, btTransform(ident, ballHome(i))) end
 end
--- when the INPUT runs low, the hand takes balls from the collector and puts
+-- when the INPUT runs low, the hand takes balls from the store and puts
 -- them in at its top (as you would: there are twelve balls, and a multiply
 -- can take more)
 local REFILL_AT = 4
@@ -663,7 +831,7 @@ local function refill()
   if w >= REFILL_AT then return false end
   local n = 0
   for _, b in ipairs(balls) do
-    if collected(b) and w + n < 10 then
+    if atRest(b) and w + n < 10 then
       n = n + 1
       place(b.body, btTransform(ident, W3(WH.x, G.R + 0.002, top - n * (2 * G.R + 0.005))))
     end
@@ -817,7 +985,7 @@ end
 -- REST_S, the simulation stops stepping (nothing would change but the
 -- processor's work). The next thing for the hand to do starts it again.
 -- ---------------------------------------------------------------------
-local restBodies = { wheel.body }
+local restBodies = { wheel.body, anchor.body }
 for _, fl in ipairs(flips) do restBodies[#restBodies + 1] = fl.body end
 for _, s in pairs(switches) do restBodies[#restBodies + 1] = s.body end
 for _, b in ipairs(balls) do restBodies[#restBodies + 1] = b.body end
@@ -879,6 +1047,7 @@ local function setUp()
   reload()
   applyFriction()
   dropped, refilled, stopSeen, overSeen = 0, 0, false, false
+  setAuto(false)
   handMoved()
   holdStart()
 end
@@ -1087,7 +1256,7 @@ local function checkBall(t)
   local p = predict(t.before)
   local c = nCollected()
   local ok = now.A == p.A and now.MQ == p.MQ and now.d[1] == p.d[1] and now.d[2] == p.d[2] and now.d[3] == p.d[3]
-             and stopSeen == p.stop and t.overNow == p.over and c + refilled == dropped
+             and stopSeen == p.stop and t.overNow == p.over and c + refilled == dropped - (t.inFlight or 0)
   local why = ok and "right" or string.format("WRONG: should be A %d, MQ %d, D %d%d%d%s%s", p.A, p.MQ, p.d[1], p.d[2], p.d[3],
                                               p.stop and ", STOP" or "", p.over and ", OVERFLOW" or "")
   if LOG == "3" then
@@ -1095,7 +1264,7 @@ local function checkBall(t)
   end
   local an = {}
   if LOG then for _, fl in ipairs(flips) do local _, a = lean(fl.name); an[#an + 1] = string.format("%s %.0f", fl.name, a) end end
-  print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s%s  (%d in the collector)  %s%s", dropped, bits(), now.A, now.MQ,
+  print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s%s  (%d in the collector)  %s%s", dropped - (t.inFlight or 0), bits(), now.A, now.MQ,
                       now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", t.overNow and ", OVERFLOW" or "", c, why,
                       LOG and ("\n      leans " .. table.concat(an, ", ")) or ""))
   return ok
@@ -1108,12 +1277,15 @@ end
 -- keys as on the keyboard, and ';' begins a comment. The first comment
 -- line is its title. Steps:
 --   R                  reset: A, M and MQ 0, D set to start, COUNT on, the
---                      other switches off, COMPLEMENT off
+--                      other switches off, COMPLEMENT off, MANUAL
 --   1 .. 7             turn A1 .. A7 over by hand
 --   H J K L            M1 .. M4 over         8 9 0   MQ1 .. MQ3 over
 --   D                  set the distributor to start a cycle
 --   M C N X            MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off
---   Space              START: one ball
+--   Space              START: one ball (MANUAL)
+--   AUTO, MANUAL       the latch pin in (the machine runs itself), or out
+--   RUN                (AUTO) START once: balls go by themselves, each
+--                      checked at the trip lever, until one drops through STOP
 --   SET A n, SET M n, SET MQ n     set a register to n by hand
 --   UNTIL STOP         balls until one drops through STOP
 --   UNTIL OVERFLOW     balls until one drops through OVERFLOW
@@ -1175,6 +1347,8 @@ local function parseProgram(file)
         if not UNTIL[what] then return bad("UNTIL wants STOP, OVERFLOW or CYCLE") end
         p.ops[#p.ops + 1] = { line = i, op = "until", what = what }
         j = j + 1
+      elseif W == "AUTO" or W == "MANUAL" then p.ops[#p.ops + 1] = { line = i, op = "auto", on = W == "AUTO" }
+      elseif W == "RUN" then p.ops[#p.ops + 1] = { line = i, op = "run" }
       elseif KEY_STEP[W] then p.ops[#p.ops + 1] = { line = i, op = "key", key = W }
       else return bad("what is \"" .. toks[j] .. "\"?") end
       j = j + 1
@@ -1295,10 +1469,26 @@ local function progStep()
       P.phase, P.wait = "after", 0
     elseif op.op == "ball" then
       print(string.format("    line %d: Space", op.line))
-      P.balls = nil; ball()
+      if isAuto() then
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: Space in AUTO, line %d (RUN, or MANUAL first)", op.line))
+        return
+      end
+      P.balls = nil; P.inFlight = nil; ball()
+    elseif op.op == "auto" then
+      print(string.format("    line %d: %s", op.line, op.on and "AUTO" or "MANUAL"))
+      setAuto(op.on); handMoved(); P.phase, P.wait = "after", 0
+    elseif op.op == "run" then
+      print(string.format("    line %d: RUN", op.line))
+      if not isAuto() then
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: RUN in MANUAL, line %d (AUTO first)", op.line))
+        return
+      end
+      P.balls = 0; P.inFlight = nil; ball()
     elseif op.op == "until" then
       print(string.format("    line %d: UNTIL %s", op.line, op.what))
-      P.balls = 0
+      P.balls = 0; P.inFlight = nil
       if op.what == "CYCLE" then
         local r = reading()
         if r.d[1] == 1 and r.d[2] == 1 then print("      (the next ball would begin a cycle: none)"); nextOp(); return end
@@ -1311,6 +1501,39 @@ local function progStep()
     if P.wait > SHOW_S then
       P.phase, P.wait = "ball", 0; P.before = reading(); stopSeen = false
       P.overBefore = overSeen; feed()
+      P.trips = trip.events
+    end
+  elseif P.phase == "ball" and op.op == "run" then
+    -- (AUTO: the machine lets each ball go as the one before trips the
+    -- lever: each is checked there, the next already on its way; the one
+    -- that drops through STOP trips nothing, and is checked once all is
+    -- still)
+    if trip.events > P.trips then
+      P.trips = trip.events
+      P.overNow = overSeen and not P.overBefore
+      P.inFlight = 1
+      if not checkBall(P) then P.fails = P.fails + 1 end
+      P.balls = P.balls + 1
+      P.before = reading(); P.overBefore = overSeen; stopSeen = false
+      print("      next: " .. preview())
+      P.wait = 0
+      if P.balls >= 64 then
+        setAuto(false)
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: RUN, line %d: 64 balls and no STOP", op.line))
+      end
+    elseif not busy() and refillWait <= 0 and P.wait > 0.5 and (still > 0.4 or P.wait > 15) then
+      P.overNow = overSeen and not P.overBefore
+      P.inFlight = 0
+      if not checkBall(P) then P.fails = P.fails + 1 end
+      P.balls = P.balls + 1
+      if not stopSeen then
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: RUN, line %d: it stopped, and not at STOP", op.line))
+        return
+      end
+      print(string.format("      RUN: %d ball%s, the last through STOP", P.balls, P.balls == 1 and "" or "s"))
+      P.phase, P.wait = "pause", 0
     end
   elseif P.phase == "ball" then
     if not busy() and refillWait <= 0 and P.wait > 0.5 and (still > 0.4 or P.wait > 15) then
@@ -1462,7 +1685,7 @@ end)
 
 local function startTurn()
   queue = queue - 1
-  wheel.target = wheel.target + math.pi / 2
+  anchor.push = PUSH_S                -- (the hand pushes the START lever)
   dropped = dropped + 1
   still = 0
   if PR.prog then PR.prog.wait = 0 end
@@ -1495,6 +1718,14 @@ v:postSim(function(N)
   if queue > 0 and not handBusy and refillWait <= 0 then
     if refill() then refillWait = 0.6; handMoved() else startTurn() end
   end
+  -- (AUTO: a ball lifting the trip lever lets the next go; the hand keeps
+  -- the INPUT filled from the store as it runs)
+  local la = trip.hinge:getHingeAngle()
+  if not trip.up and la > 0.2 then
+    trip.up = true
+    if trip.auto and anchor.push <= 0 then trip.events = trip.events + 1; dropped = dropped + 1; still = 0 end
+  elseif trip.up and la < 0.08 then trip.up = false end
+  if trip.auto and queue == 0 and refillWait <= 0 and refill() then refillWait = 0.6 end
   if LOG == "2" and N % 15 == 0 then
     local t = {}
     for _, b in ipairs(balls) do
@@ -1521,6 +1752,7 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
   v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end))
 end
 v:addShortcut("D", byHand(setD))
+v:addShortcut("U", byHand(function() setAuto(not isAuto()); PR.setStatus(isAuto() and "AUTO: the latch pin in; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the latch pin out; Space, one ball") end))
 v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
 -- B: the camera to the program board and back (the camera as it was before)
 local camBack = nil
@@ -1595,6 +1827,10 @@ pcall(function()
     "  turns over all seven: 127 - A. COMPLEMENT off, one more ball adds 1:",
     "  128 - A, the complement, which subtracts when it is added. Dividing is",
     "  adding the divisor to the dividend's complement until A overflows.",
+    "  AUTO (U): the push rod from the trip lever at the bottom latched to the",
+    "  anchor at the top. Space starts it; each ball reaching the bottom lifts",
+    "  the lever and lets the next go, until one drops through STOP: a whole",
+    "  multiply by itself. MANUAL (U again): every ball is a Space.",
     "  Before each ball, a yellow dashed line on the board shows where it will",
     "  go, and the sign beside it (THIS BALL) says what it will do and what the",
     "  accumulator was and will be. Then watch it do that (Z: slow motion).",
@@ -1602,6 +1838,7 @@ pcall(function()
     "KEYS",
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
     "  X      COMPLEMENT on/off (the shutters over the done holes)",
+    "  U      AUTO <-> MANUAL (the latch pin in or out)",
     "  G      run the program the \"program\" slider chooses (G again: stop)",
     "  B      look at the program board (behind the machine), close up; again: back",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",

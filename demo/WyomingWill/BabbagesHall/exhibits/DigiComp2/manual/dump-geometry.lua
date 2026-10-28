@@ -43,6 +43,11 @@ d.clearLane = G.clearLane
 d.returns = G.returns
 d.marks = G.marks
 d.stop, d.overflow, d.clearDrop, d.countOffDrop = G.stop, G.overflow, G.clearDrop, G.countOffDrop
+do
+  local T, A = G.TRIP, G.ANCHOR
+  d.trip = { xc = T.xc, zp = T.zp, A = T.A, W = T.W, ZB = T.ZB, rx = T.rod.x1, rz = T.rod.z1 }
+  d.anchor = { x = A.x, z = A.z, arm = A.ARM, rest = A.REST, crank = A.CRANK }
+end
 d.board = { G.board.x0, G.board.x1, G.board.z0, G.board.z1 }
 d.lower = { G.lower.x0, G.lower.x1, G.lower.z0, G.lower.z1 }
 d.wheel = { G.WHEEL.x, G.WHEEL.z, G.WHEEL.R, G.WHEEL.ballR, G.WHEEL.queueTop, G.WHEEL.queueBot }

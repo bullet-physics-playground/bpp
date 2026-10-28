@@ -7,6 +7,132 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Step 2d: AUTO (2026-10-28)
+
+### The escapement on the board
+
+The feeder's knob is gone: the wheel is turned by the weight (a torque of
+30 kg cm^2/s^2 on its pin, `DC_WEIGHT`) no faster than the fly lets it (3
+radians a second, `DC_FLY`), and held by the anchor, as in
+`tests/escapement.lua` (step 2a, below). The hand's START is a push on the
+anchor's arm for 0.3 s (`DC_PUSH`, 300). On the board it needed:
+
+- **The anchor's stop posts in the simulation** (they had been drawn
+  only): without them the anchor, pushed, swung on to 90 degrees.
+- **Waiting for the anchor to come home.** A finger sliding off a pin
+  brings the anchor back slowly, up to half a second; the simulation had
+  come to rest before it was home, and the next ball came one push late.
+  The machine now counts as busy until the anchor is within 1.5 degrees of
+  rest (or 3 s have passed).
+- **Rollers** on the fingers: the anchor's friction is 0, as the test found.
+
+With that the whole library (all MANUAL) passed as before.
+
+### The trip
+
+The collector's wall now stops short of the right-hand side, and every ball
+turns down a **trip channel** there, under the trip lever, and on to the
+**store** below it (a second wall, sloping down to the left, where the
+balls wait for the hand). Getting a ball into the channel took three tries:
+
+- The wall ended 2 mm short of the channel's left wall: the balls went
+  down that gap, outside the channel, past the lever.
+- It ended over the channel, at its middle: the balls stuck in the corner
+  between its end and the rim. Past its end a ball needs its whole width
+  clear to the rim (the end and the rim were 7.6 mm apart).
+- It ends on the channel's left wall: 14.7 mm to the rim, and every ball
+  turns down the channel.
+
+**The lever.** The first lever's arm reached up the slope from its axle,
+its end just above a ball's middle, and its post pulled a thread to a crank
+on the anchor. A ball arriving under the arm's end never lifted it: it met
+the end's corner 1.9 mm over its middle, so the push was 17 degrees above
+the board, and below the line from the corner to the axle (34 degrees). It
+only pushed the arm down onto its stop, and the ball stopped. The arm now
+**trails down the slope** from the axle: a ball rolls under the axle and
+meets the arm's underside, which it can only lift. A post up from the axle
+then tips *up* the slope as the arm lifts, so it **pushes**: a rod, not a
+thread, to the anchor's counterweight arm, extended past the ball (`CRANK`,
+35 mm from the pin; now through the AUTO crank, below). Pushed up the slope
+there, the anchor trips.
+
+Measured on the board, with the rod nearly weightless (0.3 g, the first
+try): a ball lifts the lever 0.34 to 0.35 radians (0.38 once); through the
+rod that takes the anchor from -7.9 to +5.0 degrees of its -7.9 to +7.9
+degree swing, 82% of it. That was enough: the second finger catches the
+next pin, and every trip let out exactly one ball.
+
+**The rod's weight.** That was with the rod nearly weightless (0.3 g). A
+real rod 1.5 m long weighs more: a 1.5 mm carbon-fibre rod, about 4 g. Its
+weight down the slope pushes the post back down the slope, against the
+ball: with a rod of 1, 2 or 3 g the first ball no longer lifted the lever
+enough, and the machine stopped after it. So the rod's weight has to be
+balanced, and that took five tries:
+
+1. **A counterweight on the lever, up the slope over its axle** (a steel
+   ball on a short arm). AUTO then passed with any rod from 0.3 to 8 g.
+   But MANUAL took the rod off, and without the rod's weight the lever
+   tipped over into the channel, its counterweight down among the balls,
+   and the 13 x 3 stopped at its 13th ball, all twelve balls behind it.
+2. **The rod on for good,** working an **AUTO crank**: an arm of its own on
+   the anchor's pin, over the anchor and its counterweight ball, as long
+   as the anchor's counterweight arm. AUTO is a latch pin through the
+   crank's end and the end of that arm; MANUAL, the pin out, leaves the
+   crank swinging idle. MANUAL still failed: a counterweight over the axle
+   balances the rod only near rest. Past 0.14 radians it is top-heavy, so
+   once a ball had lifted the lever it fell on over and stayed there,
+   counterweight in the channel. (The lever's post had also gone up to
+   the crank's height, 37 mm over the plate; then a 2 g rod failed in
+   AUTO too, the counterweight, made for 4 g, holding the anchor half
+   tripped. The taller the post, the more any mismatch between rod and
+   counterweight turns the lever; the post is short again, its top 21 mm
+   over the plate, and the rod slopes up to the crank, 0.7 degrees.)
+3. **A counterweight on the AUTO crank**, across its pin (in the board's
+   plane, so the same at every angle): MANUAL passed, but in AUTO a ball
+   stopped under the lever, and the machine with it.
+4. **A thread instead of the rod,** from the post down the slope round a
+   pulley and back up the board (nothing to balance: a thread weighs
+   next to nothing): in the simulation the closed loop of lever, thread
+   and pulley held the lever down, and the first ball stopped under it,
+   though a motor on the lever's axle turned it easily.
+5. **A counterweight hanging below the lever's axle,** on an arm glued on
+   the axle's end where it comes out beyond the channel's left wall,
+   behind the collector's wall, where no ball goes: a 3/8 inch steel ball
+   (3.53 g), 3 mm below the axle and 6.4 mm up the slope, which balances a
+   4 g rod. Below the axle it is steady at every angle. (Hung lower, 9 mm
+   below, it was too steady: it pressed the lever down on the first ball,
+   which stopped under it, the anchor half tripped, and the wheel ran.)
+   This passed, in MANUAL and AUTO: 13 x 5 in AUTO, all 21 balls from
+   one START, with a rod of 0.3, 2, 4 and 8 g, and at friction 0.2, 0.3,
+   0.45 and 0.6.
+
+**Friction.** At friction 0.6 (the slider's top) a ball once stuck under
+the lever (with try 2): wedged between the floor and the arm, it can't
+roll on both, and slid too stiffly on the arm. The lever stopped a third
+of the way up, holding the anchor half tripped, where neither finger holds
+a pin, and the wheel let nine balls go at once. So the lever's underside
+is faced with PTFE tape (0.1 on steel, whatever the slider says).
+
+**STOP** drops its ball into a pocket under the plate, beside the return
+lane: it never reaches the lever, nothing trips, and the machine stops.
+
+### Checking it
+
+In AUTO the next ball is already let go when a ball lifts the lever, so the
+program's `RUN` checks each ball there (everything it changed, and that it
+reached the bottom), with one ball in flight; the ball through STOP is
+checked when all is still. `programs/multiply-auto.dc2`, 13 x 5, ran 21
+balls from one START, every one right, and A read 65. The hand keeps the
+input filled from the store as it runs.
+
+### Still to do
+
+- OVERFLOW halting the machine, for dividing and counting out in AUTO (a
+  flap under the OVERFLOW hole, and a pocket, as STOP's).
+- The weight, its winding and the fly as parts.
+- The push rod's guides. In the simulation the rod is a link (4 g) pinned
+  at both ends, straight and touching nothing, 1465 mm long.
+
 ## Step 2c: the complement, subtracting and dividing
 
 ### Done lanes and shutters

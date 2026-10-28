@@ -4,7 +4,7 @@
 
 How Babbage's Hall's Digi-Comp II computes, operation by operation: count,
 clear, add, multiply, complement, subtract and divide, and what follows
-from them (AUTO is still to be built), with the parts each one needs, for
+from them, and running by itself (AUTO), with the parts each one needs, for
 anyone who wants to build only some of it.
 
 Every picture of the board is drawn from `digicomp2-geometry.lua`, the same
@@ -34,7 +34,7 @@ and holes.
 3. Clearing
 4. Adding
 5. Multiplying, and what else that does
-6. The complement: subtracting, counting out, dividing; AUTO (still to come)
+6. The complement: subtracting, counting out, dividing; running by itself (AUTO)
 7. Which parts each operation needs, and building only part of it
 8. Settings at a glance
 9. Programs: the operator's part, written down
@@ -89,7 +89,8 @@ side, printed on the plate.
 
 | Name | What it is | What it does |
 |---|---|---|
-| **START** | the feeder: a wheel with four notches under the **INPUT** channel of waiting balls | each quarter turn of its knob lets one ball out |
+| **START** | the feeder: a wheel with four notches under the **INPUT** channel of waiting balls, turned by a weight and held by an anchor | each push on the START lever (the anchor's arm) lets the wheel a quarter turn round: one ball out |
+| **AUTO/MANUAL** | a latch pin: the push rod's crank, from the trip lever at the bottom, locked to the anchor or swinging idle | AUTO: each ball reaching the bottom lets the next go. MANUAL: one ball per push |
 | **MULTIPLY** | a switch | on: the ball goes to the distributor. Off: down to CLEAR |
 | **CLEAR** | a switch | on: the ball drops into the clear lane. Off: on to COUNT |
 | **COUNT** | a switch | on: the ball goes into A1. Off: it drops out |
@@ -206,7 +207,8 @@ MQ flip-flop at 1 sets it to 0 and leaves to the right, which means done;
 it runs on to M4. One that finds it at 0 sets it to 1 and goes on to the
 next, which is the **borrow** (10 - 1 = 01). A borrow out of MQ3 means the
 MQ was already 0. That ball drops through **STOP**, and the hand (you)
-stops turning the knob.
+stops pushing START (in AUTO the machine stops by itself: the ball through
+STOP never reaches the trip lever).
 
 **Worked example: 13 x 3** (the tour's). M = 1101 (13: M4, M3, M1 on),
 MQ = 3, A = 0:
@@ -276,9 +278,9 @@ done hole, which has no shutter, or through OVERFLOW.)
 does four balls by itself (in AUTO): six **mode** flip-flops T1 to T6
 between A's flip-flops, and two more, CF1 and CF2, to sequence them. Ball
 1 sets T1 to T6 to COMPLEMENT mode, ball 2 passes every bit of A and turns
-each over, ball 3 sets them back to ADD mode, ball 4 adds one. This board
-has no AUTO yet, so the hand does what CF1 and CF2 do: it turns COMPLEMENT
-off between the two balls. The shutters do the work of T1 to T6.
+each over, ball 3 sets them back to ADD mode, ball 4 adds one. This board's
+AUTO has no CF1 and CF2, so the hand does what they do: it turns COMPLEMENT
+off between the two balls, in MANUAL. The shutters do the work of T1 to T6.
 
 **Negative numbers.** Read this way, a number whose leftmost bit is 1 is
 negative: 1100111 is -25. Seven bits hold -64 to +63.
@@ -300,7 +302,8 @@ subtract.
 A = N; complement it (two balls); then COUNT on, MULTIPLY off. A counts up
 from 128 - N, and the **N-th ball** carries out of A7 through OVERFLOW.
 Stop there: that is N balls. (On the original, OVERFLOW set to HALT stops
-the machine in AUTO; here the hand watches the OVERFLOW hole. The tour runs
+the machine in AUTO; here, not yet: the hand watches the OVERFLOW hole, in
+MANUAL. The tour runs
 it: `programs/count-out-9.dc2`.)
 
 ### Dividing
@@ -349,13 +352,28 @@ quotient was too big for it.
 On the original, AUTO lets a ball reaching the bottom roll under the START
 lever and release the next ball, so a whole multiply runs by itself. The
 ball through STOP takes a way that misses the lever, so the machine stops.
-Here every ball is let in by turning the knob, which is the original's
-MANUAL. For AUTO, this machine will let a wound weight turn the wheel,
-held by an anchor, as a clock's weight turns its wheels and its escapement
-holds them: each push on the anchor's arm lets the wheel round a quarter
-turn, one ball. That part works on its own (`tests/escapement.lua`); the
-ball at the bottom pushing the arm, and STOP's ball not pushing it, are
-still to be built (`FINDINGS.md` has the tries so far).
+
+On this board a wound weight turns the feeder wheel, and an anchor holds
+it, as a clock's weight turns its wheels and its escapement holds them:
+each push on the anchor's long arm (the START lever) lets the wheel round a
+quarter turn, one ball. At the bottom every ball goes down the **trip
+channel** at the right, under the **trip lever**, and on to the store. A
+ball lifts the lever as it passes, and a light **push rod** from the
+lever's post passes that up to a crank on the anchor's pin. In AUTO a
+latch pin locks the crank to the anchor, and the anchor lets the next ball
+go; in MANUAL the crank swings idle. The ball through STOP drops into a pocket under the
+plate, never reaches the lever, and the machine stops.
+
+| | AUTO | MANUAL |
+|---|---|---|
+| the latch pin | in: the rod's crank turns the anchor | out: the crank swings idle |
+| START (`Space`) | once: the machine runs until a ball drops through STOP | once for each ball |
+| the trip lever | trips the anchor: the next ball goes | lifts, and nothing follows |
+
+So a multiply in AUTO is: set it up as in section 5, AUTO (`U`), and one
+`Space`. A division can't run in AUTO yet: it must stop at the end of the
+cycle in which A overflows, and OVERFLOW does not yet halt the machine
+(the hand watches it, in MANUAL).
 
 ## 7. Which parts each operation needs
 
@@ -387,7 +405,8 @@ list and `make-stls.sh`:
 | A three-bit counter, one level, balls into bins | step 1 (commit `cb8bb07`) | count to 7 | the smallest |
 | The accumulator with START, CLEAR and COUNT, two levels | step 2a (commit `201ee23`) | count to 127, clear | 322 x 878 mm, 10 + 10 tiles |
 | Count, clear, add, multiply | step 2b (commit `71d155a`) | and section 5's uses | 424 x 1216 mm, 14 + 14 tiles |
-| Everything so far | this folder (step 2c) | all of the above, and complement, subtract, divide | 424 x 1573 mm, 18 + 18 tiles |
+| Count, clear, add, multiply, complement, subtract, divide | step 2c (commit `1c191be`) | all of the above, by hand | 424 x 1621 mm, 18 + 18 tiles |
+| Everything so far | this folder (step 2d) | and AUTO | 424 x 1691 mm, 18 + 18 tiles |
 
 To get an earlier step's files without changing your checkout:
 
@@ -426,9 +445,10 @@ Its README lists the parts to print and buy. Some other ways to build less:
 
 On this board, by hand (keys in the simulation): A's rockers `1` to `7`,
 the memory `H J K L`, the MQ `8 9 0`, the distributor to start `D`,
-MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, START `Space`. The
-tour (`T`) runs the program library (section 9), one after another:
-counting, clearing, 37 + 11, 13 x 3, the complement of 25, 12 - 4, 13 / 5,
+MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, AUTO/MANUAL `U`,
+START `Space`. The tour (`T`) runs the program library (section 9), one
+after another: counting, clearing, 37 + 11, 13 x 3, 13 x 5 in AUTO, the
+complement of 25, 12 - 4, 13 / 5,
 25 / 5 and counting out nine. Before each ball, in the tour or with
 `Space`, the exhibit draws the way the ball will go as a yellow dashed
 line on the board, and its sign says what the ball will do and what the
@@ -441,7 +461,8 @@ The machine has no stored program. Its registers (A, M, MQ) and the lanes
 between them are the arithmetic; its switches (MULTIPLY, CLEAR, COUNT,
 COMPLEMENT) choose which way a ball goes; each ball let in is one tick of
 its clock; STOP and OVERFLOW are its two signals to halt. What sets the
-switches between balls, and decides when to stop, is the operator. So an
+switches between balls, and decides when to stop, is the operator (in
+AUTO, the machine stops itself at STOP). So an
 operation's procedure (sections 2 to 6) is like the microcode inside a
 computer's control unit: the settings and clock ticks that make one
 instruction, here kept in the manual and the operator's hands. The
@@ -459,13 +480,15 @@ are the keys you would press, and a few more:
 
 | Step | What the hand does |
 |---|---|
-| `R` | reset: A, M and MQ 0, D set to start, COUNT on, MULTIPLY, CLEAR and COMPLEMENT off |
+| `R` | reset: A, M and MQ 0, D set to start, COUNT on, MULTIPLY, CLEAR and COMPLEMENT off, MANUAL |
 | `1` .. `7` | turns A1 (1s) .. A7 (64s) over |
 | `H` `J` `K` `L` | turns M1 .. M4 over |
 | `8` `9` `0` | turns MQ1 .. MQ3 over |
 | `D` | sets the distributor to begin a cycle |
 | `M` `C` `N` `X` | MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off |
-| `Space` | START: one ball |
+| `Space` | START: one ball (in MANUAL; in AUTO it is an error: use `RUN`) |
+| `AUTO`, `MANUAL` | puts the latch pin in, or takes it out |
+| `RUN` | (in AUTO) START once, then waits while the machine runs, checking each ball as it lifts the trip lever, until one drops through STOP |
 | `SET A n`, `SET M n`, `SET MQ n` | sets that register to n |
 | `UNTIL STOP` | balls until one drops through STOP |
 | `UNTIL OVERFLOW` | balls until one drops through OVERFLOW |
@@ -540,8 +563,9 @@ exhibit again.
 | 2 | `clear.dc2` | clears A from 90 |
 | 3 | `add-37-11.dc2` | 37 + 11 |
 | 4 | `multiply-13-by-3.dc2` | 13 x 3 |
-| 5 | `complement-25.dc2` | the complement of 25 |
-| 6 | `subtract-12-4.dc2` | 12 - 4 |
-| 7 | `divide-13-by-5.dc2` | 13 / 5, ball by ball (the listing above) |
-| 8 | `divide.dc2` | 25 / 5, with loops |
-| 9 | `count-out-9.dc2` | counts out nine balls |
+| 5 | `multiply-auto.dc2` | 13 x 5 in AUTO: one START, 21 balls by themselves |
+| 6 | `complement-25.dc2` | the complement of 25 |
+| 7 | `subtract-12-4.dc2` | 12 - 4 |
+| 8 | `divide-13-by-5.dc2` | 13 / 5, ball by ball (the listing above) |
+| 9 | `divide.dc2` | 25 / 5, with loops |
+| 10 | `count-out-9.dc2` | counts out nine balls |

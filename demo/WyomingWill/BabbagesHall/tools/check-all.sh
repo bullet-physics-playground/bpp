@@ -30,10 +30,10 @@ check "Differential, on its own"  2400 $H/exhibits/Differential/differential.lua
 check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
-check "Digi-Comp II, on its own"  56000 $H/exhibits/DigiComp2/digicomp2.lua
+check "Digi-Comp II, on its own"  86000 $H/exhibits/DigiComp2/digicomp2.lua
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino
 check "Lehmer's sieve, in the hall" 3000 $H/hall.lua HALL_START=lehmer
-check "Digi-Comp II, in the hall" 56600 $H/hall.lua HALL_START=digi
+check "Digi-Comp II, in the hall" 86600 $H/hall.lua HALL_START=digi
 if [ $fails -eq 0 ]; then echo "all passed"; else echo "$fails FAILED"; exit 1; fi

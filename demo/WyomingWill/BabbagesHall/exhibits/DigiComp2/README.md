@@ -16,8 +16,10 @@ COUNT, COMPLEMENT, OVERFLOW and AUTO/MANUAL.
 It is being built here in steps. The first (October 2026) was a counter of
 three flip-flops; the second (2a) the accumulator, with START, CLEAR and
 COUNT; then (2b) **the memory, the MQ, the distributor and MULTIPLY**, to
-add and multiply. This, step 2c, adds **COMPLEMENT**: it subtracts and
-divides. Next comes AUTO.
+add and multiply; then (2c) **COMPLEMENT**, to subtract and divide. This,
+step 2d, adds **AUTO**: a ball reaching the bottom lets the next one go, so
+a whole multiply runs by itself from one press of START. Next comes
+OVERFLOW's halt.
 
 ## What it does
 
@@ -113,14 +115,38 @@ four balls; this one does it with the shutters in two balls, the hand
 moving COMPLEMENT between them.
 
 **START** is the feeder: a wheel with four notches under the **input**
-channel of waiting balls. Each quarter turn of its knob carries one ball
-round from the top and lets it out at the bottom.
+channel of waiting balls, each quarter turn carrying one ball round from
+the top and letting it out at the bottom. A wound **weight** turns it, as
+fast as a **fly** lets it, and an **anchor** holds it, as a clock's
+escapement holds its wheels: two fingers on the anchor catch the pins of
+an **escape star** on the wheel. Push the end of the anchor's long arm (the
+START lever) and it lets the wheel round one quarter turn, one ball; let go
+and a counterweight (a 1/2 inch steel ball on its other arm) takes it home.
+
+**AUTO.** At the bottom, the collector's wall turns every ball into a
+**trip channel** down the right-hand side, and on to the **store** below
+it, where they wait for the hand. In the channel is the **trip lever**: a
+short arm on an axle across the channel, trailing down the slope, resting
+just above a ball's middle. A ball rolls under the axle and under the arm,
+lifting it 4 mm; a post up from the axle tips up the slope, and a light
+**push rod** from its top, over the board, pushes the **AUTO crank**, an
+arm on the anchor's pin, over the anchor. (A steel ball on an arm hanging
+below the lever's axle, where the axle comes out beyond the channel's
+wall, balances the rod's weight, so a ball lifts only the lever.) **AUTO/MANUAL** is a **latch pin** through the crank's
+end into the end of the anchor's counterweight arm. In AUTO (pin in) the
+crank turns the anchor: it trips, and the next ball goes, and one press
+of START runs a whole multiply, ball after ball. The ball through
+**STOP** drops into a pocket under the plate and never reaches the lever,
+so the machine stops by itself. In MANUAL (pin out) the crank swings
+idle: the lever and rod still move for every ball, nothing follows, and
+every ball is a press of START.
 
 ## Using it
 
 | Key | |
 |---|---|
-| `Space` | START: a quarter turn of the knob, one ball |
+| `Space` | START: push the START lever, one ball (in AUTO: and on by itself, until a ball drops through STOP) |
+| `U` | AUTO and MANUAL: the latch pin in, or out |
 | `M`, `C`, `N` | MULTIPLY, CLEAR, COUNT on and off (by hand) |
 | `1` to `7` | set that flip-flop of the accumulator over by hand (`1` the 1s ... `7` the 64s), as you set the original's |
 | `H`, `J`, `K`, `L` | the memory's 1s, 2s, 4s, 8s (M1 to M4) on and off |
@@ -130,12 +156,12 @@ round from the top and lets it out at the bottom.
 | `G` | run the program the **program** slider chooses (`G` again stops it) |
 | `B` | the camera to the program board, close enough to read it; again, back |
 | `T` | the tour: every program in the library, in turn (it starts with it) |
-| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
+| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off, MANUAL |
 | `Z` | slow motion (1/4 speed) on and off |
 
 To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
 number and the MQ to the other, `D`, MULTIPLY on, and `Space` until a ball
-drops through STOP. To add, the same with the MQ at 1 and the accumulator
+drops through STOP; or `U` (AUTO) and one `Space`. To add, the same with the MQ at 1 and the accumulator
 holding the first number. To subtract, complement the number to take away
 (COUNT on, MULTIPLY off: `X`, `Space`, `X`, `Space`), then add the other.
 
@@ -166,28 +192,31 @@ it is and what it is doing.
 **The tour** (`T`; it starts with the exhibit) runs the program library
 (below), one program after another: count to 5; clear; **ADD** 37 + 11
 (five balls, the last to STOP: 48); **MULTIPLY** 13 x 3 (thirteen balls:
-39); the **COMPLEMENT** of 25 (102, then 103); **SUBTRACT** 12 - 4 (4
+39); 13 x 5 in **AUTO** (one START, twenty-one balls by themselves: 65);
+the **COMPLEMENT** of 25 (102, then 103); **SUBTRACT** 12 - 4 (4
 complemented to 124, then 12 added: 8, over 128); **DIVIDE** 13 / 5 ball
 by ball (quotient 2, remainder 3) and 25 / 5 with loops; and counting out
 nine balls. Each program's listing is in the Shortcuts pane, the line being
 done in the status bar. After each ball it checks everything the ball
 should have changed (the accumulator, the MQ, the distributor, STOP,
 OVERFLOW) and that the ball reached the collector, and each program's
-`CHECK` lines, and prints `RESULT digicomp2 tour: PASS`. It takes about 880
-simulated seconds, and about twelve minutes of computing here, headless.
+`CHECK` lines, and prints `RESULT digicomp2 tour: PASS`. (In AUTO each
+ball is checked as it lifts the trip lever, the next already let go.) It
+takes about 1350 simulated seconds (81 000 frames), and about twenty
+minutes of computing here, headless.
 Twelve balls are not enough for the multiply: when the input runs low the
 hand takes balls from the collector and puts them back at its top, as you
 would.
 
 **Programs.** The procedures can be written down and run: text files in
-`programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`
-and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
+`programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`,
+`AUTO`, `MANUAL`, `RUN` and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
 **program** slider and press `G`: the hand does it line by line, every ball
 shown before it goes and checked after. The program is shown on the
 **program board**, on a stand behind the machine's top end, the line being
 done lit (`B` brings the camera close enough to read it, and back); it is
 also in the Shortcuts pane, and the line in the status bar. The library has count, clear,
-37 + 11, 13 x 3, the complement of 25, 12 - 4, 13 / 5 ball by ball, 25 / 5
+37 + 11, 13 x 3, 13 x 5 in AUTO, the complement of 25, 12 - 4, 13 / 5 ball by ball, 25 / 5
 with loops, and counting out nine balls; `MANUAL.md`, section 9, has the
 language.
 
@@ -199,8 +228,10 @@ Open `digicomp2.lua` in bpp, or run it inside the hall (`HALL_START=digi`).
 Environment, for testing: `DC_TOUR=0` (no tour), `DC_FRICTION`, `DC_PF`
 (the pins' friction, as a torque in kg cm^2/s^2: 0.4), `DC_TH` (the board's
 slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
-(steps a second, 2400), `DC_HAND` (the most torque the hand turns the knob
-with, 50), `DC_PAUSE` (seconds between a reading and the next ball, 1),
+(steps a second, 2400), `DC_WEIGHT` (the weight's torque on the wheel,
+30 kg cm^2/s^2), `DC_FLY` (the fly's top speed, 3 radians a second),
+`DC_PUSH` (the hand's push on the START lever, as a torque on the anchor's
+pin, 300), `DC_ROD` (the push rod's mass, grams, 4), `DC_PAUSE` (seconds between a reading and the next ball, 1),
 `DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
 `DC_STEP` (begin the tour at that program of the library),
 `DC_PROGRAM=name` (run only that program; `all`: every one in turn, as the
@@ -218,7 +249,7 @@ and M2: the carry and the memory's balls into the same funnel);
 `tests/complement.lua` is A1 to A3 with their done lanes and shutters, each
 ball checked with the shutters open and closed;
 `tests/escapement.lua` is the feeder wheel driven by a weight and held by
-the anchor that AUTO will trip (not on the board yet). Each prints
+the anchor, alone (the trip lever and push rod are not in it). Each prints
 `RESULT` lines; their headers list their settings, and `FINDINGS.md` has
 what they showed.
 
@@ -227,20 +258,24 @@ what they showed.
 `./make-stls.sh` (needs OpenSCAD, and bpp to refresh `geometry.scad`)
 writes every part into `stl/`, each turned to lie on the bed. Every shape a
 ball, a rocker or a flap touches comes from `digicomp2-geometry.lua`, the
-same numbers the simulation uses. The largest pieces are the tiles, 214 x 182 mm (on a 220 mm bed, or turned on a 250 x 210 one).
+same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm (on a 220 mm bed, or turned on a 250 x 210 one).
 
 | Part | Print | Size (mm) | Notes |
 |---|---|---|---|
 | `upper-i-j.stl` | 1 each (18) | 214 x 176 x 16 | the upper plate in tiles, two across and nine down: its 4 mm face with the holes and the shutters' grooves (2 mm deep), the walls (12 mm high), the stop pegs, the bosses under the flaps and the wheel, the lettering cut 0.6 mm deep (fill it with paint, or change filament at that layer) |
-| `lower-i-j.stl` | 1 each (18) | 214 x 182 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the return lane, the collector's wall (30 mm), the posts that hold the plate up, and the bosses the feet stand on |
+| `lower-i-j.stl` | 1 each (18) | 214 x 189 x 17 (the bottom two 32) | the lower level in tiles: a 2 mm floor with its walls (15 mm), the clear lane, the return lane, the collector's wall, the trip channel and the store's wall (30 mm), STOP's pocket, the posts that hold the plate up, and the bosses the feet stand on |
 | `rocker.stl` | 13 | 44 x 19 x 9 | a flip-flop's top. 100% infill |
 | `foot.stl` | 13 | 12 x 24 x 22 | its stem and foot: the stem glues up into the rocker's hub, through the plate's square hole. 100% infill |
 | `flap.stl` | 7 | 3 x 19 x 9 | a switch's flap |
 | `wheel.stl` | 1 | 39 x 39 x 9 | the feeder's wheel |
-| `knob.stl` | 1 | 28 x 28 x 14 | glued onto the wheel's hub; its four marks are the quarter turns |
+| `star.stl` | 1 | 40 x 40 x 8 | the escape star, glued on the wheel's hub (its stem is where the weight's drum and the fly will go) |
+| `anchor.stl` | 1 | 55 x 91 x 8 | the anchor: its two fingers, the START lever, the counterweight's arm with its cup and, at its end, the hole for the latch pin |
+| `trip-cw-arm.stl` | 1 | 13 x 10 x 4 | AUTO: the trip lever's counterweight arm, glued on its axle's left end, beyond the channel's wall |
+| `auto-crank.stl` | 1 | 41 x 8 x 3 | AUTO/MANUAL: the push rod's crank, on the anchor's pin over the anchor and its counterweight; the rod's end and the latch pin go through the hole at its end |
+| `trip-lever.stl` | 1 | 14 x 33 x 10 | AUTO: the trip lever, its post's top drilled for the push rod |
 | `shutter.stl` | 6 | 28 x 22 x 2 | COMPLEMENT: a done hole's shutter, sliding in its groove in the plate; a pin pressed into its hole |
 | `comp-knob.stl` | 1 | 10 x 10 x 12 | COMPLEMENT's handle, glued on the top end of its bar |
-| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 219 x 30, 30 x 223 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
+| `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 228 x 30, 30 x 232 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
 | `foot-front.stl` | 2 | 30 x 21 x 30 | its low front feet |
 
 **Also needed**
@@ -258,8 +293,19 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 182 mm
   long, drilled 3.4 mm for the pins, the first 30 mm from its top end and
   the others every 151.6 mm after it (the pins' places are `SH_PINS` in
   `parts/geometry.scad`).
-- A **lower board** of 6 mm plywood, 424 x 1573 mm, the lower tiles glued
+- A **lower board** of 6 mm plywood, 424 x 1691 mm, the lower tiles glued
   on it edge to edge, and the feet glued under it at its corners.
+- For START and AUTO: one more 3 mm pin, 44 mm (the anchor's and the
+  AUTO crank's); a 1/2 inch steel ball, glued in the anchor's cup (its
+  counterweight); a **2 mm steel wire**, 33 mm, the trip lever's axle,
+  glued into the lever and its counterweight arm and turning in the holes
+  in the channel's wall and the rim; a **3/8 inch steel ball** (3.53 g),
+  glued in the counterweight arm's cup; a latch pin (a 1.6 mm pin, 20 mm);
+  a strip of **PTFE tape** on
+  the lever's underside, where the balls lift it; and the **push rod**: a
+  **1.5 mm carbon-fibre rod**, about 4 g, 1465 mm between its ends, each
+  end a short wire bent down to go into its hole (1.6 mm). The lever's
+  counterweight is worked out for 4 g; 2 to 8 g worked (`FINDINGS.md`).
 - Glue; a little dry PTFE or graphite on the pins.
 
 **Assembly.** Glue the lower tiles onto the plywood, edge to edge, the
@@ -269,36 +315,47 @@ their bosses. Glue the upper tiles together at their edges into one plate
 pin, wedge up the slope; lay the plate on its posts, the stems coming up
 through the square holes; press the steel balls into the rockers and glue
 each rocker onto its stem, roof up the slope. Press the flaps' and wheel's
-pins into the plate, fit them, and glue the knob on the wheel. Put the
+pins into the plate, fit them, glue the star on the wheel and fit the
+anchor on its pin, its counterweight glued in. Fit the trip lever in its
+channel on its wire axle, the AUTO crank on the anchor's pin over the
+anchor, and hook the push rod onto the crank and the lever's post; the
+latch pin (a 1.6 mm pin, 20 mm) in for AUTO. Put the
 shutters in their grooves, pins up, slip the bar over the pins and glue its
 knob on. Glue the
 tall feet under the back corners and the low ones under the front, so the
 board slopes at 15 degrees toward you, and **level it across** (within 1
 degree; see `FINDINGS.md`). Set every flip-flop to 0 (apex left; the MQ's
 read 0 with the apex right), COUNT on and the other switches off, put the
-balls in the input channel, and turn the knob a quarter turn at a time.
+balls in the input channel, and push the START lever once for each ball
+(or, in AUTO, once).
 
-The knob's first quarter turn after loading fills the wheel: balls come out
-from the second. (In the simulation, the hand loads the wheel's two notches
-as it puts the balls back, so the first turn lets one out.)
+The first push after loading fills the wheel: balls come out from the
+second. (In the simulation, the hand loads the wheel's two notches as it
+puts the balls back, so the first lets one out.)
 
 ## What is not as built
 
-- **The hand.** The knob is turned by the hand, a quarter turn at a time: in
-  the simulation a motor on the wheel's pin, strong enough not to stall. The
-  hand sets the switches and flip-flops, puts the balls back, by placing
-  them, and watches STOP: it turns no more once a ball has dropped through.
+- **The weight and the fly** are not parts yet: in the simulation they are
+  a steady torque on the wheel's pin (`DC_WEIGHT`) and a top speed
+  (`DC_FLY`). A real one needs a drum on the star's stem, a cord and a
+  weight to wind up, and a small fan geared to the wheel.
+- **The push rod** is simulated as a 4 g rod pinned at both ends, touching
+  nothing: 1.5 m long, across the board from 2.1 cm over its face at the
+  lever to 3.7 cm at the crank, and
+  straight. A real one sags a little between its ends; a guide or two
+  would hold it up (not modelled).
+- **The hand.** It pushes the START lever (a push of 0.3 s); sets the
+  switches and flip-flops, puts the balls back from the store and the STOP
+  pocket, by placing them, and in MANUAL watches STOP: it pushes no more
+  once a ball has dropped through. In AUTO the machine stops itself; the
+  hand keeps the input filled from the store as it runs.
   Dividing, it watches OVERFLOW too, and stops at the end of that cycle. It
   moves COMPLEMENT between the two balls of a complement, which E.S.R.'s
   machine does itself with CF1 and CF2.
-- **AUTO.** E.S.R.'s machine can run by itself: in AUTO, a ball at the
-  bottom rolls under the START lever and lets the next ball go from the top,
-  and the ball through STOP lets none. That is not on the board yet: its
-  heart, the wheel turned by a wound weight and held by an anchor that lets
-  it round a quarter turn (one ball) each time it is tripped, works alone
-  (`tests/escapement.lua`; `FINDINGS.md` has the three tries); the trip and
-  the STOP bypass are still to come. Here every ball is let in by a turn of
-  the knob, as in the original's MANUAL.
+- **AUTO** is this machine's own: E.S.R.'s ball at the bottom rolls under
+  the START lever itself; here the START lever is at the top, and the trip
+  lever at the bottom works it through the push rod. OVERFLOW does not yet
+  halt it (dividing stays in MANUAL, the hand watching OVERFLOW).
 - **The layout** is this machine's own, not E.S.R.'s: the registers do what
   the manual says, but where each part sits on the board was worked out
   here. The distributor is a tree of three flip-flops, and after the MQ and

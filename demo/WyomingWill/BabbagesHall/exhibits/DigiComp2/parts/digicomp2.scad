@@ -15,7 +15,14 @@
 //   rocker      a flip-flop's top (roof, cups, tail, the pocket for its steel ball): 13
 //   foot        its stem and foot, under the plate (glued into the rocker's hub): 13
 //   flap        a switch's flap: 7 (MULTIPLY, CLEAR, COUNT, M1 .. M4)
-//   wheel, knob the feeder (START): 1 each
+//   wheel, star the feeder (START): its wheel, and the escape star glued on it: 1 each
+//   anchor      the escapement's anchor, on its pin beside the wheel (its
+//               counterweight a 1/2 inch steel ball in the cup on its arm): 1
+//   auto-crank  AUTO/MANUAL: the push rod's crank, on the anchor's pin over
+//               it; a latch pin through its end into the anchor's: AUTO: 1
+//   trip-cw-arm the trip lever's counterweight arm, on its axle's end: 1
+//   trip-lever  AUTO: the lever at the bottom of the trip channel, on a 2 mm
+//               wire axle through the channel's wall and the rim: 1
 //   shutter     COMPLEMENT: a done hole's shutter, sliding in its groove: 6
 //               (each with a 3 mm steel pin, 21 mm, pressed in); the bar
 //               joining the pins is a 3 x 5 mm aluminium strip (README.md),
@@ -75,20 +82,11 @@ module flap() difference() {
   pinHole(S_Y0, S_H);
 }
 
-// ---- the feeder's wheel (its centre at 0, 0) and knob ----
+// ---- the feeder's wheel (its centre at 0, 0); the knob is gone (the
+// escape star and the anchor turn it now: below) ----
 module wheel() difference() {
   slab(W_Y0, W_H) for (p = W_PIECES) outline(p);
   pinHole(W_Y0, W_H);
-}
-KNOB_Y = W_Y0 + W_H;                       // it stands on the wheel's hub, above the balls
-module knob() translate([0, S * KNOB_Y, 0]) rotate([-90, 0, 0]) difference() {
-  union() {
-    cylinder(r = 5.5, h = 6);                         // the stem (inside the notches' bottoms)
-    translate([0, 0, 6]) cylinder(r = 14, h = 6);     // the grip, clear above the balls
-    translate([0, 9, 12]) cylinder(r = 2.5, h = 2);   // the pointer
-  }
-  for (a = [0, 90, 180, 270]) rotate(a) translate([14, 0, 9]) cube([3, 2, 7], center = true);
-  translate([0, 0, -1]) cylinder(r = S * F_PIN_R + 0.2, h = 8);
 }
 
 // ---- COMPLEMENT: the shutters (closed: over their holes), their pins, the
@@ -109,6 +107,48 @@ module compKnob() cylY(SH_KNOB[0], SH_KNOB[1], SH_KNOB_R, SH_BAR_Y0 + SH_BAR_H, 
 module grooves() for (i = [0 : len(SHUTTERS) - 1])
   slab(-SH_T - 0.03, SH_T + 0.1) offset(delta = 0.3) hull() { outline(SHUTTERS[i]); translate([S * SH_TRAVEL, 0]) outline(SHUTTERS[i]); }
 
+// ---- the escape star (on the wheel, its centre at 0, 0) and the anchor
+// (its pin at 0, 0, at rest turned as ANCHOR_REST says) ----
+module star() difference() {
+  union() for (p = STAR_PIECES) slab(p[1], p[2]) outline(p[0]);
+  pinHole(W_Y0, 3);
+}
+module anchor() difference() {
+  union() for (p = ANCHOR_PIECES) slab(p[1], p[2]) outline(p[0]);
+  pinHole(0, 3);
+  // (the counterweight's seat: a 1/2 inch steel ball glued in a shallow cup)
+  translate(S * [ANCHOR_CW[0], ANCHOR_CW[1], 0]) sphere(r = S * BALL_R + 0.1, $fn = 32);
+  // (AUTO: the latch pin goes down through the AUTO crank's end into this hole)
+  translate([S * ANCHOR_CRANK, 0, 0]) rotate([-90, 0, 0]) cylinder(r = S * ROD_PIN_R + 0.1, h = 40, $fn = 12);
+}
+// the trip lever (AUTO), in its own frame: the axle at the origin
+// (the axle through it, a 2 mm wire: tripAxle(), along x, as placed on the board)
+module tripLever() difference() {
+  for (h = TRIP_HULLS) hull() for (q = h) translate(S * q) cube(0.01, center = true);
+  rotate([0, 90, 0]) cylinder(r = S * TRIP_AXLE[5] + 0.15, h = 40, center = true, $fn = 16);
+  // (the push rod's hooked end, down into the post's top)
+  translate([0, S * TRIP_POST_H - 5, 0]) rotate([-90, 0, 0]) cylinder(r = S * ROD_PIN_R + 0.1, h = 10, $fn = 12);
+}
+// the AUTO crank, on the anchor's pin over its arm (its pin at 0, 0): the
+// push rod's hooked end in the hole at its end, and the latch pin through it
+module autoCrank() difference() {
+  slab(AUTO_CRANK_Y[0], AUTO_CRANK_Y[1]) for (p = AUTO_CRANK_PIECES) outline(p);
+  pinHole(AUTO_CRANK_Y[0], AUTO_CRANK_Y[1]);
+  translate([S * ANCHOR_CRANK, 0, 0]) rotate([-90, 0, 0]) cylinder(r = S * ROD_PIN_R + 0.1, h = 80, $fn = 12);
+}
+// the trip lever's counterweight arm, glued on its axle's left end beyond
+// the channel's wall, hanging below it; a 3/8 inch steel ball in its cup
+// (tripWeight), in the lever's frame
+module tripCwArm() difference() {
+  hull() for (q = TRIP_CW_ARM) translate(S * q) cube(0.01, center = true);
+  translate(S * [TRIP_CW[0], TRIP_CW[1], -TRIP_CW[2]]) sphere(r = S * TRIP_CW[3] + 0.1, $fn = 24);
+  translate([S * TRIP_CW[0], 0, 0]) rotate([0, 90, 0]) cylinder(r = S * TRIP_AXLE[5] + 0.05, h = 40, center = true, $fn = 16);
+}
+module tripWeight() translate(S * [TRIP_CW[0], TRIP_CW[1], -TRIP_CW[2]]) sphere(r = S * TRIP_CW[3], $fn = 20);
+module tripAxle() translate(S * [TRIP_AXLE[3], TRIP_AXLE[1], TRIP_AXLE[2]]) rotate([0, 90, 0])
+  cylinder(r = S * TRIP_AXLE[5], h = S * (TRIP_AXLE[4] - TRIP_AXLE[3]), $fn = 16);
+module anchorWeight() translate(S * [ANCHOR_CW[0], ANCHOR_CW[1], 0]) sphere(r = S * BALL_R, $fn = 24);
+
 // ---- the upper plate: its face, holes, walls, stop pegs, the bosses under
 // the flaps and the wheel, the lettering cut into it ----
 module holes() for (h = HOLES) translate(S * [h[0], -PT - 0.1, h[2]]) cube(S * [h[1] - h[0], PT + 0.2, h[3] - h[2]]);
@@ -116,6 +156,7 @@ module upperPlate() translate(S * [BOARD[0], -PT, BOARD[2]]) cube(S * [BOARD[1] 
 module upperPins() {
   for (s = SWITCHES) translate(S * [s[0], -PT - 0.1, s[1]]) rotate([-90, 0, 0]) cylinder(r = S * F_PIN_R - 0.05, h = 20);
   translate(S * [WHEEL_AT[0], -PT - 0.1, WHEEL_AT[1]]) rotate([-90, 0, 0]) cylinder(r = S * F_PIN_R - 0.05, h = 20);
+  translate(S * [ANCHOR_AT[0], -PT - 0.1, ANCHOR_AT[1]]) rotate([-90, 0, 0]) cylinder(r = S * F_PIN_R - 0.05, h = 44);
 }
 MARK_D = 0.6;                             // mm the lettering is cut in
 // (the plate alone, its holes cut: how the simulation draws it, see-through)
@@ -125,6 +166,8 @@ module upper() difference() {
     upperPlate();
     for (w = WALLS) strip(w, WALL_T, 0, WALL_H);
     for (p = PEGS) cylY(p[0], p[1], p[2], 0, WALL_H);
+    for (p = ANCHOR_POSTS) cylY(p[0], p[1], p[2], 0, p[3]);         // (the anchor's stops)
+    cylY(ANCHOR_AT[0], ANCHOR_AT[1], F_BOSS_R, 0, ANCHOR_PIECES[0][1]);  // (the boss under the anchor)
     for (s = SWITCHES) cylY(s[0], s[1], F_BOSS_R, 0, S_Y0);
     cylY(WHEEL_AT[0], WHEEL_AT[1], F_BOSS_R, 0, W_Y0);
   }
@@ -143,6 +186,9 @@ module lower() difference() {
     for (t = TOGGLES) cylY(t[0], t[1], F_BOSS_R, YL, F_FY0 - YL);
   }
   for (t = TOGGLES) translate(S * [t[0], YL - FLOOR - 0.1, t[1]]) rotate([-90, 0, 0]) cylinder(r = S * F_PIN_R - 0.05, h = 20);
+  // (the trip lever's axle, through the channel's wall and the rim: a snug hole)
+  translate(S * [TRIP_AXLE[3] - 0.5, TRIP_AXLE[1], TRIP_AXLE[2]]) rotate([0, 90, 0])
+    cylinder(r = S * TRIP_AXLE[5] - 0.05, h = S * (TRIP_AXLE[4] - TRIP_AXLE[3] + 1), $fn = 16);
   translate([0, -MARK_D, 0]) slab(YL, MARK_D / S + 0.01) lowerMarks2d();
 }
 
@@ -184,7 +230,11 @@ if (PART == "print-rocker") rotate([90, 0, 0]) translate([0, -S * F_Y0, 0]) rock
 if (PART == "print-foot") rotate([90, 0, 0]) translate([0, -S * F_FY0, 0]) foot();
 if (PART == "print-flap") rotate([90, 0, 0]) translate([0, -S * S_Y0, 0]) flap();
 if (PART == "print-wheel") rotate([90, 0, 0]) translate([0, -S * W_Y0, 0]) wheel();
-if (PART == "print-knob") rotate([90, 0, 0]) translate([0, -S * KNOB_Y, 0]) knob();
+if (PART == "print-star") rotate([90, 0, 0]) translate([0, -S * min([for (p = STAR_PIECES) p[1]]), 0]) star();
+if (PART == "print-anchor") rotate([90, 0, 0]) translate([0, -S * min([for (p = ANCHOR_PIECES) p[1]]), 0]) anchor();
+if (PART == "print-auto-crank") rotate([90, 0, 0]) translate([0, -S * AUTO_CRANK_Y[0], 0]) autoCrank();
+if (PART == "print-trip-cw-arm") translate([0, 0, 2]) rotate([0, -90, 0]) translate([-S * TRIP_CW[0], 0, 0]) tripCwArm();
+if (PART == "print-trip-lever") translate([0, 0, 5]) rotate([0, -90, 0]) tripLever();
 if (PART == "print-shutter") rotate([90, 0, 0]) translate([-S * SH_PINS[0][0], S * SH_T, -S * SH_PINS[0][1]]) shutter(0);
 if (PART == "print-comp-knob") rotate([90, 0, 0]) translate([-S * SH_KNOB[0], -S * (SH_BAR_Y0 + SH_BAR_H), -S * SH_KNOB[1]]) compKnob();
 for (i = [0 : NX - 1], j = [0 : NZ_U - 1]) if (PART == str("print-upper-", i, "-", j))
@@ -211,10 +261,16 @@ for (i = [0 : len(TOGGLES) - 1]) {
 }
 for (i = [0 : len(SWITCHES) - 1]) if (PART == str("rest-flap", i)) translate(S * [SWITCHES[i][0], 0, SWITCHES[i][1]]) rotate([0, SWITCHES[i][2] * (S_ANG - 0.5), 0]) flap();
 if (PART == "rest-wheel") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) wheel();
-if (PART == "rest-knob") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) knob();
+if (PART == "rest-star") translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) star();
+if (PART == "rest-anchor") translate(S * [ANCHOR_AT[0], 0, ANCHOR_AT[1]]) rotate([0, ANCHOR_REST, 0]) anchor();
+if (PART == "rest-auto-crank") translate(S * [ANCHOR_AT[0], 0, ANCHOR_AT[1]]) rotate([0, ANCHOR_REST, 0]) autoCrank();
+if (PART == "rest-trip-cw-arm") translate(S * [TRIP_AXLE[0], TRIP_AXLE[1], TRIP_AXLE[2]]) tripCwArm();
+if (PART == "rest-trip-lever") translate(S * [TRIP_AXLE[0], TRIP_AXLE[1], TRIP_AXLE[2]]) tripLever();
 // (COMPLEMENT as the hand sets it up: off, the shutters to the right)
 for (i = [0 : len(SHUTTERS) - 1]) if (PART == str("rest-shutter", i)) translate([S * SH_TRAVEL, 0, 0]) shutter(i);
 if (PART == "rest-comp-bar") translate([S * SH_TRAVEL, 0, 0]) { complementBar(); compKnob(); }
 if (PART == "assembly") rotate([90, 0, 0]) { upper(); lower(); for (t = TOGGLES) translate(S * [t[0], 0, t[1]]) rotate([0, F_ALPHA - 0.3, 0]) { rocker(); foot(); }
-                          translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) { wheel(); knob(); }
+                          translate(S * [WHEEL_AT[0], 0, WHEEL_AT[1]]) { wheel(); star(); }
+                          translate(S * [ANCHOR_AT[0], 0, ANCHOR_AT[1]]) rotate([0, ANCHOR_REST, 0]) { anchor(); autoCrank(); }
+                          translate(S * [TRIP_AXLE[0], TRIP_AXLE[1], TRIP_AXLE[2]]) tripLever();
                           translate([S * SH_TRAVEL, 0, 0]) { for (i = [0 : len(SHUTTERS) - 1]) shutter(i); complementBar(); compKnob(); } }
