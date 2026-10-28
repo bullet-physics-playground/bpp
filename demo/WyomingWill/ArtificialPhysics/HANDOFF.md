@@ -169,7 +169,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "7. Escaping cul-de-sacs: the chain fountain" --break "8. Build order"` (2026-10-27: §2 starts a page without a break; the end of §7 kept spilling one table row onto a page of its own, and a break before §7 avoids it; breaks act only on `##` headings)
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "6. The capstone: one mission, five kinds of vehicle" --break "8. Build order"` (2026-10-28; breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
   and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-10-27: no break; the one before "6. How BPP behaves" left a nearly empty page). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
@@ -475,7 +475,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
   the camera ring (§13.4, E10–E11b); (3) the triangle of death (E6); (4) a
-  torpedo-shaped AUV that cannot hover or move sideways (G11).
+  torpedo-shaped AUV that cannot hover or move sideways (G11); (5) ★
+  rotating formations for MAVs (William, 2026-10-28; `BOOK.md` Ch. 13
+  table, ★ row): agents fly toward another agent instead of circling
+  alone, in three versions (cyclic pursuit with IDs; ID-free pursuit of
+  the nearest agent in a forward sector; LJ with the torque law, to see if
+  it mills by itself), against the book's lone circles, with the
+  n D ≥ 2π R_min limit stated and the surveillance, relay and
+  stay-in-region measures.
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
