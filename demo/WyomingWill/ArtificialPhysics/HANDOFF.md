@@ -300,6 +300,19 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   overlap, a stable balance of AP itself: the ideal particles stop at the
   same two points (`probes/stuck_robots.lua`).
 
+- **Kinetic theory (M3 step 4, 2026-10-27/28; F85–F91):** `kt.nlogo`'s
+  walls re-draw a particle every tick it stays near them, which heats the
+  gas (slope 1–2.5% above V/6, v̄ 1.36√T); Kerr's simulator thermalises
+  once, at a wall crossing (Garcia's DSMC), which gives the book's
+  Fig. 4.23 and, at 30–300 particles, Eq. 4.6: that is now the default
+  (`inward`). V/6 holds to a few percent and moves with density and
+  temperature. On vehicles (velocity commands, G4): the profile survives
+  lag if KT keeps its own velocities (colliding sensed ones freezes the
+  gas); a vehicle follows KT only if its lag is shorter than a KT tick;
+  drones collide in mid-air unless collisions separate (F90) and KT runs
+  at ~1 Hz (F91). KT is not flown on drones in the plan; the capstone's
+  sweep is by ground robots, where contacts are bumps.
+
 ## 7. Where things stand and what's next
 
 - **Done: milestone M0** (build step 0): `lib/rng.lua`, `lib/batch.py` +
@@ -446,6 +459,18 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is
   Garcia's crossing rule, i.e. `inward`) and F89 (collision avoidance is
   assumed, not given).
+- **Next, the last of M3: Ch. 7's theory checks** (`BOOK.md` 7.1–7.4,
+  `book/ch07.md`, Kerr's thesis, which William attaches): the KT
+  controller of Ch. 7 (both walls moving the same way, obstacles, the
+  corridor, `World.preset("ch07-corridor")` in `lib/world.lua`), on particles first,
+  reusing `ch04/couette.lua`'s step where it fits (Kerr's wall is now its
+  default); then uniform density at rest (book: error < 10%), mean speed
+  against T (< 2%), and the profiles with one moving wall (linear) and
+  two (flat) against obstacle density, deciding one- or two-sided
+  explicitly. The chapter note lists the listing bugs (speed `max(…, 6)`
+  should be `min`; Listing 7.3 draws collision angles from a half-circle
+  only). Then close M3 here (its answers, as for M1 and M2) and go on to
+  Ch. 13's constrained vehicles.
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
@@ -474,9 +499,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
-> and continue with the next step in HANDOFF.md §7: milestone M3. Deliver each
-> step as a patch with git commands.
+> and continue with the next step in HANDOFF.md §7: the last step of
+> milestone M3, Ch. 7's theory checks. Deliver each step as a patch with
+> git commands.
 
-Attach the book PDF if the chat will need chapters beyond the notes,
-`ap.zip` if it will compare with the Android app, and `CPT.zip` for plume
-work.
+Attach the book PDF and Kerr's thesis (Ch. 7 is built on it);
+`Android_AP.zip` if it will compare with the Android app (its
+`kinetic/` simulation is Ch. 4.4's), and `CPT.zip` for plume work.

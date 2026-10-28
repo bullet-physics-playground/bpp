@@ -219,7 +219,7 @@ detail.
 | 4.2 | Chains (`formation_chain`): elliptical law; Table 4.1 (561 → 350) | 131–138 | Particles with heading (G17), 50-run batches; ★ prolate spheroid in 3D | plan |
 | 4.3a | Coverage baseline (`uniform`): 84×84, 9 cells; Table 4.2 | 139–144 | `ch04/coverage.lua` (`uniform.nlogo` line for line): Table 4.2 and Fig. 4.17 reproduced (F78) | done |
 | 4.3b | Mean free path (`uniform_mfpl`): bound 17⅓; Fig. 4.19 dip at 53–65 | 144–147 | Fig. 4.19 and its dip reproduced; William's NetLogo runs reproduced at MFP ≥ 17, below it noise-limited at 2 × 10⁸ agent steps; the BPP scene matches his Android runs (`ch04/`, F78); one agent run 5 × 10⁹ steps: below 0.003 for MFP ≤ 28, the bound confirmed (F84); ★ 27 cells in 3D | done |
-| 4.4 | Couette flow (`kt`): slope V/6 with r > 0.999; v̄ = 1.2617√T (theory 1.2533) | 147–156 | `ch04/couette.lua`: profile and momenta reproduced; the `.nlogo`'s walls run hot (slope +1–2.5%, v̄ 1.36√T); inward-only walls give Fig. 4.23 (F85, F86); → point mass → quads; ★ 3D slab | partly |
+| 4.4 | Couette flow (`kt`): slope V/6 with r > 0.999; v̄ = 1.2617√T (theory 1.2533) | 147–156 | `ch04/couette.lua`: profile and momenta reproduced; the `.nlogo`'s walls run hot (slope +1–2.5%, v̄ 1.36√T); inward-only walls (Kerr's, the default) give Fig. 4.23 (F85, F86); on point masses and quads with velocity commands (F88–F91); ★ 3D slab | done |
 
 ### Ch. 5 — Local oriented potential fields (PDF 160–175) · `book/ch05.md`
 | # | Entry | Pages | BPP | Status |
