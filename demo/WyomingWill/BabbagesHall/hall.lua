@@ -108,7 +108,7 @@ EXHIBITS = EXHIBITS or {
             "by the balls alone, make the accumulator, the MQ and the distributor; four switches\n" ..
             "are the memory; six shutters on one bar are COMPLEMENT.\n" ..
             "Space: START; M, C, N, X: the switches; G: run the program the \"program\" slider\n" ..
-            "chooses, line by line; T: the tour, every program in turn." },
+            "chooses, line by line, on the board behind it (B: close up); T: every program in turn." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..

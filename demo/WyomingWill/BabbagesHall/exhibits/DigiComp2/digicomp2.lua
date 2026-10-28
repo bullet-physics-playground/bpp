@@ -58,6 +58,7 @@
 --   X      COMPLEMENT on <-> off
 --   G      run the program chosen with the "program" slider (G again: stop;
 --          see PROGRAMS, below)
+--   B      the camera to the program board, close enough to read; again: back
 --   T      the tour: every program in the library, in turn (it starts with it)
 --   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
 --   Z      slow motion (1/4) <-> real time
@@ -1215,6 +1216,7 @@ local function listing(p, cur)
 end
 local function setStatus(t) pcall(function() v.statusText = t end) end
 local function showProgram(p, cur)
+  if PR.board then PR.board(p, cur) end
   v:setHelpText(listing(p, cur) .. "\n\n" .. PR.help)
   local l = cur and p.lines[cur]
   setStatus(l and string.format("%s, line %d:  %s", p.title, cur, l:match("^%s*(.-)%s*$")) or "")
@@ -1346,6 +1348,94 @@ PR.step, PR.start, PR.stopIt, PR.library, PR.libraryText, PR.listing, PR.setStat
   progStep, startProgram, stopProgram, library, libraryText, listing, setStatus
 end
 
+-- ---------------------------------------------------------------------
+-- the program board: the exhibit's, not the machine's. A board on a stand
+-- behind the machine's top end, showing the program being run, its line
+-- being done lit (a bar behind it, an arrow before it), the listing moved
+-- along to keep that line in view. Each line's letters are made (OpenSCAD,
+-- from parts/sign.scad) the first time its program runs, and cached.
+-- ---------------------------------------------------------------------
+do
+  local NL, LH, SIZE = 15, 2.8, 15               -- lines shown, their spacing (cm), the letters' size (0.1 mm)
+  local MAXC = 72                                -- (a longer line is cut)
+  local PW, PH = 104, NL * LH + 8                -- the panel (cm)
+  local TILT = math.rad(-12)                     -- (leaning back)
+  local q = btQuaternion(btVector3(1, 0, 0), TILT)
+  local up = btVector3(0, math.cos(TILT), math.sin(TILT))
+  local Y0 = 50                                  -- its bottom edge, over the machine's top end
+  local ZB = -BD / 2 - 12                        -- where it stands: behind the board, on the table
+  local function at(u, w, d)                     -- (across, up its face, out of it)
+    return btVector3(u, Y0 + PH / 2 + up.y * w, ZB + up.z * w + d * math.cos(TILT))
+  end
+  local AWAY = btTransform(ident, btVector3(0, -500, 0))
+  local function obj(o, col) o.col = col; pcall(function() o.collides = false end); v:add(o); return o end
+  local back = obj(Cube(PW, PH, 0.8, 0), "#1d1712")
+  back.trans = btTransform(q, at(0, 0, 0))
+  local frame = obj(Cube(PW + 2, PH + 2, 0.6, 0), "#c9a14a")
+  frame.trans = btTransform(q, at(0, 0, -0.3))
+  for _, sx in ipairs({ -1, 1 }) do
+    local leg = obj(Cube(2.5, Y0 + 4, 2.5, 0), "#2b2b2b")
+    leg.trans = btTransform(ident, btVector3(sx * (PW / 2 - 6), (Y0 + 4) / 2, ZB))
+  end
+  key(back, "the program board (the exhibit's, not the machine's): the program the hand is running, its line being done lit")
+  local L0 = -PW / 2 + 5                         -- (the lines' left edge)
+  local function lineW(k) return PH / 2 - 7 - (k - 1) * LH end   -- (line k of the window, up from the middle)
+  local function esc(t) return (t:gsub("\t", "  "):gsub("\\", "\\\\"):gsub('"', '\\"')) end
+  local function textPart(t, size, col)
+    local m = signPart(string.format('listText("%s", %d)', esc(t), size))
+    m.col = col
+    v:add(m)
+    m.trans = AWAY
+    return m
+  end
+  local title = { }                              -- (the title line, a part each program)
+  local made = {}                                -- file -> { [line] = part }
+  local bar = obj(Cube(PW - 6, LH * 0.95, 0.2, 0), "#6e2a17")
+  bar.trans = AWAY
+  local arrow = textPart("->", SIZE, "#f2c94c")
+  local shown, top = nil, 1
+  -- (B: the camera to the board, close enough to read it, and back)
+  PR.boardView = { pos = btVector3(0, Y0 + PH / 2 + 10, ZB + 125), look = btVector3(0, Y0 + PH / 2, ZB) }
+  PR.board = function(p, cur)
+    local parts = made[p.file]
+    if not parts then
+      parts = {}
+      for i, l in ipairs(p.lines) do
+        local t = l:gsub("%s+$", "")
+        if #t > MAXC then t = t:sub(1, MAXC - 3) .. "..." end
+        if t:match("%S") then parts[i] = textPart(t, SIZE, "#efe6cf") end
+      end
+      title[p.file] = textPart(string.format("PROGRAM  %s   (programs/%s)", p.title, p.file), SIZE + 4, "#f2c94c")
+      made[p.file] = parts
+    end
+    -- (another program shown before: its lines put away)
+    if shown and shown ~= p then
+      for _, m in pairs(made[shown.file]) do m.trans = AWAY end
+      title[shown.file].trans = AWAY
+    end
+    shown = p
+    -- the window: the line being done kept in view, a few lines below it
+    local n = #p.lines
+    if cur then
+      if cur < top + 2 then top = math.max(1, cur - 2) end
+      if cur > top + NL - 4 then top = math.min(math.max(1, n - NL + 1), cur - NL + 4) end
+    else top = 1 end
+    title[p.file].trans = btTransform(q, at(L0, PH / 2 - 3, 0.45))
+    for i, m in pairs(parts) do
+      local k = i - top + 1
+      if k >= 1 and k <= NL - 1 then m.trans = btTransform(q, at(L0 + 4, lineW(k + 1), 0.45))
+      else m.trans = AWAY end
+    end
+    local k = cur and (cur - top + 1)
+    if k and k >= 1 and k <= NL - 1 then
+      bar.trans = btTransform(q, at(0, lineW(k + 1), 0.35))
+      arrow.trans = btTransform(q, at(L0, lineW(k + 1), 0.45))
+    else
+      bar.trans, arrow.trans = AWAY, AWAY
+    end
+  end
+end
+
 -- the tour: every program in the library, in turn
 local function startTour()
   print("\nDIGI-COMP II -- the tour: the program library, one after another")
@@ -1432,6 +1522,21 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
 end
 v:addShortcut("D", byHand(setD))
 v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
+-- B: the camera to the program board and back (the camera as it was before)
+local camBack = nil
+v:addShortcut("B", function()
+  local c = v.cam
+  local function put(pos, look)        -- (upright, the place, then the look: in that order)
+    c:setUpVector(btVector3(0, 1, 0), true)
+    c.pos = pos
+    c.look = look
+  end
+  if camBack then put(camBack.pos, camBack.look); camBack = nil
+  else
+    camBack = { pos = c.pos, look = c.look }
+    put(PR.boardView.pos, PR.boardView.look)
+  end
+end)
 v:addShortcut("T", function() PR.prog = nil; PR.run = nil; startTour() end)
 v:addShortcut("R", function() PR.prog = nil; PR.run = nil; queue = 0; setUp(); hidePath(); PR.setStatus("") end)
 -- programs: the slider chooses, G runs it (G again: stop)
@@ -1498,6 +1603,7 @@ pcall(function()
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
     "  X      COMPLEMENT on/off (the shutters over the done holes)",
     "  G      run the program the \"program\" slider chooses (G again: stop)",
+    "  B      look at the program board (behind the machine), close up; again: back",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
@@ -1574,7 +1680,7 @@ if v.onHover then
   end)
 end
 
-common.setCamera(btVector3(-6, 185, 135), btVector3(-6, 6, -8))
+common.setCamera(btVector3(-6, 228, 208), btVector3(-6, 22, -32))
 -- (DC_PROGRAM=name: that program from the library, headless; "all": each in turn)
 local DC_PROGRAM = os.getenv("DC_PROGRAM")
 if DC_PROGRAM then

@@ -128,6 +128,7 @@ round from the top and lets it out at the bottom.
 | `D` | set the distributor to start a cycle (D1 1, D2 1, D3 0) |
 | `X` | COMPLEMENT on and off (the shutters over the done holes) |
 | `G` | run the program the **program** slider chooses (`G` again stops it) |
+| `B` | the camera to the program board, close enough to read it; again, back |
 | `T` | the tour: every program in the library, in turn (it starts with it) |
 | `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
 | `Z` | slow motion (1/4 speed) on and off |
@@ -181,9 +182,11 @@ would.
 **Programs.** The procedures can be written down and run: text files in
 `programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`
 and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
-**program** slider and press `G`: the hand does it line by line, the line
-being done marked in the Shortcuts pane and shown in the status bar, every
-ball shown before it goes and checked after. The library has count, clear,
+**program** slider and press `G`: the hand does it line by line, every ball
+shown before it goes and checked after. The program is shown on the
+**program board**, on a stand behind the machine's top end, the line being
+done lit (`B` brings the camera close enough to read it, and back); it is
+also in the Shortcuts pane, and the line in the status bar. The library has count, clear,
 37 + 11, 13 x 3, the complement of 25, 12 - 4, 13 / 5 ball by ball, 25 / 5
 with loops, and counting out nine balls; `MANUAL.md`, section 9, has the
 language.

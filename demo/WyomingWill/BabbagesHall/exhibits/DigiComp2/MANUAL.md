@@ -522,9 +522,11 @@ CHECK MQ 4
 
 In the exhibit, the **program** slider chooses one from the library and
 `G` runs it (`G` again stops it). The tour (`T`, and as the exhibit
-starts) runs them all, one after another. While it runs, the listing is in the
-Shortcuts pane, the line being done first and marked `->`, and the status
-bar at the bottom of the window shows that line. Every ball is shown before
+starts) runs them all, one after another. While it runs, the program is on
+the **program board** behind the machine, the line being done lit (`B`
+brings the camera close enough to read it, and back); the listing is also
+in the Shortcuts pane, the line being done first and marked `->`, and the
+status bar at the bottom of the window shows that line. Every ball is shown before
 it goes (the yellow dashed line, the sign's THIS BALL) and checked after,
 as in the tour. To write your own, add a file to `programs/` and its name
 to `programs/LIBRARY` (the slider gives them in that order), and open the
