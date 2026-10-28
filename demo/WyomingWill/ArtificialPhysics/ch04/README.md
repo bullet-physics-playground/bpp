@@ -549,7 +549,9 @@ on the commands only. It did not help, and is taken out:
 
 ### Not done
 
-Losses to zero for KT on drones (above); the boats (they
-have `velocity()`; at 0.79 m/s the model's V must be scaled down) and the
-ground robots (no `velocity()` yet). ★ 3D (a slab between two planes) is
-open.
+Losses to zero for KT on drones is not pursued (William, 2026-10-28):
+the plan flies KT on ground robots (the capstone's sweep), where a
+contact is a bump, not a loss, and a swarm tolerates occasional losses.
+They need `velocity()` first (not yet in `ground/vehicle.lua`). The
+boats have `velocity()` (at 0.79 m/s the model's V must be scaled down).
+★ 3D (a slab between two planes) is open.

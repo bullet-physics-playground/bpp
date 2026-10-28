@@ -432,9 +432,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        only if its lag is shorter than a KT tick; drones at 1 Hz (scale
        2.5 m/unit, the same speeds in m/s) track their commands, carry
        93–95% of the ideal profile and lose 2–5 per 4,000 s, about a
-       fifth of the 5 Hz rate. **Open:** losses to zero, which needs a
-       range of at least closing speed × tick or avoidance inside the
-       flight controller (Kerr assumes one).
+       fifth of the 5 Hz rate. Losses to zero would need a range of at
+       least closing speed × tick or avoidance inside the flight
+       controller (Kerr assumes one); **not pursued** (William,
+       2026-10-28): KT is not flown on drones in the plan. The
+       capstone's KT sweep is by ground robots, for which a contact is
+       a bump, not a loss, and occasional losses are what a swarm is
+       for (robustness). **Needed for it:** `velocity()` on the ground
+       robot (`ground/vehicle.lua`), and KT on robots that touch and
+       carry on.
 - **The seven theses** (Heil, Hettiarachchi, Kerr, Kunkel, Maxim,
   Rebguns, Zarzhitsky) were attached by William on 2026-10-28; they stay
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is
