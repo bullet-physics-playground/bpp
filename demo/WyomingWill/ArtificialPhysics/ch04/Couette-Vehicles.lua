@@ -53,7 +53,10 @@
 --   collisionRange  the collision distance, units (2 = kt.nlogo's)
 --   lost        vehicles that failed (drones: prop strike or tilt
 --               failsafe), at the end
---   apHz, metersPerUnit  the KT rate (Hz) and the scale (m per unit)
+--   apHz, metersPerUnit  the KT rate (Hz) and the scale (m per unit).
+--               A vehicle tracks KT only if its lag is shorter than a KT
+--               tick (F91): drones (lag ~0.65 s) at 1 Hz, with the scale
+--               raised to keep speeds in m/s (5 Hz x 0.5 = 1 Hz x 2.5)
 --   resampleAt  KT ticks after which the profile restarts (Resample)
 --   slope, corr the 13 bars' least-squares slope (units/tick per column)
 --               and correlation (compute-stats); ratio = slope / (V/6)
@@ -69,8 +72,8 @@
 --
 -- Run (headless), from the ArtificialPhysics folder:
 --   VEHICLE=lib.pointmass KT_N=1000 KT_TICKS=10000 bpp -f ch04/Couette-Vehicles.lua -n 62600
---   (KT_N, KT_V, KT_T, KT_INWARD, KT_SENSE, KT_SEPARATE, KT_RANGE, KT_TICKS,
---   KT_LAG set the parameters
+--   (KT_N, KT_V, KT_T, KT_INWARD, KT_SENSE, KT_SEPARATE, KT_RANGE, KT_HZ,
+--   KT_MPU, KT_TICKS, KT_LAG set the parameters)
 --   without the GUI; it stops stepping after KT_TICKS, Resample at half)
 --
 
@@ -101,8 +104,8 @@ v:addParam("inward", env("KT_INWARD", true), "walls thermalise only vehicles mov
 v:addParam("senseVelocity", env("KT_SENSE", false), "collide the vehicles' sensed velocities, not KT's own (cools the gas when vehicles lag)")
 v:addParam("separate", env("KT_SEPARATE", false), "collisions always end with the pair moving apart (F90); off = kt.nlogo's random angle")
 v:addParam("collisionRange", env("KT_RANGE", 2), 1, 10, 0.5, "collision distance (units; 2 = kt.nlogo's), used by the next Setup (R)")
-v:addParam("apHz", 5, 1, 20, 1, "kinetic-theory ticks per second")
-v:addParam("metersPerUnit", 0.5, 0.1, 2, 0.05, "metres per kt.nlogo unit")
+v:addParam("apHz", env("KT_HZ", 5), 1, 20, 1, "kinetic-theory ticks per second")
+v:addParam("metersPerUnit", env("KT_MPU", 0.5), 0.1, 5, 0.05, "metres per kt.nlogo unit")
 v:addParam("resampleAt", TICKS and math.floor(TICKS / 2) or 2500, 0, 1e6, 100, "KT ticks after which the profile restarts (Resample)")
 for _, prm in ipairs(Veh.params or {}) do
   local val = prm[2]

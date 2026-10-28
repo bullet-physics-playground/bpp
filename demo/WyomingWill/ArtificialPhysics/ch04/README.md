@@ -507,11 +507,49 @@ seeds 1–2:
   failed with no neighbour closer than 1.5 m when the failure registered
   (0.25 s past 65° tilt; perhaps struck and bounced away, not
   determined). The slow pair is what a short-range bumper (option A)
-  would catch; whether to add one is open.
+  would catch; whether to add one is open. (It was tried next, below; the
+  slow pair turned out not to be the pattern.)
+
+### The bumper, and the KT tick against the drone's lag (FINDINGS F91)
+
+Option A, tried at William's go-ahead (2026-10-28): a low-level routine
+under KT that told any pair closer than a bumper range and actually
+closing to part (each an extra half the closing speed + 0.25 m/s apart),
+on the commands only. It did not help, and is taken out:
+
+| Setup (separating collisions, N 100) | Drones: slope / (V/6) | Drones lost | Flight | Lag | Ideal: slope / (V/6) |
+| --- | --- | --- | --- | --- | --- |
+| 5 Hz, range 2.5 m (above) | 0.905, 0.908 | 8, 10 | 2,000 s | 0.31 | 0.980, 0.986 |
+| 5 Hz, range 2.5 m, bumper 1 m | 0.861, 0.939 | 14, 7 | 2,000 s | 0.30–0.34 | 0.993, 1.011 |
+| 5 Hz, range 2.5 m, bumper 2.5 m (seed 1) | 0.862 | 15 | 2,000 s | 0.34 | — |
+| **1 Hz, 2.5 m/unit, range 2 units = 5 m** | **0.906, 0.888** | **5, 2** | **4,000 s** | **0.02** | 0.953 (seed 1) |
+
+- **Why the bumper fails:** every one of 9 losses in 1,000 s (seed 1,
+  5 Hz, bumper 1 m) was a contact, a neighbour within 0.47–0.68 m of the
+  drone's centre with the tilt starting in the same 0.05 s, and each came
+  after its command had jumped by 4–6.5 m/s within 2 s. A collision at
+  2.5 m hands out velocities several m/s different, and a drone flies its
+  old velocity for ~0.65 s, closing 2–3 m before it answers; a 1 m bumper
+  cannot catch that, and a 2.5 m one fires ~9,000 times per 1000 ticks
+  and does worse. The "slow pair" above was one case in four.
+- **The governing number is the lag in KT ticks:** 0.65 s × 5 Hz ≈ 3
+  ticks during which the drones still fly the old velocities. Speed in
+  m/s is units per tick × metres per unit × Hz, so the distance a pair
+  closes during the lag, in units, depends on the rate, not the scale.
+  With KT at 1 Hz and the scale raised to 2.5 m/unit (the same speeds in
+  m/s, Wall_Velocity 2.5 m/s), the lag is under a tick: the drones fly
+  what they are told (lag 0.02 against 0.31) and carry 93–95% of the
+  ideal vehicle's slope, losing 2 and 5 in 4,000 s, about a fifth of the
+  5 Hz rate per hour of flight.
+- **Not zero:** collisions are tested once a tick, so a pair closing at
+  4 m/s moves 4 m between tests and can reach contact from outside the
+  5 m range. Zero needs a range of at least closing speed × tick, or
+  avoidance inside the flight controller, continuous rather than at KT's
+  rate (what Kerr assumes, printed p. 37); open.
 
 ### Not done
 
-A bumper under KT for the last drone losses (above); the boats (they
+Losses to zero for KT on drones (above); the boats (they
 have `velocity()`; at 0.79 m/s the model's V must be scaled down) and the
 ground robots (no `velocity()` yet). ★ 3D (a slab between two planes) is
 open.

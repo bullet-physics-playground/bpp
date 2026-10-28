@@ -1016,7 +1016,25 @@ range 0.77–0.79 and 17–27 lost; with the model's random collisions
 separating collision gives back the pair's own relative speed, so a pair
 drifting together at 0.46 m/s was told to part at 0.09 m/s and touched),
 and two failures with no neighbour within 1.5 m when they registered (not
-determined). A short-range bumper would catch the slow pairs; open.
+determined). A short-range bumper would catch the slow pairs; open (F91:
+it does not; the slow pair was not the pattern).
+
+**F91. A bumper does not save the drones; a KT tick longer than their lag
+does most of the job** — 2026-10-28, New (the bumper tried and taken
+out). `ch04/README.md`. A low-level bumper under KT (pairs within 1 m or
+2.5 m and closing told to part) lost as many drones as none (14 and 7,
+and 15, against 8 and 10 in 2,000 s). Every loss was a contact after a
+4–6.5 m/s jump in the command: a drone flies its old velocity for its
+~0.65 s lag, ~3 KT ticks at 5 Hz, and closes 2–3 m first. The closing
+distance in units depends on the KT rate, not the scale, so the rule is
+that a vehicle can follow kinetic theory only if its lag is shorter than
+a KT tick: at 1 Hz with the scale raised to 2.5 m/unit (the same speeds in
+m/s) the drones track their commands (lag 0.02 against 0.31), carry
+93–95% of the ideal vehicle's slope (0.888–0.906 against 0.953), and lose
+2 and 5 in 4,000 s, about a fifth of the 5 Hz rate per hour. Not zero:
+collisions are tested once a tick, and a pair closing faster than range
+per tick can still meet; avoidance inside the flight controller, which
+Kerr assumes, is the open remedy.
 
 ## 3. Errors and discrepancies in the book
 

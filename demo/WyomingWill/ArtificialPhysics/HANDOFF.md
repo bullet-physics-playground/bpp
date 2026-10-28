@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F90 so far), and
+  implementations, and our own mistakes once corrected (F1–F91 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -426,8 +426,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        `couette.lua`'s `separate` and `range` (Lua only; defaults are the
        model). At range 5 units (2.5 m, from the drone's lag) 100 drones
        keep 92% of the ideal profile and lose 8–10 in 2,000 s (40 in
-       300 s before). **Open for William:** a short-range bumper under
-       the KT command for the slow pairs that still touch.
+       300 s before).
+     - **The bumper and the KT rate (F91):** a bumper under KT did not
+       help and was taken out. The rule that did: a vehicle follows KT
+       only if its lag is shorter than a KT tick; drones at 1 Hz (scale
+       2.5 m/unit, the same speeds in m/s) track their commands, carry
+       93–95% of the ideal profile and lose 2–5 per 4,000 s, about a
+       fifth of the 5 Hz rate. **Open:** losses to zero, which needs a
+       range of at least closing speed × tick or avoidance inside the
+       flight controller (Kerr assumes one).
 - **The seven theses** (Heil, Hettiarachchi, Kerr, Kunkel, Maxim,
   Rebguns, Zarzhitsky) were attached by William on 2026-10-28; they stay
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is
