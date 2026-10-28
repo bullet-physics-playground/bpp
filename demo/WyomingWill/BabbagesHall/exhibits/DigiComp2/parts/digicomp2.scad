@@ -177,8 +177,7 @@ module foot2d(zc) let(z0 = zc - FOOT_W / 2, z1 = zc + FOOT_W / 2)
 module standFoot(x, zc) translate([S * x, 0, 0]) rotate([0, 90, 0]) linear_extrude(S * FOOT_W, center = true) foot2d(zc);
 module stand() for (x = FOOT_X, z = FOOT_Z) standFoot(x, z);
 
-// ---- the exhibit's sign beside it (not part of the machine): a line of text ----
-module signText(t, size = 16) linear_extrude(1) text(t, size = size, halign = "left", valign = "center", font = FONT);
+// (the exhibit's sign beside it, not part of the machine, is in sign.scad)
 
 // ---- for printing: each on the bed ----
 if (PART == "print-rocker") rotate([90, 0, 0]) translate([0, -S * F_Y0, 0]) rocker();

@@ -31,6 +31,14 @@
 -- and help, which this file passes on only while you're at it. Only the
 -- world of the exhibit you're at is stepped. NEEDS a bpp with v:newWorld.
 --
+-- LOADING: the hall itself is shown at once, each exhibit's bay with a sheet
+-- over it; then the exhibits are loaded one a frame, the one you're at (or
+-- walking to) first, and each sheet comes off as its exhibit arrives. The
+-- status bar says which is loading. An exhibit's printed parts are made by
+-- OpenSCAD the first time it loads, and again after its files change: that
+-- is what takes the time (a minute and a half for all five here, the first
+-- time; under two seconds once bpp has them cached).
+--
 -- UNITS: centimetres; the floor is at y = 0.
 --
 
@@ -224,6 +232,7 @@ local exhibits = {}        -- the live ones, in walking order
 local active = nil         -- the exhibit you're at (nil: one of the views)
 local flight = nil         -- the camera on its way to the next stop (see "walking on")
 local loading = nil        -- the exhibit being loaded
+local loadSome             -- (loads the next exhibit; below)
 
 local function loadIn(file, env)
   if setfenv then
@@ -714,6 +723,28 @@ end
 -- ---------------------------------------------------------------------
 -- the exhibits into their bays
 -- ---------------------------------------------------------------------
+-- The hall is built first and shown at once; the exhibits are loaded
+-- after it, one a frame, the one you're at (or walking to) first. Until
+-- its turn, an exhibit's bay holds a sheet over its plinth ("being set
+-- up"), and the status bar says which one is loading. (Loading is what
+-- takes the time: an exhibit's printed parts are made by OpenSCAD the
+-- first time, and again whenever its files change; after that they come
+-- from bpp's cache.)
+local all = {}             -- every exhibit with a script, in walking order, loaded or not
+local function sheet(b, about)
+  local q = yq(b.a)
+  local text = about .. "\n\n(Being set up: it appears here as soon as it has loaded.)"
+  CASTING = true
+  local objs = {
+    box(b.x, 45, b.z, 130, 78, 130, OAK, q),
+    box(b.x, 85, b.z, 138, 3, 138, BRASS, q),
+    solid(b.x, 132, b.z, 112, 90, 112, CANVAS, q, text),
+    box(b.x, 104, b.z, 124, 36, 124, "#a99e84", q),
+    box(b.x, 178, b.z, 98, 4, 98, "#c4b99e", q),
+  }
+  CASTING = false
+  return objs
+end
 for i, b in ipairs(BAYS) do
   local e = EXHIBITS[i]
   if not e then
@@ -735,37 +766,60 @@ for i, b in ipairs(BAYS) do
       box(b.x, top - 8, b.z, e.stand[1] - 6, 2, e.stand[2] - 6, GILT, q)
       CASTING = false
     end
-    loading = g
-    setRandom(g)
-    local ok, err = inWorld(g, g.load)
-    loading = nil
-    -- its table forward, its front edge TABLE_GAP behind the rail, so the
-    -- machine is seen close from the aisle (the exhibit says where its
-    -- table is: exhibit-table.lua)
-    local t = ok and g.env.EXHIBIT_TABLE
-    if t then
-      local want = BAY_D / 2 - 12 - TABLE_GAP       -- (the rail is 12 cm in from the bay's edge)
-      local front = t.z + t.d / 2
-      if want > front then g.shift(want - front) end
-    end
-    if ok then
-      exhibits[#exhibits + 1] = g
-      print(string.format("HALL: %s is in its bay (%s%s)", g.name, e.dir, e.file))
-      -- its first frame, now: everything put where it begins, so it shows
-      -- from anywhere in the hall, not only once you're at it (and it then
-      -- stands still until you arrive, as each exhibit does when it starts)
-      inWorld(g, function()
-        g.N = g.N + 1
-        local f = g.callbacks.preSim
-        if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("HALL: " .. g.name .. " preSim: " .. tostring(err2)) end end
-        local tm = g.timing
-        realV:stepSimulation(tm.timeStep, tm.maxSubSteps, tm.fixedTimeStep)
-        f = g.callbacks.postSim
-        if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("HALL: " .. g.name .. " postSim: " .. tostring(err2)) end end
-      end)
-    else
-      print("HALL: " .. g.name .. " didn't load: " .. tostring(err))
-    end
+    g.pending = true
+    g.sheet = sheet(b, e.about)
+    -- (seen from the aisle, until it has loaded and has a view of its own)
+    local vx, vz = rot(b.a, 0, 1)
+    g.bayView = { pos = btVector3(b.x + vx * 330, 230, b.z + vz * 330), look = btVector3(b.x, 90, b.z) }
+    all[#all + 1] = g
+  end
+end
+
+-- loadExhibit(g): its script, into its sandbox and world, as on its own
+local function loadExhibit(g)
+  local e = g.e
+  g.pending = nil
+  loading = g
+  setRandom(g)
+  local t0 = realMs()
+  local ok, err = inWorld(g, g.load)
+  loading = nil
+  -- the sheet off its bay
+  do
+    local was = realV:currentWorld()
+    realV:useWorld(0)
+    for _, o in ipairs(g.sheet) do pcall(function() realV:remove(o) end) end
+    realV:useWorld(was)
+    g.sheet = nil
+  end
+  -- its table forward, its front edge TABLE_GAP behind the rail, so the
+  -- machine is seen close from the aisle (the exhibit says where its
+  -- table is: exhibit-table.lua)
+  local t = ok and g.env.EXHIBIT_TABLE
+  if t then
+    local want = BAY_D / 2 - 12 - TABLE_GAP       -- (the rail is 12 cm in from the bay's edge)
+    local front = t.z + t.d / 2
+    if want > front then g.shift(want - front) end
+  end
+  if ok then
+    g.ready = true
+    exhibits[#exhibits + 1] = g
+    print(string.format("HALL: %s is in its bay (%s%s, %.1f s)", g.name, e.dir, e.file, (realMs() - t0) / 1000))
+    -- its first frame, now: everything put where it begins, so it shows
+    -- from anywhere in the hall, not only once you're at it (and it then
+    -- stands still until you arrive, as each exhibit does when it starts)
+    inWorld(g, function()
+      g.N = g.N + 1
+      local f = g.callbacks.preSim
+      if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("HALL: " .. g.name .. " preSim: " .. tostring(err2)) end end
+      local tm = g.timing
+      realV:stepSimulation(tm.timeStep, tm.maxSubSteps, tm.fixedTimeStep)
+      f = g.callbacks.postSim
+      if f then local ok2, err2 = pcall(f, g.N); if not ok2 then print("HALL: " .. g.name .. " postSim: " .. tostring(err2)) end end
+    end)
+  else
+    g.failed = tostring(err)
+    print("HALL: " .. g.name .. " didn't load: " .. g.failed)
   end
 end
 
@@ -777,7 +831,7 @@ local VIEW_A = { name = "the entrance", isView = true,
 local VIEW_B = { name = "the title wall", isView = true,
                  pos = btVector3(0, 320, ZN + 60), look = btVector3(0, 120, ZS) }
 local stops = { VIEW_A }
-for _, g in ipairs(exhibits) do stops[#stops + 1] = g end
+for _, g in ipairs(all) do stops[#stops + 1] = g end
 stops[#stops + 1] = VIEW_B
 local function indexOf(s) for i, x in ipairs(stops) do if x == s then return i end end end
 local here = VIEW_A
@@ -794,11 +848,13 @@ local function header(g)
            "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane.\n\n"
   end
 end
-for _, g in ipairs(exhibits) do g.header = header(g) end
+for _, g in ipairs(all) do g.header = header(g) end
 
 local function hallHelp(s)
   local live, coming = {}, {}
-  for _, g in ipairs(exhibits) do live[#live + 1] = "  " .. g.name end
+  for _, g in ipairs(all) do
+    live[#live + 1] = "  " .. g.name .. (g.ready and "" or (g.failed and "  (didn't load)" or "  (being set up)"))
+  end
   for i, e in ipairs(EXHIBITS) do
     if not exists(e.dir .. e.file) then coming[#coming + 1] = "  " .. e.name end
   end
@@ -954,6 +1010,19 @@ local function goTo(s, instant)
   end
   local c = realV.cam
   c:setUpVector(btVector3(0, 1, 0), true)
+  if not s.isView and not s.ready then
+    -- (not loaded yet: its bay from the aisle; it comes to life when it has)
+    active = nil
+    realV:useWorld(0)
+    applyTiming(IDLE)
+    if realV.showParams then realV:showParams("Hall: ") end
+    realV.showConstraints = false
+    for k in pairs(LIGHTS) do applyLight(nil, k) end
+    moveCam(s.bayView.pos, s.bayView.look, instant)
+    realV:setHelpText(s.header() .. (s.failed and ("It didn't load: " .. s.failed) or
+                      "Being set up: it appears in a moment (the status bar says what is loading)."))
+    return
+  end
   if s.isView then
     active = nil
     realV:useWorld(0)
@@ -1040,6 +1109,7 @@ realV:preSim(function(N)
   tStep = now()
 end)
 realV:postSim(function(N)
+  loadSome()
   local t = now()
   if tStep and active then meter.phys = meter.phys + (t - tStep) end
   meter.frames = meter.frames + 1
@@ -1161,9 +1231,42 @@ if realV.onePerFrame ~= nil then realV.onePerFrame = true end
 -- (START: begin at that exhibit's name, for trying one out)
 local START = os.getenv("HALL_START")
 if START then
-  for _, g in ipairs(exhibits) do if g.name:lower():find(START:lower(), 1, true) then here = g end end
+  for _, g in ipairs(all) do if g.name:lower():find(START:lower(), 1, true) then here = g end end
   if START == "end" then here = VIEW_B end
 end
 goTo(here, true)
-print(string.format("HALL: %d exhibits on show, %d in preparation, %d empty bays; the nave %.0f m long",
-                    #exhibits, #EXHIBITS - #exhibits, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
+print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty bays; the nave %.0f m long",
+                    #all, #EXHIBITS - #all, #BAYS - #EXHIBITS, (ZS - ZN) / 100))
+
+-- the exhibits loaded, one a frame from the second on (the hall is shown
+-- first): next, the one you're at or walking to, else the next one on
+-- from where you are
+local hallFrames = 0
+local function status(t) pcall(function() realV:setStatusText(t) end) end
+local function nextToLoad()
+  if not here.isView and here.pending then return here end
+  local i = indexOf(here) or 1
+  for k = 1, #stops do
+    local s = stops[(i - 1 + k) % #stops + 1]
+    if s.pending then return s end
+  end
+end
+loadSome = function()
+  hallFrames = hallFrames + 1
+  if hallFrames < 2 then return end
+  local g = nextToLoad()
+  if not g then return end
+  local n = 0
+  for _, x in ipairs(all) do if not x.pending then n = n + 1 end end
+  status(string.format("Setting up %s (%d of %d) ...", g.name, n + 1, #all))
+  loadExhibit(g)
+  lastShown = nil                                  -- (loading isn't a freeze)
+  if here == g then goTo(g, not FLY_ON)            -- (you're there: it comes to life)
+  elseif active then setRandom(active) end
+  if not nextToLoad() then
+    status("")
+    if here.isView then realV:setHelpText(hallHelp(here)) end
+    print(string.format("HALL: %d exhibits on show, %d in preparation, %d empty bays",
+                        #exhibits, #EXHIBITS - #all, #BAYS - #EXHIBITS))
+  end
+end

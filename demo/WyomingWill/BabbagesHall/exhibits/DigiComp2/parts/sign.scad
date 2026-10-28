@@ -1,0 +1,5 @@
+// The Digi-Comp II's sign (the exhibit's, beside the machine; not part of it,
+// and not printed): a line of text. Kept apart from digicomp2.scad so that
+// changing the machine doesn't make bpp draw the sign's letters again.
+FONT = "DejaVu Sans:style=Bold";
+module signText(t, size = 16) linear_extrude(1) text(t, size = size, halign = "left", valign = "center", font = FONT);

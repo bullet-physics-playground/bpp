@@ -64,6 +64,15 @@ The machinery is Euler's Gallery's, unchanged; the building around it is new.
 - **Files.** An exhibit finds its files from its own folder.
   `hallPath(name)` gives a file's path from bpp's folder; the exhibits use it
   to hand OpenSCAD the full path to their parts files.
+- **Loading, a bit at a time.** The hall itself is shown first, with a
+  sheet over each exhibit's bay; the exhibits are then loaded one a frame,
+  the one you're at (or walking to) first, and each sheet comes off as its
+  exhibit arrives. The status bar says which one is loading. Walk to a bay
+  that is still being set up and you see it from the aisle; it comes to life
+  when it has loaded. Loading is slow only while bpp makes an exhibit's
+  OpenSCAD parts, the first time and after its files change (here: a minute
+  and a half for all five from an empty cache, under two seconds cached).
+  Each load still holds up the frames while it runs.
 - **Requirement:** a bpp with separate worlds (`v:newWorld`).
 - **POV-Ray.** The hall renders in POV-Ray (File, or `bpp -e`) as on the
   screen, with a bpp that exports each object moved to where its world is
@@ -173,7 +182,9 @@ Two things about bpp that cost time, and how the exhibits handle them:
 
 - **OpenSCAD caching.** bpp caches each OpenSCAD part by the text asked for,
   not by what the included files say, so an edited `.scad` file is not seen.
-  The exhibits put a checksum of their parts files into that text.
+  The exhibits put a checksum of their parts files into that text. Parts
+  that don't depend on the machine (the Digi-Comp's sign letters) come from
+  a `.scad` of their own, so changing the machine doesn't make them again.
 - **Timing of settings.** An OpenSCAD mesh's place has to be set after it is
   added to the world. Its `collides` has to be set before: collision groups
   are fixed when a body is added.

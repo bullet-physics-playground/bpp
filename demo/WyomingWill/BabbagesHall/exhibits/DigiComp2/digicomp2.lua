@@ -151,6 +151,15 @@ local function part(call)
   m.collides = false
   return m
 end
+-- (the sign's letters from sign.scad alone: changing the machine leaves them
+-- in bpp's cache)
+local SIGN = (SCAD:gsub("digicomp2%.scad$", "sign.scad"))
+local SIGN_SUM = checksum({ SIGN })
+local function signPart(call)
+  local m = OpenSCAD("// " .. SIGN_SUM .. "\ninclude <" .. SIGN .. ">\nscale(0.1) " .. call .. ";\n", 0, false)
+  m.collides = false
+  return m
+end
 
 -- ---------------------------------------------------------------------
 -- sliders, timing, the pause at every start
@@ -708,7 +717,7 @@ do
   key(back, "the exhibit's sign, not the machine's: the script reads the rockers and switches for it")
   local L0 = -SW_ / 2 + 1.0
   local function line(t, size, u, w)
-    local m = part(string.format('signText("%s", %d)', t, math.floor(size * K + 0.5)))
+    local m = signPart(string.format('signText("%s", %d)', t, math.floor(size * K + 0.5)))
     m.col = "#efe6cf"
     v:add(m)
     m.trans = btTransform(q, at(u, w, 0.45))
@@ -721,7 +730,7 @@ do
     local c = { parts = {}, shown = nil, tr = btTransform(q, at(u, w, 0.45)) }
     for i = 1, #chars do
       local ch = chars:sub(i, i)
-      local m = part(string.format('signText("%s", %d)', ch, math.floor(size * K + 0.5)))
+      local m = signPart(string.format('signText("%s", %d)', ch, math.floor(size * K + 0.5)))
       m.col = "#efe6cf"
       v:add(m)
       m.trans = AWAY
@@ -766,7 +775,7 @@ do
   local says, shown = {}, nil
   local sayTr = btTransform(q, at(L0, -7.6, 0.45))
   for k, t in pairs(SAYINGS) do
-    local m = part(string.format('signText("%s", %d)', t, math.floor(6 * K + 0.5)))
+    local m = signPart(string.format('signText("%s", %d)', t, math.floor(6 * K + 0.5)))
     m.col = "#f2c94c"
     v:add(m)
     m.trans = AWAY

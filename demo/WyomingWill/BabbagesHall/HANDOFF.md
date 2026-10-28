@@ -308,6 +308,12 @@ there, in `release/`, or on the path; or set `BPP`.
   13 / 5 (about 27 600 frames; check-all allows 29 000). Board 424 x 1573
   mm, 18 + 18 tiles; table 110 x 220. `tests/complement.lua`. The camera
   stands farther back for the longer board.
+- **Done (2026-10-28): the hall loads a bit at a time.** William found the
+  hall slow to start. It is shown at once now, a sheet over each exhibit's
+  bay, and the exhibits load one a frame (the one you're at first); the
+  status bar says which. The time is OpenSCAD making parts on a cold cache
+  (94 s for all five here; 1.8 s cached). The Digi-Comp's sign letters are
+  in `parts/sign.scad` now, so changing its geometry no longer remakes them.
 - **Next: AUTO.** The START lever: a ball at the bottom lets the next go,
   and the ball through STOP lets none. Its escapement works alone
   (`tests/escapement.lua`, `G.ANCHOR`): the wheel turned by a wound weight
