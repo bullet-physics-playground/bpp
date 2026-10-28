@@ -1,0 +1,36 @@
+Chebyshev-Spears_mlcp_logs5: STALL 5|x 19.6|z -0.0|hdg -0.7|pitch 4.0|roll 1.5|turns 0.48|feet BL 100 BR 22 FR 100|slip 0.9|ground
+Chebyshev-Spears_mlcp_logs5: STALL 20|x 137.9|z 6.1|hdg -357.3|pitch 1.2|roll 1.2|turns 0.48|feet BL 100 FL 12 FR 100|slip 4.1|ground
+Chebyshev-Spears_mlcp_logs5: TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 414.9 cm|6.92 cm/s|sideways 78.3 cm|stood up 0|air 0.1%
+Chebyshev-Spears_mlcp_waves0: STALL 5|x 27.1|z 0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.48|feet BL 68 BR 33 FL 33 FR 68|slip 0.1|ground
+Chebyshev-Spears_mlcp_waves0: STALL 20|x 163.2|z 0.1|hdg 0.0|pitch 0.1|roll 0.1|turns 0.48|feet BL 65 BR 38 FL 38 FR 65|slip 0.1|ground
+Chebyshev-Spears_mlcp_waves0: TRACK Chebyshev-Spears|height 0.00|length 15.0|seed 1|forward 543.2 cm|9.05 cm/s|sideways -0.0 cm|stood up 0|air 0.1%
+Chebyshev-Spears_mlcp_waves4: STALL 5|x 21.3|z 1.6|hdg 2.4|pitch 1.8|roll 3.2|turns 0.48|feet BL 78 BR 73 FL 80 FR 72|slip 2.0|ground
+Chebyshev-Spears_mlcp_waves4: STALL 20|x 110.5|z 38.2|hdg -18.6|pitch 6.1|roll 7.5|turns 0.48|feet BL 100 BR 2 FL 95 FR 100|slip 6.8|ground
+Chebyshev-Spears_mlcp_waves4: TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 361.6 cm|6.03 cm/s|sideways 189.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_si1k_logs5: STALL 5|x 16.4|z 1.3|hdg -1.6|pitch 2.5|roll 1.2|turns 0.48|feet BL 90 BR 15 FL 20 FR 100|slip 2.5|ground
+Chebyshev-Spears_si1k_logs5: STALL 20|x 116.6|z -6.5|hdg -354.1|pitch 1.4|roll 1.8|turns 0.48|feet BL 22 BR 83 FL 80 FR 42|slip 6.7|ground
+Chebyshev-Spears_si1k_logs5: TRACK Chebyshev-Spears|height 5.00|length 15.0|seed 1|forward 341.1 cm|5.69 cm/s|sideways 9.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_si1k_waves0: STALL 5|x 26.9|z 0.0|hdg 0.1|pitch 0.1|roll 0.1|turns 0.48|feet BL 70 BR 37 FL 35 FR 68|slip 0.2|ground
+Chebyshev-Spears_si1k_waves0: STALL 20|x 162.2|z -0.4|hdg 0.2|pitch 0.1|roll 0.1|turns 0.48|feet BL 63 BR 40 FL 37 FR 67|slip 0.2|ground
+Chebyshev-Spears_si1k_waves0: TRACK Chebyshev-Spears|height 0.00|length 15.0|seed 1|forward 539.6 cm|8.99 cm/s|sideways -2.9 cm|stood up 0|air 0.1%
+Chebyshev-Spears_si1k_waves4: STALL 5|x 20.6|z -0.2|hdg -353.4|pitch 2.8|roll 4.9|turns 0.48|feet BL 77 BR 78 FL 85 FR 53|slip 4.7|ground
+Chebyshev-Spears_si1k_waves4: STALL 20|x 141.3|z -6.1|hdg -353.5|pitch 3.8|roll 6.0|turns 0.48|feet BL 25 BR 75 FL 85 FR 100|slip 4.6|ground
+Chebyshev-Spears_si1k_waves4: TRACK Chebyshev-Spears|height 4.00|length 15.0|seed 1|forward 419.2 cm|6.99 cm/s|sideways 54.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_mlcp_logs5: STALL 5|x 24.5|z -0.4|hdg 0.3|pitch 2.1|roll 0.6|turns 0.49|feet BL 57 BR 68 FL 98 FR 47|slip 1.4|ground
+Hoecken-Spears_slider_mlcp_logs5: STALL 20|x 115.8|z -2.1|hdg 1.4|pitch 1.7|roll 0.0|turns 0.49|feet BL 97 BR 7 FL 23 FR 90|slip 4.8|ground
+Hoecken-Spears_slider_mlcp_logs5: TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 410.4 cm|6.84 cm/s|sideways -13.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_mlcp_waves0: STALL 5|x 27.0|z 0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 60 FL 60 FR 42|slip 0.0|ground
+Hoecken-Spears_slider_mlcp_waves0: STALL 20|x 162.4|z 0.0|hdg -0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 35 FL 35 FR 70|slip 0.0|ground
+Hoecken-Spears_slider_mlcp_waves0: TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 1|forward 541.5 cm|9.02 cm/s|sideways 0.1 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_mlcp_waves4: STALL 5|x 23.4|z 1.3|hdg -0.5|pitch 2.4|roll 2.5|turns 0.49|feet BL 62 BR 88 FL 35 FR 68|slip 1.1|ground
+Hoecken-Spears_slider_mlcp_waves4: STALL 20|x 151.4|z 5.4|hdg -1.5|pitch 1.2|roll 2.1|turns 0.49|feet BL 100 BR 42 FL 70 FR 82|slip 0.8|ground
+Hoecken-Spears_slider_mlcp_waves4: TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 502.6 cm|8.38 cm/s|sideways 27.5 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_si1k_logs5: STALL 5|x 24.4|z -0.0|hdg -0.8|pitch 2.1|roll 2.7|turns 0.49|feet BL 33 BR 88 FL 100 FR 48|slip 2.0|ground
+Hoecken-Spears_slider_si1k_logs5: STALL 20|x 116.1|z -3.8|hdg 4.2|pitch 2.5|roll 4.5|turns 0.49|feet BL 92 BR 10 FL 47 FR 87|slip 4.8|ground
+Hoecken-Spears_slider_si1k_logs5: TRACK Hoecken-Spears slider|height 5.00|length 15.0|seed 1|forward 408.4 cm|6.81 cm/s|sideways -31.9 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_si1k_waves0: STALL 5|x 27.0|z 0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 62 FL 60 FR 45|slip 0.1|ground
+Hoecken-Spears_slider_si1k_waves0: STALL 20|x 162.2|z 0.3|hdg -0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 33 FL 35 FR 72|slip 0.1|ground
+Hoecken-Spears_slider_si1k_waves0: TRACK Hoecken-Spears slider|height 0.00|length 15.0|seed 1|forward 541.1 cm|9.02 cm/s|sideways 1.8 cm|stood up 0|air 0.1%
+Hoecken-Spears_slider_si1k_waves4: STALL 5|x 14.0|z -1.8|hdg -8.8|pitch 2.8|roll 3.7|turns 0.49|feet BL 42 BR 100 FL 100 FR 75|slip 1.9|ground
+Hoecken-Spears_slider_si1k_waves4: STALL 20|x 142.5|z 30.6|hdg -13.6|pitch 2.3|roll 1.8|turns 0.49|feet BL 80 BR 72 FL 67 FR 100|slip 0.9|ground
+Hoecken-Spears_slider_si1k_waves4: TRACK Hoecken-Spears slider|height 4.00|length 15.0|seed 1|forward 481.4 cm|8.02 cm/s|sideways 123.6 cm|stood up 0|air 0.1%

@@ -1,0 +1,468 @@
+Chebyshev-Spears_h5_g10: STALL 5|x 13.1|z -1.6|hdg 2.5|pitch 9.5|roll 1.0|turns 0.48|feet BL 53 BR 48 FL 52 FR 53|slip 1.7|ground
+Chebyshev-Spears_h5_g10: STALL 20|x 138.1|z -0.3|hdg 358.2|pitch 0.0|roll 0.0|turns 0.49|feet BL 30 BR 73 FL 87 FR 32|slip 0.3|ground
+Chebyshev-Spears_h5_g10: STEP Chebyshev-Spears|gap 10.0|h 5.0|first touch 1.62|a front foot on top 3.07|all four on top 8.88|pushed back 2.3|body x end 154.2
+Chebyshev-Spears_h5_g11.5: STALL 5|x 12.0|z -0.7|hdg 2.8|pitch 9.2|roll 2.3|turns 0.47|feet BL 58 BR 67 FL 57 FR 62|slip 2.1|ground
+Chebyshev-Spears_h5_g11.5: STALL 20|x 127.2|z -4.3|hdg 0.4|pitch 0.0|roll 0.0|turns 0.48|feet BL 47 BR 57 FL 58 FR 48|slip 0.2|ground
+Chebyshev-Spears_h5_g11.5: STEP Chebyshev-Spears|gap 11.5|h 5.0|first touch 1.62|a front foot on top 3.27|all four on top 10.12|pushed back 4.0|body x end 143.2
+Chebyshev-Spears_h5_g13: STALL 5|x 7.2|z -0.2|hdg 4.8|pitch 9.4|roll 2.5|turns 0.48|feet BR 100 FL 100 FR 58|slip 1.2|ground
+Chebyshev-Spears_h5_g13: STALL 20|x 127.9|z -11.7|hdg 3.6|pitch 0.0|roll 0.0|turns 0.48|feet BL 45 BR 62 FL 58 FR 47|slip 0.2|ground
+Chebyshev-Spears_h5_g13: STEP Chebyshev-Spears|gap 13.0|h 5.0|first touch 1.63|a front foot on top 3.50|all four on top 10.20|pushed back 5.1|body x end 143.8
+Chebyshev-Spears_h5_g14.5: STALL 5|x 5.0|z -1.5|hdg -1.2|pitch 0.1|roll 0.2|turns 0.44|feet BL 73 BR 100 FL 73 FR 48|slip 1.7|ground
+Chebyshev-Spears_h5_g14.5: STALL 20|x -2.2|z -3.7|hdg 2.9|pitch 5.8|roll 4.5|turns 0.22|feet BL 100 BR 78 FL 42 FR 82|slip 7.7|ground
+Chebyshev-Spears_h5_g14.5: STEP Chebyshev-Spears|gap 14.5|h 5.0|first touch 1.65|a front foot on top -|all four on top -|pushed back 14.0|body x end 13.1
+Chebyshev-Spears_h5_g16: STALL 5|x 9.4|z -0.9|hdg -1.8|pitch 0.8|roll 0.3|turns 0.20|feet BL 100 BR 83 FL 100 FR 68|slip 3.8|ground
+Chebyshev-Spears_h5_g16: STALL 20|x 126.0|z 3.4|hdg 355.0|pitch 0.0|roll 0.0|turns 0.48|feet BL 48 BR 65 FL 58 FR 47|slip 0.3|ground
+Chebyshev-Spears_h5_g16: STEP Chebyshev-Spears|gap 16.0|h 5.0|first touch 1.67|a front foot on top 5.12|all four on top 11.12|pushed back 7.6|body x end 140.7
+Chebyshev-Spears_h5_g17.5: STALL 5|x 8.0|z -0.4|hdg 359.1|pitch 1.0|roll 0.4|turns 0.20|feet BL 100 BR 78 FL 100 FR 70|slip 4.0|ground
+Chebyshev-Spears_h5_g17.5: STALL 20|x 126.4|z 5.3|hdg 356.2|pitch 0.1|roll 0.1|turns 0.49|feet BL 38 BR 70 FL 68 FR 37|slip 0.2|ground
+Chebyshev-Spears_h5_g17.5: STEP Chebyshev-Spears|gap 17.5|h 5.0|first touch 1.73|a front foot on top 5.07|all four on top 11.02|pushed back 8.2|body x end 143.1
+Chebyshev-Spears_h5_g19: STALL 5|x 9.5|z 0.2|hdg 0.1|pitch 0.7|roll 0.3|turns 0.20|feet BL 98 BR 87 FL 92 FR 62|slip 3.2|ground
+Chebyshev-Spears_h5_g19: STALL 20|x 125.3|z 4.4|hdg 357.4|pitch 0.0|roll 0.0|turns 0.48|feet BL 48 BR 62 FL 57 FR 48|slip 0.2|ground
+Chebyshev-Spears_h5_g19: STEP Chebyshev-Spears|gap 19.0|h 5.0|first touch 2.62|a front foot on top 5.22|all four on top 11.18|pushed back 7.5|body x end 142.7
+Chebyshev-Spears_h5_g20.5: STALL 5|x 12.5|z 1.0|hdg 359.9|pitch 0.5|roll 0.6|turns 0.19|feet BL 100 BR 100 FL 100 FR 55|slip 2.5|ground
+Chebyshev-Spears_h5_g20.5: STALL 20|x 100.5|z 1.2|hdg 358.2|pitch 8.3|roll 0.7|turns 0.49|feet BL 72 BR 30 FL 28 FR 72|slip 1.1|ground
+Chebyshev-Spears_h5_g20.5: STEP Chebyshev-Spears|gap 20.5|h 5.0|first touch 2.63|a front foot on top 8.28|all four on top 14.37|pushed back 12.4|body x end 117.9
+Chebyshev-Spears_h5_g4: STALL 5|x 2.4|z 1.7|hdg -352.0|pitch 9.2|roll 2.5|turns 0.42|feet BL 62 BR 85 FL 90 FR 93|slip 2.3|ground
+Chebyshev-Spears_h5_g4: STALL 20|x 119.3|z -12.5|hdg -352.4|pitch 2.8|roll 3.7|turns 0.48|feet BL 50 BR 60 FL 50 FR 52|slip 1.0|ground
+Chebyshev-Spears_h5_g4: STEP Chebyshev-Spears|gap 4.0|h 5.0|first touch 0.57|a front foot on top 3.38|all four on top 10.65|pushed back 7.8|body x end 130.8
+Chebyshev-Spears_h5_g5.5: STALL 5|x 13.3|z -1.4|hdg -356.8|pitch 9.6|roll 1.0|turns 0.48|feet BL 60 BR 42 FL 45 FR 60|slip 1.9|ground
+Chebyshev-Spears_h5_g5.5: STALL 20|x 134.3|z 3.4|hdg -1.3|pitch 0.1|roll 0.1|turns 0.48|feet BL 48 BR 62 FL 80 FR 47|slip 0.3|ground
+Chebyshev-Spears_h5_g5.5: STEP Chebyshev-Spears|gap 5.5|h 5.0|first touch 0.60|a front foot on top 2.98|all four on top 9.05|pushed back 3.0|body x end 147.2
+Chebyshev-Spears_h5_g7: STALL 5|x 13.8|z -1.4|hdg -357.8|pitch 9.4|roll 1.0|turns 0.48|feet BL 53 BR 48 FL 52 FR 53|slip 1.7|ground
+Chebyshev-Spears_h5_g7: STALL 20|x 136.5|z 3.3|hdg -2.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 38 BR 70 FL 68 FR 37|slip 0.2|ground
+Chebyshev-Spears_h5_g7: STEP Chebyshev-Spears|gap 7.0|h 5.0|first touch 0.63|a front foot on top 2.85|all four on top 8.95|pushed back 2.4|body x end 150.8
+Chebyshev-Spears_h5_g8.5: STALL 5|x -1.9|z 0.1|hdg 0.7|pitch 0.1|roll 0.2|turns 0.44|feet BL 68 BR 100 FL 75 FR 47|slip 1.5|ground
+Chebyshev-Spears_h5_g8.5: STALL 20|x 71.8|z -5.8|hdg 3.3|pitch 9.4|roll 4.9|turns 0.47|feet BL 80 BR 28 FL 67 FR 77|slip 3.6|ground
+Chebyshev-Spears_h5_g8.5: STEP Chebyshev-Spears|gap 8.5|h 5.0|first touch 0.72|a front foot on top 9.75|all four on top 16.60|pushed back 13.9|body x end 87.5
+Chebyshev-Spears_h7_g10: STALL 5|x -0.5|z -0.2|hdg 356.3|pitch 0.1|roll 0.2|turns 0.43|feet BL 68 BR 100 FL 70 FR 55|slip 2.4|ground
+Chebyshev-Spears_h7_g10: STALL 20|x -7.9|z 0.4|hdg 5.4|pitch 3.6|roll 1.7|turns 0.20|feet BL 100 BR 85 FL 52 FR 67|slip 6.2|ground
+Chebyshev-Spears_h7_g10: STEP Chebyshev-Spears|gap 10.0|h 7.0|first touch 1.62|a front foot on top -|all four on top -|pushed back 14.0|body x end 8.3
+Chebyshev-Spears_h7_g11.5: STALL 5|x 1.6|z 0.2|hdg 356.6|pitch 0.1|roll 0.1|turns 0.44|feet BL 72 BR 100 FL 75 FR 33|slip 1.8|ground
+Chebyshev-Spears_h7_g11.5: STALL 20|x -6.7|z -0.5|hdg 3.8|pitch 4.8|roll 3.2|turns 0.21|feet BL 100 BR 80 FL 42 FR 73|slip 7.2|ground
+Chebyshev-Spears_h7_g11.5: STEP Chebyshev-Spears|gap 11.5|h 7.0|first touch 1.62|a front foot on top -|all four on top -|pushed back 13.6|body x end 9.3
+Chebyshev-Spears_h7_g13: STALL 5|x 3.2|z -0.6|hdg 357.9|pitch 0.1|roll 0.2|turns 0.44|feet BL 72 BR 100 FL 75 FR 33|slip 1.6|ground
+Chebyshev-Spears_h7_g13: STALL 20|x -5.6|z -2.2|hdg 1.9|pitch 3.7|roll 2.3|turns 0.20|feet BL 100 BR 68 FL 45 FR 72|slip 7.1|ground
+Chebyshev-Spears_h7_g13: STEP Chebyshev-Spears|gap 13.0|h 7.0|first touch 1.63|a front foot on top -|all four on top -|pushed back 13.6|body x end 10.3
+Chebyshev-Spears_h7_g14.5: STALL 5|x 4.4|z -2.5|hdg 0.2|pitch 0.2|roll 0.2|turns 0.44|feet BL 70 BR 100 FL 75 FR 45|slip 1.7|ground
+Chebyshev-Spears_h7_g14.5: STALL 20|x -4.1|z -7.9|hdg 0.1|pitch 4.4|roll 3.5|turns 0.22|feet BL 100 BR 87 FL 43 FR 82|slip 6.7|ground makeLink:BL 20 makeLink:BR 3
+Chebyshev-Spears_h7_g14.5: STEP Chebyshev-Spears|gap 14.5|h 7.0|first touch 1.65|a front foot on top -|all four on top -|pushed back 13.7|body x end 11.3
+Chebyshev-Spears_h7_g16: STALL 5|x 10.6|z -1.8|hdg 357.7|pitch 1.4|roll 1.6|turns 0.20|feet BL 100 BR 100 FL 100 FR 50|slip 2.2|ground
+Chebyshev-Spears_h7_g16: STALL 20|x 4.0|z -5.2|hdg 356.8|pitch 0.4|roll 0.8|turns 0.40|feet BL 80 BR 100 FL 58 FR 80|slip 2.6|ground
+Chebyshev-Spears_h7_g16: STEP Chebyshev-Spears|gap 16.0|h 7.0|first touch 1.67|a front foot on top -|all four on top -|pushed back 13.8|body x end 18.7
+Chebyshev-Spears_h7_g17.5: STALL 5|x 9.3|z -0.5|hdg 357.7|pitch 0.5|roll 0.7|turns 0.20|feet BL 100 BR 100 FL 100 FR 53|slip 2.0|ground
+Chebyshev-Spears_h7_g17.5: STALL 20|x 4.0|z -3.8|hdg 357.8|pitch 0.3|roll 0.6|turns 0.41|feet BL 78 BR 100 FL 58 FR 78|slip 2.4|ground
+Chebyshev-Spears_h7_g17.5: STEP Chebyshev-Spears|gap 17.5|h 7.0|first touch 1.73|a front foot on top -|all four on top -|pushed back 13.6|body x end 20.7
+Chebyshev-Spears_h7_g19: STALL 5|x 10.3|z 0.0|hdg 358.8|pitch 0.5|roll 0.7|turns 0.19|feet BL 100 BR 100 FL 100 FR 53|slip 2.1|ground
+Chebyshev-Spears_h7_g19: STALL 20|x 4.5|z -2.6|hdg 359.9|pitch 0.9|roll 1.5|turns 0.42|feet BL 78 BR 100 FL 67 FR 67|slip 2.5|ground
+Chebyshev-Spears_h7_g19: STEP Chebyshev-Spears|gap 19.0|h 7.0|first touch 2.62|a front foot on top -|all four on top -|pushed back 13.7|body x end 21.9
+Chebyshev-Spears_h7_g20.5: STALL 5|x 12.4|z -0.4|hdg 0.2|pitch 0.6|roll 0.8|turns 0.19|feet BL 100 BR 100 FL 100 FR 55|slip 2.1|ground
+Chebyshev-Spears_h7_g20.5: STALL 20|x 6.0|z -3.9|hdg 358.0|pitch 0.2|roll 0.4|turns 0.40|feet BL 78 BR 100 FL 53 FR 80|slip 2.6|ground
+Chebyshev-Spears_h7_g20.5: STEP Chebyshev-Spears|gap 20.5|h 7.0|first touch 2.63|a front foot on top -|all four on top -|pushed back 13.6|body x end 23.4
+Chebyshev-Spears_h7_g4: STALL 5|x -1.8|z -0.0|hdg 1.7|pitch 0.1|roll 0.1|turns 0.44|feet BL 72 BR 100 FL 77 FR 35|slip 1.9|ground
+Chebyshev-Spears_h7_g4: STALL 20|x -6.5|z 0.5|hdg -354.6|pitch 2.4|roll 1.1|turns 0.19|feet BL 100 BR 78 FL 55 FR 58|slip 5.7|ground
+Chebyshev-Spears_h7_g4: STEP Chebyshev-Spears|gap 4.0|h 7.0|first touch 0.57|a front foot on top -|all four on top -|pushed back 13.3|body x end 4.9
+Chebyshev-Spears_h7_g5.5: STALL 5|x -1.7|z -0.1|hdg 0.1|pitch 0.1|roll 0.1|turns 0.44|feet BL 68 BR 100 FL 75 FR 35|slip 1.6|ground
+Chebyshev-Spears_h7_g5.5: STALL 20|x -9.3|z -1.2|hdg -355.0|pitch 3.8|roll 1.0|turns 0.20|feet BL 100 BR 78 FL 45 FR 70|slip 6.7|ground
+Chebyshev-Spears_h7_g5.5: STEP Chebyshev-Spears|gap 5.5|h 7.0|first touch 0.60|a front foot on top -|all four on top -|pushed back 13.8|body x end 3.7
+Chebyshev-Spears_h7_g7: STALL 5|x -2.0|z -0.5|hdg -358.6|pitch 0.1|roll 0.2|turns 0.44|feet BL 68 BR 100 FL 77 FR 35|slip 1.4|ground
+Chebyshev-Spears_h7_g7: STALL 20|x -9.6|z -4.7|hdg -356.1|pitch 3.2|roll 1.1|turns 0.20|feet BL 100 BR 77 FL 45 FR 70|slip 6.9|ground
+Chebyshev-Spears_h7_g7: STEP Chebyshev-Spears|gap 7.0|h 7.0|first touch 0.63|a front foot on top -|all four on top -|pushed back 13.9|body x end 4.7
+Chebyshev-Spears_h7_g8.5: STALL 5|x -1.7|z -0.8|hdg 357.7|pitch 0.1|roll 0.2|turns 0.43|feet BL 65 BR 100 FL 70 FR 55|slip 2.0|ground
+Chebyshev-Spears_h7_g8.5: STALL 20|x -3.1|z 1.3|hdg 4.0|pitch 3.2|roll 1.4|turns 0.19|feet BL 100 BR 80 FL 60 FR 57|slip 4.8|ground
+Chebyshev-Spears_h7_g8.5: STEP Chebyshev-Spears|gap 8.5|h 7.0|first touch 0.72|a front foot on top -|all four on top -|pushed back 13.6|body x end 12.6
+Chebyshev-Spears_it1000_h5_g10: STALL 5|x 15.4|z -2.5|hdg 352.3|pitch 9.9|roll 2.6|turns 0.48|feet BL 100 BR 53 FL 55 FR 100|slip 1.8|ground
+Chebyshev-Spears_it1000_h5_g10: STALL 20|x 142.5|z 7.1|hdg 349.7|pitch 0.0|roll 0.0|turns 0.48|feet BL 68 BR 40 FL 38 FR 70|slip 0.2|ground
+Chebyshev-Spears_it1000_h5_g10: STEP Chebyshev-Spears|gap 10.0|h 5.0|first touch 1.57|a front foot on top 3.70|all four on top 9.80|pushed back 7.1|body x end 151.0
+Chebyshev-Spears_it1000_h5_g13: STALL 5|x -1.0|z -3.3|hdg 352.8|pitch 3.4|roll 2.7|turns 0.48|feet BL 73 BR 47 FL 55 FR 83|slip 8.1|ground
+Chebyshev-Spears_it1000_h5_g13: STALL 20|x 118.0|z 6.3|hdg 351.4|pitch 5.5|roll 5.3|turns 0.48|feet BL 62 BR 47 FL 45 FR 65|slip 2.5|ground
+Chebyshev-Spears_it1000_h5_g13: STEP Chebyshev-Spears|gap 13.0|h 5.0|first touch 1.60|a front foot on top 5.80|all four on top 11.92|pushed back 7.3|body x end 130.6
+Chebyshev-Spears_it1000_h5_g16: STALL 5|x 13.7|z -0.3|hdg 352.6|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 FL 53 FR 100|slip 1.3|ground
+Chebyshev-Spears_it1000_h5_g16: STALL 20|x 137.2|z 15.8|hdg 351.2|pitch 0.1|roll 0.1|turns 0.48|feet BL 65 BR 40 FL 35 FR 67|slip 0.2|ground
+Chebyshev-Spears_it1000_h5_g16: STEP Chebyshev-Spears|gap 16.0|h 5.0|first touch 1.65|a front foot on top 3.68|all four on top 9.82|pushed back 5.8|body x end 152.7
+Chebyshev-Spears_it1000_h5_g19: STALL 5|x 17.3|z 0.6|hdg 356.2|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 BR 45 FL 53 FR 100|slip 1.4|ground
+Chebyshev-Spears_it1000_h5_g19: STALL 20|x 139.6|z 11.5|hdg 355.0|pitch 0.0|roll 0.1|turns 0.48|feet BL 67 BR 43 FL 38 FR 72|slip 0.2|ground
+Chebyshev-Spears_it1000_h5_g19: STEP Chebyshev-Spears|gap 19.0|h 5.0|first touch 2.60|a front foot on top 3.67|all four on top 9.80|pushed back 4.0|body x end 157.1
+Chebyshev-Spears_it1000_h5_g4: STALL 5|x -1.3|z -3.6|hdg 350.8|pitch 2.3|roll 2.6|turns 0.48|feet BL 68 BR 52 FL 38 FR 72|slip 9.6|ground
+Chebyshev-Spears_it1000_h5_g4: STALL 20|x 102.6|z 5.8|hdg 349.8|pitch 8.2|roll 0.1|turns 0.48|feet BL 35 BR 68 FL 67 FR 35|slip 0.9|ground
+Chebyshev-Spears_it1000_h5_g4: STEP Chebyshev-Spears|gap 4.0|h 5.0|first touch 0.57|a front foot on top 7.88|all four on top 14.02|pushed back 7.4|body x end 106.0
+Chebyshev-Spears_it1000_h5_g7: STALL 5|x -0.7|z -4.7|hdg 351.1|pitch 3.6|roll 3.0|turns 0.48|feet BL 63 BR 58 FL 58 FR 75|slip 7.1|ground
+Chebyshev-Spears_it1000_h5_g7: STALL 20|x 117.0|z 7.7|hdg 348.8|pitch 5.6|roll 3.6|turns 0.48|feet BL 98 BR 63 FL 7 FR 100|slip 1.5|ground
+Chebyshev-Spears_it1000_h5_g7: STEP Chebyshev-Spears|gap 7.0|h 5.0|first touch 0.63|a front foot on top 5.78|all four on top 11.97|pushed back 9.8|body x end 123.9
+Chebyshev-Spears_it200_h5_g10: STALL 5|x -1.9|z -4.9|hdg 350.4|pitch 0.4|roll 0.5|turns 0.47|feet BL 78 BR 47 FL 30 FR 77|slip 9.6|ground
+Chebyshev-Spears_it200_h5_g10: STALL 20|x 101.3|z 2.1|hdg 350.0|pitch 8.2|roll 0.1|turns 0.48|feet BL 45 BR 57 FL 55 FR 45|slip 0.6|ground
+Chebyshev-Spears_it200_h5_g10: STEP Chebyshev-Spears|gap 10.0|h 5.0|first touch 1.58|a front foot on top 7.98|all four on top 14.12|pushed back 7.8|body x end 110.6
+Chebyshev-Spears_it200_h5_g11.5: STALL 5|x -1.5|z -3.6|hdg 351.4|pitch 1.4|roll 1.8|turns 0.47|feet BL 72 BR 48 FL 42 FR 75|slip 9.3|ground
+Chebyshev-Spears_it200_h5_g11.5: STALL 20|x 37.1|z -2.4|hdg 1.2|pitch 8.6|roll 4.9|turns 0.48|feet BL 32 BR 73 FL 83 FR 62|slip 4.7|ground
+Chebyshev-Spears_it200_h5_g11.5: STEP Chebyshev-Spears|gap 11.5|h 5.0|first touch 1.58|a front foot on top 15.43|all four on top -|pushed back 8.3|body x end 47.9
+Chebyshev-Spears_it200_h5_g13: STALL 5|x 16.4|z -1.3|hdg 352.0|pitch 9.3|roll 2.5|turns 0.48|feet BL 100 BR 47 FL 55 FR 100|slip 1.1|ground
+Chebyshev-Spears_it200_h5_g13: STALL 20|x 136.8|z 10.5|hdg 351.5|pitch 0.1|roll 0.1|turns 0.48|feet BL 72 BR 35 FL 33 FR 73|slip 0.2|ground
+Chebyshev-Spears_it200_h5_g13: STEP Chebyshev-Spears|gap 13.0|h 5.0|first touch 1.60|a front foot on top 3.70|all four on top 9.85|pushed back 5.4|body x end 149.1
+Chebyshev-Spears_it200_h5_g14.5: STALL 5|x 16.4|z -1.0|hdg 353.1|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 BR 47 FL 53 FR 100|slip 1.1|ground
+Chebyshev-Spears_it200_h5_g14.5: STALL 20|x 137.2|z 10.4|hdg 351.9|pitch 0.0|roll 0.0|turns 0.48|feet BL 68 BR 37 FL 32 FR 72|slip 0.2|ground
+Chebyshev-Spears_it200_h5_g14.5: STEP Chebyshev-Spears|gap 14.5|h 5.0|first touch 1.63|a front foot on top 3.68|all four on top 9.83|pushed back 5.1|body x end 151.1
+Chebyshev-Spears_it200_h5_g16: STALL 5|x 16.4|z -0.4|hdg 353.6|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 BR 47 FL 53 FR 100|slip 1.1|ground
+Chebyshev-Spears_it200_h5_g16: STALL 20|x 138.3|z 10.9|hdg 353.2|pitch 0.1|roll 0.1|turns 0.48|feet BL 70 BR 37 FL 35 FR 93|slip 0.3|ground
+Chebyshev-Spears_it200_h5_g16: STEP Chebyshev-Spears|gap 16.0|h 5.0|first touch 1.65|a front foot on top 3.68|all four on top 9.83|pushed back 5.0|body x end 153.7
+Chebyshev-Spears_it200_h5_g17.5: STALL 5|x -1.3|z -1.1|hdg 354.6|pitch 1.9|roll 1.9|turns 0.47|feet BL 67 BR 55 FL 50 FR 77|slip 8.6|ground
+Chebyshev-Spears_it200_h5_g17.5: STALL 20|x -0.7|z -1.7|hdg 355.3|pitch 2.5|roll 2.3|turns 0.47|feet BL 58 BR 65 FL 53 FR 77|slip 8.3|ground
+Chebyshev-Spears_it200_h5_g17.5: STEP Chebyshev-Spears|gap 17.5|h 5.0|first touch 1.72|a front foot on top -|all four on top -|pushed back 8.2|body x end 16.2
+Chebyshev-Spears_it200_h5_g19: STALL 5|x 17.3|z 0.8|hdg -3.9|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 BR 45 FL 53 FR 100|slip 1.4|ground
+Chebyshev-Spears_it200_h5_g19: STALL 20|x 137.7|z 11.7|hdg -5.1|pitch 0.1|roll 0.1|turns 0.48|feet BL 67 BR 38 FL 35 FR 72|slip 0.2|ground
+Chebyshev-Spears_it200_h5_g19: STEP Chebyshev-Spears|gap 19.0|h 5.0|first touch 2.60|a front foot on top 3.67|all four on top 9.83|pushed back 4.1|body x end 155.2
+Chebyshev-Spears_it200_h5_g20.5: STALL 5|x 1.1|z -0.7|hdg -4.4|pitch 1.4|roll 1.9|turns 0.47|feet BL 68 BR 53 FL 40 FR 73|slip 9.2|ground
+Chebyshev-Spears_it200_h5_g20.5: STALL 20|x 3.7|z -2.4|hdg -3.8|pitch 4.2|roll 3.1|turns 0.48|feet BL 52 BR 67 FL 55 FR 75|slip 6.6|ground
+Chebyshev-Spears_it200_h5_g20.5: STEP Chebyshev-Spears|gap 20.5|h 5.0|first touch 2.62|a front foot on top -|all four on top -|pushed back 9.5|body x end 21.3
+Chebyshev-Spears_it200_h5_g4: STALL 5|x -0.7|z -4.3|hdg 351.3|pitch 2.9|roll 2.9|turns 0.48|feet BL 70 BR 52 FL 37 FR 73|slip 8.3|ground
+Chebyshev-Spears_it200_h5_g4: STALL 20|x 117.7|z 7.6|hdg 348.7|pitch 6.4|roll 5.4|turns 0.48|feet BL 65 BR 47 FL 47 FR 62|slip 2.5|ground
+Chebyshev-Spears_it200_h5_g4: STEP Chebyshev-Spears|gap 4.0|h 5.0|first touch 0.57|a front foot on top 5.87|all four on top 12.02|pushed back 8.1|body x end 120.8
+Chebyshev-Spears_it200_h5_g5.5: STALL 5|x -2.0|z -5.0|hdg 349.9|pitch 0.4|roll 0.6|turns 0.47|feet BL 80 BR 43 FL 28 FR 77|slip 10.2|ground
+Chebyshev-Spears_it200_h5_g5.5: STALL 20|x 12.3|z -6.8|hdg 354.2|pitch 9.3|roll 2.6|turns 0.48|feet BL 100 FL 48 FR 100|slip 1.3|ground
+Chebyshev-Spears_it200_h5_g5.5: STEP Chebyshev-Spears|gap 5.5|h 5.0|first touch 0.60|a front foot on top 18.70|all four on top -|pushed back 8.2|body x end 17.0
+Chebyshev-Spears_it200_h5_g7: STALL 5|x -2.0|z -4.9|hdg 349.7|pitch 0.4|roll 0.6|turns 0.47|feet BL 80 BR 43 FL 30 FR 77|slip 10.0|ground
+Chebyshev-Spears_it200_h5_g7: STALL 20|x 32.8|z -4.0|hdg 352.9|pitch 8.7|roll 0.6|turns 0.48|feet BL 63 BR 40 FL 65 FR 63|slip 1.4|ground
+Chebyshev-Spears_it200_h5_g7: STEP Chebyshev-Spears|gap 7.0|h 5.0|first touch 0.63|a front foot on top 16.48|all four on top -|pushed back 8.4|body x end 39.0
+Chebyshev-Spears_it200_h5_g8.5: STALL 5|x -1.4|z -5.0|hdg 350.3|pitch 2.2|roll 2.6|turns 0.48|feet BL 70 BR 52 FL 40 FR 75|slip 8.0|ground
+Chebyshev-Spears_it200_h5_g8.5: STALL 20|x 44.7|z -2.1|hdg 347.4|pitch 6.0|roll 3.8|turns 0.48|feet BL 65 BR 65 FL 37 FR 72|slip 2.0|ground
+Chebyshev-Spears_it200_h5_g8.5: STEP Chebyshev-Spears|gap 8.5|h 5.0|first touch 0.70|a front foot on top 14.40|all four on top -|pushed back 8.1|body x end 52.4
+Chebyshev_h5_g10: STALL 5|x 0.5|z 0.5|hdg 1.1|pitch 1.0|roll 1.4|turns 0.35|feet BL 100 BR 40 FL 43 FR 93|slip 2.8|ground
+Chebyshev_h5_g10: STALL 20|x -4.7|z -3.1|hdg 352.6|pitch 1.1|roll 1.5|turns 0.35|feet BL 83 BR 73 FL 27 FR 98|slip 10.0|ground
+Chebyshev_h5_g10: STEP Chebyshev|gap 10.0|h 5.0|first touch 1.07|a front foot on top -|all four on top -|pushed back 7.3|body x end 10.6
+Chebyshev_h5_g11.5: STALL 5|x 0.5|z 1.0|hdg 2.0|pitch 1.1|roll 1.5|turns 0.35|feet BL 100 BR 42 FL 43 FR 87|slip 3.0|ground
+Chebyshev_h5_g11.5: STALL 20|x -4.3|z -2.0|hdg 352.7|pitch 1.1|roll 1.4|turns 0.35|feet BL 97 BR 73 FL 20 FR 98|slip 10.0|ground
+Chebyshev_h5_g11.5: STEP Chebyshev|gap 11.5|h 5.0|first touch 1.22|a front foot on top -|all four on top -|pushed back 7.2|body x end 12.4
+Chebyshev_h5_g13: STALL 5|x 1.2|z 1.1|hdg 2.8|pitch 1.2|roll 1.6|turns 0.35|feet BL 100 BR 42 FL 42 FR 90|slip 3.0|ground
+Chebyshev_h5_g13: STALL 20|x -3.6|z -0.9|hdg 354.7|pitch 1.1|roll 1.5|turns 0.35|feet BL 82 BR 73 FL 27 FR 98|slip 9.8|ground
+Chebyshev_h5_g13: STEP Chebyshev|gap 13.0|h 5.0|first touch 2.17|a front foot on top -|all four on top -|pushed back 7.2|body x end 13.7
+Chebyshev_h5_g14.5: STALL 5|x 2.7|z 0.9|hdg 2.8|pitch 1.1|roll 1.5|turns 0.35|feet BL 100 BR 37 FL 42 FR 87|slip 2.9|ground
+Chebyshev_h5_g14.5: STALL 20|x -2.1|z -2.7|hdg 354.7|pitch 1.2|roll 1.6|turns 0.35|feet BL 77 BR 70 FL 28 FR 100|slip 9.8|ground
+Chebyshev_h5_g14.5: STEP Chebyshev|gap 14.5|h 5.0|first touch 2.20|a front foot on top -|all four on top -|pushed back 7.2|body x end 15.2
+Chebyshev_h5_g16: STALL 5|x 4.2|z 0.9|hdg 3.2|pitch 1.1|roll 1.4|turns 0.35|feet BL 100 BR 42 FL 42 FR 93|slip 3.1|ground
+Chebyshev_h5_g16: STALL 20|x -0.6|z -3.1|hdg 354.7|pitch 1.1|roll 1.4|turns 0.35|feet BL 82 BR 75 FL 28 FR 98|slip 10.1|ground
+Chebyshev_h5_g16: STEP Chebyshev|gap 16.0|h 5.0|first touch 2.23|a front foot on top -|all four on top -|pushed back 7.3|body x end 16.7
+Chebyshev_h5_g17.5: STALL 5|x 5.7|z 0.8|hdg 2.8|pitch 1.1|roll 1.6|turns 0.35|feet BL 100 BR 35 FL 40 FR 92|slip 2.9|ground
+Chebyshev_h5_g17.5: STALL 20|x 1.0|z -1.0|hdg 354.0|pitch 1.2|roll 1.6|turns 0.35|feet BL 95 BR 72 FL 25 FR 98|slip 9.9|ground
+Chebyshev_h5_g17.5: STEP Chebyshev|gap 17.5|h 5.0|first touch 2.27|a front foot on top -|all four on top -|pushed back 7.2|body x end 18.3
+Chebyshev_h5_g19: STALL 5|x 7.2|z 0.8|hdg 2.5|pitch 1.3|roll 1.6|turns 0.35|feet BL 100 BR 13 FL 43 FR 100|slip 2.8|ground
+Chebyshev_h5_g19: STALL 20|x 2.5|z -1.7|hdg 354.3|pitch 1.1|roll 1.5|turns 0.35|feet BL 95 BR 73 FL 22 FR 97|slip 10.0|ground
+Chebyshev_h5_g19: STEP Chebyshev|gap 19.0|h 5.0|first touch 2.32|a front foot on top -|all four on top -|pushed back 7.2|body x end 19.8
+Chebyshev_h5_g20.5: STALL 5|x 8.7|z 1.0|hdg 2.5|pitch 1.1|roll 1.5|turns 0.35|feet BL 100 BR 27 FL 42 FR 100|slip 2.7|ground
+Chebyshev_h5_g20.5: STALL 20|x 3.9|z -3.1|hdg 355.0|pitch 1.2|roll 1.6|turns 0.35|feet BL 80 BR 75 FL 30 FR 98|slip 9.9|ground
+Chebyshev_h5_g20.5: STEP Chebyshev|gap 20.5|h 5.0|first touch 2.37|a front foot on top -|all four on top -|pushed back 7.2|body x end 21.2
+Chebyshev_h5_g4: STALL 5|x 0.6|z -0.0|hdg -0.8|pitch 0.8|roll 1.0|turns 0.35|feet BL 100 BR 40 FL 43 FR 82|slip 2.4|ground
+Chebyshev_h5_g4: STALL 20|x -5.1|z -2.7|hdg 351.4|pitch 1.1|roll 1.5|turns 0.35|feet BL 82 BR 73 FL 28 FR 97|slip 9.9|ground
+Chebyshev_h5_g4: STEP Chebyshev|gap 4.0|h 5.0|first touch 0.83|a front foot on top -|all four on top -|pushed back 7.2|body x end 4.4
+Chebyshev_h5_g5.5: STALL 5|x 0.5|z 0.2|hdg -0.9|pitch 1.3|roll 1.1|turns 0.35|feet BL 100 BR 20 FL 45 FR 100|slip 2.2|ground
+Chebyshev_h5_g5.5: STALL 20|x -4.9|z -1.4|hdg 350.6|pitch 1.1|roll 1.5|turns 0.35|feet BL 83 BR 73 FL 27 FR 98|slip 10.0|ground
+Chebyshev_h5_g5.5: STEP Chebyshev|gap 5.5|h 5.0|first touch 0.87|a front foot on top -|all four on top -|pushed back 7.2|body x end 6.1
+Chebyshev_h5_g7: STALL 5|x 0.4|z 0.3|hdg -0.2|pitch 0.9|roll 1.3|turns 0.35|feet BL 100 BR 42 FL 45 FR 88|slip 2.6|ground
+Chebyshev_h5_g7: STALL 20|x -4.8|z -1.0|hdg 351.0|pitch 1.1|roll 1.5|turns 0.35|feet BL 85 BR 73 FL 25 FR 100|slip 10.1|ground
+Chebyshev_h5_g7: STEP Chebyshev|gap 7.0|h 5.0|first touch 0.92|a front foot on top -|all four on top -|pushed back 7.4|body x end 7.6
+Chebyshev_h5_g8.5: STALL 5|x 0.5|z 0.3|hdg 0.3|pitch 1.0|roll 1.2|turns 0.35|feet BL 100 BR 30 FL 40 FR 97|slip 2.3|ground
+Chebyshev_h5_g8.5: STALL 20|x -4.8|z -2.8|hdg 352.2|pitch 1.1|roll 1.5|turns 0.35|feet BL 80 BR 73 FL 28 FR 98|slip 9.8|ground
+Chebyshev_h5_g8.5: STEP Chebyshev|gap 8.5|h 5.0|first touch 0.98|a front foot on top -|all four on top -|pushed back 7.2|body x end 9.1
+Chebyshev_h7_g10: STALL 5|x 0.5|z 0.3|hdg 1.3|pitch 1.0|roll 1.4|turns 0.35|feet BL 100 BR 43 FL 43 FR 92|slip 2.8|ground
+Chebyshev_h7_g10: STALL 20|x -4.7|z -3.0|hdg 352.9|pitch 1.1|roll 1.6|turns 0.35|feet BL 80 BR 72 FL 27 FR 98|slip 9.8|ground
+Chebyshev_h7_g10: STEP Chebyshev|gap 10.0|h 7.0|first touch 1.07|a front foot on top -|all four on top -|pushed back 7.2|body x end 10.6
+Chebyshev_h7_g11.5: STALL 5|x 0.4|z 0.8|hdg 2.2|pitch 1.2|roll 1.6|turns 0.35|feet BL 100 BR 40 FL 43 FR 87|slip 2.9|ground
+Chebyshev_h7_g11.5: STALL 20|x -4.4|z -1.2|hdg 353.4|pitch 1.2|roll 1.6|turns 0.35|feet BL 87 BR 72 FL 18 FR 98|slip 9.9|ground
+Chebyshev_h7_g11.5: STEP Chebyshev|gap 11.5|h 7.0|first touch 1.22|a front foot on top -|all four on top -|pushed back 7.2|body x end 12.3
+Chebyshev_h7_g13: STALL 5|x 1.3|z 1.3|hdg 2.6|pitch 1.1|roll 1.6|turns 0.35|feet BL 100 BR 40 FL 42 FR 90|slip 2.9|ground
+Chebyshev_h7_g13: STALL 20|x -3.7|z -0.4|hdg 354.9|pitch 1.2|roll 1.6|turns 0.35|feet BL 67 BR 70 FL 32 FR 98|slip 9.8|ground
+Chebyshev_h7_g13: STEP Chebyshev|gap 13.0|h 7.0|first touch 2.17|a front foot on top -|all four on top -|pushed back 7.2|body x end 13.6
+Chebyshev_h7_g14.5: STALL 5|x 2.8|z 1.0|hdg 2.5|pitch 1.1|roll 1.5|turns 0.35|feet BL 100 BR 32 FL 40 FR 97|slip 2.8|ground
+Chebyshev_h7_g14.5: STALL 20|x -2.0|z -2.2|hdg 354.2|pitch 1.1|roll 1.4|turns 0.35|feet BL 92 BR 77 FL 25 FR 98|slip 9.9|ground
+Chebyshev_h7_g14.5: STEP Chebyshev|gap 14.5|h 7.0|first touch 2.20|a front foot on top -|all four on top -|pushed back 7.2|body x end 15.3
+Chebyshev_h7_g16: STALL 5|x 4.1|z 0.9|hdg 3.4|pitch 1.0|roll 1.4|turns 0.35|feet BL 100 BR 42 FL 42 FR 87|slip 3.1|ground
+Chebyshev_h7_g16: STALL 20|x -0.5|z -2.9|hdg 354.0|pitch 1.2|roll 1.6|turns 0.35|feet BL 87 BR 70 FL 23 FR 98|slip 9.8|ground
+Chebyshev_h7_g16: STEP Chebyshev|gap 16.0|h 7.0|first touch 2.23|a front foot on top -|all four on top -|pushed back 7.3|body x end 16.8
+Chebyshev_h7_g17.5: STALL 5|x 5.7|z 0.9|hdg 2.4|pitch 1.4|roll 1.6|turns 0.35|feet BL 100 BR 18 FL 42 FR 100|slip 2.7|ground
+Chebyshev_h7_g17.5: STALL 20|x 0.9|z -0.9|hdg 354.5|pitch 1.1|roll 1.5|turns 0.35|feet BL 77 BR 72 FL 30 FR 100|slip 9.8|ground
+Chebyshev_h7_g17.5: STEP Chebyshev|gap 17.5|h 7.0|first touch 2.27|a front foot on top -|all four on top -|pushed back 7.2|body x end 18.2
+Chebyshev_h7_g19: STALL 5|x 7.3|z 1.0|hdg 2.2|pitch 1.6|roll 1.5|turns 0.35|feet BL 100 BR 12 FL 43 FR 100|slip 2.8|ground
+Chebyshev_h7_g19: STALL 20|x 2.4|z -2.3|hdg 354.5|pitch 1.1|roll 1.4|turns 0.35|feet BL 83 BR 75 FL 27 FR 98|slip 9.9|ground
+Chebyshev_h7_g19: STEP Chebyshev|gap 19.0|h 7.0|first touch 2.32|a front foot on top -|all four on top -|pushed back 7.1|body x end 19.7
+Chebyshev_h7_g20.5: STALL 5|x 8.6|z 1.0|hdg 2.5|pitch 1.2|roll 1.6|turns 0.35|feet BL 100 BR 20 FL 42 FR 100|slip 3.0|ground
+Chebyshev_h7_g20.5: STALL 20|x 4.0|z -2.1|hdg 354.6|pitch 1.1|roll 1.5|turns 0.35|feet BL 82 BR 73 FL 30 FR 95|slip 9.6|ground
+Chebyshev_h7_g20.5: STEP Chebyshev|gap 20.5|h 7.0|first touch 2.37|a front foot on top -|all four on top -|pushed back 7.3|body x end 21.3
+Chebyshev_h7_g4: STALL 5|x 0.5|z 0.2|hdg -1.3|pitch 0.8|roll 1.0|turns 0.35|feet BL 100 BR 38 FL 43 FR 90|slip 2.4|ground
+Chebyshev_h7_g4: STALL 20|x -5.4|z -2.6|hdg 350.8|pitch 1.8|roll 2.0|turns 0.35|feet BL 63 BR 70 FL 35 FR 100|slip 9.9|ground
+Chebyshev_h7_g4: STEP Chebyshev|gap 4.0|h 7.0|first touch 0.83|a front foot on top -|all four on top -|pushed back 7.3|body x end 4.2
+Chebyshev_h7_g5.5: STALL 5|x 0.5|z 0.0|hdg -0.8|pitch 0.8|roll 1.0|turns 0.35|feet BL 100 BR 27 FL 45 FR 98|slip 2.1|ground
+Chebyshev_h7_g5.5: STALL 20|x -4.8|z -3.2|hdg 349.9|pitch 1.1|roll 1.5|turns 0.35|feet BL 83 BR 73 FL 25 FR 98|slip 10.1|ground
+Chebyshev_h7_g5.5: STEP Chebyshev|gap 5.5|h 7.0|first touch 0.87|a front foot on top -|all four on top -|pushed back 7.2|body x end 6.2
+Chebyshev_h7_g7: STALL 5|x 0.5|z -0.0|hdg -0.0|pitch 1.2|roll 1.3|turns 0.35|feet BL 100 BR 27 FL 43 FR 100|slip 2.3|ground
+Chebyshev_h7_g7: STALL 20|x -4.8|z -2.3|hdg 351.6|pitch 1.1|roll 1.5|turns 0.35|feet BL 78 BR 73 FL 30 FR 97|slip 9.7|ground
+Chebyshev_h7_g7: STEP Chebyshev|gap 7.0|h 7.0|first touch 0.92|a front foot on top -|all four on top -|pushed back 7.2|body x end 7.6
+Chebyshev_h7_g8.5: STALL 5|x 0.4|z 0.1|hdg 0.6|pitch 1.0|roll 1.4|turns 0.35|feet BL 100 BR 40 FL 43 FR 85|slip 2.9|ground
+Chebyshev_h7_g8.5: STALL 20|x -4.7|z -3.0|hdg 351.9|pitch 1.1|roll 1.5|turns 0.35|feet BL 78 BR 72 FL 30 FR 97|slip 9.7|ground
+Chebyshev_h7_g8.5: STEP Chebyshev|gap 8.5|h 7.0|first touch 0.98|a front foot on top -|all four on top -|pushed back 7.2|body x end 9.2
+Hoecken-Spears_4-bar_h5_g10: STALL 5|x 17.4|z -0.8|hdg 1.4|pitch 8.4|roll 0.2|turns 0.46|feet BL 20 BR 83 FL 85 FR 20|slip 0.8|ground
+Hoecken-Spears_4-bar_h5_g10: STALL 20|x 142.7|z -0.6|hdg 359.3|pitch 0.0|roll 0.0|turns 0.46|feet BL 33 BR 83 FL 80 FR 37|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g10: STEP Hoecken-Spears 4-bar|gap 10.0|h 5.0|first touch 1.68|a front foot on top 2.43|all four on top 8.75|pushed back 1.1|body x end 159.1
+Hoecken-Spears_4-bar_h5_g11.5: STALL 5|x -1.8|z -0.4|hdg -0.5|pitch 0.5|roll 0.4|turns 0.40|feet BL 73 BR 100 FL 45 FR 75|slip 2.6|ground
+Hoecken-Spears_4-bar_h5_g11.5: STALL 20|x 112.2|z -1.7|hdg 0.5|pitch 3.5|roll 4.7|turns 0.46|feet BL 52 BR 73 FL 75 FR 53|slip 3.4|ground
+Hoecken-Spears_4-bar_h5_g11.5: STEP Hoecken-Spears 4-bar|gap 11.5|h 5.0|first touch 1.70|a front foot on top 6.07|all four on top 12.40|pushed back 11.5|body x end 128.5
+Hoecken-Spears_4-bar_h5_g13: STALL 5|x 8.7|z 0.2|hdg 3.1|pitch 8.9|roll 2.8|turns 0.45|feet BR 100 FL 100 FR 68|slip 0.9|ground
+Hoecken-Spears_4-bar_h5_g13: STALL 20|x 130.7|z -11.2|hdg 5.2|pitch 0.0|roll 0.0|turns 0.45|feet BL 77 BR 42 FL 37 FR 80|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g13: STEP Hoecken-Spears 4-bar|gap 13.0|h 5.0|first touch 1.72|a front foot on top 3.72|all four on top 10.32|pushed back 5.7|body x end 146.9
+Hoecken-Spears_4-bar_h5_g14.5: STALL 5|x 1.9|z -1.4|hdg -1.2|pitch 0.5|roll 0.9|turns 0.40|feet BL 68 BR 100 FL 50 FR 70|slip 2.4|ground
+Hoecken-Spears_4-bar_h5_g14.5: STALL 20|x 117.9|z -3.1|hdg 0.4|pitch 1.2|roll 1.8|turns 0.46|feet BL 82 BR 42 FL 45 FR 72|slip 0.7|ground
+Hoecken-Spears_4-bar_h5_g14.5: STEP Hoecken-Spears 4-bar|gap 14.5|h 5.0|first touch 1.73|a front foot on top 5.77|all four on top 12.07|pushed back 7.5|body x end 133.9
+Hoecken-Spears_4-bar_h5_g16: STALL 5|x 8.6|z -1.2|hdg -1.9|pitch 0.8|roll 0.3|turns 0.22|feet BL 100 BR 77 FL 100 FR 40|slip 4.5|ground
+Hoecken-Spears_4-bar_h5_g16: STALL 20|x 126.0|z 6.7|hdg 352.0|pitch 3.1|roll 4.1|turns 0.45|feet BL 73 BR 47 FL 37 FR 77|slip 1.1|ground
+Hoecken-Spears_4-bar_h5_g16: STEP Hoecken-Spears 4-bar|gap 16.0|h 5.0|first touch 1.77|a front foot on top 5.18|all four on top 11.47|pushed back 8.5|body x end 139.8
+Hoecken-Spears_4-bar_h5_g17.5: STALL 5|x 8.8|z -0.6|hdg 358.7|pitch 0.3|roll 0.0|turns 0.21|feet BL 100 BR 83 FL 98 FR 38|slip 4.1|ground
+Hoecken-Spears_4-bar_h5_g17.5: STALL 20|x 126.8|z 3.9|hdg 356.6|pitch 0.0|roll 0.0|turns 0.45|feet BL 82 BR 38 FL 32 FR 85|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g17.5: STEP Hoecken-Spears 4-bar|gap 17.5|h 5.0|first touch 1.80|a front foot on top 5.27|all four on top 11.48|pushed back 8.6|body x end 142.4
+Hoecken-Spears_4-bar_h5_g19: STALL 5|x 7.8|z 0.3|hdg 0.3|pitch 0.9|roll 0.3|turns 0.21|feet BL 100 BR 72 FL 100 FR 45|slip 4.7|ground
+Hoecken-Spears_4-bar_h5_g19: STALL 20|x 127.5|z 4.6|hdg 358.2|pitch 0.0|roll 0.0|turns 0.45|feet BL 72 BR 47 FL 42 FR 75|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g19: STEP Hoecken-Spears 4-bar|gap 19.0|h 5.0|first touch 2.02|a front foot on top 5.17|all four on top 11.38|pushed back 8.6|body x end 144.7
+Hoecken-Spears_4-bar_h5_g20.5: STALL 5|x 11.1|z 0.8|hdg 1.0|pitch 0.4|roll 0.1|turns 0.20|feet BL 100 BR 85 FL 98 FR 37|slip 4.3|ground
+Hoecken-Spears_4-bar_h5_g20.5: STALL 20|x 127.5|z 5.6|hdg 355.9|pitch 0.0|roll 0.0|turns 0.45|feet BL 85 BR 32 FL 28 FR 90|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g20.5: STEP Hoecken-Spears 4-bar|gap 20.5|h 5.0|first touch 2.77|a front foot on top 5.22|all four on top 11.53|pushed back 5.6|body x end 144.7
+Hoecken-Spears_4-bar_h5_g4: STALL 5|x 12.9|z -0.3|hdg -357.0|pitch 8.7|roll 0.3|turns 0.45|feet BL 67 BR 37 FL 38 FR 67|slip 1.1|ground
+Hoecken-Spears_4-bar_h5_g4: STALL 20|x 139.0|z 2.2|hdg 1.6|pitch 0.0|roll 0.0|turns 0.45|feet BL 82 BR 37 FL 33 FR 82|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g4: STEP Hoecken-Spears 4-bar|gap 4.0|h 5.0|first touch 0.62|a front foot on top 2.97|all four on top 9.20|pushed back 3.2|body x end 150.2
+Hoecken-Spears_4-bar_h5_g5.5: STALL 5|x 13.4|z -0.7|hdg -356.9|pitch 8.8|roll 0.4|turns 0.45|feet BL 67 BR 37 FL 40 FR 67|slip 1.2|ground
+Hoecken-Spears_4-bar_h5_g5.5: STALL 20|x 138.9|z -2.4|hdg -357.4|pitch 0.0|roll 0.0|turns 0.45|feet BL 80 BR 40 FL 33 FR 83|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g5.5: STEP Hoecken-Spears 4-bar|gap 5.5|h 5.0|first touch 0.63|a front foot on top 2.98|all four on top 8.22|pushed back 2.5|body x end 151.5
+Hoecken-Spears_4-bar_h5_g7: STALL 5|x 12.6|z -0.4|hdg -358.5|pitch 8.6|roll 0.3|turns 0.46|feet BL 60 BR 43 FL 45 FR 60|slip 1.0|ground
+Hoecken-Spears_4-bar_h5_g7: STALL 20|x 136.8|z 6.0|hdg -3.1|pitch 0.0|roll 0.0|turns 0.45|feet BL 77 BR 40 FL 37 FR 80|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g7: STEP Hoecken-Spears 4-bar|gap 7.0|h 5.0|first touch 0.67|a front foot on top 2.82|all four on top 9.25|pushed back 3.2|body x end 150.8
+Hoecken-Spears_4-bar_h5_g8.5: STALL 5|x 15.7|z -0.5|hdg 1.1|pitch 8.3|roll 0.2|turns 0.46|feet BL 32 BR 73 FL 73 FR 32|slip 0.8|ground
+Hoecken-Spears_4-bar_h5_g8.5: STALL 20|x 142.5|z 1.3|hdg 359.7|pitch 0.0|roll 0.0|turns 0.45|feet BL 45 BR 73 FL 68 FR 48|slip 0.1|ground
+Hoecken-Spears_4-bar_h5_g8.5: STEP Hoecken-Spears 4-bar|gap 8.5|h 5.0|first touch 0.75|a front foot on top 2.50|all four on top 8.88|pushed back 1.9|body x end 157.9
+Hoecken-Spears_4-bar_h7_g10: STALL 5|x -3.5|z -1.4|hdg -0.4|pitch 0.5|roll 1.0|turns 0.40|feet BL 77 BR 100 FL 57 FR 80|slip 2.7|ground
+Hoecken-Spears_4-bar_h7_g10: STALL 20|x 1.1|z -2.3|hdg 358.8|pitch 0.1|roll 0.1|turns 0.38|feet BL 48 BR 100 FL 100 FR 7|slip 1.4|ground
+Hoecken-Spears_4-bar_h7_g10: STEP Hoecken-Spears 4-bar|gap 10.0|h 7.0|first touch 1.68|a front foot on top -|all four on top -|pushed back 13.3|body x end 17.5
+Hoecken-Spears_4-bar_h7_g11.5: STALL 5|x -1.2|z -0.5|hdg 356.4|pitch 1.1|roll 1.2|turns 0.40|feet BL 73 BR 100 FL 33 FR 73|slip 2.9|ground
+Hoecken-Spears_4-bar_h7_g11.5: STALL 20|x 2.8|z 0.6|hdg 356.7|pitch 0.0|roll 0.1|turns 0.38|feet BL 50 BR 100 FL 98 FR 8|slip 1.3|ground
+Hoecken-Spears_4-bar_h7_g11.5: STEP Hoecken-Spears 4-bar|gap 11.5|h 7.0|first touch 1.70|a front foot on top -|all four on top -|pushed back 13.2|body x end 19.1
+Hoecken-Spears_4-bar_h7_g13: STALL 5|x 0.3|z -1.4|hdg 358.7|pitch 1.2|roll 2.1|turns 0.41|feet BL 60 BR 100 FL 80 FR 72|slip 2.3|ground
+Hoecken-Spears_4-bar_h7_g13: STALL 20|x 4.5|z -2.4|hdg -0.7|pitch 0.1|roll 0.1|turns 0.37|feet BL 48 BR 100 FL 100 FR 5|slip 1.0|ground
+Hoecken-Spears_4-bar_h7_g13: STEP Hoecken-Spears 4-bar|gap 13.0|h 7.0|first touch 1.72|a front foot on top -|all four on top -|pushed back 13.1|body x end 20.7
+Hoecken-Spears_4-bar_h7_g14.5: STALL 5|x 3.6|z 0.8|hdg 3.5|pitch 12.9|roll 4.3|turns 0.44|feet BR 100 FL 100 FR 90|slip 1.6|ground
+Hoecken-Spears_4-bar_h7_g14.5: STALL 20|x 115.1|z -0.1|hdg 358.1|pitch 4.2|roll 5.2|turns 0.46|feet BL 60 BR 67 FL 68 FR 55|slip 2.4|ground
+Hoecken-Spears_4-bar_h7_g14.5: STEP Hoecken-Spears 4-bar|gap 14.5|h 7.0|first touch 1.73|a front foot on top 5.12|all four on top 12.43|pushed back 4.6|body x end 131.0
+Hoecken-Spears_4-bar_h7_g16: STALL 5|x 11.5|z -1.5|hdg 356.7|pitch 0.1|roll 0.1|turns 0.21|feet BL 100 BR 100 FL 100 FR 33|slip 2.0|ground
+Hoecken-Spears_4-bar_h7_g16: STALL 20|x 9.4|z -2.5|hdg 3.3|pitch 3.4|roll 1.9|turns 0.16|feet BL 100 BR 87 FL 70 FR 100|slip 3.7|ground
+Hoecken-Spears_4-bar_h7_g16: STEP Hoecken-Spears 4-bar|gap 16.0|h 7.0|first touch 1.77|a front foot on top -|all four on top -|pushed back 13.1|body x end 23.2
+Hoecken-Spears_4-bar_h7_g17.5: STALL 5|x 9.5|z -1.2|hdg 356.5|pitch 0.1|roll 0.2|turns 0.20|feet BL 100 BR 100 FL 100 FR 42|slip 1.7|ground
+Hoecken-Spears_4-bar_h7_g17.5: STALL 20|x 10.2|z -3.6|hdg 3.2|pitch 3.3|roll 3.6|turns 0.16|feet BL 100 BR 83 FL 77 FR 93|slip 3.4|ground makeLink:BL 25
+Hoecken-Spears_4-bar_h7_g17.5: STEP Hoecken-Spears 4-bar|gap 17.5|h 7.0|first touch 1.80|a front foot on top -|all four on top -|pushed back 13.2|body x end 25.8
+Hoecken-Spears_4-bar_h7_g19: STALL 5|x 10.0|z -0.2|hdg 358.0|pitch 0.2|roll 0.2|turns 0.20|feet BL 100 BR 100 FL 100 FR 38|slip 1.9|ground
+Hoecken-Spears_4-bar_h7_g19: STALL 20|x 8.6|z -1.1|hdg 5.7|pitch 2.2|roll 2.3|turns 0.16|feet BL 100 BR 67 FL 60 FR 100|slip 3.6|ground
+Hoecken-Spears_4-bar_h7_g19: STEP Hoecken-Spears 4-bar|gap 19.0|h 7.0|first touch 2.02|a front foot on top -|all four on top -|pushed back 13.4|body x end 25.8
+Hoecken-Spears_4-bar_h7_g20.5: STALL 5|x 12.6|z 0.1|hdg 359.8|pitch 0.1|roll 0.2|turns 0.20|feet BL 100 BR 100 FL 100 FR 43|slip 2.2|ground
+Hoecken-Spears_4-bar_h7_g20.5: STALL 20|x 10.0|z -1.3|hdg 5.0|pitch 2.7|roll 1.6|turns 0.16|feet BL 100 BR 82 FL 67 FR 100|slip 4.0|ground
+Hoecken-Spears_4-bar_h7_g20.5: STEP Hoecken-Spears 4-bar|gap 20.5|h 7.0|first touch 2.77|a front foot on top -|all four on top -|pushed back 13.2|body x end 27.2
+Hoecken-Spears_4-bar_h7_g4: STALL 5|x -4.4|z 0.2|hdg -357.5|pitch 1.0|roll 2.1|turns 0.40|feet BL 77 BR 100 FL 62 FR 82|slip 3.0|ground
+Hoecken-Spears_4-bar_h7_g4: STALL 20|x 0.0|z -0.1|hdg -357.2|pitch 0.1|roll 0.1|turns 0.39|feet BL 48 BR 100 FL 100 FR 13|slip 1.2|ground
+Hoecken-Spears_4-bar_h7_g4: STEP Hoecken-Spears 4-bar|gap 4.0|h 7.0|first touch 0.62|a front foot on top -|all four on top -|pushed back 13.2|body x end 11.2
+Hoecken-Spears_4-bar_h7_g5.5: STALL 5|x -4.2|z -0.4|hdg 1.0|pitch 1.0|roll 2.1|turns 0.40|feet BL 73 BR 100 FL 77 FR 78|slip 2.8|ground
+Hoecken-Spears_4-bar_h7_g5.5: STALL 20|x 0.3|z -2.2|hdg -358.2|pitch 0.1|roll 0.1|turns 0.38|feet BL 47 BR 100 FL 100 FR 12|slip 1.0|ground
+Hoecken-Spears_4-bar_h7_g5.5: STEP Hoecken-Spears 4-bar|gap 5.5|h 7.0|first touch 0.63|a front foot on top -|all four on top -|pushed back 13.1|body x end 12.9
+Hoecken-Spears_4-bar_h7_g7: STALL 5|x -4.0|z -0.5|hdg 0.4|pitch 1.0|roll 2.1|turns 0.40|feet BL 72 BR 100 FL 78 FR 77|slip 2.8|ground
+Hoecken-Spears_4-bar_h7_g7: STALL 20|x 0.1|z -1.0|hdg -359.0|pitch 0.2|roll 0.1|turns 0.40|feet BL 47 BR 100 FL 98 FR 17|slip 1.0|ground
+Hoecken-Spears_4-bar_h7_g7: STEP Hoecken-Spears 4-bar|gap 7.0|h 7.0|first touch 0.67|a front foot on top -|all four on top -|pushed back 13.3|body x end 14.1
+Hoecken-Spears_4-bar_h7_g8.5: STALL 5|x -3.7|z 0.1|hdg 357.2|pitch 0.9|roll 1.9|turns 0.40|feet BL 75 BR 100 FL 33 FR 78|slip 3.1|ground
+Hoecken-Spears_4-bar_h7_g8.5: STALL 20|x 0.3|z 0.7|hdg 359.8|pitch 0.1|roll 0.1|turns 0.39|feet BL 47 BR 100 FL 100 FR 13|slip 0.9|ground
+Hoecken-Spears_4-bar_h7_g8.5: STEP Hoecken-Spears 4-bar|gap 8.5|h 7.0|first touch 0.75|a front foot on top -|all four on top -|pushed back 13.2|body x end 15.8
+Hoecken-Spears_slider_h5_g10: STALL 5|x 1.8|z 3.9|hdg -352.1|pitch 3.3|roll 3.2|turns 0.49|feet BL 55 BR 57 FL 50 FR 48|slip 3.4|ground
+Hoecken-Spears_slider_h5_g10: STALL 20|x 107.8|z 1.6|hdg -351.6|pitch 8.4|roll 0.2|turns 0.49|feet BL 100 BR 2 FL 2 FR 100|slip 0.8|ground
+Hoecken-Spears_slider_h5_g10: STEP Hoecken-Spears slider|gap 10.0|h 5.0|first touch 1.55|a front foot on top 7.72|all four on top 13.77|pushed back 9.6|body x end 113.6
+Hoecken-Spears_slider_h5_g11.5: STALL 5|x -2.3|z 7.1|hdg -348.6|pitch 5.5|roll 4.6|turns 0.49|feet BL 53 BR 50 FL 43 FR 47|slip 5.2|ground
+Hoecken-Spears_slider_h5_g11.5: STALL 20|x 80.6|z 9.9|hdg 2.3|pitch 7.9|roll 5.6|turns 0.49|feet BL 20 BR 80 FL 80 FR 63|slip 1.3|ground
+Hoecken-Spears_slider_h5_g11.5: STEP Hoecken-Spears slider|gap 11.5|h 5.0|first touch 1.57|a front foot on top 10.78|all four on top 16.83|pushed back 10.6|body x end 89.5
+Hoecken-Spears_slider_h5_g13: STALL 5|x -2.1|z 4.1|hdg -354.7|pitch 2.9|roll 4.5|turns 0.49|feet BL 57 BR 55 FL 55 FR 47|slip 7.8|ground makeLink:BL 2
+Hoecken-Spears_slider_h5_g13: STALL 20|x -1.2|z 9.1|hdg -352.7|pitch 8.8|roll 4.3|turns 0.49|feet BL 70 BR 42 FL 35 FR 60|slip 5.3|ground
+Hoecken-Spears_slider_h5_g13: STEP Hoecken-Spears slider|gap 13.0|h 5.0|first touch 1.58|a front foot on top -|all four on top -|pushed back 12.3|body x end 11.8
+Hoecken-Spears_slider_h5_g14.5: STALL 5|x -1.3|z 1.1|hdg -355.8|pitch 3.2|roll 3.1|turns 0.49|feet BL 53 BR 55 FL 50 FR 45|slip 3.1|ground
+Hoecken-Spears_slider_h5_g14.5: STALL 20|x 1.1|z -0.1|hdg -0.1|pitch 4.1|roll 3.3|turns 0.49|feet BL 68 BR 40 FL 38 FR 60|slip 3.2|ground
+Hoecken-Spears_slider_h5_g14.5: STEP Hoecken-Spears slider|gap 14.5|h 5.0|first touch 1.60|a front foot on top -|all four on top -|pushed back 10.8|body x end 15.2
+Hoecken-Spears_slider_h5_g16: STALL 5|x -3.9|z 4.9|hdg -355.5|pitch 3.1|roll 5.2|turns 0.49|feet BL 28 BR 72 FL 72 FR 62|slip 7.8|ground makeLink:BL 2
+Hoecken-Spears_slider_h5_g16: STALL 20|x 17.8|z 4.3|hdg 0.8|pitch 8.3|roll 0.1|turns 0.49|feet BL 22 BR 82 FL 82 FR 22|slip 0.8|ground
+Hoecken-Spears_slider_h5_g16: STEP Hoecken-Spears slider|gap 16.0|h 5.0|first touch 1.63|a front foot on top 17.98|all four on top -|pushed back 10.7|body x end 33.6
+Hoecken-Spears_slider_h5_g17.5: STALL 5|x -2.6|z 4.3|hdg -352.6|pitch 4.6|roll 3.2|turns 0.49|feet BL 30 BR 68 FL 65 FR 60|slip 4.0|ground
+Hoecken-Spears_slider_h5_g17.5: STALL 20|x 110.6|z 4.5|hdg -2.9|pitch 8.2|roll 5.1|turns 0.49|feet BL 100 BR 78 FL 78 FR 22|slip 1.6|ground
+Hoecken-Spears_slider_h5_g17.5: STEP Hoecken-Spears slider|gap 17.5|h 5.0|first touch 1.70|a front foot on top 6.70|all four on top 12.75|pushed back 9.3|body x end 127.8
+Hoecken-Spears_slider_h5_g19: STALL 5|x -2.9|z 4.7|hdg 5.2|pitch 7.3|roll 4.8|turns 0.49|feet BL 22 BR 67 FL 63 FR 63|slip 5.0|ground
+Hoecken-Spears_slider_h5_g19: STALL 20|x 12.2|z 8.4|hdg 359.2|pitch 8.8|roll 4.1|turns 0.49|feet BL 100 FL 75 FR 97|slip 1.6|ground
+Hoecken-Spears_slider_h5_g19: STEP Hoecken-Spears slider|gap 19.0|h 5.0|first touch 2.57|a front foot on top 18.97|all four on top -|pushed back 10.6|body x end 29.8
+Hoecken-Spears_slider_h5_g20.5: STALL 5|x -3.6|z 4.2|hdg 7.0|pitch 8.2|roll 5.1|turns 0.49|feet BL 23 BR 68 FL 65 FR 62|slip 6.2|ground
+Hoecken-Spears_slider_h5_g20.5: STALL 20|x 2.3|z 4.2|hdg 4.1|pitch 6.9|roll 2.1|turns 0.49|feet BL 62 BR 40 FL 35 FR 62|slip 4.5|ground
+Hoecken-Spears_slider_h5_g20.5: STEP Hoecken-Spears slider|gap 20.5|h 5.0|first touch 2.58|a front foot on top -|all four on top -|pushed back 12.3|body x end 19.9
+Hoecken-Spears_slider_h5_g4: STALL 5|x -4.3|z 5.6|hdg -349.3|pitch 7.2|roll 4.5|turns 0.49|feet BL 53 BR 53 FL 48 FR 47|slip 7.2|ground
+Hoecken-Spears_slider_h5_g4: STALL 20|x 1.2|z 0.8|hdg -354.5|pitch 3.5|roll 2.1|turns 0.49|feet BL 68 BR 40 FL 37 FR 58|slip 5.0|ground
+Hoecken-Spears_slider_h5_g4: STEP Hoecken-Spears slider|gap 4.0|h 5.0|first touch 0.57|a front foot on top -|all four on top -|pushed back 12.9|body x end 5.1
+Hoecken-Spears_slider_h5_g5.5: STALL 5|x -3.2|z 6.5|hdg -349.8|pitch 4.6|roll 2.9|turns 0.49|feet BL 52 BR 50 FL 47 FR 48|slip 5.1|ground
+Hoecken-Spears_slider_h5_g5.5: STALL 20|x 93.3|z 4.5|hdg 2.9|pitch 8.4|roll 0.2|turns 0.49|feet BL 98 BR 5 FL 3 FR 98|slip 0.8|ground
+Hoecken-Spears_slider_h5_g5.5: STEP Hoecken-Spears slider|gap 5.5|h 5.0|first touch 0.58|a front foot on top 8.77|all four on top 14.85|pushed back 10.8|body x end 98.2
+Hoecken-Spears_slider_h5_g7: STALL 5|x 0.6|z 3.3|hdg -353.1|pitch 3.5|roll 3.5|turns 0.49|feet BL 53 BR 55 FL 48 FR 48|slip 3.7|ground
+Hoecken-Spears_slider_h5_g7: STALL 20|x 4.1|z 2.0|hdg -351.9|pitch 5.5|roll 1.9|turns 0.49|feet BL 67 BR 38 FL 37 FR 63|slip 5.7|ground
+Hoecken-Spears_slider_h5_g7: STEP Hoecken-Spears slider|gap 7.0|h 5.0|first touch 0.62|a front foot on top -|all four on top -|pushed back 12.9|body x end 7.9
+Hoecken-Spears_slider_h5_g8.5: STALL 5|x -2.4|z 6.3|hdg -350.0|pitch 3.9|roll 3.6|turns 0.49|feet BL 52 BR 50 FL 50 FR 52|slip 4.0|ground
+Hoecken-Spears_slider_h5_g8.5: STALL 20|x 1.5|z 12.0|hdg -349.0|pitch 7.1|roll 3.8|turns 0.49|feet BL 70 BR 37 FL 35 FR 63|slip 5.0|ground
+Hoecken-Spears_slider_h5_g8.5: STEP Hoecken-Spears slider|gap 8.5|h 5.0|first touch 0.68|a front foot on top -|all four on top -|pushed back 11.9|body x end 9.3
+Hoecken-Spears_slider_h7_g10: STALL 5|x 0.8|z 4.7|hdg -351.5|pitch 3.7|roll 3.4|turns 0.49|feet BL 58 BR 53 FL 48 FR 48|slip 4.2|ground
+Hoecken-Spears_slider_h7_g10: STALL 20|x 3.2|z 4.1|hdg 2.1|pitch 6.6|roll 4.3|turns 0.49|feet BL 72 BR 43 FL 37 FR 63|slip 5.8|ground
+Hoecken-Spears_slider_h7_g10: STEP Hoecken-Spears slider|gap 10.0|h 7.0|first touch 1.55|a front foot on top -|all four on top -|pushed back 9.1|body x end 10.2
+Hoecken-Spears_slider_h7_g11.5: STALL 5|x 0.4|z 4.4|hdg -351.0|pitch 3.8|roll 3.6|turns 0.49|feet BL 57 BR 58 FL 48 FR 47|slip 3.9|ground
+Hoecken-Spears_slider_h7_g11.5: STALL 20|x 2.2|z 6.8|hdg 5.0|pitch 5.3|roll 3.2|turns 0.49|feet BL 65 BR 42 FL 33 FR 63|slip 5.0|ground
+Hoecken-Spears_slider_h7_g11.5: STEP Hoecken-Spears slider|gap 11.5|h 7.0|first touch 1.57|a front foot on top -|all four on top -|pushed back 9.0|body x end 10.9
+Hoecken-Spears_slider_h7_g13: STALL 5|x -4.6|z 5.9|hdg -351.0|pitch 4.7|roll 3.8|turns 0.49|feet BL 52 BR 52 FL 47 FR 48|slip 5.1|ground
+Hoecken-Spears_slider_h7_g13: STALL 20|x -1.0|z 8.3|hdg -354.8|pitch 4.8|roll 2.8|turns 0.49|feet BL 63 BR 37 FL 33 FR 62|slip 4.8|ground
+Hoecken-Spears_slider_h7_g13: STEP Hoecken-Spears slider|gap 13.0|h 7.0|first touch 1.58|a front foot on top -|all four on top -|pushed back 11.1|body x end 11.7
+Hoecken-Spears_slider_h7_g14.5: STALL 5|x -4.1|z 5.0|hdg -351.1|pitch 5.4|roll 3.7|turns 0.49|feet BL 52 BR 52 FL 48 FR 48|slip 4.8|ground
+Hoecken-Spears_slider_h7_g14.5: STALL 20|x -1.3|z 8.0|hdg -356.0|pitch 6.1|roll 3.4|turns 0.49|feet BL 62 BR 40 FL 37 FR 63|slip 4.6|ground
+Hoecken-Spears_slider_h7_g14.5: STEP Hoecken-Spears slider|gap 14.5|h 7.0|first touch 1.60|a front foot on top -|all four on top -|pushed back 10.4|body x end 13.1
+Hoecken-Spears_slider_h7_g16: STALL 5|x -3.1|z 3.3|hdg -353.4|pitch 5.5|roll 4.0|turns 0.49|feet BL 53 BR 48 FL 48 FR 45|slip 4.1|ground
+Hoecken-Spears_slider_h7_g16: STALL 20|x -0.4|z 5.9|hdg 1.1|pitch 3.4|roll 3.1|turns 0.49|feet BL 67 BR 38 FL 35 FR 65|slip 4.5|ground
+Hoecken-Spears_slider_h7_g16: STEP Hoecken-Spears slider|gap 16.0|h 7.0|first touch 1.63|a front foot on top -|all four on top -|pushed back 10.6|body x end 15.4
+Hoecken-Spears_slider_h7_g17.5: STALL 5|x -3.3|z 4.4|hdg -353.9|pitch 5.3|roll 3.6|turns 0.49|feet BL 53 BR 48 FL 47 FR 50|slip 4.6|ground
+Hoecken-Spears_slider_h7_g17.5: STALL 20|x -0.4|z 4.2|hdg -0.1|pitch 5.0|roll 4.0|turns 0.49|feet BL 60 BR 43 FL 33 FR 63|slip 4.0|ground
+Hoecken-Spears_slider_h7_g17.5: STEP Hoecken-Spears slider|gap 17.5|h 7.0|first touch 1.70|a front foot on top -|all four on top -|pushed back 10.4|body x end 16.7
+Hoecken-Spears_slider_h7_g19: STALL 5|x -2.8|z 4.1|hdg 6.1|pitch 5.0|roll 3.6|turns 0.49|feet BL 50 BR 52 FL 45 FR 50|slip 4.9|ground
+Hoecken-Spears_slider_h7_g19: STALL 20|x 0.1|z 6.6|hdg 1.0|pitch 5.4|roll 3.1|turns 0.49|feet BL 65 BR 37 FL 35 FR 65|slip 5.0|ground
+Hoecken-Spears_slider_h7_g19: STEP Hoecken-Spears slider|gap 19.0|h 7.0|first touch 2.57|a front foot on top -|all four on top -|pushed back 9.7|body x end 17.7
+Hoecken-Spears_slider_h7_g20.5: STALL 5|x 0.1|z 3.2|hdg 6.1|pitch 6.0|roll 3.8|turns 0.49|feet BL 53 BR 55 FL 45 FR 50|slip 5.3|ground
+Hoecken-Spears_slider_h7_g20.5: STALL 20|x 1.5|z 3.3|hdg 1.3|pitch 4.8|roll 2.9|turns 0.49|feet BL 62 BR 38 FL 35 FR 63|slip 5.2|ground
+Hoecken-Spears_slider_h7_g20.5: STEP Hoecken-Spears slider|gap 20.5|h 7.0|first touch 2.58|a front foot on top -|all four on top -|pushed back 10.4|body x end 19.1
+Hoecken-Spears_slider_h7_g4: STALL 5|x 1.8|z 1.8|hdg -354.8|pitch 3.5|roll 3.0|turns 0.49|feet BL 55 BR 57 FL 48 FR 48|slip 3.4|ground
+Hoecken-Spears_slider_h7_g4: STALL 20|x 3.0|z 6.5|hdg -354.7|pitch 5.5|roll 3.8|turns 0.49|feet BL 63 BR 42 FL 32 FR 63|slip 4.8|ground
+Hoecken-Spears_slider_h7_g4: STEP Hoecken-Spears slider|gap 4.0|h 7.0|first touch 0.57|a front foot on top -|all four on top -|pushed back 10.5|body x end 3.5
+Hoecken-Spears_slider_h7_g5.5: STALL 5|x 2.4|z 3.8|hdg -352.5|pitch 3.2|roll 2.9|turns 0.49|feet BL 52 BR 55 FL 50 FR 48|slip 2.9|ground
+Hoecken-Spears_slider_h7_g5.5: STALL 20|x 4.0|z 7.9|hdg -352.8|pitch 6.9|roll 4.5|turns 0.49|feet BL 67 BR 43 FL 37 FR 62|slip 5.0|ground
+Hoecken-Spears_slider_h7_g5.5: STEP Hoecken-Spears slider|gap 5.5|h 7.0|first touch 0.58|a front foot on top -|all four on top -|pushed back 12.3|body x end 5.1
+Hoecken-Spears_slider_h7_g7: STALL 5|x -0.1|z 5.2|hdg -349.3|pitch 4.0|roll 3.8|turns 0.49|feet BL 55 BR 53 FL 47 FR 45|slip 5.4|ground
+Hoecken-Spears_slider_h7_g7: STALL 20|x 2.8|z 8.5|hdg -351.3|pitch 7.0|roll 3.2|turns 0.49|feet BL 63 BR 42 FL 33 FR 63|slip 4.5|ground
+Hoecken-Spears_slider_h7_g7: STEP Hoecken-Spears slider|gap 7.0|h 7.0|first touch 0.62|a front foot on top -|all four on top -|pushed back 11.0|body x end 6.0
+Hoecken-Spears_slider_h7_g8.5: STALL 5|x 2.2|z 6.0|hdg -349.5|pitch 4.2|roll 3.7|turns 0.49|feet BL 53 BR 52 FL 47 FR 53|slip 4.6|ground
+Hoecken-Spears_slider_h7_g8.5: STALL 20|x 4.9|z 4.8|hdg 4.6|pitch 4.8|roll 4.1|turns 0.49|feet BL 63 BR 43 FL 35 FR 62|slip 3.7|ground
+Hoecken-Spears_slider_h7_g8.5: STEP Hoecken-Spears slider|gap 8.5|h 7.0|first touch 0.68|a front foot on top -|all four on top -|pushed back 11.2|body x end 8.7
+Hoecken-Spears_slider_it1000_h5_g10: STALL 5|x 17.9|z 2.8|hdg 5.7|pitch 8.3|roll 2.4|turns 0.49|feet BL 37 BR 100 FL 100 FR 43|slip 0.6|ground
+Hoecken-Spears_slider_it1000_h5_g10: STALL 20|x 148.2|z 2.3|hdg -353.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it1000_h5_g10: STEP Hoecken-Spears slider|gap 10.0|h 5.0|first touch 1.55|a front foot on top 3.62|all four on top 9.52|pushed back 8.0|body x end 155.6
+Hoecken-Spears_slider_it1000_h5_g13: STALL 5|x 14.3|z 1.8|hdg -353.7|pitch 8.3|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 43|slip 0.6|ground
+Hoecken-Spears_slider_it1000_h5_g13: STALL 20|x 139.9|z -5.1|hdg -353.2|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 33 FL 35 FR 70|slip 0.1|ground
+Hoecken-Spears_slider_it1000_h5_g13: STEP Hoecken-Spears slider|gap 13.0|h 5.0|first touch 1.58|a front foot on top 3.62|all four on top 9.63|pushed back 6.5|body x end 152.9
+Hoecken-Spears_slider_it1000_h5_g16: STALL 5|x 10.3|z 1.0|hdg 0.6|pitch 8.3|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 43|slip 1.2|ground
+Hoecken-Spears_slider_it1000_h5_g16: STALL 20|x 136.6|z 1.9|hdg -357.9|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 33 FL 35 FR 70|slip 0.2|ground
+Hoecken-Spears_slider_it1000_h5_g16: STEP Hoecken-Spears slider|gap 16.0|h 5.0|first touch 1.62|a front foot on top 4.60|all four on top 9.67|pushed back 6.3|body x end 152.5
+Hoecken-Spears_slider_it1000_h5_g19: STALL 5|x 8.1|z 1.3|hdg -359.0|pitch 6.6|roll 2.3|turns 0.49|feet BL 33 BR 100 FL 100 FR 62|slip 1.5|ground
+Hoecken-Spears_slider_it1000_h5_g19: STALL 20|x 128.7|z 2.1|hdg -0.8|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it1000_h5_g19: STEP Hoecken-Spears slider|gap 19.0|h 5.0|first touch 2.57|a front foot on top 4.63|all four on top 10.68|pushed back 8.3|body x end 146.4
+Hoecken-Spears_slider_it1000_h5_g4: STALL 5|x 18.7|z 1.4|hdg -356.0|pitch 8.3|roll 0.1|turns 0.49|feet BL 45 BR 60 FL 60 FR 45|slip 0.8|ground
+Hoecken-Spears_slider_it1000_h5_g4: STALL 20|x 145.2|z 0.9|hdg 2.9|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it1000_h5_g4: STEP Hoecken-Spears slider|gap 4.0|h 5.0|first touch 0.57|a front foot on top 2.63|all four on top 8.65|pushed back 6.4|body x end 149.6
+Hoecken-Spears_slider_it1000_h5_g7: STALL 5|x 0.9|z 3.5|hdg -354.3|pitch 3.6|roll 2.5|turns 0.49|feet BL 68 BR 40 FL 62 FR 57|slip 5.2|ground
+Hoecken-Spears_slider_it1000_h5_g7: STALL 20|x 122.4|z -4.1|hdg -353.5|pitch 0.3|roll 0.4|turns 0.49|feet BL 73 BR 33 FL 35 FR 70|slip 0.2|ground
+Hoecken-Spears_slider_it1000_h5_g7: STEP Hoecken-Spears slider|gap 7.0|h 5.0|first touch 0.62|a front foot on top 5.65|all four on top 11.67|pushed back 8.2|body x end 128.5
+Hoecken-Spears_slider_it200_h5_g10: STALL 5|x 14.7|z 3.2|hdg -352.9|pitch 8.7|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 45|slip 1.0|ground
+Hoecken-Spears_slider_it200_h5_g10: STALL 20|x 140.4|z -0.0|hdg -351.9|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g10: STEP Hoecken-Spears slider|gap 10.0|h 5.0|first touch 1.55|a front foot on top 3.62|all four on top 9.63|pushed back 6.7|body x end 149.4
+Hoecken-Spears_slider_it200_h5_g11.5: STALL 5|x 14.1|z 2.6|hdg -352.0|pitch 8.7|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 45|slip 1.0|ground
+Hoecken-Spears_slider_it200_h5_g11.5: STALL 20|x 139.6|z -4.9|hdg -351.4|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g11.5: STEP Hoecken-Spears slider|gap 11.5|h 5.0|first touch 1.57|a front foot on top 3.62|all four on top 9.63|pushed back 6.3|body x end 150.9
+Hoecken-Spears_slider_it200_h5_g13: STALL 5|x 13.4|z 2.5|hdg -353.8|pitch 8.7|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 45|slip 1.0|ground
+Hoecken-Spears_slider_it200_h5_g13: STALL 20|x 139.3|z -4.5|hdg -353.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g13: STEP Hoecken-Spears slider|gap 13.0|h 5.0|first touch 1.58|a front foot on top 3.62|all four on top 9.63|pushed back 6.7|body x end 152.4
+Hoecken-Spears_slider_it200_h5_g14.5: STALL 5|x 2.3|z 1.2|hdg 2.6|pitch 6.6|roll 4.2|turns 0.49|feet BL 42 BR 60 FL 83 FR 70|slip 3.9|ground
+Hoecken-Spears_slider_it200_h5_g14.5: STALL 20|x 127.6|z 1.9|hdg 1.8|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g14.5: STEP Hoecken-Spears slider|gap 14.5|h 5.0|first touch 1.60|a front foot on top 4.65|all four on top 10.70|pushed back 6.9|body x end 142.1
+Hoecken-Spears_slider_it200_h5_g16: STALL 5|x -0.2|z 1.9|hdg -355.8|pitch 3.4|roll 3.7|turns 0.49|feet BL 68 BR 48 FL 58 FR 62|slip 5.6|ground
+Hoecken-Spears_slider_it200_h5_g16: STALL 20|x 121.4|z -4.4|hdg -354.9|pitch 0.2|roll 0.3|turns 0.49|feet BL 72 BR 33 FL 35 FR 70|slip 0.3|ground
+Hoecken-Spears_slider_it200_h5_g16: STEP Hoecken-Spears slider|gap 16.0|h 5.0|first touch 1.62|a front foot on top 5.65|all four on top 11.67|pushed back 7.7|body x end 137.3
+Hoecken-Spears_slider_it200_h5_g17.5: STALL 5|x 7.2|z 1.4|hdg -0.2|pitch 6.6|roll 2.9|turns 0.49|feet BL 33 BR 97 FL 98 FR 67|slip 1.8|ground
+Hoecken-Spears_slider_it200_h5_g17.5: STALL 20|x 130.7|z 5.8|hdg -2.2|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 70|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g17.5: STEP Hoecken-Spears slider|gap 17.5|h 5.0|first touch 1.68|a front foot on top 4.63|all four on top 10.65|pushed back 7.6|body x end 147.9
+Hoecken-Spears_slider_it200_h5_g19: STALL 5|x 8.3|z 1.3|hdg -359.6|pitch 6.6|roll 2.8|turns 0.49|feet BL 33 BR 100 FL 100 FR 67|slip 1.7|ground
+Hoecken-Spears_slider_it200_h5_g19: STALL 20|x 131.1|z 4.2|hdg -2.3|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g19: STEP Hoecken-Spears slider|gap 19.0|h 5.0|first touch 2.57|a front foot on top 4.63|all four on top 10.65|pushed back 7.2|body x end 148.9
+Hoecken-Spears_slider_it200_h5_g20.5: STALL 5|x 8.7|z 0.1|hdg -3.2|pitch 6.6|roll 3.6|turns 0.49|feet BL 37 BR 67 FL 95 FR 70|slip 2.6|ground
+Hoecken-Spears_slider_it200_h5_g20.5: STALL 20|x 133.0|z 7.8|hdg -4.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g20.5: STEP Hoecken-Spears slider|gap 20.5|h 5.0|first touch 2.58|a front foot on top 4.63|all four on top 10.65|pushed back 6.5|body x end 150.8
+Hoecken-Spears_slider_it200_h5_g4: STALL 5|x 19.3|z 1.1|hdg 3.1|pitch 8.4|roll 0.2|turns 0.49|feet BL 45 BR 58 FL 58 FR 45|slip 0.7|ground
+Hoecken-Spears_slider_it200_h5_g4: STALL 20|x 145.5|z 4.3|hdg 2.5|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g4: STEP Hoecken-Spears slider|gap 4.0|h 5.0|first touch 0.57|a front foot on top 2.60|all four on top 8.67|pushed back 6.5|body x end 149.9
+Hoecken-Spears_slider_it200_h5_g5.5: STALL 5|x 5.6|z 1.3|hdg 0.6|pitch 6.6|roll 4.0|turns 0.49|feet BL 38 BR 63 FL 90 FR 72|slip 3.4|ground
+Hoecken-Spears_slider_it200_h5_g5.5: STALL 20|x 130.3|z 7.6|hdg -0.4|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g5.5: STEP Hoecken-Spears slider|gap 5.5|h 5.0|first touch 0.58|a front foot on top 4.63|all four on top 10.65|pushed back 7.0|body x end 135.9
+Hoecken-Spears_slider_it200_h5_g7: STALL 5|x 16.4|z 1.4|hdg -354.0|pitch 8.7|roll 2.4|turns 0.49|feet BR 100 FL 100 FR 45|slip 0.9|ground
+Hoecken-Spears_slider_it200_h5_g7: STALL 20|x 140.8|z -7.9|hdg -352.3|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g7: STEP Hoecken-Spears slider|gap 7.0|h 5.0|first touch 0.62|a front foot on top 3.62|all four on top 9.63|pushed back 9.0|body x end 145.9
+Hoecken-Spears_slider_it200_h5_g8.5: STALL 5|x 15.9|z 2.9|hdg -352.1|pitch 8.7|roll 2.4|turns 0.49|feet BL 40 BR 100 FL 100 FR 45|slip 1.2|ground
+Hoecken-Spears_slider_it200_h5_g8.5: STALL 20|x 140.7|z -1.5|hdg -350.2|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 68|slip 0.1|ground
+Hoecken-Spears_slider_it200_h5_g8.5: STEP Hoecken-Spears slider|gap 8.5|h 5.0|first touch 0.68|a front foot on top 3.62|all four on top 9.63|pushed back 7.8|body x end 148.0
+Hoecken_slider_h5_g10: STALL 5|x -0.6|z 0.8|hdg -0.1|pitch 3.1|roll 3.9|turns 0.35|feet BL 100 BR 13 FL 32 FR 98|slip 4.2|ground
+Hoecken_slider_h5_g10: STALL 20|x -3.1|z -1.7|hdg 352.8|pitch 3.5|roll 4.1|turns 0.37|feet BL 52 BR 93 FL 50 FR 85|slip 8.5|ground
+Hoecken_slider_h5_g10: STEP Hoecken slider|gap 10.0|h 5.0|first touch 1.00|a front foot on top -|all four on top -|pushed back 7.1|body x end 12.3
+Hoecken_slider_h5_g11.5: STALL 5|x -1.1|z 0.9|hdg 0.2|pitch 3.4|roll 4.0|turns 0.35|feet BL 100 BR 15 FL 35 FR 97|slip 4.4|ground
+Hoecken_slider_h5_g11.5: STALL 20|x -3.3|z -1.6|hdg 353.7|pitch 3.6|roll 4.1|turns 0.37|feet BL 53 BR 93 FL 50 FR 85|slip 8.6|ground
+Hoecken_slider_h5_g11.5: STEP Hoecken slider|gap 11.5|h 5.0|first touch 1.13|a front foot on top -|all four on top -|pushed back 7.1|body x end 13.8
+Hoecken_slider_h5_g13: STALL 5|x -1.2|z 0.9|hdg -360.0|pitch 3.5|roll 4.2|turns 0.35|feet BL 100 BR 17 FL 28 FR 95|slip 5.0|ground
+Hoecken_slider_h5_g13: STALL 20|x -2.4|z -0.8|hdg -5.7|pitch 3.5|roll 4.1|turns 0.37|feet BL 65 BR 95 FL 40 FR 68|slip 8.8|ground
+Hoecken_slider_h5_g13: STEP Hoecken slider|gap 13.0|h 5.0|first touch 2.08|a front foot on top -|all four on top -|pushed back 7.2|body x end 15.4
+Hoecken_slider_h5_g14.5: STALL 5|x 0.5|z 0.9|hdg -0.2|pitch 3.6|roll 4.1|turns 0.35|feet BL 100 BR 17 FL 33 FR 95|slip 4.7|ground
+Hoecken_slider_h5_g14.5: STALL 20|x -1.1|z -0.7|hdg -5.5|pitch 3.5|roll 4.1|turns 0.37|feet BL 50 BR 95 FL 50 FR 80|slip 8.5|ground
+Hoecken_slider_h5_g14.5: STEP Hoecken slider|gap 14.5|h 5.0|first touch 2.12|a front foot on top -|all four on top -|pushed back 7.1|body x end 16.8
+Hoecken_slider_h5_g16: STALL 5|x 1.8|z 0.7|hdg -0.5|pitch 3.4|roll 4.2|turns 0.35|feet BL 100 BR 30 FL 27 FR 88|slip 4.6|ground
+Hoecken_slider_h5_g16: STALL 20|x 0.6|z -1.3|hdg -5.1|pitch 3.4|roll 4.2|turns 0.37|feet BL 50 BR 97 FL 52 FR 80|slip 8.7|ground
+Hoecken_slider_h5_g16: STEP Hoecken slider|gap 16.0|h 5.0|first touch 2.15|a front foot on top -|all four on top -|pushed back 7.1|body x end 18.4
+Hoecken_slider_h5_g17.5: STALL 5|x 3.3|z 0.6|hdg -0.6|pitch 3.5|roll 4.1|turns 0.35|feet BL 100 BR 27 FL 28 FR 90|slip 4.5|ground
+Hoecken_slider_h5_g17.5: STALL 20|x 2.0|z -1.3|hdg -5.8|pitch 3.4|roll 4.0|turns 0.37|feet BL 50 BR 95 FL 50 FR 83|slip 8.6|ground
+Hoecken_slider_h5_g17.5: STEP Hoecken slider|gap 17.5|h 5.0|first touch 2.20|a front foot on top -|all four on top -|pushed back 7.1|body x end 19.9
+Hoecken_slider_h5_g19: STALL 5|x 4.6|z 0.4|hdg -0.7|pitch 3.4|roll 4.1|turns 0.35|feet BL 98 BR 22 FL 28 FR 93|slip 4.5|ground
+Hoecken_slider_h5_g19: STALL 20|x 3.6|z -1.4|hdg -5.7|pitch 3.5|roll 4.1|turns 0.37|feet BL 50 BR 97 FL 52 FR 82|slip 8.2|ground
+Hoecken_slider_h5_g19: STEP Hoecken slider|gap 19.0|h 5.0|first touch 2.23|a front foot on top -|all four on top -|pushed back 7.0|body x end 21.4
+Hoecken_slider_h5_g20.5: STALL 5|x 5.8|z 0.7|hdg -0.0|pitch 3.6|roll 4.6|turns 0.35|feet BL 98 BR 32 FL 27 FR 83|slip 4.5|ground
+Hoecken_slider_h5_g20.5: STALL 20|x 5.4|z -1.5|hdg -5.3|pitch 3.7|roll 4.1|turns 0.37|feet BL 47 BR 100 FL 55 FR 73|slip 8.3|ground
+Hoecken_slider_h5_g20.5: STEP Hoecken slider|gap 20.5|h 5.0|first touch 2.28|a front foot on top -|all four on top -|pushed back 7.2|body x end 23.2
+Hoecken_slider_h5_g4: STALL 5|x -0.2|z -0.2|hdg -2.4|pitch 2.5|roll 3.3|turns 0.35|feet BL 100 BR 8 FL 38 FR 100|slip 3.3|ground
+Hoecken_slider_h5_g4: STALL 20|x -4.3|z -3.6|hdg 348.6|pitch 3.8|roll 3.9|turns 0.36|feet BL 62 BR 85 FL 42 FR 90|slip 8.3|ground
+Hoecken_slider_h5_g4: STEP Hoecken slider|gap 4.0|h 5.0|first touch 0.78|a front foot on top -|all four on top -|pushed back 7.0|body x end 5.4
+Hoecken_slider_h5_g5.5: STALL 5|x -0.3|z 0.3|hdg -1.5|pitch 2.5|roll 3.4|turns 0.35|feet BL 100 BR 10 FL 38 FR 100|slip 3.6|ground
+Hoecken_slider_h5_g5.5: STALL 20|x -3.8|z -2.6|hdg 350.2|pitch 3.5|roll 4.1|turns 0.36|feet BL 57 BR 88 FL 43 FR 90|slip 8.5|ground
+Hoecken_slider_h5_g5.5: STEP Hoecken slider|gap 5.5|h 5.0|first touch 0.82|a front foot on top -|all four on top -|pushed back 7.1|body x end 7.3
+Hoecken_slider_h5_g7: STALL 5|x -0.3|z 0.6|hdg -1.0|pitch 2.7|roll 3.7|turns 0.35|feet BL 100 BR 13 FL 35 FR 100|slip 3.9|ground
+Hoecken_slider_h5_g7: STALL 20|x -3.5|z -1.9|hdg 350.9|pitch 3.5|roll 4.1|turns 0.37|feet BL 55 BR 90 FL 45 FR 87|slip 8.6|ground
+Hoecken_slider_h5_g7: STEP Hoecken slider|gap 7.0|h 5.0|first touch 0.87|a front foot on top -|all four on top -|pushed back 7.2|body x end 9.0
+Hoecken_slider_h5_g8.5: STALL 5|x -0.3|z 0.5|hdg -0.5|pitch 2.9|roll 3.9|turns 0.35|feet BL 100 BR 12 FL 37 FR 100|slip 4.0|ground
+Hoecken_slider_h5_g8.5: STALL 20|x -3.9|z -2.4|hdg 352.1|pitch 3.6|roll 4.2|turns 0.36|feet BL 60 BR 88 FL 43 FR 88|slip 8.2|ground
+Hoecken_slider_h5_g8.5: STEP Hoecken slider|gap 8.5|h 5.0|first touch 0.92|a front foot on top -|all four on top -|pushed back 7.0|body x end 10.1
+Hoecken_slider_h7_g10: STALL 5|x -0.6|z 0.7|hdg -0.4|pitch 3.2|roll 3.9|turns 0.35|feet BL 100 BR 20 FL 32 FR 97|slip 4.0|ground
+Hoecken_slider_h7_g10: STALL 20|x -3.2|z -1.7|hdg 353.1|pitch 3.5|roll 4.1|turns 0.37|feet BL 53 BR 92 FL 50 FR 85|slip 8.3|ground
+Hoecken_slider_h7_g10: STEP Hoecken slider|gap 10.0|h 7.0|first touch 1.00|a front foot on top -|all four on top -|pushed back 7.1|body x end 12.3
+Hoecken_slider_h7_g11.5: STALL 5|x -1.2|z 1.1|hdg 0.1|pitch 3.5|roll 4.1|turns 0.35|feet BL 100 BR 15 FL 32 FR 97|slip 4.5|ground
+Hoecken_slider_h7_g11.5: STALL 20|x -3.4|z -1.1|hdg 354.1|pitch 3.5|roll 4.0|turns 0.37|feet BL 50 BR 93 FL 50 FR 82|slip 8.5|ground
+Hoecken_slider_h7_g11.5: STEP Hoecken slider|gap 11.5|h 7.0|first touch 1.13|a front foot on top -|all four on top -|pushed back 7.1|body x end 13.7
+Hoecken_slider_h7_g13: STALL 5|x -1.1|z 0.7|hdg -0.3|pitch 3.5|roll 4.1|turns 0.35|feet BL 100 BR 18 FL 32 FR 93|slip 4.6|ground
+Hoecken_slider_h7_g13: STALL 20|x -2.5|z -1.2|hdg -5.5|pitch 3.5|roll 4.1|turns 0.37|feet BL 52 BR 95 FL 52 FR 83|slip 8.6|ground
+Hoecken_slider_h7_g13: STEP Hoecken slider|gap 13.0|h 7.0|first touch 2.08|a front foot on top -|all four on top -|pushed back 7.0|body x end 15.3
+Hoecken_slider_h7_g14.5: STALL 5|x 0.5|z 1.0|hdg 0.0|pitch 3.4|roll 4.0|turns 0.35|feet BL 98 BR 17 FL 32 FR 95|slip 4.5|ground
+Hoecken_slider_h7_g14.5: STALL 20|x -0.9|z -0.8|hdg -5.8|pitch 3.5|roll 4.0|turns 0.37|feet BL 52 BR 95 FL 52 FR 80|slip 8.6|ground
+Hoecken_slider_h7_g14.5: STEP Hoecken slider|gap 14.5|h 7.0|first touch 2.12|a front foot on top -|all four on top -|pushed back 7.1|body x end 16.9
+Hoecken_slider_h7_g16: STALL 5|x 1.9|z 0.7|hdg -0.4|pitch 3.5|roll 4.2|turns 0.35|feet BL 100 BR 18 FL 30 FR 93|slip 4.7|ground
+Hoecken_slider_h7_g16: STALL 20|x 0.4|z -1.2|hdg -5.0|pitch 3.4|roll 4.2|turns 0.37|feet BL 50 BR 95 FL 52 FR 85|slip 8.5|ground
+Hoecken_slider_h7_g16: STEP Hoecken slider|gap 16.0|h 7.0|first touch 2.15|a front foot on top -|all four on top -|pushed back 7.1|body x end 18.3
+Hoecken_slider_h7_g17.5: STALL 5|x 3.2|z 0.7|hdg -0.7|pitch 3.5|roll 4.0|turns 0.35|feet BL 98 BR 18 FL 28 FR 93|slip 4.6|ground
+Hoecken_slider_h7_g17.5: STALL 20|x 2.0|z -1.1|hdg -5.8|pitch 3.5|roll 4.0|turns 0.37|feet BL 52 BR 95 FL 50 FR 82|slip 8.7|ground
+Hoecken_slider_h7_g17.5: STEP Hoecken slider|gap 17.5|h 7.0|first touch 2.20|a front foot on top -|all four on top -|pushed back 7.0|body x end 19.9
+Hoecken_slider_h7_g19: STALL 5|x 4.6|z 0.4|hdg -0.8|pitch 3.5|roll 4.1|turns 0.35|feet BL 100 BR 18 FL 28 FR 93|slip 4.7|ground
+Hoecken_slider_h7_g19: STALL 20|x 3.7|z -1.2|hdg -5.9|pitch 3.5|roll 4.0|turns 0.37|feet BL 50 BR 97 FL 52 FR 80|slip 8.4|ground
+Hoecken_slider_h7_g19: STEP Hoecken slider|gap 19.0|h 7.0|first touch 2.23|a front foot on top -|all four on top -|pushed back 7.0|body x end 21.6
+Hoecken_slider_h7_g20.5: STALL 5|x 5.9|z 0.1|hdg -0.6|pitch 3.5|roll 4.1|turns 0.35|feet BL 100 BR 20 FL 27 FR 92|slip 4.8|ground
+Hoecken_slider_h7_g20.5: STALL 20|x 5.2|z -1.8|hdg -5.3|pitch 3.5|roll 4.3|turns 0.37|feet BL 48 BR 98 FL 53 FR 77|slip 8.6|ground
+Hoecken_slider_h7_g20.5: STEP Hoecken slider|gap 20.5|h 7.0|first touch 2.28|a front foot on top -|all four on top -|pushed back 7.2|body x end 23.1
+Hoecken_slider_h7_g4: STALL 5|x -0.2|z -0.1|hdg -2.4|pitch 2.4|roll 3.2|turns 0.35|feet BL 100 BR 8 FL 42 FR 100|slip 3.2|ground
+Hoecken_slider_h7_g4: STALL 20|x -4.1|z -3.0|hdg 349.3|pitch 3.5|roll 4.2|turns 0.36|feet BL 60 BR 87 FL 42 FR 90|slip 8.6|ground
+Hoecken_slider_h7_g4: STEP Hoecken slider|gap 4.0|h 7.0|first touch 0.78|a front foot on top -|all four on top -|pushed back 7.0|body x end 5.6
+Hoecken_slider_h7_g5.5: STALL 5|x -0.2|z 0.1|hdg -1.5|pitch 2.5|roll 3.4|turns 0.35|feet BL 100 BR 10 FL 45 FR 100|slip 3.6|ground
+Hoecken_slider_h7_g5.5: STALL 20|x -4.2|z -2.7|hdg 350.6|pitch 3.5|roll 4.2|turns 0.36|feet BL 57 BR 87 FL 42 FR 92|slip 8.4|ground
+Hoecken_slider_h7_g5.5: STEP Hoecken slider|gap 5.5|h 7.0|first touch 0.82|a front foot on top -|all four on top -|pushed back 7.1|body x end 6.9
+Hoecken_slider_h7_g7: STALL 5|x -0.4|z 0.4|hdg -0.9|pitch 2.7|roll 3.7|turns 0.35|feet BL 100 BR 12 FL 35 FR 100|slip 4.0|ground
+Hoecken_slider_h7_g7: STALL 20|x -3.6|z -2.3|hdg 350.9|pitch 3.9|roll 4.6|turns 0.37|feet BL 58 BR 88 FL 42 FR 85|slip 8.9|ground
+Hoecken_slider_h7_g7: STEP Hoecken slider|gap 7.0|h 7.0|first touch 0.87|a front foot on top -|all four on top -|pushed back 7.2|body x end 8.9
+Hoecken_slider_h7_g8.5: STALL 5|x -0.3|z 0.6|hdg -0.2|pitch 2.8|roll 3.7|turns 0.35|feet BL 100 BR 12 FL 38 FR 100|slip 4.0|ground
+Hoecken_slider_h7_g8.5: STALL 20|x -3.8|z -2.2|hdg 352.2|pitch 3.5|roll 4.1|turns 0.36|feet BL 60 BR 87 FL 43 FR 90|slip 8.5|ground
+Hoecken_slider_h7_g8.5: STEP Hoecken slider|gap 8.5|h 7.0|first touch 0.92|a front foot on top -|all four on top -|pushed back 7.1|body x end 10.2

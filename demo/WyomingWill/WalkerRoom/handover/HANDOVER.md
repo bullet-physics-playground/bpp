@@ -1,6 +1,6 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read section 4a first: the diag builds are fixed, and the test track needs changing before the factorial runs (section 7).**
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read section 4d first: how the work got here, and the standard the runs use now (200 solver iterations, the motor at 0.25 a crank).**
 
 ## 1. The aim
 
@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 41 (the sliders' 6-dof joint, the fresh table, section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 42 (the solver switch, joint forces, joint friction, section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -351,6 +351,60 @@ Bullet's slider constraint gives under load (a pin through a hole would not); th
 
 **New tools**: `fresh.sh`, `fresh6d.sh`, `fresh_an.py`, `fresh_table.py` (the table), `stance.py` (lift and time flat from sweeps), `paths4.py` (ideal paths), `slidertest.lua` (slider joint errors; `SL_6DOF`, `SL_BAR_HALF`, `SL_NODAMP`), `slt.sh`, `slt_an.py`.
 
+## 4d. Sixth session (27–28 October): the solver, the motors, friction, and back to the main question
+
+**Answer first.** The aim (William, 28 October): walkers whose linkages lift the foot higher (and maybe stay longer on the ground) should do better on ground with higher obstacles. The fresh table (section 4c) already says yes for lift: over the 12 run walkers as built, lift goes with speed on logs 7 (correlation 0.82) and steps 7 (0.66), not on waves 6 (0.25). Duty can't be told apart from lift with these walkers: across linkages more lift comes with less time flat on the ground (Klann, Spears lift 44 and 53), so duty alone even goes against speed (−0.5); within each pair the Spears version raises both and is faster. But the fresh table ran at 40 solver iterations, and this session found that 40 is unfair to exactly the high-lift Spears linkages (below). It is being run again at 200 (`tools/ft2.sh`: all 19 builds, 10 terrains, seeds 1–3, 20 s runs, 570 runs, about 8½ hours; results not yet in this handover).
+
+**How we got here** (the commits, in order):
+
+1. 10–13 October: a fair room (65423bd … 3b0e8ad): the same stride, crank speed, weight, motors, feet and chassis for every walker; gravity raised (fa281a1) because the high-lift walkers had no foot down up to 31% of the time. Important: without it there is no fair comparison.
+2. 14 October: solver iterations 10 → 40 (0c2e093). At 10 the engine held the low-lift Chebyshev and Hoecken walkers back, which had made lift look decisive on waves (correlation 0.74–0.84); at 40 it fell to 0.10. Important: the first time an engine setting changed the answer.
+3. 15 October: logs and steps (3ed943f). Waves don't need lift (feet ride over them); separate obstacles do: a foot that rises less than the obstacle stops dead. Important: this is the terrain that tests the idea.
+4. 16–21 October: the same materials, Earth gravity, the diag builds slow (the solver let their legs swing), the factorial plan. Mostly needed, but long.
+5. 22–25 October: fairness details: outside braces, held pendants, track widths, the V brace, link width (option A, 416 runs). Effects about 0.2 cm/s. Less important: the walkers had to be built some way, but none of it moved the answer much.
+6. 25–27 October: the fresh table and the sliders' joint (c546965, patch 41). Bullet's slider joint let the bar twist 10–15°, holding the sliders back. Important.
+7. 27–28 October (this section, patch 42): William asked why Hoecken-Spears slider gains less from the Spears change than Chebyshev-Spears does. That found that the solver doesn't converge for linkages near their smallest transmission angle, which are the high-lift ones: 40 iterations is unfair to the Spears linkages. Important. The rest checked whether that changes the set-up: the motor limit (0.25 per crank is fine), joint friction (no measurable effect), mono (explains brief backward cranks on Klann and Spears 4-bar, a small effect), the iteration count (200 is close enough to 1000 at half the cost).
+
+**The solver doesn't converge at 40 iterations near the smallest transmission angle.** When a linkage's coupler and rocker come within about 6–9° of in line, Bullet's sequential-impulse solver doesn't settle the joints in 40 iterations: the cranks surge and lag (0.55–1.94 of driven speed) whatever the motor strength, and the error is gone by about 1000. (A dead point, William: crank and coupler in line. The smallest transmission angle comes with more lift in the linkages here; it is close to, not the same as, how near a linkage is to the Grashof limit.) A single 5 cm step, all four feet up (`tools/steptest.lua`, `st.sh`, `st_it.sh`; `data/s6_st.txt`, `s6_it.txt`, `s6_si1k.txt`, `s6_dz.txt`):
+
+| Solver | Chebyshev-Spears | Hoecken-Spears slider |
+|---|---|---|
+| 40 iterations | 11 of 12 | 4 of 12 |
+| 200 iterations | 6 of 12 | 12 of 12 |
+| 1000 iterations | 6 of 6 | 6 of 6 (faster) |
+| MLCP (Dantzig) | 0 of 6 | 0 of 6 |
+
+So Chebyshev-Spears' lead over the slider at 40 was the solver locking it at its smallest transmission angle. On waves 4 with the joints solved, the slider beats Chebyshev-Spears (1000 iterations 8.38 against 6.03, MLCP 8.02 against 6.99; `data/s6_cmp2.txt`). MLCP needs `v:setCfm(1e-8)` or it falls back every step, takes about 5 minutes a 60 s run, and treats contacts differently from sequential impulse (the step results above); not adopted. NNCG went to NaN under every setting tried.
+
+**The motors reach half their set torque.** At MOTOR_STRENGTH 10 the cap is 2.5 a crank nominal (weight × stride units) and peaks were about 1.24; at 1 the cap is 0.25 and peaks about 0.13. Cause not known. William chose 0.25 a crank as a realistic limit, so the runs set MOTOR_STRENGTH 2. With it (1000 iterations, joint friction on; `tools/ms1.sh`, `torqueprobe.lua`; `data/s6_motor_cap.txt`, `s6_ms1.txt`), every build still walks 8.8–9.3 cm/s on flat. Reaching the cap: both Hoecken-Spears long-stance builds (the diag one at it most of the time, cranks 0.78–1.64), Klann, Spears 4-bar (peak 0.32, above the cap: a one-frame spike in the measure, not checked), Spears lift 44 (0.24), and Chebyshev-Spears on steps 5 (stalls briefly, 8.05 cm/s). Chebyshev, Hoecken 4-bar and both sliders peak under 0.13. Torque demand at 95% is 0.017–0.113 per crank (`tools/tq.sh`, `data/s6_tq.txt`).
+
+**Backward cranks and mono** (William's report: mono, the share of the stance in which the foot keeps moving one way; `tools/revprobe.lua`, `rv.sh`, `rv_an.py`, `rv_plot.py`; `data/s6_crank_reversal.txt`; picture `crank_reversal.png`). Every time a crank turned backwards (7 of 7 on Klann, 4 of 4 on Spears 4-bar, on flat), its own foot was on the ground while its path still carried it forward: the foot lands before its forward swing ends, the ground holds it, and with the motor at its cap the foot pushes the crank back. Always at the same crank angle (Klann 307–308°, Spears 4-bar 167–170°). Jansen's feet never land moving forward and its cranks never turned back. Measured in the simulation by the report's rule (lowest 15% of the foot's height), mono comes out as the report has it: Jansen 0.97 (0.986), Klann 0.84 (0.860), Spears 4-bar 0.72 (0.724). Small in practice: 0.5% of frames, 2 of each walker's 4 cranks.
+
+**Joint friction** (`JOINT_FRICTION = { mu, pin }`, a test, off): every pin resists turning with mu × the force on it × the pin radius, read each step from bpp's new joint forces; a crank's pin takes it off its motor. At mu 0.1, pin 0.25 cm it adds 5–20% to the torque. On steps 5 over 5 seeds it makes no steady difference (below).
+
+**Which iteration count** (`tools/st4.sh`, `st4_an.py`, `st5.sh`, `st5_an.py`; `data/s6_solver_settings.txt`, `s6_st4.txt`, `s6_steps5_seeds.txt`, `s6_st5.txt`). On flat every setting from 40 to 1000 walks within 0.1 cm/s; only the crank surging grows as the count drops (Chebyshev-Spears 0.99–1.02 at 1000, 0.95–1.10 at 200, 0.80–1.56 at 40). Single runs on steps swing a lot from any small change (even the step size alone: Chebyshev 6.21 → −0.34 cm/s), so steps need several seeds. Steps 5, 5 seeds, guides, trot, forward, 20 s, motor 0.25 (mean, range; cm/s):
+
+| Walker | Bracing | Timing | Direction | Friction | 1000 | 400 | 200 |
+|---|---|---|---|---|---|---|---|
+| Chebyshev | guides | trot | forward | off | 4.20 (1.68–6.21) | 4.81 (1.90–6.48) | 3.69 (−0.45–6.64) |
+| Chebyshev | guides | trot | forward | on | 4.17 (1.79–6.61) | 4.49 (1.77–6.47) | 4.42 (1.83–5.44) |
+| Chebyshev-Spears | guides | trot | forward | off | 7.33 (6.14–8.13) | 6.94 (4.35–8.03) | 7.10 (4.43–8.03) |
+| Chebyshev-Spears | guides | trot | forward | on | 6.84 (4.31–8.05) | 7.05 (5.14–8.16) | 7.04 (4.67–8.21) |
+| Hoecken slider | guides | trot | forward | off | 6.33 (3.73–7.48) | 6.69 (5.83–7.19) | 6.36 (5.00–7.25) |
+| Hoecken slider | guides | trot | forward | on | 5.85 (4.25–7.31) | 6.39 (5.17–7.52) | 6.52 (5.91–7.22) |
+| Hoecken-Spears slider | guides | trot | forward | off | 6.78 (3.65–7.80) | 7.19 (5.40–7.93) | 7.70 (7.31–7.99) |
+| Hoecken-Spears slider | guides | trot | forward | on | 7.50 (7.18–7.78) | 7.57 (7.11–7.91) | 7.59 (6.91–7.91) |
+
+The settings and friction differ by up to about 1 cm/s, inside the 2–4 cm/s spread between seeds; the ground (seed) matters more than either. Each Spears version beats its original at every setting. Time a 20 s run (minutes): 1000 3.4, 1000 at step 1/1920 2.3, 400 2.3, 200 1.75, 100 1.1, 40 0.8.
+
+**The standard for the runs now** (set per run; the room's defaults are unchanged): `SOLVER_ITERATIONS = 200` with `v:setSolverInfo("residual", 0.01)` (stops early once settled, about 15% faster), `MOTOR_STRENGTH = 2` (0.25 a crank in effect), no joint friction, the rest as section 4c.
+
+**New in bpp (C++)**: `v:setSolver(kind)` ("si", "nncg", "nncg-joints", "mlcp-dantzig", "mlcp-pgs", "mlcp-lemke"), `v.solver`, `v.solverFallbacks`, `v:setSolverInfo(name, value)` ("residual", "sor", "warmstarting", "splitImpulse", "randomOrder", "iterations"); on every constraint `enableForces()`, `forceA()`, `torqueA()`, `forceB()`, `torqueB()` (Bullet's joint feedback; checked on a pendulum: its hinge reads the bar's weight); on `btGeneric6DofConstraint` `setLinearMotor(axis, enable, targetVelocity, maxForce)`.
+
+**Not yet done**: Klann's torque spikes on flat at 1000 iterations (0.76–0.85 of driven speed: probably its early touchdown, above); why the motors reach half their set torque; one rule for link damping (section 4c); new names for long-stance and lift 44 / 53 (William).
+
+**New tools**: `angprobe.lua`, `bentsplit.lua`, `crankprobe.lua`, `forceprobe.lua`, `fp_an.py`, `fp_an2.py`, `framedump.lua` and `drawfd.py` (side views), `ghostlinks.lua`, `jointprobe.lua`, `kickprobe.lua`, `legangle.py`, `steptest.lua`, `steplog.lua`, `st.sh`, `st_an.py`, `st_it.sh`, `stit_an.py`, `it200.sh`, `si1k.sh`, `dz.sh`, `cmp2.sh`, `torqueprobe.lua`, `tq.sh`, `ms1.sh`, `ms1_an.py`, `revprobe.lua`, `rv.sh`, `rv_an.py`, `rv_plot.py`, `st4.sh`, `st4_an.py`, `st5.sh`, `st5_an.py`, `ft2.sh`. Data files are the key lines of each run (`s6_*.txt`).
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.
@@ -589,3 +643,7 @@ The older `tools/factorial/` (run.py, st2.py, an.py, st2an.py) is the previous d
 - Look at pictures from above after every geometry change.
 - A clearance check must include everything a part can meet: its own pendants (a diagonal not welded to them), the body's look-only letters, the feet at their full width.
 - Check what a test track can do to a result: walls in reach and tilted bumps both steered these walkers.
+- Bullet's solver gives at a linkage's smallest transmission angle: when a crank surges or a walker is held back, check the result at 200–1000 iterations before explaining it.
+- One run on logs or steps is close to a coin toss: compare means over several seeds.
+- bpp's Lua is 5.1: `math.atan(y, x)` ignores x; use `math.atan2`. Quaternions have no `*`.
+- Never `pkill -f` or `pgrep -f` with a pattern that matches your own command line; kill by PID.

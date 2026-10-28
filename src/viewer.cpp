@@ -47,6 +47,11 @@
 
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#include <BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h>
+#include <BulletDynamics/MLCPSolvers/btMLCPSolver.h>
+#include <BulletDynamics/MLCPSolvers/btDantzigSolver.h>
+#include <BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h>
+#include <BulletDynamics/MLCPSolvers/btLemkeSolver.h>
 
 // A rigid body's gyroscopic term, solved together with its contacts and
 // joints, for bodies a script marks (body.gyroSolved = true: the flag
@@ -368,6 +373,10 @@ void Viewer::luaBind(lua_State *s) {
            .def("setCfm", (void(Viewer::*)(btScalar))&Viewer::setCfm)
            .def("setSolverIterations",
                 (void(Viewer::*)(int)) & Viewer::setSolverIterations)
+           .def("setSolver", &Viewer::setSolver)
+           .def("setSolverInfo", &Viewer::setSolverInfo)
+           .property("solver", &Viewer::solverKind)
+           .property("solverFallbacks", &Viewer::solverFallbacks)
            .def("eachContact",
                 (void(Viewer::*)(const luabind::object &)) &
                     Viewer::eachContact)
@@ -1056,6 +1065,56 @@ void Viewer::setCfm(btScalar cfm) {
 
 void Viewer::setSolverIterations(int n) {
   dynamicsWorld->getSolverInfo().m_numIterations = n;
+}
+
+void Viewer::setSolverInfo(const std::string &name, double value) {
+  btContactSolverInfo &i = dynamicsWorld->getSolverInfo();
+  if (name == "residual") i.m_leastSquaresResidualThreshold = value;
+  else if (name == "sor") i.m_sor = value;
+  else if (name == "warmstarting") i.m_warmstartingFactor = value;
+  else if (name == "splitImpulse") i.m_splitImpulse = value != 0;
+  else if (name == "randomOrder") {
+    if (value != 0) i.m_solverMode |= SOLVER_RANDMIZE_ORDER; else i.m_solverMode &= ~SOLVER_RANDMIZE_ORDER;
+  } else if (name == "iterations") i.m_numIterations = int(value);
+  else luaL_error(L, "setSolverInfo: unknown '%s' (residual, sor, warmstarting, splitImpulse, randomOrder, iterations)", name.c_str());
+}
+
+int Viewer::solverFallbacks() const {
+  if (_mlcpInterface && dynamicsWorld)
+    return static_cast<btMLCPSolver *>(dynamicsWorld->getConstraintSolver())->getNumFallbacks();
+  return 0;
+}
+
+void Viewer::setSolver(const std::string &kind) {
+  btMLCPSolverInterface *method = nullptr;
+  btConstraintSolver *s = nullptr;
+  if (kind == "si")
+    s = new btSequentialImpulseConstraintSolver();
+  else if (kind == "nncg")
+    s = new btNNCGConstraintSolver();
+  else if (kind == "nncg-joints") {   // (NNCG for the joints only, sequential impulse for contacts)
+    btNNCGConstraintSolver *n = new btNNCGConstraintSolver();
+    n->m_onlyForNoneContact = true;
+    s = n;
+  }
+  else if (kind == "mlcp-dantzig" || kind == "mlcp-pgs" || kind == "mlcp-lemke") {
+    if (kind == "mlcp-dantzig") method = new btDantzigSolver();
+    else if (kind == "mlcp-pgs") method = new btSolveProjectedGaussSeidel();
+    else method = new btLemkeSolver();
+    s = new btMLCPSolver(method);
+  } else {
+    luaL_error(L, "setSolver: unknown kind '%s' (si, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)", kind.c_str());
+    return;
+  }
+  btConstraintSolver *old = dynamicsWorld->getConstraintSolver();
+  dynamicsWorld->setConstraintSolver(s);
+  for (PhysWorld &w : _worlds)
+    if (w.solver == old) w.solver = s;
+  if (solver == old) solver = s;
+  delete old;
+  delete _mlcpInterface;
+  _mlcpInterface = method;
+  _solverKind = kind;
 }
 
 luabind::object Viewer::handleOf(Object *o) {
@@ -3180,6 +3239,8 @@ void Viewer::clear() {
     delete solver;
     solver = nullptr;
   }
+  delete _mlcpInterface;
+  _mlcpInterface = nullptr;
   if (broadphase) {
     delete broadphase;
     broadphase = nullptr;
@@ -3414,6 +3475,8 @@ Viewer::~Viewer() {
     delete solver;
     solver = nullptr;
   }
+  delete _mlcpInterface;
+  _mlcpInterface = nullptr;
   if (broadphase) {
     delete broadphase;
     broadphase = nullptr;

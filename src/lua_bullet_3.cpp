@@ -9,6 +9,29 @@
 
 #include "lua_bullet_p.h"
 
+// Joint forces, for scripts (enableForces, then each step forceA/torqueA/forceB/
+// torqueB): what the solver last applied through the joint to each of its two
+// bodies, as force and torque (impulse over the step), world axes. Bullet's own
+// btJointFeedback, one per constraint, kept here for the constraint's lifetime.
+#include <memory>
+#include <unordered_map>
+static std::unordered_map<const btTypedConstraint *, std::unique_ptr<btJointFeedback>> &bppJointFeedback() {
+  static std::unordered_map<const btTypedConstraint *, std::unique_ptr<btJointFeedback>> m;
+  return m;
+}
+static void bppEnableForces(btTypedConstraint &c) {
+  auto &m = bppJointFeedback();
+  auto &fb = m[&c];
+  if (!fb) { fb.reset(new btJointFeedback()); }
+  c.setJointFeedback(fb.get());
+  c.enableFeedback(true);
+}
+static btVector3 bppForceA(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedForceBodyA : btVector3(0, 0, 0); }
+static btVector3 bppTorqueA(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedTorqueBodyA : btVector3(0, 0, 0); }
+static btVector3 bppForceB(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedForceBodyB : btVector3(0, 0, 0); }
+static btVector3 bppTorqueB(const btTypedConstraint &c) { const btJointFeedback *f = c.getJointFeedback(); return f ? f->m_appliedTorqueBodyB : btVector3(0, 0, 0); }
+
+
 // body.gyroSolved: the body's gyroscopic term solved with its contacts and
 // joints (BPP_GYRO_MIDPOINT, see lua_bullet.h). Setting it true turns
 // Bullet's own gyroscopic flags off (the term would be counted twice);
@@ -487,5 +510,10 @@ void luaBindBulletPart3(lua_State *s) {
                      &btTypedConstraint::setOverrideNumSolverIterations)
                 .def("getOverrideNumSolverIterations",
                      &btTypedConstraint::getOverrideNumSolverIterations)
+                .def("enableForces", &bppEnableForces)
+                .def("forceA", &bppForceA)
+                .def("torqueA", &bppTorqueA)
+                .def("forceB", &bppForceB)
+                .def("torqueB", &bppTorqueB)
                 .def(tostring(const_self))
                 .def(const_self == const_self)];}

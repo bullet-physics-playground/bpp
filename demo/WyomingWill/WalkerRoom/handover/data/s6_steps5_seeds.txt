@@ -1,0 +1,24 @@
+Chebyshev              friction off it 1000: seeds 5  mean  4.20  range  1.68.. 6.21  stuck 0  | s1:6.21 s2:3.07 s3:4.56 s4:5.48 s5:1.68
+Chebyshev              friction off it  400: seeds 5  mean  4.81  range  1.90.. 6.48  stuck 0  | s1:6.07 s2:6.48 s3:4.11 s4:5.51 s5:1.90
+Chebyshev              friction off it  200: seeds 5  mean  3.69  range -0.45.. 6.64  stuck 1  | s1:-0.45 s2:4.24 s3:6.64 s4:6.29 s5:1.75
+Chebyshev              friction on  it 1000: seeds 5  mean  4.17  range  1.79.. 6.61  stuck 0  | s1:4.53 s2:6.61 s3:3.77 s4:4.17 s5:1.79
+Chebyshev              friction on  it  400: seeds 5  mean  4.49  range  1.77.. 6.47  stuck 0  | s1:4.15 s2:6.47 s3:4.75 s4:5.31 s5:1.77
+Chebyshev              friction on  it  200: seeds 5  mean  4.42  range  1.83.. 5.44  stuck 0  | s1:5.44 s2:5.38 s3:4.50 s4:4.93 s5:1.83
+Chebyshev-Spears       friction off it 1000: seeds 5  mean  7.33  range  6.14.. 8.13  stuck 0  | s1:8.13 s2:7.63 s3:6.14 s4:7.79 s5:6.95
+Chebyshev-Spears       friction off it  400: seeds 5  mean  6.94  range  4.35.. 8.03  stuck 0  | s1:8.03 s2:7.46 s3:4.35 s4:7.86 s5:7.01
+Chebyshev-Spears       friction off it  200: seeds 5  mean  7.10  range  4.43.. 8.03  stuck 0  | s1:8.02 s2:7.57 s3:4.43 s4:8.03 s5:7.44
+Chebyshev-Spears       friction on  it 1000: seeds 5  mean  6.84  range  4.31.. 8.05  stuck 0  | s1:8.05 s2:7.13 s3:4.31 s4:7.81 s5:6.91
+Chebyshev-Spears       friction on  it  400: seeds 5  mean  7.05  range  5.14.. 8.16  stuck 0  | s1:8.16 s2:7.15 s3:5.14 s4:7.83 s5:6.95
+Chebyshev-Spears       friction on  it  200: seeds 5  mean  7.04  range  4.67.. 8.21  stuck 0  | s1:8.21 s2:7.13 s3:4.67 s4:7.77 s5:7.43
+Hoecken slider         friction off it 1000: seeds 5  mean  6.33  range  3.73.. 7.48  stuck 0  | s1:6.60 s2:7.05 s3:6.79 s4:7.48 s5:3.73
+Hoecken slider         friction off it  400: seeds 5  mean  6.69  range  5.83.. 7.19  stuck 0  | s1:6.30 s2:7.19 s3:5.83 s4:7.11 s5:7.01
+Hoecken slider         friction off it  200: seeds 5  mean  6.36  range  5.00.. 7.25  stuck 0  | s1:5.00 s2:7.25 s3:6.69 s4:6.09 s5:6.78
+Hoecken slider         friction on  it 1000: seeds 5  mean  5.85  range  4.25.. 7.31  stuck 0  | s1:4.25 s2:7.31 s3:5.83 s4:6.75 s5:5.11
+Hoecken slider         friction on  it  400: seeds 5  mean  6.39  range  5.17.. 7.52  stuck 0  | s1:5.17 s2:7.21 s3:5.32 s4:7.52 s5:6.72
+Hoecken slider         friction on  it  200: seeds 5  mean  6.52  range  5.91.. 7.22  stuck 0  | s1:6.20 s2:7.22 s3:5.91 s4:6.27 s5:7.01
+Hoecken-Spears slider  friction off it 1000: seeds 5  mean  6.78  range  3.65.. 7.80  stuck 0  | s1:3.65 s2:7.77 s3:7.53 s4:7.80 s5:7.15
+Hoecken-Spears slider  friction off it  400: seeds 5  mean  7.19  range  5.40.. 7.93  stuck 0  | s1:5.40 s2:7.93 s3:7.58 s4:7.92 s5:7.11
+Hoecken-Spears slider  friction off it  200: seeds 5  mean  7.70  range  7.31.. 7.99  stuck 0  | s1:7.31 s2:7.87 s3:7.56 s4:7.99 s5:7.79
+Hoecken-Spears slider  friction on  it 1000: seeds 5  mean  7.50  range  7.18.. 7.78  stuck 0  | s1:7.31 s2:7.78 s3:7.44 s4:7.78 s5:7.18
+Hoecken-Spears slider  friction on  it  400: seeds 5  mean  7.57  range  7.11.. 7.91  stuck 0  | s1:7.40 s2:7.85 s3:7.57 s4:7.91 s5:7.11
+Hoecken-Spears slider  friction on  it  200: seeds 5  mean  7.59  range  6.91.. 7.91  stuck 0  | s1:7.81 s2:7.76 s3:7.59 s4:7.91 s5:6.91

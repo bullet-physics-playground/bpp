@@ -91,6 +91,16 @@ SOLVER_ITERATIONS = (SOLVER_ITERATIONS == nil) and 40 or SOLVER_ITERATIONS
 -- most: its foot link swings about 3 times as fast as the original's).
 -- false: the files' slider joint, as before 27 October 2026.
 SLIDER_6DOF = (SLIDER_6DOF ~= false)
+-- JOINT_FRICTION = { mu = 0.1, pin = 0.25 } (a test; off): friction in every
+-- pin joint of every walker, as a real build's oiled pins would have: each
+-- step a hinge resists turning with a torque of mu x the force on its pin x
+-- the pin's radius (pin, cm), so a joint that carries large forces (a
+-- linkage near its smallest transmission angle) costs the motor more; the
+-- sliders' sliding pivot resists sliding with mu x its force. A crank's own
+-- pin takes its friction off its motor's torque. (bpp's enableForces reads
+-- each joint's force; the brake is a motor holding the joint still, capped
+-- at that torque.)
+JOINT_FRICTION = JOINT_FRICTION or false
 -- WIDE (default on): every walker's feet about 38 cm apart side to side
 -- (outer foot edge to outer foot edge, as Jansen's own file has them),
 -- each walker's body made wide enough for that (see `wide`). false:
@@ -1179,6 +1189,27 @@ local function addWalker(spec, x, z, heading)
   end
   w.cube = built.cube
   w.parts = built
+  -- JOINT_FRICTION (above): every hinge between two of its bodies, and the
+  -- sliders' sliding pivots, read each step (jointFriction, below)
+  if JOINT_FRICTION then
+    w.friction = {}
+    for _, j in ipairs(joints) do
+      if j[5] == "btHingeConstraint" and j[2] then
+        local con = j[4]
+        local motor
+        for _, m in ipairs(w.motors) do if rawequal(m.hinge, con) then motor = m end end
+        con:enableForces()
+        w.friction[#w.friction + 1] = { con = con, motor = motor }
+      end
+    end
+    for i = 1, 4 do
+      local lk = built["linkage" .. i]
+      if lk and lk.sliderO4 and SLIDER_6DOF then
+        lk.sliderO4:enableForces()
+        w.friction[#w.friction + 1] = { con = lk.sliderO4, slide = true }
+      end
+    end
+  end
   if BODY_ANG_DAMP or YAW_DAMP then
     w.cube.body:setDamping(w.cube.body:getLinearDamping(), BODY_ANG_DAMP or 0)
   end
@@ -1732,6 +1763,25 @@ buildRoom()
 
 local LOCK_GAIN, LOCK_MAX = 4, 1.5
 
+-- JOINT_FRICTION (above): each hinge's brake set from the force its pin
+-- carried last step; a crank's motor torque cut by its pin's friction
+local function jointFriction(w)
+  if not w.friction then return end
+  local mu, r = JOINT_FRICTION.mu or 0.1, JOINT_FRICTION.pin or 0.25
+  for _, f in ipairs(w.friction) do
+    local F = f.con:forceA()
+    local mag = math.sqrt(F.x * F.x + F.y * F.y + F.z * F.z)
+    if f.slide then
+      f.con:setLinearMotor(0, true, 0, mu * mag)
+    elseif f.motor then
+      f.motor.friction = mu * r * mag * FIXED
+      if not LOCK_CRANKS then f.motor.hinge:enableAngularMotor(true, f.motor.speed, math.max(0, f.motor.impulse - f.motor.friction)) end
+    else
+      f.con:enableAngularMotor(true, 0, mu * r * mag * FIXED)
+    end
+  end
+end
+
 local function lockCranks(w)
   local n = #w.motors
   if n < 2 then return end
@@ -1746,13 +1796,14 @@ local function lockCranks(w)
   local mean = sum / n
   for _, m in ipairs(w.motors) do
     local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
-    m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, m.impulse)
+    m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
   end
 end
 
 v:preSim(function(N)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
+    if JOINT_FRICTION then jointFriction(w) end
     if LOCK_CRANKS then lockCranks(w) end
     if YAW_DAMP then   -- (its turning about the vertical damped: YAW_DAMP)
       local ax, ay, az = getAngVelXYZ(w.cube)

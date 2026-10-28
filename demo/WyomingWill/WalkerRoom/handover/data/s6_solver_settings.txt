@@ -1,0 +1,128 @@
+
+Chebyshev | flat | friction off
+  it 1000 step 1/3840: speed  8.92 cm/s  x20  160.7  torque p95 0.0176 max 0.0366  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  8.85 cm/s  x20  159.4  torque p95 0.0165 max 0.0263  cranks 0.99..1.02
+  it  400 step 1/3840: speed  8.92 cm/s  x20  160.7  torque p95 0.0175 max 0.0340  cranks 0.99..1.02
+  it  200 step 1/3840: speed  8.91 cm/s  x20  160.6  torque p95 0.0165 max 0.0245  cranks 0.99..1.02
+  it  100 step 1/3840: speed  8.91 cm/s  x20  160.5  torque p95 0.0164 max 0.0225  cranks 0.98..1.04
+  it   40 step 1/3840: speed  8.89 cm/s  x20  160.2  torque p95 0.0164 max 0.0225  cranks 0.94..1.10
+
+Chebyshev | flat | friction on
+  it 1000 step 1/3840: speed  8.91 cm/s  x20  160.6  torque p95 0.0170 max 0.0340  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  8.85 cm/s  x20  159.4  torque p95 0.0164 max 0.0445  cranks 0.99..1.02
+  it  400 step 1/3840: speed  8.91 cm/s  x20  160.6  torque p95 0.0174 max 0.0351  cranks 0.99..1.02
+  it  200 step 1/3840: speed  8.91 cm/s  x20  160.6  torque p95 0.0167 max 0.0244  cranks 0.99..1.02
+  it  100 step 1/3840: speed  8.91 cm/s  x20  160.4  torque p95 0.0160 max 0.0412  cranks 0.98..1.04
+  it   40 step 1/3840: speed  8.89 cm/s  x20  160.1  torque p95 0.0163 max 0.0215  cranks 0.95..1.10
+
+Chebyshev | steps5 | friction off
+  it 1000 step 1/3840: speed  6.21 cm/s  x20   98.0  torque p95 0.0581 max 0.2520  cranks -0.17..1.68
+  it 1000 step 1/1920: speed -0.34 cm/s  x20   -1.0  torque p95 0.0976 max 0.2503  cranks 0.02..1.21
+  it  400 step 1/3840: speed  6.07 cm/s  x20   96.0  torque p95 0.0640 max 0.2537  cranks -0.17..1.68
+  it  200 step 1/3840: speed -0.45 cm/s  x20   -3.4  torque p95 0.1219 max 0.2475  cranks -0.10..1.31
+  it  100 step 1/3840: speed  3.83 cm/s  x20   61.1  torque p95 0.1014 max 0.2491  cranks -0.26..1.68
+  it   40 step 1/3840: speed  3.75 cm/s  x20   58.9  torque p95 0.1229 max 0.2498  cranks -0.26..1.68
+
+Chebyshev | steps5 | friction on
+  it 1000 step 1/3840: speed  4.53 cm/s  x20   67.0  torque p95 0.1557 max 0.2522  cranks -0.29..1.27
+  it 1000 step 1/1920: speed -0.37 cm/s  x20   -1.4  torque p95 0.1077 max 0.2477  cranks -0.09..1.24
+  it  400 step 1/3840: speed  4.15 cm/s  x20   61.2  torque p95 0.0881 max 0.2546  cranks -0.15..1.68
+  it  200 step 1/3840: speed  5.44 cm/s  x20   85.8  torque p95 0.0794 max 0.2497  cranks -0.18..1.68
+  it  100 step 1/3840: speed  5.48 cm/s  x20   86.5  torque p95 0.0652 max 0.2511  cranks -0.16..1.68
+  it   40 step 1/3840: speed  4.69 cm/s  x20   76.0  torque p95 0.1592 max 0.2591  cranks -0.25..1.68
+
+Chebyshev-Spears | flat | friction off
+  it 1000 step 1/3840: speed  9.01 cm/s  x20  162.1  torque p95 0.0653 max 0.1105  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  8.98 cm/s  x20  161.5  torque p95 0.0573 max 0.1004  cranks 0.98..1.04
+  it  400 step 1/3840: speed  9.01 cm/s  x20  162.1  torque p95 0.0574 max 0.1073  cranks 0.97..1.05
+  it  200 step 1/3840: speed  9.01 cm/s  x20  162.0  torque p95 0.0558 max 0.1042  cranks 0.95..1.11
+  it  100 step 1/3840: speed  9.00 cm/s  x20  161.8  torque p95 0.0530 max 0.1103  cranks 0.91..1.23
+  it   40 step 1/3840: speed  8.97 cm/s  x20  161.4  torque p95 0.0465 max 0.1116  cranks 0.81..1.57
+
+Chebyshev-Spears | flat | friction on
+  it 1000 step 1/3840: speed  9.01 cm/s  x20  162.1  torque p95 0.0656 max 0.1056  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  8.98 cm/s  x20  161.4  torque p95 0.0594 max 0.1020  cranks 0.98..1.04
+  it  400 step 1/3840: speed  9.02 cm/s  x20  162.1  torque p95 0.0586 max 0.0994  cranks 0.97..1.05
+  it  200 step 1/3840: speed  9.00 cm/s  x20  161.9  torque p95 0.0566 max 0.0976  cranks 0.95..1.10
+  it  100 step 1/3840: speed  8.99 cm/s  x20  161.7  torque p95 0.0547 max 0.1037  cranks 0.90..1.22
+  it   40 step 1/3840: speed  8.97 cm/s  x20  161.2  torque p95 0.0480 max 0.1067  cranks 0.80..1.56
+
+Chebyshev-Spears | steps5 | friction off
+  it 1000 step 1/3840: speed  8.13 cm/s  x20  152.3  torque p95 0.0669 max 0.2519  cranks -0.09..1.49
+  it 1000 step 1/1920: speed  7.97 cm/s  x20  149.8  torque p95 0.0614 max 0.2513  cranks 0.02..1.29
+  it  400 step 1/3840: speed  8.03 cm/s  x20  150.6  torque p95 0.0635 max 0.2515  cranks -0.01..1.49
+  it  200 step 1/3840: speed  8.02 cm/s  x20  149.7  torque p95 0.0620 max 0.2551  cranks -0.01..1.49
+  it  100 step 1/3840: speed  8.05 cm/s  x20  150.0  torque p95 0.0612 max 0.2529  cranks -0.05..1.49
+  it   40 step 1/3840: speed  7.98 cm/s  x20  145.7  torque p95 0.0648 max 0.2562  cranks -0.09..1.60
+
+Chebyshev-Spears | steps5 | friction on
+  it 1000 step 1/3840: speed  8.05 cm/s  x20  149.7  torque p95 0.0694 max 0.2512  cranks -0.01..1.49
+  it 1000 step 1/1920: speed  7.96 cm/s  x20  149.6  torque p95 0.0607 max 0.2667  cranks -0.05..1.29
+  it  400 step 1/3840: speed  8.16 cm/s  x20  152.4  torque p95 0.0630 max 0.2527  cranks -0.07..1.42
+  it  200 step 1/3840: speed  8.21 cm/s  x20  146.2  torque p95 0.0685 max 0.2504  cranks -0.07..1.50
+  it  100 step 1/3840: speed  8.14 cm/s  x20  144.9  torque p95 0.0691 max 0.2520  cranks -0.09..1.49
+  it   40 step 1/3840: speed  8.11 cm/s  x20  146.5  torque p95 0.0684 max 0.2584  cranks -0.07..1.58
+
+Hoecken-Spears slider | flat | friction off
+  it 1000 step 1/3840: speed  9.02 cm/s  x20  162.3  torque p95 0.0163 max 0.0372  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  9.01 cm/s  x20  162.1  torque p95 0.0159 max 0.0284  cranks 0.98..1.02
+  it  400 step 1/3840: speed  9.01 cm/s  x20  162.2  torque p95 0.0163 max 0.0342  cranks 0.99..1.02
+  it  200 step 1/3840: speed  9.01 cm/s  x20  162.2  torque p95 0.0163 max 0.0255  cranks 0.98..1.02
+  it  100 step 1/3840: speed  9.02 cm/s  x20  162.3  torque p95 0.0163 max 0.0273  cranks 0.97..1.04
+  it   40 step 1/3840: speed  9.01 cm/s  x20  162.2  torque p95 0.0164 max 0.0242  cranks 0.93..1.13
+
+Hoecken-Spears slider | flat | friction on
+  it 1000 step 1/3840: speed  8.99 cm/s  x20  161.7  torque p95 0.0182 max 0.0436  cranks 0.99..1.02
+  it 1000 step 1/1920: speed  8.96 cm/s  x20  161.2  torque p95 0.0172 max 0.0334  cranks 0.99..1.02
+  it  400 step 1/3840: speed  8.99 cm/s  x20  161.7  torque p95 0.0180 max 0.0400  cranks 0.99..1.02
+  it  200 step 1/3840: speed  8.99 cm/s  x20  161.7  torque p95 0.0176 max 0.0360  cranks 0.99..1.02
+  it  100 step 1/3840: speed  8.97 cm/s  x20  161.5  torque p95 0.0175 max 0.0307  cranks 0.97..1.04
+  it   40 step 1/3840: speed  8.95 cm/s  x20  161.1  torque p95 0.0179 max 0.0306  cranks 0.90..1.12
+
+Hoecken-Spears slider | steps5 | friction off
+  it 1000 step 1/3840: speed  3.65 cm/s  x20   81.5  torque p95 0.0429 max 0.2627  cranks -2.30..1.38
+  it 1000 step 1/1920: speed  6.95 cm/s  x20  130.8  torque p95 0.0240 max 0.2525  cranks -1.72..1.40
+  it  400 step 1/3840: speed  5.40 cm/s  x20  107.7  torque p95 0.0331 max 0.2656  cranks -3.43..1.34
+  it  200 step 1/3840: speed  7.31 cm/s  x20  135.9  torque p95 0.0230 max 0.2528  cranks -2.45..1.24
+  it  100 step 1/3840: speed  8.07 cm/s  x20  147.5  torque p95 0.0229 max 0.2240  cranks 0.43..1.04
+  it   40 step 1/3840: speed  8.25 cm/s  x20  150.1  torque p95 0.0217 max 0.1827  cranks 0.67..1.13
+
+Hoecken-Spears slider | steps5 | friction on
+  it 1000 step 1/3840: speed  7.31 cm/s  x20  136.3  torque p95 0.0299 max 0.2628  cranks -1.36..1.23
+  it 1000 step 1/1920: speed  6.97 cm/s  x20  130.8  torque p95 0.0282 max 0.2551  cranks -0.80..1.15
+  it  400 step 1/3840: speed  7.40 cm/s  x20  137.5  torque p95 0.0283 max 0.2626  cranks -0.67..1.11
+  it  200 step 1/3840: speed  7.81 cm/s  x20  143.7  torque p95 0.0267 max 0.2546  cranks -4.56..1.49
+  it  100 step 1/3840: speed  8.12 cm/s  x20  148.5  torque p95 0.0244 max 0.2455  cranks 0.56..1.04
+  it   40 step 1/3840: speed  8.17 cm/s  x20  148.9  torque p95 0.0254 max 0.1892  cranks 0.73..1.13
+
+Hoecken slider | flat | friction off
+  it 1000 step 1/3840: speed  9.07 cm/s  x20  163.3  torque p95 0.0131 max 0.0241  cranks 0.98..1.03
+  it 1000 step 1/1920: speed  9.05 cm/s  x20  163.1  torque p95 0.0123 max 0.0185  cranks 0.98..1.03
+  it  400 step 1/3840: speed  9.07 cm/s  x20  163.3  torque p95 0.0122 max 0.0233  cranks 0.99..1.03
+  it  200 step 1/3840: speed  9.07 cm/s  x20  163.4  torque p95 0.0116 max 0.0194  cranks 0.98..1.03
+  it  100 step 1/3840: speed  9.09 cm/s  x20  163.6  torque p95 0.0116 max 0.0156  cranks 0.96..1.07
+  it   40 step 1/3840: speed  9.11 cm/s  x20  163.9  torque p95 0.0116 max 0.0143  cranks 0.90..1.21
+
+Hoecken slider | flat | friction on
+  it 1000 step 1/3840: speed  9.05 cm/s  x20  163.0  torque p95 0.0141 max 0.0294  cranks 0.99..1.03
+  it 1000 step 1/1920: speed  9.04 cm/s  x20  162.8  torque p95 0.0133 max 0.0273  cranks 0.98..1.03
+  it  400 step 1/3840: speed  9.05 cm/s  x20  163.0  torque p95 0.0134 max 0.0221  cranks 0.99..1.03
+  it  200 step 1/3840: speed  9.05 cm/s  x20  163.0  torque p95 0.0129 max 0.0252  cranks 0.98..1.03
+  it  100 step 1/3840: speed  9.05 cm/s  x20  163.0  torque p95 0.0131 max 0.0249  cranks 0.96..1.07
+  it   40 step 1/3840: speed  9.04 cm/s  x20  162.7  torque p95 0.0132 max 0.0245  cranks 0.89..1.21
+
+Hoecken slider | steps5 | friction off
+  it 1000 step 1/3840: speed  6.60 cm/s  x20  101.6  torque p95 0.0455 max 0.2511  cranks 0.33..1.03
+  it 1000 step 1/1920: speed  5.03 cm/s  x20   76.8  torque p95 0.0566 max 0.2469  cranks -1.20..1.24
+  it  400 step 1/3840: speed  6.30 cm/s  x20  113.7  torque p95 0.0377 max 0.2502  cranks -0.27..1.13
+  it  200 step 1/3840: speed  5.00 cm/s  x20   95.2  torque p95 0.0505 max 0.2500  cranks -1.57..1.26
+  it  100 step 1/3840: speed  6.23 cm/s  x20  112.8  torque p95 0.0381 max 0.2501  cranks -0.08..1.39
+  it   40 step 1/3840: speed  5.20 cm/s  x20  105.1  torque p95 0.0561 max 0.2495  cranks -1.12..1.72
+
+Hoecken slider | steps5 | friction on
+  it 1000 step 1/3840: speed  4.25 cm/s  x20   65.2  torque p95 0.0716 max 0.2508  cranks -0.67..1.47
+  it 1000 step 1/1920: speed  5.43 cm/s  x20   98.7  torque p95 0.0491 max 0.2499  cranks 0.14..1.13
+  it  400 step 1/3840: speed  5.17 cm/s  x20   95.7  torque p95 0.0588 max 0.2502  cranks -0.99..1.20
+  it  200 step 1/3840: speed  6.20 cm/s  x20  112.9  torque p95 0.0427 max 0.2495  cranks -0.17..1.13
+  it  100 step 1/3840: speed  5.16 cm/s  x20   94.2  torque p95 0.0621 max 0.2487  cranks -1.08..1.22
+  it   40 step 1/3840: speed  5.63 cm/s  x20  108.1  torque p95 0.0463 max 0.2465  cranks -1.54..1.59

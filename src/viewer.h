@@ -49,6 +49,7 @@
 
 using namespace qglviewer;
 
+class btMLCPSolverInterface;
 class Object;
 class Viewer;
 class QTimer;
@@ -525,6 +526,33 @@ public:
    * @param n The new @c m_numIterations.
    */
   void setSolverIterations(int n);
+
+  /**
+   * @brief Replaces the scene world's constraint solver.
+   *
+   * @param kind "si" (Bullet's sequential impulse solver, the default),
+   * "nncg" (non-smooth nonlinear conjugate gradient: the same iterations,
+   * converging faster on stiff, badly conditioned joints), "nncg-joints"
+   * (that for the joints, sequential impulse for contacts), "mlcp-dantzig",
+   * "mlcp-pgs" or "mlcp-lemke" (the whole problem as one mixed linear
+   * complementarity problem, solved directly; falls back to "si" when it
+   * fails). Bodies, joints and settings stay as they are.
+   */
+  void setSolver(const std::string &kind);
+
+  /// The solver kind last set by setSolver() ("si" until then).
+  std::string solverKind() const { return _solverKind; }
+
+  /**
+   * @brief Sets one of the scene world solver's settings by name: "residual"
+   * (stop iterating once the squared residual is under this; 0: never),
+   * "sor", "warmstarting", "splitImpulse" (0/1), "randomOrder" (0/1),
+   * "iterations".
+   */
+  void setSolverInfo(const std::string &name, double value);
+
+  /// How many steps an MLCP solver has handed back to sequential impulse (0 for the others).
+  int solverFallbacks() const;
 
   /**
    * @brief Reports every live contact point to a Lua function.
@@ -2389,6 +2417,8 @@ private:
   btBroadphaseInterface *broadphase;  ///< Broadphase collision detection.
   btCollisionDispatcher *dispatcher;  ///< Narrowphase algorithm dispatcher.
   btConstraintSolver *solver;         ///< The constraint solver.
+  btMLCPSolverInterface *_mlcpInterface = nullptr;  ///< setSolver()'s MLCP method, if any.
+  std::string _solverKind = "si";     ///< setSolver()'s kind.
 
   /**
    * @brief Renders the constraint markers.

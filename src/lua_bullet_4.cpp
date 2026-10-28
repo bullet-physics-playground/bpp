@@ -9,6 +9,17 @@
 
 #include "lua_bullet_p.h"
 
+// A generic 6-dof joint's motor along one of its own linear axes (0-2): for scripts that
+// give a sliding joint friction (target speed 0, the most force the friction can give).
+static void bppSetLinearMotor(btGeneric6DofConstraint &c, int axis, bool enable, btScalar targetVelocity, btScalar maxForce) {
+  if (axis < 0 || axis > 2) return;
+  btTranslationalLimitMotor *m = c.getTranslationalLimitMotor();
+  m->m_enableMotor[axis] = enable;
+  m->m_targetVelocity[axis] = targetVelocity;
+  m->m_maxMotorForce[axis] = maxForce;
+}
+
+
 /**
  * @brief Registers the last quarter of the Bullet API.
  * @param s The Lua state to register in.
@@ -144,6 +155,7 @@ module(
            .def("setAngularLowerLimit",
                 &btGeneric6DofConstraint::setAngularLowerLimit)
            .def("setLimit", &btGeneric6DofConstraint::setLimit)
+           .def("setLinearMotor", &bppSetLinearMotor)
            .def("setAxis", &btGeneric6DofConstraint::setAxis)
            .def("setParam", &btGeneric6DofConstraint::setParam)
            .def(tostring(const_self))

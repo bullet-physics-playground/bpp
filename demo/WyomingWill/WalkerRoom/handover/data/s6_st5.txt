@@ -1,0 +1,360 @@
+Chebyshev-Spears_steps5_off_1000_3840_s1: STALL 5|x 30.4|z 1.9|hdg -0.3|pitch 8.2|roll 3.6|turns 0.48|feet BL 48 BR 72 FL 70 FR 63|slip 2.4|ground
+Chebyshev-Spears_steps5_off_1000_3840_s1: STALL 20|x 152.3|z 1.7|hdg 0.8|pitch 8.2|roll 0.8|turns 0.48|feet BL 43 BR 60 FL 57 FR 97|slip 1.5|ground
+Chebyshev-Spears_steps5_off_1000_3840_s1: TQ Chebyshev-Spears|iterations 1000|friction off|torque median 0.0053 p95 0.0669 max 0.2519|motor max 0.5000|speed -0.09-1.49
+Chebyshev-Spears_steps5_off_1000_3840_s2: STALL 5|x 16.2|z -0.4|hdg -355.6|pitch 1.5|roll 0.9|turns 0.20|feet BL 100 BR 67 FL 100 FR 100|slip 2.9|ground
+Chebyshev-Spears_steps5_off_1000_3840_s2: STALL 20|x 130.7|z -15.2|hdg -351.7|pitch 4.3|roll 1.3|turns 0.48|feet BL 62 BR 100 FL 100 FR 5|slip 2.0|ground
+Chebyshev-Spears_steps5_off_1000_3840_s2: TQ Chebyshev-Spears|iterations 1000|friction off|torque median 0.0060 p95 0.0777 max 0.2613|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_1000_3840_s3: STALL 5|x 19.8|z -0.3|hdg 358.6|pitch 2.6|roll 3.3|turns 0.48|feet BL 88 BR 25 FL 10 FR 92|slip 1.1|ground
+Chebyshev-Spears_steps5_off_1000_3840_s3: STALL 20|x 111.9|z -3.2|hdg 8.4|pitch 8.6|roll 0.5|turns 0.48|feet BL 63 BR 40 FL 40 FR 63|slip 1.1|ground
+Chebyshev-Spears_steps5_off_1000_3840_s3: TQ Chebyshev-Spears|iterations 1000|friction off|torque median 0.0060 p95 0.2476 max 0.2545|motor max 0.5000|speed -0.14-1.50
+Chebyshev-Spears_steps5_off_1000_3840_s4: STALL 5|x 25.7|z -0.9|hdg -359.4|pitch 8.2|roll 0.1|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 0.9|ground
+Chebyshev-Spears_steps5_off_1000_3840_s4: STALL 20|x 142.6|z -7.1|hdg -354.1|pitch 8.2|roll 0.1|turns 0.48|feet BL 57 BR 47 FL 47 FR 57|slip 1.0|ground
+Chebyshev-Spears_steps5_off_1000_3840_s4: TQ Chebyshev-Spears|iterations 1000|friction off|torque median 0.0052 p95 0.0718 max 0.2520|motor max 0.5000|speed -0.08-1.49
+Chebyshev-Spears_steps5_off_1000_3840_s5: STALL 5|x 15.0|z -0.4|hdg 358.4|pitch 8.2|roll 0.5|turns 0.46|feet BR 100 FL 100 FR 5|slip 2.2|ground
+Chebyshev-Spears_steps5_off_1000_3840_s5: STALL 20|x 119.2|z -5.0|hdg 351.9|pitch 6.8|roll 1.9|turns 0.23|feet BL 18 BR 100 FL 100 FR 12|slip 7.1|ground
+Chebyshev-Spears_steps5_off_1000_3840_s5: TQ Chebyshev-Spears|iterations 1000|friction off|torque median 0.0073 p95 0.2361 max 0.2520|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_200_3840_s1: STALL 5|x 29.4|z 1.9|hdg -0.2|pitch 7.0|roll 3.5|turns 0.48|feet BL 45 BR 68 FL 70 FR 72|slip 2.0|ground
+Chebyshev-Spears_steps5_off_200_3840_s1: STALL 20|x 149.7|z 5.3|hdg 0.4|pitch 8.2|roll 0.1|turns 0.48|feet BL 50 BR 53 FL 53 FR 50|slip 0.9|ground
+Chebyshev-Spears_steps5_off_200_3840_s1: TQ Chebyshev-Spears|iterations 200|friction off|torque median 0.0056 p95 0.0620 max 0.2551|motor max 0.5000|speed -0.01-1.49
+Chebyshev-Spears_steps5_off_200_3840_s2: STALL 5|x 16.1|z -0.5|hdg 3.7|pitch 1.4|roll 1.1|turns 0.20|feet BL 98 BR 60 FL 100 FR 98|slip 2.7|ground
+Chebyshev-Spears_steps5_off_200_3840_s2: STALL 20|x 129.7|z -15.0|hdg 8.2|pitch 5.2|roll 1.3|turns 0.48|feet BL 52 BR 100 FL 98 FR 13|slip 2.2|ground
+Chebyshev-Spears_steps5_off_200_3840_s2: TQ Chebyshev-Spears|iterations 200|friction off|torque median 0.0063 p95 0.0771 max 0.2511|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_200_3840_s3: STALL 5|x 20.4|z -0.3|hdg 358.5|pitch 2.7|roll 3.4|turns 0.48|feet BL 93 BR 20 FL 5 FR 95|slip 0.9|ground
+Chebyshev-Spears_steps5_off_200_3840_s3: STALL 20|x 86.9|z 3.2|hdg 17.8|pitch 6.6|roll 5.1|turns 0.44|feet BR 98 FL 100|slip 4.7|ground
+Chebyshev-Spears_steps5_off_200_3840_s3: TQ Chebyshev-Spears|iterations 200|friction off|torque median 0.0069 p95 0.2477 max 0.2551|motor max 0.5000|speed -0.08-1.50
+Chebyshev-Spears_steps5_off_200_3840_s4: STALL 5|x 25.7|z -0.9|hdg 0.4|pitch 8.2|roll 0.1|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 0.9|ground
+Chebyshev-Spears_steps5_off_200_3840_s4: STALL 20|x 146.1|z -0.6|hdg 1.8|pitch 8.3|roll 2.2|turns 0.48|feet BL 57 BR 47 FL 45 FR 68|slip 0.8|ground
+Chebyshev-Spears_steps5_off_200_3840_s4: TQ Chebyshev-Spears|iterations 200|friction off|torque median 0.0056 p95 0.0654 max 0.2517|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_200_3840_s5: STALL 5|x 20.7|z -0.3|hdg 0.1|pitch 8.6|roll 0.6|turns 0.48|feet BL 50 BR 53 FL 53 FR 50|slip 1.2|ground
+Chebyshev-Spears_steps5_off_200_3840_s5: STALL 20|x 132.3|z 0.3|hdg 358.0|pitch 8.4|roll 0.3|turns 0.47|feet BL 8 BR 95 FL 95 FR 8|slip 2.2|ground
+Chebyshev-Spears_steps5_off_200_3840_s5: TQ Chebyshev-Spears|iterations 200|friction off|torque median 0.0063 p95 0.0698 max 0.2522|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_400_3840_s1: STALL 5|x 30.1|z 1.6|hdg -0.5|pitch 8.1|roll 3.6|turns 0.48|feet BL 47 BR 73 FL 70 FR 67|slip 2.5|ground
+Chebyshev-Spears_steps5_off_400_3840_s1: STALL 20|x 150.6|z 3.5|hdg -358.0|pitch 8.2|roll 0.1|turns 0.48|feet BL 47 BR 57 FL 55 FR 47|slip 0.9|ground
+Chebyshev-Spears_steps5_off_400_3840_s1: TQ Chebyshev-Spears|iterations 400|friction off|torque median 0.0055 p95 0.0635 max 0.2515|motor max 0.5000|speed -0.01-1.49
+Chebyshev-Spears_steps5_off_400_3840_s2: STALL 5|x 16.0|z -0.1|hdg -355.9|pitch 1.4|roll 1.0|turns 0.20|feet BL 100 BR 68 FL 100 FR 100|slip 2.7|ground
+Chebyshev-Spears_steps5_off_400_3840_s2: STALL 20|x 127.9|z -15.7|hdg -349.3|pitch 5.7|roll 9.6|turns 0.48|feet BL 33 BR 95 FL 98 FR 20|slip 1.9|ground
+Chebyshev-Spears_steps5_off_400_3840_s2: TQ Chebyshev-Spears|iterations 400|friction off|torque median 0.0062 p95 0.0766 max 0.2504|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_off_400_3840_s3: STALL 5|x 20.6|z -0.2|hdg 358.7|pitch 4.0|roll 5.4|turns 0.48|feet BL 97 BR 8 FL 5 FR 97|slip 1.2|ground
+Chebyshev-Spears_steps5_off_400_3840_s3: STALL 20|x 85.9|z 3.6|hdg 17.1|pitch 7.0|roll 10.3|turns 0.44|feet BL 12 BR 100 FL 100 FR 5|slip 6.7|ground
+Chebyshev-Spears_steps5_off_400_3840_s3: TQ Chebyshev-Spears|iterations 400|friction off|torque median 0.0072 p95 0.2479 max 0.2510|motor max 0.5000|speed -0.13-1.50
+Chebyshev-Spears_steps5_off_400_3840_s4: STALL 5|x 25.7|z -0.9|hdg -359.7|pitch 8.2|roll 0.1|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 0.8|ground
+Chebyshev-Spears_steps5_off_400_3840_s4: STALL 20|x 143.6|z -4.7|hdg -356.0|pitch 8.2|roll 0.1|turns 0.48|feet BL 55 BR 48 FL 48 FR 55|slip 0.8|ground
+Chebyshev-Spears_steps5_off_400_3840_s4: TQ Chebyshev-Spears|iterations 400|friction off|torque median 0.0055 p95 0.0659 max 0.2524|motor max 0.5000|speed -0.10-1.49
+Chebyshev-Spears_steps5_off_400_3840_s5: STALL 5|x 20.8|z -0.3|hdg 0.1|pitch 8.7|roll 0.6|turns 0.48|feet BL 50 BR 53 FL 53 FR 50|slip 1.3|ground
+Chebyshev-Spears_steps5_off_400_3840_s5: STALL 20|x 125.9|z -4.5|hdg 356.2|pitch 7.6|roll 1.6|turns 0.36|feet BL 27 BR 100 FL 100|slip 6.3|ground
+Chebyshev-Spears_steps5_off_400_3840_s5: TQ Chebyshev-Spears|iterations 400|friction off|torque median 0.0068 p95 0.0816 max 0.2583|motor max 0.5000|speed -0.06-1.49
+Chebyshev-Spears_steps5_on_1000_3840_s1: STALL 5|x 28.9|z 1.8|hdg -0.2|pitch 6.8|roll 3.5|turns 0.48|feet BL 43 BR 68 FL 70 FR 72|slip 1.9|ground
+Chebyshev-Spears_steps5_on_1000_3840_s1: STALL 20|x 149.7|z 5.3|hdg 0.6|pitch 8.2|roll 0.1|turns 0.48|feet BL 52 BR 52 FL 52 FR 52|slip 0.9|ground
+Chebyshev-Spears_steps5_on_1000_3840_s1: TQ Chebyshev-Spears|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0057 p95 0.0694 max 0.2512|motor max 0.5000|speed -0.01-1.49
+Chebyshev-Spears_steps5_on_1000_3840_s2: STALL 5|x 16.2|z 0.1|hdg -355.7|pitch 1.0|roll 1.1|turns 0.20|feet BL 100 BR 67 FL 98 FR 98|slip 2.8|ground
+Chebyshev-Spears_steps5_on_1000_3840_s2: STALL 20|x 123.2|z -12.1|hdg -353.1|pitch 8.4|roll 2.5|turns 0.48|feet BL 43 BR 100 FL 100|slip 1.2|ground
+Chebyshev-Spears_steps5_on_1000_3840_s2: TQ Chebyshev-Spears|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0064 p95 0.0802 max 0.2548|motor max 0.5000|speed -0.08-1.49
+Chebyshev-Spears_steps5_on_1000_3840_s3: STALL 5|x 20.6|z -0.2|hdg 359.3|pitch 3.0|roll 3.0|turns 0.48|feet BL 97 BR 15 FL 2 FR 98|slip 1.0|ground
+Chebyshev-Spears_steps5_on_1000_3840_s3: STALL 20|x 85.2|z 2.0|hdg 16.1|pitch 7.7|roll 11.0|turns 0.31|feet BL 18 BR 100 FL 98 FR 7|slip 4.3|ground
+Chebyshev-Spears_steps5_on_1000_3840_s3: TQ Chebyshev-Spears|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0080 p95 0.2436 max 0.2540|motor max 0.5000|speed -0.08-1.50
+Chebyshev-Spears_steps5_on_1000_3840_s4: STALL 5|x 25.8|z -0.9|hdg -359.3|pitch 8.2|roll 0.1|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 0.9|ground
+Chebyshev-Spears_steps5_on_1000_3840_s4: STALL 20|x 142.9|z -2.9|hdg -358.3|pitch 8.2|roll 0.1|turns 0.48|feet BL 83 BR 20 FL 18 FR 83|slip 0.8|ground
+Chebyshev-Spears_steps5_on_1000_3840_s4: TQ Chebyshev-Spears|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0060 p95 0.0767 max 0.2516|motor max 0.5000|speed -0.09-1.49
+Chebyshev-Spears_steps5_on_1000_3840_s5: STALL 5|x 19.9|z -0.3|hdg -0.2|pitch 8.6|roll 0.5|turns 0.48|feet BL 48 BR 55 FL 55 FR 48|slip 1.2|ground
+Chebyshev-Spears_steps5_on_1000_3840_s5: STALL 20|x 123.5|z -4.4|hdg 354.4|pitch 7.5|roll 3.5|turns 0.34|feet BL 37 BR 100 FL 100 FR 3|slip 5.7|ground
+Chebyshev-Spears_steps5_on_1000_3840_s5: TQ Chebyshev-Spears|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0070 p95 0.0853 max 0.2575|motor max 0.5000|speed -0.09-1.49
+Chebyshev-Spears_steps5_on_200_3840_s1: STALL 5|x 23.1|z 1.3|hdg -1.0|pitch 0.6|roll 0.8|turns 0.48|feet BR 100 FL 100 FR 33|slip 0.3|ground
+Chebyshev-Spears_steps5_on_200_3840_s1: STALL 20|x 146.2|z 7.7|hdg -2.1|pitch 8.3|roll 0.1|turns 0.48|feet BL 98 BR 5 FL 3 FR 98|slip 0.9|ground
+Chebyshev-Spears_steps5_on_200_3840_s1: TQ Chebyshev-Spears|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0059 p95 0.0685 max 0.2504|motor max 0.5000|speed -0.07-1.50
+Chebyshev-Spears_steps5_on_200_3840_s2: STALL 5|x 16.3|z -0.4|hdg 4.0|pitch 1.1|roll 1.1|turns 0.20|feet BL 100 BR 72 FL 100 FR 100|slip 2.8|ground
+Chebyshev-Spears_steps5_on_200_3840_s2: STALL 20|x 123.3|z -12.6|hdg 5.7|pitch 8.5|roll 2.5|turns 0.48|feet BL 45 BR 100 FL 100|slip 1.2|ground
+Chebyshev-Spears_steps5_on_200_3840_s2: TQ Chebyshev-Spears|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0063 p95 0.0799 max 0.2510|motor max 0.5000|speed -0.07-1.50
+Chebyshev-Spears_steps5_on_200_3840_s3: STALL 5|x 19.7|z -0.2|hdg 358.4|pitch 4.1|roll 1.3|turns 0.47|feet BL 100 BR 35 FL 2 FR 98|slip 2.1|ground
+Chebyshev-Spears_steps5_on_200_3840_s3: STALL 20|x 89.8|z 2.2|hdg 14.1|pitch 7.8|roll 12.9|turns 0.30|feet BL 87 BR 100 FL 100 FR 22|slip 6.6|ground
+Chebyshev-Spears_steps5_on_200_3840_s3: TQ Chebyshev-Spears|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0080 p95 0.2444 max 0.2510|motor max 0.5000|speed -0.08-1.50
+Chebyshev-Spears_steps5_on_200_3840_s4: STALL 5|x 25.5|z -0.1|hdg -0.1|pitch 8.4|roll 1.2|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 1.2|ground
+Chebyshev-Spears_steps5_on_200_3840_s4: STALL 20|x 142.1|z -3.2|hdg -357.8|pitch 8.2|roll 0.1|turns 0.48|feet BL 87 BR 17 FL 17 FR 87|slip 0.9|ground
+Chebyshev-Spears_steps5_on_200_3840_s4: TQ Chebyshev-Spears|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0060 p95 0.0705 max 0.2526|motor max 0.5000|speed -0.11-1.49
+Chebyshev-Spears_steps5_on_200_3840_s5: STALL 5|x 20.9|z -0.3|hdg 0.0|pitch 8.6|roll 0.5|turns 0.48|feet BL 50 BR 55 FL 55 FR 48|slip 1.2|ground
+Chebyshev-Spears_steps5_on_200_3840_s5: STALL 20|x 132.3|z 0.8|hdg 357.2|pitch 8.4|roll 0.1|turns 0.45|feet BR 100 FL 100|slip 2.4|ground
+Chebyshev-Spears_steps5_on_200_3840_s5: TQ Chebyshev-Spears|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0067 p95 0.0728 max 0.2516|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_on_400_3840_s1: STALL 5|x 30.0|z 1.6|hdg -0.5|pitch 8.4|roll 3.7|turns 0.48|feet BL 47 BR 70 FL 70 FR 65|slip 2.6|ground
+Chebyshev-Spears_steps5_on_400_3840_s1: STALL 20|x 152.4|z 3.0|hdg -0.1|pitch 8.3|roll 0.2|turns 0.48|feet BL 42 BR 62 FL 60 FR 42|slip 1.1|ground
+Chebyshev-Spears_steps5_on_400_3840_s1: TQ Chebyshev-Spears|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0055 p95 0.0630 max 0.2527|motor max 0.5000|speed -0.07-1.42
+Chebyshev-Spears_steps5_on_400_3840_s2: STALL 5|x 16.0|z -0.2|hdg -356.0|pitch 1.0|roll 1.1|turns 0.20|feet BL 100 BR 68 FL 100 FR 100|slip 2.8|ground
+Chebyshev-Spears_steps5_on_400_3840_s2: STALL 20|x 123.2|z -13.1|hdg -353.2|pitch 8.2|roll 2.5|turns 0.48|feet BL 47 BR 100 FL 100|slip 1.0|ground
+Chebyshev-Spears_steps5_on_400_3840_s2: TQ Chebyshev-Spears|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0062 p95 0.0771 max 0.2504|motor max 0.5000|speed -0.07-1.49
+Chebyshev-Spears_steps5_on_400_3840_s3: STALL 5|x 20.4|z -0.2|hdg 359.1|pitch 3.4|roll 2.4|turns 0.48|feet BL 98 BR 20 FR 98|slip 1.3|ground
+Chebyshev-Spears_steps5_on_400_3840_s3: STALL 20|x 97.5|z -1.0|hdg 22.9|pitch 0.2|roll 0.3|turns 0.42|feet BL 32 BR 100 FL 100|slip 2.5|ground
+Chebyshev-Spears_steps5_on_400_3840_s3: TQ Chebyshev-Spears|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0083 p95 0.2439 max 0.2512|motor max 0.5000|speed -0.08-1.50
+Chebyshev-Spears_steps5_on_400_3840_s4: STALL 5|x 25.7|z -0.9|hdg -359.6|pitch 8.2|roll 0.1|turns 0.48|feet BL 80 BR 23 FL 23 FR 80|slip 0.9|ground
+Chebyshev-Spears_steps5_on_400_3840_s4: STALL 20|x 143.1|z -3.2|hdg -357.4|pitch 8.3|roll 0.0|turns 0.48|feet BL 100 BR 3 FL 2 FR 100|slip 0.7|ground
+Chebyshev-Spears_steps5_on_400_3840_s4: TQ Chebyshev-Spears|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0064 p95 0.0763 max 0.2535|motor max 0.5000|speed -0.09-1.49
+Chebyshev-Spears_steps5_on_400_3840_s5: STALL 5|x 20.6|z -0.3|hdg -0.1|pitch 8.7|roll 0.7|turns 0.48|feet BL 50 BR 53 FL 53 FR 50|slip 1.3|ground
+Chebyshev-Spears_steps5_on_400_3840_s5: STALL 20|x 124.9|z -4.4|hdg 355.4|pitch 7.6|roll 2.7|turns 0.35|feet BL 33 BR 100 FL 100|slip 6.3|ground
+Chebyshev-Spears_steps5_on_400_3840_s5: TQ Chebyshev-Spears|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0069 p95 0.0825 max 0.2587|motor max 0.5000|speed -0.06-1.49
+Chebyshev_steps5_off_1000_3840_s1: STALL 5|x 4.9|z 5.0|hdg -10.4|pitch 6.4|roll 3.7|turns 0.35|feet BL 100 BR 37 FL 55 FR 100|slip 2.4|ground
+Chebyshev_steps5_off_1000_3840_s1: STALL 20|x 98.0|z 17.1|hdg 2.2|pitch 7.8|roll 3.8|turns 0.35|feet BL 88 BR 62 FL 72 FR 100|slip 2.7|ground
+Chebyshev_steps5_off_1000_3840_s1: TQ Chebyshev|iterations 1000|friction off|torque median 0.0071 p95 0.0581 max 0.2520|motor max 0.5000|speed -0.17-1.68
+Chebyshev_steps5_off_1000_3840_s2: STALL 5|x 19.1|z -0.9|hdg 0.6|pitch 6.7|roll 3.4|turns 0.35|feet BL 98 FL 82 FR 100|slip 3.7|ground
+Chebyshev_steps5_off_1000_3840_s2: STALL 20|x 65.1|z -6.2|hdg 7.9|pitch 4.6|roll 6.2|turns 0.35|feet BL 97 BR 30 FL 35 FR 98|slip 4.0|ground
+Chebyshev_steps5_off_1000_3840_s2: TQ Chebyshev|iterations 1000|friction off|torque median 0.0073 p95 0.0559 max 0.2526|motor max 0.5000|speed -0.02-1.20
+Chebyshev_steps5_off_1000_3840_s3: STALL 5|x 17.2|z -1.2|hdg -0.4|pitch 9.0|roll 6.8|turns 0.35|feet BL 100 BR 45 FL 82 FR 100|slip 4.0|ground
+Chebyshev_steps5_off_1000_3840_s3: STALL 20|x 85.6|z -8.0|hdg 4.5|pitch 8.8|roll 1.4|turns 0.34|feet BL 53 BR 73 FL 52 FR 68|slip 6.9|ground
+Chebyshev_steps5_off_1000_3840_s3: TQ Chebyshev|iterations 1000|friction off|torque median 0.0055 p95 0.0420 max 0.2583|motor max 0.5000|speed -0.11-1.42
+Chebyshev_steps5_off_1000_3840_s4: STALL 5|x 25.2|z -1.1|hdg 3.5|pitch 8.2|roll 0.0|turns 0.35|feet BL 100 BR 43 FR 100|slip 0.8|ground
+Chebyshev_steps5_off_1000_3840_s4: STALL 20|x 107.4|z -2.8|hdg 5.2|pitch 0.1|roll 0.1|turns 0.35|feet BL 100 BR 25 FL 2 FR 100|slip 0.3|ground
+Chebyshev_steps5_off_1000_3840_s4: TQ Chebyshev|iterations 1000|friction off|torque median 0.0059 p95 0.0432 max 0.2565|motor max 0.5000|speed 0.10-1.42
+Chebyshev_steps5_off_1000_3840_s5: STALL 5|x 7.0|z -0.9|hdg -6.1|pitch 6.5|roll 3.2|turns 0.35|feet BL 78 BR 100 FL 100 FR 62|slip 3.3|ground
+Chebyshev_steps5_off_1000_3840_s5: STALL 20|x 32.2|z 0.2|hdg -5.9|pitch 11.9|roll 9.4|turns 0.34|feet BL 100 BR 25 FL 100 FR 100|slip 6.8|ground
+Chebyshev_steps5_off_1000_3840_s5: TQ Chebyshev|iterations 1000|friction off|torque median 0.0089 p95 0.1115 max 0.2578|motor max 0.5000|speed -0.25-1.68
+Chebyshev_steps5_off_200_3840_s1: STALL 5|x 3.4|z 4.8|hdg -11.2|pitch 6.9|roll 3.2|turns 0.35|feet BL 95 BR 57 FL 67 FR 100|slip 2.7|ground
+Chebyshev_steps5_off_200_3840_s1: STALL 20|x -3.4|z 7.2|hdg -10.8|pitch 9.5|roll 3.8|turns 0.34|feet BL 77 BR 37 FL 80 FR 78|slip 8.5|ground
+Chebyshev_steps5_off_200_3840_s1: TQ Chebyshev|iterations 200|friction off|torque median 0.0095 p95 0.1219 max 0.2475|motor max 0.5000|speed -0.10-1.31
+Chebyshev_steps5_off_200_3840_s2: STALL 5|x 18.5|z -0.0|hdg -358.6|pitch 5.2|roll 2.8|turns 0.35|feet BL 100 FL 73 FR 100|slip 2.7|ground makeLink:BL 32
+Chebyshev_steps5_off_200_3840_s2: STALL 20|x 82.1|z -4.2|hdg -355.6|pitch 0.0|roll 0.1|turns 0.35|feet BL 100 FR 100|slip 0.1|ground
+Chebyshev_steps5_off_200_3840_s2: TQ Chebyshev|iterations 200|friction off|torque median 0.0066 p95 0.0521 max 0.2579|motor max 0.5000|speed -0.48-1.23
+Chebyshev_steps5_off_200_3840_s3: STALL 5|x 18.2|z -0.5|hdg 359.3|pitch 7.9|roll 5.3|turns 0.35|feet BL 100 BR 45 FL 67 FR 100|slip 2.9|ground
+Chebyshev_steps5_off_200_3840_s3: STALL 20|x 117.8|z -0.5|hdg 9.5|pitch 9.2|roll 1.3|turns 0.35|feet BL 98 BR 7 FL 43 FR 100|slip 3.0|ground
+Chebyshev_steps5_off_200_3840_s3: TQ Chebyshev|iterations 200|friction off|torque median 0.0060 p95 0.0376 max 0.2529|motor max 0.5000|speed -0.12-1.63
+Chebyshev_steps5_off_200_3840_s4: STALL 5|x 25.2|z -1.3|hdg 3.9|pitch 8.2|roll 0.1|turns 0.35|feet BL 100 BR 27 FR 100|slip 0.7|ground
+Chebyshev_steps5_off_200_3840_s4: STALL 20|x 119.6|z -2.4|hdg 0.7|pitch 0.1|roll 0.1|turns 0.35|feet BL 100 FL 8 FR 100|slip 0.2|ground
+Chebyshev_steps5_off_200_3840_s4: TQ Chebyshev|iterations 200|friction off|torque median 0.0059 p95 0.0417 max 0.2531|motor max 0.5000|speed 0.05-1.11
+Chebyshev_steps5_off_200_3840_s5: STALL 5|x 8.4|z -0.5|hdg -6.3|pitch 9.0|roll 6.5|turns 0.35|feet BL 53 BR 100 FL 100 FR 72|slip 5.5|ground
+Chebyshev_steps5_off_200_3840_s5: STALL 20|x 34.7|z 0.7|hdg -10.0|pitch 10.9|roll 8.4|turns 0.35|feet BL 100 BR 25 FL 100 FR 100|slip 5.1|ground
+Chebyshev_steps5_off_200_3840_s5: TQ Chebyshev|iterations 200|friction off|torque median 0.0094 p95 0.1309 max 0.2553|motor max 0.5000|speed -0.16-1.68
+Chebyshev_steps5_off_400_3840_s1: STALL 5|x 4.9|z 4.7|hdg -9.1|pitch 6.4|roll 4.1|turns 0.35|feet BL 100 BR 2 FL 58 FR 100|slip 2.2|ground
+Chebyshev_steps5_off_400_3840_s1: STALL 20|x 96.0|z 18.6|hdg 2.5|pitch 8.4|roll 3.6|turns 0.35|feet BL 68 BR 83 FL 92 FR 90|slip 3.5|ground
+Chebyshev_steps5_off_400_3840_s1: TQ Chebyshev|iterations 400|friction off|torque median 0.0066 p95 0.0640 max 0.2537|motor max 0.5000|speed -0.17-1.68
+Chebyshev_steps5_off_400_3840_s2: STALL 5|x 18.9|z -1.1|hdg 0.7|pitch 6.7|roll 3.4|turns 0.35|feet BL 95 FL 82 FR 100|slip 3.6|ground
+Chebyshev_steps5_off_400_3840_s2: STALL 20|x 116.1|z -5.0|hdg 0.1|pitch 8.3|roll 2.3|turns 0.35|feet BL 42 BR 65 FL 62 FR 83|slip 2.0|ground
+Chebyshev_steps5_off_400_3840_s2: TQ Chebyshev|iterations 400|friction off|torque median 0.0064 p95 0.0321 max 0.2537|motor max 0.5000|speed -0.22-1.22
+Chebyshev_steps5_off_400_3840_s3: STALL 5|x 18.7|z 1.3|hdg 357.1|pitch 6.5|roll 3.0|turns 0.35|feet BL 100 BR 48 FL 55 FR 100|slip 2.1|ground
+Chebyshev_steps5_off_400_3840_s3: STALL 20|x 80.3|z -6.7|hdg 3.9|pitch 8.4|roll 0.8|turns 0.35|feet BL 87 BR 60 FL 58 FR 45|slip 3.5|ground
+Chebyshev_steps5_off_400_3840_s3: TQ Chebyshev|iterations 400|friction off|torque median 0.0062 p95 0.0499 max 0.2523|motor max 0.5000|speed 0.04-1.28
+Chebyshev_steps5_off_400_3840_s4: STALL 5|x 25.2|z -1.3|hdg -355.8|pitch 8.2|roll 0.2|turns 0.35|feet BL 100 BR 42 FR 100|slip 0.8|ground
+Chebyshev_steps5_off_400_3840_s4: STALL 20|x 107.9|z 1.2|hdg -6.0|pitch 0.1|roll 0.2|turns 0.35|feet BL 100 BR 28 FL 10 FR 100|slip 0.4|ground
+Chebyshev_steps5_off_400_3840_s4: TQ Chebyshev|iterations 400|friction off|torque median 0.0061 p95 0.0468 max 0.2534|motor max 0.5000|speed 0.51-1.06
+Chebyshev_steps5_off_400_3840_s5: STALL 5|x 6.9|z -0.8|hdg -6.6|pitch 6.4|roll 3.2|turns 0.35|feet BL 73 BR 100 FL 100 FR 55|slip 3.2|ground
+Chebyshev_steps5_off_400_3840_s5: STALL 20|x 35.4|z 3.0|hdg -11.7|pitch 7.6|roll 7.0|turns 0.35|feet BL 100 FL 73 FR 100|slip 4.8|ground
+Chebyshev_steps5_off_400_3840_s5: TQ Chebyshev|iterations 400|friction off|torque median 0.0096 p95 0.1340 max 0.2575|motor max 0.5000|speed -0.25-1.68
+Chebyshev_steps5_on_1000_3840_s1: STALL 5|x -1.0|z 3.2|hdg -11.8|pitch 9.1|roll 1.5|turns 0.35|feet BL 30 BR 77 FL 82 FR 100|slip 3.5|ground
+Chebyshev_steps5_on_1000_3840_s1: STALL 20|x 67.0|z 27.7|hdg -11.6|pitch 6.2|roll 2.9|turns 0.10|feet BL 100 BR 77 FL 100 FR 98|slip 3.4|ground
+Chebyshev_steps5_on_1000_3840_s1: TQ Chebyshev|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0074 p95 0.1557 max 0.2522|motor max 0.5000|speed -0.29-1.27
+Chebyshev_steps5_on_1000_3840_s2: STALL 5|x 19.2|z -0.8|hdg 0.5|pitch 6.7|roll 3.3|turns 0.35|feet BL 98 FL 82 FR 100|slip 3.4|ground
+Chebyshev_steps5_on_1000_3840_s2: STALL 20|x 118.4|z -5.2|hdg -1.5|pitch 8.6|roll 1.7|turns 0.35|feet BL 42 BR 67 FL 58 FR 95|slip 3.3|ground
+Chebyshev_steps5_on_1000_3840_s2: TQ Chebyshev|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0064 p95 0.0356 max 0.2536|motor max 0.5000|speed -0.15-1.29
+Chebyshev_steps5_on_1000_3840_s3: STALL 5|x 18.6|z 1.2|hdg 356.9|pitch 6.5|roll 3.0|turns 0.35|feet BL 100 BR 50 FL 55 FR 100|slip 2.1|ground
+Chebyshev_steps5_on_1000_3840_s3: STALL 20|x 75.1|z -8.2|hdg 10.4|pitch 4.8|roll 5.6|turns 0.35|feet BL 100 FR 100|slip 0.2|ground
+Chebyshev_steps5_on_1000_3840_s3: TQ Chebyshev|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0513 max 0.2514|motor max 0.5000|speed 0.02-1.24
+Chebyshev_steps5_on_1000_3840_s4: STALL 5|x 25.3|z -1.2|hdg -356.0|pitch 8.2|roll 0.1|turns 0.35|feet BL 100 BR 43 FR 100|slip 0.8|ground
+Chebyshev_steps5_on_1000_3840_s4: STALL 20|x 87.8|z 0.2|hdg -359.8|pitch 6.2|roll 8.2|turns 0.35|feet BL 32 BR 70 FL 95 FR 78|slip 7.0|ground
+Chebyshev_steps5_on_1000_3840_s4: TQ Chebyshev|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0070 p95 0.0558 max 0.2571|motor max 0.5000|speed 0.36-1.21
+Chebyshev_steps5_on_1000_3840_s5: STALL 5|x 8.4|z -0.3|hdg -6.2|pitch 9.2|roll 6.2|turns 0.35|feet BL 53 BR 100 FL 100 FR 67|slip 4.9|ground
+Chebyshev_steps5_on_1000_3840_s5: STALL 20|x 35.2|z 1.9|hdg -11.6|pitch 10.2|roll 7.8|turns 0.35|feet BL 100 BR 12 FL 98 FR 100|slip 4.8|ground
+Chebyshev_steps5_on_1000_3840_s5: TQ Chebyshev|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0097 p95 0.1514 max 0.2565|motor max 0.5000|speed -0.18-1.68
+Chebyshev_steps5_on_200_3840_s1: STALL 5|x 4.2|z 5.3|hdg -11.1|pitch 6.5|roll 3.3|turns 0.35|feet BL 98 BR 58 FL 57 FR 100|slip 2.8|ground
+Chebyshev_steps5_on_200_3840_s1: STALL 20|x 85.8|z 25.1|hdg -12.1|pitch 9.0|roll 1.1|turns 0.35|feet BL 17 BR 88 FL 93 FR 17|slip 1.9|ground
+Chebyshev_steps5_on_200_3840_s1: TQ Chebyshev|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0066 p95 0.0794 max 0.2497|motor max 0.5000|speed -0.18-1.68
+Chebyshev_steps5_on_200_3840_s2: STALL 5|x 18.8|z -1.1|hdg 0.8|pitch 6.8|roll 3.6|turns 0.35|feet BL 100 FL 85 FR 98|slip 3.8|ground
+Chebyshev_steps5_on_200_3840_s2: STALL 20|x 99.5|z -3.4|hdg -1.6|pitch 8.3|roll 0.2|turns 0.35|feet BL 83 BR 58 FL 58 FR 47|slip 2.2|ground
+Chebyshev_steps5_on_200_3840_s2: TQ Chebyshev|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0071 p95 0.0450 max 0.2509|motor max 0.5000|speed -0.02-1.23
+Chebyshev_steps5_on_200_3840_s3: STALL 5|x 18.3|z 1.2|hdg 356.5|pitch 6.6|roll 3.0|turns 0.35|feet BL 100 BR 50 FL 57 FR 98|slip 2.3|ground
+Chebyshev_steps5_on_200_3840_s3: STALL 20|x 85.8|z -3.6|hdg 0.5|pitch 9.3|roll 2.4|turns 0.32|feet BL 50 BR 82 FL 62 FR 72|slip 6.2|ground
+Chebyshev_steps5_on_200_3840_s3: TQ Chebyshev|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0458 max 0.2720|motor max 0.5000|speed -0.04-1.50
+Chebyshev_steps5_on_200_3840_s4: STALL 5|x 25.3|z -0.9|hdg 3.4|pitch 8.2|roll 0.1|turns 0.35|feet BL 100 BR 43 FR 100|slip 0.8|ground
+Chebyshev_steps5_on_200_3840_s4: STALL 20|x 99.3|z -3.4|hdg 7.0|pitch 5.6|roll 7.5|turns 0.35|feet BL 98 BR 23 FL 55 FR 85|slip 5.6|ground
+Chebyshev_steps5_on_200_3840_s4: TQ Chebyshev|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0067 p95 0.0508 max 0.2529|motor max 0.5000|speed -0.01-1.45
+Chebyshev_steps5_on_200_3840_s5: STALL 5|x 7.9|z -0.5|hdg -6.2|pitch 8.7|roll 6.2|turns 0.35|feet BL 50 BR 100 FL 100 FR 68|slip 5.6|ground
+Chebyshev_steps5_on_200_3840_s5: STALL 20|x 35.4|z 1.0|hdg -11.5|pitch 10.1|roll 7.7|turns 0.35|feet BL 98 BR 28 FL 95 FR 100|slip 4.7|ground
+Chebyshev_steps5_on_200_3840_s5: TQ Chebyshev|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0097 p95 0.1448 max 0.2555|motor max 0.5000|speed -0.19-1.68
+Chebyshev_steps5_on_400_3840_s1: STALL 5|x -1.1|z 3.1|hdg -12.1|pitch 8.9|roll 2.0|turns 0.35|feet BL 27 BR 78 FL 83 FR 100|slip 3.7|ground
+Chebyshev_steps5_on_400_3840_s1: STALL 20|x 61.2|z 19.5|hdg -12.4|pitch 9.1|roll 2.4|turns 0.34|feet BL 97 BR 27 FR 100|slip 5.9|ground
+Chebyshev_steps5_on_400_3840_s1: TQ Chebyshev|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0065 p95 0.0881 max 0.2546|motor max 0.5000|speed -0.15-1.68
+Chebyshev_steps5_on_400_3840_s2: STALL 5|x 18.9|z -0.8|hdg 1.0|pitch 7.2|roll 4.1|turns 0.35|feet BL 90 FL 85 FR 100|slip 4.0|ground
+Chebyshev_steps5_on_400_3840_s2: STALL 20|x 115.9|z -4.9|hdg -0.7|pitch 8.3|roll 2.3|turns 0.35|feet BL 42 BR 62 FL 57 FR 87|slip 2.1|ground
+Chebyshev_steps5_on_400_3840_s2: TQ Chebyshev|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0339 max 0.2543|motor max 0.5000|speed -0.01-1.36
+Chebyshev_steps5_on_400_3840_s3: STALL 5|x 18.7|z 1.2|hdg 357.0|pitch 6.5|roll 3.0|turns 0.35|feet BL 100 BR 48 FL 55 FR 100|slip 2.1|ground
+Chebyshev_steps5_on_400_3840_s3: STALL 20|x 89.9|z 3.2|hdg 356.8|pitch 8.4|roll 2.1|turns 0.35|feet BL 43 BR 68 FL 58 FR 58|slip 3.9|ground
+Chebyshev_steps5_on_400_3840_s3: TQ Chebyshev|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0058 p95 0.0467 max 0.2584|motor max 0.5000|speed 0.09-1.17
+Chebyshev_steps5_on_400_3840_s4: STALL 5|x 25.5|z -1.2|hdg 4.2|pitch 8.3|roll 0.5|turns 0.35|feet BL 100 BR 40 FR 100|slip 0.8|ground
+Chebyshev_steps5_on_400_3840_s4: STALL 20|x 105.2|z -3.8|hdg 2.9|pitch 0.1|roll 0.1|turns 0.35|feet BL 100 BR 23 FL 5 FR 100|slip 0.3|ground
+Chebyshev_steps5_on_400_3840_s4: TQ Chebyshev|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0063 p95 0.0441 max 0.2581|motor max 0.5000|speed 0.30-1.24
+Chebyshev_steps5_on_400_3840_s5: STALL 5|x 8.2|z -0.5|hdg -5.7|pitch 9.5|roll 6.7|turns 0.35|feet BL 45 BR 100 FL 100 FR 63|slip 6.0|ground
+Chebyshev_steps5_on_400_3840_s5: STALL 20|x 34.7|z 0.4|hdg -8.0|pitch 9.8|roll 7.4|turns 0.35|feet BL 93 BR 32 FL 97 FR 100|slip 5.3|ground
+Chebyshev_steps5_on_400_3840_s5: TQ Chebyshev|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0099 p95 0.1601 max 0.2555|motor max 0.5000|speed -0.17-1.68
+Hoecken-Spears_slider_steps5_off_1000_3840_s1: STALL 5|x 26.8|z 0.6|hdg 0.3|pitch 0.2|roll 0.3|turns 0.49|feet BL 27 BR 80 FL 78 FR 43|slip 0.2|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s1: STALL 20|x 81.5|z -0.8|hdg -0.0|pitch 8.3|roll 0.1|turns 0.49|feet BL 8 BR 95 FL 95 FR 8|slip 0.7|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s1: TQ Hoecken-Spears slider|iterations 1000|friction off|torque median 0.0058 p95 0.0429 max 0.2627|motor max 0.5000|speed -2.30-1.38
+Hoecken-Spears_slider_steps5_off_1000_3840_s2: STALL 5|x 19.8|z 0.8|hdg -1.7|pitch 6.6|roll 2.6|turns 0.49|feet BL 40 BR 60 FL 98 FR 62|slip 3.6|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s2: STALL 20|x 136.4|z 2.3|hdg -6.0|pitch 5.2|roll 2.1|turns 0.49|feet BL 100 BR 5 FL 67 FR 100|slip 1.8|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s2: TQ Hoecken-Spears slider|iterations 1000|friction off|torque median 0.0058 p95 0.0229 max 0.2569|motor max 0.5000|speed 0.17-1.04
+Hoecken-Spears_slider_steps5_off_1000_3840_s3: STALL 5|x 21.5|z -0.5|hdg 0.1|pitch 5.8|roll 3.8|turns 0.49|feet BL 33 BR 77 FL 75 FR 33|slip 2.3|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s3: STALL 20|x 134.4|z -8.0|hdg 9.9|pitch 1.4|roll 1.3|turns 0.49|feet BL 98 BR 30 FL 18 FR 100|slip 0.4|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s3: TQ Hoecken-Spears slider|iterations 1000|friction off|torque median 0.0053 p95 0.0264 max 0.2668|motor max 0.5000|speed -0.44-1.11
+Hoecken-Spears_slider_steps5_off_1000_3840_s4: STALL 5|x 28.7|z 1.2|hdg -1.9|pitch 8.4|roll 2.7|turns 0.49|feet BL 73 BR 70 FL 70 FR 65|slip 1.1|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s4: STALL 20|x 145.7|z 2.4|hdg -359.6|pitch 8.4|roll 0.1|turns 0.49|feet BL 100 BR 2 FL 2 FR 100|slip 0.8|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s4: TQ Hoecken-Spears slider|iterations 1000|friction off|torque median 0.0060 p95 0.0248 max 0.2539|motor max 0.5000|speed -2.72-1.42
+Hoecken-Spears_slider_steps5_off_1000_3840_s5: STALL 5|x 19.9|z 2.3|hdg 1.1|pitch 8.3|roll 2.4|turns 0.49|feet BL 42 BR 100 FL 100 FR 47|slip 0.7|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s5: STALL 20|x 127.1|z 8.2|hdg -4.4|pitch 8.3|roll 2.5|turns 0.49|feet BL 100 FL 75 FR 93|slip 1.1|ground
+Hoecken-Spears_slider_steps5_off_1000_3840_s5: TQ Hoecken-Spears slider|iterations 1000|friction off|torque median 0.0056 p95 0.0246 max 0.2504|motor max 0.5000|speed 0.21-1.09
+Hoecken-Spears_slider_steps5_off_200_3840_s1: STALL 5|x 26.2|z 1.3|hdg 0.3|pitch 0.2|roll 0.3|turns 0.49|feet BL 25 BR 80 FL 78 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s1: STALL 20|x 135.9|z 5.3|hdg -0.3|pitch 8.6|roll 4.0|turns 0.49|feet BL 82 BR 80 FL 72 FR 37|slip 2.0|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s1: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0056 p95 0.0230 max 0.2528|motor max 0.5000|speed -2.45-1.24
+Hoecken-Spears_slider_steps5_off_200_3840_s2: STALL 5|x 20.3|z 0.7|hdg -3.4|pitch 6.6|roll 4.2|turns 0.49|feet BL 38 BR 63 FL 95 FR 67|slip 3.0|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s2: STALL 20|x 138.3|z 6.2|hdg -7.8|pitch 8.9|roll 2.8|turns 0.49|feet BL 100 BR 65 FL 73 FR 100|slip 1.2|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s2: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0057 p95 0.0239 max 0.2522|motor max 0.5000|speed 0.65-1.02
+Hoecken-Spears_slider_steps5_off_200_3840_s3: STALL 5|x 21.1|z -0.6|hdg 0.8|pitch 5.9|roll 3.7|turns 0.49|feet BL 27 BR 77 FL 77 FR 35|slip 1.8|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s3: STALL 20|x 134.5|z -9.1|hdg 10.3|pitch 1.6|roll 2.1|turns 0.49|feet BL 100 BR 28 FL 23 FR 100|slip 0.5|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s3: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0054 p95 0.0245 max 0.2505|motor max 0.5000|speed -0.02-1.07
+Hoecken-Spears_slider_steps5_off_200_3840_s4: STALL 5|x 28.7|z 1.3|hdg -2.0|pitch 8.6|roll 2.7|turns 0.49|feet BL 75 BR 70 FL 70 FR 65|slip 1.1|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s4: STALL 20|x 148.5|z 2.9|hdg -0.9|pitch 8.4|roll 0.6|turns 0.49|feet BL 100 BR 5 FL 2 FR 98|slip 0.8|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s4: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0057 p95 0.0227 max 0.2487|motor max 0.5000|speed 0.33-1.03
+Hoecken-Spears_slider_steps5_off_200_3840_s5: STALL 5|x 20.1|z 1.8|hdg 2.0|pitch 8.7|roll 2.4|turns 0.49|feet BL 43 BR 100 FL 100 FR 50|slip 0.8|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s5: STALL 20|x 136.9|z 9.0|hdg 0.9|pitch 8.4|roll 0.2|turns 0.49|feet BL 27 BR 77 FL 77 FR 27|slip 0.8|ground
+Hoecken-Spears_slider_steps5_off_200_3840_s5: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0058 p95 0.0241 max 0.2523|motor max 0.5000|speed 0.58-1.14
+Hoecken-Spears_slider_steps5_off_400_3840_s1: STALL 5|x 26.7|z 1.6|hdg -0.8|pitch 0.2|roll 0.3|turns 0.49|feet BL 27 BR 80 FL 77 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s1: STALL 20|x 107.7|z 6.4|hdg 1.1|pitch 6.5|roll 2.3|turns 0.49|feet BL 87 BR 42 FL 5 FR 97|slip 2.8|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s1: TQ Hoecken-Spears slider|iterations 400|friction off|torque median 0.0063 p95 0.0331 max 0.2656|motor max 0.5000|speed -3.43-1.34
+Hoecken-Spears_slider_steps5_off_400_3840_s2: STALL 5|x 20.3|z 0.9|hdg -2.0|pitch 6.6|roll 3.4|turns 0.49|feet BL 40 BR 62 FL 97 FR 65|slip 3.6|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s2: STALL 20|x 139.2|z 3.2|hdg -5.8|pitch 8.6|roll 2.7|turns 0.49|feet BL 100 BR 65 FL 70 FR 98|slip 1.1|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s2: TQ Hoecken-Spears slider|iterations 400|friction off|torque median 0.0058 p95 0.0228 max 0.2559|motor max 0.5000|speed 0.24-1.05
+Hoecken-Spears_slider_steps5_off_400_3840_s3: STALL 5|x 21.3|z -0.7|hdg 0.7|pitch 4.9|roll 2.5|turns 0.49|feet BL 57 BR 77 FL 70 FR 32|slip 1.5|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s3: STALL 20|x 135.0|z -8.3|hdg 9.6|pitch 1.3|roll 1.7|turns 0.49|feet BL 100 BR 25 FL 22 FR 100|slip 0.4|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s3: TQ Hoecken-Spears slider|iterations 400|friction off|torque median 0.0053 p95 0.0232 max 0.2515|motor max 0.5000|speed 0.48-1.07
+Hoecken-Spears_slider_steps5_off_400_3840_s4: STALL 5|x 28.6|z 1.3|hdg -1.9|pitch 8.4|roll 2.7|turns 0.49|feet BL 73 BR 70 FL 70 FR 65|slip 1.0|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s4: STALL 20|x 147.4|z 3.3|hdg -1.8|pitch 8.3|roll 0.4|turns 0.49|feet BL 98 BR 5 FL 2 FR 100|slip 0.7|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s4: TQ Hoecken-Spears slider|iterations 400|friction off|torque median 0.0057 p95 0.0232 max 0.2505|motor max 0.5000|speed 0.57-1.02
+Hoecken-Spears_slider_steps5_off_400_3840_s5: STALL 5|x 19.9|z 2.3|hdg 1.4|pitch 8.6|roll 2.4|turns 0.49|feet BL 43 BR 100 FL 100 FR 50|slip 1.0|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s5: STALL 20|x 126.6|z 8.5|hdg -3.8|pitch 8.6|roll 3.2|turns 0.49|feet BL 100 FL 75 FR 97|slip 1.4|ground
+Hoecken-Spears_slider_steps5_off_400_3840_s5: TQ Hoecken-Spears slider|iterations 400|friction off|torque median 0.0056 p95 0.0231 max 0.2511|motor max 0.5000|speed 0.16-1.12
+Hoecken-Spears_slider_steps5_on_1000_3840_s1: STALL 5|x 26.6|z 1.0|hdg 0.2|pitch 0.2|roll 0.3|turns 0.49|feet BL 25 BR 80 FL 77 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s1: STALL 20|x 136.3|z 10.5|hdg -6.3|pitch 6.7|roll 7.1|turns 0.49|feet BL 47 BR 80 FL 80 FR 25|slip 1.8|ground makeLink:BR 2
+Hoecken-Spears_slider_steps5_on_1000_3840_s1: TQ Hoecken-Spears slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0063 p95 0.0299 max 0.2628|motor max 0.5000|speed -1.36-1.23
+Hoecken-Spears_slider_steps5_on_1000_3840_s2: STALL 5|x 19.4|z 0.6|hdg -1.5|pitch 6.7|roll 2.7|turns 0.49|feet BL 40 BR 60 FL 98 FR 62|slip 3.7|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s2: STALL 20|x 136.1|z 2.7|hdg -6.5|pitch 5.1|roll 2.2|turns 0.49|feet BL 100 BR 5 FL 67 FR 100|slip 1.9|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s2: TQ Hoecken-Spears slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0067 p95 0.0270 max 0.2611|motor max 0.5000|speed -0.61-1.07
+Hoecken-Spears_slider_steps5_on_1000_3840_s3: STALL 5|x 23.3|z -0.4|hdg -0.1|pitch 0.5|roll 0.5|turns 0.49|feet BL 52 BR 82 FL 80 FR 20|slip 0.6|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s3: STALL 20|x 134.9|z -7.7|hdg 9.5|pitch 1.4|roll 1.3|turns 0.49|feet BL 98 BR 30 FL 20 FR 100|slip 0.5|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s3: TQ Hoecken-Spears slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0300 max 0.2570|motor max 0.5000|speed 0.27-1.11
+Hoecken-Spears_slider_steps5_on_1000_3840_s4: STALL 5|x 28.7|z 1.3|hdg -1.9|pitch 8.4|roll 2.7|turns 0.49|feet BL 73 BR 70 FL 70 FR 65|slip 1.1|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s4: STALL 20|x 145.4|z 0.7|hdg -357.8|pitch 8.4|roll 0.1|turns 0.49|feet BL 100 BR 3 FL 3 FR 100|slip 0.9|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s4: TQ Hoecken-Spears slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0064 p95 0.0283 max 0.2539|motor max 0.5000|speed -2.58-1.44
+Hoecken-Spears_slider_steps5_on_1000_3840_s5: STALL 5|x 20.0|z 2.2|hdg 0.8|pitch 8.3|roll 2.4|turns 0.49|feet BL 42 BR 100 FL 100 FR 47|slip 0.7|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s5: STALL 20|x 127.7|z 9.2|hdg -5.4|pitch 8.3|roll 2.5|turns 0.49|feet BL 100 BR 35 FL 75 FR 93|slip 1.0|ground
+Hoecken-Spears_slider_steps5_on_1000_3840_s5: TQ Hoecken-Spears slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0065 p95 0.0283 max 0.2601|motor max 0.5000|speed 0.04-1.08
+Hoecken-Spears_slider_steps5_on_200_3840_s1: STALL 5|x 26.6|z 1.0|hdg 0.3|pitch 0.3|roll 0.3|turns 0.49|feet BL 27 BR 80 FL 77 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s1: STALL 20|x 143.7|z 7.0|hdg 0.2|pitch 8.4|roll 0.2|turns 0.49|feet BL 93 BR 10 FL 8 FR 93|slip 0.8|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s1: TQ Hoecken-Spears slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0267 max 0.2546|motor max 0.5000|speed -4.56-1.49
+Hoecken-Spears_slider_steps5_on_200_3840_s2: STALL 5|x 19.9|z 0.5|hdg -2.3|pitch 6.6|roll 4.2|turns 0.49|feet BL 40 BR 60 FL 93 FR 67|slip 3.7|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s2: STALL 20|x 136.3|z 2.7|hdg -4.7|pitch 5.3|roll 2.7|turns 0.49|feet BL 100 BR 5 FL 67 FR 100|slip 2.0|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s2: TQ Hoecken-Spears slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0064 p95 0.0267 max 0.2519|motor max 0.5000|speed 0.59-1.03
+Hoecken-Spears_slider_steps5_on_200_3840_s3: STALL 5|x 20.8|z -0.8|hdg 1.0|pitch 4.9|roll 2.2|turns 0.49|feet BL 67 BR 75 FL 73 FR 33|slip 1.9|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s3: STALL 20|x 134.6|z -9.2|hdg 10.0|pitch 1.6|roll 2.1|turns 0.49|feet BL 100 BR 27 FL 20 FR 100|slip 0.5|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s3: TQ Hoecken-Spears slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0060 p95 0.0275 max 0.2520|motor max 0.5000|speed 0.17-1.08
+Hoecken-Spears_slider_steps5_on_200_3840_s4: STALL 5|x 28.7|z 1.2|hdg -1.8|pitch 8.6|roll 2.8|turns 0.49|feet BL 75 BR 70 FL 70 FR 65|slip 1.1|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s4: STALL 20|x 147.4|z 3.4|hdg -1.7|pitch 8.3|roll 0.4|turns 0.49|feet BL 98 BR 5 FL 2 FR 100|slip 0.7|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s4: TQ Hoecken-Spears slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0059 p95 0.0245 max 0.2556|motor max 0.5000|speed 0.50-1.02
+Hoecken-Spears_slider_steps5_on_200_3840_s5: STALL 5|x 19.7|z 2.0|hdg 1.4|pitch 8.7|roll 2.4|turns 0.49|feet BL 43 BR 100 FL 100 FR 50|slip 1.0|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s5: STALL 20|x 123.3|z 7.5|hdg -3.6|pitch 4.7|roll 3.7|turns 0.49|feet BL 100 BR 2 FL 65 FR 97|slip 2.2|ground
+Hoecken-Spears_slider_steps5_on_200_3840_s5: TQ Hoecken-Spears slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0065 p95 0.0254 max 0.2506|motor max 0.5000|speed 0.21-1.15
+Hoecken-Spears_slider_steps5_on_400_3840_s1: STALL 5|x 26.5|z 0.8|hdg 0.3|pitch 0.2|roll 0.3|turns 0.49|feet BL 27 BR 80 FL 77 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s1: STALL 20|x 137.5|z 6.9|hdg -1.3|pitch 8.3|roll 6.1|turns 0.49|feet BL 63 BR 73 FL 72 FR 32|slip 2.0|ground makeLink:BR 10
+Hoecken-Spears_slider_steps5_on_400_3840_s1: TQ Hoecken-Spears slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0283 max 0.2626|motor max 0.5000|speed -0.67-1.11
+Hoecken-Spears_slider_steps5_on_400_3840_s2: STALL 5|x 20.1|z 0.6|hdg -2.1|pitch 6.6|roll 3.4|turns 0.49|feet BL 40 BR 62 FL 97 FR 65|slip 3.7|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s2: STALL 20|x 137.9|z 5.8|hdg -10.5|pitch 8.4|roll 2.8|turns 0.49|feet BL 100 BR 75 FL 67 FR 98|slip 1.6|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s2: TQ Hoecken-Spears slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0065 p95 0.0278 max 0.2603|motor max 0.5000|speed 0.27-1.05
+Hoecken-Spears_slider_steps5_on_400_3840_s3: STALL 5|x 21.4|z -0.6|hdg 0.5|pitch 4.7|roll 2.4|turns 0.49|feet BL 47 BR 78 FL 72 FR 32|slip 2.0|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s3: STALL 20|x 134.9|z -7.1|hdg 8.8|pitch 1.3|roll 1.7|turns 0.49|feet BL 100 BR 25 FL 22 FR 100|slip 0.4|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s3: TQ Hoecken-Spears slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0060 p95 0.0262 max 0.2506|motor max 0.5000|speed 0.45-1.07
+Hoecken-Spears_slider_steps5_on_400_3840_s4: STALL 5|x 28.6|z 1.3|hdg -2.0|pitch 8.4|roll 2.7|turns 0.49|feet BL 73 BR 70 FL 70 FR 65|slip 1.0|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s4: STALL 20|x 147.2|z 3.7|hdg -1.8|pitch 8.3|roll 0.3|turns 0.49|feet BL 98 BR 5 FL 2 FR 98|slip 0.7|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s4: TQ Hoecken-Spears slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0062 p95 0.0243 max 0.2547|motor max 0.5000|speed 0.34-1.03
+Hoecken-Spears_slider_steps5_on_400_3840_s5: STALL 5|x 19.8|z 2.3|hdg 1.4|pitch 8.6|roll 2.4|turns 0.49|feet BL 43 BR 100 FL 100 FR 50|slip 0.9|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s5: STALL 20|x 126.5|z 8.6|hdg -4.3|pitch 8.5|roll 3.2|turns 0.49|feet BL 100 FL 73 FR 97|slip 1.5|ground
+Hoecken-Spears_slider_steps5_on_400_3840_s5: TQ Hoecken-Spears slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0061 p95 0.0257 max 0.2533|motor max 0.5000|speed 0.35-1.12
+Hoecken_slider_steps5_off_1000_3840_s1: STALL 5|x 2.6|z 2.4|hdg -6.2|pitch 7.4|roll 3.9|turns 0.36|feet BL 100 BR 27 FL 58 FR 95|slip 4.3|ground
+Hoecken_slider_steps5_off_1000_3840_s1: STALL 20|x 101.6|z 14.1|hdg 3.7|pitch 6.6|roll 3.5|turns 0.36|feet BL 33 BR 97 FL 98 FR 47|slip 2.1|ground
+Hoecken_slider_steps5_off_1000_3840_s1: TQ Hoecken slider|iterations 1000|friction off|torque median 0.0075 p95 0.0455 max 0.2511|motor max 0.5000|speed 0.33-1.03
+Hoecken_slider_steps5_off_1000_3840_s2: STALL 5|x 18.9|z -0.8|hdg 0.5|pitch 4.0|roll 4.7|turns 0.36|feet BL 97 BR 8 FL 52 FR 100|slip 3.3|ground
+Hoecken_slider_steps5_off_1000_3840_s2: STALL 20|x 124.7|z -4.8|hdg 0.0|pitch 6.4|roll 1.1|turns 0.36|feet BR 100 FL 100 FR 57|slip 1.9|ground
+Hoecken_slider_steps5_off_1000_3840_s2: TQ Hoecken slider|iterations 1000|friction off|torque median 0.0075 p95 0.0337 max 0.2508|motor max 0.5000|speed 0.46-1.03
+Hoecken_slider_steps5_off_1000_3840_s3: STALL 5|x 19.0|z -0.1|hdg 358.9|pitch 7.2|roll 5.1|turns 0.36|feet BL 100 FL 62 FR 100|slip 4.7|ground
+Hoecken_slider_steps5_off_1000_3840_s3: STALL 20|x 120.9|z -1.3|hdg 8.2|pitch 8.3|roll 0.4|turns 0.36|feet BL 60 BR 48 FL 100 FR 65|slip 2.8|ground
+Hoecken_slider_steps5_off_1000_3840_s3: TQ Hoecken slider|iterations 1000|friction off|torque median 0.0071 p95 0.0356 max 0.2553|motor max 0.5000|speed 0.65-1.03
+Hoecken_slider_steps5_off_1000_3840_s4: STALL 5|x 28.5|z -0.5|hdg -358.4|pitch 8.2|roll 0.5|turns 0.36|feet BL 100 BR 28 FR 100|slip 0.5|ground
+Hoecken_slider_steps5_off_1000_3840_s4: STALL 20|x 140.7|z -6.0|hdg -357.5|pitch 8.2|roll 0.1|turns 0.37|feet BL 35 BR 100 FL 100|slip 0.5|ground
+Hoecken_slider_steps5_off_1000_3840_s4: TQ Hoecken slider|iterations 1000|friction off|torque median 0.0074 p95 0.0335 max 0.2518|motor max 0.5000|speed 0.33-1.14
+Hoecken_slider_steps5_off_1000_3840_s5: STALL 5|x 12.7|z -0.6|hdg -6.7|pitch 8.5|roll 3.0|turns 0.36|feet BL 100 BR 43 FL 55 FR 100|slip 2.0|ground
+Hoecken_slider_steps5_off_1000_3840_s5: STALL 20|x 68.7|z 6.9|hdg -3.5|pitch 5.6|roll 5.5|turns 0.36|feet BL 68 BR 33 FL 78 FR 68|slip 2.4|ground
+Hoecken_slider_steps5_off_1000_3840_s5: TQ Hoecken slider|iterations 1000|friction off|torque median 0.0074 p95 0.0562 max 0.2499|motor max 0.5000|speed 0.24-1.04
+Hoecken_slider_steps5_off_200_3840_s1: STALL 5|x 20.2|z 1.5|hdg -2.5|pitch 0.4|roll 0.5|turns 0.36|feet BL 100 BR 15 FR 100|slip 0.2|ground
+Hoecken_slider_steps5_off_200_3840_s1: STALL 20|x 95.2|z 8.5|hdg -4.3|pitch 8.4|roll 0.4|turns 0.36|feet BL 80 BR 27 FL 87 FR 80|slip 2.4|ground
+Hoecken_slider_steps5_off_200_3840_s1: TQ Hoecken slider|iterations 200|friction off|torque median 0.0090 p95 0.0505 max 0.2500|motor max 0.5000|speed -1.57-1.26
+Hoecken_slider_steps5_off_200_3840_s2: STALL 5|x 19.3|z -0.3|hdg 1.7|pitch 5.8|roll 6.6|turns 0.36|feet BL 100 BR 42 FL 68 FR 62|slip 3.7|ground
+Hoecken_slider_steps5_off_200_3840_s2: STALL 20|x 128.0|z -4.6|hdg 1.5|pitch 3.6|roll 2.0|turns 0.36|feet BL 50 BR 100 FL 63 FR 60|slip 2.1|ground
+Hoecken_slider_steps5_off_200_3840_s2: TQ Hoecken slider|iterations 200|friction off|torque median 0.0083 p95 0.0335 max 0.2496|motor max 0.5000|speed -0.69-1.09
+Hoecken_slider_steps5_off_200_3840_s3: STALL 5|x 20.4|z 0.5|hdg 357.7|pitch 6.6|roll 4.1|turns 0.36|feet BL 100 BR 13 FL 40 FR 100|slip 1.4|ground
+Hoecken_slider_steps5_off_200_3840_s3: STALL 20|x 120.8|z 2.1|hdg 18.0|pitch 8.4|roll 0.3|turns 0.36|feet BL 65 BR 42 FL 42 FR 70|slip 2.1|ground
+Hoecken_slider_steps5_off_200_3840_s3: TQ Hoecken slider|iterations 200|friction off|torque median 0.0080 p95 0.0332 max 0.2410|motor max 0.5000|speed 0.50-1.07
+Hoecken_slider_steps5_off_200_3840_s4: STALL 5|x 28.4|z -0.7|hdg -357.8|pitch 8.2|roll 0.5|turns 0.36|feet BL 100 BR 27 FR 100|slip 0.4|ground
+Hoecken_slider_steps5_off_200_3840_s4: STALL 20|x 119.7|z -2.8|hdg -0.1|pitch 5.4|roll 5.6|turns 0.36|feet BL 82 BR 20 FL 65 FR 83|slip 2.4|ground
+Hoecken_slider_steps5_off_200_3840_s4: TQ Hoecken slider|iterations 200|friction off|torque median 0.0080 p95 0.0377 max 0.2508|motor max 0.5000|speed -1.70-1.23
+Hoecken_slider_steps5_off_200_3840_s5: STALL 5|x 14.8|z -0.7|hdg -7.0|pitch 8.6|roll 2.9|turns 0.36|feet BL 100 BR 53 FL 58 FR 100|slip 2.2|ground
+Hoecken_slider_steps5_off_200_3840_s5: STALL 20|x 116.5|z 7.8|hdg -10.2|pitch 4.4|roll 2.1|turns 0.36|feet BR 100 FL 100 FR 62|slip 2.0|ground
+Hoecken_slider_steps5_off_200_3840_s5: TQ Hoecken slider|iterations 200|friction off|torque median 0.0080 p95 0.0381 max 0.2469|motor max 0.5000|speed 0.33-1.06
+Hoecken_slider_steps5_off_400_3840_s1: STALL 5|x 19.2|z 2.0|hdg -2.7|pitch 0.4|roll 0.6|turns 0.36|feet BL 100 BR 12 FR 100|slip 0.2|ground
+Hoecken_slider_steps5_off_400_3840_s1: STALL 20|x 113.7|z 11.9|hdg -9.0|pitch 1.6|roll 2.2|turns 0.37|feet BL 13 BR 100 FL 100 FR 2|slip 0.4|ground
+Hoecken_slider_steps5_off_400_3840_s1: TQ Hoecken slider|iterations 400|friction off|torque median 0.0079 p95 0.0377 max 0.2502|motor max 0.5000|speed -0.27-1.13
+Hoecken_slider_steps5_off_400_3840_s2: STALL 5|x 20.7|z -0.4|hdg 0.5|pitch 5.0|roll 3.3|turns 0.36|feet BL 100 FL 57 FR 100|slip 1.8|ground
+Hoecken_slider_steps5_off_400_3840_s2: STALL 20|x 128.5|z 2.0|hdg 358.7|pitch 2.2|roll 2.0|turns 0.36|feet BL 55 BR 100 FL 45 FR 63|slip 2.1|ground
+Hoecken_slider_steps5_off_400_3840_s2: TQ Hoecken slider|iterations 400|friction off|torque median 0.0078 p95 0.0345 max 0.2508|motor max 0.5000|speed -0.48-1.16
+Hoecken_slider_steps5_off_400_3840_s3: STALL 5|x 20.2|z 0.5|hdg 357.2|pitch 6.6|roll 3.8|turns 0.36|feet BL 100 BR 20 FL 38 FR 100|slip 1.3|ground
+Hoecken_slider_steps5_off_400_3840_s3: STALL 20|x 107.7|z 1.8|hdg 12.9|pitch 8.5|roll 0.3|turns 0.36|feet BL 68 BR 38 FL 38 FR 70|slip 1.4|ground
+Hoecken_slider_steps5_off_400_3840_s3: TQ Hoecken slider|iterations 400|friction off|torque median 0.0069 p95 0.0348 max 0.2441|motor max 0.5000|speed -2.71-1.50
+Hoecken_slider_steps5_off_400_3840_s4: STALL 5|x 28.3|z -0.6|hdg -358.2|pitch 8.2|roll 0.9|turns 0.36|feet BL 100 BR 30 FR 100|slip 0.6|ground
+Hoecken_slider_steps5_off_400_3840_s4: STALL 20|x 134.9|z 0.0|hdg -0.3|pitch 8.4|roll 0.3|turns 0.37|feet BL 42 BR 93 FL 93 FR 12|slip 2.0|ground
+Hoecken_slider_steps5_off_400_3840_s4: TQ Hoecken slider|iterations 400|friction off|torque median 0.0075 p95 0.0355 max 0.2521|motor max 0.5000|speed -2.70-1.55
+Hoecken_slider_steps5_off_400_3840_s5: STALL 5|x 13.3|z -0.5|hdg -6.1|pitch 8.5|roll 2.9|turns 0.36|feet BL 100 BR 45 FL 55 FR 100|slip 1.9|ground
+Hoecken_slider_steps5_off_400_3840_s5: STALL 20|x 118.5|z 0.6|hdg -8.2|pitch 4.6|roll 2.1|turns 0.36|feet BR 100 FL 100 FR 57|slip 1.6|ground
+Hoecken_slider_steps5_off_400_3840_s5: TQ Hoecken slider|iterations 400|friction off|torque median 0.0078 p95 0.0333 max 0.2506|motor max 0.5000|speed 0.35-1.04
+Hoecken_slider_steps5_on_1000_3840_s1: STALL 5|x 1.4|z 2.3|hdg -6.7|pitch 8.4|roll 4.9|turns 0.36|feet BL 100 BR 28 FL 65 FR 93|slip 4.5|ground
+Hoecken_slider_steps5_on_1000_3840_s1: STALL 20|x 65.2|z 16.5|hdg -7.2|pitch 3.6|roll 8.3|turns 0.36|feet BL 72 BR 100 FL 30 FR 87|slip 3.9|ground
+Hoecken_slider_steps5_on_1000_3840_s1: TQ Hoecken slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0080 p95 0.0716 max 0.2508|motor max 0.5000|speed -0.67-1.47
+Hoecken_slider_steps5_on_1000_3840_s2: STALL 5|x 19.2|z -0.6|hdg 0.3|pitch 4.0|roll 4.6|turns 0.36|feet BL 95 BR 7 FL 52 FR 100|slip 3.0|ground
+Hoecken_slider_steps5_on_1000_3840_s2: STALL 20|x 128.9|z -3.3|hdg 1.0|pitch 3.6|roll 1.9|turns 0.36|feet BL 40 BR 98 FL 100 FR 58|slip 1.9|ground
+Hoecken_slider_steps5_on_1000_3840_s2: TQ Hoecken slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0079 p95 0.0355 max 0.2505|motor max 0.5000|speed 0.52-1.03
+Hoecken_slider_steps5_on_1000_3840_s3: STALL 5|x 20.2|z 0.5|hdg 356.9|pitch 6.8|roll 3.8|turns 0.36|feet BL 100 BR 25 FL 40 FR 100|slip 1.1|ground
+Hoecken_slider_steps5_on_1000_3840_s3: STALL 20|x 107.7|z 4.9|hdg 3.6|pitch 8.5|roll 2.4|turns 0.36|feet BL 63 BR 43 FL 42 FR 63|slip 1.7|ground
+Hoecken_slider_steps5_on_1000_3840_s3: TQ Hoecken slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0077 p95 0.0432 max 0.2525|motor max 0.5000|speed -0.08-1.19
+Hoecken_slider_steps5_on_1000_3840_s4: STALL 5|x 28.6|z -0.5|hdg -358.3|pitch 8.2|roll 0.4|turns 0.36|feet BL 100 BR 28 FR 100|slip 0.4|ground
+Hoecken_slider_steps5_on_1000_3840_s4: STALL 20|x 129.8|z -0.9|hdg -359.2|pitch 8.3|roll 3.7|turns 0.37|feet BL 98 BR 42 FL 30 FR 95|slip 1.3|ground
+Hoecken_slider_steps5_on_1000_3840_s4: TQ Hoecken slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0084 p95 0.1144 max 0.2556|motor max 0.5000|speed -0.47-1.65
+Hoecken_slider_steps5_on_1000_3840_s5: STALL 5|x 13.2|z -0.8|hdg -5.6|pitch 8.4|roll 2.9|turns 0.36|feet BL 100 BR 47 FL 57 FR 100|slip 1.9|ground
+Hoecken_slider_steps5_on_1000_3840_s5: STALL 20|x 89.9|z 5.5|hdg -1.2|pitch 8.2|roll 0.0|turns 0.37|feet BR 100 FL 100|slip 0.1|ground
+Hoecken_slider_steps5_on_1000_3840_s5: TQ Hoecken slider|iterations 1000|friction mu 0.10 pin 0.25|torque median 0.0081 p95 0.0627 max 0.2500|motor max 0.5000|speed 0.11-1.09
+Hoecken_slider_steps5_on_200_3840_s1: STALL 5|x 19.9|z 1.5|hdg -3.1|pitch 0.4|roll 0.5|turns 0.36|feet BL 100 BR 15 FR 100|slip 0.2|ground
+Hoecken_slider_steps5_on_200_3840_s1: STALL 20|x 112.9|z 11.6|hdg -9.0|pitch 2.2|roll 2.8|turns 0.37|feet BL 20 BR 100 FL 100 FR 3|slip 0.8|ground
+Hoecken_slider_steps5_on_200_3840_s1: TQ Hoecken slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0083 p95 0.0427 max 0.2495|motor max 0.5000|speed -0.17-1.13
+Hoecken_slider_steps5_on_200_3840_s2: STALL 5|x 19.8|z -0.3|hdg 0.4|pitch 4.7|roll 4.1|turns 0.36|feet BL 100 FL 55 FR 100|slip 1.7|ground
+Hoecken_slider_steps5_on_200_3840_s2: STALL 20|x 128.1|z 0.0|hdg 0.4|pitch 2.2|roll 2.0|turns 0.36|feet BL 57 BR 100 FL 45 FR 67|slip 2.2|ground
+Hoecken_slider_steps5_on_200_3840_s2: TQ Hoecken slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0086 p95 0.0373 max 0.2497|motor max 0.5000|speed -0.09-1.14
+Hoecken_slider_steps5_on_200_3840_s3: STALL 5|x 20.0|z 0.8|hdg 357.4|pitch 6.5|roll 3.6|turns 0.36|feet BL 100 BR 22 FL 38 FR 100|slip 1.2|ground
+Hoecken_slider_steps5_on_200_3840_s3: STALL 20|x 108.6|z 5.9|hdg 9.8|pitch 8.4|roll 0.2|turns 0.36|feet BL 68 BR 38 FL 38 FR 68|slip 1.4|ground
+Hoecken_slider_steps5_on_200_3840_s3: TQ Hoecken slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0083 p95 0.0387 max 0.2423|motor max 0.5000|speed -0.42-1.16
+Hoecken_slider_steps5_on_200_3840_s4: STALL 5|x 28.3|z -0.7|hdg -358.0|pitch 8.2|roll 0.7|turns 0.36|feet BL 100 BR 28 FR 100|slip 0.5|ground
+Hoecken_slider_steps5_on_200_3840_s4: STALL 20|x 122.3|z 0.2|hdg -1.4|pitch 6.2|roll 5.6|turns 0.36|feet BL 78 BR 23 FL 68 FR 78|slip 2.3|ground
+Hoecken_slider_steps5_on_200_3840_s4: TQ Hoecken slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0082 p95 0.0430 max 0.2509|motor max 0.5000|speed -0.72-1.17
+Hoecken_slider_steps5_on_200_3840_s5: STALL 5|x 13.3|z -0.6|hdg -5.7|pitch 8.5|roll 2.9|turns 0.36|feet BL 100 BR 48 FL 58 FR 100|slip 2.0|ground
+Hoecken_slider_steps5_on_200_3840_s5: STALL 20|x 118.5|z 0.9|hdg -8.9|pitch 4.6|roll 2.3|turns 0.36|feet BR 100 FL 100 FR 60|slip 1.7|ground
+Hoecken_slider_steps5_on_200_3840_s5: TQ Hoecken slider|iterations 200|friction mu 0.10 pin 0.25|torque median 0.0082 p95 0.0335 max 0.2486|motor max 0.5000|speed 0.34-1.06
+Hoecken_slider_steps5_on_400_3840_s1: STALL 5|x 18.1|z 1.1|hdg -4.1|pitch 2.2|roll 2.9|turns 0.36|feet BL 100 FR 100|slip 0.3|ground
+Hoecken_slider_steps5_on_400_3840_s1: STALL 20|x 95.7|z 8.4|hdg -1.3|pitch 8.4|roll 0.2|turns 0.36|feet BL 80 BR 27 FL 78 FR 80|slip 2.1|ground
+Hoecken_slider_steps5_on_400_3840_s1: TQ Hoecken slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0086 p95 0.0588 max 0.2502|motor max 0.5000|speed -0.99-1.20
+Hoecken_slider_steps5_on_400_3840_s2: STALL 5|x 20.4|z -0.1|hdg 0.2|pitch 5.1|roll 6.7|turns 0.36|feet BL 100 BR 27 FL 55 FR 72|slip 3.3|ground
+Hoecken_slider_steps5_on_400_3840_s2: STALL 20|x 128.5|z 2.5|hdg 358.8|pitch 2.3|roll 2.0|turns 0.36|feet BL 53 BR 100 FL 48 FR 63|slip 1.9|ground
+Hoecken_slider_steps5_on_400_3840_s2: TQ Hoecken slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0081 p95 0.0377 max 0.2497|motor max 0.5000|speed -0.16-1.10
+Hoecken_slider_steps5_on_400_3840_s3: STALL 5|x 14.8|z 1.4|hdg 356.4|pitch 7.3|roll 3.3|turns 0.36|feet BL 93 BR 40 FL 48 FR 97|slip 5.3|ground
+Hoecken_slider_steps5_on_400_3840_s3: STALL 20|x 94.6|z 5.3|hdg 9.4|pitch 8.2|roll 5.7|turns 0.37|feet BR 100 FL 98 FR 8|slip 1.4|ground
+Hoecken_slider_steps5_on_400_3840_s3: TQ Hoecken slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0078 p95 0.0482 max 0.2503|motor max 0.5000|speed -0.41-1.19
+Hoecken_slider_steps5_on_400_3840_s4: STALL 5|x 28.3|z -0.7|hdg -357.9|pitch 8.2|roll 0.8|turns 0.36|feet BL 100 BR 30 FR 100|slip 0.5|ground
+Hoecken_slider_steps5_on_400_3840_s4: STALL 20|x 141.1|z -13.4|hdg -353.8|pitch 8.2|roll 1.3|turns 0.37|feet BL 43 BR 100 FL 100|slip 0.9|ground
+Hoecken_slider_steps5_on_400_3840_s4: TQ Hoecken slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0080 p95 0.0365 max 0.2516|motor max 0.5000|speed -0.24-1.40
+Hoecken_slider_steps5_on_400_3840_s5: STALL 5|x 11.6|z -0.8|hdg -7.3|pitch 8.5|roll 3.1|turns 0.36|feet BL 100 BR 48 FL 57 FR 100|slip 2.1|ground
+Hoecken_slider_steps5_on_400_3840_s5: STALL 20|x 112.4|z 9.2|hdg -2.3|pitch 2.1|roll 0.9|turns 0.37|feet BL 43 BR 100 FL 58 FR 52|slip 1.2|ground
+Hoecken_slider_steps5_on_400_3840_s5: TQ Hoecken slider|iterations 400|friction mu 0.10 pin 0.25|torque median 0.0080 p95 0.0378 max 0.2505|motor max 0.5000|speed 0.06-1.14

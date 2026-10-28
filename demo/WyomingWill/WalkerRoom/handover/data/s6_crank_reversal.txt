@@ -1,0 +1,26 @@
+== Klann: feet 4, cranks 4, foot->crank [1, 2, 3, 4]
+  band mono (lowest 15% of height, as the report): foot1 0.835  foot2 0.857  foot3 0.861  foot4 0.837
+  sim mono (share of ground frames the foot moves backward): foot1 0.674  foot2 0.800  foot3 0.854  foot4 0.784
+  frames with a crank turning backwards: 7 of 1081 (0.6%); of those, with a planted foot in its forward-moving part: 7 (100%)
+  all frames with a planted foot in its forward-moving part: 388 (35.9%)
+   t   2.87: backwards feet' cranks [4] at {4: 308}; planted feet moving forward [4]
+   t   6.18: backwards feet' cranks [4] at {4: 308}; planted feet moving forward [4]
+   t   7.85: backwards feet' cranks [3] at {3: 307}; planted feet moving forward [3]
+   t  11.17: backwards feet' cranks [3] at {3: 307}; planted feet moving forward [3]
+   t  12.83: backwards feet' cranks [4] at {4: 308}; planted feet moving forward [4]
+   t  16.15: backwards feet' cranks [4] at {4: 308}; planted feet moving forward [4]
+   t  19.47: backwards feet' cranks [4] at {4: 308}; planted feet moving forward [4]
+== Spears4: feet 4, cranks 4, foot->crank [1, 2, 3, 4]
+  band mono (lowest 15% of height, as the report): foot1 0.724  foot2 0.725  foot3 0.729  foot4 0.719
+  sim mono (share of ground frames the foot moves backward): foot1 0.771  foot2 0.816  foot3 0.776  foot4 0.651
+  frames with a crank turning backwards: 4 of 1081 (0.4%); of those, with a planted foot in its forward-moving part: 4 (100%)
+  all frames with a planted foot in its forward-moving part: 400 (37.0%)
+   t   2.60: backwards feet' cranks [1] at {1: 170}; planted feet moving forward [1]
+   t   5.57: backwards feet' cranks [1] at {1: 170}; planted feet moving forward [1]
+   t  12.93: backwards feet' cranks [3] at {3: 167}; planted feet moving forward [3]
+   t  17.42: backwards feet' cranks [1] at {1: 170}; planted feet moving forward [1]
+== Jansen: feet 4, cranks 4, foot->crank [1, 2, 3, 4]
+  band mono (lowest 15% of height, as the report): foot1 0.974  foot2 0.972  foot3 0.972  foot4 0.972
+  sim mono (share of ground frames the foot moves backward): foot1 1.000  foot2 1.000  foot3 1.000  foot4 1.000
+  frames with a crank turning backwards: 0 of 1081 (0.0%); of those, with a planted foot in its forward-moving part: 0 (0%)
+  all frames with a planted foot in its forward-moving part: 0 (0.0%)
