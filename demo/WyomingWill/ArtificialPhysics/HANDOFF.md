@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F89 so far), and
+  implementations, and our own mistakes once corrected (F1–F90 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -421,9 +421,13 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        lag to 0.9 s) when KT keeps its own velocities; colliding the
        sensed velocities freezes the gas. The drones collide in mid-air
        (40 of 100 down by 300 s): KT needs collision avoidance under it,
-       which Kerr assumes but does not give. **Next decision for William:** which
-       avoidance (a short-range repulsion under the KT command, or a
-       larger virtual collision range).
+       which Kerr assumes but does not give.
+     - **Separating collisions (option C, William 2026-10-28; F90):**
+       `couette.lua`'s `separate` and `range` (Lua only; defaults are the
+       model). At range 5 units (2.5 m, from the drone's lag) 100 drones
+       keep 92% of the ideal profile and lose 8–10 in 2,000 s (40 in
+       300 s before). **Open for William:** a short-range bumper under
+       the KT command for the slow pairs that still touch.
 - **The seven theses** (Heil, Hettiarachchi, Kerr, Kunkel, Maxim,
   Rebguns, Zarzhitsky) were attached by William on 2026-10-28; they stay
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is

@@ -1002,6 +1002,22 @@ collisions, not the lag. Kerr assumes "the robots have low-level routines
 that prevent actual collisions" (thesis, printed p. 37) but gives none;
 the drones show that assumption is needed. Which routine to add is open.
 
+**F90. Separating collisions keep kinetic theory pure and save most of
+the drones** — 2026-10-28, New. `ch04/README.md`, `checks/ch04_couette.lua`.
+William's choice for F89: every collision keeps its random angle but
+ends with the pair moving apart (the new relative velocity flipped if it
+would close them), conserving momentum and energy and adding no force;
+the collision range is set by the drone's lag (closing speed ~2.8 m/s ×
+lag ~0.65 s + airframe ≈ 2.3 m = 5 units, against the model's 1 m).
+100 drones, 2,000 s of flight: slope 0.905–0.908 × V/6 (the ideal
+vehicle at the same settings 0.980–0.986), 8–10 lost; at the model's
+range 0.77–0.79 and 17–27 lost; with the model's random collisions
+0.18–0.21 and 40 lost in the first 300 s. The rest: slow pairs (a
+separating collision gives back the pair's own relative speed, so a pair
+drifting together at 0.46 m/s was told to part at 0.09 m/s and touched),
+and two failures with no neighbour within 1.5 m when they registered (not
+determined). A short-range bumper would catch the slow pairs; open.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

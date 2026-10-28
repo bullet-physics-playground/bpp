@@ -86,6 +86,26 @@ end
 check("the default wall is Kerr's (inward; William, 2026-10-28)", C.new({ n = 1 }).inward == true and C.new({ n = 1, inward = false }).inward == false,
   "inward unless o.inward = false")
 
+-- separating collisions (F90): two particles 1 apart, approaching, away
+-- from the walls; every collision must leave them separating, with the
+-- momentum and the relative speed kept
+do
+  local okAll, worst = true, 0
+  for k = 1, 200 do
+    local m = C.new({ n = 2, V = 0, T = 0.01, seed = k, separate = true })
+    m.x[1], m.y[1], m.x[2], m.y[2] = 0, 0, 1, 0
+    m.vx[1], m.vy[1], m.vx[2], m.vy[2] = 0.3, 0.1, -0.2, 0.05
+    C.collide(m)
+    local px, py = m.vx[1] + m.vx[2], m.vy[1] + m.vy[2]
+    local rel = math.sqrt((m.vx[2] - m.vx[1]) ^ 2 + (m.vy[2] - m.vy[1]) ^ 2)
+    local closing = (m.vx[2] - m.vx[1]) * 1 + (m.vy[2] - m.vy[1]) * 0
+    worst = math.max(worst, math.abs(px - 0.1), math.abs(py - 0.15), math.abs(rel - math.sqrt(0.25 + 0.0025)))
+    if closing < 0 then okAll = false end
+  end
+  check("F90: separating collisions end apart, momentum and |v_rel| kept", okAll and worst < 1e-12,
+    string.format("200 collisions, largest error %.1e", worst))
+end
+
 -- 2 and 3. Fig. 4.23 at V = 1
 local function fig423(inward)
   local m = C.new({ V = 1, T = 0.01, seed = 1, inward = inward })

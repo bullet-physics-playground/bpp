@@ -290,7 +290,7 @@ V 1.0, T 0.010.
 | `couette.lua` | The model (the world, the step, the 13-column histogram, compute-stats, Resample), with two switches of ours: `split` (measures, changes nothing) and `inward` (below) |
 | `couette1.c` | The same model in C, about 200 times faster, for the long runs: the same random numbers in the same order, so the same numbers to the last bit (checked on Lua 5.1, 5.2, 5.3 and 5.4) |
 | `couette1_reference.txt` | Two short runs of the C, which the check repeats in Lua |
-| `../checks/ch04_couette.lua` | 10 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
+| `../checks/ch04_couette.lua` | 11 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
 | `Couette-Vehicles.lua` | The model flown by vehicles through velocity commands (G4; below), on any vehicle with `velocity()` |
 
 **Where the book's text is silent, the `.nlogo` decides:** a world of
@@ -472,9 +472,46 @@ velocity at sensing over the mean commanded speed.
   but gives none; KT on drones needs one. Which (a short-range repulsion under the
   KT command, or a larger virtual collision range) is the next decision.
 
+### Separating collisions for the drones (option C, FINDINGS F90)
+
+William's choice (2026-10-28) among the remedies for the drones' crashes:
+keep kinetic theory pure and make every collision end with the pair
+moving apart. `couette.lua`'s `separate` keeps the random collision angle
+but flips the new relative velocity if it would close the pair, which
+keeps momentum and relative speed (so energy) exactly, as before, and
+adds no force; `range` is the collision distance. The range follows from
+the drone: after a collision two drones keep closing for about their
+closing speed (~2.8 m/s here) × their velocity-mode lag (~0.65 s) ≈
+1.8 m, plus ~0.5 m of airframe, so ~2.3 m = 5 units; the model's is 2
+units (1 m). N 100, `.nlogo` walls, 10,000 ticks (Resample at 5,000),
+seeds 1–2:
+
+| Collisions | Range | Drones: slope / (V/6) | corr | Drones lost | Ideal: slope / (V/6) |
+| --- | --- | --- | --- | --- | --- |
+| random (`kt.nlogo`) | 2 (1 m) | 0.184, 0.208 | 0.90–0.96 | 40 by tick 1,500 | 0.911, 0.940 |
+| separating | 2 (1 m) | 0.766, 0.793 | 0.979–0.985 | 17, 27 | 0.927, 0.898 |
+| separating | 5 (2.5 m) | 0.908, 0.905 | 0.994–0.996 | 8, 10 | 0.980, 0.986 |
+
+- **Separating collisions save most of the drones and most of the
+  profile:** at the range the lag calls for, the drones carry 92% of the
+  ideal vehicle's slope (corr 0.994–0.996) and lose 8–10 of 100 in
+  2,000 s of flight, against 40 in the first 300 s with the model's
+  collisions.
+- **They change the gas a little:** the ideal vehicle's slope rises from
+  0.90–0.93 to 0.98–0.99 × V/6 at range 5 (more collisions per agent:
+  F86's density effect).
+- **What is left** (seed 1, range 5, 1,200 s: 4 drones down): a pair that
+  drifted together at 0.46 m/s and were told to part at only 0.09 m/s (a
+  separating collision returns the pair's own relative speed, so slow
+  pairs part slowly, and the lag lets them touch); and two drones that
+  failed with no neighbour closer than 1.5 m when the failure registered
+  (0.25 s past 65° tilt; perhaps struck and bounced away, not
+  determined). The slow pair is what a short-range bumper (option A)
+  would catch; whether to add one is open.
+
 ### Not done
 
-Collision avoidance under KT for the drones (above); the boats (they
+A bumper under KT for the last drone losses (above); the boats (they
 have `velocity()`; at 0.79 m/s the model's V must be scaled down) and the
 ground robots (no `velocity()` yet). ★ 3D (a slab between two planes) is
 open.

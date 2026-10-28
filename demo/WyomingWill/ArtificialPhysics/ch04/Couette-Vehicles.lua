@@ -47,6 +47,12 @@
 --               = kt.nlogo's wall (the runs in ch04/README.md used false)
 --   senseVelocity  collide the vehicles' sensed velocities instead of
 --               KT's own (above); false = KT's own
+--   separate    collisions always end with the pair moving apart (the
+--               random angle's relative velocity flipped if it would
+--               close them; ch04/couette.lua, F90); false = kt.nlogo's
+--   collisionRange  the collision distance, units (2 = kt.nlogo's)
+--   lost        vehicles that failed (drones: prop strike or tilt
+--               failsafe), at the end
 --   apHz, metersPerUnit  the KT rate (Hz) and the scale (m per unit)
 --   resampleAt  KT ticks after which the profile restarts (Resample)
 --   slope, corr the 13 bars' least-squares slope (units/tick per column)
@@ -57,12 +63,14 @@
 --               from what the last tick asked (0 for the ideal vehicle)
 --   crossed     vehicles that came out at the other wall (per 1000 ticks)
 --   result line (printed every 1000 ticks and at the end):
---     COUETTE vehicle=... n=... V=... T=... inward=... sense=... ticks=... slope=...
---     ratio=... corr=... speed=... lag=... crossed=...
+--     COUETTE vehicle=... n=... V=... T=... inward=... sense=... separate=...
+--     range=... ticks=... slope=... ratio=... corr=... speed=... lag=...
+--     crossed=... lost=...
 --
 -- Run (headless), from the ArtificialPhysics folder:
 --   VEHICLE=lib.pointmass KT_N=1000 KT_TICKS=10000 bpp -f ch04/Couette-Vehicles.lua -n 62600
---   (KT_N, KT_V, KT_T, KT_INWARD, KT_SENSE, KT_TICKS, KT_LAG set the parameters
+--   (KT_N, KT_V, KT_T, KT_INWARD, KT_SENSE, KT_SEPARATE, KT_RANGE, KT_TICKS,
+--   KT_LAG set the parameters
 --   without the GUI; it stops stepping after KT_TICKS, Resample at half)
 --
 
@@ -91,6 +99,8 @@ v:addParam("wallVelocity", env("KT_V", 1.0), 0, 2, 0.1, "Wall_Velocity V (units 
 v:addParam("temperature", env("KT_T", 0.01), 0.001, 0.04, 0.001, "Temperature T (units^2 per tick^2)")
 v:addParam("inward", env("KT_INWARD", true), "walls thermalise only vehicles moving into them (Kerr's rule, F85); off = kt.nlogo's wall")
 v:addParam("senseVelocity", env("KT_SENSE", false), "collide the vehicles' sensed velocities, not KT's own (cools the gas when vehicles lag)")
+v:addParam("separate", env("KT_SEPARATE", false), "collisions always end with the pair moving apart (F90); off = kt.nlogo's random angle")
+v:addParam("collisionRange", env("KT_RANGE", 2), 1, 10, 0.5, "collision distance (units; 2 = kt.nlogo's), used by the next Setup (R)")
 v:addParam("apHz", 5, 1, 20, 1, "kinetic-theory ticks per second")
 v:addParam("metersPerUnit", 0.5, 0.1, 2, 0.05, "metres per kt.nlogo unit")
 v:addParam("resampleAt", TICKS and math.floor(TICKS / 2) or 2500, 0, 1e6, 100, "KT ticks after which the profile restarts (Resample)")
@@ -130,7 +140,8 @@ local function setup()
   mpu, hz = v:getParam("metersPerUnit"), v:getParam("apHz")
   local n = math.floor(v:getParam("particles"))
   m = C.new({ n = n, V = v:getParam("wallVelocity"), T = v:getParam("temperature"),
-              seed = rng.getSeed() or 1, inward = v:getParam("inward") })
+              seed = rng.getSeed() or 1, inward = v:getParam("inward"),
+              separate = v:getParam("separate"), range = v:getParam("collisionRange") })
   if Veh.fragile then                        -- drones: start at least 2 units apart
     for i = 2, n do
       local ok = false
@@ -171,9 +182,11 @@ end
 
 local function result(tag)
   local sl, r = C.stats(m)
-  local line = string.format("COUETTE vehicle=%s n=%d V=%g T=%g inward=%s sense=%s ticks=%d slope=%.5f ratio=%.4f corr=%.5f speed=%.4f lag=%.4f crossed=%.2f",
-    VEHICLE, m.n, m.V, m.T, tostring(m.inward), tostring(v:getParam("senseVelocity")), m.ticks, sl, m.V > 0 and sl * 6 / m.V or 0, r,
-    C.meanSpeed(m) / math.sqrt(m.T), cmdSum > 0 and lagSum / cmdSum or 0, crossed * 1000 / math.max(1, m.ticks))
+  local lost = 0
+  for _, d in ipairs(agents) do if d.failed then lost = lost + 1 end end
+  local line = string.format("COUETTE vehicle=%s n=%d V=%g T=%g inward=%s sense=%s separate=%s range=%g ticks=%d slope=%.5f ratio=%.4f corr=%.5f speed=%.4f lag=%.4f crossed=%.2f lost=%d",
+    VEHICLE, m.n, m.V, m.T, tostring(m.inward), tostring(v:getParam("senseVelocity")), tostring(m.separate), m.range, m.ticks, sl, m.V > 0 and sl * 6 / m.V or 0, r,
+    C.meanSpeed(m) / math.sqrt(m.T), cmdSum > 0 and lagSum / cmdSum or 0, crossed * 1000 / math.max(1, m.ticks), lost)
   print(line .. (tag or ""))
 end
 
@@ -202,6 +215,7 @@ local function ktTick()
   end
   -- 3. collisions and walls; 4. the commands
   m.V, m.T, m.inward = v:getParam("wallVelocity"), v:getParam("temperature"), v:getParam("inward")
+  m.separate = v:getParam("separate")
   C.collide(m)
   for i, d in ipairs(agents) do
     Veh.velocity(d, VX[i] / k, Veh.planeY() - d.py, VY[i] / k, t)
@@ -249,7 +263,7 @@ setup()
 common.setCamera(btVector3(0, 70 * mpu, 35 * mpu), btVector3(0, 0, 0))
 
 v:onParamChanged(function(N, name, value)
-  if rng.isSeedChange(name) or name == "particles" or name == "metersPerUnit" then setup() end
+  if rng.isSeedChange(name) or name == "particles" or name == "metersPerUnit" or name == "collisionRange" then setup() end
 end)
 v:addShortcut("R", function(N) setup() end)
 

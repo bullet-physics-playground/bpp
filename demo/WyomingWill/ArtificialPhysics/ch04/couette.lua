@@ -54,6 +54,14 @@
 -- has the same distribution and cannot reach ln 0 (lib/rng.lua's floats
 -- are multiples of 2^-32; a sweep draws ~10^9 of them).
 --
+-- o.separate, o.range (ours, for vehicles; G4, FINDINGS F90): separate =
+-- true keeps the random collision angle but, if the new relative velocity
+-- would bring the pair closer, flips it, so every collision ends with the
+-- two moving apart, as real molecules do (momentum and relative speed are
+-- still kept); range is the collision distance (default 2, the .nlogo's
+-- in-radius 2). Both at their defaults are the model, bit for bit; they
+-- are in the Lua only (couette1.c is the model).
+--
 -- o.split (ours, default false): measure the mean speed inside and
 -- outside the wall zones, and the vx of each particle as it leaves a wall
 -- zone (splitSpeeds, exitStats; ch04/README.md); it changes nothing in
@@ -77,8 +85,6 @@ local floor, sqrt, sin, cos, rad, log = math.floor, math.sqrt, math.sin, math.co
 
 local MAX = 42
 local W = 2 * MAX + 1                          -- 85, the torus's width
-local NC = 42                                  -- grid cells a side, each 85/42 >= 2 wide
-local CW = W / NC
 M.MAX = MAX
 
 local S, Cs = {}, {}
@@ -110,12 +116,16 @@ local B = {}                                   -- column boundaries
 for i = 0, 13 do B[i] = -MAX + i * 2 * MAX / 13 end
 M.columnEdges = B
 
--- o: n (1000), V (wall velocity, 1.0), T (temperature, 0.010), seed, split, inward
+-- o: n (1000), V (wall velocity, 1.0), T (temperature, 0.010), seed, split,
+-- inward, separate (false), range (2)
 function M.new(o)
   local m = { n = o.n or 1000, V = o.V or 1.0, T = o.T or 0.010, s = rng.new(o.seed or 1),
               x = {}, y = {}, vx = {}, vy = {}, v = {}, order = {}, ticks = 0,
               hist = {}, sumVel = 0, sample = 0, split = o.split, inward = o.inward ~= false,
-              exitSum = 0, exitSum2 = 0, exitCount = 0 }
+              exitSum = 0, exitSum2 = 0, exitCount = 0,
+              separate = o.separate, range = o.range or 2 }
+  m.nc = floor(W / math.max(2, m.range))      -- grid cells a side, each >= range wide (42 at 2)
+  m.cw = W / m.nc
   local s = m.s
   for i = 1, m.n do
     local h = s:random(0, 359)
@@ -171,6 +181,7 @@ end
 function M.collide(m)
   local s, n, T, V, inward = m.s, m.n, m.T, m.V, m.inward
   local X, Y, VX, VY, order = m.x, m.y, m.vx, m.vy, m.order
+  local NC, CW, R2, separate = m.nc, m.cw, m.range * m.range, m.separate
   local s2T, sT = sqrt(2 * T), sqrt(T)
   m.cellOf, m.grid, m.near = m.cellOf or {}, m.grid or {}, m.near or {}
   local cellOf, grid, near = m.cellOf, m.grid, m.near
@@ -200,7 +211,7 @@ function M.collide(m)
               local dx, dy = X[j] - x, Y[j] - y
               if dx > MAX + 0.5 then dx = dx - W elseif dx < -(MAX + 0.5) then dx = dx + W end
               if dy > MAX + 0.5 then dy = dy - W elseif dy < -(MAX + 0.5) then dy = dy + W end
-              if dx * dx + dy * dy <= 4 then cntN = cntN + 1; near[cntN] = j end
+              if dx * dx + dy * dy <= R2 then cntN = cntN + 1; near[cntN] = j end
             end
           end
         end
@@ -213,6 +224,12 @@ function M.collide(m)
       local cmx, cmy = 0.5 * (VX[i] + VX[f]), 0.5 * (VY[i] + VY[f])
       local th = s:random(0, 359)
       local rx, ry = rel * S[th], rel * Cs[th]
+      if separate then                      -- f's velocity relative to i is -(rx, ry)
+        local dx, dy = X[f] - x, Y[f] - y
+        if dx > MAX + 0.5 then dx = dx - W elseif dx < -(MAX + 0.5) then dx = dx + W end
+        if dy > MAX + 0.5 then dy = dy - W elseif dy < -(MAX + 0.5) then dy = dy + W end
+        if rx * dx + ry * dy > 0 then rx, ry = -rx, -ry end
+      end
       VX[i], VY[i] = cmx + 0.5 * rx, cmy + 0.5 * ry
       VX[f], VY[f] = cmx - 0.5 * rx, cmy - 0.5 * ry
     end
