@@ -421,12 +421,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        lag to 0.9 s) when KT keeps its own velocities; colliding the
        sensed velocities freezes the gas. The drones collide in mid-air
        (40 of 100 down by 300 s): KT needs collision avoidance under it,
-       as Kerr's robots had. **Next decision for William:** which
+       which Kerr assumes but does not give. **Next decision for William:** which
        avoidance (a short-range repulsion under the KT command, or a
        larger virtual collision range).
-- **Kerr's thesis PDF** (William's Dropbox link, 2026-10-27) could not be
-  fetched from the workspace; attach it to check F85's wall rule (the
-  digest says Garcia's crossing rule, i.e. `inward`).
+- **The seven theses** (Heil, Hettiarachchi, Kerr, Kunkel, Maxim,
+  Rebguns, Zarzhitsky) were attached by William on 2026-10-28; they stay
+  out of the repo (§4). Kerr's was checked for F85 (the wall rule is
+  Garcia's crossing rule, i.e. `inward`) and F89 (collision avoidance is
+  assumed, not given).
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and

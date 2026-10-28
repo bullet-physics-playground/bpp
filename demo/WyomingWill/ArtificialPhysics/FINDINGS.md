@@ -998,8 +998,9 @@ drones fly into each other: KT's collisions are virtual and nothing keeps
 two airframes apart; 40 of 100 were down by 300 s, each with a neighbour
 0.16–0.53 m away when it failed. The point masses, which touch nothing,
 keep the profile with more lag than the drones have, so the loss is the
-collisions, not the lag. Kerr's robots had low-level routines that
-prevented real collisions (thesis pp. 47–48). Which one to add is open.
+collisions, not the lag. Kerr assumes "the robots have low-level routines
+that prevent actual collisions" (thesis, printed p. 37) but gives none;
+the drones show that assumption is needed. Which routine to add is open.
 
 ## 3. Errors and discrepancies in the book
 
@@ -1130,12 +1131,19 @@ rewrote only syntax (`foreach`'s `?`); `go-particles`, with the wall
 rule, is the NetLogo 5 code unchanged. So the book's figures did not come
 from this code at 1000 particles; they came from another version of it
 or other settings, and the book does not say which. Kerr's thesis
-(2005; `book/theses/Kerr.md`, its pp. 38, 43), the KT code behind the
-chapter, takes the wall from Garcia's DSMC simulation: a particle is
-thermalised "when a step would cross a wall", once per contact and only
-while it moves into the wall, which is `inward`; `kt.nlogo`'s "within 1
-of a wall patch" re-draws it every tick it stays near. So the book's
-figures fit Kerr's rule (to check against the thesis itself). The Android app has the `.nlogo`'s wall and the same
+(2005, checked against the thesis, printed p. 27), the KT simulator
+behind the chapter, takes the wall from Garcia's DSMC code: "a check is
+performed to see if the movement would cause an agent-wall collision. If
+a collision would occur, then the agent's velocity is reset", and the
+agent is placed where it would have been had it bounced; so it is
+thermalised once per contact, only while moving into the wall, and
+never drawn twice, which is `inward`. `kt.nlogo`'s "within 1 of a wall
+patch" is a different rule. The book says its Fig. 4.24 comes from "the
+NetLogo experiments" (PDF 154), not from Kerr's simulator, whose own
+speed results (500 particles × 50,000 steps, 100 × 10,000) report only
+"less than 10%" error (printed pp. 53–54). So the book's NetLogo runs
+behaved like Garcia's and Kerr's rule; most likely an earlier `kt.nlogo`
+had it (our inference). The Android app has the `.nlogo`'s wall and the same
 slopes (1.012, 1.024, 1.007 × V/6).
 
 ## 5. Our own errors, corrected

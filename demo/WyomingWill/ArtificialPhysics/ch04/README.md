@@ -350,7 +350,11 @@ about 0.3297 at 2.0. Ours, 10 seeds each (sd 0.0005–0.0010 in slope):
   model (William's NetLogo 6 conversion; the converter changed only
   `foreach` syntax, not `go-particles`), and its wall has no direction
   test, so the book's figures came from another version of the code or
-  other settings; the book does not say which.
+  other settings; the book does not say which. Kerr's KT simulator
+  (Garcia's DSMC wall: thermalise when a step would cross the wall,
+  placed back as if bounced; his thesis, printed p. 27) has exactly the
+  `inward` behaviour, so an earlier `kt.nlogo` most likely had that rule
+  (our inference; F85).
 - **V/6 is a good rule, not an exact law here.** The slope moves with
   the gas's density and temperature (`.nlogo`, V = 1, 3 seeds): N 500,
   1000, 2000 give 0.960, 1.027, 1.075 × V/6; T 0.001, 0.01, 0.04 give
@@ -459,9 +463,9 @@ velocity at sensing over the mean commanded speed.
   virtual, nothing keeps two airframes apart, and 40 of 100 drones were
   down by 300 s (seed 1, 1500 ticks), each failing with a neighbour 0.16–
   0.53 m away. Down drones answer no command, which is the 0.72–0.75
-  "lag" and the lost profile. Kerr's robots had low-level routines that
-  prevented real collisions (his thesis, pp. 47–48, `book/theses/Kerr.md`);
-  KT on drones needs one too. Which (a short-range repulsion under the
+  "lag" and the lost profile. Kerr assumes "the robots have low-level
+  routines that prevent actual collisions" (his thesis, printed p. 37)
+  but gives none; KT on drones needs one. Which (a short-range repulsion under the
   KT command, or a larger virtual collision range) is the next decision.
 
 ### Not done
