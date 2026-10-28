@@ -31,6 +31,7 @@ check "Pascaline, on its own"     4200 $H/exhibits/Pascaline/pascaline.lua
 check "Domino Half Adder, on its own" 1750 $H/exhibits/DominoAdder/domino-adder.lua
 check "Lehmer's sieve, on its own"  2600 $H/exhibits/LehmerSieve/lehmer-sieve.lua
 check "Digi-Comp II, on its own"  29000 $H/exhibits/DigiComp2/digicomp2.lua
+check "Digi-Comp II, its programs" 56000 $H/exhibits/DigiComp2/digicomp2.lua DC_PROGRAM=all
 check "Differential, in the hall" 3000 $H/hall.lua HALL_START=differential
 check "Pascaline, in the hall"    4000 $H/hall.lua HALL_START=pascaline
 check "Domino Half Adder, in the hall" 2400 $H/hall.lua HALL_START=domino

@@ -1,0 +1,18 @@
+; Divide: 25 / 5, with loops
+; The same as dividing ball by ball, but the hand repeats START until
+; something happens. Change the two SET lines to divide other numbers
+; (the quotient must be under 7). Reading the answer: cycles = 7 - MQ;
+; if A is 0 the quotient is the cycles and the remainder 0, otherwise
+; the quotient is cycles - 1 and the remainder M - A.
+
+R               ; reset: COUNT on
+SET A 25        ; the dividend
+X Space X Space ; complement it: A = 103 = 128 - 25
+SET M 5         ; the divisor
+SET MQ 7        ; the counter
+D               ; distributor set to begin a cycle
+M               ; MULTIPLY on
+UNTIL OVERFLOW  ; cycle after cycle, until A goes over 128
+UNTIL CYCLE     ; then on to the end of that cycle
+CHECK A 0       ; 0: it went exactly
+CHECK MQ 2      ; 7 - 2 = 5 cycles: 25 / 5 = 5

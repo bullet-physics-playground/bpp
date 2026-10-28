@@ -1,0 +1,37 @@
+; Divide: 13 / 5, ball by ball
+; Every step written out, as the hand does it. The answer: the MQ's other
+; reading (7 - MQ) is the cycles begun, 3; A is 2, not 0, so the quotient
+; is 3 - 1 = 2 and the remainder M - A = 5 - 2 = 3.
+
+; ---- set up ----
+R            ; reset: A = 0, MQ = 0, M = 0, COUNT on, everything else off
+1  3  4      ; A = 13 (1 + 4 + 8)                                A = 0001101 = 13
+
+; ---- complement A (the hand does CF1 and CF2's job) ----
+X            ; COMPLEMENT on: the done holes covered
+Space        ; one ball through all seven bits, each turned over   A = 1110010 = 114
+X            ; COMPLEMENT off
+Space        ; one ball adds 1: 128 - 13                           A = 1110011 = 115
+
+; ---- the divisor, the counter, the loop ----
+H  K         ; M = 5 (its 1s and 4s)                               M = 0101 = 5
+8  9  0      ; MQ = 7                                              MQ = 111 = 7
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+
+; ---- run: each cycle of four balls takes 1 from the MQ and adds M to A ----
+Space        ; cycle 1: MQ -> 6, M4 is 0                           A = 115
+Space        ;          M1: +1                                     A = 116
+Space        ;          M3: +4                                     A = 120
+Space        ;          M2 is 0                                    A = 120
+Space        ; cycle 2: MQ -> 5                                    A = 120
+Space        ;          +1                                         A = 121
+Space        ;          +4                                         A = 125
+Space        ;          M2 is 0                                    A = 125
+Space        ; cycle 3: MQ -> 4                                    A = 125
+Space        ;          +1                                         A = 126
+Space        ;          +4: 130, over 128: OVERFLOW                A = 2
+Space        ;          M2 is 0: the end of the cycle              A = 2
+             ; HALT: the next ball would start a cycle (D1 and D2 both read 1)
+CHECK A 2
+CHECK MQ 4

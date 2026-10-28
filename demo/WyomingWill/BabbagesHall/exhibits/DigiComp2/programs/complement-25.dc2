@@ -1,0 +1,11 @@
+; Complement 25
+; COMPLEMENT on: the done holes are covered, so a ball turns over every
+; bit of A (127 - A); COMPLEMENT off, one more ball adds 1: 128 - A.
+
+R            ; reset: COUNT on
+SET A 25     ; A = 0011001 = 25
+X            ; COMPLEMENT on
+Space        ; every bit turned over: A = 1100110 = 102
+X            ; COMPLEMENT off
+Space        ; plus one: A = 1100111 = 103 = 128 - 25
+CHECK A 103

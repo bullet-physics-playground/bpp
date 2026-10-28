@@ -1,0 +1,12 @@
+; Multiply: 13 x 3
+; Each cycle of four balls takes one from the MQ and adds M to A; when the
+; MQ is used up, the next ball drops through STOP: 4 x MQ + 1 balls.
+
+R            ; reset: A = 0
+SET M 13     ; M = 1101 = 13
+SET MQ 3     ; MQ = 011 = 3
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+UNTIL STOP   ; thirteen balls
+CHECK A 39
+CHECK MQ 7   ; (the borrow out of MQ3 leaves it at 111)

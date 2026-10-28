@@ -127,6 +127,7 @@ round from the top and lets it out at the bottom.
 | `8`, `9`, `0` | set the MQ's 1s, 2s, 4s over by hand |
 | `D` | set the distributor to start a cycle (D1 1, D2 1, D3 0) |
 | `X` | COMPLEMENT on and off (the shutters over the done holes) |
+| `G` | run the program the **program** slider chooses (`G` again stops it) |
 | `T` | the tour (it starts with it) |
 | `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off |
 | `Z` | slow motion (1/4 speed) on and off |
@@ -175,7 +176,17 @@ and about ten minutes of computing here, headless. Twelve balls are not
 enough for the multiply: when the input runs low the hand takes balls from
 the collector and puts them back at its top, as you would.
 
-Sliders: `friction` (0.2 to 0.6 checked), `speed`, `steps`.
+**Programs.** The procedures can be written down and run: text files in
+`programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`
+and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
+**program** slider and press `G`: the hand does it line by line, the line
+being done marked in the Shortcuts pane and shown in the status bar, every
+ball shown before it goes and checked after. The library has count, clear,
+37 + 11, 13 x 3, the complement of 25, 12 - 4, 13 / 5 ball by ball, 25 / 5
+with loops, and counting out nine balls; `MANUAL.md`, section 9, has the
+language.
+
+Sliders: `friction` (0.2 to 0.6 checked), `program`, `speed`, `steps`.
 
 ## Running it
 
@@ -186,7 +197,9 @@ slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
 (steps a second, 2400), `DC_HAND` (the most torque the hand turns the knob
 with, 50), `DC_PAUSE` (seconds between a reading and the next ball, 1),
 `DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
-`DC_STEP` (begin the tour at that step), `DC_LOG=1` (every rocker's lean at
+`DC_STEP` (begin the tour at that step), `DC_PROGRAM=name` (run that
+program from the library instead of the tour; `all`: every one in turn,
+then `RESULT digicomp2 programs: PASS`), `DC_LOG=1` (every rocker's lean at
 each reading), `DC_LOG=2` (also every
 moving ball four times a second), `DC_LOG=3` (where every ball is at each
 reading), `DC_CONTACTS=frame` (every contact of the balls, rockers, flaps

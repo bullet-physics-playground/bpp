@@ -56,6 +56,8 @@
 --   H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s
 --   D      set the distributor to start a cycle
 --   X      COMPLEMENT on <-> off
+--   G      run the program chosen with the "program" slider (G again: stop;
+--          see PROGRAMS, below)
 --   T      the tour (it starts with it)
 --   R      set it back: the balls to the top, all to 0, COUNT on, the rest off
 --   Z      slow motion (1/4) <-> real time
@@ -1098,7 +1100,6 @@ local function preview()
   showPath(up, low)
   say(k, s.A, p.A)
   local text = SAYINGS[k] .. string.format(" (A %d -> %d)", s.A, p.A)
-  pcall(function() v:setStatusText(text) end)
   return text
 end
 
@@ -1137,12 +1138,13 @@ local function nextStep()
   tour.phase, tour.wait = "settle", 0
   handMoved()
 end
-local function checkBall()
+local function checkBall(t)
+  t = t or tour
   local now = reading()
-  local p = predict(tour.before)
+  local p = predict(t.before)
   local c = nCollected()
   local ok = now.A == p.A and now.MQ == p.MQ and now.d[1] == p.d[1] and now.d[2] == p.d[2] and now.d[3] == p.d[3]
-             and stopSeen == p.stop and tour.overNow == p.over and c + refilled == dropped
+             and stopSeen == p.stop and t.overNow == p.over and c + refilled == dropped
   local why = ok and "right" or string.format("WRONG: should be A %d, MQ %d, D %d%d%d%s%s", p.A, p.MQ, p.d[1], p.d[2], p.d[3],
                                               p.stop and ", STOP" or "", p.over and ", OVERFLOW" or "")
   if LOG == "3" then
@@ -1151,9 +1153,256 @@ local function checkBall()
   local an = {}
   if LOG then for _, fl in ipairs(flips) do local _, a = lean(fl.name); an[#an + 1] = string.format("%s %.0f", fl.name, a) end end
   print(string.format("    ball %d:  A %s = %d, MQ %d, D %d%d%d%s%s  (%d in the collector)  %s%s", dropped, bits(), now.A, now.MQ,
-                      now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", tour.overNow and ", OVERFLOW" or "", c, why,
+                      now.d[1], now.d[2], now.d[3], stopSeen and ", STOP" or "", t.overNow and ", OVERFLOW" or "", c, why,
                       LOG and ("\n      leans " .. table.concat(an, ", ")) or ""))
   return ok
+end
+
+-- ---------------------------------------------------------------------
+-- PROGRAMS: what the operator does, written down and run by the hand, line
+-- by line. A program is a text file in programs/ (the library: the files
+-- listed in programs/LIBRARY, in order). Each line holds steps, the same
+-- keys as on the keyboard, and ';' begins a comment. The first comment
+-- line is its title. Steps:
+--   R                  reset: A, M and MQ 0, D set to start, COUNT on, the
+--                      other switches off, COMPLEMENT off
+--   1 .. 7             turn A1 .. A7 over by hand
+--   H J K L            M1 .. M4 over         8 9 0   MQ1 .. MQ3 over
+--   D                  set the distributor to start a cycle
+--   M C N X            MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off
+--   Space              START: one ball
+--   SET A n, SET M n, SET MQ n     set a register to n by hand
+--   UNTIL STOP         balls until one drops through STOP
+--   UNTIL OVERFLOW     balls until one drops through OVERFLOW
+--   UNTIL CYCLE        balls until the next would begin a cycle (D1 and D2
+--                      read 1); none if it would already
+--   CHECK A n, CHECK M n, CHECK MQ n   say whether the register reads n
+-- While it runs, the listing is in the help (Shortcuts) pane with an arrow
+-- at the line being done, the line itself in the status bar, and every
+-- ball is shown before it goes (the dashed line, the sign) and checked
+-- after, as in the tour. G runs the program chosen with the "program"
+-- slider (G again stops it); DC_PROGRAM=name (or "all") runs one headless.
+-- ---------------------------------------------------------------------
+local refillWait = 0                  -- (s: the hand has just put balls back; see stepping)
+-- (the programs' state and functions, in one table: PR.prog the program
+-- running, PR.run the ones DC_PROGRAM runs, PR.fails how they went, PR.help
+-- the exhibit's help, below, under the listing)
+local PR = { prog = nil, run = nil, fails = 0, help = "" }
+do
+local PROG_DIR = DIR .. "programs/"
+local function readLines(path)
+  local f = io.open(path, "r")
+  if not f then return nil end
+  local t = {}
+  for l in f:lines() do t[#t + 1] = (l:gsub("\r$", "")) end
+  f:close()
+  return t
+end
+local KEY_STEP = { R = true, ["1"] = true, ["2"] = true, ["3"] = true, ["4"] = true, ["5"] = true, ["6"] = true,
+                   ["7"] = true, H = true, J = true, K = true, L = true, ["8"] = true, ["9"] = true, ["0"] = true,
+                   D = true, M = true, C = true, N = true, X = true }
+local REGISTER = { A = true, M = true, MQ = true }
+local UNTIL = { STOP = true, OVERFLOW = true, CYCLE = true }
+local function parseProgram(file)
+  local lines = readLines(PROG_DIR .. file)
+  if not lines then return nil, "can't read programs/" .. file end
+  local p = { file = file, lines = lines, ops = {}, title = file }
+  local titled = false
+  for i, line in ipairs(lines) do
+    local code, comment = line, nil
+    local c = line:find(";", 1, true)
+    if c then code, comment = line:sub(1, c - 1), line:sub(c + 1) end
+    if not titled and comment and code:match("^%s*$") then
+      p.title = comment:match("^%s*(.-)%s*$"); titled = true
+    end
+    local toks = {}
+    for w in code:gmatch("%S+") do toks[#toks + 1] = w end
+    local j = 1
+    local function bad(what) return nil, string.format("programs/%s, line %d: %s", file, i, what) end
+    while j <= #toks do
+      local W = toks[j]:upper()
+      if W == "SPACE" then p.ops[#p.ops + 1] = { line = i, op = "ball" }
+      elseif W == "SET" or W == "CHECK" then
+        local reg, n = (toks[j + 1] or ""):upper(), tonumber(toks[j + 2] or "")
+        if not REGISTER[reg] or not n then return bad(W .. " wants a register (A, M or MQ) and a number") end
+        p.ops[#p.ops + 1] = { line = i, op = W:lower(), reg = reg, n = n }
+        j = j + 2
+      elseif W == "UNTIL" then
+        local what = (toks[j + 1] or ""):upper()
+        if not UNTIL[what] then return bad("UNTIL wants STOP, OVERFLOW or CYCLE") end
+        p.ops[#p.ops + 1] = { line = i, op = "until", what = what }
+        j = j + 1
+      elseif KEY_STEP[W] then p.ops[#p.ops + 1] = { line = i, op = "key", key = W }
+      else return bad("what is \"" .. toks[j] .. "\"?") end
+      j = j + 1
+    end
+  end
+  return p
+end
+-- the library
+local library = {}
+do
+  for _, l in ipairs(readLines(PROG_DIR .. "LIBRARY") or {}) do
+    local f = l:gsub(";.*", ""):match("^%s*(.-)%s*$")
+    if f ~= "" then
+      local p, err = parseProgram(f)
+      if p then library[#library + 1] = p else print("DIGI-COMP II: " .. err) end
+    end
+  end
+end
+local function libraryText(sel)
+  local t = { "PROGRAMS (the \"program\" slider chooses, G runs it):" }
+  for i, p in ipairs(library) do t[#t + 1] = string.format("%s%2d  %s", i == sel and "->" or "  ", i, p.title) end
+  return table.concat(t, "\n")
+end
+local function listing(p, cur)
+  local t = {}
+  -- (the pane may show only a few lines: the one being done, and the next,
+  -- come first; the whole listing after them)
+  if cur then
+    t[#t + 1] = string.format("PROGRAM: %s, line %d of %d", p.title, cur, #p.lines)
+    t[#t + 1] = string.format("->%3d  %s", cur, p.lines[cur])
+    for i = cur + 1, #p.lines do
+      if p.lines[i]:match("%S") then t[#t + 1] = string.format("  %3d  %s", i, p.lines[i]); break end
+    end
+    t[#t + 1] = ""
+  end
+  t[#t + 1] = string.format("PROGRAM: %s   (programs/%s)", p.title, p.file)
+  for i, l in ipairs(p.lines) do t[#t + 1] = string.format("%s%3d  %s", i == cur and "->" or "  ", i, l) end
+  return table.concat(t, "\n")
+end
+local function setStatus(t) pcall(function() v.statusText = t end) end
+local function showProgram(p, cur)
+  v:setHelpText(listing(p, cur) .. "\n\n" .. PR.help)
+  local l = cur and p.lines[cur]
+  setStatus(l and string.format("%s, line %d:  %s", p.title, cur, l:match("^%s*(.-)%s*$")) or "")
+end
+-- the hand does one key's step
+local function handKey(k)
+  if k == "R" then setUp(); hidePath()
+  elseif k:match("^[1-7]$") then local b = tonumber(k); setBit(b, 1 - bit(b))
+  elseif k == "H" or k == "J" or k == "K" or k == "L" then
+    local m = "M" .. ({ H = 1, J = 2, K = 3, L = 4 })[k]
+    setSwitch(m, not isOn(m))
+  elseif k == "8" or k == "9" or k == "0" then
+    local q = "MQ" .. ({ ["8"] = 1, ["9"] = 2, ["0"] = 3 })[k]
+    setFlip(q, 1 - lean(q))
+  elseif k == "D" then setD()
+  elseif k == "M" then setSwitch("MULTIPLY", not isOn("MULTIPLY"))
+  elseif k == "C" then setSwitch("CLEAR", not isOn("CLEAR"))
+  elseif k == "N" then setSwitch("COUNT", not isOn("COUNT"))
+  elseif k == "X" then setComplement(not isComplement()) end
+  handMoved()
+end
+local function regValue(r) if r == "A" then return count() elseif r == "M" then return mem() else return mq() end end
+local function startProgram(p)
+  tour = nil
+  queue = 0
+  PR.prog = { p = p, i = 1, phase = "next", wait = 0 }
+  print(string.format("\nDIGI-COMP II -- program: %s (programs/%s)", p.title, p.file))
+  showProgram(p, nil)
+end
+local function stopProgram(why)
+  local p = PR.prog.p
+  if why then print("    " .. why) end
+  print(string.format("  program %s: %s", p.file, PR.prog.fails == nil and "done" or (PR.prog.fails == 0 and "all right" or (PR.prog.fails .. " WRONG"))))
+  PR.fails = PR.fails + (PR.prog.fails or 0)
+  PR.prog = nil
+  showProgram(p, nil)
+  setStatus(p.title .. ": done")
+  hidePath()
+  -- (headless, DC_PROGRAM=all: the next one)
+  if PR.run then
+    PR.run.i = PR.run.i + 1
+    if PR.run.list[PR.run.i] then startProgram(PR.run.list[PR.run.i])
+    else
+      print(string.format("  (frame %d)", frameNow))
+      print("RESULT digicomp2 programs: " .. (PR.fails == 0 and "PASS" or "FAIL"))
+      PR.run = nil
+    end
+  end
+end
+-- each frame, while a program runs
+local function progStep()
+  local P = PR.prog
+  P.wait = P.wait + FRAME_DT
+  P.fails = P.fails or 0
+  local op = P.p.ops[P.i]
+  local function nextOp() P.i, P.phase, P.wait = P.i + 1, "next", 0 end
+  local function ball()
+    P.phase, P.wait = "show", 0
+    print("      next: " .. preview())
+  end
+  if P.phase == "next" then
+    if P.wait < 0.15 or busy() then return end
+    if not op then stopProgram(); return end
+    showProgram(P.p, op.line)
+    if op.op == "key" then
+      print(string.format("    line %d: %s", op.line, op.key))
+      handKey(op.key); P.phase, P.wait = "after", 0
+    elseif op.op == "set" then
+      print(string.format("    line %d: SET %s %d", op.line, op.reg, op.n))
+      if op.reg == "A" then setA(op.n) elseif op.reg == "M" then setM(op.n) else setMQ(op.n) end
+      handMoved(); P.phase, P.wait = "after", 0
+    elseif op.op == "check" then
+      local got = regValue(op.reg)
+      local ok = got == op.n
+      if not ok then P.fails = P.fails + 1 end
+      print(string.format("    line %d: CHECK %s %d: it reads %d  %s", op.line, op.reg, op.n, got, ok and "right" or "WRONG"))
+      P.phase, P.wait = "after", 0
+    elseif op.op == "ball" then
+      print(string.format("    line %d: Space", op.line))
+      P.balls = nil; ball()
+    elseif op.op == "until" then
+      print(string.format("    line %d: UNTIL %s", op.line, op.what))
+      P.balls = 0
+      if op.what == "CYCLE" then
+        local r = reading()
+        if r.d[1] == 1 and r.d[2] == 1 then print("      (the next ball would begin a cycle: none)"); nextOp(); return end
+      end
+      ball()
+    end
+  elseif P.phase == "after" then
+    if P.wait > 0.6 and not busy() then nextOp() end
+  elseif P.phase == "show" then
+    if P.wait > SHOW_S then
+      P.phase, P.wait = "ball", 0; P.before = reading(); stopSeen = false
+      P.overBefore = overSeen; feed()
+    end
+  elseif P.phase == "ball" then
+    if not busy() and refillWait <= 0 and P.wait > 0.5 and (still > 0.4 or P.wait > 15) then
+      P.overNow = overSeen and not P.overBefore
+      if not checkBall(P) then P.fails = P.fails + 1 end
+      if op.op == "ball" then P.phase, P.wait = "pause", 0; return end
+      P.balls = P.balls + 1
+      local done
+      if op.what == "STOP" then done = stopSeen
+      elseif op.what == "OVERFLOW" then done = P.overNow
+      else local r = reading(); done = r.d[1] == 1 and r.d[2] == 1 end
+      if stopSeen and op.what ~= "STOP" then
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: a ball dropped through STOP (UNTIL %s, line %d)", op.what, op.line))
+        return
+      end
+      if done then
+        print(string.format("      UNTIL %s: %d ball%s", op.what, P.balls, P.balls == 1 and "" or "s"))
+        P.phase, P.wait = "pause", 0
+      elseif P.balls >= 64 then
+        P.fails = P.fails + 1
+        stopProgram(string.format("WRONG: UNTIL %s, line %d: 64 balls and not yet", op.what, op.line))
+      else
+        P.phase, P.wait = "again", 0
+      end
+    end
+  elseif P.phase == "again" then
+    if P.wait > TOUR_PAUSE then ball() end
+  elseif P.phase == "pause" then
+    if P.wait > TOUR_PAUSE then nextOp() end
+  end
+end
+
+PR.step, PR.start, PR.stopIt, PR.library, PR.libraryText, PR.listing, PR.setStatus =
+  progStep, startProgram, stopProgram, library, libraryText, listing, setStatus
 end
 
 -- ---------------------------------------------------------------------
@@ -1169,13 +1418,13 @@ v:preSim(function(N)
   handBusy = handPre()
 end)
 
-local refillWait = 0
 local function startTurn()
   queue = queue - 1
   wheel.target = wheel.target + math.pi / 2
   dropped = dropped + 1
   still = 0
   if tour then tour.wait = 0 end
+  if PR.prog then PR.prog.wait = 0 end
 end
 
 v:postSim(function(N)
@@ -1212,6 +1461,7 @@ v:postSim(function(N)
     end
     if #t > 0 then print(string.format("  frame %d: A %s; moving: %s", N, bits(), table.concat(t, ", "))) end
   end
+  if PR.prog then PR.step() end
   if tour then
     tour.wait = (tour.wait or 0) + FRAME_DT
     -- (each ball: first where it will go, on the board and the sign; then
@@ -1287,20 +1537,37 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
 end
 v:addShortcut("D", byHand(setD))
 v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
-v:addShortcut("T", function() startTour() end)
-v:addShortcut("R", function() tour = nil; queue = 0; setUp(); hidePath() end)
+v:addShortcut("T", function() PR.prog = nil; PR.run = nil; startTour() end)
+v:addShortcut("R", function() tour = nil; PR.prog = nil; PR.run = nil; queue = 0; setUp(); hidePath(); PR.setStatus("") end)
+-- programs: the slider chooses, G runs it (G again: stop)
+local progSel = 1
+if #PR.library > 0 then
+  v:addParam("program", 1, 1, #PR.library, 1, "a program from the library (programs/): G runs it")
+end
+v:addShortcut("G", function()
+  if PR.prog then PR.stopIt("stopped by hand"); return end
+  local p = PR.library[progSel]
+  if p then PR.start(p) end
+end)
 v:addShortcut("Z", function()
   local sp = v:getParam("speed") < 0.5 and 1 or 0.25
   v:addParam("speed", sp, 0.05, 2, 0.05, "simulated seconds per real second (Z: 1/4 <-> 1)")
   applyTiming()
 end)
 v:onParamChanged(function(N, name, value)
+  if name == "program" then
+    progSel = math.max(1, math.min(#PR.library, math.floor(value + 0.5)))
+    if not PR.prog and PR.library[progSel] then
+      v:setHelpText(PR.libraryText(progSel) .. "\n\n" .. PR.listing(PR.library[progSel], nil) .. "\n\n" .. PR.help)
+    end
+    return
+  end
   if name == "speed" or name == "steps" then applyTiming()
   elseif name == "friction" then applyFriction() end
 end)
 
 pcall(function()
-  v:setHelpText(table.concat({
+  PR.help = table.concat({
     "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying, subtracting, dividing",
     "",
     "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1968). The rockers",
@@ -1335,13 +1602,15 @@ pcall(function()
     "KEYS",
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
     "  X      COMPLEMENT on/off (the shutters over the done holes)",
+    "  G      run the program the \"program\" slider chooses (G again: stop)",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
     "  T      the tour                  R  set it back     Z  slow motion",
     "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
-  }, "\n"))
+  }, "\n")
+  v:setHelpText((#PR.library > 0 and (PR.libraryText(progSel) .. "\n\n") or "") .. PR.help)
 end)
 
 local MEM_KEY = { "H", "J", "K", "L" }
@@ -1411,4 +1680,15 @@ if v.onHover then
 end
 
 common.setCamera(btVector3(-6, 185, 135), btVector3(-6, 6, -8))
-if tour then startTour() else setUp() end
+-- (DC_PROGRAM=name: that program from the library, headless; "all": each in turn)
+local DC_PROGRAM = os.getenv("DC_PROGRAM")
+if DC_PROGRAM then
+  tour = nil
+  local list = {}
+  for _, p in ipairs(PR.library) do
+    if DC_PROGRAM == "all" or p.file == DC_PROGRAM or p.file == DC_PROGRAM .. ".dc2" then list[#list + 1] = p end
+  end
+  setUp()
+  if #list > 0 then PR.run = { list = list, i = 1 }; PR.start(list[1])
+  else print("DIGI-COMP II: no program " .. DC_PROGRAM .. " in programs/LIBRARY") end
+elseif tour then startTour() else setUp() end

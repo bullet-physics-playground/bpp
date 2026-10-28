@@ -1,0 +1,9 @@
+; Count out 9 balls
+; A = 128 - 9; COUNT on, A counts up, and the 9th ball carries out of A7
+; through OVERFLOW: that is where the hand stops.
+
+R               ; reset: COUNT on
+SET A 9
+X Space X Space ; complement it: A = 119 = 128 - 9
+UNTIL OVERFLOW  ; nine balls
+CHECK A 0

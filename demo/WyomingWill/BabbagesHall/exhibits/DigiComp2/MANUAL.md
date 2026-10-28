@@ -37,6 +37,7 @@ and holes.
 6. The complement: subtracting, counting out, dividing; AUTO (still to come)
 7. Which parts each operation needs, and building only part of it
 8. Settings at a glance
+9. Programs: the operator's part, written down
 
 ## 1. The parts
 
@@ -433,3 +434,111 @@ with `Space`, the exhibit draws the way the ball will go as a yellow dashed
 line on the board, and its sign says what the ball will do and what the
 accumulator was and will be: a good way to follow this manual on the
 machine itself.
+
+## 9. Programs: the operator's part, written down
+
+The machine has no stored program. Its registers (A, M, MQ) and the lanes
+between them are the arithmetic; its switches (MULTIPLY, CLEAR, COUNT,
+COMPLEMENT) choose which way a ball goes; each ball let in is one tick of
+its clock; STOP and OVERFLOW are its two signals to halt. What sets the
+switches between balls, and decides when to stop, is the operator. So an
+operation's procedure (sections 2 to 6) is like the microcode inside a
+computer's control unit: the settings and clock ticks that make one
+instruction, here kept in the manual and the operator's hands. The
+machine runs one loop by itself: with MULTIPLY on, the distributor deals
+the balls four ways and the MQ counts the cycles down to STOP.
+
+On this board those procedures can be written down as **programs**, text
+files in `programs/`, and run by the exhibit's hand, line by line.
+
+### The language
+
+Each line holds steps, separated by spaces; `;` begins a comment, to the
+end of the line. The first comment line is the program's title. The steps
+are the keys you would press, and a few more:
+
+| Step | What the hand does |
+|---|---|
+| `R` | reset: A, M and MQ 0, D set to start, COUNT on, MULTIPLY, CLEAR and COMPLEMENT off |
+| `1` .. `7` | turns A1 (1s) .. A7 (64s) over |
+| `H` `J` `K` `L` | turns M1 .. M4 over |
+| `8` `9` `0` | turns MQ1 .. MQ3 over |
+| `D` | sets the distributor to begin a cycle |
+| `M` `C` `N` `X` | MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off |
+| `Space` | START: one ball |
+| `SET A n`, `SET M n`, `SET MQ n` | sets that register to n |
+| `UNTIL STOP` | balls until one drops through STOP |
+| `UNTIL OVERFLOW` | balls until one drops through OVERFLOW |
+| `UNTIL CYCLE` | balls until the next would begin a cycle (D1 and D2 read 1); none if it would already |
+| `CHECK A n`, `CHECK M n`, `CHECK MQ n` | says whether that register reads n |
+
+Here is section 6's division, every ball written out
+(`programs/divide-13-by-5.dc2`):
+
+```
+; Divide: 13 / 5, ball by ball
+; Every step written out, as the hand does it. The answer: the MQ's other
+; reading (7 - MQ) is the cycles begun, 3; A is 2, not 0, so the quotient
+; is 3 - 1 = 2 and the remainder M - A = 5 - 2 = 3.
+
+; ---- set up ----
+R            ; reset: A = 0, MQ = 0, M = 0, COUNT on, everything else off
+1  3  4      ; A = 13 (1 + 4 + 8)                                A = 0001101 = 13
+
+; ---- complement A (the hand does CF1 and CF2's job) ----
+X            ; COMPLEMENT on: the done holes covered
+Space        ; one ball through all seven bits, each turned over   A = 1110010 = 114
+X            ; COMPLEMENT off
+Space        ; one ball adds 1: 128 - 13                           A = 1110011 = 115
+
+; ---- the divisor, the counter, the loop ----
+H  K         ; M = 5 (its 1s and 4s)                               M = 0101 = 5
+8  9  0      ; MQ = 7                                              MQ = 111 = 7
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+
+; ---- run: each cycle of four balls takes 1 from the MQ and adds M to A ----
+Space        ; cycle 1: MQ -> 6, M4 is 0                           A = 115
+Space        ;          M1: +1                                     A = 116
+Space        ;          M3: +4                                     A = 120
+Space        ;          M2 is 0                                    A = 120
+Space        ; cycle 2: MQ -> 5                                    A = 120
+Space        ;          +1                                         A = 121
+Space        ;          +4                                         A = 125
+Space        ;          M2 is 0                                    A = 125
+Space        ; cycle 3: MQ -> 4                                    A = 125
+Space        ;          +1                                         A = 126
+Space        ;          +4: 130, over 128: OVERFLOW                A = 2
+Space        ;          M2 is 0: the end of the cycle              A = 2
+             ; HALT: the next ball would start a cycle (D1 and D2 both read 1)
+CHECK A 2
+CHECK MQ 4
+```
+
+`programs/divide.dc2` does the same with loops (`UNTIL OVERFLOW`, then
+`UNTIL CYCLE`), for any dividend and divisor set in its two `SET` lines.
+
+### Running one
+
+In the exhibit, the **program** slider chooses one from the library and
+`G` runs it (`G` again stops it). While it runs, the listing is in the
+Shortcuts pane, the line being done first and marked `->`, and the status
+bar at the bottom of the window shows that line. Every ball is shown before
+it goes (the yellow dashed line, the sign's THIS BALL) and checked after,
+as in the tour. To write your own, add a file to `programs/` and its name
+to `programs/LIBRARY` (the slider gives them in that order), and open the
+exhibit again.
+
+### The library
+
+| # | File | What it does |
+|---|---|---|
+| 1 | `count.dc2` | counts to 5 |
+| 2 | `clear.dc2` | clears A from 90 |
+| 3 | `add-37-11.dc2` | 37 + 11 |
+| 4 | `multiply-13-by-3.dc2` | 13 x 3 |
+| 5 | `complement-25.dc2` | the complement of 25 |
+| 6 | `subtract-12-4.dc2` | 12 - 4 |
+| 7 | `divide-13-by-5.dc2` | 13 / 5, ball by ball (the listing above) |
+| 8 | `divide.dc2` | 25 / 5, with loops |
+| 9 | `count-out-9.dc2` | counts out nine balls |

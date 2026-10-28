@@ -314,6 +314,19 @@ there, in `release/`, or on the path; or set `BPP`.
   status bar says which. The time is OpenSCAD making parts on a cold cache
   (94 s for all five here; 1.8 s cached). The Digi-Comp's sign letters are
   in `parts/sign.scad` now, so changing its geometry no longer remakes them.
+- **Done the same night: programs.** William saw that the procedures are
+  the operator's part (the machine has no stored program: its switches are
+  control lines, each ball a clock tick, the operator its control unit)
+  and asked for them as scripts the exhibit reads and runs line by line,
+  with a library. `programs/*.dc2` (listed in `programs/LIBRARY`): the
+  keys, plus `SET`, `UNTIL STOP|OVERFLOW|CYCLE`, `CHECK`; the "program"
+  slider and `G` run one, the listing in the Shortcuts pane and the line in
+  the status bar; `DC_PROGRAM=all` runs the library (check-all does: 53 000
+  frames, 12 minutes here; check-all now takes about 40).
+  MANUAL section 9. (The hall's and the exhibits' status lines were never
+  shown: bpp's `statusText` is a property, not a `setStatusText` method;
+  the hall passes it on now.) A board in the 3D view showing the listing
+  would be easier to read than the Shortcuts pane; not done.
 - **Next: AUTO.** The START lever: a ball at the bottom lets the next go,
   and the ball through STOP lets none. Its escapement works alone
   (`tests/escapement.lua`, `G.ANCHOR`): the wheel turned by a wound weight

@@ -1,0 +1,12 @@
+; Add: 37 + 11
+; ADD is MULTIPLY with the MQ at 1: one cycle adds M to A, and the next
+; ball, finding the MQ at 0, drops through STOP.
+
+R            ; reset
+SET A 37     ; A = 0100101 = 37
+SET M 11     ; M = 1011 = 11
+SET MQ 1     ; MQ = 001
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+UNTIL STOP   ; five balls: the MQ less one and M4, M1, M3, M2, then STOP
+CHECK A 48

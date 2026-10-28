@@ -1,0 +1,15 @@
+; Subtract: 12 - 4
+; Complement the number to take away, then add the other: the sum goes
+; over 128, the carry drops through OVERFLOW, and what is left is the
+; difference.
+
+R            ; reset: COUNT on
+SET A 4      ; A = 0000100 = 4
+X Space      ; COMPLEMENT on, one ball: A = 1111011 = 123
+X Space      ; COMPLEMENT off, one ball: A = 1111100 = 124 = 128 - 4
+SET M 12     ; M = 1100 = 12
+SET MQ 1     ; MQ = 001: add once
+D            ; distributor set to begin a cycle
+M            ; MULTIPLY on
+UNTIL STOP   ; 124 + 12 = 136: over 128 (OVERFLOW), A = 8
+CHECK A 8

@@ -107,7 +107,8 @@ EXHIBITS = EXHIBITS or {
             "count, add, subtract, multiply and divide in binary. Thirteen rockers, tipped over\n" ..
             "by the balls alone, make the accumulator, the MQ and the distributor; four switches\n" ..
             "are the memory; six shutters on one bar are COMPLEMENT.\n" ..
-            "Space: START; M, C, N, X: the switches; T: the tour (37 + 11, 13 x 3, 12 - 4, 13 / 5)." },
+            "Space: START; M, C, N, X: the switches; T: the tour (37 + 11, 13 x 3, 12 - 4, 13 / 5);\n" ..
+            "G: run the program the \"program\" slider chooses, line by line." },
   { dir = "exhibits/TidePredictor/", file = "tide-predictor.lua", name = "Kelvin's tide predictor", label = "tide-predictor",
     prefix = "Tides: ", floorY = -75,
     about = "Kelvin's tide predictor (1872): cranks for the Sun's and the Moon's tides,\n" ..
@@ -233,6 +234,7 @@ local active = nil         -- the exhibit you're at (nil: one of the views)
 local flight = nil         -- the camera on its way to the next stop (see "walking on")
 local loading = nil        -- the exhibit being loaded
 local loadSome             -- (loads the next exhibit; below)
+local hallStatus = ""      -- (the hall's own status line: what is loading)
 
 local function loadIn(file, env)
   if setfenv then
@@ -351,7 +353,10 @@ local function makeExhibit(e, bay)
       g.help = text
       if active == g then realV:setHelpText(g.header() .. text) end
     end,
-    setStatusText = function(_, text) if active == g and text and text ~= "" then print(text) end end,
+    setStatusText = function(_, text)
+      g.statusText = text or ""
+      if active == g then realV.statusText = g.statusText end
+    end,
     loadSound = function(_, path) return realV:loadSound(fix(path)) end,
     -- (its own steps, timed for the meter)
     stepSimulation = function(_, ...)
@@ -383,6 +388,11 @@ local function makeExhibit(e, bay)
     end,
     __newindex = function(_, k, val)
       if TIMING[k] then g.timing[k] = val; return end
+      if k == "statusText" then                -- (its status line: shown while you're at it)
+        g.statusText = val or ""
+        if active == g then realV.statusText = g.statusText end
+        return
+      end
       if k == "gravity" then realV.gravity = val; return end      -- (its world's)
       g.vset[k] = val        -- (lights, shadows and the like: the hall's own stay)
       -- (its lights, while you're at it, at once: see LIGHTS)
@@ -997,6 +1007,7 @@ local function goTo(s, instant)
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
   here = s
+  pcall(function() realV.statusText = (not s.isView and s.ready and s.statusText ~= nil and s.statusText ~= "" and s.statusText) or hallStatus end)
   resetMeter(realMs())
   lastShown = nil          -- (walking on isn't a freeze)
   -- (and where you are as a slider, "Gallery: stop": bpp's Restart runs the
@@ -1242,7 +1253,10 @@ print(string.format("HALL: %d exhibits to set up, %d in preparation, %d empty ba
 -- first): next, the one you're at or walking to, else the next one on
 -- from where you are
 local hallFrames = 0
-local function status(t) pcall(function() realV:setStatusText(t) end) end
+local function status(t)
+  hallStatus = t
+  pcall(function() realV.statusText = (active and active.statusText ~= "" and active.statusText) or t end)
+end
 local function nextToLoad()
   if not here.isView and here.pending then return here end
   local i = indexOf(here) or 1

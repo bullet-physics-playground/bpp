@@ -1,0 +1,10 @@
+; Count to 5
+; COUNT on: every ball goes into A1 and adds one, carrying as it goes.
+
+R            ; reset: A = 0, COUNT on, everything else off
+Space        ; A = 1
+Space        ; A = 2   (A1 turns back to 0 and carries into A2)
+Space        ; A = 3
+Space        ; A = 4   (a carry through A1 and A2 into A3)
+Space        ; A = 5
+CHECK A 5

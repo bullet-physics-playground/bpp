@@ -1,0 +1,10 @@
+; Clear the accumulator
+; CLEAR on: the ball drops into the clear lane on the lower level and
+; pushes every flip-flop of A that reads 1 back to 0.
+
+R            ; reset
+SET A 90     ; A = 1011010 = 90 (set by hand)
+C            ; CLEAR on (MULTIPLY is off, so the ball comes down to CLEAR)
+Space        ; one ball down the clear lane
+CHECK A 0
+C            ; CLEAR off again
