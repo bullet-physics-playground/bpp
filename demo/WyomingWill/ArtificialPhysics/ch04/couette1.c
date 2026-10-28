@@ -12,9 +12,9 @@
  *
  * The model, its world and its step are described at the top of
  * couette.lua. RESAMPLE (default TICKS/2) is the tick after which the
- * Resample button is pressed; N defaults to 1000; INWARD 1 is couette.lua's
- * o.inward (walls thermalise only particles moving into them), 0 (the
- * default) the .nlogo.
+ * Resample button is pressed; N defaults to 1000; INWARD 1 (the default)
+ * is couette.lua's o.inward (walls thermalise only particles moving into
+ * them, Kerr's rule), 0 the .nlogo's wall.
  *
  * DEFINITIONS (printed, one line each):
  *   slope corr  least-squares slope of the 13 bars (mean vy per column,
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
 	long ticks = atol(argv[4]);
 	long resample = argc > 5 ? atol(argv[5]) : ticks / 2;
 	n = argc > 6 ? atoi(argv[6]) : 1000;
-	inward = argc > 7 ? atoi(argv[7]) : 0;
+	inward = argc > 7 ? atoi(argv[7]) : 1;
 	if (n < 1 || n > NMAX) { fprintf(stderr, "couette1: N must be 1..%d\n", NMAX); return 1; }
 	const double RAD = 3.14159265358979323846 / 180.0;
 	for (int h = 0; h < 360; h++) { S[h] = sin(h * RAD); Cs[h] = cos(h * RAD); }

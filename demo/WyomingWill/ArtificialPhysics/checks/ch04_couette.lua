@@ -3,7 +3,8 @@
 -- 147-156) on ch04/couette.lua, kt.nlogo's own step
 --
 -- 1. The Lua is ch04/couette1.c (the C used for the long runs) to the last
---    bit: two short runs against ch04/couette1_reference.txt.
+--    bit: two short runs against ch04/couette1_reference.txt; the default
+--    wall is Kerr's (inward).
 -- 2. Fig. 4.23: walls moving at +-V make a linear profile, slope near
 --    V/6, correlation near 1; the momenta stay near 0.
 -- 3. FINDINGS F85: the .nlogo's wall emits hotter than the Rayleigh it
@@ -81,6 +82,9 @@ for w = 0, 1 do
   check("the Lua is couette1.c to the last bit (" .. (w == 1 and "inward" or ".nlogo") .. ")", same,
     "300 ticks, slope " .. string.format("%.6f", sl))
 end
+
+check("the default wall is Kerr's (inward; William, 2026-10-28)", C.new({ n = 1 }).inward == true and C.new({ n = 1, inward = false }).inward == false,
+  "inward unless o.inward = false")
 
 -- 2 and 3. Fig. 4.23 at V = 1
 local function fig423(inward)

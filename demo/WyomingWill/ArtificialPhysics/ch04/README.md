@@ -290,7 +290,7 @@ V 1.0, T 0.010.
 | `couette.lua` | The model (the world, the step, the 13-column histogram, compute-stats, Resample), with two switches of ours: `split` (measures, changes nothing) and `inward` (below) |
 | `couette1.c` | The same model in C, about 200 times faster, for the long runs: the same random numbers in the same order, so the same numbers to the last bit (checked on Lua 5.1, 5.2, 5.3 and 5.4) |
 | `couette1_reference.txt` | Two short runs of the C, which the check repeats in Lua |
-| `../checks/ch04_couette.lua` | 9 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
+| `../checks/ch04_couette.lua` | 10 checks, about 75 s (any Lua 5.1–5.4, and BPP) |
 | `Couette-Vehicles.lua` | The model flown by vehicles through velocity commands (G4; below), on any vehicle with `velocity()` |
 
 **Where the book's text is silent, the `.nlogo` decides:** a world of
@@ -318,9 +318,13 @@ zone is about one step deep, so the bias is partial). The gas is heated
 past T, everywhere, not just at the walls: the mean speed of the
 particles away from the walls is the same as the mean of all.
 
-`inward` (ours, off by default) thermalises a particle only while it moves
-into the wall, so a particle on its way out is left alone: the emission
-is then close to the Rayleigh (|vx| 1.27–1.28 √T, vx² 2.03–2.09 T).
+`inward` thermalises a particle only while it moves into the wall, so a
+particle on its way out is left alone: the emission is then close to the
+Rayleigh (|vx| 1.27–1.28 √T, vx² 2.03–2.09 T). It is Kerr's rule
+(Garcia's DSMC wall, below) and, since 2026-10-28 (William), the default
+of `couette.lua`, `couette1.c` and `Couette-Vehicles.lua`; `inward =
+false` is the `.nlogo`'s wall. The tables here name the rule each run
+used.
 
 ### Fig. 4.23: the velocity profile
 

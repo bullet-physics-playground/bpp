@@ -406,7 +406,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        momenta reproduced; `kt.nlogo`'s walls emit hotter than the
        Rayleigh they draw (a particle still in the wall zone is drawn
        again), so its slope is 1–2.5% above V/6 and v̄ = 1.36√T; walls
-       thermalising only incoming particles (`inward`, off by default)
+       thermalising only incoming particles (`inward`, Kerr's rule, the default since 2026-10-28)
        give the book's Fig. 4.23, and its Fig. 4.24 at N ≤ 300.
      - **The point-mass vehicle, G5 (done,** `lib/pointmass.lua`,
        `probes/step_response.lua`, F87): top speed, top acceleration and

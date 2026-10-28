@@ -43,7 +43,8 @@
 --   wallVelocity  V, units per tick (x metersPerUnit x apHz = m/s)
 --   temperature   T, units^2 per tick^2
 --   inward      ch04/couette.lua's switch: walls thermalise only vehicles
---               moving into them (F85); false = kt.nlogo
+--               moving into them (Kerr's rule, the default; F85); false
+--               = kt.nlogo's wall (the runs in ch04/README.md used false)
 --   senseVelocity  collide the vehicles' sensed velocities instead of
 --               KT's own (above); false = KT's own
 --   apHz, metersPerUnit  the KT rate (Hz) and the scale (m per unit)
@@ -88,7 +89,7 @@ rng.init(v, 1)
 v:addParam("particles", env("KT_N", 100), 1, 1000, 1, "vehicles at the next Setup (R)")
 v:addParam("wallVelocity", env("KT_V", 1.0), 0, 2, 0.1, "Wall_Velocity V (units per tick; x metersPerUnit x apHz = m/s)")
 v:addParam("temperature", env("KT_T", 0.01), 0.001, 0.04, 0.001, "Temperature T (units^2 per tick^2)")
-v:addParam("inward", env("KT_INWARD", false), "walls thermalise only vehicles moving into them (F85); off = kt.nlogo")
+v:addParam("inward", env("KT_INWARD", true), "walls thermalise only vehicles moving into them (Kerr's rule, F85); off = kt.nlogo's wall")
 v:addParam("senseVelocity", env("KT_SENSE", false), "collide the vehicles' sensed velocities, not KT's own (cools the gas when vehicles lag)")
 v:addParam("apHz", 5, 1, 20, 1, "kinetic-theory ticks per second")
 v:addParam("metersPerUnit", 0.5, 0.1, 2, 0.05, "metres per kt.nlogo unit")

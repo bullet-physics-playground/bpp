@@ -1101,8 +1101,8 @@ change every run after the first step that differs.
 
 **F85. `kt.nlogo`'s walls emit hotter than the Rayleigh they draw; the
 book's Figs. 4.23 and 4.24 fit walls that thermalise only particles
-moving into them** — 2026-10-27, Divergence (the `.nlogo` kept as the
-default; ours a switch). `ch04/README.md`, `checks/ch04_couette.lua`.
+moving into them** — 2026-10-27, Divergence (Kerr's rule, `inward`,
+the default since 2026-10-28, William; the `.nlogo`'s wall a switch). `ch04/README.md`, `checks/ch04_couette.lua`.
 A particle within 1 of a wall patch is given a new velocity, Rayleigh
 (s = √T) away from the wall; but the wall zone is about one step deep,
 so it is often still inside after the move and is drawn again, every

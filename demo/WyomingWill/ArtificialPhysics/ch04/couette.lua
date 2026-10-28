@@ -59,12 +59,14 @@
 -- zone (splitSpeeds, exitStats; ch04/README.md); it changes nothing in
 -- the model.
 --
--- o.inward (ours, default false = the .nlogo): a wall thermalises a
--- particle only while it moves into that wall (red: vx >= 0; yellow:
--- vx <= 0). In the .nlogo a particle still inside the wall zone after
--- its draw is drawn again every tick until it is out, so the wall emits
--- hotter than the Rayleigh it draws (FINDINGS F85); with inward the
--- emission is the Rayleigh and Fig. 4.23 comes out as the book's.
+-- o.inward (default true; false = the .nlogo's wall): a wall thermalises
+-- a particle only while it moves into that wall (red: vx >= 0; yellow:
+-- vx <= 0), as Kerr's simulator does (Garcia's DSMC wall: once, when a
+-- step would cross it). In the .nlogo a particle still inside the wall
+-- zone after its draw is drawn again every tick until it is out, so the
+-- wall emits hotter than the Rayleigh it draws (FINDINGS F85); with
+-- inward the emission is the Rayleigh and Fig. 4.23 comes out as the
+-- book's. The default is Kerr's (William, 2026-10-28).
 --
 
 package.path = "../?.lua;" .. package.path    -- lib/ when run from ch04/
@@ -112,7 +114,7 @@ M.columnEdges = B
 function M.new(o)
   local m = { n = o.n or 1000, V = o.V or 1.0, T = o.T or 0.010, s = rng.new(o.seed or 1),
               x = {}, y = {}, vx = {}, vy = {}, v = {}, order = {}, ticks = 0,
-              hist = {}, sumVel = 0, sample = 0, split = o.split, inward = o.inward,
+              hist = {}, sumVel = 0, sample = 0, split = o.split, inward = o.inward ~= false,
               exitSum = 0, exitSum2 = 0, exitCount = 0 }
   local s = m.s
   for i = 1, m.n do
