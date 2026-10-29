@@ -1,0 +1,248 @@
+# Ch. 7 — Gas-mimetic swarms: the theory checks, on Kerr's own code
+
+`BOOK.md` entries 7.1–7.4 (PDF 228–243, `book/ch07.md`; Kerr's thesis,
+digest `book/theses/Kerr.md`). The chapter's three theory experiments are
+uniform density at rest (Fig. 7.5), mean speed against temperature
+(Fig. 7.6) and the velocity profile between one or two moving walls
+(Figs. 7.7–7.8). Here they are run on Kerr's own simulator: his 2004 Java,
+in this folder as he left it, and ported to Lua operation for operation.
+
+| File | What |
+| --- | --- |
+| `kerr/` | Kerr's 2004 Java (William's archive, `code.7.04`): one folder per experiment, `StandardCouette` (profile), `UniformDistribution` (density), `AverageSpeed` (speed), each with his gas (`ktphysics/`), his drivers and their output files (`experiments/`), his AP gas (`apgasphysics/`) and his Java of Garcia's program (`physicsorig/`, `physics/`) |
+| `kerr_seed.diff` | One line in each `ktphysics/CouettePhysics.java`: the seed from `-Dkerr.seed` instead of the clock (his runs cannot be repeated otherwise) |
+| `KerrReference.java` | Ours: runs his gas from a seed and prints the state |
+| `kerr_reference.sh` | Builds his Java with the diff (in a temporary copy) and writes `kerr_reference.txt`, four runs that `../checks/ch07.lua` compares the Lua with (needs a JDK) |
+| `kerr.lua` | His gas in Lua, with four fixes as switches, all off (his code) by default |
+| `theory.lua` | One run of one experiment, measured as his drivers measured it and as the book defines its error; one line out (the protocols are at its top) |
+| `sweep.sh` | The sweeps into `theory_runs.txt` (the tables below) |
+| `../checks/ch07.lua` | 13 checks, about 20 s (any Lua 5.1–5.4, and BPP) |
+
+**Provenance.** `kerr/` is the code William found in his archive
+(`forclaude.zip`, folder `code.7.04`), April 2004: the simulator behind
+the FAABS III paper (Kerr, Spears et al., *Two formal gas models for
+multi-agent sweeping and obstacle avoidance*, 2004) and the start of
+Kerr's thesis Ch. 5. Taken as it is, but for line endings (CRLF to LF);
+left out are the compiled classes, NetBeans' `.nbattrs` and one 19 MB
+output file (`AverageSpeed/experiments/output.txt`). His drivers write to
+`C:\cygwin\home\wkerr\repos\FAABSIII\…`; their output files beside them
+are his own runs.
+
+**Garcia.** Kerr's gas is Alejandro Garcia's DSMC program for Couette flow,
+`dsmcne`, from *Numerical Methods for Physics* (2nd ed., Prentice Hall,
+2000; Garcia's code: github.com/AlejGarcia/NM4P), translated to Java and
+made two-dimensional: move, sort into cells, collide (no-time-counter
+candidates, accepted with probability c_r / c_r,max), with thermal walls
+(Maxwell's biased distribution, the particle flying on from the strike
+for the rest of the step). Units are Garcia's: argon in SI, a channel
+1 µm wide, wall speeds as Mach numbers. `kerr/*/physicsorig/` is Kerr's
+Java of Garcia's original (its wall-speed start `vwall * 2*(x/L)-0.5`
+has a bracket lost; Garcia's is `vwall*2*(x/L - 0.5)`).
+
+**The port is exact.** `kerr.lua` repeats his Java's arithmetic in the
+same order, with his random numbers (Park and Miller's minimal standard).
+Four runs from fixed seeds, one per experiment, 200–1,000 steps, end with
+the same number of collisions and the same positions and velocities, bit
+for bit in most runs and within 10⁻¹² in the others (the maths libraries'
+logarithms) — `checks/ch07.lua` 1–4 on Lua 5.1–5.4.
+
+## What his code does that the book does not say
+
+Read from his Java and measured on the Lua (`kerr.lua`'s header has
+them line by line):
+
+1. **The collision angle** is Garcia's 3D draw with its azimuth dropped:
+   cos θ = 1 − 2U, sin θ = +√(1 − cos² θ), θ from the x axis (across the
+   channel). Relative velocities after a collision lean toward the flow's
+   axis, and only half the circle is drawn for the first particle of a
+   pair (the pair's order is random, so the other half comes from the
+   other order). The book's text has θ uniform on [0, 2π) (PDF 236). Fix
+   `iso`.
+2. **The boxes' walls at y** (the density and speed experiments; the
+   walls at x are Garcia's). A particle that crosses y = 0 or y = L is
+   placed from where its path crosses the line y = 0, whichever wall it
+   hit, then clamped into the box: one that left through y = L comes back
+   at y = 0. In the density box it also gets vx = +|Rayleigh|, always
+   toward x = L. The speed box reflects vy. Fix `walls` (Garcia's wall
+   at y too; the speed box keeps its reflection, placed right).
+3. **Collision counting**: n² candidate pairs per cell (Garcia: n(n − 1))
+   and c_r,max raised after every candidate (Garcia: after the cell).
+   Fix `garcia`.
+4. **The profile's start**: Garcia's gradient, vy = V (2x/L − 1) on top of
+   the thermal speeds, from −V at one wall to +V at the other, also in the
+   one-sided runs, where the flow should go from 0 to V. Fix `rest` (no
+   gradient).
+5. **The profile's channel is open along the flow.** The cells cover 10 L
+   of it, nothing stops the gas beyond; it drifts with the wall, and
+   particles past the last row are sorted into it. At Mach 1.2 two in five
+   particles are past 10 L by step 500 and all by step 5,000 (y up to
+   ~370 L by step 20,000). The profile across the channel is still
+   measured (the gas is just denser per cell, and collides more: 0.11 per
+   particle per step at the start, ~0.2 later).
+6. **His error measures** (his drivers, `kerr/*/experiments/`), each
+   unlike the paper's and the book's |theory − simulation| / theory:
+   - speed: |⟨v⟩ − theory| divided by the **fastest single speed met** in
+     the runs (about 4 × ⟨v⟩), not by the theory;
+   - density: the counts in 5 × 5 cells summed over the last 199 of
+     30,000 steps and divided by 200, cut to integers; the error is the
+     sum of the cells' **excess** over N/25, divided by N − N/25 (the most
+     excess possible); his runs also carried the grid over from one run
+     to the next;
+   - profile: per cell, |theory − simulation| divided by the **largest
+     error possible** there, max(theory, V − theory), over steps 1–2,000
+     from the gradient start.
+
+## Results
+
+### Speed (Exp. 2, Fig. 7.6)
+
+500 particles in the L × L box, 2,000 steps, the mean speed over every
+particle and step against √(πkT/2m) (3 seeds; `theory.lua speed`). In
+Garcia's units every run is the same at any temperature, scaled: T = 25,
+273 and 350 K give the same relative numbers to the last digit (so his
+file's spread over T is his clock seeds, nothing else).
+
+| Fixes | err (book) | his measure | ⟨v²⟩ / 2kT/m | ⟨v⟩/√⟨v²⟩ |
+| --- | --- | --- | --- | --- |
+| none (his code) | +3.75% | 0.82% | 1.084 | 0.883 |
+| iso | +2.14% | 0.47% | 1.038 | |
+| walls | +2.29% | 0.50% | 1.050 | |
+| garcia | +3.56% | 0.78% | 1.079 | |
+| iso, walls, garcia | +0.28% | 0.11% | 1.003 | 0.888 |
+
+His own file (`AverageSpeed/experiments/ktphysics.txt`, 20 runs per T):
++3.73%, +3.98%, +3.94% at 350, 25, 273 K by the book's measure. His gas
+runs **hot**, by 8% in ⟨v²⟩; the speeds keep Maxwell's shape (0.8862), so
+the mean is high because the temperature is. His measure divides the
+same error by the fastest speed met and makes it ~0.8%, the level of
+Fig. 7.6 (0.9–1.1% at 0% obstacles, read from the figure's source; F94).
+With all three fixes the gas is at the walls' temperature and the mean
+speed is the theory's to 0.3%.
+
+### Density (Exp. 1, Fig. 7.5)
+
+N particles in the L × L box (20 × 20 cells), started uniform in the
+square [L/2, 3L/4]²; the counts in a 5 × 5 grid over the last 199 steps
+(`theory.lua density`). His runs: N = 10,000, 12,000 and 15,000, 30,000
+steps; his file (`UniformDistribution/experiments/ktphysics.txt`) has
+0.186–0.191 by his measure.
+
+| N, steps | Fixes | his measure | book's |
+| --- | --- | --- | --- |
+| 10,000, 30,000 | none (his code) | 0.187, 0.185 | 36.6%, 36.2% |
+| 10,000, 30,000 | walls | 0.007, 0.007 | 1.9%, 2.0% |
+| 10,000, 30,000 | iso | 0.179, 0.182 | 34.9%, 35.6% |
+| 10,000, 30,000 | iso, walls, garcia | 0.003, 0.005 | 1.2%, 1.6% |
+| 100–800, 5,000 | none | 0.16–0.19 | 35–40% |
+| 100–800, 5,000 | walls | 0.017–0.035 | 16% (N 100), 11% (200), 9% (300, 400), 5–6% (500–800) |
+
+His gas does not spread uniformly: it piles into the corner x = L,
+y = 0 (his own grid at N = 10,000, rows y = 0 to L, columns x = 0 to L):
+
+    311 398 502 722 1364
+    303 333 402 522 655
+    300 313 359 405 447
+    277 278 285 313 318
+    231 221 225 228 225      (N/C = 400)
+
+The walls at y send every particle that strikes them toward x = L and
+put the ones that leave through y = L back at y = 0 (item 2). With
+Garcia's wall there instead (`walls`) the box fills uniformly: 2% off at
+N = 10,000; the other two fixes add little (1.2–1.6% with all three).
+
+### Profile (Exp. 3, Figs. 7.7–7.8)
+
+500 particles in the channel L wide (7 cells across), one-sided (the
+wall at x = L moving at Mach M, the other at rest) or two-sided (both at
+M the same way); the mean vy in 7 columns, averaged over a window of
+steps; in Mach (`theory.lua profile`, 3 seeds each). His window is steps
+1–2,000 from his start (Garcia's gradient); "rest" is the same window
+from a start at rest; "settled" is steps 5,001–10,000. His measure
+divides each column's error by the largest possible there; the book's
+by the theory (V x/L at the column's centre, V/14 next to the still
+wall).
+
+| M | his measure, his window | book's, his window | book's, from rest | book's, settled | settled profile (Mach), theory (k + ½) M/7 |
+| --- | --- | --- | --- | --- | --- |
+| 0.65 | 0.160 | 61% | 62% | 19% | 0.09 0.16 0.24 0.33 0.41 0.48 0.56 |
+| 1.2 | 0.110 | 43% | 46% | 17% | 0.15 0.30 0.45 0.60 0.75 0.89 1.03 |
+| 1.792 | 0.091 | 34% | 35% | 16% | 0.22 0.44 0.67 0.90 1.12 1.34 1.56 |
+| 1 | 0.123 | 51% | 46% | 20% | 0.14 0.26 0.39 0.51 0.63 0.75 0.86 |
+| 2 | 0.082 | 30% | 30% | 15% | 0.25 0.49 0.73 0.99 1.25 1.50 1.75 |
+| 3 | 0.055 | 20% | 25% | 13% | 0.35 0.72 1.11 1.49 1.88 2.27 2.64 |
+| 4 | 0.046 | 17% | 19% | 11% | 0.44 0.94 1.46 1.99 2.53 3.06 3.56 |
+| 5 | 0.036 | 12% | 15% | 8.3% | 0.51 1.14 1.80 2.48 3.17 3.85 4.49 |
+| 6 | 0.030 | 11% | 12% | 5.9% | 0.56 1.34 2.16 3.00 3.83 4.66 5.43 |
+| 7 | 0.023 | 7.4% | 10% | 4.5% | 0.63 1.53 2.51 3.51 4.49 5.48 6.38 |
+| 8 | 0.021 | 5.8% | 8.2% | 3.7% | 0.69 1.73 2.87 4.02 5.15 6.27 7.31 |
+
+His file (`StandardCouette/experiments/newphysics.txt`, 10 runs each):
+0.150, 0.115 and 0.088 at Mach 0.65, 1.2 and 1.792, his measure; ours
+0.160, 0.110, 0.091 (3 runs). By the book's measure the same runs are
+34–61% off: the column by the still wall, where the theory is V/14, is
+off by 150–290% (slip: the gas there moves with the rest). His start
+does not matter much (from rest within a few points). Settled, the
+profile is linear with slip at both walls (at Mach 4 the columns rise by
+0.52 each against the theory's 0.57, from 0.44 against 0.29), the error
+falls with M, 20% at Mach 1 to 3.7% at 8, and the gas heats with the
+shear (collisions per particle per step 0.17 at Mach 0.65, 0.49 at 8).
+
+Two-sided, the flow is flat at V: 0.96–0.98 V in his window (the
+gradient start still unwinding), 1.00 V settled (3 seeds at M = 1, 2, 4,
+8; error 1.8–3.0% and 0.1–1.0%).
+
+All of this in an open channel whose gas has left the cells it is
+sorted into (item 5 above); the theory does not see it, since the
+profile across the channel does not depend on where along it the gas is.
+
+## The book's figures
+
+The journal paper's sources (William's archive, `journal_wes/`, with
+gnuplot's PostScript of each figure) give the book's Figs. 7.5–7.8 curve
+for curve: `ktunir.2.eps`, `ktv.2.eps`, `ktvy.2.eps`, `actual-vd.eps` and
+`actual-vd-2.eps`. Their plotted points, read from the PostScript:
+
+| Fig. | 0% obstacles | 10–50% obstacles |
+| --- | --- | --- |
+| 7.5 density error vs N (100–800) | 6.1, 6.2, 6.3, 6.4, 6.5, 6.5, 6.5, 6.5% | 10%: 8.4 → 5.8; 20%: 7.8 → 5.0; 30%: 10.3 → 8.8; 40%: 11.5 → 9.1; 50%: 9.6 → 8.8% |
+| 7.6 speed error vs T (50–400) | 0.86–1.14% | 0.64–0.95% |
+| 7.7 one-sided profile error vs V (1–8) | 35.4, 23.4, 20.4, 18.2, 16.2, 14.8% (V = 1–6; no points at 7, 8) | 10%: 32.6 → 21.5; 20%: 53 → 36; 30%: 74 → 54; 40%: 103 → 88; 50%: 122 → 102% |
+| 7.8 left, one-sided, V = 4, 8 subcorridors | 0.39, 0.78, 1.19, 1.59, 2.00, 2.40, 2.80, 3.20 | 10%: 0.26 → 2.63; 20%: 0.19 → 2.20; 30%: 0.12 → 1.76; 40%: 0.01 → 0.74; 50%: −0.09 → 0.73 |
+| 7.8 right, two-sided, V = 4 | 3.57–3.60 | 10%: 3.34–3.42; 20%: 3.10–3.15; 30%: 2.93–3.09; 40%: 2.46–2.70; 50%: 1.78–2.15 |
+
+They are not from the code here: they have obstacles, 300 robots and 8
+subcorridors, and the 2004 code has neither obstacles in its drivers nor
+those settings. Their simulator (2005, the thesis's) is not in the
+archive William has found so far. Against it, the 2004 code's runs:
+
+- **Speed:** Fig. 7.6's ~1% is the level of his measure (0.8%, the error
+  divided by the fastest speed met); by the book's measure his gas is
+  3.75% off. The book's and the journal draft's "less than 2%" (PDF 241)
+  and the thesis's "less than 10%" describe the same plot (F94).
+- **Density:** Fig. 7.5's 6% at 0% obstacles is not his 2004 box (36% by
+  the book's measure, his corner pile-up); with the walls at y put right
+  it is of the figure's order (9% at N = 300, 5–6% from N = 500,
+  falling with N as counting noise does, where the figure is flat at
+  6.1–6.5%).
+- **Profile:** Fig. 7.7's 0% curve lies between his window and the
+  settled flow (at V = 2, 3, 4: 23, 20, 18% against 30, 20, 17% and 15,
+  13, 11%); Fig. 7.8 left has the same linear profile with slip (slope
+  0.80 of the theory's, ours 0.85 in his window, 0.91 settled); Fig. 7.8
+  right is flat but at 0.90 V, where his code gives 0.98 V in 2,000 steps
+  and 1.00 V settled: a flow not yet spun up, or slower walls.
+- **Obstacles:** two kinds are in the archive. His April 2004 gas
+  simulator for the FAABS coverage runs (`code.4.04`, not here) has
+  squares only (`SquareObstacle`), at rest and thermalising like his
+  box's walls (a face across the flow gets a normal speed |N(0, σ)| and
+  a tangential +Rayleigh, again always one way). His 2005 robot
+  simulator (`obstacle/`) has squares, circles and triangles, and a
+  course file can hold all three; but its obstacles are only seen by
+  the sonar (circles and triangles are left out of the coverage and
+  shadow counts), and all 50 of its courses (40 for the thesis's
+  sweeps, 10 for videos, made by its `ObstacleGenerator` from blocks of
+  a 40 × 40 grid) hold rectangles only. The triangle, circle and cup of
+  Fig. 7.2 (the journal's `kt1`–`kt3.eps`, August 2004) come from a
+  version not in the archive. Obstacles that take a wall's momentum at
+  every meeting would hold the flow far below Fig. 7.8, where 10% of
+  obstacles cost the two-sided flow only 6% (FINDINGS F94); how the
+  thesis's runs treated obstacles remains open.

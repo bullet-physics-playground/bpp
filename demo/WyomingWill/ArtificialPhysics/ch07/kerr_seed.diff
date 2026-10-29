@@ -1,0 +1,33 @@
+--- a/kerr/AverageSpeed/ktphysics/CouettePhysics.java
++++ b/kerr/AverageSpeed/ktphysics/CouettePhysics.java
+@@ -87,7 +87,7 @@
+       
+       seed = new MyLong();
+       GregorianCalendar g = new GregorianCalendar();
+-      seed.seed = g.getTime().getTime();
++      seed.seed = Long.getLong("kerr.seed", g.getTime().getTime()).longValue();
+       //System.out.println("RANDOM SEED: " + seed.seed);
+       
+       for (int i = 0; i < npart; ++i)
+--- a/kerr/StandardCouette/ktphysics/CouettePhysics.java
++++ b/kerr/StandardCouette/ktphysics/CouettePhysics.java
+@@ -87,7 +87,7 @@
+       
+       seed = new MyLong();
+       GregorianCalendar g = new GregorianCalendar();
+-      seed.seed = g.getTime().getTime();
++      seed.seed = Long.getLong("kerr.seed", g.getTime().getTime()).longValue();
+       //System.out.println("RANDOM SEED: " + seed.seed);
+       
+       for (int i = 0; i < npart; ++i)
+--- a/kerr/UniformDistribution/ktphysics/CouettePhysics.java
++++ b/kerr/UniformDistribution/ktphysics/CouettePhysics.java
+@@ -89,7 +89,7 @@
+       
+       seed = new MyLong();
+       GregorianCalendar g = new GregorianCalendar();
+-      seed.seed = g.getTime().getTime();
++      seed.seed = Long.getLong("kerr.seed", g.getTime().getTime()).longValue();
+       //System.out.println("RANDOM SEED: " + seed.seed);
+       
+       for (int i = 0; i < npart; ++i)

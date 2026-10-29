@@ -1,0 +1,224 @@
+speed T 25 seed 1 fix none mean 93.648 theory 90.429 err +0.0356 kerr 0.0076 v2 1.0822 shape 0.8826 coll 0.0160
+speed T 25 seed 2 fix none mean 93.717 theory 90.429 err +0.0364 kerr 0.0080 v2 1.0794 shape 0.8842 coll 0.0160
+speed T 25 seed 3 fix none mean 94.081 theory 90.429 err +0.0404 kerr 0.0090 v2 1.0894 shape 0.8837 coll 0.0162
+speed T 25 seed 1 fix iso mean 91.490 theory 90.429 err +0.0117 kerr 0.0025 v2 1.0214 shape 0.8874 coll 0.0162
+speed T 25 seed 2 fix iso mean 93.056 theory 90.429 err +0.0290 kerr 0.0064 v2 1.0502 shape 0.8901 coll 0.0165
+speed T 25 seed 3 fix iso mean 92.561 theory 90.429 err +0.0236 kerr 0.0052 v2 1.0436 shape 0.8881 coll 0.0162
+speed T 25 seed 1 fix walls mean 92.647 theory 90.429 err +0.0245 kerr 0.0052 v2 1.0532 shape 0.8849 coll 0.0173
+speed T 25 seed 2 fix walls mean 91.795 theory 90.429 err +0.0151 kerr 0.0033 v2 1.0403 shape 0.8823 coll 0.0173
+speed T 25 seed 3 fix walls mean 93.060 theory 90.429 err +0.0291 kerr 0.0065 v2 1.0556 shape 0.8879 coll 0.0174
+speed T 25 seed 1 fix garcia mean 93.799 theory 90.429 err +0.0373 kerr 0.0080 v2 1.0803 shape 0.8848 coll 0.0137
+speed T 25 seed 2 fix garcia mean 93.463 theory 90.429 err +0.0336 kerr 0.0074 v2 1.0753 shape 0.8835 coll 0.0136
+speed T 25 seed 3 fix garcia mean 93.685 theory 90.429 err +0.0360 kerr 0.0080 v2 1.0802 shape 0.8837 coll 0.0136
+speed T 25 seed 1 fix iso,walls,garcia mean 91.072 theory 90.429 err +0.0071 kerr 0.0015 v2 1.0110 shape 0.8879 coll 0.0143
+speed T 25 seed 2 fix iso,walls,garcia mean 90.872 theory 90.429 err +0.0049 kerr 0.0011 v2 1.0063 shape 0.8879 coll 0.0142
+speed T 25 seed 3 fix iso,walls,garcia mean 90.101 theory 90.429 err -0.0036 kerr 0.0008 v2 0.9902 shape 0.8875 coll 0.0139
+speed T 273 seed 1 fix none mean 309.464 theory 298.826 err +0.0356 kerr 0.0076 v2 1.0822 shape 0.8826 coll 0.0160
+speed T 273 seed 2 fix none mean 309.690 theory 298.826 err +0.0364 kerr 0.0080 v2 1.0794 shape 0.8842 coll 0.0160
+speed T 273 seed 3 fix none mean 310.895 theory 298.826 err +0.0404 kerr 0.0090 v2 1.0894 shape 0.8837 coll 0.0162
+speed T 273 seed 1 fix iso mean 302.333 theory 298.826 err +0.0117 kerr 0.0025 v2 1.0214 shape 0.8874 coll 0.0162
+speed T 273 seed 2 fix iso mean 307.506 theory 298.826 err +0.0290 kerr 0.0064 v2 1.0502 shape 0.8901 coll 0.0165
+speed T 273 seed 3 fix iso mean 305.870 theory 298.826 err +0.0236 kerr 0.0052 v2 1.0436 shape 0.8881 coll 0.0162
+speed T 273 seed 1 fix walls mean 306.156 theory 298.826 err +0.0245 kerr 0.0052 v2 1.0532 shape 0.8849 coll 0.0173
+speed T 273 seed 2 fix walls mean 303.340 theory 298.826 err +0.0151 kerr 0.0033 v2 1.0403 shape 0.8823 coll 0.0173
+speed T 273 seed 3 fix walls mean 307.520 theory 298.826 err +0.0291 kerr 0.0065 v2 1.0556 shape 0.8879 coll 0.0174
+speed T 273 seed 1 fix garcia mean 309.964 theory 298.826 err +0.0373 kerr 0.0080 v2 1.0803 shape 0.8848 coll 0.0137
+speed T 273 seed 2 fix garcia mean 308.854 theory 298.826 err +0.0336 kerr 0.0074 v2 1.0753 shape 0.8835 coll 0.0136
+speed T 273 seed 3 fix garcia mean 309.585 theory 298.826 err +0.0360 kerr 0.0080 v2 1.0802 shape 0.8837 coll 0.0136
+speed T 273 seed 1 fix iso,walls,garcia mean 300.952 theory 298.826 err +0.0071 kerr 0.0015 v2 1.0110 shape 0.8879 coll 0.0143
+speed T 273 seed 2 fix iso,walls,garcia mean 300.290 theory 298.826 err +0.0049 kerr 0.0011 v2 1.0063 shape 0.8879 coll 0.0142
+speed T 273 seed 3 fix iso,walls,garcia mean 297.742 theory 298.826 err -0.0036 kerr 0.0008 v2 0.9902 shape 0.8875 coll 0.0139
+speed T 350 seed 1 fix none mean 350.398 theory 338.354 err +0.0356 kerr 0.0076 v2 1.0822 shape 0.8826 coll 0.0160
+speed T 350 seed 2 fix none mean 350.655 theory 338.354 err +0.0364 kerr 0.0080 v2 1.0794 shape 0.8842 coll 0.0160
+speed T 350 seed 3 fix none mean 352.019 theory 338.354 err +0.0404 kerr 0.0090 v2 1.0894 shape 0.8837 coll 0.0162
+speed T 350 seed 1 fix iso mean 342.324 theory 338.354 err +0.0117 kerr 0.0025 v2 1.0214 shape 0.8874 coll 0.0162
+speed T 350 seed 2 fix iso mean 348.182 theory 338.354 err +0.0290 kerr 0.0064 v2 1.0502 shape 0.8901 coll 0.0165
+speed T 350 seed 3 fix iso mean 346.330 theory 338.354 err +0.0236 kerr 0.0052 v2 1.0436 shape 0.8881 coll 0.0162
+speed T 350 seed 1 fix walls mean 346.654 theory 338.354 err +0.0245 kerr 0.0052 v2 1.0532 shape 0.8849 coll 0.0173
+speed T 350 seed 2 fix walls mean 343.464 theory 338.354 err +0.0151 kerr 0.0033 v2 1.0403 shape 0.8823 coll 0.0173
+speed T 350 seed 3 fix walls mean 348.197 theory 338.354 err +0.0291 kerr 0.0065 v2 1.0556 shape 0.8879 coll 0.0174
+speed T 350 seed 1 fix garcia mean 350.965 theory 338.354 err +0.0373 kerr 0.0080 v2 1.0803 shape 0.8848 coll 0.0137
+speed T 350 seed 2 fix garcia mean 349.708 theory 338.354 err +0.0336 kerr 0.0074 v2 1.0753 shape 0.8835 coll 0.0136
+speed T 350 seed 3 fix garcia mean 350.536 theory 338.354 err +0.0360 kerr 0.0080 v2 1.0802 shape 0.8837 coll 0.0136
+speed T 350 seed 1 fix iso,walls,garcia mean 340.761 theory 338.354 err +0.0071 kerr 0.0015 v2 1.0110 shape 0.8879 coll 0.0143
+speed T 350 seed 2 fix iso,walls,garcia mean 340.011 theory 338.354 err +0.0049 kerr 0.0011 v2 1.0063 shape 0.8879 coll 0.0142
+speed T 350 seed 3 fix iso,walls,garcia mean 337.126 theory 338.354 err -0.0036 kerr 0.0008 v2 0.9902 shape 0.8875 coll 0.0139
+profile one M 0.650 seed 1 fix none steps 2000 from 1 kerr 0.1687 book 0.5975 coll 0.0541 prof 0.175 0.217 0.254 0.284 0.344 0.396 0.462
+profile one M 0.650 seed 1 fix rest steps 2000 from 1 kerr 0.1555 book 0.6164 coll 0.0567 prof 0.179 0.236 0.276 0.314 0.363 0.416 0.469
+profile one M 0.650 seed 1 fix none steps 10000 from 5001 kerr 0.0353 book 0.1769 coll 0.1686 prof 0.093 0.150 0.231 0.327 0.410 0.486 0.558
+profile one M 0.650 seed 2 fix none steps 2000 from 1 kerr 0.1532 book 0.6057 coll 0.0524 prof 0.178 0.230 0.274 0.316 0.354 0.421 0.469
+profile one M 0.650 seed 2 fix rest steps 2000 from 1 kerr 0.1481 book 0.5998 coll 0.0552 prof 0.185 0.206 0.260 0.316 0.367 0.400 0.459
+profile one M 0.650 seed 2 fix none steps 10000 from 5001 kerr 0.0508 book 0.1887 coll 0.1699 prof 0.087 0.164 0.252 0.340 0.415 0.481 0.553
+profile one M 0.650 seed 3 fix none steps 2000 from 1 kerr 0.1589 book 0.6116 coll 0.0543 prof 0.179 0.230 0.260 0.301 0.352 0.414 0.466
+profile one M 0.650 seed 3 fix rest steps 2000 from 1 kerr 0.1686 book 0.6289 coll 0.0518 prof 0.182 0.230 0.261 0.305 0.355 0.389 0.448
+profile one M 0.650 seed 3 fix none steps 10000 from 5001 kerr 0.0507 book 0.1913 coll 0.1662 prof 0.087 0.167 0.248 0.332 0.406 0.477 0.557
+profile one M 1.200 seed 1 fix none steps 2000 from 1 kerr 0.1114 book 0.4633 coll 0.1134 prof 0.275 0.384 0.488 0.597 0.713 0.810 0.918
+profile one M 1.200 seed 1 fix rest steps 2000 from 1 kerr 0.1117 book 0.4239 coll 0.1109 prof 0.259 0.358 0.465 0.578 0.688 0.805 0.912
+profile one M 1.200 seed 1 fix none steps 10000 from 5001 kerr 0.0481 book 0.1664 coll 0.1992 prof 0.149 0.303 0.447 0.595 0.728 0.879 1.029
+profile one M 1.200 seed 2 fix none steps 2000 from 1 kerr 0.1207 book 0.4324 coll 0.1078 prof 0.251 0.373 0.501 0.593 0.692 0.788 0.892
+profile one M 1.200 seed 2 fix rest steps 2000 from 1 kerr 0.1236 book 0.4593 coll 0.1096 prof 0.270 0.369 0.477 0.583 0.677 0.793 0.881
+profile one M 1.200 seed 2 fix none steps 10000 from 5001 kerr 0.0432 book 0.1670 coll 0.1976 prof 0.153 0.300 0.453 0.617 0.767 0.894 1.027
+profile one M 1.200 seed 3 fix none steps 2000 from 1 kerr 0.0981 book 0.3832 coll 0.1102 prof 0.241 0.354 0.472 0.604 0.713 0.822 0.917
+profile one M 1.200 seed 3 fix rest steps 2000 from 1 kerr 0.1204 book 0.4894 coll 0.1152 prof 0.283 0.393 0.505 0.609 0.714 0.802 0.910
+profile one M 1.200 seed 3 fix none steps 10000 from 5001 kerr 0.0426 book 0.1727 coll 0.1985 prof 0.160 0.288 0.452 0.603 0.746 0.887 1.035
+profile one M 1.792 seed 1 fix none steps 2000 from 1 kerr 0.0919 book 0.3310 coll 0.1532 prof 0.322 0.506 0.704 0.883 1.055 1.222 1.408
+profile one M 1.792 seed 1 fix rest steps 2000 from 1 kerr 0.0972 book 0.3629 coll 0.1509 prof 0.347 0.514 0.690 0.868 1.046 1.212 1.413
+profile one M 1.792 seed 1 fix none steps 10000 from 5001 kerr 0.0375 book 0.1638 coll 0.2184 prof 0.230 0.451 0.667 0.895 1.126 1.346 1.560
+profile one M 1.792 seed 2 fix none steps 2000 from 1 kerr 0.0960 book 0.3574 coll 0.1556 prof 0.337 0.529 0.708 0.868 1.044 1.246 1.423
+profile one M 1.792 seed 2 fix rest steps 2000 from 1 kerr 0.0954 book 0.3446 coll 0.1543 prof 0.327 0.522 0.711 0.867 1.049 1.232 1.428
+profile one M 1.792 seed 2 fix none steps 10000 from 5001 kerr 0.0431 book 0.1693 coll 0.2198 prof 0.230 0.450 0.678 0.910 1.119 1.338 1.553
+profile one M 1.792 seed 3 fix none steps 2000 from 1 kerr 0.0856 book 0.3255 coll 0.1546 prof 0.320 0.510 0.717 0.901 1.071 1.258 1.423
+profile one M 1.792 seed 3 fix rest steps 2000 from 1 kerr 0.0911 book 0.3459 coll 0.1550 prof 0.336 0.510 0.711 0.884 1.069 1.223 1.422
+profile one M 1.792 seed 3 fix none steps 10000 from 5001 kerr 0.0386 book 0.1413 coll 0.2190 prof 0.214 0.430 0.654 0.881 1.102 1.329 1.569
+profile one M 1.000 seed 1 fix none steps 2000 from 1 kerr 0.1277 book 0.5104 coll 0.0907 prof 0.244 0.326 0.416 0.505 0.581 0.659 0.737
+profile one M 1.000 seed 1 fix rest steps 2000 from 1 kerr 0.1136 book 0.4084 coll 0.0897 prof 0.203 0.305 0.406 0.503 0.569 0.671 0.748
+profile one M 1.000 seed 1 fix none steps 10000 from 5001 kerr 0.0368 book 0.1567 coll 0.1915 prof 0.126 0.246 0.377 0.503 0.638 0.750 0.864
+profile one M 1.000 seed 2 fix none steps 2000 from 1 kerr 0.1240 book 0.5259 coll 0.0922 prof 0.248 0.343 0.432 0.521 0.616 0.691 0.750
+profile one M 1.000 seed 2 fix rest steps 2000 from 1 kerr 0.1199 book 0.4737 coll 0.0907 prof 0.229 0.322 0.416 0.508 0.591 0.670 0.744
+profile one M 1.000 seed 2 fix none steps 10000 from 5001 kerr 0.0520 book 0.2107 coll 0.1916 prof 0.144 0.253 0.390 0.522 0.630 0.753 0.855
+profile one M 1.000 seed 3 fix none steps 2000 from 1 kerr 0.1185 book 0.4830 coll 0.0935 prof 0.233 0.328 0.422 0.506 0.600 0.685 0.741
+profile one M 1.000 seed 3 fix rest steps 2000 from 1 kerr 0.1221 book 0.4832 coll 0.0850 prof 0.236 0.318 0.392 0.495 0.589 0.650 0.718
+profile one M 1.000 seed 3 fix none steps 10000 from 5001 kerr 0.0565 book 0.2460 coll 0.1908 prof 0.153 0.284 0.389 0.507 0.626 0.746 0.856
+profile one M 2.000 seed 1 fix none steps 2000 from 1 kerr 0.0882 book 0.2997 coll 0.1617 prof 0.337 0.550 0.747 0.942 1.173 1.377 1.594
+profile one M 2.000 seed 1 fix rest steps 2000 from 1 kerr 0.0786 book 0.2794 coll 0.1666 prof 0.331 0.525 0.756 0.961 1.188 1.402 1.612
+profile one M 2.000 seed 1 fix none steps 10000 from 5001 kerr 0.0416 book 0.1552 coll 0.2258 prof 0.248 0.493 0.729 0.978 1.229 1.483 1.747
+profile one M 2.000 seed 2 fix none steps 2000 from 1 kerr 0.0749 book 0.2792 coll 0.1660 prof 0.327 0.552 0.761 0.983 1.215 1.415 1.601
+profile one M 2.000 seed 2 fix rest steps 2000 from 1 kerr 0.0983 book 0.2932 coll 0.1639 prof 0.322 0.533 0.766 0.953 1.122 1.331 1.565
+profile one M 2.000 seed 2 fix none steps 10000 from 5001 kerr 0.0353 book 0.1363 coll 0.2268 prof 0.240 0.472 0.724 0.987 1.244 1.496 1.734
+profile one M 2.000 seed 3 fix none steps 2000 from 1 kerr 0.0829 book 0.3245 coll 0.1681 prof 0.357 0.580 0.792 0.989 1.184 1.425 1.626
+profile one M 2.000 seed 3 fix rest steps 2000 from 1 kerr 0.0868 book 0.3227 coll 0.1643 prof 0.356 0.563 0.791 1.005 1.193 1.380 1.580
+profile one M 2.000 seed 3 fix none steps 10000 from 5001 kerr 0.0354 book 0.1611 coll 0.2268 prof 0.256 0.505 0.749 1.006 1.262 1.513 1.764
+profile one M 3.000 seed 1 fix none steps 2000 from 1 kerr 0.0546 book 0.2002 coll 0.2145 prof 0.423 0.745 1.084 1.481 1.814 2.158 2.506
+profile one M 3.000 seed 1 fix rest steps 2000 from 1 kerr 0.0642 book 0.2418 coll 0.2176 prof 0.453 0.802 1.153 1.504 1.838 2.146 2.468
+profile one M 3.000 seed 1 fix none steps 10000 from 5001 kerr 0.0323 book 0.1382 coll 0.2637 prof 0.365 0.714 1.100 1.484 1.878 2.263 2.643
+profile one M 3.000 seed 2 fix none steps 2000 from 1 kerr 0.0552 book 0.2073 coll 0.2174 prof 0.417 0.784 1.148 1.515 1.867 2.186 2.510
+profile one M 3.000 seed 2 fix rest steps 2000 from 1 kerr 0.0727 book 0.2497 coll 0.2168 prof 0.451 0.803 1.160 1.473 1.778 2.123 2.466
+profile one M 3.000 seed 2 fix none steps 10000 from 5001 kerr 0.0312 book 0.1323 coll 0.2636 prof 0.353 0.722 1.120 1.495 1.893 2.268 2.645
+profile one M 3.000 seed 3 fix none steps 2000 from 1 kerr 0.0554 book 0.1918 coll 0.2184 prof 0.408 0.747 1.080 1.455 1.812 2.165 2.515
+profile one M 3.000 seed 3 fix rest steps 2000 from 1 kerr 0.0649 book 0.2439 coll 0.2167 prof 0.457 0.801 1.144 1.468 1.824 2.165 2.493
+profile one M 3.000 seed 3 fix none steps 10000 from 5001 kerr 0.0329 book 0.1263 coll 0.2633 prof 0.343 0.715 1.115 1.485 1.870 2.269 2.637
+profile one M 4.000 seed 1 fix none steps 2000 from 1 kerr 0.0413 book 0.1549 coll 0.2591 prof 0.496 0.976 1.478 1.971 2.482 2.979 3.437
+profile one M 4.000 seed 1 fix rest steps 2000 from 1 kerr 0.0573 book 0.1961 coll 0.2567 prof 0.541 1.009 1.490 1.974 2.405 2.888 3.339
+profile one M 4.000 seed 1 fix none steps 10000 from 5001 kerr 0.0221 book 0.1131 coll 0.3030 prof 0.453 0.953 1.480 2.016 2.571 3.095 3.582
+profile one M 4.000 seed 2 fix none steps 2000 from 1 kerr 0.0482 book 0.1699 coll 0.2643 prof 0.514 0.973 1.483 1.956 2.433 2.939 3.426
+profile one M 4.000 seed 2 fix rest steps 2000 from 1 kerr 0.0554 book 0.1825 coll 0.2543 prof 0.523 0.988 1.470 1.949 2.408 2.893 3.352
+profile one M 4.000 seed 2 fix none steps 10000 from 5001 kerr 0.0263 book 0.1100 coll 0.3039 prof 0.441 0.946 1.461 1.977 2.530 3.045 3.554
+profile one M 4.000 seed 3 fix none steps 2000 from 1 kerr 0.0489 book 0.1790 coll 0.2630 prof 0.521 1.010 1.492 1.952 2.467 2.949 3.422
+profile one M 4.000 seed 3 fix rest steps 2000 from 1 kerr 0.0560 book 0.1849 coll 0.2605 prof 0.522 0.999 1.485 1.950 2.426 2.875 3.362
+profile one M 4.000 seed 3 fix none steps 10000 from 5001 kerr 0.0270 book 0.0996 coll 0.3039 prof 0.426 0.916 1.440 1.964 2.497 3.027 3.551
+profile one M 5.000 seed 1 fix none steps 2000 from 1 kerr 0.0362 book 0.1266 coll 0.3087 prof 0.564 1.188 1.862 2.498 3.106 3.717 4.330
+profile one M 5.000 seed 1 fix rest steps 2000 from 1 kerr 0.0490 book 0.1462 coll 0.2999 prof 0.580 1.219 1.802 2.405 3.050 3.634 4.234
+profile one M 5.000 seed 1 fix none steps 10000 from 5001 kerr 0.0191 book 0.0793 coll 0.3469 prof 0.504 1.132 1.792 2.480 3.153 3.835 4.487
+profile one M 5.000 seed 2 fix none steps 2000 from 1 kerr 0.0346 book 0.1159 coll 0.3118 prof 0.550 1.164 1.820 2.463 3.105 3.708 4.358
+profile one M 5.000 seed 2 fix rest steps 2000 from 1 kerr 0.0421 book 0.1503 coll 0.3016 prof 0.615 1.203 1.795 2.451 3.088 3.695 4.250
+profile one M 5.000 seed 2 fix none steps 10000 from 5001 kerr 0.0191 book 0.0812 coll 0.3476 prof 0.507 1.137 1.797 2.465 3.170 3.853 4.484
+profile one M 5.000 seed 3 fix none steps 2000 from 1 kerr 0.0367 book 0.1214 coll 0.3049 prof 0.558 1.171 1.810 2.454 3.081 3.699 4.354
+profile one M 5.000 seed 3 fix rest steps 2000 from 1 kerr 0.0430 book 0.1384 coll 0.2973 prof 0.589 1.164 1.806 2.447 3.045 3.668 4.269
+profile one M 5.000 seed 3 fix none steps 10000 from 5001 kerr 0.0186 book 0.0890 coll 0.3453 prof 0.522 1.155 1.825 2.508 3.184 3.862 4.496
+profile one M 6.000 seed 1 fix none steps 2000 from 1 kerr 0.0243 book 0.0980 coll 0.3531 prof 0.634 1.401 2.186 2.986 3.818 4.554 5.299
+profile one M 6.000 seed 1 fix rest steps 2000 from 1 kerr 0.0431 book 0.1165 coll 0.3464 prof 0.640 1.375 2.106 2.906 3.633 4.377 5.159
+profile one M 6.000 seed 1 fix none steps 10000 from 5001 kerr 0.0121 book 0.0588 coll 0.3911 prof 0.566 1.335 2.159 2.987 3.834 4.663 5.434
+profile one M 6.000 seed 2 fix none steps 2000 from 1 kerr 0.0318 book 0.1083 coll 0.3526 prof 0.649 1.392 2.146 2.927 3.713 4.513 5.264
+profile one M 6.000 seed 2 fix rest steps 2000 from 1 kerr 0.0451 book 0.1172 coll 0.3454 prof 0.642 1.357 2.116 2.859 3.594 4.376 5.189
+profile one M 6.000 seed 2 fix none steps 10000 from 5001 kerr 0.0131 book 0.0610 coll 0.3920 prof 0.563 1.355 2.172 3.007 3.833 4.656 5.435
+profile one M 6.000 seed 3 fix none steps 2000 from 1 kerr 0.0335 book 0.1167 coll 0.3545 prof 0.656 1.437 2.177 2.941 3.711 4.523 5.269
+profile one M 6.000 seed 3 fix rest steps 2000 from 1 kerr 0.0401 book 0.1133 coll 0.3453 prof 0.648 1.356 2.142 2.852 3.669 4.431 5.193
+profile one M 6.000 seed 3 fix none steps 10000 from 5001 kerr 0.0123 book 0.0574 coll 0.3922 prof 0.562 1.332 2.156 2.999 3.821 4.650 5.426
+profile one M 7.000 seed 1 fix none steps 2000 from 1 kerr 0.0216 book 0.0731 coll 0.3980 prof 0.673 1.576 2.517 3.459 4.394 5.338 6.224
+profile one M 7.000 seed 1 fix rest steps 2000 from 1 kerr 0.0379 book 0.0973 coll 0.3911 prof 0.706 1.540 2.407 3.383 4.277 5.186 6.073
+profile one M 7.000 seed 1 fix none steps 10000 from 5001 kerr 0.0081 book 0.0427 coll 0.4396 prof 0.626 1.520 2.501 3.509 4.481 5.459 6.374
+profile one M 7.000 seed 2 fix none steps 2000 from 1 kerr 0.0244 book 0.0750 coll 0.4013 prof 0.674 1.565 2.497 3.423 4.358 5.311 6.216
+profile one M 7.000 seed 2 fix rest steps 2000 from 1 kerr 0.0367 book 0.1064 coll 0.3932 prof 0.728 1.626 2.527 3.383 4.295 5.198 6.116
+profile one M 7.000 seed 2 fix none steps 10000 from 5001 kerr 0.0085 book 0.0452 coll 0.4399 prof 0.630 1.531 2.511 3.509 4.481 5.469 6.375
+profile one M 7.000 seed 3 fix none steps 2000 from 1 kerr 0.0224 book 0.0733 coll 0.4025 prof 0.679 1.552 2.498 3.433 4.388 5.331 6.210
+profile one M 7.000 seed 3 fix rest steps 2000 from 1 kerr 0.0403 book 0.0952 coll 0.3901 prof 0.687 1.560 2.442 3.343 4.239 5.163 6.077
+profile one M 7.000 seed 3 fix none steps 10000 from 5001 kerr 0.0079 book 0.0457 coll 0.4392 prof 0.630 1.538 2.531 3.498 4.494 5.503 6.377
+profile one M 8.000 seed 1 fix none steps 2000 from 1 kerr 0.0224 book 0.0597 coll 0.4471 prof 0.727 1.729 2.834 3.891 4.964 6.095 7.153
+profile one M 8.000 seed 1 fix rest steps 2000 from 1 kerr 0.0380 book 0.0835 coll 0.4334 prof 0.755 1.739 2.783 3.818 4.861 5.899 6.976
+profile one M 8.000 seed 1 fix none steps 10000 from 5001 kerr 0.0073 book 0.0359 coll 0.4883 prof 0.692 1.719 2.882 4.035 5.150 6.266 7.308
+profile one M 8.000 seed 2 fix none steps 2000 from 1 kerr 0.0203 book 0.0596 coll 0.4465 prof 0.728 1.758 2.885 3.917 5.016 6.118 7.158
+profile one M 8.000 seed 2 fix rest steps 2000 from 1 kerr 0.0329 book 0.0793 coll 0.4327 prof 0.747 1.798 2.824 3.883 4.882 5.957 7.022
+profile one M 8.000 seed 2 fix none steps 10000 from 5001 kerr 0.0073 book 0.0397 coll 0.4884 prof 0.704 1.742 2.860 4.020 5.141 6.255 7.296
+profile one M 8.000 seed 3 fix none steps 2000 from 1 kerr 0.0191 book 0.0556 coll 0.4456 prof 0.717 1.746 2.820 3.934 5.029 6.118 7.160
+profile one M 8.000 seed 3 fix rest steps 2000 from 1 kerr 0.0361 book 0.0845 coll 0.4348 prof 0.759 1.769 2.777 3.846 4.859 5.965 6.996
+profile one M 8.000 seed 3 fix none steps 10000 from 5001 kerr 0.0061 book 0.0346 coll 0.4878 prof 0.688 1.736 2.871 4.012 5.151 6.279 7.313
+profile two M 1.000 seed 1 fix none steps 2000 from 1 kerr 0.0351 book 0.0351 coll 0.1530 prof 0.973 0.964 0.963 0.957 0.953 0.967 0.978
+profile two M 1.000 seed 1 fix none steps 10000 from 5001 kerr 0.0093 book 0.0093 coll 0.1992 prof 0.998 0.989 0.983 0.984 0.988 1.008 0.999
+profile two M 1.000 seed 2 fix none steps 2000 from 1 kerr 0.0322 book 0.0322 coll 0.1542 prof 0.946 0.951 0.968 0.983 0.973 0.970 0.984
+profile two M 1.000 seed 2 fix none steps 10000 from 5001 kerr 0.0089 book 0.0089 coll 0.1993 prof 1.008 1.016 1.008 1.009 0.999 1.006 1.013
+profile two M 1.000 seed 3 fix none steps 2000 from 1 kerr 0.0218 book 0.0218 coll 0.1510 prof 0.955 0.952 0.978 0.990 0.991 0.998 0.985
+profile two M 1.000 seed 3 fix none steps 10000 from 5001 kerr 0.0113 book 0.0113 coll 0.1985 prof 1.011 1.008 1.007 1.018 1.009 1.013 1.013
+profile two M 2.000 seed 1 fix none steps 2000 from 1 kerr 0.0327 book 0.0327 coll 0.1809 prof 1.947 1.936 1.928 1.932 1.923 1.931 1.945
+profile two M 2.000 seed 1 fix none steps 10000 from 5001 kerr 0.0052 book 0.0052 coll 0.2037 prof 2.008 2.008 2.010 2.003 2.016 2.015 2.013
+profile two M 2.000 seed 2 fix none steps 2000 from 1 kerr 0.0223 book 0.0223 coll 0.1808 prof 1.953 1.937 1.941 1.956 1.975 1.965 1.960
+profile two M 2.000 seed 2 fix none steps 10000 from 5001 kerr 0.0031 book 0.0031 coll 0.2042 prof 2.003 1.996 1.995 1.996 2.013 2.013 1.998
+profile two M 2.000 seed 3 fix none steps 2000 from 1 kerr 0.0305 book 0.0305 coll 0.1802 prof 1.952 1.933 1.918 1.936 1.944 1.946 1.943
+profile two M 2.000 seed 3 fix none steps 10000 from 5001 kerr 0.0022 book 0.0022 coll 0.2046 prof 2.002 2.010 1.998 2.010 2.001 1.996 1.997
+profile two M 4.000 seed 1 fix none steps 2000 from 1 kerr 0.0235 book 0.0235 coll 0.1955 prof 3.904 3.898 3.884 3.892 3.904 3.930 3.930
+profile two M 4.000 seed 1 fix none steps 10000 from 5001 kerr 0.0030 book 0.0030 coll 0.2076 prof 3.997 4.005 4.002 4.016 4.022 4.023 4.012
+profile two M 4.000 seed 2 fix none steps 2000 from 1 kerr 0.0226 book 0.0226 coll 0.1952 prof 3.912 3.899 3.856 3.876 3.913 3.954 3.955
+profile two M 4.000 seed 2 fix none steps 10000 from 5001 kerr 0.0018 book 0.0018 coll 0.2075 prof 3.990 3.992 4.002 4.013 4.012 4.006 4.003
+profile two M 4.000 seed 3 fix none steps 2000 from 1 kerr 0.0245 book 0.0245 coll 0.1935 prof 3.924 3.903 3.893 3.892 3.897 3.895 3.909
+profile two M 4.000 seed 3 fix none steps 10000 from 5001 kerr 0.0031 book 0.0031 coll 0.2072 prof 4.020 4.024 4.015 4.009 4.013 3.997 3.998
+profile two M 8.000 seed 1 fix none steps 2000 from 1 kerr 0.0194 book 0.0194 coll 0.2037 prof 7.860 7.804 7.795 7.803 7.835 7.887 7.931
+profile two M 8.000 seed 1 fix none steps 10000 from 5001 kerr 0.0005 book 0.0005 coll 0.2099 prof 7.992 7.993 7.996 7.997 7.998 7.998 7.996
+profile two M 8.000 seed 2 fix none steps 2000 from 1 kerr 0.0177 book 0.0177 coll 0.2064 prof 7.873 7.810 7.813 7.815 7.858 7.902 7.939
+profile two M 8.000 seed 2 fix none steps 10000 from 5001 kerr 0.0008 book 0.0008 coll 0.2100 prof 7.999 7.994 8.001 8.007 8.013 8.007 8.010
+profile two M 8.000 seed 3 fix none steps 2000 from 1 kerr 0.0159 book 0.0159 coll 0.2032 prof 7.879 7.848 7.847 7.856 7.868 7.894 7.917
+profile two M 8.000 seed 3 fix none steps 10000 from 5001 kerr 0.0016 book 0.0016 coll 0.2089 prof 7.991 7.976 7.985 7.980 7.987 7.994 7.997
+density N 10000 seed 1 fix none steps 30000 kerr 0.1876 book 0.3658
+density N 10000 seed 2 fix none steps 30000 kerr 0.1854 book 0.3617
+density N 10000 seed 2 fix walls steps 30000 kerr 0.0070 book 0.0198
+density N 10000 seed 1 fix walls steps 30000 kerr 0.0066 book 0.0186
+density N 10000 seed 2 fix iso steps 30000 kerr 0.1823 book 0.3560
+density N 10000 seed 1 fix iso steps 30000 kerr 0.1786 book 0.3488
+density N 10000 seed 1 fix iso,walls,garcia steps 30000 kerr 0.0029 book 0.0120
+density N 10000 seed 2 fix iso,walls,garcia steps 30000 kerr 0.0050 book 0.0156
+density N 100 seed 1 fix none steps 5000 kerr 0.1771 book 0.4179
+density N 100 seed 2 fix none steps 5000 kerr 0.1771 book 0.4024
+density N 100 seed 3 fix none steps 5000 kerr 0.1562 book 0.3909
+density N 100 seed 1 fix walls steps 5000 kerr 0.0208 book 0.1033
+density N 100 seed 2 fix walls steps 5000 kerr 0.0312 book 0.1709
+density N 100 seed 3 fix walls steps 5000 kerr 0.0521 book 0.2111
+density N 200 seed 1 fix none steps 5000 kerr 0.1302 book 0.2937
+density N 200 seed 2 fix none steps 5000 kerr 0.1823 book 0.3988
+density N 200 seed 3 fix none steps 5000 kerr 0.1771 book 0.3619
+density N 200 seed 1 fix walls steps 5000 kerr 0.0417 book 0.1162
+density N 200 seed 2 fix walls steps 5000 kerr 0.0312 book 0.1380
+density N 200 seed 3 fix walls steps 5000 kerr 0.0156 book 0.0887
+density N 300 seed 1 fix none steps 5000 kerr 0.1910 book 0.3956
+density N 300 seed 2 fix none steps 5000 kerr 0.2014 book 0.4151
+density N 300 seed 3 fix none steps 5000 kerr 0.1910 book 0.3877
+density N 300 seed 1 fix walls steps 5000 kerr 0.0243 book 0.0883
+density N 300 seed 2 fix walls steps 5000 kerr 0.0312 book 0.1002
+density N 300 seed 3 fix walls steps 5000 kerr 0.0208 book 0.0797
+density N 400 seed 1 fix none steps 5000 kerr 0.1953 book 0.4009
+density N 400 seed 2 fix none steps 5000 kerr 0.1719 book 0.3512
+density N 400 seed 3 fix none steps 5000 kerr 0.1901 book 0.3833
+density N 400 seed 1 fix walls steps 5000 kerr 0.0443 book 0.1147
+density N 400 seed 2 fix walls steps 5000 kerr 0.0234 book 0.0728
+density N 400 seed 3 fix walls steps 5000 kerr 0.0339 book 0.0952
+density N 500 seed 1 fix none steps 5000 kerr 0.2021 book 0.4115
+density N 500 seed 2 fix none steps 5000 kerr 0.1854 book 0.3776
+density N 500 seed 3 fix none steps 5000 kerr 0.1708 book 0.3486
+density N 500 seed 1 fix walls steps 5000 kerr 0.0187 book 0.0634
+density N 500 seed 2 fix walls steps 5000 kerr 0.0104 book 0.0528
+density N 500 seed 3 fix walls steps 5000 kerr 0.0208 book 0.0674
+density N 600 seed 1 fix none steps 5000 kerr 0.1927 book 0.3831
+density N 600 seed 2 fix none steps 5000 kerr 0.1806 book 0.3583
+density N 600 seed 3 fix none steps 5000 kerr 0.1997 book 0.3990
+density N 600 seed 1 fix walls steps 5000 kerr 0.0191 book 0.0591
+density N 600 seed 2 fix walls steps 5000 kerr 0.0104 book 0.0467
+density N 600 seed 3 fix walls steps 5000 kerr 0.0312 book 0.0856
+density N 700 seed 1 fix none steps 5000 kerr 0.1786 book 0.3574
+density N 700 seed 2 fix none steps 5000 kerr 0.1771 book 0.3554
+density N 700 seed 3 fix none steps 5000 kerr 0.1771 book 0.3565
+density N 700 seed 1 fix walls steps 5000 kerr 0.0104 book 0.0408
+density N 700 seed 2 fix walls steps 5000 kerr 0.0193 book 0.0551
+density N 700 seed 3 fix walls steps 5000 kerr 0.0223 book 0.0629
+density N 800 seed 1 fix none steps 5000 kerr 0.1810 book 0.3645
+density N 800 seed 2 fix none steps 5000 kerr 0.1758 book 0.3507
+density N 800 seed 3 fix none steps 5000 kerr 0.1914 book 0.3818
+density N 800 seed 1 fix walls steps 5000 kerr 0.0221 book 0.0658
+density N 800 seed 2 fix walls steps 5000 kerr 0.0221 book 0.0595
+density N 800 seed 3 fix walls steps 5000 kerr 0.0247 book 0.0663

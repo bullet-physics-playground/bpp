@@ -273,6 +273,24 @@ slight S, flatter by the walls (end bars 0.96–0.97 V). Steady by 5,000
 ticks (100,000 give the same). F85 has what the `.nlogo`'s walls do to
 the two figures.
 
+**F92. Kerr's own 2004 simulator, run unchanged, reproduces his own
+theory runs; ported to Lua exactly** — 2026-10-29, Confirmed.
+`ch07/README.md`, `checks/ch07.lua`, `ch07/kerr/`. The Java behind the
+FAABS paper and Kerr's thesis Ch. 5 (William's archive, `code.7.04`),
+Garcia's DSMC Couette program (`dsmcne`, *Numerical Methods for
+Physics*, 2000) made 2D, in `ch07/kerr/` with one line changed to take a
+seed. Run with his drivers' settings it gives his output files' numbers:
+mean speed +3.7 to +4.0% of √(πkT/2m) (his file +3.7 to +4.0%), density
+error 0.184–0.192 of his kind (0.186–0.191), profile error 0.160, 0.110,
+0.091 of his kind at Mach 0.65, 1.2, 1.792 (0.150, 0.115, 0.088).
+`ch07/kerr.lua` repeats it operation for operation: four runs from fixed
+seeds end with the Java's collision counts and states, bit for bit or
+within 10⁻¹² (Lua 5.1–5.4). Without obstacles, and with the three
+departures of F93 switched off, the chapter's three theories hold on his
+gas: the mean speed to 0.3%, the density uniform to 2% (N = 10,000), the two-sided profile flat at V to 0.1–1% and the
+one-sided one linear with slip at both walls (error 20% at Mach 1 to 4%
+at Mach 8 by the book's measure, falling with V as Fig. 7.7's does).
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -1074,6 +1092,76 @@ other 9 environments come from 10 million (22cell size 20 is 0.00188 at
 his files). Three values are cut rather than rounded to five places
 (0.0000953 printed 0.00009, 0.0006773 as 0.00067, 0.0005972 as 0.00059).
 
+**F93. Kerr's theory numbers are his own error measures on a gas that
+misses the theory in three ways his code does not show** — 2026-10-29,
+Book error. `ch07/README.md`, `ch07/kerr.lua` (fixes `iso`, `walls`,
+`garcia`, `rest`), `ch07/theory_runs.txt`, `checks/ch07.lua`. The paper
+and the book define the error as |theory − simulation| / theory
+(FAABS p. 121, PDF 239); his drivers divide the speed error by the
+fastest single speed met in the runs (about 4 × the mean), the density
+excess by N − N/C, the profile error per column by the largest error
+possible there. By the book's measure the same runs are 3.75% (speed),
+36% (density) and 34–61% (profile, his window of steps 1–2,000) off,
+where his measure reads ~0.8%, 0.19 and 0.09–0.16. Read from his Java
+and measured (3 seeds; F92's settings): (1) his gas runs hot,
+⟨v²⟩ = 1.084 × 2kT/m with Maxwell's shape kept, from three causes that
+act together: the collision angle drawn as cos θ = 1 − 2U from the x
+axis (Garcia's 3D draw without its azimuth), the box's walls at y, and
+n² candidates with c_r,max raised inside the loop (Garcia: n(n − 1),
+after the cell). Each put right alone leaves +2.1%, +2.3% and +3.6%;
+all three, +0.28% and ⟨v²⟩ 1.003. In his units every temperature gives the
+same run, scaled, so his file's spread over T is his clock seeds.
+(2) The density box's walls at y send every particle that strikes them
+toward x = L (vx = +Rayleigh) and put any that leave through y = L back
+at y = 0: the gas piles into one corner (3.4 × N/C there at N = 10,000).
+Garcia's wall there makes it uniform (1.9%). (3) The profile's channel is
+open along the flow: its cells cover 10 L, the gas drifts on with the
+wall (two in five particles past 10 L by step 500, all by 5,000) and the
+rest are sorted into the last row; the profile across the channel is
+still measured, but over steps 1–2,000 from Garcia's start gradient
+(−V to +V, in the one-sided runs too), before it has settled: settled
+(steps 5,001–10,000) the book's error is 20, 15, 13, 11% at Mach 1–4 and
+8.3–3.7% at 5–8. The FAABS paper's "3,000 particles … 50,000 time
+steps" (p. 123) and "the original algorithms from Garcia [10] also have
+error … slightly below 20%" are not what his drivers ran (500 particles,
+2,000 steps; Garcia's original not measured there).
+
+**F94. Figs. 7.5–7.8 are the journal paper's figures, from a later
+simulator with other settings than the book gives; its obstacles are
+not explained** — 2026-10-29, Book discrepancy, Open in part.
+`ch07/README.md` (the figures' points). William's archive has the
+journal paper's sources (`journal_wes/`) with gnuplot's PostScript of
+each figure (`ktunir.2`, `ktv.2`, `ktvy.2`, `actual-vd`, `actual-vd-2`),
+the book's Figs. 7.5–7.8 curve for curve; the points are read from it.
+They are also Kerr's thesis's Figs. 5.4, 5.6, 5.2 (right). They come
+from a simulator with obstacles, 300 robots and 8 subcorridors, not in
+the archive; the thesis's runs behind the same plots used 100 particles
+for 10,000 steps (Fig. 5.6 right, printed p. 54) and 500 particles for
+5,000 steps (Fig. 5.2 right, printed p. 44), where the book says 300
+robots and equilibrium after 1,000 steps (PDF 240–242). For the speed
+plot the thesis says "less than 10%", the book "less than 2%"; its
+points are 0.64–1.14%, the level of Kerr's measure (F93: his 2004 gas
+reads 0.8% by it, 3.75% by the book's). Fig. 7.5 at 0% obstacles is
+6.1–6.5%, flat in N, unlike his 2004 box (36%) and close to it with the
+walls put right (5–6% from N = 500, but falling with N). Fig. 7.7's 0%
+curve has points at V = 1–6 only (35 → 15%; the chapter note's "≈ 7% at
+V = 8" is not in the figure); it lies between his 2004 code's
+window and its settled flow. Fig. 7.8 right is flat at 0.90 V (3.58 of
+4), where his 2004 code gives 0.98 V after 2,000 steps and 1.00 V
+settled. Obstacles: 10% of them cost the two-sided flow 6%, 30% 14%,
+50% about half. Kerr's gas obstacles in the archive (April 2004,
+`SquareObstacle`, for the FAABS coverage runs) are squares at rest that
+thermalise like his box's walls. His 2005 robot code also has circles
+and triangles, but only for the sonar, and all 50 of its courses are
+rectangles; the triangle, circle and cup of Fig. 7.2 (August 2004) are
+from a version not in the archive. In a steady channel the walls must
+give what the obstacles take, and a particle flying with the flow meets
+one of side s every s / (−ln(1 − φ)) at coverage φ (280″ at 30% for
+100″ squares, less than the channel's width), so obstacles that take a
+wall's momentum at every meeting hold the flow far below the figure (an
+earlier particle model of ours, not kept, measured 0.17 V at 10%). How
+the thesis's obstacles were handled is open.
+
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
 measurement and will be entered here as each chapter is ported.
@@ -1244,6 +1332,21 @@ moves a heavy (10⁵) obstacle ≤ 0.01 patch/tick. Presets use the model's fram
 2026-10-18, Our error (small). spring2D now starts at random headings and
 spring1D's light mass on the right, as the models; F3 barely moves.
 
+**F95. Listing 7.3's "half-circle" called a bug; in the controller it is
+made whole by the listing's own assignment** — 2026-10-29, Our error
+(in `book/ch07.md` and `BOOK.md` §1 item 11), corrected. `ch07/README.md`,
+Kerr's 2005 robot code (`KTRobot.java`, William's archive). The listing
+draws sin θ ≥ 0 only, but then "choose[s] the assignment of v1 and v2 so
+that it doesn't result in an actual collision", and Kerr's controller
+does exactly that (it swaps the two velocities when the new paths
+cross): the swap turns v_r into −v_r, the other half-plane. What differs
+from the text's θ ~ U(0, 2π) is cos θ = 1 − 2U, Garcia's 3D formula,
+which in 2D favours θ near 90° from the robot's heading. In Kerr's 2004
+gas the same draw is taken from the channel's x axis (the pair's random
+order makes the circle whole there); it is one of the three causes of
+his gas running hot (F93: +2.1% on the mean speed alone, against +0.5%
+measured earlier for the draw from a particle's own heading).
+
 ## 6. How BPP behaves (worth knowing for every port)
 
 **F28. Headless results depend on `delayMs`** (FIXES 1): its throttle uses
@@ -1285,6 +1388,9 @@ the field in Preferences) to get the default path back.
 
 ## 7. Open questions
 
+- Ch. 7's obstacles and the simulator behind Figs. 7.5–7.8 (F94): what
+  kind of obstacle keeps Fig. 7.8's flow at 77% of V with 30% coverage,
+  when walls at rest would stop it; the 2005 code, if it turns up.
 - F18: the limits at MFP ≤ 17, which need about 10⁹ visits to resolve.
 - The 3D threshold G_t for the cube formation (`BOOK.md` §1 item 9), to
   measure with a G sweep.

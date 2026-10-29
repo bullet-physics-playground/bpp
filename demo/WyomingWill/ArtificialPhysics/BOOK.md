@@ -110,8 +110,11 @@ These correct or extend the plan. Each is backed by the chapter notes.
     - Ch. 1's small demos (magnets chain, cooperative pull).
 11. **The book's code listings contain bugs; don't copy them.**
     - Ch. 6: the APO sign in Listing 6.3 is reversed relative to Listing 6.4.
-    - Ch. 7: speed `max(…, 6)` should be `min`, and Listing 7.3 draws collision
-      angles from a half-circle only.
+    - Ch. 7: speed `max(…, 6)` should be `min`, and Listing 7.3 draws
+      cos θ = 1 − 2U, the 3D formula (its half-circle is made whole by its
+      own assignment, F95).
+    - Ch. 7: Kerr's theory numbers are his own error measures, not the
+      book's, on a gas that misses the theory in three ways (F93).
     - Ch. 3: the Hooke cap applies to the attractive side only.
     - Ch. 13: the signs of Eq. 13.1 contradict the prose.
     - Ch. 18: Theorem 18.1's characteristic equation has a sign typo.
@@ -161,7 +164,7 @@ Most chapters need the same pieces. Build each once.
 | 4 | Pushing the envelope (Spears) | 5 | Couette flow (2 closed forms); perfect square | particles, quads | G1, G3, G4, G15, G17 | partly / plan / new |
 | 5 | Local oriented potential fields (Bravi et al.) | 9 | Square, line, star, tree by sector forces | holonomic particles, quads | G9, G17 | new |
 | 6 | Bioluminescence (Karlsson et al.) | 7 | Slime-mould field + APO swarm, min and max tasks | particles, ASV, ★ AUV | G3, G6, G11, G15 | plan |
-| 7 | Gas-mimetic swarms (Kerr) | 6 | Three theory checks, then KT vs Default vs Ant | particles, quads, ground robots | G3, G4, G8, G13 | plan |
+| 7 | Gas-mimetic swarms (Kerr) | 6 | Three theory checks, then KT vs Default vs Ant | particles, quads, ground robots | G3, G4, G8, G13 | partly |
 | 8 | Fluxotaxis theory (Spears, Thayer, Zarzhitsky) | 6 | 3D closed-form unit tests | — | G6 | plan |
 | 9 | Fluxotaxis experiments (Zarzhitsky) | 14 | Puff plume + 7-robot and swarm fluxotaxis | particles, Maxelbots, quads | G3, G8, G14, G15 | plan |
 | 10 | What is a Maxelbot? (Maxim) | 13 | Trilateration noise model + token ring | Maxelbot | G7, G8, G10 | new |
@@ -251,10 +254,10 @@ metrics.
 ### Ch. 7 — Gas-mimetic swarms (PDF 224–253) · `book/ch07.md`
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
-| 7.1 | KT controller: Rayleigh/Gaussian wall rebound, 15″ collision zone, 24-sonar ring | 228–236 | Particles → velocity-commanded quads (G4, G8) | plan |
-| 7.2 | Uniform density at rest, error < 10% | 239–240 | Batch | plan |
-| 7.3 | Mean speed versus T, error < 2% | 240–241 | Batch; ★ 3D Maxwell √(8kT/πm) | plan |
-| 7.4 | Profiles with one moving wall (linear) and two (flat), against obstacle density | 241–243 | Batch; decide one- vs two-sided explicitly | plan |
+| 7.1 | KT controller: Rayleigh/Gaussian wall rebound, 15″ collision zone, 24-sonar ring | 228–236 | `ch07/kerr.lua`: Kerr's 2004 gas simulator (Garcia's DSMC in 2D; his Java in `ch07/kerr/`), ported exactly, his departures as switches (F92, F93); the robot controller (his 2005 `KTRobot`) next, then velocity-commanded quads (G4, G8) | partly |
+| 7.2 | Uniform density at rest, error < 10% | 239–240 | `ch07/`: his box piles the gas into a corner (36% by the book's measure, 0.19 by his); with Garcia's wall at y, uniform to 2% at N = 10,000, 5–6% from N = 500 (F93); Fig. 7.5 is a later simulator's (F94) | done |
+| 7.3 | Mean speed versus T, error < 2% | 240–241 | `ch07/`: his gas runs 3.75% hot, ~0.8% by his measure (Fig. 7.6's level); with three fixes 0.3% (F93); ★ 3D Maxwell √(8kT/πm) | done |
+| 7.4 | Profiles with one moving wall (linear) and two (flat), against obstacle density | 241–243 | `ch07/`: both, explicitly, without obstacles: two-sided flat at V, one-sided linear with slip, error 20% → 4% from Mach 1 to 8 settled (his window 51% → 6%; F92, F93); Figs. 7.7–7.8's points read from their source; obstacles not in his code, open (F94) | partly |
 | 7.5 | Default and Ant baselines | 244–246 | Particles; pheromone grid | new |
 | 7.6 | KT vs Default vs Ant: KT covers ~90% in about a third of Ant's time | 246–251 | 1000″×5000″ corridor, 50×250 grid; ★ 3D canyon or tunnel | plan |
 
