@@ -158,7 +158,8 @@ Mesh::Mesh() {
   shape = m_shape;
   _shapeFromLua = true;   // (a Mesh looks after its own shape: Object never frees it)
   _comOffset = btVector3(0, 0, 0);
-  m_ownsMeshDirectly = true;
+  m_ownsShape = true;
+  m_ownsMesh = true;
 
   setColor(127, 127, 127);
   setMass(0);
@@ -176,10 +177,18 @@ static std::vector<DeadGlList> s_deadGlLists;
 Mesh::~Mesh() {
   if (m_glList != 0)
     s_deadGlLists.push_back(DeadGlList{m_glListContext, m_glListEpoch, m_glList});
-  if (m_ownsMeshDirectly) {
+  // Retired geometry goes before the current geometry: a retired shape may
+  // still point into the current mesh, and the current shape may still point
+  // into a mesh that setTriangleMesh() had to retire.
+  for (btCollisionShape *s : _retiredShapes)
+    delete s;
+  _retiredShapes.clear();
+  if (m_ownsShape)
     delete m_shape;
+  if (m_ownsMesh)
     delete m_mesh;
-  }
+  for (btTriangleMesh *mesh : _retiredMeshes)
+    delete mesh;
   m_shape = nullptr;
   m_mesh = nullptr;
   m_scene = nullptr;
@@ -652,12 +661,19 @@ void Mesh::drawTriangles() {
 
 btGImpactMeshShape *Mesh::getShape() const { return m_shape; }
 
+// Whether a shape still reads its triangles from a mesh. Such a mesh must
+// outlive the shape, so replacing it defers the deletion to ~Mesh().
+static bool shapeUsesMesh(btCollisionShape *shape, btTriangleMesh *mesh) {
+  btGImpactMeshShape *gimpact = dynamic_cast<btGImpactMeshShape *>(shape);
+  return gimpact != nullptr && gimpact->getMeshInterface() == mesh;
+}
+
 void Mesh::setShape(btGImpactMeshShape *newShape, bool fromLua) {
   // (a shape a script handed in belongs to Lua: Lua frees it; a file's
   // shape belongs to the mesh cache, shared with every Mesh of that file;
   // one this Mesh made itself is kept until it goes, as its body may still
   // use it)
-  if (m_shape != nullptr && m_shape != newShape && !m_shapeFromLua && m_ownsMeshDirectly)
+  if (m_shape != nullptr && m_shape != newShape && m_ownsShape)
     retireShape(m_shape);
 
   m_shape = newShape;
@@ -666,20 +682,27 @@ void Mesh::setShape(btGImpactMeshShape *newShape, bool fromLua) {
   _shapeFromLua = true;   // (a Mesh looks after its own shape: Object never frees it)
   // The new shape's ownership is no longer the default constructor's
   // direct allocation, so ~Mesh() must not delete it a second time.
-  m_ownsMeshDirectly = false;
+  m_ownsShape = false;
 }
 
 btTriangleMesh *Mesh::getTriangleMesh() const { return m_mesh; }
 
 void Mesh::setTriangleMesh(btTriangleMesh *mesh, bool fromLua) {
   // (a mesh a script handed in belongs to Lua: Lua frees it)
-  if (m_mesh != nullptr && m_mesh != mesh && !m_meshFromLua)
-    delete m_mesh;
+  if (m_mesh != nullptr && m_mesh != mesh && m_ownsMesh) {
+    bool used = shapeUsesMesh(m_shape, m_mesh);
+    for (btCollisionShape *s : _retiredShapes)
+      used = used || shapeUsesMesh(s, m_mesh);
+    if (used)
+      _retiredMeshes.push_back(m_mesh);
+    else
+      delete m_mesh;
+  }
 
   m_mesh = mesh;
   m_meshFromLua = fromLua && mesh != nullptr;
   // Same reasoning as setShape(): don't let ~Mesh() delete this again.
-  m_ownsMeshDirectly = false;
+  m_ownsMesh = false;
 }
 
 void Mesh::setMass(btScalar _mass) {

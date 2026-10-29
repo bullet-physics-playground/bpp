@@ -18,6 +18,7 @@
 
 #include <QHash>
 #include <memory>
+#include <vector>
 
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
@@ -67,7 +68,8 @@ public:
  * Geometry is shared: several Mesh objects loading the same file share one
  * reference-counted cache entry rather than each parsing and building their
  * own copy. The no-argument constructor is the exception - it builds its
- * geometry directly and owns it, which is what @c m_ownsMeshDirectly records.
+ * geometry directly and owns it, which is what @c m_ownsShape and
+ * @c m_ownsMesh record.
  *
  * Exporting follows the same idea as Terrain: the mesh data is written once to
  * a file named after its content hash and included from every frame.
@@ -240,13 +242,27 @@ public:
 protected:
 
   /**
-   * @brief Whether this object owns its geometry outright.
+   * @brief Whether this object owns its current shape outright.
    *
-   * True only for the no-arg constructor, which allocates m_shape/m_mesh
-   * directly instead of pulling them from the refcounted _meshCache; only
-   * then does ~Mesh() own them and need to delete them itself.
+   * True only for a shape the no-arg constructor allocated directly, rather
+   * than one pulled from the refcounted _meshCache or handed in by Lua.
    */
-  bool m_ownsMeshDirectly = false;
+  bool m_ownsShape = false;
+
+  /**
+   * @brief Whether this object owns its current triangle mesh outright.
+   *
+   * Same as m_ownsShape, for m_mesh.
+   */
+  bool m_ownsMesh = false;
+
+  /**
+   * @brief Meshes this object owns that a shape still points into.
+   *
+   * A replaced mesh cannot be deleted while a retired shape still reads its
+   * triangles, so it waits here until ~Mesh() has deleted those shapes.
+   */
+  std::vector<btTriangleMesh *> _retiredMeshes;
 
   bool m_shapeFromLua = false; ///< True when #m_shape belongs to Lua.
   bool m_meshFromLua = false;  ///< True when #m_mesh belongs to Lua.
