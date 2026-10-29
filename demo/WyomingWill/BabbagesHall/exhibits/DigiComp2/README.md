@@ -128,25 +128,26 @@ and a counterweight (a 1/2 inch steel ball on its other arm) takes it home.
 it, where they wait for the hand. In the channel is the **trip lever**: a
 short arm on an axle across the channel, trailing down the slope, resting
 just above a ball's middle. A ball rolls under the axle and under the arm,
-lifting it 4 mm; a post up from the axle tips up the slope, and a light
-**push rod** from its top, over the board, pushes the **AUTO crank**, an
-arm on the anchor's pin, over the anchor. (A steel ball on an arm hanging
-below the lever's axle, where the axle comes out beyond the channel's
-wall, balances the rod's weight, so a ball lifts only the lever.) **AUTO/MANUAL** is a **latch pin** through the crank's
-end into the end of the anchor's counterweight arm. In AUTO (pin in) the
-crank turns the anchor: it trips, and the next ball goes, and one press
-of START runs a whole multiply, ball after ball. The ball through
-**STOP** drops into a pocket under the plate and never reaches the lever,
-so the machine stops by itself. In MANUAL (pin out) the crank swings
-idle: the lever and rod still move for every ball, nothing follows, and
-every ball is a press of START.
+lifting it 4 mm. The lever's axle comes out through the rim, beside the
+board, where an arm hangs down from it: lifting the lever swings that
+arm's foot down the slope. A **thread** tied there runs straight up
+beside the board's right edge, outside everything, to an **eye** on a post
+at the edge level with the START lever, turns, and runs across to the
+START lever, 19 mm from the anchor's pin: it pulls the lever to the right,
+as the hand does, and the anchor trips. It only ever pulls. **AUTO**: the
+thread hooked into the START lever, and one press of START runs a whole
+multiply, ball after ball. The ball through **STOP** drops into a pocket
+under the plate and never reaches the lever, so the machine stops by
+itself. **MANUAL**: the thread unhooked (on a peg beside the lever); the
+trip lever still lifts for every ball, nothing follows, and every ball is
+a press of START.
 
 ## Using it
 
 | Key | |
 |---|---|
 | `Space` | START: push the START lever, one ball (in AUTO: and on by itself, until a ball drops through STOP) |
-| `U` | AUTO and MANUAL: the latch pin in, or out |
+| `U` | AUTO and MANUAL: the thread hooked into the START lever, or off |
 | `M`, `C`, `N` | MULTIPLY, CLEAR, COUNT on and off (by hand) |
 | `1` to `7` | set that flip-flop of the accumulator over by hand (`1` the 1s ... `7` the 64s), as you set the original's |
 | `H`, `J`, `K`, `L` | the memory's 1s, 2s, 4s, 8s (M1 to M4) on and off |
@@ -231,7 +232,7 @@ slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
 (steps a second, 2400), `DC_WEIGHT` (the weight's torque on the wheel,
 30 kg cm^2/s^2), `DC_FLY` (the fly's top speed, 3 radians a second),
 `DC_PUSH` (the hand's push on the START lever, as a torque on the anchor's
-pin, 300), `DC_ROD` (the push rod's mass, grams, 4), `DC_PAUSE` (seconds between a reading and the next ball, 1),
+pin, 300), `DC_PAUSE` (seconds between a reading and the next ball, 1),
 `DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
 `DC_STEP` (begin the tour at that program of the library),
 `DC_PROGRAM=name` (run only that program; `all`: every one in turn, as the
@@ -249,7 +250,7 @@ and M2: the carry and the memory's balls into the same funnel);
 `tests/complement.lua` is A1 to A3 with their done lanes and shutters, each
 ball checked with the shutters open and closed;
 `tests/escapement.lua` is the feeder wheel driven by a weight and held by
-the anchor, alone (the trip lever and push rod are not in it). Each prints
+the anchor, alone (the trip lever and thread are not in it). Each prints
 `RESULT` lines; their headers list their settings, and `FINDINGS.md` has
 what they showed.
 
@@ -269,10 +270,10 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
 | `flap.stl` | 7 | 3 x 19 x 9 | a switch's flap |
 | `wheel.stl` | 1 | 39 x 39 x 9 | the feeder's wheel |
 | `star.stl` | 1 | 40 x 40 x 8 | the escape star, glued on the wheel's hub (its stem is where the weight's drum and the fly will go) |
-| `anchor.stl` | 1 | 55 x 91 x 8 | the anchor: its two fingers, the START lever, the counterweight's arm with its cup and, at its end, the hole for the latch pin |
-| `trip-cw-arm.stl` | 1 | 13 x 10 x 4 | AUTO: the trip lever's counterweight arm, glued on its axle's left end, beyond the channel's wall |
-| `auto-crank.stl` | 1 | 41 x 8 x 3 | AUTO/MANUAL: the push rod's crank, on the anchor's pin over the anchor and its counterweight; the rod's end and the latch pin go through the hole at its end |
-| `trip-lever.stl` | 1 | 14 x 33 x 10 | AUTO: the trip lever, its post's top drilled for the push rod |
+| `anchor.stl` | 1 | 55 x 91 x 8 | the anchor: its two fingers, the START lever, the counterweight's arm with its cup, and the hole in the START lever the thread hooks into |
+| `trip-lever.stl` | 1 | 14 x 10 x 10 | AUTO: the trip lever |
+| `trip-down-arm.stl` | 1 | 3 x 17 x 4 | AUTO: the arm hanging from the trip lever's axle, beside the board; the thread is tied through the hole at its foot |
+| `trip-eye.stl` | 1 | 8 x 8 x 50 | AUTO: the thread's eye, a post glued to the board's right edge, level with the START lever (its 3 mm post may be stiffer as a steel rod) |
 | `shutter.stl` | 6 | 28 x 22 x 2 | COMPLEMENT: a done hole's shutter, sliding in its groove in the plate; a pin pressed into its hole |
 | `comp-knob.stl` | 1 | 10 x 10 x 12 | COMPLEMENT's handle, glued on the top end of its bar |
 | `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 228 x 30, 30 x 232 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
@@ -295,17 +296,14 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
   `parts/geometry.scad`).
 - A **lower board** of 6 mm plywood, 424 x 1691 mm, the lower tiles glued
   on it edge to edge, and the feet glued under it at its corners.
-- For START and AUTO: one more 3 mm pin, 44 mm (the anchor's and the
-  AUTO crank's); a 1/2 inch steel ball, glued in the anchor's cup (its
-  counterweight); a **2 mm steel wire**, 33 mm, the trip lever's axle,
-  glued into the lever and its counterweight arm and turning in the holes
-  in the channel's wall and the rim; a **3/8 inch steel ball** (3.53 g),
-  glued in the counterweight arm's cup; a latch pin (a 1.6 mm pin, 20 mm);
-  a strip of **PTFE tape** on
-  the lever's underside, where the balls lift it; and the **push rod**: a
-  **1.5 mm carbon-fibre rod**, about 4 g, 1465 mm between its ends, each
-  end a short wire bent down to go into its hole (1.6 mm). The lever's
-  counterweight is worked out for 4 g; 2 to 8 g worked (`FINDINGS.md`).
+- For START and AUTO: one more 3 mm pin, 20 mm (the anchor's); a 1/2 inch
+  steel ball, glued in the anchor's cup (its counterweight); a **2 mm
+  steel wire**, 31 mm, the trip lever's axle, glued into the lever and the
+  hanging arm and turning in the holes in the channel's wall and the rim;
+  a strip of **PTFE tape** on the lever's underside, where the balls lift
+  it; and the **thread**: a fine braided line that doesn't stretch (0.2
+  mm Dyneema fishing line), about 1.7 m: 148 cm up beside the board and
+  17 cm across to the START lever, a small wire hook on its end.
 - Glue; a little dry PTFE or graphite on the pins.
 
 **Assembly.** Glue the lower tiles onto the plywood, edge to edge, the
@@ -317,9 +315,11 @@ through the square holes; press the steel balls into the rockers and glue
 each rocker onto its stem, roof up the slope. Press the flaps' and wheel's
 pins into the plate, fit them, glue the star on the wheel and fit the
 anchor on its pin, its counterweight glued in. Fit the trip lever in its
-channel on its wire axle, the AUTO crank on the anchor's pin over the
-anchor, and hook the push rod onto the crank and the lever's post; the
-latch pin (a 1.6 mm pin, 20 mm) in for AUTO. Put the
+channel on its wire axle and glue the hanging arm on the wire's end
+beside the board. Glue the eye's post to the board's right edge, tie the
+thread to the hanging arm, lead it up through the eye, and cut it so its
+hook just reaches the hole in the START lever with everything at rest:
+hooked in for AUTO, on the peg beside it for MANUAL. Put the
 shutters in their grooves, pins up, slip the bar over the pins and glue its
 knob on. Glue the
 tall feet under the back corners and the low ones under the front, so the
@@ -339,11 +339,10 @@ puts the balls back, so the first lets one out.)
   a steady torque on the wheel's pin (`DC_WEIGHT`) and a top speed
   (`DC_FLY`). A real one needs a drum on the star's stem, a cord and a
   weight to wind up, and a small fan geared to the wheel.
-- **The push rod** is simulated as a 4 g rod pinned at both ends, touching
-  nothing: 1.5 m long, across the board from 2.1 cm over its face at the
-  lever to 3.7 cm at the crank, and
-  straight. A real one sags a little between its ends; a guide or two
-  would hold it up (not modelled).
+- **The thread** is simulated as a line that can't stretch, that pulls and
+  never pushes, and that runs through its eye without friction; it weighs
+  nothing and touches nothing. A real one stretches a little and rubs in
+  the eye.
 - **The hand.** It pushes the START lever (a push of 0.3 s); sets the
   switches and flip-flops, puts the balls back from the store and the STOP
   pocket, by placing them, and in MANUAL watches STOP: it pushes no more
@@ -354,7 +353,7 @@ puts the balls back, so the first lets one out.)
   machine does itself with CF1 and CF2.
 - **AUTO** is this machine's own: E.S.R.'s ball at the bottom rolls under
   the START lever itself; here the START lever is at the top, and the trip
-  lever at the bottom works it through the push rod. OVERFLOW does not yet
+  lever at the bottom works it through the thread. OVERFLOW does not yet
   halt it (dividing stays in MANUAL, the hand watching OVERFLOW).
 - **The layout** is this machine's own, not E.S.R.'s: the registers do what
   the manual says, but where each part sits on the board was worked out

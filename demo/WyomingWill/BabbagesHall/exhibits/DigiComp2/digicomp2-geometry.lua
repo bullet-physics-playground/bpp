@@ -409,8 +409,9 @@ A.Y0, A.Y1 = 1.46, 1.86       -- the fingers' height: the pins'
 A.ARM_Y0, A.ARM_Y1 = 1.92, 2.22   -- the hub and arm, over the star
 A.ARM = 6.0                   -- the arm's length, up the slope from the anchor's pin
 A.LEAN = 8                    -- degrees: at rest it is turned this far one way, tripped the other
-A.CRANK = -3.5                -- AUTO: where the AUTO crank is latched to the anchor: the end of the
-                              -- counterweight's arm, past the ball; pushed up the slope, it trips it
+A.HOOK = 1.9                  -- AUTO: the thread from the trip lever hooks into the START lever this far
+                              -- from the anchor's pin; pulled to the right, across, it trips the anchor
+                              -- (as the hand does, pushing the lever's end)
 A.CW_X = -2.6                 -- its counterweight (a 1/2 inch steel ball, as the machine's), on an arm
                               -- this far across, toward the wheel: it turns the anchor back to rest
 do
@@ -465,8 +466,7 @@ do
     { hub, A.Y0, A.ARM_Y1 - A.Y0 },
     { { { -w, -A.ARM }, { w, -A.ARM }, { w, 0 }, { -w, 0 } }, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
     -- (the counterweight's arm, on past the ball to the push rod's pin, AUTO)
-    -- (the counterweight's arm, on past the ball to the latch's hole, AUTO)
-    { { { A.CRANK - 0.2, -w }, { 0, -w }, { 0, w }, { A.CRANK - 0.2, w } }, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
+    { { { A.CW_X - 0.2, -w }, { 0, -w }, { 0, w }, { A.CW_X - 0.2, w } }, A.ARM_Y0, A.ARM_Y1 - A.ARM_Y0 },
   }
   local m, sx, sz, I = 0, 0, 0, 0
   for _, p in ipairs(A.pieces) do
@@ -478,26 +478,6 @@ do
   A.mass, A.cx, A.cz = m, sx / m, sz / m
   A.I = I - m * (A.cx ^ 2 + A.cz ^ 2)
   A.CW_Y = A.ARM_Y1 + G.R
-  -- AUTO/MANUAL: the push rod from the trip lever works the AUTO crank, an
-  -- arm of its own on the anchor's pin, over the anchor and its
-  -- counterweight ball, as long as the counterweight's arm (CRANK). AUTO: a
-  -- latch pin through the crank's end and the hole at the end of the
-  -- counterweight's arm locks them together. MANUAL: the pin out, the crank
-  -- swings idle with the rod and the trip lever.
-  local AC = { Y0 = A.CW_Y + G.R + 0.1, H = 0.3, W = 0.15 }
-  local hub2 = {}
-  for j = 0, 11 do local a = 2 * math.pi * j / 12; hub2[#hub2 + 1] = { 0.4 * math.cos(a), 0.4 * math.sin(a) } end
-  AC.pieces = { hub2, { { A.CRANK - 0.2, -AC.W }, { 0, -AC.W }, { 0, AC.W }, { A.CRANK - 0.2, AC.W } } }
-  do
-    local m, sx, sz, I = 0, 0, 0, 0
-    for _, p in ipairs(AC.pieces) do
-      local pm, px, pz, pI = G.massOf({ p }, AC.H, nil, 0.01)
-      m = m + pm; sx = sx + pm * px; sz = sz + pm * pz; I = I + pI + pm * (px * px + pz * pz)
-    end
-    AC.mass, AC.cx, AC.cz = m, sx / m, sz / m
-    AC.I = I - m * (AC.cx ^ 2 + AC.cz ^ 2)
-  end
-  A.autoCrank = AC
   -- its stops: two posts either side of the arm's end, standing on the
   -- plate up past the arm, where the arm is at rest and tripped
   A.POST_R = 0.25
@@ -960,66 +940,57 @@ do
   -- the trip lever: a short arm on an axle across the channel, trailing
   -- down the slope from it, its end resting just above a ball's middle. A
   -- ball rolls under the axle, then under the arm, and lifts it (by 4.5 mm,
-  -- at most: the ball's own size sets it). A post stands up from the axle;
-  -- a push rod from its top runs up over the board to the AUTO crank on
-  -- the anchor's pin. Lifting the arm tips the post up the slope, the rod
-  -- pushes the crank, and (latched, AUTO) the anchor lets one ball go. The
-  -- anchor's counterweight pushes everything back. (An arm reaching up the
-  -- slope was tried first: a ball meets the end of such an arm below the
-  -- line to its axle, and only jams it down.)
+  -- at most: the ball's own size sets it).
+  -- (An arm reaching up the slope was tried first: a ball meets the end of
+  -- such an arm below the line to its axle, and only jams it down.)
   T.zp = G.ZCOL + 3.2                             -- the axle
   T.A = 1.2                                       -- the arm, down the slope from it
   T.yA = G.YL + 2 * G.R + 0.35                    -- the axle's height (clear over a ball)
   T.yEnd = G.YL + 0.82                            -- the arm's end, underneath: over a ball's middle
   T.W = 1.0                                       -- its width across the channel
-  T.yT = 2.07                                     -- the post's top, the rod's lower end: over
-                                                  -- everything on the plate
-  T.yC = A.autoCrank.Y0 + A.autoCrank.H / 2       -- the rod's upper end: the AUTO crank's height
-                                                  -- (the rod slopes up to it, 0.7 degrees)
+
   T.mass = 0.0006
   T.AXLE_R = 0.1                                  -- its axle: a 2 mm steel wire, through the
                                                   -- channel's wall and the rim
   -- (its pieces, each a hull of corners, in its own frame: the axle at 0,
   -- across the channel along x, y up off the board, z down the slope)
-  local W, yE, pH = T.W / 2, T.yEnd - T.yA, T.yT - T.yA
-  local arm, hub, post = {}, {}, {}
+  local W, yE = T.W / 2, T.yEnd - T.yA
+  local arm, arm2, hub = {}, {}, {}
   for _, x in ipairs({ -W, W }) do
+    -- (its underside high, clear of the balls, out to 0.6 cm, then down to
+    -- the end: a ball meets it far from the axle, where it lifts it easily;
+    -- a straight underside met the balls 3 mm from the axle, and now and
+    -- then a ball stopped there: FINDINGS)
+    -- (two hulls: one hull of all would be straight underneath again)
     arm[#arm + 1] = { x, yE, T.A }; arm[#arm + 1] = { x, yE + 0.3, T.A }
-    arm[#arm + 1] = { x, -0.15, -0.1 }; arm[#arm + 1] = { x, 0.15, -0.1 }
+    arm[#arm + 1] = { x, -0.28, 0.6 }; arm[#arm + 1] = { x, 0.15, 0.6 }
+    arm2[#arm2 + 1] = { x, -0.28, 0.6 }; arm2[#arm2 + 1] = { x, 0.15, 0.6 }
+    arm2[#arm2 + 1] = { x, -0.15, -0.1 }; arm2[#arm2 + 1] = { x, 0.15, -0.1 }
     for _, y in ipairs({ -0.2, 0.2 }) do for _, z in ipairs({ -0.2, 0.2 }) do hub[#hub + 1] = { x, y, z } end end
   end
-  for _, x in ipairs({ -0.15, 0.15 }) do for _, y in ipairs({ 0, pH + 0.1 }) do for _, z in ipairs({ -0.15, 0.15 }) do post[#post + 1] = { x, y, z } end end end
-  -- the push rod: a 1.5 mm carbon-fibre rod, about 4 g. Its weight down the
-  -- slope pushes the post back down the slope, as hard as a ball can lift
-  -- the lever (a rod of 1 g already stopped the first ball: FINDINGS). So
-  -- the lever carries a counterweight that balances it: a 3/8 inch steel
-  -- ball on an arm hanging below the axle, glued on the axle's end where it
-  -- comes out through the channel's left wall, behind the collector's wall,
-  -- where no ball goes. Hanging below, it is steady (a counterweight over
-  -- the axle had tipped the lever over: FINDINGS); a little up the slope
-  -- (d), it balances the rod: the ball lifts only the lever.
-  T.ROD_M = 0.004
-  local cw = { m = 0.00353, r = 0.476, y = -0.3 }   -- (just below the axle: steady, but only just,
-                                                    -- so it hardly presses a ball under the arm)
-  cw.x = (T.xc - C - G.WALL_T / 2 - 0.15 - cw.r) - T.xc       -- (clear of the wall, on its left)
-  local sn, cs = math.sin(math.rad(G.TH)), math.cos(math.rad(G.TH))
-  -- (the rod's push on the post, pH up, balanced by the ball's weight:
-  -- m (cs d + sn |y|) = ROD_M sn pH)
-  cw.d = (T.ROD_M * sn * pH / cw.m - sn * -cw.y) / cs
-  T.CW = cw
-  local carm = {}
-  for _, x in ipairs({ cw.x - 0.2, cw.x + 0.2 }) do
-    for _, y in ipairs({ -0.15, 0.15 }) do for _, z in ipairs({ -0.15, 0.15 }) do carm[#carm + 1] = { x, y, z } end end
-    for _, y in ipairs({ cw.y - cw.r, cw.y + cw.r }) do for _, z in ipairs({ -cw.d - cw.r, -cw.d + cw.r }) do carm[#carm + 1] = { x, y, z } end end
+  -- the thread (AUTO) pulls; it can't push. So it is tied to an arm that
+  -- hangs down from the axle, glued on the axle's end where it comes out
+  -- through the rim, beside the board: lifting the lever swings that arm's
+  -- end down the slope. From there the thread runs straight up the slope
+  -- beside the board's right edge, outside everything, to an eye on a post
+  -- at the edge level with the START lever, turns there, and runs across
+  -- the board to the START lever, which it pulls to the right, as the hand
+  -- does: the anchor trips. Its counterweight pulls everything back.
+  local DA = { L = 1.4, W = 0.2 }                  -- (its end 1 mm over the lower board's face)
+  DA.x = (l.x1 + 0.3 + DA.W) - T.xc               -- (beside the board, past the rim)
+  local darm = {}
+  for _, x in ipairs({ DA.x - DA.W, DA.x + DA.W }) do
+    for _, y in ipairs({ 0.15, -DA.L - 0.1 }) do for _, z in ipairs({ -0.15, 0.15 }) do darm[#darm + 1] = { x, y, z } end end
   end
-  T.hulls = { arm, hub, post }
-  T.cwArm = carm
-  -- the push rod: from the post's top to the AUTO crank's end (at rest)
+  T.DA, T.downArm = DA, darm
+  T.hulls = { arm, arm2, hub }
+  -- (the eye: on a post at the board's right edge, level with the hook in
+  -- the START lever, at the anchor's arm's height)
   local A = G.ANCHOR
-  local x1, z1 = A.x + math.cos(A.REST) * A.CRANK, A.z - math.sin(A.REST) * A.CRANK
-  local lh = math.sqrt((T.xc - x1) ^ 2 + (T.zp - z1) ^ 2)
-  T.rod = { x1 = x1, z1 = z1, lh = lh, len = math.sqrt(lh ^ 2 + (T.yC - T.yT) ^ 2) }
-  T.ROD_PIN_R = 0.08                              -- (the holes the rod's hooks and the latch go into)
+  local hy = (A.ARM_Y0 + A.ARM_Y1) / 2
+  T.hook = { x = A.x - math.sin(A.REST) * A.HOOK, y = hy, z = A.z - math.cos(A.REST) * A.HOOK }
+  T.EYE = { x = T.xc + DA.x, y = hy, z = T.hook.z, R = 0.25 }
+  T.ROD_PIN_R = 0.08                              -- (the hole in the START lever the thread hooks into)
 end
 -- the posts holding the plate up (round its edge, out of every ball's way)
 G.posts = {}
@@ -1094,18 +1065,16 @@ function G.writeScad(path)
   list("ANCHOR_PIECES", A.pieces, piece)
   f:write(string.format("ANCHOR_AT = [%.5f,%.5f];\nANCHOR_REST = %.5f;\nANCHOR_CW = [%.5f,%.5f];\n", A.x, A.z, math.deg(A.REST), A.CW_X, A.CW_Y))
   list("ANCHOR_POSTS", A.posts, function(p) return string.format("[%.5f,%.5f,%.5f,%.5f]", p[1], p[2], p[3], p[4]) end)
-  list("AUTO_CRANK_PIECES", A.autoCrank.pieces, outline)
-  f:write(string.format("AUTO_CRANK_Y = [%.5f,%.5f];\n", A.autoCrank.Y0, A.autoCrank.H))
   do
     local T = G.TRIP
-    f:write(string.format("TRIP_CW = [%.5f,%.5f,%.5f,%.5f];\n", T.CW.x, T.CW.y, T.CW.d, T.CW.r))
     local o = {}
-    for _, q in ipairs(T.cwArm) do o[#o + 1] = string.format("[%.5f,%.5f,%.5f]", q[1], q[2], q[3]) end
-    f:write("TRIP_CW_ARM = [" .. table.concat(o, ",") .. "];\n")
+    for _, q in ipairs(T.downArm) do o[#o + 1] = string.format("[%.5f,%.5f,%.5f]", q[1], q[2], q[3]) end
+    f:write("TRIP_DOWN_ARM = [" .. table.concat(o, ",") .. "];\n")
+    f:write(string.format("TRIP_DA = [%.5f,%.5f];\nTRIP_EYE = [%.5f,%.5f,%.5f,%.5f];\n", T.DA.x, T.DA.L, T.EYE.x, T.EYE.y, T.EYE.z, T.EYE.R))
   end
-  f:write(string.format("ROD_PIN_R = %.5f;\nANCHOR_CRANK = %.5f;\nTRIP_POST_H = %.5f;\n", G.TRIP.ROD_PIN_R, A.CRANK, G.TRIP.yT - G.TRIP.yA))
+  f:write(string.format("ROD_PIN_R = %.5f;\nANCHOR_HOOK = %.5f;\n", G.TRIP.ROD_PIN_R, A.HOOK))
   f:write(string.format("TRIP_AXLE = [%.5f,%.5f,%.5f,%.5f,%.5f,%.5f];\n", G.TRIP.xc, G.TRIP.yA, G.TRIP.zp,
-                        G.TRIP.xc + G.TRIP.CW.x - 0.3, G.lower.x1 + 0.3, G.TRIP.AXLE_R))
+                        G.TRIP.xc - C - 0.4, G.TRIP.xc + G.TRIP.DA.x + G.TRIP.DA.W + 0.1, G.TRIP.AXLE_R))
   list("TRIP_HULLS", G.TRIP.hulls, function(h)
     local o = {}
     for _, q in ipairs(h) do o[#o + 1] = string.format("[%.5f,%.5f,%.5f]", q[1], q[2], q[3]) end

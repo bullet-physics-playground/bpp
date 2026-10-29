@@ -341,22 +341,21 @@ there, in `release/`, or on the path; or set `BPP`.
   gone: the weight, a torque, turns the wheel, the fly caps its speed, the
   anchor holds it; Space pushes the START lever). Every ball goes down a
   trip channel at the bottom right, under a trip lever (an arm trailing
-  down the slope from an axle: a ball can only lift it; a steel ball
-  hanging just below its axle, beyond the channel's wall, balances the
-  push rod's weight), to the store. A push rod from the
-  lever's post works a crank on the anchor's pin; in AUTO (`U`) a latch pin
-  locks the crank to the anchor, which trips: the next ball goes. STOP's ball drops into a pocket
-  and trips nothing. Programs have `AUTO`, `MANUAL` and `RUN` (each ball
+  down the slope from an axle: a ball can only lift it; its underside
+  stays high near the axle, so a ball meets it far out), to the store.
+  The axle comes out through the rim; an arm hangs from it beside the
+  board, and a thread from its foot runs up beside the board to an eye and
+  across to the START lever, which it pulls as the hand does. AUTO (`U`):
+  the thread hooked in; MANUAL: off. STOP's ball drops into a pocket and
+  trips nothing. Programs have `AUTO`, `MANUAL` and `RUN` (each ball
   checked at the lever, the next in flight); `multiply-auto.dc2` does 13 x
-  5 in 21 balls from one START. The library (the tour) is now ~81 000
-  frames; check-all allows 86 000. FINDINGS, step 2d, has the tries (a lever
-  reaching up the slope only jammed; a rod of even 1 g stopped an
-  unbalanced lever, and balancing it took five tries: a counterweight over
-  the axle tips over, one on the crank or a thread round a pulley stopped
-  the balls; at friction 0.6 a ball stuck under the lever, so its underside
-  is PTFE). The rod in the sim is 4 g, straight, and
-  touches nothing (`DC_ROD`); its guides, and the weight and fly as parts,
-  are not done.
+  5 in 21 balls from one START. The library (the tour) is ~81 000 frames;
+  check-all allows 86 000. FINDINGS, step 2d, has the tries: a lever
+  reaching up the slope jammed; a push rod up the board worked but was too
+  heavy to push unless balanced, and William pointed out a thin rod 1.5 m
+  long can pull but hardly push, hence the thread. In the simulation the
+  thread is inextensible and pull-only (impulses each step, `trip.pull`).
+  The weight and fly as parts are not done.
 - **Next: OVERFLOW's halt**, so dividing and counting out run in AUTO (a
   flap under the OVERFLOW hole and a pocket, as STOP's; dividing stops at
   the end of the cycle, so it needs the distributor's say too). William

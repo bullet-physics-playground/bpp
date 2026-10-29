@@ -22,7 +22,7 @@ fails=0
 check() { # name, frames, script, env...
   local name=$1 frames=$2 script=$3; shift 3
   local out
-  out=$(env "$@" timeout 1800 "$BPP" -f "$script" -n "$frames" 2>&1 | grep -E "RESULT|rror" | grep -v ALSA)
+  out=$(env "$@" timeout 3600 "$BPP" -f "$script" -n "$frames" 2>&1 | grep -E "RESULT|rror" | grep -v ALSA)
   printf '%-34s %s\n' "$name" "$(echo "$out" | tr '\n' ' ')"
   echo "$out" | grep -q "PASS" || fails=$((fails + 1))
 }

@@ -216,17 +216,19 @@ def fig_board():
     tag(D["clearLane"][-1][0] + 1, D["clearLane"][-1][1], "clear lane (lower level)", 1)
     tag(D["XRET"], D["ZCOL"] - 8, "return lane (lower level)", -1)
     tag((b[0] + b[1]) / 2, D["ZCOL"] + 1.2, "COLLECTOR", 1)
-    # (AUTO: the anchor at rest, the trip lever, the push rod between them)
+    # (AUTO: the anchor at rest, the trip lever, the thread between them)
     T, A = D["trip"], D["anchor"]
     c, s_ = math.cos(A["rest"]), math.sin(A["rest"])
     def ap(px, pz): return (A["x"] + c * px + s_ * pz, A["z"] - s_ * px + c * pz)
-    arm = [ap(0, -A["arm"]), ap(0, 0), ap(A["crank"], 0)]
+    arm = [ap(0, -A["arm"]), ap(0, 0)]
     ax.plot([p[0] for p in arm], [p[1] for p in arm], color="#6b6f75", lw=2.2, solid_capstyle="round", zorder=6)
-    ax.plot([T["rx"], T["xc"]], [T["rz"], T["zp"]], color="#8a6d2a", lw=0.9, zorder=6)
+    th = [(T["dx"], T["zp"]), (T["ex"], T["ez"]), (T["hx"], T["hz"])]
+    ax.plot([p[0] for p in th], [p[1] for p in th], color="#8a6d2a", lw=0.9, zorder=6)
+    ax.plot([T["xc"], T["dx"]], [T["zp"], T["zp"]], color="#6b6f75", lw=1.2, zorder=6)
     ax.add_patch(Rectangle((T["xc"] - T["W"] / 2, T["zp"]), T["W"], T["A"], fc="#c9a14a", ec=INK, lw=0.5, zorder=7))
     tag(A["x"] - 1.0, A["z"] - A["arm"] / 2, "ANCHOR, its arm the START lever", -1)
-    rm = (T["rx"] + 0.6 * (T["xc"] - T["rx"]), T["rz"] + 0.6 * (T["zp"] - T["rz"]))
-    tag(rm[0], rm[1], "push rod (AUTO)", 1)
+    tag(T["ex"], T["ez"] + 60, "thread (AUTO), beside the board", 1)
+    tag(T["ex"], T["ez"], "the thread's eye; across to the START lever", 1, tz=T["ez"] - 4)
     tag(T["xc"], T["zp"] + T["A"] / 2, "TRIP LEVER (AUTO)", 1, tz=T["zp"] + 2.2)
     tag(b[0] + 6, T["ZB"] + 0.4, "the store", -1)
     save(fig, "fig-board.png")

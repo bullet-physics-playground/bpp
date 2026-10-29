@@ -27,8 +27,8 @@ part flap.stl       -D 'PART="print-flap"'
 part wheel.stl      -D 'PART="print-wheel"'
 part star.stl       -D 'PART="print-star"'
 part anchor.stl     -D 'PART="print-anchor"'
-part auto-crank.stl -D 'PART="print-auto-crank"'
-part trip-cw-arm.stl -D 'PART="print-trip-cw-arm"'
+part trip-down-arm.stl -D 'PART="print-trip-down-arm"'
+part trip-eye.stl   -D 'PART="print-trip-eye"'
 part trip-lever.stl -D 'PART="print-trip-lever"'
 part shutter.stl    -D 'PART="print-shutter"'
 part comp-knob.stl  -D 'PART="print-comp-knob"'
@@ -42,5 +42,5 @@ part foot-back-1.stl -D 'PART="print-foot-back-1"'
 part foot-back-2.stl -D 'PART="print-foot-back-2"'
 part foot-front.stl -D 'PART="print-foot-front"'
 echo "Print: rocker x13, foot x13, flap x7, shutter x6, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, star,"
-echo "anchor, auto-crank, trip-lever, trip-cw-arm, comp-knob and every"
+echo "anchor, trip-lever, trip-down-arm, trip-eye, comp-knob and every"
 echo "upper-i-j and lower-i-j tile once. Cut the lower board from 6 mm plywood (README.md)."

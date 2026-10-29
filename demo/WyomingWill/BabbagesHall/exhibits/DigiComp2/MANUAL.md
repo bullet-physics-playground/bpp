@@ -90,7 +90,7 @@ side, printed on the plate.
 | Name | What it is | What it does |
 |---|---|---|
 | **START** | the feeder: a wheel with four notches under the **INPUT** channel of waiting balls, turned by a weight and held by an anchor | each push on the START lever (the anchor's arm) lets the wheel a quarter turn round: one ball out |
-| **AUTO/MANUAL** | a latch pin: the push rod's crank, from the trip lever at the bottom, locked to the anchor or swinging idle | AUTO: each ball reaching the bottom lets the next go. MANUAL: one ball per push |
+| **AUTO/MANUAL** | the thread from the trip lever at the bottom, hooked into the START lever or off | AUTO: each ball reaching the bottom lets the next go. MANUAL: one ball per push |
 | **MULTIPLY** | a switch | on: the ball goes to the distributor. Off: down to CLEAR |
 | **CLEAR** | a switch | on: the ball drops into the clear lane. Off: on to COUNT |
 | **COUNT** | a switch | on: the ball goes into A1. Off: it drops out |
@@ -358,15 +358,16 @@ it, as a clock's weight turns its wheels and its escapement holds them:
 each push on the anchor's long arm (the START lever) lets the wheel round a
 quarter turn, one ball. At the bottom every ball goes down the **trip
 channel** at the right, under the **trip lever**, and on to the store. A
-ball lifts the lever as it passes, and a light **push rod** from the
-lever's post passes that up to a crank on the anchor's pin. In AUTO a
-latch pin locks the crank to the anchor, and the anchor lets the next ball
-go; in MANUAL the crank swings idle. The ball through STOP drops into a pocket under the
+ball lifts the lever as it passes; an arm hanging from the lever's axle,
+beside the board, swings down the slope, and a **thread** tied to it, up
+beside the board and across, pulls the START lever as the hand would. In
+AUTO the thread is hooked into the START lever, and the anchor lets the
+next ball go; in MANUAL it is unhooked. The ball through STOP drops into a pocket under the
 plate, never reaches the lever, and the machine stops.
 
 | | AUTO | MANUAL |
 |---|---|---|
-| the latch pin | in: the rod's crank turns the anchor | out: the crank swings idle |
+| the thread | hooked into the START lever | unhooked, on its peg |
 | START (`Space`) | once: the machine runs until a ball drops through STOP | once for each ball |
 | the trip lever | trips the anchor: the next ball goes | lifts, and nothing follows |
 
@@ -487,7 +488,7 @@ are the keys you would press, and a few more:
 | `D` | sets the distributor to begin a cycle |
 | `M` `C` `N` `X` | MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off |
 | `Space` | START: one ball (in MANUAL; in AUTO it is an error: use `RUN`) |
-| `AUTO`, `MANUAL` | puts the latch pin in, or takes it out |
+| `AUTO`, `MANUAL` | hooks the thread into the START lever, or takes it off |
 | `RUN` | (in AUTO) START once, then waits while the machine runs, checking each ball as it lifts the trip lever, until one drops through STOP |
 | `SET A n`, `SET M n`, `SET MQ n` | sets that register to n |
 | `UNTIL STOP` | balls until one drops through STOP |

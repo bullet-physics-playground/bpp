@@ -52,9 +52,9 @@ only pushed the arm down onto its stop, and the ball stopped. The arm now
 **trails down the slope** from the axle: a ball rolls under the axle and
 meets the arm's underside, which it can only lift. A post up from the axle
 then tips *up* the slope as the arm lifts, so it **pushes**: a rod, not a
-thread, to the anchor's counterweight arm, extended past the ball (`CRANK`,
-35 mm from the pin; now through the AUTO crank, below). Pushed up the slope
-there, the anchor trips.
+thread, to the anchor's counterweight arm, extended past the ball, 35 mm
+from the pin. Pushed up the slope there, the anchor trips. (The rod is
+gone now: the lever pulls a thread, try 6 below.)
 
 Measured on the board, with the rod nearly weightless (0.3 g, the first
 try): a ball lifts the lever 0.34 to 0.35 radians (0.38 once); through the
@@ -67,7 +67,8 @@ real rod 1.5 m long weighs more: a 1.5 mm carbon-fibre rod, about 4 g. Its
 weight down the slope pushes the post back down the slope, against the
 ball: with a rod of 1, 2 or 3 g the first ball no longer lifted the lever
 enough, and the machine stopped after it. So the rod's weight has to be
-balanced, and that took five tries:
+balanced, and that took five tries, and then a sixth design without a
+rod at all:
 
 1. **A counterweight on the lever, up the slope over its axle** (a steel
    ball on a short arm). AUTO then passed with any rod from 0.3 to 8 g.
@@ -106,6 +107,34 @@ balanced, and that took five tries:
    one START, with a rod of 0.3, 2, 4 and 8 g, and at friction 0.2, 0.3,
    0.45 and 0.6.
 
+6. **A thread, pulling (2026-10-28).** William's point: a rod 1.5 m long
+   and that thin can pull but hardly push (a 1.5 mm carbon rod buckles at
+   about 14 g; the trip needs about 2, but only while the rod stays
+   straight). A thread can't push at all, so the lever's part that it is
+   tied to must move *away* from the anchor as a ball lifts it: an arm
+   hanging down from the axle, whose foot swings down the slope. The
+   axle comes out through the rim, the arm hangs beside the board, and
+   the thread runs straight up beside the board's right edge, outside
+   everything, to an eye level with the START lever, and across to the
+   START lever, 19 mm from the anchor's pin. It pulls the lever to the
+   right, as the hand does. A thread weighs next to nothing, so there is
+   nothing to balance: the counterweights, the AUTO crank and the latch
+   are gone. In the simulation the thread can't stretch and only pulls:
+   each step, if it is taut and the lever and anchor would lengthen it,
+   an equal pull on both ends stops that (as a spring of nylon's
+   stiffness, the ball bounced off the lever and stopped). Earlier, a
+   thread run round a pulley at the bottom, its two pieces simulated as
+   rigid links, had held the lever down.
+
+   This needed the lever's underside changed. Its straight underside met
+   a ball 3 mm from the axle, where the ball has little leverage, and now
+   and then a ball stopped there, under the axle (the 13 x 3 in MANUAL,
+   its 13th ball; it also explains some of the failures above). The
+   underside now stays high out to 6 mm from the axle and then slopes
+   down to the end: a ball meets it farther out. Then 13 x 3 in MANUAL and
+   13 x 5 in AUTO passed, the AUTO one at friction 0.2, 0.3, 0.45 and
+   0.6, the MANUAL one at 0.3 and 0.6.
+
 **Friction.** At friction 0.6 (the slider's top) a ball once stuck under
 the lever (with try 2): wedged between the floor and the arm, it can't
 roll on both, and slid too stiffly on the arm. The lever stopped a third
@@ -130,8 +159,8 @@ input filled from the store as it runs.
 - OVERFLOW halting the machine, for dividing and counting out in AUTO (a
   flap under the OVERFLOW hole, and a pocket, as STOP's).
 - The weight, its winding and the fly as parts.
-- The push rod's guides. In the simulation the rod is a link (4 g) pinned
-  at both ends, straight and touching nothing, 1465 mm long.
+- The thread as it is: it stretches a little and rubs in its eye; in the
+  simulation it does neither, and weighs nothing.
 
 ## Step 2c: the complement, subtracting and dividing
 
