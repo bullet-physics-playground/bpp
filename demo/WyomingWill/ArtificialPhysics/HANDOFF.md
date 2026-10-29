@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F91 so far), and
+  implementations, and our own mistakes once corrected (F1–F95 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -105,6 +105,7 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `ch03/` | Ch. 3's formation models (`formation_newton`, `formation_hooke`, `formation_goal_obs`) line for line in plain Lua, with the book's results checked (`checks/ch03.lua`, `ch03/README.md`) |
 | `ch04/` | Ch. 4.1's perfect formations (`formation_perfect`) and Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04_perfect.lua`, `checks/ch04.lua`, `ch04/README.md`) |
+| `ch07/` | Ch. 7's theory checks on Kerr's own simulator: his 2004 Java (`kerr/`, with William's permission) ported exactly to Lua (`kerr.lua`, his departures as switches), the three experiments (`theory.lua`, `sweep.sh`, `theory_runs.txt`), checked in `checks/ch07.lua` (`ch07/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | Table 11.1 on Maxim's simulator (`maxim/`, his C and environments; `maxim.lua`, an exact Lua copy; the counts behind the table) and the mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `pointmass.lua` (G5, the point mass with the drone's limits; `VEHICLE=lib.pointmass`), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
@@ -312,6 +313,21 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   drones collide in mid-air unless collisions separate (F90) and KT runs
   at ~1 Hz (F91). KT is not flown on drones in the plan; the capstone's
   sweep is by ground robots, where contacts are bumps.
+- **Ch. 7's theory (M3 step 4, 2026-10-29; F92–F95):** William found
+  Kerr's 2004 Java (the FAABS paper's, Garcia's DSMC in 2D) and allowed it
+  into the repo (`ch07/kerr/`, Garcia cited). Run unchanged it gives
+  Kerr's own files' numbers; `ch07/kerr.lua` repeats it bit for bit. His
+  numbers are his own error measures (speed error over the fastest speed
+  met, density excess over N − N/C, profile error over the largest
+  possible), not the book's |theory − sim| / theory, on a gas that runs
+  3.75% hot (three departures from Garcia), piles into a corner of the
+  density box (its walls at y) and drifts out of an open channel. With
+  those put right (switches, off by default) the three theories hold
+  without obstacles. Figs. 7.5–7.8 come from a later simulator (the
+  journal's and thesis's) not in the archive; their points are read from
+  the journal's PostScript. Its obstacles are not explained (open).
+  Listing 7.3's half-circle is made whole by its own assignment, as
+  Kerr's `KTRobot` does.
 
 ## 7. Where things stand and what's next
 
@@ -387,8 +403,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     instead of flat ground and a still sea; the Maxelbot (skid-steer,
     G10); Ch. 13's dumbbell and the triangle of death (E6) on the robot;
     benchmark tasks 3–4 and the other vehicles (`BOOK.md` §6).
-- **Now: M3** (William, 2026-10-25: "Let's do 1, 2, 3, 4"; build steps
-  3–5, `WORKFLOW.md` §5), one patch per step:
+- **Done: milestone M3** (build steps 3–5, 2026-10-25 to 2026-10-29;
+  William, 2026-10-25: "Let's do 1, 2, 3, 4"), one patch per step:
   1. Ch. 3 fidelity checks: the split Newtonian and Hooke models, goal,
      obstacles and Disable One (**done**, `ch03/`, `checks/ch03.lua`,
      F73–F75: G_t and its hysteresis confirmed, G_t in 3D = G_t/√2,
@@ -454,24 +470,42 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
        for (robustness). **Needed for it:** `velocity()` on the ground
        robot (`ground/vehicle.lua`), and KT on robots that touch and
        carry on.
+     - **Ch. 7's theory checks (done,** `ch07/`, `checks/ch07.lua`,
+       F92–F95): on Kerr's own 2004 simulator, ported exactly; his
+       numbers are his error measures on a gas with three departures
+       from Garcia's; with them put right, uniform density, the mean
+       speed and both profiles (one- and two-sided, explicitly) hold
+       without obstacles; Figs. 7.5–7.8 are a later simulator's, whose
+       obstacles are open (F94); Listing 7.3's draw is made whole by its
+       assignment (F95).
+  - **Answer to M3's question** (do our ports reproduce the book's
+    formations, coverage, perfect formations and kinetic theory, and
+    does kinetic theory survive real vehicles?): **yes, wherever the
+    book, its `.nlogo`, its thesis or the author's code gives enough to
+    rebuild the setup** (Ch. 3, 4.1, 4.3, 4.4, 7 and 11: F73–F86, F92).
+    Where it does not, the differences are explained: the `.nlogo`'s hot
+    walls (F85), the book's settings differing from the code or thesis
+    behind a figure (F74, F80, F94), error measures other than the
+    book's and departures in the author's code (F93). One is not: Ch. 7's
+    obstacles (F94). Kinetic theory survives a vehicle's lag
+    if KT keeps its own velocities and the lag is shorter than a KT tick,
+    with collision avoidance underneath (F88–F91).
+  - **Open from M3:** Ch. 7's robot controller (sonar ring, ε,
+    cooldown, the speed cap) and the corridor sweep against Default and
+    Ant (7.5–7.6), on Kerr's 2005 robot simulator (`KTRobot`, `AntRobot`,
+    `Simple2`, his courses and thesis logs, which reproduce Figs.
+    7.11–7.13; William has them), on `World.preset("ch07-corridor")`,
+    then on ground robots with `velocity()` (the capstone's KT sweep);
+    Ch. 7's obstacles (F94); kinetic theory in 3D (a box, a slab); Ch. 4.1's
+    questions (b) and (c) and the (m, n, k) cube; Ch. 3's ★ items (NaCl,
+    diamond); the honeycomb repair; the losses of KT on drones (not
+    pursued).
 - **The seven theses** (Heil, Hettiarachchi, Kerr, Kunkel, Maxim,
   Rebguns, Zarzhitsky) were attached by William on 2026-10-28; they stay
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is
   Garcia's crossing rule, i.e. `inward`) and F89 (collision avoidance is
   assumed, not given).
-- **Next, the last of M3: Ch. 7's theory checks** (`BOOK.md` 7.1–7.4,
-  `book/ch07.md`, Kerr's thesis, which William attaches): the KT
-  controller of Ch. 7 (both walls moving the same way, obstacles, the
-  corridor, `World.preset("ch07-corridor")` in `lib/world.lua`), on particles first,
-  reusing `ch04/couette.lua`'s step where it fits (Kerr's wall is now its
-  default); then uniform density at rest (book: error < 10%), mean speed
-  against T (< 2%), and the profiles with one moving wall (linear) and
-  two (flat) against obstacle density, deciding one- or two-sided
-  explicitly. The chapter note lists the listing bugs (speed `max(…, 6)`
-  should be `min`; Listing 7.3 draws collision angles from a half-circle
-  only). Then close M3 here (its answers, as for M1 and M2) and go on to
-  Ch. 13's constrained vehicles.
-- **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
+- **Next: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
   the camera ring (§13.4, E10–E11b); (3) the triangle of death (E6); (4) a
@@ -482,7 +516,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   the nearest agent in a forward sector; LJ with the torque law, to see if
   it mills by itself), against the book's lone circles, with the
   n D ≥ 2π R_min limit stated and the surveillance, relay and
-  stay-in-region measures.
+  stay-in-region measures. Next up is (2), the dumbbell agent on the
+  Pioneer (`ground/`, Eqs. 13.19–13.22, PDF 462–463, `book/ch13.md`) and
+  the 3–5-robot camera ring with three-point turns (PDF 463–465).
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
@@ -506,10 +542,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
-> and continue with the next step in HANDOFF.md §7: the last step of
-> milestone M3, Ch. 7's theory checks. Deliver each step as a patch with
-> git commands.
+> and continue with the next step in HANDOFF.md §7: Ch. 13's
+> constrained vehicles, step (2), the dumbbell agent on the Pioneer and
+> the camera ring. Deliver each step as a patch with git commands.
 
-Attach the book PDF and Kerr's thesis (Ch. 7 is built on it);
-`Android_AP.zip` if it will compare with the Android app (its
-`kinetic/` simulation is Ch. 4.4's), and `CPT.zip` for plume work.
+Attach the book PDF (Ch. 13 is PDF 444–471); Apker's and Potter's
+material is in the chapter itself. `Android_AP.zip` only if it will
+compare with the Android app, and `CPT.zip` for plume work.
