@@ -22,28 +22,28 @@
 
 static void solidCubeDraw(double sz)
 {
-	int i, j, idx, gray, flip, rotx;
-	float vpos[3], norm[3];
-	float rad = sz * 0.5f;
+    int i, j, idx, gray, flip, rotx;
+    float vpos[3], norm[3];
+    float rad = sz * 0.5f;
 
-	glBegin(GL_QUADS);
-	for(i=0; i<6; i++) {
-		flip = i & 1;
-		rotx = i >> 2;
-		idx = (~i & 2) - rotx;
-		norm[0] = norm[1] = norm[2] = 0.0f;
-		norm[idx] = flip ^ ((i >> 1) & 1) ? -1 : 1;
-		glNormal3fv(norm);
-		vpos[idx] = norm[idx] * rad;
-		for(j=0; j<4; j++) {
-			gray = j ^ (j >> 1);
-			vpos[i & 2] = (gray ^ flip) & 1 ? rad : -rad;
-			vpos[rotx + 1] = (gray ^ (rotx << 1)) & 2 ? rad : -rad;
-			glTexCoord2f(gray & 1, gray >> 1);
-			glVertex3fv(vpos);
-		}
-	}
-	glEnd();
+    glBegin(GL_QUADS);
+    for(i=0; i<6; i++) {
+        flip = i & 1;
+        rotx = i >> 2;
+        idx = (~i & 2) - rotx;
+        norm[0] = norm[1] = norm[2] = 0.0f;
+        norm[idx] = flip ^ ((i >> 1) & 1) ? -1 : 1;
+        glNormal3fv(norm);
+        vpos[idx] = norm[idx] * rad;
+        for(j=0; j<4; j++) {
+            gray = j ^ (j >> 1);
+            vpos[i & 2] = (gray ^ flip) & 1 ? rad : -rad;
+            vpos[rotx + 1] = (gray ^ (rotx << 1)) & 2 ? rad : -rad;
+            glTexCoord2f(gray & 1, gray >> 1);
+            glVertex3fv(vpos);
+        }
+    }
+    glEnd();
 }
 
 static void solidSphereDraw(double radius, int slices, int stacks) {
@@ -154,6 +154,96 @@ static void solidConeDraw(double radius, double height, int slices, int stacks) 
     glEnd();
 }
 
+static void solidTorusDraw(double innerRadius, double outerRadius, int slices, int loops) {
+    // Torus in XY plane, centred on origin.
+    // u runs around the major circle (slices), v runs around the minor circle (loops).
+    for (int i = 0; i < slices; i++) {
+        double u0 = i * 2.0 * M_PI / slices;
+        double u1 = (i + 1) * 2.0 * M_PI / slices;
+        float cu0 = cos(u0), su0 = sin(u0);
+        float cu1 = cos(u1), su1 = sin(u1);
+
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= loops; j++) {
+            double v = j * 2.0 * M_PI / loops;
+            float cv = cos(v), sv = sin(v);
+
+            // Point on torus surface
+            double x0 = (outerRadius + innerRadius * cv) * cu0;
+            double y0 = (outerRadius + innerRadius * cv) * su0;
+            double z0 = innerRadius * sv;
+
+            double x1 = (outerRadius + innerRadius * cv) * cu1;
+            double y1 = (outerRadius + innerRadius * cv) * su1;
+            double z1 = innerRadius * sv;
+
+            // Normal
+            double nx0 = cv * cu0;
+            double ny0 = cv * su0;
+            double nz0 = sv;
+
+            double nx1 = cv * cu1;
+            double ny1 = cv * su1;
+            double nz1 = sv;
+
+            float uTex0 = 0.5f + (float)i / slices;
+            float uTex1 = 0.5f + (float)(i + 1) / slices;
+            float vTex = (float)j / loops;
+
+            glNormal3d(nx0, ny0, nz0);
+            glTexCoord2f(uTex0, vTex);
+            glVertex3d(x0, y0, z0);
+
+            glNormal3d(nx1, ny1, nz1);
+            glTexCoord2f(uTex1, vTex);
+            glVertex3d(x1, y1, z1);
+        }
+        glEnd();
+    }
+}
+
+static void solidDiscDraw(double radius, double height, int slices, int loops) {
+    // Disc in XY plane, centred on origin
+    // Side wall
+    for (int i = 0; i < loops; i++) {
+        float z0 = (float)height * i / loops;
+        float z1 = (float)height * (i + 1) / loops;
+
+        glBegin(GL_TRIANGLE_STRIP);
+        for (int j = 0; j <= slices; j++) {
+            double theta = j * 2.0 * M_PI / slices;
+            float x = (float)cos(theta);
+            float y = (float)sin(theta);
+            float u = 0.5f + (float)j / slices;
+
+            glNormal3f(x, y, 0.0f);
+            glTexCoord2f(u, (float)i / loops);
+            glVertex3f((float)radius * x, (float)radius * y, z0);
+            glTexCoord2f(u, (float)(i + 1) / loops);
+            glVertex3f((float)radius * x, (float)radius * y, z1);
+        }
+        glEnd();
+    }
+
+    // Top and bottom caps
+    for (int side = 0; side < 2; side++) {
+        float z = (side == 0) ? 0.0f : (float)height;
+        float nz = (side == 0) ? -1.0f : 1.0f;
+
+        glBegin(GL_TRIANGLE_FAN);
+        glNormal3f(0.0f, 0.0f, nz);
+        glTexCoord2f(0.5f, 0.5f);
+        glVertex3f(0.0f, 0.0f, z);
+        for (int j = 0; j <= slices; j++) {
+            double theta = (side == 0) ? (j * 2.0 * M_PI / slices) : (-j * 2.0 * M_PI / slices);
+            glTexCoord2f(0.5f + 0.5f * (float)cos(theta),
+                         0.5f + 0.5f * (float)sin(theta));
+            glVertex3f((float)radius * cos(theta), (float)radius * sin(theta), z);
+        }
+        glEnd();
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Display-list caching. The primitives are drawn with the same few sizes over
 // and over (objects draw a unit shape and scale it), so each distinct call is
@@ -244,6 +334,16 @@ void solidCylinder(double radius, double height, int slices, int stacks) {
 void solidCone(double radius, double height, int slices, int stacks) {
   cachedPrimitive(PrimKey(3, radius, height, slices, stacks),
                   [=]() { solidConeDraw(radius, height, slices, stacks); });
+}
+
+void solidTorus(double innerRadius, double outerRadius, int slices, int loops) {
+  cachedPrimitive(PrimKey(4, innerRadius, outerRadius, slices, loops),
+                  [=]() { solidTorusDraw(innerRadius, outerRadius, slices, loops); });
+}
+
+void solidDisc(double radius, double height, int slices, int loops) {
+  cachedPrimitive(PrimKey(5, radius, height, slices, loops),
+                  [=]() { solidDiscDraw(radius, height, slices, loops); });
 }
 
 // ---------------------------------------------------------------------------

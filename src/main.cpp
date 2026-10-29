@@ -25,6 +25,7 @@
 #include <QTimer>
 #include <QPalette>
 #include <QSettings>
+#include <QSurfaceFormat>
 
 #include "appenv.h"
 #include "gui.h"
@@ -102,6 +103,12 @@ int main(int argc, char **argv) {
 
   // make xlib and glx thread safe under x11
   QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+
+  // Request a stencil buffer for CSG rendering
+  QSurfaceFormat fmt;
+  fmt.setStencilBufferSize(8);
+  fmt.setDepthBufferSize(24);
+  QSurfaceFormat::setDefaultFormat(fmt);
 
   QSharedPointer<QCoreApplication> app;
 

@@ -34,9 +34,16 @@
 #include "lua_register.h"
 #endif
 
+#include "objects/bezierpatch.h"
 #include "objects/cone.h"
 #include "objects/cube.h"
 #include "objects/cylinder.h"
+#include "objects/csg.h"
+#include "objects/disc.h"
+#include "objects/heightfield.h"
+#include "objects/layer.h"
+#include "objects/povscriptwriter.h"
+#include "objects/torus.h"
 #include "objects/object.h"
 #include "objects/plane.h"
 #include "objects/rigidsoftcontact.h"
@@ -2994,6 +3001,13 @@ emit scriptStarts();
     Cone::luaBind(L);
     Cube::luaBind(L);
     Cylinder::luaBind(L);
+    CsgObject::luaBind(L);
+    Disc::luaBind(L);
+    Heightfield::luaBind(L);
+    Torus::luaBind(L);
+    PovScriptWriter_luaBind(L);
+    LayerManager::luaBind(L);
+    BezierPatch::luaBind(L);
 #ifdef HAS_LIB_ASSIMP
     Mesh::luaBind(L);
     OpenSCAD::luaBind(L);
@@ -4258,6 +4272,9 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
     if (skipFixed && o->shadowListed)
       continue;
     if (!shadowPass && o->mergeDrawn && _mergeReady)  // (drawn by drawMerged())
+      continue;
+    // Layer visibility: skip objects on hidden layers
+    if (!shadowPass && o->layer() && !o->layer()->isVisible())
       continue;
     if (!shadowPass && o->getTransparency() > 0.0) {
       seeThrough.append(o);

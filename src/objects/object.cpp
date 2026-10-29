@@ -15,6 +15,8 @@
 
 #include "glutils.h"
 #include "shadowmap.h"
+#include "visitor.h"
+#include "layer.h"
 
 #include "appenv.h"
 
@@ -23,6 +25,7 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include <algorithm>
 #include <memory>
 #include <luabind/adopt_policy.hpp>
 
@@ -92,6 +95,32 @@ Object::~Object() {
   if (!keptBody)
     for (btCollisionShape *s : _retiredShapes)
       delete s;
+}
+
+void Object::accept(Visitor &visitor) {
+  if (!visitor.Visiting(this)) return;
+  for (Object *child : _children)
+    child->accept(visitor);
+}
+
+void Object::addChild(Object *child) {
+  if (!child) return;
+  child->setParent(this);      // QObject parent for lifetime management
+  _children.push_back(child);
+}
+
+void Object::removeChild(Object *child) {
+  if (!child) return;
+  child->setParent(nullptr);   // detach QObject parent
+  _children.erase(std::remove(_children.begin(), _children.end(), child),
+                  _children.end());
+}
+
+int Object::getNumChildren() const { return static_cast<int>(_children.size()); }
+
+Object *Object::getChild(int index) const {
+  if (index < 0 || index >= static_cast<int>(_children.size())) return nullptr;
+  return _children[static_cast<size_t>(index)];
 }
 
 void Object::preDestructor() {
@@ -324,10 +353,12 @@ void Object::luaBind(lua_State *s) {
            .property("collides", &Object::getCollides, &Object::setCollides)
 
            .property("pov_export",
-                     (bool(Object::*)(void)) & Object::getPOVExport,
-                     (void(Object::*)(bool)) & Object::setPOVExport)
+                      (bool(Object::*)(void)) & Object::getPOVExport,
+                      (void(Object::*)(bool)) & Object::setPOVExport)
 
-.property("tex", &Object::getTexture, &Object::setTexture)
+           .property("layer", &Object::layer, &Object::setLayer)
+
+           .property("tex", &Object::getTexture, &Object::setTexture)
 
 .property("pre_sdl", (QString(Object::*)(void)) & Object::getPreSDL,
                       (void(Object::*)(const QString &)) & Object::setPreSDL)
@@ -364,8 +395,32 @@ void Object::luaBind(lua_State *s) {
            .def("toPOV", (QString(Object::*)() const) & Object::toPOV)
            .property("pov", (QString(Object::*)() const) & Object::toPOV)
 
-           .def(tostring(const_self))
-           .def(const_self == const_self)];
+           // Scene graph / visitor pattern
+           .def("addChild", &Object::addChild)
+           .def("removeChild", &Object::removeChild)
+           .def("getNumChildren", &Object::getNumChildren)
+           .def("getChild", &Object::getChild)
+           .def("accept", &Object::accept)
+
+            .def(tostring(const_self))
+            .def(const_self == const_self)];
+
+  module(s)[
+    class_<Visitor>("Visitor")
+      .def("Visiting", &Visitor::Visiting),
+
+    class_<StatisticsVisitor, Visitor>("StatisticsVisitor")
+      .def(constructor<>())
+      .def_readwrite("lights", &StatisticsVisitor::lights)
+      .def_readwrite("primitives", &StatisticsVisitor::primitives)
+      .def_readwrite("groups", &StatisticsVisitor::groups)
+      .def_readwrite("realObjects", &StatisticsVisitor::realObjects)
+      .def_readwrite("total", &StatisticsVisitor::total),
+
+    class_<FindObjectVisitor, Visitor>("FindObjectVisitor")
+      .def(constructor<const QString &>())
+      .def_readwrite("found", &FindObjectVisitor::found)
+  ];
 }
 
 void Object::renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) {
@@ -995,3 +1050,30 @@ QString Object::povMeshHash(btConcaveShape *shape) {
 void Object::setPOVExport(bool onoff) { mPOVExport = onoff; }
 
 bool Object::getPOVExport() const { return mPOVExport; }
+
+void Object::toMesh2(QTextStream *s, QString /*hash*/) const {
+  if (!s || !shape) return;
+
+  // Try to extract triangles from the collision shape
+  btConcaveShape *concave = dynamic_cast<btConcaveShape *>(shape);
+  if (concave) {
+    class MeshCallback : public btTriangleCallback {
+    public:
+      QTextStream *out;
+      MeshCallback(QTextStream *o) : out(o) {}
+      virtual void processTriangle(btVector3 *triangle, int, int) {
+        *out << "    <" << triangle[0].x() << ", " << triangle[0].y() << ", " << triangle[0].z() << ">,\n";
+        *out << "    <" << triangle[1].x() << ", " << triangle[1].y() << ", " << triangle[1].z() << ">,\n";
+        *out << "    <" << triangle[2].x() << ", " << triangle[2].y() << ", " << triangle[2].z() << ">,\n";
+      }
+    } cb(s);
+
+    btTransform trans;
+    if (body && body->getMotionState()) {
+      body->getMotionState()->getWorldTransform(trans);
+    }
+    btVector3 aabbMin, aabbMax;
+    shape->getAabb(trans, aabbMin, aabbMax);
+    concave->processAllTriangles(&cb, aabbMin, aabbMax);
+  }
+}

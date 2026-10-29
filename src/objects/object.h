@@ -19,7 +19,9 @@
 
 #include <qgl.h>
 
-class Object;
+class Layer; ///< Forward declaration for layer support
+class Object; ///< Forward declaration for visitor pattern support
+class Visitor; ///< Forward declaration for visitor pattern support
 
 /**
  * @brief Writes an object's description and colour to a standard stream.
@@ -458,6 +460,18 @@ public:
   bool getPOVExport() const;
 
   /**
+   * @brief Returns the layer this object belongs to, or null if unassigned.
+   * @return The layer, or nullptr.
+   */
+  Layer *layer() const { return m_layer; }
+
+  /**
+   * @brief Sets the layer this object belongs to.
+   * @param layer The layer, or nullptr to unassign.
+   */
+  void setLayer(Layer *layer) { m_layer = layer; }
+
+  /**
    * @brief Replaces the opening line of the object's exported SDL.
    *
    * Lets a script substitute its own POV-Ray object for the shape bpp would
@@ -566,6 +580,18 @@ public:
    * @return The same text toPOV(QTextStream*) would write.
    */
   virtual QString toPOV() const;
+
+  /**
+   * @brief Writes the object as a POV-Ray mesh2 block.
+   *
+   * Used by the PovScriptWriter to create shared mesh include files.
+   * The default implementation emits a simple triangle mesh from the
+   * collision shape (if it's a btTriangleMesh or btConvexHullShape).
+   *
+   * @param s The stream to write to.
+   * @param hash Content hash for the mesh declaration name.
+   */
+  virtual void toMesh2(QTextStream *s, QString hash) const;
 
   /**
    * @brief Draws the object in the interactive view.
@@ -687,6 +713,41 @@ public:
    * @return The constraints; empty for most objects.
    */
   QList<btTypedConstraint *> getConstraints() const;
+
+  /**
+   * @brief Visitor pattern: accept a visitor.
+   *
+   * Calls visitor.Visiting(this), then recursively visits each child.
+   * Override in derived classes to add type-specific visitation.
+   *
+   * @param visitor The visitor to accept.
+   */
+  virtual void accept(Visitor &visitor);
+
+  /**
+   * @brief Adds a child object to this object's scene graph.
+   * @param child The child to add. The child's QObject parent is set to this.
+   */
+  void addChild(Object *child);
+
+  /**
+   * @brief Removes a child object from this object's scene graph.
+   * @param child The child to remove.
+   */
+  void removeChild(Object *child);
+
+  /**
+   * @brief Returns the number of children.
+   * @return Child count.
+   */
+  int getNumChildren() const;
+
+  /**
+   * @brief Returns the child at the given index.
+   * @param index Zero-based index.
+   * @return The child object, or null if out of range.
+   */
+  Object *getChild(int index) const;
 
   /**
    * @brief Sets which collision groups the object is in and collides with.
@@ -828,6 +889,8 @@ protected:
 
   QList<btTypedConstraint *> _constraints; ///< Constraints handed to the
                                            ///< viewer when the object is added.
+  std::vector<Object *> _children;         ///< Child objects in the scene graph.
+  Layer *m_layer = nullptr;                ///< Layer this object belongs to.
 
   collisiontypes col1; ///< The collision group the object belongs to.
   collisiontypes col2; ///< The collision groups it collides with.

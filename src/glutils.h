@@ -113,4 +113,28 @@ void solidCone(double radius, double height, int slices, int stacks);
  */
 unsigned glTextureFromFile(const QString &file);
 
+/**
+ * @brief Draws a solid disc (flat cylinder) centred on the origin.
+ *
+ * The disc lies in the XY plane.
+ *
+ * @param radius Radius of the disc.
+ * @param height Thickness of the disc.
+ * @param slices Number of subdivisions around the disc.
+ * @param loops  Number of segments along the thickness.
+ */
+void solidDisc(double radius, double height, int slices, int loops);
+
+/**
+ * @brief Draws a solid torus centred on the origin.
+ *
+ * The torus lies in the XY plane with its hole along the Z axis.
+ *
+ * @param innerRadius Radius of the tube (cross-section).
+ * @param outerRadius Distance from the centre of the tube to the centre of the torus.
+ * @param slices Number of subdivisions around the major radius.
+ * @param loops  Number of subdivisions around the minor radius (tube).
+ */
+void solidTorus(double innerRadius, double outerRadius, int slices, int loops);
+
 #endif
