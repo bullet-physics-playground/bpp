@@ -20,7 +20,7 @@
 --     impulseScale = ...,  -- optional, default 1: multiplies the motors' impulse
 --   }
 --   w.cube, w.cube_w, w.cubeCenterX, w.linkage1 .. w.linkage4 (each with
---   .hingeO2, the motor), w.crossbarFront/Back, w.foot1 .. w.foot4
+--   .hingeO2, the motor), w.crossbarFront/Back (w.diagonalTop/Bottom with opts.outside), w.foot1 .. w.foot4
 --
 -- The notes below were written when all of this lived in
 -- Hoecken_sliderT.lua; "this file" in them means the walker as a whole.
@@ -585,7 +585,7 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   return {
     crank = crank, coupler = coupler, block = block, pendant = pendant,
     hingeO2 = hingeO2, hingeA = hingeA, hingeO4 = hingeO4, sliderO4 = sliderO4, hingeB = hingeB,
-    z_pendant = z_pendant_l, C = C,
+    z_pendant = z_pendant_l, C = C, B = B,
   }
 end
 -- g_ang=90: the ground link (O2->O4) points straight up, matching
@@ -594,6 +594,8 @@ end
 -- versions of this file used.
 -- (WALKER ROOM: opts.phases = { four phases, linkage1..4 } times the legs
 -- otherwise; opts.noBraces leaves the plates off, so they can)
+-- (WALKER ROOM: opts.outside, the diag build below: diagonal legs in step)
+if opts.outside and not opts.phases then opts.phases = { 0, 180, 180, 0 } end
 local linkage1 = buildLinkage(0, 90, false, opts.phases and opts.phases[1] or 0, opts.leftSpeed)                 -- front face, x=0,  phase 0
 local linkage2 = buildLinkage(linkage_spacing, 90, false, opts.phases and opts.phases[2] or 0, opts.leftSpeed)   -- front face, x=10, phase 0
 local linkage3 = buildLinkage(0, 90, true, opts.phases and opts.phases[3] or 180, opts.rightSpeed)               -- back face,  x=0,  phase 180
@@ -668,8 +670,86 @@ local function buildCrossbar(lkA, lkB, z_pos, color, bar_height)
 
   return bar
 end
-local crossbarFront = (not opts.noBraces) and buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue") or nil
-local crossbarBack = (not opts.noBraces) and buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue") or nil
+local crossbarFront = (not opts.noBraces and not opts.outside) and buildCrossbar(linkage1, linkage2, z_crossbar, "slateblue") or nil
+local crossbarBack = (not opts.noBraces and not opts.outside) and buildCrossbar(linkage3, linkage4, -z_crossbar, "slateblue") or nil
+-- ---------------------------------------------------------------------
+-- WALKER ROOM: opts.outside, the diag build (William, 28 October 2026: the
+-- sliders had no diag build). Its diagonal legs step together (front-left
+-- with back-right, front-right with back-left: opts.phases 0, 180, 180, 0
+-- unless set), so the two pendants of a diagonal pair move together without
+-- turning against each other, and a rigid brace can join them, as on the
+-- other diag builds. Each brace is built outside the pendants, in three
+-- pieces at one height, seen from above as
+--     front pendant |=====\
+--                          \
+--                           \=====| back pendant
+-- a run along the walk on the outside face of each pendant, toward the
+-- other one, and a diagonal across between the runs' ends (the room's fits:
+-- the top one, front-right to back-left, just over the body; the other,
+-- front-left to back-right, just under it). opts.outside = { top = b,
+-- bottom = b }, b = { yRel = its bottom above the pendant's lower end,
+-- runFront =, runBack = how far each run reaches from its pendant, rise =
+-- how much higher the runs' ends at the pendants are than the rest (unset:
+-- 0) } (cm), and opts.outside.bar, the bars' height (cm; unset: 0.75 of this
+-- file's units); opts.forward, the way the room walks it, tells front from
+-- back. (As Chebyshev_Spears_diag_parts.lua's buildOutsideCrossbar.)
+-- ---------------------------------------------------------------------
+local function alignVecX(dx, dy, dz)   -- the rotation taking +x to (dx, dy, dz)
+  local len = math.sqrt(dx*dx + dy*dy + dz*dz)
+  dx, dy, dz = dx/len, dy/len, dz/len
+  local qx, qy, qz, qw = 0, -dz, dy, 1 + dx
+  local qlen = math.sqrt(qx*qx + qy*qy + qz*qz + qw*qw)
+  return btQuaternion(qx/qlen, qy/qlen, qz/qlen, qw/qlen)
+end
+local function buildOutsideCrossbar(lkA, lkB, b, color, width)
+  local f = opts.forward or 1
+  local front, back = lkA, lkB
+  if (lkB.B.x - lkA.B.x) * f > 0 then front, back = lkB, lkA end   -- (front: furthest the way it walks)
+  local y = front.C.y + b.yRel + width / 2
+  local function outZ(lk) return lk.z_pendant + (lk.z_pendant > 0 and 1 or -1) * rod_d end
+  local function toward(lk, other, run) return lk.B.x + (other.B.x > lk.B.x and 1 or -1) * run end
+  local ye = y + (b.rise or 0)
+  local pts = { { x = front.B.x, y = ye, z = outZ(front) }, { x = toward(front, back, b.runFront), y = y, z = outZ(front) },
+                { x = toward(back, front, b.runBack), y = y, z = outZ(back) }, { x = back.B.x, y = ye, z = outZ(back) } }
+  local owner, len, total = {}, {}, 0
+  for i = 1, 3 do
+    local p, q = pts[i], pts[i + 1]
+    len[i] = math.sqrt((q.x - p.x)^2 + (q.y - p.y)^2 + (q.z - p.z)^2); total = total + len[i]
+  end
+  for i = 1, 3 do
+    local p, q, L = pts[i], pts[i + 1], len[i]
+    if L > 0.05 then
+      if q.x < p.x then p, q = q, p end   -- (built from its other end: alignVecX can't point a bar straight back along -x)
+      local seg = Cube(L, width, rod_d, 1.0 * L / total)   -- (the room reweighs it by its length: BAR_MASS)
+      seg.col = color
+      seg.trans = btTransform(alignVecX(q.x - p.x, q.y - p.y, q.z - p.z), btVector3((p.x + q.x)/2, (p.y + q.y)/2, (p.z + q.z)/2))
+      seg.damp_ang = 0.15
+      add(seg)
+      -- (GHOST_BRACES, a test for fitting the braces: they touch nothing, so a sweep with them in the wrong place
+      -- still turns as it should)
+      if GHOST_BRACES then seg.body:setCollisionFlags(seg.body:getCollisionFlags() + 4) end
+      owner[i] = seg
+    end
+  end
+  local function weld(a, c, p)
+    local W = btTransform(IDENTITY_QUAT, btVector3(p.x, p.y, p.z))
+    local k = btGeneric6DofConstraint(a.body, c.body, a.trans:inverseTimes(W), c.trans:inverseTimes(W), true)
+    k:setLinearLowerLimit(btVector3(0, 0, 0)); k:setLinearUpperLimit(btVector3(0, 0, 0))
+    k:setAngularLowerLimit(btVector3(0, 0, 0)); k:setAngularUpperLimit(btVector3(0, 0, 0))
+    addConstraint(k)
+  end
+  local first, last = owner[1] or owner[2], owner[3] or owner[2]
+  weld(first, front.pendant, owner[1] and pts[1] or pts[2])
+  if owner[1] then weld(owner[1], owner[2], pts[2]) end
+  if owner[3] then weld(owner[2], owner[3], pts[3]) end
+  weld(last, back.pendant, owner[3] and pts[4] or pts[3])
+  return owner[2]
+end
+local diagonalTop, diagonalBottom
+if opts.outside then
+  diagonalTop = buildOutsideCrossbar(linkage2, linkage3, opts.outside.top, "firebrick", opts.outside.bar or 0.75 * S)   -- front-right <-> back-left
+  diagonalBottom = buildOutsideCrossbar(linkage1, linkage4, opts.outside.bottom, "slateblue", opts.outside.bar or 0.75 * S)   -- front-left <-> back-right
+end
 -- WALKER ROOM: opts.legGuides holds each leg at its angle to the body,
 -- as the side plates do (two legs welded to one plate, each hinged to a
 -- coupler that moves in step with the other, can only move without
@@ -753,6 +833,7 @@ return {
   cube = cube, cube_w = cube_w, cubeCenterX = cube_center_x,
   linkage1 = linkage1, linkage2 = linkage2, linkage3 = linkage3, linkage4 = linkage4,
   crossbarFront = crossbarFront, crossbarBack = crossbarBack,
+  diagonalTop = diagonalTop, diagonalBottom = diagonalBottom,
   foot1 = foot1, foot2 = foot2, foot3 = foot3, foot4 = foot4,
 }
 end   -- closes M.build()

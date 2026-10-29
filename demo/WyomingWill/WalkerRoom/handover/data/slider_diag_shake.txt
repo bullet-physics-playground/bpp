@@ -1,0 +1,40 @@
+Hoecken-Spears_slider_diag_flat: STALL 5|x 27.0|z -0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 62 FL 62 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_diag_flat: STALL 20|x 162.4|z -0.0|hdg 0.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 35 FL 35 FR 70|slip 0.2|ground
+Hoecken-Spears_slider_diag_flat: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0047 p95 0.0209 max 0.0260|motor max 0.5000|speed 1.00-1.00
+Hoecken-Spears_slider_diag_flat: CONTACTS Hoecken-Spears slider diag|none
+Hoecken-Spears_slider_diag_flat: VIB Hoecken-Spears slider diag|feet 4|spin 3 deg/s|>200 0.0%|jitter 2.76 cm/s|bounce 0.16 cm/s|chatter 2.94 /s|pend 0.1 deg/s
+Hoecken-Spears_slider_diag_waves4: STALL 5|x 12.7|z -2.7|hdg -11.6|pitch 4.7|roll 4.6|turns 0.49|feet BL 60 BR 100 FL 88 FR 83|slip 4.1|ground
+Hoecken-Spears_slider_diag_waves4: STALL 20|x 129.7|z 32.8|hdg -13.8|pitch 4.7|roll 5.9|turns 0.49|feet BL 92 BR 82 FL 22 FR 98|slip 2.7|ground
+Hoecken-Spears_slider_diag_waves4: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0076 p95 0.0410 max 0.2569|motor max 0.5000|speed 0.46-1.03
+Hoecken-Spears_slider_diag_waves4: CONTACTS Hoecken-Spears slider diag|none
+Hoecken-Spears_slider_diag_waves4: VIB Hoecken-Spears slider diag|feet 4|spin 34 deg/s|>200 3.1%|jitter 4.14 cm/s|bounce 1.48 cm/s|chatter 2.14 /s|pend 0.3 deg/s
+Hoecken-Spears_slider_flat: STALL 5|x 27.0|z -0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 62 FL 60 FR 45|slip 0.1|ground
+Hoecken-Spears_slider_flat: STALL 20|x 162.2|z 0.1|hdg -0.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 35 FL 35 FR 72|slip 0.1|ground
+Hoecken-Spears_slider_flat: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0043 p95 0.0163 max 0.0255|motor max 0.5000|speed 0.98-1.02
+Hoecken-Spears_slider_flat: CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_flat: VIB Hoecken-Spears slider|feet 4|spin 2 deg/s|>200 0.0%|jitter 2.74 cm/s|bounce 0.14 cm/s|chatter 2.94 /s|pend 0.1 deg/s
+Hoecken-Spears_slider_waves4: STALL 5|x 11.7|z -2.8|hdg -12.6|pitch 4.9|roll 5.3|turns 0.49|feet BL 65 BR 77 FL 87 FR 83|slip 5.0|ground
+Hoecken-Spears_slider_waves4: STALL 20|x 128.0|z 36.9|hdg -16.8|pitch 4.8|roll 4.0|turns 0.49|feet BL 98 BR 55 FR 100|slip 5.5|ground
+Hoecken-Spears_slider_waves4: TQ Hoecken-Spears slider|iterations 200|friction off|torque median 0.0058 p95 0.0247 max 0.2439|motor max 0.5000|speed -1.42-1.12
+Hoecken-Spears_slider_waves4: CONTACTS Hoecken-Spears slider|none
+Hoecken-Spears_slider_waves4: VIB Hoecken-Spears slider|feet 4|spin 32 deg/s|>200 2.6%|jitter 4.02 cm/s|bounce 1.40 cm/s|chatter 1.99 /s|pend 0.3 deg/s
+Hoecken_slider_diag_flat: STALL 5|x 27.3|z -0.1|hdg 0.0|pitch 0.0|roll 0.0|turns 0.36|feet BL 93 BR 12 FL 15 FR 90|slip 0.1|ground
+Hoecken_slider_diag_flat: STALL 20|x 163.3|z -0.6|hdg 0.1|pitch 0.0|roll 0.0|turns 0.36|feet BL 20 BR 85 FL 82 FR 23|slip 0.1|ground
+Hoecken_slider_diag_flat: TQ Hoecken slider diag|iterations 200|friction off|torque median 0.0052 p95 0.0140 max 0.0174|motor max 0.5000|speed 1.00-1.00
+Hoecken_slider_diag_flat: CONTACTS Hoecken slider diag|none
+Hoecken_slider_diag_flat: VIB Hoecken slider diag|feet 4|spin 4 deg/s|>200 0.0%|jitter 0.86 cm/s|bounce 0.16 cm/s|chatter 0.72 /s|pend 0.2 deg/s
+Hoecken_slider_diag_waves4: STALL 5|x 25.5|z 5.3|hdg -4.1|pitch 2.9|roll 3.9|turns 0.36|feet BL 100 BR 72 FL 53 FR 98|slip 4.3|ground
+Hoecken_slider_diag_waves4: STALL 20|x 132.6|z 28.4|hdg -10.9|pitch 5.2|roll 2.5|turns 0.36|feet BL 47 BR 100 FL 100 FR 80|slip 3.5|ground
+Hoecken_slider_diag_waves4: TQ Hoecken slider diag|iterations 200|friction off|torque median 0.0090 p95 0.0419 max 0.2103|motor max 0.5000|speed 0.48-1.01
+Hoecken_slider_diag_waves4: CONTACTS Hoecken slider diag|none
+Hoecken_slider_diag_waves4: VIB Hoecken slider diag|feet 4|spin 37 deg/s|>200 3.2%|jitter 2.37 cm/s|bounce 1.90 cm/s|chatter 1.71 /s|pend 0.4 deg/s
+Hoecken_slider_flat: STALL 5|x 27.3|z 0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.36|feet BL 93 BR 12 FL 13 FR 90|slip 0.1|ground
+Hoecken_slider_flat: STALL 20|x 163.4|z 0.2|hdg 0.0|pitch 0.0|roll 0.0|turns 0.37|feet BL 17 BR 88 FL 85 FR 20|slip 0.1|ground
+Hoecken_slider_flat: TQ Hoecken slider|iterations 200|friction off|torque median 0.0049 p95 0.0116 max 0.0194|motor max 0.5000|speed 0.98-1.03
+Hoecken_slider_flat: CONTACTS Hoecken slider|none
+Hoecken_slider_flat: VIB Hoecken slider|feet 4|spin 3 deg/s|>200 0.0%|jitter 0.84 cm/s|bounce 0.15 cm/s|chatter 0.72 /s|pend 0.1 deg/s
+Hoecken_slider_waves4: STALL 5|x 25.7|z 5.0|hdg -3.9|pitch 2.6|roll 3.6|turns 0.36|feet BL 100 BR 75 FL 57 FR 100|slip 3.6|ground
+Hoecken_slider_waves4: STALL 20|x 131.6|z 28.3|hdg -10.2|pitch 4.8|roll 2.1|turns 0.36|feet BL 63 BR 97 FL 97 FR 92|slip 3.4|ground
+Hoecken_slider_waves4: TQ Hoecken slider|iterations 200|friction off|torque median 0.0087 p95 0.0461 max 0.2459|motor max 0.5000|speed 0.35-1.12
+Hoecken_slider_waves4: CONTACTS Hoecken slider|none
+Hoecken_slider_waves4: VIB Hoecken slider|feet 4|spin 35 deg/s|>200 3.2%|jitter 2.22 cm/s|bounce 1.87 cm/s|chatter 1.51 /s|pend 0.3 deg/s

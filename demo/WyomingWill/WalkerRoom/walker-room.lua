@@ -152,6 +152,8 @@ DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
 -- hinges, so their pendants go 0.8 higher).
 DIAG_OUTSIDE = DIAG_OUTSIDE or false
 local OUTSIDE_FIT = {
+  ["Hoecken slider diag"] = { bar = 1.074, top = { yRel = 15.50, runFront = 9.78, runBack = 9.72 }, bottom = { yRel = 7.01, runFront = 1.10, runBack = 1.15 } },   -- (28 October: outz5.py on sweeps at LINK_WIDTH 1.0, with GHOST_BRACES, 0.4 cm from links; top braces 0.15 higher, to clear the letters by 0.3 walking)
+  ["Hoecken-Spears slider diag"] = { bar = 1.074, top = { yRel = 15.19, runFront = 9.70, runBack = 9.76 }, bottom = { yRel = 5.51, runFront = 1.35, runBack = 1.36 } },
   ["Chebyshev-Spears diag"] = { top = { yRel = 14.52, runFront = 1.31, runBack = 10.19 }, bottom = { yRel = 5.75, runFront = 3.84, runBack = 7.68 } },
   ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.72, runFront = 1.24, runBack = 10.52 }, bottom = { yRel = 5.63, runFront = 4.61, runBack = 8.91 } },
   ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.35, runBack = 14.90 }, bottom = { yRel = 7.72, runFront = 2.81, runBack = 2.70 } },
@@ -195,7 +197,7 @@ local OUTSIDE_V_FIT_W = {
 -- 1.074 cm tall (the outside braces' bars) instead of the pendants' height,
 -- low on the pendants: its bottom, at its lowest in a crank turn, as high
 -- above the ground as its diag cousin's bottom brace's (William: the same
--- clearance), and for the two sliders (no diag cousin) by the diag braces'
+-- clearance), and for the two sliders (no diag cousin then) by the diag braces'
 -- rule, where a diag build's bottom brace would go: its top 0.3 cm under
 -- the body's bottom at its highest. The plates are outside every
 -- link, so nothing else limits them. PLATE_FIT: per walker, drop = how far
@@ -219,6 +221,8 @@ local PLATE_FIT = {
 -- OUTSIDE_FIT_W: the same, at LINK_WIDTH 1.0 (outz5.py on sweep4W, 0.4 cm
 -- from every link and foot), every build's bars 1.074 cm tall
 local OUTSIDE_FIT_W = {
+  ["Hoecken slider diag"] = { bar = 1.074, top = { yRel = 15.50, runFront = 9.78, runBack = 9.72 }, bottom = { yRel = 7.01, runFront = 1.10, runBack = 1.15 } },   -- (28 October: outz5.py on sweeps at LINK_WIDTH 1.0, with GHOST_BRACES, 0.4 cm from links; top braces 0.15 higher, to clear the letters by 0.3 walking)
+  ["Hoecken-Spears slider diag"] = { bar = 1.074, top = { yRel = 15.19, runFront = 9.70, runBack = 9.76 }, bottom = { yRel = 5.51, runFront = 1.35, runBack = 1.36 } },
   ["Chebyshev-Spears diag"] = { bar = 1.074, top = { yRel = 14.52, runFront = 1.32, runBack = 10.44 }, bottom = { yRel = 5.75, runFront = 4.60, runBack = 8.67 } },
   ["Hoecken-Spears 4-bar diag"] = { bar = 1.074, top = { yRel = 14.72, runFront = 1.24, runBack = 10.77 }, bottom = { yRel = 5.63, runFront = 4.86, runBack = 9.16 } },
   ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.12, runBack = 14.38 }, bottom = { yRel = 7.71, runFront = 1.25, runBack = 1.26 } },

@@ -16,5 +16,12 @@ EXTRA_WALKERS = {
     opts = { cube_d = 4.5, cubeMass = 50, linkageSpacing = 18, motorSpeed = 2.6, geometry = { a = 1.875, g = 2.6138, h = 5.8331, groundAngle = -45 } } },
   { name = "Hoecken 4-bar diag", bodyShift = 5.53, frame = { length = 47.9, x = -5.53 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H 4", colour = "#E5007E", spears = false, diag = true }, wide = { cube_d = 6.623 }, brace = { gap = 1.89, diag = true, rise = 10 }, advance = 25.67, parts = "Chebyshev_diag_parts.lua", stride = 4.5573, chassis = { bodyRaise = -0.821, linkageSpacing = 10.633, cube_d = 5.029 },
     fixed = 1 / 480, lift = "terrainLift", forward = -1,
-    opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0, geometry = { a = 1.0, g = 2.0908, h = 2.5455 } } }
+    opts = { cube_d = 2.5, cubeMass = 140, linkageSpacing = 10, motorSpeed = 3.0, geometry = { a = 1.0, g = 2.0908, h = 2.5455 } } },
+  -- the two sliders' diag builds (William, 28 October 2026): their own files with opts.outside (diagonal legs
+  -- in step, outside braces joining them; DIAG_OUTSIDE), the same linkage, chassis and advance as their
+  -- guides builds
+  { name = "Hoecken slider diag", bodyShift = -0.28, frame = { length = 41.0, x = 0.28 }, look = { code = "H 2S", colour = "#F2F2F2", spears = false, diag = true }, wide = { cube_d = 12.958 }, brace = { gap = 6.54, diag = true }, advance = 24.67, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.692, linkageSpacing = 19.549, cube_d = 2.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+    opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
+  { name = "Hoecken-Spears slider diag", bodyShift = -0.32, frame = { length = 41.0, x = 0.32 }, look = { code = "H-S 2S", colour = "#F2F2F2", spears = true, diag = true }, wide = { cube_d = 13.037 }, brace = { gap = 3.02, diag = true }, advance = 18.31, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.4291, chassis = { bodyRaise = 2.558, linkageSpacing = 19.641, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+    opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } }
 }

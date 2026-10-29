@@ -5,9 +5,10 @@
 # ground; 20 s runs, speed from 5 to 20 s. Flat; waves 2/4/6; logs 3/5/7; steps 3/5/7; seeds 1-3 (seed by seed).
 # torqueprobe over stallprobe. Resumable: ft2/<build>_<terrain>_s<seed>.txt
 cd /home/claude/bpp/demo/WyomingWill/WalkerRoom
-one() { out=/home/claude/work/ft2/$4.txt; grep -q '^TQ' $out 2>/dev/null && return; f=$(mktemp ./_ft2_XXXX.lua)
+one() { out=/home/claude/work/ft2/$4.txt; grep -q '^\(TQ\|HUNG\)' $out 2>/dev/null && return; f=$(mktemp ./_ft2_XXXX.lua)
   printf 'v:setSolverInfo("residual", 0.01); SOLVER_ITERATIONS=200; MOTOR_STRENGTH=2; dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; %s; BUMP=15; GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; TQ_FROM=2; TQ_TO=20; dofile("/home/claude/work/torqueprobe.lua")\n' "$1" "$2" "$3" > $f
-  QT_QPA_PLATFORM=offscreen timeout 3000 /home/claude/build/release/bpp -f $(basename $f) -n 1210 2>&1 | grep -E "^(TQ|STALL|TRACK)|rror" | grep -v ALSA > $out.tmp && mv $out.tmp $out; rm -f $f; }
+  QT_QPA_PLATFORM=offscreen timeout 900 /home/claude/build/release/bpp -f $(basename $f) -n 1210 > $out.raw 2>&1; rc=$?
+  grep -E "^(TQ|STALL|TRACK)|rror" $out.raw | grep -v ALSA > $out.tmp; [ $rc = 124 ] && echo "HUNG over 900 s" >> $out.tmp; mv $out.tmp $out; rm -f $f $out.raw; }   # (a run over 15 min is stopped and marked)
 mkdir -p /home/claude/work/ft2
 OWN=("Jansen" "Klann" "Spears 4-bar")
 GUIDES=("Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears long-stance" "Spears lift 44" "Spears lift 53")
