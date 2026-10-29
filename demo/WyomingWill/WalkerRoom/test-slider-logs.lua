@@ -15,6 +15,10 @@
 -- meets the log's side every turn and slides back, its body staying level;
 -- Chebyshev-Spears' back foot meets the log's side too, but its body tips
 -- and it works its way over (about 12 s in).
+-- (29 October: with flat feet. Hoecken-Spears slider diag now has its
+-- feet's ends turned up, 1.0 cm at 30 degrees -- spec.footTips, handover
+-- section 4g -- and gets over in two seeds of three; FOOT_TIPS_OFF = true at
+-- the top of this file shows it as it was.)
 --
 -- Units: centimetres and seconds.
 --

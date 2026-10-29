@@ -338,8 +338,8 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- up, toe and heel alike (a walker reversed leads with its heel), as two
 -- tips that long, rising at that angle, welded to a flat middle; the foot
 -- as long in all along the walk (FOOT_LENGTH), as wide and as heavy. nil:
--- flat feet.
-if FOOT_TIPS then FOOT.flat = FOOT.length - 2 * FOOT_TIPS.length * math.cos(math.rad(FOOT_TIPS.angle)) end
+-- flat feet, unless the walker's own spec.footTips (a builder's tweak:
+-- Hoecken-Spears slider diag, 29 October) gives it tips.
 -- BODY_ANG_DAMP = d (0-1): every walker's body's turning damped by d about
 -- every axis, instead of its file's value (1.0 in every file, which stops
 -- the body turning off course but also stops it pitching and rolling: it
@@ -925,6 +925,10 @@ local function placeMarks(w)
 end
 
 local function addWalker(spec, x, z, heading)
+  -- its feet's tips: FOOT_TIPS for every walker, or its own spec.footTips (a builder's tweak for that walker;
+  -- FOOT_TIPS_OFF, a test, leaves them off)
+  local tips = FOOT_TIPS or ((not FOOT_TIPS_OFF) and spec.footTips) or nil
+  local flatLen = tips and (FOOT.length - 2 * tips.length * math.cos(math.rad(tips.angle))) or nil
   local W = dofile(WALKERS_DIR .. spec.parts)
   local scale = STRIDE / spec.stride
   local w = { spec = spec, scale = scale, bodies = {}, constraints = {} }
@@ -950,11 +954,17 @@ local function addWalker(spec, x, z, heading)
   for k, val in pairs(CHASSIS_TEST or {}) do opts[k] = val end
   if SAME_FEET then
     opts.foot = FOOT
-    if FOOT.flat then opts.foot = { length = FOOT.flat, width = FOOT.width, thick = FOOT.thick, mass = FOOT.mass } end
+    if flatLen then opts.foot = { length = flatLen, width = FOOT.width, thick = FOOT.thick, mass = FOOT.mass } end
     if FOOT_POINT then opts.foot = { length = 1.4 * FOOT_POINT, width = 1.4 * FOOT_POINT, thick = 1.4 * FOOT_POINT, mass = FOOT.mass } end   -- (the box hidden inside the ball)
     if FOOT_ROD then opts.foot = { length = 1.4 * FOOT_ROD, width = FOOT.width, thick = 1.4 * FOOT_ROD, mass = FOOT.mass } end   -- (the box hidden inside the rod)
   end
   local outside = DIAG_OUTSIDE and spec.brace and spec.brace.diag and (refit and OUTSIDE_FIT_W or OUTSIDE_FIT)[spec.name]
+  -- (OUTSIDE_FIT_TEST, a test: { [name] = { top =, bottom = } } puts that build's braces there instead, each
+  -- as an OUTSIDE_FIT entry's top or bottom; the other one stays its own)
+  if outside and OUTSIDE_FIT_TEST and OUTSIDE_FIT_TEST[spec.name] then
+    local t = OUTSIDE_FIT_TEST[spec.name]
+    outside = { bar = outside.bar, extUp = outside.extUp, top = t.top or outside.top, bottom = t.bottom or outside.bottom }
+  end
   local low = not outside and DIAG_LOW and spec.brace and spec.brace.diag
   local arched = not outside and not low and DIAG_ARCH and spec.brace and spec.brace.diag and spec.brace.rise
   if outside then
@@ -1088,11 +1098,11 @@ local function addWalker(spec, x, z, heading)
         btVector3(m / 12 * (3 * r * r + D * D), m / 12 * (3 * r * r + D * D), m / 2 * r * r))
       w.tips = w.tips or {}
       w.tips[#w.tips + 1] = { foot = o, p = { 0, 0, 0 }, q = { 0, 0, 0, 1 }, rod = { r, D } }
-    elseif FOOT.flat and SAME_FEET and made[o] == "buildFoot" then
+    elseif flatLen and SAME_FEET and made[o] == "buildFoot" then
       -- (a foot with tips: one body, its shape the flat middle and the two
       -- tips; it turns as a flat foot of its whole length would)
       local L, T, D, m = ...
-      local tl, a = FOOT_TIPS.length, math.rad(FOOT_TIPS.angle)
+      local tl, a = tips.length, math.rad(tips.angle)
       local shape = btCompoundShape(true)
       shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)), btBoxShape(btVector3(L / 2, T / 2, D / 2)))
       w.tips = w.tips or {}

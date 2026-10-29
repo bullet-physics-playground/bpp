@@ -1,6 +1,6 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d and 4e first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d, 4e and 4g first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
 
 ## 1. The aim
 
@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 44 (the slider against Chebyshev-Spears on high obstacles, section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 45 (the uneven logs, Hoecken-Spears slider diag's upturned toes, section 4g). 44: the slider against Chebyshev-Spears on high obstacles (section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -460,6 +460,29 @@ William: their foot paths are nearly the same, so they should do about as well. 
 **To look at it:** `test-slider-logs.lua` (the two diag builds, Hoecken slider diag and both guides builds; logs 7, seed 1).
 
 **Next ideas** (not done): what the foot does on the log's side (its angle, the ankle spring, the friction; how steeply each path comes down at the front of the swing), and why Chebyshev-Spears' diag braces help it and the slider's don't.
+
+## 4g. The logs are uneven; the slider's toes (29 October)
+
+**Answer first.** Hoecken-Spears slider diag's back feet come down early at the front of their swing and travel the last 2–3 cm low, so on logs 7 a flat toe runs into the log's side and is tipped toe-down (56% of hits, against Chebyshev-Spears diag's 12%), and the walker is pushed back. Its feet's ends turned up 1.0 cm at 30° (`spec.footTips`, a builder's tweak for this walker; William: fair, as a builder would) take it from 0.49 to 2.76 cm/s on logs 7 and from 6.19 to 6.57 over the nine rough terrains, with nothing lost on flat or waves 4.
+
+**The logs aren't even** (William, from watching; `tools/meshprob.py`). The ground is a mesh of 2.73 cm cells (BUMP / 5.5) sampled from the smooth ridges, so a log's top, between the mesh's points, is lower: along a log, mean 6.26 cm, lowest 4.95, a third of its length under 6 (logs 7). Where a log runs at an angle to the mesh, its height changes along it, so a walker can find a low place. William: keep them (more natural; a blind walker finding a sweet spot is interesting). `groundAt` (and the tools that use it) gives the smooth height, not the mesh's.
+
+**The bottom braces** (`braceprob.py` on the smooth logs, `meshprob.py` on the mesh; `OUTSIDE_FIT_TEST`, a test, puts a build's braces elsewhere; `bx.sh`): Chebyshev-Spears diag's top brace doesn't fit on the slider (it meets a link); its bottom brace's shape (long runs in line with the feet, a short diagonal) fits at the slider's own height. On the mesh, a level walker's bottom brace is in a log 0.60 of the time (Chebyshev-Spears, 5.99 cm up), 0.66 (slider, 5.76), 0.69 (slider with the zig-zag); when the brace's own feet cross a low place (lowest 10%), 0.34, 0.44 and 0.51. So the zig-zag doesn't help (its diagonal still meets the higher parts); the 0.23 cm of height does a little. Run (3 seeds): slider with the zig-zag logs 7 0.22, steps 7 1.08, waves 6 5.79 (own brace 0.49, 3.05, 5.40). Not it.
+
+**The back feet** (`footprobe.lua`, `fp.sh`; logs 7, 3 seeds): each back-foot hit on a log's rising side (slope over 20°, foot swinging into it). Chebyshev-Spears diag: 16 hits, the foot moving level (−4°) when it hits, toe up +20.8° 0.1 s later, takes half the log's slope or more in 50%, toe down in 12%. Hoecken-Spears slider diag: 52 hits (stuck at the same log), moving up at +44°, −9.8°, 4%, 56%. Both are pushed back after nearly every hit (body −11.8 and −15.7 cm/s over the next 0.3 s). **The foot paths** (`pathdir.py`, picture `foot_path_direction.png`): Chebyshev-Spears' foot comes nearly straight down at the front of its swing; the slider's comes down to about 1 cm two-thirds of the way along and travels the rest low.
+
+**Tweaks tried on the slider** (logs 7, 3 seeds, cm/s; `ank.sh`, `tw.sh`): ankle springs ×2 0.18, ×4 0.22 (less toe-down, 46% and 31%, but the foot stays flat: 4% and 8% take the slope), ×0.5 2.11 (one seed 5.31), ×0.25 0.56; toes up 1.5 cm at 30° 2.63 (takes the slope 40%, toe down 30%). All 10 terrains (`tips.sh`, `tips10.sh`, `tips_an.py`; data `s4g_*.txt`):
+
+| Walker | Bracing | Timing | Direction | Feet | Flat | W2 | W4 | W6 | L3 | L5 | L7 | S3 | S5 | S7 | Nine rough | Hardest three |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Hoecken-Spears slider diag | outside, held | trot | forward | flat | 9.02 | 8.45 | 7.71 | 5.40 | 8.28 | 6.79 | 0.49 | 8.43 | 7.13 | 3.05 | 6.19 | 2.98 |
+| Hoecken-Spears slider diag | outside, held | trot | forward | toes 1.5 cm, 30° | 9.02 | 8.24 | 6.69 | 4.95 | 8.31 | 6.50 | 2.63 | 8.42 | 7.20 | 3.70 | 6.29 | 3.76 |
+| Hoecken-Spears slider diag | outside, held | trot | forward | **toes 1.0 cm, 30°** | 9.02 | 8.39 | 7.73 | 4.78 | 8.31 | 7.02 | 2.76 | 8.49 | 7.70 | 3.97 | **6.57** | 3.84 |
+| Hoecken slider diag | outside, held | trot | forward | flat | 9.07 | 8.50 | 7.19 | 4.63 | 7.51 | 5.54 | 0.08 | 8.17 | 6.38 | 0.04 | 5.34 | 1.58 |
+| Hoecken slider diag | outside, held | trot | forward | toes 1.0 cm, 30° | 9.07 | 8.36 | 7.10 | 4.06 | 7.66 | 5.53 | 0.20 | 8.16 | 6.15 | 0.09 | 5.26 | 1.45 |
+| Chebyshev-Spears diag | outside, held | trot | forward | flat | 9.03 | 8.34 | 6.80 | 5.43 | 8.51 | 6.92 | 3.19 | 8.65 | 7.50 | 6.28 | 6.85 | 4.97 |
+
+Toes 1.5 cm on Chebyshev-Spears diag (logs 7, steps 7): 0.20 and 4.07 — much worse, so toes are not for every walker. The 1.0 cm toes on the Hoecken slider diag change nothing (its foot rises 3.7 cm, too low for 7 cm logs either way), so only Hoecken-Spears slider diag has them (`footTips` in its spec, `trotting-walkers.lua`; the room's `FOOT_TIPS` still gives every walker tips; `FOOT_TIPS_OFF`, a test, leaves a spec's off). Checked: the spec's toes give exactly the global setting's result (logs 7, seed 1: 4.73 both). The 28 October table's row for it (section 4e) is with flat feet. Slip with the toes is a little higher on waves (waves 4: 2.56 against 2.35). Hoecken-Spears slider guides was not tried with toes.
 
 ## 5. What was found in the last session (17–21 October)
 

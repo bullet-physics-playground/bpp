@@ -1,0 +1,108 @@
+CSd_logs7_s1: STALL 5|x 11.5|z 2.5|hdg -347.6|pitch 4.7|roll 4.4|turns 0.43|feet BL 98 BR 5 FL 33 FR 85|slip 7.1|ground buildOutsideCrossbar:BL 5 buildOutsideCrossbar:FR 100 makeLink:FR 12
+CSd_logs7_s1: STALL 20|x 11.4|z 1.7|hdg -349.5|pitch 4.2|roll 5.4|turns 0.46|feet BL 58 BR 40 FL 50 FR 75|slip 8.8|ground buildOutsideCrossbar:BL 12 buildOutsideCrossbar:FR 60 makeLink:FR 28
+CSd_logs7_s1: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0059 p95 0.2477 max 0.2560|motor max 0.5000|speed -0.10-1.23
+CSd_logs7_s2: STALL 5|x 20.1|z 9.8|hdg -16.5|pitch 6.9|roll 9.2|turns 0.42|feet BL 97 BR 40 FL 20 FR 92|slip 8.1|ground buildOutsideCrossbar:FR 57 makeLink:FL 30
+CSd_logs7_s2: STALL 20|x 31.8|z 19.2|hdg 3.5|pitch 4.6|roll 3.9|turns 0.45|feet BL 77 BR 27 FL 42 FR 68|slip 7.4|ground buildOutsideCrossbar:FR 15 makeLink:FL 8
+CSd_logs7_s2: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0075 p95 0.2357 max 0.2651|motor max 0.5000|speed -0.07-1.65
+CSd_logs7_s3: STALL 5|x 4.9|z 1.2|hdg 3.3|pitch 4.0|roll 3.6|turns 0.46|feet BL 95 FL 18 FR 98|slip 6.0|ground buildOutsideCrossbar:BL 15 buildOutsideCrossbar:FR 88 makeLink:BL 43 makeLink:BR 72 makeLink:FL 8 makeLink:FR 92
+CSd_logs7_s3: STALL 20|x 2.5|z 2.2|hdg 2.0|pitch 5.5|roll 5.7|turns 0.44|feet BL 53 BR 48 FL 62 FR 70|slip 8.9|ground buildOutsideCrossbar:BL 57 buildOutsideCrossbar:FR 28 makeLink:BL 32 makeLink:BR 30 makeLink:FL 12 makeLink:FR 47
+CSd_logs7_s3: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0057 p95 0.2418 max 0.2553|motor max 0.5000|speed -0.13-1.23
+CSd_steps7_s1: STALL 5|x 2.1|z 3.3|hdg -0.6|pitch 11.5|roll 5.4|turns 0.46|feet BL 37 BR 77 FL 83 FR 100|slip 7.6|ground buildOutsideCrossbar:FR 73 makeLink:BR 32 makeLink:FR 53
+CSd_steps7_s1: STALL 20|x 86.1|z 13.1|hdg -347.8|pitch 12.2|roll 0.8|turns 0.48|feet BL 73 BR 28 FL 28 FR 73|slip 1.8|ground
+CSd_steps7_s1: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0093 p95 0.2406 max 0.2557|motor max 0.5000|speed -0.08-1.52
+CSd_steps7_s2: STALL 5|x 10.2|z -0.4|hdg -358.9|pitch 5.6|roll 6.1|turns 0.47|feet BL 85 BR 25 FL 68 FR 97|slip 6.2|ground buildOutsideCrossbar:FR 18 makeLink:BR 5 makeLink:FL 13 makeLink:FR 55
+CSd_steps7_s2: STALL 20|x 109.3|z -3.9|hdg -1.2|pitch 11.6|roll 0.1|turns 0.48|feet BL 58 BR 45 FL 43 FR 58|slip 1.3|ground
+CSd_steps7_s2: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0072 p95 0.0901 max 0.2511|motor max 0.5000|speed 0.09-1.18
+CSd_steps7_s3: STALL 5|x 9.4|z 2.2|hdg -358.2|pitch 10.6|roll 8.0|turns 0.47|feet BL 48 BR 72 FL 82 FR 88|slip 7.8|ground buildOutsideCrossbar:BR 7 buildOutsideCrossbar:FR 53 makeLink:FR 57
+CSd_steps7_s3: STALL 20|x 9.4|z 1.9|hdg -356.6|pitch 11.1|roll 6.8|turns 0.47|feet BL 48 BR 67 FL 82 FR 95|slip 7.8|ground buildOutsideCrossbar:BR 12 buildOutsideCrossbar:FR 57 makeLink:FL 3 makeLink:FR 57
+CSd_steps7_s3: TQ Chebyshev-Spears diag|iterations 200|friction off|torque median 0.0092 p95 0.1600 max 0.2514|motor max 0.5000|speed 0.10-1.12
+HSsd_flat_s1: STALL 5|x 27.0|z -0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 60 FL 60 FR 52|slip 1.1|ground
+HSsd_flat_s1: STALL 20|x 162.3|z -0.1|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 67|slip 0.2|ground
+HSsd_flat_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0047 p95 0.0208 max 0.0379|motor max 0.5000|speed 1.00-1.00
+HSsd_flat_s2: STALL 5|x 27.0|z -0.0|hdg -0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 60 FL 60 FR 52|slip 1.1|ground
+HSsd_flat_s2: STALL 20|x 162.3|z -0.1|hdg 0.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 67|slip 0.2|ground
+HSsd_flat_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0047 p95 0.0206 max 0.0283|motor max 0.5000|speed 1.00-1.00
+HSsd_flat_s3: STALL 5|x 27.0|z 0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 60 FL 60 FR 52|slip 1.1|ground
+HSsd_flat_s3: STALL 20|x 162.2|z 0.3|hdg -0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 72 BR 33 FL 35 FR 67|slip 0.2|ground
+HSsd_flat_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0046 p95 0.0208 max 0.0266|motor max 0.5000|speed 1.00-1.00
+HSsd_logs3_s1: STALL 5|x 26.0|z -0.2|hdg -0.5|pitch 0.8|roll 1.1|turns 0.49|feet BL 55 BR 80 FL 100 FR 72|slip 4.6|ground makeLink:FR 5
+HSsd_logs3_s1: STALL 20|x 151.5|z 1.1|hdg 0.4|pitch 1.3|roll 1.6|turns 0.49|feet BL 72 BR 35 FL 43 FR 68|slip 1.3|ground
+HSsd_logs3_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0057 p95 0.0236 max 0.2369|motor max 0.5000|speed 0.69-1.02
+HSsd_logs3_s2: STALL 5|x 25.9|z -1.1|hdg 358.8|pitch 2.1|roll 3.8|turns 0.49|feet BL 55 BR 50 FL 60 FR 73|slip 5.9|ground makeLink:FR 5
+HSsd_logs3_s2: STALL 20|x 147.7|z 3.3|hdg 357.2|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 33 FL 35 FR 68|slip 0.2|ground
+HSsd_logs3_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0058 p95 0.0235 max 0.1330|motor max 0.5000|speed 0.77-1.01
+HSsd_logs3_s3: STALL 5|x 23.9|z -0.4|hdg -358.9|pitch 2.0|roll 1.2|turns 0.49|feet BL 57 BR 58 FL 52 FR 63|slip 4.4|ground makeLink:FR 7
+HSsd_logs3_s3: STALL 20|x 150.5|z 7.1|hdg -5.8|pitch 4.3|roll 4.2|turns 0.49|feet BL 100 BR 2 FL 72 FR 98|slip 1.2|ground
+HSsd_logs3_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0055 p95 0.0232 max 0.1653|motor max 0.5000|speed 0.77-1.01
+HSsd_logs5_s1: STALL 5|x 25.3|z -0.7|hdg -1.6|pitch 1.7|roll 1.7|turns 0.49|feet BL 50 BR 82 FL 100 FR 73|slip 3.2|ground buildOutsideCrossbar:FR 43 makeLink:FR 7
+HSsd_logs5_s1: STALL 20|x 114.3|z -18.9|hdg 0.7|pitch 2.5|roll 1.8|turns 0.49|feet BL 92 BR 12 FL 55 FR 88|slip 6.7|ground
+HSsd_logs5_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0069 p95 0.0415 max 0.2458|motor max 0.5000|speed 0.56-1.02
+HSsd_logs5_s2: STALL 5|x 18.0|z -1.1|hdg -10.3|pitch 2.0|roll 2.9|turns 0.49|feet BL 35 BR 100 FL 100 FR 52|slip 3.6|ground
+HSsd_logs5_s2: STALL 20|x 127.4|z 19.9|hdg -0.1|pitch 3.0|roll 2.0|turns 0.49|feet BL 65 BR 47 FL 50 FR 60|slip 2.6|ground
+HSsd_logs5_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0066 p95 0.0357 max 0.2496|motor max 0.5000|speed 0.51-1.03
+HSsd_logs5_s3: STALL 5|x 22.5|z 1.1|hdg 357.7|pitch 2.0|roll 0.2|turns 0.49|feet BL 48 BR 100 FL 67 FR 38|slip 1.3|ground buildOutsideCrossbar:FL 8 buildOutsideCrossbar:FR 30 makeLink:FL 100 makeLink:FR 32
+HSsd_logs5_s3: STALL 20|x 116.7|z 4.6|hdg 2.0|pitch 5.0|roll 2.4|turns 0.49|feet BL 70 BR 77 FL 75 FR 22|slip 4.3|ground
+HSsd_logs5_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0068 p95 0.0324 max 0.2549|motor max 0.5000|speed -1.98-1.14
+HSsd_logs7_s1: STALL 5|x 1.4|z -2.2|hdg -21.2|pitch 3.2|roll 2.3|turns 0.49|feet BL 23 BR 77 FL 63 FR 100|slip 10.0|ground buildOutsideCrossbar:FL 30
+HSsd_logs7_s1: STALL 20|x 54.3|z -12.3|hdg 321.6|pitch 2.1|roll 3.4|turns 0.49|feet BL 90 BR 2 FL 67 FR 3|slip 5.8|ground buildOutsideCrossbar:FL 92
+HSsd_logs7_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0098 p95 0.0625 max 0.2511|motor max 0.5000|speed 0.06-1.04
+HSsd_logs7_s2: STALL 5|x 4.0|z 1.5|hdg -4.5|pitch 11.2|roll 3.8|turns 0.49|feet BL 33 BR 68 FL 68 FR 40|slip 5.7|ground buildOutsideCrossbar:BL 3 buildOutsideCrossbar:FL 53 makeLink:BL 47 makeLink:BR 7 makeLink:FL 80 makeLink:FR 3
+HSsd_logs7_s2: STALL 20|x 9.6|z 8.5|hdg 3.2|pitch 14.4|roll 3.6|turns 0.49|feet BL 97 BR 13 FL 97 FR 87|slip 10.4|ground makeLink:FL 8
+HSsd_logs7_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0099 p95 0.1047 max 0.2830|motor max 0.5000|speed -0.51-1.05
+HSsd_logs7_s3: STALL 5|x 19.5|z -2.1|hdg -2.4|pitch 11.6|roll 2.5|turns 0.49|feet BL 32 BR 98 FL 100|slip 3.6|ground buildOutsideCrossbar:FR 43 makeLink:FL 2
+HSsd_logs7_s3: STALL 20|x 79.3|z -13.2|hdg 3.1|pitch 4.9|roll 6.7|turns 0.49|feet BL 100 BR 7 FL 75 FR 98|slip 4.3|ground
+HSsd_logs7_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0102 p95 0.0760 max 0.2528|motor max 0.5000|speed -0.26-1.07
+HSsd_steps3_s1: STALL 5|x 28.4|z 0.5|hdg 0.6|pitch 4.1|roll 1.5|turns 0.49|feet BL 58 BR 72 FL 60 FR 65|slip 2.3|ground
+HSsd_steps3_s1: STALL 20|x 154.3|z 2.5|hdg 0.3|pitch 4.9|roll 0.1|turns 0.49|feet BL 100 BR 3 FR 100|slip 0.4|ground
+HSsd_steps3_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0059 p95 0.0225 max 0.1847|motor max 0.5000|speed 0.98-1.00
+HSsd_steps3_s2: STALL 5|x 23.2|z 0.7|hdg -1.1|pitch 4.0|roll 2.6|turns 0.49|feet BL 33 BR 72 FL 95 FR 75|slip 5.1|ground makeLink:FR 5
+HSsd_steps3_s2: STALL 20|x 151.0|z 1.1|hdg 0.1|pitch 5.0|roll 0.0|turns 0.49|feet BL 35 BR 67 FL 67 FR 35|slip 0.4|ground
+HSsd_steps3_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0060 p95 0.0231 max 0.2406|motor max 0.5000|speed 0.83-1.01
+HSsd_steps3_s3: STALL 5|x 25.8|z -0.1|hdg -0.1|pitch 0.2|roll 0.3|turns 0.49|feet BL 37 BR 83 FL 83 FR 27|slip 1.4|ground
+HSsd_steps3_s3: STALL 20|x 151.0|z -1.0|hdg 0.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 70 BR 33 FL 35 FR 67|slip 0.2|ground
+HSsd_steps3_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0059 p95 0.0223 max 0.1966|motor max 0.5000|speed 0.88-1.00
+HSsd_steps5_s1: STALL 5|x 24.4|z 0.5|hdg 1.0|pitch 0.2|roll 0.3|turns 0.49|feet BL 23 BR 77 FL 77 FR 47|slip 0.8|ground makeLink:FL 100 makeLink:FR 27
+HSsd_steps5_s1: STALL 20|x 134.7|z 0.3|hdg -357.3|pitch 8.5|roll 3.6|turns 0.49|feet BL 88 BR 75 FL 67 FR 43|slip 2.1|ground
+HSsd_steps5_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0067 p95 0.0302 max 0.2514|motor max 0.5000|speed 0.63-1.02
+HSsd_steps5_s2: STALL 5|x 22.0|z 1.6|hdg -3.2|pitch 6.6|roll 4.1|turns 0.49|feet BL 38 BR 65 FL 92 FR 68|slip 2.9|ground buildOutsideCrossbar:FR 47 makeLink:FR 7
+HSsd_steps5_s2: STALL 20|x 134.0|z 4.9|hdg -9.3|pitch 5.5|roll 3.6|turns 0.49|feet BL 100 BR 10 FL 65 FR 100|slip 2.8|ground
+HSsd_steps5_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0066 p95 0.0265 max 0.2475|motor max 0.5000|speed 0.85-1.01
+HSsd_steps5_s3: STALL 5|x 24.2|z -0.6|hdg 0.8|pitch 0.2|roll 0.3|turns 0.49|feet BL 40 BR 83 FL 83 FR 23|slip 1.2|ground makeLink:FL 100 makeLink:FR 15
+HSsd_steps5_s3: STALL 20|x 125.7|z -5.1|hdg -0.4|pitch 6.1|roll 3.5|turns 0.49|feet BL 100 BR 48 FL 13 FR 95|slip 3.3|ground makeLink:FR 2
+HSsd_steps5_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0071 p95 0.0401 max 0.2560|motor max 0.5000|speed -2.07-4.39
+HSsd_steps7_s1: STALL 5|x -0.6|z -5.7|hdg -12.7|pitch 10.4|roll 5.3|turns 0.49|feet BL 72 BR 67 FL 67 FR 83|slip 8.2|ground makeLink:BR 12
+HSsd_steps7_s1: STALL 20|x 97.3|z 18.2|hdg -9.9|pitch 10.4|roll 4.2|turns 0.49|feet BL 53 BR 75 FL 65 FR 97|slip 6.2|ground
+HSsd_steps7_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0088 p95 0.0475 max 0.2651|motor max 0.5000|speed -4.02-1.33
+HSsd_steps7_s2: STALL 5|x 11.1|z 6.0|hdg -354.1|pitch 3.1|roll 3.7|turns 0.49|feet BL 43 BR 65 FL 82 FR 63|slip 6.6|ground buildOutsideCrossbar:FR 10 makeLink:FL 7 makeLink:FR 10
+HSsd_steps7_s2: STALL 20|x 13.1|z 13.0|hdg -357.6|pitch 2.0|roll 1.9|turns 0.49|feet BL 93 BR 8 FL 62 FR 87|slip 4.8|ground
+HSsd_steps7_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0093 p95 0.0415 max 0.2523|motor max 0.5000|speed 0.63-1.11
+HSsd_steps7_s3: STALL 5|x 19.4|z -1.2|hdg 2.2|pitch 9.7|roll 3.6|turns 0.49|feet BL 65 BR 53 FL 60 FR 77|slip 5.4|ground makeLink:FL 32 makeLink:FR 5
+HSsd_steps7_s3: STALL 20|x 86.1|z 0.4|hdg 12.6|pitch 22.6|roll 7.3|turns 0.49|feet BL 88 BR 92 FL 73 FR 23|slip 7.1|ground
+HSsd_steps7_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0081 p95 0.0610 max 0.2646|motor max 0.5000|speed 0.01-1.05
+HSsd_waves2_s1: STALL 5|x 26.2|z 1.6|hdg -1.3|pitch 1.0|roll 2.9|turns 0.49|feet BL 62 BR 75 FL 50 FR 80|slip 5.5|ground makeLink:FR 3
+HSsd_waves2_s1: STALL 20|x 148.7|z 11.3|hdg -6.1|pitch 4.9|roll 7.2|turns 0.49|feet BL 100 BR 45 FL 93 FR 90|slip 5.0|ground
+HSsd_waves2_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0066 p95 0.0254 max 0.2618|motor max 0.5000|speed 0.75-1.01
+HSsd_waves2_s2: STALL 5|x 26.0|z 0.6|hdg -1.9|pitch 5.3|roll 8.8|turns 0.49|feet BL 18 BR 100 FL 88 FR 73|slip 5.2|ground makeLink:FR 8
+HSsd_waves2_s2: STALL 20|x 155.0|z 0.5|hdg -358.9|pitch 4.8|roll 3.7|turns 0.49|feet BL 100 BR 25 FL 73 FR 97|slip 2.0|ground
+HSsd_waves2_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0054 p95 0.0222 max 0.1727|motor max 0.5000|speed 0.85-1.01
+HSsd_waves2_s3: STALL 5|x 26.2|z 2.8|hdg -2.0|pitch 1.7|roll 3.6|turns 0.49|feet BL 62 BR 85 FL 40 FR 82|slip 5.9|ground makeLink:FR 2
+HSsd_waves2_s3: STALL 20|x 145.5|z 15.4|hdg -12.8|pitch 0.8|roll 0.9|turns 0.49|feet BL 98 BR 67 FL 63 FR 80|slip 0.6|ground
+HSsd_waves2_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0066 p95 0.0274 max 0.2470|motor max 0.5000|speed 0.62-1.03
+HSsd_waves4_s1: STALL 5|x 13.7|z -3.5|hdg -16.5|pitch 2.6|roll 3.3|turns 0.49|feet BL 77 BR 72 FL 38 FR 85|slip 4.6|ground makeLink:FR 25
+HSsd_waves4_s1: STALL 20|x 114.1|z 33.8|hdg -30.8|pitch 3.3|roll 4.9|turns 0.49|feet BL 100 BR 77 FR 100|slip 1.5|ground
+HSsd_waves4_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0077 p95 0.0385 max 0.2496|motor max 0.5000|speed -0.21-1.11
+HSsd_waves4_s2: STALL 5|x 27.4|z 4.6|hdg -3.1|pitch 4.2|roll 5.9|turns 0.49|feet BL 65 BR 68 FL 63 FR 83|slip 5.1|ground makeLink:FR 7
+HSsd_waves4_s2: STALL 20|x 137.3|z 22.1|hdg -19.6|pitch 4.3|roll 5.9|turns 0.49|feet BL 93 BR 67 FL 77 FR 90|slip 2.0|ground
+HSsd_waves4_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0073 p95 0.0438 max 0.1840|motor max 0.5000|speed 0.41-1.02
+HSsd_waves4_s3: STALL 5|x 13.1|z -1.7|hdg -8.9|pitch 4.0|roll 6.1|turns 0.49|feet BL 63 BR 100 FL 88 FR 85|slip 4.0|ground buildOutsideCrossbar:FL 20 makeLink:FL 8
+HSsd_waves4_s3: STALL 20|x 103.8|z 25.5|hdg -32.7|pitch 15.4|roll 10.6|turns 0.49|feet BL 90 BR 87 FR 83|slip 4.0|ground
+HSsd_waves4_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0083 p95 0.0578 max 0.2436|motor max 0.5000|speed -0.58-1.03
+HSsd_waves6_s1: STALL 5|x 23.7|z -0.9|hdg 358.7|pitch 4.4|roll 6.5|turns 0.49|feet BL 23 BR 100 FL 95 FR 55|slip 4.1|ground makeLink:FL 32 makeLink:FR 27
+HSsd_waves6_s1: STALL 20|x 116.6|z -21.8|hdg 18.0|pitch 6.2|roll 8.8|turns 0.49|feet BL 100 BR 7 FL 78 FR 92|slip 2.6|ground
+HSsd_waves6_s1: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0066 p95 0.0350 max 0.2450|motor max 0.5000|speed 0.25-1.02
+HSsd_waves6_s2: STALL 5|x 23.5|z 6.4|hdg 1.0|pitch 7.8|roll 7.6|turns 0.49|feet BL 30 BR 100 FL 83 FR 82|slip 5.2|ground buildOutsideCrossbar:FL 7 makeLink:FR 10
+HSsd_waves6_s2: STALL 20|x 77.6|z 33.5|hdg -19.5|pitch 6.4|roll 10.6|turns 0.49|feet BL 97 BR 83 FR 88|slip 6.8|ground
+HSsd_waves6_s2: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0103 p95 0.1093 max 0.2570|motor max 0.5000|speed -1.72-1.14
+HSsd_waves6_s3: STALL 5|x 15.3|z -6.4|hdg -14.3|pitch 8.1|roll 4.8|turns 0.50|feet BL 80 BR 72 FL 35 FR 80|slip 6.0|ground makeLink:FR 13
+HSsd_waves6_s3: STALL 20|x 90.9|z 23.7|hdg -29.9|pitch 10.1|roll 5.4|turns 0.49|feet BL 95 BR 85 FL 2 FR 100|slip 4.5|ground
+HSsd_waves6_s3: TQ Hoecken-Spears slider diag|iterations 200|friction off|torque median 0.0085 p95 0.0587 max 0.2529|motor max 0.5000|speed -3.73-1.21
