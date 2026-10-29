@@ -1,6 +1,6 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d, 4e and 4g first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d, 4e, 4g and 4h first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
 
 ## 1. The aim
 
@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 45 (the uneven logs, Hoecken-Spears slider diag's upturned toes, section 4g). 44: the slider against Chebyshev-Spears on high obstacles (section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 46 (the 5-seed ranking, toes for both Hoecken-Spears sliders, section 4h). 45: the uneven logs, Hoecken-Spears slider diag's upturned toes (section 4g). 44: the slider against Chebyshev-Spears on high obstacles (section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -483,6 +483,38 @@ William: their foot paths are nearly the same, so they should do about as well. 
 | Chebyshev-Spears diag | outside, held | trot | forward | flat | 9.03 | 8.34 | 6.80 | 5.43 | 8.51 | 6.92 | 3.19 | 8.65 | 7.50 | 6.28 | 6.85 | 4.97 |
 
 Toes 1.5 cm on Chebyshev-Spears diag (logs 7, steps 7): 0.20 and 4.07 — much worse, so toes are not for every walker. The 1.0 cm toes on the Hoecken slider diag change nothing (its foot rises 3.7 cm, too low for 7 cm logs either way), so only Hoecken-Spears slider diag has them (`footTips` in its spec, `trotting-walkers.lua`; the room's `FOOT_TIPS` still gives every walker tips; `FOOT_TIPS_OFF`, a test, leaves a spec's off). Checked: the spec's toes give exactly the global setting's result (logs 7, seed 1: 4.73 both). The 28 October table's row for it (section 4e) is with flat feet. Slip with the toes is a little higher on waves (waves 4: 2.56 against 2.35). Hoecken-Spears slider guides was not tried with toes.
+
+## 4h. The 5-seed ranking (29 October)
+
+**Answer first.** Over the nine rough terrains with 5 seeds, the Spears builds hold the top seven places: Spears lift 44 (7.84 ± 0.08 cm/s) and its diag build (7.59) clearly first and second, Spears lift 53 third (7.04), then four diag builds tied within 0.09 (Chebyshev-Spears, Hoecken-Spears 4-bar, Spears lift 53, Hoecken-Spears long-stance: 6.81–6.90). Then the Hoecken-Spears sliders with their toes (6.43, 6.35), Hoecken-Spears 4-bar guides (6.30), Klann (6.22) and Jansen (6.18), close together. ± is the standard error of the nine-terrain mean from the seed spread in each cell (so two builds about 0.3 apart or less are not told apart).
+
+**Toes for everyone?** (`tall.sh`, `toes_an.py`, data `toes_logs7_steps7.md`: every build with 1.0 cm toes at 30°, logs 7 and steps 7, 3 seeds.) Only the Hoecken-Spears slider gains clearly (guides: logs 7 0.39 → 3.14), as its diag build did; Hoecken-Spears 4-bar guides loses (steps 7 2.61 → 0.75); the rest within the noise. William: both Hoecken-Spears slider builds get the toes (the same linkage, the same gain; `footTips` in both specs), everyone else flat feet. The four that leaned toward toes, at 5 seeds over the nine rough terrains: Spears lift 53 diag 6.83 → 6.93, Hoecken-Spears long-stance 5.23 → 5.28, Jansen 6.18 → 6.39, Chebyshev-Spears diag 6.90 → 6.65 — none clear (Jansen's +0.21 against about ±0.16), so they keep flat feet.
+
+**The steps on the mesh** (`meshsteps.py`): unlike the logs, the steps keep their full 7 cm (a mesh point is always on the top); the mesh makes each edge a ramp about 2.2 cm wide (about 68°; up to 4.9 cm, 49°, where a cell's diagonal runs along the edge), its top rounded for about 3 cm. So steps 7 remains a test of lift; the logs are where the mesh gives luck.
+
+**The table** (`n5.sh`, `n5_an.py`, `data/n5_table.md`, `data/s4h_*.txt`; seeds 1–3 from section 4e's runs, 4–5 new; 20 s, the 28 October standard):
+
+| Rank | Walker | Bracing | Timing | Direction | Feet | waves2 | waves4 | waves6 | logs3 | logs5 | logs7 | steps3 | steps5 | steps7 | Nine rough | ± | Hardest three | Runs |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Spears lift 44 | guides | trot | forward | flat | 8.20 | 7.43 | 6.44 | 8.63 | 8.25 | 6.94 | 8.69 | 8.50 | 7.47 | 7.84 | 0.08 | 6.95 | 45 |
+| 2 | Spears lift 44 diag | outside, held | trot | forward | flat | 8.13 | 7.16 | 5.48 | 8.63 | 8.26 | 6.30 | 8.63 | 8.41 | 7.34 | 7.59 | 0.12 | 6.37 | 45 |
+| 3 | Spears lift 53 | guides | trot | forward | flat | 7.46 | 5.48 | 5.65 | 8.03 | 7.78 | 6.55 | 8.39 | 7.82 | 6.20 | 7.04 | 0.10 | 6.13 | 45 |
+| 4 | Spears lift 53 diag | outside, held | trot | forward | toes 1.0 cm | 7.96 | 4.46 | 4.99 | 8.08 | 7.80 | 6.08 | 8.43 | 7.77 | 6.84 | 6.93 | 0.15 | 5.97 | 45 |
+| 5 | Chebyshev-Spears diag | outside, held | trot | forward | flat | 8.35 | 6.70 | 5.73 | 8.55 | 7.01 | 3.12 | 8.60 | 7.71 | 6.32 | 6.90 | 0.12 | 5.06 | 45 |
+| 6 | Hoecken-Spears 4-bar diag | outside, held | trot | forward | flat | 8.30 | 7.23 | 5.28 | 8.41 | 7.15 | 4.89 | 8.44 | 7.75 | 4.31 | 6.86 | 0.12 | 4.83 | 45 |
+| 7 | Spears lift 53 diag | outside, held | trot | forward | flat | 7.81 | 5.75 | 4.93 | 8.09 | 7.81 | 5.08 | 8.37 | 7.17 | 6.42 | 6.83 | 0.14 | 5.48 | 45 |
+| 8 | Hoecken-Spears long-stance diag | outside, held | trot | forward | flat | 7.86 | 7.44 | 6.05 | 8.15 | 7.10 | 2.99 | 8.38 | 7.32 | 6.01 | 6.81 | 0.18 | 5.02 | 45 |
+| 9 | Chebyshev-Spears diag | outside, held | trot | forward | toes 1.0 cm | 8.30 | 6.44 | 5.21 | 8.41 | 6.76 | 3.75 | 8.56 | 8.03 | 4.38 | 6.65 | 0.14 | 4.45 | 45 |
+| 10 | Hoecken-Spears slider diag | outside, held | trot | forward | toes 1.0 cm | 8.34 | 7.66 | 4.71 | 8.27 | 7.05 | 2.12 | 8.50 | 7.81 | 3.44 | 6.43 | 0.20 | 3.42 | 45 |
+| 11 | Jansen | own | trot | forward | toes 1.0 cm | 8.29 | 7.02 | 6.06 | 7.50 | 6.39 | 2.45 | 7.96 | 6.56 | 5.25 | 6.39 | 0.12 | 4.58 | 45 |
+| 12 | Hoecken-Spears slider | guides | trot | forward | toes 1.0 cm | 8.47 | 7.46 | 4.19 | 8.25 | 6.95 | 2.42 | 8.45 | 7.75 | 3.23 | 6.35 | 0.19 | 3.28 | 45 |
+| 13 | Hoecken-Spears 4-bar | guides | trot | forward | flat | 8.36 | 7.65 | 4.17 | 8.38 | 6.89 | 2.17 | 8.42 | 7.86 | 2.77 | 6.30 | 0.21 | 3.04 | 45 |
+| 14 | Klann | own | trot | forward | flat | 7.65 | 7.87 | 5.43 | 8.55 | 6.66 | 2.79 | 8.74 | 7.06 | 1.28 | 6.22 | 0.13 | 3.16 | 45 |
+| 15 | Jansen | own | trot | forward | flat | 8.23 | 7.58 | 5.82 | 7.37 | 6.09 | 1.20 | 7.82 | 6.84 | 4.69 | 6.18 | 0.10 | 3.90 | 45 |
+| 16 | Hoecken-Spears long-stance | guides | trot | forward | toes 1.0 cm | 8.36 | 7.65 | 3.48 | 8.12 | 3.03 | -0.19 | 8.45 | 6.23 | 2.39 | 5.28 | 0.22 | 1.89 | 45 |
+| 17 | Hoecken-Spears long-stance | guides | trot | forward | flat | 8.40 | 8.14 | 3.00 | 8.30 | 4.75 | -0.07 | 8.39 | 4.65 | 1.53 | 5.23 | 0.26 | 1.49 | 45 |
+
+Klann's triangles (William: they show it has fewer links than it looks; straight links if they cause trouble): its torque spikes and brief backward cranks go with its feet landing while still moving forward (mono 0.84, section 4d), its linkage's path, not the triangles; left as they are.
 
 ## 5. What was found in the last session (17–21 October)
 

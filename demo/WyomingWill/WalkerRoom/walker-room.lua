@@ -339,7 +339,7 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- tips that long, rising at that angle, welded to a flat middle; the foot
 -- as long in all along the walk (FOOT_LENGTH), as wide and as heavy. nil:
 -- flat feet, unless the walker's own spec.footTips (a builder's tweak:
--- Hoecken-Spears slider diag, 29 October) gives it tips.
+-- both Hoecken-Spears slider builds, 29 October) gives it tips.
 -- BODY_ANG_DAMP = d (0-1): every walker's body's turning damped by d about
 -- every axis, instead of its file's value (1.0 in every file, which stops
 -- the body turning off course but also stops it pitching and rolling: it
@@ -660,7 +660,8 @@ local WALKERS = {
     opts = { cube_d = 2.5, cubeMass = 10, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Hoecken slider", bodyShift = -0.28, frame = { length = 41.0, x = 0.28 }, look = { code = "H 2S", colour = WHITE, spears = false, diag = false }, wide = { cube_d = 12.958 }, brace = { gap = 6.54 }, advance = 24.67, parts = "Hoecken_slider_parts.lua", stride = 8.378, chassis = { bodyRaise = 2.692, linkageSpacing = 19.549, cube_d = 2.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
-  { name = "Hoecken-Spears slider", bodyShift = -0.32, frame = { length = 41.0, x = 0.32 }, look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, wide = { cube_d = 13.037 }, brace = { gap = 3.02 }, advance = 18.31, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.4291, chassis = { bodyRaise = 2.558, linkageSpacing = 19.641, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
+  -- (footTips: its feet's ends turned up, a builder's tweak, as its diag build's -- handover section 4g)
+  { name = "Hoecken-Spears slider", footTips = { length = 1.0, angle = 30 }, bodyShift = -0.32, frame = { length = 41.0, x = 0.32 }, look = { code = "H-S 2S", colour = WHITE, spears = true, diag = false }, wide = { cube_d = 13.037 }, brace = { gap = 3.02 }, advance = 18.31, parts = "Hoecken_Spears_slider_parts.lua", stride = 8.4291, chassis = { bodyRaise = 2.558, linkageSpacing = 19.641, cube_d = 3.656 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, cubeMass = 100, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6 } },
   { name = "Spears 4-bar", bodyShift = 19.44, frame = { length = 59.9, x = -19.44 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 1 }, look = { code = "S 4", colour = GOLD, spears = false, diag = false }, wide = { cube_d = 13.651 }, advance = 26.58, parts = "Spears_4Bar_4Leg_parts.lua", stride = 8.324, chassis = { bodyRaise = -9.367, linkageSpacing = 19.423, cube_d = 9.467 }, fixed = 1 / 960, lift = "terrainLift", forward = -1,
     opts = { cube_d = 20, cubeMass = 65, linkageSpacing = 20, speed = 2.6 } },
