@@ -13,10 +13,11 @@ in this folder as he left it, and ported to Lua operation for operation.
 | `kerr_seed.diff` | One line in each `ktphysics/CouettePhysics.java`: the seed from `-Dkerr.seed` instead of the clock (his runs cannot be repeated otherwise) |
 | `KerrReference.java` | Ours: runs his gas from a seed and prints the state |
 | `kerr_reference.sh` | Builds his Java with the diff (in a temporary copy) and writes `kerr_reference.txt`, four runs that `../checks/ch07.lua` compares the Lua with (needs a JDK) |
-| `kerr.lua` | His gas in Lua, with four fixes as switches, all off (his code) by default |
+| `kerr.lua` | His gas in Lua, with five fixes as switches, all off (his code) by default |
+| `obstacles.lua` | Ours: obstacles for his gas (his 2005 generator's layouts; three face rules), for the flow runs |
 | `theory.lua` | One run of one experiment, measured as his drivers measured it and as the book defines its error; one line out (the protocols are at its top) |
 | `sweep.sh` | The sweeps into `theory_runs.txt` (the tables below) |
-| `../checks/ch07.lua` | 13 checks, about 20 s (any Lua 5.1–5.4, and BPP) |
+| `../checks/ch07.lua` | 15 checks, about 30 s (any Lua 5.1–5.4, and BPP) |
 
 **Provenance.** `kerr/` is the code William found in his archive
 (`forclaude.zip`, folder `code.7.04`), April 2004: the simulator behind
@@ -78,7 +79,9 @@ them line by line):
    particles are past 10 L by step 500 and all by step 5,000 (y up to
    ~370 L by step 20,000). The profile across the channel is still
    measured (the gas is just denser per cell, and collides more: 0.11 per
-   particle per step at the start, ~0.2 later).
+   particle per step at the start, ~0.2 later). Fix `periodic` (the
+   channel periodic over its cells, as Garcia's), used for the obstacle
+   runs.
 6. **His error measures** (his drivers, `kerr/*/experiments/`), each
    unlike the paper's and the book's |theory − simulation| / theory:
    - speed: |⟨v⟩ − theory| divided by the **fastest single speed met** in
@@ -195,6 +198,54 @@ All of this in an open channel whose gas has left the cells it is
 sorted into (item 5 above); the theory does not see it, since the
 profile across the channel does not depend on where along it the gas is.
 
+### Obstacles (ours; Fig. 7.8's setting)
+
+The code behind Fig. 7.8's obstacles is not in the archive, so we built
+them: Kerr's own 2005 layout (`ObstacleGenerator`: blocks on a 40 × 40
+grid, pockets cut off from the free space filled; `obstacles.lua`) in
+his gas made Garcia's (`iso`, `walls`, `garcia`, `rest`) and periodic
+along the flow (`periodic`: an L × L channel, 500 particles, 7 × 7 cells),
+V = Mach 4, 8 subcorridors as the book's, steps 3,001–8,000, 3 layouts
+and seeds each (`theory.lua flow`). Three rules at the obstacles' faces:
+`rest` (a thermal wall at rest, as his 2004 `SquareObstacle`), `couette`
+(faces parallel to the flow move at V, as his robots treat them, PDF
+229) and `specular` (a mirror). The flow's mean over the subcorridors,
+as a share of V:
+
+| Obstacles | 0% | 10% | 20% | 30% | 40% | 50% |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fig. 7.8 right (two-sided) | 0.90 | 0.84 | 0.78 | 0.77 | 0.65 | 0.48 |
+| two-sided, rest | 1.00 | 0.14 | 0.05 | 0.08 | 0.04 | 0.02 |
+| two-sided, couette | | 0.27 | 0.16 | 0.16 | 0.10 | 0.06 |
+| two-sided, specular | | 0.16 | 0.07 | 0.11 | 0.06 | 0.03 |
+| Fig. 7.8 left (one-sided) | 0.45 | 0.35 | 0.28 | 0.21 | 0.06 | 0.02 |
+| one-sided, rest | 0.50 | 0.06 | 0.04 | 0.02 | 0.01 | 0.01 |
+| one-sided, couette | | 0.17 | 0.14 | 0.10 | 0.08 | 0.05 |
+| one-sided, specular | | 0.05 | 0.03 | 0.02 | 0.02 | 0.02 |
+
+Without obstacles this gas gives Fig. 7.8 left's profile closely: linear,
+slope 0.76 of the theory's (the figure's 0.80), from 0.67 to 3.33 across
+the subcorridors (the figure's 0.39 to 3.20). With obstacles no rule
+comes near: 10% of them already stop 73–95% of the flow, where the
+figure loses 6% (two-sided) or 23% (one-sided), and about half the
+particles move backward. In a steady channel the walls must give all the
+momentum the obstacles take, and every rule takes it at the faces across
+the flow, which send particles back; moving the parallel faces (the
+robots' rule) helps least badly but not enough. Fig. 7.8's flow passes
+its obstacles nearly as if they were not there, which a steady gas
+cannot do; its runs must have measured something else (a sweep that
+never reached steady flow, obstacles in part of the corridor only, or
+another rule), which the archive does not show.
+
+Nor are the figures from Kerr's 2005 robot controller: run on his own
+robot simulator (William's copy; a driver of ours, 300 robots, wall
+speed 4.08 units per step = Mach 4 in his units, 3,000 steps; 4 runs,
+which his unseeded robots do not repeat), `KTRobot` gives a U-shaped
+profile without obstacles (2.6–3.4 units per step by the walls, 0.9–1.7
+in the middle),
+not Fig. 7.8 right's flat 3.6. That code comes into the repo with the
+corridor sweep (7.5–7.6).
+
 ## The book's figures
 
 The journal paper's sources (William's archive, `journal_wes/`, with
@@ -242,7 +293,7 @@ archive William has found so far. Against it, the 2004 code's runs:
   sweeps, 10 for videos, made by its `ObstacleGenerator` from blocks of
   a 40 × 40 grid) hold rectangles only. The triangle, circle and cup of
   Fig. 7.2 (the journal's `kt1`–`kt3.eps`, August 2004) come from a
-  version not in the archive. Obstacles that take a wall's momentum at
-  every meeting would hold the flow far below Fig. 7.8, where 10% of
-  obstacles cost the two-sided flow only 6% (FINDINGS F94); how the
-  thesis's runs treated obstacles remains open.
+  version not in the archive. With his generator's layouts in his gas,
+  every face rule we tried holds the flow far below Fig. 7.8, where 10%
+  of obstacles cost the two-sided flow only 6% (Obstacles, above;
+  FINDINGS F94); how the thesis's runs treated obstacles remains open.

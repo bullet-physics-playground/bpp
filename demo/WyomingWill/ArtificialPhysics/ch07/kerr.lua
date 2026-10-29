@@ -61,6 +61,12 @@
 --   garcia   Garcia's own collision counting: n (n - 1) candidates and
 --            crmax updated after the cell
 --   rest     ("couette") start without the gradient, at rest on average
+--   periodic ("couette") the channel periodic along y over its cells
+--            (length L): a particle leaving one end comes in at the other,
+--            as in Garcia's Couette (FINDINGS F93's item 3)
+--
+-- m.obstacle (ours; nil by default): a function (m, i) called for every
+-- particle after its move and the walls, set by ch07/obstacles.lua.
 --
 -- DEFINITIONS (fields; SI units):
 --   m.x[i], m.y[i], m.vx[i], m.vy[i]  position (m) and velocity (m/s), i = 0..n-1
@@ -92,7 +98,7 @@ K.rand, K.randn = rand, randn
 
 -- o: variant ("couette" | "uniform" | "speed"), npart, ncell_x, ncell_y,
 -- length, T (integer kelvin, as Kerr's PC.T), VLm, VRm (Mach), dir0, dir1,
--- seed, fix = { iso, walls, garcia, rest }
+-- seed, fix = { iso, walls, garcia, rest, periodic }
 function K.new(o)
   local L = K.L
   local boltz, mass, diam, density = K.boltz, K.mass, K.diam, K.density
@@ -207,6 +213,8 @@ function K.move(m)
       dtr = tau * (Y[i] - a) / (Y[i] - YO[i])
       Y[i] = a + VY[i] * dtr
     end
+    if m.obstacle then m.obstacle(m, i) end
+    if m.fix.periodic and not box then Y[i] = Y[i] % (m.length * L) end
     if box then
       if Y[i] < 0 then Y[i] = 0 end
       if Y[i] > L then Y[i] = L end

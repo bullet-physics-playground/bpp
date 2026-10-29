@@ -7,6 +7,7 @@
 --   lua5.1 ch07/theory.lua speed   T SEED [FIXES]
 --   lua5.1 ch07/theory.lua density N SEED [FIXES] [STEPS]
 --   lua5.1 ch07/theory.lua profile SIDES MACH SEED [FIXES] [STEPS] [FROM]
+--   lua5.1 ch07/theory.lua flow SIDES MACH PCT RULE SEED LAYOUT [STEPS] [FROM]
 --
 -- FIXES is a comma-separated list of kerr.lua's o.fix switches (iso, walls,
 -- garcia, rest) or "none".
@@ -43,6 +44,22 @@
 --              max(|theory|, |theory - V|) (the largest error possible)
 --       book   the book's: the mean of |theory - sim| / theory
 --       theory one-sided V x/L at the column's centre; two-sided V
+--   flow (ours; Figs. 7.7-7.8 with obstacles, whose code is not in the
+--     archive): 500 particles in an L x L channel periodic along y (7 x 7
+--     cells; fix.periodic, with iso, walls and garcia, so the gas itself is
+--     Garcia's), started at rest, obstacles covering PCT of it laid out by
+--     Kerr's 2005 generator from seed LAYOUT, faces by RULE ("rest",
+--     "couette", "specular"; ch07/obstacles.lua) or "none"; walls as in
+--     profile; the mean vy over the particles in each of 8 subcorridors (the
+--     book's), averaged over steps FROM .. STEPS (3,001 .. 8,000).
+--       prof   the 8 subcorridor means, in Mach
+--       rel    their mean over the subcorridors / V (two-sided: Fig. 7.8
+--              right's level; one-sided: the slope's, see slope)
+--       slope  one-sided: least-squares slope across the subcorridors /
+--              the theory's V/8 per subcorridor
+--       book   the book's error, mean |theory - sim| / theory
+--       back   share of particles moving backward (vy < 0), over the steps
+--       cover  the obstacles' actual share of the area
 --
 
 local here = (arg and arg[0] and arg[0]:match("^(.*)[/\\]ch07[/\\][^/\\]*$"))
@@ -150,6 +167,51 @@ function T.profile(sides, mach, seed, fix, steps, from)
            collisions = m.colSum / (steps * m.n), V = V / mach1 }
 end
 
+function T.flow(sides, mach, pct, rule, seed, layout, steps, from)
+  steps, from = steps or 8000, from or 3001
+  local two = sides == "two"
+  local m = K.new({ variant = "couette", npart = 500, ncell_x = 7, ncell_y = 7, length = 1,
+                    T = 273, VLm = two and mach or 0, VRm = mach, dir0 = two and 1 or -1, dir1 = 1,
+                    seed = seed, fix = { iso = true, walls = true, garcia = true, rest = true, periodic = true } })
+  local cover = 0
+  if rule ~= "none" and pct > 0 then
+    local O = require "ch07.obstacles"
+    cover = O.attach(m, { pct = pct, seed = layout, rule = rule }).cover
+  end
+  local nc, V, L = 8, m.VR, K.L
+  local avg, used, back, seen = {}, 0, 0, 0
+  for k = 0, nc - 1 do avg[k] = 0 end
+  for p = 1, steps do
+    K.step(m)
+    if p >= from then
+      local s, c = {}, {}
+      for k = 0, nc - 1 do s[k], c[k] = 0, 0 end
+      for i = 0, m.n - 1 do
+        local jx = K.int(m.x[i] * nc / L)
+        if jx >= nc then jx = nc - 1 end
+        s[jx], c[jx] = s[jx] + m.vy[i], c[jx] + 1
+        if m.vy[i] < 0 then back = back + 1 end
+      end
+      seen = seen + m.n
+      for k = 0, nc - 1 do if c[k] > 0 then avg[k] = avg[k] + s[k] / c[k] end end
+      used = used + 1
+    end
+  end
+  local mach1 = K.mach(273)
+  local prof, book, mean, sx, sy, sxx, sxy = {}, 0, 0, 0, 0, 0, 0
+  for k = 0, nc - 1 do
+    local sim = avg[k] / used
+    local th = two and V or (k + 0.5) / nc * V
+    book = book + abs(th - sim) / th
+    prof[k + 1] = sim / mach1
+    mean = mean + sim / nc
+    sx, sy, sxx, sxy = sx + k, sy + sim, sxx + k * k, sxy + k * sim
+  end
+  local slope = (nc * sxy - sx * sy) / (nc * sxx - sx * sx)
+  return { prof = prof, rel = mean / V, slope = slope / (V / nc), book = book / nc,
+           back = back / seen, cover = cover, collisions = m.colSum / (steps * m.n) }
+end
+
 if arg and arg[0] and arg[0]:match("theory%.lua$") then
   local exp = arg[1]
   if exp == "speed" then
@@ -169,6 +231,14 @@ if arg and arg[0] and arg[0]:match("theory%.lua$") then
     for k = 1, 7 do p[k] = string.format("%.3f", r.prof[k]) end
     print(string.format("profile %s M %.3f seed %d fix %s steps %d from %d kerr %.4f book %.4f coll %.4f prof %s",
       sides, mach, seed, f, steps, from, r.kerr, r.book, r.collisions, table.concat(p, " ")))
+  elseif exp == "flow" then
+    local sides, mach, pct, rule, seed, layout = arg[2], tonumber(arg[3]), tonumber(arg[4]), arg[5], tonumber(arg[6]), tonumber(arg[7])
+    local steps, from = tonumber(arg[8] or 8000), tonumber(arg[9] or 3001)
+    local r = T.flow(sides, mach, pct, rule, seed, layout, steps, from)
+    local p = {}
+    for k = 1, 8 do p[k] = string.format("%.3f", r.prof[k]) end
+    print(string.format("flow %s M %.3f pct %.2f rule %s seed %d layout %d steps %d from %d cover %.3f rel %.4f slope %.4f book %.4f back %.4f coll %.4f prof %s",
+      sides, mach, pct, rule, seed, layout, steps, from, r.cover, r.rel, r.slope, r.book, r.back, r.collisions, table.concat(p, " ")))
   else
     error("usage: theory.lua speed T SEED [FIXES] | density N SEED [FIXES] [STEPS] | profile one|two MACH SEED [FIXES] [STEPS] [FROM]")
   end

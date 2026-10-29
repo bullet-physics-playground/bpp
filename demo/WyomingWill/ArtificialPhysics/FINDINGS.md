@@ -1157,10 +1157,20 @@ rectangles; the triangle, circle and cup of Fig. 7.2 (August 2004) are
 from a version not in the archive. In a steady channel the walls must
 give what the obstacles take, and a particle flying with the flow meets
 one of side s every s / (−ln(1 − φ)) at coverage φ (280″ at 30% for
-100″ squares, less than the channel's width), so obstacles that take a
-wall's momentum at every meeting hold the flow far below the figure (an
-earlier particle model of ours, not kept, measured 0.17 V at 10%). How
-the thesis's obstacles were handled is open.
+100″ squares, less than the channel's width). Measured
+(`ch07/obstacles.lua`, `theory.lua flow`, added 2026-10-29): Kerr's 2005
+generator's layouts in his gas made Garcia's and periodic, V = Mach 4,
+8 subcorridors, three rules at the faces (thermal at rest; faces
+parallel to the flow moving at V, as his robots treat them; a mirror),
+3 layouts each. Without obstacles the one-sided profile is Fig. 7.8
+left's (slope 0.76 of the theory's against 0.80). With them no rule comes
+near: at 10% the two-sided flow is 0.14–0.27 V (Fig. 7.8: 0.84 V), the
+one-sided 0.05–0.17 V (0.35 V), and half the particles move backward; at
+50%, 0.02–0.06 V (0.48 V). Kerr's 2005 robot controller (`KTRobot`, run
+on William's copy, 4 runs) is not the figures' source either: without
+obstacles its two-sided profile is U-shaped (2.6–3.4 units per step by
+the walls, 0.9–1.7 between), not flat at 3.6. A steady gas cannot pass obstacles as freely
+as Fig. 7.8's flow does; how the thesis's runs measured it is open.
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by

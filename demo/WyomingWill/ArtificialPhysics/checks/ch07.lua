@@ -14,6 +14,8 @@
 -- 3. Why (F93): his fixes, ours, switched on: the three together bring the
 --    speed to theory; the box's walls at y put right make the density
 --    uniform; the open channel lets the gas drift out of the cells.
+-- 4. Obstacles (ours, F94): with Kerr's 2005 layouts the gas loses most of
+--    its flow at 10% coverage, where Fig. 7.8 loses 6%.
 -- The full sweeps are ch07/sweep.sh's (ch07/theory_runs.txt, ch07/README.md).
 --
 -- DEFINITIONS (printed values): those of ch07/theory.lua (err, kerr, v2,
@@ -21,7 +23,7 @@
 --   ref      largest |Lua - Java| / max(|Java|, 1e-300) over x, y, vx, vy
 --   out      share of the channel's particles beyond its cells (y > 10 L)
 --
--- Run from the ArtificialPhysics folder (about 60 s):
+-- Run from the ArtificialPhysics folder (about 30 s):
 --   lua5.1 checks/ch07.lua
 --
 
@@ -117,6 +119,17 @@ local out = 0
 for i = 0, m.n - 1 do if m.y[i] > 10 * K.L or m.y[i] < 0 then out = out + 1 end end
 check("profile: the open channel's gas has left its cells", out / m.n > 0.8,
       fmt("out %.2f at step 2,000", out / m.n))
+
+-- obstacles (ours; F94): Kerr's 2005 layouts in his gas, put right and
+-- periodic; Fig. 7.8's setting, V = Mach 4, steps 2,001-4,000
+local O = require "ch07.obstacles"
+local lay = O.generate(0.3, 1, 40)
+local f0 = T.flow("one", 4, 0, "none", 1, 1, 4000, 2001)
+check("flow: no obstacles, one-sided linear, slope ~Fig. 7.8's 0.80", f0.slope > 0.7 and f0.slope < 0.85,
+      fmt("slope %.3f rel %.3f; layout cover %.3f", f0.slope, f0.rel, lay.cover))
+local f1 = T.flow("two", 4, 0.1, "couette", 1, 1, 4000, 2001)
+check("flow: 10% obstacles stop most of it (Fig. 7.8: 0.84 V)", f1.rel < 0.5 and math.abs(lay.cover - 0.3) < 1e-9,
+      fmt("two-sided, faces moving: rel %.3f, back %.2f", f1.rel, f1.back))
 
 print(fmt("ch07: %d checks, %d failed, %.0f s", count, fails, os.clock() - t0))
 print(fails == 0 and "PASS ch07: " .. count .. " tests" or "FAIL ch07")
