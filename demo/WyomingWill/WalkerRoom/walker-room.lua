@@ -996,12 +996,16 @@ local function addWalker(spec, x, z, heading)
       c.col = cube.col
       local shape = btCompoundShape(true)
       local fx = (wfit and wfit.bodyShift) and -wfit.bodyShift or spec.frame.x   -- (frame.x = -bodyShift)
-      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(fx, 0, 0)), btBoxShape(btVector3(L / 2, H / 2, D / 2)))
+      -- (BODY_LOAD, a test: { dx =, dy = } cm, or a table of those by name: the load moved that far in the
+      -- body's own frame, its box left where it was)
+      local bl = BODY_LOAD and (BODY_LOAD[spec.name] or (BODY_LOAD.dx and BODY_LOAD) or BODY_LOAD.dy and BODY_LOAD) or nil
+      local ldx, ldy = bl and (bl.dx or 0) or 0, bl and (bl.dy or 0) or 0
+      shape:addChildShape(btTransform(btQuaternion(0, 0, 0, 1), btVector3(fx - ldx, -ldy, 0)), btBoxShape(btVector3(L / 2, H / 2, D / 2)))
       local p = cube.pos
-      c.body = btRigidBody(cube.mass, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(p.x, p.y, p.z))), shape, btVector3(1, 1, 1))
+      c.body = btRigidBody(cube.mass, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(p.x + ldx, p.y + ldy, p.z))), shape, btVector3(1, 1, 1))
       c.damp_lin, c.damp_ang = cube.damp_lin, cube.damp_ang   -- (what its file gave the body so far)
       c.friction, c.restitution = cube.friction, cube.restitution
-      w.frame = { x = fx, L = L, H = H, D = D }
+      w.frame = { x = fx - ldx, L = L, H = H, D = D }
       return c
     end
   end
@@ -1812,6 +1816,10 @@ v:preSim(function(N)
     if YAW_DAMP then   -- (its turning about the vertical damped: YAW_DAMP)
       local ax, ay, az = getAngVelXYZ(w.cube)
       setAngVelXYZ(w.cube, ax, ay * (1 - YAW_DAMP), az)
+    end
+    if ROLL_DAMP then   -- (a test: its rolling, turning about the walk, world x, damped by ROLL_DAMP each frame, as YAW_DAMP)
+      local ax, ay, az = getAngVelXYZ(w.cube)
+      setAngVelXYZ(w.cube, ax * (1 - ROLL_DAMP), ay, az)
     end
     if TURN_TEST then
       -- (a test: every walker turns 90 degrees to the left every 10 s)

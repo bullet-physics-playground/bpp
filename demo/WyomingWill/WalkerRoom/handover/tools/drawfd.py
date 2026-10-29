@@ -45,6 +45,7 @@ def draw(ax, fr, label, pitch=None):
         near = zc > 0
         if k == "body": fc, ec, a, zo = "#9aa0a6", "#3c4043", 0.85, 3
         elif k == "buildFoot": fc, ec, a, zo = ("#202124", "#000000", 1.0, 5) if near else ("#80868b", "#5f6368", 0.6, 2)
+        elif "Crossbar" in k: fc, ec, a, zo = ("#b22222", "#7a1010", 1.0, 5) if near else ("#f0a0a0", "#b22222", 0.6, 2)
         elif k == "buildLinkage": fc, ec, a, zo = ("#e8710a", "#a04b00", 1.0, 5) if near else ("#fbc58c", "#e8710a", 0.6, 2)
         else: fc, ec, a, zo = ("#1a73e8", "#0b3d91", 1.0, 4) if near else ("#a8c7fa", "#1a73e8", 0.55, 2)
         ax.add_patch(Polygon(poly, closed=True, fc=fc, ec=ec, lw=0.6, alpha=a, zorder=zo))

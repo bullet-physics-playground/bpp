@@ -1,0 +1,42 @@
+Chebyshev-Spears_diag_logs7_s1: STALL 5|x 9.4|z 2.7|hdg -351.5|pitch 5.0|roll 3.4|turns 0.43|feet BL 97 BR 5 FL 30 FR 85|slip 7.8|ground buildOutsideCrossbar:BL 8 buildOutsideCrossbar:FR 7
+Chebyshev-Spears_diag_logs7_s1: STALL 20|x 60.5|z -8.9|hdg -350.0|pitch 2.7|roll 6.1|turns 0.44|feet BL 63 BR 37 FL 78 FR 88|slip 8.0|ground
+Chebyshev-Spears_diag_logs7_s1: WB Chebyshev-Spears diag|pitch sd 3.65 max 13.17|roll sd 3.86 max 13.09|pitch rate rms 18.1|body vy rms 5.68|swing peak mean 4.66 top10 9.23 (n 38)
+Chebyshev-Spears_diag_logs7_s2: STALL 5|x 23.7|z 7.1|hdg -4.3|pitch 1.4|roll 2.7|turns 0.48|feet BL 68 BR 73 FL 50 FR 75|slip 3.4|ground buildOutsideCrossbar:FR 42
+Chebyshev-Spears_diag_logs7_s2: STALL 20|x 79.5|z 21.5|hdg -3.4|pitch 8.1|roll 4.6|turns 0.45|feet BL 40 BR 63 FL 85 FR 73|slip 6.8|ground
+Chebyshev-Spears_diag_logs7_s2: WB Chebyshev-Spears diag|pitch sd 3.31 max 11.44|roll sd 3.11 max 12.28|pitch rate rms 16.0|body vy rms 4.78|swing peak mean 4.57 top10 8.59 (n 40)
+Chebyshev-Spears_diag_logs7_s3: STALL 5|x 6.6|z 0.3|hdg -5.0|pitch 4.2|roll 5.8|turns 0.47|feet BL 90 BR 12 FL 15 FR 100|slip 7.1|ground
+Chebyshev-Spears_diag_logs7_s3: STALL 20|x 43.1|z -31.8|hdg 37.7|pitch 6.5|roll 14.1|turns 0.48|feet BL 98 BR 45 FL 35 FR 100|slip 8.6|ground
+Chebyshev-Spears_diag_logs7_s3: WB Chebyshev-Spears diag|pitch sd 5.31 max 20.06|roll sd 4.04 max 16.36|pitch rate rms 23.3|body vy rms 5.33|swing peak mean 4.74 top10 11.61 (n 33)
+Chebyshev-Spears_diag_steps7_s1: STALL 5|x 7.7|z 0.3|hdg -0.1|pitch 9.1|roll 12.3|turns 0.47|feet BL 85 BR 17 FL 57 FR 92|slip 5.3|ground
+Chebyshev-Spears_diag_steps7_s1: STALL 20|x 96.1|z 12.4|hdg 5.2|pitch 12.8|roll 3.9|turns 0.48|feet BL 98 BR 12 FL 83 FR 98|slip 3.6|ground
+Chebyshev-Spears_diag_steps7_s1: WB Chebyshev-Spears diag|pitch sd 9.04 max 19.97|roll sd 4.26 max 13.60|pitch rate rms 15.7|body vy rms 4.91|swing peak mean 4.91 top10 10.98 (n 30)
+Chebyshev-Spears_diag_steps7_s2: STALL 5|x 11.0|z -0.4|hdg -355.8|pitch 8.3|roll 6.4|turns 0.47|feet BL 90 BR 15 FL 72 FR 95|slip 3.8|ground
+Chebyshev-Spears_diag_steps7_s2: STALL 20|x 120.4|z -0.2|hdg -4.1|pitch 9.2|roll 7.2|turns 0.48|feet BL 58 BR 78 FL 78 FR 68|slip 4.2|ground
+Chebyshev-Spears_diag_steps7_s2: WB Chebyshev-Spears diag|pitch sd 8.37 max 15.53|roll sd 3.14 max 12.42|pitch rate rms 12.9|body vy rms 4.25|swing peak mean 4.65 top10 9.57 (n 37)
+Chebyshev-Spears_diag_steps7_s3: STALL 5|x 9.4|z 2.5|hdg 359.1|pitch 10.6|roll 7.3|turns 0.47|feet BL 45 BR 70 FL 78 FR 85|slip 5.2|ground
+Chebyshev-Spears_diag_steps7_s3: STALL 20|x 94.0|z 10.5|hdg 9.4|pitch 16.2|roll 21.5|turns 0.44|feet BL 12 BR 95 FL 98 FR 48|slip 8.4|ground
+Chebyshev-Spears_diag_steps7_s3: WB Chebyshev-Spears diag|pitch sd 7.82 max 12.65|roll sd 4.89 max 25.05|pitch rate rms 14.6|body vy rms 4.85|swing peak mean 4.35 top10 12.09 (n 39)
+Chebyshev-Spears_diag_waves0_s1: STALL 5|x 26.9|z 0.1|hdg 0.0|pitch 0.0|roll 0.1|turns 0.48|feet BL 72 BR 33 FL 35 FR 68|slip 0.3|ground
+Chebyshev-Spears_diag_waves0_s1: STALL 20|x 162.3|z 0.7|hdg -0.3|pitch 0.0|roll 0.1|turns 0.48|feet BL 65 BR 40 FL 37 FR 72|slip 0.3|ground
+Chebyshev-Spears_diag_waves0_s1: WB Chebyshev-Spears diag|pitch sd 0.02 max 0.06|roll sd 0.02 max 0.08|pitch rate rms 0.6|body vy rms 0.63|swing peak mean 2.70 top10 4.66 (n 56)
+Hoecken-Spears_slider_diag_logs7_s1: STALL 5|x 3.9|z -1.1|hdg -8.4|pitch 6.0|roll 3.6|turns 0.49|feet BL 35 BR 67 FL 82 FR 38|slip 6.1|ground buildOutsideCrossbar:FR 22
+Hoecken-Spears_slider_diag_logs7_s1: STALL 20|x 8.0|z 4.8|hdg -6.6|pitch 7.7|roll 2.9|turns 0.49|feet BL 98 FL 60 FR 83|slip 4.6|ground buildOutsideCrossbar:FR 80
+Hoecken-Spears_slider_diag_logs7_s1: WB Hoecken-Spears slider diag|pitch sd 2.68 max 12.73|roll sd 1.51 max 4.25|pitch rate rms 40.1|body vy rms 9.54|swing peak mean 4.46 top10 6.45 (n 55)
+Hoecken-Spears_slider_diag_logs7_s2: STALL 5|x -3.2|z -1.8|hdg -5.6|pitch 9.9|roll 3.2|turns 0.49|feet BL 65 BR 70 FL 63 FR 37|slip 6.5|ground buildOutsideCrossbar:FL 33
+Hoecken-Spears_slider_diag_logs7_s2: STALL 20|x 10.7|z 1.8|hdg 3.0|pitch 22.5|roll 7.3|turns 0.49|feet BL 98 BR 22 FL 12 FR 77|slip 8.9|ground
+Hoecken-Spears_slider_diag_logs7_s2: WB Hoecken-Spears slider diag|pitch sd 4.70 max 25.44|roll sd 3.03 max 11.25|pitch rate rms 45.2|body vy rms 13.38|swing peak mean 6.07 top10 12.54 (n 54)
+Hoecken-Spears_slider_diag_logs7_s3: STALL 5|x 0.2|z -0.0|hdg -1.4|pitch 8.0|roll 3.5|turns 0.49|feet BL 33 BR 70 FL 80 FR 38|slip 5.8|ground buildOutsideCrossbar:FR 18
+Hoecken-Spears_slider_diag_logs7_s3: STALL 20|x 4.4|z 2.5|hdg 1.1|pitch 6.2|roll 3.5|turns 0.49|feet BL 98 BR 2 FL 62 FR 95|slip 4.2|ground buildOutsideCrossbar:FR 78
+Hoecken-Spears_slider_diag_logs7_s3: WB Hoecken-Spears slider diag|pitch sd 2.22 max 10.47|roll sd 1.28 max 4.91|pitch rate rms 37.3|body vy rms 9.65|swing peak mean 4.44 top10 5.73 (n 55)
+Hoecken-Spears_slider_diag_steps7_s1: STALL 5|x 9.9|z -1.4|hdg -3.2|pitch 9.2|roll 4.5|turns 0.49|feet BL 67 BR 75 FL 67 FR 67|slip 4.5|ground
+Hoecken-Spears_slider_diag_steps7_s1: STALL 20|x 64.8|z 6.0|hdg 1.4|pitch 23.3|roll 7.5|turns 0.49|feet BL 90 BR 95 FL 43 FR 63|slip 8.1|ground
+Hoecken-Spears_slider_diag_steps7_s1: WB Hoecken-Spears slider diag|pitch sd 7.07 max 25.20|roll sd 3.14 max 9.87|pitch rate rms 40.7|body vy rms 15.10|swing peak mean 7.27 top10 14.85 (n 41)
+Hoecken-Spears_slider_diag_steps7_s2: STALL 5|x 10.8|z 6.7|hdg -354.1|pitch 4.7|roll 3.0|turns 0.49|feet BL 62 BR 65 FL 53 FR 53|slip 5.0|ground
+Hoecken-Spears_slider_diag_steps7_s2: STALL 20|x 13.1|z 12.4|hdg -356.9|pitch 3.4|roll 1.8|turns 0.49|feet BL 87 BR 12 FL 65 FR 87|slip 3.6|ground
+Hoecken-Spears_slider_diag_steps7_s2: WB Hoecken-Spears slider diag|pitch sd 1.53 max 5.56|roll sd 0.98 max 3.08|pitch rate rms 27.1|body vy rms 8.42|swing peak mean 4.42 top10 6.50 (n 45)
+Hoecken-Spears_slider_diag_steps7_s3: STALL 5|x 10.7|z -0.6|hdg 0.2|pitch 11.1|roll 4.1|turns 0.49|feet BL 63 BR 63 FL 83 FR 78|slip 5.9|ground
+Hoecken-Spears_slider_diag_steps7_s3: STALL 20|x 90.8|z 2.2|hdg 17.5|pitch 15.9|roll 6.3|turns 0.49|feet BL 97 BR 87 FL 75 FR 82|slip 5.1|ground
+Hoecken-Spears_slider_diag_steps7_s3: WB Hoecken-Spears slider diag|pitch sd 8.36 max 27.78|roll sd 2.21 max 10.92|pitch rate rms 26.1|body vy rms 8.70|swing peak mean 4.71 top10 11.26 (n 44)
+Hoecken-Spears_slider_diag_waves0_s1: STALL 5|x 27.0|z -0.0|hdg 0.0|pitch 0.0|roll 0.0|turns 0.49|feet BL 42 BR 62 FL 62 FR 45|slip 0.2|ground
+Hoecken-Spears_slider_diag_waves0_s1: STALL 20|x 162.4|z -0.0|hdg 0.1|pitch 0.0|roll 0.0|turns 0.49|feet BL 73 BR 35 FL 35 FR 70|slip 0.2|ground
+Hoecken-Spears_slider_diag_waves0_s1: WB Hoecken-Spears slider diag|pitch sd 0.01 max 0.03|roll sd 0.01 max 0.03|pitch rate rms 0.3|body vy rms 0.54|swing peak mean 3.92 top10 4.89 (n 40)
