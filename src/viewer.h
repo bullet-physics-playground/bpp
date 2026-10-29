@@ -1409,6 +1409,18 @@ public slots:
   bool parse(QString txt);
 
   /**
+   * @brief Runs a snippet of Lua code in the viewer's Lua state.
+   *
+   * Useful for GUI buttons that create scene objects, e.g.
+   * executeLua("v:add(Cube())"). Errors are reported through
+   * scriptHasOutput() with a Lua stack trace.
+   *
+   * @param code The Lua source to execute.
+   * @return True if the code ran without error.
+   */
+  bool executeLua(const QString &code);
+
+  /**
    * @brief Empties the scene and rebuilds an empty dynamics world.
    *
    * Removes and deletes every object, constraint, vehicle and raycaster, then

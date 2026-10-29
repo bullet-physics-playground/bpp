@@ -105,6 +105,24 @@ Gui::Gui(QSettings *s, QWidget *parent) : QMainWindow(parent), msgBox(nullptr) {
 
   connect(ui.actionQuickRender, &QAction::triggered, ui.viewer, [this]() { ui.viewer->onQuickRender(); });
 
+  // ---- Object creation toolbar buttons (Moray-style GUI primitives) ----
+  auto addPrimBtn = [this](const QString &label, const QString &luaCode) {
+    QPushButton *btn = new QPushButton(label);
+    btn->setToolTip(tr("Add %1 to scene").arg(label));
+    btn->setMaximumWidth(70);
+    connect(btn, &QPushButton::clicked, this, [this, luaCode]() {
+      ui.viewer->executeLua(luaCode);
+    });
+    ui.toolBarView->addWidget(btn);
+  };
+  addPrimBtn("Cube", "v:add(Cube())");
+  addPrimBtn("Sphere", "v:add(Sphere())");
+  addPrimBtn("Cylinder", "v:add(Cylinder())");
+  addPrimBtn("Cone", "v:add(Cone())");
+  addPrimBtn("Torus", "v:add(Torus())");
+  addPrimBtn("Disc", "v:add(Disc())");
+  ui.toolBarView->addSeparator();
+
   connect(editor, &CodeEditor::keyPressed, ui.viewer,
           &Viewer::keyPressEvent);
   connect(editor, &CodeEditor::savePressed, this,

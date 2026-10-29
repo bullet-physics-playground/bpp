@@ -3162,6 +3162,17 @@ void Viewer::removeLeftoverBodies() {
   }
 }
 
+bool Viewer::executeLua(const QString &code) {
+  if (!L) return false;
+  int err = luaL_dostring(L, code.toUtf8().constData());
+  if (err != 0) {
+    emit scriptHasOutput(QString("executeLua: %1").arg(lua_tostring(L, -1)));
+    lua_pop(L, 1);
+    return false;
+  }
+  return true;
+}
+
 void Viewer::clear() {
   // qDebug() << "Viewer::clear() objects: " << _objects->size();
 
