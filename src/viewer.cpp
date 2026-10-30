@@ -5331,7 +5331,6 @@ void Viewer::savePOV(bool force) {
   smain << "global_settings {\n";
   smain << "  assumed_gamma 1.0\n";
   smain << "  max_trace_level 15\n";
-  smain << "  charset utf8\n";
   smain << "}\n\n";
 
   if (_povRadiosityEnabled) {
@@ -5392,7 +5391,7 @@ void Viewer::savePOV(bool force) {
           << "\n";
   }
 
-  smain << "#include concat(concat(str(clock,-5,0)),\".inc\")" << "\n"
+  smain << "#include concat(concat(str(clock+1,-5,0)),\".inc\")" << "\n"
         << "\n";
 
   _fileMain->close();
