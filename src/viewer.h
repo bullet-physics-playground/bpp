@@ -531,6 +531,8 @@ public:
    * @brief Replaces the scene world's constraint solver.
    *
    * @param kind "si" (Bullet's sequential impulse solver, the default),
+   * "si-warm" (the same, each joint starting a step from the force it ended
+   * the last one with -- see WarmJointSolver in viewer.cpp),
    * "nncg" (non-smooth nonlinear conjugate gradient: the same iterations,
    * converging faster on stiff, badly conditioned joints), "nncg-joints"
    * (that for the joints, sequential impulse for contacts), "mlcp-dantzig",
@@ -546,8 +548,9 @@ public:
   /**
    * @brief Sets one of the scene world solver's settings by name: "residual"
    * (stop iterating once the squared residual is under this; 0: never),
-   * "sor", "warmstarting", "splitImpulse" (0/1), "randomOrder" (0/1),
-   * "iterations".
+   * "sor", "warmstarting" (contacts), "jointWarmstart" (joints, with
+   * "si-warm"; default 0.85), "erp", "erp2", "splitImpulse" (0/1),
+   * "randomOrder" (0/1), "iterations".
    */
   void setSolverInfo(const std::string &name, double value);
 

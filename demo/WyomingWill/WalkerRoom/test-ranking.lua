@@ -7,6 +7,8 @@
 -- their feet's ends turned up (their specs' footTips), everyone else flat
 -- feet. It starts on 7 cm logs, seed 1.
 --
+-- QUALITY = "accurate" at the top of this file runs it as measured (see below).
+--
 -- Open this file in bpp and click the 3D view first, then:
 --   Tab, Shift+Tab   the next (or the one before) walker
 --   N                the next seed, 1 to 4 (where it starts)
@@ -23,11 +25,24 @@
 
 package.path = "../../module/?.lua;" .. package.path
 
+-- QUALITY: "fast" (the default here, to watch): the solver carrying each joint's force over from one physics
+-- step to the next (v:setSolver("si-warm")), 40 iterations, a 1/1920 s step and a 3 m-wide track -- about four
+-- times as fast, starting in a few seconds; it walks as the measured runs did, though not move for move (handover
+-- section 4i). "accurate": exactly what the 29 October ranking used (Bullet's solver, 200 iterations, a 1/3840 s
+-- step, the 8 m track).
+QUALITY = QUALITY or "fast"
 v:setSolverInfo("residual", 0.01)   -- (stop iterating once settled: about 15% faster, the same result)
-SOLVER_ITERATIONS = SOLVER_ITERATIONS or 200
+if QUALITY == "fast" then
+  v:setSolver("si-warm")
+  SOLVER_ITERATIONS = SOLVER_ITERATIONS or 40
+  FIXED = 1 / 1920
+  ARENA_Z = ARENA_Z or 300
+else
+  SOLVER_ITERATIONS = SOLVER_ITERATIONS or 200
+  FIXED = 1 / 3840
+end
 MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.25 a crank in effect: the hinge motors reach half their set torque)
 GRAVITY = 981
-FIXED = 1 / 3840
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1
 LINK_WIDTH = 1.0

@@ -1,0 +1,22 @@
+walker                   solver     it   step  speed       cranks torque p95  time s
+Chebyshev-Spears diag    si-warm   100 1/1920   9.07   0.94..1.11     0.0793      23
+Chebyshev-Spears diag    si-warm   100 1/3840   9.07   0.97..1.05     0.0776      43
+Chebyshev-Spears diag    si-warm    40 1/1920   9.07   0.87..1.29     0.0712      16
+Chebyshev-Spears diag    si-warm    40 1/3840   9.06   0.93..1.13     0.0758      28
+Chebyshev-Spears diag    si        200 1/3840   9.03   0.91..1.17     0.0737      84
+Chebyshev-Spears diag    si         40 1/1920   8.65   0.53..2.46     0.0441      16
+Chebyshev-Spears diag    si         40 1/3840   8.88   0.70..1.82     0.0545      30
+Jansen                   si-warm   100 1/1920   8.97   0.97..1.01     0.0233      26
+Jansen                   si-warm   100 1/3840   8.96   0.99..1.01     0.0230      42
+Jansen                   si-warm    40 1/1920   8.96   0.95..1.03     0.0219      18
+Jansen                   si-warm    40 1/3840   8.95   0.98..1.01     0.0223      28
+Jansen                   si        200 1/3840   9.12   0.97..1.02     0.0206      83
+Jansen                   si         40 1/1920   8.99   0.77..1.17     0.0200      18
+Jansen                   si         40 1/3840   9.02   0.87..1.09     0.0203      29
+Spears lift 44           si-warm   100 1/1920   8.95   0.99..1.02     0.0482      19
+Spears lift 44           si-warm   100 1/3840   8.94   0.97..1.01     0.0481      37
+Spears lift 44           si-warm    40 1/1920   8.93   0.96..1.05     0.0499      14
+Spears lift 44           si-warm    40 1/3840   8.93   0.96..1.02     0.0487      24
+Spears lift 44           si        200 1/3840   8.88   0.98..1.03     0.0470      68
+Spears lift 44           si         40 1/1920   8.77   0.83..1.32     0.0449      14
+Spears lift 44           si         40 1/3840   8.87   0.91..1.14     0.0455      23
