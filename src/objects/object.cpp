@@ -843,7 +843,7 @@ void Object::povEmission(QTextStream *s) const {
   if (s == nullptr)
     return;
   if (hasEmission())
-    *s << "  finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
+    *s << "    finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
        << ", " << mEmission[2] << "> }" << "\n";
   if (!mCastShadow)
     *s << "  no_shadow" << "\n";
@@ -908,9 +908,11 @@ void Object::povPigment(QTextStream *s) const {
     return;
   }
 
-  *s << "  pigment { rgbt <" << color[0] / 255.0 << ", " << color[1] / 255.0
+  *s << "  texture {\n";
+  *s << "    pigment { rgbt <" << color[0] / 255.0 << ", " << color[1] / 255.0
      << ", " << color[2] / 255.0 << ", " << transparency << "> }" << "\n";
   povEmission(s);
+  *s << "  }" << "\n";
 }
 
 void Object::glApplyColor() const {
