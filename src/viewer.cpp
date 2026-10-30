@@ -5446,7 +5446,7 @@ void Viewer::savePOV(bool force) {
           << "\n";
   }
 
-  smain << "#include concat(concat(str(clock+1,-5,0)),\".inc\")" << "\n"
+  smain << "#include concat(concat(str(clock,-5,0)),\".inc\")" << "\n"
         << "\n";
 
   _fileMain->close();
