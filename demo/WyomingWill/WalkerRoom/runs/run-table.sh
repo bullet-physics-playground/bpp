@@ -4,6 +4,7 @@
 # file is kept and not run again.
 #
 #   cd demo/WyomingWill/WalkerRoom
+#   BPP=~/bpp/release/bpp runs/run-table.sh                 # the standard, warm40fast (no setting named)
 #   BPP=~/bpp/release/bpp runs/run-table.sh warm40          # one setting
 #   BPP=... JOBS=6 SEEDS="1 2 3 4 5" runs/run-table.sh warm40 warm40fast
 #   python3 runs/table.py runs/out/warm40 runs/out/warm40fast   # the tables, and how they compare
@@ -12,7 +13,8 @@
 # 0.25 a crank, Earth gravity, ankle springs, 1.0 cm links, trot, forward, the 8 m track, bump 15):
 #   plain200    Bullet's solver, 200 iterations, step 1/3840 s  (the 29 October ranking)
 #   warm40      joint warm-starting (v:setSolver("si-warm")), 40 iterations, 1/3840 s
-#   warm40fast  joint warm-starting, 40 iterations, 1/1920 s
+#   warm40fast  joint warm-starting, 40 iterations, 1/1920 s  (the standard for runs since 30 October: it gave
+#               the ranking's results within the noise, at under half warm40's time; handover section 4i)
 # Environment: BPP (default: bpp on the PATH), JOBS (default: the number of cores), SEEDS (default 1 2 3 4 5),
 # TERRAINS (default the nine rough ones), BUILDS (default the ranking's 13; a file, one name a line), OUT (default
 # runs/out), RUN_SECS (20).
@@ -24,7 +26,7 @@ if [ -n "${BUILDS:-}" ]; then mapfile -t NAMES < "$BUILDS"; else NAMES=(
   "Spears lift 44" "Spears lift 44 diag" "Spears lift 53" "Chebyshev-Spears diag" "Hoecken-Spears 4-bar diag"
   "Spears lift 53 diag" "Hoecken-Spears long-stance diag" "Hoecken-Spears slider diag" "Hoecken-Spears slider"
   "Hoecken-Spears 4-bar" "Klann" "Jansen" "Hoecken-Spears long-stance"); fi
-[ $# -ge 1 ] || { echo "usage: runs/run-table.sh <setting> [<setting> ...]   (plain200, warm40, warm40fast)"; exit 1; }
+[ $# -ge 1 ] || set -- warm40fast   # (no setting named: the standard)
 command -v "$BPP" > /dev/null || { echo "bpp not found: set BPP to the bpp program"; exit 1; }
 bracing() { case "$1" in Jansen|Klann|"Spears 4-bar") echo "OWN_FRAME=true";; *diag) echo "DIAG_OUTSIDE=true; PENDANT_HOLD=true";; *) echo "UNBRACED=true";; esac; }
 setting() { case "$1" in
