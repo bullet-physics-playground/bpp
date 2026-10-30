@@ -32,6 +32,12 @@ This directory contains a collection of basic examples for the Bullet Physics Pl
     interaction, fog, and object modifiers (`no_image`, `no_reflection`,
     `hollow`, `photons { pass_through }`). Run with
     `bpp -f demo/basic/povray.lua -e` to export frames for rendering.
+*   `25-phase4.lua`: Demonstrates the new Phase 4 object types: `Blob` (meta-ball
+    with sphere/cylinder components), `TrueType` (TrueType font text), `Patch`
+    (bicubic Bezier surface), `Sweep` (rotational/translational/tapered sweep),
+    `SuperQuadric` (superellipsoid), `ReferenceObject` (POV-Ray object
+    reference), and `Bound` (object with explicit `bounded_by` shape). Run with
+    `bpp -f demo/basic/25-phase4.lua`.
 
 ## How to Run
 

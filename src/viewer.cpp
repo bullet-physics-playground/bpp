@@ -35,6 +35,8 @@
 #endif
 
 #include "objects/bezierpatch.h"
+#include "objects/blob.h"
+#include "objects/bound.h"
 #include "objects/cone.h"
 #include "objects/cube.h"
 #include "objects/cylinder.h"
@@ -42,7 +44,12 @@
 #include "objects/disc.h"
 #include "objects/heightfield.h"
 #include "objects/layer.h"
+#include "objects/patch.h"
 #include "objects/povscriptwriter.h"
+#include "objects/referenceobject.h"
+#include "objects/sweep.h"
+#include "objects/superquadric.h"
+#include "objects/truetype.h"
 #include "objects/torus.h"
 #include "objects/object.h"
 #include "objects/plane.h"
@@ -3008,6 +3015,13 @@ emit scriptStarts();
     PovScriptWriter_luaBind(L);
     LayerManager::luaBind(L);
     BezierPatch::luaBind(L);
+    Blob::luaBind(L);
+    Bound::luaBind(L);
+    Patch::luaBind(L);
+    ReferenceObject::luaBind(L);
+    Sweep::luaBind(L);
+    SuperQuadric::luaBind(L);
+    TrueType::luaBind(L);
 #ifdef HAS_LIB_ASSIMP
     Mesh::luaBind(L);
     OpenSCAD::luaBind(L);
