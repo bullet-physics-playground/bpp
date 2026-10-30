@@ -1,6 +1,6 @@
 # Walker room — handover
 
-William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d, 4e, 4g and 4h first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
+William Spears' bpp walker room (`demo/WyomingWill/WalkerRoom` in the bpp repo). Rewritten 21 October 2026 at the end of a second long session; section 4a added 24 October after a third. It is meant for a fresh conversation that picks up the work. **Read sections 4d, 4e, 4g, 4h and 4i first: how the work got here, the standard the runs use now (200 solver iterations, the motor at 0.25 a crank), and the table at it.**
 
 ## 1. The aim
 
@@ -27,7 +27,7 @@ git push
 cd ~/bpp && git pull
 ```
 
-Number patches `walker-room-NN-<what>.patch`. The last was 47 (test-ranking.lua, the ranking's builds to watch). 46: the 5-seed ranking, toes for both Hoecken-Spears sliders (section 4h). 45: the uneven logs, Hoecken-Spears slider diag's upturned toes (section 4g). 44: the slider against Chebyshev-Spears on high obstacles (section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
+Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starting, the launchers' QUALITY, runs/ for any machine; section 4i). 47: test-ranking.lua, the ranking's builds to watch. 46: the 5-seed ranking, toes for both Hoecken-Spears sliders (section 4h). 45: the uneven logs, Hoecken-Spears slider diag's upturned toes (section 4g). 44: the slider against Chebyshev-Spears on high obstacles (section 4f; test-slider-logs.lua). 43: the sliders' diag builds, the 28 October table (section 4e). 42: the solver switch, joint forces, joint friction (section 4d). 41: the sliders' 6-dof joint, the fresh table (section 4c). 40: 8 m track, the V left off, option A's results. 39: one link width (`LINK_WIDTH`). 38: V-shaped bottom braces (`OUTSIDE_V`). 37: `test-square-check.lua`, M and N keys. 36: 6 m track, mirrored ground, advances in trot (section 4b). 35: low side plates (PLATE_LOW). 34: launcher for the plated builds, held pendants on them. 33: outside braces on the other five diag builds. 32 was the previous handover update and two terrain test switches; 28–31: section 4a; 27: Hoecken-Spears 4-bar's base to 35 cm; 26: Hoecken-Spears slider and Spears lift 53 diag brought to the 15 cm stride; 25: both Hoecken-Spears long-stance builds; 24: four diag builds, and what was found about diag on waves).
 
 **Style**
 - Plain words, short, answer first. Don't overstate.
@@ -517,6 +517,20 @@ Toes 1.5 cm on Chebyshev-Spears diag (logs 7, steps 7): 0.20 and 4.07 — much w
 | 17 | Hoecken-Spears long-stance | guides | trot | forward | flat | 8.40 | 8.14 | 3.00 | 8.30 | 4.75 | -0.07 | 8.39 | 4.65 | 1.53 | 5.23 | 0.26 | 1.49 | 45 |
 
 Klann's triangles (William: they show it has fewer links than it looks; straight links if they cause trouble): its torque spikes and brief backward cranks go with its feet landing while still moving forward (mono 0.84, section 4d), its linkage's path, not the triangles; left as they are.
+
+## 4i. Speed: joint warm-starting, and a quality setting (30 October)
+
+**Answer first.** Bullet's solver starts every joint from zero force at each physics step (only foot contacts carry their forces over). `v:setSolver("si-warm")` (bpp, `WarmJointSolver` in viewer.cpp) keeps each joint row's final impulse and starts the next step from 0.85 of it (`setSolverInfo("jointWarmstart", f)`). With it, 40 iterations hold the linkages as well as 200 without it, at 2–5 times the speed. The launchers now have `QUALITY = "fast"` (the default, to watch: si-warm, 40 iterations, step 1/1920 s, a 3 m track; about 3.5 times as fast with start-up) or `"accurate"` (as the ranking: Bullet's solver, 200, 1/3840 s, the 8 m track).
+
+**Where the time went** (one walker, logs 7, offscreen): start-up 14 s (the 8 m × 10 m ground: 214,000 triangles; a 2 m track starts in 4 s); then 58 ms a frame at the ranking's standard (0.29 times real time). About two-thirds solver iterations, a third the 64 physics steps a frame. Bullet 3.24 here is built without threads (its task scheduler is a stub), and a walker is one connected group, which Bullet's threaded solver could hardly split; so threads were not pursued.
+
+**Longer steps alone** (`stp.sh`, `stp_an.py`, `data/s4i_step_size.md`; 4 builds, flat / waves 4 / logs 7, seeds 1–2): 1/960 s loses 15–33% of the flat speed for three of the four (the joints give, cranks run backwards) — not usable; 1/1920 s keeps the flat speed and changes the rough-ground runs by about the seed spread (mean −0.38 cm/s).
+
+**Joint warm-starting** (`ws.sh`, `ws_an.py`, `data/s4i_warm_flat.txt`; flat, seed 1): crank speed range (share of driven speed) for Chebyshev-Spears diag: Bullet 200 iterations 0.91–1.17, warm 40 0.93–1.13, Bullet 40 0.70–1.82 (Spears lift 44 and Jansen alike); flat speeds within 0.2 cm/s. On rough ground (`wsr.sh`, `wsr_an.py`, `data/s4i_warm_rough.md`; 4 builds, waves 4, logs 7, steps 7, seeds 1–3): warm 40 at 1/3840 s 5.43 cm/s over the 12 cells against 5.47 (cells differ by 0.47 on average), warm 40 at 1/1920 s 5.58 (0.63); both within the seed spread. Time, Chebyshev-Spears diag on logs 7 (simulated ÷ wall time): Bullet 200 at 1/3840 0.22×, warm 40 at 1/3840 0.46×, warm 40 at 1/1920 0.85×.
+
+**Runs on any machine:** `runs/run-table.sh` (bash; the settings `plain200`, `warm40`, `warm40fast`; `BPP`, `JOBS`, `SEEDS`, `TERRAINS`, `BUILDS`, `OUT`; resumable), `runs/speedprobe.lua` (one run's RUN line), `runs/table.py` (the tables, and how two settings compare). speedprobe measures as the earlier probes did and gives the same numbers (Hoecken-Spears slider diag, logs 7, seed 1: 4.74 against 4.73). Like them it does not run the room's drawing hook (it moves the look-only body marks); with that hook a run comes out differently, as any small change does — so a run watched in the window will not repeat a table's run move for move.
+
+**Next** (William, 30 October): the 13 ranked builds, nine rough terrains, 5 seeds, at `warm40` and `warm40fast`, against the ranking (`plain200`): if they agree, warm40 (or warm40fast) becomes the standard for runs.
 
 ## 5. What was found in the last session (17–21 October)
 

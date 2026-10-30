@@ -1081,6 +1081,56 @@ void Viewer::setSolverIterations(int n) {
   dynamicsWorld->getSolverInfo().m_numIterations = n;
 }
 
+// Joint warm-starting ("si-warm", setSolver): Bullet's sequential impulse solver starts every joint row from zero
+// impulse each step (only contacts carry theirs over, in their manifold points). This one keeps each joint row's
+// final impulse and starts the next step from it, scaled by g_jointWarmstart (setSolverInfo "jointWarmstart",
+// default 0.85, the factor Bullet uses for contacts) -- for linkages whose joints carry much the same forces from one
+// small step to the next, so the iterations start near the answer.
+static btScalar g_jointWarmstart = 0.85;
+class WarmJointSolver : public btSequentialImpulseConstraintSolver {
+  std::unordered_map<const btTypedConstraint *, std::vector<btScalar>> _cache;
+  std::vector<std::pair<const btTypedConstraint *, int>> _rows;   // this group's joints and their row counts, in order
+protected:
+  void convertJoints(btTypedConstraint **constraints, int numConstraints, const btContactSolverInfo &info) override {
+    btSequentialImpulseConstraintSolver::convertJoints(constraints, numConstraints, info);
+    _rows.clear();
+    int row = 0;
+    for (int i = 0; i < numConstraints; i++) {
+      int n = m_tmpConstraintSizesPool[i].m_numConstraintRows;
+      _rows.emplace_back(constraints[i], n);
+      auto it = _cache.find(constraints[i]);
+      if (g_jointWarmstart > 0 && it != _cache.end() && int(it->second.size()) == n) {
+        for (int j = 0; j < n; j++) {
+          btSolverConstraint &c = m_tmpSolverNonContactConstraintPool[row + j];
+          btScalar imp = btMax(c.m_lowerLimit, btMin(c.m_upperLimit, g_jointWarmstart * it->second[j]));
+          if (imp == 0) continue;
+          c.m_appliedImpulse = imp;
+          btSolverBody &a = m_tmpSolverBodyPool[c.m_solverBodyIdA];
+          btSolverBody &b = m_tmpSolverBodyPool[c.m_solverBodyIdB];
+          a.internalApplyImpulse(c.m_contactNormal1 * a.internalGetInvMass(), c.m_angularComponentA, imp);
+          b.internalApplyImpulse(c.m_contactNormal2 * b.internalGetInvMass(), c.m_angularComponentB, imp);
+        }
+      }
+      row += n;
+    }
+  }
+  btScalar solveGroupCacheFriendlyFinish(btCollisionObject **bodies, int numBodies, const btContactSolverInfo &info) override {
+    int row = 0;
+    for (auto &r : _rows) {
+      std::vector<btScalar> &v = _cache[r.first];
+      v.resize(r.second);
+      for (int j = 0; j < r.second; j++) v[j] = m_tmpSolverNonContactConstraintPool[row + j].m_appliedImpulse;
+      row += r.second;
+    }
+    if (_cache.size() > 4 * _rows.size() + 64) {   // (forget joints not seen this step: removed ones)
+      std::unordered_map<const btTypedConstraint *, std::vector<btScalar>> keep;
+      for (auto &r : _rows) keep[r.first] = _cache[r.first];
+      _cache.swap(keep);
+    }
+    return btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(bodies, numBodies, info);
+  }
+};
+
 void Viewer::setSolverInfo(const std::string &name, double value) {
   btContactSolverInfo &i = dynamicsWorld->getSolverInfo();
   if (name == "residual") i.m_leastSquaresResidualThreshold = value;
@@ -1090,7 +1140,10 @@ void Viewer::setSolverInfo(const std::string &name, double value) {
   else if (name == "randomOrder") {
     if (value != 0) i.m_solverMode |= SOLVER_RANDMIZE_ORDER; else i.m_solverMode &= ~SOLVER_RANDMIZE_ORDER;
   } else if (name == "iterations") i.m_numIterations = int(value);
-  else luaL_error(L, "setSolverInfo: unknown '%s' (residual, sor, warmstarting, splitImpulse, randomOrder, iterations)", name.c_str());
+  else if (name == "jointWarmstart") g_jointWarmstart = value;
+  else if (name == "erp") i.m_erp = value;
+  else if (name == "erp2") i.m_erp2 = value;
+  else luaL_error(L, "setSolverInfo: unknown '%s' (residual, sor, warmstarting, jointWarmstart, erp, erp2, splitImpulse, randomOrder, iterations)", name.c_str());
 }
 
 int Viewer::solverFallbacks() const {
@@ -1104,6 +1157,8 @@ void Viewer::setSolver(const std::string &kind) {
   btConstraintSolver *s = nullptr;
   if (kind == "si")
     s = new btSequentialImpulseConstraintSolver();
+  else if (kind == "si-warm")   // (joint warm-starting: WarmJointSolver, above)
+    s = new WarmJointSolver();
   else if (kind == "nncg")
     s = new btNNCGConstraintSolver();
   else if (kind == "nncg-joints") {   // (NNCG for the joints only, sequential impulse for contacts)
@@ -1117,7 +1172,7 @@ void Viewer::setSolver(const std::string &kind) {
     else method = new btLemkeSolver();
     s = new btMLCPSolver(method);
   } else {
-    luaL_error(L, "setSolver: unknown kind '%s' (si, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)", kind.c_str());
+    luaL_error(L, "setSolver: unknown kind '%s' (si, si-warm, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)", kind.c_str());
     return;
   }
   btConstraintSolver *old = dynamicsWorld->getConstraintSolver();
