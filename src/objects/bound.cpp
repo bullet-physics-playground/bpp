@@ -83,30 +83,7 @@ void Bound::toPOV(QTextStream *s) const {
 
   if (s != nullptr) {
     if (mPreSDL.isNull()) {
-      // Write the bound shape as a POV-Ray primitive inside bounded_by
-      *s << "bounded_by { ";
-      if (m_boundShape) {
-        if (dynamic_cast<btSphereShape *>(m_boundShape)) {
-          btSphereShape *sphere = static_cast<btSphereShape *>(m_boundShape);
-          *s << "sphere { <0,0,0>, " << sphere->getRadius() << " }";
-        } else if (dynamic_cast<btBoxShape *>(m_boundShape)) {
-          btBoxShape *box = static_cast<btBoxShape *>(m_boundShape);
-          btVector3 half = box->getHalfExtentsWithMargin();
-          *s << "box { <" << -half.x() << ", " << -half.y() << ", " << -half.z()
-             << ">, <" << half.x() << ", " << half.y() << ", " << half.z()
-             << "> }";
-        } else if (dynamic_cast<btCylinderShape *>(m_boundShape)) {
-          btCylinderShape *cyl = static_cast<btCylinderShape *>(m_boundShape);
-          btVector3 half = cyl->getHalfExtentsWithMargin();
-          *s << "cylinder { <0,0,0>, <0," << half.y() * 2 << ",0>, "
-             << half.x() << " }";
-        } else {
-          *s << "sphere { <0,0,0>, 1 }";
-        }
-      } else {
-        *s << "sphere { <0,0,0>, 1 }";
-      }
-      *s << "}\n";
+      // nothing: bounded_by is written after pigment/matrix below
     } else {
       *s << mPreSDL << "\n";
     }
@@ -125,6 +102,29 @@ void Bound::toPOV(QTextStream *s) const {
        << "," << "\n"
        << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
        << ">" << "\n";
+
+    // bounded_by must come after pigment/texture and matrix in POV-Ray
+    if (m_boundShape) {
+      *s << "  bounded_by { ";
+      if (dynamic_cast<btSphereShape *>(m_boundShape)) {
+        btSphereShape *sphere = static_cast<btSphereShape *>(m_boundShape);
+        *s << "sphere { <0,0,0>, " << sphere->getRadius() << " }";
+      } else if (dynamic_cast<btBoxShape *>(m_boundShape)) {
+        btBoxShape *box = static_cast<btBoxShape *>(m_boundShape);
+        btVector3 half = box->getHalfExtentsWithMargin();
+        *s << "box { <" << -half.x() << ", " << -half.y() << ", " << -half.z()
+           << ">, <" << half.x() << ", " << half.y() << ", " << half.z()
+           << "> }";
+      } else if (dynamic_cast<btCylinderShape *>(m_boundShape)) {
+        btCylinderShape *cyl = static_cast<btCylinderShape *>(m_boundShape);
+        btVector3 half = cyl->getHalfExtentsWithMargin();
+        *s << "cylinder { <0,0,0>, <0," << half.y() * 2 << ",0>, "
+           << half.x() << " }";
+      } else {
+        *s << "sphere { <0,0,0>, 1 }";
+      }
+      *s << "}" << "\n";
+    }
 
     if (mNoImage)
       *s << "  no_image" << "\n";
