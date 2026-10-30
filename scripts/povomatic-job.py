@@ -36,8 +36,8 @@
 # Environment (each overridable by the matching option):
 #   POVOMATIC_API           passed straight through to povomatic.py (--api-url)
 #   POVOMATIC_PY            path to povomatic.py                     (default: search)
-#   POVOMATIC_INPUT         NFS input volume, host path              (default: /nfs/povray/input)
-#   POVOMATIC_ASSETS        NFS assets volume, host path             (default: /nfs/povray/assets)
+#   POVOMATIC_INPUT         NFS input volume, host path              (default: /mnt/cluster-nfs/povray/input)
+#   POVOMATIC_ASSETS        NFS assets volume, host path             (default: /mnt/cluster-nfs/povray/assets)
 #   POVOMATIC_REMOTE_INPUT  input volume path the render workers see (default: /app/input)
 #
 # When the submit fails, the povomatic API's own log of that call is printed too,
@@ -58,8 +58,8 @@ import time
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DEFAULT_INPUT = os.environ.get("POVOMATIC_INPUT", "/nfs/povray/input")
-DEFAULT_ASSETS = os.environ.get("POVOMATIC_ASSETS", "/nfs/povray/assets")
+DEFAULT_INPUT = os.environ.get("POVOMATIC_INPUT", "/mnt/cluster-nfs/povray/input")
+DEFAULT_ASSETS = os.environ.get("POVOMATIC_ASSETS", "/mnt/cluster-nfs/povray/assets")
 DEFAULT_REMOTE_INPUT = os.environ.get("POVOMATIC_REMOTE_INPUT", "/app/input")
 API_LOG_CMD = shlex.split(os.environ.get(
     "POVOMATIC_API_LOG_CMD", "kubectl -n povomatic logs deploy/api -c api --tail=60"))
@@ -105,11 +105,11 @@ def show_api_log(seconds, rc):
 
 def find_povomatic_py(explicit):
     for cand in (explicit, os.environ.get("POVOMATIC_PY"),
-                 "/nfs/povomatic/povomatic.py", shutil.which("povomatic.py")):
+                 "/mnt/cluster-nfs/povomatic/povomatic.py", shutil.which("povomatic.py")):
         if cand and os.path.isfile(cand):
             return cand
     die("povomatic.py not found; pass --povomatic-py or set POVOMATIC_PY "
-        "(looked in $POVOMATIC_PY, /nfs/povomatic/povomatic.py, $PATH)")
+        "(looked in $POVOMATIC_PY, /mnt/cluster-nfs/povomatic/povomatic.py, $PATH)")
 
 
 def find_povray_includes(explicit):
