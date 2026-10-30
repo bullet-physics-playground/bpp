@@ -103,6 +103,36 @@ void Cube::toPOV(QTextStream *s) const {
       povPigment(s);
     }
 
+    if (mBoundShape != nullptr) {
+      *s << "  bounded_by { ";
+      if (dynamic_cast<btSphereShape *>(mBoundShape)) {
+        btSphereShape *sphere = static_cast<btSphereShape *>(mBoundShape);
+        *s << "sphere { <0,0,0>, " << sphere->getRadius() << " }";
+      } else if (dynamic_cast<btBoxShape *>(mBoundShape)) {
+        btBoxShape *box = static_cast<btBoxShape *>(mBoundShape);
+        btVector3 half = box->getHalfExtentsWithMargin();
+        *s << "box { <" << -half.x() << ", " << -half.y() << ", " << -half.z()
+           << ">, <" << half.x() << ", " << half.y() << ", " << half.z()
+           << "> }";
+      } else {
+        *s << "sphere { <0,0,0>, 0 }";
+      }
+      *s << "}" << "\n";
+    }
+
+    if (mNoImage)
+      *s << "  no_image" << "\n";
+    if (mNoReflection)
+      *s << "  no_reflection" << "\n";
+    if (mDoubleIlluminate)
+      *s << "  double_illuminate" << "\n";
+    if (mHollow)
+      *s << "  hollow" << "\n";
+
+    QString photons = getPovPhotons();
+    if (!photons.isEmpty())
+      *s << photons;
+
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
        << "," << "\n"
        << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
@@ -111,6 +141,9 @@ void Cube::toPOV(QTextStream *s) const {
        << "," << "\n"
        << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
        << ">" << "\n";
+
+    if (!mPreMatrixSDL.isNull())
+      *s << mPreMatrixSDL << "\n";
 
     if (mPostSDL.isNull()) {
       *s << "}" << "\n"

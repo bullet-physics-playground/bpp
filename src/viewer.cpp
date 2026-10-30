@@ -3303,6 +3303,11 @@ void Viewer::clear() {
 
   _pov_settings_inc = "settings.inc";
 
+  _povRadiosityEnabled = false;
+  _povPhotonsEnabled = false;
+  _povFogEnabled = false;
+  _povAtmosphereEnabled = false;
+
   setPreSDL(QString());
   setPostSDL(QString());
 
@@ -5306,8 +5311,51 @@ void Viewer::savePOV(bool force) {
   smain << QString("// %1 by %2").arg(timestamp, name) << "\n"
         << "\n";
 
-  smain << "#version 3.7;" << "\n"
+  smain << "#version 3.8;" << "\n"
         << "\n";
+
+  smain << "global_settings {\n";
+  smain << "  assumed_gamma 1.0\n";
+  smain << "  max_trace_level 15\n";
+  smain << "  charset utf8\n";
+  smain << "}\n\n";
+
+  if (_povRadiosityEnabled) {
+    smain << "global_settings {\n";
+    smain << "  radiosity {\n";
+    smain << "    pretrace_start 0.08\n";
+    smain << "    pretrace_end 0.01\n";
+    smain << "    count 350\n";
+    smain << "    nearest_count 10\n";
+    smain << "    error_bound 0.5\n";
+    smain << "    low_error_factor 0.2\n";
+    smain << "    recursion_limit 2\n";
+    smain << "  }\n";
+    smain << "}\n\n";
+  }
+
+  if (_povPhotonsEnabled) {
+    smain << "global_settings {\n";
+    smain << "  photons {\n";
+    smain << "    spacing 0.5\n";
+    smain << "    gather 20 10\n";
+    smain << "  }\n";
+    smain << "}\n\n";
+  }
+
+  if (_povFogEnabled) {
+    smain << "// Fog\n";
+    smain << "fog {\n";
+    smain << "  fog_type 1\n";
+    smain << "  distance 100\n";
+    smain << "  color rgb <0.5, 0.5, 0.5>\n";
+    smain << "}\n\n";
+  }
+
+  if (_povAtmosphereEnabled) {
+    smain << "// Atmosphere\n";
+    smain << "media { atmosphere }\n\n";
+  }
 
   // The interactive view's two lights, for the settings include to pick up,
   // so that a script moving them with v.glLight0 or v.glLight1 is rendered
@@ -5425,7 +5473,7 @@ void Viewer::savePOV(bool force) {
       if (m) {
         *_stream << m->toPOV(sceneDir);
       } else {
-        *_stream << o->toPOV();
+      *_stream << o->toPOV();
       }
 #else
       *_stream << o->toPOV();

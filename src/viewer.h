@@ -1306,6 +1306,34 @@ public:
   QString getPOVSettingsInc();
 
   /**
+   * @brief Whether exported scenes include a radiosity block.
+   */
+  bool povRadiosityEnabled() const { return _povRadiosityEnabled; }
+  /** @brief Set whether exported scenes include a radiosity block. */
+  void setPovRadiosityEnabled(bool on) { _povRadiosityEnabled = on; }
+
+  /**
+   * @brief Whether exported scenes include a photons block.
+   */
+  bool povPhotonsEnabled() const { return _povPhotonsEnabled; }
+  /** @brief Set whether exported scenes include a photons block. */
+  void setPovPhotonsEnabled(bool on) { _povPhotonsEnabled = on; }
+
+  /**
+   * @brief Whether exported scenes include a fog block.
+   */
+  bool povFogEnabled() const { return _povFogEnabled; }
+  /** @brief Set whether exported scenes include a fog block. */
+  void setPovFogEnabled(bool on) { _povFogEnabled = on; }
+
+  /**
+   * @brief Whether exported scenes include an atmosphere/media block.
+   */
+  bool povAtmosphereEnabled() const { return _povAtmosphereEnabled; }
+  /** @brief Set whether exported scenes include an atmosphere/media block. */
+  void setPovAtmosphereEnabled(bool on) { _povAtmosphereEnabled = on; }
+
+  /**
    * @brief Tells whether POV-Ray export gave up on a directory it could not
    *        create.
    *
@@ -2734,6 +2762,11 @@ private:
 
   QString _pov_settings_inc; ///< Include file the exported main scene pulls
                              ///< in; @c "settings.inc" by default.
+
+  bool _povRadiosityEnabled;  ///< Emit a radiosity block in exported scenes.
+  bool _povPhotonsEnabled;    ///< Emit a photons block in exported scenes.
+  bool _povFogEnabled;        ///< Emit a fog block in exported scenes.
+  bool _povAtmosphereEnabled; ///< Emit an atmosphere/media block.
 
 #if USE_VFE
   // POV-Ray VFE quick-render preview (F6, gated by the povray/useVFE

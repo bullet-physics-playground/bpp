@@ -65,6 +65,12 @@ Object::Object(QObject *parent, btScalar pmass) : QObject(parent) {
   photons_reflection = false;
   photons_refraction = false;
 
+  mBoundShape = nullptr;
+  mNoImage = false;
+  mNoReflection = false;
+  mDoubleIlluminate = false;
+  mHollow = false;
+
   setCollisionTypes(COL_WALL, COL_WALL);
 
   _cb_render = luabind::object();
@@ -175,7 +181,7 @@ void Object::toPOV(QTextStream *s) const {
 
   if (s != nullptr) {
     if (mPreSDL.isNull()) {
-      *s << "sphere { <0,0,0>, 1" << "\n";
+      *s << "box { <-1.5, -1.5, -1.5>, <1.5, 1.5, 1.5>" << "\n";
     } else {
       *s << mPreSDL << "\n";
     }
@@ -186,6 +192,39 @@ void Object::toPOV(QTextStream *s) const {
       povPigment(s);
     }
 
+    if (mBoundShape != nullptr) {
+      *s << "  bounded_by { ";
+      if (dynamic_cast<btSphereShape *>(mBoundShape)) {
+        btSphereShape *sphere = static_cast<btSphereShape *>(mBoundShape);
+        *s << "sphere { <0,0,0>, " << sphere->getRadius() << " }";
+      } else if (dynamic_cast<btBoxShape *>(mBoundShape)) {
+        btBoxShape *box = static_cast<btBoxShape *>(mBoundShape);
+        btVector3 half = box->getHalfExtentsWithMargin();
+        *s << "box { <" << -half.x() << ", " << -half.y() << ", " << -half.z()
+           << ">, <" << half.x() << ", " << half.y() << ", " << half.z()
+           << "> }";
+      } else {
+        *s << "sphere { <0,0,0>, 0 }";
+      }
+      *s << "}" << "\n";
+    }
+
+    if (mNoImage)
+      *s << "  no_image" << "\n";
+    if (mNoReflection)
+      *s << "  no_reflection" << "\n";
+    if (mDoubleIlluminate)
+      *s << "  double_illuminate" << "\n";
+    if (mHollow)
+      *s << "  hollow" << "\n";
+
+    QString photons = getPovPhotons();
+    if (!photons.isEmpty())
+      *s << photons;
+
+    if (!mPreMatrixSDL.isNull())
+      *s << mPreMatrixSDL << "\n";
+
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
        << "," << "\n"
        << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]
@@ -195,6 +234,9 @@ void Object::toPOV(QTextStream *s) const {
        << "          " << matrix[12] << "," << matrix[13] << "," << matrix[14]
        << ">" << "\n";
 
+    if (!mPreMatrixSDL.isNull())
+      *s << mPreMatrixSDL << "\n";
+
     if (mPostSDL.isNull()) {
       *s << "}" << "\n"
          << "\n";
@@ -203,7 +245,6 @@ void Object::toPOV(QTextStream *s) const {
     }
   }
 }
-
 // (defined below: obj.body = ... and obj.shape = ... from a script)
 static void luaSetRigidBody(Object &o, const luabind::object &b);
 static void luaSetCollisionShape(Object &o, const luabind::object &s);
@@ -357,11 +398,33 @@ void Object::luaBind(lua_State *s) {
                       (void(Object::*)(bool)) & Object::setPOVExport)
 
            .property("layer", &Object::layer, &Object::setLayer)
-
            .property("tex", &Object::getTexture, &Object::setTexture)
 
-.property("pre_sdl", (QString(Object::*)(void)) & Object::getPreSDL,
-                      (void(Object::*)(const QString &)) & Object::setPreSDL)
+           // POV-Ray object modifiers
+           .property("bound_shape",
+                     (btCollisionShape *(Object::*)()) & Object::getBoundShape,
+                     &Object::setBoundShape, dependency(result, _1))
+           .property("no_image", &Object::getNoImage, &Object::setNoImage)
+           .property("no_reflection", &Object::getNoReflection,
+                     &Object::setNoReflection)
+           .property("double_illuminate", &Object::getDoubleIlluminate,
+                     &Object::setDoubleIlluminate)
+             .property("hollow", &Object::getHollow, &Object::setHollow)
+
+            // POV-Ray photons
+            .property("photons_enable", &Object::getPovPhotonsEnable,
+                      &Object::setPovPhotonsEnable)
+            .property("photons_reflection", &Object::getPovPhotonsReflection,
+                      &Object::setPovPhotonsReflection)
+            .property("photons_refraction", &Object::getPovPhotonsRefraction,
+                      &Object::setPovPhotonsRefraction)
+
+            .property("pre_sdl", (QString(Object::*)(void)) & Object::getPreSDL,
+                       (void(Object::*)(const QString &)) & Object::setPreSDL)
+
+            .property("pre_matrix_sdl",
+                      (QString(Object::*)(void)) & Object::getPreMatrixSDL,
+                      (void(Object::*)(const QString &)) & Object::setPreMatrixSDL)
 
             .property("sdl", (QString(Object::*)(void)) & Object::getSDL,
                       (void(Object::*)(const QString &)) & Object::setSDL)
@@ -561,6 +624,12 @@ void Object::setPreSDL(const QString &pre_sdl) { mPreSDL = pre_sdl; }
 
 QString Object::getPreSDL() const { return mPreSDL; }
 
+void Object::setPreMatrixSDL(const QString &pre_matrix_sdl) {
+  mPreMatrixSDL = pre_matrix_sdl;
+}
+
+QString Object::getPreMatrixSDL() const { return mPreMatrixSDL; }
+
 void Object::setSDL(const QString &sdl) { mSDL = sdl; }
 
 QString Object::getSDL() const { return mSDL; }
@@ -660,6 +729,8 @@ void Object::setRigidBody(btRigidBody *b) {
 }
 
 btRigidBody *Object::getRigidBody() const { return body; }
+
+void Object::setBoundShape(btCollisionShape *s) { mBoundShape = s; }
 
 void Object::setCollisionShape(btCollisionShape *s) {
   // (a shape a script handed in belongs to Lua: Lua frees it; one the object
@@ -981,6 +1052,9 @@ void Object::setRenderFunction(const luabind::object &fn) {
 luabind::object Object::getRenderFunction() const { return _cb_render; }
 
 QString Object::toPOV() const {
+  QByteArray data;
+  QTextStream s(&data);
+
   btTransform trans;
 
   if (body != nullptr && body->getMotionState() != nullptr
@@ -992,9 +1066,6 @@ QString Object::toPOV() const {
     trans.getOpenGLMatrix(matrix);
     povMatrixFromGL(matrix, matrix);
   }
-
-  QByteArray data;
-  QTextStream s(&data);
 
   toPOV(&s);
 

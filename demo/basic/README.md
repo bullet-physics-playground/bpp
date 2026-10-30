@@ -23,6 +23,15 @@ This directory contains a collection of basic examples for the Bullet Physics Pl
 *   `16-softbody.lua`: This demo shows the basic usage of the `SoftBody` class (a Bullet cloth patch): a cloth sheet dropped onto a static box and the ground so it drapes and deforms, plus a smaller patch pinned along one edge and blown by a constant wind force to make a waving flag.
 *   `17-rigid-soft-contact.lua`: This demo shows the basic usage of the `RigidSoftContact` class: a read-only snapshot of one of Bullet's soft-vs-rigid collision contacts (`btSoftBody::RContact`). A cloth patch is dropped onto the ground, and each `postSim` step queries `SoftBody.contactCount` and `SoftBody:getContact(i)` to print the touching node, contact position, normal, friction and which rigid body was touched.
 *   `18-texture.lua`: This demo shows the `tex` property, which wraps an image file round an object: a textured ground plane, numbered pool balls, and a wooden box, a copper cylinder and a wooden cone. The image is drawn in the interactive view and exported to POV-Ray as an `image_map`, so a quick render (F6) shows the same picture in the same place. A bare file name is looked for beside the script and then in bpp's `includes` directory, which is where POV-Ray looks too.
+*   `povray.lua`: Demonstrates POV-Ray 3.8-clean export mirroring the POV-Ray
+    documentation section "Media and photons"
+    (https://www.povray.org/documentation/view/8.2.0/101/): a room with
+    scattering media, a reflective floor with colored reflection and photons
+    target, a spotlight beam that lights up the media, and a fill light with
+    photons disabled. Uses `#version 3.8`, radiosity, photons with media
+    interaction, fog, and object modifiers (`no_image`, `no_reflection`,
+    `hollow`, `photons { pass_through }`). Run with
+    `bpp -f demo/basic/povray.lua -e` to export frames for rendering.
 
 ## How to Run
 

@@ -437,9 +437,24 @@ public:
    * @param _photons_reflection Whether photons reflect off the object.
    * @param _photons_refraction Whether photons refract through it.
    */
-  void setPovPhotons(bool _photons_enable = false,
-                     bool _photons_reflection = false,
-                     bool _photons_refraction = false);
+   void setPovPhotons(bool _photons_enable = false,
+                      bool _photons_reflection = false,
+                      bool _photons_refraction = false);
+
+  /** @brief Whether to emit a POV-Ray photons block for this object. */
+  bool getPovPhotonsEnable() const { return photons_enable; }
+  /** @brief See getPovPhotonsEnable(). */
+  void setPovPhotonsEnable(bool on) { photons_enable = on; }
+
+  /** @brief Whether photons reflect off the object. */
+  bool getPovPhotonsReflection() const { return photons_reflection; }
+  /** @brief See getPovPhotonsReflection(). */
+  void setPovPhotonsReflection(bool on) { photons_reflection = on; }
+
+  /** @brief Whether photons refract through the object. */
+  bool getPovPhotonsRefraction() const { return photons_refraction; }
+  /** @brief See getPovPhotonsRefraction(). */
+  void setPovPhotonsRefraction(bool on) { photons_refraction = on; }
 
   /**
    * @brief Builds the POV-Ray photons block for this object.
@@ -458,6 +473,36 @@ public:
    * @return True if it is exported.
    */
   bool getPOVExport() const;
+
+  /**
+   * @brief Sets a collision shape the object is bounded_by in exported POV-Ray
+   *        scenes. A null shape clears it.
+   * @param s The bounding shape, or nullptr.
+   */
+  void setBoundShape(btCollisionShape *s);
+
+  /** @brief Returns the bounded_by shape, or nullptr. */
+  btCollisionShape *getBoundShape() const { return mBoundShape; }
+
+  /** @brief Whether the object emits no_image in exported POV-Ray scenes. */
+  void setNoImage(bool on) { mNoImage = on; }
+  /** @brief See setNoImage(). */
+  bool getNoImage() const { return mNoImage; }
+
+  /** @brief Whether the object emits no_reflection in exported POV-Ray scenes. */
+  void setNoReflection(bool on) { mNoReflection = on; }
+  /** @brief See setNoReflection(). */
+  bool getNoReflection() const { return mNoReflection; }
+
+  /** @brief Whether the object emits double_illuminate in exported POV-Ray scenes. */
+  void setDoubleIlluminate(bool on) { mDoubleIlluminate = on; }
+  /** @brief See setDoubleIlluminate(). */
+  bool getDoubleIlluminate() const { return mDoubleIlluminate; }
+
+  /** @brief Whether the object emits hollow in exported POV-Ray scenes. */
+  void setHollow(bool on) { mHollow = on; }
+  /** @brief See setHollow(). */
+  bool getHollow() const { return mHollow; }
 
   /**
    * @brief Returns the layer this object belongs to, or null if unassigned.
@@ -538,6 +583,18 @@ public:
    * @return The text, or a null string when the default is used.
    */
   QString getPostSDL() const;
+
+  /**
+   * @brief Sets SDL emitted between object modifiers and the matrix transform.
+   * @param pre_matrix_sdl The text, e.g. a media block. Null by default.
+   */
+  void setPreMatrixSDL(const QString &pre_matrix_sdl);
+
+  /**
+   * @brief Returns the pre-matrix SDL.
+   * @return The text, or a null string when not set.
+   */
+  QString getPreMatrixSDL() const;
 
   btRigidBody *body;      ///< The Bullet body, or null. Public because the
                           ///< viewer adds and removes it from the world.
@@ -886,6 +943,14 @@ protected:
   QString mPreSDL;   ///< Replacement opening SDL, or null.
   QString mSDL;      ///< Replacement surface SDL, or null.
   QString mPostSDL;  ///< Replacement closing SDL, or null.
+  QString mPreMatrixSDL; ///< SDL emitted between modifiers and matrix, e.g. media block.
+
+  // POV-Ray object modifiers (see toPOV())
+  btCollisionShape *mBoundShape;   ///< bounded_by shape, or nullptr.
+  bool mNoImage;         ///< no_image
+  bool mNoReflection;    ///< no_reflection
+  bool mDoubleIlluminate;///< double_illuminate
+  bool mHollow;          ///< hollow
 
   QList<btTypedConstraint *> _constraints; ///< Constraints handed to the
                                            ///< viewer when the object is added.

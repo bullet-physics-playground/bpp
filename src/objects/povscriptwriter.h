@@ -55,6 +55,64 @@ struct PovSceneSettings {
   bool mediaEnabled = false;
   QString assumedGamma = "1.0";
   QString version = "3.8";
+  QString charset = "utf8";
+  bool hfGray16 = false;
+
+  // Fog
+  bool fogEnabled = false;
+  int fogType = 1;        // 0=none, 1=constant, 2=ground fog
+  double fogDistance = 100.0;
+  QString fogColor = "rgb <0.5, 0.5, 0.5>";
+  double fogFilter = 0.0;
+  double fogTrans = 0.0;
+  QString fogTurbulence;  // e.g. "<0.2, 0.2, 0.2>"
+  double fogOmega = 0.0;
+  double fogLambda = 0.0;
+  int fogOctaves = 0;
+  double fogTurbDepth = 0.0;
+  bool fogGround = false;
+  double fogOffset = 0.0;
+  double fogAltitude = 0.0;
+
+  // Atmosphere
+  bool atmosphereEnabled = false;
+  bool atmosphereMedia = false;
+  QString atmosphereMediaName;
+
+  // Radiosity (detailed)
+  int radCount = 350;
+  double radErrorBound = 0.5;
+  double radGrayThreshold = 0.0;
+  double radLowErrorFactor = 0.2;
+  double radMinimumReuse = 0.0;
+  int radNearestCount = 10;
+  int radRecursionLimit = 2;
+  double radADCBailout = 0.001;
+  double radMaximumSample = 45.0;
+  bool radMedia = false;
+  bool radNormal = false;
+  bool radAlwaysSample = false;
+  double radPreTraceStart = 0.08;
+  double radPreTraceEnd = 0.01;
+
+  // Photons (detailed)
+  double photonSpacing = 0.5;
+  int photonCount = 2000;
+  int photonGatherMin = 10;
+  int photonGatherMax = 20;
+  bool photonMedia = false;
+  int photonMediaMaxSteps = 100;
+  double photonMediaFactor = 0.5;
+  double photonJitter = 0.0;
+  int photonMaxTraceLevel = 5;
+  double photonAutoStop = 0.0;
+  bool photonUseSpacing = false;
+  double photonRadius = 0.0;
+  double photonRadiusFactor = 0.0;
+  bool photonUseRadiusOverride = false;
+  bool photonUseRadiusFactor = false;
+  double photonExpandThresholds = 0.001;
+  int photonExpandMin = 10;
 
   // Background
   QString backgroundColor = "rgb <0.5, 0.5, 0.7>";

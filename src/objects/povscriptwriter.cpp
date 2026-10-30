@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QCryptographicHash>
 #include <QDebug>
+#include <QRegularExpression>
 
 using namespace std;
 
@@ -175,27 +176,88 @@ void PovScriptWriter::writeHeader(QTextStream &s, int frame) {
   s << "  max_trace_level " << m_settings.maxTraceLevel << "\n";
   s << "  adc_bailout 0.001\n";
 
-  if (m_settings.photonsEnabled) {
-    s << "  photons {\n";
-    s << "    spacing 0.5\n";
-    s << "    gather 20 10\n";
-    s << "    save_file \"photons.dat\"\n";
+  if (m_settings.radiosityEnabled) {
+    s << "  radiosity {\n";
+    s << "    count            " << m_settings.radCount << "\n";
+    s << "    error_bound      " << m_settings.radErrorBound << "\n";
+    s << "    gray_threshold   " << m_settings.radGrayThreshold << "\n";
+    s << "    low_error_factor " << m_settings.radLowErrorFactor << "\n";
+    s << "    minimum_reuse    " << m_settings.radMinimumReuse << "\n";
+    s << "    nearest_count    " << m_settings.radNearestCount << "\n";
+    s << "    recursion_limit  " << m_settings.radRecursionLimit << "\n";
+    s << "    adc_bailout      " << m_settings.radADCBailout << "\n";
+    s << "    max_sample       " << m_settings.radMaximumSample << "\n";
+    s << "    media            " << (m_settings.radMedia ? "on" : "off") << "\n";
+    s << "    normal           " << (m_settings.radNormal ? "on" : "off") << "\n";
+    s << "    always_sample    " << (m_settings.radAlwaysSample ? "1" : "0") << "\n";
+    s << "    pretrace_start   " << m_settings.radPreTraceStart << "\n";
+    s << "    pretrace_end     " << m_settings.radPreTraceEnd << "\n";
     s << "  }\n";
   }
 
-  if (m_settings.radiosityEnabled) {
-    s << "  radiosity {\n";
-    s << "    pretrace_start 0.08\n";
-    s << "    pretrace_end 0.01\n";
-    s << "    count 350\n";
-    s << "    nearest_count 10\n";
-    s << "    error_bound 0.5\n";
-    s << "    low_error_factor 0.2\n";
-    s << "    recursion_limit 2\n";
+  if (m_settings.photonsEnabled) {
+    s << "  photons {\n";
+    if (m_settings.photonUseSpacing) {
+      s << "    spacing          " << m_settings.photonSpacing << "\n";
+    } else {
+      s << "    count            " << m_settings.photonCount << "\n";
+    }
+    s << "    gather           " << m_settings.photonGatherMin << ", "
+      << m_settings.photonGatherMax << "\n";
+    if (m_settings.photonMedia) {
+      s << "    media            " << m_settings.photonMediaMaxSteps << ", "
+        << m_settings.photonMediaFactor << "\n";
+    }
+    s << "    jitter           " << m_settings.photonJitter << "\n";
+    s << "    max_trace_level  " << m_settings.photonMaxTraceLevel << "\n";
+    s << "    autostop         " << m_settings.photonAutoStop << "\n";
+    if (m_settings.photonUseRadiusOverride || m_settings.photonUseRadiusFactor) {
+      s << "    radius           ";
+      if (m_settings.photonUseRadiusOverride)
+        s << m_settings.photonRadius;
+      s << ", ";
+      if (m_settings.photonUseRadiusFactor)
+        s << m_settings.photonRadiusFactor;
+      s << "\n";
+    }
+    s << "    expand_thresholds " << m_settings.photonExpandThresholds << ", "
+      << m_settings.photonExpandMin << "\n";
     s << "  }\n";
   }
 
   s << "}\n\n";
+
+  if (m_settings.fogEnabled) {
+    s << "// Fog\n";
+    s << "fog {\n";
+    s << "  fog_type " << m_settings.fogType << "\n";
+    s << "  distance     " << m_settings.fogDistance << "\n";
+    s << "  color " << m_settings.fogColor << "\n";
+    if (m_settings.fogFilter != 0.0 || m_settings.fogTrans != 0.0) {
+      s << "  filter " << m_settings.fogFilter << "\n";
+      s << "  transmit " << m_settings.fogTrans << "\n";
+    }
+    if (!m_settings.fogTurbulence.isEmpty()) {
+      s << "  turbulence " << m_settings.fogTurbulence << "\n";
+      s << "  omega      " << m_settings.fogOmega << "\n";
+      s << "  lambda     " << m_settings.fogLambda << "\n";
+      s << "  octaves    " << m_settings.fogOctaves << "\n";
+      s << "  turb_depth " << m_settings.fogTurbDepth << "\n";
+    }
+    if (m_settings.fogGround) {
+      s << "  up           <0,0,1>\n";
+      s << "  fog_offset   " << m_settings.fogOffset << "\n";
+      s << "  fog_alt      " << m_settings.fogAltitude << "\n";
+    }
+    s << "}\n\n";
+  }
+
+  if (m_settings.atmosphereEnabled) {
+    s << "// Atmosphere\n";
+    if (m_settings.atmosphereMedia && !m_settings.atmosphereMediaName.isEmpty()) {
+      s << "media { " << m_settings.atmosphereMediaName << " }\n\n";
+    }
+  }
 }
 
 void PovScriptWriter::writeGlobalSettings(QTextStream & /*s*/) {
