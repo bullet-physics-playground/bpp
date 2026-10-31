@@ -541,11 +541,35 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   port is **done** (`ch07/kerr2005_sweep.sh`, 5,000 runs, run by William
   2026-10-31; `ch07/kerr2005_figs.lua`, F101): his code gives his logs,
   and the book's version the same figures but for KT's speed without
-  obstacles. **Next is the sweep on BPP's ground robots:** `velocity()`
-  in `ground/vehicle.lua`, KT on robots that touch and carry on, the
-  corridor and his courses as a world (`World.preset("ch07-corridor")`
-  or his course files), and the three controllers against F101's
-  numbers.
+  obstacles. **Next is the sweep on BPP's ground robots (3b),** against
+  F101's numbers. Decided (William, 2026-10-31):
+  1. **Scale: Kerr's geometry scaled to the Pioneer** (0.5 m against his
+     6″ robot: × 3.28). The corridor is 83 × 417 m, his sonar range 60″
+     is 5 m (a real Pioneer's), his move of 6″ a step is 0.5 m, his
+     cells 20″ are 1.67 m. Only this can be compared with F101 point for
+     point; the real 25 × 127 m corridor (robots 3× larger relative to
+     the gaps) comes after, as a variation.
+  2. **Time: one KT step per robot length, 1 s** (0.5 m at 0.5 m/s): a
+     vehicle follows KT only if its lag is shorter than a KT tick (F91).
+  3. **Sensing done locally:** a 24-ray sonar cast through Bullet
+     against the walls, obstacles and robots; neighbours by the
+     localisation and messages his code uses (`book/ch07.md`: implement
+     it locally to stay honest).
+  4. **Obstacles: his 50 course files** (`ch07/kerr2005/data/`), as
+     boxes in the world, so the results compare with F101;
+     `World.preset("ch07-corridor")` (another generator) later.
+  5. **Controllers: KT first,** with `velocity()` in
+     `ground/vehicle.lua`; then Ant and Default, which pick a move and go
+     there (waypoints). Contacts are bumps, counted, not losses.
+  6. **The question:** do Figs. 7.11–7.13 survive wheels, the minimum
+     wheel speed and the turning lag; is KT still ~90% in a third of
+     Ant's time? (The capstone's KT sweep, first measured.)
+  **Cost, to plan before running:** at 1 s a step KT's 21,800 steps at
+  20% are 6 simulated hours a run, roughly 40 min of wall time for 25
+  robots (the ground benchmark's rate, F68; measure it first), and Ant's
+  65,000 steps three times that. So fewer runs per point than the port's
+  100 (e.g. one per course, 10 per setting), the robot-number sweep and
+  Ant last, LuaJIT where Lua dominates (F100).
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
@@ -584,8 +608,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
-> sweep, step (3): the sweep on BPP's ground robots (the sweep on the Lua
-> port is done, F101). Deliver each step as a patch with git commands.
+> sweep, step (3b): the sweep on BPP's ground robots, as decided in
+> HANDOFF.md §7 (the sweep on the Lua port is done, F101). Deliver each
+> step as a patch with git commands.
 
 Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
 are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with
