@@ -1,0 +1,6 @@
+Spears lift 53 diag|45.72|21.64|S+|4|62|true|false|#1F6FEB|true
+Chebyshev-Spears diag|43.42|21.64|C-S|4|31|true|false|#1F6FEB|true
+Hoecken-Spears slider|40.92|23.04|H-S|2S|33|false|true|#F2F2F2|true
+Klann|49.72|21.64|K|6|52|false|false|#7B2CBF|false
+Jansen|49.32|24.44|J|8|33|false|false|#D62828|false
+Spears 4-bar|59.82|24.44|S|4|37|false|false|#FFC300|false

@@ -385,7 +385,8 @@ local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
 local FRAME = 1 / 60       -- simulated time per drawn frame, s
 
--- ONLY = "<name>" builds just that walker (for tests); otherwise all
+-- ONLY = "<name>" builds just that walker (for tests), at the centre;
+-- ONLY = { ["<name>"] = true, ... } just those, on the room's grid; otherwise all
 ONLY = ONLY or nil
 SEED = SEED or 1           -- seeds the walkers' starting headings (and, later, their turns)
 
@@ -860,6 +861,21 @@ function setBarMasses(w, barLen, joints, scale)
   for p, o in pairs(part) do reweigh(p, share[p] * o.mass) end
 end
 
+-- LIFT_PCT: each build's lift, its feet's rise over a turn as a share of its
+-- stride, % (31 October 2026: sweeps, body held still, one slow crank turn
+-- at trot, as run; stride each foot's centre's travel, lift its lowest
+-- point's highest minus lowest, both the mean over the feet;
+-- handover/tools/liftpct.py). Shown on the body's top right corner.
+LIFT_PCT = LIFT_PCT or {
+  ["Spears lift 53"] = 62, ["Spears lift 53 diag"] = 62, ["Klann"] = 52,
+  ["Spears lift 44"] = 51, ["Spears lift 44 diag"] = 51, ["Spears 4-bar"] = 37,
+  ["Hoecken-Spears long-stance"] = 34, ["Hoecken-Spears long-stance diag"] = 34,
+  ["Jansen"] = 33, ["Hoecken-Spears slider"] = 33, ["Hoecken-Spears slider diag"] = 33,
+  ["Hoecken-Spears 4-bar"] = 33, ["Hoecken-Spears 4-bar diag"] = 33,
+  ["Chebyshev-Spears"] = 31, ["Chebyshev-Spears diag"] = 31,
+  ["Hoecken slider"] = 25, ["Hoecken slider diag"] = 25,
+  ["Hoecken 4-bar"] = 20, ["Hoecken 4-bar diag"] = 20, ["Chebyshev"] = 19, ["Chebyshev diag"] = 19,
+}
 local function markBody(w, look)
   w.decor = {}
   if not look then return end
@@ -884,7 +900,7 @@ local function markBody(w, look)
   local top = hy + e
   if look.spears then
     -- the gold rim: four strips round the top edges, part way down the sides
-    local r, k = math.max(0.2 * math.min(X, Z), 0.8), math.max(0.6 * H, 0.8)
+    local r, k = math.max(0.07 * math.min(X, Z), 0.8), math.max(0.6 * H, 0.8)   -- (0.2 until 31 October: thinner, to leave the corners room)
     for _, sz in ipairs({ -1, 1 }) do
       decor(w, Cube(X + 2 * e, k, r, 0), GOLD, 0, top - k / 2, sz * (Z / 2 + e - r / 2))
     end
@@ -892,26 +908,41 @@ local function markBody(w, look)
       decor(w, Cube(r, k, Z + 2 * e, 0), GOLD, sx * (X / 2 + e - r / 2), top - k / 2, 0)
     end
   end
-  if look.diag then
-    -- a line from corner to corner across the top
-    local a = math.atan(Z / X)
-    local L = 0.94 * math.sqrt(X * X + Z * Z)
-    decor(w, Cube(L, 0.15, math.max(0.1 * math.min(X, Z), 0.6), 0), ink(look.colour), 0, top + 0.08, 0,
-          { 0, math.sin(-a / 2), 0, math.cos(-a / 2) })
-  end
-  -- the code, in raised letters lying on the top, reading along the walk
-  local size = math.min(0.42 * Z, 0.8 * X / (0.62 * #look.code))
-  -- (made by OpenSCAD, and kept in bpp's cache; if OpenSCAD can't make
-  -- them, the walker goes without, and the output pane says why)
-  local ok, text = pcall(OpenSCAD, string.format(
-    [[linear_extrude(height = 0.3) text("%s", size = %.3f, font = "Liberation Sans:style=Bold", halign = "center", valign = "center");]],
-    look.code, size), 0, false)
-  if not ok then
-    print("walker room: no letters on " .. w.spec.name .. "'s body (" .. tostring(text) .. ")")
-    return
-  end
+  -- the letters (the linkage's family: C, C-S, H, H-S, J, K, S, S+) in the
+  -- middle, and in the corners as the letters read: its links top left
+  -- (from its code, "C-S 4" -> 4), its lift top right (LIFT_PCT), a
+  -- triangle bottom left on a diag build (braces joining diagonal legs), and
+  -- G bottom right on a build held by guides (not really there: not for
+  -- demos). Raised shapes lying on the top, made by OpenSCAD and kept in
+  -- bpp's cache; if OpenSCAD can't make them, the walker goes without, and
+  -- the output pane says why.
+  local letters, links = look.code:match("^(%S+)%s+(%S+)$")
+  letters, links = letters or look.code, look.links or links or "4"
   local c = math.sqrt(0.5)
-  decor(w, text, ink(look.colour), 0, top + 0.1, 0, { -c, 0, 0, c })   -- (turned so the letters face up)
+  local up = { -c, 0, 0, c }   -- (turned so the shapes face up: their "up" along -z)
+  local function shape(scad, x, z, what)
+    local ok, o = pcall(OpenSCAD, "linear_extrude(height = 0.3) " .. scad .. ";", 0, false)
+    if not ok then print("walker room: no " .. what .. " on " .. w.spec.name .. "'s body (" .. tostring(o) .. ")"); return end
+    decor(w, o, ink(look.colour), x, top + 0.1, z, up)
+  end
+  local function text(t, size, h, v)
+    return string.format([[text("%s", size = %.3f, font = "Liberation Sans:style=Bold", halign = "%s", valign = "%s")]], t, size, h, v)
+  end
+  local inset = (look.spears and math.max(0.07 * math.min(X, Z), 0.8) or 0) + 0.6   -- (inside the gold rim)
+  local Xi, Zi = X - 2 * inset, Z - 2 * inset
+  local cs = 0.2 * Zi                                                                -- corner marks' size
+  -- the letters as big as fit between the corners (a corner mark about 2.5 x its size wide)
+  local size = math.min(0.75 * Zi, (Xi - 5 * cs - 2) / (0.75 * #letters))
+  shape(text(letters, size, "center", "center"), 0, 0, "letters")
+  local xl, xr, zt, zb = -X / 2 + inset, X / 2 - inset, -Z / 2 + inset, Z / 2 - inset
+  shape(text(links, cs, "left", "top"), xl, zt, "links")
+  local lift = LIFT_PCT[w.spec.name]
+  if lift then shape(text(string.format("%d%%", lift), cs, "right", "top"), xr, zt, "lift") end
+  if look.diag then
+    local t = 1.5 * cs
+    shape(string.format("polygon([[0, 0], [%.3f, 0], [0, %.3f]])", t, t), xl, zb, "diag mark")
+  end
+  if w.unbraced and w.guides then shape(text("G", cs, "right", "bottom"), xr, zb, "G") end
 end
 
 -- each marking part to where the body now is
@@ -1035,6 +1066,7 @@ local function addWalker(spec, x, z, heading)
   if LINK_THICK then opts.rodThickCm = LINK_THICK end
   local unbraced = UNBRACED == true or (type(UNBRACED) == "table" and UNBRACED[spec.name])
   if unbraced then opts.noBraces = true; opts.legGuides = true end
+  w.unbraced = unbraced
   if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = GAIT end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
@@ -1153,6 +1185,7 @@ local function addWalker(spec, x, z, heading)
       f = f and f.name or ""
       -- (a Generic6Dof is a joint only as a diag bar's weld; elsewhere
       -- it is a guide, which weighs nothing)
+      if n == "btGeneric6DofConstraint" and not f:find("Crossbar") then w.guides = (w.guides or 0) + 1 end   -- (with UNBRACED, a leg's guide: the body mark's G)
       if n ~= "btGeneric6DofConstraint" or f:find("Crossbar") then
         joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint" or n == "btFixedConstraint", con, n }
       end
@@ -1384,11 +1417,12 @@ local function buildWalkers()
   rngState = SEED
   local n = 0
   for _, spec in ipairs(WALKERS) do
-    if ONLY == nil or spec.name == ONLY then
+    if ONLY == nil or spec.name == ONLY or (type(ONLY) == "table" and ONLY[spec.name]) then
+      local single = type(ONLY) == "string"
       local col, row = n % COLS, math.floor(n / COLS)
-      local x = ONLY and 0 or (X0 + (col + 0.5) * ARENA_X / COLS)
-      local z = ONLY and 0 or (Z0 + (row + 0.5) * ARENA_Z / ROWS)
-      local heading = ONLY and 0 or random() * 2 * math.pi
+      local x = single and 0 or (X0 + (col + 0.5) * ARENA_X / COLS)
+      local z = single and 0 or (Z0 + (row + 0.5) * ARENA_Z / ROWS)
+      local heading = single and 0 or random() * 2 * math.pi
       if TEST_TRACK then
         -- (near the -x end, facing +x; moved up to a bump length along
         -- and across by SEED, so each seed meets the bumps differently)
