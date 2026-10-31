@@ -53,19 +53,19 @@ local function guides(name) return { walker = name, label = "guides, trot, forwa
 local function diag(name) return { walker = name, label = "outside braces, pendants held (trot), forward", hold = true } end
 local function own(name) return { walker = name, label = "its own frame, trot, forward", gait = TROT, hold = false } end
 VIEWS = {   -- (the ranking's order: nine rough terrains, 5 seeds)
+  -- (Hoecken-Spears long-stance and its diag build, 7th and 13th, left out
+  -- of the views, 31 October: kept in the repo, not adding much)
   guides("Spears lift 44"),                    --  1  7.84
   diag("Spears lift 44 diag"),                 --  2  7.59
   guides("Spears lift 53"),                    --  3  7.04
   diag("Chebyshev-Spears diag"),               --  4  6.90
   diag("Hoecken-Spears 4-bar diag"),           --  5  6.86
   diag("Spears lift 53 diag"),                 --  6  6.83
-  diag("Hoecken-Spears long-stance diag"),     --  7  6.81
   diag("Hoecken-Spears slider diag"),          --  8  6.43 (toes)
   guides("Hoecken-Spears slider"),             --  9  6.35 (toes)
   guides("Hoecken-Spears 4-bar"),              -- 10  6.30
   own("Klann"),                                -- 11  6.22
   own("Jansen"),                               -- 12  6.18
-  guides("Hoecken-Spears long-stance"),        -- 13  5.23
   -- (and the originals the Spears builds came from, below the ranking)
   guides("Hoecken slider"),
   guides("Hoecken 4-bar"),

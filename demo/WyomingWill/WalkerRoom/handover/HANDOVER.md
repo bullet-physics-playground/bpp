@@ -558,6 +558,8 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **Hidden helpers still in every run** (William asked whether every non-G build is "O", its own frame): no guides, but the ankle springs (every build: a foot held level to the body, as a parallel link would), the pendant holds (diag builds: each pendant's angle to the body, as rigid braces would without the give of a long chain of joints) and yaw damping (every body) are there and not visible.
 
+**Long-stance left out of the views** (William, 31 October: it adds little -- lift about Hoecken-Spears 4-bar's, 34% against 33%; its difference is duty, 85% against 79%; in `out-damp` its diag build 5th of the non-guide builds, its guides build last of all): `test-ranking.lua` no longer shows either; both stay in the repo and in `run-table.sh`'s list.
+
 **Several walkers at once** (`tools/roomtime.lua`; fast setting, flat room, marks and steering on, here): one walker 0.48× real time (Klann 0.76, Jansen 0.83), Klann + Jansen + Spears lift 44 diag + Chebyshev-Spears diag 0.15×, all 21 0.03× (start-up 2 s). The cost adds up walker by walker, nothing shared: four walkers are four separate problems, which threads could run side by side (Bullet here is built without them). William's Ryzen 7 3700X is perhaps 2–3× this machine (not measured). `ONLY` can now name several builds (`ONLY = { ["Klann"] = true, ... }`) for a small room. Open (William): a room of four -- Klann, Jansen and two non-G builds chosen with Tab; then threads or recorded playback.
 
 ## 5. What was found in the last session (17–21 October)
