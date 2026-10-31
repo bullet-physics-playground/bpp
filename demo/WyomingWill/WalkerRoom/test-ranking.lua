@@ -66,10 +66,14 @@ VIEWS = {   -- (the ranking's order: nine rough terrains, 5 seeds)
   guides("Hoecken-Spears 4-bar"),              -- 10  6.30
   own("Klann"),                                -- 11  6.22
   own("Jansen"),                               -- 12  6.18
-  -- (and the originals the Spears builds came from, below the ranking)
+  -- (and the originals the Spears builds came from, below the ranking, with
+  -- their diag builds: not in a ranking run)
   guides("Hoecken slider"),
+  diag("Hoecken slider diag"),
   guides("Hoecken 4-bar"),
+  diag("Hoecken 4-bar diag"),
   guides("Chebyshev"),
+  diag("Chebyshev diag"),
   own("Spears 4-bar"),
 }
 VIEW = VIEW or 1
