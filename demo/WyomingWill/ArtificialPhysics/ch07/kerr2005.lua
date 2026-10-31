@@ -58,7 +58,10 @@
 -- velocity; one told already adds what it was told. The heading is the
 -- velocity's; the speed is always the safe distance (6" when clear: the
 -- velocity's size is not used). A robot that has not moved for 5 steps
--- turns to U(0, 360). mpv 1.11777, stdev 0.79038 (T = 0.0030).
+-- turns to U(0, 360). mpv 1.11777, stdev 0.79038 (T = 0.0030). A robot
+-- its caller marks bumped (robots[id].bumped: BPP's robots, when one
+-- jams, ch07/Corridor-Ground.lua; never set here) has a wall collision
+-- that step too.
 -- Ant (robot/AntRobot.java): every third step it heads to the one of the
 -- four neighbouring cells (goal, left, back, right) with the least
 -- pheromone (the last of equals), else straight on; it adds 1 to its own
@@ -260,6 +263,7 @@ end
 -- in his code, so it is left out of the loops; the order of the rest is his.
 local REACH = 80
 local function gather(w, id)
+  if w.sonar then return end -- the sonar is the caller's (below)
   local x, y = w.x[id], w.y[id]
   local rb, ob = w.nearR, w.nearO
   local nr, no = 0, 0
@@ -282,8 +286,11 @@ local function gather(w, id)
 end
 
 -- one sonar ray at `angle` degrees from robot id's heading (SonarSensor's
--- sonar() and fireSonar() alike); gather(w, id) first
+-- sonar() and fireSonar() alike); gather(w, id) first. A world with
+-- w.sonar(w, id, angle) (inches, SMAX for nothing) senses through it
+-- instead (BPP's robots: ch07/Corridor-Ground.lua casts it through Bullet)
 local function ray(w, id, angle)
+  if w.sonar then return w.sonar(w, id, angle) end
   local best = SMAX
   local sb = angle + w.b[id]
   local c, s = F(cos(sb * D2R)), F(sin(sb * D2R))
@@ -424,7 +431,7 @@ local function collisionParallel(w, ds, goal)
 end
 
 local function ktWalls(w, r, goal, ds)
-  if ds[0] < SAFE or ds[6] < 2 or ds[18] < 2 then
+  if ds[0] < SAFE or ds[6] < 2 or ds[18] < 2 or r.bumped then
     local thetac = collisionParallel(w, ds, goal)
     local parallel = (thetac < 45 and thetac > -45) or (thetac > 135 and thetac < 225)
     local dir = 1
@@ -519,6 +526,7 @@ function KT.move(w, r)
     end
   end
   if walls then ktWalls(w, r, goal, sonar) end
+  r.bumped = nil
   ktRobots(w, r, ids, bs, ds, n)
   r.turn = F(atan2(r.vy, r.vx) * R2D)
   r.distance = safeDistance(w, id, r.turn)
@@ -689,6 +697,8 @@ local function coverCell(w, x, y)
   w.cov[key] = true
 end
 
+R.cover = coverCell -- R.cover(w, x, y): the cell at (x, y) inches is covered
+
 -- ObstacleContainer.fillHashtables: cells inside obstacles, then shadows
 local function fillCells(w)
   local rx, ry = w.ncx / w.width, w.ncy / w.height
@@ -751,13 +761,19 @@ function R.new(o)
   return w
 end
 
-local function moveRobot(w, i)
+local function turnRobot(w, i)
   local r = w.robots[i]
   w.ctl.move(w, r)
   local b = w.b[i] + r.turn
   while b > 360 do b = b - 360 end
   while b < -360 do b = b + 360 end
   w.b[i] = b
+  return r
+end
+
+local function moveRobot(w, i)
+  local r = turnRobot(w, i)
+  local b = w.b[i]
   local d = r.distance
   local x = w.x[i] + d * cos(b * D2R)
   local y = w.y[i] + d * sin(b * D2R)
@@ -767,7 +783,10 @@ local function moveRobot(w, i)
   coverCell(w, x, y)
 end
 
-function R.step(w)
+-- still: every robot senses, decides and turns (w.b) but does not move;
+-- its move is robots[i].distance along w.b[i] (BPP's robots drive it
+-- themselves: ch07/Corridor-Ground.lua)
+function R.step(w, still)
   local n, order = w.n, w.order
   for i = 0, n - 1 do
     order[i] = i
@@ -779,7 +798,8 @@ function R.step(w)
     local i2 = nextInt(w.rand, n)
     order[i1], order[i2] = order[i2], order[i1]
   end
-  for i = 0, n - 1 do moveRobot(w, order[i]) end
+  local go = still and turnRobot or moveRobot
+  for i = 0, n - 1 do go(w, order[i]) end
   w.time = w.time + 1
   for i = 0, n - 1 do w.msg[i] = {} end
 end

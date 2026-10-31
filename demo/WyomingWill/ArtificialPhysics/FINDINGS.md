@@ -1089,6 +1089,37 @@ collisions are tested once a tick, and a pair closing faster than range
 per tick can still meet; avoidance inside the flight controller, which
 Kerr assumes, is the open remedy.
 
+**F102. Ch. 7 on BPP's ground robots: robots jam where Kerr's points
+do not; backing off, with the bump as a KT wall collision, frees them;
+KT's first runs cover as the port does** — 2026-10-31, New.
+`ch07/README.md`, `ch07/Corridor-Ground.lua`,
+`ch07/corridor_ground_runs.txt`. Kerr's controllers drive the Pioneer
+(`ground/`) in his corridor scaled × 3.28 (83 × 417 m, a 5 m sonar,
+0.5 m a step), one step a second, the sonar cast through Bullet. His
+robots are points moving along a sonar ray; a Pioneer is a 0.5 m box
+that turns as it goes, and a corner catches an obstacle the ray misses
+(15° off the heading, or the nose while it turns toward a clear heading
+30–130° away). A KT robot's velocity changes only in a collision, so it
+then pushes there for ever. Without obstacles nothing jams: KT covers
+76.4% in 4,480 steps (the port's 100 runs: 76.6 ± 3.2%, 4,735 ± 1,100
+steps, mean ± sd), the same to the bit with and without the remedy. At
+20% obstacles, without a remedy, the same two runs at 25,000 steps had 16
+and 19 robots of 25 done, 9 and 6 jammed (none had moved 0.5 m in 200
+steps), coverage frozen at 85.9% and 86.9% (shadow 76.2%, 76.5%), the
+robots driving 42% and 62% of the path they were told. Backing off alone (0.3 m, after 2 s
+driven but still) did not free a KT robot: it came back to the same
+corner (13 back-offs in 800 steps). Backing off with the bump taken as
+a wall collision (his wall rule: a new velocity away from the wall) did
+(`backOff`, off by default, on in the sweep): course 0, 89.7% total,
+84.0% shadow, 17,546 steps (the port's 10 runs on that course: 90.8,
+85.1, 21,629); course 1, 91.1%, 79.5%, 17,572 (89.8, 80.6, 31,053);
+34–40 back-offs and 240–280 bumps a run (70–85 robot-robot). Each run's
+coverage is within the port's spread; the full sweep (300 runs, his two
+experiments, 10 per setting) answers whether the figures survive. Cost:
+8.3–8.7 simulated seconds per wall second per core with 25 robots,
+Bullet and the robots' per-step Lua through luabind (LuaJIT gains 5%),
+about 290 CPU-hours for the sweep (`ch07/corridor_ground_sweep.sh`).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1523,6 +1554,26 @@ luabind and BPP rebuilt against it, for 1.2–1.6× on the scenes he
 watches. Not done: LuaJIT is used for long runs outside BPP (the Kerr
 sweep, `ch07/kerr2005_sweep.sh`).
 
+**F103. Bullet's ray test is inexact on boxes, and misses long ones from
+close by** — 2026-10-31, New. `v:rayTest` (`src/viewer.cpp`), found by
+Ch. 7's sonar (F102). About 230 rays 0.05–3 m from a box's face at
+0–60°: Bullet 3.24's convex ray cast (GJK) was off by up to 1.6 cm on a
+1 m box, 2.2 cm on 10 m, 8 cm on 33 m, 21 cm on 75 m and 50 cm on
+140–418 m, and missed 9 rays on the 33 m box, 36 on 75 m and 90–102 on
+140–418 m; from 0.25 m off the corridor's 418 m walls it missed every
+ray, so the robots' sonar did not see the walls. `v:rayTest` hits boxes
+by the slab test in the box's frame (exact, to 10⁻⁴ m in every case) and
+leaves other shapes to Bullet.
+
+**F104. Headless `print` is held until BPP ends** — 2026-10-31, New. In
+`bpp -f`, the script's printed lines go to a buffered stream written
+when BPP exits, so a long run shows nothing until then, and a killed run
+loses everything it printed (a 2-hour run did). `io.stdout:flush()`
+does not help (it is another stream). Progress goes to `io.stderr`
+(`ch07/Corridor-Ground.lua`'s STEP lines); results are printed at the
+end and the scene exits with `os.exit` (`KERR_EXIT=1`), which writes
+them.
+
 ## 7. Open questions
 
 - Ch. 7's obstacles and the simulator behind Figs. 7.5–7.8 (F94): what
@@ -1546,3 +1597,7 @@ sweep, `ch07/kerr2005_sweep.sh`).
   moves that finish a lattice and escape a stall behind a column. The
   threshold is friction × v_min / (metersPerUnit × apHz) in AP force
   units, so the law's stiffness near D, apHz and friction all move it.
+- Ch. 7 on ground robots (F102): whether Figs. 7.11–7.13 survive wheels,
+  the minimum wheel speed and the turning lag (the sweep,
+  `ch07/corridor_ground_sweep.sh`); whether KT is still ~90% in a third
+  of Ant's time.

@@ -394,6 +394,13 @@ void Viewer::luaBind(lua_State *s) {
            .def("eachContact",
                 (void(Viewer::*)(const luabind::object &)) &
                     Viewer::eachContact)
+           .def("rayTest",
+                (btScalar(Viewer::*)(const btVector3 &, const btVector3 &)) &
+                    Viewer::rayTest)
+           .def("rayTest",
+                (btScalar(Viewer::*)(const btVector3 &, const btVector3 &,
+                                     const luabind::object &)) &
+                    Viewer::rayTest)
            .def("addConstraint",
                 (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
                 adopt(_2))
@@ -1251,6 +1258,71 @@ void Viewer::eachContact(const luabind::object &fn) {
                                    pt.getDistance(), pt.getAppliedImpulse());
     }
   }
+}
+
+btScalar Viewer::rayTest(const btVector3 &from, const btVector3 &to) {
+  return rayTest(from, to, luabind::object());
+}
+
+btScalar Viewer::rayTest(const btVector3 &from, const btVector3 &to,
+                         const luabind::object &ignore) {
+  if (dynamicsWorld == nullptr)
+    return 1;
+  const btCollisionObject *skip = nullptr;
+  if (ignore.is_valid() && luabind::type(ignore) == LUA_TUSERDATA) {
+    Object *o = luabind::object_cast<Object *>(ignore);
+    if (o != nullptr)
+      skip = o->body;
+  }
+  // The nearest body that collides (objects with collides = false are not
+  // seen), leaving out `skip`. Boxes are hit exactly, by the slab test in
+  // the box's frame: Bullet's own ray test of a convex shape (GJK) is off
+  // by 2 cm on a 10 m box and misses one 33 m long when the ray starts
+  // within a few tenths of a metre of it. Other shapes are Bullet's.
+  struct Ray : public btCollisionWorld::ClosestRayResultCallback {
+    const btCollisionObject *skip;
+    Ray(const btVector3 &f, const btVector3 &t, const btCollisionObject *s)
+        : btCollisionWorld::ClosestRayResultCallback(f, t), skip(s) {
+      m_collisionFilterGroup = btBroadphaseProxy::AllFilter; // (BPP's bodies are COL_WALL)
+    }
+    bool needsCollision(btBroadphaseProxy *proxy) const override {
+      if (skip != nullptr && proxy->m_clientObject == skip)
+        return false;
+      if (!btCollisionWorld::ClosestRayResultCallback::needsCollision(proxy))
+        return false;
+      const btCollisionObject *co = static_cast<const btCollisionObject *>(proxy->m_clientObject);
+      const btCollisionShape *sh = co->getCollisionShape();
+      if (sh == nullptr || sh->getShapeType() != BOX_SHAPE_PROXYTYPE)
+        return true;
+      const btVector3 h = static_cast<const btBoxShape *>(sh)->getHalfExtentsWithMargin();
+      const btTransform inv = co->getWorldTransform().inverse();
+      const btVector3 o = inv * m_rayFromWorld, d = inv * m_rayToWorld - o;
+      btScalar t0 = 0, t1 = 1;
+      for (int i = 0; i < 3; ++i) {
+        if (btFabs(d[i]) < btScalar(1e-12)) {
+          if (o[i] < -h[i] || o[i] > h[i]) return false;
+        } else {
+          btScalar a = (-h[i] - o[i]) / d[i], b = (h[i] - o[i]) / d[i];
+          if (a > b) btSwap(a, b);
+          if (a > t0) t0 = a;
+          if (b < t1) t1 = b;
+          if (t0 > t1) return false;
+        }
+      }
+      // a hit only from outside (a ray that starts inside a box, as
+      // Bullet's, does not see it), and only if nearer than the best so far
+      bool inside = btFabs(o[0]) < h[0] && btFabs(o[1]) < h[1] && btFabs(o[2]) < h[2];
+      if (!inside && t0 < m_closestHitFraction) {
+        Ray *self = const_cast<Ray *>(this);
+        self->m_closestHitFraction = t0;
+        self->m_collisionObject = co;
+      }
+      return false;
+    }
+  };
+  Ray ray(from, to, skip);
+  dynamicsWorld->rayTest(from, to, ray);
+  return ray.hasHit() ? ray.m_closestHitFraction : btScalar(1);
 }
 
 void Viewer::addConstraint(btTypedConstraint *con) {

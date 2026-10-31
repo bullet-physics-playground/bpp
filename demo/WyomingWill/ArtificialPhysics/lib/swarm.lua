@@ -40,7 +40,8 @@
 --                        until the next command or velocity (kinetic
 --                        theory's output; ch04/Couette-Vehicles.lua).
 --                        The ideal vehicle, the point mass, the
---                        quadcopter and the boat have it
+--                        quadcopter, the boat and the ground robot
+--                        have it
 --   hold(d)              D: stop and hold where it is
 --   land(d)              [: start leaving (nil if the vehicle cannot)
 --   step(d, dt)          its controller and forces, before each Bullet step

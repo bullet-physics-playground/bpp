@@ -16,6 +16,9 @@
 --   z      (code - his) / the standard error of the difference
 --   book   our mean with the book's version (KT: seeds, messages, wallfit;
 --          Ant: seeds; Default has no switch) +- the 95% interval
+-- On ch07/corridor_ground_runs.txt (BPP's ground robots,
+-- ch07/corridor_ground_sweep.sh) "code" is the robots, and two more
+-- tables follow: bumps per run and moved (ch07/Corridor-Ground.lua).
 --
 local here = (arg and arg[0] and arg[0]:match("^(.*)[/\\]ch07[/\\][^/\\]*$")) or "."
 local path = arg[1] or (here .. "/ch07/kerr2005_sweep_runs.txt")
@@ -36,9 +39,11 @@ local function read(p)
 end
 local function set(r) return (r.Pct == 20 and r.N ~= 25) and ("N" .. r.N) or tostring(r.Pct) end
 local function stats(runs, key)
-  local n, s, s2 = #runs, 0, 0
+  local n, s, s2 = 0, 0, 0
+  for _, r in ipairs(runs) do
+    if type(r[key]) == "number" then n, s, s2 = n + 1, s + r[key], s2 + r[key] ^ 2 end
+  end
   if n == 0 then return nil end
-  for _, r in ipairs(runs) do s, s2 = s + r[key], s2 + r[key] ^ 2 end
   local m = s / n
   local sd = math.sqrt(math.max(s2 / n - m * m, 0) * n / math.max(n - 1, 1))
   return m, sd / math.sqrt(n), n
@@ -53,9 +58,14 @@ print(string.format("%s: %d runs", path, #ours))
 local sets = { "0", "10", "20", "30", "40", "N5", "N10", "N15", "N20", "N30" }
 local labels = { ["0"] = "0%", ["10"] = "10%", ["20"] = "20%", ["30"] = "30%", ["40"] = "40%",
                  N5 = "N 5", N10 = "N 10", N15 = "N 15", N20 = "N 20", N30 = "N 30" }
-for _, fig in ipairs({ { "Time", "Fig. 7.11, sweep time (steps)", "%.0f" },
-                       { "Total", "Fig. 7.12, total coverage (%)", "%.1f" },
-                       { "Behind", "Fig. 7.13, shadow coverage (%)", "%.1f" } }) do
+local figs = { { "Time", "Fig. 7.11, sweep time (steps)", "%.0f" },
+               { "Total", "Fig. 7.12, total coverage (%)", "%.1f" },
+               { "Behind", "Fig. 7.13, shadow coverage (%)", "%.1f" } }
+if ours[1] and ours[1].Bumps then -- BPP's ground robots (ch07/Corridor-Ground.lua)
+  figs[4] = { "Bumps", "Bumps per run (new contacts, robot-robot and robot-wall/obstacle)", "%.0f" }
+  figs[5] = { "Moved", "Moved (path driven / path told)", "%.3f" }
+end
+for _, fig in ipairs(figs) do
   local key, title, nf = fig[1], fig[2], fig[3]
   print("\n" .. title)
   print(string.format("%-9s %-6s %10s %22s %6s %18s", "ctl", "set", "his", "code (n)", "z", "book (n)"))

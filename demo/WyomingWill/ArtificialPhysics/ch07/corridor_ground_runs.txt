@@ -1,0 +1,3 @@
+KTRobot Speed 0.4 N 25 Pct 0 Course 0 Run 0 Behind 0 Total 76.4 Time 4480 Bumps 72 RobotBumps 47 WallBumps 25 Moved 0.9881 BackOff 1 BackOffs 0 Wall 520
+KTRobot Speed 0.4 N 25 Pct 20 Course 0 Run 0 Behind 83.98268398 Total 89.71818182 Time 17546 Bumps 282 RobotBumps 73 WallBumps 209 Moved 0.9787 BackOff 1 BackOffs 40 Wall 2025
+KTRobot Speed 0.4 N 25 Pct 20 Course 1 Run 0 Behind 79.48717949 Total 91.05454545 Time 17572 Bumps 242 RobotBumps 85 WallBumps 157 Moved 0.9832 BackOff 1 BackOffs 34 Wall 2020

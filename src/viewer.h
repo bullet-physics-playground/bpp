@@ -576,6 +576,24 @@ public:
   void eachContact(const luabind::object &fn);
   
   /**
+   * @brief Casts a ray through the current dynamics world.
+   *
+   * From Lua, @code f = v:rayTest(from, to [, obj]) @endcode returns the
+   * fraction of the way from @p from to @p to (btVector3s, world space) at
+   * which the ray first meets a body that collides, or 1 if it meets none.
+   * Objects made with @c collides = false are not seen; @p ignore, if given,
+   * is an Object left out (a sensor's own body). Read-only.
+   *
+   * @param from The ray's start.
+   * @param to The ray's end.
+   * @param ignore An Object the ray passes through, or nil.
+   * @return The hit fraction in [0, 1]; 1 if nothing is hit.
+   */
+  btScalar rayTest(const btVector3 &from, const btVector3 &to);
+  btScalar rayTest(const btVector3 &from, const btVector3 &to,
+                   const luabind::object &ignore);
+
+  /**
    * @brief Adds an object to the scene and the dynamics world.
    *
    * Also adds any constraints the object carries. When called from Lua, a

@@ -11,10 +11,11 @@
 #   3. the harness on the ideal vehicle (lib/ideal.lua, perfect tracking)
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length
-#      0.99-1.02 of desiredSeparation, nothing lost; seeds 1-2.
+#      0.99-1.02 of desiredSeparation, nothing lost; seeds 1-2;
+#   4. Ch. 7's corridor on ground robots runs (ch07/Corridor-Ground.lua).
 #
 # Needs BPP (the modules build Bullet objects). Run from the
-# ArtificialPhysics folder (about 20 s):  bash checks/vehicles.sh
+# ArtificialPhysics folder (about 45 s):  bash checks/vehicles.sh
 # Prints ok/FAIL lines and PASS or FAIL; exits 0 or 1.
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -53,7 +54,7 @@ for vv in ground:1300 boat:1600 pointmass:500; do
 done
 
 # 2b. velocity commands (G4): each vehicle with velocity() flies it
-for vv in lib.ideal:700 lib.pointmass:700 boat.vehicle:700 quadcopter.vehicle:1100; do
+for vv in lib.ideal:700 lib.pointmass:700 boat.vehicle:700 ground.vehicle:700 quadcopter.vehicle:1100; do
   VMOD=${vv%:*} "$BPP" -f checks/velocity.lua -n ${vv#*:} > "$T/vel.txt" 2>&1
   grep -E "^(ok|FAIL)" "$T/vel.txt"
   grep -q "^PASS" "$T/vel.txt" || { fail=1; grep -q "^FAIL" "$T/vel.txt" || { echo "FAIL vehicles: velocity ${vv%:*} did not finish"; tail -3 "$T/vel.txt"; }; }
@@ -73,6 +74,23 @@ for r in rows:
     bad = bad or not ok
     print(("ok  " if ok else "FAIL") + f" ideal LJ 2D seed {r['seed']}: formed at {f:.1f} s, bond {b:.3f} D, {c} lost")
 sys.exit(1 if bad else 0)
+EOF
+
+# 4. Ch. 7's corridor on ground robots (ch07/Corridor-Ground.lua: the
+#    sonar through Bullet, velocity(), the coverage): KT, 25 robots, 20%,
+#    course 0, back-off on (as swept), 200 steps covers about what the
+#    port does (8.8%) and the robots drive over 90% of the path they are
+#    told
+KERR_LIMIT=200 KERR_BACKOFF=1 KERR_EXIT=1 "$BPP" -f ch07/Corridor-Ground.lua -n 10000 > "$T/kt.txt" 2>&1
+python3 - "$T/kt.txt" <<'EOF' || fail=1
+import sys
+m = [l for l in open(sys.argv[1]) if l.startswith("KTRobot ")]
+t = m[-1].split() if m else []
+f = dict(zip(t[1::2], t[2::2]))
+ok = bool(f) and int(f["Time"]) == 200 and 7 < float(f["Total"]) < 12 and float(f["Moved"]) > 0.9
+print(("ok  " if ok else "FAIL") + " corridor on ground robots, KT 20%, 200 steps: "
+      + (f"total {f['Total']}% (port 8.8%), moved {f['Moved']}, bumps {f['Bumps']}" if f else "no result line"))
+sys.exit(0 if ok else 1)
 EOF
 
 if [ $fail = 0 ]; then echo "PASS vehicles"; else echo "FAIL vehicles"; fi

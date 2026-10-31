@@ -40,6 +40,19 @@ robots stay in 2D and cannot leave the formation (`[`).
   0.1 m/s, since it cannot turn slower: a small correction is made at the
   minimum speed instead of not at all (F72). Until 2026-10-25 such a
   wheel stood still, and the robots froze (below).
+- **Velocity commands** (`velocity()`, G4; 2026-10-31): a leg from where
+  the robot is, at the given velocity, that does not end; the same
+  guidance follows it (`../checks/velocity.lua`: told 0.5 m/s it drives
+  (0.386, −0.307) m/s against (0.4, −0.3), and stops on 0). Kinetic
+  theory drives the robots with it in Ch. 7's corridor
+  (`../ch07/Corridor-Ground.lua`).
+- **Backing off when jammed** (`backOff`, off by default; 2026-10-31,
+  F102): a robot whose wheels are driven while it moves less than 5 cm
+  and turns less than 0.1 rad in 2 s backs off at 0.25 m/s for 2 s
+  (about 0.3 m), then follows its command again. Needed in Ch. 7's
+  corridor, where a corner of the box catches an obstacle that the
+  controller's sonar ray misses; not needed (and off) in the formation
+  scenes, where AP's repulsion keeps the robots off the columns.
 - **Three rules the physics check found** (`../checks/vehicle_physics.lua`):
   - *No wheel faster than the speed AP asks for:* Ω ≤ |u_d| / r_diff.
     Without it, a robot asked to creep spun on the spot at the full

@@ -4,7 +4,7 @@
 -- checks/vehicles.sh)
 --
 -- For VMOD = the vehicle module (lib.ideal, lib.pointmass,
--- quadcopter.vehicle, boat.vehicle): the vehicle deploys (the drone takes
+-- quadcopter.vehicle, boat.vehicle, ground.vehicle): the vehicle deploys (the drone takes
 -- off to 12 m), holds 2 s, is told velocity (0.4, 0, -0.3) m/s once, and
 -- then nothing for 8 s; then velocity 0 for 6 s.
 --   follows  its mean velocity over the last 3 s of the 8 is within

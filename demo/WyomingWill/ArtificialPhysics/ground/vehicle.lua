@@ -28,7 +28,8 @@
 -- GUIDANCE: from AP's command to wheel speeds (book Eqs. 13.4-13.6).
 -- AP's command is a straight-line leg: be at w at t0 + T. Every step the
 -- leg's point sp(t) = start + vf (t - t0) (then w) and its velocity vf
--- give the desired velocity
+-- give the desired velocity (a velocity command, velocity(), G4, is a
+-- leg with vf the velocity that does not end: ch07/Corridor-Ground.lua)
 --   u_d = vf + K_POS (sp - p)                   (m/s, horizontal)
 -- The robot drives forwards or, if u_d points behind it, backwards (the
 -- Pioneer reverses; the side only changes when the other is better by
@@ -84,7 +85,19 @@ local P = {
   kPos = 1.0,                  -- 1/s, pull back onto the leg
   kHead = 2.0,                 -- 1/s, turn rate per radian of heading error
   flipMargin = math.rad(20),   -- forwards/backwards hysteresis
+  stallTime = 2.0,             -- s    backOff (below): wheels driven while the
+  stallMove = 0.05,            -- m    robot moves less than stallMove and
+  stallYaw = 0.1,              -- rad  turns less than stallYaw for stallTime;
+  backTime = 2.0,              -- s    then back at backSpeed for backTime
+  backSpeed = 0.25,            -- m/s  (~0.3 m: the wheels first turn round)
 }
+-- backOff (off by default; ch07/Corridor-Ground.lua turns it on): a robot
+-- whose wheels are driven (one at the minimum speed or more) while it
+-- moves less than stallMove and turns less than stallYaw in stallTime is
+-- jammed (a corner of its box against something while it turns); it
+-- backs off, away from where it was driving, at backSpeed for backTime
+-- (~0.3 m), then follows its command again
+V.backOff = false
 V.P = P
 
 local Y0 = P.hgt / 2           -- centre height on the ground
@@ -137,6 +150,15 @@ function V.command(d, wx, wy, wz, T, simTime)
   d.vfx, d.vfz = (wx - d.px) / T, (wz - d.pz) / T
 end
 
+-- G4: drive the velocity (vx, vz) (m/s; vy is ignored) until the next
+-- command: a leg from where it is that never ends, so GUIDANCE below
+-- follows it as it follows AP's legs
+function V.velocity(d, vx, vy, vz, simTime)
+  d.sx, d.sz = d.px, d.pz
+  d.t0, d.trT = simTime, math.huge
+  d.vfx, d.vfz = vx, vz
+end
+
 local function clamp(x, lo, hi) if x < lo then return lo elseif x > hi then return hi end return x end
 local function wheel(c)           -- the minimum speed (rounded up; 0 stays 0) and the cap
   local a = math.abs(c)
@@ -148,6 +170,7 @@ end
 function V.guide(d, st, simTime, dt)
   if st == "takeoff" then d.ready = true; return end
   if st ~= "ap" and st ~= "hold" then d.cl, d.cr = 0, 0; return end
+  if d.back and d.back > 0 then d.cl, d.cr = d.backDir * P.backSpeed, d.backDir * P.backSpeed; return end
   -- the leg's point and velocity now
   local spx, spz, vfx, vfz = d.wpx, d.wpz, 0, 0
   local u_ = simTime - d.t0
@@ -201,6 +224,22 @@ function V.step(d, dt)
   local a = P.wheelAcc * dt
   d.wr = d.wr + clamp(d.cr - d.wr, -a, a)
   d.wl = d.wl + clamp(d.cl - d.wl, -a, a)
+
+  if V.backOff then                                       -- jammed? (backOff, above)
+    local yaw = math.atan2(d.hz, d.hx)
+    if d.back and d.back > 0 then d.back = d.back - dt; d.stall = nil
+    elseif math.max(math.abs(d.cl), math.abs(d.cr)) < P.vMin then d.stall = nil
+    elseif not d.stall or (pos.x - d.stx) ^ 2 + (pos.z - d.stz) ^ 2 > P.stallMove ^ 2
+           or math.abs((yaw - d.styaw + math.pi) % (2 * math.pi) - math.pi) > P.stallYaw then
+      d.stall, d.stx, d.stz, d.styaw = 0, pos.x, pos.z, yaw
+    else
+      d.stall = d.stall + dt
+      if d.stall >= P.stallTime then
+        d.back, d.stall, d.backs = P.backTime, nil, (d.backs or 0) + 1
+        d.backDir = (d.cl + d.cr >= 0) and -1 or 1
+      end
+    end
+  end
 
   -- traction (along the heading) and sideways grip, capped by friction
   local vf = vel.x * fx + vel.y * fy + vel.z * fz

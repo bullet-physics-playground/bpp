@@ -561,3 +561,90 @@ are judged parallel to the goal (73% against his code's 78% over 10 runs
 at 0%; 60% against 63% at 20%), so fewer get the wall's push toward the
 goal: slower, and more lateral coverage. With obstacles, which most wall
 hits are, the two fits give the same sweep.
+
+## The sweep on BPP's ground robots (step 3b)
+
+Kerr's controllers drive BPP's Pioneer 3-AT (`../ground/`) through
+Bullet, with the decisions of `../HANDOFF.md` §7 (William, 2026-10-31):
+his geometry scaled to the Pioneer (his 6″ robot is 0.5 m, so × 3.28: an
+83 × 417 m corridor, a 5 m sonar, 0.5 m a step, 1.67 m cells), one KT
+step a second, the sonar cast through Bullet and the neighbours sensed
+locally, his 50 course files as obstacles, KT by velocity commands and
+Ant and Default by waypoints, contacts counted as bumps.
+
+| File | What |
+| --- | --- |
+| `Corridor-Ground.lua` | The scene: his world (walls, his course's rectangles as boxes 1 m tall), his robots on the Pioneer, his step (`kerr2005.lua`'s `R.step(w, true)`: his move order, controllers and messages, without the move); every definition at its top |
+| `corridor_ground_sweep.sh` | The sweep, resumable and parallel: his two experiments, one run per course (10 per setting), KT first; about 290 CPU-hours, so it runs on William's machine |
+| `corridor_ground_runs.txt` | Its runs, Kerr's log line plus bumps, moved, back-offs and wall time; `luajit kerr2005_figs.lua corridor_ground_runs.txt` gives the figures against his logs |
+
+Also new for it: `v:rayTest(from, to [, obj])` in BPP (`src/viewer.cpp`;
+a rebuild), `velocity()` for the ground robot (G4) and its `backOff`
+(below). `kerr2005.lua` gained only hooks, unused by the port: a sonar
+the caller supplies (`w.sonar`), the step without the move, the cover
+function, and a robot the caller marks `bumped` (a wall collision for
+KT); `../checks/ch07.lua` passes unchanged.
+
+**How it differs from his simulator.** His robots are points that jump
+6″ along a sonar ray, one after another, each sensing the others' new
+places; here every robot senses at the step (in his order, with his
+messages) and then all drive for a second at once, turning at no more
+than 0.4 rad/s, so a robot that has to turn first gets less far
+(`Moved`, the path driven over the path told: 0.98–0.99). The
+controllers keep their own headings (as KT keeps its velocities on
+vehicles, F88), and the sonar ring is cast from those. Sonar readings are
+the distance from the robot's centre to what the ray hits, less its
+radius 0.25 m (3″), for walls, obstacles and robots alike (his code takes
+3″ off an obstacle, 6″ off a robot and nothing off a wall). Coverage is
+checked every frame (his: after each move).
+
+**Bullet's ray test is not exact on boxes** (2026-10-31): its convex ray
+cast (GJK) was 2 cm off on a 10 m box, 8–50 cm off on boxes of 33–418 m,
+and missed boxes of 33 m and more when the ray started within a few tenths
+of a metre of them: rays 0.25 m from the corridor's 418 m walls saw
+nothing. `rayTest` therefore hits boxes by the exact slab test in the
+box's frame (every case now to 10⁻⁴ m), and leaves other shapes to
+Bullet.
+
+**Jams: the robots need to back off** (F102). Kerr's robots are points
+that move along a sonar ray; a Pioneer is a 0.5 m box that turns as it
+goes. A corner catches an obstacle the ray ahead misses (a corner 15°
+off the heading, or the nose while the robot turns toward a clear
+heading 30–130° away), and a KT robot, whose velocity changes only in
+a collision, then pushes there for ever. Without obstacles nothing
+jams (the 0% run below is the same to the bit with and without the
+back-off); at 20% the first two courses' runs, at 25,000
+steps (the port's mean is 21,800), had 16 and 19 of 25 robots done and 9
+and 6 jammed, their coverage frozen at 85.9% and 86.9% (shadow 76.2%,
+76.5%), the robots driving 42% and 62% of the path they were told. So `backOff` (`../ground/vehicle.lua`,
+off by default, on in the sweep): a robot whose wheels are driven while
+it moves less than 5 cm and turns less than 0.1 rad in 2 s backs off
+(0.25 m/s for 2 s, about 0.3 m), and a KT robot that backed off has a
+wall collision at its next step (his wall rule: the bump is a
+collision). Backing off alone did not do: a KT robot came back to the
+same corner, because nothing had changed its velocity.
+
+**Cost** (2026-10-31, the cloud build: Lua 5.1, two cores, two runs at a
+time): 8.3–8.7 simulated seconds per wall second per core with 25
+robots, the robots' guidance and tyre forces each 4 ms step (Lua through
+luabind) and Bullet most of it; the bump count 10%; LuaJIT in place of
+BPP's Lua 5%.
+
+**First runs** (KT, 25 robots, his code, back-off on), against the port
+(his code, `kerr2005_sweep_runs.txt`: the 100 runs of the setting, and
+the 10 on the same course):
+
+| Run | Total % | Shadow % | Time (steps) | Bumps (robot, wall) | Back-offs | Wall time |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0%, run 0 | 76.4 | — | 4,480 | 72 (47, 25) | 0 | 9 min |
+| port, 0% (100 runs; mean ± sd) | 76.6 ± 3.2 | — | 4,735 ± 1,100 | | | |
+| 20%, course 0 | 89.7 | 84.0 | 17,546 | 282 (73, 209) | 40 | 34 min |
+| port, course 0 (10 runs) | 90.8 | 85.1 | 21,629 | | | |
+| 20%, course 1 | 91.1 | 79.5 | 17,572 | 242 (85, 157) | 34 | 34 min |
+| port, course 1 (10 runs) | 89.8 | 80.6 | 31,053 | | | |
+| port, 20% (100 runs; mean ± sd) | 89.8 ± 1.1 | 81.2 ± 3.9 | 21,795 ± 6,702 | | | |
+
+Each run's coverage lies within the port's spread; the two at 20% swept
+faster than the port's means on their courses (one run each: the port's
+runs on course 1 take 19,600–47,100 steps). The sweep will say whether
+that holds.
