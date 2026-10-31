@@ -180,6 +180,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
   and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-10-27: no break; the one before "6. How BPP behaves" left a nearly empty page). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
+- **LuaJIT** (`apt install luajit`) runs the plain-Lua ports several times
+  faster; `ch07/kerr2005.lua` gives the same results on it to the bit
+  (7× faster). Use it for long sweeps run outside BPP.
 
 ## 6. Facts established so far
 
@@ -529,7 +532,13 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   checked against his Java run for run where the arithmetic allows and
   against his logs (**done**, `ch07/kerr2005.lua`, F98–F99); (3) the
   sweep on the port and then on BPP's ground robot
-  (`World.preset("ch07-corridor")`, `velocity()`). **Next is (3).**
+  (`World.preset("ch07-corridor")`, `velocity()`). **Next is (3).** The
+  sweep on the port is ready to run (`ch07/kerr2005_sweep.sh`, 5,000 runs,
+  ~16 CPU-hours with LuaJIT, resumable; his code and the book's version);
+  William runs it on his machine (2026-10-31) and brings back
+  `ch07/kerr2005_sweep_runs.txt`; `ch07/kerr2005_figs.lua` summarises it
+  against his logs. Then write it up (README, FINDINGS, a check reading
+  the file) and go on to the ground robots.
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
@@ -568,9 +577,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
-> sweep, step (3): the sweep on the Lua port of Kerr's 2005 robot
-> simulator, then on BPP's ground robots. Deliver each step as a patch
-> with git commands.
+> sweep, step (3): the results of the full sweep on the Lua port
+> (ch07/kerr2005_sweep_runs.txt, run by William), then the sweep on BPP's
+> ground robots. Deliver each step as a patch with git commands.
 
 Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
 are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with

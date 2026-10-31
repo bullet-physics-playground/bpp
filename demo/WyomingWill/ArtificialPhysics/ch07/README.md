@@ -409,7 +409,9 @@ and walls beyond a sonar's reach (63″; the cut is 80″), which his code
 tests and finds out of range: the results are the same, 20–50 times
 faster. In Lua 5.1, 25 robots on a 20% course take about 5–8 ms a step
 with KT (2–4 minutes a run), 15 ms with Default and 1 ms with Ant (its
-robots read one sonar a step).
+robots read one sonar a step). LuaJIT runs it about 7 times faster with
+the same results to the bit (a KT run at 20% in 13 s against 86 s;
+`../checks/ch07.lua` passes on it), which the full sweep uses.
 
 **The port is his Java.** The five reference runs (KT without obstacles
 and at 20% with 5 robots, to the end; KT, Ant and Default at 20% for
@@ -446,3 +448,24 @@ obstacles, the first run on each of his 10 courses (`kerr2005_fixes.sh`):
 noise: the book's text and his code give the same coverage and time
 here, so his figures stand for the controller the book describes. The
 switches stay, off, for the sweep on BPP's robots (step 3).
+
+## The full sweep (step 3, on William's machine)
+
+`kerr2005_sweep.sh` runs the book's two experiments with Kerr's protocol
+on the port: Exp. 1, 25 robots at 0–40% obstacles; Exp. 2, 5–30 robots at
+20% (his setting, F97); 10 courses × 10 runs per setting, his seeds. It
+runs each controller with his code, and KT and Ant again as the book
+describes them (KT: `seeds`, `messages`, `wallfit`; Ant: `seeds`; Default
+has no switch). That is 5,000 runs, about 16 CPU-hours with LuaJIT
+(Default at 40% runs 150,000 steps on most courses, about 90 s each, and
+goes first). Runs in parallel, and resumes where it stopped (runs already
+in `kerr2005_sweep_runs.txt` are skipped; a run done twice counts once):
+
+    sudo apt install luajit                      # once
+    bash ch07/kerr2005_sweep.sh                  # all cores; Ctrl-C and rerun at will
+    luajit ch07/kerr2005_figs.lua                # Figs. 7.11-7.13 so far
+
+`kerr2005_figs.lua` prints the three figures as tables: his logs' mean,
+ours with his code (± the 95% interval, as the book's error bars, with
+the number of runs and z against his logs) and ours with the book's
+version.

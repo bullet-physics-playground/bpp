@@ -9,7 +9,9 @@
 -- every such operation to the nearest float (f32 below), so a run from a
 -- seed repeats his run step for step (checks/ch07.lua, against
 -- ch07/kerr2005_reference.txt from his Java). His random numbers are
--- java.util.Random's (48-bit LCG), done here in exact arithmetic.
+-- java.util.Random's (48-bit LCG), done here in exact arithmetic. Under
+-- LuaJIT the float rounding is a cast through its FFI, which it compiles:
+-- the same results, about 7 times faster than Lua 5.1 (ch07/README.md).
 -- Java's Math.cos, sin and log (HotSpot's) and atan2 and acos (fdlibm) can
 -- differ from the C library's in the last bit of a double; where that bit
 -- survives (cos and sin move the positions, which are doubles) a run can
@@ -102,7 +104,11 @@ local huge = math.huge
 
 -- f32(x): x rounded to the nearest float (ties to even), Java's (float)
 local f32
-if string.pack then
+local hasffi, ffi = pcall(require, "ffi") -- LuaJIT: a float cast it compiles
+if jit and hasffi then
+  local box = ffi.new("float[1]")
+  f32 = function(x) box[0] = x; return box[0] end
+elseif string.pack then
   local pack, unpack = string.pack, string.unpack
   f32 = function(x) return (unpack("f", pack("f", x))) end
 else
