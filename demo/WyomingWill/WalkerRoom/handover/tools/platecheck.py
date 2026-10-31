@@ -26,6 +26,6 @@ def look(path):
             part = max(part, math.dist(d(i), d(j)))
     xs = [S[feet[0]][k].centroid.x for k in range(n)]
     return name, len(pend), turn, part, max(xs) - min(xs), n
-for b in ["Chebyshev", "Chebyshev-Spears", "Hoecken_4-bar", "Hoecken_slider", "Hoecken-Spears_slider", "Hoecken-Spears_4-bar", "Hoecken-Spears_long-stance", "Spears_lift_44", "Spears_lift_53"]:
+for b in ["Chebyshev", "Chebyshev-Spears", "Hoecken_4-bar", "Hoecken_slider", "Hoecken-Spears_slider", "Hoecken-Spears_4-bar", "Hoecken-Spears_4-bar_duty_85", "Chebyshev-Spears_lift_51", "Chebyshev-Spears_lift_62"]:
     a = look(f"sweepP/{b}.txt"); h = look(f"sweepP/{b}_hold.txt")
     print(f"{a[0]:28s} pendants {a[1]}  turn {a[2]:5.2f} / {h[2]:5.2f} deg  pair apart {a[3]:.3f} / {h[3]:.3f} cm  foot travel {a[4]:6.2f} / {h[4]:6.2f} cm  ({a[5]}/{h[5]} moments)  [as built / held]")

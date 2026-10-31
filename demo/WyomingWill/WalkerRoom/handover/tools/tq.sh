@@ -7,7 +7,7 @@ one() { out=/home/claude/work/tq/$4.txt; grep -q '^TQ' $out 2>/dev/null && retur
   QT_QPA_PLATFORM=offscreen timeout 6000 /home/claude/build/release/bpp -f $(basename $f) -n 1210 2>&1 | grep -E "^(TQ|STALL|TRACK)|rror" | grep -v ALSA > $out.tmp && mv $out.tmp $out; rm -f $f; }
 J=()
 for fr in "off:XX=1" "fric:JOINT_FRICTION={mu=0.1, pin=0.25}"; do for t in "flat:TERRAIN=\"waves\"; AMP=0; SEED=1" "steps5:TERRAIN=\"steps\"; AMP=5; SEED=1"; do
-  for c in "Jansen|XX=2" "Klann|XX=2" "Spears 4-bar|XX=2" "Chebyshev|UNBRACED=true" "Chebyshev-Spears|UNBRACED=true" "Hoecken-Spears 4-bar|UNBRACED=true" "Hoecken-Spears slider|UNBRACED=true" "Spears lift 44|UNBRACED=true"; do
+  for c in "Jansen|XX=2" "Klann|XX=2" "Spears 4-bar|XX=2" "Chebyshev|UNBRACED=true" "Chebyshev-Spears|UNBRACED=true" "Hoecken-Spears 4-bar|UNBRACED=true" "Hoecken-Spears slider|UNBRACED=true" "Chebyshev-Spears lift 51|UNBRACED=true"; do
     n=${c%%|*}; x=${c#*|}; J+=("$n|${t#*:}|$x; ${fr#*:}|${n// /_}_${t%%:*}_${fr%%:*}"); done; done; done
 i=0; for j in "${J[@]}"; do IFS='|' read n T x t <<< "$j"; one "$n" "$T" "$x" "$t" & i=$((i+1)); [ $((i % 2)) = 0 ] && wait; done; wait
 echo TQ_DONE

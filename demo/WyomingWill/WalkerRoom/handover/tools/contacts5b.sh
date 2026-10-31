@@ -8,7 +8,7 @@ one() { # name tag extra
 }
 G='UNBRACED=true; GAIT={0,180,180,0}'
 one "Chebyshev" C_guides "$G" & one "Hoecken 4-bar" H4_guides "$G"; wait
-one "Hoecken-Spears long-stance" HSLS_guides "$G" & one "Spears lift 44" L44_guides "$G"; wait
-one "Spears lift 53" L53_guides "$G" & one "Spears lift 44 diag" L44_old "PENDANT_HOLD=true"; wait
-one "Spears lift 53 diag" L53_old "PENDANT_HOLD=true" & one "Chebyshev-Spears diag" CS_out "DIAG_OUTSIDE=true; PENDANT_HOLD=true"; wait
+one "Hoecken-Spears 4-bar duty 85" HSLS_guides "$G" & one "Chebyshev-Spears lift 51" L44_guides "$G"; wait
+one "Chebyshev-Spears lift 62" L53_guides "$G" & one "Chebyshev-Spears lift 51 diag" L44_old "PENDANT_HOLD=true"; wait
+one "Chebyshev-Spears lift 62 diag" L53_old "PENDANT_HOLD=true" & one "Chebyshev-Spears diag" CS_out "DIAG_OUTSIDE=true; PENDANT_HOLD=true"; wait
 echo CT_DONE

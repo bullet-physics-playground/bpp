@@ -11,7 +11,7 @@ import topz
 from shapely.geometry import box
 M = 0.3
 COUSIN = {"Chebyshev": 7.97, "Chebyshev-Spears": 5.99, "Hoecken_4-bar": 7.87, "Hoecken-Spears_4-bar": 5.88,
-          "Hoecken-Spears_long-stance": 5.53, "Spears_lift_44": 4.23, "Spears_lift_53": 4.77}
+          "Hoecken-Spears_4-bar_duty_85": 5.53, "Chebyshev-Spears_lift_51": 4.23, "Chebyshev-Spears_lift_62": 4.77}
 BUILDS = list(COUSIN) + ["Hoecken_slider", "Hoecken-Spears_slider"]
 def load(b):
     path = f"/home/claude/work/sweepL/{b}.txt"

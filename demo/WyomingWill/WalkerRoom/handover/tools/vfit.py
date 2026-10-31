@@ -15,7 +15,7 @@ from shapely.geometry import Polygon, box
 from shapely import affinity
 M, H, T, ZS = 0.3, 1.074, 0.3, 13 + 0.15 + 0.15
 BUILDS = ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
-          "Hoecken-Spears_long-stance_diag", "Spears_lift_44_diag", "Spears_lift_53_diag"]
+          "Hoecken-Spears_4-bar_duty_85_diag", "Chebyshev-Spears_lift_51_diag", "Chebyshev-Spears_lift_62_diag"]
 def load(b, d=__import__("os").environ.get("SWEEP6", "sweep6")):
     path = f"/home/claude/work/{d}/{b}.txt"
     name, L, S, bb, hz = topz.load(path)

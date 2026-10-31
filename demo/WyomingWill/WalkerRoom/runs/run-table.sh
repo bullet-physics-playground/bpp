@@ -23,9 +23,9 @@ cd "$(dirname "$0")/.."
 BPP=${BPP:-bpp}; JOBS=${JOBS:-$(nproc)}; SEEDS=${SEEDS:-"1 2 3 4 5"}; OUT=${OUT:-runs/out}; RUN_SECS=${RUN_SECS:-20}
 TERRAINS=${TERRAINS:-"waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7"}
 if [ -n "${BUILDS:-}" ]; then mapfile -t NAMES < "$BUILDS"; else NAMES=(
-  "Spears lift 44" "Spears lift 44 diag" "Spears lift 53" "Chebyshev-Spears diag" "Hoecken-Spears 4-bar diag"
-  "Spears lift 53 diag" "Hoecken-Spears long-stance diag" "Hoecken-Spears slider diag" "Hoecken-Spears slider"
-  "Hoecken-Spears 4-bar" "Klann" "Jansen" "Hoecken-Spears long-stance"); fi
+  "Chebyshev-Spears lift 51" "Chebyshev-Spears lift 51 diag" "Chebyshev-Spears lift 62" "Chebyshev-Spears diag" "Hoecken-Spears 4-bar diag"
+  "Chebyshev-Spears lift 62 diag" "Hoecken-Spears 4-bar duty 85 diag" "Hoecken-Spears slider diag" "Hoecken-Spears slider"
+  "Hoecken-Spears 4-bar" "Klann" "Jansen" "Hoecken-Spears 4-bar duty 85"); fi
 [ $# -ge 1 ] || set -- warm40fast   # (no setting named: the standard)
 command -v "$BPP" > /dev/null || { echo "bpp not found: set BPP to the bpp program"; exit 1; }
 bracing() { case "$1" in Jansen|Klann|"Spears 4-bar") echo "OWN_FRAME=true";; *diag) echo "DIAG_OUTSIDE=true; PENDANT_HOLD=true";; *) echo "UNBRACED=true";; esac; }

@@ -9,7 +9,7 @@ one() { out=/home/claude/work/ms1/$4.txt; grep -q '^TQ' $out 2>/dev/null && retu
 J=("Chebyshev-Spears|TERRAIN=\"steps\"; AMP=5; SEED=1|UNBRACED=true|Chebyshev-Spears_steps5")
 FLAT='TERRAIN="waves"; AMP=0; SEED=1'
 for n in "Jansen" "Klann" "Spears 4-bar"; do J+=("$n|$FLAT|XX=1|${n// /_}_flat"); done
-for n in "Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears long-stance" "Spears lift 44" "Spears lift 53"; do J+=("$n|$FLAT|UNBRACED=true|${n// /_}_flat"); done
-for n in "Chebyshev diag" "Chebyshev-Spears diag" "Hoecken 4-bar diag" "Hoecken-Spears 4-bar diag" "Hoecken-Spears long-stance diag" "Spears lift 44 diag" "Spears lift 53 diag"; do J+=("$n|$FLAT|DIAG_OUTSIDE=true; PENDANT_HOLD=true|${n// /_}_flat"); done
+for n in "Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears 4-bar duty 85" "Chebyshev-Spears lift 51" "Chebyshev-Spears lift 62"; do J+=("$n|$FLAT|UNBRACED=true|${n// /_}_flat"); done
+for n in "Chebyshev diag" "Chebyshev-Spears diag" "Hoecken 4-bar diag" "Hoecken-Spears 4-bar diag" "Hoecken-Spears 4-bar duty 85 diag" "Chebyshev-Spears lift 51 diag" "Chebyshev-Spears lift 62 diag"; do J+=("$n|$FLAT|DIAG_OUTSIDE=true; PENDANT_HOLD=true|${n// /_}_flat"); done
 i=0; for j in "${J[@]}"; do IFS='|' read n T x t <<< "$j"; one "$n" "$T" "$x" "$t" & i=$((i+1)); [ $((i % 2)) = 0 ] && wait; done; wait
 echo MS1_DONE

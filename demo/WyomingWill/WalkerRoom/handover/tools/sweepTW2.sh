@@ -9,10 +9,10 @@ one() { f=$(mktemp ./_st_XXXX.lua)
 G='UNBRACED=true'; D='DIAG_OUTSIDE=true; OUTSIDE_V=true'
 jobs=( "Jansen||Jansen" "Klann||Klann" "Spears 4-bar||Spears_4-bar"
   "Chebyshev|$G|Chebyshev" "Chebyshev-Spears|$G|Chebyshev-Spears" "Hoecken 4-bar|$G|Hoecken_4-bar" "Hoecken slider|$G|Hoecken_slider"
-  "Hoecken-Spears slider|$G|Hoecken-Spears_slider" "Hoecken-Spears 4-bar|$G|Hoecken-Spears_4-bar" "Hoecken-Spears long-stance|$G|Hoecken-Spears_long-stance"
-  "Spears lift 44|$G|Spears_lift_44" "Spears lift 53|$G|Spears_lift_53"
+  "Hoecken-Spears slider|$G|Hoecken-Spears_slider" "Hoecken-Spears 4-bar|$G|Hoecken-Spears_4-bar" "Hoecken-Spears 4-bar duty 85|$G|Hoecken-Spears_4-bar_duty_85"
+  "Chebyshev-Spears lift 51|$G|Chebyshev-Spears_lift_51" "Chebyshev-Spears lift 62|$G|Chebyshev-Spears_lift_62"
   "Chebyshev diag|$D|Chebyshev_diag" "Chebyshev-Spears diag|$D|Chebyshev-Spears_diag" "Hoecken 4-bar diag|$D|Hoecken_4-bar_diag"
-  "Hoecken-Spears 4-bar diag|$D|Hoecken-Spears_4-bar_diag" "Hoecken-Spears long-stance diag|$D|Hoecken-Spears_long-stance_diag"
-  "Spears lift 44 diag|$D|Spears_lift_44_diag" "Spears lift 53 diag|$D|Spears_lift_53_diag" )
+  "Hoecken-Spears 4-bar diag|$D|Hoecken-Spears_4-bar_diag" "Hoecken-Spears 4-bar duty 85 diag|$D|Hoecken-Spears_4-bar_duty_85_diag"
+  "Chebyshev-Spears lift 51 diag|$D|Chebyshev-Spears_lift_51_diag" "Chebyshev-Spears lift 62 diag|$D|Chebyshev-Spears_lift_62_diag" )
 i=0; for j in "${jobs[@]}"; do IFS='|' read n x t <<< "$j"; one "$n" "$x" "$t" & i=$((i+1)); [ $((i % 2)) = 0 ] && wait; done; wait
 echo SWEEPT_DONE

@@ -12,7 +12,7 @@ from shapely.geometry import box, Polygon
 from shapely import affinity
 M, T = 0.3, 0.3
 LETTERS = {"Chebyshev-Spears_diag": 1.45, "Hoecken-Spears_4-bar_diag": 1.50, "Chebyshev_diag": 2.77, "Hoecken_4-bar_diag": 2.85,
-           "Hoecken-Spears_long-stance_diag": 1.72, "Spears_lift_44_diag": 2.00, "Spears_lift_53_diag": 2.31}
+           "Hoecken-Spears_4-bar_duty_85_diag": 1.72, "Chebyshev-Spears_lift_51_diag": 2.00, "Chebyshev-Spears_lift_62_diag": 2.31}
 def run(b):
     path = f"/home/claude/work/{__import__('os').environ.get('SWEEP6', 'sweep6')}/{b}.txt"
     name, L, S, bb, hz = topz.load(path)

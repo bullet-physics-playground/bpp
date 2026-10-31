@@ -147,8 +147,8 @@ DIAG_LOW_BOTH = DIAG_LOW_BOTH or false
 -- every link and foot, so 0.3 or more as built) bar = the bars'
 -- height, 1.074 cm (Chebyshev-Spears diag's; Hoecken-Spears 4-bar diag's
 -- are 1.12, 0.75 of its own units), and extUp = how far its pendants
--- reach above their hinges to the couplers (cm; Hoecken-Spears long-stance
--- diag's and Spears lift 53 diag's top braces reach 0.73 cm above the
+-- reach above their hinges to the couplers (cm; Hoecken-Spears 4-bar duty 85
+-- diag's and Chebyshev-Spears lift 62 diag's top braces reach 0.73 cm above the
 -- hinges, so their pendants go 0.8 higher).
 DIAG_OUTSIDE = DIAG_OUTSIDE or false
 local OUTSIDE_FIT = {
@@ -158,13 +158,13 @@ local OUTSIDE_FIT = {
   ["Hoecken-Spears 4-bar diag"] = { top = { yRel = 14.72, runFront = 1.24, runBack = 10.52 }, bottom = { yRel = 5.63, runFront = 4.61, runBack = 8.91 } },
   ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.35, runBack = 14.90 }, bottom = { yRel = 7.72, runFront = 2.81, runBack = 2.70 } },
   ["Hoecken 4-bar diag"] = { bar = 1.074, top = { yRel = 17.58, runFront = 8.54, runBack = 15.46 }, bottom = { yRel = 7.62, runFront = 2.73, runBack = 2.77 } },
-  ["Hoecken-Spears long-stance diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.15, runFront = 1.74, runBack = 8.30 }, bottom = { yRel = 5.30, runFront = 4.43, runBack = 8.58 } },
-  ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.91, runFront = 1.84, runBack = 14.36 }, bottom = { yRel = 3.99, runFront = 4.97, runBack = 13.22 } },
-  ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.65, runFront = 1.93, runBack = 15.58 }, bottom = { yRel = 4.54, runFront = 3.99, runBack = 15.27 } },
+  ["Hoecken-Spears 4-bar duty 85 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.15, runFront = 1.74, runBack = 8.30 }, bottom = { yRel = 5.30, runFront = 4.43, runBack = 8.58 } },
+  ["Chebyshev-Spears lift 51 diag"] = { bar = 1.074, top = { yRel = 16.91, runFront = 1.84, runBack = 14.36 }, bottom = { yRel = 3.99, runFront = 4.97, runBack = 13.22 } },
+  ["Chebyshev-Spears lift 62 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.65, runFront = 1.93, runBack = 15.58 }, bottom = { yRel = 4.54, runFront = 3.99, runBack = 15.27 } },
 }
 -- OUTSIDE_V (default off; with DIAG_OUTSIDE): each diag build's bottom
 -- outside brace as a V seen from the side (William, 25 October): its middle
--- piece straight across under the body (as nearly as fits: Spears lift 53
+-- piece straight across under the body (as nearly as fits: Chebyshev-Spears lift 62
 -- diag's reaches 0.25 cm along the walk), at the height the bottom brace has
 -- now, and its runs rising from there to their pendants, their ends higher
 -- by half the room between the brace's bottom at its lowest and the body's
@@ -179,9 +179,9 @@ local OUTSIDE_V_FIT = {
   ["Hoecken-Spears 4-bar diag"] = { runFront = 21.90, runBack = 13.11, rise = 3.13 },
   ["Chebyshev diag"] = { runFront = 19.56, runBack = 15.44, rise = 2.12 },
   ["Hoecken 4-bar diag"] = { runFront = 19.48, runBack = 15.52, rise = 2.21 },
-  ["Hoecken-Spears long-stance diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
-  ["Spears lift 44 diag"] = { runFront = 16.47, runBack = 18.47, rise = 4.54 },
-  ["Spears lift 53 diag"] = { runFront = 13.74, runBack = 21.02, rise = 5.33 },
+  ["Hoecken-Spears 4-bar duty 85 diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
+  ["Chebyshev-Spears lift 51 diag"] = { runFront = 16.47, runBack = 18.47, rise = 4.54 },
+  ["Chebyshev-Spears lift 62 diag"] = { runFront = 13.74, runBack = 21.02, rise = 5.33 },
 }
 -- OUTSIDE_V_FIT_W: the same, at LINK_WIDTH 1.0 (vfit.py on sweep6W)
 local OUTSIDE_V_FIT_W = {
@@ -189,9 +189,9 @@ local OUTSIDE_V_FIT_W = {
   ["Hoecken-Spears 4-bar diag"] = { runFront = 21.90, runBack = 13.10, rise = 3.13 },
   ["Chebyshev diag"] = { runFront = 21.17, runBack = 13.83, rise = 2.12 },
   ["Hoecken 4-bar diag"] = { runFront = 20.88, runBack = 14.12, rise = 2.22 },
-  ["Hoecken-Spears long-stance diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
-  ["Spears lift 44 diag"] = { runFront = 16.72, runBack = 18.22, rise = 4.54 },
-  ["Spears lift 53 diag"] = { runFront = 14.24, runBack = 20.77, rise = 5.33 },
+  ["Hoecken-Spears 4-bar duty 85 diag"] = { runFront = 20.68, runBack = 14.32, rise = 3.28 },
+  ["Chebyshev-Spears lift 51 diag"] = { runFront = 16.72, runBack = 18.22, rise = 4.54 },
+  ["Chebyshev-Spears lift 62 diag"] = { runFront = 14.24, runBack = 20.77, rise = 5.33 },
 }
 -- PLATE_LOW (default off): each plated build's side plates built as a bar
 -- 1.074 cm tall (the outside braces' bars) instead of the pendants' height,
@@ -208,14 +208,14 @@ PLATE_LOW = PLATE_LOW or false
 -- 3.84-7.95 cm up)
 local PLATE_FIT_W = {
   ["Chebyshev"] = { drop = 7.30 }, ["Chebyshev-Spears"] = { drop = 3.08 }, ["Hoecken 4-bar"] = { drop = 7.28 },
-  ["Hoecken-Spears 4-bar"] = { drop = 3.48 }, ["Hoecken-Spears long-stance"] = { drop = 2.08 },
-  ["Spears lift 44"] = { drop = 5.25 }, ["Spears lift 53"] = { drop = 5.17 },
+  ["Hoecken-Spears 4-bar"] = { drop = 3.48 }, ["Hoecken-Spears 4-bar duty 85"] = { drop = 2.08 },
+  ["Chebyshev-Spears lift 51"] = { drop = 5.25 }, ["Chebyshev-Spears lift 62"] = { drop = 5.17 },
   ["Hoecken slider"] = { drop = 7.30 }, ["Hoecken-Spears slider"] = { drop = 5.25 },
 }
 local PLATE_FIT = {
   ["Chebyshev"] = { drop = 7.28 }, ["Chebyshev-Spears"] = { drop = 3.05 }, ["Hoecken 4-bar"] = { drop = 7.26 },
-  ["Hoecken-Spears 4-bar"] = { drop = 3.46 }, ["Hoecken-Spears long-stance"] = { drop = 2.09 },
-  ["Spears lift 44"] = { drop = 4.84 }, ["Spears lift 53"] = { drop = 4.67 },
+  ["Hoecken-Spears 4-bar"] = { drop = 3.46 }, ["Hoecken-Spears 4-bar duty 85"] = { drop = 2.09 },
+  ["Chebyshev-Spears lift 51"] = { drop = 4.84 }, ["Chebyshev-Spears lift 62"] = { drop = 4.67 },
   ["Hoecken slider"] = { drop = 7.30 }, ["Hoecken-Spears slider"] = { drop = 5.25 },
 }
 -- OUTSIDE_FIT_W: the same, at LINK_WIDTH 1.0 (outz5.py on sweep4W, 0.4 cm
@@ -227,9 +227,9 @@ local OUTSIDE_FIT_W = {
   ["Hoecken-Spears 4-bar diag"] = { bar = 1.074, top = { yRel = 14.72, runFront = 1.24, runBack = 10.77 }, bottom = { yRel = 5.63, runFront = 4.86, runBack = 9.16 } },
   ["Chebyshev diag"] = { bar = 1.074, top = { yRel = 17.33, runFront = 8.12, runBack = 14.38 }, bottom = { yRel = 7.71, runFront = 1.25, runBack = 1.26 } },
   ["Hoecken 4-bar diag"] = { bar = 1.074, top = { yRel = 17.58, runFront = 8.06, runBack = 14.93 }, bottom = { yRel = 7.61, runFront = 1.19, runBack = 1.05 } },
-  ["Hoecken-Spears long-stance diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.14, runFront = 1.67, runBack = 7.83 }, bottom = { yRel = 5.30, runFront = 4.17, runBack = 8.59 } },
-  ["Spears lift 44 diag"] = { bar = 1.074, top = { yRel = 16.54, runFront = 1.11, runBack = 14.09 }, bottom = { yRel = 3.59, runFront = 4.98, runBack = 13.23 } },
-  ["Spears lift 53 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.16, runFront = 1.45, runBack = 15.05 }, bottom = { yRel = 4.01, runFront = 3.75, runBack = 15.26 } },
+  ["Hoecken-Spears 4-bar duty 85 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 15.14, runFront = 1.67, runBack = 7.83 }, bottom = { yRel = 5.30, runFront = 4.17, runBack = 8.59 } },
+  ["Chebyshev-Spears lift 51 diag"] = { bar = 1.074, top = { yRel = 16.54, runFront = 1.11, runBack = 14.09 }, bottom = { yRel = 3.59, runFront = 4.98, runBack = 13.23 } },
+  ["Chebyshev-Spears lift 62 diag"] = { bar = 1.074, extUp = 0.8, top = { yRel = 19.16, runFront = 1.45, runBack = 15.05 }, bottom = { yRel = 4.01, runFront = 3.75, runBack = 15.26 } },
 }
 -- PENDANT_HOLD: true (or a table of names; default off): each leg's
 -- pendant (the link its foot hangs from) also held at its angle to the
@@ -265,10 +265,10 @@ WIDTH_REFITS_OFF = WIDTH_REFITS_OFF or {}
 -- as its guides cousin), bodyShift (balance), in the build's own units as
 -- in its entry below. Builds not named keep theirs.
 local WIDTH_FIT = {
-  ["Spears lift 44"] = { bodyRaise = -1.048 },
-  ["Spears lift 44 diag"] = { bodyRaise = -2.548 },
-  ["Spears lift 53"] = { bodyRaise = -2.188 },
-  ["Spears lift 53 diag"] = { bodyRaise = -3.678 },
+  ["Chebyshev-Spears lift 51"] = { bodyRaise = -1.048 },
+  ["Chebyshev-Spears lift 51 diag"] = { bodyRaise = -2.548 },
+  ["Chebyshev-Spears lift 62"] = { bodyRaise = -2.188 },
+  ["Chebyshev-Spears lift 62 diag"] = { bodyRaise = -3.678 },
   ["Chebyshev-Spears diag"] = { planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, cube_d = 15.223 },
 }
 if PLANE_GAP == nil then PLANE_GAP = 0.7 end
@@ -626,7 +626,7 @@ end
 --   walker would cross flat ground at the same speed. Measured again 24
 --   October 2026 in trot (guides for the plated builds, outside braces for
 --   the diag builds, ankles on, each scaled to exactly one crank turn;
---   Chebyshev-Spears, Hoecken-Spears 4-bar and long-stance diag with their
+--   Chebyshev-Spears, Hoecken-Spears 4-bar and duty 85 diag with their
 --   pendants free, since held their cranks fell behind in the sweep:
 --   handover/tools/advtrot.py); a guides build and its diag cousin share
 --   the mean of theirs (they agree within 0.7%), so their cranks turn alike.
@@ -683,7 +683,7 @@ local WALKERS = {
   { name = "Hoecken-Spears 4-bar", bodyShift = 3.80, frame = { length = 43.8, x = -3.80 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H-S 4", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 14.582 }, brace = { gap = 1.00 }, advance = 19.68, parts = "Chebyshev_Spears_normal_parts.lua", stride = 10.0334, chassis = { bodyRaise = 3.149, linkageSpacing = 23.411, cube_d = 7.05 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.6138, h = 5.8331, leg = 5.8331, legAngle = 90, groundAngle = -45 } } },
-  { name = "Hoecken-Spears long-stance", bodyShift = 2.97, frame = { length = 44.7, x = -2.97 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "H-S 4L", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 11.381 }, brace = { gap = 1.12 }, advance = 17.21, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.3680, chassis = { bodyRaise = -0.907, linkageSpacing = 19.525, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
+  { name = "Hoecken-Spears 4-bar duty 85", bodyShift = 2.97, frame = { length = 44.7, x = -2.97 }, planes = { crank = 1, coupler = 3, rocker = 2, pendant = 4 }, look = { code = "H-S 4", colour = MAGENTA, spears = true, diag = false }, wide = { cube_d = 11.381 }, brace = { gap = 1.12 }, advance = 17.21, parts = "Chebyshev_Spears_normal_parts.lua", stride = 8.3680, chassis = { bodyRaise = -0.907, linkageSpacing = 19.525, cube_d = 4.0 }, fixed = 1 / 480, lift = "terrainLift", forward = -1,
     opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180,
              geometry = { a = 1.875, g = 2.1842, h = 2.8129, leg = 2.8129, legAngle = 39.80, groundAngle = -20.14 } } },
   { name = "Spears 2-leg", look = { code = "S 4", colour = GOLD, spears = false, diag = false }, twoLeg = true, parts = "Spears_4Bar_2Leg_parts.lua", stride = 8.324, fixed = 1 / 960, lift = "terrainLift", forward = -1,
@@ -867,9 +867,9 @@ end
 -- point's highest minus lowest, both the mean over the feet;
 -- handover/tools/liftpct.py). Shown on the body's top right corner.
 LIFT_PCT = LIFT_PCT or {
-  ["Spears lift 53"] = 62, ["Spears lift 53 diag"] = 62, ["Klann"] = 52,
-  ["Spears lift 44"] = 51, ["Spears lift 44 diag"] = 51, ["Spears 4-bar"] = 37,
-  ["Hoecken-Spears long-stance"] = 34, ["Hoecken-Spears long-stance diag"] = 34,
+  ["Chebyshev-Spears lift 62"] = 62, ["Chebyshev-Spears lift 62 diag"] = 62, ["Klann"] = 52,
+  ["Chebyshev-Spears lift 51"] = 51, ["Chebyshev-Spears lift 51 diag"] = 51, ["Spears 4-bar"] = 37,
+  ["Hoecken-Spears 4-bar duty 85"] = 34, ["Hoecken-Spears 4-bar duty 85 diag"] = 34,
   ["Jansen"] = 33, ["Hoecken-Spears slider"] = 33, ["Hoecken-Spears slider diag"] = 33,
   ["Hoecken-Spears 4-bar"] = 33, ["Hoecken-Spears 4-bar diag"] = 33,
   ["Chebyshev-Spears"] = 31, ["Chebyshev-Spears diag"] = 31,

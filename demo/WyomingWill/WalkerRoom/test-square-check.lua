@@ -35,7 +35,7 @@ VIEWS = {
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4

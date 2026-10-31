@@ -1,11 +1,11 @@
 # Re-tune every walker's bodyRaise so its body rides TARGET cm above flat ground (chassisprobe2's clearance).
 import re, subprocess, os, sys
 from concurrent.futures import ThreadPoolExecutor
-TARGETS = {"Spears lift 44": 12.46, "Spears lift 44 diag": 13.13, "Spears lift 53": 14.33, "Spears lift 53 diag": 15.2}
+TARGETS = {"Chebyshev-Spears lift 51": 12.46, "Chebyshev-Spears lift 51 diag": 13.13, "Chebyshev-Spears lift 62": 14.33, "Chebyshev-Spears lift 62 diag": 15.2}
 TGT = lambda n: TARGETS.get(n, 12.0)
 R = "/home/claude/bpp/demo/WyomingWill/WalkerRoom/"
 FILES = ("walker-room.lua", "trotting-walkers.lua", "spears-lift-walkers.lua")
-names = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag", "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag", "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag"]
+names = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag", "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag"]
 def clear(n):
     f = f"{R}_rf_{abs(hash(n))}.lua"
     open(f, "w").write(f'dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="{n}"; AMP=0; SEED=1\ndofile("/home/claude/work/chassisprobe2.lua")\n')

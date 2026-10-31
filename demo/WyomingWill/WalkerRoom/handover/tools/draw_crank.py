@@ -6,7 +6,7 @@ sys.path.insert(0, "/home/claude/work"); import topz
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 B = [("Chebyshev-Spears_diag", "CS", "Chebyshev-Spears diag"), ("Hoecken-Spears_4-bar_diag", "HS4", "Hoecken-Spears 4-bar diag"),
-     ("Hoecken-Spears_long-stance_diag", "HSLS", "Hoecken-Spears long-stance diag")]
+     ("Hoecken-Spears_4-bar_duty_85_diag", "HSLS", "Hoecken-Spears 4-bar duty 85 diag")]
 ADV = {"CS": 18.46, "HS4": 19.57, "HSLS": 17.02}     # (the advances the room used in these runs)
 HELD, FREE = "#b22222", "#4a55b5"
 def crank_angle(path):

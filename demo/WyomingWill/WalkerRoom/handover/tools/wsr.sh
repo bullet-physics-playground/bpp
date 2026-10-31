@@ -10,6 +10,6 @@ one() { out=/home/claude/work/wsr/$6.txt; grep -q '^TQ' $out 2>/dev/null && retu
 J=()
 for c in "si-warm|40|1/3840" "si-warm|40|1/1920"; do IFS='|' read k it fx <<< "$c"
   for s in 1 2 3; do for t in waves:4 logs:7 steps:7; do T="TERRAIN=\"${t%%:*}\"; AMP=${t##*:}; SEED=$s"; tg="${t%%:*}${t##*:}_s$s"
-    for n in "Spears lift 44" "Chebyshev-Spears diag" "Hoecken-Spears slider diag" "Jansen"; do J+=("$k|$it|$n|$fx|$(br "$n")|${n// /_}_${fx#1/}_${tg}|$T"); done; done; done; done
+    for n in "Chebyshev-Spears lift 51" "Chebyshev-Spears diag" "Hoecken-Spears slider diag" "Jansen"; do J+=("$k|$it|$n|$fx|$(br "$n")|${n// /_}_${fx#1/}_${tg}|$T"); done; done; done; done
 i=0; for j in "${J[@]}"; do IFS='|' read k it n fx x t T <<< "$j"; one "$k" "$it" "$n" "$fx" "$x" "$t" "$T" & i=$((i+1)); [ $((i % 2)) = 0 ] && wait; done; wait
 echo WSR_DONE

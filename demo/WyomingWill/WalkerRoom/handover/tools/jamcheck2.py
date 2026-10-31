@@ -2,8 +2,8 @@ import subprocess, os, re, sys
 EXTRA = sys.argv[1] if len(sys.argv) > 1 else ""
 from concurrent.futures import ThreadPoolExecutor
 D = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"
-names = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag", "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag", "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag"]
-fwd = {"Spears lift 44", "Spears lift 44 diag", "Spears lift 53"}
+names = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag", "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag"]
+fwd = {"Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62"}
 conds = [(0, 22, "waves"), (6, 11, "waves"), (4, 11, "logs"), (4, 15, "steps")]
 def run(a):
     n, (amp, bump, ter) = a

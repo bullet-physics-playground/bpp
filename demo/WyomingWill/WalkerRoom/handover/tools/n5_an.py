@@ -13,10 +13,10 @@ def get(build, toes, t, s):
         r = sp("/home/claude/work/" + c)
         if r: return r[0]
     return None
-ROWS = [("Spears lift 44", 0), ("Spears lift 44 diag", 0), ("Spears lift 53", 0), ("Hoecken-Spears 4-bar diag", 0), ("Spears lift 53 diag", 0),
-        ("Spears lift 53 diag", 1), ("Chebyshev-Spears diag", 0), ("Chebyshev-Spears diag", 1), ("Hoecken-Spears long-stance diag", 0),
+ROWS = [("Chebyshev-Spears lift 51", 0), ("Chebyshev-Spears lift 51 diag", 0), ("Chebyshev-Spears lift 62", 0), ("Hoecken-Spears 4-bar diag", 0), ("Chebyshev-Spears lift 62 diag", 0),
+        ("Chebyshev-Spears lift 62 diag", 1), ("Chebyshev-Spears diag", 0), ("Chebyshev-Spears diag", 1), ("Hoecken-Spears 4-bar duty 85 diag", 0),
         ("Hoecken-Spears slider diag", 1), ("Hoecken-Spears slider", 1), ("Hoecken-Spears 4-bar", 0), ("Jansen", 0), ("Jansen", 1), ("Klann", 0),
-        ("Hoecken-Spears long-stance", 0), ("Hoecken-Spears long-stance", 1)]
+        ("Hoecken-Spears 4-bar duty 85", 0), ("Hoecken-Spears 4-bar duty 85", 1)]
 OWN = {"Jansen", "Klann", "Spears 4-bar"}
 out = []
 for b, toes in ROWS:

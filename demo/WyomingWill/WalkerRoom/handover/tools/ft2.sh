@@ -11,8 +11,8 @@ one() { out=/home/claude/work/ft2/$4.txt; grep -q '^\(TQ\|HUNG\)' $out 2>/dev/nu
   grep -E "^(TQ|STALL|TRACK)|rror" $out.raw | grep -v ALSA > $out.tmp; [ $rc = 124 ] && echo "HUNG over 900 s" >> $out.tmp; mv $out.tmp $out; rm -f $f $out.raw; }   # (a run over 15 min is stopped and marked)
 mkdir -p /home/claude/work/ft2
 OWN=("Jansen" "Klann" "Spears 4-bar")
-GUIDES=("Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears long-stance" "Spears lift 44" "Spears lift 53")
-DIAG=("Chebyshev diag" "Chebyshev-Spears diag" "Hoecken 4-bar diag" "Hoecken-Spears 4-bar diag" "Hoecken-Spears long-stance diag" "Spears lift 44 diag" "Spears lift 53 diag")
+GUIDES=("Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears 4-bar duty 85" "Chebyshev-Spears lift 51" "Chebyshev-Spears lift 62")
+DIAG=("Chebyshev diag" "Chebyshev-Spears diag" "Hoecken 4-bar diag" "Hoecken-Spears 4-bar diag" "Hoecken-Spears 4-bar duty 85 diag" "Chebyshev-Spears lift 51 diag" "Chebyshev-Spears lift 62 diag")
 J=()
 for s in 1 2 3; do
   for t in waves:0 waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7; do

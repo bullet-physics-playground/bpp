@@ -7,8 +7,8 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon as MPoly
 B = [("Chebyshev", "Chebyshev"), ("Chebyshev-Spears", "Chebyshev-Spears"), ("Hoecken_4-bar", "Hoecken 4-bar"),
-     ("Hoecken-Spears_4-bar", "Hoecken-Spears 4-bar"), ("Hoecken-Spears_long-stance", "Hoecken-Spears long-stance"),
-     ("Spears_lift_44", "Spears lift 44"), ("Spears_lift_53", "Spears lift 53"), ("Hoecken_slider", "Hoecken slider"),
+     ("Hoecken-Spears_4-bar", "Hoecken-Spears 4-bar"), ("Hoecken-Spears_4-bar_duty_85", "Hoecken-Spears 4-bar duty 85"),
+     ("Chebyshev-Spears_lift_51", "Chebyshev-Spears lift 51"), ("Chebyshev-Spears_lift_62", "Chebyshev-Spears lift 62"), ("Hoecken_slider", "Hoecken slider"),
      ("Hoecken-Spears_slider", "Hoecken-Spears slider")]
 def load(d, b):
     name, L, S, bb, hz = topz.load(f"/home/claude/work/{d}/{b}.txt")

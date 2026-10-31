@@ -9,6 +9,6 @@ one() { out=/home/claude/work/ws/$6.txt; grep -q '^TQ' $out 2>/dev/null && retur
   echo "TIME $(echo "$e - $s" | bc)" >> $out.tmp; mv $out.tmp $out; rm -f $f; }
 J=()
 for c in "si|200|1/3840" "si|40|1/3840" "si-warm|40|1/3840" "si-warm|100|1/3840" "si|40|1/1920" "si-warm|40|1/1920" "si-warm|100|1/1920"; do IFS='|' read k it fx <<< "$c"
-  for n in "Chebyshev-Spears diag" "Spears lift 44" "Jansen"; do J+=("$k|$it|$n|$fx|$(br "$n")|${n// /_}_${k}_${it}_${fx#1/}|TERRAIN=\"waves\"; AMP=0; SEED=1"); done; done
+  for n in "Chebyshev-Spears diag" "Chebyshev-Spears lift 51" "Jansen"; do J+=("$k|$it|$n|$fx|$(br "$n")|${n// /_}_${k}_${it}_${fx#1/}|TERRAIN=\"waves\"; AMP=0; SEED=1"); done; done
 i=0; for j in "${J[@]}"; do IFS='|' read k it n fx x t T <<< "$j"; one "$k" "$it" "$n" "$fx" "$x" "$t" "$T" & i=$((i+1)); [ $((i % 2)) = 0 ] && wait; done; wait
 echo WS_DONE

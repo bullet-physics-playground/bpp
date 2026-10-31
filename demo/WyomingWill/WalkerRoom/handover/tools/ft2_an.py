@@ -29,7 +29,7 @@ if sp: print(f"\nseed spread (max - min within a cell): mean {st.mean(sp):.2f}, 
 # best build of each walker (higher rough mean of its guides / diag builds)
 LIFT = {"Chebyshev": (2.86, 73), "Chebyshev-Spears": (4.65, 82), "Hoecken slider": (3.70, 69), "Hoecken-Spears slider": (4.89, 82),
         "Hoecken 4-bar": (3.05, 68), "Hoecken-Spears 4-bar": (4.89, 76), "Jansen": (4.94, 54), "Klann": (7.84, 31), "Spears 4-bar": (5.58, 58),
-        "Hoecken-Spears long-stance": (5.18, 48), "Spears lift 44": (7.71, 47), "Spears lift 53": (9.28, 38)}
+        "Hoecken-Spears 4-bar duty 85": (5.18, 48), "Chebyshev-Spears lift 51": (7.71, 47), "Chebyshev-Spears lift 62": (9.28, 38)}
 mean_of = {n: mean for mean, n, ms, k in rows}
 best = {}
 for w in LIFT:

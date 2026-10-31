@@ -26,21 +26,21 @@ for _, n in ipairs({ "Jansen", "Klann", "Spears 4-bar",
                      "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag",
                      "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider",
                      "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag",
-                     "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag",
-                     "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag" }) do
+                     "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag",
+                     "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "as built, free body" }
 end
 for _, n in ipairs({ "Jansen", "Klann", "Spears 4-bar" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "own frame, trot, free body", gait = TROT }
 end
 for _, n in ipairs({ "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken slider", "Hoecken-Spears slider",
-                     "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance", "Spears lift 44", "Spears lift 53" }) do
+                     "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar duty 85", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "guides, trot, free body", gait = TROT, unbraced = true }
 end
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4

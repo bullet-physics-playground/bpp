@@ -8,8 +8,8 @@ BPP = "/home/claude/build/release/bpp"
 D = "/home/claude/work/terr"; os.makedirs(D, exist_ok=True)
 NAMES = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag",
          "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar",
-         "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag",
-         "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag"]
+         "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag",
+         "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag"]
 FEET = {"flat8": "", "point": "FOOT_POINT=0.3", "soft": "ANKLE_SPRING={stiffness=3000, damping=300}"}
 jobs = []
 for foot in FEET:

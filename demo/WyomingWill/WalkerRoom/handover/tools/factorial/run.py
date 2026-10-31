@@ -21,8 +21,8 @@ for n in ("Jansen", "Klann", "Spears 4-bar"):
     add(n, "own", "sides", n, []); add(n, "own", "trot", n, [TROT])
 for n, diag, ex in (("Chebyshev", "Chebyshev diag", []), ("Chebyshev-Spears", "Chebyshev-Spears diag", []),
                     ("Hoecken 4-bar", "Hoecken 4-bar diag", [TW]), ("Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag", [TW]),
-                    ("Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag", [D2]), ("Hoecken slider", None, []), ("Hoecken-Spears slider", None, []),
-                    ("Spears lift 44", "Spears lift 44 diag", [D2]), ("Spears lift 53", "Spears lift 53 diag", [D2])):
+                    ("Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag", [D2]), ("Hoecken slider", None, []), ("Hoecken-Spears slider", None, []),
+                    ("Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", [D2]), ("Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag", [D2])):
     base = [HL] if n.startswith("Spears lift") else []
     add(n, "plates", "sides", n, base)
     if diag: add(n, "diag", "trot", diag, ex)

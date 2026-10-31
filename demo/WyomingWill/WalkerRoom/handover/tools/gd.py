@@ -6,7 +6,7 @@ ROOM = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"; BPP = "/home/claude/build
 OUT = "/home/claude/work/gd/gd.txt"
 EARTH = 'GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}'
 PAIRS = ["Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken-Spears 4-bar",
-         "Hoecken-Spears long-stance", "Spears lift 44", "Spears lift 53"]
+         "Hoecken-Spears 4-bar duty 85", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62"]
 CFG = []
 for n in PAIRS:
     CFG.append(("guides", n, n, 'UNBRACED={["%s"]=true}; GAIT={0,180,180,0}' % n))

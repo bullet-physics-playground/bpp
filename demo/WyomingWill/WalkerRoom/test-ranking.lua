@@ -53,14 +53,14 @@ local function guides(name) return { walker = name, label = "guides, trot, forwa
 local function diag(name) return { walker = name, label = "outside braces, pendants held (trot), forward", hold = true } end
 local function own(name) return { walker = name, label = "its own frame, trot, forward", gait = TROT, hold = false } end
 VIEWS = {   -- (the ranking's order: nine rough terrains, 5 seeds)
-  -- (Hoecken-Spears long-stance and its diag build, 7th and 13th, left out
+  -- (Hoecken-Spears 4-bar duty 85 and its diag build, 7th and 13th, left out
   -- of the views, 31 October: kept in the repo, not adding much)
-  guides("Spears lift 44"),                    --  1  7.84
-  diag("Spears lift 44 diag"),                 --  2  7.59
-  guides("Spears lift 53"),                    --  3  7.04
+  guides("Chebyshev-Spears lift 51"),                    --  1  7.84
+  diag("Chebyshev-Spears lift 51 diag"),                 --  2  7.59
+  guides("Chebyshev-Spears lift 62"),                    --  3  7.04
   diag("Chebyshev-Spears diag"),               --  4  6.90
   diag("Hoecken-Spears 4-bar diag"),           --  5  6.86
-  diag("Spears lift 53 diag"),                 --  6  6.83
+  diag("Chebyshev-Spears lift 62 diag"),                 --  6  6.83
   diag("Hoecken-Spears slider diag"),          --  8  6.43 (toes)
   guides("Hoecken-Spears slider"),             --  9  6.35 (toes)
   guides("Hoecken-Spears 4-bar"),              -- 10  6.30
@@ -75,7 +75,7 @@ VIEWS = {   -- (the ranking's order: nine rough terrains, 5 seeds)
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "logs"
 AMP = AMP or 7

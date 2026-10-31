@@ -1,6 +1,6 @@
 import re, statistics as st, os
 exec(open("/home/claude/work/tips_an.py").read().split("def row")[0])
-B = ["Spears lift 44", "Chebyshev-Spears diag", "Hoecken-Spears slider diag", "Jansen"]
+B = ["Chebyshev-Spears lift 51", "Chebyshev-Spears diag", "Hoecken-Spears slider diag", "Jansen"]
 def ref(b, t, s):
     if b == "Hoecken-Spears slider diag": return f"/home/claude/work/tips10/HSsd_{t}_s{s}.txt"
     return f"/home/claude/work/ft2/{b.replace(' ', '_')}_{t}_s{s}.txt"

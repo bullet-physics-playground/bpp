@@ -7,6 +7,6 @@ one() {
   SWEEP_OUT="/home/claude/work/sweepLW/${n// /_}$3.txt" QT_QPA_PLATFORM=offscreen /home/claude/build/release/bpp -f $(basename $f) -n 950 2>&1 | grep -i "error" | grep -v ALSA
   rm -f $f
 }
-L=("Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears long-stance" "Spears lift 44" "Spears lift 53")
+L=("Chebyshev" "Chebyshev-Spears" "Hoecken 4-bar" "Hoecken slider" "Hoecken-Spears slider" "Hoecken-Spears 4-bar" "Hoecken-Spears 4-bar duty 85" "Chebyshev-Spears lift 51" "Chebyshev-Spears lift 62")
 one "${L[0]}" "" "" & one "${L[1]}" "" ""; wait; one "${L[2]}" "" "" & one "${L[3]}" "" ""; wait; one "${L[4]}" "" "" & one "${L[5]}" "" ""; wait; one "${L[6]}" "" "" & one "${L[7]}" "" ""; wait; one "${L[8]}" "" ""
 echo SWEEPS_DONE

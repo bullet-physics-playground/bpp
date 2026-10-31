@@ -9,8 +9,8 @@ BPP = "/home/claude/build/release/bpp"
 OUT = "/home/claude/work/damp6.txt"
 SOFT = "ANKLE_SPRING={stiffness=3000, damping=300}"
 CONFIGS = {   # name: (walker, extra)
-    "Spears lift 44 (plates, sides)": ("Spears lift 44", ""),
-    "Spears lift 44 diag (diag, trot)": ("Spears lift 44 diag", ""),
+    "Chebyshev-Spears lift 51 (plates, sides)": ("Chebyshev-Spears lift 51", ""),
+    "Chebyshev-Spears lift 51 diag (diag, trot)": ("Chebyshev-Spears lift 51 diag", ""),
     "Klann (own, sides)": ("Klann", ""),
     "Klann (own, trot)": ("Klann", "GAIT={0,180,180,0}"),
     "Jansen (own, sides)": ("Jansen", ""),

@@ -8,8 +8,8 @@ D = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"; OUT = os.environ.get("JAM_OU
 EXTRA = os.environ.get("JAM_EXTRA", "LINK_WIDTH=1.0")
 STD = 'GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; TRACK_SECS=30; SELF_AT=1920'
 own = ["Jansen", "Klann", "Spears 4-bar"]
-guides = ["Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance", "Spears lift 44", "Spears lift 53"]
-diag = ["Chebyshev diag", "Chebyshev-Spears diag", "Hoecken 4-bar diag", "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance diag", "Spears lift 44 diag", "Spears lift 53 diag"]
+guides = ["Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar duty 85", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62"]
+diag = ["Chebyshev diag", "Chebyshev-Spears diag", "Hoecken 4-bar diag", "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85 diag", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag"]
 conds = [c for c in [(0, 22, "waves"), (6, 11, "waves"), (4, 11, "logs"), (4, 15, "steps")] if os.environ.get("JAM_CONDS", "all") == "all" or f"{c[2]}{c[0]}" in os.environ["JAM_CONDS"].split(",")]
 def setting(n):
     if n in diag: return "DIAG_OUTSIDE=true; OUTSIDE_V=true; PENDANT_HOLD=true"

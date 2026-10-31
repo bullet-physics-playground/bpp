@@ -12,9 +12,9 @@ sys.path.insert(0, "/home/claude/work")
 import topz, outz
 M, H, T, ZS = outz.M, outz.H, outz.T, outz.ZS
 BUILDS = ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
-          "Hoecken-Spears_long-stance_diag", "Spears_lift_44_diag", "Spears_lift_53_diag"]
+          "Hoecken-Spears_4-bar_duty_85_diag", "Chebyshev-Spears_lift_51_diag", "Chebyshev-Spears_lift_62_diag"]
 LETTERS = {"Chebyshev-Spears_diag": 1.45, "Hoecken-Spears_4-bar_diag": 1.50, "Chebyshev_diag": 2.77, "Hoecken_4-bar_diag": 2.85,
-           "Hoecken-Spears_long-stance_diag": 1.72, "Spears_lift_44_diag": 2.00, "Spears_lift_53_diag": 2.31}
+           "Hoecken-Spears_4-bar_duty_85_diag": 1.72, "Chebyshev-Spears_lift_51_diag": 2.00, "Chebyshev-Spears_lift_62_diag": 2.31}
 SWEEPS = "sweep4"
 def setup(b):
     path = f"/home/claude/work/{SWEEPS}/{b}.txt"

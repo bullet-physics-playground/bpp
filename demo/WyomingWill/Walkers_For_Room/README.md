@@ -54,7 +54,7 @@ groundAngle }`: the ground link, crank, coupler-to-rocker-joint, the
 rocker (unset: h), the leg from that joint, the leg's angle off the
 coupler, and the ground link's angle, in its own units, so that the same
 file builds other linkages of its kind (the room's Hoecken-Spears 4-bar
-and long-stance, and Spears lift 44 and 53). Unset, it is
+and duty 85, and Chebyshev-Spears lift 51 and 62). Unset, it is
 Chebyshev-Spears (2.5, 1.875, 5.729, 5.729, 5.729, 90, -45).
 Chebyshev-Spears diag takes the same `geometry`.
 

@@ -22,14 +22,14 @@ for _, n in ipairs({ "Jansen", "Klann", "Spears 4-bar",
                      "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag",
                      "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider",
                      "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag",
-                     "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag",
-                     "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag" }) do
+                     "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag",
+                     "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag" }) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "as built" }
 end
 VIEW = VIEW or 1                    -- the one it starts with
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4                      -- bump height, cm

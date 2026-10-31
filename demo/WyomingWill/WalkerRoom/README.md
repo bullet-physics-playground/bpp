@@ -1,7 +1,7 @@
 # Walker room
 
 Twelve walkers on one meadow -- ten of WyomingWill's, the
-Hoecken-Spears 4-bar and the Hoecken-Spears long-stance (below) -- all
+Hoecken-Spears 4-bar and the Hoecken-Spears 4-bar duty 85 (below) -- all
 four-legged, each scaled
 to the same stride, walking freely inside a walled 10 m x 10 m arena.
 Open `walker-room.lua`.
@@ -57,7 +57,7 @@ Earlier results, below) and are void until measured again.
   | Chebyshev-Spears diag  | 3.45 | 9.1 |
   | Spears 4-bar           | 1.95 | 9.0 |
   | Hoecken-Spears 4-bar  | 2.98 | 8.8 |
-  | Hoecken-Spears long-stance | 3.60 | 8.9 |
+  | Hoecken-Spears 4-bar duty 85 | 3.60 | 8.9 |
   | Chebyshev diag         | 2.83 | 8.8 |
   | Hoecken-Spears slider  | 3.32 | 8.6 |
   | Hoecken 4-bar          | 2.23 | 8.4 |
@@ -78,8 +78,8 @@ Earlier results, below) and are void until measured again.
   in the world while it walked, which swings with every step and came
   out 38.1 to 38.7. Its body is 12 cm up (its lowest point above flat
   ground), or higher where that would leave less than 1 cm between the
-  top of a foot and the lowest link above it: Spears lift 44 12.46 cm,
-  its diag build 13.13, Spears lift 53 14.33, its diag build 15.2. This
+  top of a foot and the lowest link above it: Chebyshev-Spears lift 51 12.46 cm,
+  its diag build 13.13, Chebyshev-Spears lift 62 14.33, its diag build 15.2. This
   uses each file's own leg-spacing and body-depth options and the room's
   `bodyRaise` option, none of which change its foot path. A walker's
   body width is where its legs are mounted, so the bodies look
@@ -141,14 +141,14 @@ Earlier results, below) and are void until measured again.
   | Hoecken-Spears 4-bar | 40 | 40.9 | 13.3 | 6 | 100 |
   | Chebyshev-Spears | 40 | 39.3 | 13.2 | 6 | 99 |
   | Hoecken-Spears slider | 40 | 32.3 | 13.2 | 6 | 92 |
-  | Hoecken-Spears long-stance | 40 | 30.6 | 13.3 | 6 | 90 |
+  | Hoecken-Spears 4-bar duty 85 | 40 | 30.6 | 13.3 | 6 | 90 |
 
   Weighed again after the October 2026 geometry (thinner links weigh
   the same: a bar's weight is its length and joints), every total is
   within 0.5 of this. The builds not in the table weigh, in all:
   Hoecken 4-bar diag 115, Hoecken-Spears 4-bar diag 106,
-  Hoecken-Spears long-stance diag 100, Spears lift 44 108 (diag 121),
-  Spears lift 53 113 (diag 128).
+  Hoecken-Spears 4-bar duty 85 diag 100, Chebyshev-Spears lift 51 108 (diag 121),
+  Chebyshev-Spears lift 62 113 (diag 128).
 
   `BAR_MASS = false` gives each file's own link weights and the old
   rule (`TOTAL_MASS`, 100 in all); `SAME_BODY = false` each file's own
@@ -159,7 +159,7 @@ Earlier results, below) and are void until measured again.
   (`MOTOR_STRENGTH`), the same for every walker. Their own files' motors
   ranged from 1.4 (Chebyshev-Spears diag) to 71 (Spears 4-bar) in these
   units. Stronger isn't better: at 70 the results are the same as at 10,
-  except that the Hoecken-Spears long-stance fell 13 times. The walkers whose
+  except that the Hoecken-Spears 4-bar duty 85 fell 13 times. The walkers whose
   own motors were weakest (1.4-3.3: Chebyshev, Hoecken and their Spears
   versions) kept a little more of their speed on bumps with them
   (Chebyshev-Spears 65% against 57%), as if a motor that gives way a
@@ -191,7 +191,7 @@ Earlier results, below) and are void until measured again.
   up in the middle to pass over the other where they cross: three
   straight pieces welded into one bent bar, its rise (`brace.rise`) the
   least that kept the two from touching on flat ground, 6 cm waves,
-  logs and steps, plus 2 cm (10 cm; Spears lift 44 diag 14, Spears lift
+  logs and steps, plus 2 cm (10 cm; Chebyshev-Spears lift 51 diag 14, Spears lift
   53 diag 16, with its top braces at 4 units above the leg's end, not
   2.75, where its file's top brace hit a link). Nothing of a diag walker
   now passes through anything of its own.
@@ -243,8 +243,8 @@ and logging where every link went:
 |--------|--------|
 | Spears 4-bar | 2 |
 | Jansen (was 7), Klann (was 5) | 3 |
-| Chebyshev, Chebyshev diag, Chebyshev-Spears, Hoecken 4-bar and its diag build, Hoecken-Spears 4-bar and its diag build, Spears lift 44 and 53 and their diag builds | 3 |
-| Chebyshev-Spears diag, Hoecken-Spears long-stance and its diag build | 4 |
+| Chebyshev, Chebyshev diag, Chebyshev-Spears, Hoecken 4-bar and its diag build, Hoecken-Spears 4-bar and its diag build, Chebyshev-Spears lift 51 and 62 and their diag builds | 3 |
+| Chebyshev-Spears diag, Hoecken-Spears 4-bar duty 85 and its diag build | 4 |
 | The two sliders | 2, their own layout (given others, they jammed) |
 
 With these, no walker jams, and links touch each other at most 0.7% of
@@ -265,8 +265,8 @@ slides, in each file's own frame (cm):
 | Walker | Slide | Walker | Slide |
 |--------|-------|--------|-------|
 | Klann | -29.44 | Spears 4-bar | +19.44 |
-| Spears lift 53 | +17.77 | Spears lift 53 diag | +18.07 |
-| Spears lift 44 | +12.77 | Spears lift 44 diag | +12.99 |
+| Chebyshev-Spears lift 62 | +17.77 | Chebyshev-Spears lift 62 diag | +18.07 |
+| Chebyshev-Spears lift 51 | +12.77 | Chebyshev-Spears lift 51 diag | +12.99 |
 | Jansen | -5.94 | the other 4-bars and diag builds | +2.9 to +5.5 |
 | the sliders | about -0.3 | | |
 
@@ -305,7 +305,7 @@ ground and on short bumps (TerrainHeight 4 cm, BumpLength 11 cm):
 | Chebyshev-Spears diag      | 7.69 | 8.56        | 111% |
 | Hoecken-Spears slider      | 7.55 | 7.73        | 102% |
 | Hoecken-Spears 4-bar       | 8.06 | 7.62        | 95%  |
-| Hoecken-Spears long-stance | 8.11 | 7.51        | 93%  |
+| Hoecken-Spears 4-bar duty 85 | 8.11 | 7.51        | 93%  |
 | Chebyshev-Spears           | 8.44 | 7.54        | 89%  |
 | Hoecken slider             | 6.60 | 5.85        | 89%  |
 | Hoecken 4-bar              | 8.00 | 6.87        | 86%  |
@@ -363,7 +363,7 @@ raised (`BRACE_CLEARANCE = false`):
 | Klann                      | 44%  | 95%  | 93%  | 90%  | 85%  | 81%  | 70%  | 77%  | 66%  | 44%  | 78%  | 6.8 | 78% |
 | Chebyshev-Spears           | 26%  | 96%  | 95%  | 91%  | 91%  | 90%  | 62%  | 82%  | 82%  | 6%   | 77%  | 6.9 | 81% |
 | Chebyshev diag             | 14%  | 103% | 105% | 95%  | 89%  | 72%  | 65%  | 75%  | 40%  | 20%  | 74%  | 6.4 | 71% |
-| Hoecken-Spears long-stance | 29%  | 98%  | 99%  | 87%  | 92%  | 89%  | 29%  | 78%  | 74%  | 7%   | 73%  | 6.2 | 75% |
+| Hoecken-Spears 4-bar duty 85 | 29%  | 98%  | 99%  | 87%  | 92%  | 89%  | 29%  | 78%  | 74%  | 7%   | 73%  | 6.2 | 75% |
 | Hoecken slider             | 21%  | 88%  | 88%  | 88%  | 78%  | 81%  | 51%  | 57%  | 67%  | 20%  | 68%  | 5.1 | 71% |
 | Jansen                     | 28%  | 80%  | 92%  | 87%  | 68%  | 72%  | 54%  | 53%  | 43%  | 3%   | 61%  | 5.6 | 61% |
 | Chebyshev                  | 16%  | 80%  | 82%  | 81%  | 76%  | 68%  | 40%  | 52%  | 54%  | 2%   | 59%  | 4.4 | 64% |
@@ -436,7 +436,7 @@ ground, which inflates its share kept); +- is the standard error over the
 | Chebyshev-Spears           | sides, plates          | 8.9 | 95%  | 95%  | 91%  | 91%  | 91%  | 66% | 84% | 81% | 8%  | 78% | 6.96 +-0.04 |
 | Chebyshev diag             | trot, diagonal braces  | 8.7 | 103% | 104% | 95%  | 92%  | 74%  | 63% | 79% | 35% | 14% | 73% | 6.42 +-0.06 |
 | Chebyshev                  | trot, guides           | 8.9 | 91%  | 88%  | 82%  | 81%  | 80%  | 46% | 78% | 65% | 35% | 72% | 6.41 +-0.09 |
-| Hoecken-Spears long-stance | sides, plates          | 8.6 | 98%  | 99%  | 88%  | 93%  | 90%  | 32% | 81% | 73% | 8%  | 74% | 6.33 +-0.06 |
+| Hoecken-Spears 4-bar duty 85 | sides, plates          | 8.6 | 98%  | 99%  | 88%  | 93%  | 90%  | 32% | 81% | 73% | 8%  | 74% | 6.33 +-0.06 |
 
 The +- covers only the starting points, not modelling choices such as
 guides against plates, which moved results by more. Each linkage against
@@ -447,7 +447,7 @@ four bars do about as well as Klann's six and Jansen's eight.
 
 None of them floats: on flat ground no best version is ever wholly more
 than 0.5 cm off the ground, and on 4 cm x 15 cm bumps the most any is
-(the long-stance walker) is 3.6% of the time, never more than 2 cm up or
+(the duty 85 walker) is 3.6% of the time, never more than 2 cm up or
 for longer than 0.4 s -- short hops over bumps, not the floating of
 gravity 20.
 
@@ -478,7 +478,7 @@ on bumps, cm/s, and rank):
 | Chebyshev diag             | 6.50 (9)  | 6.94 (11) | 1.44 (10) | 3.62 (11) |
 | Chebyshev-Spears           | 6.36 (10) | 7.59 (5)  | 1.02 (11) | 5.16 (4)  |
 | Chebyshev                  | 6.13 (11) | 6.79 (12) | 2.11 (7)  | 3.52 (12) |
-| Hoecken-Spears long-stance | 5.60 (12) | 7.41 (7)  | 0.82 (12) | 4.38 (7)  |
+| Hoecken-Spears 4-bar duty 85 | 5.60 (12) | 7.41 (7)  | 0.82 (12) | 4.38 (7)  |
 
 On irregular bumps the order holds well (rank correlation with the waves
 0.75; the same four lead). Logs and steps are different: a walker whose
@@ -513,14 +513,14 @@ Klann, Spears 4-bar --, side plates, diagonal braces, or guides),
 timing (sides: both legs on a side together; trot: diagonal legs
 together) and direction (forward, reversed). Plates fix the timing at
 sides and diagonal braces at trot; guides take either. The diagonal
-builds of Hoecken-Spears long-stance and Spears lift 44 and 53 are in
+builds of Hoecken-Spears 4-bar duty 85 and Chebyshev-Spears lift 51 and 62 are in
 `spears-lift-walkers.lua`; the sliders have none (their diagonal bars
 shook). 80 configurations in all, first on the waves (10 settings, 2 to
 4 starts), then the best two of each linkage on the other terrains (6
 settings, 2 starts).
 
 Flat speed was first set to 9 cm/s for each configuration by its crank
-speed. That rewarded walkers that slip on flat ground: Spears lift 44
+speed. That rewarded walkers that slip on flat ground: Chebyshev-Spears lift 51
 and 53 make only 7.4-7.6 cm/s on flat at their own crank speed, needed
 cranks 38-43% faster, and then bounded -- off the ground (the whole
 walker more than 0.5 cm up) 33-39% of the time, and faster on bumps
@@ -534,8 +534,8 @@ cm/s; flat speed; air on flat / on bumps):
 | Linkage | Bracing | Timing | Direction | Flat | On bumps | Kept | Air | Next best |
 |---------|---------|--------|-----------|------|----------|------|-----|-----------|
 | Chebyshev-Spears | diagonal | trot | reversed | 8.93 | 8.53 | 96% | 5 / 11 | diagonal, trot, forward 7.96 |
-| Spears lift 44 | diagonal | trot | reversed | 7.81 | 8.38 | 107% | 9 / 5 | diagonal, trot, forward 7.95 |
-| Hoecken-Spears long-stance | diagonal | trot | forward | 8.11 | 8.33 | 103% | 14 / 20 | diagonal, trot, reversed 8.16 |
+| Chebyshev-Spears lift 51 | diagonal | trot | reversed | 7.81 | 8.38 | 107% | 9 / 5 | diagonal, trot, forward 7.95 |
+| Hoecken-Spears 4-bar duty 85 | diagonal | trot | forward | 8.11 | 8.33 | 103% | 14 / 20 | diagonal, trot, reversed 8.16 |
 | Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.68 | 8.12 | 94% | 6 / 7 | plates, sides, reversed 7.60 |
 | Klann | own | trot | reversed | 8.95 | 8.03 | 90% | 0 / 0 | own, sides, reversed 7.88 |
 | Jansen | own | trot | reversed | 9.07 | 7.76 | 86% | 0 / 1 | own, sides, reversed 6.60 |
@@ -543,7 +543,7 @@ cm/s; flat speed; air on flat / on bumps):
 | Hoecken-Spears slider | guides | trot | forward | 8.34 | 7.52 | 90% | 3 / 8 | guides, trot, reversed 7.48 |
 | Chebyshev | guides | trot | reversed | 9.07 | 7.45 | 82% | 0 / 0 | guides, trot, forward 7.13 |
 | Spears 4-bar | own | trot | reversed | 7.37 | 7.42 | 101% | 0 / 2 | own, sides, reversed 7.00 |
-| Spears lift 53 | diagonal | trot | forward | 7.20 | 7.39 | 103% | 22 / 10 | guides, trot, forward 7.22 |
+| Chebyshev-Spears lift 62 | diagonal | trot | forward | 7.20 | 7.39 | 103% | 22 / 10 | guides, trot, forward 7.22 |
 | Hoecken slider | guides | trot | reversed | 8.76 | 7.14 | 82% | 0 / 3 | guides, trot, forward 6.89 |
 
 The best two of each on all four terrains (speed on bumps, cm/s; air on
@@ -553,19 +553,19 @@ random / logs / steps), ranked by the mean of the four:
 |---------|---------|--------|-----------|-------|--------|------|-------|------|-----|
 | Klann | own | trot | reversed | 8.03 | 8.49 | 7.24 | 8.30 | 8.01 | 2 / 1 / 0 |
 | Klann | own | sides | reversed | 7.88 | 8.40 | 7.39 | 8.06 | 7.93 | 2 / 1 / 0 |
-| Spears lift 44 | diagonal | trot | forward | 7.95 | 7.37 | 6.44 | 6.65 | 7.10 | 7 / 7 / 6 |
-| Spears lift 44 | diagonal | trot | reversed | 8.38 | 7.89 | 3.93 | 6.98 | 6.79 | 5 / 15 / 6 |
+| Chebyshev-Spears lift 51 | diagonal | trot | forward | 7.95 | 7.37 | 6.44 | 6.65 | 7.10 | 7 / 7 / 6 |
+| Chebyshev-Spears lift 51 | diagonal | trot | reversed | 8.38 | 7.89 | 3.93 | 6.98 | 6.79 | 5 / 15 / 6 |
 | Jansen | own | trot | reversed | 7.76 | 8.91 | 3.33 | 7.02 | 6.76 | 1 / 0 / 0 |
 | Spears 4-bar | own | trot | reversed | 7.42 | 7.82 | 5.38 | 5.50 | 6.53 | 3 / 1 / 1 |
-| Spears lift 53 | guides | trot | forward | 7.22 | 7.07 | 5.29 | 6.03 | 6.40 | 2 / 4 / 2 |
+| Chebyshev-Spears lift 62 | guides | trot | forward | 7.22 | 7.07 | 5.29 | 6.03 | 6.40 | 2 / 4 / 2 |
 | Spears 4-bar | own | sides | reversed | 7.00 | 7.84 | 4.73 | 5.43 | 6.25 | 2 / 1 / 1 |
 | Chebyshev-Spears | diagonal | trot | reversed | 8.53 | 8.13 | 3.17 | 5.06 | 6.22 | 9 / 17 / 9 |
-| Spears lift 53 | diagonal | trot | forward | 7.39 | 6.96 | 4.07 | 5.99 | 6.10 | 12 / 17 / 15 |
-| Hoecken-Spears long-stance | diagonal | trot | reversed | 8.16 | 7.48 | 3.42 | 5.19 | 6.06 | 16 / 23 / 19 |
+| Chebyshev-Spears lift 62 | diagonal | trot | forward | 7.39 | 6.96 | 4.07 | 5.99 | 6.10 | 12 / 17 / 15 |
+| Hoecken-Spears 4-bar duty 85 | diagonal | trot | reversed | 8.16 | 7.48 | 3.42 | 5.19 | 6.06 | 16 / 23 / 19 |
 | Hoecken-Spears 4-bar | diagonal | trot | reversed | 8.12 | 7.78 | 3.17 | 4.91 | 5.99 | 6 / 13 / 6 |
 | Hoecken-Spears 4-bar | plates | sides | reversed | 7.60 | 7.21 | 3.01 | 5.70 | 5.88 | 6 / 14 / 5 |
 | Jansen | own | sides | reversed | 6.60 | 7.27 | 3.10 | 6.22 | 5.80 | 1 / 0 / 0 |
-| Hoecken-Spears long-stance | diagonal | trot | forward | 8.33 | 7.57 | 3.67 | 3.60 | 5.79 | 18 / 25 / 24 |
+| Hoecken-Spears 4-bar duty 85 | diagonal | trot | forward | 8.33 | 7.57 | 3.67 | 3.60 | 5.79 | 18 / 25 / 24 |
 | Chebyshev-Spears | diagonal | trot | forward | 7.96 | 7.81 | 3.23 | 4.09 | 5.77 | 9 / 16 / 15 |
 | Hoecken 4-bar | guides | trot | reversed | 7.68 | 7.05 | 2.56 | 5.17 | 5.61 | 3 / 6 / 2 |
 | Hoecken-Spears slider | guides | trot | reversed | 7.48 | 7.49 | 2.63 | 4.67 | 5.57 | 7 / 17 / 8 |
@@ -577,16 +577,16 @@ random / logs / steps), ranked by the mean of the four:
 | Chebyshev | guides | trot | forward | 7.13 | 7.42 | 2.55 | 3.95 | 5.26 | 2 / 3 / 2 |
 
 - Trot is the best timing for every linkage, and reversed the best
-  direction for most; Spears lift 44 and 53 do best forward over all
+  direction for most; Chebyshev-Spears lift 51 and 62 do best forward over all
   four terrains.
 - The waves alone mislead: Chebyshev-Spears is best there and sixth of
   the linkages over all four, held back by logs and steps.
 - On logs, the hard one, foot lift decides: Chebyshev-Spears (26% lift)
-  makes 3.17 cm/s, Spears lift 44 (44%) 6.44, second only to Klann.
-  Spears lift 53 lifts more and does no better.
+  makes 3.17 cm/s, Chebyshev-Spears lift 51 (44% by the old measure) 6.44, second only to Klann.
+  Chebyshev-Spears lift 62 lifts more and does no better.
 - The Spears diagonal builds come off the ground on logs (7-25% of the
   time); Klann, Jansen and Spears 4-bar stay down.
-- The diagonal builds of Spears lift 44 and 53 and the plated lift 53
+- The diagonal builds of Chebyshev-Spears lift 51 and 62 and the plated lift 62
   have their link planes closer together than their files' (see
   `spears-lift-walkers.lua`): with the files' spacing, their bodies had
   come out less than nothing deep (their legs crossing in the middle)
@@ -595,7 +595,7 @@ random / logs / steps), ranked by the mean of the four:
 - The diagonal builds have both braces over the body (Braces clear the
   bumps, above); with the bottom brace lifted through the body, as at
   first, they had done much the same (Chebyshev-Spears diag 6.12 over
-  the four, now 6.22; Spears lift 44 diag 7.15, now 7.10).
+  the four, now 6.22; Chebyshev-Spears lift 51 diag 7.15, now 7.10).
 
 `test-square.lua` shows the best of each walking on each terrain.
 
@@ -629,7 +629,7 @@ Built, its cranks jam. Kept at least as far from locking as
 Chebyshev-Spears, the search finds at most duty 89%, flatness 5.2% and
 lift 29%, or duty 85%, flatness 5.6% and lift 32%.
 
-The first of those is the Hoecken-Spears long-stance (found while
+The first of those is the Hoecken-Spears 4-bar duty 85 (found while
 looking for a Hoecken-Spears with more lift): crank 1, ground 1.16,
 coupler, rocker and leg 1.50, the leg 39.8 degrees off the coupler, the
 ground link at 20.1 degrees -- a much shorter coupler and rocker than
@@ -761,7 +761,7 @@ legs can take any `GAIT`. With side timing the guided walkers match the
 plated ones closely (the Hoecken-Spears slider least well), which checks
 the guides; trotting (`GAIT = { 0, 180, 180, 0 }`) then helps all four
 Hoecken walkers and Chebyshev (a lot), and Chebyshev-Spears and the
-long-stance walker little or not at all (share kept; speed on bumps,
+duty 85 walker little or not at all (share kept; speed on bumps,
 cm/s; 4 starts):
 
 | Walker | Plates (sides) | Guides, sides | Guides, trot |
@@ -771,12 +771,12 @@ cm/s; 4 starts):
 | Hoecken-Spears slider | 84%, 7.0 | 73%, 6.2 | 82%, 7.1 |
 | Hoecken slider        | 68%, 5.1 | 65%, 4.9 | 81%, 7.1 |
 | Chebyshev-Spears      | 77%, 6.9 | 70%, 6.4 | 68%, 6.4 |
-| Hoecken-Spears long-stance | 73%, 6.2 | 68%, 5.9 | 68%, 6.1 |
+| Hoecken-Spears 4-bar duty 85 | 73%, 6.2 | 68%, 5.9 | 68%, 6.1 |
 | Chebyshev             | 59%, 4.4 | 52%, 3.8 | 72%, 6.4 |
 
 Trotting, the Spears versions keep their lead only narrowly: the 4-bars
 7.4 against 7.1 cm/s on bumps, the sliders level at 7.1. For
-Chebyshev-Spears and the long-stance walker the guides fall short of the
+Chebyshev-Spears and the duty 85 walker the guides fall short of the
 plates even with side timing (70% against 77%, 68% against 73%), so
 their trotting results may understate them; Chebyshev-Spears diag, which
 trots with its own braces, is the fairer trotting version of that
@@ -799,7 +799,7 @@ the body they shook the walker, and its speed swung from 2.4 to 14.6
 cm/s with nothing changed but the bars' weight. The guides above do the
 same job without the shaking.
 
-Not explained yet: the Hoecken-Spears long-stance comes down as high as
+Not explained yet: the Hoecken-Spears 4-bar duty 85 comes down as high as
 Chebyshev-Spears (0.19) with more lift and duty, but keeps less (73%);
 its foot swings forward in about 0.2 s, the quickest of all.
 
@@ -819,7 +819,7 @@ help no one clearly and hurt most (speed on bumps, cm/s, 4 starts):
 | Hoecken 4-bar (trot)        | 7.1 | 6.7 |
 | Hoecken-Spears slider (trot)| 7.1 | 6.6 |
 | Jansen (reverse, trot)      | 7.7 | 6.6 |
-| Hoecken-Spears long-stance  | 6.2 | 6.1 |
+| Hoecken-Spears 4-bar duty 85  | 6.2 | 6.1 |
 | Chebyshev diag              | 6.4 | 5.8 |
 | Chebyshev                   | 4.4 | 4.4 |
 
@@ -894,7 +894,7 @@ for a slider):
   Spears), which also gets a gold rim round its body
 - bars: as counted in the linkage reference (a four-bar counts its
   ground link; a slider counts 2 bars and the slider)
-- L after the bars: the long-stance version
+- L after the bars: the duty 85 version
 - a line across the body: a diag build -- the same linkage, braced
   diagonally and walking with its diagonal legs together
 
@@ -908,7 +908,7 @@ for a slider):
 | Chebyshev-Spears diag      | C-S 4  | blue    | yes      | yes         |
 | Hoecken 4-bar              | H 4    | magenta |          |             |
 | Hoecken-Spears 4-bar       | H-S 4  | magenta | yes      |             |
-| Hoecken-Spears long-stance | H-S 4L | magenta | yes      |             |
+| Hoecken-Spears 4-bar duty 85 | H-S 4  | magenta | yes      |             |
 | Hoecken slider             | H 2S   | white   |          |             |
 | Hoecken-Spears slider      | H-S 2S | white   | yes      |             |
 | Spears 4-bar               | S 4    | gold    |          |             |
@@ -958,7 +958,7 @@ ground any more.
 | Hoecken-Spears slider  | pink     |
 | Spears 4-bar           | maroon   |
 | Hoecken-Spears 4-bar  | teal     |
-| Hoecken-Spears long-stance | lavender |
+| Hoecken-Spears 4-bar duty 85 | lavender |
 | Spears 2-leg           | navy (with `TWO_LEGS`) |
 | Spears 2-leg balanced  | olive (with `TWO_LEGS`) |
 

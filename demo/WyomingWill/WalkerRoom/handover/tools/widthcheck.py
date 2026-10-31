@@ -7,7 +7,7 @@
 import sys, math, collections, glob
 sys.path.insert(0, "/home/claude/work")
 from shapely.geometry import LineString, Polygon
-FILES = {"Chebyshev-Spears diag": "nohold_CS", "Hoecken-Spears 4-bar diag": "nohold_HS4", "Hoecken-Spears long-stance diag": "nohold_HSLS"}
+FILES = {"Chebyshev-Spears diag": "nohold_CS", "Hoecken-Spears 4-bar diag": "nohold_HS4", "Hoecken-Spears 4-bar duty 85 diag": "nohold_HSLS"}
 def load(path):
     L, S, J = {}, collections.defaultdict(list), set()
     for l in open(path):

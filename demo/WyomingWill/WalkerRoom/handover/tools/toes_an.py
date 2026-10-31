@@ -1,8 +1,8 @@
 import statistics as st, os
 exec(open("/home/claude/work/tips_an.py").read().split("def row")[0])
 names = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken slider", "Hoecken-Spears slider",
-         "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance", "Spears lift 44", "Spears lift 53", "Chebyshev diag", "Chebyshev-Spears diag",
-         "Hoecken 4-bar diag", "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance diag", "Spears lift 44 diag", "Spears lift 53 diag"]
+         "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar duty 85", "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62", "Chebyshev diag", "Chebyshev-Spears diag",
+         "Hoecken 4-bar diag", "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85 diag", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag"]
 def m(d, n, t):
     v = [sp(f"/home/claude/work/{d}/{n.replace(' ', '_')}_{t}_s{s}.txt") for s in (1, 2, 3)]; v = [x[0] for x in v if x]
     return (st.mean(v), v) if len(v) == 3 else (None, v)

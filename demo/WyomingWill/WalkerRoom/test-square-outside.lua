@@ -1,7 +1,7 @@
 --
 -- Test square, outside braces: every diag build (Chebyshev-Spears,
 -- Hoecken-Spears 4-bar, Chebyshev, Hoecken 4-bar, Hoecken-Spears
--- long-stance, Spears lift 44 and 53) with both braces built outside its
+-- duty 85, Chebyshev-Spears lift 51 and 62) with both braces built outside its
 -- pendants (walker-room.lua, DIAG_OUTSIDE) and its pendants held at their
 -- angle to the body (PENDANT_HOLD), each next to its guides cousin, at the
 -- Earth standard (as test-square-earth.lua).
@@ -31,8 +31,8 @@ DIAG_OUTSIDE = true
 -- found it about 0.2 cm/s slower); off, flat, as patch 33 built it
 OUTSIDE_V = OUTSIDE_V or false
 PENDANT_HOLD = { ["Chebyshev-Spears diag"] = true, ["Hoecken-Spears 4-bar diag"] = true, ["Chebyshev diag"] = true,
-  ["Hoecken 4-bar diag"] = true, ["Hoecken-Spears long-stance diag"] = true, ["Spears lift 44 diag"] = true,
-  ["Spears lift 53 diag"] = true }
+  ["Hoecken 4-bar diag"] = true, ["Hoecken-Spears 4-bar duty 85 diag"] = true, ["Chebyshev-Spears lift 51 diag"] = true,
+  ["Chebyshev-Spears lift 62 diag"] = true }
 -- DIAG_LIGHT = 0.5
 
 local TROT = { 0, 180, 180, 0 }
@@ -45,17 +45,17 @@ VIEWS = {
   { walker = "Chebyshev", label = "guides, trot, forward", gait = TROT, unbraced = true },
   { walker = "Hoecken 4-bar diag", label = "outside braces, pendants held (trot), forward" },
   { walker = "Hoecken 4-bar", label = "guides, trot, forward", gait = TROT, unbraced = true },
-  { walker = "Hoecken-Spears long-stance diag", label = "outside braces, pendants held (trot), forward" },
-  { walker = "Hoecken-Spears long-stance", label = "guides, trot, forward", gait = TROT, unbraced = true },
-  { walker = "Spears lift 44 diag", label = "outside braces, pendants held (trot), forward" },
-  { walker = "Spears lift 44", label = "guides, trot, forward", gait = TROT, unbraced = true },
-  { walker = "Spears lift 53 diag", label = "outside braces, pendants held (trot), forward" },
-  { walker = "Spears lift 53", label = "guides, trot, forward", gait = TROT, unbraced = true },
+  { walker = "Hoecken-Spears 4-bar duty 85 diag", label = "outside braces, pendants held (trot), forward" },
+  { walker = "Hoecken-Spears 4-bar duty 85", label = "guides, trot, forward", gait = TROT, unbraced = true },
+  { walker = "Chebyshev-Spears lift 51 diag", label = "outside braces, pendants held (trot), forward" },
+  { walker = "Chebyshev-Spears lift 51", label = "guides, trot, forward", gait = TROT, unbraced = true },
+  { walker = "Chebyshev-Spears lift 62 diag", label = "outside braces, pendants held (trot), forward" },
+  { walker = "Chebyshev-Spears lift 62", label = "guides, trot, forward", gait = TROT, unbraced = true },
 }
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4

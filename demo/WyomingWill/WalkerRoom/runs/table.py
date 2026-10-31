@@ -6,6 +6,13 @@ steps 7), best first; then, with two settings or more, each build's change again
 compares (rank correlation), and the time a run took."""
 import sys, os, glob, re, math, statistics as st
 OWN = {"Jansen", "Klann", "Spears 4-bar"}
+# (builds renamed 31 October 2026: runs from before print the old names)
+OLD_NAMES = {"Spears lift 44": "Chebyshev-Spears lift 51", "Spears lift 53": "Chebyshev-Spears lift 62",
+             "Hoecken-Spears long-stance": "Hoecken-Spears 4-bar duty 85"}
+def newName(n):
+    for a, b in OLD_NAMES.items():
+        if n == a or n == a + " diag": return b + n[len(a):]
+    return n
 def bracing(n): return "own" if n in OWN else ("outside, held" if n.endswith("diag") else "guides")
 def load(d):
     D, times = {}, []
@@ -15,7 +22,7 @@ def load(d):
         if t: times.append(int(t.group(1)))
         if not m: continue
         base = os.path.basename(f)[:-4]; build, ter, seed = base.rsplit("_", 2)
-        D.setdefault(m.group(1), {}).setdefault(ter, []).append(float(m.group(2)))
+        D.setdefault(newName(m.group(1)), {}).setdefault(ter, []).append(float(m.group(2)))
     return D, times
 def summary(D):
     terrains = sorted({t for b in D.values() for t in b}, key=lambda t: (["waves", "logs", "steps"].index(re.match(r"[a-z]+", t).group()), t))

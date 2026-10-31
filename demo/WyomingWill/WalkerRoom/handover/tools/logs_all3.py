@@ -9,8 +9,8 @@ EXTRA = os.environ.get("EXTRA", "")
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 NAMES = ["Jansen", "Klann", "Spears 4-bar", "Chebyshev", "Chebyshev diag", "Chebyshev-Spears", "Chebyshev-Spears diag",
          "Hoecken 4-bar", "Hoecken 4-bar diag", "Hoecken slider", "Hoecken-Spears slider", "Hoecken-Spears 4-bar",
-         "Hoecken-Spears 4-bar diag", "Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag",
-         "Spears lift 44", "Spears lift 44 diag", "Spears lift 53", "Spears lift 53 diag"]
+         "Hoecken-Spears 4-bar diag", "Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag",
+         "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag"]
 jobs = [(n, a, s) for n in NAMES for a in (2, 4, 6) for s in (1, 2)]
 done = open(OUT).read() if os.path.exists(OUT) else ""
 jobs = [j for j in jobs if f"LOGS {j[0]}|amp {j[1]}|bump 15|seed {j[2]}|" not in done]

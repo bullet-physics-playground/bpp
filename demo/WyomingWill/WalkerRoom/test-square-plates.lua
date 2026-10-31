@@ -35,8 +35,8 @@ if LINK_WIDTH == nil then LINK_WIDTH = 1.0 end
 -- BODY_ANG_DAMP = 1
 if PLATE_LOW == nil then PLATE_LOW = true end
 
-local PLATED = { "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken-Spears 4-bar", "Hoecken-Spears long-stance",
-                 "Spears lift 44", "Spears lift 53", "Hoecken slider", "Hoecken-Spears slider" }
+local PLATED = { "Chebyshev", "Chebyshev-Spears", "Hoecken 4-bar", "Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar duty 85",
+                 "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62", "Hoecken slider", "Hoecken-Spears slider" }
 VIEWS = {}
 for _, n in ipairs(PLATED) do
   VIEWS[#VIEWS + 1] = { walker = n, label = "plates, sides (as built), forward", hold = false }
@@ -45,7 +45,7 @@ end
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4

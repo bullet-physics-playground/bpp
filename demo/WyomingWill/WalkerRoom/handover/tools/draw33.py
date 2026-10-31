@@ -9,10 +9,10 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon as MPoly
 BUILDS = [("Chebyshev_diag", "Chebyshev diag"), ("Hoecken_4-bar_diag", "Hoecken 4-bar diag"),
-          ("Hoecken-Spears_long-stance_diag", "Hoecken-Spears long-stance diag"),
-          ("Spears_lift_44_diag", "Spears lift 44 diag"), ("Spears_lift_53_diag", "Spears lift 53 diag")]
-LETTERS = {"Chebyshev_diag": 2.77, "Hoecken_4-bar_diag": 2.85, "Hoecken-Spears_long-stance_diag": 1.72,
-           "Spears_lift_44_diag": 2.00, "Spears_lift_53_diag": 2.31}
+          ("Hoecken-Spears_4-bar_duty_85_diag", "Hoecken-Spears 4-bar duty 85 diag"),
+          ("Chebyshev-Spears_lift_51_diag", "Chebyshev-Spears lift 51 diag"), ("Chebyshev-Spears_lift_62_diag", "Chebyshev-Spears lift 62 diag")]
+LETTERS = {"Chebyshev_diag": 2.77, "Hoecken_4-bar_diag": 2.85, "Hoecken-Spears_4-bar_duty_85_diag": 1.72,
+           "Chebyshev-Spears_lift_51_diag": 2.00, "Chebyshev-Spears_lift_62_diag": 2.31}
 TOPC, BOTC, PENDC, LINKC, FOOTC = "#b22222", "#4a55b5", "#c9a227", "#8a96a8", "#5a5a5a"
 def load(d, b):
     path = f"/home/claude/work/{d}/{b}.txt"

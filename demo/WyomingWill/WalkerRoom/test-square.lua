@@ -27,12 +27,12 @@ package.path = "../../module/?.lua;" .. package.path
 local TROT = { 0, 180, 180, 0 }
 VIEWS = {
   { walker = "Klann", label = "own frame, trot, reversed", reverse = true, gait = TROT, crank = 0.9504 },
-  { walker = "Spears lift 44 diag", label = "diagonal braces (trot), forward" },
+  { walker = "Chebyshev-Spears lift 51 diag", label = "diagonal braces (trot), forward" },
   { walker = "Jansen", label = "own frame, trot, reversed", reverse = true, gait = TROT },
   { walker = "Spears 4-bar", label = "own frame, trot, reversed", reverse = true, gait = TROT },
-  { walker = "Spears lift 53", label = "guides, trot, forward", gait = TROT, unbraced = true },
+  { walker = "Chebyshev-Spears lift 62", label = "guides, trot, forward", gait = TROT, unbraced = true },
   { walker = "Chebyshev-Spears diag", label = "diagonal braces (trot), reversed", reverse = true },
-  { walker = "Hoecken-Spears long-stance diag", label = "diagonal braces (trot), reversed", reverse = true },
+  { walker = "Hoecken-Spears 4-bar duty 85 diag", label = "diagonal braces (trot), reversed", reverse = true },
   { walker = "Hoecken-Spears 4-bar diag", label = "diagonal braces (trot), reversed", reverse = true },
   { walker = "Hoecken 4-bar", label = "guides, trot, reversed", reverse = true, gait = TROT, unbraced = true },
   { walker = "Hoecken-Spears slider", label = "guides, trot, reversed", reverse = true, gait = TROT, unbraced = true },
@@ -42,7 +42,7 @@ VIEWS = {
 VIEW = VIEW or 1                    -- the one it starts with
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds)
-dofile("spears-lift-walkers.lua")   -- (Spears lift 44 and 53, and their diag builds)
+dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 4                      -- bump height, cm

@@ -10,8 +10,8 @@ one() { out=/home/claude/work/n5/$4.txt; grep -q '^\(TQ\|HUNG\)' $out 2>/dev/nul
   grep -E "^(TQ|STALL|TRACK)|rror" $out.raw | grep -v ALSA > $out.tmp; [ $rc = 124 ] && echo "HUNG over 900 s" >> $out.tmp; mv $out.tmp $out; rm -f $f $out.raw; }
 br() { case "$1" in Jansen|Klann|"Spears 4-bar") echo "XX=1";; *diag) echo "DIAG_OUTSIDE=true; PENDANT_HOLD=true";; *) echo "UNBRACED=true";; esac; }
 TER="waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7"
-TOP=("Spears lift 44" "Spears lift 44 diag" "Spears lift 53" "Hoecken-Spears 4-bar diag" "Spears lift 53 diag" "Chebyshev-Spears diag" "Hoecken-Spears long-stance diag" "Hoecken-Spears slider diag" "Hoecken-Spears 4-bar" "Jansen" "Klann" "Hoecken-Spears long-stance")
-LEAN=("Spears lift 53 diag" "Hoecken-Spears long-stance" "Jansen" "Chebyshev-Spears diag")
+TOP=("Chebyshev-Spears lift 51" "Chebyshev-Spears lift 51 diag" "Chebyshev-Spears lift 62" "Hoecken-Spears 4-bar diag" "Chebyshev-Spears lift 62 diag" "Chebyshev-Spears diag" "Hoecken-Spears 4-bar duty 85 diag" "Hoecken-Spears slider diag" "Hoecken-Spears 4-bar" "Jansen" "Klann" "Hoecken-Spears 4-bar duty 85")
+LEAN=("Chebyshev-Spears lift 62 diag" "Hoecken-Spears 4-bar duty 85" "Jansen" "Chebyshev-Spears diag")
 J=()
 for s in 4 5; do for t in $TER; do T="TERRAIN=\"${t%%:*}\"; AMP=${t##*:}; SEED=$s"; tg="${t%%:*}${t##*:}_s$s"
   for n in "${TOP[@]}"; do J+=("$n|$T|$(br "$n")|${n// /_}_$tg"); done; done; done

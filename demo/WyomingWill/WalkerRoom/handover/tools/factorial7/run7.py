@@ -47,9 +47,9 @@ add("Spears 4-bar", "own", "its own", "Spears 4-bar", [])
 # (every run loads trotting-walkers.lua and spears-lift-walkers.lua, which hold the diag and lift builds)
 for n, diag in (("Chebyshev", "Chebyshev diag"), ("Chebyshev-Spears", "Chebyshev-Spears diag"),
                 ("Hoecken 4-bar", "Hoecken 4-bar diag"), ("Hoecken-Spears 4-bar", "Hoecken-Spears 4-bar diag"),
-                ("Hoecken-Spears long-stance", "Hoecken-Spears long-stance diag"),
+                ("Hoecken-Spears 4-bar duty 85", "Hoecken-Spears 4-bar duty 85 diag"),
                 ("Hoecken slider", None), ("Hoecken-Spears slider", None),
-                ("Spears lift 44", "Spears lift 44 diag"), ("Spears lift 53", "Spears lift 53 diag")):
+                ("Chebyshev-Spears lift 51", "Chebyshev-Spears lift 51 diag"), ("Chebyshev-Spears lift 62", "Chebyshev-Spears lift 62 diag")):
     if diag: add(n, "diag", "trot", diag, [])
     add(n, "guides", "trot", n, [U(n), G(TROT)])
 

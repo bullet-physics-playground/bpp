@@ -69,7 +69,7 @@ def run(b):
     return name, worst, under, ground, endtop, span
 if __name__ == "__main__":
     for b in (sys.argv[1:] or ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
-                              "Hoecken-Spears_long-stance_diag", "Spears_lift_44_diag", "Spears_lift_53_diag"]):
+                              "Hoecken-Spears_4-bar_duty_85_diag", "Chebyshev-Spears_lift_51_diag", "Chebyshev-Spears_lift_62_diag"]):
         name, worst, under, ground, endtop, span = run(b)
         w = "; ".join(f"{k} {v[0]:.2f} {v[1]}" for k, v in sorted(worst.items()))
         print(f"{name:32s} closest: {w}\n{'':32s} middle under the body by {under:.2f}, {span:.2f} along the walk, its bottom {ground:.2f} above the ground at its lowest; runs' tops {endtop:+.2f} against their pendants' tops")

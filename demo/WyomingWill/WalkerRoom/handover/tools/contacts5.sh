@@ -7,7 +7,7 @@ one() { # name tag amp
   QT_QPA_PLATFORM=offscreen timeout 900 /home/claude/build/release/bpp -f $(basename $f) -n 1325 2>&1 | grep -E "^(CONTACTS|TRACK|WELD)|rror" | grep -v ALSA > /home/claude/work/outb5/$2_a$3.txt
   rm -f $f
 }
-for n in "Chebyshev diag:C" "Hoecken 4-bar diag:H4" "Hoecken-Spears long-stance diag:HSLS" "Spears lift 44 diag:L44" "Spears lift 53 diag:L53"; do
+for n in "Chebyshev diag:C" "Hoecken 4-bar diag:H4" "Hoecken-Spears 4-bar duty 85 diag:HSLS" "Chebyshev-Spears lift 51 diag:L44" "Chebyshev-Spears lift 62 diag:L53"; do
   for a in 0 4; do one "${n%%:*}" "${n##*:}" $a & done; wait
 done
 echo CT_DONE

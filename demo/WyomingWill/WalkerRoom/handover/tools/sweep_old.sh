@@ -10,7 +10,7 @@ one() {
   echo "$n $(grep -c '^S ' "/home/claude/work/sweep_old/${n// /_}.txt") $(tail -1 "/home/claude/work/sweep_old/${n// /_}.txt" | cut -c1-5)"
 }
 one "Chebyshev diag" "" & one "Hoecken 4-bar diag" ""; wait
-one "Hoecken-Spears long-stance diag" "" & one "Spears lift 44 diag" ""; wait
-one "Spears lift 53 diag" "" & one "Chebyshev-Spears diag" ""; wait
+one "Hoecken-Spears 4-bar duty 85 diag" "" & one "Chebyshev-Spears lift 51 diag" ""; wait
+one "Chebyshev-Spears lift 62 diag" "" & one "Chebyshev-Spears diag" ""; wait
 one "Hoecken-Spears 4-bar diag" ""
 echo SWEEPS_DONE
