@@ -18,6 +18,8 @@
 --    its flow at 10% coverage, where Fig. 7.8 loses 6%.
 -- 5. The corridor sweep: Kerr's 2005 thesis logs give Figs. 7.11-7.13, and
 --    his Java, rerun, gives his logs (F96, F97).
+-- 6. His 2005 simulator in Lua (ch07/kerr2005.lua) is his Java, run for run
+--    (F98).
 -- The full sweeps are ch07/sweep.sh's (ch07/theory_runs.txt, ch07/README.md).
 --
 -- DEFINITIONS (printed values): those of ch07/theory.lua (err, kerr, v2,
@@ -25,7 +27,7 @@
 --   ref      largest |Lua - Java| / max(|Java|, 1e-300) over x, y, vx, vy
 --   out      share of the channel's particles beyond its cells (y > 10 L)
 --
--- Run from the ArtificialPhysics folder (about 30 s):
+-- Run from the ArtificialPhysics folder (about a minute):
 --   lua5.1 checks/ch07.lua
 --
 
@@ -200,6 +202,89 @@ for k, g in pairs(groups) do
 end
 check("his Java rerun agrees with his logs (all settings, < 3 SE)", worst < 3 and nset == 25,
       fmt("%d settings, %d runs; worst %.1f SE (%s)", nset, #ours, worst, worstName))
+
+-- 6. The Lua port of his 2005 simulator (ch07/kerr2005.lua; F98): the
+--    reference runs of his Java (ch07/kerr2005_reference.sh) end in the
+--    same state, every position and bearing to 1e-9 (mostly bit for bit;
+--    the maths libraries' cos and sin can differ in a double's last bit),
+--    the same cells covered at the same step; the sample of his Java's
+--    reruns rerun on the Lua (ch07/kerr2005_port.sh) gives the same lines;
+--    the switches that put his code right leave the sweep within its noise.
+local R5 = require "ch07.kerr2005"
+local refs, rc = {}, nil
+f = io.open(here .. "/ch07/kerr2005_reference.txt") or io.open("ch07/kerr2005_reference.txt")
+for line in f:lines() do
+  local ctl, n, course, seed, steps = line:match("^# (%S+) (%d+) (%S+) (%d+) (%d+)$")
+  if ctl then
+    rc = { ctl = ctl, n = tonumber(n), course = course, seed = tonumber(seed), steps = tonumber(steps), rows = {} }
+    refs[#refs + 1] = rc
+  elseif line:match("^t ") then rc.t = tonumber(line:match("%d+"))
+  elseif line:match("^covered") then
+    local a, b = line:match("covered (%d+) (%d+)")
+    rc.covered, rc.behind = tonumber(a), tonumber(b)
+  else
+    local i, x, y, b = line:match("^(%d+) (%S+) (%S+) (%S+)$")
+    if i then rc.rows[#rc.rows + 1] = { tonumber(i), tonumber(x), tonumber(y), tonumber(b) } end
+  end
+end
+f:close()
+for _, r in ipairs(refs) do
+  local w = R5.new({ controller = r.ctl, n = r.n, seed = r.seed,
+                     course = r.course ~= "none" and (here .. "/ch07/kerr2005/data/" .. r.course) or nil })
+  while w.time < r.steps do
+    R5.step(w)
+    if not R5.going(w) then break end
+  end
+  local worst, exact = 0, 0
+  for _, row in ipairs(r.rows) do
+    local i = row[1]
+    local mine = { w.x[i], w.y[i], w.b[i] }
+    for k = 1, 3 do
+      local d = math.abs(mine[k] - row[k + 1]) / math.max(math.abs(row[k + 1]), 1)
+      if d > worst then worst = d end
+      if mine[k] == row[k + 1] then exact = exact + 1 end
+    end
+  end
+  check(fmt("2005 Lua = Java: %s, N %d, %s, seed %d", r.ctl, r.n, r.course, r.seed),
+        worst < 1e-9 and w.time == r.t and w.covered == r.covered and w.behindCovered == r.behind,
+        fmt("step %d (%d), cells %d %d; ref %.1e, %d/%d exact", w.time, r.t, w.covered, w.behindCovered,
+            worst, exact, 3 * #r.rows))
+end
+local lua5 = readRuns("ch07/kerr2005_lua_runs.txt")
+local java5 = {}
+for _, r in ipairs(ours) do java5[fmt("%s %d %d %d", r.ctl, r.N, r.Pct, r.Course)] = r end
+local same, diff, worstLine = 0, 0, ""
+for _, r in ipairs(lua5) do
+  local j = java5[fmt("%s %d %d %d", r.ctl, r.N, r.Pct, r.Course)]
+  -- the Lua prints 10 digits; one cell is >= 0.008 points of either share
+  if j and j.Time == r.Time and math.abs(j.Total - r.Total) < 1e-6 and math.abs(j.Behind - r.Behind) < 1e-6 then
+    same = same + 1
+  else
+    diff = diff + 1
+    worstLine = fmt("%s N %d Pct %d Course %d", r.ctl, r.N, r.Pct, r.Course)
+  end
+end
+check("2005 Lua reruns = his Java reruns, line for line", same > 0 and diff == 0,
+      fmt("%d of %d the same%s", same, #lua5, diff > 0 and ("; differs: " .. worstLine) or ""))
+
+-- the switches (ch07/kerr2005_fixes.sh: KT, 25 robots, 20%, his 10
+-- courses) leave the sweep within its noise of his code's
+local fixRuns, base = readRuns("ch07/kerr2005_fix_runs.txt"), {}
+for _, r in ipairs(ours) do if r.ctl == "KTRobot" and r.N == 25 and r.Pct == 20 then base[#base + 1] = r end end
+local byFix, worstZ, worstFix = {}, 0, ""
+for _, r in ipairs(fixRuns) do byFix[r.Fix] = byFix[r.Fix] or {}; table.insert(byFix[r.Fix], r) end
+local nfix = 0
+for name, g in pairs(byFix) do
+  nfix = nfix + 1
+  for _, key in ipairs({ "Total", "Behind", "Time" }) do
+    local ma, sa, na = mean(base, key)
+    local mb, sb, nb = mean(g, key)
+    local z = math.abs(mb - ma) / math.sqrt(sa * sa / na + sb * sb / nb)
+    if z > worstZ then worstZ, worstFix = z, name .. " " .. key end
+  end
+end
+check("2005 switches (seeds, messages, wallfit): within the noise", nfix == 4 and worstZ < 2.5,
+      fmt("%d settings x 10 runs; worst %.1f SE (%s)", nfix, worstZ, worstFix))
 
 print(fmt("ch07: %d checks, %d failed, %.0f s", count, fails, os.clock() - t0))
 print(fails == 0 and "PASS ch07: " .. count .. " tests" or "FAIL ch07")

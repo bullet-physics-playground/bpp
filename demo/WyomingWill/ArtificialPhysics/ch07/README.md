@@ -370,13 +370,79 @@ within 2 standard errors. Default's total coverage sits 1–2 points above
 his at 0–20% obstacles (up to 2.7 standard errors), the one systematic
 difference; his logs may come from a slightly earlier `Simple2`.
 
-**What the code does that the book does not say** (the port in the next
-step will have them as switches):
+**What the code does that the book does not say** (the Lua port below
+has the first and two of the KT robot's as switches):
 - All KT robots share one random sequence: each seeds its generator from
   the clock in milliseconds when it is created, and all 25 are created in
   the same millisecond (Ant too; Default adds its id).
 - The run ends when every robot has spent 10 steps near the goal line or
-  at 150,000 steps; robots that finish stop counting.
-- It writes every robot's state every step to `log/debug.txt`
+  at 150,000 steps; robots that finish stop where they are.
+- Every move builds a log line of every robot's state
   (`Environment.logRobotInformation` tests its debug level the wrong way
-  round), which costs most of its run time.
+  round) and the logger then drops it, its level being off: nothing is
+  written (`log/debug.txt` stays empty; we said it was written, F99).
+- The KT robot (F98): its speed is always the safe distance, 6″ when the
+  way is clear; the velocity the collisions give sets only the heading
+  (Listing 7.1's `max(…, 6)`, capped at V_max, says the same; PDF 246:
+  "the magnitude of the velocity of all robots is fixed"). A robot told
+  its velocity by a partner reads the sender's bearing where the angle
+  should be, and 0 for the bearing (`CommunicationSensor.prepMessages`
+  writes slot 1 twice). Its wall's line is fitted from the first sonars,
+  counted from sonar 0 one way round and from sonar 23 the other, that
+  see anything within 60″, taken to lie at 45° − 15° i and −45° +
+  15° (23 − i), not the leftmost and rightmost within ±45° that see
+  something within 15″ (PDF 232); ε is 45°.
+
+## The Lua port of the 2005 simulator (step 2)
+
+| File | What |
+| --- | --- |
+| `kerr2005.lua` | His world, sensors and the three controllers (`KTRobot`, `AntRobot`, `Simple2`) in Lua, operation for operation, every float operation of his Java rounded to a float; Java's random numbers (`java.util.Random`) exactly; three switches (below), off by default (his code) |
+| `kerr2005_run.lua` | One run from his drivers' seed, printing his log line |
+| `KerrTrace.java`, `kerr2005_reference.sh`, `kerr2005_reference.txt` | Ours: five runs of his Java from fixed seeds, the state at their last step, which `../checks/ch07.lua` compares the Lua with (needs a JDK) |
+| `kerr2005_port.sh`, `kerr2005_lua_runs.txt` | A sample of `kerr2005_runs.txt` (his Java, rerun) rerun on the Lua, line for line |
+| `kerr2005_fixes.sh`, `kerr2005_fix_runs.txt` | The switches on KT at 20% obstacles, his 10 courses |
+
+Only rectangles are ported (all 50 of his courses are rectangles; his
+circles and triangles are in none). Sensing skips the robots, obstacles
+and walls beyond a sonar's reach (63″; the cut is 80″), which his code
+tests and finds out of range: the results are the same, 20–50 times
+faster. In Lua 5.1, 25 robots on a 20% course take about 5–8 ms a step
+with KT (2–4 minutes a run), 15 ms with Default and 1 ms with Ant (its
+robots read one sonar a step).
+
+**The port is his Java.** The five reference runs (KT without obstacles
+and at 20% with 5 robots, to the end; KT, Ant and Default at 20% for
+1,000, 2,000 and 500 steps) end in his state, the same cells covered at
+the same step (`../checks/ch07.lua`). Whole runs compared every 1,000
+steps stay bit for bit (Ant at 20%, 98,544 steps; Default at 40%,
+51,706) or within 7 × 10⁻¹³ (KT at 20% and 40%, 28,076 and 32,798 steps):
+Java's cos and sin (HotSpot's) and the C library's differ in the last bit
+of 0.2% of calls, and those enter the positions, which are doubles (its
+atan2, acos and log, fdlibm's and HotSpot's, differ in 8–18% and 0.1% of
+calls, but only reach floats). The sample of his Java's reruns
+(`kerr2005_runs.txt`) rerun on the Lua (`kerr2005_port.sh`: KT and
+Default at every setting, courses 0–2, Default at 40% on course 6 only;
+Ant at 0% and 20%; 60 runs, up to 64,552 steps) gives his lines exactly,
+the same sweep times and the same cells. So the Lua stands in for his
+code, and his logs' agreement with it (F96) carries over.
+
+**Switches** (`o.fix`; `kerr2005_run.lua`'s last argument):
+`seeds` gives each KT and Ant robot its own random numbers (seed + id, as
+Default); `messages` lets a told robot read the velocity it was told;
+`wallfit` fits the wall from the leftmost and rightmost sonars within
+±45° that see something within 15″, as the book says. KT, 25 robots, 20%
+obstacles, the first run on each of his 10 courses (`kerr2005_fixes.sh`):
+
+| Switches | Total % | Shadow % | Time (steps) |
+| --- | --- | --- | --- |
+| none (his code; his Java's reruns) | 89.9 ± 0.4 | 82.2 ± 1.1 | 23,214 ± 2,084 |
+| `seeds` | 90.2 ± 0.5 | 82.3 ± 1.3 | 22,460 ± 1,472 |
+| `messages` | 89.5 ± 0.6 | 83.0 ± 1.1 | 19,864 ± 2,532 |
+| `wallfit` | 90.1 ± 0.4 | 82.1 ± 1.3 | 23,891 ± 1,976 |
+| all three | 90.0 ± 0.4 | 81.0 ± 1.4 | 22,097 ± 2,244 |
+
+(mean ± standard error, 10 runs each.) None moves the sweep beyond its
+noise: the book's text and his code give the same coverage and time
+here, so his figures stand for the controller the book describes. The
+switches stay, off, for the sweep on BPP's robots (step 3).

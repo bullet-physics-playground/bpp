@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F97 so far), and
+  implementations, and our own mistakes once corrected (F1–F99 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -111,7 +111,7 @@ is updated at the end of every milestone.
 | `ch02/` | Ch. 2's springs and solar system, plus our spring3D, tetrahedron, planets and spring lattice: BPP scenes and checks (`ch02/README.md`) |
 | `ch03/` | Ch. 3's formation models (`formation_newton`, `formation_hooke`, `formation_goal_obs`) line for line in plain Lua, with the book's results checked (`checks/ch03.lua`, `ch03/README.md`) |
 | `ch04/` | Ch. 4.1's perfect formations (`formation_perfect`) and Ch. 4.3's coverage models (`uniform`, `uniform_mfpl`) line for line in plain Lua, the sweep and William's NetLogo/Android runs (`uniform_data.txt`), with the book's results checked (`checks/ch04_perfect.lua`, `checks/ch04.lua`, `ch04/README.md`) |
-| `ch07/` | Ch. 7's theory checks on Kerr's own simulator: his 2004 Java (`kerr/`, with William's permission) ported exactly to Lua (`kerr.lua`, his departures as switches), the three experiments (`theory.lua`, `sweep.sh`, `theory_runs.txt`), checked in `checks/ch07.lua` (`ch07/README.md`) |
+| `ch07/` | Ch. 7's theory checks on Kerr's own simulator: his 2004 Java (`kerr/`, with William's permission) ported exactly to Lua (`kerr.lua`, his departures as switches), the three experiments (`theory.lua`, `sweep.sh`, `theory_runs.txt`); his 2005 robot simulator (`kerr2005/`) and its exact Lua port (`kerr2005.lua`: KT, Ant, Default); checked in `checks/ch07.lua` (`ch07/README.md`) |
 | `netlogo/` | William's original NetLogo models (NetLogo 6; all but `lopf.nlogo`), the reference for every port (`netlogo/README.md` maps them to chapters) |
 | `ch11/` | Table 11.1 on Maxim's simulator (`maxim/`, his C and environments; `maxim.lua`, an exact Lua copy; the counts behind the table) and the mean free path in 2D and 3D, exact and simulated (`ch11/README.md`) |
 | `lib/` | Shared code: `swarm.lua` (the formation harness for every vehicle, behind one interface, G18), `laws.lua` (the two laws, shared by every vehicle's scenes), `ideal.lua` (the perfect-tracking reference vehicle; `VEHICLE=lib.ideal` runs any scene on it), `pointmass.lua` (G5, the point mass with the drone's limits; `VEHICLE=lib.pointmass`), `rng.lua`, `batch.py`/`batch.lua`, `monitors.lua`, `world.lua`, `terrain.lua`, `town.lua`, `buildings.lua`, `features.lua`, `vegetation.lua` and `places.lua` (the realistic world generator's layers and its five presets), `status.lua`, `lattice.lua` (Ch. 16.9 lattice quality), `ch13.lua` (Ch. 13's mechanisms) so far (`lib/README.md`) |
@@ -334,6 +334,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   the journal's PostScript. Its obstacles are not explained (open).
   Listing 7.3's half-circle is made whole by its own assignment, as
   Kerr's `KTRobot` does.
+- **Ch. 7's corridor sweep (2026-10-30; F96–F99):** Kerr's 2005 robot
+  simulator is in `ch07/kerr2005/`; its thesis logs are Figs. 7.11–7.13
+  and his code rerun gives them. `ch07/kerr2005.lua` repeats his Java run
+  for run (every float operation rounded to a float, Java's `Random`
+  exactly; the maths libraries' cos and sin can differ in a double's last
+  bit, which stays near 10⁻¹² over whole runs). His KT robot always moves
+  the safe distance (6″ when clear; the velocity sets only the heading),
+  reads its messages wrongly and fits walls from the wrong sonars:
+  switches `messages`, `wallfit` and `seeds`, off by default (F98).
 
 ## 7. Where things stand and what's next
 
@@ -518,8 +527,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   them (**done**, F96; Exp. 2 ran at 20% obstacles, not 30%, F97); (2) a
   Lua port of the world and the three controllers (KT, Ant, Default),
   checked against his Java run for run where the arithmetic allows and
-  against his logs; (3) the sweep on the port and then on BPP's ground
-  robot (`World.preset("ch07-corridor")`, `velocity()`).
+  against his logs (**done**, `ch07/kerr2005.lua`, F98–F99); (3) the
+  sweep on the port and then on BPP's ground robot
+  (`World.preset("ch07-corridor")`, `velocity()`). **Next is (3).**
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
@@ -558,8 +568,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
-> sweep, step (2), the Lua port of Kerr's 2005 robot simulator. Deliver
-> each step as a patch with git commands.
+> sweep, step (3): the sweep on the Lua port of Kerr's 2005 robot
+> simulator, then on BPP's ground robots. Deliver each step as a patch
+> with git commands.
 
 Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
 are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with

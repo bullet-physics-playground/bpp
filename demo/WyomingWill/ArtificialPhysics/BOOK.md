@@ -110,9 +110,10 @@ These correct or extend the plan. Each is backed by the chapter notes.
     - Ch. 1's small demos (magnets chain, cooperative pull).
 11. **The book's code listings contain bugs; don't copy them.**
     - Ch. 6: the APO sign in Listing 6.3 is reversed relative to Listing 6.4.
-    - Ch. 7: speed `max(…, 6)` should be `min`, and Listing 7.3 draws
-      cos θ = 1 − 2U, the 3D formula (its half-circle is made whole by its
-      own assignment, F95).
+    - Ch. 7: Listing 7.3 draws cos θ = 1 − 2U, the 3D formula (its
+      half-circle is made whole by its own assignment, F95). Listing 7.1's
+      speed `max(…, 6)` is not a bug: capped at V_max it is always 6″, as
+      Kerr's code moves every robot (F98, F99).
     - Ch. 7: Kerr's theory numbers are his own error measures, not the
       book's, on a gas that misses the theory in three ways (F93).
     - Ch. 3: the Hooke cap applies to the attractive side only.
@@ -254,12 +255,12 @@ metrics.
 ### Ch. 7 — Gas-mimetic swarms (PDF 224–253) · `book/ch07.md`
 | # | Entry | Pages | BPP | Status |
 | --- | --- | --- | --- | --- |
-| 7.1 | KT controller: Rayleigh/Gaussian wall rebound, 15″ collision zone, 24-sonar ring | 228–236 | `ch07/kerr.lua`: Kerr's 2004 gas simulator (Garcia's DSMC in 2D; his Java in `ch07/kerr/`), ported exactly, his departures as switches (F92, F93); the robot controller (his 2005 `KTRobot`) next, then velocity-commanded quads (G4, G8) | partly |
+| 7.1 | KT controller: Rayleigh/Gaussian wall rebound, 15″ collision zone, 24-sonar ring | 228–236 | `ch07/kerr.lua`: Kerr's 2004 gas simulator (Garcia's DSMC in 2D; his Java in `ch07/kerr/`), ported exactly, his departures as switches (F92, F93); the robot controller, his 2005 `KTRobot`, ported exactly in `ch07/kerr2005.lua` (F98); then BPP's ground robots and velocity-commanded quads (G4, G8) | partly |
 | 7.2 | Uniform density at rest, error < 10% | 239–240 | `ch07/`: his box piles the gas into a corner (36% by the book's measure, 0.19 by his); with Garcia's wall at y, uniform to 2% at N = 10,000, 5–6% from N = 500 (F93); Fig. 7.5 is a later simulator's (F94) | done |
 | 7.3 | Mean speed versus T, error < 2% | 240–241 | `ch07/`: his gas runs 3.75% hot, ~0.8% by his measure (Fig. 7.6's level); with three fixes 0.3% (F93); ★ 3D Maxwell √(8kT/πm) | done |
 | 7.4 | Profiles with one moving wall (linear) and two (flat), against obstacle density | 241–243 | `ch07/`: both, explicitly, without obstacles: two-sided flat at V, one-sided linear with slip, error 20% → 4% from Mach 1 to 8 settled (his window 51% → 6%; F92, F93); Figs. 7.7–7.8's points read from their source; obstacles not in his code, open (F94) | partly |
-| 7.5 | Default and Ant baselines | 244–246 | Kerr's 2005 code in `ch07/kerr2005/` (`Simple2` = Default, `AntRobot`), rerun against his logs (F96); next a Lua port, then particles; pheromone grid | partly |
-| 7.6 | KT vs Default vs Ant: KT covers ~90% in about a third of Ant's time | 246–251 | Figs. 7.11–7.13 are Kerr's thesis logs; his 2005 code rerun gives them (F96); Exp. 2 at 20% obstacles, not 30% (F97); next the Lua port and BPP's ground robots; 1000″×5000″ corridor, 50×250 grid; ★ 3D canyon or tunnel | partly |
+| 7.5 | Default and Ant baselines | 244–246 | Kerr's 2005 code in `ch07/kerr2005/` (`Simple2` = Default, `AntRobot`), rerun against his logs (F96), ported exactly to Lua with its pheromone grid (`ch07/kerr2005.lua`, F98); next BPP's ground robots | partly |
+| 7.6 | KT vs Default vs Ant: KT covers ~90% in about a third of Ant's time | 246–251 | Figs. 7.11–7.13 are Kerr's thesis logs; his 2005 code rerun gives them (F96); Exp. 2 at 20% obstacles, not 30% (F97); the Lua port repeats his Java run for run (F98); next the sweep on BPP's ground robots; 1000″×5000″ corridor, 50×250 grid; ★ 3D canyon or tunnel | partly |
 
 ### Ch. 8 — Fluxotaxis theory (PDF 254–281) · `book/ch08.md`
 | # | Entry | Pages | BPP | Status |

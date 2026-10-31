@@ -1209,6 +1209,34 @@ these runs is 0.4 (default 2.0), and robots move 6″ a step when the sonar
 shows the way clear. The chapter note's "KT ≈ 10 000 steps at 0%" (Fig.
 7.11) was a misreading of the figure; the log has 4,848.
 
+**F98. Kerr's 2005 simulator in Lua, run for run; his KT robot as coded
+differs from the chapter's text in three ways** — 2026-10-30, Book
+discrepancy. `ch07/README.md`, `ch07/kerr2005.lua`, `checks/ch07.lua`.
+The port rounds every float operation of his Java to a float and draws
+Java's own random numbers; five reference runs of his Java (KT, Ant,
+Default, 0–20% obstacles, to the end or 500–2,000 steps) end in the same
+state, the same cells covered at the same step: bit for bit, or within
+~10⁻¹² where Java's and the C library's cos and sin differ in a double's
+last bit (whole runs of 22,000–33,000 steps stay within 7 × 10⁻¹³).
+His Java's reruns of F96 rerun on the Lua (60 runs: KT and Default at
+every setting, Ant at 0 and 20%; up to 64,552 steps) give his lines
+exactly: the same sweep times and cells covered. What the book does not
+say, read from his code (the last three now switches, off = his code):
+(1) a KT robot always moves the safe
+distance, 6″ when the sonar shows the way clear; the collisions'
+velocity sets only its heading, so Listing 7.1's `max(…, 6)` capped at
+V_max is right (F99); (2) a robot told its new velocity reads the
+sender's bearing as the velocity's angle and 0 as the bearing
+(`messages`); (3) the wall's line comes from the first sonars that see
+anything within 60″ either way round the ring, at the wrong angles, not
+the leftmost and rightmost within ±45° and 15″ (PDF 232; `wallfit`); and
+all KT and Ant robots share one random sequence (F97; `seeds`). ε is 45°,
+the collision cooldown 5 steps. Put right one at a time or together (KT, 25 robots, 20% obstacles, his 10
+courses), none moves total coverage (89.5–90.2% against his 89.9 ± 0.4),
+shadow coverage (81.0–83.0 against 82.2 ± 1.1) or sweep time
+(19,900–23,900 against 23,200 ± 2,100 steps) beyond its noise: his
+figures stand for the controller the book describes.
+
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
 measurement and will be entered here as each chapter is ported.
@@ -1393,6 +1421,17 @@ gas the same draw is taken from the channel's x axis (the pair's random
 order makes the circle whole there); it is one of the three causes of
 his gas running hot (F93: +2.1% on the mean speed alone, against +0.5%
 measured earlier for the draw from a particle's own heading).
+
+**F99. "Listing 7.1's `max` should be `min`", and "his simulator writes
+every robot's state to its log"** — 2026-10-30, Our error (in
+`book/ch07.md`, `BOOK.md` §1 item 11 and `ch07/README.md`), corrected
+by reading and running his code. His KT robot moves the safe distance
+whatever its velocity's size (F98), and the book says every algorithm's
+speed is fixed to the same value (PDF 246): `max(…, 6)` with the cap
+at V_max is that; `min` would slow a robot to its rebound speed (most
+probable 1.1″ a step) after every wall. And
+his `Environment.logRobotInformation` builds a line every move but the
+logger drops it (its level is off): `log/debug.txt` stays empty.
 
 ## 6. How BPP behaves (worth knowing for every port)
 
