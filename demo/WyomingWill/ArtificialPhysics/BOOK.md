@@ -258,8 +258,8 @@ metrics.
 | 7.2 | Uniform density at rest, error < 10% | 239–240 | `ch07/`: his box piles the gas into a corner (36% by the book's measure, 0.19 by his); with Garcia's wall at y, uniform to 2% at N = 10,000, 5–6% from N = 500 (F93); Fig. 7.5 is a later simulator's (F94) | done |
 | 7.3 | Mean speed versus T, error < 2% | 240–241 | `ch07/`: his gas runs 3.75% hot, ~0.8% by his measure (Fig. 7.6's level); with three fixes 0.3% (F93); ★ 3D Maxwell √(8kT/πm) | done |
 | 7.4 | Profiles with one moving wall (linear) and two (flat), against obstacle density | 241–243 | `ch07/`: both, explicitly, without obstacles: two-sided flat at V, one-sided linear with slip, error 20% → 4% from Mach 1 to 8 settled (his window 51% → 6%; F92, F93); Figs. 7.7–7.8's points read from their source; obstacles not in his code, open (F94) | partly |
-| 7.5 | Default and Ant baselines | 244–246 | Particles; pheromone grid | new |
-| 7.6 | KT vs Default vs Ant: KT covers ~90% in about a third of Ant's time | 246–251 | 1000″×5000″ corridor, 50×250 grid; ★ 3D canyon or tunnel | plan |
+| 7.5 | Default and Ant baselines | 244–246 | Kerr's 2005 code in `ch07/kerr2005/` (`Simple2` = Default, `AntRobot`), rerun against his logs (F96); next a Lua port, then particles; pheromone grid | partly |
+| 7.6 | KT vs Default vs Ant: KT covers ~90% in about a third of Ant's time | 246–251 | Figs. 7.11–7.13 are Kerr's thesis logs; his 2005 code rerun gives them (F96); Exp. 2 at 20% obstacles, not 30% (F97); next the Lua port and BPP's ground robots; 1000″×5000″ corridor, 50×250 grid; ★ 3D canyon or tunnel | partly |
 
 ### Ch. 8 — Fluxotaxis theory (PDF 254–281) · `book/ch08.md`
 | # | Entry | Pages | BPP | Status |

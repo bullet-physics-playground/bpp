@@ -1,0 +1,80 @@
+--- a/kerr2005/env/Environment.java
++++ b/kerr2005/env/Environment.java
+@@ -56,6 +56,14 @@
+     private Environment() {
+     }
+     
++    // ours (ch07/kerr2005_seed.diff): with -Dkerr.seed set, the robots'
++    // random generators are seeded from the run's seed instead of the clock
++    private long robotClock;
++    public static long clock() {
++        if (System.getProperty("kerr.seed") == null) return System.currentTimeMillis();
++        return inst().robotClock;
++    }
++    
+     public static Environment inst() {
+         if (env == null) {
+             env = new Environment();
+@@ -82,6 +90,7 @@
+ 
+     public void reset(Parameters p) {
+         time = 0;
++        robotClock = p.seed;
+         
+         clearMessages();
+         width = p.width;
+--- a/kerr2005/robot/AntRobot.java
++++ b/kerr2005/robot/AntRobot.java
+@@ -46,7 +46,7 @@
+     public AntRobot() {
+         super();
+         
+-        rand = new Random(System.currentTimeMillis());
++        rand = new Random(env.Environment.clock());
+         speed = VMAX; 
+         distance = speed;
+ 
+--- a/kerr2005/robot/FSMRobot.java
++++ b/kerr2005/robot/FSMRobot.java
+@@ -51,7 +51,7 @@
+         ss = new SonarSensor(id, 24);
+         gs = new GoalSensor(id);
+ 
+-        rand = new Random(System.currentTimeMillis() + id);
++        rand = new Random(env.Environment.clock() + id);
+         
+         try {
+            String file = ClassLoader.getSystemClassLoader().getResource("data/").getPath();
+--- a/kerr2005/robot/KTRobot.java
++++ b/kerr2005/robot/KTRobot.java
+@@ -52,7 +52,7 @@
+     public KTRobot() {
+         super();
+         
+-        rand = new Random(System.currentTimeMillis());
++        rand = new Random(env.Environment.clock());
+         speed = VMAX; 
+         distance = speed;
+         
+--- a/kerr2005/robot/Simple.java
++++ b/kerr2005/robot/Simple.java
+@@ -45,7 +45,7 @@
+         ss = new SonarSensor(id, 24);
+         gs = new GoalSensor(id);
+ 
+-        rand = new Random(System.currentTimeMillis() + id);
++        rand = new Random(env.Environment.clock() + id);
+     }
+     
+     public float getDistance() {
+--- a/kerr2005/robot/Simple2.java
++++ b/kerr2005/robot/Simple2.java
+@@ -48,7 +48,7 @@
+         ss = new SonarSensor(id, 24);
+         gs = new GoalSensor(id);
+ 
+-        rand = new Random(System.currentTimeMillis() + id);
++        rand = new Random(env.Environment.clock() + id);
+     }
+     
+     public float getDistance() {

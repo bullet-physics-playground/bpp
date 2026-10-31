@@ -16,6 +16,8 @@
 --    uniform; the open channel lets the gas drift out of the cells.
 -- 4. Obstacles (ours, F94): with Kerr's 2005 layouts the gas loses most of
 --    its flow at 10% coverage, where Fig. 7.8 loses 6%.
+-- 5. The corridor sweep: Kerr's 2005 thesis logs give Figs. 7.11-7.13, and
+--    his Java, rerun, gives his logs (F96, F97).
 -- The full sweeps are ch07/sweep.sh's (ch07/theory_runs.txt, ch07/README.md).
 --
 -- DEFINITIONS (printed values): those of ch07/theory.lua (err, kerr, v2,
@@ -130,6 +132,74 @@ check("flow: no obstacles, one-sided linear, slope ~Fig. 7.8's 0.80", f0.slope >
 local f1 = T.flow("two", 4, 0.1, "couette", 1, 1, 4000, 2001)
 check("flow: 10% obstacles stop most of it (Fig. 7.8: 0.84 V)", f1.rel < 0.5 and math.abs(lay.cover - 0.3) < 1e-9,
       fmt("two-sided, faces moving: rel %.3f, back %.2f", f1.rel, f1.back))
+
+-- 5. The corridor sweep (7.5-7.6; F96, F97): Kerr's 2005 thesis logs
+--    (ch07/kerr2005/log/thesis/, 100 runs per setting) are the book's
+--    Figs. 7.11-7.13; his robot-number sweep ran at 20% obstacles (the book
+--    says 30%); his Java, rerun here (ch07/kerr2005.sh, 5-10 runs per
+--    setting, ch07/kerr2005_runs.txt), agrees with his logs.
+local function readRuns(path)
+  local f = io.open(here .. "/" .. path) or io.open(path)
+  if not f then return nil end
+  local runs = {}
+  for line in f:lines() do
+    if line:match(" Run ") then
+      local r = { ctl = line:match("^(%S+)") }
+      for k, v in line:gmatch("(%a+) (%S+)") do r[k] = tonumber(v) or v end
+      runs[#runs + 1] = r
+    end
+  end
+  f:close()
+  return runs
+end
+local function mean(runs, key)
+  local s, s2, n = 0, 0, #runs
+  for _, r in ipairs(runs) do s, s2 = s + r[key], s2 + r[key] ^ 2 end
+  local m = s / n
+  return m, math.sqrt(math.max(s2 / n - m * m, 0) * n / math.max(n - 1, 1)), n
+end
+local L = "ch07/kerr2005/log/thesis/"
+local function his(ctl, set) return readRuns(L .. ctl .. "_" .. set .. ".txt") end
+local kt0, kt10, kt20, kt30, kt40 = his("KTRobot", "0"), his("KTRobot", "10"), his("KTRobot", "20"), his("KTRobot", "30"), his("KTRobot", "40")
+local function m1(r, k) return (mean(r, k)) end
+check("Fig. 7.12: KT's total 77% at 0%, 88-90% at 10-40%",
+      math.abs(m1(kt0, "Total") - 76.9) < 0.1 and m1(kt10, "Total") > 88 and m1(kt40, "Total") < 90,
+      fmt("%.1f %.1f %.1f %.1f %.1f", m1(kt0, "Total"), m1(kt10, "Total"), m1(kt20, "Total"), m1(kt30, "Total"), m1(kt40, "Total")))
+check("Fig. 7.13: KT's shadow 68, 81, 76, 78%",
+      math.abs(m1(kt10, "Behind") - 68.2) < 0.1 and math.abs(m1(kt20, "Behind") - 81.4) < 0.1
+      and math.abs(m1(kt30, "Behind") - 75.7) < 0.1 and math.abs(m1(kt40, "Behind") - 77.7) < 0.1,
+      fmt("%.1f %.1f %.1f %.1f", m1(kt10, "Behind"), m1(kt20, "Behind"), m1(kt30, "Behind"), m1(kt40, "Behind")))
+local ant5, ant30 = his("AntRobot", "N5"), his("AntRobot", "N30")
+check("Fig. 7.11: KT 4,848 steps at 0% to 52,672 at 40%; Ant 126k (N 5) to 57k",
+      math.abs(m1(kt0, "Time") - 4848) < 1 and math.abs(m1(kt40, "Time") - 52672) < 1
+      and m1(ant5, "Time") > 120000 and m1(ant30, "Time") < 60000,
+      fmt("KT %.0f .. %.0f, Ant %.0f .. %.0f", m1(kt0, "Time"), m1(kt40, "Time"), m1(ant5, "Time"), m1(ant30, "Time")))
+local n25 = his("KTRobot", "N25")
+check("Exp. 2 ran at 20% obstacles, not the book's 30%",
+      math.abs(m1(n25, "Behind") - m1(kt20, "Behind")) < 1 and math.abs(m1(n25, "Behind") - m1(kt30, "Behind")) > 4,
+      fmt("N 25 shadow %.1f; 25 robots at 20%%: %.1f, at 30%%: %.1f", m1(n25, "Behind"), m1(kt20, "Behind"), m1(kt30, "Behind")))
+local ours = readRuns("ch07/kerr2005_runs.txt")
+local groups, worst, nset = {}, 0, 0
+for _, r in ipairs(ours) do
+  local set = (r.Pct == 20 and r.N ~= 25) and ("N" .. r.N) or tostring(r.Pct)
+  local k = r.ctl .. "_" .. set
+  groups[k] = groups[k] or {}
+  table.insert(groups[k], r)
+end
+local worstName = ""
+for k, g in pairs(groups) do
+  local h = readRuns(L .. k .. ".txt")
+  nset = nset + 1
+  for _, key in ipairs({ "Total", "Behind" }) do
+    local ma, sa, na = mean(h, key)
+    local mb, sb, nb = mean(g, key)
+    local se = math.sqrt(sa * sa / na + sb * sb / nb)
+    local z = se > 0 and math.abs(mb - ma) / se or 0
+    if z > worst then worst, worstName = z, k .. " " .. key end
+  end
+end
+check("his Java rerun agrees with his logs (all settings, < 3 SE)", worst < 3 and nset == 25,
+      fmt("%d settings, %d runs; worst %.1f SE (%s)", nset, #ours, worst, worstName))
 
 print(fmt("ch07: %d checks, %d failed, %.0f s", count, fails, os.clock() - t0))
 print(fails == 0 and "PASS ch07: " .. count .. " tests" or "FAIL ch07")

@@ -1,0 +1,17 @@
+Environment.java
+
+                r[count][0] = j*sepRadius + 10;
+                r[count][1] = i*sepRadius + 10;
+                v[count][0] = 0;
+                v[count][1] = 0;
+                bearing[count] = rand.nextFloat()*360.0f;
+                c.updateCoverage(r[count][0], r[count][1]);
+
+IROS.java
+        p.n         = 25;
+        p.sepRadius = 40;
+        p.width     = 1000;
+        p.height    = 5000;
+        p.ncell_x   = 50;
+        p.ncell_y   = 250;
+

@@ -302,3 +302,79 @@ archive William has found so far. Against it, the 2004 code's runs:
   every face rule we tried holds the flow far below Fig. 7.8, where 10%
   of obstacles cost the two-sided flow only 6% (Obstacles, above;
   FINDINGS F94); how the thesis's runs treated obstacles remains open.
+
+## The corridor sweep (entries 7.5–7.6): Kerr's 2005 robot simulator
+
+The chapter's second half (PDF 244–251, Figs. 7.9–7.13) compares Kerr's
+KT robots with a Default controller and Koenig's Ant on sweeping a 1000″
+× 5000″ corridor with obstacles. William's archive has the simulator
+that ran it (`forclaude.zip`, `robotSimulator`, November 2004 to 2005)
+with Kerr's own logs of the runs behind the figures.
+
+| File | What |
+| --- | --- |
+| `kerr2005/` | Kerr's 2005 robot simulator as he left it (William's archive): the world (`env/`), the controllers (`robot/`: `KTRobot`, `AntRobot`, `Simple2` = the book's Default, and others), the sensors (`sensor/`: sonar ring, robot detector, goal, messages), obstacles (`obstacle/`, `obstacleGenerator/`), his drivers (`experiments/IROS.java`, `Thesis_2.java`), his 50 obstacle courses (`data/`) and his thesis logs (`log/thesis/`, 100 runs per setting) |
+| `kerr2005_seed.diff` | Six lines: with `-Dkerr.seed` the robots' random generators are seeded from the run's seed instead of the clock |
+| `KerrSweep.java` | Ours: his drivers' loop (seeds 100, 101, … over courses and runs) without their graphics, printing his log lines |
+| `kerr2005.sh` | Builds it (in a temporary copy) and reruns a sample of his settings into `kerr2005_runs.txt` (about an hour on two cores; needs a JDK) |
+| `kerr2005_runs.txt` | That sample: 225 runs |
+
+Taken as it is but for line endings (CRLF to LF); left out are the
+compiled classes, NetBeans' `.nbattrs`, two bitmaps, his IROS logs and his
+derived summaries (`log/thesis/composite`, `statsig`). Two of his files do
+not compile on a current JDK (`util/ImageSaver.java` needs the JPEG codec
+Java 7 removed; `robot/Simple.java` repeats a class of `Simple2.java`);
+`kerr2005.sh` compiles only what the three controllers use.
+
+**His logs are the book's figures.** Each setting in `log/thesis/` is
+100 runs (10 courses × 10 runs; driver, controller, seeds 100–199):
+
+| Controller | 0% | 10% | 20% | 30% | 40% | N 5 | N 10 | N 15 | N 20 | N 25 | N 30 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| KT: total % | 76.9 | 88.6 | 89.8 | 89.1 | 88.4 | 57.2 | 75.0 | 82.7 | 87.0 | 89.8 | 91.9 |
+| KT: shadow % | — | 68.2 | 81.4 | 75.7 | 77.7 | 38.8 | 57.9 | 70.7 | 77.5 | 81.6 | 84.6 |
+| KT: time (steps) | 4,848 | 12,763 | 20,635 | 24,667 | 52,672 | 13,913 | 16,905 | 18,609 | 20,528 | 20,921 | 22,754 |
+| Ant: total % | 98.1 | 98.0 | 97.9 | 97.7 | 97.5 | 96.4 | 97.2 | 97.6 | 97.7 | 97.9 | 98.0 |
+| Ant: time | 67,297 | 61,935 | 62,175 | 63,822 | 71,136 | 126,174 | 89,977 | 77,182 | 68,049 | 63,448 | 57,353 |
+| Default: total % | 41.9 | 43.4 | 45.1 | 44.9 | 40.7 | 17.7 | 27.9 | 35.0 | 41.2 | 45.6 | 49.7 |
+| Default: shadow % | — | 24.6 | 31.6 | 25.0 | 27.1 | 9.9 | 17.2 | 22.2 | 28.0 | 31.1 | 34.5 |
+| Default: time | 1,997 | 2,540 | 12,564 | 10,196 | 99,378 | 8,633 | 8,822 | 9,557 | 11,475 | 12,642 | 12,657 |
+
+(Ant's shadow coverage is 100% everywhere.) These are Figs. 7.11–7.13,
+point for point as far as the figures can be read. The settings, from his
+drivers: 25 robots at 0–40% obstacles (`IROS.java`); N = 5–30 robots at
+**20%** obstacles (`Thesis_2.java`, `obstaclePercentage = 20`), where the
+book says 30% (PDF 247): his N = 25 runs give what his 25-robot runs at
+20% give (total 89.8 and 89.8, shadow 81.6 and 81.4, time 20,921 and
+20,635), not those at 30% (89.1, 75.7, 24,667). Each point is **10**
+corridors × 10 runs, where the book says five (PDF 246–247). The KT
+robots' moving-wall speed is 0.4 (`KTRobot.wall`, default 2.0); robots
+move 6″ a step when the way is clear (`Robot.VMAX`).
+
+**His code gives his logs.** Rerun (`kerr2005.sh`: the first run of each
+course, 10 per setting, 5 for Ant over 0–40% only), every setting agrees
+with his 100 runs within 3 standard errors in total and shadow coverage
+(`checks/ch07.lua`); the means:
+
+| Controller | 0% | 10% | 20% | 30% | 40% | N 5 | N 10 | N 15 | N 20 | N 30 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| KT: total % (his) | 77.0 (76.9) | 88.7 (88.6) | 89.9 (89.8) | 89.4 (89.1) | 88.6 (88.4) | 54.3 (57.2) | 76.5 (75.0) | 83.7 (82.7) | 87.5 (87.0) | 91.9 (91.9) |
+| KT: shadow % | — | 66.4 (68.2) | 82.2 (81.4) | 73.7 (75.7) | 78.8 (77.7) | 38.1 (38.8) | 61.3 (57.9) | 72.1 (70.7) | 78.0 (77.5) | 83.9 (84.6) |
+| Ant: total % | 98.1 (98.1) | 98.0 (98.0) | 97.9 (97.9) | 97.7 (97.7) | 97.5 (97.5) | | | | | |
+| Default: total % | 43.4 (41.9) | 45.4 (43.4) | 46.8 (45.1) | 46.1 (44.9) | 41.9 (40.7) | 17.4 (17.7) | 28.3 (27.9) | 34.1 (35.0) | 42.4 (41.2) | 50.7 (49.7) |
+
+Sweep times scatter more (a few runs hit the 150,000-step limit) but agree
+within 2 standard errors. Default's total coverage sits 1–2 points above
+his at 0–20% obstacles (up to 2.7 standard errors), the one systematic
+difference; his logs may come from a slightly earlier `Simple2`.
+
+**What the code does that the book does not say** (the port in the next
+step will have them as switches):
+- All KT robots share one random sequence: each seeds its generator from
+  the clock in milliseconds when it is created, and all 25 are created in
+  the same millisecond (Ant too; Default adds its id).
+- The run ends when every robot has spent 10 steps near the goal line or
+  at 150,000 steps; robots that finish stop counting.
+- It writes every robot's state every step to `log/debug.txt`
+  (`Environment.logRobotInformation` tests its debug level the wrong way
+  round), which costs most of its run time.

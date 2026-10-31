@@ -80,7 +80,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F95 so far), and
+  implementations, and our own mistakes once corrected (F1–F97 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -505,7 +505,16 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   out of the repo (§4). Kerr's was checked for F85 (the wall rule is
   Garcia's crossing rule, i.e. `inward`) and F89 (collision avoidance is
   assumed, not given).
-- **Next: Ch. 13's constrained vehicles,** one patch each: (1) the
+- **Now: finishing Ch. 7, the corridor sweep (7.5–7.6)** (William,
+  2026-10-30: "Finish Ch 7 first"), one patch per step: (1) Kerr's 2005
+  robot simulator into the repo (`ch07/kerr2005/`, seeds settable), his
+  thesis logs shown to be Figs. 7.11–7.13 and his code, rerun, to give
+  them (**done**, F96; Exp. 2 ran at 20% obstacles, not 30%, F97); (2) a
+  Lua port of the world and the three controllers (KT, Ant, Default),
+  checked against his Java run for run where the arithmetic allows and
+  against his logs; (3) the sweep on the port and then on BPP's ground
+  robot (`World.preset("ch07-corridor")`, `velocity()`).
+- **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
   the camera ring (§13.4, E10–E11b); (3) the triangle of death (E6); (4) a
@@ -542,10 +551,10 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
-> and continue with the next step in HANDOFF.md §7: Ch. 13's
-> constrained vehicles, step (2), the dumbbell agent on the Pioneer and
-> the camera ring. Deliver each step as a patch with git commands.
+> and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
+> sweep, step (2), the Lua port of Kerr's 2005 robot simulator. Deliver
+> each step as a patch with git commands.
 
-Attach the book PDF (Ch. 13 is PDF 444–471); Apker's and Potter's
-material is in the chapter itself. `Android_AP.zip` only if it will
-compare with the Android app, and `CPT.zip` for plume work.
+Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
+are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with
+the Android app, and `CPT.zip` for plume work.

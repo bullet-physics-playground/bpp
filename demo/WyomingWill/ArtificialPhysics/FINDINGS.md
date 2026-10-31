@@ -291,6 +291,22 @@ gas: the mean speed to 0.3%, the density uniform to 2% (N = 10,000), the two-sid
 one-sided one linear with slip at both walls (error 20% at Mach 1 to 4%
 at Mach 8 by the book's measure, falling with V as Fig. 7.7's does).
 
+**F96. Ch. 7's corridor sweep (Figs. 7.11–7.13) is Kerr's thesis logs,
+and his 2005 code, rerun, gives them** — 2026-10-30, Confirmed.
+`ch07/README.md`, `checks/ch07.lua`, `ch07/kerr2005/`. William's archive
+has Kerr's 2005 robot simulator (KT, Ant and Default = `Simple2`; sonar
+ring, obstacle courses) with his thesis logs, 100 runs per setting. The
+logs give the figures point for point: KT's total coverage 76.9% without
+obstacles and 88.4–89.8% at 10–40%, its shadow coverage 68.2, 81.4,
+75.7 and 77.7%, its sweep time 4,848 steps rising to 52,672; Ant 97.5–98.1%
+total and 100% shadow in 62,000–71,000 steps (126,174 with 5 robots,
+57,353 with 30); Default 40.7–45.1% total in 2,000–99,000 steps. Rerun
+from his seeds (the robots' clock seeds made settable,
+`ch07/kerr2005_seed.diff`; 225 runs, 5–10 per setting), every setting
+agrees with his 100 within 3 standard errors in total and shadow
+coverage (KT's means within 0.3 points at 0–40% obstacles); Default's
+total sits 1–2 points above his at 0–20% obstacles.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.
@@ -1177,6 +1193,21 @@ runs were new in August 2006 (his email "Two Sided Couette Results", 22
 August 2006, from ISI, with `actual-vd-2.eps`). That simulator is not in
 the archive. A steady gas cannot pass obstacles as freely as Fig. 7.8's
 flow does; how those runs measured it is open.
+
+**F97. Ch. 7's robot-number sweep ran at 20% obstacles, not 30%, and
+every point is 10 corridors, not five** — 2026-10-30, Book discrepancy.
+`ch07/README.md`, `checks/ch07.lua`. The book says Exp. 2 (5–30 robots)
+used 30% obstacles and both experiments five corridors × 10 runs
+(PDF 246–247). Kerr's driver for Exp. 2 (`Thesis_2.java`) sets 20%, and
+his logs agree: 25 robots in Exp. 2 give total 89.8%, shadow 81.6% in
+20,921 steps, as his 25 robots at 20% in Exp. 1 (89.8, 81.4, 20,635), not
+at 30% (89.1, 75.7, 24,667). Every setting in his logs is 10 courses ×
+10 runs. Also not in the book: all KT robots draw from one random
+sequence (each seeds Java's generator from the clock in milliseconds
+when created, all in the same millisecond; Ant too), the KT wall speed in
+these runs is 0.4 (default 2.0), and robots move 6″ a step when the sonar
+shows the way clear. The chapter note's "KT ≈ 10 000 steps at 0%" (Fig.
+7.11) was a misreading of the figure; the log has 4,848.
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
