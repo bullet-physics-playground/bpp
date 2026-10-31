@@ -242,9 +242,14 @@ robot simulator (William's copy; a driver of ours, 300 robots, wall
 speed 4.08 units per step = Mach 4 in his units, 3,000 steps; 4 runs,
 which his unseeded robots do not repeat), `KTRobot` gives a U-shaped
 profile without obstacles (2.6–3.4 units per step by the walls, 0.9–1.7
-in the middle),
-not Fig. 7.8 right's flat 3.6. That code comes into the repo with the
-corridor sweep (7.5–7.6).
+in the middle), not Fig. 7.8 right's flat 3.6. Kerr said so himself
+(email to Diana and William, 19 March 2011): the journal's theory runs
+were "just in Java", in "toroidal worlds" with "several hundred robots",
+and "we never reran the experiments on the robot simulator". The
+two-sided runs of Fig. 7.8 right were new in August 2006 (his email "Two
+Sided Couette Results", 22 August 2006, sent from ISI). That Java gas
+simulator, toroidal and with obstacles, is the one not in the archive.
+The robot code comes into the repo with the corridor sweep (7.5–7.6).
 
 ## The book's figures
 

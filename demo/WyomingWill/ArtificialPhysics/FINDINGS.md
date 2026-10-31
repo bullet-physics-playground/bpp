@@ -1169,8 +1169,14 @@ one-sided 0.05–0.17 V (0.35 V), and half the particles move backward; at
 50%, 0.02–0.06 V (0.48 V). Kerr's 2005 robot controller (`KTRobot`, run
 on William's copy, 4 runs) is not the figures' source either: without
 obstacles its two-sided profile is U-shaped (2.6–3.4 units per step by
-the walls, 0.9–1.7 between), not flat at 3.6. A steady gas cannot pass obstacles as freely
-as Fig. 7.8's flow does; how the thesis's runs measured it is open.
+the walls, 0.9–1.7 between), not flat at 3.6; Kerr wrote as much
+(email to Diana and William, 19 March 2011): the journal's theory runs
+were "just in Java", in "toroidal worlds" with "several hundred robots",
+and "we never reran the experiments on the robot simulator". The two-sided
+runs were new in August 2006 (his email "Two Sided Couette Results", 22
+August 2006, from ISI, with `actual-vd-2.eps`). That simulator is not in
+the archive. A steady gas cannot pass obstacles as freely as Fig. 7.8's
+flow does; how those runs measured it is open.
 
 The chapter notes list further suspected errors in the listings (Ch. 3, 6,
 7, 9, 13, 18; `BOOK.md` §1 item 11). They are not yet re-checked by
