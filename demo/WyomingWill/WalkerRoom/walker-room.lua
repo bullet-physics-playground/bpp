@@ -352,6 +352,14 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- frame (its turning speed about the vertical times 1 - d), its pitch and
 -- roll left free (its own damping BODY_ANG_DAMP, or 0) -- the files'
 -- straight-line fix without holding the body's tilt. nil: off.
+-- LINK_DAMP (default 0): every link's and brace's own damping (Bullet's: a
+-- drag on the body's own motion, not friction in its joints) set to this,
+-- moving and turning, the same for every walker; feet keep the room's 0.1
+-- moving, the body its own (BODY_ANG_DAMP, YAW_DAMP). Before 31 October
+-- each kept its file's: none on most, 0.05 turning on Klann's and Jansen's
+-- links, 0.10 / 0.15 and 0.20 / 0.30 on the sliders', 0.10 / 0.15 on Spears
+-- 4-bar's, 0.15 turning on the outside braces. false: as its files give.
+LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
 -- or Klann's and Jansen's own legs); nothing across the walk, so the
@@ -1235,6 +1243,11 @@ local function addWalker(spec, x, z, heading)
   end
   if BODY_ANG_DAMP or YAW_DAMP then
     w.cube.body:setDamping(w.cube.body:getLinearDamping(), BODY_ANG_DAMP or 0)
+  end
+  if LINK_DAMP then   -- (one damping rule, above)
+    for _, o in ipairs(w.bodies) do
+      if o.mass > 0 and not rawequal(o, w.cube) and made[o] ~= "buildFoot" then o.body:setDamping(LINK_DAMP, LINK_DAMP) end
+    end
   end
   -- sprung ankles (ANKLE_SPRING, above): each foot, hinged to its leg,
   -- also held level to the body by an angular spring about the same axis
