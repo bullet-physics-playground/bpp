@@ -362,13 +362,13 @@ there, in `release/`, or on the path; or set `BPP`.
   pocket and trips nothing, so AUTO stops. `count-out-auto.dc2` and
   `divide-auto.dc2` run E.S.R.'s way. A halt mid-cycle can leave A = 0
   when a division isn't exact (11 / 5): the manual says to finish the
-  cycle by hand. The tour is ~88 000 frames; check-all allows 96 000
-  frames and two hours a run. **Not yet checked whole:** the two new
-  programs passed on their own, and check-all's four other exhibits
-  passed, but its Digi-Comp run (the library) went past the old hour's
-  timeout here with the machine loaded and was stopped. First thing in a
-  new session: `./tools/check-all.sh` and `tools/check-lua52.sh` from
-  BabbagesHall, and fix whatever fails.
+  cycle by hand. **Checked whole (2026-10-31):** check-all's eight
+  runs of the other exhibits and `check-lua52.sh` passed, but both
+  Digi-Comp runs gave no RESULT: the tour had not ended. Run with its log,
+  every program was right and the tour ended at frame 98 292, past the
+  96 000 check-all allowed (it had been put at ~88 000). check-all now
+  allows 110 000 (110 600 in the hall), still two hours a run; each took
+  about an hour here, two at a time on two cores.
 - **Next: the weight and the fly as parts (step 2f).** William chose a
   bought rotary damper for the fly: Fuji Latex (ACE) **FRT-G2-200**, 0.2 N
   cm at 20 rpm, on the wheel's shaft 1:1; the weight a cup of nine balls
