@@ -29,10 +29,14 @@ def summary(D):
     rows.sort(reverse=True)
     return terrains, rows
 dirs = sys.argv[1:] or sorted(glob.glob("runs/out/*"))
+# each folder's label: its name (the setting), or with its parent's when two folders share a name
+# (runs/out-nostop/warm40fast against runs/out-stop/warm40fast)
+names = [os.path.basename(d.rstrip("/")) for d in dirs]
+names = [("/".join(d.rstrip("/").split("/")[-2:]) if names.count(n) > 1 else n) for d, n in zip(dirs, names)]
 res = []
-for d in dirs:
-    D, times = load(d); terrains, rows = summary(D); res.append((os.path.basename(d.rstrip("/")), rows, times))
-    print(f"\n## {os.path.basename(d.rstrip('/'))}  ({sum(r[5] for r in rows)} runs; a run took {st.mean(times):.0f} s on average)\n" if times else f"\n## {d}\n")
+for d, label in zip(dirs, names):
+    D, times = load(d); terrains, rows = summary(D); res.append((label, rows, times))
+    print(f"\n## {label}  ({sum(r[5] for r in rows)} runs; a run took {st.mean(times):.0f} s on average)\n" if times else f"\n## {d} (no runs found)\n")
     print("| Rank | Walker | Bracing | Timing | Direction | " + " | ".join(terrains) + " | Mean | ± | Hardest three | Runs |")
     print("|---|---|---|---|---|" + "---|" * (len(terrains) + 4))
     for k, (mean, n, means, se, hard, runs) in enumerate(rows, 1):
