@@ -103,6 +103,14 @@ module complementBar() {
   for (p = SH_PINS) cylY(p[0], p[1], SH_PIN_R, -SH_T, SH_BAR_Y0 + SH_BAR_H + SH_T);
 }
 module compKnob() cylY(SH_KNOB[0], SH_KNOB[1], SH_KNOB_R, SH_BAR_Y0 + SH_BAR_H, SH_KNOB_H);
+// OVERFLOW: the shutter over the overflow hole (RUN, closed, as here; HALT,
+// open, OVF_TRAVEL up the slope), its knob standing on its arm
+module ovfShutter() {
+  slab(-OVF_T, OVF_T) for (p = OVF_PIECES) outline(p);
+  cylY(OVF_KNOB[0], OVF_KNOB[1], OVF_KNOB_R, 0, OVF_KNOB_H);
+}
+module ovfGroove() slab(-OVF_T - 0.03, OVF_T + 0.1) offset(delta = 0.3)
+  for (p = OVF_PIECES) hull() { outline(p); translate([0, S * OVF_TRAVEL]) outline(p); }
 // (its groove in the plate: where it is closed and open, 0.3 mm clear round)
 module grooves() for (i = [0 : len(SHUTTERS) - 1])
   slab(-SH_T - 0.03, SH_T + 0.1) offset(delta = 0.3) hull() { outline(SHUTTERS[i]); translate([S * SH_TRAVEL, 0]) outline(SHUTTERS[i]); }
@@ -171,6 +179,7 @@ module upper() difference() {
   }
   holes();
   grooves();
+  ovfGroove();
   upperPins();
   translate([0, -MARK_D, 0]) slab(0, MARK_D / S + 0.01) marks2d();
 }
@@ -234,6 +243,7 @@ if (PART == "print-trip-down-arm") translate([0, 0, 2]) rotate([0, -90, 0]) tran
 if (PART == "print-trip-eye") translate([0, 0, -S * (YL - BACK - 0.3)]) rotate([90, 0, 0]) translate(-S * [TRIP_EYE[0], 0, TRIP_EYE[2]]) tripEye();
 if (PART == "print-trip-lever") translate([0, 0, 5]) rotate([0, -90, 0]) tripLever();
 if (PART == "print-shutter") rotate([90, 0, 0]) translate([-S * SH_PINS[0][0], S * SH_T, -S * SH_PINS[0][1]]) shutter(0);
+if (PART == "print-ovf-shutter") translate([0, 0, S * OVF_T]) rotate([90, 0, 0]) ovfShutter();
 if (PART == "print-comp-knob") rotate([90, 0, 0]) translate([-S * SH_KNOB[0], -S * (SH_BAR_Y0 + SH_BAR_H), -S * SH_KNOB[1]]) compKnob();
 for (i = [0 : NX - 1], j = [0 : NZ_U - 1]) if (PART == str("print-upper-", i, "-", j))
   rotate([90, 0, 0]) translate([0, S * PT, -S * cut(BOARD[2], BOARD[3], NZ_U, j)]) tileOf(BOARD, i, j, NZ_U, -PT - 0.1, WALL_H + 0.1) upper();

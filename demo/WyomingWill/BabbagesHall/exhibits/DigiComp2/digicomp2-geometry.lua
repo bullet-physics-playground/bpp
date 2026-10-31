@@ -672,7 +672,30 @@ for k = 5, G.NBITS do
   local x = t.x - G.JOIN[1]
   wall(x, runTop(t) - G.JOIN[2], x, u.z - 2.0, "guide")
 end
-G.overflow = sideHole(G.toggles[G.NBITS], -1, "overflow")
+-- OVERFLOW: the carry out of A7 comes to the overflow hole, and the
+-- OVERFLOW switch is a shutter over it, sliding up and down the slope in a
+-- groove, its knob up the slope and to the left, out of every ball's way.
+-- RUN (closed, the knob down the slope): the ball rolls over it, down a
+-- lane to the plate's end, off it onto the lower level, and on to the
+-- collector and the trip lever, as every ball does. HALT (open, the knob
+-- pushed up the slope): the ball drops through into a pocket on the lower
+-- level, and reaches no trip lever: in AUTO the machine stops, as at STOP.
+do
+  local t = G.toggles[G.NBITS]
+  local hx, hz = t.x - G.DONE[1], t.z + G.DONE[2]
+  hole(hx, hz, "overflow")
+  G.overflow = { hx, hz }
+  local O, m = {}, 0.1
+  G.OVF = O
+  O.T = 0.2                                     -- (its thickness, its groove's depth: as COMPLEMENT's)
+  O.TRAVEL = HS + 2 * m + 0.1                   -- (open: this far up the slope)
+  local x0, x1 = hx - HS / 2 - m, hx + HS / 2 + 0.1
+  local zt = hz - HS / 2 - 1.6                  -- (its top edge, closed: up the slope past the hole)
+  O.knob = { hx - HS / 2 - 1.7, zt + 0.3 }
+  O.KNOB_R, O.KNOB_H = 0.4, 1.8                 -- (over the walls)
+  O.pieces = { { { x0, zt }, { x1, zt }, { x1, hz + HS / 2 + m }, { x0, hz + HS / 2 + m } },
+               { { O.knob[1] - 0.5, zt }, { x0, zt }, { x0, zt + 0.6 }, { O.knob[1] - 0.5, zt + 0.6 } } }
+end
 -- COMPLEMENT: A1 .. A6's done holes are long (DONE_L) and open below, onto a
 -- lane, the DONE LANE, that runs down and across into the next flip-flop's
 -- funnel (on its long right wall). Open, the hole takes the ball, as any
@@ -872,6 +895,19 @@ do
   lwall(G.XRET + C, G.stop[2] - HS / 2 - 0.3, G.XRET + C, zb, "stop")
   lwall(G.XRET - C, zb, G.XRET + C, zb, "stop")
   G.stopPocket = { G.XRET, G.stop[2] }
+  -- (and OVERFLOW's, under its hole: its ball stays there when it is set
+  -- to HALT)
+  do
+    local hx, hz = G.overflow[1], G.overflow[2]
+    local w = HS / 2 + 0.15
+    lwall(hx - w, hz - HS / 2 - 0.3, hx - w, hz + HS / 2 + 0.85, "overflow")
+    lwall(hx + w, hz - HS / 2 - 0.3, hx + w, hz + HS / 2 + 0.85, "overflow")
+    lwall(hx - w, hz + HS / 2 + 0.85, hx + w, hz + HS / 2 + 0.85, "overflow")
+    G.overflowPocket = { hx, hz }
+    -- (on the plate: the hole's outer wall, on down to the plate's end: the
+    -- lane a ball takes over the closed shutter, RUN)
+    wall(hx - w, hz - HS / 2 - 0.6, hx - w, G.board.z1 - 0.05, "overflow")
+  end
 end
 
 -- the feeder's housing (a ring of short walls, open at the top to the
@@ -1084,6 +1120,12 @@ function G.writeScad(path)
   list("TOGGLES", G.rockers, function(t) return pts2({ t.x, t.z }) end)
   -- (COMPLEMENT: the shutters closed, and their pins; the bar and its knob;
   -- open, all TRAVEL farther to the right)
+  do
+    local O = G.OVF
+    num("OVF_T", O.T); num("OVF_TRAVEL", O.TRAVEL); num("OVF_KNOB_R", O.KNOB_R); num("OVF_KNOB_H", O.KNOB_H)
+    list("OVF_PIECES", O.pieces, outline)
+    f:write(string.format("OVF_KNOB = [%.5f,%.5f];\n", O.knob[1], O.knob[2]))
+  end
   local SH = G.SHUTTER
   num("SH_T", SH.T); num("SH_TRAVEL", SH.TRAVEL); num("SH_PIN_R", SH.PIN[2])
   num("SH_BAR_Y0", SH.BAR_Y0); num("SH_BAR_H", SH.BAR_H); num("SH_KNOB_R", SH.KNOB_R); num("SH_KNOB_H", SH.KNOB_H)

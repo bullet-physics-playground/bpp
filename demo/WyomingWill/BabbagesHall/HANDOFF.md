@@ -356,12 +356,34 @@ there, in `release/`, or on the path; or set `BPP`.
   long can pull but hardly push, hence the thread. In the simulation the
   thread is inextensible and pull-only (impulses each step, `trip.pull`).
   The weight and fly as parts are not done.
-- **Next: OVERFLOW's halt**, so dividing and counting out run in AUTO (a
-  flap under the OVERFLOW hole and a pocket, as STOP's; dividing stops at
-  the end of the cycle, so it needs the distributor's say too). William
-  pointed to a replica: www.instructables.com/Digi-Comp-II-Replica/ (only
-  its summary could be fetched here: the original's frame is about 14 x 28
-  inches).
+- **Then: OVERFLOW's halt (step 2e).** OVERFLOW is a shutter over the
+  overflow hole (key `O`, program step `OVERFLOW HALT|RUN`): RUN, the
+  carry out of A7 rolls over it to the collector; HALT, it drops into a
+  pocket and trips nothing, so AUTO stops. `count-out-auto.dc2` and
+  `divide-auto.dc2` run E.S.R.'s way. A halt mid-cycle can leave A = 0
+  when a division isn't exact (11 / 5): the manual says to finish the
+  cycle by hand. The tour is ~88 000 frames; check-all allows 96 000
+  frames and two hours a run. **Not yet checked whole:** the two new
+  programs passed on their own, and check-all's four other exhibits
+  passed, but its Digi-Comp run (the library) went past the old hour's
+  timeout here with the machine loaded and was stopped. First thing in a
+  new session: `./tools/check-all.sh` and `tools/check-lua52.sh` from
+  BabbagesHall, and fix whatever fails.
+- **Next: the weight and the fly as parts (step 2f).** William chose a
+  bought rotary damper for the fly: Fuji Latex (ACE) **FRT-G2-200**, 0.2 N
+  cm at 20 rpm, on the wheel's shaft 1:1; the weight a cup of nine balls
+  (~76 g) on a cord from a 4 mm drum under the plate, over a pulley at the
+  top edge, with a ratchet for winding. The specs, the sums and what is
+  open are in FINDINGS, step 2e, "Planned for the next step". In the
+  simulation: drag c w (c = 0.96 mN m s) for `FLY_W`'s cap; run the
+  library at c +- 35%. A possible tighter rule for dividing in AUTO (A = 0
+  at a halt is exact only if M's bits still to come in that cycle are all
+  0) was offered to William, not yet taken.
+- **Then** each program showing
+  only the parts it needs (William: "just add the parts you need when you
+  need them", on the full board, not a compacted one). William pointed
+  to a replica: www.instructables.com/Digi-Comp-II-Replica/ (only its
+  summary could be fetched here).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the

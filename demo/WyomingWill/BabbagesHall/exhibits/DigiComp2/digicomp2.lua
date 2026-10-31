@@ -1,14 +1,14 @@
 --
 -- The Digi-Comp II -- Babbage's Hall (step 2c: counting, adding, multiplying, subtracting, dividing)
 --
--- E.S.R.'s Digi-Comp II (1968) was a computer of marbles: a sloping
--- two-level board of flip-flops and switches that balls roll down one at a
--- time, and that counts, adds, subtracts, multiplies and divides in binary.
--- Built so far: the ACCUMULATOR (seven flip-flops, 0 to 127), the MEMORY
--- (four switches), the MQ (three flip-flops), the DISTRIBUTOR (three), the
--- START feeder, the switches MULTIPLY, CLEAR and COUNT, and COMPLEMENT. It
--- counts, clears, adds, multiplies, complements, subtracts and divides.
--- (AUTO comes next.)
+-- E.S.R.'s Digi-Comp II (John Godfrey, 1965; made in the late 1960s) was a
+-- computer of marbles: a sloping two-level board of flip-flops and switches
+-- that balls roll down one at a time, and that counts, adds, subtracts,
+-- multiplies and divides in binary. Built so far: the ACCUMULATOR (seven
+-- flip-flops, 0 to 127), the MEMORY (four switches), the MQ (three
+-- flip-flops), the DISTRIBUTOR (three), the START feeder, the switches
+-- MULTIPLY, CLEAR and COUNT, and COMPLEMENT. It counts, clears, adds,
+-- multiplies, complements, subtracts and divides. (AUTO comes next.)
 --
 -- THE FLIP-FLOP is a rocker on a pin, its centre of mass a little up the
 -- slope from the pin, so it falls over to one side or the other and stays
@@ -59,6 +59,7 @@
 -- KEYS
 --   Space  START: a push on the START lever, one ball (AUTO: and on, to STOP)
 --   U      AUTO <-> MANUAL (the thread hooked into the START lever, or off)
+--   O      OVERFLOW: RUN <-> HALT (its shutter closed or open)
 --   M, C, N  MULTIPLY, CLEAR, COUNT on <-> off (by hand)
 --   1..7   set a flip-flop of A over by hand (1 is the 1s, 7 the 64s)
 --   H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s
@@ -539,6 +540,36 @@ local function setComplement(on)
 end
 local function isComplement() return comp.on end
 
+-- OVERFLOW: a shutter over the overflow hole, slid by its knob (G.OVF).
+-- RUN, closed: the carry out of A7 rolls over it and on to the collector;
+-- HALT, open (slid up the slope): it drops into a pocket, and in AUTO the
+-- machine stops, as at STOP
+comp.ovf = { halt = false }        -- (in COMPLEMENT's table: the main chunk is at Lua's 200 locals)
+do
+  local O = G.OVF
+  local pcs = {}
+  for _, pc in ipairs(O.pieces) do pcs[#pcs + 1] = { pc, -O.T, O.T } end
+  local knob = {}
+  for j = 0, 11 do local a = 2 * math.pi * j / 12; knob[#knob + 1] = { O.knob[1] + O.KNOB_R * math.cos(a), O.knob[2] + O.KNOB_R * math.sin(a) } end
+  pcs[#pcs + 1] = { knob, 0, O.KNOB_H }
+  local tr = btTransform(BQ, W3(0, 0, 0))
+  local body = btRigidBody(0, btDefaultMotionState(tr), piecesShape(pcs, 0, 0, 0), btVector3(0, 0, 0))
+  local o = part("ovfShutter()")
+  o.body = body
+  o.col = "#6c7a89"
+  o.collides = true
+  v:add(o)
+  o.trans = tr
+  fixed[#fixed + 1] = o
+  comp.ovf.obj = o
+  key(o, "OVERFLOW: a shutter over the overflow hole. RUN (closed, knob down the slope): the carry out of A7 rolls over it and on; HALT (open, O): it drops into a pocket, and in AUTO the machine stops")
+end
+function comp.ovf.set(halt)
+  comp.ovf.halt = halt
+  comp.ovf.obj.trans = btTransform(BQ, W3(0, 0, halt and -G.OVF.TRAVEL or 0))
+end
+function comp.ovf.isHalt() return comp.ovf.halt end
+
 -- ---------------------------------------------------------------------
 -- the feeder: a wheel of four notches on a pin (START)
 -- ---------------------------------------------------------------------
@@ -808,7 +839,8 @@ local function ballAt(b) return L3(b.obj.pos) end
 -- (done: below the plate, past the collector's wall, or in STOP's pocket;
 -- at rest where the hand takes it from: the store, or the pocket)
 local function inPocket(x, y, z)
-  return y < -PT and math.abs(x - G.stopPocket[1]) < 1.2 and math.abs(z - G.stopPocket[2]) < 1.6
+  return y < -PT and ((math.abs(x - G.stopPocket[1]) < 1.2 and math.abs(z - G.stopPocket[2]) < 1.6) or
+                      (math.abs(x - G.overflowPocket[1]) < 1.2 and math.abs(z - G.overflowPocket[2]) < 1.6))
 end
 local function collected(b)
   local x, y, z = ballAt(b)
@@ -1067,7 +1099,8 @@ local overSeen = false
 local function watchOverflow()
   for _, b in ipairs(balls) do
     local x, y, z = ballAt(b)
-    if y < 0 and math.abs(x - G.overflow[1]) < 1.2 and math.abs(z - G.overflow[2]) < 1.2 then overSeen = true end
+    -- (through the hole, HALT, or over its shutter, RUN)
+    if math.abs(x - G.overflow[1]) < 1.2 and math.abs(z - G.overflow[2]) < 1.2 then overSeen = true end
   end
 end
 
@@ -1077,6 +1110,7 @@ local function setUp()
   setA(0); setMQ(0); setD(); setM(0)
   setSwitch("MULTIPLY", false); setSwitch("CLEAR", false); setSwitch("COUNT", true)
   setComplement(false)
+  comp.ovf.set(false)
   reload()
   applyFriction()
   dropped, refilled, stopSeen, overSeen = 0, 0, false, false
@@ -1310,16 +1344,19 @@ end
 -- keys as on the keyboard, and ';' begins a comment. The first comment
 -- line is its title. Steps:
 --   R                  reset: A, M and MQ 0, D set to start, COUNT on, the
---                      other switches off, COMPLEMENT off, MANUAL
+--                      other switches off, COMPLEMENT off, OVERFLOW RUN, MANUAL
 --   1 .. 7             turn A1 .. A7 over by hand
 --   H J K L            M1 .. M4 over         8 9 0   MQ1 .. MQ3 over
 --   D                  set the distributor to start a cycle
 --   M C N X            MULTIPLY, CLEAR, COUNT, COMPLEMENT on <-> off
 --   Space              START: one ball (MANUAL)
+--   OVERFLOW HALT, OVERFLOW RUN   its shutter open (a carry out of A7
+--                      drops into a pocket: in AUTO the machine stops), or closed
 --   AUTO, MANUAL       the thread hooked into the START lever (the machine
 --                      runs itself), or off
 --   RUN                (AUTO) START once: balls go by themselves, each
 --                      checked at the trip lever, until one drops through STOP
+--                      (or OVERFLOW, set to HALT)
 --   SET A n, SET M n, SET MQ n     set a register to n by hand
 --   UNTIL STOP         balls until one drops through STOP
 --   UNTIL OVERFLOW     balls until one drops through OVERFLOW
@@ -1380,6 +1417,11 @@ local function parseProgram(file)
         local what = (toks[j + 1] or ""):upper()
         if not UNTIL[what] then return bad("UNTIL wants STOP, OVERFLOW or CYCLE") end
         p.ops[#p.ops + 1] = { line = i, op = "until", what = what }
+        j = j + 1
+      elseif W == "OVERFLOW" then
+        local how = (toks[j + 1] or ""):upper()
+        if how ~= "HALT" and how ~= "RUN" then return bad("OVERFLOW wants HALT or RUN") end
+        p.ops[#p.ops + 1] = { line = i, op = "overflow", halt = how == "HALT" }
         j = j + 1
       elseif W == "AUTO" or W == "MANUAL" then p.ops[#p.ops + 1] = { line = i, op = "auto", on = W == "AUTO" }
       elseif W == "RUN" then p.ops[#p.ops + 1] = { line = i, op = "run" }
@@ -1509,6 +1551,9 @@ local function progStep()
         return
       end
       P.balls = nil; P.inFlight = nil; ball()
+    elseif op.op == "overflow" then
+      print(string.format("    line %d: OVERFLOW %s", op.line, op.halt and "HALT" or "RUN"))
+      comp.ovf.set(op.halt); handMoved(); P.phase, P.wait = "after", 0
     elseif op.op == "auto" then
       print(string.format("    line %d: %s", op.line, op.on and "AUTO" or "MANUAL"))
       setAuto(op.on); handMoved(); P.phase, P.wait = "after", 0
@@ -1561,12 +1606,12 @@ local function progStep()
       P.inFlight = 0
       if not checkBall(P) then P.fails = P.fails + 1 end
       P.balls = P.balls + 1
-      if not stopSeen then
+      if not stopSeen and not (P.overNow and comp.ovf.isHalt()) then
         P.fails = P.fails + 1
-        stopProgram(string.format("WRONG: RUN, line %d: it stopped, and not at STOP", op.line))
+        stopProgram(string.format("WRONG: RUN, line %d: it stopped, and not at STOP or OVERFLOW (HALT)", op.line))
         return
       end
-      print(string.format("      RUN: %d ball%s, the last through STOP", P.balls, P.balls == 1 and "" or "s"))
+      print(string.format("      RUN: %d ball%s, the last through %s", P.balls, P.balls == 1 and "" or "s", stopSeen and "STOP" or "OVERFLOW (HALT)"))
       P.phase, P.wait = "pause", 0
     end
   elseif P.phase == "ball" then
@@ -1788,6 +1833,7 @@ end
 v:addShortcut("D", byHand(setD))
 v:addShortcut("U", byHand(function() setAuto(not isAuto()); PR.setStatus(isAuto() and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end))
 v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
+v:addShortcut("O", byHand(function() comp.ovf.set(not comp.ovf.isHalt()); PR.setStatus(comp.ovf.isHalt() and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end))
 -- B: the camera to the program board and back (the camera as it was before)
 local camBack = nil
 v:addShortcut("B", function()
@@ -1836,7 +1882,7 @@ pcall(function()
   PR.help = table.concat({
     "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying, subtracting, dividing",
     "",
-    "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1968). The rockers",
+    "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1965). The rockers",
     "are flip-flops: each leans one way or the other and stays. Apex right is 1,",
     "left 0 (the MQ's the other way round). The seven down the right, read bottom",
     "(64s) to top (1s), are the accumulator, A: 0 to 127.",
@@ -1873,6 +1919,7 @@ pcall(function()
     "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
     "  X      COMPLEMENT on/off (the shutters over the done holes)",
     "  U      AUTO <-> MANUAL (the thread hooked on or off)",
+    "  O      OVERFLOW: RUN <-> HALT (HALT: a carry out of the 64s stops it in AUTO)",
     "  G      run the program the \"program\" slider chooses (G again: stop)",
     "  B      look at the program board (behind the machine), close up; again: back",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",

@@ -103,7 +103,7 @@ EXHIBITS = EXHIBITS or {
             "running toward it; a wave can cut another line. That is enough for XOR and AND." },
   { dir = "exhibits/DigiComp2/", file = "digicomp2.lua", name = "the Digi-Comp II", label = "digicomp",
     prefix = "Digi-Comp: ", floorY = -100,
-    about = "The Digi-Comp II (1968): balls rolling down a two-level board of flip-flops\n" ..
+    about = "The Digi-Comp II (1965): balls rolling down a two-level board of flip-flops\n" ..
             "count, add, subtract, multiply and divide in binary. Thirteen rockers, tipped over\n" ..
             "by the balls alone, make the accumulator, the MQ and the distributor; four switches\n" ..
             "are the memory; six shutters on one bar are COMPLEMENT. In AUTO (U) each ball at\n" ..

@@ -99,7 +99,7 @@ side, printed on the plate.
 | **MQ**, multiplier-quotient | three flip-flops, MQ1 (1s) to MQ3 (4s) | counts down by one each cycle; 0 to 7 |
 | **D**, the distributor | three flip-flops, D1 to D3 | deals the balls out four ways, in turn |
 | **STOP** | a hole beside MQ3 | a ball dropping through it means "finished" |
-| **OVERFLOW** | a hole beside A7 | a carry out of A7 (past 127) drops through it |
+| **OVERFLOW** | a hole beside A7, with a shutter over it | a carry out of A7 (past 127) goes there. RUN (shutter closed): it rolls on, to the collector. HALT (open): it drops into a pocket, and in AUTO the machine stops |
 | **COMPLEMENT** | six shutters over A1 to A6's done holes, on one bar with a handle | on: a ball goes on through every flip-flop below where it comes in, turning each over (section 6) |
 
 ### Reading binary
@@ -301,10 +301,10 @@ subtract.
 
 A = N; complement it (two balls); then COUNT on, MULTIPLY off. A counts up
 from 128 - N, and the **N-th ball** carries out of A7 through OVERFLOW.
-Stop there: that is N balls. (On the original, OVERFLOW set to HALT stops
-the machine in AUTO; here, not yet: the hand watches the OVERFLOW hole, in
-MANUAL. The tour runs
-it: `programs/count-out-9.dc2`.)
+Stop there: that is N balls. In MANUAL the hand watches for that ball
+(`programs/count-out-9.dc2`). In AUTO, E.S.R.'s way, set OVERFLOW to HALT
+and press START once: the N-th ball drops into OVERFLOW's pocket, reaches no
+trip lever, and the machine stops itself (`programs/count-out-auto.dc2`).
 
 ### Dividing
 
@@ -343,6 +343,16 @@ dividend. (E.S.R.'s manual stops at the overflow, in AUTO, and has a
 chapter on remainders that could not be read here; this rule is this
 board's own, and it is what the tour checks.)
 
+**In AUTO,** E.S.R.'s way: set it up as above, OVERFLOW to HALT, AUTO, and
+START once. The machine stops itself at the overflow, the overflowing ball
+in OVERFLOW's pocket, wherever in the cycle that was. If A reads 0 it went
+exactly, and the cycles (the MQ's lower numbers) are the quotient
+(`programs/divide-auto.dc2`: 25 / 5). Otherwise finish the cycle by hand,
+in MANUAL, and read it as above. (A halt can also leave A at 0 when it did
+not go exactly: 11 / 5 overflows on the first ball of its third cycle, the
+1s, with A at 0, its 4s not yet added. So when in doubt, finish the
+cycle.)
+
 **Limits.** With the MQ at 7, at most seven cycles: quotients up to 6 (7
 when exact). If the MQ runs out first, a ball drops through STOP: the
 quotient was too big for it.
@@ -372,15 +382,15 @@ plate, never reaches the lever, and the machine stops.
 | the trip lever | trips the anchor: the next ball goes | lifts, and nothing follows |
 
 So a multiply in AUTO is: set it up as in section 5, AUTO (`U`), and one
-`Space`. A division can't run in AUTO yet: it must stop at the end of the
-cycle in which A overflows, and OVERFLOW does not yet halt the machine
-(the hand watches it, in MANUAL).
+`Space`. **OVERFLOW** set to HALT (`O`) stops it too, at a carry out of A7:
+counting out a number of balls, and dividing, also run by themselves
+(section 6).
 
 ## 7. Which parts each operation needs
 
 ![Which parts of this board each kind of operation uses.](manual/fig-parts.png)
 
-| Operation | Feeder | A | CLEAR, clear lane | COUNT | MULTIPLY | D, MQ, STOP | M | COMPLEMENT (shutters, done lanes) | OVERFLOW (watched) |
+| Operation | Feeder | A | CLEAR, clear lane | COUNT | MULTIPLY | D, MQ, STOP | M | COMPLEMENT (shutters, done lanes) | OVERFLOW (watched, or set to HALT) |
 |---|---|---|---|---|---|---|---|---|---|
 | Count | yes | yes | | yes | (off) | | | | |
 | Clear | yes | yes | yes | | (off) | | | | |
@@ -441,16 +451,16 @@ Its README lists the parts to print and buy. Some other ways to build less:
 | Multiply-add A + M x MQ | A | M | MQ | start | on | | | 4 x MQ + 1 |
 | Complement A | A | | | | off | off | on | 1 with COMPLEMENT on, 1 with it off |
 | Subtract M - A | complement of A | M | 1 | start | on | | | 5 |
-| Count out N | complement of N | | | | off | off | on | until OVERFLOW: N |
-| Divide A / M | complement of A | M | 7 | start | on | | | until OVERFLOW, then to the end of that cycle |
+| Count out N | complement of N | | | | off | off | on | until OVERFLOW: N (in AUTO, OVERFLOW HALT) |
+| Divide A / M | complement of A | M | 7 | start | on | | | until OVERFLOW, then to the end of that cycle (in AUTO, OVERFLOW HALT) |
 
 On this board, by hand (keys in the simulation): A's rockers `1` to `7`,
 the memory `H J K L`, the MQ `8 9 0`, the distributor to start `D`,
-MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, AUTO/MANUAL `U`,
-START `Space`. The tour (`T`) runs the program library (section 9), one
-after another: counting, clearing, 37 + 11, 13 x 3, 13 x 5 in AUTO, the
-complement of 25, 12 - 4, 13 / 5,
-25 / 5 and counting out nine. Before each ball, in the tour or with
+MULTIPLY `M`, CLEAR `C`, COUNT `N`, COMPLEMENT `X`, OVERFLOW `O`,
+AUTO/MANUAL `U`, START `Space`. The tour (`T`) runs the program library
+(section 9), one after another: counting, clearing, 37 + 11, 13 x 3, 13 x 5
+in AUTO, the complement of 25, 12 - 4, 13 / 5, 25 / 5 by hand and in AUTO,
+and counting out nine by hand and in AUTO. Before each ball, in the tour or with
 `Space`, the exhibit draws the way the ball will go as a yellow dashed
 line on the board, and its sign says what the ball will do and what the
 accumulator was and will be: a good way to follow this manual on the
@@ -481,7 +491,7 @@ are the keys you would press, and a few more:
 
 | Step | What the hand does |
 |---|---|
-| `R` | reset: A, M and MQ 0, D set to start, COUNT on, MULTIPLY, CLEAR and COMPLEMENT off, MANUAL |
+| `R` | reset: A, M and MQ 0, D set to start, COUNT on, MULTIPLY, CLEAR and COMPLEMENT off, OVERFLOW RUN, MANUAL |
 | `1` .. `7` | turns A1 (1s) .. A7 (64s) over |
 | `H` `J` `K` `L` | turns M1 .. M4 over |
 | `8` `9` `0` | turns MQ1 .. MQ3 over |
@@ -493,6 +503,7 @@ are the keys you would press, and a few more:
 | `SET A n`, `SET M n`, `SET MQ n` | sets that register to n |
 | `UNTIL STOP` | balls until one drops through STOP |
 | `UNTIL OVERFLOW` | balls until one drops through OVERFLOW |
+| `OVERFLOW HALT`, `OVERFLOW RUN` | opens OVERFLOW's shutter (a carry out of A7 drops into its pocket: in AUTO the machine stops), or closes it |
 | `UNTIL CYCLE` | balls until the next would begin a cycle (D1 and D2 read 1); none if it would already |
 | `CHECK A n`, `CHECK M n`, `CHECK MQ n` | says whether that register reads n |
 
@@ -569,4 +580,6 @@ exhibit again.
 | 7 | `subtract-12-4.dc2` | 12 - 4 |
 | 8 | `divide-13-by-5.dc2` | 13 / 5, ball by ball (the listing above) |
 | 9 | `divide.dc2` | 25 / 5, with loops |
-| 10 | `count-out-9.dc2` | counts out nine balls |
+| 10 | `divide-auto.dc2` | 25 / 5 in AUTO, stopped by OVERFLOW (HALT) |
+| 11 | `count-out-9.dc2` | counts out nine balls |
+| 12 | `count-out-auto.dc2` | counts out nine balls in AUTO, stopped by OVERFLOW (HALT) |

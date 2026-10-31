@@ -7,6 +7,76 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Step 2e: OVERFLOW's halt (2026-10-31)
+
+E.S.R.'s OVERFLOW switch has two settings: RUN, the carry out of A7 goes on
+and the machine runs on; HALT, it stops automatic operation. Here it is a
+**shutter** over the overflow hole, as COMPLEMENT's over the done holes,
+sliding up and down the slope in a groove, its knob up the slope and to the
+left of the hole, where no ball goes. RUN (closed): the ball rolls over the
+hole, down a lane (the hole's outer wall, carried on to the plate's end) and
+off the plate onto the lower level, and on to the collector and the trip
+lever. HALT (open): it drops into a pocket on the lower level, three walls
+under the hole, as STOP's, and trips nothing. The hand watches for a ball
+passing the hole either way.
+
+Counting out nine balls in AUTO (`count-out-auto.dc2`) ran 9 balls from one
+START, the 9th into the pocket, and A read 0. Dividing 25 / 5 in AUTO
+(`divide-auto.dc2`) ran 19 balls: four cycles of four, and three balls of
+the fifth, the third of them (its 4s) going over 128 into the pocket; A read
+0 and the MQ 2 (5 cycles begun).
+
+A halt stops wherever in the cycle the overflow comes, so the rest of the
+divisor is not added. A = 0 there means it went exactly only if that was
+the cycle's last bit of M: 11 / 5 overflows on its third cycle's 1s, with A
+= 0 and its 4s not yet added (quotient 2, remainder 1, not 3). So the
+manual says to finish the cycle by hand, in MANUAL, unless A = 0 at the
+cycle's end; the board's MANUAL rule (finish the cycle, the quotient one
+less, the remainder M - A) still holds after it.
+
+### Planned for the next step: the weight and a rotary damper for the fly
+
+The simulation's weight is a torque on the wheel (`WEIGHT_T`, 30 kg cm^2/s^2
+= 3.0 mN m) and its fly a cap on the wheel's speed (`FLY_W`, 3 rad/s, about
+29 rpm). As parts:
+
+- **The weight:** a cup of nine spare balls, about 76 g (the cup's own mass
+  to be added), on a cord wound on a drum of radius 4 mm on the wheel's
+  shaft, under the plate (the anchor's counterweight takes the room above
+  the wheel), the cord over a pulley at the board's top edge. Torque
+  0.076 kg x 9.81 m/s^2 x 0.004 m = 3.0 mN m. One ball out is a quarter
+  turn of the wheel: 6.3 mm of cord, so ~30 balls is a drop of ~19 cm
+  (the drop the stand allows sets how often it is wound). Rewinding goes
+  through a ratchet
+  between the drum and the shaft, so winding turns neither the wheel nor
+  the damper. Each ball in the cup is ~11% of the torque: the cup is how
+  the speed is trimmed.
+- **An air fly does not suit:** to hold 3 rad/s a vane of a size that fits
+  would have to turn ~200 times as fast as the wheel, a gear train of a
+  music box's.
+- **The fly: a rotary damper**, bought: **Fuji Latex FRT-G2-200** (also
+  sold by ACE; RS 793-2945 for the -G1 with a gear). Rated 0.2 +- 0.07 N cm
+  (2 +- 0.7 mN m) at 20 rpm, 23 degC; both ways; silicone oil in a
+  polycarbonate body, a 15 mm flange, acetal shaft; 0.6 g (0.8 g with the
+  G1 gear: module 0.5, 14 teeth, 7 mm pitch circle); 50 rpm at most;
+  0-50 degC (colder, stiffer). The larger sizes of the series are -300,
+  -450, -600 and -101 (0.3 to 1 N cm), the FRT-C2 series 2 to 3 N cm: too
+  stiff here, ~7 to 10 times. Mounted on the wheel's shaft, 1:1.
+- **In the simulation:** a drag torque c w in place of the cap, with
+  c = 2 mN m / 2.09 rad/s = 0.96 mN m s; with 3.0 mN m of weight the wheel
+  settles at 3.1 rad/s. The tolerance (+-35%) gives 2.3 to 4.8 rad/s: the
+  library to be run at both ends.
+- **Open:** the datasheet says only that torque rises with speed (linear
+  is assumed); it lists 10 cycles a minute at most, written for lids, and
+  the wheel turns steadily: to ask the maker. Mount sizes are to be taken
+  from the datasheet drawing (the copy fetched here was garbled).
+
+Sources: Fuji Latex, FRT-G2 datasheet,
+https://www.fujilatex.co.jp/en/wp/wp-content/uploads/2017/01/FRT-G2.pdf ;
+FRT-C2/FRN-C2,
+https://www.fujilatex.co.jp/en/wp/wp-content/uploads/2017/01/FRT_FRN-C2.pdf ;
+RS, https://uk.rs-online.com/web/p/rotary-dampers/7932945 .
+
 ## Step 2d: AUTO (2026-10-28)
 
 ### The escapement on the board

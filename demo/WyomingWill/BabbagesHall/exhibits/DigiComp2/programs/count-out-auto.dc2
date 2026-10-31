@@ -1,0 +1,14 @@
+; Count out 9 balls in AUTO
+; E.S.R.'s way: A = 128 - 9, OVERFLOW set to HALT, AUTO, and START once.
+; The 9th ball carries out of A7 and drops into OVERFLOW's pocket instead of
+; reaching the trip lever: the machine stops by itself, nine balls out.
+
+R               ; reset: COUNT on, OVERFLOW RUN, MANUAL
+SET A 9
+X Space X Space ; complement it: A = 119 = 128 - 9
+OVERFLOW HALT   ; the shutter open: a carry out of A7 drops into the pocket
+AUTO            ; the thread hooked into the START lever
+RUN             ; START once: nine balls, by themselves
+CHECK A 0
+MANUAL
+OVERFLOW RUN

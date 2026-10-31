@@ -4,7 +4,7 @@
 `MANUAL.pdf`) is an illustrated manual: how each operation works, ball by
 ball, and which parts each one needs.
 
-Babbage's Hall, west bay 3. The Digi-Comp II, made by E.S.R. Inc. in 1968,
+Babbage's Hall, west bay 3. The Digi-Comp II, designed by John Godfrey in 1965 and made by E.S.R. Inc. in the late 1960s,
 was a computer of marbles: a sloping two-level board of flip-flops and
 switches that balls rolled down one at a time. Set up with its switches, it
 counted, cleared, added, subtracted, multiplied and divided binary numbers.
@@ -17,9 +17,10 @@ It is being built here in steps. The first (October 2026) was a counter of
 three flip-flops; the second (2a) the accumulator, with START, CLEAR and
 COUNT; then (2b) **the memory, the MQ, the distributor and MULTIPLY**, to
 add and multiply; then (2c) **COMPLEMENT**, to subtract and divide. This,
-step 2d, adds **AUTO**: a ball reaching the bottom lets the next one go, so
-a whole multiply runs by itself from one press of START. Next comes
-OVERFLOW's halt.
+then (2d) **AUTO**: a ball reaching the bottom lets the next one go, so a
+whole multiply runs by itself from one press of START. This, step 2e,
+adds **OVERFLOW**'s switch, so that counting out and dividing run by
+themselves too.
 
 ## What it does
 
@@ -106,8 +107,9 @@ COMPLEMENT off, one more adds 1: 128 - A, the two's complement. Add that to
 a number and the sum goes over 128 (the carry drops through OVERFLOW and is
 lost): it has subtracted. **Dividing** is adding the divisor to the
 dividend's complement, cycle by cycle, while the MQ (set to 7) counts the
-cycles, until A goes over: the hand watches the OVERFLOW hole and stops at
-the end of that cycle. The MQ read the other way gives the cycles; if A
+cycles, until A goes over: in MANUAL the hand watches the OVERFLOW hole and
+stops at the end of that cycle; in AUTO, with OVERFLOW set to HALT, the
+machine stops itself there (below). The MQ read the other way gives the cycles; if A
 reads 0 that is the quotient, otherwise the quotient is one less and the
 remainder is M - A (`MANUAL.md`, section 6). E.S.R.'s machine does this
 with six more flip-flops (T1 to T6) and two to sequence them (CF1, CF2) in
@@ -142,12 +144,25 @@ itself. **MANUAL**: the thread unhooked (on a peg beside the lever); the
 trip lever still lifts for every ball, nothing follows, and every ball is
 a press of START.
 
+**OVERFLOW** is a shutter over the overflow hole, the way out of A7 to the
+left, sliding up and down the slope in a groove; its knob stands up the
+slope and to the left, out of every ball's way. **RUN** (closed, the knob
+down the slope): a carry out of A7 rolls over the hole, down a lane to the
+plate's end, and on to the collector and the trip lever, as every ball
+does. **HALT** (open, the knob pushed up the slope): it drops through into
+a pocket on the lower level and reaches no trip lever, so in AUTO the
+machine stops there, as at STOP. That is E.S.R.'s way of counting out a
+number of balls (A set to its complement, COUNT on, OVERFLOW HALT, START
+once) and of dividing (the machine stops at the overflow; the MQ read the
+other way then gives the cycles begun).
+
 ## Using it
 
 | Key | |
 |---|---|
 | `Space` | START: push the START lever, one ball (in AUTO: and on by itself, until a ball drops through STOP) |
 | `U` | AUTO and MANUAL: the thread hooked into the START lever, or off |
+| `O` | OVERFLOW: RUN and HALT (its shutter closed, or open) |
 | `M`, `C`, `N` | MULTIPLY, CLEAR, COUNT on and off (by hand) |
 | `1` to `7` | set that flip-flop of the accumulator over by hand (`1` the 1s ... `7` the 64s), as you set the original's |
 | `H`, `J`, `K`, `L` | the memory's 1s, 2s, 4s, 8s (M1 to M4) on and off |
@@ -157,7 +172,7 @@ a press of START.
 | `G` | run the program the **program** slider chooses (`G` again stops it) |
 | `B` | the camera to the program board, close enough to read it; again, back |
 | `T` | the tour: every program in the library, in turn (it starts with it) |
-| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off, MANUAL |
+| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off, OVERFLOW RUN, MANUAL |
 | `Z` | slow motion (1/4 speed) on and off |
 
 To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
@@ -196,8 +211,8 @@ it is and what it is doing.
 39); 13 x 5 in **AUTO** (one START, twenty-one balls by themselves: 65);
 the **COMPLEMENT** of 25 (102, then 103); **SUBTRACT** 12 - 4 (4
 complemented to 124, then 12 added: 8, over 128); **DIVIDE** 13 / 5 ball
-by ball (quotient 2, remainder 3) and 25 / 5 with loops; and counting out
-nine balls. Each program's listing is in the Shortcuts pane, the line being
+by ball (quotient 2, remainder 3), 25 / 5 with loops, and 25 / 5 in AUTO,
+stopped by OVERFLOW; and counting out nine balls, by hand and in AUTO. Each program's listing is in the Shortcuts pane, the line being
 done in the status bar. After each ball it checks everything the ball
 should have changed (the accumulator, the MQ, the distributor, STOP,
 OVERFLOW) and that the ball reached the collector, and each program's
@@ -211,14 +226,15 @@ would.
 
 **Programs.** The procedures can be written down and run: text files in
 `programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`,
-`AUTO`, `MANUAL`, `RUN` and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
+`OVERFLOW`, `AUTO`, `MANUAL`, `RUN` and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
 **program** slider and press `G`: the hand does it line by line, every ball
 shown before it goes and checked after. The program is shown on the
 **program board**, on a stand behind the machine's top end, the line being
 done lit (`B` brings the camera close enough to read it, and back); it is
 also in the Shortcuts pane, and the line in the status bar. The library has count, clear,
-37 + 11, 13 x 3, 13 x 5 in AUTO, the complement of 25, 12 - 4, 13 / 5 ball by ball, 25 / 5
-with loops, and counting out nine balls; `MANUAL.md`, section 9, has the
+37 + 11, 13 x 3, 13 x 5 in AUTO, the complement of 25, 12 - 4, 13 / 5 ball
+by ball, 25 / 5 with loops and in AUTO, and counting out nine balls by hand
+and in AUTO; `MANUAL.md`, section 9, has the
 language.
 
 Sliders: `friction` (0.2 to 0.6 checked), `program`, `speed`, `steps`.
@@ -275,6 +291,7 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
 | `trip-down-arm.stl` | 1 | 3 x 17 x 4 | AUTO: the arm hanging from the trip lever's axle, beside the board; the thread is tied through the hole at its foot |
 | `trip-eye.stl` | 1 | 8 x 8 x 50 | AUTO: the thread's eye, a post glued to the board's right edge, level with the START lever (its 3 mm post may be stiffer as a steel rod) |
 | `shutter.stl` | 6 | 28 x 22 x 2 | COMPLEMENT: a done hole's shutter, sliding in its groove in the plate; a pin pressed into its hole |
+| `ovf-shutter.stl` | 1 | 38 x 33 x 20 | OVERFLOW: the shutter over the overflow hole, sliding in its groove in the plate, its knob on its arm |
 | `comp-knob.stl` | 1 | 10 x 10 x 12 | COMPLEMENT's handle, glued on the top end of its bar |
 | `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 228 x 30, 30 x 232 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
 | `foot-front.stl` | 2 | 30 x 21 x 30 | its low front feet |
@@ -348,13 +365,14 @@ puts the balls back, so the first lets one out.)
   pocket, by placing them, and in MANUAL watches STOP: it pushes no more
   once a ball has dropped through. In AUTO the machine stops itself; the
   hand keeps the input filled from the store as it runs.
-  Dividing, it watches OVERFLOW too, and stops at the end of that cycle. It
+  Dividing in MANUAL, it watches OVERFLOW too, and stops at the end of
+  that cycle. It
   moves COMPLEMENT between the two balls of a complement, which E.S.R.'s
   machine does itself with CF1 and CF2.
 - **AUTO** is this machine's own: E.S.R.'s ball at the bottom rolls under
   the START lever itself; here the START lever is at the top, and the trip
-  lever at the bottom works it through the thread. OVERFLOW does not yet
-  halt it (dividing stays in MANUAL, the hand watching OVERFLOW).
+  lever at the bottom works it through the thread. E.S.R.'s OVERFLOW switch
+  steers the ball at the overflow; here it is a shutter over the hole.
 - **The layout** is this machine's own, not E.S.R.'s: the registers do what
   the manual says, but where each part sits on the board was worked out
   here. The distributor is a tree of three flip-flops, and after the MQ and

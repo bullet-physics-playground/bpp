@@ -32,6 +32,7 @@ part trip-eye.stl   -D 'PART="print-trip-eye"'
 part trip-lever.stl -D 'PART="print-trip-lever"'
 part shutter.stl    -D 'PART="print-shutter"'
 part comp-knob.stl  -D 'PART="print-comp-knob"'
+part ovf-shutter.stl -D 'PART="print-ovf-shutter"'
 for i in 0 1; do
   for j in 0 1 2 3 4 5 6 7 8; do
     part "upper-$i-$j.stl" -D "PART=\"print-upper-$i-$j\""
@@ -42,5 +43,5 @@ part foot-back-1.stl -D 'PART="print-foot-back-1"'
 part foot-back-2.stl -D 'PART="print-foot-back-2"'
 part foot-front.stl -D 'PART="print-foot-front"'
 echo "Print: rocker x13, foot x13, flap x7, shutter x6, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, star,"
-echo "anchor, trip-lever, trip-down-arm, trip-eye, comp-knob and every"
+echo "anchor, trip-lever, trip-down-arm, trip-eye, ovf-shutter, comp-knob and every"
 echo "upper-i-j and lower-i-j tile once. Cut the lower board from 6 mm plywood (README.md)."
