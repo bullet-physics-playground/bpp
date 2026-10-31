@@ -920,9 +920,15 @@ local function markBody(w, look)
   letters, links = letters or look.code, look.links or links or "4"
   local c = math.sqrt(0.5)
   local up = { -c, 0, 0, c }   -- (turned so the shapes face up: their "up" along -z)
+  -- (they read along the body's +x; a walker that walks toward its -x end --
+  -- every one but Klann, forward = -1 -- has them turned half round, so
+  -- they read the same way along the walk for every walker)
+  local flip = (w.forward or 1) < 0
+  if flip then up = { 0, c, c, 0 } end   -- (the same, then half a turn about the vertical)
   local function shape(scad, x, z, what)
     local ok, o = pcall(OpenSCAD, "linear_extrude(height = 0.3) " .. scad .. ";", 0, false)
     if not ok then print("walker room: no " .. what .. " on " .. w.spec.name .. "'s body (" .. tostring(o) .. ")"); return end
+    if flip then x, z = -x, -z end
     decor(w, o, ink(look.colour), x, top + 0.1, z, up)
   end
   local function text(t, size, h, v)
