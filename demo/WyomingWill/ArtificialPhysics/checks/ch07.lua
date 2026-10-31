@@ -20,6 +20,8 @@
 --    his Java, rerun, gives his logs (F96, F97).
 -- 6. His 2005 simulator in Lua (ch07/kerr2005.lua) is his Java, run for run
 --    (F98).
+-- 7. The full corridor sweep on it gives his logs; the book's version differs
+--    only in KT's speed without obstacles (F101).
 -- The full sweeps are ch07/sweep.sh's (ch07/theory_runs.txt, ch07/README.md).
 --
 -- DEFINITIONS (printed values): those of ch07/theory.lua (err, kerr, v2,
@@ -272,7 +274,9 @@ check("2005 Lua reruns = his Java reruns, line for line", same > 0 and diff == 0
 local fixRuns, base = readRuns("ch07/kerr2005_fix_runs.txt"), {}
 for _, r in ipairs(ours) do if r.ctl == "KTRobot" and r.N == 25 and r.Pct == 20 then base[#base + 1] = r end end
 local byFix, worstZ, worstFix = {}, 0, ""
-for _, r in ipairs(fixRuns) do byFix[r.Fix] = byFix[r.Fix] or {}; table.insert(byFix[r.Fix], r) end
+for _, r in ipairs(fixRuns) do
+  if r.Pct == 20 then byFix[r.Fix] = byFix[r.Fix] or {}; table.insert(byFix[r.Fix], r) end
+end
 local nfix = 0
 for name, g in pairs(byFix) do
   nfix = nfix + 1
@@ -283,8 +287,68 @@ for name, g in pairs(byFix) do
     if z > worstZ then worstZ, worstFix = z, name .. " " .. key end
   end
 end
-check("2005 switches (seeds, messages, wallfit): within the noise", nfix == 4 and worstZ < 2.5,
+check("2005 switches (seeds, messages, wallfit) at 20%: within the noise", nfix == 4 and worstZ < 2.5,
       fmt("%d settings x 10 runs; worst %.1f SE (%s)", nfix, worstZ, worstFix))
+
+-- 7. The full sweep on the port (ch07/kerr2005_sweep.sh, run by William;
+--    ch07/kerr2005_sweep_runs.txt; F101): Kerr's protocol, 100 runs per
+--    setting. His code gives his logs (KT and Ant within 3 SE at every
+--    setting and figure; Default's time and shadow coverage too, its total
+--    coverage ~1 point above his logs, as his Java's reruns, F96); the
+--    book's version of KT is slower at 0% obstacles, from the wall fit alone
+--    (ch07/kerr2005_fixes.sh's runs at 0%).
+local sweep = readRuns("ch07/kerr2005_sweep_runs.txt")
+local sg = {}
+for _, r in ipairs(sweep) do
+  local k = r.ctl .. "_" .. ((r.Pct == 20 and r.N ~= 25) and ("N" .. r.N) or tostring(r.Pct)) .. (r.Fix and "_book" or "")
+  sg[k] = sg[k] or {}; table.insert(sg[k], r)
+end
+local function zOf(a, b, key)
+  local ma, sa, na = mean(a, key)
+  local mb, sb, nb = mean(b, key)
+  local se = math.sqrt(sa * sa / na + sb * sb / nb)
+  return se > 0 and (mb - ma) / se or 0, mb - ma
+end
+local sets = { "0", "10", "20", "30", "40", "N5", "N10", "N15", "N20", "N30" }
+local worstKA, nameKA, worstD, nameD, offs, nruns = 0, "", 0, "", {}, 0
+for _, ctl in ipairs({ "KTRobot", "AntRobot", "Simple2" }) do
+  for _, st in ipairs(sets) do
+    local h, g = his(ctl, st), sg[ctl .. "_" .. st] or {}
+    nruns = nruns + #g
+    if #g > 1 then
+      for _, key in ipairs({ "Time", "Total", "Behind" }) do
+        local z, d = zOf(h, g, key)
+        if ctl ~= "Simple2" then
+          if math.abs(z) > worstKA then worstKA, nameKA = math.abs(z), ctl .. " " .. st .. " " .. key end
+        elseif key == "Total" then offs[#offs + 1] = d
+        elseif math.abs(z) > worstD then worstD, nameD = math.abs(z), st .. " " .. key end
+      end
+    end
+  end
+end
+check("full sweep, his code: KT and Ant give his logs (< 3 SE)", nruns == 3000 and worstKA < 3,
+      fmt("%d runs; worst %.1f SE (%s)", nruns, worstKA, nameKA))
+local omean = 0
+for _, d in ipairs(offs) do omean = omean + d / #offs end
+check("full sweep, his code: Default's time and shadow his logs', total ~1 point above",
+      #offs == 10 and worstD < 3 and omean > 0.3 and omean < 2,
+      fmt("time/shadow worst %.1f SE (%s); total %+.2f points on average", worstD, nameD, omean))
+local function sub(runs, pct, fix)
+  local t = {}
+  for _, r in ipairs(runs) do
+    if r.ctl == "KTRobot" and r.N == 25 and r.Pct == pct and (r.Fix or "") == fix then t[#t + 1] = r end
+  end
+  return t
+end
+local base0 = sub(sweep, 0, "")
+local zw, dw = zOf(base0, sub(fixRuns, 0, "wallfit"), "Time")
+local zwc = zOf(base0, sub(fixRuns, 0, "wallfit"), "Total")
+local za = zOf(base0, sub(sweep, 0, "seeds,messages,wallfit"), "Time")
+local zs = math.max(math.abs(zOf(base0, sub(fixRuns, 0, "seeds"), "Time")), math.abs(zOf(base0, sub(fixRuns, 0, "seeds"), "Total")),
+                    math.abs(zOf(base0, sub(fixRuns, 0, "messages"), "Time")), math.abs(zOf(base0, sub(fixRuns, 0, "messages"), "Total")))
+check("book's KT at 0%: slower, from the wall fit alone", za > 3 and zw > 3 and zwc > 3 and zs < 2.5,
+      fmt("all three: time %+.1f SE; wallfit: time %+.0f steps (%+.1f SE), total %+.1f SE; seeds, messages <= %.1f SE",
+          za, dw, zw, zwc, zs))
 
 print(fmt("ch07: %d checks, %d failed, %.0f s", count, fails, os.clock() - t0))
 print(fails == 0 and "PASS ch07: " .. count .. " tests" or "FAIL ch07")

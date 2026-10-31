@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F100 so far), and
+  implementations, and our own mistakes once corrected (F1–F101 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -348,7 +348,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   bit, which stays near 10⁻¹² over whole runs). His KT robot always moves
   the safe distance (6″ when clear; the velocity sets only the heading),
   reads its messages wrongly and fits walls from the wrong sonars:
-  switches `messages`, `wallfit` and `seeds`, off by default (F98).
+  switches `messages`, `wallfit` and `seeds`, off by default (F98). The
+  full sweep on the port (5,000 runs) gives his logs, and the book's
+  version the same figures but for KT's speed without obstacles (F101).
 
 ## 7. Where things stand and what's next
 
@@ -535,13 +537,15 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   checked against his Java run for run where the arithmetic allows and
   against his logs (**done**, `ch07/kerr2005.lua`, F98–F99); (3) the
   sweep on the port and then on BPP's ground robot
-  (`World.preset("ch07-corridor")`, `velocity()`). **Next is (3).** The
-  sweep on the port is ready to run (`ch07/kerr2005_sweep.sh`, 5,000 runs,
-  ~16 CPU-hours with LuaJIT, resumable; his code and the book's version);
-  William runs it on his machine (2026-10-31) and brings back
-  `ch07/kerr2005_sweep_runs.txt`; `ch07/kerr2005_figs.lua` summarises it
-  against his logs. Then write it up (README, FINDINGS, a check reading
-  the file) and go on to the ground robots.
+  (`World.preset("ch07-corridor")`, `velocity()`). The sweep on the
+  port is **done** (`ch07/kerr2005_sweep.sh`, 5,000 runs, run by William
+  2026-10-31; `ch07/kerr2005_figs.lua`, F101): his code gives his logs,
+  and the book's version the same figures but for KT's speed without
+  obstacles. **Next is the sweep on BPP's ground robots:** `velocity()`
+  in `ground/vehicle.lua`, KT on robots that touch and carry on, the
+  corridor and his courses as a world (`World.preset("ch07-corridor")`
+  or his course files), and the three controllers against F101's
+  numbers.
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
@@ -580,9 +584,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
-> sweep, step (3): the results of the full sweep on the Lua port
-> (ch07/kerr2005_sweep_runs.txt, run by William), then the sweep on BPP's
-> ground robots. Deliver each step as a patch with git commands.
+> sweep, step (3): the sweep on BPP's ground robots (the sweep on the Lua
+> port is done, F101). Deliver each step as a patch with git commands.
 
 Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
 are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with

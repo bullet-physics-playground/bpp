@@ -307,6 +307,25 @@ agrees with his 100 within 3 standard errors in total and shadow
 coverage (KT's means within 0.3 points at 0–40% obstacles); Default's
 total sits 1–2 points above his at 0–20% obstacles.
 
+**F101. Figs. 7.11–7.13 reproduced from Kerr's own code, 100 runs per
+point, and the book's version of KT gives the same figures** —
+2026-10-31, Confirmed. `ch07/README.md`, `ch07/kerr2005_sweep_runs.txt`
+(William's run), `checks/ch07.lua`. Kerr's protocol on the Lua port
+(F98): 25 robots at 0–40% obstacles and 5–30 at 20%, 10 courses × 10
+runs, his seeds, 5,000 runs. With his code, KT and Ant match his thesis
+logs at every setting in sweep time, total and shadow coverage (largest
+difference 1.4 standard errors of 60); Default matches in time and
+shadow coverage and sits 0.8 points above his logs in total coverage, as
+his Java did (F96), so his logs came from a slightly different
+`Simple2`. The book's claim holds: at 20% obstacles KT covers 89.8% in
+21,800 steps, a third of Ant's 65,200 (97.9%). KT as the book describes
+it (`seeds`, `messages`, `wallfit`) gives the same figures within their
+noise except without obstacles, where it is 20% slower (5,679 against
+4,735 steps, 5.2 SE) and covers 1.5 points more; alone, the book's wall
+fit does all of it (26% slower, 3 points more; the others change
+nothing), judging fewer wall hits parallel to the goal (73% against
+78%), so fewer get the wall's push toward it.
+
 ## 2. New results
 
 **F9. The mean free path in 3D: 0.7720 × the cube edge** — 2026-10-17, New.

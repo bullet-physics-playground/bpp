@@ -469,3 +469,95 @@ in `kerr2005_sweep_runs.txt` are skipped; a run done twice counts once):
 ours with his code (± the 95% interval, as the book's error bars, with
 the number of runs and z against his logs) and ours with the book's
 version.
+
+### Results (William's run, 2026-10-31: 5,000 runs, `kerr2005_sweep_runs.txt`)
+
+**His code gives his logs: Figs. 7.11–7.13 from code, 100 runs per
+point.** KT and Ant agree with his logs at every setting in all three
+figures (the largest difference 1.4 standard errors, over 60
+comparisons). Default's sweep time and shadow coverage agree (within 2.1
+SE); its total coverage sits 0.8 points above his logs on average (up
+to 1.5, 3.8 SE, at 10%), as his Java's reruns did (F96): the Lua is his
+Java run for run, so his logs came from a slightly different `Simple2`.
+The book's comparison stands: at 20% obstacles KT covers 89.8% in 21,800
+steps, a third of Ant's 65,200 (97.9%); Default, fastest, covers 46%.
+
+Fig. 7.11, sweep time (steps), his logs / ours (his code):
+
+| Setting | KT | Ant | Default |
+| --- | --- | --- | --- |
+| 0% | 4,848 / 4,735 | 67,297 / 66,255 | 1,997 / 1,961 |
+| 10% | 12,763 / 12,419 | 61,935 / 62,368 | 2,540 / 3,261 |
+| 20% | 20,635 / 21,795 | 62,175 / 65,238 | 12,564 / 14,659 |
+| 30% | 24,667 / 24,417 | 63,822 / 64,533 | 10,196 / 11,163 |
+| 40% | 52,672 / 52,532 | 71,136 / 72,130 | 99,378 / 102,749 |
+| N 5 | 13,913 / 14,487 | 126,174 / 124,214 | 8,633 / 7,301 |
+| N 10 | 16,905 / 17,795 | 89,977 / 92,028 | 8,822 / 9,484 |
+| N 15 | 18,609 / 18,769 | 77,182 / 78,770 | 9,557 / 11,168 |
+| N 20 | 20,528 / 21,441 | 68,049 / 69,287 | 11,475 / 10,942 |
+| N 30 | 22,754 / 21,592 | 57,353 / 58,592 | 12,657 / 14,082 |
+
+Fig. 7.12, total coverage (%), his logs / ours (his code):
+
+| Setting | KT | Ant | Default |
+| --- | --- | --- | --- |
+| 0% | 76.9 / 76.6 | 98.1 / 98.1 | 41.9 / 42.9 |
+| 10% | 88.6 / 88.7 | 98.0 / 98.0 | 43.4 / 44.9 |
+| 20% | 89.8 / 89.8 | 97.9 / 97.9 | 45.1 / 46.3 |
+| 30% | 89.1 / 89.2 | 97.7 / 97.7 | 44.9 / 45.9 |
+| 40% | 88.4 / 88.2 | 97.5 / 97.5 | 40.7 / 41.8 |
+| N 5 | 57.2 / 57.6 | 96.4 / 96.4 | 17.7 / 17.4 |
+| N 10 | 75.0 / 75.2 | 97.2 / 97.3 | 27.9 / 28.3 |
+| N 15 | 82.7 / 82.8 | 97.6 / 97.6 | 35.0 / 35.5 |
+| N 20 | 87.0 / 87.2 | 97.7 / 97.7 | 41.2 / 42.1 |
+| N 30 | 91.9 / 91.8 | 98.0 / 98.0 | 49.7 / 50.9 |
+
+Fig. 7.13, shadow coverage (%), his logs / ours (his code):
+
+| Setting | KT | Ant | Default |
+| --- | --- | --- | --- |
+| 0% | — | — | — |
+| 10% | 68.2 / 68.3 | 100 / 100 | 24.6 / 25.6 |
+| 20% | 81.4 / 81.2 | 100 / 100 | 31.6 / 31.6 |
+| 30% | 75.7 / 75.2 | 100 / 100 | 25.0 / 27.2 |
+| 40% | 77.7 / 77.8 | 100 / 100 | 27.1 / 27.8 |
+| N 5 | 38.8 / 39.8 | 100 / 100 | 9.9 / 9.4 |
+| N 10 | 57.9 / 58.7 | 100 / 100 | 17.2 / 16.9 |
+| N 15 | 70.7 / 70.7 | 100 / 100 | 22.2 / 22.4 |
+| N 20 | 77.5 / 77.4 | 100 / 100 | 28.0 / 26.9 |
+| N 30 | 84.6 / 84.7 | 100 / 100 | 34.5 / 35.8 |
+
+KT, his code / the book's version (± 95%):
+
+| Setting | Time | Total % | Shadow % |
+| --- | --- | --- | --- |
+| 0% | 4,735 ± 217 / 5,679 ± 280 | 76.6 ± 0.6 / 78.1 ± 0.6 | — |
+| 10% | 12,419 ± 725 / 13,254 ± 727 | 88.7 ± 0.4 / 89.2 ± 0.3 | 68.3 ± 1.3 / 70.0 ± 1.4 |
+| 20% | 21,795 ± 1,320 / 21,928 ± 1,472 | 89.8 ± 0.2 / 90.1 ± 0.2 | 81.2 ± 0.8 / 81.6 ± 0.8 |
+| 30% | 24,417 ± 2,133 / 27,769 ± 2,377 | 89.2 ± 0.3 / 89.5 ± 0.4 | 75.2 ± 1.7 / 75.1 ± 1.9 |
+| 40% | 52,532 ± 5,805 / 52,837 ± 5,519 | 88.2 ± 0.5 / 88.9 ± 0.4 | 77.8 ± 1.4 / 78.7 ± 1.3 |
+| N 5 | 14,487 ± 1,168 / 13,990 ± 1,038 | 57.6 ± 1.3 / 58.2 ± 1.4 | 39.8 ± 1.9 / 39.0 ± 1.8 |
+| N 10 | 17,795 ± 1,637 / 18,400 ± 1,592 | 75.2 ± 0.7 / 76.0 ± 0.7 | 58.7 ± 1.6 / 60.0 ± 1.5 |
+| N 15 | 18,769 ± 1,275 / 18,382 ± 1,221 | 82.8 ± 0.4 / 83.2 ± 0.5 | 70.7 ± 1.2 / 71.2 ± 1.1 |
+| N 20 | 21,441 ± 1,432 / 21,395 ± 1,222 | 87.2 ± 0.3 / 87.3 ± 0.3 | 77.4 ± 1.0 / 77.0 ± 0.9 |
+| N 30 | 21,592 ± 1,381 / 22,610 ± 1,471 | 91.8 ± 0.2 / 92.3 ± 0.2 | 84.7 ± 0.7 / 85.6 ± 0.7 |
+
+**The book's version of KT** (all three switches) gives the same figures
+within their noise except without obstacles, where it sweeps 20% slower
+and covers 1.5 points more; it covers a little more everywhere (0.1 to
+1.5 points). At 0% obstacles each switch alone, 100 runs
+(`kerr2005_fixes.sh`):
+
+| KT at 0% | Time (steps) | Total % |
+| --- | --- | --- |
+| his code | 4,735 ± 217 | 76.6 ± 0.6 |
+| `seeds` | 4,656 ± 218 | 76.7 ± 0.6 |
+| `messages` | 4,856 ± 196 | 75.9 ± 0.6 |
+| `wallfit` | 5,978 ± 310 | 79.7 ± 0.6 |
+| all three | 5,679 ± 280 | 78.1 ± 0.6 |
+
+The wall fit is the whole effect. With the book's fit fewer wall hits
+are judged parallel to the goal (73% against his code's 78% over 10 runs
+at 0%; 60% against 63% at 20%), so fewer get the wall's push toward the
+goal: slower, and more lateral coverage. With obstacles, which most wall
+hits are, the two fits give the same sweep.
