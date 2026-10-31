@@ -1472,6 +1472,38 @@ two checkouts, a path saved in one is used by the other, so
 `require "common"` failed for `batch_repeat` there. Clear the line (or
 the field in Preferences) to get the default path back.
 
+**F100. LuaJIT: 3–16× on Lua-heavy work, 1.2–1.6× on vehicle scenes,
+the same results** — 2026-10-31, New. `probes/luajit_speed.sh`,
+`probes/worldgen_time.lua`. BPP's own Lua (5.1, Ubuntu 24.04's build)
+against LuaJIT 2.1 loaded in its place (`LD_PRELOAD`), every
+ArtificialPhysics scene headless with `SEED=1` and `delayMs` 0, one run
+each on two cloud cores (wall seconds; vehicle scenes 5,400 frames):
+
+| Work | Lua 5.1 | LuaJIT | × |
+| --- | --- | --- | --- |
+| Drones, 50 (Newtonian, LJ) | 43.0, 44.3 | 26.9, 28.2 | 1.6 |
+| Ground robots (Newtonian, LJ) | 39.2, 33.4 | 32.2, 28.1 | 1.2 |
+| Boats (Newtonian, LJ) | 51.5, 43.6 | 35.8, 36.0 | 1.2–1.4 |
+| Particle formations (Newtonian, LJ) | 15.3, 18.5 | 9.6, 13.2 | 1.4–1.6 |
+| Uniform Coverage | 5.9 | 1.1 | 5.3 |
+| Ch. 2: Tetrahedron, SpringLattice, Planets | 6.8, 16.1, 1.1 | 1.5, 5.9, 0.5 | 2–4.5 |
+| Couette on vehicles (3,000 frames); UAV targets | 3.1; 2.5 | 1.0; 1.1 | 2.3–3.2 |
+| World generator, five realistic presets (CPU s) | 9.4 | 2.2 | 4.3 |
+| The 18 standalone checks (outside BPP) | ~410 | 67 | 6 |
+| `checks/ch07.lua` inside BPP | 68 | 4 | 16 |
+
+Every scene printed the same output under both, and every check passes
+on LuaJIT (bit-for-bit ones included). Where Bullet's physics is most of
+the work (the vehicles) the gain is small; where Lua is (coverage, the
+generator, the ports) it is large. The world generator takes about the
+same time with or without BPP's compiled helpers `geo` (9.4 s inside
+BPP, 9.6 s in plain Lua 5.1, 2.5 s in plain LuaJIT). The preload works
+only for a BPP linked against Lua 5.1; William's (Ubuntu 22.04) links
+Lua 5.2, whose luabind is built against 5.2, so LuaJIT there would need
+luabind and BPP rebuilt against it, for 1.2–1.6× on the scenes he
+watches. Not done: LuaJIT is used for long runs outside BPP (the Kerr
+sweep, `ch07/kerr2005_sweep.sh`).
+
 ## 7. Open questions
 
 - Ch. 7's obstacles and the simulator behind Figs. 7.5–7.8 (F94): what

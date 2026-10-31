@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F99 so far), and
+  implementations, and our own mistakes once corrected (F1–F100 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -178,11 +178,14 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "6. The capstone: one mission, five kinds of vehicle" --break "8. Build order"` (2026-10-28; breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-10-27: no break; the one before "6. How BPP behaves" left a nearly empty page). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "5. Our own errors, corrected"` (2026-10-31, F100: with no break the last page held 15 lines; this break leaves 35 on the emptiest). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
-- **LuaJIT** (`apt install luajit`) runs the plain-Lua ports several times
-  faster; `ch07/kerr2005.lua` gives the same results on it to the bit
-  (7× faster). Use it for long sweeps run outside BPP.
+- **LuaJIT** (`apt install luajit`) runs the plain-Lua ports, sweeps and
+  checks 6–16× faster with the same results (`BPP=none LUA=luajit bash
+  checks/run_all.sh`: 18 checks in ~1 min); use it for long runs outside
+  BPP. Inside BPP it gains 1.2–1.6× on the vehicle scenes, 3–5× on
+  Lua-heavy ones and the world generator (F100, `probes/luajit_speed.sh`);
+  BPP itself stays on its own Lua (William's build is 5.2).
 
 ## 6. Facts established so far
 
