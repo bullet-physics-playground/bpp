@@ -1,7 +1,7 @@
 --
 -- Test track, 29 October: the 5-seed ranking's builds (handover section
 -- 4h), best first, at the standard the ranking was run at: 200 solver
--- iterations, the motor at 0.25 a crank, 1.0 cm links, trot, forward;
+-- iterations, the motor at 0.5 a crank, 1.0 cm links, trot, forward;
 -- diag builds with outside braces and held pendants, guides builds
 -- with their legs held by guides; both Hoecken-Spears slider builds with
 -- their feet's ends turned up (their specs' footTips), everyone else flat
@@ -41,7 +41,7 @@ else
   SOLVER_ITERATIONS = SOLVER_ITERATIONS or 200
   FIXED = 1 / 3840
 end
-MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.25 a crank in effect: the hinge motors reach half their set torque)
+MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.5 a crank, weight x stride units: 2 shared by the 4 cranks)
 GRAVITY = 981
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1

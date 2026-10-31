@@ -1,6 +1,7 @@
 -- One test-track run, measured (for run-table.sh): the walker's progress along the track (its body's x) at 5 s
--- and at RUN_SECS (default 20) s, and its cranks' speed (as a share of driven speed) and torque (weight x stride
--- units) from 2 s on. At the end, one line:
+-- and at RUN_SECS (default 20) s, and its cranks' speed (as a share of driven speed) and motor torque (weight x
+-- stride units; about each crank's pivot -- before 30 October it read about the crank's middle, half as much) from
+-- 2 s on. At the end, one line:
 --   RUN <name>|speed <cm/s, from 5 s to the end>|x5 <cm>|xend <cm>|cranks <min>..<max>|torque p95 <..> max <..>
 -- Run from the WalkerRoom folder, after the room's settings (ONLY, TERRAIN, AMP, SEED, ...).
 local realv, hooks = v, {}
@@ -28,7 +29,7 @@ realv:postSim(function(N)
     if last[i] and N >= 120 then
       local d = a - last[i]; d = d - 2 * math.pi * math.floor(d / (2 * math.pi) + 0.5)
       local r = d * 60 * m.sign / math.abs(m.speed); lo = math.min(lo, r); hi = math.max(hi, r)
-      T[#T + 1] = math.abs(m.hinge:torqueB().z) / unit
+      T[#T + 1] = math.abs(m.hinge:motorTorque()) / unit   -- (about the crank's pivot: the motor's own torque)
     end
     last[i] = a
   end

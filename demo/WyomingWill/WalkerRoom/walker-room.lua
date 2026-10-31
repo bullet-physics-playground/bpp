@@ -316,6 +316,10 @@ ANKLES = ANKLES or false
 -- parallel link would hold it), so it swings level and lands level but
 -- can still rock on a bump; stiffness in weight-units x cm^2/s^2 per
 -- radian. nil: off.
+-- ANKLE_STOP (default 30): with ANKLE_SPRING, each foot stops when its
+-- sole is that many degrees from its leg link, either way (see addWalker);
+-- false: no stop
+ANKLE_STOP = (ANKLE_STOP == nil) and 30 or ANKLE_STOP
 -- REVERSE: true runs every walker's cranks backward (a table of names,
 -- { ["Spears 4-bar"] = true }, just those): each foot goes round its path
 -- the other way, so the walker walks the other way, and the end of its
@@ -1133,7 +1137,7 @@ local function addWalker(spec, x, z, heading)
     barLen[o] = L
     return o
   end
-  for _, n in ipairs({ "btHingeConstraint", "btSliderConstraint", "btGeneric6DofConstraint" }) do
+  for _, n in ipairs({ "btHingeConstraint", "btSliderConstraint", "btGeneric6DofConstraint", "btFixedConstraint" }) do
     realJoint[n] = _G[n]
     _G[n] = function(A, B, ...)
       local con = realJoint[n](A, B, ...)
@@ -1142,7 +1146,7 @@ local function addWalker(spec, x, z, heading)
       -- (a Generic6Dof is a joint only as a diag bar's weld; elsewhere
       -- it is a guide, which weighs nothing)
       if n ~= "btGeneric6DofConstraint" or f:find("Crossbar") then
-        joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint", con, n }
+        joints[#joints + 1] = { A, type(B) == "userdata" and B or nil, n == "btSliderConstraint" or n == "btFixedConstraint", con, n }
       end
       if n == "btHingeConstraint" and f == "buildFoot" then ankleHinges[#ankleHinges + 1] = con end
       return con
@@ -1236,10 +1240,25 @@ local function addWalker(spec, x, z, heading)
   -- also held level to the body by an angular spring about the same axis
   -- (its position left to the hinge), as a parallel link would hold it
   if ANKLE_SPRING then
-    -- (the ankle hinge's +-90 degree limit counts from its leg link's own
-    -- length, not from the foot as built, so a level foot under a steep
-    -- link -- Klann's -- sat at the limit; with the spring it has none)
-    for _, h in ipairs(ankleHinges) do h:setLimit(1, -1, 0.9, 0.3, 1.0) end
+    -- (the ankle hinge's angle is the foot's against its leg link: 0 or 180
+    -- degrees with the sole along the link, folded against it. Its files'
+    -- +-90 degree limit, counted from there, held a level foot under an
+    -- upright link -- 90 degrees as built -- at the limit, so it was taken
+    -- off; then a foot could turn on through its own leg. ANKLE_STOP
+    -- (default 30 degrees): a stop each side, the sole that far from the
+    -- link -- where the foot's top meets the corner of a 1 cm link with the
+    -- ankle's pin 0.87 cm below the link's end, in a clevis, as an ankle
+    -- could be built (handover/ankle_stop.png); 30 to 150 degrees, +-60
+    -- from square. false: no stop.)
+    for _, h in ipairs(ankleHinges) do
+      if ANKLE_STOP then
+        local m = math.rad(ANKLE_STOP)
+        if h:getHingeAngle() >= 0 then h:setLimit(m, math.pi - m, 0.9, 0.3, 1.0)
+        else h:setLimit(-math.pi + m, -m, 0.9, 0.3, 1.0) end
+      else
+        h:setLimit(1, -1, 0.9, 0.3, 1.0)
+      end
+    end
     local cubeT = w.cube.body:getCenterOfMassTransform()
     for _, o in ipairs(w.bodies) do
       if made[o] == "buildFoot" then

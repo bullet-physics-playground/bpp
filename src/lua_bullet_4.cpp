@@ -24,6 +24,22 @@ static void bppSetLinearMotor(btGeneric6DofConstraint &c, int axis, bool enable,
  * @brief Registers the last quarter of the Bullet API.
  * @param s The Lua state to register in.
  */
+// hinge:motorTorque(): the torque the hinge last passed to its body B about
+// its own axis, measured at its pivot (after enableForces) -- what its motor
+// (and limit) gave. Bullet's joint feedback gives torque about each body's
+// centre of mass; for a crank driven at one end, half of the motor's torque
+// is then taken back by the pivot's push, so torqueB reads half (30 October
+// 2026). Positive along the hinge's axis on B.
+static btScalar bppHingeMotorTorque(const btHingeConstraint &h) {
+  const btJointFeedback *f = h.getJointFeedback();
+  if (!f) return 0;
+  const btTransform &tB = h.getRigidBodyB().getCenterOfMassTransform();
+  const btVector3 pivot = tB * h.getBFrame().getOrigin();
+  const btVector3 axis = tB.getBasis() * h.getBFrame().getBasis().getColumn(2);
+  const btVector3 aboutPivot = f->m_appliedTorqueBodyB + (tB.getOrigin() - pivot).cross(f->m_appliedForceBodyB);
+  return aboutPivot.dot(axis);
+}
+
 void luaBindBulletPart4(lua_State *s) {
   using namespace luabind;
 
@@ -48,6 +64,7 @@ module(
            .def("setParam", &btHingeConstraint::setParam)
            .def("setAngularOnly", &btHingeConstraint::setAngularOnly)
            .def("enableAngularMotor", &btHingeConstraint::enableAngularMotor)
+           .def("motorTorque", &bppHingeMotorTorque)
            .def("getHingeAngle", (btScalar(btHingeConstraint::*)()) &
                                         btHingeConstraint::getHingeAngle)
            .def("getHingeAngle",

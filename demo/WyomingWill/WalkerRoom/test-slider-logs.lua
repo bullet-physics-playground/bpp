@@ -43,7 +43,7 @@ else
   SOLVER_ITERATIONS = SOLVER_ITERATIONS or 200
   FIXED = 1 / 3840
 end
-MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.25 a crank in effect: the hinge motors reach half their set torque)
+MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.5 a crank, weight x stride units: 2 shared by the 4 cranks)
 GRAVITY = 981
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1

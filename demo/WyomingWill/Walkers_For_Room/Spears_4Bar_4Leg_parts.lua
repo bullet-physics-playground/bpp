@@ -584,9 +584,20 @@ local function buildLinkage(x_offset, g_ang, mirror, phase, speed)
   local attachLocalX = coupler_len * (0.5 - ATTACH_FRAC)   -- attach's position along the coupler's own local +-coupler_len/2 axis (A end at -coupler_len/2, B end at +coupler_len/2)
   local frameInCoupler = btTransform(legRelQuat, btVector3(attachLocalX, 0, z_pendant_l - z_coupler_l))
   local frameInPendant = btTransform(IDENTITY_QUAT, btVector3(-p_len/2, 0, 0))   -- attach is the leg-arm's own "-X end" (matches makeLink(attach, C, ...): p1=attach at local -p_len/2)
-  local weldLeg = btSliderConstraint(coupler.body, pendant.body, frameInCoupler, frameInPendant, true)
-  weldLeg:setLowerLinLimit(0)   -- see the IMPORTANT note up top: slider defaults to FREE translation unless locked
-  weldLeg:setUpperLinLimit(0)
+  -- (the room, 30 October 2026: welded by Bullet's fixed joint, every
+  -- direction locked, not by a slider locked at 0 -- with the slider, the
+  -- solver carrying joint forces over from step to step (si-warm) built
+  -- up a shake through the legs until the cranks ran wild; the fixed
+  -- joint holds the same weld without it. LEG_WELD_SLIDER = true: the
+  -- slider, as before.)
+  local weldLeg
+  if LEG_WELD_SLIDER then
+    weldLeg = btSliderConstraint(coupler.body, pendant.body, frameInCoupler, frameInPendant, true)
+    weldLeg:setLowerLinLimit(0)   -- see the IMPORTANT note up top: slider defaults to FREE translation unless locked
+    weldLeg:setUpperLinLimit(0)
+  else
+    weldLeg = btFixedConstraint(coupler.body, pendant.body, frameInCoupler, frameInPendant)
+  end
   addConstraint(weldLeg)
 
   return {
