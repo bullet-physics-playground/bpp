@@ -27,7 +27,8 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
   and the **Digi-Comp II** (west 3: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
-  itself; OVERFLOW's halt is next).
+  itself, or a division to OVERFLOW's halt; its weight and fly are parts:
+  a cup of balls and a bought rotary damper).
   Covered bays wait for Kelvin's tide predictor (east 3), the Differential
   Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -175,6 +176,15 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Springs** that matter are simulated as the printed part: the Pascaline's
   detent is a body on a hinge turned back by the leaf's stiffness from PLA
   (3EI/L), and its working range of thickness was found by sweeping it.
+- **A part driven by a weight through a damper** moves slowly wherever only
+  a small force drives it: the Digi-Comp's escapement, whose pin must creep
+  off the anchor's second finger, took up to 1.8 s to let go with the damper
+  where the torque-and-cap had taken half a second. Measure such waits
+  with the real drag, at both ends of its tolerance.
+- **Impulses applied in `preSim` before a step** (a cord's pull, a drag)
+  change a held body's velocity for an instant, until the step's contacts
+  take it back: read speeds for "is it moving?" before applying them (the
+  Digi-Comp's hand thought the held wheel was turning, and never began).
 - **Rope:** none built in; a rope of beads on ball joints works if the rope
   isn't far lighter than what hangs on it (`MACHINES.md`, "Rope").
 - **Mouse:** scripts get `onHover` (after half a second still, no button
@@ -369,17 +379,31 @@ there, in `release/`, or on the path; or set `BPP`.
   96 000 check-all allowed (it had been put at ~88 000). check-all now
   allows 110 000 (110 600 in the hall), still two hours a run; each took
   about an hour here, two at a time on two cores.
-- **Next: the weight and the fly as parts (step 2f).** William chose a
-  bought rotary damper for the fly: Fuji Latex (ACE) **FRT-G2-200**, 0.2 N
-  cm at 20 rpm, on the wheel's shaft 1:1; the weight a cup of nine balls
-  (~76 g) on a cord from a 4 mm drum under the plate, over a pulley at the
-  top edge, with a ratchet for winding. The specs, the sums and what is
-  open are in FINDINGS, step 2e, "Planned for the next step". In the
-  simulation: drag c w (c = 0.96 mN m s) for `FLY_W`'s cap; run the
-  library at c +- 35%. A possible tighter rule for dividing in AUTO (A = 0
-  at a halt is exact only if M's bits still to come in that cycle are all
-  0) was offered to William, not yet taken.
-- **Then** each program showing
+- **Done (2026-10-31): the weight and the fly as parts (step 2f).** The
+  wheel is glued on a 3 mm steel axle down through the plate and the board.
+  Under the board (not in the lower level as planned: there it could not be
+  wound, and the damper and ratchet had no room): a ratchet on the axle,
+  the drum on the axle with two pawls in it, a coupler, and the **FRT-G2-200**
+  damper screwed to a bracket. The cord runs up under the board to a pulley
+  just out past the top edge and down to a printed cup of **eight** balls (74 g
+  with the cup: torque 2.9 mN m, the old 30 kg cm^2/s^2); 57 balls from wound
+  up to the table. `G.DRIVE` in the geometry; `drive` in the script (the cup
+  a body, the cord pull-only as the thread, the damper a drag c w,
+  `DC_DAMP` scaling it, `DC_CUP` the balls). The hand winds the weight when
+  fewer than 25 balls are left and nothing moves; `R` leaves it as it is.
+  The library passed at the damper's rating (on its own and in the hall)
+  and at 0.65 and 1.35 of it (its tolerance), the hand winding three times
+  a tour. Found: the anchor's second finger comes off its pin slowly
+  against the damper (up to 1.8 s at its rating, 3.6 s at 1.35, where the hand's
+  3 s wait for the anchor was too short and readings came a ball early: it
+  waits 8 s now); at 0.65 the wheel runs past the damper's 50 rpm. The
+  damper's mount is drawn from our reading of an unlabelled datasheet
+  drawing: measure its shaft before printing the coupler. FINDINGS, step
+  2f. **Not seen by William yet.**
+- A possible tighter rule for dividing in AUTO (A = 0 at a halt is exact
+  only if M's bits still to come in that cycle are all 0) was offered to
+  William, not yet taken.
+- **Next:** each program showing
   only the parts it needs (William: "just add the parts you need when you
   need them", on the full board, not a compacted one). William pointed
   to a replica: www.instructables.com/Digi-Comp-II-Replica/ (only its

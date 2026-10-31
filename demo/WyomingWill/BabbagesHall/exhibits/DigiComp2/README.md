@@ -119,7 +119,7 @@ moving COMPLEMENT between them.
 **START** is the feeder: a wheel with four notches under the **input**
 channel of waiting balls, each quarter turn carrying one ball round from
 the top and letting it out at the bottom. A wound **weight** turns it, as
-fast as a **fly** lets it, and an **anchor** holds it, as a clock's
+fast as a **fly** lets it (both are parts: below), and an **anchor** holds it, as a clock's
 escapement holds its wheels: two fingers on the anchor catch the pins of
 an **escape star** on the wheel. Push the end of the anchor's long arm (the
 START lever) and it lets the wheel round one quarter turn, one ball; let go
@@ -143,6 +143,26 @@ under the plate and never reaches the lever, so the machine stops by
 itself. **MANUAL**: the thread unhooked (on a peg beside the lever); the
 trip lever still lifts for every ball, nothing follows, and every ball is
 a press of START.
+
+**The weight and the fly.** The wheel is glued on a 3 mm steel **axle**
+that turns in holes through the plate and the lower board and comes out
+under the board. There, in a **bracket** screwed to the board's underside,
+are a **ratchet** glued on the axle, the **drum** turning on the axle with
+two pawls in the ratchet's teeth, a **coupler** glued on the axle's end,
+and the fly: a bought **rotary damper** (Fuji Latex FRT-G2-200, silicone
+oil, 0.2 N cm at 20 rpm), screwed to the bracket's plate, its shaft in the
+coupler. A cord wound on the drum runs up the slope under the board to a
+**pulley** just out past the top edge and down to the **weight**: a printed **cup**
+of eight steel balls, 74 g. It turns the wheel at about 3 radians a
+second (each ball let out is a quarter turn, 6.3 mm of cord). The cup
+falls 36 cm from wound up to the table, 57 balls; to **wind** it, turn the
+drum's knurled flange backward under the board: the pawls click over the
+teeth and neither the wheel nor the damper turns. (The hand in the
+simulation winds it when fewer than 25 balls are left and nothing is
+moving, so never in the middle of an AUTO run; setting the machine back,
+`R`, leaves the weight where it is.) A ball more or less in the cup is an
+eighth faster or slower. All this is under and behind the board's top end:
+`W` flies the camera there, and back.
 
 **OVERFLOW** is a shutter over the overflow hole, the way out of A7 to the
 left, sliding up and down the slope in a groove; its knob stands up the
@@ -171,6 +191,7 @@ other way then gives the cycles begun).
 | `X` | COMPLEMENT on and off (the shutters over the done holes) |
 | `G` | run the program the **program** slider chooses (`G` again stops it) |
 | `B` | the camera to the program board, close enough to read it; again, back |
+| `W` | the camera beside and under the board's top end, to the weight, its drum and pulley, and the damper; again, back |
 | `T` | the tour: every program in the library, in turn (it starts with it) |
 | `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off, OVERFLOW RUN, MANUAL |
 | `Z` | slow motion (1/4 speed) on and off |
@@ -245,8 +266,9 @@ Open `digicomp2.lua` in bpp, or run it inside the hall (`HALL_START=digi`).
 Environment, for testing: `DC_TOUR=0` (no tour), `DC_FRICTION`, `DC_PF`
 (the pins' friction, as a torque in kg cm^2/s^2: 0.4), `DC_TH` (the board's
 slope, 15 degrees), `DC_ROLL` (the table tilted across, degrees), `DC_HZ`
-(steps a second, 2400), `DC_WEIGHT` (the weight's torque on the wheel,
-30 kg cm^2/s^2), `DC_FLY` (the fly's top speed, 3 radians a second),
+(steps a second, 2400), `DC_CUP` (the balls in the weight's cup, 8),
+`DC_DAMP` (the damper's drag, times its rating: its tolerance is 0.65 to
+1.35),
 `DC_PUSH` (the hand's push on the START lever, as a torque on the anchor's
 pin, 300), `DC_PAUSE` (seconds between a reading and the next ball, 1),
 `DC_SHOW` (seconds the next ball's way is shown before it is let go, 1.5),
@@ -285,7 +307,7 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
 | `foot.stl` | 13 | 12 x 24 x 22 | its stem and foot: the stem glues up into the rocker's hub, through the plate's square hole. 100% infill |
 | `flap.stl` | 7 | 3 x 19 x 9 | a switch's flap |
 | `wheel.stl` | 1 | 39 x 39 x 9 | the feeder's wheel |
-| `star.stl` | 1 | 40 x 40 x 8 | the escape star, glued on the wheel's hub (its stem is where the weight's drum and the fly will go) |
+| `star.stl` | 1 | 40 x 40 x 8 | the escape star, glued on the wheel's hub (the wheel and the star are glued on the axle) |
 | `anchor.stl` | 1 | 55 x 91 x 8 | the anchor: its two fingers, the START lever, the counterweight's arm with its cup, and the hole in the START lever the thread hooks into |
 | `trip-lever.stl` | 1 | 14 x 10 x 10 | AUTO: the trip lever |
 | `trip-down-arm.stl` | 1 | 3 x 17 x 4 | AUTO: the arm hanging from the trip lever's axle, beside the board; the thread is tied through the hole at its foot |
@@ -295,6 +317,14 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
 | `comp-knob.stl` | 1 | 10 x 10 x 12 | COMPLEMENT's handle, glued on the top end of its bar |
 | `foot-back-1.stl`, `foot-back-2.stl` | 2 each | 30 x 228 x 30, 30 x 232 x 30 | the stand's tall back feet, each in two halves glued end to end (20% infill is plenty; on a 220 mm bed, lay them across its diagonal) |
 | `foot-front.stl` | 2 | 30 x 21 x 30 | its low front feet |
+| `ratchet.stl` | 1 | 14 x 14 x 3 | the drive: the ratchet, glued on the axle under the board. 100% infill |
+| `drum-top.stl` | 1 | 22 x 22 x 4 | the drum's top: its floor, and the ring round the ratchet with the two pawls (thin: print them at 100%, slowly) |
+| `spool.stl` | 1 | 22 x 22 x 10 | the drum's barrel (the cord tied through the hole at its top) and its knurled flange; glued under the drum's top |
+| `coupler.stl` | 1 | 8 x 8 x 7 | glued on the axle's end; its socket pushes onto the damper's shaft |
+| `drum-bracket.stl` | 1 | 48 x 28 x 27 | screwed under the board round the drum: the damper is screwed to its plate |
+| `pulley.stl` | 1 | 22 x 22 x 6 | the cord's pulley at the top edge, on a 3 mm pin |
+| `pulley-bracket.stl` | 1 | 26 x 62 x 30 | its bracket, screwed under the board at the top edge and reaching 32 mm out past it, the pin pressed through its cheeks |
+| `cup.stl` | 1 | 37 x 37 x 51 | the weight's cup, for eight 1/2 inch balls; the cord tied through the hole at the top of its bail |
 
 **Also needed**
 
@@ -304,8 +334,7 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
   pressed into the pocket under each apex, flush.
 - **3 mm steel dowel pins**: thirteen 32 mm long for the flip-flops
   (pressed into the lower tiles' bosses, up through foot, stem and rocker),
-  seven 16 mm for the flaps and one 20 mm for the wheel (pressed into the
-  upper plate).
+  seven 16 mm for the flaps (pressed into the upper plate).
 - For COMPLEMENT: six more 3 mm pins, 21 mm long (one in each shutter),
   and the **bar**: a strip of aluminium (or hardwood) 5 x 3 mm, 792 mm
   long, drilled 3.4 mm for the pins, the first 30 mm from its top end and
@@ -321,6 +350,13 @@ same numbers the simulation uses. The largest pieces are the tiles, 214 x 189 mm
   it; and the **thread**: a fine braided line that doesn't stretch (0.2
   mm Dyneema fishing line), about 1.7 m: 148 cm up beside the board and
   17 cm across to the START lever, a small wire hook on its end.
+- For the weight and the fly: a **3 mm steel rod**, 58 mm, the wheel's
+  axle (glued in the wheel and star, the ratchet and the coupler); a
+  **rotary damper, Fuji Latex FRT-G2-200** (also sold by ACE; the -G1, with
+  a gear, will do with the gear pulled off); two M2 x 8 screws and nuts for
+  it; a 3 mm pin, 16 mm, the pulley's; four wood screws about 2.5 x 8 mm
+  for the brackets; **eight more 1/2 inch steel balls** for the cup; and
+  about 60 cm of **0.5 mm braided line** (fishing line), the cord.
 - Glue; a little dry PTFE or graphite on the pins.
 
 **Assembly.** Glue the lower tiles onto the plywood, edge to edge, the
@@ -329,9 +365,19 @@ their bosses. Glue the upper tiles together at their edges into one plate
 (a strip of thin card or tape under each join helps). Put each foot on its
 pin, wedge up the slope; lay the plate on its posts, the stems coming up
 through the square holes; press the steel balls into the rockers and glue
-each rocker onto its stem, roof up the slope. Press the flaps' and wheel's
-pins into the plate, fit them, glue the star on the wheel and fit the
-anchor on its pin, its counterweight glued in. Fit the trip lever in its
+each rocker onto its stem, roof up the slope. Press the flaps' pins into
+the plate and fit them. Drill the plywood 3.5 mm at the wheel's place
+(through the lower tile's hole). Glue the wheel and the star on the axle,
+its top flush with the star's, and put it down through the plate and the
+board; under the board, glue the ratchet on it 0.5 mm below the board,
+slip the drum on (the spool glued under its top, the pawls round the
+ratchet), and glue the coupler on its end. Screw the damper to the
+bracket's plate, push its shaft into the coupler's socket (check the
+socket against the shaft first: `FINDINGS.md`, step 2f) and screw the
+bracket under the board. Screw the pulley's bracket under the top edge, reaching out past it,
+the cord's line 4 mm left of the axle; tie the cord through the drum's
+barrel, wind it on, lead it up under the board, over the pulley and down,
+and tie on the cup. Fit the anchor on its pin, its counterweight glued in. Fit the trip lever in its
 channel on its wire axle and glue the hanging arm on the wire's end
 beside the board. Glue the eye's post to the board's right edge, tie the
 thread to the hanging arm, lead it up through the eye, and cut it so its
@@ -352,10 +398,13 @@ puts the balls back, so the first lets one out.)
 
 ## What is not as built
 
-- **The weight and the fly** are not parts yet: in the simulation they are
-  a steady torque on the wheel's pin (`DC_WEIGHT`) and a top speed
-  (`DC_FLY`). A real one needs a drum on the star's stem, a cord and a
-  weight to wind up, and a small fan geared to the wheel.
+- **The weight and the fly.** The cup is a body with its balls as one (not
+  loose in it); the cord, as the thread, can't stretch and only pulls, and
+  runs over the pulley without friction. The damper is a drag in step with
+  the wheel's speed, from its rating (the datasheet says only that its
+  torque rises with speed); the ratchet is taken as engaged except while
+  the hand winds, and its clicks are not simulated. What turns with the
+  wheel under the board adds its inertia to the wheel's.
 - **The thread** is simulated as a line that can't stretch, that pulls and
   never pushes, and that runs through its eye without friction; it weighs
   nothing and touches nothing. A real one stretches a little and rubs in

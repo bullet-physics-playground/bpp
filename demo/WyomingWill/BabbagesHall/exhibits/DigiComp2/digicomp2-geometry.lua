@@ -1028,6 +1028,133 @@ do
   T.EYE = { x = T.xc + DA.x, y = hy, z = T.hook.z, R = 0.25 }
   T.ROD_PIN_R = 0.08                              -- (the hole in the START lever the thread hooks into)
 end
+-- ---------------------------------------------------------------------
+-- the drive (step 2f): the weight and the fly as parts. The wheel is glued
+-- on a 3 mm steel AXLE, which turns in holes through the upper plate and
+-- the lower board and comes out under the board. There, in a bracket
+-- screwed to the board's underside: a RATCHET glued on the axle; the DRUM,
+-- turning on the axle, its pawls in the ratchet's teeth; a COUPLER glued on
+-- the axle's end and pushed onto the shaft of the DAMPER (a bought rotary
+-- damper, Fuji Latex FRT-G2-200, screwed to the bracket: the fly). A cord
+-- wound on the drum runs up the slope under the board to a PULLEY at the
+-- top edge and down to the CUP, which holds steel balls: the weight. The
+-- cup pulls, the drum's pawls drive the ratchet, the axle turns the wheel
+-- forward, as fast as the damper lets it. Winding: the hand turns the drum
+-- backward by its knurled flange; the pawls click over the teeth, and
+-- neither the wheel nor the damper turns. (Not the plan's drum in the
+-- lower level: under the board the hand reaches it, and there is room for
+-- the ratchet and the damper.)
+-- The wheel turns forward clockwise as seen from above the board (from
+-- out of its face): a point on its left moves up the slope. So the cord
+-- leaves the drum's left side, going up the slope.
+-- Sizes in cm, the board's frame; under the board y runs down from yb.
+local D = {}
+G.DRIVE = D
+D.yb = G.YL - G.BACK                -- the lower board's underside
+D.AXLE_R = 0.15                     -- the axle (3 mm steel)
+D.HOLE_R = 0.175                    -- its holes in the plate and the board (3.5 mm)
+D.y1 = D.yb - 0.05                  -- the ratchet's and the drum's tops (0.5 mm under the board)
+D.RAT = { RO = 0.7, RR = 0.58, N = 12, H = 0.3 }    -- the ratchet: tips, roots, teeth, thickness
+D.RING = { RO = 1.1, RI = 0.8 }     -- the drum's top: a ring round the ratchet, its pawls inside
+D.FLOOR = 0.1                       -- the drum's floor, under the ratchet (0.1 mm clear)
+D.BARREL_R, D.BARREL_H = 0.375, 0.8 -- the cord's barrel
+D.FLANGE_H = 0.15                   -- the knurled flange under it (wound by)
+D.CORD_R = 0.025                    -- the cord: 0.5 mm braided line
+D.R = D.BARREL_R + D.CORD_R         -- the cord's radius on the drum: 4 mm
+D.yRatchet = D.y1 - D.RAT.H         -- (the ratchet's underside)
+D.yFloor = D.yRatchet - 0.01 - D.FLOOR
+D.yBarrel = D.yFloor - D.BARREL_H   -- (the barrel's lower end, the flange's top)
+D.yDrum = D.yBarrel - D.FLANGE_H    -- the drum's underside
+D.yCord = D.yFloor - D.BARREL_H / 2 -- the cord's height, leaving the drum
+-- the damper, as the datasheet draws it (FRT-G2, without the gear): a
+-- flange 24 mm long, its two holes 19 mm apart (M2 screws), the body 15 mm
+-- across, 5.4 mm high with its shaft, the shaft 3.6 mm across its round
+-- with flats 2.5 mm apart. (The drawing came without labels: these are our
+-- reading of it, with Sugatsune's SRT-G2, the same damper, for the outside
+-- sizes. Check the shaft on the damper in hand before printing the coupler.)
+D.DAMP = { L = 2.4, HOLES = 1.9, HOLE_R = 0.11, BODY_R = 0.75, EAR_R = 0.25, FLANGE_H = 0.21,
+           BODY_H = 0.28, H = 0.54, SHAFT_R = 0.18, SHAFT_F = 0.25 }
+D.COUP = { R = 0.4, GAP = 0.02, SOCKET = 0.26, AXLE = 0.4 }  -- the coupler: radius, clear over the
+                                                          -- damper's body, socket and axle depths
+D.yCoupTop = D.yDrum - 0.02
+D.yCoupBot = D.yCoupTop - (D.COUP.AXLE + 0.02 + D.COUP.SOCKET)
+D.yPlate = D.yCoupBot - D.COUP.GAP - D.DAMP.BODY_H  -- the bracket's plate: the damper stands on it
+D.PLATE_T = 0.3
+D.yAxleBot = D.yCoupTop - D.COUP.AXLE
+D.yAxleTop = Wh.STAR_Y0 + Wh.STAR_H                  -- (flush with the star's top)
+D.AXLE_L = D.yAxleTop - D.yAxleBot
+-- the drum's bracket: a plate under the damper, two legs up to the board
+-- at the sides (the cord leaves between them, up the slope), and a foot on
+-- each, screwed to the board
+D.BR = { X = 1.3, T = 0.3, W = 1.0, FOOT = 0.8, PZ = 1.4, SCREW_R = 0.18 }
+D.x, D.z = Wh.x, Wh.z
+D.cordX = Wh.x - D.R                -- (the cord's line, up the slope)
+-- the pulley at the top edge: its axis across the board, the cord coming
+-- up the slope over its top and leaving it straight down (the world's
+-- down: in the board's frame (0, -cos TH, sin TH)), off its far side
+D.PUL = { R = 0.8, RF = 1.1, W = 0.6, PIN_R = 0.15, CHEEK = 0.3, GAP = 0.05 }   -- (R: the groove's bottom, 16 mm)
+D.PUL.z = G.board.z0 - 2.0          -- its axle, 20 mm out past the top edge (its bracket's plate
+                                    -- screwed under the board): the cup hangs behind the board, in view
+D.PUL.y = D.yCord - D.PUL.R - D.CORD_R
+do
+  local t = math.rad(G.TH)
+  local r = D.PUL.R + D.CORD_R
+  D.PUL.leave = { D.cordX, D.PUL.y - r * math.sin(t), D.PUL.z - r * math.cos(t) }  -- where the cord leaves it
+end
+-- the CUP: a printed cup of balls, its bail a pointed arch (it prints
+-- upright with no overhang past 45 degrees), the cord tied through its top
+D.CUP = { RO = 1.87, RI = 1.75, H = 3.2, BASE = 0.15, BAIL = 1.9, BAIL_T = 0.2, BAIL_W = 0.3, BALLS = 8 }
+do
+  local C = D.CUP
+  local wall = math.pi * (C.RO ^ 2 - C.RI ^ 2) * (C.H - C.BASE)
+  local base = math.pi * C.RO ^ 2 * C.BASE
+  local bail = 2 * (C.RO * math.sqrt(2)) * C.BAIL_T * C.BAIL_W
+  C.cupMass = (wall + base + bail) * G.PLA
+  -- (its centre of mass, up from the bottom: the cup's, and its balls' in
+  -- two layers of four)
+  C.comCupY = (wall * (C.BASE + C.H) / 2 + base * C.BASE / 2 + bail * (C.H + C.BAIL / 2)) / (wall + base + bail)
+  local mc = C.cupMass * C.comCupY
+  local nb = C.BALLS
+  local mb = 0
+  for k = 1, nb do mb = mb + G.BALL_MASS * (C.BASE + G.R + 2 * G.R * math.floor((k - 1) / 4)) end
+  C.mass = C.cupMass + nb * G.BALL_MASS
+  C.comY = (mc + mb) / C.mass
+  C.I = C.mass * (3 * C.RO ^ 2 + C.H ^ 2) / 12
+end
+-- how far it can drop: from its bail 1 cm under where the cord leaves the
+-- pulley, to its bottom 1.5 cm over the table top (the exhibit's y = 0);
+-- in quarter turns of the wheel (each pays out a quarter of the drum)
+D.TOP_GAP = 1.0
+D.QUARTER = 2 * math.pi * D.R / 4
+do
+  local t = math.rad(G.TH)
+  local ly = D.PUL.leave[2]; local lz = D.PUL.leave[3]
+  -- (the exhibit's y of a board point: as digicomp2.lua's W3)
+  local l = G.lower
+  local OY = G.FOOT + (-G.YL + G.BACK) * math.cos(t) + l.z1 * math.sin(t)
+  D.leaveY = OY + ly * math.cos(t) - lz * math.sin(t)
+  local C = D.CUP
+  D.DROP = D.leaveY - D.TOP_GAP - (C.H + C.BAIL) - 1.5
+  D.TURNS = D.DROP / D.QUARTER     -- (quarter turns from wound up to the table)
+end
+-- what turns with the wheel, about the axle (kg cm^2): the axle (steel), the
+-- ratchet and the coupler, the drum (as rings and discs of PLA), and the
+-- damper's rotor (not given: taken as the coupler's)
+do
+  local function disc(r0, r1, h, rho) local m = math.pi * (r1 ^ 2 - r0 ^ 2) * h * rho; return m * (r0 ^ 2 + r1 ^ 2) / 2, m end
+  local STEEL = 7.85e-3
+  local Ia = disc(0, D.AXLE_R, D.AXLE_L, STEEL)
+  local Ir = disc(D.AXLE_R, D.RAT.RO, D.RAT.H, G.PLA)
+  local Ic = disc(D.AXLE_R, D.COUP.R, D.yCoupTop - D.yCoupBot, G.PLA)
+  D.I_TURN = Ia + Ir + 2 * Ic
+  D.I_DRUM = disc(D.AXLE_R, D.RING.RO, D.FLOOR + D.FLANGE_H, G.PLA) + disc(D.RING.RI, D.RING.RO, D.RAT.H, G.PLA)
+             + disc(D.AXLE_R, D.BARREL_R, D.BARREL_H, G.PLA)
+end
+-- the hand winds it up, all the way, when the machine is still and fewer
+-- than this many quarter turns are left (so an AUTO run, 21 balls at
+-- most in the library, never runs it down)
+D.WIND_AT = 25
+
 -- the posts holding the plate up (round its edge, out of every ball's way)
 G.posts = {}
 do
@@ -1117,6 +1244,29 @@ function G.writeScad(path)
     return "[" .. table.concat(o, ",") .. "]"
   end)
   f:write(string.format("WHEEL_AT = [%.5f,%.5f];\n", Wh.x, Wh.z))
+  do
+    -- (the drive: the axle, ratchet, drum, coupler, damper, brackets,
+    -- pulley and cup)
+    local D = G.DRIVE
+    num("DR_YB", D.yb); num("DR_AXLE_R", D.AXLE_R); num("DR_HOLE_R", D.HOLE_R)
+    num("DR_Y1", D.y1); num("DR_YFLOOR", D.yFloor); num("DR_YBARREL", D.yBarrel); num("DR_YDRUM", D.yDrum)
+    num("DR_YCORD", D.yCord); num("DR_YCOUP_TOP", D.yCoupTop); num("DR_YCOUP_BOT", D.yCoupBot)
+    num("DR_YPLATE", D.yPlate); num("DR_PLATE_T", D.PLATE_T); num("DR_YAXLE_BOT", D.yAxleBot); num("DR_YAXLE_TOP", D.yAxleTop)
+    f:write(string.format("DR_RAT = [%.5f,%.5f,%d,%.5f];\n", D.RAT.RO, D.RAT.RR, D.RAT.N, D.RAT.H))
+    f:write(string.format("DR_RING = [%.5f,%.5f];\n", D.RING.RO, D.RING.RI))
+    num("DR_BARREL_R", D.BARREL_R); num("DR_CORD_R", D.CORD_R)
+    local P = D.DAMP
+    f:write(string.format("DR_DAMP = [%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f];\n", P.L, P.HOLES, P.HOLE_R,
+                          P.BODY_R, P.EAR_R, P.FLANGE_H, P.BODY_H, P.H, P.SHAFT_R, P.SHAFT_F))
+    f:write(string.format("DR_COUP = [%.5f,%.5f,%.5f];\n", D.COUP.R, D.COUP.SOCKET, D.COUP.AXLE))
+    local B = D.BR
+    f:write(string.format("DR_BR = [%.5f,%.5f,%.5f,%.5f,%.5f,%.5f];\n", B.X, B.T, B.W, B.FOOT, B.PZ, B.SCREW_R))
+    f:write(string.format("DR_CORD_X = %.5f;\n", D.cordX))
+    local U = D.PUL
+    f:write(string.format("DR_PUL = [%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f];\n", U.R, U.RF, U.W, U.PIN_R, U.CHEEK, U.GAP, U.y, U.z))
+    local C = D.CUP
+    f:write(string.format("DR_CUP = [%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f];\n", C.RO, C.RI, C.H, C.BASE, C.BAIL, C.BAIL_T, C.BAIL_W))
+  end
   list("TOGGLES", G.rockers, function(t) return pts2({ t.x, t.z }) end)
   -- (COMPLEMENT: the shutters closed, and their pins; the bar and its knob;
   -- open, all TRAVEL farther to the right)

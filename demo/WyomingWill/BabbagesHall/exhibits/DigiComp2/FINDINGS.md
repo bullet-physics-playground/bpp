@@ -7,6 +7,158 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Step 2f: the weight and the fly as parts (2026-10-31)
+
+The planned drive (step 2e, "Planned for the next step"), built, with one
+change: the drum is **under the lower board**, not in the lower level. The
+plan put it under the plate, in the lower level's 15 mm; there it can't be
+reached to wind it, and the damper and a ratchet would have to fit in the
+same 15 mm. Under the board the hand reaches it, and the damper goes on the
+same axle. The lower level is empty from the wheel to the top edge, and
+under the board there is 40 cm to the table at the wheel, the stand's feet
+only at the sides.
+
+**The parts.** The wheel and the star are glued on a **3 mm steel axle**,
+58 mm, turning in 3.5 mm holes through the plate and the board (the
+wheel's pin pressed into the plate is gone; the wheel's and the star's
+holes are snug now, for glue). Under the board, from the board down:
+
+- a **ratchet**, 14 mm, twelve teeth, glued on the axle 0.5 mm under the
+  board;
+- the **drum**, turning on the axle: a ring round the ratchet with two thin
+  pawls in its teeth, a floor, a barrel 7.5 mm across and 8 mm long for the
+  cord, and a knurled flange to wind it by (printed as two parts, glued:
+  `drum-top` and `spool`, so neither has an overhang);
+- a **coupler** glued on the axle's end and pushed onto the damper's shaft;
+- the **damper**, Fuji Latex **FRT-G2-200**, screwed (two M2) to the plate
+  of a **bracket** whose legs come up either side to feet screwed under
+  the board.
+
+The cord, 0.5 mm braided line, leaves the drum's left side (forward, the
+wheel turns clockwise seen from above, so that side moves up the slope),
+runs 19 cm up the slope under the board to a **pulley** (16 mm groove, on
+a 3 mm pin in a bracket screwed under the board, reaching 2 cm out past
+the top edge, so the cup hangs clear behind the board; none of the drive
+can be seen from in front: the key `W` looks at it from the side) and down
+to the **cup**, a
+printed cup (7.6 g) of eight steel balls: 74.4 g in all. Its torque on the
+wheel is 0.0744 x 981 x 0.4 = 29.2 kg cm^2/s^2 (2.9 mN m), the old
+`WEIGHT_T`'s 30. Eight balls, not the plan's nine: with the cup's own
+weight nine would have been 34. From wound up (its bail 1 cm under the
+pulley) to 1.5 cm over the table it drops 36.1 cm: 57 balls.
+
+**The damper's mount.** The datasheet's drawing came without its labels:
+its numbers are 24, 19 +- 0.05, 15, 8, 7, 6.6 (5.4 without the gear), 3.7,
+3.6 +- 0.05 (a diameter), 2.6, 2.5 +- 0.05, 2.2 and 2.1. Sugatsune's SRT-G2,
+the same damper, gives 24 x 15 x 5.4 mm and M2 screws. Read together: a
+flange 24 mm long with holes 19 mm apart, a body 15 mm across, 5.4 mm high
+with its shaft, the shaft 3.6 mm across with flats 2.5 mm apart. The
+bracket's holes and the coupler's socket are drawn to that. **The socket is
+the one guess that matters:** measure the shaft of the damper in hand
+before printing the coupler (`DR.DAMP` in `digicomp2-geometry.lua`; the
+socket is 0.1 mm larger all round).
+
+**The ratchet** drives the drum's way only: the teeth rise slowly
+counterclockwise (as seen from above) and drop straight back at a face; the
+pawls' tips rest on two faces opposite each other. Pulled by the cup, the
+drum turns clockwise and the pawls push the faces; wound backward, they
+ride up the slopes and click over.
+
+### In the simulation
+
+- **The cup** is a body (the cup and its balls as one: the balls are not
+  loose in it), hanging from where the cord leaves the pulley. It collides
+  with the table only.
+- **The cord** is simulated as the thread is: it can't stretch and only
+  pulls. Each step, if it is taut and the cup and the drum would lengthen
+  it, a pull on the cup and a turn of the wheel through the drum's 4 mm
+  radius, just enough to stop that (the cup's weight for the step
+  included). It runs over the pulley without friction, and its run under
+  the board is straight and fixed.
+- **The damper** is a drag on the wheel, c times its speed: c = 2 mN m /
+  2.09 rad/s = 0.955 mN m s (9.55 kg cm^2/s), applied each step so it
+  can't overshoot (`DC_DAMP` scales it).
+- **The ratchet** is engaged except while the hand winds: then the drum
+  turns back on its own, the cord pulls on the hand, and the wheel feels
+  nothing.
+- **What turns with the wheel** (the axle, ratchet, drum, coupler) adds its
+  inertia, 0.0016 kg cm^2, to the wheel's 0.0148. The cup adds more through
+  the cord: 0.0744 x 0.4^2 = 0.012, nearly the wheel's own. It is in the
+  simulation through the cord, not by adding it to the wheel.
+- **The hand winds** (5 cm of cord a second) when fewer than 25 balls are
+  left and nothing has moved for 0.3 s: so never in the middle of an AUTO
+  run (the longest in the library is 21 balls), and the machine is always
+  at rest while it winds.
+
+**One thing to get right in the script:** the hand counts the wheel as
+turning above 0.3 rad/s. Held by the anchor, the wheel gets the cord's pull
+for the coming step (0.74 rad/s for an instant) before the step, in which
+the anchor's contact takes it back. Measured after the pull, the wheel
+always looked to be turning, and the first program never began. It is
+measured before the pull now.
+
+### What it does
+
+13 x 5 in AUTO (`multiply-auto.dc2`), the damper as rated: all 21 balls
+from one START, every one right, A 65. Each quarter turn took 0.40 to 0.49
+s, at most 3.3 to 3.8 rad/s (above the 3.06 the cup and damper alone give:
+the balls on the wheel add their weight), three times briefly 5.6 to 7.1
+rad/s. The old torque and cap made every quarter turn 0.52 s.
+
+**The whole library** (the tour), the weight now kept between programs
+(setting the machine back, `R`, leaves it where it is, so the hand has to
+wind it):
+
+| The damper | Balls right | Tour ends at frame | Windings | A quarter turn's top speed (rad/s): median, 95%, highest |
+|---|---|---|---|---|
+| as rated (c = 0.955 mN m s) | 161 of 161 | 99 343 | 3 | 3.65, 4.17, 7.0 |
+| 0.65 of it (the tolerance's soft end) | 161 of 161 | 97 570 | (none: see below) | 5.46, 5.72, 7.9 |
+| 1.35 of it (the stiff end) | 161 of 161 | 100 707 | 3 | 2.67, 5.54, 6.2 |
+
+(The 0.65 run was made before `R` stopped rewinding the weight, so it
+never needed winding; the weight's lowest was 37 balls left.) The tour of
+the committed step 2e, with the torque and cap, ended at frame 98 292. In
+the hall, the tour at the rating passed too.
+
+**The anchor comes home slowly now.** Each quarter turn is two eighths:
+pushed, the anchor's first finger lets a pin go and the wheel turns an
+eighth to the second finger (0.08 s); let go, the anchor's counterweight
+takes it home, the second finger slides off its pin, and the wheel turns
+the second eighth. Sliding off, the pin has to creep along the finger, the
+wheel turning forward a little, driven by a small part of the forces
+there; the damper resists that creep. With the torque and cap (full torque
+up to 3 rad/s, nothing resisting below it) the anchor was home within half
+a second (step 2d). With the damper it is usually quick, but not always:
+from the push to home, at its rating 0.18 s for half the balls, 1.58 s for
+the slowest twentieth, 1.84 s at most; at 1.35 of it 0.34, 2.95 and 3.58
+s. The hand had waited at most 3 s for the anchor before taking
+the machine to be still: at 1.35 it read the accumulator while the wheel
+was still creeping, before the ball was out, and from there every reading
+was one ball behind (6 wrong, in two programs). It waits up to 8 s now,
+and the table's 1.35 row is with that.
+On the machine this is what a stiff damper costs: a slower second half of
+every turn, in AUTO too. It is also why the damper should not be stiffer
+than the rating's upper end, and why the anchor's fingers want rollers
+(they have them): with friction there, the creep could stop.
+
+**At the soft end** the wheel's top speeds, 4.8 to 7.9 rad/s (46 to 75 rpm),
+are past the damper's 50 rpm. At its rating the wheel is under 50 rpm
+(5.2 rad/s) but for a few instants (7 of 154 turns): a ball dropping into a
+notch kicks it. A damper at the soft end would want a ball out of
+the cup (seven), or the -300 (0.3 N cm).
+
+### Still open
+
+- The datasheet's damping is rated at one speed: linear in speed is assumed.
+  It lists 10 cycles a minute at most, written for lids; here it turns
+  steadily, a quarter turn a ball: to ask the maker.
+- The damper's shaft (above), and the bracket's hole spacing, from our
+  reading of the drawing.
+- The ratchet's pawls are thin (0.8 mm) and printed in place: if they
+  break, the drum turns free and the cup drops. A wire spring pawl would be
+  sturdier.
+- The cord is taken not to stretch, and the pulley to have no friction.
+
 ## Step 2e: OVERFLOW's halt (2026-10-31)
 
 E.S.R.'s OVERFLOW switch has two settings: RUN, the carry out of A7 goes on
@@ -35,6 +187,8 @@ cycle's end; the board's MANUAL rule (finish the cycle, the quotient one
 less, the remainder M - A) still holds after it.
 
 ### Planned for the next step: the weight and a rotary damper for the fly
+
+(Built in step 2f, above, with the drum under the board.)
 
 The simulation's weight is a torque on the wheel (`WEIGHT_T`, 30 kg cm^2/s^2
 = 3.0 mN m) and its fly a cap on the wheel's speed (`FLY_W`, 3 rad/s, about

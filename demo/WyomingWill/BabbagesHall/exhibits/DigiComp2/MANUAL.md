@@ -366,7 +366,13 @@ ball through STOP takes a way that misses the lever, so the machine stops.
 On this board a wound weight turns the feeder wheel, and an anchor holds
 it, as a clock's weight turns its wheels and its escapement holds them:
 each push on the anchor's long arm (the START lever) lets the wheel round a
-quarter turn, one ball. At the bottom every ball goes down the **trip
+quarter turn, one ball. The weight is a cup of eight steel balls on a
+cord from a drum on the wheel's axle, under the board; a rotary damper on
+the axle's end (the fly) keeps the wheel to about 3 radians a second. The
+cup falls 6.3 mm a ball, 57 balls from wound up to the table: wind it by
+turning the drum's knurled flange backward (a ratchet lets it turn back
+alone). Wind it before a long AUTO run: 25 balls left is enough for any in
+the library. At the bottom every ball goes down the **trip
 channel** at the right, under the **trip lever**, and on to the store. A
 ball lifts the lever as it passes; an arm hanging from the lever's axle,
 beside the board, swings down the slope, and a **thread** tied to it, up
@@ -417,7 +423,8 @@ list and `make-stls.sh`:
 | The accumulator with START, CLEAR and COUNT, two levels | step 2a (commit `201ee23`) | count to 127, clear | 322 x 878 mm, 10 + 10 tiles |
 | Count, clear, add, multiply | step 2b (commit `71d155a`) | and section 5's uses | 424 x 1216 mm, 14 + 14 tiles |
 | Count, clear, add, multiply, complement, subtract, divide | step 2c (commit `1c191be`) | all of the above, by hand | 424 x 1621 mm, 18 + 18 tiles |
-| Everything so far | this folder (step 2d) | and AUTO | 424 x 1691 mm, 18 + 18 tiles |
+| Count, clear, add, multiply, complement, subtract, divide; AUTO (the weight a torque) | step 2d (commit `44b5a1b`) | and AUTO, stopped by STOP | 424 x 1691 mm, 18 + 18 tiles |
+| Everything so far | this folder (step 2f) | and OVERFLOW's halt; the weight and the fly as parts | 424 x 1691 mm, 18 + 18 tiles |
 
 To get an earlier step's files without changing your checkout:
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 # make-stls.sh -- every printable part of the Digi-Comp II (as built so far,
-# step 2d), into stl/, each turned to lie on the printer's bed (millimetres).
+# step 2f), into stl/, each turned to lie on the printer's bed (millimetres).
 #
 #   ./make-stls.sh            (needs openscad; bpp to refresh geometry.scad)
 #   BPP=/path/to/bpp ./make-stls.sh
@@ -32,6 +32,14 @@ part trip-eye.stl   -D 'PART="print-trip-eye"'
 part trip-lever.stl -D 'PART="print-trip-lever"'
 part shutter.stl    -D 'PART="print-shutter"'
 part comp-knob.stl  -D 'PART="print-comp-knob"'
+part ratchet.stl    -D 'PART="print-ratchet"'
+part drum-top.stl   -D 'PART="print-drum-top"'
+part spool.stl      -D 'PART="print-spool"'
+part coupler.stl    -D 'PART="print-coupler"'
+part drum-bracket.stl -D 'PART="print-drum-bracket"'
+part pulley.stl     -D 'PART="print-pulley"'
+part pulley-bracket.stl -D 'PART="print-pulley-bracket"'
+part cup.stl        -D 'PART="print-cup"'
 part ovf-shutter.stl -D 'PART="print-ovf-shutter"'
 for i in 0 1; do
   for j in 0 1 2 3 4 5 6 7 8; do
@@ -43,5 +51,6 @@ part foot-back-1.stl -D 'PART="print-foot-back-1"'
 part foot-back-2.stl -D 'PART="print-foot-back-2"'
 part foot-front.stl -D 'PART="print-foot-front"'
 echo "Print: rocker x13, foot x13, flap x7, shutter x6, foot-back-1 x2, foot-back-2 x2, foot-front x2; wheel, star,"
-echo "anchor, trip-lever, trip-down-arm, trip-eye, ovf-shutter, comp-knob and every"
-echo "upper-i-j and lower-i-j tile once. Cut the lower board from 6 mm plywood (README.md)."
+echo "anchor, trip-lever, trip-down-arm, trip-eye, ovf-shutter, comp-knob, ratchet, drum-top,"
+echo "spool, coupler, drum-bracket, pulley, pulley-bracket, cup and every upper-i-j and"
+echo "lower-i-j tile once. Cut the lower board from 6 mm plywood; buy the damper (README.md)."

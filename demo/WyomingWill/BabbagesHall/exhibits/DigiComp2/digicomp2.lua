@@ -49,7 +49,9 @@
 -- THE SWITCHES are flaps, set by hand: each closes one of its two outlets,
 -- and a ball only presses it harder against that wall.
 --
--- START AND AUTO: a weight turns the feeder wheel and an anchor holds it;
+-- START AND AUTO: a weight turns the feeder wheel and an anchor holds it
+-- (the weight a cup of balls on a cord from a drum on the wheel's axle,
+-- under the board; the fly a rotary damper on the axle's end);
 -- each push on the anchor's arm (the START lever) lets one ball out. At the
 -- bottom every ball lifts the trip lever; in AUTO a thread from it, up
 -- beside the board and across, pulls the START lever, and the next ball
@@ -68,23 +70,25 @@
 --   G      run the program chosen with the "program" slider (G again: stop;
 --          see PROGRAMS, below)
 --   B      the camera to the program board, close enough to read; again: back
+--   W      the camera beside and under the board's top end: the weight, its
+--          drum, pulley and cup, and the damper; again: back
 --   T      the tour: every program in the library, in turn (it starts with it)
 --   R      set it back: the balls to the top, all to 0, COUNT on, the rest off,
---          MANUAL
+--          MANUAL (the weight stays where it is: the hand winds it when low)
 --   Z      slow motion (1/4) <-> real time
 --
 -- EVERY PART CAN BE PRINTED: see parts/ and README.md. What is printed is
 -- what is simulated: every wall, peg, hole, rocker, foot, flap, the wheel,
--- the anchor and the trip lever are the shapes in digicomp2-geometry.lua, from which parts/geometry.scad
+-- the anchor, the trip lever and the drive are the shapes in digicomp2-geometry.lua, from which parts/geometry.scad
 -- is written.
 --
 -- PHYSICS: 1/2 inch steel balls (8.35 g); PLA rockers with a 1/4 inch steel
 -- ball pressed into each and a PLA foot (5.45 g in all), friction 0.3, no
 -- bounce, the board at 15 degrees, 2400 steps a second. The rockers and
 -- flaps turn on their pins against a friction torque (DC_PF, 0.4 kg
--- cm^2/s^2: see FINDINGS.md). The weight and the fly are a torque on the
--- wheel's pin and a top speed (not parts yet); the thread pulls and
--- never pushes, and does not stretch. The hand pushes the START lever, sets the switches
+-- cm^2/s^2: see FINDINGS.md). The weight's cup is a body, its balls in it
+-- as one; its cord, as the thread, pulls and never pushes, and does not
+-- stretch; the damper is a drag in step with the wheel's speed. The hand pushes the START lever, sets the switches
 -- and flip-flops, puts balls from the store back into the input when it
 -- runs low, and in MANUAL stops at STOP.
 --
@@ -92,10 +96,11 @@
 -- Headless: DC_TOUR=0 (no tour), DC_FRICTION, DC_PF (pivot friction,
 -- kg cm^2/s^2), DC_TH (the slope, degrees), DC_HZ (steps a second),
 -- DC_ROLL (degrees: the table not level across, down to the right),
--- DC_WEIGHT (the weight's torque, 30), DC_FLY (the fly's top speed, 3
--- rad/s), DC_PUSH (the hand's push on the START lever, 300),
+-- DC_CUP (balls in the weight's cup, 8), DC_DAMP (the damper's drag, times
+-- its rating: 0.65 to 1.35 its tolerance), DC_PUSH (the hand's push on the START lever, 300),
 -- DC_EXPORT=1 (write parts/geometry.scad),
--- DC_LOG=1 (each ball's reading and the rockers' leans), DC_LOG=2 (also
+-- DC_LOG=1 (each ball's reading and the rockers' leans, each turn of the
+-- wheel: how long, how fast, the cup's drop; each winding), DC_LOG=2 (also
 -- every moving ball four times a second), DC_LOG=3 (where every ball is at
 -- each reading), DC_CONTACTS=frame (every contact
 -- of the balls, flaps and wheel at that frame: what jams), DC_PAUSE (s
@@ -578,10 +583,18 @@ function comp.ovf.isHalt() return comp.ovf.halt end
 -- G.ANCHOR in digicomp2-geometry.lua): each push on the anchor's arm (the
 -- START lever) lets the wheel round a quarter turn, one ball. The hand
 -- pushes it (Space); in AUTO, a ball arriving at the bottom does.
--- (The weight and its fly, the air brake that keeps the wheel slow, are a
--- steady torque on the wheel's pin with a top speed: WEIGHT_T, FLY_W.)
-local WEIGHT_T = envnum("DC_WEIGHT", 30)  -- the weight's torque on the wheel (kg cm^2/s^2)
-local FLY_W = envnum("DC_FLY", 3)         -- the fly's top speed (radians a second)
+-- (The weight and the fly are parts: a cup of balls on a cord from a drum on
+-- the wheel's axle, and a rotary damper on the axle's end: the drive,
+-- below, and G.DRIVE.)
+local DR = G.DRIVE
+local drive = { u = 0, psi = 0, winding = false, winds = 0,
+  -- the damper's drag: rated 0.2 N cm (2 mN m) at 20 rpm, taken as rising
+  -- in step with the speed, so c = torque / speed (kg cm^2/s: 1 mN m = 10
+  -- kg cm^2/s^2); DC_DAMP scales it (its tolerance, +-35%: 0.65 to 1.35)
+  c = envnum("DC_DAMP", 1) * (0.2e-2 * 1e4) / (20 * 2 * math.pi / 60),
+  balls = math.floor(envnum("DC_CUP", DR.CUP.BALLS)),   -- (balls in the cup: the weight)
+  windV = 5,                                            -- (cm of cord a second: the hand winding)
+}
 local PUSH_T = envnum("DC_PUSH", 300)     -- the hand's push on the START lever (torque at the anchor's pin)
 local PUSH_S = 0.3                        -- (s: how long the hand pushes it)
 local wheel, anchor
@@ -590,7 +603,9 @@ do
   local wp = {}
   for _, pc in ipairs(WH.pieces) do wp[#wp + 1] = { pc, WH.Y0, WH.H } end
   for _, pc in ipairs(WH.starPieces) do wp[#wp + 1] = pc end
-  local wm, wI = WH.mass + WH.starMass, WH.I + WH.starI
+  -- (with what turns with it under the board: the axle, the ratchet, the
+  -- drum, the coupler and the damper's rotor)
+  local wm, wI = WH.mass + WH.starMass, WH.I + WH.starI + DR.I_TURN + DR.I_DRUM
   local tr = btTransform(BQ, W3(WH.x, wy, WH.z))
   local body = btRigidBody(wm, btDefaultMotionState(tr), piecesShape(wp, 0, wy, 0), btVector3(wI, wI, wI))
   local o = part(string.format("translate([0, %.4f, 0]) wheel()", -wy * 10))
@@ -604,7 +619,7 @@ do
   local star = part(string.format("translate([0, %.4f, 0]) star()", -wy * 10))
   star.col = "#8a6d2a"
   v:add(star)
-  wheel = { body = body, hinge = h, obj = o, star = star, y = wy }
+  wheel = { body = body, hinge = h, obj = o, star = star, y = wy, I = wI }
   key(o, "START: the feeder wheel. A weight turns it, the anchor beside it holds it; each push on the START lever lets one ball out")
   key(star, "the escape star: its four pins are what the anchor's fingers stop")
   -- the anchor, at rest, its counterweight a 1/2 inch steel ball on its arm
@@ -752,11 +767,204 @@ function trip.draw(r, p, q)
   r.trans = btTransform(yq(yaw) * btQuaternion(btVector3(0, 0, 1), pitch), (p + q) * 0.5)
 end
 
--- (each step: the weight turns the wheel, as fast as the fly lets it; the
--- anchor turns on its pin against its friction, or is pushed by the hand)
+-- ---------------------------------------------------------------------
+-- the drive (step 2f; G.DRIVE): the weight and the fly as parts. Under
+-- the board, on the wheel's axle: the ratchet, the drum (its pawls in the
+-- ratchet), the coupler and the damper (bought: Fuji Latex FRT-G2-200) in
+-- its bracket. The cord from the drum runs up the slope under the board,
+-- over the pulley at the top edge, and down to the CUP of balls.
+-- In the simulation the cup is a body (the cup and its balls as one, the
+-- balls not loose); the cord, as the thread, can't stretch and only pulls
+-- (each step, if it is taut and the cup and the drum would lengthen it,
+-- a pull on the cup and a turn of the wheel, just enough to stop that). It
+-- runs over the pulley without friction, and its run under the board is
+-- straight and fixed. The damper is a drag on the wheel, c times its speed
+-- (drive.c). The ratchet is engaged except while the hand winds: then the
+-- drum turns back on its own, and the cord pulls on the hand, not the wheel.
+-- ---------------------------------------------------------------------
+do
+  local r = math.rad(envnum("DC_ROLL", 0))
+  drive.grav = btVector3(G_ * math.sin(r), -G_ * math.cos(r), 0)
+  drive.log = os.getenv("DC_LOG")
+  -- (forward, the way the weight turns the wheel: clockwise as seen from
+  -- above the board, so along the board's normal into it)
+  local n = W3(0, 1, 0) - W3(0, 0, 0)
+  drive.n = n * (1 / n:length())
+  drive.f = drive.n * -1
+  local L = DR.PUL.leave
+  drive.P = W3(L[1], L[2], L[3])                 -- where the cord leaves the pulley, down
+  -- the cup: a body, its origin its centre of mass (the cup and its balls)
+  local C = DR.CUP
+  local M = C.cupMass + drive.balls * G.BALL_MASS
+  local mb = 0
+  for k = 1, drive.balls do mb = mb + G.BALL_MASS * (C.BASE + G.R + 2 * G.R * math.floor((k - 1) / 4)) end
+  local comY = (C.cupMass * C.comCupY + mb) / M
+  local I = M * (3 * C.RO ^ 2 + C.H ^ 2) / 12
+  local cs = btCompoundShape(true)
+  local cyl = btCylinderShapeZ(btVector3(C.RO, C.RO, C.H / 2))
+  cs:addChildShape(btTransform(zToY, btVector3(0, C.H / 2 - comY, 0)), cyl)
+  drive.bail = C.H + C.BAIL - 0.2 - comY        -- (the cord's knot, up from the centre of mass)
+  drive.top = drive.P - btVector3(0, DR.TOP_GAP + drive.bail, 0)  -- (wound up: the centre of mass)
+  local tr = btTransform(ident, drive.top)
+  local body = btRigidBody(M, btDefaultMotionState(tr), cs, btVector3(I, M * C.RO ^ 2 / 2, I))
+  local o = part(string.format("translate([0, %.4f, 0]) cup()", -comY * 10))
+  o.body = body
+  o.col = "#c9a14a"
+  o.collides = true
+  v:add(o)
+  body:setCenterOfMassTransform(tr)
+  body:setActivationState(4)
+  local bl = part(string.format("translate([0, %.4f, 0]) cupBalls(%d)", -comY * 10, drive.balls))
+  bl.col = "#9aa0a8"
+  v:add(bl)
+  drive.cup, drive.cupObj, drive.ballsObj, drive.M = body, o, bl, M
+  drive.pBail = btVector3(0, drive.bail, 0)
+  drive.L0 = DR.TOP_GAP                          -- (the hanging run's length wound up)
+  key(o, string.format("the WEIGHT: a printed cup of %d steel balls (%.0f g), on the cord. It turns the wheel: each\n" ..
+                       "ball let out lowers it %.1f mm; the hand winds it up when it is nearly down", drive.balls, M * 1000, DR.QUARTER * 10))
+  key(bl, "the weight's balls: 1/2 inch steel, as the machine's; one more or less speeds or slows it by about an eighth")
+  -- what turns with the wheel under the board, drawn on it
+  local wy = wheel.y
+  local function rider(call, col, what)
+    local r = part(string.format("translate([0, %.4f, 0]) %s", -wy * 10, call))
+    r.col = col
+    v:add(r)
+    key(r, what)
+    return r
+  end
+  drive.turning = {
+    rider("axle()", "#9aa0a8", "the wheel's AXLE: a 3 mm steel rod, glued in the wheel; it turns in the plate and the board"),
+    rider("ratchet()", "#c9a14a", "the RATCHET, glued on the axle: the drum's pawls drive it forward; winding, they click over it"),
+    rider("coupler()", "#e9e2cf", "the COUPLER: it joins the axle to the damper's shaft"),
+    rider("damperShaft()", "#f2ead8", "the damper's shaft"),
+  }
+  drive.drum = rider("drum()", "#b8562f", "the DRUM: the cord is wound on it. Its pawls drive the ratchet; the hand winds it backward\n" ..
+                                         "by its knurled flange, and the pawls click over the teeth: the wheel doesn't turn")
+  -- fixed: the damper's body and the brackets (drawn only)
+  local function still(call, col, what)
+    local s = part(call)
+    s.col = col
+    v:add(s)
+    s.trans = btTransform(BQ, W3(0, 0, 0))
+    key(s, what)
+    return s
+  end
+  still("damperBody()", "#2b2b2b", "the FLY: a rotary damper, bought (Fuji Latex FRT-G2-200, 0.2 N cm at 20 rpm),\n" ..
+                                   "silicone oil inside; on the axle's end it holds the wheel to about 3 radians a second")
+  still("drumBracket()", "#7a5a3a", "the drum's bracket, screwed under the board: the damper is screwed to its plate")
+  still("pulleyBracket()", "#7a5a3a", "the pulley's bracket, at the board's top edge")
+  still("pulleyPin()", "#9aa0a8", "the pulley's pin")
+  drive.pulley = part("pulley()")
+  drive.pulley.col = "#c9a14a"
+  v:add(drive.pulley)
+  key(drive.pulley, "the PULLEY at the top edge: the cord comes up under the board and turns down to the cup")
+  -- the cord: its run under the board (fixed), and the hanging run (in
+  -- pieces a centimetre long, as many as its length needs)
+  local function piece(len)
+    local r = Cube(len, 0.05, 0.05, 0)
+    r.col = "#f2ead8"
+    pcall(function() r.collides = false end)
+    v:add(r)
+    key(r, "the CORD (0.5 mm braided line): from the drum, under the board, over the pulley, to the cup")
+    return r
+  end
+  local z0, z1 = DR.PUL.z, DR.z
+  local under = piece(z1 - z0)
+  under.trans = btTransform(yq(math.pi / 2), W3(DR.cordX, DR.yCord, (z0 + z1) / 2))
+  drive.pieces = {}
+  for k = 1, math.ceil(DR.DROP + DR.TOP_GAP + 2) do drive.pieces[k] = piece(1.0) end
+end
+-- (the drum's angle and the cord paid out, each step; the damper's drag)
+function drive.damp()
+  local wf = wheel.body:getAngularVelocity():dot(drive.f)
+  local J = -drive.c * wf * STEP / (1 + drive.c * STEP / wheel.I)
+  wheel.body:applyTorqueImpulse(drive.f * J)
+end
+function drive.pull()
+  local wf = wheel.body:getAngularVelocity():dot(drive.f)
+  local udot
+  if drive.winding then
+    udot = -drive.windV
+    drive.psi = drive.psi + drive.windV / DR.R * STEP
+  else
+    udot = DR.R * wf
+    drive.psi = drive.psi - wf * STEP
+  end
+  drive.u = drive.u + udot * STEP
+  -- (DC_LOG: each turn of the wheel, how long, how fast, how far the cup is down)
+  if drive.log then
+    if wf > 0.3 then drive.t, drive.wmax = (drive.t or 0) + STEP, math.max(drive.wmax or 0, wf)
+    elseif drive.t and wf < 0.05 and drive.t < 0.05 then drive.t, drive.wmax = nil, nil    -- (rocking against the anchor)
+    elseif drive.t and wf < 0.05 then
+      print(string.format("  the wheel: turned %.2f s, at most %.2f rad/s; the cup %.1f cm down (%.0f quarter turns left)",
+                          drive.t, drive.wmax, drive.u, drive.left()))
+      drive.t, drive.wmax = nil, nil
+    end
+  end
+  if drive.winding and drive.u <= 0 then drive.u = 0; drive.winding = false; drive.winds = drive.winds + 1 end
+  local b = drive.cup
+  local c = b:getCenterOfMassPosition()
+  local a = trip.worldOf(b, drive.pBail)
+  local d = drive.P - a
+  local s = d:length()
+  local e = s - (drive.L0 + drive.u)
+  if e < 0 then return end                       -- (slack)
+  local u = d * (1 / s)
+  local va = b:getVelocityInLocalPoint(a - c) + drive.grav * STEP
+  local Ldot = -va:dot(u) - udot
+  local inv = 1 / drive.M + (drive.winding and 0 or DR.R * DR.R / wheel.I)
+  local P = (Ldot + 0.2 * e / STEP) / inv
+  if P <= 0 then return end
+  b:applyImpulse(u * P, a - c)
+  if not drive.winding then wheel.body:applyTorqueImpulse(drive.f * (DR.R * P)) end
+end
+-- (drawn: the drum, the pulley, the hanging cord)
+function drive.draw()
+  local wt = wheel.body:getCenterOfMassTransform()
+  for _, r in ipairs(drive.turning) do r.trans = wt end
+  drive.drum.trans = btTransform(yq(drive.psi), W3(DR.x, wheel.y, DR.z))
+  drive.pulley.trans = btTransform(BQ * btQuaternion(btVector3(1, 0, 0), -drive.u / DR.PUL.R), W3(DR.cordX, DR.PUL.y, DR.PUL.z))
+  local tr = drive.cup:getCenterOfMassTransform()
+  drive.cupObj.trans = tr
+  drive.ballsObj.trans = tr
+  local a = trip.worldOf(drive.cup, drive.pBail)
+  local d = a - drive.P
+  local s = d:length()
+  local u = d * (1 / math.max(s, 1e-6))
+  local yaw = math.atan2(-u.z, u.x)
+  local pitch = math.atan2(u.y, math.sqrt(u.x * u.x + u.z * u.z))
+  local q = btQuaternion(btVector3(0, 1, 0), yaw) * btQuaternion(btVector3(0, 0, 1), pitch)
+  local n = math.max(1, math.ceil(s))
+  for k, r in ipairs(drive.pieces) do
+    if k < n then r.trans = btTransform(q, drive.P + u * (k - 0.5))
+    elseif k == n then r.trans = btTransform(q, a - u * 0.5)
+    else r.trans = btTransform(ident, btVector3(0, -500, 0)) end
+  end
+end
+-- (quarter turns of the wheel left before the cup is down)
+function drive.left() return (DR.DROP - drive.u) / DR.QUARTER end
+-- (set up: wound up, the cup at the top, still)
+function drive.reset()
+  drive.u, drive.psi, drive.winding = 0, 0, false
+  local b = drive.cup
+  b:setCenterOfMassTransform(btTransform(ident, drive.top))
+  b:setLinearVelocity(btVector3(0, 0, 0))
+  b:setAngularVelocity(btVector3(0, 0, 0))
+  b:clearForces()
+  b:activate(true)
+end
+
+-- (each step: the weight turns the wheel, as fast as the damper lets it,
+-- or the hand winds it up; the anchor turns on its pin against its
+-- friction, or is pushed by the hand)
 local function handPre()
   trip.pull()
-  wheel.hinge:enableAngularMotor(true, FLY_W, WEIGHT_T * STEP)
+  -- (the wheel's speed before this step's pulls: held, the weight's pull
+  -- spins it for an instant, which the anchor takes back in the step)
+  local w = wheel.body:getAngularVelocity():length()
+  drive.damp()
+  drive.pull()
+  wheel.hinge:enableAngularMotor(true, 0, PF * STEP)
   if anchor.push > 0 then
     anchor.push = anchor.push - STEP
     anchor.hinge:enableAngularMotor(true, 3.0, PUSH_T * STEP)
@@ -764,17 +972,22 @@ local function handPre()
     anchor.hinge:enableAngularMotor(true, 0, PF * STEP)
   end
   -- (busy: the hand pushing, the wheel turning, or the anchor not yet back
-  -- at rest: it can take half a second to come home, its finger sliding off
-  -- a pin; at most 3 s)
-  local w = wheel.body:getAngularVelocity():length()
+  -- at rest: it comes home slowly, its second finger sliding off a pin as
+  -- the wheel creeps on against the damper: up to 1.8 s at the damper's
+  -- rating, longer if it is stiffer (FINDINGS, step 2f); at most 8 s)
   local a = anchor.body:getCenterOfMassTransform():getBasis():getColumn(0)
   local lean = math.atan2(-a.y * sT + a.z * cT, a.x)
   anchor.since = (anchor.push > 0) and 0 or ((anchor.since or 99) + STEP)
   local home = math.abs(lean + G.ANCHOR.REST) < math.rad(1.5)
-  return anchor.push > 0 or w > 0.3 or (not home and anchor.since < 3)
+  if drive.log and anchor.push <= 0 and anchor.out and home then
+    print(string.format("  the anchor: home %.2f s after the push", anchor.since))
+  end
+  anchor.out = (anchor.push > 0) or (anchor.out and not home)
+  return anchor.push > 0 or w > 0.3 or (not home and anchor.since < 8) or drive.winding
 end
 local function carryRiders()
   wheel.star.trans = wheel.body:getCenterOfMassTransform()
+  drive.draw()
   anchor.rider.trans = anchor.body:getCenterOfMassTransform()
   do
     local a = trip.worldOf(trip.body, trip.pArm)
@@ -882,6 +1095,10 @@ local function reload()
     anchor.push = 0
   end
   for i, b in ipairs(balls) do place(b.body, btTransform(ident, ballHome(i))) end
+  -- (the weight: wound up once, at the start; after that, setting the
+  -- machine back leaves it where it is, and the hand winds it when it is
+  -- nearly down)
+  if not drive.started then drive.started = true; drive.reset() end
 end
 -- when the INPUT runs low, the hand takes balls from the store and puts
 -- them in at its top (as you would: there are twelve balls, and a multiply
@@ -1050,7 +1267,7 @@ end
 -- REST_S, the simulation stops stepping (nothing would change but the
 -- processor's work). The next thing for the hand to do starts it again.
 -- ---------------------------------------------------------------------
-local restBodies = { wheel.body, anchor.body }
+local restBodies = { wheel.body, anchor.body, drive.cup }
 for _, fl in ipairs(flips) do restBodies[#restBodies + 1] = fl.body end
 for _, s in pairs(switches) do restBodies[#restBodies + 1] = s.body end
 for _, b in ipairs(balls) do restBodies[#restBodies + 1] = b.body end
@@ -1805,6 +2022,13 @@ v:postSim(function(N)
     if trip.auto and anchor.push <= 0 then trip.events = trip.events + 1; dropped = dropped + 1; still = 0 end
   elseif trip.up and la < 0.08 then trip.up = false end
   if trip.auto and queue == 0 and refillWait <= 0 and refill() then refillWait = 0.6 end
+  -- (the weight nearly down: the hand winds it up, all the way, once nothing
+  -- moves, so never in the middle of an AUTO run)
+  if not drive.winding and queue == 0 and not busy() and still > 0.3 and drive.left() < DR.WIND_AT then
+    drive.winding = true
+    handMoved()
+    if LOG then print(string.format("  frame %d: the hand winds the weight up (%.1f quarter turns were left)", N, drive.left())) end
+  end
   if LOG == "2" and N % 15 == 0 then
     local t = {}
     for _, b in ipairs(balls) do
@@ -1847,6 +2071,23 @@ v:addShortcut("B", function()
   else
     camBack = { pos = c.pos, look = c.look }
     put(PR.boardView.pos, PR.boardView.look)
+  end
+end)
+-- W: the camera beside and under the board's top end, where the weight and
+-- the damper are (they can't be seen from in front), and back
+local camBackW = nil
+v:addShortcut("W", function()
+  local c = v.cam
+  local function put(pos, look)
+    c:setUpVector(btVector3(0, 1, 0), true)
+    c.pos = pos
+    c.look = look
+  end
+  if camBackW then put(camBackW.pos, camBackW.look); camBackW = nil
+  else
+    camBackW = { pos = c.pos, look = c.look }
+    local look = W3(DR.cordX, DR.yb - 6, (DR.z + DR.PUL.z) / 2)
+    put(look + btVector3(38, -8, 17), look)
   end
 end)
 v:addShortcut("T", function() PR.prog = nil; PR.run = nil; startTour() end)
@@ -1911,6 +2152,11 @@ pcall(function()
     "  START lever at the top. Space starts it; each ball reaching the bottom lifts",
     "  the lever and lets the next go, until one drops through STOP: a whole",
     "  multiply by itself. MANUAL (U again): every ball is a Space.",
+    "  The WEIGHT (W to look at it), a cup of eight balls hanging at the board's top end, turns the",
+    "  wheel: its cord runs down under the board to a drum on the wheel's axle,",
+    "  where a rotary damper (the fly) keeps it slow. Each ball lowers it 6 mm;",
+    "  when it is nearly down, the hand winds it up again (the drum turns back",
+    "  through a ratchet, and the wheel doesn't move).",
     "  Before each ball, a yellow dashed line on the board shows where it will",
     "  go, and the sign beside it (THIS BALL) says what it will do and what the",
     "  accumulator was and will be. Then watch it do that (Z: slow motion).",
@@ -1922,6 +2168,7 @@ pcall(function()
     "  O      OVERFLOW: RUN <-> HALT (HALT: a carry out of the 64s stops it in AUTO)",
     "  G      run the program the \"program\" slider chooses (G again: stop)",
     "  B      look at the program board (behind the machine), close up; again: back",
+    "  W      look at the weight and the damper (under the board's top end); again: back",
     "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
