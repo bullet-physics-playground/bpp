@@ -14,17 +14,17 @@ import java.awt.event.*;
  * @author  wkerr
  */
 public class ValueDialog extends JDialog {
-    
+
     /** Creates a new instance of ValueDialog */
     public ValueDialog(JFrame owner) {
         super(owner, true);
         addComponents();
         addListeners();
     }
-    
+
     private void addComponents() {
         getContentPane().setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -38,7 +38,7 @@ public class ValueDialog extends JDialog {
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(axField, gbc);
-    
+
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -66,7 +66,7 @@ public class ValueDialog extends JDialog {
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(avxField, gbc);
-    
+
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -94,7 +94,7 @@ public class ValueDialog extends JDialog {
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(bxField, gbc);
-    
+
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -122,7 +122,7 @@ public class ValueDialog extends JDialog {
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(bvxField, gbc);
-    
+
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 7;
@@ -136,16 +136,16 @@ public class ValueDialog extends JDialog {
         gbc.weightx = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(bvyField, gbc);
-        
+
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 8;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.BOTH;
         getContentPane().add(okButton, gbc);
-        
+
     }
-    
+
     private void addListeners() {
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -157,13 +157,13 @@ public class ValueDialog extends JDialog {
                 double by = Double.parseDouble(byField.getText());
                 double bvx = Double.parseDouble(bvxField.getText());
                 double bvy = Double.parseDouble(bvyField.getText());
-    
+
                 Observer.inst().setValues(ax, ay, avx, avy, bx, by, bvx, bvy);
                 dispose();
             }
         });
     }
-    
+
     private JButton okButton = new JButton("OK");
     public JTextField axField = new JTextField();
     public JTextField ayField = new JTextField();

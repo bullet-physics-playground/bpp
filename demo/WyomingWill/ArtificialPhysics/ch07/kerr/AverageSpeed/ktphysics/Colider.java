@@ -14,12 +14,12 @@ import shared.PC;
  */
 public class Colider
 {
-   
+
    /** Creates a new instance of Colider */
    public Colider()
    {
    }
-   
+
    /**
     * colide - Function to process collisions in cells
     * Inputs
@@ -42,7 +42,7 @@ public class Colider
    {
       int ncell_x = sD.ncell_x;
       int ncell_y = sD.ncell_y;
-      
+
       // Loop over cells, processing collisions in each cell
       //for (int i = 0; i < ncell_y - 1; ++i)
       for (int i = 0; i < ncell_y; ++i)
@@ -53,14 +53,14 @@ public class Colider
             int number = sD.cell_n[i][j];
             if (number < 2)
                continue;
-         
+
             // Determine number of candidate collision pairs
             // to be selected in this cell
             double select = coeff*number*number*crmax[i][j] + selxtra[i][j];
             int nsel = (int) select;          // Number of pairs to be selected
             selxtra[i][j] = select - nsel;    // Carry over any left-over fraction
             double crm = crmax[i][j];         // Current maximum relative speed
-         
+
             // Loop over total number of candidate collision pairs
             int isel;
             for (isel = 0; isel < nsel; ++isel)
@@ -71,14 +71,14 @@ public class Colider
 
                int ip1 = sD.Xref[ k + sD.index[i*ncell_x + j] ];   // First particle
                int ip2 = sD.Xref[ kk + sD.index[i*ncell_x + j] ];  // Second particle
-            
+
                // Calculate pair's relative speed
                double cr = Math.sqrt( Math.pow(v[ip1][0] - v[ip2][0], 2) +
                                       Math.pow(v[ip1][1] - v[ip2][1], 2) );
 
                if (cr > crm)             // If relative speed larger than crm,
                   crm = cr;             // then reset crm to larger value
-            
+
                // Accept or reject candidate pair according to relative speed
                if (cr / crmax[i][j] > PC.rand(seed))
                {
@@ -88,11 +88,11 @@ public class Colider
                      PC.collisionCount++;
                      PC.colCellCount[i][j]++;
                   }
-                  
+
                   if (PC.collectingData)
-                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," + 
+                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," +
                                       v[ip2][0] + "," + v[ip2][1] + ",");
-                  
+
                   // If Pair accepted, select post-collision velocities
                   double[] vcm = new double[2];
                   double[] vrel = new double[2];
@@ -102,7 +102,7 @@ public class Colider
 
                   double cos_th = 1.0 - 2.0*PC.rand(seed);      // Cosine and sine of
                   double sin_th = Math.sqrt(1.0 - cos_th*cos_th); // collision angle theta
-                  
+
                   vrel[0] = cr*cos_th;                            // Compute post-condition
                   vrel[1] = cr*sin_th;                            // relative velocity
 
@@ -111,9 +111,9 @@ public class Colider
                      v[ip1][m] = vcm[m] + 0.5*vrel[m];            // Update post-condition
                      v[ip2][m] = vcm[m] - 0.5*vrel[m];            // velocities
                   }
-                  
+
                   if (PC.collectingData)
-                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," + 
+                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," +
                                       v[ip2][0] + "," + v[ip2][1] + ",");
 
                   /*if (v[ip1][1] < 0 && v[ip2][1] < 0 && PC.DOWN)
@@ -125,11 +125,11 @@ public class Colider
                   {
                      if (PC.collectingData)
                         PC.write(PC.changed, ip1 + "\n" + ip2 + "\n");
-                     
+
                      v[ip1][1] *= -1;
                      v[ip2][1] *= -1;
                   }*/
-                  
+
                   if ((v[ip1][1] < 0 || v[ip2][1] < 0) && PC.DOWN)
                   {
                      PC.collisionChanged++;
@@ -140,19 +140,19 @@ public class Colider
                      PC.collisionChanged++;
                      PC.colCellChangedCount[i][j]++;
                   }
-                  
+
                   if (v[ip1][1] < 0 && PC.DOWN)
                      v[ip1][1] *= -1;
                   if (v[ip2][1] < 0 && PC.DOWN)
                      v[ip2][1] *= -1;
-                  
+
                   if (v[ip1][1] > 0 && PC.UP)
                      v[ip1][1] *= -1;
                   if (v[ip2][1] > 0 && PC.UP)
                      v[ip2][1] *= -1;
-                  
+
                   if (PC.collectingData)
-                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," + 
+                     PC.write(PC.out, v[ip1][0] + "," + v[ip1][1] + "," +
                                       v[ip2][0] + "," + v[ip2][1] + ",");
                }
                crmax[i][j] = crm;

@@ -20,9 +20,9 @@ import sensor.GoalSensor;
  * @author  wkerr
  */
 public class FSMRobot extends Robot {
-    
+
     private Random rand;
-    
+
     protected float distance;
     protected float turn;
     protected float divisor;
@@ -30,29 +30,29 @@ public class FSMRobot extends Robot {
 
     private FSM    fsm;
     private int  currentState;
-   
+
     private SonarSensor ss;
     private GoalSensor  gs;
-    
+
     /** Creates a new instance of FSMControl */
     public FSMRobot() {
         super();
-        
+
         distance = VMAX;
         turn = 0;
         previous = 0;
-        
+
         divisor = 360.0f / 24.0f;
     }
-    
+
     public void setId(int id) {
         this.id = id;
-        
+
         ss = new SonarSensor(id, 24);
         gs = new GoalSensor(id);
 
         rand = new Random(System.currentTimeMillis() + id);
-        
+
         try {
            String file = ClassLoader.getSystemClassLoader().getResource("data/").getPath();
            loadFSM(file+"FSM.txt", 13);
@@ -62,11 +62,11 @@ public class FSMRobot extends Robot {
             fsm.generateRandom();
         }
     }
-    
+
     public void setFSM(FSM fsm) {
         this.fsm = fsm;
     }
-    
+
     public void loadFSM(String file, int index) throws Exception {
         BufferedReader in = new BufferedReader(new FileReader(file));
         boolean found = false;
@@ -81,13 +81,13 @@ public class FSMRobot extends Robot {
             }
         }
     }
-    
+
     public void move() {
-        
+
         ss.findSensorReadings();
         float[] bearings = ss.getBearings();
         float[] distances = ss.getDistances();
-        
+
         float goal = gs.getGoalBearing();
 
         if (gs.nearGoal() && !startTimer) {
@@ -98,18 +98,18 @@ public class FSMRobot extends Robot {
         } else if (!gs.nearGoal() && startTimer) {
             startTimer = false;
         }
-        
+
         if (timer >= 10 && gs.nearGoal()) {
             done = true;
-            turn = 0; 
+            turn = 0;
             distance = 0;
             return;
         }
-        
+
         while (goal < 0) {
             goal += 360.0f;
         }
-        
+
         boolean[] options = getOptions(distances, goal);
         StringBuffer buf = new StringBuffer();
         for (int j = 0; j < options.length; ++j) {
@@ -121,16 +121,16 @@ public class FSMRobot extends Robot {
         int input = Integer.parseInt(buf.toString(), 2);
         int choice = fsm.getAction(currentState, input);
         currentState = fsm.getState(currentState, input);
-        
+
         float newAngle = goal - (45.0f * (float)choice);
         while (newAngle < 0) {
             newAngle += 360;
         }
-        
+
         turn = newAngle;
         distance = determineSafeDistance(ss, turn);
     }
-    
+
     protected boolean[] getOptions(float[] distances, float goal) {
         float safeZone = 3*VMAX;
         boolean[] options = new boolean[8];
@@ -141,7 +141,7 @@ public class FSMRobot extends Robot {
             if (distances[index] > safeZone) {
                 options[i] = true;
             }
-            
+
             angle -= 45.0f;
             if (angle < 0) {
                 angle += 360.0f;
@@ -153,11 +153,11 @@ public class FSMRobot extends Robot {
     public float getDistance() {
         return distance;
     }
-    
+
     public float getSpeed() {
         return distance;
     }
-    
+
     public float getTurn() {
         return turn;
     }

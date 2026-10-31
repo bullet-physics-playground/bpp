@@ -60,6 +60,12 @@ is updated at the end of every milestone.
   correct earlier claims when new measurements disagree.
 - When he asks for an analysis ("no code yet"), give analysis only.
 - Experiments that change behaviour are switchable, with the old behaviour at 0.
+- **No trailing whitespace in patches** (William, 2026-10-30): `git am`
+  warns on every such line. Files brought in from others (Kerr's Java)
+  get their line endings converted and trailing spaces removed, said in
+  their README; a diff against them is written with
+  `diff -u --suppress-blank-empty` so its blank context lines carry no
+  space. Check with `git diff --check` before `format-patch`.
 - **Every script states its definitions near the top:** each quantity it
   shows or prints (status line, output columns, sliders), with its formula,
   units and sign convention, so a reader never has to search the code for

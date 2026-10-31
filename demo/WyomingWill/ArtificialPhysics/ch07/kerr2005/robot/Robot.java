@@ -15,33 +15,33 @@ import sensor.GoalSensor;
  * @author  Wesley Kerr
  */
 public abstract class Robot {
-    
+
     public static float VMAX  = 6.0f;
     public static float VMAX2 = 12.0f;
 
     protected int timer          = 0;
     protected boolean startTimer = false;
-    
+
     public int id;
     public boolean done;
     public boolean close;
-    
+
     public Robot() {
         done = false;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public boolean isDone() {
         return done;
     }
-    
+
     public boolean isCloseToGoal() {
         return close;
     }
-    
+
     public Color getColor() {
         return Color.black;
     }
@@ -50,7 +50,7 @@ public abstract class Robot {
     public abstract float getDistance();
     public abstract float getSpeed();
     public abstract float getTurn();
-    
+
     protected boolean isCompleted() {
         GoalSensor gs = new GoalSensor(id);
         float goalBearing = gs.getGoalBearing();
@@ -63,14 +63,14 @@ public abstract class Robot {
         } else if (!gs.nearGoal() && startTimer) {
             startTimer = false;
         }
-        
+
         if (timer >= 10 && gs.nearGoal()) {
             done = true;
         }
         return done;
     }
 
-    
+
     protected float determineSafeDistance(SonarSensor ss, float turn) {
         float distance = ss.findSensorReading(turn);
         if (distance < VMAX2 && distance > VMAX) {
@@ -84,5 +84,5 @@ public abstract class Robot {
             return VMAX;
         }
     }
-    
+
 }

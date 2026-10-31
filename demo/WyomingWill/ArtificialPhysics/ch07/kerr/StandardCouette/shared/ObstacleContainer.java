@@ -17,26 +17,26 @@ public class ObstacleContainer
 {
    private Vector obstacles;
    private static ObstacleContainer oc = null;
-   
+
    /** Creates a new instance of ObstacleContainer */
    private ObstacleContainer()
    {
       obstacles = new Vector();
    }
-   
+
    public static ObstacleContainer instance()
    {
       if (oc == null)
          oc = new ObstacleContainer();
-     
+
       return oc;
    }
-   
+
    public Vector getObstacles()
    {
       return obstacles;
    }
-   
+
    public void addObstacle(double x1, double y1, double x2, double y2)
    {
       SquareObstacle o = new SquareObstacle(x1, y1, x2, y2);
@@ -44,12 +44,12 @@ public class ObstacleContainer
       o.behind();
       obstacles.addElement(o);
    }
-   
+
    public void clearObstacles()
    {
       obstacles.clear();
    }
-   
+
    public void load(String fileName)
    {
       obstacles = new Vector();
@@ -75,7 +75,7 @@ public class ObstacleContainer
          System.exit(0);
       }
    }
-   
+
    public int countObstacleTotal()
    {
       int count = 0;
@@ -87,5 +87,5 @@ public class ObstacleContainer
          count += points.size();
       }
       return count;
-   }    
+   }
 }

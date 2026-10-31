@@ -5,7 +5,7 @@ public class colider
 {
 
    public static int colider2( Matrix v, Matrix crmax, double tau, MyLong seed,
-                              Matrix selxtra, double coeff, SortList sD ) 
+                              Matrix selxtra, double coeff, SortList sD )
    {
       // colide - Function to process collisions in cells
       // Inputs
@@ -29,7 +29,7 @@ public class colider
 
       //* Loop over cells, processing collisions in each cell
       int jcell;
-      for( jcell=1; jcell<=ncell; jcell++ ) 
+      for( jcell=1; jcell<=ncell; jcell++ )
       {
          //* Skip cells with only one particle
          int number = sD.cell_n[jcell];
@@ -45,7 +45,7 @@ public class colider
 
          //* Loop over total number of candidate collision pairs
          int isel;
-         for( isel=1; isel<=nsel; isel++ ) 
+         for( isel=1; isel<=nsel; isel++ )
          {
             //* Pick two particles at random out of this cell
             int k = (int)(rand.rand2(seed)*number);
@@ -65,8 +65,8 @@ public class colider
                crm = cr;            // then reset crm to larger value
 
             //* Accept or reject candidate pair according to relative speed
-            if( cr/crmax.get(jcell) > rand.rand2(seed) ) 
-            //if( cr/crmax.get(jcell) > Math.random() ) 
+            if( cr/crmax.get(jcell) > rand.rand2(seed) )
+            //if( cr/crmax.get(jcell) > Math.random() )
             {
                //* If pair accepted, select post-collision velocities
                col++;                     // Collision counter
@@ -88,7 +88,7 @@ public class colider
                vrel.set(2, cr*sin_th*Math.cos(phi));    // relative velocity
                vrel.set(3, cr*sin_th*Math.sin(phi));
 
-               for(  k=1; k<=3; k++ ) 
+               for(  k=1; k<=3; k++ )
                {
                   v.set(ip1,k, vcm.get(k) + 0.5*vrel.get(k));  // Update post-collision
                   v.set(ip2,k, vcm.get(k) - 0.5*vrel.get(k));  // velocities

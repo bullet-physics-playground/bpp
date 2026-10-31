@@ -24,25 +24,25 @@ public class APGasPhysics
 {
    public int ncell_x = 20;
    public double L = 1e-6;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public APGasPhysics()
    {
-      double[] goalForce = 
+      double[] goalForce =
       { 1.0, 2.0, 3.0 };
-      
+
       int runs = 10;
       int timeSteps = 100;
 
       double[][][] avgSpeed = new double[goalForce.length][runs][timeSteps];
       double[][][] error = new double[goalForce.length][runs][timeSteps];
       double instAvgSpeed;
-      
+
       double[][] theory = new double[goalForce.length][timeSteps];
-      
+
       PC.npart = 500;
       PC.length = 200;
-      
+
       try
       {
          for (int i = 0; i < goalForce.length; ++i)
@@ -55,22 +55,22 @@ public class APGasPhysics
                {
                   theory[i][k] = k*goalForce[i];
                   instAvgSpeed = 0;
-                  
+
                   physics.timeStep();
-                  
+
                   double[][] x = physics.x;
                   double[][] v = physics.v;
                   for (int s = 0; s < PC.npart; ++s)
                   {
                      instAvgSpeed += v[s][1];
                   }
-                  
+
                   avgSpeed[i][j][k] += instAvgSpeed / (double)PC.npart;
                   error[i][j][k] = Math.abs(1.0 - (avgSpeed[i][j][k] / theory[i][k]));
                }
             }
          }
-         
+
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\StandardCouette\\experiments\\";
          BufferedWriter out = new BufferedWriter(new FileWriter(file + "apgasphysics.txt"));
          for (int i = 0; i < goalForce.length; ++i)
@@ -97,7 +97,7 @@ public class APGasPhysics
          exp.printStackTrace();
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

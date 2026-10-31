@@ -15,28 +15,28 @@ public abstract class PhysicsInterface
 {
    public double[][] x;
    public double[][] v;
-   
+
    public boolean[][] coverage;
    protected boolean[] particleDone;
-   
+
    /** Creates a new instance of PhysicsInterface */
    public PhysicsInterface()
    {
       x = new double[PC.npart][2];
       v = new double[PC.npart][3];
       particleDone = new boolean[PC.npart];
-      
+
       coverage = new boolean[PC.ncell_y][PC.ncell_x];
       for (int i = 0; i < PC.ncell_y; ++i)
          for (int j = 0; j < PC.ncell_x; ++j)
             coverage[i][j] = false;
-     
+
    }
-   
+
    public void setFileName(String fileName)
    {
       ObstacleContainer.instance().load(fileName);
-      
+
       PC.area = new Hashtable();
       Vector obstacles = ObstacleContainer.instance().getObstacles();
       for (int i = 0; i < obstacles.size(); ++i)
@@ -44,27 +44,27 @@ public abstract class PhysicsInterface
          SquareObstacle o = (SquareObstacle) obstacles.elementAt(i);
          o.area();
       }
-      
+
       PC.behind = new Hashtable();
       for (int i = 0; i < obstacles.size(); ++i)
       {
          SquareObstacle o = (SquareObstacle) obstacles.elementAt(i);
          o.behind();
-      }    
+      }
    }
-   
+
    public abstract void timeStep();
-   
+
    public double getRightWall()
    {
       return 0;
    }
-   
+
    public double getLeftWall()
    {
       return 0;
    }
-   
+
    public boolean continueGoing()
    {
       updateDoneStatus();
@@ -75,16 +75,16 @@ public abstract class PhysicsInterface
       }
       return false;
    }
-   
+
    protected void updateDoneStatus()
    {
       for (int i = 0; i < PC.npart; ++i)
       {
          if (!particleDone[i] && checkParticle(i))
             particleDone[i] = true;
-      }   
+      }
    }
-   
+
    protected boolean checkParticle(int particle)
    {
       if (x[particle][1] > (PC.L*PC.length))
@@ -93,8 +93,8 @@ public abstract class PhysicsInterface
          return true;
       }
       return false;
-   }   
-            
+   }
+
    public void writePositions()
    {
       if (PC.collectingData)
@@ -121,7 +121,7 @@ public abstract class PhysicsInterface
          }
       }*/
    }
-   
+
    public int countCoverage()
    {
       int count = 0;
@@ -135,7 +135,7 @@ public abstract class PhysicsInterface
       }
       return count;
    }
-   
+
    public int countObstacleCoverage()
    {
       int count = 0;
@@ -143,10 +143,10 @@ public abstract class PhysicsInterface
       while (e.hasMoreElements())
       {
          Point value = (Point) e.nextElement();
-         
+
          if (coverage[(int) value.y][(int) value.x])
             ++count;
       }
       return count;
-   }      
+   }
 }

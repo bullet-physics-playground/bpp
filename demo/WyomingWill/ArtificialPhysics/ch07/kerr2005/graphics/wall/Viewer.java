@@ -15,21 +15,21 @@ import java.awt.event.*;
  * @author  Wesley Kerr
  */
 public class Viewer extends JFrame {
-   
+
     /** Creates a new instance of Viewer */
     public Viewer() {
         addComponents();
         addListeners();
         show();
     }
-    
+
     private void addComponents() {
         robotPanel = new RobotDisplayPanel();
         sonarPanel = new SonarDisplayPanel();
         buttonPanel = new ButtonPanel();
-        
+
         getContentPane().setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -38,7 +38,7 @@ public class Viewer extends JFrame {
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(robotPanel, gridBagConstraints);
-        
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -47,7 +47,7 @@ public class Viewer extends JFrame {
         gridBagConstraints.insets = new Insets(3, 3, 3, 3);
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         getContentPane().add(sonarPanel, gridBagConstraints);
-        
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -55,10 +55,10 @@ public class Viewer extends JFrame {
         gridBagConstraints.insets = new Insets(3, 3, 3, 3);
         gridBagConstraints.fill = GridBagConstraints.BOTH;
         getContentPane().add(buttonPanel, gridBagConstraints);
-        
+
         setSize(1024, 768);
     }
-    
+
     private void addListeners() {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
@@ -70,12 +70,12 @@ public class Viewer extends JFrame {
             }
         });
     }
-    
+
     public void update() {
         robotPanel.repaint();
         sonarPanel.repaint();
     }
-    
+
     private RobotDisplayPanel robotPanel;
     private SonarDisplayPanel sonarPanel;
     private ButtonPanel buttonPanel;

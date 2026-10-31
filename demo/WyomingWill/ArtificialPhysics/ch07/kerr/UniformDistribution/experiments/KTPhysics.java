@@ -22,33 +22,33 @@ import shared.SquareObstacle;
 public class KTPhysics
 {
    private PhysicsInterface physics;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public KTPhysics(String className)
    {
-      int[] numParticles = 
+      int[] numParticles =
       { 10000, 12000, 15000 };
-      
+
       int runs = 3;
       int timeSteps = 30000;
-      
+
       PC.closed = false;
       PC.physicsClass = className;
-      
+
       int gridCount = 5;
       int[][] grid = new int[gridCount][gridCount];
       int[][] gridNew = new int[gridCount][gridCount];
-      
+
       double[][] error = new double[numParticles.length][runs];
       boolean cont = true;
-      
+
       PC.L = 1e-6;
       PC.length = 1;
       PC.ncell_x = 20;
       PC.ncell_y = 20;
       PC.npart = 10000;
       PC.T = 273;
-      
+
       try
       {
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\UniformDistribution\\experiments\\";
@@ -57,7 +57,7 @@ public class KTPhysics
          for (int i = 0; i < numParticles.length; ++i)
          {
             PC.npart = numParticles[i];
-            
+
             for (int j = 0; j < runs; ++j)
             {
                System.out.println("NumParticles " + PC.npart + " Run " + j);
@@ -65,7 +65,7 @@ public class KTPhysics
                for (int p = 0; p < timeSteps; ++p)
                {
                   physics.timeStep();
-                  
+
                   if (p > (timeSteps - 200))
                   {
                      double[][] x = physics.x;
@@ -89,7 +89,7 @@ public class KTPhysics
                      }
                   }
                }
-               
+
                for (int k = 0; k < gridCount; ++k)
                {
                   for (int s = 0; s < gridCount; ++s)
@@ -105,13 +105,13 @@ public class KTPhysics
                         out.write("Error " + errors + "\n");
                         error[i][j] += errors;
                      }
-                     else 
+                     else
                      {
                         out.write("Error 0\n");
                      }
                   }
                }
-               
+
                int maxError = PC.npart - (PC.npart / (gridCount*gridCount));
                out.write("NumParticles " + PC.npart + " ");
                out.write("Run " + j + " ");
@@ -128,7 +128,7 @@ public class KTPhysics
          exp.printStackTrace();
       }
    }
-   
+
    private void createPhysics()
    {
       try
@@ -144,7 +144,7 @@ public class KTPhysics
          System.exit(0);
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

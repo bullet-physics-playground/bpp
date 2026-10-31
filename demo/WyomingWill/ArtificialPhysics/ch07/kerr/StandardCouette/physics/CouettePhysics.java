@@ -19,19 +19,19 @@ public class CouettePhysics
    public double density = 2.685e25;  // Number density of argon at STP (m^-3)
    public double L = 1e-6;            // System size is one micron
    public double Volume = L*L;       // Volume of the system
-   
+
    public int npart;
-  
+
    private double eff_num;
    private double mfp;
    private double mpv;
    public double vwall_m;
    public double vwall;
-   
+
    public double[][] x;
    public double[][] x_old;
    public double[][] v;
-   
+
    private int ncell_x;
    private int ncell_y;
    public double tau;
@@ -42,10 +42,10 @@ public class CouettePhysics
    private double coeff;
    private int colSum = 0;                 // Count total collisions
    int[] strikeSum = new int[2];
-      
+
    private SortList sortData;
    public MyLong seed;
-      
+
    /** Creates a new instance of CouettePhysics */
    public CouettePhysics()
    {
@@ -56,18 +56,18 @@ public class CouettePhysics
 
       mfp = Volume/(Math.sqrt(2.0)*Math.PI*diam*npart*eff_num);
       System.out.println("System width is " + L/mfp + " mean free paths");
-      
+
       mpv = Math.sqrt(2.0*boltz*T/mass);  // Most probable initial velocity
       vwall_m = PhysicsConstants.vwall_m;  // Wall velocity as Mach number
       vwall = vwall_m * Math.sqrt(5.0/3.0 * boltz * T / mass);
-      
+
       System.out.println("Wall velocities are " + -1.0*vwall + " and " + vwall + " m/s ");
-      
+
       // Assign random positions and velocities to particles
       x = new double[npart][2];
       x_old = new double[npart][2];
       v = new double[npart][2];
-      
+
       seed = new MyLong();
       seed.seed = 1;
 
@@ -77,15 +77,15 @@ public class CouettePhysics
          // Assign random positions in the square 0-L in x and 0-L in y
          x[i][0] = L*Rand.rand(seed);
          x[i][1] = L*Rand.rand(seed);
-         
+
          // Initial velocities are Maxwell-Boltzmann distributed
          v[i][0] = Math.sqrt(boltz*T/mass) * Randn.randn(seed);
          v[i][1] = Math.sqrt(boltz*T/mass) * Randn.randn(seed);
 
          // Add velocity gradient to the y-component
-         v[i][1] = v[i][1] + vwall * 2* (x[i][0]/L); 
+         v[i][1] = v[i][1] + vwall * 2* (x[i][0]/L);
       }
-      
+
       // Initialize variables used for evaluating collisions
       ncell_x = 20;               // Number of cells
       ncell_y = 200;
@@ -102,40 +102,40 @@ public class CouettePhysics
             selxtra[i][j] = 0;        // Used by routine "colider"
 
       coeff = 0.5*eff_num*Math.PI*diam*diam*tau/(L*L/ncell_x);
-      
+
       // Declare object for lists used in sorting
       sortData = new SortList(ncell_x, ncell_y, npart);
-      
+
       strikeSum[0] = 0;
       strikeSum[1] = 0;
       colSum = 0;
-      
+
    }
-   
+
    public void timeStep()
-   {      
+   {
       // Loop for the desired number of time steps
       int[] strikes = new int[2];
-      
+
       for (int i = 0; i < 2; ++i)
          strikes[i] = 0;            // Count strikes at each wall
 
       // Move all the particles
       double[] delv = new double[2];
       delv[0] = delv[1] = 0;
-         
+
       Mover.mover(x, x_old, v, npart, L, mpv, vwall, tau, strikes, delv, seed);
       strikeSum[0] += strikes[0];
       strikeSum[1] += strikes[1];
-         
+
       // Sort the particles into cells
       Sorter.sorter(x, L, sortData);
-         
+
       // Evaluate collisions among the particles
       //int col = Colider.colider(x, x_old, v, vrmax, tau, selxtra, coeff);
       int col = Colider.colider(v, vrmax, tau, selxtra, coeff, sortData, seed);
       colSum += col;           //  Increment collision count
-         
+
       // Periodically display the current progress
       System.out.println("Strikes L " + strikeSum[0] + " R " + strikeSum[1]);
       System.out.println("Collisions " + colSum);

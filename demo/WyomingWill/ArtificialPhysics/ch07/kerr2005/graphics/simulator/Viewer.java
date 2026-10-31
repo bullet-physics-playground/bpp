@@ -20,18 +20,18 @@ import java.awt.event.*;
  * @author  Wesley Kerr
  */
 public class Viewer extends JFrame {
-   
+
     /** Creates a new instance of Viewer */
     public Viewer(int width, int height) {
         addComponents(width, height);
         addListeners();
         show();
     }
-    
+
     private void addComponents(int width, int height) {
         menuBar        = new ProgramMenuBar();
         displayPanel   = new DisplayPanel();
-        
+
         displayPanel.setPreferredSize(new Dimension(width/2, height/2));
         scroll = new JScrollPane(displayPanel);
         scroll.setPreferredSize(new Dimension(width/2, height/2));
@@ -44,7 +44,7 @@ public class Viewer extends JFrame {
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         getContentPane().setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -54,16 +54,16 @@ public class Viewer extends JFrame {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(scroll, gridBagConstraints);
-        
+
         createSliderPanel();
         addSliderPanel();
-        
+
         addFillerPanel();
 
         setJMenuBar(menuBar);
         setSize(1024, 768);
     }
-    
+
     private void addListeners() {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
@@ -75,7 +75,7 @@ public class Viewer extends JFrame {
             }
         });
     }
-    
+
     private void removeSliderPanel() {
         getContentPane().remove(sliderPanel);
     }
@@ -93,7 +93,7 @@ public class Viewer extends JFrame {
         validate();
         repaint();
     }
-    
+
     private void addFillerPanel() {
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -118,16 +118,16 @@ public class Viewer extends JFrame {
         displayPanel.displayId(displayId);
         update();
     }
-    
+
     public void update() {
         displayPanel.repaint();
         sliderPanel.updateSliders();
     }
-    
+
     public void showErrorMessage(String error) {
         JOptionPane.showMessageDialog(this, error);
     }
-    
+
     private JScrollPane        scroll;
     private ProgramMenuBar     menuBar;
     private DisplayPanel       displayPanel;

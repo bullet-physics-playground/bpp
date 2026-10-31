@@ -21,45 +21,45 @@ public class ProgramMenuBar extends JMenuBar {
         addComponents();
         addListeners();
     }
-    
+
     private void addComponents() {
         fileMenu.add(startMenuItem);
         fileMenu.add(stopMenuItem);
         fileMenu.add(resetMenuItem);
         fileMenu.add(new JSeparator());
         fileMenu.add(exitMenuItem);
-        
+
         add(fileMenu);
-        
+
         displayMenu.add(displayIdMenuItem);
-        
+
         add(displayMenu);
-        
+
         obstacleMenu.add(clearMenuItem);
         obstacleMenu.add(loadMenuItem);
-        
+
         add(obstacleMenu);
     }
-    
+
     private void addListeners() {
         startMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().startVis();
             }
         });
-        
+
         stopMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().stopVis();
             }
         });
-        
+
         resetMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().resetVis();
             }
         });
-        
+
         exitMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer o = Observer.inst();
@@ -69,19 +69,19 @@ public class ProgramMenuBar extends JMenuBar {
                 }
             }
         });
-        
+
         displayIdMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().displayId(displayIdMenuItem.getState());
             }
         });
-        
+
         clearMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().loadObstacles(null);
             }
         });
-        
+
         loadMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser jf = new JFileChooser(ClassLoader.getSystemClassLoader().getResource("data/").getPath());
@@ -95,7 +95,7 @@ public class ProgramMenuBar extends JMenuBar {
                 }
             }
         });
-        
+
         saveMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JFileChooser jf = new JFileChooser(ClassLoader.getSystemClassLoader().getResource("data/").getPath());
@@ -109,18 +109,18 @@ public class ProgramMenuBar extends JMenuBar {
             }
         });
     }
-    
+
     private JMenu fileMenu     = new JMenu("File");
     private JMenu displayMenu  = new JMenu("Display");
     private JMenu obstacleMenu = new JMenu("Obstacle");
-    
+
     private JMenuItem startMenuItem         = new JMenuItem("Start");
     private JMenuItem stopMenuItem          = new JMenuItem("Stop");
     private JMenuItem resetMenuItem         = new JMenuItem("Reset");
     private JMenuItem exitMenuItem          = new JMenuItem("Exit");
-    
+
     private JCheckBoxMenuItem displayIdMenuItem  = new JCheckBoxMenuItem("Display Id", false);
-    
+
     private JMenuItem clearMenuItem              = new JMenuItem("Clear Obstacles");
     private JMenuItem loadMenuItem               = new JMenuItem("Load Obstacles");
     private JMenuItem saveMenuItem               = new JMenuItem("Save Obstacles");

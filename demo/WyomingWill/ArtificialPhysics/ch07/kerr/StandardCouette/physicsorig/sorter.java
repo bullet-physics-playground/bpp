@@ -3,7 +3,7 @@ package physicsorig;
 
 public class sorter
 {
-   public static void sorter2( Matrix x, double L, SortList sD ) 
+   public static void sorter2( Matrix x, double L, SortList sD )
    {
       // sorter - Function to sort particles into cells
       // Inputs
@@ -17,10 +17,10 @@ public class sorter
       int ncell = sD.ncell;
       int npart = sD.npart;
 
-      int ipart; 
+      int ipart;
       int[] jx = new int [npart+1];
 
-      for( ipart=1; ipart<=npart; ipart++ ) 
+      for( ipart=1; ipart<=npart; ipart++ )
       {
          int j = (int)(x.get(ipart)*ncell/L) + 1;
          jx[ipart] = ( j <= ncell ) ? j : ncell;
@@ -34,10 +34,10 @@ public class sorter
       for( ipart=1; ipart<=npart; ipart++ )
          sD.cell_n[ jx[ipart] ]++;
 
-      //* Build index list as cumulative sum of the 
+      //* Build index list as cumulative sum of the
       //  number of particles in each cell
       int m=1;
-      for( jcell=1; jcell<=ncell; jcell++ ) 
+      for( jcell=1; jcell<=ncell; jcell++ )
       {
          sD.index[jcell] = m;
          m += sD.cell_n[jcell];
@@ -48,7 +48,7 @@ public class sorter
       for( jcell=1; jcell<=ncell; jcell++ )
          temp[jcell] = 0;
 
-      for( ipart=1; ipart<=npart; ipart++ )	
+      for( ipart=1; ipart<=npart; ipart++ )
       {
          jcell = jx[ipart];       // Cell address of ipart
          int k = sD.index[jcell] + temp[jcell];

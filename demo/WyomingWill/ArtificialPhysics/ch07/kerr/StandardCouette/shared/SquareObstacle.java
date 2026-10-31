@@ -18,9 +18,9 @@ public class SquareObstacle implements Obstacle
    private double y1;
    private double x2;
    private double y2;
-   
+
    private int flip;
-   
+
    /** Creates a new instance of SquareObstacle */
    public SquareObstacle(double x1, double y1, double x2, double y2)
    {
@@ -29,12 +29,12 @@ public class SquareObstacle implements Obstacle
          this.x1 = x2;
          this.x2 = x1;
       }
-      else 
+      else
       {
          this.x1 = x1;
          this.x2 = x2;
       }
-      
+
       if (y1 > y2)
       {
          this.y1 = y2;
@@ -46,35 +46,35 @@ public class SquareObstacle implements Obstacle
          this.y2 = y2;
       }
    }
-   
+
    public void draw(Graphics g, int panelWidth, int panelHeight)
    {
       Color temp = g.getColor();
       g.setColor(Color.white);
-      
+
       int x = (int) (x1 * panelWidth / PC.L);
       int y = (int) (y1 * panelHeight / (PC.L * PC.length));
       int width = (int) ((x2 - x1) * panelWidth / PC.L);
       int height = (int) ((y2 - y1) * panelHeight / (PC.length * PC.L));
 
       g.fillRect(x, y, width, height);
-      
+
       g.setColor(temp);
    }
-   
+
    public Point force(double x, double y, int dir)
    {
       Point force = checkWall(x,y,dir);
       return force;
    }
-   
+
    private Point checkWall(double x, double y, int dir)
    {
       double distance = 0.0;
       double theta = 0.0;
       double ax = 0;
       double ay = 0;
-      
+
        // Calculate r between obstacle's wall and particle
        if (y < y1)
        {
@@ -138,37 +138,37 @@ public class SquareObstacle implements Obstacle
              theta = Math.atan((ay-y)/(ax-x)) + Math.PI;
           }
        }
-         
+
        distance = Math.sqrt(Math.pow((x-ax),2) + Math.pow((y-ay),2));
-         
+
        if (distance > 1.7*PC.RAD)
           return new Point(0,0);
-         
+
        double f = -(PC.G2 / Math.pow(distance, PC.power));
        if (f > PC.FMAX)
           f = PC.FMAX;
-         
+
        Point p = new Point(0,0);
        p.x += f*Math.cos(theta);
        p.y += f*Math.sin(theta);
        return p;
    }
-   
-   public void collision(double[] x, double[] x_old, double[] v, double mpv,  
+
+   public void collision(double[] x, double[] x_old, double[] v, double mpv,
                          double tau, MyLong seed)
    {
       if (!(x[0] > x1 && x[0] < x2 &&
             x[1] > y1 && x[1] < y2))
          return;
-      
+
       Point intPoint = getIntersectionPoint(x, x_old);
-      
+
       double stdev = mpv / Math.sqrt(2.0);
       double vxInitial = v[0];
       double vyInitial = v[1];
 
       v[0] = Math.sqrt(-Math.log(1.0-PC.rand(seed)))*mpv;
-      v[1] = stdev*PC.randn(seed);     
+      v[1] = stdev*PC.randn(seed);
 
       switch (intPoint.wall)
       {
@@ -192,10 +192,10 @@ public class SquareObstacle implements Obstacle
 
       double dtrx = tau*(x[0]-intPoint.x)/(x[0]-x_old[0]);
       double dtry = tau*(x[1]-intPoint.y)/(x[1]-x_old[1]);
-      
+
       x[0] = intPoint.x + v[0]*dtrx;
       x[1] = intPoint.y + v[1]*dtry;
-      
+
       if (x[0] > x1 && x[0] < x2 &&
           x[1] > y1 && x[1] < y2)
       {
@@ -205,30 +205,30 @@ public class SquareObstacle implements Obstacle
          System.out.println("\t New Position: <" + x[0] + "," + x[1] + ">");
       }
    }
-   
+
    private double distance(double px1, double py1, double px2, double py2)
    {
       return Math.sqrt(Math.pow(px2 - px1, 2) + Math.pow(py2 - py1, 2));
    }
-   
+
    private Point getIntersectionPoint(double[] x, double[] x_old)
    {
       Point p1 = new Point(x_old[0], x_old[1]);
       Point p2 = new Point(x[0], x[1]);
-      
+
       Point p3;
       Point p4;
-      
+
       Point intTop;
       Point intBottom;
       Point intLeft;
       Point intRight;
-      
+
       // Check Intersection top
       p3 = new Point(x1, y1);
       p4 = new Point(x2, y1);
       intTop = PC.lineLineIntersection(p1, p2, p3, p4);
-      
+
       // Check Intersection bottom
       p3 = new Point(x1, y2);
       p4 = new Point(x2, y2);
@@ -238,12 +238,12 @@ public class SquareObstacle implements Obstacle
       p3 = new Point(x1, y1);
       p4 = new Point(x1, y2);
       intLeft = PC.lineLineIntersection(p1, p2, p3, p4);
-      
+
       // Check intersection right
       p3 = new Point(x2, y1);
       p4 = new Point(x2, y2);
       intRight = PC.lineLineIntersection(p1, p2, p3, p4);
-      
+
       Point intPoint = new Point();
       double distance = 0;
       double d = 10000;
@@ -290,21 +290,21 @@ public class SquareObstacle implements Obstacle
 
       return intPoint;
    }
-   
+
    public void checkCollision(double[] x, double[] x_old)
    {
       if (!(x[0] > x1 && x[0] < x2 &&
             x[1] > y1 && x[1] < y2))
          return;
-      
+
       //System.out.println("Checking Collision because we are still inside");
-      
+
       Point intPoint = getIntersectionPoint(x, x_old);
       //System.out.println("Intersection chosen: " + intPoint);
-      
+
       x[0] = intPoint.x;
       x[1] = intPoint.y;
-      
+
       if (x[0] > x1 && x[0] < x2 &&
           x[1] > y1 && x[1] < y2)
       {
@@ -314,23 +314,23 @@ public class SquareObstacle implements Obstacle
          System.out.println("\t New Position: <" + x[0] + "," + x[1] + ">");
       }
    }
-   
+
    public boolean past(double y)
    {
       if (y > y2)
          return true;
       return false;
    }
-   
+
    public Vector cells()
    {
       Vector ret = new Vector();
-      
+
       int maxx = (int) ((x2*PC.ncell_x)/PC.L);
       int minx = (int) ((x1*PC.ncell_x)/PC.L);
-      
+
       int maxy = (int) ((y2*PC.ncell_y)/(PC.L*PC.length));
-      
+
       for (int i = minx; i <= maxx; ++i)
       {
          Point p = new Point(i, maxy);
@@ -338,15 +338,15 @@ public class SquareObstacle implements Obstacle
       }
       return ret;
    }
-   
+
    public void area()
    {
       int maxx = ((int) ((x2*PC.ncell_x)/PC.L));
       int minx = ((int) ((x1*PC.ncell_x)/PC.L));
-      
+
       int miny = ((int) ((y1*PC.ncell_y)/(PC.L*PC.length)));
       int maxy = ((int) ((y2*PC.ncell_y)/(PC.L*PC.length)));
-      
+
       for (int i = minx; i < maxx; ++i)
       {
          for (int j = miny; j < maxy; ++j)
@@ -360,12 +360,12 @@ public class SquareObstacle implements Obstacle
          }
       }
    }
-   
+
    public void behind()
    {
       int maxx = (int) ((x2*PC.ncell_x)/PC.L);
       int minx = (int) ((x1*PC.ncell_x)/PC.L);
-      
+
       int maxy = (int) ((y2*PC.ncell_y)/(PC.L*PC.length));
 
       for (int i = minx; i < maxx; ++i)
@@ -377,5 +377,5 @@ public class SquareObstacle implements Obstacle
             PC.behind.put(location, p);
          }
       }
-   }   
+   }
 }

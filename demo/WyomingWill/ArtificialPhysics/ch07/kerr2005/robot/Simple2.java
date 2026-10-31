@@ -18,53 +18,53 @@ import sensor.GoalSensor;
  * @author  wkerr
  */
 public class Simple2 extends Robot {
-    
+
     private Random rand;
-    
+
     private int   previous;
     private float distance;
     private float turn;
     private float divisor;
-    
+
     private SonarSensor ss;
     private RodSensor   rs;
     private GoalSensor  gs;
-    
+
     /** Creates a new instance of Simple */
     public Simple2() {
         super();
-        
+
         distance = VMAX;
         turn = 0;
         previous = 0;
-        
+
         divisor = 360.0f / 24.0f;
     }
-    
+
     public void setId(int id) {
         this.id = id;
-        
+
         rs = new RodSensor(id);
         ss = new SonarSensor(id, 24);
         gs = new GoalSensor(id);
 
         rand = new Random(System.currentTimeMillis() + id);
     }
-    
+
     public float getDistance() {
         return distance;
     }
-    
+
     public float getSpeed() {
         return distance;
     }
-    
+
     public float getTurn() {
         return turn;
     }
-    
+
     public void move() {
-        
+
         rs.findVisibleRobots();
         float[] robotBearings = rs.getBearings();
         float[] robotDistances = rs.getDistances();
@@ -72,7 +72,7 @@ public class Simple2 extends Robot {
         ss.findSensorReadings();
         float[] bearings = ss.getBearings();
         float[] distances = ss.getDistances();
-        
+
         float goal = gs.getGoalBearing();
 
         if (gs.nearGoal() && !startTimer) {
@@ -83,38 +83,38 @@ public class Simple2 extends Robot {
         } else if (!gs.nearGoal() && startTimer) {
             startTimer = false;
         }
-        
+
         if (timer >= 10 && gs.nearGoal()) {
             done = true;
-            turn = 0; 
+            turn = 0;
             distance = 0;
             return;
         }
-        
+
         while (goal < 0) {
             goal += 360.0f;
         }
-        
+
         int choice = runAlgorithm(robotDistances, robotBearings, distances, goal);
-        
+
         float newAngle = goal - (45.0f * (float)choice);
         while (newAngle < 0) {
             newAngle += 360;
         }
-        
+
         turn = newAngle;
         distance = determineSafeDistance(ss, turn);
     }
-    
-    protected int runAlgorithm(float[] robotDistances, float[] robotBearings, 
+
+    protected int runAlgorithm(float[] robotDistances, float[] robotBearings,
                                float[] distances, float goal) {
         ArrayList l = new ArrayList();
         double left = 1.0;
         double min  = 0;
-        
+
         boolean[] options = getOptions(distances, goal);
         boolean[] blockedByRobots = areRobotsBlocking(robotDistances, robotBearings, goal);
-        
+
         int previous = (int) Math.round(goal / 45.0f);
         previous = previous == 8 ? 0 : previous;
         if (options[previous]) {
@@ -123,7 +123,7 @@ public class Simple2 extends Robot {
             min = 0.8;
             left -= 0.8;
         }
-        
+
         double split = left / 3.0;
         if (!options[3] && options[2] && !blockedByRobots[3]) {
             PctStorage pcs = new PctStorage(2, min, min+split);
@@ -131,14 +131,14 @@ public class Simple2 extends Robot {
             min += split;
             left -= split;
         }
-            
+
         if (!options[5] && options[6] && !blockedByRobots[5]) {
             PctStorage pcs = new PctStorage(6, min, min+split);
             l.add(pcs);
             min += split;
             left -= split;
         }
-        
+
         split = left / 2.0;
         if (options[0]) {
             PctStorage pcs = new PctStorage(0, min, min+split);
@@ -146,7 +146,7 @@ public class Simple2 extends Robot {
             min += split;
             left -= split;
         }
-        
+
         double count = countOptions(options);
         split = left / count;
         for (int j = 0; j < options.length; ++j) {
@@ -157,10 +157,10 @@ public class Simple2 extends Robot {
                 left -= split;
             }
         }
-        
+
         return chooseOption(l);
     }
-    
+
     protected double countOptions(boolean[] options) {
         double count = 0;
         for (int i = 0; i < options.length; ++i) {
@@ -169,19 +169,19 @@ public class Simple2 extends Robot {
         }
         return count;
     }
-    
+
     protected boolean[] areRobotsBlocking(float[] distances, float[] bearings, float goal) {
         boolean[] blockedByRobot = new boolean[8];
-        
-        if (distances == null) 
+
+        if (distances == null)
             return blockedByRobot;
-        
+
         float safeZone = 3*VMAX;
         for (int i = 0; i < distances.length; ++i) {
             if (distances[i] > safeZone) {
                 continue;
             }
-            
+
             while (bearings[i] < 0) {
                 bearings[i] += 360;
             }
@@ -194,9 +194,9 @@ public class Simple2 extends Robot {
         }
         return blockedByRobot;
     }
-    
+
     protected boolean[] getOptions(float[] distances, float goal) {
-        
+
         float safeZone = 3*VMAX;
         boolean[] options = new boolean[8];
         float angle = goal;
@@ -206,7 +206,7 @@ public class Simple2 extends Robot {
             if (distances[index] > safeZone) {
                 options[i] = true;
             }
-            
+
             angle -= 45.0f;
             if (angle < 0) {
                 angle += 360.0f;
@@ -214,7 +214,7 @@ public class Simple2 extends Robot {
         }
         return options;
     }
-    
+
     protected int chooseOption(ArrayList l) {
         PctStorage pcs = new PctStorage(0, 0, 1);
         double random = rand.nextDouble();

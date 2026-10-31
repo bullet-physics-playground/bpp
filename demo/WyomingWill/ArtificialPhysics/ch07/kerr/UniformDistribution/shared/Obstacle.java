@@ -16,8 +16,8 @@ public interface Obstacle
 {
    public void draw(Graphics g, int panelWidth, int panelHeight);
    public Point force(double x, double y, int dir);
-   public void collision(double[] x, double[] x_old, double[] v, double mpv, 
-                         double tau, MyLong seed);   
+   public void collision(double[] x, double[] x_old, double[] v, double mpv,
+                         double tau, MyLong seed);
    public void checkCollision(double[] x, double[] x_old);
    public boolean past(double y);
    public Vector cells();

@@ -1,2 +1,2 @@
 
-java -cp "." experiments.AvgSpeed $1 
+java -cp "." experiments.AvgSpeed $1

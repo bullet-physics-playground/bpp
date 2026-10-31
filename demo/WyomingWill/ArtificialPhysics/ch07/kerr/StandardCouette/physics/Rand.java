@@ -3,7 +3,7 @@ package physics;
 public class Rand
 {
    // Random number generator; Uniform dist. in [0,1)
-   public static double rand( MyLong seed ) 
+   public static double rand( MyLong seed )
    {
       // Input
       //   seed    Integer seed (DO NOT USE A SEED OF ZERO)
@@ -14,7 +14,7 @@ public class Rand
       long temp = a * seed.seed;
       seed.seed = temp % m;
       double rand = (double) seed.seed / (double) m;
-      
+
       return( rand );
    }
 }

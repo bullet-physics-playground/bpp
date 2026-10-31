@@ -11,10 +11,10 @@ package physicsorig;
 public class MyLong
 {
    public long seed;
-   
+
    /** Creates a new instance of MyLong */
    public MyLong()
    {
    }
-   
+
 }

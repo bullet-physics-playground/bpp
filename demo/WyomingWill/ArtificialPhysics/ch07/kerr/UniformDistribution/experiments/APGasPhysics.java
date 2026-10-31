@@ -24,26 +24,26 @@ public class APGasPhysics
 {
    public int ncell_x = 20;
    public double L = 1e-6;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public APGasPhysics()
    {
-      int[] numParticles = 
+      int[] numParticles =
       { 120, 170, 230 };
-      
+
       int runs = 10;
       int timeSteps = 50000;
 
       int gridCount = 5;
       int[][] gridNew = new int[gridCount][gridCount];
-      
+
       double[][] error = new double[numParticles.length][runs];
-      
+
       PC.npart = 500;
       PC.length = 1;
       PC.ncell_x = 20;
       PC.ncell_y = 20;
-      
+
       try
       {
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\UniformDistribution\\experiments\\";
@@ -64,9 +64,9 @@ public class APGasPhysics
                         gridNew[k][s] = 0;
                      }
                   }
-                  
+
                   physics.timeStep();
-                  
+
                   double[][] x = physics.x;
                   for (int k = 0; k < PC.npart; ++k)
                   {
@@ -76,9 +76,9 @@ public class APGasPhysics
                      jy = ( jy < gridCount ) ? jy : gridCount - 1;
                      gridNew[jy][jx] += 1;
                   }
-                  
+
                }
-               
+
                for (int k = 0; k < gridCount; ++k)
                {
                   for (int s = 0; s < gridCount; ++s)
@@ -93,13 +93,13 @@ public class APGasPhysics
                         out.write("Error " + errors + "\n");
                         error[i][j] += errors;
                      }
-                     else 
+                     else
                      {
                         out.write("Error 0\n");
                      }
                   }
                }
-               
+
                int maxError = PC.npart - (PC.npart / (gridCount*gridCount));
                out.write("NumParticles " + PC.npart + " ");
                out.write("Run " + j + " ");
@@ -108,7 +108,7 @@ public class APGasPhysics
                out.write("\n");
             }
          }
-         
+
          out.close();
       }
       catch (Exception exp)
@@ -117,7 +117,7 @@ public class APGasPhysics
          exp.printStackTrace();
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

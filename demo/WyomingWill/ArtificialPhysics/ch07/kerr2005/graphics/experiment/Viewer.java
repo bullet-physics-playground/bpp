@@ -17,17 +17,17 @@ import java.awt.event.*;
  * @author  Wesley Kerr
  */
 public class Viewer extends JFrame {
-   
+
     /** Creates a new instance of Viewer */
     public Viewer(int width, int height) {
         addComponents(width, height);
         addListeners();
         show();
     }
-    
+
     private void addComponents(int width, int height) {
         displayPanel   = new DisplayPanel();
-        
+
         displayPanel.setPreferredSize(new Dimension(width/4, height/4));
         scroll = new JScrollPane(displayPanel);
         scroll.setPreferredSize(new Dimension(width/4, height/4));
@@ -36,7 +36,7 @@ public class Viewer extends JFrame {
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         getContentPane().setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -45,10 +45,10 @@ public class Viewer extends JFrame {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(scroll, gridBagConstraints);
-        
+
         setSize((width/4)+50, 768);
     }
-    
+
     private void addListeners() {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
@@ -56,15 +56,15 @@ public class Viewer extends JFrame {
             }
         });
     }
-    
+
     public void update() {
         displayPanel.repaint();
     }
-    
+
     public void showErrorMessage(String error) {
         JOptionPane.showMessageDialog(this, error);
     }
-    
+
     private JScrollPane scroll;
     private DisplayPanel displayPanel;
 }

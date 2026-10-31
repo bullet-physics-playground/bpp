@@ -5,7 +5,7 @@ public class randn
 {
    // Random number generator; Normal (Gaussian) dist.
 
-   public static double randn2( MyLong seed ) 
+   public static double randn2( MyLong seed )
    {
       // Input
       //   seed    Integer seed  (DO NOT USE A SEED OF ZERO)

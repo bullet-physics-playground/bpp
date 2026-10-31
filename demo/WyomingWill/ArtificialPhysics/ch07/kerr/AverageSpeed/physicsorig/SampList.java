@@ -1,7 +1,7 @@
 
 package physicsorig;
 
-public class SampList 
+public class SampList
 {
    public int ncell;
    public int nsamp;
@@ -11,20 +11,20 @@ public class SampList
    public double[] ave_uz;
    public double[] ave_T;
 
-   // Default Constructor. 
-   public SampList() 
+   // Default Constructor.
+   public SampList()
    {
       initLists(1);
    }
 
-   // Regular Constructor. 
-   public SampList(int ncell_in) 
+   // Regular Constructor.
+   public SampList(int ncell_in)
    {
      initLists(ncell_in);
    }
 
    // Initialization routine
-   private void initLists(int ncell_in) 
+   private void initLists(int ncell_in)
    {
       ncell = ncell_in;
       nsamp = 0;
@@ -34,7 +34,7 @@ public class SampList
       ave_uz = new double [ncell+1];
       ave_T = new double [ncell+1];
       int i;
-      for( i=1; i<=ncell; i++ ) 
+      for( i=1; i<=ncell; i++ )
       {
          ave_n[i] = 0;
 	 ave_ux[i] = 0;

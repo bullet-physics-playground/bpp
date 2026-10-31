@@ -15,23 +15,23 @@ import java.awt.event.*;
  * @author  Wesley Kerr
  */
 public class Viewer extends JFrame {
-   
+
     /** Creates a new instance of Viewer */
     public Viewer() {
         addComponents();
         addListeners();
         show();
     }
-    
+
     private void addComponents() {
         menuBar = new ProgramMenuBar();
         igp     = new InitialGlobalPanel();
         fgp     = new FinalGlobalPanel();
         ilp     = new InitialLocalPanel();
         flp     = new FinalLocalPanel();
-        
+
         getContentPane().setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -40,7 +40,7 @@ public class Viewer extends JFrame {
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 0.5;
         getContentPane().add(igp, gridBagConstraints);
-        
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -49,7 +49,7 @@ public class Viewer extends JFrame {
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 0.5;
         getContentPane().add(fgp, gridBagConstraints);
-        
+
         gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -71,7 +71,7 @@ public class Viewer extends JFrame {
         setJMenuBar(menuBar);
         setSize(1024, 768);
     }
-    
+
     private void addListeners() {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
@@ -83,20 +83,20 @@ public class Viewer extends JFrame {
             }
         });
     }
-    
+
     public void loadNewValues() {
         ValueDialog vd = new ValueDialog(this);
         vd.pack();
         vd.show();
     }
-    
+
     public void update() {
         igp.repaint();
         fgp.repaint();
         ilp.repaint();
         flp.repaint();
     }
-    
+
     private ProgramMenuBar menuBar;
     private InitialGlobalPanel igp;
     private FinalGlobalPanel fgp;

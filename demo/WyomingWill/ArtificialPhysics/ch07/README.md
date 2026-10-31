@@ -23,7 +23,8 @@ in this folder as he left it, and ported to Lua operation for operation.
 (`forclaude.zip`, folder `code.7.04`), April 2004: the simulator behind
 the FAABS III paper (Kerr, Spears et al., *Two formal gas models for
 multi-agent sweeping and obstacle avoidance*, 2004) and the start of
-Kerr's thesis Ch. 5. Taken as it is, but for line endings (CRLF to LF);
+Kerr's thesis Ch. 5. Taken as it is, but for line endings (CRLF to LF)
+and trailing spaces (removed; neither changes what the Java does);
 left out are the compiled classes, NetBeans' `.nbattrs` and one 19 MB
 output file (`AverageSpeed/experiments/output.txt`). His drivers write to
 `C:\cygwin\home\wkerr\repos\FAABSIII\…`; their output files beside them
@@ -319,7 +320,8 @@ with Kerr's own logs of the runs behind the figures.
 | `kerr2005.sh` | Builds it (in a temporary copy) and reruns a sample of his settings into `kerr2005_runs.txt` (about an hour on two cores; needs a JDK) |
 | `kerr2005_runs.txt` | That sample: 225 runs |
 
-Taken as it is but for line endings (CRLF to LF); left out are the
+Taken as it is but for line endings (CRLF to LF) and trailing spaces
+(removed); left out are the
 compiled classes, NetBeans' `.nbattrs`, two bitmaps, his IROS logs and his
 derived summaries (`log/thesis/composite`, `statsig`). Two of his files do
 not compile on a current JDK (`util/ImageSaver.java` needs the JPEG codec

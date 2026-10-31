@@ -25,32 +25,32 @@ public class KTPhysics
    public double mass = 6.63e-26;     // Mass of argon atom (kg)
 
    private PhysicsInterface physics;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public KTPhysics(String className)
    {
       double[] temp = { 25, 273, 350 };
-      
+
       int runs = 20;
       int timeSteps = 2000;
-      
+
       PC.closed = true;
       PC.physicsClass = className;
-      
+
       double[][] avgSpeed = new double[temp.length][runs];
       double[][] error1 = new double[temp.length][runs];
       double[][] error2 = new double[temp.length][runs];
-      
+
       double[] maxSpeed = new double[temp.length];
       boolean cont = true;
-      
+
       PC.L = 1e-6;
       PC.length = 1;
       PC.ncell_x = 10;
       PC.ncell_y = 10;
       PC.npart = 500;
       PC.T = 273;
-      
+
       try
       {
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\AverageSpeed\\experiments\\";
@@ -59,7 +59,7 @@ public class KTPhysics
          for (int i = 0; i < temp.length; ++i)
          {
             PC.T = temp[i];
-            
+
             for (int j = 0; j < runs; ++j)
             {
                System.out.println("Temp " + temp[i] + " Run " + j);
@@ -82,7 +82,7 @@ public class KTPhysics
                   avg = avg / (double) PC.npart;
                   avgSpeed[i][j] += avg;
                }
-               
+
                avgSpeed[i][j] /= (double) timeSteps;
                double theory1 = 0.25*Math.sqrt(8.0*Math.PI*boltz*temp[i]/mass);
                error1[i][j] = Math.abs(avgSpeed[i][j] - theory1) / maxSpeed[i];
@@ -104,7 +104,7 @@ public class KTPhysics
          exp.printStackTrace();
       }
    }
-   
+
    private void createPhysics()
    {
       try
@@ -120,7 +120,7 @@ public class KTPhysics
          System.exit(0);
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

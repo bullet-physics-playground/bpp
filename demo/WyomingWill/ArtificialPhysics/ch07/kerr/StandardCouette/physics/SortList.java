@@ -18,18 +18,18 @@ public class SortList
    public int[][] cell_n;
    public int[] index;
    public int[] Xref;
-   
+
    /** Creates a new instance of SortList */
    public SortList()
    {
       initLists(1,1,1);
    }
-   
+
    public SortList(int ncell_inx, int ncell_iny, int npart_in)
    {
       initLists(ncell_inx, ncell_iny, npart_in);
    }
-   
+
    private void initLists(int ncell_inx, int ncell_iny, int npart_in)
    {
       ncell_x = ncell_inx;
@@ -38,7 +38,7 @@ public class SortList
       cell_n = new int[ncell_y][ncell_x];
       index = new int[ncell_y*ncell_x];
       Xref = new int[npart];
-      
+
       for (int i = 0; i < ncell_y; ++i)
       {
          for (int j = 0; j < ncell_x; ++j)
@@ -47,7 +47,7 @@ public class SortList
             index[i*ncell_x + j] = 0;
          }
       }
-      
+
       for (int i = 0; i < npart; ++i)
          Xref[i] = 0;
    }

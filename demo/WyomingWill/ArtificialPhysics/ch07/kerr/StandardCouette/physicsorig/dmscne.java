@@ -2,7 +2,7 @@
 // This version simulates planar Couette flow
 package physicsorig;
 
-public class dmscne 
+public class dmscne
 {
      //* Initialize constants  (particle mass, diameter, etc.)
      public final double pi = 3.141592654;
@@ -14,13 +14,13 @@ public class dmscne
      public double L = 1e-6;              // System size is one micron
      public double Volume = L*L*L;        // Volume of the system
 
-     public int npart = 2000; 
+     public int npart = 2000;
      public double eff_num = density*L*L*L/npart;
 
      public double mfp = Volume/(Math.sqrt(2.0)*pi*diam*diam*npart*eff_num);
      public double mpv = Math.sqrt(2*boltz*T/mass);  // Most probable initial velocity
 
-     public double vwall_m = PhysicsConstants.vwall_m; //0.2; 
+     public double vwall_m = PhysicsConstants.vwall_m; //0.2;
 
      public double vwall = vwall_m * Math.sqrt(5./3. * boltz*T/mass);
 
@@ -58,7 +58,7 @@ public class dmscne
      {
         seed.seed = 1;       // Initial seed for rand (DO NOT USE ZERO)
         int i;
-        for( i=1; i<=npart; i++ ) 
+        for( i=1; i<=npart; i++ )
         {
            x.set(i, L*rand.rand2(seed));        // Assign random positions
 
@@ -81,11 +81,11 @@ public class dmscne
 
         strikeSum.set(0.0);     // Count strikes on each wall
      }
-     
+
      public void timeStep()
      {
         //* Move all the particles
-        Matrix delv = new Matrix(2);  
+        Matrix delv = new Matrix(2);
         delv.set(0.0);
 
         mover.mover2( x, v, npart, L, mpv, vwall, tau, strikes, delv, seed );
@@ -102,9 +102,9 @@ public class dmscne
 
         //* After initial transient, accumulate statistical samples
      }
-   
+
    /*
-   public static void main(String[] args) 
+   public static void main(String[] args)
    {
      //* Initialize constants  (particle mass, diameter, etc.)
      final double pi = 3.141592654;
@@ -117,7 +117,7 @@ public class dmscne
      double Volume = L*L*L;        // Volume of the system
 
      //cout << "Enter number of simulation particles: ";
-     int npart = 2000; 
+     int npart = 2000;
      //cin >> npart;
      double eff_num = density*L*L*L/npart;
 
@@ -127,7 +127,7 @@ public class dmscne
      double mpv = Math.sqrt(2*boltz*T/mass);  // Most probable initial velocity
 
      //cout << "Enter wall velocity as Mach number: ";
-     double vwall_m = 0.2; 
+     double vwall_m = 0.2;
      //cin >> vwall_m;
 
      double vwall = vwall_m * Math.sqrt(5./3. * boltz*T/mass);
@@ -141,11 +141,11 @@ public class dmscne
      Matrix v = new Matrix(npart,3);
 
      int i;
-     for( i=1; i<=npart; i++ ) 
+     for( i=1; i<=npart; i++ )
      {
         x.set(i, L*rand.rand2(seed));        // Assign random positions
         //x.set(i, L*Math.random());
-        
+
         // Initial velocities are Maxwell-Boltzmann distributed
         v.set(i,1, Math.sqrt(boltz*T/mass) * randn.randn2(seed));
         v.set(i,2, Math.sqrt(boltz*T/mass) * randn.randn2(seed));
@@ -191,11 +191,11 @@ public class dmscne
      //cout << "Enter total number of time steps: ";
      int nstep = 1000;
      //cin >> nstep;
-     int istep; 
-     for( istep = 1; istep<=nstep; istep++ ) 
+     int istep;
+     for( istep = 1; istep<=nstep; istep++ )
      {
         //* Move all the particles
-        Matrix delv = new Matrix(2);  
+        Matrix delv = new Matrix(2);
         delv.set(0.0);
 
         mover.mover2( x, v, npart, L, mpv, vwall, tau, strikes, delv, seed );
@@ -211,22 +211,22 @@ public class dmscne
         colSum += col;  // Increment collision count
 
         //* After initial transient, accumulate statistical samples
-        if(istep > nstep/10) 
+        if(istep > nstep/10)
         {
 
            sampler.sampler2(x,v,npart,L,sampData);
            // Cummulative velocity change for particles striking walls
-           dvtot.inc(1, delv.get(1));          
+           dvtot.inc(1, delv.get(1));
            dvtot.inc(2, delv.get(2));
 
-           dverr.inc(1, delv.get(1)*delv.get(1));  
+           dverr.inc(1, delv.get(1)*delv.get(1));
            dverr.inc(2, delv.get(2)*delv.get(2));
 
            tsamp += tau;
         }
 
         //* Periodically display the current progress
-        if( (istep%100) < 1 )  
+        if( (istep%100) < 1 )
         {
            System.out.println("Done " + istep + " of " + nstep + " steps; " +
                               colSum + " collisions");
@@ -234,10 +234,10 @@ public class dmscne
                               strikeSum.get(2) + " (right)");
         }
      }
-     
+
      //* Normalize the accumulated statistics
      int nsamp = sampData.nsamp;
-     for( i=1; i<=ncell; i++ ) 
+     for( i=1; i<=ncell; i++ )
      {
         sampData.ave_n[i] *= (eff_num/(Volume/ncell))/nsamp;
         sampData.ave_ux[i] /= nsamp;
@@ -263,14 +263,14 @@ public class dmscne
      System.out.println("Force per unit area is");
      System.out.println("Left wall:  " + force.get(1) + " +/- " + ferr.get(1));
      System.out.println("Right wall: " + force.get(2) + " +/- " + ferr.get(2));
-     
+
      double vgrad = 2*vwall/L;    // Velocity gradient
      double visc = 0.5*(-force.get(1)+force.get(2))/vgrad;  // Average viscosity
      double viscerr = 0.5*(ferr.get(1)+ferr.get(2))/vgrad;  // Error
 
      System.out.println("Viscosity = " + visc + " +/- " + viscerr + "N s/m^2");
      double eta = 5.*pi/32.*mass*density*(2./Math.sqrt(pi)*mpv)*mfp;
-     
+
      System.out.println("Theoretical value of viscoisty is " + eta + "N s/m^2");
    }*/
 }

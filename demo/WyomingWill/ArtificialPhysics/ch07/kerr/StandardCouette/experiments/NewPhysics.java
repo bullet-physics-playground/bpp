@@ -22,27 +22,27 @@ import shared.SquareObstacle;
 public class NewPhysics
 {
    private boolean one = true;
-   
+
    private PhysicsInterface physics;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public NewPhysics(String className)
    {
       double[] wallSpeeds = { 0.65, 1.2, 1.792 };
-      
+
       int runs = 10;
       int timeSteps = 2000;
-      
+
       PC.closed = false;
       PC.physicsClass = className;
-      
+
       PC.L = 1e-6;
       PC.length = 10;
       PC.ncell_x = 7;
       PC.ncell_y = 70;
       PC.npart = 500;
       PC.T = 273;
-      
+
       PC.direction0 = -1;
       PC.direction1 = 1;
 
@@ -54,10 +54,10 @@ public class NewPhysics
       double[] count = new double[PC.ncell_x];
       double[] instAvgSpeed = new double[PC.ncell_x];
       double[] maxVelocity = new double[wallSpeeds.length];
-      
+
       double[][] theory = new double[wallSpeeds.length][PC.ncell_x];
       double[][] maxError = new double[wallSpeeds.length][PC.ncell_x];
-      
+
       try
       {
 
@@ -70,7 +70,7 @@ public class NewPhysics
             createPhysics();
             maxVelocity[i] = physics.getRightWall();
          }
-         
+
          for (int i = 0; i < wallSpeeds.length; ++i)
          {
             if (one)
@@ -78,7 +78,7 @@ public class NewPhysics
             else
                PC.vwallL_m = wallSpeeds[i];
             PC.vwallR_m = wallSpeeds[i];
-            
+
             for (int j = 0; j < runs; ++j)
             {
                System.out.println("WallSpeed " + wallSpeeds[i] + " Run " + j);
@@ -87,9 +87,9 @@ public class NewPhysics
                {
                   for (int s = 0; s < PC.ncell_x; ++s)
                      instAvgSpeed[s] = count[s] = 0;
-                  
+
                   physics.timeStep();
-                  
+
                   double[][] x = physics.x;
                   double[][] v = physics.v;
                   for (int s = 0; s < PC.npart; ++s)
@@ -99,11 +99,11 @@ public class NewPhysics
                      instAvgSpeed[jx] += v[s][1];
                      count[jx] += 1;
                   }
-                  
+
                   for (int s = 0; s < PC.ncell_x; ++ s)
                      avgSpeed[i][j][s] += (instAvgSpeed[s] / count[s]); /// maxVelocity[i];
                }
-               
+
                System.out.println("NumCollisions " + PC.colSum);
                for (int k = 0; k < PC.ncell_x; ++k)
                {
@@ -112,7 +112,7 @@ public class NewPhysics
                }
             }
          }
-         
+
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\StandardCouette\\experiments\\";
          BufferedWriter out = new BufferedWriter(new FileWriter(file + "newphysics.txt"));
          for (int i = 0; i < wallSpeeds.length; ++i)
@@ -140,7 +140,7 @@ public class NewPhysics
          exp.printStackTrace();
       }
    }
-   
+
    private void createPhysics()
    {
       try
@@ -156,12 +156,12 @@ public class NewPhysics
          System.exit(0);
       }
    }
-   
+
    private void fillTheoryOne(double wallSpeed, double[] theory, double[] maxError)
    {
       double width = (PC.L / PC.ncell_x);
       double middle = (PC.L / PC.ncell_x) / 2.0;
-         
+
       System.out.println("ncell_x " + PC.ncell_x);
       PC.vwallL_m = 0;
       PC.vwallR_m = wallSpeed;
@@ -170,7 +170,7 @@ public class NewPhysics
          createPhysics();
          double x = ((((double)j)*width)+middle);
          double vwall = physics.getRightWall();
-               
+
          theory[j] = (x / PC.L)*vwall;
          if (Math.abs(theory[j]) > Math.abs(theory[j] - physics.getRightWall()))
             maxError[j] = Math.abs(theory[j]);
@@ -179,12 +179,12 @@ public class NewPhysics
          System.out.println("Max Error " + j + " " + maxError[j]);
       }
    }
-   
+
    private void fillTheoryTwo(double wallSpeed, double[] theory)
    {
       double width = (PC.L / PC.ncell_x);
       double middle = (PC.L / PC.ncell_x) / 2.0;
-         
+
       PC.vwallL_m = wallSpeed;
       PC.vwallR_m = wallSpeed;
       for (int j = 0; j < PC.ncell_x; ++j)
@@ -193,7 +193,7 @@ public class NewPhysics
          double x = ((((double)j)*width)+middle);
          double vwallL = physics.getLeftWall();
          double vwallR = physics.getRightWall();
-         
+
          double newL = PC.L / 2.0;
          double newX = x - newL;
          if (x < newL)
@@ -207,7 +207,7 @@ public class NewPhysics
          }
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

@@ -14,16 +14,16 @@ import java.awt.event.*;
  * @author  wkerr
  */
 public class ButtonPanel extends JPanel {
-    
+
     /** Creates a new instance of ButtonPanel */
     public ButtonPanel() {
         init();
         addListeners();
     }
-    
+
     private void init() {
         setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -52,14 +52,14 @@ public class ButtonPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         add(lastButton, gbc);
     }
-    
+
     private void addListeners() {
         firstButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().first();
             }
         });
-        
+
         nextButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().inc();
@@ -78,7 +78,7 @@ public class ButtonPanel extends JPanel {
             }
         });
     }
-    
+
     private JButton firstButton = new JButton("First");
     private JButton nextButton = new JButton("Next");
     private JButton prevButton = new JButton("Previous");

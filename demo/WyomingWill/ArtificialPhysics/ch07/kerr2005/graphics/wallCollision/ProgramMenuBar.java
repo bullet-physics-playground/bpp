@@ -20,13 +20,13 @@ public class ProgramMenuBar extends JMenuBar {
         addComponents();
         addListeners();
     }
-    
+
     private void addComponents() {
         fileMenu.add(exitMenuItem);
         fileMenu.add(loadMenuItem);
         add(fileMenu);
     }
-    
+
     private void addListeners() {
         exitMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -37,16 +37,16 @@ public class ProgramMenuBar extends JMenuBar {
                 }
             }
         });
-        
+
         loadMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Observer.inst().loadNewValues();
             }
         });
     }
-    
+
     private JMenu fileMenu     = new JMenu("File");
-    
+
     private JMenuItem loadMenuItem          = new JMenuItem("Load");
     private JMenuItem exitMenuItem          = new JMenuItem("Exit");
 }

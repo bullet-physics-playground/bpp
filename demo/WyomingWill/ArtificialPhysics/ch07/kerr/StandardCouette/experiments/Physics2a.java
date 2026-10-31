@@ -22,17 +22,17 @@ import shared.SquareObstacle;
 public class Physics2a
 {
    public boolean one = true;
-   
+
    public int ncell_x = 20;
    public double L = 1e-6;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public Physics2a()
    {
       double[] wallSpeeds =
       { 0.65 }; //, 1.25, 1.792, 10.0 };
       //{ 0.65, 1.25, 1.792, 2.5, 4.0 };
-      
+
       int runs = 1;
       int timeSteps = 2000;
 
@@ -40,11 +40,11 @@ public class Physics2a
       double[][][] error = new double[wallSpeeds.length][runs][ncell_x];
       double[] count = new double[ncell_x];
       double[] instAvgSpeed = new double[ncell_x];
-      
+
       double[][] theory = new double[wallSpeeds.length][ncell_x];
-      
+
       physics.PhysicsConstants.npart = 2000;
-      
+
       try
       {
          for (int i = 0; i < wallSpeeds.length; ++i)
@@ -58,7 +58,7 @@ public class Physics2a
          for (int i = 0; i < wallSpeeds.length; ++i)
          {
             physics.PhysicsConstants.vwall_m = wallSpeeds[i];
-            
+
             for (int j = 0; j < runs; ++j)
             {
                physics.CouettePhysics physics = new physics.CouettePhysics();
@@ -66,9 +66,9 @@ public class Physics2a
                {
                   for (int s = 0; s < PC.ncell_x; ++s)
                      instAvgSpeed[s] = count[s] = 0;
-                  
+
                   physics.timeStep();
-                  
+
                   double[][] x = physics.x;
                   double[][] v = physics.v;
                   for (int s = 0; s < PC.npart; ++s)
@@ -79,13 +79,13 @@ public class Physics2a
                      instAvgSpeed[jx] += v[s][1];
                      count[jx] += 1;
                   }
-                  
+
                   for (int s = 0; s < PC.ncell_x; ++ s)
                      avgSpeed[i][j][s] += instAvgSpeed[s] / count[s];
                }
                //System.out.println("Wall L " + PC.strikeSum[0] + " R " + PC.strikeSum[1]);
                //System.out.println("Collsion Count " + PC.colSum);
-               
+
                for (int k = 0; k < PC.ncell_x; ++k)
                {
                   avgSpeed[i][j][k] /= (double) timeSteps;
@@ -93,7 +93,7 @@ public class Physics2a
                }
             }
          }
-         
+
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\StandardCouette\\experiments\\";
          BufferedWriter out = new BufferedWriter(new FileWriter(file + "physics2a.txt"));
          for (int i = 0; i < wallSpeeds.length; ++i)
@@ -120,28 +120,28 @@ public class Physics2a
          exp.printStackTrace();
       }
    }
-   
+
    private void fillTheoryOne(double wallSpeed, double[] theory)
    {
       double width = (L / ncell_x);
       double middle = (L / ncell_x) / 2.0;
-         
+
       physics.PhysicsConstants.vwall_m = wallSpeed;
       for (int j = 0; j < ncell_x; ++j)
       {
          physics.CouettePhysics physics = new physics.CouettePhysics();
          double x = ((((double)j)*width)+middle);
          double vwall = physics.vwall;
-               
+
          theory[j] = vwall * (x / PC.L);
       }
    }
-   
+
    private void fillTheoryTwo(double wallSpeed, double[] theory)
    {
       double width = (L / ncell_x);
       double middle = (L / ncell_x) / 2.0;
-         
+
       physics.PhysicsConstants.vwall_m = wallSpeed;
       for (int j = 0; j < ncell_x; ++j)
       {

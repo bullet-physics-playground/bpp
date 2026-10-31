@@ -23,28 +23,28 @@ import env.Coverage;
  * @author  Wesley Kerr
  */
 public class GA {
-    
+
     public BufferedWriter popLog;
     public BufferedWriter bestLog;
-    
+
     public static int popSize = 50;
     public static final double M = 1.0 / ((double) FSM.numStates*FSM.numInputs);
     public static final double R = 0.6;
     public static final double UP = 0.5;
-    
+
     private FSM     best;
     private double  bestFitness = -1;
     private boolean newBest     = false;
-    
+
     private FSM[] pop;
     private int[] sh;
     private double avg;
-    
+
     protected Parameters p;
-    
+
     /** Creates a new instance of GA */
     public GA() {
-        
+
         p = new Parameters();
         p.robotType = "robot.FSMRobot";
         p.n         = 20;
@@ -53,7 +53,7 @@ public class GA {
         p.height    = 5000;
         p.ncell_x   = 50;
         p.ncell_y   = 250;
-        
+
         FSM.loadPrefs();
         String file = ClassLoader.getSystemClassLoader().getResource("log/").getPath();
         try {
@@ -64,7 +64,7 @@ public class GA {
             System.exit(0);
         }
     }
-    
+
     public void initializePopulation() {
         pop = new FSM[popSize];
         for (int i = 0; i < popSize; ++i) {
@@ -72,7 +72,7 @@ public class GA {
             pop[i].generateRandom();
         }
     }
-    
+
     private void runExperiment(double[] pcts, int i) {
         Environment.inst().init(p);
         for (int j = 0; j < p.n; ++j) {
@@ -94,24 +94,24 @@ public class GA {
         pcts[2] += (double)Environment.inst().countRobotsDone() / (double)p.n;
         pcts[3] += 1.0;
     }
-    
+
     public void evaluate() {
         avg = 0;
-        
+
         String path = ClassLoader.getSystemClassLoader().getResource("data/").getPath();
         for (int i = 0; i < pop.length; ++i) {
             if (pop[i].getFitness() > 0) {
                 avg += pop[i].getFitness();
                 continue;
             }
-            
+
             double[] pcts = new double[4];
             p.obstaclePath = path + "CB.txt";
             runExperiment(pcts, i);
 
             p.obstaclePath = path + "L.txt";
             runExperiment(pcts, i);
-            
+
             for (int pct = 30; pct < 40; pct += 10) {
                 for (int tests = 0; tests < 1; ++tests) {
                     p.obstaclePath = path + "course_"+pct+"_"+tests+".txt";
@@ -124,7 +124,7 @@ public class GA {
             pcts[2] /= pcts[3];
 
             double fitness = 0.45*pcts[0] + 0.45*pcts[1] + 0.1*pcts[2];
-            
+
             if (fitness < 1e-9) {
                 fitness = 1e-9;
             }
@@ -139,15 +139,15 @@ public class GA {
         }
         avg /= (double) pop.length;
     }
-    
+
     public void selection() {
         int[] children = new int[pop.length];
         sh             = new int[pop.length];
         double[] f     = new double[pop.length];
-        
+
         double prior = (double) pop[0].getFitness() / avg;
         f[0] = prior;
-        
+
         System.out.println("Average Fitness " + avg);
         //System.out.println("F[0] " + f[0]);
         for (int i = 1; i < f.length; ++i) {
@@ -155,7 +155,7 @@ public class GA {
             prior = f[i];
             //System.out.println("F[" + i + "] " + f[i]);
         }
-        
+
         double r = Rand.ssrand();
         int index = 0;
         int count = 0;
@@ -169,13 +169,13 @@ public class GA {
                 index++;
             }
         }
-        
+
         FSM[] off = new FSM[pop.length];
         count = 0;
         for (int i = 0; i < children.length; ++i) {
             if (children[i] == 0)
                 continue;
-            
+
             for (int j = 0; j < children[i]; ++j) {
                 FSM d = new FSM();
                 d.copy(pop[i]);
@@ -185,10 +185,10 @@ public class GA {
             }
         }
         pop = off;
-        
+
         placeBestAtWorst();
     }
-    
+
     private void placeBestAtWorst() {
         double worst = pop[0].getFitness();
         int index = 0;
@@ -210,20 +210,20 @@ public class GA {
             sh[j] = temp;
         }
     }
-    
+
     public void recombination() {
         shuffle();
         for (int i = 0; i < R*pop.length; i+=2) {
             pop[sh[i]].uniform(UP, pop[sh[i+1]]);
         }
     }
-    
+
     public void mutation() {
         for (int i = 0; i < pop.length; ++i) {
             pop[i].mutate(M);
         }
     }
-    
+
     public void outputPopulation(int gen) {
         try {
             popLog.write("Generation: " + gen + "\n");
@@ -236,11 +236,11 @@ public class GA {
             System.err.println("Error Writing to File " + e.getMessage());
         }
     }
-    
+
     public void outputBest(int gen) {
-        if (!newBest) 
+        if (!newBest)
             return;
-        
+
         try {
             bestLog.write(gen + " " + best + " " + bestFitness + "\n");
             bestLog.flush();
@@ -249,7 +249,7 @@ public class GA {
             System.err.println("Error Writing Best " + e.getMessage());
         }
     }
-    
+
     public void outputAverageFitness(int gen) {
         try {
             popLog.write(gen + " AvgFitness " + avg + "\n");
@@ -266,11 +266,11 @@ public class GA {
             System.err.println("Error closing file " + e.getMessage());
         }
     }
-    
+
     public static void main(String[] args) {
         Logger.inst().setDebugLevels("");
         GA ga = new GA();
-        
+
         ga.initializePopulation();
         ga.evaluate();
         ga.outputPopulation(0);
@@ -285,7 +285,7 @@ public class GA {
             ga.outputBest(i+1);
             ga.outputAverageFitness(i+1);
         }
-        
+
         ga.finish();
     }
 }

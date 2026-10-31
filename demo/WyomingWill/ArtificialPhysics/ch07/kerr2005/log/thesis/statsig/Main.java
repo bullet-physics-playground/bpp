@@ -12,12 +12,12 @@ public class Main {
     outputN.append("myP = zeros(1,1);\n");
     outputN.append(variables[index]+"H_n = zeros("+((variables.length-1)*18)+",1);\n");
     int count = 0;
-    for (int i = 0; i < variables.length; ++i) { 
+    for (int i = 0; i < variables.length; ++i) {
       if (i == index) continue;
 
       for (int j = 5; j < 35; j+=5) {
         ++count;
-        outputN.append("[myP, " + variables[index]+"H_n(" + count + ",1)] = ranksum("); 
+        outputN.append("[myP, " + variables[index]+"H_n(" + count + ",1)] = ranksum(");
         outputN.append(variables[index] + "_N_" + j + "_be, ");
         outputN.append(variables[i] + "_N_" + j + "_be, " + pValue + ");\n");
 
@@ -25,7 +25,7 @@ public class Main {
         outputN.append("[myP, " + variables[index]+"H_n(" + count + ",1)] = ranksum(");
         outputN.append(variables[index] + "_N_" + j + "_to, ");
         outputN.append(variables[i] + "_N_" + j + "_to, " + pValue + ");\n");
-        
+
         ++count;
         outputN.append("[myP, " + variables[index]+"H_n(" + count + ",1)] = ranksum(");
         outputN.append(variables[index] + "_N_" + j + "_ti, ");
@@ -67,9 +67,9 @@ public class Main {
         BufferedWriter out1 = new BufferedWriter(new FileWriter("matlab_n.m"));
         out1.write(m.outputN.toString());
         out1.close();
-       
+
         BufferedWriter out2 = new BufferedWriter(new FileWriter("matlab_pct.m"));
-        out2.write(m.outputPct.toString()); 
+        out2.write(m.outputPct.toString());
         out2.close();
     } catch (Exception e) {
         System.out.println("ERROR " + e.getMessage());

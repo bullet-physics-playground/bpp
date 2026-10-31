@@ -17,55 +17,55 @@ import sensor.GoalSensor;
  * @author  wkerr
  */
 public class Simple extends Robot {
-    
+
     private Random rand;
-    
+
     private int   previous;
     private float distance;
     private float turn;
     private float divisor;
-    
+
     private SonarSensor ss;
     private GoalSensor  gs;
-    
+
     /** Creates a new instance of Simple */
     public Simple() {
         super();
-        
+
         distance = VMAX;
         turn = 0;
         previous = 0;
-        
+
         divisor = 360.0f / 24.0f;
     }
-    
+
     public void setId(int id) {
         this.id = id;
-        
+
         ss = new SonarSensor(id, 24);
         gs = new GoalSensor(id);
 
         rand = new Random(System.currentTimeMillis() + id);
     }
-    
+
     public float getDistance() {
         return distance;
     }
-    
+
     public float getSpeed() {
         return distance;
     }
-    
+
     public float getTurn() {
         return turn;
     }
-    
+
     public void move() {
-        
+
         ss.findSensorReadings();
         float[] bearings = ss.getBearings();
         float[] distances = ss.getDistances();
-        
+
         float goal = gs.getGoalBearing();
 
         if (gs.nearGoal() && !startTimer) {
@@ -76,36 +76,36 @@ public class Simple extends Robot {
         } else if (!gs.nearGoal() && startTimer) {
             startTimer = false;
         }
-        
+
         if (timer >= 10 && gs.nearGoal()) {
             done = true;
-            turn = 0; 
+            turn = 0;
             distance = 0;
             return;
         }
-        
+
         while (goal < 0) {
             goal += 360.0f;
         }
-        
+
         int choice = runAlgorithm(distances, goal);
-        
+
         float newAngle = goal - (45.0f * (float)choice);
         while (newAngle < 0) {
             newAngle += 360;
         }
-        
+
         turn = newAngle;
         distance = determineSafeDistance(ss, turn);
     }
-    
+
     protected int runAlgorithm(float[] distances, float goal) {
         ArrayList l = new ArrayList();
         double left = 1.0;
         double min  = 0;
-        
+
         boolean[] options = getOptions(distances, goal);
-        
+
         int previous = (int) (goal / 45.0f);
         previous = previous == 8 ? 0 : previous;
         if (options[previous]) {
@@ -114,7 +114,7 @@ public class Simple extends Robot {
             min = 0.6;
             left -= 0.6;
         }
-        
+
         double split = left / 3.0;
         if (!options[3] && options[2]) {
             PctStorage pcs = new PctStorage(2, min, min+split);
@@ -122,14 +122,14 @@ public class Simple extends Robot {
             min += split;
             left -= split;
         }
-            
+
         if (!options[5] && options[6]) {
             PctStorage pcs = new PctStorage(6, min, min+split);
             l.add(pcs);
             min += split;
             left -= split;
         }
-        
+
         split = left / 2.0;
         if (options[0]) {
             PctStorage pcs = new PctStorage(0, min, min+split);
@@ -137,7 +137,7 @@ public class Simple extends Robot {
             min += split;
             left -= split;
         }
-        
+
         double count = countOptions(options);
         split = left / count;
         for (int j = 0; j < options.length; ++j) {
@@ -148,10 +148,10 @@ public class Simple extends Robot {
                 left -= split;
             }
         }
-        
+
         return chooseOption(l);
     }
-    
+
     protected double countOptions(boolean[] options) {
         double count = 0;
         for (int i = 0; i < options.length; ++i) {
@@ -160,9 +160,9 @@ public class Simple extends Robot {
         }
         return count;
     }
-    
+
     protected boolean[] getOptions(float[] distances, float goal) {
-        
+
         float safeZone = 3*VMAX;
         boolean[] options = new boolean[8];
         float angle = goal;
@@ -172,7 +172,7 @@ public class Simple extends Robot {
             if (distances[index] > safeZone) {
                 options[i] = true;
             }
-            
+
             angle -= 45.0f;
             if (angle < 0) {
                 angle += 360.0f;
@@ -180,7 +180,7 @@ public class Simple extends Robot {
         }
         return options;
     }
-    
+
     protected int chooseOption(ArrayList l) {
         PctStorage pcs = new PctStorage(0, 0, 1);
         double random = rand.nextDouble();

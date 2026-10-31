@@ -24,43 +24,43 @@ public class APGasPhysics
 {
    public int ncell_x = 20;
    public double L = 1e-6;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public APGasPhysics()
    {
       double[] g =
       { 200, 400, 900 };
-      
+
       int runs = 10;
       int timeSteps = 100;
-      
+
       double[][] avgSpeed = new double[g.length][runs];
       double instAvgSpeed;
-      
+
       double[] theory1 = new double[g.length];
       double[] theory2 = new double[g.length];
-      
+
       double[] maxSpeed = new double[g.length];
       PC.npart = 50;
       PC.length = 1;
-      
+
       try
       {
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\AverageSpeed\\experiments\\";
          PC.out = new BufferedWriter(new FileWriter(file+"output.txt"));
-         
+
          for (int i = 0; i < g.length; ++i)
          {
             PC.G = g[i];
             PC.G2 = g[i];
-            
+
             double a = (2.0*Math.sqrt(PC.G*PC.FMAX) - (PC.G/ (1.5*PC.RAD)));
             theory1[i] = Math.sqrt((PC.npart-1)*a);
-            
+
             double b = 4.0 / (Math.sqrt(2.0)*Math.sqrt(3.0)*Math.sqrt(Math.PI));
             double c = Math.sqrt(PC.npart-1)*Math.sqrt(2.0*Math.sqrt(PC.G)*Math.sqrt(PC.FMAX) - (PC.G / (1.5*PC.RAD)));
             theory2[i] = b*c;
-            
+
             maxSpeed[i] = 0;
             for (int j = 0; j < runs; ++j)
             {
@@ -68,9 +68,9 @@ public class APGasPhysics
                for (int k = 0; k < timeSteps; ++k)
                {
                   instAvgSpeed = 0;
-                  
+
                   physics.timeStep();
-                  
+
                   double[][] x = physics.x;
                   double[][] v = physics.v;
                   for (int s = 0; s < PC.npart; ++s)
@@ -91,12 +91,12 @@ public class APGasPhysics
                      //PC.out.write("vy " + v[s][1] + " ");
                      //PC.out.write("speed " + currSpeed + " ");
                      //PC.out.write("\n");
-                     
+
                   }
-                  
+
                   avgSpeed[i][j] += instAvgSpeed / (double)PC.npart;
                }
-               
+
                double[][] x = physics.x;
                int count = 0;
                for (int s = 0; s < PC.npart; ++s)
@@ -110,7 +110,7 @@ public class APGasPhysics
             }
             System.out.println("Max Speed for g = " + g[i] + " " + maxSpeed);
          }
-         
+
          BufferedWriter out = new BufferedWriter(new FileWriter(file + "apgasphysics.txt"));
          for (int i = 0; i < g.length; ++i)
          {
@@ -135,7 +135,7 @@ public class APGasPhysics
          exp.printStackTrace();
       }
    }
-   
+
    /**
     * @param args the command line arguments
     */

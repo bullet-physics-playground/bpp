@@ -14,16 +14,16 @@ import java.util.Random;
  * @author  wkerr
  */
 public class ObstacleGenerator {
-    
+
     private Random rand = new Random();
-    
+
     /** Creates a new instance of ObstacleGenerator */
     public ObstacleGenerator(long seed) {
         if (seed != -1) {
             rand = new Random(seed);
         }
     }
-    
+
     public void generateCourses(int pct) {
         String path = ClassLoader.getSystemClassLoader().getResource("data/").getPath();
         for (int j = 0; j < 10; ++j) {
@@ -31,7 +31,7 @@ public class ObstacleGenerator {
             printObstacleCourse(path+"video_"+pct+"_"+j+".txt", prepareCourse(placed));
         }
     }
-    
+
     private double[][] preprocess(int nW, int nH) {
         double[][] d = new double[nH][nW];
         for (int i = 0; i < nH; ++i) {
@@ -41,10 +41,10 @@ public class ObstacleGenerator {
         }
         return d;
     }
-    
+
     private int checkForCycles(boolean[][] placed) {
         boolean[][] checkArray = new boolean[placed.length][placed[0].length];
-        
+
         LinkedList foundList = new LinkedList();
         boolean place = false;
         for (int i = 0; i < placed.length && !place; ++i) {
@@ -59,8 +59,8 @@ public class ObstacleGenerator {
                 }
             }
         }
-        
-        
+
+
         while (!foundList.isEmpty()) {
             Point p = (Point) foundList.removeFirst();
             if (p.x > 0) {
@@ -72,7 +72,7 @@ public class ObstacleGenerator {
                     foundList.addLast(p2);
                 }
             }
-            
+
             if (p.y > 0) {
                 if (!placed[p.y-1][p.x] && !checkArray[p.y-1][p.x]) {
                     checkArray[p.y-1][p.x] = true;
@@ -82,7 +82,7 @@ public class ObstacleGenerator {
                     foundList.addLast(p2);
                 }
             }
-            
+
             if (p.x < placed[0].length-1) {
                 if (!placed[p.y][p.x+1] && !checkArray[p.y][p.x+1]) {
                     checkArray[p.y][p.x+1] = true;
@@ -92,7 +92,7 @@ public class ObstacleGenerator {
                     foundList.addLast(p2);
                 }
             }
-            
+
             if (p.y < placed.length-1) {
                 if (!placed[p.y+1][p.x] && !checkArray[p.y+1][p.x]) {
                     checkArray[p.y+1][p.x] = true;
@@ -103,7 +103,7 @@ public class ObstacleGenerator {
                 }
             }
         }
-        
+
         int reachable = 0;
         int notReachable = 0;
         for (int i = 0; i < placed.length; ++i) {
@@ -115,7 +115,7 @@ public class ObstacleGenerator {
                 }
             }
         }
-        
+
         //System.out.println("Reachable " + reachable);
         //System.out.println("Not Reachable " + notReachable);
         boolean choice = reachable >= notReachable ? false : true;
@@ -126,21 +126,21 @@ public class ObstacleGenerator {
                 }
             }
         }
-        
+
         return Math.min(reachable, notReachable);
     }
-    
+
     public boolean[][] generate(double pct) {
         int numW = 40;
         int numH = 40;
-        
+
         boolean[][] placed = new boolean[numH][numW];
         double[][] d = preprocess(numW,numH);
-        
+
         double count = 0;
         double total = numW*numH;
         double coverage = 0.0;
-        
+
         int squareSize = 10;
         if (pct < 0.3) {
             squareSize = 5;
@@ -156,7 +156,7 @@ public class ObstacleGenerator {
                         if (placed[k][l]) {
                             continue;
                         }
-                        
+
                         placed[k][l] = true;
                         int newPlaced = checkForCycles(placed);
                         count += newPlaced;
@@ -170,7 +170,7 @@ public class ObstacleGenerator {
         System.out.println("coverage " + coverage);
         return placed;
     }
-    
+
     private boolean hasPath(boolean[][] placed) {
         boolean left = false;
         boolean right = false;
@@ -184,21 +184,21 @@ public class ObstacleGenerator {
         }
         return left || right;
     }
-    
+
     public ArrayList prepareCourse(boolean[][] placed) {
         Builder b = new Builder();
         return b.build(placed);
     }
-    
+
     public void printObstacleCourse(String file, ArrayList l) {
         double width = 400;
         double height = 400;
-        
+
         double squareWidth = width / 40.0;
         double squareHeight = height / 40.0;
-        
+
         double offsetY = 400;
-        
+
         try {
             BufferedWriter buf = new BufferedWriter(new FileWriter(file));
             Iterator iter = l.iterator();
@@ -213,10 +213,10 @@ public class ObstacleGenerator {
             }
             buf.close();
         } catch (IOException e) {
-            
+
         }
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -226,15 +226,15 @@ public class ObstacleGenerator {
             System.err.println(usage);
             System.exit(0);
         }
-        
+
         long seed       = Long.parseLong(args[0]);
-        
+
         ObstacleGenerator og = new ObstacleGenerator(seed);
         for (int i = 20; i < 30; i+=10) {
             og.generateCourses(i);
         }
     }
-    
+
 }
 
 class Point {

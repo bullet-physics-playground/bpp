@@ -18,16 +18,16 @@ import physicsorig.PhysicsConstants;
 public class OriginalPhysics
 {
    public static boolean one = false;
-   
+
    public static double L = 1e-6;
    public static int ncell_x = 20;
-   
+
    /** Creates a new instance of NonGraphicalMain */
    public OriginalPhysics()
    {
       double[] wallSpeeds =
       { 0.65, 1.792, 2.5 };
-      
+
       int runs = 1;
       int timeSteps = 2000;
 
@@ -35,11 +35,11 @@ public class OriginalPhysics
       double[][][] error = new double[wallSpeeds.length][runs][ncell_x];
       double[] count = new double[ncell_x];
       double[] instAvgSpeed = new double[ncell_x];
-      
+
       double[][] theory = new double[wallSpeeds.length][ncell_x];
-      
+
       physicsorig.PhysicsConstants.npart = 2000;
-      
+
       try
       {
          for (int i = 0; i < wallSpeeds.length; ++i)
@@ -49,7 +49,7 @@ public class OriginalPhysics
             else
                fillTheoryTwo(wallSpeeds[i], theory[i]);
          }
-         
+
          for (int i = 0; i < wallSpeeds.length; ++i)
          {
             physicsorig.PhysicsConstants.vwall_m = wallSpeeds[i];
@@ -60,9 +60,9 @@ public class OriginalPhysics
                {
                   for (int s = 0; s < ncell_x; ++s)
                      instAvgSpeed[s] = count[s] = 0;
-                  
+
                   physics.timeStep();
-                  
+
                   physicsorig.Matrix x = physics.x;
                   physicsorig.Matrix v = physics.v;
                   for (int s = 1; s <= PhysicsConstants.npart; ++s)
@@ -76,9 +76,9 @@ public class OriginalPhysics
                   for (int s = 0; s < ncell_x; ++ s)
                      avgSpeed[i][j][s] += instAvgSpeed[s] / count[s];
                }
-               
+
                System.out.println("Collsions " + physics.colSum);
-               System.out.println("Wall Striks " + physics.strikeSum.get(1) + " " + 
+               System.out.println("Wall Striks " + physics.strikeSum.get(1) + " " +
                                                    physics.strikeSum.get(2));
                for (int k = 0; k < ncell_x; ++k)
                {
@@ -87,7 +87,7 @@ public class OriginalPhysics
                }
             }
          }
-         
+
          String file = "C:\\cygwin\\home\\wkerr\\repos\\FAABSIII\\StandardCouette\\experiments\\";
          BufferedWriter out = new BufferedWriter(new FileWriter(file + "physicsorig.txt"));
          for (int i = 0; i < wallSpeeds.length; ++i)
@@ -113,28 +113,28 @@ public class OriginalPhysics
          exp.printStackTrace();
       }
    }
-   
+
    private void fillTheoryOne(double wallSpeed, double[] theory)
    {
       double width = (L / ncell_x);
       double middle = (L / ncell_x) / 2.0;
-         
+
       physicsorig.PhysicsConstants.vwall_m = wallSpeed;
       for (int j = 0; j < ncell_x; ++j)
       {
          physicsorig.dmscne physics = new physicsorig.dmscne();
          double x = ((((double)j)*width)+middle);
          double vwall = physics.vwall;
-               
+
          theory[j] = vwall * (x / L);
       }
    }
-   
+
    private void fillTheoryTwo(double wallSpeed, double[] theory)
    {
       double width = (L / ncell_x);
       double middle = (L / ncell_x) / 2.0;
-         
+
       physicsorig.PhysicsConstants.vwall_m = wallSpeed;
       for (int j = 0; j < ncell_x; ++j)
       {
