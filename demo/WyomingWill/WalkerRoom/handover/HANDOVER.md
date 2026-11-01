@@ -598,6 +598,10 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 (A `room-four.lua` and room code that appeared in a scratch copy of the repo on 31 October, from no known source, were set aside unused; this was written fresh.)
 
+## 4p. The pendant hold is still needed (1 November)
+
+William: the hold (each diag build's pendants held at their angle to the body by a joint that is not really there) went in because Bullet gives in a long chain of joints where real rigid braces would not; with joint warm-starting, is it still needed? Run without it (`data/s4p_nohold.md`; William's machine, `EXTRA='PENDANT_HOLD=false'`, the 8 buildable diag builds, nine rough terrains, 5 seeds): **every one much slower**, mean change −2.76 cm/s, rank correlation with the held ranking 0.24. Hoecken-Spears 4-bar diag 6.84 → 2.56, Chebyshev-Spears lift 51 diag 7.77 → 3.64, lift 62 diag 7.00 → 3.01, Chebyshev-Spears diag 6.97 → 3.59; the sliders and the low-lift originals lose 1.2-1.9 (Hoecken-Spears slider diag 6.23 → 5.00, Hoecken slider diag 5.39 → 3.86, Hoecken 4-bar diag 4.88 → 2.94, Chebyshev diag 4.50 → 2.92). Spears' 4-bar linkages jam even on 2 cm waves (lift 51 diag 1.35 against 8.10). Some runs came out at full speed backwards (−8.94 cm/s): traced here (Hoecken-Spears 4-bar diag, waves 2, seed 1), two cranks stop at 1.5 s, all four run backwards in jerks, the body bounces 9 cm higher than it rides, and the walker swings round to −121 degrees -- walking "forward" then carries it back down the track. **The hold stays**: it stands in for rigid braces against the simulation's give, which warm-starting has not removed; Klann, Jansen and Spears 4-bar have no braces holding their legs and need none.
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.
