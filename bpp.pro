@@ -405,8 +405,25 @@ linux:link_pkgconfig {
   # under -Wall -Wextra. Re-adding its include dir via -isystem (on top of
   # the -I already added by PKGCONFIG) marks it as a system header
   # directory, so the compiler suppresses warnings from those headers.
-  BULLET_INCDIR = $$system(pkg-config --cflags-only-I bullet)
-  QMAKE_CXXFLAGS += $$replace(BULLET_INCDIR, -I, -isystem )
+  !bundled_bullet {
+    BULLET_INCDIR = $$system(pkg-config --cflags-only-I bullet)
+    QMAKE_CXXFLAGS += $$replace(BULLET_INCDIR, -I, -isystem )
+  }
+}
+
+# Optional: Bullet 3.24 built with threads, for v:setThreads (more than one
+# core). Build it first with scripts/bullet-threads.sh, then
+#   qmake CONFIG+=bundled_bullet bpp.pro
+# Without it bpp uses the system Bullet, as always.
+bundled_bullet {
+  BULLET_MT = $$PWD/lib/bullet-mt
+  !exists($$BULLET_MT/lib/libBulletDynamics.a): error("bundled_bullet: run scripts/bullet-threads.sh first")
+  message(Using Bullet with threads from $$BULLET_MT)
+  PKGCONFIG -= bullet
+  QMAKE_CXXFLAGS += -isystem $$BULLET_MT/include/bullet
+  LIBS += $$BULLET_MT/lib/libBulletSoftBody.a $$BULLET_MT/lib/libBulletDynamics.a \
+          $$BULLET_MT/lib/libBulletCollision.a $$BULLET_MT/lib/libLinearMath.a
+  DEFINES += BT_THREADSAFE=1
 }
 
 SOURCES     += $$files("src/*.cpp", true)
