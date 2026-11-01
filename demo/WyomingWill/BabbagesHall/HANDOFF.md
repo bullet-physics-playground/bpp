@@ -28,7 +28,8 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
   and the **Digi-Comp II** (west 3: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
-  a cup of balls and a bought rotary damper).
+  a cup of balls and a bought rotary damper; each program has only its
+  parts on the board, and the operator's hand is shown).
   Covered bays wait for Kelvin's tide predictor (east 3), the Differential
   Analyser (west 4) and the Difference Engine (east 4).
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
@@ -181,6 +182,9 @@ there, in `release/`, or on the path; or set `BPP`.
   off the anchor's second finger, took up to 1.8 s to let go with the damper
   where the torque-and-cap had taken half a second. Measure such waits
   with the real drag, at both ends of its tolerance.
+- **An object's `pos` (and `trans`) is its drawing's**, which follows its
+  body only after a step: read a body that has just been placed from the
+  body (`getCenterOfMassPosition()`).
 - **`getCenterOfMassTransform()` is the body's own transform**, not a copy
   (and `getCenterOfMassPosition()` its own vector): keep a pose by copying
   it (`btTransform(tr:getRotation(), btVector3(p.x, p.y, p.z))`). Kept as
@@ -432,6 +436,15 @@ there, in `release/`, or on the path; or set `BPP`.
   William yet.** He pointed to a replica:
   www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
   fetched here).
+- **Done (2026-11-01): the hand, shown.** William asked to see it: a
+  drawn pointing hand (`parts/hand.scad`, its own file so the machine's parts
+  aren't remade) that goes to everything the operator does (switches,
+  flip-flops, knobs, START, the thread's hook, carrying balls from the
+  store and pockets to the top, winding under the board) and does it on
+  arrival; `hand` in the script, a queue of jobs, the machine busy while
+  it has any. The tour takes 23% longer (it ends near frame 121 000);
+  check-all allows 135 000. FINDINGS, "The hand, shown". **Not seen by
+  William yet.**
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

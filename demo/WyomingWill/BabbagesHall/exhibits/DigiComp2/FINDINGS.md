@@ -7,6 +7,59 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## The hand, shown (2026-11-01)
+
+William asked to see the hand: everything the operator does, which until
+now happened at once and unseen (switches and flip-flops set, START
+pushed, balls jumped from the store to the top). The hand is now drawn
+(`parts/hand.scad`: a pointing hand, without a forearm, turned so its
+palm rises beyond the finger: seen from the front, as the exhibit is,
+nothing of it hides the fingertip; William asked for both) and touches
+nothing; each thing it does waits for it to
+get there. It lifts 9 cm clear of the board, goes over at 60 cm/s,
+easing off and on, comes down onto the part and does it; with nothing to
+do it waits beside the board at the right, by the START lever. To wind
+the weight it goes round the board's right edge to the drum underneath.
+It visits only what needs changing (`SET A 37` touches the flip-flops
+that differ), and parts that aren't on the board (PARTS) it doesn't
+visit. The machine counts as busy while it has something to do, so the
+programs and their checks wait for it.
+
+Showing it found:
+
+- **R squared the wheel under waiting balls.** Setting the machine back
+  set the wheel square as well as putting the balls back, both at once.
+  With the hand carrying the balls, the balls already waiting stay put,
+  and squaring the wheel by a few degrees under them shoved the column up
+  the INPUT channel and off the board's top. The wheel is now squared only
+  when no ball is in it (which is also when the balls go into its notches).
+- **A ball's drawn position lags its body.** The script read where a ball
+  was from its drawing (`obj.pos`), which follows the body only after a
+  step. Set up twice in one instant, the balls all read as lying where
+  they were made, so the hand "carried back" all twelve and stacked them
+  past the top. Balls are read from their bodies now.
+- **The balls in the hand count as nothing.** Letting balls go at the top,
+  the hand stacks them on the column waiting in the INPUT channel. The
+  balls it was holding, over the top of that column, counted as part of
+  it, so the new ones went on above the hand, past the board's top, and
+  fell to the floor. And on its way from the store to the top the hand
+  passes over the overflow hole: the hand's watch for a ball there (at
+  any height) saw one, and a multiply read as having overflowed. A ball
+  in the hand is now neither waiting, in the collector, at rest, nor at
+  STOP or OVERFLOW.
+- **Refills are counted when picked up.** In AUTO a ball is checked at the
+  trip lever while the hand may be carrying others to the top: counted
+  when let go, a check made meanwhile came up short.
+- **The pockets under the plate** (STOP's and OVERFLOW's) can't be reached
+  by a hand: the plate is over them. The hand reaches the hole over each,
+  as you would with a magnet on a stick (a steel ball comes up through
+  the 14.5 mm hole).
+
+With the hand, the whole library (the tour) passed on its own and in
+the hall, 161 balls right, each program with only its parts. It takes longer: the tour ends
+at frame 120 880 (98 403 without the hand, 23% more), so `check-all.sh`
+allows 135 000 frames (135 600 in the hall).
+
 ## Each program with only its parts (2026-10-31)
 
 William asked for each program to show only the parts it needs, on the

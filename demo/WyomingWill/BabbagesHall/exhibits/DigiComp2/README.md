@@ -270,6 +270,13 @@ back. The plate's holes and lettering stay (they are cut in it), and so
 do the feeder, the MULTIPLY switch (every ball passes it) and the
 collector. A program without a `PARTS` line has the whole machine.
 
+**The hand** (the operator's) is shown doing all that: a pointing hand
+(its palm beyond the finger, so seen from the front nothing of it hides
+what the finger does) goes to each switch, flip-flop or knob it sets, the
+START lever it pushes and the thread's hook, picks the balls up from the
+store and carries them to the top, and goes under the board to wind the
+weight. Each thing is done when it gets there, so a program waits for it.
+
 Sliders: `friction` (0.2 to 0.6 checked), `program`, `speed`, `steps`.
 
 ## Running it
@@ -421,9 +428,17 @@ puts the balls back, so the first lets one out.)
   never pushes, and that runs through its eye without friction; it weighs
   nothing and touches nothing. A real one stretches a little and rubs in
   the eye.
-- **The hand.** It pushes the START lever (a push of 0.3 s); sets the
-  switches and flip-flops, puts the balls back from the store and the STOP
-  pocket, by placing them, and in MANUAL watches STOP: it pushes no more
+- **The hand.** It is drawn (a pointing hand, without a forearm, its palm
+  rising beyond the finger so it never hides the fingertip from the
+  front) and touches nothing: what it does is done to the part when it
+  gets there. It goes to each thing it does, lifting clear of the walls
+  between, and waits beside the board at the right: it pushes the START
+  lever (a push of 0.3 s), sets the switches, flip-flops and knobs, hooks
+  the thread in and out, winds the weight from under the board, and
+  carries the balls back from the store and the pockets to the top (the
+  balls in the STOP and OVERFLOW pockets, under the plate, through the
+  hole over each: on the machine, with a magnet on a stick). In MANUAL it
+  watches STOP: it pushes no more
   once a ball has dropped through. In AUTO the machine stops itself; the
   hand keeps the input filled from the store as it runs.
   Dividing in MANUAL, it watches OVERFLOW too, and stops at the end of

@@ -342,10 +342,20 @@ function parts.move(it, tr)
   if it.here then it.obj.trans = tr end
 end
 -- a moving thing (a flip-flop, a flap, the trip lever), with what is drawn on it
+parts.byBody = {}
 function parts.body(body, tag)
   local it = { body = body, tag = tag, here = true, flags = body:getCollisionFlags() }
   parts.list[#parts.list + 1] = it
+  parts.byBody[body] = it
   return it
+end
+-- (setting one that is off the board: kept for when it comes back, not put
+-- on the board; true if so)
+function parts.keep(body, tr)
+  local it = parts.byBody[body]
+  if not it or it.here then return false end
+  it.home = tr
+  return true
 end
 -- the board as the parts now on say
 function parts.apply()
@@ -1148,18 +1158,22 @@ local function applyFriction()
   trip.body:setFriction(0.1 / math.max(f, 0.01)); trip.body:setRestitution(0)
   for _, c in ipairs(fixed) do c.body:setFriction(1.0); c.body:setRestitution(0) end   -- (Bullet multiplies the two: the slider is what counts)
 end
-local function ballAt(b) return L3(b.obj.pos) end
+local function ballAt(b) return L3(b.body:getCenterOfMassPosition()) end   -- (the body's: the drawing's lags a step)
 -- (done: below the plate, past the collector's wall, or in STOP's pocket;
 -- at rest where the hand takes it from: the store, or the pocket)
 local function inPocket(x, y, z)
   return y < -PT and ((math.abs(x - G.stopPocket[1]) < 1.2 and math.abs(z - G.stopPocket[2]) < 1.6) or
                       (math.abs(x - G.overflowPocket[1]) < 1.2 and math.abs(z - G.overflowPocket[2]) < 1.6))
 end
+-- (a ball in the hand (b.held) is none of these: not in the collector, at
+-- rest, waiting, or at STOP or OVERFLOW, whatever it passes over)
 local function collected(b)
+  if b.held then return false end
   local x, y, z = ballAt(b)
   return (y < -PT and z > G.ZCOL - 3) or inPocket(x, y, z)
 end
 local function atRest(b)
+  if b.held then return false end
   local x, y, z = ballAt(b)
   return (y < -PT and z > G.TRIP.ZB - 2.5) or inPocket(x, y, z)
 end
@@ -1170,56 +1184,290 @@ local function nCollected()
 end
 -- waiting at the feeder: in the INPUT channel or the wheel
 local function waiting(b)
+  if b.held then return false end
   local x, y, z = ballAt(b)
   return y > -PT and math.abs(x - WH.x) < 1.6 and z < WH.z + 0.5
 end
 
 -- ---------------------------------------------------------------------
--- the hand: sets the flip-flops and the switches, pushes START, puts the
--- balls back
+-- THE HAND: the operator's, seen (drawn only: it touches nothing). It sets
+-- the flip-flops and the switches, pushes START, hooks the thread in and
+-- out, carries the balls back from the store (and the pockets) to the top,
+-- and winds the weight. Each thing it does waits for it to get there: it
+-- lifts clear of the walls, goes over, comes down onto the part, does it,
+-- and goes on to the next; with nothing to do it waits beside the board.
+-- Under the board (the drum) it goes round the right edge. Parts that
+-- aren't on the board (PARTS) it doesn't visit: their settings are kept
+-- for when they come back. The machine counts as busy while the hand has
+-- something to do, so a program waits for it.
 -- ---------------------------------------------------------------------
-local function setFlip(name, b) place(flip[name].body, flipPose(flip[name].t, b)) end
+local hand = { q = {}, cur = nil, SPEED = 60, LIFT = 9, carried = {}, flags = {} }
+do
+  local path = (SCAD:gsub("digicomp2%.scad$", "hand.scad"))
+  local m = OpenSCAD("// " .. checksum({ path }) .. "\ninclude <" .. path .. ">\nscale(0.1) hand();\n", 0, false)
+  m.collides = false
+  m.col = "#d6a483"
+  v:add(m)
+  hand.obj = m
+  key(m, "the HAND: the operator's (drawn: it touches nothing). It sets the switches and flip-flops, pushes START,\n" ..
+         "hooks the thread in, carries the balls back to the top and winds the weight")
+  -- (waiting: beside the board at the right, by the START lever)
+  hand.REST = { G.board.x1 + 10, 8, G.ANCHOR.z }
+  hand.pos, hand.under = { hand.REST[1], hand.REST[2], hand.REST[3] }, false
+end
+-- (where the fingertip is, in the board's frame; under the board, the hand
+-- turned over, pointing up)
+function hand.draw()
+  local p = hand.pos
+  -- (turned so its palm rises beyond the finger, up the slope and a little
+  -- to the right: seen from the front, as the exhibit is, nothing of it
+  -- comes between the eye and the fingertip)
+  local q = BQ * btQuaternion(btVector3(0, 1, 0), math.rad(160))
+  if hand.under then q = q * btQuaternion(btVector3(0, 0, 1), math.pi) end
+  hand.obj.trans = btTransform(q, W3(p[1], p[2], p[3]))
+  -- (the balls it carries, held in a little heap under the fingertip)
+  for k, b in ipairs(hand.carried) do
+    local i = k - 1
+    local d = { ((i % 3) - 1) * 1.35, -1.0 - math.floor(i / 6) * 1.2, 0.9 + math.floor(i / 3) % 2 * 1.35 }
+    b.body:setCenterOfMassTransform(btTransform(ident, W3(p[1] + d[1], p[2] + d[2], p[3] + d[3])))
+  end
+end
+-- the way from where it is to a part: up clear of the walls, over, down;
+-- to or from under the board, round its right edge
+function hand.route(to, under)
+  local f, up = hand.pos, hand.LIFT
+  local side, below = G.board.x1 + 8, DR.yb - 10
+  local pts = { { f[1], f[2], f[3], hand.under } }
+  local function add(x, y, z, u) pts[#pts + 1] = { x, y, z, u } end
+  if not hand.under and not under then
+    add(f[1], math.max(f[2], up), f[3], false); add(to[1], math.max(to[2], up), to[3], false)
+  elseif not hand.under and under then
+    add(f[1], math.max(f[2], up), f[3], false); add(side, up, to[3], false)
+    add(side, below, to[3], true); add(to[1], below, to[3], true)
+  elseif hand.under and not under then
+    add(f[1], below, f[3], true); add(side, below, f[3], true)
+    add(side, up, f[3], false); add(to[1], math.max(to[2], up), to[3], false)
+  else
+    add(f[1], below, f[3], true); add(to[1], below, to[3], true)
+  end
+  add(to[1], to[2], to[3], under)
+  local L, len = 0, { 0 }
+  for i = 2, #pts do
+    local a, b = pts[i - 1], pts[i]
+    L = L + math.sqrt((b[1] - a[1]) ^ 2 + (b[2] - a[2]) ^ 2 + (b[3] - a[3]) ^ 2)
+    len[i] = L
+  end
+  return { pts = pts, len = len, L = L, T = math.max(0.35, 1.25 * L / hand.SPEED) }
+end
+-- (along the way, s of its length)
+function hand.at(r, s)
+  for i = 2, #r.pts do
+    if s <= r.len[i] or i == #r.pts then
+      local a, b = r.pts[i - 1], r.pts[i]
+      local f = (r.len[i] > r.len[i - 1]) and math.min(1, math.max(0, (s - r.len[i - 1]) / (r.len[i] - r.len[i - 1]))) or 1
+      return { a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f, a[3] + (b[3] - a[3]) * f }, (f < 0.5) and a[4] or b[4]
+    end
+  end
+end
+-- something for it to do: go to the part at p (the board's frame) and do
+-- act there, then stay hold seconds (or until untilFn says so)
+function hand.job(p, act, hold, under, untilFn)
+  hand.q[#hand.q + 1] = { p = p, act = act, hold = hold or 0.25, under = under or false, untilFn = untilFn }
+end
+function hand.busy() return #hand.q > 0 or (hand.cur ~= nil and not hand.cur.home) end
+-- each frame
+function hand.update(dt)
+  local c = hand.cur
+  if c and c.home and #hand.q > 0 then c = nil end      -- (going back to wait: something to do instead)
+  if not c then
+    local j = table.remove(hand.q, 1)
+    if not j then
+      hand.idle = (hand.idle or 0) + dt
+      local R = hand.REST
+      if hand.idle > 1.0 and (hand.pos[1] ~= R[1] or hand.pos[2] ~= R[2] or hand.pos[3] ~= R[3]) then
+        j = { p = R, home = true, hold = 0 }
+      else hand.draw(); return end
+    end
+    hand.idle = 0
+    j.r, j.t, j.phase = hand.route(j.p, j.under), 0, "go"
+    hand.cur, c = j, j
+  end
+  c.t = c.t + dt
+  if c.phase == "go" then
+    local x = math.min(1, c.t / c.r.T)
+    local s = x * x * (3 - 2 * x)                       -- (it eases off and on)
+    hand.pos, hand.under = hand.at(c.r, s * c.r.L)
+    if x >= 1 then
+      c.phase, c.t = "hold", 0
+      if c.act then c.act() end
+    end
+  elseif c.phase == "hold" then
+    if (c.untilFn and c.untilFn()) or (not c.untilFn and c.t >= c.hold) then hand.cur = nil end
+  end
+  hand.draw()
+end
+-- what it does there (the same as before: the things themselves)
+function hand.setFlipNow(name, b)
+  local tr = flipPose(flip[name].t, b)
+  if not parts.keep(flip[name].body, tr) then place(flip[name].body, tr) end
+end
+function hand.setSwitchNow(name, on)
+  local s = switches[name]
+  local tr = swPose(s.s, on)
+  if not parts.keep(s.body, tr) then place(s.body, tr) end
+end
+-- the hand sets a flip-flop or a switch: it goes to it only if it isn't
+-- set so already, and only if it is on the board
+local function setFlip(name, b)
+  if lean(name) == b then return end
+  local t = flip[name].t
+  if not parts.has(t.kind == "A" and "A" or "MULTIPLY") then hand.setFlipNow(name, b); return end
+  hand.job({ t.x, F.Y0 + F.H + 0.3, t.z - 0.4 }, function() hand.setFlipNow(name, b); hand.moved() end)
+end
+local function setSwitch(name, on)
+  if isOn(name) == on then return end
+  local s = switches[name].s
+  if not parts.has(G.switchPart[name]) then hand.setSwitchNow(name, on); return end
+  hand.job({ s.x, SW.Y0 + SW.H + 0.3, s.z - SW.FL / 2 }, function() hand.setSwitchNow(name, on); hand.moved() end)
+end
 local function setBit(k, b) setFlip("A" .. k, b) end
 local function setA(n) for k = 1, G.NBITS do setBit(k, bitOf(n, k)) end end
 local function setMQ(n) for k = 1, 3 do setFlip("MQ" .. k, 1 - bitOf(n, k)) end end
 -- the distributor set to begin a cycle: the first ball of every four goes to the MQ
 local D_START = { 1, 1, 0 }
 local function setD() for k = 1, 3 do setFlip("D" .. k, D_START[k]) end end
-local function setSwitch(name, on) local s = switches[name]; place(s.body, swPose(s.s, on)) end
 local function setM(n) for k = 1, 4 do setSwitch("M" .. k, bitOf(n, k) == 1) end end
+-- the balls it carries back: it picks each one up where it lies (from a
+-- pocket under the plate, through the hole over it, as with a magnet on a
+-- stick), carries them all to the top and lets them into the INPUT channel:
+-- on top of the balls waiting there, or, if none are, into the wheel's two
+-- notches and the channel, as they are at the start
+local refilled = 0
+function hand.hold(b)
+  local i = b.n
+  if not hand.flags[i] then hand.flags[i] = b.body:getCollisionFlags() end
+  b.body:setLinearVelocity(btVector3(0, 0, 0)); b.body:setAngularVelocity(btVector3(0, 0, 0))
+  b.body:setCollisionFlags(hand.flags[i] + 4)
+  b.body:forceActivationState(5)
+  b.held = true
+  hand.carried[#hand.carried + 1] = b
+end
+function hand.carry(list, count)
+  if #list == 0 then return false end
+  -- (where to pick each up: a ball in a pocket through its hole; others
+  -- where they lie; near ones together)
+  local stops = {}
+  for _, b in ipairs(list) do
+    local x, y, z = ballAt(b)
+    local p
+    if inPocket(x, y, z) then
+      local h = (math.abs(x - G.stopPocket[1]) < 1.5 and math.abs(z - G.stopPocket[2]) < 2) and G.stop or G.overflow
+      p = { h[1], 0.4, h[2] }
+    else p = { x, y + G.R + 0.3, z } end
+    local s
+    for _, st in ipairs(stops) do
+      if math.abs(st.p[1] - p[1]) < 4 and math.abs(st.p[3] - p[3]) < 4 and math.abs(st.p[2] - p[2]) < 1 then s = st; break end
+    end
+    if not s then s = { p = p, balls = {} }; stops[#stops + 1] = s end
+    s.balls[#s.balls + 1] = b
+  end
+  for _, st in ipairs(stops) do
+    -- (counted as taken from the collector when picked up: in AUTO a ball
+    -- may be checked while the hand is on its way to the top)
+    hand.job(st.p, function()
+      for _, b in ipairs(st.balls) do hand.hold(b) end
+      if count then refilled = refilled + #st.balls end
+    end, 0.2)
+  end
+  -- (and lets them go at the top)
+  hand.job({ WH.x, 2 * G.R + 1.6, WH.queueTop + 1.2 }, function()
+    -- (the column waiting, not counting the balls in the hand, which are
+    -- over the top of it: counted, the new ones went on above the hand and
+    -- off the board's top)
+    local w, top = 0, WH.z - WH.ballR
+    for _, b in ipairs(balls) do
+      if waiting(b) then local _, _, z = ballAt(b); w = w + 1; top = math.min(top, z) end
+    end
+    for k, b in ipairs(hand.carried) do
+      b.held = nil
+      b.body:setCollisionFlags(hand.flags[b.n])
+      b.body:forceActivationState(4)
+      local p = (w == 0) and ballHome(k) or W3(WH.x, G.R + 0.002, top - k * (2 * G.R + 0.005))
+      place(b.body, btTransform(ident, p))
+    end
+    hand.carried = {}
+    hand.moved()
+  end, 0.3)
+  return true
+end
+-- R: the balls back to the top. (With none waiting, the wheel and the
+-- anchor are first set square, so the balls go into its notches: a quarter
+-- turn looks the same. With some waiting, the wheel is left as it is: set
+-- square under them, its notches shoved them up and off the board's top)
 local function reload()
-  place(wheel.body, btTransform(BQ, W3(WH.x, wheel.y, WH.z)))
-  do
+  local w = 0
+  for _, b in ipairs(balls) do if waiting(b) then w = w + 1 end end
+  if w == 0 or not drive.started then
+    place(wheel.body, btTransform(BQ, W3(WH.x, wheel.y, WH.z)))
     local A = G.ANCHOR
     place(anchor.body, poseAt(A.x, A.z, A.cx, anchor.y, A.cz, A.REST))
-    anchor.push = 0
   end
-  for i, b in ipairs(balls) do place(b.body, btTransform(ident, ballHome(i))) end
+  anchor.push = 0
   -- (the weight: wound up once, at the start; after that, setting the
   -- machine back leaves it where it is, and the hand winds it when it is
   -- nearly down)
-  if not drive.started then drive.started = true; drive.reset() end
+  if not drive.started then
+    drive.started = true; drive.reset()
+    for i, b in ipairs(balls) do place(b.body, btTransform(ident, ballHome(i))) end
+    return
+  end
+  local list = {}
+  for _, b in ipairs(balls) do if not waiting(b) then list[#list + 1] = b end end
+  hand.carry(list, false)
 end
 -- when the INPUT runs low, the hand takes balls from the store and puts
 -- them in at its top (as you would: there are twelve balls, and a multiply
 -- can take more)
 local REFILL_AT = 4
-local refilled = 0
 local function refill()
-  local w, top = 0, WH.z - WH.ballR
-  for _, b in ipairs(balls) do
-    if waiting(b) then local _, _, z = ballAt(b); w = w + 1; top = math.min(top, z) end
-  end
+  local w = 0
+  for _, b in ipairs(balls) do if waiting(b) then w = w + 1 end end
   if w >= REFILL_AT then return false end
-  local n = 0
-  for _, b in ipairs(balls) do
-    if atRest(b) and w + n < 10 then
-      n = n + 1
-      place(b.body, btTransform(ident, W3(WH.x, G.R + 0.002, top - n * (2 * G.R + 0.005))))
-    end
-  end
-  refilled = refilled + n
-  return n > 0
+  local list = {}
+  for _, b in ipairs(balls) do if atRest(b) and w + #list < 10 then list[#list + 1] = b end end
+  return hand.carry(list, true)
+end
+-- COMPLEMENT's knob, OVERFLOW's knob, the thread's hook in the START lever
+function hand.complement(on)
+  if comp.on == on then return end
+  if not parts.on.COMPLEMENT then setComplement(on); return end
+  local k = SHT.knob
+  hand.job({ k[1] + (comp.on and 0 or SHT.TRAVEL), SHT.BAR_Y0 + SHT.BAR_H + SHT.KNOB_H + 0.3, k[2] },
+           function() setComplement(on); hand.moved() end, 0.3)
+end
+function hand.overflow(halt)
+  if comp.ovf.halt == halt then return end
+  if not parts.on.OVERFLOW then comp.ovf.set(halt); return end
+  local O = G.OVF
+  hand.job({ O.knob[1], O.KNOB_H + 0.3, O.knob[2] - (comp.ovf.halt and O.TRAVEL or 0) },
+           function() comp.ovf.set(halt); hand.moved() end, 0.3)
+end
+function hand.auto(on)
+  if trip.auto == on then return end
+  if not parts.on.AUTO then setAuto(on); return end
+  local H = G.TRIP.hook
+  hand.job({ H.x, H.y + 0.3, H.z }, function() setAuto(on); hand.moved() end, 0.3)
+end
+-- START: the hand pushes the START lever's end, and holds it while it pushes
+function hand.start(fn)
+  local A = G.ANCHOR
+  hand.job({ A.x - math.sin(A.REST) * A.ARM, A.ARM_Y1 + 0.3, A.z - math.cos(A.REST) * A.ARM }, fn, PUSH_S)
+end
+-- winding: under the board, its finger on the drum's knurled flange, until
+-- the weight is wound up
+function hand.wind()
+  hand.job({ DR.x - DR.RING.RO * 0.7, DR.yDrum - 0.2, DR.z }, function() drive.winding = true; hand.moved() end,
+           0, true, function() return not drive.winding end)
 end
 
 -- ---------------------------------------------------------------------
@@ -1383,7 +1631,7 @@ end
 local handBusy = false
 local queue = 0                       -- quarter turns asked for and not yet begun
 local wake = 0                        -- (s: the hand has just moved something)
-local function busy() return handBusy or queue > 0 or wake > 0 end
+local function busy() return handBusy or queue > 0 or wake > 0 or hand.busy() end
 local function restPre()
   if not resting then return false end
   if busy() then resting, restFor = false, 0; applyTiming(); return false end
@@ -1400,13 +1648,14 @@ local function restPost()
   if REST_ON and restFor >= REST_S then resting = true; v.timeStep = 0 end
 end
 local function handMoved() wake, still = 0.3, 0 end
+hand.moved = handMoved
 
 -- STOP: the hand watches for a ball dropping through it
 local stopSeen = false
 local function watchStop()
   for _, b in ipairs(balls) do
     local x, y, z = ballAt(b)
-    if y < 0 and math.abs(x - G.stop[1]) < 1.2 and math.abs(z - G.stop[2]) < 1.2 then stopSeen = true end
+    if not b.held and y < 0 and math.abs(x - G.stop[1]) < 1.2 and math.abs(z - G.stop[2]) < 1.2 then stopSeen = true end
   end
 end
 
@@ -1417,7 +1666,7 @@ local function watchOverflow()
   for _, b in ipairs(balls) do
     local x, y, z = ballAt(b)
     -- (through the hole, HALT, or over its shutter, RUN)
-    if math.abs(x - G.overflow[1]) < 1.2 and math.abs(z - G.overflow[2]) < 1.2 then overSeen = true end
+    if not b.held and math.abs(x - G.overflow[1]) < 1.2 and math.abs(z - G.overflow[2]) < 1.2 then overSeen = true end
   end
 end
 
@@ -1426,12 +1675,12 @@ local function feed() queue = queue + 1 end
 local function setUp()
   setA(0); setMQ(0); setD(); setM(0)
   setSwitch("MULTIPLY", false); setSwitch("CLEAR", false); setSwitch("COUNT", true)
-  setComplement(false)
-  comp.ovf.set(false)
+  hand.complement(false)
+  hand.overflow(false)
   reload()
   applyFriction()
   dropped, refilled, stopSeen, overSeen = 0, 0, false, false
-  setAuto(false)
+  hand.auto(false)
   handMoved()
   holdStart()
 end
@@ -1837,7 +2086,7 @@ local function handKey(k)
   elseif k == "M" then setSwitch("MULTIPLY", not isOn("MULTIPLY"))
   elseif k == "C" then setSwitch("CLEAR", not isOn("CLEAR"))
   elseif k == "N" then setSwitch("COUNT", not isOn("COUNT"))
-  elseif k == "X" then setComplement(not isComplement()) end
+  elseif k == "X" then hand.complement(not isComplement()) end
   handMoved()
 end
 local function regValue(r) if r == "A" then return count() elseif r == "M" then return mem() else return mq() end end
@@ -1909,10 +2158,10 @@ local function progStep()
       P.balls = nil; P.inFlight = nil; ball()
     elseif op.op == "overflow" then
       print(string.format("    line %d: OVERFLOW %s", op.line, op.halt and "HALT" or "RUN"))
-      comp.ovf.set(op.halt); handMoved(); P.phase, P.wait = "after", 0
+      hand.overflow(op.halt); handMoved(); P.phase, P.wait = "after", 0
     elseif op.op == "auto" then
       print(string.format("    line %d: %s", op.line, op.on and "AUTO" or "MANUAL"))
-      setAuto(op.on); handMoved(); P.phase, P.wait = "after", 0
+      hand.auto(op.on); handMoved(); P.phase, P.wait = "after", 0
     elseif op.op == "run" then
       print(string.format("    line %d: RUN", op.line))
       if not isAuto() then
@@ -2144,14 +2393,16 @@ v:postSim(function(N)
       end
     end)
   end
+  hand.update(FRAME_DT)
   if holdNow then return end
   if wake > 0 then wake = wake - FRAME_DT end
   restPost()
   watchStop()
   watchOverflow()
-  if refillWait > 0 then refillWait = refillWait - FRAME_DT end
-  if queue > 0 and not handBusy and refillWait <= 0 then
-    if refill() then refillWait = 0.6; handMoved() else startTurn() end
+  -- (a START asked for: the hand fills the INPUT first if it is low, then
+  -- goes and pushes the START lever)
+  if queue > 0 and not handBusy and not hand.busy() then
+    if not refill() then hand.start(startTurn) end
   end
   -- (AUTO: a ball lifting the trip lever lets the next go; the hand keeps
   -- the INPUT filled from the store as it runs)
@@ -2160,12 +2411,11 @@ v:postSim(function(N)
     trip.up = true
     if trip.auto and anchor.push <= 0 then trip.events = trip.events + 1; dropped = dropped + 1; still = 0 end
   elseif trip.up and la < 0.08 then trip.up = false end
-  if trip.auto and queue == 0 and refillWait <= 0 and refill() then refillWait = 0.6 end
+  if trip.auto and queue == 0 and not hand.busy() then refill() end
   -- (the weight nearly down: the hand winds it up, all the way, once nothing
   -- moves, so never in the middle of an AUTO run)
   if not drive.winding and queue == 0 and not busy() and still > 0.3 and drive.left() < DR.WIND_AT then
-    drive.winding = true
-    handMoved()
+    hand.wind()
     if LOG then print(string.format("  frame %d: the hand winds the weight up (%.1f quarter turns were left)", N, drive.left())) end
   end
   if LOG == "2" and N % 15 == 0 then
@@ -2205,9 +2455,9 @@ for k, key_ in ipairs({ "8", "9", "0" }) do
   v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end, key_))
 end
 v:addShortcut("D", byHand(setD, "D"))
-v:addShortcut("U", byHand(function() setAuto(not isAuto()); PR.setStatus(isAuto() and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end, "U"))
-v:addShortcut("X", byHand(function() setComplement(not isComplement()) end, "X"))
-v:addShortcut("O", byHand(function() comp.ovf.set(not comp.ovf.isHalt()); PR.setStatus(comp.ovf.isHalt() and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end, "O"))
+v:addShortcut("U", byHand(function() local on = not isAuto(); hand.auto(on); PR.setStatus(on and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end, "U"))
+v:addShortcut("X", byHand(function() hand.complement(not isComplement()) end, "X"))
+v:addShortcut("O", byHand(function() local h = not comp.ovf.isHalt(); hand.overflow(h); PR.setStatus(h and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end, "O"))
 -- B: the camera to the program board and back (the camera as it was before)
 local camBack = nil
 v:addShortcut("B", function()
