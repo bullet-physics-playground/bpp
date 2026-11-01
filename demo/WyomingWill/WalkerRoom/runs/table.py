@@ -3,7 +3,8 @@
 For each setting: every build's mean speed (cm/s) on each terrain over its seeds, the mean over the terrains, its
 standard error (from the spread between seeds in each cell) and the mean over the hardest three (waves 6, logs 7,
 steps 7), best first; then, with two settings or more, each build's change against the first and how the order
-compares (rank correlation), and the time a run took."""
+compares (rank correlation), and the time a run took. Only the terrains in TERRAINS (as run-table.sh's: default the
+nine rough ones), so folders that also hold other grounds -- the boards' runs -- are compared on the same ground."""
 import sys, os, glob, re, math, statistics as st
 OWN = {"Jansen", "Klann", "Spears 4-bar"}
 # (builds renamed 31 October 2026: runs from before print the old names)
@@ -14,6 +15,7 @@ def newName(n):
         if n == a or n == a + " diag": return b + n[len(a):]
     return n
 def bracing(n): return "own" if n in OWN else ("outside, held" if n.endswith("diag") else "guides")
+KEEP = {t.replace(":", "") for t in os.environ.get("TERRAINS", "waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7").split()}
 def load(d):
     D, times = {}, []
     for f in glob.glob(os.path.join(d, "*.txt")):
@@ -22,10 +24,11 @@ def load(d):
         if t: times.append(int(t.group(1)))
         if not m: continue
         base = os.path.basename(f)[:-4]; build, ter, seed = base.rsplit("_", 2)
+        if ter not in KEEP: continue
         D.setdefault(newName(m.group(1)), {}).setdefault(ter, []).append(float(m.group(2)))
     return D, times
 def summary(D):
-    terrains = sorted({t for b in D.values() for t in b}, key=lambda t: (["waves", "logs", "steps"].index(re.match(r"[a-z]+", t).group()), t))
+    terrains = sorted({t for b in D.values() for t in b}, key=lambda t: (["flat", "waves", "random", "logs", "steps"].index(re.match(r"[a-z]+", t).group()), float(re.search(r"[\d.]+", t).group())))
     rows = []
     for n, cells in D.items():
         means = [st.mean(cells[t]) if t in cells else float("nan") for t in terrains]
