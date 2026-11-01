@@ -1,6 +1,6 @@
 # Threads in bpp (1 November 2026)
 
-## Done (patches 70-72)
+## Done (patches 70-73)
 
 **Answer first.** bpp can now solve the walkers in a room side by side on
 several threads, all in one world, so they still touch each other. It needs
@@ -94,14 +94,31 @@ collisions 0.54 s and the solve 0.85 s per simulated second. On 2 threads the
 solve took 0.54 s instead of 0.85. So the solve is the part threads help; with
 the marks on, the marks' collisions swamp it.
 
-**The marks.** They are kinematic with no contact response, so they push
-nothing, but Bullet still pairs them with everything near them and works out
-the contacts (GImpact meshes, the slowest kind). bpp already has the switch
-for this: `o.collides = false` before an object is added keeps it out of
-collision detection entirely. Using it in walker-room.lua's `decor()` (and the
-look-only foot tips) should give about what `MARKS = false` gives, with the
-marks still drawn (not measured). Not done: it changes runs move for move (fewer objects in
-Bullet's pair lists), so it wants a table check. William's decision.
+**The marks** (patch 73). They are kinematic with no contact response, so
+they push nothing, but Bullet still paired them with everything near them and
+worked out the contacts (GImpact meshes, the slowest kind). Now walker-room.lua
+uses bpp's `o.collides = false` for them and for the look-only foot tips, which
+keeps them out of collision detection entirely; they are still drawn and still
+ride on their walkers (checked: each mark kept its distance to its body to
+0.001 cm while the walkers walked 40-100 cm). Mouse hover is unaffected (bpp's
+hover ray ignores collision groups). Room of 4 here, marks on: 0.31x before,
+0.72x after; 0.96x with 2 threads -- the same as with `MARKS = false`. On the
+test track the marks are not moved during a run, so they seldom met anything:
+of three runs (Chebyshev-Spears diag logs 7, Klann waves 4, Hoecken-Spears
+slider logs 7) two came out the same to the last digit and one moved slightly
+(1.890 to 1.903 cm/s). A table checks it (below).
+
+**William's machine** (Ryzen 7 3700X, `runs/room-speed.sh`, the room of four
+in room-four.lua, before patch 73):
+
+| Walkers | Bracing | Timing | Direction | Marks | Threads 0 | Threads 8 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag) | mixed | trot | forward | on | 0.14x | 0.18x |
+| the same 4 | mixed | trot | forward | off | 0.36x | 0.57x |
+
+So per core this container ran the room about twice as fast as William's
+machine, not the other way round (the guess below, "2-3 times as fast", was
+wrong).
 
 **Limits.**
 
@@ -118,11 +135,13 @@ Bullet's pair lists), so it wants a table check. William's decision.
 **To do on William's machine.**
 
 1. Speed: `runs/room-speed.sh` (1, 4 and 21 walkers, marks on and off,
-   threads 0 1 2 4 8).
-2. The threaded world against today's, as a table: `runs/run-table.sh` with
+   threads 0 1 2 4 8). After patch 73, marks on and off should match.
+2. Patch 73 (the marks) as a table, threads off: `runs/run-table.sh` with
+   `OUT=runs/out-marks`, compared with `runs/out-damp/warm40fast`.
+3. The threaded world against today's, as a table: `runs/run-table.sh` with
    `EXTRA='v:setThreads(1)'` and the bundled bpp, compared with
    `runs/out-damp/warm40fast` by `runs/table.py`.
-3. Soak: `tools/roomsoak.lua` (room-four.lua for hours, Tab every 20 s,
+4. Soak: `tools/roomsoak.lua` (room-four.lua for hours, Tab every 20 s,
    a new ground every 15 minutes).
 
 ## Before (the handover of 1 November, kept as written)

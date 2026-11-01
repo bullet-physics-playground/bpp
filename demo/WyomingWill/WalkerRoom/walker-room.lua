@@ -831,6 +831,7 @@ end
 -- frame, turned by the quaternion q (x, y, z, w)
 local function decor(w, o, col, x, y, z, q)
   o.col = col
+  o.collides = false   -- (out of collision detection altogether: Bullet would otherwise work out its contacts every step)
   addObject(o)
   o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
   w.decor = w.decor or {}
@@ -1467,6 +1468,7 @@ local function addWalker(spec, x, z, heading)
   for _, t in ipairs(w.tips or {}) do
     t.o = t.ball and Sphere(t.ball, 0) or t.rod and Cylinder(t.rod[1], t.rod[2], 0) or Cube(t.len, t.T, t.D, 0)
     t.o.col = "#3C3C3C"   -- (the feet's colour, below)
+    t.o.collides = false  -- (look-only, as decor's)
     addObject(t.o)
     t.o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
   end
