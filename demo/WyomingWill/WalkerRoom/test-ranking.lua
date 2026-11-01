@@ -17,6 +17,8 @@
 --   1 2 3 4          the ground: waves, random, logs, steps
 --   M                the ground mirrored left for right, or back
 --   O                look over the whole track
+--   B                the ranking board for this ground (the output pane:
+--                    shown too each time a walker starts, and its run at 20 s)
 -- The TerrainHeight slider sets the bumps' height (the ranking used
 -- waves 2/4/6, logs 3/5/7 and steps 3/5/7). After 60 s each prints its
 -- speed in the output pane (the ranking's runs were 20 s, speed from 5 s

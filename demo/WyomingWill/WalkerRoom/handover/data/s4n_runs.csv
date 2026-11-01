@@ -1,0 +1,2536 @@
+build,terrain,height,seed,speed
+"Chebyshev-Spears diag",flat,0,1,9.066
+"Chebyshev-Spears diag",flat,0,2,9.071
+"Chebyshev-Spears diag",flat,0,3,9.062
+"Chebyshev-Spears diag",flat,0,4,9.071
+"Chebyshev-Spears diag",flat,0,5,9.066
+"Chebyshev-Spears diag",logs,1,1,8.960
+"Chebyshev-Spears diag",logs,1,2,8.855
+"Chebyshev-Spears diag",logs,1,3,8.920
+"Chebyshev-Spears diag",logs,1,4,8.923
+"Chebyshev-Spears diag",logs,1,5,8.958
+"Chebyshev-Spears diag",logs,2,1,8.789
+"Chebyshev-Spears diag",logs,2,2,8.645
+"Chebyshev-Spears diag",logs,2,3,8.711
+"Chebyshev-Spears diag",logs,2,4,8.687
+"Chebyshev-Spears diag",logs,2,5,8.652
+"Chebyshev-Spears diag",logs,3,1,8.379
+"Chebyshev-Spears diag",logs,3,2,8.574
+"Chebyshev-Spears diag",logs,3,3,8.546
+"Chebyshev-Spears diag",logs,3,4,8.185
+"Chebyshev-Spears diag",logs,3,5,8.395
+"Chebyshev-Spears diag",logs,4,1,8.373
+"Chebyshev-Spears diag",logs,4,2,7.664
+"Chebyshev-Spears diag",logs,4,3,7.368
+"Chebyshev-Spears diag",logs,4,4,7.982
+"Chebyshev-Spears diag",logs,4,5,7.932
+"Chebyshev-Spears diag",logs,5,1,6.332
+"Chebyshev-Spears diag",logs,5,2,7.539
+"Chebyshev-Spears diag",logs,5,3,7.524
+"Chebyshev-Spears diag",logs,5,4,7.053
+"Chebyshev-Spears diag",logs,5,5,6.767
+"Chebyshev-Spears diag",logs,6,1,6.586
+"Chebyshev-Spears diag",logs,6,2,4.406
+"Chebyshev-Spears diag",logs,6,3,6.281
+"Chebyshev-Spears diag",logs,6,4,4.369
+"Chebyshev-Spears diag",logs,6,5,5.019
+"Chebyshev-Spears diag",logs,7,1,-0.327
+"Chebyshev-Spears diag",logs,7,2,4.511
+"Chebyshev-Spears diag",logs,7,3,4.530
+"Chebyshev-Spears diag",logs,7,4,4.583
+"Chebyshev-Spears diag",logs,7,5,2.731
+"Chebyshev-Spears diag",logs,8,1,0.061
+"Chebyshev-Spears diag",logs,8,2,-0.891
+"Chebyshev-Spears diag",logs,8,3,0.132
+"Chebyshev-Spears diag",logs,8,4,0.146
+"Chebyshev-Spears diag",logs,8,5,0.250
+"Chebyshev-Spears diag",random,1,1,9.095
+"Chebyshev-Spears diag",random,1,2,9.162
+"Chebyshev-Spears diag",random,1,3,9.147
+"Chebyshev-Spears diag",random,1,4,9.096
+"Chebyshev-Spears diag",random,1,5,9.063
+"Chebyshev-Spears diag",random,2,1,8.640
+"Chebyshev-Spears diag",random,2,2,9.034
+"Chebyshev-Spears diag",random,2,3,8.904
+"Chebyshev-Spears diag",random,2,4,8.940
+"Chebyshev-Spears diag",random,2,5,8.476
+"Chebyshev-Spears diag",random,3,1,8.317
+"Chebyshev-Spears diag",random,3,2,8.692
+"Chebyshev-Spears diag",random,3,3,8.433
+"Chebyshev-Spears diag",random,3,4,8.635
+"Chebyshev-Spears diag",random,3,5,8.395
+"Chebyshev-Spears diag",random,4,1,8.425
+"Chebyshev-Spears diag",random,4,2,8.677
+"Chebyshev-Spears diag",random,4,3,8.049
+"Chebyshev-Spears diag",random,4,4,8.069
+"Chebyshev-Spears diag",random,4,5,8.122
+"Chebyshev-Spears diag",random,5,1,6.692
+"Chebyshev-Spears diag",random,5,2,7.977
+"Chebyshev-Spears diag",random,5,3,7.209
+"Chebyshev-Spears diag",random,5,4,8.080
+"Chebyshev-Spears diag",random,5,5,7.589
+"Chebyshev-Spears diag",random,6,1,7.621
+"Chebyshev-Spears diag",random,6,2,7.697
+"Chebyshev-Spears diag",random,6,3,7.388
+"Chebyshev-Spears diag",random,6,4,7.808
+"Chebyshev-Spears diag",random,6,5,7.705
+"Chebyshev-Spears diag",random,7,1,7.955
+"Chebyshev-Spears diag",random,7,2,7.750
+"Chebyshev-Spears diag",random,7,3,7.078
+"Chebyshev-Spears diag",random,7,4,7.512
+"Chebyshev-Spears diag",random,7,5,7.713
+"Chebyshev-Spears diag",random,8,1,6.610
+"Chebyshev-Spears diag",random,8,2,7.361
+"Chebyshev-Spears diag",random,8,3,6.732
+"Chebyshev-Spears diag",random,8,4,7.619
+"Chebyshev-Spears diag",random,8,5,6.552
+"Chebyshev-Spears diag",steps,1,1,9.015
+"Chebyshev-Spears diag",steps,1,2,8.921
+"Chebyshev-Spears diag",steps,1,3,8.997
+"Chebyshev-Spears diag",steps,1,4,8.982
+"Chebyshev-Spears diag",steps,1,5,8.891
+"Chebyshev-Spears diag",steps,2,1,8.850
+"Chebyshev-Spears diag",steps,2,2,8.750
+"Chebyshev-Spears diag",steps,2,3,8.659
+"Chebyshev-Spears diag",steps,2,4,8.789
+"Chebyshev-Spears diag",steps,2,5,8.797
+"Chebyshev-Spears diag",steps,3,1,8.701
+"Chebyshev-Spears diag",steps,3,2,8.618
+"Chebyshev-Spears diag",steps,3,3,8.469
+"Chebyshev-Spears diag",steps,3,4,8.537
+"Chebyshev-Spears diag",steps,3,5,8.597
+"Chebyshev-Spears diag",steps,4,1,8.600
+"Chebyshev-Spears diag",steps,4,2,8.350
+"Chebyshev-Spears diag",steps,4,3,8.479
+"Chebyshev-Spears diag",steps,4,4,8.430
+"Chebyshev-Spears diag",steps,4,5,8.421
+"Chebyshev-Spears diag",steps,5,1,8.077
+"Chebyshev-Spears diag",steps,5,2,7.795
+"Chebyshev-Spears diag",steps,5,3,7.817
+"Chebyshev-Spears diag",steps,5,4,7.694
+"Chebyshev-Spears diag",steps,5,5,8.028
+"Chebyshev-Spears diag",steps,6,1,7.267
+"Chebyshev-Spears diag",steps,6,2,7.518
+"Chebyshev-Spears diag",steps,6,3,6.675
+"Chebyshev-Spears diag",steps,6,4,7.693
+"Chebyshev-Spears diag",steps,6,5,7.139
+"Chebyshev-Spears diag",steps,7,1,5.284
+"Chebyshev-Spears diag",steps,7,2,7.345
+"Chebyshev-Spears diag",steps,7,3,5.569
+"Chebyshev-Spears diag",steps,7,4,5.418
+"Chebyshev-Spears diag",steps,7,5,6.645
+"Chebyshev-Spears diag",steps,8,1,5.890
+"Chebyshev-Spears diag",steps,8,2,6.494
+"Chebyshev-Spears diag",steps,8,3,4.561
+"Chebyshev-Spears diag",steps,8,4,4.127
+"Chebyshev-Spears diag",steps,8,5,1.998
+"Chebyshev-Spears diag",waves,1,1,8.967
+"Chebyshev-Spears diag",waves,1,2,9.043
+"Chebyshev-Spears diag",waves,1,3,9.016
+"Chebyshev-Spears diag",waves,1,4,8.999
+"Chebyshev-Spears diag",waves,1,5,8.972
+"Chebyshev-Spears diag",waves,2,1,8.621
+"Chebyshev-Spears diag",waves,2,2,8.559
+"Chebyshev-Spears diag",waves,2,3,8.173
+"Chebyshev-Spears diag",waves,2,4,8.294
+"Chebyshev-Spears diag",waves,2,5,8.214
+"Chebyshev-Spears diag",waves,3,1,8.077
+"Chebyshev-Spears diag",waves,3,2,7.840
+"Chebyshev-Spears diag",waves,3,3,7.727
+"Chebyshev-Spears diag",waves,3,4,7.864
+"Chebyshev-Spears diag",waves,3,5,7.802
+"Chebyshev-Spears diag",waves,4,1,7.622
+"Chebyshev-Spears diag",waves,4,2,7.522
+"Chebyshev-Spears diag",waves,4,3,7.481
+"Chebyshev-Spears diag",waves,4,4,7.545
+"Chebyshev-Spears diag",waves,4,5,7.137
+"Chebyshev-Spears diag",waves,5,1,7.094
+"Chebyshev-Spears diag",waves,5,2,6.492
+"Chebyshev-Spears diag",waves,5,3,7.371
+"Chebyshev-Spears diag",waves,5,4,6.165
+"Chebyshev-Spears diag",waves,5,5,6.445
+"Chebyshev-Spears diag",waves,6,1,5.031
+"Chebyshev-Spears diag",waves,6,2,5.732
+"Chebyshev-Spears diag",waves,6,3,5.639
+"Chebyshev-Spears diag",waves,6,4,6.541
+"Chebyshev-Spears diag",waves,6,5,5.827
+"Chebyshev-Spears diag",waves,7,1,4.728
+"Chebyshev-Spears diag",waves,7,2,4.095
+"Chebyshev-Spears diag",waves,7,3,3.201
+"Chebyshev-Spears diag",waves,7,4,0.395
+"Chebyshev-Spears diag",waves,7,5,-0.290
+"Chebyshev-Spears diag",waves,8,1,2.051
+"Chebyshev-Spears diag",waves,8,2,3.219
+"Chebyshev-Spears diag",waves,8,3,2.321
+"Chebyshev-Spears diag",waves,8,4,1.655
+"Chebyshev-Spears diag",waves,8,5,2.266
+"Chebyshev-Spears lift 51 diag",flat,0,1,8.912
+"Chebyshev-Spears lift 51 diag",flat,0,2,8.903
+"Chebyshev-Spears lift 51 diag",flat,0,3,8.915
+"Chebyshev-Spears lift 51 diag",flat,0,4,8.906
+"Chebyshev-Spears lift 51 diag",flat,0,5,8.912
+"Chebyshev-Spears lift 51 diag",logs,1,1,8.930
+"Chebyshev-Spears lift 51 diag",logs,1,2,8.879
+"Chebyshev-Spears lift 51 diag",logs,1,3,8.876
+"Chebyshev-Spears lift 51 diag",logs,1,4,8.877
+"Chebyshev-Spears lift 51 diag",logs,1,5,8.411
+"Chebyshev-Spears lift 51 diag",logs,2,1,8.799
+"Chebyshev-Spears lift 51 diag",logs,2,2,8.712
+"Chebyshev-Spears lift 51 diag",logs,2,3,8.892
+"Chebyshev-Spears lift 51 diag",logs,2,4,8.754
+"Chebyshev-Spears lift 51 diag",logs,2,5,8.841
+"Chebyshev-Spears lift 51 diag",logs,3,1,8.888
+"Chebyshev-Spears lift 51 diag",logs,3,2,8.614
+"Chebyshev-Spears lift 51 diag",logs,3,3,8.750
+"Chebyshev-Spears lift 51 diag",logs,3,4,8.552
+"Chebyshev-Spears lift 51 diag",logs,3,5,8.626
+"Chebyshev-Spears lift 51 diag",logs,4,1,8.896
+"Chebyshev-Spears lift 51 diag",logs,4,2,8.196
+"Chebyshev-Spears lift 51 diag",logs,4,3,8.348
+"Chebyshev-Spears lift 51 diag",logs,4,4,8.534
+"Chebyshev-Spears lift 51 diag",logs,4,5,8.568
+"Chebyshev-Spears lift 51 diag",logs,5,1,8.531
+"Chebyshev-Spears lift 51 diag",logs,5,2,8.014
+"Chebyshev-Spears lift 51 diag",logs,5,3,8.251
+"Chebyshev-Spears lift 51 diag",logs,5,4,8.377
+"Chebyshev-Spears lift 51 diag",logs,5,5,8.425
+"Chebyshev-Spears lift 51 diag",logs,6,1,7.917
+"Chebyshev-Spears lift 51 diag",logs,6,2,7.186
+"Chebyshev-Spears lift 51 diag",logs,6,3,6.118
+"Chebyshev-Spears lift 51 diag",logs,6,4,4.421
+"Chebyshev-Spears lift 51 diag",logs,6,5,7.374
+"Chebyshev-Spears lift 51 diag",logs,7,1,6.910
+"Chebyshev-Spears lift 51 diag",logs,7,2,7.106
+"Chebyshev-Spears lift 51 diag",logs,7,3,5.973
+"Chebyshev-Spears lift 51 diag",logs,7,4,7.492
+"Chebyshev-Spears lift 51 diag",logs,7,5,7.825
+"Chebyshev-Spears lift 51 diag",logs,8,1,2.639
+"Chebyshev-Spears lift 51 diag",logs,8,2,2.221
+"Chebyshev-Spears lift 51 diag",logs,8,3,2.277
+"Chebyshev-Spears lift 51 diag",logs,8,4,5.320
+"Chebyshev-Spears lift 51 diag",logs,8,5,6.311
+"Chebyshev-Spears lift 51 diag",random,1,1,9.171
+"Chebyshev-Spears lift 51 diag",random,1,2,9.250
+"Chebyshev-Spears lift 51 diag",random,1,3,9.126
+"Chebyshev-Spears lift 51 diag",random,1,4,9.059
+"Chebyshev-Spears lift 51 diag",random,1,5,9.137
+"Chebyshev-Spears lift 51 diag",random,2,1,8.848
+"Chebyshev-Spears lift 51 diag",random,2,2,8.880
+"Chebyshev-Spears lift 51 diag",random,2,3,8.768
+"Chebyshev-Spears lift 51 diag",random,2,4,8.852
+"Chebyshev-Spears lift 51 diag",random,2,5,8.444
+"Chebyshev-Spears lift 51 diag",random,3,1,8.438
+"Chebyshev-Spears lift 51 diag",random,3,2,8.654
+"Chebyshev-Spears lift 51 diag",random,3,3,8.728
+"Chebyshev-Spears lift 51 diag",random,3,4,8.312
+"Chebyshev-Spears lift 51 diag",random,3,5,8.209
+"Chebyshev-Spears lift 51 diag",random,4,1,8.231
+"Chebyshev-Spears lift 51 diag",random,4,2,8.213
+"Chebyshev-Spears lift 51 diag",random,4,3,8.107
+"Chebyshev-Spears lift 51 diag",random,4,4,8.305
+"Chebyshev-Spears lift 51 diag",random,4,5,7.959
+"Chebyshev-Spears lift 51 diag",random,5,1,7.566
+"Chebyshev-Spears lift 51 diag",random,5,2,7.657
+"Chebyshev-Spears lift 51 diag",random,5,3,7.641
+"Chebyshev-Spears lift 51 diag",random,5,4,7.806
+"Chebyshev-Spears lift 51 diag",random,5,5,7.714
+"Chebyshev-Spears lift 51 diag",random,6,1,7.644
+"Chebyshev-Spears lift 51 diag",random,6,2,8.399
+"Chebyshev-Spears lift 51 diag",random,6,3,7.957
+"Chebyshev-Spears lift 51 diag",random,6,4,8.192
+"Chebyshev-Spears lift 51 diag",random,6,5,6.805
+"Chebyshev-Spears lift 51 diag",random,7,1,7.036
+"Chebyshev-Spears lift 51 diag",random,7,2,7.895
+"Chebyshev-Spears lift 51 diag",random,7,3,8.086
+"Chebyshev-Spears lift 51 diag",random,7,4,7.436
+"Chebyshev-Spears lift 51 diag",random,7,5,6.203
+"Chebyshev-Spears lift 51 diag",random,8,1,7.414
+"Chebyshev-Spears lift 51 diag",random,8,2,6.937
+"Chebyshev-Spears lift 51 diag",random,8,3,7.492
+"Chebyshev-Spears lift 51 diag",random,8,4,6.772
+"Chebyshev-Spears lift 51 diag",random,8,5,7.023
+"Chebyshev-Spears lift 51 diag",steps,1,1,8.889
+"Chebyshev-Spears lift 51 diag",steps,1,2,8.846
+"Chebyshev-Spears lift 51 diag",steps,1,3,8.938
+"Chebyshev-Spears lift 51 diag",steps,1,4,8.848
+"Chebyshev-Spears lift 51 diag",steps,1,5,8.895
+"Chebyshev-Spears lift 51 diag",steps,2,1,8.818
+"Chebyshev-Spears lift 51 diag",steps,2,2,8.763
+"Chebyshev-Spears lift 51 diag",steps,2,3,8.994
+"Chebyshev-Spears lift 51 diag",steps,2,4,8.744
+"Chebyshev-Spears lift 51 diag",steps,2,5,8.818
+"Chebyshev-Spears lift 51 diag",steps,3,1,8.833
+"Chebyshev-Spears lift 51 diag",steps,3,2,8.732
+"Chebyshev-Spears lift 51 diag",steps,3,3,8.978
+"Chebyshev-Spears lift 51 diag",steps,3,4,8.720
+"Chebyshev-Spears lift 51 diag",steps,3,5,8.825
+"Chebyshev-Spears lift 51 diag",steps,4,1,8.523
+"Chebyshev-Spears lift 51 diag",steps,4,2,8.641
+"Chebyshev-Spears lift 51 diag",steps,4,3,8.733
+"Chebyshev-Spears lift 51 diag",steps,4,4,8.480
+"Chebyshev-Spears lift 51 diag",steps,4,5,8.503
+"Chebyshev-Spears lift 51 diag",steps,5,1,8.454
+"Chebyshev-Spears lift 51 diag",steps,5,2,8.665
+"Chebyshev-Spears lift 51 diag",steps,5,3,8.763
+"Chebyshev-Spears lift 51 diag",steps,5,4,8.354
+"Chebyshev-Spears lift 51 diag",steps,5,5,8.278
+"Chebyshev-Spears lift 51 diag",steps,6,1,7.750
+"Chebyshev-Spears lift 51 diag",steps,6,2,7.872
+"Chebyshev-Spears lift 51 diag",steps,6,3,8.567
+"Chebyshev-Spears lift 51 diag",steps,6,4,8.243
+"Chebyshev-Spears lift 51 diag",steps,6,5,8.653
+"Chebyshev-Spears lift 51 diag",steps,7,1,7.880
+"Chebyshev-Spears lift 51 diag",steps,7,2,7.143
+"Chebyshev-Spears lift 51 diag",steps,7,3,7.302
+"Chebyshev-Spears lift 51 diag",steps,7,4,8.024
+"Chebyshev-Spears lift 51 diag",steps,7,5,8.361
+"Chebyshev-Spears lift 51 diag",steps,8,1,8.765
+"Chebyshev-Spears lift 51 diag",steps,8,2,6.838
+"Chebyshev-Spears lift 51 diag",steps,8,3,5.985
+"Chebyshev-Spears lift 51 diag",steps,8,4,7.691
+"Chebyshev-Spears lift 51 diag",steps,8,5,7.017
+"Chebyshev-Spears lift 51 diag",waves,1,1,9.089
+"Chebyshev-Spears lift 51 diag",waves,1,2,9.000
+"Chebyshev-Spears lift 51 diag",waves,1,3,8.731
+"Chebyshev-Spears lift 51 diag",waves,1,4,8.930
+"Chebyshev-Spears lift 51 diag",waves,1,5,9.052
+"Chebyshev-Spears lift 51 diag",waves,2,1,8.596
+"Chebyshev-Spears lift 51 diag",waves,2,2,8.551
+"Chebyshev-Spears lift 51 diag",waves,2,3,8.496
+"Chebyshev-Spears lift 51 diag",waves,2,4,7.449
+"Chebyshev-Spears lift 51 diag",waves,2,5,7.385
+"Chebyshev-Spears lift 51 diag",waves,3,1,7.304
+"Chebyshev-Spears lift 51 diag",waves,3,2,8.064
+"Chebyshev-Spears lift 51 diag",waves,3,3,7.300
+"Chebyshev-Spears lift 51 diag",waves,3,4,6.933
+"Chebyshev-Spears lift 51 diag",waves,3,5,7.276
+"Chebyshev-Spears lift 51 diag",waves,4,1,6.193
+"Chebyshev-Spears lift 51 diag",waves,4,2,7.038
+"Chebyshev-Spears lift 51 diag",waves,4,3,7.039
+"Chebyshev-Spears lift 51 diag",waves,4,4,6.340
+"Chebyshev-Spears lift 51 diag",waves,4,5,7.793
+"Chebyshev-Spears lift 51 diag",waves,5,1,5.521
+"Chebyshev-Spears lift 51 diag",waves,5,2,5.467
+"Chebyshev-Spears lift 51 diag",waves,5,3,6.173
+"Chebyshev-Spears lift 51 diag",waves,5,4,5.823
+"Chebyshev-Spears lift 51 diag",waves,5,5,6.997
+"Chebyshev-Spears lift 51 diag",waves,6,1,6.141
+"Chebyshev-Spears lift 51 diag",waves,6,2,6.047
+"Chebyshev-Spears lift 51 diag",waves,6,3,6.408
+"Chebyshev-Spears lift 51 diag",waves,6,4,4.547
+"Chebyshev-Spears lift 51 diag",waves,6,5,6.560
+"Chebyshev-Spears lift 51 diag",waves,7,1,3.083
+"Chebyshev-Spears lift 51 diag",waves,7,2,5.318
+"Chebyshev-Spears lift 51 diag",waves,7,3,6.267
+"Chebyshev-Spears lift 51 diag",waves,7,4,4.795
+"Chebyshev-Spears lift 51 diag",waves,7,5,4.918
+"Chebyshev-Spears lift 51 diag",waves,8,1,3.217
+"Chebyshev-Spears lift 51 diag",waves,8,2,4.245
+"Chebyshev-Spears lift 51 diag",waves,8,3,0.944
+"Chebyshev-Spears lift 51 diag",waves,8,4,2.867
+"Chebyshev-Spears lift 51 diag",waves,8,5,2.631
+"Chebyshev-Spears lift 51",logs,3,1,8.877
+"Chebyshev-Spears lift 51",logs,3,2,8.330
+"Chebyshev-Spears lift 51",logs,3,3,8.736
+"Chebyshev-Spears lift 51",logs,3,4,8.608
+"Chebyshev-Spears lift 51",logs,3,5,8.638
+"Chebyshev-Spears lift 51",logs,5,1,8.959
+"Chebyshev-Spears lift 51",logs,5,2,8.065
+"Chebyshev-Spears lift 51",logs,5,3,8.317
+"Chebyshev-Spears lift 51",logs,5,4,8.613
+"Chebyshev-Spears lift 51",logs,5,5,8.526
+"Chebyshev-Spears lift 51",logs,7,1,6.994
+"Chebyshev-Spears lift 51",logs,7,2,8.059
+"Chebyshev-Spears lift 51",logs,7,3,6.497
+"Chebyshev-Spears lift 51",logs,7,4,7.089
+"Chebyshev-Spears lift 51",logs,7,5,8.211
+"Chebyshev-Spears lift 51",steps,3,1,8.915
+"Chebyshev-Spears lift 51",steps,3,2,8.660
+"Chebyshev-Spears lift 51",steps,3,3,8.986
+"Chebyshev-Spears lift 51",steps,3,4,8.684
+"Chebyshev-Spears lift 51",steps,3,5,8.829
+"Chebyshev-Spears lift 51",steps,5,1,8.513
+"Chebyshev-Spears lift 51",steps,5,2,8.824
+"Chebyshev-Spears lift 51",steps,5,3,8.721
+"Chebyshev-Spears lift 51",steps,5,4,8.325
+"Chebyshev-Spears lift 51",steps,5,5,8.206
+"Chebyshev-Spears lift 51",steps,7,1,7.192
+"Chebyshev-Spears lift 51",steps,7,2,7.754
+"Chebyshev-Spears lift 51",steps,7,3,5.532
+"Chebyshev-Spears lift 51",steps,7,4,8.109
+"Chebyshev-Spears lift 51",steps,7,5,8.022
+"Chebyshev-Spears lift 51",waves,2,1,8.599
+"Chebyshev-Spears lift 51",waves,2,2,8.510
+"Chebyshev-Spears lift 51",waves,2,3,7.678
+"Chebyshev-Spears lift 51",waves,2,4,7.821
+"Chebyshev-Spears lift 51",waves,2,5,7.910
+"Chebyshev-Spears lift 51",waves,4,1,7.684
+"Chebyshev-Spears lift 51",waves,4,2,7.732
+"Chebyshev-Spears lift 51",waves,4,3,7.064
+"Chebyshev-Spears lift 51",waves,4,4,7.824
+"Chebyshev-Spears lift 51",waves,4,5,7.696
+"Chebyshev-Spears lift 51",waves,6,1,3.222
+"Chebyshev-Spears lift 51",waves,6,2,7.093
+"Chebyshev-Spears lift 51",waves,6,3,7.288
+"Chebyshev-Spears lift 51",waves,6,4,6.593
+"Chebyshev-Spears lift 51",waves,6,5,6.248
+"Chebyshev-Spears lift 62 diag",flat,0,1,8.860
+"Chebyshev-Spears lift 62 diag",flat,0,2,8.871
+"Chebyshev-Spears lift 62 diag",flat,0,3,8.868
+"Chebyshev-Spears lift 62 diag",flat,0,4,8.870
+"Chebyshev-Spears lift 62 diag",flat,0,5,8.839
+"Chebyshev-Spears lift 62 diag",logs,1,1,8.766
+"Chebyshev-Spears lift 62 diag",logs,1,2,8.784
+"Chebyshev-Spears lift 62 diag",logs,1,3,8.938
+"Chebyshev-Spears lift 62 diag",logs,1,4,8.924
+"Chebyshev-Spears lift 62 diag",logs,1,5,8.922
+"Chebyshev-Spears lift 62 diag",logs,2,1,8.700
+"Chebyshev-Spears lift 62 diag",logs,2,2,8.687
+"Chebyshev-Spears lift 62 diag",logs,2,3,8.231
+"Chebyshev-Spears lift 62 diag",logs,2,4,8.655
+"Chebyshev-Spears lift 62 diag",logs,2,5,8.659
+"Chebyshev-Spears lift 62 diag",logs,3,1,7.293
+"Chebyshev-Spears lift 62 diag",logs,3,2,7.843
+"Chebyshev-Spears lift 62 diag",logs,3,3,8.075
+"Chebyshev-Spears lift 62 diag",logs,3,4,8.063
+"Chebyshev-Spears lift 62 diag",logs,3,5,8.255
+"Chebyshev-Spears lift 62 diag",logs,4,1,8.292
+"Chebyshev-Spears lift 62 diag",logs,4,2,7.965
+"Chebyshev-Spears lift 62 diag",logs,4,3,7.894
+"Chebyshev-Spears lift 62 diag",logs,4,4,8.050
+"Chebyshev-Spears lift 62 diag",logs,4,5,8.305
+"Chebyshev-Spears lift 62 diag",logs,5,1,7.952
+"Chebyshev-Spears lift 62 diag",logs,5,2,7.822
+"Chebyshev-Spears lift 62 diag",logs,5,3,6.880
+"Chebyshev-Spears lift 62 diag",logs,5,4,7.903
+"Chebyshev-Spears lift 62 diag",logs,5,5,8.208
+"Chebyshev-Spears lift 62 diag",logs,6,1,6.802
+"Chebyshev-Spears lift 62 diag",logs,6,2,2.406
+"Chebyshev-Spears lift 62 diag",logs,6,3,6.002
+"Chebyshev-Spears lift 62 diag",logs,6,4,8.000
+"Chebyshev-Spears lift 62 diag",logs,6,5,8.513
+"Chebyshev-Spears lift 62 diag",logs,7,1,6.196
+"Chebyshev-Spears lift 62 diag",logs,7,2,2.134
+"Chebyshev-Spears lift 62 diag",logs,7,3,5.882
+"Chebyshev-Spears lift 62 diag",logs,7,4,7.051
+"Chebyshev-Spears lift 62 diag",logs,7,5,6.353
+"Chebyshev-Spears lift 62 diag",logs,8,1,2.741
+"Chebyshev-Spears lift 62 diag",logs,8,2,2.460
+"Chebyshev-Spears lift 62 diag",logs,8,3,3.741
+"Chebyshev-Spears lift 62 diag",logs,8,4,4.300
+"Chebyshev-Spears lift 62 diag",logs,8,5,5.936
+"Chebyshev-Spears lift 62 diag",random,1,1,8.546
+"Chebyshev-Spears lift 62 diag",random,1,2,8.961
+"Chebyshev-Spears lift 62 diag",random,1,3,8.792
+"Chebyshev-Spears lift 62 diag",random,1,4,8.661
+"Chebyshev-Spears lift 62 diag",random,1,5,8.873
+"Chebyshev-Spears lift 62 diag",random,2,1,7.964
+"Chebyshev-Spears lift 62 diag",random,2,2,8.738
+"Chebyshev-Spears lift 62 diag",random,2,3,8.321
+"Chebyshev-Spears lift 62 diag",random,2,4,8.306
+"Chebyshev-Spears lift 62 diag",random,2,5,8.305
+"Chebyshev-Spears lift 62 diag",random,3,1,7.739
+"Chebyshev-Spears lift 62 diag",random,3,2,8.489
+"Chebyshev-Spears lift 62 diag",random,3,3,7.742
+"Chebyshev-Spears lift 62 diag",random,3,4,7.723
+"Chebyshev-Spears lift 62 diag",random,3,5,7.674
+"Chebyshev-Spears lift 62 diag",random,4,1,7.713
+"Chebyshev-Spears lift 62 diag",random,4,2,7.792
+"Chebyshev-Spears lift 62 diag",random,4,3,7.079
+"Chebyshev-Spears lift 62 diag",random,4,4,7.662
+"Chebyshev-Spears lift 62 diag",random,4,5,7.564
+"Chebyshev-Spears lift 62 diag",random,5,1,5.448
+"Chebyshev-Spears lift 62 diag",random,5,2,7.289
+"Chebyshev-Spears lift 62 diag",random,5,3,7.679
+"Chebyshev-Spears lift 62 diag",random,5,4,7.486
+"Chebyshev-Spears lift 62 diag",random,5,5,5.671
+"Chebyshev-Spears lift 62 diag",random,6,1,5.965
+"Chebyshev-Spears lift 62 diag",random,6,2,6.916
+"Chebyshev-Spears lift 62 diag",random,6,3,6.750
+"Chebyshev-Spears lift 62 diag",random,6,4,7.140
+"Chebyshev-Spears lift 62 diag",random,6,5,6.543
+"Chebyshev-Spears lift 62 diag",random,7,1,6.080
+"Chebyshev-Spears lift 62 diag",random,7,2,6.836
+"Chebyshev-Spears lift 62 diag",random,7,3,5.202
+"Chebyshev-Spears lift 62 diag",random,7,4,6.869
+"Chebyshev-Spears lift 62 diag",random,7,5,5.169
+"Chebyshev-Spears lift 62 diag",random,8,1,6.180
+"Chebyshev-Spears lift 62 diag",random,8,2,7.176
+"Chebyshev-Spears lift 62 diag",random,8,3,4.909
+"Chebyshev-Spears lift 62 diag",random,8,4,7.039
+"Chebyshev-Spears lift 62 diag",random,8,5,4.986
+"Chebyshev-Spears lift 62 diag",steps,1,1,8.793
+"Chebyshev-Spears lift 62 diag",steps,1,2,8.904
+"Chebyshev-Spears lift 62 diag",steps,1,3,8.879
+"Chebyshev-Spears lift 62 diag",steps,1,4,8.839
+"Chebyshev-Spears lift 62 diag",steps,1,5,8.920
+"Chebyshev-Spears lift 62 diag",steps,2,1,8.747
+"Chebyshev-Spears lift 62 diag",steps,2,2,8.694
+"Chebyshev-Spears lift 62 diag",steps,2,3,8.797
+"Chebyshev-Spears lift 62 diag",steps,2,4,8.766
+"Chebyshev-Spears lift 62 diag",steps,2,5,8.749
+"Chebyshev-Spears lift 62 diag",steps,3,1,8.363
+"Chebyshev-Spears lift 62 diag",steps,3,2,8.274
+"Chebyshev-Spears lift 62 diag",steps,3,3,8.768
+"Chebyshev-Spears lift 62 diag",steps,3,4,8.721
+"Chebyshev-Spears lift 62 diag",steps,3,5,8.330
+"Chebyshev-Spears lift 62 diag",steps,4,1,8.325
+"Chebyshev-Spears lift 62 diag",steps,4,2,8.269
+"Chebyshev-Spears lift 62 diag",steps,4,3,8.417
+"Chebyshev-Spears lift 62 diag",steps,4,4,8.581
+"Chebyshev-Spears lift 62 diag",steps,4,5,8.384
+"Chebyshev-Spears lift 62 diag",steps,5,1,8.031
+"Chebyshev-Spears lift 62 diag",steps,5,2,8.177
+"Chebyshev-Spears lift 62 diag",steps,5,3,7.839
+"Chebyshev-Spears lift 62 diag",steps,5,4,6.581
+"Chebyshev-Spears lift 62 diag",steps,5,5,7.464
+"Chebyshev-Spears lift 62 diag",steps,6,1,7.663
+"Chebyshev-Spears lift 62 diag",steps,6,2,7.356
+"Chebyshev-Spears lift 62 diag",steps,6,3,7.517
+"Chebyshev-Spears lift 62 diag",steps,6,4,8.003
+"Chebyshev-Spears lift 62 diag",steps,6,5,7.541
+"Chebyshev-Spears lift 62 diag",steps,7,1,7.556
+"Chebyshev-Spears lift 62 diag",steps,7,2,7.617
+"Chebyshev-Spears lift 62 diag",steps,7,3,6.419
+"Chebyshev-Spears lift 62 diag",steps,7,4,7.531
+"Chebyshev-Spears lift 62 diag",steps,7,5,7.366
+"Chebyshev-Spears lift 62 diag",steps,8,1,7.308
+"Chebyshev-Spears lift 62 diag",steps,8,2,1.276
+"Chebyshev-Spears lift 62 diag",steps,8,3,3.698
+"Chebyshev-Spears lift 62 diag",steps,8,4,7.455
+"Chebyshev-Spears lift 62 diag",steps,8,5,3.031
+"Chebyshev-Spears lift 62 diag",waves,1,1,8.889
+"Chebyshev-Spears lift 62 diag",waves,1,2,8.447
+"Chebyshev-Spears lift 62 diag",waves,1,3,8.553
+"Chebyshev-Spears lift 62 diag",waves,1,4,8.841
+"Chebyshev-Spears lift 62 diag",waves,1,5,8.484
+"Chebyshev-Spears lift 62 diag",waves,2,1,8.134
+"Chebyshev-Spears lift 62 diag",waves,2,2,7.911
+"Chebyshev-Spears lift 62 diag",waves,2,3,7.912
+"Chebyshev-Spears lift 62 diag",waves,2,4,8.378
+"Chebyshev-Spears lift 62 diag",waves,2,5,8.105
+"Chebyshev-Spears lift 62 diag",waves,3,1,5.767
+"Chebyshev-Spears lift 62 diag",waves,3,2,7.195
+"Chebyshev-Spears lift 62 diag",waves,3,3,5.630
+"Chebyshev-Spears lift 62 diag",waves,3,4,6.009
+"Chebyshev-Spears lift 62 diag",waves,3,5,5.853
+"Chebyshev-Spears lift 62 diag",waves,4,1,6.450
+"Chebyshev-Spears lift 62 diag",waves,4,2,5.053
+"Chebyshev-Spears lift 62 diag",waves,4,3,4.809
+"Chebyshev-Spears lift 62 diag",waves,4,4,6.345
+"Chebyshev-Spears lift 62 diag",waves,4,5,5.339
+"Chebyshev-Spears lift 62 diag",waves,5,1,4.854
+"Chebyshev-Spears lift 62 diag",waves,5,2,5.815
+"Chebyshev-Spears lift 62 diag",waves,5,3,5.301
+"Chebyshev-Spears lift 62 diag",waves,5,4,6.008
+"Chebyshev-Spears lift 62 diag",waves,5,5,4.802
+"Chebyshev-Spears lift 62 diag",waves,6,1,2.608
+"Chebyshev-Spears lift 62 diag",waves,6,2,4.634
+"Chebyshev-Spears lift 62 diag",waves,6,3,3.492
+"Chebyshev-Spears lift 62 diag",waves,6,4,6.090
+"Chebyshev-Spears lift 62 diag",waves,6,5,6.278
+"Chebyshev-Spears lift 62 diag",waves,7,1,0.901
+"Chebyshev-Spears lift 62 diag",waves,7,2,4.841
+"Chebyshev-Spears lift 62 diag",waves,7,3,2.753
+"Chebyshev-Spears lift 62 diag",waves,7,4,3.636
+"Chebyshev-Spears lift 62 diag",waves,7,5,4.570
+"Chebyshev-Spears lift 62 diag",waves,8,1,1.326
+"Chebyshev-Spears lift 62 diag",waves,8,2,5.067
+"Chebyshev-Spears lift 62 diag",waves,8,3,5.493
+"Chebyshev-Spears lift 62 diag",waves,8,4,4.289
+"Chebyshev-Spears lift 62 diag",waves,8,5,3.665
+"Chebyshev-Spears lift 62",logs,3,1,8.359
+"Chebyshev-Spears lift 62",logs,3,2,8.022
+"Chebyshev-Spears lift 62",logs,3,3,8.347
+"Chebyshev-Spears lift 62",logs,3,4,8.184
+"Chebyshev-Spears lift 62",logs,3,5,8.369
+"Chebyshev-Spears lift 62",logs,5,1,7.020
+"Chebyshev-Spears lift 62",logs,5,2,7.961
+"Chebyshev-Spears lift 62",logs,5,3,7.554
+"Chebyshev-Spears lift 62",logs,5,4,7.604
+"Chebyshev-Spears lift 62",logs,5,5,8.369
+"Chebyshev-Spears lift 62",logs,7,1,6.665
+"Chebyshev-Spears lift 62",logs,7,2,6.553
+"Chebyshev-Spears lift 62",logs,7,3,7.048
+"Chebyshev-Spears lift 62",logs,7,4,7.690
+"Chebyshev-Spears lift 62",logs,7,5,7.309
+"Chebyshev-Spears lift 62",steps,3,1,8.414
+"Chebyshev-Spears lift 62",steps,3,2,8.299
+"Chebyshev-Spears lift 62",steps,3,3,8.728
+"Chebyshev-Spears lift 62",steps,3,4,8.810
+"Chebyshev-Spears lift 62",steps,3,5,8.422
+"Chebyshev-Spears lift 62",steps,5,1,8.029
+"Chebyshev-Spears lift 62",steps,5,2,8.168
+"Chebyshev-Spears lift 62",steps,5,3,7.897
+"Chebyshev-Spears lift 62",steps,5,4,8.009
+"Chebyshev-Spears lift 62",steps,5,5,7.288
+"Chebyshev-Spears lift 62",steps,7,1,7.793
+"Chebyshev-Spears lift 62",steps,7,2,7.301
+"Chebyshev-Spears lift 62",steps,7,3,6.541
+"Chebyshev-Spears lift 62",steps,7,4,7.595
+"Chebyshev-Spears lift 62",steps,7,5,7.546
+"Chebyshev-Spears lift 62",waves,2,1,7.745
+"Chebyshev-Spears lift 62",waves,2,2,7.380
+"Chebyshev-Spears lift 62",waves,2,3,8.120
+"Chebyshev-Spears lift 62",waves,2,4,8.105
+"Chebyshev-Spears lift 62",waves,2,5,7.443
+"Chebyshev-Spears lift 62",waves,4,1,4.991
+"Chebyshev-Spears lift 62",waves,4,2,7.616
+"Chebyshev-Spears lift 62",waves,4,3,6.358
+"Chebyshev-Spears lift 62",waves,4,4,7.659
+"Chebyshev-Spears lift 62",waves,4,5,5.493
+"Chebyshev-Spears lift 62",waves,6,1,3.947
+"Chebyshev-Spears lift 62",waves,6,2,4.232
+"Chebyshev-Spears lift 62",waves,6,3,4.841
+"Chebyshev-Spears lift 62",waves,6,4,6.287
+"Chebyshev-Spears lift 62",waves,6,5,5.216
+"Chebyshev-Spears",logs,3,1,8.366
+"Chebyshev-Spears",logs,3,2,8.189
+"Chebyshev-Spears",logs,3,3,8.644
+"Chebyshev-Spears",logs,3,4,8.427
+"Chebyshev-Spears",logs,3,5,8.493
+"Chebyshev-Spears",logs,5,1,6.091
+"Chebyshev-Spears",logs,5,2,4.075
+"Chebyshev-Spears",logs,5,3,7.035
+"Chebyshev-Spears",logs,5,4,6.467
+"Chebyshev-Spears",logs,5,5,1.832
+"Chebyshev-Spears",logs,7,1,-0.348
+"Chebyshev-Spears",logs,7,2,2.118
+"Chebyshev-Spears",logs,7,3,-0.598
+"Chebyshev-Spears",logs,7,4,-0.338
+"Chebyshev-Spears",logs,7,5,0.600
+"Chebyshev-Spears",steps,3,1,8.710
+"Chebyshev-Spears",steps,3,2,8.598
+"Chebyshev-Spears",steps,3,3,8.716
+"Chebyshev-Spears",steps,3,4,8.598
+"Chebyshev-Spears",steps,3,5,8.691
+"Chebyshev-Spears",steps,5,1,7.943
+"Chebyshev-Spears",steps,5,2,7.890
+"Chebyshev-Spears",steps,5,3,6.698
+"Chebyshev-Spears",steps,5,4,8.147
+"Chebyshev-Spears",steps,5,5,7.565
+"Chebyshev-Spears",steps,7,1,4.359
+"Chebyshev-Spears",steps,7,2,2.244
+"Chebyshev-Spears",steps,7,3,4.775
+"Chebyshev-Spears",steps,7,4,1.981
+"Chebyshev-Spears",steps,7,5,-0.574
+"Chebyshev-Spears",waves,2,1,8.683
+"Chebyshev-Spears",waves,2,2,8.829
+"Chebyshev-Spears",waves,2,3,8.699
+"Chebyshev-Spears",waves,2,4,8.693
+"Chebyshev-Spears",waves,2,5,8.658
+"Chebyshev-Spears",waves,4,1,7.127
+"Chebyshev-Spears",waves,4,2,5.837
+"Chebyshev-Spears",waves,4,3,7.314
+"Chebyshev-Spears",waves,4,4,6.903
+"Chebyshev-Spears",waves,4,5,7.828
+"Chebyshev-Spears",waves,6,1,6.485
+"Chebyshev-Spears",waves,6,2,3.912
+"Chebyshev-Spears",waves,6,3,5.316
+"Chebyshev-Spears",waves,6,4,4.049
+"Chebyshev-Spears",waves,6,5,3.703
+"Chebyshev diag",flat,0,1,8.951
+"Chebyshev diag",flat,0,2,8.959
+"Chebyshev diag",flat,0,3,8.955
+"Chebyshev diag",flat,0,4,8.963
+"Chebyshev diag",flat,0,5,8.955
+"Chebyshev diag",logs,1,1,8.356
+"Chebyshev diag",logs,1,2,8.203
+"Chebyshev diag",logs,1,3,8.354
+"Chebyshev diag",logs,1,4,8.210
+"Chebyshev diag",logs,1,5,8.072
+"Chebyshev diag",logs,2,1,7.854
+"Chebyshev diag",logs,2,2,7.954
+"Chebyshev diag",logs,2,3,7.489
+"Chebyshev diag",logs,2,4,8.182
+"Chebyshev diag",logs,2,5,7.836
+"Chebyshev diag",logs,3,1,6.776
+"Chebyshev diag",logs,3,2,6.435
+"Chebyshev diag",logs,3,3,7.091
+"Chebyshev diag",logs,3,4,7.369
+"Chebyshev diag",logs,3,5,7.085
+"Chebyshev diag",logs,4,1,6.585
+"Chebyshev diag",logs,4,2,-0.332
+"Chebyshev diag",logs,4,3,5.579
+"Chebyshev diag",logs,4,4,6.364
+"Chebyshev diag",logs,4,5,6.615
+"Chebyshev diag",logs,5,1,4.712
+"Chebyshev diag",logs,5,2,2.075
+"Chebyshev diag",logs,5,3,3.849
+"Chebyshev diag",logs,5,4,4.044
+"Chebyshev diag",logs,5,5,3.784
+"Chebyshev diag",logs,6,1,-0.243
+"Chebyshev diag",logs,6,2,-0.267
+"Chebyshev diag",logs,6,3,-0.182
+"Chebyshev diag",logs,6,4,-0.291
+"Chebyshev diag",logs,6,5,-0.046
+"Chebyshev diag",logs,7,1,-0.285
+"Chebyshev diag",logs,7,2,-0.307
+"Chebyshev diag",logs,7,3,-0.327
+"Chebyshev diag",logs,7,4,-0.397
+"Chebyshev diag",logs,7,5,-0.098
+"Chebyshev diag",logs,8,1,-0.359
+"Chebyshev diag",logs,8,2,-0.220
+"Chebyshev diag",logs,8,3,-0.266
+"Chebyshev diag",logs,8,4,-0.207
+"Chebyshev diag",logs,8,5,-0.095
+"Chebyshev diag",random,1,1,8.449
+"Chebyshev diag",random,1,2,8.781
+"Chebyshev diag",random,1,3,8.682
+"Chebyshev diag",random,1,4,8.598
+"Chebyshev diag",random,1,5,8.509
+"Chebyshev diag",random,2,1,8.063
+"Chebyshev diag",random,2,2,8.305
+"Chebyshev diag",random,2,3,8.364
+"Chebyshev diag",random,2,4,8.423
+"Chebyshev diag",random,2,5,7.970
+"Chebyshev diag",random,3,1,7.802
+"Chebyshev diag",random,3,2,8.011
+"Chebyshev diag",random,3,3,7.679
+"Chebyshev diag",random,3,4,8.087
+"Chebyshev diag",random,3,5,7.559
+"Chebyshev diag",random,4,1,7.876
+"Chebyshev diag",random,4,2,7.639
+"Chebyshev diag",random,4,3,7.456
+"Chebyshev diag",random,4,4,7.842
+"Chebyshev diag",random,4,5,7.483
+"Chebyshev diag",random,5,1,6.848
+"Chebyshev diag",random,5,2,7.426
+"Chebyshev diag",random,5,3,7.452
+"Chebyshev diag",random,5,4,7.793
+"Chebyshev diag",random,5,5,6.567
+"Chebyshev diag",random,6,1,5.185
+"Chebyshev diag",random,6,2,7.185
+"Chebyshev diag",random,6,3,6.817
+"Chebyshev diag",random,6,4,6.850
+"Chebyshev diag",random,6,5,6.087
+"Chebyshev diag",random,7,1,0.240
+"Chebyshev diag",random,7,2,6.492
+"Chebyshev diag",random,7,3,3.798
+"Chebyshev diag",random,7,4,5.657
+"Chebyshev diag",random,7,5,5.451
+"Chebyshev diag",random,8,1,1.479
+"Chebyshev diag",random,8,2,4.898
+"Chebyshev diag",random,8,3,4.829
+"Chebyshev diag",random,8,4,5.770
+"Chebyshev diag",random,8,5,4.386
+"Chebyshev diag",steps,1,1,8.256
+"Chebyshev diag",steps,1,2,8.102
+"Chebyshev diag",steps,1,3,8.271
+"Chebyshev diag",steps,1,4,8.321
+"Chebyshev diag",steps,1,5,8.285
+"Chebyshev diag",steps,2,1,7.709
+"Chebyshev diag",steps,2,2,7.924
+"Chebyshev diag",steps,2,3,7.729
+"Chebyshev diag",steps,2,4,7.783
+"Chebyshev diag",steps,2,5,8.088
+"Chebyshev diag",steps,3,1,7.377
+"Chebyshev diag",steps,3,2,7.406
+"Chebyshev diag",steps,3,3,6.907
+"Chebyshev diag",steps,3,4,7.203
+"Chebyshev diag",steps,3,5,7.337
+"Chebyshev diag",steps,4,1,6.671
+"Chebyshev diag",steps,4,2,6.976
+"Chebyshev diag",steps,4,3,6.709
+"Chebyshev diag",steps,4,4,7.137
+"Chebyshev diag",steps,4,5,6.560
+"Chebyshev diag",steps,5,1,5.537
+"Chebyshev diag",steps,5,2,6.514
+"Chebyshev diag",steps,5,3,5.365
+"Chebyshev diag",steps,5,4,7.058
+"Chebyshev diag",steps,5,5,1.350
+"Chebyshev diag",steps,6,1,-0.057
+"Chebyshev diag",steps,6,2,2.116
+"Chebyshev diag",steps,6,3,-0.058
+"Chebyshev diag",steps,6,4,3.664
+"Chebyshev diag",steps,6,5,1.389
+"Chebyshev diag",steps,7,1,-0.023
+"Chebyshev diag",steps,7,2,2.072
+"Chebyshev diag",steps,7,3,0.083
+"Chebyshev diag",steps,7,4,3.722
+"Chebyshev diag",steps,7,5,1.252
+"Chebyshev diag",steps,8,1,-0.052
+"Chebyshev diag",steps,8,2,-0.145
+"Chebyshev diag",steps,8,3,0.139
+"Chebyshev diag",steps,8,4,2.979
+"Chebyshev diag",steps,8,5,1.446
+"Chebyshev diag",waves,1,1,8.559
+"Chebyshev diag",waves,1,2,8.612
+"Chebyshev diag",waves,1,3,8.421
+"Chebyshev diag",waves,1,4,8.197
+"Chebyshev diag",waves,1,5,8.503
+"Chebyshev diag",waves,2,1,7.677
+"Chebyshev diag",waves,2,2,7.750
+"Chebyshev diag",waves,2,3,7.663
+"Chebyshev diag",waves,2,4,7.686
+"Chebyshev diag",waves,2,5,7.699
+"Chebyshev diag",waves,3,1,7.153
+"Chebyshev diag",waves,3,2,7.097
+"Chebyshev diag",waves,3,3,6.870
+"Chebyshev diag",waves,3,4,7.487
+"Chebyshev diag",waves,3,5,6.772
+"Chebyshev diag",waves,4,1,6.789
+"Chebyshev diag",waves,4,2,6.143
+"Chebyshev diag",waves,4,3,5.593
+"Chebyshev diag",waves,4,4,6.380
+"Chebyshev diag",waves,4,5,6.897
+"Chebyshev diag",waves,5,1,3.172
+"Chebyshev diag",waves,5,2,5.943
+"Chebyshev diag",waves,5,3,5.143
+"Chebyshev diag",waves,5,4,4.476
+"Chebyshev diag",waves,5,5,3.192
+"Chebyshev diag",waves,6,1,1.618
+"Chebyshev diag",waves,6,2,2.157
+"Chebyshev diag",waves,6,3,1.074
+"Chebyshev diag",waves,6,4,3.430
+"Chebyshev diag",waves,6,5,3.073
+"Chebyshev diag",waves,7,1,4.081
+"Chebyshev diag",waves,7,2,2.379
+"Chebyshev diag",waves,7,3,0.206
+"Chebyshev diag",waves,7,4,1.653
+"Chebyshev diag",waves,7,5,0.411
+"Chebyshev diag",waves,8,1,0.721
+"Chebyshev diag",waves,8,2,1.153
+"Chebyshev diag",waves,8,3,1.545
+"Chebyshev diag",waves,8,4,2.016
+"Chebyshev diag",waves,8,5,0.301
+"Chebyshev",logs,3,1,6.643
+"Chebyshev",logs,3,2,6.328
+"Chebyshev",logs,3,3,7.013
+"Chebyshev",logs,3,4,7.292
+"Chebyshev",logs,3,5,7.093
+"Chebyshev",logs,5,1,5.861
+"Chebyshev",logs,5,2,3.721
+"Chebyshev",logs,5,3,4.581
+"Chebyshev",logs,5,4,4.470
+"Chebyshev",logs,5,5,4.988
+"Chebyshev",logs,7,1,0.092
+"Chebyshev",logs,7,2,0.081
+"Chebyshev",logs,7,3,-0.240
+"Chebyshev",logs,7,4,0.065
+"Chebyshev",logs,7,5,0.012
+"Chebyshev",steps,3,1,7.327
+"Chebyshev",steps,3,2,7.372
+"Chebyshev",steps,3,3,6.987
+"Chebyshev",steps,3,4,7.257
+"Chebyshev",steps,3,5,7.317
+"Chebyshev",steps,5,1,4.216
+"Chebyshev",steps,5,2,6.782
+"Chebyshev",steps,5,3,5.132
+"Chebyshev",steps,5,4,7.029
+"Chebyshev",steps,5,5,2.384
+"Chebyshev",steps,7,1,-0.151
+"Chebyshev",steps,7,2,2.105
+"Chebyshev",steps,7,3,0.338
+"Chebyshev",steps,7,4,2.940
+"Chebyshev",steps,7,5,2.147
+"Chebyshev",waves,2,1,7.652
+"Chebyshev",waves,2,2,7.698
+"Chebyshev",waves,2,3,7.945
+"Chebyshev",waves,2,4,7.694
+"Chebyshev",waves,2,5,7.745
+"Chebyshev",waves,4,1,4.723
+"Chebyshev",waves,4,2,6.877
+"Chebyshev",waves,4,3,7.166
+"Chebyshev",waves,4,4,6.913
+"Chebyshev",waves,4,5,7.188
+"Chebyshev",waves,6,1,3.513
+"Chebyshev",waves,6,2,3.427
+"Chebyshev",waves,6,3,3.002
+"Chebyshev",waves,6,4,5.398
+"Chebyshev",waves,6,5,4.505
+"Hoecken-Spears 4-bar diag",flat,0,1,8.999
+"Hoecken-Spears 4-bar diag",flat,0,2,9.003
+"Hoecken-Spears 4-bar diag",flat,0,3,8.997
+"Hoecken-Spears 4-bar diag",flat,0,4,9.002
+"Hoecken-Spears 4-bar diag",flat,0,5,8.996
+"Hoecken-Spears 4-bar diag",logs,1,1,8.769
+"Hoecken-Spears 4-bar diag",logs,1,2,8.826
+"Hoecken-Spears 4-bar diag",logs,1,3,8.807
+"Hoecken-Spears 4-bar diag",logs,1,4,8.954
+"Hoecken-Spears 4-bar diag",logs,1,5,8.919
+"Hoecken-Spears 4-bar diag",logs,2,1,8.702
+"Hoecken-Spears 4-bar diag",logs,2,2,8.515
+"Hoecken-Spears 4-bar diag",logs,2,3,8.690
+"Hoecken-Spears 4-bar diag",logs,2,4,8.653
+"Hoecken-Spears 4-bar diag",logs,2,5,8.889
+"Hoecken-Spears 4-bar diag",logs,3,1,8.443
+"Hoecken-Spears 4-bar diag",logs,3,2,8.296
+"Hoecken-Spears 4-bar diag",logs,3,3,8.269
+"Hoecken-Spears 4-bar diag",logs,3,4,8.607
+"Hoecken-Spears 4-bar diag",logs,3,5,8.629
+"Hoecken-Spears 4-bar diag",logs,4,1,8.346
+"Hoecken-Spears 4-bar diag",logs,4,2,7.770
+"Hoecken-Spears 4-bar diag",logs,4,3,7.562
+"Hoecken-Spears 4-bar diag",logs,4,4,7.936
+"Hoecken-Spears 4-bar diag",logs,4,5,8.357
+"Hoecken-Spears 4-bar diag",logs,5,1,6.782
+"Hoecken-Spears 4-bar diag",logs,5,2,6.370
+"Hoecken-Spears 4-bar diag",logs,5,3,6.860
+"Hoecken-Spears 4-bar diag",logs,5,4,7.863
+"Hoecken-Spears 4-bar diag",logs,5,5,7.261
+"Hoecken-Spears 4-bar diag",logs,6,1,6.161
+"Hoecken-Spears 4-bar diag",logs,6,2,5.720
+"Hoecken-Spears 4-bar diag",logs,6,3,6.306
+"Hoecken-Spears 4-bar diag",logs,6,4,7.029
+"Hoecken-Spears 4-bar diag",logs,6,5,4.932
+"Hoecken-Spears 4-bar diag",logs,7,1,3.440
+"Hoecken-Spears 4-bar diag",logs,7,2,4.347
+"Hoecken-Spears 4-bar diag",logs,7,3,6.283
+"Hoecken-Spears 4-bar diag",logs,7,4,4.229
+"Hoecken-Spears 4-bar diag",logs,7,5,0.043
+"Hoecken-Spears 4-bar diag",logs,8,1,-0.247
+"Hoecken-Spears 4-bar diag",logs,8,2,0.068
+"Hoecken-Spears 4-bar diag",logs,8,3,-0.130
+"Hoecken-Spears 4-bar diag",logs,8,4,0.010
+"Hoecken-Spears 4-bar diag",logs,8,5,0.261
+"Hoecken-Spears 4-bar diag",random,1,1,8.892
+"Hoecken-Spears 4-bar diag",random,1,2,8.973
+"Hoecken-Spears 4-bar diag",random,1,3,8.979
+"Hoecken-Spears 4-bar diag",random,1,4,8.986
+"Hoecken-Spears 4-bar diag",random,1,5,8.923
+"Hoecken-Spears 4-bar diag",random,2,1,8.748
+"Hoecken-Spears 4-bar diag",random,2,2,8.857
+"Hoecken-Spears 4-bar diag",random,2,3,8.774
+"Hoecken-Spears 4-bar diag",random,2,4,8.986
+"Hoecken-Spears 4-bar diag",random,2,5,8.782
+"Hoecken-Spears 4-bar diag",random,3,1,8.335
+"Hoecken-Spears 4-bar diag",random,3,2,8.201
+"Hoecken-Spears 4-bar diag",random,3,3,8.564
+"Hoecken-Spears 4-bar diag",random,3,4,8.679
+"Hoecken-Spears 4-bar diag",random,3,5,8.741
+"Hoecken-Spears 4-bar diag",random,4,1,7.678
+"Hoecken-Spears 4-bar diag",random,4,2,8.461
+"Hoecken-Spears 4-bar diag",random,4,3,8.655
+"Hoecken-Spears 4-bar diag",random,4,4,8.252
+"Hoecken-Spears 4-bar diag",random,4,5,8.050
+"Hoecken-Spears 4-bar diag",random,5,1,8.133
+"Hoecken-Spears 4-bar diag",random,5,2,7.588
+"Hoecken-Spears 4-bar diag",random,5,3,8.216
+"Hoecken-Spears 4-bar diag",random,5,4,8.182
+"Hoecken-Spears 4-bar diag",random,5,5,7.932
+"Hoecken-Spears 4-bar diag",random,6,1,7.276
+"Hoecken-Spears 4-bar diag",random,6,2,7.705
+"Hoecken-Spears 4-bar diag",random,6,3,7.705
+"Hoecken-Spears 4-bar diag",random,6,4,8.177
+"Hoecken-Spears 4-bar diag",random,6,5,6.611
+"Hoecken-Spears 4-bar diag",random,7,1,5.608
+"Hoecken-Spears 4-bar diag",random,7,2,7.483
+"Hoecken-Spears 4-bar diag",random,7,3,6.829
+"Hoecken-Spears 4-bar diag",random,7,4,7.627
+"Hoecken-Spears 4-bar diag",random,7,5,6.794
+"Hoecken-Spears 4-bar diag",random,8,1,6.177
+"Hoecken-Spears 4-bar diag",random,8,2,7.487
+"Hoecken-Spears 4-bar diag",random,8,3,6.938
+"Hoecken-Spears 4-bar diag",random,8,4,6.964
+"Hoecken-Spears 4-bar diag",random,8,5,6.503
+"Hoecken-Spears 4-bar diag",steps,1,1,8.834
+"Hoecken-Spears 4-bar diag",steps,1,2,8.818
+"Hoecken-Spears 4-bar diag",steps,1,3,8.899
+"Hoecken-Spears 4-bar diag",steps,1,4,8.870
+"Hoecken-Spears 4-bar diag",steps,1,5,8.873
+"Hoecken-Spears 4-bar diag",steps,2,1,8.628
+"Hoecken-Spears 4-bar diag",steps,2,2,8.689
+"Hoecken-Spears 4-bar diag",steps,2,3,8.816
+"Hoecken-Spears 4-bar diag",steps,2,4,8.673
+"Hoecken-Spears 4-bar diag",steps,2,5,8.665
+"Hoecken-Spears 4-bar diag",steps,3,1,8.417
+"Hoecken-Spears 4-bar diag",steps,3,2,8.453
+"Hoecken-Spears 4-bar diag",steps,3,3,8.441
+"Hoecken-Spears 4-bar diag",steps,3,4,8.507
+"Hoecken-Spears 4-bar diag",steps,3,5,8.408
+"Hoecken-Spears 4-bar diag",steps,4,1,8.405
+"Hoecken-Spears 4-bar diag",steps,4,2,8.006
+"Hoecken-Spears 4-bar diag",steps,4,3,8.176
+"Hoecken-Spears 4-bar diag",steps,4,4,8.385
+"Hoecken-Spears 4-bar diag",steps,4,5,8.400
+"Hoecken-Spears 4-bar diag",steps,5,1,8.197
+"Hoecken-Spears 4-bar diag",steps,5,2,8.064
+"Hoecken-Spears 4-bar diag",steps,5,3,7.662
+"Hoecken-Spears 4-bar diag",steps,5,4,7.945
+"Hoecken-Spears 4-bar diag",steps,5,5,7.507
+"Hoecken-Spears 4-bar diag",steps,6,1,5.728
+"Hoecken-Spears 4-bar diag",steps,6,2,7.723
+"Hoecken-Spears 4-bar diag",steps,6,3,6.398
+"Hoecken-Spears 4-bar diag",steps,6,4,7.733
+"Hoecken-Spears 4-bar diag",steps,6,5,6.442
+"Hoecken-Spears 4-bar diag",steps,7,1,2.676
+"Hoecken-Spears 4-bar diag",steps,7,2,7.276
+"Hoecken-Spears 4-bar diag",steps,7,3,5.518
+"Hoecken-Spears 4-bar diag",steps,7,4,5.684
+"Hoecken-Spears 4-bar diag",steps,7,5,7.112
+"Hoecken-Spears 4-bar diag",steps,8,1,5.651
+"Hoecken-Spears 4-bar diag",steps,8,2,5.895
+"Hoecken-Spears 4-bar diag",steps,8,3,4.809
+"Hoecken-Spears 4-bar diag",steps,8,4,4.108
+"Hoecken-Spears 4-bar diag",steps,8,5,6.176
+"Hoecken-Spears 4-bar diag",waves,1,1,9.083
+"Hoecken-Spears 4-bar diag",waves,1,2,9.014
+"Hoecken-Spears 4-bar diag",waves,1,3,8.790
+"Hoecken-Spears 4-bar diag",waves,1,4,9.021
+"Hoecken-Spears 4-bar diag",waves,1,5,8.783
+"Hoecken-Spears 4-bar diag",waves,2,1,8.001
+"Hoecken-Spears 4-bar diag",waves,2,2,8.746
+"Hoecken-Spears 4-bar diag",waves,2,3,8.327
+"Hoecken-Spears 4-bar diag",waves,2,4,7.681
+"Hoecken-Spears 4-bar diag",waves,2,5,8.279
+"Hoecken-Spears 4-bar diag",waves,3,1,7.609
+"Hoecken-Spears 4-bar diag",waves,3,2,8.012
+"Hoecken-Spears 4-bar diag",waves,3,3,7.760
+"Hoecken-Spears 4-bar diag",waves,3,4,7.750
+"Hoecken-Spears 4-bar diag",waves,3,5,7.773
+"Hoecken-Spears 4-bar diag",waves,4,1,7.584
+"Hoecken-Spears 4-bar diag",waves,4,2,7.249
+"Hoecken-Spears 4-bar diag",waves,4,3,7.354
+"Hoecken-Spears 4-bar diag",waves,4,4,8.129
+"Hoecken-Spears 4-bar diag",waves,4,5,6.643
+"Hoecken-Spears 4-bar diag",waves,5,1,6.399
+"Hoecken-Spears 4-bar diag",waves,5,2,6.731
+"Hoecken-Spears 4-bar diag",waves,5,3,6.989
+"Hoecken-Spears 4-bar diag",waves,5,4,6.081
+"Hoecken-Spears 4-bar diag",waves,5,5,5.682
+"Hoecken-Spears 4-bar diag",waves,6,1,5.362
+"Hoecken-Spears 4-bar diag",waves,6,2,5.965
+"Hoecken-Spears 4-bar diag",waves,6,3,3.439
+"Hoecken-Spears 4-bar diag",waves,6,4,5.361
+"Hoecken-Spears 4-bar diag",waves,6,5,4.315
+"Hoecken-Spears 4-bar diag",waves,7,1,4.246
+"Hoecken-Spears 4-bar diag",waves,7,2,4.973
+"Hoecken-Spears 4-bar diag",waves,7,3,3.486
+"Hoecken-Spears 4-bar diag",waves,7,4,3.700
+"Hoecken-Spears 4-bar diag",waves,7,5,3.840
+"Hoecken-Spears 4-bar diag",waves,8,1,2.719
+"Hoecken-Spears 4-bar diag",waves,8,2,3.420
+"Hoecken-Spears 4-bar diag",waves,8,3,0.520
+"Hoecken-Spears 4-bar diag",waves,8,4,2.750
+"Hoecken-Spears 4-bar diag",waves,8,5,3.992
+"Hoecken-Spears 4-bar duty 85 diag",logs,3,1,8.396
+"Hoecken-Spears 4-bar duty 85 diag",logs,3,2,8.247
+"Hoecken-Spears 4-bar duty 85 diag",logs,3,3,8.215
+"Hoecken-Spears 4-bar duty 85 diag",logs,3,4,8.506
+"Hoecken-Spears 4-bar duty 85 diag",logs,3,5,8.245
+"Hoecken-Spears 4-bar duty 85 diag",logs,5,1,6.239
+"Hoecken-Spears 4-bar duty 85 diag",logs,5,2,7.022
+"Hoecken-Spears 4-bar duty 85 diag",logs,5,3,7.027
+"Hoecken-Spears 4-bar duty 85 diag",logs,5,4,7.298
+"Hoecken-Spears 4-bar duty 85 diag",logs,5,5,7.429
+"Hoecken-Spears 4-bar duty 85 diag",logs,7,1,3.127
+"Hoecken-Spears 4-bar duty 85 diag",logs,7,2,-0.282
+"Hoecken-Spears 4-bar duty 85 diag",logs,7,3,3.087
+"Hoecken-Spears 4-bar duty 85 diag",logs,7,4,-0.313
+"Hoecken-Spears 4-bar duty 85 diag",logs,7,5,0.293
+"Hoecken-Spears 4-bar duty 85 diag",steps,3,1,8.656
+"Hoecken-Spears 4-bar duty 85 diag",steps,3,2,8.623
+"Hoecken-Spears 4-bar duty 85 diag",steps,3,3,8.665
+"Hoecken-Spears 4-bar duty 85 diag",steps,3,4,8.268
+"Hoecken-Spears 4-bar duty 85 diag",steps,3,5,8.537
+"Hoecken-Spears 4-bar duty 85 diag",steps,5,1,8.187
+"Hoecken-Spears 4-bar duty 85 diag",steps,5,2,7.842
+"Hoecken-Spears 4-bar duty 85 diag",steps,5,3,7.924
+"Hoecken-Spears 4-bar duty 85 diag",steps,5,4,7.752
+"Hoecken-Spears 4-bar duty 85 diag",steps,5,5,8.382
+"Hoecken-Spears 4-bar duty 85 diag",steps,7,1,4.789
+"Hoecken-Spears 4-bar duty 85 diag",steps,7,2,7.498
+"Hoecken-Spears 4-bar duty 85 diag",steps,7,3,5.120
+"Hoecken-Spears 4-bar duty 85 diag",steps,7,4,7.465
+"Hoecken-Spears 4-bar duty 85 diag",steps,7,5,3.769
+"Hoecken-Spears 4-bar duty 85 diag",waves,2,1,8.098
+"Hoecken-Spears 4-bar duty 85 diag",waves,2,2,7.968
+"Hoecken-Spears 4-bar duty 85 diag",waves,2,3,7.994
+"Hoecken-Spears 4-bar duty 85 diag",waves,2,4,8.271
+"Hoecken-Spears 4-bar duty 85 diag",waves,2,5,8.339
+"Hoecken-Spears 4-bar duty 85 diag",waves,4,1,6.101
+"Hoecken-Spears 4-bar duty 85 diag",waves,4,2,8.206
+"Hoecken-Spears 4-bar duty 85 diag",waves,4,3,6.932
+"Hoecken-Spears 4-bar duty 85 diag",waves,4,4,7.355
+"Hoecken-Spears 4-bar duty 85 diag",waves,4,5,7.417
+"Hoecken-Spears 4-bar duty 85 diag",waves,6,1,4.338
+"Hoecken-Spears 4-bar duty 85 diag",waves,6,2,5.639
+"Hoecken-Spears 4-bar duty 85 diag",waves,6,3,5.575
+"Hoecken-Spears 4-bar duty 85 diag",waves,6,4,5.338
+"Hoecken-Spears 4-bar duty 85 diag",waves,6,5,5.785
+"Hoecken-Spears 4-bar duty 85",logs,3,1,8.449
+"Hoecken-Spears 4-bar duty 85",logs,3,2,8.026
+"Hoecken-Spears 4-bar duty 85",logs,3,3,8.246
+"Hoecken-Spears 4-bar duty 85",logs,3,4,8.553
+"Hoecken-Spears 4-bar duty 85",logs,3,5,8.302
+"Hoecken-Spears 4-bar duty 85",logs,5,1,4.046
+"Hoecken-Spears 4-bar duty 85",logs,5,2,-0.087
+"Hoecken-Spears 4-bar duty 85",logs,5,3,0.995
+"Hoecken-Spears 4-bar duty 85",logs,5,4,5.570
+"Hoecken-Spears 4-bar duty 85",logs,5,5,2.351
+"Hoecken-Spears 4-bar duty 85",logs,7,1,-0.020
+"Hoecken-Spears 4-bar duty 85",logs,7,2,0.014
+"Hoecken-Spears 4-bar duty 85",logs,7,3,-0.237
+"Hoecken-Spears 4-bar duty 85",logs,7,4,-0.052
+"Hoecken-Spears 4-bar duty 85",logs,7,5,0.411
+"Hoecken-Spears 4-bar duty 85",steps,3,1,8.528
+"Hoecken-Spears 4-bar duty 85",steps,3,2,8.633
+"Hoecken-Spears 4-bar duty 85",steps,3,3,8.669
+"Hoecken-Spears 4-bar duty 85",steps,3,4,8.361
+"Hoecken-Spears 4-bar duty 85",steps,3,5,8.540
+"Hoecken-Spears 4-bar duty 85",steps,5,1,4.995
+"Hoecken-Spears 4-bar duty 85",steps,5,2,-0.143
+"Hoecken-Spears 4-bar duty 85",steps,5,3,4.821
+"Hoecken-Spears 4-bar duty 85",steps,5,4,4.366
+"Hoecken-Spears 4-bar duty 85",steps,5,5,6.709
+"Hoecken-Spears 4-bar duty 85",steps,7,1,0.088
+"Hoecken-Spears 4-bar duty 85",steps,7,2,-0.105
+"Hoecken-Spears 4-bar duty 85",steps,7,3,1.795
+"Hoecken-Spears 4-bar duty 85",steps,7,4,1.906
+"Hoecken-Spears 4-bar duty 85",steps,7,5,0.019
+"Hoecken-Spears 4-bar duty 85",waves,2,1,8.223
+"Hoecken-Spears 4-bar duty 85",waves,2,2,8.726
+"Hoecken-Spears 4-bar duty 85",waves,2,3,8.474
+"Hoecken-Spears 4-bar duty 85",waves,2,4,8.684
+"Hoecken-Spears 4-bar duty 85",waves,2,5,8.495
+"Hoecken-Spears 4-bar duty 85",waves,4,1,8.282
+"Hoecken-Spears 4-bar duty 85",waves,4,2,7.421
+"Hoecken-Spears 4-bar duty 85",waves,4,3,8.233
+"Hoecken-Spears 4-bar duty 85",waves,4,4,5.494
+"Hoecken-Spears 4-bar duty 85",waves,4,5,8.066
+"Hoecken-Spears 4-bar duty 85",waves,6,1,2.749
+"Hoecken-Spears 4-bar duty 85",waves,6,2,0.497
+"Hoecken-Spears 4-bar duty 85",waves,6,3,4.102
+"Hoecken-Spears 4-bar duty 85",waves,6,4,7.189
+"Hoecken-Spears 4-bar duty 85",waves,6,5,4.823
+"Hoecken-Spears 4-bar",logs,3,1,8.348
+"Hoecken-Spears 4-bar",logs,3,2,8.420
+"Hoecken-Spears 4-bar",logs,3,3,8.264
+"Hoecken-Spears 4-bar",logs,3,4,8.627
+"Hoecken-Spears 4-bar",logs,3,5,8.492
+"Hoecken-Spears 4-bar",logs,5,1,7.282
+"Hoecken-Spears 4-bar",logs,5,2,7.161
+"Hoecken-Spears 4-bar",logs,5,3,7.477
+"Hoecken-Spears 4-bar",logs,5,4,7.100
+"Hoecken-Spears 4-bar",logs,5,5,6.670
+"Hoecken-Spears 4-bar",logs,7,1,0.814
+"Hoecken-Spears 4-bar",logs,7,2,1.980
+"Hoecken-Spears 4-bar",logs,7,3,-0.073
+"Hoecken-Spears 4-bar",logs,7,4,0.066
+"Hoecken-Spears 4-bar",logs,7,5,0.891
+"Hoecken-Spears 4-bar",steps,3,1,8.471
+"Hoecken-Spears 4-bar",steps,3,2,8.475
+"Hoecken-Spears 4-bar",steps,3,3,8.471
+"Hoecken-Spears 4-bar",steps,3,4,8.514
+"Hoecken-Spears 4-bar",steps,3,5,8.437
+"Hoecken-Spears 4-bar",steps,5,1,8.016
+"Hoecken-Spears 4-bar",steps,5,2,7.844
+"Hoecken-Spears 4-bar",steps,5,3,7.805
+"Hoecken-Spears 4-bar",steps,5,4,7.934
+"Hoecken-Spears 4-bar",steps,5,5,7.671
+"Hoecken-Spears 4-bar",steps,7,1,6.368
+"Hoecken-Spears 4-bar",steps,7,2,6.533
+"Hoecken-Spears 4-bar",steps,7,3,4.909
+"Hoecken-Spears 4-bar",steps,7,4,5.689
+"Hoecken-Spears 4-bar",steps,7,5,5.216
+"Hoecken-Spears 4-bar",waves,2,1,8.111
+"Hoecken-Spears 4-bar",waves,2,2,8.567
+"Hoecken-Spears 4-bar",waves,2,3,8.265
+"Hoecken-Spears 4-bar",waves,2,4,8.625
+"Hoecken-Spears 4-bar",waves,2,5,7.193
+"Hoecken-Spears 4-bar",waves,4,1,8.117
+"Hoecken-Spears 4-bar",waves,4,2,8.156
+"Hoecken-Spears 4-bar",waves,4,3,7.426
+"Hoecken-Spears 4-bar",waves,4,4,7.836
+"Hoecken-Spears 4-bar",waves,4,5,7.380
+"Hoecken-Spears 4-bar",waves,6,1,5.621
+"Hoecken-Spears 4-bar",waves,6,2,5.365
+"Hoecken-Spears 4-bar",waves,6,3,2.022
+"Hoecken-Spears 4-bar",waves,6,4,0.523
+"Hoecken-Spears 4-bar",waves,6,5,4.622
+"Hoecken-Spears long-stance diag",logs,3,1,8.396
+"Hoecken-Spears long-stance diag",logs,3,2,8.247
+"Hoecken-Spears long-stance diag",logs,3,3,8.215
+"Hoecken-Spears long-stance diag",logs,3,4,8.506
+"Hoecken-Spears long-stance diag",logs,3,5,8.245
+"Hoecken-Spears long-stance diag",logs,5,1,6.239
+"Hoecken-Spears long-stance diag",logs,5,2,7.022
+"Hoecken-Spears long-stance diag",logs,5,3,7.027
+"Hoecken-Spears long-stance diag",logs,5,4,7.298
+"Hoecken-Spears long-stance diag",logs,5,5,7.429
+"Hoecken-Spears long-stance diag",logs,7,1,3.127
+"Hoecken-Spears long-stance diag",logs,7,2,-0.282
+"Hoecken-Spears long-stance diag",logs,7,3,3.087
+"Hoecken-Spears long-stance diag",logs,7,4,-0.313
+"Hoecken-Spears long-stance diag",logs,7,5,0.293
+"Hoecken-Spears long-stance diag",steps,3,1,8.644
+"Hoecken-Spears long-stance diag",steps,3,2,8.623
+"Hoecken-Spears long-stance diag",steps,3,3,8.665
+"Hoecken-Spears long-stance diag",steps,3,4,8.268
+"Hoecken-Spears long-stance diag",steps,3,5,8.537
+"Hoecken-Spears long-stance diag",steps,5,1,8.187
+"Hoecken-Spears long-stance diag",steps,5,2,7.842
+"Hoecken-Spears long-stance diag",steps,5,3,7.910
+"Hoecken-Spears long-stance diag",steps,5,4,7.752
+"Hoecken-Spears long-stance diag",steps,5,5,8.382
+"Hoecken-Spears long-stance diag",steps,7,1,4.789
+"Hoecken-Spears long-stance diag",steps,7,2,7.498
+"Hoecken-Spears long-stance diag",steps,7,3,5.120
+"Hoecken-Spears long-stance diag",steps,7,4,7.465
+"Hoecken-Spears long-stance diag",steps,7,5,3.769
+"Hoecken-Spears long-stance diag",waves,2,1,8.098
+"Hoecken-Spears long-stance diag",waves,2,2,7.968
+"Hoecken-Spears long-stance diag",waves,2,3,7.994
+"Hoecken-Spears long-stance diag",waves,2,4,8.271
+"Hoecken-Spears long-stance diag",waves,2,5,8.339
+"Hoecken-Spears long-stance diag",waves,4,1,6.101
+"Hoecken-Spears long-stance diag",waves,4,2,8.206
+"Hoecken-Spears long-stance diag",waves,4,3,6.932
+"Hoecken-Spears long-stance diag",waves,4,4,7.355
+"Hoecken-Spears long-stance diag",waves,4,5,7.417
+"Hoecken-Spears long-stance diag",waves,6,1,4.338
+"Hoecken-Spears long-stance diag",waves,6,2,5.639
+"Hoecken-Spears long-stance diag",waves,6,3,5.575
+"Hoecken-Spears long-stance diag",waves,6,4,5.338
+"Hoecken-Spears long-stance diag",waves,6,5,5.785
+"Hoecken-Spears long-stance",logs,3,1,8.449
+"Hoecken-Spears long-stance",logs,3,2,8.026
+"Hoecken-Spears long-stance",logs,3,3,8.246
+"Hoecken-Spears long-stance",logs,3,4,8.553
+"Hoecken-Spears long-stance",logs,3,5,8.302
+"Hoecken-Spears long-stance",logs,5,1,4.046
+"Hoecken-Spears long-stance",logs,5,2,-0.087
+"Hoecken-Spears long-stance",logs,5,3,0.995
+"Hoecken-Spears long-stance",logs,5,4,5.570
+"Hoecken-Spears long-stance",logs,5,5,2.351
+"Hoecken-Spears long-stance",logs,7,1,-0.020
+"Hoecken-Spears long-stance",logs,7,2,0.014
+"Hoecken-Spears long-stance",logs,7,3,-0.237
+"Hoecken-Spears long-stance",logs,7,4,-0.052
+"Hoecken-Spears long-stance",logs,7,5,0.411
+"Hoecken-Spears long-stance",steps,3,1,8.528
+"Hoecken-Spears long-stance",steps,3,2,8.633
+"Hoecken-Spears long-stance",steps,3,3,8.669
+"Hoecken-Spears long-stance",steps,3,4,8.361
+"Hoecken-Spears long-stance",steps,3,5,8.540
+"Hoecken-Spears long-stance",steps,5,1,4.995
+"Hoecken-Spears long-stance",steps,5,2,-0.143
+"Hoecken-Spears long-stance",steps,5,3,4.821
+"Hoecken-Spears long-stance",steps,5,4,4.366
+"Hoecken-Spears long-stance",steps,5,5,6.709
+"Hoecken-Spears long-stance",steps,7,1,0.088
+"Hoecken-Spears long-stance",steps,7,2,-0.105
+"Hoecken-Spears long-stance",steps,7,3,1.795
+"Hoecken-Spears long-stance",steps,7,4,1.906
+"Hoecken-Spears long-stance",steps,7,5,0.019
+"Hoecken-Spears long-stance",waves,2,1,8.223
+"Hoecken-Spears long-stance",waves,2,2,8.726
+"Hoecken-Spears long-stance",waves,2,3,8.474
+"Hoecken-Spears long-stance",waves,2,4,8.684
+"Hoecken-Spears long-stance",waves,2,5,8.495
+"Hoecken-Spears long-stance",waves,4,1,8.282
+"Hoecken-Spears long-stance",waves,4,2,7.421
+"Hoecken-Spears long-stance",waves,4,3,8.233
+"Hoecken-Spears long-stance",waves,4,4,5.494
+"Hoecken-Spears long-stance",waves,4,5,8.066
+"Hoecken-Spears long-stance",waves,6,1,2.749
+"Hoecken-Spears long-stance",waves,6,2,0.497
+"Hoecken-Spears long-stance",waves,6,3,4.102
+"Hoecken-Spears long-stance",waves,6,4,7.189
+"Hoecken-Spears long-stance",waves,6,5,4.823
+"Hoecken-Spears slider diag",flat,0,1,9.018
+"Hoecken-Spears slider diag",flat,0,2,9.022
+"Hoecken-Spears slider diag",flat,0,3,9.018
+"Hoecken-Spears slider diag",flat,0,4,9.022
+"Hoecken-Spears slider diag",flat,0,5,9.020
+"Hoecken-Spears slider diag",logs,1,1,8.880
+"Hoecken-Spears slider diag",logs,1,2,8.922
+"Hoecken-Spears slider diag",logs,1,3,8.790
+"Hoecken-Spears slider diag",logs,1,4,8.845
+"Hoecken-Spears slider diag",logs,1,5,8.842
+"Hoecken-Spears slider diag",logs,2,1,8.675
+"Hoecken-Spears slider diag",logs,2,2,8.725
+"Hoecken-Spears slider diag",logs,2,3,8.603
+"Hoecken-Spears slider diag",logs,2,4,8.688
+"Hoecken-Spears slider diag",logs,2,5,8.678
+"Hoecken-Spears slider diag",logs,3,1,8.468
+"Hoecken-Spears slider diag",logs,3,2,8.124
+"Hoecken-Spears slider diag",logs,3,3,8.503
+"Hoecken-Spears slider diag",logs,3,4,8.287
+"Hoecken-Spears slider diag",logs,3,5,8.268
+"Hoecken-Spears slider diag",logs,4,1,8.257
+"Hoecken-Spears slider diag",logs,4,2,7.373
+"Hoecken-Spears slider diag",logs,4,3,7.487
+"Hoecken-Spears slider diag",logs,4,4,7.889
+"Hoecken-Spears slider diag",logs,4,5,8.272
+"Hoecken-Spears slider diag",logs,5,1,2.524
+"Hoecken-Spears slider diag",logs,5,2,6.716
+"Hoecken-Spears slider diag",logs,5,3,7.405
+"Hoecken-Spears slider diag",logs,5,4,6.826
+"Hoecken-Spears slider diag",logs,5,5,7.541
+"Hoecken-Spears slider diag",logs,6,1,6.011
+"Hoecken-Spears slider diag",logs,6,2,1.145
+"Hoecken-Spears slider diag",logs,6,3,5.010
+"Hoecken-Spears slider diag",logs,6,4,3.843
+"Hoecken-Spears slider diag",logs,6,5,5.767
+"Hoecken-Spears slider diag",logs,7,1,2.735
+"Hoecken-Spears slider diag",logs,7,2,-0.501
+"Hoecken-Spears slider diag",logs,7,3,1.536
+"Hoecken-Spears slider diag",logs,7,4,3.102
+"Hoecken-Spears slider diag",logs,7,5,0.372
+"Hoecken-Spears slider diag",logs,8,1,0.415
+"Hoecken-Spears slider diag",logs,8,2,0.400
+"Hoecken-Spears slider diag",logs,8,3,0.424
+"Hoecken-Spears slider diag",logs,8,4,0.894
+"Hoecken-Spears slider diag",logs,8,5,1.293
+"Hoecken-Spears slider diag",random,1,1,8.916
+"Hoecken-Spears slider diag",random,1,2,8.940
+"Hoecken-Spears slider diag",random,1,3,8.920
+"Hoecken-Spears slider diag",random,1,4,8.980
+"Hoecken-Spears slider diag",random,1,5,8.914
+"Hoecken-Spears slider diag",random,2,1,8.773
+"Hoecken-Spears slider diag",random,2,2,8.853
+"Hoecken-Spears slider diag",random,2,3,8.767
+"Hoecken-Spears slider diag",random,2,4,8.798
+"Hoecken-Spears slider diag",random,2,5,8.864
+"Hoecken-Spears slider diag",random,3,1,8.494
+"Hoecken-Spears slider diag",random,3,2,8.601
+"Hoecken-Spears slider diag",random,3,3,7.704
+"Hoecken-Spears slider diag",random,3,4,8.652
+"Hoecken-Spears slider diag",random,3,5,8.471
+"Hoecken-Spears slider diag",random,4,1,8.282
+"Hoecken-Spears slider diag",random,4,2,8.502
+"Hoecken-Spears slider diag",random,4,3,8.237
+"Hoecken-Spears slider diag",random,4,4,8.557
+"Hoecken-Spears slider diag",random,4,5,8.054
+"Hoecken-Spears slider diag",random,5,1,8.421
+"Hoecken-Spears slider diag",random,5,2,8.396
+"Hoecken-Spears slider diag",random,5,3,7.848
+"Hoecken-Spears slider diag",random,5,4,7.822
+"Hoecken-Spears slider diag",random,5,5,8.165
+"Hoecken-Spears slider diag",random,6,1,7.876
+"Hoecken-Spears slider diag",random,6,2,8.405
+"Hoecken-Spears slider diag",random,6,3,7.762
+"Hoecken-Spears slider diag",random,6,4,7.103
+"Hoecken-Spears slider diag",random,6,5,8.090
+"Hoecken-Spears slider diag",random,7,1,7.188
+"Hoecken-Spears slider diag",random,7,2,7.095
+"Hoecken-Spears slider diag",random,7,3,7.474
+"Hoecken-Spears slider diag",random,7,4,7.500
+"Hoecken-Spears slider diag",random,7,5,6.475
+"Hoecken-Spears slider diag",random,8,1,7.393
+"Hoecken-Spears slider diag",random,8,2,7.248
+"Hoecken-Spears slider diag",random,8,3,7.640
+"Hoecken-Spears slider diag",random,8,4,6.304
+"Hoecken-Spears slider diag",random,8,5,1.979
+"Hoecken-Spears slider diag",steps,1,1,8.839
+"Hoecken-Spears slider diag",steps,1,2,8.843
+"Hoecken-Spears slider diag",steps,1,3,8.885
+"Hoecken-Spears slider diag",steps,1,4,8.821
+"Hoecken-Spears slider diag",steps,1,5,8.877
+"Hoecken-Spears slider diag",steps,2,1,8.604
+"Hoecken-Spears slider diag",steps,2,2,8.693
+"Hoecken-Spears slider diag",steps,2,3,8.700
+"Hoecken-Spears slider diag",steps,2,4,8.622
+"Hoecken-Spears slider diag",steps,2,5,8.710
+"Hoecken-Spears slider diag",steps,3,1,8.383
+"Hoecken-Spears slider diag",steps,3,2,8.579
+"Hoecken-Spears slider diag",steps,3,3,8.358
+"Hoecken-Spears slider diag",steps,3,4,8.449
+"Hoecken-Spears slider diag",steps,3,5,8.628
+"Hoecken-Spears slider diag",steps,4,1,8.312
+"Hoecken-Spears slider diag",steps,4,2,8.442
+"Hoecken-Spears slider diag",steps,4,3,8.238
+"Hoecken-Spears slider diag",steps,4,4,8.302
+"Hoecken-Spears slider diag",steps,4,5,8.444
+"Hoecken-Spears slider diag",steps,5,1,8.271
+"Hoecken-Spears slider diag",steps,5,2,7.671
+"Hoecken-Spears slider diag",steps,5,3,7.203
+"Hoecken-Spears slider diag",steps,5,4,7.990
+"Hoecken-Spears slider diag",steps,5,5,7.782
+"Hoecken-Spears slider diag",steps,6,1,6.974
+"Hoecken-Spears slider diag",steps,6,2,7.422
+"Hoecken-Spears slider diag",steps,6,3,4.364
+"Hoecken-Spears slider diag",steps,6,4,7.227
+"Hoecken-Spears slider diag",steps,6,5,6.406
+"Hoecken-Spears slider diag",steps,7,1,3.897
+"Hoecken-Spears slider diag",steps,7,2,0.369
+"Hoecken-Spears slider diag",steps,7,3,4.816
+"Hoecken-Spears slider diag",steps,7,4,6.035
+"Hoecken-Spears slider diag",steps,7,5,6.742
+"Hoecken-Spears slider diag",steps,8,1,4.370
+"Hoecken-Spears slider diag",steps,8,2,0.375
+"Hoecken-Spears slider diag",steps,8,3,4.662
+"Hoecken-Spears slider diag",steps,8,4,5.826
+"Hoecken-Spears slider diag",steps,8,5,0.210
+"Hoecken-Spears slider diag",waves,1,1,8.872
+"Hoecken-Spears slider diag",waves,1,2,8.890
+"Hoecken-Spears slider diag",waves,1,3,8.904
+"Hoecken-Spears slider diag",waves,1,4,8.864
+"Hoecken-Spears slider diag",waves,1,5,8.831
+"Hoecken-Spears slider diag",waves,2,1,8.127
+"Hoecken-Spears slider diag",waves,2,2,8.640
+"Hoecken-Spears slider diag",waves,2,3,8.135
+"Hoecken-Spears slider diag",waves,2,4,8.433
+"Hoecken-Spears slider diag",waves,2,5,8.139
+"Hoecken-Spears slider diag",waves,3,1,7.294
+"Hoecken-Spears slider diag",waves,3,2,7.442
+"Hoecken-Spears slider diag",waves,3,3,7.531
+"Hoecken-Spears slider diag",waves,3,4,7.469
+"Hoecken-Spears slider diag",waves,3,5,7.415
+"Hoecken-Spears slider diag",waves,4,1,6.347
+"Hoecken-Spears slider diag",waves,4,2,7.227
+"Hoecken-Spears slider diag",waves,4,3,5.393
+"Hoecken-Spears slider diag",waves,4,4,7.446
+"Hoecken-Spears slider diag",waves,4,5,7.337
+"Hoecken-Spears slider diag",waves,5,1,6.424
+"Hoecken-Spears slider diag",waves,5,2,6.052
+"Hoecken-Spears slider diag",waves,5,3,5.408
+"Hoecken-Spears slider diag",waves,5,4,6.902
+"Hoecken-Spears slider diag",waves,5,5,6.473
+"Hoecken-Spears slider diag",waves,6,1,4.779
+"Hoecken-Spears slider diag",waves,6,2,2.947
+"Hoecken-Spears slider diag",waves,6,3,5.881
+"Hoecken-Spears slider diag",waves,6,4,3.919
+"Hoecken-Spears slider diag",waves,6,5,4.726
+"Hoecken-Spears slider diag",waves,7,1,1.770
+"Hoecken-Spears slider diag",waves,7,2,5.225
+"Hoecken-Spears slider diag",waves,7,3,1.883
+"Hoecken-Spears slider diag",waves,7,4,5.593
+"Hoecken-Spears slider diag",waves,7,5,2.447
+"Hoecken-Spears slider diag",waves,8,1,-2.094
+"Hoecken-Spears slider diag",waves,8,2,2.150
+"Hoecken-Spears slider diag",waves,8,3,4.856
+"Hoecken-Spears slider diag",waves,8,4,1.805
+"Hoecken-Spears slider diag",waves,8,5,2.986
+"Hoecken-Spears slider",logs,3,1,8.344
+"Hoecken-Spears slider",logs,3,2,8.134
+"Hoecken-Spears slider",logs,3,3,8.525
+"Hoecken-Spears slider",logs,3,4,8.184
+"Hoecken-Spears slider",logs,3,5,8.329
+"Hoecken-Spears slider",logs,5,1,2.480
+"Hoecken-Spears slider",logs,5,2,6.911
+"Hoecken-Spears slider",logs,5,3,7.261
+"Hoecken-Spears slider",logs,5,4,5.346
+"Hoecken-Spears slider",logs,5,5,7.381
+"Hoecken-Spears slider",logs,7,1,4.258
+"Hoecken-Spears slider",logs,7,2,0.714
+"Hoecken-Spears slider",logs,7,3,3.411
+"Hoecken-Spears slider",logs,7,4,2.458
+"Hoecken-Spears slider",logs,7,5,0.214
+"Hoecken-Spears slider",steps,3,1,8.490
+"Hoecken-Spears slider",steps,3,2,8.566
+"Hoecken-Spears slider",steps,3,3,8.489
+"Hoecken-Spears slider",steps,3,4,8.460
+"Hoecken-Spears slider",steps,3,5,8.624
+"Hoecken-Spears slider",steps,5,1,8.216
+"Hoecken-Spears slider",steps,5,2,7.763
+"Hoecken-Spears slider",steps,5,3,7.717
+"Hoecken-Spears slider",steps,5,4,8.006
+"Hoecken-Spears slider",steps,5,5,7.839
+"Hoecken-Spears slider",steps,7,1,3.519
+"Hoecken-Spears slider",steps,7,2,0.272
+"Hoecken-Spears slider",steps,7,3,4.700
+"Hoecken-Spears slider",steps,7,4,7.132
+"Hoecken-Spears slider",steps,7,5,4.391
+"Hoecken-Spears slider",waves,2,1,8.347
+"Hoecken-Spears slider",waves,2,2,8.638
+"Hoecken-Spears slider",waves,2,3,7.942
+"Hoecken-Spears slider",waves,2,4,8.490
+"Hoecken-Spears slider",waves,2,5,8.299
+"Hoecken-Spears slider",waves,4,1,6.036
+"Hoecken-Spears slider",waves,4,2,7.622
+"Hoecken-Spears slider",waves,4,3,7.362
+"Hoecken-Spears slider",waves,4,4,7.969
+"Hoecken-Spears slider",waves,4,5,6.290
+"Hoecken-Spears slider",waves,6,1,3.672
+"Hoecken-Spears slider",waves,6,2,4.293
+"Hoecken-Spears slider",waves,6,3,6.579
+"Hoecken-Spears slider",waves,6,4,5.192
+"Hoecken-Spears slider",waves,6,5,6.439
+"Hoecken 4-bar diag",flat,0,1,9.018
+"Hoecken 4-bar diag",flat,0,2,9.024
+"Hoecken 4-bar diag",flat,0,3,9.021
+"Hoecken 4-bar diag",flat,0,4,9.019
+"Hoecken 4-bar diag",flat,0,5,9.023
+"Hoecken 4-bar diag",logs,1,1,8.396
+"Hoecken 4-bar diag",logs,1,2,8.489
+"Hoecken 4-bar diag",logs,1,3,8.420
+"Hoecken 4-bar diag",logs,1,4,8.365
+"Hoecken 4-bar diag",logs,1,5,8.656
+"Hoecken 4-bar diag",logs,2,1,7.978
+"Hoecken 4-bar diag",logs,2,2,8.117
+"Hoecken 4-bar diag",logs,2,3,8.275
+"Hoecken 4-bar diag",logs,2,4,8.206
+"Hoecken 4-bar diag",logs,2,5,7.855
+"Hoecken 4-bar diag",logs,3,1,7.133
+"Hoecken 4-bar diag",logs,3,2,7.922
+"Hoecken 4-bar diag",logs,3,3,7.310
+"Hoecken 4-bar diag",logs,3,4,8.197
+"Hoecken 4-bar diag",logs,3,5,7.631
+"Hoecken 4-bar diag",logs,4,1,6.631
+"Hoecken 4-bar diag",logs,4,2,5.649
+"Hoecken 4-bar diag",logs,4,3,5.820
+"Hoecken 4-bar diag",logs,4,4,7.264
+"Hoecken 4-bar diag",logs,4,5,6.682
+"Hoecken 4-bar diag",logs,5,1,3.453
+"Hoecken 4-bar diag",logs,5,2,2.856
+"Hoecken 4-bar diag",logs,5,3,5.031
+"Hoecken 4-bar diag",logs,5,4,5.335
+"Hoecken 4-bar diag",logs,5,5,2.655
+"Hoecken 4-bar diag",logs,6,1,0.312
+"Hoecken 4-bar diag",logs,6,2,-0.255
+"Hoecken 4-bar diag",logs,6,3,-0.371
+"Hoecken 4-bar diag",logs,6,4,2.677
+"Hoecken 4-bar diag",logs,6,5,0.138
+"Hoecken 4-bar diag",logs,7,1,-0.308
+"Hoecken 4-bar diag",logs,7,2,-0.235
+"Hoecken 4-bar diag",logs,7,3,-0.343
+"Hoecken 4-bar diag",logs,7,4,-0.276
+"Hoecken 4-bar diag",logs,7,5,-0.016
+"Hoecken 4-bar diag",logs,8,1,-0.229
+"Hoecken 4-bar diag",logs,8,2,-0.403
+"Hoecken 4-bar diag",logs,8,3,-0.292
+"Hoecken 4-bar diag",logs,8,4,-0.364
+"Hoecken 4-bar diag",logs,8,5,0.722
+"Hoecken 4-bar diag",random,1,1,8.908
+"Hoecken 4-bar diag",random,1,2,8.965
+"Hoecken 4-bar diag",random,1,3,8.900
+"Hoecken 4-bar diag",random,1,4,8.879
+"Hoecken 4-bar diag",random,1,5,8.880
+"Hoecken 4-bar diag",random,2,1,8.495
+"Hoecken 4-bar diag",random,2,2,8.813
+"Hoecken 4-bar diag",random,2,3,8.784
+"Hoecken 4-bar diag",random,2,4,8.430
+"Hoecken 4-bar diag",random,2,5,8.345
+"Hoecken 4-bar diag",random,3,1,8.033
+"Hoecken 4-bar diag",random,3,2,8.551
+"Hoecken 4-bar diag",random,3,3,7.618
+"Hoecken 4-bar diag",random,3,4,8.378
+"Hoecken 4-bar diag",random,3,5,7.863
+"Hoecken 4-bar diag",random,4,1,7.995
+"Hoecken 4-bar diag",random,4,2,8.328
+"Hoecken 4-bar diag",random,4,3,7.296
+"Hoecken 4-bar diag",random,4,4,7.843
+"Hoecken 4-bar diag",random,4,5,7.394
+"Hoecken 4-bar diag",random,5,1,7.684
+"Hoecken 4-bar diag",random,5,2,7.265
+"Hoecken 4-bar diag",random,5,3,6.969
+"Hoecken 4-bar diag",random,5,4,7.509
+"Hoecken 4-bar diag",random,5,5,6.927
+"Hoecken 4-bar diag",random,6,1,6.320
+"Hoecken 4-bar diag",random,6,2,7.522
+"Hoecken 4-bar diag",random,6,3,7.336
+"Hoecken 4-bar diag",random,6,4,7.207
+"Hoecken 4-bar diag",random,6,5,5.893
+"Hoecken 4-bar diag",random,7,1,2.679
+"Hoecken 4-bar diag",random,7,2,6.902
+"Hoecken 4-bar diag",random,7,3,6.782
+"Hoecken 4-bar diag",random,7,4,7.685
+"Hoecken 4-bar diag",random,7,5,5.227
+"Hoecken 4-bar diag",random,8,1,6.217
+"Hoecken 4-bar diag",random,8,2,5.378
+"Hoecken 4-bar diag",random,8,3,6.004
+"Hoecken 4-bar diag",random,8,4,6.665
+"Hoecken 4-bar diag",random,8,5,5.169
+"Hoecken 4-bar diag",steps,1,1,8.481
+"Hoecken 4-bar diag",steps,1,2,8.441
+"Hoecken 4-bar diag",steps,1,3,8.610
+"Hoecken 4-bar diag",steps,1,4,8.545
+"Hoecken 4-bar diag",steps,1,5,8.479
+"Hoecken 4-bar diag",steps,2,1,8.079
+"Hoecken 4-bar diag",steps,2,2,8.004
+"Hoecken 4-bar diag",steps,2,3,8.173
+"Hoecken 4-bar diag",steps,2,4,8.293
+"Hoecken 4-bar diag",steps,2,5,8.253
+"Hoecken 4-bar diag",steps,3,1,7.653
+"Hoecken 4-bar diag",steps,3,2,8.011
+"Hoecken 4-bar diag",steps,3,3,7.607
+"Hoecken 4-bar diag",steps,3,4,7.752
+"Hoecken 4-bar diag",steps,3,5,7.250
+"Hoecken 4-bar diag",steps,4,1,7.151
+"Hoecken 4-bar diag",steps,4,2,7.093
+"Hoecken 4-bar diag",steps,4,3,6.739
+"Hoecken 4-bar diag",steps,4,4,7.220
+"Hoecken 4-bar diag",steps,4,5,7.088
+"Hoecken 4-bar diag",steps,5,1,4.014
+"Hoecken 4-bar diag",steps,5,2,6.824
+"Hoecken 4-bar diag",steps,5,3,4.267
+"Hoecken 4-bar diag",steps,5,4,6.895
+"Hoecken 4-bar diag",steps,5,5,2.502
+"Hoecken 4-bar diag",steps,6,1,-0.202
+"Hoecken 4-bar diag",steps,6,2,1.857
+"Hoecken 4-bar diag",steps,6,3,0.034
+"Hoecken 4-bar diag",steps,6,4,3.735
+"Hoecken 4-bar diag",steps,6,5,1.344
+"Hoecken 4-bar diag",steps,7,1,-0.085
+"Hoecken 4-bar diag",steps,7,2,1.758
+"Hoecken 4-bar diag",steps,7,3,-0.127
+"Hoecken 4-bar diag",steps,7,4,3.774
+"Hoecken 4-bar diag",steps,7,5,1.547
+"Hoecken 4-bar diag",steps,8,1,-0.068
+"Hoecken 4-bar diag",steps,8,2,1.867
+"Hoecken 4-bar diag",steps,8,3,-0.112
+"Hoecken 4-bar diag",steps,8,4,3.583
+"Hoecken 4-bar diag",steps,8,5,-0.094
+"Hoecken 4-bar diag",waves,1,1,8.494
+"Hoecken 4-bar diag",waves,1,2,8.762
+"Hoecken 4-bar diag",waves,1,3,8.694
+"Hoecken 4-bar diag",waves,1,4,8.573
+"Hoecken 4-bar diag",waves,1,5,8.583
+"Hoecken 4-bar diag",waves,2,1,8.385
+"Hoecken 4-bar diag",waves,2,2,8.261
+"Hoecken 4-bar diag",waves,2,3,8.339
+"Hoecken 4-bar diag",waves,2,4,8.046
+"Hoecken 4-bar diag",waves,2,5,8.385
+"Hoecken 4-bar diag",waves,3,1,7.718
+"Hoecken 4-bar diag",waves,3,2,7.540
+"Hoecken 4-bar diag",waves,3,3,7.180
+"Hoecken 4-bar diag",waves,3,4,7.334
+"Hoecken 4-bar diag",waves,3,5,7.259
+"Hoecken 4-bar diag",waves,4,1,6.637
+"Hoecken 4-bar diag",waves,4,2,7.098
+"Hoecken 4-bar diag",waves,4,3,6.651
+"Hoecken 4-bar diag",waves,4,4,7.132
+"Hoecken 4-bar diag",waves,4,5,6.758
+"Hoecken 4-bar diag",waves,5,1,5.171
+"Hoecken 4-bar diag",waves,5,2,6.319
+"Hoecken 4-bar diag",waves,5,3,1.907
+"Hoecken 4-bar diag",waves,5,4,4.956
+"Hoecken 4-bar diag",waves,5,5,5.900
+"Hoecken 4-bar diag",waves,6,1,4.991
+"Hoecken 4-bar diag",waves,6,2,3.662
+"Hoecken 4-bar diag",waves,6,3,3.906
+"Hoecken 4-bar diag",waves,6,4,4.059
+"Hoecken 4-bar diag",waves,6,5,1.205
+"Hoecken 4-bar diag",waves,7,1,0.530
+"Hoecken 4-bar diag",waves,7,2,1.032
+"Hoecken 4-bar diag",waves,7,3,1.787
+"Hoecken 4-bar diag",waves,7,4,2.071
+"Hoecken 4-bar diag",waves,7,5,0.299
+"Hoecken 4-bar diag",waves,8,1,1.622
+"Hoecken 4-bar diag",waves,8,2,4.342
+"Hoecken 4-bar diag",waves,8,3,1.540
+"Hoecken 4-bar diag",waves,8,4,2.880
+"Hoecken 4-bar diag",waves,8,5,1.252
+"Hoecken 4-bar",logs,3,1,6.371
+"Hoecken 4-bar",logs,3,2,7.735
+"Hoecken 4-bar",logs,3,3,6.696
+"Hoecken 4-bar",logs,3,4,8.204
+"Hoecken 4-bar",logs,3,5,7.861
+"Hoecken 4-bar",logs,5,1,4.043
+"Hoecken 4-bar",logs,5,2,5.289
+"Hoecken 4-bar",logs,5,3,3.875
+"Hoecken 4-bar",logs,5,4,4.022
+"Hoecken 4-bar",logs,5,5,3.331
+"Hoecken 4-bar",logs,7,1,0.182
+"Hoecken 4-bar",logs,7,2,-0.101
+"Hoecken 4-bar",logs,7,3,-0.227
+"Hoecken 4-bar",logs,7,4,-0.112
+"Hoecken 4-bar",logs,7,5,0.807
+"Hoecken 4-bar",steps,3,1,7.671
+"Hoecken 4-bar",steps,3,2,8.067
+"Hoecken 4-bar",steps,3,3,7.743
+"Hoecken 4-bar",steps,3,4,7.371
+"Hoecken 4-bar",steps,3,5,7.180
+"Hoecken 4-bar",steps,5,1,4.537
+"Hoecken 4-bar",steps,5,2,6.866
+"Hoecken 4-bar",steps,5,3,4.576
+"Hoecken 4-bar",steps,5,4,6.883
+"Hoecken 4-bar",steps,5,5,1.505
+"Hoecken 4-bar",steps,7,1,-0.015
+"Hoecken 4-bar",steps,7,2,2.143
+"Hoecken 4-bar",steps,7,3,-0.117
+"Hoecken 4-bar",steps,7,4,3.866
+"Hoecken 4-bar",steps,7,5,1.840
+"Hoecken 4-bar",waves,2,1,8.359
+"Hoecken 4-bar",waves,2,2,8.339
+"Hoecken 4-bar",waves,2,3,8.379
+"Hoecken 4-bar",waves,2,4,8.167
+"Hoecken 4-bar",waves,2,5,8.370
+"Hoecken 4-bar",waves,4,1,7.052
+"Hoecken 4-bar",waves,4,2,7.572
+"Hoecken 4-bar",waves,4,3,6.799
+"Hoecken 4-bar",waves,4,4,7.603
+"Hoecken 4-bar",waves,4,5,7.063
+"Hoecken 4-bar",waves,6,1,5.088
+"Hoecken 4-bar",waves,6,2,2.187
+"Hoecken 4-bar",waves,6,3,5.592
+"Hoecken 4-bar",waves,6,4,6.040
+"Hoecken 4-bar",waves,6,5,0.368
+"Hoecken slider diag",flat,0,1,9.052
+"Hoecken slider diag",flat,0,2,9.044
+"Hoecken slider diag",flat,0,3,9.054
+"Hoecken slider diag",flat,0,4,9.054
+"Hoecken slider diag",flat,0,5,9.054
+"Hoecken slider diag",logs,1,1,8.772
+"Hoecken slider diag",logs,1,2,8.654
+"Hoecken slider diag",logs,1,3,8.811
+"Hoecken slider diag",logs,1,4,8.734
+"Hoecken slider diag",logs,1,5,8.523
+"Hoecken slider diag",logs,2,1,8.282
+"Hoecken slider diag",logs,2,2,8.260
+"Hoecken slider diag",logs,2,3,8.112
+"Hoecken slider diag",logs,2,4,8.757
+"Hoecken slider diag",logs,2,5,8.289
+"Hoecken slider diag",logs,3,1,7.319
+"Hoecken slider diag",logs,3,2,7.780
+"Hoecken slider diag",logs,3,3,7.884
+"Hoecken slider diag",logs,3,4,8.719
+"Hoecken slider diag",logs,3,5,8.232
+"Hoecken slider diag",logs,4,1,6.720
+"Hoecken slider diag",logs,4,2,6.718
+"Hoecken slider diag",logs,4,3,6.309
+"Hoecken slider diag",logs,4,4,7.216
+"Hoecken slider diag",logs,4,5,6.983
+"Hoecken slider diag",logs,5,1,5.824
+"Hoecken slider diag",logs,5,2,5.674
+"Hoecken slider diag",logs,5,3,5.475
+"Hoecken slider diag",logs,5,4,5.402
+"Hoecken slider diag",logs,5,5,2.874
+"Hoecken slider diag",logs,6,1,1.063
+"Hoecken slider diag",logs,6,2,0.298
+"Hoecken slider diag",logs,6,3,0.267
+"Hoecken slider diag",logs,6,4,1.200
+"Hoecken slider diag",logs,6,5,0.668
+"Hoecken slider diag",logs,7,1,0.090
+"Hoecken slider diag",logs,7,2,0.238
+"Hoecken slider diag",logs,7,3,0.181
+"Hoecken slider diag",logs,7,4,0.820
+"Hoecken slider diag",logs,7,5,-0.106
+"Hoecken slider diag",logs,8,1,-0.083
+"Hoecken slider diag",logs,8,2,0.155
+"Hoecken slider diag",logs,8,3,0.337
+"Hoecken slider diag",logs,8,4,1.643
+"Hoecken slider diag",logs,8,5,0.514
+"Hoecken slider diag",random,1,1,8.707
+"Hoecken slider diag",random,1,2,8.910
+"Hoecken slider diag",random,1,3,8.892
+"Hoecken slider diag",random,1,4,8.717
+"Hoecken slider diag",random,1,5,8.895
+"Hoecken slider diag",random,2,1,8.594
+"Hoecken slider diag",random,2,2,8.745
+"Hoecken slider diag",random,2,3,8.592
+"Hoecken slider diag",random,2,4,8.656
+"Hoecken slider diag",random,2,5,8.409
+"Hoecken slider diag",random,3,1,8.578
+"Hoecken slider diag",random,3,2,8.206
+"Hoecken slider diag",random,3,3,8.331
+"Hoecken slider diag",random,3,4,8.456
+"Hoecken slider diag",random,3,5,8.286
+"Hoecken slider diag",random,4,1,7.975
+"Hoecken slider diag",random,4,2,8.048
+"Hoecken slider diag",random,4,3,7.999
+"Hoecken slider diag",random,4,4,8.574
+"Hoecken slider diag",random,4,5,7.944
+"Hoecken slider diag",random,5,1,8.247
+"Hoecken slider diag",random,5,2,7.653
+"Hoecken slider diag",random,5,3,7.527
+"Hoecken slider diag",random,5,4,8.138
+"Hoecken slider diag",random,5,5,7.553
+"Hoecken slider diag",random,6,1,7.072
+"Hoecken slider diag",random,6,2,7.665
+"Hoecken slider diag",random,6,3,7.429
+"Hoecken slider diag",random,6,4,7.315
+"Hoecken slider diag",random,6,5,6.931
+"Hoecken slider diag",random,7,1,7.212
+"Hoecken slider diag",random,7,2,7.329
+"Hoecken slider diag",random,7,3,7.612
+"Hoecken slider diag",random,7,4,7.007
+"Hoecken slider diag",random,7,5,4.593
+"Hoecken slider diag",random,8,1,6.924
+"Hoecken slider diag",random,8,2,5.869
+"Hoecken slider diag",random,8,3,6.481
+"Hoecken slider diag",random,8,4,5.632
+"Hoecken slider diag",random,8,5,5.762
+"Hoecken slider diag",steps,1,1,8.635
+"Hoecken slider diag",steps,1,2,8.575
+"Hoecken slider diag",steps,1,3,8.688
+"Hoecken slider diag",steps,1,4,8.744
+"Hoecken slider diag",steps,1,5,8.790
+"Hoecken slider diag",steps,2,1,8.178
+"Hoecken slider diag",steps,2,2,8.517
+"Hoecken slider diag",steps,2,3,8.543
+"Hoecken slider diag",steps,2,4,8.549
+"Hoecken slider diag",steps,2,5,8.406
+"Hoecken slider diag",steps,3,1,8.023
+"Hoecken slider diag",steps,3,2,8.311
+"Hoecken slider diag",steps,3,3,8.233
+"Hoecken slider diag",steps,3,4,7.772
+"Hoecken slider diag",steps,3,5,7.981
+"Hoecken slider diag",steps,4,1,7.083
+"Hoecken slider diag",steps,4,2,7.690
+"Hoecken slider diag",steps,4,3,6.754
+"Hoecken slider diag",steps,4,4,7.507
+"Hoecken slider diag",steps,4,5,7.491
+"Hoecken slider diag",steps,5,1,2.571
+"Hoecken slider diag",steps,5,2,7.268
+"Hoecken slider diag",steps,5,3,6.570
+"Hoecken slider diag",steps,5,4,6.623
+"Hoecken slider diag",steps,5,5,6.831
+"Hoecken slider diag",steps,6,1,2.987
+"Hoecken slider diag",steps,6,2,6.124
+"Hoecken slider diag",steps,6,3,4.767
+"Hoecken slider diag",steps,6,4,6.156
+"Hoecken slider diag",steps,6,5,5.703
+"Hoecken slider diag",steps,7,1,0.953
+"Hoecken slider diag",steps,7,2,0.165
+"Hoecken slider diag",steps,7,3,0.723
+"Hoecken slider diag",steps,7,4,3.768
+"Hoecken slider diag",steps,7,5,2.328
+"Hoecken slider diag",steps,8,1,0.040
+"Hoecken slider diag",steps,8,2,0.106
+"Hoecken slider diag",steps,8,3,0.220
+"Hoecken slider diag",steps,8,4,1.786
+"Hoecken slider diag",steps,8,5,0.363
+"Hoecken slider diag",waves,1,1,8.715
+"Hoecken slider diag",waves,1,2,8.839
+"Hoecken slider diag",waves,1,3,8.799
+"Hoecken slider diag",waves,1,4,8.769
+"Hoecken slider diag",waves,1,5,8.713
+"Hoecken slider diag",waves,2,1,8.518
+"Hoecken slider diag",waves,2,2,8.195
+"Hoecken slider diag",waves,2,3,8.522
+"Hoecken slider diag",waves,2,4,8.236
+"Hoecken slider diag",waves,2,5,8.547
+"Hoecken slider diag",waves,3,1,8.022
+"Hoecken slider diag",waves,3,2,8.009
+"Hoecken slider diag",waves,3,3,8.108
+"Hoecken slider diag",waves,3,4,7.871
+"Hoecken slider diag",waves,3,5,7.799
+"Hoecken slider diag",waves,4,1,6.948
+"Hoecken slider diag",waves,4,2,6.125
+"Hoecken slider diag",waves,4,3,6.903
+"Hoecken slider diag",waves,4,4,7.308
+"Hoecken slider diag",waves,4,5,6.721
+"Hoecken slider diag",waves,5,1,5.716
+"Hoecken slider diag",waves,5,2,6.100
+"Hoecken slider diag",waves,5,3,5.310
+"Hoecken slider diag",waves,5,4,3.460
+"Hoecken slider diag",waves,5,5,5.689
+"Hoecken slider diag",waves,6,1,4.657
+"Hoecken slider diag",waves,6,2,4.838
+"Hoecken slider diag",waves,6,3,4.342
+"Hoecken slider diag",waves,6,4,4.181
+"Hoecken slider diag",waves,6,5,3.982
+"Hoecken slider diag",waves,7,1,5.538
+"Hoecken slider diag",waves,7,2,3.860
+"Hoecken slider diag",waves,7,3,2.425
+"Hoecken slider diag",waves,7,4,2.454
+"Hoecken slider diag",waves,7,5,3.598
+"Hoecken slider diag",waves,8,1,1.121
+"Hoecken slider diag",waves,8,2,2.023
+"Hoecken slider diag",waves,8,3,0.524
+"Hoecken slider diag",waves,8,4,1.772
+"Hoecken slider diag",waves,8,5,1.756
+"Hoecken slider",logs,3,1,7.233
+"Hoecken slider",logs,3,2,7.693
+"Hoecken slider",logs,3,3,8.005
+"Hoecken slider",logs,3,4,7.529
+"Hoecken slider",logs,3,5,8.218
+"Hoecken slider",logs,5,1,5.311
+"Hoecken slider",logs,5,2,4.961
+"Hoecken slider",logs,5,3,5.751
+"Hoecken slider",logs,5,4,4.989
+"Hoecken slider",logs,5,5,5.783
+"Hoecken slider",logs,7,1,1.006
+"Hoecken slider",logs,7,2,-0.079
+"Hoecken slider",logs,7,3,-0.158
+"Hoecken slider",logs,7,4,0.207
+"Hoecken slider",logs,7,5,1.905
+"Hoecken slider",steps,3,1,7.994
+"Hoecken slider",steps,3,2,8.305
+"Hoecken slider",steps,3,3,8.255
+"Hoecken slider",steps,3,4,7.942
+"Hoecken slider",steps,3,5,7.924
+"Hoecken slider",steps,5,1,4.666
+"Hoecken slider",steps,5,2,6.944
+"Hoecken slider",steps,5,3,5.604
+"Hoecken slider",steps,5,4,7.255
+"Hoecken slider",steps,5,5,6.946
+"Hoecken slider",steps,7,1,-0.131
+"Hoecken slider",steps,7,2,0.165
+"Hoecken slider",steps,7,3,5.420
+"Hoecken slider",steps,7,4,3.511
+"Hoecken slider",steps,7,5,1.901
+"Hoecken slider",waves,2,1,8.454
+"Hoecken slider",waves,2,2,8.387
+"Hoecken slider",waves,2,3,8.425
+"Hoecken slider",waves,2,4,8.197
+"Hoecken slider",waves,2,5,8.439
+"Hoecken slider",waves,4,1,7.164
+"Hoecken slider",waves,4,2,7.180
+"Hoecken slider",waves,4,3,7.068
+"Hoecken slider",waves,4,4,7.039
+"Hoecken slider",waves,4,5,7.128
+"Hoecken slider",waves,6,1,3.126
+"Hoecken slider",waves,6,2,5.022
+"Hoecken slider",waves,6,3,4.044
+"Hoecken slider",waves,6,4,6.238
+"Hoecken slider",waves,6,5,3.999
+"Jansen",flat,0,1,8.959
+"Jansen",flat,0,2,8.930
+"Jansen",flat,0,3,8.949
+"Jansen",flat,0,4,8.937
+"Jansen",flat,0,5,8.954
+"Jansen",logs,1,1,8.781
+"Jansen",logs,1,2,8.740
+"Jansen",logs,1,3,8.892
+"Jansen",logs,1,4,8.797
+"Jansen",logs,1,5,8.595
+"Jansen",logs,2,1,8.282
+"Jansen",logs,2,2,8.206
+"Jansen",logs,2,3,8.393
+"Jansen",logs,2,4,8.497
+"Jansen",logs,2,5,8.326
+"Jansen",logs,3,1,7.913
+"Jansen",logs,3,2,7.251
+"Jansen",logs,3,3,7.152
+"Jansen",logs,3,4,8.273
+"Jansen",logs,3,5,7.823
+"Jansen",logs,4,1,6.709
+"Jansen",logs,4,2,7.260
+"Jansen",logs,4,3,7.093
+"Jansen",logs,4,4,6.981
+"Jansen",logs,4,5,6.783
+"Jansen",logs,5,1,6.080
+"Jansen",logs,5,2,6.193
+"Jansen",logs,5,3,2.656
+"Jansen",logs,5,4,6.576
+"Jansen",logs,5,5,5.480
+"Jansen",logs,6,1,3.230
+"Jansen",logs,6,2,0.087
+"Jansen",logs,6,3,2.736
+"Jansen",logs,6,4,5.494
+"Jansen",logs,6,5,2.745
+"Jansen",logs,7,1,-0.128
+"Jansen",logs,7,2,2.813
+"Jansen",logs,7,3,2.186
+"Jansen",logs,7,4,4.086
+"Jansen",logs,7,5,0.077
+"Jansen",logs,8,1,-0.056
+"Jansen",logs,8,2,-0.127
+"Jansen",logs,8,3,-0.210
+"Jansen",logs,8,4,-0.306
+"Jansen",logs,8,5,0.214
+"Jansen",random,1,1,8.825
+"Jansen",random,1,2,8.834
+"Jansen",random,1,3,8.682
+"Jansen",random,1,4,8.736
+"Jansen",random,1,5,8.697
+"Jansen",random,2,1,8.642
+"Jansen",random,2,2,8.649
+"Jansen",random,2,3,8.550
+"Jansen",random,2,4,8.632
+"Jansen",random,2,5,8.713
+"Jansen",random,3,1,8.476
+"Jansen",random,3,2,8.387
+"Jansen",random,3,3,8.042
+"Jansen",random,3,4,8.367
+"Jansen",random,3,5,8.512
+"Jansen",random,4,1,8.005
+"Jansen",random,4,2,8.092
+"Jansen",random,4,3,7.646
+"Jansen",random,4,4,8.283
+"Jansen",random,4,5,7.740
+"Jansen",random,5,1,7.834
+"Jansen",random,5,2,8.296
+"Jansen",random,5,3,7.584
+"Jansen",random,5,4,7.963
+"Jansen",random,5,5,7.478
+"Jansen",random,6,1,6.682
+"Jansen",random,6,2,7.863
+"Jansen",random,6,3,6.855
+"Jansen",random,6,4,6.935
+"Jansen",random,6,5,6.966
+"Jansen",random,7,1,6.954
+"Jansen",random,7,2,6.595
+"Jansen",random,7,3,7.223
+"Jansen",random,7,4,7.799
+"Jansen",random,7,5,5.937
+"Jansen",random,8,1,4.123
+"Jansen",random,8,2,6.658
+"Jansen",random,8,3,7.293
+"Jansen",random,8,4,6.647
+"Jansen",random,8,5,4.582
+"Jansen",steps,1,1,8.744
+"Jansen",steps,1,2,8.810
+"Jansen",steps,1,3,8.847
+"Jansen",steps,1,4,8.786
+"Jansen",steps,1,5,8.906
+"Jansen",steps,2,1,8.423
+"Jansen",steps,2,2,8.577
+"Jansen",steps,2,3,8.599
+"Jansen",steps,2,4,8.401
+"Jansen",steps,2,5,8.381
+"Jansen",steps,3,1,7.623
+"Jansen",steps,3,2,8.150
+"Jansen",steps,3,3,8.098
+"Jansen",steps,3,4,7.996
+"Jansen",steps,3,5,7.756
+"Jansen",steps,4,1,7.454
+"Jansen",steps,4,2,7.121
+"Jansen",steps,4,3,6.701
+"Jansen",steps,4,4,7.000
+"Jansen",steps,4,5,7.597
+"Jansen",steps,5,1,6.075
+"Jansen",steps,5,2,7.134
+"Jansen",steps,5,3,6.663
+"Jansen",steps,5,4,6.840
+"Jansen",steps,5,5,4.409
+"Jansen",steps,6,1,4.893
+"Jansen",steps,6,2,5.814
+"Jansen",steps,6,3,6.264
+"Jansen",steps,6,4,3.584
+"Jansen",steps,6,5,6.187
+"Jansen",steps,7,1,-0.332
+"Jansen",steps,7,2,5.539
+"Jansen",steps,7,3,6.214
+"Jansen",steps,7,4,3.795
+"Jansen",steps,7,5,2.035
+"Jansen",steps,8,1,-0.244
+"Jansen",steps,8,2,2.239
+"Jansen",steps,8,3,-0.121
+"Jansen",steps,8,4,3.687
+"Jansen",steps,8,5,2.299
+"Jansen",waves,1,1,8.620
+"Jansen",waves,1,2,8.657
+"Jansen",waves,1,3,8.673
+"Jansen",waves,1,4,8.707
+"Jansen",waves,1,5,8.716
+"Jansen",waves,2,1,8.355
+"Jansen",waves,2,2,8.001
+"Jansen",waves,2,3,8.103
+"Jansen",waves,2,4,8.008
+"Jansen",waves,2,5,8.047
+"Jansen",waves,3,1,7.928
+"Jansen",waves,3,2,7.875
+"Jansen",waves,3,3,7.909
+"Jansen",waves,3,4,7.874
+"Jansen",waves,3,5,7.801
+"Jansen",waves,4,1,7.424
+"Jansen",waves,4,2,7.077
+"Jansen",waves,4,3,6.867
+"Jansen",waves,4,4,7.547
+"Jansen",waves,4,5,7.409
+"Jansen",waves,5,1,6.092
+"Jansen",waves,5,2,6.291
+"Jansen",waves,5,3,6.161
+"Jansen",waves,5,4,6.746
+"Jansen",waves,5,5,4.849
+"Jansen",waves,6,1,5.458
+"Jansen",waves,6,2,6.124
+"Jansen",waves,6,3,4.041
+"Jansen",waves,6,4,4.564
+"Jansen",waves,6,5,6.275
+"Jansen",waves,7,1,5.279
+"Jansen",waves,7,2,4.239
+"Jansen",waves,7,3,3.037
+"Jansen",waves,7,4,2.721
+"Jansen",waves,7,5,3.237
+"Jansen",waves,8,1,5.029
+"Jansen",waves,8,2,2.021
+"Jansen",waves,8,3,1.816
+"Jansen",waves,8,4,4.673
+"Jansen",waves,8,5,1.283
+"Klann",flat,0,1,9.052
+"Klann",flat,0,2,8.943
+"Klann",flat,0,3,8.839
+"Klann",flat,0,4,8.925
+"Klann",flat,0,5,8.861
+"Klann",logs,1,1,8.922
+"Klann",logs,1,2,8.965
+"Klann",logs,1,3,8.893
+"Klann",logs,1,4,8.907
+"Klann",logs,1,5,8.680
+"Klann",logs,2,1,8.530
+"Klann",logs,2,2,8.364
+"Klann",logs,2,3,8.695
+"Klann",logs,2,4,8.661
+"Klann",logs,2,5,8.926
+"Klann",logs,3,1,8.030
+"Klann",logs,3,2,8.307
+"Klann",logs,3,3,5.521
+"Klann",logs,3,4,8.709
+"Klann",logs,3,5,8.169
+"Klann",logs,4,1,7.965
+"Klann",logs,4,2,8.319
+"Klann",logs,4,3,6.619
+"Klann",logs,4,4,8.706
+"Klann",logs,4,5,8.205
+"Klann",logs,5,1,0.833
+"Klann",logs,5,2,7.616
+"Klann",logs,5,3,7.002
+"Klann",logs,5,4,6.731
+"Klann",logs,5,5,7.469
+"Klann",logs,6,1,6.938
+"Klann",logs,6,2,7.193
+"Klann",logs,6,3,5.629
+"Klann",logs,6,4,7.338
+"Klann",logs,6,5,5.390
+"Klann",logs,7,1,-0.014
+"Klann",logs,7,2,5.012
+"Klann",logs,7,3,2.427
+"Klann",logs,7,4,6.028
+"Klann",logs,7,5,4.615
+"Klann",logs,8,1,0.902
+"Klann",logs,8,2,0.950
+"Klann",logs,8,3,1.335
+"Klann",logs,8,4,1.535
+"Klann",logs,8,5,0.040
+"Klann",random,1,1,8.974
+"Klann",random,1,2,8.745
+"Klann",random,1,3,8.872
+"Klann",random,1,4,8.983
+"Klann",random,1,5,8.642
+"Klann",random,2,1,8.892
+"Klann",random,2,2,8.843
+"Klann",random,2,3,8.756
+"Klann",random,2,4,8.771
+"Klann",random,2,5,8.033
+"Klann",random,3,1,8.556
+"Klann",random,3,2,8.930
+"Klann",random,3,3,8.580
+"Klann",random,3,4,8.764
+"Klann",random,3,5,8.594
+"Klann",random,4,1,7.814
+"Klann",random,4,2,8.519
+"Klann",random,4,3,8.190
+"Klann",random,4,4,8.634
+"Klann",random,4,5,8.403
+"Klann",random,5,1,7.692
+"Klann",random,5,2,8.699
+"Klann",random,5,3,7.139
+"Klann",random,5,4,7.679
+"Klann",random,5,5,7.553
+"Klann",random,6,1,6.270
+"Klann",random,6,2,8.407
+"Klann",random,6,3,7.597
+"Klann",random,6,4,7.784
+"Klann",random,6,5,7.670
+"Klann",random,7,1,3.436
+"Klann",random,7,2,7.773
+"Klann",random,7,3,6.983
+"Klann",random,7,4,7.792
+"Klann",random,7,5,6.664
+"Klann",random,8,1,5.133
+"Klann",random,8,2,6.364
+"Klann",random,8,3,7.174
+"Klann",random,8,4,7.669
+"Klann",random,8,5,5.397
+"Klann",steps,1,1,8.840
+"Klann",steps,1,2,9.007
+"Klann",steps,1,3,8.889
+"Klann",steps,1,4,8.994
+"Klann",steps,1,5,8.845
+"Klann",steps,2,1,8.865
+"Klann",steps,2,2,8.832
+"Klann",steps,2,3,8.864
+"Klann",steps,2,4,8.644
+"Klann",steps,2,5,8.833
+"Klann",steps,3,1,8.489
+"Klann",steps,3,2,8.415
+"Klann",steps,3,3,8.517
+"Klann",steps,3,4,8.413
+"Klann",steps,3,5,8.598
+"Klann",steps,4,1,7.645
+"Klann",steps,4,2,7.995
+"Klann",steps,4,3,7.702
+"Klann",steps,4,4,7.942
+"Klann",steps,4,5,7.826
+"Klann",steps,5,1,7.805
+"Klann",steps,5,2,5.113
+"Klann",steps,5,3,7.235
+"Klann",steps,5,4,6.768
+"Klann",steps,5,5,6.928
+"Klann",steps,6,1,4.267
+"Klann",steps,6,2,6.735
+"Klann",steps,6,3,6.915
+"Klann",steps,6,4,6.255
+"Klann",steps,6,5,5.492
+"Klann",steps,7,1,-0.429
+"Klann",steps,7,2,5.350
+"Klann",steps,7,3,-0.016
+"Klann",steps,7,4,3.529
+"Klann",steps,7,5,0.088
+"Klann",steps,8,1,-0.033
+"Klann",steps,8,2,1.059
+"Klann",steps,8,3,-0.030
+"Klann",steps,8,4,3.479
+"Klann",steps,8,5,0.208
+"Klann",waves,1,1,8.875
+"Klann",waves,1,2,8.923
+"Klann",waves,1,3,8.765
+"Klann",waves,1,4,8.588
+"Klann",waves,1,5,8.660
+"Klann",waves,2,1,8.530
+"Klann",waves,2,2,8.029
+"Klann",waves,2,3,8.560
+"Klann",waves,2,4,8.166
+"Klann",waves,2,5,7.965
+"Klann",waves,3,1,8.262
+"Klann",waves,3,2,7.633
+"Klann",waves,3,3,7.617
+"Klann",waves,3,4,7.868
+"Klann",waves,3,5,8.224
+"Klann",waves,4,1,6.234
+"Klann",waves,4,2,6.466
+"Klann",waves,4,3,8.188
+"Klann",waves,4,4,6.440
+"Klann",waves,4,5,7.977
+"Klann",waves,5,1,5.831
+"Klann",waves,5,2,5.406
+"Klann",waves,5,3,6.188
+"Klann",waves,5,4,6.254
+"Klann",waves,5,5,7.670
+"Klann",waves,6,1,4.766
+"Klann",waves,6,2,4.667
+"Klann",waves,6,3,4.211
+"Klann",waves,6,4,5.311
+"Klann",waves,6,5,5.436
+"Klann",waves,7,1,3.703
+"Klann",waves,7,2,3.415
+"Klann",waves,7,3,4.162
+"Klann",waves,7,4,3.621
+"Klann",waves,7,5,4.393
+"Klann",waves,8,1,2.025
+"Klann",waves,8,2,3.143
+"Klann",waves,8,3,3.026
+"Klann",waves,8,4,4.575
+"Klann",waves,8,5,3.187
+"Spears 4-bar",flat,0,1,9.241
+"Spears 4-bar",flat,0,2,9.197
+"Spears 4-bar",flat,0,3,9.198
+"Spears 4-bar",flat,0,4,9.244
+"Spears 4-bar",flat,0,5,9.185
+"Spears 4-bar",logs,1,1,8.764
+"Spears 4-bar",logs,1,2,8.739
+"Spears 4-bar",logs,1,3,8.992
+"Spears 4-bar",logs,1,4,8.741
+"Spears 4-bar",logs,1,5,8.777
+"Spears 4-bar",logs,2,1,8.024
+"Spears 4-bar",logs,2,2,8.111
+"Spears 4-bar",logs,2,3,8.175
+"Spears 4-bar",logs,2,4,8.438
+"Spears 4-bar",logs,2,5,7.953
+"Spears 4-bar",logs,3,1,6.623
+"Spears 4-bar",logs,3,2,7.474
+"Spears 4-bar",logs,3,3,7.442
+"Spears 4-bar",logs,3,4,8.022
+"Spears 4-bar",logs,3,5,6.936
+"Spears 4-bar",logs,4,1,6.421
+"Spears 4-bar",logs,4,2,5.579
+"Spears 4-bar",logs,4,3,3.728
+"Spears 4-bar",logs,4,4,4.602
+"Spears 4-bar",logs,4,5,6.223
+"Spears 4-bar",logs,5,1,5.078
+"Spears 4-bar",logs,5,2,2.340
+"Spears 4-bar",logs,5,3,0.676
+"Spears 4-bar",logs,5,4,2.142
+"Spears 4-bar",logs,5,5,3.675
+"Spears 4-bar",logs,6,1,0.812
+"Spears 4-bar",logs,6,2,2.383
+"Spears 4-bar",logs,6,3,2.209
+"Spears 4-bar",logs,6,4,-0.034
+"Spears 4-bar",logs,6,5,-0.077
+"Spears 4-bar",logs,7,1,0.116
+"Spears 4-bar",logs,7,2,-0.161
+"Spears 4-bar",logs,7,3,2.450
+"Spears 4-bar",logs,7,4,0.040
+"Spears 4-bar",logs,7,5,0.010
+"Spears 4-bar",logs,8,1,0.161
+"Spears 4-bar",logs,8,2,1.253
+"Spears 4-bar",logs,8,3,1.663
+"Spears 4-bar",logs,8,4,0.086
+"Spears 4-bar",logs,8,5,-0.120
+"Spears 4-bar",random,1,1,8.930
+"Spears 4-bar",random,1,2,8.606
+"Spears 4-bar",random,1,3,8.822
+"Spears 4-bar",random,1,4,9.165
+"Spears 4-bar",random,1,5,8.618
+"Spears 4-bar",random,2,1,8.187
+"Spears 4-bar",random,2,2,8.342
+"Spears 4-bar",random,2,3,8.814
+"Spears 4-bar",random,2,4,8.240
+"Spears 4-bar",random,2,5,8.601
+"Spears 4-bar",random,3,1,7.928
+"Spears 4-bar",random,3,2,8.225
+"Spears 4-bar",random,3,3,7.784
+"Spears 4-bar",random,3,4,8.278
+"Spears 4-bar",random,3,5,8.402
+"Spears 4-bar",random,4,1,7.503
+"Spears 4-bar",random,4,2,8.049
+"Spears 4-bar",random,4,3,7.328
+"Spears 4-bar",random,4,4,8.314
+"Spears 4-bar",random,4,5,6.649
+"Spears 4-bar",random,5,1,6.674
+"Spears 4-bar",random,5,2,7.203
+"Spears 4-bar",random,5,3,7.024
+"Spears 4-bar",random,5,4,7.535
+"Spears 4-bar",random,5,5,7.226
+"Spears 4-bar",random,6,1,4.675
+"Spears 4-bar",random,6,2,6.671
+"Spears 4-bar",random,6,3,6.419
+"Spears 4-bar",random,6,4,6.675
+"Spears 4-bar",random,6,5,7.303
+"Spears 4-bar",random,7,1,-0.142
+"Spears 4-bar",random,7,2,5.235
+"Spears 4-bar",random,7,3,6.858
+"Spears 4-bar",random,7,4,6.698
+"Spears 4-bar",random,7,5,5.238
+"Spears 4-bar",random,8,1,0.523
+"Spears 4-bar",random,8,2,5.615
+"Spears 4-bar",random,8,3,5.127
+"Spears 4-bar",random,8,4,3.128
+"Spears 4-bar",random,8,5,5.940
+"Spears 4-bar",steps,1,1,8.878
+"Spears 4-bar",steps,1,2,8.936
+"Spears 4-bar",steps,1,3,9.056
+"Spears 4-bar",steps,1,4,8.992
+"Spears 4-bar",steps,1,5,9.191
+"Spears 4-bar",steps,2,1,8.710
+"Spears 4-bar",steps,2,2,8.821
+"Spears 4-bar",steps,2,3,8.980
+"Spears 4-bar",steps,2,4,8.852
+"Spears 4-bar",steps,2,5,8.121
+"Spears 4-bar",steps,3,1,7.940
+"Spears 4-bar",steps,3,2,7.999
+"Spears 4-bar",steps,3,3,7.971
+"Spears 4-bar",steps,3,4,7.596
+"Spears 4-bar",steps,3,5,8.048
+"Spears 4-bar",steps,4,1,6.915
+"Spears 4-bar",steps,4,2,5.328
+"Spears 4-bar",steps,4,3,4.685
+"Spears 4-bar",steps,4,4,6.939
+"Spears 4-bar",steps,4,5,5.984
+"Spears 4-bar",steps,5,1,-0.113
+"Spears 4-bar",steps,5,2,1.476
+"Spears 4-bar",steps,5,3,0.017
+"Spears 4-bar",steps,5,4,3.468
+"Spears 4-bar",steps,5,5,0.501
+"Spears 4-bar",steps,6,1,0.104
+"Spears 4-bar",steps,6,2,1.547
+"Spears 4-bar",steps,6,3,0.001
+"Spears 4-bar",steps,6,4,3.497
+"Spears 4-bar",steps,6,5,0.497
+"Spears 4-bar",steps,7,1,0.125
+"Spears 4-bar",steps,7,2,1.908
+"Spears 4-bar",steps,7,3,0.133
+"Spears 4-bar",steps,7,4,3.599
+"Spears 4-bar",steps,7,5,1.542
+"Spears 4-bar",steps,8,1,0.333
+"Spears 4-bar",steps,8,2,2.184
+"Spears 4-bar",steps,8,3,-0.104
+"Spears 4-bar",steps,8,4,0.355
+"Spears 4-bar",steps,8,5,2.284
+"Spears 4-bar",waves,1,1,8.244
+"Spears 4-bar",waves,1,2,8.600
+"Spears 4-bar",waves,1,3,8.704
+"Spears 4-bar",waves,1,4,8.595
+"Spears 4-bar",waves,1,5,8.698
+"Spears 4-bar",waves,2,1,6.930
+"Spears 4-bar",waves,2,2,7.277
+"Spears 4-bar",waves,2,3,7.056
+"Spears 4-bar",waves,2,4,7.321
+"Spears 4-bar",waves,2,5,7.577
+"Spears 4-bar",waves,3,1,6.389
+"Spears 4-bar",waves,3,2,6.408
+"Spears 4-bar",waves,3,3,6.586
+"Spears 4-bar",waves,3,4,6.933
+"Spears 4-bar",waves,3,5,6.190
+"Spears 4-bar",waves,4,1,4.717
+"Spears 4-bar",waves,4,2,6.016
+"Spears 4-bar",waves,4,3,5.977
+"Spears 4-bar",waves,4,4,6.282
+"Spears 4-bar",waves,4,5,4.704
+"Spears 4-bar",waves,5,1,4.069
+"Spears 4-bar",waves,5,2,4.250
+"Spears 4-bar",waves,5,3,3.068
+"Spears 4-bar",waves,5,4,5.924
+"Spears 4-bar",waves,5,5,5.224
+"Spears 4-bar",waves,6,1,3.410
+"Spears 4-bar",waves,6,2,4.899
+"Spears 4-bar",waves,6,3,2.741
+"Spears 4-bar",waves,6,4,1.736
+"Spears 4-bar",waves,6,5,2.831
+"Spears 4-bar",waves,7,1,-0.061
+"Spears 4-bar",waves,7,2,2.220
+"Spears 4-bar",waves,7,3,1.824
+"Spears 4-bar",waves,7,4,2.931
+"Spears 4-bar",waves,7,5,0.549
+"Spears 4-bar",waves,8,1,-0.014
+"Spears 4-bar",waves,8,2,1.502
+"Spears 4-bar",waves,8,3,1.122
+"Spears 4-bar",waves,8,4,2.947
+"Spears 4-bar",waves,8,5,0.409
+"Spears lift 44 diag",logs,3,1,8.888
+"Spears lift 44 diag",logs,3,2,8.614
+"Spears lift 44 diag",logs,3,3,8.750
+"Spears lift 44 diag",logs,3,4,8.552
+"Spears lift 44 diag",logs,3,5,8.626
+"Spears lift 44 diag",logs,5,1,8.531
+"Spears lift 44 diag",logs,5,2,7.929
+"Spears lift 44 diag",logs,5,3,8.251
+"Spears lift 44 diag",logs,5,4,8.377
+"Spears lift 44 diag",logs,5,5,8.425
+"Spears lift 44 diag",logs,7,1,6.919
+"Spears lift 44 diag",logs,7,2,6.314
+"Spears lift 44 diag",logs,7,3,6.789
+"Spears lift 44 diag",logs,7,4,7.624
+"Spears lift 44 diag",logs,7,5,7.238
+"Spears lift 44 diag",steps,3,1,8.833
+"Spears lift 44 diag",steps,3,2,8.732
+"Spears lift 44 diag",steps,3,3,8.978
+"Spears lift 44 diag",steps,3,4,8.720
+"Spears lift 44 diag",steps,3,5,8.825
+"Spears lift 44 diag",steps,5,1,8.454
+"Spears lift 44 diag",steps,5,2,8.665
+"Spears lift 44 diag",steps,5,3,8.763
+"Spears lift 44 diag",steps,5,4,8.354
+"Spears lift 44 diag",steps,5,5,8.278
+"Spears lift 44 diag",steps,7,1,7.880
+"Spears lift 44 diag",steps,7,2,7.143
+"Spears lift 44 diag",steps,7,3,7.302
+"Spears lift 44 diag",steps,7,4,8.024
+"Spears lift 44 diag",steps,7,5,8.361
+"Spears lift 44 diag",waves,2,1,8.596
+"Spears lift 44 diag",waves,2,2,8.551
+"Spears lift 44 diag",waves,2,3,8.496
+"Spears lift 44 diag",waves,2,4,7.449
+"Spears lift 44 diag",waves,2,5,7.385
+"Spears lift 44 diag",waves,4,1,6.576
+"Spears lift 44 diag",waves,4,2,7.038
+"Spears lift 44 diag",waves,4,3,7.034
+"Spears lift 44 diag",waves,4,4,6.340
+"Spears lift 44 diag",waves,4,5,7.793
+"Spears lift 44 diag",waves,6,1,6.527
+"Spears lift 44 diag",waves,6,2,4.248
+"Spears lift 44 diag",waves,6,3,6.408
+"Spears lift 44 diag",waves,6,4,4.866
+"Spears lift 44 diag",waves,6,5,6.922
+"Spears lift 44",logs,3,1,8.877
+"Spears lift 44",logs,3,2,8.330
+"Spears lift 44",logs,3,3,8.736
+"Spears lift 44",logs,3,4,8.608
+"Spears lift 44",logs,3,5,8.638
+"Spears lift 44",logs,5,1,8.959
+"Spears lift 44",logs,5,2,8.065
+"Spears lift 44",logs,5,3,8.317
+"Spears lift 44",logs,5,4,8.613
+"Spears lift 44",logs,5,5,8.526
+"Spears lift 44",logs,7,1,6.954
+"Spears lift 44",logs,7,2,8.235
+"Spears lift 44",logs,7,3,6.592
+"Spears lift 44",logs,7,4,7.089
+"Spears lift 44",logs,7,5,8.211
+"Spears lift 44",steps,3,1,8.915
+"Spears lift 44",steps,3,2,8.660
+"Spears lift 44",steps,3,3,8.986
+"Spears lift 44",steps,3,4,8.684
+"Spears lift 44",steps,3,5,8.829
+"Spears lift 44",steps,5,1,8.513
+"Spears lift 44",steps,5,2,8.824
+"Spears lift 44",steps,5,3,8.721
+"Spears lift 44",steps,5,4,8.325
+"Spears lift 44",steps,5,5,8.206
+"Spears lift 44",steps,7,1,7.117
+"Spears lift 44",steps,7,2,7.754
+"Spears lift 44",steps,7,3,5.532
+"Spears lift 44",steps,7,4,8.109
+"Spears lift 44",steps,7,5,8.022
+"Spears lift 44",waves,2,1,8.599
+"Spears lift 44",waves,2,2,8.510
+"Spears lift 44",waves,2,3,7.678
+"Spears lift 44",waves,2,4,7.821
+"Spears lift 44",waves,2,5,7.910
+"Spears lift 44",waves,4,1,7.684
+"Spears lift 44",waves,4,2,7.784
+"Spears lift 44",waves,4,3,7.027
+"Spears lift 44",waves,4,4,7.824
+"Spears lift 44",waves,4,5,7.696
+"Spears lift 44",waves,6,1,4.551
+"Spears lift 44",waves,6,2,7.093
+"Spears lift 44",waves,6,3,7.288
+"Spears lift 44",waves,6,4,6.593
+"Spears lift 44",waves,6,5,5.992
+"Spears lift 53 diag",logs,3,1,7.293
+"Spears lift 53 diag",logs,3,2,7.843
+"Spears lift 53 diag",logs,3,3,8.075
+"Spears lift 53 diag",logs,3,4,8.063
+"Spears lift 53 diag",logs,3,5,8.255
+"Spears lift 53 diag",logs,5,1,7.952
+"Spears lift 53 diag",logs,5,2,7.822
+"Spears lift 53 diag",logs,5,3,6.880
+"Spears lift 53 diag",logs,5,4,7.903
+"Spears lift 53 diag",logs,5,5,8.208
+"Spears lift 53 diag",logs,7,1,6.196
+"Spears lift 53 diag",logs,7,2,2.134
+"Spears lift 53 diag",logs,7,3,5.481
+"Spears lift 53 diag",logs,7,4,7.051
+"Spears lift 53 diag",logs,7,5,6.342
+"Spears lift 53 diag",steps,3,1,8.363
+"Spears lift 53 diag",steps,3,2,8.274
+"Spears lift 53 diag",steps,3,3,8.768
+"Spears lift 53 diag",steps,3,4,8.721
+"Spears lift 53 diag",steps,3,5,8.330
+"Spears lift 53 diag",steps,5,1,8.031
+"Spears lift 53 diag",steps,5,2,8.177
+"Spears lift 53 diag",steps,5,3,7.839
+"Spears lift 53 diag",steps,5,4,6.581
+"Spears lift 53 diag",steps,5,5,7.464
+"Spears lift 53 diag",steps,7,1,7.556
+"Spears lift 53 diag",steps,7,2,7.573
+"Spears lift 53 diag",steps,7,3,7.323
+"Spears lift 53 diag",steps,7,4,7.531
+"Spears lift 53 diag",steps,7,5,7.366
+"Spears lift 53 diag",waves,2,1,8.134
+"Spears lift 53 diag",waves,2,2,7.911
+"Spears lift 53 diag",waves,2,3,7.912
+"Spears lift 53 diag",waves,2,4,8.378
+"Spears lift 53 diag",waves,2,5,8.105
+"Spears lift 53 diag",waves,4,1,6.823
+"Spears lift 53 diag",waves,4,2,5.053
+"Spears lift 53 diag",waves,4,3,4.809
+"Spears lift 53 diag",waves,4,4,6.345
+"Spears lift 53 diag",waves,4,5,5.339
+"Spears lift 53 diag",waves,6,1,2.592
+"Spears lift 53 diag",waves,6,2,4.678
+"Spears lift 53 diag",waves,6,3,3.490
+"Spears lift 53 diag",waves,6,4,6.090
+"Spears lift 53 diag",waves,6,5,6.230
+"Spears lift 53",logs,3,1,8.359
+"Spears lift 53",logs,3,2,8.022
+"Spears lift 53",logs,3,3,8.347
+"Spears lift 53",logs,3,4,8.184
+"Spears lift 53",logs,3,5,8.369
+"Spears lift 53",logs,5,1,7.020
+"Spears lift 53",logs,5,2,7.961
+"Spears lift 53",logs,5,3,7.554
+"Spears lift 53",logs,5,4,7.604
+"Spears lift 53",logs,5,5,8.369
+"Spears lift 53",logs,7,1,6.665
+"Spears lift 53",logs,7,2,6.553
+"Spears lift 53",logs,7,3,7.950
+"Spears lift 53",logs,7,4,7.690
+"Spears lift 53",logs,7,5,7.309
+"Spears lift 53",steps,3,1,8.414
+"Spears lift 53",steps,3,2,8.299
+"Spears lift 53",steps,3,3,8.728
+"Spears lift 53",steps,3,4,8.810
+"Spears lift 53",steps,3,5,8.422
+"Spears lift 53",steps,5,1,8.029
+"Spears lift 53",steps,5,2,8.168
+"Spears lift 53",steps,5,3,7.897
+"Spears lift 53",steps,5,4,8.009
+"Spears lift 53",steps,5,5,7.288
+"Spears lift 53",steps,7,1,7.793
+"Spears lift 53",steps,7,2,7.301
+"Spears lift 53",steps,7,3,4.471
+"Spears lift 53",steps,7,4,7.595
+"Spears lift 53",steps,7,5,7.452
+"Spears lift 53",waves,2,1,7.745
+"Spears lift 53",waves,2,2,7.380
+"Spears lift 53",waves,2,3,8.120
+"Spears lift 53",waves,2,4,8.105
+"Spears lift 53",waves,2,5,7.443
+"Spears lift 53",waves,4,1,4.991
+"Spears lift 53",waves,4,2,7.616
+"Spears lift 53",waves,4,3,6.358
+"Spears lift 53",waves,4,4,7.659
+"Spears lift 53",waves,4,5,5.398
+"Spears lift 53",waves,6,1,3.691
+"Spears lift 53",waves,6,2,4.231
+"Spears lift 53",waves,6,3,4.841
+"Spears lift 53",waves,6,4,5.969
+"Spears lift 53",waves,6,5,5.216

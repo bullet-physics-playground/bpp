@@ -381,6 +381,32 @@ local ARENA_Z = ARENA_Z or ARENA
 -- seeds meet the bumps differently. See test-track.lua.
 TEST_TRACK = TEST_TRACK or false
 local TRACK_SECS = TRACK_SECS or 60
+-- the ranking boards (the test track; boards.lua, made from the table runs
+-- by runs/boards.py): for the ground it is on -- its terrain, its height
+-- rounded to the cm (flat under 0.5) -- every build run there, best first,
+-- each one's mean speed over the runs' seeds; shown in the output pane when
+-- a walker starts (and on B), with this walker marked, and its own run
+-- set beside it at 20 s
+if TEST_TRACK and BOARDS == nil then pcall(dofile, "boards.lua") end
+local function boardKey()
+  local h = math.floor(AMP + 0.5)
+  return (h == 0) and "flat 0" or string.format("%s %d", TERRAIN, h)
+end
+local function boardPlace(b, speed, name)   -- (its place among the others, at this speed)
+  local k = 1
+  for _, r in ipairs(b) do if r[1] ~= name and r[2] > speed then k = k + 1 end end
+  return k
+end
+local function showBoard(name)
+  local b = BOARDS and BOARDS[boardKey()]
+  if not b then print("board: no results for " .. boardKey() .. " yet (runs/boards.py makes boards.lua)"); return end
+  local t = { string.format("board: %s cm%s -- what to expect (the table runs: each mean over its seeds, the 8 m track, normal ground; cm/s from 5 s to 20 s)",
+    boardKey(), TERRAIN_MIRROR and " (this ground is mirrored; the board is for normal ground)" or "") }
+  for i, r in ipairs(b) do
+    t[#t + 1] = string.format("%s %2d  %-34s %5.2f +- %.2f", r[1] == name and ">" or " ", i, r[1], r[2], r[3])
+  end
+  print(table.concat(t, "\n"))
+end
 local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
 local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
 local FRAME = 1 / 60       -- simulated time per drawn frame, s
@@ -2018,7 +2044,19 @@ v:preSim(function(N)
     -- (the test track: how far it got along x, reported once)
     if TEST_TRACK then
       local x, _, z = getPosXYZ(w.cube)
-      if not w.trackStart then w.trackStart = { x, z, simTime }; w.airFrames, w.allFrames = 0, 0 end
+      if not w.trackStart then w.trackStart = { x, z, simTime }; w.airFrames, w.allFrames = 0, 0; showBoard(w.spec.name) end
+      -- (its own run against the board: its speed from 5 s to 20 s, as the table runs measure it)
+      local tt = simTime - w.trackStart[3]
+      if not w.x5 and tt >= 5 then w.x5 = x end
+      if w.x5 and not w.boardDone and tt >= 20 then
+        w.boardDone = true
+        local sp = (x - w.x5) / 15
+        local b = BOARDS and BOARDS[boardKey()]
+        local mine
+        for _, r in ipairs(b or {}) do if r[1] == w.spec.name then mine = r end end
+        print(string.format("board: %s, this run %.2f cm/s from 5 s to 20 s%s", w.spec.name, sp,
+          b and string.format(" -- %s; it would place %d of %d", mine and string.format("the board expects %.2f +- %.2f", mine[2], mine[3]) or "not on the board", boardPlace(b, sp, w.spec.name), #b + (mine and 0 or 1)) or ""))
+      end
       -- (air: the share of frames its lowest moving part is more than
       -- 0.5 cm above the ground under it -- the whole walker off the ground)
       do
@@ -2070,10 +2108,14 @@ local function helpText()
     h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
     h = h .. "N           the next seed, 1 to 4 (now " .. SEED .. ")\n"
     h = h .. "O           look over the whole track\n"
+    h = h .. "B           the ranking board for this ground (output pane)\n"
     h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
     h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
     h = h .. "pane) build the track again with the same walker.\n\n"
+    h = h .. "Each time it starts, the output pane shows the ranking board for\n"
+    h = h .. "this ground (terrain and height to the cm): every walker's mean speed\n"
+    h = h .. "there in the table runs, this one marked; at 20 s, its own run beside it.\n\n"
     h = h .. "The status line (bottom) shows its speed so far and how much of the\n"
     h = h .. "time it has been off the ground (its lowest part more than 0.5 cm\n"
     h = h .. "up); its body turns red whenever it is.\n"
@@ -2174,6 +2216,10 @@ v:onKey(function(N, key, down)
       rebuildTrack()
       print("test track: " .. TERRAIN)
     end
+    return true
+  end
+  if TEST_TRACK and key == "B" then
+    if down and walkers[1] then showBoard(walkers[1].spec.name) end
     return true
   end
   if TEST_TRACK and (key == "M" or key == "N") then
