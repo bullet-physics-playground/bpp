@@ -2102,7 +2102,8 @@ local function helpText()
   if TEST_TRACK then
     local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
     if VIEWS and viewAt > 0 then h = h .. VIEWS[viewAt].label .. "\n\n" end
-    h = h .. "Tab         put the next walker on the track (built again)\n"
+    h = h .. "Tab         put the next walker on the track (built again): the next\n"
+    h = h .. "            down this ground's ranking board\n"
     h = h .. "Shift+Tab   the one before\n"
     h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
     h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
@@ -2188,7 +2189,20 @@ local function replaceWalker()
   follow(walkers[1])
 end
 local function trackNext(step)
-  if VIEWS then
+  local b = BOARDS and BOARDS[boardKey()]
+  if VIEWS and b then
+    -- (in the order of this ground's board, best first; any view not on it after, in VIEWS' order)
+    local rank, order = {}, {}
+    for i, r in ipairs(b) do rank[r[1]] = i end
+    for i = 1, #VIEWS do order[#order + 1] = i end
+    table.sort(order, function(i, j)
+      local a, c = rank[VIEWS[i].walker] or (#b + i), rank[VIEWS[j].walker] or (#b + j)
+      return a < c
+    end)
+    local at = 1
+    for k, i in ipairs(order) do if i == viewAt then at = k end end
+    setView(order[(at - 1 + step) % #order + 1])
+  elseif VIEWS then
     setView((viewAt - 1 + step) % #VIEWS + 1)
   else
     local k = 1

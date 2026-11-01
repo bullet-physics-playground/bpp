@@ -12,7 +12,8 @@
 -- QUALITY = "accurate" at the top of this file runs it as measured (see below).
 --
 -- Open this file in bpp and click the 3D view first, then:
---   Tab, Shift+Tab   the next (or the one before) walker
+--   Tab, Shift+Tab   the next (or the one before) walker down the ranking
+--                    board for this ground
 --   N                the next seed, 1 to 4 (where it starts)
 --   1 2 3 4          the ground: waves, random, logs, steps
 --   M                the ground mirrored left for right, or back
