@@ -1095,10 +1095,32 @@ void Viewer::setSolverIterations(int n) {
 // final impulse and starts the next step from it, scaled by g_jointWarmstart (setSolverInfo "jointWarmstart",
 // default 0.85, the factor Bullet uses for contacts) -- for linkages whose joints carry much the same forces from one
 // small step to the next, so the iterations start near the answer.
+//
+// The world hands the solver its joints a group at a time (Bullet joins small islands into groups of about 128
+// joints and contacts), so one step can be several groups. Each joint's entry is marked with the step it was last
+// solved in; at the end of each step (allSolved) entries not solved in it -- joints removed, or asleep -- are
+// dropped. (Until November 2026 the cache was cut back to the group just solved whenever it grew past four times
+// that group, which in a room of more than about ten walkers threw away nearly every other walker's entries at
+// every step: with all 21 walkers no joint started warm.)
 static btScalar g_jointWarmstart = 0.85;
 class WarmJointSolver : public btSequentialImpulseConstraintSolver {
-  std::unordered_map<const btTypedConstraint *, std::vector<btScalar>> _cache;
+  struct Entry { std::vector<btScalar> impulse; unsigned step = 0; };
+  std::unordered_map<const btTypedConstraint *, Entry> _cache;
   std::vector<std::pair<const btTypedConstraint *, int>> _rows;   // this group's joints and their row counts, in order
+  unsigned _step = 0;      // (counts steps: prepareSolve)
+  size_t _solved = 0;      // joints solved this step
+public:
+  void prepareSolve(int numBodies, int numManifolds) override {
+    btSequentialImpulseConstraintSolver::prepareSolve(numBodies, numManifolds);
+    ++_step;
+    _solved = 0;
+  }
+  void allSolved(const btContactSolverInfo &info, btIDebugDraw *debugDrawer) override {
+    if (_cache.size() > _solved)
+      for (auto it = _cache.begin(); it != _cache.end();)
+        it = it->second.step == _step ? std::next(it) : _cache.erase(it);
+    btSequentialImpulseConstraintSolver::allSolved(info, debugDrawer);
+  }
 protected:
   void convertJoints(btTypedConstraint **constraints, int numConstraints, const btContactSolverInfo &info) override {
     btSequentialImpulseConstraintSolver::convertJoints(constraints, numConstraints, info);
@@ -1108,10 +1130,10 @@ protected:
       int n = m_tmpConstraintSizesPool[i].m_numConstraintRows;
       _rows.emplace_back(constraints[i], n);
       auto it = _cache.find(constraints[i]);
-      if (g_jointWarmstart > 0 && it != _cache.end() && int(it->second.size()) == n) {
+      if (g_jointWarmstart > 0 && it != _cache.end() && int(it->second.impulse.size()) == n) {
         for (int j = 0; j < n; j++) {
           btSolverConstraint &c = m_tmpSolverNonContactConstraintPool[row + j];
-          btScalar imp = btMax(c.m_lowerLimit, btMin(c.m_upperLimit, g_jointWarmstart * it->second[j]));
+          btScalar imp = btMax(c.m_lowerLimit, btMin(c.m_upperLimit, g_jointWarmstart * it->second.impulse[j]));
           if (imp == 0) continue;
           c.m_appliedImpulse = imp;
           btSolverBody &a = m_tmpSolverBodyPool[c.m_solverBodyIdA];
@@ -1126,15 +1148,11 @@ protected:
   btScalar solveGroupCacheFriendlyFinish(btCollisionObject **bodies, int numBodies, const btContactSolverInfo &info) override {
     int row = 0;
     for (auto &r : _rows) {
-      std::vector<btScalar> &v = _cache[r.first];
-      v.resize(r.second);
-      for (int j = 0; j < r.second; j++) v[j] = m_tmpSolverNonContactConstraintPool[row + j].m_appliedImpulse;
+      Entry &e = _cache[r.first];
+      e.impulse.resize(r.second);
+      for (int j = 0; j < r.second; j++) e.impulse[j] = m_tmpSolverNonContactConstraintPool[row + j].m_appliedImpulse;
+      if (e.step != _step) { e.step = _step; ++_solved; }
       row += r.second;
-    }
-    if (_cache.size() > 4 * _rows.size() + 64) {   // (forget joints not seen this step: removed ones)
-      std::unordered_map<const btTypedConstraint *, std::vector<btScalar>> keep;
-      for (auto &r : _rows) keep[r.first] = _cache[r.first];
-      _cache.swap(keep);
     }
     return btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(bodies, numBodies, info);
   }

@@ -602,6 +602,26 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 William: the hold (each diag build's pendants held at their angle to the body by a joint that is not really there) went in because Bullet gives in a long chain of joints where real rigid braces would not; with joint warm-starting, is it still needed? Run without it (`data/s4p_nohold.md`; William's machine, `EXTRA='PENDANT_HOLD=false'`, the 8 buildable diag builds, nine rough terrains, 5 seeds): **every one much slower**, mean change −2.76 cm/s, rank correlation with the held ranking 0.24. Hoecken-Spears 4-bar diag 6.84 → 2.56, Chebyshev-Spears lift 51 diag 7.77 → 3.64, lift 62 diag 7.00 → 3.01, Chebyshev-Spears diag 6.97 → 3.59; the sliders and the low-lift originals lose 1.2-1.9 (Hoecken-Spears slider diag 6.23 → 5.00, Hoecken slider diag 5.39 → 3.86, Hoecken 4-bar diag 4.88 → 2.94, Chebyshev diag 4.50 → 2.92). Spears' 4-bar linkages jam even on 2 cm waves (lift 51 diag 1.35 against 8.10). Some runs came out at full speed backwards (−8.94 cm/s): traced here (Hoecken-Spears 4-bar diag, waves 2, seed 1), two cranks stop at 1.5 s, all four run backwards in jerks, the body bounces 9 cm higher than it rides, and the walker swings round to −121 degrees -- walking "forward" then carries it back down the track. **The hold stays**: it stands in for rigid braces against the simulation's give, which warm-starting has not removed; Klann, Jansen and Spears 4-bar have no braces holding their legs and need none.
 
+## 4q. Joint warm-starting was off in rooms of many walkers (1 November)
+
+**Answer first.** In a room of more than about ten walkers, si-warm (4i) started almost no joint warm: with all 21, none. Fixed in viewer.cpp (patch 70). The test track and the four-walker room were never affected: their runs come out the same to the last digit after the fix.
+
+**Why.** Bullet hands the solver a step's joints in groups of about 128 joints and contacts (two or three walkers a group). The solver's cache of last impulses was cut back to the group just solved whenever it grew past four times that group, meant to forget removed joints. With 21 walkers (800 joints) that happened in a quarter of the groups, throwing away every other walker's entries. Measured with a counting copy of bpp: four walkers 99.9% of joints started warm, 21 walkers 0.0%. So the 21-walker room has been running as Bullet's plain solver at 40 iterations (in 4i that loosened the cranks to 0.70-1.82 of their driven speed).
+
+**The fix.** Each entry is marked with the step it was solved in; at the end of each step, entries not solved in it (removed or sleeping joints) are dropped. No size rule. After it: 21 walkers 99.7% warm.
+
+**Checks** (`tools/roomdump.lua`: each walker's position and distance moved after a set frame, to tell whether two room runs are identical; this machine, fast setting, the room's default ground, waves 1):
+
+| Run | Bracing | Timing | Direction | Before against after |
+| --- | --- | --- | --- | --- |
+| Chebyshev-Spears diag, logs 7 and waves 4, seed 1 | diag | trot | forward | identical RUN lines |
+| Klann, logs 7 and waves 4, seed 1 | own frame | trot | forward | identical |
+| Hoecken-Spears slider, logs 7 and waves 4, seed 1 | unbraced | trot | forward | identical |
+| Room of 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, Chebyshev-Spears diag), 5 s | mixed | trot | forward | identical |
+| Room of all 21 (pendant hold on the diag builds), 20 s | mixed | trot | forward | different, as expected: mean distance moved 86.8 → 77.7 cm (change −9.1 ± 9.5, one run each: within the noise); no walker sank or blew up |
+
+(Two bpp runs started together on an empty mesh cache can race on the body letters' meshes: one run missed five letters and was run again. The same could happen to the first runs of a table on a new machine; the letters are look-only, but their absence changes a chaotic run.)
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.
