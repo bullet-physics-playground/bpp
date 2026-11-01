@@ -381,6 +381,30 @@ local ARENA_Z = ARENA_Z or ARENA
 -- seeds meet the bumps differently. See test-track.lua.
 TEST_TRACK = TEST_TRACK or false
 local TRACK_SECS = TRACK_SECS or 60
+local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
+local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
+local FRAME = 1 / 60       -- simulated time per drawn frame, s
+
+-- ONLY = "<name>" builds just that walker (for tests), at the centre;
+-- ONLY = { ["<name>"] = true, ... } just those, on the room's grid; otherwise all
+ONLY = ONLY or nil
+SEED = SEED or 1           -- seeds the walkers' starting headings (and, later, their turns)
+
+v.timeStep = FRAME
+v.animationPeriod = math.floor(FRAME * 1000)   -- a frame every 16 ms: real time, if the machine keeps up
+v.fixedTimeStep = FIXED
+v.maxSubSteps = math.ceil(FRAME / FIXED)
+v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, below)
+
+-- ---------------------------------------------------------------------
+-- the terrain: one bumpy meadow for everyone. Its bump height is the
+-- TerrainHeight slider and its bumps' length the BumpLength slider;
+-- changing either builds the room again (the floor changes shape, and
+-- each walker is built to clear the highest bump).
+-- ---------------------------------------------------------------------
+
+local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
+local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
 -- the ranking boards (the test track; boards.lua, made from the table runs
 -- by runs/boards.py): for the ground it is on -- its terrain, its height
 -- rounded to the cm (flat under 0.5) -- every build run there, best first,
@@ -407,30 +431,6 @@ local function showBoard(name)
   end
   print(table.concat(t, "\n"))
 end
-local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
-local FIXED = FIXED or 1 / 960   -- the physics step every walker shares, s
-local FRAME = 1 / 60       -- simulated time per drawn frame, s
-
--- ONLY = "<name>" builds just that walker (for tests), at the centre;
--- ONLY = { ["<name>"] = true, ... } just those, on the room's grid; otherwise all
-ONLY = ONLY or nil
-SEED = SEED or 1           -- seeds the walkers' starting headings (and, later, their turns)
-
-v.timeStep = FRAME
-v.animationPeriod = math.floor(FRAME * 1000)   -- a frame every 16 ms: real time, if the machine keeps up
-v.fixedTimeStep = FIXED
-v.maxSubSteps = math.ceil(FRAME / FIXED)
-v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, below)
-
--- ---------------------------------------------------------------------
--- the terrain: one bumpy meadow for everyone. Its bump height is the
--- TerrainHeight slider and its bumps' length the BumpLength slider;
--- changing either builds the room again (the floor changes shape, and
--- each walker is built to clear the highest bump).
--- ---------------------------------------------------------------------
-
-local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
-local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
 -- bump length, cm: the middle one of the three sine terms' wavelengths
 -- (the other two are 1.25 and 0.84 times it). At 22 (1.5 strides) the
 -- bumps are rolling hills the walkers walk up and down; shorter ones are
