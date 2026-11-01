@@ -622,6 +622,10 @@ William: the hold (each diag build's pendants held at their angle to the body by
 
 (Two bpp runs started together on an empty mesh cache can race on the body letters' meshes: one run missed five letters and was run again. The same could happen to the first runs of a table on a new machine; the letters are look-only, but their absence changes a chaotic run.)
 
+## 4r. Threads (1 November)
+
+The walkers in a room can now be solved side by side on several threads, in one world (they still touch): bpp built with its own Bullet with threads (`scripts/bullet-threads.sh`, `qmake CONFIG+=bundled_bullet`; the default build is unchanged), then `v:setThreads(n)`; `room-four.lua` has `THREADS`. Any number of threads gives the same room move for move, with Tab swapping too. Here (2 CPUs) 2 threads made the room 6-28% faster than before; the body marks cost more than that (about half the room's time, for look-only parts). Details, checks and what to run on William's machine: `THREADS.md`. New tools: `tools/roomsoak.lua` (a soak of room-four.lua), `runs/room-speed.sh` (the room's speed by threads); `tools/roomtime.lua` and `tools/roomdump.lua` now time by the wall clock, and `roomdump.lua` can press keys (`DUMP_KEYS`). A fix to si-warm: a removed joint (Tab) now forgets its forces at once, so a joint made later at the same address does not start from them; this changes the one-thread room after a Tab, nothing else.
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.

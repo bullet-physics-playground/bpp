@@ -64,6 +64,11 @@
 
 #include <BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#if BT_THREADSAFE
+#include <BulletDynamics/Dynamics/btDiscreteDynamicsWorldMt.h>
+#include <BulletDynamics/Dynamics/btSimulationIslandManagerMt.h>
+#include <LinearMath/btThreads.h>
+#endif
 #include <BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h>
 #include <BulletDynamics/MLCPSolvers/btMLCPSolver.h>
 #include <BulletDynamics/MLCPSolvers/btDantzigSolver.h>
@@ -395,6 +400,7 @@ void Viewer::luaBind(lua_State *s) {
                 (void(Viewer::*)(int)) & Viewer::setSolverIterations)
            .def("setSolver", &Viewer::setSolver)
            .def("setSolverInfo", &Viewer::setSolverInfo)
+           .def("setThreads", &Viewer::setThreads)
            .property("solver", &Viewer::solverKind)
            .property("solverFallbacks", &Viewer::solverFallbacks)
            .def("eachContact",
@@ -930,6 +936,11 @@ public:
 };
 } // namespace
 
+// bpp's worlds are BppWorld (below): Bullet's soft body world that can also solve its islands on several threads
+// (setThreads).
+static btSoftRigidDynamicsWorld *newBppWorld(btDispatcher *dispatcher, btBroadphaseInterface *broadphase,
+                                             btConstraintSolver *solver, btCollisionConfiguration *cfg);
+
 // with forceUpdateAllAabbs off, and before each frame's step this brings up
 // to date the box of any sleeping or fixed object a script has moved since
 // the last frame (scripts only move things between steps). Only moved
@@ -984,7 +995,7 @@ int Viewer::newWorld() {
   w.broadphase = new btDbvtBroadphase();
   w.dispatcher = new RestSkippingDispatcher(w.cfg);
   w.solver = new btSequentialImpulseConstraintSolver();
-  w.world = new btSoftRigidDynamicsWorld(w.dispatcher, w.broadphase, w.solver, w.cfg);
+  w.world = newBppWorld(w.dispatcher, w.broadphase, w.solver, w.cfg);
   w.world->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   w.world->setDebugDrawer(_debugDrawer);
   w.world->setGravity(btVector3(0.0f, -9.81f, 0.0f));      // (G, as clear() sets it)
@@ -1102,23 +1113,43 @@ void Viewer::setSolverIterations(int n) {
 // dropped. (Until November 2026 the cache was cut back to the group just solved whenever it grew past four times
 // that group, which in a room of more than about ten walkers threw away nearly every other walker's entries at
 // every step: with all 21 walkers no joint started warm.)
+//
+// A threaded world (BppWorld, setThreads) solves its islands with a pool of these, one a thread, and an island can go
+// to a different one each step; so there they share one cache, kept by the world (WarmCache). Before the islands are
+// solved the world makes an entry for every joint, on one thread; while they are solved each joint's entry is read
+// and written only by the thread solving that joint's island (a joint is in one island), and no entry is added or
+// removed; afterwards, on one thread, entries not solved in the step are dropped, as here.
 static btScalar g_jointWarmstart = 0.85;
-class WarmJointSolver : public btSequentialImpulseConstraintSolver {
+struct WarmCache {
   struct Entry { std::vector<btScalar> impulse; unsigned step = 0; };
-  std::unordered_map<const btTypedConstraint *, Entry> _cache;
+  std::unordered_map<const btTypedConstraint *, Entry> map;
+  unsigned step = 0;       // (counts steps)
+  void dropUnsolved() {
+    for (auto it = map.begin(); it != map.end();)
+      it = it->second.step == step ? std::next(it) : map.erase(it);
+  }
+};
+class WarmJointSolver : public btSequentialImpulseConstraintSolver {
+  WarmCache _own;
+  WarmCache *_cache = &_own;   // (or a threaded world's, shared)
   std::vector<std::pair<const btTypedConstraint *, int>> _rows;   // this group's joints and their row counts, in order
-  unsigned _step = 0;      // (counts steps: prepareSolve)
-  size_t _solved = 0;      // joints solved this step
+  size_t _solved = 0;      // joints solved this step (own cache)
 public:
+  WarmJointSolver() {}
+  explicit WarmJointSolver(WarmCache *shared) : _cache(shared) {}
+  // a joint taken out of the world: its entry goes now, so a joint made later at the same address (as when the room
+  // swaps a walker) does not start from its forces
+  void forget(const btTypedConstraint *c) { _own.map.erase(c); }
   void prepareSolve(int numBodies, int numManifolds) override {
     btSequentialImpulseConstraintSolver::prepareSolve(numBodies, numManifolds);
-    ++_step;
-    _solved = 0;
+    if (_cache == &_own) {
+      ++_own.step;
+      _solved = 0;
+    }
   }
   void allSolved(const btContactSolverInfo &info, btIDebugDraw *debugDrawer) override {
-    if (_cache.size() > _solved)
-      for (auto it = _cache.begin(); it != _cache.end();)
-        it = it->second.step == _step ? std::next(it) : _cache.erase(it);
+    if (_cache == &_own && _own.map.size() > _solved)
+      _own.dropUnsolved();
     btSequentialImpulseConstraintSolver::allSolved(info, debugDrawer);
   }
 protected:
@@ -1129,8 +1160,8 @@ protected:
     for (int i = 0; i < numConstraints; i++) {
       int n = m_tmpConstraintSizesPool[i].m_numConstraintRows;
       _rows.emplace_back(constraints[i], n);
-      auto it = _cache.find(constraints[i]);
-      if (g_jointWarmstart > 0 && it != _cache.end() && int(it->second.impulse.size()) == n) {
+      auto it = _cache->map.find(constraints[i]);
+      if (g_jointWarmstart > 0 && it != _cache->map.end() && int(it->second.impulse.size()) == n) {
         for (int j = 0; j < n; j++) {
           btSolverConstraint &c = m_tmpSolverNonContactConstraintPool[row + j];
           btScalar imp = btMax(c.m_lowerLimit, btMin(c.m_upperLimit, g_jointWarmstart * it->second.impulse[j]));
@@ -1148,15 +1179,128 @@ protected:
   btScalar solveGroupCacheFriendlyFinish(btCollisionObject **bodies, int numBodies, const btContactSolverInfo &info) override {
     int row = 0;
     for (auto &r : _rows) {
-      Entry &e = _cache[r.first];
+      // (a shared cache already has every joint's entry: find, never add)
+      WarmCache::Entry &e = _cache == &_own ? _own.map[r.first] : _cache->map.find(r.first)->second;
       e.impulse.resize(r.second);
       for (int j = 0; j < r.second; j++) e.impulse[j] = m_tmpSolverNonContactConstraintPool[row + j].m_appliedImpulse;
-      if (e.step != _step) { e.step = _step; ++_solved; }
+      if (e.step != _cache->step) { e.step = _cache->step; ++_solved; }
       row += r.second;
     }
     return btSequentialImpulseConstraintSolver::solveGroupCacheFriendlyFinish(bodies, numBodies, info);
   }
 };
+
+// bpp's world: Bullet's soft body world, which with setThreads(n) solves its islands -- groups of bodies joined by
+// joints or touching, such as one walker -- side by side on n threads, as Bullet's btDiscreteDynamicsWorldMt does
+// (its island manager and solver pool), keeping soft bodies. Each island goes to its own solver (Bullet's threaded
+// island manager would otherwise join small islands into batches). Only the solve is threaded: collisions,
+// integration, soft bodies and the scripts run as before, on one thread. Needs Bullet built with threads
+// (BT_THREADSAFE; scripts/bullet-threads.sh); with the system Bullet setThreads does nothing.
+class BppWorld : public btSoftRigidDynamicsWorld {
+public:
+  using btSoftRigidDynamicsWorld::btSoftRigidDynamicsWorld;
+  void removeConstraint(btTypedConstraint *c) override {   // (si-warm forgets it: WarmJointSolver::forget)
+    if (WarmJointSolver *w = dynamic_cast<WarmJointSolver *>(m_constraintSolver)) w->forget(c);
+#if BT_THREADSAFE
+    if (_warm) _warm->map.erase(c);
+#endif
+    btSoftRigidDynamicsWorld::removeConstraint(c);
+  }
+#if BT_THREADSAFE
+  ~BppWorld() override { stopThreads(); }
+  int threads() const { return _pool ? _threads : 0; }
+  // n solvers in the pool (n threads); warm: si-warm's, sharing one cache, else Bullet's sequential impulse
+  void startThreads(int n, bool warm) {
+    stopThreads();
+    if (warm) _warm.reset(new WarmCache());
+    btAlignedObjectArray<btConstraintSolver *> solvers;
+    for (int i = 0; i < n; i++)
+      solvers.push_back(warm ? static_cast<btConstraintSolver *>(new WarmJointSolver(_warm.get()))
+                             : new btSequentialImpulseConstraintSolver());
+    _pool = new btConstraintSolverPoolMt(&solvers[0], n);
+    _islandsMt = new IslandsMt();
+    _serialIslands = m_islandManager;
+    m_islandManager = _islandsMt;      // (calculateSimulationIslands fills the one in use)
+    _threads = n;
+  }
+  void stopThreads() {
+    if (!_pool) return;
+    m_islandManager = _serialIslands;
+    delete _islandsMt;
+    _islandsMt = nullptr;
+    delete _pool;                      // (and its solvers)
+    _pool = nullptr;
+    _warm.reset();
+    _threads = 0;
+  }
+  void solveConstraints(btContactSolverInfo &info) override {
+    if (!_pool) {
+      btSoftRigidDynamicsWorld::solveConstraints(info);
+      return;
+    }
+    if (_warm) {                       // (every joint's entry made before the threads start: see WarmCache)
+      ++_warm->step;
+      for (int i = 0; i < m_constraints.size(); i++) _warm->map.emplace(m_constraints[i], WarmCache::Entry());
+    }
+    btSimulationIslandManagerMt::SolverParams p;
+    p.m_solverPool = _pool;
+    p.m_solverMt = nullptr;            // (Bullet's solver that splits one island across threads: not used)
+    p.m_solverInfo = &info;
+    p.m_debugDrawer = m_debugDrawer;
+    p.m_dispatcher = getDispatcher();
+    _islandsMt->buildAndProcessIslands(getDispatcher(), this, m_constraints, p);
+    _pool->allSolved(info, m_debugDrawer);
+    if (_warm) _warm->dropUnsolved();
+  }
+private:
+  struct IslandsMt : public btSimulationIslandManagerMt {
+    IslandsMt() {
+      m_batchIslandMinBodyCount = 0;   // (Bullet joins islands of under 32 bodies into one batch)
+      setMinimumSolverBatchSize(1);    // (and merges small islands until a batch costs 1024)
+    }
+  };
+  btSimulationIslandManager *_serialIslands = nullptr;   // the world's own, while threaded
+  IslandsMt *_islandsMt = nullptr;
+  btConstraintSolverPoolMt *_pool = nullptr;
+  std::unique_ptr<WarmCache> _warm;                       // si-warm's cache, shared by the pool's solvers
+  int _threads = 0;
+#else
+  int threads() const { return 0; }
+#endif
+};
+
+static btSoftRigidDynamicsWorld *newBppWorld(btDispatcher *dispatcher, btBroadphaseInterface *broadphase,
+                                             btConstraintSolver *solver, btCollisionConfiguration *cfg) {
+  return new BppWorld(dispatcher, broadphase, solver, cfg);
+}
+
+int Viewer::setThreads(int n) {
+#if BT_THREADSAFE
+  BppWorld *w = static_cast<BppWorld *>(dynamicsWorld);
+  if (n <= 0) {
+    w->stopThreads();
+    return 0;
+  }
+  if (_solverKind != "si" && _solverKind != "si-warm") {
+    luaL_error(L, "setThreads: needs the solver \"si\" or \"si-warm\" (setSolver), not '%s'", _solverKind.c_str());
+    return 0;
+  }
+  static btITaskScheduler *scheduler = nullptr;   // (Bullet's own thread pool, one for all worlds)
+  if (scheduler == nullptr) {
+    scheduler = btCreateDefaultTaskScheduler();
+    btSetTaskScheduler(scheduler);
+  }
+  n = btMin(n, scheduler->getMaxNumThreads());
+  scheduler->setNumThreads(n);
+  w->startThreads(n, _solverKind == "si-warm");
+  return n;
+#else
+  if (n > 1)
+    emitScriptOutput(QString("setThreads: this bpp's Bullet has no threads, so it runs on one "
+                             "(build bpp with qmake CONFIG+=bundled_bullet: scripts/bullet-threads.sh)"));
+  return 0;
+#endif
+}
 
 void Viewer::setSolverInfo(const std::string &name, double value) {
   btContactSolverInfo &i = dynamicsWorld->getSolverInfo();
@@ -1211,6 +1355,16 @@ void Viewer::setSolver(const std::string &kind) {
   delete _mlcpInterface;
   _mlcpInterface = method;
   _solverKind = kind;
+#if BT_THREADSAFE
+  if (int n = static_cast<BppWorld *>(dynamicsWorld)->threads()) {   // (threaded: the pool made again of this kind)
+    if (kind == "si" || kind == "si-warm") {
+      setThreads(n);
+    } else {
+      static_cast<BppWorld *>(dynamicsWorld)->stopThreads();
+      emitScriptOutput(QString("setSolver: threads off (they need \"si\" or \"si-warm\")"));
+    }
+  }
+#endif
 }
 
 luabind::object Viewer::handleOf(Object *o) {
@@ -2046,7 +2200,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   solver = new btSequentialImpulseConstraintSolver();
 
   _aabbSeen.clear();
-  dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
+  dynamicsWorld = newBppWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
   dynamicsWorld->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   dynamicsWorld->getWorldInfo().m_broadphase = broadphase;
@@ -3137,7 +3291,7 @@ void Viewer::clear() {
   solver = new btSequentialImpulseConstraintSolver();
 
   _aabbSeen.clear();
-  dynamicsWorld = new btSoftRigidDynamicsWorld(dispatcher, broadphase,
+  dynamicsWorld = newBppWorld(dispatcher, broadphase,
                                                solver, collisionCfg);
   dynamicsWorld->setInternalTickCallback(bppGyroPreTick, nullptr, true);
   dynamicsWorld->setDebugDrawer(_debugDrawer);

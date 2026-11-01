@@ -558,6 +558,17 @@ public:
    */
   void setSolver(const std::string &kind);
 
+  /**
+   * @brief Solves the world's islands (groups of bodies joined by joints or
+   * touching, such as one walker) side by side on @p n threads; 0: as before,
+   * all on one. Only the solve is threaded: collisions, soft bodies and the
+   * scripts stay on one thread. Needs the solver "si" or "si-warm" (a change
+   * of solver keeps the threads), and bpp built with Bullet with threads
+   * (qmake CONFIG+=bundled_bullet); with the system Bullet it does nothing.
+   * @return The threads in use (0: none).
+   */
+  int setThreads(int n);
+
   /// The solver kind last set by setSolver() ("si" until then).
   std::string solverKind() const { return _solverKind; }
 
