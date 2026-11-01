@@ -594,6 +594,8 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **Following again after the overview** (William, 1 November: after O on the test track there was no way back but Tab, which changes the walker, and the help's "Mouse ... (it keeps following)" read as if the mouse followed): O now toggles -- O again follows the walker last followed -- and F follows on the test track too (in the room, F the next of the four); the help line reads "turn and zoom the view (while following, it still follows)". Checked headless by the camera's target: O, O, O, F, F, O, O gives overview, walker, overview, walker, walker, overview, walker.
 
+**`EXTRA` now goes after each run's standard settings** (`runs/run-table.sh`, 1 November), so it can change them -- `EXTRA='PENDANT_HOLD=false'` turns the diag builds' hold off; before, the standard settings that follow set it back (as they did the ankle spring in the soft-spring test of section 4m, rerun then by hand). For the pendant-hold test (William: is the hold, a stand-in for rigid braces against the solver's give, still needed with joint warm-starting?).
+
 (A `room-four.lua` and room code that appeared in a scratch copy of the repo on 31 October, from no known source, were set aside unused; this was written fresh.)
 
 ## 5. What was found in the last session (17–21 October)

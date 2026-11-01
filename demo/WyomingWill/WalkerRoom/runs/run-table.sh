@@ -17,7 +17,7 @@
 #               the ranking's results within the noise, at under half warm40's time; handover section 4i)
 # Environment: BPP (default: bpp on the PATH), JOBS (default: the number of cores), SEEDS (default 1 2 3 4 5),
 # TERRAINS (default the nine rough ones), BUILDS (default the ranking's 13; a file, one name a line), OUT (default
-# runs/out), RUN_SECS (20), EXTRA (Lua run before each run's settings, e.g. 'LEG_WELD_SLIDER=true'; default none).
+# runs/out), RUN_SECS (20), EXTRA (Lua run after each run's settings, so it can change them, e.g. 'PENDANT_HOLD=false'; default none).
 set -u
 cd "$(dirname "$0")/.."
 BPP=${BPP:-bpp}; JOBS=${JOBS:-$(nproc)}; SEEDS=${SEEDS:-"1 2 3 4 5"}; OUT=${OUT:-runs/out}; RUN_SECS=${RUN_SECS:-20}
@@ -50,8 +50,8 @@ export BPP RUN_SECS EXTRA
 one() {
   IFS='|' read -r S n ter amp seed out <<< "$1"
   f=$(mktemp ./_rt_XXXXXX.lua)
-  printf '%s %s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; RUN_SECS=%s\ndofile("runs/speedprobe.lua")\n' \
-    "${EXTRA:+$EXTRA;}" "$(setting "$S")" "$n" "$ter" "$amp" "$seed" "$(bracing "$n")" "$RUN_SECS" > "$f"
+  printf '%s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; %sRUN_SECS=%s\ndofile("runs/speedprobe.lua")\n' \
+    "$(setting "$S")" "$n" "$ter" "$amp" "$seed" "$(bracing "$n")" "${EXTRA:+$EXTRA; }" "$RUN_SECS" > "$f"
   start=$(date +%s)
   QT_QPA_PLATFORM=offscreen timeout 1800 "$BPP" -f "$(basename "$f")" -n $((RUN_SECS * 60 + 10)) 2>&1 | grep -aE '^RUN|rror' | grep -v ALSA > "$out.tmp"
   echo "TIME $(( $(date +%s) - start ))" >> "$out.tmp"; mv "$out.tmp" "$out"; rm -f "$f"
