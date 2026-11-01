@@ -543,9 +543,11 @@ setCells()
 -- ground and walls kept apart from the walkers, so the test track can put
 -- another walker on the same ground without building the ground again)
 local roomObjects, roomConstraints, groundObjects = {}, {}, {}
+local building              -- (the walker being built: its parts listed with it too, so it can be taken out alone)
 local function addObject(o)
   v:add(o)
   roomObjects[#roomObjects + 1] = o
+  if building then building.objects[#building.objects + 1] = o end
   return o
 end
 local function addGround(o)
@@ -1007,7 +1009,8 @@ local function addWalker(spec, x, z, heading)
   local flatLen = tips and (FOOT.length - 2 * tips.length * math.cos(math.rad(tips.angle))) or nil
   local W = dofile(WALKERS_DIR .. spec.parts)
   local scale = STRIDE / spec.stride
-  local w = { spec = spec, scale = scale, bodies = {}, constraints = {} }
+  local w = { spec = spec, scale = scale, bodies = {}, constraints = {}, objects = {} }
+  building = w
   local opts = {}
   for k, val in pairs(spec.opts) do opts[k] = val end
   -- its chassis for the room (see `chassis` above); CHASSIS_TEST, for
@@ -1480,6 +1483,7 @@ local function addWalker(spec, x, z, heading)
   w.heading0 = heading
   w.tilt0 = math.acos(math.max(-1, math.min(1, 1 - 2 * (q:x() ^ 2 + q:z() ^ 2))))
   walkers[#walkers + 1] = w
+  building = nil
   return w
 end
 
@@ -1493,6 +1497,11 @@ end
 -- spots: a grid 4 across, as many rows deep as it takes, filling the arena, the walkers in list order
 local COLS = 4
 local ROWS = math.ceil(#WALKERS / COLS)
+if type(ONLY) == "table" then   -- (a few named: as many rows as they fill, so they spread over the room)
+  local n = 0
+  for _, spec in ipairs(WALKERS) do if ONLY[spec.name] then n = n + 1 end end
+  ROWS = math.max(1, math.ceil(n / COLS))
+end
 local function buildWalkers()
   rngState = SEED
   local n = 0
@@ -2124,8 +2133,16 @@ local function helpText()
   end
   local h = "WALKER ROOM -- " .. (following and ("following " .. following.spec.name .. " (" .. codeOf(following.spec) .. "trail " .. following.colour[1] .. ")")
                                            or "looking over the room") .. "\n\n"
-  h = h .. "Tab         follow the next walker\n"
-  h = h .. "Shift+Tab   follow the one before\n"
+  if ROOM_SWAP then
+    h = h .. "F           follow the next walker\n"
+    h = h .. "Tab         put the next walker in place of the one followed (it walks\n"
+    h = h .. "            on from there; the others carry on)\n"
+    h = h .. "Shift+Tab   the one before\n"
+    h = h .. "1 2 3 4     the ground: waves, random, logs, steps (built again)\n"
+  else
+    h = h .. "Tab         follow the next walker\n"
+    h = h .. "Shift+Tab   follow the one before\n"
+  end
   h = h .. "O           look over the whole room\n"
   h = h .. "T           clear the trails\n"
   h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
@@ -2219,6 +2236,53 @@ local TERRAIN_KEYS = { ["1"] = "waves", ["2"] = "random", ["3"] = "logs", ["4"] 
 -- seed, 1 to 4 -- where it starts, and the random landscape -- as the
 -- headless runs' SEED)
 
+-- ROOM_SWAP (the room, not the test track; room-four.lua): a list of
+-- walkers. Tab / Shift+Tab put the next (or the one before) of them not in
+-- the room already in place of the walker followed -- where it is, facing
+-- its way -- while the others walk on; F follows the next walker (Tab's job
+-- without ROOM_SWAP). ROOM_FIXED: { [name] = true } stay put.
+local function swapWalker(w, step)
+  if not w then print("room: follow a walker first (F)"); return end
+  if ROOM_FIXED and ROOM_FIXED[w.spec.name] then print("room: " .. w.spec.name .. " stays (F follows another)"); return end
+  local inRoom, at = {}, 0
+  for _, o in ipairs(walkers) do inRoom[o.spec.name] = true end
+  for i, n in ipairs(ROOM_SWAP) do if n == w.spec.name then at = i end end
+  local name
+  for i = 1, #ROOM_SWAP do
+    local n = ROOM_SWAP[(at - 1 + step * i) % #ROOM_SWAP + 1]
+    if not inRoom[n] then name = n; break end
+  end
+  local spec
+  for _, sp in ipairs(WALKERS) do if sp.name == name then spec = sp end end
+  if not spec then print("room: no other walker to put in"); return end
+  -- the old one out: its joints, its parts and marks, its trail
+  local x, _, z = getPosXYZ(w.cube)
+  local hd, k = heading(w), w.index
+  local out = {}
+  for _, con in ipairs(w.constraints) do v:removeConstraint(con); out[con] = true end
+  for _, o in ipairs(w.objects) do v:remove(o); out[o] = true end
+  local keep = {}
+  for _, con in ipairs(roomConstraints) do if not out[con] then keep[#keep + 1] = con end end
+  roomConstraints = keep
+  keep = {}
+  for _, o in ipairs(roomObjects) do if not out[o] then keep[#keep + 1] = o end end
+  roomObjects = keep
+  for _, o in ipairs(w.bodies) do owner[objectKey(o)] = nil end
+  for cell, by in pairs(painted) do
+    if by == w then painted[cell] = nil; local i, j = math.floor(cell / NZ), cell % NZ; paintCell(i, j, cellColour(i, j)) end
+  end
+  table.remove(walkers, k)
+  -- the new one in its place, facing its way, with its colour and its place in the list
+  local nw = addWalker(spec, x, z, hd)
+  table.remove(walkers, #walkers)
+  table.insert(walkers, k, nw)
+  nw.colour, nw.index, nw.travelled = w.colour, k, 0
+  for _, o in ipairs(nw.bodies) do owner[objectKey(o)] = nw end
+  if type(ONLY) == "table" then ONLY[w.spec.name] = nil; ONLY[name] = true end   -- (so building the room again keeps it)
+  print("room: " .. name .. " in place of " .. w.spec.name)
+  follow(nw)
+end
+
 v:onKey(function(N, key, down)
   if TEST_TRACK and (key == "Tab" or key == "Backtab") then
     if down then trackNext(key == "Tab" and 1 or -1) end
@@ -2248,10 +2312,25 @@ v:onKey(function(N, key, down)
     end
     return true
   end
-  if key == "Tab" or key == "Backtab" then
+  if ROOM_SWAP and (key == "Tab" or key == "Backtab") then
+    if down then swapWalker(following, key == "Tab" and 1 or -1) end
+    return true
+  end
+  if ROOM_SWAP and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
+    if down then
+      TERRAIN = TERRAIN_KEYS[key]
+      local k = following and following.index
+      teardownRoom()
+      buildRoom()
+      follow(k and walkers[k] or nil)
+      print("room: " .. TERRAIN)
+    end
+    return true
+  end
+  if key == "Tab" or key == "Backtab" or (ROOM_SWAP and key == "F") then
     if down and #walkers > 0 then
       local k = following and following.index or 0
-      if key == "Tab" then k = k % #walkers + 1 else k = (k - 2) % #walkers + 1 end
+      if key == "Backtab" then k = (k - 2) % #walkers + 1 else k = k % #walkers + 1 end
       follow(walkers[k])
     end
     return true

@@ -1,5 +1,13 @@
 # Walker room
 
+![Every buildable walker's speed against bump height on each terrain](handover/boards.png)
+
+The ranking boards (31 October 2026): each walker that could really be built,
+its mean speed on waves, random ground, logs and steps from flat to 8 cm
+(handover/HANDOVER.md, section 4n). To watch them: `test-ranking.lua` (one at a
+time, its board shown as it starts) or `room-four.lua` (four at once, side by
+side).
+
 Twelve walkers on one meadow -- ten of WyomingWill's, the
 Hoecken-Spears 4-bar and the Hoecken-Spears 4-bar duty 85 (below) -- all
 four-legged, each scaled

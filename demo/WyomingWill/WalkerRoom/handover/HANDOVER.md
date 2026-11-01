@@ -588,6 +588,12 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > boards.lua` (the names: only those builds; none: every build found).
 
+## 4o. The room with four walkers (1 November)
+
+`room-four.lua` (William's design): Klann and Jansen always, and two of the nine other buildable walkers (the diag builds and Spears 4-bar, in the 21-build table's order), walking freely in the walled room with the room's steering, at the fast setting. **F** follows the next of the four; **Tab / Shift+Tab** put the next (or the one before) of the nine in place of the walker followed -- where it is, facing its way -- while the other three walk on (Klann and Jansen stay); **1-4** the ground (the room built again with the same four); O the overview; T clears the trails. In walker-room.lua: each walker now keeps its own list of parts (`w.objects`, beside `w.constraints`), so one can be taken out alone (`ROOM_SWAP`, `ROOM_FIXED`; without them the room's keys are as before), and a few walkers named in `ONLY` spread over as many rows as they fill. Checked headless: the new walker appears at the old one's place and heading (148.6, −32.9, 55 degrees) and walks 41.9 cm in the next 5 s; the others do not move during the swap and take a normal step the next frame; Shift+Tab brings the old one back; Tab on Klann or Jansen says it stays; key 3 builds the room again on logs with the same four. Speed: about 0.15 times real time here (four walkers cost about four times one); the README now opens with `boards.png`.
+
+(A `room-four.lua` and room code that appeared in a scratch copy of the repo on 31 October, from no known source, were set aside unused; this was written fresh.)
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.
