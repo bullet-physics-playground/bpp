@@ -645,10 +645,12 @@ public:
    * The default implementation emits a simple triangle mesh from the
    * collision shape (if it's a btTriangleMesh or btConvexHullShape).
    *
-   * @param s The stream to write to.
-   * @param hash Content hash for the mesh declaration name.
+   * @brief Writes the object's collision mesh as a POV-Ray mesh2 blob.
+   *
+   * @param out Byte buffer the mesh2 SDL is appended to.
+   * @return Content hash (SHA-1 over the triangle data) for naming the .inc file.
    */
-  virtual void toMesh2(QTextStream *s, QString hash) const;
+  virtual QString toMesh2(QByteArray *out) const;
 
   /**
    * @brief Draws the object in the interactive view.

@@ -81,24 +81,29 @@ void PovScriptWriter::writeMeshIncludes(const QString &sceneDir) {
   QDir dir(sceneDir);
   if (!dir.exists()) dir.mkpath(".");
 
-  // Write each unique mesh to its own include file
+  // Group objects by the cheap AABB+MD5 hash so each unique mesh is walked
+  // only once. toMesh2 then performs a single triangle walk that both hashes
+  // the content and formats the mesh2 blob; its return value is the content
+  // hash used for the .inc filename and the #include guard.
   QHash<QString, QVector<Object *>> meshesByHash;
   for (Object *obj : m_objects) {
     QString hash = generateMeshHash(obj);
-    if (!hash.isEmpty()) {
-      m_objectHashes[obj] = hash;
+    if (!hash.isEmpty())
       meshesByHash[hash].append(obj);
-    }
   }
 
   for (auto it = meshesByHash.begin(); it != meshesByHash.end(); ++it) {
-    const QString &hash = it.key();
     const QVector<Object *> &objects = it.value();
 
     if (objects.isEmpty()) continue;
 
     // Use first object to generate mesh
     Object *obj = objects.first();
+
+    QByteArray buffer;
+    const QString hash = obj->toMesh2(&buffer);
+    if (hash.isEmpty()) continue;
+
     QString filename = getSharedMeshFile(hash);
     QString filepath = sceneDir + "/" + filename;
 
@@ -108,11 +113,12 @@ void PovScriptWriter::writeMeshIncludes(const QString &sceneDir) {
       continue;
     }
 
-    QTextStream s(&file);
-    obj->toMesh2(&s, hash);
+    file.write(buffer);
     file.close();
 
     m_sharedMeshes[hash] = filename;
+    for (Object *o : objects)
+      m_objectHashes[o] = hash;
   }
 }
 

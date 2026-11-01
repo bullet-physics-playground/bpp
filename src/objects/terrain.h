@@ -142,13 +142,12 @@ public:
   QString toPOV(const QString &sceneDir) const;
 
   /**
-   * @brief Writes the triangles as a POV-Ray @c mesh2 block.
-   * @param s    The stream to write to.
-   * @param hash Content hash used to name the declared mesh. Pass an empty
-   *             string to emit the block unnamed, which is how the hash
-   *             itself is computed in the first place.
+   * @brief Writes the triangles as a POV-Ray @c mesh2 block into a byte
+   * buffer, hashing the triangle content in the same single pass.
+   * @param out Byte buffer the mesh2 SDL is appended to.
+   * @return Content hash (SHA-1 over the triangle data) used to name the .inc.
    */
-  void toMesh2(QTextStream *s, QString hash) const;
+  QString toMesh2(QByteArray *out) const;
 
   /**
    * @brief Draws the terrain's triangles in its own frame.

@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QCryptographicHash>
 
 using namespace std;
 
@@ -38,9 +39,11 @@ public:
   QList<btVector3> v1; ///< First vertex of each triangle.
   QList<btVector3> v2; ///< Second vertex of each triangle.
   QList<btVector3> v3; ///< Third vertex of each triangle.
+  QCryptographicHash hash{QCryptographicHash::Sha1}; ///< Running content hash.
 
   /**
-   * @brief Records one triangle's vertices.
+   * @brief Records one triangle's vertices, feeding them to the running
+   * content hash in the same pass.
    * @param triangle      The triangle's three vertices.
    * @param partId        Sub-part the triangle came from. Unused.
    * @param triangleIndex Index within that sub-part. Unused.
@@ -52,6 +55,20 @@ public:
     v1.append(triangle[0]);
     v2.append(triangle[1]);
     v3.append(triangle[2]);
+
+    hash.addData(reinterpret_cast<const char *>(&triangle[0].x()),
+                 3 * sizeof(btScalar));
+    hash.addData(reinterpret_cast<const char *>(&triangle[1].x()),
+                 3 * sizeof(btScalar));
+    hash.addData(reinterpret_cast<const char *>(&triangle[2].x()),
+                 3 * sizeof(btScalar));
+  }
+
+  /**
+   * @brief Finalises and returns the content hash as hex.
+   */
+  QString resultHash() const {
+    return QString::fromLatin1(hash.result().toHex());
   }
 };
 
@@ -255,49 +272,57 @@ void Terrain::luaBind(lua_State *s) {
 
 QString Terrain::toString() const { return QString("Terrain"); }
 
-void Terrain::toMesh2(QTextStream *s, QString hash) const {
-  if (s == nullptr || m_shape == nullptr)
-    return;
+QString Terrain::toMesh2(QByteArray *out) const {
+  if (out == nullptr || m_shape == nullptr)
+    return QString();
 
   TerrainPOVSaveCallback pov;
   btVector3 aabbMin(-1e99, -1e99, -1e99);
   btVector3 aabbMax(1e99, 1e99, 1e99);
   m_shape->processAllTriangles(&pov, aabbMin, aabbMax);
 
-  *s << "#ifndef (mesh_" << hash << "_included)" << "\n";
-  *s << "#declare mesh_" << hash << "_included = 1;" << "\n\n";
+  const QString hash = pov.resultHash();
+
+  QTextStream stream(out);
+  stream.setRealNumberPrecision(6);
+  stream.setRealNumberNotation(QTextStream::SmartNotation);
+
+  stream << "#ifndef (mesh_" << hash << "_included)\n";
+  stream << "#declare mesh_" << hash << "_included = 1;\n\n";
 
   if (pov.v1.length() > 0) {
-    *s << "#declare mesh_" << hash << " = ";
-    *s << "mesh2 {" << "\n";
-    *s << "  vertex_vectors {" << "\n";
-    *s << "    " << pov.v1.length() * 3 << ", ";
+    stream << "#declare mesh_" << hash << " = mesh2 {\n";
+    stream << "  vertex_vectors {\n";
+    stream << "    " << pov.v1.length() * 3 << ", ";
     for (int i = 0; i < pov.v1.length(); ++i) {
-      *s << "<" << pov.v1.at(i).x() << "," << pov.v1.at(i).y() << ","
-         << -pov.v1.at(i).z() << ">";
-      *s << "<" << pov.v2.at(i).x() << "," << pov.v2.at(i).y() << ","
-         << -pov.v2.at(i).z() << ">";
-      *s << "<" << pov.v3.at(i).x() << "," << pov.v3.at(i).y() << ","
-         << -pov.v3.at(i).z() << ">";
+      stream << "<" << pov.v1.at(i).x() << "," << pov.v1.at(i).y() << ","
+             << -pov.v1.at(i).z() << ">";
+      stream << "<" << pov.v2.at(i).x() << "," << pov.v2.at(i).y() << ","
+             << -pov.v2.at(i).z() << ">";
+      stream << "<" << pov.v3.at(i).x() << "," << pov.v3.at(i).y() << ","
+             << -pov.v3.at(i).z() << ">";
       if (i != pov.v1.length() - 1)
-        *s << ", \n";
+        stream << ", \n";
     }
-    *s << " }" << "\n";
+    stream << " }\n";
 
-    *s << "  face_indices {" << "\n";
-    *s << "    " << pov.v1.length() << ", ";
+    stream << "  face_indices {" << "\n";
+    stream << "    " << pov.v1.length() << ", ";
     for (int i = 0; i < pov.v1.length(); ++i) {
-      *s << "<" << i * 3 << "," << i * 3 + 1 << "," << i * 3 + 2 << ">";
+      stream << "<" << i * 3 << "," << i * 3 + 1 << "," << i * 3 + 2 << ">";
       if (i != pov.v1.length() - 1)
-        *s << ", \n";
+        stream << ", \n";
     }
-    *s << " }" << "\n";
+    stream << " }\n";
 
-    *s << "}" << "\n";
+    stream << "}\n";
   } else {
-    *s << "union {}" << "\n"; // empty object in case of an empty mesh
+    stream << "union {}\n"; // empty object in case of an empty mesh
   }
-  *s << "#end" << "\n";
+  stream << "#end\n";
+  stream.flush();
+
+  return hash;
 }
 
 QString Terrain::toPOV(const QString &sceneDir) const {
@@ -316,11 +341,11 @@ QString Terrain::toPOV(const QString &sceneDir) const {
   if (m_shape != nullptr && body != nullptr &&
       body->getMotionState() != nullptr) {
     if (mPreSDL.isNull()) {
-      // Terrain never moves and is typically large (thousands of
-      // triangles), so -- exactly like Mesh -- the mesh2 data is written
-      // once to a content-hashed .inc file and #include'd by every frame,
-      // instead of being re-emitted inline into each frame's own .inc.
-      QString hash = povMeshHash(m_shape);
+      // One triangle walk: toMesh2 collects vertices, hashes them, and
+      // formats the mesh2 blob into a buffer -- replacing the previous
+      // two-pass hash-then-write.
+      QByteArray buffer;
+      const QString hash = toMesh2(&buffer);
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
@@ -328,9 +353,7 @@ QString Terrain::toPOV(const QString &sceneDir) const {
       if (!check_file.exists() && !check_file.isFile()) {
         QFile file(incfile);
         if (file.open(QIODevice::ReadWrite)) {
-          QTextStream stream(&file);
-          toMesh2(&stream, hash);
-          stream.flush();
+          file.write(buffer);
           file.close();
         } else {
           qDebug() << "unable to create " << incfile;

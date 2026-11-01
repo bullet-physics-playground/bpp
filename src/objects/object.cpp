@@ -1122,29 +1122,6 @@ void Object::setPOVExport(bool onoff) { mPOVExport = onoff; }
 
 bool Object::getPOVExport() const { return mPOVExport; }
 
-void Object::toMesh2(QTextStream *s, QString /*hash*/) const {
-  if (!s || !shape) return;
-
-  // Try to extract triangles from the collision shape
-  btConcaveShape *concave = dynamic_cast<btConcaveShape *>(shape);
-  if (concave) {
-    class MeshCallback : public btTriangleCallback {
-    public:
-      QTextStream *out;
-      MeshCallback(QTextStream *o) : out(o) {}
-      virtual void processTriangle(btVector3 *triangle, int, int) {
-        *out << "    <" << triangle[0].x() << ", " << triangle[0].y() << ", " << triangle[0].z() << ">,\n";
-        *out << "    <" << triangle[1].x() << ", " << triangle[1].y() << ", " << triangle[1].z() << ">,\n";
-        *out << "    <" << triangle[2].x() << ", " << triangle[2].y() << ", " << triangle[2].z() << ">,\n";
-      }
-    } cb(s);
-
-    btTransform trans;
-    if (body && body->getMotionState()) {
-      body->getMotionState()->getWorldTransform(trans);
-    }
-    btVector3 aabbMin, aabbMax;
-    shape->getAabb(trans, aabbMin, aabbMax);
-    concave->processAllTriangles(&cb, aabbMin, aabbMax);
-  }
+QString Object::toMesh2(QByteArray * /*out*/) const {
+  return QString();
 }
