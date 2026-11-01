@@ -1,6 +1,8 @@
 --
--- Test track, 29 October: the 5-seed ranking's builds (handover section
--- 4h), best first, at the standard the ranking was run at: 200 solver
+-- Test track: the walkers that could really be built (diag builds with
+-- their outside braces, and Klann, Jansen and Spears 4-bar on their own
+-- frames), best first (31 October, handover section 4m). First written for
+-- the 29 October ranking (section 4h), at its standard: 200 solver
 -- iterations, the motor at 0.5 a crank, 1.0 cm links, trot, forward;
 -- diag builds with outside braces and held pendants, guides builds
 -- with their legs held by guides; both Hoecken-Spears slider builds with
@@ -52,30 +54,29 @@ local TROT = { 0, 180, 180, 0 }
 local function guides(name) return { walker = name, label = "guides, trot, forward", gait = TROT, unbraced = true, hold = false } end
 local function diag(name) return { walker = name, label = "outside braces, pendants held (trot), forward", hold = true } end
 local function own(name) return { walker = name, label = "its own frame, trot, forward", gait = TROT, hold = false } end
-VIEWS = {   -- (the ranking's order: nine rough terrains, 5 seeds)
-  -- (Hoecken-Spears 4-bar duty 85 and its diag build, 7th and 13th, left out
-  -- of the views, 31 October: kept in the repo, not adding much)
-  guides("Chebyshev-Spears lift 51"),                    --  1  7.84
-  diag("Chebyshev-Spears lift 51 diag"),                 --  2  7.59
-  guides("Chebyshev-Spears lift 62"),                    --  3  7.04
-  diag("Chebyshev-Spears diag"),               --  4  6.90
-  diag("Hoecken-Spears 4-bar diag"),           --  5  6.86
-  diag("Chebyshev-Spears lift 62 diag"),                 --  6  6.83
-  diag("Hoecken-Spears slider diag"),          --  8  6.43 (toes)
-  guides("Hoecken-Spears slider"),             --  9  6.35 (toes)
-  guides("Hoecken-Spears 4-bar"),              -- 10  6.30
-  own("Klann"),                                -- 11  6.22
-  own("Jansen"),                               -- 12  6.18
-  -- (and the originals the Spears builds came from, below the ranking, with
-  -- their diag builds: not in a ranking run)
-  guides("Hoecken slider"),
-  diag("Hoecken slider diag"),
-  guides("Hoecken 4-bar"),
-  diag("Hoecken 4-bar diag"),
-  guides("Chebyshev"),
-  diag("Chebyshev diag"),
-  own("Spears 4-bar"),
+VIEWS = {   -- (31 October: the builds that could really be built -- diag and own frame, no guides -- best first in the
+            -- 21-build table, handover section 4m: fast setting, nine rough terrains, 5 seeds; mean cm/s)
+  diag("Chebyshev-Spears lift 51 diag"),       --  7.77
+  diag("Chebyshev-Spears lift 62 diag"),       --  7.00
+  diag("Chebyshev-Spears diag"),               --  6.97
+  diag("Hoecken-Spears 4-bar diag"),           --  6.84
+  diag("Hoecken-Spears slider diag"),          --  6.23 (toes)
+  own("Klann"),                                --  6.05
+  own("Jansen"),                               --  5.91
+  diag("Hoecken slider diag"),                 --  5.39
+  diag("Hoecken 4-bar diag"),                  --  4.88
+  diag("Chebyshev diag"),                      --  4.50
+  own("Spears 4-bar"),                         --  4.10
+  -- (left out: the guides builds -- the guides are not really there, so they are not for viewing; they stay in the
+  -- repo and the runs -- and Hoecken-Spears 4-bar duty 85 diag, 6.61, which adds little. VIEWS_ALL = true: these too.)
 }
+if VIEWS_ALL then
+  for _, n in ipairs({ "Chebyshev-Spears lift 51", "Chebyshev-Spears lift 62", "Chebyshev-Spears", "Hoecken-Spears 4-bar",
+                       "Hoecken-Spears slider", "Hoecken slider", "Hoecken 4-bar", "Chebyshev", "Hoecken-Spears 4-bar duty 85" }) do
+    VIEWS[#VIEWS + 1] = guides(n)
+  end
+  VIEWS[#VIEWS + 1] = diag("Hoecken-Spears 4-bar duty 85 diag")
+end
 VIEW = VIEW or 1
 
 dofile("trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)

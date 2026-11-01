@@ -1357,6 +1357,54 @@ local function addWalker(spec, x, z, heading)
       end
     end
   end
+  -- DIAG_TIE (a test, 31 October; true or a table of names): each pair of
+  -- diagonal legs (front left with back right, front right with back left)
+  -- welded pendant to pendant by a joint that weighs nothing and touches
+  -- nothing -- as a diag build's braces tie them, without the braces
+  if DIAG_TIE == true or (type(DIAG_TIE) == "table" and DIAG_TIE[spec.name]) then
+    local function obj(b) for _, o in ipairs(w.bodies) do if o.body == b then return o end end end
+    local pend, seen = {}, {}
+    local cubeT = w.cube.body:getCenterOfMassTransform()
+    for _, j in ipairs(joints) do
+      if j[5] == "btHingeConstraint" and j[2] then
+        local a, b = obj(j[1]), obj(j[2])
+        local fa, fb = a and made[a] == "buildFoot", b and made[b] == "buildFoot"
+        local p = (fa and not fb) and b or ((fb and not fa) and a or nil)
+        if p and not seen[p] then
+          seen[p] = true
+          local o = cubeT:invXform(p.body:getCenterOfMassPosition())   -- (in the body's own frame)
+          pend[#pend + 1] = { o = p, x = o.x, z = o.z }
+        end
+      end
+    end
+    assert(#pend == 4, spec.name .. ": DIAG_TIE found " .. #pend .. " pendants, not 4")
+    local mx, mz = 0, 0
+    for _, q in ipairs(pend) do mx, mz = mx + q.x / 4, mz + q.z / 4 end
+    local corner = {}
+    for _, q in ipairs(pend) do corner[(q.x > mx and "f" or "b") .. (q.z > mz and "l" or "r")] = q.o end
+    w.ties = {}
+    for _, pair in ipairs({ { "fl", "br" }, { "fr", "bl" } }) do
+      local a, b = corner[pair[1]], corner[pair[2]]
+      assert(a and b, spec.name .. ": DIAG_TIE could not pair its legs")
+      local g = btGeneric6DofConstraint(a.body, b.body, btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)),
+                                        b.body:getCenterOfMassTransform():inverseTimes(a.body:getCenterOfMassTransform()), true)
+      g:setLinearLowerLimit(btVector3(0, 0, 0)); g:setLinearUpperLimit(btVector3(0, 0, 0))
+      g:setAngularLowerLimit(btVector3(0, 0, 0)); g:setAngularUpperLimit(btVector3(0, 0, 0))
+      opts.addConstraint(g)
+      if SOLVER_ITERATIONS then g:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+      w.ties[#w.ties + 1] = { a, b }
+    end
+  end
+  -- BRACE_GHOST (a test, 31 October): a diag build's braces kept, weight and
+  -- all, but touching nothing (so they cannot catch on a bump)
+  if BRACE_GHOST then
+    for _, o in ipairs(w.bodies) do
+      if (made[o] or ""):find("Crossbar") then
+        local f = o.body:getCollisionFlags()
+        if math.floor(f / 4) % 2 == 0 then o.body:setCollisionFlags(f + 4) end
+      end
+    end
+  end
   -- its radius: half the diagonal of its moving bodies' footprint (from
   -- the moving bodies only: static ones would make it look huge)
   local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
