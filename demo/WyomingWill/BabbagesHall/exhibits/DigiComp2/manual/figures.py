@@ -380,51 +380,55 @@ def fig_complement():
 
 # ---- 8: which parts each operation uses ----
 def fig_parts():
-    fig, ax = plt.subplots(figsize=(6.4, 17))
+    """every wall, peg, flip-flop, switch and shutter in the colour of its part: the names of a program's PARTS
+    line, read from the same tags the simulation uses to take parts off the board"""
+    fig, ax = plt.subplots(figsize=(6.4, 17.6))
     board(ax, dim=True)
-    ALL, CC, AM, CM = "#9a7413", "#2e7d32", "#b03a2e", "#6c3483"
+    COL = {"": "#8d6e2a", "BOARD": "#8d6e2a", "FEEDER": "#8d6e2a", "A": "#d68910", "CLEAR": "#1e8449",
+           "COUNT": "#2e86c1", "CLEAR+COUNT": "#48c9b0", "MULTIPLY": "#b03a2e", "MEMORY": "#e75480",
+           "MULTIPLY+MEMORY": "#a04060", "COMPLEMENT": "#6c3483", "OVERFLOW": "#34495e", "AUTO": "#111111"}
     def blob(x, z, r, col):
-        ax.add_patch(Circle((x, z), r, fc=col, ec=col, alpha=0.28, lw=1.2, zorder=4))
-    def line(pts, col, lw=7):
-        ax.plot([p[0] for p in pts], [p[1] for p in pts], color=col, lw=lw, alpha=0.35, solid_capstyle="round", zorder=4)
-    w = D["wheel"]
-    blob(w[0], w[1], w[2] + 0.8, ALL)
-    line([(w[0], w[4]), (w[0], w[5])], ALL)
-    blob(S["MULTIPLY"]["x"], S["MULTIPLY"]["z"] - 1, 3.0, ALL)
-    for k in range(1, 8):
-        r = Rk["A%d" % k]
-        blob(r["x"], r["z"] - 2.0, 3.2, ALL)
-    line([(D["lower"][0], D["ZCOL"] - 1), (D["lower"][1], D["ZCOL"] + 1)], ALL)
-    line(lane("MULTIPLY off"), CC)
-    for n in ("CLEAR", "COUNT"):
-        blob(S[n]["x"], S[n]["z"] - 1, 3.0, CC)
-    line([tuple(p) for p in D["clearLane"]], CC, lw=4)
-    for n in ("D1", "D2", "D3", "MQ1", "MQ2", "MQ3"):
-        blob(Rk[n]["x"], Rk[n]["z"] - 2.0, 3.2, AM)
-    for k in (1, 2, 3, 4):
-        blob(S["M%d" % k]["x"], S["M%d" % k]["z"] - 1, 3.0, AM)
-    for n, p in D["lanes"].items():
-        if n != "MULTIPLY off" and not n.startswith("done"):
-            line([tuple(q) for q in p], AM)
-    for r in D["returns"]:
-        line([(r[0], r[1]), (r[2], r[3])], AM, lw=4)
-    line([(D["XRET"], D["stop"][1]), (D["XRET"], D["ZCOL"] - 1.5)], AM, lw=4)
-    blob(D["stop"][0], D["stop"][1], 1.6, AM)
-    for k in range(1, 7):
-        line(lane("done %d" % k), CM, lw=5)
+        ax.add_patch(Circle((x, z), r, fc=col, ec=col, alpha=0.30, lw=1.2, zorder=4))
+    for w in D["walls"]:
+        if w[5] not in ("", "BOARD", "FEEDER"):
+            ax.plot([w[0], w[2]], [w[1], w[3]], color=COL[w[5]], lw=4.5, alpha=0.55, solid_capstyle="round", zorder=4)
+    for w in D["lwalls"]:
+        if w[5] not in ("", "BOARD", "FEEDER"):
+            ax.plot([w[0], w[2]], [w[1], w[3]], color=COL[w[5]], lw=3.5, alpha=0.55, ls=(0, (2, 1)), zorder=4)
+    for pg in D["pegs"]:
+        ax.add_patch(Circle((pg[0], pg[1]), pg[2] * 1.8, fc=COL[pg[3]], ec="none", alpha=0.6, zorder=4))
+    for r in D["rockers"]:
+        blob(r["x"], r["z"] - 1.2, 2.6, COL["A" if r["kind"] == "A" else "MULTIPLY"])
+    for sw in D["switches"]:
+        blob(sw["x"], sw["z"] - 0.8, 1.9, COL[sw["part"]])
     sh = D["shutter"]
     tv = sh["travel"]
-    line([(sh["knob"][0] + tv, sh["knob"][1]), (sh["bar"][1][0] + tv, sh["bar"][1][1])], CM, lw=4)
-    blob(D["overflow"][0], D["overflow"][1], 1.6, CM)
+    for t in D["shutters"]:
+        ax.add_patch(Polygon([(x + tv, z) for x, z in t["piece"]], fc=COL["COMPLEMENT"], ec="none", alpha=0.55, zorder=4))
+    ax.add_patch(Polygon([(x + tv, z) for x, z in sh["bar"]], fc=COL["COMPLEMENT"], ec="none", alpha=0.45, zorder=4))
+    for pc in D["ovf"]:
+        ax.add_patch(Polygon([(x, z) for x, z in pc], fc=COL["OVERFLOW"], ec="none", alpha=0.6, zorder=4))
+    w = D["wheel"]
+    blob(w[0], w[1], w[2] + 0.8, COL["FEEDER"])
+    tr = D["trip"]
+    blob(tr["xc"], tr["zp"] + 0.4, 1.4, COL["AUTO"])
+    ax.plot([tr["dx"], tr["ex"], tr["hx"]], [tr["zp"], tr["ez"], tr["hz"]], color=COL["AUTO"], lw=1.4, ls=(0, (4, 2)), alpha=0.8, zorder=4)
     from matplotlib.lines import Line2D
-    h = [Line2D([], [], color=c, lw=8, alpha=0.5) for c in (ALL, CC, AM, CM)]
-    ax.legend(h, ["used by every operation: the feeder, MULTIPLY\n(on or off), the accumulator, the collector",
-                  "count and clear: MULTIPLY's lane down,\nCLEAR, COUNT, the clear lane and A's feet",
-                  "add and multiply: the distributor, the MQ,\nthe memory, STOP and the return lane",
-                  "complement (subtract, divide): the shutters,\ntheir bar, the done lanes; OVERFLOW watched"],
-              loc="upper center", fontsize=8, framealpha=0.95, bbox_to_anchor=(0.5, 0.0))
+    names = [("FEEDER", "always: the board, the collector, the feeder\nand the MULTIPLY switch (every ball passes it)"),
+             ("A", "A: the flip-flops, their channels and pegs, the\nguides, the clear lane, the done holes' backstops,\nthe overflow hole's pocket"),
+             ("CLEAR+COUNT", "CLEAR or COUNT: MULTIPLY's lane down,\nthe CLEAR switch"),
+             ("CLEAR", "CLEAR: its drop into the clear lane"),
+             ("COUNT", "COUNT: its switch and its drop"),
+             ("MULTIPLY", "MULTIPLY: D1 .. D3, the MQ, their lanes,\nSTOP and its pocket"),
+             ("MEMORY", "MEMORY: its four switches, and under them\nthe walls to the return lane"),
+             ("MULTIPLY+MEMORY", "MULTIPLY or MEMORY: the return lane"),
+             ("COMPLEMENT", "COMPLEMENT: the shutters, their bar,\nthe done lanes past the holes"),
+             ("OVERFLOW", "OVERFLOW: its shutter, the lane over it"),
+             ("AUTO", "AUTO: the trip lever, the thread (dashed)")]
+    h = [Line2D([], [], color=COL[n], lw=8, alpha=0.55) for n, _ in names]
+    ax.legend(h, [t for _, t in names], loc="upper center", fontsize=7.5, framealpha=0.95, ncol=2,
+              bbox_to_anchor=(0.5, 0.0))
     save(fig, "fig-parts.png")
-
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)

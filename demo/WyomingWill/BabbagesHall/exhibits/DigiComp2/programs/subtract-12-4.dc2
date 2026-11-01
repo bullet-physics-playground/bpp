@@ -3,6 +3,7 @@
 ; over 128, the carry drops through OVERFLOW, and what is left is the
 ; difference.
 
+PARTS A COUNT COMPLEMENT MULTIPLY MEMORY   ; only these on the board
 R            ; reset: COUNT on
 SET A 4      ; A = 0000100 = 4
 X Space      ; COMPLEMENT on, one ball: A = 1111011 = 123

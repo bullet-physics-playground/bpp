@@ -274,8 +274,8 @@ end
 -- the upper plate: boxes round its holes (it is drawn a little see-through,
 -- so the lower level shows)
 -- (the boxes are for the physics and not drawn; the plate is drawn as printed)
-local PLATE_COL, PLATE_TR = "#1f3b4d", 1.0
 do
+  local PLATE_COL, PLATE_TR = "#1f3b4d", 1.0
   local holes = G.holes
   local zs = { B.z0, B.z1 }
   for _, h in ipairs(holes) do zs[#zs + 1] = h[3]; zs[#zs + 1] = h[4] end
@@ -309,6 +309,86 @@ stand.col = "#7a5a3a"
 v:add(stand)
 stand.trans = btTransform(BQ, W3(0, 0, 0))
 
+-- ---------------------------------------------------------------------
+-- PARTS: a program says which parts of the machine it needs (its PARTS
+-- line: the names of MANUAL section 7), and the others are taken off the
+-- board while it runs, as someone building only that much would leave them
+-- off. Every wall, peg, flip-flop, switch, shutter and lever knows its part
+-- (G's walls and pegs say; the script says for the rest). BOARD and FEEDER
+-- are always there. A fixed part away is moved far below the floor; a
+-- moving one is frozen (not simulated), made untouchable, and moved there
+-- too, keeping its setting. No PARTS line: the whole machine.
+-- ---------------------------------------------------------------------
+local parts = { NAMES = { "A", "CLEAR", "COUNT", "MULTIPLY", "MEMORY", "COMPLEMENT", "OVERFLOW", "AUTO" },
+                on = {}, list = {}, AWAY = btVector3(0, -500, 0) }
+for _, n in ipairs(parts.NAMES) do parts.on[n] = true end
+function parts.has(tag)
+  if tag == nil or tag == "BOARD" or tag == "FEEDER" then return true end
+  if type(tag) == "string" then return parts.on[tag] == true end
+  for _, t in ipairs(tag) do if parts.on[t] then return true end end
+  return false
+end
+-- a fixed thing (a wall, a peg, a shutter, a drawn pin) at tr
+function parts.fixed(obj, tag, tr)
+  if parts.has(tag) and (tag == nil or tag == "BOARD" or tag == "FEEDER") then return nil end
+  local it = { obj = obj, tag = tag, home = tr, here = true }
+  parts.list[#parts.list + 1] = it
+  return it
+end
+-- (a fixed thing that moves by hand, a shutter: where it is now)
+function parts.move(it, tr)
+  if not it then return end
+  it.home = tr
+  if it.here then it.obj.trans = tr end
+end
+-- a moving thing (a flip-flop, a flap, the trip lever), with what is drawn on it
+function parts.body(body, tag)
+  local it = { body = body, tag = tag, here = true, flags = body:getCollisionFlags() }
+  parts.list[#parts.list + 1] = it
+  return it
+end
+-- the board as the parts now on say
+function parts.apply()
+  for _, it in ipairs(parts.list) do
+    local want = parts.has(it.tag)
+    if want ~= it.here then
+      it.here = want
+      if it.obj then it.obj.trans = want and it.home or btTransform(ident, parts.AWAY)
+      else
+        local b = it.body
+        local zero = btVector3(0, 0, 0)
+        if want then
+          b:setCollisionFlags(it.flags)
+          b:forceActivationState(4)
+          b:setCenterOfMassTransform(it.home)
+        else
+          -- (a copy: getCenterOfMassTransform gives the body's own, which
+          -- would follow it away; put back there, its pin dragged it up
+          -- from under the floor and flung it round: FINDINGS)
+          local p = b:getCenterOfMassPosition()
+          it.home = btTransform(b:getCenterOfMassTransform():getRotation(), btVector3(p.x, p.y, p.z))
+          b:setCollisionFlags(it.flags + 4)              -- (CF_NO_CONTACT_RESPONSE: nothing touches it)
+          b:forceActivationState(5)                      -- (DISABLE_SIMULATION: frozen, its pin too)
+          b:setCenterOfMassTransform(btTransform(it.home:getRotation(), parts.AWAY))
+        end
+        b:setLinearVelocity(zero); b:setAngularVelocity(zero); b:clearForces()
+        if want then b:activate(true) end
+      end
+    end
+  end
+end
+-- these parts (a list of names), or all of them (nil)
+function parts.set(names)
+  for _, n in ipairs(parts.NAMES) do parts.on[n] = (names == nil) end
+  for _, n in ipairs(names or {}) do parts.on[n] = true end
+  parts.apply()
+end
+function parts.text()
+  local t = {}
+  for _, n in ipairs(parts.NAMES) do if parts.on[n] then t[#t + 1] = n end end
+  return #t == #parts.NAMES and "every part" or ("only " .. table.concat(t, ", "))
+end
+
 local WALL_COL = { housing = "#9b1c1c", queue = "#9b1c1c", rim = "#7a5a3a", switch = "#c9a14a",
                    done = "#d9d4c5", overflow = "#9b1c1c", clear = "#2f8c5a", drop = "#c9a14a", collector = "#7a5a3a",
                    lane = "#d9d4c5", doneLane = "#b9b2d6", guide = "#d9d4c5", router = "#9fb7cc", stop = "#9b1c1c", ["return"] = "#8a8f96" }
@@ -338,18 +418,21 @@ local function addWall(w, y0, y1)
   v:add(c)
   fixed[#fixed + 1] = c
   key(c, ROLE_TEXT[w.role] or "a channel: it brings the ball straight down onto the flip-flop's apex")
+  parts.fixed(c, w.part, c.trans)
 end
 for _, w in ipairs(G.walls) do addWall(w, 0, G.WALL_H) end
 for _, w in ipairs(G.lwalls) do addWall(w, YL, YL + w[5]) end
-local function post(x, z, r, y0, y1, col, what)
+local function post(x, z, r, y0, y1, col, what, tag)
   local c = Cylinder(r, y1 - y0, 0)               -- (bpp's Cylinder: along z; stood up)
-  c.trans = btTransform(BQ * zToY, W3(x, (y0 + y1) / 2, z))
+  local tr = btTransform(BQ * zToY, W3(x, (y0 + y1) / 2, z))
+  c.trans = tr
   c.col = col
   v:add(c)
   fixed[#fixed + 1] = c
   key(c, what)
+  parts.fixed(c, tag, tr)
 end
-for _, p in ipairs(G.pegs) do post(p[1], p[2], p[3], 0, G.WALL_H, "#9a9da3", "a stop peg: the flip-flop's tail rests on it") end
+for _, p in ipairs(G.pegs) do post(p[1], p[2], p[3], 0, G.WALL_H, "#9a9da3", "a stop peg: the flip-flop's tail rests on it", p.part) end
 for _, p in ipairs(G.posts) do post(p[1], p[2], 0.5, YL, -PT, "#7a5a3a", "a post: it holds the upper plate over the lower level") end
 for _, p in ipairs(G.ANCHOR.posts) do
   post(p[1], p[2], p[3], 0, p[4], "#9a9da3", "a stop for the anchor's arm: at rest it lies against one, pushed (START) against the other")
@@ -430,6 +513,9 @@ for i, t in ipairs(G.rockers) do
   pin.col = "#b8bcc2"
   v:add(pin)
   pin.trans = btTransform(BQ * zToY, W3(t.x, (YL + F.Y0 + F.H + 0.1) / 2, t.z))
+  local tag = t.kind == "A" and "A" or "MULTIPLY"
+  parts.fixed(pin, tag, pin.trans)
+  parts.body(body, tag)
   flips[i] = { t = t, name = t.name, body = body, hinge = h, obj = o, riders = { wt, foot } }
   flip[t.name] = flips[i]
   key(o, { flip = t.name }); key(foot, { foot = t.name })
@@ -490,6 +576,7 @@ for _, s in ipairs(G.switchList) do
   local h = pinned(body, s.x, syc, s.z, 0, scz)
   if PF > 0 then h:enableAngularMotor(true, 0, PF * STEP) end
   switches[s.name] = { s = s, body = body, hinge = h, obj = o, name = s.name }
+  if G.switchPart[s.name] ~= "FEEDER" then parts.body(body, G.switchPart[s.name]) end
   key(o, { switch = s.name })
 end
 -- is a switch on (its flap sending the ball its "on" way)?
@@ -537,11 +624,12 @@ do
   o.trans = tr
   fixed[#fixed + 1] = o
   comp.obj, comp.body = o, body
+  comp.part = parts.fixed(o, "COMPLEMENT", tr)
   key(o, { comp = true })
 end
 local function setComplement(on)
   comp.on = on
-  comp.obj.trans = btTransform(BQ, W3(on and 0 or SHT.TRAVEL, 0, 0))
+  parts.move(comp.part, btTransform(BQ, W3(on and 0 or SHT.TRAVEL, 0, 0)))
 end
 local function isComplement() return comp.on end
 
@@ -567,11 +655,12 @@ do
   o.trans = tr
   fixed[#fixed + 1] = o
   comp.ovf.obj = o
+  comp.ovf.part = parts.fixed(o, "OVERFLOW", tr)
   key(o, "OVERFLOW: a shutter over the overflow hole. RUN (closed, knob down the slope): the carry out of A7 rolls over it and on; HALT (open, O): it drops into a pocket, and in AUTO the machine stops")
 end
 function comp.ovf.set(halt)
   comp.ovf.halt = halt
-  comp.ovf.obj.trans = btTransform(BQ, W3(0, 0, halt and -G.OVF.TRAVEL or 0))
+  parts.move(comp.ovf.part, btTransform(BQ, W3(0, 0, halt and -G.OVF.TRAVEL or 0)))
 end
 function comp.ovf.isHalt() return comp.ovf.halt end
 
@@ -687,11 +776,13 @@ do
   h:setLimit(0, 0.45, 0.9, 0.3, 1.0)                -- (0: at rest, the arm's end down; lifted, its angle grows)
   h:enableAngularMotor(true, 0, 0.05 * STEP)
   trip.body, trip.hinge, trip.obj, trip.c, trip.tr0 = body, h, o, c, tr
+  parts.body(body, "AUTO")
   local axle = part("tripAxle()")              -- (its axle, a wire: drawn only; the hinge is the axle)
   axle.col = "#9aa0a8"
   pcall(function() axle.collides = false end)
   v:add(axle)
   axle.trans = btTransform(BQ, W3(0, 0, 0))
+  parts.fixed(axle, "AUTO", axle.trans)
   key(o, "the TRIP LEVER (AUTO): a ball rolling under its arm lifts it; the arm hanging from its axle, beside the board, pulls the thread, and the anchor lets the next ball go")
   -- the eye, on its post at the board's edge (drawn only: the thread
   -- passes through it)
@@ -701,6 +792,7 @@ do
   pcall(function() eye.collides = false end)
   v:add(eye)
   eye.trans = btTransform(BQ, W3(0, 0, 0))
+  parts.fixed(eye, "AUTO", eye.trans)
   key(eye, "the thread's EYE (AUTO): the thread from the trip lever comes up beside the board to here, and turns across to the START lever")
   -- the thread: where it is tied (in each body's own frame), the eye (in
   -- the world), and its two runs, drawn
@@ -989,11 +1081,14 @@ local function carryRiders()
   wheel.star.trans = wheel.body:getCenterOfMassTransform()
   drive.draw()
   anchor.rider.trans = anchor.body:getCenterOfMassTransform()
-  do
+  if parts.on.AUTO then
     local a = trip.worldOf(trip.body, trip.pArm)
     trip.draw(trip.run1, a, trip.eye)
     if trip.auto then trip.draw(trip.run2, trip.eye, trip.worldOf(anchor.body, trip.pHook))
     else trip.draw(trip.run2, trip.eye, trip.loose) end
+  else
+    -- (the thread too is AUTO's)
+    trip.run1.trans = btTransform(ident, parts.AWAY); trip.run2.trans = btTransform(ident, parts.AWAY)
   end
   for _, fl in ipairs(flips) do
     local tr = fl.body:getCenterOfMassTransform()
@@ -1034,6 +1129,11 @@ local function setAuto(on)
   trip.auto = on
   -- (hooked on with the lever and the anchor at rest: that is its length)
   if on then trip.L0 = trip.length(); trip.lastL = trip.L0 end
+  if on and os.getenv("DC_LOG") then
+    local ax = anchor.body:getCenterOfMassTransform():getBasis():getColumn(0)
+    print(string.format("  AUTO: hooked with the lever at %.3f rad, the anchor at %.2f degrees, the thread %.3f cm",
+                        trip.hinge:getHingeAngle(), math.deg(math.atan2(-ax.y * sT + ax.z * cT, ax.x)), trip.L0))
+  end
 end
 local function isAuto() return trip.auto end
 local function applyFriction()
@@ -1580,6 +1680,12 @@ end
 --   UNTIL CYCLE        balls until the next would begin a cycle (D1 and D2
 --                      read 1); none if it would already
 --   CHECK A n, CHECK M n, CHECK MQ n   say whether the register reads n
+--   PARTS name ...     the parts it needs (MANUAL section 7): A, CLEAR,
+--                      COUNT, MULTIPLY (with D, MQ and STOP), MEMORY,
+--                      COMPLEMENT, OVERFLOW (the shutter: HALT), AUTO. The
+--                      others are taken off the board while it runs; a
+--                      step that needs one it didn't name is an error.
+--                      Without it: the whole machine
 -- While it runs, the listing is in the help (Shortcuts) pane with an arrow
 -- at the line being done, the line itself in the status bar, and every
 -- ball is shown before it goes (the dashed line, the sign) and checked
@@ -1605,6 +1711,14 @@ local KEY_STEP = { R = true, ["1"] = true, ["2"] = true, ["3"] = true, ["4"] = t
                    ["7"] = true, H = true, J = true, K = true, L = true, ["8"] = true, ["9"] = true, ["0"] = true,
                    D = true, M = true, C = true, N = true, X = true }
 local REGISTER = { A = true, M = true, MQ = true }
+-- (the part each step needs)
+local NEED_KEY = { ["1"] = "A", ["2"] = "A", ["3"] = "A", ["4"] = "A", ["5"] = "A", ["6"] = "A", ["7"] = "A",
+                   H = "MEMORY", J = "MEMORY", K = "MEMORY", L = "MEMORY", ["8"] = "MULTIPLY", ["9"] = "MULTIPLY",
+                   ["0"] = "MULTIPLY", D = "MULTIPLY", M = "MULTIPLY", C = "CLEAR", N = "COUNT", X = "COMPLEMENT",
+                   U = "AUTO", O = "OVERFLOW" }
+local NEED_REG = { A = "A", M = "MEMORY", MQ = "MULTIPLY" }
+local NEED_UNTIL = { STOP = "MULTIPLY", CYCLE = "MULTIPLY", OVERFLOW = "A" }
+PR.NEED_KEY = NEED_KEY
 local UNTIL = { STOP = true, OVERFLOW = true, CYCLE = true }
 local function parseProgram(file)
   local lines = readLines(PROG_DIR .. file)
@@ -1640,11 +1754,32 @@ local function parseProgram(file)
         if how ~= "HALT" and how ~= "RUN" then return bad("OVERFLOW wants HALT or RUN") end
         p.ops[#p.ops + 1] = { line = i, op = "overflow", halt = how == "HALT" }
         j = j + 1
+      elseif W == "PARTS" then
+        p.parts = p.parts or {}
+        for k = j + 1, #toks do
+          local n = toks[k]:upper()
+          if not parts.on[n] then return bad("PARTS: no part called \"" .. toks[k] .. "\" (" .. table.concat(parts.NAMES, " ") .. ")") end
+          p.parts[#p.parts + 1] = n
+        end
+        j = #toks
       elseif W == "AUTO" or W == "MANUAL" then p.ops[#p.ops + 1] = { line = i, op = "auto", on = W == "AUTO" }
       elseif W == "RUN" then p.ops[#p.ops + 1] = { line = i, op = "run" }
       elseif KEY_STEP[W] then p.ops[#p.ops + 1] = { line = i, op = "key", key = W }
       else return bad("what is \"" .. toks[j] .. "\"?") end
       j = j + 1
+    end
+  end
+  -- (with a PARTS line, every step must use parts it names)
+  if p.parts then
+    local has = {}
+    for _, n in ipairs(p.parts) do has[n] = true end
+    for _, o in ipairs(p.ops) do
+      local need = (o.op == "key" and NEED_KEY[o.key]) or ((o.op == "set" or o.op == "check") and NEED_REG[o.reg])
+                   or (o.op == "until" and NEED_UNTIL[o.what]) or (o.op == "overflow" and "OVERFLOW")
+                   or ((o.op == "auto" or o.op == "run") and "AUTO") or nil
+      if need and not has[need] then
+        return nil, string.format("programs/%s, line %d: it needs %s, which its PARTS line leaves off", file, o.line, need)
+      end
     end
   end
   return p
@@ -1710,6 +1845,10 @@ local function startProgram(p)
   queue = 0
   PR.prog = { p = p, i = 1, phase = "next", wait = 0 }
   print(string.format("\nDIGI-COMP II -- program: %s (programs/%s)", p.title, p.file))
+  -- (its parts on the board, the rest off; the balls back to the top)
+  parts.set(p.parts)
+  setUp()
+  print("    parts: " .. parts.text())
   showProgram(p, nil)
 end
 local function stopProgram(why)
@@ -1719,7 +1858,7 @@ local function stopProgram(why)
   PR.fails = PR.fails + (PR.prog.fails or 0)
   PR.prog = nil
   showProgram(p, nil)
-  setStatus(p.title .. ": done")
+  setStatus(p.title .. ": done" .. (p.parts and "  (only its parts are on the board: R puts every part back)" or ""))
   hidePath()
   -- (headless, DC_PROGRAM=all: the next one)
   if PR.run then
@@ -2042,22 +2181,33 @@ end)
 -- ---------------------------------------------------------------------
 -- keys, sliders, help, hover
 -- ---------------------------------------------------------------------
-local function byHand(fn) return function() if not PR.prog then fn(); hidePath(); handMoved() end end end
+-- (a key by hand: not while a program runs, and only for a part on the board)
+local function byHand(fn, key_)
+  return function()
+    if PR.prog then return end
+    local need = key_ and PR.NEED_KEY[key_]
+    if need and not parts.on[need] then
+      PR.setStatus(string.format("%s: %s isn't on the board (the last program had only its parts): R puts every part back", key_, need))
+      return
+    end
+    fn(); hidePath(); handMoved()
+  end
+end
 v:addShortcut("Space", function() if not PR.prog then stopSeen = false; preview(); feed() end end)
-v:addShortcut("M", byHand(function() setSwitch("MULTIPLY", not isOn("MULTIPLY")) end))
-v:addShortcut("C", byHand(function() setSwitch("CLEAR", not isOn("CLEAR")) end))
-v:addShortcut("N", byHand(function() setSwitch("COUNT", not isOn("COUNT")) end))
-for k = 1, G.NBITS do v:addShortcut(tostring(k), byHand(function() setBit(k, 1 - bit(k)) end)) end
+v:addShortcut("M", byHand(function() setSwitch("MULTIPLY", not isOn("MULTIPLY")) end, "M"))
+v:addShortcut("C", byHand(function() setSwitch("CLEAR", not isOn("CLEAR")) end, "C"))
+v:addShortcut("N", byHand(function() setSwitch("COUNT", not isOn("COUNT")) end, "N"))
+for k = 1, G.NBITS do v:addShortcut(tostring(k), byHand(function() setBit(k, 1 - bit(k)) end, tostring(k))) end
 for k, key_ in ipairs({ "H", "J", "K", "L" }) do
-  v:addShortcut(key_, byHand(function() setSwitch("M" .. k, not isOn("M" .. k)) end))
+  v:addShortcut(key_, byHand(function() setSwitch("M" .. k, not isOn("M" .. k)) end, key_))
 end
 for k, key_ in ipairs({ "8", "9", "0" }) do
-  v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end))
+  v:addShortcut(key_, byHand(function() setFlip("MQ" .. k, 1 - lean("MQ" .. k)) end, key_))
 end
-v:addShortcut("D", byHand(setD))
-v:addShortcut("U", byHand(function() setAuto(not isAuto()); PR.setStatus(isAuto() and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end))
-v:addShortcut("X", byHand(function() setComplement(not isComplement()) end))
-v:addShortcut("O", byHand(function() comp.ovf.set(not comp.ovf.isHalt()); PR.setStatus(comp.ovf.isHalt() and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end))
+v:addShortcut("D", byHand(setD, "D"))
+v:addShortcut("U", byHand(function() setAuto(not isAuto()); PR.setStatus(isAuto() and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end, "U"))
+v:addShortcut("X", byHand(function() setComplement(not isComplement()) end, "X"))
+v:addShortcut("O", byHand(function() comp.ovf.set(not comp.ovf.isHalt()); PR.setStatus(comp.ovf.isHalt() and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end, "O"))
 -- B: the camera to the program board and back (the camera as it was before)
 local camBack = nil
 v:addShortcut("B", function()
@@ -2091,7 +2241,7 @@ v:addShortcut("W", function()
   end
 end)
 v:addShortcut("T", function() PR.prog = nil; PR.run = nil; startTour() end)
-v:addShortcut("R", function() PR.prog = nil; PR.run = nil; queue = 0; setUp(); hidePath(); PR.setStatus("") end)
+v:addShortcut("R", function() PR.prog = nil; PR.run = nil; queue = 0; parts.set(nil); setUp(); hidePath(); PR.setStatus("") end)
 -- programs: the slider chooses, G runs it (G again: stop)
 local progSel = 1
 if #PR.library > 0 then

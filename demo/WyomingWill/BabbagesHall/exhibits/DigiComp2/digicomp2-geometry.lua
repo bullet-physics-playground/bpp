@@ -496,8 +496,14 @@ end
 -- on the upper level and on the lower; pegs; holes { x0, x1, z0, z1 }
 -- ---------------------------------------------------------------------
 G.walls, G.lwalls, G.pegs, G.holes, G.bosses = {}, {}, {}, {}, {}
-local function wall(x1, z1, x2, z2, role) G.walls[#G.walls + 1] = { x1, z1, x2, z2, role = role } end
-local function lwall(x1, z1, x2, z2, role, h) G.lwalls[#G.lwalls + 1] = { x1, z1, x2, z2, h or G.GAP, role = role } end
+-- Every wall and peg also says which PART of the machine it belongs to (the
+-- names in MANUAL section 7; a program's PARTS line names the ones it needs):
+-- BOARD and FEEDER (always there), A, CLEAR, COUNT, MULTIPLY (with the
+-- distributor, the MQ and STOP), MEMORY, COMPLEMENT, OVERFLOW, AUTO; or a
+-- list, when it is there for any of them. PART says which, as they are made.
+local PART = "BOARD"
+local function wall(x1, z1, x2, z2, role) G.walls[#G.walls + 1] = { x1, z1, x2, z2, role = role, part = PART } end
+local function lwall(x1, z1, x2, z2, role, h) G.lwalls[#G.lwalls + 1] = { x1, z1, x2, z2, h or G.GAP, role = role, part = PART } end
 local function hole(x, z, role, s) s = s or G.HOLE; G.holes[#G.holes + 1] = { x - s / 2, x + s / 2, z - s / 2, z + s / 2, role = role } end
 local C = G.CHAN / 2 + G.WALL_T / 2          -- a channel's wall, from its centre line
 local HS = G.HOLE
@@ -631,12 +637,18 @@ local function switchWalls(sw)
   sw.left, sw.right = { x - S.OX, z + S.OUT }, { x + S.OX, z + S.OUT }
 end
 for k = 1, 4 do G.switches["M" .. k].drop = -1 end
-for _, s in ipairs(G.switchList) do switchWalls(s) end
+-- (MULTIPLY's is FEEDER's: every ball passes it. CLEAR's is passed by every
+-- ball for CLEAR or COUNT)
+G.switchPart = { MULTIPLY = "FEEDER", CLEAR = { "CLEAR", "COUNT" }, COUNT = "COUNT",
+                 M1 = "MEMORY", M2 = "MEMORY", M3 = "MEMORY", M4 = "MEMORY" }
+for _, s in ipairs(G.switchList) do PART = G.switchPart[s.name]; switchWalls(s) end
 -- CLEAR's right outlet: into the clear lane; COUNT's right: to the collector
 do
   local r = G.switches.CLEAR.right
+  PART = "CLEAR"
   G.clearDrop = { dropAt(r[1], r[2], "clear") }
   r = G.switches.COUNT.right
+  PART = "COUNT"
   G.countOffDrop = { dropAt(r[1], r[2], "drop") }
 end
 
@@ -648,8 +660,8 @@ local function flipWalls(t, join, role)
   local rt = rb - F.RUN
   wall(x - C, rt, x - C, rb, role); wall(x + C, rt, x + C, rb, role)
   funnel(x, rt, join, role)
-  G.pegs[#G.pegs + 1] = { x - F.pegX, z + F.pegZ, F.PEG_R }
-  G.pegs[#G.pegs + 1] = { x + F.pegX, z + F.pegZ, F.PEG_R }
+  G.pegs[#G.pegs + 1] = { x - F.pegX, z + F.pegZ, F.PEG_R, part = PART }
+  G.pegs[#G.pegs + 1] = { x + F.pegX, z + F.pegZ, F.PEG_R, part = PART }
   G.bosses[#G.bosses + 1] = { x, z }
   hole(x, z, "stem", 2 * (F.STEM_R + 0.05))
 end
@@ -662,6 +674,7 @@ local function catchAt(t, s) return { t.x + s * G.DX, t.z + G.DZ - RUNTOP } end
 -- from COUNT, the others' the done lane from the one before). (A5 .. A7's
 -- left walls are long for the carry: falling the length of a step, it drifts
 -- left, and a short wall let it by)
+PART = "A"
 for k, t in ipairs(G.toggles) do flipWalls(t, 2) end
 -- (and A5 .. A7's long left walls go on straight up the slope, to above
 -- the flip-flop before: a guide for the carry, which drifts out to the very
@@ -739,13 +752,22 @@ for k, t in ipairs(G.toggles) do
     local e = joinEnd(n.x, runTop(n), 1)
     local P = { { hx, hz0 - 0.6 }, { hx, hz1 + G.DONE_LANE[1] }, { e[1], e[2] - G.DONE_LANE[2] }, e }
     -- (its left wall open beside the hole and above it, where the ball comes in)
-    laneWalls(P, { { -1, hz0 - 0.6, hz1 + 0.15 } }, wall, "doneLane")
+    -- (its first stretch, straight down beside the hole, is A's too: its
+    -- right wall is the hole's backstop. Without it a fast carry, A1 turning
+    -- over into A2, skipped across A2's hole and rolled off the plate:
+    -- FINDINGS. The rest is COMPLEMENT's)
+    local function add(x1, z1, x2, z2, role)
+      PART = (math.abs(x1 - x2) < 1e-6 and math.abs(math.abs(x1 - hx) - C) < 1e-3) and "A" or "COMPLEMENT"
+      wall(x1, z1, x2, z2, role)
+    end
+    laneWalls(P, { { -1, hz0 - 0.6, hz1 + 0.15 } }, add, "doneLane")
     G.lanes["done " .. k] = P
     local dx, dz = P[2][1] - P[3][1], P[3][2] - P[2][2]
     if math.deg(math.atan2(dz, dx)) < G.MINSLOPE - 1e-6 then
       G.warnings[#G.warnings + 1] = string.format("done lane %d runs %.1f degrees down (under %d)", k, math.deg(math.atan2(dz, dx)), G.MINSLOPE)
     end
   else
+    PART = "A"
     t.done = sideHole(t, 1, "done")
   end
 end
@@ -767,12 +789,15 @@ end
 -- the distributor and the MQ
 do
   local R = G.rocker
+  PART = "MULTIPLY"
   for _, t in ipairs(G.routers) do flipWalls(t, nil, "router") end
   local M = G.switches
   local function inlet(s) return { s.x, inletTop(s) } end
   -- MULTIPLY's right outlet (off) runs down to CLEAR
   local r = M.MULTIPLY.right
+  PART = { "CLEAR", "COUNT" }
   lane("MULTIPLY off", r, inlet(M.CLEAR), 0.5, 1.2, { { r[1] + 0.8, r[2] + 1.2 } })
+  PART = "MULTIPLY"
   -- D1's right outlet runs to D3 (its left drops straight into D2's funnel)
   local c = catchAt(R.D1, 1)
   funnel(c[1], c[2], nil, "router")
@@ -827,6 +852,13 @@ end
 G.ZCOL = G.toggles[G.NBITS].z + 6.0         -- the collector's wall, on the lower level
 G.COL_H = 3.0                                -- its height
 do
+  -- (the lane is A's as well as CLEAR's: its walls also bring the balls
+  -- dropping out of A's done holes down to the collector with speed enough
+  -- to roll on along it into the trip channel. Without them a ball from
+  -- A1's came straight down and stopped against the collector's wall short
+  -- of the channel, and AUTO stopped: FINDINGS. A is always there, so the
+  -- lane is too; CLEAR is its switch's drop into it)
+  PART = "A"
   local d = G.clearDrop
   local t1 = G.toggles[1]
   -- (from CLEAR's drop it bends left at once, past the lane's line, to pass
@@ -881,6 +913,7 @@ do
   local t = math.tan(math.rad(40))
   local xr = G.XRET + C                       -- (the walls end at the return lane's right side)
   G.returns = {}
+  PART = "MEMORY"
   for k = 1, 4 do
     local h = G.switches["M" .. k].dropHole
     local x1 = h[1] + HS / 2 + 0.15
@@ -888,7 +921,9 @@ do
     lwall(x1, z1, xr, z1 + (x1 - xr) * t, "return")
     G.returns[k] = { x1, z1, xr, z1 + (x1 - xr) * t }
   end
+  PART = { "MULTIPLY", "MEMORY" }
   lwall(G.XRET - C, G.stop[2] - HS / 2 - 0.3, G.XRET - C, G.ZCOL - 1.5, "return")
+  PART = "MULTIPLY"
   -- (AUTO: STOP's ball stays in a pocket under its hole, and lets no
   -- ball go: the machine stops. The hand empties it)
   local zb = G.stop[2] + HS / 2 + 0.7
@@ -900,19 +935,28 @@ do
   do
     local hx, hz = G.overflow[1], G.overflow[2]
     local w = HS / 2 + 0.15
+    -- (the pocket is A's: without the OVERFLOW shutter the hole is always
+    -- open, and the carry out of A7 waits in it)
+    PART = "A"
     lwall(hx - w, hz - HS / 2 - 0.3, hx - w, hz + HS / 2 + 0.85, "overflow")
     lwall(hx + w, hz - HS / 2 - 0.3, hx + w, hz + HS / 2 + 0.85, "overflow")
     lwall(hx - w, hz + HS / 2 + 0.85, hx + w, hz + HS / 2 + 0.85, "overflow")
     G.overflowPocket = { hx, hz }
     -- (on the plate: the hole's outer wall, on down to the plate's end: the
     -- lane a ball takes over the closed shutter, RUN)
-    wall(hx - w, hz - HS / 2 - 0.6, hx - w, G.board.z1 - 0.05, "overflow")
+    -- (beside the hole it is the hole's backstop, as before OVERFLOW had a
+    -- shutter: A's; on down to the plate's end, OVERFLOW's)
+    PART = "A"
+    wall(hx - w, hz - HS / 2 - 0.6, hx - w, hz + HS / 2 + 0.15, "overflow")
+    PART = "OVERFLOW"
+    wall(hx - w, hz + HS / 2 + 0.15, hx - w, G.board.z1 - 0.05, "overflow")
   end
 end
 
 -- the feeder's housing (a ring of short walls, open at the top to the
 -- channel of balls and at the bottom to the MULTIPLY switch) and the channel
 do
+  PART = "FEEDER"
   local rr = Wh.R + Wh.GAP + G.WALL_T / 2
   local open = math.asin((C + G.WALL_T / 2) / rr)
   local N = 24
@@ -949,6 +993,7 @@ end
 -- there, away from the clear lane and the overflow, which come in at the
 -- left: lined up to the left, they had blocked the clear lane's end)
 do
+  PART = "BOARD"
   local b, l = G.board, G.lower
   local B_Z1 = b.z1
   wall(b.x0 + 0.15, b.z0, b.x0 + 0.15, b.z1, "rim"); wall(b.x1 - 0.15, b.z0, b.x1 - 0.15, b.z1, "rim")

@@ -5,6 +5,7 @@
 ; machine stops. The hand only presses START once (and keeps the INPUT
 ; filled from the store).
 
+PARTS A MULTIPLY MEMORY AUTO   ; only these on the board
 R            ; reset: A = 0, MANUAL
 SET M 13     ; M = 1101 = 13
 SET MQ 5     ; MQ = 101 = 5

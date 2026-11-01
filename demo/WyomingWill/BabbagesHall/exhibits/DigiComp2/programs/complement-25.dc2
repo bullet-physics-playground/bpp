@@ -2,6 +2,7 @@
 ; COMPLEMENT on: the done holes are covered, so a ball turns over every
 ; bit of A (127 - A); COMPLEMENT off, one more ball adds 1: 128 - A.
 
+PARTS A COUNT COMPLEMENT   ; only these on the board
 R            ; reset: COUNT on
 SET A 25     ; A = 0011001 = 25
 X            ; COMPLEMENT on

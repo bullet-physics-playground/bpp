@@ -396,22 +396,57 @@ counting out a number of balls, and dividing, also run by themselves
 
 ![Which parts of this board each kind of operation uses.](manual/fig-parts.png)
 
-| Operation | Feeder | A | CLEAR, clear lane | COUNT | MULTIPLY | D, MQ, STOP | M | COMPLEMENT (shutters, done lanes) | OVERFLOW (watched, or set to HALT) |
-|---|---|---|---|---|---|---|---|---|---|
-| Count | yes | yes | | yes | (off) | | | | |
-| Clear | yes | yes | yes | | (off) | | | | |
-| Add | yes | yes | | | yes | yes | yes | | |
-| Multiply, multiply-add, square, shift | yes | yes | | | yes | yes | yes | | |
-| Decimal to binary | yes | yes | | | yes | yes | yes | | |
-| Complement | yes | yes | | yes | (off) | | | yes | |
-| Subtract | yes | yes | | yes | yes | yes | yes | yes | |
-| Count out N balls | yes | yes | | yes | (off) | | | yes | yes |
-| Divide | yes | yes | | yes | yes | yes | yes | yes | yes |
+| Operation | A | CLEAR | COUNT | MULTIPLY | MEMORY | COMPLEMENT | OVERFLOW | AUTO |
+|---|---|---|---|---|---|---|---|---|
+| Count | yes | | yes | | | | | |
+| Clear | yes | yes | | | | | | |
+| Add | yes | | | yes | yes | | | |
+| Multiply, multiply-add, square, shift | yes | | | yes | yes | | | |
+| Decimal to binary | yes | | | yes | yes | | | |
+| Complement | yes | | yes | | | yes | | |
+| Subtract | yes | | yes | yes | yes | yes | | |
+| Count out N balls | yes | | yes | | | yes | to halt | |
+| Divide | yes | | yes | yes | yes | yes | to halt | |
+| Any of them running by itself | | | | | | | | yes |
 
-(MULTIPLY "(off)": on this board every ball passes the MULTIPLY switch on
-its way down; a board without it would feed CLEAR directly.)
+The column names are the parts a program names on its `PARTS` line
+(section 9), and what each takes in:
+
+- **A**: the seven flip-flops, their channels, funnels and stop pegs, the
+  guides, the overflow hole and its pocket, and two things that look like
+  other parts' but do A's work too: the clear lane on the lower level
+  (its walls bring the balls that drop out of A's done holes down to the
+  collector moving fast enough to roll on into the trip channel), and the
+  wall beside each long done hole, the first stretch of its done lane (a
+  fast carry would skip across the hole without it); the overflow hole's
+  outer wall likewise.
+- **CLEAR**: the CLEAR switch and its drop into the clear lane.
+- **COUNT**: the COUNT switch and its drop.
+- **MULTIPLY**: the distributor (D1 .. D3), the MQ, their channels, the
+  lanes from them to the memory, STOP and its pocket.
+- **MEMORY**: the four memory switches, their drop holes' walls and the
+  walls under them that take what they drop to the return lane.
+- **COMPLEMENT**: the six shutters, their bar and the done lanes, but for
+  their first stretch.
+- **OVERFLOW**: its shutter and the lane over it (RUN), past the hole. Only needed to halt
+  the machine in AUTO: without the shutter the overflow hole is always
+  open, the carry out of A7 drops into its pocket (A's), and the hand sees
+  it there as well as anywhere (`UNTIL OVERFLOW`).
+- **AUTO**: the trip lever, its hanging arm, the eye and the thread.
+
+Always there: the board, its rim and the collector, and the feeder (the
+wheel, the anchor, the weight and the damper) with the MULTIPLY switch,
+which every ball passes on its way down (off, it sends the ball on to
+CLEAR). The CLEAR switch and the lane to it are there for CLEAR or COUNT:
+a ball for COUNT passes CLEAR's switch too.
 
 ### Building only part of it
+
+In the exhibit, each program in the library runs with only the parts its
+`PARTS` line names on the board: the others are taken off (out of the
+simulation, not only out of sight), as they would be on a machine built
+only that far. `R` by hand puts every part back. (The plate's holes and
+its lettering stay: they are cut in the plate.)
 
 The steps this machine was built in are each a complete, smaller machine,
 kept in the repository's history. Each has its own board, tiles, parts
@@ -513,6 +548,7 @@ are the keys you would press, and a few more:
 | `OVERFLOW HALT`, `OVERFLOW RUN` | opens OVERFLOW's shutter (a carry out of A7 drops into its pocket: in AUTO the machine stops), or closes it |
 | `UNTIL CYCLE` | balls until the next would begin a cycle (D1 and D2 read 1); none if it would already |
 | `CHECK A n`, `CHECK M n`, `CHECK MQ n` | says whether that register reads n |
+| `PARTS name ...` | the parts the program needs (section 7: `A`, `CLEAR`, `COUNT`, `MULTIPLY`, `MEMORY`, `COMPLEMENT`, `OVERFLOW`, `AUTO`). While it runs the others are off the board, and a step that needs one it doesn't name is an error when the program is read. Without a `PARTS` line, the whole machine |
 
 Here is section 6's division, every ball written out
 (`programs/divide-13-by-5.dc2`):
@@ -524,6 +560,7 @@ Here is section 6's division, every ball written out
 ; is 3 - 1 = 2 and the remainder M - A = 5 - 2 = 3.
 
 ; ---- set up ----
+PARTS A COUNT COMPLEMENT MULTIPLY MEMORY   ; only these on the board
 R            ; reset: A = 0, MQ = 0, M = 0, COUNT on, everything else off
 1  3  4      ; A = 13 (1 + 4 + 8)                                A = 0001101 = 13
 

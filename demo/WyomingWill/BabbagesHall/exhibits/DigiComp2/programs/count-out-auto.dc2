@@ -3,6 +3,7 @@
 ; The 9th ball carries out of A7 and drops into OVERFLOW's pocket instead of
 ; reaching the trip lever: the machine stops by itself, nine balls out.
 
+PARTS A COUNT COMPLEMENT OVERFLOW AUTO   ; only these on the board
 R               ; reset: COUNT on, OVERFLOW RUN, MANUAL
 SET A 9
 X Space X Space ; complement it: A = 119 = 128 - 9

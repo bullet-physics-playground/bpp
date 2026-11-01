@@ -193,7 +193,7 @@ other way then gives the cycles begun).
 | `B` | the camera to the program board, close enough to read it; again, back |
 | `W` | the camera beside and under the board's top end, to the weight, its drum and pulley, and the damper; again, back |
 | `T` | the tour: every program in the library, in turn (it starts with it) |
-| `R` | set it back by hand: the balls to the top, everything to 0, COUNT on, the others off, OVERFLOW RUN, MANUAL |
+| `R` | set it back by hand: every part on the board, the balls to the top, everything to 0, COUNT on, the others off, OVERFLOW RUN, MANUAL |
 | `Z` | slow motion (1/4 speed) on and off |
 
 To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
@@ -247,7 +247,7 @@ would.
 
 **Programs.** The procedures can be written down and run: text files in
 `programs/`, one step a line (the keys you would press, and `SET`, `UNTIL`,
-`OVERFLOW`, `AUTO`, `MANUAL`, `RUN` and `CHECK`), listed in `programs/LIBRARY`. Choose one with the
+`OVERFLOW`, `AUTO`, `MANUAL`, `RUN`, `CHECK` and `PARTS`), listed in `programs/LIBRARY`. Choose one with the
 **program** slider and press `G`: the hand does it line by line, every ball
 shown before it goes and checked after. The program is shown on the
 **program board**, on a stand behind the machine's top end, the line being
@@ -257,6 +257,18 @@ also in the Shortcuts pane, and the line in the status bar. The library has coun
 by ball, 25 / 5 with loops and in AUTO, and counting out nine balls by hand
 and in AUTO; `MANUAL.md`, section 9, has the
 language.
+
+**Only the parts a program needs.** Each program's `PARTS` line names the
+parts it uses (A, CLEAR, COUNT, MULTIPLY with the distributor, MQ and
+STOP, MEMORY, COMPLEMENT, OVERFLOW, AUTO: `MANUAL.md`, section 7, has what
+each takes in and a picture). While it runs, the rest are off the board,
+on the full-size board: out of the simulation, not only out of sight, as
+on a machine built only that far. Counting has only A and COUNT; a
+multiply, A, MULTIPLY and MEMORY. The board stays so when the program
+ends; a key for a part that isn't there says so, and `R` puts every part
+back. The plate's holes and lettering stay (they are cut in it), and so
+do the feeder, the MULTIPLY switch (every ball passes it) and the
+collector. A program without a `PARTS` line has the whole machine.
 
 Sliders: `friction` (0.2 to 0.6 checked), `program`, `speed`, `steps`.
 

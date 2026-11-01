@@ -8,6 +8,7 @@
 ; the remainder M - A. A halt can stop mid-cycle at A = 0 when it isn't
 ; exact, 11 / 5 for one, so that is always the safe way.)
 
+PARTS A COUNT COMPLEMENT MULTIPLY MEMORY OVERFLOW AUTO   ; only these
 R               ; reset
 SET A 25        ; the dividend
 X Space X Space ; complement it: A = 103 = 128 - 25

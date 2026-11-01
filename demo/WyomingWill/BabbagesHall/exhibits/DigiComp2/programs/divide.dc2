@@ -5,6 +5,7 @@
 ; if A is 0 the quotient is the cycles and the remainder 0, otherwise
 ; the quotient is cycles - 1 and the remainder M - A.
 
+PARTS A COUNT COMPLEMENT MULTIPLY MEMORY   ; only these on the board
 R               ; reset: COUNT on
 SET A 25        ; the dividend
 X Space X Space ; complement it: A = 103 = 128 - 25

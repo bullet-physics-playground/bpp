@@ -181,6 +181,16 @@ there, in `release/`, or on the path; or set `BPP`.
   off the anchor's second finger, took up to 1.8 s to let go with the damper
   where the torque-and-cap had taken half a second. Measure such waits
   with the real drag, at both ends of its tolerance.
+- **`getCenterOfMassTransform()` is the body's own transform**, not a copy
+  (and `getCenterOfMassPosition()` its own vector): keep a pose by copying
+  it (`btTransform(tr:getRotation(), btVector3(p.x, p.y, p.z))`). Kept as
+  is, it moves with the body (the Digi-Comp's parts were "put back" where
+  they had been sent). An object's `.trans` is a copy.
+- **Taking parts away finds hidden jobs.** A wall drawn as one part's may
+  do another's work (the Digi-Comp's clear lane steered done balls; a
+  done lane's wall was its hole's backstop). Test each reduced machine,
+  in AUTO too: in MANUAL a ball stopped in the wrong place often still
+  counts as done.
 - **Impulses applied in `preSim` before a step** (a cord's pull, a drag)
   change a held body's velocity for an instant, until the step's contacts
   take it back: read speeds for "is it moving?" before applying them (the
@@ -403,11 +413,27 @@ there, in `release/`, or on the path; or set `BPP`.
 - A possible tighter rule for dividing in AUTO (A = 0 at a halt is exact
   only if M's bits still to come in that cycle are all 0) was offered to
   William, not yet taken.
-- **Next:** each program showing
-  only the parts it needs (William: "just add the parts you need when you
-  need them", on the full board, not a compacted one). William pointed
-  to a replica: www.instructables.com/Digi-Comp-II-Replica/ (only its
-  summary could be fetched here).
+- **Done (2026-10-31, evening): each program with only its parts.**
+  William asked for it on the full board, the parts "really absent" (out
+  of the simulation, not only hidden). Every wall and peg has a `part` in
+  the geometry (A, CLEAR, COUNT, MULTIPLY with D, MQ and STOP, MEMORY,
+  COMPLEMENT, OVERFLOW, AUTO; BOARD and FEEDER always), the script tags
+  the moving parts, and each program has a `PARTS` line; a step needing a
+  part it doesn't name is an error when it is read. A program's start
+  takes the rest off (`parts` in the script: fixed things moved far below
+  the floor, moving ones frozen, untouchable and moved there too); they
+  stay off after it, keys for them refuse, `R` by hand puts all back.
+  `manual/fig-parts.png` is drawn from the same tags. Found by it: the
+  clear lane's walls also steer A's done balls into the trip channel
+  (without them AUTO stopped), and the done lanes' first stretch is the
+  done holes' backstop (without it a fast carry skipped A2's hole and
+  rolled off the plate): both are A's now. Watching OVERFLOW needs only
+  A's hole and pocket; its shutter is for halting AUTO. **Not seen by
+  William yet.** He pointed to a replica:
+  www.instructables.com/Digi-Comp-II-Replica/ (only its summary could be
+  fetched here).
+- **Next:** offered, not asked for: printing only a program's parts (the
+  tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the

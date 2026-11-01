@@ -21,13 +21,17 @@ local function enc(v)
   end
   return "null"
 end
-local function seg(w) return { w[1], w[2], w[3], w[4], w.role or "" } end
+-- (a wall: its ends, its role, and its part: "A", or "CLEAR+COUNT" when it is
+-- there for either)
+local function partOf(p) return type(p) == "table" and table.concat(p, "+") or (p or "") end
+local function seg(w) return { w[1], w[2], w[3], w[4], w.role or "", partOf(w.part) } end
 local d = {}
 d.walls, d.lwalls, d.holes = {}, {}, {}
 for _, w in ipairs(G.walls) do d.walls[#d.walls + 1] = seg(w) end
 for _, w in ipairs(G.lwalls) do d.lwalls[#d.lwalls + 1] = seg(w) end
 for _, h in ipairs(G.holes) do d.holes[#d.holes + 1] = seg(h) end
-d.pegs = G.pegs
+d.pegs = {}
+for _, p in ipairs(G.pegs) do d.pegs[#d.pegs + 1] = { p[1], p[2], p[3], partOf(p.part) } end
 d.rockers = {}
 for _, t in ipairs(G.rockers) do d.rockers[#d.rockers + 1] = { x = t.x, z = t.z, name = t.name, kind = t.kind, done = t.done } end
 d.shutters = {}
@@ -36,7 +40,7 @@ local SH = G.SHUTTER
 d.shutter = { bar = SH.bar, knob = SH.knob, knobR = SH.KNOB_R, pinR = SH.PIN[2], travel = SH.TRAVEL }
 d.switches = {}
 for _, s in ipairs(G.switchList) do
-  d.switches[#d.switches + 1] = { x = s.x, z = s.z, name = s.name, on = s.on, top = s.top }
+  d.switches[#d.switches + 1] = { x = s.x, z = s.z, name = s.name, on = s.on, top = s.top, part = partOf(G.switchPart[s.name]) }
 end
 d.lanes = G.lanes
 d.clearLane = G.clearLane
@@ -48,6 +52,7 @@ do
   d.trip = { xc = T.xc, zp = T.zp, A = T.A, W = T.W, ZB = T.ZB, ex = T.EYE.x, ez = T.EYE.z, dx = T.xc + T.DA.x, hx = T.hook.x, hz = T.hook.z }
   d.anchor = { x = A.x, z = A.z, arm = A.ARM, rest = A.REST, hook = A.HOOK }
 end
+d.ovf = G.OVF.pieces
 d.board = { G.board.x0, G.board.x1, G.board.z0, G.board.z1 }
 d.lower = { G.lower.x0, G.lower.x1, G.lower.z0, G.lower.z1 }
 d.wheel = { G.WHEEL.x, G.WHEEL.z, G.WHEEL.R, G.WHEEL.ballR, G.WHEEL.queueTop, G.WHEEL.queueBot }

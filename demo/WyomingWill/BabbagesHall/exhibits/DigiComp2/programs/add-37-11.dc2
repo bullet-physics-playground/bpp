@@ -2,6 +2,7 @@
 ; ADD is MULTIPLY with the MQ at 1: one cycle adds M to A, and the next
 ; ball, finding the MQ at 0, drops through STOP.
 
+PARTS A MULTIPLY MEMORY   ; only these on the board
 R            ; reset
 SET A 37     ; A = 0100101 = 37
 SET M 11     ; M = 1011 = 11

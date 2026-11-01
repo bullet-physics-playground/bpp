@@ -7,6 +7,96 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## Each program with only its parts (2026-10-31)
+
+William asked for each program to show only the parts it needs, on the
+full board, and for them to be really absent: out of the simulation, not
+only out of sight, so that what runs is what a machine built only that
+far would do (a wrong setting sends a ball off where a missing wall was).
+
+**Which part each thing belongs to.** Every wall and peg is tagged as it is
+made in `digicomp2-geometry.lua` (`part`), and the script tags the moving
+parts and the shutters; `manual/fig-parts.png` is drawn from the same
+tags. The names are MANUAL section 7's: A, CLEAR, COUNT, MULTIPLY (with
+D, MQ and STOP), MEMORY, COMPLEMENT, OVERFLOW, AUTO. Some things are
+needed by either of two parts, and are tagged with both: the lane from
+MULTIPLY down to CLEAR and the CLEAR switch (a ball for COUNT passes it),
+and the return lane down the left edge (MEMORY's drops and STOP's).
+Always there: the board, the collector, the feeder and the MULTIPLY
+switch, which every ball passes.
+
+**OVERFLOW**, as the MANUAL had it, was needed to count out and to divide.
+It isn't, here: watching for the carry out of A7 needs only the overflow
+hole, and the pocket under it now counts as A's. Without the OVERFLOW
+shutter the hole is open and the carry drops into the pocket (as HALT);
+with it, it can also go on to the collector (RUN). So the shutter is only
+needed to halt the machine in AUTO; `count-out-9`, `divide` and
+`subtract-12-4` run without it, the subtraction's carry waiting in the
+pocket.
+
+**Taking a part off.** A fixed thing (a wall, a peg, a drawn pin, a shutter)
+is moved far below the floor and back, as the OVERFLOW shutter already is
+moved. A moving thing (a flip-flop, a flap, the trip lever) is frozen
+(Bullet's DISABLE_SIMULATION: neither it nor its pin's hinge is simulated),
+made untouchable (CF_NO_CONTACT_RESPONSE) and moved there too, keeping its
+setting; put back, it returns where it was. bpp could remove objects and
+add them again, but the hall runs each exhibit inside its own machinery,
+and adding and removing over and over has been trouble before (HANDOFF);
+moving them needs nothing new.
+
+**Two parts doing a third's work.** Taking parts off found two places
+where a wall drawn as one part's also does A's work, which the full
+board had never shown:
+
+- **The clear lane** (lower level). With only A, MULTIPLY, MEMORY and
+  AUTO, 13 x 5 in AUTO stopped after its second ball. That ball, dropping
+  out of A1's done hole, came straight down the lower level and met the
+  collector's wall at x 7.4, slowly, and stopped there, half a centimetre
+  short of the trip channel. Pressed against the wall (it slopes 2.7
+  degrees), a ball slides along it rather than rolling, and with friction
+  0.3 it can't, unless it comes with speed. On the full board that ball met
+  the wall at x 5.0 already moving right, steered by the clear lane's
+  walls, and rolled on into the channel. In MANUAL a ball stopped there is
+  still in the collector and harms nothing; in AUTO it trips nothing. So
+  the clear lane is A's as well (and always there); CLEAR is its switch's
+  drop into it.
+- **The done lanes' first stretch.** Then 13 x 5 in AUTO went wrong at its
+  sixth ball: A1 turning over carried into A2, set it, and the ball left
+  A2 to the right fast, skipped across A2's long done hole, and rolled on
+  down the plate and off its end. On the full board the done lane's right
+  wall, beside the hole, stops it and it drops. That stretch is A's too,
+  and so is the overflow hole's outer wall beside the hole (it was A's own
+  before OVERFLOW had its shutter); the rest of the lanes are COMPLEMENT's
+  and OVERFLOW's.
+
+So a machine built without CLEAR or COMPLEMENT still needs those walls;
+`manual/fig-parts.png` shows them as A's.
+
+**A part put back where it had been sent.** Once the parts worked
+program by program, the tour (every program in turn) still went wrong in
+an AUTO program: right after `AUTO` the anchor tripped with no one
+pushing, and after `RUN` the wheel ran away (on its own: the count-out
+in AUTO; in the hall: 25 / 5 in AUTO). Logged at the hook, the trip
+lever read -2.56 radians, far outside its 0 to 0.45, though it had been
+put back at 0: the thread's length was set too short, and as the lever's
+pin brought it round the thread held the anchor tripped. The fault was
+the script's: taking a moving part off kept its pose as
+`getCenterOfMassTransform()`, which in bpp's Lua is the body's own
+transform, not a copy, so it followed the body away, and the part was
+"put back" 5 m under the floor; its pin dragged it up and flung it
+round. The flip-flops and flaps had it too, but `R` places them by hand
+as every program starts; the lever nothing places. It keeps a copy now.
+
+**The programs.** Each has a `PARTS` line; reading a program checks that
+every step uses a part it names (a `C` with no CLEAR is an error, before
+it runs). Starting it takes the other parts off and sets the machine up.
+Run alone, every program in the library passed with only its parts (after
+the two fixes above, for 13 x 5 in AUTO). The whole library, the tour,
+each program with only its parts and the board switching between them,
+passed on its own (161 balls right; it ends at frame 98 403) and in the
+hall (98 455), the thread hooked in each AUTO program with the lever and
+the anchor at rest.
+
 ## Step 2f: the weight and the fly as parts (2026-10-31)
 
 The planned drive (step 2e, "Planned for the next step"), built, with one
