@@ -9,7 +9,7 @@
 --   Tab, Shift+Tab   put the next (or the one before) of the nine in place of
 --                    the walker followed; it walks on from there, and the
 --                    others carry on (Klann and Jansen stay)
---   O                look over the whole room
+--   O                look over the whole room (O again, or F: follow again)
 --   1 2 3 4          the ground: waves, random, logs, steps (built again)
 --   T                clear the trails
 -- The TerrainHeight slider sets the bumps' height (the room built again).

@@ -17,7 +17,7 @@
 --   N                the next seed, 1 to 4 (where it starts)
 --   1 2 3 4          the ground: waves, random, logs, steps
 --   M                the ground mirrored left for right, or back
---   O                look over the whole track
+--   O                look over the whole track (O again, or F: follow again)
 --   B                the ranking board for this ground (the output pane:
 --                    shown too each time a walker starts, and its run at 20 s)
 -- The TerrainHeight slider sets the bumps' height (the ranking used

@@ -2106,6 +2106,7 @@ end)
 local OVERVIEW = { pos = btVector3(-620, 520, 760), look = btVector3(0, -40, 40) }
 local FOLLOW_OFFSET = { -70, 60, 85 }   -- cm from the walker, the same way the overview looks
 local following, followX, followZ        -- the walker followed (nil: the overview), and where it was
+local lastFollowed                        -- (the last one followed: O goes back to it)
 
 local function helpText()
   if TEST_TRACK then
@@ -2117,9 +2118,10 @@ local function helpText()
     h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
     h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
     h = h .. "N           the next seed, 1 to 4 (now " .. SEED .. ")\n"
-    h = h .. "O           look over the whole track\n"
+    h = h .. "O           look over the whole track (O again: follow it again)\n"
+    h = h .. "F           follow the walker again\n"
     h = h .. "B           the ranking board for this ground (output pane)\n"
-    h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
+    h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
     h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
     h = h .. "pane) build the track again with the same walker.\n\n"
@@ -2143,9 +2145,9 @@ local function helpText()
     h = h .. "Tab         follow the next walker\n"
     h = h .. "Shift+Tab   follow the one before\n"
   end
-  h = h .. "O           look over the whole room\n"
+  h = h .. "O           look over the whole room (O again: follow again)\n"
   h = h .. "T           clear the trails\n"
-  h = h .. "Mouse       turn and zoom the view (it keeps following)\n\n"
+  h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
   h = h .. "Rest the pointer on a walker, or on a trail, to see whose it is,\n"
   h = h .. "how far it has gone, its average speed, and how often it has turned\nor been stood up.\n\n"
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
@@ -2164,6 +2166,7 @@ end
 
 local function follow(w)
   following = w
+  if w then lastFollowed = w end
   if w then
     local x, y, z = getPosXYZ(w.cube)
     common.setCamera(btVector3(x + FOLLOW_OFFSET[1], y + FOLLOW_OFFSET[2], z + FOLLOW_OFFSET[3]), btVector3(x, y, z), 0.75)
@@ -2296,6 +2299,10 @@ v:onKey(function(N, key, down)
     end
     return true
   end
+  if TEST_TRACK and key == "F" then   -- (follow the walker again, after the overview)
+    if down and walkers[1] then follow(walkers[1]) end
+    return true
+  end
   if TEST_TRACK and key == "B" then
     if down and walkers[1] then showBoard(walkers[1].spec.name) end
     return true
@@ -2334,8 +2341,15 @@ v:onKey(function(N, key, down)
       follow(walkers[k])
     end
     return true
-  elseif key == "O" then
-    if down then follow(nil) end
+  elseif key == "O" then   -- (the overview, or back to following)
+    if down then
+      if following then follow(nil)
+      else
+        local back = walkers[1]
+        for _, o in ipairs(walkers) do if o == lastFollowed then back = o end end
+        follow(back)
+      end
+    end
     return true
   elseif key == "T" then
     if down then clearTrails() end
