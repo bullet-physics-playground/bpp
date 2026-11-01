@@ -108,6 +108,38 @@ check("castShadow default true", sun.castShadow == true)
 sun.castShadow = false
 check("castShadow false", sun.castShadow == false)
 check("no_shadow in POV", sun.pov:find("no_shadow") ~= nil)
+
+-- no_shadow is an object modifier. Inside a texture block POV-Ray rejects it
+-- ("No matching }, no_shadow found instead"), so it must come after the
+-- texture that holds the pigment.
+local function noShadowOutsideTexture(pov)
+  local blocks, i = {}, 1
+  while true do
+    local a, b = pov:find("texture%s*{", i)
+    if not a then break end
+    local depth, j = 1, b + 1
+    while depth > 0 and j <= #pov do
+      local c = pov:sub(j, j)
+      if c == "{" then depth = depth + 1
+      elseif c == "}" then depth = depth - 1 end
+      j = j + 1
+    end
+    blocks[#blocks + 1] = {a, j - 1}
+    i = j
+  end
+  local found, p = false, 1
+  while true do
+    local a = pov:find("no_shadow", p, true)
+    if not a then return found end
+    found = true
+    for _, block in ipairs(blocks) do
+      if a >= block[1] and a <= block[2] then return false end
+    end
+    p = a + 1
+  end
+end
+
+check("no_shadow outside texture", noShadowOutsideTexture(sun.pov), sun.pov)
 sun.castShadow = true
 check("no no_shadow in POV", sun.pov:find("no_shadow") == nil)
 

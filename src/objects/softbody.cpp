@@ -190,6 +190,9 @@ void SoftBody::toPOV(QTextStream *s) const {
     povPigment(s);
   }
 
+  if (!mCastShadow)
+    *s << "  no_shadow" << "\n";
+
   if (mPostSDL.isNull()) {
     *s << "}\n\n";
   } else {

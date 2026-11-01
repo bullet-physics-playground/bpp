@@ -203,6 +203,9 @@ void CsgObject::toPOV(QTextStream *s) const {
     }
 
     // Apply matrix transform inside the CSG block (before closing brace)
+    if (!mCastShadow)
+      *s << "  no_shadow" << "\n";
+
     *s << "  matrix <" << matrix[0] << "," << matrix[1] << "," << matrix[2]
        << "," << "\n"
        << "          " << matrix[4] << "," << matrix[5] << "," << matrix[6]

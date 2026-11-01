@@ -217,6 +217,8 @@ void Object::toPOV(QTextStream *s) const {
       *s << "  double_illuminate" << "\n";
     if (mHollow)
       *s << "  hollow" << "\n";
+    if (!mCastShadow)
+      *s << "  no_shadow" << "\n";
 
     QString photons = getPovPhotons();
     if (!photons.isEmpty())
@@ -845,8 +847,6 @@ void Object::povEmission(QTextStream *s) const {
   if (hasEmission())
     *s << "    finish { emission rgb <" << mEmission[0] << ", " << mEmission[1]
        << ", " << mEmission[2] << "> }" << "\n";
-  if (!mCastShadow)
-    *s << "  no_shadow" << "\n";
 }
 
 void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
@@ -876,8 +876,6 @@ void Object::povImageMap(QTextStream *s, const QString &pigmentPre,
        << ", " << mEmission[2] << "> }";
   }
   *s << " }" << "\n";
-  if (!mCastShadow)
-    *s << "  no_shadow" << "\n";
 }
 
 void Object::povAxialImageMap(QTextStream *s, btScalar length) const {

@@ -230,6 +230,8 @@ void Sweep::toPOV(QTextStream *s) const {
       *s << "  double_illuminate" << "\n";
     if (mHollow)
       *s << "  hollow" << "\n";
+    if (!mCastShadow)
+      *s << "  no_shadow" << "\n";
 
     QString photons = getPovPhotons();
     if (!photons.isEmpty())

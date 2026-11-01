@@ -921,8 +921,8 @@ protected:
                                      ///< takes it off again.
 
   /**
-   * @brief Writes the glow as a POV-Ray finish, and @c no_shadow for an
-   *        object that casts none; nothing for neither.
+   * @brief Writes the glow as a POV-Ray finish inside a texture block;
+   *        nothing when the object does not glow.
    * @param s The stream to write to.
    */
   void povEmission(QTextStream *s) const;
