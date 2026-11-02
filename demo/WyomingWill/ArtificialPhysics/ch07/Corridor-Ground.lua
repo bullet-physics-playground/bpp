@@ -70,6 +70,8 @@
 -- (ground/vehicle.lua's backOff: wheels driven, robot still for 2 s), and
 -- a KT robot that backed off has a wall collision at its next step (his
 -- wall rule, kerr2005.lua's robots[i].bumped): the bump is a collision.
+-- Ant and Default re-pick their headings themselves, but some Ant robots
+-- still stay put for thousands of steps (F105).
 --
 -- DEFINITIONS (sliders, status line, the result line):
 --   controller  KT | Ant | Default (KTRobot, AntRobot, Simple2)

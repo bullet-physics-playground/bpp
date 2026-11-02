@@ -646,5 +646,108 @@ the 10 on the same course):
 
 Each run's coverage lies within the port's spread; the two at 20% swept
 faster than the port's means on their courses (one run each: the port's
-runs on course 1 take 19,600–47,100 steps). The sweep will say whether
-that holds.
+runs on course 1 take 19,600–47,100 steps). Over the sweep's 10 runs
+the difference is gone (below).
+
+### Results (2026-11-01 to 03: all 300 runs, `corridor_ground_runs.txt`)
+
+298 runs on William's machine (Ryzen 7 3700X, Lua 5.2; 8–16 at a time,
+up to 19 wall-hours a run for Ant), 2 here (Ant, 30 robots, courses 8
+and 9; Bullet 3.24, Lua 5.1, 7 hours each): every setting, 10 runs. Each
+cell is the port with his code (`kerr2005_sweep_runs.txt`, 100 runs) /
+the robots (± the 95% interval; runs that reached the 150,000-step
+limit in brackets).
+
+Fig. 7.11, sweep time (steps):
+
+| Setting | KT | Ant | Default |
+| --- | --- | --- | --- |
+| 0% | 4,735 / 4,238 ± 446 | 66,255 / 112,667 ± 13,299 [1] | 1,961 / 2,180 ± 99 |
+| 10% | 12,419 / 13,584 ± 3,358 | 62,368 / 124,063 ± 11,361 [2] | 3,261 / 2,837 ± 284 |
+| 20% | 21,795 / 22,503 ± 6,185 | 65,238 / 136,948 ± 8,503 [3] | 14,659 / 20,366 ± 17,967 |
+| 30% | 24,417 / 23,084 ± 7,538 | 64,533 / 131,291 ± 13,535 [3] | 11,163 / 10,621 ± 6,752 |
+| 40% | 52,532 / 57,669 ± 16,632 | 72,130 / 142,466 ± 9,343 [7] | 102,749 / 93,460 ± 45,291 [6] |
+| N 5 | 14,487 / 19,718 ± 11,523 | 124,214 / 148,974 ± 2,011 [9] | 7,301 / 9,581 ± 6,909 |
+| N 10 | 17,795 / 19,055 ± 3,570 | 92,028 / 138,619 ± 10,539 [6] | 9,484 / 8,542 ± 5,815 |
+| N 15 | 18,769 / 19,111 ± 3,374 | 78,770 / 141,979 ± 5,526 [4] | 11,168 / 14,650 ± 10,501 |
+| N 20 | 21,441 / 21,994 ± 6,051 | 69,287 / 128,113 ± 12,932 [3] | 10,942 / 12,035 ± 7,666 |
+| N 30 | 21,592 / 21,912 ± 5,704 | 58,592 / 121,213 ± 15,021 [2] | 14,082 / 19,858 ± 15,258 |
+
+Fig. 7.12, total coverage (%):
+
+| Setting | KT | Ant | Default |
+| --- | --- | --- | --- |
+| 0% | 76.6 / 76.9 ± 1.9 | 98.1 / 98.1 ± 0.0 | 42.9 / 39.6 ± 1.3 |
+| 10% | 88.7 / 89.2 ± 1.1 | 98.0 / 98.0 ± 0.0 | 44.9 / 41.0 ± 2.1 |
+| 20% | 89.8 / 90.2 ± 0.7 | 97.9 / 97.8 ± 0.0 | 46.3 / 43.2 ± 3.0 |
+| 30% | 89.2 / 90.5 ± 0.7 | 97.7 / 97.6 ± 0.0 | 45.9 / 43.3 ± 2.3 |
+| 40% | 88.2 / 89.6 ± 1.0 | 97.5 / 97.5 ± 0.0 | 41.8 / 38.1 ± 3.6 |
+| N 5 | 57.6 / 60.1 ± 5.8 | 96.4 / 96.5 ± 0.4 | 17.4 / 16.6 ± 1.1 |
+| N 10 | 75.2 / 77.6 ± 0.8 | 97.3 / 97.3 ± 0.1 | 28.3 / 25.5 ± 1.5 |
+| N 15 | 82.8 / 84.2 ± 1.5 | 97.6 / 97.6 ± 0.0 | 35.5 / 32.6 ± 1.8 |
+| N 20 | 87.2 / 87.4 ± 0.7 | 97.7 / 97.7 ± 0.0 | 42.1 / 39.9 ± 2.2 |
+| N 30 | 91.8 / 92.0 ± 0.8 | 98.0 / 97.9 ± 0.0 | 50.9 / 46.9 ± 2.0 |
+
+Fig. 7.13, shadow coverage (%; Ant 100% everywhere, on both):
+
+| Setting | KT | Default |
+| --- | --- | --- |
+| 10% | 68.3 / 70.0 ± 3.9 | 25.6 / 18.0 ± 3.6 |
+| 20% | 81.2 / 80.5 ± 2.0 | 31.6 / 26.3 ± 3.9 |
+| 30% | 75.2 / 76.6 ± 6.0 | 27.2 / 20.9 ± 6.4 |
+| 40% | 77.8 / 81.4 ± 1.3 | 27.8 / 23.0 ± 4.2 |
+| N 5 | 39.8 / 41.9 ± 7.1 | 9.4 / 9.2 ± 1.3 |
+| N 10 | 58.7 / 62.7 ± 4.8 | 16.9 / 14.2 ± 2.6 |
+| N 15 | 70.7 / 69.4 ± 4.6 | 22.4 / 18.0 ± 2.9 |
+| N 20 | 77.4 / 77.6 ± 2.9 | 26.9 / 22.1 ± 2.3 |
+| N 30 | 84.7 / 84.2 ± 2.2 | 35.8 / 30.7 ± 3.5 |
+
+Per run, on the robots (means over the settings run):
+
+| | Moved (path driven / told) | Back-offs | Bumps |
+| --- | --- | --- | --- |
+| KT | 0.97–0.99 | 0–63 | 43–800 |
+| Ant | 0.70–0.78 | 400–5,200 | 3,000–10,500 |
+| Default | 0.87–0.95 | 4–1,800 | 120–47,000 (40%: most runs at the limit) |
+
+**KT survives the wheels.** Its sweep time, total and shadow coverage
+match the port's at every setting, within the noise of 10 runs: 76.9%
+without obstacles, 89–91% at 10–40%, 22,500 steps at 20%. Its robots
+drive 97–99% of the path they are told; a step is a robot length, so its
+turns are small and few.
+
+**Default survives, a little worse.** Its time matches; its total
+coverage is 1–4 points below the port's (2.6–3.9 at 0–40%), its shadow
+coverage 0–8 below (5–8 at 10–40%). Its robots drive 87–95%: each step
+it may turn by 45° or more.
+
+**Ant covers as well but takes twice as long.** Total 96.5–98.1% and
+shadow 100%, as the port, but 113,000–142,000 steps with 25 robots
+against 62,000–72,000, and 40 of its 100 runs reached the 150,000-step
+limit (so the means are low bounds). With more robots it speeds up less
+than the port's: 121,000 steps with 30 robots against 149,000 with 5
+(the port 58,600 against 124,000; with 5 robots 9 of 10 runs reached the
+limit). Two causes. (1) Turning: Ant turns 90° every third step, which
+the Pioneer takes 4 s to do at 0.4 rad/s, so its robots drive only
+70–78% of the path they are told; without obstacles Ant still takes
+85,000–150,000 steps, 1.7 times the port. (2) Robots that stay
+put: in a run of ours with 30 robots (course 8) one robot stayed within
+0.1 m for at least 17,000 steps, and on course 9 one for at least
+28,000, to the step limit. Why is not settled. Our guess was a
+robot heading for the least-visited neighbouring cell behind a corner
+its box cannot pass, which never enters that cell and so keeps choosing
+it; but with each back-off taken as a blocked step (so that his stuck
+rule turns the robot at random), a robot in a run with 25 robots
+(course 2) still stayed put for at least 12,000 steps, so that switch
+was taken out. KT's bump is a wall collision, which turns it; Ant's
+changes nothing.
+
+**So the book's comparison changes on wheels.** KT covers ~90% (89.2–90.5%
+at 10–40%) in 13,600–57,700 steps; Ant ~98% in 124,000–142,500 or more:
+KT takes about a sixth of Ant's time at 20% (22,500 against 136,900),
+where the book and the port have a third. Across the robot-number
+series it is a seventh with 5–15 robots and a sixth with 20–30, where
+the port goes from an eighth with 5 robots to a third with 25–30: on
+wheels, more robots no longer close the gap. KT's robots move as the
+theory assumes, a robot length at a time with small turns; Ant's turn
+sharply every third step and lose a quarter of their motion to it.

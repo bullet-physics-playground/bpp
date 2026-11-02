@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F104 so far), and
+  implementations, and our own mistakes once corrected (F1–F105 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -178,7 +178,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "6. The capstone: one mission, five kinds of vehicle" --break "8. Build order"` (2026-10-28; breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"` (2026-10-31, F104: with no break the last page held 15 lines; this break leaves 26 on the emptiest, the break at §5 20). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"` (2026-11-02, F105: this break leaves 33 lines on the emptiest page, the break at §5 29). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 - **Headless output is held:** BPP's `print` goes through a buffered
   stream that is written when BPP ends, so a long headless run shows
@@ -363,10 +363,13 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   Robots jam where a corner of the 0.5 m box catches an obstacle the
   sonar ray misses, and a KT robot then pushes there for ever: a jammed
   robot must back off, and for KT the bump is a wall collision
-  (`backOff`, on in the sweep). KT's first runs (0%, and 20% on two
-  courses) cover as the port does. 8.7 simulated s per wall s per core.
-  Bullet's ray test is inexact on boxes and misses long ones from close
-  by; `v:rayTest` hits boxes exactly.
+  (`backOff`, on in the sweep). 8.7 simulated s per wall s per core
+  here; 8 jobs on William's 8 cores (not 16 threads). Bullet's ray test
+  is inexact on boxes and misses long ones from close by; `v:rayTest`
+  hits boxes exactly. **The sweep (2026-11-03, F105, 300 runs):** KT and
+  Default match the port on wheels; Ant covers as well but takes twice
+  as long (90° turns every third step; robots that stay put), so KT's
+  ~90% takes a sixth of Ant's time on robots, not the book's third.
 
 ## 7. Where things stand and what's next
 
@@ -557,15 +560,18 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   port is **done** (`ch07/kerr2005_sweep.sh`, 5,000 runs, run by William
   2026-10-31; `ch07/kerr2005_figs.lua`, F101): his code gives his logs,
   and the book's version the same figures but for KT's speed without
-  obstacles. **Now: the sweep on BPP's ground robots (3b),** against
-  F101's numbers. Built (2026-10-31, F102, F103): `ch07/Corridor-Ground.lua`
-  (all three controllers), `v:rayTest` in BPP, `velocity()` and `backOff`
-  on the ground robot, `ch07/corridor_ground_sweep.sh` (resumable,
-  parallel, KT first; 300 runs, ~290 CPU-hours) and its first three runs
-  in `ch07/corridor_ground_runs.txt`. **Next:** William runs the sweep;
-  then `luajit ch07/kerr2005_figs.lua ch07/corridor_ground_runs.txt`
-  against F101 and the question below, in `ch07/README.md` and FINDINGS.
-  Decided (William, 2026-10-31):
+  obstacles. The sweep on BPP's ground robots (3b) is **done**
+  (2026-11-03, F102–F105): `ch07/Corridor-Ground.lua` (all three
+  controllers), `v:rayTest` in BPP, `velocity()` and `backOff` on the
+  ground robot, `ch07/corridor_ground_sweep.sh`; all 300 runs in
+  `ch07/corridor_ground_runs.txt` (298 William's), the figures in
+  `ch07/README.md`. The
+  answer to the question below: KT's figures survive the wheels, the
+  minimum speed and the turning lag; Ant's do not (twice the steps), so
+  KT is ~90% in a sixth of Ant's time. **Open from it:** why some Ant
+  robots stay put (F105); the real 25 × 127 m corridor (below);
+  `World.preset("ch07-corridor")`. Decided (William,
+  2026-10-31):
   1. **Scale: Kerr's geometry scaled to the Pioneer** (0.5 m against his
      6″ robot: × 3.28). The corridor is 83 × 417 m, his sonar range 60″
      is 5 m (a real Pioneer's), his move of 6″ a step is 0.5 m, his
@@ -629,12 +635,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > Clone github.com/bullet-physics-playground/bpp and read
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
-> and continue with the next step in HANDOFF.md §7: Ch. 7's corridor
-> sweep, step (3b): the sweep on BPP's ground robots
-> (ch07/corridor_ground_sweep.sh, F102), whose runs are in
-> ch07/corridor_ground_runs.txt. Compare it with F101 and answer §7's
-> question. Deliver each step as a patch with git commands.
+> and continue with the next step in HANDOFF.md §7: Ch. 13's
+> constrained vehicles, (2) the dumbbell agent on the Pioneer and the
+> camera ring (Ch. 7's sweep on the ground robots is done, F105).
+> Deliver each step as a patch with git commands.
 
-Attach the book PDF (Ch. 7 is PDF 224–253); Kerr's 2005 code and logs
-are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with
+Attach the book PDF (Ch. 13 is PDF 444–471; Ch. 7 is PDF 224–253);
+Kerr's 2005 code and logs are in `ch07/kerr2005/`. `Android_AP.zip` only if it will compare with
 the Android app, and `CPT.zip` for plume work.

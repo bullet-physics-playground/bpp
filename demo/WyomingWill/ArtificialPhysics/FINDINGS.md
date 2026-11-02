@@ -1120,6 +1120,28 @@ experiments, 10 per setting) answers whether the figures survive. Cost:
 Bullet and the robots' per-step Lua through luabind (LuaJIT gains 5%),
 about 290 CPU-hours for the sweep (`ch07/corridor_ground_sweep.sh`).
 
+**F105. Figs. 7.11–7.13 on ground robots: KT and Default survive the
+wheels; Ant covers as well but takes twice as long, so KT's ~90% comes in
+a sixth of Ant's time, not a third** — 2026-11-02, New. `ch07/README.md`,
+`ch07/corridor_ground_runs.txt` (300 runs, 298 of them William's). The
+sweep of F102 on the Pioneer, 10 runs per setting. KT matches the port (F101) at every setting within its noise:
+76.9% without obstacles, 89.2–90.5% at 10–40%, 22,500 steps at 20%
+(the port 21,800); its robots drive 97–99% of the path they are told.
+Default's time matches; its coverage is 1–4 points lower (shadow 0–8),
+its robots driving 87–95%. Ant's coverage matches (96.5–98.1%, shadow
+100%), but with 25 robots it takes 113,000–142,000 steps against the
+port's 62,000–72,000, and 40 of its 100 runs reached the 150,000-step
+limit; more robots help it less than in the port (121,000 steps with 30,
+149,000 with 5). Ant turns 90° every third step, 4 s for the Pioneer,
+and its robots drive 70–78% of the path they are told: without
+obstacles it still takes 1.7 times the port's steps. Some Ant robots
+also stay put for 12,000–28,000 steps or more; why is open (taking each back-off
+as a blocked step, so that his stuck rule turns the robot, did not free
+one, and was taken out). At 20%, KT's 22,500 steps are a sixth of Ant's
+136,900, where the book and the port have a third (21,800 against
+65,200); with 5–30 robots a seventh to a sixth, where the port goes
+from an eighth to a third.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1597,7 +1619,6 @@ them.
   moves that finish a lattice and escape a stall behind a column. The
   threshold is friction × v_min / (metersPerUnit × apHz) in AP force
   units, so the law's stiffness near D, apHz and friction all move it.
-- Ch. 7 on ground robots (F102): whether Figs. 7.11–7.13 survive wheels,
-  the minimum wheel speed and the turning lag (the sweep,
-  `ch07/corridor_ground_sweep.sh`); whether KT is still ~90% in a third
-  of Ant's time.
+- Ch. 7 on ground robots (F105): why some Ant robots stay put for
+  thousands of steps; the real 25 × 127 m corridor (robots 3× larger
+  relative to the gaps).
