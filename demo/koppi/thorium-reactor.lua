@@ -654,14 +654,8 @@ do
   end
   -- City traffic driving around street circuits (loops) in the harbour town.
   cityCars = {}
-  local function loopCar(col, route, speed, startWp)
-    local c = Cube(4.6, 1.7, 2.5, 0)
-    c.pos = btVector3(route[startWp].x, 0.95, route[startWp].z)
-    c.col = col; c.collides = false
-    c._route = route; c._wp = startWp; c._speed = speed
-    c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
-    v:add(c); cityCars[#cityCars + 1] = c
-  end
+  -- Cars ride on the street surface, lifted clear of the ground.
+  local carY = 1.2
 
   -- Closed loops through city blocks (scene coords).
   local loopCentral = { {x=-400,z=-1500}, {x=400,z=-1500}, {x=400,z=-1200}, {x=-400,z=-1200} }
@@ -684,7 +678,7 @@ do
     local x = wp.x + (nextWp.x - wp.x) * frac
     local z = wp.z + (nextWp.z - wp.z) * frac
     local c = Cube(4.6, 1.7, 2.5, 0)
-    c.pos = btVector3(x, 0.95, z)
+    c.pos = btVector3(x, carY, z)
     c.col = col; c.collides = false
     c._route = route; c._wp = i; c._speed = speed
     c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
