@@ -1,8 +1,8 @@
-bpp (0.3.38) UNRELEASED; urgency=medium
+bpp (0.3.40) stable; urgency=medium
 
-  * Bump version.
+  * Release 0.3.40.
 
- -- Jakob Flierl <jakob.flierl@gmail.com>  Wed, 14 Oct 2026 14:59:35 +0200
+ -- Jakob Flierl <jakob.flierl@gmail.com>  Wed, 04 Nov 2026 11:58:25 +0100
 
 bpp (0.3.37) UNRELEASED; urgency=medium
 
