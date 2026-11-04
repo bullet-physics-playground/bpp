@@ -40,7 +40,6 @@
 #include <QVector>
 
 // Qt GUI
-#include <QtGui>
 #include <QCloseEvent>
 #include <QColor>
 #include <QFont>
@@ -49,9 +48,7 @@
 #include <QWheelEvent>
 
 // Qt Widgets
-#include <QtWidgets>
 #include <QAction>
-#include <QApplication>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QDialog>
