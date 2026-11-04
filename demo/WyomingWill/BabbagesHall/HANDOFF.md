@@ -443,8 +443,16 @@ there, in `release/`, or on the path; or set `BPP`.
   store and pockets to the top, winding under the board) and does it on
   arrival; `hand` in the script, a queue of jobs, the machine busy while
   it has any. The tour takes 23% longer (it ends near frame 121 000);
-  check-all allows 135 000. FINDINGS, "The hand, shown". **Not seen by
-  William yet.**
+  check-all allows 135 000. FINDINGS, "The hand, shown". Seen by William
+  (2026-11-03): he asked to lose the forearm and keep the palm off the
+  fingertip (done), and for `Q`, the hand off (done: at once and unseen,
+  as before; `DC_HAND=0`).
+- **Slow? Check POV-Ray export first (2026-11-03).** The machine crawled
+  in William's hall, 2 s a frame of "physics" on the hall's meter: bpp's
+  POV-Ray export was on (toolbar button or `P`; a cyan dot top right).
+  It runs every frame before the steps, so the meter counts it as
+  physics. A fix to bpp's export (format a mesh only when its `.inc` is
+  missing) went to Jakob separately. FINDINGS, "How fast it runs".
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

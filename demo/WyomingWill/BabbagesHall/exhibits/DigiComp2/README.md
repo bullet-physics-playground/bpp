@@ -195,6 +195,7 @@ other way then gives the cycles begun).
 | `T` | the tour: every program in the library, in turn (it starts with it) |
 | `R` | set it back by hand: every part on the board, the balls to the top, everything to 0, COUNT on, the others off, OVERFLOW RUN, MANUAL |
 | `Z` | slow motion (1/4 speed) on and off |
+| `Q` | the hand shown, or off: off, what it does is done at once and it isn't drawn (`DC_HAND=0`: off from the start) |
 
 To multiply: set the accumulator to 0 (or CLEAR it), the memory to one
 number and the MQ to the other, `D`, MULTIPLY on, and `Space` until a ball

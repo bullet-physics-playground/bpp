@@ -7,6 +7,47 @@ bounce, the board at 15 degrees, 2400 steps a second, the pins' friction
 0.4 kg cm^2/s^2, unless a line says otherwise. Each mechanism was worked out
 alone first, in `tests/`, then on the board, with its tour.
 
+## How fast it runs, and the hand off (2026-11-03)
+
+William found the machine too slow to use in the hall: the hand moving
+extremely slowly, and turning the view with the mouse slow too. The
+hall's meter (`HALL_METER=1`) showed 2080 ms of "physics" a frame and 4
+ms of drawing; here the same frame's physics is 34 ms, and halving the
+steps changed nothing. The cause was **bpp's POV-Ray export, left on**
+(the toolbar's POV-Ray button, or `P`; a cyan dot at the top right of
+the view while it is on). It writes the whole scene out every frame,
+before the frame's steps, so the meter counts it as physics; and bpp
+steps the simulation one frame for each frame it draws, so the machine
+and its hand slowed with it. Exporting the Digi-Comp II (about 1200
+meshes) took 1.05 s a frame with last week's bpp and 2.25 s with
+2026-11-01's ("Speed up POV-Ray .inc export", which formats every mesh
+before checking that its file is already there); a fix for that went to
+bpp's author separately (0.26 s a frame). With the export off, it ran as
+it should.
+
+On the way, nothing else proved slower. Timed here (3000 frames, a 2-core
+machine):
+
+| | without a window | in a window (drawn in software) |
+|---|---|---|
+| step 2e (before the weight and the damper) | 93 s | |
+| step 2f | 88 to 111 s | 7.2 frames/s |
+| each program with only its parts | 85 s | |
+| with the hand | 85 s | 8.2 frames/s |
+| with the hand off (`Q`) | | 7.9 frames/s |
+| bpp before and after the POV-Ray commits of 2026-11-01 | 88 to 91 s, 85 to 88 s | |
+
+The physics alone runs here at about 35 frames a second, short of the 60
+that real time needs (2400 steps a second is 40 steps a frame), so on a
+slow computer the machine runs slower than real time, its hand too.
+
+William asked for a switch for the hand anyway: `Q` turns it off
+(`DC_HAND=0`: off from the start). Off, it isn't drawn, it goes from
+part to part at once and doesn't wait at each, so everything happens as
+before it was shown (only START's push lasts its 0.3 s). With it off the
+whole library passed, 161 balls right, ending at frame 98 468 (with the
+hand 120 880; before the hand 98 403).
+
 ## The hand, shown (2026-11-01)
 
 William asked to see the hand: everything the operator does, which until

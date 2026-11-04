@@ -1201,7 +1201,8 @@ end
 -- for when they come back. The machine counts as busy while the hand has
 -- something to do, so a program waits for it.
 -- ---------------------------------------------------------------------
-local hand = { q = {}, cur = nil, SPEED = 60, LIFT = 9, carried = {}, flags = {} }
+local hand = { q = {}, cur = nil, SPEED = 60, LIFT = 9, carried = {}, flags = {},
+               on = os.getenv("DC_HAND") ~= "0" }   -- (Q: off, and what it does is done at once)
 do
   local path = (SCAD:gsub("digicomp2%.scad$", "hand.scad"))
   local m = OpenSCAD("// " .. checksum({ path }) .. "\ninclude <" .. path .. ">\nscale(0.1) hand();\n", 0, false)
@@ -1224,7 +1225,7 @@ function hand.draw()
   -- comes between the eye and the fingertip)
   local q = BQ * btQuaternion(btVector3(0, 1, 0), math.rad(160))
   if hand.under then q = q * btQuaternion(btVector3(0, 0, 1), math.pi) end
-  hand.obj.trans = btTransform(q, W3(p[1], p[2], p[3]))
+  hand.obj.trans = hand.on and btTransform(q, W3(p[1], p[2], p[3])) or btTransform(ident, parts.AWAY)
   -- (the balls it carries, held in a little heap under the fingertip)
   for k, b in ipairs(hand.carried) do
     local i = k - 1
@@ -1257,7 +1258,7 @@ function hand.route(to, under)
     L = L + math.sqrt((b[1] - a[1]) ^ 2 + (b[2] - a[2]) ^ 2 + (b[3] - a[3]) ^ 2)
     len[i] = L
   end
-  return { pts = pts, len = len, L = L, T = math.max(0.35, 1.25 * L / hand.SPEED) }
+  return { pts = pts, len = len, L = L, T = hand.on and math.max(0.35, 1.25 * L / hand.SPEED) or 0 }
 end
 -- (along the way, s of its length)
 function hand.at(r, s)
@@ -1272,6 +1273,8 @@ end
 -- something for it to do: go to the part at p (the board's frame) and do
 -- act there, then stay hold seconds (or until untilFn says so)
 function hand.job(p, act, hold, under, untilFn)
+  -- (off: no pause after, but for START's push)
+  if not hand.on and act ~= nil and hold ~= PUSH_S then hold = 0 end
   hand.q[#hand.q + 1] = { p = p, act = act, hold = hold or 0.25, under = under or false, untilFn = untilFn }
 end
 function hand.busy() return #hand.q > 0 or (hand.cur ~= nil and not hand.cur.home) end
@@ -1284,7 +1287,7 @@ function hand.update(dt)
     if not j then
       hand.idle = (hand.idle or 0) + dt
       local R = hand.REST
-      if hand.idle > 1.0 and (hand.pos[1] ~= R[1] or hand.pos[2] ~= R[2] or hand.pos[3] ~= R[3]) then
+      if hand.idle > (hand.on and 1.0 or 0) and (hand.pos[1] ~= R[1] or hand.pos[2] ~= R[2] or hand.pos[3] ~= R[3]) then
         j = { p = R, home = true, hold = 0 }
       else hand.draw(); return end
     end
@@ -2458,6 +2461,11 @@ v:addShortcut("D", byHand(setD, "D"))
 v:addShortcut("U", byHand(function() local on = not isAuto(); hand.auto(on); PR.setStatus(on and "AUTO: the thread hooked into the START lever; Space starts it, and it runs until a ball drops through STOP" or "MANUAL: the thread off; Space, one ball") end, "U"))
 v:addShortcut("X", byHand(function() hand.complement(not isComplement()) end, "X"))
 v:addShortcut("O", byHand(function() local h = not comp.ovf.isHalt(); hand.overflow(h); PR.setStatus(h and "OVERFLOW: HALT (a carry out of the 64s drops into its pocket: in AUTO the machine stops)" or "OVERFLOW: RUN") end, "O"))
+-- Q: the hand shown, or off (what it does then done at once, unseen)
+v:addShortcut("Q", function()
+  hand.on = not hand.on; hand.draw()
+  PR.setStatus(hand.on and "the HAND shown: it goes to each part it sets" or "the HAND off: what it does is done at once")
+end)
 -- B: the camera to the program board and back (the camera as it was before)
 local camBack = nil
 v:addShortcut("B", function()
@@ -2573,6 +2581,7 @@ pcall(function()
     "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
     "  D      set the distributor to start a cycle",
     "  T      the tour: the library, in turn   R  set it back   Z  slow motion",
+    "  Q      the hand shown <-> off (off: what it does is done at once)",
     "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
   }, "\n")
