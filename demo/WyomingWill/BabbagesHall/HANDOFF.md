@@ -134,6 +134,13 @@ there, in `release/`, or on the path; or set `BPP`.
   contents: put a checksum of every file the part includes into the text
   (each exhibit's `checksum()`). Set `collides` before `v:add`, the
   transform after. A body's origin must be its centre of mass.
+- **`polyhedron()` faces go clockwise seen from outside.** OpenSCAD 2021's
+  CGAL forgave the other way when it joined pieces; William's newer
+  OpenSCAD (Manifold) doesn't, and such a part comes out inside out: drawn
+  with dark slivers when bpp's shadows are off (the shader hides it), and
+  a bad STL. Check a new polyhedron's signed volume (trimesh, or
+  manifold3d on its points). Fixed 2026-11-04 in the Differential's
+  gears and the sieve's cam ring.
 - **Two bpp processes building the same new part at once** can collide in
   the mesh cache: run tests one at a time after a part changes.
 - **Gears:** mesh-on-mesh (GImpact) bevel teeth jam; a compound of convex

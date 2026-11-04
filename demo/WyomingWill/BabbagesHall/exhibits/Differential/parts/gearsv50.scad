@@ -1,6 +1,10 @@
 // Babbage's Hall: assign() replaced by let() and polyhedron(triangles=) by
 // faces=, which newer OpenSCAD requires (it drops the old forms, and the
-// teeth with them). Otherwise GregFrost's file as published.
+// teeth with them); and the bevel teeth's faces turned round, clockwise seen
+// from outside as OpenSCAD wants them (as published they were the other way:
+// OpenSCAD's old CGAL put that right when it joined them, newer OpenSCAD's
+// Manifold takes them as given and made the teeth inside out, drawn with
+// dark slivers when shadows are off). Otherwise GregFrost's file as published.
 // GregFrost's Parametric Involute Bevel and Spur Gears v5.0 (GPL), as
 // carried in bpp's demo/module/scad/gearsv50.lua, unchanged.
 
@@ -281,7 +285,7 @@ module involute_bevel_gear_tooth (
 							[side2_point2[0],side2_point2[1],0],
 							[side2_point1[0],side2_point1[1],0],
 							[0.1,0,0]],
-						faces=[[0,1,2],[0,2,3],[0,3,4],[0,5,1],[1,5,2],[2,5,3],[3,5,4],[0,4,5]]);
+						faces=[[0,2,1],[0,3,2],[0,4,3],[0,1,5],[1,2,5],[2,3,5],[3,4,5],[0,5,4]]);
 				}
 			}
 		}

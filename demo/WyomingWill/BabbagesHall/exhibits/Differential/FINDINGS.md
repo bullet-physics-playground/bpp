@@ -2,6 +2,24 @@
 
 `FINDINGS.pdf` beside this file is a typeset copy of it.
 
+## The teeth inside out, with newer OpenSCAD (2026-11-04)
+
+William saw the bevel gears drawn with dark triangular slivers that
+shimmered as they turned, but only with bpp's shadows off. His OpenSCAD
+(2026.10.15) made the spider gear inside out: volume -18.5 where it
+should be +19.7, 11 284 triangles against 932, and not watertight.
+GregFrost's bevel teeth are each built of small polyhedra whose faces are
+listed counterclockwise seen from outside; OpenSCAD wants them clockwise.
+OpenSCAD 2021's CGAL put that right as it joined the pieces; the newer
+Manifold takes them as given. bpp lights faces by their normals, so
+these faces, their normals pointing in, came out dark. With shadows on,
+bpp's shader turns every normal toward the eye, which hid it.
+`parts/gearsv50.scad` now lists them clockwise. Checked: all 80 pieces
+of a gear had negative volume to Manifold (manifold3d) and now have
+positive; OpenSCAD 2021 makes the same spider and side gears as before
+(932 and 1256 triangles, the same volumes, watertight); the tour passes,
+on its own and in the hall.
+
 ## Meshing
 
 The four 16-tooth mitre gears mesh with each spider turned half a tooth

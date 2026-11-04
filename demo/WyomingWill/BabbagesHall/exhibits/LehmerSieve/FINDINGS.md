@@ -5,6 +5,21 @@
 How the sieve was made to work in the simulation, in the order the
 problems turned up. All the sizes live in `parts/make-geometry.py`.
 
+## The cam ring inside out (2026-11-04)
+
+The cam's ring is a polyhedron of its own (`camRing()` in
+`parts/lehmer-sieve.scad`), and its faces were listed counterclockwise
+seen from outside, where OpenSCAD wants clockwise: on its own it came
+out inside out even in OpenSCAD 2021 (its exported volume negative,
+-101.5), and OpenSCAD 2021's CGAL put it right only when joining it to
+the web. Newer OpenSCAD (Manifold, as William has) takes
+faces as given, so his cam would be inside out, drawn dark with shadows
+off, and its STL wrong for a slicer. Found looking at the same fault in
+the Differential's gears. The faces are turned round now: the ring
+alone comes out right way out, the whole cam is as before in OpenSCAD
+2021 (836 triangles, the same volume, watertight), and the tour passes,
+on its own and in the hall.
+
 ## Choosing the mechanism
 
 - **One turn, one place, every wheel.** Wheels of different sizes must each

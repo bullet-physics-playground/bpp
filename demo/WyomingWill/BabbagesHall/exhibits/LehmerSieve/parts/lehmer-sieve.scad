@@ -143,11 +143,13 @@ module camRing() {
            [CAM_IN * cos(t(k)), CAM_IN * sin(t(k)), CAM_BASE], [CAM_OUT * cos(t(k)), CAM_OUT * sin(t(k)), CAM_BASE],
            [CAM_IN * cos(t(k)), CAM_IN * sin(t(k)), h(k)], [CAM_OUT * cos(t(k)), CAM_OUT * sin(t(k)), h(k)]]];
   function q(k, j) = 4 * (k % n) + j;        // j: 0 inner low, 1 outer low, 2 inner high, 3 outer high
+  // (triangles: the top isn't flat; each clockwise seen from outside, as
+  // OpenSCAD wants: the other way round, the ring came out inside out)
   faces = [for (k = [0 : n - 1]) each [
-             [q(k + 1, 0), q(k + 1, 1), q(k, 1)], [q(k + 1, 0), q(k, 1), q(k, 0)],
-             [q(k, 3), q(k + 1, 3), q(k + 1, 2)], [q(k, 3), q(k + 1, 2), q(k, 2)],
-             [q(k + 1, 1), q(k + 1, 3), q(k, 3)], [q(k + 1, 1), q(k, 3), q(k, 1)],
-             [q(k, 2), q(k + 1, 2), q(k + 1, 0)], [q(k, 2), q(k + 1, 0), q(k, 0)]]];   // (triangles: the top isn't flat)
+             [q(k + 1, 0), q(k, 1), q(k + 1, 1)], [q(k + 1, 0), q(k, 0), q(k, 1)],
+             [q(k, 3), q(k + 1, 2), q(k + 1, 3)], [q(k, 3), q(k, 2), q(k + 1, 2)],
+             [q(k + 1, 1), q(k, 3), q(k + 1, 3)], [q(k + 1, 1), q(k, 1), q(k, 3)],
+             [q(k, 2), q(k + 1, 0), q(k + 1, 2)], [q(k, 2), q(k, 0), q(k + 1, 0)]]];
   translate([C, 0, 0]) rotate([-90, 0, 0]) polyhedron(points = pts, faces = faces);
 }
 module cam() {
