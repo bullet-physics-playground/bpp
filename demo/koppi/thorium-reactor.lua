@@ -571,6 +571,37 @@ v:postSim(function(N)
   for _, f in ipairs(fibers) do
     f.emission = string.format("#%02x%02x%02x", math.floor(31+224*math.sin(t*6)), math.floor(156+99*math.cos(t*5)), 255)
   end
+
+  -- City traffic on the harbour-town ways (scene coords: city spans X[-1500,1500], Z[-2500,0]).
+  if cityCars then
+    for _, c in ipairs(cityCars) do
+      local x, z = c.pos.x, c.pos.z
+      if c._axis == "x" then
+        if c._dir == 1 then x = x + c._speed else x = x - c._speed end
+        if x > 1500 then x = -1450 elseif x < -1500 then x = 1450 end
+      else
+        if c._dir == 1 then z = z + c._speed else z = z - c._speed end
+        if z > 0 then z = -2400 elseif z < -2500 then z = -100 end
+      end
+      c.pos = btVector3(x, c.pos.y, z)
+    end
+  end
+  if cityPeds then
+    for _, p in ipairs(cityPeds) do
+      local x, z = p.pos.x, p.pos.z
+      if p._axis == "x" then
+        if p._dir == 1 then x = x + p._speed else x = x - p._speed end
+        if x > 1500 then x = -1450 elseif x < -1500 then x = 1450 end
+      else
+        if p._dir == 1 then z = z + p._speed else z = z - p._speed end
+        if z > 0 then z = -2400 elseif z < -2500 then z = -100 end
+      end
+      p.pos = btVector3(x, p.pos.y, z)
+      if p._head then
+        p._head.pos = btVector3(x, p.pos.y + 1.2, z)
+      end
+    end
+  end
 end)
 
 common.setCamera(btVector3(1250, 180, 900), btVector3(350, 20, 1100), math.rad(55), { horizontal = true })
@@ -616,59 +647,53 @@ do
     c.sdl=[[ texture { pigment { color rgb <0.95,0.97,1.0> transmit 0.2 } finish { ambient 0.6 diffuse 0.18 specular 0.5 roughness 0.1 emission 0.2 } } ]]
     v:add(c)
   end
-  cars=cars or {}
-  for i=1,24 do
-    local car=Cube(4.6,1.7,2.5,0)
-    car.pos=btVector3(200 + i*32,0.95,70)
-    local cc={"#c44536","#3a7ca5","#f4e06a","#8b5cf6","#10b981","#f97316","#e11d48"}
-    car.col=cc[math.random(1,#cc)]; car.collides=false; car._dir=1; car._speed=0.16+math.random()*0.14; car._z=70
-    car.sdl=[[ texture { pigment { color rgb <]]..hexToRGB(car.col)..[[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
-    v:add(car); cars[#cars+1]=car
+  -- City traffic on the harbour-town ways (scene coords: city spans X[-1500,1500], Z[-2500,0]).
+  cityCars = {}
+  local function streetCar(x, z, col, dir, speed, axis)
+    axis = axis or "x"
+    local c = Cube(4.6, 1.7, 2.5, 0)
+    c.pos = btVector3(x, 0.95, z)
+    c.col = col; c.collides = false
+    c._axis = axis; c._dir = dir; c._speed = speed
+    c._lane = (axis == "x") and z or x
+    c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
+    v:add(c); cityCars[#cityCars + 1] = c
   end
-  for i=1,14 do
-    local truck=Cube(7.6,2.8,3.4,0)
-    truck.pos=btVector3(550,1.5,0+i*30)
-    truck.col="#6b7280"; truck.collides=false; truck._dir=-1; truck._speed=0.08+math.random()*0.1; truck._z=0+i*30
-    truck.sdl=[[ texture { pigment { color rgb <0.42,0.45,0.5> } finish { ambient 0.07 diffuse 0.6 specular 0.68 roughness 0.006 reflection 0.18 metallic } } ]]
-    v:add(truck); cars[#cars+1]=truck
+
+  -- Arterial A: north-south, west-central (scene X ~ -250)
+  for i = 1, 5 do
+    streetCar(-260, -1200 - i * 200, "#c44536",  1, 0.24, "z")
+    streetCar(-240, -2400 + i * 200, "#3a7ca5", -1, 0.20, "z")
   end
-  people=people or {}
-  for i=1,100 do
-    local p=Cylinder(0.36,2.0,0)
-    p.pos=btVector3(-80+math.random()*700,1.0,-60+math.random()*220)
-    p.col="#d97757"; p.collides=false; p._dx=(math.random()-0.5)*0.03; p._dz=(math.random()-0.5)*0.03
-    p.sdl=[[ texture { pigment { color rgb <0.73,0.47,0.34> } finish { ambient 0.24 diffuse 0.7 specular 0.24 roughness 0.14 } } ]]
-    v:add(p); people[#people+1]=p
-    local head=Sphere(0.32,0)
-    head.pos=btVector3(p.pos.x,p.pos.y+1.2,p.pos.z)
-    head.col="#fbbf24"; head.collides=false
-    head.sdl=[[ texture { pigment { color rgb <0.98,0.75,0.14> } finish { ambient 0.28 diffuse 0.64 specular 0.28 roughness 0.16 } } ]]
+  -- Arterial B: east-west, south side (scene Z ~ -1475 / -1675)
+  for i = 1, 6 do
+    streetCar(300 + i * 180, -1475,  "#f4e06a", 1, 0.20, "x")
+    streetCar(1300 - i * 180, -1675, "#8b5cf6", -1, 0.18, "x")
+  end
+
+  -- Pedestrians on the city sidewalks
+  cityPeds = {}
+  local function sidewalkPed(x, z, dir, speed, axis)
+    axis = axis or "x"
+    local p = Cylinder(0.36, 2.0, 0)
+    p.pos = btVector3(x, 1.0, z)
+    p.col = "#d97757"; p.collides = false
+    p._axis = axis; p._dir = dir; p._speed = speed
+    p._lane = (axis == "x") and z or x
+    p.sdl = [[ texture { pigment { color rgb <0.73,0.47,0.34> } finish { ambient 0.24 diffuse 0.7 specular 0.24 roughness 0.14 } } ]]
+    v:add(p); cityPeds[#cityPeds + 1] = p
+    local head = Sphere(0.32, 0)
+    head.pos = btVector3(x, 2.2, z)
+    head.col = "#fbbf24"; head.collides = false
+    head.sdl = [[ texture { pigment { color rgb <0.98,0.75,0.14> } finish { ambient 0.28 diffuse 0.64 specular 0.28 roughness 0.16 } } ]]
     v:add(head)
+    p._head = head
+  end
+  for i = 1, 6 do
+    sidewalkPed(-280, -1300 - i * 150,  1, 0.10, "z")
+    sidewalkPed(-220, -2300 + i * 150, -1, 0.09, "z")
+    sidewalkPed(250 + i * 160, -1600,  1, 0.09, "x")
+    sidewalkPed(1200 - i * 160, -1400, -1, 0.10, "x")
   end
 end
 
-v:postSim(function(N)
-  if cars then
-    for _, c in ipairs(cars) do
-      if c._dir==1 then
-        local x = c.pos.x + c._speed
-        c.pos = btVector3(x, c.pos.y, c._z or c.pos.z)
-        if x>650 then c.pos = btVector3(-50, c.pos.y, c._z or c.pos.z) end
-      else
-        local x = c.pos.x - c._speed
-        c.pos = btVector3(x, c.pos.y, c._z or c.pos.z)
-        if x<-100 then c.pos = btVector3(600, c.pos.y, c._z or c.pos.z) end
-      end
-    end
-  end
-  if people then
-    for _, p in ipairs(people) do
-      local nx = p.pos.x+p._dx
-      local nz = p.pos.z+p._dz
-      p.pos = btVector3(nx, p.pos.y, nz)
-      if nx<-150 or nx>600 or nz<-80 or nz>200 then
-        p._dx=(math.random()-0.5)*0.025; p._dz=(math.random()-0.5)*0.025
-      end
-    end
-  end
-end)
