@@ -669,12 +669,34 @@ do
   local loopWest    = { {x=-1200,z=-1100}, {x=-500,z=-1100}, {x=-500,z=-1400}, {x=-1200,z=-1400} }
   local loopOuter   = { {x=-1400,z=-2400}, {x=1400,z=-2400}, {x=1400,z=-200}, {x=-1400,z=-200} }
 
-  -- Spread cars around each loop so they cover the circuit.
-  for i = 1, 4 do
-    loopCar("#c44536",  loopCentral, 0.24, ((i-1) % 4) + 1)   -- central block
-    loopCar("#3a7ca5",  loopEast,    0.20, ((i-1) % 4) + 1)   -- east block
-    loopCar("#f4e06a",  loopWest,    0.18, ((i-1) % 4) + 1)   -- west block
-    loopCar("#8b5cf6",  loopOuter,   0.16, ((i-1) % 4) + 1)   -- outer ring
+  -- 500 cars (125 per loop), spaced evenly around each circuit so they
+  -- cover the harbour-town streets continuously.
+  local carsPerLoop = 125
+  local function loopCar(col, route, speed, progress)
+    -- progress: 0..1 position along the loop, interpolated between waypoints
+    local n = #route
+    local seg = progress * n
+    local i = math.floor(seg) % n + 1
+    local j = (i % n) + 1
+    local frac = seg - math.floor(seg)
+    local wp = route[i]
+    local nextWp = route[j]
+    local x = wp.x + (nextWp.x - wp.x) * frac
+    local z = wp.z + (nextWp.z - wp.z) * frac
+    local c = Cube(4.6, 1.7, 2.5, 0)
+    c.pos = btVector3(x, 0.95, z)
+    c.col = col; c.collides = false
+    c._route = route; c._wp = i; c._speed = speed
+    c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
+    v:add(c); cityCars[#cityCars + 1] = c
+  end
+
+  for i = 1, carsPerLoop do
+    local p = (i - 1) / carsPerLoop
+    loopCar("#c44536",  loopCentral, 0.24, p)   -- central block
+    loopCar("#3a7ca5",  loopEast,    0.20, p)   -- east block
+    loopCar("#f4e06a",  loopWest,    0.18, p)   -- west block
+    loopCar("#8b5cf6",  loopOuter,   0.16, p)   -- outer ring
   end
 
   -- Pedestrians on the city sidewalks
