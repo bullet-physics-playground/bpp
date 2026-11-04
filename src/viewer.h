@@ -26,6 +26,8 @@
 #include <QSettings>
 #include <QTextStream>
 #include <QVector>
+#include <QList>
+#include <QPair>
 #include <QWheelEvent>
 #include <QHash>
 #include <QThreadPool>
@@ -81,6 +83,14 @@ struct ParamInfo {
                          ///< it calls #buttonCallback instead of editing a value.
   luabind::object buttonCallback; ///< The Lua function invoked when the button
                                   ///< is pressed; only meaningful if #isButton.
+  bool isButtonGroup = false; ///< True if the parameter is one row of several
+                              ///< push buttons: pressing one calls its entry in
+                              ///< #buttonCallbacks instead of editing a value.
+  QList<QPair<QString, luabind::object>> buttonCallbacks; ///< (label, callback)
+                                                          ///< for each button in
+                                                          ///< the row; only
+                                                          ///< meaningful if
+                                                          ///< #isButtonGroup.
 };
 
 /**
@@ -1670,10 +1680,13 @@ public slots:
 
   /**
    * @brief Presses a push button registered with addParam(), invoking its
-   *        Lua callback. Does nothing if there is no such button parameter.
-   * @param name Parameter name of the button.
+   *        Lua callback. For a button group, @p label selects which button in
+   *        the row is pressed. Does nothing if there is no such button (or
+   *        button label).
+   * @param name Parameter name of the button or button group.
+   * @param label Button label within a group; empty for a single button.
    */
-  void pressButton(const QString &name);
+  void pressButton(const QString &name, const QString &label = QString());
 
   /**
    * @brief Reads a parameter's current value.

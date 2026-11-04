@@ -2992,8 +2992,12 @@ emit scriptStarts();
     // (functions bound to push buttons) while the Lua state is still alive:
     // their luabind references would otherwise be released against the closed
     // state when clear() runs below.
-    for (ParamInfo &info : _paramInfo)
+    for (ParamInfo &info : _paramInfo) {
       if (info.isButton) info.buttonCallback = luabind::object();
+      if (info.isButtonGroup)
+        for (auto &pair : info.buttonCallbacks)
+          pair.second = luabind::object();
+    }
     for (QVariant &value : _params)
       if (value.userType() == qMetaTypeId<luabind::object>())
         value = QVariant();
@@ -3581,8 +3585,12 @@ Viewer::~Viewer() {
   // (functions bound to push buttons) while the Lua state is still alive:
   // their luabind references would otherwise be released against the closed
   // state when the member hashes are destroyed below.
-  for (ParamInfo &info : _paramInfo)
+  for (ParamInfo &info : _paramInfo) {
     if (info.isButton) info.buttonCallback = luabind::object();
+    if (info.isButtonGroup)
+      for (auto &pair : info.buttonCallbacks)
+        pair.second = luabind::object();
+  }
   for (QVariant &value : _params)
     if (value.userType() == qMetaTypeId<luabind::object>())
       value = QVariant();
@@ -6021,6 +6029,54 @@ void Viewer::addParam(const QString &name, const QVariant &value, const QString 
     return;
   }
 
+  // A table whose every entry is a Lua function becomes one row of push
+  // buttons: the table's keys (or positions) label the buttons, and clicking
+  // one invokes its function. A button group holds no value, so it is neither
+  // mirrored into a Lua global nor reported to onParamChanged.
+  QList<QPair<QString, luabind::object>> callbacks;
+  bool isGroup = false;
+  if (value.type() == QVariant::Map) {
+    QVariantMap map = value.toMap();
+    isGroup = !map.isEmpty();
+    for (auto it = map.constBegin(); isGroup && it != map.constEnd(); ++it) {
+      const QVariant &v = it.value();
+      if (v.userType() != qMetaTypeId<luabind::object>() ||
+          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
+        isGroup = false;
+      } else {
+        callbacks.append(qMakePair(it.key(), qvariant_cast<luabind::object>(v)));
+      }
+    }
+  } else if (value.type() == QVariant::List) {
+    QVariantList list = value.toList();
+    isGroup = !list.isEmpty();
+    int i = 0;
+    for (const QVariant &v : list) {
+      ++i;
+      if (v.userType() != qMetaTypeId<luabind::object>() ||
+          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
+        isGroup = false;
+        break;
+      }
+      callbacks.append(qMakePair(QString::number(i),
+                                  qvariant_cast<luabind::object>(v)));
+    }
+  }
+
+  if (isGroup && !callbacks.isEmpty()) {
+    _params[name] = value;
+
+    ParamInfo info;
+    info.value = value;
+    info.isButtonGroup = true;
+    info.buttonCallbacks = callbacks;
+    info.comment = comment;
+    _paramInfo[name] = info;
+
+    emit paramsChanged();
+    return;
+  }
+
   _params[name] = value;
 
   ParamInfo info;
@@ -6106,16 +6162,35 @@ void Viewer::addParam(const QString &name, const btScalar &value, const btScalar
   emit paramsChanged();
 }
 
-void Viewer::pressButton(const QString &name) {
+void Viewer::pressButton(const QString &name, const QString &label) {
   ParamInfo info = _paramInfo.value(name);
-  if (!info.isButton || !L) return;
+  if (!info.isButton && !info.isButtonGroup) return;
+  if (!L) return;
 
-  if (luabind::type(info.buttonCallback) == LUA_TFUNCTION) {
-    try {
-      luabind::call_function<void>(info.buttonCallback);
-    } catch (const std::exception &e) {
-      showLuaException(e, QString("button \"%1\"").arg(name));
+  luabind::object cb;
+  if (info.isButtonGroup) {
+    for (const auto &pair : info.buttonCallbacks) {
+      if (pair.first == label) {
+        cb = pair.second;
+        break;
+      }
     }
+  } else {
+    cb = info.buttonCallback;
+  }
+
+  // An unknown label leaves @p cb default-constructed (invalid); never call
+  // luabind::type() on it - that would index the registry of a null state.
+  if (!cb.is_valid() || luabind::type(cb) != LUA_TFUNCTION) return;
+
+  try {
+    luabind::call_function<void>(cb);
+  } catch (const std::exception &e) {
+    showLuaException(e,
+                      QString("button \"%1\"%2")
+                          .arg(name)
+                          .arg(label.isEmpty() ? QString()
+                                               : QString(" / %1").arg(label)));
   }
 }
 

@@ -1208,7 +1208,7 @@ static QString paramTooltip(const QVariant &value, const ParamInfo &info) {
   QString tooltip = info.comment;
   if (!tooltip.isEmpty()) tooltip += "\n";
   // A push button holds no value; only show the comment.
-  if (value.type() != QVariant::UserType)
+  if (!info.isButton && !info.isButtonGroup)
     tooltip += QString("Value: %1").arg(value.toString());
   if (info.hasRange) {
     tooltip += QString("\nMin: %1  Max: %2").arg(info.min).arg(info.max);
@@ -1250,7 +1250,24 @@ void Gui::updateParamsTable() {
     if (sameLayout) {
       paramsTable->item(row, 0)->setToolTip(tooltip);
 
-      if (info.isButton) {
+      if (info.isButtonGroup) {
+        QWidget *cell = qobject_cast<QWidget *>(paramsTable->cellWidget(row, 1));
+        if (cell) {
+          cell->setToolTip(tooltip);
+          QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(cell->layout());
+          if (layout && layout->count() == info.buttonCallbacks.size()) {
+            int i = 0;
+            for (const auto &pair : info.buttonCallbacks) {
+              QPushButton *button = qobject_cast<QPushButton *>(layout->itemAt(i++)->widget());
+              if (button) {
+                button->setProperty("paramLabel", pair.first);
+                button->setText(pair.first);
+                button->setToolTip(tooltip);
+              }
+            }
+          }
+        }
+      } else if (info.isButton) {
         QPushButton *button = qobject_cast<QPushButton *>(paramsTable->cellWidget(row, 1));
         if (button) {
           button->setText(name);
@@ -1285,7 +1302,23 @@ void Gui::updateParamsTable() {
     nameItem->setToolTip(tooltip);
     paramsTable->setItem(row, 0, nameItem);
 
-    if (info.isButton) {
+    if (info.isButtonGroup) {
+      QWidget *cell = new QWidget();
+      QHBoxLayout *layout = new QHBoxLayout(cell);
+      layout->setContentsMargins(0, 0, 0, 0);
+      layout->setSpacing(4);
+      for (const auto &pair : info.buttonCallbacks) {
+        QPushButton *button = new QPushButton(pair.first);
+        button->setProperty("paramName", name);
+        button->setProperty("paramLabel", pair.first);
+        button->setToolTip(tooltip);
+        button->setMouseTracking(true);
+        button->installEventFilter(this);
+        connect(button, &QPushButton::clicked, this, &Gui::onParamButtonClicked);
+        layout->addWidget(button);
+      }
+      paramsTable->setCellWidget(row, 1, cell);
+    } else if (info.isButton) {
       QPushButton *button = new QPushButton(name);
       button->setObjectName(name);
       button->setProperty("paramName", name);
@@ -1394,7 +1427,8 @@ void Gui::onParamButtonClicked() {
   QPushButton *button = qobject_cast<QPushButton *>(sender());
   if (!button || !ui.viewer) return;
 
-  ui.viewer->pressButton(button->property("paramName").toString());
+  ui.viewer->pressButton(button->property("paramName").toString(),
+                         button->property("paramLabel").toString());
 }
 
 // Qt's default tooltip only repositions when a fresh QEvent::ToolTip fires,

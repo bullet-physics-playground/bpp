@@ -25,16 +25,50 @@ QVariant var_from(lua_State *L, int index) {
     var = QVariant(lua_toboolean(L, index) != 0);
     break;
   case LUA_TTABLE: {
-    QVariantMap map;
+    // Decide whether the table is a pure array (integer keys 1..n) or a map.
+    // Arrays become a QVariantList so positional tables keep their order and
+    // don't collapse onto an empty string key; everything else becomes a map.
+    struct Entry {
+      QString key;
+      int intKey = 0;
+      bool isIntKey = false;
+      QVariant value;
+    };
+    QList<Entry> entries;
+    bool isArray = true;
     lua_pushnil(L);
-    while (lua_next(L, index - 1)) {
-      lua_pushvalue(L, -2);
-      QString key = lua_tostring(L, -1);
-      lua_pop(L, 1);
-      QVariant value = var_from(L, -1);
-      map[key] = value;
-      lua_pop(L, 1);
+    while (lua_next(L, index)) {  // table sits at @p index; pops nil/key, pushes (key, value)
+      lua_pushvalue(L, -2);   // duplicate the key
+      int keyType = lua_type(L, -1);
+      Entry e;
+      if (keyType == LUA_TNUMBER) {
+        e.isIntKey = true;
+        e.intKey = lua_tointeger(L, -1);
+        e.key = QString::number(e.intKey);
+        if (e.intKey <= 0) isArray = false;
+      } else {
+        e.isIntKey = false;
+        e.key = lua_tostring(L, -1);
+        isArray = false;
+      }
+      lua_pop(L, 1);          // pop the duplicate key
+      e.value = var_from(L, -1);
+      entries.append(e);
+      lua_pop(L, 1);          // pop the value
     }
+    if (isArray && !entries.isEmpty()) {
+      bool contiguous = true;
+      for (int i = 0; isArray && contiguous && i < (int)entries.size(); ++i)
+        contiguous = entries[i].isIntKey && entries[i].intKey == i + 1;
+      if (contiguous) {
+        QVariantList list;
+        for (const Entry &e : entries) list.append(e.value);
+        var = list;
+        break;
+      }
+    }
+    QVariantMap map;
+    for (const Entry &e : entries) map[e.key] = e.value;
     var = map;
     break;
   }
