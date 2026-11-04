@@ -16,7 +16,6 @@
 #include <memory>
 
 #include <QColor>
-#include <QTextCodec>
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
@@ -2810,7 +2809,7 @@ emit scriptStarts();
     if (error) {
       lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
-      if (lua_error.contains(QRegExp(tr("stopping$")))) {
+      if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
         lua_error = tr("script stopped");
         // qDebug() << "lua run : script stopped";
       } else {
@@ -2939,7 +2938,7 @@ emit scriptStarts();
       }
     }
 
-    if (lua_error.contains(QRegExp(tr("stopping$")))) {
+    if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
       lua_error = tr("script stopped");
     } else {
       if (!trace.isEmpty()) {
@@ -5018,14 +5017,17 @@ void Viewer::onQuickRender(QString povargs) {
     renderWidth = geometry().width();
     renderHeight = geometry().height();
   } else if (renderResolution.contains("x")) {
-    QRegExp rx("(\\d+)");
+    QRegularExpression rx("(\\d+)");
     QString str = renderResolution;
     QStringList list;
     int pos = 0;
 
-    while ((pos = rx.indexIn(str, pos)) != -1) {
-      list << rx.cap(1);
-      pos += rx.matchedLength();
+    while (true) {
+      QRegularExpressionMatch m = rx.match(str, pos);
+      if (!m.hasMatch())
+        break;
+      list << m.captured(1);
+      pos = m.capturedStart() + m.capturedLength();
     }
     renderWidth = list.at(0).toInt();
     renderHeight = list.at(1).toInt();
@@ -5170,7 +5172,7 @@ void Viewer::onQuickRender(QString povargs) {
     // stripped out by pvengine itself before the real option parser ever
     // sees them. The embedded VFE core has no such pre-filter, so its
     // parser correctly rejects them; drop them before handing args over.
-    QRegExp exitSwitch("\\s*/EXIT\\s*", Qt::CaseInsensitive);
+    QRegularExpression exitSwitch("\\s*/EXIT\\s*", QRegularExpression::CaseInsensitiveOption);
     vfeArgs[0].replace(exitSwitch, " ");
     startVfeQuickRender(sceneName, sceneDir, vfeArgs);
     return;

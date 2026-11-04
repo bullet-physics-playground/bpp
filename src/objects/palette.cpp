@@ -16,7 +16,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QRandomGenerator>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QStringList>
 #include <QTextStream>
 
@@ -50,7 +50,7 @@ Palette::Palette(QString fileName) : QObject() {
     QTextStream in(&f);
     QString line;
 
-    QRegExp rx("(\\d+)");
+    QRegularExpression rx("(\\d+)");
     int lineNum = 0;
     do {
       line = in.readLine();
@@ -58,9 +58,12 @@ Palette::Palette(QString fileName) : QObject() {
       QStringList list;
       int pos = 0;
 
-      while ((pos = rx.indexIn(line, pos)) != -1) {
-        list << rx.cap(1);
-        pos += rx.matchedLength();
+      while (true) {
+        QRegularExpressionMatch m = rx.match(line, pos);
+        if (!m.hasMatch())
+          break;
+        list << m.captured(1);
+        pos = m.capturedStart() + m.capturedLength();
       }
 
       if (list.size() == 3) {

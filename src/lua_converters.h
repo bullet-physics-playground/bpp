@@ -324,59 +324,6 @@ template <typename T>
 struct default_converter<QList<QList<T>> const &>
     : default_converter<QList<QList<T>>> {};
 
-/**
- * @brief Converts between QVector<T> and a Lua table of bound objects.
- * @tparam T Element type; it needs an explicit is_class() specialization.
- */
-template <typename T>
-struct default_converter<QVector<T>> : native_converter_base<QVector<T>> {
-  /**
-   * @brief Scores a stack value as a QVector candidate.
-   * @param L     The Lua state.
-   * @param index Stack index of the value.
-   * @return 0 if the value is a Lua table, -1 otherwise.
-   */
-  static int compute_score(lua_State *L, int index) {
-    return lua_type(L, index) == LUA_TTABLE ? 0 : -1;
-  }
-
-  /**
-   * @brief Builds a QVector from a Lua table.
-   *
-   * Entries that do not hold a @c T are skipped.
-   *
-   * @param L     The Lua state.
-   * @param index Stack index of the table.
-   * @return The matching entries, in iteration order.
-   */
-  QVector<T> from(lua_State *L, int index) {
-    object obj(luabind::from_stack(L, index));
-    QVector<T> arr;
-    for (iterator i(obj), e; i != e; ++i) {
-      if (is_class<T>(*i)) {
-        arr.append(object_cast<T>(*i));
-      }
-    }
-    return arr;
-  }
-
-  /**
-   * @brief Pushes a QVector as a Lua table indexed from 1.
-   * @param L   The Lua state.
-   * @param arr The elements to push.
-   */
-  void to(lua_State *L, QVector<T> const &arr) {
-    object obj = luabind::newtable(L);
-    for (int i = 0; i < arr.count(); i++) {
-      obj[i + 1] = arr.at(i);
-    }
-    obj.push(L);
-  }
-};
-
-/// Lets a @c const @c QVector<T>& parameter use the QVector converter.
-template <typename T>
-struct default_converter<QVector<T> const &> : default_converter<QVector<T>> {};
 
 /**
  * @brief Converts between QByteArray and a Lua table of byte values.

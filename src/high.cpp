@@ -13,7 +13,7 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
   keywordFormat.setForeground(isDark ? QColor(120, 160, 255) : Qt::darkBlue);
   keywordFormat.setFontWeight(QFont::Bold);
   rule.pattern =
-      QRegExp("\\b(and|break|do|else|elseif|end|false|for|function|if|in|local|"
+      QRegularExpression("\\b(and|break|do|else|elseif|end|false|for|function|if|in|local|"
               "nil|not|or|repeat|return|then|true|until|while)\\b");
   rule.format = keywordFormat;
   rule.name = "keyword";
@@ -21,8 +21,8 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
   highlightingRules.append(rule);
 
   multiLineCommentFormat.setForeground(isDark ? QColor(100, 180, 100) : Qt::darkGreen);
-  commentStartExpression = QRegExp("\\-\\-\\[\\[");
-  commentEndExpression = QRegExp("\\]\\]");
+  commentStartExpression = QRegularExpression("\\-\\-\\[\\[");
+  commentEndExpression = QRegularExpression("\\]\\]");
   rule.pattern = commentStartExpression;
   rule.endPattern = commentEndExpression;
   rule.name = "block comment";
@@ -33,28 +33,28 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
   quotationFormat.setForeground(isDark ? QColor(255, 140, 80) : Qt::darkRed);
 
   rule.format = quotationFormat;
-  rule.pattern = QRegExp("\"\"|''");
+  rule.pattern = QRegularExpression("\"\"|''");
   rule.name = "quotation";
   rule.blockState = BS_Dummy;
   highlightingRules.append(rule);
 
   rule.format = quotationFormat;
-  rule.pattern = QRegExp("\"");
-  rule.endPattern = QRegExp("[^\\\\]\"");
+  rule.pattern = QRegularExpression("\"");
+  rule.endPattern = QRegularExpression("[^\\\\]\"");
   rule.name = "double quotation";
   rule.blockState = BS_DoubleQuota;
   highlightingRules.append(rule);
 
-  rule.pattern = QRegExp("'");
-  rule.endPattern = QRegExp("[^\\\\]'");
+  rule.pattern = QRegularExpression("'");
+  rule.endPattern = QRegularExpression("[^\\\\]'");
   rule.name = "single quotation";
   rule.blockState = BS_SingleQuota;
   highlightingRules.append(rule);
 
   QString s = "";
   for (int i = 0; i < LONG_QUOTA_LEVEL; i++) {
-    quotationStart = QRegExp(QString("\\[%1\\[").arg(s));
-    quotationEnd = QRegExp(QString("\\]%1\\]").arg(s));
+    quotationStart = QRegularExpression(QString("\\[%1\\[").arg(s));
+    quotationEnd = QRegularExpression(QString("\\]%1\\]").arg(s));
 
     rule.pattern = quotationStart;
     rule.endPattern = quotationEnd;
@@ -66,21 +66,21 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
 
   classFormat.setFontWeight(QFont::Bold);
   classFormat.setForeground(isDark ? QColor(220, 140, 255) : Qt::darkMagenta);
-  rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
+  rule.pattern = QRegularExpression("\\bQ[A-Za-z]+\\b");
   rule.format = classFormat;
   rule.name = "class";
   rule.blockState = BS_Dummy;
   highlightingRules.append(rule);
 
   functionFormat.setForeground(isDark ? QColor(140, 200, 255) : Qt::blue);
-  rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+  rule.pattern = QRegularExpression("\\b[A-Za-z0-9_]+(?=\\()");
   rule.format = functionFormat;
   rule.name = "function";
   rule.blockState = BS_Dummy;
   highlightingRules.append(rule);
 
   singleLineCommentFormat.setForeground(isDark ? QColor(100, 180, 100) : Qt::darkGreen);
-  rule.pattern = QRegExp("\\-\\-[^\\[][^\n]*");
+  rule.pattern = QRegularExpression("\\-\\-[^\\[][^\n]*");
   rule.format = singleLineCommentFormat;
   rule.name = "line comment";
   rule.blockState = BS_Dummy;
@@ -88,7 +88,7 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
 
   userKeyword.setFontWeight(QFont::Bold);
   userKeyword.setForeground(isDark ? QColor(220, 140, 255) : Qt::darkMagenta);
-  rule.pattern = QRegExp("\\b(__USERKEYWORD__)\\b");
+  rule.pattern = QRegularExpression("\\b(__USERKEYWORD__)\\b");
   rule.format = userKeyword;
   rule.name = "user keyword";
   rule.blockState = BS_Dummy;
@@ -96,7 +96,7 @@ LuaHighlighter::LuaHighlighter(QTextDocument *parent)
 }
 
 void LuaHighlighter::addUserKeyword(const QString &keyword) {
-  QRegExp &exp = highlightingRules.last().pattern;
+  QRegularExpression &exp = highlightingRules.last().pattern;
   QString patten = exp.pattern();
   patten = patten.left(patten.length() - 3) + "|" + keyword + ")\\b";
   exp.setPattern(patten);
@@ -124,7 +124,7 @@ void LuaHighlighter::highlightBlock(const QString &text) {
   //*/
 
   // foreach (const HighlightingRule &rule, highlightingRules) {
-  // QRegExp expression(rule.pattern);
+  // QRegularExpression expression(rule.pattern);
   // int index = expression.indexIn(text, offset);
   while (offset < text.length()) {
     HighlightingRule rule;
@@ -149,16 +149,17 @@ int LuaHighlighter::matchPatten(const QString &text, int offset,
                                 HighlightingRule &r, int &matchedLength) {
   int min = -1;
   foreach (const HighlightingRule &rule, highlightingRules) {
-    QRegExp expression(rule.pattern);
-    int index = expression.indexIn(text, offset);
+    QRegularExpression expression(rule.pattern);
+    QRegularExpressionMatch match = expression.match(text, offset);
+    int index = match.capturedStart();
     if (min == -1) {
       min = index;
       r = rule;
-      matchedLength = expression.matchedLength();
+      matchedLength = match.capturedLength();
     } else if (index < min && index != -1) {
       min = index;
       r = rule;
-      matchedLength = expression.matchedLength();
+      matchedLength = match.capturedLength();
     }
   }
   return min;
@@ -166,14 +167,15 @@ int LuaHighlighter::matchPatten(const QString &text, int offset,
 
 int LuaHighlighter::matchBlockEnd(const QString &text, int startIndex,
                                   const HighlightingRule &rule) {
-  QRegExp endExp(rule.endPattern);
-  int endIndex = endExp.indexIn(text, startIndex);
+  QRegularExpression endExp(rule.endPattern);
+  QRegularExpressionMatch match = endExp.match(text, startIndex);
+  int endIndex = match.capturedStart();
   int length;
   if (endIndex == -1) {
     setCurrentBlockState(rule.blockState);
     length = text.length() - startIndex;
   } else {
-    length = endIndex - startIndex + endExp.matchedLength();
+    length = endIndex - startIndex + match.capturedLength();
   }
   return length;
 }
