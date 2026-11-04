@@ -16,7 +16,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QSignalBlocker>
 
@@ -605,11 +605,12 @@ int Gui::readPovraySetting(const QString &name, int defaultValue) const {
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return defaultValue;
   }
-  QRegExp rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
+  QRegularExpression rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
   while (!file.atEnd()) {
     QString line = QString::fromUtf8(file.readLine());
-    if (rx.indexIn(line) >= 0) {
-      return rx.cap(1).toInt();
+    QRegularExpressionMatch m = rx.match(line);
+    if (m.hasMatch()) {
+      return m.captured(1).toInt();
     }
   }
   return defaultValue;
@@ -624,8 +625,8 @@ void Gui::writePovraySetting(const QString &name, int value) {
   QString content = QString::fromUtf8(file.readAll());
   file.close();
 
-  QRegExp rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
-  if (rx.indexIn(content) < 0) {
+  QRegularExpression rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
+  if (rx.match(content).capturedStart() < 0) {
     return; // setting not found in the file, don't touch it
   }
   content.replace(rx, QString("\\1%1\\2").arg(value));

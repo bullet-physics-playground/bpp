@@ -64,7 +64,6 @@ bool PovScriptWriter::writeMainFile(const QString &sceneDir, int frame) {
   }
 
   QTextStream s(&file);
-  s.setCodec("UTF-8");
 
   writeHeader(s, frame);
   writeGlobalSettings(s);

@@ -17,7 +17,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include <qgl.h>
+#include <QOpenGLFunctions>
 
 class Layer; ///< Forward declaration for layer support
 class Object; ///< Forward declaration for visitor pattern support

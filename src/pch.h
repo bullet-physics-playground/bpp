@@ -27,7 +27,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QRandomGenerator>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QString>

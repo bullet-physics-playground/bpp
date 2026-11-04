@@ -40,7 +40,7 @@ contains(DEFINES, WIN32_LINK_QGLVIEWER) {
   CONFIG( debug, debug|release ) {
     LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewerd3 -lopengl32
   } else {
-    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewer3 -lopengl32
+    LIBS += -L$$WIN32_DIR_QGLVIEWER\\QGLViewer -lQGLViewer -lopengl32
   }
 }
 

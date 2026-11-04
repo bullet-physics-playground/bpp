@@ -1277,12 +1277,6 @@ public:
   void setBackgroundColor(const QColor &color) {
     glClearColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
   }
-#else
-  /**
-   * @brief Sets the colour the view is cleared to.
-   * @param color The new background colour.
-   */
-  void setBackgroundColor(const QColor &color) { qglClearColor(color); }
 #endif
 
   // POV-Ray properties

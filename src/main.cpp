@@ -101,9 +101,6 @@ int main(int argc, char **argv) {
   // can change the process's current working directory.
   startupWorkingDir();
 
-  // make xlib and glx thread safe under x11
-  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-
   // Request a stencil buffer for CSG rendering
   QSurfaceFormat fmt;
   fmt.setStencilBufferSize(8);
