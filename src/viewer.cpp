@@ -21,6 +21,7 @@
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
 #include "lua_bullet.h"
+#include "lua_converters.h"   // for Q_DECLARE_METATYPE(luabind::object)
 
 #include "glutils.h"
 #include "shadowmap.h"
@@ -2987,6 +2988,16 @@ emit scriptStarts();
     _cb_onHover = luabind::object();
     hoverHide();
 
+    // Release button callbacks and parameter values that carry a Lua object
+    // (functions bound to push buttons) while the Lua state is still alive:
+    // their luabind references would otherwise be released against the closed
+    // state when clear() runs below.
+    for (ParamInfo &info : _paramInfo)
+      if (info.isButton) info.buttonCallback = luabind::object();
+    for (QVariant &value : _params)
+      if (value.userType() == qMetaTypeId<luabind::object>())
+        value = QVariant();
+
     if (_cb_shortcuts) {
       for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
         it->reset();
@@ -3565,6 +3576,16 @@ Viewer::~Viewer() {
   _cb_onParamChanged = luabind::object();
   _cb_onHover = luabind::object();
   hoverHide();
+
+  // Release button callbacks and parameter values that carry a Lua object
+  // (functions bound to push buttons) while the Lua state is still alive:
+  // their luabind references would otherwise be released against the closed
+  // state when the member hashes are destroyed below.
+  for (ParamInfo &info : _paramInfo)
+    if (info.isButton) info.buttonCallback = luabind::object();
+  for (QVariant &value : _params)
+    if (value.userType() == qMetaTypeId<luabind::object>())
+      value = QVariant();
 
   // Clear shortcuts BEFORE closing Lua state.
   // The shared_ptr<luabind::object> destructors call luaL_unref.
@@ -5981,6 +6002,25 @@ void Viewer::addParam(const QString &name, const QVariant &value) {
 }
 
 void Viewer::addParam(const QString &name, const QVariant &value, const QString &comment) {
+  // A QVariant carrying a Lua function is a push button parameter: the Gui
+  // shows a button that invokes the function when it is pressed. A button
+  // holds no value, so it is neither mirrored into a Lua global nor reported
+  // to onParamChanged.
+  if (value.userType() == qMetaTypeId<luabind::object>() &&
+      luabind::type(qvariant_cast<luabind::object>(value)) == LUA_TFUNCTION) {
+    _params[name] = value;
+
+    ParamInfo info;
+    info.value = value;
+    info.isButton = true;
+    info.buttonCallback = qvariant_cast<luabind::object>(value);
+    info.comment = comment;
+    _paramInfo[name] = info;
+
+    emit paramsChanged();
+    return;
+  }
+
   _params[name] = value;
 
   ParamInfo info;
@@ -6064,6 +6104,19 @@ void Viewer::addParam(const QString &name, const btScalar &value, const btScalar
   }
 
   emit paramsChanged();
+}
+
+void Viewer::pressButton(const QString &name) {
+  ParamInfo info = _paramInfo.value(name);
+  if (!info.isButton || !L) return;
+
+  if (luabind::type(info.buttonCallback) == LUA_TFUNCTION) {
+    try {
+      luabind::call_function<void>(info.buttonCallback);
+    } catch (const std::exception &e) {
+      showLuaException(e, QString("button \"%1\"").arg(name));
+    }
+  }
 }
 
 ParamInfo Viewer::getParamInfo(const QString &name) const {

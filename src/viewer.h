@@ -66,8 +66,8 @@ class BppVfeDisplay;
  * @brief A script parameter and everything the GUI needs to present it.
  *
  * Scripts register parameters with Viewer::addParam(); the Gui turns each one
- * into a slider, a check box or an editable cell depending on what is known
- * about it here.
+ * into a slider, a check box, an editable cell or a push button, depending on
+ * what is known about it here.
  */
 struct ParamInfo {
   QVariant value;        ///< The value the parameter was last given.
@@ -77,6 +77,10 @@ struct ParamInfo {
   QString comment;       ///< Description shown in the parameter's tooltip.
   bool hasRange = false; ///< True if the script declared a min and max, which
                          ///< is what makes the parameter a slider.
+  bool isButton = false; ///< True if the parameter is a push button: pressing
+                         ///< it calls #buttonCallback instead of editing a value.
+  luabind::object buttonCallback; ///< The Lua function invoked when the button
+                                  ///< is pressed; only meaningful if #isButton.
 };
 
 /**
@@ -1611,7 +1615,11 @@ public slots:
   /**
    * @brief Registers or updates a script parameter.
    * @param name  Parameter name; it also becomes a Lua global.
-   * @param value The value.
+   * @param value The value. When the value is a Lua function, the parameter
+   *              is presented as a push button: pressing it calls the
+   *              function. A button holds no value, so onParamChanged is not
+   *              invoked when it is pressed; the parameter's name is not
+   *              mirrored as a Lua global either.
    */
   void addParam(const QString &name, const QVariant &value);
 
@@ -1659,6 +1667,13 @@ public slots:
    * @param comment Description shown in the parameter's tooltip.
    */
   void addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step, const QString &comment);
+
+  /**
+   * @brief Presses a push button registered with addParam(), invoking its
+   *        Lua callback. Does nothing if there is no such button parameter.
+   * @param name Parameter name of the button.
+   */
+  void pressButton(const QString &name);
 
   /**
    * @brief Reads a parameter's current value.

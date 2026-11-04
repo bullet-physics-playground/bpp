@@ -112,6 +112,14 @@ private slots:
    void onParamCheckBoxChanged(bool checked);
 
   /**
+   * @brief Invokes the Lua callback of a push button parameter.
+   *
+   * A parameter whose value is a Lua function is shown as a push button;
+   * clicking it calls back into the script.
+   */
+  void onParamButtonClicked();
+
+  /**
    * @brief Handles window moves. Does nothing.
    * @param event The move event.
    */
@@ -607,10 +615,11 @@ private:
    * @brief Rebuilds the parameters table from the script's parameters.
    *
    * Each parameter gets the editor that suits it: a slider when it declares a
-   * range, a check box when it is a boolean, an editable cell otherwise. When
-   * the set and order of names is unchanged the existing widgets are updated
-   * in place instead of being recreated, so that refreshing while a slider is
-   * being dragged neither flickers nor interrupts the drag.
+   * range, a check box when it is a boolean, a push button when its value is
+   * a Lua function, an editable cell otherwise. When the set and order of
+   * names is unchanged the existing widgets are updated in place instead of
+   * being recreated, so that refreshing while a slider is being dragged
+   * neither flickers nor interrupts the drag.
    */
   void updateParamsTable();
 

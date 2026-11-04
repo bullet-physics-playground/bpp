@@ -39,6 +39,10 @@ QVariant var_from(lua_State *L, int index) {
     break;
   }
   default:
+    // Anything that is not a primitive (functions, user data, threads) is
+    // carried as a luabind::object, so that e.g. a Lua function passed to
+    // Viewer::addParam() survives as the callback of a push button parameter.
+    var = QVariant::fromValue(luabind::object(luabind::from_stack(L, index)));
     break;
   }
   return var;
