@@ -787,8 +787,8 @@ void Gui::helpAbout() {
           .arg(QCoreApplication::applicationName())
           .arg(QCoreApplication::applicationVersion()) +
       tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) +
-      tr("<p>%1 Bullet: %2</p>").arg(LUA_VERSION).arg(BULLET_VERSION) +
-      tr("<p>Qt:&nbsp;%1</p>").arg(QT_VERSION_STR) +
+      tr("<p>%1 Bullet: %2 Qt:&nbsp;%3</p>")
+          .arg(LUA_VERSION).arg(BULLET_VERSION).arg(QT_VERSION_STR) +
       tr("<p>GLEW:&nbsp;%1 GL&nbsp;Renderer:&nbsp;%2 "
          "GL&nbsp;Vendor:&nbsp;%3</p>")
           .arg((char *)glGetString(GL_VERSION))
