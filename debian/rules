@@ -23,7 +23,7 @@ build-stamp: $(QUILT_STAMPFN)
 	dh_testdir
 
 	if [ -d ../povray ]; then cd povray-linux && qmake povvfe.pro && $(MAKE); cd -; fi
-	qmake "USE_VFE=1" $(QMAKE_AFTER) bpp.pro && $(MAKE)
+	qmake6 "USE_VFE=1" $(QMAKE_AFTER) bpp.pro && $(MAKE)
 
 	touch $@
 
@@ -31,6 +31,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
+	rm -f release/bpp debug/bpp
 	[ ! -f Makefile ] || $(MAKE) clean
 	dh_clean
 
