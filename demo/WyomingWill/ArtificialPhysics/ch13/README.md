@@ -6,7 +6,8 @@ physicomimetics asks for things it cannot do. The motion-control
 mechanisms of §13.2.2 and §13.4.1 (η, adaptive and static friction, the
 adaptive speed cap) are in `../lib/ch13.lua` and were measured on the drones
 (M1) and the ground robots (M2; `../ground/README.md`). This folder holds the
-chapter's own experiments with constrained vehicles.
+chapter's own experiments with constrained vehicles: the fixed-wing UAV
+and the dumbbell agent on the Pioneer.
 
 ## The fixed-wing UAV (§13.2.3, §13.3, §13.4.2)
 
@@ -79,7 +80,111 @@ on a 400 m circle heading for it (±30°), measured from 120 to 600 s, seeds
   outweighed by ten targets' pull. The book does not mention it. Real
   aircraft would need height separation.
 
-## Choices where the book is silent
+## The dumbbell agent on the Pioneer (§13.4, §13.4.1.2)
+
+`dumbbell.lua`: the agent of Eqs. 13.19–13.23 (and 13.25, off by
+default), plain Lua; `Ring-Ground.lua` drives it on BPP's Pioneer 3-AT
+(`../ground/vehicle.lua`, Bullet physics, its new `drive(u, Ω)`). Two
+particles on the heading axis, the front one (the camera) 0.25 m ahead of
+the rotation centre, the back one 0.25 m behind; ten times a second
+
+- F = ΣF_front + ΣF_back (13.19); M = T + r_f × ΣF_front + r_b × ΣF_back
+  (13.20), T the torque-law torques;
+- u_new = (u + F·t̂/m)(1 − μ_u) (13.21), Ω_new = (Ω + M/I)(1 − μ_Ω)
+  (13.22), m = I = 1 (the book's 1 : 1), clipped to 0.5 m/s and 0.4 rad/s;
+- each μ by Eq. 13.23 (k_more 0.25, k_less 0.02: ratio 12.5 > 10), used
+  from the next tick;
+- the wheels (u ± Ω r_diff, Eqs. 13.4–13.6) turn at 0 or 0.1–0.5 m/s, a
+  smaller command rounded up to 0.1 (F72).
+
+The camera ring (the book gives none of its numbers; our choices):
+
+| Part | Law | Values |
+| --- | --- | --- |
+| Ring | the attractor pulls the camera to a circle: Fig. 13.8's split law with η (Eq. 13.9), f = G/r η, repelling inside R | R = 2 m, G = 5 |
+| Pointing | a torsion spring from the heading to the attractor (Eq. 13.15) | κ = 0.4/π (no spring asks for more than Ω_max a tick, the book's rule, PDF 466) |
+| Spacing | each camera repels the others' cameras, Gr/r² | Gr = 0.3, range 5 m |
+| Spreading (`spread`, off by default) | a weak pointing spring for the first `spread` s | κ = 0.01 for 60 s |
+| Static friction (Eq. 13.25, off by default) | a channel moves only if μ m g < its force | g = 0.05 |
+
+### The three-point turn (`Ring-Ground.lua`, case 1)
+
+One robot heading +x, the attractor 5 m dead astern (or turned off it by
+`behind`); 60 s on the Pioneer in Bullet:
+
+| Attractor | Travel | Camera on the ring, pointing in | Camera's largest distance from the straight line |
+| --- | --- | --- | --- |
+| dead astern | backs 4.4 s while turning, then forwards | 11.0 s (point 1.4°) | 0.73 m |
+| 30° off astern | backs 3.2 s, then forwards | 10.8 s | 0.78 m |
+| 90° (to the left) | forwards at once | 9.2 s | 0.55 m |
+| dead astern, no pointing spring (κ 0) | backs straight to it | never: 180° off | 0 |
+| dead astern, no adaptive friction (k_more 0) | swings for ever | never (0.19 m, 24° at 60 s) | 0.73 m |
+
+- **Reproduced:** the book's emergent three-point turn (PDF 464): the
+  robot backs while it turns, then drives forwards, and arrives pointing
+  in. Nothing in the agent asks for it.
+- The pointing spring matters only near dead astern: there the forces on
+  the camera have no moment, so without it the robot backs straight in
+  and ends facing away; 30° or more off, the force law alone turns it.
+- Without adaptive friction the agent swings round its target for ever
+  (Eqs. 13.21–13.22 are integrators).
+- After arriving the robot creeps back and forth at the minimum wheel
+  speed for ever (~2 changes of direction a second): its commands decay
+  geometrically but never reach 0, and a wheel asked for any speed turns
+  at 0.1 m/s. Static friction (Eq. 13.25, g = 0.05) cuts that to 7–9
+  passes in all instead of 124–145, and the robot stands still (dead
+  astern and 30° off; at 90° it still makes an occasional move), as the
+  book says it did on its robots (PDF 465). The kinematic check makes 4.
+
+### The camera ring (`Ring-Ground.lua`, case 0; `ring_sweep.sh`)
+
+3–5 robots, seeds 1–10, two starts (each at a random bearing 5–8 m out;
+a line 1 m apart 10 m out on one side), 300 s; means over the 20 runs of
+each row (`ring_runs.txt`; gap is the largest gap between neighbours on
+the ring over the even gap, 1 = even; point and radius the worst robot's):
+
+| Setting | n | Radius (m) | Point (°) | Gap | Robots moving at the end | Passes per robot | Robot contacts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| plain | 3 | 0.130 | 25.5 | 2.00 | 3.0 | 742 | 0.2 |
+| plain | 4 | 0.112 | 24.7 | 1.78 | 4.0 | 760 | 0.5 |
+| plain | 5 | 0.162 | 32.5 | 1.75 | 5.0 | 742 | 1.1 |
+| spread 60 s | 3 | 0.043 | 2.3 | 1.24 | 3.0 | 740 | 0.2 |
+| spread 60 s | 4 | 0.066 | 3.7 | 1.27 | 4.0 | 721 | 0.2 |
+| spread 60 s | 5 | 0.093 | 5.0 | 1.29 | 5.0 | 725 | 0.8 |
+| spread + static | 3 | 0.039 | 2.6 | 1.23 | 0.5 | 30 | 0.2 |
+| spread + static | 4 | 0.062 | 4.3 | 1.27 | 0.3 | 31 | 0.2 |
+| spread + static | 5 | 0.091 | 5.5 | 1.25 | 1.1 | 31 | 0.9 |
+
+- **A robot on the ring cannot move along it.** Pointing in, its axle
+  lies along the ring, so a neighbour's push is sideways: it has no
+  component along the heading to drive, and on the two particles its
+  moments nearly cancel (the triangle of death's geometry, E6). The robots
+  stay at the bearings they arrived at: from a line on one side all of
+  them arrive together (gap 1.93, the worst 2.7), and crowded neighbours
+  tilt each other's cameras 21–34° off. Stronger or longer repulsion
+  (Gr to 1, range to 10 m) only pushed the robots off the ring; repelling
+  both particles instead of the cameras did not spread them either.
+  Brockett's condition (1983) suggests why: no smooth feedback that does
+  not change with time can bring a vehicle that cannot move sideways to a
+  pose (here the camera's place on the ring and its heading), and a fixed
+  force-and-torque law is such a feedback.
+- **Spreading first, then pointing, does both** (`spread` 60 s, William's
+  annealing applied to the pointing spring, F49): with a weak spring the
+  robots turn along the ring and spread (gap 1.24–1.29, the worst 1.46,
+  from either start); then the full spring turns each in place to point
+  in (2–5° off, cameras within 0.04–0.09 m of the ring). With the weak
+  spring alone the ring spreads (gap 1.2) but the cameras stay ~40° off
+  (kinematic model). 60 s was as good as 100 or 150.
+- **The book's advice, explained:** "performance is best if they arrive at
+  their correct points in the proper orientation" (PDF 464); a robot on
+  the ring can turn but not slide.
+- Static friction again stops the creeping (robots moving at the end
+  0.3–1.1 of 3–5, 30 passes in 300 s against ~740), at about 0.5° more
+  pointing error.
+- Cost: 300 simulated s take 3–5 wall s with 3–5 robots, so the 180 runs
+  of `ring_sweep.sh` are ~11 CPU-minutes.
+
+## Choices where the book is silent (the fixed-wing UAV)
 
 The book gives no numbers for G, μ, κ, I, the repulsion range, the
 targets' layout, the starts or the run length (`../book/ch13.md` E12):
@@ -107,3 +212,13 @@ targets' layout, the starts or the run length (`../book/ch13.md` E12):
 - `../checks/fixedwing.lua`: the turn limit, the three single-attractor
   outcomes, and the torque law's advantage over the targets (7 tests,
   ~4 s).
+- `dumbbell.lua`: the dumbbell agent, the ring's forces and torques, its
+  measures, and a kinematic Pioneer for checks (plain Lua).
+- `Ring-Ground.lua`: the dumbbell on BPP's Pioneers, the camera ring
+  (case 0) and the three-point turn (case 1); sliders `case`, `robots`,
+  `seed`, `start`, `spread`, `behind`; R restarts. Headless:
+  `RING_N=4 RING_SEED=1 RING_SPREAD=60 RING_EXIT=1 bpp -f ch13/Ring-Ground.lua -n 100000`.
+- `ring_sweep.sh`: the ring table above (180 runs, resumable, parallel;
+  `ring_runs.txt`).
+- `../checks/dumbbell.lua`: the equations, the three-point turn, what
+  each part does, and the ring plain against spread (6 tests, ~2 s).

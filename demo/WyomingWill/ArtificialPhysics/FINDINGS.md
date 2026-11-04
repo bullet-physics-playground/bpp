@@ -1142,6 +1142,47 @@ one, and was taken out). At 20%, KT's 22,500 steps are a sixth of Ant's
 65,200); with 5–30 robots a seventh to a sixth, where the port goes
 from an eighth to a third.
 
+**F106. Ch. 13's dumbbell agent on the Pioneer: the three-point turn
+emerges; a robot on the camera ring cannot move along it, so the ring
+spreads only if the robots spread before they point** — 2026-11-04,
+Confirmed and New. `ch13/README.md`, `ch13/dumbbell.lua`,
+`ch13/Ring-Ground.lua`, `ch13/ring_runs.txt`, `checks/dumbbell.lua`.
+Eqs. 13.19–13.23 (m = I = 1, the book's 1 : 1; k_more/k_less 12.5) at
+10 Hz drive BPP's Pioneer (wheels 0 or 0.1–0.5 m/s) through a new
+`drive(u, Ω)`. The camera (front particle, 0.25 m ahead) is held on a 2 m
+circle by Fig. 13.8's law, pointed in by a torsion spring (Eq. 13.15,
+κ = 0.4/π) and kept from the other cameras by Gr/r²; the book gives none
+of these numbers. **The three-point turn (PDF 464) is reproduced:** with
+the attractor dead astern the robot backs 4.4 s while turning, then
+drives forwards, and is on the ring pointing in at 11 s (30° off astern:
+10.8 s; 90°: 9.2 s, forwards at once). Without the spring it backs
+straight in and ends facing away (only near dead astern; 30° off, the
+force law alone turns it); without adaptive friction it swings for ever.
+After arriving it creeps back and forth at the minimum wheel speed for
+ever (124–145 changes of direction in 60 s: the commands decay
+geometrically but never reach 0, and any nonzero command turns a wheel
+at 0.1 m/s); static friction (Eq. 13.25 corrected, g = 0.05) cuts that to
+7–9 and the robot stands, as the book says (PDF 465). **The ring** (3–5
+robots, seeds 1–10, two starts, 300 s, 180 runs): a robot pointing in
+has its axle along the ring, so a neighbour's push is sideways, with
+nothing to drive along the heading and nearly cancelling moments on the
+two particles (E6's geometry). The robots stay at the bearings they
+arrive at: largest gap 1.75–2.00 × the even gap, cameras 25–33° off as
+crowded neighbours tilt each other; stronger or longer repulsion only
+pushed robots off the ring, and repelling both particles did not spread
+them. Brockett's condition (1983: no smooth time-invariant feedback
+brings a vehicle that cannot move sideways to a pose) suggests why a
+fixed law cannot. Annealing the spring (as η in F49) does it: κ = 0.01
+for 60 s lets the robots turn along the ring and spread, then κ = 0.4/π
+turns each in place: gap 1.24–1.29 (worst 1.46), 2–5° off, cameras
+within 0.04–0.09 m of the ring, from random bearings or from a line on
+one side; with static friction too, 0.3–1.1 robots of 3–5 still moving
+at the end instead of all of them. This is the book's advice, explained:
+"performance is best if they arrive at their correct points in the
+proper orientation" (PDF 464). The adaptive speed cap (Eq. 13.24) was
+not needed (0.2–1.1 robot contacts a run). Both switches (`spread`, `g`)
+are off by default.
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1619,6 +1660,10 @@ them.
   moves that finish a lattice and escape a stall behind a column. The
   threshold is friction × v_min / (metersPerUnit × apHz) in AP force
   units, so the law's stiffness near D, apHz and friction all move it.
+- The dumbbell's camera ring (F106): a rule from the geometry for when
+  to end the spreading (60 s is a time, not a rule), and whether a
+  per-robot switch (point once the neighbours' pushes balance) does as
+  well; the ring with obstacles or a moving attractor.
 - Ch. 7 on ground robots (F105): why some Ant robots stay put for
   thousands of steps; the real 25 × 127 m corridor (robots 3× larger
   relative to the gaps).

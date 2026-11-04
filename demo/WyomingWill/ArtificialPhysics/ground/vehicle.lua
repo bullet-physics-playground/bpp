@@ -56,6 +56,9 @@
 -- its component along its heading while it turns -- the lag Ch. 13
 -- warns about. The sensed position is the rotation centre (the book's
 -- offset particle is not modelled).
+-- drive(d, u, Omega) (below) takes Ch. 13's dumbbell agent's commands
+-- (ch13/dumbbell.lua) instead: forward speed and turn rate, to the
+-- wheels by the same rules.
 --
 -- No 3D (can3D false), nothing breaks on contact (fragile false: bumps
 -- are counted, not losses), no wind. Deploy: ready at once, on its pad.
@@ -189,7 +192,13 @@ function V.guide(d, st, simTime, dt)
   local omega = clamp(P.kHead * cur, -om, om)
   local u = math.min(sp * math.cos(cur), P.uMax - math.abs(omega) * P.rDiff)
   if u < 0 then u = 0 end
-  u = d.dir * u
+  d.cr, d.cl = V.wheels(d.dir * u, omega)
+end
+
+-- (u, Omega) -> wheel commands (cr, cl), m/s: Eqs. 13.4-13.5, the
+-- minimum speed rounded up, and the two Omega_max rules below; guide()
+-- and drive() share it
+function V.wheels(u, omega)
   local cr, cl = wheel(u + omega * P.rDiff), wheel(u - omega * P.rDiff)
   -- a wheel rounded up against the other's direction would turn the robot
   -- faster than Omega_max (0.56 rad/s in the check): the faster is eased
@@ -201,7 +210,18 @@ function V.guide(d, st, simTime, dt)
   local pivot = 2 * P.rDiff * P.omegaMax
   if cl == 0 then cr = clamp(cr, -pivot, pivot) end
   if cr == 0 then cl = clamp(cl, -pivot, pivot) end
-  d.cr, d.cl = cr, cl
+  return cr, cl
+end
+
+-- Ch. 13's dumbbell agent (ch13/dumbbell.lua) commands the forward speed
+-- u (m/s, + = forwards) and turn rate omega (rad/s, + = left) itself, at
+-- its own rate: Omega within Omega_max, then |u| within u_max -
+-- |Omega| r_diff (Eq. 13.6), then the wheels as above. Call it instead of
+-- guide(); 0, 0 stops both wheels.
+function V.drive(d, u, omega)
+  omega = clamp(omega, -P.omegaMax, P.omegaMax)
+  local um = P.uMax - math.abs(omega) * P.rDiff
+  d.cr, d.cl = V.wheels(clamp(u, -um, um), omega)
 end
 
 -- every physics step: wheels, tyre forces

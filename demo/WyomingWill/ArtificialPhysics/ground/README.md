@@ -46,6 +46,12 @@ robots stay in 2D and cannot leave the formation (`[`).
   (0.386, −0.307) m/s against (0.4, −0.3), and stops on 0). Kinetic
   theory drives the robots with it in Ch. 7's corridor
   (`../ch07/Corridor-Ground.lua`).
+- **Speed and turn-rate commands** (`drive(u, Ω)`, 2026-11-04): Ch. 13's
+  dumbbell agent (`../ch13/dumbbell.lua`) commands the forward speed and
+  turn rate itself, ten times a second; Ω is clipped to 0.4 rad/s, |u| to
+  0.5 − |Ω| r_diff (Eq. 13.6), and the wheels follow by the rules below.
+  `guide()` and `drive()` share the wheel rules (`V.wheels`), so the
+  guidance above is unchanged (`../checks/vehicles.sh`).
 - **Backing off when jammed** (`backOff`, off by default; 2026-10-31,
   F102): a robot whose wheels are driven while it moves less than 5 cm
   and turns less than 0.1 rad in 2 s backs off at 0.25 m/s for 2 s

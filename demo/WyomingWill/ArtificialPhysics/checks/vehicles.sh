@@ -12,7 +12,9 @@
 #      forms the Lennard-Jones 2D triangle as the original particles do:
 #      formed (probes/settle_drones.lua's `formed` >= 0), bond length
 #      0.99-1.02 of desiredSeparation, nothing lost; seeds 1-2;
-#   4. Ch. 7's corridor on ground robots runs (ch07/Corridor-Ground.lua).
+#   4. Ch. 7's corridor on ground robots runs (ch07/Corridor-Ground.lua);
+#   5. Ch. 13's dumbbell drives the robot through drive() in Bullet
+#      (ch13/Ring-Ground.lua, case 1): the three-point turn.
 #
 # Needs BPP (the modules build Bullet objects). Run from the
 # ArtificialPhysics folder (about 45 s):  bash checks/vehicles.sh
@@ -90,6 +92,22 @@ f = dict(zip(t[1::2], t[2::2]))
 ok = bool(f) and int(f["Time"]) == 200 and 7 < float(f["Total"]) < 12 and float(f["Moved"]) > 0.9
 print(("ok  " if ok else "FAIL") + " corridor on ground robots, KT 20%, 200 steps: "
       + (f"total {f['Total']}% (port 8.8%), moved {f['Moved']}, bumps {f['Bumps']}" if f else "no result line"))
+sys.exit(0 if ok else 1)
+EOF
+
+# 5. Ch. 13's dumbbell on the Pioneer in Bullet (ch13/Ring-Ground.lua,
+#    case 1): the attractor dead astern; the robot backs, then drives
+#    forwards, and is on the ring pointing in within 15 s (11.0 s measured)
+RING_CASE=1 RING_LIMIT=20 RING_EXIT=1 "$BPP" -f ch13/Ring-Ground.lua -n 10000 > "$T/ring.txt" 2>&1
+python3 - "$T/ring.txt" <<'EOF' || fail=1
+import sys
+m = [l for l in open(sys.argv[1]) if l.startswith("Ring ")]
+t = m[-1].split() if m else []
+f = dict(zip(t[1::2], t[2::2]))
+segs = f.get("Segments", "").split(",")
+ok = bool(f) and 0 <= float(f["Formed"]) < 15 and [s[0] for s in segs[:2]] == ["B", "F"]
+print(("ok  " if ok else "FAIL") + " dumbbell on a ground robot, attractor dead astern: "
+      + (f"segments {','.join(segs[:3])}, formed at {f['Formed']} s, point {f['Point']} deg" if f else "no result line"))
 sys.exit(0 if ok else 1)
 EOF
 

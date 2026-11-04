@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F105 so far), and
+  implementations, and our own mistakes once corrected (F1–F106 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -103,7 +103,7 @@ is updated at the end of every milestone.
 | `src/geo.cpp` (BPP's, at the repository root) | BPP's compiled helpers for the world generator (the Lua table `geo`: noise, zone lookup, the ground's and the woods' meshes), the Lua's arithmetic operation for operation; `checks/geo.lua` compares the two (FIXES 43, F71) |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
-| `ch13/`, `fixedwing/` | Ch. 13's constrained vehicles: the fixed-wing UAV (kinematic, 13 m/s, 101 m turns) with the point-mass and torque laws (`UAV-Attractor.lua`, `UAV-Targets.lua`; F76) |
+| `ch13/`, `fixedwing/` | Ch. 13's constrained vehicles: the fixed-wing UAV (kinematic, 13 m/s, 101 m turns) with the point-mass and torque laws (`UAV-Attractor.lua`, `UAV-Targets.lua`; F76); the dumbbell agent (`dumbbell.lua`) on the Pioneer: the three-point turn and the camera ring (`Ring-Ground.lua`, `ring_sweep.sh`; F106) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–43 |
@@ -176,9 +176,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   inside BPP when one is built.
 - **PDFs:** `pip install markdown playwright` if missing (Chromium is
   preinstalled in the cloud workspace), then for example
-  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "6. The capstone: one mission, five kinds of vehicle" --break "8. Build order"` (2026-10-28; breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
+  `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan"` (2026-11-04: no breaks gives 21 pages, the emptiest 42 lines, the build order whole on the last page; the earlier breaks at §6 and §8 left a 7-line page. Breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings" --break "6. How BPP behaves (worth knowing for every port)"` (2026-11-02, F105: this break leaves 33 lines on the emptiest page, the break at §5 29). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-11-04, F106: no break leaves 43 lines on the emptiest page; the break at §6 left 12). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 - **Headless output is held:** BPP's `print` goes through a buffered
   stream that is written when BPP ends, so a long headless run shows
@@ -371,6 +371,17 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   as long (90° turns every third step; robots that stay put), so KT's
   ~90% takes a sixth of Ant's time on robots, not the book's third.
 
+- **Ch. 13's dumbbell on the Pioneer (2026-11-04, F106):**
+  `ch13/dumbbell.lua` (Eqs. 13.19–13.23, 13.25) drives the robot through
+  `drive(u, Ω)` (`ground/vehicle.lua`). The book's three-point turn
+  emerges; adaptive friction is needed (else it swings for ever) and
+  static friction (g 0.05, off by default) stops the creep at the
+  minimum wheel speed. On the camera ring a robot cannot move along the
+  ring (its axle lies along it), so the robots keep their arrival
+  bearings; a weak pointing spring for the first 60 s (`spread`, off by
+  default), then the full one, gives an even ring pointing in. 300 s
+  of 3–5 robots take 3–5 wall s.
+
 ## 7. Where things stand and what's next
 
 - **Done: milestone M0** (build step 0): `lib/rng.lua`, `lib/batch.py` +
@@ -443,7 +454,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
     robot fits (two columns 2.5–3.2 m apart; F72); the robot on the
     generator's streets (`toBPP(v, { contact = true })`) and the boat on its water (`waterAt`)
     instead of flat ground and a still sea; the Maxelbot (skid-steer,
-    G10); Ch. 13's dumbbell and the triangle of death (E6) on the robot;
+    G10); the triangle of death (E6) on the robot (the dumbbell is done, F106);
     benchmark tasks 3–4 and the other vehicles (`BOOK.md` §6).
 - **Done: milestone M3** (build steps 3–5, 2026-10-25 to 2026-10-29;
   William, 2026-10-25: "Let's do 1, 2, 3, 4"), one patch per step:
@@ -601,7 +612,9 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 - **Then: Ch. 13's constrained vehicles,** one patch each: (1) the
   fixed-wing UAV with the point-mass and torque laws (**done** before M3,
   `ch13/`, `fixedwing/`, F76); (2) the dumbbell agent on the Pioneer and
-  the camera ring (§13.4, E10–E11b); (3) the triangle of death (E6); (4) a
+  the camera ring (§13.4, E10–E11b; **done** 2026-11-04,
+  `ch13/dumbbell.lua`, `ch13/Ring-Ground.lua`, F106); (3) the triangle
+  of death (E6); (4) a
   torpedo-shaped AUV that cannot hover or move sideways (G11); (5) ★
   rotating formations for MAVs (William, 2026-10-28; `BOOK.md` Ch. 13
   table, ★ row): agents fly toward another agent instead of circling
@@ -609,9 +622,12 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   the nearest agent in a forward sector; LJ with the torque law, to see if
   it mills by itself), against the book's lone circles, with the
   n D ≥ 2π R_min limit stated and the surveillance, relay and
-  stay-in-region measures. Next up is (2), the dumbbell agent on the
-  Pioneer (`ground/`, Eqs. 13.19–13.22, PDF 462–463, `book/ch13.md`) and
-  the 3–5-robot camera ring with three-point turns (PDF 463–465).
+  stay-in-region measures. Next up is (3), the triangle of death (E6,
+  PDF 454–456, Figs. 13.9–13.11): three Pioneers on a triangle with their
+  axles pointing at its centre, under E5's point-mass law (`guide()`),
+  then an attractor along an axle, with the particle at the rotation
+  centre and offset ahead of it (escape against lock or oscillation),
+  then the same with the dumbbell (F106 found its geometry on the ring).
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
@@ -636,8 +652,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 13's
-> constrained vehicles, (2) the dumbbell agent on the Pioneer and the
-> camera ring (Ch. 7's sweep on the ground robots is done, F105).
+> constrained vehicles, (3) the triangle of death (the dumbbell and
+> camera ring are done, F106).
 > Deliver each step as a patch with git commands.
 
 Attach the book PDF (Ch. 13 is PDF 444–471; Ch. 7 is PDF 224–253);
