@@ -1095,8 +1095,8 @@ public:
   }
 
   void flush() {
-    hash.addData(reinterpret_cast<const char *>(m_buf),
-                 int(m_n * sizeof(btScalar)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(m_buf),
+                                int(m_n * sizeof(btScalar))));
     m_n = 0;
   }
 

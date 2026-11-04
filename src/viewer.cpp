@@ -66,6 +66,15 @@
 #include <BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h>
 #include <BulletDynamics/MLCPSolvers/btLemkeSolver.h>
 
+// QColor's red()/green()/blue() getters are noexcept in Qt6, which old
+// Boost (used by luabind) cannot decompose. Use non-noexcept wrappers.
+int qcolor_r(QColor const &c) { return c.red(); }
+int qcolor_g(QColor const &c) { return c.green(); }
+int qcolor_b(QColor const &c) { return c.blue(); }
+void qcolor_set_r(QColor &c, int v) { c.setRed(v); }
+void qcolor_set_g(QColor &c, int v) { c.setGreen(v); }
+void qcolor_set_b(QColor &c, int v) { c.setBlue(v); }
+
 // A rigid body's gyroscopic term, solved together with its contacts and
 // joints, for bodies a script marks (body.gyroSolved = true: the flag
 // BPP_GYRO_MIDPOINT, Bullet's own gyroscopic flags off). Euler's equations
@@ -632,9 +641,9 @@ void Viewer::luaBind(lua_State *s) {
                 .def(constructor<QString>(), adopt(result))
                 .def(constructor<int, int, int>(), adopt(result))
                 .def(constructor<int, int, int, int>(), adopt(result))
-                .property("r", &QColor::red, &QColor::setRed)
-                .property("g", &QColor::green, &QColor::setGreen)
-                .property("b", &QColor::blue, &QColor::setBlue)
+                .property("r", &qcolor_r, &qcolor_set_r)
+                .property("g", &qcolor_g, &qcolor_set_g)
+                .property("b", &qcolor_b, &qcolor_set_b)
                 .def(tostring(self))
                 .def(self == self)];
 
@@ -5990,7 +5999,7 @@ void Viewer::addParam(const QString &name, const QVariant &value, const QString 
     lua_State *ls = L;
     lua_pushstring(ls, name.toUtf8().constData());
 
-    switch (value.type()) {
+    switch (value.typeId()) {
     case QVariant::Int:
     case QVariant::LongLong:
       lua_pushinteger(ls, value.toInt());
