@@ -572,18 +572,23 @@ v:postSim(function(N)
     f.emission = string.format("#%02x%02x%02x", math.floor(31+224*math.sin(t*6)), math.floor(156+99*math.cos(t*5)), 255)
   end
 
-  -- City traffic on the harbour-town ways (scene coords: city spans X[-1500,1500], Z[-2500,0]).
+  -- City traffic driving around street circuits (loops) in the harbour town.
   if cityCars then
     for _, c in ipairs(cityCars) do
-      local x, z = c.pos.x, c.pos.z
-      if c._axis == "x" then
-        if c._dir == 1 then x = x + c._speed else x = x - c._speed end
-        if x > 1500 then x = -1450 elseif x < -1500 then x = 1450 end
-      else
-        if c._dir == 1 then z = z + c._speed else z = z - c._speed end
-        if z > 0 then z = -2400 elseif z < -2500 then z = -100 end
+      local wp = c._route[c._wp]
+      local dx = wp.x - c.pos.x
+      local dz = wp.z - c.pos.z
+      local dist = math.sqrt(dx * dx + dz * dz)
+      if dist < 4 then
+        c._wp = c._wp % #c._route + 1
+        wp = c._route[c._wp]
+        dx = wp.x - c.pos.x
+        dz = wp.z - c.pos.z
       end
-      c.pos = btVector3(x, c.pos.y, z)
+      local d = math.sqrt(dx * dx + dz * dz)
+      if d > 0.01 then
+        c.pos = btVector3(c.pos.x + dx / d * c._speed, c.pos.y, c.pos.z + dz / d * c._speed)
+      end
     end
   end
   if cityPeds then
@@ -647,28 +652,29 @@ do
     c.sdl=[[ texture { pigment { color rgb <0.95,0.97,1.0> transmit 0.2 } finish { ambient 0.6 diffuse 0.18 specular 0.5 roughness 0.1 emission 0.2 } } ]]
     v:add(c)
   end
-  -- City traffic on the harbour-town ways (scene coords: city spans X[-1500,1500], Z[-2500,0]).
+  -- City traffic driving around street circuits (loops) in the harbour town.
   cityCars = {}
-  local function streetCar(x, z, col, dir, speed, axis)
-    axis = axis or "x"
+  local function loopCar(col, route, speed, startWp)
     local c = Cube(4.6, 1.7, 2.5, 0)
-    c.pos = btVector3(x, 0.95, z)
+    c.pos = btVector3(route[startWp].x, 0.95, route[startWp].z)
     c.col = col; c.collides = false
-    c._axis = axis; c._dir = dir; c._speed = speed
-    c._lane = (axis == "x") and z or x
+    c._route = route; c._wp = startWp; c._speed = speed
     c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
     v:add(c); cityCars[#cityCars + 1] = c
   end
 
-  -- Arterial A: north-south, west-central (scene X ~ -250)
-  for i = 1, 5 do
-    streetCar(-260, -1200 - i * 200, "#c44536",  1, 0.24, "z")
-    streetCar(-240, -2400 + i * 200, "#3a7ca5", -1, 0.20, "z")
-  end
-  -- Arterial B: east-west, south side (scene Z ~ -1475 / -1675)
-  for i = 1, 6 do
-    streetCar(300 + i * 180, -1475,  "#f4e06a", 1, 0.20, "x")
-    streetCar(1300 - i * 180, -1675, "#8b5cf6", -1, 0.18, "x")
+  -- Closed loops through city blocks (scene coords).
+  local loopCentral = { {x=-400,z=-1500}, {x=400,z=-1500}, {x=400,z=-1200}, {x=-400,z=-1200} }
+  local loopEast    = { {x=600,z=-1800}, {x=1300,z=-1800}, {x=1300,z=-1500}, {x=600,z=-1500} }
+  local loopWest    = { {x=-1200,z=-1100}, {x=-500,z=-1100}, {x=-500,z=-1400}, {x=-1200,z=-1400} }
+  local loopOuter   = { {x=-1400,z=-2400}, {x=1400,z=-2400}, {x=1400,z=-200}, {x=-1400,z=-200} }
+
+  -- Spread cars around each loop so they cover the circuit.
+  for i = 1, 4 do
+    loopCar("#c44536",  loopCentral, 0.24, ((i-1) % 4) + 1)   -- central block
+    loopCar("#3a7ca5",  loopEast,    0.20, ((i-1) % 4) + 1)   -- east block
+    loopCar("#f4e06a",  loopWest,    0.18, ((i-1) % 4) + 1)   -- west block
+    loopCar("#8b5cf6",  loopOuter,   0.16, ((i-1) % 4) + 1)   -- outer ring
   end
 
   -- Pedestrians on the city sidewalks
