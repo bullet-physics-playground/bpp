@@ -647,7 +647,8 @@ public:
    *
    * @brief Writes the object's collision mesh as a POV-Ray mesh2 blob.
    *
-   * @param out Byte buffer the mesh2 SDL is appended to.
+   * @param out Byte buffer the mesh2 SDL is appended to; nullptr: only the
+   *            hash, nothing formatted.
    * @return Content hash (SHA-1 over the triangle data) for naming the .inc file.
    */
   virtual QString toMesh2(QByteArray *out) const;

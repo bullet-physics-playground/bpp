@@ -207,7 +207,8 @@ public:
   /**
    * @brief Writes the geometry as a POV-Ray @c mesh2 block into a byte
    * buffer, hashing the triangle content in the same single pass.
-   * @param out Byte buffer the mesh2 SDL is appended to.
+   * @param out Byte buffer the mesh2 SDL is appended to; nullptr: only the
+   *            hash, nothing collected or formatted (cheap).
    * @return Content hash (SHA-1 over the triangle data) used to name the .inc.
    */
   QString toMesh2(QByteArray *out) const;

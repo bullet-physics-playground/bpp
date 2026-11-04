@@ -103,6 +103,7 @@ public:
   QList<btVector3> v3;  ///< Third vertex of each triangle.
   QList<int> idx;       ///< Each triangle's index within its sub-part.
   QCryptographicHash hash{QCryptographicHash::Sha1};  ///< Running content hash.
+  bool collect = true;  ///< Keep the vertices (false: only hash them).
 
   /**
    * @brief Constructs an empty collector.
@@ -121,10 +122,12 @@ public:
     (void)partId;
     (void)triangleIndex;
 
-    v1.append(triangle[0]);
-    v2.append(triangle[1]);
-    v3.append(triangle[2]);
-    idx.append(triangleIndex);
+    if (collect) {
+      v1.append(triangle[0]);
+      v2.append(triangle[1]);
+      v3.append(triangle[2]);
+      idx.append(triangleIndex);
+    }
 
     // Hash all nine coordinates contiguously (x,y,z are laid out back-to-back).
     hash.addData(reinterpret_cast<const char *>(&triangle[0].x()),
@@ -430,15 +433,17 @@ module(s)[class_<Mesh, Object>("Mesh")
 QString Mesh::toString() const { return QString("Mesh"); }
 
 QString Mesh::toMesh2(QByteArray *out) const {
-  if (out == nullptr || m_shape == nullptr) return QString();
+  if (m_shape == nullptr) return QString();
 
   POVSaveCallback pov;
+  pov.collect = (out != nullptr);
   btVector3 pminaabb(-1e99, -1e99, -1e99); // XXX
   btVector3 pmaxaabb(1e99, 1e99, 1e99);    // XXX
   btConcaveShape *concaveMesh = (btConcaveShape *)m_shape;
   concaveMesh->processAllTriangles(&pov, pminaabb, pmaxaabb);
 
   const QString hash = pov.resultHash();
+  if (out == nullptr) return hash;
 
   QTextStream stream(out);
   // Six significant digits is ample for rendering geometry and cuts the text
@@ -500,16 +505,17 @@ QString Mesh::toPOV(const QString &sceneDir) const {
   if (m_shape != nullptr && body != nullptr &&
       body->getMotionState() != nullptr) {
     if (mPreSDL.isNull()) {
-      // One triangle walk: toMesh2 collects vertices, hashes them, and
-      // formats the mesh2 blob into a buffer -- replacing the previous
-      // two-pass hash-then-write.
-      QByteArray buffer;
-      const QString hash = toMesh2(&buffer);
+      // The hash alone first (one cheap walk, nothing formatted): exported
+      // every frame, a mesh's .inc is usually there already. Only a new one
+      // is walked again and formatted into its mesh2 blob.
+      const QString hash = toMesh2(nullptr);
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
       QFileInfo check_file(incfile);
       if (!check_file.exists() && !check_file.isFile()) {
+        QByteArray buffer;
+        toMesh2(&buffer);
         QFile file(incfile);
         if (file.open(QIODevice::ReadWrite)) {
           file.write(buffer);

@@ -40,6 +40,7 @@ public:
   QList<btVector3> v2; ///< Second vertex of each triangle.
   QList<btVector3> v3; ///< Third vertex of each triangle.
   QCryptographicHash hash{QCryptographicHash::Sha1}; ///< Running content hash.
+  bool collect = true; ///< Keep the vertices (false: only hash them).
 
   /**
    * @brief Records one triangle's vertices, feeding them to the running
@@ -52,9 +53,11 @@ public:
                                int triangleIndex) {
     (void)partId;
     (void)triangleIndex;
-    v1.append(triangle[0]);
-    v2.append(triangle[1]);
-    v3.append(triangle[2]);
+    if (collect) {
+      v1.append(triangle[0]);
+      v2.append(triangle[1]);
+      v3.append(triangle[2]);
+    }
 
     hash.addData(reinterpret_cast<const char *>(&triangle[0].x()),
                  3 * sizeof(btScalar));
@@ -273,15 +276,18 @@ void Terrain::luaBind(lua_State *s) {
 QString Terrain::toString() const { return QString("Terrain"); }
 
 QString Terrain::toMesh2(QByteArray *out) const {
-  if (out == nullptr || m_shape == nullptr)
+  if (m_shape == nullptr)
     return QString();
 
   TerrainPOVSaveCallback pov;
+  pov.collect = (out != nullptr);
   btVector3 aabbMin(-1e99, -1e99, -1e99);
   btVector3 aabbMax(1e99, 1e99, 1e99);
   m_shape->processAllTriangles(&pov, aabbMin, aabbMax);
 
   const QString hash = pov.resultHash();
+  if (out == nullptr)
+    return hash;
 
   QTextStream stream(out);
   stream.setRealNumberPrecision(6);
@@ -341,16 +347,17 @@ QString Terrain::toPOV(const QString &sceneDir) const {
   if (m_shape != nullptr && body != nullptr &&
       body->getMotionState() != nullptr) {
     if (mPreSDL.isNull()) {
-      // One triangle walk: toMesh2 collects vertices, hashes them, and
-      // formats the mesh2 blob into a buffer -- replacing the previous
-      // two-pass hash-then-write.
-      QByteArray buffer;
-      const QString hash = toMesh2(&buffer);
+      // The hash alone first (one cheap walk, nothing formatted): exported
+      // every frame, the terrain's .inc is usually there already. Only a new
+      // one is walked again and formatted into its mesh2 blob.
+      const QString hash = toMesh2(nullptr);
 
       QString incfile = sceneDir + QDir::separator() + "mesh_" + hash + ".inc";
 
       QFileInfo check_file(incfile);
       if (!check_file.exists() && !check_file.isFile()) {
+        QByteArray buffer;
+        toMesh2(&buffer);
         QFile file(incfile);
         if (file.open(QIODevice::ReadWrite)) {
           file.write(buffer);
