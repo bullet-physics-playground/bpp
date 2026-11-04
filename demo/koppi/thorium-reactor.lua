@@ -654,8 +654,8 @@ do
   end
   -- City traffic driving around street circuits (loops) in the harbour town.
   cityCars = {}
-  -- Cars ride on the street surface, lifted clear of the ground.
-  local carY = 1.2
+  -- Cars ride on elevated runways above the city streets.
+  local carY = 4.0
 
   -- Closed loops through city blocks (scene coords).
   local loopCentral = { {x=-400,z=-1500}, {x=400,z=-1500}, {x=400,z=-1200}, {x=-400,z=-1200} }
