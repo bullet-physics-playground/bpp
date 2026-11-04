@@ -620,6 +620,7 @@ do
   local ok, World = pcall(require, "lib.world")
   if ok then
     local w = World.preset("harbour-town", { seed = 42 })
+    local t = w.terrain
     local S = 1.0
     local b = w.bounds
     local cx = -((b.x0 + b.x1) / 2) * S
@@ -630,6 +631,91 @@ do
         local p = o.pos
         -- World uses toBPP with World.bppZ mapping; just center in XZ around origin
         o.pos = btVector3(p.x + cx, p.y, p.z)
+      end
+    end
+
+    -- City traffic driving on the actual harbour-town streets computed by the
+    -- ArtificialPhysics world generator. w.town.streets holds each street as a
+    -- centerline polyline (pts = {x1,y1,x2,y2,...}) in world coords; the mesh
+    -- draws them with x=wx*S+cx, z=-wy*S, so cars use the same map and drive
+    -- on the real streets.
+    cityCars = {}
+    -- Height of the street/ground under a given city position (BPP coords).
+    local base = 0
+    local function streetY(x, z)
+      local wx = (x - cx) / S
+      local wy = -z / S
+      local h = t:ground(wx, wy)
+      if h then return base + h * S end
+      return 0.0
+    end
+    local runwayAboveStreet = 4.0
+
+    -- Build one route per street: sampled centerline points in BPP coords.
+    local routes = {}
+    for _, st in ipairs(w.town.streets) do
+      local p = st.pts
+      local route = {}
+      for q = 1, #p - 3, 2 do
+        route[#route + 1] = { x = p[q] * S + cx, z = -p[q + 1] * S }
+      end
+      route[#route + 1] = { x = p[#p - 1] * S + cx, z = -p[#p] * S }
+      if #route >= 2 then
+        routes[#routes + 1] = route
+      end
+    end
+
+    -- Street length for distributing cars proportionally.
+    local lengths = {}
+    local totalLen = 0
+    for _, route in ipairs(routes) do
+      local L = 0
+      for i = 2, #route do
+        local dx = route[i].x - route[i - 1].x
+        local dz = route[i].z - route[i - 1].z
+        L = L + math.sqrt(dx * dx + dz * dz)
+      end
+      lengths[#lengths + 1] = L
+      totalLen = totalLen + L
+    end
+
+    -- Place a car at progress along a route; it drives toward the next
+    -- waypoint and wraps at the end, circling the street endlessly.
+    local function streetCar(route, col, speed, progress)
+      local n = #route
+      local seg = progress * n
+      local i = math.floor(seg) % n + 1
+      local j = (i % n) + 1
+      local frac = seg - math.floor(seg)
+      local wp = route[i]
+      local nextWp = route[j]
+      local x = wp.x + (nextWp.x - wp.x) * frac
+      local z = wp.z + (nextWp.z - wp.z) * frac
+      local carY = streetY(x, z) + runwayAboveStreet
+      local c = Cube(4.6, 1.7, 2.5, 0)
+      c.pos = btVector3(x, carY, z)
+      c.col = col; c.collides = false
+      c._route = route; c._wp = i; c._speed = speed
+      c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
+      v:add(c); cityCars[#cityCars + 1] = c
+    end
+
+    -- Distribute 500 cars across the streets proportional to street length.
+    local totalCars = 500
+    local colours = { "#c44536", "#3a7ca5", "#f4e06a", "#8b5cf6", "#10b981", "#f97316", "#e11d48" }
+    local placed = 0
+    for ri, route in ipairs(routes) do
+      if placed >= totalCars then break end
+      local L = lengths[ri]
+      if L > 0 then
+        local nCars = math.max(1, math.floor(totalCars * L / totalLen + 0.5))
+        for k = 1, nCars do
+          if placed >= totalCars then break end
+          placed = placed + 1
+          local col = colours[((placed - 1) % #colours) + 1]
+          local p = (k - 0.5) / nCars
+          streetCar(route, col, 0.22, p)
+        end
       end
     end
   else
@@ -652,55 +738,6 @@ do
     c.sdl=[[ texture { pigment { color rgb <0.95,0.97,1.0> transmit 0.2 } finish { ambient 0.6 diffuse 0.18 specular 0.5 roughness 0.1 emission 0.2 } } ]]
     v:add(c)
   end
-  -- City traffic driving around street circuits (loops) in the harbour town.
-  cityCars = {}
-  -- Height of the street/ground under a given city position. The harbour
-  -- town ground plane sits at y = 0 and roads are cut flat on it, so cars
-  -- are always placed a fixed clearance above the local street height.
-  local function streetY(x, z)
-    return 0.0
-  end
-  local runwayAboveStreet = 4.0
-
-  -- Closed loops through city blocks (scene coords).
-  local loopCentral = { {x=-400,z=-1500}, {x=400,z=-1500}, {x=400,z=-1200}, {x=-400,z=-1200} }
-  local loopEast    = { {x=600,z=-1800}, {x=1300,z=-1800}, {x=1300,z=-1500}, {x=600,z=-1500} }
-  local loopWest    = { {x=-1200,z=-1100}, {x=-500,z=-1100}, {x=-500,z=-1400}, {x=-1200,z=-1400} }
-  local loopOuter   = { {x=-1400,z=-2400}, {x=1400,z=-2400}, {x=1400,z=-200}, {x=-1400,z=-200} }
-
-  -- 500 cars (125 per loop), spaced evenly around each circuit so they
-  -- cover the harbour-town streets continuously.
-  local carsPerLoop = 125
-  local function loopCar(col, route, speed, progress)
-    -- progress: 0..1 position along the loop, interpolated between waypoints
-    local n = #route
-    local seg = progress * n
-    local i = math.floor(seg) % n + 1
-    local j = (i % n) + 1
-    local frac = seg - math.floor(seg)
-    local wp = route[i]
-    local nextWp = route[j]
-    local x = wp.x + (nextWp.x - wp.x) * frac
-    local z = wp.z + (nextWp.z - wp.z) * frac
-    -- Calculate the car's height from the street y value at its position so
-    -- it always drives above the city ground, whatever the local elevation.
-    local carY = streetY(x, z) + runwayAboveStreet
-    local c = Cube(4.6, 1.7, 2.5, 0)
-    c.pos = btVector3(x, carY, z)
-    c.col = col; c.collides = false
-    c._route = route; c._wp = i; c._speed = speed
-    c.sdl = [[ texture { pigment { color rgb <]] .. hexToRGB(col) .. [[> } finish { ambient 0.07 diffuse 0.6 specular 0.78 roughness 0.006 reflection 0.2 metallic } } ]]
-    v:add(c); cityCars[#cityCars + 1] = c
-  end
-
-  for i = 1, carsPerLoop do
-    local p = (i - 1) / carsPerLoop
-    loopCar("#c44536",  loopCentral, 0.24, p)   -- central block
-    loopCar("#3a7ca5",  loopEast,    0.20, p)   -- east block
-    loopCar("#f4e06a",  loopWest,    0.18, p)   -- west block
-    loopCar("#8b5cf6",  loopOuter,   0.16, p)   -- outer ring
-  end
-
   -- Pedestrians on the city sidewalks
   cityPeds = {}
   local function sidewalkPed(x, z, dir, speed, axis)
