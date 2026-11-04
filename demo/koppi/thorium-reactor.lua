@@ -654,8 +654,13 @@ do
   end
   -- City traffic driving around street circuits (loops) in the harbour town.
   cityCars = {}
-  -- Cars ride on elevated runways above the city streets.
-  local carY = 4.0
+  -- Height of the street/ground under a given city position. The harbour
+  -- town ground plane sits at y = 0 and roads are cut flat on it, so cars
+  -- are always placed a fixed clearance above the local street height.
+  local function streetY(x, z)
+    return 0.0
+  end
+  local runwayAboveStreet = 4.0
 
   -- Closed loops through city blocks (scene coords).
   local loopCentral = { {x=-400,z=-1500}, {x=400,z=-1500}, {x=400,z=-1200}, {x=-400,z=-1200} }
@@ -677,6 +682,9 @@ do
     local nextWp = route[j]
     local x = wp.x + (nextWp.x - wp.x) * frac
     local z = wp.z + (nextWp.z - wp.z) * frac
+    -- Calculate the car's height from the street y value at its position so
+    -- it always drives above the city ground, whatever the local elevation.
+    local carY = streetY(x, z) + runwayAboveStreet
     local c = Cube(4.6, 1.7, 2.5, 0)
     c.pos = btVector3(x, carY, z)
     c.col = col; c.collides = false
