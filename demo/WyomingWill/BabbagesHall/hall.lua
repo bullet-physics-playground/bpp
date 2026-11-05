@@ -12,9 +12,11 @@
 -- KEYS (click the 3D view first so it has the keyboard):
 --   Tab         walk to the next exhibit (and the views from either end)
 --   Shift+Tab   walk back
+--   I           at an exhibit with a lectern: its label, close up (again: back)
 --   everything else goes to the exhibit you're at, with the same keys as
 --   when it runs on its own; the Shortcuts pane shows them.
---   Rest the mouse on an exhibit, a placard or a covered bay to see what it is.
+--   Rest the mouse on an exhibit, its table, its lectern, a placard or a
+--   covered bay to see what it is.
 --
 -- MORE EXHIBITS: one line each in EXHIBITS, below. A line whose script
 -- isn't there yet becomes a covered bay with its placard; when the script
@@ -788,6 +790,42 @@ for i, b in ipairs(BAYS) do
   end
 end
 
+-- an exhibit's lectern: a museum label on a brass post, standing on the dais
+-- before its table, to the right, its card (make-lecterns.py:
+-- hall-meshes/lectern-<label>.png) tilted up to the visitor. Built only if
+-- the exhibit has a card. I looks at it close up, and back.
+local LECTERN_TILT = 35                       -- degrees back from upright
+local function lectern(g, t)
+  local file = MESH .. "lectern-" .. g.e.label .. ".png"
+  if not exists(file) then return end
+  local q = yq(g.bay.a)
+  local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
+  local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
+  local function at(x, y, z) return g.toScene(btVector3(x, y, z)) end
+  local function put(o, p, rq) o.trans = btTransform(rq, p); return o end
+  -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
+  local lx, lz, ly = t.x + t.w / 2 - 14, t.z + t.d / 2 + 26, -4
+  local base = -96.5
+  CASTING = true
+  local parts = {
+    put(vis(realCube(22, 1.2, 22, 0), IRON2), at(lx, base + 0.6, lz), q),                       -- (its foot)
+    put(vis(realCube(3, ly - 9 - base, 3, 0), BRASS), at(lx, (base + ly - 9) / 2, lz), q),     -- (its post)
+    put(vis(realCube(42, 30, 1.6, 0), IRON2), at(lx, ly, lz), tq),                              -- (the board)
+    put(vis(realCube(43, 31, 1, 0), BRASS), at(lx, ly - 0.4 * sn, lz - 0.4 * cs), tq),          -- (its brass edge)
+  }
+  local card = realCube(36, 24, 0.2, 0)                                                         -- (the card, 36 x 24 cm)
+  card.tex = file
+  local c, W = at(lx, ly + 0.95 * sn, lz + 0.95 * cs), 36
+  parts[#parts + 1] = put(vis(card, "#ffffff"), c, tq)
+  CASTING = false
+  if objectKey then for _, o in ipairs(parts) do HOVER[objectKey(o)] = g.e.about end end
+  -- (I: from in front of it, square on, close enough to read)
+  local n = btVector3(c.x, c.y, c.z)
+  local D = 1.35 * W                           -- (as far off as it is wide, and a bit)
+  local d = g.toScene(btVector3(0, D * sn, D * cs)) - g.toScene(btVector3(0, 0, 0))
+  g.lecternView = { pos = btVector3(c.x + d.x, c.y + d.y, c.z + d.z), look = n }
+end
+
 -- loadExhibit(g): its script, into its sandbox and world, as on its own
 local function loadExhibit(g)
   local e = g.e
@@ -818,6 +856,7 @@ local function loadExhibit(g)
     local want = BAY_D / 2 - 12 - TABLE_GAP       -- (the rail is 12 cm in from the bay's edge)
     local front = t.z + t.d / 2
     if want > front then g.shift(want - front) end
+    lectern(g, t)
   end
   if ok then
     g.ready = true
@@ -864,7 +903,8 @@ end
 local function header(g)
   return function()
     return "BABBAGE'S HALL -- at " .. g.name .. ".   Tab: on to " .. nextStop(g, 1).name ..
-           ";   Shift+Tab: back to " .. nextStop(g, -1).name .. "\n"
+           ";   Shift+Tab: back to " .. nextStop(g, -1).name ..
+           (g.lecternView and ";   I: its label, close up (again: back)" or "") .. "\n"
   end
 end
 local function wrapHelp(g)
@@ -1013,6 +1053,7 @@ local function goTo(s, instant)
   -- let go of any keys still held at the exhibit we're leaving (its world
   -- then waits, untouched, until you come back)
   if active then
+    active.lecternBack = nil
     local f = active.callbacks.onKey
     for key in pairs(active.down) do if f then pcall(f, active.N, key, false) end end
     active.down = {}
@@ -1182,6 +1223,19 @@ realV:onKey(function(N, key, down)
     return true
   end
   local g = active
+  -- (I: its lectern close up, and back; unless the exhibit has I itself)
+  if key == "I" and g and g.lecternView and not g.shortcuts[key] then
+    if down then
+      if g.lecternBack then moveCam(g.lecternBack.pos, g.lecternBack.look); g.lecternBack = nil
+      else
+        local c = realV.cam
+        local p, l = c.pos, c.look                 -- (copies: the camera's own would follow it)
+        g.lecternBack = { pos = btVector3(p.x, p.y, p.z), look = btVector3(l.x, l.y, l.z) }
+        moveCam(g.lecternView.pos, g.lecternView.look)
+      end
+    end
+    return true
+  end
   if not g then
     if key == "P" then
       if down then print("HALL: P (save every frame for POV-Ray) is held back here; use the POV-Ray menu.") end

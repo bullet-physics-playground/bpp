@@ -81,7 +81,7 @@ git push
 | `README.md` | The hall: bays, keys, how it works, the cost meter, the exhibit standard, notes for exhibit authors |
 | `HANDOFF.md` | This file |
 | `make-pdfs.sh`, `tools/md2pdf.py` | The PDFs |
-| `make-labels.py`, `hall-meshes/` | The placards' lettering (Pillow, NumPy, DejaVu fonts) |
+| `make-labels.py`, `make-lecterns.py`, `hall-meshes/` | The placards' lettering (Pillow, NumPy, DejaVu fonts); the lecterns' cards (PNG) |
 | `tools/check-all.sh` | Every exhibit's tour, on its own and in the hall |
 | `tools/shots.sh`, `tools/keys.sh` | Screenshots on a virtual screen; with keys, hover, camera flights |
 | `tools/check-lua52.sh` | The Lua 5.2 sandbox check |
@@ -467,11 +467,18 @@ there, in `release/`, or on the path; or set `BPP`.
   it; the listing is on the program board, which the "program" slider now
   shows too). Resting the mouse on a table says what its placard says
   (`EXHIBIT_TABLE.parts`): the placards are low down and seldom in view.
-  **Next, agreed:** a museum label on a lectern at the rail in front of
-  each machine (title, maker and date, two or three sentences; a key to
-  look at it close up), one exhibit first for William to see; then the
-  rest. A new bpp pane was considered and set aside (screen room; bpp's
-  C++).
+  A new bpp pane was considered and set aside (screen room; bpp's C++).
+- **Lecterns (2026-11-05):** a museum label on a brass post before an
+  exhibit's table, to the right, its card tilted up: the name, a line, a
+  few sentences (`make-lecterns.py` writes the card as a PNG; the hall
+  puts it on a thin box as a texture and builds the lectern when the card
+  is there). `I` looks at it close up and back; the mouse on it says what
+  the placard says. The Differential has one, which William chose (A) over
+  a smaller card on the table beside the machine (B: in the exhibit's own
+  view, but the view is tight round the machine, so it was cut off and
+  crowded it). The lectern is out of the exhibit's view, seen walking up
+  or with `I`. **Next:** a card for each of the other exhibits (their
+  wording for William to see first).
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

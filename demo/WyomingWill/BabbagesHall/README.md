@@ -40,6 +40,7 @@ runs on its own from its folder.
 |---|---|
 | `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall |
 | `Shift+Tab` | walk back |
+| `I` | at an exhibit with a lectern: its label, close up; again, back |
 
 Click the 3D view first so it has the keyboard. Everything else goes to the
 exhibit you're at, with the same keys as when it runs on its own; the
@@ -140,7 +141,12 @@ second is noted in the console with the time of day (`HALL_FREEZE_MS`,
 250; 0: never).
 
 The placards' lettering is made by `python3 make-labels.py` (needs Pillow,
-NumPy and the DejaVu fonts) into `hall-meshes/`.
+NumPy and the DejaVu fonts) into `hall-meshes/`. An exhibit's **lectern**, a
+museum label on a brass post before its table, to the right, is built when
+its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
+card, the name, a line and a few sentences, as
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). The Differential has one
+so far.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not
