@@ -468,17 +468,22 @@ there, in `release/`, or on the path; or set `BPP`.
   shows too). Resting the mouse on a table says what its placard says
   (`EXHIBIT_TABLE.parts`): the placards are low down and seldom in view.
   A new bpp pane was considered and set aside (screen room; bpp's C++).
-- **Lecterns (2026-11-05):** a museum label on a brass post before an
-  exhibit's table, to the right, its card tilted up: the name, a line, a
+- **Lecterns (2026-11-05):** a museum label on a brass post just right of
+  an exhibit's table and beyond it, its card tilted up: the name, a line, a
   few sentences (`make-lecterns.py` writes the card as a PNG; the hall
   puts it on a thin box as a texture and builds the lectern when the card
   is there). `I` looks at it close up and back; the mouse on it says what
   the placard says. The Differential has one, which William chose (A) over
   a smaller card on the table beside the machine (B: in the exhibit's own
   view, but the view is tight round the machine, so it was cut off and
-  crowded it). The lectern is out of the exhibit's view, seen walking up
-  or with `I`. **Next:** a card for each of the other exhibits (their
-  wording for William to see first).
+  crowded it). First it stood in front of the table, out of the
+  exhibit's view; William asked for it where it shows, so now it stands
+  4 cm past the table's right edge and 25 cm beyond its back edge, the
+  board's middle 14 cm over the table top, turned 35 degrees toward the
+  aisle (`LECTERN` in `hall.lua`): beside the machine in the Differential's
+  own view, from which you zoom in (or `I`). Check it shows in each
+  exhibit's view as its card is added. **Next:** a card for each of the
+  other exhibits (their wording for William to see first).
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

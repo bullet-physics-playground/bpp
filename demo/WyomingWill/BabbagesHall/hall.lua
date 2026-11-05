@@ -791,20 +791,24 @@ for i, b in ipairs(BAYS) do
 end
 
 -- an exhibit's lectern: a museum label on a brass post, standing on the dais
--- before its table, to the right, its card (make-lecterns.py:
--- hall-meshes/lectern-<label>.png) tilted up to the visitor. Built only if
+-- just right of its table and beyond it, turned toward the aisle and tilted
+-- up, so that it shows in the exhibit's own view beside the machine; its
+-- card (make-lecterns.py: hall-meshes/lectern-<label>.png). Built only if
 -- the exhibit has a card. I looks at it close up, and back.
 local LECTERN_TILT = 35                       -- degrees back from upright
+local LECTERN = { dx = 4, dz = -25, y = 14, yaw = 35 }   -- (cm past the table's right edge, beyond its back
+                                                          -- edge; the board's middle over the table top; degrees)
 local function lectern(g, t)
   local file = MESH .. "lectern-" .. g.e.label .. ".png"
   if not exists(file) then return end
-  local q = yq(g.bay.a)
+  local yaw = math.rad(LECTERN.yaw)
+  local q = yq(g.bay.a) * yq(yaw)
   local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
   local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
   local function at(x, y, z) return g.toScene(btVector3(x, y, z)) end
   local function put(o, p, rq) o.trans = btTransform(rq, p); return o end
   -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
-  local lx, lz, ly = t.x + t.w / 2 - 14, t.z + t.d / 2 + 26, -4
+  local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z - t.d / 2 + LECTERN.dz, LECTERN.y
   local base = -96.5
   CASTING = true
   local parts = {
@@ -822,7 +826,7 @@ local function lectern(g, t)
   -- (I: from in front of it, square on, close enough to read)
   local n = btVector3(c.x, c.y, c.z)
   local D = 1.35 * W                           -- (as far off as it is wide, and a bit)
-  local d = g.toScene(btVector3(0, D * sn, D * cs)) - g.toScene(btVector3(0, 0, 0))
+  local d = g.toScene(btVector3(D * cs * math.sin(yaw), D * sn, D * cs * math.cos(yaw))) - g.toScene(btVector3(0, 0, 0))
   g.lecternView = { pos = btVector3(c.x + d.x, c.y + d.y, c.z + d.z), look = n }
 end
 

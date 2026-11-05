@@ -142,7 +142,8 @@ second is noted in the console with the time of day (`HALL_FREEZE_MS`,
 
 The placards' lettering is made by `python3 make-labels.py` (needs Pillow,
 NumPy and the DejaVu fonts) into `hall-meshes/`. An exhibit's **lectern**, a
-museum label on a brass post before its table, to the right, is built when
+museum label on a brass post just right of its table and beyond it, turned
+toward the aisle so it shows beside the machine, is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
 `hall-meshes/lectern-<placard>.png` (36 x 24 cm). The Differential has one
