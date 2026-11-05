@@ -86,7 +86,7 @@ is updated at the end of every milestone.
 - Keep `FIXES.md` (items 1–43 so far) and the task READMEs up to date.
 - **Keep `FINDINGS.md` up to date** in every patch that finds something: each
   confirmation of the book, new result, book error, divergence between
-  implementations, and our own mistakes once corrected (F1–F107 so far), and
+  implementations, and our own mistakes once corrected (F1–F108 so far), and
   rebuild `FINDINGS.pdf` (§5).
 
 ## 3. Where everything is
@@ -103,7 +103,7 @@ is updated at the end of every milestone.
 | `src/geo.cpp` (BPP's, at the repository root) | BPP's compiled helpers for the world generator (the Lua table `geo`: noise, zone lookup, the ground's and the woods' meshes), the Lua's arithmetic operation for operation; `checks/geo.lua` compares the two (FIXES 43, F71) |
 | `Formations-*.lua`, `quadcopter/` | Particle formations, and the same flown by quadcopters (`quadcopter/README.md` has the measurements) |
 | `Formations-*-Ground.lua`, `ground/`; `Formations-*-Boat.lua`, `boat/` | The same formations on the Pioneer 3-AT ground robot and the Ch. 6 surface boat (each folder's README has the vehicle and its measurements) |
-| `ch13/`, `fixedwing/` | Ch. 13's constrained vehicles: the fixed-wing UAV (kinematic, 13 m/s, 101 m turns) with the point-mass and torque laws (`UAV-Attractor.lua`, `UAV-Targets.lua`; F76); the dumbbell agent (`dumbbell.lua`) on the Pioneer: the three-point turn and the camera ring (`Ring-Ground.lua`, `ring_sweep.sh`; F106); the triangle of death (`triangle.lua`, `Triangle-Ground.lua`, `triangle_sweep.sh`; F107) |
+| `ch13/`, `fixedwing/`, `auv/` | Ch. 13's constrained vehicles: the fixed-wing UAV (kinematic, 13 m/s, 101 m turns) with the point-mass and torque laws (`UAV-Attractor.lua`, `UAV-Targets.lua`; F76); the dumbbell agent (`dumbbell.lua`) on the Pioneer: the three-point turn and the camera ring (`Ring-Ground.lua`, `ring_sweep.sh`; F106); the triangle of death (`triangle.lua`, `Triangle-Ground.lua`, `triangle_sweep.sh`; F107); the torpedo-shaped AUV, sized as a REMUS 100 (`../auv/model.lua`, `auv.lua`, `AUV-Attractor.lua`; F108) |
 | `BENCHMARK.md` | The cross-vehicle benchmark: the same tasks and laws on ideal particles, drones, ground robots and boats (reproduce with `probes/benchmark.sh`) |
 | `Uniform_Coverage.lua` | Mean-free-path coverage, with the neighbour-cone and dead-end fixes (its random number generator is now `lib/rng.lua`) |
 | `FIXES.md` | Fixes 1–43 |
@@ -133,6 +133,7 @@ live in their own projects.
 | Zarzhitsky's CPT code, `CPT.zip` (PlumeGen, TraceGen, viewer; C/GTK2) | Ch. 8–9: the plume and robot constants the book omits. **Its map makers (`MakeMap.c` for Textron, `MapGen.c`) are not used**: our own 3D world generator (`BOOK.md` §6) builds every world. `lib/world.lua` writes his map format (`writeCPT`) so PlumeGen and TraceGen can run on our worlds as a check; PlumeGen builds from `PlumeGen.c` + `MapUtils.c` with glib only. The app's version changes the plume generator |
 | `lopf.nlogo` (Ch. 5) | The only model not in `netlogo/` (it did not convert to NetLogo 6); its NetLogo 5 version is on the book website, sites.google.com/view/artificialphysics, page `/netlogo-simulations` |
 | The thesis PDFs | Only to check a detail the digests don't cover |
+| Prestero's REMUS thesis (MIT/WHOI 2001, `50201381-MIT.pdf`) | The AUV (`auv/`): its coefficients and fin limit are copied into `auv/model.lua` with table numbers |
 
 ## 5. Building, running, measuring
 
@@ -178,7 +179,7 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   preinstalled in the cloud workspace), then for example
   `python3 tools/md2pdf.py BOOK.md BOOK.pdf --sub "The whole book in Bullet Physics Playground: the plan" --footer "Physicomimetics in 3D with real vehicles: the plan" --break "6. The capstone: one mission, five kinds of vehicle" --break "8. Build order"` (2026-11-04, F107: 22 pages, the emptiest 26 lines, the build order whole on the last page; no breaks split the build order, the break at §8 alone left 22 lines. Breaks act only on `##` headings, and as rows are added the best set changes: try a few and keep the one whose emptiest page is fullest)
   and `python3 tools/md2pdf.py WORKFLOW.md WORKFLOW.pdf --sub "How the work is organised" --footer "Physicomimetics in 3D with real vehicles: how the work is organised"`
-  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-11-04, F107: no break leaves 42 lines on the emptiest page but the last, 19; the break at §6 left 12). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
+  and `python3 tools/md2pdf.py FINDINGS.md FINDINGS.pdf --title "Findings: experiments, confirmations and errors" --sub "Physicomimetics in BPP: what the conversion has found, kept up to date" --footer "Physicomimetics in 3D with real vehicles: findings"` (2026-11-05, F108: no break leaves 43 lines on the emptiest page but the last, 31; the break at §6 left 12). Look at the last pages: if one is nearly empty, add a `--break "<heading>"` before a section (or drop one) to rebalance them.
 - Don't `pkill -f` a pattern that matches your own shell; kill by PID.
 - **Headless output is held:** BPP's `print` goes through a buffered
   stream that is written when BPP ends, so a long headless run shows
@@ -387,7 +388,17 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   in a new orientation where a centred one escapes only for pulls of
   11–13 N; the stop threshold is the trap (without it every robot
   escapes), and wheels that stop below 0.1 m/s (`roundDown`, off by
-  default) widen it to 25 N. A run takes ~1.7 wall s.
+  default) widen it to 25 N. A run takes ~1.7 wall s. `roundDown` is
+  kept (William, 2026-11-05): it reproduces the book's reading of
+  Fig. 13.7, is off by default and only the triangle uses it.
+- **Ch. 13's design procedure on a torpedo-shaped AUV (2026-11-05,
+  F108):** `auv/model.lua`, the REMUS of Prestero's thesis (2001,
+  attached by William; 1.33 m, 0.5–2.3 m/s): its smallest turn radius,
+  6.03 m, is his model's steady turn at full fin (13.6°), the same at
+  every speed; the slowest steerable speed (0.5 m/s) is assumed and
+  swept. The thesis stays out of the repo (§4). One attractor: the UAV's three
+  outcomes hold; slowing down saves drag power (~0.6 of cruise's) but
+  does not shrink the unreachable zones.
 
 ## 7. Where things stand and what's next
 
@@ -629,11 +640,11 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
   the nearest agent in a forward sector; LJ with the torque law, to see if
   it mills by itself), against the book's lone circles, with the
   n D ≥ 2π R_min limit stated and the surveillance, relay and
-  stay-in-region measures. Next up is (4), the torpedo-shaped AUV
-  (G11; `BOOK.md` G19–G20): a vehicle that cannot hover or move sideways
-  and has a minimum speed, steered by the heading-particle torque law
-  (§13.5's design procedure: model it, its reachable space, the agent,
-  friction), first in 2D at one depth.
+  stay-in-region measures. (4) is **started** (2026-11-05, `auv/`,
+  `ch13/AUV-Attractor.lua`, F108: the model at one depth and one
+  attractor; William chose that scope; the turn radius from Prestero's
+  thesis). Next: several AUVs over targets (the Fig. 13.16 run) or in
+  formation, depth, or (5), the rotating formations.
 - **Keep it simple** (§2): add a control only when a measurement shows it
   is needed, off by default, with notes on where it is needed.
 - **Check every port against its `.nlogo` first** (`netlogo/`): it found
@@ -658,8 +669,8 @@ nohup make -j2 > /tmp/make.log 2>&1 &     # a few minutes to over ten
 > demo/WyomingWill/ArtificialPhysics/HANDOFF.md, then BOOK.md and
 > WORKFLOW.md. Build BPP as described there, run bash checks/run_all.sh,
 > and continue with the next step in HANDOFF.md §7: Ch. 13's
-> constrained vehicles, (4) the torpedo-shaped AUV (the dumbbell, the
-> camera ring and the triangle of death are done, F106–F107).
+> constrained vehicles: the torpedo-shaped AUV is started (F108);
+> continue it or go to (5), the rotating formations.
 > Deliver each step as a patch with git commands.
 
 Attach the book PDF (Ch. 13 is PDF 444–471; Ch. 7 is PDF 224–253);

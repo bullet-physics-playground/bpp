@@ -7,7 +7,8 @@ mechanisms of §13.2.2 and §13.4.1 (η, adaptive and static friction, the
 adaptive speed cap) are in `../lib/ch13.lua` and were measured on the drones
 (M1) and the ground robots (M2; `../ground/README.md`). This folder holds the
 chapter's own experiments with constrained vehicles: the fixed-wing UAV,
-the dumbbell agent on the Pioneer and the triangle of death.
+the dumbbell agent on the Pioneer, the triangle of death and the
+torpedo-shaped AUV.
 
 ## The fixed-wing UAV (§13.2.3, §13.3, §13.4.2)
 
@@ -245,6 +246,63 @@ angles (−30°, −10°, 0°, 10°, 30°), by the particle's offset
 - The dumbbell (F106) was not run here: the trap found is the stop
   threshold's, and the dumbbell has none (it stops by static friction).
 
+## The torpedo-shaped AUV (§13.5's design procedure)
+
+`../auv/model.lua` (`../auv/README.md`): the REMUS of Prestero's thesis
+(2001; 1.33 m, 30.5 kg, cruise 1.54 m/s, top speed 2.3 m/s); it cannot
+hover, reverse or move sideways. Its smallest turn radius R = 6.03 m is
+the steady turn of Prestero's model at full fin (13.6°), the same at
+every speed, since every term of his model grows with speed squared;
+the same model gives his sea trials' 10°/s at 4° of fin. The slowest
+speed the fins steer at, 0.5 m/s, is assumed. The book's four steps:
+
+1. **The model:** speed and turn rate commanded at 10 Hz, within
+   0.5–2.3 m/s and ±u/R.
+2. **Reachable space:** a wedge, speed 0.5–2.3 m/s and heading change
+   ±u × 0.1 s / R per tick; it never reaches zero speed.
+3. **The agent:** one heading particle (it only goes forwards). Heading
+   by the gravity law (Eq. 13.8) or the torque law (Eqs. 13.15–13.18,
+   κΔt/I = Ω_max(u)/π); speed either fixed at cruise (the book's UAV) or
+   by Eq. 13.21's channel, u = (u + F·t̂)(1 − 0.5), clipped (G = 8000:
+   a target 60 m ahead already asks for top speed, so the AUV goes flat
+   out toward a target ahead and as slow as it can when it is behind).
+4. **Friction:** the gravity law's retention 0.5 (as the UAV's), the
+   speed channel's 0.5; none on the torque law.
+
+### One AUV, one attractor (`AUV-Attractor.lua`; the UAV's Fig. 13.13)
+
+Starting at the origin heading east at cruise speed; 600 s, measured from
+60 s (`ch13/auv.lua`'s run):
+
+| Case | Law | Speed fixed | Speed channel |
+| --- | --- | --- | --- |
+| 2R dead astern | gravity | flies away (936 m) | slows to 0.5 m/s and still flies away (312 m) |
+| | torque | turns round, overflies it again and again | the same (13 passes within 2 m) |
+| outside the zones (1.5R, 1.5R) | both | overflies it in a loop, 33–34% of the time within R | the same share (32–35%), mean speed 0.80 m/s |
+| inside the left zone (0, R/2) | both | orbits for ever, never closer than R/2 = 3.02 m | the same, 3.02 m |
+
+- **The UAV's three outcomes (F76) hold for the AUV.** The gravity law
+  leaves an attractor behind it, overflies one outside the zones and
+  orbits one inside them at R minus its distance from the zone's centre;
+  the torque law turns round for one behind.
+- **Slowing down does not shrink the unreachable zones.** The closest
+  approach to an attractor inside a zone is R/2 with the speed fixed or
+  free, both laws: the turn radius does not change with speed. Nor does
+  the share of time near the target (within R), set
+  by the loop's geometry (31–38% over every setting swept).
+- **What the speed channel buys is energy.** It holds the same share of
+  time near the target at a mean speed of 0.80 m/s against 1.54, about
+  0.6 of cruise's drag power (∝ u³): it slows down whenever the target
+  is behind. At a slowest speed of 1.0 m/s there is no saving: the
+  full-speed legs toward the target outweigh the slow ones.
+- **Neither the assumed slowest speed nor the turn radius changes this.**
+  Swept over R = 3.0, 6.03, 12.1 m (half and twice Prestero's) and the
+  slowest speed 0.25, 0.5, 1.0 m/s (9 combinations, all cases, both
+  laws, both speed rules): every outcome above holds in every
+  combination (closest approach inside a zone R/2 in all 36 runs). The
+  energy saving depends on the slowest speed: 0.3 of cruise's power at
+  0.25 m/s, 0.6 at 0.5 m/s, none (1.1–1.2) at 1.0 m/s.
+
 ## Choices where the book is silent (the fixed-wing UAV)
 
 The book gives no numbers for G, μ, κ, I, the repulsion range, the
@@ -279,6 +337,12 @@ targets' layout, the starts or the run length (`../book/ch13.md` E12):
   (case 0) and the three-point turn (case 1); sliders `case`, `robots`,
   `seed`, `start`, `spread`, `behind`; R restarts. Headless:
   `RING_N=4 RING_SEED=1 RING_SPREAD=60 RING_EXIT=1 bpp -f ch13/Ring-Ground.lua -n 100000`.
+- `../auv/model.lua`, `auv.lua`, `AUV-Attractor.lua`: the AUV, the
+  laws on it and its scene (sliders `case`, `law`, `speed`,
+  `ticksPerFrame`; R restarts; `uavscene.lua` draws it). Plain Lua but
+  the scene.
+- `../checks/auv.lua`: the limits, the same circle at every speed, the
+  three cases, and the speed channel's share and power (5 tests, ~1 s).
 - `triangle.lua`, `Triangle-Ground.lua`: the triangle of death in plain
   Lua and on the Pioneers in Bullet (sliders `offset`, `angle`, `pull`,
   `stop`, `roundDown`; R restarts). Headless:

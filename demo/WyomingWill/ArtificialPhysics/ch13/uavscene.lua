@@ -1,7 +1,8 @@
 --
 -- ch13/uavscene.lua -- drawing and running a ch13/uav.lua world in BPP
 --
--- Shared by UAV-Targets.lua and UAV-Attractor.lua. The book's plane (x, y)
+-- Shared by UAV-Targets.lua, UAV-Attractor.lua and AUV-Attractor.lua (which
+-- passes its own world module, dart size and status line). The book's plane (x, y)
 -- is drawn as BPP (x, -z) with y up (lib/world.lua's mapping), seen from
 -- straight above, in metres. UAVs are white darts (length DART m) pointing
 -- along their heading, targets red spheres, trails one dot every TRAIL_EVERY
@@ -28,11 +29,16 @@ local function quiet(o)
   pcall(function() o.body:setCollisionFlags(CF_STATIC + CF_NO_CONTACT) end)
   return o
 end
-local DART, TRAIL, TRAIL_EVERY = 12, 400, 1
+local TRAIL, TRAIL_EVERY = 400, 1
 local COLS = { "#ffffff", "#ffd040", "#60c0ff", "#80ff80", "#ff80ff", "#ffa060", "#a0a0ff" }
 
--- opts: title; build() -> world; camHeight (m); help
+-- opts: title; build() -> world; camHeight (m); help; and for another
+-- vehicle: module (default ch13.uav; its worlds keep their vehicles in
+-- w.uavs or w.auvs), dart (m, default 12), status(w) -> the status fields
 function S.run(opts)
+  local U = opts.module or U
+  local DART = opts.dart or 12
+  local function vehicles(w) return w.uavs or w.auvs end
   common.setTiming(1 / 30, 1, 1 / 30)
   common.gravity(0)
   v:addParam("ticksPerFrame", 10, 1, 200, 1, "outer-loop ticks (0.1 s each) per drawn frame: display speed only")
@@ -49,6 +55,13 @@ function S.run(opts)
   end
 
   local function draw()
+    if opts.status then
+      for i, u in ipairs(vehicles(w)) do
+        darts[i].trans = btTransform(btQuaternion(btVector3(0, 1, 0), u.psi), P(u.x, u.y, DART / 6))
+      end
+      status.show(opts.status(w))
+      return
+    end
     for i, u in ipairs(w.uavs) do
       local o = darts[i]
       o.trans = btTransform(btQuaternion(btVector3(0, 1, 0), u.psi), P(u.x, u.y, 2))
@@ -67,18 +80,20 @@ function S.run(opts)
   function setup()
     clearAll()
     w = opts.build()
-    for i = 1, #w.uavs do
-      local o = quiet(Cube(DART, 1.5, DART / 3, 0))
+    for i = 1, #vehicles(w) do
+      local o = quiet(Cube(DART, DART / 8, DART / 3, 0))
       o.col = COLS[(i - 1) % #COLS + 1]
       v:add(o)
       darts[i] = o
     end
     for _, tg in ipairs(w.targets) do
-      local o = quiet(Sphere(3, 0)); o.col = "#ff3030"; o.pos = P(tg.x, tg.y, 0); v:add(o)
+      local o = quiet(Sphere(DART / 4, 0)); o.col = "#ff3030"; o.pos = P(tg.x, tg.y, 0); v:add(o)
       tobjs[#tobjs + 1] = o
     end
-    local o = quiet(Cube(U.RECT.w, 0.2, U.RECT.h, 0)); o.col = "#402020"; o.pos = P(0, 0, -1); v:add(o)
-    tobjs[#tobjs + 1] = o
+    if U.RECT then
+      local o = quiet(Cube(U.RECT.w, 0.2, U.RECT.h, 0)); o.col = "#402020"; o.pos = P(0, 0, -1); v:add(o)
+      tobjs[#tobjs + 1] = o
+    end
     draw()
     print("setup: " .. opts.title)
   end
@@ -92,24 +107,25 @@ function S.run(opts)
     for _ = 1, math.max(1, math.floor(v:getParam("ticksPerFrame"))) do
       U.step(w)
       ticks = ticks + 1
-      for i, u in ipairs(w.uavs) do
+      local vs = vehicles(w)
+      for i, u in ipairs(vs) do
         acc.n = acc.n + 1
-        if math.abs(u.x) <= U.RECT.w / 2 and math.abs(u.y) <= U.RECT.h / 2 then acc.inside = acc.inside + 1 end
+        if U.RECT and math.abs(u.x) <= U.RECT.w / 2 and math.abs(u.y) <= U.RECT.h / 2 then acc.inside = acc.inside + 1 end
         acc.om = acc.om + math.abs(u.omega)
-        for j = i + 1, #w.uavs do
-          local o = w.uavs[j]
+        for j = i + 1, #vs do
+          local o = vs[j]
           acc.minSep = math.min(acc.minSep, math.sqrt((u.x - o.x) ^ 2 + (u.y - o.y) ^ 2))
         end
         if ticks % (TRAIL_EVERY * FW.HZ) == 0 then
           local dot = trail[nextDot]
           if not dot then
-            dot = { obj = quiet(Sphere(1.5, 0)) }
+            dot = { obj = quiet(Sphere(DART / 8, 0)) }
             v:add(dot.obj)
             trail[nextDot] = dot
           end
           dot.obj.col = COLS[(i - 1) % #COLS + 1]
           dot.obj.pos = P(u.x, u.y, 0)
-          nextDot = nextDot % (TRAIL * #w.uavs) + 1
+          nextDot = nextDot % (TRAIL * #vs) + 1
         end
       end
     end
