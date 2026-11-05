@@ -1,0 +1,70 @@
+# Demos for the golden-master suite (tests/harness.py golden): each runs 40
+# frames headless with POV-Ray export, and the export (every object's
+# transform, the camera, the scene text) must match golden/expected/.
+#
+# Only demos that give the same numbers on every run belong here; see
+# tests/README.md. Chosen to cover the primitives, meshes, soft bodies,
+# every constraint type, vehicles, CSG/sweep/text POV objects and layers,
+# with small expected files.
+#
+# Left out because they differ from run to run (checked over repeated runs):
+#   jaimevives/driveable-car.lua  (chassis position is sometimes NaN)
+#   koppi/pulley.lua koppi/spirals.lua claude/worlds-simplest-clock.lua  (OpenSCAD meshes)
+#   koppi/gears.lua koppi/poly.lua koppi/gps.lua koppi/iridium.lua
+#   koppi/orbital-objects.lua koppi/rocks.lua koppi/tuxracer.lua koppi/duplo.lua
+#   claude/physicomimetics.lua WyomingWill/BumperPool/bumper-pool.lua
+#   WyomingWill/Pool/pool-table.lua WyomingWill/Snooker/snooker-table.lua
+#   WyomingWill/RecRoom/rec-room.lua WyomingWill/Clocks/*_Clock_handcheck.lua
+
+demo/basic/00-hello.lua
+demo/basic/03-callback.lua
+demo/basic/04-math.lua
+demo/basic/06-mesh.lua
+demo/basic/07-scad.lua
+demo/basic/10-dice.lua
+demo/basic/11-domino.lua
+demo/basic/13-pyramid.lua
+demo/basic/16-softbody.lua
+demo/basic/18-texture.lua
+demo/basic/19-bezier.lua
+demo/basic/20-csg.lua
+demo/basic/21-disc.lua
+demo/basic/22-layer.lua
+demo/basic/23-torus.lua
+demo/basic/25-phase4.lua
+demo/basic/povray.lua
+demo/constraint/00-hinge.lua
+demo/constraint/01-car.lua
+demo/constraint/02-point2point.lua
+demo/constraint/03-slider.lua
+demo/constraint/04-conetwist.lua
+demo/constraint/05-generic6dof.lua
+demo/constraint/06-generic6dofspring.lua
+demo/constraint/07-gear.lua
+demo/constraint/08-fixed.lua
+demo/constraint/09-generic6dofspring2.lua
+demo/constraint/10-hinge2.lua
+demo/constraint/11-geneva-drive.lua
+demo/jaimevives/3ds-box-w-coins.lua
+demo/jaimevives/box-w-oranges.lua
+demo/jaimevives/car-hinge-slider.lua
+demo/jaimevives/mesh-chain.lua
+demo/jaimevives/mesh-chain2.lua
+demo/koppi/brio-train.lua
+demo/koppi/gravity-box.lua
+demo/koppi/hanoi.lua
+demo/koppi/juggling-robot.lua
+demo/koppi/lego.lua
+demo/koppi/marblerun.lua
+demo/koppi/nutsnbolts.lua
+demo/koppi/pendulum.lua
+demo/koppi/rm501.lua
+demo/koppi/room.lua
+demo/koppi/studio.lua
+demo/claude/digicomp.lua
+demo/claude/jansen-walker3.lua
+demo/WyomingWill/Hover/hover-example.lua
+demo/WyomingWill/Walkers/Chebyshev_Spears_normalT.lua
+demo/WyomingWill/Walkers/Jansen_6LegT.lua
+demo/WyomingWill/Walkers/Klann_6LegT.lua
+demo/WyomingWill/Walkers/Spears_4Bar_4LegT.lua

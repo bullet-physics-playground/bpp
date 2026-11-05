@@ -1,0 +1,99 @@
+# Demos that fail the smoke test (tests/harness.py smoke) on the
+# current code: a Lua error, a crash, a hang, or a missing tool.
+# Listed so a new failure stands out; remove a line when the demo
+# is fixed. Written by tests/harness.py --update smoke, which keeps
+# the 'skip' lines: scripts that are not run at all.
+
+demo/WyomingWill/ArtificialPhysics/ch04/Couette-Vehicles.lua  error: [string "--..."]:82: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/ch04/sweep.lua  error: [string "--..."]:19: module 'ch04.coverage' not found:
+demo/WyomingWill/ArtificialPhysics/ch07/kerr2005_figs.lua  error: [string "--..."]:24: attempt to index global 'arg' (a nil value)
+demo/WyomingWill/ArtificialPhysics/ch07/kerr2005_run.lua  error: [string "--..."]:18: module 'ch07.kerr2005' not found:
+demo/WyomingWill/ArtificialPhysics/ch07/obstacles.lua  error: [string "--..."]:45: module 'ch07.kerr' not found:
+demo/WyomingWill/ArtificialPhysics/ch07/theory.lua  error: [string "--..."]:67: module 'ch07.kerr' not found:
+demo/WyomingWill/ArtificialPhysics/ch11/mfp_sweep.lua  error: [string "--..."]:31: module 'ch11.maxim' not found:
+demo/WyomingWill/ArtificialPhysics/ch11/table11_1.lua  error: [string "--..."]:27: module 'ch11.maxim' not found:
+demo/WyomingWill/ArtificialPhysics/ch11/wedge.lua  error: [string "--..."]:24: module 'ch11.maxim' not found:
+demo/WyomingWill/ArtificialPhysics/ch13/dumbbell.lua  error: [string "--..."]:79: module 'lib.ch13' not found:
+demo/WyomingWill/ArtificialPhysics/ch13/uav.lua  error: [string "--..."]:61: module 'fixedwing.model' not found:
+demo/WyomingWill/ArtificialPhysics/checks/ch04_couette.lua  error: [string "--..."]:50: attempt to index local 'f' (a nil value)
+demo/WyomingWill/ArtificialPhysics/checks/ch07.lua  error: [string "--..."]:55: attempt to index local 'f' (a nil value)
+demo/WyomingWill/ArtificialPhysics/checks/ch11.lua  error: [string "--..."]:48: bad argument #1 to 'lines' (./ch11/c_reference.txt: No such file or directory)
+demo/WyomingWill/ArtificialPhysics/checks/vehicle_physics.lua  error: [string "--..."]:44: module 'ground.vehicle' not found:
+demo/WyomingWill/ArtificialPhysics/checks/velocity.lua  error: [string "--..."]:23: module 'lib.pointmass' not found:
+demo/WyomingWill/ArtificialPhysics/lib/buildings.lua  error: [string "--..."]:55: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/lib/features.lua  error: [string "--..."]:53: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/lib/terrain.lua  error: [string "--..."]:93: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/lib/town.lua  error: [string "--..."]:65: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/lib/vegetation.lua  error: [string "--..."]:63: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/lib/world.lua  error: [string "--..."]:48: module 'lib.rng' not found:
+demo/WyomingWill/ArtificialPhysics/probes/batch_drones.lua  error: [string "-- probes/batch_drones.lua -- a lib/batch.p..."]:19: module 'lib.batch' not found:
+demo/WyomingWill/ArtificialPhysics/probes/ch03_scene.lua  error: [string "--..."]:18: module 'lib.batch' not found:
+demo/WyomingWill/ArtificialPhysics/probes/closecam.lua  error: [string "local Swarm = require "quadcopter.swarm"..."]:1: module 'quadcopter.swarm' not found:
+demo/WyomingWill/ArtificialPhysics/probes/coverage_sweep.lua  error: [string "--..."]:17: module 'lib.batch' not found:
+demo/WyomingWill/ArtificialPhysics/probes/cube_drone.lua  error: [string "dofile((os.getenv('PROBES') or '.') .. '/cu..."]:2: module 'quadcopter.swarm' not found:
+demo/WyomingWill/ArtificialPhysics/probes/cube_orig.lua  error: [string "dofile((os.getenv('PROBES') or '.') .. '/cu..."]:2: attempt to index global 'PARAM_INFO' (a nil value)
+demo/WyomingWill/ArtificialPhysics/probes/field_probe.lua  error: [string "-- appended (-l) to a *-Quadcopter.lua run:..."]:3: module 'quadcopter.swarm' not found:
+demo/WyomingWill/ArtificialPhysics/probes/settle_drones.lua  error: [string "-- probes/settle_drones.lua -- a lib/batch...."]:68: module 'lib.batch' not found:
+demo/WyomingWill/ArtificialPhysics/probes/step_response.lua  error: [string "--..."]:27: module 'quadcopter.vehicle' not found:
+demo/WyomingWill/ArtificialPhysics/probes/stuck_robots.lua  error: cannot open probes/settle_drones.lua: No such file or directory
+demo/WyomingWill/ArtificialPhysics/probes/tri_drone.lua  error: [string "local Swarm = require "quadcopter.swarm"..."]:1: module 'quadcopter.swarm' not found:
+demo/WyomingWill/ArtificialPhysics/probes/worldgen_time.lua  error: [string "--..."]:11: module 'lib.world' not found:
+demo/WyomingWill/ArtificialPhysics/quadcopter/sound.lua  error: [string "--..."]:35: module 'quadcopter.flight' not found:
+demo/WyomingWill/ArtificialPhysics/quadcopter/vehicle.lua  error: [string "--..."]:40: module 'quadcopter.flight' not found:
+demo/WyomingWill/ArtificialPhysics/tools/worldprint.lua  error: [string "--..."]:21: attempt to index global 'arg' (a nil value)
+demo/WyomingWill/BabbagesHall/exhibits/DigiComp2/manual/dump-geometry.lua  error: [string "-- dump-geometry.lua <digicomp2-geometry.lu..."]:2: attempt to index global 'arg' (a nil value)
+demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/pla/sim/pla-drop.lua  error: [string "--..."]:127: meshes/ not found
+demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/w37/sim/w37-drop.lua  error: [string "--..."]:129: meshes/ not found
+demo/WyomingWill/EulersGallery/exhibits/BrazilNut/reconstruction/monitor/monitor.lua  skip: a batch run (180 simulated seconds) that writes CSV files into its directory
+demo/WyomingWill/EulersGallery/exhibits/Dzhanibekov/bullet-rotation-test.lua  error: [string "-- Bullet's handling of free rigid-body rot..."]:17: bad argument #1 to 'open' (string expected, got nil)
+demo/WyomingWill/EulersGallery/exhibits/Rattleback/reference/rattleback-test.lua  error: [string "-- rattleback feasibility test (headless)..."]:89: bad argument #1 to 'open' (string expected, got nil)
+demo/WyomingWill/WalkerRoom/handover/tools/angprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/ankleprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/bentsplit.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/bodyhit.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/boxprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/bracehit.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/clearprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/cmprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/comprobe.lua  error: cannot open walker-room.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/comzprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/crankprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/dampprobe.lua  error: cannot open runs/speedprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/diagprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/dumpprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/footprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/forceprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/framedump.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/ghostlinks.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/jointprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/kickprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/layoutprobe.lua  error: cannot open runs/speedprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/letterprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/letterprobe2.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/linkprobe3.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/linkprobe3_at.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/lowshot.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/mountprobe.lua  error: cannot open walker-room.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/pathprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/planprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/revprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/roomtime.lua  error: cannot open walker-room.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/sinkprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/slidertest.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/snapshot.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/stabprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/stallprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/stalltrace.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/standprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/steplog.lua  error: cannot open /home/claude/work/steptest.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/steptest.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/sweepprobe.lua  error: cannot open walker-room.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/t12probe.lua  error: cannot open /home/claude/work/wobprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/tiepos.lua  error: cannot open runs/speedprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/tiltprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/torqueprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/vibprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/vibprobe20.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/vibprobe_at.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/wobprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/runs/speedprobe.lua  error: cannot open test-track.lua: No such file or directory

@@ -1,0 +1,5 @@
+# UBSan suppressions for tests/harness.py on a sanitizer build (see README).
+# luabind 0.9 puts object_rep, which wants 16-byte alignment, in Lua 5.1
+# userdata, which is 8-byte aligned. Known, harmless on x86-64, and why
+# bpp.pro builds debug with -fno-sanitize=alignment.
+alignment:luabind

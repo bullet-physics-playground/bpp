@@ -1,0 +1,3622 @@
+class BezierPatch
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,BezierPatch const&,BezierPatch const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,BezierPatch const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  evaluate: btVector3 evaluate(BezierPatch const&,custom [float],custom [float])
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getControlPoint: btVector3 getControlPoint(BezierPatch const&,int,int)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  rebuild: void rebuild(BezierPatch&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setControlPoint: void setControlPoint(BezierPatch&,int,int,btVector3 const&)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Blob
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .threshold
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Blob const&,Blob const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Blob const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  addCylinderComponent: void addCylinderComponent(Blob&,btVector3 const&,btVector3 const&,custom [float],custom [float],custom [float])
+  addSphereComponent: void addSphereComponent(Blob&,btVector3 const&,custom [float],custom [float])
+  componentCount: int componentCount(Blob const&)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Bound
+  .body
+  .boundShape
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Bound const&,Bound const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btCollisionShape*)
+  __init: void __init(luabind::argument const&,btCollisionShape*,custom [float])
+  __tostring: void __tostring(lua_State*,Bound const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Cam
+  .dir
+  .focal_aperture
+  .focal_blur
+  .focal_point
+  .look
+  .pivot
+  .pos
+  .post_sdl
+  .pre_sdl
+  .up
+  __eq: void __eq(lua_State*,Cam const&,Cam const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QObject]*)
+  __tostring: void __tostring(lua_State*,Cam const&)
+  getUpVector: btVector3 getUpVector(Cam const&)
+  setFieldOfView: void setFieldOfView(Cam&,custom [double])
+  setHorizontalFieldOfView: void setHorizontalFieldOfView(Cam&,custom [double])
+  setUpVector: void setUpVector(Cam&,btVector3 const&,bool)
+class Camera
+  __eq: void __eq(lua_State*,Camera const&,Camera const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,Camera const&)
+class Cone
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .height
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .radius
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Cone const&,Cone const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Cone const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class CsgNode
+  .left
+  .object
+  .operation
+  .right
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,Object*)
+  __init: void __init(luabind::argument const&,custom [CsgOperation],CsgNode*,CsgNode*)
+class CsgObject
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,CsgObject const&,CsgObject const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,CsgNode*)
+  __init: void __init(luabind::argument const&,CsgNode*,custom [float])
+  __init: void __init(luabind::argument const&,custom [float])
+  __tostring: void __tostring(lua_State*,CsgObject const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  getRoot: CsgNode* getRoot(CsgObject const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  setRoot: void setRoot(CsgObject&,CsgNode*)
+  toPOV: custom [QString] toPOV(Object const&)
+class Cube
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Cube const&,Cube const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Cube const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Cylinder
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Cylinder const&,Cylinder const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Cylinder const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class DemBed
+  __init: void __init(luabind::argument const&)
+  angle: custom [double] angle(DemBed&,int)
+  attach: void attach(DemBed&,int,Object*)
+  attachGlued: void attachGlued(DemBed&,int,int,Object*)
+  boxY: custom [double] boxY(DemBed&)
+  count: int count(DemBed&)
+  cpu: custom [double] cpu(DemBed&)
+  finish: void finish(DemBed&)
+  get: custom [double] get(DemBed&,std::string const&)
+  gluedCount: int gluedCount(DemBed&,int)
+  gluedX: custom [double] gluedX(DemBed&,int,int)
+  gluedY: custom [double] gluedY(DemBed&,int,int)
+  init: void init(DemBed&)
+  r: custom [double] r(DemBed&,int)
+  set: bool set(DemBed&,std::string const&,custom [double])
+  start: void start(DemBed&,custom [double])
+  step: void step(DemBed&,custom [double])
+  sync: void sync(DemBed&,custom [double],custom [double],custom [double])
+  test: std::string test(DemBed&,std::string const&)
+  x: custom [double] x(DemBed&,int)
+  y: custom [double] y(DemBed&,int)
+class Disc
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Disc const&,Disc const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Disc const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class FindObjectVisitor
+  .found
+  Visiting: bool Visiting(Visitor&,Object*)
+  __init: void __init(luabind::argument const&,custom [QString] const&)
+class Heightfield
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .depth
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .scale
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  .width
+  __eq: void __eq(lua_State*,Heightfield const&,Heightfield const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,int,int)
+  __init: void __init(luabind::argument const&,int,int,custom [float])
+  __tostring: void __tostring(lua_State*,Heightfield const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  exportHeightmap: bool exportHeightmap(Heightfield const&,custom [QString] const&)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getHeight: custom [float] getHeight(Heightfield const&,int,int)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  rebuild: void rebuild(Heightfield&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setFromFunction: void setFromFunction(Heightfield&,custom [std::function<float (float, float)>] const&,custom [float],custom [float])
+  setFromImage: void setFromImage(Heightfield&,custom [QImage] const&,custom [float],custom [float])
+  setHeight: void setHeight(Heightfield&,int,int,custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class JoystickInfo
+  .axes
+  .axis0
+  .axis1
+  .axis2
+  .axis3
+  .button0
+  .button1
+  .button2
+  .button3
+  .buttons
+  .triggeredButton0
+  .triggeredButton1
+  .triggeredButton2
+  .triggeredButton3
+  __eq: void __eq(lua_State*,JoystickInfo&,JoystickInfo&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,JoystickInfo&)
+class Layer
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&)
+  getColor: QColor getColor(Layer const&)
+  getFlags: custom [QFlags<Layer::Flag>] getFlags(Layer const&)
+  getName: custom [QString] getName(Layer const&)
+  isLocked: bool isLocked(Layer const&)
+  isRenderable: bool isRenderable(Layer const&)
+  isVisible: bool isVisible(Layer const&)
+  objectCount: int objectCount(Layer const&)
+  setColor: void setColor(Layer&,QColor const&)
+  setFlags: void setFlags(Layer&,custom [QFlags<Layer::Flag>])
+  setLocked: void setLocked(Layer&,bool)
+  setName: void setName(Layer&,custom [QString] const&)
+  setRenderable: void setRenderable(Layer&,bool)
+  setVisible: void setVisible(Layer&,bool)
+class LayerManager
+  __init: void __init(luabind::argument const&)
+  activeLayer: Layer* activeLayer(LayerManager const&)
+  assignObject: void assignObject(LayerManager&,Object*,Layer*)
+  createLayer: Layer* createLayer(LayerManager&,custom [QString] const&)
+  defaultLayer: Layer* defaultLayer(LayerManager const&)
+  layerByName: Layer* layerByName(LayerManager const&,custom [QString] const&)
+  layerCount: int layerCount(LayerManager const&)
+  layers: custom [QVector<Layer*>] const& layers(LayerManager const&)
+  moveLayer: void moveLayer(LayerManager&,Layer*,int)
+  objectLayer: Layer* objectLayer(LayerManager const&,Object*)
+  removeLayer: void removeLayer(LayerManager&,Layer*,Layer*)
+  removeObject: void removeObject(LayerManager&,Object*)
+  setActiveLayer: void setActiveLayer(LayerManager&,Layer*)
+class Mesh
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .mesh
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Mesh const&,Mesh const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QString])
+  __init: void __init(luabind::argument const&,custom [QString],bool)
+  __init: void __init(luabind::argument const&,custom [QString],custom [float])
+  __init: void __init(luabind::argument const&,custom [QString],custom [float],bool)
+  __tostring: void __tostring(lua_State*,Mesh const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Object
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Object const&,Object const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QObject]*)
+  __init: void __init(luabind::argument const&,custom [QObject]*,custom [float])
+  __tostring: void __tostring(lua_State*,Object const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class OpenSCAD
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .mesh
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,OpenSCAD const&,OpenSCAD const&)
+  __init: void __init(luabind::argument const&,custom [QString],custom [float])
+  __init: void __init(luabind::argument const&,custom [QString],custom [float],bool)
+  __tostring: void __tostring(lua_State*,OpenSCAD const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Palette
+  __eq: void __eq(lua_State*,Palette const&,Palette const&)
+  __init: void __init(luabind::argument const&,custom [QString])
+  __tostring: void __tostring(lua_State*,Palette const&)
+  getRandomColor: QColor getRandomColor(Palette&)
+  setSeed: void setSeed(Palette&,int)
+class Patch
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Patch const&,Patch const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Patch const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  evaluate: btVector3 evaluate(Patch const&,custom [float],custom [float])
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getControlPoint: btVector3 getControlPoint(Patch const&,int,int)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  rebuild: void rebuild(Patch&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setControlPoint: void setControlPoint(Patch&,int,int,btVector3 const&)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Plane
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Plane const&,Plane const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Plane const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class PovLight
+  .color
+  .direction
+  .falloff
+  .intensity
+  .position
+  .radius
+  .shadows
+  .tightness
+  .type
+  __init: void __init(luabind::argument const&)
+class PovSceneSettings
+  .antialias
+  .assumedGamma
+  .atmosphereEnabled
+  .atmosphereMedia
+  .atmosphereMediaName
+  .backgroundColor
+  .cameraAngle
+  .cameraLocation
+  .cameraLookAt
+  .cameraSky
+  .cameraType
+  .charset
+  .finalFrame
+  .fogAltitude
+  .fogColor
+  .fogDistance
+  .fogEnabled
+  .fogFilter
+  .fogGround
+  .fogLambda
+  .fogOctaves
+  .fogOffset
+  .fogOmega
+  .fogTrans
+  .fogTurbDepth
+  .fogTurbulence
+  .fogType
+  .height
+  .hfGray16
+  .initialFrame
+  .isAnimation
+  .mediaEnabled
+  .outputFile
+  .photonAutoStop
+  .photonCount
+  .photonExpandMin
+  .photonExpandThresholds
+  .photonGatherMax
+  .photonGatherMin
+  .photonJitter
+  .photonMaxTraceLevel
+  .photonMedia
+  .photonMediaFactor
+  .photonMediaMaxSteps
+  .photonRadius
+  .photonRadiusFactor
+  .photonSpacing
+  .photonUseRadiusFactor
+  .photonUseRadiusOverride
+  .photonUseSpacing
+  .photonsEnabled
+  .radADCBailout
+  .radAlwaysSample
+  .radCount
+  .radErrorBound
+  .radGrayThreshold
+  .radLowErrorFactor
+  .radMaximumSample
+  .radMedia
+  .radMinimumReuse
+  .radNearestCount
+  .radNormal
+  .radPreTraceEnd
+  .radPreTraceStart
+  .radRecursionLimit
+  .radiosityEnabled
+  .width
+  __init: void __init(luabind::argument const&)
+class PovScriptWriter
+  __init: void __init(luabind::argument const&)
+  addLight: void addLight(PovScriptWriter&,PovLight const&)
+  addObject: void addObject(PovScriptWriter&,Object*,custom [QString] const&)
+  clearLights: void clearLights(PovScriptWriter&)
+  sceneSettings: PovSceneSettings& sceneSettings(PovScriptWriter&)
+  setSceneSettings: void setSceneSettings(PovScriptWriter&,PovSceneSettings const&)
+  writeScene: bool writeScene(PovScriptWriter&,custom [QString] const&,int)
+class QColor
+  .b
+  .g
+  .r
+  __eq: void __eq(lua_State*,QColor&,QColor&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QString])
+  __init: void __init(luabind::argument const&,int,int,int)
+  __init: void __init(luabind::argument const&,int,int,int,int)
+  __tostring: void __tostring(lua_State*,QColor&)
+class ReferenceObject
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .target
+  .targetName
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,ReferenceObject const&,ReferenceObject const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&,Object*)
+  __tostring: void __tostring(lua_State*,ReferenceObject const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class RigidSoftContact
+  .body
+  .friction
+  .hardness
+  .node
+  .normal
+  .offset
+  .pos
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,RigidSoftContact const&)
+class SoftBody
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .contactCount
+  .damp_ang
+  .damp_lin
+  .damping
+  .double_illuminate
+  .emission
+  .faceCount
+  .friction
+  .hollow
+  .iterations
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .nodeCount
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .pressure
+  .render
+  .restitution
+  .sdl
+  .self_collision
+  .shape
+  .stiffness
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,SoftBody const&,SoftBody const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],int,int,custom [float],int)
+  __tostring: void __tostring(lua_State*,SoftBody const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  addForce: void addForce(SoftBody&,btVector3 const&)
+  addForce: void addForce(SoftBody&,btVector3 const&,int)
+  appendAnchor: void appendAnchor(SoftBody&,int,btRigidBody*)
+  appendAnchor: void appendAnchor(SoftBody&,int,btRigidBody*,bool)
+  fixNode: void fixNode(SoftBody&,int)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getContact: RigidSoftContact getContact(SoftBody const&,int)
+  getNodePosition: btVector3 getNodePosition(SoftBody const&,int)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  rotate: void rotate(SoftBody&,btQuaternion const&)
+  scale: void scale(SoftBody&,btVector3 const&)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setNodeMass: void setNodeMass(SoftBody&,int,custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+  translate: void translate(SoftBody&,btVector3 const&)
+class SpaceNavigatorAxes
+  .rx
+  .ry
+  .rz
+  .x
+  .y
+  .z
+  __eq: void __eq(lua_State*,SpaceNavigatorAxes&,SpaceNavigatorAxes&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,SpaceNavigatorAxes&)
+class Sphere
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .radius
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Sphere const&,Sphere const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Sphere const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class StatisticsVisitor
+  .groups
+  .lights
+  .primitives
+  .realObjects
+  .total
+  Visiting: bool Visiting(Visitor&,Object*)
+  __init: void __init(luabind::argument const&)
+class SuperQuadric
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .roundness
+  .sdl
+  .shape
+  .size
+  .tex
+  .thickness
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,SuperQuadric const&,SuperQuadric const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,SuperQuadric const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Sweep
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .type
+  .vel
+  __eq: void __eq(lua_State*,Sweep const&,Sweep const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,int)
+  __init: void __init(luabind::argument const&,int,btVector3 const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Sweep const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  addProfilePoint: void addProfilePoint(Sweep&,custom [float],custom [float])
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Terrain
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Terrain const&,Terrain const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,Terrain const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  addTriangle: void addTriangle(Terrain&,btVector3 const&,btVector3 const&,btVector3 const&)
+  build: void build(Terrain&)
+  clearTriangleColors: void clearTriangleColors(Terrain&)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getNumTriangles: int getNumTriangles(Terrain const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  getTriangleColor: custom [QString] getTriangleColor(Terrain const&,int)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  setTriangleColor: void setTriangleColor(Terrain&,int,custom [QString] const&)
+  setTriangleColor: void setTriangleColor(Terrain&,int,int,int,int)
+  toPOV: custom [QString] toPOV(Object const&)
+class Torus
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Torus const&,Torus const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,Torus const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Triangle
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .tex
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,Triangle const&,Triangle const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&,custom [float])
+  __tostring: void __tostring(lua_State*,Triangle const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class TrueType
+  .body
+  .bound_shape
+  .castShadow
+  .col
+  .collides
+  .color
+  .damp_ang
+  .damp_lin
+  .double_illuminate
+  .emission
+  .font
+  .friction
+  .hollow
+  .layer
+  .mass
+  .no_image
+  .no_reflection
+  .photons_enable
+  .photons_reflection
+  .photons_refraction
+  .pos
+  .post_sdl
+  .pov
+  .pov_export
+  .pre_matrix_sdl
+  .pre_sdl
+  .render
+  .restitution
+  .sdl
+  .shape
+  .size
+  .tex
+  .text
+  .trans
+  .transparency
+  .vel
+  __eq: void __eq(lua_State*,TrueType const&,TrueType const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&,custom [QString] const&)
+  __init: void __init(luabind::argument const&,custom [QString] const&,custom [QString] const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [QString] const&,custom [QString] const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,TrueType const&)
+  accept: void accept(Object&,Visitor&)
+  addChild: void addChild(Object&,Object*)
+  getChild: Object* getChild(Object const&,int)
+  getCollisionShape: btCollisionShape* getCollisionShape(Object const&)
+  getNumChildren: int getNumChildren(Object const&)
+  getRenderFunction: luabind::object getRenderFunction(Object const&)
+  getRigidBody: btRigidBody* getRigidBody(Object const&)
+  removeChild: void removeChild(Object&,Object*)
+  setCollisionShape: void setCollisionShape(Object&,luabind::object const&)
+  setColor: void setColor(Object&,QColor const&)
+  setColor: void setColor(Object&,custom [QString] const&)
+  setColor: void setColor(Object&,int,int,int)
+  setEmission: void setEmission(Object&,custom [QString] const&)
+  setEmission: void setEmission(Object&,custom [float],custom [float],custom [float])
+  setRenderFunction: void setRenderFunction(Object&,luabind::object const&)
+  setRigidBody: void setRigidBody(Object&,luabind::object const&)
+  toPOV: custom [QString] toPOV(Object const&)
+class Viewer
+  .animationPeriod
+  .cam
+  .culling
+  .drawTiming
+  .drawnObjects
+  .fixedTimeStep
+  .frameTiming
+  .glAmbient
+  .glDiffuse
+  .glLight0
+  .glLight0Color
+  .glLight1
+  .glLight1Color
+  .glModelAmbient
+  .glShininess
+  .glSpecular
+  .glSpecularColor
+  .gravity
+  .maxSubSteps
+  .onePerFrame
+  .post_sdl
+  .pov_settings
+  .pre_sdl
+  .screenMerge
+  .screenMerged
+  .shadowCache
+  .shadowCached
+  .shadowCasters
+  .shadowDarkness
+  .shadowFromSaved
+  .shadowMapSize
+  .shadowSaved
+  .shadowSoftness
+  .shadows
+  .showConstraints
+  .snAutoFlySpeed
+  .snLockHorizon
+  .snMode
+  .snPanZoom
+  .snShowOrbitAxis
+  .snZoomForward
+  .solver
+  .solverFallbacks
+  .statusText
+  .timeStep
+  __eq: void __eq(lua_State*,Viewer const&,Viewer const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,Viewer const&)
+  add: void add(Viewer&,luabind::object const&)
+  addConstraint: void addConstraint(Viewer&,btTypedConstraint*)
+  addParam: void addParam(Viewer&,custom [QString] const&,custom [QVariant] const&)
+  addParam: void addParam(Viewer&,custom [QString] const&,custom [QVariant] const&,custom [QString] const&)
+  addParam: void addParam(Viewer&,custom [QString] const&,custom [float] const&,custom [float] const&,custom [float] const&)
+  addParam: void addParam(Viewer&,custom [QString] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&)
+  addParam: void addParam(Viewer&,custom [QString] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [QString] const&)
+  addShortcut: void addShortcut(Viewer&,custom [QString] const&,luabind::object const&)
+  addVehicle: void addVehicle(Viewer&,btRaycastVehicle*)
+  ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&)
+  ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&,custom [QString] const&)
+  clearDebugText: void clearDebugText(Viewer&)
+  createVehicleRaycaster: btVehicleRaycaster* createVehicleRaycaster(Viewer&)
+  currentWorld: int currentWorld(Viewer const&)
+  cycleObject: void cycleObject(Viewer&,luabind::object const&)
+  dataDir: custom [QString] dataDir(Viewer const&)
+  download: int download(Viewer&,custom [QString] const&,custom [QString] const&)
+  downloadState: luabind::object downloadState(Viewer&,int)
+  drawTimingReport: custom [QString] drawTimingReport(Viewer&)
+  eachContact: void eachContact(Viewer&,luabind::object const&)
+  fadeMusicTo: void fadeMusicTo(Viewer&,custom [double],custom [double])
+  forget: void forget(Viewer&,custom [QString] const&)
+  getCam: Cam* getCam(Viewer&)
+  getParam: custom [QVariant] getParam(Viewer const&,custom [QString] const&)
+  getParams: custom [QHash<QString, QVariant>] getParams(Viewer const&)
+  getTime: custom [double] getTime(Viewer const&)
+  lastFrameDrawing: custom [QString] lastFrameDrawing(Viewer const&)
+  loadMusic: bool loadMusic(Viewer&,custom [QString] const&)
+  loadPrefs: custom [QString] loadPrefs(Viewer const&,custom [QString],custom [QString])
+  loadSound: int loadSound(Viewer&,custom [QString] const&)
+  musicPlaying: bool musicPlaying(Viewer&)
+  musicPosition: custom [double] musicPosition(Viewer&)
+  newWorld: int newWorld(Viewer&)
+  onCommand: void onCommand(Viewer&,luabind::object const&)
+  onHover: void onHover(Viewer&,luabind::object const&)
+  onJoystick: void onJoystick(Viewer&,luabind::object const&)
+  onKey: void onKey(Viewer&,luabind::object const&)
+  onParamChanged: void onParamChanged(Viewer&,luabind::object const&)
+  onSpaceNavigator: void onSpaceNavigator(Viewer&,luabind::object const&)
+  pauseMusic: void pauseMusic(Viewer&)
+  placeWorld: void placeWorld(Viewer&,int,btTransform const&)
+  playMusic: bool playMusic(Viewer&)
+  playMusic: bool playMusic(Viewer&,custom [double])
+  playSound: void playSound(Viewer&,int)
+  playSound: void playSound(Viewer&,int,custom [double])
+  postDraw: void postDraw(Viewer&,luabind::object const&)
+  postSim: void postSim(Viewer&,luabind::object const&)
+  preDraw: void preDraw(Viewer&,luabind::object const&)
+  preSim: void preSim(Viewer&,luabind::object const&)
+  preStart: void preStart(Viewer&,luabind::object const&)
+  preStop: void preStop(Viewer&,luabind::object const&)
+  quickRender: void quickRender(Viewer&,custom [QString])
+  rayTest: custom [float] rayTest(Viewer&,btVector3 const&,btVector3 const&)
+  rayTest: custom [float] rayTest(Viewer&,btVector3 const&,btVector3 const&,luabind::object const&)
+  remembered: int remembered(Viewer const&,custom [QString] const&)
+  remove: luabind::object remove(Viewer&,luabind::object const&)
+  removeConstraint: btTypedConstraint* removeConstraint(Viewer&,btTypedConstraint*)
+  removeShortcut: void removeShortcut(Viewer&,custom [QString] const&)
+  resumeMusic: void resumeMusic(Viewer&)
+  savePrefs: void savePrefs(Viewer&,custom [QString],custom [QString])
+  setCam: void setCam(Viewer&,Cam*)
+  setCfm: void setCfm(Viewer&,custom [float])
+  setErp: void setErp(Viewer&,custom [float])
+  setErp2: void setErp2(Viewer&,custom [float])
+  setFrameTiming: void setFrameTiming(Viewer&,custom [double])
+  setHelpText: void setHelpText(Viewer&,custom [QString] const&)
+  setSolver: void setSolver(Viewer&,std::string const&)
+  setSolverInfo: void setSolverInfo(Viewer&,std::string const&,custom [double])
+  setSolverIterations: void setSolverIterations(Viewer&,int)
+  setTau: void setTau(Viewer&,custom [float])
+  setTone: void setTone(Viewer&,int,custom [double],custom [double])
+  setTone: void setTone(Viewer&,int,custom [double],custom [double],custom [double])
+  setToneTimbre: void setToneTimbre(Viewer&,int,custom [double],custom [double])
+  showParams: void showParams(Viewer&,custom [QString] const&)
+  silenceTones: void silenceTones(Viewer&)
+  stepSimulation: int stepSimulation(Viewer&,custom [float],int,custom [float])
+  stopMusic: void stopMusic(Viewer&)
+  useWorld: void useWorld(Viewer&,int)
+class Visitor
+  Visiting: bool Visiting(Visitor&,Object*)
+class btAABB
+  __eq: void __eq(lua_State*,btAABB const&,btAABB const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btAABB&)
+  __init: void __init(luabind::argument const&,btAABB&,custom [float])
+  __init: void __init(luabind::argument const&,btVector3,btVector3,btVector3)
+  __init: void __init(luabind::argument const&,btVector3,btVector3,btVector3,custom [float])
+  __tostring: void __tostring(lua_State*,btAABB const&)
+  invalidate: void invalidate(btAABB&)
+  merge: void merge(btAABB&,btAABB const&)
+class btBU_Simplex1to4
+  .userPointer
+  __eq: void __eq(lua_State*,btBU_Simplex1to4 const&,btBU_Simplex1to4 const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btBU_Simplex1to4 const&)
+  addVertex: void addVertex(btBU_Simplex1to4&,btVector3 const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getNonvirtualAabb: void getNonvirtualAabb(btPolyhedralConvexAabbCachingShape const&,btTransform const&,btVector3&,btVector3&,custom [float])
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btPolyhedralConvexAabbCachingShape&)
+  reset: void reset(btBU_Simplex1to4&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btBoxShape
+  .userPointer
+  __eq: void __eq(lua_State*,btBoxShape const&,btBoxShape const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btBoxShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btBoxShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfExtentsWithMargin: btVector3 getHalfExtentsWithMargin(btBoxShape const&)
+  getHalfExtentsWithoutMargin: btVector3 const& getHalfExtentsWithoutMargin(btBoxShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btBoxShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btBoxShape&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btBoxShape&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportingVertexWithoutMargin: btVector3 localGetSupportingVertexWithoutMargin(btBoxShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btBoxShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btBoxShape&,btVector3 const&)
+  setMargin: void setMargin(btBoxShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btBvhTriangleMeshShape
+  .margin
+  .meshInterface
+  .userPointer
+  __eq: void __eq(lua_State*,btBvhTriangleMeshShape const&,btBvhTriangleMeshShape const&)
+  __init: void __init(luabind::argument const&,btStridingMeshInterface*,bool,bool)
+  __tostring: void __tostring(lua_State*,btBvhTriangleMeshShape const&)
+  buildOptimizedBvh: void buildOptimizedBvh(btBvhTriangleMeshShape&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalAabbMax: btVector3 const& getLocalAabbMax(btTriangleMeshShape const&)
+  getLocalAabbMin: btVector3 const& getLocalAabbMin(btTriangleMeshShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getMeshInterface: btStridingMeshInterface* getMeshInterface(btTriangleMeshShape&)
+  getName: char const* getName(btCollisionShape const&)
+  getOwnsBvh: bool getOwnsBvh(btBvhTriangleMeshShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  partialRefitTree: void partialRefitTree(btBvhTriangleMeshShape&,btVector3 const&,btVector3 const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btTriangleMeshShape&)
+  refitTree: void refitTree(btBvhTriangleMeshShape&,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+  usesQuantizedAabbCompression: bool usesQuantizedAabbCompression(btBvhTriangleMeshShape const&)
+class btCapsuleShape
+  .halfHeight
+  .radius
+  .upAxis
+  .userPointer
+  __eq: void __eq(lua_State*,btCapsuleShape const&,btCapsuleShape const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btCapsuleShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfHeight: custom [float] getHalfHeight(btCapsuleShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btCapsuleShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUpAxis: int getUpAxis(btCapsuleShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCapsuleShapeX
+  .halfHeight
+  .radius
+  .upAxis
+  .userPointer
+  __eq: void __eq(lua_State*,btCapsuleShapeX const&,btCapsuleShapeX const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btCapsuleShapeX const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfHeight: custom [float] getHalfHeight(btCapsuleShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btCapsuleShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUpAxis: int getUpAxis(btCapsuleShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCapsuleShapeZ
+  .halfHeight
+  .radius
+  .upAxis
+  .userPointer
+  __eq: void __eq(lua_State*,btCapsuleShapeZ const&,btCapsuleShapeZ const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btCapsuleShapeZ const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfHeight: custom [float] getHalfHeight(btCapsuleShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btCapsuleShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUpAxis: int getUpAxis(btCapsuleShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCollisionObject
+  __eq: void __eq(lua_State*,btCollisionObject const&,btCollisionObject const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,btCollisionObject const&)
+  activate: void activate(btCollisionObject const&,bool)
+  checkCollideWith: bool checkCollideWith(btCollisionObject const&,btCollisionObject const*)
+  forceActivationState: void forceActivationState(btCollisionObject const&,int)
+  getActivationState: int getActivationState(btCollisionObject const&)
+  getAnisotropicFriction: btVector3 const& getAnisotropicFriction(btCollisionObject const&)
+  getBroadphaseHandle: custom [btBroadphaseProxy]* getBroadphaseHandle(btCollisionObject&)
+  getCcdMotionThreshold: custom [float] getCcdMotionThreshold(btCollisionObject const&)
+  getCcdSquareMotionThreshold: custom [float] getCcdSquareMotionThreshold(btCollisionObject const&)
+  getCcdSweptSphereRadius: custom [float] getCcdSweptSphereRadius(btCollisionObject const&)
+  getCollisionFlags: int getCollisionFlags(btCollisionObject const&)
+  getCollisionShape: btCollisionShape* getCollisionShape(btCollisionObject&)
+  getCompanionId: int getCompanionId(btCollisionObject const&)
+  getDeactivationTime: custom [float] getDeactivationTime(btCollisionObject const&)
+  getFriction: custom [float] getFriction(btCollisionObject const&)
+  getHitFraction: custom [float] getHitFraction(btCollisionObject const&)
+  getInterpolationAngularVelocity: btVector3 const& getInterpolationAngularVelocity(btCollisionObject const&)
+  getInterpolationLinearVelocity: btVector3 const& getInterpolationLinearVelocity(btCollisionObject const&)
+  getInterpolationWorldTransform: btTransform& getInterpolationWorldTransform(btCollisionObject&)
+  getIslandTag: int getIslandTag(btCollisionObject const&)
+  getRestitution: custom [float] getRestitution(btCollisionObject const&)
+  getUserPointer: void* getUserPointer(btCollisionObject const&)
+  getWorldTransform: btTransform& getWorldTransform(btCollisionObject&)
+  hasAnisotropicFriction: bool hasAnisotropicFriction(btCollisionObject const&,int)
+  hasContactResponse: bool hasContactResponse(btCollisionObject const&)
+  isActive: bool isActive(btCollisionObject const&)
+  isKinematicObject: bool isKinematicObject(btCollisionObject const&)
+  isStaticObject: bool isStaticObject(btCollisionObject const&)
+  mergesSimulationIslands: bool mergesSimulationIslands(btCollisionObject const&)
+  setActivationState: void setActivationState(btCollisionObject const&,int)
+  setAnisotropicFriction: void setAnisotropicFriction(btCollisionObject&,btVector3 const&,int)
+  setCcdMotionThreshold: void setCcdMotionThreshold(btCollisionObject&,custom [float])
+  setCcdSweptSphereRadius: void setCcdSweptSphereRadius(btCollisionObject&,custom [float])
+  setCollisionFlags: void setCollisionFlags(btCollisionObject&,int)
+  setCompanionId: void setCompanionId(btCollisionObject&,int)
+  setContactProcessingThreshold: void setContactProcessingThreshold(btCollisionObject&,custom [float])
+  setDeactivationTime: void setDeactivationTime(btCollisionObject&,custom [float])
+  setFriction: void setFriction(btCollisionObject&,custom [float])
+  setHitFraction: void setHitFraction(btCollisionObject&,custom [float])
+  setInterpolationAngularVelocity: void setInterpolationAngularVelocity(btCollisionObject&,btVector3 const&)
+  setInterpolationLinearVelocity: void setInterpolationLinearVelocity(btCollisionObject&,btVector3 const&)
+  setInterpolationWorldTransform: void setInterpolationWorldTransform(btCollisionObject&,btTransform const&)
+  setIslandTag: void setIslandTag(btCollisionObject&,int)
+  setRestitution: void setRestitution(btCollisionObject&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionObject&,void*)
+  setWorldTransform: void setWorldTransform(btCollisionObject&,btTransform const&)
+class btCollisionShape
+  .userPointer
+  __eq: void __eq(lua_State*,btCollisionShape const&,btCollisionShape const&)
+  __tostring: void __tostring(lua_State*,btCollisionShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCompoundShape
+  .userPointer
+  __eq: void __eq(lua_State*,btCompoundShape const&,btCompoundShape const&)
+  __init: void __init(luabind::argument const&,bool)
+  __tostring: void __tostring(lua_State*,btCompoundShape const&)
+  addChildShape: void addChildShape(btCompoundShape&,btTransform const&,btCollisionShape*)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculatePrincipalAxisTransform: void calculatePrincipalAxisTransform(btCompoundShape const&,custom [float] const*,btTransform&,btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  createAabbTreeFromChildren: void createAabbTreeFromChildren(btCompoundShape&)
+  getChildList: custom [btCompoundShapeChild]* getChildList(btCompoundShape&)
+  getChildShape: btCollisionShape* getChildShape(btCompoundShape&,int)
+  getChildTransform: btTransform& getChildTransform(btCompoundShape&,int)
+  getDynamicAabbTree: custom [btDbvt]* getDynamicAabbTree(btCompoundShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getNumChildShapes: int getNumChildShapes(btCompoundShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUpdateRevision: int getUpdateRevision(btCompoundShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  removeChildShape: void removeChildShape(btCompoundShape&,btCollisionShape*)
+  removeChildShapeByIndex: void removeChildShapeByIndex(btCompoundShape&,int)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+  updateChildTransform: void updateChildTransform(btCompoundShape&,int,btTransform const&,bool)
+class btConcaveShape
+  .margin
+  .userPointer
+  __eq: void __eq(lua_State*,btConcaveShape const&,btConcaveShape const&)
+  __tostring: void __tostring(lua_State*,btConcaveShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConeShape
+  .userPointer
+  __eq: void __eq(lua_State*,btConeShape const&,btConeShape const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btConeShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btConeShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConeShape&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getConeUpIndex: int getConeUpIndex(btConeShape const&)
+  getHeight: custom [float] getHeight(btConeShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConeShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btConeShape&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btConeShape&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btConeShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportingVertex: btVector3 localGetSupportingVertex(btConeShape const&,btVector3 const&)
+  localGetSupportingVertexWithoutMargin: btVector3 localGetSupportingVertexWithoutMargin(btConeShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setConeUpIndex: void setConeUpIndex(btConeShape&,int)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConeShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btConeShape&,btVector3 const&)
+  setMargin: void setMargin(btConeShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConeShapeX
+  .userPointer
+  __eq: void __eq(lua_State*,btConeShapeX const&,btConeShapeX const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btConeShapeX const&)
+  calculateLocalInertia: void calculateLocalInertia(btConeShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConeShape&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getConeUpIndex: int getConeUpIndex(btConeShape const&)
+  getHeight: custom [float] getHeight(btConeShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConeShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btConeShape&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btConeShape&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btConeShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportingVertex: btVector3 localGetSupportingVertex(btConeShape const&,btVector3 const&)
+  localGetSupportingVertexWithoutMargin: btVector3 localGetSupportingVertexWithoutMargin(btConeShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setConeUpIndex: void setConeUpIndex(btConeShape&,int)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConeShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btConeShape&,btVector3 const&)
+  setMargin: void setMargin(btConeShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConeShapeZ
+  .userPointer
+  __eq: void __eq(lua_State*,btConeShapeZ const&,btConeShapeZ const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btConeShapeZ const&)
+  calculateLocalInertia: void calculateLocalInertia(btConeShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConeShape&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getConeUpIndex: int getConeUpIndex(btConeShape const&)
+  getHeight: custom [float] getHeight(btConeShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConeShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btConeShape&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btConeShape&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btConeShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportingVertex: btVector3 localGetSupportingVertex(btConeShape const&,btVector3 const&)
+  localGetSupportingVertexWithoutMargin: btVector3 localGetSupportingVertexWithoutMargin(btConeShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setConeUpIndex: void setConeUpIndex(btConeShape&,int)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConeShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btConeShape&,btVector3 const&)
+  setMargin: void setMargin(btConeShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConeTwistConstraint
+  __eq: void __eq(lua_State*,btConeTwistConstraint const&,btConeTwistConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btTransform const&)
+  __tostring: void __tostring(lua_State*,btConeTwistConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  enableMotor: void enableMotor(btConeTwistConstraint&,bool)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getAFrame: btTransform const& getAFrame(btConeTwistConstraint const&)
+  getBFrame: btTransform const& getBFrame(btConeTwistConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  getPointForAngle: btVector3 getPointForAngle(btConeTwistConstraint const&,custom [float],custom [float])
+  setLimit: void setLimit(btConeTwistConstraint&,int,custom [float])
+  setMaxMotorImpulse: void setMaxMotorImpulse(btConeTwistConstraint&,custom [float])
+  setMotorTarget: void setMotorTarget(btConeTwistConstraint&,btQuaternion const&)
+  setMotorTargetInConstraintSpace: void setMotorTargetInConstraintSpace(btConeTwistConstraint&,btQuaternion const&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btConeTwistConstraint&,int,custom [float],int)
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btConvexHullShape
+  .userPointer
+  __eq: void __eq(lua_State*,btConvexHullShape const&,btConvexHullShape const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float] const*,int,int)
+  __tostring: void __tostring(lua_State*,btConvexHullShape const&)
+  addPoint: void addPoint(btConvexHullShape&,btVector3 const&,bool)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getNonvirtualAabb: void getNonvirtualAabb(btPolyhedralConvexAabbCachingShape const&,btTransform const&,btVector3&,btVector3&,custom [float])
+  getNumPoints: int getNumPoints(btConvexHullShape const&)
+  getPoints: btVector3 const* getPoints(btConvexHullShape const&)
+  getScaledPoint: btVector3 getScaledPoint(btConvexHullShape const&,int)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUnscaledPoints: btVector3* getUnscaledPoints(btConvexHullShape&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btPolyhedralConvexAabbCachingShape&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConvexInternalAabbCachingShape
+  __eq: void __eq(lua_State*,btConvexInternalAabbCachingShape const&,btConvexInternalAabbCachingShape const&)
+  __tostring: void __tostring(lua_State*,btConvexInternalAabbCachingShape const&)
+  recalcLocalAabb: void recalcLocalAabb(btConvexInternalAabbCachingShape&)
+class btConvexInternalShape
+  .userPointer
+  __eq: void __eq(lua_State*,btConvexInternalShape const&,btConvexInternalShape const&)
+  __tostring: void __tostring(lua_State*,btConvexInternalShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConvexShape
+  .userPointer
+  __eq: void __eq(lua_State*,btConvexShape const&,btConvexShape const&)
+  __tostring: void __tostring(lua_State*,btConvexShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btConvexTriangleMeshShape
+  .userPointer
+  __eq: void __eq(lua_State*,btConvexTriangleMeshShape const&,btConvexTriangleMeshShape const&)
+  __init: void __init(luabind::argument const&,btStridingMeshInterface*,bool)
+  __tostring: void __tostring(lua_State*,btConvexTriangleMeshShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculatePrincipalAxisTransform: void calculatePrincipalAxisTransform(btConvexTriangleMeshShape const&,btTransform&,btVector3&,custom [float]&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getMeshInterface: btStridingMeshInterface* getMeshInterface(btConvexTriangleMeshShape&)
+  getName: char const* getName(btCollisionShape const&)
+  getNonvirtualAabb: void getNonvirtualAabb(btPolyhedralConvexAabbCachingShape const&,btTransform const&,btVector3&,btVector3&,custom [float])
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btPolyhedralConvexAabbCachingShape&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCylinderShape
+  .userPointer
+  __eq: void __eq(lua_State*,btCylinderShape const&,btCylinderShape const&)
+  __tostring: void __tostring(lua_State*,btCylinderShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btCylinderShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfExtentsWithMargin: btVector3 getHalfExtentsWithMargin(btCylinderShape const&)
+  getHalfExtentsWithoutMargin: btVector3 const& getHalfExtentsWithoutMargin(btCylinderShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCylinderShapeX
+  .userPointer
+  __eq: void __eq(lua_State*,btCylinderShapeX const&,btCylinderShapeX const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btCylinderShapeX const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btCylinderShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfExtentsWithMargin: btVector3 getHalfExtentsWithMargin(btCylinderShape const&)
+  getHalfExtentsWithoutMargin: btVector3 const& getHalfExtentsWithoutMargin(btCylinderShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btCylinderShapeZ
+  .userPointer
+  __eq: void __eq(lua_State*,btCylinderShapeZ const&,btCylinderShapeZ const&)
+  __init: void __init(luabind::argument const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btCylinderShapeZ const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btCylinderShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getHalfExtentsWithMargin: btVector3 getHalfExtentsWithMargin(btCylinderShape const&)
+  getHalfExtentsWithoutMargin: btVector3 const& getHalfExtentsWithoutMargin(btCylinderShape const&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btDefaultMotionState
+  __eq: void __eq(lua_State*,btDefaultMotionState const&,btDefaultMotionState const&)
+  __init: void __init(luabind::argument const&,btTransform const&)
+  __init: void __init(luabind::argument const&,btTransform const&,btTransform const&)
+  __tostring: void __tostring(lua_State*,btDefaultMotionState const&)
+  getWorldTransform: void getWorldTransform(custom [btMotionState_wrap] const&,btTransform&)
+  setWorldTransform: void setWorldTransform(custom [btMotionState_wrap]&,btTransform const&)
+class btDefaultVehicleRaycaster
+  __eq: void __eq(lua_State*,btDefaultVehicleRaycaster const&,btDefaultVehicleRaycaster const&)
+  __tostring: void __tostring(lua_State*,btDefaultVehicleRaycaster const&)
+class btEmptyShape
+  .margin
+  .userPointer
+  __eq: void __eq(lua_State*,btEmptyShape const&,btEmptyShape const&)
+  __tostring: void __tostring(lua_State*,btEmptyShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btEmptyShape&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btEmptyShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btEmptyShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btFixedConstraint
+  __eq: void __eq(lua_State*,btFixedConstraint const&,btFixedConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&)
+  __tostring: void __tostring(lua_State*,btFixedConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  enableMotor: void enableMotor(btGeneric6DofSpring2Constraint&,int,bool)
+  enableSpring: void enableSpring(btGeneric6DofSpring2Constraint&,int,bool)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAngularLowerLimit: void setAngularLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAngularUpperLimit: void setAngularUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAxis: void setAxis(btGeneric6DofSpring2Constraint&,btVector3 const&,btVector3 const&)
+  setBounce: void setBounce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setDamping: void setDamping(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setLimit: void setLimit(btGeneric6DofSpring2Constraint&,int,custom [float],custom [float])
+  setLinearLowerLimit: void setLinearLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setLinearUpperLimit: void setLinearUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setMaxMotorForce: void setMaxMotorForce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btGeneric6DofSpring2Constraint&,int,custom [float],int)
+  setServo: void setServo(btGeneric6DofSpring2Constraint&,int,bool)
+  setServoTarget: void setServoTarget(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setStiffness: void setStiffness(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setTargetVelocity: void setTargetVelocity(btGeneric6DofSpring2Constraint&,int,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btGImpactMeshShape
+  .aabb
+  .boxSet
+  .hasBoxSet
+  .localBox
+  .margin
+  .meshInterface
+  .userPointer
+  __eq: void __eq(lua_State*,btGImpactMeshShape const&,btGImpactMeshShape const&)
+  __init: void __init(luabind::argument const&,btStridingMeshInterface*)
+  __tostring: void __tostring(lua_State*,btGImpactMeshShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAABB: void getAABB(btGImpactShapeInterface const&,btTransform const&,btVector3&,btVector3&)
+  getBoxSet: custom [btGImpactQuantizedBvh] const* getBoxSet(btGImpactShapeInterface const&)
+  getHasBoxSet: bool getHasBoxSet(btGImpactShapeInterface const&)
+  getLocalBox: btAABB const& getLocalBox(btGImpactShapeInterface&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btGImpactMeshShape&)
+  getMeshInterface: btStridingMeshInterface* getMeshInterface(btGImpactMeshShape&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btGImpactMeshShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+  updateBound: void updateBound(btGImpactMeshShape&)
+class btGImpactShapeInterface
+  .aabb
+  .boxSet
+  .hasBoxSet
+  .localBox
+  .margin
+  .userPointer
+  __eq: void __eq(lua_State*,btGImpactShapeInterface const&,btGImpactShapeInterface const&)
+  __tostring: void __tostring(lua_State*,btGImpactShapeInterface const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAABB: void getAABB(btGImpactShapeInterface const&,btTransform const&,btVector3&,btVector3&)
+  getBoxSet: custom [btGImpactQuantizedBvh] const* getBoxSet(btGImpactShapeInterface const&)
+  getHasBoxSet: bool getHasBoxSet(btGImpactShapeInterface const&)
+  getLocalBox: btAABB const& getLocalBox(btGImpactShapeInterface&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+  updateBound: void updateBound(btGImpactShapeInterface&)
+class btGearConstraint
+  __eq: void __eq(lua_State*,btGearConstraint const&,btGearConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3 const&,btVector3 const&,custom [float])
+  __tostring: void __tostring(lua_State*,btGearConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getAxisA: btVector3 const& getAxisA(btGearConstraint const&)
+  getAxisB: btVector3 const& getAxisB(btGearConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  getRatio: custom [float] getRatio(btGearConstraint const&)
+  setAxisA: void setAxisA(btGearConstraint&,btVector3&)
+  setAxisB: void setAxisB(btGearConstraint&,btVector3&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setRatio: void setRatio(btGearConstraint&,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btGeneric6DofConstraint
+  __eq: void __eq(lua_State*,btGeneric6DofConstraint const&,btGeneric6DofConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&,bool)
+  __tostring: void __tostring(lua_State*,btGeneric6DofConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAngularLowerLimit: void setAngularLowerLimit(btGeneric6DofConstraint&,btVector3 const&)
+  setAngularUpperLimit: void setAngularUpperLimit(btGeneric6DofConstraint&,btVector3 const&)
+  setAxis: void setAxis(btGeneric6DofConstraint&,btVector3 const&,btVector3 const&)
+  setLimit: void setLimit(btGeneric6DofConstraint&,int,custom [float],custom [float])
+  setLinearLowerLimit: void setLinearLowerLimit(btGeneric6DofConstraint&,btVector3 const&)
+  setLinearMotor: void setLinearMotor(btGeneric6DofConstraint&,int,bool,custom [float],custom [float])
+  setLinearUpperLimit: void setLinearUpperLimit(btGeneric6DofConstraint&,btVector3 const&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btGeneric6DofConstraint&,int,custom [float],int)
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btGeneric6DofSpring2Constraint
+  __eq: void __eq(lua_State*,btGeneric6DofSpring2Constraint const&,btGeneric6DofSpring2Constraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&)
+  __tostring: void __tostring(lua_State*,btGeneric6DofSpring2Constraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  enableMotor: void enableMotor(btGeneric6DofSpring2Constraint&,int,bool)
+  enableSpring: void enableSpring(btGeneric6DofSpring2Constraint&,int,bool)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAngularLowerLimit: void setAngularLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAngularUpperLimit: void setAngularUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAxis: void setAxis(btGeneric6DofSpring2Constraint&,btVector3 const&,btVector3 const&)
+  setBounce: void setBounce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setDamping: void setDamping(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setLimit: void setLimit(btGeneric6DofSpring2Constraint&,int,custom [float],custom [float])
+  setLinearLowerLimit: void setLinearLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setLinearUpperLimit: void setLinearUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setMaxMotorForce: void setMaxMotorForce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btGeneric6DofSpring2Constraint&,int,custom [float],int)
+  setServo: void setServo(btGeneric6DofSpring2Constraint&,int,bool)
+  setServoTarget: void setServoTarget(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setStiffness: void setStiffness(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setTargetVelocity: void setTargetVelocity(btGeneric6DofSpring2Constraint&,int,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btGeneric6DofSpringConstraint
+  __eq: void __eq(lua_State*,btGeneric6DofSpringConstraint const&,btGeneric6DofSpringConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&,bool)
+  __tostring: void __tostring(lua_State*,btGeneric6DofSpringConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  enableSpring: void enableSpring(btGeneric6DofSpringConstraint&,int,bool)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAngularLowerLimit: void setAngularLowerLimit(btGeneric6DofSpringConstraint&,btVector3 const&)
+  setAngularUpperLimit: void setAngularUpperLimit(btGeneric6DofSpringConstraint&,btVector3 const&)
+  setAxis: void setAxis(btGeneric6DofSpringConstraint&,btVector3 const&,btVector3 const&)
+  setDamping: void setDamping(btGeneric6DofSpringConstraint&,int,custom [float])
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpringConstraint&)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpringConstraint&,int)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpringConstraint&,int,custom [float])
+  setLinearLowerLimit: void setLinearLowerLimit(btGeneric6DofSpringConstraint&,btVector3 const&)
+  setLinearUpperLimit: void setLinearUpperLimit(btGeneric6DofSpringConstraint&,btVector3 const&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setStiffness: void setStiffness(btGeneric6DofSpringConstraint&,int,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btHinge2Constraint
+  __eq: void __eq(lua_State*,btHinge2Constraint const&,btHinge2Constraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3&,btVector3&,btVector3&)
+  __tostring: void __tostring(lua_State*,btHinge2Constraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  enableMotor: void enableMotor(btGeneric6DofSpring2Constraint&,int,bool)
+  enableSpring: void enableSpring(btGeneric6DofSpring2Constraint&,int,bool)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getAnchor: btVector3 const& getAnchor(btHinge2Constraint&)
+  getAnchor2: btVector3 const& getAnchor2(btHinge2Constraint&)
+  getAngle1: custom [float] getAngle1(btHinge2Constraint&)
+  getAngle2: custom [float] getAngle2(btHinge2Constraint&)
+  getAxis1: btVector3 const& getAxis1(btHinge2Constraint&)
+  getAxis2: btVector3 const& getAxis2(btHinge2Constraint&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAngularLowerLimit: void setAngularLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAngularUpperLimit: void setAngularUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setAxis: void setAxis(btGeneric6DofSpring2Constraint&,btVector3 const&,btVector3 const&)
+  setBounce: void setBounce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setDamping: void setDamping(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int)
+  setEquilibriumPoint: void setEquilibriumPoint(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setLimit: void setLimit(btGeneric6DofSpring2Constraint&,int,custom [float],custom [float])
+  setLinearLowerLimit: void setLinearLowerLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setLinearUpperLimit: void setLinearUpperLimit(btGeneric6DofSpring2Constraint&,btVector3 const&)
+  setLowerLimit: void setLowerLimit(btHinge2Constraint&,custom [float])
+  setMaxMotorForce: void setMaxMotorForce(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btGeneric6DofSpring2Constraint&,int,custom [float],int)
+  setServo: void setServo(btGeneric6DofSpring2Constraint&,int,bool)
+  setServoTarget: void setServoTarget(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setStiffness: void setStiffness(btGeneric6DofSpring2Constraint&,int,custom [float],bool)
+  setTargetVelocity: void setTargetVelocity(btGeneric6DofSpring2Constraint&,int,custom [float])
+  setUpperLimit: void setUpperLimit(btHinge2Constraint&,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btHingeConstraint
+  __eq: void __eq(lua_State*,btHingeConstraint const&,btHingeConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3 const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btHingeConstraint const&)
+  enableAngularMotor: void enableAngularMotor(btHingeConstraint&,bool,custom [float],custom [float])
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getHingeAngle: custom [float] getHingeAngle(btHingeConstraint&)
+  getHingeAngle: custom [float] getHingeAngle(btHingeConstraint&,btTransform const&,btTransform const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  motorTorque: custom [float] motorTorque(btHingeConstraint const&)
+  setAngularOnly: void setAngularOnly(btHingeConstraint&,bool)
+  setAxis: void setAxis(btHingeConstraint&,btVector3&)
+  setLimit: void setLimit(btHingeConstraint&,custom [float],custom [float],custom [float],custom [float],custom [float])
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btHingeConstraint&,int,custom [float],int)
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btMatrix3x3
+  .x
+  __eq: void __eq(lua_State*,btMatrix3x3 const&,btMatrix3x3 const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float],custom [float],custom [float],custom [float],custom [float],custom [float])
+  __tostring: void __tostring(lua_State*,btMatrix3x3 const&)
+  determinant: custom [float] determinant(btMatrix3x3 const&)
+  getColumn: btVector3 getColumn(btMatrix3x3 const&,int)
+  getRotation: void getRotation(btMatrix3x3 const&,btQuaternion&)
+  getRow: btVector3 const& getRow(btMatrix3x3 const&,int)
+  inverse: btMatrix3x3 inverse(btMatrix3x3 const&)
+  setEulerYPR: void setEulerYPR(btMatrix3x3&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setEulerZYX: void setEulerZYX(btMatrix3x3&,custom [float],custom [float],custom [float])
+  tdotx: custom [float] tdotx(btMatrix3x3 const&,btVector3 const&)
+  tdoty: custom [float] tdoty(btMatrix3x3 const&,btVector3 const&)
+  tdotz: custom [float] tdotz(btMatrix3x3 const&,btVector3 const&)
+  transpose: btMatrix3x3 transpose(btMatrix3x3 const&)
+class btMotionState
+  __eq: void __eq(lua_State*,btMotionState const&,btMotionState const&)
+  __tostring: void __tostring(lua_State*,btMotionState const&)
+  getWorldTransform: void getWorldTransform(custom [btMotionState_wrap] const&,btTransform&)
+  setWorldTransform: void setWorldTransform(custom [btMotionState_wrap]&,btTransform const&)
+class btMultiSphereShape
+  __eq: void __eq(lua_State*,btMultiSphereShape const&,btMultiSphereShape const&)
+  __init: void __init(luabind::argument const&,btVector3 const*,custom [float] const*,int)
+  __tostring: void __tostring(lua_State*,btMultiSphereShape const&)
+  getSphereCount: int getSphereCount(btMultiSphereShape const&)
+  getSpherePosition: btVector3 const& getSpherePosition(btMultiSphereShape const&,int)
+  getSphereRadius: custom [float] getSphereRadius(btMultiSphereShape const&,int)
+  recalcLocalAabb: void recalcLocalAabb(btConvexInternalAabbCachingShape&)
+class btPoint2PointConstraint
+  __eq: void __eq(lua_State*,btPoint2PointConstraint const&,btPoint2PointConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btPoint2PointConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btPoint2PointConstraint&,int,custom [float],int)
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btPolyhedralConvexAabbCachingShape
+  .userPointer
+  __eq: void __eq(lua_State*,btPolyhedralConvexAabbCachingShape const&,btPolyhedralConvexAabbCachingShape const&)
+  __tostring: void __tostring(lua_State*,btPolyhedralConvexAabbCachingShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getNonvirtualAabb: void getNonvirtualAabb(btPolyhedralConvexAabbCachingShape const&,btTransform const&,btVector3&,btVector3&,custom [float])
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btPolyhedralConvexAabbCachingShape&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btPolyhedralConvexShape
+  .userPointer
+  __eq: void __eq(lua_State*,btPolyhedralConvexShape const&,btPolyhedralConvexShape const&)
+  __tostring: void __tostring(lua_State*,btPolyhedralConvexShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btQuaternion
+  __add: void __add(lua_State*,btQuaternion const&,btQuaternion const&)
+  __div: void __div(lua_State*,btQuaternion const&,custom [float])
+  __eq: void __eq(lua_State*,btQuaternion const&,btQuaternion const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float],custom [float])
+  __mul: void __mul(lua_State*,btQuaternion const&,btQuaternion const&)
+  __mul: void __mul(lua_State*,btQuaternion const&,custom [float])
+  __sub: void __sub(lua_State*,btQuaternion const&,btQuaternion const&)
+  __tostring: void __tostring(lua_State*,btQuaternion const&)
+  __unm: void __unm(lua_State*,btQuaternion const&)
+  angle: custom [float] angle(btQuaternion const&,btQuaternion const&)
+  angleShortestPath: custom [float] angleShortestPath(btQuaternion const&,btQuaternion const&)
+  dot: custom [float] dot(btQuaternion const&,btQuaternion const&)
+  farthest: btQuaternion farthest(btQuaternion const&,btQuaternion const&)
+  getAngle: custom [float] getAngle(btQuaternion const&)
+  getAngleShortestPath: custom [float] getAngleShortestPath(btQuaternion const&)
+  getAxis: btVector3 getAxis(btQuaternion const&)
+  getW: custom [float] const& getW(btQuaternion const&)
+  getX: custom [float] const& getX(btQuaternion&)
+  getY: custom [float] const& getY(btQuaternion&)
+  getZ: custom [float] const& getZ(btQuaternion&)
+  inverse: btQuaternion inverse(btQuaternion const&)
+  length: custom [float] length(btQuaternion const&)
+  length2: custom [float] length2(btQuaternion const&)
+  nearest: btQuaternion nearest(btQuaternion const&,btQuaternion const&)
+  normalize: btQuaternion& normalize(btQuaternion&)
+  normalized: btQuaternion normalized(btQuaternion const&)
+  safeNormalize: btQuaternion& safeNormalize(btQuaternion&)
+  setEuler: void setEuler(btQuaternion&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setEulerZYX: void setEulerZYX(btQuaternion&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setMax: void setMax(btQuaternion&,custom [btQuadWord] const&)
+  setMin: void setMin(btQuaternion&,custom [btQuadWord] const&)
+  setRotation: void setRotation(btQuaternion&,btVector3 const&,custom [float])
+  setValue: void setValue(btQuaternion&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setValue: void setValue(btQuaternion&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setW: void setW(btQuaternion&,custom [float])
+  setX: void setX(btQuaternion&,custom [float])
+  setY: void setY(btQuaternion&,custom [float])
+  setZ: void setZ(btQuaternion&,custom [float])
+  slerp: btQuaternion slerp(btQuaternion const&,btQuaternion const&,custom [float] const&)
+  w: custom [float] const& w(btQuaternion&)
+  x: custom [float] const& x(btQuaternion&)
+  y: custom [float] const& y(btQuaternion&)
+  z: custom [float] const& z(btQuaternion&)
+class btRaycastVehicle
+  __eq: void __eq(lua_State*,btRaycastVehicle const&,btRaycastVehicle const&)
+  __init: void __init(luabind::argument const&,btVehicleTuning const&,btRigidBody*,btVehicleRaycaster*)
+  __tostring: void __tostring(lua_State*,btRaycastVehicle const&)
+  addWheel: btWheelInfo& addWheel(btRaycastVehicle&,btVector3 const&,btVector3 const&,btVector3 const&,custom [float],custom [float],btVehicleTuning const&,bool)
+  applyEngineForce: void applyEngineForce(btRaycastVehicle&,custom [float],int)
+  setCoordinateSystem: void setCoordinateSystem(btRaycastVehicle&,int,int,int)
+  updateVehicle: void updateVehicle(btRaycastVehicle&,custom [float])
+  updateWheelTransform: void updateWheelTransform(btRaycastVehicle&,int,bool)
+class btRigidBody
+  .gyroSolved
+  __eq: void __eq(lua_State*,btRigidBody const&,btRigidBody const&)
+  __init: void __init(luabind::argument const&,btRigidBodyConstructionInfo const&)
+  __init: void __init(luabind::argument const&,custom [float],btMotionState*,btCollisionShape*,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btRigidBody const&)
+  activate: void activate(btCollisionObject const&,bool)
+  addConstraintRef: void addConstraintRef(btRigidBody&,btTypedConstraint*)
+  applyCentralForce: void applyCentralForce(btRigidBody&,btVector3 const&)
+  applyCentralImpulse: void applyCentralImpulse(btRigidBody&,btVector3 const&)
+  applyDamping: void applyDamping(btRigidBody&,custom [float])
+  applyForce: void applyForce(btRigidBody&,btVector3 const&,btVector3 const&)
+  applyGravity: void applyGravity(btRigidBody&)
+  applyImpulse: void applyImpulse(btRigidBody&,btVector3 const&,btVector3 const&)
+  applyTorque: void applyTorque(btRigidBody&,btVector3 const&)
+  applyTorqueImpulse: void applyTorqueImpulse(btRigidBody&,btVector3 const&)
+  checkCollideWith: bool checkCollideWith(btCollisionObject const&,btCollisionObject const*)
+  checkCollideWithOverride: bool checkCollideWithOverride(btRigidBody&,btCollisionObject const*)
+  clearForces: void clearForces(btRigidBody&)
+  computeAngularImpulseDenominator: custom [float] computeAngularImpulseDenominator(btRigidBody const&,btVector3 const&)
+  computeImpulseDenominator: custom [float] computeImpulseDenominator(btRigidBody const&,btVector3 const&,btVector3 const&)
+  forceActivationState: void forceActivationState(btCollisionObject const&,int)
+  getAabb: void getAabb(btRigidBody const&,btVector3&,btVector3&)
+  getActivationState: int getActivationState(btCollisionObject const&)
+  getAngularDamping: custom [float] getAngularDamping(btRigidBody const&)
+  getAngularFactor: btVector3 const& getAngularFactor(btRigidBody const&)
+  getAngularSleepingThreshold: custom [float] getAngularSleepingThreshold(btRigidBody const&)
+  getAngularVelocity: btVector3 const& getAngularVelocity(btRigidBody const&)
+  getAnisotropicFriction: btVector3 const& getAnisotropicFriction(btCollisionObject const&)
+  getBroadphaseHandle: custom [btBroadphaseProxy]* getBroadphaseHandle(btCollisionObject&)
+  getBroadphaseProxy: custom [btBroadphaseProxy]* getBroadphaseProxy(btRigidBody&)
+  getCcdMotionThreshold: custom [float] getCcdMotionThreshold(btCollisionObject const&)
+  getCcdSquareMotionThreshold: custom [float] getCcdSquareMotionThreshold(btCollisionObject const&)
+  getCcdSweptSphereRadius: custom [float] getCcdSweptSphereRadius(btCollisionObject const&)
+  getCenterOfMassPosition: btVector3 const& getCenterOfMassPosition(btRigidBody const&)
+  getCenterOfMassTransform: btTransform const& getCenterOfMassTransform(btRigidBody const&)
+  getCollisionFlags: int getCollisionFlags(btCollisionObject const&)
+  getCollisionShape: btCollisionShape* getCollisionShape(btRigidBody&)
+  getCompanionId: int getCompanionId(btCollisionObject const&)
+  getConstraintRef: btTypedConstraint* getConstraintRef(btRigidBody&,int)
+  getDeactivationTime: custom [float] getDeactivationTime(btCollisionObject const&)
+  getFlags: int getFlags(btRigidBody const&)
+  getFriction: custom [float] getFriction(btCollisionObject const&)
+  getGravity: btVector3 const& getGravity(btRigidBody const&)
+  getHitFraction: custom [float] getHitFraction(btCollisionObject const&)
+  getInterpolationAngularVelocity: btVector3 const& getInterpolationAngularVelocity(btCollisionObject const&)
+  getInterpolationLinearVelocity: btVector3 const& getInterpolationLinearVelocity(btCollisionObject const&)
+  getInterpolationWorldTransform: btTransform& getInterpolationWorldTransform(btCollisionObject&)
+  getInvInertiaDiagLocal: btVector3 const& getInvInertiaDiagLocal(btRigidBody const&)
+  getInvInertiaTensorWorld: btMatrix3x3 const& getInvInertiaTensorWorld(btRigidBody const&)
+  getInvMass: custom [float] getInvMass(btRigidBody const&)
+  getIslandTag: int getIslandTag(btCollisionObject const&)
+  getLinearDamping: custom [float] getLinearDamping(btRigidBody const&)
+  getLinearFactor: btVector3 const& getLinearFactor(btRigidBody const&)
+  getLinearSleepingThreshold: custom [float] getLinearSleepingThreshold(btRigidBody const&)
+  getLinearVelocity: btVector3 const& getLinearVelocity(btRigidBody const&)
+  getMotionState: btMotionState* getMotionState(btRigidBody&)
+  getNumConstraintRefs: int getNumConstraintRefs(btRigidBody const&)
+  getOrientation: btQuaternion getOrientation(btRigidBody const&)
+  getRestitution: custom [float] getRestitution(btCollisionObject const&)
+  getTotalForce: btVector3 const& getTotalForce(btRigidBody const&)
+  getTotalTorque: btVector3 const& getTotalTorque(btRigidBody const&)
+  getUserPointer: void* getUserPointer(btCollisionObject const&)
+  getVelocityInLocalPoint: btVector3 getVelocityInLocalPoint(btRigidBody const&,btVector3 const&)
+  getWorldTransform: btTransform& getWorldTransform(btCollisionObject&)
+  hasAnisotropicFriction: bool hasAnisotropicFriction(btCollisionObject const&,int)
+  hasContactResponse: bool hasContactResponse(btCollisionObject const&)
+  integrateVelocities: void integrateVelocities(btRigidBody&,custom [float])
+  isActive: bool isActive(btCollisionObject const&)
+  isInWorld: bool isInWorld(btRigidBody const&)
+  isKinematicObject: bool isKinematicObject(btCollisionObject const&)
+  isStaticObject: bool isStaticObject(btCollisionObject const&)
+  mergesSimulationIslands: bool mergesSimulationIslands(btCollisionObject const&)
+  predictIntegratedTransform: void predictIntegratedTransform(btRigidBody&,custom [float],btTransform&)
+  proceedToTransform: void proceedToTransform(btRigidBody&,btTransform const&)
+  removeConstraintRef: void removeConstraintRef(btRigidBody&,btTypedConstraint*)
+  saveKinematicState: void saveKinematicState(btRigidBody&,custom [float])
+  setActivationState: void setActivationState(btCollisionObject const&,int)
+  setAngularFactor: void setAngularFactor(btRigidBody&,btVector3 const&)
+  setAngularFactor: void setAngularFactor(btRigidBody&,custom [float])
+  setAngularVelocity: void setAngularVelocity(btRigidBody&,btVector3 const&)
+  setAnisotropicFriction: void setAnisotropicFriction(btCollisionObject&,btVector3 const&,int)
+  setCcdMotionThreshold: void setCcdMotionThreshold(btCollisionObject&,custom [float])
+  setCcdSweptSphereRadius: void setCcdSweptSphereRadius(btCollisionObject&,custom [float])
+  setCenterOfMassTransform: void setCenterOfMassTransform(btRigidBody&,btTransform const&)
+  setCollisionFlags: void setCollisionFlags(btCollisionObject&,int)
+  setCompanionId: void setCompanionId(btCollisionObject&,int)
+  setContactProcessingThreshold: void setContactProcessingThreshold(btCollisionObject&,custom [float])
+  setDamping: void setDamping(btRigidBody&,custom [float],custom [float])
+  setDeactivationTime: void setDeactivationTime(btCollisionObject&,custom [float])
+  setFlags: void setFlags(btRigidBody&,int)
+  setFriction: void setFriction(btCollisionObject&,custom [float])
+  setGravity: void setGravity(btRigidBody&,btVector3 const&)
+  setHitFraction: void setHitFraction(btCollisionObject&,custom [float])
+  setInterpolationAngularVelocity: void setInterpolationAngularVelocity(btCollisionObject&,btVector3 const&)
+  setInterpolationLinearVelocity: void setInterpolationLinearVelocity(btCollisionObject&,btVector3 const&)
+  setInterpolationWorldTransform: void setInterpolationWorldTransform(btCollisionObject&,btTransform const&)
+  setInvInertiaDiagLocal: void setInvInertiaDiagLocal(btRigidBody&,btVector3 const&)
+  setIslandTag: void setIslandTag(btCollisionObject&,int)
+  setLinearFactor: void setLinearFactor(btRigidBody&,btVector3 const&)
+  setLinearVelocity: void setLinearVelocity(btRigidBody&,btVector3 const&)
+  setMassProps: void setMassProps(btRigidBody&,custom [float],btVector3 const&)
+  setMotionState: void setMotionState(btRigidBody&,btMotionState*)
+  setNewBroadphaseProxy: void setNewBroadphaseProxy(btRigidBody&,custom [btBroadphaseProxy]*)
+  setRestitution: void setRestitution(btCollisionObject&,custom [float])
+  setSleepingThresholds: void setSleepingThresholds(btRigidBody&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionObject&,void*)
+  setWorldTransform: void setWorldTransform(btCollisionObject&,btTransform const&)
+  translate: void translate(btRigidBody&,btVector3 const&)
+  updateDeactivation: void updateDeactivation(btRigidBody&,custom [float])
+  updateInertiaTensor: void updateInertiaTensor(btRigidBody&)
+  wantsSleeping: bool wantsSleeping(btRigidBody&)
+class btRigidBodyConstructionInfo
+  __eq: void __eq(lua_State*,btRigidBodyConstructionInfo const&,btRigidBodyConstructionInfo const&)
+  __init: void __init(luabind::argument const&,custom [float],btMotionState*,btCollisionShape*,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btRigidBodyConstructionInfo const&)
+class btSliderConstraint
+  __eq: void __eq(lua_State*,btSliderConstraint const&,btSliderConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btTransform const&,btTransform const&,bool)
+  __tostring: void __tostring(lua_State*,btSliderConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getLinearPos: custom [float] getLinearPos(btSliderConstraint const&)
+  getMaxAngMotorForce: custom [float] getMaxAngMotorForce(btSliderConstraint&)
+  getMaxLinMotorForce: custom [float] getMaxLinMotorForce(btSliderConstraint&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  getPoweredAngMotor: bool getPoweredAngMotor(btSliderConstraint&)
+  getPoweredLinMotor: bool getPoweredLinMotor(btSliderConstraint&)
+  getTargetAngMotorVelocity: custom [float] getTargetAngMotorVelocity(btSliderConstraint&)
+  getTargetLinMotorVelocity: custom [float] getTargetLinMotorVelocity(btSliderConstraint&)
+  setDampingDirAng: void setDampingDirAng(btSliderConstraint&,custom [float])
+  setDampingDirLin: void setDampingDirLin(btSliderConstraint&,custom [float])
+  setDampingLimAng: void setDampingLimAng(btSliderConstraint&,custom [float])
+  setDampingLimLin: void setDampingLimLin(btSliderConstraint&,custom [float])
+  setDampingOrthoAng: void setDampingOrthoAng(btSliderConstraint&,custom [float])
+  setDampingOrthoLin: void setDampingOrthoLin(btSliderConstraint&,custom [float])
+  setLowerAngLimit: void setLowerAngLimit(btSliderConstraint&,custom [float])
+  setLowerLinLimit: void setLowerLinLimit(btSliderConstraint&,custom [float])
+  setMaxAngMotorForce: void setMaxAngMotorForce(btSliderConstraint&,custom [float])
+  setMaxLinMotorForce: void setMaxLinMotorForce(btSliderConstraint&,custom [float])
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setParam: void setParam(btSliderConstraint&,int,custom [float],int)
+  setPoweredAngMotor: void setPoweredAngMotor(btSliderConstraint&,bool)
+  setPoweredLinMotor: void setPoweredLinMotor(btSliderConstraint&,bool)
+  setRestitutionDirAng: void setRestitutionDirAng(btSliderConstraint&,custom [float])
+  setRestitutionDirLin: void setRestitutionDirLin(btSliderConstraint&,custom [float])
+  setRestitutionLimAng: void setRestitutionLimAng(btSliderConstraint&,custom [float])
+  setRestitutionLimLin: void setRestitutionLimLin(btSliderConstraint&,custom [float])
+  setRestitutionOrthoAng: void setRestitutionOrthoAng(btSliderConstraint&,custom [float])
+  setRestitutionOrthoLin: void setRestitutionOrthoLin(btSliderConstraint&,custom [float])
+  setSoftnessDirAng: void setSoftnessDirAng(btSliderConstraint&,custom [float])
+  setSoftnessDirLin: void setSoftnessDirLin(btSliderConstraint&,custom [float])
+  setSoftnessLimAng: void setSoftnessLimAng(btSliderConstraint&,custom [float])
+  setSoftnessLimLin: void setSoftnessLimLin(btSliderConstraint&,custom [float])
+  setSoftnessOrthoAng: void setSoftnessOrthoAng(btSliderConstraint&,custom [float])
+  setSoftnessOrthoLin: void setSoftnessOrthoLin(btSliderConstraint&,custom [float])
+  setTargetAngMotorVelocity: void setTargetAngMotorVelocity(btSliderConstraint&,custom [float])
+  setTargetLinMotorVelocity: void setTargetLinMotorVelocity(btSliderConstraint&,custom [float])
+  setUpperAngLimit: void setUpperAngLimit(btSliderConstraint&,custom [float])
+  setUpperLinLimit: void setUpperLinLimit(btSliderConstraint&,custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btSphereShape
+  .radius
+  .unscaledRadius
+  .userPointer
+  __eq: void __eq(lua_State*,btSphereShape const&,btSphereShape const&)
+  __init: void __init(luabind::argument const&,custom [float])
+  __tostring: void __tostring(lua_State*,btSphereShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getRadius: custom [float] getRadius(btSphereShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUnscaledRadius: void setUnscaledRadius(btSphereShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btStaticPlaneShape
+  .margin
+  .planeConstant
+  .planeNormal
+  .userPointer
+  __eq: void __eq(lua_State*,btStaticPlaneShape const&,btStaticPlaneShape const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,custom [float])
+  __tostring: void __tostring(lua_State*,btStaticPlaneShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getPlaneConstant: custom [float] const& getPlaneConstant(btStaticPlaneShape const&)
+  getPlaneNormal: btVector3 const& getPlaneNormal(btStaticPlaneShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btStridingMeshInterface
+  .scaling
+  __eq: void __eq(lua_State*,btStridingMeshInterface const&,btStridingMeshInterface const&)
+  __tostring: void __tostring(lua_State*,btStridingMeshInterface const&)
+  calculateAabbBruteForce: void calculateAabbBruteForce(btStridingMeshInterface&,btVector3&,btVector3&)
+  getScaling: btVector3 const& getScaling(btStridingMeshInterface const&)
+  setScaling: void setScaling(btStridingMeshInterface&,btVector3 const&)
+class btTetrahedronShapeEx
+  .userPointer
+  __eq: void __eq(lua_State*,btTetrahedronShapeEx const&,btTetrahedronShapeEx const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,btTetrahedronShapeEx const&)
+  addVertex: void addVertex(btBU_Simplex1to4&,btVector3 const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getNonvirtualAabb: void getNonvirtualAabb(btPolyhedralConvexAabbCachingShape const&,btTransform const&,btVector3&,btVector3&,custom [float])
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btPolyhedralConvexAabbCachingShape&)
+  reset: void reset(btBU_Simplex1to4&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+  setVertices: void setVertices(btTetrahedronShapeEx&,btVector3 const&,btVector3 const&,btVector3 const&,btVector3 const&)
+class btTransform
+  __eq: void __eq(lua_State*,btTransform const&,btTransform const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btQuaternion const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btTransform const&)
+  getBasis: btMatrix3x3 const& getBasis(btTransform const&)
+  getIdentity: (accepts a call with no arguments)
+  getOpenGLMatrix: void getOpenGLMatrix(btTransform const&,custom [float]*)
+  getRotation: btQuaternion getRotation(btTransform const&)
+  invXform: btVector3 invXform(btTransform const&,btVector3 const&)
+  inverse: btTransform inverse(btTransform const&)
+  inverseTimes: btTransform inverseTimes(btTransform const&,btTransform const&)
+  mult: void mult(btTransform&,btTransform const&,btTransform const&)
+  setBasis: void setBasis(btTransform&,btMatrix3x3 const&)
+  setFromOpenGLMatrix: void setFromOpenGLMatrix(btTransform&,custom [float] const*)
+  setIdentity: void setIdentity(btTransform&)
+  setOrigin: void setOrigin(btTransform&,btVector3 const&)
+  setRotation: void setRotation(btTransform&,btQuaternion const&)
+class btTriangleIndexVertexArray
+  .scaling
+  __eq: void __eq(lua_State*,btTriangleIndexVertexArray const&,btTriangleIndexVertexArray const&)
+  __tostring: void __tostring(lua_State*,btTriangleIndexVertexArray const&)
+  addaddIndexedMesh: void addaddIndexedMesh(btTriangleIndexVertexArray&,custom [btIndexedMesh] const&,custom [PHY_ScalarType])
+  calculateAabbBruteForce: void calculateAabbBruteForce(btStridingMeshInterface&,btVector3&,btVector3&)
+  getIndexedMeshArray: custom [btAlignedObjectArray<btIndexedMesh>]& getIndexedMeshArray(btTriangleIndexVertexArray&)
+  getScaling: btVector3 const& getScaling(btStridingMeshInterface const&)
+  setScaling: void setScaling(btStridingMeshInterface&,btVector3 const&)
+class btTriangleMesh
+  .numTriangles
+  .scaling
+  .use32bitIndices
+  .use4componentVertices
+  __eq: void __eq(lua_State*,btTriangleMesh const&,btTriangleMesh const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,bool)
+  __init: void __init(luabind::argument const&,bool,bool)
+  __tostring: void __tostring(lua_State*,btTriangleMesh const&)
+  addIndex: void addIndex(btTriangleMesh&,int)
+  addTriangle: void addTriangle(btTriangleMesh&,btVector3 const&,btVector3 const&,btVector3 const&,bool)
+  addaddIndexedMesh: void addaddIndexedMesh(btTriangleIndexVertexArray&,custom [btIndexedMesh] const&,custom [PHY_ScalarType])
+  calculateAabbBruteForce: void calculateAabbBruteForce(btStridingMeshInterface&,btVector3&,btVector3&)
+  findOrAddVertex: int findOrAddVertex(btTriangleMesh&,btVector3 const&,bool)
+  getIndexedMeshArray: custom [btAlignedObjectArray<btIndexedMesh>]& getIndexedMeshArray(btTriangleIndexVertexArray&)
+  getNumTriangles: int getNumTriangles(btTriangleMesh const&)
+  getScaling: btVector3 const& getScaling(btStridingMeshInterface const&)
+  getUse32bitIndices: bool getUse32bitIndices(btTriangleMesh const&)
+  getUse4componentVertices: bool getUse4componentVertices(btTriangleMesh const&)
+  preallocateIndices: void preallocateIndices(btTriangleMesh&,int)
+  preallocateVertices: void preallocateVertices(btTriangleMesh&,int)
+  setScaling: void setScaling(btStridingMeshInterface&,btVector3 const&)
+class btTriangleMeshShape
+  .margin
+  .meshInterface
+  .userPointer
+  __eq: void __eq(lua_State*,btTriangleMeshShape const&,btTriangleMeshShape const&)
+  __tostring: void __tostring(lua_State*,btTriangleMeshShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getLocalAabbMax: btVector3 const& getLocalAabbMax(btTriangleMeshShape const&)
+  getLocalAabbMin: btVector3 const& getLocalAabbMin(btTriangleMeshShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btConcaveShape const&)
+  getMeshInterface: btStridingMeshInterface* getMeshInterface(btTriangleMeshShape&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  processAllTriangles: void processAllTriangles(btConcaveShape const&,custom [btTriangleCallback]*,btVector3 const&,btVector3 const&)
+  recalcLocalAabb: void recalcLocalAabb(btTriangleMeshShape&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btConcaveShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btTriangleShape
+  .userPointer
+  __eq: void __eq(lua_State*,btTriangleShape const&,btTriangleShape const&)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btTriangleShape const&)
+  calcNormal: void calcNormal(btTriangleShape const&,btVector3&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  getVertexPtr: btVector3& getVertexPtr(btTriangleShape&,int)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btTriangleShapeEx
+  .userPointer
+  __eq: void __eq(lua_State*,btTriangleShapeEx const&,btTriangleShapeEx const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,btTriangleShapeEx const)
+  __init: void __init(luabind::argument const&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btTriangleShapeEx const&)
+  applyTransform: void applyTransform(btTriangleShapeEx&,btTransform const&)
+  buildTriPlane: void buildTriPlane(btTriangleShapeEx const&,btVector4&)
+  calcNormal: void calcNormal(btTriangleShape const&,btVector3&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btConvexInternalShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getImplicitShapeDimensions: btVector3 const& getImplicitShapeDimensions(btConvexInternalShape const&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getLocalScalingNV: btVector3 const& getLocalScalingNV(btConvexInternalShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNV: custom [float] getMarginNV(btConvexInternalShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  getVertexPtr: btVector3& getVertexPtr(btTriangleShape&,int)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  overlap_test_conservative: bool overlap_test_conservative(btTriangleShapeEx&,btTriangleShapeEx const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setImplicitShapeDimensions: void setImplicitShapeDimensions(btConvexInternalShape&,btVector3 const&)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setSafeMargin: void setSafeMargin(btConvexInternalShape&,custom [float],custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btTypedConstraint
+  __eq: void __eq(lua_State*,btTypedConstraint const&,btTypedConstraint const&)
+  __tostring: void __tostring(lua_State*,btTypedConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btUniformScalingShape
+  .userPointer
+  __eq: void __eq(lua_State*,btUniformScalingShape const&,btUniformScalingShape const&)
+  __init: void __init(luabind::argument const&,btConvexShape*,custom [float])
+  __tostring: void __tostring(lua_State*,btUniformScalingShape const&)
+  calculateLocalInertia: void calculateLocalInertia(btCollisionShape const&,custom [float],btVector3&)
+  calculateSerializeBufferSize: int calculateSerializeBufferSize(btCollisionShape const&)
+  getAabb: void getAabb(btUniformScalingShape const&,btTransform const&,btVector3&,btVector3&)
+  getAabbNonVirtual: void getAabbNonVirtual(btConvexShape const&,btTransform const&,btVector3&,btVector3&)
+  getChildShape: btConvexShape* getChildShape(btUniformScalingShape&)
+  getLocalScaling: btVector3 const& getLocalScaling(btCollisionShape const&)
+  getMargin: custom [float] getMargin(btCollisionShape const&)
+  getMarginNonVirtual: custom [float] getMarginNonVirtual(btConvexShape const&)
+  getName: char const* getName(btCollisionShape const&)
+  getShapeType: int getShapeType(btCollisionShape const&)
+  getUniformScalingFactor: custom [float] getUniformScalingFactor(btUniformScalingShape const&)
+  getUserPointer: void* getUserPointer(btCollisionShape const&)
+  isCompound: bool isCompound(btCollisionShape const&)
+  isConcave: bool isConcave(btCollisionShape const&)
+  isConvex: bool isConvex(btCollisionShape const&)
+  isConvex2d: bool isConvex2d(btCollisionShape const&)
+  isInfinite: bool isInfinite(btCollisionShape const&)
+  isNonMoving: bool isNonMoving(btCollisionShape const&)
+  isPolyhedral: bool isPolyhedral(btCollisionShape const&)
+  isSoftBody: bool isSoftBody(btCollisionShape const&)
+  localGetSupportVertexNonVirtual: btVector3 localGetSupportVertexNonVirtual(btConvexShape const&,btVector3 const&)
+  localGetSupportVertexWithoutMarginNonVirtual: btVector3 localGetSupportVertexWithoutMarginNonVirtual(btConvexShape const&,btVector3 const&)
+  serialize: char const* serialize(btCollisionShape const&,void*,custom [btSerializer]*)
+  serializeSingleShape: void serializeSingleShape(btCollisionShape const&,custom [btSerializer]*)
+  setLocalScaling: void setLocalScaling(btCollisionShape&,btVector3 const&)
+  setMargin: void setMargin(btCollisionShape&,custom [float])
+  setUserPointer: void setUserPointer(btCollisionShape&,void*)
+class btUniversalConstraint
+  __eq: void __eq(lua_State*,btUniversalConstraint const&,btUniversalConstraint const&)
+  __init: void __init(luabind::argument const&,btRigidBody&,btRigidBody&,btVector3 const&,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btUniversalConstraint const&)
+  enableForces: void enableForces(btTypedConstraint&)
+  forceA: btVector3 forceA(btTypedConstraint const&)
+  forceB: btVector3 forceB(btTypedConstraint const&)
+  getOverrideNumSolverIterations: int getOverrideNumSolverIterations(btTypedConstraint const&)
+  setAxis: void setAxis(btUniversalConstraint&,btVector3 const&,btVector3 const&)
+  setLowerLimit: void setLowerLimit(btHingeConstraint&,int,custom [float],int)
+  setOverrideNumSolverIterations: void setOverrideNumSolverIterations(btTypedConstraint&,int)
+  setUpperLimit: void setUpperLimit(btHingeConstraint&,custom [float],custom [float],custom [float],custom [float],custom [float])
+  torqueA: btVector3 torqueA(btTypedConstraint const&)
+  torqueB: btVector3 torqueB(btTypedConstraint const&)
+class btVector3
+  .x
+  .y
+  .z
+  __add: void __add(lua_State*,btVector3 const&,btVector3 const&)
+  __div: void __div(lua_State*,btVector3 const&,custom [float])
+  __eq: void __eq(lua_State*,btVector3 const&,btVector3 const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float],custom [float],custom [float])
+  __mul: void __mul(lua_State*,btVector3 const&,custom [float])
+  __sub: void __sub(lua_State*,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btVector3 const&)
+  absolute: btVector3 absolute(btVector3 const&)
+  angle: custom [float] angle(btVector3 const&,btVector3 const&)
+  closestAxis: int closestAxis(btVector3 const&)
+  cross: btVector3 cross(btVector3 const&,btVector3 const&)
+  distance: custom [float] distance(btVector3 const&,btVector3 const&)
+  distance2: custom [float] distance2(btVector3 const&,btVector3 const&)
+  dot: custom [float] dot(btVector3 const&,btVector3 const&)
+  furthestAxis: int furthestAxis(btVector3 const&)
+  fuzzyZero: bool fuzzyZero(btVector3 const&)
+  getX: custom [float] const& getX(btVector3 const&)
+  getY: custom [float] const& getY(btVector3 const&)
+  getZ: custom [float] const& getZ(btVector3 const&)
+  isZero: bool isZero(btVector3 const&)
+  length: custom [float] length(btVector3 const&)
+  length2: custom [float] length2(btVector3 const&)
+  lerp: btVector3 lerp(btVector3 const&,btVector3 const&,custom [float] const&)
+  maxAxis: int maxAxis(btVector3 const&)
+  minAxis: int minAxis(btVector3 const&)
+  normalize: btVector3& normalize(btVector3&)
+  normalized: btVector3 normalized(btVector3 const&)
+  rotate: btVector3 rotate(btVector3 const&,btVector3 const&,custom [float])
+  setX: void setX(btVector3&,custom [float])
+  setY: void setY(btVector3&,custom [float])
+  setZ: void setZ(btVector3&,custom [float])
+  setZero: void setZero(btVector3&)
+  triple: custom [float] triple(btVector3 const&,btVector3 const&,btVector3 const&)
+class btVector4
+  .x
+  .y
+  .z
+  __add: void __add(lua_State*,btVector3 const&,btVector3 const&)
+  __div: void __div(lua_State*,btVector3 const&,custom [float])
+  __eq: void __eq(lua_State*,btVector4 const&,btVector4 const&)
+  __init: void __init(luabind::argument const&)
+  __init: void __init(luabind::argument const&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&)
+  __mul: void __mul(lua_State*,btVector3 const&,custom [float])
+  __sub: void __sub(lua_State*,btVector3 const&,btVector3 const&)
+  __tostring: void __tostring(lua_State*,btVector4 const&)
+  absolute: btVector3 absolute(btVector3 const&)
+  absolute4: btVector4 absolute4(btVector4 const&)
+  angle: custom [float] angle(btVector3 const&,btVector3 const&)
+  closestAxis: int closestAxis(btVector3 const&)
+  closestAxis4: int closestAxis4(btVector4 const&)
+  cross: btVector3 cross(btVector3 const&,btVector3 const&)
+  distance: custom [float] distance(btVector3 const&,btVector3 const&)
+  distance2: custom [float] distance2(btVector3 const&,btVector3 const&)
+  dot: custom [float] dot(btVector3 const&,btVector3 const&)
+  furthestAxis: int furthestAxis(btVector3 const&)
+  fuzzyZero: bool fuzzyZero(btVector3 const&)
+  getW: custom [float] getW(btVector4 const&)
+  getX: custom [float] const& getX(btVector3 const&)
+  getY: custom [float] const& getY(btVector3 const&)
+  getZ: custom [float] const& getZ(btVector3 const&)
+  isZero: bool isZero(btVector3 const&)
+  length: custom [float] length(btVector3 const&)
+  length2: custom [float] length2(btVector3 const&)
+  lerp: btVector3 lerp(btVector3 const&,btVector3 const&,custom [float] const&)
+  maxAxis: int maxAxis(btVector3 const&)
+  maxAxis4: int maxAxis4(btVector4 const&)
+  minAxis: int minAxis(btVector3 const&)
+  minAxis4: int minAxis4(btVector4 const&)
+  normalize: btVector3& normalize(btVector3&)
+  normalized: btVector3 normalized(btVector3 const&)
+  rotate: btVector3 rotate(btVector3 const&,btVector3 const&,custom [float])
+  setValue: void setValue(btVector4&,custom [float] const&,custom [float] const&,custom [float] const&,custom [float] const&)
+  setX: void setX(btVector3&,custom [float])
+  setY: void setY(btVector3&,custom [float])
+  setZ: void setZ(btVector3&,custom [float])
+  setZero: void setZero(btVector3&)
+  triple: custom [float] triple(btVector3 const&,btVector3 const&,btVector3 const&)
+class btVehicleRaycaster
+  __eq: void __eq(lua_State*,btVehicleRaycaster const&,btVehicleRaycaster const&)
+  __tostring: void __tostring(lua_State*,btVehicleRaycaster const&)
+class btVehicleTuning
+  .frictionSlip
+  .maxSuspensionForce
+  .maxSuspensionTravelCm
+  .suspensionCompression
+  .suspensionDamping
+  .suspensionStiffness
+  __eq: void __eq(lua_State*,btVehicleTuning const&,btVehicleTuning const&)
+  __init: void __init(luabind::argument const&)
+  __tostring: void __tostring(lua_State*,btVehicleTuning const&)
+class btWheelInfo
+  __eq: void __eq(lua_State*,btWheelInfo const&,btWheelInfo const&)
+  __tostring: void __tostring(lua_State*,btWheelInfo const&)
+class class_info_data
+  .attributes
+  .methods
+  .name
+global assert()
+global atan2()
+global class()
+global class_info()
+global class_names()
+global collectgarbage()
+global copyTrans()
+global demWallClock()
+global dofile()
+global error()
+global gcinfo()
+global getAngVelXYZ()
+global getPosXYZ()
+global getVelXYZ()
+global getfenv()
+global getmetatable()
+global ipairs()
+global load()
+global loadfile()
+global loadstring()
+global module()
+global newproxy()
+global next()
+global objectKey()
+global pairs()
+global pcall()
+global print()
+global printf()
+global property()
+global rawequal()
+global rawget()
+global rawset()
+global require()
+global select()
+global setAngVelXYZ()
+global setVelXYZ()
+global setfenv()
+global setmetatable()
+global super()
+global tonumber()
+global tostring()
+global type()
+global unpack()
+global xpcall()

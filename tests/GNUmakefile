@@ -14,16 +14,18 @@ endif
 
 all: debug release
 
+# The Lua unit tests and the Lua API snapshot: quick. A failing test fails
+# the target. "make check" runs every suite of tests/harness.py (see there;
+# off Linux it runs the unit and smoke suites only).
 debug:
 	@echo "tests debug/bpp======================================"
-	@for f in *.lua; do \
-		echo "> $(DEBUG_APP) -f $$f"; \
-		(cd .. && $(DEBUG_APP) -f tests/$$f) 2>&1; \
-	done || true
+	@python3 harness.py --bpp ../$(DEBUG_APP) unit api
 
 release:
 	@echo "tests release/bpp =================================================="
-	@for f in *.lua; do \
-		echo "> $(RELEASE_APP) -f $$f"; \
-		(cd .. && $(RELEASE_APP) -f tests/$$f) 2>&1; \
-	done || true
+	@python3 harness.py --bpp ../$(RELEASE_APP) unit api
+
+check:
+	@python3 harness.py --bpp ../$(RELEASE_APP)
+
+.PHONY: all debug release check
