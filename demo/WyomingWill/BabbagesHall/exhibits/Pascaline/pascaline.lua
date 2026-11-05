@@ -619,6 +619,10 @@ pcall(function()
   v:setHelpText(table.concat({
     "THE PASCALINE  (Babbage's Hall)",
     "",
+    "KEYS",
+    "  U T H  choose a wheel     1-9  add to it     Space  turn the chosen hole",
+    "  D  the tour      R  back to 000      Z  slow motion",
+    "",
     "Pascal's adding machine, 1642. Each digit is a wheel of pins with a snail",
     "cam behind it. Counting up from 0 to 9, the cam lifts a weighted lever,",
     "the SAUTOIR, a little at each step. Passing 9, the cam drops away, the",
@@ -640,10 +644,6 @@ pcall(function()
     "  says what it will add. Space turns it to the stop.",
     "  The keys: U / T / H choose the units, tens or hundreds (a brass mark",
     "  below the dial); 1 to 9 add that much to it, in one stroke.",
-    "",
-    "KEYS",
-    "  U T H  choose a wheel     1-9  add to it     Space  turn the chosen hole",
-    "  D  the tour      R  back to 000      Z  slow motion",
   }, "\n"))
 end)
 if v.onHover then

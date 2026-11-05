@@ -1938,16 +1938,18 @@ end
 --                      others are taken off the board while it runs; a
 --                      step that needs one it didn't name is an error.
 --                      Without it: the whole machine
--- While it runs, the listing is in the help (Shortcuts) pane with an arrow
--- at the line being done, the line itself in the status bar, and every
+-- While it runs, the listing is on the program board behind the machine
+-- (B) with the line being done lit, the line itself in the status bar, the
+-- program's name and line number in the help (Shortcuts) pane, and every
 -- ball is shown before it goes (the dashed line, the sign) and checked
 -- after, as in the tour. G runs the program chosen with the "program"
 -- slider (G again stops it); DC_PROGRAM=name (or "all") runs one headless.
 -- ---------------------------------------------------------------------
 local refillWait = 0                  -- (s: the hand has just put balls back; see stepping)
 -- (the programs' state and functions, in one table: PR.prog the program
--- running, PR.run the ones DC_PROGRAM runs, PR.fails how they went, PR.help
--- the exhibit's help, below, under the listing)
+-- running, PR.run the ones DC_PROGRAM runs, PR.fails how they went; PR.top
+-- the help pane's title and keys, PR.help the rest of it, PR.pane the two
+-- with the program's line between: below)
 local PR = { prog = nil, run = nil, fails = 0, help = "" }
 do
 local PROG_DIR = DIR .. "programs/"
@@ -2047,31 +2049,19 @@ do
     end
   end
 end
+-- (the pane says only which program: its listing is on the board behind
+-- the machine, B, and the line being done in the status bar)
 local function libraryText(sel)
-  local t = { "PROGRAMS (the \"program\" slider chooses, G runs it):" }
-  for i, p in ipairs(library) do t[#t + 1] = string.format("%s%2d  %s", i == sel and "->" or "  ", i, p.title) end
-  return table.concat(t, "\n")
-end
-local function listing(p, cur)
-  local t = {}
-  -- (the pane may show only a few lines: the one being done, and the next,
-  -- come first; the whole listing after them)
-  if cur then
-    t[#t + 1] = string.format("PROGRAM: %s, line %d of %d", p.title, cur, #p.lines)
-    t[#t + 1] = string.format("->%3d  %s", cur, p.lines[cur])
-    for i = cur + 1, #p.lines do
-      if p.lines[i]:match("%S") then t[#t + 1] = string.format("  %3d  %s", i, p.lines[i]); break end
-    end
-    t[#t + 1] = ""
-  end
-  t[#t + 1] = string.format("PROGRAM: %s   (programs/%s)", p.title, p.file)
-  for i, l in ipairs(p.lines) do t[#t + 1] = string.format("%s%3d  %s", i == cur and "->" or "  ", i, l) end
-  return table.concat(t, "\n")
+  local p = library[sel]
+  if not p then return "" end
+  return string.format("PROGRAM %d of %d: %s   (the \"program\" slider chooses, G runs it; B: on the board behind)",
+                       sel, #library, p.title)
 end
 local function setStatus(t) pcall(function() v.statusText = t end) end
 local function showProgram(p, cur)
   if PR.board then PR.board(p, cur) end
-  v:setHelpText(listing(p, cur) .. "\n\n" .. PR.help)
+  if PR.pane then v:setHelpText(PR.pane(cur and string.format("RUNNING: %s, line %d of %d (B: on the board behind)", p.title, cur, #p.lines)
+                           or string.format("PROGRAM: %s (B: on the board behind)", p.title))) end
   local l = cur and p.lines[cur]
   setStatus(l and string.format("%s, line %d:  %s", p.title, cur, l:match("^%s*(.-)%s*$")) or "")
 end
@@ -2254,8 +2244,8 @@ local function progStep()
   end
 end
 
-PR.step, PR.start, PR.stopIt, PR.library, PR.libraryText, PR.listing, PR.setStatus =
-  progStep, startProgram, stopProgram, library, libraryText, listing, setStatus
+PR.step, PR.start, PR.stopIt, PR.library, PR.libraryText, PR.setStatus =
+  progStep, startProgram, stopProgram, library, libraryText, setStatus
 end
 
 -- ---------------------------------------------------------------------
@@ -2519,7 +2509,8 @@ v:onParamChanged(function(N, name, value)
   if name == "program" then
     progSel = math.max(1, math.min(#PR.library, math.floor(value + 0.5)))
     if not PR.prog and PR.library[progSel] then
-      v:setHelpText(PR.libraryText(progSel) .. "\n\n" .. PR.listing(PR.library[progSel], nil) .. "\n\n" .. PR.help)
+      v:setHelpText(PR.pane(PR.libraryText(progSel)))
+      if PR.board then PR.board(PR.library[progSel], nil) end         -- (and on the board behind)
     end
     return
   end
@@ -2528,9 +2519,24 @@ v:onParamChanged(function(N, name, value)
 end)
 
 pcall(function()
-  PR.help = table.concat({
+  PR.top = table.concat({
     "THE DIGI-COMP II  (Babbage's Hall) -- counting, adding, multiplying, subtracting, dividing",
     "",
+    "KEYS",
+    "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
+    "  X      COMPLEMENT on/off (the shutters over the done holes)",
+    "  U      AUTO <-> MANUAL (the thread hooked on or off)",
+    "  O      OVERFLOW: RUN <-> HALT (HALT: a carry out of the 64s stops it in AUTO)",
+    "  G      run the program the \"program\" slider chooses (G again: stop)",
+    "  B      look at the program board (behind the machine), close up; again: back",
+    "  W      look at the weight and the damper (under the board's top end); again: back",
+    "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
+    "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
+    "  D      set the distributor to start a cycle",
+    "  T      the tour: the library, in turn   R  set it back   Z  slow motion",
+    "  Q      the hand shown <-> off (off: what it does is done at once)",
+  }, "\n")
+  PR.help = table.concat({
     "A computer of rolling balls, after E.S.R.'s Digi-Comp II (1965). The rockers",
     "are flip-flops: each leans one way or the other and stays. Apex right is 1,",
     "left 0 (the MQ's the other way round). The seven down the right, read bottom",
@@ -2569,23 +2575,11 @@ pcall(function()
     "  go, and the sign beside it (THIS BALL) says what it will do and what the",
     "  accumulator was and will be. Then watch it do that (Z: slow motion).",
     "",
-    "KEYS",
-    "  Space  START: one ball     M  MULTIPLY    C  CLEAR    N  COUNT  (on/off)",
-    "  X      COMPLEMENT on/off (the shutters over the done holes)",
-    "  U      AUTO <-> MANUAL (the thread hooked on or off)",
-    "  O      OVERFLOW: RUN <-> HALT (HALT: a carry out of the 64s stops it in AUTO)",
-    "  G      run the program the \"program\" slider chooses (G again: stop)",
-    "  B      look at the program board (behind the machine), close up; again: back",
-    "  W      look at the weight and the damper (under the board's top end); again: back",
-    "  1..7   set a rocker of A over by hand (1 = the 1s ... 7 = the 64s)",
-    "  H J K L  the memory's 1s, 2s, 4s, 8s    8 9 0  the MQ's 1s, 2s, 4s",
-    "  D      set the distributor to start a cycle",
-    "  T      the tour: the library, in turn   R  set it back   Z  slow motion",
-    "  Q      the hand shown <-> off (off: what it does is done at once)",
-    "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
   }, "\n")
-  v:setHelpText((#PR.library > 0 and (PR.libraryText(progSel) .. "\n\n") or "") .. PR.help)
+  -- (the pane: the keys first, then the program, then how it works)
+  PR.pane = function(line) return PR.top .. "\n\n" .. (line ~= "" and (line .. "\n\n") or "") .. PR.help end
+  v:setHelpText(PR.pane(PR.libraryText(progSel)))
 end)
 
 local MEM_KEY = { "H", "J", "K", "L" }

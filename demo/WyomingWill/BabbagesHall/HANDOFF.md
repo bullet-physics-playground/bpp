@@ -352,8 +352,8 @@ there, in `release/`, or on the path; or set `BPP`.
   and asked for them as scripts the exhibit reads and runs line by line,
   with a library. `programs/*.dc2` (listed in `programs/LIBRARY`): the
   keys, plus `SET`, `UNTIL STOP|OVERFLOW|CYCLE`, `CHECK`; the "program"
-  slider and `G` run one, the listing in the Shortcuts pane and the line in
-  the status bar; `DC_PROGRAM=all` runs the library (53 000 frames, 12
+  slider and `G` run one, the listing on the program board behind (`B`),
+  the line in the status bar; `DC_PROGRAM=all` runs the library (53 000 frames, 12
   minutes here).
   MANUAL section 9. (The hall's and the exhibits' status lines were never
   shown: bpp's `statusText` is a property, not a `setStatusText` method;
@@ -460,6 +460,18 @@ there, in `release/`, or on the path; or set `BPP`.
   It runs every frame before the steps, so the meter counts it as
   physics. A fix to bpp's export (format a mesh only when its `.inc` is
   missing) went to Jakob separately. FINDINGS, "How fast it runs".
+- **The Shortcuts pane (2026-11-04):** William found he had to scroll to
+  the keys. Every exhibit's pane now has its KEYS first, under one line of
+  the hall's (Tab, Shift+Tab; where its sliders are moved to the end); the
+  Digi-Comp's no longer lists its library or the program (one line names
+  it; the listing is on the program board, which the "program" slider now
+  shows too). Resting the mouse on a table says what its placard says
+  (`EXHIBIT_TABLE.parts`): the placards are low down and seldom in view.
+  **Next, agreed:** a museum label on a lectern at the rail in front of
+  each machine (title, maker and date, two or three sentences; a key to
+  look at it close up), one exhibit first for William to see; then the
+  rest. A new bpp pane was considered and set aside (screen room; bpp's
+  C++).
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

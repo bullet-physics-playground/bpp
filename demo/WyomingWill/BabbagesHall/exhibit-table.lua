@@ -22,7 +22,8 @@
 -- stand on it), the table's size, and the floor plane. It also leaves
 -- EXHIBIT_TABLE (its size and centre) in the exhibit's globals: in the hall,
 -- the exhibit is moved forward so that the table's front edge is 60 cm
--- behind the rail.
+-- behind the rail, and the mouse resting on the table shows what its
+-- placard says.
 
 local T = {}
 T.HEIGHT = 100                  -- cm, floor to the table's top
@@ -38,12 +39,14 @@ function T.size(w, d)
   return math.max(T.MIN_W, up(w + 2 * T.MARGIN)), math.max(T.MIN_D, up(d + 2 * T.MARGIN))
 end
 
+local parts                     -- (the table's pieces, as build() makes them)
 local function deco(sx, sy, sz, x, y, z, col)
   local c = Cube(sx, sy, sz, 0)
   c.collides = false
   c.col = col
   v:add(c)
   c.pos = btVector3(x, y, z)
+  parts[#parts + 1] = c
   return c
 end
 
@@ -56,6 +59,7 @@ function T.build(w, d, opts)
   local top = Cube(TW, T.TOP, TD, 0)
   top.col = OAK
   v:add(top)
+  parts = { top }
   top.pos = btVector3(cx, -T.TOP / 2, cz)
   -- the brass edge round the top, and the apron under it
   deco(TW + 1, 1.2, 1, cx, -0.6, cz + TD / 2, BRASS)
@@ -79,8 +83,10 @@ function T.build(w, d, opts)
   local floor = Plane(0, 1, 0, -T.HEIGHT, opts.floor or 400)
   floor.col = "#3b3f45"
   v:add(floor)
-  -- (for the hall: where the table is, so it can bring it forward to the rail)
-  EXHIBIT_TABLE = { w = TW, d = TD, x = cx, z = cz }
+  -- (for the hall: where the table is, so it can bring it forward to the
+  -- rail; and its pieces, so that resting the mouse on it says what the
+  -- placard says)
+  EXHIBIT_TABLE = { w = TW, d = TD, x = cx, z = cz, parts = parts }
   return top, TW, TD, floor
 end
 

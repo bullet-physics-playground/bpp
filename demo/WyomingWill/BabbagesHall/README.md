@@ -43,7 +43,9 @@ runs on its own from its folder.
 
 Click the 3D view first so it has the keyboard. Everything else goes to the
 exhibit you're at, with the same keys as when it runs on its own; the
-Shortcuts pane lists them. `HALL_START=differential` (any part of a name)
+Shortcuts pane lists them, at its top (one line of the hall's first: where
+Tab and Shift+Tab go). Resting the mouse on an exhibit's table, or its
+placard, says what it is. `HALL_START=differential` (any part of a name)
 starts at that exhibit, and `HALL_START=end` at the title wall.
 
 On Tab and Shift+Tab the camera flies to the next stop, out of the bay, along

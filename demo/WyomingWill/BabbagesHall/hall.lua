@@ -354,7 +354,7 @@ local function makeExhibit(e, bay)
     getParam = function(_, n) return realV:getParam(g.prefix .. n) end,
     setHelpText = function(_, text)
       g.help = text
-      if active == g then realV:setHelpText(g.header() .. text) end
+      if active == g then realV:setHelpText(g.wrapHelp(text)) end
     end,
     setStatusText = function(_, text)
       g.statusText = text or ""
@@ -809,6 +809,11 @@ local function loadExhibit(g)
   -- machine is seen close from the aisle (the exhibit says where its
   -- table is: exhibit-table.lua)
   local t = ok and g.env.EXHIBIT_TABLE
+  -- (the mouse on its table: what its placard says, as on the placard,
+  -- which is low down and seldom in view)
+  if t and t.parts and objectKey then
+    for _, o in ipairs(t.parts) do HOVER[objectKey(o)] = g.e.about end
+  end
   if t then
     local want = BAY_D / 2 - 12 - TABLE_GAP       -- (the rail is 12 cm in from the bay's edge)
     local front = t.z + t.d / 2
@@ -854,14 +859,20 @@ local function nextStop(s, d)
   local i = indexOf(s) or 1
   return stops[(i - 1 + d) % #stops + 1]
 end
+-- (an exhibit's pane: one line of the hall's, then its own, its keys at
+-- the top, so they show in a small pane; where its sliders are, at the end)
 local function header(g)
   return function()
-    return "BABBAGE'S HALL -- at " .. g.name ..
-           "\n(Tab: walk on to " .. nextStop(g, 1).name .. "; Shift+Tab: back to " .. nextStop(g, -1).name .. ")\n" ..
-           "Its sliders are the \"" .. g.prefix .. "\" ones in the Params pane.\n\n"
+    return "BABBAGE'S HALL -- at " .. g.name .. ".   Tab: on to " .. nextStop(g, 1).name ..
+           ";   Shift+Tab: back to " .. nextStop(g, -1).name .. "\n"
   end
 end
-for _, g in ipairs(all) do g.header = header(g) end
+local function wrapHelp(g)
+  return function(text)
+    return g.header() .. text .. "\n\nIts sliders are the \"" .. g.prefix .. "\" ones in the Params pane."
+  end
+end
+for _, g in ipairs(all) do g.header, g.wrapHelp = header(g), wrapHelp(g) end
 
 local function hallHelp(s)
   local live, coming = {}, {}
@@ -1063,7 +1074,7 @@ local function goTo(s, instant)
     local pos = view.pos or btVector3(0, 150, 200)
     local look = view.look or btVector3(0, 0, 0)
     moveCam(s.toScene(pos), s.toScene(look), instant)
-    realV:setHelpText(s.header() .. s.help)
+    realV:setHelpText(s.wrapHelp(s.help))
     -- (and tell it you've come, if it asked: v:onEnter)
     local f = s.callbacks.onEnter
     if f then local ok, err = pcall(f, s.N); if not ok then print("HALL: " .. s.name .. " onEnter: " .. tostring(err)) end end

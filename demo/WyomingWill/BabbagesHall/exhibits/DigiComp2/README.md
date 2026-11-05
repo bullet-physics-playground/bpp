@@ -234,7 +234,7 @@ it is and what it is doing.
 the **COMPLEMENT** of 25 (102, then 103); **SUBTRACT** 12 - 4 (4
 complemented to 124, then 12 added: 8, over 128); **DIVIDE** 13 / 5 ball
 by ball (quotient 2, remainder 3), 25 / 5 with loops, and 25 / 5 in AUTO,
-stopped by OVERFLOW; and counting out nine balls, by hand and in AUTO. Each program's listing is in the Shortcuts pane, the line being
+stopped by OVERFLOW; and counting out nine balls, by hand and in AUTO. Each program's listing is on the program board behind the machine, the line being
 done in the status bar. After each ball it checks everything the ball
 should have changed (the accumulator, the MQ, the distributor, STOP,
 OVERFLOW) and that the ball reached the collector, and each program's
@@ -252,8 +252,8 @@ would.
 **program** slider and press `G`: the hand does it line by line, every ball
 shown before it goes and checked after. The program is shown on the
 **program board**, on a stand behind the machine's top end, the line being
-done lit (`B` brings the camera close enough to read it, and back); it is
-also in the Shortcuts pane, and the line in the status bar. The library has count, clear,
+done lit (`B` brings the camera close enough to read it, and back); the
+Shortcuts pane names it (the keys first), and the status bar shows the line. The library has count, clear,
 37 + 11, 13 x 3, 13 x 5 in AUTO, the complement of 25, 12 - 4, 13 / 5 ball
 by ball, 25 / 5 with loops and in AUTO, and counting out nine balls by hand
 and in AUTO; `MANUAL.md`, section 9, has the

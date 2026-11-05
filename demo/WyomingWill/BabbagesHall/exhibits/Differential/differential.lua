@@ -487,6 +487,10 @@ pcall(function()
   v:setHelpText(table.concat({
     "THE DIFFERENTIAL  (Babbage's Hall)",
     "",
+    "KEYS",
+    "  1 / Q  A: one unit forward / back     2 / W  B: one unit forward / back",
+    "  0      both back to 0                 T      the tour",
+    "",
     "Gears that add. The carrier -- the ring round the middle -- always turns",
     "half as far as the two inputs, A and B, put together:",
     "    carrier = (A + B) / 2",
@@ -497,10 +501,6 @@ pcall(function()
     "  and carry the ring half as far.",
     "  Turn both the same way: the whole cluster turns as one.",
     "  Turn them opposite ways: the spiders spin and the ring stays still.",
-    "",
-    "KEYS",
-    "  1 / Q  A: one unit forward / back     2 / W  B: one unit forward / back",
-    "  0      both back to 0                 T      the tour",
     "",
     "The gears turn each other by their teeth alone, as printed.",
   }, "\n"))

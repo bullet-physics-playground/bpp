@@ -512,6 +512,11 @@ pcall(function()
   v:setHelpText(table.concat({
     "THE DOMINO HALF ADDER  (Babbage's Hall)",
     "",
+    "KEYS",
+    "  T  the tour: all four sums      G  GO",
+    "  A  input A: 1 <-> 0             B  input B: 1 <-> 0",
+    "  R  stand them all up again      Z  slow motion <-> real time",
+    "",
     "A computer of dominoes: it adds two one-bit numbers, A and B. The",
     "answer is the two tiles at the far end, CARRY and SUM: each shows 0,",
     "and falls over to show 1.   0+0=00  0+1=01  1+0=01  1+1=10",
@@ -525,11 +530,6 @@ pcall(function()
     "  The carry (green) is A's long way round. When SUM falls, a branch of",
     "  it cuts the carry before A's wave gets there -- so the carry",
     "  finishes only when both inputs were 1: A AND B.",
-    "",
-    "KEYS",
-    "  T  the tour: all four sums      G  GO",
-    "  A  input A: 1 <-> 0             B  input B: 1 <-> 0",
-    "  R  stand them all up again      Z  slow motion <-> real time",
     "",
     "Every part can be 3D printed: see the README in this exhibit's folder.",
   }, "\n"))
