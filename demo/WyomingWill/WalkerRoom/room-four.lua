@@ -22,7 +22,9 @@
 -- Needs bpp built with Bullet with threads (scripts/bullet-threads.sh, then
 -- qmake CONFIG+=bundled_bullet); otherwise it says so and runs on one. With
 -- any number of threads the room walks the same, move for move; with none it
--- walks as before (the walkers' joints are solved in a different order).
+-- walks as before (without threads Bullet solves two or three walkers
+-- together and stops when the group has settled; with threads each walker
+-- stops on its own).
 --
 -- Units: centimetres and seconds.
 --

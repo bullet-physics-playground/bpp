@@ -1242,21 +1242,76 @@ public:
       ++_warm->step;
       for (int i = 0; i < m_constraints.size(); i++) _warm->map.emplace(m_constraints[i], WarmCache::Entry());
     }
+    // the joints in the order Bullet's one-thread world gives them (btDiscreteDynamicsWorld::solveConstraints: sorted
+    // by island, by the same sort), so each island's joints come in the same order (the threaded island manager
+    // keeps the order it is given); the contacts likewise (IslandsMt). So one walker is solved exactly as without
+    // threads.
+    m_sortedConstraints.resize(m_constraints.size());
+    for (int i = 0; i < m_constraints.size(); i++) m_sortedConstraints[i] = m_constraints[i];
+    m_sortedConstraints.quickSort(ByIsland());
+    _islandsMt->deterministic = getDispatchInfo().m_deterministicOverlappingPairs;
     btSimulationIslandManagerMt::SolverParams p;
     p.m_solverPool = _pool;
     p.m_solverMt = nullptr;            // (Bullet's solver that splits one island across threads: not used)
     p.m_solverInfo = &info;
     p.m_debugDrawer = m_debugDrawer;
     p.m_dispatcher = getDispatcher();
-    _islandsMt->buildAndProcessIslands(getDispatcher(), this, m_constraints, p);
+    _islandsMt->buildAndProcessIslands(getDispatcher(), this, m_sortedConstraints, p);
     _pool->allSolved(info, m_debugDrawer);
     if (_warm) _warm->dropUnsolved();
   }
 private:
+  // (Bullet's own, in btDiscreteDynamicsWorld.cpp and btSimulationIslandManager.cpp, copied: they aren't in its
+  // headers)
+  static int islandOf(const btTypedConstraint *c) {
+    const btCollisionObject &a = c->getRigidBodyA(), &b = c->getRigidBodyB();
+    return a.getIslandTag() >= 0 ? a.getIslandTag() : b.getIslandTag();
+  }
+  static int islandOf(const btPersistentManifold *m) {
+    const btCollisionObject *a = m->getBody0(), *b = m->getBody1();
+    return a->getIslandTag() >= 0 ? a->getIslandTag() : b->getIslandTag();
+  }
+  struct ByIsland {
+    bool operator()(const btTypedConstraint *l, const btTypedConstraint *r) const { return islandOf(l) < islandOf(r); }
+    bool operator()(const btPersistentManifold *l, const btPersistentManifold *r) const { return islandOf(l) < islandOf(r); }
+  };
+  struct ByIslandDeterministic {   // (with m_deterministicOverlappingPairs)
+    bool operator()(const btPersistentManifold *l, const btPersistentManifold *r) const {
+      const int il = islandOf(l), ir = islandOf(r);
+      const int a0 = l->getBody0()->getBroadphaseHandle()->m_uniqueId, b0 = r->getBody0()->getBroadphaseHandle()->m_uniqueId;
+      return il < ir || (il == ir && a0 < b0) ||
+             (il == ir && a0 == b0 && l->getBody1()->getBroadphaseHandle()->m_uniqueId < r->getBody1()->getBroadphaseHandle()->m_uniqueId);
+    }
+  };
   struct IslandsMt : public btSimulationIslandManagerMt {
+    bool deterministic = false;
+    btAlignedObjectArray<btPersistentManifold *> sorted;
     IslandsMt() {
       m_batchIslandMinBodyCount = 0;   // (Bullet joins islands of under 32 bodies into one batch)
       setMinimumSolverBatchSize(1);    // (and merges small islands until a batch costs 1024)
+    }
+    // as Bullet's (btSimulationIslandManagerMt::addManifoldsToIslands), but the contacts sorted by island first, as
+    // its one-thread world sorts them (btSimulationIslandManager::processIslands), so each island gets them in the
+    // same order
+    void addManifoldsToIslands(btDispatcher *dispatcher) override {
+      sorted.resize(0);
+      for (int i = 0; i < dispatcher->getNumManifolds(); i++) {
+        btPersistentManifold *m = dispatcher->getManifoldByIndexInternal(i);
+        if (deterministic && m->getNumContacts() == 0) continue;
+        const btCollisionObject *a = m->getBody0(), *b = m->getBody1();
+        if ((a && a->getActivationState() != ISLAND_SLEEPING) || (b && b->getActivationState() != ISLAND_SLEEPING)) {
+          // kinematic objects don't join islands, but wake what they touch
+          if (a->isKinematicObject() && a->getActivationState() != ISLAND_SLEEPING && a->hasContactResponse())
+            b->activate();
+          if (b->isKinematicObject() && b->getActivationState() != ISLAND_SLEEPING && b->hasContactResponse())
+            a->activate();
+          if (dispatcher->needsResponse(a, b)) sorted.push_back(m);
+        }
+      }
+      if (deterministic) sorted.quickSort(ByIslandDeterministic());
+      else sorted.quickSort(ByIsland());
+      for (int i = 0; i < sorted.size(); i++)
+        if (Island *island = getIsland(islandOf(sorted[i]))) island->manifoldArray.push_back(sorted[i]);
     }
   };
   btSimulationIslandManager *_serialIslands = nullptr;   // the world's own, while threaded

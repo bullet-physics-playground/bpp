@@ -1,15 +1,20 @@
-# Threads in bpp (1 November 2026)
+# Threads in bpp (1-4 November 2026)
 
-## Done (patches 70-73)
+## Done (patches 70-75)
 
 **Answer first.** bpp can now solve the walkers in a room side by side on
 several threads, all in one world, so they still touch each other. It needs
 bpp built with its own Bullet, built with threads, as an option; the default
 build and the packages keep the system Bullet and are unchanged. Any number of
-threads gives exactly the same room, move for move. On this 2-CPU machine
-2 threads made the room 6-28% faster than before. The body marks turned out to cost more
-than threads can win: they are look-only, but Bullet works out their contacts
-every step, and in the room that is more than half the time.
+threads gives exactly the same room, move for move. One walker (the test track,
+the tables) walks exactly as without threads, to the last digit (patch 75). In
+a room of several the one difference is that each walker's solve stops when it
+has settled, not when its group of two or three has (Bullet's one-thread world
+solves them in groups). The body marks had cost more than threads could win:
+they are look-only, but Bullet worked out their contacts every step, more than
+half the room's time; patch 73 took them out. On William's machine (8 cores)
+the room of four went from 0.14x real time to 0.57x with patch 73, and 0.77x
+with 8 threads.
 
 **How to use it.**
 
@@ -43,6 +48,14 @@ and does nothing.
   joint's entry is read and written only by the thread solving its island
   (a joint is in one island), and no entry is added or removed; afterwards,
   on one thread, entries not solved in the step are dropped.
+- **The same order as without threads** (patch 75). Bullet's one-thread world
+  sorts the joints and the contacts by island before solving them; its
+  threaded island manager does not, and keeps the order the world stores them
+  in. With 40 iterations the order changes the answer a little, and a run
+  differed move for move. Now the world hands the threaded manager the joints
+  sorted by Bullet's own sort, and the manager sorts the contacts as Bullet's
+  one-thread world does before handing them to the islands, so each island
+  gets them in exactly the same order.
 - Not used: Bullet's solver that splits one island over several threads
   (`btSequentialImpulseConstraintSolverMt`). It would change results and
   bypass si-warm, and an island is one walker.
@@ -51,18 +64,39 @@ and does nothing.
 
 | Check | Bracing | Timing | Direction | Result |
 | --- | --- | --- | --- | --- |
-| Room of 4, 5 s: 1 thread against 2 and 4 | mixed | trot | forward | identical |
+| One walker on the track, threads off against threads 1 and 2 (Klann logs 5 and steps 7, Hoecken-Spears slider steps 7, Chebyshev-Spears lift 51 steps 7, Chebyshev-Spears diag logs 7, Jansen logs 7; seed 1) | as built | trot | forward | identical (patch 75) |
+| Room of 4, 20 s: 1 thread against 2 and 4 | mixed | trot | forward | identical |
 | Room of 21, 5 s: 1 thread against 2 | mixed | trot | forward | identical |
-| room-four.lua, 9 s with F, Tab, Shift+Tab, Tab, key 3 (logs), Tab: 1 thread against 2 | mixed | trot | forward | identical (after a fix, below) |
-| Threads off: the bundled Bullet against the system Bullet (3 builds on the track, room of 4) | as built | trot | forward | identical |
+| room-four.lua, 9 s with F, Tab, Shift+Tab, Tab, key 3 (logs), Tab: 1 thread against 2 | mixed | trot | forward | identical |
+| Room of 4, 20 s: threads off, but solving one walker at a time (a probe build), against threads 1 | mixed | trot | forward | identical |
+| Room of 4, 20 s: threads off (as before) against threads 1 | mixed | trot | forward | different, as expected (groups of walkers) |
+| Threads off: the bundled Bullet against the system Bullet (3 builds on the track, room of 4; on William's machine, Chebyshev-Spears diag logs 7: -0.327 cm/s both, 24 s both) | as built | trot | forward | identical |
 | The system build asked for 4 threads, against before | mixed | trot | forward | identical (it runs on one) |
-| Threads on against threads off, one walker on the track (Chebyshev-Spears diag logs 7, Klann waves 4) | as built | trot | forward | different, as expected |
 
-The last row: Bullet's one-thread world sorts the joints by island before
-solving them, and the threaded island manager keeps the world's order, so a
-run differs move for move. Whether it walks the same on average needs a table
-in the threaded world (William's machine; commands below). Tables themselves
-need no threads: one walker is one island.
+The fifth and sixth rows: the only difference left in a room is the grouping.
+Bullet's one-thread world solves two or three walkers' joints together (its
+minimum batch, 128 joints and contacts), and with `residual` 0.01 the group
+stops iterating when the whole group has settled; with threads each walker is
+its own job and stops when it has settled. So the room with threads walks
+differently from the room without, move for move; a table cannot measure this
+(one walker a run).
+
+**The tables on William's machine** (warm40fast, 13 builds, nine rough
+grounds, 5 seeds, 585 runs each, 4 November):
+
+- Patch 73 (the marks out of collision detection), threads off, against
+  `runs/out-damp`: mean change -0.01 cm/s, typical change 0.03, rank
+  correlation 0.98, no build past its ±. Seven builds the same to the last
+  digit in every cell; the two sliders (look-only foot tips) and the
+  Chebyshev-Spears lift builds moved, within their ± (largest: lift 62 diag
+  -0.16 ± 0.23). `runs/out-marks`.
+- The threaded world before patch 75 (`EXTRA='v:setThreads(1)'`), against
+  patch 73's table: mean change +0.08, typical 0.14, rank correlation about
+  0.97, top four and last the same, but four builds past their ± (Klann +0.44
+  ± 0.30, Hoecken-Spears slider +0.30 ± 0.26, Hoecken-Spears 4-bar duty 85 diag
+  +0.20 ± 0.19, Chebyshev-Spears lift 51 -0.16 ± 0.12). That led to patch 75.
+  After it, threaded runs are the same runs as `runs/out-marks`, so there is no
+  table to rerun.
 
 **Found and fixed on the way.**
 
@@ -73,6 +107,8 @@ need no threads: one walker is one island.
   address could start from the old joint's forces. Now its entry goes when it
   is removed. This changes the one-thread room after a Tab too; nothing without
   swaps (checked: room of 4, track runs).
+- Patch 75: the threaded world solved joints and contacts in another order
+  than Bullet's one-thread world (above).
 - `tools/roomtime.lua` timed with `os.clock()`, the processor time of all
   bpp's threads together: right with one thread, wrong with several. Now wall
   time (`v:getTime()`), as `tools/roomdump.lua`.
@@ -109,15 +145,21 @@ slider logs 7) two came out the same to the last digit and one moved slightly
 (1.890 to 1.903 cm/s). A table checks it (below).
 
 **William's machine** (Ryzen 7 3700X, `runs/room-speed.sh`, the room of four
-in room-four.lua, before patch 73):
+in room-four.lua):
 
 | Walkers | Bracing | Timing | Direction | Marks | Threads 0 | Threads 8 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag) | mixed | trot | forward | on | 0.14x | 0.18x |
-| the same 4 | mixed | trot | forward | off | 0.36x | 0.57x |
+| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag) | mixed | trot | forward | on, before patch 73 | 0.14x | 0.18x |
+| the same 4 | mixed | trot | forward | off, before patch 73 | 0.36x | 0.57x |
+| the same 4 | mixed | trot | forward | on, patch 73 | 0.57x | 0.77x |
+| the same 4 | mixed | trot | forward | off, patch 73 | 0.58x | 0.79x |
 
-So per core this container ran the room about twice as fast as William's
-machine, not the other way round (the guess below, "2-3 times as fast", was
+(Single 5 s runs. The first two rows may have run while another job was using
+most of the machine; the last two with it idle.) Eight threads gain about 1.35
+times here: four walkers are four islands, so at most four threads have work,
+and only the solve is threaded: roughly a third of the room's time now, from these figures. Per run,
+this container is a little faster than William's machine (the same track run:
+18 s here, 24 s there), not slower (the guess below, "2-3 times as fast", was
 wrong).
 
 **Limits.**
@@ -135,13 +177,8 @@ wrong).
 **To do on William's machine.**
 
 1. Speed: `runs/room-speed.sh` (1, 4 and 21 walkers, marks on and off,
-   threads 0 1 2 4 8). After patch 73, marks on and off should match.
-2. Patch 73 (the marks) as a table, threads off: `runs/run-table.sh` with
-   `OUT=runs/out-marks`, compared with `runs/out-damp/warm40fast`.
-3. The threaded world against today's, as a table: `runs/run-table.sh` with
-   `EXTRA='v:setThreads(1)'` and the bundled bpp, compared with
-   `runs/out-damp/warm40fast` by `runs/table.py`.
-4. Soak: `tools/roomsoak.lua` (room-four.lua for hours, Tab every 20 s,
+   threads 0 1 2 4 8). More walkers should gain more from threads.
+2. Soak: `tools/roomsoak.lua` (room-four.lua for hours, Tab every 20 s,
    a new ground every 15 minutes).
 
 ## Before (the handover of 1 November, kept as written)
