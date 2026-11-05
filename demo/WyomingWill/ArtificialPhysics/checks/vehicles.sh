@@ -14,7 +14,8 @@
 #      0.99-1.02 of desiredSeparation, nothing lost; seeds 1-2;
 #   4. Ch. 7's corridor on ground robots runs (ch07/Corridor-Ground.lua);
 #   5. Ch. 13's dumbbell drives the robot through drive() in Bullet
-#      (ch13/Ring-Ground.lua, case 1): the three-point turn.
+#      (ch13/Ring-Ground.lua, case 1): the three-point turn;
+#   6. Ch. 13's triangle of death in Bullet (ch13/Triangle-Ground.lua).
 #
 # Needs BPP (the modules build Bullet objects). Run from the
 # ArtificialPhysics folder (about 45 s):  bash checks/vehicles.sh
@@ -108,6 +109,27 @@ segs = f.get("Segments", "").split(",")
 ok = bool(f) and 0 <= float(f["Formed"]) < 15 and [s[0] for s in segs[:2]] == ["B", "F"]
 print(("ok  " if ok else "FAIL") + " dumbbell on a ground robot, attractor dead astern: "
       + (f"segments {','.join(segs[:3])}, formed at {f['Formed']} s, point {f['Point']} deg" if f else "no result line"))
+sys.exit(0 if ok else 1)
+EOF
+
+# 6. Ch. 13's triangle of death in Bullet (ch13/Triangle-Ground.lua): a
+#    25 N pull frees robot 3 (particle at the centre; escaped at 18.4 s);
+#    a 10 N pull with its particle 0.4 m ahead leaves it stopped, turned
+#    ~10 deg (ch13/triangle_runs.txt)
+TRI_PULL=25 TRI_OFFSET=0 TRI_LIMIT=40 TRI_EXIT=1 "$BPP" -f ch13/Triangle-Ground.lua -n 10000 > "$T/tri1.txt" 2>&1
+TRI_PULL=10 TRI_OFFSET=0.4 TRI_LIMIT=40 TRI_EXIT=1 "$BPP" -f ch13/Triangle-Ground.lua -n 10000 > "$T/tri2.txt" 2>&1
+python3 - "$T/tri1.txt" "$T/tri2.txt" <<'EOF' || fail=1
+import sys
+def res(f):
+    m = [l for l in open(f) if l.startswith("Triangle ")]
+    t = m[-1].split() if m else []
+    return dict(zip(t[1::2], t[2::2]))
+a, b = res(sys.argv[1]), res(sys.argv[2])
+ok = bool(a) and bool(b) and 0 <= float(a["Escaped"]) < 30 and float(b["Escaped"]) < 0 \
+     and float(b["Moved"]) < 0.3 and abs(float(b["Turned"])) < 20 and int(b["Moving"]) == 0
+print(("ok  " if ok else "FAIL") + " triangle of death on ground robots: "
+      + (f"25 N escaped at {a['Escaped']} s; 10 N, offset 0.4: moved {b['Moved']} m, turned {b['Turned']} deg, stopped"
+         if a and b else "no result line"))
 sys.exit(0 if ok else 1)
 EOF
 

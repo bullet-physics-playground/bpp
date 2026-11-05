@@ -1183,6 +1183,31 @@ proper orientation" (PDF 464). The adaptive speed cap (Eq. 13.24) was
 not needed (0.2–1.1 robot contacts a run). Both switches (`spread`, `g`)
 are off by default.
 
+**F107. Ch. 13's triangle of death on the Pioneer: the stop threshold
+traps the robot; the particle's offset only narrows the escape** —
+2026-11-04, Confirmed (in part) and New. `ch13/README.md`,
+`ch13/triangle.lua`, `ch13/Triangle-Ground.lua`,
+`ch13/triangle_runs.txt` (375 runs), `checks/triangle.lua`. Three
+Pioneers on a triangle of side D = 1 m, axles through its centre
+(Fig. 13.9), Fig. 13.8's law, the point-mass controller of Eqs.
+13.7–13.8 (m = 100, μ = 0.5; the book gives neither) with the book's stop
+threshold (5 N, our value), robot 3 pulled along its axle (±30°); the
+particle at the rotation centre or 0.1–0.4 m ahead. **The book's claim
+holds only in a narrow band of pull:** at 11–13 N (2.2–2.6 times the
+threshold) a particle at the centre escapes more often than one ahead
+(12 N: 3 of 5 against 0 at 0.1 and 0.4 m), and a robot that does not
+escape stops in its new orientation, turned less the further ahead its
+particle (10 N: 50° at the centre, 10–14° at 0.2–0.4 m), as turning
+carries the particle into the neighbours' attraction (100 N/m at D).
+From 14 N every robot escapes at every offset, dragging the triangle.
+**The trap is the stop threshold's:** at 10 N the centred particle stops
+too, and without the threshold every robot escapes from 5 N up. Reading
+the minimum wheel speed as a stop (`roundDown`, before F72) widens it:
+25 N frees none. The book's second failure, turning back and forth at
+the minimum speed for ever, appears only without the threshold and at
+2 N, at any offset. The kinematic model gives the same (10 N: turned 53°
+and 8°).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.

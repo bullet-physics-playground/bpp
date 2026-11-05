@@ -6,8 +6,8 @@ physicomimetics asks for things it cannot do. The motion-control
 mechanisms of §13.2.2 and §13.4.1 (η, adaptive and static friction, the
 adaptive speed cap) are in `../lib/ch13.lua` and were measured on the drones
 (M1) and the ground robots (M2; `../ground/README.md`). This folder holds the
-chapter's own experiments with constrained vehicles: the fixed-wing UAV
-and the dumbbell agent on the Pioneer.
+chapter's own experiments with constrained vehicles: the fixed-wing UAV,
+the dumbbell agent on the Pioneer and the triangle of death.
 
 ## The fixed-wing UAV (§13.2.3, §13.3, §13.4.2)
 
@@ -184,6 +184,67 @@ the ring over the even gap, 1 = even; point and radius the worst robot's):
 - Cost: 300 simulated s take 3–5 wall s with 3–5 robots, so the 180 runs
   of `ring_sweep.sh` are ~11 CPU-minutes.
 
+## The triangle of death (§13.2.2, Figs. 13.9–13.11)
+
+`triangle.lua` (plain Lua) and `Triangle-Ground.lua` (the Pioneers in
+Bullet). Three robots on an equilateral triangle of side D = 1 m, axles
+through its centre (Fig. 13.9), under the book's point-mass controller:
+Fig. 13.8's law between their particles (100/r N with η, D = 1 m,
+D_max = 4 m), Eqs. 13.7–13.8 (m = 100, μ = 0.5) and the stop threshold
+(|F| < 5 N stops the robot, PDF 454). Every pair starts at the law's zero,
+so nothing moves until robot 3 is pulled by a constant force toward a
+point 10 m out along its axle (Fig. 13.11), or turned up to 30° from it.
+The particle (the point AP senses) is at the rotation centre or up to
+0.4 m ahead of it.
+
+The book: with the particle at the centre robot 3 turns to face the pull
+and drives off, dragging the others; with it off the centre, turning
+moves it into an opposing force, and the robot stops in the new
+orientation or turns back and forth at the minimum speed for ever.
+
+Robot 3 escaped (moved 1 m toward the point within 120 s), of 5 pull
+angles (−30°, −10°, 0°, 10°, 30°), by the particle's offset
+(`triangle_sweep.sh`, 375 runs, `triangle_runs.txt`):
+
+| Wheels below 0.1 m/s | Stop threshold | Pull | 0 m | 0.1 m | 0.2 m | 0.3 m | 0.4 m |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| turn at 0.1 (F72) | 5 N | 10 N | 0 | 0 | 1 | 0 | 0 |
+| | | 11 N | 1 | 0 | 0 | 0 | 0 |
+| | | 12 N | 3 | 0 | 2 | 1 | 0 |
+| | | 13 N | 5 | 5 | 3 | 4 | 2 |
+| | | 14–50 N | 5 | 5 | 5 | 5 | 5 |
+| stop (`roundDown`) | 5 N | 25 N | 0 | 0 | 0 | 0 | 0 |
+| | | 50 N | 5 | 5 | 5 | 4 | 4 |
+| turn at 0.1 | none | 2 N | 2 | 4 | 1 | 2 | 1 |
+| | | 5–10 N | 5 | 5 | 5 | 5 | 5 |
+
+- **Reproduced, in a narrow band.** With pulls of 11–13 N (2.2–2.6 times
+  the stop threshold) the particle at the centre escapes more often than
+  one ahead of it: at 12 N, 3 of 5 at the centre and none at 0.1 or
+  0.4 m. A robot that does not escape stops in its new orientation, still
+  for good (no robot moving at the end), turned less the further ahead
+  its particle: at 10 N 50° at the centre, 24° at 0.1 m, 10–14° at
+  0.2–0.4 m. Turning carries the particle out of the triangle, into its
+  neighbours' attraction (100 N/m at D), and the forces balance after a
+  small turn: the book's mechanism. From 14 N up every robot escapes,
+  whatever its offset, in 17–20 s, dragging the triangle along (its
+  centroid follows).
+- **The stop threshold is what traps it, not the offset.** At 10 N the
+  particle at the centre stops too (after turning 50° and moving 0.1 m,
+  as the others yield and the force on it falls under 5 N). Without the
+  threshold every robot escapes from 5 N up, at every offset. The offset
+  only raises the pull needed to escape, from ~12 to ~14 N.
+- **The minimum speed read as stopping the wheel** (`roundDown`, the
+  reading before F72) widens the trap: 25 N frees no robot (it turns
+  10–28° and stops: a turn command below 0.33 rad/s asks a wheel for less
+  than 0.1 m/s), 50 N frees 4–5 of 5.
+- **The book's second failure** (turning back and forth at the minimum
+  speed for ever) appears only without the stop threshold and with a
+  pull of 2 N: robot 3 creeps for the whole run (up to 236 changes of
+  direction, all three robots moving at the end), at any offset.
+- The dumbbell (F106) was not run here: the trap found is the stop
+  threshold's, and the dumbbell has none (it stops by static friction).
+
 ## Choices where the book is silent (the fixed-wing UAV)
 
 The book gives no numbers for G, μ, κ, I, the repulsion range, the
@@ -218,6 +279,14 @@ targets' layout, the starts or the run length (`../book/ch13.md` E12):
   (case 0) and the three-point turn (case 1); sliders `case`, `robots`,
   `seed`, `start`, `spread`, `behind`; R restarts. Headless:
   `RING_N=4 RING_SEED=1 RING_SPREAD=60 RING_EXIT=1 bpp -f ch13/Ring-Ground.lua -n 100000`.
+- `triangle.lua`, `Triangle-Ground.lua`: the triangle of death in plain
+  Lua and on the Pioneers in Bullet (sliders `offset`, `angle`, `pull`,
+  `stop`, `roundDown`; R restarts). Headless:
+  `TRI_OFFSET=0.2 TRI_PULL=12 TRI_EXIT=1 bpp -f ch13/Triangle-Ground.lua -n 100000`.
+- `triangle_sweep.sh`: the triangle table above (375 runs, ~11
+  CPU-minutes, resumable, parallel; `triangle_runs.txt`).
+- `../checks/triangle.lua`: the law, rest, escape, stall and the stop
+  threshold's part (5 tests, ~1 s).
 - `ring_sweep.sh`: the ring table above (180 runs, resumable, parallel;
   `ring_runs.txt`).
 - `../checks/dumbbell.lua`: the equations, the three-point turn, what

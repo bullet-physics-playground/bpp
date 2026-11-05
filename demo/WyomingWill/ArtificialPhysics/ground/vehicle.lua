@@ -101,6 +101,10 @@ local P = {
 -- backs off, away from where it was driving, at backSpeed for backTime
 -- (~0.3 m), then follows its command again
 V.backOff = false
+-- roundDown (off by default; ch13/Triangle-Ground.lua's roundDown): a
+-- wheel commanded below vMin stops instead of turning at vMin, the
+-- reading of Fig. 13.7 before F72 (FINDINGS F66, F72, F107)
+V.roundDown = false
 V.P = P
 
 local Y0 = P.hgt / 2           -- centre height on the ground
@@ -165,7 +169,7 @@ end
 local function clamp(x, lo, hi) if x < lo then return lo elseif x > hi then return hi end return x end
 local function wheel(c)           -- the minimum speed (rounded up; 0 stays 0) and the cap
   local a = math.abs(c)
-  if a == 0 then return 0 elseif a < P.vMin then a = P.vMin end
+  if a == 0 or (V.roundDown and a < P.vMin) then return 0 elseif a < P.vMin then a = P.vMin end
   return (c > 0 and 1 or -1) * math.min(a, P.vMax)
 end
 

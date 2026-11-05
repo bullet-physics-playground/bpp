@@ -52,6 +52,11 @@ robots stay in 2D and cannot leave the formation (`[`).
   0.5 − |Ω| r_diff (Eq. 13.6), and the wheels follow by the rules below.
   `guide()` and `drive()` share the wheel rules (`V.wheels`), so the
   guidance above is unchanged (`../checks/vehicles.sh`).
+- **Rounding down** (`roundDown`, off by default; 2026-11-04, F107): a
+  wheel asked for less than 0.1 m/s stops, as before F72. Only Ch. 13's
+  triangle of death (`../ch13/Triangle-Ground.lua`) uses it, to show
+  that the minimum speed read this way traps a robot under a pull of
+  25 N that frees it when rounded up.
 - **Backing off when jammed** (`backOff`, off by default; 2026-10-31,
   F102): a robot whose wheels are driven while it moves less than 5 cm
   and turns less than 0.1 rad in 2 s backs off at 0.25 m/s for 2 s
