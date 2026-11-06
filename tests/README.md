@@ -2,7 +2,8 @@
 
 `tests/harness.py` runs bpp headless and checks it against what it did
 before. It needs only Python 3 and a built bpp; the screenshot suite also
-needs `xvfb`, `xdotool` and ImageMagick, and some demos need `openscad`.
+needs `xvfb`, `xdotool`, ImageMagick and `libqt5svg5` (without it the
+toolbar icons are blank), and some demos need `openscad`.
 
 ```sh
 make -C tests release            # unit tests + Lua API (quick)

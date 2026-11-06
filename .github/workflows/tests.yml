@@ -38,8 +38,10 @@ jobs:
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             devscripts equivs
           sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+          # libqt5svg5 is a runtime dependency, not a build one: without it
+          # the GUI's toolbar icons (SVG) are blank in the screenshots.
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            openscad fonts-liberation fonts-dejavu-core \
+            openscad fonts-liberation fonts-dejavu-core libqt5svg5 \
             xvfb xdotool imagemagick libgl1-mesa-dri
 
       - name: Build
