@@ -487,6 +487,8 @@ there, in `release/`, or on the path; or set `BPP`.
   corner (`LECTERN`: 12 cm past its right edge, 14 cm before its front)
   turned to face that view; the next Tab steps in, to the exhibit's own
   view; then on. Shift+Tab the same, back (`steppedIn` in `hall.lua`).
+  Stepping in or back flies straight (at first it went by the aisle, the
+  way between bays, and William saw it back out and come in again).
   The exhibit is awake from the first stop (its tour, keys, pane). Only
   exhibits with a card have the two stops. Seen: arriving at an exhibit
   as it finishes loading (`HALL_START`, or a Tab before it's ready) now

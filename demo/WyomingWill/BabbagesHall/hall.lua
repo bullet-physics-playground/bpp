@@ -989,12 +989,13 @@ local function dirOf(yaw, pitch)
   return btVector3(math.sin(yaw) * math.cos(pitch), math.sin(pitch), math.cos(yaw) * math.cos(pitch))
 end
 local function ease(t) if t < 0.5 then return 4 * t * t * t end local u = -2 * t + 2; return 1 - u * u * u / 2 end
-local function startFlight(pos1, look1)
+local function startFlight(pos1, look1, direct)
   local c = realV.cam
   local pos0 = c.pos
   -- the way: the camera, the aisle beside it, (round any corner,) the aisle
   -- beside the next stop, the stop; heights in between from one to the other
-  local raw = route(pos0, pos1)
+  -- (direct: stepping in or back at an exhibit, straight there)
+  local raw = direct and {} or route(pos0, pos1)
   local pts = { pos0 }
   for i, p in ipairs(raw) do
     local f = i / (#raw + 1)
@@ -1062,8 +1063,8 @@ local function stepFlight()
 end
 -- the camera to a stop: flown there, or put there at once (instant: as the
 -- hall starts, and with HALL_FLY=0)
-local function moveCam(pos, look, instant)
-  if FLY_ON and not instant then startFlight(pos, look); return end
+local function moveCam(pos, look, instant, direct)
+  if FLY_ON and not instant then startFlight(pos, look, direct); return end
   flight = nil
   local c = realV.cam
   c.pos = pos
@@ -1082,6 +1083,7 @@ local function goTo(s, instant, stepIn)
     f = active.callbacks.onLeave
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
+  local same = here == s        -- (stepping in or back at the same exhibit)
   here = s
   steppedIn = (stepIn and not s.isView and s.approach) and s or nil
   pcall(function() realV.statusText = (not s.isView and s.ready and s.statusText ~= nil and s.statusText ~= "" and s.statusText) or hallStatus end)
@@ -1134,12 +1136,12 @@ local function goTo(s, instant, stepIn)
     realV.showConstraints = s.vset.showConstraints ~= false
     for k in pairs(LIGHTS) do applyLight(s, k) end            -- (its lights, as on its own)
     if s.approach and steppedIn ~= s then
-      moveCam(s.approach.pos, s.approach.look, instant)      -- (walking up: the table and its lectern)
+      moveCam(s.approach.pos, s.approach.look, instant, same)      -- (walking up: the table and its lectern)
     else
       local view = s.view
       local pos = view.pos or btVector3(0, 150, 200)
       local look = view.look or btVector3(0, 0, 0)
-      moveCam(s.toScene(pos), s.toScene(look), instant)
+      moveCam(s.toScene(pos), s.toScene(look), instant, same)
     end
     realV:setHelpText(s.wrapHelp(s.help))
     -- (and tell it you've come, if it asked: v:onEnter)
