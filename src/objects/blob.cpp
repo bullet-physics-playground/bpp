@@ -128,11 +128,11 @@ void Blob::toPOV(QTextStream *s) const {
              << (comp.center.x() + comp.axis.x() * comp.height) << ", "
              << (comp.center.y() + comp.axis.y() * comp.height) << ", "
              << (comp.center.z() + comp.axis.z() * comp.height) << ">, "
-             << comp.radius << " strength " << comp.strength << "\n";
+             << comp.radius << ", strength " << comp.strength << " }\n";
         } else {
           *s << "  sphere { <" << comp.center.x() << ", " << comp.center.y()
              << ", " << comp.center.z() << ">, " << comp.radius
-             << " strength " << comp.strength << "\n";
+             << ", strength " << comp.strength << " }\n";
         }
       }
     } else {
