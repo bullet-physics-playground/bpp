@@ -1294,7 +1294,7 @@ private:
     // its one-thread world sorts them (btSimulationIslandManager::processIslands), so each island gets them in the
     // same order
     void addManifoldsToIslands(btDispatcher *dispatcher) override {
-      sorted.resize(0);
+      sorted.resizeNoInitialize(0);   // (resize(0) here makes GCC 12 warn of an overflow that cannot happen)
       for (int i = 0; i < dispatcher->getNumManifolds(); i++) {
         btPersistentManifold *m = dispatcher->getManifoldByIndexInternal(i);
         if (deterministic && m->getNumContacts() == 0) continue;
