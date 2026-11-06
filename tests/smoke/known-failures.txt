@@ -14,6 +14,7 @@ demo/WyomingWill/ArtificialPhysics/ch11/mfp_sweep.lua  error: [string "--..."]:3
 demo/WyomingWill/ArtificialPhysics/ch11/table11_1.lua  error: [string "--..."]:27: module 'ch11.maxim' not found:
 demo/WyomingWill/ArtificialPhysics/ch11/wedge.lua  error: [string "--..."]:24: module 'ch11.maxim' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/dumbbell.lua  error: [string "--..."]:79: module 'lib.ch13' not found:
+demo/WyomingWill/ArtificialPhysics/ch13/triangle.lua  error: [string "--..."]:61: module 'ch13.dumbbell' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/uav.lua  error: [string "--..."]:61: module 'fixedwing.model' not found:
 demo/WyomingWill/ArtificialPhysics/checks/ch04_couette.lua  error: [string "--..."]:50: attempt to index local 'f' (a nil value)
 demo/WyomingWill/ArtificialPhysics/checks/ch07.lua  error: [string "--..."]:55: attempt to index local 'f' (a nil value)

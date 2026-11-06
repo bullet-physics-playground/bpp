@@ -98,6 +98,13 @@ def isolated_env(workdir, display=None):
     if display:
         env["DISPLAY"] = display
         env.pop("QT_QPA_PLATFORM", None)
+        # The GUI takes its toolbar icons from the system icon theme when
+        # there is one, from its own bundled set otherwise. Show it no
+        # system data folders (and no desktop), so it always uses its own.
+        env["XDG_DATA_DIRS"] = os.path.join(workdir, "share")
+        for var in ("XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "QT_QPA_PLATFORMTHEME",
+                    "QT_STYLE_OVERRIDE", "KDE_FULL_SESSION", "GNOME_DESKTOP_SESSION_ID"):
+            env.pop(var, None)
     else:
         env["QT_QPA_PLATFORM"] = "offscreen"
     return env
@@ -783,6 +790,18 @@ def image_diff(expected, got, diff_png, fuzz=SCREEN_FUZZ):
     return float(r.stderr.split()[0]) / (w * (h - STATUS_BAR))
 
 
+def diff_region(expected, got):
+    """Bounding box (WxH+X+Y) of the pixels that differ, outside the
+    status bar: says in the log where the window changed."""
+    r = subprocess.run(["identify", "-format", "%w %h", expected], stdout=subprocess.PIPE, check=True)
+    w, h = (int(x) for x in r.stdout.split())
+    crop = "[%dx%d+0+0]" % (w, h - STATUS_BAR)
+    r = subprocess.run(["convert", expected + crop, got + crop, "-compose", "difference",
+                        "-composite", "-colorspace", "gray", "-threshold", SCREEN_FUZZ,
+                        "-trim", "-format", "%@", "info:"], stdout=subprocess.PIPE)
+    return r.stdout.decode().strip()
+
+
 def suite_screens(ctx):
     missing = have("Xvfb", "xdotool", "import", "compare", "identify")
     if missing:
@@ -814,8 +833,8 @@ def suite_screens(ctx):
             frac = image_diff(expected, got, diff_png)
             if frac is None or frac > SCREEN_MAX_PIXELS:
                 print("  FAIL %-24s %s; got %s, diff %s" % (
-                    s, "size differs" if frac is None else "%.2f%% of pixels differ" % (100 * frac),
-                    got, diff_png))
+                    s, "size differs" if frac is None else "%.2f%% of pixels differ, within %s"
+                    % (100 * frac, diff_region(expected, got)), got, diff_png))
                 failed += 1
             else:
                 print("  ok   %-24s %.3f%% of pixels differ" % (s, 100 * frac))
