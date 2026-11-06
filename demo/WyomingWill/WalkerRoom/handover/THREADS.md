@@ -174,12 +174,38 @@ wrong).
   the machine's hardware threads).
 - Tried on Linux only. `scripts/bullet-threads.sh` needs git and cmake.
 
-**To do on William's machine.**
+**William's speed table** (6 November, `runs/room-speed.sh`, patches 70-76,
+machine otherwise idle; single 5 s runs; marks on, marks off within 0.02):
 
-1. Speed: `runs/room-speed.sh` (1, 4 and 21 walkers, marks on and off,
-   threads 0 1 2 4 8). More walkers should gain more from threads.
-2. Soak: `tools/roomsoak.lua` (room-four.lua for hours, Tab every 20 s,
-   a new ground every 15 minutes).
+| Walkers | Bracing | Timing | Direction | Threads 0 | 1 | 2 | 4 | 8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 (Chebyshev-Spears lift 51 diag) | diag | trot | forward | 2.52x | 2.52x | 2.55x | 2.51x | 2.51x |
+| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag) | mixed | trot | forward | 0.58x | 0.58x | 0.76x | 0.73x | 0.78x |
+| all 21 | mixed | trot | forward | 0.11x | 0.11x | 0.13x | 0.15x | 0.17x |
+
+One walker gains nothing (one island). Four gain 1.3 times, all of it at 2
+threads; 21 gain 1.55 times and keep gaining to 8. Likely (not measured): one
+walker's solve at 1920 steps a second is so short that waking the threads and
+waiting for them costs about what they save, so more walkers a step gain more.
+
+**The soak** (William's machine, 6 November: `tools/roomsoak.lua`, 8 threads,
+`AMP = 4`, Tab every 20 s, a new ground every 15 minutes). 70 simulated
+minutes and 212 swaps went cleanly; at minute 71 Chebyshev-Spears lift 62 diag
+was 12 m outside the 10 m room and 135 m below the floor: it left the room
+(there is no floor outside) in the last 5 s or so. Not yet known whether it
+walked over the wall (20 cm blocks sunk by `AMP`, so on waves of 4 cm a crest
+can come within about 12 cm of the top; lift 62 raises its feet highest;
+William has seen walkers go over the wall) or the linkage blew apart. The run
+could not be replayed here: it repeats exactly on one machine with any number
+of threads, but not on another (here GCC 13, Lua 5.1 and another C library;
+his GCC 12 and Lua 5.2), where the odd last digit differs and over minutes
+the walk. (A 20 s track run did match on both.) `tools/roomsoak.lua` now
+checks every walker every 0.1 s and, on a loss, prints its last 5 s
+(patch 78).
+
+**To do on William's machine.** The soak again with the same settings (it
+replays his run and should lose the same walker at about minute 71, now with
+its last 5 s), and then the fix that its trace points to.
 
 ## Before (the handover of 1 November, kept as written)
 
