@@ -479,9 +479,11 @@ there, in `release/`, or on the path; or set `BPP`.
   crowded it). First it stood in front of the table, out of the
   exhibit's view; William asked for it where it shows, so now it stands
   4 cm past the table's right edge and 25 cm beyond its back edge, the
-  board's middle 14 cm over the table top, turned 35 degrees toward the
-  aisle (`LECTERN` in `hall.lua`): beside the machine in the Differential's
-  own view, from which you zoom in (or `I`). Check it shows in each
+  board's middle 14 cm over the table top (`LECTERN` in `hall.lua`),
+  turned to face the exhibit's camera (first a fixed 35 degrees toward the
+  aisle, which William saw turned it away from the viewer): beside the
+  machine in the Differential's own view, square on, from which you zoom
+  in (or `I`). Check it shows in each
   exhibit's view as its card is added. **Next:** a card for each of the
   other exhibits (their wording for William to see first).
 - **Next:** offered, not asked for: printing only a program's parts (the

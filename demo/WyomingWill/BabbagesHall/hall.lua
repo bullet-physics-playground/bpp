@@ -791,24 +791,26 @@ for i, b in ipairs(BAYS) do
 end
 
 -- an exhibit's lectern: a museum label on a brass post, standing on the dais
--- just right of its table and beyond it, turned toward the aisle and tilted
--- up, so that it shows in the exhibit's own view beside the machine; its
+-- just right of its table and beyond it, turned to the exhibit's camera and
+-- tilted up, so that it shows in the exhibit's own view beside the machine; its
 -- card (make-lecterns.py: hall-meshes/lectern-<label>.png). Built only if
 -- the exhibit has a card. I looks at it close up, and back.
 local LECTERN_TILT = 35                       -- degrees back from upright
-local LECTERN = { dx = 4, dz = -25, y = 14, yaw = 35 }   -- (cm past the table's right edge, beyond its back
-                                                          -- edge; the board's middle over the table top; degrees)
+local LECTERN = { dx = 4, dz = -25, y = 14 }   -- (cm past the table's right edge, beyond its back edge;
+                                                -- the board's middle over the table top)
 local function lectern(g, t)
   local file = MESH .. "lectern-" .. g.e.label .. ".png"
   if not exists(file) then return end
-  local yaw = math.rad(LECTERN.yaw)
+  -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
+  local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z - t.d / 2 + LECTERN.dz, LECTERN.y
+  -- (turned to face the exhibit's camera, where the hall puts it there)
+  local vp = (g.view and g.view.pos) or btVector3(0, 150, 200)
+  local yaw = math.atan2(vp.x - lx, vp.z - lz)
   local q = yq(g.bay.a) * yq(yaw)
   local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
   local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
   local function at(x, y, z) return g.toScene(btVector3(x, y, z)) end
   local function put(o, p, rq) o.trans = btTransform(rq, p); return o end
-  -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
-  local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z - t.d / 2 + LECTERN.dz, LECTERN.y
   local base = -96.5
   CASTING = true
   local parts = {
