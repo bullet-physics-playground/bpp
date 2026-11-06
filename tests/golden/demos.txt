@@ -31,7 +31,6 @@ demo/basic/20-csg.lua
 demo/basic/21-disc.lua
 demo/basic/22-layer.lua
 demo/basic/23-torus.lua
-demo/basic/25-phase4.lua
 demo/basic/povray.lua
 demo/constraint/00-hinge.lua
 demo/constraint/01-car.lua
