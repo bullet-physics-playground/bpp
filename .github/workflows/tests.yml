@@ -104,13 +104,8 @@ jobs:
 
       # The golden master is compared with the same expected files as the
       # normal build: on this platform the sanitizer build gives the same
-      # numbers. Left out:
-      # - 08-remove.lua measures the process's memory to check removed
-      #   objects are freed; AddressSanitizer keeps freed memory back on
-      #   purpose.
-      # - basic/25-phase4.lua: Sweep::addProfilePoint deletes the shape its
-      #   rigid body still points to (src/objects/sweep.cpp), so v:add()
-      #   reads freed memory. Release builds usually get away with it; this
-      #   build aborts. Put it back when that is fixed.
+      # numbers. Left out: 08-remove.lua measures the process's memory to
+      # check removed objects are freed; AddressSanitizer keeps freed memory
+      # back on purpose.
       - name: Unit tests, Lua API and golden master under sanitizers
-        run: python3 tests/harness.py -k '^(?!08-remove|demo/basic/25-phase4)' unit api golden
+        run: python3 tests/harness.py -k '^(?!08-remove)' unit api golden

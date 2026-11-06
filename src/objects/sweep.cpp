@@ -135,6 +135,7 @@ void Sweep::addProfilePoint(btScalar x, btScalar y) {
 
   delete shape;
   shape = hull;
+  body->setCollisionShape(shape);
 
   btVector3 inertia;
   shape->calculateLocalInertia(1.0, inertia);

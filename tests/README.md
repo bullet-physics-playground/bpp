@@ -71,15 +71,13 @@ qmake CONFIG+=release CONFIG+=sanitizer CONFIG+=sanitize_address CONFIG+=sanitiz
 make -j release
 ASAN_OPTIONS=detect_leaks=0 \
 UBSAN_OPTIONS=print_stacktrace=1:suppressions=$PWD/tests/sanitizers/ubsan.supp \
-  tests/harness.py -k '^(?!08-remove|demo/basic/25-phase4)' unit api golden
+  tests/harness.py -k '^(?!08-remove)' unit api golden
 ```
 
 `sanitizers/ubsan.supp` silences one known luabind alignment report (the
 reason bpp.pro builds debug with `-fno-sanitize=alignment`).
 `08-remove.lua` is left out because it measures memory, which the
-sanitizer holds on to; `basic/25-phase4.lua` because of a known bug
-(`Sweep::addProfilePoint` frees the shape its body still uses), until it is
-fixed.
+sanitizer holds on to.
 
 ## What makes a golden demo
 
