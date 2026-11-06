@@ -490,11 +490,15 @@ there, in `release/`, or on the path; or set `BPP`.
   Stepping in or back flies straight (at first it went by the aisle, the
   way between bays, and William saw it back out and come in again).
   The exhibit is awake from the first stop (its tour, keys, pane). Only
-  exhibits with a card have the two stops. Seen: arriving at an exhibit
-  as it finishes loading (`HALL_START`, or a Tab before it's ready) now
-  and then leaves the camera level, its look point right but not turned
-  to; old (it did so before the approach), not found yet; a Tab and
-  Shift+Tab put it right. **Next:** a card for each of the
+  exhibits with a card have the two stops. Two camera faults found on
+  the way, both old: the hall stood the camera upright before every
+  flight, which turned it level, so a flight began by looking up (William
+  saw stepping in pan up and back down); and an exhibit loading in the
+  background still reached the real camera (standing it upright as it
+  loaded), which now and then left you looking level where you were.
+  Flights now start from the way the camera looks, and a loading exhibit
+  touches the camera only to set its own view (the camera's pitch logged
+  every frame: steady). **Next:** a card for each of the
   other exhibits (their wording for William to see first).
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).

@@ -321,7 +321,9 @@ local function makeExhibit(e, bay)
   end
 
   -- the camera: what it sets as it loads is kept as its view; while you're
-  -- at it, it moves the camera, from its bay
+  -- at it, it moves the camera, from its bay. (As it loads it touches the
+  -- camera no other way: exhibits load while you're at another, and one
+  -- standing the camera upright as it loaded turned the view you had level.)
   local camFns = {}
   local cam = setmetatable({}, {
     __index = function(_, k)
@@ -331,7 +333,7 @@ local function makeExhibit(e, bay)
       if type(val) == "function" then
         local fn = camFns[k]
         if not fn then
-          fn = function(self, ...) if (active == g and not flight) or loading == g then return val(realV.cam, ...) end end
+          fn = function(self, ...) if active == g and not flight then return val(realV.cam, ...) end end
           camFns[k] = fn
         end
         return fn
@@ -344,7 +346,7 @@ local function makeExhibit(e, bay)
         elseif active == g and not flight then realV.cam[k] = toScene(val) end
         return
       end
-      if (active == g and not flight) or loading == g then realV.cam[k] = val end
+      if active == g and not flight then realV.cam[k] = val end
     end,
   })
 
@@ -1064,9 +1066,13 @@ end
 -- the camera to a stop: flown there, or put there at once (instant: as the
 -- hall starts, and with HALL_FLY=0)
 local function moveCam(pos, look, instant, direct)
+  -- (flown: from the way it looks now, the flight keeping it upright as it
+  -- goes; standing it upright first turned it level, and the flight then
+  -- began by looking up)
   if FLY_ON and not instant then startFlight(pos, look, direct); return end
   flight = nil
   local c = realV.cam
+  c:setUpVector(btVector3(0, 1, 0), true)
   c.pos = pos
   c.look = look            -- (in that order: the look turns the view from where it now is)
 end
@@ -1098,8 +1104,6 @@ local function goTo(s, instant, stepIn)
     realV:addParam(STOP_PARAM, i, 1, #stops, 1,
                    "where you are: 1 the entrance, then on round (Tab, Shift+Tab); drag to go there")
   end
-  local c = realV.cam
-  c:setUpVector(btVector3(0, 1, 0), true)
   if not s.isView and not s.ready then
     -- (not loaded yet: its bay from the aisle; it comes to life when it has)
     active = nil
