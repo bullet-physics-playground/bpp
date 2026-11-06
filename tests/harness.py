@@ -839,7 +839,13 @@ def suite_screens(ctx):
             else:
                 print("  ok   %-24s %.3f%% of pixels differ" % (s, 100 * frac))
     finally:
-        xvfb.kill()
+        # Not kill(): a killed Xvfb leaves its lock file, and the displays
+        # start_xvfb() tries run out after twenty runs.
+        xvfb.terminate()
+        try:
+            xvfb.wait(10)
+        except subprocess.TimeoutExpired:
+            xvfb.kill()
     return failed
 
 
