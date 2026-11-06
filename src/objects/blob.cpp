@@ -65,10 +65,8 @@ void Blob::addSphereComponent(const btVector3 &center, btScalar radius,
   localTrans.setOrigin(center);
   static_cast<btCompoundShape *>(shape)->addChildShape(localTrans, sphereShape);
 
-  // Recalculate inertia
-  btVector3 inertia;
-  shape->calculateLocalInertia(1.0, inertia);
-  body->setMassProps(1.0, inertia);
+  // Recalculate inertia, keeping the mass
+  setMass(getMass());
 }
 
 void Blob::addCylinderComponent(const btVector3 &center,
@@ -90,9 +88,8 @@ void Blob::addCylinderComponent(const btVector3 &center,
   localTrans.setOrigin(center);
   static_cast<btCompoundShape *>(shape)->addChildShape(localTrans, sphereShape);
 
-  btVector3 inertia;
-  shape->calculateLocalInertia(1.0, inertia);
-  body->setMassProps(1.0, inertia);
+  // Recalculate inertia, keeping the mass
+  setMass(getMass());
 }
 
 void Blob::luaBind(lua_State *s) {

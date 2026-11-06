@@ -137,9 +137,8 @@ void Sweep::addProfilePoint(btScalar x, btScalar y) {
   shape = hull;
   body->setCollisionShape(shape);
 
-  btVector3 inertia;
-  shape->calculateLocalInertia(1.0, inertia);
-  body->setMassProps(1.0, inertia);
+  // Recalculate inertia for the new hull, keeping the mass
+  setMass(getMass());
 }
 
 void Sweep::luaBind(lua_State *s) {

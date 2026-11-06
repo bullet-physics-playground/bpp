@@ -67,4 +67,20 @@ check("dropped sweep rests on the plane", math.abs(p.y) < 0.1, p.y)
 check("dropped sweep stays upright", math.abs(p.x) < 0.1 and math.abs(p.z) < 0.1,
       string.format("x=%g z=%g", p.x, p.z))
 
+-- addProfilePoint() keeps the mass the sweep has (it used to set 1).
+local m = Sweep(0, btVector3(0, 1, 0), 0.0, 5)
+m:addProfilePoint(2.0, 0.0)
+check("a rebuilt sweep keeps its mass", m.mass == 5, m.mass)
+
+-- Mass 0 means fixed in place, and must stay so after a rebuild.
+local fixed = Sweep(0, btVector3(0, 1, 0), 0.0, 0)
+fixed:addProfilePoint(2.0, 0.0)
+fixed.pos = btVector3(10, 3, 0)
+v:add(fixed)
+for i = 1, 60 do
+  v:stepSimulation(1 / 60, 1, 1 / 60)
+end
+check("a rebuilt fixed sweep keeps mass 0", fixed.mass == 0, fixed.mass)
+check("a rebuilt fixed sweep does not fall", math.abs(fixed.pos.y - 3) < 1e-6, fixed.pos.y)
+
 print(string.format("\n%d passed, %d failed", pass, fail))
