@@ -63,8 +63,8 @@ public:
                             btScalar radius, btScalar height,
                             btScalar strength);
 
-  /** @brief Sets the blob threshold. */
-  void setThreshold(btScalar threshold) { m_threshold = threshold; }
+  /** @brief Sets the blob threshold, reshaping the surface. */
+  void setThreshold(btScalar threshold);
 
   /** @brief Returns the blob threshold. */
   btScalar getThreshold() const { return m_threshold; }
@@ -85,11 +85,23 @@ public:
   void toPOV(QTextStream *s) const override;
 
 protected:
-  /** @brief Draws the blob components as spheres. */
+  /** @brief Draws the blob's surface, as POV-Ray renders it. */
   void renderInLocalFrame(btVector3 &minaabb, btVector3 &maxaabb) override;
+
+  /** @brief The summed field of all components at a point (local frame). */
+  btScalar field(const btVector3 &p) const;
+
+  /**
+   * @brief Rebuilds the surface after a change: triangulates the points
+   * where the field equals the threshold, and makes the collision shape
+   * the convex hull of that surface.
+   */
+  void rebuild();
 
   btScalar m_threshold;           ///< Surface threshold.
   std::vector<BlobComponent> m_components; ///< Blob components.
+  std::vector<double> m_verts;    ///< Surface triangles, x y z per vertex.
+  std::vector<double> m_norms;    ///< Normal at each vertex of m_verts.
 };
 
 #endif // BLOB_H
