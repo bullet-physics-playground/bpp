@@ -70,7 +70,7 @@ and does nothing.
 | room-four.lua, 9 s with F, Tab, Shift+Tab, Tab, key 3 (logs), Tab: 1 thread against 2 | mixed | trot | forward | identical |
 | Room of 4, 20 s: threads off, but solving one walker at a time (a probe build), against threads 1 | mixed | trot | forward | identical |
 | Room of 4, 20 s: threads off (as before) against threads 1 | mixed | trot | forward | different, as expected (groups of walkers) |
-| Threads off: the bundled Bullet against the system Bullet (3 builds on the track, room of 4; on William's machine, Chebyshev-Spears diag logs 7: -0.327 cm/s both, 24 s both) | as built | trot | forward | identical |
+| Threads off: the bundled Bullet (3.24) against the system Bullet (3.24 here: 3 builds on the track, room of 4; 3.06 on William's machine, which pkg-config calls 3.05: Chebyshev-Spears diag logs 7, -0.327 cm/s both, 24 s both, and the seven builds patch 73 could not change, identical in all 315 runs of the two tables below) | as built | trot | forward | identical |
 | The system build asked for 4 threads, against before | mixed | trot | forward | identical (it runs on one) |
 
 The fifth and sixth rows: the only difference left in a room is the grouping.

@@ -1,16 +1,17 @@
 #!/bin/bash
 # Bullet 3.24 built with threads, for bpp's optional threaded build (November 2026).
 #
-# The system Bullet (Ubuntu's libbullet 3.24, Homebrew's, MSYS2's) is built without threads, so v:setThreads can't
-# use more than one core with it. This fetches Bullet 3.24 (the same version) and builds it with threads, as static
-# libraries, into lib/ (which git ignores); then build bpp against it:
+# The system Bullet (Ubuntu's libbullet: 3.24 in Ubuntu 24.04, 3.06 in some older ones; Homebrew's, MSYS2's) is built
+# without threads, so v:setThreads can't use more than one core with it. This fetches Bullet 3.24 and builds it with
+# threads, as static libraries, into lib/ (which git ignores); then build bpp against it:
 #
 #   scripts/bullet-threads.sh
 #   mkdir -p ../build-mt && cd ../build-mt
 #   qmake CONFIG+=bundled_bullet ../bpp/bpp.pro && make -j8
 #
 # Everything else -- the default build, the packages -- still uses the system Bullet. Built as Ubuntu builds its
-# own (RelWithDebInfo, single precision), so with no threads asked for it runs as the system Bullet does.
+# own (RelWithDebInfo, single precision). With no threads asked for, the walkers run as with the system Bullet, to
+# the last digit, with 3.24 and with 3.06 (November 2026; HANDOVER.md 4t).
 # Bullet's own thread pool (BULLET2_MULTITHREADING alone: no OpenMP or TBB needed). Needs git, cmake and a C++
 # compiler. Tried on Linux only.
 set -e
