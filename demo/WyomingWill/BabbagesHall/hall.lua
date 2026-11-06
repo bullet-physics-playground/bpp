@@ -10,8 +10,9 @@
 -- it is; come back and it carries on from there.
 --
 -- KEYS (click the 3D view first so it has the keyboard):
---   Tab         walk to the next exhibit (and the views from either end)
---   Shift+Tab   walk back
+--   Tab         walk to the next exhibit (and the views from either end); at
+--               one with a lectern, first up to it, then a step in
+--   Shift+Tab   walk back (stepping back out first)
 --   I           at an exhibit with a lectern: its label, close up (again: back)
 --   everything else goes to the exhibit you're at, with the same keys as
 --   when it runs on its own; the Shortcuts pane shows them.
@@ -791,21 +792,30 @@ for i, b in ipairs(BAYS) do
 end
 
 -- an exhibit's lectern: a museum label on a brass post, standing on the dais
--- just right of its table and beyond it, turned to the exhibit's camera and
--- tilted up, so that it shows in the exhibit's own view beside the machine; its
--- card (make-lecterns.py: hall-meshes/lectern-<label>.png). Built only if
--- the exhibit has a card. I looks at it close up, and back.
+-- at its table's right front corner, tilted up; its card (make-lecterns.py:
+-- hall-meshes/lectern-<label>.png). Built only if the exhibit has a card.
+-- With it the exhibit has an approach: the first Tab brings you to where a
+-- visitor walking up would stand, the table and the lectern in view, the
+-- card turned to you; the next steps in, to the exhibit's own view. I looks
+-- at the card close up, and back.
 local LECTERN_TILT = 35                       -- degrees back from upright
-local LECTERN = { dx = 4, dz = -25, y = 14 }   -- (cm past the table's right edge, beyond its back edge;
+local LECTERN = { dx = 12, dz = 14, y = 8 }    -- (cm past the table's right edge, before its front edge;
                                                 -- the board's middle over the table top)
+local EYE = 62                                -- the approach: eyes this far over the table top (162 cm up)
 local function lectern(g, t)
   local file = MESH .. "lectern-" .. g.e.label .. ".png"
   if not exists(file) then return end
   -- (in the exhibit's own frame: its table top at y = 0, the dais at -96.5)
-  local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z - t.d / 2 + LECTERN.dz, LECTERN.y
-  -- (turned to face the exhibit's camera, where the hall puts it there)
-  local vp = (g.view and g.view.pos) or btVector3(0, 150, 200)
-  local yaw = math.atan2(vp.x - lx, vp.z - lz)
+  local lx, lz, ly = t.x + t.w / 2 + LECTERN.dx, t.z + t.d / 2 + LECTERN.dz, LECTERN.y
+  -- the approach: from the aisle, square to the table, back far enough that
+  -- the table and the lectern fill the middle of the view (bpp's 45 degrees
+  -- up and down; a view a little wider than high)
+  local x0, x1 = t.x - t.w / 2, lx + 22
+  local cx, cz = (x0 + x1) / 2, t.z + t.d / 4
+  local D = 0.85 * (x1 - x0) + t.d / 2
+  local apos, alook = btVector3(cx, EYE, cz + D), btVector3(cx, 0, cz)
+  -- (the lectern turned to face it)
+  local yaw = math.atan2(apos.x - lx, apos.z - lz)
   local q = yq(g.bay.a) * yq(yaw)
   local tq = q * btQuaternion(btVector3(1, 0, 0), -math.rad(LECTERN_TILT))
   local sn, cs = math.sin(math.rad(LECTERN_TILT)), math.cos(math.rad(LECTERN_TILT))
@@ -830,6 +840,7 @@ local function lectern(g, t)
   local D = 1.35 * W                           -- (as far off as it is wide, and a bit)
   local d = g.toScene(btVector3(D * cs * math.sin(yaw), D * sn, D * cs * math.cos(yaw))) - g.toScene(btVector3(0, 0, 0))
   g.lecternView = { pos = btVector3(c.x + d.x, c.y + d.y, c.z + d.z), look = n }
+  g.approach = { pos = g.toScene(apos), look = g.toScene(alook) }
 end
 
 -- loadExhibit(g): its script, into its sandbox and world, as on its own
@@ -904,12 +915,16 @@ local function nextStop(s, d)
   local i = indexOf(s) or 1
   return stops[(i - 1 + d) % #stops + 1]
 end
+-- (at an exhibit with an approach: steppedIn is it once you've stepped in)
+local steppedIn = nil
 -- (an exhibit's pane: one line of the hall's, then its own, its keys at
 -- the top, so they show in a small pane; where its sliders are, at the end)
 local function header(g)
   return function()
-    return "BABBAGE'S HALL -- at " .. g.name .. ".   Tab: on to " .. nextStop(g, 1).name ..
-           ";   Shift+Tab: back to " .. nextStop(g, -1).name ..
+    local out = g.approach and steppedIn ~= g          -- (at its approach)
+    return "BABBAGE'S HALL -- at " .. g.name ..
+           (out and ".   Tab: step in" or (".   Tab: on to " .. nextStop(g, 1).name)) ..
+           ";   Shift+Tab: " .. ((g.approach and not out) and "step back" or ("back to " .. nextStop(g, -1).name)) ..
            (g.lecternView and ";   I: its label, close up (again: back)" or "") .. "\n"
   end
 end
@@ -1055,7 +1070,7 @@ local function moveCam(pos, look, instant)
   c.look = look            -- (in that order: the look turns the view from where it now is)
 end
 
-local function goTo(s, instant)
+local function goTo(s, instant, stepIn)
   -- let go of any keys still held at the exhibit we're leaving (its world
   -- then waits, untouched, until you come back)
   if active then
@@ -1068,6 +1083,7 @@ local function goTo(s, instant)
     if f then local ok, err = pcall(f, active.N); if not ok then print("HALL: " .. active.name .. " onLeave: " .. tostring(err)) end end
   end
   here = s
+  steppedIn = (stepIn and not s.isView and s.approach) and s or nil
   pcall(function() realV.statusText = (not s.isView and s.ready and s.statusText ~= nil and s.statusText ~= "" and s.statusText) or hallStatus end)
   resetMeter(realMs())
   lastShown = nil          -- (walking on isn't a freeze)
@@ -1117,10 +1133,14 @@ local function goTo(s, instant)
     -- turns them off)
     realV.showConstraints = s.vset.showConstraints ~= false
     for k in pairs(LIGHTS) do applyLight(s, k) end            -- (its lights, as on its own)
-    local view = s.view
-    local pos = view.pos or btVector3(0, 150, 200)
-    local look = view.look or btVector3(0, 0, 0)
-    moveCam(s.toScene(pos), s.toScene(look), instant)
+    if s.approach and steppedIn ~= s then
+      moveCam(s.approach.pos, s.approach.look, instant)      -- (walking up: the table and its lectern)
+    else
+      local view = s.view
+      local pos = view.pos or btVector3(0, 150, 200)
+      local look = view.look or btVector3(0, 0, 0)
+      moveCam(s.toScene(pos), s.toScene(look), instant)
+    end
     realV:setHelpText(s.wrapHelp(s.help))
     -- (and tell it you've come, if it asked: v:onEnter)
     local f = s.callbacks.onEnter
@@ -1225,7 +1245,18 @@ end)
 local HELD_BACK = { S = true, D = true, R = true, P = true }
 realV:onKey(function(N, key, down)
   if key == "Tab" or key == "Backtab" then
-    if down then goTo(nextStop(here, key == "Tab" and 1 or -1)) end
+    -- (an exhibit with an approach is two stops: walking up to it, then
+    -- stepping in; Shift+Tab the same, the other way)
+    if down then
+      local at = not here.isView and here.approach
+      if key == "Tab" then
+        if at and steppedIn ~= here then goTo(here, false, true)
+        else goTo(nextStop(here, 1)) end
+      else
+        if at and steppedIn == here then goTo(here, false, false)
+        else local p = nextStop(here, -1); goTo(p, false, p.approach ~= nil) end
+      end
+    end
     return true
   end
   local g = active
@@ -1359,7 +1390,7 @@ loadSome = function()
   status(string.format("Setting up %s (%d of %d) ...", g.name, n + 1, #all))
   loadExhibit(g)
   lastShown = nil                                  -- (loading isn't a freeze)
-  if here == g then goTo(g, not FLY_ON)            -- (you're there: it comes to life)
+  if here == g then goTo(g, not FLY_ON, steppedIn == g)   -- (you're there: it comes to life)
   elseif active then setRandom(active) end
   if not nextToLoad() then
     status("")

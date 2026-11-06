@@ -476,15 +476,23 @@ there, in `release/`, or on the path; or set `BPP`.
   the placard says. The Differential has one, which William chose (A) over
   a smaller card on the table beside the machine (B: in the exhibit's own
   view, but the view is tight round the machine, so it was cut off and
-  crowded it). First it stood in front of the table, out of the
-  exhibit's view; William asked for it where it shows, so now it stands
-  4 cm past the table's right edge and 25 cm beyond its back edge, the
-  board's middle 14 cm over the table top (`LECTERN` in `hall.lua`),
-  turned to face the exhibit's camera (first a fixed 35 degrees toward the
-  aisle, which William saw turned it away from the viewer): beside the
-  machine in the Differential's own view, square on, from which you zoom
-  in (or `I`). Check it shows in each
-  exhibit's view as its card is added. **Next:** a card for each of the
+  crowded it). Where it stands went round three times: in front of the
+  table (out of the exhibit's view); beyond the table's back right corner
+  (turned 35 degrees to the aisle: away from the viewer; then turned to
+  the camera, but far back, and it would be farther still at the
+  Digi-Comp). William's idea settled it, **two stops at an exhibit with a
+  lectern**: the first Tab walks up to it, a view the hall works out from
+  the table and the lectern (eyes 162 cm up, square to the table, back far
+  enough for both: `g.approach`), the lectern at the table's right front
+  corner (`LECTERN`: 12 cm past its right edge, 14 cm before its front)
+  turned to face that view; the next Tab steps in, to the exhibit's own
+  view; then on. Shift+Tab the same, back (`steppedIn` in `hall.lua`).
+  The exhibit is awake from the first stop (its tour, keys, pane). Only
+  exhibits with a card have the two stops. Seen: arriving at an exhibit
+  as it finishes loading (`HALL_START`, or a Tab before it's ready) now
+  and then leaves the camera level, its look point right but not turned
+  to; old (it did so before the approach), not found yet; a Tab and
+  Shift+Tab put it right. **Next:** a card for each of the
   other exhibits (their wording for William to see first).
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).

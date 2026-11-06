@@ -38,7 +38,7 @@ runs on its own from its folder.
 
 | Key | |
 |---|---|
-| `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall |
+| `Tab` | walk on: the view from the entrance, the exhibits, the view from the title wall. An exhibit with a lectern is two stops: walking up to it (the table and its lectern), then stepping in (`Shift+Tab` the same, back) |
 | `Shift+Tab` | walk back |
 | `I` | at an exhibit with a lectern: its label, close up; again, back |
 
@@ -142,8 +142,8 @@ second is noted in the console with the time of day (`HALL_FREEZE_MS`,
 
 The placards' lettering is made by `python3 make-labels.py` (needs Pillow,
 NumPy and the DejaVu fonts) into `hall-meshes/`. An exhibit's **lectern**, a
-museum label on a brass post just right of its table and beyond it, turned
-to face the exhibit's camera so it shows beside the machine, is built when
+museum label on a brass post at its table's right front corner, turned to
+face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
 `hall-meshes/lectern-<placard>.png` (36 x 24 cm). The Differential has one
