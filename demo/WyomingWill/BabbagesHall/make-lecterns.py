@@ -25,6 +25,48 @@ LABELS = {
         "The same gears let a car's wheels turn at different speeds on a bend. "
         "Fire-control computers and Bush's Differential Analyser used them to add.",
     ),
+    "pascaline": (
+        "THE PASCALINE",
+        "Blaise Pascal's adding machine, 1642",
+        "Pascal built it at nineteen to help his father, a tax official, with "
+        "his sums. Each dial turns a wheel of ten places; dial in a number and "
+        "it is added to what the wheels show.\n"
+        "The carry is the clever part: a wheel passing 9 lifts a weighted "
+        "lever, the sautoir, which drops as it goes on to 0 and kicks the next "
+        "wheel on by one. Watch 99~+~1 ripple to 100.",
+    ),
+    "lehmer": (
+        "LEHMER'S NUMBER SIEVE",
+        "Wheels that find factors, 1926",
+        "Each wheel has as many places as its number: 9, 8, 7 and 5. Every "
+        "turn of the handle moves them all on one place. Pegs close the holes "
+        "of the numbers that fail a test; where every wheel shows an open "
+        "hole at once, the probe falls right through, and the machine stops.\n"
+        "Lehmer built his first of bicycle chains, his second of gears, light "
+        "and a photocell. This one factors a number by Fermat's way.",
+    ),
+    "domino-adder": (                 # (Matt Parker: think-maths.co.uk, the Domino Computer, Oct. 2012)
+        "THE DOMINO HALF ADDER",
+        "Falling dominoes that add",
+        "268 dominoes add two one-bit numbers, A and B, and show the answer "
+        "as two tiles, CARRY and SUM, which fall to show a 1: so 1~+~1 makes "
+        "binary 10.\n"
+        "Three tricks are enough. Waves meeting head-on stop each other; a "
+        "branch is taken only by a wave running toward it; and a wave can cut "
+        "across another line. From these come the gates XOR and AND. In 2012 "
+        "Matt Parker's team built one of 10,000 dominoes that adds two "
+        "four-bit numbers.",
+    ),
+    "digicomp": (
+        "THE DIGI-COMP II",
+        "A computer of rolling balls, 1965",
+        "Designed by John Godfrey and sold by E.S.R. Inc. as a toy, it counts, "
+        "adds, subtracts, multiplies and divides in binary, run by nothing but "
+        "balls rolling down a tilted board.\n"
+        "Each rocker is a flip-flop, a bit that a passing ball tips over. "
+        "Thirteen of them hold the numbers; four switches are its memory. Its "
+        "programs are lines of settings, shown on the board behind it.",
+    ),
 }
 
 
@@ -47,8 +89,13 @@ def card(key, title, sub, body):
     d = ImageDraw.Draw(im)
     d.rectangle([24, 24, W - 25, H - 25], outline=RULE, width=6)
     d.rectangle([40, 40, W - 41, H - 41], outline=RULE, width=2)
-    fT = ImageFont.truetype(FONTS + "DejaVuSerif-Bold.ttf", 96)
-    fS = ImageFont.truetype(FONTS + "DejaVuSerif-Italic.ttf", 56)
+    def fit(face, size, text):          # (the largest size up to this that fits across)
+        while True:
+            f = ImageFont.truetype(FONTS + face, size)
+            if d.textlength(text, font=f) <= W - 160 or size <= 24: return f
+            size -= 2
+    fT = fit("DejaVuSerif-Bold.ttf", 96, title)
+    fS = fit("DejaVuSerif-Italic.ttf", 56, sub)
     fB = ImageFont.truetype(FONTS + "DejaVuSerif.ttf", 46)
     m = 100
     y = 80

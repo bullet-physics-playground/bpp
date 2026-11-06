@@ -498,8 +498,15 @@ there, in `release/`, or on the path; or set `BPP`.
   loaded), which now and then left you looking level where you were.
   Flights now start from the way the camera looks, and a loading exhibit
   touches the camera only to set its own view (the camera's pitch logged
-  every frame: steady). **Next:** a card for each of the
-  other exhibits (their wording for William to see first).
+  every frame: steady). All five exhibits on show now have a card
+  (2026-11-06; wording William read first; the Domino Half Adder's names
+  Matt Parker's 10,000-domino computer, Manchester Science Festival,
+  October 2012, which adds two four-bit numbers: Think Maths' own page).
+  `make-lecterns.py` shrinks a title or line too wide for the card and
+  says if the text runs off its foot. Each exhibit's first stop seen in
+  the window: the table, the lectern and the placard in view; the
+  Domino Half Adder's big table puts its card farther off (zoom, or `I`).
+  An exhibit added later gets the two stops by getting a card.
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

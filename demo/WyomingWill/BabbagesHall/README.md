@@ -146,8 +146,8 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). The Differential has one
-so far.
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All five exhibits on
+show have one.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
 them all (needs `pip install markdown playwright`). The STL files are not
