@@ -661,7 +661,7 @@ William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, fe
 | Chebyshev-Spears lift 62 diag (all 20 min) | outside, held | trot | forward | 5011 / 213 cm | 446 / 126 cm/s | 373 / 54 cm/s |
 | the third place (eight walkers in turn, 2-3 min each) | mixed | trot | forward | 108-1778 / 21-42 cm | 206-494 / 93-146 cm/s | 155-330 / 33-94 cm/s |
 
-Before, 4 of 47,960 samples (every 0.1 s, every walker) had a part over 5 m/s; after, none. A part came within 2 cm of a wall before, 17.6 cm after, so the wall push did not happen in this run; forced with test walls at 1.5 m it moved the walkers back by what the turns swept out (0.6 cm a frame), with no errors. The test track is unchanged (Klann logs 5 and Hoecken-Spears slider steps 7: the same to the last digit). Room runs change move for move. A long soak on William's machine is the test that counts.
+Before, 4 of 47,960 samples (every 0.1 s, every walker) had a part over 5 m/s; after, none. A part came within 2 cm of a wall before, 17.6 cm after, so the wall push did not happen in this run; forced with test walls at 1.5 m it moved the walkers back by what the turns swept out (0.6 cm a frame), with no errors. The test track is unchanged (Klann logs 5 and Hoecken-Spears slider steps 7: the same to the last digit). Room runs change move for move. William's soak with patch 81 (7 November: room-four.lua, 8 threads, waves 4 cm, Tab every 20 s, a new ground every 15 minutes) ran the full 180 simulated minutes with no walker lost: 539 swaps, bodies 9.4-21.2 cm, 76-88 s of wall time per simulated minute throughout. The same soak before it lost a walker at minute 70.6.
 
 ## 5. What was found in the last session (17–21 October)
 

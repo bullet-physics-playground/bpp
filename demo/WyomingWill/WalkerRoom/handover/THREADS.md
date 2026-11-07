@@ -218,8 +218,9 @@ the part lowest to the ground, the part nearest a wall and the fastest part
 (by what built it: Foot, makeLink, ...), to find which part catches on what.
 
 **The cause** (William's rerun with patch 79, and patch 80 here): the
-room's turns, not threads; see HANDOVER.md 4u. Fixed in patch 81; the soak
-again on William's machine is next.
+room's turns, not threads; see HANDOVER.md 4u. Fixed in patch 81: William's
+soak then ran the full 180 simulated minutes on 8 threads with no walker lost
+(539 swaps, 11 ground changes, bodies 9.4-21.2 cm).
 
 ## Before (the handover of 1 November, kept as written)
 
