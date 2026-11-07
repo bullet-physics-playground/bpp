@@ -5,7 +5,9 @@
 -- simulated s it checks each walker's body: past a wall (the arena's edge), more than 30 cm below the ground under
 -- it, or not a number, it prints SOAK LOST, then the walker's last 5 s (a SOAKTRACE line every 0.1 s: its body's
 -- place, the ground's height under it, its distance inside the walls, its speed and upward speed, how far its
--- farthest part is from its body, and its fastest part's speed), and stops. The window's keys follow the third
+-- farthest part is from its body, its fastest part's speed, how high its lowest part's centre is above the ground
+-- under it, and how far inside the walls its part nearest a wall is; a part is named by its number in the walker and
+-- what made it, as Foot or Crank; the look-only marks are left out), and stops. The window's keys follow the third
 -- walker (F three times), so Tab swaps it. A run repeats exactly on one machine with any number of threads, not on
 -- another machine (another compiler or C library changes the odd last digit, and over minutes the walk).
 --
@@ -31,18 +33,31 @@ local past = setmetatable({}, { __mode = "k" })   -- each walker's last 5 s, eve
 local function look(N, w)
   local b = w.cube.body
   local p, u = b:getCenterOfMassPosition(), b:getLinearVelocity()
-  local spread, fast = 0, 0
-  for _, o in ipairs(w.objects or {}) do
-    if o.body then
+  local spread, fast, fastI = 0, 0, 0
+  local low, lowI, near, nearI = math.huge, 0, math.huge, 0
+  for i, o in ipairs(w.objects or {}) do
+    if o.body and o.collides ~= false then   -- (not the look-only marks)
       local q, s = o.body:getCenterOfMassPosition(), o.body:getLinearVelocity()
       spread = math.max(spread, math.sqrt((q.x - p.x) ^ 2 + (q.y - p.y) ^ 2 + (q.z - p.z) ^ 2))
-      fast = math.max(fast, math.sqrt(s.x ^ 2 + s.y ^ 2 + s.z ^ 2))
+      local sp = math.sqrt(s.x ^ 2 + s.y ^ 2 + s.z ^ 2)
+      if sp > fast then fast, fastI = sp, i end
+      local above = q.y - room.groundAt(q.x, q.z)
+      if above < low then low, lowI = above, i end
+      local inn = math.min(HALF_X - math.abs(q.x), HALF_Z - math.abs(q.z))
+      if inn < near then near, nearI = inn, i end
     end
+  end
+  local function part(i)
+    local o = w.objects[i]
+    if not o then return "-" end
+    local by = rawequal(o, w.cube) and "body" or (w.madeBy and w.madeBy[o]) or "?"
+    return string.format("#%d %s", i, (by:gsub("^build", "")))
   end
   local g = room.groundAt(p.x, p.z)
   local inside = math.min(HALF_X - math.abs(p.x), HALF_Z - math.abs(p.z))
-  local line = string.format("SOAKTRACE %.1f s  body %.1f %.1f %.1f  ground %.1f  inside walls %.1f  speed %.1f (up %.1f)  parts within %.1f  fastest part %.1f",
-    N / 60, p.x, p.y, p.z, g, inside, math.sqrt(u.x ^ 2 + u.y ^ 2 + u.z ^ 2), u.y, spread, fast)
+  local line = string.format("SOAKTRACE %.1f s  body %.1f %.1f %.1f  ground %.1f  inside walls %.1f  speed %.1f (up %.1f)  parts within %.1f  fastest part %.1f %s  lowest part %.1f above ground %s  nearest the wall %.1f inside %s",
+    N / 60, p.x, p.y, p.z, g, inside, math.sqrt(u.x ^ 2 + u.y ^ 2 + u.z ^ 2), u.y, spread, fast, part(fastI),
+    low, part(lowI), near, part(nearI))
   local h = past[w] or {}
   past[w] = h
   h[#h + 1] = line

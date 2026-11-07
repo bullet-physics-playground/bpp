@@ -203,9 +203,23 @@ the walk. (A 20 s track run did match on both.) `tools/roomsoak.lua` now
 checks every walker every 0.1 s and, on a loss, prints its last 5 s
 (patch 78).
 
-**To do on William's machine.** The soak again with the same settings (it
-replays his run and should lose the same walker at about minute 71, now with
-its last 5 s), and then the fix that its trace points to.
+**The loss traced** (William's machine, the same soak again with patch 78:
+it repeated his run and lost the same walker at 4233.7 s, minute 70.6). It
+did not walk over the wall: it was thrown, twice, with its linkage whole
+(its parts stayed 43-45 cm from its body throughout). At 4230.7-4231.3 s, 50
+cm from the wall (a foot can reach about 45 cm from the body), its body read
+0.7-2.9 m/s downward for 0.6 s without going down, as if pressed into
+something and pushed back each step; then it was thrown 35 cm toward the
+wall and 15 cm up (body to 34 cm; the wall's top is at 16 cm on these
+waves). At 4233.6 s, its body 4 cm from the wall, one part reached 19 m/s
+and the walker went over. So a jam, likely a foot or a bar caught at the wall
+or in the ground, that Bullet frees with a shove. Patch 79 names in the trace
+the part lowest to the ground, the part nearest a wall and the fastest part
+(by what built it: Foot, makeLink, ...), to find which part catches on what.
+
+**To do on William's machine.** The soak again with patch 79 (the same run,
+about 95 minutes), then a fix where its trace points; taller walls
+(40 cm, say) would stop the losses but not the jolts.
 
 ## Before (the handover of 1 November, kept as written)
 
