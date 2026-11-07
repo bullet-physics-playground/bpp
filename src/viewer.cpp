@@ -20,6 +20,8 @@
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
+#include "gimpactplane.h"
+
 #include "lua_bullet.h"
 #include "lua_converters.h"   // for Q_DECLARE_METATYPE(luabind::object)
 
@@ -992,7 +994,7 @@ int Viewer::newWorld() {
   w.world->getWorldInfo().m_gravity = w.world->getGravity();
   w.world->getWorldInfo().m_sparsesdf.Initialize();
   btCollisionDispatcher *dispatcher_ptr = w.dispatcher;
-  btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
+  GImpactPlaneAlgorithm::registerAlgorithm(dispatcher_ptr);
   w.place.setIdentity();
   _worlds.push_back(std::move(w));
   return (int)_worlds.size() - 1;
@@ -2101,7 +2103,7 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _shadowMap = new ShadowMap();
 
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
-  btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
+  GImpactPlaneAlgorithm::registerAlgorithm(dispatcher_ptr);
 
   _frameNum = 1;
   _firstFrame = 1;
@@ -3455,7 +3457,7 @@ void Viewer::clear() {
   SoftBody::setWorldInfo(&dynamicsWorld->getWorldInfo());
 
   btCollisionDispatcher *dispatcher_ptr = dispatcher;
-  btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher_ptr);
+  GImpactPlaneAlgorithm::registerAlgorithm(dispatcher_ptr);
 
   _pov_settings_inc = "settings.inc";
 

@@ -53,8 +53,14 @@ v:add(floor)
 local patch = Patch(2.0, 1)
 patch.pos = btVector3(40, 3, 0)
 v:add(patch)
+-- A Patch is thin: in one step it can pass from above a plane to below it,
+-- where Bullet's own GImpact-plane test finds no contact.
+local onPlane = Patch(2.0, 1)
+onPlane.pos = btVector3(-40, 3, 0)
+v:add(onPlane)
 step(120)
 check("Patch falls and rests on a box", math.abs(patch.pos.y) < 0.05, patch.pos.y)
+check("Patch falls and rests on the plane", math.abs(onPlane.pos.y) < 0.05, onPlane.pos.y)
 
 -- POV-Ray export: the right object, braces balanced.
 local pov = text:toPOV()
