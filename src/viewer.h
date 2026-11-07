@@ -48,6 +48,7 @@
 #include "joystick/joystickinterfacesdl.h"
 
 #include "spacenavigator/spacenavigator.h"
+#include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
 
@@ -1935,21 +1936,6 @@ public slots:
    */
   void onSpaceNavigatorTick();
 
-  /**
-   * @brief Moves the camera by the current 3D mouse target velocity.
-   *
-   * Integrates over the time since the previous report or tick, which is
-   * measured and restarted here so the event-driven and sustaining paths
-   * never double-count or skip an interval. In Fly mode the camera turns and
-   * moves about itself; in Object mode it orbits the view-centre pivot. With
-   * the horizon locked, rotation is a turntable yaw and pitch and the camera
-   * is re-rolled level afterwards. The caller must hold @c mutex.
-   *
-   * @param sustained True when called from the sustaining timer, which is what
-   *                  enables easing resting axes back to zero.
-   */
-  void integrateSpaceNavigator(bool sustained = false);
-
   // SpaceNavigator navigation settings
   /**
    * @brief Chooses the 3D mouse navigation style.
@@ -3026,56 +3012,7 @@ private:
   // SpaceNavigator 3D mouse
   SpaceNavigator *_spaceNavigator; ///< The 3D mouse, open or not.
 
-  /**
-   * @brief How the 3D mouse drives the camera.
-   *
-   * Object mode orbits the view-centre pivot; Fly mode navigates in first
-   * person around the camera's own position.
-   */
-  enum SpaceNavigatorMode {
-    SN_MODE_OBJECT, ///< Orbit the view-centre pivot.
-    SN_MODE_FLY     ///< First-person navigation.
-  };
-  SpaceNavigatorMode _snMode; ///< The mode currently in use.
-
-  // SpaceNavigator navigation settings (editable from the Preferences
-  // dialog and via the Lua sn* properties).
-  bool _snLockHorizon;   ///< Keep the horizon level while rotating.
-  bool _snAutoFlySpeed;  ///< Scale fly speed with the distance to the scene.
-  bool _snShowOrbitAxis; ///< Draw the orbit centre as an axis marker.
-  bool _snZoomForward;   ///< Push the cap to move along the view direction.
-  bool _snPanZoom;       ///< Let the device translate the camera at all.
-
-  /**
-   * @brief Distance from the camera to the point the 3D mouse orbits around.
-   *
-   * Blender-style orbit distance: the distance from the camera to the
-   * view-centre pivot the SpaceNavigator orbits around.  Reinitialised from
-   * the scene when the camera is reset or the scene changes.
-   */
-  qreal _snOrbitDist;
-
-  // 3D mouse integration: the current shaped deflection is held in _snTarget
-  // (a target velocity in units of full deflection).  Each device report
-  // integrates the target over the time elapsed since the previous report
-  // (event-driven, like Blender's NDOF), so navigation responds immediately.
-  // _snTimer is a sustaining timer only: the SpaceNavigator is an absolute
-  // device that reports nothing while a deflection is held still, so the
-  // timer keeps integrating the last target at a fixed rate and the camera
-  // keeps moving for as long as the cap is held.  Motion stops when the cap
-  // returns to rest: the last report's deflection is remembered in
-  // _snLastInput, the sustaining path eases resting axes back to zero (the
-  // event path has already shaped them through the dead band and low-pass),
-  // and the eased target is stopped once it falls back into the target dead
-  // band.  _snTickTimer is shared by both paths so the integrated time
-  // intervals never overlap.
-  QTimer *_snTimer;           ///< The sustaining timer described above.
-  QElapsedTimer _snTickTimer; ///< Measures the interval each integration step
-                              ///< covers; shared by both paths.
-  SpaceNavigator::AxesNorm _snTarget;    ///< Current shaped target velocity.
-  SpaceNavigator::AxesNorm _snLastInput; ///< Raw deflection of the last report,
-                                         ///< used to tell held axes from
-                                         ///< resting ones.
+  SpaceNavigatorCamera *_snCamera; ///< Drives the camera from the 3D mouse.
 
    // parameter storage for Lua scripts
    QHash<QString, QVariant> _params;      ///< Current value of each parameter.
