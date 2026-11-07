@@ -3626,6 +3626,17 @@ Viewer::~Viewer() {
         worldOfObject(o)->removeSoftBody(sb->getSoftBody());
       }
     }
+    // (and every world's constraints, while the bodies they hold are still
+    // there: closing Lua frees a script's own, and dropWorlds() below would
+    // take the joints out of bodies already gone)
+    QList<btSoftRigidDynamicsWorld *> worlds;
+    worlds.append(dynamicsWorld);
+    for (const PhysWorld &w : _worlds)
+      if (w.world != nullptr && w.world != dynamicsWorld)
+        worlds.append(w.world);
+    for (btSoftRigidDynamicsWorld *dw : worlds)
+      for (int k = dw->getNumConstraints() - 1; k >= 0; --k)
+        dw->removeConstraint(dw->getConstraint(k));
   }
   removeLeftoverBodies();
 
