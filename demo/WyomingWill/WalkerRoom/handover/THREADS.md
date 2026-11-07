@@ -217,9 +217,9 @@ or in the ground, that Bullet frees with a shove. Patch 79 names in the trace
 the part lowest to the ground, the part nearest a wall and the fastest part
 (by what built it: Foot, makeLink, ...), to find which part catches on what.
 
-**To do on William's machine.** The soak again with patch 79 (the same run,
-about 95 minutes), then a fix where its trace points; taller walls
-(40 cm, say) would stop the losses but not the jolts.
+**The cause** (William's rerun with patch 79, and patch 80 here): the
+room's turns, not threads; see HANDOVER.md 4u. A fix to the turns is next;
+then the soak again.
 
 ## Before (the handover of 1 November, kept as written)
 

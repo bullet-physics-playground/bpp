@@ -636,6 +636,22 @@ The marks and the look-only foot tips (kinematic, no contact response: they push
 
 **Answer first.** With threads on, one walker now walks exactly as with threads off, to the last digit: the threaded island manager had solved each walker's joints and contacts in another order than Bullet's one-thread world (which sorts them by island first), and now gets them sorted the same way (patch 75). In a room the one difference left is grouping: without threads Bullet solves two or three walkers together and stops iterating when the group has settled; with threads each walker stops on its own (shown with a probe build that solves one walker at a time without threads: identical to threads). Tables on William's machine: patch 73 (the marks) mean change -0.01, rank correlation 0.98, none past its ± (`runs/out-marks`); the threaded world before patch 75 moved four builds past their ± (Klann +0.44), which led to the fix; after it the threaded runs are `runs/out-marks`' runs. The room of four on his machine: 0.14x real time before patch 73, 0.57x after, 0.77x with 8 threads. William's system Bullet is 3.06 (the package 3.06+dfsg; pkg-config says 3.05), not 3.24 as here; the bundled 3.24 gave the same runs to the last digit (315 runs of the tables, the builds patch 73 could not change). William's speed table (patch 76): 1 walker 2.5x real time (threads no help), 4 walkers 0.58x to 0.78x, all 21 0.11x to 0.17x with 8 threads. His soak lost Chebyshev-Spears lift 62 diag out of the room at minute 71 (after 70 clean minutes and 212 swaps); `tools/roomsoak.lua` now catches a loss within 0.1 s and prints the walker's last 5 s (patch 78). Long runs repeat on one machine, not across machines. Details: `THREADS.md`.
 
+## 4u. The room's turns throw walkers about (6 November)
+
+**Answer first.** The walker lost in William's soak (Chebyshev-Spears lift 62 diag, minute 70.6) was thrown out by the room's own turning, not by threads. When the room turns a walker (away from a wall or another walker), it moves it directly, a small rotation each frame (`turnStep`), and lifts the whole walker if any part's bounding box would end up below the ground under it. The lift keeps the walker's velocity, and the bounding-box test, the highest ground at a box's corners, can ask for a lift no part needs (a long tilted bar's box spans a crest while its low end is over a trough). So through a turn the walker is lifted, falls back with its downward speed kept, is lifted again, and its downward speed builds; when the turn ends that speed reaches the ground at once. Near a wall the same thing can throw it over (walls 20 cm, sunk by `AMP`).
+
+Every walker that turned showed it (this container, room-four.lua, waves 4 cm, first simulated minute; `tools/roomsoak.lua` with patch 80, which traces whether a walker is turning and how far its turns lifted it):
+
+| Walker | Bracing | Timing | Direction | Turning | Lifted in all | Most per 0.1 s | Fastest down while turning |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Chebyshev-Spears lift 62 diag | outside, held | trot | forward | 2.8 s | 371 cm | 29 cm | 289 cm/s |
+| Chebyshev-Spears diag | outside, held | trot | forward | 1.8 s | 257 cm | 34 cm | 330 cm/s |
+| Jansen | own | trot | forward | 1.9 s | 226 cm | 18 cm | 213 cm/s |
+| Klann | own | trot | forward | 1.4 s | 197 cm | 28 cm | 290 cm/s |
+| Hoecken-Spears 4-bar diag | outside, held | trot | forward | 0.9 s | 81 cm | 14 cm | 138 cm/s |
+
+William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, feet at their usual height) the body held at 18-19 cm while its downward speed grew to 2.9 m/s, then it was thrown 35 cm toward the wall and 15 cm up; at 4233.6 s, with a bar resting over the wall's top (16 cm on these waves) and a foot 6 cm into the ground, a part reached 19 m/s and the walker went over. The test track never turns (only the room does, or `TURN_TEST`), so the tables are not touched by this. Fix to come: a turn's lift that also stops the walker's downward motion and asks only for what is needed, and turns that do not rotate a part into a wall.
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.

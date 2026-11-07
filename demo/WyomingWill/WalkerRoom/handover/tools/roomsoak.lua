@@ -7,7 +7,8 @@
 -- place, the ground's height under it, its distance inside the walls, its speed and upward speed, how far its
 -- farthest part is from its body, its fastest part's speed, how high its lowest part's centre is above the ground
 -- under it, and how far inside the walls its part nearest a wall is; a part is named by its number in the walker and
--- what made it, as Foot or Crank; the look-only marks are left out), and stops. The window's keys follow the third
+-- what made it, as Foot or Crank; the look-only marks are left out; whether the room is turning it, and how far
+-- its turns lifted it, in cm, since the line before), and stops. The window's keys follow the third
 -- walker (F three times), so Tab swaps it. A run repeats exactly on one machine with any number of threads, not on
 -- another machine (another compiler or C library changes the odd last digit, and over minutes the walk).
 --
@@ -55,9 +56,11 @@ local function look(N, w)
   end
   local g = room.groundAt(p.x, p.z)
   local inside = math.min(HALF_X - math.abs(p.x), HALF_Z - math.abs(p.z))
-  local line = string.format("SOAKTRACE %.1f s  body %.1f %.1f %.1f  ground %.1f  inside walls %.1f  speed %.1f (up %.1f)  parts within %.1f  fastest part %.1f %s  lowest part %.1f above ground %s  nearest the wall %.1f inside %s",
+  local turning = w.turnLeft and string.format("turning, %.0f deg to go", math.deg(w.turnLeft)) or "not turning"
+  local line = string.format("SOAKTRACE %.1f s  body %.1f %.1f %.1f  ground %.1f  inside walls %.1f  speed %.1f (up %.1f)  parts within %.1f  fastest part %.1f %s  lowest part %.1f above ground %s  nearest the wall %.1f inside %s  %s, lifted %.2f",
     N / 60, p.x, p.y, p.z, g, inside, math.sqrt(u.x ^ 2 + u.y ^ 2 + u.z ^ 2), u.y, spread, fast, part(fastI),
-    low, part(lowI), near, part(nearI))
+    low, part(lowI), near, part(nearI), turning, w.lifted or 0)
+  w.lifted = 0
   local h = past[w] or {}
   past[w] = h
   h[#h + 1] = line

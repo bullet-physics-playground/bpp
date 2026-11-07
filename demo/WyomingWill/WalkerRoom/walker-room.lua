@@ -1569,6 +1569,7 @@ local function turnStep(w, dt)
     need = math.max(need, ground - lo.y - LIFT_TOLERANCE)
   end
   if need > 0 then moveWalker(w, p.x, p.z, 0, 0, need, 0) end
+  w.lifted = (w.lifted or 0) + math.max(need, 0)   -- (for tools/roomsoak.lua's trace: the lifts since it last looked)
   w.turnLeft = w.turnLeft - step
   if math.abs(w.turnLeft) < 1e-9 then
     w.turnLeft = nil
