@@ -2714,16 +2714,9 @@ private:
   qint64 _frameTimingLast = -1;    ///< Start of the last animation step.
   int _frameTimingReports = 0;     ///< Reports printed so far.
 
-  QTextStream *_stream; ///< Stream writing the current frame's POV-Ray include.
-
   int _frameNum;   ///< The frame about to be simulated, counting from 1.
   int _firstFrame; ///< Frame the current POV-Ray export started at, which
                    ///< becomes the exported animation's initial clock.
-
-  QFile *_file;         ///< This frame's POV-Ray include file.
-  QFile *_fileMain;     ///< The exported scene's main @c .pov file.
-  QFile *_fileINI;      ///< The exported animation's @c .ini file.
-  QFile *_fileMakefile; ///< The @c GNUmakefile written beside the scene.
 
   bool _savePOV;      ///< Whether each simulated frame is exported.
   bool _povExportFailed; ///< Whether savePOV() could not create a directory.
