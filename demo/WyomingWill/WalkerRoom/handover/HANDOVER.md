@@ -650,7 +650,18 @@ Every walker that turned showed it (this container, room-four.lua, waves 4 cm, f
 | Klann | own | trot | forward | 1.4 s | 197 cm | 28 cm | 290 cm/s |
 | Hoecken-Spears 4-bar diag | outside, held | trot | forward | 0.9 s | 81 cm | 14 cm | 138 cm/s |
 
-William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, feet at their usual height) the body held at 18-19 cm while its downward speed grew to 2.9 m/s, then it was thrown 35 cm toward the wall and 15 cm up; at 4233.6 s, with a bar resting over the wall's top (16 cm on these waves) and a foot 6 cm into the ground, a part reached 19 m/s and the walker went over. The test track never turns (only the room does, or `TURN_TEST`), so the tables are not touched by this. Fix to come: a turn's lift that also stops the walker's downward motion and asks only for what is needed, and turns that do not rotate a part into a wall.
+William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, feet at their usual height) the body held at 18-19 cm while its downward speed grew to 2.9 m/s, then it was thrown 35 cm toward the wall and 15 cm up; at 4233.6 s, with a bar resting over the wall's top (16 cm on these waves) and a foot 6 cm into the ground, a part reached 19 m/s and the walker went over. The test track never turns (only the room does, or `TURN_TEST`), so the tables are not touched by this.
+
+**Fixed (patch 81, 7 November).** `turnStep` now tests each part's box corners against the ground under each corner (walker-room.lua records each part's boxes as it builds them, `w.boxes`; a part of another shape keeps the old bounding-box test), stops the walker's fall when it lifts it, and moves the walker back from a wall by as much as a turn swept a part into it (below the wall's top). Twenty simulated minutes of room-four.lua each way (this container, waves 4 cm, 2 threads, Tab every 20 s, ground every 15 minutes; neither lost a walker):
+
+| Walkers | Bracing | Timing | Direction | Lifted in all, before / after | Fastest part, before / after | Fastest body down, before / after |
+| --- | --- | --- | --- | --- | --- | --- |
+| Jansen (all 20 min) | own | trot | forward | 6014 / 364 cm | 510 / 95 cm/s | 499 / 66 cm/s |
+| Klann (all 20 min) | own | trot | forward | 7817 / 450 cm | 532 / 148 cm/s | 447 / 77 cm/s |
+| Chebyshev-Spears lift 62 diag (all 20 min) | outside, held | trot | forward | 5011 / 213 cm | 446 / 126 cm/s | 373 / 54 cm/s |
+| the third place (eight walkers in turn, 2-3 min each) | mixed | trot | forward | 108-1778 / 21-42 cm | 206-494 / 93-146 cm/s | 155-330 / 33-94 cm/s |
+
+Before, 4 of 47,960 samples (every 0.1 s, every walker) had a part over 5 m/s; after, none. A part came within 2 cm of a wall before, 17.6 cm after, so the wall push did not happen in this run; forced with test walls at 1.5 m it moved the walkers back by what the turns swept out (0.6 cm a frame), with no errors. The test track is unchanged (Klann logs 5 and Hoecken-Spears slider steps 7: the same to the last digit). Room runs change move for move. A long soak on William's machine is the test that counts.
 
 ## 5. What was found in the last session (17–21 October)
 

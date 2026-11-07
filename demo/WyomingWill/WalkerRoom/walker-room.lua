@@ -1153,22 +1153,25 @@ local function addWalker(spec, x, z, heading)
   local made, realCube, realScad = {}, Cube, OpenSCAD
   local barLen, joints, realJoint = {}, {}, {}
   local ankleHinges = {}   -- (the hinges its buildFoot makes: ANKLES)
+  local boxes = {}         -- each part's boxes, in its own frame: { x, y, z, qx, qy, qz, qw, half x, y, z } (turnStep)
   Cube = function(...)
     local f = debug.getinfo(2, "n")
     local o
+    local a = { ... }
     if LINK_WIDTH and f and f.name == "makeLink" and not (LINK_WIDTH_KEEP_OVER and select(1, ...) > LINK_WIDTH_KEEP_OVER) then   -- (every bar LINK_WIDTH wide: see LINK_WIDTH; LINK_WIDTH_KEEP_OVER, a test: bars longer than that, cm, keep their own width)
-      local a = { ... }
       a[2] = LINK_WIDTH
       o = realCube(unpack(a, 1, select("#", ...)))
     else
       o = realCube(...)
     end
+    boxes[o] = { { 0, 0, 0, 0, 0, 0, 1, a[1] / 2, a[2] / 2, a[3] / 2 } }
     made[o] = f and f.name
     if FOOT_POINT and SAME_FEET and made[o] == "buildFoot" then
       -- (a point: one body, a ball at the leg's tip, drawn by a look-only ball on it)
       local m, r = select(4, ...), FOOT_POINT
       o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), btSphereShape(r),
         btVector3(0.4 * m * r * r, 0.4 * m * r * r, 0.4 * m * r * r))
+      boxes[o] = nil   -- (not a box: turnStep falls back on its bounding box)
       w.tips = w.tips or {}
       w.tips[#w.tips + 1] = { foot = o, p = { 0, 0, 0 }, q = { 0, 0, 0, 1 }, ball = r }
     elseif FOOT_ROD and SAME_FEET and made[o] == "buildFoot" then
@@ -1177,6 +1180,7 @@ local function addWalker(spec, x, z, heading)
       local r = FOOT_ROD
       o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), btCylinderShapeZ(btVector3(r, r, D / 2)),
         btVector3(m / 12 * (3 * r * r + D * D), m / 12 * (3 * r * r + D * D), m / 2 * r * r))
+      boxes[o] = nil
       w.tips = w.tips or {}
       w.tips[#w.tips + 1] = { foot = o, p = { 0, 0, 0 }, q = { 0, 0, 0, 1 }, rod = { r, D } }
     elseif flatLen and SAME_FEET and made[o] == "buildFoot" then
@@ -1192,6 +1196,7 @@ local function addWalker(spec, x, z, heading)
         local px, py = sgn * (L / 2 + tl / 2 * math.cos(a)), tl / 2 * math.sin(a)
         shape:addChildShape(btTransform(btQuaternion(q[1], q[2], q[3], q[4]), btVector3(px, py, 0)), btBoxShape(btVector3(tl / 2, T / 2, D / 2)))
         w.tips[#w.tips + 1] = { foot = o, p = { px, py, 0 }, q = q, len = tl, T = T, D = D }
+        boxes[o][#boxes[o] + 1] = { px, py, 0, q[1], q[2], q[3], q[4], tl / 2, T / 2, D / 2 }
       end
       local Lt = FOOT.length
       o.body = btRigidBody(m, btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0))), shape,
@@ -1234,6 +1239,7 @@ local function addWalker(spec, x, z, heading)
   for n, f in pairs(realJoint) do _G[n] = f end
   if not ok then error(built, 0) end
   w.madeBy = made
+  w.boxes = boxes
   if BAR_MASS then setBarMasses(w, barLen, joints, scale) end
   -- DIAG_LIGHT = k (a test; off): every brace (plates, diag and arched
   -- bars) weighs k times what it would, to see what their weight costs
@@ -1555,20 +1561,64 @@ local function turnStep(w, dt)
   moveWalker(w, p.x, p.z, step, 0, 0, 0)
   -- turning sweeps the feet sideways, into rising ground on a bumpy
   -- floor; a foot pushed through the (thin) terrain then props the walker
-  -- up from underneath. So if any body's lowest point is now below the
-  -- ground under it, lift the whole walker by that much. (A body resting
-  -- on the ground sits a hair into it, within Bullet's contact margin:
-  -- LIFT_TOLERANCE keeps that from nudging the walker up every frame.)
-  local need = 0
+  -- up from underneath. So if any part's lowest point is now below the
+  -- ground under that point, lift the whole walker by that much; and a part
+  -- swept into a wall, below its top, moves the walker back from it by
+  -- that much. (A body resting on the ground sits a hair into it, within
+  -- Bullet's contact margin: LIFT_TOLERANCE keeps that from nudging the
+  -- walker every frame.) Each box's corners are tested (w.boxes); a part of
+  -- another shape, by its bounding box against the highest ground under
+  -- it. (Until November 2026 every part was tested that way, which on
+  -- waves could ask for a lift no part needed, and the lift kept the
+  -- walker's falling speed: through a turn it was lifted, fell, was lifted
+  -- again, faster each time, up to 3 m/s, and thrown when the turn ended;
+  -- now a lift also stops its fall. HANDOVER.md 4u.)
+  local need, out = 0, { 0, 0, 0, 0 }   -- (lift; and past the walls at +x, -x, +z, -z)
+  local fx, fz, top = ARENA_X / 2, ARENA_Z / 2, WALL_H - AMP
+  local function corner(x, y, z)
+    need = math.max(need, terrainHeight(x, z) - y - LIFT_TOLERANCE)
+    if y < top then
+      out[1] = math.max(out[1], x - fx); out[2] = math.max(out[2], -fx - x)
+      out[3] = math.max(out[3], z - fz); out[4] = math.max(out[4], -fz - z)
+    end
+  end
   local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
   for _, o in ipairs(w.bodies) do
-    o.body:getAabb(lo, hi)
-    local ground = math.max(terrainHeight(lo.x, lo.z), terrainHeight(lo.x, hi.z),
-                            terrainHeight(hi.x, lo.z), terrainHeight(hi.x, hi.z),
-                            terrainHeight((lo.x + hi.x) / 2, (lo.z + hi.z) / 2))
-    need = math.max(need, ground - lo.y - LIFT_TOLERANCE)
+    local bx = w.boxes and w.boxes[o]
+    if bx then
+      local c, q = o.body:getCenterOfMassPosition(), o.body:getCenterOfMassTransform():getRotation()
+      local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
+      for _, b in ipairs(bx) do
+        for i = 0, 7 do
+          local vx, vy, vz = (i % 2 == 0) and b[8] or -b[8], (i % 4 < 2) and b[9] or -b[9], (i < 4) and b[10] or -b[10]
+          vx, vy, vz = qrot(b[4], b[5], b[6], b[7], vx, vy, vz)
+          vx, vy, vz = qrot(qx, qy, qz, qw, vx + b[1], vy + b[2], vz + b[3])
+          corner(c.x + vx, c.y + vy, c.z + vz)
+        end
+      end
+    else
+      o.body:getAabb(lo, hi)
+      local ground = math.max(terrainHeight(lo.x, lo.z), terrainHeight(lo.x, hi.z),
+                              terrainHeight(hi.x, lo.z), terrainHeight(hi.x, hi.z),
+                              terrainHeight((lo.x + hi.x) / 2, (lo.z + hi.z) / 2))
+      need = math.max(need, ground - lo.y - LIFT_TOLERANCE)
+      if lo.y < top then   -- (and the walls, by its box's sides)
+        out[1] = math.max(out[1], hi.x - fx); out[2] = math.max(out[2], -fx - lo.x)
+        out[3] = math.max(out[3], hi.z - fz); out[4] = math.max(out[4], -fz - lo.z)
+      end
+    end
   end
-  if need > 0 then moveWalker(w, p.x, p.z, 0, 0, need, 0) end
+  local dx = -math.max(out[1] - LIFT_TOLERANCE, 0) + math.max(out[2] - LIFT_TOLERANCE, 0)
+  local dz = -math.max(out[3] - LIFT_TOLERANCE, 0) + math.max(out[4] - LIFT_TOLERANCE, 0)
+  if need > 0 or dx ~= 0 or dz ~= 0 then
+    moveWalker(w, p.x, p.z, 0, dx, math.max(need, 0), dz)
+    if need > 0 then   -- (and no falling: what it fell into, it is now above)
+      for _, o in ipairs(w.bodies) do
+        local vx, vy, vz = getVelXYZ(o)
+        if vy < 0 then setVelXYZ(o, vx, 0, vz) end
+      end
+    end
+  end
   w.lifted = (w.lifted or 0) + math.max(need, 0)   -- (for tools/roomsoak.lua's trace: the lifts since it last looked)
   w.turnLeft = w.turnLeft - step
   if math.abs(w.turnLeft) < 1e-9 then
