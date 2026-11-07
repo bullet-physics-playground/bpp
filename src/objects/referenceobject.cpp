@@ -49,11 +49,12 @@ QString ReferenceObject::toString() const { return QString("ReferenceObject"); }
 void ReferenceObject::toPOV(QTextStream *s) const {
   if (s != nullptr) {
     if (mPreSDL.isNull()) {
-      if (!m_targetName.isEmpty()) {
-        *s << "object { " << m_targetName << "\n";
-      } else {
-        *s << "object { <unnamed> }\n";
+      if (m_targetName.isEmpty()) {
+        // Nothing to refer to
+        *s << "// ReferenceObject without a target name: not exported\n";
+        return;
       }
+      *s << "object { " << m_targetName << "\n";
     } else {
       *s << mPreSDL << "\n";
     }

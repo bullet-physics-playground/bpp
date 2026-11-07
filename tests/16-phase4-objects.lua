@@ -75,4 +75,9 @@ pov = ref:toPOV()
 check("ReferenceObject exports a reference", pov:find("^object { MyThing") ~= nil, pov)
 check("ReferenceObject export balances", balanced(pov), pov)
 
+-- Without a name there is nothing to refer to: only a POV-Ray comment.
+pov = ReferenceObject():toPOV()
+check("an unnamed ReferenceObject exports only a comment",
+      pov:find("^//") ~= nil and pov:find("{") == nil and pov:find("}") == nil, pov)
+
 print(string.format("\n%d passed, %d failed", pass, fail))
