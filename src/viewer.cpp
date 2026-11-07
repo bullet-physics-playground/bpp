@@ -2224,8 +2224,12 @@ void Viewer::onSpaceNavigatorButton(int button, bool pressed) {
   }
 }
 
+// The 3D mouse settings take no mutex, like setShowConstraints() below:
+// a script sets them (v.snMode and the rest) while Viewer::parse() holds
+// `mutex` for its whole run, and a plain QMutex locked again on the same
+// thread deadlocks. Each is a single value read only on this (the GUI)
+// thread.
 void Viewer::setSpaceNavigatorMode(int mode) {
-  QMutexLocker locker(&mutex);
   _snCamera->mode = (mode == 1) ? SpaceNavigatorCamera::Object : SpaceNavigatorCamera::Fly;
 }
 
@@ -2234,21 +2238,18 @@ int Viewer::spaceNavigatorMode() const {
 }
 
 void Viewer::setSpaceNavigatorLockHorizon(bool on) {
-  QMutexLocker locker(&mutex);
   _snCamera->lockHorizon = on;
 }
 
 bool Viewer::spaceNavigatorLockHorizon() const { return _snCamera->lockHorizon; }
 
 void Viewer::setSpaceNavigatorAutoFlySpeed(bool on) {
-  QMutexLocker locker(&mutex);
   _snCamera->autoFlySpeed = on;
 }
 
 bool Viewer::spaceNavigatorAutoFlySpeed() const { return _snCamera->autoFlySpeed; }
 
 void Viewer::setSpaceNavigatorShowOrbitAxis(bool on) {
-  QMutexLocker locker(&mutex);
   _snCamera->showOrbitAxis = on;
   updateGLViewer();
 }
@@ -2256,14 +2257,12 @@ void Viewer::setSpaceNavigatorShowOrbitAxis(bool on) {
 bool Viewer::spaceNavigatorShowOrbitAxis() const { return _snCamera->showOrbitAxis; }
 
 void Viewer::setSpaceNavigatorZoomDirection(bool forward) {
-  QMutexLocker locker(&mutex);
   _snCamera->zoomForward = forward;
 }
 
 bool Viewer::spaceNavigatorZoomForward() const { return _snCamera->zoomForward; }
 
 void Viewer::setSpaceNavigatorPanZoom(bool on) {
-  QMutexLocker locker(&mutex);
   _snCamera->panZoom = on;
 }
 
