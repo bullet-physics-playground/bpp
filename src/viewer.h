@@ -48,6 +48,7 @@
 #include "joystick/joystickinterfacesdl.h"
 
 #include "spacenavigator/spacenavigator.h"
+#include "screenmerge.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -2527,39 +2528,7 @@ private:
   int _fixedShadowCount = 0;       ///< How many objects they hold.
   int _shadowCached = 0;           ///< Taken from it last frame.
 
-  // The screen's merge (see setScreenMerge()).
-  struct MergeBatch {
-    QVector<Object *> objs;        ///< What's in it.
-    unsigned vbo = 0;              ///< Its vertices, on the graphics card,
-    unsigned cvbo = 0;             ///< and their colours (apart: changed alone).
-    int verts = 0;                 ///< How many.
-    bool dirty = true;             ///< To be made again.
-    int holes = 0;                 ///< Vertices blanked (objects that left it).
-    std::vector<std::pair<int, int>> blank; ///< To blank next frame: first, count.
-  };
-  bool _screenMerge = true;
-  /// One batch for each patch of the scene that has merged objects.
-  QMap<std::tuple<int, int, int, int>, MergeBatch> _mergeBatches;  ///< (patch, generation)
-  QMap<std::tuple<int, int, int>, int> _mergeOpenGen;  ///< Each patch's batch taking newcomers.
-  int _mergeGenCount = 0;
-  QVector<Object *> _mergeObjs;    ///< Everything merged.
-  const void *_mergeCtx = nullptr; ///< The context the batches live in.
-  unsigned _mergeEpoch = 0;
-  bool _mergeReady = false;        ///< They're made, and up to date.
-  long _mergeFrame = 0;
-  int _screenMerged = 0;           ///< Drawn from them last frame.
-  int _mergesMade = 0;             ///< Times made since the timer's report.
-  /// Once a frame: takes out what has changed, looks for more now and then,
-  /// and makes the batches again if need be.
-  void updateMerge();
-  /// Draws the batches (for the screen).
-  void drawMerged();
-  /// Forgets them all (deleting them if their context is current).
-  void freeMerge();
-  /// Makes the batches that need it again.
-  void buildMerge();
-  /// Takes an object out of its batch (which is made again).
-  void unmerge(Object *o);
+  ScreenMerge _merge; ///< The screen's merge (see setScreenMerge()).
   bool _shadowSaved = true;        ///< See setShadowSaved().
   bool _shadowFromSaved = false;   ///< See shadowFromSaved().
   quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from
