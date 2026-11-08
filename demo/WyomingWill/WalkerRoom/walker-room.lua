@@ -2381,6 +2381,7 @@ v:onKey(function(N, key, down)
   if ROOM_SWAP and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
     if down then
       TERRAIN = TERRAIN_KEYS[key]
+      makeTerrain()   -- (the new kind's bumps; without it the room was built again on the old ground)
       local k = following and following.index
       teardownRoom()
       buildRoom()
