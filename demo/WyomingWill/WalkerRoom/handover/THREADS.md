@@ -29,7 +29,18 @@ Then `v:setThreads(n)` after `v:setSolver(...)` (`room-four.lua`: set
 world as before. With the system Bullet, `setThreads` says it has no threads
 and does nothing.
 
-**How it works** (`src/viewer.cpp`: `BppWorld`, `Viewer::setThreads`).
+**To see it** (patch 85): `threads-chains.lua`, in this folder. 32 chains of
+30 links, each swinging on its own, built so that threads help all they can:
+every chain an island of its own, all equally heavy (600 iterations, no early
+stop), no collisions, no Lua to speak of. A **Threads** slider sets
+`setThreads` while it runs, an **Iterations** slider the work each chain costs,
+and the status bar shows the physics's time a frame, the speed it allows, and
+how many times faster than with no threads. Here (2 CPUs): 2 threads 1.9-2.1
+times as fast as none. On William's 8 cores it should come close to 8 times
+at most; not measured yet. The picture cannot run faster than real time, so
+if it reaches it, turn Iterations up.
+
+**How it works** (`src/bppworld.cpp`: `BppWorld`; `src/viewer.cpp`: `Viewer::setThreads`).
 
 - bpp's worlds are now `BppWorld`, Bullet's soft body world with one change:
   with threads on it solves its islands (groups of bodies joined by joints or
