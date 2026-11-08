@@ -1723,6 +1723,7 @@ class Viewer
   setSolverInfo: void setSolverInfo(Viewer&,std::string const&,custom [double])
   setSolverIterations: void setSolverIterations(Viewer&,int)
   setTau: void setTau(Viewer&,custom [float])
+  setThreads: int setThreads(Viewer&,int)
   setTone: void setTone(Viewer&,int,custom [double],custom [double])
   setTone: void setTone(Viewer&,int,custom [double],custom [double],custom [double])
   setToneTimbre: void setToneTimbre(Viewer&,int,custom [double],custom [double])

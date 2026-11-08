@@ -78,6 +78,8 @@ demo/WyomingWill/WalkerRoom/handover/tools/mountprobe.lua  error: cannot open wa
 demo/WyomingWill/WalkerRoom/handover/tools/pathprobe.lua  error: cannot open test-track.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/planprobe.lua  error: cannot open test-track.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/revprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/roomdump.lua  error: cannot open walker-room.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/handover/tools/roomsoak.lua  error: cannot open room-four.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/roomtime.lua  error: cannot open walker-room.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/sinkprobe.lua  error: cannot open test-track.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/slidertest.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
