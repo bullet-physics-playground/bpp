@@ -630,7 +630,7 @@ The walkers in a room can now be solved side by side on several threads, in one 
 
 The marks and the look-only foot tips (kinematic, no contact response: they push nothing) were still in Bullet's collision detection, and in the room that was more than half the time (GImpact meshes). Now walker-room.lua sets `o.collides = false` on them before adding them, which keeps them out of it; they are drawn and move as before. Room of 4, marks on, this container: 0.31x real time before, 0.72x after (as with `MARKS = false`); with 2 threads 0.96x. On the track they seldom met anything: of three runs two the same to the last digit, one moved slightly. William's machine (before the change): room of 4 0.14x, marks off 0.36x, marks off and 8 threads 0.57x. A table, threads off, against `runs/out-damp`, checks the change (`THREADS.md`).
 
-**Open: decorations outside Bullet** (William agreed, 1 November; not started). `collides = false` is how bpp does look-only parts (the pinball machine's playfield and cabinet art are the same: thin boxes and discs added with it). But the marks are still Bullet bodies: in Bullet's object lists and its search tree, and moved by Lua to their walker every frame. What is left of their cost is small (marks on and off now within about 2%), so this is not for speed. The cleaner design: a "decoration" kind of object in bpp's C++, never added to Bullet, attached to a body and drawn (and written into POV-Ray exports) with that body's place each frame. It would drop the per-frame moving, and likely bring a run watched in the window closer to the same run in a table (moving the marks is one reason they differ; the viewer's narrower track is another). About half a day with checks, plus walker-room.lua's `decor()` and foot tips changed to use it.
+**Decorations outside Bullet** (William agreed, 1 November; done 7 November: see 4v). `collides = false` is how bpp does look-only parts (the pinball machine's playfield and cabinet art are the same: thin boxes and discs added with it). But the marks are still Bullet bodies: in Bullet's object lists and its search tree, and moved by Lua to their walker every frame. What is left of their cost is small (marks on and off now within about 2%), so this is not for speed. The cleaner design: a "decoration" kind of object in bpp's C++, never added to Bullet, attached to a body and drawn (and written into POV-Ray exports) with that body's place each frame. It would drop the per-frame moving, and likely bring a run watched in the window closer to the same run in a table (moving the marks is one reason they differ; the viewer's narrower track is another). About half a day with checks, plus walker-room.lua's `decor()` and foot tips changed to use it.
 
 ## 4t. Threads walk as without threads; the tables (4 November)
 
@@ -662,6 +662,22 @@ William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, fe
 | the third place (eight walkers in turn, 2-3 min each) | mixed | trot | forward | 108-1778 / 21-42 cm | 206-494 / 93-146 cm/s | 155-330 / 33-94 cm/s |
 
 Before, 4 of 47,960 samples (every 0.1 s, every walker) had a part over 5 m/s; after, none. A part came within 2 cm of a wall before, 17.6 cm after, so the wall push did not happen in this run; forced with test walls at 1.5 m it moved the walkers back by what the turns swept out (0.6 cm a frame), with no errors. The test track is unchanged (Klann logs 5 and Hoecken-Spears slider steps 7: the same to the last digit). Room runs change move for move. William's soak with patch 81 (7 November: room-four.lua, 8 threads, waves 4 cm, Tab every 20 s, a new ground every 15 minutes) ran the full 180 simulated minutes with no walker lost: 539 swaps, bodies 9.4-21.2 cm, 76-88 s of wall time per simulated minute throughout. The same soak before it lost a walker at minute 70.6.
+
+## 4v. The marks are decorations (7 November)
+
+bpp has look-only objects now: `o.decoration = true` before `v:add` keeps an object's body out of Bullet's world altogether (never stepped, never in collision detection, never found by `v:rayTest`, hover or picking), and `v:attach(o, parent)` makes it follow a body, keeping the offset it had when attached (`v:detach(o)` lets go). bpp places attached decorations itself before each drawing and each POV-Ray export (`src/decorations.cpp`). They are still drawn, shadowed and exported like any object.
+
+walker-room.lua's marks (code, colours, frame) and drawn foot tips use it: `decor()` and the tips set `decoration = true`, `placeMarks` puts them on their walker once when it is added and attaches them, and the per-frame `placeMarks` call is gone.
+
+Track runs, same binary, old script against new (20 s, warm40fast):
+
+| Walker | Bracing | Timing | Direction | Terrain | Old cm/s | New cm/s |
+|---|---|---|---|---|---|---|
+| Jansen | own frame | GAIT 0,180,180,0 | its forward | flat | 8.951 | 8.951 |
+| Klann | own frame | GAIT 0,180,180,0 | its forward | bumps 1.5, seed 3 | 8.196 | 8.196 |
+| Hoecken-Spears slider | unbraced | GAIT 0,180,180,0 | its forward (built forward = -1) | bumps 1.5, seed 2 | 8.698 | 8.706 |
+
+Each repeats itself exactly. The Hoecken-Spears change is not the marks as such: that run moves about 0.01 cm/s whenever the world's contents change at all (one collisionless box 5 m under the floor, new script: 8.693; the old script with no tip bodies: 8.695). Jansen does not move with the box. I don't know why that walker is the sensitive one (its compound feet near the bumps, perhaps). Tables with tips-walkers may shift by that much against older ones.
 
 ## 5. What was found in the last session (17–21 October)
 

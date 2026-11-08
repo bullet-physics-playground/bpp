@@ -170,7 +170,8 @@ collisions 0.54 s and the solve 0.85 s per simulated second. On 2 threads the
 solve took 0.54 s instead of 0.85. So the solve is the part threads help; with
 the marks on, the marks' collisions swamp it.
 
-**The marks** (patch 73). They are kinematic with no contact response, so
+**The marks** (patch 73; since 7 November they are decorations, out of
+Bullet's world altogether: HANDOVER.md 4v). They are kinematic with no contact response, so
 they push nothing, but Bullet still paired them with everything near them and
 worked out the contacts (GImpact meshes, the slowest kind). Now walker-room.lua
 uses bpp's `o.collides = false` for them and for the look-only foot tips, which
