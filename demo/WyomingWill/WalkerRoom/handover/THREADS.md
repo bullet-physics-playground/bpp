@@ -29,7 +29,7 @@ Then `v:setThreads(n)` after `v:setSolver(...)` (`room-four.lua`: set
 world as before. With the system Bullet, `setThreads` says it has no threads
 and does nothing.
 
-**To see it** (patch 85): `threads-chains.lua`, in this folder. 32 chains of
+**To see it** (patches 85-86): `demo/WyomingWill/Testing_Threads.lua`. 32 chains of
 30 links, each swinging on its own, built so that threads help all they can:
 every chain an island of its own, all equally heavy (600 iterations, no early
 stop), no collisions, no Lua to speak of. A **Threads** slider sets
