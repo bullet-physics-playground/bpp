@@ -1101,14 +1101,27 @@ void Viewer::setSolverIterations(int n) {
 
 // Joint warm-starting ("si-warm") and bpp's world (BppWorld, setThreads): bppworld.cpp.
 
+// Raises a Lua error from a function luabind calls, with the same message
+// luaL_error gives (where in the script, then what), but by throwing:
+// luaL_error would jump straight out past luabind's C++ frames, never
+// freeing what they hold (Lua is built as C). luabind::error tells luabind
+// the message is already on the stack; it raises it once its frames are
+// done. See tests/21-lua-errors.lua.
+[[noreturn]] static void luaFail(lua_State *L, const std::string &message) {
+  luaL_where(L, 1);
+  lua_pushstring(L, message.c_str());
+  lua_concat(L, 2);
+  throw luabind::error(L);
+}
+
 // Decorations that follow a body: decorations.cpp.
 void Viewer::attach(Object *o, Object *parent) {
   if (o == nullptr || parent == nullptr)
-    luaL_error(L, "attach: needs two objects");
+    luaFail(L, "attach: needs two objects");
   if (!o->isDecoration())
-    luaL_error(L, "attach: only a decoration can follow another object (set o.decoration = true before v:add)");
+    luaFail(L, "attach: only a decoration can follow another object (set o.decoration = true before v:add)");
   if (o == parent)
-    luaL_error(L, "attach: an object can't follow itself");
+    luaFail(L, "attach: an object can't follow itself");
   _decorations.attach(o, parent);
 }
 
@@ -1122,8 +1135,7 @@ int Viewer::setThreads(int n) {
     return 0;
   }
   if (_solverKind != "si" && _solverKind != "si-warm") {
-    luaL_error(L, "setThreads: needs the solver \"si\" or \"si-warm\" (setSolver), not '%s'", _solverKind.c_str());
-    return 0;
+    luaFail(L, "setThreads: needs the solver \"si\" or \"si-warm\" (setSolver), not '" + _solverKind + "'");
   }
   static btITaskScheduler *scheduler = nullptr;   // (Bullet's own thread pool, one for all worlds)
   if (scheduler == nullptr) {
@@ -1154,7 +1166,7 @@ void Viewer::setSolverInfo(const std::string &name, double value) {
   else if (name == "jointWarmstart") g_jointWarmstart = value;
   else if (name == "erp") i.m_erp = value;
   else if (name == "erp2") i.m_erp2 = value;
-  else luaL_error(L, "setSolverInfo: unknown '%s' (residual, sor, warmstarting, jointWarmstart, erp, erp2, splitImpulse, randomOrder, iterations)", name.c_str());
+  else luaFail(L, "setSolverInfo: unknown '" + name + "' (residual, sor, warmstarting, jointWarmstart, erp, erp2, splitImpulse, randomOrder, iterations)");
 }
 
 int Viewer::solverFallbacks() const {
@@ -1183,8 +1195,7 @@ void Viewer::setSolver(const std::string &kind) {
     else method = new btLemkeSolver();
     s = new btMLCPSolver(method);
   } else {
-    luaL_error(L, "setSolver: unknown kind '%s' (si, si-warm, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)", kind.c_str());
-    return;
+    luaFail(L, "setSolver: unknown kind '" + kind + "' (si, si-warm, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)");
   }
   btConstraintSolver *old = dynamicsWorld->getConstraintSolver();
   dynamicsWorld->setConstraintSolver(s);
