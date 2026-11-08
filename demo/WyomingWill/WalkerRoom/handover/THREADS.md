@@ -42,10 +42,32 @@ every chain an island of its own, all equally heavy (600 iterations, no early
 stop), no collisions, no Lua to speak of. A **Threads** slider sets
 `setThreads` while it runs, an **Iterations** slider the work each chain costs,
 and the status bar shows the physics's time a frame, the speed it allows, and
-how many times faster than with no threads. Here (2 CPUs): 2 threads 1.9-2.1
-times as fast as none. On William's 8 cores it should come close to 8 times
-at most; not measured yet. The picture cannot run faster than real time, so
-if it reaches it, turn Iterations up.
+how many times faster than with no threads (also written to the terminal).
+The picture cannot run faster than real time, so if it reaches it, turn
+Iterations up. Here (2 CPUs): 2 threads 1.9-2.1 times as fast as none.
+William's machine (Ryzen 7 3700X: 8 cores, 16 hardware threads; 7 November,
+32 chains, 600 iterations, one reading after each slider move; chains, not
+walkers):
+
+| Threads | Physics a frame | As fast as no threads | Per thread |
+| --- | --- | --- | --- |
+| 0 | 116-118 ms | 1.0x | - |
+| 2 | 60 ms | 1.9x | 0.95 |
+| 3 | 42 ms | 2.7x | 0.90 |
+| 4 | 32 ms | 3.6x | 0.90 |
+| 5 | 28 ms | 4.1x | 0.82 |
+| 6 | 25 ms | 4.6x | 0.77 |
+| 7 | 22 ms | 5.3x | 0.76 |
+| 8 | 19-20 ms | 5.8-6.1x | 0.74 |
+| 9-15 | 19-22 ms | 5.2-6.2x | - |
+| 16 | 17 ms | 6.5-6.9x | - |
+
+Nearly linear to 4 threads; 6 times at 8, about three quarters of ideal
+(likely, not measured: what stays on one thread -- moving the bodies,
+building the islands, handing out the work -- and eight cores sharing one
+memory). Beyond 8 the threads share cores, and 32 chains over 9 or 10
+threads still leave four to some, so a step takes as long as at 8; at 16,
+two chains each, 6.9 times. So `THREADS = 8` on that machine.
 
 **How it works** (`src/bppworld.cpp`: `BppWorld`; `src/viewer.cpp`: `Viewer::setThreads`).
 
