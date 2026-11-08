@@ -8,7 +8,8 @@
 --
 -- The Threads slider sets v:setThreads while it runs. The chains move exactly the same with any number of threads;
 -- only the speed changes. The status bar shows what the physics costs a frame, what speed that allows, and how
--- many times faster it is than with no threads (once Threads has been 0 at the current Iterations). The picture
+-- many times faster it is than with no threads (once Threads has been 0 at the current Iterations); each line also
+-- goes to the terminal bpp was started from, where it can be copied. The picture
 -- can't run faster than real time; the physics figure can, so turn Iterations up to keep the picture slower
 -- than real time and see the speed-up in the motion too.
 --
@@ -114,7 +115,8 @@ local function update()
   end
   status = line
   v.statusText = line
-  if THREADS_DEMO_PRINT then print("STATUS " .. line) end
+  io.stdout:write("Testing_Threads: ", line, "\n")   -- (and in the terminal bpp was started from, to copy)
+  io.stdout:flush()
   spent, frames, wall0 = 0, 0, now
 end
 

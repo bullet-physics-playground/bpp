@@ -18,11 +18,18 @@ with 8 threads.
 
 **How to use it.**
 
+In bpp's folder (see the top-level `THREADS.md`):
+
 ```
-cd ~/bpp && scripts/bullet-threads.sh        # Bullet 3.24 with threads, into lib/ (git ignores it)
-mkdir -p ~/build-mt && cd ~/build-mt
-qmake CONFIG+=bundled_bullet ~/bpp/bpp.pro && make -j16
+scripts/bullet-threads.sh        # Bullet 3.24 with threads, into lib/ (git ignores it)
+qmake CONFIG+=bundled_bullet
+rm -rf release/bpp release/bpp.gch
+make -j8
 ```
+
+(Build in bpp's own folder, not a separate one: bpp looks for `demo/mesh/`
+next to the program, and the `rm` keeps a stale precompiled header from
+stopping the build.)
 
 Then `v:setThreads(n)` after `v:setSolver(...)` (`room-four.lua`: set
 `THREADS = 8` before opening it, or in a launcher). `setThreads(0)` is the

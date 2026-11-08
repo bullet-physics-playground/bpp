@@ -6,8 +6,11 @@
 # threads, as static libraries, into lib/ (which git ignores); then build bpp against it:
 #
 #   scripts/bullet-threads.sh
-#   mkdir -p ../build-mt && cd ../build-mt
-#   qmake CONFIG+=bundled_bullet ../bpp/bpp.pro && make -j8
+#   qmake CONFIG+=bundled_bullet
+#   rm -rf release/bpp release/bpp.gch
+#   make -j8
+#
+# (In bpp's own folder: see THREADS.md.)
 #
 # Everything else -- the default build, the packages -- still uses the system Bullet. Built as Ubuntu builds its
 # own (RelWithDebInfo, single precision). With no threads asked for, the walkers run as with the system Bullet, to
