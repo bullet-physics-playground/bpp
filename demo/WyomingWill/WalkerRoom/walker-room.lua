@@ -867,7 +867,7 @@ local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test t
 
 -- ---------------------------------------------------------------------
 -- marking the bodies (spec.look): the body and its braces painted its
--- linkage's colour (the rest of the walker in plain greys),
+-- linkage's colour (its links cyan, LINK_COLOUR, and its feet dark grey),
 -- a gold rim round its top edges for a linkage Spears changed, a line
 -- across it for a diag build, and its code in raised letters on top.
 -- These are for looks only: bodies that touch nothing and weigh nothing,
@@ -967,13 +967,14 @@ local function markBody(w, look)
   if not look then return end
   w.cube.col = look.colour
   -- its braces (the plates and bars between its legs) in its colour too,
-  -- everything else in plain greys, so the walker's colours stand out
+  -- its links cyan (LINK_COLOUR: a colour no body, pin or ground uses, so
+  -- the links show; grey until 8 November) and its feet dark grey
   for _, o in ipairs(w.bodies) do
     if not rawequal(o, w.cube) then
       local by = w.madeBy and w.madeBy[o] or ""
       if by:find("Crossbar") then o.col = look.colour
       elseif by == "buildFoot" then o.col = "#3C3C3C"
-      else o.col = "#6A6A6A" end
+      else o.col = LINK_COLOUR or "#00C8D7" end
     end
   end
   -- the body's size, from its box as built (still lined up with its axes)

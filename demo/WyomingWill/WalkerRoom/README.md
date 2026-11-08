@@ -892,7 +892,7 @@ and the ankle springs 14 times stiffer.
 ## Telling the walkers apart
 
 Each walker's body (and the plates or bars between its legs) is painted
-its linkage's colour, the rest of it grey, and its code is written on
+its linkage's colour, its links cyan (`LINK_COLOUR`), its feet dark grey, and its code is written on
 top (`MARKS = false`: each walker as its own file paints it). The code
 is its linkage's inventor(s), a space, and its number of bars (S added
 for a slider):
