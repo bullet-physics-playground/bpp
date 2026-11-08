@@ -28,11 +28,14 @@ git clone -b test-harness https://github.com/bullet-physics-playground/bpp.git
 cd bpp
 sudo apt-get install -y devscripts equivs
 sudo mk-build-deps -i -t "apt-get -y --no-install-recommends" debian/control
-sudo apt-get install -y libqt5svg5 xvfb xdotool imagemagick
+sudo apt-get install -y libqt5svg5 xvfb xdotool imagemagick openscad fonts-liberation fonts-dejavu-core
 qmake CONFIG+=release
 make -j2 release
 ```
 
+- OpenSCAD is needed: without it Jansen and Klann can't be built and the
+  other bodies lose their marks (which changes their runs too). CI
+  installs it; `debian/control` only recommends it.
 - Build in the source folder: bpp finds `demo/mesh/` relative to its
   binary, so use the in-tree `release/bpp`.
 - After any change to qmake's settings: `rm -rf release/bpp
@@ -71,7 +74,7 @@ and `runs/table.py` makes the tables. Its header lists the settings;
 ```
 cd demo/WyomingWill/WalkerRoom
 BPP=../../../release/bpp BUILDS=names.txt TERRAINS="waves:0 waves:2" SEEDS="1 2" \
-  EXTRA='YAW_DAMP=false' OUT=runs/out-steer RUN_SECS=20 runs/run-table.sh
+  EXTRA='YAW_DAMP=0' OUT=runs/out-steer RUN_SECS=20 runs/run-table.sh
 ```
 
 (`names.txt`: one build name a line.) Each run is the standard
@@ -136,8 +139,9 @@ tests are fine.
    (`walker-room.lua`, "its turning about the vertical damped"). That was
    the walkers' own files' fix for not walking straight. The room turns a
    walker by rotating it a little each frame, lifted slightly
-   (`turnStep`), not by any mechanism. Steering tests need `YAW_DAMP` off
-   or lower, and then the walkers' natural drift comes back.
+   (`turnStep`), not by any mechanism. Steering tests need `YAW_DAMP=0`,
+   not `false`: `false` leaves each file's own body damping, 1.0, which
+   holds the walker straight just the same (found 8 November).
 2. **The diag builds' braces.** A rigid brace is welded to the pendants of
    each diagonal pair (front-left with rear-right, front-right with
    rear-left). It locks the pair's timing and holds the pendants at their
@@ -198,3 +202,52 @@ Suggested for removal, not done (William to say which to keep):
 `test-track-all.sh`; and sorting the 202 files in `handover/tools/`
 (keep what `runs/` and the notes still point to). They load their
 neighbours by name, so they can't be moved into a subfolder.
+
+## Stage 1 results: foot friction, pair and side slowing (8 November)
+
+Patch 97. `STEER = { mech, side, amount }` in `walker-room.lua` puts a
+bias on one side; `runs/steer-table.sh` runs the variants
+(`run-table.sh` with `PROBE=runs/steerprobe.lua`, `YAW_DAMP=0`) and
+`runs/steer.py` makes the table and `handover/steer_paths1.png`. Turn:
+°/s from 5 s to 20 s, to the walker's own left positive. Speed: straight
+distance from 5 s to 20 s. Two seeds, flat and waves 2, on this container
+(2 cores): one run in about 10 s.
+
+Split = the bias on the left's turn less the same bias on the right's (it
+cancels the walker's own drift), °/s, flat / waves 2:
+
+| Walker | Bracing | Bias | Timing | Direction | ×0.75 / ×0.8 | ×0.5 / ×0.6 | ×0.05 | Speed at the stronger (no bias 8.9 flat) |
+|---|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | foot friction | trot | forward | +0.01 / +0.02 | +0.01 / −1.12 | +0.66 / +0.51 | 8.8–8.9 |
+| C-S lift 51 diag | outside, held | pair crank speed | trot, pairs free | forward | +0.16 / −0.13 | +0.14 / +1.65 | — | 4.6–5.3 |
+| Jansen | own frame | foot friction | trot | forward | −0.03 / +0.30 | +0.01 / +0.25 | +0.03 / +1.13 | 8.9 |
+| Jansen | own frame | pair crank speed | trot, pairs free | forward | −0.06 / −0.86 | −0.06 / −0.67 | — | 4.6–5.2 |
+| Jansen | own frame | side crank speed | trot, sides free | forward | +1.12 / +1.55 | +4.34 / +2.83 | — | 4.9–5.1 |
+
+- **Nothing much turns them.** With the body's damping off altogether
+  the walkers still hold their heading: flat, no bias, 0.00 and −0.02
+  °/s; on waves 2 lift 51 diag drifts −1.4 °/s (two seeds), Jansen 0.0.
+  The grip of the wide flat feet (8 × 12 cm, 26 cm apart) holds them: a
+  57 °/s spin given to every body was gone within a frame. No hidden
+  damping: every body's angular damping is 0 in these runs.
+- **Foot friction is weak.** Halving one side's changed nothing on flat;
+  even ×0.05 (nearly ice) gave 0.3–0.4 °/s on lift 51 diag and almost
+  nothing on Jansen, at no cost in speed. The other side's feet simply
+  do all the pushing. On waves 2 the numbers are within the seed noise.
+- **Pair slowing** (one diagonal pair's cranks at ×0.8 or ×0.6, the lock
+  holding each pair only to itself) turns little and inconsistently, as
+  expected, and costs about half the speed: the pairs drift out of the
+  trot (lift 51 diag's tilt 12–16° on flat, against 1°). The loosened
+  lock alone (×1) costs nothing.
+- **Side slowing turns Jansen** (no braces), toward the slow side: ×0.6
+  gives +2.4 (left) and −1.9 (right) °/s on flat, a split of 4.3; but it
+  too costs about half the speed, as the sides drift out of the trot.
+  Lift 51 diag can't do it: each brace ties a left crank to a right one.
+- Seeds differ by up to 0.4–1.2 °/s on waves 2; two seeds are too few
+  there. Nothing tipped (tilt 60°).
+
+So far crank speed is the only lever that really turns a walker, and the
+braces forbid it on the diag builds. A steady difference in crank speed
+must break the trot. Open: a difference within each turn only (one
+side's cranks faster in stance and slower in swing, the same average),
+which would keep the timing.

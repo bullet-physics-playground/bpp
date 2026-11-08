@@ -360,6 +360,18 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- links, 0.10 / 0.15 and 0.20 / 0.30 on the sliders', 0.10 / 0.15 on Spears
 -- 4-bar's, 0.15 turning on the outside braces. false: as its files give.
 LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
+-- STEER = { mech =, side = "L" or "R", amount = k } (a steering test; off,
+-- handover/STEERING.md): a bias on one side of every walker. Left and right
+-- are the walker's own, facing the way it walks; a turn to the left is a
+-- positive turning rate. Each foot and each crank motor is put on its side
+-- and end by where it is in the body's frame when built (w.steer).
+--   mech = "friction": that side's feet's friction times k
+--   mech = "pair": the diagonal pair whose front foot is on that side (its
+--     rear foot on the other) driven at k times its crank speed; the crank
+--     lock (lockCranks) then holds each pair's cranks only to each other
+--   mech = "side": that side's cranks at k times (lock held per side; a
+--     walker with diag braces has each brace tying a left crank to a right)
+STEER = STEER or false
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
 -- or Klann's and Jansen's own legs); nothing across the walk, so the
@@ -825,6 +837,48 @@ end
 local function qrot(qx, qy, qz, qw, vx, vy, vz)
   local tx, ty, tz = 2 * (qy * vz - qz * vy), 2 * (qz * vx - qx * vz), 2 * (qx * vy - qy * vx)
   return vx + qw * tx + (qy * tz - qz * ty), vy + qw * ty + (qz * tx - qx * tz), vz + qw * tz + (qx * ty - qy * tx)
+end
+
+-- STEER (above): each foot's and crank motor's side ("L" or "R") and end
+-- (front or not) in the body's frame, as built, and the bias put on
+local function steerSetup(w, made)
+  local c = w.cube.body:getCenterOfMassPosition()
+  local q = w.cube.body:getCenterOfMassTransform():getRotation()
+  local fx, fy, fz = qrot(q:x(), q:y(), q:z(), q:w(), w.forward, 0, 0)   -- the way it walks
+  local function place(x, y, z)   -- (right = forward x up)
+    local dx, dz = x - c.x, z - c.z
+    return (dx * -fz + dz * fx > 0) and "R" or "L", dx * fx + dz * fz > 0
+  end
+  local S = { feet = {}, motors = {} }
+  for _, o in ipairs(w.bodies) do
+    if made[o] == "buildFoot" then
+      local p = o.body:getCenterOfMassPosition()
+      local side, front = place(p.x, p.y, p.z)
+      S.feet[#S.feet + 1] = { o = o, side = side, front = front }
+    end
+  end
+  for _, m in ipairs(w.motors) do
+    for _, j in ipairs(w.joints) do
+      if rawequal(j[4], m.hinge) then
+        local a, b = j[1]:getCenterOfMassPosition(), j[2] and j[2]:getCenterOfMassPosition() or j[1]:getCenterOfMassPosition()
+        m.side, m.front = place((a.x + b.x) / 2, 0, (a.z + b.z) / 2)
+      end
+    end
+  end
+  local mech, side, k = STEER.mech, STEER.side, STEER.amount or 1
+  if mech == "friction" then
+    for _, f in ipairs(S.feet) do
+      if f.side == side then f.o.body:setFriction(f.o.body:getFriction() * k) end
+    end
+  elseif mech == "pair" or mech == "side" then
+    for _, m in ipairs(w.motors) do
+      local on
+      if mech == "pair" then on = (m.side == side) == (m.front == true) else on = (m.side == side) end
+      m.group = on and 1 or 2
+      if on then m.speed = m.speed * k end
+    end
+  end
+  w.steer = S
 end
 
 -- the whole walker turned rigidly by the rotation (rx, ry, rz, rw) about
@@ -1377,6 +1431,7 @@ local function addWalker(spec, x, z, heading)
       end
     end
   end
+  if STEER then steerSetup(w, made) end
   if BODY_ANG_DAMP or YAW_DAMP then
     w.cube.body:setDamping(w.cube.body:getLinearDamping(), BODY_ANG_DAMP or 0)
   end
@@ -2075,16 +2130,18 @@ end
 local function lockCranks(w)
   local n = #w.motors
   if n < 2 then return end
-  local sum = 0
+  local sum, cnt = {}, {}   -- (by m.group: STEER's loosened lock; one group otherwise)
   for _, m in ipairs(w.motors) do
     local a = m.hinge:getHingeAngle()
     local d = a - m.last
     if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
     m.turned, m.last = m.turned + d * m.sign, a
-    sum = sum + m.turned
+    local g = m.group or 1
+    sum[g], cnt[g] = (sum[g] or 0) + m.turned, (cnt[g] or 0) + 1
   end
-  local mean = sum / n
   for _, m in ipairs(w.motors) do
+    local g = m.group or 1
+    local mean = sum[g] / cnt[g]
     local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
     m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
   end

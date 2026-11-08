@@ -100,3 +100,4 @@ demo/WyomingWill/WalkerRoom/handover/tools/vibprobe20.lua  error: cannot open te
 demo/WyomingWill/WalkerRoom/handover/tools/vibprobe_at.lua  error: cannot open test-track.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/handover/tools/wobprobe.lua  error: cannot open /home/claude/work/stallprobe.lua: No such file or directory
 demo/WyomingWill/WalkerRoom/runs/speedprobe.lua  error: cannot open test-track.lua: No such file or directory
+demo/WyomingWill/WalkerRoom/runs/steerprobe.lua  error: cannot open test-track.lua: No such file or directory
