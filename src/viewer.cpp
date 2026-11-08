@@ -400,6 +400,8 @@ void Viewer::luaBind(lua_State *s) {
            .def("setSolver", &Viewer::setSolver)
            .def("setSolverInfo", &Viewer::setSolverInfo)
            .def("setThreads", &Viewer::setThreads)
+           .def("attach", &Viewer::attach)
+           .def("detach", &Viewer::detach)
            .property("solver", &Viewer::solverKind)
            .property("solverFallbacks", &Viewer::solverFallbacks)
            .def("eachContact",
@@ -767,7 +769,7 @@ Object *Viewer::removeObject(Object *o) {
   // script's to remove, and goes back in when the object is added back.
   // So do bodies it had before (one a constraint kept in the world).
   QList<btRigidBody *> bodies;
-  if (o->body != nullptr)
+  if (o->body != nullptr && !o->isDecoration())   // (a decoration's body is never in the world)
     bodies.append(o->body);
   for (btRigidBody *b : o->formerBodies())
     if (b->isInWorld())
@@ -1096,6 +1098,19 @@ void Viewer::setSolverIterations(int n) {
 }
 
 // Joint warm-starting ("si-warm") and bpp's world (BppWorld, setThreads): bppworld.cpp.
+
+// Decorations that follow a body: decorations.cpp.
+void Viewer::attach(Object *o, Object *parent) {
+  if (o == nullptr || parent == nullptr)
+    luaL_error(L, "attach: needs two objects");
+  if (!o->isDecoration())
+    luaL_error(L, "attach: only a decoration can follow another object (set o.decoration = true before v:add)");
+  if (o == parent)
+    luaL_error(L, "attach: an object can't follow itself");
+  _decorations.attach(o, parent);
+}
+
+void Viewer::detach(Object *o) { _decorations.detach(o); }
 
 int Viewer::setThreads(int n) {
 #if BT_THREADSAFE
@@ -1796,7 +1811,7 @@ void Viewer::addObject(Object *o, int type, int mask) {
   if (_removed.remove(o) && L != nullptr)
     setRemovedEntry(L, o, nullptr);   // (bpp's again, held by the scene)
 
-  if (o->body != nullptr) {
+  if (o->body != nullptr && !o->isDecoration()) {   // (a decoration is only drawn: Bullet never sees it)
     if (!_deactivation) {
       o->body->setActivationState(DISABLE_DEACTIVATION);
     }
@@ -1809,7 +1824,7 @@ void Viewer::addObject(Object *o, int type, int mask) {
 
   // constraints that came out of the world with it go back once both
   // their bodies are in it again
-  if (o->body != nullptr && !_detached.isEmpty()) {
+  if (o->body != nullptr && !o->isDecoration() && !_detached.isEmpty()) {
     for (btTypedConstraint *c : _detached.values()) {
       // (a constraint to a fixed point joins its body to Bullet's fixed body,
       // which is never in the world)
@@ -2695,7 +2710,7 @@ emit scriptStarts();
     // valid. After lua_close() the Bullet objects will be freed by Lua's GC.
     if (dynamicsWorld) {
       foreach (Object *o, *_objects) {
-        if (o->body != nullptr) {
+        if (o->body != nullptr && !o->isDecoration()) {
           worldOfObject(o)->removeRigidBody(o->body);
         }
         SoftBody *sb = dynamic_cast<SoftBody *>(o);
@@ -3021,7 +3036,7 @@ void Viewer::clear() {
   // lua_close (Lua-owned bodies were freed by Lua GC).
   if (dynamicsWorld) {
     foreach (Object* o, *_objects) {
-      if (o->body != nullptr) {
+      if (o->body != nullptr && !o->isDecoration()) {
         worldOfObject(o)->removeRigidBody(o->body);
       }
       SoftBody *sb = dynamic_cast<SoftBody *>(o);
@@ -3286,7 +3301,7 @@ Viewer::~Viewer() {
   // Remove rigid bodies from the dynamics world while pointers are still valid.
   if (dynamicsWorld) {
     foreach (Object* o, *_objects) {
-      if (o->body != nullptr) {
+      if (o->body != nullptr && !o->isDecoration()) {
         worldOfObject(o)->removeRigidBody(o->body);
       }
       SoftBody *sb = dynamic_cast<SoftBody *>(o);
@@ -3495,6 +3510,7 @@ void Viewer::draw() {
       showLuaException(e, "preDraw()");
     }
   }
+  _decorations.update();                // (the decorations to their parents: before anything reads places)
 
   QElapsedTimer dtAll;                  // (the drawing timer: all of draw())
   if (_drawTiming && !_quadView)
@@ -4303,6 +4319,7 @@ void Viewer::savePOV(bool force) {
 
   PovExport::writeMakefile(sceneDir);
 
+  _decorations.update();   // (headless runs export without drawing)
   PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir);
 }
 

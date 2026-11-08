@@ -394,6 +394,7 @@ void Object::luaBind(lua_State *s) {
            // for things that are only for show, which then cost nothing
            // in collision detection
            .property("collides", &Object::getCollides, &Object::setCollides)
+           .property("decoration", &Object::isDecoration, &Object::setDecoration)
 
            .property("pov_export",
                       (bool(Object::*)(void)) & Object::getPOVExport,
@@ -726,7 +727,7 @@ void Object::setRigidBody(btRigidBody *b) {
   }
   body = b;
   _ownsBody = false;
-  if (swap && b != nullptr && !b->isInWorld())
+  if (swap && b != nullptr && !b->isInWorld() && !_decoration)   // (a decoration's body is never in the world)
     _world->addRigidBody(b, col1, col2);
 }
 

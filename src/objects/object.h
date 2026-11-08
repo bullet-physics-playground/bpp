@@ -832,6 +832,17 @@ public:
   bool getCollides() const;
 
   /**
+   * @brief A decoration is only for show: drawn, shadowed and exported to
+   * POV-Ray as any object, but never added to Bullet's world, so Bullet
+   * neither moves it nor tests it for collisions, and v:rayTest and the mouse
+   * (hover, picking) never find it. Set it before the object is added
+   * (v:add); its place is wherever the script puts it, or, attached
+   * (Viewer::attach, v:attach), its parent's. Lua property: decoration.
+   */
+  void setDecoration(bool on) { _decoration = on; }
+  bool isDecoration() const { return _decoration; }
+
+  /**
    * @brief Returns the collision groups the object collides with.
    * @return Its mask.
    */
@@ -974,6 +985,7 @@ protected:
                                             ///< (see retireLua()).
   bool _shapeFromLua = false;           ///< True when #shape belongs to Lua.
   btDynamicsWorld *_world = nullptr;    ///< The world it is in (see setWorld()).
+  bool _decoration = false;             ///< Only for show: never in Bullet's world (see setDecoration()).
   std::vector<btRigidBody *> _retiredBodies; ///< Replaced bodies it made itself.
   std::vector<btRigidBody *> _formerBodies;  ///< Every body it has replaced.
   std::vector<btCollisionShape *> _retiredShapes; ///< Replaced shapes it made

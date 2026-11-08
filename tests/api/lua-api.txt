@@ -7,6 +7,7 @@ class BezierPatch
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -67,6 +68,7 @@ class Blob
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -127,6 +129,7 @@ class Bound
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -206,6 +209,7 @@ class Cone
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -273,6 +277,7 @@ class CsgObject
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -332,6 +337,7 @@ class Cube
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -389,6 +395,7 @@ class Cylinder
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -469,6 +476,7 @@ class Disc
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -531,6 +539,7 @@ class Heightfield
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .depth
   .double_illuminate
   .emission
@@ -644,6 +653,7 @@ class Mesh
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -703,6 +713,7 @@ class Object
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -759,6 +770,7 @@ class OpenSCAD
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -821,6 +833,7 @@ class Patch
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -881,6 +894,7 @@ class Plane
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1039,6 +1053,7 @@ class ReferenceObject
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1109,6 +1124,7 @@ class SoftBody
   .damp_ang
   .damp_lin
   .damping
+  .decoration
   .double_illuminate
   .emission
   .faceCount
@@ -1193,6 +1209,7 @@ class Sphere
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1258,6 +1275,7 @@ class SuperQuadric
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1319,6 +1337,7 @@ class Sweep
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1377,6 +1396,7 @@ class Terrain
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1438,6 +1458,7 @@ class Torus
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1496,6 +1517,7 @@ class Triangle
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .friction
@@ -1552,6 +1574,7 @@ class TrueType
   .color
   .damp_ang
   .damp_lin
+  .decoration
   .double_illuminate
   .emission
   .font
@@ -1664,11 +1687,13 @@ class Viewer
   addVehicle: void addVehicle(Viewer&,btRaycastVehicle*)
   ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&)
   ask: int ask(Viewer&,custom [QString] const&,custom [QString] const&,luabind::object const&,custom [QString] const&)
+  attach: void attach(Viewer&,Object*,Object*)
   clearDebugText: void clearDebugText(Viewer&)
   createVehicleRaycaster: btVehicleRaycaster* createVehicleRaycaster(Viewer&)
   currentWorld: int currentWorld(Viewer const&)
   cycleObject: void cycleObject(Viewer&,luabind::object const&)
   dataDir: custom [QString] dataDir(Viewer const&)
+  detach: void detach(Viewer&,Object*)
   download: int download(Viewer&,custom [QString] const&,custom [QString] const&)
   downloadState: luabind::object downloadState(Viewer&,int)
   drawTimingReport: custom [QString] drawTimingReport(Viewer&)

@@ -49,6 +49,7 @@
 
 #include "spacenavigator/spacenavigator.h"
 #include "screenmerge.h"
+#include "decorations.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -568,6 +569,18 @@ public:
    * @return The threads in use (0: none).
    */
   int setThreads(int n);
+
+  /**
+   * @brief From now on @p o follows @p parent, keeping the offset between
+   * them now: before each drawing and each POV-Ray export, bpp places it at
+   * the parent's place (the place the parent is drawn at). @p o must be a
+   * decoration (o.decoration = true before v:add): it is only drawn, so its
+   * place is the parent's, and its own place in a script is the one it had at
+   * the last drawing or export. Attaching again moves it to a new parent.
+   */
+  void attach(Object *o, Object *parent);
+  /// @brief @p o no longer follows its parent; it stays where it is.
+  void detach(Object *o);
 
   /// The solver kind last set by setSolver() ("si" until then).
   std::string solverKind() const { return _solverKind; }
@@ -2540,6 +2553,7 @@ private:
   int _shadowCached = 0;           ///< Taken from it last frame.
 
   ScreenMerge _merge; ///< The screen's merge (see setScreenMerge()).
+  Decorations _decorations; ///< Decorations that follow a body (see attach()).
   bool _shadowSaved = true;        ///< See setShadowSaved().
   bool _shadowFromSaved = false;   ///< See shadowFromSaved().
   quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from
