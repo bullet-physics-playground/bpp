@@ -49,6 +49,7 @@
 
 #include "spacenavigator/spacenavigator.h"
 #include "screenmerge.h"
+#include "shadowrecord.h"
 #include "decorations.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
@@ -2245,22 +2246,6 @@ protected:
   void drawObjects(bool shadowPass = false, bool skipFixed = false);
 
   /**
-   * @brief Whether an object goes into the shadow map's record of fixed
-   *        objects (see setShadowCache()).
-   * @param o The object.
-   * @return True for a fixed object none of a script's drawing goes with.
-   */
-  static bool isFixedCaster(const Object *o);
-
-  /**
-   * @brief Marks which fixed objects go into the shadow map's record (those
-   *        that have stayed put; see setShadowCache()).
-   * @param count Set to how many do.
-   * @return A fingerprint of them: which they are, where, and their shapes.
-   */
-  quint64 markStillCasters(int *count);
-
-  /**
    * @brief Decides, once a frame, which objects are drawn for the screen and
    *        which into the shadow map (see setCulling()).
    *
@@ -2536,28 +2521,10 @@ private:
                          ///< object's drawOnScreen and drawInShadow).
   int _drawnObjects = 0;   ///< Objects drawn for the screen last frame.
   int _shadowCasters = 0;  ///< Objects drawn into the shadow map last frame.
-  bool _shadowCache = true;        ///< See setShadowCache().
-  /// The still objects' recorded depth: a list for each patch of the room,
-  /// made again only when what's in that patch changes.
-  struct ShadowPatch {
-    GLuint list = 0;
-    QVector<Object *> objs;         ///< (in the order they're drawn)
-    quint64 sum = 0;                ///< Their hashes, summed.
-    int count = 0;
-  };
-  QMap<std::tuple<int, int, int>, ShadowPatch> _shadowPatches;
-  const void *_fixedShadowCtx = nullptr; ///< GL context the lists live in.
-  unsigned _fixedShadowEpoch = 0;  ///< glCacheEpoch() when they were made.
-  quint64 _fixedShadowSig = 0;     ///< The objects they were made from.
-  int _fixedShadowCount = 0;       ///< How many objects they hold.
-  int _shadowCached = 0;           ///< Taken from it last frame.
+  ShadowRecord _shadowRecord; ///< The shadow map's record (see setShadowCache()).
 
   ScreenMerge _merge; ///< The screen's merge (see setScreenMerge()).
   Decorations _decorations; ///< Decorations that follow a body (see attach()).
-  bool _shadowSaved = true;        ///< See setShadowSaved().
-  bool _shadowFromSaved = false;   ///< See shadowFromSaved().
-  quint64 _savedDepthSig = 0;      ///< The record the saved depth was made from
-  int _savedDepthCount = -1;       ///< (and how many objects it held).
 
   // The drawing timer (see setDrawTiming()): totals since the last report.
   bool _drawTiming = false;
