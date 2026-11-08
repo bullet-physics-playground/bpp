@@ -828,12 +828,12 @@ local function ink(c)
 end
 
 -- a look-only part of a walker's marking, at (x, y, z) in its body's own
--- frame, turned by the quaternion q (x, y, z, w)
+-- frame, turned by the quaternion q (x, y, z, w): a decoration, never in
+-- Bullet's world, that bpp moves with the body (placeMarks, v:attach)
 local function decor(w, o, col, x, y, z, q)
   o.col = col
-  o.collides = false   -- (out of collision detection altogether: Bullet would otherwise work out its contacts every step)
+  o.decoration = true
   addObject(o)
-  o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
   w.decor = w.decor or {}
   x = x + (w.frame and w.frame.x or 0)   -- (on its frame, which may sit off its load: BALANCE)
   w.decor[#w.decor + 1] = { o = o, p = { x, y, z }, q = q or { 0, 0, 0, 1 } }
@@ -980,7 +980,8 @@ local function markBody(w, look)
   if w.unbraced and w.guides then shape(text("G", cs, "right", "bottom"), xr, zb, "G") end
 end
 
--- each marking part to where the body now is
+-- each marking part to where the body now is, and from then on bpp keeps
+-- it there (v:attach: placed before each drawing and export)
 local function placeMarks(w)
   for _, d in ipairs(w.tips or {}) do   -- (a foot's tips, drawn on it: FOOT_TIPS)
     if d.o then
@@ -990,6 +991,7 @@ local function placeMarks(w)
       local dx, dy, dz = qrot(qx, qy, qz, qw, d.p[1], d.p[2], d.p[3])
       local rx, ry, rz, rw = qmul(qx, qy, qz, qw, d.q[1], d.q[2], d.q[3], d.q[4])
       d.o.trans = btTransform(btQuaternion(rx, ry, rz, rw), btVector3(p.x + dx, p.y + dy, p.z + dz))
+      v:attach(d.o, d.foot)
     end
   end
   if not w.decor or #w.decor == 0 then return end
@@ -1001,6 +1003,7 @@ local function placeMarks(w)
     local rx, ry, rz, rw = qmul(qx, qy, qz, qw, d.q[1], d.q[2], d.q[3], d.q[4])
     d.o.trans = btTransform(btQuaternion(rx, ry, rz, rw), btVector3(p.x + dx, p.y + dy, p.z + dz))
   end
+  for _, d in ipairs(w.decor) do v:attach(d.o, w.cube) end
 end
 
 local function addWalker(spec, x, z, heading)
@@ -1474,9 +1477,8 @@ local function addWalker(spec, x, z, heading)
   for _, t in ipairs(w.tips or {}) do
     t.o = t.ball and Sphere(t.ball, 0) or t.rod and Cylinder(t.rod[1], t.rod[2], 0) or Cube(t.len, t.T, t.D, 0)
     t.o.col = "#3C3C3C"   -- (the feet's colour, below)
-    t.o.collides = false  -- (look-only, as decor's)
+    t.o.decoration = true -- (look-only, as decor's)
     addObject(t.o)
-    t.o.body:setCollisionFlags(CF_KINEMATIC_OBJECT + CF_NO_CONTACT_RESPONSE)
   end
   if MARKS then markBody(w, spec.look) end
   if w.frame then decor(w, Cube(w.frame.L, w.frame.H, w.frame.D, 0), w.cube.col, 0, 0, 0) end   -- (the frame, drawn)
@@ -2452,7 +2454,6 @@ v:preDraw(function(N)
         (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))
     end
   end
-  for _, w in ipairs(walkers) do placeMarks(w) end
   if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
     local amp, bump = pendingAmp or AMP, pendingBump or BUMP
     if math.abs(amp - AMP) > 1e-9 or math.abs(bump - BUMP) > 1e-9 then
