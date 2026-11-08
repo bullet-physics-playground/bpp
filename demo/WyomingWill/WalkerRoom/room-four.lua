@@ -12,7 +12,8 @@
 --   O                look over the whole room (O again, or F: follow again)
 --   1 2 3 4          the ground: waves, random, logs, steps (built again)
 --   T                clear the trails
--- The TerrainHeight slider sets the bumps' height (the room built again).
+-- The TerrainHeight slider sets the bumps' height and BumpLength their length
+-- (15 cm, the stride, as on the test track); the room is built again.
 --
 -- At the fast setting, as test-ranking.lua: the solver carrying each joint's
 -- force over from step to step, 40 iterations, a 1/1920 s step. Four walkers
@@ -53,5 +54,6 @@ for _, n in ipairs(ROOM_SWAP) do if n:find("diag$") then PENDANT_HOLD[n] = true 
 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 2
+BUMP = BUMP or 15   -- (bumps 15 cm long, as on the test track and in the tables; walker-room.lua's own default is 22)
 
 dofile("walker-room.lua")
