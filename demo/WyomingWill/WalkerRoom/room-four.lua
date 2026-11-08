@@ -12,8 +12,10 @@
 --   O                look over the whole room (O again, or F: follow again)
 --   1 2 3 4          the ground: waves, random, logs, steps (built again)
 --   T                clear the trails
+--   G                build the room with the sliders' height and length
 -- The TerrainHeight slider sets the bumps' height and BumpLength their length
--- (15 cm, the stride, as on the test track); the room is built again.
+-- (15 cm, the stride, as on the test track), in whole cm; G builds the room
+-- with them (and the 1-4 keys do).
 --
 -- At the fast setting, as test-ranking.lua: the solver carrying each joint's
 -- force over from step to step, 40 iterations, a 1/1920 s step. Four walkers

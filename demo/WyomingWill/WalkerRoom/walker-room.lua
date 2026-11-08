@@ -2,7 +2,7 @@
 -- Walker room: WyomingWill's walkers on one meadow, each scaled to the
 -- same stride, walking freely inside a walled arena. They turn away from the
 -- walls and from each other; one that falls is stood up again. The
--- TerrainHeight slider raises the bumps. Tab / Shift+Tab follow a
+-- TerrainHeight slider raises the bumps (G builds the room with them). Tab / Shift+Tab follow a
 -- walker, O looks over the room, T clears the trails (README.md).
 --
 -- Each walker is built by its own ../Walkers_For_Room/<name>_parts.lua --
@@ -398,13 +398,15 @@ v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, 
 
 -- ---------------------------------------------------------------------
 -- the terrain: one bumpy meadow for everyone. Its bump height is the
--- TerrainHeight slider and its bumps' length the BumpLength slider;
--- changing either builds the room again (the floor changes shape, and
--- each walker is built to clear the highest bump).
+-- TerrainHeight slider and its bumps' length the BumpLength slider, in
+-- whole centimetres; moving them builds nothing until G (or a 1-4 key, or
+-- on the test track M or N) builds the room again with them (the floor
+-- changes shape, and each walker is built to clear the highest bump).
 -- ---------------------------------------------------------------------
 
 local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
 local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
+local pendingAmp, pendingBump   -- (the sliders' values, waiting for the next build)
 -- the ranking boards (the test track; boards.lua, made from the table runs
 -- by runs/boards.py): for the ground it is on -- its terrain, its height
 -- rounded to the cm (flat under 0.5) -- every build run there, best first,
@@ -461,7 +463,8 @@ local function trand()           -- its own random numbers, leaving the walkers'
   return tseed / 2147483648
 end
 local WAVES, RIDGES, LEDGES
--- (made again by setTerrain, for the test track's 1-4 keys)
+local ANG_COS, ANG_SIN      -- (the logs' or steps' angles: the least cos and the most |sin| among them)
+-- (made again for the 1-4 keys and the N key)
 local function makeTerrain()
   tseed = TERRAIN_SEED * 7919 + 17
   WAVES, RIDGES, LEDGES = nil, nil, nil
@@ -491,28 +494,53 @@ local function makeTerrain()
       u = u + gap[1] + gap[2] * trand()
     end
     if TERRAIN == "logs" then RIDGES = list else LEDGES = list end
+    ANG_COS, ANG_SIN = 1, 0
+    for _, l in ipairs(list) do ANG_COS, ANG_SIN = math.min(ANG_COS, math.cos(l.ang)), math.max(ANG_SIN, math.abs(math.sin(l.ang))) end
   end
 end
 makeTerrain()
-local function terrainHeight(x, z)
+-- the first of a list of logs or steps (in order along x) at u or beyond
+local function firstFrom(list, u)
+  local lo, hi = 1, #list + 1
+  while lo < hi do
+    local m = math.floor((lo + hi) / 2)
+    if list[m].u < u then lo = m + 1 else hi = m end
+  end
+  return lo
+end
+-- the ground's shape: its height at (x, z) for bumps 1 cm high (the
+-- height is AMP times this). A log or step further along x than W from
+-- the point can't reach it (W allows for its angle and the point's
+-- distance across the way, with room to spare), so only the near ones are
+-- looked at: each gives what it gave when all were, and the steps behind
+-- the point are counted, not looked at.
+local function shapeAt(x, z)
   if TERRAIN_MIRROR then z = -z end   -- (the same ground mirrored left for right: every terrain)
   if WAVES then
     local X, Z, h = x / BUMP, z / BUMP, 0
     for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * X + w.kz * Z + w.ph) end
-    return AMP * h
+    return h
   elseif RIDGES then
     local X, Z, h = x / BUMP, z / BUMP, 0
-    for _, r in ipairs(RIDGES) do
+    local W = (0.25 + math.abs(Z) * ANG_SIN) / ANG_COS + 1e-3
+    for k = firstFrom(RIDGES, X - W), #RIDGES do
+      local r = RIDGES[k]
+      if r.u > X + W then break end
       local d = (X - r.u) * math.cos(r.ang) + Z * math.sin(r.ang)   -- across the ridge
       if math.abs(d) < 0.25 then h = math.max(h, math.cos(d * 2 * math.pi) ^ 2) end
     end
-    return AMP * h
+    return h
   elseif LEDGES then
-    local X, Z, level = x / BUMP, z / BUMP, 0
-    for _, l in ipairs(LEDGES) do
+    local X, Z = x / BUMP, z / BUMP
+    local W = math.abs(Z) * ANG_SIN / ANG_COS + 1e-3
+    local k0 = firstFrom(LEDGES, X - W)
+    local level = (k0 - 1) % 2                  -- (every step behind: up and down by turns)
+    for k = k0, #LEDGES do
+      local l = LEDGES[k]
+      if l.u > X + W then break end
       if (X - l.u) * math.cos(l.ang) + Z * math.sin(l.ang) > 0 then level = 1 - level end
     end
-    return AMP * level
+    return level
   end
   local r = 22 / BUMP
   -- (TERRAIN_STRAIGHT, a test: the waves turned 14 degrees, so the troughs of
@@ -522,10 +550,11 @@ local function terrainHeight(x, z)
     local c, s = math.cos(math.rad(14.04)), math.sin(math.rad(14.04))
     x, z = x * c - z * s, x * s + z * c
   end
-  return AMP * (0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
-                0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
-                0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1))
+  return 0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
+         0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
+         0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1)
 end
+local function terrainHeight(x, z) return AMP * shapeAt(x, z) end
 
 -- the terrain's cells: about a sixth of the shortest wavelength (4 cm
 -- at BUMP 22), so short bumps stay round. That is (22 / BUMP)^2 times
@@ -538,6 +567,24 @@ local function setCells()
   NX, NZ = math.floor(ARENA_X / CELL), math.floor(ARENA_Z / CELL)
 end
 setCells()
+
+-- the ground's shape (shapeAt) at every corner of the cells and in the
+-- middle of every cell (and of the ring of cells round them, for the
+-- colours' slopes), each worked out once: the triangles that meet at a
+-- corner, and the cells next to one another, share them (they were worked
+-- out up to six times each)
+local function groundShape()
+  local corner, middle = {}, {}
+  for i = 0, NX do
+    local x, n = X0 + i * CELL, i * (NZ + 1)
+    for j = 0, NZ do corner[n + j + 1] = shapeAt(x, Z0 + j * CELL) end
+  end
+  for i = -1, NX do
+    local x, n = X0 + (i + 0.5) * CELL, (i + 1) * (NZ + 2)
+    for j = -1, NZ do middle[n + j + 2] = shapeAt(x, Z0 + (j + 0.5) * CELL) end
+  end
+  return { corner = corner, middle = middle }
+end
 
 -- everything the room adds, to take it all down again for a rebuild (the
 -- ground and walls kept apart from the walkers, so the test track can put
@@ -565,11 +612,13 @@ end
 local function clamp(c) return math.max(0, math.min(255, math.floor(c + 0.5))) end
 local function mix(a, b, t) return { a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t } end
 local GRASS, GRASS_DRY, DIRT, DIRT_DARK = { 58, 112, 38 }, { 128, 132, 58 }, { 128, 92, 56 }, { 92, 64, 40 }
+local groundNow              -- (groundShape's, for the ground standing now)
 local function cellColour(i, j)
   local x, z = X0 + (i + 0.5) * CELL, Z0 + (j + 0.5) * CELL
-  local y = terrainHeight(x, z) / math.max(AMP, 1e-6)
-  local slope = (math.abs(terrainHeight(x + CELL, z) - terrainHeight(x - CELL, z)) +
-                 math.abs(terrainHeight(x, z + CELL) - terrainHeight(x, z - CELL))) / CELL
+  local middle = groundNow.middle
+  local function h(a, b) return AMP * middle[(a + 1) * (NZ + 2) + b + 2] end   -- (cell a, b's middle)
+  local y = h(i, j) / math.max(AMP, 1e-6)
+  local slope = (math.abs(h(i + 1, j) - h(i - 1, j)) + math.abs(h(i, j + 1) - h(i, j - 1))) / CELL
   local patch = math.sin(x * 0.011 + 1.3) + math.sin(z * 0.013 - 0.4) + 0.6 * math.sin((x + z) * 0.024)
   local t = math.max(0, math.min(1, (patch - 0.9) * 2.5))
   local c = mix(mix(GRASS, GRASS_DRY, math.max(0, math.min(1, y * 0.4 + 0.3))), DIRT, t)
@@ -588,14 +637,22 @@ local WALL_H, WALL_T = 20, 10
 
 local function buildTerrain()
   setCells()
+  local shape = groundShape()
+  groundNow = shape
   floor = Terrain()
+  local P = {}   -- (each corner once, shared by the triangles that meet there)
+  for i = 0, NX do
+    local x, n = X0 + i * CELL, i * (NZ + 1)
+    for j = 0, NZ do P[n + j + 1] = btVector3(x, AMP * shape.corner[n + j + 1], Z0 + j * CELL) end
+  end
   for i = 0, NX - 1 do
-    for j = 0, NZ - 1 do
-      local xa, xb, za, zb = X0 + i * CELL, X0 + (i + 1) * CELL, Z0 + j * CELL, Z0 + (j + 1) * CELL
-      floor:addTriangle(btVector3(xa, terrainHeight(xa, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, za), za))
-      floor:addTriangle(btVector3(xb, terrainHeight(xb, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, zb), zb))
+    local a, b = i * (NZ + 1), (i + 1) * (NZ + 1)
+    for j = 1, NZ do
+      floor:addTriangle(P[a + j], P[a + j + 1], P[b + j])
+      floor:addTriangle(P[b + j], P[a + j + 1], P[b + j + 1])
     end
   end
+  P = nil
   floor:build()
   floor.col = "#5a7a32"
   floor.friction = 0.8
@@ -1920,7 +1977,7 @@ local function clearTrails()
 end
 
 -- ---------------------------------------------------------------------
--- building (and building again, when the TerrainHeight slider moves)
+-- building (and building again: G, the 1-4 keys)
 -- ---------------------------------------------------------------------
 
 local owner = {}            -- [objectKey(body)] = its walker (for the hover)
@@ -1939,6 +1996,9 @@ local function placeWalkers()
   simTime = 0
 end
 local function buildRoom()
+  AMP, BUMP = pendingAmp or AMP, pendingBump or BUMP   -- (the sliders' values, if they were moved)
+  if pendingAmp or pendingBump then v.statusText = "" end   -- (the note that they were waiting)
+  pendingAmp, pendingBump = nil, nil
   buildTerrain()
   painted = {}
   placeWalkers()
@@ -1958,8 +2018,8 @@ local function teardownRoom()
   groundObjects = {}
 end
 
-v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
-v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
+v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 1, "bump height, cm (G builds the room with it)")
+v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 1, "bump length, cm (the stride is 15; G builds the room with it)")
 -- VIEWS (test track): a list of { walker =, label =, reverse =, gait =,
 -- unbraced =, crank =, hold = } -- see test-square.lua. Tab goes through those
 -- instead of the walkers, each built, timed and turned its own way (the
@@ -2176,10 +2236,12 @@ local function helpText()
     h = h .. "O           look over the whole track (O again: follow it again)\n"
     h = h .. "F           follow the walker again\n"
     h = h .. "B           the ranking board for this ground (output pane)\n"
+    h = h .. "G           build the track again with the sliders' height and length\n"
     h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
     h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
-    h = h .. "pane) build the track again with the same walker.\n\n"
+    h = h .. "pane) set the next ground; G builds it, with the same walker (1-4, M\n"
+    h = h .. "and N build with them too).\n\n"
     h = h .. "Each time it starts, the output pane shows the ranking board for\n"
     h = h .. "this ground (terrain and height to the cm): every walker's mean speed\n"
     h = h .. "there in the table runs, this one marked; at 20 s, its own run beside it.\n\n"
@@ -2202,12 +2264,14 @@ local function helpText()
   end
   h = h .. "O           look over the whole room (O again: follow again)\n"
   h = h .. "T           clear the trails\n"
+  h = h .. "G           build the room again with the sliders' height and length\n"
   h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
   h = h .. "Rest the pointer on a walker, or on a trail, to see whose it is,\n"
   h = h .. "how far it has gone, its average speed, and how often it has turned\nor been stood up.\n\n"
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
   h = h .. "BumpLength: how long they are, " .. BUMP_MIN .. " to " .. BUMP_MAX .. " cm (every walker's stride is " .. STRIDE .. " cm).\n"
-  h = h .. "The room is built again, every walker back at its start, when you let go.\n\n"
+  h = h .. "Moving them builds nothing: G builds the room with them, every walker\n"
+  h = h .. "back at its start" .. (ROOM_SWAP and " (the 1-4 keys build with them too)" or "") .. ".\n\n"
   h = h .. "Each body shows its walker's code: its linkage's inventor(s) -- J Jansen,\n"
   h = h .. "K Klann, C Chebyshev, H Hoecken, S Spears; -S: a linkage Spears changed,\n"
   h = h .. "which also has a gold rim -- then its number of bars, S if a slider. A\n"
@@ -2341,7 +2405,32 @@ local function swapWalker(w, step)
   follow(nw)
 end
 
+-- what the sliders are waiting to build ("" when nothing)
+local function slidersNote()
+  if not (pendingAmp or pendingBump) then return "" end
+  return string.format("TerrainHeight %d, BumpLength %d: press G to build (now %g, %g)",
+    pendingAmp or AMP, pendingBump or BUMP, AMP, BUMP)
+end
+-- G: the room (or the track) built again with the sliders' values, the
+-- same walkers on it, the same one followed
+local function buildWithSliders()
+  if not (pendingAmp or pendingBump) then
+    print(string.format("G: the ground is already TerrainHeight %g, BumpLength %g (move a slider first)", AMP, BUMP))
+    return
+  end
+  local k = following and following.index
+  local c0 = os.clock()
+  teardownRoom()
+  buildRoom()
+  follow(k and walkers[k] or nil)
+  print(string.format("TerrainHeight = %g cm, BumpLength = %g cm (built again in %.1f s)", AMP, BUMP, os.clock() - c0))
+end
+
 v:onKey(function(N, key, down)
+  if key == "G" then
+    if down then buildWithSliders() end
+    return true
+  end
   if TEST_TRACK and (key == "Tab" or key == "Backtab") then
     if down then trackNext(key == "Tab" and 1 or -1) end
     return true
@@ -2429,13 +2518,15 @@ v:onHover(function(N, obj, x, y, z)
     first, w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
 end)
 
--- the TerrainHeight and BumpLength sliders: the room is built again
--- once a slider has stayed put for a moment (a drag sends every value it
--- passes through, and each build takes a second or more)
-local pendingAmp, pendingBump, pendingAt, draws = nil, nil, 0, 0
+-- the TerrainHeight and BumpLength sliders, in whole centimetres: they
+-- only set the next ground's height and length (pendingAmp, pendingBump),
+-- shown on the status line, and G (or any key that builds) builds it
+local draws = 0
 v:onParamChanged(function(N, name, value)
-  if name == "TerrainHeight" then pendingAmp, pendingAt = value, draws end
-  if name == "BumpLength" then pendingBump, pendingAt = value, draws end
+  value = math.floor(value + 0.5)
+  if name == "TerrainHeight" then pendingAmp = (value ~= AMP) and value or nil end
+  if name == "BumpLength" then pendingBump = (value ~= BUMP) and value or nil end
+  v.statusText = slidersNote()
 end)
 local AIR_COLOUR = "#FF2020"
 v:preDraw(function(N)
@@ -2450,22 +2541,12 @@ v:preDraw(function(N)
     if draws % 10 == 0 then
       local x = getPosXYZ(w.cube)
       local t = simTime - w.trackStart[3]
-      v.statusText = string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
+      local note = slidersNote()
+      v.statusText = (note ~= "" and (note .. " | ") or "") ..
+        string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
         w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", TERRAIN, t,
         (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))
     end
-  end
-  if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
-    local amp, bump = pendingAmp or AMP, pendingBump or BUMP
-    if math.abs(amp - AMP) > 1e-9 or math.abs(bump - BUMP) > 1e-9 then
-      AMP, BUMP = amp, bump
-      teardownRoom()
-      buildRoom()
-      local k = following and following.index
-      follow(k and walkers[k] or nil)
-      print(string.format("TerrainHeight = %.1f cm, BumpLength = %.1f cm (room built again)", AMP, BUMP))
-    end
-    pendingAmp, pendingBump = nil, nil
   end
 end)
 

@@ -10,7 +10,7 @@
 -- Open this file in bpp to watch one walker: change the settings below
 -- (or set them from a launcher). Tab and Shift+Tab put the next or previous
 -- walker on the track (click the 3D view first). The TerrainHeight and
--- BumpLength sliders rebuild the track as in the room. test-track-all.sh runs every walker in
+-- BumpLength sliders set the next ground, and G builds the track with them, as in the room. test-track-all.sh runs every walker in
 -- every condition headless and collects the results.
 --
 -- Units: centimetres and seconds.

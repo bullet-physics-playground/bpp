@@ -874,8 +874,8 @@ it, built, timed and turned its own best way, and 1, 2, 3 and 4 change
 the ground (waves, random, logs, steps). The status line at the bottom
 shows its speed so far and how much of the time it has been off the
 ground (its lowest part more than 0.5 cm up); its body turns red
-whenever it is. The TerrainHeight and BumpLength sliders build it again
-(it starts at 4 cm and 15 cm).
+whenever it is. The TerrainHeight and BumpLength sliders set the next
+ground and G builds it (it starts at 4 cm and 15 cm).
 
 `test-square-all.lua` is the same square, but Tab goes through all 19
 builds, each as built (its own timing, forward, its own crank speed), for
@@ -945,8 +945,8 @@ stood up.
 
 | Slider        | Range     | What it does |
 |---------------|-----------|--------------|
-| TerrainHeight | 0 to 8 cm | How high the bumps are. The room is built again, every walker back at its start, when you let go. |
-| BumpLength    | 11 to 44 cm | How long they are (every stride is 15 cm). The default, 22, gives rolling hills; shorter bumps are obstacles. The room is built again when you let go; short bumps need a finer terrain (four times the triangles at 11 cm), which takes about 5 s to build and is slower to draw. |
+| TerrainHeight | 0 to 8 cm, whole cm | How high the bumps are. Moving it builds nothing: G builds the room with it, every walker back at its start (so do the 1-4 keys, and on the test track M and N); the status line shows what is waiting. |
+| BumpLength    | 11 to 44 cm, whole cm | How long they are (every stride is 15 cm). The default, 22, gives rolling hills; shorter bumps are obstacles. G builds the room with it, as TerrainHeight. Short bumps need a finer terrain (four times the triangles at 11 cm), which takes longest to build (about 2.5 s on a 2-core machine) and is slower to draw. |
 
 The point of the room: raise the bumps until some walkers can't cover
 ground any more.
