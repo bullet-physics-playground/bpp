@@ -2668,6 +2668,7 @@ emit scriptStarts();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
     _cb_onKey = luabind::object();
+    _cb_cycleObject = luabind::object();
     _luaHeldKeys.clear();
     setStatusText(QString());   // (a script's status line goes with it)
     _synth.reset();             // (and its voices)
@@ -2676,19 +2677,20 @@ emit scriptStarts();
     _cb_onHover = luabind::object();
     hoverHide();
 
-    // Release button callbacks and parameter values that carry a Lua object
-    // (functions bound to push buttons) while the Lua state is still alive:
-    // their luabind references would otherwise be released against the closed
-    // state when clear() runs below.
+    // Release parameter values and button callbacks while the Lua state is
+    // still alive: a button group stores its functions inside a
+    // QVariantList/QVariantMap, so the whole value is cleared, not just a
+    // top-level luabind::object. Their references would otherwise be released
+    // against the closed state when clear() runs below.
     for (ParamInfo &info : _paramInfo) {
+      info.value = QVariant();
       if (info.isButton) info.buttonCallback = luabind::object();
       if (info.isButtonGroup)
         for (auto &pair : info.buttonCallbacks)
           pair.second = luabind::object();
     }
     for (QVariant &value : _params)
-      if (value.userType() == qMetaTypeId<luabind::object>())
-        value = QVariant();
+      value = QVariant();
 
     if (_cb_shortcuts) {
       for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
@@ -3262,25 +3264,27 @@ Viewer::~Viewer() {
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
   _cb_onKey = luabind::object();
+  _cb_cycleObject = luabind::object();
   _luaHeldKeys.clear();
   _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
   _cb_onHover = luabind::object();
   hoverHide();
 
-  // Release button callbacks and parameter values that carry a Lua object
-  // (functions bound to push buttons) while the Lua state is still alive:
-  // their luabind references would otherwise be released against the closed
-  // state when the member hashes are destroyed below.
+  // Release parameter values and button callbacks while the Lua state is
+  // still alive: a button group stores its functions inside a
+  // QVariantList/QVariantMap, so the whole value is cleared, not just a
+  // top-level luabind::object. Their references would otherwise be released
+  // against the closed state when the member hashes are destroyed below.
   for (ParamInfo &info : _paramInfo) {
+    info.value = QVariant();
     if (info.isButton) info.buttonCallback = luabind::object();
     if (info.isButtonGroup)
       for (auto &pair : info.buttonCallbacks)
         pair.second = luabind::object();
   }
   for (QVariant &value : _params)
-    if (value.userType() == qMetaTypeId<luabind::object>())
-      value = QVariant();
+    value = QVariant();
 
   // Clear shortcuts BEFORE closing Lua state.
   // The shared_ptr<luabind::object> destructors call luaL_unref.

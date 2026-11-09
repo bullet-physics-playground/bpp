@@ -106,7 +106,11 @@ def isolated_env(workdir, display=None):
                     "QT_STYLE_OVERRIDE", "KDE_FULL_SESSION", "GNOME_DESKTOP_SESSION_ID"):
             env.pop(var, None)
     else:
-        env["QT_QPA_PLATFORM"] = "offscreen"
+        # Windows always has a window server, and a Windows build ships only
+        # the native platform plugin; forcing offscreen there fails (see the
+        # comment in src/main.cpp).
+        if not sys.platform.startswith("win"):
+            env["QT_QPA_PLATFORM"] = "offscreen"
     return env
 
 
