@@ -42,8 +42,8 @@ MOTOR_STRENGTH = 2; GRAVITY = 981; YAW_DAMP = 1
 ANKLE_SPRING = { stiffness = 42000, damping = 4200 }
 LINK_WIDTH = 1.0; GAIT = { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
 
-dofile("trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
-dofile("spears-lift-walkers.lua")   -- (the Chebyshev-Spears lift builds and their diag builds)
+dofile("lib/trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
+dofile("lib/spears-lift-walkers.lua")   -- (the Chebyshev-Spears lift builds and their diag builds)
 
 -- the nine, best first in the 21-build table (handover section 4m)
 ROOM_SWAP = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", "Chebyshev-Spears diag",

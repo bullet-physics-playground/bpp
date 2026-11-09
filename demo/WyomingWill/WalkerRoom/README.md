@@ -425,7 +425,7 @@ mean little.
 
 Each walker run the way it does best -- forward or reversed (`REVERSE`),
 with its own timing or trotting (`GAIT`; plated walkers with `UNBRACED`,
-or the diag-braced builds in `trotting-walkers.lua`) -- and 8 starts per
+or the diag-braced builds in `lib/trotting-walkers.lua`) -- and 8 starts per
 setting. Ranked by speed on bumps, the fairest measure once the walkers
 run differently (the reversed, trotting Spears 4-bar is slow on flat
 ground, which inflates its share kept); +- is the standard error over the
@@ -522,7 +522,7 @@ timing (sides: both legs on a side together; trot: diagonal legs
 together) and direction (forward, reversed). Plates fix the timing at
 sides and diagonal braces at trot; guides take either. The diagonal
 builds of Hoecken-Spears 4-bar duty 85 and Chebyshev-Spears lift 51 and 62 are in
-`spears-lift-walkers.lua`; the sliders have none (their diagonal bars
+`lib/spears-lift-walkers.lua`; the sliders have none (their diagonal bars
 shook). 80 configurations in all, first on the waves (10 settings, 2 to
 4 starts), then the best two of each linkage on the other terrains (6
 settings, 2 starts).
@@ -596,7 +596,7 @@ random / logs / steps), ranked by the mean of the four:
   time); Klann, Jansen and Spears 4-bar stay down.
 - The diagonal builds of Chebyshev-Spears lift 51 and 62 and the plated lift 62
   have their link planes closer together than their files' (see
-  `spears-lift-walkers.lua`): with the files' spacing, their bodies had
+  `lib/spears-lift-walkers.lua`): with the files' spacing, their bodies had
   come out less than nothing deep (their legs crossing in the middle)
   to stand on the 38 cm stance. Their parts don't touch each other
   walking with the closer spacing.
@@ -793,7 +793,7 @@ linkage.
 ### Trotting the Hoecken walkers
 
 The 4-bars can also be built the way the diag walkers are, with braces
-joining diagonal legs (`trotting-walkers.lua`: the diag walkers' files
+joining diagonal legs (`lib/trotting-walkers.lua`: the diag walkers' files
 with Hoecken's proportions; the diag bracing tilts the legs slightly, so
 their lift comes out a little lower, as for the diag walkers). Built so:
 
@@ -896,7 +896,10 @@ threads (`scripts/bullet-threads.sh`, then `qmake CONFIG+=bundled_bullet`;
 sets where it starts.
 
 The test-square launchers (`test-square*.lua`, the old builds: plated,
-guides, the old braces) were removed on 9 November 2026.
+guides, the old braces) were removed on 9 November 2026. The files the
+launchers load (`lib/`), the run scripts (`runs/`) and the notes and tools
+(`handover/`) hold an empty `.nomenu`, which keeps them out of bpp's Demos
+menu: it shows only what can be opened on its own.
 
 ## Telling the walkers apart
 
@@ -1031,4 +1034,4 @@ phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (tru
 names: the side plates left off and each leg held at its angle by a
 guide, so `GAIT` applies to those walkers too -- Chebyshev, Chebyshev-Spears,
 the Hoecken walkers and Hoecken-Spears 4-bars and sliders), and the trotting Hoecken
-4-bars in `trotting-walkers.lua`.
+4-bars in `lib/trotting-walkers.lua`.

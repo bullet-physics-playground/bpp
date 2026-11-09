@@ -167,6 +167,13 @@ does, and the runtime image installs it.
 
 ### GUI
 
+#### Demos menu
+
+The **Demos** menu lists every `.lua` file under `demo/`, one submenu per
+folder. A folder holding an (empty) file named `.nomenu` is left out, with
+everything under it: put the scripts other scripts load, probes and tools
+there, so the menu shows only scripts that can be opened on their own.
+
 #### Menu shortcuts
 
 These work anywhere in the main window (including while editing the Lua

@@ -23,7 +23,7 @@ for g in $GROUPS_LIST; do for m in on off; do for n in $THREADS_LIST; do
   printf '%s\n' 'v:setSolver("si-warm"); v:setSolverInfo("residual", 0.01)' \
     'SOLVER_ITERATIONS = 40; FIXED = 1 / 1920; MOTOR_STRENGTH = 2; GRAVITY = 981; YAW_DAMP = 1' \
     'ANKLE_SPRING = { stiffness = 42000, damping = 4200 }; LINK_WIDTH = 1.0; GAIT = { 0, 180, 180, 0 }; DIAG_OUTSIDE = true' \
-    'dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua")' "$(only "$g")" \
+    'dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")' "$(only "$g")" \
     'PENDANT_HOLD = setmetatable({}, { __index = function(_, k) return k:find("diag$") ~= nil end })' \
     "MARKS = $([ $m = on ] && echo true || echo false); THREADS = $n" 'dofile("handover/tools/roomtime.lua")' > "$f"
   r=$(QT_QPA_PLATFORM=offscreen timeout 3600 "$BPP" -f "$(basename "$f")" -n 370 2>&1 | grep -ao '([0-9.]* x real time)' | tr -d '()')

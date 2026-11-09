@@ -581,6 +581,11 @@ void Gui::populateDemoMenu(QMenu *menu, const QDir &dir) {
                         QDir::DirsFirst | QDir::IgnoreCase | QDir::Name);
   for (const QFileInfo &entry : entries) {
     if (entry.isDir()) {
+      // A folder holding a file named .nomenu is left out, with everything
+      // under it: the scripts other scripts load, probes, tools -- files
+      // that are not meant to be opened on their own.
+      if (QFileInfo::exists(entry.absoluteFilePath() + "/.nomenu"))
+        continue;
       QMenu *sub = menu->addMenu(entry.fileName());
       populateDemoMenu(sub, QDir(entry.absoluteFilePath()));
       if (sub->isEmpty()) {

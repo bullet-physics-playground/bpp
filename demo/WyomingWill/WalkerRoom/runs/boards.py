@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The viewer's ranking boards from run-table.sh's runs: python3 runs/boards.py runs/out-damp/warm40fast > boards.lua
+"""The viewer's ranking boards from run-table.sh's runs: python3 runs/boards.py runs/out-damp/warm40fast > lib/boards.lua
 One board for each terrain and height (rounded to the cm; flat ground is "flat 0"): every build run there, best first,
 its mean speed (cm/s, 5 s to 20 s) over its seeds, the standard error of that mean, and how many runs. Only builds named
 on the command line after the folder, if any (default: every build found)."""

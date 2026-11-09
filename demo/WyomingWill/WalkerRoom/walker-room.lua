@@ -38,7 +38,7 @@ if EXTRA_WALKERS == nil then
   MOTOR_STRENGTH = MOTOR_STRENGTH or 2; GRAVITY = GRAVITY or 981; YAW_DAMP = YAW_DAMP or 1
   ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
   LINK_WIDTH = LINK_WIDTH or 1.0; GAIT = GAIT or { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
-  dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua")
+  dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")
   local BUILDABLE = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", "Chebyshev-Spears diag",
                       "Hoecken-Spears 4-bar diag", "Hoecken-Spears slider diag", "Klann", "Jansen",
                       "Hoecken slider diag", "Hoecken 4-bar diag", "Chebyshev diag", "Spears 4-bar" }
@@ -453,13 +453,13 @@ v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, 
 local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
 local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
 local pendingAmp, pendingBump   -- (the sliders' values, waiting for the next build)
--- the ranking boards (the test track; boards.lua, made from the table runs
+-- the ranking boards (the test track; lib/boards.lua, made from the table runs
 -- by runs/boards.py): for the ground it is on -- its terrain, its height
 -- rounded to the cm (flat under 0.5) -- every build run there, best first,
 -- each one's mean speed over the runs' seeds; shown in the output pane when
 -- a walker starts (and on B), with this walker marked, and its own run
 -- set beside it at 20 s
-if TEST_TRACK and BOARDS == nil then pcall(dofile, "boards.lua") end
+if TEST_TRACK and BOARDS == nil then pcall(dofile, "lib/boards.lua") end
 local function boardKey()
   local h = math.floor(AMP + 0.5)
   return (h == 0) and "flat 0" or string.format("%s %d", TERRAIN, h)
@@ -471,7 +471,7 @@ local function boardPlace(b, speed, name)   -- (its place among the others, at t
 end
 local function showBoard(name)
   local b = BOARDS and BOARDS[boardKey()]
-  if not b then print("board: no results for " .. boardKey() .. " yet (runs/boards.py makes boards.lua)"); return end
+  if not b then print("board: no results for " .. boardKey() .. " yet (runs/boards.py makes lib/boards.lua)"); return end
   local t = { string.format("board: %s cm%s -- what to expect (the table runs: each mean over its seeds, the 8 m track, normal ground; cm/s from 5 s to 20 s)",
     boardKey(), TERRAIN_MIRROR and " (this ground is mirrored; the board is for normal ground)" or "") }
   for i, r in ipairs(b) do

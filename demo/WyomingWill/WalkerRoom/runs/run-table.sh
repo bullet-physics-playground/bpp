@@ -52,7 +52,7 @@ export BPP RUN_SECS EXTRA PROBE
 one() {
   IFS='|' read -r S n ter amp seed out <<< "$1"
   f=$(mktemp ./_rt_XXXXXX.lua)
-  printf '%s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; %sRUN_SECS=%s\ndofile("%s")\n' \
+  printf '%s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; %sRUN_SECS=%s\ndofile("%s")\n' \
     "$(setting "$S")" "$n" "$ter" "$amp" "$seed" "$(bracing "$n")" "${EXTRA:+$EXTRA; }" "$RUN_SECS" "$PROBE" > "$f"
   start=$(date +%s)
   QT_QPA_PLATFORM=offscreen timeout 1800 "$BPP" -f "$(basename "$f")" -n $((RUN_SECS * 60 + 10)) 2>&1 | grep -aE '^(RUN|STEER|PATH|SIDES)|rror' | grep -v ALSA > "$out.tmp"

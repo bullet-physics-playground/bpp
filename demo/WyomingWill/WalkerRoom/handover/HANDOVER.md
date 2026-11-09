@@ -46,13 +46,14 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
 - Room files, in `demo/WyomingWill/WalkerRoom/`:
   - `walker-room.lua`, the room itself (opened on its own: the 11 buildable walkers, as now, on the Threads slider).
   - `test-track.lua`, one walker, timed (opened on its own: Chebyshev-Spears lift 51 diag, as now).
-  - `trotting-walkers.lua` (the Hoecken diag builds) and `spears-lift-walkers.lua` (Chebyshev-Spears lift 51/62, their diag builds, Hoecken-Spears 4-bar duty 85 diag).
+  - `lib/trotting-walkers.lua` (the Hoecken diag builds) and `lib/spears-lift-walkers.lua` (Chebyshev-Spears lift 51/62, their diag builds, Hoecken-Spears 4-bar duty 85 diag).
   - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps):
     - `test-ranking.lua`: the 11 buildable walkers on the track, as now (the current viewer).
     - `room-four.lua`: four in the room, on the Threads slider.
     - `drag-shoe.lua`: test-ranking with a drag shoe (STEERING.md).
     - (The test-square launchers, `test-slider-logs.lua`, `foot-path-variants.lua` and `test-track-all.sh` were removed on 9 November 2026, patch 100: they showed old builds. Earlier sections still name them.)
   - `README.md`.
+  - Only the files that can be opened on their own are at the top (9 November 2026, patch 101): what they load is in `lib/` (`trotting-walkers.lua`, `spears-lift-walkers.lua`, `boards.lua`). `lib/`, `runs/`, `handover/` and `../Walkers_For_Room/` each hold an empty `.nomenu`, which keeps them out of bpp's Demos menu (bpp's README, "Demos menu"). A new launcher loads `lib/trotting-walkers.lua` and `lib/spears-lift-walkers.lua`.
 - Build files the room uses: `demo/WyomingWill/Walkers_For_Room/*_parts.lua`.
 - **Never edit `demo/WyomingWill/Walkers/`.** Those are William's originals.
 - `view-all.lua` may sit untracked in the room folder. It isn't ours; leave it.
@@ -75,7 +76,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
   `-f` means no GUI; a bare filename opens the GUI. `-n 3700` is 60 s at 60 frames per second plus a start.
 - A script sets globals, then calls `dofile("test-track.lua")`, for example (the current standard):
   ```lua
-  dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua")
+  dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")
   ONLY="Klann"; TERRAIN="logs"; AMP=4; BUMP=15; SEED=1; GAIT={0,180,180,0}; REVERSE=true
   GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}
   dofile("test-track.lua")
@@ -585,7 +586,7 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **What the boards show.** On flat ground all 11 are within 0.35 cm/s (Spears 4-bar 9.21 to Chebyshev-Spears lift 62 diag 8.86). As the bumps grow, the lead passes to more lift, most clearly on logs and steps: the low-lift originals (Chebyshev, Hoecken 4-bar, Hoecken slider diag: 19-25%) fall off first, at 4-5 cm; the Chebyshev-Spears lift builds last. Leaders: logs 2-7 and steps 2-8 Chebyshev-Spears lift 51 diag; at 8 cm on waves and logs, Chebyshev-Spears lift 62 diag (the most lift, 62%), though on low bumps it is among the slowest. On random ground the field stays close (at 8 cm: 7.1 to 4.3) and the leaders change. Spears 4-bar falls off early on steps (1.07 at 5 cm).
 
-**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > boards.lua` (the names: only those builds; none: every build found).
+**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > lib/boards.lua` (the names: only those builds; none: every build found).
 
 ## 4o. The room with four walkers (1 November)
 

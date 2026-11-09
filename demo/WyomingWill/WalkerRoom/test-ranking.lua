@@ -83,8 +83,8 @@ if VIEWS_ALL then
 end
 VIEW = VIEW or 1
 
-dofile("trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
-dofile("spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
+dofile("lib/trotting-walkers.lua")      -- (the Hoecken diag builds and the sliders' diag builds)
+dofile("lib/spears-lift-walkers.lua")   -- (Chebyshev-Spears lift 51 and 62, and their diag builds)
 
 TERRAIN = TERRAIN or "logs"
 AMP = AMP or 7
