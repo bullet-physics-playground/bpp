@@ -50,6 +50,7 @@ ROOM_SWAP = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", 
               "Hoecken-Spears 4-bar diag", "Hoecken-Spears slider diag", "Hoecken slider diag",
               "Hoecken 4-bar diag", "Chebyshev diag", "Spears 4-bar" }
 ROOM_FIXED = { ["Klann"] = true, ["Jansen"] = true }
+REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true }   -- (each walker its better way: handover section 4w)
 ONLY = { ["Klann"] = true, ["Jansen"] = true, [ROOM_SWAP[1]] = true, [ROOM_SWAP[2]] = true }
 PENDANT_HOLD = {}   -- (the diag builds' pendants held at their angle to the body, as on the test track)
 for _, n in ipairs(ROOM_SWAP) do if n:find("diag$") then PENDANT_HOLD[n] = true end end

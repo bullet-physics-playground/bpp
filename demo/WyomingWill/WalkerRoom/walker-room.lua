@@ -25,7 +25,8 @@
 -- walker files first, so EXTRA_WALKERS is still unset): the room with the
 -- 11 walkers that could really be built, as they are now -- the diag builds
 -- with their outside braces and held pendants; Klann, Jansen and Spears
--- 4-bar on their own frames (test-ranking.lua's list) -- at room-four.lua's
+-- 4-bar on their own frames, Klann and Spears 4-bar reversed
+-- (test-ranking.lua's list) -- at room-four.lua's
 -- settings. This file's own defaults below are the old ones (plated
 -- builds, the old braces, gravity 70), which the launchers override.
 --
@@ -46,6 +47,7 @@ if EXTRA_WALKERS == nil then
     PENDANT_HOLD = {}; for _, n in ipairs(BUILDABLE) do if n:find("diag$") then PENDANT_HOLD[n] = true end end
   end
   TERRAIN = TERRAIN or "waves"; AMP = AMP or 2; BUMP = BUMP or 15
+  if REVERSE == nil then REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true } end   -- (their better way: section 4w)
 end
 
 local common = require "common"

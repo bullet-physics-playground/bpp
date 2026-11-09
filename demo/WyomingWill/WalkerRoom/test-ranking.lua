@@ -1,9 +1,10 @@
 --
 -- Test track: the walkers that could really be built (diag builds with
 -- their outside braces, and Klann, Jansen and Spears 4-bar on their own
--- frames), best first (31 October, handover section 4m). First written for
--- the 29 October ranking (section 4h), at its standard: 200 solver
--- iterations, the motor at 0.5 a crank, 1.0 cm links, trot, forward;
+-- frames), best first (9 November, handover section 4w: each in its better
+-- direction -- Klann and Spears 4-bar reversed, the rest forward). First
+-- written for the 29 October ranking (section 4h), at its standard: 200
+-- solver iterations, the motor at 0.5 a crank, 1.0 cm links, trot, forward;
 -- diag builds with outside braces and held pendants, guides builds
 -- with their legs held by guides; both Hoecken-Spears slider builds with
 -- their feet's ends turned up (their specs' footTips), everyone else flat
@@ -58,19 +59,23 @@ local TROT = { 0, 180, 180, 0 }
 local function guides(name) return { walker = name, label = "guides, trot, forward", gait = TROT, unbraced = true, hold = false } end
 local function diag(name) return { walker = name, label = "outside braces, pendants held (trot), forward", hold = true } end
 local function own(name) return { walker = name, label = "its own frame, trot, forward", gait = TROT, hold = false } end
-VIEWS = {   -- (31 October: the builds that could really be built -- diag and own frame, no guides -- best first in the
-            -- 21-build table, handover section 4m: fast setting, nine rough terrains, 5 seeds; mean cm/s)
-  diag("Chebyshev-Spears lift 51 diag"),       --  7.77
-  diag("Chebyshev-Spears lift 62 diag"),       --  7.00
-  diag("Chebyshev-Spears diag"),               --  6.97
+local function ownReversed(name)   -- (its cranks turned backward: it walks the other way; handover section 4w)
+  return { walker = name, label = "its own frame, trot, reversed", gait = TROT, hold = false, reverse = true }
+end
+VIEWS = {   -- (9 November: the builds that could really be built -- diag and own frame, no guides -- each in its
+            -- better direction, best first: handover section 4w, this container, fast setting, nine rough terrains,
+            -- 5 seeds; mean cm/s. 31 October's order, all forward, was section 4m's.)
+  diag("Chebyshev-Spears lift 51 diag"),       --  7.75
+  diag("Chebyshev-Spears lift 62 diag"),       --  7.02
+  ownReversed("Klann"),                        --  7.01 (forward 6.12)
+  diag("Chebyshev-Spears diag"),               --  6.98
   diag("Hoecken-Spears 4-bar diag"),           --  6.84
-  diag("Hoecken-Spears slider diag"),          --  6.23 (toes)
-  own("Klann"),                                --  6.05
-  own("Jansen"),                               --  5.91
-  diag("Hoecken slider diag"),                 --  5.39
-  diag("Hoecken 4-bar diag"),                  --  4.88
+  diag("Hoecken-Spears slider diag"),          --  6.21 (toes)
+  own("Jansen"),                               --  5.85
+  ownReversed("Spears 4-bar"),                 --  5.75 (forward 4.09)
+  diag("Hoecken slider diag"),                 --  5.41
+  diag("Hoecken 4-bar diag"),                  --  4.87
   diag("Chebyshev diag"),                      --  4.50
-  own("Spears 4-bar"),                         --  4.10
   -- (left out: the guides builds -- the guides are not really there, so they are not for viewing; they stay in the
   -- repo and the runs -- and Hoecken-Spears 4-bar duty 85 diag, 6.61, which adds little. VIEWS_ALL = true: these too.)
 }

@@ -869,7 +869,8 @@ Hoecken-Spears slider 49%.
 
 - `test-ranking.lua`: the test track with the 11 walkers that could
   really be built (the diag builds with their outside braces and held
-  pendants; Klann, Jansen and Spears 4-bar on their own frames), best
+  pendants; Klann, Jansen and Spears 4-bar on their own frames), each its
+  better way (Klann and Spears 4-bar reversed: handover section 4w), best
   first. Click the 3D view, then Tab and Shift+Tab for the next or
   previous, and 1, 2, 3 and 4 change the ground (waves, random, logs,
   steps). The status line shows its speed so far and how much of the time

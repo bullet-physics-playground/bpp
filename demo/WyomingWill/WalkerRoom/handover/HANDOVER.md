@@ -586,7 +586,7 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **What the boards show.** On flat ground all 11 are within 0.35 cm/s (Spears 4-bar 9.21 to Chebyshev-Spears lift 62 diag 8.86). As the bumps grow, the lead passes to more lift, most clearly on logs and steps: the low-lift originals (Chebyshev, Hoecken 4-bar, Hoecken slider diag: 19-25%) fall off first, at 4-5 cm; the Chebyshev-Spears lift builds last. Leaders: logs 2-7 and steps 2-8 Chebyshev-Spears lift 51 diag; at 8 cm on waves and logs, Chebyshev-Spears lift 62 diag (the most lift, 62%), though on low bumps it is among the slowest. On random ground the field stays close (at 8 cm: 7.1 to 4.3) and the leaders change. Spears 4-bar falls off early on steps (1.07 at 5 cm).
 
-**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > lib/boards.lua` (the names: only those builds; none: every build found).
+**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > lib/boards.lua` (9 November: a second folder's builds replace theirs: `python3 runs/boards.py runs/out-damp/warm40fast runs/out-reversed/warm40fast > lib/boards.lua`, section 4w) (the names: only those builds; none: every build found).
 
 ## 4o. The room with four walkers (1 November)
 
@@ -662,6 +662,52 @@ William's loss: at 4230.7-4231.3 s (50 cm from the wall, nothing touching it, fe
 | the third place (eight walkers in turn, 2-3 min each) | mixed | trot | forward | 108-1778 / 21-42 cm | 206-494 / 93-146 cm/s | 155-330 / 33-94 cm/s |
 
 Before, 4 of 47,960 samples (every 0.1 s, every walker) had a part over 5 m/s; after, none. A part came within 2 cm of a wall before, 17.6 cm after, so the wall push did not happen in this run; forced with test walls at 1.5 m it moved the walkers back by what the turns swept out (0.6 cm a frame), with no errors. The test track is unchanged (Klann logs 5 and Hoecken-Spears slider steps 7: the same to the last digit). Room runs change move for move. William's soak with patch 81 (7 November: room-four.lua, 8 threads, waves 4 cm, Tab every 20 s, a new ground every 15 minutes) ran the full 180 simulated minutes with no walker lost: 539 swaps, bodies 9.4-21.2 cm, 76-88 s of wall time per simulated minute throughout. The same soak before it lost a walker at minute 70.6.
+
+## 4w. Forward or reversed: Klann and Spears 4-bar walk better reversed (9 November)
+
+**Answer first.** Of the 11 buildable walkers, two are clearly better reversed (cranks turned backward, walking the
+other way): **Klann +0.89 cm/s** over the nine rough terrains (6.12 → 7.01, ± 0.27) and **Spears 4-bar +1.66**
+(4.09 → 5.75, ± 0.20). One is clearly better forward: **Chebyshev-Spears lift 51 diag** (7.75 against 6.79; reversed
+it collapses on steps 7, 7.74 → 2.02). The other eight are the same either way within twice their ±. So the old
+"reversed is better" (section 7's open question: old runs showed it for 9 of 12) mostly went with the balance fix;
+only the two own-frame walkers keep it. Now each walker runs its better way, as the slider got its toes: Klann and
+Spears 4-bar reversed in `test-ranking.lua`'s views (now in this order), `room-four.lua` and `walker-room.lua` opened
+on its own (`REVERSE` as a table of names); everyone else forward. Data: `data/s4w_direction.md` (the table),
+`data/s4w_runs.csv` (all 990 runs).
+
+**How it was found.** William saw Klann rocking in the views, Jansen smooth. Klann was trotting as set (its diagonal
+feet down together, cranks within 5° of each other) and balanced (`BALANCE`: the whole walker's centre of mass within
+0.2 cm of its feet's middle; its body box sits well behind, which made the feet look all ahead). The rocking is its
+foot path: each foot within 0.3 cm of its lowest point for only about 19% of a turn (Jansen 46%), a curved bottom
+where Jansen's is flat (`gaitprobe`, flat, 12 s). Forward, Klann's body rose and fell 3.7 cm a step and rolled over
+a 28° range, a clean diagonal pair under it 57% of the time; reversed, 1.3 cm, 8°, 88% (Jansen 0.4 cm, 1.5°, 80%).
+William asked whether the rocking had helped on rough ground -- it had not: reversed Klann is as fast or faster on
+every one of the nine.
+
+**The table** (this container, fast setting, nine rough terrains, 5 seeds; ranked at each walker's better way; the
+forward numbers agree with `runs/out-damp` on William's machine to 0.07):
+
+| Rank | Walker | Bracing | Timing | Direction | Nine rough | Other direction | Hardest three |
+|---|---|---|---|---|---|---|---|
+| 1 | Chebyshev-Spears lift 51 diag | outside, held | trot | forward | 7.75 | 6.79 | 6.78 |
+| 2 | Chebyshev-Spears lift 62 diag | outside, held | trot | forward | 7.02 | 6.95 | 5.98 |
+| 3 | Klann | own frame | trot | reversed | 7.01 | 6.12 | 4.65 |
+| 4 | Chebyshev-Spears diag | outside, held | trot | forward | 6.98 | 6.79 | 5.00 |
+| 5 | Hoecken-Spears 4-bar diag | outside, held | trot | forward | 6.84 | 6.87 | 4.74 |
+| 6 | Hoecken-Spears slider diag | outside, held | trot | forward | 6.21 | 6.18 | 3.37 |
+| 7 | Jansen | own frame | trot | forward | 5.85 | 5.63 | 3.51 |
+| 8 | Spears 4-bar | own frame | trot | reversed | 5.75 | 4.09 | 2.40 |
+| 9 | Hoecken slider diag | outside, held | trot | forward | 5.41 | 5.35 | 2.15 |
+| 10 | Hoecken 4-bar diag | outside, held | trot | forward | 4.87 | 4.70 | 1.57 |
+| 11 | Chebyshev diag | outside, held | trot | forward | 4.50 | 4.28 | 1.14 |
+
+(Hoecken-Spears 4-bar diag: reversed +0.02 ± 0.20, inside the noise, so kept forward.) Lift 62 diag trades: reversed better on waves and
+logs, far worse on steps 7 (7.47 → 2.44). Hoecken-Spears slider diag's toes are at both ends of each foot (checked as
+built: ±4.0 cm, rising 0.5 cm), so its reversed runs are fair.
+
+**The ranking boards** (`lib/boards.lua`) still have Klann and Spears 4-bar forward until William's machine runs them
+reversed on the boards' 33 grounds; `runs/boards.py` now takes more folders, each one's builds replacing theirs from
+the folders before (the command is in its docstring and below, "To remake").
 
 ## 4v. The marks are decorations (7 November)
 
