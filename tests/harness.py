@@ -8,7 +8,8 @@ Suites (run all of them with no arguments, or name the ones you want):
   unit     tests/NN-*.lua: each must print "N passed, 0 failed" and exit 0.
   api      The Lua API (every bound class, its methods with their overload
            signatures, and its properties) against tests/api/lua-api.txt.
-  smoke    Every demo under demo/ runs a few frames without a Lua error,
+  smoke    Every demo the Demos menu lists (all of demo/ but folders
+           holding .nomenu) runs a few frames without a Lua error,
            crash or hang. Demos already broken are listed, with the reason,
            in tests/smoke/known-failures.txt.
   golden   The demos listed in tests/golden/demos.txt simulate N frames and
@@ -527,8 +528,13 @@ SMOKE_FRAMES = 3
 
 
 def all_demos():
+    """Every .lua under demo/ that the Demos menu lists: a folder holding a
+    file named .nomenu is left out, with everything under it, as there
+    (src/gui.cpp, populateDemoMenu) -- scripts other scripts load, probes,
+    tools."""
     demos = []
-    for d, _, fs in os.walk(os.path.join(ROOT, "demo")):
+    for d, ds, fs in os.walk(os.path.join(ROOT, "demo")):
+        ds[:] = [x for x in ds if not os.path.exists(os.path.join(d, x, ".nomenu"))]
         for f in fs:
             if f.endswith(".lua"):
                 demos.append(os.path.relpath(os.path.join(d, f), ROOT))
