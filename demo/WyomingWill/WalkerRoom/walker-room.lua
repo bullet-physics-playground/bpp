@@ -21,6 +21,33 @@
 --
 -- Units: centimetres and seconds.
 --
+-- Opened on its own (no launcher before it -- every launcher loads the
+-- walker files first, so EXTRA_WALKERS is still unset): the room with the
+-- 11 walkers that could really be built, as they are now -- the diag builds
+-- with their outside braces and held pendants; Klann, Jansen and Spears
+-- 4-bar on their own frames (test-ranking.lua's list) -- at room-four.lua's
+-- settings. test-track.lua opened on its own gets these settings too, with
+-- its one walker. This file's own defaults below are the old ones (plated
+-- builds, the old braces, gravity 70), which the launchers override.
+--
+
+if EXTRA_WALKERS == nil then
+  package.path = "../../module/?.lua;" .. package.path
+  v:setSolver("si-warm"); v:setSolverInfo("residual", 0.01)
+  SOLVER_ITERATIONS = SOLVER_ITERATIONS or 40; FIXED = FIXED or 1 / 1920
+  MOTOR_STRENGTH = MOTOR_STRENGTH or 2; GRAVITY = GRAVITY or 981; YAW_DAMP = YAW_DAMP or 1
+  ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
+  LINK_WIDTH = LINK_WIDTH or 1.0; GAIT = GAIT or { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
+  dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua")
+  local BUILDABLE = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", "Chebyshev-Spears diag",
+                      "Hoecken-Spears 4-bar diag", "Hoecken-Spears slider diag", "Klann", "Jansen",
+                      "Hoecken slider diag", "Hoecken 4-bar diag", "Chebyshev diag", "Spears 4-bar" }
+  if ONLY == nil then ONLY = {}; for _, n in ipairs(BUILDABLE) do ONLY[n] = true end end
+  if PENDANT_HOLD == nil then
+    PENDANT_HOLD = {}; for _, n in ipairs(BUILDABLE) do if n:find("diag$") then PENDANT_HOLD[n] = true end end
+  end
+  TERRAIN = TERRAIN or "waves"; AMP = AMP or 2; BUMP = BUMP or 15
+end
 
 local common = require "common"
 v.shadows = false
@@ -2180,8 +2207,25 @@ end
 
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 1, "bump height, cm (G builds the room with it)")
 v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 1, "bump length, cm (the stride is 15; G builds the room with it)")
+-- THREADS (default 0; the room only, not the test track's one walker): the
+-- walkers solved side by side on this many threads; the Threads slider
+-- changes it while the room runs, and the status line shows how fast (as
+-- ../Testing_Threads.lua). The room walks the same, move for move, at any
+-- number of threads; at 0, very slightly differently (without threads
+-- Bullet solves two or three walkers together). Needs bpp built with Bullet
+-- with threads (scripts/bullet-threads.sh, then qmake CONFIG+=bundled_bullet;
+-- THREADS.md); otherwise the status line says so.
+THREADS = THREADS or 0
+local HAS_THREADS = false
+local threadsT0, threadsSpent, threadsFrames, threadsWall0, threadsBase = 0, 0, 0, 0, nil
+if not TEST_TRACK then
+  HAS_THREADS = v:setThreads(1) > 0   -- (how many it uses: 0 with the system Bullet)
+  v:setThreads(THREADS)
+  v:addParam("Threads", THREADS, 0, 16, 1, "threads solving the walkers side by side (0: as without threads)")
+  threadsWall0 = v:getTime()
+end
 -- VIEWS (test track): a list of { walker =, label =, reverse =, gait =,
--- unbraced =, crank =, hold = } -- see test-square.lua. Tab goes through those
+-- unbraced =, crank =, hold = } -- see test-ranking.lua. Tab goes through those
 -- instead of the walkers, each built, timed and turned its own way (the
 -- room's REVERSE, GAIT, UNBRACED and CRANK_SCALE, set for it, and
 -- PENDANT_HOLD when the view gives hold); the track starts with
@@ -2252,6 +2296,7 @@ local function lockCranks(w)
 end
 
 v:preSim(function(N)
+  threadsT0 = v:getTime()   -- (the Threads readout: a frame's time, from here to the start of postSim)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
     if JOINT_FRICTION then jointFriction(w) end
@@ -2459,6 +2504,7 @@ local function follow(w)
 end
 
 v:postSim(function(N)
+  threadsSpent, threadsFrames = threadsSpent + (v:getTime() - threadsT0), threadsFrames + 1
   if following then
     -- (moved by how far the walker has gone across the ground; not up and
     -- down, so the view doesn't bob with its gait)
@@ -2688,11 +2734,36 @@ v:onParamChanged(function(N, name, value)
   value = math.floor(value + 0.5)
   if name == "TerrainHeight" then pendingAmp = (value ~= AMP) and value or nil end
   if name == "BumpLength" then pendingBump = (value ~= BUMP) and value or nil end
+  if name == "Threads" then
+    THREADS = value
+    v:setThreads(THREADS)
+    threadsSpent, threadsFrames, threadsWall0 = 0, 0, v:getTime()
+  end
   v.statusText = slidersNote()
 end)
 local AIR_COLOUR = "#FF2020"
 v:preDraw(function(N)
   draws = draws + 1
+  -- (the room: the status line shows how fast, about once a second when it
+  -- keeps up, as ../Testing_Threads.lua; and in the terminal, to copy)
+  if not TEST_TRACK and threadsFrames >= 60 then
+    local per, now = threadsSpent / threadsFrames, v:getTime()
+    local seen = threadsFrames * FRAME / (now - threadsWall0)
+    if THREADS == 0 then threadsBase = per end
+    local line
+    if not HAS_THREADS and THREADS > 0 then
+      line = "this bpp has no threads: build it with scripts/bullet-threads.sh and qmake CONFIG+=bundled_bullet"
+    else
+      line = string.format("threads %d | physics %.1f ms a frame: %.2fx real time | you see %.2fx", THREADS,
+        per * 1000, FRAME / per, seen)
+      if threadsBase and THREADS > 0 then line = line .. string.format(" | %.1fx as fast as no threads", threadsBase / per) end
+      if not threadsBase then line = line .. " | set Threads to 0 for a while to measure it without" end
+    end
+    local note = slidersNote()
+    v.statusText = (note ~= "" and (note .. " | ") or "") .. line
+    io.stdout:write("room: ", line, "\n"); io.stdout:flush()
+    threadsSpent, threadsFrames, threadsWall0 = 0, 0, now
+  end
   -- (the test track: the status line shows where the walker is at, and
   -- its body turns red while it is off the ground)
   local w = TEST_TRACK and walkers[1]

@@ -44,15 +44,14 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
 **Repository**
 - The repo is at `/home/claude/bpp` (William's bpp fork; `origin/master`).
 - Room files, in `demo/WyomingWill/WalkerRoom/`:
-  - `walker-room.lua`, the room itself.
-  - `test-track.lua`, one walker, timed.
+  - `walker-room.lua`, the room itself (opened on its own: the 11 buildable walkers, as now, on the Threads slider).
+  - `test-track.lua`, one walker, timed (opened on its own: Chebyshev-Spears lift 51 diag, as now).
   - `trotting-walkers.lua` (the Hoecken diag builds) and `spears-lift-walkers.lua` (Chebyshev-Spears lift 51/62, their diag builds, Hoecken-Spears 4-bar duty 85 diag).
-  - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps; O looks over the square):
-    - `test-square.lua`: the old best configurations (void).
-    - `test-square-all.lua`: all 19 builds as built.
-    - `test-square-soft.lua`: the same on soft-spring ankles.
-    - `test-square-yaw.lua`: the same with a free body (YAW_DAMP), plus views 20–31, the builds that can trot, trotting.
-    - `test-square-earth.lua`: **the current standard**, test-square-yaw at Earth gravity.
+  - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps):
+    - `test-ranking.lua`: the 11 buildable walkers on the track, as now (the current viewer).
+    - `room-four.lua`: four in the room, on the Threads slider.
+    - `drag-shoe.lua`: test-ranking with a drag shoe (STEERING.md).
+    - (The test-square launchers, `test-slider-logs.lua`, `foot-path-variants.lua` and `test-track-all.sh` were removed on 9 November 2026, patch 100: they showed old builds. Earlier sections still name them.)
   - `README.md`.
 - Build files the room uses: `demo/WyomingWill/Walkers_For_Room/*_parts.lua`.
 - **Never edit `demo/WyomingWill/Walkers/`.** Those are William's originals.
@@ -120,7 +119,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
 | SAME_BODY, SAME_FEET, WIDE, LINK_THICK, PLANE_GAP, BALANCE, BAR_MASS, SOLVER_ITERATIONS 40, LOCK_CRANKS | as patch 13 (section 8) | walker-room.lua defaults |
 | Gaits | **No sides gaits.** Trot, bound, four 4-beat walks (the other two are mirror images), and Spears 4-bar's own timing. | run7.py |
 
-`test-square-earth.lua` is this standard for watching.
+`test-square-earth.lua` was this standard for watching (removed 9 November 2026; now `test-ranking.lua`, at the fast setting of 4i).
 
 ## 4a. The third session (22–24 October): the diag builds fixed
 

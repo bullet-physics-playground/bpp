@@ -194,14 +194,14 @@ about an hour.
 
 ## Not urgent: tidying the folder
 
-Suggested for removal, not done (William to say which to keep):
-`test-square-check.lua`, `test-slider-logs.lua`,
-`test-square-outside.lua`, `test-square-plates.lua`,
-`test-square-width.lua`, `test-square-earth.lua`, `test-square-yaw.lua`,
-`test-square-all.lua`, `test-square-soft.lua`, `foot-path-variants.lua`,
-`test-track-all.sh`; and sorting the 202 files in `handover/tools/`
-(keep what `runs/` and the notes still point to). They load their
-neighbours by name, so they can't be moved into a subfolder.
+Removed on 9 November (patch 100, William agreed):
+`test-square.lua`, `test-square-all.lua`, `test-square-soft.lua`,
+`test-square-yaw.lua`, `test-square-earth.lua`, `test-square-plates.lua`,
+`test-square-outside.lua`, `test-square-check.lua`, `test-square-width.lua`,
+`test-slider-logs.lua`, `foot-path-variants.lua`, `test-track-all.sh`.
+`test-track.lua` stays (test-ranking.lua, drag-shoe.lua and every table run
+open it). Still to do: sorting the 202 files in `handover/tools/` (keep
+what `runs/` and the notes still point to).
 
 ## Stage 1 results: foot friction, pair and side slowing (8 November)
 

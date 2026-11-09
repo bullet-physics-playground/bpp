@@ -21,9 +21,11 @@
 -- force over from step to step, 40 iterations, a 1/1920 s step. Four walkers
 -- cost about four times one, so it runs slower than real time.
 --
--- THREADS (default 0): solve the walkers side by side on this many threads.
--- Needs bpp built with Bullet with threads (scripts/bullet-threads.sh, then
--- qmake CONFIG+=bundled_bullet); otherwise it says so and runs on one. With
+-- The Threads slider (THREADS sets where it starts, default 0; in
+-- walker-room.lua) solves the walkers side by side on that many threads,
+-- while it runs, and the status line shows how fast. Needs bpp built with
+-- Bullet with threads (scripts/bullet-threads.sh, then qmake
+-- CONFIG+=bundled_bullet); otherwise the status line says so. With
 -- any number of threads the room walks the same, move for move; with none it
 -- walks as before (without threads Bullet solves two or three walkers
 -- together and stops when the group has settled; with threads each walker
@@ -35,8 +37,6 @@
 package.path = "../../module/?.lua;" .. package.path
 
 v:setSolver("si-warm"); v:setSolverInfo("residual", 0.01)
-THREADS = THREADS or 0
-if THREADS > 0 then v:setThreads(THREADS) end
 SOLVER_ITERATIONS = 40; FIXED = 1 / 1920
 MOTOR_STRENGTH = 2; GRAVITY = 981; YAW_DAMP = 1
 ANKLE_SPRING = { stiffness = 42000, damping = 4200 }

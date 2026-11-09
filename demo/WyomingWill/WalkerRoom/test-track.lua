@@ -7,10 +7,14 @@
 --
 --   TRACK Hoecken|height 4.00|length 11.0|seed 1|forward 412.3 cm|6.87 cm/s|...
 --
--- Open this file in bpp to watch one walker: change the settings below
--- (or set them from a launcher). Tab and Shift+Tab put the next or previous
+-- Opened on its own it shows Chebyshev-Spears lift 51 diag as it is now
+-- (walker-room.lua's settings for being opened on its own). To watch the
+-- walkers that could really be built, one after another, open
+-- test-ranking.lua instead: it sets each one up as now (Tab here, from a
+-- launcher that names only ONLY, brings in walker-room.lua's old builds
+-- for the others). Tab and Shift+Tab put the next or previous
 -- walker on the track (click the 3D view first). The TerrainHeight and
--- BumpLength sliders set the next ground, and G builds the track with them, as in the room. test-track-all.sh runs every walker in
+-- BumpLength sliders set the next ground, and G builds the track with them, as in the room. runs/run-table.sh runs every walker in
 -- every condition headless and collects the results.
 --
 -- Units: centimetres and seconds.
@@ -20,6 +24,9 @@
 -- folder on the path for common.lua)
 package.path = "../../module/?.lua;" .. package.path
 
+if EXTRA_WALKERS == nil then        -- (opened on its own: see above)
+  ONLY = ONLY or "Chebyshev-Spears lift 51 diag"; AMP = AMP or 2; BUMP = BUMP or 15
+end
 ONLY = ONLY or "Chebyshev-Spears"   -- the walker, by its name in walker-room.lua
 AMP = AMP or 4                      -- bump height, cm
 BUMP = BUMP or 11                   -- bump length, cm (every stride is 15)
