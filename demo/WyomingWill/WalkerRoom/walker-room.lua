@@ -407,6 +407,16 @@ LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
 --     as damped (ANKLE_SPRING)
 --   mech = "linkdamp": the pair's links (as "pair") damped k (as LINK_DAMP)
 STEER = STEER or false
+-- SHOES = { mass =, radius =, out =, down = } (handover/STEERING.md,
+-- "Stage A"; off): a wheel on each side of every walker, to steer it by
+-- drag -- a ball, mass of the walker's weight (default 0.15), radius cm
+-- (1.5), out cm (5) out beyond its feet, always on the ground by its own
+-- weight and free up and down (the walker never carries it, so never
+-- leans), rolling along the walk. room.setShoe(w, side) while it runs
+-- brakes that side's ("L" or "R"; nil for neither) and its skid turns the
+-- walker toward it; down = that side braked at the start. The body's yaw
+-- damping must be off (YAW_DAMP = 0), or it holds the walker straight.
+SHOES = SHOES or false
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
 -- or Klann's and Jansen's own legs); nothing across the walk, so the
@@ -876,7 +886,13 @@ end
 
 -- STEER (above): each foot's and crank motor's side ("L" or "R") and end
 -- (front or not) in the body's frame, as built, and the bias put on
-local function steerSetup(w, made, opts)
+-- (a walker's frame for parts added to it, as built: its body's place and
+-- turn; each foot's side ("L" or "R") and end in the body's frame; its
+-- weight, its feet's friction, half their track and their soles' height;
+-- part() adds a part, turned as its body, at a place in its frame; slider()
+-- puts a part on a slider to the body. STEER and SHOES, below)
+local function walkerGeom(w, made, opts)
+  local G = {}
   local c = w.cube.body:getCenterOfMassPosition()
   local q = w.cube.body:getCenterOfMassTransform():getRotation()
   local fx, fy, fz = qrot(q:x(), q:y(), q:z(), q:w(), w.forward, 0, 0)   -- the way it walks
@@ -884,14 +900,48 @@ local function steerSetup(w, made, opts)
     local dx, dz = x - c.x, z - c.z
     return (dx * -fz + dz * fx > 0) and "R" or "L", dx * fx + dz * fz > 0
   end
-  local S = { feet = {}, motors = {} }
+  G.c, G.q, G.place = c, q, place
+  G.feet = {}
   for _, o in ipairs(w.bodies) do
     if made[o] == "buildFoot" then
       local p = o.body:getCenterOfMassPosition()
       local side, front = place(p.x, p.y, p.z)
-      S.feet[#S.feet + 1] = { o = o, side = side, front = front }
+      G.feet[#G.feet + 1] = { o = o, side = side, front = front }
     end
   end
+  local cq = btQuaternion(q:x(), q:y(), q:z(), q:w())
+  local tot, mu, half, bottom = 0, 0, 0, 1e30   -- (its weight; its feet's friction, half their track, their soles' height)
+  for _, o in ipairs(w.bodies) do tot = tot + o.mass end
+  if SAME_BODY then tot = w.totalMass end   -- (its body's weight is set after this, below)
+  for _, f in ipairs(G.feet) do
+    local p = f.o.body:getCenterOfMassPosition()
+    local _, ly, lz = qrot(-q:x(), -q:y(), -q:z(), q:w(), p.x - c.x, p.y - c.y, p.z - c.z)
+    mu, half, bottom = mu + f.o.body:getFriction() / #G.feet, half + math.abs(lz) / #G.feet, math.min(bottom, ly - FOOT.thick / 2)
+  end
+  G.cq, G.tot, G.mu, G.half, G.bottom = cq, tot, mu, half, bottom
+  function G.part(o, lx, ly, lz)   -- (a part added to the walker, turned as its body, at (lx, ly, lz) in its frame)
+    local x, y, z = qrot(q:x(), q:y(), q:z(), q:w(), lx, ly, lz)
+    o.trans = btTransform(cq, btVector3(c.x + x, c.y + y, c.z + z))
+    o.col = "#C08020"
+    addObject(o)
+    w.bodies[#w.bodies + 1] = o
+    return o
+  end
+  function G.slider(o, inCube, inPart, lo, hi)   -- (o on a slider to the body, along each frame's x; not turning)
+    local sl = btSliderConstraint(w.cube.body, o.body, inCube, inPart, true)
+    sl:setLowerLinLimit(lo); sl:setUpperLinLimit(hi)
+    sl:setLowerAngLimit(0); sl:setUpperAngLimit(0)
+    opts.addConstraint(sl)
+    if SOLVER_ITERATIONS then sl:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+    return sl
+  end
+  return G
+end
+
+local function steerSetup(w, made, opts)
+  local G = walkerGeom(w, made, opts)
+  local c, q, place = G.c, G.q, G.place
+  local S = { feet = G.feet, motors = {} }
   for _, m in ipairs(w.motors) do
     for _, j in ipairs(w.joints) do
       if rawequal(j[4], m.hinge) then
@@ -904,31 +954,8 @@ local function steerSetup(w, made, opts)
   -- the walker's left is (0, 0, -w.forward); d: the bias's side along z)
   local mech, side, k = STEER.mech, STEER.side, STEER.amount or 1
   local d = -w.forward * ((side == "L") and 1 or -1)
-  local cq = btQuaternion(q:x(), q:y(), q:z(), q:w())
-  local tot, mu, half, bottom = 0, 0, 0, 1e30   -- (its weight; its feet's friction, half their track, their soles' height)
-  for _, o in ipairs(w.bodies) do tot = tot + o.mass end
-  if SAME_BODY then tot = w.totalMass end   -- (its body's weight is set after this, below)
-  for _, f in ipairs(S.feet) do
-    local p = f.o.body:getCenterOfMassPosition()
-    local _, ly, lz = qrot(-q:x(), -q:y(), -q:z(), q:w(), p.x - c.x, p.y - c.y, p.z - c.z)
-    mu, half, bottom = mu + f.o.body:getFriction() / #S.feet, half + math.abs(lz) / #S.feet, math.min(bottom, ly - FOOT.thick / 2)
-  end
-  local function part(o, lx, ly, lz)   -- (a part added to the walker, turned as its body, at (lx, ly, lz) in its frame)
-    local x, y, z = qrot(q:x(), q:y(), q:z(), q:w(), lx, ly, lz)
-    o.trans = btTransform(cq, btVector3(c.x + x, c.y + y, c.z + z))
-    o.col = "#C08020"
-    addObject(o)
-    w.bodies[#w.bodies + 1] = o
-    return o
-  end
-  local function slider(o, inCube, inPart, lo, hi)   -- (o on a slider to the body, along each frame's x; not turning)
-    local sl = btSliderConstraint(w.cube.body, o.body, inCube, inPart, true)
-    sl:setLowerLinLimit(lo); sl:setUpperLinLimit(hi)
-    sl:setLowerAngLimit(0); sl:setUpperAngLimit(0)
-    opts.addConstraint(sl)
-    if SOLVER_ITERATIONS then sl:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
-    return sl
-  end
+  local cq, tot, mu, half, bottom = G.cq, G.tot, G.mu, G.half, G.bottom
+  local part, slider = G.part, G.slider
   if mech == "friction" then
     for _, f in ipairs(S.feet) do
       if f.side == side then f.o.body:setFriction(f.o.body:getFriction() * k) end
@@ -1012,6 +1039,40 @@ local function steerSetup(w, made, opts)
   w.steer = S
 end
 
+-- SHOES (above): a wheel on each side, always down -- a ball that rolls
+-- along the walk, resting on the ground by its own weight (on a joint that
+-- leaves it free up and down, so the walker never carries it, and never
+-- leans), SHOES.out cm (5) out beyond that side's feet. Rolling, it drags
+-- next to nothing; setShoe(w, side) brakes that side's ("L" or "R") and
+-- frees the other, setShoe(w, nil) frees both; braked, it skids, and its
+-- drag turns the walker toward it.
+local function setShoe(w, side)
+  if not w.wheels then return end
+  for s, wh in pairs(w.wheels) do wh.joint:setMaxMotorForce(5, (s == side) and wh.brake or 0) end
+  w.shoeDown = side
+end
+local function shoesSetup(w, made, opts)
+  local G = walkerGeom(w, made, opts)
+  local r = SHOES.radius or 1.5
+  local m = (SHOES.mass or 0.15) * G.tot
+  w.wheels = {}
+  for _, side in ipairs({ "L", "R" }) do
+    local d = -w.forward * ((side == "L") and 1 or -1)   -- (that side, along the body's z)
+    local ly, lz = G.bottom + r, d * (G.half + FOOT.width / 2 + r + (SHOES.out or 5))
+    local o = G.part(Sphere(r, m), 0, ly, lz)
+    o.body:setFriction(G.mu)
+    local j = btGeneric6DofSpring2Constraint(w.cube.body, o.body, btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, ly, lz)),
+      btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)))
+    j:setLimit(0, 0, 0); j:setLimit(1, -30, 30); j:setLimit(2, 0, 0)   -- (only up and down)
+    j:setLimit(3, 0, 0); j:setLimit(4, 0, 0); j:setLimit(5, 1, -1)     -- (turning only about the body's z: rolling along the walk)
+    j:enableMotor(5, true); j:setTargetVelocity(5, 0); j:setMaxMotorForce(5, 0)   -- (the brake: off)
+    opts.addConstraint(j)
+    if SOLVER_ITERATIONS then j:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+    w.wheels[side] = { o = o, joint = j, brake = 1e9 }
+  end
+  setShoe(w, SHOES.down)
+end
+
 -- the whole walker turned rigidly by the rotation (rx, ry, rz, rw) about
 -- the point (cx, cy, cz), with its velocities turned too
 local function rotateWalker(w, cx, cy, cz, rx, ry, rz, rw)
@@ -1048,6 +1109,7 @@ end
 
 local walkers = {}
 room = { walkers = walkers, groundAt = terrainHeight }   -- (global, for tests and the command line)
+room.setShoe = setShoe   -- (SHOES: for launchers, probes and the keys)
 local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test track's air measure)
 
 -- ---------------------------------------------------------------------
@@ -1689,6 +1751,7 @@ local function addWalker(spec, x, z, heading)
     end
   end
   if STEER then steerSetup(w, made, opts) end   -- (after the springs, damping and braces above: it changes them)
+  if SHOES then shoesSetup(w, made, opts) end
   -- its radius: half the diagonal of its moving bodies' footprint (from
   -- the moving bodies only: static ones would make it look huge)
   local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)

@@ -311,7 +311,83 @@ speed at the stronger amount, flat (no bias 8.9):
   flat, seed 1: 8.960 → 8.957 cm/s); the steering code is not the cause.
 
 For heading feedback (stage 4), a shoe on each side, lowered on the side
-to turn toward, is the obvious candidate.
+to turn toward, is the obvious candidate. (Stage A, below: a pair of
+shoes fails on waves; a braked wheel on each side works.)
+
+## Stage A results: a wheel on each side (9 November)
+
+Patch 105. `SHOES` (`walker-room.lua`): a wheel on each side of every
+walker, braked on one side to turn toward it. Each wheel is a ball,
+0.15 of the walker's weight, radius 1.5 cm, 5 cm out beyond that side's
+feet (`SHOES = { mass =, radius =, out =, down = }`). It sits on a joint
+to the body that leaves it free only up and down and rolling along the
+walk, so it always rests on the ground by its own weight and the walker
+never carries it. `room.setShoe(w, "L" | "R" | nil)` brakes that side's
+wheel (a motor on the roll with no target speed and unlimited force) and
+frees the other. `YAW_DAMP = 0` is still needed. Picture:
+`handover/steer_wheels.png`. Run with `STAGE=A runs/steer-table.sh`.
+With `SHOES` off the runs are the same to the last digit as before.
+
+Turn (°/s, mean of 2 seeds) and speed (cm/s), flat / waves 2:
+
+| Walker | Bracing | Wheels | Timing | Direction | Turn, flat | Turn, waves 2 | Speed, flat | Speed, waves 2 |
+|---|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | none | trot | forward | −0.00 | −1.41 | 8.91 | 8.45 |
+| C-S lift 51 diag | outside, held | both free | trot | forward | −0.01 | −1.40 | 8.93 | 8.43 |
+| C-S lift 51 diag | outside, held | left braked | trot | forward | +0.91 | +1.60 | 8.52 | 7.65 |
+| C-S lift 51 diag | outside, held | right braked | trot | forward | −0.89 | −2.61 | 8.54 | 7.71 |
+| Jansen | own frame | none | trot | forward | −0.02 | +0.03 | 8.94 | 8.20 |
+| Jansen | own frame | both free | trot | forward | −0.01 | +0.04 | 8.95 | 8.36 |
+| Jansen | own frame | left braked | trot | forward | +1.20 | +1.65 | 8.48 | 8.01 |
+| Jansen | own frame | right braked | trot | forward | −1.13 | −1.52 | 8.52 | 7.81 |
+
+Split (left braked − right braked): lift 51 diag +1.80 flat, +4.22
+waves 2; Jansen +2.33 flat, +3.17 waves 2. (Lift 51 diag drifts right
+on waves 2 with nothing braked, −1.4 °/s, seed 1 −1.1, seed 2 −1.7;
+braking either side still moves its turn about 1.2–3 °/s that way.)
+
+What having the wheels costs on rough ground, both free, yaw damping
+on as in the tables (nine rough terrains, 5 seeds, mean speed cm/s;
+the paired difference ± its standard error):
+
+| Walker | Bracing | Timing | Direction | Without | With wheels | Difference | logs 7 | steps 7 |
+|---|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | trot | forward | 7.75 | 7.12 | −0.63 ± 0.22 | 6.97 → 4.64 | 7.74 → 5.17 |
+| Jansen | own frame | trot | forward | 5.85 | 6.03 | +0.19 ± 0.21 | 1.33 → 2.77 | 4.07 → 3.61 |
+
+- **It steers on waves as well as flat**, both ways, and a free wheel
+  costs nothing on flat or waves 2. The wheels catch on the logs and
+  steps for lift 51 diag; they steady Jansen on logs 7.
+- **Clearance:** on logs 7 (12 s, 2 seeds, left braked, right braked and
+  neither), across all 11 walkers in `test-ranking.lua`'s directions, no
+  wheel touched any part of its walker (`v:eachContact`: not one contact
+  point between them). Bounding boxes said otherwise for Spears 4-bar
+  and Hoecken-Spears slider diag: a slanted frame's box is much bigger
+  than the frame.
+- **Size:** radius 3 cm hurts lift 51 diag less on the hardest three
+  terrains (waves 6, logs 7, steps 7: 6.07 against 5.31 at 1.5, 6.78
+  without) but Jansen more (3.52 against 3.95, 3.51 without), and at 5 cm
+  out it overlaps the frame boxes of most walkers. 3 cm out (the first
+  try, radius 1.5) steered and cost about the same, but the boxes
+  overlapped for lift 62 diag and Klann on logs 7 (not checked by
+  contacts); 5 cm leaves a margin.
+
+Designs tried first, all dropped:
+
+- **A pair of shoes on sliders, one pressed down** (the stage 2 shoe on
+  each side, 0.1 of the walker's weight, the raised one 9 cm up): turns
+  toward the pressed shoe on flat (1.1–1.5 °/s) but the wrong way on
+  waves 2. Heavier (0.15) is no better (0.9–1.3 °/s flat, wrong way on
+  waves) and costs lift 51 diag 0.4–0.5 cm/s on rough ground. The cause
+  is the raised shoe: carried out at the side, it leans the walker, and
+  on waves the lean turns it away. One shoe alone (stage 2) has nothing
+  on the other side and steers on waves.
+- **The shoes stowed at the centre and swung out to press**: can't work
+  in Bullet. A slider or 6dof joint pushes at its own frame's origin, so
+  a shoe set out to the side along a free axis loses its turning effect.
+- In a `btGeneric6DofSpring2Constraint` the angular motor's sign is the
+  reverse of what its axis suggests (a shoe's "up" needed a negative
+  speed): worth knowing for anything else built on it.
 
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 

@@ -3,7 +3,7 @@
 --   SIDES <name>|feet <side+end ...>|motors <side+end+group ...>   (STEER's placing of feet and cranks, at the start)
 --   PATH <name>|t <s>|x <cm>|z <cm>|heading <deg>                  (each second)
 --   STEER <name>|turn <deg/s, from 5 s to the end>|speed <cm/s: straight from where it was at 5 s to the end>|heading <deg at the end>
---         |tilt max <deg, its body's up from the vertical, from 2 s>|tipped <1 if over 60 degrees>
+--         |tilt max <deg, its body's up from the vertical, from 2 s>|tipped <1 if over 60 degrees>|tilt mean <deg, from 5 s>
 -- Run from the WalkerRoom folder, after the room's settings (ONLY, TERRAIN, AMP, SEED, STEER, ...).
 local realv, hooks = v, {}
 local P = setmetatable({}, { __index = function(_, k) local x = realv[k]
@@ -28,7 +28,7 @@ if w.steer then
   for i, mo in ipairs(w.motors) do m[#m + 1] = i .. ":" .. (mo.side or "?") .. (mo.front and "front" or "rear") .. "/" .. (mo.group or 1) end
   out(string.format("SIDES %s|feet %s|motors %s%s", w.spec.name, table.concat(f, " "), table.concat(m, " "), w.steer.note and ("|" .. w.steer.note) or ""))
 end
-local heading, lastH, h5, tilt, px, pz = 0, nil, nil, 0, nil, nil
+local heading, lastH, h5, tilt, px, pz, tiltSum, tiltN = 0, nil, nil, 0, nil, nil, 0, 0
 realv:preSim(function(N) if hooks.preSim then hooks.preSim(N) end end)
 realv:postSim(function(N)
   if hooks.postSim then hooks.postSim(N) end
@@ -38,12 +38,13 @@ realv:postSim(function(N)
   local h = math.atan2(-fz, fx)
   if lastH then local d = h - lastH; heading = heading + d - 2 * math.pi * math.floor(d / (2 * math.pi) + 0.5) else heading = h end
   lastH = h
-  if N >= 120 then local _, uy = rot(q, 0, 1, 0); tilt = math.max(tilt, math.deg(math.acos(math.max(-1, math.min(1, uy))))) end
+  if N >= 120 then local _, uy = rot(q, 0, 1, 0); local a = math.deg(math.acos(math.max(-1, math.min(1, uy)))); tilt = math.max(tilt, a)
+    if N > 300 then tiltSum, tiltN = tiltSum + a, tiltN + 1 end end
   if N == 300 then h5, px, pz = heading, p.x, p.z end
   if N % 60 == 0 then out(string.format("PATH %s|t %d|x %.1f|z %.1f|heading %.1f", w.spec.name, math.floor(N / 60), p.x, p.z, math.deg(heading))) end
   if N == END then
     local secs = END / 60 - 5
-    out(string.format("STEER %s|turn %.3f|speed %.3f|heading %.1f|tilt max %.1f|tipped %d", w.spec.name,
-      math.deg(heading - h5) / secs, math.sqrt((p.x - px) ^ 2 + (p.z - pz) ^ 2) / secs, math.deg(heading), tilt, tilt > 60 and 1 or 0))
+    out(string.format("STEER %s|turn %.3f|speed %.3f|heading %.1f|tilt max %.1f|tipped %d|tilt mean %.2f", w.spec.name,
+      math.deg(heading - h5) / secs, math.sqrt((p.x - px) ^ 2 + (p.z - pz) ^ 2) / secs, math.deg(heading), tilt, tilt > 60 and 1 or 0, tiltSum / math.max(tiltN, 1)))
   end
 end)

@@ -44,9 +44,9 @@ NAMES = {   # (mech: what it is, the amount's unit; STEER in walker-room.lua)
     "friction": ("foot friction ×", ""), "pair": ("pair crank speed ×", ""), "side": ("side crank speed ×", ""),
     "ballast": ("ballast (¼ its weight) moved", " cm"), "drag": ("drag shoe, of its weight", ""),
     "sole": ("soles thicker", " cm"), "stiff": ("ankle stiffness ×", ""), "damp": ("ankle damping ×", ""),
-    "linkdamp": ("pair's link damping", "")}
+    "linkdamp": ("pair's link damping", ""), "wheels": ("wheel braked, of its weight", "")}
 STRONG = {"friction": "0.05", "pair": "0.6", "side": "0.6", "ballast": "8", "drag": "0.25", "sole": "1.5",
-          "stiff": "10", "damp": "5", "linkdamp": "0.95"}   # (the paths drawn: each bias at its stronger amount)
+          "stiff": "10", "damp": "5", "linkdamp": "0.95", "wheels": "0.15"}   # (the paths drawn: each bias at its stronger amount)
 def timing(v):   # (pair and side slowing: the crank lock holds each pair, or side, only to itself)
     return "trot, pairs free" if v.startswith("pair") else "trot, sides free" if v.startswith("side") else "trot"
 

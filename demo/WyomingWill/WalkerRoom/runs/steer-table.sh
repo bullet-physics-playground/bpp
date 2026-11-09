@@ -10,7 +10,7 @@
 #
 # Environment: as run-table.sh (BPP, JOBS, SEEDS (default 1 2), TERRAINS (default waves:0 waves:2), RUN_SECS),
 # OUT (default runs/out-steer), STAGE (default 1: foot friction, pair and side slowing; 2: ballast, drag shoe,
-# soles, ankles, link damping).
+# soles, ankles, link damping; A: the wheels, SHOES, braked and free).
 set -u
 cd "$(dirname "$0")/.."
 OUT=${OUT:-runs/out-steer}; STAGE=${STAGE:-1}
@@ -43,6 +43,17 @@ case "$STAGE" in
     for k in 2 5; do run "damp-$s-$k" "$J" "{mech=\"damp\", side=\"$s\", amount=$k}"; done   # (x10 goes unstable)
     for k in 0.5 0.95; do run "linkdamp-$s-$k" "$J" "{mech=\"linkdamp\", side=\"$s\", amount=$k}"; done
   done
+  ;;
+A)   # (the wheels, SHOES in walker-room.lua: one braked on flat and waves 2; then both free on the nine rough
+     # terrains with the yaw damping on, as the tables -- what having them costs -- against the same runs without)
+  wheels() { OUT="$OUT/$1" BUILDS="$J" EXTRA="YAW_DAMP=0; SHOES=$2" runs/run-table.sh > /dev/null; echo "done $1"; }
+  run base "$J" ""
+  wheels wheels-free-0.15 "{}"
+  for s in L R; do wheels "wheels-$s-0.15" "{down=\"$s\"}"; done
+  rough() { OUT="$OUT/$1" BUILDS="$J" SEEDS="1 2 3 4 5" TERRAINS="waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7" \
+    PROBE=runs/speedprobe.lua EXTRA="$2" runs/run-table.sh > /dev/null; echo "done $1"; }
+  rough rough-none ""
+  rough rough-wheels "SHOES={}"
   ;;
 esac
 rm -f "$B" "$J"
