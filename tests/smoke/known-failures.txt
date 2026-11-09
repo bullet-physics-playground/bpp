@@ -13,6 +13,7 @@ demo/WyomingWill/ArtificialPhysics/ch07/theory.lua  error: [string "--..."]:67: 
 demo/WyomingWill/ArtificialPhysics/ch11/mfp_sweep.lua  error: [string "--..."]:31: module 'ch11.maxim' not found:
 demo/WyomingWill/ArtificialPhysics/ch11/table11_1.lua  error: [string "--..."]:27: module 'ch11.maxim' not found:
 demo/WyomingWill/ArtificialPhysics/ch11/wedge.lua  error: [string "--..."]:24: module 'ch11.maxim' not found:
+demo/WyomingWill/ArtificialPhysics/ch13/auv.lua  error: [string "--..."]:44: module 'auv.model' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/dumbbell.lua  error: [string "--..."]:79: module 'lib.ch13' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/triangle.lua  error: [string "--..."]:61: module 'ch13.dumbbell' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/uav.lua  error: [string "--..."]:61: module 'fixedwing.model' not found:
