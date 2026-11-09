@@ -271,10 +271,10 @@ speed at the stronger amount, flat (no bias 8.9):
 
 | Walker | Bracing | Bias | Timing | Direction | Weaker | Stronger | Speed |
 |---|---|---|---|---|---|---|---|
-| C-S lift 51 diag | outside, held | drag shoe, 0.1 / 0.25 of its weight | trot | forward | +0.86 / +2.27 | +2.13 / +4.52 | 8.4 |
-| Jansen | own frame | drag shoe, 0.1 / 0.25 | trot | forward | +1.44 / +1.43 | +3.78 / +5.56 | 8.1–8.2 |
-| C-S lift 51 diag | outside, held | ballast moved 4 / 8 cm | trot | forward | −0.01 / +2.24 | −0.04 / +3.78 | 8.9 |
-| Jansen | own frame | ballast moved 4 / 8 cm | trot | forward | −0.01 / +0.87 | +0.02 / +1.00 | 8.9 |
+| C-S lift 51 diag | outside, held | drag shoe, 0.1 / 0.25 of its weight | trot | forward | +1.16 / +2.53 | +3.06 / +6.05 | 8.2–8.3 |
+| Jansen | own frame | drag shoe, 0.1 / 0.25 | trot | forward | +1.43 / +1.25 | +3.70 / +6.14 | 8.1–8.2 |
+| C-S lift 51 diag | outside, held | ballast moved 4 / 8 cm | trot | forward | −0.02 / +2.49 | −0.52 / +2.06 | 8.9 |
+| Jansen | own frame | ballast moved 4 / 8 cm | trot | forward | +0.01 / +0.35 | +0.03 / +1.59 | 8.9 |
 | C-S lift 51 diag | outside, held | soles 0.5 / 1.5 cm thicker | trot | forward | +0.68 / +0.99 | +0.81 / −0.31 | 8.7–8.9 |
 | Jansen | own frame | soles 0.5 / 1.5 cm thicker | trot | forward | +1.19 / +0.77 | +8.76 / +0.40 | 1.6–2.7 |
 | both | | ankle stiffness ×3 / ×10 | trot | forward | ±0.02 / within noise | ±0.01 / within noise | 8.9 |
@@ -283,13 +283,19 @@ speed at the stronger amount, flat (no bias 8.9):
 
 - **The drag shoe steers.** Both walkers turn toward the shoe, on flat
   and on waves 2, in clean arcs, with the seeds agreeing (±0.0–0.3 °/s).
-  At a quarter of the walker's weight: about 1 °/s each way on lift 51
-  diag and 2 °/s on Jansen on flat, more on waves; speed falls 5–9 %
-  (flat) to 10–15 % (waves). The braces don't matter to it. It is the
-  best lever so far.
+  At a quarter of the walker's weight: about 1.5 °/s each way on lift 51
+  diag and 1.9 °/s on Jansen on flat, about twice that on waves; speed
+  falls 7–9 % (flat) to 15–20 % (waves). The braces don't matter to it.
+  It is the best lever so far.
 - **The ballast** does nothing on flat (the feet grip regardless of
-  load) and turns toward the ballast on waves 2 (lift 51 diag up to
-  +1.0 against −2.7 °/s), where the feet slip.
+  load; lift 51 diag's −0.52 at 8 cm is one seed, rocked to 19.5° tilt,
+  the other 0.02) and turns toward the ballast on waves 2, where the
+  feet slip.
+- **Corrected 8 November, evening:** the shoe and the ballast were first
+  sized before the room sets the body's weight (`SAME_BODY`), from the
+  build file's own lighter body: on lift 51 diag "0.25" was 0.18 of its
+  weight (Jansen's was right, 34.4 against 34.0 g). Fixed in
+  `steerSetup`; the shoe and ballast rows above are the rerun.
 - **Thicker soles** are erratic: lift 51 diag jolts now and then (body
   1–3° off level, then 19° for a moment in a traced run, cause not
   pinned down); Jansen at 1.5 cm rocks onto the thick side (8–14°) and
@@ -306,3 +312,22 @@ speed at the stronger amount, flat (no bias 8.9):
 
 For heading feedback (stage 4), a shoe on each side, lowered on the side
 to turn toward, is the obvious candidate.
+
+## Watching: the launcher must start from test-ranking.lua (8 November)
+
+`walker-room.lua`'s own defaults are the old builds: the plated walkers
+with their side plates, the diag builds with the old braces (both over
+the body, high). The current ones need `DIAG_OUTSIDE = true` and the held
+pendants for every diag build, and no guides builds. A launcher that
+names one walker and then opens `test-track.lua` gets old builds as soon
+as Tab brings in another (William saw this). Start from
+`test-ranking.lua` instead (its `VIEWS`: the 11 buildable builds, set up
+as now; `VIEW` picks the first), as `drag-shoe.lua` (8 November) does:
+
+    VIEW = 7; YAW_DAMP = 0; ARENA_Z = 800
+    STEER = { mech = "drag", side = "L", amount = 0.25 }
+    dofile("test-ranking.lua")
+
+(`ARENA_Z = 800`: test-ranking's fast setting makes the strip 3 m wide,
+and a curving walker reaches its wall.) `run-table.sh` sets each build's
+bracing itself, so the tables were right.

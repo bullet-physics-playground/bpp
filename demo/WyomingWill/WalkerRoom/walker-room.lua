@@ -879,6 +879,7 @@ local function steerSetup(w, made, opts)
   local cq = btQuaternion(q:x(), q:y(), q:z(), q:w())
   local tot, mu, half, bottom = 0, 0, 0, 1e30   -- (its weight; its feet's friction, half their track, their soles' height)
   for _, o in ipairs(w.bodies) do tot = tot + o.mass end
+  if SAME_BODY then tot = w.totalMass end   -- (its body's weight is set after this, below)
   for _, f in ipairs(S.feet) do
     local p = f.o.body:getCenterOfMassPosition()
     local _, ly, lz = qrot(-q:x(), -q:y(), -q:z(), q:w(), p.x - c.x, p.y - c.y, p.z - c.z)
