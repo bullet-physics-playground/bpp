@@ -39,7 +39,14 @@ def bracing(n): return "own frame" if n in ("Jansen", "Klann", "Spears 4-bar") e
 def bias(v):
     if v == "base": return "none", "", ""
     mech, side, k = v.split("-")
-    return {"friction": "foot friction ×", "pair": "pair crank speed ×", "side": "side crank speed ×"}[mech], side, k
+    return NAMES[mech][0], side, k + NAMES[mech][1]
+NAMES = {   # (mech: what it is, the amount's unit; STEER in walker-room.lua)
+    "friction": ("foot friction ×", ""), "pair": ("pair crank speed ×", ""), "side": ("side crank speed ×", ""),
+    "ballast": ("ballast (¼ its weight) moved", " cm"), "drag": ("drag shoe, of its weight", ""),
+    "sole": ("soles thicker", " cm"), "stiff": ("ankle stiffness ×", ""), "damp": ("ankle damping ×", ""),
+    "linkdamp": ("pair's link damping", "")}
+STRONG = {"friction": "0.05", "pair": "0.6", "side": "0.6", "ballast": "8", "drag": "0.25", "sole": "1.5",
+          "stiff": "10", "damp": "5", "linkdamp": "0.95"}   # (the paths drawn: each bias at its stronger amount)
 def timing(v):   # (pair and side slowing: the crank lock holds each pair, or side, only to itself)
     return "trot, pairs free" if v.startswith("pair") else "trot, sides free" if v.startswith("side") else "trot"
 
@@ -74,9 +81,11 @@ if png:
     import matplotlib; matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     show = [("base", "no bias", "#555555", "-")]
-    for v, lab, c in (("friction-%s-0.05", "friction ×0.05", "#1f77b4"), ("friction-%s-0.5", "friction ×0.5", "#6baed6"),
-                      ("pair-%s-0.6", "pair speed ×0.6", "#d62728"), ("side-%s-0.6", "side speed ×0.6 (Jansen)", "#2ca02c")):
-        show += [(v % "L", lab + ", left", c, "-"), (v % "R", lab + ", right", c, "--")]
+    colours = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b", "#e377c2", "#17becf", "#bcbd22"]
+    mechs = [m for m in NAMES if any(k[0].startswith(m + "-") for k in runs)]
+    for m, c in zip(mechs, colours):
+        lab = f"{NAMES[m][0]} {STRONG[m]}{NAMES[m][1]}".replace("× ", "×")
+        show += [(f"{m}-L-{STRONG[m]}", lab + ", left", c, "-"), (f"{m}-R-{STRONG[m]}", lab + ", right", c, "--")]
     fig, axes = plt.subplots(len(builds), len(grounds), figsize=(6.5 * len(grounds), 4.2 * len(builds)), squeeze=False)
     for i, b in enumerate(builds):
         for j, g in enumerate(grounds):

@@ -251,3 +251,58 @@ braces forbid it on the diag builds. A steady difference in crank speed
 must break the trot. Open: a difference within each turn only (one
 side's cranks faster in stance and slower in swing, the same average),
 which would keep the timing.
+
+## Stage 2 results: ballast, drag shoe, soles, ankles, link damping (8 November)
+
+Patch 98. New `STEER` mechanisms (`walker-room.lua`): `ballast` (a
+quarter of the walker's weight, inside its body, pushed k cm to one side
+by a motor on a slider), `drag` (a 1.5 cm ball, k of the walker's weight,
+3 cm out beyond that side's feet on a vertical slider: it slides, it
+can't roll), `sole` (a slab k cm thick welded under that side's feet),
+`stiff` and `damp` (that side's ankle springs k times as stiff, or as
+damped), `linkdamp` (one diagonal pair's links damped k). Pictures:
+`handover/steer_parts2.png` (the shoe and the soles), paths
+`handover/steer_paths2.png`. Run with `STAGE=2 runs/steer-table.sh`.
+`steerSetup` now runs after the ankle springs, link damping and braces
+(it changes them); stage 1's runs are the same to the last digit.
+
+Split (bias on the left − the same on the right), °/s, flat / waves 2;
+speed at the stronger amount, flat (no bias 8.9):
+
+| Walker | Bracing | Bias | Timing | Direction | Weaker | Stronger | Speed |
+|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | drag shoe, 0.1 / 0.25 of its weight | trot | forward | +0.86 / +2.27 | +2.13 / +4.52 | 8.4 |
+| Jansen | own frame | drag shoe, 0.1 / 0.25 | trot | forward | +1.44 / +1.43 | +3.78 / +5.56 | 8.1–8.2 |
+| C-S lift 51 diag | outside, held | ballast moved 4 / 8 cm | trot | forward | −0.01 / +2.24 | −0.04 / +3.78 | 8.9 |
+| Jansen | own frame | ballast moved 4 / 8 cm | trot | forward | −0.01 / +0.87 | +0.02 / +1.00 | 8.9 |
+| C-S lift 51 diag | outside, held | soles 0.5 / 1.5 cm thicker | trot | forward | +0.68 / +0.99 | +0.81 / −0.31 | 8.7–8.9 |
+| Jansen | own frame | soles 0.5 / 1.5 cm thicker | trot | forward | +1.19 / +0.77 | +8.76 / +0.40 | 1.6–2.7 |
+| both | | ankle stiffness ×3 / ×10 | trot | forward | ±0.02 / within noise | ±0.01 / within noise | 8.9 |
+| both | | ankle damping ×2 / ×5 (×10 unstable) | trot | forward | 0.00 / within noise | ±0.02 / within noise | 8.9 |
+| both | | pair's link damping 0.5 / 0.95 | trot | forward | ±0.02 / within noise | ±0.03 / within noise | 8.9 |
+
+- **The drag shoe steers.** Both walkers turn toward the shoe, on flat
+  and on waves 2, in clean arcs, with the seeds agreeing (±0.0–0.3 °/s).
+  At a quarter of the walker's weight: about 1 °/s each way on lift 51
+  diag and 2 °/s on Jansen on flat, more on waves; speed falls 5–9 %
+  (flat) to 10–15 % (waves). The braces don't matter to it. It is the
+  best lever so far.
+- **The ballast** does nothing on flat (the feet grip regardless of
+  load) and turns toward the ballast on waves 2 (lift 51 diag up to
+  +1.0 against −2.7 °/s), where the feet slip.
+- **Thicker soles** are erratic: lift 51 diag jolts now and then (body
+  1–3° off level, then 19° for a moment in a traced run, cause not
+  pinned down); Jansen at 1.5 cm rocks onto the thick side (8–14°) and
+  back about every 5 s and nearly stops, and its big left turn comes with
+  that. Not usable as it is.
+- **Ankle stiffness and damping, and one pair's link damping**: no
+  effect beyond the seed noise. Ankle damping ×10 (42 000) goes unstable
+  at this time step.
+- The drag shoe sits clear of every leg: across 8 runs the nearest part
+  (a foot) came no closer than 1.4 cm (lift 51 diag) and 0.9 cm (Jansen),
+  measured on the parts' bounding boxes.
+- Jansen's runs shifted very slightly with the new bpp build (no bias,
+  flat, seed 1: 8.960 → 8.957 cm/s); the steering code is not the cause.
+
+For heading feedback (stage 4), a shoe on each side, lowered on the side
+to turn toward, is the obvious candidate.

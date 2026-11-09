@@ -26,7 +26,7 @@ if w.steer then
   local f, m = {}, {}
   for _, ft in ipairs(w.steer.feet) do f[#f + 1] = string.format("%s%s(mu %.2f)", ft.side, ft.front and "front" or "rear", ft.o.body:getFriction()) end
   for i, mo in ipairs(w.motors) do m[#m + 1] = i .. ":" .. (mo.side or "?") .. (mo.front and "front" or "rear") .. "/" .. (mo.group or 1) end
-  out(string.format("SIDES %s|feet %s|motors %s", w.spec.name, table.concat(f, " "), table.concat(m, " ")))
+  out(string.format("SIDES %s|feet %s|motors %s%s", w.spec.name, table.concat(f, " "), table.concat(m, " "), w.steer.note and ("|" .. w.steer.note) or ""))
 end
 local heading, lastH, h5, tilt, px, pz = 0, nil, nil, 0, nil, nil
 realv:preSim(function(N) if hooks.preSim then hooks.preSim(N) end end)
