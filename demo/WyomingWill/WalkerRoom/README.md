@@ -345,12 +345,12 @@ way it was facing, and carries on.
 
 ## Test track
 
-`test-track.lua` runs one walker from the room -- the same stride, chassis,
+`lib/test-track.lua` runs one walker from the room -- the same stride, chassis,
 feet, crank speed and gravity -- straight down a 10 m x 2 m strip of the
 room's terrain, with no avoidance turns, and prints how far it got in
-60 s. Open it in bpp to watch one walker (the settings are at its top; Tab
-and Shift+Tab put the next or previous walker on the track, timed from
-when it is put there). The tables are run with `runs/run-table.sh`
+60 s. A script sets the walker and its settings and then loads it
+(`test-ranking.lua` to watch; Tab and Shift+Tab put the next or previous
+walker on the track, timed from when it is put there). The tables are run with `runs/run-table.sh`
 (headless, every build on every terrain; its own comments say how).
 (The old `test-track-all.sh`, which made the table below, was removed on
 9 November 2026.)
@@ -881,8 +881,6 @@ Hoecken-Spears slider 49%.
 - `walker-room.lua` opened on its own: all 11 in the room, as now (the
   same settings as `room-four.lua`), on the Threads slider. Slow: eleven
   walkers cost eleven times one.
-- `test-track.lua` opened on its own: Chebyshev-Spears lift 51 diag on the
-  track, as now.
 - `drag-shoe.lua`: `test-ranking.lua` with a drag shoe on every walker
   (handover/STEERING.md).
 

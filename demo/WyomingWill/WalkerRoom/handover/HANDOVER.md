@@ -45,7 +45,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
 - The repo is at `/home/claude/bpp` (William's bpp fork; `origin/master`).
 - Room files, in `demo/WyomingWill/WalkerRoom/`:
   - `walker-room.lua`, the room itself (opened on its own: the 11 buildable walkers, as now, on the Threads slider).
-  - `test-track.lua`, one walker, timed (opened on its own: Chebyshev-Spears lift 51 diag, as now).
+  - `lib/test-track.lua`, the test track: one walker, timed (loaded by `test-ranking.lua` and the table runs; not opened on its own, 9 November 2026, patch 102).
   - `lib/trotting-walkers.lua` (the Hoecken diag builds) and `lib/spears-lift-walkers.lua` (Chebyshev-Spears lift 51/62, their diag builds, Hoecken-Spears 4-bar duty 85 diag).
   - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps):
     - `test-ranking.lua`: the 11 buildable walkers on the track, as now (the current viewer).
@@ -74,12 +74,12 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
   QT_QPA_PLATFORM=offscreen /home/claude/build/release/bpp -f script.lua -n 3700
   ```
   `-f` means no GUI; a bare filename opens the GUI. `-n 3700` is 60 s at 60 frames per second plus a start.
-- A script sets globals, then calls `dofile("test-track.lua")`, for example (the current standard):
+- A script sets globals, then calls `dofile("lib/test-track.lua")`, for example (the current standard):
   ```lua
   dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")
   ONLY="Klann"; TERRAIN="logs"; AMP=4; BUMP=15; SEED=1; GAIT={0,180,180,0}; REVERSE=true
   GRAVITY=981; FIXED=1/3840; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}
-  dofile("test-track.lua")
+  dofile("lib/test-track.lua")
   ```
 - **Lua 5.1: no empty statements.** `a=1; ; b=2` fails. Join non-empty parts only.
 - The output line:

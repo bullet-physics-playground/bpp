@@ -199,8 +199,8 @@ Removed on 9 November (patch 100, William agreed):
 `test-square-yaw.lua`, `test-square-earth.lua`, `test-square-plates.lua`,
 `test-square-outside.lua`, `test-square-check.lua`, `test-square-width.lua`,
 `test-slider-logs.lua`, `foot-path-variants.lua`, `test-track-all.sh`.
-`test-track.lua` stays (test-ranking.lua, drag-shoe.lua and every table run
-open it). Still to do: sorting the 202 files in `handover/tools/` (keep
+`test-track.lua` stays, moved into `lib/` (patch 102: test-ranking.lua,
+drag-shoe.lua and every table run load it). Still to do: sorting the 202 files in `handover/tools/` (keep
 what `runs/` and the notes still point to).
 
 ## Stage 1 results: foot friction, pair and side slowing (8 November)
@@ -319,7 +319,7 @@ to turn toward, is the obvious candidate.
 with their side plates, the diag builds with the old braces (both over
 the body, high). The current ones need `DIAG_OUTSIDE = true` and the held
 pendants for every diag build, and no guides builds. A launcher that
-names one walker and then opens `test-track.lua` gets old builds as soon
+names one walker and then opens `lib/test-track.lua` gets old builds as soon
 as Tab brings in another (William saw this). Start from
 `test-ranking.lua` instead (its `VIEWS`: the 11 buildable builds, set up
 as now; `VIEW` picks the first), as `drag-shoe.lua` (8 November) does:

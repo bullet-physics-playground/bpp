@@ -13,7 +13,7 @@
 -- Calibrated to the room's stride, flat speed and chassis like the room's
 -- own walkers. This file adds them to EXTRA_WALKERS (load it after any
 -- file that sets EXTRA_WALKERS, such as trotting-walkers.lua):
---   dofile("lib/spears-lift-walkers.lua"); ONLY = "Chebyshev-Spears lift 51 diag"; dofile("test-track.lua")
+--   dofile("lib/spears-lift-walkers.lua"); ONLY = "Chebyshev-Spears lift 51 diag"; dofile("lib/test-track.lua")
 EXTRA_WALKERS = EXTRA_WALKERS or {}
 for _, spec in ipairs({
   { name = "Chebyshev-Spears lift 51", bodyShift = 12.77, frame = { length = 45.2, x = -12.77 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "C-S 4", colour = "#1F6FEB", spears = true, diag = false }, wide = { cube_d = 10.092 }, brace = { gap = 1.31 }, advance = 20.27, parts = "Chebyshev_Spears_normal_parts.lua", stride = 6.9440, chassis = { bodyRaise = -1.066, linkageSpacing = 16.210, cube_d = 8.131 }, fixed = 1 / 480, lift = "terrainLift", forward = -1, opts = { cube_d = 4.5, linkageSpacing = 10, leftSpeed = 2.6, rightSpeed = 2.6, sidePhase = 180, geometry = { a = 1.875, g = 2.7782, h = 5.8271, r = 5.4817, leg = 5.6839, legAngle = 105.99, groundAngle = -46.40 } } },

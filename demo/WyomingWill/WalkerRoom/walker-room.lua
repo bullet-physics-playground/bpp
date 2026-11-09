@@ -26,8 +26,7 @@
 -- 11 walkers that could really be built, as they are now -- the diag builds
 -- with their outside braces and held pendants; Klann, Jansen and Spears
 -- 4-bar on their own frames (test-ranking.lua's list) -- at room-four.lua's
--- settings. test-track.lua opened on its own gets these settings too, with
--- its one walker. This file's own defaults below are the old ones (plated
+-- settings. This file's own defaults below are the old ones (plated
 -- builds, the old braces, gravity 70), which the launchers override.
 --
 
@@ -424,7 +423,7 @@ local ARENA_Z = ARENA_Z or ARENA
 -- narrow: ARENA_X, ARENA_Z) with no avoidance turns, for TRACK_SECS
 -- seconds, and reports how far it got along x. Its start is moved, by
 -- SEED, up to a bump length along and across, so runs with different
--- seeds meet the bumps differently. See test-track.lua.
+-- seeds meet the bumps differently. See lib/test-track.lua.
 TEST_TRACK = TEST_TRACK or false
 local TRACK_SECS = TRACK_SECS or 60
 local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)

@@ -92,4 +92,4 @@ BUMP = BUMP or 15
 SEED = SEED or 1
 TRACK_SECS = TRACK_SECS or 60
 
-dofile("test-track.lua")
+dofile("lib/test-track.lua")

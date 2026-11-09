@@ -8,7 +8,7 @@
 -- "Trotting the Hoecken walkers".
 --
 -- To run one on the test track, from a launcher in this folder:
---   dofile("lib/trotting-walkers.lua"); ONLY = "Hoecken-Spears 4-bar diag"; dofile("test-track.lua")
+--   dofile("lib/trotting-walkers.lua"); ONLY = "Hoecken-Spears 4-bar diag"; dofile("lib/test-track.lua")
 -- (in the room, they join the other walkers).
 EXTRA_WALKERS = {
   { name = "Hoecken-Spears 4-bar diag", bodyShift = 3.86, frame = { length = 43.8, x = -3.86 }, planes = { crank = 1, coupler = 2, rocker = 1, pendant = 3 }, look = { code = "H-S 4", colour = "#E5007E", spears = true, diag = true }, wide = { cube_d = 14.590 }, brace = { gap = 1.63, diag = true, rise = 10 }, advance = 19.68, parts = "Chebyshev_Spears_diag_parts.lua", stride = 10.0390, chassis = { bodyRaise = 1.537, linkageSpacing = 23.426, cube_d = 5.209 },
