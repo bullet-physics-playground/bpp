@@ -18,6 +18,10 @@ Suites (run all of them with no arguments, or name the ones you want):
   screens  The still scenes in tests/screens/*.lua are opened in the GUI on
            a virtual X screen (Xvfb, Mesa) and the window is compared with
            tests/screens/expected/*.png.
+  theory   (only when named) Euler's Gallery's exhibits run as their
+           physics report ran them, and what each prints is checked
+           against the theory it stands for: tests/theory/checks.txt.
+           --slow adds the exhibits that take many minutes.
 
   --update rewrites the expected files of the suites run, from this build:
   do that only for a change in behaviour that is meant, and commit the
@@ -47,6 +51,8 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TESTS = os.path.join(ROOT, "tests")
 ALL_SUITES = ["unit", "api", "smoke", "golden", "screens"]
+# Run only when named: they take a while.
+EXTRA_SUITES = ["theory"]
 # The expected files of these hold what one platform produces (C++ type
 # names as GCC's library spells them, Linux settings files, Mesa pixels).
 LINUX_ONLY = ["api", "golden", "screens"]
@@ -110,11 +116,14 @@ def isolated_env(workdir, display=None):
     return env
 
 
-def run_bpp(bpp, args, workdir, timeout, cwd):
+def run_bpp(bpp, args, workdir, timeout, cwd, env=None):
     """Runs bpp with args from directory cwd, its settings, cache and exports
     kept in workdir. (The GUI runs a script from the script's own directory,
-    and demos find their data files from there.)"""
+    and demos find their data files from there.) env: more environment
+    variables for the script."""
+    extra = env or {}
     env = isolated_env(workdir)
+    env.update(extra)
     start = time.time()
     try:
         p = subprocess.run(
@@ -406,6 +415,7 @@ class Ctx:
         self.tmp = tempfile.mkdtemp(prefix="bpp-tests-")
         self.atol = a.atol
         self.rtol = a.rtol
+        self.slow = a.slow
 
     def workdir(self, name):
         d = os.path.join(self.tmp, re.sub(r"[^\w.-]", "_", name))
@@ -853,12 +863,147 @@ def suite_screens(ctx):
 # --------------------------------------------------------------------------
 
 
+# -- theory ----------------------------------------------------------------
+
+THEORY_CHECKS = os.path.join(TESTS, "theory", "checks.txt")
+GALLERY = os.path.join(ROOT, "demo", "WyomingWill", "EulersGallery", "exhibits")
+NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
+EXPECT = re.compile(r"^(?P<pat>.*?)(?:\s+=\s*(?P<val>%s))?(?:\s+~\s*(?P<tol>%s%%?))?"
+                    r"(?:\s+x(?P<n>\d+))?\s*$" % (NUMBER, NUMBER))
+
+
+class TheoryCheck:
+    """One expect: line. Its pattern is the text of a line the exhibit
+    prints, with {sim} for the simulation's number, {theory} for theory's
+    when the line gives it (or "= VALUE" after the pattern), {} for any
+    other number and {*} for any text; runs of spaces match any spacing.
+    "~ TOL" is how far sim may be from theory: "0.05%" of theory, or "0.2"
+    as it is. "xN": at least N lines must match (default 1). With no
+    {sim}, the line need only be there."""
+
+    def __init__(self, text, where):
+        m = EXPECT.match(text)
+        self.text, self.where = text, where
+        pat = m.group("pat").strip()
+        self.value = float(m.group("val")) if m.group("val") else None
+        tol = m.group("tol")
+        self.rel = tol.endswith("%") if tol else False
+        self.tol = float(tol.rstrip("%")) if tol else None
+        self.count = int(m.group("n") or 1)
+        parts = re.split(r"(\{sim\}|\{theory\}|\{\}|\{\*\}|\s+)", pat)
+        rx = ""
+        for p in parts:
+            if p == "{sim}":
+                rx += "(?P<sim>%s)" % NUMBER
+            elif p == "{theory}":
+                rx += "(?P<theory>%s)" % NUMBER
+            elif p == "{}":
+                rx += NUMBER
+            elif p == "{*}":
+                rx += ".*?"
+            elif p and p.isspace():
+                rx += r"\s+"
+            else:
+                rx += re.escape(p)
+        self.rx = re.compile(rx)
+        self.has_sim = "{sim}" in pat
+        if self.has_sim and ("{theory}" not in pat) == (self.value is None):
+            raise ValueError("%s: give theory as {theory} or = VALUE, one of them" % where)
+        if self.has_sim and self.tol is None:
+            raise ValueError("%s: a check with {sim} needs ~ TOL" % where)
+
+    def check(self, lines):
+        """Problems found in an exhibit's output (empty: passed)."""
+        found = [m for m in (self.rx.search(l) for l in lines) if m]
+        why = []
+        if len(found) < self.count:
+            why.append("%s: %d line(s) like '%s', wanted %d" %
+                       (self.where, len(found), self.text, self.count))
+        if self.has_sim:
+            for m in found:
+                sim = float(m.group("sim"))
+                theory = float(m.group("theory")) if self.value is None else self.value
+                off = abs(sim - theory)
+                allowed = self.tol * abs(theory) / 100 if self.rel else self.tol
+                if off > allowed:
+                    why.append("%s: %s is %g, theory %g: off by %.3g%s (allowed %s%s)" %
+                               (self.where, m.group(0).strip()[:60], sim, theory,
+                                100 * off / abs(theory) if self.rel and theory else off,
+                                "%" if self.rel else "", self.tol, "%" if self.rel else ""))
+        return why
+
+
+def theory_exhibits(path=THEORY_CHECKS):
+    """The [Exhibit] blocks of the checks file: name, script, frames, env,
+    slow, and their TheoryChecks."""
+    out, cur = [], None
+    for n, raw in enumerate(read(path).splitlines(), 1):
+        line = raw.strip()
+        where = "checks.txt:%d" % n
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            cur = dict(name=line[1:-1], script=None, frames=None, env={}, slow=False, checks=[])
+            out.append(cur)
+        elif cur is None:
+            raise ValueError("%s: before the first [Exhibit]" % where)
+        elif line.startswith("run:"):
+            m = re.match(r"run:\s*(\S+)\s+-n\s+(\d+)$", line)
+            if not m:
+                raise ValueError("%s: run: SCRIPT -n FRAMES" % where)
+            cur["script"], cur["frames"] = m.group(1), m.group(2)
+        elif line.startswith("env:"):
+            for kv in line[4:].split():
+                k, v = kv.split("=", 1)
+                cur["env"][k] = v
+        elif line == "slow":
+            cur["slow"] = True
+        elif line.startswith("expect:"):
+            cur["checks"].append(TheoryCheck(line[7:].strip(), where))
+        else:
+            raise ValueError("%s: not run:, env:, slow or expect:" % where)
+    return out
+
+
+def suite_theory(ctx):
+    exhibits = [e for e in theory_exhibits() if ctx.selected([e["name"]])]
+    skipped = [e["name"] for e in exhibits if e["slow"] and not ctx.slow]
+    exhibits = [e for e in exhibits if not (e["slow"] and not ctx.slow)]
+
+    def one(e):
+        r = run_bpp(ctx.bpp, ["-f", e["script"], "-n", e["frames"]],
+                    ctx.workdir("theory-" + e["name"]), 3600,
+                    os.path.join(GALLERY, e["name"]), env=e["env"])
+        lines = r.lines()
+        why = []
+        if r.timed_out:
+            why.append("timed out")
+        elif r.rc != 0:
+            why.append("exit code %s" % r.rc)
+        why += lua_errors(lines)[:5]
+        for c in e["checks"]:
+            why += c.check(lines)
+        return e, why, r.seconds
+
+    failed = 0
+    for e, why, secs in pmap(ctx, one, exhibits):
+        print("  %-4s %-16s %6.0fs  %d checks" % ("ok" if not why else "FAIL", e["name"], secs,
+                                                 len(e["checks"])), flush=True)
+        for w in why[:12]:
+            print("         " + w)
+        failed += bool(why)
+    if skipped:
+        print("  (slow, left out without --slow: %s)" % ", ".join(skipped))
+    return failed
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog=__doc__.split("\n\n", 1)[1])
     ap.add_argument("suites", nargs="*", metavar="suite",
-                    help="any of: " + " ".join(ALL_SUITES) + " (default: all)")
+                    help="any of: " + " ".join(ALL_SUITES + EXTRA_SUITES) +
+                         " (default: all but " + " ".join(EXTRA_SUITES) + ")")
     ap.add_argument("--bpp", default=os.path.join(ROOT, "release", "bpp"),
                     help="bpp binary to test (default: release/bpp)")
     ap.add_argument("--baseline", metavar="BPP",
@@ -874,10 +1019,13 @@ def main():
                          "same platform runs match exactly, so this only absorbs "
                          "a last digit)")
     ap.add_argument("--keep", action="store_true", help="keep the temporary directories")
+    ap.add_argument("--slow", action="store_true",
+                    help="theory: also the exhibits marked slow")
     a = ap.parse_args()
-    unknown = [s for s in a.suites if s not in ALL_SUITES]
+    unknown = [s for s in a.suites if s not in ALL_SUITES + EXTRA_SUITES]
     if unknown:
-        ap.error("unknown suite %s (choose from %s)" % (", ".join(unknown), ", ".join(ALL_SUITES)))
+        ap.error("unknown suite %s (choose from %s)" % (", ".join(unknown),
+                 ", ".join(ALL_SUITES + EXTRA_SUITES)))
     if a.update and a.baseline:
         ap.error("--update and --baseline do not go together")
     if not os.access(a.bpp, os.X_OK):
@@ -888,7 +1036,7 @@ def main():
     ctx = Ctx(a)
     suites = a.suites or ALL_SUITES
     total, start = 0, time.time()
-    for s in ALL_SUITES:
+    for s in ALL_SUITES + EXTRA_SUITES:
         if s not in suites:
             continue
         print("== %s" % s, flush=True)

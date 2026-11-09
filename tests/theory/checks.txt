@@ -1,0 +1,632 @@
+# Euler's Gallery against theory: tests/harness.py theory (--slow for all).
+#
+# Each [Exhibit] runs as demo/WyomingWill/EulersGallery/report/ ran it for
+# the physics-fidelity report (its dossiers/<Exhibit>.md: "Run used"), and
+# what it prints is checked against the theory the dossier compares it
+# with. Only rows whose number the exhibit prints are checked; the others
+# (from CSV logs, other settings, or worked by hand) are listed as "not
+# checked here". A tolerance is a few times the agreement the report
+# found, so that a change to the physics fails while another machine's
+# rounding does not. The syntax: class TheoryCheck in tests/harness.py.
+#
+# Exhibits that seed from the clock are given a seed, so that each run is
+# the same.
+
+[BicycleWheel]
+# report/dossiers/BicycleWheel.md: stool + wheel share angular momentum about the stool axis.
+# Frictionless, spin h = I3 S = 2.890 kg m^2/s: wheel turned over w = 2h/I_close = 2.769 rad/s,
+# pushed out w = 2h/I_out = 2.202, pulled in 2.769, axle up again 0 (hand calculation in the dossier).
+# Tolerance 0.003 rad/s: 3 x the 0.001 rad/s the dossier reports (2 units of the last digit is 0.002).
+run: bicycle-wheel.lua -n 7200
+env: HOLD_S=0 BW_STOOLF=0 BW_WHEELF=0
+expect: wheel turned over (34 cm out): the stool turning at {sim} rad/s = 2.769 ~ 0.003 x7
+expect: wheel pushed out (50 cm out): the stool turning at {sim} rad/s = 2.202 ~ 0.003 x6
+expect: wheel pulled in (34 cm out): the stool turning at {sim} rad/s = 2.769 ~ 0.003 x6
+expect: wheel axle up again (34 cm out): the stool turning at {sim} rad/s = 0 ~ 0.003 x6
+# and against the "should" the script works out from the angular momentum at each move's start
+expect: the stool turning at {sim} rad/s ({} turns/s); it should, by its angular momentum: {theory} ~ 0.003 x25
+# not checked here: angular momentum conserved within 0.1% (from the BW_LOG csv)
+# not checked here: stool rate vs console "should" with friction on (defaults run, other env)
+# not checked here: README friction sequence 2.72 / 2.46 / 2.19 (defaults run, other env)
+
+[Bille]
+# report/dossiers/Bille.md: Bille is monostable, it comes to rest only on face D; masses scale
+# as size^3 (Bille 120 g x s^3; 21-corner polyhedron 9951 g at size 1 x s^3).
+# This run is seeded from the clock (no BD_SEED), so which faces a drop passes and how many
+# drops finish in 3 s vary from run to run: only checks that hold for any seed are made.
+run: bille-drop.lua -n 9000
+env: HOLD_S=0 BD_SEED=1
+# every finished Bille run on the stable face: the tally's "N runs, N on the stable face"
+expect: Bille {theory} runs, {sim} on the stable face ~ 0
+expect: at rest on face D after {*} (Bille) x2
+# masses: printed to 1 g; Red s = 1, Yellow s = 1.3 (120 x 2.197 = 263.6), Green s = 0.6 (9951 x 0.216 = 2149.4)
+expect: Red Bille, 50 cm longest edge, {sim} g = 120 ~ 1
+expect: Yellow Bille, 65 cm longest edge, {sim} g = 263.64 ~ 1
+expect: Green 21-corner polyhedron (ideal), 24 cm tall, {sim} g = 2149.4 ~ 2
+# not checked here: Bille set down on a wrong face (BD_START=setdown run)
+# not checked here: falling patterns from C, A, B (paths depend on the clock seed; set-down runs)
+# not checked here: polyhedra rest only on the base, drops and set-downs (they take 4-17 s; other runs)
+# not checked here: Bille / polyhedra time to rest (no theory to compare: "not comparable directly")
+# not checked here: 26- and 37-corner masses (not in this run's three bodies)
+# not checked here: p26/p37 buildability, w37 statics/robustness/dynamics, PLA-only statics, mass,
+#   robustness, apex split, drops and tipping (reconstruction scripts and other runs)
+# not checked here: earlier statistics (README / code header)
+
+[BrazilNut]
+# report/dossiers/BrazilNut.md: a vibrated bed, A = Gamma g / (2 pi f)^2; at Gamma 0.8 the
+# bed stays down (least floor push (1 - Gamma) W); at Gamma 3 rough walls drive convection rolls
+# (up the middle, down the walls) that bring the big bead up; smooth walls reverse the rolls
+# and the big bead stays low (Knight et al. 1993; Gallas et al. 1992).
+# The granular flow is chaotic, so a different machine's rounding gives another pour: the
+# tolerances below cover the reference's 4 pours (seeds 1, 2, 7, 8) with some margin.
+run: brazil-nut.lua -n 29000
+env: HOLD_S=0
+slow
+# amplitude: 0.8 x 981 / (10 pi)^2 = 7.952 mm, 3.0 x 981 / (10 pi)^2 = 29.82 mm; printed to 0.1 mm
+expect: gently (0.8 g, {sim} mm) = 7.952 ~ 0.1
+expect: hard (3.0 g, {sim} mm) = 29.82 ~ 0.1
+# Gamma 0.8: rigid bed's least push 0.20 W; sim 0.19, the dossier's agreement 0.01-0.02 W (x3)
+expect: Gamma 0.8: the bed never left the floor (the floor's push never less than {sim} of its weight; a rigid bed's: {theory}; ~ 0.06 x2
+# Gamma 3: the rigid bed's 19.5 deg does not apply (it is still landing then): the line that says so,
+# and lift-off / landing angles against the reference's 40-44 / 44-48 deg (+- one 2-degree bin)
+expect: it can't till it has landed: at {} to {} degrees its middle is still coming down x2
+expect: Gamma 3.0: the bed leaves the floor {sim} to {} degrees into the upswing = 42 ~ 4 x2
+expect: its middle is still coming down ({} cm/s); landed at {sim} to {} = 46 ~ 4 x2
+# rolls, rough walls: up the middle, down the walls (reference +5.4 to +6.7 / -14.0 to -11.4 mm/s;
+# open box +6.2 to +7.4 / -12.5 to -15.0)
+expect: Left from 8 s to 45 s: beads in the middle rising {sim} mm/s on average = 6.4 ~ 1.5
+expect: Left from 8 s to 45 s: beads in the middle rising {} mm/s on average, beside the walls falling {sim} mm/s = 13.2 ~ 2.5
+# rolls, smooth walls: up beside the walls (reference +3.1 to +4.2 mm/s; middle -0.6 to +1.2, either sign)
+expect: Right from 8 s to 45 s: beads in the middle {*} beside the walls rising {sim} mm/s = 3.6 ~ 1.2
+# big bead, rough walls: comes up (reference 7.5-9.5 s into the hard shaking) and stays up
+# (bed 20.2 cm deep: upper half above 10.1 cm)
+expect: Left the big bead is up: its middle 12 cm above the floor (over 2 s) at {} s, {sim} s into the hard shaking = 8.5 ~ 2.5
+expect: Left the big bead from 25 s to 45 s: its middle {sim} cm above the floor = 15.8 ~ 1.5
+expect: Left the big bead from 25 s to 45 s: its middle {} cm above the floor on average, never below {}; in the bed's upper half {sim}% = 87 ~ 10
+expect: Left the big bead from 45 s to 2 minutes: its middle {sim} cm above the floor = 15.6 ~ 1.5
+expect: Left the big bead from 45 s to 2 minutes: its middle {} cm above the floor on average, never below {}; in the bed's upper half {sim}% = 84 ~ 12
+# big bead, smooth walls: not carried up (reference 7.6-10.4 cm, 0-3%; 45 s-2 min 8.1-10.9 cm)
+expect: Right the big bead from 25 s to 45 s: its middle {sim} cm above the floor = 9.0 ~ 1.8
+expect: Right the big bead from 25 s to 45 s: its middle {} cm above the floor on average, never below {}; in the bed's upper half {sim}% = 0 ~ 5
+expect: Right the big bead from 45 s to 2 minutes: its middle {sim} cm above the floor = 9.5 ~ 1.8
+expect: Right the big bead from 45 s to 2 minutes: its middle {} cm above the floor on average, never below {}; in the bed's upper half {sim}% = 0 ~ 5
+expect: The walls decide: with rough walls the beads go down beside the walls and up the middle
+expect: with smooth glass walls they go up beside the walls
+# not checked here: the lid (frame counts from other runs; open-box reference)
+# not checked here: big bead's turn (bead-bed.c incline test)
+# not checked here: the red bead (qualitative only, one pour-dependent bead)
+# not checked here: layers rough / smooth, red bead loops, big beads over 3 minutes, band's sense
+#   (monitor/ logs, 3-minute runs)
+# not checked here: stiffness (other bead stiffness, reference runs)
+# not checked here: port vs bead-bed.c (hook-check.lua / dembed-check)
+
+[ChainFountain]
+# report/dossiers/ChainFountain.md: Biggins and Warner (2014) chain fountain, the default heap.
+# Pile push a m v^2, floor pull b m v^2 (b = 0 here); steady flow v^2 = g h1 / (1 - a - b),
+# h2 = a v^2 / g; experiments: h2/h1 0.14 (B&W), 0.12 +- 0.01 (Pantaleone), v 0.69-0.71 sqrt(2 g h1).
+run: chain-fountain.lua -n 1500
+env: HOLD_S=0
+# h2/h1 against B&W's 0.14: the flow is chaotic; the dossier's spread over 30 runs is sd 0.022
+# and 0.109-0.147 over 5 pours, so 0.03 (not 3 x the 0.003 this run happens to be off)
+expect: h2/h1 = {sim} (their chain: {theory}) ~ 0.03
+# speed: experiments 0.70 sqrt(2 g h1) = 0.70 x 539.4 = 378 cm/s; the dossier: 10-20% faster
+# (no air drag, not step-converged), so this only fails beyond 20%
+expect: chain {sim} cm/s (the rate links land) = 378 ~ 20%
+# the speed rule needs a steady window: the script's own criterion, halves within 3%
+expect: steady: links land at {theory} cm/s in the first half of that window and {sim} in the second ~ 3%
+# rod model: no push for balls on light rods (presence)
+expect: the rod model gives none for balls on light rods
+# not checked here: a from height vs speed, 0.11 vs 0.23 (printed, but the dossier says they disagree:
+#   an open issue, so no tolerance would mean anything)
+# not checked here: gyroscopic term, zone vs every link, same run at any speed / hall / pause, cost
+#   (10-run studies, other env and step settings, timing)
+# not checked here: every coil row (CF_PILE=coil, CF_PUSH=1, CF_LAYOUT=flake, CF_LIVE, other runs)
+# not checked here: heap tests, heap shortcut, step convergence, reference engines (CF_POUR runs,
+#   bead-chain.c / bead-pour.c)
+# not checked here: fountain above rim medians, stiffer chain, time to empty (CF_LOG csv, coil runs)
+
+[DoubleCone]
+# report/dossiers/DoubleCone.md: the double cone rolls up the rails iff tan(theta) < tan(phi) R/H;
+# while rolling its centre follows the exact rail geometry, and rolling without slip keeps energy.
+run: double-cone.lua -n 1200
+env: HOLD_S=0
+# the direction each one rolls (four cycles in this run)
+expect: tan(theta) 0.030 < tan(phi) R/H = {*}, so it rolls UP the rails (its centre going down) x4
+expect: tan(theta) 0.100 > tan(phi) R/H = {*}, so it rolls down the rails x4
+expect: Back nears the high, wide end x4
+expect: Front nears the low, narrow end x4
+expect: Middle nears the low, narrow end x4
+# centre drop against the script's exact geometry: agreement 0.000 cm, printed to 0.001: floor 0.002
+expect: Back nears the high, wide end at {} s, having rolled {} cm up the rails (the rails rising {} cm): its centre went down {sim} cm (the geometry: {theory}) ~ 0.002 x4
+expect: Front nears the low, narrow end at {} s, having rolled {} cm down the rails (the rails falling {} cm): its centre went down {sim} cm (the geometry: {theory}) ~ 0.002 x4
+expect: Middle nears the low, narrow end at {} s, having rolled {} cm down the rails (the rails falling {} cm): its centre went down {sim} cm (the geometry: {theory}) ~ 0.002 x4
+# largest deviation from the geometry along the way: theory 0, sim <= 0.0001 cm (x3)
+expect: off the geometry by {sim} cm at worst on the way = 0 ~ 0.0003 x12
+# energy lost: theory 0, sim <= 0.26% (x3 = 0.8%). The loss line does not name the body, so one
+# bound for all three (the step-size run's 4x step loses 0.42-0.65%, near this bound)
+expect: it lost {sim}% of the energy its centre's fall gave it = 0 ~ 0.8 x12
+# not checked here: thin-rail estimates 1.04 / 1.00 cm (hand arithmetic; the geometry is checked)
+# not checked here: end-to-end centre change (printed prediction only, no simulated number)
+# not checked here: step-size check (DC_STEPS=600 run)
+
+[DoublePendulum]
+# report/dossiers/DoublePendulum.md: double pendulum normal modes with Lindstedt amplitude
+# corrections (slow x(1 + 0.0849 A^2), fast x(1 + 1.8526 A^2); shapes +-sqrt 2); chaos of the
+# butterfly (energy conserved, separation growing at the Lyapunov rate); Kapitza pendulum
+# upright between the Floquet edges 0.728 < a < 1.356 cm, rocking period 0.879 s.
+run: double-pendulum.lua -n 2400
+env: HOLD_S=0
+# energy conserved: drift 2.1e-11 of m g l (x3 = 6.3e-11; 1e-10 for other rounding)
+expect: energy steady in all seven to {sim} of m g l = 0 ~ 1e-10
+# step-halving twin at 1 s should be << 2 angstroms: 64.4 fm (x3 = 200 fm)
+expect: t=1 s the bottom bobs: {*}(the first, stepped twice as finely: {sim} fm) = 0 ~ 200
+# twin reaches 1 cm later than the seven (presence: the line saying so)
+expect: and the first, stepped twice as finely, only at {} s
+# separation 2 A -> 1 cm: ln(1 cm / 2 A) / lambda; observed 21% later (order of magnitude only, x3)
+expect: / {} = {theory} s; the next one got there at {sim} s ~ 65%
+# slow mode at 7 deg: -0.000%, printed to 1e-5 s: 0.005% (about 4 units of the last digit)
+expect: Slow swing: a period of {sim} s over {} swings (theory {theory} s for its size ~ 0.005%
+# fast mode at 7 deg: -0.135% (x3 = 0.4%)
+expect: Fast swing: a period of {sim} s over {} swings (theory {theory} s for its size ~ 0.4%
+# mode shapes +1.4142 / -1.4142: -0.36% and -0.21% (x3 = 1.1%)
+expect: lower rod / upper {sim} (theory {theory}) ~ 1.1% x2
+# mixed swing: theory 0 deviation with amplitude-corrected periods; sim 0.1247 deg (x3)
+expect: to within {sim} degrees ({}% of its 7 = 0 ~ 0.4
+# stability edges: 0.60 cm falls, 1.00 cm stands, 1.42 cm thrown over
+expect: shaken 0.60 cm: it fell (as it should)
+expect: shaken 1.00 cm: it stands, rocking
+expect: shaken 1.42 cm: it was thrown over by the sway the shaking pumped up (as it should)
+# rocking period at 1.0 cm: Floquet exact 0.879 s, sim +0.3% (x3 = 0.9%)
+expect: a period of {sim} s over {} rocks (exact {theory} s ~ 0.9%
+# not checked here: Lyapunov exponent (no closed form)
+# not checked here: slow / fast mode small-swing periods (theory only, no simulated number)
+# not checked here: upper-edge timing (step-dependent; only the outcome is checked)
+# not checked here: README console listing (compared by hand)
+
+[Dzhanibekov]
+# report/dossiers/Dzhanibekov.md: free rigid body spun about its middle axis flips every
+# T/2 = 2K(k)/w_p = 3.3131 s (Euler's equations, k^2 = 0.99968); first flip 1.6566 s (ODE),
+# 36 flips in 120 s, the 36th at 117.615 s; spun about the smallest or largest axis it stays.
+run: dzhanibekov.lua -n 7200
+env: HOLD_S=0
+# flip times are reported at frame end (1/60 s) to 0.01 s: 0.025 s = one frame plus rounding
+expect: Left flipped at {sim} s (flip 1) = 1.6566 ~ 0.025
+expect: flipped at {} s, {sim} s after the last = 3.3131 ~ 0.025 x35
+expect: Left flipped at {sim} s, {} s after the last (flip 36) = 117.615 ~ 0.025
+# bar (smallest axis): 0 flips, tilt 2.08 deg; across (largest): 0 flips, 0.60 deg; console rounds to 1 deg
+expect: Middle: flips {sim}, axis = 0 ~ 0 x11
+expect: Right: flips {sim}, axis = 0 ~ 0 x11
+expect: Middle: flips {}, axis wandered up to {sim} deg = 2.08 ~ 1 x11
+expect: Right: flips {}, axis wandered up to {sim} deg = 0.60 ~ 1 x11
+# energy and angular momentum: worst 4.3e-7 and 2.2e-7 relative (x3)
+expect: Left: flips {}, axis wandered up to {} deg, energy {sim}, = 0 ~ 1.3e-6 x11
+expect: Middle: flips {}, axis wandered up to {} deg, energy {sim}, = 0 ~ 1.3e-6 x11
+expect: Right: flips {}, axis wandered up to {} deg, energy {sim}, = 0 ~ 1.3e-6 x11
+expect: Left: flips {}, axis wandered up to {} deg, energy {}, ang. mom. {sim} = 0 ~ 6.6e-7 x11
+expect: Middle: flips {}, axis wandered up to {} deg, energy {}, ang. mom. {sim} = 0 ~ 6.6e-7 x11
+expect: Right: flips {}, axis wandered up to {} deg, energy {}, ang. mom. {sim} = 0 ~ 6.6e-7 x11
+# not checked here: flip period claim in the lua header (source text, not console)
+# not checked here: Bullet gyro off / explicit / implicit / implicit at 16x steps (other runs)
+
+[EulersDisk]
+# report/dossiers/EulersDisk.md: a disc rolling round in place with a constant
+# rolling-resistance moment delta m g; precession Omega^2 = m g a (a cos - h sin) /
+# (sin (I1 a cos - I3 h sin)) at each lean; near the end sqrt(alpha) falls linearly
+# at delta sqrt(m g a / I1) / (3 a) and Omega (t0 - t) -> 3 a / delta (finite-time end).
+run: eulers-disk.lua -n 5400
+env: HOLD_S=0
+# Omega at the eight leans, 24.9 to 1.0 deg: report -0.08 to -0.18%; 3 x 0.18% ~ 0.55%
+expect: going round {sim} times a second (theory, going round in place: {theory}; ~ 0.55% x8
+# rate of fall of sqrt(alpha): report -1.7% (a small-angle asymptote fitted over alpha < 2 deg); 3 x = 5%
+expect: sqrt(alpha) falling at {sim} a second (theory, near the end: delta sqrt(m g a / I1) / (3 a) = {theory}) ~ 5%
+# Omega (t0 - t): report +1.6 to +1.9%; 3 x 1.9% ~ 6%
+expect: W (t0 - t) = {sim} (theory: 3 a / delta = {theory}) ~ 6% x4
+# stop (not theory: the README's figures, 81.73 s and 67 turns/s). The time integrates the
+# whole decay, so 0.5 s (0.6%) catches a change in the dissipation; the 0.30 deg lean is an
+# imposed threshold, not checked.
+expect: t= {sim} s it stops, flat = 81.73 ~ 0.5
+expect: it stops, flat, leaning {} degrees, going round {sim} times a second = 67 ~ 2
+# not checked here: energy conservation with no losses (ED_DELTA=0 ED_DRAG=0 run, from the ED_LOG csv)
+
+[GalileoRamp]
+# report/dossiers/GalileoRamp.md: rolling without slipping down a 5-degree
+# ramp, t = sqrt(2 d (1 + k) / (g sin(theta))), v = sqrt(2 d g sin(theta) / (1 + k));
+# the report found every time 0.01% early (first-order integrator).
+run: galileo-ramp.lua -n 600
+env: HOLD_S=0
+expect: across the line at {sim} s (theory {theory}, ~ 0.05% x5
+expect: s (theory {}, {}%), at {sim} cm/s (theory {theory}) ~ 0.2 x5
+# the order: soup first, the two balls tied, the hoop last
+expect: Soup   1st across the line
+expect: Hoop   5th across the line
+
+[Gomboc]
+# report/dossiers/Gomboc.md: a Gomboc (one stable, one unstable equilibrium) set down
+# any way rolls back upright; Sloan's gently sloped analytic Gombocs usually stall on
+# their sides under 150 um rolling resistance. Masses V rho = 268.763 cm^3 x 1.2 g/cm^3 x s^3.
+# The drop orientations come from a clock seed, so only seed-independent things are checked.
+run: gomboc-variety.lua -n 4200
+env: HOLD_S=0 GV_SEED=1
+slow
+# masses (exact from the CAD volume; printed to the gram)
+expect: Gomboc-C, {sim} g = 322.5 ~ 1
+expect: Gomboc-C at 75%, {sim} g = 136.1 ~ 1
+expect: Gomboc-C at 125%, {sim} g = 629.9 ~ 1
+# every Gomboc-C at rest is upright: tilt within the exhibit's 15 deg "upright" band (the
+# report saw 0.1-7.9 deg, plus 8.9 and 12.5 deg when propped against a neighbour, so the
+# rolling-resistance bound of 6.0-10.0 deg is too tight for a random-seed run). The pattern
+# also matches "** NOT UPRIGHT **" lines, which then fail. A 70 s run gave 10-16 such reports.
+expect: at rest after {} s, {sim} deg off upright {*}(Gomboc-C = 0 ~ 15 x5
+# the Sloan shapes stall on their sides (report: 0 of 16, 0 of 13, 1 of 12 upright)
+expect: ** NOT UPRIGHT ** {*}(Sloan beta x3
+# not checked here: Gomboc-C from a headstand (GV_START=headstand run)
+# not checked here: residual tilt bound asin(delta/(d s)) (propped bodies exceed it; random seed)
+# not checked here: Sloan upright fraction vs 9% (statistical, small random sample)
+# not checked here: time to right from a headstand (no theory; 30-seed headstand script)
+# not checked here: hull's false resting faces (statics.py, by hand)
+# not checked here: height of balancing point (documented, not printed)
+# not checked here: energy drift with losses off (probe copy of the script, other run)
+
+[Gyroscope]
+# report/dossiers/Gyroscope.md: a gyrostat (rotor 0.585 kg cm^2 at 100 turns/s, slowing
+# 1 turn/s per second) held at one end precesses at Omega = m g r / (I w), 3.40 turns in
+# the first 8 s; README figures for when the pedestal and tightrope ones come off.
+run: gyroscope.lua -n 7200
+env: HOLD_S=0
+# turns in the first 8 s: theory 3.40 (the log gives 3.35/3.36, -1.5%); the console
+# rounds to 0.1, so 0.2 (2 units, and above 3 x 1.5% of 3.4 = 0.15)
+expect: t= 8.0s Pedestal below level {} deg, {} t/s, {sim} times round = 3.40 ~ 0.2
+expect: t= 8.0s {*}String below level {} deg, {} t/s, {sim} times round = 3.40 ~ 0.2
+# the bearing: 100 -> 92 turns/s in 8 s, and the string rotor stops at 100 s
+expect: t= 8.0s Pedestal below level {} deg, {sim} t/s = 92 ~ 1
+expect: t=100.0s {*}String below level {} deg, {sim} t/s = 0 ~ 0.5
+# README: pedestal off "after 37 seconds" (a whole-second figure, so 0.5 s)
+expect: Pedestal off the pedestal at {sim} s = 37 ~ 0.5
+# README: tightrope off "after a minute, at 39 turns a second", 61 s; step sizes give
+# 60.0-60.8 s, so 1.5 s; spin 2 turns/s
+expect: Tightrope off the wire at {sim} s = 61 ~ 1.5
+expect: Tightrope off the wire at {} s (spin {sim} turns/s) = 39 ~ 2
+# not checked here: precession rate 2.562 rad/s at 100 t/s (least-squares fit to the GY_LOG csv)
+# not checked here: precession with the tilt term while sagging (fit to the GY_LOG csv)
+# not checked here: sag with no pivot friction (GY_PIVF=0 run)
+# not checked here: sleeping-top criterion on the wire (GY_ROCK=0 GY_MU=0.3 run)
+# not checked here: still wire, slippery foot (GY_ROCK=0 run)
+# not checked here: rocked 1.5 / 2 / 3 deg (GY_ROCK runs)
+# not checked here: slide range rocked 1 / 1.5 deg (scratch copy logging the attendant)
+# not checked here: along-wire motion, slope and friction only (scratch logs + Python replay)
+
+[HuygensClocks]
+# report/dossiers/HuygensClocks.md: two pendulum clocks on a sliding, damped beam lock
+# in anti-phase (180 deg, Bennett et al. 2002) and the beam stops; the settled frequency
+# is the anti-phase mode at 8 deg, 0.9996 Hz x pi / (2 K(sin 4 deg)) = 0.9984 Hz.
+run: huygens-clocks.lua -n 3700
+env: HOLD_S=0
+# (3700 frames, as the report's runs, to reach the t = 60 s line)
+# phase: report 180.0 at 60 s; within 0.5 deg of 180 by 30 s (179.5 here: 1 deg allowed
+# there, as 0.5 is the edge), 0.5 deg at 45 s (3 x the 0.1 off; 2 units of 0.1 = 0.2)
+expect: t= 30 s the clocks {sim} degrees apart (in opposition: {theory}) ~ 1
+expect: t= 45 s the clocks {sim} degrees apart (in opposition: {theory}) ~ 0.5
+# frequency: report +0.01 to +0.04% at 60 s, +0.05% at 45 s here; 3 x 0.05% = 0.15%
+expect: t= 45 s {*}swinging at {sim} Hz = 0.9984 ~ 0.15%
+# the beam stops: 5.335 -> 0.544 -> 0.062 mm; out of lock it moves millimetres
+expect: t= 45 s {*}the beam moving up to {sim} mm = 0 ~ 0.2
+# at t = 60 s, the report's main result: 180.0 deg apart, 0.9987 Hz, the beam at 0.008 mm
+expect: t= 60 s the clocks {sim} degrees apart (in opposition: {theory}) ~ 0.3
+expect: t= 60 s {*}swinging at {sim} Hz = 0.9984 ~ 0.15%
+expect: t= 60 s {*}the beam moving up to {sim} mm = 0 ~ 0.03
+# not checked here: free anti-phase and in-phase modes 0.9996 / 0.9179 Hz (printed theory only, no simulated mode)
+# not checked here: the HC_PHASE=300 and 120 starts (other runs)
+# not checked here: step-size check (HC_STEPS=9600 run)
+# not checked here: README console listing digit for digit (not theory)
+
+[Kapitza]
+# report/dossiers/Kapitza.md: an inverted pendulum on a pivot shaken at 40 Hz stays up
+# if a w > sqrt(2 g l) (a > 0.783 cm) and rocks with 2 pi / W, W^2 = a^2 w^2 / (2 l^2) - g/l
+# (1.124 s), 1.135 s with the Lindstedt term for a 7.6 deg rock, 1.1341 s from the exact
+# equation (RK4). 1.00 cm stays up, 0.60 cm falls; restarted every 15 s (4 runs here).
+run: kapitza.lua -n 3600
+env: HOLD_S=0
+expect: Left stays up, rocking x4
+expect: Right fell over (as it should) x4
+# small-rock theory: report +0.8% (expected, the rock is not small); 3 x = 2.4%
+expect: a period of {sim} s over {} rocks (theory, 2 pi / W: {theory} s ~ 2.4% x4
+# for its size: report -0.2%; 3 x = 0.6% (the old 4800 steps/s fault, -1.7%, fails)
+expect: a period of {sim} s over {} rocks (theory, 2 pi / W: {} s, {}%; for its size: {theory} s ~ 0.6% x4
+# exact equation integrated independently: report -0.1%; 3 x = 0.3%
+expect: a period of {sim} s over {} rocks = 1.1341 ~ 0.3% x4
+# not checked here: equivalent length 19.761 cm (an input, recomputed by hand)
+# not checked here: threshold bracket 0.80 / 0.76 cm (KP_A1=0.80 KP_A2=0.76 run)
+# not checked here: exact equation from 2 deg (KP_TILT=2 run)
+# not checked here: step-size convergence (KP_STEPS runs)
+# not checked here: hall identity / pause (cmp2.sh, other runs)
+
+[NewtonsCradle]
+# report/dossiers/NewtonsCradle.md: five touching steel balls with Hertz contacts
+# (F = K d^1.5, Hunt-Crossley damping); two-ball contact time 2.87 (m^2/(R E*^2 v))^(1/5),
+# restitution 0.982 by design; first strike after a quarter swing from 30 deg (0.1979 s);
+# README speeds after the first damped strike -4.1 -1.6 -0.6 8.5 60.4 cm/s, energy 95.3%,
+# momentum conserved.
+run: newtons-cradle.lua -n 3600
+env: HOLD_S=0
+# contact time: exact to 0.1 us; 2 units of the printed 0.1 us
+expect: they touch for {sim} microseconds (Hertz: {theory}) ~ 0.2
+expect: they part at {sim} of it = 0.982 ~ 0.002
+# first strike: -0.4 ms = one step; 3 x 0.4 ms = 1.2 ms
+expect: {sim} s after letting go; a quarter swing from 30 degrees takes {theory} s ~ 0.0012
+# first strike of one ball. The pattern picks it out by its exact momentum (0.00% off,
+# itself a check: other strikes are 0.04-7.5% off) and balls 1-3 going back; the speeds
+# are converged over 1200-9600 steps/s, so 2 units of the printed 0.1 cm/s.
+expect: after {sim} -{} -{} {} {} cm/s; energy {}%; momentum along the row 0.00% off = -4.1 ~ 0.2
+expect: after -{} {sim} -{} {} {} cm/s; energy {}%; momentum along the row 0.00% off = -1.6 ~ 0.2
+# (ball 3 as -{sim}, so its sign is part of the pattern: the two-ball strike is +14.1 there)
+expect: after -{} -{} -{sim} {} {} cm/s; energy {}%; momentum along the row 0.00% off = 0.6 ~ 0.2
+expect: after -{} -{} -{} {sim} {} cm/s; energy {}%; momentum along the row 0.00% off = 8.5 ~ 0.2
+expect: after -{} -{} -{} {} {sim} cm/s; energy {}%; momentum along the row 0.00% off = 60.4 ~ 0.2
+expect: after -{} -{} -{} {} {} cm/s; energy {sim}%; momentum along the row 0.00% off = 95.3 ~ 0.2
+# not checked here: energy 100% and speeds with no damping (NC_DAMP=0 runs)
+# not checked here: gap 0.1 mm, with and without damping (NC_GAP=0.01 runs)
+# not checked here: ball 4's share of momentum vs Herrmann & Seitz (by hand, 8.5/62.7; ball 4 is checked above)
+# not checked here: row merging to swinging together (scratch copy, auto-lift off, 7 min)
+# not checked here: clack peak (make-sounds.py, README only)
+# not checked here: step-size convergence (NC_STEPS runs)
+
+[Oloid]
+# report/dossiers/Oloid.md: three rollers, each the convex hull of two circular arcs
+# (R = 6 cm), roll without slipping on a level board: the oloid's centre stays between
+# R/sqrt 2 and 3R/4 (4.2426-4.5000 cm), the two-circle roller's and sphericon's at R/sqrt 2;
+# besides rolling resistance they should lose no energy.
+run: oloid.lua -n 720
+env: HOLD_S=0
+# height range against the script's scan: exact to 4 decimals; 2 units of the last digit
+expect: its centre {sim} to {} cm up (theory: {theory} to ~ 0.0002 x3
+expect: its centre {} to {sim} cm up (theory: {} to {theory}) ~ 0.0002 x3
+# energy lost besides rolling resistance, theory 0: 0.23-0.68% (step-size error, README
+# "0.2 to 0.7 %"); 3 x the worst 0.68% = 2
+expect: and {sim}% otherwise (rolling without slipping, it should lose none) = 0 ~ 2 x3
+# weave (not theory: the README's 5.8 / 3.6 / 5.1 cm); 2 units of the printed 0.1 cm
+expect: Sphericon reaches the far end at {} s, {} cm along the board, weaving {sim} cm = 5.8 ~ 0.2
+expect: 2-circle reaches the far end at {} s, {} cm along the board, weaving {sim} cm = 3.6 ~ 0.2
+expect: Oloid reaches the far end at {} s, {} cm along the board, weaving {sim} cm = 5.1 ~ 0.2
+# not checked here: energy loss at 9600 steps/s, about a fifth (OL_STEPS=9600 run)
+# not checked here: share of push KE taken by rolling resistance (bookkeeping, no theory value)
+# not checked here: oloid volume 3.0524 R^3 (gen-meshes.py, not printed)
+
+[PendulumsTwist]
+# report/dossiers/PendulumsTwist.md: exact Lagrangian pendulums (Bulirsch-Stoer).
+# Flip row: energy lets the lower rod over the top only above 70.53 deg (3 cos a < 1),
+# the upper only above 109.47; mu = 3 Atwood has the second integral
+# I = p_xi^2/8 - E xi^2 + 2 xi^4; 2:1 swinging spring grows at the Floquet rate 0.527/s.
+run: pendulums-twist.lua -n 3620
+env: HOLD_S=0
+# flip thresholds (qualitative): none below 70.53 flips; 80-120 flip the lower rod, only 120 the upper
+expect: the lower rod over the top -- 80: {} s, 90: {} s, 100: {} s, 120: {} s (upper {} s); never: 60, 66, 70, 72, 76 degrees
+expect: flip row, let go at 120 degrees: the upper rod goes over the top at {} s
+# flip-row energy: drift 1.1e-08 of m g l; 3x that
+expect: energy steady to {sim} of m g l = 0 ~ 3.3e-8
+# mu = 3: I constant to the 10 printed digits; allow 5 units of the 10th digit
+expect: Atwood, 3.0 times: I between {sim} and = 0.75 ~ 5e-10
+expect: Atwood, 3.0 times: I between {} and {sim} (constant = 0.75 ~ 5e-10
+# mu = 2.8, 3.2: I not conserved (the line says so; the range itself has no theory value)
+expect: Atwood, 2.8 times: I between {} and {} (no such constant here)
+expect: Atwood, 3.2 times: I between {} and {} (no such constant here)
+# Atwood energy: worst 3.1e-13, 3x
+expect: Atwood, {} times: I between {*}; energy steady to {sim}; = 0 ~ 1e-12 x3
+# closest approach: no theory, the README's values (2 units of the printed 0.1 cm)
+expect: Atwood, 2.8 times: {*}closest to its pulley {sim} cm = 7.0 ~ 0.2
+expect: Atwood, 3.0 times: {*}closest to its pulley {sim} cm = 4.5 ~ 0.2
+expect: Atwood, 3.2 times: {*}closest to its pulley {sim} cm = 3.7 ~ 0.2
+# 2:1 growth: -0.2% vs Floquet; 3x = 0.6% (2 units of the printed 0.001 is 0.4%)
+expect: spring, 2.0:1: the swing grew at {sim}/s, from {} to {} degrees (theory {theory} exactly ~ 0.6%
+# peak swing: README "grows to 11 degrees" (whole degrees), so +-0.6
+expect: spring, 2.0:1: {*}at most {sim} degrees; = 11 ~ 0.6
+# 2.4:1: no growth from the 0.05 deg start; printed to 0.1 deg
+expect: spring, 2.4:1: the swing never grew; at most {sim} degrees = 0 ~ 0.1
+# spring energy: worst 4.9e-14, 3x
+expect: spring, {*}energy steady to {sim} = 0 ~ 1.5e-13 x2
+
+[Rattleback]
+# report/dossiers/Rattleback.md: a skewed half-ellipsoid (8 deg) spun the wrong way
+# rocks and reverses; spun its own way it keeps spinning; with almost no losses it
+# reverses repeatedly. The exhibit's console is qualitative: it prints reversals and
+# spin rates, never a theory number, so this block only has presence/sign checks.
+run: rattleback.lua -n 3600
+env: HOLD_S=0
+# not checked here: Mass properties (data file and rb_ref.py, not console)
+# not checked here: Linear growth rate, wrong way (rb_ref.py eigenvalues)
+# not checked here: Growth rate, own way (rb_ref.py eigenvalues)
+# not checked here: Skew 0 control (rb_ref.py)
+# not checked here: Lossless reference reverses both ways (rb_ref.py)
+# not checked here: Tap from rest spins anticlockwise (other run, RB_START=tap)
+# not checked here: delta window (other runs, RB_ROLL sweep)
+# not checked here: Bullet harness vs reference (rattleback-test.lua, other script)
+# wrong-way (left) spin reverses
+expect: Left  REVERSED at {} s: now spinning anticlockwise
+# own way (middle) never reverses: its spin is printed "+" (anticlockwise) in all
+# 30 two-second reports (a "-" would drop the count below 30)
+expect: turns/s: Left {*} Middle +{} {*} Restless x30
+# restless reverses repeatedly: 3 times in the dossier's run, the second one back to clockwise
+expect: Restless REVERSED at {} s x3
+expect: Restless REVERSED at {} s: now spinning clockwise
+
+[Slinky]
+# report/dossiers/Slinky.md: a hanging Slinky's bottom stays put for t* = sqrt(M / 3k)
+# (0.2018 s) while the collapse front comes down; it hangs stretched by M g / 2k.
+run: falling-slinky.lua -n 9000
+env: HOLD_S=0
+# t*: +1.0% (discreteness +0.6%, Bullet's step +0.4%, both understood); 3x = 3%
+expect: the bottom starts to move, {sim} s after letting go (it should, by theory: {theory} s) ~ 3%
+# hanging length = M g / 2k + closed length = 59.92 + 5.6 cm; 2 units of the printed 0.1 cm
+expect: --- hung up: {} g, {} coils, stiffness {} N/m; {sim} cm long hanging = 65.52 ~ 0.2
+# ball's fall at t*: g t^2 / 2 at 0.2038 s = 20.37 cm; 2 units of the printed 0.1 cm
+expect: the ball had fallen {sim} cm = 20.37 ~ 0.2
+# landing time: no theory given; presence only
+expect: the Slinky lands, {} s after letting go
+# stairs: README "2.6 to 3.1 s for a clean walk" (21 walks: 2.56-3.07 s); centre 2.85 +- 0.3.
+# A walk that fails (stops on a step) prints "on step N" and does not match; on this
+# machine both walks in the run are clean (3.03, 2.98 s)
+expect: the walking Slinky comes to rest, on the floor: 7 steps down in {sim} s = 2.85 ~ 0.3
+# not checked here: Same, the discrete chain itself (reconstruction/slinky-chain.c, not this run)
+# not checked here: Bullet vs step size (other runs, SL_STEPS)
+# not checked here: Bullet, 43 / 86 / 172 coils (other runs, SL_COILS)
+# not checked here: Same at 9600 / 19200 steps/s (other runs)
+# not checked here: Detection threshold (scratch copy of the script)
+# not checked here: Bottom stationary before t* (SL_LOG CSV)
+# not checked here: Centre of mass in free fall (SL_LOG CSV)
+# not checked here: Stairs failure rate (21-walk run, -n 84000)
+
+[SolarSystem]
+# report/dossiers/SolarSystem.md: Bulirsch-Stoer planets with Einstein's correction
+# against JPL DE421; Mercury's perihelion advance 6 pi G M / (c^2 a (1 - e^2)) =
+# 42.981"/century; Laplace resonance L_I - 3 L_E + 2 L_G = 180; Pluto 3:2 with Neptune;
+# moons (Wisdom-Holman) and asteroids against Horizons; light time d/c.
+run: solar-system.lua -n 3660
+env: HOLD_S=0 SS_RATE=60 SS_YEARS=10
+# planets vs DE421, km, 10 yearly lines: README "within 5 km"; Jupiter reaches 5, so 3x = 15
+expect: against JPL's DE421, km off, from the Sun: Mercury {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Venus {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Earth {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Mars {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Jupiter {sim}, = 0 ~ 15 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Saturn {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Uranus {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Neptune {sim}, = 0 ~ 5 x10
+expect: against JPL's DE421, km off, from the Sun: {*}Pluto {sim}; = 0 ~ 5 x10
+# Moon vs DE421: up to 39 km (2036), 3x
+expect: the Moon, from the Earth: {sim} km = 0 ~ 120 x10
+# Mercury without GR drifts off DE421: no theory number, presence only
+expect: a Mercury without Einstein's correction: {} km off x10
+# perihelion advance: 0.000" to 3 decimals; 5 units of the 3rd decimal (0.01%)
+expect: Mercury's perihelion turned by Einstein: {sim}" a century, over {} orbits (theory, {*} an orbit: {theory}") ~ 0.005 x10
+# energy, angular momentum: worst 1.4e-9 and 3.0e-10 (2035), 3x
+expect: energy steady to {sim}, angular momentum to = 0 ~ 4.2e-9 x10
+expect: energy steady to {}, angular momentum to {sim} (Newton's = 0 ~ 9e-10 x10
+# Laplace resonance: yearly means 179.87-180.12 (3x 0.13); 20-day means 179.65-180.32 (3x 0.35)
+expect: L_I - 3 L_E + 2 L_G (their mean longitudes) averaged {sim} degrees = 180 ~ 0.39 x10
+expect: its 20-day means so far: {sim} to = 180 ~ 1.05 x10
+expect: its 20-day means so far: {} to {sim} (Io's = 180 ~ 1.05 x10
+# Neptune-Pluto 3:2: ratio 1.489-1.515 (osculating), 3x 0.015
+expect: Pluto's year now {sim} of Neptune's = 1.5 ~ 0.045 x10
+# min separation must stay over 17 AU: 32 +- 15 encodes "between 17 and 47 AU"
+expect: Neptune and Pluto: closest so far {sim} AU = 32 ~ 15 x10
+# moons and asteroids vs Horizons (the dossier's listed bodies): km off, 3x each;
+# a floor of 5 km where the value is near 0 (printed in whole km)
+expect: 2026-02-01 against Horizons, km off: {*}Phobos {sim}, = 0 ~ 250
+expect: 2026-02-01 against Horizons, km off: {*}Io {sim}, = 0 ~ 15
+expect: 2026-02-01 against Horizons, km off: {*}Mimas {sim}, = 0 ~ 125
+expect: 2026-02-01 against Horizons, km off: {*}Titania {sim}, = 0 ~ 310
+expect: 2026-02-01 against Horizons, km off: {*}Titan {sim}, = 0 ~ 5
+expect: 2026-02-01 against Horizons, km off: {*}Ceres {sim}, = 0 ~ 5
+expect: 2027-01-01 against Horizons, km off: {*}Phobos {sim}, = 0 ~ 2960
+expect: 2027-01-01 against Horizons, km off: {*}Mimas {sim}, = 0 ~ 1725
+expect: 2027-01-01 against Horizons, km off: {*}Titania {sim}, = 0 ~ 2575
+expect: 2027-01-01 against Horizons, km off: {*}Miranda {sim}, = 0 ~ 1210
+expect: 2027-01-01 against Horizons, km off: {*}Ceres {sim}, = 0 ~ 655
+expect: 2027-01-01 against Horizons, km off: {*}Titan {sim}, = 0 ~ 95
+expect: 2031-01-01 against Horizons, km off: {*}Phobos {sim}, = 0 ~ 14300
+expect: 2031-01-01 against Horizons, km off: {*}Titania {sim}, = 0 ~ 13500
+expect: 2031-01-01 against Horizons, km off: {*}Miranda {sim}, = 0 ~ 6200
+expect: 2031-01-01 against Horizons, km off: {*}Mimas {sim}, = 0 ~ 8400
+expect: 2031-01-01 against Horizons, km off: {*}Ceres {sim}, = 0 ~ 6000
+expect: 2031-01-01 against Horizons, km off: {*}Titan {sim}, = 0 ~ 270
+expect: 2031-01-01 against Horizons, km off: {*}Triton {sim}, = 0 ~ 325
+expect: 2031-01-01 against Horizons, km off: {*}Charon {sim}, = 0 ~ 630
+# Earth's subsolar point vs the IERS Earth (Skyfield): 0.01 and 0.08 deg off, 3x
+expect: the Sun is overhead at {sim} S, {} W (the IERS's = 23.02 ~ 0.03
+expect: the Sun is overhead at {} S, {sim} W (the IERS's = 178.87 ~ 0.24
+# Moon's libration: longitude up to 7.9 deg (yearly extremes 7.4-8.1, 3x 0.5);
+# latitude 6.7-6.8 deg (6.75; extremes 6.8-6.9, 3x 0.15)
+expect: the Earth overhead at {sim} W to = 7.9 ~ 1.5 x10
+expect: the Earth overhead at {} W to {sim} E, = 7.9 ~ 1.5 x10
+expect: the Earth overhead at {} W to {} E, {sim} S to = 6.75 ~ 0.45 x10
+expect: the Earth overhead at {} W to {} E, {} S to {sim} N on it = 6.75 ~ 0.45 x10
+# Mercury's hot poles: each value should be 0 or +-180, in no fixed order, which a
+# single expected value cannot express; presence only
+expect: Mercury at perihelion, the Sun overhead at longitude {} x10
+# belt vs Horizons (2026 carried, 2027-2031 integrated): worst 200 km (Pallas 2030);
+# dossier criterion "<= 200 km over 5 yr"; 3x the worst = 600
+expect: the asteroid belt {*}against Horizons, km off: {*}Ceres {sim}, = 0 ~ 600 x6
+expect: the asteroid belt {*}against Horizons, km off: {*}Vesta {sim}, = 0 ~ 600 x6
+expect: the asteroid belt {*}against Horizons, km off: {*}Pallas {sim}, = 0 ~ 600 x6
+expect: the asteroid belt {*}against Horizons, km off: {*}Hygiea {sim}, = 0 ~ 600 x6
+expect: the asteroid belt {*}against Horizons, km off: {*}Juno {sim} = 0 ~ 600 x6
+# two-body Kepler alone: a comparison (57,000-3,110,000 km off), no theory value; presence only
+expect: (two-body Kepler about the Sun alone: Ceres {}, x5
+# light time d/c, the seconds part (c = 499.0048 s/AU, d as printed); whole seconds
+# printed, so +-1 s (rounding 0.5 plus d's last digit)
+expect: sunlight reaches Mercury: 3 min {sim} s after leaving the Sun (0.4625 AU) = 50.79 ~ 1
+expect: sunlight reaches the Earth: 8 min {sim} s after leaving the Sun (0.9833 AU) = 10.67 ~ 1
+expect: sunlight reaches Jupiter: 43 min {sim} s after leaving the Sun (5.2119 AU) = 20.75 ~ 1
+expect: sunlight reaches Neptune: 4 h 08 min {sim} s after leaving the Sun (29.8848 AU) = 32.66 ~ 1
+expect: sunlight reaches Pluto: 4 h 54 min {sim} s after leaving the Sun (35.4214 AU) = 35.45 ~ 1
+# not checked here: Phobos drift (difference of yearly lines, by hand)
+# not checked here: Titania / Miranda drift (difference of yearly lines, by hand)
+# not checked here: WH vs Bulirsch-Stoer prototype (README, not rerun)
+
+[SpinningEgg]
+# report/dossiers/SpinningEgg.md: a spun hard-boiled egg rises onto its end; Jellett's
+# J sets its upright spin W = W0 A b / (C a) (corrected for J lost to friction); its
+# rise follows J dtheta/dt = -mu M g h^2 (Moffatt-Shimomura); the energy lost equals the
+# friction and landing work; a raw egg's shell and liquid share the spin.
+# Only the default run (EG_STEPS unset, 4800 steps/s) is checked.
+run: spinning-egg.lua -n 1800
+env: HOLD_S=0
+# upright spin vs corrected Jellett: left +0.28%, middle +1.24%; 3x each. The theory
+# value is written in the pattern to tell the two eggs apart.
+expect: spinning {sim} turns/s; by Jellett's J it should be 25.15 ( = 25.15 ~ 0.84%
+expect: spinning {sim} turns/s; by Jellett's J it should be 40.26 ( = 40.26 ~ 3.7%
+# rate of rise: +9.1% (left), +22.7% (middle), the same at every step 2400-38400, so a
+# stable modelling offset; 3x (27%, 68%) would pass almost anything, so offset x1.5
+expect: it rose from 60 to 30 deg in {sim} s; by J {*} it should take 0.239 ( = 0.239 ~ 14%
+expect: it rose from 60 to 30 deg in {sim} s; by J {*} it should take 0.384 ( = 0.384 ~ 34%
+# energy budget: lost = friction + landings, 0.00%; 2 units of the printed 0.01 uJ
+expect: energy lost {sim} microjoules; friction took {}, landings {}: {theory} ~ 0.02 x2
+# standing phase vs exact rolling (rolling-check.py): past 15 deg at 8.05 s (-0.08 s,
+# 3x = 0.24); back at 60 deg at 24.39 s (+0.01 s; 3x 0.03)
+expect: Left falling back at {sim} s (tilt 15 deg = 8.05 ~ 0.24
+expect: Left back on its side at {sim} s = 24.39 ~ 0.03
+# jumps at 40 t/s, against the README's figures (25 jumps, 21 ms, <= 0.6 mm); real eggs
+# give only "fractions of a mm, up to a few 10 ms". Count +-3; README rounding for the rest
+expect: it jumped {sim} times as it rose = 25 ~ 3
+expect: it jumped {} times as it rose ({} to {} s): longest {sim} ms = 21 ~ 1
+expect: longest {} ms, highest {sim} mm off the table = 0.6 ~ 0.05
+# raw egg re-spin, default kappa: README "about half" of the shared-spin 2.78 = 1.39; +-20%
+expect: and the egg starts turning again by itself, up to {sim} turns/s = 1.39 ~ 0.28
+# not checked here: Same, kappa = 0 and EG_SPIN=30 (other runs, EG_KAPPA=0, EG_SPIN)
+# not checked here: Energy budget vs step (other runs, EG_STEPS)
+# not checked here: Rolling egg keeps energy (other run, EG_KAPPA=0 EG_DELTA=0, EG_LOG)
+# not checked here: Rise onset vs step (step comparison; no theory value for the default run alone)
+# not checked here: Standing phase vs step (other runs, EG_STEPS)
+# not checked here: Standing phase vs exact rolling, tilts at 3/10/15 s (EG_LOG CSV)
+# not checked here: Spin-down standing dJ/dt, dW/dt (EG_LOG CSV)
+# not checked here: Middle egg standing vs step (other runs; 25.78 s here has no theory value)
+# not checked here: Jump threshold (other runs, EG_FAST)
+# not checked here: Jumps vs friction at 35 t/s (other runs, EG_FAST=35 EG_MU)
+# not checked here: Raw egg shared spin (theory is for kappa = 0, another run; the default run's 4.49/4.75 include table spin friction)
+# not checked here: Raw egg re-spin, kappa = 0 (other run)
+
+[TippeTop]
+# report/dossiers/TippeTop.md: a tippe top turns over when 1 - alpha < I1/I3 < 1 + alpha
+# (red and blue alpha 0.3, I1/I3 0.9: possible; green alpha 0.04: impossible) and
+# spun fast enough stands on its stem; the README's times (about 3.5 s; all back stem
+# up in about 1.5 min). No conservation number is printed.
+run: tippe-top.lua -n 7200
+env: HOLD_S=0
+# red inverts; README "about 3.5 seconds" (TT_ROLL sweep 3.4-3.7 s): +-0.3
+expect: Left on its side at {} s
+expect: Left up on its stem at {sim} s = 3.5 ~ 0.3
+# blue gets halfway: onto its ball and stem, never standing (presence only)
+expect: Middle on its ball and stem at {} s
+# green never turns over: stem within 1 deg of up in all 60 reports; 3x = 3 deg
+expect: | Right {sim} deg = 0 ~ 3 x60
+# red and blue back stem up in about 1.5 min: at 100 s both at 0 deg (red was 2 deg at
+# 90 s); 3 deg allowed
+expect: t=100.0s stem from up, spin: Left {sim} deg = 0 ~ 3
+expect: t=100.0s stem from up, spin: Left {} deg {} t/s | Middle {sim} deg = 0 ~ 3
+# not checked here: Centre-of-mass height, start (TT_LOG CSV)
+# not checked here: CoM height standing on stem (TT_LOG CSV)
+# not checked here: Green top CoM height (TT_LOG CSV)
+# not checked here: Spin needed to stand on the stem (TT_LOG CSV spin rates)
+# not checked here: Red returns, sinking from 24-26 s (README "twenty-odd seconds" is too vague for a number; the 1.5-min return is checked above)
+# not checked here: Without spin friction (other run, TT_SPINF=0)
+# not checked here: Rolling resistance, effect (other runs, TT_ROLL sweep)
+# not checked here: Determinism (repeat run)

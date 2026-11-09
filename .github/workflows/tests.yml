@@ -13,6 +13,9 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  # Once a week, the theory job also runs Euler's Gallery's slow exhibits.
+  schedule:
+    - cron: '23 9 * * 0'
 
 permissions:
   contents: read
@@ -183,3 +186,35 @@ jobs:
 
       - name: Unit tests under ThreadSanitizer
         run: python3 tests/harness.py unit
+
+  # Euler's Gallery's exhibits against the theory each stands for
+  # (tests/theory/checks.txt, from the gallery's physics-fidelity report).
+  # The slow ones (the Brazil nut, the Gomboc: half an hour together) run
+  # only on the weekly schedule, or when the workflow is run by hand.
+  test-theory:
+    name: Euler's Gallery against theory (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            devscripts equivs
+          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation
+
+      - name: Build
+        run: |
+          qmake CONFIG+=release
+          make -j"$(nproc)" release
+
+      - name: The exhibits against theory
+        run: |
+          slow=
+          case "${{ github.event_name }}" in schedule|workflow_dispatch) slow=--slow ;; esac
+          python3 tests/harness.py $slow theory

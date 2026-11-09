@@ -18,6 +18,7 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 | `smoke`   | Every demo under `demo/` loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
 | `golden`  | The demos in `golden/demos.txt` simulate 40 frames; in the POV-Ray export (frames 1, 20, 40), every object's transform, the camera, the scene text and each mesh's geometry match | `golden/expected/` |
 | `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png` |
+| `theory`  | Only when named. Euler's Gallery's exhibits, run as their physics report ran them; what each prints agrees with the theory it stands for, within a tolerance (`--slow` adds the two that take many minutes) | `theory/checks.txt` |
 
 Every bpp run gets its own empty HOME, settings, mesh cache and export
 directory, so your preferences never affect a result. Demos run from their
@@ -101,6 +102,27 @@ work with plain flags), its statistics counter, and PulseAudio's thread;
 each entry says why. They match only where the pool's own code makes the
 access, so a race in bpp's code that the pool runs is still reported
 (checked with one planted in `bppworld.cpp`).
+
+## Euler's Gallery against theory
+
+`theory/checks.txt` turns the checks of the gallery's physics-fidelity
+report (`demo/WyomingWill/EulersGallery/report/dossiers/`) into tests. Each
+exhibit runs as its dossier's "Run used" did, and the numbers it prints are
+compared with theory: the value it prints beside them, or the dossier's.
+A tolerance is a few times the agreement the report found, so a change in
+the physics fails while another machine's rounding does not; comments give
+each one's reason, and the rows that can't be checked from the console
+(CSV logs, other settings, sums by hand) are listed as "not checked here".
+
+```sh
+tests/harness.py theory                  # 19 exhibits, about 6 minutes on 4 cores
+tests/harness.py --slow theory           # all 21 (the Brazil nut takes 17 minutes)
+tests/harness.py theory -k GalileoRamp   # one exhibit
+```
+
+The CI runs the 19 on every push, and all 21 once a week. When an exhibit
+changes on purpose, re-run its dossier's checks and update both the dossier
+and its block.
 
 ## What makes a golden demo
 
