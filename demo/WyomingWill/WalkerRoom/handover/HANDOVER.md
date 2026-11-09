@@ -586,7 +586,7 @@ Now `LINK_DAMP` (default 0): every link's and brace's damping set to it, moving 
 
 **What the boards show.** On flat ground all 11 are within 0.35 cm/s (Spears 4-bar 9.21 to Chebyshev-Spears lift 62 diag 8.86). As the bumps grow, the lead passes to more lift, most clearly on logs and steps: the low-lift originals (Chebyshev, Hoecken 4-bar, Hoecken slider diag: 19-25%) fall off first, at 4-5 cm; the Chebyshev-Spears lift builds last. Leaders: logs 2-7 and steps 2-8 Chebyshev-Spears lift 51 diag; at 8 cm on waves and logs, Chebyshev-Spears lift 62 diag (the most lift, 62%), though on low bumps it is among the slowest. On random ground the field stays close (at 8 cm: 7.1 to 4.3) and the leaders change. Spears 4-bar falls off early on steps (1.07 at 5 cm).
 
-**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > lib/boards.lua` (9 November: a second folder's builds replace theirs: `python3 runs/boards.py runs/out-damp/warm40fast runs/out-reversed/warm40fast > lib/boards.lua`, section 4w) (the names: only those builds; none: every build found).
+**To remake** after more runs: `python3 runs/boards.py runs/out-damp/warm40fast "<build>" ... > lib/boards.lua` (9 November: later folders' builds replace theirs, and the first may be an earlier boards file -- `runs/out-damp` is not on William's machine, so Klann and Spears 4-bar went in as `python3 runs/boards.py lib/boards.lua runs/out-reversed/warm40fast > /tmp/boards.lua && mv /tmp/boards.lua lib/boards.lua`; a missing folder or empty boards stop it with an error, section 4w) (the names: only those builds; none: every build found).
 
 ## 4o. The room with four walkers (1 November)
 
@@ -707,7 +707,9 @@ built: ±4.0 cm, rising 0.5 cm), so its reversed runs are fair.
 
 **The ranking boards** (`lib/boards.lua`) still have Klann and Spears 4-bar forward until William's machine runs them
 reversed on the boards' 33 grounds; `runs/boards.py` now takes more folders, each one's builds replacing theirs from
-the folders before (the command is in its docstring and below, "To remake").
+what came before, and the first may be an earlier boards file (the command is in its docstring and below, "To
+remake"). William's first try wrote empty boards: `runs/out-damp` is not on his machine, and a folder that wasn't
+there was taken as a build's name; now that stops it with an error (patch 104).
 
 ## 4v. The marks are decorations (7 November)
 
