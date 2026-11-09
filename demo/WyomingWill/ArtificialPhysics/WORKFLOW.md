@@ -75,7 +75,9 @@ results repeat exactly.
 ## 4. Patches
 
 One patch per step, with the full git commands, checked against the current
-`origin/master`, saying whether a rebuild is needed (`HANDOFF.md` §2).
+`origin/test-harness` (William's branch for these pushes since 2026-11-09,
+merged into master later), saying whether a rebuild is needed
+(`HANDOFF.md` §2).
 Experiments that change behaviour are switchable, the old behaviour at 0.
 
 ## 5. Chats and milestones

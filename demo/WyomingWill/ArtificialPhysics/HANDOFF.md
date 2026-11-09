@@ -43,10 +43,13 @@ is updated at the end of every milestone.
     off, or take it out.
 - **Deliver changes as a patch plus the full git commands**
   (`git am ~/Downloads/<name>.patch`, then build if C++ changed, then
-  `git push origin master`). He applies and pushes them himself. Fetch first
-  and check every patch applies cleanly to the current `origin/master`; master
-  moves. If an earlier patch hasn't been applied yet, fold it into the new one
-  and say so.
+  `git push origin test-harness`). He applies and pushes them himself.
+  **He pushes to the branch `test-harness`, merged into master later**
+  (William, 2026-11-09): fetch first and check every patch applies cleanly
+  to the current `origin/test-harness`, which moves, and run the checks on
+  a BPP built from it (it carries C++ and build changes that master does
+  not have yet). If an earlier patch hasn't been applied yet, fold it into
+  the new one and say so.
 - **Read the full diff of every commit before making it**, and stage only
   the files you changed. Another session can edit the same checkout; a
   "changed on disk" notice on a file is a warning (FINDINGS F39).
