@@ -39,6 +39,7 @@ Usage:
 import argparse
 import concurrent.futures
 import difflib
+import hashlib
 import math
 import os
 import re
@@ -290,10 +291,10 @@ def _key_nums(block):
 
 
 def canon_export(scene_dir, home, frames):
-    """Canonical text of an export directory: the scene, the .ini and the
-    given frames, with meshes named by their geometry. Blocks within a file
-    are sorted by their text with the numbers taken out, then by the
-    numbers. Raises ValueError if a file is missing."""
+    """Canonical text of an export directory: the scene, the .ini, the
+    given frames and any sound track, with meshes named by their geometry.
+    Blocks within a file are sorted by their text with the numbers taken
+    out, then by the numbers. Raises ValueError if a file is missing."""
     name = os.path.basename(scene_dir)
     files = [name + ".pov", name + ".ini"] + ["%05d.inc" % f for f in frames]
     meshes = set()
@@ -318,6 +319,14 @@ def canon_export(scene_dir, home, frames):
             out.append(UNBALANCED)
             out.append("")
         out.append("\n\n".join(blocks))
+        out.append("")
+    # the scene's sound track, if it played anything (Viewer::saveWAV); with
+    # SDL's dummy audio driver (isolated_env) it is the same on every machine
+    for fn in sorted(f for f in os.listdir(scene_dir) if f.endswith(".wav")):
+        with open(os.path.join(scene_dir, fn), "rb") as f:
+            data = f.read()
+        out.append("== " + fn)
+        out.append("sound track: %d bytes, md5 %s" % (len(data), hashlib.md5(data).hexdigest()))
         out.append("")
     out.append("== meshes")
     out.append("\n\n".join(sorted(mesh_summary(os.path.join(scene_dir, m + ".inc"))
