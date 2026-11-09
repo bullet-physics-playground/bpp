@@ -2643,6 +2643,7 @@ emit scriptStarts();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
     _keys.clear();
+    _cb_cycleObject = luabind::object();
     setStatusText(QString());   // (a script's status line goes with it)
     _synth.reset();             // (and its voices)
     _cb_onSpaceNavigator = luabind::object();
@@ -3213,6 +3214,7 @@ Viewer::~Viewer() {
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
   _keys.clear();                     // (shortcuts too: before Lua closes)
+  _cb_cycleObject = luabind::object();
   _cb_onSpaceNavigator = luabind::object();
   _hover.clear();
 

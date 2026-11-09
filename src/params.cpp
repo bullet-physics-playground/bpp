@@ -240,17 +240,18 @@ void Params::clear() {
 
 void Params::releaseLua() {
   _onChanged = luabind::object();
-  // Release button callbacks and parameter values that carry a Lua object
-  // (functions bound to push buttons) while the Lua state is still alive:
-  // their luabind references would otherwise be released against the closed
-  // state when the hashes are cleared or destroyed.
+  // Release parameter values and button callbacks while the Lua state is
+  // still alive: a button group stores its functions inside a
+  // QVariantList/QVariantMap, so the whole value is cleared, not just a
+  // top-level luabind::object. Their references would otherwise be released
+  // against the closed state when the hashes are cleared or destroyed.
   for (ParamInfo &info : _info) {
+    info.value = QVariant();
     if (info.isButton) info.buttonCallback = luabind::object();
     if (info.isButtonGroup)
       for (auto &pair : info.buttonCallbacks)
         pair.second = luabind::object();
   }
   for (QVariant &value : _values)
-    if (value.userType() == qMetaTypeId<luabind::object>())
-      value = QVariant();
+    value = QVariant();
 }

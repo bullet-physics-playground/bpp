@@ -7,6 +7,9 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
     DEBUG_APP = debug/bpp.app/Contents/MacOS/bpp
     RELEASE_APP = release/bpp.app/Contents/MacOS/bpp
+else ifeq ($(OS),Windows_NT)
+    DEBUG_APP = debug/bpp.exe
+    RELEASE_APP = release/bpp.exe
 else
     DEBUG_APP = debug/bpp
     RELEASE_APP = release/bpp

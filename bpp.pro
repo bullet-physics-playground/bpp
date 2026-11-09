@@ -60,6 +60,11 @@ win32 {
 
   RC_FILE      = bpp.rc
 
+  tests.depends  = release
+  tests.commands = make -C tests release
+  tests.CONFIG   = phony
+  QMAKE_EXTRA_TARGETS += tests
+
 }
 
 linux {
