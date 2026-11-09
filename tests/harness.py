@@ -140,7 +140,8 @@ def lua_errors(lines):
         r"std::runtime_error|No matching overload|unable to make cast|"
         r"attempt to (call|index|perform|compare|concatenate)|bad argument #|"
         r"stack traceback|Segmentation fault|Aborted|terminate called|"
-        r"pure virtual method called|ERROR: \w+Sanitizer|: runtime error: )"
+        r"pure virtual method called|ERROR: \w+Sanitizer|WARNING: ThreadSanitizer|"
+        r": runtime error: )"
     )
     return [l for l in lines if pat.search(l)]
 

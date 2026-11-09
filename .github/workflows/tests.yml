@@ -111,3 +111,75 @@ jobs:
       # back on purpose.
       - name: Unit tests, Lua API and golden master under sanitizers
         run: python3 tests/harness.py -k '^(?!08-remove)' unit api golden
+
+  # The threaded build (THREADS.md): Bullet 3.24 built with threads
+  # (scripts/bullet-threads.sh) and bpp against it. With no threads asked
+  # for it gives the same numbers as the system Bullet, so the golden
+  # master's expected files hold; tests/22-threads.lua runs a scene with
+  # and without four threads and wants the same to the last digit.
+  test-threads:
+    name: Threaded build (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            devscripts equivs
+          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation cmake
+
+      - name: Build Bullet with threads
+        run: scripts/bullet-threads.sh
+
+      - name: Build
+        run: |
+          qmake CONFIG+=release CONFIG+=bundled_bullet
+          make -j"$(nproc)" release
+
+      - name: Unit tests, Lua API and golden master
+        run: python3 tests/harness.py unit api golden
+
+  # The threaded build again, Bullet and bpp both built with
+  # ThreadSanitizer, running the unit tests (tests/22-threads.lua among
+  # them). tests/sanitizers/tsan.supp names what is left out: races in
+  # Bullet's own thread pool and statistics counter, and in PulseAudio.
+  test-tsan:
+    name: ThreadSanitizer (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      TSAN_OPTIONS: suppressions=${{ github.workspace }}/tests/sanitizers/tsan.supp history_size=4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            devscripts equivs
+          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation cmake
+
+      # Ubuntu 24.04's kernel spreads memory wider than ThreadSanitizer
+      # supports ("FATAL: ThreadSanitizer: unexpected memory mapping").
+      - name: Let ThreadSanitizer map its memory
+        run: sudo sysctl vm.mmap_rnd_bits=28
+
+      - name: Build Bullet with threads, under ThreadSanitizer
+        run: CFLAGS=-fsanitize=thread CXXFLAGS=-fsanitize=thread scripts/bullet-threads.sh
+
+      - name: Build under ThreadSanitizer
+        run: |
+          qmake CONFIG+=release CONFIG+=bundled_bullet "QMAKE_CXXFLAGS+=-fsanitize=thread -g" "QMAKE_LFLAGS+=-fsanitize=thread"
+          make -j"$(nproc)" release
+
+      - name: Unit tests under ThreadSanitizer
+        run: python3 tests/harness.py unit

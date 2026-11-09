@@ -80,6 +80,28 @@ reason bpp.pro builds debug with `-fno-sanitize=alignment`).
 `08-remove.lua` is left out because it measures memory, which the
 sanitizer holds on to.
 
+## The threaded build
+
+The CI builds the threaded version too (Bullet 3.24 with threads, see
+THREADS.md) and runs the unit, api and golden suites on it;
+`22-threads.lua` checks that a scene run with four threads comes out the
+same, to the last digit, as without (on the default build it only checks
+that `setThreads` has no threads to give). And it builds that version with
+ThreadSanitizer, Bullet included, and runs the unit suite:
+
+```sh
+CFLAGS=-fsanitize=thread CXXFLAGS=-fsanitize=thread scripts/bullet-threads.sh
+qmake CONFIG+=release CONFIG+=bundled_bullet "QMAKE_CXXFLAGS+=-fsanitize=thread -g" "QMAKE_LFLAGS+=-fsanitize=thread"
+rm -rf release/bpp release/bpp.gch && make -j release
+TSAN_OPTIONS="suppressions=$PWD/tests/sanitizers/tsan.supp history_size=4" tests/harness.py unit
+```
+
+`sanitizers/tsan.supp` leaves out Bullet's own thread pool (it hands out
+work with plain flags), its statistics counter, and PulseAudio's thread;
+each entry says why. They match only where the pool's own code makes the
+access, so a race in bpp's code that the pool runs is still reported
+(checked with one planted in `bppworld.cpp`).
+
 ## What makes a golden demo
 
 Only demos that give the same numbers on every run belong in
