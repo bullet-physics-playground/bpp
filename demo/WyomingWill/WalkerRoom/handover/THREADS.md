@@ -306,8 +306,29 @@ than its collisions -- and a soft body's collisions change the soft body.
 | 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag), with wheels | mixed | trot | as the ranking | 46 ms | 38 ms (1.2x) | 30 ms (1.55x) |
 | 1 (Chebyshev-Spears lift 51 diag), the track, 20 s | diag | trot | forward | 13 s | 14 s | 14 s |
 
-Two CPUs here can only show 2 threads. On William's machine:
-`runs/room-speed.sh` (threads 0 1 2 4 8) measures it.
+**William's machine** (Ryzen 7 3700X: 8 cores, 16 hardware threads; 10
+November, `runs/room-speed.sh` after patch 108, single 5 s runs, room-four's
+waves 2, no wheels; marks on, then off where they differ):
+
+| Walkers | Bracing | Timing | Direction | Threads 0 | 1 | 2 | 4 | 8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 (Chebyshev-Spears lift 51 diag) | diag | trot | forward | 2.53x | 2.47x | 2.48x | 2.50x | 2.51x |
+| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag) | mixed | trot | forward | 0.58x | 0.58x | 0.87x / 0.91x | 1.38x / 1.44x | 1.21x / 1.17x |
+| all 21 | mixed | trot | forward | 0.11x | 0.11x | 0.17x | 0.26x | 0.17x / 0.25x |
+
+Against 6 November (before): four walkers went from 0.76x at 2 threads and
+0.78x at 8 to 1.44x at 4, 2.5 times threads 0, faster than real time; 21
+from 0.17x at 8 to 0.26x at 4. One walker is unchanged, as intended (under
+128 pairs: one thread). Four threads is the best on that machine, even for
+21 walkers; 8 is slower and uneven (0.17x and 0.25x in two runs). Not yet
+known why. Likely candidates, not measured: Bullet's memory pools, which
+every thread locks for each triangle a part touches; the 3700X's two groups
+of four cores, which share their caches only within a group; and the
+threads' spinning while they wait. Threads = 4 for the rooms.
+
+`runs/room-speed.sh` now runs one walker, four, and the 11 walker-room.lua
+shows on its own (`GROUPS_LIST="21"`: every build, as above). The 11, here
+(2 CPUs): 0.17x with no threads, 0.28x with 2.
 
 ## Before (the handover of 1 November, kept as written)
 
