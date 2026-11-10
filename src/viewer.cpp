@@ -941,7 +941,9 @@ namespace {
 class RestSkippingDispatcher : public btCollisionDispatcher {
 public:
   explicit RestSkippingDispatcher(btCollisionConfiguration *cfg) : btCollisionDispatcher(cfg) {}
+#if BT_THREADSAFE
   void setThreaded(bool on) { _threaded = on; }
+#endif
   void dispatchAllCollisionPairs(btOverlappingPairCache *pairCache, const btDispatcherInfo &info,
                                  btDispatcher *dispatcher) override {
     if (info.m_deterministicOverlappingPairs || getNearCallback() != defaultNearCallback) {
