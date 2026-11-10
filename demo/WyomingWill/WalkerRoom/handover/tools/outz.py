@@ -7,8 +7,9 @@
 # Method: for every part and moment, the x places a short piece of brace (T wide, H tall, at the brace's height)
 # can't be, mapped back to moment 0; a brace fits if no piece of it, where it passes through that part's
 # z-slab, lands in a forbidden place.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import math, json, collections, sys
-sys.path.insert(0, "/home/claude/work"); import topz
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import topz
 from shapely.geometry import box
 M, H, T = 0.3, 1.074, 0.3
 ZS = 13 + 0.15 + T / 2
@@ -95,4 +96,4 @@ if __name__ == "__main__":
             bs = f"shortest diagonal: left end x {s['best'][1]:.2f}, right end x {s['best'][2]:.2f}, {s['best'][0]:.1f} cm of bar" if s["best"] else "no diagonal fits"
             extra = f"  (under the body by {under:.2f} at its highest)" if nm == "bottom" else f"  (bottom {yb:.2f}; body top {y1:.2f})"
             print(f"  {nm:6s} pendants at x {s['xl']:.2f} (left) / {s['xr']:.2f} (right) at moment 0{extra}\n         {st}\n         {bs}")
-    json.dump(res, open("/home/claude/work/outz.json", "w"), indent=1)
+    json.dump(res, open(WORK + "/outz.json", "w"), indent=1)

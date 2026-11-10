@@ -1,10 +1,11 @@
 # Front-to-back balance: whole walker's centre of mass (body 40 at its centre, links,
 # feet; braces left out) averaged over a crank turn, against the middle of the four
 # feet's paths. From sweep2 (body held still; x along the walk, relative to the body).
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import glob, collections
 from shapely.geometry import Polygon
 rows = []
-for path in sorted(glob.glob("/home/claude/work/sweep2/*.txt")):
+for path in sorted(glob.glob(WORK + "/sweep2/*.txt")):
     L, S = {}, collections.defaultdict(list)
     for l in open(path):
         if l.startswith("WALKER"): name = l.split("|")[0][7:]
@@ -30,4 +31,4 @@ for path in sorted(glob.glob("/home/claude/work/sweep2/*.txt")):
     print(f"{name:32s} whole walker's centre of mass {com - support:+5.2f} cm from the middle of its support; body centre {-support:+5.2f} cm; feet path middles {[round(x,1) for x in mids]} (base {base:.1f})")
 
 import json
-json.dump({r[0]: {"offset": r[1], "mtot": r[4]} for r in rows}, open("/home/claude/work/balance.json", "w"), indent=1)
+json.dump({r[0]: {"offset": r[1], "mtot": r[4]} for r in rows}, open(WORK + "/balance.json", "w"), indent=1)

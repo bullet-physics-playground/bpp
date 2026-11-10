@@ -8,6 +8,7 @@
 #   advance  how far it would go per crank turn with no slip: at each sample the lowest
 #            foot stands, and the body moves as fast as that foot sweeps back
 # python3 geo.py [name ...]   (no names: every sweep file)
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import glob, sys, collections
 from shapely.geometry import Polygon
 def one(path):
@@ -37,7 +38,7 @@ def one(path):
     return name, stride, lift, base, offset, abs(adv)
 if __name__ == "__main__":
   names = sys.argv[1:]
-  files = [f"/home/claude/work/sweep2/{x.replace(' ', '_')}.txt" for x in names] if names else sorted(glob.glob("/home/claude/work/sweep2/*.txt"))
+  files = [f"{WORK}/sweep2/{x.replace(' ', '_')}.txt" for x in names] if names else sorted(glob.glob(WORK + "/sweep2/*.txt"))
   for p in files:
     nm, s, l, b, o, a = one(p)
     print(f"{nm:32s} stride {s:6.2f}  lift {l:5.2f}  base {b:6.2f}  offset {o:+6.2f}  advance {a:6.2f}")

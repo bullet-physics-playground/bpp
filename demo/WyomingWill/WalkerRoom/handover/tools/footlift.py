@@ -4,9 +4,10 @@
 #   front: the foot's lowest point as it comes forward over the front fifth
 #          of its travel, above its lowest (cm): how high the foot is where
 #          it would meet an obstacle ahead
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import glob, os, re, json
 out = {}
-for f in sorted(glob.glob("/home/claude/work/sweep2/*.txt")):
+for f in sorted(glob.glob(WORK + "/sweep2/*.txt")):
     name, feet, seq = None, set(), {}
     for l in open(f):
         if l.startswith("WALKER "): name = l[7:].split("|")[0]
@@ -26,6 +27,6 @@ for f in sorted(glob.glob("/home/claude/work/sweep2/*.txt")):
         fr = [bot[i] - lo for i in range(1, len(cx)) if cx[i] > cx[i - 1] and cx[i] > x1 - 0.2 * (x1 - x0)]
         lifts.append(hi - lo); fronts.append(min(fr) if fr else 0.0)
     out[name] = dict(lift=sum(lifts) / len(lifts), front=sum(fronts) / len(fronts))
-json.dump(out, open("/home/claude/work/footlift.json", "w"), indent=1)
+json.dump(out, open(WORK + "/footlift.json", "w"), indent=1)
 for n, d in sorted(out.items(), key=lambda kv: -kv[1]["lift"]):
     print(f"{n:32s} lift {d['lift']:5.2f} cm  front {d['front']:5.2f} cm")

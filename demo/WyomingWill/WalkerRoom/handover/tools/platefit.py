@@ -5,8 +5,9 @@
 # Height above the ground = above the lowest foot bottom over the turn (the body held level).
 # Targets: the diag cousin's bottom brace's lowest (patch 33, sweep6), and for the sliders the diag braces'
 # rule: the plate's top 0.3 under the body at its highest.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import sys, math
-sys.path.insert(0, "/home/claude/work")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import topz
 from shapely.geometry import box
 M = 0.3
@@ -14,7 +15,7 @@ COUSIN = {"Chebyshev": 7.97, "Chebyshev-Spears": 5.99, "Hoecken_4-bar": 7.87, "H
           "Hoecken-Spears_4-bar_duty_85": 5.53, "Chebyshev-Spears_lift_51": 4.23, "Chebyshev-Spears_lift_62": 4.77}
 BUILDS = list(COUSIN) + ["Hoecken_slider", "Hoecken-Spears_slider"]
 def load(b):
-    path = f"/home/claude/work/sweepL/{b}.txt"
+    path = f"{WORK}/sweepL/{b}.txt"
     name, L, S, bb, hz = topz.load(path)
     J = [l.split() for l in open(path) if l.startswith("JOIN")]
     n = min(len(S[i]) for i in L)

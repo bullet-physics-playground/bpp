@@ -1,5 +1,6 @@
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import json, re, os, subprocess
-D = "/home/claude/work/fac5"
+D = WORK + "/fac5"
 pick = json.load(open(f"{D}/st2_pick.json"))
 rows = {r["cid"]: r for r in json.loads(subprocess.run(["python3", f"{D}/an.py", "json"], capture_output=True, text=True).stdout)}
 def mean(cid, t):

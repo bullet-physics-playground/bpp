@@ -898,7 +898,29 @@ Checks after the rework: no jams; links touch at most 0.7% of the time; the body
 
 ## 9. Tools (`handover/tools/`)
 
-All of them assume `/home/claude/bpp`, `/home/claude/build/release/bpp` and `/home/claude/work`.
+**10 November 2026: sorted.** Of the 202 entries, the ones still
+used stay in `handover/tools/`: `roomtime.lua` (`runs/room-speed.sh`),
+`roomsoak.lua` and `roomdump.lua` (THREADS.md), the fits walker-room.lua
+names as the source of its braces and lifts (`outz5.py`, `vfit.py`,
+`platefit.py`, `advtrot.py`, `liftpct.py`), the factorial folders, and what
+those need to run: the helpers `geo.py`, `topz.py`, `outz.py`, `balance.py`,
+`footlift.py` (and its `footlift.json`), the probes `sweepprobe.lua`,
+`tiltprobe.lua`, `boxprobe.lua`, and the sweeps the fits read
+(`sweep_all.sh`, `sweep5.sh`, `sweep4W.sh`, `sweep6.sh`, `sweep6W.sh`,
+`sweepL.sh`, `sweepT.sh`). Their paths are fixed: they run from the
+WalkerRoom folder (`BPP` the bpp program, default `../../../release/bpp`),
+load the walker files from `lib/`, and the sweeps go to `WORK` (default
+`/tmp/walker-work`; checked: `bash handover/tools/sweep6W.sh`, then
+`SWEEP6=sweep6W python3 handover/tools/vfit.py`, which needs shapely). The
+other 176 -- the probes, runs, analyses and picture scripts behind the
+October and early November findings, most needing the old session's
+`/home/claude/work` or the walker files' old places -- were deleted. This
+section and the earlier ones still name them; they are all in git at commit
+`87b6c97a`: `git show 87b6c97a:demo/WyomingWill/WalkerRoom/handover/tools/<file>`,
+or `git checkout 87b6c97a -- demo/WyomingWill/WalkerRoom/handover/tools` for
+the whole folder as it was.
+
+(Before that: all of them assumed `/home/claude/bpp`, `/home/claude/build/release/bpp` and `/home/claude/work`.)
 
 **Factorial (`tools/factorial7/`)**
 

@@ -7,12 +7,13 @@
 # which the walker averages at least 2 cm/s (a fifth of flat speed, ~120 cm in 60 s).
 # Lift is the foot's rise over its path from the geometry (footlift.json, from
 # tools/footlift.py); "body adds" = clears - lift, what rocking and dipping found.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.argv = [sys.argv[0], "none"]
 import run7
 D = run7.D
-LIFT = json.load(open("/home/claude/work/footlift.json"))
+LIFT = json.load(open(WORK + "/footlift.json"))
 def rows(of):
     r = {}
     if not os.path.exists(of): return r

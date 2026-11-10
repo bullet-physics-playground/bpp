@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # Advances in trot (24 October): from sweepT/ (sweepT.sh; three diag builds again with pendants free: nohold_*.txt),
 # geo.py's advance scaled to exactly one crank turn (the sweep window's crank falls a little short of a turn).
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import sys, math, glob, re
-sys.path.insert(0, "/home/claude/work"); import geo, topz
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import geo, topz
 def turned(path):
     name, L, S, bb, hz = topz.load(path)
     G = [int(l.split()[1]) for l in open(path) if l.startswith("GROUND") and "Hinge" in l]
@@ -18,6 +19,6 @@ def turned(path):
             prev = a
         out.append(abs(tot))
     return max(t for t in out if t < 420)
-for p in sorted(glob.glob("/home/claude/work/sweepT/*.txt")):
+for p in sorted(glob.glob(WORK + "/sweepT/*.txt")):
     nm, s, l, b, o, a = geo.one(p); t = turned(p)
     print(f"{p.split('/')[-1]:44s} {nm:32s} crank {t:5.1f} deg  advance per turn {a * 360 / t:6.2f}  stride {s:5.2f}  lift {l:4.2f}")

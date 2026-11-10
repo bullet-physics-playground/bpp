@@ -6,7 +6,7 @@ local P = setmetatable({}, { __index = function(_, k) local x = realv[k]
 for _, h in ipairs({ "preSim", "postSim", "preDraw", "onKey", "onHover", "onParamChanged" }) do rawset(P, h, function(self, fn) hooks[h] = fn end) end
 rawset(P, "setHelpText", function() end)
 v = P
-dofile("test-track.lua")
+dofile("lib/test-track.lua")
 v = realv
 local w = room.walkers[1]
 local q0 = w.cube.body:getCenterOfMassTransform():getRotation()

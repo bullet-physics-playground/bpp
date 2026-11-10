@@ -7,8 +7,9 @@
 # diagonal between them that clears every link and foot (12 wide) by 0.3 through the whole turn.
 # Writes outz5.json and prints the OUTSIDE_FIT entries (yRel above the front pendant's lower end; runs from
 # each pendant toward the other, front = the end it walks toward, +x here).
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import json, math, collections, sys
-sys.path.insert(0, "/home/claude/work")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import topz, outz
 M, H, T, ZS = outz.M, outz.H, outz.T, outz.ZS
 BUILDS = ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
@@ -17,7 +18,7 @@ LETTERS = {"Chebyshev-Spears_diag": 1.45, "Hoecken-Spears_4-bar_diag": 1.50, "Ch
            "Hoecken-Spears_4-bar_duty_85_diag": 1.72, "Chebyshev-Spears_lift_51_diag": 2.00, "Chebyshev-Spears_lift_62_diag": 2.31}
 SWEEPS = "sweep4"
 def setup(b):
-    path = f"/home/claude/work/{SWEEPS}/{b}.txt"
+    path = f"{WORK}/{SWEEPS}/{b}.txt"
     name, L, S, bb, hz = topz.load(path)
     joins = [l.split() for l in open(path) if l.startswith("JOIN")]
     n = min(len(S[i]) for i in L)
@@ -105,4 +106,4 @@ if __name__ == "__main__":
             else:
                 print("         NO diagonal fits")
             print(f"         straight across: {e['straight']}")
-    json.dump(res, open(f"/home/claude/work/outz5_{SWEEPS}_{outz.M}.json", "w"), indent=1, default=str)
+    json.dump(res, open(f"{WORK}/outz5_{SWEEPS}_{outz.M}.json", "w"), indent=1, default=str)

@@ -8,8 +8,9 @@
 # Every piece, at every moment (it moves with its pair's pendants: a shift), at least M from every link, foot (12 wide)
 # and the top brace's pieces whose slab across comes within M of its own; runs skip their own pendant (welded to it),
 # the middle piece doesn't. Writes vfit.json and prints the OUTSIDE_FIT bottom entries.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import sys, math, json, collections
-sys.path.insert(0, "/home/claude/work")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import topz
 from shapely.geometry import Polygon, box
 from shapely import affinity
@@ -17,7 +18,7 @@ M, H, T, ZS = 0.3, 1.074, 0.3, 13 + 0.15 + 0.15
 BUILDS = ["Chebyshev-Spears_diag", "Hoecken-Spears_4-bar_diag", "Chebyshev_diag", "Hoecken_4-bar_diag",
           "Hoecken-Spears_4-bar_duty_85_diag", "Chebyshev-Spears_lift_51_diag", "Chebyshev-Spears_lift_62_diag"]
 def load(b, d=__import__("os").environ.get("SWEEP6", "sweep6")):
-    path = f"/home/claude/work/{d}/{b}.txt"
+    path = f"{WORK}/{d}/{b}.txt"
     name, L, S, bb, hz = topz.load(path)
     J = [l.split() for l in open(path) if l.startswith("JOIN")]
     n = min(len(S[i]) for i in L)
@@ -110,4 +111,4 @@ if __name__ == "__main__":
               f'room {r["room"]:5.2f}, ends raised {r["rise"]:5.2f}; brace bottom {r["ground"]:.2f} above the ground at its lowest; '
               f'closest part {r["worst"]:.2f} {r["who"]}')
         print(f'    bottom = {{ yRel = (as now), runFront = {rf:.2f}, runBack = {rb:.2f}, rise = {r["rise"]:.2f} }}')
-    json.dump(res, open("/home/claude/work/vfit_" + __import__("os").environ.get("SWEEP6", "sweep6") + ".json", "w"), indent=1, default=str)
+    json.dump(res, open(WORK + "/vfit_" + __import__("os").environ.get("SWEEP6", "sweep6") + ".json", "w"), indent=1, default=str)
