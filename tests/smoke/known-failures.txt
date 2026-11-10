@@ -17,32 +17,8 @@ demo/WyomingWill/ArtificialPhysics/ch13/auv.lua  error: [string "--..."]:44: mod
 demo/WyomingWill/ArtificialPhysics/ch13/dumbbell.lua  error: [string "--..."]:79: module 'lib.ch13' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/triangle.lua  error: [string "--..."]:61: module 'ch13.dumbbell' not found:
 demo/WyomingWill/ArtificialPhysics/ch13/uav.lua  error: [string "--..."]:61: module 'fixedwing.model' not found:
-demo/WyomingWill/ArtificialPhysics/checks/ch04_couette.lua  error: [string "--..."]:50: attempt to index local 'f' (a nil value)
-demo/WyomingWill/ArtificialPhysics/checks/ch07.lua  error: [string "--..."]:55: attempt to index local 'f' (a nil value)
-demo/WyomingWill/ArtificialPhysics/checks/ch11.lua  error: [string "--..."]:48: bad argument #1 to 'lines' (./ch11/c_reference.txt: No such file or directory)
-demo/WyomingWill/ArtificialPhysics/checks/vehicle_physics.lua  error: [string "--..."]:44: module 'ground.vehicle' not found:
-demo/WyomingWill/ArtificialPhysics/checks/velocity.lua  error: [string "--..."]:23: module 'lib.pointmass' not found:
-demo/WyomingWill/ArtificialPhysics/lib/buildings.lua  error: [string "--..."]:55: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/lib/features.lua  error: [string "--..."]:53: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/lib/terrain.lua  error: [string "--..."]:93: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/lib/town.lua  error: [string "--..."]:65: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/lib/vegetation.lua  error: [string "--..."]:63: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/lib/world.lua  error: [string "--..."]:48: module 'lib.rng' not found:
-demo/WyomingWill/ArtificialPhysics/probes/batch_drones.lua  error: [string "-- probes/batch_drones.lua -- a lib/batch.p..."]:19: module 'lib.batch' not found:
-demo/WyomingWill/ArtificialPhysics/probes/ch03_scene.lua  error: [string "--..."]:18: module 'lib.batch' not found:
-demo/WyomingWill/ArtificialPhysics/probes/closecam.lua  error: [string "local Swarm = require "quadcopter.swarm"..."]:1: module 'quadcopter.swarm' not found:
-demo/WyomingWill/ArtificialPhysics/probes/coverage_sweep.lua  error: [string "--..."]:17: module 'lib.batch' not found:
-demo/WyomingWill/ArtificialPhysics/probes/cube_drone.lua  error: [string "dofile((os.getenv('PROBES') or '.') .. '/cu..."]:2: module 'quadcopter.swarm' not found:
-demo/WyomingWill/ArtificialPhysics/probes/cube_orig.lua  error: [string "dofile((os.getenv('PROBES') or '.') .. '/cu..."]:2: attempt to index global 'PARAM_INFO' (a nil value)
-demo/WyomingWill/ArtificialPhysics/probes/field_probe.lua  error: [string "-- appended (-l) to a *-Quadcopter.lua run:..."]:3: module 'quadcopter.swarm' not found:
-demo/WyomingWill/ArtificialPhysics/probes/settle_drones.lua  error: [string "-- probes/settle_drones.lua -- a lib/batch...."]:68: module 'lib.batch' not found:
-demo/WyomingWill/ArtificialPhysics/probes/step_response.lua  error: [string "--..."]:27: module 'quadcopter.vehicle' not found:
-demo/WyomingWill/ArtificialPhysics/probes/stuck_robots.lua  error: cannot open probes/settle_drones.lua: No such file or directory
-demo/WyomingWill/ArtificialPhysics/probes/tri_drone.lua  error: [string "local Swarm = require "quadcopter.swarm"..."]:1: module 'quadcopter.swarm' not found:
-demo/WyomingWill/ArtificialPhysics/probes/worldgen_time.lua  error: [string "--..."]:11: module 'lib.world' not found:
 demo/WyomingWill/ArtificialPhysics/quadcopter/sound.lua  error: [string "--..."]:35: module 'quadcopter.flight' not found:
 demo/WyomingWill/ArtificialPhysics/quadcopter/vehicle.lua  error: [string "--..."]:40: module 'quadcopter.flight' not found:
-demo/WyomingWill/ArtificialPhysics/tools/worldprint.lua  error: [string "--..."]:21: attempt to index global 'arg' (a nil value)
 demo/WyomingWill/BabbagesHall/exhibits/DigiComp2/manual/dump-geometry.lua  error: [string "-- dump-geometry.lua <digicomp2-geometry.lu..."]:2: attempt to index global 'arg' (a nil value)
 demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/pla/sim/pla-drop.lua  error: [string "--..."]:127: meshes/ not found
 demo/WyomingWill/EulersGallery/exhibits/Bille/reconstruction/w37/sim/w37-drop.lua  error: [string "--..."]:129: meshes/ not found
