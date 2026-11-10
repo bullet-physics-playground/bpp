@@ -83,15 +83,15 @@ QVariant var_from(lua_State *L, int index) {
 }
 
 void var_to(lua_State *L, QVariant const &v) {
-  if (v.typeId() == QVariant::Bool) {
+  if (v.userType() == QVariant::Bool) {
     lua_pushboolean(L, v.toBool());
-  } else if (v.typeId() == QVariant::Int || v.typeId() == QVariant::LongLong) {
+  } else if (v.userType() == QVariant::Int || v.userType() == QVariant::LongLong) {
     lua_pushinteger(L, v.toLongLong());
-  } else if (v.typeId() == QVariant::Double) {
+  } else if (v.userType() == QVariant::Double) {
     lua_pushnumber(L, v.toDouble());
-  } else if (v.typeId() == QVariant::String) {
+  } else if (v.userType() == QVariant::String) {
     lua_pushstring(L, v.toString().toUtf8().constData());
-  } else if (v.typeId() == QVariant::List) {
+  } else if (v.userType() == QVariant::List) {
     const QVariantList list = v.toList();
     lua_createtable(L, list.size(), 0);
     for (int i = 0; i < list.size(); ++i) {
@@ -99,7 +99,7 @@ void var_to(lua_State *L, QVariant const &v) {
       var_to(L, list[i]);
       lua_settable(L, -3);
     }
-  } else if (v.typeId() == QVariant::Map) {
+  } else if (v.userType() == QVariant::Map) {
     const QVariantMap map = v.toMap();
     lua_createtable(L, 0, map.size());
     for (auto it = map.constBegin(); it != map.constEnd(); ++it) {

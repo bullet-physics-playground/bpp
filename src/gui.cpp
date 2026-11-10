@@ -1289,7 +1289,7 @@ void Gui::updateParamsTable() {
         slider->setValue(qRound(value.toDouble() * scale));
         slider->setProperty("paramScale", scale);
         slider->setToolTip(tooltip);
-      } else if (value.typeId() == QVariant::Bool) {
+      } else if (value.userType() == QVariant::Bool) {
         QCheckBox *checkBox = paramsTable->cellWidget(row, 1)->findChild<QCheckBox *>();
         QSignalBlocker checkBoxBlocker(checkBox);
         checkBox->setChecked(value.toBool());
@@ -1348,7 +1348,7 @@ void Gui::updateParamsTable() {
       slider->installEventFilter(this);
       connect(slider, &QSlider::valueChanged, this, &Gui::onParamSliderChanged);
       paramsTable->setCellWidget(row, 1, slider);
-    } else if (value.typeId() == QVariant::Bool) {
+    } else if (value.userType() == QVariant::Bool) {
       QCheckBox *checkBox = new QCheckBox();
       checkBox->setChecked(value.toBool());
       checkBox->setProperty("paramName", name);
@@ -1388,11 +1388,11 @@ void Gui::onParamsTableCellChanged(int row, int column) {
   QString newValueStr = valueItem->text();
 
   QVariant newValue;
-  if (oldValue.typeId() == QVariant::Int) {
+  if (oldValue.userType() == QVariant::Int) {
     newValue = QVariant(newValueStr.toInt());
-  } else if (oldValue.typeId() == QVariant::Double) {
+  } else if (oldValue.userType() == QVariant::Double) {
     newValue = QVariant(newValueStr.toDouble());
-  } else if (oldValue.typeId() == QVariant::Bool) {
+  } else if (oldValue.userType() == QVariant::Bool) {
     newValue = QVariant(newValueStr.toLower() == "true");
   } else {
     newValue = QVariant(newValueStr);

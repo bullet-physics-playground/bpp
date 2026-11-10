@@ -380,7 +380,11 @@ unsigned glTextureFromFile(const QString &file) {
   if (!img.isNull()) {
     // OpenGL's first row is the bottom of the texture and QImage's is the top,
     // so the image is flipped to read the way POV-Ray reads the same file.
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     QImage rgba = img.convertToFormat(QImage::Format_RGBA8888).flipped(Qt::Vertical);
+#else
+    QImage rgba = img.convertToFormat(QImage::Format_RGBA8888).mirrored(false, true);
+#endif
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

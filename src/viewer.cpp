@@ -4257,7 +4257,7 @@ void Viewer::addParam(const QString &name, const QVariant &value, const QString 
   // mirrored into a Lua global nor reported to onParamChanged.
   QList<QPair<QString, luabind::object>> callbacks;
   bool isGroup = false;
-  if (value.type() == QVariant::Map) {
+  if (value.userType() == QVariant::Map) {
     QVariantMap map = value.toMap();
     isGroup = !map.isEmpty();
     for (auto it = map.constBegin(); isGroup && it != map.constEnd(); ++it) {
@@ -4269,7 +4269,7 @@ void Viewer::addParam(const QString &name, const QVariant &value, const QString 
         callbacks.append(qMakePair(it.key(), qvariant_cast<luabind::object>(v)));
       }
     }
-  } else if (value.type() == QVariant::List) {
+  } else if (value.userType() == QVariant::List) {
     QVariantList list = value.toList();
     isGroup = !list.isEmpty();
     int i = 0;
@@ -4310,7 +4310,7 @@ void Viewer::addParam(const QString &name, const QVariant &value, const QString 
     lua_State *ls = L;
     lua_pushstring(ls, name.toUtf8().constData());
 
-    switch (value.typeId()) {
+    switch (value.userType()) {
     case QVariant::Int:
     case QVariant::LongLong:
       lua_pushinteger(ls, value.toInt());

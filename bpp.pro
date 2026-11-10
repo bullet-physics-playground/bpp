@@ -8,7 +8,15 @@ CONFIG  += precompile_header
 PRECOMPILED_HEADER = src/pch.h
 
 CONFIG  += warn_on shared thread debug_and_release
-QT      += core gui widgets network xml opengl openglwidgets
+QT      += core gui widgets network xml opengl
+# Builds with Qt 5 or Qt 6. The distributions' Qt 5 libQGLViewer is
+# QGLViewer-qt5; the Qt 6 one (libqglviewer-dev-qt6) is plain QGLViewer.
+greaterThan(QT_MAJOR_VERSION, 5) {
+  QT += openglwidgets
+  QGLVIEWER_SUFFIX =
+} else {
+  QGLVIEWER_SUFFIX = -qt5
+}
 
 DEFINES += HAS_LIB_ASSIMP
 DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
@@ -220,7 +228,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 21.10) : {
@@ -229,7 +237,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 22.04) : {
@@ -238,7 +246,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 22.10) : {
@@ -247,7 +255,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 23.04) : {
@@ -256,7 +264,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 23.10) : {
@@ -265,7 +273,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 24.04) : {
@@ -274,7 +282,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 25.04) : {
@@ -283,7 +291,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 25.10) : {
@@ -292,7 +300,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 26.04) : {
@@ -301,7 +309,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 26.10) : {
@@ -310,7 +318,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 27.04) : {
@@ -319,7 +327,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer-qt5 -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
@@ -331,7 +339,7 @@ linux:link_pkgconfig {
       PKGCONFIG += bullet
       PKGCONFIG += sdl2
       PKGCONFIG += SDL2_mixer
-      LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+      LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
       DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 12) : {
@@ -340,7 +348,7 @@ linux:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      PKGCONFIG += SDL2_mixer
-     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+     LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 13) : {
@@ -349,7 +357,7 @@ linux:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      PKGCONFIG += SDL2_mixer
-     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+     LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_VER, forky) : {
@@ -358,7 +366,7 @@ linux:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      PKGCONFIG += SDL2_mixer
-     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+     LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
@@ -369,7 +377,7 @@ linux:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      PKGCONFIG += SDL2_mixer
-     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+     LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
     contains(LSB_RELEASE_REL, 13) : {
@@ -378,7 +386,7 @@ linux:link_pkgconfig {
      PKGCONFIG += bullet
      PKGCONFIG += sdl2
      PKGCONFIG += SDL2_mixer
-     LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+     LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
      DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
     }
   }
@@ -388,7 +396,7 @@ linux:link_pkgconfig {
     PKGCONFIG += bullet
     PKGCONFIG += sdl2
     PKGCONFIG += SDL2_mixer
-    LIBS += -lQGLViewer -lGLEW -lGLU -lGL -lGL -lluabind
+    LIBS += -lQGLViewer$$QGLVIEWER_SUFFIX -lGLEW -lGLU -lGL -lGL -lluabind
     DEFINES += HAVE_btHingeAccumulatedAngleConstraint
     DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
   }

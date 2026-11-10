@@ -130,12 +130,12 @@ public:
     }
 
     // Hash all nine coordinates contiguously (x,y,z are laid out back-to-back).
-    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&triangle[0].x()),
-                                3 * sizeof(btScalar)));
-    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&triangle[1].x()),
-                                3 * sizeof(btScalar)));
-    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&triangle[2].x()),
-                                3 * sizeof(btScalar)));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[0].x()),
+                                         3 * sizeof(btScalar)));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[1].x()),
+                                         3 * sizeof(btScalar)));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[2].x()),
+                                         3 * sizeof(btScalar)));
   }
 
   /**
