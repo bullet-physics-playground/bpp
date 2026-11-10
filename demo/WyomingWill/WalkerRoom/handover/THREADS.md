@@ -76,8 +76,8 @@ two chains each, 6.9 times. So `THREADS = 8` on that machine.
   touching: one walker, or two that touch) as Bullet's
   `btDiscreteDynamicsWorldMt` does, with its threaded island manager and its
   pool of solvers (`btConstraintSolverPoolMt`), on Bullet's own thread pool.
-  Soft bodies stay. Collisions, integration, soft bodies and Lua stay on one
-  thread.
+  Soft bodies stay. Integration, soft bodies and Lua stay on one thread;
+  collisions did too until patch 108 (below, "Collisions on threads").
 - Bullet's threaded island manager joins islands of under 32 bodies into
   batches, and merges small islands until a batch costs 1024; both are off, so
   each walker is its own job (4 walkers: 4 islands a step, measured).
@@ -208,7 +208,8 @@ wrong).
 - Only the solve is threaded. Collisions could be threaded too (Bullet's
   `btCollisionDispatcherMt`), but new contact manifolds would then be made in
   an order that depends on the threads, so runs might no longer repeat (not
-  tried).
+  tried). (Done in patch 108, in the one-thread order: "Collisions on
+  threads", below.)
 - One global counter in Bullet's solver (`gNumSplitImpulseRecoveries`, a
   statistic nothing reads) is written from several threads. Harmless.
 - Bullet's thread pool is global; its size is the last `setThreads` (at most
@@ -262,6 +263,51 @@ the part lowest to the ground, the part nearest a wall and the fastest part
 room's turns, not threads; see HANDOVER.md 4u. Fixed in patch 81: William's
 soak then ran the full 180 simulated minutes on 8 threads with no walker lost
 (539 swaps, 11 ground changes, bodies 9.4-21.2 cm).
+
+## Collisions on threads (10 November, patch 108)
+
+**Why.** A profile of room-four on logs 7 (this 2-CPU container, `perf`,
+the wheels on): with no threads, 47% of the time solving joints and
+contacts, 44% collision detection (mostly the walkers' parts against the
+logs' triangles), drawing and Lua about 1% each. With 2 threads, 44.7 ms a
+frame against 46: collisions stayed on one thread, so even a perfect split
+of the solve could only gain about 1.3 times.
+
+**How** (`src/viewer.cpp`, `RestSkippingDispatcher`). With threads on,
+bpp's dispatcher (the one that already skips pairs at rest) works out the
+pairs side by side on Bullet's thread pool. Each pair is done by one thread,
+so its contacts come out the same whichever thread it is. What threads
+would change is the order of the dispatcher's list of manifolds (one per
+touching pair), which the solver follows: on one thread a pair's new
+manifold goes on the end of the list and a released one is swapped out at
+once, as the pairs come. Threaded, each thread notes the manifolds it makes
+and releases, with the pair's place in the pass; afterwards, on one thread,
+they go on and off the list in the pass's order, exactly as on one thread.
+(Bullet's own `btCollisionDispatcherMt` appends them in the threads' order
+and releases them afterwards, so its order changes from run to run.) A step
+with fewer than 128 active pairs, or with a soft body in one, is done on one
+thread as before: one walker (about 55 pairs) ran half as fast threaded --
+its solve is one job, so the threads were asleep, and waking them cost more
+than its collisions -- and a soft body's collisions change the soft body.
+
+**Same results** (all on this container, 2 CPUs):
+
+| Check | Bracing | Timing | Direction | Result |
+| --- | --- | --- | --- | --- |
+| One walker on the track, threads 0, 1 and 2 (Klann, Jansen, Chebyshev-Spears lift 51 diag, Hoecken-Spears slider diag; logs 7 and steps 7, seed 1, 8 s) | as built | trot | as the ranking | identical |
+| room-four.lua on logs 7, 10 s, every body's position: threads 1, 2, 4, and 2 again | mixed | trot | as the ranking | identical |
+| The same room on the binary before patch 108 (collisions on one thread), threads 1 | mixed | trot | as the ranking | identical |
+| The table run (waves 2, seed 1, 8 s, lift 51 diag and Jansen), threads off | as built | trot | forward | identical (`36aee26d2a70`) |
+
+**Speed** (room-four, logs 7, physics a frame, this container):
+
+| Walkers | Bracing | Timing | Direction | Threads 0 | Threads 2, before | Threads 2, patch 108 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 4 (Klann, Jansen, Chebyshev-Spears lift 51 diag, lift 62 diag), with wheels | mixed | trot | as the ranking | 46 ms | 38 ms (1.2x) | 30 ms (1.55x) |
+| 1 (Chebyshev-Spears lift 51 diag), the track, 20 s | diag | trot | forward | 13 s | 14 s | 14 s |
+
+Two CPUs here can only show 2 threads. On William's machine:
+`runs/room-speed.sh` (threads 0 1 2 4 8) measures it.
 
 ## Before (the handover of 1 November, kept as written)
 
