@@ -18,7 +18,7 @@ Suites (run all of them with no arguments, or name the ones you want):
            tests/golden/expected/.
   screens  The still scenes in tests/screens/*.lua are opened in the GUI on
            a virtual X screen (Xvfb, Mesa) and the window is compared with
-           tests/screens/expected/*.png.
+           tests/screens/expected/*.png (expected-qt6/ for a Qt 6 build).
   theory   (only when named) Euler's Gallery's exhibits run as their
            physics report ran them, and what each prints is checked
            against the theory it stands for: tests/theory/checks.txt.
@@ -506,7 +506,10 @@ def suite_api(ctx):
         for l in lines[-10:]:
             print("    " + l)
         return 1
-    got = "\n".join(got) + "\n"
+    # A QVector and a QList reach Lua as the same table, and in Qt 6 they
+    # are one type, which luabind names QList: the Qt 5 and Qt 6 builds
+    # share one expected file.
+    got = "\n".join(got).replace("QVector<", "QList<") + "\n"
     if ctx.update:
         write(API_EXPECTED, got)
         print("  updated %s (%d lines)" % (os.path.relpath(API_EXPECTED, ROOT), got.count("\n")))
@@ -828,18 +831,27 @@ def diff_region(expected, got):
     return r.stdout.decode().strip()
 
 
+def qt_major(bpp):
+    """The Qt version bpp is built with, 5 or 6, from the library it links."""
+    r = subprocess.run(["ldd", bpp], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    return 6 if b"libQt6Core" in r.stdout else 5
+
+
 def suite_screens(ctx):
     missing = have("Xvfb", "xdotool", "import", "compare", "identify")
     if missing:
         print("  FAIL missing tools: %s (apt install xvfb xdotool imagemagick)" % " ".join(missing))
         return 1
+    # Qt 6 draws the menus, toolbar and docks in other sizes, so the 3D view
+    # sits elsewhere: its build has its own expected images.
+    expected_dir = os.path.join(SCREENS, "expected" if qt_major(ctx.bpp) == 5 else "expected-qt6")
     scenes = ctx.selected(sorted(f for f in os.listdir(SCREENS) if f.endswith(".lua")))
     xvfb, display = start_xvfb()
     failed = 0
     try:
         for s in scenes:  # one at a time: they share the screen
             name = s[:-4]
-            expected = os.path.join(SCREENS, "expected", name + ".png")
+            expected = os.path.join(expected_dir, name + ".png")
             got = os.path.join(ctx.tmp, "screens-" + name + ".png")
             err = grab(ctx, display, os.path.join(SCREENS, s), got)
             if err:

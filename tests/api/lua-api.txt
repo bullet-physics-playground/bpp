@@ -638,7 +638,7 @@ class LayerManager
   defaultLayer: Layer* defaultLayer(LayerManager const&)
   layerByName: Layer* layerByName(LayerManager const&,custom [QString] const&)
   layerCount: int layerCount(LayerManager const&)
-  layers: custom [QVector<Layer*>] const& layers(LayerManager const&)
+  layers: custom [QList<Layer*>] const& layers(LayerManager const&)
   moveLayer: void moveLayer(LayerManager&,Layer*,int)
   objectLayer: Layer* objectLayer(LayerManager const&,Object*)
   removeLayer: void removeLayer(LayerManager&,Layer*,Layer*)

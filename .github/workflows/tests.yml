@@ -20,6 +20,17 @@ on:
 permissions:
   contents: read
 
+# bpp builds with Qt 5 or Qt 6. These jobs build with Qt 5, as Ubuntu 22.04
+# and 24.04 do (their Qt 6 has no libQGLViewer package); test-qt6 builds
+# with Qt 6. debian/control lists Qt 6 (Debian packages Qt 6's
+# libQGLViewer), so the Qt 5 build's packages are named here.
+env:
+  QT5_BUILD_DEPS: >-
+    pkg-config qt5-qmake qtbase5-dev qttools5-dev-tools libqt5opengl5-dev
+    libqglviewer-dev-qt5 libglew-dev libluabind-dev liblua5.1-dev
+    libbullet-dev libassimp-dev libsdl2-dev libsdl2-mixer-dev lsb-release
+    help2man
+
 defaults:
   run:
     # (Named explicitly so steps run with -eo pipefail: "| tee" keeps the
@@ -39,8 +50,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           # libqt5svg5 is a runtime dependency, not a build one: without it
           # the GUI's toolbar icons (SVG) are blank in the screenshots.
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
@@ -97,8 +107,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             openscad fonts-liberation
 
@@ -132,8 +141,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             openscad fonts-liberation cmake
 
@@ -166,8 +174,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             openscad fonts-liberation cmake
 
@@ -203,8 +210,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             openscad fonts-liberation
 
@@ -218,3 +224,64 @@ jobs:
           slow=
           case "${{ github.event_name }}" in schedule|workflow_dispatch) slow=--slow ;; esac
           python3 tests/harness.py $slow theory
+
+  # The Qt 6 build. Ubuntu 24.04 packages Qt 6 but not its libQGLViewer, so
+  # that is built from upstream's source (a fixed commit) and installed as
+  # libQGLViewer.so, the name Debian's libqglviewer-dev-qt6 gives it. The
+  # physics, the export and the Lua API are the same as with Qt 5, so the
+  # unit tests, the API listing and the golden master use the same expected
+  # files; Qt 6 lays out the window otherwise, so the screenshots have their
+  # own (tests/screens/expected-qt6/).
+  test-qt6:
+    name: Qt 6 build (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends \
+            qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins libqt6svg6 \
+            libgl-dev libglu1-mesa-dev pkg-config libglew-dev libluabind-dev \
+            liblua5.1-dev libbullet-dev libassimp-dev libsdl2-dev \
+            libsdl2-mixer-dev lsb-release help2man
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation fonts-dejavu-core \
+            xvfb xdotool imagemagick libgl1-mesa-dri
+
+      - name: Build libQGLViewer for Qt 6
+        run: |
+          git clone -q https://github.com/GillesDebunne/libQGLViewer.git /tmp/libQGLViewer
+          cd /tmp/libQGLViewer
+          git checkout -q da4bfad
+          cd QGLViewer
+          qmake6
+          make -j"$(nproc)"
+          sudo make install
+          sudo ln -sf libQGLViewer-qt6.so /usr/local/lib/libQGLViewer.so
+          sudo ldconfig
+
+      - name: Build
+        id: build
+        run: |
+          qmake6 CONFIG+=release
+          make -j"$(nproc)" release
+
+      - name: Unit tests, Lua API and golden master
+        run: python3 tests/harness.py unit api golden
+
+      - name: Screenshots
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 tests/harness.py --keep screens
+
+      - name: Upload what failed
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-output-qt6
+          path: /tmp/bpp-tests-*/screens-*.png
+          if-no-files-found: ignore

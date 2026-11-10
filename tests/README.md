@@ -17,7 +17,7 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 | `api`     | Every Lua class, property and method overload scripts can use | `api/lua-api.txt` |
 | `smoke`   | Every demo the Demos menu lists loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
 | `golden`  | The demos in `golden/demos.txt` simulate 40 frames; in the POV-Ray export (frames 1, 20, 40), every object's transform, the camera, the scene text and each mesh's geometry match | `golden/expected/` |
-| `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png` |
+| `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png`, `screens/expected-qt6/` for a Qt 6 build |
 | `theory`  | Only when named. Euler's Gallery's exhibits, run as their physics report ran them; what each prints agrees with the theory it stands for, within a tolerance (`--slow` adds the two that take many minutes) | `theory/checks.txt` |
 
 Every bpp run gets its own empty HOME, settings, mesh cache and export
@@ -107,6 +107,17 @@ work with plain flags), its statistics counter, and PulseAudio's thread;
 each entry says why. They match only where the pool's own code makes the
 access, so a race in bpp's code that the pool runs is still reported
 (checked with one planted in `bppworld.cpp`).
+
+## Qt 5 and Qt 6
+
+bpp builds with either (`qmake` for Qt 5, `qmake6` for Qt 6). The CI's
+jobs build with Qt 5, as Ubuntu 22.04 and 24.04 do; `test-qt6` builds
+with Qt 6, against libQGLViewer built from source, and runs the unit, api,
+golden and screens suites. The first three use the same expected files as
+Qt 5 (the API listing names a `QVector` `QList`, as Qt 6 does). Qt 6 lays
+the window out otherwise, so its screenshots are in `screens/expected-qt6/`,
+which the harness picks when the bpp it tests links Qt 6; `--update
+screens` with a Qt 6 build writes there.
 
 ## Euler's Gallery against theory
 
