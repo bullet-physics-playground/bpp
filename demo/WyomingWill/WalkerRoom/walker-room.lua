@@ -2275,15 +2275,18 @@ end
 
 v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 1, "bump height, cm (G builds the room with it)")
 v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 1, "bump length, cm (the stride is 15; G builds the room with it)")
--- THREADS (default 0; the room only, not the test track's one walker): the
+-- THREADS (default 4; the room only, not the test track's one walker): the
 -- walkers solved side by side on this many threads; the Threads slider
 -- changes it while the room runs, and the status line shows how fast (as
 -- ../Testing_Threads.lua). The room walks the same, move for move, at any
 -- number of threads; at 0, very slightly differently (without threads
 -- Bullet solves two or three walkers together). Needs bpp built with Bullet
 -- with threads (scripts/bullet-threads.sh, then qmake CONFIG+=bundled_bullet;
--- THREADS.md); otherwise the status line says so.
-THREADS = THREADS or 0
+-- THREADS.md); otherwise the status line says so. 4 was the fastest on
+-- William's 8-core machine for 4, 11 and 21 walkers, about 2.5 times
+-- threads 0 (handover/THREADS.md, 10 November); a machine with fewer
+-- hardware threads uses what it has.
+THREADS = THREADS or 4
 local HAS_THREADS = false
 local threadsT0, threadsSpent, threadsFrames, threadsWall0, threadsBase = 0, 0, 0, 0, nil
 if not TEST_TRACK then

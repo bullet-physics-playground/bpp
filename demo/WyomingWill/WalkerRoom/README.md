@@ -896,8 +896,9 @@ how fast. The room walks the same, move for move, at any number of
 threads; 0 is bpp without threads (very slightly different: Bullet then
 solves two or three walkers together). It needs bpp built with Bullet with
 threads (`scripts/bullet-threads.sh`, then `qmake CONFIG+=bundled_bullet`;
-`THREADS.md`); otherwise the status line says so. `THREADS` in a launcher
-sets where it starts.
+`THREADS.md`); otherwise the status line says so. It starts at 4, the
+fastest on an 8-core Ryzen for 4, 11 and 21 walkers (about 2.5 times 0:
+handover/THREADS.md); `THREADS` in a launcher sets where it starts.
 
 The test-square launchers (`test-square*.lua`, the old builds: plated,
 guides, the old braces) were removed on 9 November 2026. The files the

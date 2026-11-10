@@ -23,7 +23,7 @@
 -- force over from step to step, 40 iterations, a 1/1920 s step. Four walkers
 -- cost about four times one, so it runs slower than real time.
 --
--- The Threads slider (THREADS sets where it starts, default 0; in
+-- The Threads slider (THREADS sets where it starts, default 4; in
 -- walker-room.lua) solves the walkers side by side on that many threads,
 -- while it runs, and the status line shows how fast. Needs bpp built with
 -- Bullet with threads (scripts/bullet-threads.sh, then qmake

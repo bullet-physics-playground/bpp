@@ -328,7 +328,18 @@ threads' spinning while they wait. Threads = 4 for the rooms.
 
 `runs/room-speed.sh` now runs one walker, four, and the 11 walker-room.lua
 shows on its own (`GROUPS_LIST="21"`: every build, as above). The 11, here
-(2 CPUs): 0.17x with no threads, 0.28x with 2.
+(2 CPUs): 0.17x with no threads, 0.28x with 2. On William's machine (10
+November, the same settings):
+
+| Walkers | Bracing | Timing | Direction | Threads 0 | 1 | 2 | 4 | 8 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 11 (walker-room.lua's) | mixed | trot | as the ranking | 0.21x | 0.21x / 0.20x | 0.33x | 0.51x | 0.49x |
+
+So the rooms start with the Threads slider at 4 (patch 110; it was 0).
+Four threads, 2.4-2.5 times threads 0, for 4, 11 and 21 walkers alike,
+suggests the limit is not the walkers: the 3700X's two groups of four
+cores (each sharing its own cache) is the leading suspect. A test (not
+run): `taskset` bpp onto four cores of one group, then two of each.
 
 ## Before (the handover of 1 November, kept as written)
 
