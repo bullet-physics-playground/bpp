@@ -22,6 +22,8 @@
 --   B                the ranking board for this ground (the output pane:
 --                    shown too each time a walker starts, and its run at 20 s)
 --   G                build the track with the sliders' height and length
+--   Left, Right      brake the walker's left (right) wheel: it turns that way;
+--                    the same key again frees it (handover/STEERING.md)
 -- The TerrainHeight slider sets the bumps' height, G builds it (the ranking used
 -- waves 2/4/6, logs 3/5/7 and steps 3/5/7). After 60 s each prints its
 -- speed in the output pane (the ranking's runs were 20 s, speed from 5 s
@@ -51,7 +53,9 @@ end
 MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.5 a crank, weight x stride units: 2 shared by the 4 cranks)
 GRAVITY = 981
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
-YAW_DAMP = YAW_DAMP or 1
+YAW_DAMP = YAW_DAMP or 1   -- (off for a walker while one of its wheels is braked)
+if SHOES == nil then SHOES = {} end   -- (a wheel on each side, free until an arrow key brakes one: walker-room.lua's
+                                      -- SHOES; they cost some speed on rough ground, so SHOES = false walks as the boards' runs)
 LINK_WIDTH = 1.0
 DIAG_OUTSIDE = true
 

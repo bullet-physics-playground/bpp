@@ -882,8 +882,13 @@ Hoecken-Spears slider 49%.
 - `walker-room.lua` opened on its own: all 11 in the room, as now (the
   same settings as `room-four.lua`), on the Threads slider. Slow: eleven
   walkers cost eleven times one.
-- `drag-shoe.lua`: `test-ranking.lua` with a drag shoe on every walker
-  (handover/STEERING.md).
+
+In all three, every walker has a wheel on each side (`SHOES`,
+handover/STEERING.md): the Left and Right arrow keys brake the left or
+right wheel of the walker followed (on the track, the walker), and it
+turns that way; the same key again frees it, and it walks on straight.
+The keys 1-4 pick the ground in all three. `SHOES = false` before
+loading takes the wheels off.
 
 The Threads slider (as in `../Testing_Threads.lua`) solves the walkers
 side by side on that many threads, while it runs; the status line shows

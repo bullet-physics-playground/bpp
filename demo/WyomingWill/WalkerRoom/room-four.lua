@@ -11,6 +11,8 @@
 --                    others carry on (Klann and Jansen stay)
 --   O                look over the whole room (O again, or F: follow again)
 --   1 2 3 4          the ground: waves, random, logs, steps (built again)
+--   Left, Right      brake the left (right) wheel of the walker followed: it
+--                    turns that way; the same key again frees it
 --   T                clear the trails
 --   G                build the room with the sliders' height and length
 -- The TerrainHeight slider sets the bumps' height and BumpLength their length
@@ -58,5 +60,6 @@ for _, n in ipairs(ROOM_SWAP) do if n:find("diag$") then PENDANT_HOLD[n] = true 
 TERRAIN = TERRAIN or "waves"
 AMP = AMP or 2
 BUMP = BUMP or 15   -- (bumps 15 cm long, as on the test track and in the tables; walker-room.lua's own default is 22)
+if SHOES == nil then SHOES = {} end   -- (a wheel on each side of each walker, walker-room.lua's SHOES: the arrow keys)
 
 dofile("walker-room.lua")

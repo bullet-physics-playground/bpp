@@ -50,7 +50,7 @@ Number patches `walker-room-NN-<what>.patch`. The last was 48 (joint warm-starti
   - Launchers for watching (Tab and Shift+Tab cycle walkers; keys 1–4 pick the terrain: waves, random, logs, steps):
     - `test-ranking.lua`: the 11 buildable walkers on the track, as now (the current viewer).
     - `room-four.lua`: four in the room, on the Threads slider.
-    - `drag-shoe.lua`: test-ranking with a drag shoe (STEERING.md).
+    - Every walker in these has a wheel on each side; the Left and Right arrow keys steer the one followed (STEERING.md, stages A and B). `drag-shoe.lua` was removed on 9 November 2026 (patch 106): the arrow keys replace it.
     - (The test-square launchers, `test-slider-logs.lua`, `foot-path-variants.lua` and `test-track-all.sh` were removed on 9 November 2026, patch 100: they showed old builds. Earlier sections still name them.)
   - `README.md`.
   - Only the files that can be opened on their own are at the top (9 November 2026, patch 101): what they load is in `lib/` (`trotting-walkers.lua`, `spears-lift-walkers.lua`, `boards.lua`). `lib/`, `runs/`, `handover/` and `../Walkers_For_Room/` each hold an empty `.nomenu`, which keeps them out of bpp's Demos menu (bpp's README, "Demos menu"). A new launcher loads `lib/trotting-walkers.lua` and `lib/spears-lift-walkers.lua`.

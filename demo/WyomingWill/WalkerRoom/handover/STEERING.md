@@ -389,6 +389,33 @@ Designs tried first, all dropped:
   reverse of what its axis suggests (a shoe's "up" needed a negative
   speed): worth knowing for anything else built on it.
 
+## Stage B: the arrow keys (9 November)
+
+Patch 106. In `test-ranking.lua`, `room-four.lua` and `walker-room.lua`
+opened on its own, every walker has the wheels (`SHOES = {}` unless set
+before: `SHOES = false` takes them off). The Left and Right arrow keys
+brake the left or right wheel of the walker followed (on the track, the
+walker); the same key again frees it, and the other key switches sides.
+The status line and the output pane say which is braked. In the room,
+follow a walker first (Tab; F in `room-four.lua`).
+
+The views keep `YAW_DAMP = 1`, so a walker with both wheels free walks
+straight as before. While one of its wheels is braked, that walker's yaw
+damping is off (`walker-room.lua`'s preSim) so it turns; freed, the
+damping holds it on its new heading. Headless, on flat ground: lift 51
+diag turned +0.9 °/s while braked left, held 9° when freed, then −0.9 °/s
+braked right. In the room, Jansen turned while lift 51 diag walked on
+straight. The room still turns walkers rigidly at walls, braked or not.
+That is about 1 °/s, so a quarter turn takes over a minute; a heavier
+wheel turns faster (stage 2's drag shoe: roughly in proportion to its
+weight).
+
+The keys 1-4 (waves, random, logs, steps) now pick the ground in every
+room, `walker-room.lua` on its own too; they rebuild it with the same
+walkers, wheels free. The test track's "off the ground" measure leaves
+out the wheels, which are always down. `drag-shoe.lua` is gone: the
+arrow keys replace it.
+
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 
 `walker-room.lua`'s own defaults are the old builds: the plated walkers

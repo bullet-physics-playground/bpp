@@ -27,7 +27,8 @@
 -- with their outside braces and held pendants; Klann, Jansen and Spears
 -- 4-bar on their own frames, Klann and Spears 4-bar reversed
 -- (test-ranking.lua's list) -- at room-four.lua's
--- settings. This file's own defaults below are the old ones (plated
+-- settings, each with a wheel on each side (SHOES: the arrow keys steer the
+-- walker followed). This file's own defaults below are the old ones (plated
 -- builds, the old braces, gravity 70), which the launchers override.
 --
 
@@ -48,6 +49,7 @@ if EXTRA_WALKERS == nil then
   end
   TERRAIN = TERRAIN or "waves"; AMP = AMP or 2; BUMP = BUMP or 15
   if REVERSE == nil then REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true } end   -- (their better way: section 4w)
+  if SHOES == nil then SHOES = {} end   -- (a wheel each side: the arrow keys steer the walker followed)
 end
 
 local common = require "common"
@@ -414,8 +416,10 @@ STEER = STEER or false
 -- weight and free up and down (the walker never carries it, so never
 -- leans), rolling along the walk. room.setShoe(w, side) while it runs
 -- brakes that side's ("L" or "R"; nil for neither) and its skid turns the
--- walker toward it; down = that side braked at the start. The body's yaw
--- damping must be off (YAW_DAMP = 0), or it holds the walker straight.
+-- walker toward it; down = that side braked at the start. While one is
+-- braked, that walker's yaw damping (YAW_DAMP) is off, so it turns; freed,
+-- the damping holds it on its new heading. The Left and Right arrow keys
+-- brake the walker followed's left or right wheel (again: free it).
 SHOES = SHOES or false
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
@@ -2365,7 +2369,7 @@ v:preSim(function(N)
   for k, w in ipairs(walkers) do
     if JOINT_FRICTION then jointFriction(w) end
     if LOCK_CRANKS then lockCranks(w) end
-    if YAW_DAMP then   -- (its turning about the vertical damped: YAW_DAMP)
+    if YAW_DAMP and not w.shoeDown then   -- (its turning about the vertical damped: YAW_DAMP; not while a wheel is braked, SHOES)
       local ax, ay, az = getAngVelXYZ(w.cube)
       setAngVelXYZ(w.cube, ax, ay * (1 - YAW_DAMP), az)
     end
@@ -2457,7 +2461,7 @@ v:preSim(function(N)
       do
         local gap = 1e9
         for _, o in ipairs(w.bodies) do
-          if o.mass > 0 then
+          if o.mass > 0 and not (w.wheels and (rawequal(o, w.wheels.L.o) or rawequal(o, w.wheels.R.o))) then   -- (not the wheels, always down)
             o.body:getAabb(trackLo, trackHi)
             local top = -1e9
             for i = 0, 2 do for j = 0, 2 do
@@ -2494,6 +2498,18 @@ local FOLLOW_OFFSET = { -70, 60, 85 }   -- cm from the walker, the same way the 
 local following, followX, followZ        -- the walker followed (nil: the overview), and where it was
 local lastFollowed                        -- (the last one followed: O goes back to it)
 
+-- the wheels (SHOES): the arrow keys' lines for the help, and the status line's note
+local function wheelHelp()
+  if not SHOES then return "" end
+  return "Left Right  brake the left (right) wheel of the walker" .. (TEST_TRACK and "" or " followed") .. ": it turns\n" ..
+         "            that way; the same key again frees it, and it walks on\n" ..
+         "            straight from there\n"
+end
+local function wheelNote(w)
+  if not (w and w.wheels) then return "" end
+  return (w.shoeDown == "L" and "left wheel braked" or w.shoeDown == "R" and "right wheel braked" or "wheels free") .. " | "
+end
+
 local function helpText()
   if TEST_TRACK then
     local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
@@ -2501,6 +2517,7 @@ local function helpText()
     h = h .. "Tab         put the next walker on the track (built again): the next\n"
     h = h .. "            down this ground's ranking board\n"
     h = h .. "Shift+Tab   the one before\n"
+    h = h .. wheelHelp()
     h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
     h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
     h = h .. "N           the next seed, 1 to 4 (now " .. SEED .. ")\n"
@@ -2528,11 +2545,12 @@ local function helpText()
     h = h .. "Tab         put the next walker in place of the one followed (it walks\n"
     h = h .. "            on from there; the others carry on)\n"
     h = h .. "Shift+Tab   the one before\n"
-    h = h .. "1 2 3 4     the ground: waves, random, logs, steps (built again)\n"
   else
     h = h .. "Tab         follow the next walker\n"
     h = h .. "Shift+Tab   follow the one before\n"
   end
+  h = h .. wheelHelp()
+  h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. "; built again)\n"
   h = h .. "O           look over the whole room (O again: follow again)\n"
   h = h .. "T           clear the trails\n"
   h = h .. "G           build the room again with the sliders' height and length\n"
@@ -2542,7 +2560,7 @@ local function helpText()
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
   h = h .. "BumpLength: how long they are, " .. BUMP_MIN .. " to " .. BUMP_MAX .. " cm (every walker's stride is " .. STRIDE .. " cm).\n"
   h = h .. "Moving them builds nothing: G builds the room with them, every walker\n"
-  h = h .. "back at its start" .. (ROOM_SWAP and " (the 1-4 keys build with them too)" or "") .. ".\n\n"
+  h = h .. "back at its start (the 1-4 keys build with them too).\n\n"
   h = h .. "Each body shows its walker's code: its linkage's inventor(s) -- J Jansen,\n"
   h = h .. "K Klann, C Chebyshev, H Hoecken, S Spears; -S: a linkage Spears changed,\n"
   h = h .. "which also has a gold rim -- then its number of bars, S if a slider. A\n"
@@ -2739,7 +2757,20 @@ v:onKey(function(N, key, down)
     if down then swapWalker(following, key == "Tab" and 1 or -1) end
     return true
   end
-  if ROOM_SWAP and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
+  if key == "Left" or key == "Right" then   -- (the wheels, SHOES: brake one side's, or free it)
+    if down then
+      local w = TEST_TRACK and walkers[1] or following
+      if not SHOES then print("the wheels are off (SHOES = false)")
+      elseif not w then print("room: follow a walker first (" .. (ROOM_SWAP and "F" or "Tab") .. ")")
+      else
+        local side = (key == "Left") and "L" or "R"
+        room.setShoe(w, (w.shoeDown ~= side) and side or nil)
+        print(w.spec.name .. ": " .. wheelNote(w):sub(1, -4))
+      end
+    end
+    return true   -- (not the camera's: bpp would move the view)
+  end
+  if not TEST_TRACK and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
     if down then
       TERRAIN = TERRAIN_KEYS[key]
       makeTerrain()   -- (the new kind's bumps; without it the room was built again on the old ground)
@@ -2824,7 +2855,7 @@ v:preDraw(function(N)
       if not threadsBase then line = line .. " | set Threads to 0 for a while to measure it without" end
     end
     local note = slidersNote()
-    v.statusText = (note ~= "" and (note .. " | ") or "") .. line
+    v.statusText = (note ~= "" and (note .. " | ") or "") .. wheelNote(following) .. line
     io.stdout:write("room: ", line, "\n"); io.stdout:flush()
     threadsSpent, threadsFrames, threadsWall0 = 0, 0, now
   end
@@ -2839,7 +2870,7 @@ v:preDraw(function(N)
       local x = getPosXYZ(w.cube)
       local t = simTime - w.trackStart[3]
       local note = slidersNote()
-      v.statusText = (note ~= "" and (note .. " | ") or "") ..
+      v.statusText = (note ~= "" and (note .. " | ") or "") .. wheelNote(w) ..
         string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
         w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", TERRAIN, t,
         (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))

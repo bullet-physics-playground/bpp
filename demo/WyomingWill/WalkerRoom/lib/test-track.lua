@@ -10,7 +10,7 @@
 -- Not opened on its own (it is in lib/, out of the Demos menu): a script
 -- sets the walker and its settings, then loads it, from the WalkerRoom
 -- folder -- test-ranking.lua (the 11 walkers that could really be built, to
--- watch), drag-shoe.lua, and runs/run-table.sh's runs (every walker in every
+-- watch), and runs/run-table.sh's runs (every walker in every
 -- condition, headless). Tab and Shift+Tab put the next or previous walker on
 -- the track (with VIEWS, as test-ranking.lua sets, the next of those). The
 -- TerrainHeight and BumpLength sliders set the next ground, and G builds the
