@@ -52,6 +52,7 @@
 #include "shadowrecord.h"
 #include "decorations.h"
 #include "wavtrack.h"
+#include "hover.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -1871,9 +1872,6 @@ public slots:
   /** @brief Hover: every 100 ms, show/refresh the tooltip if the mouse rests. */
   void hoverTick();
 
-  /** @brief Hover: hide the tooltip. */
-  void hoverHide();
-
   /**
    * @brief Passes a command line entry to the script's onCommand hook.
    * @param cmd The command text.
@@ -2608,15 +2606,8 @@ private:
                                         ///< away from the built-in camera
                                         ///< control.
   luabind::object _cb_cycleObject;   ///< Called when F1 or F2 is pressed.
-  luabind::object _cb_onHover;       ///< Called when the mouse rests on an object.
+  Hover _hover{this};                ///< The tooltip by the resting mouse (v:onHover).
   QTimer *_hoverTimer = nullptr;     ///< Drives hoverTick().
-  QElapsedTimer _hoverStill;         ///< Time since the mouse last moved.
-  QPoint _hoverPos;                  ///< Where the mouse rests (widget coords).
-  bool _hoverArmed = false;          ///< Mouse is over the view with no button down.
-  bool _hoverShown = false;          ///< A hover tooltip is showing.
-  Object *_hoverObj = nullptr;       ///< Last object found under the resting mouse.
-  btVector3 _hoverHitPt;             ///< Where the ray last hit it.
-  QElapsedTimer _hoverLastHit;       ///< Time since the ray last hit it.
   luabind::object _cb_onParamChanged; ///< Called when a parameter changes.
 
   #include <memory>

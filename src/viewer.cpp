@@ -153,7 +153,6 @@ static void bppGyroPreTick(btDynamicsWorld *world, btScalar dt) {
 #include <QTime>
 #include <QMap>
 #include <QElapsedTimer>
-#include <QToolTip>
 #include <QApplication>
 #include <QOpenGLContext>
 #include <algorithm>
@@ -1565,8 +1564,7 @@ void Viewer::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
-  _hoverStill.restart();             // (hover: a key hides the tooltip)
-  hoverHide();
+  _hover.interrupt();                // (a key hides the tooltip)
   if (_cb_onKey) {
     if (e->isAutoRepeat()) {
       if (_luaHeldKeys.contains(e->key()))
@@ -1709,8 +1707,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 }
 
 void Viewer::mousePressEvent(QMouseEvent *e) {
-  _hoverArmed = false;               // (hover: a click hides the tooltip)
-  hoverHide();
+  _hover.disarm();                   // (a click hides the tooltip)
 #if USE_VFE
   if (_vfePreviewVisible && (_vfeRenderActive || _vfePreviewTexture)) {
     // Dismiss the VFE render preview back to the normal OpenGL scene; an
@@ -1735,19 +1732,7 @@ void Viewer::mousePressEvent(QMouseEvent *e) {
 }
 
 void Viewer::mouseMoveEvent(QMouseEvent *e) {
-  // hover: only watch movement with no button down; never consume the event
-  if (e->buttons() == Qt::NoButton) {
-    if (!_hoverArmed || (e->pos() - _hoverPos).manhattanLength() > 3) {
-      _hoverPos = e->pos();
-      _hoverStill.restart();
-      _hoverObj = nullptr;           // (moved: forget the sticky object)
-      hoverHide();
-    }
-    _hoverArmed = true;
-  } else {
-    _hoverArmed = false;
-    hoverHide();
-  }
+  _hover.mouseMoved(e->pos(), e->buttons()); // (never consumes the event)
   if (_orthoPanCamera) {
     const QPoint delta = e->pos() - _orthoPanLastPos;
     _orthoPanLastPos = e->pos();
@@ -1787,8 +1772,7 @@ void Viewer::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 void Viewer::wheelEvent(QWheelEvent *e) {
-  _hoverStill.restart();             // (hover: hide while zooming)
-  hoverHide();
+  _hover.interrupt();                // (hide while zooming)
   qglviewer::Camera *cam = orthoCameraAt(e->position().toPoint());
   if (cam) {
     // One wheel "click" is 120 (QWheelEvent::angleDelta() units); each
@@ -2686,8 +2670,7 @@ emit scriptStarts();
     _synth.reset();             // (and its voices)
     _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
-    _cb_onHover = luabind::object();
-    hoverHide();
+    _hover.clear();
 
     // Release button callbacks and parameter values that carry a Lua object
     // (functions bound to push buttons) while the Lua state is still alive:
@@ -3278,8 +3261,7 @@ Viewer::~Viewer() {
   _luaHeldKeys.clear();
   _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
-  _cb_onHover = luabind::object();
-  hoverHide();
+  _hover.clear();
 
   // Release button callbacks and parameter values that carry a Lua object
   // (functions bound to push buttons) while the Lua state is still alive:
@@ -4089,8 +4071,8 @@ void Viewer::setCBOnParamChanged(const luabind::object &fn) {
 }
 
 void Viewer::setCBOnHover(const luabind::object &fn) {
+  _hover.setCallback(fn);
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onHover = fn;
     setMouseTracking(true);          // movement without a button is reported
     if (!_hoverTimer) {
       _hoverTimer = new QTimer(this);
@@ -4099,125 +4081,28 @@ void Viewer::setCBOnHover(const luabind::object &fn) {
     }
     _hoverTimer->start();
   } else {
-    _cb_onHover = luabind::object();
     if (_hoverTimer) _hoverTimer->stop();
-    hoverHide();
-  }
-}
-
-void Viewer::hoverHide() {
-  if (_hoverShown) {
-    QToolTip::hideText();
-    _hoverShown = false;
   }
 }
 
 void Viewer::hoverTick() {
-  if (!_cb_onHover || !_hoverArmed || !dynamicsWorld) return;
-  if (QApplication::mouseButtons() != Qt::NoButton) { hoverHide(); return; }
-  if (!_hoverStill.isValid() || _hoverStill.elapsed() < 500) return;
-
-  // a ray from the camera through the pointer (the ortho pane's camera if
-  // the pointer is over one)
-  qglviewer::Camera *cam = orthoCameraAt(_hoverPos);
+  if (!dynamicsWorld) return;
+  // the ortho pane's camera if the pointer is over one
+  qglviewer::Camera *cam = orthoCameraAt(_hover.pos());
   if (!cam) cam = camera();
-  qglviewer::Vec orig, dir;
-  cam->convertClickToLine(_hoverPos, orig, dir);
-  const btScalar reach = 1.0e6;
-  btVector3 from(orig.x, orig.y, orig.z);
-  btVector3 to(orig.x + dir.x * reach, orig.y + dir.y * reach, orig.z + dir.z * reach);
-  // Everything along the ray, nearest first, in every world (one drawn
-  // elsewhere is tested with the ray moved back from where it's drawn, and
-  // what it hits moved there again). Objects made with collides = false are
-  // seen too: many a script draws its bodies so, and works out their
-  // contacts itself, and they still have something to say.
-  struct Hit {
-    btScalar fraction;
-    const btCollisionObject *co;
-    btVector3 point;
-  };
-  struct AllHits : public btCollisionWorld::AllHitsRayResultCallback {
-    AllHits(const btVector3 &f, const btVector3 &t) : btCollisionWorld::AllHitsRayResultCallback(f, t) {}
-    bool needsCollision(btBroadphaseProxy *) const override { return true; }
-  };
-  std::vector<Hit> hits;
-  auto test = [&](btSoftRigidDynamicsWorld *w, const btTransform *place) {
-    btVector3 f = from, t = to;
-    if (place) {
-      const btTransform inv = place->inverse();
-      f = inv * from;
-      t = inv * to;
-    }
-    AllHits ray(f, t);
-    w->rayTest(f, t, ray);
-    for (int k = 0; k < ray.m_collisionObjects.size(); ++k)
-      hits.push_back({ray.m_hitFractions[k], ray.m_collisionObjects[k],
-                      place ? (*place) * ray.m_hitPointWorld[k] : ray.m_hitPointWorld[k]});
-  };
+  std::vector<Hover::World> worlds;
   if (_worlds.empty()) {
-    test(dynamicsWorld, nullptr);
+    worlds.push_back({dynamicsWorld, nullptr});
   } else {
     for (const PhysWorld &w : _worlds)
-      test(w.world, w.placed ? &w.place : nullptr);
+      worlds.push_back({w.world, w.placed ? &w.place : nullptr});
   }
-  std::sort(hits.begin(), hits.end(), [](const Hit &a, const Hit &b) { return a.fraction < b.fraction; });
-
-  auto objectOf = [&](const btCollisionObject *co) -> Object * {
-    if (!_objects) return nullptr;
-    for (Object *o : *_objects)
-      if (o && o->getRigidBody() && static_cast<const btCollisionObject *>(o->getRigidBody()) == co) return o;
-    return nullptr;
-  };
-  auto ask = [&](Object *o, const btVector3 &p) -> QString {
-    if (!_cb_onHover) return QString();
-    try {
-      luabind::object res = luabind::call_function<luabind::object>(
-          _cb_onHover, _frameNum, o, (double)p.x(), (double)p.y(), (double)p.z());
-      if (res.is_valid() && luabind::type(res) == LUA_TSTRING)
-        return QString::fromUtf8(luabind::object_cast<std::string>(res).c_str());
-    } catch (const std::exception &e) {
-      showLuaException(e, "onHover()");
-      _cb_onHover = luabind::object();    // (don't repeat the error 10x a second)
-    }
-    return QString();
-  };
-
-  // the nearest that has something to say; one that collides and hasn't
-  // stops the search (it's in the way), one that doesn't is looked through
-  QString text;
-  for (const Hit &h : hits) {
-    Object *o = objectOf(h.co);
-    if (!o) continue;
-    text = ask(o, h.point);
-    if (!text.isEmpty()) {
-      _hoverObj = o;
-      _hoverHitPt = h.point;
-      _hoverLastHit.restart();
-      break;
-    }
-    if (o->getCollides()) break;
-  }
-  if (text.isEmpty() && _hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
-      _objects && _objects->contains(_hoverObj)) {
-    // sticky: a spinning or rocking object can slip out from under a resting
-    // pointer for a moment -- keep reporting it for 1.5 s (no flicker)
-    text = ask(_hoverObj, _hoverHitPt);
-  }
-  if (text.isEmpty()) {
-    _hoverObj = nullptr;
-    hoverHide();
-    return;
-  }
-  // monospace so a script can line things up
-  QToolTip::showText(mapToGlobal(_hoverPos + QPoint(16, 16)),
-                     QString("<pre style='margin:0'>%1</pre>").arg(text.toHtmlEscaped()),
-                     this, QRect(), 600000);
-  _hoverShown = true;
+  _hover.tick(cam, worlds, _objects, _frameNum,
+              [this](const std::exception &e) { showLuaException(e, "onHover()"); });
 }
 
 void Viewer::leaveEvent(QEvent *e) {
-  _hoverArmed = false;
-  hoverHide();
+  _hover.disarm();
   QGLViewer::leaveEvent(e);
 }
 
