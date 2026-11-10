@@ -108,6 +108,13 @@ each entry says why. They match only where the pool's own code makes the
 access, so a race in bpp's code that the pool runs is still reported
 (checked with one planted in `bppworld.cpp`).
 
+## Screen scenes
+
+A scene in `screens/` can rest the mouse pointer on the view: a line
+`-- mouse: X Y` (window coordinates) puts it there once the window is up,
+and the screen under the window is grabbed, so a tooltip shows in the
+picture (`hover.lua`).
+
 ## Qt 5 and Qt 6
 
 bpp builds with either (`qmake` for Qt 5, `qmake6` for Qt 6). The CI's

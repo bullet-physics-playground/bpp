@@ -756,9 +756,22 @@ def pinned_fonts(wd):
     return conf
 
 
+def scene_mouse(scene):
+    """A screen scene's "-- mouse: X Y" line: where in the window the
+    pointer rests (None: it stays off the window)."""
+    with open(scene) as f:
+        for line in f:
+            m = re.match(r"--\s*mouse:\s*(\d+)\s+(\d+)\s*$", line)
+            if m:
+                return m.group(1), m.group(2)
+    return None
+
+
 def grab(ctx, display, scene, out_png):
     """Opens scene in the GUI, sizes the window, and grabs it to out_png
-    once two grabs a second apart are the same (the scene has loaded)."""
+    once two grabs a second apart are the same (the scene has loaded).
+    For a scene with a "-- mouse:" line the pointer rests there, and the
+    screen under the window is grabbed, so a tooltip shows too."""
     wd = ctx.workdir("screens-" + os.path.basename(scene))
     env = isolated_env(wd, display)
     fonts = pinned_fonts(wd)
@@ -781,14 +794,25 @@ def grab(ctx, display, scene, out_png):
         subprocess.run(["xdotool", "windowmove", win, "0", "0",
                         "windowsize", win, str(SCREEN_SIZE[0]), str(SCREEN_SIZE[1])], env=env)
         time.sleep(SCREEN_SETTLE)
+        mouse = scene_mouse(scene)
+        if mouse:
+            subprocess.run(["xdotool", "mousemove", "--window", win] + list(mouse), env=env)
+            # the window at the screen's corner (windowmove above)
+            r = subprocess.run(["xdotool", "getwindowgeometry", "--shell", win], env=env,
+                               stdout=subprocess.PIPE, check=True)
+            g = dict(l.split("=", 1) for l in r.stdout.decode().split())
+            what = ["-window", "root", "-crop", "%sx%s+%s+%s" % (g["WIDTH"], g["HEIGHT"], g["X"], g["Y"]),
+                    "+repage"]  # (not the screen's size and place, as a window grab)
+        else:
+            what = ["-window", win]
         prev = os.path.join(wd, "prev.png")
         deadline = time.time() + SCREEN_WAIT
-        subprocess.run(["import", "-window", win, prev], env=env, check=True)
+        subprocess.run(["import"] + what + [prev], env=env, check=True)
         while True:
             time.sleep(1)
             if p.poll() is not None:
                 return "bpp exited early (see %s)" % log.name
-            subprocess.run(["import", "-window", win, out_png], env=env, check=True)
+            subprocess.run(["import"] + what + [out_png], env=env, check=True)
             if image_diff(prev, out_png, None, fuzz="0%") == 0:
                 return None
             if time.time() > deadline:
@@ -827,7 +851,7 @@ def diff_region(expected, got):
     crop = "[%dx%d+0+0]" % (w, h - STATUS_BAR)
     r = subprocess.run(["convert", expected + crop, got + crop, "-compose", "difference",
                         "-composite", "-colorspace", "gray", "-threshold", SCREEN_FUZZ,
-                        "-trim", "-format", "%@", "info:"], stdout=subprocess.PIPE)
+                        "-format", "%@", "info:"], stdout=subprocess.PIPE)
     return r.stdout.decode().strip()
 
 
