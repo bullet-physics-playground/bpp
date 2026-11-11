@@ -888,7 +888,14 @@ handover/STEERING.md): the Left and Right arrow keys brake the left or
 right wheel of the walker followed (on the track, the walker), and it
 turns that way; the same key again frees it, and it walks on straight.
 The keys 1-4 pick the ground in all three. `SHOES = false` before
-loading takes the wheels off.
+loading takes the wheels off. In the rooms the room steers by the wheels
+too: a walker with something ahead makes a three-point turn -- it backs up
+with one wheel braked, walks on with the other braked, until it has turned
+-- and walks straight the rest of the time (`ROOM_STEER = "arcs"`: it turns
+walking forward on a circle; `"rigid"`: the old rigid turns;
+handover/STEERING.md, stage C). These rooms are 15 m across (`ARENA =
+1500`; walker-room.lua's own default is 1000), for straight walking
+between turns.
 
 The Threads slider (as in `../Testing_Threads.lua`) solves the walkers
 side by side on that many threads, while it runs; the status line shows

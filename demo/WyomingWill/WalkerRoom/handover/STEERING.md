@@ -472,6 +472,81 @@ heavier one catches on the logs and steps. Same size and place, so the
 clearance (stage A) is unchanged. The arrow keys turn about 5 °/s now: a
 quarter turn in about 18 s.
 
+## Stage C: the room steers by the wheels (10 November)
+
+Before, when a wall or another walker was ahead (within 40 cm, or on a
+crossing course), the room picked the best of 12 random turns of 60-180°
+and swung the walker through it rigidly in a second. Now a walker with
+wheels turns itself, by its wheels, and walks straight the rest of the
+time. `ROOM_STEER` picks how:
+
+- **`"backup"` (the default): a three-point turn.** It backs up 4 s
+  (`BACKUP_PHASE`) with the wheel on the far side braked, then walks on
+  4 s with the near one braked; both turn it the same way, and it repeats
+  until it has turned. A cycle turns 50-90° on flat (the 11 walkers on the
+  track, below) and ends about where it began, so the room still looks
+  only 40 cm ahead and picks the turn as on the spot. A look behind (10 cm)
+  ends a backing phase early. William's idea.
+- **`"arcs"`:** it walks on with the near wheel braked until it has
+  turned, on a circle about 80 cm in radius, so the room looks 120 cm
+  ahead (`WHEEL_GAP`) and traces each candidate turn along its arc, clear
+  of the walls and of where the other walkers will be by then.
+- **`"rigid"`:** the old turns (checked: the same room, to the last digit,
+  as before stage C).
+
+Either wheel turn that takes over 60 s, or an arc that still comes within
+10 cm of a wall or a walker, is finished rigidly (a rescue,
+`room.rescues`). While a wheel is braked by hand (the arrow keys) the room
+leaves that walker alone.
+
+`room.setReverse(w, on)` runs a walker's cranks backward. They ease
+through a stop over `REVERSE_EASE` s (1): switched at once, lift 62 diag
+tipped 22° on flat; eased over 1 s, 2.3° (2 s: no better, and it turns
+less). Backing up, Klann and Spears 4-bar rock more than walking (17.7°
+and 11-12° against 8.8° and 3.2° on flat): backing is their worse way,
+the one the ranking reverses them out of. Nothing came near tipping.
+
+**The back-up turn on the track** (forward to 6 s, backing with the right
+wheel braked 6-14 s, forward with the left braked 14-22 s, then free;
+eased 1 s; left counts up):
+
+| Walker | Bracing | Timing | Direction | Cycle's turn, flat | Waves 2 | Tilt max, flat |
+|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | trot | forward | +80° | +88° | 2.4° |
+| C-S lift 62 diag | outside, held | trot | forward | +70° | +57° | 2.3° |
+| Klann | own frame | trot | reversed | +51° | +50° | 17.7° |
+| Chebyshev-Spears diag | outside, held | trot | forward | +89° | +120° | 0.3° |
+| Hoecken-Spears 4-bar diag | outside, held | trot | forward | +71° | +109° | 0.2° |
+| Hoecken-Spears slider diag | outside, held | trot | forward | +58° | +92° | 0.1° |
+| Jansen | own frame | trot | forward | +74° | +98° | 1.5° |
+| Spears 4-bar | own frame | trot | reversed | +88° | +52° | 12.4° |
+| Hoecken slider diag | outside, held | trot | forward | +81° | +101° | 0.5° |
+| Hoecken 4-bar diag | outside, held | trot | forward | +80° | +108° | 0.3° |
+| Chebyshev diag | outside, held | trot | forward | +72° | +111° | 0.5° |
+
+**In the room** (`room-four.lua`, 4 minutes, threads 1; distance each
+walker went):
+
+| Steering | Room | Ground | Walkers | Bracing | Timing | Direction | Turns | Rescues | Turning (braked) | Distance |
+|---|---|---|---|---|---|---|---|---|---|---|
+| rigid (before) | 10 m | flat | 4 | mixed | trot | as the ranking | 21 | — | — | 20.4-20.9 m |
+| arcs, first try (40 cm, on-the-spot choice) | 10 m | flat | 4 | mixed | trot | as the ranking | 28 | 7 (walls) | 25-42% | 19.3-20.2 m |
+| arcs | 10 m | flat | 4 | mixed | trot | as the ranking | 35 | 4 | 38-55% | 18.9-19.6 m |
+| arcs | 10 m | waves 2 | 4 | mixed | trot | as the ranking | 43 | 6 | 28-70% | 14.5-17.9 m |
+| backup | 10 m | flat | 4 | mixed | trot | as the ranking | 14 | 0 | 30-37% | 15.1-15.9 m |
+| backup | 10 m | waves 2 | 4 | mixed | trot | as the ranking | 19 | 0 | 37-63% | 10.2-13.4 m |
+| **backup** | **15 m** | flat | 4 | mixed | trot | as the ranking | 10 | 0 | 20-39% | 14.8-17.8 m |
+| **backup** | **15 m** | waves 2 | 4 | mixed | trot | as the ranking | 10 | 0 | 14-28% | 15.6-16.1 m |
+
+No walker fell. A wheel turn takes 20-40 s (most need 90-180° to clear a
+wall head-on, at about 5 °/s), against a crossing of the 10 m room in about
+110 s, so in that room walkers spent a third or more of the time turning.
+Preferring smaller back-up turns (tried) did not help. So `room-four.lua`
+and `walker-room.lua` on its own are now 15 m across (`ARENA = 1500`;
+walker-room.lua's own default stays 1000): the physics costs the same (25
+ms a frame with 2 threads either way; Bullet only looks at the ground under
+each walker), and the walkers turn about a fifth of the time.
+
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 
 `walker-room.lua`'s own defaults are the old builds: the plated walkers

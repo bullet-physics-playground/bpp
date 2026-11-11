@@ -50,6 +50,7 @@ if EXTRA_WALKERS == nil then
   TERRAIN = TERRAIN or "waves"; AMP = AMP or 2; BUMP = BUMP or 15
   if REVERSE == nil then REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true } end   -- (their better way: section 4w)
   if SHOES == nil then SHOES = {} end   -- (a wheel each side: the arrow keys steer the walker followed)
+  ARENA = ARENA or 1500   -- (15 m: room to walk straight between turns)
 end
 
 local common = require "common"
@@ -1115,6 +1116,28 @@ end
 local walkers = {}
 room = { walkers = walkers, groundAt = terrainHeight }   -- (global, for tests and the command line)
 room.setShoe = setShoe   -- (SHOES: for launchers, probes and the keys)
+-- room.setReverse(w, on): walker w's cranks run backward (on) or as built:
+-- it backs up. They ease through a stop over REVERSE_EASE s (default 1),
+-- not all at once, which jolted some walkers (lift 62 diag tipped 22
+-- degrees on flat). (The crank lock keeps them in step either way: it
+-- compares how far each has turned with the others.)
+REVERSE_EASE = REVERSE_EASE or 1
+function room.setReverse(w, on)
+  if (w.backing or false) == (on or false) then return end
+  for _, m in ipairs(w.motors) do m.base = m.base or m.speed end
+  w.revK = w.revK or 1                 -- (the cranks' speed now, as a share of as built: 1 to -1)
+  w.revGoal = on and -1 or 1
+  w.backing = on or nil
+end
+local function easeReverse(w)          -- (each frame, from preSim)
+  if not w.revGoal or w.revK == w.revGoal then return end
+  local step = (REVERSE_EASE > 0) and 2 * FRAME / REVERSE_EASE or 2
+  w.revK = (w.revGoal > w.revK) and math.min(w.revGoal, w.revK + step) or math.max(w.revGoal, w.revK - step)
+  for _, m in ipairs(w.motors) do
+    m.speed = m.base * w.revK
+    if not LOCK_CRANKS then m.hinge:enableAngularMotor(true, m.speed, math.max(0, (m.impulse or 0) - (m.friction or 0))) end
+  end
+end
 local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test track's air measure)
 
 -- ---------------------------------------------------------------------
@@ -1967,6 +1990,23 @@ local GAP = 40              -- about one body length, cm
 local AHEAD = math.rad(60)  -- "in front": within this of straight ahead
 local COOLDOWN = 2.0        -- s after a turn ends before it looks again
 local CANDIDATES = 12       -- new headings tried per turn
+-- ROOM_STEER (handover/STEERING.md, stage C): how the room turns a walker
+-- that has its wheels (SHOES), which walks straight the rest of the time.
+-- "backup" (the default): a three-point turn -- it backs up BACKUP_PHASE s
+-- with the wheel on the far side braked, then walks on BACKUP_PHASE s with
+-- the near one braked (both turn it the same way), and so on until it has
+-- turned; nearly on the spot, so it looks GAP ahead, as a rigid turn does
+-- (a look behind, GAP / 4, ends a backing phase early). "arcs": it walks
+-- on with the near wheel braked until it has turned, on a circle of about
+-- 80 cm, so it looks WHEEL_GAP ahead. Either way, if the turn takes over
+-- WHEEL_TIME, or an arc still comes within GAP / 4 of a wall or a walker,
+-- the turn is finished rigidly (a rescue: room.rescues). "rigid": every
+-- turn rigid, as without wheels.
+ROOM_STEER = ROOM_STEER or "backup"
+local BACKUP_PHASE = 4      -- s
+local WHEEL_GAP = 120       -- cm
+local WHEEL_TIME = 60       -- s
+room.rescues = {}           -- a log: { time, walker name, why }
 local WALL_X, WALL_Z = ARENA_X / 2, ARENA_Z / 2   -- the walls' inner faces are at x = +-WALL_X, z = +-WALL_Z
 
 local function angleDiff(a, b)       -- a - b, wrapped to (-pi, pi]
@@ -2025,14 +2065,48 @@ local function badness(w, x, z, h)
   return bad
 end
 
+-- a turn by a braked wheel isn't on the spot: the walker goes on round a
+-- circle about WHEEL_R across in radius as it turns. The badness of such a
+-- turn: its end heading's, from where the arc ends, and a lot more if the
+-- arc on the way comes within GAP / 4 of a wall (turning toward a wall to
+-- come away from it, which on the spot is fine, would run into it)
+local WHEEL_R = 80          -- cm (measured: 60-80 on flat and waves 2, grip 3)
+local function wheelBadness(w, x, z, h, turn)
+  local s, step = (turn > 0) and 1 or -1, math.rad(10)
+  local sp = math.max(w.vx and math.sqrt(w.vx * w.vx + w.vz * w.vz) or 6, 1)   -- (cm/s)
+  local px, pz, a, bad = x, z, h, 0
+  for k = 1, math.floor(math.abs(turn) / step + 0.5) do
+    a = a + s * step
+    px, pz = px + WHEEL_R * step * math.cos(a), pz - WHEEL_R * step * math.sin(a)
+    if math.min(WALL_X - math.abs(px), WALL_Z - math.abs(pz)) - w.radius < GAP / 4 then bad = bad + 10; break end
+    -- (and the other walkers, where they'll be by then at their present velocities)
+    local t = k * WHEEL_R * step / sp
+    for _, o in ipairs(walkers) do
+      if o ~= w then
+        local ox, _, oz = getPosXYZ(o.cube)
+        ox, oz = ox + (o.vx or 0) * t, oz + (o.vz or 0) * t
+        if math.sqrt((ox - px) ^ 2 + (oz - pz) ^ 2) - w.radius - o.radius < GAP / 2 then bad = bad + 10; break end
+      end
+    end
+    if bad > 0 then break end
+  end
+  return bad + badness(w, px, pz, h + turn)
+end
+
 local RIGHT_ANGLES = { math.pi / 2, -math.pi / 2, math.pi }
-local function chooseTurn(w, x, z, h)
+local function chooseTurn(w, x, z, h, byWheel)
   local best, bestBad
-  for k = 1, w.spec.railed and #RIGHT_ANGLES or CANDIDATES do
+  for k = 1, (w.spec.railed and not byWheel) and #RIGHT_ANGLES or CANDIDATES do
     -- a turn of 60 to 180 degrees, left or right (a railed walker: a
     -- right angle, or about turn)
-    local turn = w.spec.railed and RIGHT_ANGLES[k] or math.rad(60 + 120 * random()) * ((random() < 0.5) and -1 or 1)
-    local b = badness(w, x, z, h + turn) + 0.1 * math.abs(turn) / math.pi   -- (smaller turns preferred, a little)
+    local turn, b
+    if byWheel then   -- (30 to 180 degrees, smaller ones preferred more: it walks straight sooner)
+      turn = math.rad(30 + 150 * random()) * ((random() < 0.5) and -1 or 1)
+      b = wheelBadness(w, x, z, h, turn) + 0.3 * math.abs(turn) / math.pi
+    else
+      turn = w.spec.railed and RIGHT_ANGLES[k] or math.rad(60 + 120 * random()) * ((random() < 0.5) and -1 or 1)
+      b = badness(w, x, z, h + turn) + 0.1 * math.abs(turn) / math.pi   -- (smaller turns preferred, a little)
+    end
     if not bestBad or b < bestBad then best, bestBad = turn, b end
   end
   return best
@@ -2043,20 +2117,21 @@ end
 -- and the way it has actually been moving (a walker that slides or veers
 -- -- the 2-leg Spears does as it rolls over -- can move well off the way
 -- it faces)
-local function blockedAlong(w, x, z, h)
+local function blockedAlong(w, x, z, h, wallGap, walkerGap)
   local fx, fz = math.cos(h), -math.sin(h)
+  local WGAP = wallGap or GAP   -- (a wider look ahead for a walker that turns by its wheels: WHEEL_GAP)
   -- each wall: the gap between the walker's edge and it, and how
   -- squarely the walker heads at it (1: straight at it; 0: along it)
   for _, wall in ipairs({ { WALL_X - x, fx }, { WALL_X + x, -fx }, { WALL_Z - z, fz }, { WALL_Z + z, -fz } }) do
     local gap, toward = wall[1] - w.radius, wall[2]
-    if (gap < GAP and toward > math.cos(AHEAD)) or (gap < GAP / 4 and toward > 0) then return "wall" end
+    if (gap < WGAP and toward > math.cos(AHEAD)) or (gap < WGAP / 4 and toward > 0) then return "wall" end
   end
   for _, o in ipairs(walkers) do
     if o ~= w then
       local ox, _, oz = getPosXYZ(o.cube)
       local dx, dz = ox - x, oz - z
       local d = math.sqrt(dx * dx + dz * dz)
-      if d - w.radius - o.radius < GAP and d > 1e-6 and (dx * fx + dz * fz) / d > math.cos(AHEAD) then
+      if d - w.radius - o.radius < (walkerGap or WGAP) and d > 1e-6 and (dx * fx + dz * fz) / d > math.cos(AHEAD) then
         return o
       end
     end
@@ -2112,6 +2187,8 @@ local function standUp(w)
   end
   w.heading = h
   w.turnLeft = nil
+  if w.wheelTurn then setShoe(w, nil); w.wheelTurn = nil end   -- (a wheel turn it was making: dropped)
+  if w.backupTurn then setShoe(w, nil); room.setReverse(w, false); w.backupTurn = nil end
   if w.spec.railed then
     -- (back onto the nearest axis, which a railed walker must face along)
     w.heading = math.floor(h / (math.pi / 2) + 0.5) * math.pi / 2
@@ -2165,9 +2242,10 @@ local function nearMiss(w, x, z)
   end
 end
 
-local function blocked(w, x, z, h)
-  local what = blockedAlong(w, x, z, h)
+local function blocked(w, x, z, h, wallGap)
+  local what = blockedAlong(w, x, z, h, wallGap)
   if what then return what end
+  local GAP = wallGap or GAP
   -- a walker on a crossing path, from any side: both keep their present
   -- velocities and they'd come within GAP / 2
   if w.vx then
@@ -2182,7 +2260,7 @@ local function blocked(w, x, z, h)
   if old then
     local dx, dz = x - old[1], z - old[2]
     if dx * dx + dz * dz > 1 then           -- (moved more than 1 cm in the last second)
-      return blockedAlong(w, x, z, math.atan2(-dz, dx))
+      return blockedAlong(w, x, z, math.atan2(-dz, dx), wallGap)
     end
   end
 end
@@ -2372,6 +2450,7 @@ v:preSim(function(N)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
     if JOINT_FRICTION then jointFriction(w) end
+    easeReverse(w)
     if LOCK_CRANKS then lockCranks(w) end
     if YAW_DAMP and not w.shoeDown then   -- (its turning about the vertical damped: YAW_DAMP; not while a wheel is braked, SHOES)
       local ax, ay, az = getAngVelXYZ(w.cube)
@@ -2387,15 +2466,68 @@ v:preSim(function(N)
         startTurn(w, math.pi / 2)
         w.nextTest = (w.nextTest or 10) + 10
       end
+    elseif not TEST_TRACK and not w.turnLeft and w.byHand then
+      -- (a wheel braked by hand, the arrow keys: the room leaves it alone)
+    elseif not TEST_TRACK and not w.turnLeft and w.backupTurn then
+      -- (a three-point turn: backing with the far wheel braked, then on with the near one)
+      local sh = w.backupTurn
+      local x, _, z = getPosXYZ(w.cube)
+      local sgn = (sh.turn > 0) and 1 or -1
+      local done = angleDiff(heading(w), sh.from) * sgn
+      if done >= math.abs(sh.turn) or simTime > sh.by then
+        setShoe(w, nil); room.setReverse(w, false)
+        w.backupTurn = nil
+        w.calmUntil = simTime + COOLDOWN
+        if done < math.abs(sh.turn) then
+          startTurn(w, (math.abs(sh.turn) - math.max(done, 0)) * sgn)
+          w.calmUntil = simTime + TURN_TIME + COOLDOWN
+          room.rescues[#room.rescues + 1] = { simTime, w.spec.name, "too slow" }
+        end
+      else
+        local h = travel(w)
+        local ahead = blockedAlong(w, x, z, sh.back and (h + math.pi) or h, GAP / 4, GAP / 4)
+        if simTime >= sh.next or ahead then   -- (the other phase)
+          sh.back = not sh.back
+          sh.next = simTime + BACKUP_PHASE
+          room.setReverse(w, sh.back)
+          setShoe(w, ((sgn > 0) == (not sh.back)) and "L" or "R")
+        end
+      end
+    elseif not TEST_TRACK and not w.turnLeft and w.wheelTurn then
+      -- (turning by a braked wheel: done when it has turned that far)
+      local wt = w.wheelTurn
+      local x, _, z = getPosXYZ(w.cube)
+      local done = angleDiff(heading(w), wt.from) * (wt.turn > 0 and 1 or -1)
+      local close = blockedAlong(w, x, z, travel(w), GAP / 4, GAP / 4) or nearMiss(w, x, z)
+      if done >= math.abs(wt.turn) or close or simTime > wt.by then
+        setShoe(w, nil)
+        w.wheelTurn = nil
+        w.calmUntil = simTime + COOLDOWN
+        if done < math.abs(wt.turn) then   -- (a rescue: the rest of the turn, rigidly)
+          startTurn(w, (math.abs(wt.turn) - math.max(done, 0)) * (wt.turn > 0 and 1 or -1))
+          w.calmUntil = simTime + TURN_TIME + COOLDOWN
+          room.rescues[#room.rescues + 1] = { simTime, w.spec.name, close and ((close == "wall") and "wall" or close.spec.name) or "too slow" }
+        end
+      end
     elseif not TEST_TRACK and not w.turnLeft then
       local x, _, z = getPosXYZ(w.cube)
       local h = travel(w)
+      local byWheel = w.wheels and ROOM_STEER == "arcs"
       local what
-      if simTime >= (w.calmUntil or 0) then what = blocked(w, x, z, h) else what = nearMiss(w, x, z) end
+      if simTime >= (w.calmUntil or 0) then what = blocked(w, x, z, h, byWheel and WHEEL_GAP or GAP) else what = nearMiss(w, x, z) end
       if what then
-        local turn = chooseTurn(w, x, z, h)
-        startTurn(w, turn)
-        w.calmUntil = simTime + TURN_TIME + COOLDOWN
+        local turn = chooseTurn(w, x, z, h, byWheel)
+        if w.wheels and ROOM_STEER == "backup" then   -- (backing first, the far wheel braked)
+          w.backupTurn = { from = heading(w), turn = turn, back = true, next = simTime + BACKUP_PHASE, by = simTime + WHEEL_TIME }
+          room.setReverse(w, true)
+          setShoe(w, (turn > 0) and "R" or "L")
+        elseif byWheel then
+          setShoe(w, (turn > 0) and "L" or "R")
+          w.wheelTurn = { from = heading(w), turn = turn, by = simTime + WHEEL_TIME }
+        else
+          startTurn(w, turn)
+          w.calmUntil = simTime + TURN_TIME + COOLDOWN
+        end
         room.turns[#room.turns + 1] = { simTime, w.spec.name, (what == "wall") and "wall" or what.spec.name, math.deg(turn) }
         w.turns = (w.turns or 0) + 1
       end
@@ -2768,7 +2900,10 @@ v:onKey(function(N, key, down)
       elseif not w then print("room: follow a walker first (" .. (ROOM_SWAP and "F" or "Tab") .. ")")
       else
         local side = (key == "Left") and "L" or "R"
+        w.wheelTurn = nil   -- (a turn the room was making: yours now)
+        if w.backupTurn then w.backupTurn = nil; room.setReverse(w, false) end
         room.setShoe(w, (w.shoeDown ~= side) and side or nil)
+        w.byHand = w.shoeDown and true or nil   -- (the room leaves it alone while it's braked)
         print(w.spec.name .. ": " .. wheelNote(w):sub(1, -4))
       end
     end
