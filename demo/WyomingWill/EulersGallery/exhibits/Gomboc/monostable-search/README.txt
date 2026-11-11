@@ -31,6 +31,9 @@ FILES
   gallery.png the seven, each resting on its one resting point
   smooth.py, smooth_check.py, smooth_search.py, smooth_refine.py, smooth_fold.py, mono-g1.png
               the same genomes read as smooth bodies, and the search that found mono-g1 (below)
+  smooth_improve.py  strengthens mono-g1's weakest lever: mono-g2, mono-g3 (below)
+  edged.py, edged_search.py, edged_drop.py, genomes-edged/, edged.png
+              bodies with creases, and the search that found mono-e1 and mono-e2 (below)
 
   python3 build.py genomes/*.npy                  (about 1 s each)
   python3 build.py --write meshes genomes/*.npy
@@ -122,6 +125,70 @@ MONO-G1: ONE RESTING AND ONE BALANCING POINT, A (1,1) BODY LIKE THE GOMBOC
       neither. A print would need a much finer mesh, and could not hold the tolerance anyway.
   So mono-g1 shows that this family holds a (1,1) body other than the gomboc. It is not a toy to
   print: the seven above right themselves far better.
+
+MONO-G2, MONO-G3: MONO-G1 WITH ITS WEAKEST LEVER STRENGTHENED
+  smooth_improve.py takes trust-region steps that raise the least of the lever field's local minima
+  (linearised, a linear programme each step), keeping a step only if the exact count stays (1,1), the
+  least radius of curvature stays >= 0.2 mm, and Q rises.
+    python3 smooth_improve.py genomes/mono-g1.npy g1a.npy 4
+    python3 smooth_improve.py g1a.npy mono-g2.npy 80                           (L = 6)
+    python3 -c "import numpy as np; np.save('g2L8.npy', np.r_[np.load('mono-g2.npy'), np.zeros(32)])"
+    python3 smooth_improve.py g2L8.npy mono-g3.npy 120                         (the same body in the L = 8 basis)
+  (as run, except that the first two runs tracked at most 8 weak spots; at L = 8 about 20 tied, so the
+  cap is now 80, and a rerun of the first two gives a slightly different mono-g2)
+  smooth_check.py, both: exact 1 resting, 1 balancing, 0 saddles; grid counts 1/1 at every depth.
+    name     L  Q (mm/rad)  least radius  rest up  extents (mm, diameter 90)  drops upright (120)
+    mono-g1  6    0.010       1.86 mm     38.3     81.8 x 82.5 x 89.1           54%
+    mono-g2  6    0.207       1.34 mm     38.3     81.8 x 82.5 x 89.1           64%
+    mono-g3  8    0.251       0.23 mm     38.3     81.8 x 82.5 x 89.2           66%
+  25 times the lever bought 12 points of drops. The far stalls (near 100 deg) fell from a third of the
+  drops to a fifth; the near-upright friction stalls (10-25 deg) stayed at about 12%. The weak region is
+  a ridge of near-equilibria, not a point, as in Schettini Gherardini's mono-monostatic polyhedron
+  (arXiv 2609.07827, its "geometric price"). (The 120-drop figures use drop.py with 120 drops; with 30,
+  mono-g1 showed 53%.)
+
+MONO-E1, MONO-E2: (1,1) BODIES WITH ONE CREASE
+  edged.py describes a body by its radial function about the origin, the least of K smooth pieces,
+  rho(u) = min_k exp(sum_j a_kj Y_j(u)), degrees 0..4 (K = 3: 75 numbers, genomes-edged/*.npy). Where
+  one piece takes over from another there is a crease. Equilibria are the critical points of the
+  distance from the centre of mass over the sampled surface, with points added along the creases (an
+  equilibrium on a crease is as real as one on a face), counted by persistence; convexity is checked by
+  the depth of any sample inside the hull of all samples.
+  edged_search.py: CMA-ES, popsize 16, restarted with twice the population when it stalls (none did in
+  15 minutes). Score: not convex, then extra depth on the level-5 grid, then the same on level 6, then
+  -Q. Six runs, 15 minutes each on 2 cores, L = 4:
+    K = 1 (seeds 3, 6) and K = 2 (seeds 1, 4): every run ended as one smooth piece, stuck with 60-650
+      um of extra resting / balancing points, as the smooth searches were before refining.
+    K = 3 (seeds 2, 5): both reached (1,1) directly, each with 2 pieces showing and one crease.
+    python3 edged_search.py e1 900 3 4 5          (mono-e1)
+    python3 edged_search.py e2 900 3 4 2          (mono-e2)
+  (the runs stop on time, so a rerun on another machine may stop at a different point)
+  In both the balancing point lies ON the crease and the resting point on a smooth face (edged.png):
+  found twice from independent starts.
+    name     counts (0.5,2,5,20 um) L5/L6/L7  convexity  rest up  top    extents (mm)          Q (L6)  drops upright (120)
+    mono-e1  1/1 at every level and depth     <= 0.3 um  32.6     48.0   89.4 x 80.1 x 71.6    0.033   96%  (5 at 149-150 deg)
+    mono-e2  1/1 at every level and depth     <= 0.12 um 34.9     47.3   87.1 x 81.4 x 76.5    0.135   80%  (17 at 11-23 deg)
+    python3 edged_drop.py 120 genomes-edged/*.npy
+  mono-e2's weakest spot, 152 deg from the rest, lies on its crease; on a 0.008 deg local grid there is
+  no hidden equilibrium there (the surface slope stays 0.033 mm/rad). Its Q falls as the grid refines
+  (0.19, 0.135, 0.079 at levels 5, 6, 7): Q is ill-defined on a crease.
+  Not done: an exact count like smooth_check.py (the grids reach 160,000 points; level 8 ran out of
+  memory); a printed crease is rounded, and how much rounding the crease top can take is unchecked; the
+  drop meshes (hulls of about 83,000 faces) are finer than the smooth bodies' (build.py), so the
+  comparison is close but not like for like.
+
+WHAT THIS ALL SHOWS (10 Nov 2026)
+  1. One resting point is easy. A search from random shapes finds lopsided monostable convex bodies in
+     minutes (the seven above); extra balancing points do no harm to a self-righting toy.
+  2. One resting AND one balancing point, smooth, exists other than the gomboc (mono-g1: no mirror
+     plane, rest and top 90 deg apart), but only within micrometres, with a ridge of near-equilibria.
+     Strengthening the weakest lever 25 times lifted drops from 54% to 66%.
+  3. A crease makes (1,1) easy. With three pieces both runs reached (1,1) directly, each with one
+     crease carrying the balancing point; mono-e1 rights itself in 96% of drops.
+  4. The weakest lever (Q) does not predict drops: mono-e1 has a weaker Q than mono-g3 and does far
+     better. Where the weak region lies, and how deep the resting point is, matter more. For a printed
+     toy, judge by drop tests.
+  Best candidates to print: the low loaves (p1, s2-s4) and mono-e1.
 
 NOT DONE (none of these is ready to print)
   * Faceting: the 10,242 planes leave facets up to ~7 mm across at 90 mm and
