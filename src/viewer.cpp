@@ -1657,106 +1657,19 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 }
 } // namespace
 
-namespace {
-// Name a key for the onKey() hook: its Qt key sequence text, except that the
-// two Shift keys are told apart (pinball flippers are traditionally on the
-// left and right Shift). Qt reports both as Key_Shift, so the side comes from
-// the platform's native code.
-QString luaKeyName(const QKeyEvent *e) {
-  if (e->key() == Qt::Key_Shift) {
-#if defined(Q_OS_MAC)
-    const bool right = e->nativeVirtualKey() == 60; // kVK_RightShift
-#elif defined(Q_OS_WIN)
-    const bool right = e->nativeScanCode() == 54;
-#else
-    const bool right = e->nativeScanCode() == 62; // X11 / evdev keycode
-#endif
-    return right ? QStringLiteral("RShift") : QStringLiteral("LShift");
-  }
-  return QKeySequence(e->key()).toString(QKeySequence::PortableText);
-}
-} // namespace
-
 void Viewer::keyReleaseEvent(QKeyEvent *e) {
-  if (!e->isAutoRepeat() && _cb_onKey) {
-    _luaHeldKeys.remove(e->key());
-    try {
-      luabind::call_function<void>(_cb_onKey, _frameNum, luaKeyName(e), false);
-    } catch (const std::exception &ex) {
-      showLuaException(ex, "onKey()");
-    }
-  }
+  _keys.release(e, _frameNum, [this](const std::exception &ex, const char *where) {
+    showLuaException(ex, where);
+  });
   QGLViewer::keyReleaseEvent(e);
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
   _hover.interrupt();                // (a key hides the tooltip)
-  if (_cb_onKey) {
-    if (e->isAutoRepeat()) {
-      if (_luaHeldKeys.contains(e->key()))
-        return;
-    } else {
-      bool consumed = false;
-      try {
-        luabind::object r = luabind::call_function<luabind::object>(
-            _cb_onKey, _frameNum, luaKeyName(e), true);
-        consumed = r && luabind::type(r) == LUA_TBOOLEAN &&
-                   luabind::object_cast<bool>(r);
-      } catch (const std::exception &ex) {
-        showLuaException(ex, "onKey()");
-      }
-      if (consumed) {
-        _luaHeldKeys.insert(e->key());
-        return;
-      }
-    }
-  }
-
-  int keyInt = e->key();
-  Qt::Key key = static_cast<Qt::Key>(keyInt);
-
-  if (key == Qt::Key_unknown) {
-    qDebug() << "Unknown key from a macro probably";
-    return;
-  }
-
-  // the user have clicked just and only the special keys Ctrl, Shift, Alt,
-  // Meta.
-  if (key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt ||
-      key == Qt::Key_Meta) {
-    // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
-    // qDebug() << "New KeySequence:" <<
-    // QKeySequence(keyInt).toString(QKeySequence::NativeText); return;
-  }
-
-  // check for a combination of user clicks
-  Qt::KeyboardModifiers modifiers = e->modifiers();
-  QString keyText = e->text();
-  // if the keyText is empty than it's a special key like F1, F5, ...
-  //  qDebug() << "Pressed Key:" << keyText;
-
-  QList<Qt::Key> modifiersList;
-  if (modifiers & Qt::ShiftModifier)
-    keyInt += Qt::SHIFT;
-  if (modifiers & Qt::ControlModifier)
-    keyInt += Qt::CTRL;
-  if (modifiers & Qt::AltModifier)
-    keyInt += Qt::ALT;
-  if (modifiers & Qt::MetaModifier)
-    keyInt += Qt::META;
-
-  QString seq = QKeySequence(keyInt).toString(QKeySequence::NativeText);
-  // qDebug() << "KeySequence:" << seq;
-
-  if (_cb_shortcuts->contains(seq)) {
-    try {
-      luabind::call_function<void>(*_cb_shortcuts->value(seq), _frameNum);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onShortcut()");
-    }
-
-    return; // skip built in command if overridden by shortcut
-  }
+  if (_keys.press(e, _frameNum, [this](const std::exception &ex, const char *where) {
+        showLuaException(ex, where);
+      }))
+    return; // (the script's key)
 
   switch (e->key()) {
 
@@ -2143,7 +2056,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _vfePreviewHeight = 0;
 #endif // USE_VFE
 
-  _cb_shortcuts = new QHash<QString, std::shared_ptr<luabind::object>>();
 
   setCamera(new Cam(this));
 
@@ -2730,8 +2642,7 @@ emit scriptStarts();
     _cb_postSim = luabind::object();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
-    _cb_onKey = luabind::object();
-    _luaHeldKeys.clear();
+    _keys.clear();
     setStatusText(QString());   // (a script's status line goes with it)
     _synth.reset();             // (and its voices)
     _cb_onParamChanged = luabind::object();
@@ -2751,13 +2662,6 @@ emit scriptStarts();
     for (QVariant &value : _params)
       if (value.userType() == qMetaTypeId<luabind::object>())
         value = QVariant();
-
-    if (_cb_shortcuts) {
-      for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
-        it->reset();
-      }
-      _cb_shortcuts->clear();
-    }
 
     // (removed objects bpp still owns go with the rest)
     for (Object *o : _removed)
@@ -3323,8 +3227,7 @@ Viewer::~Viewer() {
   _cb_preStop = luabind::object();
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
-  _cb_onKey = luabind::object();
-  _luaHeldKeys.clear();
+  _keys.clear();                     // (shortcuts too: before Lua closes)
   _cb_onSpaceNavigator = luabind::object();
   _cb_onParamChanged = luabind::object();
   _hover.clear();
@@ -3342,14 +3245,6 @@ Viewer::~Viewer() {
   for (QVariant &value : _params)
     if (value.userType() == qMetaTypeId<luabind::object>())
       value = QVariant();
-
-  // Clear shortcuts BEFORE closing Lua state.
-  // The shared_ptr<luabind::object> destructors call luaL_unref.
-  if (_cb_shortcuts) {
-    _cb_shortcuts->clear();
-    delete _cb_shortcuts;
-    _cb_shortcuts = nullptr;
-  }
 
   // (removed objects bpp still owns go with the rest)
   for (Object *o : _removed)
@@ -4015,11 +3910,7 @@ void Viewer::setCBOnCommand(const luabind::object &fn) {
   }
 }
 
-void Viewer::setCBOnKey(const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onKey = fn;
-  }
-}
+void Viewer::setCBOnKey(const luabind::object &fn) { _keys.setOnKey(fn); }
 
 int Viewer::getAnimationPeriod() const { return animationPeriod(); }
 
@@ -4333,14 +4224,10 @@ void Viewer::clearParams() {
 }
 
 void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_shortcuts->insert(keys, std::make_shared<luabind::object>(fn));
-  }
+  _keys.addShortcut(keys, fn);
 }
 
-void Viewer::removeShortcut(const QString &keys) {
-  _cb_shortcuts->remove(keys);
-}
+void Viewer::removeShortcut(const QString &keys) { _keys.removeShortcut(keys); }
 
 void Viewer::postDraw() {
   if (_parsing)

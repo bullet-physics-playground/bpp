@@ -54,6 +54,7 @@
 #include "wavtrack.h"
 #include "hover.h"
 #include "quadview.h"
+#include "scriptkeys.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -2525,8 +2526,7 @@ private:
   luabind::object _cb_preStop;   ///< Called before the script is replaced.
   luabind::object _cb_onCommand; ///< Called for a command line entry.
   luabind::object _cb_onJoystick; ///< Called for each joystick report.
-  luabind::object _cb_onKey; ///< Called for each key press and release.
-  QSet<int> _luaHeldKeys;    ///< Keys the onKey() hook consumed on press.
+  ScriptKeys _keys;          ///< The script's onKey hook and shortcuts.
   luabind::object _cb_onSpaceNavigator; ///< Called for each 3D mouse report;
                                         ///< when set it also takes the device
                                         ///< away from the built-in camera
@@ -2535,12 +2535,6 @@ private:
   Hover _hover{this};                ///< The tooltip by the resting mouse (v:onHover).
   QTimer *_hoverTimer = nullptr;     ///< Drives hoverTick().
   luabind::object _cb_onParamChanged; ///< Called when a parameter changes.
-
-  #include <memory>
-
-  QHash<QString, std::shared_ptr<luabind::object>> *_cb_shortcuts; ///< Lua
-                          ///< functions bound to key sequences, keyed by the
-                          ///< sequence's native text form.
 
   bool _parsing;       ///< True while a script is being loaded, which stops
                        ///< the draw and animation paths touching the world.
