@@ -547,6 +547,22 @@ walker-room.lua's own default stays 1000): the physics costs the same (25
 ms a frame with 2 threads either way; Bullet only looks at the ground under
 each walker), and the walkers turn about a fifth of the time.
 
+## After stage C (11 November)
+
+- **Down** backs up the walker followed (on the track, the walker), and
+  again walks it on: `room.setReverse`, eased over 1 s. Backing with a
+  wheel braked turns it the other way (checked on the track: Jansen backing
+  with the left braked turned to -26°, walking on with it braked came back
+  to -8°, and held it when freed), so Down and an arrow make a three-point
+  turn by hand. While it is backing by hand, as while a wheel is braked by
+  hand, the room leaves that walker alone.
+- **`runs/room-steer.sh`** runs a room headless (default the 11,
+  `walker-room.lua` on its own; `ROOM=room-four.lua`) for `MINUTES` (4) on
+  each ground in `TERRAINS` and prints the turns, rescues, walkers stood up
+  again and each walker's share of the time turning and backing
+  (`runs/roomlog.lua`). The 11 are too slow to run here (0.17x real time);
+  on William's machine, about 8 minutes a ground at 4 threads.
+
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 
 `walker-room.lua`'s own defaults are the old builds: the plated walkers

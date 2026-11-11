@@ -2639,11 +2639,13 @@ local function wheelHelp()
   if not SHOES then return "" end
   return "Left Right  brake the left (right) wheel of the walker" .. (TEST_TRACK and "" or " followed") .. ": it turns\n" ..
          "            that way; the same key again frees it, and it walks on\n" ..
-         "            straight from there\n"
+         "            straight from there\n" ..
+         "Down        back up (again: walk on); with a wheel braked it turns\n" ..
+         "            the other way\n"
 end
 local function wheelNote(w)
   if not (w and w.wheels) then return "" end
-  return (w.shoeDown == "L" and "left wheel braked" or w.shoeDown == "R" and "right wheel braked" or "wheels free") .. " | "
+  return (w.backing and "backing, " or "") .. (w.shoeDown == "L" and "left wheel braked" or w.shoeDown == "R" and "right wheel braked" or "wheels free") .. " | "
 end
 
 local function helpText()
@@ -2903,11 +2905,25 @@ v:onKey(function(N, key, down)
         w.wheelTurn = nil   -- (a turn the room was making: yours now)
         if w.backupTurn then w.backupTurn = nil; room.setReverse(w, false) end
         room.setShoe(w, (w.shoeDown ~= side) and side or nil)
-        w.byHand = w.shoeDown and true or nil   -- (the room leaves it alone while it's braked)
+        w.byHand = (w.shoeDown or w.handBack) and true or nil   -- (the room leaves it alone while it's braked or backing)
         print(w.spec.name .. ": " .. wheelNote(w):sub(1, -4))
       end
     end
     return true   -- (not the camera's: bpp would move the view)
+  end
+  if key == "Down" then   -- (back up, or walk on again: room.setReverse)
+    if down then
+      local w = TEST_TRACK and walkers[1] or following
+      if not w then print("room: follow a walker first (" .. (ROOM_SWAP and "F" or "Tab") .. ")")
+      else
+        if w.backupTurn then w.backupTurn = nil; room.setShoe(w, nil); room.setReverse(w, false) end   -- (the room's turn: yours now)
+        w.handBack = not w.handBack or nil
+        room.setReverse(w, w.handBack)
+        w.byHand = (w.shoeDown or w.handBack) and true or nil
+        print(w.spec.name .. ": " .. (w.handBack and "backing up" or "walking on"))
+      end
+    end
+    return true
   end
   if not TEST_TRACK and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
     if down then

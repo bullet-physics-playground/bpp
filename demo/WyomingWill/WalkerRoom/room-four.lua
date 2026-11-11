@@ -13,6 +13,8 @@
 --   1 2 3 4          the ground: waves, random, logs, steps (built again)
 --   Left, Right      brake the left (right) wheel of the walker followed: it
 --                    turns that way; the same key again frees it
+--   Down             the walker followed backs up (again: walks on); with a
+--                    wheel braked it turns the other way
 --   T                clear the trails
 --   G                build the room with the sliders' height and length
 -- The TerrainHeight slider sets the bumps' height and BumpLength their length

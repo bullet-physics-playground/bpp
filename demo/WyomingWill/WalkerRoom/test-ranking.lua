@@ -24,6 +24,8 @@
 --   G                build the track with the sliders' height and length
 --   Left, Right      brake the walker's left (right) wheel: it turns that way;
 --                    the same key again frees it (handover/STEERING.md)
+--   Down             back up (again: walk on); with a wheel braked it turns
+--                    the other way
 -- The TerrainHeight slider sets the bumps' height, G builds it (the ranking used
 -- waves 2/4/6, logs 3/5/7 and steps 3/5/7). After 60 s each prints its
 -- speed in the output pane (the ranking's runs were 20 s, speed from 5 s

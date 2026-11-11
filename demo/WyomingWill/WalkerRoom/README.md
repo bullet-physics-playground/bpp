@@ -887,6 +887,8 @@ In all three, every walker has a wheel on each side (`SHOES`,
 handover/STEERING.md): the Left and Right arrow keys brake the left or
 right wheel of the walker followed (on the track, the walker), and it
 turns that way; the same key again frees it, and it walks on straight.
+Down backs it up (again: it walks on); backing with a wheel braked turns
+it the other way, so Down and an arrow make a three-point turn by hand.
 The keys 1-4 pick the ground in all three. `SHOES = false` before
 loading takes the wheels off. In the rooms the room steers by the wheels
 too: a walker with something ahead makes a three-point turn -- it backs up

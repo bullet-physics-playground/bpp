@@ -338,8 +338,14 @@ November, the same settings):
 So the rooms start with the Threads slider at 4 (patch 110; it was 0).
 Four threads, 2.4-2.5 times threads 0, for 4, 11 and 21 walkers alike,
 suggests the limit is not the walkers: the 3700X's two groups of four
-cores (each sharing its own cache) is the leading suspect. A test (not
-run): `taskset` bpp onto four cores of one group, then two of each.
+cores (each sharing its own cache) is the leading suspect. A test:
+`runs/core-groups.sh` (11 November) runs the 11-walker room (room-speed.sh's
+group 11) with bpp held by `taskset` to four cores of one L3 cache, to two
+cores and their second hardware threads, to four split two and two across
+the caches, to eight across both, and to four cores with their second
+threads (eight CPUs, one cache), against no `taskset` at 4 and 8 threads.
+It reads the layout from `lscpu`, so it fits any machine; this container
+has one cache and two cores, so only William's machine can answer it.
 
 ## Before (the handover of 1 November, kept as written)
 
