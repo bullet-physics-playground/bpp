@@ -2530,7 +2530,21 @@ void Viewer::restartSim() {
   btScalar camHfov = camera()->horizontalFieldOfView();
   Vec camUp = camera()->upVector();
 
-  QHash<QString, QVariant> savedParams = _params.all();
+  // The values the parameters have now, to give back after the script runs
+  // again. Not the buttons': their functions belong to this run's Lua state,
+  // which parse() closes (given back, they crashed bpp); the new run makes
+  // its own.
+  // (In a block: the copies hold the buttons' functions too, and must go
+  // while this run's state is still open.)
+  QHash<QString, QVariant> savedParams;
+  {
+    const QHash<QString, QVariant> all = _params.all();
+    for (auto it = all.constBegin(); it != all.constEnd(); ++it) {
+      const ParamInfo info = _params.info(it.key());
+      if (!info.isButton && !info.isButtonGroup)
+        savedParams.insert(it.key(), it.value());
+    }
+  }
 
   parse(_scriptContent);
 

@@ -812,6 +812,10 @@ def grab(ctx, display, scene, out_png):
             time.sleep(0.3)   # (Qt sees each before the next)
         if mouse:
             subprocess.run(["xdotool", "mousemove", "--window", win] + list(mouse), env=env)
+        if p.poll() is not None:
+            how = ("crashed (signal %d)" % -p.returncode if p.returncode < 0
+                   else "exited (code %d)" % p.returncode)
+            return "bpp %s while the scene's input ran (see %s)" % (how, log.name)
         if commands or mouse:
             # the window at the screen's corner (windowmove above)
             r = subprocess.run(["xdotool", "getwindowgeometry", "--shell", win], env=env,
