@@ -4541,143 +4541,20 @@ void Viewer::setSettings(QSettings *settings) { _settings = settings; }
 void Viewer::onQuickRender() { onQuickRender(""); }
 
 void Viewer::onQuickRender(QString povargs) {
-  QString renderResolution =
-      _settings->value("gui/renderResolution", "view size").toString();
-
-  qDebug() << "renderResolution: " << renderResolution;
-
-  int renderWidth, renderHeight;
-
-  if (renderResolution.isEmpty() || renderResolution == "view size") {
-    renderWidth = geometry().width();
-    renderHeight = geometry().height();
-  } else if (renderResolution.contains("x")) {
-    QRegularExpression rx("(\\d+)");
-    QString str = renderResolution;
-    QStringList list;
-    int pos = 0;
-
-    while (true) {
-      QRegularExpressionMatch m = rx.match(str, pos);
-      if (!m.hasMatch())
-        break;
-      list << m.captured(1);
-      pos = m.capturedStart() + m.capturedLength();
-    }
-    renderWidth = list.at(0).toInt();
-    renderHeight = list.at(1).toInt();
-  } else {
-    renderWidth = geometry().width();
-    renderHeight = geometry().height();
-  }
-
   savePOV(true);
 
-  //    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  //    for (int i = 0; i < env.toStringList().length(); i++) {
-  //        qDebug() << env.toStringList().at(i);
-  //    }
-
-  QStringList args;
-
-  QString sceneName;
-  if (!_scriptName.isEmpty()) {
-    QFileInfo fi(_scriptName);
-    sceneName = fi.completeBaseName();
-  } else {
-    sceneName = "no_name";
-  }
-
-  QString cache =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-
-  QString defaultPovrayExe;
-  QString defaultIncludes;
-
-  QString pwd = startupWorkingDir();
-  QString appDir = QCoreApplication::applicationDirPath();
-
-#ifdef Q_OS_WIN
-  defaultPovrayExe = QString("C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe");
-  defaultIncludes  = QString("+L%1 +L%2\\includes").arg(cache, pwd);
-#elif defined(Q_OS_LINUX)
-  defaultPovrayExe = QString("/usr/bin/povray");
-  defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
-#else
-  defaultPovrayExe = QString("/opt/homebrew/bin/povray");
-  defaultIncludes  = QString("+L%1 +L%2/includes +L%3/../includes").arg(cache, pwd, appDir);
-#endif
-
-  QString systemPovExe;
-  {
-    QStringList candidates;
-#ifdef Q_OS_WIN
-    candidates << "C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe";
-#elif defined(Q_OS_LINUX)
-    candidates << "/usr/bin/povray" << "/usr/local/bin/povray";
-#else
-    candidates << "/opt/homebrew/bin/povray" << "/usr/local/bin/povray" << "/usr/bin/povray";
-#endif
-    QString fromPath = QStandardPaths::findExecutable("povray");
-    if (!fromPath.isEmpty())
-      candidates.prepend(fromPath);
-    for (const QString &c : candidates) {
-      QFileInfo fi(c);
-      if (fi.exists() && fi.isExecutable()) {
-        systemPovExe = fi.absoluteFilePath();
-        break;
-      }
-    }
-  }
-  if (systemPovExe.isEmpty()) systemPovExe = "POV-Ray not found!";
-
-  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA +FN10").arg(defaultIncludes);
-
-  QString povray = _settings->value("povray/executable").toString();
-  if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))
-    povray = systemPovExe;
-  QString opts =   _settings->value("povray/preview", defaultPreview).toString();
-
-  args << opts.split(" ");
-
-  args << QString("+W%1").arg(renderWidth);
-  args << QString("+H%1").arg(renderHeight);
-
-  QString desktop =
-      QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-  QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
-  QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
-
-  //// ~/Desktop/bpp-timestamp.png
-  // QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
-  //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
-  QString png = QString("%1%2bpp-%3-%4-%5.png")
-                    .arg(desktop, QDir::separator(), timestamp, sceneName, fn);
-
-  args << "+F"; // turn output file on
-  args << QString("+O%1").arg(png);
-
-  args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
-
-  args << sceneName + ".pov";
-
-  if(!povargs.isEmpty()) {
-    args << povargs;
-  }
-
-  qDebug() << "executing " << povray << args;
-
-  QDir dir(startupWorkingDir());
-
-  QString defaultExportPath = QString("%1%2%3").arg(startupWorkingDir(), QDir::separator(), "export");
-
-  QString exportDir = _settings->value("povray/export", defaultExportPath).toString();
-  QString sceneDir =
-      dir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
-  qDebug() << "exportDir: " << exportDir;
-  qDebug() << "sceneDir: " << sceneDir;
+  const QuickRender::Plan plan =
+      QuickRender::plan(_settings, geometry().size(), _scriptName, _frameNum, povargs);
 
 #if USE_VFE
+  // (the names the VFE block below was written with)
+  const QString &opts = plan.opts;
+  const int renderWidth = plan.width;
+  const int renderHeight = plan.height;
+  const QString &png = plan.png;
+  const QString &sceneName = plan.sceneName;
+  const QString &sceneDir = plan.sceneDir;
+
   if (_settings->value("povray/useVFE", false).toBool()) {
     // vfeRenderOptions::AddCommand() feeds each string whole into POV-Ray's
     // own ProcessOptions::ParseString(), which tokenizes and handles quoting
@@ -4714,38 +4591,7 @@ void Viewer::onQuickRender(QString povargs) {
   }
 #endif // USE_VFE
 
-  // Deliberately parentless: a QProcess still running when its parent is
-  // destroyed gets kill()ed (and waited on) from within ~QProcess(), which
-  // both kills povray out from under the user and crashes bpp by invoking
-  // the finished-signal lambda below while this Viewer is mid-teardown. With
-  // no parent, closing bpp neither touches this QProcess nor the povray
-  // process it wraps; on a normal, non-crashing exit it simply outlives us.
-  QProcess *p = new QProcess();
-  p->setProgram(povray);
-  p->setArguments(args);
-  p->setWorkingDirectory(sceneDir);
-  p->setProcessChannelMode(QProcess::MergedChannels);
-
-  connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-          this, [this, p](int exitCode, QProcess::ExitStatus exitStatus) {
-            if (exitCode != 0 || exitStatus == QProcess::CrashExit) {
-              emitScriptOutput(
-                  QString("POV-Ray failed (exit code %1):\n%2")
-                      .arg(exitCode)
-                      .arg(QString::fromLocal8Bit(p->readAll())));
-            }
-            p->deleteLater();
-          });
-  connect(p, &QProcess::errorOccurred, this,
-          [this, p](QProcess::ProcessError) {
-            if (p->error() == QProcess::FailedToStart) {
-              emitScriptOutput(
-                  QString("POV-Ray failed to start: %1").arg(p->errorString()));
-              p->deleteLater();
-            }
-          });
-
-  p->start();
+  QuickRender::start(plan, this, [this](const QString &s) { emitScriptOutput(s); });
 }
 
 #if USE_VFE

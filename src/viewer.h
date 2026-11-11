@@ -56,6 +56,7 @@
 #include "quadview.h"
 #include "scriptkeys.h"
 #include "params.h"
+#include "quickrender.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
