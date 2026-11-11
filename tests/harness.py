@@ -5,7 +5,8 @@ bpp regression test harness.
 Runs bpp headless and checks its behaviour against what it did before.
 Suites (run all of them with no arguments, or name the ones you want):
 
-  unit     tests/NN-*.lua: each must print "N passed, 0 failed" and exit 0.
+  unit     tests/NN-*.lua: each must print "N passed, 0 failed" and exit 0
+           (a test with an "-- expect-error:" line must fail as it says).
   api      The Lua API (every bound class, its methods with their overload
            signatures, and its properties) against tests/api/lua-api.txt.
   render   A quick render (v:quickRender), with a stand-in povray first on
@@ -468,6 +469,22 @@ def list_file(path):
 SUMMARY = re.compile(r"^(\d+) passed, (\d+) failed$")
 
 
+def unit_expectations(test):
+    """A unit test's "-- expect-error: PATTERN" line (it passes if bpp reports
+    an error matching PATTERN and exits 1, and needs no "N passed" line) and its
+    "-- not-printed: TEXT" lines (output lines that must not appear)."""
+    expect_error, not_printed = None, []
+    with open(test) as f:
+        for line in f:
+            m = re.match(r"--\s*expect-error:\s*(.+?)\s*$", line)
+            if m:
+                expect_error = m.group(1)
+            m = re.match(r"--\s*not-printed:\s*(.+?)\s*$", line)
+            if m:
+                not_printed.append(m.group(1))
+    return expect_error, not_printed
+
+
 def suite_unit(ctx):
     tests = ctx.selected(sorted(f for f in os.listdir(TESTS)
                                 if re.match(r"\d\d-.*\.lua$", f)))
@@ -475,6 +492,19 @@ def suite_unit(ctx):
     def one(t):
         r = run_bpp(ctx.bpp, ["-f", os.path.join(TESTS, t)], ctx.workdir("unit-" + t), 300, ROOT)
         lines = r.lines()
+        expect_error, not_printed = unit_expectations(os.path.join(TESTS, t))
+        if expect_error:
+            # a test of how a failing script is reported: the error is the point
+            why = []
+            if r.timed_out:
+                why.append("timed out")
+            elif r.rc != 1:   # (a script that fails fails the run: parse() is false)
+                why.append("exit code %s, not 1" % r.rc)
+            if not any(re.search(expect_error, l) for l in lines):
+                why.append("no error matching %s" % expect_error)
+                why += lua_errors(lines)[:5]
+            why += ["printed %r: the script went on" % l for l in lines if l in not_printed]
+            return t, why, "the error as expected" if not why else "", r.seconds
         sums = [SUMMARY.match(l.strip()) for l in lines]
         sums = [m for m in sums if m]
         why = []

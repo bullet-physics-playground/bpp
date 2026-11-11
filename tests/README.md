@@ -13,7 +13,7 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 
 | Suite     | What it checks | Expected files |
 |-----------|----------------|----------------|
-| `unit`    | `tests/NN-*.lua` each print `N passed, 0 failed` and exit 0 | in the tests |
+| `unit`    | `tests/NN-*.lua` each print `N passed, 0 failed` and exit 0; a test with an `-- expect-error: PATTERN` line instead must fail with a matching error and exit 1 (`-- not-printed: TEXT` lines must not appear) | in the tests |
 | `api`     | Every Lua class, property and method overload scripts can use | `api/lua-api.txt` |
 | `render`  | A quick render (`v:quickRender`) with a stand-in `povray` first on `PATH`: bpp calls it with the right options, size, output file, frame, scene file and folder (nothing is rendered: Ubuntu's POV-Ray 3.7 won't read bpp's 3.8 scenes) | in the harness |
 | `smoke`   | Every demo the Demos menu lists loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
