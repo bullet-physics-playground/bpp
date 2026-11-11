@@ -406,15 +406,71 @@ damping holds it on its new heading. Headless, on flat ground: lift 51
 diag turned +0.9 °/s while braked left, held 9° when freed, then −0.9 °/s
 braked right. In the room, Jansen turned while lift 51 diag walked on
 straight. The room still turns walkers rigidly at walls, braked or not.
-That is about 1 °/s, so a quarter turn takes over a minute; a heavier
-wheel turns faster (stage 2's drag shoe: roughly in proportion to its
-weight).
+That is about 1 °/s, so a quarter turn takes over a minute. (Since
+10 November the wheel grips three times as hard and turns about 5 °/s:
+"A grippier wheel", below.)
 
 The keys 1-4 (waves, random, logs, steps) now pick the ground in every
 room, `walker-room.lua` on its own too; they rebuild it with the same
 walkers, wheels free. The test track's "off the ground" measure leaves
 out the wheels, which are always down. `drag-shoe.lua` is gone: the
 arrow keys replace it.
+
+## A grippier wheel (10 November)
+
+At 0.9–1.2 °/s and 8.5 cm/s a walker's turning radius was 4–5 m,
+about half the 10 m room, too wide for the room to steer
+walkers by their wheels (stage C). `SHOES.grip` (new) is the wheel's
+friction as a multiple of the feet's; its default is now 3 (it was 1).
+
+Turn with the left wheel braked (°/s, mean of 2 seeds, `YAW_DAMP = 0`),
+speed (cm/s) and turning radius (speed ÷ turn), flat / waves 2:
+
+| Walker | Bracing | Wheel (weight, grip) | Timing | Direction | Turn | Speed | Radius |
+|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | 0.15, 1 (before) | trot | forward | +0.91 / +1.60 | 8.53 / 7.64 | 5.4 / 2.7 m |
+| C-S lift 51 diag | outside, held | 0.25, 1 | trot | forward | +1.73 / +2.33 | 8.14 / 7.00 | 2.7 / 1.7 m |
+| C-S lift 51 diag | outside, held | 0.15, 2 | trot | forward | +2.34 / +3.29 | 7.85 / 6.65 | 1.9 / 1.2 m |
+| C-S lift 51 diag | outside, held | 0.4, 1 | trot | forward | +4.02 / +4.55 | 7.01 / 5.76 | 1.0 / 0.7 m |
+| C-S lift 51 diag | outside, held | **0.15, 3 (now)** | trot | forward | **+4.87 / +5.85** | 6.59 / 5.66 | **0.8 / 0.6 m** |
+| C-S lift 51 diag | outside, held | 0.25, 2 | trot | forward | +6.18 / +6.04 | 5.91 / 5.07 | 0.5 / 0.5 m |
+| C-S lift 51 diag | outside, held | 0.25, 3 | trot | forward | +10.36 / +8.59 | 3.51 / 4.35 | 0.2 / 0.3 m |
+| C-S lift 51 diag | outside, held | 0.4, 2 | trot | forward | +10.48 / +7.46 | 3.46 / 4.12 | 0.2 / 0.3 m |
+| C-S lift 51 diag | outside, held | 0.4, 3 | trot | forward | +10.56 / +7.74 | 3.43 / 3.79 | 0.2 / 0.3 m |
+| Jansen | own frame | 0.15, 1 (before) | trot | forward | +1.20 / +1.65 | 8.48 / 8.02 | 4.0 / 2.8 m |
+| Jansen | own frame | 0.25, 1 | trot | forward | +2.09 / +2.74 | 8.10 / 6.80 | 2.2 / 1.4 m |
+| Jansen | own frame | 0.15, 2 | trot | forward | +2.58 / +4.43 | 7.88 / 6.30 | 1.8 / 0.8 m |
+| Jansen | own frame | 0.4, 1 | trot | forward | +4.24 / +5.64 | 7.18 / 5.69 | 1.0 / 0.6 m |
+| Jansen | own frame | **0.15, 3 (now)** | trot | forward | **+5.12 / +7.64** | 6.76 / 4.77 | **0.8 / 0.4 m** |
+| Jansen | own frame | 0.25, 2 | trot | forward | +6.38 / +7.67 | 6.11 / 4.75 | 0.5 / 0.4 m |
+| Jansen | own frame | 0.25, 3 | trot | forward | +11.04 / +8.02 | 3.65 / 4.17 | 0.2 / 0.3 m |
+| Jansen | own frame | 0.4, 2 | trot | forward | +11.29 / +8.26 | 3.54 / 4.03 | 0.2 / 0.3 m |
+| Jansen | own frame | 0.4, 3 | trot | forward | +10.92 / +8.82 | 3.52 / 3.93 | 0.2 / 0.3 m |
+
+Nothing tipped. Grip turns faster than weight (three times the grip at
+the same weight: five times the turn). Past about 10 °/s the walker pivots
+on its braked wheel at half speed. It walks slower only while a wheel is
+braked.
+
+What having them costs on rough ground, both free, yaw damping on (nine
+rough terrains, 5 seeds, mean speed cm/s; the paired difference ± its
+standard error):
+
+| Walker | Bracing | Wheel (weight, grip) | Timing | Direction | With wheels | Difference | logs 7 | steps 7 |
+|---|---|---|---|---|---|---|---|---|
+| C-S lift 51 diag | outside, held | none | trot | forward | 7.75 | — | 6.97 | 7.74 |
+| C-S lift 51 diag | outside, held | 0.15, 1 (before) | trot | forward | 7.12 | −0.63 ± 0.22 | 4.64 | 5.17 |
+| C-S lift 51 diag | outside, held | **0.15, 3 (now)** | trot | forward | 7.22 | −0.53 ± 0.21 | 4.48 | 5.65 |
+| C-S lift 51 diag | outside, held | 0.25, 2 | trot | forward | 5.23 | −2.52 ± 0.47 | 1.68 | 1.15 |
+| Jansen | own frame | none | trot | forward | 5.85 | — | 1.33 | 4.07 |
+| Jansen | own frame | 0.15, 1 (before) | trot | forward | 6.03 | +0.19 ± 0.21 | 2.77 | 3.61 |
+| Jansen | own frame | **0.15, 3 (now)** | trot | forward | 5.96 | +0.11 ± 0.20 | 2.88 | 3.10 |
+| Jansen | own frame | 0.25, 2 | trot | forward | 4.89 | −0.96 ± 0.31 | 1.20 | 0.87 |
+
+The grippier wheel costs the same as before (within the noise); the
+heavier one catches on the logs and steps. Same size and place, so the
+clearance (stage A) is unchanged. The arrow keys turn about 5 °/s now: a
+quarter turn in about 18 s.
 
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 

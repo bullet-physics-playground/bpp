@@ -409,10 +409,11 @@ LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
 --     as damped (ANKLE_SPRING)
 --   mech = "linkdamp": the pair's links (as "pair") damped k (as LINK_DAMP)
 STEER = STEER or false
--- SHOES = { mass =, radius =, out =, down = } (handover/STEERING.md,
+-- SHOES = { mass =, radius =, out =, grip =, down = } (handover/STEERING.md,
 -- "Stage A"; off): a wheel on each side of every walker, to steer it by
 -- drag -- a ball, mass of the walker's weight (default 0.15), radius cm
--- (1.5), out cm (5) out beyond its feet, always on the ground by its own
+-- (1.5), out cm (5) out beyond its feet, its friction grip times the
+-- feet's (3: braked, it turns the walker about 5 deg/s), always on the ground by its own
 -- weight and free up and down (the walker never carries it, so never
 -- leans), rolling along the walk. room.setShoe(w, side) while it runs
 -- brakes that side's ("L" or "R"; nil for neither) and its skid turns the
@@ -1064,7 +1065,7 @@ local function shoesSetup(w, made, opts)
     local d = -w.forward * ((side == "L") and 1 or -1)   -- (that side, along the body's z)
     local ly, lz = G.bottom + r, d * (G.half + FOOT.width / 2 + r + (SHOES.out or 5))
     local o = G.part(Sphere(r, m), 0, ly, lz)
-    o.body:setFriction(G.mu)
+    o.body:setFriction(G.mu * (SHOES.grip or 3))   -- (grip: the wheel's friction, times the feet's)
     local j = btGeneric6DofSpring2Constraint(w.cube.body, o.body, btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, ly, lz)),
       btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)))
     j:setLimit(0, 0, 0); j:setLimit(1, -30, 30); j:setLimit(2, 0, 0)   -- (only up and down)
