@@ -1992,7 +1992,12 @@ local COOLDOWN = 2.0        -- s after a turn ends before it looks again
 local CANDIDATES = 12       -- new headings tried per turn
 -- ROOM_STEER (handover/STEERING.md, stage C): how the room turns a walker
 -- that has its wheels (SHOES), which walks straight the rest of the time.
--- "backup" (the default): a three-point turn -- it backs up BACKUP_PHASE s
+-- "curve" (the default; 11 November, the best of four in the 11-walker
+-- room: below): it looks GAP ahead, and if an arc clears what is ahead (a
+-- slanting approach, which needs only a small turn: about 11 cm of the gap
+-- for 30 degrees) it curves away walking on, as "arcs"; head on, or with
+-- no clear arc, a three-point turn, as "backup". "backup": a three-point
+-- turn always -- it backs up BACKUP_PHASE s
 -- with the wheel on the far side braked, then walks on BACKUP_PHASE s with
 -- the near one braked (both turn it the same way), and so on until it has
 -- turned; nearly on the spot, so it looks GAP ahead, as a rigid turn does
@@ -2001,14 +2006,12 @@ local CANDIDATES = 12       -- new headings tried per turn
 -- 80 cm, so it looks WHEEL_GAP ahead. Either way, if the turn takes over
 -- WHEEL_TIME, or an arc still comes within GAP / 4 of a wall or a walker,
 -- the turn is finished rigidly (a rescue: room.rescues). "rigid": every
--- turn rigid, as without wheels. "curve": GAP ahead as "backup", but if an
--- arc clears what is ahead (a slanting approach, which needs only a small
--- turn: about 11 cm of the gap for 30 degrees) it curves away walking on,
--- as "arcs"; head on, or with no clear arc, a three-point turn.
+-- turn rigid, as without wheels.
 -- ROOM_YIELD (false): a walker on a crossing course from the left is left
 -- to give way (right of way to the walker on the right, decided by each
--- from what it sees).
-ROOM_STEER = ROOM_STEER or "backup"
+-- from what it sees). Tried in the 11-walker room: no steady gain, and
+-- with "curve" more rescues.
+ROOM_STEER = ROOM_STEER or "curve"
 ROOM_YIELD = ROOM_YIELD or false
 local BACKUP_PHASE = 4      -- s
 local WHEEL_GAP = 120       -- cm

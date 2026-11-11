@@ -610,6 +610,28 @@ clear difference. Four walkers in 15 m meet too seldom (0-5 times) to
 judge right of way: the 11-walker room is the test,
 `ROOM_STEER=curve ROOM_YIELD=true runs/room-steer.sh` and the other three.
 
+**The 11-walker room, all four** (William's machine, `runs/room-steer.sh`,
+4 minutes, threads 4; means over the 11 walkers):
+
+| Steering | Ground | Walkers | Bracing | Timing | Direction | Turns (between walkers) | Rescues | Fell | Turning | Distance | Worst walker turning |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| backup | flat | 11 | mixed | trot | as the ranking | 42 (28) | 0 | 0 | 40.3% | 14.5 m | 67% |
+| backup, yield | flat | 11 | mixed | trot | as the ranking | 34 (18) | 0 | 0 | 32.9% | 15.8 m | 59% |
+| **curve** | flat | 11 | mixed | trot | as the ranking | 41 (21; 19 arcs) | 3 | 0 | **27.0%** | **17.8 m** | 49% |
+| curve, yield | flat | 11 | mixed | trot | as the ranking | 47 (28; 18 arcs) | 7 | 0 | 33.6% | 16.7 m | 61% |
+| backup | waves 2 | 11 | mixed | trot | as the ranking | 44 (24) | 0 | 0 | 30.3% | 14.2 m | 44% |
+| backup, yield | waves 2 | 11 | mixed | trot | as the ranking | 42 (20) | 0 | 0 | 32.5% | 14.2 m | 67% |
+| **curve** | waves 2 | 11 | mixed | trot | as the ranking | 55 (26; 28 arcs) | 3 | 0 | **27.2%** | **15.7 m** | 41% |
+| curve, yield | waves 2 | 11 | mixed | trot | as the ranking | 51 (23; 29 arcs) | 1 | 0 | 27.3% | 16.0 m | 62% |
+
+**Curving is the default now** (`ROOM_STEER = "curve"`): about half its
+turns are arcs, which keep the walker moving, so walkers turn about a
+quarter of the time, not a third or more, and go 11-23% further, at the
+cost of about 3 rescues (a brief rigid swing) in 4 minutes among 11
+walkers. Right of way helped once (back-up turns on flat: 28 turns between
+walkers to 18) and not otherwise; with curving it made more turns and
+rescues. One run each, so rough; `ROOM_YIELD` stays, off.
+
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 
 `walker-room.lua`'s own defaults are the old builds: the plated walkers

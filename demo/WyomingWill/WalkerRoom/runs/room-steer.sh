@@ -8,13 +8,13 @@
 #   BPP=... ROOM=room-four.lua ROOM_STEER=arcs runs/room-steer.sh
 #   BPP=... ROOM_STEER=curve ROOM_YIELD=true runs/room-steer.sh
 #
-# Environment: BPP, ROOM (walker-room.lua: the 11 on their own; or room-four.lua), ROOM_STEER (backup; curve, arcs,
+# Environment: BPP, ROOM (walker-room.lua: the 11 on their own; or room-four.lua), ROOM_STEER (curve; backup, arcs,
 # rigid), ROOM_YIELD (false; true: right of way to a walker on the right),
 # MINUTES (4), TERRAINS (waves:0 waves:2), THREADS (4), ARENA (the room's own: 15 m). The 11 at 4 threads on an 8-core
 # machine: about 0.5 x real time, so about 8 minutes a ground.
 set -u
 cd "$(dirname "$0")/.."
-BPP=${BPP:-bpp}; ROOM=${ROOM:-walker-room.lua}; ROOM_STEER=${ROOM_STEER:-backup}; ROOM_YIELD=${ROOM_YIELD:-false}; MINUTES=${MINUTES:-4}
+BPP=${BPP:-bpp}; ROOM=${ROOM:-walker-room.lua}; ROOM_STEER=${ROOM_STEER:-curve}; ROOM_YIELD=${ROOM_YIELD:-false}; MINUTES=${MINUTES:-4}
 TERRAINS=${TERRAINS:-"waves:0 waves:2"}; THREADS=${THREADS:-4}; ARENA=${ARENA:-}
 command -v "$BPP" > /dev/null || { echo "bpp not found: set BPP to the bpp program"; exit 1; }
 secs=$((MINUTES * 60))
