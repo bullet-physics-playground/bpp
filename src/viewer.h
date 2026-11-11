@@ -2277,6 +2277,33 @@ public:
   //  QList<Object*> l[13];
 
 private:
+  /**
+   * @brief Closes the running script before another starts (parse()) or
+   * bpp quits (the destructor).
+   *
+   * Drops the script's hooks and the Lua references bpp holds (parameters,
+   * shortcuts, registry), takes its bodies and every world's constraints out
+   * while they are still there, closes the Lua state, and nulls the Bullet
+   * pointers that freed. The objects themselves are deleted after: by
+   * clear() or the destructor.
+   */
+  void closeScript();
+
+  /**
+   * @brief Opens a fresh Lua state for a script (L): the standard libraries,
+   * bpp's helpers (printf, atan2), package.path, every bpp class, print, and
+   * the collector shim (collectgarbage("stop") is ignored).
+   */
+  void openLua();
+
+  /**
+   * @brief Runs a script in the Lua state, dropping a "#!" first line; an
+   * error is reported on the console and stops the script.
+   * @param txt The script's text.
+   * @return False if it failed.
+   */
+  bool runScript(QString txt);
+
   lua_State *L;       ///< The interpreter the current script runs in, or null.
   QString lua_error;  ///< Result of the last parse: an error message, or "ok".
 

@@ -2200,248 +2200,233 @@ void Viewer::luabind_error(lua_State* L) {
     //emit scriptHasOutput(QString("%1").arg(luaWhat));
 }*/
 
-bool Viewer::parse(QString txt) {
-  QMutexLocker locker(&mutex);
+// Closes the running script: drops its hooks and the Lua references bpp
+// holds, takes its bodies and every world's constraints out while they are
+// still there, closes its Lua state, and forgets the Bullet pieces that
+// freed. The objects themselves are deleted after (clear(), or the
+// destructor). parse() and the destructor both close a script this way.
+void Viewer::closeScript() {
+  // The script's hooks, before its Lua state closes
+  _cb_preStart = luabind::object();
+  _cb_preDraw = luabind::object();
+  _cb_postDraw = luabind::object();
+  _cb_preSim = luabind::object();
+  _cb_postSim = luabind::object();
+  _cb_preStop = luabind::object();
+  _cb_onCommand = luabind::object();
+  _cb_onJoystick = luabind::object();
+  _keys.clear();                     // (shortcuts too: before Lua closes)
+  _cb_cycleObject = luabind::object();
+  _cb_onSpaceNavigator = luabind::object();
+  _hover.clear();
 
-  emit scriptStopped();
+  _params.releaseLua();
 
-  if (_cb_preStop) {
-    try {
-      luabind::call_function<void>(_cb_preStop, _frameNum);
-    } catch (const std::exception &e) {
-      showLuaException(e, "preStop()");
+  // (removed objects bpp still owns go with the rest)
+  for (Object *o : _removed)
+    _objects->insert(o);
+  _removed.clear();
+
+  // Notify all objects that their luabind weak pointers are invalid
+  foreach (Object* o, *_objects) {
+    o->preDestructor();
+  }
+
+  // Remove rigid bodies from the dynamics world while pointers are still valid.
+  if (dynamicsWorld) {
+    foreach (Object* o, *_objects) {
+      if (o->body != nullptr && !o->isDecoration()) {
+        worldOfObject(o)->removeRigidBody(o->body);
+      }
+      SoftBody *sb = dynamic_cast<SoftBody *>(o);
+      if (sb != nullptr && sb->getSoftBody() != nullptr) {
+        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
+      }
     }
+    // (and every world's constraints, while the bodies they hold are still
+    // there: closing Lua frees a script's own, and dropWorlds() later (in
+    // clear() or the destructor) would take the joints out of bodies already
+    // gone)
+    QList<btSoftRigidDynamicsWorld *> worlds;
+    worlds.append(dynamicsWorld);
+    for (const PhysWorld &w : _worlds)
+      if (w.world != nullptr && w.world != dynamicsWorld)
+        worlds.append(w.world);
+    for (btSoftRigidDynamicsWorld *dw : worlds)
+      for (int k = dw->getNumConstraints() - 1; k >= 0; --k)
+        dw->removeConstraint(dw->getConstraint(k));
   }
+  removeLeftoverBodies();
 
-  _parsing = true;
-  _has_exception = false;
-
-  _scriptContent = txt;
-
-  bool animStarted = animationIsStarted();
-
-  if (animStarted) {
-    stopAnimation();
-  }
-
-emit scriptStarts();
-
+  // Release Lua references from the registry BEFORE closing Lua state.
+  // These are raw integer refs, not luabind::object instances.
   if (L != nullptr) {
-    // Invalidate callback refs so Lua GC can collect the functions
-    _cb_preStart = luabind::object();
-    _cb_preStop = luabind::object();
-    _cb_preDraw = luabind::object();
-    _cb_postDraw = luabind::object();
-    _cb_preSim = luabind::object();
-    _cb_postSim = luabind::object();
-    _cb_onCommand = luabind::object();
-    _cb_onJoystick = luabind::object();
-    _keys.clear();
-    _cb_cycleObject = luabind::object();
-    setStatusText(QString());   // (a script's status line goes with it)
-    _synth.reset();             // (and its voices)
-    _cb_onSpaceNavigator = luabind::object();
-    _hover.clear();
-
-    _params.releaseLua();
-
-    // (removed objects bpp still owns go with the rest)
-    for (Object *o : _removed)
-      _objects->insert(o);
-    _removed.clear();
-
-    // Notify all objects that their luabind weak pointers are about to become
-    // invalid (C++ objects will be deleted by clear() below).
-    foreach (Object *o, *_objects) {
-      o->preDestructor();
+    for (auto& pair : _luabindRegistry) {
+      luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
     }
-
-    // Remove rigid bodies from the dynamics world while pointers are still
-    // valid. After lua_close() the Bullet objects will be freed by Lua's GC.
-    if (dynamicsWorld) {
-      foreach (Object *o, *_objects) {
-        if (o->body != nullptr && !o->isDecoration()) {
-          worldOfObject(o)->removeRigidBody(o->body);
-        }
-        SoftBody *sb = dynamic_cast<SoftBody *>(o);
-        if (sb != nullptr && sb->getSoftBody() != nullptr) {
-          worldOfObject(o)->removeSoftBody(sb->getSoftBody());
-        }
-      }
-    }
-    removeLeftoverBodies();
-
-    // Clear the luabind registry BEFORE closing the Lua state.
-    // Release Lua references from the registry while L is still valid.
-    if (L != nullptr) {
-      for (auto& pair : _luabindRegistry) {
-        luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
-      }
-      _luabindRegistry.clear();
-    }
-
-    // lua_close() performs a final GC sweep that deletes all Lua-adopted
-    // Bullet objects via their unique_ptr holders (adopt(result) policy).
-    // After this call, C++ raw pointers to those objects become dangling.
+    _luabindRegistry.clear();
     lua_close(L);
     L = nullptr;
+  }
 
-    // Null out Bullet object pointers that Lua has freed. The C++ Object
-    // destructors in clear() will skip these null pointers, avoiding
-    // use-after-free and double-free.
-    foreach (Object *o, *_objects) {
-      o->body = nullptr;
-      o->shape = nullptr;
+  // Null out Bullet object pointers that Lua has freed. The C++ Object
+  // destructors (in clear() or the destructor) will skip these null pointers,
+  // avoiding use-after-free and double-free.
+  foreach (Object* o, *_objects) {
+    o->body = nullptr;
+    o->shape = nullptr;
 #ifdef HAS_LIB_ASSIMP
-      Mesh *m = dynamic_cast<Mesh *>(o);
-      if (m) {
-        m->luaRelease();
-      }
+    Mesh *m = dynamic_cast<Mesh *>(o);
+    if (m) {
+      m->luaRelease();
+    }
 #endif
-      SoftBody *sb = dynamic_cast<SoftBody *>(o);
-      if (sb) {
-        sb->luaRelease();
-      }
+    SoftBody *sb = dynamic_cast<SoftBody *>(o);
+    if (sb) {
+      sb->luaRelease();
     }
   }
 
-  clear();
+}
 
-  {
-    // setup lua
+// Opens a fresh Lua state for a script: the standard libraries, bpp's
+// helpers, package.path, every bpp class, print, and the collector shim.
+void Viewer::openLua() {
+  // setup lua
 #if defined(Q_OS_LINUX)
-    L = lua_newstate(aligned_lua_alloc, nullptr);
+  L = lua_newstate(aligned_lua_alloc, nullptr);
 #else
-    L = luaL_newstate();
+  L = luaL_newstate();
 #endif
 
-    // open all standard Lua libs
-    luaL_openlibs(L);
+  // open all standard Lua libs
+  luaL_openlibs(L);
 
-    luaL_dostring(L, "os.setlocale('C')");
-    // Lua 5.3+ folded math.atan2(y, x) into a two-argument math.atan;
-    // restore the legacy name so older scripts keep working.
-    luaL_dostring(L,
-        "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
-        "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
-        "if atan2 == nil then atan2 = math.atan2 end");
-    luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
+  luaL_dostring(L, "os.setlocale('C')");
+  // Lua 5.3+ folded math.atan2(y, x) into a two-argument math.atan;
+  // restore the legacy name so older scripts keep working.
+  luaL_dostring(L,
+      "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
+      "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
+      "if atan2 == nil then atan2 = math.atan2 end");
+  luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
 
-    // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
-    QString defaultPath = getDefaultLuaPath(_scriptBasePath);
-    QString path = _settings->value("lua/path").toString();
-    if (path.isEmpty()) {
+  // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
+  QString defaultPath = getDefaultLuaPath(_scriptBasePath);
+  QString path = _settings->value("lua/path").toString();
+  if (path.isEmpty()) {
+    path = defaultPath;
+  } else {
+    bool allExist = true;
+    for (const QString &entry : path.split(';', Qt::SkipEmptyParts)) {
+      QString dir = entry;
+      dir.replace("?.lua", "");
+      if (!QDir(dir).exists()) {
+        allExist = false;
+        break;
+      }
+    }
+    if (!allExist)
       path = defaultPath;
+  }
+  QString p = QString("package.path = package.path..\";%1\"").arg(path);
+
+  int error =
+      luaL_loadstring(L, qPrintable(p)) || lua_pcall(L, 0, LUA_MULTRET, 0);
+
+  if (error) {
+    lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+
+    if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
+      lua_error = tr("script stopped");
+      // qDebug() << "lua run : script stopped";
     } else {
-      bool allExist = true;
-      for (const QString &entry : path.split(';', Qt::SkipEmptyParts)) {
-        QString dir = entry;
-        dir.replace("?.lua", "");
-        if (!QDir(dir).exists()) {
-          allExist = false;
-          break;
-        }
-      }
-      if (!allExist)
-        path = defaultPath;
-    }
-    QString p = QString("package.path = package.path..\";%1\"").arg(path);
-
-    int error =
-        luaL_loadstring(L, qPrintable(p)) || lua_pcall(L, 0, LUA_MULTRET, 0);
-
-    if (error) {
-      lua_error = tr("error: %1").arg(lua_tostring(L, -1));
-
-      if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
-        lua_error = tr("script stopped");
-        // qDebug() << "lua run : script stopped";
-      } else {
-        // qDebug() << QString("lua run : %1").arg(lua_error);
-        emit scriptHasOutput(lua_error);
-      }
-
-      lua_pop(L, 1); /* pop error message from the stack */
-    } else {
-      lua_error = tr("ok");
+      // qDebug() << QString("lua run : %1").arg(lua_error);
+      emit scriptHasOutput(lua_error);
     }
 
-    luabind::open(L);
-
-    // Lua's garbage collector stays on. It used to be stopped here, because a
-    // script can build its own Bullet pieces (btRigidBody, btGImpactMeshShape,
-    // btTriangleMesh, ...) and hand them to an object, which kept only raw
-    // pointers to them: collecting them left dangling pointers. Now everything
-    // the C++ side uses is kept referenced from Lua: an object keeps the body,
-    // shape and mesh a script hands it (Object::keepLua()), and a Bullet
-    // constructor that takes another script-made piece keeps it alive
-    // (luabind's dependency policy, in lua_bullet_*.cpp). So the collector can
-    // run all the time, and scripts no longer need to manage it.
-
-    // register all bpp classes
-    LuaBullet::luaBind(L);
-
-    Cam::luaBind(L);
-    Object::luaBind(L);
-    Cone::luaBind(L);
-    Cube::luaBind(L);
-    Cylinder::luaBind(L);
-    CsgObject::luaBind(L);
-    Disc::luaBind(L);
-    Heightfield::luaBind(L);
-    Torus::luaBind(L);
-    PovScriptWriter_luaBind(L);
-    LayerManager::luaBind(L);
-    BezierPatch::luaBind(L);
-    Blob::luaBind(L);
-    Bound::luaBind(L);
-    Patch::luaBind(L);
-    ReferenceObject::luaBind(L);
-    Sweep::luaBind(L);
-    SuperQuadric::luaBind(L);
-    TrueType::luaBind(L);
-#ifdef HAS_LIB_ASSIMP
-    Mesh::luaBind(L);
-    OpenSCAD::luaBind(L);
-#endif
-    Palette::luaBind(L);
-    Plane::luaBind(L);
-    RigidSoftContact::luaBind(L);
-    SoftBody::luaBind(L);
-    Sphere::luaBind(L);
-    Terrain::luaBind(L);
-    Triangle::luaBind(L);
-    DemBed::luaBind(L);
-    Geo::luaBind(L);
-    Viewer::luaBind(L);
-
-    luabind::bind_class_info(L);
-
-    lua_pushlightuserdata(L, (void *)this);
-    lua_pushcclosure(L, &Viewer::lua_print, 1);
-    lua_setglobal(L, "print");
-
-    // Scripts written when the collector was kept stopped call
-    // collectgarbage("stop") after collecting by hand; that would switch the
-    // collector off for good, so it is ignored. "collect", "step", "count"
-    // and the rest work as usual. BPP_GC_AUTO tells a script that bpp
-    // collects garbage itself.
-    if (luaL_dostring(L,
-                      "BPP_GC_AUTO = true\n"
-                      "do\n"
-                      "  local gc = collectgarbage\n"
-                      "  collectgarbage = function(opt, ...)\n"
-                      "    if opt == 'stop' then return 0 end\n"
-                      "    return gc(opt, ...)\n"
-                      "  end\n"
-                      "end\n") != 0) {
-      emit scriptHasOutput(QString("collectgarbage setup: %1").arg(lua_tostring(L, -1)));
-      lua_pop(L, 1);
-    }
+    lua_pop(L, 1); /* pop error message from the stack */
+  } else {
+    lua_error = tr("ok");
   }
 
-  luaBindInstance(L);
+  luabind::open(L);
 
+  // Lua's garbage collector stays on. It used to be stopped here, because a
+  // script can build its own Bullet pieces (btRigidBody, btGImpactMeshShape,
+  // btTriangleMesh, ...) and hand them to an object, which kept only raw
+  // pointers to them: collecting them left dangling pointers. Now everything
+  // the C++ side uses is kept referenced from Lua: an object keeps the body,
+  // shape and mesh a script hands it (Object::keepLua()), and a Bullet
+  // constructor that takes another script-made piece keeps it alive
+  // (luabind's dependency policy, in lua_bullet_*.cpp). So the collector can
+  // run all the time, and scripts no longer need to manage it.
+
+  // register all bpp classes
+  LuaBullet::luaBind(L);
+
+  Cam::luaBind(L);
+  Object::luaBind(L);
+  Cone::luaBind(L);
+  Cube::luaBind(L);
+  Cylinder::luaBind(L);
+  CsgObject::luaBind(L);
+  Disc::luaBind(L);
+  Heightfield::luaBind(L);
+  Torus::luaBind(L);
+  PovScriptWriter_luaBind(L);
+  LayerManager::luaBind(L);
+  BezierPatch::luaBind(L);
+  Blob::luaBind(L);
+  Bound::luaBind(L);
+  Patch::luaBind(L);
+  ReferenceObject::luaBind(L);
+  Sweep::luaBind(L);
+  SuperQuadric::luaBind(L);
+  TrueType::luaBind(L);
+#ifdef HAS_LIB_ASSIMP
+  Mesh::luaBind(L);
+  OpenSCAD::luaBind(L);
+#endif
+  Palette::luaBind(L);
+  Plane::luaBind(L);
+  RigidSoftContact::luaBind(L);
+  SoftBody::luaBind(L);
+  Sphere::luaBind(L);
+  Terrain::luaBind(L);
+  Triangle::luaBind(L);
+  DemBed::luaBind(L);
+  Geo::luaBind(L);
+  Viewer::luaBind(L);
+
+  luabind::bind_class_info(L);
+
+  lua_pushlightuserdata(L, (void *)this);
+  lua_pushcclosure(L, &Viewer::lua_print, 1);
+  lua_setglobal(L, "print");
+
+  // Scripts written when the collector was kept stopped call
+  // collectgarbage("stop") after collecting by hand; that would switch the
+  // collector off for good, so it is ignored. "collect", "step", "count"
+  // and the rest work as usual. BPP_GC_AUTO tells a script that bpp
+  // collects garbage itself.
+  if (luaL_dostring(L,
+                    "BPP_GC_AUTO = true\n"
+                    "do\n"
+                    "  local gc = collectgarbage\n"
+                    "  collectgarbage = function(opt, ...)\n"
+                    "    if opt == 'stop' then return 0 end\n"
+                    "    return gc(opt, ...)\n"
+                    "  end\n"
+                    "end\n") != 0) {
+    emit scriptHasOutput(QString("collectgarbage setup: %1").arg(lua_tostring(L, -1)));
+    lua_pop(L, 1);
+  }
+}
+
+// Runs a script in the Lua state: reports an error on the console (the
+// script stops there). Returns false if it failed.
+bool Viewer::runScript(QString txt) {
   // useful for shell scripting. Example:
   //
   // #!/usr/bin/bpp -f
@@ -2452,11 +2437,6 @@ emit scriptStarts();
     tmp.removeAt(0);
     txt = tmp.join("\n");
   }
-
-  // Snapshot camera state before script execution so we can detect if
-  // the script explicitly positioned the camera (e.g. via cam.pos/cam.look).
-  Vec camPosBeforeScript = camera()->position();
-  Quaternion camOriBeforeScript = camera()->orientation();
 
   int error = luaL_loadstring(L, txt.toUtf8().constData()) ||
               lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -2497,6 +2477,54 @@ emit scriptStarts();
     lua_error = tr("ok");
   }
 
+  return !error;
+}
+
+bool Viewer::parse(QString txt) {
+  QMutexLocker locker(&mutex);
+
+  emit scriptStopped();
+
+  if (_cb_preStop) {
+    try {
+      luabind::call_function<void>(_cb_preStop, _frameNum);
+    } catch (const std::exception &e) {
+      showLuaException(e, "preStop()");
+    }
+  }
+
+  _parsing = true;
+  _has_exception = false;
+
+  _scriptContent = txt;
+
+  bool animStarted = animationIsStarted();
+
+  if (animStarted) {
+    stopAnimation();
+  }
+
+emit scriptStarts();
+
+  if (L != nullptr) {
+    setStatusText(QString());   // (a script's status line goes with it)
+    _synth.reset();             // (and its voices)
+    closeScript();
+  }
+
+  clear();
+
+  openLua();
+
+  luaBindInstance(L);
+
+  // Snapshot camera state before script execution so we can detect if
+  // the script explicitly positioned the camera (e.g. via cam.pos/cam.look).
+  Vec camPosBeforeScript = camera()->position();
+  Quaternion camOriBeforeScript = camera()->orientation();
+
+  const bool ok = runScript(txt);
+
   // If the script changed the camera (e.g. via cam.pos/cam.look), update the
   // initial camera state so the "House" button returns to the script's view.
   Vec camPosAfterScript = camera()->position();
@@ -2525,7 +2553,7 @@ emit scriptStarts();
 
   _parsing = false;
 
-  return (error ? false : true);
+  return ok;
 }
 
 // Removes whatever is still in the dynamics world once every object's own
@@ -2798,85 +2826,7 @@ Viewer::~Viewer() {
   delete _spaceNavigator;
   _spaceNavigator = nullptr;
 
-  // Reset luabind::object members before closing Lua state
-  _cb_preStart = luabind::object();
-  _cb_preDraw = luabind::object();
-  _cb_postDraw = luabind::object();
-  _cb_preSim = luabind::object();
-  _cb_postSim = luabind::object();
-  _cb_preStop = luabind::object();
-  _cb_onCommand = luabind::object();
-  _cb_onJoystick = luabind::object();
-  _keys.clear();                     // (shortcuts too: before Lua closes)
-  _cb_cycleObject = luabind::object();
-  _cb_onSpaceNavigator = luabind::object();
-  _hover.clear();
-
-  _params.releaseLua();
-
-  // (removed objects bpp still owns go with the rest)
-  for (Object *o : _removed)
-    _objects->insert(o);
-  _removed.clear();
-
-  // Notify all objects that their luabind weak pointers are invalid
-  foreach (Object* o, *_objects) {
-    o->preDestructor();
-  }
-
-  // Remove rigid bodies from the dynamics world while pointers are still valid.
-  if (dynamicsWorld) {
-    foreach (Object* o, *_objects) {
-      if (o->body != nullptr && !o->isDecoration()) {
-        worldOfObject(o)->removeRigidBody(o->body);
-      }
-      SoftBody *sb = dynamic_cast<SoftBody *>(o);
-      if (sb != nullptr && sb->getSoftBody() != nullptr) {
-        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
-      }
-    }
-    // (and every world's constraints, while the bodies they hold are still
-    // there: closing Lua frees a script's own, and dropWorlds() below would
-    // take the joints out of bodies already gone)
-    QList<btSoftRigidDynamicsWorld *> worlds;
-    worlds.append(dynamicsWorld);
-    for (const PhysWorld &w : _worlds)
-      if (w.world != nullptr && w.world != dynamicsWorld)
-        worlds.append(w.world);
-    for (btSoftRigidDynamicsWorld *dw : worlds)
-      for (int k = dw->getNumConstraints() - 1; k >= 0; --k)
-        dw->removeConstraint(dw->getConstraint(k));
-  }
-  removeLeftoverBodies();
-
-  // Release Lua references from the registry BEFORE closing Lua state.
-  // These are raw integer refs, not luabind::object instances.
-  if (L != nullptr) {
-    for (auto& pair : _luabindRegistry) {
-      luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
-    }
-    _luabindRegistry.clear();
-    lua_close(L);
-    L = nullptr;
-  }
-
-  // Null out Bullet object pointers that Lua has freed. The C++ Object
-  // destructors below will skip these null pointers, avoiding use-after-free
-  // and double-free.
-  foreach (Object* o, *_objects) {
-    o->body = nullptr;
-    o->shape = nullptr;
-#ifdef HAS_LIB_ASSIMP
-    Mesh *m = dynamic_cast<Mesh *>(o);
-    if (m) {
-      m->luaRelease();
-    }
-#endif
-    SoftBody *sb = dynamic_cast<SoftBody *>(o);
-    if (sb) {
-      sb->luaRelease();
-    }
-  }
+  closeScript();
 
   dropWorlds();
 
