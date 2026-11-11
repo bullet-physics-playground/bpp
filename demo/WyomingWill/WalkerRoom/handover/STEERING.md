@@ -563,6 +563,53 @@ each walker), and the walkers turn about a fifth of the time.
   (`runs/roomlog.lua`). The 11 are too slow to run here (0.17x real time);
   on William's machine, about 8 minutes a ground at 4 threads.
 
+## The 11-walker room, and turning by the angle (11 November)
+
+**William's machine, `runs/room-steer.sh`** (walker-room.lua on its own:
+the 11, 15 m, back-up turns, 4 minutes, threads 4):
+
+| Ground | Walkers | Bracing | Timing | Direction | Turns (walls, walkers) | Rescues | Fell | Turning, each |
+|---|---|---|---|---|---|---|---|---|
+| flat | 11 | mixed | trot | as the ranking | 42 (14, 28) | 0 | 0 | 17-67%, about 40% |
+| waves 2 | 11 | mixed | trot | as the ranking | 44 (20, 24) | 0 | 0 | 20-44%, about 30% |
+
+Safe, but crowded: two thirds of the turns on flat are walkers turning
+away from each other, and two walkers meeting probably both turn.
+
+Two options (both off by default):
+
+- **`ROOM_STEER = "curve"`** (William's idea: the angle, not the
+  distance). It looks 40 cm ahead as `"backup"`, but then traces the arcs
+  first: coming in at a slant needs only a small turn (30° on the 80 cm
+  circle uses about 11 cm of the gap), so if an arc clears the walls and
+  where the other walkers will be, it curves away walking on; head on, or
+  with no clear arc, a three-point turn.
+- **`ROOM_YIELD = true`:** right of way to the walker on the right. A
+  walker on a crossing course from the left (more than 15° left of
+  straight ahead) is left to give way; that one, by the same rule from its
+  side, sees this one on its right and turns. Each decides from what it
+  sees -- no word between them (the room already lets every walker see the
+  others' positions and velocities). A walker within 40 cm ahead is still
+  turned from, whichever side.
+
+`room-four.lua`, 15 m, 4 minutes, threads 1 (this container):
+
+| Steering | Ground | Walkers | Bracing | Timing | Direction | Turns (arcs, back-up) | Rescues | Turning, mean | Distance, mean |
+|---|---|---|---|---|---|---|---|---|---|
+| backup | flat | 4 | mixed | trot | as the ranking | 10 (0, 10) | 0 | 25.5% | 17.0 m |
+| backup, yield | flat | 4 | mixed | trot | as the ranking | 9 (0, 9) | 0 | 27.7% | 16.6 m |
+| curve | flat | 4 | mixed | trot | as the ranking | 12 (4, 8) | 0 | 30.2% | 16.8 m |
+| curve, yield | flat | 4 | mixed | trot | as the ranking | 14 (6, 8) | 4 | 30.7% | 16.8 m |
+| backup | waves 2 | 4 | mixed | trot | as the ranking | 10 (0, 10) | 0 | 21.4% | 15.8 m |
+| curve | waves 2 | 4 | mixed | trot | as the ranking | 15 (10, 5) | 0 | 20.9% | 17.2 m |
+
+(With yield on waves 2: the same runs, as no two walkers met.) Curving
+works as meant -- a third to two thirds of the turns were arcs -- and on
+waves 2 the walkers went 9% further for the same time turning; on flat no
+clear difference. Four walkers in 15 m meet too seldom (0-5 times) to
+judge right of way: the 11-walker room is the test,
+`ROOM_STEER=curve ROOM_YIELD=true runs/room-steer.sh` and the other three.
+
 ## Watching: the launcher must start from test-ranking.lua (8 November)
 
 `walker-room.lua`'s own defaults are the old builds: the plated walkers

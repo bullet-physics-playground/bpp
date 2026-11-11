@@ -2001,8 +2001,15 @@ local CANDIDATES = 12       -- new headings tried per turn
 -- 80 cm, so it looks WHEEL_GAP ahead. Either way, if the turn takes over
 -- WHEEL_TIME, or an arc still comes within GAP / 4 of a wall or a walker,
 -- the turn is finished rigidly (a rescue: room.rescues). "rigid": every
--- turn rigid, as without wheels.
+-- turn rigid, as without wheels. "curve": GAP ahead as "backup", but if an
+-- arc clears what is ahead (a slanting approach, which needs only a small
+-- turn: about 11 cm of the gap for 30 degrees) it curves away walking on,
+-- as "arcs"; head on, or with no clear arc, a three-point turn.
+-- ROOM_YIELD (false): a walker on a crossing course from the left is left
+-- to give way (right of way to the walker on the right, decided by each
+-- from what it sees).
 ROOM_STEER = ROOM_STEER or "backup"
+ROOM_YIELD = ROOM_YIELD or false
 local BACKUP_PHASE = 4      -- s
 local WHEEL_GAP = 120       -- cm
 local WHEEL_TIME = 60       -- s
@@ -2090,26 +2097,27 @@ local function wheelBadness(w, x, z, h, turn)
     end
     if bad > 0 then break end
   end
-  return bad + badness(w, px, pz, h + turn)
+  return bad + badness(w, px, pz, h + turn), bad > 0   -- (and whether the arc runs into something)
 end
 
 local RIGHT_ANGLES = { math.pi / 2, -math.pi / 2, math.pi }
 local function chooseTurn(w, x, z, h, byWheel)
-  local best, bestBad
+  local best, bestBad, bestHit
   for k = 1, (w.spec.railed and not byWheel) and #RIGHT_ANGLES or CANDIDATES do
     -- a turn of 60 to 180 degrees, left or right (a railed walker: a
     -- right angle, or about turn)
-    local turn, b
+    local turn, b, hit
     if byWheel then   -- (30 to 180 degrees, smaller ones preferred more: it walks straight sooner)
       turn = math.rad(30 + 150 * random()) * ((random() < 0.5) and -1 or 1)
-      b = wheelBadness(w, x, z, h, turn) + 0.3 * math.abs(turn) / math.pi
+      b, hit = wheelBadness(w, x, z, h, turn)
+      b = b + 0.3 * math.abs(turn) / math.pi
     else
       turn = w.spec.railed and RIGHT_ANGLES[k] or math.rad(60 + 120 * random()) * ((random() < 0.5) and -1 or 1)
       b = badness(w, x, z, h + turn) + 0.1 * math.abs(turn) / math.pi   -- (smaller turns preferred, a little)
     end
-    if not bestBad or b < bestBad then best, bestBad = turn, b end
+    if not bestBad or b < bestBad then best, bestBad, bestHit = turn, b, hit end
   end
-  return best
+  return best, bestHit   -- (by wheel: whether even the best arc runs into something)
 end
 
 -- what is in front of walker w, if anything: "wall", or another walker.
@@ -2247,12 +2255,20 @@ local function blocked(w, x, z, h, wallGap)
   if what then return what end
   local GAP = wallGap or GAP
   -- a walker on a crossing path, from any side: both keep their present
-  -- velocities and they'd come within GAP / 2
+  -- velocities and they'd come within GAP / 2. With ROOM_YIELD, only if it
+  -- comes from the right (or near enough straight ahead): one on the left
+  -- gives way to this one, by the same rule from its side -- right of way,
+  -- as at a crossing, with no word between them
   if w.vx then
     for _, o in ipairs(walkers) do
       if o ~= w then
         local g, t = closest(w, x, z, w.vx, w.vz, o)
-        if g < GAP / 2 and t > 0 then return o end
+        local mine = true
+        if ROOM_YIELD then
+          local ox, _, oz = getPosXYZ(o.cube)
+          mine = angleDiff(math.atan2(-(oz - z), ox - x), h) <= math.rad(15)   -- (left counts up)
+        end
+        if g < GAP / 2 and t > 0 and mine then return o end
       end
     end
   end
@@ -2517,7 +2533,12 @@ v:preSim(function(N)
       if simTime >= (w.calmUntil or 0) then what = blocked(w, x, z, h, byWheel and WHEEL_GAP or GAP) else what = nearMiss(w, x, z) end
       if what then
         local turn = chooseTurn(w, x, z, h, byWheel)
-        if w.wheels and ROOM_STEER == "backup" then   -- (backing first, the far wheel braked)
+        local backup = w.wheels and ROOM_STEER == "backup"
+        if w.wheels and ROOM_STEER == "curve" then   -- (an arc if one is clear, else a three-point turn)
+          local arc, hit = chooseTurn(w, x, z, h, true)
+          if hit then backup = true else turn, byWheel = arc, true end
+        end
+        if backup then   -- (backing first, the far wheel braked)
           w.backupTurn = { from = heading(w), turn = turn, back = true, next = simTime + BACKUP_PHASE, by = simTime + WHEEL_TIME }
           room.setReverse(w, true)
           setShoe(w, (turn > 0) and "R" or "L")
@@ -2528,7 +2549,8 @@ v:preSim(function(N)
           startTurn(w, turn)
           w.calmUntil = simTime + TURN_TIME + COOLDOWN
         end
-        room.turns[#room.turns + 1] = { simTime, w.spec.name, (what == "wall") and "wall" or what.spec.name, math.deg(turn) }
+        room.turns[#room.turns + 1] = { simTime, w.spec.name, (what == "wall") and "wall" or what.spec.name, math.deg(turn),
+          backup and "backup" or byWheel and "arc" or "rigid" }
         w.turns = (w.turns or 0) + 1
       end
     end

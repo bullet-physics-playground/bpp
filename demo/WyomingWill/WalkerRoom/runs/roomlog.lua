@@ -14,13 +14,17 @@ realv:postSim(function(N)
     if w.backing then backing[w] = (backing[w] or 0) + 1 end
   end
   if frames == END then
-    local walls, walk, sz, why = 0, 0, {}, {}
+    local walls, walk, sz, why, kinds = 0, 0, {}, {}, {}
     for _, t in ipairs(room.turns) do
       if t[3] == "wall" then walls = walls + 1 else walk = walk + 1 end
+      if t[5] then kinds[t[5]] = (kinds[t[5]] or 0) + 1 end
       sz[#sz + 1] = string.format("%.0f", math.abs(t[4]))
     end
     for _, r in ipairs(room.rescues or {}) do why[#why + 1] = r[2] .. ":" .. r[3] end
-    io.stdout:write(string.format("ROOM turns %d (walls %d, walkers %d)|rescues %d [%s]|righted %d|turn sizes %s\n", #room.turns, walls, walk,
+    local k = {}
+    for name, n in pairs(kinds) do k[#k + 1] = n .. " " .. name end
+    table.sort(k)
+    io.stdout:write(string.format("ROOM turns %d (walls %d, walkers %d; " .. table.concat(k, ", ") .. ")|rescues %d [%s]|righted %d|turn sizes %s\n", #room.turns, walls, walk,
       #(room.rescues or {}), table.concat(why, ", "), #room.righted, table.concat(sz, " ")))
     for _, w in ipairs(room.walkers) do
       io.stdout:write(string.format("WALKER %s|turning %.1f%%|backing %.1f%%|gone %.0f cm|turns %d\n", w.spec.name,
