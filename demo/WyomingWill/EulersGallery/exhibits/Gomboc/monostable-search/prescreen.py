@@ -25,9 +25,11 @@ STALL METRIC (stall)
   (watershed of the dents deeper than 1 um) that dent, of depth d at 90 mm, holds it with probability
   d^2 / (d^2 + d0^2), d0 = 5 um. Upright = within 10 deg of the rest.
   Calibration (Spearman rank correlation with the drop share that stalls): PyBullet, 17 shapes x 3 frictions,
-  30 s drops: 0.85 (mean error 6.8 points); the printing chat's drops of its printed hulls, 26 cases: 0.84 (7.5).
+  30 s drops: 0.84 (mean error 7.8 points); the printing chat's drops of its printed hulls, 26 cases: 0.84 (7.5).
   Charging a dent only when the route crossed its lowest face (an earlier form) missed whole extra resting
   points: two bodies scored 0.2% that stall in 63% and 53% of PyBullet drops (predicted now 71% and 50%).
+  extra_rests(P) lists the resting faces other than the main one, deeper than 2 um, with edge-height passes
+  (a carved flat can be a rest with a lower neighbour); a body is monostable if it is empty.
   Known misses: GOMBOC900's 16-22 deg stalls in PyBullet (dynamic), mono-s4's vertical slip (13%, no static trap).
   A flat zone whose dents are a few um deep can flip between 0 and 70% with um-level build differences
   (mono-s5): test such a body with small random surface bumps as well.
@@ -121,7 +123,7 @@ def printed(halves, case='al', v=0.1):
 
 def faces(X, F):
     """outward unit normal n, height h of the centre of mass (origin), lever lam (distance of the foot of the
-    centre of mass outside the face, 0 inside) and face adjacency A"""
+    centre of mass outside the face, 0 inside), face adjacency A and the shared edge (two vertex indices) of each pair"""
     a, b, c = X[F[:, 0]], X[F[:, 1]], X[F[:, 2]]
     n = np.cross(b - a, c - a); n /= np.linalg.norm(n, axis=1)[:, None]
     h = (n * a).sum(1); q = h[:, None] * n; P = [a, b, c]
@@ -135,15 +137,52 @@ def faces(X, F):
     E = np.sort(np.c_[F[:, [0, 1]], F[:, [1, 2]], F[:, [2, 0]]].reshape(-1, 2), 1)
     fid = np.repeat(np.arange(len(F)), 3); o = np.lexsort(E.T[::-1]); Es, fs = E[o], fid[o]
     same = (Es[1:] == Es[:-1]).all(1)
-    return n, h, lam, np.c_[fs[:-1][same], fs[1:][same]]
+    return n, h, lam, np.c_[fs[:-1][same], fs[1:][same]], Es[1:][same]
 
 
 def prep(X):
     """X: surface points, mm at 90, centre of mass at the origin. Faces, the drainage route of every face to the
-    main rest (the lowest face) by the lowest way out of every dent, and every dent's depth (persistence)."""
+    main rest (the lowest face) by the lowest way out of every dent, every dent's depth and its basin.
+    Coplanar triangles form one polygon face: its lever is the least over its triangles (the foot of the centre
+    of mass may lie in another triangle of the same face).
+    Two depths: 'dent' from face heights (the stall model, as calibrated), and 'rest' with passes at edge
+    heights (rolling over an edge lifts the centre of mass to the edge's distance from it when its foot lies on
+    each face's side of the edge line): the true depth of every resting face of the polyhedron. On a coarse
+    polyhedron a face can be a rest with a lower neighbour (a carved flat), which face heights miss; extra
+    resting points are counted from 'rest'."""
     H = ConvexHull(X); F = H.simplices.copy()
     nrm = np.cross(X[F[:, 1]] - X[F[:, 0]], X[F[:, 2]] - X[F[:, 0]]); fl = (nrm * X[F].mean(1)).sum(1) < 0; F[fl] = F[fl][:, [0, 2, 1]]
-    n, h, lam, A = faces(X, F); nf = len(F)
+    n, h, lam, A, EV = faces(X, F); nf = len(F)
+    g = np.arange(nf)
+    def root(i):
+        while g[i] != i: g[i] = g[g[i]]; i = g[i]
+        return i
+    cop = ((n[A[:, 0]] * n[A[:, 1]]).sum(1) > 1 - 1e-9) & (np.abs(h[A[:, 0]] - h[A[:, 1]]) < 1e-6)
+    for a, b in A[cop]:
+        ra, rb = root(a), root(b)
+        if ra != rb: g[max(ra, rb)] = min(ra, rb)
+    gid = np.array([root(i) for i in range(nf)]); lmin = np.full(nf, np.inf); np.minimum.at(lmin, gid, lam); lam = lmin[gid]
+    hmax = np.maximum(h[A[:, 0]], h[A[:, 1]]); wf = np.where(cop, h[A[:, 0]], hmax)
+    u, e = X[EV[:, 0]], X[EV[:, 1]] - X[EV[:, 0]]; t = np.clip(-(u * e).sum(1) / (e * e).sum(1), 0, 1)
+    eh = np.linalg.norm(u + t[:, None] * e, axis=1)
+    def own_side(f):
+        q = h[f][:, None] * n[f]; c = X[F[f]].mean(1); ex = np.cross(e, n[f])
+        return ((q - u) * ex).sum(1) * ((c - u) * ex).sum(1) > 0
+    we = np.where(cop, h[A[:, 0]], np.where(own_side(A[:, 0]) & own_side(A[:, 1]), np.maximum(eh, hmax), hmax))
+    _, inv = np.unique(np.sort(gid[A], 1), axis=0, return_inverse=True); inv = inv.ravel()
+    wm = np.full(inv.max() + 1, np.inf); np.minimum.at(wm, inv, we); we = np.where(cop, we, wm[inv])   # lowest pass along a polygon edge
+    def persist(w):
+        par = np.arange(nf); mn = np.arange(nf); d = np.zeros(nf)
+        def find(i):
+            while par[i] != i: par[i] = par[par[i]]; i = par[i]
+            return i
+        for k in np.argsort(w, kind='stable'):
+            ra, rb = find(A[k, 0]), find(A[k, 1])
+            if ra == rb: continue
+            if h[mn[ra]] > h[mn[rb]]: ra, rb = rb, ra
+            d[mn[rb]] = w[k] - h[mn[rb]]; par[rb] = ra
+        return d
+    dent, rest = persist(wf), persist(we)
     o = np.argsort(np.r_[A[:, 0], A[:, 1]]); src = np.r_[A[:, 0], A[:, 1]][o]; dst = np.r_[A[:, 1], A[:, 0]][o]
     ptr = np.searchsorted(src, np.arange(nf + 1)); r = int(np.argmin(h))
     nxt = -np.ones(nf, int); key = np.full(nf, np.inf); nxt[r] = r; key[r] = h[r]; pq = [(h[r], r)]
@@ -152,8 +191,6 @@ def prep(X):
         if k > key[i]: continue
         for j in dst[ptr[i]:ptr[i + 1]]:
             if nxt[j] < 0: nxt[j] = i; key[j] = max(h[j], k); heapq.heappush(pq, (key[j], j))
-    dent = np.zeros(nf)
-    for d, i in smooth._persist(h, A)[1:]: dent[i] = d
     # watershed: every face belongs to the dent (deeper than 1 um, or the main rest) it rolls into
     basin = -np.ones(nf, int); pq = []
     for s in [r] + list(np.where(dent > 0.001)[0]): basin[s] = s; heapq.heappush(pq, (h[s], s))
@@ -162,7 +199,12 @@ def prep(X):
         for j in dst[ptr[i]:ptr[i + 1]]:
             if basin[j] < 0: basin[j] = basin[i]; heapq.heappush(pq, (max(h[j], k), j))
     return dict(n=n, h=h, lam=lam, nxt=nxt, step=np.arccos(np.clip((n * n[nxt]).sum(1), -1, 1)), down=n[r], dent=dent,
-                basin=basin)
+                rest=rest, basin=basin)
+
+
+def extra_rests(P, deep=0.002):
+    """depths (mm at 90) of the resting faces other than the main rest, deeper than deep"""
+    d = np.sort(P['rest'][P['rest'] > deep])[::-1]; return d
 
 
 def stall(P, mus=(0.15, 0.3), d0=0.005, eta=1.0, k0=0.02, start_level=5):
