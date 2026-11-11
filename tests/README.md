@@ -110,10 +110,12 @@ access, so a race in bpp's code that the pool runs is still reported
 
 ## Screen scenes
 
-A scene in `screens/` can rest the mouse pointer on the view: a line
-`-- mouse: X Y` (window coordinates) puts it there once the window is up,
-and the screen under the window is grabbed, so a tooltip shows in the
-picture (`hover.lua`).
+A scene in `screens/` can work the GUI before it is grabbed. Lines
+`-- xdotool: ...` are xdotool commands, run in order once the window is up,
+with `WIN` for the window: keys, clicks, drags, wheel turns
+(`quadview.lua`). A line `-- mouse: X Y` (window coordinates) then rests
+the pointer there (`hover.lua`). For such a scene the screen under the
+window is grabbed, so a tooltip shows in the picture.
 
 ## Qt 5 and Qt 6
 

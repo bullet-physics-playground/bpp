@@ -756,22 +756,30 @@ def pinned_fonts(wd):
     return conf
 
 
-def scene_mouse(scene):
-    """A screen scene's "-- mouse: X Y" line: where in the window the
-    pointer rests (None: it stays off the window)."""
+def scene_input(scene):
+    """A screen scene's input lines: its "-- xdotool: ..." lines, xdotool
+    commands run in order once the window is up (WIN stands for the
+    window), and its "-- mouse: X Y" line, where in the window the pointer
+    then rests (None: it stays off the window)."""
+    commands, mouse = [], None
     with open(scene) as f:
         for line in f:
             m = re.match(r"--\s*mouse:\s*(\d+)\s+(\d+)\s*$", line)
             if m:
-                return m.group(1), m.group(2)
-    return None
+                mouse = m.group(1), m.group(2)
+            m = re.match(r"--\s*xdotool:\s*(.+?)\s*$", line)
+            if m:
+                commands.append(m.group(1).split())
+    return commands, mouse
 
 
 def grab(ctx, display, scene, out_png):
     """Opens scene in the GUI, sizes the window, and grabs it to out_png
     once two grabs a second apart are the same (the scene has loaded).
-    For a scene with a "-- mouse:" line the pointer rests there, and the
-    screen under the window is grabbed, so a tooltip shows too."""
+    A scene's "-- xdotool:" lines are run first (keys, drags, wheel turns);
+    with a "-- mouse:" line the pointer then rests there. For a scene with
+    either, the screen under the window is grabbed, so a tooltip shows
+    too."""
     wd = ctx.workdir("screens-" + os.path.basename(scene))
     env = isolated_env(wd, display)
     fonts = pinned_fonts(wd)
@@ -794,9 +802,13 @@ def grab(ctx, display, scene, out_png):
         subprocess.run(["xdotool", "windowmove", win, "0", "0",
                         "windowsize", win, str(SCREEN_SIZE[0]), str(SCREEN_SIZE[1])], env=env)
         time.sleep(SCREEN_SETTLE)
-        mouse = scene_mouse(scene)
+        commands, mouse = scene_input(scene)
+        for c in commands:
+            subprocess.run(["xdotool"] + [win if a == "WIN" else a for a in c], env=env)
+            time.sleep(0.3)   # (Qt sees each before the next)
         if mouse:
             subprocess.run(["xdotool", "mousemove", "--window", win] + list(mouse), env=env)
+        if commands or mouse:
             # the window at the screen's corner (windowmove above)
             r = subprocess.run(["xdotool", "getwindowgeometry", "--shell", win], env=env,
                                stdout=subprocess.PIPE, check=True)
