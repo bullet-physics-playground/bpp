@@ -347,6 +347,26 @@ threads (eight CPUs, one cache), against no `taskset` at 4 and 8 threads.
 It reads the layout from `lscpu`, so it fits any machine; this container
 has one cache and two cores, so only William's machine can answer it.
 
+William's machine, 11 November (11 walkers, 5 s, waves 2, no wheels;
+marks on / off):
+
+| CPUs | taskset | Walkers | Bracing | Timing | Direction | Threads | Speed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| any | none | 11 | mixed | trot | as the ranking | 4 | 0.50x / 0.50x |
+| any | none | 11 | mixed | trot | as the ranking | 8 | 0.50x / 0.50x |
+| 4 cores | 0-3 | 11 | mixed | trot | as the ranking | 4 | 0.58x / 0.58x |
+| 2 cores and their second threads | 0,1,8,9 | 11 | mixed | trot | as the ranking | 4 | 0.39x / 0.40x |
+| 4 cores and their second threads | 0-3, 8-11 | 11 | mixed | trot | as the ranking | 8 | 0.57x / 0.58x |
+
+Held to four cores, the room runs 16% faster than where Linux puts the
+threads itself; second hardware threads add nothing (two cores and their
+second threads: much slower than four cores). But `lscpu` reported one L3
+cache for the 3700X's two, so the rows across two caches did not run: the
+script now reads each CPU's L3 from `/sys`
+(`cache/index3/shared_cpu_list`; checked on a mock of the 3700X's layout:
+cores 0-3 with 8-11, and 4-7 with 12-15), and `SPLIT_ONLY=1` runs just
+those rows.
+
 ## Before (the handover of 1 November, kept as written)
 
 For a future session: can bpp run physics on more than one core, using the
