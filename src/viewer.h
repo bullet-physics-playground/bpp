@@ -53,6 +53,7 @@
 #include "decorations.h"
 #include "wavtrack.h"
 #include "hover.h"
+#include "quadview.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -2260,25 +2261,6 @@ protected:
    */
   void renderShadowDepth();
 
-  /**
-   * @brief Renders the scene once into each of the four quad-view panes.
-   *
-   * Each pane gets its own viewport and camera. The full-window viewport and
-   * the main camera's screen size are restored afterwards, because postDraw()'s
-   * screen-space overlays and the next frame's mouse handling both assume the
-   * whole widget.
-   */
-  void drawQuadView();
-
-  /**
-   * @brief Re-frames the three fixed orthographic cameras on the scene.
-   *
-   * Keeps their view direction and up vector, set once in the constructor, and
-   * just slides them along that direction so the whole scene is in frame.
-   * Called when quad view is first switched on and on a camera reset, not
-   * every frame, so it does not fight the user's own pan and zoom afterwards.
-   */
-  void updateOrthoCameras();
 
   /**
    * @brief Fits the scene bounding box around everything in the world.
@@ -2332,63 +2314,7 @@ private:
   Vec _initialCameraUpVector; ///< Up vector it returns to; also the reference
                               ///< up used to keep the horizon level.
 
-  /**
-   * @brief True while the 4-pane quad view is shown instead of one view.
-   *
-   * Tab toggles between the single perspective view and a 4-pane CAD-style
-   * layout (perspective, top, front, right), matching AutoCAD/Maya. The
-   * perspective quadrant reuses camera(); the other three are fixed,
-   * auto-framed orthographic views.
-   */
-  bool _quadView;
-
-  /**
-   * @brief Whether the ortho cameras have been framed on the scene yet.
-   *
-   * Set once updateOrthoCameras() has auto-framed the ortho cameras for
-   * the first time, so later Tab toggles remember the user's own pan/zoom
-   * in those views instead of re-framing every time.
-   */
-  bool _orthoCamerasFitted;
-  qglviewer::Camera *_camTop;   ///< Fixed orthographic view from above.
-  qglviewer::Camera *_camFront; ///< Fixed orthographic view from the front.
-  qglviewer::Camera *_camRight; ///< Fixed orthographic view from the right.
-
-  /**
-   * @brief One quad-view pane: which camera renders it, and where.
-   */
-  struct Pane {
-    qglviewer::Camera *cam; ///< Camera that renders this pane.
-    QRect rect; ///< The pane's rectangle in widget coordinates, that is Qt's
-                ///< convention with the origin top-left.
-  };
-
-  /**
-   * @brief Returns the current quad-view pane layout.
-   *
-   * Perspective top-left (the interactive camera()), top top-right, front
-   * bottom-left, right bottom-right - the classic AutoCAD/Maya four-view
-   * layout. Rectangles are in widget coordinates, that is Qt's convention with
-   * the origin top-left and y down, shared by drawQuadView(), which flips to
-   * OpenGL's bottom-left-origin viewport, and orthoCameraAt(), which hit-tests
-   * mouse events directly against these.
-   *
-   * @return The four panes, in that order.
-   */
-  QVector<Pane> computePanes() const;
-
-  /**
-   * @brief Returns the orthographic camera under a widget position.
-   * @param pos Position in widget coordinates.
-   * @return The camera, or null when quad view is off or @p pos is over the
-   *         perspective pane, where camera()'s own default mouse handling
-   *         already applies.
-   */
-  qglviewer::Camera *orthoCameraAt(const QPoint &pos) const;
-
-  /// Active pan drag on one of the ortho panes (nullptr when not panning).
-  qglviewer::Camera *_orthoPanCamera;
-  QPoint _orthoPanLastPos; ///< Pointer position at the last pan step.
+  QuadView _quad{this}; ///< The quad view (Tab): four panes, three orthographic.
 
   bool _simulate; ///< True while the simulation is being stepped.
 
