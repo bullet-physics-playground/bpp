@@ -87,8 +87,8 @@ void var_to(lua_State *L, QVariant const &v) {
     lua_pushboolean(L, v.toBool());
   } else if (v.userType() == QVariant::Int || v.userType() == QVariant::LongLong) {
     lua_pushinteger(L, v.toLongLong());
-  } else if (v.userType() == QVariant::Double) {
-    lua_pushnumber(L, v.toDouble());
+  } else if (v.userType() == QVariant::Double || v.userType() == QMetaType::Float) {
+    lua_pushnumber(L, v.toDouble());   // (a float: a slider's value, a btScalar)
   } else if (v.userType() == QVariant::String) {
     lua_pushstring(L, v.toString().toUtf8().constData());
   } else if (v.userType() == QVariant::List) {
