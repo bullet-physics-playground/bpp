@@ -8,6 +8,9 @@ Suites (run all of them with no arguments, or name the ones you want):
   unit     tests/NN-*.lua: each must print "N passed, 0 failed" and exit 0.
   api      The Lua API (every bound class, its methods with their overload
            signatures, and its properties) against tests/api/lua-api.txt.
+  render   A quick render (v:quickRender), with a stand-in povray first on
+           PATH: how bpp calls POV-Ray (options, size, output file, frame,
+           scene file, folder) is checked, without rendering.
   smoke    Every demo the Demos menu lists (all of demo/ but folders
            holding .nomenu) runs a few frames without a Lua error,
            crash or hang. Demos already broken are listed, with the reason,
@@ -40,6 +43,7 @@ Usage:
 import argparse
 import concurrent.futures
 import difflib
+import glob
 import hashlib
 import math
 import os
@@ -52,12 +56,12 @@ import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TESTS = os.path.join(ROOT, "tests")
-ALL_SUITES = ["unit", "api", "smoke", "golden", "screens"]
+ALL_SUITES = ["unit", "api", "render", "smoke", "golden", "screens"]
 # Run only when named: they take a while.
 EXTRA_SUITES = ["theory"]
 # The expected files of these hold what one platform produces (C++ type
 # names as GCC's library spells them, Linux settings files, Mesa pixels).
-LINUX_ONLY = ["api", "golden", "screens"]
+LINUX_ONLY = ["api", "render", "golden", "screens"]
 
 # Lines bpp writes that are not program behaviour: the device it ran on, Qt's
 # notes about the headless platform. Dropped from logs before looking for
@@ -526,6 +530,66 @@ def suite_api(ctx):
     print("       tests/harness.py --update api  and commit tests/api/lua-api.txt:")
     show_diff(expected, got, "lua-api.txt")
     return 1
+
+
+# -- render ----------------------------------------------------------------
+
+RENDER = os.path.join(TESTS, "render")
+
+
+def suite_render(ctx):
+    """tests/render/quick.lua quick-renders frame 2 with extra options; the
+    stand-in tests/render/standin/povray, first on PATH, writes how it was
+    called. bpp's own side of a quick render is checked against that:
+    which program, the options (the default preview's), the size (the
+    view's: 640x480 headless), the PNG on the desktop named after the
+    scene and frame, POV-Ray's clock, the scene file, the extra options
+    as given, and the folder (the scene's export, holding the .pov). The
+    Ubuntu POV-Ray is 3.7, which won't read bpp's 3.8 scenes, so nothing
+    is rendered."""
+    wd = ctx.workdir("render")
+    os.makedirs(os.path.join(wd, "home", "Desktop"))   # (where the PNG goes)
+    env = {"PATH": os.path.join(RENDER, "standin") + os.pathsep + os.environ.get("PATH", "")}
+    r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4"], wd, 120, RENDER, env)
+    home = os.path.join(wd, "home")
+    call = os.path.join(home, "povray-call.txt")
+    for _ in range(100):                  # (POV-Ray is started, not waited for)
+        if os.path.exists(call):
+            break
+        time.sleep(0.1)
+    why = lua_errors(r.lines())[:5]
+    if r.rc != 0:
+        why.append("exit code %s" % r.rc)
+    if not os.path.exists(call):
+        why.append("povray was not run")
+    else:
+        time.sleep(0.2)                   # (let it finish writing)
+        with open(call) as f:
+            got = f.read().split("\n")[:-1]
+        folder, args = got[0], got[1:]
+        export = os.path.join(wd, "export", "quick")
+        cache = os.path.join(home, ".cache", "bpp")
+        png = re.compile(re.escape("+O" + os.path.join(home, "Desktop")) +
+                         r"/bpp-\d{8}-\d{6}-quick-00002\.png$")
+        want = ["+L" + cache, "+L" + os.path.join(RENDER, "includes"),
+                "-c", "+d", "-A", "+p", "+Q11", "+GA", "+FN10",
+                "+W640", "+H480", "+F", png, "+K2", "quick.pov", "+W160 +H120"]
+        if folder != export:
+            why.append("ran in %s, not %s" % (folder, export))
+        if not os.path.exists(os.path.join(export, "quick.pov")):
+            why.append("no quick.pov exported in %s" % export)
+        if len(args) != len(want):
+            why.append("%d arguments, not %d: %s" % (len(args), len(want), args))
+        for i, (g, w) in enumerate(zip(args, want)):
+            ok = w.match(g) if hasattr(w, "match") else g == w
+            if not ok:
+                why.append("argument %d: %r, not %r" % (i + 1, g, getattr(w, "pattern", w)))
+        if not why and not glob.glob(os.path.join(home, "Desktop", "bpp-*-quick-00002.png")):
+            why.append("the PNG asked for was not written")
+    print("  %-4s %-28s %5.1fs" % ("ok" if not why else "FAIL", "quick.lua", r.seconds))
+    for w in why:
+        print("         " + w)
+    return int(bool(why))
 
 
 # -- smoke -----------------------------------------------------------------

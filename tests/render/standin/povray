@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+# Stands in for POV-Ray in tests/harness.py's render suite (first on PATH,
+# so bpp's quick render finds it as it would POV-Ray): writes how it was
+# called to $HOME/povray-call.txt -- its folder, then one argument a line --
+# and the PNG asked for with +O, so bpp's side is tested without rendering.
+import os, sys
+with open(os.path.join(os.environ["HOME"], "povray-call.txt"), "w") as f:
+    f.write(os.getcwd() + "\n")
+    for a in sys.argv[1:]:
+        f.write(a + "\n")
+for a in sys.argv[1:]:
+    if a.startswith("+O"):
+        open(a[2:], "wb").close()

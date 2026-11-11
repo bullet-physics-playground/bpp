@@ -15,6 +15,7 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 |-----------|----------------|----------------|
 | `unit`    | `tests/NN-*.lua` each print `N passed, 0 failed` and exit 0 | in the tests |
 | `api`     | Every Lua class, property and method overload scripts can use | `api/lua-api.txt` |
+| `render`  | A quick render (`v:quickRender`) with a stand-in `povray` first on `PATH`: bpp calls it with the right options, size, output file, frame, scene file and folder (nothing is rendered: Ubuntu's POV-Ray 3.7 won't read bpp's 3.8 scenes) | in the harness |
 | `smoke`   | Every demo the Demos menu lists loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
 | `golden`  | The demos in `golden/demos.txt` simulate 40 frames; in the POV-Ray export (frames 1, 20, 40), every object's transform, the camera, the scene text and each mesh's geometry match | `golden/expected/` |
 | `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png`, `screens/expected-qt6/` for a Qt 6 build |

@@ -65,8 +65,8 @@ jobs:
 
       # Each test step runs even when an earlier one failed, so one run
       # shows everything that broke.
-      - name: Unit tests and Lua API
-        run: python3 tests/harness.py unit api 2>&1 | tee unit-api.log
+      - name: Unit tests, Lua API and quick render
+        run: python3 tests/harness.py unit api render 2>&1 | tee unit-api.log
 
       - name: Golden master (physics and POV-Ray export)
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
@@ -271,8 +271,8 @@ jobs:
           qmake6 CONFIG+=release
           make -j"$(nproc)" release
 
-      - name: Unit tests, Lua API and golden master
-        run: python3 tests/harness.py unit api golden
+      - name: Unit tests, Lua API, quick render and golden master
+        run: python3 tests/harness.py unit api render golden
 
       - name: Screenshots
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
