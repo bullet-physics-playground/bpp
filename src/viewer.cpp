@@ -2530,7 +2530,7 @@ void Viewer::restartSim() {
   btScalar camHfov = camera()->horizontalFieldOfView();
   Vec camUp = camera()->upVector();
 
-  QHash<QString, QVariant> savedParams = _params;
+  QHash<QString, QVariant> savedParams = _params.all();
 
   parse(_scriptContent);
 
@@ -2540,8 +2540,8 @@ void Viewer::restartSim() {
   camera()->setUpVector(camUp, true);
 
   for (auto it = savedParams.constBegin(); it != savedParams.constEnd(); ++it) {
-    if (!_params.contains(it.key())) continue;
-    ParamInfo info = _paramInfo.value(it.key());
+    if (!_params.all().contains(it.key())) continue;
+    ParamInfo info = _params.info(it.key());
     if (info.hasRange) {
       addParam(it.key(), it.value().toDouble(), info.min, info.max, info.step, info.comment);
     } else {
@@ -2645,23 +2645,10 @@ emit scriptStarts();
     _keys.clear();
     setStatusText(QString());   // (a script's status line goes with it)
     _synth.reset();             // (and its voices)
-    _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
     _hover.clear();
 
-    // Release button callbacks and parameter values that carry a Lua object
-    // (functions bound to push buttons) while the Lua state is still alive:
-    // their luabind references would otherwise be released against the closed
-    // state when clear() runs below.
-    for (ParamInfo &info : _paramInfo) {
-      if (info.isButton) info.buttonCallback = luabind::object();
-      if (info.isButtonGroup)
-        for (auto &pair : info.buttonCallbacks)
-          pair.second = luabind::object();
-    }
-    for (QVariant &value : _params)
-      if (value.userType() == qMetaTypeId<luabind::object>())
-        value = QVariant();
+    _params.releaseLua();
 
     // (removed objects bpp still owns go with the rest)
     for (Object *o : _removed)
@@ -2988,9 +2975,7 @@ void Viewer::clear() {
 
   _merge.clear();                        // (before the objects go)
 
-  _params.clear();
-  _paramInfo.clear();
-  _paramFilter.clear();   // (a script's showParams() filter goes with it)
+  _params.clear();        // (a script's showParams() filter goes with it)
   emit paramsChanged();
 
   // Notify all objects that their luabind weak pointers are about to become
@@ -3229,22 +3214,9 @@ Viewer::~Viewer() {
   _cb_onJoystick = luabind::object();
   _keys.clear();                     // (shortcuts too: before Lua closes)
   _cb_onSpaceNavigator = luabind::object();
-  _cb_onParamChanged = luabind::object();
   _hover.clear();
 
-  // Release button callbacks and parameter values that carry a Lua object
-  // (functions bound to push buttons) while the Lua state is still alive:
-  // their luabind references would otherwise be released against the closed
-  // state when the member hashes are destroyed below.
-  for (ParamInfo &info : _paramInfo) {
-    if (info.isButton) info.buttonCallback = luabind::object();
-    if (info.isButtonGroup)
-      for (auto &pair : info.buttonCallbacks)
-        pair.second = luabind::object();
-  }
-  for (QVariant &value : _params)
-    if (value.userType() == qMetaTypeId<luabind::object>())
-      value = QVariant();
+  _params.releaseLua();
 
   // (removed objects bpp still owns go with the rest)
   for (Object *o : _removed)
@@ -3928,11 +3900,7 @@ void Viewer::setCBOnSpaceNavigator(const luabind::object &fn) {
   }
 }
 
-void Viewer::setCBOnParamChanged(const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onParamChanged = fn;
-  }
-}
+void Viewer::setCBOnParamChanged(const luabind::object &fn) { _params.setOnChanged(fn); }
 
 void Viewer::setCBOnHover(const luabind::object &fn) {
   _hover.setCallback(fn);
@@ -3981,115 +3949,7 @@ void Viewer::addParam(const QString &name, const QVariant &value) {
 }
 
 void Viewer::addParam(const QString &name, const QVariant &value, const QString &comment) {
-  // A QVariant carrying a Lua function is a push button parameter: the Gui
-  // shows a button that invokes the function when it is pressed. A button
-  // holds no value, so it is neither mirrored into a Lua global nor reported
-  // to onParamChanged.
-  if (value.userType() == qMetaTypeId<luabind::object>() &&
-      luabind::type(qvariant_cast<luabind::object>(value)) == LUA_TFUNCTION) {
-    _params[name] = value;
-
-    ParamInfo info;
-    info.value = value;
-    info.isButton = true;
-    info.buttonCallback = qvariant_cast<luabind::object>(value);
-    info.comment = comment;
-    _paramInfo[name] = info;
-
-    emit paramsChanged();
-    return;
-  }
-
-  // A table whose every entry is a Lua function becomes one row of push
-  // buttons: the table's keys (or positions) label the buttons, and clicking
-  // one invokes its function. A button group holds no value, so it is neither
-  // mirrored into a Lua global nor reported to onParamChanged.
-  QList<QPair<QString, luabind::object>> callbacks;
-  bool isGroup = false;
-  if (value.userType() == QVariant::Map) {
-    QVariantMap map = value.toMap();
-    isGroup = !map.isEmpty();
-    for (auto it = map.constBegin(); isGroup && it != map.constEnd(); ++it) {
-      const QVariant &v = it.value();
-      if (v.userType() != qMetaTypeId<luabind::object>() ||
-          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
-        isGroup = false;
-      } else {
-        callbacks.append(qMakePair(it.key(), qvariant_cast<luabind::object>(v)));
-      }
-    }
-  } else if (value.userType() == QVariant::List) {
-    QVariantList list = value.toList();
-    isGroup = !list.isEmpty();
-    int i = 0;
-    for (const QVariant &v : list) {
-      ++i;
-      if (v.userType() != qMetaTypeId<luabind::object>() ||
-          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
-        isGroup = false;
-        break;
-      }
-      callbacks.append(qMakePair(QString::number(i),
-                                  qvariant_cast<luabind::object>(v)));
-    }
-  }
-
-  if (isGroup && !callbacks.isEmpty()) {
-    _params[name] = value;
-
-    ParamInfo info;
-    info.value = value;
-    info.isButtonGroup = true;
-    info.buttonCallbacks = callbacks;
-    info.comment = comment;
-    _paramInfo[name] = info;
-
-    emit paramsChanged();
-    return;
-  }
-
-  _params[name] = value;
-
-  ParamInfo info;
-  info.value = value;
-  info.comment = comment;
-  _paramInfo[name] = info;
-
-  if (L) {
-    lua_State *ls = L;
-    lua_pushstring(ls, name.toUtf8().constData());
-
-    switch (value.userType()) {
-    case QVariant::Int:
-    case QVariant::LongLong:
-      lua_pushinteger(ls, value.toInt());
-      break;
-    case QVariant::Double:
-      lua_pushnumber(ls, value.toDouble());
-      break;
-    case QVariant::Bool:
-      lua_pushboolean(ls, value.toBool());
-      break;
-    case QVariant::String:
-      lua_pushstring(ls, value.toString().toUtf8().constData());
-      break;
-    default:
-      lua_pushstring(ls, value.toString().toUtf8().constData());
-      break;
-    }
-
-    //lua_settable(ls, LUA_GLOBALSINDEX);// Lua 5.1
-	lua_setglobal(ls, name.toUtf8().constData()); // Lua 5.1 and 5.2
-  }
-
-  if (_cb_onParamChanged) {
-    try {
-      luabind::call_function<void>(_cb_onParamChanged, _frameNum, name, value);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onParamChanged()");
-    }
-  }
-
+  _params.add(L, _frameNum, name, value, comment, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
   emit paramsChanged();
 }
 
@@ -4102,124 +3962,29 @@ void Viewer::addParam(const QString &name, const btScalar &value, const btScalar
 }
 
 void Viewer::addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step, const QString &comment) {
-  _params[name] = QVariant(value);
-  ParamInfo info;
-  info.value = QVariant(value);
-  info.min = min;
-  info.max = max;
-  info.step = step;
-  info.comment = comment;
-  info.hasRange = true;
-  _paramInfo[name] = info;
-  if (L) {
-    lua_State *ls = L;
-    lua_pushstring(ls, name.toUtf8().constData());
-    // Use lua_pushnumber (not lua_pushinteger) so fractional defaults
-    // (e.g. addParam("rate", 0.12, ...)) survive the round trip through
-    // the Lua global that getParam() reads back, instead of being
-    // truncated to 0.
-    lua_pushnumber(ls, value);
-    lua_setglobal(ls, name.toUtf8().constData());
-  }
-
-  if (_cb_onParamChanged) {
-    try {
-      luabind::call_function<void>(_cb_onParamChanged, _frameNum, name, value);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onParamChanged()");
-    }
-  }
-
+  _params.addRange(L, _frameNum, name, value, min, max, step, comment, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
   emit paramsChanged();
 }
 
 void Viewer::pressButton(const QString &name, const QString &label) {
-  ParamInfo info = _paramInfo.value(name);
-  if (!info.isButton && !info.isButtonGroup) return;
-  if (!L) return;
-
-  luabind::object cb;
-  if (info.isButtonGroup) {
-    for (const auto &pair : info.buttonCallbacks) {
-      if (pair.first == label) {
-        cb = pair.second;
-        break;
-      }
-    }
-  } else {
-    cb = info.buttonCallback;
-  }
-
-  // An unknown label leaves @p cb default-constructed (invalid); never call
-  // luabind::type() on it - that would index the registry of a null state.
-  if (!cb.is_valid() || luabind::type(cb) != LUA_TFUNCTION) return;
-
-  try {
-    luabind::call_function<void>(cb);
-  } catch (const std::exception &e) {
-    showLuaException(e,
-                      QString("button \"%1\"%2")
-                          .arg(name)
-                          .arg(label.isEmpty() ? QString()
-                                               : QString(" / %1").arg(label)));
-  }
+  _params.press(L, name, label, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
 }
 
-ParamInfo Viewer::getParamInfo(const QString &name) const {
-  return _paramInfo.value(name, ParamInfo());
-}
+ParamInfo Viewer::getParamInfo(const QString &name) const { return _params.info(name); }
 
-QVariant Viewer::getParam(const QString &name) const {
-  if (L) {
-    lua_State *ls = L;
-    lua_getglobal(ls, name.toUtf8().constData());
-    int luaType = lua_type(ls, -1);
-    if (luaType == LUA_TNUMBER) {
-      double n = lua_tonumber(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(n);
-    } else if (luaType == LUA_TSTRING) {
-      const char *s = lua_tostring(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(QString(s));
-    } else if (luaType == LUA_TBOOLEAN) {
-      bool b = lua_toboolean(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(b);
-    }
-    lua_pop(ls, 1);
-  }
-  return _params.value(name);
-}
+QVariant Viewer::getParam(const QString &name) const { return _params.get(L, name); }
 
-QHash<QString, QVariant> Viewer::getParams() const {
-  return _params;
-}
+QHash<QString, QVariant> Viewer::getParams() const { return _params.all(); }
 
 void Viewer::showParams(const QString &prefix) {
-  if (prefix == _paramFilter)
-    return;
-  _paramFilter = prefix;
-  emit paramsChanged();
+  if (_params.show(prefix))
+    emit paramsChanged();
 }
 
-QHash<QString, QVariant> Viewer::getShownParams() const {
-  if (_paramFilter.isEmpty())
-    return _params;
-  QHash<QString, QVariant> shown;
-  for (auto it = _params.constBegin(); it != _params.constEnd(); ++it)
-    if (it.key().startsWith(_paramFilter))
-      shown.insert(it.key(), it.value());
-  return shown;
-}
+QHash<QString, QVariant> Viewer::getShownParams() const { return _params.shown(); }
 
-// (also forgets the old script's ranges and its showParams() filter: a
-// filter left over from a script that set one -- the Cabinet does -- hid
-// every slider of whatever was opened next)
 void Viewer::clearParams() {
   _params.clear();
-  _paramInfo.clear();
-  _paramFilter.clear();
   emit paramsChanged();
 }
 

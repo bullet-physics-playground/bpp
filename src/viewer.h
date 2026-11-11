@@ -55,6 +55,7 @@
 #include "hover.h"
 #include "quadview.h"
 #include "scriptkeys.h"
+#include "params.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -71,35 +72,6 @@ class btSoftRigidDynamicsWorld;
 class BppVfeSession;
 class BppVfeDisplay;
 #endif // USE_VFE
-
-/**
- * @brief A script parameter and everything the GUI needs to present it.
- *
- * Scripts register parameters with Viewer::addParam(); the Gui turns each one
- * into a slider, a check box, an editable cell or a push button, depending on
- * what is known about it here.
- */
-struct ParamInfo {
-  QVariant value;        ///< The value the parameter was last given.
-  btScalar min = 0.0;    ///< Lower bound; only meaningful if #hasRange.
-  btScalar max = 100.0;  ///< Upper bound; only meaningful if #hasRange.
-  btScalar step = 0.0;   ///< Step size for the slider; 0 means pick a default.
-  QString comment;       ///< Description shown in the parameter's tooltip.
-  bool hasRange = false; ///< True if the script declared a min and max, which
-                         ///< is what makes the parameter a slider.
-  bool isButton = false; ///< True if the parameter is a push button: pressing
-                         ///< it calls #buttonCallback instead of editing a value.
-  luabind::object buttonCallback; ///< The Lua function invoked when the button
-                                  ///< is pressed; only meaningful if #isButton.
-  bool isButtonGroup = false; ///< True if the parameter is one row of several
-                              ///< push buttons: pressing one calls its entry in
-                              ///< #buttonCallbacks instead of editing a value.
-  QList<QPair<QString, luabind::object>> buttonCallbacks; ///< (label, callback)
-                                                          ///< for each button in
-                                                          ///< the row; only
-                                                          ///< meaningful if
-                                                          ///< #isButtonGroup.
-};
 
 /**
  * @brief Writes a Viewer's description to a standard stream.
@@ -2534,7 +2506,6 @@ private:
   luabind::object _cb_cycleObject;   ///< Called when F1 or F2 is pressed.
   Hover _hover{this};                ///< The tooltip by the resting mouse (v:onHover).
   QTimer *_hoverTimer = nullptr;     ///< Drives hoverTick().
-  luabind::object _cb_onParamChanged; ///< Called when a parameter changes.
 
   bool _parsing;       ///< True while a script is being loaded, which stops
                        ///< the draw and animation paths touching the world.
@@ -2768,9 +2739,7 @@ private:
   SpaceNavigatorCamera *_snCamera; ///< Drives the camera from the 3D mouse.
 
    // parameter storage for Lua scripts
-   QHash<QString, QVariant> _params;      ///< Current value of each parameter.
-   QHash<QString, ParamInfo> _paramInfo;  ///< Range, step and comment for each.
-   QString _paramFilter;                  ///< Which the Params pane shows (see showParams()).
+   Params _params;                        ///< The script's parameters (addParam()).
 };
 
 #endif // VIEWER_H
