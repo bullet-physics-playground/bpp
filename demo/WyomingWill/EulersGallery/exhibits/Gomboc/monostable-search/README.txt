@@ -34,6 +34,8 @@ FILES
   smooth_improve.py  strengthens mono-g1's weakest lever: mono-g2, mono-g3 (below)
   edged.py, edged_search.py, edged_drop.py, genomes-edged/, edged.png
               bodies with creases, and the search that found mono-e1 and mono-e2 (below)
+  prescreen.py  the printing chat's print model (layers, seam slip) and a drop-stall metric (below)
+  variety_map.py  a variety map (MAP-Elites) over build, scored by that metric (below)
 
   python3 build.py genomes/*.npy                  (about 1 s each)
   python3 build.py --write meshes genomes/*.npy
@@ -190,9 +192,44 @@ WHAT THIS ALL SHOWS (10 Nov 2026)
      toy, judge by drop tests.
   Best candidates to print: the low loaves (p1, s2-s4) and mono-e1.
 
+PRE-SCREEN: A DROP METRIC THAT WORKS (11 Nov 2026)
+  The weakest lever (Q) does not predict drops (point 4 above). prescreen.py predicts the share of drops
+  that stall, from the convex hull alone, in about a second at build.py's resolution.
+    python3 prescreen.py genomes/mono-s2.npy     level-7 body -> printed hulls -> stall   (about 17 s)
+    python3 prescreen.py --hull hull.npy         a printed hull (mm at 36), as the printing chat's
+  The model: from each of 10,242 landing directions the body rolls face to face toward the rest, gaining
+  kinetic energy from height lost and paying rolling friction per radian turned; it stops on a face whose
+  lever is below the friction once the energy is gone, and each dent whose basin it enters holds it with
+  probability d^2 / (d^2 + (5 um)^2). The print model is the printing chat's spec (cut plane through the
+  centre of mass, 0.2 mm first layer then 0.12 mm, 0.1 mm seam slip vertical or sideways); its hulls match
+  the printing chat's to micrometres.
+  Calibration, rank correlation with the share of drops that stall (mean error):
+    PyBullet, 17 bodies (these, GOMBOC900, failed search runs) x 3 frictions, 30 s drops   0.85 (6.8 points)
+    the printing chat's drops of its printed hulls, aligned and slipped, 26 cases           0.84 (7.5 points)
+  Two lessons on the way:
+    * 6 s drops mix true stalls with slow settling on the round bodies (s6, s7 above); 30 s drops do not.
+    * An earlier form charged a dent only when the route crossed its lowest face. A variety map found that
+      hole at once: bodies scoring 0.2% that stall in 63% and 53% of PyBullet drops (now 71% and 50%).
+      Any metric used by a search will be gamed; drop-test the winners.
+  Known misses: GOMBOC900's stalls at 16-22 deg in PyBullet (dynamic), mono-s4's vertical slip (13%
+  observed, no static trap). A flat zone whose dents are a few micrometres deep can go from 0 to 70% with
+  micrometre build changes (mono-s5 aligned: 0% in our hull, 71% in the printing chat's); test such bodies
+  with small random surface bumps as well.
+
+VARIETY MAP (11 Nov 2026)
+  python3 variety_map.py b 7000 1    (2 hours, 2 cores; 10,784 bodies)
+  Cells: rest height x middle/longest extent, 8 x 8; score: the worst predicted stall over aligned and the
+  four seam slips at friction 0.15 and 0.3 mm. Seeds: mono-p1, s2-s7 and 57 random genomes.
+  Result: 37 cells filled, but nothing beat the seeds. The best three cells are mono-s6 (1.2%), mono-s7
+  (3.9%) and mono-s2 (5.0%), unchanged; every other cell is above 20%. On printed hulls with slips and
+  surface bumps the three predict 0.2-1.1% (the printing chat's drops: 0-2%). Small random changes to a
+  monostable body nearly always add a resting point, so mutation alone cannot leave these few shapes;
+  improving them needs a search that keeps one resting point (as search.py does) with this metric as its
+  second stage.
+
 NOT DONE (none of these is ready to print)
   * Faceting: the 10,242 planes leave facets up to ~7 mm across at 90 mm and
     micro resting faces under 2 um deep; a finer icosphere would remove them.
   * The creases: a printed edge is slightly rounded. No resting or balancing
     point lies on a crease, but how much rounding each can take is unchecked.
-  * Printing: no cut, layer, seam or tip checks yet.
+  * Printing: cut, layers and seam slip are modelled (prescreen.py); tips and stringing are not.
