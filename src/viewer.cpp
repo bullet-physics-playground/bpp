@@ -16,7 +16,6 @@
 #include <memory>
 
 #include <QColor>
-#include <QTextCodec>
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
@@ -67,12 +66,22 @@
 #include <BulletSoftBody/btSoftRigidDynamicsWorld.h>
 #if BT_THREADSAFE
 #include <LinearMath/btThreads.h>
+#include <LinearMath/btPoolAllocator.h>
 #endif
 #include <BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h>
 #include <BulletDynamics/MLCPSolvers/btMLCPSolver.h>
 #include <BulletDynamics/MLCPSolvers/btDantzigSolver.h>
 #include <BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h>
 #include <BulletDynamics/MLCPSolvers/btLemkeSolver.h>
+
+// QColor's red()/green()/blue() getters are noexcept in Qt6, which old
+// Boost (used by luabind) cannot decompose. Use non-noexcept wrappers.
+int qcolor_r(QColor const &c) { return c.red(); }
+int qcolor_g(QColor const &c) { return c.green(); }
+int qcolor_b(QColor const &c) { return c.blue(); }
+void qcolor_set_r(QColor &c, int v) { c.setRed(v); }
+void qcolor_set_g(QColor &c, int v) { c.setGreen(v); }
+void qcolor_set_b(QColor &c, int v) { c.setBlue(v); }
 
 // A rigid body's gyroscopic term, solved together with its contacts and
 // joints, for bodies a script marks (body.gyroSolved = true: the flag
@@ -145,7 +154,6 @@ static void bppGyroPreTick(btDynamicsWorld *world, btScalar dt) {
 #include <QTime>
 #include <QMap>
 #include <QElapsedTimer>
-#include <QToolTip>
 #include <QApplication>
 #include <QOpenGLContext>
 #include <algorithm>
@@ -648,9 +656,9 @@ void Viewer::luaBind(lua_State *s) {
                 .def(constructor<QString>(), adopt(result))
                 .def(constructor<int, int, int>(), adopt(result))
                 .def(constructor<int, int, int, int>(), adopt(result))
-                .property("r", &QColor::red, &QColor::setRed)
-                .property("g", &QColor::green, &QColor::setGreen)
-                .property("b", &QColor::blue, &QColor::setBlue)
+                .property("r", &qcolor_r, &qcolor_set_r)
+                .property("g", &qcolor_g, &qcolor_set_g)
+                .property("b", &qcolor_b, &qcolor_set_b)
                 .def(tostring(self))
                 .def(self == self)];
 
@@ -916,10 +924,26 @@ void Viewer::setTau(btScalar tau) {
 // in the same order, with the same outcome, so the simulation is exactly the
 // same. (With a near callback of a script's own, or Bullet's sorted pair
 // order asked for, it leaves the pass to Bullet.)
+//
+// With threads (setThreads), the same pass runs over the pairs side by side
+// (setThreaded), as Bullet's btCollisionDispatcherMt does, but in the same
+// order as on one thread. Each pair is worked out by one thread, so its
+// contacts come out the same whichever thread it is; what threads would
+// change is the order of the dispatcher's list of manifolds (one per
+// touching pair), which the solver follows: on one thread a pair's new
+// manifold goes on the end and a released one is swapped out at once, as
+// the pairs come. Threaded, each thread notes its manifolds made and
+// released, with the pair's place in the pass, and afterwards, on one
+// thread, they are put on and taken off the list in the pass's order, just
+// as on one thread. So the list is the same, and a threaded world collides
+// exactly as with threads off (handover/THREADS.md in the Walker Room).
 namespace {
 class RestSkippingDispatcher : public btCollisionDispatcher {
 public:
   explicit RestSkippingDispatcher(btCollisionConfiguration *cfg) : btCollisionDispatcher(cfg) {}
+#if BT_THREADSAFE
+  void setThreaded(bool on) { _threaded = on; }
+#endif
   void dispatchAllCollisionPairs(btOverlappingPairCache *pairCache, const btDispatcherInfo &info,
                                  btDispatcher *dispatcher) override {
     if (info.m_deterministicOverlappingPairs || getNearCallback() != defaultNearCallback) {
@@ -927,6 +951,12 @@ public:
       return;
     }
     btBroadphasePairArray &pairs = pairCache->getOverlappingPairArray();
+#if BT_THREADSAFE
+    if (_threaded) {
+      dispatchThreaded(pairs, info);
+      return;
+    }
+#endif
     for (int i = 0; i < pairs.size(); ++i) {
       btBroadphasePair &pair = pairs[i];
       const btCollisionObject *a = static_cast<btCollisionObject *>(pair.m_pProxy0->m_clientObject);
@@ -936,7 +966,107 @@ public:
       defaultNearCallback(pair, *this, info);
     }
   }
+#if BT_THREADSAFE
+  btPersistentManifold *getNewManifold(const btCollisionObject *b0, const btCollisionObject *b1) override {
+    if (!_inPass)
+      return btCollisionDispatcher::getNewManifold(b0, b1);
+    // (btCollisionDispatcher::getNewManifold, without putting it on the list)
+    btScalar breaking = (m_dispatcherFlags & CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD)
+      ? btMin(b0->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold),
+              b1->getCollisionShape()->getContactBreakingThreshold(gContactBreakingThreshold))
+      : gContactBreakingThreshold;
+    btScalar processing = btMin(b0->getContactProcessingThreshold(), b1->getContactProcessingThreshold());
+    void *mem = m_persistentManifoldPoolAllocator->allocate(sizeof(btPersistentManifold));   // (locks: BT_THREADSAFE)
+    if (mem == nullptr) {
+      btAssert((m_dispatcherFlags & CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION) == 0);
+      mem = btAlignedAlloc(sizeof(btPersistentManifold), 16);
+    }
+    btPersistentManifold *m = new (mem) btPersistentManifold(b0, b1, 0, breaking, processing);
+    note(m, true);
+    return m;
+  }
+  void releaseManifold(btPersistentManifold *m) override {
+    if (!_inPass)
+      btCollisionDispatcher::releaseManifold(m);
+    else
+      note(m, false);                   // (taken off the list, and freed, after the pass)
+  }
+
+private:
+  struct Change { int pair, seq; btPersistentManifold *m; bool made; };
+  static thread_local int t_pair, t_seq;   // (the pair this thread is on, and its changes so far)
+  void note(btPersistentManifold *m, bool made) {
+    _changes[btGetCurrentThreadIndex()].push_back(Change{t_pair, t_seq++, m, made});
+  }
+  struct Body : public btIParallelForBody {
+    RestSkippingDispatcher *d;
+    btBroadphasePair *pairs;
+    const int *active;
+    const btDispatcherInfo *info;
+    void forLoop(int iBegin, int iEnd) const override {
+      for (int k = iBegin; k < iEnd; ++k) {
+        t_pair = active[k];
+        t_seq = 0;
+        defaultNearCallback(pairs[active[k]], *d, *info);
+      }
+    }
+  };
+  void dispatchThreaded(btBroadphasePairArray &pairs, const btDispatcherInfo &info) {
+    _active.resize(0);
+    bool soft = false;
+    for (int i = 0; i < pairs.size(); ++i) {
+      const btCollisionObject *a = static_cast<btCollisionObject *>(pairs[i].m_pProxy0->m_clientObject);
+      const btCollisionObject *b = static_cast<btCollisionObject *>(pairs[i].m_pProxy1->m_clientObject);
+      if (a->isActive() || b->isActive()) {
+        _active.push_back(i);           // (needsCollision()'s first test, as above)
+        soft = soft || a->getInternalType() == btCollisionObject::CO_SOFT_BODY ||
+                       b->getInternalType() == btCollisionObject::CO_SOFT_BODY;
+      }
+    }
+    if (soft || _active.size() < MIN_THREADED_PAIRS) {
+      // (a soft body's collisions change the soft body: one thread; and too few
+      // pairs to share out -- one walker, about 55 a step, ran half as fast
+      // threaded, waking the threads costing more than they saved; four, about
+      // 250, gained 1.6 times on 2 threads. Either way the same collisions.)
+      for (int i : _active)
+        defaultNearCallback(pairs[i], *this, info);
+      return;
+    }
+    Body body;
+    body.d = this;
+    body.pairs = &pairs[0];
+    body.active = &_active[0];
+    body.info = &info;
+    _inPass = true;
+    btParallelFor(0, _active.size(), 4, body);
+    _inPass = false;
+    _all.resize(0);
+    for (auto &c : _changes) {
+      _all.insert(_all.end(), c.begin(), c.end());
+      c.clear();
+    }
+    std::sort(_all.begin(), _all.end(), [](const Change &x, const Change &y) {
+      return x.pair != y.pair ? x.pair < y.pair : x.seq < y.seq;
+    });
+    for (const Change &c : _all) {     // (on and off the list in the pass's order, as on one thread)
+      if (c.made) {
+        c.m->m_index1a = m_manifoldsPtr.size();
+        m_manifoldsPtr.push_back(c.m);
+      } else {
+        btCollisionDispatcher::releaseManifold(c.m);
+      }
+    }
+  }
+  static const size_t MIN_THREADED_PAIRS = 128;
+  bool _threaded = false, _inPass = false;
+  std::vector<int> _active;
+  std::vector<Change> _changes[BT_MAX_THREAD_COUNT], _all;
+#endif
 };
+#if BT_THREADSAFE
+thread_local int RestSkippingDispatcher::t_pair = 0;
+thread_local int RestSkippingDispatcher::t_seq = 0;
+#endif
 } // namespace
 
 // with forceUpdateAllAabbs off, and before each frame's step this brings up
@@ -1101,14 +1231,27 @@ void Viewer::setSolverIterations(int n) {
 
 // Joint warm-starting ("si-warm") and bpp's world (BppWorld, setThreads): bppworld.cpp.
 
+// Raises a Lua error from a function luabind calls, with the same message
+// luaL_error gives (where in the script, then what), but by throwing:
+// luaL_error would jump straight out past luabind's C++ frames, never
+// freeing what they hold (Lua is built as C). luabind::error tells luabind
+// the message is already on the stack; it raises it once its frames are
+// done. See tests/21-lua-errors.lua.
+[[noreturn]] static void luaFail(lua_State *L, const std::string &message) {
+  luaL_where(L, 1);
+  lua_pushstring(L, message.c_str());
+  lua_concat(L, 2);
+  throw luabind::error(L);
+}
+
 // Decorations that follow a body: decorations.cpp.
 void Viewer::attach(Object *o, Object *parent) {
   if (o == nullptr || parent == nullptr)
-    luaL_error(L, "attach: needs two objects");
+    luaFail(L, "attach: needs two objects");
   if (!o->isDecoration())
-    luaL_error(L, "attach: only a decoration can follow another object (set o.decoration = true before v:add)");
+    luaFail(L, "attach: only a decoration can follow another object (set o.decoration = true before v:add)");
   if (o == parent)
-    luaL_error(L, "attach: an object can't follow itself");
+    luaFail(L, "attach: an object can't follow itself");
   _decorations.attach(o, parent);
 }
 
@@ -1119,11 +1262,11 @@ int Viewer::setThreads(int n) {
   BppWorld *w = static_cast<BppWorld *>(dynamicsWorld);
   if (n <= 0) {
     w->stopThreads();
+    static_cast<RestSkippingDispatcher *>(dispatcher)->setThreaded(false);
     return 0;
   }
   if (_solverKind != "si" && _solverKind != "si-warm") {
-    luaL_error(L, "setThreads: needs the solver \"si\" or \"si-warm\" (setSolver), not '%s'", _solverKind.c_str());
-    return 0;
+    luaFail(L, "setThreads: needs the solver \"si\" or \"si-warm\" (setSolver), not '" + _solverKind + "'");
   }
   static btITaskScheduler *scheduler = nullptr;   // (Bullet's own thread pool, one for all worlds)
   if (scheduler == nullptr) {
@@ -1133,6 +1276,7 @@ int Viewer::setThreads(int n) {
   n = btMin(n, scheduler->getMaxNumThreads());
   scheduler->setNumThreads(n);
   w->startThreads(n, _solverKind == "si-warm");
+  static_cast<RestSkippingDispatcher *>(dispatcher)->setThreaded(true);   // (collisions side by side too)
   return n;
 #else
   if (n > 1)
@@ -1154,7 +1298,7 @@ void Viewer::setSolverInfo(const std::string &name, double value) {
   else if (name == "jointWarmstart") g_jointWarmstart = value;
   else if (name == "erp") i.m_erp = value;
   else if (name == "erp2") i.m_erp2 = value;
-  else luaL_error(L, "setSolverInfo: unknown '%s' (residual, sor, warmstarting, jointWarmstart, erp, erp2, splitImpulse, randomOrder, iterations)", name.c_str());
+  else luaFail(L, "setSolverInfo: unknown '" + name + "' (residual, sor, warmstarting, jointWarmstart, erp, erp2, splitImpulse, randomOrder, iterations)");
 }
 
 int Viewer::solverFallbacks() const {
@@ -1183,8 +1327,7 @@ void Viewer::setSolver(const std::string &kind) {
     else method = new btLemkeSolver();
     s = new btMLCPSolver(method);
   } else {
-    luaL_error(L, "setSolver: unknown kind '%s' (si, si-warm, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)", kind.c_str());
-    return;
+    luaFail(L, "setSolver: unknown kind '" + kind + "' (si, si-warm, nncg, nncg-joints, mlcp-dantzig, mlcp-pgs, mlcp-lemke)");
   }
   btConstraintSolver *old = dynamicsWorld->getConstraintSolver();
   dynamicsWorld->setConstraintSolver(s);
@@ -1201,6 +1344,7 @@ void Viewer::setSolver(const std::string &kind) {
       setThreads(n);
     } else {
       static_cast<BppWorld *>(dynamicsWorld)->stopThreads();
+      static_cast<RestSkippingDispatcher *>(dispatcher)->setThreaded(false);
       emitScriptOutput(QString("setSolver: threads off (they need \"si\" or \"si-warm\")"));
     }
   }
@@ -1513,107 +1657,19 @@ void getAABB(QSet<Object *> *objects, btScalar aabb[6]) {
 }
 } // namespace
 
-namespace {
-// Name a key for the onKey() hook: its Qt key sequence text, except that the
-// two Shift keys are told apart (pinball flippers are traditionally on the
-// left and right Shift). Qt reports both as Key_Shift, so the side comes from
-// the platform's native code.
-QString luaKeyName(const QKeyEvent *e) {
-  if (e->key() == Qt::Key_Shift) {
-#if defined(Q_OS_MAC)
-    const bool right = e->nativeVirtualKey() == 60; // kVK_RightShift
-#elif defined(Q_OS_WIN)
-    const bool right = e->nativeScanCode() == 54;
-#else
-    const bool right = e->nativeScanCode() == 62; // X11 / evdev keycode
-#endif
-    return right ? QStringLiteral("RShift") : QStringLiteral("LShift");
-  }
-  return QKeySequence(e->key()).toString(QKeySequence::PortableText);
-}
-} // namespace
-
 void Viewer::keyReleaseEvent(QKeyEvent *e) {
-  if (!e->isAutoRepeat() && _cb_onKey) {
-    _luaHeldKeys.remove(e->key());
-    try {
-      luabind::call_function<void>(_cb_onKey, _frameNum, luaKeyName(e), false);
-    } catch (const std::exception &ex) {
-      showLuaException(ex, "onKey()");
-    }
-  }
+  _keys.release(e, _frameNum, [this](const std::exception &ex, const char *where) {
+    showLuaException(ex, where);
+  });
   QGLViewer::keyReleaseEvent(e);
 }
 
 void Viewer::keyPressEvent(QKeyEvent *e) {
-  _hoverStill.restart();             // (hover: a key hides the tooltip)
-  hoverHide();
-  if (_cb_onKey) {
-    if (e->isAutoRepeat()) {
-      if (_luaHeldKeys.contains(e->key()))
-        return;
-    } else {
-      bool consumed = false;
-      try {
-        luabind::object r = luabind::call_function<luabind::object>(
-            _cb_onKey, _frameNum, luaKeyName(e), true);
-        consumed = r && luabind::type(r) == LUA_TBOOLEAN &&
-                   luabind::object_cast<bool>(r);
-      } catch (const std::exception &ex) {
-        showLuaException(ex, "onKey()");
-      }
-      if (consumed) {
-        _luaHeldKeys.insert(e->key());
-        return;
-      }
-    }
-  }
-
-  int keyInt = e->key();
-  Qt::Key key = static_cast<Qt::Key>(keyInt);
-
-  if (key == Qt::Key_unknown) {
-    qDebug() << "Unknown key from a macro probably";
-    return;
-  }
-
-  // the user have clicked just and only the special keys Ctrl, Shift, Alt,
-  // Meta.
-  if (key == Qt::Key_Control || key == Qt::Key_Shift || key == Qt::Key_Alt ||
-      key == Qt::Key_Meta) {
-    // qDebug() << "Single click of special key: Ctrl, Shift, Alt or Meta";
-    // qDebug() << "New KeySequence:" <<
-    // QKeySequence(keyInt).toString(QKeySequence::NativeText); return;
-  }
-
-  // check for a combination of user clicks
-  Qt::KeyboardModifiers modifiers = e->modifiers();
-  QString keyText = e->text();
-  // if the keyText is empty than it's a special key like F1, F5, ...
-  //  qDebug() << "Pressed Key:" << keyText;
-
-  QList<Qt::Key> modifiersList;
-  if (modifiers & Qt::ShiftModifier)
-    keyInt += Qt::SHIFT;
-  if (modifiers & Qt::ControlModifier)
-    keyInt += Qt::CTRL;
-  if (modifiers & Qt::AltModifier)
-    keyInt += Qt::ALT;
-  if (modifiers & Qt::MetaModifier)
-    keyInt += Qt::META;
-
-  QString seq = QKeySequence(keyInt).toString(QKeySequence::NativeText);
-  // qDebug() << "KeySequence:" << seq;
-
-  if (_cb_shortcuts->contains(seq)) {
-    try {
-      luabind::call_function<void>(*_cb_shortcuts->value(seq), _frameNum);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onShortcut()");
-    }
-
-    return; // skip built in command if overridden by shortcut
-  }
+  _hover.interrupt();                // (a key hides the tooltip)
+  if (_keys.press(e, _frameNum, [this](const std::exception &ex, const char *where) {
+        showLuaException(ex, where);
+      }))
+    return; // (the script's key)
 
   switch (e->key()) {
 
@@ -1655,13 +1711,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     resetCamView();
     break;
   case Qt::Key_Tab:
-    _quadView = !_quadView;
-    if (_quadView && !_orthoCamerasFitted) {
-      // Auto-frame the ortho cameras only the first time quad view is
-      // shown, so later toggles remember any pan/zoom the user applied.
-      updateOrthoCameras();
-      _orthoCamerasFitted = true;
-    }
+    _quad.toggle();
     update();
     break;
 #if USE_VFE
@@ -1690,8 +1740,7 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
 }
 
 void Viewer::mousePressEvent(QMouseEvent *e) {
-  _hoverArmed = false;               // (hover: a click hides the tooltip)
-  hoverHide();
+  _hover.disarm();                   // (a click hides the tooltip)
 #if USE_VFE
   if (_vfePreviewVisible && (_vfeRenderActive || _vfePreviewTexture)) {
     // Dismiss the VFE render preview back to the normal OpenGL scene; an
@@ -1705,10 +1754,7 @@ void Viewer::mousePressEvent(QMouseEvent *e) {
   }
 #endif // USE_VFE
 
-  qglviewer::Camera *cam = orthoCameraAt(e->pos());
-  if (cam) {
-    _orthoPanCamera = cam;
-    _orthoPanLastPos = e->pos();
+  if (_quad.startPan(e->pos())) {
     e->accept();
     return;
   }
@@ -1716,42 +1762,8 @@ void Viewer::mousePressEvent(QMouseEvent *e) {
 }
 
 void Viewer::mouseMoveEvent(QMouseEvent *e) {
-  // hover: only watch movement with no button down; never consume the event
-  if (e->buttons() == Qt::NoButton) {
-    if (!_hoverArmed || (e->pos() - _hoverPos).manhattanLength() > 3) {
-      _hoverPos = e->pos();
-      _hoverStill.restart();
-      _hoverObj = nullptr;           // (moved: forget the sticky object)
-      hoverHide();
-    }
-    _hoverArmed = true;
-  } else {
-    _hoverArmed = false;
-    hoverHide();
-  }
-  if (_orthoPanCamera) {
-    const QPoint delta = e->pos() - _orthoPanLastPos;
-    _orthoPanLastPos = e->pos();
-
-    if (!delta.isNull()) {
-      // Convert screen-pixel movement to world units at the pane's current
-      // zoom level (screenHeight() is this camera's pane height, set each
-      // time drawQuadView() renders it).
-      GLdouble halfWidth, halfHeight;
-      _orthoPanCamera->getOrthoWidthHeight(halfWidth, halfHeight);
-      const int paneHeight = _orthoPanCamera->screenHeight();
-      const qreal unitsPerPixel =
-          (paneHeight > 0) ? (2.0 * halfHeight / paneHeight) : 0.0;
-
-      const qglviewer::Vec translation =
-          -_orthoPanCamera->rightVector() * (delta.x() * unitsPerPixel) +
-          _orthoPanCamera->upVector() * (delta.y() * unitsPerPixel);
-
-      _orthoPanCamera->setPosition(_orthoPanCamera->position() + translation);
-      _orthoPanCamera->setPivotPoint(_orthoPanCamera->pivotPoint() +
-                                     translation);
-      update();
-    }
+  _hover.mouseMoved(e->pos(), e->buttons()); // (never consumes the event)
+  if (_quad.pan(e->pos())) {
     e->accept();
     return;
   }
@@ -1759,8 +1771,7 @@ void Viewer::mouseMoveEvent(QMouseEvent *e) {
 }
 
 void Viewer::mouseReleaseEvent(QMouseEvent *e) {
-  if (_orthoPanCamera) {
-    _orthoPanCamera = nullptr;
+  if (_quad.endPan()) {
     e->accept();
     return;
   }
@@ -1768,17 +1779,8 @@ void Viewer::mouseReleaseEvent(QMouseEvent *e) {
 }
 
 void Viewer::wheelEvent(QWheelEvent *e) {
-  _hoverStill.restart();             // (hover: hide while zooming)
-  hoverHide();
-  qglviewer::Camera *cam = orthoCameraAt(e->position().toPoint());
-  if (cam) {
-    // One wheel "click" is 120 (QWheelEvent::angleDelta() units); each
-    // click zooms by 10%, scrolling the camera towards/away from its
-    // pivot along its own view direction.
-    const qreal notches = e->angleDelta().y() / 120.0;
-    const qreal factor = pow(0.9, notches);
-    const qglviewer::Vec pivot = cam->pivotPoint();
-    cam->setPosition(pivot + (cam->position() - pivot) * factor);
+  _hover.interrupt();                // (hide while zooming)
+  if (_quad.zoom(e->position().toPoint(), e->angleDelta().y())) {
     e->accept();
     update();
     return;
@@ -1935,10 +1937,7 @@ void Viewer::silenceTones() { _synth.reset(); }
 void Viewer::recordSound(Mix_Chunk *chunk, double volume) {
   if (!_savePOV)
     return;
-  // Once this frame is exported, the next one is the first to show what the
-  // sound is about.
-  int frame = (_wavFrame == _frameNum) ? _frameNum + 1 : _frameNum;
-  _wavEvents.push_back({frame, chunk, volume});
+  _wavTrack.record(chunk, volume, _frameNum);
 }
 
 void Viewer::setFixedTimeStep(btScalar fts) { _fixedTimeStep = fts; }
@@ -1983,26 +1982,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
 
   _simulate = false;
   _deactivation = true;
-
-  _quadView = false;
-  _orthoCamerasFitted = false;
-
-  _camTop = new qglviewer::Camera();
-  _camTop->setType(qglviewer::Camera::ORTHOGRAPHIC);
-  _camTop->setViewDirection(qglviewer::Vec(0, -1, 0));
-  _camTop->setUpVector(qglviewer::Vec(0, 0, -1));
-
-  _camFront = new qglviewer::Camera();
-  _camFront->setType(qglviewer::Camera::ORTHOGRAPHIC);
-  _camFront->setViewDirection(qglviewer::Vec(0, 0, -1));
-  _camFront->setUpVector(qglviewer::Vec(0, 1, 0));
-
-  _camRight = new qglviewer::Camera();
-  _camRight->setType(qglviewer::Camera::ORTHOGRAPHIC);
-  _camRight->setViewDirection(qglviewer::Vec(-1, 0, 0));
-  _camRight->setUpVector(qglviewer::Vec(0, 1, 0));
-
-  _orthoPanCamera = nullptr;
 
   _timeStep = 1 / 25.0;
   _maxSubSteps = 7;
@@ -2077,7 +2056,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   _vfePreviewHeight = 0;
 #endif // USE_VFE
 
-  _cb_shortcuts = new QHash<QString, std::shared_ptr<luabind::object>>();
 
   setCamera(new Cam(this));
 
@@ -2101,9 +2079,6 @@ Viewer::Viewer(QWidget *parent, QSettings *settings, bool savePOV)
   // effects silently unavailable.
   _audioAvailable = false;
   _nextSoundId = 0;
-  _wavFirstFrame = 0;
-  _wavFrame = 0;
-  _wavWritten = -1;
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
     qWarning() << "Audio unavailable (SDL_InitSubSystem):" << SDL_GetError()
                << "-- sound effects disabled, simulation continues normally.";
@@ -2555,7 +2530,21 @@ void Viewer::restartSim() {
   btScalar camHfov = camera()->horizontalFieldOfView();
   Vec camUp = camera()->upVector();
 
-  QHash<QString, QVariant> savedParams = _params;
+  // The values the parameters have now, to give back after the script runs
+  // again. Not the buttons': their functions belong to this run's Lua state,
+  // which parse() closes (given back, they crashed bpp); the new run makes
+  // its own.
+  // (In a block: the copies hold the buttons' functions too, and must go
+  // while this run's state is still open.)
+  QHash<QString, QVariant> savedParams;
+  {
+    const QHash<QString, QVariant> all = _params.all();
+    for (auto it = all.constBegin(); it != all.constEnd(); ++it) {
+      const ParamInfo info = _params.info(it.key());
+      if (!info.isButton && !info.isButtonGroup)
+        savedParams.insert(it.key(), it.value());
+    }
+  }
 
   parse(_scriptContent);
 
@@ -2565,8 +2554,8 @@ void Viewer::restartSim() {
   camera()->setUpVector(camUp, true);
 
   for (auto it = savedParams.constBegin(); it != savedParams.constEnd(); ++it) {
-    if (!_params.contains(it.key())) continue;
-    ParamInfo info = _paramInfo.value(it.key());
+    if (!_params.all().contains(it.key())) continue;
+    ParamInfo info = _params.info(it.key());
     if (info.hasRange) {
       addParam(it.key(), it.value().toDouble(), info.min, info.max, info.step, info.comment);
     } else {
@@ -2667,37 +2656,14 @@ emit scriptStarts();
     _cb_postSim = luabind::object();
     _cb_onCommand = luabind::object();
     _cb_onJoystick = luabind::object();
-    _cb_onKey = luabind::object();
+    _keys.clear();
     _cb_cycleObject = luabind::object();
-    _luaHeldKeys.clear();
     setStatusText(QString());   // (a script's status line goes with it)
     _synth.reset();             // (and its voices)
-    _cb_onParamChanged = luabind::object();
     _cb_onSpaceNavigator = luabind::object();
-    _cb_onHover = luabind::object();
-    hoverHide();
+    _hover.clear();
 
-    // Release parameter values and button callbacks while the Lua state is
-    // still alive: a button group stores its functions inside a
-    // QVariantList/QVariantMap, so the whole value is cleared, not just a
-    // top-level luabind::object. Their references would otherwise be released
-    // against the closed state when clear() runs below.
-    for (ParamInfo &info : _paramInfo) {
-      info.value = QVariant();
-      if (info.isButton) info.buttonCallback = luabind::object();
-      if (info.isButtonGroup)
-        for (auto &pair : info.buttonCallbacks)
-          pair.second = luabind::object();
-    }
-    for (QVariant &value : _params)
-      value = QVariant();
-
-    if (_cb_shortcuts) {
-      for (auto it = _cb_shortcuts->begin(); it != _cb_shortcuts->end(); ++it) {
-        it->reset();
-      }
-      _cb_shortcuts->clear();
-    }
+    _params.releaseLua();
 
     // (removed objects bpp still owns go with the rest)
     for (Object *o : _removed)
@@ -2807,7 +2773,7 @@ emit scriptStarts();
     if (error) {
       lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
-      if (lua_error.contains(QRegExp(tr("stopping$")))) {
+      if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
         lua_error = tr("script stopped");
         // qDebug() << "lua run : script stopped";
       } else {
@@ -2936,7 +2902,7 @@ emit scriptStarts();
       }
     }
 
-    if (lua_error.contains(QRegExp(tr("stopping$")))) {
+    if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
       lua_error = tr("script stopped");
     } else {
       if (!trace.isEmpty()) {
@@ -3024,9 +2990,7 @@ void Viewer::clear() {
 
   _merge.clear();                        // (before the objects go)
 
-  _params.clear();
-  _paramInfo.clear();
-  _paramFilter.clear();   // (a script's showParams() filter goes with it)
+  _params.clear();        // (a script's showParams() filter goes with it)
   emit paramsChanged();
 
   // Notify all objects that their luabind weak pointers are about to become
@@ -3202,8 +3166,8 @@ void Viewer::resetCamView() {
   // Reinitialise the SpaceNavigator orbit distance from the new view.
   _snCamera->orbitDist = 0.0;
 
-  if (_quadView) {
-    updateOrthoCameras();
+  if (_quad.on()) {
+    _quad.fit();
   }
 }
 
@@ -3263,36 +3227,12 @@ Viewer::~Viewer() {
   _cb_preStop = luabind::object();
   _cb_onCommand = luabind::object();
   _cb_onJoystick = luabind::object();
-  _cb_onKey = luabind::object();
+  _keys.clear();                     // (shortcuts too: before Lua closes)
   _cb_cycleObject = luabind::object();
-  _luaHeldKeys.clear();
   _cb_onSpaceNavigator = luabind::object();
-  _cb_onParamChanged = luabind::object();
-  _cb_onHover = luabind::object();
-  hoverHide();
+  _hover.clear();
 
-  // Release parameter values and button callbacks while the Lua state is
-  // still alive: a button group stores its functions inside a
-  // QVariantList/QVariantMap, so the whole value is cleared, not just a
-  // top-level luabind::object. Their references would otherwise be released
-  // against the closed state when the member hashes are destroyed below.
-  for (ParamInfo &info : _paramInfo) {
-    info.value = QVariant();
-    if (info.isButton) info.buttonCallback = luabind::object();
-    if (info.isButtonGroup)
-      for (auto &pair : info.buttonCallbacks)
-        pair.second = luabind::object();
-  }
-  for (QVariant &value : _params)
-    value = QVariant();
-
-  // Clear shortcuts BEFORE closing Lua state.
-  // The shared_ptr<luabind::object> destructors call luaL_unref.
-  if (_cb_shortcuts) {
-    _cb_shortcuts->clear();
-    delete _cb_shortcuts;
-    _cb_shortcuts = nullptr;
-  }
+  _params.releaseLua();
 
   // (removed objects bpp still owns go with the rest)
   for (Object *o : _removed)
@@ -3422,10 +3362,6 @@ Viewer::~Viewer() {
 
   delete _joystickInterface;
 
-  delete _camTop;
-  delete _camFront;
-  delete _camRight;
-
   // The depth map and the shader live in the GL context, so make it current
   // before dropping them; failing that ShadowMap leaves them to go with the
   // context instead of deleting them into whichever one happens to be current.
@@ -3519,7 +3455,7 @@ void Viewer::draw() {
   _decorations.update();                // (the decorations to their parents: before anything reads places)
 
   QElapsedTimer dtAll;                  // (the drawing timer: all of draw())
-  if (_drawTiming && !_quadView)
+  if (_drawTiming && !_quad.on())
     dtAll.start();
   _lf = LastFrame();
 
@@ -3587,7 +3523,7 @@ void Viewer::draw() {
 
   // (the drawing timer, when it's on: see setDrawTiming())
   QElapsedTimer dt;
-  const bool timing = _drawTiming && !_quadView;
+  const bool timing = _drawTiming && !_quad.on();
   if (timing) {
     dtGpuCollect();
     dt.start();
@@ -3616,8 +3552,8 @@ void Viewer::draw() {
     dtGpuEnd();
   qint64 tShadow = timing ? dt.nsecsElapsed() : 0;
 
-  if (_quadView) {
-    drawQuadView();
+  if (_quad.on()) {
+    _quad.draw([this](int i) { drawSceneInternal(i); });
     mutex.unlock();
     return;
   }
@@ -3774,7 +3710,7 @@ void Viewer::drawObjects(bool shadowPass, bool skipFixed) {
 void Viewer::cullObjects() {
   _drawnObjects = 0;
   _shadowCasters = 0;
-  _culled = _culling && !_quadView && manipulatedFrame() == nullptr;
+  _culled = _culling && !_quad.on() && manipulatedFrame() == nullptr;
   if (!_culled)
     return;
 
@@ -3806,95 +3742,6 @@ void Viewer::renderShadowDepth() {
   drawObjects(true, skipFixed);
 
   _shadowMap->renderDepthEnd();
-}
-
-// Re-frames the three fixed orthographic cameras on the current scene,
-// keeping their view direction/up vector (set once, in the constructor)
-// and just sliding them along that direction so the whole scene is in
-// frame - the same thing fitSphere() is for. Called once when quad view
-// is switched on (and on 'C' reset), not every frame, so it doesn't fight
-// the user's own pan/zoom in those views afterwards.
-void Viewer::updateOrthoCameras() {
-  const qglviewer::Vec center = camera()->sceneCenter();
-  const qreal radius = camera()->sceneRadius();
-
-  for (qglviewer::Camera *cam : {_camTop, _camFront, _camRight}) {
-    cam->setSceneCenter(center);
-    cam->setSceneRadius(radius);
-    cam->setPivotPoint(center);
-    cam->fitSphere(center, radius);
-  }
-}
-
-// The current quad-view pane layout: perspective (top-left, the
-// interactive camera()), top (top-right), front (bottom-left), right
-// (bottom-right) - the classic AutoCAD/Maya 4-view layout. Rectangles are
-// in widget coordinates (Qt convention: origin top-left, y down), shared
-// by drawQuadView() (which flips to OpenGL's bottom-left-origin viewport)
-// and orthoCameraAt() (which hit-tests mouse events directly against
-// these).
-QVector<Viewer::Pane> Viewer::computePanes() const {
-  const int w = width();
-  const int h = height();
-  const int leftW = w / 2;
-  const int rightW = w - leftW;
-  const int topH = h / 2;
-  const int bottomH = h - topH;
-
-  return {
-      {camera(), QRect(0, 0, leftW, topH)},            // top-left: perspective
-      {_camTop, QRect(leftW, 0, rightW, topH)},         // top-right: top
-      {_camFront, QRect(0, topH, leftW, bottomH)},      // bottom-left: front
-      {_camRight, QRect(leftW, topH, rightW, bottomH)}, // bottom-right: right
-  };
-}
-
-// The ortho camera under widget position pos, or nullptr when quad view
-// is off or pos is over the perspective pane (where camera()'s own
-// default mouse handling already applies).
-qglviewer::Camera *Viewer::orthoCameraAt(const QPoint &pos) const {
-  if (!_quadView) return nullptr;
-
-  for (const Pane &p : computePanes()) {
-    if (p.cam != camera() && p.rect.contains(pos)) {
-      return p.cam;
-    }
-  }
-  return nullptr;
-}
-
-// Splits the viewport into the 4 quadView panes and renders the scene
-// once per pane, each with its own camera and clipped to its own
-// rectangle.
-void Viewer::drawQuadView() {
-  const int w = width();
-  const int h = height();
-  const QVector<Pane> panes = computePanes();
-
-  for (int i = 0; i < panes.size(); i++) {
-    const Pane &p = panes[i];
-    // glViewport() takes the bottom-left corner; p.rect.y() is measured
-    // from the top, so flip it.
-    const int glX = p.rect.x();
-    const int glY = h - p.rect.y() - p.rect.height();
-    glViewport(glX, glY, p.rect.width(), p.rect.height());
-
-    p.cam->setScreenWidthAndHeight(p.rect.width(), p.rect.height());
-    p.cam->loadProjectionMatrix();
-    p.cam->loadModelViewMatrix();
-
-    glDisable(GL_CULL_FACE);
-    drawSceneInternal(i);
-  }
-
-  // Restore the full-window viewport and camera() state: postDraw()'s
-  // screen-coordinate overlays (record/simulate/save/deactivation dots)
-  // assume the whole widget, and the next frame's mouse handling assumes
-  // camera()'s screen size matches the widget again.
-  glViewport(0, 0, w, h);
-  camera()->setScreenWidthAndHeight(w, h);
-  camera()->loadProjectionMatrix();
-  camera()->loadModelViewMatrix();
 }
 
 // Renders every constraint via btDynamicsWorld::debugDrawConstraint(),
@@ -3986,7 +3833,7 @@ void Viewer::savePOV(bool force) {
   qDebug() << "POV-Ray file: " << file;
 
   if (_savePOV)
-    saveWAV(fileWAV);
+    _wavTrack.write(fileWAV, _firstFrame, _frameNum, _synth);
 
   const QString byline = PovExport::byline();
 
@@ -4007,111 +3854,6 @@ void Viewer::savePOV(bool force) {
 
   _decorations.update();   // (headless runs export without drawing)
   PovExport::writeFrame(file, byline, mPreSDL, _cam, camera(), *_objects, mPostSDL, sceneDir);
-}
-
-// Frame rate the exported GNUmakefile encodes the frames at (ffmpeg's default
-// for an image sequence), which the exported audio track keeps in step with.
-static const int POV_EXPORT_FPS = 25;
-
-// Header of a 16-bit PCM WAV holding dataBytes of samples.
-static QByteArray wavHeader(int freq, int channels, quint32 dataBytes) {
-  QByteArray h;
-  QDataStream s(&h, QIODevice::WriteOnly);
-  s.setByteOrder(QDataStream::LittleEndian);
-  s.writeRawData("RIFF", 4);
-  s << quint32(36 + dataBytes);
-  s.writeRawData("WAVEfmt ", 8);
-  s << quint32(16) << quint16(1) << quint16(channels) << quint32(freq)
-    << quint32(freq * channels * 2) << quint16(channels * 2) << quint16(16);
-  s.writeRawData("data", 4);
-  s << dataBytes;
-  return h;
-}
-
-void Viewer::saveWAV(const QString &fileWAV) {
-  int freq, channels;
-  Uint16 format;
-  // The chunks hold their samples in the mixer's format; only 16-bit
-  // little-endian PCM goes into the WAV as it is.
-  if (!Mix_QuerySpec(&freq, &format, &channels) || format != AUDIO_S16LSB) {
-    _wavEvents.clear();
-    return;
-  }
-
-  // A new export: an older track no longer lines up with the frames.
-  if (fileWAV != _wavFile || _firstFrame != _wavFirstFrame ||
-      _frameNum < _wavFrame) {
-    QFile::remove(fileWAV);
-    _wavFile = fileWAV;
-    _wavFirstFrame = _firstFrame;
-    _wavWritten = -1;
-    _wavMix.clear();
-    _synth.restartExport();
-  }
-  _wavFrame = _frameNum;
-
-  const bool tones = _synth.audible();
-  if (_wavWritten < 0 && _wavEvents.empty() && !tones)
-    return; // nothing played yet, so no track
-
-  QFile f(fileWAV);
-  if (!f.open(QIODevice::ReadWrite)) {
-    qWarning() << "saveWAV: cannot write" << fileWAV;
-    _wavEvents.clear();
-    return;
-  }
-  if (_wavWritten < 0)
-    _wavWritten = 0;
-
-  // first sample frame of exported frame n
-  auto start = [&](int n) {
-    return qint64(n - _firstFrame) * freq / POV_EXPORT_FPS;
-  };
-
-  // Appends the track up to sample frame end: the mix, then silence.
-  auto append = [&](qint64 end) {
-    qint64 n = (end - _wavWritten) * channels;
-    if (n <= 0)
-      return;
-    std::vector<qint16> out(n, 0);
-    qint64 m = std::min<qint64>(n, _wavMix.size());
-    for (qint64 i = 0; i < m; ++i)
-      out[i] = qBound(-32768, _wavMix[i], 32767);
-    _wavMix.erase(_wavMix.begin(), _wavMix.begin() + m);
-    f.seek(44 + _wavWritten * channels * 2);
-    f.write((const char *)out.data(), n * 2);
-    _wavWritten = end;
-  };
-
-  append(start(_frameNum)); // silence up to the first sound
-
-  for (const WavEvent &e : _wavEvents) {
-    const qint16 *src = (const qint16 *)e.chunk->abuf;
-    qint64 len = e.chunk->alen / 2;
-    qint64 at = (start(e.frame) - _wavWritten) * channels;
-    if (at + len <= 0)
-      continue;
-    if ((qint64)_wavMix.size() < at + len)
-      _wavMix.resize(at + len, 0);
-    for (qint64 i = std::max<qint64>(0, -at); i < len; ++i)
-      _wavMix[at + i] += int(src[i] * e.volume);
-  }
-  _wavEvents.clear();
-
-  // the synthesised voices, through this frame
-  if (tones || _wavWritten > 0) {
-    qint64 n = start(_frameNum + 1) - _wavWritten;
-    if (n > 0) {
-      if ((qint64)_wavMix.size() < n * channels)
-        _wavMix.resize(n * channels, 0);
-      _synth.renderInto(_wavMix.data(), (int)n, channels, freq);
-    }
-  }
-
-  append(start(_frameNum + 1)); // this frame's share
-
-  f.seek(0);
-  f.write(wavHeader(freq, channels, quint32(_wavWritten * channels * 2)));
 }
 
 void Viewer::setCBPreStart(const luabind::object &fn) {
@@ -4156,11 +3898,7 @@ void Viewer::setCBOnCommand(const luabind::object &fn) {
   }
 }
 
-void Viewer::setCBOnKey(const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onKey = fn;
-  }
-}
+void Viewer::setCBOnKey(const luabind::object &fn) { _keys.setOnKey(fn); }
 
 int Viewer::getAnimationPeriod() const { return animationPeriod(); }
 
@@ -4178,15 +3916,11 @@ void Viewer::setCBOnSpaceNavigator(const luabind::object &fn) {
   }
 }
 
-void Viewer::setCBOnParamChanged(const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onParamChanged = fn;
-  }
-}
+void Viewer::setCBOnParamChanged(const luabind::object &fn) { _params.setOnChanged(fn); }
 
 void Viewer::setCBOnHover(const luabind::object &fn) {
+  _hover.setCallback(fn);
   if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_onHover = fn;
     setMouseTracking(true);          // movement without a button is reported
     if (!_hoverTimer) {
       _hoverTimer = new QTimer(this);
@@ -4195,125 +3929,28 @@ void Viewer::setCBOnHover(const luabind::object &fn) {
     }
     _hoverTimer->start();
   } else {
-    _cb_onHover = luabind::object();
     if (_hoverTimer) _hoverTimer->stop();
-    hoverHide();
-  }
-}
-
-void Viewer::hoverHide() {
-  if (_hoverShown) {
-    QToolTip::hideText();
-    _hoverShown = false;
   }
 }
 
 void Viewer::hoverTick() {
-  if (!_cb_onHover || !_hoverArmed || !dynamicsWorld) return;
-  if (QApplication::mouseButtons() != Qt::NoButton) { hoverHide(); return; }
-  if (!_hoverStill.isValid() || _hoverStill.elapsed() < 500) return;
-
-  // a ray from the camera through the pointer (the ortho pane's camera if
-  // the pointer is over one)
-  qglviewer::Camera *cam = orthoCameraAt(_hoverPos);
+  if (!dynamicsWorld) return;
+  // the ortho pane's camera if the pointer is over one
+  qglviewer::Camera *cam = _quad.cameraAt(_hover.pos());
   if (!cam) cam = camera();
-  qglviewer::Vec orig, dir;
-  cam->convertClickToLine(_hoverPos, orig, dir);
-  const btScalar reach = 1.0e6;
-  btVector3 from(orig.x, orig.y, orig.z);
-  btVector3 to(orig.x + dir.x * reach, orig.y + dir.y * reach, orig.z + dir.z * reach);
-  // Everything along the ray, nearest first, in every world (one drawn
-  // elsewhere is tested with the ray moved back from where it's drawn, and
-  // what it hits moved there again). Objects made with collides = false are
-  // seen too: many a script draws its bodies so, and works out their
-  // contacts itself, and they still have something to say.
-  struct Hit {
-    btScalar fraction;
-    const btCollisionObject *co;
-    btVector3 point;
-  };
-  struct AllHits : public btCollisionWorld::AllHitsRayResultCallback {
-    AllHits(const btVector3 &f, const btVector3 &t) : btCollisionWorld::AllHitsRayResultCallback(f, t) {}
-    bool needsCollision(btBroadphaseProxy *) const override { return true; }
-  };
-  std::vector<Hit> hits;
-  auto test = [&](btSoftRigidDynamicsWorld *w, const btTransform *place) {
-    btVector3 f = from, t = to;
-    if (place) {
-      const btTransform inv = place->inverse();
-      f = inv * from;
-      t = inv * to;
-    }
-    AllHits ray(f, t);
-    w->rayTest(f, t, ray);
-    for (int k = 0; k < ray.m_collisionObjects.size(); ++k)
-      hits.push_back({ray.m_hitFractions[k], ray.m_collisionObjects[k],
-                      place ? (*place) * ray.m_hitPointWorld[k] : ray.m_hitPointWorld[k]});
-  };
+  std::vector<Hover::World> worlds;
   if (_worlds.empty()) {
-    test(dynamicsWorld, nullptr);
+    worlds.push_back({dynamicsWorld, nullptr});
   } else {
     for (const PhysWorld &w : _worlds)
-      test(w.world, w.placed ? &w.place : nullptr);
+      worlds.push_back({w.world, w.placed ? &w.place : nullptr});
   }
-  std::sort(hits.begin(), hits.end(), [](const Hit &a, const Hit &b) { return a.fraction < b.fraction; });
-
-  auto objectOf = [&](const btCollisionObject *co) -> Object * {
-    if (!_objects) return nullptr;
-    for (Object *o : *_objects)
-      if (o && o->getRigidBody() && static_cast<const btCollisionObject *>(o->getRigidBody()) == co) return o;
-    return nullptr;
-  };
-  auto ask = [&](Object *o, const btVector3 &p) -> QString {
-    if (!_cb_onHover) return QString();
-    try {
-      luabind::object res = luabind::call_function<luabind::object>(
-          _cb_onHover, _frameNum, o, (double)p.x(), (double)p.y(), (double)p.z());
-      if (res.is_valid() && luabind::type(res) == LUA_TSTRING)
-        return QString::fromUtf8(luabind::object_cast<std::string>(res).c_str());
-    } catch (const std::exception &e) {
-      showLuaException(e, "onHover()");
-      _cb_onHover = luabind::object();    // (don't repeat the error 10x a second)
-    }
-    return QString();
-  };
-
-  // the nearest that has something to say; one that collides and hasn't
-  // stops the search (it's in the way), one that doesn't is looked through
-  QString text;
-  for (const Hit &h : hits) {
-    Object *o = objectOf(h.co);
-    if (!o) continue;
-    text = ask(o, h.point);
-    if (!text.isEmpty()) {
-      _hoverObj = o;
-      _hoverHitPt = h.point;
-      _hoverLastHit.restart();
-      break;
-    }
-    if (o->getCollides()) break;
-  }
-  if (text.isEmpty() && _hoverObj && _hoverLastHit.isValid() && _hoverLastHit.elapsed() < 1500 &&
-      _objects && _objects->contains(_hoverObj)) {
-    // sticky: a spinning or rocking object can slip out from under a resting
-    // pointer for a moment -- keep reporting it for 1.5 s (no flicker)
-    text = ask(_hoverObj, _hoverHitPt);
-  }
-  if (text.isEmpty()) {
-    _hoverObj = nullptr;
-    hoverHide();
-    return;
-  }
-  // monospace so a script can line things up
-  QToolTip::showText(mapToGlobal(_hoverPos + QPoint(16, 16)),
-                     QString("<pre style='margin:0'>%1</pre>").arg(text.toHtmlEscaped()),
-                     this, QRect(), 600000);
-  _hoverShown = true;
+  _hover.tick(cam, worlds, _objects, _frameNum,
+              [this](const std::exception &e) { showLuaException(e, "onHover()"); });
 }
 
 void Viewer::leaveEvent(QEvent *e) {
-  _hoverArmed = false;
-  hoverHide();
+  _hover.disarm();
   QGLViewer::leaveEvent(e);
 }
 
@@ -4328,115 +3965,7 @@ void Viewer::addParam(const QString &name, const QVariant &value) {
 }
 
 void Viewer::addParam(const QString &name, const QVariant &value, const QString &comment) {
-  // A QVariant carrying a Lua function is a push button parameter: the Gui
-  // shows a button that invokes the function when it is pressed. A button
-  // holds no value, so it is neither mirrored into a Lua global nor reported
-  // to onParamChanged.
-  if (value.userType() == qMetaTypeId<luabind::object>() &&
-      luabind::type(qvariant_cast<luabind::object>(value)) == LUA_TFUNCTION) {
-    _params[name] = value;
-
-    ParamInfo info;
-    info.value = value;
-    info.isButton = true;
-    info.buttonCallback = qvariant_cast<luabind::object>(value);
-    info.comment = comment;
-    _paramInfo[name] = info;
-
-    emit paramsChanged();
-    return;
-  }
-
-  // A table whose every entry is a Lua function becomes one row of push
-  // buttons: the table's keys (or positions) label the buttons, and clicking
-  // one invokes its function. A button group holds no value, so it is neither
-  // mirrored into a Lua global nor reported to onParamChanged.
-  QList<QPair<QString, luabind::object>> callbacks;
-  bool isGroup = false;
-  if (value.type() == QVariant::Map) {
-    QVariantMap map = value.toMap();
-    isGroup = !map.isEmpty();
-    for (auto it = map.constBegin(); isGroup && it != map.constEnd(); ++it) {
-      const QVariant &v = it.value();
-      if (v.userType() != qMetaTypeId<luabind::object>() ||
-          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
-        isGroup = false;
-      } else {
-        callbacks.append(qMakePair(it.key(), qvariant_cast<luabind::object>(v)));
-      }
-    }
-  } else if (value.type() == QVariant::List) {
-    QVariantList list = value.toList();
-    isGroup = !list.isEmpty();
-    int i = 0;
-    for (const QVariant &v : list) {
-      ++i;
-      if (v.userType() != qMetaTypeId<luabind::object>() ||
-          luabind::type(qvariant_cast<luabind::object>(v)) != LUA_TFUNCTION) {
-        isGroup = false;
-        break;
-      }
-      callbacks.append(qMakePair(QString::number(i),
-                                  qvariant_cast<luabind::object>(v)));
-    }
-  }
-
-  if (isGroup && !callbacks.isEmpty()) {
-    _params[name] = value;
-
-    ParamInfo info;
-    info.value = value;
-    info.isButtonGroup = true;
-    info.buttonCallbacks = callbacks;
-    info.comment = comment;
-    _paramInfo[name] = info;
-
-    emit paramsChanged();
-    return;
-  }
-
-  _params[name] = value;
-
-  ParamInfo info;
-  info.value = value;
-  info.comment = comment;
-  _paramInfo[name] = info;
-
-  if (L) {
-    lua_State *ls = L;
-    lua_pushstring(ls, name.toUtf8().constData());
-
-    switch (value.type()) {
-    case QVariant::Int:
-    case QVariant::LongLong:
-      lua_pushinteger(ls, value.toInt());
-      break;
-    case QVariant::Double:
-      lua_pushnumber(ls, value.toDouble());
-      break;
-    case QVariant::Bool:
-      lua_pushboolean(ls, value.toBool());
-      break;
-    case QVariant::String:
-      lua_pushstring(ls, value.toString().toUtf8().constData());
-      break;
-    default:
-      lua_pushstring(ls, value.toString().toUtf8().constData());
-      break;
-    }
-
-    //lua_settable(ls, LUA_GLOBALSINDEX);// Lua 5.1
-	lua_setglobal(ls, name.toUtf8().constData()); // Lua 5.1 and 5.2
-  }
-
-  if (_cb_onParamChanged) {
-    try {
-      luabind::call_function<void>(_cb_onParamChanged, _frameNum, name, value);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onParamChanged()");
-    }
-  }
-
+  _params.add(L, _frameNum, name, value, comment, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
   emit paramsChanged();
 }
 
@@ -4449,136 +3978,37 @@ void Viewer::addParam(const QString &name, const btScalar &value, const btScalar
 }
 
 void Viewer::addParam(const QString &name, const btScalar &value, const btScalar &min, const btScalar &max, const btScalar &step, const QString &comment) {
-  _params[name] = QVariant(value);
-  ParamInfo info;
-  info.value = QVariant(value);
-  info.min = min;
-  info.max = max;
-  info.step = step;
-  info.comment = comment;
-  info.hasRange = true;
-  _paramInfo[name] = info;
-  if (L) {
-    lua_State *ls = L;
-    lua_pushstring(ls, name.toUtf8().constData());
-    // Use lua_pushnumber (not lua_pushinteger) so fractional defaults
-    // (e.g. addParam("rate", 0.12, ...)) survive the round trip through
-    // the Lua global that getParam() reads back, instead of being
-    // truncated to 0.
-    lua_pushnumber(ls, value);
-    lua_setglobal(ls, name.toUtf8().constData());
-  }
-
-  if (_cb_onParamChanged) {
-    try {
-      luabind::call_function<void>(_cb_onParamChanged, _frameNum, name, value);
-    } catch (const std::exception &e) {
-      showLuaException(e, "onParamChanged()");
-    }
-  }
-
+  _params.addRange(L, _frameNum, name, value, min, max, step, comment, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
   emit paramsChanged();
 }
 
 void Viewer::pressButton(const QString &name, const QString &label) {
-  ParamInfo info = _paramInfo.value(name);
-  if (!info.isButton && !info.isButtonGroup) return;
-  if (!L) return;
-
-  luabind::object cb;
-  if (info.isButtonGroup) {
-    for (const auto &pair : info.buttonCallbacks) {
-      if (pair.first == label) {
-        cb = pair.second;
-        break;
-      }
-    }
-  } else {
-    cb = info.buttonCallback;
-  }
-
-  // An unknown label leaves @p cb default-constructed (invalid); never call
-  // luabind::type() on it - that would index the registry of a null state.
-  if (!cb.is_valid() || luabind::type(cb) != LUA_TFUNCTION) return;
-
-  try {
-    luabind::call_function<void>(cb);
-  } catch (const std::exception &e) {
-    showLuaException(e,
-                      QString("button \"%1\"%2")
-                          .arg(name)
-                          .arg(label.isEmpty() ? QString()
-                                               : QString(" / %1").arg(label)));
-  }
+  _params.press(L, name, label, [this](const std::exception &e, const QString &where) { showLuaException(e, where); });
 }
 
-ParamInfo Viewer::getParamInfo(const QString &name) const {
-  return _paramInfo.value(name, ParamInfo());
-}
+ParamInfo Viewer::getParamInfo(const QString &name) const { return _params.info(name); }
 
-QVariant Viewer::getParam(const QString &name) const {
-  if (L) {
-    lua_State *ls = L;
-    lua_getglobal(ls, name.toUtf8().constData());
-    int luaType = lua_type(ls, -1);
-    if (luaType == LUA_TNUMBER) {
-      double n = lua_tonumber(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(n);
-    } else if (luaType == LUA_TSTRING) {
-      const char *s = lua_tostring(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(QString(s));
-    } else if (luaType == LUA_TBOOLEAN) {
-      bool b = lua_toboolean(ls, -1);
-      lua_pop(ls, 1);
-      return QVariant(b);
-    }
-    lua_pop(ls, 1);
-  }
-  return _params.value(name);
-}
+QVariant Viewer::getParam(const QString &name) const { return _params.get(L, name); }
 
-QHash<QString, QVariant> Viewer::getParams() const {
-  return _params;
-}
+QHash<QString, QVariant> Viewer::getParams() const { return _params.all(); }
 
 void Viewer::showParams(const QString &prefix) {
-  if (prefix == _paramFilter)
-    return;
-  _paramFilter = prefix;
-  emit paramsChanged();
+  if (_params.show(prefix))
+    emit paramsChanged();
 }
 
-QHash<QString, QVariant> Viewer::getShownParams() const {
-  if (_paramFilter.isEmpty())
-    return _params;
-  QHash<QString, QVariant> shown;
-  for (auto it = _params.constBegin(); it != _params.constEnd(); ++it)
-    if (it.key().startsWith(_paramFilter))
-      shown.insert(it.key(), it.value());
-  return shown;
-}
+QHash<QString, QVariant> Viewer::getShownParams() const { return _params.shown(); }
 
-// (also forgets the old script's ranges and its showParams() filter: a
-// filter left over from a script that set one -- the Cabinet does -- hid
-// every slider of whatever was opened next)
 void Viewer::clearParams() {
   _params.clear();
-  _paramInfo.clear();
-  _paramFilter.clear();
   emit paramsChanged();
 }
 
 void Viewer::addShortcut(const QString &keys, const luabind::object &fn) {
-  if (luabind::type(fn) == LUA_TFUNCTION) {
-    _cb_shortcuts->insert(keys, std::make_shared<luabind::object>(fn));
-  }
+  _keys.addShortcut(keys, fn);
 }
 
-void Viewer::removeShortcut(const QString &keys) {
-  _cb_shortcuts->remove(keys);
-}
+void Viewer::removeShortcut(const QString &keys) { _keys.removeShortcut(keys); }
 
 void Viewer::postDraw() {
   if (_parsing)
@@ -5122,14 +4552,17 @@ void Viewer::onQuickRender(QString povargs) {
     renderWidth = geometry().width();
     renderHeight = geometry().height();
   } else if (renderResolution.contains("x")) {
-    QRegExp rx("(\\d+)");
+    QRegularExpression rx("(\\d+)");
     QString str = renderResolution;
     QStringList list;
     int pos = 0;
 
-    while ((pos = rx.indexIn(str, pos)) != -1) {
-      list << rx.cap(1);
-      pos += rx.matchedLength();
+    while (true) {
+      QRegularExpressionMatch m = rx.match(str, pos);
+      if (!m.hasMatch())
+        break;
+      list << m.captured(1);
+      pos = m.capturedStart() + m.capturedLength();
     }
     renderWidth = list.at(0).toInt();
     renderHeight = list.at(1).toInt();
@@ -5274,7 +4707,7 @@ void Viewer::onQuickRender(QString povargs) {
     // stripped out by pvengine itself before the real option parser ever
     // sees them. The embedded VFE core has no such pre-filter, so its
     // parser correctly rejects them; drop them before handing args over.
-    QRegExp exitSwitch("\\s*/EXIT\\s*", Qt::CaseInsensitive);
+    QRegularExpression exitSwitch("\\s*/EXIT\\s*", QRegularExpression::CaseInsensitiveOption);
     vfeArgs[0].replace(exitSwitch, " ");
     startVfeQuickRender(sceneName, sceneDir, vfeArgs);
     return;

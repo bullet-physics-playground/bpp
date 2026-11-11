@@ -13,9 +13,23 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  # Once a week, the theory job also runs Euler's Gallery's slow exhibits.
+  schedule:
+    - cron: '23 9 * * 0'
 
 permissions:
   contents: read
+
+# bpp builds with Qt 5 or Qt 6. These jobs build with Qt 5, as Ubuntu 22.04
+# and 24.04 do (their Qt 6 has no libQGLViewer package); test-qt6 builds
+# with Qt 6. debian/control lists Qt 6 (Debian packages Qt 6's
+# libQGLViewer), so the Qt 5 build's packages are named here.
+env:
+  QT5_BUILD_DEPS: >-
+    pkg-config qt5-qmake qtbase5-dev qttools5-dev-tools libqt5opengl5-dev
+    libqglviewer-dev-qt5 libglew-dev libluabind-dev liblua5.1-dev
+    libbullet-dev libassimp-dev libsdl2-dev libsdl2-mixer-dev lsb-release
+    help2man
 
 defaults:
   run:
@@ -36,8 +50,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           # libqt5svg5 is a runtime dependency, not a build one: without it
           # the GUI's toolbar icons (SVG) are blank in the screenshots.
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
@@ -94,8 +107,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-            devscripts equivs
-          sudo mk-build-deps -i -t "apt-get -y -qq --no-install-recommends" debian/control
+            --no-install-recommends $QT5_BUILD_DEPS
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
             openscad fonts-liberation
 
@@ -111,3 +123,165 @@ jobs:
       # back on purpose.
       - name: Unit tests, Lua API and golden master under sanitizers
         run: python3 tests/harness.py -k '^(?!08-remove)' unit api golden
+
+  # The threaded build (THREADS.md): Bullet 3.24 built with threads
+  # (scripts/bullet-threads.sh) and bpp against it. With no threads asked
+  # for it gives the same numbers as the system Bullet, so the golden
+  # master's expected files hold; tests/22-threads.lua runs a scene with
+  # and without four threads and wants the same to the last digit.
+  test-threads:
+    name: Threaded build (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends $QT5_BUILD_DEPS
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation cmake
+
+      - name: Build Bullet with threads
+        run: scripts/bullet-threads.sh
+
+      - name: Build
+        run: |
+          qmake CONFIG+=release CONFIG+=bundled_bullet
+          make -j"$(nproc)" release
+
+      - name: Unit tests, Lua API and golden master
+        run: python3 tests/harness.py unit api golden
+
+  # The threaded build again, Bullet and bpp both built with
+  # ThreadSanitizer, running the unit tests (tests/22-threads.lua among
+  # them). tests/sanitizers/tsan.supp names what is left out: races in
+  # Bullet's own thread pool and statistics counter, and in PulseAudio.
+  test-tsan:
+    name: ThreadSanitizer (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      TSAN_OPTIONS: suppressions=${{ github.workspace }}/tests/sanitizers/tsan.supp history_size=4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends $QT5_BUILD_DEPS
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation cmake
+
+      # Ubuntu 24.04's kernel spreads memory wider than ThreadSanitizer
+      # supports ("FATAL: ThreadSanitizer: unexpected memory mapping").
+      - name: Let ThreadSanitizer map its memory
+        run: sudo sysctl vm.mmap_rnd_bits=28
+
+      - name: Build Bullet with threads, under ThreadSanitizer
+        run: CFLAGS=-fsanitize=thread CXXFLAGS=-fsanitize=thread scripts/bullet-threads.sh
+
+      - name: Build under ThreadSanitizer
+        run: |
+          qmake CONFIG+=release CONFIG+=bundled_bullet "QMAKE_CXXFLAGS+=-fsanitize=thread -g" "QMAKE_LFLAGS+=-fsanitize=thread"
+          make -j"$(nproc)" release
+
+      - name: Unit tests under ThreadSanitizer
+        run: python3 tests/harness.py unit
+
+  # Euler's Gallery's exhibits against the theory each stands for
+  # (tests/theory/checks.txt, from the gallery's physics-fidelity report).
+  # The slow ones (the Brazil nut, the Gomboc: half an hour together) run
+  # only on the weekly schedule, or when the workflow is run by hand.
+  test-theory:
+    name: Euler's Gallery against theory (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends $QT5_BUILD_DEPS
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation
+
+      - name: Build
+        run: |
+          qmake CONFIG+=release
+          make -j"$(nproc)" release
+
+      - name: The exhibits against theory
+        run: |
+          slow=
+          case "${{ github.event_name }}" in schedule|workflow_dispatch) slow=--slow ;; esac
+          python3 tests/harness.py $slow theory
+
+  # The Qt 6 build. Ubuntu 24.04 packages Qt 6 but not its libQGLViewer, so
+  # that is built from upstream's source (a fixed commit) and installed as
+  # libQGLViewer.so, the name Debian's libqglviewer-dev-qt6 gives it. The
+  # physics, the export and the Lua API are the same as with Qt 5, so the
+  # unit tests, the API listing and the golden master use the same expected
+  # files; Qt 6 lays out the window otherwise, so the screenshots have their
+  # own (tests/screens/expected-qt6/).
+  test-qt6:
+    name: Qt 6 build (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install build and test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            --no-install-recommends \
+            qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins libqt6svg6 \
+            libgl-dev libglu1-mesa-dev pkg-config libglew-dev libluabind-dev \
+            liblua5.1-dev libbullet-dev libassimp-dev libsdl2-dev \
+            libsdl2-mixer-dev lsb-release help2man
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+            openscad fonts-liberation fonts-dejavu-core \
+            xvfb xdotool imagemagick libgl1-mesa-dri
+
+      - name: Build libQGLViewer for Qt 6
+        run: |
+          git clone -q https://github.com/GillesDebunne/libQGLViewer.git /tmp/libQGLViewer
+          cd /tmp/libQGLViewer
+          git checkout -q da4bfad
+          cd QGLViewer
+          qmake6
+          make -j"$(nproc)"
+          sudo make install
+          sudo ln -sf libQGLViewer-qt6.so /usr/local/lib/libQGLViewer.so
+          sudo ldconfig
+
+      - name: Build
+        id: build
+        run: |
+          qmake6 CONFIG+=release
+          make -j"$(nproc)" release
+
+      - name: Unit tests, Lua API and golden master
+        run: python3 tests/harness.py unit api golden
+
+      - name: Screenshots
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: python3 tests/harness.py --keep screens
+
+      - name: Upload what failed
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-output-qt6
+          path: /tmp/bpp-tests-*/screens-*.png
+          if-no-files-found: ignore

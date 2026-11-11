@@ -16,7 +16,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QSignalBlocker>
 
@@ -581,6 +581,11 @@ void Gui::populateDemoMenu(QMenu *menu, const QDir &dir) {
                         QDir::DirsFirst | QDir::IgnoreCase | QDir::Name);
   for (const QFileInfo &entry : entries) {
     if (entry.isDir()) {
+      // A folder holding a file named .nomenu is left out, with everything
+      // under it: the scripts other scripts load, probes, tools -- files
+      // that are not meant to be opened on their own.
+      if (QFileInfo::exists(entry.absoluteFilePath() + "/.nomenu"))
+        continue;
       QMenu *sub = menu->addMenu(entry.fileName());
       populateDemoMenu(sub, QDir(entry.absoluteFilePath()));
       if (sub->isEmpty()) {
@@ -605,11 +610,12 @@ int Gui::readPovraySetting(const QString &name, int defaultValue) const {
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return defaultValue;
   }
-  QRegExp rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
+  QRegularExpression rx(QString("^\\s*#declare\\s+%1\\s*=\\s*(-?\\d+)\\s*;").arg(name));
   while (!file.atEnd()) {
     QString line = QString::fromUtf8(file.readLine());
-    if (rx.indexIn(line) >= 0) {
-      return rx.cap(1).toInt();
+    QRegularExpressionMatch m = rx.match(line);
+    if (m.hasMatch()) {
+      return m.captured(1).toInt();
     }
   }
   return defaultValue;
@@ -624,8 +630,8 @@ void Gui::writePovraySetting(const QString &name, int value) {
   QString content = QString::fromUtf8(file.readAll());
   file.close();
 
-  QRegExp rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
-  if (rx.indexIn(content) < 0) {
+  QRegularExpression rx(QString("(#declare\\s+%1\\s*=\\s*)-?\\d+(\\s*;)").arg(name));
+  if (rx.match(content).capturedStart() < 0) {
     return; // setting not found in the file, don't touch it
   }
   content.replace(rx, QString("\\1%1\\2").arg(value));
@@ -786,7 +792,8 @@ void Gui::helpAbout() {
           .arg(QCoreApplication::applicationName())
           .arg(QCoreApplication::applicationVersion()) +
       tr("<p>Build: %1 - %2</p>").arg(BUILDDATE).arg(BUILDTIME) +
-      tr("<p>%1 Bullet: %2</p>").arg(LUA_VERSION).arg(BULLET_VERSION) +
+      tr("<p>%1 Bullet: %2 Qt:&nbsp;%3</p>")
+          .arg(LUA_VERSION).arg(BULLET_VERSION).arg(QT_VERSION_STR) +
       tr("<p>GLEW:&nbsp;%1 GL&nbsp;Renderer:&nbsp;%2 "
          "GL&nbsp;Vendor:&nbsp;%3</p>")
           .arg((char *)glGetString(GL_VERSION))
@@ -1282,7 +1289,7 @@ void Gui::updateParamsTable() {
         slider->setValue(qRound(value.toDouble() * scale));
         slider->setProperty("paramScale", scale);
         slider->setToolTip(tooltip);
-      } else if (value.type() == QVariant::Bool) {
+      } else if (value.userType() == QVariant::Bool) {
         QCheckBox *checkBox = paramsTable->cellWidget(row, 1)->findChild<QCheckBox *>();
         QSignalBlocker checkBoxBlocker(checkBox);
         checkBox->setChecked(value.toBool());
@@ -1341,7 +1348,7 @@ void Gui::updateParamsTable() {
       slider->installEventFilter(this);
       connect(slider, &QSlider::valueChanged, this, &Gui::onParamSliderChanged);
       paramsTable->setCellWidget(row, 1, slider);
-    } else if (value.type() == QVariant::Bool) {
+    } else if (value.userType() == QVariant::Bool) {
       QCheckBox *checkBox = new QCheckBox();
       checkBox->setChecked(value.toBool());
       checkBox->setProperty("paramName", name);
@@ -1381,11 +1388,11 @@ void Gui::onParamsTableCellChanged(int row, int column) {
   QString newValueStr = valueItem->text();
 
   QVariant newValue;
-  if (oldValue.type() == QVariant::Int) {
+  if (oldValue.userType() == QVariant::Int) {
     newValue = QVariant(newValueStr.toInt());
-  } else if (oldValue.type() == QVariant::Double) {
+  } else if (oldValue.userType() == QVariant::Double) {
     newValue = QVariant(newValueStr.toDouble());
-  } else if (oldValue.type() == QVariant::Bool) {
+  } else if (oldValue.userType() == QVariant::Bool) {
     newValue = QVariant(newValueStr.toLower() == "true");
   } else {
     newValue = QVariant(newValueStr);

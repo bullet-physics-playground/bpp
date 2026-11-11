@@ -17,10 +17,12 @@
 #               the ranking's results within the noise, at under half warm40's time; handover section 4i)
 # Environment: BPP (default: bpp on the PATH), JOBS (default: the number of cores), SEEDS (default 1 2 3 4 5),
 # TERRAINS (default the nine rough ones), BUILDS (default the ranking's 13; a file, one name a line), OUT (default
-# runs/out), RUN_SECS (20), EXTRA (Lua run after each run's settings, so it can change them, e.g. 'PENDANT_HOLD=false'; default none).
+# runs/out), RUN_SECS (20), EXTRA (Lua run after each run's settings, so it can change them, e.g. 'PENDANT_HOLD=false'; default none),
+# PROBE (default runs/speedprobe.lua; runs/steerprobe.lua for the steering runs, runs/steer-table.sh).
 set -u
 cd "$(dirname "$0")/.."
 BPP=${BPP:-bpp}; JOBS=${JOBS:-$(nproc)}; SEEDS=${SEEDS:-"1 2 3 4 5"}; OUT=${OUT:-runs/out}; RUN_SECS=${RUN_SECS:-20}
+PROBE=${PROBE:-runs/speedprobe.lua}
 TERRAINS=${TERRAINS:-"waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7"}
 if [ -n "${BUILDS:-}" ]; then mapfile -t NAMES < "$BUILDS"; else NAMES=(
   "Chebyshev-Spears lift 51" "Chebyshev-Spears lift 51 diag" "Chebyshev-Spears lift 62" "Chebyshev-Spears diag" "Hoecken-Spears 4-bar diag"
@@ -40,20 +42,20 @@ for S in "$@"; do
   mkdir -p "$OUT/$S"
   for seed in $SEEDS; do for t in $TERRAINS; do for n in "${NAMES[@]}"; do
     out="$OUT/$S/${n// /_}_${t%%:*}${t##*:}_s$seed.txt"
-    grep -q '^RUN' "$out" 2>/dev/null && continue
+    grep -qE '^(RUN|STEER)' "$out" 2>/dev/null && continue
     echo "$S|$n|${t%%:*}|${t##*:}|$seed|$out" >> "$JOBLIST"
   done; done; done
 done
 echo "$(wc -l < "$JOBLIST") runs to do, $JOBS at a time"
 EXTRA=${EXTRA:-}
-export BPP RUN_SECS EXTRA
+export BPP RUN_SECS EXTRA PROBE
 one() {
   IFS='|' read -r S n ter amp seed out <<< "$1"
   f=$(mktemp ./_rt_XXXXXX.lua)
-  printf '%s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; %sRUN_SECS=%s\ndofile("runs/speedprobe.lua")\n' \
-    "$(setting "$S")" "$n" "$ter" "$amp" "$seed" "$(bracing "$n")" "${EXTRA:+$EXTRA; }" "$RUN_SECS" > "$f"
+  printf '%s; v:setSolverInfo("residual", 0.01); MOTOR_STRENGTH=2; dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua"); ONLY="%s"; TERRAIN="%s"; AMP=%s; SEED=%s; BUMP=15; GRAVITY=981; YAW_DAMP=1; ANKLE_SPRING={stiffness=42000, damping=4200}; LINK_WIDTH=1.0; GAIT={0,180,180,0}; %s; %sRUN_SECS=%s\ndofile("%s")\n' \
+    "$(setting "$S")" "$n" "$ter" "$amp" "$seed" "$(bracing "$n")" "${EXTRA:+$EXTRA; }" "$RUN_SECS" "$PROBE" > "$f"
   start=$(date +%s)
-  QT_QPA_PLATFORM=offscreen timeout 1800 "$BPP" -f "$(basename "$f")" -n $((RUN_SECS * 60 + 10)) 2>&1 | grep -aE '^RUN|rror' | grep -v ALSA > "$out.tmp"
+  QT_QPA_PLATFORM=offscreen timeout 1800 "$BPP" -f "$(basename "$f")" -n $((RUN_SECS * 60 + 10)) 2>&1 | grep -aE '^(RUN|STEER|PATH|SIDES)|rror' | grep -v ALSA > "$out.tmp"
   echo "TIME $(( $(date +%s) - start ))" >> "$out.tmp"; mv "$out.tmp" "$out"; rm -f "$f"
   echo "done $(basename "$out") $(grep -o 'speed [-0-9.]*' "$out")"
 }

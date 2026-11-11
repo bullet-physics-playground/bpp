@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # Factorial runs: per configuration, calibrate crank so flat speed = 9, then the waves set.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import json, os, re, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
-ROOM = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"
-BPP = "/home/claude/build/release/bpp"
-D = "/home/claude/work/fac5"   # (a fresh folder: every earlier result used the old geometry)
+ROOM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../..")   # (the WalkerRoom folder)
+BPP = "../../../release/bpp"
+D = WORK + "/fac5"   # (a fresh folder: every earlier result used the old geometry)
 os.makedirs(D, exist_ok=True)
-HL = 'dofile("spears-lift-walkers.lua")'
-TW = 'dofile("trotting-walkers.lua")'
-D2 = 'dofile("spears-lift-walkers.lua")'
+HL = 'dofile("lib/spears-lift-walkers.lua")'
+TW = 'dofile("lib/trotting-walkers.lua")'
+D2 = 'dofile("lib/spears-lift-walkers.lua")'
 TROT = "GAIT={0,180,180,0}"
 def U(n): return 'UNBRACED={["%s"]=true}' % n
 configs = []   # (id, linkage, bracing, timing, direction, walker, extra)
@@ -30,7 +31,7 @@ for n, diag, ex in (("Chebyshev", "Chebyshev diag", []), ("Chebyshev-Spears", "C
     add(n, "guides", "trot", n, base + [U(n), TROT])
 
 def run(walker, extra, amp, bump, seed, scale):
-    code = f'ONLY="{walker}"; AMP={amp}; BUMP={bump}; SEED={seed}; CRANK_SCALE={scale}; {extra}\ndofile("test-track.lua")\n'
+    code = f'ONLY="{walker}"; AMP={amp}; BUMP={bump}; SEED={seed}; CRANK_SCALE={scale}; {extra}\ndofile("lib/test-track.lua")\n'
     fd, p = tempfile.mkstemp(suffix=".lua", prefix="_fac_", dir=ROOM); os.write(fd, code.encode()); os.close(fd)
     try:
         out = subprocess.run([BPP, "-f", os.path.basename(p), "-n", "3700"], cwd=ROOM, capture_output=True, text=True,

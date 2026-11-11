@@ -1,6 +1,7 @@
 # Factorial summary: per configuration, flat speed, mean speed on the 9 bump settings, share kept.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import re, glob, os, json, sys, collections
-D = "/home/claude/work/fac5"
+D = WORK + "/fac5"
 exec(open(f"{D}/run.py").read().split("def run(")[0])
 cal = json.load(open(f"{D}/cal.json"))
 rows = []

@@ -1,0 +1,37 @@
+--
+-- Test track: one walker from the walker room -- the same stride, chassis,
+-- crank speed and gravity as there -- walking straight down a long, narrow
+-- strip of the room's terrain, with no avoidance turns. After TRACK_SECS
+-- seconds it prints how far it got along the strip (and how far it drifted
+-- sideways):
+--
+--   TRACK Hoecken|height 4.00|length 11.0|seed 1|forward 412.3 cm|6.87 cm/s|...
+--
+-- Not opened on its own (it is in lib/, out of the Demos menu): a script
+-- sets the walker and its settings, then loads it, from the WalkerRoom
+-- folder -- test-ranking.lua (the 11 walkers that could really be built, to
+-- watch), and runs/run-table.sh's runs (every walker in every
+-- condition, headless). Tab and Shift+Tab put the next or previous walker on
+-- the track (with VIEWS, as test-ranking.lua sets, the next of those). The
+-- TerrainHeight and BumpLength sliders set the next ground, and G builds the
+-- track with them, as in the room.
+--
+-- Units: centimetres and seconds.
+--
+
+-- (bpp runs a script from its own folder; headless runs need the module
+-- folder on the path for common.lua)
+package.path = "../../module/?.lua;" .. package.path
+
+ONLY = ONLY or "Chebyshev-Spears"   -- the walker, by its name in walker-room.lua
+AMP = AMP or 4                      -- bump height, cm
+BUMP = BUMP or 11                   -- bump length, cm (every stride is 15)
+SEED = SEED or 1                    -- moves the start up to a bump length along and across
+TRACK_SECS = TRACK_SECS or 60       -- how long it walks, s
+
+TEST_TRACK = true
+ARENA_X = ARENA_X or 1000           -- the strip: 10 m long ...
+ARENA_Z = ARENA_Z or 800            -- ... and 8 m wide (2 m until 24 October 2026: walkers drifting 70-85 cm
+                                    -- sideways rubbed its walls; 6 m until 25 October: some drifted 2.6 m)
+
+dofile("walker-room.lua")

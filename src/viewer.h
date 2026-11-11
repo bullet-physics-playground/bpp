@@ -51,6 +51,11 @@
 #include "screenmerge.h"
 #include "shadowrecord.h"
 #include "decorations.h"
+#include "wavtrack.h"
+#include "hover.h"
+#include "quadview.h"
+#include "scriptkeys.h"
+#include "params.h"
 #include "spacenavigator/spacenavigatorcamera.h"
 
 using namespace qglviewer;
@@ -67,35 +72,6 @@ class btSoftRigidDynamicsWorld;
 class BppVfeSession;
 class BppVfeDisplay;
 #endif // USE_VFE
-
-/**
- * @brief A script parameter and everything the GUI needs to present it.
- *
- * Scripts register parameters with Viewer::addParam(); the Gui turns each one
- * into a slider, a check box, an editable cell or a push button, depending on
- * what is known about it here.
- */
-struct ParamInfo {
-  QVariant value;        ///< The value the parameter was last given.
-  btScalar min = 0.0;    ///< Lower bound; only meaningful if #hasRange.
-  btScalar max = 100.0;  ///< Upper bound; only meaningful if #hasRange.
-  btScalar step = 0.0;   ///< Step size for the slider; 0 means pick a default.
-  QString comment;       ///< Description shown in the parameter's tooltip.
-  bool hasRange = false; ///< True if the script declared a min and max, which
-                         ///< is what makes the parameter a slider.
-  bool isButton = false; ///< True if the parameter is a push button: pressing
-                         ///< it calls #buttonCallback instead of editing a value.
-  luabind::object buttonCallback; ///< The Lua function invoked when the button
-                                  ///< is pressed; only meaningful if #isButton.
-  bool isButtonGroup = false; ///< True if the parameter is one row of several
-                              ///< push buttons: pressing one calls its entry in
-                              ///< #buttonCallbacks instead of editing a value.
-  QList<QPair<QString, luabind::object>> buttonCallbacks; ///< (label, callback)
-                                                          ///< for each button in
-                                                          ///< the row; only
-                                                          ///< meaningful if
-                                                          ///< #isButtonGroup.
-};
 
 /**
  * @brief Writes a Viewer's description to a standard stream.
@@ -238,7 +214,7 @@ public:
    * postSim callback at the exact frame an event (e.g. an escapement
    * beat) is detected. A no-op if id is invalid or no audio device is
    * available. While POV-Ray export is on, the sound is also mixed into the
-   * exported scene's audio track, see saveWAV().
+   * exported scene's audio track, see WavTrack.
    * @param id The id returned by loadSound().
    */
   void playSound(int id);
@@ -1318,12 +1294,6 @@ public:
   void setBackgroundColor(const QColor &color) {
     glClearColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
   }
-#else
-  /**
-   * @brief Sets the colour the view is cleared to.
-   * @param color The new background colour.
-   */
-  void setBackgroundColor(const QColor &color) { qglClearColor(color); }
 #endif
 
   // POV-Ray properties
@@ -1876,9 +1846,6 @@ public slots:
   /** @brief Hover: every 100 ms, show/refresh the tooltip if the mouse rests. */
   void hoverTick();
 
-  /** @brief Hover: hide the tooltip. */
-  void hoverHide();
-
   /**
    * @brief Passes a command line entry to the script's onCommand hook.
    * @param cmd The command text.
@@ -2267,25 +2234,6 @@ protected:
    */
   void renderShadowDepth();
 
-  /**
-   * @brief Renders the scene once into each of the four quad-view panes.
-   *
-   * Each pane gets its own viewport and camera. The full-window viewport and
-   * the main camera's screen size are restored afterwards, because postDraw()'s
-   * screen-space overlays and the next frame's mouse handling both assume the
-   * whole widget.
-   */
-  void drawQuadView();
-
-  /**
-   * @brief Re-frames the three fixed orthographic cameras on the scene.
-   *
-   * Keeps their view direction and up vector, set once in the constructor, and
-   * just slides them along that direction so the whole scene is in frame.
-   * Called when quad view is first switched on and on a camera reset, not
-   * every frame, so it does not fight the user's own pan and zoom afterwards.
-   */
-  void updateOrthoCameras();
 
   /**
    * @brief Fits the scene bounding box around everything in the world.
@@ -2305,7 +2253,7 @@ protected:
    * one numbered @c .inc per frame carrying the camera and every object that
    * opted into export. The copy of the settings include keeps the directory
    * self-contained, so the scene still renders elsewhere without the original
-   * include path. Sounds the scene plays go to a @c .wav, see saveWAV().
+   * include path. Sounds the scene plays go to a @c .wav, see WavTrack.
    *
    * @param force Write the frame even when POV-Ray export is turned off, as a
    *              quick render does.
@@ -2324,20 +2272,6 @@ protected:
    */
   void recordSound(Mix_Chunk *chunk, double volume);
 
-  /**
-   * @brief Writes the exported frame's audio to the scene's @c .wav.
-   *
-   * Mixes the sounds recordSound() queued into the track and appends the
-   * frame's share of it, 1/25 s -- the rate the GNUmakefile encodes at --
-   * so the file on disk is always a complete WAV as long as the video. The
-   * track is started by the first sound, padded with silence back to the
-   * export's first frame, so a scene that plays nothing gets no @c .wav. A new
-   * export starts the track over.
-   *
-   * @param fileWAV Path of the scene's @c .wav.
-   */
-  void saveWAV(const QString &fileWAV);
-
 public:
   //  QList<Object*> l[13];
 
@@ -2353,63 +2287,7 @@ private:
   Vec _initialCameraUpVector; ///< Up vector it returns to; also the reference
                               ///< up used to keep the horizon level.
 
-  /**
-   * @brief True while the 4-pane quad view is shown instead of one view.
-   *
-   * Tab toggles between the single perspective view and a 4-pane CAD-style
-   * layout (perspective, top, front, right), matching AutoCAD/Maya. The
-   * perspective quadrant reuses camera(); the other three are fixed,
-   * auto-framed orthographic views.
-   */
-  bool _quadView;
-
-  /**
-   * @brief Whether the ortho cameras have been framed on the scene yet.
-   *
-   * Set once updateOrthoCameras() has auto-framed the ortho cameras for
-   * the first time, so later Tab toggles remember the user's own pan/zoom
-   * in those views instead of re-framing every time.
-   */
-  bool _orthoCamerasFitted;
-  qglviewer::Camera *_camTop;   ///< Fixed orthographic view from above.
-  qglviewer::Camera *_camFront; ///< Fixed orthographic view from the front.
-  qglviewer::Camera *_camRight; ///< Fixed orthographic view from the right.
-
-  /**
-   * @brief One quad-view pane: which camera renders it, and where.
-   */
-  struct Pane {
-    qglviewer::Camera *cam; ///< Camera that renders this pane.
-    QRect rect; ///< The pane's rectangle in widget coordinates, that is Qt's
-                ///< convention with the origin top-left.
-  };
-
-  /**
-   * @brief Returns the current quad-view pane layout.
-   *
-   * Perspective top-left (the interactive camera()), top top-right, front
-   * bottom-left, right bottom-right - the classic AutoCAD/Maya four-view
-   * layout. Rectangles are in widget coordinates, that is Qt's convention with
-   * the origin top-left and y down, shared by drawQuadView(), which flips to
-   * OpenGL's bottom-left-origin viewport, and orthoCameraAt(), which hit-tests
-   * mouse events directly against these.
-   *
-   * @return The four panes, in that order.
-   */
-  QVector<Pane> computePanes() const;
-
-  /**
-   * @brief Returns the orthographic camera under a widget position.
-   * @param pos Position in widget coordinates.
-   * @return The camera, or null when quad view is off or @p pos is over the
-   *         perspective pane, where camera()'s own default mouse handling
-   *         already applies.
-   */
-  qglviewer::Camera *orthoCameraAt(const QPoint &pos) const;
-
-  /// Active pan drag on one of the ortho panes (nullptr when not panning).
-  qglviewer::Camera *_orthoPanCamera;
-  QPoint _orthoPanLastPos; ///< Pointer position at the last pan step.
+  QuadView _quad{this}; ///< The quad view (Tab): four panes, three orthographic.
 
   bool _simulate; ///< True while the simulation is being stepped.
 
@@ -2620,29 +2498,14 @@ private:
   luabind::object _cb_preStop;   ///< Called before the script is replaced.
   luabind::object _cb_onCommand; ///< Called for a command line entry.
   luabind::object _cb_onJoystick; ///< Called for each joystick report.
-  luabind::object _cb_onKey; ///< Called for each key press and release.
-  QSet<int> _luaHeldKeys;    ///< Keys the onKey() hook consumed on press.
+  ScriptKeys _keys;          ///< The script's onKey hook and shortcuts.
   luabind::object _cb_onSpaceNavigator; ///< Called for each 3D mouse report;
                                         ///< when set it also takes the device
                                         ///< away from the built-in camera
                                         ///< control.
   luabind::object _cb_cycleObject;   ///< Called when F1 or F2 is pressed.
-  luabind::object _cb_onHover;       ///< Called when the mouse rests on an object.
+  Hover _hover{this};                ///< The tooltip by the resting mouse (v:onHover).
   QTimer *_hoverTimer = nullptr;     ///< Drives hoverTick().
-  QElapsedTimer _hoverStill;         ///< Time since the mouse last moved.
-  QPoint _hoverPos;                  ///< Where the mouse rests (widget coords).
-  bool _hoverArmed = false;          ///< Mouse is over the view with no button down.
-  bool _hoverShown = false;          ///< A hover tooltip is showing.
-  Object *_hoverObj = nullptr;       ///< Last object found under the resting mouse.
-  btVector3 _hoverHitPt;             ///< Where the ray last hit it.
-  QElapsedTimer _hoverLastHit;       ///< Time since the ray last hit it.
-  luabind::object _cb_onParamChanged; ///< Called when a parameter changes.
-
-  #include <memory>
-
-  QHash<QString, std::shared_ptr<luabind::object>> *_cb_shortcuts; ///< Lua
-                          ///< functions bound to key sequences, keyed by the
-                          ///< sequence's native text form.
 
   bool _parsing;       ///< True while a script is being loaded, which stops
                        ///< the draw and animation paths touching the world.
@@ -2868,20 +2731,7 @@ private:
   void downloadFinished(int id);         ///< A reply has finished.
   void freeDownloads();                  ///< Aborts any still running.
 
-  // exported audio: the sounds played while exporting, mixed by saveWAV()
-  // into a track that keeps in step with the exported frames
-  struct WavEvent {
-    int frame;        ///< Exported frame the sound starts at.
-    Mix_Chunk *chunk; ///< The sound; loaded chunks live as long as the Viewer.
-    double volume;    ///< Volume from 0 to 1.
-  };
-  std::vector<WavEvent> _wavEvents; ///< Sounds played since the last frame.
-  std::vector<int> _wavMix; ///< Mixed samples not written yet, the first one
-                            ///< at _wavWritten.
-  QString _wavFile;   ///< The track being written.
-  int _wavFirstFrame; ///< Export start the track was begun for.
-  int _wavFrame;      ///< Last frame whose audio was written.
-  qint64 _wavWritten; ///< Sample frames in the file, -1 before the first sound.
+  WavTrack _wavTrack; ///< The exported scene's sound track.
 
   // SpaceNavigator 3D mouse
   SpaceNavigator *_spaceNavigator; ///< The 3D mouse, open or not.
@@ -2889,9 +2739,7 @@ private:
   SpaceNavigatorCamera *_snCamera; ///< Drives the camera from the 3D mouse.
 
    // parameter storage for Lua scripts
-   QHash<QString, QVariant> _params;      ///< Current value of each parameter.
-   QHash<QString, ParamInfo> _paramInfo;  ///< Range, step and comment for each.
-   QString _paramFilter;                  ///< Which the Params pane shows (see showParams()).
+   Params _params;                        ///< The script's parameters (addParam()).
 };
 
 #endif // VIEWER_H

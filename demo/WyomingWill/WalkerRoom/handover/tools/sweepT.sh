@@ -1,11 +1,12 @@
 #!/bin/bash
 # trot sweeps (body held, one slow crank turn) of every build that goes into the runs, as it will be run:
 # own frames and guides at GAIT trot, diag builds with outside braces and held pendants; Earth standard, ankles on
-cd /home/claude/bpp/demo/WyomingWill/WalkerRoom
+cd "$(dirname "$0")/../.."
+mkdir -p "${WORK:-/tmp/walker-work}/sweepT"   # (the sweeps go here: WORK, default /tmp/walker-work)
 STD='CRANK=0.6; GRAVITY=981; FIXED=1/3840; ANKLE_SPRING={stiffness=42000, damping=4200}; GAIT={0,180,180,0}'
 one() { f=$(mktemp ./_st_XXXX.lua)
-  printf 'dofile("trotting-walkers.lua"); dofile("spears-lift-walkers.lua"); ONLY="%s"; %s; %s\ndofile("/home/claude/work/sweepprobe.lua")\n' "$1" "$STD" "$2" > $f
-  SWEEP_OUT="/home/claude/work/sweepT/$3.txt" QT_QPA_PLATFORM=offscreen /home/claude/build/release/bpp -f $(basename $f) -n 950 2>&1 | grep -i error | grep -v ALSA; rm -f $f; }
+  printf 'dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua"); ONLY="%s"; %s; %s\ndofile("handover/tools/sweepprobe.lua")\n' "$1" "$STD" "$2" > $f
+  SWEEP_OUT="${WORK:-/tmp/walker-work}/sweepT/$3.txt" QT_QPA_PLATFORM=offscreen ${BPP:-../../../release/bpp} -f $(basename $f) -n 950 2>&1 | grep -i error | grep -v ALSA; rm -f $f; }
 G='UNBRACED=true'; D='DIAG_OUTSIDE=true; PENDANT_HOLD=true'
 jobs=( "Jansen||Jansen" "Klann||Klann" "Spears 4-bar||Spears_4-bar"
   "Chebyshev|$G|Chebyshev" "Chebyshev-Spears|$G|Chebyshev-Spears" "Hoecken 4-bar|$G|Hoecken_4-bar" "Hoecken slider|$G|Hoecken_slider"

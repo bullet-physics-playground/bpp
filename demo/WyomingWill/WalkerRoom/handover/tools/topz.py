@@ -11,6 +11,7 @@
 #           DIAG_LOW build, bottom at the foot lift above the feet's bottoms.
 #   bottom straight (bottom pair): one bar from pendant to pendant at the same height.
 # Bars 1.074 tall, 0.3 thick (the room's brace bar); margin M to anything.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import math, sys, collections
 from shapely.geometry import Polygon, box
 M, H, T = 0.3, 1.074, 0.3
@@ -27,7 +28,7 @@ def load(path):
             p = l.split(); S[int(p[1])].append(Polygon([tuple(map(float, q.split(","))) for q in p[2].split(";")]).buffer(0))
     return name, L, S, bb, hz
 def setup(b):
-    name, L, S, bb, hz = load(f"/home/claude/work/sweep4/{b}.txt")
+    name, L, S, bb, hz = load(f"{WORK}/sweep4/{b}.txt")
     n = min(len(S[i]) for i in L)
     pend = [i for i in L if L[i]["kind"] == "makeLink" and abs(abs(L[i]["z"]) - 13) < 0.05]
     feet = [i for i in L if L[i]["kind"] == "buildFoot"]
@@ -172,4 +173,4 @@ if __name__ == "__main__":
             cnt = collections.Counter(i for i, _, _ in h)
             r[nm] = dict(yb=yb, length=length, hits=len(h))
             print(f"  {nm}: bottom {yb - fb:.2f} above its feet's bottoms, bar {length:.1f} cm, under the body by {bg:.2f}; " + (f"within {M} cm of links {dict(cnt)} in {len(set(k for _, k, _ in h))} of {W['n']} moments, closest {worst:.2f}" if h else "clear of every link"))
-    json.dump(res, open("/home/claude/work/topz.json", "w"), indent=1)
+    json.dump(res, open(WORK + "/topz.json", "w"), indent=1)

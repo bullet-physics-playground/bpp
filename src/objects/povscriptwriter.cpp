@@ -64,7 +64,9 @@ bool PovScriptWriter::writeMainFile(const QString &sceneDir, int frame) {
   }
 
   QTextStream s(&file);
-  s.setCodec("UTF-8");
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  s.setCodec("UTF-8"); // (Qt 6 always writes UTF-8)
+#endif
 
   writeHeader(s, frame);
   writeGlobalSettings(s);

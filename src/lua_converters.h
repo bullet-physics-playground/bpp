@@ -27,6 +27,7 @@
 #include <luabind/luabind.hpp>
 
 #include <QByteArray>
+#include <QHash>
 #include <QList>
 #include <QString>
 #include <QStringList>
@@ -324,6 +325,8 @@ template <typename T>
 struct default_converter<QList<QList<T>> const &>
     : default_converter<QList<QList<T>>> {};
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+// (In Qt 6 QVector is QList, which the converter above covers.)
 /**
  * @brief Converts between QVector<T> and a Lua table of bound objects.
  * @tparam T Element type; it needs an explicit is_class() specialization.
@@ -377,6 +380,8 @@ struct default_converter<QVector<T>> : native_converter_base<QVector<T>> {
 /// Lets a @c const @c QVector<T>& parameter use the QVector converter.
 template <typename T>
 struct default_converter<QVector<T> const &> : default_converter<QVector<T>> {};
+#endif
+
 
 /**
  * @brief Converts between QByteArray and a Lua table of byte values.
@@ -478,6 +483,60 @@ struct default_converter<QVariant> : native_converter_base<QVariant> {
 /// Lets a @c const @c QVariant& parameter use the QVariant converter.
 template <>
 struct default_converter<QVariant const &> : default_converter<QVariant> {};
+
+/**
+ * @brief Converts between a QHash of QVariants keyed by name and a Lua table.
+ *
+ * What Viewer::getParams() returns: each value goes into the table as
+ * var_to() pushes it (a push button's function, which var_to() pushes as
+ * nil, is left out).
+ */
+template <>
+struct default_converter<QHash<QString, QVariant>>
+    : native_converter_base<QHash<QString, QVariant>> {
+  /**
+   * @brief Scores a stack value as a candidate: only a table matches.
+   * @param L     The Lua state.
+   * @param index Stack index of the value.
+   * @return 0 for a table, -1 otherwise.
+   */
+  static int compute_score(lua_State *L, int index) {
+    return lua_type(L, index) == LUA_TTABLE ? 0 : -1;
+  }
+
+  /**
+   * @brief Reads a Lua table into a QHash.
+   * @param L     The Lua state.
+   * @param index Stack index of the table.
+   * @return The table's string-keyed entries.
+   */
+  QHash<QString, QVariant> from(lua_State *L, int index) {
+    QHash<QString, QVariant> hash;
+    const QVariantMap map = var_from(L, index).toMap();
+    for (auto it = map.constBegin(); it != map.constEnd(); ++it)
+      hash.insert(it.key(), it.value());
+    return hash;
+  }
+
+  /**
+   * @brief Pushes a QHash as a Lua table keyed by name.
+   * @param L The Lua state.
+   * @param v The hash to push.
+   */
+  void to(lua_State *L, QHash<QString, QVariant> const &v) {
+    lua_createtable(L, 0, v.size());
+    for (auto it = v.constBegin(); it != v.constEnd(); ++it) {
+      lua_pushstring(L, it.key().toUtf8().constData());
+      var_to(L, it.value());
+      lua_settable(L, -3);
+    }
+  }
+};
+
+/// Lets a @c const @c QHash<QString, QVariant>& use the converter above.
+template <>
+struct default_converter<QHash<QString, QVariant> const &>
+    : default_converter<QHash<QString, QVariant>> {};
 
 /**
  * @brief Defines a converter that carries an integer-like type as a Lua number.

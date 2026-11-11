@@ -7,6 +7,7 @@
  */
 
 #include <QSyntaxHighlighter>
+#include <QRegularExpression>
 
 /**
  * @brief Number of distinct Lua long-bracket levels that are recognised.
@@ -145,9 +146,9 @@ protected:
      * @brief Constructs a rule that does not span blocks.
      */
     HighlightingRule() : blockState(BS_Dummy) {}
-    QRegExp pattern;          ///< Matches the construct, or its opening token.
+    QRegularExpression pattern;          ///< Matches the construct, or its opening token.
     QTextCharFormat format;   ///< Formatting applied to the match.
-    QRegExp endPattern;       ///< Matches the closing token; only meaningful
+    QRegularExpression endPattern;       ///< Matches the closing token; only meaningful
                               ///< for rules that span blocks.
     QString name;             ///< Rule name, recorded in MyTextBlockUserData.
     BlockState blockState;    ///< State to carry over if the construct is still
@@ -222,12 +223,12 @@ private:
                                                ///< indices double as block
                                                ///< states.
 
-  QRegExp commentStartExpression; ///< Opening token of a block comment.
-  QRegExp commentEndExpression;   ///< Closing token of a block comment.
+  QRegularExpression commentStartExpression; ///< Opening token of a block comment.
+  QRegularExpression commentEndExpression;   ///< Closing token of a block comment.
 
-  QRegExp quotationStart; ///< Opening bracket of the long quotation level being
-                          ///< built in the constructor.
-  QRegExp quotationEnd;   ///< Matching closing bracket for #quotationStart.
+  QRegularExpression quotationStart; ///< Opening bracket of the long quotation level being
+                                     ///< built in the constructor.
+  QRegularExpression quotationEnd;   ///< Matching closing bracket for #quotationStart.
 
   QTextCharFormat keywordFormat;           ///< Format for Lua keywords.
   QTextCharFormat classFormat;             ///< Format for Qt-style class names.

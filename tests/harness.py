@@ -8,7 +8,8 @@ Suites (run all of them with no arguments, or name the ones you want):
   unit     tests/NN-*.lua: each must print "N passed, 0 failed" and exit 0.
   api      The Lua API (every bound class, its methods with their overload
            signatures, and its properties) against tests/api/lua-api.txt.
-  smoke    Every demo under demo/ runs a few frames without a Lua error,
+  smoke    Every demo the Demos menu lists (all of demo/ but folders
+           holding .nomenu) runs a few frames without a Lua error,
            crash or hang. Demos already broken are listed, with the reason,
            in tests/smoke/known-failures.txt.
   golden   The demos listed in tests/golden/demos.txt simulate N frames and
@@ -17,7 +18,11 @@ Suites (run all of them with no arguments, or name the ones you want):
            tests/golden/expected/.
   screens  The still scenes in tests/screens/*.lua are opened in the GUI on
            a virtual X screen (Xvfb, Mesa) and the window is compared with
-           tests/screens/expected/*.png.
+           tests/screens/expected/*.png (expected-qt6/ for a Qt 6 build).
+  theory   (only when named) Euler's Gallery's exhibits run as their
+           physics report ran them, and what each prints is checked
+           against the theory it stands for: tests/theory/checks.txt.
+           --slow adds the exhibits that take many minutes.
 
   --update rewrites the expected files of the suites run, from this build:
   do that only for a change in behaviour that is meant, and commit the
@@ -35,6 +40,7 @@ Usage:
 import argparse
 import concurrent.futures
 import difflib
+import hashlib
 import math
 import os
 import re
@@ -47,6 +53,8 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TESTS = os.path.join(ROOT, "tests")
 ALL_SUITES = ["unit", "api", "smoke", "golden", "screens"]
+# Run only when named: they take a while.
+EXTRA_SUITES = ["theory"]
 # The expected files of these hold what one platform produces (C++ type
 # names as GCC's library spells them, Linux settings files, Mesa pixels).
 LINUX_ONLY = ["api", "golden", "screens"]
@@ -114,11 +122,14 @@ def isolated_env(workdir, display=None):
     return env
 
 
-def run_bpp(bpp, args, workdir, timeout, cwd):
+def run_bpp(bpp, args, workdir, timeout, cwd, env=None):
     """Runs bpp with args from directory cwd, its settings, cache and exports
     kept in workdir. (The GUI runs a script from the script's own directory,
-    and demos find their data files from there.)"""
+    and demos find their data files from there.) env: more environment
+    variables for the script."""
+    extra = env or {}
     env = isolated_env(workdir)
+    env.update(extra)
     start = time.time()
     try:
         p = subprocess.run(
@@ -144,7 +155,8 @@ def lua_errors(lines):
         r"std::runtime_error|No matching overload|unable to make cast|"
         r"attempt to (call|index|perform|compare|concatenate)|bad argument #|"
         r"stack traceback|Segmentation fault|Aborted|terminate called|"
-        r"pure virtual method called|ERROR: \w+Sanitizer|: runtime error: )"
+        r"pure virtual method called|ERROR: \w+Sanitizer|WARNING: ThreadSanitizer|"
+        r": runtime error: )"
     )
     return [l for l in lines if pat.search(l)]
 
@@ -284,10 +296,10 @@ def _key_nums(block):
 
 
 def canon_export(scene_dir, home, frames):
-    """Canonical text of an export directory: the scene, the .ini and the
-    given frames, with meshes named by their geometry. Blocks within a file
-    are sorted by their text with the numbers taken out, then by the
-    numbers. Raises ValueError if a file is missing."""
+    """Canonical text of an export directory: the scene, the .ini, the
+    given frames and any sound track, with meshes named by their geometry.
+    Blocks within a file are sorted by their text with the numbers taken
+    out, then by the numbers. Raises ValueError if a file is missing."""
     name = os.path.basename(scene_dir)
     files = [name + ".pov", name + ".ini"] + ["%05d.inc" % f for f in frames]
     meshes = set()
@@ -312,6 +324,14 @@ def canon_export(scene_dir, home, frames):
             out.append(UNBALANCED)
             out.append("")
         out.append("\n\n".join(blocks))
+        out.append("")
+    # the scene's sound track, if it played anything (Viewer::saveWAV); with
+    # SDL's dummy audio driver (isolated_env) it is the same on every machine
+    for fn in sorted(f for f in os.listdir(scene_dir) if f.endswith(".wav")):
+        with open(os.path.join(scene_dir, fn), "rb") as f:
+            data = f.read()
+        out.append("== " + fn)
+        out.append("sound track: %d bytes, md5 %s" % (len(data), hashlib.md5(data).hexdigest()))
         out.append("")
     out.append("== meshes")
     out.append("\n\n".join(sorted(mesh_summary(os.path.join(scene_dir, m + ".inc"))
@@ -409,6 +429,7 @@ class Ctx:
         self.tmp = tempfile.mkdtemp(prefix="bpp-tests-")
         self.atol = a.atol
         self.rtol = a.rtol
+        self.slow = a.slow
 
     def workdir(self, name):
         d = os.path.join(self.tmp, re.sub(r"[^\w.-]", "_", name))
@@ -489,7 +510,10 @@ def suite_api(ctx):
         for l in lines[-10:]:
             print("    " + l)
         return 1
-    got = "\n".join(got) + "\n"
+    # A QVector and a QList reach Lua as the same table, and in Qt 6 they
+    # are one type, which luabind names QList: the Qt 5 and Qt 6 builds
+    # share one expected file.
+    got = "\n".join(got).replace("QVector<", "QList<") + "\n"
     if ctx.update:
         write(API_EXPECTED, got)
         print("  updated %s (%d lines)" % (os.path.relpath(API_EXPECTED, ROOT), got.count("\n")))
@@ -511,8 +535,13 @@ SMOKE_FRAMES = 3
 
 
 def all_demos():
+    """Every .lua under demo/ that the Demos menu lists: a folder holding a
+    file named .nomenu is left out, with everything under it, as there
+    (src/gui.cpp, populateDemoMenu) -- scripts other scripts load, probes,
+    tools."""
     demos = []
-    for d, _, fs in os.walk(os.path.join(ROOT, "demo")):
+    for d, ds, fs in os.walk(os.path.join(ROOT, "demo")):
+        ds[:] = [x for x in ds if not os.path.exists(os.path.join(d, x, ".nomenu"))]
         for f in fs:
             if f.endswith(".lua"):
                 demos.append(os.path.relpath(os.path.join(d, f), ROOT))
@@ -731,9 +760,30 @@ def pinned_fonts(wd):
     return conf
 
 
+def scene_input(scene):
+    """A screen scene's input lines: its "-- xdotool: ..." lines, xdotool
+    commands run in order once the window is up (WIN stands for the
+    window), and its "-- mouse: X Y" line, where in the window the pointer
+    then rests (None: it stays off the window)."""
+    commands, mouse = [], None
+    with open(scene) as f:
+        for line in f:
+            m = re.match(r"--\s*mouse:\s*(\d+)\s+(\d+)\s*$", line)
+            if m:
+                mouse = m.group(1), m.group(2)
+            m = re.match(r"--\s*xdotool:\s*(.+?)\s*$", line)
+            if m:
+                commands.append(m.group(1).split())
+    return commands, mouse
+
+
 def grab(ctx, display, scene, out_png):
     """Opens scene in the GUI, sizes the window, and grabs it to out_png
-    once two grabs a second apart are the same (the scene has loaded)."""
+    once two grabs a second apart are the same (the scene has loaded).
+    A scene's "-- xdotool:" lines are run first (keys, drags, wheel turns);
+    with a "-- mouse:" line the pointer then rests there. For a scene with
+    either, the screen under the window is grabbed, so a tooltip shows
+    too."""
     wd = ctx.workdir("screens-" + os.path.basename(scene))
     env = isolated_env(wd, display)
     fonts = pinned_fonts(wd)
@@ -756,14 +806,33 @@ def grab(ctx, display, scene, out_png):
         subprocess.run(["xdotool", "windowmove", win, "0", "0",
                         "windowsize", win, str(SCREEN_SIZE[0]), str(SCREEN_SIZE[1])], env=env)
         time.sleep(SCREEN_SETTLE)
+        commands, mouse = scene_input(scene)
+        for c in commands:
+            subprocess.run(["xdotool"] + [win if a == "WIN" else a for a in c], env=env)
+            time.sleep(0.3)   # (Qt sees each before the next)
+        if mouse:
+            subprocess.run(["xdotool", "mousemove", "--window", win] + list(mouse), env=env)
+        if p.poll() is not None:
+            how = ("crashed (signal %d)" % -p.returncode if p.returncode < 0
+                   else "exited (code %d)" % p.returncode)
+            return "bpp %s while the scene's input ran (see %s)" % (how, log.name)
+        if commands or mouse:
+            # the window at the screen's corner (windowmove above)
+            r = subprocess.run(["xdotool", "getwindowgeometry", "--shell", win], env=env,
+                               stdout=subprocess.PIPE, check=True)
+            g = dict(l.split("=", 1) for l in r.stdout.decode().split())
+            what = ["-window", "root", "-crop", "%sx%s+%s+%s" % (g["WIDTH"], g["HEIGHT"], g["X"], g["Y"]),
+                    "+repage"]  # (not the screen's size and place, as a window grab)
+        else:
+            what = ["-window", win]
         prev = os.path.join(wd, "prev.png")
         deadline = time.time() + SCREEN_WAIT
-        subprocess.run(["import", "-window", win, prev], env=env, check=True)
+        subprocess.run(["import"] + what + [prev], env=env, check=True)
         while True:
             time.sleep(1)
             if p.poll() is not None:
                 return "bpp exited early (see %s)" % log.name
-            subprocess.run(["import", "-window", win, out_png], env=env, check=True)
+            subprocess.run(["import"] + what + [out_png], env=env, check=True)
             if image_diff(prev, out_png, None, fuzz="0%") == 0:
                 return None
             if time.time() > deadline:
@@ -802,8 +871,14 @@ def diff_region(expected, got):
     crop = "[%dx%d+0+0]" % (w, h - STATUS_BAR)
     r = subprocess.run(["convert", expected + crop, got + crop, "-compose", "difference",
                         "-composite", "-colorspace", "gray", "-threshold", SCREEN_FUZZ,
-                        "-trim", "-format", "%@", "info:"], stdout=subprocess.PIPE)
+                        "-format", "%@", "info:"], stdout=subprocess.PIPE)
     return r.stdout.decode().strip()
+
+
+def qt_major(bpp):
+    """The Qt version bpp is built with, 5 or 6, from the library it links."""
+    r = subprocess.run(["ldd", bpp], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    return 6 if b"libQt6Core" in r.stdout else 5
 
 
 def suite_screens(ctx):
@@ -811,13 +886,16 @@ def suite_screens(ctx):
     if missing:
         print("  FAIL missing tools: %s (apt install xvfb xdotool imagemagick)" % " ".join(missing))
         return 1
+    # Qt 6 draws the menus, toolbar and docks in other sizes, so the 3D view
+    # sits elsewhere: its build has its own expected images.
+    expected_dir = os.path.join(SCREENS, "expected" if qt_major(ctx.bpp) == 5 else "expected-qt6")
     scenes = ctx.selected(sorted(f for f in os.listdir(SCREENS) if f.endswith(".lua")))
     xvfb, display = start_xvfb()
     failed = 0
     try:
         for s in scenes:  # one at a time: they share the screen
             name = s[:-4]
-            expected = os.path.join(SCREENS, "expected", name + ".png")
+            expected = os.path.join(expected_dir, name + ".png")
             got = os.path.join(ctx.tmp, "screens-" + name + ".png")
             err = grab(ctx, display, os.path.join(SCREENS, s), got)
             if err:
@@ -856,12 +934,147 @@ def suite_screens(ctx):
 # --------------------------------------------------------------------------
 
 
+# -- theory ----------------------------------------------------------------
+
+THEORY_CHECKS = os.path.join(TESTS, "theory", "checks.txt")
+GALLERY = os.path.join(ROOT, "demo", "WyomingWill", "EulersGallery", "exhibits")
+NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?"
+EXPECT = re.compile(r"^(?P<pat>.*?)(?:\s+=\s*(?P<val>%s))?(?:\s+~\s*(?P<tol>%s%%?))?"
+                    r"(?:\s+x(?P<n>\d+))?\s*$" % (NUMBER, NUMBER))
+
+
+class TheoryCheck:
+    """One expect: line. Its pattern is the text of a line the exhibit
+    prints, with {sim} for the simulation's number, {theory} for theory's
+    when the line gives it (or "= VALUE" after the pattern), {} for any
+    other number and {*} for any text; runs of spaces match any spacing.
+    "~ TOL" is how far sim may be from theory: "0.05%" of theory, or "0.2"
+    as it is. "xN": at least N lines must match (default 1). With no
+    {sim}, the line need only be there."""
+
+    def __init__(self, text, where):
+        m = EXPECT.match(text)
+        self.text, self.where = text, where
+        pat = m.group("pat").strip()
+        self.value = float(m.group("val")) if m.group("val") else None
+        tol = m.group("tol")
+        self.rel = tol.endswith("%") if tol else False
+        self.tol = float(tol.rstrip("%")) if tol else None
+        self.count = int(m.group("n") or 1)
+        parts = re.split(r"(\{sim\}|\{theory\}|\{\}|\{\*\}|\s+)", pat)
+        rx = ""
+        for p in parts:
+            if p == "{sim}":
+                rx += "(?P<sim>%s)" % NUMBER
+            elif p == "{theory}":
+                rx += "(?P<theory>%s)" % NUMBER
+            elif p == "{}":
+                rx += NUMBER
+            elif p == "{*}":
+                rx += ".*?"
+            elif p and p.isspace():
+                rx += r"\s+"
+            else:
+                rx += re.escape(p)
+        self.rx = re.compile(rx)
+        self.has_sim = "{sim}" in pat
+        if self.has_sim and ("{theory}" not in pat) == (self.value is None):
+            raise ValueError("%s: give theory as {theory} or = VALUE, one of them" % where)
+        if self.has_sim and self.tol is None:
+            raise ValueError("%s: a check with {sim} needs ~ TOL" % where)
+
+    def check(self, lines):
+        """Problems found in an exhibit's output (empty: passed)."""
+        found = [m for m in (self.rx.search(l) for l in lines) if m]
+        why = []
+        if len(found) < self.count:
+            why.append("%s: %d line(s) like '%s', wanted %d" %
+                       (self.where, len(found), self.text, self.count))
+        if self.has_sim:
+            for m in found:
+                sim = float(m.group("sim"))
+                theory = float(m.group("theory")) if self.value is None else self.value
+                off = abs(sim - theory)
+                allowed = self.tol * abs(theory) / 100 if self.rel else self.tol
+                if off > allowed:
+                    why.append("%s: %s is %g, theory %g: off by %.3g%s (allowed %s%s)" %
+                               (self.where, m.group(0).strip()[:60], sim, theory,
+                                100 * off / abs(theory) if self.rel and theory else off,
+                                "%" if self.rel else "", self.tol, "%" if self.rel else ""))
+        return why
+
+
+def theory_exhibits(path=THEORY_CHECKS):
+    """The [Exhibit] blocks of the checks file: name, script, frames, env,
+    slow, and their TheoryChecks."""
+    out, cur = [], None
+    for n, raw in enumerate(read(path).splitlines(), 1):
+        line = raw.strip()
+        where = "checks.txt:%d" % n
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            cur = dict(name=line[1:-1], script=None, frames=None, env={}, slow=False, checks=[])
+            out.append(cur)
+        elif cur is None:
+            raise ValueError("%s: before the first [Exhibit]" % where)
+        elif line.startswith("run:"):
+            m = re.match(r"run:\s*(\S+)\s+-n\s+(\d+)$", line)
+            if not m:
+                raise ValueError("%s: run: SCRIPT -n FRAMES" % where)
+            cur["script"], cur["frames"] = m.group(1), m.group(2)
+        elif line.startswith("env:"):
+            for kv in line[4:].split():
+                k, v = kv.split("=", 1)
+                cur["env"][k] = v
+        elif line == "slow":
+            cur["slow"] = True
+        elif line.startswith("expect:"):
+            cur["checks"].append(TheoryCheck(line[7:].strip(), where))
+        else:
+            raise ValueError("%s: not run:, env:, slow or expect:" % where)
+    return out
+
+
+def suite_theory(ctx):
+    exhibits = [e for e in theory_exhibits() if ctx.selected([e["name"]])]
+    skipped = [e["name"] for e in exhibits if e["slow"] and not ctx.slow]
+    exhibits = [e for e in exhibits if not (e["slow"] and not ctx.slow)]
+
+    def one(e):
+        r = run_bpp(ctx.bpp, ["-f", e["script"], "-n", e["frames"]],
+                    ctx.workdir("theory-" + e["name"]), 3600,
+                    os.path.join(GALLERY, e["name"]), env=e["env"])
+        lines = r.lines()
+        why = []
+        if r.timed_out:
+            why.append("timed out")
+        elif r.rc != 0:
+            why.append("exit code %s" % r.rc)
+        why += lua_errors(lines)[:5]
+        for c in e["checks"]:
+            why += c.check(lines)
+        return e, why, r.seconds
+
+    failed = 0
+    for e, why, secs in pmap(ctx, one, exhibits):
+        print("  %-4s %-16s %6.0fs  %d checks" % ("ok" if not why else "FAIL", e["name"], secs,
+                                                 len(e["checks"])), flush=True)
+        for w in why[:12]:
+            print("         " + w)
+        failed += bool(why)
+    if skipped:
+        print("  (slow, left out without --slow: %s)" % ", ".join(skipped))
+    return failed
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  epilog=__doc__.split("\n\n", 1)[1])
     ap.add_argument("suites", nargs="*", metavar="suite",
-                    help="any of: " + " ".join(ALL_SUITES) + " (default: all)")
+                    help="any of: " + " ".join(ALL_SUITES + EXTRA_SUITES) +
+                         " (default: all but " + " ".join(EXTRA_SUITES) + ")")
     ap.add_argument("--bpp", default=os.path.join(ROOT, "release", "bpp"),
                     help="bpp binary to test (default: release/bpp)")
     ap.add_argument("--baseline", metavar="BPP",
@@ -877,10 +1090,13 @@ def main():
                          "same platform runs match exactly, so this only absorbs "
                          "a last digit)")
     ap.add_argument("--keep", action="store_true", help="keep the temporary directories")
+    ap.add_argument("--slow", action="store_true",
+                    help="theory: also the exhibits marked slow")
     a = ap.parse_args()
-    unknown = [s for s in a.suites if s not in ALL_SUITES]
+    unknown = [s for s in a.suites if s not in ALL_SUITES + EXTRA_SUITES]
     if unknown:
-        ap.error("unknown suite %s (choose from %s)" % (", ".join(unknown), ", ".join(ALL_SUITES)))
+        ap.error("unknown suite %s (choose from %s)" % (", ".join(unknown),
+                 ", ".join(ALL_SUITES + EXTRA_SUITES)))
     if a.update and a.baseline:
         ap.error("--update and --baseline do not go together")
     if not os.access(a.bpp, os.X_OK):
@@ -891,7 +1107,7 @@ def main():
     ctx = Ctx(a)
     suites = a.suites or ALL_SUITES
     total, start = 0, time.time()
-    for s in ALL_SUITES:
+    for s in ALL_SUITES + EXTRA_SUITES:
         if s not in suites:
             continue
         print("== %s" % s, flush=True)

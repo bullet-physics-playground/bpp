@@ -15,9 +15,10 @@ tests/harness.py golden -k constraint   # one suite, only matching tests
 |-----------|----------------|----------------|
 | `unit`    | `tests/NN-*.lua` each print `N passed, 0 failed` and exit 0 | in the tests |
 | `api`     | Every Lua class, property and method overload scripts can use | `api/lua-api.txt` |
-| `smoke`   | Every demo under `demo/` loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
+| `smoke`   | Every demo the Demos menu lists loads and runs 3 frames: no Lua error, crash or hang | `smoke/known-failures.txt` |
 | `golden`  | The demos in `golden/demos.txt` simulate 40 frames; in the POV-Ray export (frames 1, 20, 40), every object's transform, the camera, the scene text and each mesh's geometry match | `golden/expected/` |
-| `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png` |
+| `screens` | Still scenes in `screens/*.lua`, opened in the GUI on a virtual screen, match pixel for pixel (outside the frame counter) | `screens/expected/*.png`, `screens/expected-qt6/` for a Qt 6 build |
+| `theory`  | Only when named. Euler's Gallery's exhibits, run as their physics report ran them; what each prints agrees with the theory it stands for, within a tolerance (`--slow` adds the two that take many minutes) | `theory/checks.txt` |
 
 Every bpp run gets its own empty HOME, settings, mesh cache and export
 directory, so your preferences never affect a result. Demos run from their
@@ -45,6 +46,11 @@ suite; a listed demo that starts working is reported, so the list can
 shrink. A line whose reason starts with `skip` is not run at all: for
 scripts that write files next to themselves or run for minutes. (The smoke
 and golden suites fail if a run leaves new files under `demo/`.)
+
+A folder holding an empty file named `.nomenu` is not run at all, as the
+Demos menu leaves it out: the place for scripts other scripts load,
+probes and tools, which can't run on their own. Put such a script in one
+rather than listing it here.
 
 The `api` suite matters more than it looks: bpp accepts any property name
 a script sets (`cube.colr = "red"` is not an error, it does nothing), so a
@@ -79,6 +85,69 @@ UBSAN_OPTIONS=print_stacktrace=1:suppressions=$PWD/tests/sanitizers/ubsan.supp \
 reason bpp.pro builds debug with `-fno-sanitize=alignment`).
 `08-remove.lua` is left out because it measures memory, which the
 sanitizer holds on to.
+
+## The threaded build
+
+The CI builds the threaded version too (Bullet 3.24 with threads, see
+THREADS.md) and runs the unit, api and golden suites on it;
+`22-threads.lua` checks that a scene run with four threads comes out the
+same, to the last digit, as without (on the default build it only checks
+that `setThreads` has no threads to give). And it builds that version with
+ThreadSanitizer, Bullet included, and runs the unit suite:
+
+```sh
+CFLAGS=-fsanitize=thread CXXFLAGS=-fsanitize=thread scripts/bullet-threads.sh
+qmake CONFIG+=release CONFIG+=bundled_bullet "QMAKE_CXXFLAGS+=-fsanitize=thread -g" "QMAKE_LFLAGS+=-fsanitize=thread"
+rm -rf release/bpp release/bpp.gch && make -j release
+TSAN_OPTIONS="suppressions=$PWD/tests/sanitizers/tsan.supp history_size=4" tests/harness.py unit
+```
+
+`sanitizers/tsan.supp` leaves out Bullet's own thread pool (it hands out
+work with plain flags), its statistics counter, and PulseAudio's thread;
+each entry says why. They match only where the pool's own code makes the
+access, so a race in bpp's code that the pool runs is still reported
+(checked with one planted in `bppworld.cpp`).
+
+## Screen scenes
+
+A scene in `screens/` can work the GUI before it is grabbed. Lines
+`-- xdotool: ...` are xdotool commands, run in order once the window is up,
+with `WIN` for the window: keys, clicks, drags, wheel turns
+(`quadview.lua`). A line `-- mouse: X Y` (window coordinates) then rests
+the pointer there (`hover.lua`). For such a scene the screen under the
+window is grabbed, so a tooltip shows in the picture.
+
+## Qt 5 and Qt 6
+
+bpp builds with either (`qmake` for Qt 5, `qmake6` for Qt 6). The CI's
+jobs build with Qt 5, as Ubuntu 22.04 and 24.04 do; `test-qt6` builds
+with Qt 6, against libQGLViewer built from source, and runs the unit, api,
+golden and screens suites. The first three use the same expected files as
+Qt 5 (the API listing names a `QVector` `QList`, as Qt 6 does). Qt 6 lays
+the window out otherwise, so its screenshots are in `screens/expected-qt6/`,
+which the harness picks when the bpp it tests links Qt 6; `--update
+screens` with a Qt 6 build writes there.
+
+## Euler's Gallery against theory
+
+`theory/checks.txt` turns the checks of the gallery's physics-fidelity
+report (`demo/WyomingWill/EulersGallery/report/dossiers/`) into tests. Each
+exhibit runs as its dossier's "Run used" did, and the numbers it prints are
+compared with theory: the value it prints beside them, or the dossier's.
+A tolerance is a few times the agreement the report found, so a change in
+the physics fails while another machine's rounding does not; comments give
+each one's reason, and the rows that can't be checked from the console
+(CSV logs, other settings, sums by hand) are listed as "not checked here".
+
+```sh
+tests/harness.py theory                  # 19 exhibits, about 6 minutes on 4 cores
+tests/harness.py --slow theory           # all 21 (the Brazil nut takes 17 minutes)
+tests/harness.py theory -k GalileoRamp   # one exhibit
+```
+
+The CI runs the 19 on every push, and all 21 once a week. When an exhibit
+changes on purpose, re-run its dossier's checks and update both the dossier
+and its block.
 
 ## What makes a golden demo
 

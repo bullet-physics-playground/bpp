@@ -1,6 +1,7 @@
 # Stage 2: top 2 configurations per linkage (waves) on random, logs and steps.
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import os, sys, json
-D = "/home/claude/work/fac5"
+D = WORK + "/fac5"
 src = open(f"{D}/run.py").read()
 exec(src.split("pool = ThreadPoolExecutor")[0])   # configs, run, speed
 from concurrent.futures import ThreadPoolExecutor

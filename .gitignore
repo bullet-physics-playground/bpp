@@ -17,7 +17,7 @@ Makefile.clang.Release
 Makefile.clang.debug
 Makefile.clang.debug.Debug
 Makefile.clang.debug.Release
-lib
+/lib
 
 .classpath
 .project

@@ -10,16 +10,17 @@
 #
 # Resumable: finished runs are skipped. 2 runs at once (2 CPUs).
 # Lines written: <terrain>|TRACK ...|TILT ...
+import os; WORK = os.environ.get("WORK", "/tmp/walker-work")   # (the runs' outputs: the sweeps, run by the .sh files here)
 import json, os, re, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
-ROOM = "/home/claude/bpp/demo/WyomingWill/WalkerRoom"
-BPP = "/home/claude/build/release/bpp"
-PROBE = "/home/claude/work/tiltprobe.lua"     # test-track.lua plus a TILT line (largest pitch and roll)
-D = "/home/claude/work/fac7"
+ROOM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../..")   # (the WalkerRoom folder)
+BPP = "../../../release/bpp"
+PROBE = "handover/tools/tiltprobe.lua"     # test-track.lua plus a TILT line (largest pitch and roll)
+D = WORK + "/fac7"
 os.makedirs(D, exist_ok=True)
 EARTH = ["GRAVITY=981", "FIXED=1/3840", "YAW_DAMP=1", "ANKLE_SPRING={stiffness=42000, damping=4200}"]
-HL = 'dofile("spears-lift-walkers.lua")'
-TW = 'dofile("trotting-walkers.lua")'
+HL = 'dofile("lib/spears-lift-walkers.lua")'
+TW = 'dofile("lib/trotting-walkers.lua")'
 
 # Leg order in GAIT: side A leg 1, side A leg 2, side B leg 1, side B leg 2.
 TROT = (0, 180, 180, 0)

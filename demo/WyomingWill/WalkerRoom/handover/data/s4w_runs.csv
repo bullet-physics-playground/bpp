@@ -1,0 +1,991 @@
+walker,direction,terrain,height,seed,speed
+Chebyshev-Spears diag,forward,logs,3,1,8.379
+Chebyshev-Spears diag,forward,logs,3,2,8.574
+Chebyshev-Spears diag,forward,logs,3,3,8.546
+Chebyshev-Spears diag,forward,logs,3,4,8.185
+Chebyshev-Spears diag,forward,logs,3,5,8.395
+Chebyshev-Spears diag,forward,logs,5,1,6.490
+Chebyshev-Spears diag,forward,logs,5,2,7.539
+Chebyshev-Spears diag,forward,logs,5,3,7.524
+Chebyshev-Spears diag,forward,logs,5,4,7.053
+Chebyshev-Spears diag,forward,logs,5,5,6.767
+Chebyshev-Spears diag,forward,logs,7,1,-0.327
+Chebyshev-Spears diag,forward,logs,7,2,4.511
+Chebyshev-Spears diag,forward,logs,7,3,4.530
+Chebyshev-Spears diag,forward,logs,7,4,4.583
+Chebyshev-Spears diag,forward,logs,7,5,2.731
+Chebyshev-Spears diag,forward,steps,3,1,8.701
+Chebyshev-Spears diag,forward,steps,3,2,8.618
+Chebyshev-Spears diag,forward,steps,3,3,8.469
+Chebyshev-Spears diag,forward,steps,3,4,8.537
+Chebyshev-Spears diag,forward,steps,3,5,8.597
+Chebyshev-Spears diag,forward,steps,5,1,8.077
+Chebyshev-Spears diag,forward,steps,5,2,7.795
+Chebyshev-Spears diag,forward,steps,5,3,7.817
+Chebyshev-Spears diag,forward,steps,5,4,7.694
+Chebyshev-Spears diag,forward,steps,5,5,8.028
+Chebyshev-Spears diag,forward,steps,7,1,5.284
+Chebyshev-Spears diag,forward,steps,7,2,7.345
+Chebyshev-Spears diag,forward,steps,7,3,5.569
+Chebyshev-Spears diag,forward,steps,7,4,5.418
+Chebyshev-Spears diag,forward,steps,7,5,6.645
+Chebyshev-Spears diag,forward,waves,2,1,8.621
+Chebyshev-Spears diag,forward,waves,2,2,8.559
+Chebyshev-Spears diag,forward,waves,2,3,8.173
+Chebyshev-Spears diag,forward,waves,2,4,8.294
+Chebyshev-Spears diag,forward,waves,2,5,8.214
+Chebyshev-Spears diag,forward,waves,4,1,7.622
+Chebyshev-Spears diag,forward,waves,4,2,7.522
+Chebyshev-Spears diag,forward,waves,4,3,7.481
+Chebyshev-Spears diag,forward,waves,4,4,7.545
+Chebyshev-Spears diag,forward,waves,4,5,7.137
+Chebyshev-Spears diag,forward,waves,6,1,5.031
+Chebyshev-Spears diag,forward,waves,6,2,5.732
+Chebyshev-Spears diag,forward,waves,6,3,5.639
+Chebyshev-Spears diag,forward,waves,6,4,6.541
+Chebyshev-Spears diag,forward,waves,6,5,5.827
+Chebyshev-Spears lift 51 diag,forward,logs,3,1,8.888
+Chebyshev-Spears lift 51 diag,forward,logs,3,2,8.614
+Chebyshev-Spears lift 51 diag,forward,logs,3,3,8.750
+Chebyshev-Spears lift 51 diag,forward,logs,3,4,8.552
+Chebyshev-Spears lift 51 diag,forward,logs,3,5,8.626
+Chebyshev-Spears lift 51 diag,forward,logs,5,1,8.531
+Chebyshev-Spears lift 51 diag,forward,logs,5,2,8.127
+Chebyshev-Spears lift 51 diag,forward,logs,5,3,8.251
+Chebyshev-Spears lift 51 diag,forward,logs,5,4,8.377
+Chebyshev-Spears lift 51 diag,forward,logs,5,5,8.425
+Chebyshev-Spears lift 51 diag,forward,logs,7,1,6.910
+Chebyshev-Spears lift 51 diag,forward,logs,7,2,6.777
+Chebyshev-Spears lift 51 diag,forward,logs,7,3,6.789
+Chebyshev-Spears lift 51 diag,forward,logs,7,4,7.624
+Chebyshev-Spears lift 51 diag,forward,logs,7,5,6.749
+Chebyshev-Spears lift 51 diag,forward,steps,3,1,8.833
+Chebyshev-Spears lift 51 diag,forward,steps,3,2,8.732
+Chebyshev-Spears lift 51 diag,forward,steps,3,3,8.978
+Chebyshev-Spears lift 51 diag,forward,steps,3,4,8.720
+Chebyshev-Spears lift 51 diag,forward,steps,3,5,8.825
+Chebyshev-Spears lift 51 diag,forward,steps,5,1,8.454
+Chebyshev-Spears lift 51 diag,forward,steps,5,2,8.665
+Chebyshev-Spears lift 51 diag,forward,steps,5,3,8.763
+Chebyshev-Spears lift 51 diag,forward,steps,5,4,8.354
+Chebyshev-Spears lift 51 diag,forward,steps,5,5,8.278
+Chebyshev-Spears lift 51 diag,forward,steps,7,1,7.880
+Chebyshev-Spears lift 51 diag,forward,steps,7,2,7.124
+Chebyshev-Spears lift 51 diag,forward,steps,7,3,7.302
+Chebyshev-Spears lift 51 diag,forward,steps,7,4,8.024
+Chebyshev-Spears lift 51 diag,forward,steps,7,5,8.361
+Chebyshev-Spears lift 51 diag,forward,waves,2,1,8.596
+Chebyshev-Spears lift 51 diag,forward,waves,2,2,8.551
+Chebyshev-Spears lift 51 diag,forward,waves,2,3,8.496
+Chebyshev-Spears lift 51 diag,forward,waves,2,4,7.449
+Chebyshev-Spears lift 51 diag,forward,waves,2,5,7.385
+Chebyshev-Spears lift 51 diag,forward,waves,4,1,6.606
+Chebyshev-Spears lift 51 diag,forward,waves,4,2,7.038
+Chebyshev-Spears lift 51 diag,forward,waves,4,3,7.039
+Chebyshev-Spears lift 51 diag,forward,waves,4,4,6.340
+Chebyshev-Spears lift 51 diag,forward,waves,4,5,7.793
+Chebyshev-Spears lift 51 diag,forward,waves,6,1,6.192
+Chebyshev-Spears lift 51 diag,forward,waves,6,2,6.114
+Chebyshev-Spears lift 51 diag,forward,waves,6,3,6.408
+Chebyshev-Spears lift 51 diag,forward,waves,6,4,3.988
+Chebyshev-Spears lift 51 diag,forward,waves,6,5,5.452
+Chebyshev-Spears lift 62 diag,forward,logs,3,1,7.293
+Chebyshev-Spears lift 62 diag,forward,logs,3,2,7.843
+Chebyshev-Spears lift 62 diag,forward,logs,3,3,8.075
+Chebyshev-Spears lift 62 diag,forward,logs,3,4,8.063
+Chebyshev-Spears lift 62 diag,forward,logs,3,5,8.255
+Chebyshev-Spears lift 62 diag,forward,logs,5,1,7.952
+Chebyshev-Spears lift 62 diag,forward,logs,5,2,7.822
+Chebyshev-Spears lift 62 diag,forward,logs,5,3,6.880
+Chebyshev-Spears lift 62 diag,forward,logs,5,4,7.903
+Chebyshev-Spears lift 62 diag,forward,logs,5,5,8.208
+Chebyshev-Spears lift 62 diag,forward,logs,7,1,6.196
+Chebyshev-Spears lift 62 diag,forward,logs,7,2,2.134
+Chebyshev-Spears lift 62 diag,forward,logs,7,3,6.146
+Chebyshev-Spears lift 62 diag,forward,logs,7,4,7.138
+Chebyshev-Spears lift 62 diag,forward,logs,7,5,6.527
+Chebyshev-Spears lift 62 diag,forward,steps,3,1,8.363
+Chebyshev-Spears lift 62 diag,forward,steps,3,2,8.274
+Chebyshev-Spears lift 62 diag,forward,steps,3,3,8.768
+Chebyshev-Spears lift 62 diag,forward,steps,3,4,8.721
+Chebyshev-Spears lift 62 diag,forward,steps,3,5,8.330
+Chebyshev-Spears lift 62 diag,forward,steps,5,1,8.031
+Chebyshev-Spears lift 62 diag,forward,steps,5,2,7.399
+Chebyshev-Spears lift 62 diag,forward,steps,5,3,7.839
+Chebyshev-Spears lift 62 diag,forward,steps,5,4,6.581
+Chebyshev-Spears lift 62 diag,forward,steps,5,5,7.464
+Chebyshev-Spears lift 62 diag,forward,steps,7,1,7.556
+Chebyshev-Spears lift 62 diag,forward,steps,7,2,7.573
+Chebyshev-Spears lift 62 diag,forward,steps,7,3,7.323
+Chebyshev-Spears lift 62 diag,forward,steps,7,4,7.531
+Chebyshev-Spears lift 62 diag,forward,steps,7,5,7.366
+Chebyshev-Spears lift 62 diag,forward,waves,2,1,8.134
+Chebyshev-Spears lift 62 diag,forward,waves,2,2,7.911
+Chebyshev-Spears lift 62 diag,forward,waves,2,3,7.912
+Chebyshev-Spears lift 62 diag,forward,waves,2,4,8.378
+Chebyshev-Spears lift 62 diag,forward,waves,2,5,8.105
+Chebyshev-Spears lift 62 diag,forward,waves,4,1,6.823
+Chebyshev-Spears lift 62 diag,forward,waves,4,2,5.053
+Chebyshev-Spears lift 62 diag,forward,waves,4,3,4.272
+Chebyshev-Spears lift 62 diag,forward,waves,4,4,6.345
+Chebyshev-Spears lift 62 diag,forward,waves,4,5,5.339
+Chebyshev-Spears lift 62 diag,forward,waves,6,1,3.529
+Chebyshev-Spears lift 62 diag,forward,waves,6,2,4.883
+Chebyshev-Spears lift 62 diag,forward,waves,6,3,3.492
+Chebyshev-Spears lift 62 diag,forward,waves,6,4,6.090
+Chebyshev-Spears lift 62 diag,forward,waves,6,5,6.278
+Chebyshev diag,forward,logs,3,1,6.758
+Chebyshev diag,forward,logs,3,2,6.435
+Chebyshev diag,forward,logs,3,3,7.091
+Chebyshev diag,forward,logs,3,4,7.369
+Chebyshev diag,forward,logs,3,5,7.085
+Chebyshev diag,forward,logs,5,1,4.712
+Chebyshev diag,forward,logs,5,2,2.075
+Chebyshev diag,forward,logs,5,3,3.849
+Chebyshev diag,forward,logs,5,4,4.044
+Chebyshev diag,forward,logs,5,5,3.784
+Chebyshev diag,forward,logs,7,1,-0.285
+Chebyshev diag,forward,logs,7,2,-0.307
+Chebyshev diag,forward,logs,7,3,-0.327
+Chebyshev diag,forward,logs,7,4,-0.397
+Chebyshev diag,forward,logs,7,5,-0.098
+Chebyshev diag,forward,steps,3,1,7.377
+Chebyshev diag,forward,steps,3,2,7.406
+Chebyshev diag,forward,steps,3,3,6.907
+Chebyshev diag,forward,steps,3,4,7.203
+Chebyshev diag,forward,steps,3,5,7.337
+Chebyshev diag,forward,steps,5,1,5.537
+Chebyshev diag,forward,steps,5,2,6.514
+Chebyshev diag,forward,steps,5,3,5.365
+Chebyshev diag,forward,steps,5,4,7.058
+Chebyshev diag,forward,steps,5,5,1.350
+Chebyshev diag,forward,steps,7,1,-0.023
+Chebyshev diag,forward,steps,7,2,2.072
+Chebyshev diag,forward,steps,7,3,0.083
+Chebyshev diag,forward,steps,7,4,3.722
+Chebyshev diag,forward,steps,7,5,1.252
+Chebyshev diag,forward,waves,2,1,7.677
+Chebyshev diag,forward,waves,2,2,7.750
+Chebyshev diag,forward,waves,2,3,7.663
+Chebyshev diag,forward,waves,2,4,7.686
+Chebyshev diag,forward,waves,2,5,7.699
+Chebyshev diag,forward,waves,4,1,6.789
+Chebyshev diag,forward,waves,4,2,6.143
+Chebyshev diag,forward,waves,4,3,5.593
+Chebyshev diag,forward,waves,4,4,6.380
+Chebyshev diag,forward,waves,4,5,6.897
+Chebyshev diag,forward,waves,6,1,1.618
+Chebyshev diag,forward,waves,6,2,2.157
+Chebyshev diag,forward,waves,6,3,1.074
+Chebyshev diag,forward,waves,6,4,3.430
+Chebyshev diag,forward,waves,6,5,3.073
+Hoecken-Spears 4-bar diag,forward,logs,3,1,8.443
+Hoecken-Spears 4-bar diag,forward,logs,3,2,8.296
+Hoecken-Spears 4-bar diag,forward,logs,3,3,8.269
+Hoecken-Spears 4-bar diag,forward,logs,3,4,8.607
+Hoecken-Spears 4-bar diag,forward,logs,3,5,8.629
+Hoecken-Spears 4-bar diag,forward,logs,5,1,6.782
+Hoecken-Spears 4-bar diag,forward,logs,5,2,6.370
+Hoecken-Spears 4-bar diag,forward,logs,5,3,6.860
+Hoecken-Spears 4-bar diag,forward,logs,5,4,7.863
+Hoecken-Spears 4-bar diag,forward,logs,5,5,7.261
+Hoecken-Spears 4-bar diag,forward,logs,7,1,3.440
+Hoecken-Spears 4-bar diag,forward,logs,7,2,4.347
+Hoecken-Spears 4-bar diag,forward,logs,7,3,6.283
+Hoecken-Spears 4-bar diag,forward,logs,7,4,4.229
+Hoecken-Spears 4-bar diag,forward,logs,7,5,0.043
+Hoecken-Spears 4-bar diag,forward,steps,3,1,8.417
+Hoecken-Spears 4-bar diag,forward,steps,3,2,8.453
+Hoecken-Spears 4-bar diag,forward,steps,3,3,8.441
+Hoecken-Spears 4-bar diag,forward,steps,3,4,8.507
+Hoecken-Spears 4-bar diag,forward,steps,3,5,8.408
+Hoecken-Spears 4-bar diag,forward,steps,5,1,8.197
+Hoecken-Spears 4-bar diag,forward,steps,5,2,8.064
+Hoecken-Spears 4-bar diag,forward,steps,5,3,7.662
+Hoecken-Spears 4-bar diag,forward,steps,5,4,7.945
+Hoecken-Spears 4-bar diag,forward,steps,5,5,7.507
+Hoecken-Spears 4-bar diag,forward,steps,7,1,2.676
+Hoecken-Spears 4-bar diag,forward,steps,7,2,7.276
+Hoecken-Spears 4-bar diag,forward,steps,7,3,5.518
+Hoecken-Spears 4-bar diag,forward,steps,7,4,5.684
+Hoecken-Spears 4-bar diag,forward,steps,7,5,7.112
+Hoecken-Spears 4-bar diag,forward,waves,2,1,8.001
+Hoecken-Spears 4-bar diag,forward,waves,2,2,8.746
+Hoecken-Spears 4-bar diag,forward,waves,2,3,8.327
+Hoecken-Spears 4-bar diag,forward,waves,2,4,7.681
+Hoecken-Spears 4-bar diag,forward,waves,2,5,8.279
+Hoecken-Spears 4-bar diag,forward,waves,4,1,7.584
+Hoecken-Spears 4-bar diag,forward,waves,4,2,7.249
+Hoecken-Spears 4-bar diag,forward,waves,4,3,7.354
+Hoecken-Spears 4-bar diag,forward,waves,4,4,8.129
+Hoecken-Spears 4-bar diag,forward,waves,4,5,6.643
+Hoecken-Spears 4-bar diag,forward,waves,6,1,5.362
+Hoecken-Spears 4-bar diag,forward,waves,6,2,5.965
+Hoecken-Spears 4-bar diag,forward,waves,6,3,3.439
+Hoecken-Spears 4-bar diag,forward,waves,6,4,5.361
+Hoecken-Spears 4-bar diag,forward,waves,6,5,4.315
+Hoecken-Spears slider diag,forward,logs,3,1,8.546
+Hoecken-Spears slider diag,forward,logs,3,2,8.248
+Hoecken-Spears slider diag,forward,logs,3,3,8.336
+Hoecken-Spears slider diag,forward,logs,3,4,8.238
+Hoecken-Spears slider diag,forward,logs,3,5,8.252
+Hoecken-Spears slider diag,forward,logs,5,1,2.576
+Hoecken-Spears slider diag,forward,logs,5,2,6.623
+Hoecken-Spears slider diag,forward,logs,5,3,7.398
+Hoecken-Spears slider diag,forward,logs,5,4,7.182
+Hoecken-Spears slider diag,forward,logs,5,5,7.639
+Hoecken-Spears slider diag,forward,logs,7,1,1.953
+Hoecken-Spears slider diag,forward,logs,7,2,0.204
+Hoecken-Spears slider diag,forward,logs,7,3,1.884
+Hoecken-Spears slider diag,forward,logs,7,4,2.491
+Hoecken-Spears slider diag,forward,logs,7,5,0.236
+Hoecken-Spears slider diag,forward,steps,3,1,8.484
+Hoecken-Spears slider diag,forward,steps,3,2,8.582
+Hoecken-Spears slider diag,forward,steps,3,3,8.355
+Hoecken-Spears slider diag,forward,steps,3,4,8.455
+Hoecken-Spears slider diag,forward,steps,3,5,8.621
+Hoecken-Spears slider diag,forward,steps,5,1,8.009
+Hoecken-Spears slider diag,forward,steps,5,2,7.873
+Hoecken-Spears slider diag,forward,steps,5,3,7.206
+Hoecken-Spears slider diag,forward,steps,5,4,7.984
+Hoecken-Spears slider diag,forward,steps,5,5,7.869
+Hoecken-Spears slider diag,forward,steps,7,1,2.919
+Hoecken-Spears slider diag,forward,steps,7,2,0.342
+Hoecken-Spears slider diag,forward,steps,7,3,4.705
+Hoecken-Spears slider diag,forward,steps,7,4,6.534
+Hoecken-Spears slider diag,forward,steps,7,5,6.668
+Hoecken-Spears slider diag,forward,waves,2,1,8.096
+Hoecken-Spears slider diag,forward,waves,2,2,8.595
+Hoecken-Spears slider diag,forward,waves,2,3,7.937
+Hoecken-Spears slider diag,forward,waves,2,4,8.409
+Hoecken-Spears slider diag,forward,waves,2,5,8.233
+Hoecken-Spears slider diag,forward,waves,4,1,6.367
+Hoecken-Spears slider diag,forward,waves,4,2,6.732
+Hoecken-Spears slider diag,forward,waves,4,3,6.041
+Hoecken-Spears slider diag,forward,waves,4,4,6.775
+Hoecken-Spears slider diag,forward,waves,4,5,7.409
+Hoecken-Spears slider diag,forward,waves,6,1,5.628
+Hoecken-Spears slider diag,forward,waves,6,2,5.991
+Hoecken-Spears slider diag,forward,waves,6,3,5.740
+Hoecken-Spears slider diag,forward,waves,6,4,0.683
+Hoecken-Spears slider diag,forward,waves,6,5,4.582
+Hoecken 4-bar diag,forward,logs,3,1,7.133
+Hoecken 4-bar diag,forward,logs,3,2,7.747
+Hoecken 4-bar diag,forward,logs,3,3,7.310
+Hoecken 4-bar diag,forward,logs,3,4,8.197
+Hoecken 4-bar diag,forward,logs,3,5,7.631
+Hoecken 4-bar diag,forward,logs,5,1,3.453
+Hoecken 4-bar diag,forward,logs,5,2,2.688
+Hoecken 4-bar diag,forward,logs,5,3,5.031
+Hoecken 4-bar diag,forward,logs,5,4,5.335
+Hoecken 4-bar diag,forward,logs,5,5,2.655
+Hoecken 4-bar diag,forward,logs,7,1,-0.308
+Hoecken 4-bar diag,forward,logs,7,2,-0.235
+Hoecken 4-bar diag,forward,logs,7,3,-0.343
+Hoecken 4-bar diag,forward,logs,7,4,-0.276
+Hoecken 4-bar diag,forward,logs,7,5,-0.016
+Hoecken 4-bar diag,forward,steps,3,1,7.653
+Hoecken 4-bar diag,forward,steps,3,2,8.011
+Hoecken 4-bar diag,forward,steps,3,3,7.607
+Hoecken 4-bar diag,forward,steps,3,4,7.752
+Hoecken 4-bar diag,forward,steps,3,5,7.250
+Hoecken 4-bar diag,forward,steps,5,1,4.014
+Hoecken 4-bar diag,forward,steps,5,2,6.824
+Hoecken 4-bar diag,forward,steps,5,3,4.267
+Hoecken 4-bar diag,forward,steps,5,4,6.895
+Hoecken 4-bar diag,forward,steps,5,5,2.502
+Hoecken 4-bar diag,forward,steps,7,1,-0.085
+Hoecken 4-bar diag,forward,steps,7,2,1.758
+Hoecken 4-bar diag,forward,steps,7,3,-0.127
+Hoecken 4-bar diag,forward,steps,7,4,3.774
+Hoecken 4-bar diag,forward,steps,7,5,1.547
+Hoecken 4-bar diag,forward,waves,2,1,8.385
+Hoecken 4-bar diag,forward,waves,2,2,8.261
+Hoecken 4-bar diag,forward,waves,2,3,8.339
+Hoecken 4-bar diag,forward,waves,2,4,8.046
+Hoecken 4-bar diag,forward,waves,2,5,8.385
+Hoecken 4-bar diag,forward,waves,4,1,6.637
+Hoecken 4-bar diag,forward,waves,4,2,7.098
+Hoecken 4-bar diag,forward,waves,4,3,6.651
+Hoecken 4-bar diag,forward,waves,4,4,7.132
+Hoecken 4-bar diag,forward,waves,4,5,6.758
+Hoecken 4-bar diag,forward,waves,6,1,4.991
+Hoecken 4-bar diag,forward,waves,6,2,3.662
+Hoecken 4-bar diag,forward,waves,6,3,3.906
+Hoecken 4-bar diag,forward,waves,6,4,4.059
+Hoecken 4-bar diag,forward,waves,6,5,1.205
+Hoecken slider diag,forward,logs,3,1,7.319
+Hoecken slider diag,forward,logs,3,2,7.780
+Hoecken slider diag,forward,logs,3,3,7.884
+Hoecken slider diag,forward,logs,3,4,8.719
+Hoecken slider diag,forward,logs,3,5,8.232
+Hoecken slider diag,forward,logs,5,1,5.824
+Hoecken slider diag,forward,logs,5,2,5.674
+Hoecken slider diag,forward,logs,5,3,5.413
+Hoecken slider diag,forward,logs,5,4,5.402
+Hoecken slider diag,forward,logs,5,5,2.874
+Hoecken slider diag,forward,logs,7,1,0.090
+Hoecken slider diag,forward,logs,7,2,0.238
+Hoecken slider diag,forward,logs,7,3,0.181
+Hoecken slider diag,forward,logs,7,4,0.820
+Hoecken slider diag,forward,logs,7,5,-0.106
+Hoecken slider diag,forward,steps,3,1,8.023
+Hoecken slider diag,forward,steps,3,2,8.311
+Hoecken slider diag,forward,steps,3,3,8.233
+Hoecken slider diag,forward,steps,3,4,7.772
+Hoecken slider diag,forward,steps,3,5,7.981
+Hoecken slider diag,forward,steps,5,1,2.571
+Hoecken slider diag,forward,steps,5,2,7.268
+Hoecken slider diag,forward,steps,5,3,6.570
+Hoecken slider diag,forward,steps,5,4,6.623
+Hoecken slider diag,forward,steps,5,5,6.831
+Hoecken slider diag,forward,steps,7,1,0.953
+Hoecken slider diag,forward,steps,7,2,0.165
+Hoecken slider diag,forward,steps,7,3,1.884
+Hoecken slider diag,forward,steps,7,4,3.768
+Hoecken slider diag,forward,steps,7,5,2.328
+Hoecken slider diag,forward,waves,2,1,8.518
+Hoecken slider diag,forward,waves,2,2,8.195
+Hoecken slider diag,forward,waves,2,3,8.522
+Hoecken slider diag,forward,waves,2,4,8.236
+Hoecken slider diag,forward,waves,2,5,8.547
+Hoecken slider diag,forward,waves,4,1,6.948
+Hoecken slider diag,forward,waves,4,2,6.125
+Hoecken slider diag,forward,waves,4,3,6.903
+Hoecken slider diag,forward,waves,4,4,7.308
+Hoecken slider diag,forward,waves,4,5,6.721
+Hoecken slider diag,forward,waves,6,1,4.657
+Hoecken slider diag,forward,waves,6,2,4.838
+Hoecken slider diag,forward,waves,6,3,4.342
+Hoecken slider diag,forward,waves,6,4,4.181
+Hoecken slider diag,forward,waves,6,5,3.982
+Jansen,forward,logs,3,1,7.905
+Jansen,forward,logs,3,2,3.751
+Jansen,forward,logs,3,3,7.134
+Jansen,forward,logs,3,4,8.119
+Jansen,forward,logs,3,5,7.826
+Jansen,forward,logs,5,1,6.154
+Jansen,forward,logs,5,2,4.637
+Jansen,forward,logs,5,3,2.757
+Jansen,forward,logs,5,4,6.127
+Jansen,forward,logs,5,5,6.646
+Jansen,forward,logs,7,1,-0.145
+Jansen,forward,logs,7,2,2.776
+Jansen,forward,logs,7,3,-0.121
+Jansen,forward,logs,7,4,0.911
+Jansen,forward,logs,7,5,3.211
+Jansen,forward,steps,3,1,7.527
+Jansen,forward,steps,3,2,8.189
+Jansen,forward,steps,3,3,8.100
+Jansen,forward,steps,3,4,7.936
+Jansen,forward,steps,3,5,7.706
+Jansen,forward,steps,5,1,6.692
+Jansen,forward,steps,5,2,7.130
+Jansen,forward,steps,5,3,6.726
+Jansen,forward,steps,5,4,6.801
+Jansen,forward,steps,5,5,6.294
+Jansen,forward,steps,7,1,3.763
+Jansen,forward,steps,7,2,5.855
+Jansen,forward,steps,7,3,4.495
+Jansen,forward,steps,7,4,3.844
+Jansen,forward,steps,7,5,2.369
+Jansen,forward,waves,2,1,8.803
+Jansen,forward,waves,2,2,8.023
+Jansen,forward,waves,2,3,7.994
+Jansen,forward,waves,2,4,8.031
+Jansen,forward,waves,2,5,8.398
+Jansen,forward,waves,4,1,7.649
+Jansen,forward,waves,4,2,6.854
+Jansen,forward,waves,4,3,6.899
+Jansen,forward,waves,4,4,7.234
+Jansen,forward,waves,4,5,6.435
+Jansen,forward,waves,6,1,4.730
+Jansen,forward,waves,6,2,5.937
+Jansen,forward,waves,6,3,2.853
+Jansen,forward,waves,6,4,6.444
+Jansen,forward,waves,6,5,5.786
+Spears 4-bar,forward,logs,3,1,6.622
+Spears 4-bar,forward,logs,3,2,7.464
+Spears 4-bar,forward,logs,3,3,7.337
+Spears 4-bar,forward,logs,3,4,8.022
+Spears 4-bar,forward,logs,3,5,6.936
+Spears 4-bar,forward,logs,5,1,5.078
+Spears 4-bar,forward,logs,5,2,2.340
+Spears 4-bar,forward,logs,5,3,0.676
+Spears 4-bar,forward,logs,5,4,2.142
+Spears 4-bar,forward,logs,5,5,3.673
+Spears 4-bar,forward,logs,7,1,0.116
+Spears 4-bar,forward,logs,7,2,-0.161
+Spears 4-bar,forward,logs,7,3,2.450
+Spears 4-bar,forward,logs,7,4,0.040
+Spears 4-bar,forward,logs,7,5,0.010
+Spears 4-bar,forward,steps,3,1,7.626
+Spears 4-bar,forward,steps,3,2,7.999
+Spears 4-bar,forward,steps,3,3,7.971
+Spears 4-bar,forward,steps,3,4,7.596
+Spears 4-bar,forward,steps,3,5,8.048
+Spears 4-bar,forward,steps,5,1,-0.113
+Spears 4-bar,forward,steps,5,2,1.476
+Spears 4-bar,forward,steps,5,3,-0.019
+Spears 4-bar,forward,steps,5,4,3.468
+Spears 4-bar,forward,steps,5,5,0.563
+Spears 4-bar,forward,steps,7,1,0.125
+Spears 4-bar,forward,steps,7,2,1.908
+Spears 4-bar,forward,steps,7,3,0.133
+Spears 4-bar,forward,steps,7,4,3.599
+Spears 4-bar,forward,steps,7,5,1.542
+Spears 4-bar,forward,waves,2,1,6.930
+Spears 4-bar,forward,waves,2,2,7.277
+Spears 4-bar,forward,waves,2,3,7.056
+Spears 4-bar,forward,waves,2,4,7.321
+Spears 4-bar,forward,waves,2,5,7.577
+Spears 4-bar,forward,waves,4,1,4.717
+Spears 4-bar,forward,waves,4,2,6.016
+Spears 4-bar,forward,waves,4,3,5.977
+Spears 4-bar,forward,waves,4,4,6.282
+Spears 4-bar,forward,waves,4,5,4.704
+Spears 4-bar,forward,waves,6,1,3.410
+Spears 4-bar,forward,waves,6,2,4.899
+Spears 4-bar,forward,waves,6,3,2.741
+Spears 4-bar,forward,waves,6,4,1.736
+Spears 4-bar,forward,waves,6,5,2.831
+Klann,forward,logs,3,1,8.128
+Klann,forward,logs,3,2,8.238
+Klann,forward,logs,3,3,7.786
+Klann,forward,logs,3,4,8.685
+Klann,forward,logs,3,5,8.791
+Klann,forward,logs,5,1,0.410
+Klann,forward,logs,5,2,7.335
+Klann,forward,logs,5,3,6.069
+Klann,forward,logs,5,4,7.170
+Klann,forward,logs,5,5,6.906
+Klann,forward,logs,7,1,-0.156
+Klann,forward,logs,7,2,0.408
+Klann,forward,logs,7,3,3.938
+Klann,forward,logs,7,4,6.432
+Klann,forward,logs,7,5,4.426
+Klann,forward,steps,3,1,8.343
+Klann,forward,steps,3,2,8.410
+Klann,forward,steps,3,3,8.548
+Klann,forward,steps,3,4,8.442
+Klann,forward,steps,3,5,8.624
+Klann,forward,steps,5,1,7.357
+Klann,forward,steps,5,2,6.706
+Klann,forward,steps,5,3,6.865
+Klann,forward,steps,5,4,7.729
+Klann,forward,steps,5,5,7.326
+Klann,forward,steps,7,1,-0.661
+Klann,forward,steps,7,2,3.874
+Klann,forward,steps,7,3,1.987
+Klann,forward,steps,7,4,3.786
+Klann,forward,steps,7,5,0.173
+Klann,forward,waves,2,1,8.314
+Klann,forward,waves,2,2,8.110
+Klann,forward,waves,2,3,8.575
+Klann,forward,waves,2,4,8.334
+Klann,forward,waves,2,5,8.417
+Klann,forward,waves,4,1,6.198
+Klann,forward,waves,4,2,7.460
+Klann,forward,waves,4,3,8.265
+Klann,forward,waves,4,4,6.917
+Klann,forward,waves,4,5,7.992
+Klann,forward,waves,6,1,4.629
+Klann,forward,waves,6,2,5.040
+Klann,forward,waves,6,3,5.236
+Klann,forward,waves,6,4,5.642
+Klann,forward,waves,6,5,4.073
+Chebyshev-Spears diag,reversed,logs,3,1,8.690
+Chebyshev-Spears diag,reversed,logs,3,2,8.139
+Chebyshev-Spears diag,reversed,logs,3,3,8.323
+Chebyshev-Spears diag,reversed,logs,3,4,8.450
+Chebyshev-Spears diag,reversed,logs,3,5,8.303
+Chebyshev-Spears diag,reversed,logs,5,1,6.513
+Chebyshev-Spears diag,reversed,logs,5,2,6.196
+Chebyshev-Spears diag,reversed,logs,5,3,7.147
+Chebyshev-Spears diag,reversed,logs,5,4,7.732
+Chebyshev-Spears diag,reversed,logs,5,5,8.369
+Chebyshev-Spears diag,reversed,logs,7,1,-0.069
+Chebyshev-Spears diag,reversed,logs,7,2,1.794
+Chebyshev-Spears diag,reversed,logs,7,3,4.035
+Chebyshev-Spears diag,reversed,logs,7,4,1.522
+Chebyshev-Spears diag,reversed,logs,7,5,3.677
+Chebyshev-Spears diag,reversed,steps,3,1,8.710
+Chebyshev-Spears diag,reversed,steps,3,2,8.614
+Chebyshev-Spears diag,reversed,steps,3,3,8.523
+Chebyshev-Spears diag,reversed,steps,3,4,8.601
+Chebyshev-Spears diag,reversed,steps,3,5,8.510
+Chebyshev-Spears diag,reversed,steps,5,1,7.821
+Chebyshev-Spears diag,reversed,steps,5,2,8.211
+Chebyshev-Spears diag,reversed,steps,5,3,7.816
+Chebyshev-Spears diag,reversed,steps,5,4,7.831
+Chebyshev-Spears diag,reversed,steps,5,5,7.004
+Chebyshev-Spears diag,reversed,steps,7,1,5.499
+Chebyshev-Spears diag,reversed,steps,7,2,6.760
+Chebyshev-Spears diag,reversed,steps,7,3,5.271
+Chebyshev-Spears diag,reversed,steps,7,4,6.773
+Chebyshev-Spears diag,reversed,steps,7,5,6.947
+Chebyshev-Spears diag,reversed,waves,2,1,8.055
+Chebyshev-Spears diag,reversed,waves,2,2,8.155
+Chebyshev-Spears diag,reversed,waves,2,3,8.279
+Chebyshev-Spears diag,reversed,waves,2,4,7.646
+Chebyshev-Spears diag,reversed,waves,2,5,8.137
+Chebyshev-Spears diag,reversed,waves,4,1,7.774
+Chebyshev-Spears diag,reversed,waves,4,2,6.886
+Chebyshev-Spears diag,reversed,waves,4,3,6.890
+Chebyshev-Spears diag,reversed,waves,4,4,7.304
+Chebyshev-Spears diag,reversed,waves,4,5,7.721
+Chebyshev-Spears diag,reversed,waves,6,1,5.210
+Chebyshev-Spears diag,reversed,waves,6,2,5.996
+Chebyshev-Spears diag,reversed,waves,6,3,4.913
+Chebyshev-Spears diag,reversed,waves,6,4,5.016
+Chebyshev-Spears diag,reversed,waves,6,5,5.726
+Chebyshev-Spears lift 51 diag,reversed,logs,3,1,8.695
+Chebyshev-Spears lift 51 diag,reversed,logs,3,2,8.647
+Chebyshev-Spears lift 51 diag,reversed,logs,3,3,8.791
+Chebyshev-Spears lift 51 diag,reversed,logs,3,4,8.838
+Chebyshev-Spears lift 51 diag,reversed,logs,3,5,9.010
+Chebyshev-Spears lift 51 diag,reversed,logs,5,1,7.781
+Chebyshev-Spears lift 51 diag,reversed,logs,5,2,7.313
+Chebyshev-Spears lift 51 diag,reversed,logs,5,3,8.009
+Chebyshev-Spears lift 51 diag,reversed,logs,5,4,7.965
+Chebyshev-Spears lift 51 diag,reversed,logs,5,5,7.772
+Chebyshev-Spears lift 51 diag,reversed,logs,7,1,6.773
+Chebyshev-Spears lift 51 diag,reversed,logs,7,2,3.685
+Chebyshev-Spears lift 51 diag,reversed,logs,7,3,6.373
+Chebyshev-Spears lift 51 diag,reversed,logs,7,4,7.627
+Chebyshev-Spears lift 51 diag,reversed,logs,7,5,6.594
+Chebyshev-Spears lift 51 diag,reversed,steps,3,1,8.742
+Chebyshev-Spears lift 51 diag,reversed,steps,3,2,8.535
+Chebyshev-Spears lift 51 diag,reversed,steps,3,3,8.755
+Chebyshev-Spears lift 51 diag,reversed,steps,3,4,8.848
+Chebyshev-Spears lift 51 diag,reversed,steps,3,5,8.785
+Chebyshev-Spears lift 51 diag,reversed,steps,5,1,7.148
+Chebyshev-Spears lift 51 diag,reversed,steps,5,2,7.979
+Chebyshev-Spears lift 51 diag,reversed,steps,5,3,7.306
+Chebyshev-Spears lift 51 diag,reversed,steps,5,4,7.457
+Chebyshev-Spears lift 51 diag,reversed,steps,5,5,7.212
+Chebyshev-Spears lift 51 diag,reversed,steps,7,1,-0.171
+Chebyshev-Spears lift 51 diag,reversed,steps,7,2,2.378
+Chebyshev-Spears lift 51 diag,reversed,steps,7,3,0.265
+Chebyshev-Spears lift 51 diag,reversed,steps,7,4,0.590
+Chebyshev-Spears lift 51 diag,reversed,steps,7,5,7.048
+Chebyshev-Spears lift 51 diag,reversed,waves,2,1,8.518
+Chebyshev-Spears lift 51 diag,reversed,waves,2,2,8.685
+Chebyshev-Spears lift 51 diag,reversed,waves,2,3,9.097
+Chebyshev-Spears lift 51 diag,reversed,waves,2,4,8.373
+Chebyshev-Spears lift 51 diag,reversed,waves,2,5,7.726
+Chebyshev-Spears lift 51 diag,reversed,waves,4,1,6.885
+Chebyshev-Spears lift 51 diag,reversed,waves,4,2,7.394
+Chebyshev-Spears lift 51 diag,reversed,waves,4,3,6.618
+Chebyshev-Spears lift 51 diag,reversed,waves,4,4,5.620
+Chebyshev-Spears lift 51 diag,reversed,waves,4,5,6.234
+Chebyshev-Spears lift 51 diag,reversed,waves,6,1,6.561
+Chebyshev-Spears lift 51 diag,reversed,waves,6,2,5.238
+Chebyshev-Spears lift 51 diag,reversed,waves,6,3,4.524
+Chebyshev-Spears lift 51 diag,reversed,waves,6,4,2.726
+Chebyshev-Spears lift 51 diag,reversed,waves,6,5,6.483
+Chebyshev-Spears lift 62 diag,reversed,logs,3,1,8.909
+Chebyshev-Spears lift 62 diag,reversed,logs,3,2,9.181
+Chebyshev-Spears lift 62 diag,reversed,logs,3,3,8.872
+Chebyshev-Spears lift 62 diag,reversed,logs,3,4,8.662
+Chebyshev-Spears lift 62 diag,reversed,logs,3,5,8.963
+Chebyshev-Spears lift 62 diag,reversed,logs,5,1,7.572
+Chebyshev-Spears lift 62 diag,reversed,logs,5,2,9.032
+Chebyshev-Spears lift 62 diag,reversed,logs,5,3,9.523
+Chebyshev-Spears lift 62 diag,reversed,logs,5,4,9.030
+Chebyshev-Spears lift 62 diag,reversed,logs,5,5,8.767
+Chebyshev-Spears lift 62 diag,reversed,logs,7,1,6.693
+Chebyshev-Spears lift 62 diag,reversed,logs,7,2,6.748
+Chebyshev-Spears lift 62 diag,reversed,logs,7,3,6.942
+Chebyshev-Spears lift 62 diag,reversed,logs,7,4,6.381
+Chebyshev-Spears lift 62 diag,reversed,logs,7,5,5.888
+Chebyshev-Spears lift 62 diag,reversed,steps,3,1,8.842
+Chebyshev-Spears lift 62 diag,reversed,steps,3,2,8.828
+Chebyshev-Spears lift 62 diag,reversed,steps,3,3,8.897
+Chebyshev-Spears lift 62 diag,reversed,steps,3,4,8.824
+Chebyshev-Spears lift 62 diag,reversed,steps,3,5,8.830
+Chebyshev-Spears lift 62 diag,reversed,steps,5,1,6.569
+Chebyshev-Spears lift 62 diag,reversed,steps,5,2,6.964
+Chebyshev-Spears lift 62 diag,reversed,steps,5,3,6.810
+Chebyshev-Spears lift 62 diag,reversed,steps,5,4,7.399
+Chebyshev-Spears lift 62 diag,reversed,steps,5,5,7.659
+Chebyshev-Spears lift 62 diag,reversed,steps,7,1,0.142
+Chebyshev-Spears lift 62 diag,reversed,steps,7,2,7.659
+Chebyshev-Spears lift 62 diag,reversed,steps,7,3,-0.111
+Chebyshev-Spears lift 62 diag,reversed,steps,7,4,0.048
+Chebyshev-Spears lift 62 diag,reversed,steps,7,5,4.466
+Chebyshev-Spears lift 62 diag,reversed,waves,2,1,7.440
+Chebyshev-Spears lift 62 diag,reversed,waves,2,2,8.260
+Chebyshev-Spears lift 62 diag,reversed,waves,2,3,7.446
+Chebyshev-Spears lift 62 diag,reversed,waves,2,4,7.922
+Chebyshev-Spears lift 62 diag,reversed,waves,2,5,7.569
+Chebyshev-Spears lift 62 diag,reversed,waves,4,1,6.421
+Chebyshev-Spears lift 62 diag,reversed,waves,4,2,6.569
+Chebyshev-Spears lift 62 diag,reversed,waves,4,3,6.493
+Chebyshev-Spears lift 62 diag,reversed,waves,4,4,6.150
+Chebyshev-Spears lift 62 diag,reversed,waves,4,5,6.598
+Chebyshev-Spears lift 62 diag,reversed,waves,6,1,6.779
+Chebyshev-Spears lift 62 diag,reversed,waves,6,2,5.328
+Chebyshev-Spears lift 62 diag,reversed,waves,6,3,6.996
+Chebyshev-Spears lift 62 diag,reversed,waves,6,4,4.752
+Chebyshev-Spears lift 62 diag,reversed,waves,6,5,5.230
+Chebyshev diag,reversed,logs,3,1,6.800
+Chebyshev diag,reversed,logs,3,2,6.833
+Chebyshev diag,reversed,logs,3,3,6.979
+Chebyshev diag,reversed,logs,3,4,7.921
+Chebyshev diag,reversed,logs,3,5,7.605
+Chebyshev diag,reversed,logs,5,1,3.251
+Chebyshev diag,reversed,logs,5,2,3.618
+Chebyshev diag,reversed,logs,5,3,5.519
+Chebyshev diag,reversed,logs,5,4,1.438
+Chebyshev diag,reversed,logs,5,5,0.448
+Chebyshev diag,reversed,logs,7,1,-0.122
+Chebyshev diag,reversed,logs,7,2,-0.418
+Chebyshev diag,reversed,logs,7,3,-0.135
+Chebyshev diag,reversed,logs,7,4,0.918
+Chebyshev diag,reversed,logs,7,5,0.454
+Chebyshev diag,reversed,steps,3,1,7.377
+Chebyshev diag,reversed,steps,3,2,7.574
+Chebyshev diag,reversed,steps,3,3,7.153
+Chebyshev diag,reversed,steps,3,4,6.737
+Chebyshev diag,reversed,steps,3,5,7.479
+Chebyshev diag,reversed,steps,5,1,-0.204
+Chebyshev diag,reversed,steps,5,2,6.169
+Chebyshev diag,reversed,steps,5,3,6.225
+Chebyshev diag,reversed,steps,5,4,5.155
+Chebyshev diag,reversed,steps,5,5,2.005
+Chebyshev diag,reversed,steps,7,1,-0.050
+Chebyshev diag,reversed,steps,7,2,-0.183
+Chebyshev diag,reversed,steps,7,3,0.085
+Chebyshev diag,reversed,steps,7,4,-0.039
+Chebyshev diag,reversed,steps,7,5,-0.218
+Chebyshev diag,reversed,waves,2,1,7.938
+Chebyshev diag,reversed,waves,2,2,8.038
+Chebyshev diag,reversed,waves,2,3,7.994
+Chebyshev diag,reversed,waves,2,4,8.185
+Chebyshev diag,reversed,waves,2,5,7.889
+Chebyshev diag,reversed,waves,4,1,7.078
+Chebyshev diag,reversed,waves,4,2,6.094
+Chebyshev diag,reversed,waves,4,3,6.341
+Chebyshev diag,reversed,waves,4,4,5.984
+Chebyshev diag,reversed,waves,4,5,6.219
+Chebyshev diag,reversed,waves,6,1,3.883
+Chebyshev diag,reversed,waves,6,2,4.745
+Chebyshev diag,reversed,waves,6,3,1.433
+Chebyshev diag,reversed,waves,6,4,3.151
+Chebyshev diag,reversed,waves,6,5,1.397
+Hoecken-Spears 4-bar diag,reversed,logs,3,1,8.370
+Hoecken-Spears 4-bar diag,reversed,logs,3,2,8.238
+Hoecken-Spears 4-bar diag,reversed,logs,3,3,8.367
+Hoecken-Spears 4-bar diag,reversed,logs,3,4,8.623
+Hoecken-Spears 4-bar diag,reversed,logs,3,5,8.743
+Hoecken-Spears 4-bar diag,reversed,logs,5,1,7.134
+Hoecken-Spears 4-bar diag,reversed,logs,5,2,6.247
+Hoecken-Spears 4-bar diag,reversed,logs,5,3,7.023
+Hoecken-Spears 4-bar diag,reversed,logs,5,4,7.920
+Hoecken-Spears 4-bar diag,reversed,logs,5,5,7.691
+Hoecken-Spears 4-bar diag,reversed,logs,7,1,4.341
+Hoecken-Spears 4-bar diag,reversed,logs,7,2,0.189
+Hoecken-Spears 4-bar diag,reversed,logs,7,3,5.278
+Hoecken-Spears 4-bar diag,reversed,logs,7,4,4.677
+Hoecken-Spears 4-bar diag,reversed,logs,7,5,4.314
+Hoecken-Spears 4-bar diag,reversed,steps,3,1,8.385
+Hoecken-Spears 4-bar diag,reversed,steps,3,2,8.447
+Hoecken-Spears 4-bar diag,reversed,steps,3,3,8.553
+Hoecken-Spears 4-bar diag,reversed,steps,3,4,8.505
+Hoecken-Spears 4-bar diag,reversed,steps,3,5,8.558
+Hoecken-Spears 4-bar diag,reversed,steps,5,1,8.200
+Hoecken-Spears 4-bar diag,reversed,steps,5,2,7.902
+Hoecken-Spears 4-bar diag,reversed,steps,5,3,7.693
+Hoecken-Spears 4-bar diag,reversed,steps,5,4,8.032
+Hoecken-Spears 4-bar diag,reversed,steps,5,5,7.835
+Hoecken-Spears 4-bar diag,reversed,steps,7,1,5.776
+Hoecken-Spears 4-bar diag,reversed,steps,7,2,6.506
+Hoecken-Spears 4-bar diag,reversed,steps,7,3,5.251
+Hoecken-Spears 4-bar diag,reversed,steps,7,4,7.120
+Hoecken-Spears 4-bar diag,reversed,steps,7,5,6.784
+Hoecken-Spears 4-bar diag,reversed,waves,2,1,8.142
+Hoecken-Spears 4-bar diag,reversed,waves,2,2,8.786
+Hoecken-Spears 4-bar diag,reversed,waves,2,3,8.099
+Hoecken-Spears 4-bar diag,reversed,waves,2,4,8.307
+Hoecken-Spears 4-bar diag,reversed,waves,2,5,8.081
+Hoecken-Spears 4-bar diag,reversed,waves,4,1,7.403
+Hoecken-Spears 4-bar diag,reversed,waves,4,2,6.811
+Hoecken-Spears 4-bar diag,reversed,waves,4,3,6.780
+Hoecken-Spears 4-bar diag,reversed,waves,4,4,7.051
+Hoecken-Spears 4-bar diag,reversed,waves,4,5,6.679
+Hoecken-Spears 4-bar diag,reversed,waves,6,1,4.635
+Hoecken-Spears 4-bar diag,reversed,waves,6,2,4.520
+Hoecken-Spears 4-bar diag,reversed,waves,6,3,3.708
+Hoecken-Spears 4-bar diag,reversed,waves,6,4,4.325
+Hoecken-Spears 4-bar diag,reversed,waves,6,5,4.912
+Hoecken-Spears slider diag,reversed,logs,3,1,8.397
+Hoecken-Spears slider diag,reversed,logs,3,2,8.109
+Hoecken-Spears slider diag,reversed,logs,3,3,8.379
+Hoecken-Spears slider diag,reversed,logs,3,4,8.286
+Hoecken-Spears slider diag,reversed,logs,3,5,8.418
+Hoecken-Spears slider diag,reversed,logs,5,1,7.225
+Hoecken-Spears slider diag,reversed,logs,5,2,7.641
+Hoecken-Spears slider diag,reversed,logs,5,3,6.815
+Hoecken-Spears slider diag,reversed,logs,5,4,2.910
+Hoecken-Spears slider diag,reversed,logs,5,5,6.858
+Hoecken-Spears slider diag,reversed,logs,7,1,-0.681
+Hoecken-Spears slider diag,reversed,logs,7,2,0.913
+Hoecken-Spears slider diag,reversed,logs,7,3,1.623
+Hoecken-Spears slider diag,reversed,logs,7,4,1.799
+Hoecken-Spears slider diag,reversed,logs,7,5,1.524
+Hoecken-Spears slider diag,reversed,steps,3,1,8.529
+Hoecken-Spears slider diag,reversed,steps,3,2,8.443
+Hoecken-Spears slider diag,reversed,steps,3,3,8.795
+Hoecken-Spears slider diag,reversed,steps,3,4,8.507
+Hoecken-Spears slider diag,reversed,steps,3,5,8.365
+Hoecken-Spears slider diag,reversed,steps,5,1,7.514
+Hoecken-Spears slider diag,reversed,steps,5,2,7.842
+Hoecken-Spears slider diag,reversed,steps,5,3,8.149
+Hoecken-Spears slider diag,reversed,steps,5,4,8.051
+Hoecken-Spears slider diag,reversed,steps,5,5,7.787
+Hoecken-Spears slider diag,reversed,steps,7,1,3.240
+Hoecken-Spears slider diag,reversed,steps,7,2,0.231
+Hoecken-Spears slider diag,reversed,steps,7,3,4.692
+Hoecken-Spears slider diag,reversed,steps,7,4,6.401
+Hoecken-Spears slider diag,reversed,steps,7,5,0.397
+Hoecken-Spears slider diag,reversed,waves,2,1,8.576
+Hoecken-Spears slider diag,reversed,waves,2,2,8.662
+Hoecken-Spears slider diag,reversed,waves,2,3,8.798
+Hoecken-Spears slider diag,reversed,waves,2,4,7.569
+Hoecken-Spears slider diag,reversed,waves,2,5,8.709
+Hoecken-Spears slider diag,reversed,waves,4,1,7.705
+Hoecken-Spears slider diag,reversed,waves,4,2,7.604
+Hoecken-Spears slider diag,reversed,waves,4,3,7.789
+Hoecken-Spears slider diag,reversed,waves,4,4,6.980
+Hoecken-Spears slider diag,reversed,waves,4,5,7.704
+Hoecken-Spears slider diag,reversed,waves,6,1,6.108
+Hoecken-Spears slider diag,reversed,waves,6,2,5.364
+Hoecken-Spears slider diag,reversed,waves,6,3,3.486
+Hoecken-Spears slider diag,reversed,waves,6,4,3.067
+Hoecken-Spears slider diag,reversed,waves,6,5,4.747
+Hoecken 4-bar diag,reversed,logs,3,1,7.521
+Hoecken 4-bar diag,reversed,logs,3,2,7.987
+Hoecken 4-bar diag,reversed,logs,3,3,7.139
+Hoecken 4-bar diag,reversed,logs,3,4,7.932
+Hoecken 4-bar diag,reversed,logs,3,5,7.794
+Hoecken 4-bar diag,reversed,logs,5,1,5.396
+Hoecken 4-bar diag,reversed,logs,5,2,2.441
+Hoecken 4-bar diag,reversed,logs,5,3,5.429
+Hoecken 4-bar diag,reversed,logs,5,4,4.329
+Hoecken 4-bar diag,reversed,logs,5,5,0.399
+Hoecken 4-bar diag,reversed,logs,7,1,-0.227
+Hoecken 4-bar diag,reversed,logs,7,2,-0.437
+Hoecken 4-bar diag,reversed,logs,7,3,-0.134
+Hoecken 4-bar diag,reversed,logs,7,4,-0.450
+Hoecken 4-bar diag,reversed,logs,7,5,0.605
+Hoecken 4-bar diag,reversed,steps,3,1,7.570
+Hoecken 4-bar diag,reversed,steps,3,2,7.663
+Hoecken 4-bar diag,reversed,steps,3,3,7.377
+Hoecken 4-bar diag,reversed,steps,3,4,7.765
+Hoecken 4-bar diag,reversed,steps,3,5,7.863
+Hoecken 4-bar diag,reversed,steps,5,1,-0.246
+Hoecken 4-bar diag,reversed,steps,5,2,6.336
+Hoecken 4-bar diag,reversed,steps,5,3,1.586
+Hoecken 4-bar diag,reversed,steps,5,4,5.743
+Hoecken 4-bar diag,reversed,steps,5,5,1.882
+Hoecken 4-bar diag,reversed,steps,7,1,-0.370
+Hoecken 4-bar diag,reversed,steps,7,2,1.952
+Hoecken 4-bar diag,reversed,steps,7,3,0.059
+Hoecken 4-bar diag,reversed,steps,7,4,-0.078
+Hoecken 4-bar diag,reversed,steps,7,5,1.864
+Hoecken 4-bar diag,reversed,waves,2,1,8.416
+Hoecken 4-bar diag,reversed,waves,2,2,8.036
+Hoecken 4-bar diag,reversed,waves,2,3,8.275
+Hoecken 4-bar diag,reversed,waves,2,4,8.218
+Hoecken 4-bar diag,reversed,waves,2,5,8.402
+Hoecken 4-bar diag,reversed,waves,4,1,7.460
+Hoecken 4-bar diag,reversed,waves,4,2,6.720
+Hoecken 4-bar diag,reversed,waves,4,3,6.982
+Hoecken 4-bar diag,reversed,waves,4,4,6.619
+Hoecken 4-bar diag,reversed,waves,4,5,6.133
+Hoecken 4-bar diag,reversed,waves,6,1,4.576
+Hoecken 4-bar diag,reversed,waves,6,2,5.248
+Hoecken 4-bar diag,reversed,waves,6,3,4.090
+Hoecken 4-bar diag,reversed,waves,6,4,5.728
+Hoecken 4-bar diag,reversed,waves,6,5,3.711
+Hoecken slider diag,reversed,logs,3,1,7.520
+Hoecken slider diag,reversed,logs,3,2,6.856
+Hoecken slider diag,reversed,logs,3,3,8.147
+Hoecken slider diag,reversed,logs,3,4,7.852
+Hoecken slider diag,reversed,logs,3,5,7.575
+Hoecken slider diag,reversed,logs,5,1,5.125
+Hoecken slider diag,reversed,logs,5,2,4.398
+Hoecken slider diag,reversed,logs,5,3,5.232
+Hoecken slider diag,reversed,logs,5,4,5.268
+Hoecken slider diag,reversed,logs,5,5,6.421
+Hoecken slider diag,reversed,logs,7,1,-0.219
+Hoecken slider diag,reversed,logs,7,2,0.280
+Hoecken slider diag,reversed,logs,7,3,0.290
+Hoecken slider diag,reversed,logs,7,4,0.182
+Hoecken slider diag,reversed,logs,7,5,-0.593
+Hoecken slider diag,reversed,steps,3,1,8.097
+Hoecken slider diag,reversed,steps,3,2,7.768
+Hoecken slider diag,reversed,steps,3,3,7.959
+Hoecken slider diag,reversed,steps,3,4,8.062
+Hoecken slider diag,reversed,steps,3,5,7.885
+Hoecken slider diag,reversed,steps,5,1,5.122
+Hoecken slider diag,reversed,steps,5,2,6.969
+Hoecken slider diag,reversed,steps,5,3,4.485
+Hoecken slider diag,reversed,steps,5,4,6.708
+Hoecken slider diag,reversed,steps,5,5,7.013
+Hoecken slider diag,reversed,steps,7,1,0.183
+Hoecken slider diag,reversed,steps,7,2,0.276
+Hoecken slider diag,reversed,steps,7,3,3.298
+Hoecken slider diag,reversed,steps,7,4,4.542
+Hoecken slider diag,reversed,steps,7,5,1.989
+Hoecken slider diag,reversed,waves,2,1,8.181
+Hoecken slider diag,reversed,waves,2,2,8.458
+Hoecken slider diag,reversed,waves,2,3,8.693
+Hoecken slider diag,reversed,waves,2,4,8.257
+Hoecken slider diag,reversed,waves,2,5,8.700
+Hoecken slider diag,reversed,waves,4,1,6.978
+Hoecken slider diag,reversed,waves,4,2,6.747
+Hoecken slider diag,reversed,waves,4,3,5.570
+Hoecken slider diag,reversed,waves,4,4,7.236
+Hoecken slider diag,reversed,waves,4,5,7.026
+Hoecken slider diag,reversed,waves,6,1,5.337
+Hoecken slider diag,reversed,waves,6,2,5.673
+Hoecken slider diag,reversed,waves,6,3,3.119
+Hoecken slider diag,reversed,waves,6,4,1.576
+Hoecken slider diag,reversed,waves,6,5,4.500
+Jansen,reversed,logs,3,1,7.615
+Jansen,reversed,logs,3,2,8.022
+Jansen,reversed,logs,3,3,7.747
+Jansen,reversed,logs,3,4,7.475
+Jansen,reversed,logs,3,5,7.962
+Jansen,reversed,logs,5,1,4.857
+Jansen,reversed,logs,5,2,5.355
+Jansen,reversed,logs,5,3,5.943
+Jansen,reversed,logs,5,4,5.889
+Jansen,reversed,logs,5,5,5.740
+Jansen,reversed,logs,7,1,3.542
+Jansen,reversed,logs,7,2,0.073
+Jansen,reversed,logs,7,3,3.171
+Jansen,reversed,logs,7,4,1.226
+Jansen,reversed,logs,7,5,0.501
+Jansen,reversed,steps,3,1,8.163
+Jansen,reversed,steps,3,2,7.699
+Jansen,reversed,steps,3,3,7.827
+Jansen,reversed,steps,3,4,7.361
+Jansen,reversed,steps,3,5,7.839
+Jansen,reversed,steps,5,1,3.746
+Jansen,reversed,steps,5,2,6.826
+Jansen,reversed,steps,5,3,6.401
+Jansen,reversed,steps,5,4,6.866
+Jansen,reversed,steps,5,5,5.957
+Jansen,reversed,steps,7,1,-0.106
+Jansen,reversed,steps,7,2,2.552
+Jansen,reversed,steps,7,3,1.825
+Jansen,reversed,steps,7,4,4.262
+Jansen,reversed,steps,7,5,1.938
+Jansen,reversed,waves,2,1,8.203
+Jansen,reversed,waves,2,2,8.500
+Jansen,reversed,waves,2,3,8.129
+Jansen,reversed,waves,2,4,8.454
+Jansen,reversed,waves,2,5,8.447
+Jansen,reversed,waves,4,1,6.475
+Jansen,reversed,waves,4,2,7.080
+Jansen,reversed,waves,4,3,6.877
+Jansen,reversed,waves,4,4,7.661
+Jansen,reversed,waves,4,5,6.757
+Jansen,reversed,waves,6,1,4.744
+Jansen,reversed,waves,6,2,4.075
+Jansen,reversed,waves,6,3,5.773
+Jansen,reversed,waves,6,4,4.320
+Jansen,reversed,waves,6,5,3.785
+Spears 4-bar,reversed,logs,3,1,7.375
+Spears 4-bar,reversed,logs,3,2,8.849
+Spears 4-bar,reversed,logs,3,3,7.462
+Spears 4-bar,reversed,logs,3,4,8.206
+Spears 4-bar,reversed,logs,3,5,7.881
+Spears 4-bar,reversed,logs,5,1,5.220
+Spears 4-bar,reversed,logs,5,2,4.970
+Spears 4-bar,reversed,logs,5,3,7.367
+Spears 4-bar,reversed,logs,5,4,6.862
+Spears 4-bar,reversed,logs,5,5,5.174
+Spears 4-bar,reversed,logs,7,1,0.252
+Spears 4-bar,reversed,logs,7,2,-0.044
+Spears 4-bar,reversed,logs,7,3,2.537
+Spears 4-bar,reversed,logs,7,4,-0.149
+Spears 4-bar,reversed,logs,7,5,0.274
+Spears 4-bar,reversed,steps,3,1,8.598
+Spears 4-bar,reversed,steps,3,2,8.488
+Spears 4-bar,reversed,steps,3,3,8.448
+Spears 4-bar,reversed,steps,3,4,8.222
+Spears 4-bar,reversed,steps,3,5,8.149
+Spears 4-bar,reversed,steps,5,1,6.150
+Spears 4-bar,reversed,steps,5,2,6.994
+Spears 4-bar,reversed,steps,5,3,7.155
+Spears 4-bar,reversed,steps,5,4,6.736
+Spears 4-bar,reversed,steps,5,5,7.327
+Spears 4-bar,reversed,steps,7,1,0.098
+Spears 4-bar,reversed,steps,7,2,3.036
+Spears 4-bar,reversed,steps,7,3,0.457
+Spears 4-bar,reversed,steps,7,4,0.021
+Spears 4-bar,reversed,steps,7,5,1.615
+Spears 4-bar,reversed,waves,2,1,8.073
+Spears 4-bar,reversed,waves,2,2,8.096
+Spears 4-bar,reversed,waves,2,3,8.320
+Spears 4-bar,reversed,waves,2,4,8.572
+Spears 4-bar,reversed,waves,2,5,8.147
+Spears 4-bar,reversed,waves,4,1,6.972
+Spears 4-bar,reversed,waves,4,2,7.505
+Spears 4-bar,reversed,waves,4,3,7.041
+Spears 4-bar,reversed,waves,4,4,7.371
+Spears 4-bar,reversed,waves,4,5,7.218
+Spears 4-bar,reversed,waves,6,1,6.084
+Spears 4-bar,reversed,waves,6,2,6.307
+Spears 4-bar,reversed,waves,6,3,5.814
+Spears 4-bar,reversed,waves,6,4,4.962
+Spears 4-bar,reversed,waves,6,5,4.739
+Klann,reversed,logs,3,1,8.629
+Klann,reversed,logs,3,2,8.283
+Klann,reversed,logs,3,3,8.407
+Klann,reversed,logs,3,4,8.569
+Klann,reversed,logs,3,5,8.631
+Klann,reversed,logs,5,1,7.559
+Klann,reversed,logs,5,2,7.497
+Klann,reversed,logs,5,3,8.385
+Klann,reversed,logs,5,4,7.945
+Klann,reversed,logs,5,5,8.443
+Klann,reversed,logs,7,1,6.635
+Klann,reversed,logs,7,2,3.878
+Klann,reversed,logs,7,3,2.009
+Klann,reversed,logs,7,4,5.877
+Klann,reversed,logs,7,5,5.249
+Klann,reversed,steps,3,1,8.862
+Klann,reversed,steps,3,2,8.557
+Klann,reversed,steps,3,3,8.782
+Klann,reversed,steps,3,4,8.641
+Klann,reversed,steps,3,5,8.647
+Klann,reversed,steps,5,1,8.184
+Klann,reversed,steps,5,2,8.231
+Klann,reversed,steps,5,3,7.897
+Klann,reversed,steps,5,4,7.897
+Klann,reversed,steps,5,5,8.180
+Klann,reversed,steps,7,1,2.419
+Klann,reversed,steps,7,2,2.972
+Klann,reversed,steps,7,3,0.834
+Klann,reversed,steps,7,4,6.108
+Klann,reversed,steps,7,5,2.642
+Klann,reversed,waves,2,1,8.226
+Klann,reversed,waves,2,2,8.226
+Klann,reversed,waves,2,3,8.314
+Klann,reversed,waves,2,4,8.678
+Klann,reversed,waves,2,5,8.290
+Klann,reversed,waves,4,1,7.619
+Klann,reversed,waves,4,2,7.153
+Klann,reversed,waves,4,3,7.530
+Klann,reversed,waves,4,4,7.145
+Klann,reversed,waves,4,5,8.181
+Klann,reversed,waves,6,1,6.293
+Klann,reversed,waves,6,2,6.999
+Klann,reversed,waves,6,3,6.279
+Klann,reversed,waves,6,4,5.582
+Klann,reversed,waves,6,5,5.966

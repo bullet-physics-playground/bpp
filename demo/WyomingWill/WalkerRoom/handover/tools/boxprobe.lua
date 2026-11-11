@@ -1,5 +1,5 @@
 -- The body's box in its own frame (x along the walk, y up, z across): AABB at build minus its centre of mass.
-dofile("test-track.lua")
+dofile("lib/test-track.lua")
 local w = room.walkers[1]
 local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
 w.cube.body:getAabb(lo, hi)

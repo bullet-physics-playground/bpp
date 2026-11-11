@@ -601,6 +601,9 @@ plane { <0, 1, 0>, 0
           0,0,0>
 }
 
+== hanoi.wav
+sound track: 282284 bytes, md5 55ee71dc474592822885649287091796
+
 == meshes
 mesh2 { triangles 1408 vertices 704
   bounds <-0.447981, -0.447981, -0.147981>, <0.447981, 0.447981, 0.147981>

@@ -2,7 +2,7 @@
 -- Walker room: WyomingWill's walkers on one meadow, each scaled to the
 -- same stride, walking freely inside a walled arena. They turn away from the
 -- walls and from each other; one that falls is stood up again. The
--- TerrainHeight slider raises the bumps. Tab / Shift+Tab follow a
+-- TerrainHeight slider raises the bumps (G builds the room with them). Tab / Shift+Tab follow a
 -- walker, O looks over the room, T clears the trails (README.md).
 --
 -- Each walker is built by its own ../Walkers_For_Room/<name>_parts.lua --
@@ -21,6 +21,36 @@
 --
 -- Units: centimetres and seconds.
 --
+-- Opened on its own (no launcher before it -- every launcher loads the
+-- walker files first, so EXTRA_WALKERS is still unset): the room with the
+-- 11 walkers that could really be built, as they are now -- the diag builds
+-- with their outside braces and held pendants; Klann, Jansen and Spears
+-- 4-bar on their own frames, Klann and Spears 4-bar reversed
+-- (test-ranking.lua's list) -- at room-four.lua's
+-- settings, each with a wheel on each side (SHOES: the arrow keys steer the
+-- walker followed). This file's own defaults below are the old ones (plated
+-- builds, the old braces, gravity 70), which the launchers override.
+--
+
+if EXTRA_WALKERS == nil then
+  package.path = "../../module/?.lua;" .. package.path
+  v:setSolver("si-warm"); v:setSolverInfo("residual", 0.01)
+  SOLVER_ITERATIONS = SOLVER_ITERATIONS or 40; FIXED = FIXED or 1 / 1920
+  MOTOR_STRENGTH = MOTOR_STRENGTH or 2; GRAVITY = GRAVITY or 981; YAW_DAMP = YAW_DAMP or 1
+  ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
+  LINK_WIDTH = LINK_WIDTH or 1.0; GAIT = GAIT or { 0, 180, 180, 0 }; DIAG_OUTSIDE = true
+  dofile("lib/trotting-walkers.lua"); dofile("lib/spears-lift-walkers.lua")
+  local BUILDABLE = { "Chebyshev-Spears lift 51 diag", "Chebyshev-Spears lift 62 diag", "Chebyshev-Spears diag",
+                      "Hoecken-Spears 4-bar diag", "Hoecken-Spears slider diag", "Klann", "Jansen",
+                      "Hoecken slider diag", "Hoecken 4-bar diag", "Chebyshev diag", "Spears 4-bar" }
+  if ONLY == nil then ONLY = {}; for _, n in ipairs(BUILDABLE) do ONLY[n] = true end end
+  if PENDANT_HOLD == nil then
+    PENDANT_HOLD = {}; for _, n in ipairs(BUILDABLE) do if n:find("diag$") then PENDANT_HOLD[n] = true end end
+  end
+  TERRAIN = TERRAIN or "waves"; AMP = AMP or 2; BUMP = BUMP or 15
+  if REVERSE == nil then REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true } end   -- (their better way: section 4w)
+  if SHOES == nil then SHOES = {} end   -- (a wheel each side: the arrow keys steer the walker followed)
+end
 
 local common = require "common"
 v.shadows = false
@@ -360,6 +390,38 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- links, 0.10 / 0.15 and 0.20 / 0.30 on the sliders', 0.10 / 0.15 on Spears
 -- 4-bar's, 0.15 turning on the outside braces. false: as its files give.
 LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
+-- STEER = { mech =, side = "L" or "R", amount = k } (a steering test; off,
+-- handover/STEERING.md): a bias on one side of every walker. Left and right
+-- are the walker's own, facing the way it walks; a turn to the left is a
+-- positive turning rate. Each foot and each crank motor is put on its side
+-- and end by where it is in the body's frame when built (w.steer).
+--   mech = "friction": that side's feet's friction times k
+--   mech = "pair": the diagonal pair whose front foot is on that side (its
+--     rear foot on the other) driven at k times its crank speed; the crank
+--     lock (lockCranks) then holds each pair's cranks only to each other
+--   mech = "side": that side's cranks at k times (lock held per side; a
+--     walker with diag braces has each brace tying a left crank to a right)
+--   mech = "ballast": a ballast (STEER.mass of its weight, default 0.25)
+--     moved k cm to that side by a motor on a slider across its body
+--   mech = "drag": a shoe, k of its weight, dragged on that side
+--   mech = "sole": that side's soles k cm thicker (a slab welded under)
+--   mech = "stiff", "damp": that side's ankle springs k times as stiff, or
+--     as damped (ANKLE_SPRING)
+--   mech = "linkdamp": the pair's links (as "pair") damped k (as LINK_DAMP)
+STEER = STEER or false
+-- SHOES = { mass =, radius =, out =, grip =, down = } (handover/STEERING.md,
+-- "Stage A"; off): a wheel on each side of every walker, to steer it by
+-- drag -- a ball, mass of the walker's weight (default 0.15), radius cm
+-- (1.5), out cm (5) out beyond its feet, its friction grip times the
+-- feet's (3: braked, it turns the walker about 5 deg/s), always on the ground by its own
+-- weight and free up and down (the walker never carries it, so never
+-- leans), rolling along the walk. room.setShoe(w, side) while it runs
+-- brakes that side's ("L" or "R"; nil for neither) and its skid turns the
+-- walker toward it; down = that side braked at the start. While one is
+-- braked, that walker's yaw damping (YAW_DAMP) is off, so it turns; freed,
+-- the damping holds it on its new heading. The Left and Right arrow keys
+-- brake the walker followed's left or right wheel (again: free it).
+SHOES = SHOES or false
 -- FOOT_POINT = r (cm): no foot at all -- each leg ends in a point, a ball
 -- r in radius at the leg's tip, as heavy as a foot (like a ski pole's tip
 -- or Klann's and Jansen's own legs); nothing across the walk, so the
@@ -378,7 +440,7 @@ local ARENA_Z = ARENA_Z or ARENA
 -- narrow: ARENA_X, ARENA_Z) with no avoidance turns, for TRACK_SECS
 -- seconds, and reports how far it got along x. Its start is moved, by
 -- SEED, up to a bump length along and across, so runs with different
--- seeds meet the bumps differently. See test-track.lua.
+-- seeds meet the bumps differently. See lib/test-track.lua.
 TEST_TRACK = TEST_TRACK or false
 local TRACK_SECS = TRACK_SECS or 60
 local CELL_SET = CELL      -- terrain cell, cm: a launcher can fix it; otherwise it follows BumpLength (below)
@@ -398,20 +460,22 @@ v.gravity = btVector3(0, -981, 0)   -- (each walker's own bodies get their own, 
 
 -- ---------------------------------------------------------------------
 -- the terrain: one bumpy meadow for everyone. Its bump height is the
--- TerrainHeight slider and its bumps' length the BumpLength slider;
--- changing either builds the room again (the floor changes shape, and
--- each walker is built to clear the highest bump).
+-- TerrainHeight slider and its bumps' length the BumpLength slider, in
+-- whole centimetres; moving them builds nothing until G (or a 1-4 key, or
+-- on the test track M or N) builds the room again with them (the floor
+-- changes shape, and each walker is built to clear the highest bump).
 -- ---------------------------------------------------------------------
 
 local AMP = AMP or 1.0     -- bump height, cm: the highest a bump reaches above 0
 local AMP_MAX = 8          -- the slider's top: about the walkers' own sliders' tops, scaled to the room
--- the ranking boards (the test track; boards.lua, made from the table runs
+local pendingAmp, pendingBump   -- (the sliders' values, waiting for the next build)
+-- the ranking boards (the test track; lib/boards.lua, made from the table runs
 -- by runs/boards.py): for the ground it is on -- its terrain, its height
 -- rounded to the cm (flat under 0.5) -- every build run there, best first,
 -- each one's mean speed over the runs' seeds; shown in the output pane when
 -- a walker starts (and on B), with this walker marked, and its own run
 -- set beside it at 20 s
-if TEST_TRACK and BOARDS == nil then pcall(dofile, "boards.lua") end
+if TEST_TRACK and BOARDS == nil then pcall(dofile, "lib/boards.lua") end
 local function boardKey()
   local h = math.floor(AMP + 0.5)
   return (h == 0) and "flat 0" or string.format("%s %d", TERRAIN, h)
@@ -423,7 +487,7 @@ local function boardPlace(b, speed, name)   -- (its place among the others, at t
 end
 local function showBoard(name)
   local b = BOARDS and BOARDS[boardKey()]
-  if not b then print("board: no results for " .. boardKey() .. " yet (runs/boards.py makes boards.lua)"); return end
+  if not b then print("board: no results for " .. boardKey() .. " yet (runs/boards.py makes lib/boards.lua)"); return end
   local t = { string.format("board: %s cm%s -- what to expect (the table runs: each mean over its seeds, the 8 m track, normal ground; cm/s from 5 s to 20 s)",
     boardKey(), TERRAIN_MIRROR and " (this ground is mirrored; the board is for normal ground)" or "") }
   for i, r in ipairs(b) do
@@ -461,7 +525,8 @@ local function trand()           -- its own random numbers, leaving the walkers'
   return tseed / 2147483648
 end
 local WAVES, RIDGES, LEDGES
--- (made again by setTerrain, for the test track's 1-4 keys)
+local ANG_COS, ANG_SIN      -- (the logs' or steps' angles: the least cos and the most |sin| among them)
+-- (made again for the 1-4 keys and the N key)
 local function makeTerrain()
   tseed = TERRAIN_SEED * 7919 + 17
   WAVES, RIDGES, LEDGES = nil, nil, nil
@@ -491,28 +556,53 @@ local function makeTerrain()
       u = u + gap[1] + gap[2] * trand()
     end
     if TERRAIN == "logs" then RIDGES = list else LEDGES = list end
+    ANG_COS, ANG_SIN = 1, 0
+    for _, l in ipairs(list) do ANG_COS, ANG_SIN = math.min(ANG_COS, math.cos(l.ang)), math.max(ANG_SIN, math.abs(math.sin(l.ang))) end
   end
 end
 makeTerrain()
-local function terrainHeight(x, z)
+-- the first of a list of logs or steps (in order along x) at u or beyond
+local function firstFrom(list, u)
+  local lo, hi = 1, #list + 1
+  while lo < hi do
+    local m = math.floor((lo + hi) / 2)
+    if list[m].u < u then lo = m + 1 else hi = m end
+  end
+  return lo
+end
+-- the ground's shape: its height at (x, z) for bumps 1 cm high (the
+-- height is AMP times this). A log or step further along x than W from
+-- the point can't reach it (W allows for its angle and the point's
+-- distance across the way, with room to spare), so only the near ones are
+-- looked at: each gives what it gave when all were, and the steps behind
+-- the point are counted, not looked at.
+local function shapeAt(x, z)
   if TERRAIN_MIRROR then z = -z end   -- (the same ground mirrored left for right: every terrain)
   if WAVES then
     local X, Z, h = x / BUMP, z / BUMP, 0
     for _, w in ipairs(WAVES) do h = h + w.a * math.sin(w.kx * X + w.kz * Z + w.ph) end
-    return AMP * h
+    return h
   elseif RIDGES then
     local X, Z, h = x / BUMP, z / BUMP, 0
-    for _, r in ipairs(RIDGES) do
+    local W = (0.25 + math.abs(Z) * ANG_SIN) / ANG_COS + 1e-3
+    for k = firstFrom(RIDGES, X - W), #RIDGES do
+      local r = RIDGES[k]
+      if r.u > X + W then break end
       local d = (X - r.u) * math.cos(r.ang) + Z * math.sin(r.ang)   -- across the ridge
       if math.abs(d) < 0.25 then h = math.max(h, math.cos(d * 2 * math.pi) ^ 2) end
     end
-    return AMP * h
+    return h
   elseif LEDGES then
-    local X, Z, level = x / BUMP, z / BUMP, 0
-    for _, l in ipairs(LEDGES) do
+    local X, Z = x / BUMP, z / BUMP
+    local W = math.abs(Z) * ANG_SIN / ANG_COS + 1e-3
+    local k0 = firstFrom(LEDGES, X - W)
+    local level = (k0 - 1) % 2                  -- (every step behind: up and down by turns)
+    for k = k0, #LEDGES do
+      local l = LEDGES[k]
+      if l.u > X + W then break end
       if (X - l.u) * math.cos(l.ang) + Z * math.sin(l.ang) > 0 then level = 1 - level end
     end
-    return AMP * level
+    return level
   end
   local r = 22 / BUMP
   -- (TERRAIN_STRAIGHT, a test: the waves turned 14 degrees, so the troughs of
@@ -522,10 +612,11 @@ local function terrainHeight(x, z)
     local c, s = math.cos(math.rad(14.04)), math.sin(math.rad(14.04))
     x, z = x * c - z * s, x * s + z * c
   end
-  return AMP * (0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
-                0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
-                0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1))
+  return 0.5 * math.sin((x * 0.19 + z * 0.13) * r) +
+         0.3 * math.sin((x * 0.07 - z * 0.28) * r + 1.7) +
+         0.2 * math.sin((x * 0.34 + z * 0.045) * r + 4.1)
 end
+local function terrainHeight(x, z) return AMP * shapeAt(x, z) end
 
 -- the terrain's cells: about a sixth of the shortest wavelength (4 cm
 -- at BUMP 22), so short bumps stay round. That is (22 / BUMP)^2 times
@@ -538,6 +629,24 @@ local function setCells()
   NX, NZ = math.floor(ARENA_X / CELL), math.floor(ARENA_Z / CELL)
 end
 setCells()
+
+-- the ground's shape (shapeAt) at every corner of the cells and in the
+-- middle of every cell (and of the ring of cells round them, for the
+-- colours' slopes), each worked out once: the triangles that meet at a
+-- corner, and the cells next to one another, share them (they were worked
+-- out up to six times each)
+local function groundShape()
+  local corner, middle = {}, {}
+  for i = 0, NX do
+    local x, n = X0 + i * CELL, i * (NZ + 1)
+    for j = 0, NZ do corner[n + j + 1] = shapeAt(x, Z0 + j * CELL) end
+  end
+  for i = -1, NX do
+    local x, n = X0 + (i + 0.5) * CELL, (i + 1) * (NZ + 2)
+    for j = -1, NZ do middle[n + j + 2] = shapeAt(x, Z0 + (j + 0.5) * CELL) end
+  end
+  return { corner = corner, middle = middle }
+end
 
 -- everything the room adds, to take it all down again for a rebuild (the
 -- ground and walls kept apart from the walkers, so the test track can put
@@ -565,11 +674,13 @@ end
 local function clamp(c) return math.max(0, math.min(255, math.floor(c + 0.5))) end
 local function mix(a, b, t) return { a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t } end
 local GRASS, GRASS_DRY, DIRT, DIRT_DARK = { 58, 112, 38 }, { 128, 132, 58 }, { 128, 92, 56 }, { 92, 64, 40 }
+local groundNow              -- (groundShape's, for the ground standing now)
 local function cellColour(i, j)
   local x, z = X0 + (i + 0.5) * CELL, Z0 + (j + 0.5) * CELL
-  local y = terrainHeight(x, z) / math.max(AMP, 1e-6)
-  local slope = (math.abs(terrainHeight(x + CELL, z) - terrainHeight(x - CELL, z)) +
-                 math.abs(terrainHeight(x, z + CELL) - terrainHeight(x, z - CELL))) / CELL
+  local middle = groundNow.middle
+  local function h(a, b) return AMP * middle[(a + 1) * (NZ + 2) + b + 2] end   -- (cell a, b's middle)
+  local y = h(i, j) / math.max(AMP, 1e-6)
+  local slope = (math.abs(h(i + 1, j) - h(i - 1, j)) + math.abs(h(i, j + 1) - h(i, j - 1))) / CELL
   local patch = math.sin(x * 0.011 + 1.3) + math.sin(z * 0.013 - 0.4) + 0.6 * math.sin((x + z) * 0.024)
   local t = math.max(0, math.min(1, (patch - 0.9) * 2.5))
   local c = mix(mix(GRASS, GRASS_DRY, math.max(0, math.min(1, y * 0.4 + 0.3))), DIRT, t)
@@ -588,14 +699,22 @@ local WALL_H, WALL_T = 20, 10
 
 local function buildTerrain()
   setCells()
+  local shape = groundShape()
+  groundNow = shape
   floor = Terrain()
+  local P = {}   -- (each corner once, shared by the triangles that meet there)
+  for i = 0, NX do
+    local x, n = X0 + i * CELL, i * (NZ + 1)
+    for j = 0, NZ do P[n + j + 1] = btVector3(x, AMP * shape.corner[n + j + 1], Z0 + j * CELL) end
+  end
   for i = 0, NX - 1 do
-    for j = 0, NZ - 1 do
-      local xa, xb, za, zb = X0 + i * CELL, X0 + (i + 1) * CELL, Z0 + j * CELL, Z0 + (j + 1) * CELL
-      floor:addTriangle(btVector3(xa, terrainHeight(xa, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, za), za))
-      floor:addTriangle(btVector3(xb, terrainHeight(xb, za), za), btVector3(xa, terrainHeight(xa, zb), zb), btVector3(xb, terrainHeight(xb, zb), zb))
+    local a, b = i * (NZ + 1), (i + 1) * (NZ + 1)
+    for j = 1, NZ do
+      floor:addTriangle(P[a + j], P[a + j + 1], P[b + j])
+      floor:addTriangle(P[b + j], P[a + j + 1], P[b + j + 1])
     end
   end
+  P = nil
   floor:build()
   floor.col = "#5a7a32"
   floor.friction = 0.8
@@ -770,6 +889,195 @@ local function qrot(qx, qy, qz, qw, vx, vy, vz)
   return vx + qw * tx + (qy * tz - qz * ty), vy + qw * ty + (qz * tx - qx * tz), vz + qw * tz + (qx * ty - qy * tx)
 end
 
+-- STEER (above): each foot's and crank motor's side ("L" or "R") and end
+-- (front or not) in the body's frame, as built, and the bias put on
+-- (a walker's frame for parts added to it, as built: its body's place and
+-- turn; each foot's side ("L" or "R") and end in the body's frame; its
+-- weight, its feet's friction, half their track and their soles' height;
+-- part() adds a part, turned as its body, at a place in its frame; slider()
+-- puts a part on a slider to the body. STEER and SHOES, below)
+local function walkerGeom(w, made, opts)
+  local G = {}
+  local c = w.cube.body:getCenterOfMassPosition()
+  local q = w.cube.body:getCenterOfMassTransform():getRotation()
+  local fx, fy, fz = qrot(q:x(), q:y(), q:z(), q:w(), w.forward, 0, 0)   -- the way it walks
+  local function place(x, y, z)   -- (right = forward x up)
+    local dx, dz = x - c.x, z - c.z
+    return (dx * -fz + dz * fx > 0) and "R" or "L", dx * fx + dz * fz > 0
+  end
+  G.c, G.q, G.place = c, q, place
+  G.feet = {}
+  for _, o in ipairs(w.bodies) do
+    if made[o] == "buildFoot" then
+      local p = o.body:getCenterOfMassPosition()
+      local side, front = place(p.x, p.y, p.z)
+      G.feet[#G.feet + 1] = { o = o, side = side, front = front }
+    end
+  end
+  local cq = btQuaternion(q:x(), q:y(), q:z(), q:w())
+  local tot, mu, half, bottom = 0, 0, 0, 1e30   -- (its weight; its feet's friction, half their track, their soles' height)
+  for _, o in ipairs(w.bodies) do tot = tot + o.mass end
+  if SAME_BODY then tot = w.totalMass end   -- (its body's weight is set after this, below)
+  for _, f in ipairs(G.feet) do
+    local p = f.o.body:getCenterOfMassPosition()
+    local _, ly, lz = qrot(-q:x(), -q:y(), -q:z(), q:w(), p.x - c.x, p.y - c.y, p.z - c.z)
+    mu, half, bottom = mu + f.o.body:getFriction() / #G.feet, half + math.abs(lz) / #G.feet, math.min(bottom, ly - FOOT.thick / 2)
+  end
+  G.cq, G.tot, G.mu, G.half, G.bottom = cq, tot, mu, half, bottom
+  function G.part(o, lx, ly, lz)   -- (a part added to the walker, turned as its body, at (lx, ly, lz) in its frame)
+    local x, y, z = qrot(q:x(), q:y(), q:z(), q:w(), lx, ly, lz)
+    o.trans = btTransform(cq, btVector3(c.x + x, c.y + y, c.z + z))
+    o.col = "#C08020"
+    addObject(o)
+    w.bodies[#w.bodies + 1] = o
+    return o
+  end
+  function G.slider(o, inCube, inPart, lo, hi)   -- (o on a slider to the body, along each frame's x; not turning)
+    local sl = btSliderConstraint(w.cube.body, o.body, inCube, inPart, true)
+    sl:setLowerLinLimit(lo); sl:setUpperLinLimit(hi)
+    sl:setLowerAngLimit(0); sl:setUpperAngLimit(0)
+    opts.addConstraint(sl)
+    if SOLVER_ITERATIONS then sl:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+    return sl
+  end
+  return G
+end
+
+local function steerSetup(w, made, opts)
+  local G = walkerGeom(w, made, opts)
+  local c, q, place = G.c, G.q, G.place
+  local S = { feet = G.feet, motors = {} }
+  for _, m in ipairs(w.motors) do
+    for _, j in ipairs(w.joints) do
+      if rawequal(j[4], m.hinge) then
+        local a, b = j[1]:getCenterOfMassPosition(), j[2] and j[2]:getCenterOfMassPosition() or j[1]:getCenterOfMassPosition()
+        m.side, m.front = place((a.x + b.x) / 2, 0, (a.z + b.z) / 2)
+      end
+    end
+  end
+  -- (in the body's frame: forward is (w.forward, 0, 0), up (0, 1, 0), so
+  -- the walker's left is (0, 0, -w.forward); d: the bias's side along z)
+  local mech, side, k = STEER.mech, STEER.side, STEER.amount or 1
+  local d = -w.forward * ((side == "L") and 1 or -1)
+  local cq, tot, mu, half, bottom = G.cq, G.tot, G.mu, G.half, G.bottom
+  local part, slider = G.part, G.slider
+  if mech == "friction" then
+    for _, f in ipairs(S.feet) do
+      if f.side == side then f.o.body:setFriction(f.o.body:getFriction() * k) end
+    end
+  elseif mech == "pair" or mech == "side" then
+    for _, m in ipairs(w.motors) do
+      local on
+      if mech == "pair" then on = (m.side == side) == (m.front == true) else on = (m.side == side) end
+      m.group = on and 1 or 2
+      if on then m.speed = m.speed * k end
+    end
+  elseif mech == "ballast" then
+    -- a ballast, STEER.mass (default 0.25) of the walker's weight, inside
+    -- its body (touching nothing), on a slider across it: its motor pushes
+    -- it k cm to that side, against a stop, and holds it there
+    local m = (STEER.mass or 0.25) * tot
+    local o = part(Cube(4, 2, 4, m), 0, 0, 0)
+    o.body:setCollisionFlags(o.body:getCollisionFlags() + 4)
+    local h = math.rad(-d * 90) / 2   -- (the slider's x across the body, to that side)
+    local fr = btTransform(btQuaternion(0, math.sin(h), 0, math.cos(h)), btVector3(0, 0, 0))
+    local sl = slider(o, fr, fr, 0, k)
+    sl:setPoweredLinMotor(true); sl:setTargetLinMotorVelocity(10); sl:setMaxLinMotorForce(10 * m * GRAVITY)
+    S.note = string.format("ballast %.1f g, %g cm", m, k)
+  elseif mech == "drag" then
+    -- a drag shoe, k of the walker's weight: a 1.5 cm ball on the ground,
+    -- 3 cm out beyond that side's feet (on an arm: the slider's frame), on
+    -- a slider that leaves it free up and down but not to turn (so it
+    -- slides, not rolls); out there it touches none of the legs, even with
+    -- the feet tilted on waves 2
+    local r = 1.5
+    local m, ly, lz = k * tot, bottom + r, d * (half + FOOT.width / 2 + r + 3)
+    local o = part(Sphere(r, m), 0, ly, lz)
+    o.body:setFriction(mu)
+    local h = math.pi / 4   -- (the slider's x up)
+    slider(o, btTransform(btQuaternion(0, 0, math.sin(h), math.cos(h)), btVector3(0, ly, lz)),
+      btTransform(btQuaternion(0, 0, math.sin(h), math.cos(h)), btVector3(0, 0, 0)), -30, 30)
+    S.note = string.format("shoe %.1f g, %.1f cm to the side", m, math.abs(lz))
+  elseif mech == "sole" then
+    -- that side's soles k cm thicker: a slab, as wide and long as the foot,
+    -- welded under it (as heavy as a quarter of a foot)
+    local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
+    for _, f in ipairs(S.feet) do
+      if f.side == side then
+        f.o.body:getAabb(lo, hi)
+        local fm = FOOT.mass / 4
+        local o = Cube(hi.x - lo.x - 0.08, k, hi.z - lo.z - 0.08, fm)
+        o.trans = btTransform(cq, btVector3((lo.x + hi.x) / 2, lo.y + 0.04 - k / 2, (lo.z + hi.z) / 2))
+        o.col = "#C08020"
+        addObject(o)
+        w.bodies[#w.bodies + 1] = o
+        o.body:setFriction(f.o.body:getFriction())
+        local weld = btFixedConstraint(f.o.body, o.body, f.o.body:getCenterOfMassTransform():inverseTimes(o.body:getCenterOfMassTransform()),
+          btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)))
+        opts.addConstraint(weld)
+        if SOLVER_ITERATIONS then weld:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+      end
+    end
+  elseif mech == "stiff" or mech == "damp" then
+    -- that side's ankle springs (ANKLE_SPRING) k times as stiff, or as damped
+    assert(ANKLE_SPRING and w.ankleSprings, "STEER " .. mech .. ": needs ANKLE_SPRING")
+    for _, f in ipairs(S.feet) do
+      local sp = w.ankleSprings[f.o]
+      if f.side == side and sp then
+        if mech == "stiff" then sp:setStiffness(5, ANKLE_SPRING.stiffness * k, false)
+        else sp:setDamping(5, (ANKLE_SPRING.damping or 0) * k, false) end
+      end
+    end
+  elseif mech == "linkdamp" then
+    -- one diagonal pair's links' own damping k (as LINK_DAMP, on that pair
+    -- only: the pair whose front foot is on that side); braces left alone
+    local n = 0
+    for _, o in ipairs(w.bodies) do
+      if o.mass > 0 and not rawequal(o, w.cube) and made[o] ~= "buildFoot" and not (made[o] or ""):find("Crossbar") then
+        local p = o.body:getCenterOfMassPosition()
+        local sd, front = place(p.x, p.y, p.z)
+        if (sd == side) == front then o.body:setDamping(k, k); n = n + 1 end
+      end
+    end
+    S.note = n .. " links damped"
+  end
+  w.steer = S
+end
+
+-- SHOES (above): a wheel on each side, always down -- a ball that rolls
+-- along the walk, resting on the ground by its own weight (on a joint that
+-- leaves it free up and down, so the walker never carries it, and never
+-- leans), SHOES.out cm (5) out beyond that side's feet. Rolling, it drags
+-- next to nothing; setShoe(w, side) brakes that side's ("L" or "R") and
+-- frees the other, setShoe(w, nil) frees both; braked, it skids, and its
+-- drag turns the walker toward it.
+local function setShoe(w, side)
+  if not w.wheels then return end
+  for s, wh in pairs(w.wheels) do wh.joint:setMaxMotorForce(5, (s == side) and wh.brake or 0) end
+  w.shoeDown = side
+end
+local function shoesSetup(w, made, opts)
+  local G = walkerGeom(w, made, opts)
+  local r = SHOES.radius or 1.5
+  local m = (SHOES.mass or 0.15) * G.tot
+  w.wheels = {}
+  for _, side in ipairs({ "L", "R" }) do
+    local d = -w.forward * ((side == "L") and 1 or -1)   -- (that side, along the body's z)
+    local ly, lz = G.bottom + r, d * (G.half + FOOT.width / 2 + r + (SHOES.out or 5))
+    local o = G.part(Sphere(r, m), 0, ly, lz)
+    o.body:setFriction(G.mu * (SHOES.grip or 3))   -- (grip: the wheel's friction, times the feet's)
+    local j = btGeneric6DofSpring2Constraint(w.cube.body, o.body, btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, ly, lz)),
+      btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)))
+    j:setLimit(0, 0, 0); j:setLimit(1, -30, 30); j:setLimit(2, 0, 0)   -- (only up and down)
+    j:setLimit(3, 0, 0); j:setLimit(4, 0, 0); j:setLimit(5, 1, -1)     -- (turning only about the body's z: rolling along the walk)
+    j:enableMotor(5, true); j:setTargetVelocity(5, 0); j:setMaxMotorForce(5, 0)   -- (the brake: off)
+    opts.addConstraint(j)
+    if SOLVER_ITERATIONS then j:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
+    w.wheels[side] = { o = o, joint = j, brake = 1e9 }
+  end
+  setShoe(w, SHOES.down)
+end
+
 -- the whole walker turned rigidly by the rotation (rx, ry, rz, rw) about
 -- the point (cx, cy, cz), with its velocities turned too
 local function rotateWalker(w, cx, cy, cz, rx, ry, rz, rw)
@@ -806,11 +1114,12 @@ end
 
 local walkers = {}
 room = { walkers = walkers, groundAt = terrainHeight }   -- (global, for tests and the command line)
+room.setShoe = setShoe   -- (SHOES: for launchers, probes and the keys)
 local trackLo, trackHi = btVector3(0, 0, 0), btVector3(0, 0, 0)   -- (the test track's air measure)
 
 -- ---------------------------------------------------------------------
 -- marking the bodies (spec.look): the body and its braces painted its
--- linkage's colour (the rest of the walker in plain greys),
+-- linkage's colour (its links cyan, LINK_COLOUR, and its feet dark grey),
 -- a gold rim round its top edges for a linkage Spears changed, a line
 -- across it for a diag build, and its code in raised letters on top.
 -- These are for looks only: bodies that touch nothing and weigh nothing,
@@ -910,13 +1219,14 @@ local function markBody(w, look)
   if not look then return end
   w.cube.col = look.colour
   -- its braces (the plates and bars between its legs) in its colour too,
-  -- everything else in plain greys, so the walker's colours stand out
+  -- its links cyan (LINK_COLOUR: a colour no body, pin or ground uses, so
+  -- the links show; grey until 8 November) and its feet dark grey
   for _, o in ipairs(w.bodies) do
     if not rawequal(o, w.cube) then
       local by = w.madeBy and w.madeBy[o] or ""
       if by:find("Crossbar") then o.col = look.colour
       elseif by == "buildFoot" then o.col = "#3C3C3C"
-      else o.col = "#6A6A6A" end
+      else o.col = LINK_COLOUR or "#00C8D7" end
     end
   end
   -- the body's size, from its box as built (still lined up with its axes)
@@ -1364,6 +1674,7 @@ local function addWalker(spec, x, z, heading)
         spring:setDamping(5, ANKLE_SPRING.damping or 0, false)
         spring:setEquilibriumPoint(5, 0)
         opts.addConstraint(spring)
+        w.ankleSprings = w.ankleSprings or {}; w.ankleSprings[o] = spring   -- (STEER)
         if SOLVER_ITERATIONS then spring:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
         -- (the hinged foot's own turning left undamped: its files damp it
         -- fully, 1.0, which would hold it against the spring; the spring's
@@ -1444,6 +1755,8 @@ local function addWalker(spec, x, z, heading)
       end
     end
   end
+  if STEER then steerSetup(w, made, opts) end   -- (after the springs, damping and braces above: it changes them)
+  if SHOES then shoesSetup(w, made, opts) end
   -- its radius: half the diagonal of its moving bodies' footprint (from
   -- the moving bodies only: static ones would make it look huge)
   local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
@@ -1920,7 +2233,7 @@ local function clearTrails()
 end
 
 -- ---------------------------------------------------------------------
--- building (and building again, when the TerrainHeight slider moves)
+-- building (and building again: G, the 1-4 keys)
 -- ---------------------------------------------------------------------
 
 local owner = {}            -- [objectKey(body)] = its walker (for the hover)
@@ -1939,6 +2252,9 @@ local function placeWalkers()
   simTime = 0
 end
 local function buildRoom()
+  AMP, BUMP = pendingAmp or AMP, pendingBump or BUMP   -- (the sliders' values, if they were moved)
+  if pendingAmp or pendingBump then v.statusText = "" end   -- (the note that they were waiting)
+  pendingAmp, pendingBump = nil, nil
   buildTerrain()
   painted = {}
   placeWalkers()
@@ -1958,10 +2274,30 @@ local function teardownRoom()
   groundObjects = {}
 end
 
-v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 0.1, "bump height, cm (the room is built again when you let go)")
-v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 0.5, "bump length, cm (the stride is 15; the room is built again when you let go)")
+v:addParam("TerrainHeight", AMP, 0, AMP_MAX, 1, "bump height, cm (G builds the room with it)")
+v:addParam("BumpLength", BUMP, BUMP_MIN, BUMP_MAX, 1, "bump length, cm (the stride is 15; G builds the room with it)")
+-- THREADS (default 4; the room only, not the test track's one walker): the
+-- walkers solved side by side on this many threads; the Threads slider
+-- changes it while the room runs, and the status line shows how fast (as
+-- ../Testing_Threads.lua). The room walks the same, move for move, at any
+-- number of threads; at 0, very slightly differently (without threads
+-- Bullet solves two or three walkers together). Needs bpp built with Bullet
+-- with threads (scripts/bullet-threads.sh, then qmake CONFIG+=bundled_bullet;
+-- THREADS.md); otherwise the status line says so. 4 was the fastest on
+-- William's 8-core machine for 4, 11 and 21 walkers, about 2.5 times
+-- threads 0 (handover/THREADS.md, 10 November); a machine with fewer
+-- hardware threads uses what it has.
+THREADS = THREADS or 4
+local HAS_THREADS = false
+local threadsT0, threadsSpent, threadsFrames, threadsWall0, threadsBase = 0, 0, 0, 0, nil
+if not TEST_TRACK then
+  HAS_THREADS = v:setThreads(1) > 0   -- (how many it uses: 0 with the system Bullet)
+  v:setThreads(THREADS)
+  v:addParam("Threads", THREADS, 0, 16, 1, "threads solving the walkers side by side (0: as without threads)")
+  threadsWall0 = v:getTime()
+end
 -- VIEWS (test track): a list of { walker =, label =, reverse =, gait =,
--- unbraced =, crank =, hold = } -- see test-square.lua. Tab goes through those
+-- unbraced =, crank =, hold = } -- see test-ranking.lua. Tab goes through those
 -- instead of the walkers, each built, timed and turned its own way (the
 -- room's REVERSE, GAIT, UNBRACED and CRANK_SCALE, set for it, and
 -- PENDANT_HOLD when the view gives hold); the track starts with
@@ -2014,27 +2350,30 @@ end
 local function lockCranks(w)
   local n = #w.motors
   if n < 2 then return end
-  local sum = 0
+  local sum, cnt = {}, {}   -- (by m.group: STEER's loosened lock; one group otherwise)
   for _, m in ipairs(w.motors) do
     local a = m.hinge:getHingeAngle()
     local d = a - m.last
     if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
     m.turned, m.last = m.turned + d * m.sign, a
-    sum = sum + m.turned
+    local g = m.group or 1
+    sum[g], cnt[g] = (sum[g] or 0) + m.turned, (cnt[g] or 0) + 1
   end
-  local mean = sum / n
   for _, m in ipairs(w.motors) do
+    local g = m.group or 1
+    local mean = sum[g] / cnt[g]
     local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
     m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
   end
 end
 
 v:preSim(function(N)
+  threadsT0 = v:getTime()   -- (the Threads readout: a frame's time, from here to the start of postSim)
   simTime = simTime + FRAME
   for k, w in ipairs(walkers) do
     if JOINT_FRICTION then jointFriction(w) end
     if LOCK_CRANKS then lockCranks(w) end
-    if YAW_DAMP then   -- (its turning about the vertical damped: YAW_DAMP)
+    if YAW_DAMP and not w.shoeDown then   -- (its turning about the vertical damped: YAW_DAMP; not while a wheel is braked, SHOES)
       local ax, ay, az = getAngVelXYZ(w.cube)
       setAngVelXYZ(w.cube, ax, ay * (1 - YAW_DAMP), az)
     end
@@ -2126,7 +2465,7 @@ v:preSim(function(N)
       do
         local gap = 1e9
         for _, o in ipairs(w.bodies) do
-          if o.mass > 0 then
+          if o.mass > 0 and not (w.wheels and (rawequal(o, w.wheels.L.o) or rawequal(o, w.wheels.R.o))) then   -- (not the wheels, always down)
             o.body:getAabb(trackLo, trackHi)
             local top = -1e9
             for i = 0, 2 do for j = 0, 2 do
@@ -2163,6 +2502,18 @@ local FOLLOW_OFFSET = { -70, 60, 85 }   -- cm from the walker, the same way the 
 local following, followX, followZ        -- the walker followed (nil: the overview), and where it was
 local lastFollowed                        -- (the last one followed: O goes back to it)
 
+-- the wheels (SHOES): the arrow keys' lines for the help, and the status line's note
+local function wheelHelp()
+  if not SHOES then return "" end
+  return "Left Right  brake the left (right) wheel of the walker" .. (TEST_TRACK and "" or " followed") .. ": it turns\n" ..
+         "            that way; the same key again frees it, and it walks on\n" ..
+         "            straight from there\n"
+end
+local function wheelNote(w)
+  if not (w and w.wheels) then return "" end
+  return (w.shoeDown == "L" and "left wheel braked" or w.shoeDown == "R" and "right wheel braked" or "wheels free") .. " | "
+end
+
 local function helpText()
   if TEST_TRACK then
     local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
@@ -2170,16 +2521,19 @@ local function helpText()
     h = h .. "Tab         put the next walker on the track (built again): the next\n"
     h = h .. "            down this ground's ranking board\n"
     h = h .. "Shift+Tab   the one before\n"
+    h = h .. wheelHelp()
     h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. ")\n"
     h = h .. "M           the ground mirrored left for right, or back (now " .. (TERRAIN_MIRROR and "mirrored" or "normal") .. ")\n"
     h = h .. "N           the next seed, 1 to 4 (now " .. SEED .. ")\n"
     h = h .. "O           look over the whole track (O again: follow it again)\n"
     h = h .. "F           follow the walker again\n"
     h = h .. "B           the ranking board for this ground (output pane)\n"
+    h = h .. "G           build the track again with the sliders' height and length\n"
     h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
     h = h .. "It walks straight for " .. TRACK_SECS .. " s, then prints how far it got (the\n"
     h = h .. "output pane), and carries on. TerrainHeight and BumpLength (Params\n"
-    h = h .. "pane) build the track again with the same walker.\n\n"
+    h = h .. "pane) set the next ground; G builds it, with the same walker (1-4, M\n"
+    h = h .. "and N build with them too).\n\n"
     h = h .. "Each time it starts, the output pane shows the ranking board for\n"
     h = h .. "this ground (terrain and height to the cm): every walker's mean speed\n"
     h = h .. "there in the table runs, this one marked; at 20 s, its own run beside it.\n\n"
@@ -2195,19 +2549,22 @@ local function helpText()
     h = h .. "Tab         put the next walker in place of the one followed (it walks\n"
     h = h .. "            on from there; the others carry on)\n"
     h = h .. "Shift+Tab   the one before\n"
-    h = h .. "1 2 3 4     the ground: waves, random, logs, steps (built again)\n"
   else
     h = h .. "Tab         follow the next walker\n"
     h = h .. "Shift+Tab   follow the one before\n"
   end
+  h = h .. wheelHelp()
+  h = h .. "1 2 3 4     the ground: waves, random, logs, steps (now " .. TERRAIN .. "; built again)\n"
   h = h .. "O           look over the whole room (O again: follow again)\n"
   h = h .. "T           clear the trails\n"
+  h = h .. "G           build the room again with the sliders' height and length\n"
   h = h .. "Mouse       turn and zoom the view (while following, it still follows)\n\n"
   h = h .. "Rest the pointer on a walker, or on a trail, to see whose it is,\n"
   h = h .. "how far it has gone, its average speed, and how often it has turned\nor been stood up.\n\n"
   h = h .. "TerrainHeight (Params pane): how high the bumps are, 0 to " .. AMP_MAX .. " cm.\n"
   h = h .. "BumpLength: how long they are, " .. BUMP_MIN .. " to " .. BUMP_MAX .. " cm (every walker's stride is " .. STRIDE .. " cm).\n"
-  h = h .. "The room is built again, every walker back at its start, when you let go.\n\n"
+  h = h .. "Moving them builds nothing: G builds the room with them, every walker\n"
+  h = h .. "back at its start (the 1-4 keys build with them too).\n\n"
   h = h .. "Each body shows its walker's code: its linkage's inventor(s) -- J Jansen,\n"
   h = h .. "K Klann, C Chebyshev, H Hoecken, S Spears; -S: a linkage Spears changed,\n"
   h = h .. "which also has a gold rim -- then its number of bars, S if a slider. A\n"
@@ -2233,6 +2590,7 @@ local function follow(w)
 end
 
 v:postSim(function(N)
+  threadsSpent, threadsFrames = threadsSpent + (v:getTime() - threadsT0), threadsFrames + 1
   if following then
     -- (moved by how far the walker has gone across the ground; not up and
     -- down, so the view doesn't bob with its gait)
@@ -2341,7 +2699,32 @@ local function swapWalker(w, step)
   follow(nw)
 end
 
+-- what the sliders are waiting to build ("" when nothing)
+local function slidersNote()
+  if not (pendingAmp or pendingBump) then return "" end
+  return string.format("TerrainHeight %d, BumpLength %d: press G to build (now %g, %g)",
+    pendingAmp or AMP, pendingBump or BUMP, AMP, BUMP)
+end
+-- G: the room (or the track) built again with the sliders' values, the
+-- same walkers on it, the same one followed
+local function buildWithSliders()
+  if not (pendingAmp or pendingBump) then
+    print(string.format("G: the ground is already TerrainHeight %g, BumpLength %g (move a slider first)", AMP, BUMP))
+    return
+  end
+  local k = following and following.index
+  local c0 = os.clock()
+  teardownRoom()
+  buildRoom()
+  follow(k and walkers[k] or nil)
+  print(string.format("TerrainHeight = %g cm, BumpLength = %g cm (built again in %.1f s)", AMP, BUMP, os.clock() - c0))
+end
+
 v:onKey(function(N, key, down)
+  if key == "G" then
+    if down then buildWithSliders() end
+    return true
+  end
   if TEST_TRACK and (key == "Tab" or key == "Backtab") then
     if down then trackNext(key == "Tab" and 1 or -1) end
     return true
@@ -2378,9 +2761,23 @@ v:onKey(function(N, key, down)
     if down then swapWalker(following, key == "Tab" and 1 or -1) end
     return true
   end
-  if ROOM_SWAP and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
+  if key == "Left" or key == "Right" then   -- (the wheels, SHOES: brake one side's, or free it)
+    if down then
+      local w = TEST_TRACK and walkers[1] or following
+      if not SHOES then print("the wheels are off (SHOES = false)")
+      elseif not w then print("room: follow a walker first (" .. (ROOM_SWAP and "F" or "Tab") .. ")")
+      else
+        local side = (key == "Left") and "L" or "R"
+        room.setShoe(w, (w.shoeDown ~= side) and side or nil)
+        print(w.spec.name .. ": " .. wheelNote(w):sub(1, -4))
+      end
+    end
+    return true   -- (not the camera's: bpp would move the view)
+  end
+  if not TEST_TRACK and TERRAIN_KEYS[key] then   -- (the room's ground, built again with the same walkers)
     if down then
       TERRAIN = TERRAIN_KEYS[key]
+      makeTerrain()   -- (the new kind's bumps; without it the room was built again on the old ground)
       local k = following and following.index
       teardownRoom()
       buildRoom()
@@ -2428,17 +2825,44 @@ v:onHover(function(N, obj, x, y, z)
     first, w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
 end)
 
--- the TerrainHeight and BumpLength sliders: the room is built again
--- once a slider has stayed put for a moment (a drag sends every value it
--- passes through, and each build takes a second or more)
-local pendingAmp, pendingBump, pendingAt, draws = nil, nil, 0, 0
+-- the TerrainHeight and BumpLength sliders, in whole centimetres: they
+-- only set the next ground's height and length (pendingAmp, pendingBump),
+-- shown on the status line, and G (or any key that builds) builds it
+local draws = 0
 v:onParamChanged(function(N, name, value)
-  if name == "TerrainHeight" then pendingAmp, pendingAt = value, draws end
-  if name == "BumpLength" then pendingBump, pendingAt = value, draws end
+  value = math.floor(value + 0.5)
+  if name == "TerrainHeight" then pendingAmp = (value ~= AMP) and value or nil end
+  if name == "BumpLength" then pendingBump = (value ~= BUMP) and value or nil end
+  if name == "Threads" then
+    THREADS = value
+    v:setThreads(THREADS)
+    threadsSpent, threadsFrames, threadsWall0 = 0, 0, v:getTime()
+  end
+  v.statusText = slidersNote()
 end)
 local AIR_COLOUR = "#FF2020"
 v:preDraw(function(N)
   draws = draws + 1
+  -- (the room: the status line shows how fast, about once a second when it
+  -- keeps up, as ../Testing_Threads.lua; and in the terminal, to copy)
+  if not TEST_TRACK and threadsFrames >= 60 then
+    local per, now = threadsSpent / threadsFrames, v:getTime()
+    local seen = threadsFrames * FRAME / (now - threadsWall0)
+    if THREADS == 0 then threadsBase = per end
+    local line
+    if not HAS_THREADS and THREADS > 0 then
+      line = "this bpp has no threads: build it with scripts/bullet-threads.sh and qmake CONFIG+=bundled_bullet"
+    else
+      line = string.format("threads %d | physics %.1f ms a frame: %.2fx real time | you see %.2fx", THREADS,
+        per * 1000, FRAME / per, seen)
+      if threadsBase and THREADS > 0 then line = line .. string.format(" | %.1fx as fast as no threads", threadsBase / per) end
+      if not threadsBase then line = line .. " | set Threads to 0 for a while to measure it without" end
+    end
+    local note = slidersNote()
+    v.statusText = (note ~= "" and (note .. " | ") or "") .. wheelNote(following) .. line
+    io.stdout:write("room: ", line, "\n"); io.stdout:flush()
+    threadsSpent, threadsFrames, threadsWall0 = 0, 0, now
+  end
   -- (the test track: the status line shows where the walker is at, and
   -- its body turns red while it is off the ground)
   local w = TEST_TRACK and walkers[1]
@@ -2449,22 +2873,12 @@ v:preDraw(function(N)
     if draws % 10 == 0 then
       local x = getPosXYZ(w.cube)
       local t = simTime - w.trackStart[3]
-      v.statusText = string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
+      local note = slidersNote()
+      v.statusText = (note ~= "" and (note .. " | ") or "") .. wheelNote(w) ..
+        string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
         w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", TERRAIN, t,
         (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))
     end
-  end
-  if (pendingAmp or pendingBump) and draws - pendingAt >= 20 then
-    local amp, bump = pendingAmp or AMP, pendingBump or BUMP
-    if math.abs(amp - AMP) > 1e-9 or math.abs(bump - BUMP) > 1e-9 then
-      AMP, BUMP = amp, bump
-      teardownRoom()
-      buildRoom()
-      local k = following and following.index
-      follow(k and walkers[k] or nil)
-      print(string.format("TerrainHeight = %.1f cm, BumpLength = %.1f cm (room built again)", AMP, BUMP))
-    end
-    pendingAmp, pendingBump = nil, nil
   end
 end)
 

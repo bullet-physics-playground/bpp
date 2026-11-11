@@ -23,8 +23,10 @@ of legs here instead of three. The two 2-leg Spears are left out (a side
 experiment: two legs can't be compared fairly with four); `TWO_LEGS =
 true` brings them back.
 
-`test-square.lua` shows each walker's best version on each kind of
-ground, one at a time (Test square, below).
+To watch them: `test-ranking.lua` (the 11 walkers that could really be
+built, one at a time on the test track), `room-four.lua` (four at once in
+the room), or `walker-room.lua` opened on its own (all 11 in the room;
+Watching, below).
 
 ## A fair comparison
 
@@ -343,17 +345,15 @@ way it was facing, and carries on.
 
 ## Test track
 
-`test-track.lua` runs one walker from the room -- the same stride, chassis,
+`lib/test-track.lua` runs one walker from the room -- the same stride, chassis,
 feet, crank speed and gravity -- straight down a 10 m x 2 m strip of the
 room's terrain, with no avoidance turns, and prints how far it got in
-60 s. Open it in bpp to watch one walker (the settings are at its top; Tab
-and Shift+Tab put the next or previous walker on the track, timed from
-when it is put there), or run `./test-track-all.sh path/to/bpp` to run
-every walker on flat ground and at bump heights 2, 4 and 6 cm and lengths
-11, 15 and 22 cm, from 4 starting points each (about 25 minutes); the
-results go to `test-track-results.txt`. `EXTRA` adds settings to every run
-(`EXTRA="FOOT_LENGTH=4" ./test-track-all.sh ...`) and `OUT` names the
-results file.
+60 s. A script sets the walker and its settings and then loads it
+(`test-ranking.lua` to watch; Tab and Shift+Tab put the next or previous
+walker on the track, timed from when it is put there). The tables are run with `runs/run-table.sh`
+(headless, every build on every terrain; its own comments say how).
+(The old `test-track-all.sh`, which made the table below, was removed on
+9 November 2026.)
 
 Share of its flat-ground speed each walker kept (mean of the 4 starts;
 columns are bump height / bump length, in cm), with the lift of its foot
@@ -425,7 +425,7 @@ mean little.
 
 Each walker run the way it does best -- forward or reversed (`REVERSE`),
 with its own timing or trotting (`GAIT`; plated walkers with `UNBRACED`,
-or the diag-braced builds in `trotting-walkers.lua`) -- and 8 starts per
+or the diag-braced builds in `lib/trotting-walkers.lua`) -- and 8 starts per
 setting. Ranked by speed on bumps, the fairest measure once the walkers
 run differently (the reversed, trotting Spears 4-bar is slow on flat
 ground, which inflates its share kept); +- is the standard error over the
@@ -522,7 +522,7 @@ timing (sides: both legs on a side together; trot: diagonal legs
 together) and direction (forward, reversed). Plates fix the timing at
 sides and diagonal braces at trot; guides take either. The diagonal
 builds of Hoecken-Spears 4-bar duty 85 and Chebyshev-Spears lift 51 and 62 are in
-`spears-lift-walkers.lua`; the sliders have none (their diagonal bars
+`lib/spears-lift-walkers.lua`; the sliders have none (their diagonal bars
 shook). 80 configurations in all, first on the waves (10 settings, 2 to
 4 starts), then the best two of each linkage on the other terrains (6
 settings, 2 starts).
@@ -596,7 +596,7 @@ random / logs / steps), ranked by the mean of the four:
   time); Klann, Jansen and Spears 4-bar stay down.
 - The diagonal builds of Chebyshev-Spears lift 51 and 62 and the plated lift 62
   have their link planes closer together than their files' (see
-  `spears-lift-walkers.lua`): with the files' spacing, their bodies had
+  `lib/spears-lift-walkers.lua`): with the files' spacing, their bodies had
   come out less than nothing deep (their legs crossing in the middle)
   to stand on the 38 cm stance. Their parts don't touch each other
   walking with the closer spacing.
@@ -605,7 +605,7 @@ random / logs / steps), ranked by the mean of the four:
   first, they had done much the same (Chebyshev-Spears diag 6.12 over
   the four, now 6.22; Chebyshev-Spears lift 51 diag 7.15, now 7.10).
 
-`test-square.lua` shows the best of each walking on each terrain.
+`test-ranking.lua` shows the buildable ones walking on each terrain.
 
 ### Hoecken-Spears 4-bar
 
@@ -661,7 +661,7 @@ To separate them, linkages of Chebyshev-Spears' kind (its file, with
 other link lengths and a leg of its own length and angle) were found
 that change one thing and hold the others at Chebyshev-Spears' values,
 no nearer locking than it is, and built on the same chassis
-(`foot-path-variants.lua`; 8 starts each, about +-0.5 points):
+(`foot-path-variants.lua`, removed 9 November 2026; 8 starts each, about +-0.5 points):
 
 | Walker | Duty | Lift | Front height | Kept |
 |--------|------|------|--------------|------|
@@ -793,7 +793,7 @@ linkage.
 ### Trotting the Hoecken walkers
 
 The 4-bars can also be built the way the diag walkers are, with braces
-joining diagonal legs (`trotting-walkers.lua`: the diag walkers' files
+joining diagonal legs (`lib/trotting-walkers.lua`: the diag walkers' files
 with Hoecken's proportions; the diag bracing tilts the legs slightly, so
 their lift comes out a little lower, as for the diag walkers). Built so:
 
@@ -865,34 +865,51 @@ version with more lift: Chebyshev 38% -> Chebyshev-Spears 77%, Chebyshev
 diag 16% -> Chebyshev-Spears diag 66%, Hoecken slider 37% ->
 Hoecken-Spears slider 49%.
 
-## Test square
+## Watching
 
-`test-square.lua`: the test track on a 7 m square, for watching the best
-version of each walker (The factorial runs) on each kind of ground. Click
-the 3D view, then Tab and Shift+Tab put the next or previous walker on
-it, built, timed and turned its own best way, and 1, 2, 3 and 4 change
-the ground (waves, random, logs, steps). The status line at the bottom
-shows its speed so far and how much of the time it has been off the
-ground (its lowest part more than 0.5 cm up); its body turns red
-whenever it is. The TerrainHeight and BumpLength sliders build it again
-(it starts at 4 cm and 15 cm).
+- `test-ranking.lua`: the test track with the 11 walkers that could
+  really be built (the diag builds with their outside braces and held
+  pendants; Klann, Jansen and Spears 4-bar on their own frames), each its
+  better way (Klann and Spears 4-bar reversed: handover section 4w), best
+  first. Click the 3D view, then Tab and Shift+Tab for the next or
+  previous, and 1, 2, 3 and 4 change the ground (waves, random, logs,
+  steps). The status line shows its speed so far and how much of the time
+  it has been off the ground; its body turns red whenever it is. The
+  TerrainHeight and BumpLength sliders set the next ground and G builds
+  it. `VIEW` picks the first walker.
+- `room-four.lua`: Klann and Jansen and two of the others in the room
+  (Tab swaps one), on the Threads slider.
+- `walker-room.lua` opened on its own: all 11 in the room, as now (the
+  same settings as `room-four.lua`), on the Threads slider. Slow: eleven
+  walkers cost eleven times one.
 
-`test-square-all.lua` is the same square, but Tab goes through all 19
-builds, each as built (its own timing, forward, its own crank speed), for
-looking them over. `test-square-soft.lua` is that, with every foot on a soft-spring
-ankle (`ANKLE_SPRING`, below). `test-square-yaw.lua` is that with the body free to pitch and
-roll (`YAW_DAMP`, below), then the builds that can trot, trotting.
-`test-square-earth.lua` is that at Earth gravity (`GRAVITY = 981`), with
-the physics step 4 times shorter (`FIXED = 1/3840`: everything happens
-3.7 times faster than at 70, and at 1/960 the joints give and the feet
-sink -- Jansen trotting on flat ground made 3.6 cm/s with its body 3 cm
-low and rolling 23 degrees, at 1/3840 10.0 cm/s, 0.5 cm low and 1 degree)
-and the ankle springs 14 times stiffer.
+In all three, every walker has a wheel on each side (`SHOES`,
+handover/STEERING.md): the Left and Right arrow keys brake the left or
+right wheel of the walker followed (on the track, the walker), and it
+turns that way; the same key again frees it, and it walks on straight.
+The keys 1-4 pick the ground in all three. `SHOES = false` before
+loading takes the wheels off.
+
+The Threads slider (as in `../Testing_Threads.lua`) solves the walkers
+side by side on that many threads, while it runs; the status line shows
+how fast. The room walks the same, move for move, at any number of
+threads; 0 is bpp without threads (very slightly different: Bullet then
+solves two or three walkers together). It needs bpp built with Bullet with
+threads (`scripts/bullet-threads.sh`, then `qmake CONFIG+=bundled_bullet`;
+`THREADS.md`); otherwise the status line says so. It starts at 4, the
+fastest on an 8-core Ryzen for 4, 11 and 21 walkers (about 2.5 times 0:
+handover/THREADS.md); `THREADS` in a launcher sets where it starts.
+
+The test-square launchers (`test-square*.lua`, the old builds: plated,
+guides, the old braces) were removed on 9 November 2026. The files the
+launchers load (`lib/`), the run scripts (`runs/`) and the notes and tools
+(`handover/`) hold an empty `.nomenu`, which keeps them out of bpp's Demos
+menu: it shows only what can be opened on its own.
 
 ## Telling the walkers apart
 
 Each walker's body (and the plates or bars between its legs) is painted
-its linkage's colour, the rest of it grey, and its code is written on
+its linkage's colour, its links cyan (`LINK_COLOUR`), its feet dark grey, and its code is written on
 top (`MARKS = false`: each walker as its own file paints it). The code
 is its linkage's inventor(s), a space, and its number of bars (S added
 for a slider):
@@ -945,8 +962,8 @@ stood up.
 
 | Slider        | Range     | What it does |
 |---------------|-----------|--------------|
-| TerrainHeight | 0 to 8 cm | How high the bumps are. The room is built again, every walker back at its start, when you let go. |
-| BumpLength    | 11 to 44 cm | How long they are (every stride is 15 cm). The default, 22, gives rolling hills; shorter bumps are obstacles. The room is built again when you let go; short bumps need a finer terrain (four times the triangles at 11 cm), which takes about 5 s to build and is slower to draw. |
+| TerrainHeight | 0 to 8 cm, whole cm | How high the bumps are. Moving it builds nothing: G builds the room with it, every walker back at its start (so do the 1-4 keys, and on the test track M and N); the status line shows what is waiting. |
+| BumpLength    | 11 to 44 cm, whole cm | How long they are (every stride is 15 cm). The default, 22, gives rolling hills; shorter bumps are obstacles. G builds the room with it, as TerrainHeight. Short bumps need a finer terrain (four times the triangles at 11 cm), which takes longest to build (about 2.5 s on a 2-core machine) and is slower to draw. |
 
 The point of the room: raise the bumps until some walkers can't cover
 ground any more.
@@ -983,7 +1000,7 @@ legs), `DIAG_ARCH` (true: a diag build's braces both over its body, one
 arched; false: its bottom brace lifted by `BRACE_CLEARANCE`, through its
 body), `CRANK_SCALE` (a walker's crank speed times this: a number, or a
 table by name), `VIEWS` and `VIEW` (the test track's list of walkers to
-Tab through, each set its own way: see `test-square.lua`), `MOTOR_STRENGTH` (10;
+Tab through, each set its own way: see `test-ranking.lua`), `MOTOR_STRENGTH` (10;
 false: each walker's own file's motors), `SOLVER_ITERATIONS` (40; false:
 Bullet's default 10), `WIDE` (true; false: a 30-31 cm stance), `FLAT_SPEED` (cm/s, 9), `CRANK` (rad/s:
 every walker's crank at that speed instead), `TWO_LEGS` (true: the 2-leg
@@ -1015,11 +1032,11 @@ tips toward the lifted side, as a four-legged walker would, and the
 trotting walkers keep going), `DIAG_LIGHT` (k, a test: every brace --
 plates, diag and arched bars -- weighs k times what it would), `BRACE_CLEARANCE` (cm, 7: braces at
 least that far above flat ground; false: as built), `EXTRA_WALKERS` (more
-walkers, as in `foot-path-variants.lua`), `TERRAIN` ("waves", "random", "logs" or
+walkers), `TERRAIN` ("waves", "random", "logs" or
 "steps"; `TERRAIN_SEED` picks the landscape, default `SEED`), `REVERSE` (true: every walker's cranks run
 backward, so it walks the other way; or a table of names), `GAIT` (four crank
 phases, degrees, for Jansen, Klann and Spears 4-bar: see above), `UNBRACED` (true or a table of
 names: the side plates left off and each leg held at its angle by a
 guide, so `GAIT` applies to those walkers too -- Chebyshev, Chebyshev-Spears,
 the Hoecken walkers and Hoecken-Spears 4-bars and sliders), and the trotting Hoecken
-4-bars in `trotting-walkers.lua`.
+4-bars in `lib/trotting-walkers.lua`.

@@ -101,9 +101,6 @@ int main(int argc, char **argv) {
   // can change the process's current working directory.
   startupWorkingDir();
 
-  // make xlib and glx thread safe under x11
-  QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-
   // Request a stencil buffer for CSG rendering
   QSurfaceFormat fmt;
   fmt.setStencilBufferSize(8);
@@ -174,6 +171,10 @@ int main(int argc, char **argv) {
     app = QSharedPointer<QCoreApplication>(new QApplication(argc, argv));
     // Set style to fusion to prevent crash in Qt Breeze style plugin cleanup
     QApplication::setStyle("fusion");
+    // An icon the desktop's theme lacks comes from bpp's own set (Humanity,
+    // humanity.qrc): a theme can have document-new, so be kept below, and
+    // still miss preferences-system or window_fullscreen.
+    QIcon::setFallbackThemeName("humanity");
 #ifdef Q_OS_WIN
     // Fusion ignores the Windows dark mode, so follow it by hand.
     QSettings theme("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\"

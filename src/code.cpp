@@ -7,7 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QSet>
 #include <QStandardItemModel>
 #include <QTextBrowser>
@@ -664,12 +664,12 @@ QStringList CodeEditor::localCompletions() const {
       "string",    "table",    "v",        "btVector3", "btQuaternion",
   };
 
-  QRegExp wordExpression("\\b[A-Za-z_][A-Za-z0-9_]*\\b");
+  QRegularExpression wordExpression("\\b[A-Za-z_][A-Za-z0-9_]*\\b");
   const QString script = toPlainText();
-  int index = wordExpression.indexIn(script);
-  while (index >= 0) {
-    words.insert(wordExpression.cap());
-    index = wordExpression.indexIn(script, index + wordExpression.matchedLength());
+  QRegularExpressionMatchIterator it = wordExpression.globalMatch(script);
+  while (it.hasNext()) {
+    QRegularExpressionMatch m = it.next();
+    words.insert(m.captured());
   }
 
   QStringList completions = words.values();
@@ -841,13 +841,14 @@ void CodeEditor::handleLanguageServerOutput() {
       return;
 
     const QByteArray header = languageServerOutput.left(headerEnd);
-    QRegExp contentLength("Content-Length: (\\d+)", Qt::CaseInsensitive);
-    if (contentLength.indexIn(QString::fromLatin1(header)) < 0) {
+    QRegularExpression contentLength("Content-Length: (\\d+)", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch m = contentLength.match(QString::fromLatin1(header));
+    if (m.capturedStart() < 0) {
       languageServerOutput.remove(0, headerEnd + 4);
       continue;
     }
 
-    const int length = contentLength.cap(1).toInt();
+    const int length = m.captured(1).toInt();
     const int messageStart = headerEnd + 4;
     if (languageServerOutput.size() < messageStart + length)
       return;

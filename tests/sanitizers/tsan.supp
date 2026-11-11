@@ -1,0 +1,27 @@
+# ThreadSanitizer suppressions for tests/harness.py on the threaded build
+# built with -fsanitize=thread (see the threads job in
+# .github/workflows/tests.yml). Both are in Bullet's own code, not bpp's;
+# race_top matches only the frame where the access is, so a race in bpp's
+# code running under Bullet's thread pool (BppWorld) is still reported.
+
+# Bullet's statistics counter, bumped by every solver thread without a lock
+# (btSequentialImpulseConstraintSolver.cpp); nothing reads it.
+race:gNumSplitImpulseRecoveries
+
+# Bullet's thread pool (LinearMath/TaskScheduler) hands work to its workers
+# and waits for them with plain flags and spinning (worker status, wake-up
+# directives, queue-empty flags), which ThreadSanitizer does not see as
+# synchronisation. Matched on the top frame's file: the pool's own accesses,
+# not those of the work it runs.
+race_top:btTaskScheduler.cpp
+race_top:btThreadSupportPosix.cpp
+# Changing the number of threads (v:setThreads, Bullet's setNumThreads) while
+# a worker is still awake from the last step re-points the queues it steals
+# from as it reads them. Each list keeps room for its two neighbours (it
+# never moves), and points only at queues that exist, so the worker sees a
+# valid queue either way.
+race:JobQueue::setupJobStealing
+
+# PulseAudio's own thread (bpp's sound output), in a library that isn't
+# instrumented: its locking is invisible to ThreadSanitizer.
+race:libpulsecommon

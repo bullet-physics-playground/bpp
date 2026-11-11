@@ -46,9 +46,12 @@ runs than with no threads.
 `v:setThreads(n)` after `v:setSolver(...)`; `v:setThreads(0)` is the world as
 before. It returns the threads in use (0 with the normal build, which says so
 and carries on). Any number of threads gives the same run, move for move, and
-one thing alone (one walker) runs exactly as without threads. Only the
-solving is shared out: collisions, the scripts and the drawing stay on one
-thread, so the gain depends on how much of the work is solving.
+one thing alone (one walker) runs exactly as without threads. The solving
+and, since 10 November 2026, the collision detection are shared out (the
+collisions only in a step with 128 pairs of touching boxes or more, about
+two walkers' worth: fewer cost more to share than they save); the scripts
+and the drawing stay on one thread, so the gain depends on how much of the
+work is solving and colliding.
 
 Details, measurements and how it works:
 `demo/WyomingWill/WalkerRoom/handover/THREADS.md`; the code is in

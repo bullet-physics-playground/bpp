@@ -59,12 +59,12 @@ public:
       v3.append(triangle[2]);
     }
 
-    hash.addData(reinterpret_cast<const char *>(&triangle[0].x()),
-                 3 * sizeof(btScalar));
-    hash.addData(reinterpret_cast<const char *>(&triangle[1].x()),
-                 3 * sizeof(btScalar));
-    hash.addData(reinterpret_cast<const char *>(&triangle[2].x()),
-                 3 * sizeof(btScalar));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[0].x()),
+                                         3 * sizeof(btScalar)));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[1].x()),
+                                         3 * sizeof(btScalar)));
+    hash.addData(QByteArray::fromRawData(reinterpret_cast<const char *>(&triangle[2].x()),
+                                         3 * sizeof(btScalar)));
   }
 
   /**

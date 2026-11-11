@@ -1208,6 +1208,34 @@ the minimum speed for ever, appears only without the threshold and at
 2 N, at any offset. The kinematic model gives the same (10 N: turned 53°
 and 8°).
 
+**F108. Ch. 13's design procedure on a torpedo-shaped AUV: the UAV's
+three outcomes hold; slowing down saves energy but does not tighten a
+loop** — 2026-11-05, New. `ch13/README.md`, `auv/README.md`,
+`auv/model.lua`, `ch13/auv.lua`, `checks/auv.lua`. The book has no
+underwater vehicle; §13.5's four steps were followed on the REMUS of
+Prestero's thesis (2001; 1.33 m, 30.5 kg, cruise 1.54 m/s; top speed
+2.3 m/s, the maker's). Its smallest turn radius, 6.03 m, is the steady
+turn of his horizontal-plane model (his sea-trial-adjusted coefficients)
+at his maximum fin angle of 13.6°; the same model gives 10.0°/s at 4° of
+fin, his trials' "roughly ten degrees per second". Every term of his
+model grows with speed squared, so the radius is the same at every speed
+(Ω_max = u/R), where the book's UAV's grows with speed (Eq. 13.14). The
+slowest steerable speed (0.5 m/s) is assumed. One heading particle, the
+gravity or torque law for heading and either a fixed speed or Eq.
+13.21's speed channel. **The UAV's outcomes of Fig. 13.13 (F76) hold:**
+the gravity law leaves an attractor dead astern (936 m in 600 s; with
+the speed channel it slows to 0.5 m/s and still leaves, 312 m),
+overflies one outside the unreachable zones, and orbits one inside a
+zone, never closer than R/2; the torque law turns round. **Slowing down
+does not shrink the zones:** the closest approach inside one is R/2 with
+the speed fixed or free, and the share of time within R of an attractor
+is 31–38% either way, set by the loop. **The speed channel saves
+energy:** the same share at a mean 0.80 m/s against cruise's 1.54, about
+0.6 of cruise's drag power (0.3 if the fins steer down to 0.25 m/s; none
+if only down to 1.0 m/s). Every outcome holds over half to twice the
+turn radius and a slowest speed of 0.25–1.0 m/s (36 of 36 runs inside a
+zone at R/2).
+
 ## 3. Errors and discrepancies in the book
 
 **F14. Listing 11.4's printed result** — 2026-10-17, Book discrepancy.
@@ -1685,6 +1713,10 @@ them.
   moves that finish a lattice and escape a stall behind a column. The
   threshold is friction × v_min / (metersPerUnit × apHz) in AP force
   units, so the law's stiffness near D, apHz and friction all move it.
+- The AUV (F108): the slowest speed at which its fins steer (Prestero's
+  model has none); depth and the vehicle in 3D; several
+  AUVs over targets and in formation (they cannot stop, as the UAVs);
+  currents (G19).
 - The dumbbell's camera ring (F106): a rule from the geometry for when
   to end the spreading (60 s is a time, not a rule), and whether a
   per-robot switch (point once the neighbours' pushes balance) does as
