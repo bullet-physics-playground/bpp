@@ -50,6 +50,9 @@ Select your operating system:
  * [Build on Windows](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Windows)
  * [Build on Mac OS-X](https://github.com/bullet-physics-playground/bpp/wiki/Build-on-Mac-OS-X)
 
+To change the code, start with [HACKING.md](HACKING.md): where things are,
+how a script runs, and how to add a feature with its test.
+
 ### Optional: embedded POV-Ray VFE rendering (experimental)
 
 By default, F6 quick-render shells out to an external `povray`/`pvengine`
