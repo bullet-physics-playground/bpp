@@ -579,8 +579,9 @@ def suite_render(ctx):
     called. bpp's own side of a quick render is checked against that:
     which program, the options (the default preview's), the size (the
     view's: 640x480 headless), the PNG on the desktop (made if missing)
-    named after the scene and frame, POV-Ray's clock, the scene file, the extra options
-    as given, and the folder (the scene's export, holding the .pov). The
+    named after the scene and frame, POV-Ray's clock, the scene file, the
+    extra options (one argument each), and the folder (the scene's
+    export, holding the .pov). The
     Ubuntu POV-Ray is 3.7, which won't read bpp's 3.8 scenes, so nothing
     is rendered."""
     wd = ctx.workdir("render")      # (its home has no Desktop: bpp makes it)
@@ -608,7 +609,7 @@ def suite_render(ctx):
                          r"/bpp-\d{8}-\d{6}-quick-00002\.png$")
         want = ["+L" + cache, "+L" + os.path.join(RENDER, "includes"),
                 "-c", "+d", "-A", "+p", "+Q11", "+GA", "+FN10",
-                "+W640", "+H480", "+F", png, "+K2", "quick.pov", "+W160 +H120"]
+                "+W640", "+H480", "+F", png, "+K2", "quick.pov", "+W160", "+H120"]
         if folder != export:
             why.append("ran in %s, not %s" % (folder, export))
         if not os.path.exists(os.path.join(export, "quick.pov")):

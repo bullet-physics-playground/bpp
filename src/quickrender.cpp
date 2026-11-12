@@ -137,7 +137,8 @@ QuickRender::Plan QuickRender::plan(QSettings *settings, const QSize &viewSize,
   args << sceneName + ".pov";
 
   if(!povargs.isEmpty()) {
-    args << povargs;
+    // one argument each, as POV-Ray takes them from a command line
+    args << povargs.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
   }
 
   qDebug() << "executing " << povray << args;
