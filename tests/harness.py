@@ -572,13 +572,12 @@ def suite_render(ctx):
     stand-in tests/render/standin/povray, first on PATH, writes how it was
     called. bpp's own side of a quick render is checked against that:
     which program, the options (the default preview's), the size (the
-    view's: 640x480 headless), the PNG on the desktop named after the
-    scene and frame, POV-Ray's clock, the scene file, the extra options
+    view's: 640x480 headless), the PNG on the desktop (made if missing)
+    named after the scene and frame, POV-Ray's clock, the scene file, the extra options
     as given, and the folder (the scene's export, holding the .pov). The
     Ubuntu POV-Ray is 3.7, which won't read bpp's 3.8 scenes, so nothing
     is rendered."""
-    wd = ctx.workdir("render")
-    os.makedirs(os.path.join(wd, "home", "Desktop"))   # (where the PNG goes)
+    wd = ctx.workdir("render")      # (its home has no Desktop: bpp makes it)
     env = {"PATH": os.path.join(RENDER, "standin") + os.pathsep + os.environ.get("PATH", "")}
     r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4"], wd, 120, RENDER, env)
     home = os.path.join(wd, "home")
