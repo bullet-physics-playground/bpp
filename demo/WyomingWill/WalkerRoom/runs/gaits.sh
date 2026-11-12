@@ -13,7 +13,11 @@
 #   BPP=../../../release/bpp runs/gaits.sh
 #
 # Environment: BPP, JOBS, OUT (runs/out-gaits), GROUNDS (flat:0 waves:4 random:4 logs:5 logs:7 steps:4 steps:7),
-# SEEDS (1 2 3 4 5). 51 options x 7 grounds x 5 seeds = 1,785 runs. Runs already done are kept.
+# SEEDS (1 2 3 4 5), WALKERS (all 11; or names joined by commas). 51 options x 7 grounds x 5 seeds = 1,785 runs. Runs
+# already done are kept; the table covers what is in OUT, so give a smaller set its own OUT. The high-lift walkers on
+# waves (12 November: offsets below 180 looked better there on waves 4):
+#   OUT=runs/out-gaits-waves WALKERS="Chebyshev-Spears lift 51 diag,Chebyshev-Spears lift 62 diag" \
+#     GROUNDS="waves:2 waves:3 waves:4 waves:5 waves:6 waves:7 waves:8" BPP=... runs/gaits.sh
 set -u
 cd "$(dirname "$0")/.."
 OUT=${OUT:-runs/out-gaits}
@@ -22,7 +26,9 @@ SEEDS=${SEEDS:-"1 2 3 4 5"}
 REV='REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true }'
 B=$(mktemp)
 trap 'rm -f "$B"' EXIT
+WALKERS=${WALKERS:-}
 one() {   # folder name, walker, settings
+  [ -n "$WALKERS" ] && [[ ",$WALKERS," != *",$2,"* ]] && return
   echo "$2" > "$B"
   OUT="$OUT/$1" BUILDS="$B" SEEDS="$SEEDS" TERRAINS="$GROUNDS" EXTRA="$REV; $3" runs/run-table.sh > /dev/null
   echo "done $1"
