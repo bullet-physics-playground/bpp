@@ -11,7 +11,8 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
 
 - **Babbage's Hall** (`demo/WyomingWill/BabbagesHall/`), a Victorian
   engineering hall in the Bullet Physics Playground (bpp,
-  **github.com/bullet-physics-playground/bpp**, branch `master`): cast iron,
+  **github.com/bullet-physics-playground/bpp**; William pushes to the branch
+  **`test-harness`** (since 2026-11-11), which Jakob merges into `master`): cast iron,
   brass, a glass roof, holding **machines that compute**. A separate museum
   from William's Euler's Gallery (`../EulersGallery/`), built on its
   machinery (separate worlds, sandboxes, walking with Tab).
@@ -53,9 +54,13 @@ git push
   typeset `.pdf` beside it (`./make-pdfs.sh`, or `tools/md2pdf.py` for
   one); rebuild the PDF whenever its `.md` changes. Euler's Gallery and the
   Rec Room have README.pdfs made with `../ArtificialPhysics/tools/md2pdf.py`.
-- **Before sending a patch:** check it applies to the current `origin/master`
-  (`git fetch` first; a patch built on one he hasn't applied fails, as the
-  first `MACHINES.md` patch did); no trailing spaces (`git diff --check`);
+- **Build patches on `origin/test-harness`**, where he pushes (a clone
+  fetches only `master`: `git fetch origin
+  test-harness:refs/remotes/origin/test-harness`). To check something
+  landed, look there, not on `master`.
+- **Before sending a patch:** check it applies to the current
+  `origin/test-harness` (fetch first; a patch built on one he hasn't
+  applied fails, as the first `MACHINES.md` patch did); no trailing spaces (`git diff --check`);
   `tools/check-all.sh` passes; the visuals looked at (`tools/shots.sh`). A
   re-sent patch gets a new file name, so a stale download can't be applied.
 - Commits are authored `William M. Spears <williammspears@gmail.com>`, with
@@ -512,8 +517,17 @@ there, in `release/`, or on the path; or set `BPP`.
   lectern went there (the Differential's showed only because it loads
   first; starting at the sieve hid it). The lecterns are the hall's now,
   in world 0 like the placards.
-- **Next:** offered, not asked for: printing only a program's parts (the
-  tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
+- **Checked against bpp's new Params and ScriptKeys (2026-11-11):**
+  `tools/check-all.sh` all passed on Jakob's rewrite, and in the window
+  Tab, the panes and the sliders work.
+- **Next (William to choose, 2026-11-11):** a new bay for the **Galton
+  board** (quick, clear, a first try of the two stops on a new machine;
+  suggested first), **Kelvin's tide predictor** (the next covered bay),
+  or the **Antikythera mechanism** (the most striking). Still offered, not
+  asked for: printing only a Digi-Comp program's parts (the tiles carry
+  every wall; `make-stls.sh` could take a `PARTS` list, with tiles cut
+  anew). Skipped, at William's word: fixing bpp's own
+  `demo/koppi/gears.lua` (its `assign()`, which newer OpenSCAD dropped).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the
   hall by a row of two, each going in by its rank (the Galton board, 13,
   and the planimeter, 14, would go in after the sieve, before the
@@ -536,9 +550,9 @@ there, in `release/`, or on the path; or set `BPP`.
 
 ## 8. Opening message for the next chat
 
-> Clone github.com/bullet-physics-playground/bpp and read
-> demo/WyomingWill/BabbagesHall/HANDOFF.md, then MACHINES.md and README.md
-> there. Build bpp as described, run tools/check-all.sh, and continue with
-> HANDOFF.md section 7: [the next step, e.g. the Digi-Comp II's AUTO].
-> Deliver each step as a patch, with its documents and PDFs, and the git
-> commands.
+> Clone github.com/bullet-physics-playground/bpp, check out the branch
+> test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
+> MACHINES.md and README.md there. Build bpp as described, run
+> tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
+> step, e.g. a new bay for the Galton board]. Deliver each step as a patch
+> on test-harness, with its documents and PDFs, and the git commands.
