@@ -290,6 +290,8 @@ jobs:
   # MinGW64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
   # built in), running the suites whose expected files hold off Linux: the
   # unit tests and the smoke run (the harness skips the rest off Linux).
+  # MSYS2 packages no OpenSCAD for MINGW64, so the demos that need it fail
+  # in the smoke run here.
   # continue-on-error while this job is new: a failure here shows on the job
   # but leaves the run green, so it doesn't hold up the other jobs' work.
   # Drop it once the job has passed for a while.
@@ -326,7 +328,6 @@ jobs:
             mingw-w64-x86_64-bullet
             mingw-w64-x86_64-freeglut
             mingw-w64-x86_64-python
-            mingw-w64-x86_64-openscad
 
       # Siblings of the checkout, where msys2.pri looks for them. The same
       # libQGLViewer commit as the Qt 6 job.
