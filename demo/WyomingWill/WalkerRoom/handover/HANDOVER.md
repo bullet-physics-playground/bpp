@@ -858,6 +858,18 @@ All but `gd.txt`, `diag.txt` and `com.txt` come before the current standard and 
 
 ## 7. Next: the factorial runs
 
+**11 November: mostly settled, the gait still open.** Direction was settled on 9 November (section 4w: all 11 both
+ways; Klann and Spears 4-bar walk better reversed) and bracing too (outside diag braces; guides out of the views). What
+is open is the gait (William): the three walkers on their own frames (Jansen, Klann, Spears 4-bar) can take any GAIT,
+and even the 8 with diag braces have a choice -- each brace ties a diagonal pair's two cranks, but not the two pairs to
+each other, so the offset between the pairs need not be 180 (a trot): with feet down a long time, something else might
+be better. `PAIR_OFFSET` in walker-room.lua sets it (patch 120; the crank lock holds it, checked: every diag build
+settles at the offset asked within a second and holds it to about 1 degree; the slider files' braces join motors 1 with
+4 and 2 with 3, the Chebyshev files' likewise, so the pairs are found from each parts file). `runs/gaits.sh` screens
+the 11, each against its own trot: the diag builds at offsets 180, 150, 120 and 90, the own-frame walkers at trot,
+bound, the four 4-beat walks and Spears 4-bar's own, on seven grounds, 5 seeds (1,785 runs); an option that clearly
+beats its trot would then go on the boards' 33 grounds. The plan below, written 21 October, is kept for the record.
+
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
 **Section 4a settles open issues 1–3** (the diag builds and the low brace), and adds three test-track changes to make first.

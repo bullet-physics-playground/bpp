@@ -361,6 +361,21 @@ REVERSE = REVERSE or false
 -- Spears 4-bar), in the Spears 4-bar file's order: front face first leg,
 -- second leg, back face first leg, second leg. Its own: { 0, 225, 180, 225 }
 GAIT = GAIT or nil
+-- PAIR_OFFSET (degrees; or a table by name; nil: as built, 180): for the
+-- walkers with diag braces, whose braces tie each diagonal pair's two
+-- cranks together, the offset between the two pairs -- a trot is 180 (11
+-- November: whether another is better is open). Each build starts at 180;
+-- the crank lock (LOCK_CRANKS) then holds the second pair this much ahead
+-- of the first (in the first second or so: the lock turns each crank at
+-- most LOCK_MAX rad/s off its speed). 180 + x and 180 - x are the same walk
+-- with the sides swapped.
+PAIR_OFFSET = PAIR_OFFSET or nil
+local DIAG_PAIRS = {   -- (each diag parts file's crank motors, in the order it builds them: the second pair's)
+  ["Chebyshev_diag_parts.lua"] = { [2] = true, [3] = true },          -- (phases 0, 180, 180, 0)
+  ["Chebyshev_Spears_diag_parts.lua"] = { [2] = true, [3] = true },   -- (0, 180, 180, 0)
+  ["Hoecken_slider_parts.lua"] = { [2] = true, [3] = true },          -- (0, 0, 180, 180: its braces join 1 with 4, 2 with 3)
+  ["Hoecken_Spears_slider_parts.lua"] = { [2] = true, [3] = true },   -- (0, 0, 180, 180: its braces join 1 with 4, 2 with 3)
+}
 -- UNBRACED: true (or a table of names) leaves off the side plates of the
 -- walkers that have them (Chebyshev, Chebyshev-Spears, the Hoecken
 -- walkers and Hoecken-Spears 4-bars and sliders) and holds each leg at
@@ -1480,7 +1495,15 @@ local function addWalker(spec, x, z, heading)
       end
     end
   end
-  for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0 end
+  for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0; m.offset = 0 end
+  -- PAIR_OFFSET: the second diagonal pair held that far from 180 ahead of the first (half each way, so their mean keeps its pace)
+  local po = (type(PAIR_OFFSET) == "table") and PAIR_OFFSET[spec.name] or PAIR_OFFSET
+  local second = DIAG_PAIRS[spec.parts]
+  if type(po) == "number" and second and #w.motors == 4 and not unbraced then
+    local d = math.rad(po - 180)
+    for i, m in ipairs(w.motors) do m.offset = second[i] and d / 2 or -d / 2 end
+    w.pairOffset = po
+  end
   -- the same motors for every walker (MOTOR_STRENGTH, above): Bullet
   -- applies a motor's impulse once per physics step, so its most torque
   -- is impulse / FIXED
@@ -2321,11 +2344,11 @@ local function lockCranks(w)
     local d = a - m.last
     if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
     m.turned, m.last = m.turned + d * m.sign, a
-    sum = sum + m.turned
+    sum = sum + m.turned - m.offset
   end
   for _, m in ipairs(w.motors) do
     local mean = sum / n
-    local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
+    local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean + m.offset - m.turned)))
     m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
   end
 end
