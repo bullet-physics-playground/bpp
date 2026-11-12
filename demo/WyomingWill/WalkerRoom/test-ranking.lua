@@ -56,6 +56,7 @@ MOTOR_STRENGTH = MOTOR_STRENGTH or 2   -- (0.5 a crank, weight x stride units: 2
 GRAVITY = 981
 ANKLE_SPRING = ANKLE_SPRING or { stiffness = 42000, damping = 4200 }
 YAW_DAMP = YAW_DAMP or 1   -- (off for a walker while one of its wheels is braked)
+if BEST_GAITS == nil then BEST_GAITS = true end   -- (the walker's best gait for the ground, as the boards: lib/gaits.lua)
 if SHOES == nil then SHOES = {} end   -- (a wheel on each side, free until an arrow key brakes one: walker-room.lua's
                                       -- SHOES; they cost some speed on rough ground, so SHOES = false walks as the boards' runs)
 LINK_WIDTH = 1.0

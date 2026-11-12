@@ -870,6 +870,21 @@ the 11, each against its own trot: the diag builds at offsets 180, 150, 120 and 
 bound, the four 4-beat walks and Spears 4-bar's own, on seven grounds, 5 seeds (1,785 runs); an option that clearly
 beats its trot would then go on the boards' 33 grounds. The plan below, written 21 October, is kept for the record.
 
+**The screen (William's machine, 11 November):** a trot is the best single gait for every one of the 11 -- no option
+beat its trot over the seven grounds by more than its noise. For the diag builds the speed falls steadily as the
+offset leaves 180 (150 about the same, -0.4 to +0.2; 120 worse; 90 clearly worse); for the own-frame walkers a
+bound doesn't walk at all and the 4-beat walks are 1-4 cm/s slower (Spears 4-bar's own 0-225-180-225: 1.14 cm/s;
+its 0-90-180-270 beat its trot on flat, 10.48 against 8.98, and on steps 4). **But on waves the high-lift walkers do
+better with the pairs overlapping** (`OUT=runs/out-gaits-waves WALKERS=... runs/gaits.sh`, waves 2-8): Chebyshev-Spears
+lift 51 diag is fastest at a trot on waves 2-3 and at 120 from waves 4 up (+1.2 cm/s on waves 5, +1.9 on waves 7;
+over waves 2-8 +0.54 +/- 0.30); lift 62 diag gains on waves 3-6, not on 7-8. An operator could set the gait by the
+ground (William), so: **`runs/best-gaits.sh`** (patch 123) picks each walker's gait for each of the 33 grounds on
+seeds 1-5 (another gait only where it beats the walker's trot by more than two standard errors), writes
+`lib/gaits.lua`, and ranks the walkers with them on fresh seeds 6-10 against all at a trot (picking and ranking on
+the same runs would flatter the picks: in a small trial, a gait picked on two seeds lost on the third). With
+`BEST_GAITS` (set by test-ranking.lua, room-four.lua and walker-room.lua on its own) each walker is built with its
+gait for the ground from `lib/gaits.lua`, and says so in the output pane.
+
 This is the original task's step 2, never yet done on the new geometry. William approved doing it; **he has not yet seen the timing below. Show it to him and get a yes before starting.**
 
 **Section 4a settles open issues 1–3** (the diag builds and the low brace), and adds three test-track changes to make first.

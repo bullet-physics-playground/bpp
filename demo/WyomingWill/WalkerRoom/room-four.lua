@@ -63,6 +63,7 @@ TERRAIN = TERRAIN or "waves"
 AMP = AMP or 2
 BUMP = BUMP or 15   -- (bumps 15 cm long, as on the test track and in the tables; walker-room.lua's own default is 22)
 if SHOES == nil then SHOES = {} end   -- (a wheel on each side of each walker, walker-room.lua's SHOES: the arrow keys)
+if BEST_GAITS == nil then BEST_GAITS = true end   -- (each walker's best gait for the room's ground: lib/gaits.lua)
 ARENA = ARENA or 1500   -- (a 15 m room, not walker-room.lua's 10: room to walk straight between turns, which take
                         -- about 20 s by the wheels; the physics costs the same)
 

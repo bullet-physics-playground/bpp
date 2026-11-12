@@ -51,6 +51,7 @@ if EXTRA_WALKERS == nil then
   if REVERSE == nil then REVERSE = { ["Klann"] = true, ["Spears 4-bar"] = true } end   -- (their better way: section 4w)
   if SHOES == nil then SHOES = {} end   -- (a wheel each side: the arrow keys steer the walker followed)
   ARENA = ARENA or 1500   -- (15 m: room to walk straight between turns)
+  if BEST_GAITS == nil then BEST_GAITS = true end   -- (each walker's best gait for the ground: lib/gaits.lua)
 end
 
 local common = require "common"
@@ -370,6 +371,14 @@ GAIT = GAIT or nil
 -- most LOCK_MAX rad/s off its speed). 180 + x and 180 - x are the same walk
 -- with the sides swapped.
 PAIR_OFFSET = PAIR_OFFSET or nil
+-- BEST_GAITS (false; the viewers and rooms set it): each walker built with
+-- the best gait for the ground it is on -- GROUND_GAITS[name][ground]
+-- (lib/gaits.lua, from runs/best-gaits.sh; the ground named as on the
+-- boards, "waves 4"), { offset = degrees } for a diag build (as
+-- PAIR_OFFSET) or { gait = { four phases } } for Jansen, Klann or Spears
+-- 4-bar (as GAIT); a walker or ground it doesn't name: a trot, as before.
+BEST_GAITS = BEST_GAITS or false
+if BEST_GAITS and GROUND_GAITS == nil then pcall(dofile, "lib/gaits.lua") end
 local DIAG_PAIRS = {   -- (each diag parts file's crank motors, in the order it builds them: the second pair's)
   ["Chebyshev_diag_parts.lua"] = { [2] = true, [3] = true },          -- (phases 0, 180, 180, 0)
   ["Chebyshev_Spears_diag_parts.lua"] = { [2] = true, [3] = true },   -- (0, 180, 180, 0)
@@ -1324,7 +1333,12 @@ local function addWalker(spec, x, z, heading)
   local unbraced = UNBRACED == true or (type(UNBRACED) == "table" and UNBRACED[spec.name])
   if unbraced then opts.noBraces = true; opts.legGuides = true end
   w.unbraced = unbraced
-  if GAIT and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = GAIT end
+  local best = BEST_GAITS and GROUND_GAITS and GROUND_GAITS[spec.name] and GROUND_GAITS[spec.name][boardKey()]
+  w.bestGait = best
+  if best then print(spec.name .. ", " .. boardKey() .. ": " .. (best.offset and string.format("its diagonal pairs %d degrees apart", best.offset)
+    or ("crank phases " .. table.concat(best.gait, "/"))) .. ", its best gait here (lib/gaits.lua)") end
+  local gait = (best and best.gait) or GAIT
+  if gait and (spec.opts.rows or spec.parts:find("Spears_4Bar_4Leg") or unbraced) then opts.phases = gait end
   -- the room's crank speed (each walker names it its own way)
   local crank = CRANK or (spec.advance and 2 * math.pi * FLAT_SPEED / spec.advance) or 2.6
   local k = (type(CRANK_SCALE) == "table") and CRANK_SCALE[spec.name] or CRANK_SCALE
@@ -1497,7 +1511,7 @@ local function addWalker(spec, x, z, heading)
   end
   for _, m in ipairs(w.motors) do m.last = m.hinge:getHingeAngle(); m.turned = 0; m.offset = 0 end
   -- PAIR_OFFSET: the second diagonal pair held that far from 180 ahead of the first (half each way, so their mean keeps its pace)
-  local po = (type(PAIR_OFFSET) == "table") and PAIR_OFFSET[spec.name] or PAIR_OFFSET
+  local po = (best and best.offset) or ((type(PAIR_OFFSET) == "table") and PAIR_OFFSET[spec.name] or PAIR_OFFSET)
   local second = DIAG_PAIRS[spec.parts]
   if type(po) == "number" and second and #w.motors == 4 and not unbraced then
     local d = math.rad(po - 180)
