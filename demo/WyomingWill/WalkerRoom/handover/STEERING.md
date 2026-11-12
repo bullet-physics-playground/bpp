@@ -205,6 +205,9 @@ what `runs/` and the notes still point to).
 
 ## Stage 1 results: foot friction, pair and side slowing (8 November)
 
+(The code for stages 1 and 2 -- `STEER` in walker-room.lua -- was removed
+on 11 November, once the wheels had won; it is at commit 6a1bcb22.)
+
 Patch 97. `STEER = { mech, side, amount }` in `walker-room.lua` puts a
 bias on one side; `runs/steer-table.sh` runs the variants
 (`run-table.sh` with `PROBE=runs/steerprobe.lua`, `YAW_DAMP=0`) and

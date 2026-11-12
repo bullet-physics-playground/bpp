@@ -727,6 +727,36 @@ Track runs, same binary, old script against new (20 s, warm40fast):
 
 Each repeats itself exactly. The Hoecken-Spears change is not the marks as such: that run moves about 0.01 cm/s whenever the world's contents change at all (one collisionless box 5 m under the floor, new script: 8.693; the old script with no tip bodies: 8.695). Jansen does not move with the box. I don't know why that walker is the sensitive one (its compound feet near the bumps, perhaps). Tables with tips-walkers may shift by that much against older ones.
 
+## 4x. Steering, the folder, threads and tools (8–11 November)
+
+Patches 97-118. Details in `STEERING.md` and `THREADS.md`; in short:
+
+- **Steering** (`STEERING.md`). Every walker in the viewers has a wheel
+  on each side (`SHOES`: a ball, 0.15 of its weight, radius 1.5 cm, 5 cm
+  out, grip 3), free up and down and rolling along the walk; braking one
+  turns the walker about 5 °/s toward it. The arrow keys steer the walker
+  followed (Left, Right: brake that wheel; Down: back up). In the rooms
+  the room turns walkers by their wheels (`ROOM_STEER = "curve"`: a curve
+  when coming at something on a slant, a three-point turn head on), and
+  `room-four.lua` and `walker-room.lua` on its own are 15 m across. The
+  stage 1-2 steering tests before the wheels (`STEER`: foot friction,
+  side slowing, ballast, drag shoe, ...) are gone from the code (patch
+  118; at commit 6a1bcb22), their results kept in `STEERING.md`.
+- **The folder.** Only files bpp can run are in the Demos menu (`lib/`,
+  `runs/`, `handover/` have `.nomenu`; `test-track.lua` and the walker
+  files are in `lib/`). `walker-room.lua` on its own shows the 11 buildable
+  walkers; `test-ranking.lua` views them, Klann and Spears 4-bar reversed
+  (section 4w). `handover/tools/` was sorted: the tools still used stay,
+  176 old ones are deleted (section 9).
+- **Threads** (`THREADS.md`). Collision detection runs on threads too, in
+  the one-thread order (patch 108: same results at any number of threads).
+  On William's 8-core Ryzen the rooms run about 2.5 times faster at 4
+  threads, where they now start; 8 are no faster because the 3700X's two
+  core groups each have their own L3 cache (`runs/core-groups.sh`:
+  `taskset -c 0-3` gains 16% more).
+- **Tools:** `runs/room-steer.sh` (how a room steers), `runs/room-speed.sh`
+  (its speed by threads), `runs/core-groups.sh`.
+
 ## 5. What was found in the last session (17–21 October)
 
 **Logs and foot tilt.** On the log terrain only a few walkers moved forward. William's reading, confirmed: if a foot can't rise over the log, its front hits the log and kicks the walker back, often into the air. Lift is necessary but not sufficient. The feet were welded to the legs and tilted with them, so the toe dug in. That led to the ankle work.

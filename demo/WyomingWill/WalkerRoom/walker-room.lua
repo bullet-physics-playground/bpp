@@ -391,25 +391,6 @@ local FOOT = { length = FOOT_LENGTH or 8, width = FOOT_WIDTH or 12, thick = FOOT
 -- links, 0.10 / 0.15 and 0.20 / 0.30 on the sliders', 0.10 / 0.15 on Spears
 -- 4-bar's, 0.15 turning on the outside braces. false: as its files give.
 LINK_DAMP = (LINK_DAMP == nil) and 0 or LINK_DAMP
--- STEER = { mech =, side = "L" or "R", amount = k } (a steering test; off,
--- handover/STEERING.md): a bias on one side of every walker. Left and right
--- are the walker's own, facing the way it walks; a turn to the left is a
--- positive turning rate. Each foot and each crank motor is put on its side
--- and end by where it is in the body's frame when built (w.steer).
---   mech = "friction": that side's feet's friction times k
---   mech = "pair": the diagonal pair whose front foot is on that side (its
---     rear foot on the other) driven at k times its crank speed; the crank
---     lock (lockCranks) then holds each pair's cranks only to each other
---   mech = "side": that side's cranks at k times (lock held per side; a
---     walker with diag braces has each brace tying a left crank to a right)
---   mech = "ballast": a ballast (STEER.mass of its weight, default 0.25)
---     moved k cm to that side by a motor on a slider across its body
---   mech = "drag": a shoe, k of its weight, dragged on that side
---   mech = "sole": that side's soles k cm thicker (a slab welded under)
---   mech = "stiff", "damp": that side's ankle springs k times as stiff, or
---     as damped (ANKLE_SPRING)
---   mech = "linkdamp": the pair's links (as "pair") damped k (as LINK_DAMP)
-STEER = STEER or false
 -- SHOES = { mass =, radius =, out =, grip =, down = } (handover/STEERING.md,
 -- "Stage A"; off): a wheel on each side of every walker, to steer it by
 -- drag -- a ball, mass of the walker's weight (default 0.15), radius cm
@@ -890,13 +871,11 @@ local function qrot(qx, qy, qz, qw, vx, vy, vz)
   return vx + qw * tx + (qy * tz - qz * ty), vy + qw * ty + (qz * tx - qx * tz), vz + qw * tz + (qx * ty - qy * tx)
 end
 
--- STEER (above): each foot's and crank motor's side ("L" or "R") and end
--- (front or not) in the body's frame, as built, and the bias put on
--- (a walker's frame for parts added to it, as built: its body's place and
--- turn; each foot's side ("L" or "R") and end in the body's frame; its
--- weight, its feet's friction, half their track and their soles' height;
--- part() adds a part, turned as its body, at a place in its frame; slider()
--- puts a part on a slider to the body. STEER and SHOES, below)
+-- a walker's frame for parts added to it, as built (SHOES, below): its
+-- body's place and turn; each foot's side ("L" or "R") and end in the
+-- body's frame; its weight, its feet's friction, half their track and their
+-- soles' height; part() adds a part, turned as its body, at a place in its
+-- frame
 local function walkerGeom(w, made, opts)
   local G = {}
   local c = w.cube.body:getCenterOfMassPosition()
@@ -933,116 +912,7 @@ local function walkerGeom(w, made, opts)
     w.bodies[#w.bodies + 1] = o
     return o
   end
-  function G.slider(o, inCube, inPart, lo, hi)   -- (o on a slider to the body, along each frame's x; not turning)
-    local sl = btSliderConstraint(w.cube.body, o.body, inCube, inPart, true)
-    sl:setLowerLinLimit(lo); sl:setUpperLinLimit(hi)
-    sl:setLowerAngLimit(0); sl:setUpperAngLimit(0)
-    opts.addConstraint(sl)
-    if SOLVER_ITERATIONS then sl:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
-    return sl
-  end
   return G
-end
-
-local function steerSetup(w, made, opts)
-  local G = walkerGeom(w, made, opts)
-  local c, q, place = G.c, G.q, G.place
-  local S = { feet = G.feet, motors = {} }
-  for _, m in ipairs(w.motors) do
-    for _, j in ipairs(w.joints) do
-      if rawequal(j[4], m.hinge) then
-        local a, b = j[1]:getCenterOfMassPosition(), j[2] and j[2]:getCenterOfMassPosition() or j[1]:getCenterOfMassPosition()
-        m.side, m.front = place((a.x + b.x) / 2, 0, (a.z + b.z) / 2)
-      end
-    end
-  end
-  -- (in the body's frame: forward is (w.forward, 0, 0), up (0, 1, 0), so
-  -- the walker's left is (0, 0, -w.forward); d: the bias's side along z)
-  local mech, side, k = STEER.mech, STEER.side, STEER.amount or 1
-  local d = -w.forward * ((side == "L") and 1 or -1)
-  local cq, tot, mu, half, bottom = G.cq, G.tot, G.mu, G.half, G.bottom
-  local part, slider = G.part, G.slider
-  if mech == "friction" then
-    for _, f in ipairs(S.feet) do
-      if f.side == side then f.o.body:setFriction(f.o.body:getFriction() * k) end
-    end
-  elseif mech == "pair" or mech == "side" then
-    for _, m in ipairs(w.motors) do
-      local on
-      if mech == "pair" then on = (m.side == side) == (m.front == true) else on = (m.side == side) end
-      m.group = on and 1 or 2
-      if on then m.speed = m.speed * k end
-    end
-  elseif mech == "ballast" then
-    -- a ballast, STEER.mass (default 0.25) of the walker's weight, inside
-    -- its body (touching nothing), on a slider across it: its motor pushes
-    -- it k cm to that side, against a stop, and holds it there
-    local m = (STEER.mass or 0.25) * tot
-    local o = part(Cube(4, 2, 4, m), 0, 0, 0)
-    o.body:setCollisionFlags(o.body:getCollisionFlags() + 4)
-    local h = math.rad(-d * 90) / 2   -- (the slider's x across the body, to that side)
-    local fr = btTransform(btQuaternion(0, math.sin(h), 0, math.cos(h)), btVector3(0, 0, 0))
-    local sl = slider(o, fr, fr, 0, k)
-    sl:setPoweredLinMotor(true); sl:setTargetLinMotorVelocity(10); sl:setMaxLinMotorForce(10 * m * GRAVITY)
-    S.note = string.format("ballast %.1f g, %g cm", m, k)
-  elseif mech == "drag" then
-    -- a drag shoe, k of the walker's weight: a 1.5 cm ball on the ground,
-    -- 3 cm out beyond that side's feet (on an arm: the slider's frame), on
-    -- a slider that leaves it free up and down but not to turn (so it
-    -- slides, not rolls); out there it touches none of the legs, even with
-    -- the feet tilted on waves 2
-    local r = 1.5
-    local m, ly, lz = k * tot, bottom + r, d * (half + FOOT.width / 2 + r + 3)
-    local o = part(Sphere(r, m), 0, ly, lz)
-    o.body:setFriction(mu)
-    local h = math.pi / 4   -- (the slider's x up)
-    slider(o, btTransform(btQuaternion(0, 0, math.sin(h), math.cos(h)), btVector3(0, ly, lz)),
-      btTransform(btQuaternion(0, 0, math.sin(h), math.cos(h)), btVector3(0, 0, 0)), -30, 30)
-    S.note = string.format("shoe %.1f g, %.1f cm to the side", m, math.abs(lz))
-  elseif mech == "sole" then
-    -- that side's soles k cm thicker: a slab, as wide and long as the foot,
-    -- welded under it (as heavy as a quarter of a foot)
-    local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
-    for _, f in ipairs(S.feet) do
-      if f.side == side then
-        f.o.body:getAabb(lo, hi)
-        local fm = FOOT.mass / 4
-        local o = Cube(hi.x - lo.x - 0.08, k, hi.z - lo.z - 0.08, fm)
-        o.trans = btTransform(cq, btVector3((lo.x + hi.x) / 2, lo.y + 0.04 - k / 2, (lo.z + hi.z) / 2))
-        o.col = "#C08020"
-        addObject(o)
-        w.bodies[#w.bodies + 1] = o
-        o.body:setFriction(f.o.body:getFriction())
-        local weld = btFixedConstraint(f.o.body, o.body, f.o.body:getCenterOfMassTransform():inverseTimes(o.body:getCenterOfMassTransform()),
-          btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)))
-        opts.addConstraint(weld)
-        if SOLVER_ITERATIONS then weld:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
-      end
-    end
-  elseif mech == "stiff" or mech == "damp" then
-    -- that side's ankle springs (ANKLE_SPRING) k times as stiff, or as damped
-    assert(ANKLE_SPRING and w.ankleSprings, "STEER " .. mech .. ": needs ANKLE_SPRING")
-    for _, f in ipairs(S.feet) do
-      local sp = w.ankleSprings[f.o]
-      if f.side == side and sp then
-        if mech == "stiff" then sp:setStiffness(5, ANKLE_SPRING.stiffness * k, false)
-        else sp:setDamping(5, (ANKLE_SPRING.damping or 0) * k, false) end
-      end
-    end
-  elseif mech == "linkdamp" then
-    -- one diagonal pair's links' own damping k (as LINK_DAMP, on that pair
-    -- only: the pair whose front foot is on that side); braces left alone
-    local n = 0
-    for _, o in ipairs(w.bodies) do
-      if o.mass > 0 and not rawequal(o, w.cube) and made[o] ~= "buildFoot" and not (made[o] or ""):find("Crossbar") then
-        local p = o.body:getCenterOfMassPosition()
-        local sd, front = place(p.x, p.y, p.z)
-        if (sd == side) == front then o.body:setDamping(k, k); n = n + 1 end
-      end
-    end
-    S.note = n .. " links damped"
-  end
-  w.steer = S
 end
 
 -- SHOES (above): a wheel on each side, always down -- a ball that rolls
@@ -1697,7 +1567,6 @@ local function addWalker(spec, x, z, heading)
         spring:setDamping(5, ANKLE_SPRING.damping or 0, false)
         spring:setEquilibriumPoint(5, 0)
         opts.addConstraint(spring)
-        w.ankleSprings = w.ankleSprings or {}; w.ankleSprings[o] = spring   -- (STEER)
         if SOLVER_ITERATIONS then spring:setOverrideNumSolverIterations(SOLVER_ITERATIONS) end
         -- (the hinged foot's own turning left undamped: its files damp it
         -- fully, 1.0, which would hold it against the spring; the spring's
@@ -1778,7 +1647,6 @@ local function addWalker(spec, x, z, heading)
       end
     end
   end
-  if STEER then steerSetup(w, made, opts) end   -- (after the springs, damping and braces above: it changes them)
   if SHOES then shoesSetup(w, made, opts) end
   -- its radius: half the diagonal of its moving bodies' footprint (from
   -- the moving bodies only: static ones would make it look huge)
@@ -2447,18 +2315,16 @@ end
 local function lockCranks(w)
   local n = #w.motors
   if n < 2 then return end
-  local sum, cnt = {}, {}   -- (by m.group: STEER's loosened lock; one group otherwise)
+  local sum = 0
   for _, m in ipairs(w.motors) do
     local a = m.hinge:getHingeAngle()
     local d = a - m.last
     if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
     m.turned, m.last = m.turned + d * m.sign, a
-    local g = m.group or 1
-    sum[g], cnt[g] = (sum[g] or 0) + m.turned, (cnt[g] or 0) + 1
+    sum = sum + m.turned
   end
   for _, m in ipairs(w.motors) do
-    local g = m.group or 1
-    local mean = sum[g] / cnt[g]
+    local mean = sum / n
     local nudge = math.max(-LOCK_MAX, math.min(LOCK_MAX, LOCK_GAIN * (mean - m.turned)))
     m.hinge:enableAngularMotor(true, m.speed + m.sign * nudge, math.max(0, m.impulse - (m.friction or 0)))
   end

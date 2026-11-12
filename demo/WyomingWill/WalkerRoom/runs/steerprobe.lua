@@ -1,10 +1,9 @@
 -- One steering run, measured (handover/STEERING.md; for run-table.sh with PROBE=runs/steerprobe.lua): the
 -- walker's heading (the way it walks, seen from above; a turn to the left counts up) and where it is. Lines:
---   SIDES <name>|feet <side+end ...>|motors <side+end+group ...>   (STEER's placing of feet and cranks, at the start)
 --   PATH <name>|t <s>|x <cm>|z <cm>|heading <deg>                  (each second)
 --   STEER <name>|turn <deg/s, from 5 s to the end>|speed <cm/s: straight from where it was at 5 s to the end>|heading <deg at the end>
 --         |tilt max <deg, its body's up from the vertical, from 2 s>|tipped <1 if over 60 degrees>|tilt mean <deg, from 5 s>
--- Run from the WalkerRoom folder, after the room's settings (ONLY, TERRAIN, AMP, SEED, STEER, ...).
+-- Run from the WalkerRoom folder, after the room's settings (ONLY, TERRAIN, AMP, SEED, SHOES, ...).
 local realv, hooks = v, {}
 local P = setmetatable({}, { __index = function(_, k) local x = realv[k]
     if type(x) == "function" then return function(self, ...) return x(realv, ...) end end
@@ -21,12 +20,6 @@ local function rot(q, x, y, z)
   local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
   local tx, ty, tz = 2 * (qy * z - qz * y), 2 * (qz * x - qx * z), 2 * (qx * y - qy * x)
   return x + qw * tx + (qy * tz - qz * ty), y + qw * ty + (qz * tx - qx * tz), z + qw * tz + (qx * ty - qy * tx)
-end
-if w.steer then
-  local f, m = {}, {}
-  for _, ft in ipairs(w.steer.feet) do f[#f + 1] = string.format("%s%s(mu %.2f)", ft.side, ft.front and "front" or "rear", ft.o.body:getFriction()) end
-  for i, mo in ipairs(w.motors) do m[#m + 1] = i .. ":" .. (mo.side or "?") .. (mo.front and "front" or "rear") .. "/" .. (mo.group or 1) end
-  out(string.format("SIDES %s|feet %s|motors %s%s", w.spec.name, table.concat(f, " "), table.concat(m, " "), w.steer.note and ("|" .. w.steer.note) or ""))
 end
 local heading, lastH, h5, tilt, px, pz, tiltSum, tiltN = 0, nil, nil, 0, nil, nil, 0, 0
 realv:preSim(function(N) if hooks.preSim then hooks.preSim(N) end end)
