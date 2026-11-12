@@ -471,18 +471,22 @@ SUMMARY = re.compile(r"^(\d+) passed, (\d+) failed$")
 
 def unit_expectations(test):
     """A unit test's "-- expect-error: PATTERN" line (it passes if bpp reports
-    an error matching PATTERN and exits 1, and needs no "N passed" line) and its
-    "-- not-printed: TEXT" lines (output lines that must not appear)."""
-    expect_error, not_printed = None, []
+    an error matching PATTERN and exits 1, and needs no "N passed" line), its
+    "-- not-printed: TEXT" lines (output lines that must not appear) and its
+    "-- expect-line: PATTERN" lines (each must match an output line)."""
+    expect_error, not_printed, expect_lines = None, [], []
     with open(test) as f:
         for line in f:
             m = re.match(r"--\s*expect-error:\s*(.+?)\s*$", line)
             if m:
                 expect_error = m.group(1)
+            m = re.match(r"--\s*expect-line:\s*(.+?)\s*$", line)
+            if m:
+                expect_lines.append(m.group(1))
             m = re.match(r"--\s*not-printed:\s*(.+?)\s*$", line)
             if m:
                 not_printed.append(m.group(1))
-    return expect_error, not_printed
+    return expect_error, not_printed, expect_lines
 
 
 def suite_unit(ctx):
@@ -492,7 +496,7 @@ def suite_unit(ctx):
     def one(t):
         r = run_bpp(ctx.bpp, ["-f", os.path.join(TESTS, t)], ctx.workdir("unit-" + t), 300, ROOT)
         lines = r.lines()
-        expect_error, not_printed = unit_expectations(os.path.join(TESTS, t))
+        expect_error, not_printed, expect_lines = unit_expectations(os.path.join(TESTS, t))
         if expect_error:
             # a test of how a failing script is reported: the error is the point
             why = []
@@ -504,6 +508,8 @@ def suite_unit(ctx):
                 why.append("no error matching %s" % expect_error)
                 why += lua_errors(lines)[:5]
             why += ["printed %r: the script went on" % l for l in lines if l in not_printed]
+            why += ["no line matching %s" % p for p in expect_lines
+                    if not any(re.search(p, l) for l in lines)]
             return t, why, "the error as expected" if not why else "", r.seconds
         sums = [SUMMARY.match(l.strip()) for l in lines]
         sums = [m for m in sums if m]
