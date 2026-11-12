@@ -39,7 +39,8 @@ public:
    * @param viewSize   The 3D view's size: the render size by default.
    * @param scriptName The script's file name (empty: "no_name").
    * @param frameNum   The frame: POV-Ray's clock and part of the PNG's name.
-   * @param povargs    More options for POV-Ray, passed as one argument.
+   * @param povargs    More options for POV-Ray, split on spaces (one
+   *                   argument each; with VFE the Viewer passes them whole).
    */
   static Plan plan(QSettings *settings, const QSize &viewSize, const QString &scriptName,
                    int frameNum, const QString &povargs);

@@ -471,18 +471,22 @@ SUMMARY = re.compile(r"^(\d+) passed, (\d+) failed$")
 
 def unit_expectations(test):
     """A unit test's "-- expect-error: PATTERN" line (it passes if bpp reports
-    an error matching PATTERN and exits 1, and needs no "N passed" line) and its
-    "-- not-printed: TEXT" lines (output lines that must not appear)."""
-    expect_error, not_printed = None, []
+    an error matching PATTERN and exits 1, and needs no "N passed" line), its
+    "-- not-printed: TEXT" lines (output lines that must not appear) and its
+    "-- expect-line: PATTERN" lines (each must match an output line)."""
+    expect_error, not_printed, expect_lines = None, [], []
     with open(test) as f:
         for line in f:
             m = re.match(r"--\s*expect-error:\s*(.+?)\s*$", line)
             if m:
                 expect_error = m.group(1)
+            m = re.match(r"--\s*expect-line:\s*(.+?)\s*$", line)
+            if m:
+                expect_lines.append(m.group(1))
             m = re.match(r"--\s*not-printed:\s*(.+?)\s*$", line)
             if m:
                 not_printed.append(m.group(1))
-    return expect_error, not_printed
+    return expect_error, not_printed, expect_lines
 
 
 def suite_unit(ctx):
@@ -492,7 +496,7 @@ def suite_unit(ctx):
     def one(t):
         r = run_bpp(ctx.bpp, ["-f", os.path.join(TESTS, t)], ctx.workdir("unit-" + t), 300, ROOT)
         lines = r.lines()
-        expect_error, not_printed = unit_expectations(os.path.join(TESTS, t))
+        expect_error, not_printed, expect_lines = unit_expectations(os.path.join(TESTS, t))
         if expect_error:
             # a test of how a failing script is reported: the error is the point
             why = []
@@ -504,6 +508,8 @@ def suite_unit(ctx):
                 why.append("no error matching %s" % expect_error)
                 why += lua_errors(lines)[:5]
             why += ["printed %r: the script went on" % l for l in lines if l in not_printed]
+            why += ["no line matching %s" % p for p in expect_lines
+                    if not any(re.search(p, l) for l in lines)]
             return t, why, "the error as expected" if not why else "", r.seconds
         sums = [SUMMARY.match(l.strip()) for l in lines]
         sums = [m for m in sums if m]
@@ -572,13 +578,13 @@ def suite_render(ctx):
     stand-in tests/render/standin/povray, first on PATH, writes how it was
     called. bpp's own side of a quick render is checked against that:
     which program, the options (the default preview's), the size (the
-    view's: 640x480 headless), the PNG on the desktop named after the
-    scene and frame, POV-Ray's clock, the scene file, the extra options
-    as given, and the folder (the scene's export, holding the .pov). The
+    view's: 640x480 headless), the PNG on the desktop (made if missing)
+    named after the scene and frame, POV-Ray's clock, the scene file, the
+    extra options (one argument each), and the folder (the scene's
+    export, holding the .pov). The
     Ubuntu POV-Ray is 3.7, which won't read bpp's 3.8 scenes, so nothing
     is rendered."""
-    wd = ctx.workdir("render")
-    os.makedirs(os.path.join(wd, "home", "Desktop"))   # (where the PNG goes)
+    wd = ctx.workdir("render")      # (its home has no Desktop: bpp makes it)
     env = {"PATH": os.path.join(RENDER, "standin") + os.pathsep + os.environ.get("PATH", "")}
     r = run_bpp(ctx.bpp, ["-f", "quick.lua", "-n", "4"], wd, 120, RENDER, env)
     home = os.path.join(wd, "home")
@@ -603,7 +609,7 @@ def suite_render(ctx):
                          r"/bpp-\d{8}-\d{6}-quick-00002\.png$")
         want = ["+L" + cache, "+L" + os.path.join(RENDER, "includes"),
                 "-c", "+d", "-A", "+p", "+Q11", "+GA", "+FN10",
-                "+W640", "+H480", "+F", png, "+K2", "quick.pov", "+W160 +H120"]
+                "+W640", "+H480", "+F", png, "+K2", "quick.pov", "+W160", "+H120"]
         if folder != export:
             why.append("ran in %s, not %s" % (folder, export))
         if not os.path.exists(os.path.join(export, "quick.pov")):

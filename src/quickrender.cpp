@@ -119,6 +119,7 @@ QuickRender::Plan QuickRender::plan(QSettings *settings, const QSize &viewSize,
 
   QString desktop =
       QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+  QDir().mkpath(desktop); // (POV-Ray won't make the folder it writes into)
   QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
   QString fn = QString("%1").arg(frameNum, 5, 10, QChar('0'));
 
@@ -136,7 +137,8 @@ QuickRender::Plan QuickRender::plan(QSettings *settings, const QSize &viewSize,
   args << sceneName + ".pov";
 
   if(!povargs.isEmpty()) {
-    args << povargs;
+    // one argument each, as POV-Ray takes them from a command line
+    args << povargs.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
   }
 
   qDebug() << "executing " << povray << args;

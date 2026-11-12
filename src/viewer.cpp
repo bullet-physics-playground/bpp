@@ -2424,6 +2424,31 @@ void Viewer::openLua() {
   }
 }
 
+namespace {
+// runScript()'s message handler: writes where the script was when it
+// failed, one "[function] source (line)" a line from where it failed out,
+// to the registry (bpp.trace), and passes the error on as it was.
+int scriptTrace(lua_State *L) {
+  QString trace;
+  lua_Debug ar;
+  for (int level = 1; lua_getstack(L, level, &ar); level++) {
+    lua_getinfo(L, "Snl", &ar);
+    QString info = QString("[%1] %2 (%3)")
+                    .arg(ar.name ? ar.name : "?")
+                    .arg(ar.short_src)
+                    .arg(ar.currentline);
+    if (trace.isEmpty()) {
+      trace = info;
+    } else {
+      trace += "\n" + info;
+    }
+  }
+  lua_pushstring(L, trace.toUtf8().constData());
+  lua_setfield(L, LUA_REGISTRYINDEX, "bpp.trace");
+  return 1; // (the error, at the top)
+}
+} // namespace
+
 // Runs a script in the Lua state: reports an error on the console (the
 // script stops there). Returns false if it failed.
 bool Viewer::runScript(QString txt) {
@@ -2438,8 +2463,12 @@ bool Viewer::runScript(QString txt) {
     txt = tmp.join("\n");
   }
 
+  // Where the script was when it failed, written down by the message handler
+  // below while its stack is still there (after lua_pcall returns, it's gone)
+  lua_pushcfunction(L, scriptTrace);
+  const int handler = lua_gettop(L);
   int error = luaL_loadstring(L, txt.toUtf8().constData()) ||
-              lua_pcall(L, 0, LUA_MULTRET, 0);
+              lua_pcall(L, 0, LUA_MULTRET, handler);
 
   // (Lua's garbage collector runs throughout: see where the classes are
   // registered above for why that is safe.)
@@ -2447,20 +2476,11 @@ bool Viewer::runScript(QString txt) {
   if (error) {
     lua_error = tr("error: %1").arg(lua_tostring(L, -1));
 
-    QString trace;
-    lua_Debug ar;
-    for (int level = 0; lua_getstack(L, level, &ar); level++) {
-      lua_getinfo(L, "Snl", &ar);
-      QString info = QString("[%1] %2 (%3)")
-                      .arg(ar.name ? ar.name : "?")
-                      .arg(ar.short_src)
-                      .arg(ar.currentline);
-      if (trace.isEmpty()) {
-        trace = info;
-      } else {
-        trace += "\n" + info;
-      }
-    }
+    lua_getfield(L, LUA_REGISTRYINDEX, "bpp.trace");
+    const QString trace = lua_isstring(L, -1) ? QString(lua_tostring(L, -1)) : QString();
+    lua_pop(L, 1);
+    lua_pushnil(L);
+    lua_setfield(L, LUA_REGISTRYINDEX, "bpp.trace");
 
     if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
       lua_error = tr("script stopped");
@@ -2476,6 +2496,7 @@ bool Viewer::runScript(QString txt) {
   } else {
     lua_error = tr("ok");
   }
+  lua_remove(L, handler);
 
   return !error;
 }
