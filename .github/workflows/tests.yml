@@ -285,3 +285,88 @@ jobs:
           name: test-output-qt6
           path: /tmp/bpp-tests-*/screens-*.png
           if-no-files-found: ignore
+
+  # The Windows build, as the release's Windows installer is built (MSYS2
+  # MinGW64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
+  # built in), running the suites whose expected files hold off Linux: the
+  # unit tests and the smoke run (the harness skips the rest off Linux).
+  # continue-on-error while this job is new: a failure here shows on the job
+  # but leaves the run green, so it doesn't hold up the other jobs' work.
+  # Drop it once the job has passed for a while.
+  test-windows:
+    name: Windows build (MSYS2 MinGW64)
+    runs-on: windows-latest
+    timeout-minutes: 90
+    continue-on-error: true
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up MSYS2 (MinGW64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          release: false
+          install: >-
+            git
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-qt5
+            mingw-w64-x86_64-assimp
+            mingw-w64-x86_64-glew
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-lua51
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-bullet
+            mingw-w64-x86_64-freeglut
+            mingw-w64-x86_64-python
+            mingw-w64-x86_64-openscad
+
+      # Siblings of the checkout, where msys2.pri looks for them. The same
+      # libQGLViewer commit as the Qt 6 job.
+      - name: Build luabind and libQGLViewer
+        run: |
+          set -e
+          cd "$(dirname "$(cygpath -u '${{ github.workspace }}')")"
+          git clone -q --depth=1 https://github.com/bullet-physics-playground/luabind
+          (cd luabind && mkdir build && cd build &&
+           cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -G Ninja .. && ninja)
+          git clone -q https://github.com/GillesDebunne/libQGLViewer
+          cd libQGLViewer && git checkout -q da4bfad && cd QGLViewer
+          qmake-qt5
+          mingw32-make -j$(nproc)
+
+      - name: Build
+        id: build
+        run: |
+          set -e
+          qmake-qt5 CONFIG+=release
+          mingw32-make -j$(nproc) release
+
+      # (bpp.exe finds MSYS2's DLLs on PATH; QGLViewer's is beside its build.)
+      - name: Unit tests
+        run: |
+          set -eo pipefail
+          export PATH="$(dirname "$PWD")/libQGLViewer/QGLViewer:$PATH"
+          python tests/harness.py --bpp release/bpp.exe unit 2>&1 | tee unit.log
+
+      - name: Smoke run of every demo
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          set -eo pipefail
+          export PATH="$(dirname "$PWD")/libQGLViewer/QGLViewer:$PATH"
+          python tests/harness.py --bpp release/bpp.exe smoke 2>&1 | tee smoke.log
+
+      - name: Upload what failed
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-output-windows
+          path: '*.log'
+          if-no-files-found: ignore

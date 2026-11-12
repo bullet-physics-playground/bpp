@@ -129,6 +129,18 @@ the window out otherwise, so its screenshots are in `screens/expected-qt6/`,
 which the harness picks when the bpp it tests links Qt 6; `--update
 screens` with a Qt 6 build writes there.
 
+## Windows
+
+`test-windows` builds bpp on Windows as the release's installer is built
+(MSYS2 MinGW64, Qt 5, without POV-Ray built in) and runs the unit tests and
+the smoke run; the other suites' expected files are made on Linux, so the
+harness skips them there. To run them on Windows yourself, from an MSYS2
+MinGW64 shell with QGLViewer's DLL on `PATH`:
+
+```sh
+python tests/harness.py --bpp release/bpp.exe unit smoke
+```
+
 ## Euler's Gallery against theory
 
 `theory/checks.txt` turns the checks of the gallery's physics-fidelity

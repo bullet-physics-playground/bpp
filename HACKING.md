@@ -142,6 +142,6 @@ A change meant to alter nothing at all (moving code out of `Viewer`) is
 best checked against a build of master with `--baseline`: see "Refactoring"
 in tests/README.md.
 
-CI runs all of this on every push, with Qt 5, Qt 6, the sanitizers and the
-threaded build (`.github/workflows/tests.yml`); a push is done once it's
+CI runs all of this on every push, with Qt 5, Qt 6, the sanitizers, the
+threaded build and Windows (`.github/workflows/tests.yml`); a push is done once it's
 green.
