@@ -17,7 +17,12 @@
 #
 # Environment: BPP, JOBS, OUT (runs/out-best-gaits), PLAIN (runs/out-boards/plain/warm40fast), GROUNDS and the seeds
 # (CHOOSE_SEEDS "1 2 3 4 5", RANK_SEEDS "6 7 8 9 10"; to try it small: GROUNDS="waves:4 logs:7" CHOOSE_SEEDS="1 2"
-# RANK_SEEDS=3). About 4,100 runs to choose and 1,815 and a few hundred to rank. Runs already done are kept.
+# RANK_SEEDS=3). About 4,100 runs to choose and 1,815 and a few hundred to rank. Runs already done are kept, and a
+# trot run already made for any seed -- in PLAIN, or in an earlier ranking here -- is used for choosing, so more seeds
+# cost only the new runs. 12 November: five seeds let lucky choices through on the roughest grounds (Hoecken slider
+# diag on steps 7: +1.99 on seeds 1-5, slower than its trot on 6-10), so choose on 16 (William: the old minimum) and
+# rank on 16 fresh ones (about 17,000 runs, the ones already made reused; 7 hours on 8 cores):
+#   CHOOSE_SEEDS="$(seq -s ' ' 1 16)" RANK_SEEDS="$(seq -s ' ' 17 32)" BPP=... runs/best-gaits.sh
 set -u
 cd "$(dirname "$0")/.."
 OUT=${OUT:-runs/out-best-gaits}
@@ -42,9 +47,13 @@ settings() {   # option name -> walker-room settings
 }
 # 1. choose
 echo "1. choosing, seeds $CHOOSE_SEEDS"
-for w in "${ALL[@]}"; do
-  f="${w// /_}"
-  if ! ls "$PLAIN/${f}_"*.txt > /dev/null 2>&1; then run "$OUT/choose/${f}__trot" "$w" "" "$CHOOSE_SEEDS" "$GROUNDS"; fi
+for w in "${ALL[@]}"; do   # (its trot: the runs already made, wherever they are, and the rest run here)
+  f="${w// /_}"; d="$OUT/choose/${f}__trot/warm40fast"
+  mkdir -p "$d"
+  for src in "$PLAIN" "$OUT/rank/${f}__trot/warm40fast"; do
+    for s in $CHOOSE_SEEDS; do cp -n "$src/${f}_"*"_s$s.txt" "$d/" 2> /dev/null; done
+  done
+  run "$OUT/choose/${f}__trot" "$w" "" "$CHOOSE_SEEDS" "$GROUNDS"
 done
 for w in "${DIAG[@]}"; do for o in 150 120 90; do run "$OUT/choose/${w// /_}__offset_$o" "$w" "PAIR_OFFSET = $o" "$CHOOSE_SEEDS" "$GROUNDS"; done; done
 run "$OUT/choose/Spears_4-bar__walk_0-90-180-270" "Spears 4-bar" "GAIT = { 0, 90, 180, 270 }" "$CHOOSE_SEEDS" "$GROUNDS"
@@ -59,7 +68,7 @@ def key(g):   # waves4 -> "waves 4", the boards' name; flat0 -> "flat 0"
 def runs_of(d, w):
     return {(g, s): speed(os.path.join(d, f"{w.replace(' ', '_')}_{g}_s{s}.txt")) for g in grounds for s in seeds}
 choice, lines = collections.defaultdict(dict), []
-walkers = sorted({os.path.basename(d).split("__")[0].replace("_", " ") for d in glob.glob(os.path.join(out, "choose", "*__*"))})
+walkers = sorted({os.path.basename(d).split("__")[0].replace("_", " ") for d in glob.glob(os.path.join(out, "choose", "*__*")) if not d.endswith("__trot")})
 for w in walkers:
     tdir = os.path.join(out, "choose", w.replace(" ", "_") + "__trot", "warm40fast")
     trot = runs_of(tdir if os.path.isdir(tdir) else plain, w)
@@ -102,7 +111,7 @@ while IFS='|' read -r w k o; do
 done < "$OUT/choices.txt"
 python3 - "$OUT" "$RANK_SEEDS" <<'PY' || exit 1
 import sys, os, glob, shutil
-out = sys.argv[1]
+out, seeds = sys.argv[1], set(sys.argv[2].split())
 choice = {}
 for line in open(os.path.join(out, "choices.txt")):
     if line.strip(): w, k, o = line.strip().split("|"); choice[(w, k.replace(" ", ""))] = o
@@ -110,7 +119,8 @@ for name in ("trot", "best"):
     d = os.path.join(out, "boards-" + name, "warm40fast"); shutil.rmtree(d, ignore_errors=True); os.makedirs(d)
 for f in glob.glob(os.path.join(out, "rank", "*__trot", "warm40fast", "*.txt")):
     base = os.path.basename(f); w = os.path.basename(os.path.dirname(os.path.dirname(f))).split("__")[0].replace("_", " ")
-    g = base[:-4].rsplit("_", 2)[1]
+    g, seed = base[:-4].rsplit("_", 2)[1:]
+    if seed[1:] not in seeds: continue   # (only this ranking's seeds: an earlier ranking's are in the same folders)
     shutil.copy(f, os.path.join(out, "boards-trot", "warm40fast", base))
     o = choice.get((w, g))
     src = os.path.join(out, "rank", w.replace(" ", "_") + "__" + o, "warm40fast", base) if o else f
