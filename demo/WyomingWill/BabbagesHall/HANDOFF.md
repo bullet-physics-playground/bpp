@@ -507,6 +507,11 @@ there, in `release/`, or on the path; or set `BPP`.
   the window: the table, the lectern and the placard in view; the
   Domino Half Adder's big table puts its card farther off (zoom, or `I`).
   An exhibit added later gets the two stops by getting a card.
+  **2026-11-11:** walked to with Tab, the sieve had no lectern: an exhibit
+  loading while you're at another has that one's world in use, and its
+  lectern went there (the Differential's showed only because it loads
+  first; starting at the sieve hid it). The lecterns are the hall's now,
+  in world 0 like the placards.
 - **Next:** offered, not asked for: printing only a program's parts (the
   tiles carry every wall now; `make-stls.sh` could take a `PARTS` list).
 - The other 39 machines in MACHINES.md have no bays: adding any grows the

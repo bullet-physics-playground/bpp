@@ -824,6 +824,11 @@ local function lectern(g, t)
   local function at(x, y, z) return g.toScene(btVector3(x, y, z)) end
   local function put(o, p, rq) o.trans = btTransform(rq, p); return o end
   local base = -96.5
+  -- (the hall's, like the placards: in its world, drawn whichever exhibit
+  -- is in use; an exhibit loading while you're at another has that one's
+  -- world in use, and there its lectern wasn't seen)
+  local was = realV:currentWorld()
+  realV:useWorld(0)
   CASTING = true
   local parts = {
     put(vis(realCube(22, 1.2, 22, 0), IRON2), at(lx, base + 0.6, lz), q),                       -- (its foot)
@@ -836,6 +841,7 @@ local function lectern(g, t)
   local c, W = at(lx, ly + 0.95 * sn, lz + 0.95 * cs), 36
   parts[#parts + 1] = put(vis(card, "#ffffff"), c, tq)
   CASTING = false
+  realV:useWorld(was)
   if objectKey then for _, o in ipairs(parts) do HOVER[objectKey(o)] = g.e.about end end
   -- (I: from in front of it, square on, close enough to read)
   local n = btVector3(c.x, c.y, c.z)

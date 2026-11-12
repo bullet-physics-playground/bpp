@@ -15,7 +15,6 @@
 #include <cstring>
 #include <memory>
 
-#include <QColor>
 
 #include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
@@ -73,15 +72,6 @@
 #include <BulletDynamics/MLCPSolvers/btDantzigSolver.h>
 #include <BulletDynamics/MLCPSolvers/btSolveProjectedGaussSeidel.h>
 #include <BulletDynamics/MLCPSolvers/btLemkeSolver.h>
-
-// QColor's red()/green()/blue() getters are noexcept in Qt6, which old
-// Boost (used by luabind) cannot decompose. Use non-noexcept wrappers.
-int qcolor_r(QColor const &c) { return c.red(); }
-int qcolor_g(QColor const &c) { return c.green(); }
-int qcolor_b(QColor const &c) { return c.blue(); }
-void qcolor_set_r(QColor &c, int v) { c.setRed(v); }
-void qcolor_set_g(QColor &c, int v) { c.setGreen(v); }
-void qcolor_set_b(QColor &c, int v) { c.setBlue(v); }
 
 // A rigid body's gyroscopic term, solved together with its contacts and
 // joints, for bodies a script marks (body.gyroSolved = true: the flag
@@ -206,9 +196,7 @@ static void *aligned_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) 
 }
 #endif
 
-#include <luabind/adopt_policy.hpp>
 #include <luabind/class_info.hpp>
-#include <luabind/operator.hpp>
 #include <luabind/tag_function.hpp>
 
 
@@ -289,415 +277,7 @@ private:
   int _debugMode = 0; ///< Which categories of debug geometry Bullet emits.
 };
 
-/**
- * @brief Writes a Viewer's description to a standard stream.
- * @param ostream The stream to write to.
- * @param v       The viewer to describe.
- * @return @p ostream, for chaining.
- */
-std::ostream &operator<<(std::ostream &ostream, const Viewer &v) {
-  ostream << v.toString().toUtf8().data();
-  return ostream;
-}
-
-// luabind's comparison policy needs an operator== reachable via ADL for
-// every class registered with it (see the identity-operator comment in
-// lua_bullet.cpp for why this matters). Viewer/JoystickInfo have no natural
-// value equality, so fall back to identity; QColor already has a real
-// operator== from Qt, and SpaceNavigator::Axes is a plain field struct.
-/**
- * @brief Compares two Viewers by identity.
- * @param a First viewer.
- * @param b Second viewer.
- * @return True only if both are the same object.
- */
-bool operator==(const Viewer &a, const Viewer &b) { return &a == &b; }
-
-/**
- * @brief Compares two JoystickInfos by identity.
- * @param a First report.
- * @param b Second report.
- * @return True only if both are the same object.
- */
-bool operator==(const JoystickInfo &a, const JoystickInfo &b) {
-  return &a == &b;
-}
-
-/**
- * @brief Compares two sets of 3D mouse axes by value.
- * @param a First set of axes.
- * @param b Second set of axes.
- * @return True if all six axes match.
- */
-bool operator==(const SpaceNavigator::Axes &a, const SpaceNavigator::Axes &b) {
-  return a.x == b.x && a.y == b.y && a.z == b.z && a.rx == b.rx &&
-         a.ry == b.ry && a.rz == b.rz;
-}
-
-/**
- * @brief Writes a QString to a standard stream as UTF-8.
- * @param ostream The stream to write to.
- * @param s       The string.
- * @return @p ostream, for chaining.
- */
-std::ostream &operator<<(std::ostream &ostream, const QString &s) {
-  ostream << s.toUtf8().data();
-  return ostream;
-}
-
-/**
- * @brief Writes a QColor to a standard stream by its name.
- * @param ostream The stream to write to.
- * @param c       The colour.
- * @return @p ostream, for chaining.
- */
-std::ostream &operator<<(std::ostream &ostream, const QColor &c) {
-  ostream << "QColor(\"" << c.name().toUtf8().data() << "\")";
-  return ostream;
-}
-
-/**
- * @brief Writes a placeholder description of a JoystickInfo to a stream.
- * @param ostream The stream to write to.
- * @param ji      The report. Its contents are not printed.
- * @return @p ostream, for chaining.
- */
-std::ostream &operator<<(std::ostream &ostream, const JoystickInfo &ji) {
-  Q_UNUSED(ji)
-  ostream << "JoystickInfo()"; // XXX
-  return ostream;
-}
-
-/**
- * @brief Writes a set of 3D mouse axes to a standard stream.
- * @param ostream The stream to write to.
- * @param axes    The axes.
- * @return @p ostream, for chaining.
- */
-std::ostream &operator<<(std::ostream &ostream,
-                         const SpaceNavigator::Axes &axes) {
-  ostream << QString("SpaceNavigatorAxes(x=%1, y=%2, z=%3, rx=%4, ry=%5, rz=%6)")
-                 .arg(axes.x)
-                 .arg(axes.y)
-                 .arg(axes.z)
-                 .arg(axes.rx)
-                 .arg(axes.ry)
-                 .arg(axes.rz)
-                 .toUtf8()
-                 .data();
-  return ostream;
-}
-
 QString Viewer::toString() const { return QString("Viewer"); }
-
-void Viewer::luaBind(lua_State *s) {
-  using namespace luabind;
-
-  module(s)
-      [class_<Viewer>("Viewer")
-           .def(constructor<>())
-           .def("setCam", (void(Viewer::*)(Cam *)) & Viewer::setCamera,
-                adopt(_2))
-           .def("getCam", &Viewer::getCamera)
-           .def("add", &Viewer::addObjectLua)
-           .def("remove", &Viewer::removeObjectLua)
-           .def("setTau", (void(Viewer::*)(btScalar))&Viewer::setTau)
-           .def("setErp", (void(Viewer::*)(btScalar))&Viewer::setErp)
-           .def("setErp2", (void(Viewer::*)(btScalar))&Viewer::setErp2)
-           .def("setCfm", (void(Viewer::*)(btScalar))&Viewer::setCfm)
-           .def("setSolverIterations",
-                (void(Viewer::*)(int)) & Viewer::setSolverIterations)
-           .def("setSolver", &Viewer::setSolver)
-           .def("setSolverInfo", &Viewer::setSolverInfo)
-           .def("setThreads", &Viewer::setThreads)
-           .def("attach", &Viewer::attach)
-           .def("detach", &Viewer::detach)
-           .property("solver", &Viewer::solverKind)
-           .property("solverFallbacks", &Viewer::solverFallbacks)
-           .def("eachContact",
-                (void(Viewer::*)(const luabind::object &)) &
-                    Viewer::eachContact)
-           .def("rayTest",
-                (btScalar(Viewer::*)(const btVector3 &, const btVector3 &)) &
-                    Viewer::rayTest)
-           .def("rayTest",
-                (btScalar(Viewer::*)(const btVector3 &, const btVector3 &,
-                                     const luabind::object &)) &
-                    Viewer::rayTest)
-           .def("addConstraint",
-                (void(Viewer::*)(btTypedConstraint *)) & Viewer::addConstraint,
-                adopt(_2))
-           .def("removeConstraint",
-                (btTypedConstraint * (Viewer::*)(btTypedConstraint *)) &
-                    Viewer::removeConstraint,
-                adopt(result))
-           .def("createVehicleRaycaster", &Viewer::createVehicleRaycaster)
-           .def("addVehicle",
-                (void(Viewer::*)(btRaycastVehicle *)) & Viewer::addVehicle,
-                adopt(_2))
-           .def("addShortcut", &Viewer::addShortcut)
-           .def("removeShortcut", &Viewer::removeShortcut)
-           .def("preStart",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPreStart,
-                adopt(luabind::result))
-           .def("preDraw",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPreDraw,
-                adopt(luabind::result))
-           .def("postDraw",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPostDraw,
-                adopt(luabind::result))
-           .def("preSim",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPreSim,
-                adopt(luabind::result))
-           .def("postSim",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPostSim,
-                adopt(luabind::result))
-           .def("preStop",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBPreStop,
-                adopt(luabind::result))
-           .def("onCommand",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnCommand,
-                adopt(luabind::result))
-            .def("onJoystick",
-                 (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnJoystick,
-                 adopt(luabind::result))
-            .def("onKey",
-                 (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnKey,
-                 adopt(luabind::result))
-            .def("onSpaceNavigator",
-                 (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnSpaceNavigator,
-                 adopt(luabind::result))
-            .def("cycleObject",
-                 (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBCycleObject,
-                 adopt(luabind::result))
-           .def("onParamChanged",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnParamChanged,
-                 adopt(luabind::result))
-           .def("onHover",
-                (void(Viewer::*)(const luabind::object &fn)) &
-                    Viewer::setCBOnHover,
-                 adopt(luabind::result))
-            .def("addParam", (void(Viewer::*)(const QString &, const QVariant &)) & Viewer::addParam)
-            .def("addParam", (void(Viewer::*)(const QString &, const QVariant &, const QString &)) & Viewer::addParam)
-            .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &)) & Viewer::addParam)
-            .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &)) & Viewer::addParam)
-            .def("addParam", (void(Viewer::*)(const QString &, const btScalar &, const btScalar &, const btScalar &, const btScalar &, const QString &)) & Viewer::addParam)
-            .def("getParam", &Viewer::getParam)
-            .def("getParams", &Viewer::getParams)
-            .def("showParams", &Viewer::showParams)
-            .def("getTime", &Viewer::getTime)
-            .def("stepSimulation", &Viewer::stepSimulation)
-            .def("newWorld", &Viewer::newWorld)
-            .def("useWorld", &Viewer::useWorld)
-            .def("currentWorld", &Viewer::currentWorld)
-            .def("placeWorld", &Viewer::placeWorld)
-            .def("savePrefs", &Viewer::setPrefs)
-           .def("loadPrefs", &Viewer::getPrefs)
-           .def("clearDebugText", &Viewer::clearDebugText)
-           .def("setHelpText", &Viewer::setHelpText)
-           .property("statusText", &Viewer::getStatusText, &Viewer::setStatusText)
-
-           .def("quickRender",
-                (void(Viewer::*)(QString povargs)) & Viewer::onQuickRender)
-
-           .property("cam", &Viewer::getCamera, &Viewer::setCamera)
-
-           .property("gravity", &Viewer::getGravity, &Viewer::setGravity)
-
-           .property("animationPeriod", &Viewer::getAnimationPeriod,
-                     &Viewer::setAnimationPeriodMs)
-
-           .property("onePerFrame", &Viewer::getOnePerFrame,
-                     &Viewer::setOnePerFrame)
-
-           // SpaceNavigator 3D mouse navigation settings
-           .property("snMode", &Viewer::spaceNavigatorMode,
-                     &Viewer::setSpaceNavigatorMode)
-           .property("snLockHorizon", &Viewer::spaceNavigatorLockHorizon,
-                     &Viewer::setSpaceNavigatorLockHorizon)
-           .property("snAutoFlySpeed", &Viewer::spaceNavigatorAutoFlySpeed,
-                     &Viewer::setSpaceNavigatorAutoFlySpeed)
-           .property("snShowOrbitAxis", &Viewer::spaceNavigatorShowOrbitAxis,
-                     &Viewer::setSpaceNavigatorShowOrbitAxis)
-           .property("snZoomForward", &Viewer::spaceNavigatorZoomForward,
-                     &Viewer::setSpaceNavigatorZoomDirection)
-           .property("snPanZoom", &Viewer::spaceNavigatorPanZoom,
-                     &Viewer::setSpaceNavigatorPanZoom)
-
-           .property("showConstraints", &Viewer::showConstraints,
-                     &Viewer::setShowConstraints)
-
-           // (the user's: a script's assignment is noted and ignored)
-           .property("shadows", &Viewer::shadows,
-                     &Viewer::setShadowsFromScript)
-           .property("culling", &Viewer::culling, &Viewer::setCulling)
-           .property("drawnObjects", &Viewer::drawnObjects)
-           .property("shadowCasters", &Viewer::shadowCasters)
-           .property("shadowCache", &Viewer::shadowCache, &Viewer::setShadowCache)
-           .property("shadowCached", &Viewer::shadowCached)
-           .property("screenMerge", &Viewer::screenMerge, &Viewer::setScreenMerge)
-           .property("screenMerged", &Viewer::screenMerged)
-           .property("shadowSaved", &Viewer::shadowSaved, &Viewer::setShadowSaved)
-           .property("shadowFromSaved", &Viewer::shadowFromSaved)
-           .property("drawTiming", &Viewer::drawTiming, &Viewer::setDrawTiming)
-           .def("drawTimingReport", &Viewer::drawTimingReport)
-           .def("lastFrameDrawing", &Viewer::lastFrameDrawing)
-           .property("shadowMapSize", &Viewer::shadowMapSize,
-                     &Viewer::setShadowMapSize)
-           .property("shadowSoftness", &Viewer::shadowSoftness,
-                     &Viewer::setShadowSoftness)
-           .property("shadowDarkness", &Viewer::shadowDarkness,
-                     &Viewer::setShadowDarkness)
-
-           // http://bulletphysics.org/mediawiki-1.5.8/index.php/Stepping_the_World
-           .property("timeStep", &Viewer::getTimeStep, &Viewer::setTimeStep)
-           .property("maxSubSteps", &Viewer::getMaxSubSteps,
-                     &Viewer::setMaxSubSteps)
-           .property("fixedTimeStep", &Viewer::getFixedTimeStep,
-                     &Viewer::setFixedTimeStep)
-
-           // Short sound-effect playback (ticks, tocks, bells, ...).
-           // loadSound() is safe to call even with no audio device
-           // present -- returns -1, and playSound() on -1 is a no-op.
-           .def("loadSound", &Viewer::loadSound)
-           .def("playSound", (void(Viewer::*)(int)) & Viewer::playSound)
-           .def("playSound", (void(Viewer::*)(int, double)) & Viewer::playSound)
-           // continuous synthesised voices, e.g. rotors (also no-ops
-           // without audio)
-           .def("setTone", (void(Viewer::*)(int, double, double)) & Viewer::setTone)
-           .def("setTone", (void(Viewer::*)(int, double, double, double)) & Viewer::setTone)
-           .def("setToneTimbre", &Viewer::setToneTimbre)
-           .def("silenceTones", &Viewer::silenceTones)
-           // streamed music (no-ops returning false/0 without audio or
-           // headless), see viewermedia.cpp
-           .def("loadMusic", &Viewer::loadMusic)
-           .def("playMusic", (bool(Viewer::*)()) & Viewer::playMusic)
-           .def("playMusic", (bool(Viewer::*)(double)) & Viewer::playMusic)
-           .def("stopMusic", &Viewer::stopMusic)
-           .def("pauseMusic", &Viewer::pauseMusic)
-           .def("resumeMusic", &Viewer::resumeMusic)
-           .def("fadeMusicTo", &Viewer::fadeMusicTo)
-           .def("musicPosition", &Viewer::musicPosition)
-           .def("musicPlaying", &Viewer::musicPlaying)
-           // a question for the visitor, and remembered answers
-           .def("ask", (int(Viewer::*)(const QString &, const QString &,
-                                       const luabind::object &)) &
-                           Viewer::ask)
-           .def("ask", (int(Viewer::*)(const QString &, const QString &,
-                                       const luabind::object &,
-                                       const QString &)) &
-                           Viewer::ask)
-           .def("remembered", &Viewer::remembered)
-           .def("forget", &Viewer::forget)
-           // background downloads
-           .def("download", &Viewer::download)
-           .def("downloadState", &Viewer::downloadState)
-           .def("dataDir", &Viewer::dataDir)
-
-           // Where a late frame's time went (0 = off), see setFrameTiming().
-           .def("setFrameTiming", &Viewer::setFrameTiming)
-           .property("frameTiming", &Viewer::getFrameTiming,
-                     &Viewer::setFrameTiming)
-
-           .property("glShininess", &Viewer::getGLShininess,
-                     &Viewer::setGLShininess)
-           .property("glSpecularColor", &Viewer::getGLSpecularColor,
-                     &Viewer::setGLSpecularColor)
-           .property("glSpecularColor", &Viewer::getGLSpecularCol,
-                     &Viewer::setGLSpecularCol)
-           .property("glLight0", &Viewer::getGLLight0, &Viewer::setGLLight0)
-           .property("glLight1", &Viewer::getGLLight1, &Viewer::setGLLight1)
-           .property("glLight0Color", &Viewer::getGLLight0Color,
-                     &Viewer::setGLLight0Color)
-           .property("glLight1Color", &Viewer::getGLLight1Color,
-                     &Viewer::setGLLight1Color)
-
-           .property("glAmbient", &Viewer::getGLAmbient, &Viewer::setGLAmbient)
-           .property("glDiffuse", &Viewer::getGLDiffuse, &Viewer::setGLDiffuse)
-           .property("glSpecular", &Viewer::getGLSpecular,
-                     &Viewer::setGLSpecular)
-           .property("glModelAmbient", &Viewer::getGLModelAmbient,
-                     &Viewer::setGLModelAmbient)
-
-           .property("glAmbient", &Viewer::getGLAmbientPercent,
-                     &Viewer::setGLAmbientPercent)
-           .property("glDiffuse", &Viewer::getGLDiffusePercent,
-                     &Viewer::setGLDiffusePercent)
-           .property("glSpecular", &Viewer::getGLSpecularPercent,
-                     &Viewer::setGLSpecularPercent)
-           .property("glModelAmbient", &Viewer::getGLModelAmbientPercent,
-                     &Viewer::setGLModelAmbientPercent)
-
-           .property("pre_sdl", &Viewer::getPreSDL, &Viewer::setPreSDL)
-           .property("post_sdl", &Viewer::getPostSDL, &Viewer::setPostSDL)
-
-           .property("pov_settings", &Viewer::getPOVSettingsInc,
-                     &Viewer::setPOVSettingsInc)
-
-           .def(tostring(const_self))
-           .def(const_self == const_self)];
-
-  // QT helper classes
-
-  module(s)[class_<QColor>("QColor")
-                .def(constructor<>(), adopt(result))
-                .def(constructor<QString>(), adopt(result))
-                .def(constructor<int, int, int>(), adopt(result))
-                .def(constructor<int, int, int, int>(), adopt(result))
-                .property("r", &qcolor_r, &qcolor_set_r)
-                .property("g", &qcolor_g, &qcolor_set_g)
-                .property("b", &qcolor_b, &qcolor_set_b)
-                .def(tostring(self))
-                .def(self == self)];
-
-// QString is handled by the default_converter<QString> in lua_converters.h
-  // which converts Lua strings to QString automatically.
-  // Registering class_<QString> here would shadow that converter and
-  // break overload resolution for any function taking a QString argument.
-
-  module(
-      s)[class_<JoystickInfo>("JoystickInfo")
-             .def(constructor<>())
-             .property("axes", &JoystickInfo::getAxisValues)
-             .property("axis0", &JoystickInfo::getAxis0)
-             .property("axis1", &JoystickInfo::getAxis1)
-             .property("axis2", &JoystickInfo::getAxis2)
-             .property("axis3", &JoystickInfo::getAxis3)
-             .property("buttons", &JoystickInfo::getButtonValues)
-             .property("button0", &JoystickInfo::getButton0)
-             .property("button1", &JoystickInfo::getButton1)
-             .property("button2", &JoystickInfo::getButton2)
-             .property("button3", &JoystickInfo::getButton3)
-             .property("triggeredButton0", &JoystickInfo::getTriggeredButton0)
-             .property("triggeredButton1", &JoystickInfo::getTriggeredButton1)
-             .property("triggeredButton2", &JoystickInfo::getTriggeredButton2)
-             .property("triggeredButton3", &JoystickInfo::getTriggeredButton3)
-             .def(tostring(self))
-             .def(self == self)];
-
-  module(s)[class_<SpaceNavigator::Axes>("SpaceNavigatorAxes")
-                .def(constructor<>())
-                .def_readwrite("x", &SpaceNavigator::Axes::x)
-                .def_readwrite("y", &SpaceNavigator::Axes::y)
-                .def_readwrite("z", &SpaceNavigator::Axes::z)
-                .def_readwrite("rx", &SpaceNavigator::Axes::rx)
-                .def_readwrite("ry", &SpaceNavigator::Axes::ry)
-                .def_readwrite("rz", &SpaceNavigator::Axes::rz)
-                .def(tostring(self))
-                .def(self == self)];
-}
 
 void Viewer::addObject(Object *o) {
   if (o == nullptr)
@@ -2620,248 +2200,233 @@ void Viewer::luabind_error(lua_State* L) {
     //emit scriptHasOutput(QString("%1").arg(luaWhat));
 }*/
 
-bool Viewer::parse(QString txt) {
-  QMutexLocker locker(&mutex);
+// Closes the running script: drops its hooks and the Lua references bpp
+// holds, takes its bodies and every world's constraints out while they are
+// still there, closes its Lua state, and forgets the Bullet pieces that
+// freed. The objects themselves are deleted after (clear(), or the
+// destructor). parse() and the destructor both close a script this way.
+void Viewer::closeScript() {
+  // The script's hooks, before its Lua state closes
+  _cb_preStart = luabind::object();
+  _cb_preDraw = luabind::object();
+  _cb_postDraw = luabind::object();
+  _cb_preSim = luabind::object();
+  _cb_postSim = luabind::object();
+  _cb_preStop = luabind::object();
+  _cb_onCommand = luabind::object();
+  _cb_onJoystick = luabind::object();
+  _keys.clear();                     // (shortcuts too: before Lua closes)
+  _cb_cycleObject = luabind::object();
+  _cb_onSpaceNavigator = luabind::object();
+  _hover.clear();
 
-  emit scriptStopped();
+  _params.releaseLua();
 
-  if (_cb_preStop) {
-    try {
-      luabind::call_function<void>(_cb_preStop, _frameNum);
-    } catch (const std::exception &e) {
-      showLuaException(e, "preStop()");
+  // (removed objects bpp still owns go with the rest)
+  for (Object *o : _removed)
+    _objects->insert(o);
+  _removed.clear();
+
+  // Notify all objects that their luabind weak pointers are invalid
+  foreach (Object* o, *_objects) {
+    o->preDestructor();
+  }
+
+  // Remove rigid bodies from the dynamics world while pointers are still valid.
+  if (dynamicsWorld) {
+    foreach (Object* o, *_objects) {
+      if (o->body != nullptr && !o->isDecoration()) {
+        worldOfObject(o)->removeRigidBody(o->body);
+      }
+      SoftBody *sb = dynamic_cast<SoftBody *>(o);
+      if (sb != nullptr && sb->getSoftBody() != nullptr) {
+        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
+      }
     }
+    // (and every world's constraints, while the bodies they hold are still
+    // there: closing Lua frees a script's own, and dropWorlds() later (in
+    // clear() or the destructor) would take the joints out of bodies already
+    // gone)
+    QList<btSoftRigidDynamicsWorld *> worlds;
+    worlds.append(dynamicsWorld);
+    for (const PhysWorld &w : _worlds)
+      if (w.world != nullptr && w.world != dynamicsWorld)
+        worlds.append(w.world);
+    for (btSoftRigidDynamicsWorld *dw : worlds)
+      for (int k = dw->getNumConstraints() - 1; k >= 0; --k)
+        dw->removeConstraint(dw->getConstraint(k));
   }
+  removeLeftoverBodies();
 
-  _parsing = true;
-  _has_exception = false;
-
-  _scriptContent = txt;
-
-  bool animStarted = animationIsStarted();
-
-  if (animStarted) {
-    stopAnimation();
-  }
-
-emit scriptStarts();
-
+  // Release Lua references from the registry BEFORE closing Lua state.
+  // These are raw integer refs, not luabind::object instances.
   if (L != nullptr) {
-    // Invalidate callback refs so Lua GC can collect the functions
-    _cb_preStart = luabind::object();
-    _cb_preStop = luabind::object();
-    _cb_preDraw = luabind::object();
-    _cb_postDraw = luabind::object();
-    _cb_preSim = luabind::object();
-    _cb_postSim = luabind::object();
-    _cb_onCommand = luabind::object();
-    _cb_onJoystick = luabind::object();
-    _keys.clear();
-    _cb_cycleObject = luabind::object();
-    setStatusText(QString());   // (a script's status line goes with it)
-    _synth.reset();             // (and its voices)
-    _cb_onSpaceNavigator = luabind::object();
-    _hover.clear();
-
-    _params.releaseLua();
-
-    // (removed objects bpp still owns go with the rest)
-    for (Object *o : _removed)
-      _objects->insert(o);
-    _removed.clear();
-
-    // Notify all objects that their luabind weak pointers are about to become
-    // invalid (C++ objects will be deleted by clear() below).
-    foreach (Object *o, *_objects) {
-      o->preDestructor();
+    for (auto& pair : _luabindRegistry) {
+      luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
     }
-
-    // Remove rigid bodies from the dynamics world while pointers are still
-    // valid. After lua_close() the Bullet objects will be freed by Lua's GC.
-    if (dynamicsWorld) {
-      foreach (Object *o, *_objects) {
-        if (o->body != nullptr && !o->isDecoration()) {
-          worldOfObject(o)->removeRigidBody(o->body);
-        }
-        SoftBody *sb = dynamic_cast<SoftBody *>(o);
-        if (sb != nullptr && sb->getSoftBody() != nullptr) {
-          worldOfObject(o)->removeSoftBody(sb->getSoftBody());
-        }
-      }
-    }
-    removeLeftoverBodies();
-
-    // Clear the luabind registry BEFORE closing the Lua state.
-    // Release Lua references from the registry while L is still valid.
-    if (L != nullptr) {
-      for (auto& pair : _luabindRegistry) {
-        luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
-      }
-      _luabindRegistry.clear();
-    }
-
-    // lua_close() performs a final GC sweep that deletes all Lua-adopted
-    // Bullet objects via their unique_ptr holders (adopt(result) policy).
-    // After this call, C++ raw pointers to those objects become dangling.
+    _luabindRegistry.clear();
     lua_close(L);
     L = nullptr;
+  }
 
-    // Null out Bullet object pointers that Lua has freed. The C++ Object
-    // destructors in clear() will skip these null pointers, avoiding
-    // use-after-free and double-free.
-    foreach (Object *o, *_objects) {
-      o->body = nullptr;
-      o->shape = nullptr;
+  // Null out Bullet object pointers that Lua has freed. The C++ Object
+  // destructors (in clear() or the destructor) will skip these null pointers,
+  // avoiding use-after-free and double-free.
+  foreach (Object* o, *_objects) {
+    o->body = nullptr;
+    o->shape = nullptr;
 #ifdef HAS_LIB_ASSIMP
-      Mesh *m = dynamic_cast<Mesh *>(o);
-      if (m) {
-        m->luaRelease();
-      }
+    Mesh *m = dynamic_cast<Mesh *>(o);
+    if (m) {
+      m->luaRelease();
+    }
 #endif
-      SoftBody *sb = dynamic_cast<SoftBody *>(o);
-      if (sb) {
-        sb->luaRelease();
-      }
+    SoftBody *sb = dynamic_cast<SoftBody *>(o);
+    if (sb) {
+      sb->luaRelease();
     }
   }
 
-  clear();
+}
 
-  {
-    // setup lua
+// Opens a fresh Lua state for a script: the standard libraries, bpp's
+// helpers, package.path, every bpp class, print, and the collector shim.
+void Viewer::openLua() {
+  // setup lua
 #if defined(Q_OS_LINUX)
-    L = lua_newstate(aligned_lua_alloc, nullptr);
+  L = lua_newstate(aligned_lua_alloc, nullptr);
 #else
-    L = luaL_newstate();
+  L = luaL_newstate();
 #endif
 
-    // open all standard Lua libs
-    luaL_openlibs(L);
+  // open all standard Lua libs
+  luaL_openlibs(L);
 
-    luaL_dostring(L, "os.setlocale('C')");
-    // Lua 5.3+ folded math.atan2(y, x) into a two-argument math.atan;
-    // restore the legacy name so older scripts keep working.
-    luaL_dostring(L,
-        "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
-        "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
-        "if atan2 == nil then atan2 = math.atan2 end");
-    luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
+  luaL_dostring(L, "os.setlocale('C')");
+  // Lua 5.3+ folded math.atan2(y, x) into a two-argument math.atan;
+  // restore the legacy name so older scripts keep working.
+  luaL_dostring(L,
+      "if type(math) == 'table' and type(math.atan2) ~= 'function' then "
+      "math.atan2 = function(y, x) return math.atan(y, x) end end\n"
+      "if atan2 == nil then atan2 = math.atan2 end");
+  luaL_dostring(L, "printf = function(s,...) print(s:format(...)) end");
 
-    // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
-    QString defaultPath = getDefaultLuaPath(_scriptBasePath);
-    QString path = _settings->value("lua/path").toString();
-    if (path.isEmpty()) {
+  // Build Lua package.path: search script directory first (if console mode), then CWD/demo, then installed
+  QString defaultPath = getDefaultLuaPath(_scriptBasePath);
+  QString path = _settings->value("lua/path").toString();
+  if (path.isEmpty()) {
+    path = defaultPath;
+  } else {
+    bool allExist = true;
+    for (const QString &entry : path.split(';', Qt::SkipEmptyParts)) {
+      QString dir = entry;
+      dir.replace("?.lua", "");
+      if (!QDir(dir).exists()) {
+        allExist = false;
+        break;
+      }
+    }
+    if (!allExist)
       path = defaultPath;
+  }
+  QString p = QString("package.path = package.path..\";%1\"").arg(path);
+
+  int error =
+      luaL_loadstring(L, qPrintable(p)) || lua_pcall(L, 0, LUA_MULTRET, 0);
+
+  if (error) {
+    lua_error = tr("error: %1").arg(lua_tostring(L, -1));
+
+    if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
+      lua_error = tr("script stopped");
+      // qDebug() << "lua run : script stopped";
     } else {
-      bool allExist = true;
-      for (const QString &entry : path.split(';', Qt::SkipEmptyParts)) {
-        QString dir = entry;
-        dir.replace("?.lua", "");
-        if (!QDir(dir).exists()) {
-          allExist = false;
-          break;
-        }
-      }
-      if (!allExist)
-        path = defaultPath;
-    }
-    QString p = QString("package.path = package.path..\";%1\"").arg(path);
-
-    int error =
-        luaL_loadstring(L, qPrintable(p)) || lua_pcall(L, 0, LUA_MULTRET, 0);
-
-    if (error) {
-      lua_error = tr("error: %1").arg(lua_tostring(L, -1));
-
-      if (lua_error.contains(QRegularExpression(tr("stopping$")))) {
-        lua_error = tr("script stopped");
-        // qDebug() << "lua run : script stopped";
-      } else {
-        // qDebug() << QString("lua run : %1").arg(lua_error);
-        emit scriptHasOutput(lua_error);
-      }
-
-      lua_pop(L, 1); /* pop error message from the stack */
-    } else {
-      lua_error = tr("ok");
+      // qDebug() << QString("lua run : %1").arg(lua_error);
+      emit scriptHasOutput(lua_error);
     }
 
-    luabind::open(L);
-
-    // Lua's garbage collector stays on. It used to be stopped here, because a
-    // script can build its own Bullet pieces (btRigidBody, btGImpactMeshShape,
-    // btTriangleMesh, ...) and hand them to an object, which kept only raw
-    // pointers to them: collecting them left dangling pointers. Now everything
-    // the C++ side uses is kept referenced from Lua: an object keeps the body,
-    // shape and mesh a script hands it (Object::keepLua()), and a Bullet
-    // constructor that takes another script-made piece keeps it alive
-    // (luabind's dependency policy, in lua_bullet_*.cpp). So the collector can
-    // run all the time, and scripts no longer need to manage it.
-
-    // register all bpp classes
-    LuaBullet::luaBind(L);
-
-    Cam::luaBind(L);
-    Object::luaBind(L);
-    Cone::luaBind(L);
-    Cube::luaBind(L);
-    Cylinder::luaBind(L);
-    CsgObject::luaBind(L);
-    Disc::luaBind(L);
-    Heightfield::luaBind(L);
-    Torus::luaBind(L);
-    PovScriptWriter_luaBind(L);
-    LayerManager::luaBind(L);
-    BezierPatch::luaBind(L);
-    Blob::luaBind(L);
-    Bound::luaBind(L);
-    Patch::luaBind(L);
-    ReferenceObject::luaBind(L);
-    Sweep::luaBind(L);
-    SuperQuadric::luaBind(L);
-    TrueType::luaBind(L);
-#ifdef HAS_LIB_ASSIMP
-    Mesh::luaBind(L);
-    OpenSCAD::luaBind(L);
-#endif
-    Palette::luaBind(L);
-    Plane::luaBind(L);
-    RigidSoftContact::luaBind(L);
-    SoftBody::luaBind(L);
-    Sphere::luaBind(L);
-    Terrain::luaBind(L);
-    Triangle::luaBind(L);
-    DemBed::luaBind(L);
-    Geo::luaBind(L);
-    Viewer::luaBind(L);
-
-    luabind::bind_class_info(L);
-
-    lua_pushlightuserdata(L, (void *)this);
-    lua_pushcclosure(L, &Viewer::lua_print, 1);
-    lua_setglobal(L, "print");
-
-    // Scripts written when the collector was kept stopped call
-    // collectgarbage("stop") after collecting by hand; that would switch the
-    // collector off for good, so it is ignored. "collect", "step", "count"
-    // and the rest work as usual. BPP_GC_AUTO tells a script that bpp
-    // collects garbage itself.
-    if (luaL_dostring(L,
-                      "BPP_GC_AUTO = true\n"
-                      "do\n"
-                      "  local gc = collectgarbage\n"
-                      "  collectgarbage = function(opt, ...)\n"
-                      "    if opt == 'stop' then return 0 end\n"
-                      "    return gc(opt, ...)\n"
-                      "  end\n"
-                      "end\n") != 0) {
-      emit scriptHasOutput(QString("collectgarbage setup: %1").arg(lua_tostring(L, -1)));
-      lua_pop(L, 1);
-    }
+    lua_pop(L, 1); /* pop error message from the stack */
+  } else {
+    lua_error = tr("ok");
   }
 
-  luaBindInstance(L);
+  luabind::open(L);
 
+  // Lua's garbage collector stays on. It used to be stopped here, because a
+  // script can build its own Bullet pieces (btRigidBody, btGImpactMeshShape,
+  // btTriangleMesh, ...) and hand them to an object, which kept only raw
+  // pointers to them: collecting them left dangling pointers. Now everything
+  // the C++ side uses is kept referenced from Lua: an object keeps the body,
+  // shape and mesh a script hands it (Object::keepLua()), and a Bullet
+  // constructor that takes another script-made piece keeps it alive
+  // (luabind's dependency policy, in lua_bullet_*.cpp). So the collector can
+  // run all the time, and scripts no longer need to manage it.
+
+  // register all bpp classes
+  LuaBullet::luaBind(L);
+
+  Cam::luaBind(L);
+  Object::luaBind(L);
+  Cone::luaBind(L);
+  Cube::luaBind(L);
+  Cylinder::luaBind(L);
+  CsgObject::luaBind(L);
+  Disc::luaBind(L);
+  Heightfield::luaBind(L);
+  Torus::luaBind(L);
+  PovScriptWriter_luaBind(L);
+  LayerManager::luaBind(L);
+  BezierPatch::luaBind(L);
+  Blob::luaBind(L);
+  Bound::luaBind(L);
+  Patch::luaBind(L);
+  ReferenceObject::luaBind(L);
+  Sweep::luaBind(L);
+  SuperQuadric::luaBind(L);
+  TrueType::luaBind(L);
+#ifdef HAS_LIB_ASSIMP
+  Mesh::luaBind(L);
+  OpenSCAD::luaBind(L);
+#endif
+  Palette::luaBind(L);
+  Plane::luaBind(L);
+  RigidSoftContact::luaBind(L);
+  SoftBody::luaBind(L);
+  Sphere::luaBind(L);
+  Terrain::luaBind(L);
+  Triangle::luaBind(L);
+  DemBed::luaBind(L);
+  Geo::luaBind(L);
+  Viewer::luaBind(L);
+
+  luabind::bind_class_info(L);
+
+  lua_pushlightuserdata(L, (void *)this);
+  lua_pushcclosure(L, &Viewer::lua_print, 1);
+  lua_setglobal(L, "print");
+
+  // Scripts written when the collector was kept stopped call
+  // collectgarbage("stop") after collecting by hand; that would switch the
+  // collector off for good, so it is ignored. "collect", "step", "count"
+  // and the rest work as usual. BPP_GC_AUTO tells a script that bpp
+  // collects garbage itself.
+  if (luaL_dostring(L,
+                    "BPP_GC_AUTO = true\n"
+                    "do\n"
+                    "  local gc = collectgarbage\n"
+                    "  collectgarbage = function(opt, ...)\n"
+                    "    if opt == 'stop' then return 0 end\n"
+                    "    return gc(opt, ...)\n"
+                    "  end\n"
+                    "end\n") != 0) {
+    emit scriptHasOutput(QString("collectgarbage setup: %1").arg(lua_tostring(L, -1)));
+    lua_pop(L, 1);
+  }
+}
+
+// Runs a script in the Lua state: reports an error on the console (the
+// script stops there). Returns false if it failed.
+bool Viewer::runScript(QString txt) {
   // useful for shell scripting. Example:
   //
   // #!/usr/bin/bpp -f
@@ -2872,11 +2437,6 @@ emit scriptStarts();
     tmp.removeAt(0);
     txt = tmp.join("\n");
   }
-
-  // Snapshot camera state before script execution so we can detect if
-  // the script explicitly positioned the camera (e.g. via cam.pos/cam.look).
-  Vec camPosBeforeScript = camera()->position();
-  Quaternion camOriBeforeScript = camera()->orientation();
 
   int error = luaL_loadstring(L, txt.toUtf8().constData()) ||
               lua_pcall(L, 0, LUA_MULTRET, 0);
@@ -2917,6 +2477,54 @@ emit scriptStarts();
     lua_error = tr("ok");
   }
 
+  return !error;
+}
+
+bool Viewer::parse(QString txt) {
+  QMutexLocker locker(&mutex);
+
+  emit scriptStopped();
+
+  if (_cb_preStop) {
+    try {
+      luabind::call_function<void>(_cb_preStop, _frameNum);
+    } catch (const std::exception &e) {
+      showLuaException(e, "preStop()");
+    }
+  }
+
+  _parsing = true;
+  _has_exception = false;
+
+  _scriptContent = txt;
+
+  bool animStarted = animationIsStarted();
+
+  if (animStarted) {
+    stopAnimation();
+  }
+
+emit scriptStarts();
+
+  if (L != nullptr) {
+    setStatusText(QString());   // (a script's status line goes with it)
+    _synth.reset();             // (and its voices)
+    closeScript();
+  }
+
+  clear();
+
+  openLua();
+
+  luaBindInstance(L);
+
+  // Snapshot camera state before script execution so we can detect if
+  // the script explicitly positioned the camera (e.g. via cam.pos/cam.look).
+  Vec camPosBeforeScript = camera()->position();
+  Quaternion camOriBeforeScript = camera()->orientation();
+
+  const bool ok = runScript(txt);
+
   // If the script changed the camera (e.g. via cam.pos/cam.look), update the
   // initial camera state so the "House" button returns to the script's view.
   Vec camPosAfterScript = camera()->position();
@@ -2945,7 +2553,7 @@ emit scriptStarts();
 
   _parsing = false;
 
-  return (error ? false : true);
+  return ok;
 }
 
 // Removes whatever is still in the dynamics world once every object's own
@@ -3218,85 +2826,7 @@ Viewer::~Viewer() {
   delete _spaceNavigator;
   _spaceNavigator = nullptr;
 
-  // Reset luabind::object members before closing Lua state
-  _cb_preStart = luabind::object();
-  _cb_preDraw = luabind::object();
-  _cb_postDraw = luabind::object();
-  _cb_preSim = luabind::object();
-  _cb_postSim = luabind::object();
-  _cb_preStop = luabind::object();
-  _cb_onCommand = luabind::object();
-  _cb_onJoystick = luabind::object();
-  _keys.clear();                     // (shortcuts too: before Lua closes)
-  _cb_cycleObject = luabind::object();
-  _cb_onSpaceNavigator = luabind::object();
-  _hover.clear();
-
-  _params.releaseLua();
-
-  // (removed objects bpp still owns go with the rest)
-  for (Object *o : _removed)
-    _objects->insert(o);
-  _removed.clear();
-
-  // Notify all objects that their luabind weak pointers are invalid
-  foreach (Object* o, *_objects) {
-    o->preDestructor();
-  }
-
-  // Remove rigid bodies from the dynamics world while pointers are still valid.
-  if (dynamicsWorld) {
-    foreach (Object* o, *_objects) {
-      if (o->body != nullptr && !o->isDecoration()) {
-        worldOfObject(o)->removeRigidBody(o->body);
-      }
-      SoftBody *sb = dynamic_cast<SoftBody *>(o);
-      if (sb != nullptr && sb->getSoftBody() != nullptr) {
-        worldOfObject(o)->removeSoftBody(sb->getSoftBody());
-      }
-    }
-    // (and every world's constraints, while the bodies they hold are still
-    // there: closing Lua frees a script's own, and dropWorlds() below would
-    // take the joints out of bodies already gone)
-    QList<btSoftRigidDynamicsWorld *> worlds;
-    worlds.append(dynamicsWorld);
-    for (const PhysWorld &w : _worlds)
-      if (w.world != nullptr && w.world != dynamicsWorld)
-        worlds.append(w.world);
-    for (btSoftRigidDynamicsWorld *dw : worlds)
-      for (int k = dw->getNumConstraints() - 1; k >= 0; --k)
-        dw->removeConstraint(dw->getConstraint(k));
-  }
-  removeLeftoverBodies();
-
-  // Release Lua references from the registry BEFORE closing Lua state.
-  // These are raw integer refs, not luabind::object instances.
-  if (L != nullptr) {
-    for (auto& pair : _luabindRegistry) {
-      luaL_unref(L, LUA_REGISTRYINDEX, pair.second);
-    }
-    _luabindRegistry.clear();
-    lua_close(L);
-    L = nullptr;
-  }
-
-  // Null out Bullet object pointers that Lua has freed. The C++ Object
-  // destructors below will skip these null pointers, avoiding use-after-free
-  // and double-free.
-  foreach (Object* o, *_objects) {
-    o->body = nullptr;
-    o->shape = nullptr;
-#ifdef HAS_LIB_ASSIMP
-    Mesh *m = dynamic_cast<Mesh *>(o);
-    if (m) {
-      m->luaRelease();
-    }
-#endif
-    SoftBody *sb = dynamic_cast<SoftBody *>(o);
-    if (sb) {
-      sb->luaRelease();
-    }
-  }
+  closeScript();
 
   dropWorlds();
 
@@ -4541,143 +4071,20 @@ void Viewer::setSettings(QSettings *settings) { _settings = settings; }
 void Viewer::onQuickRender() { onQuickRender(""); }
 
 void Viewer::onQuickRender(QString povargs) {
-  QString renderResolution =
-      _settings->value("gui/renderResolution", "view size").toString();
-
-  qDebug() << "renderResolution: " << renderResolution;
-
-  int renderWidth, renderHeight;
-
-  if (renderResolution.isEmpty() || renderResolution == "view size") {
-    renderWidth = geometry().width();
-    renderHeight = geometry().height();
-  } else if (renderResolution.contains("x")) {
-    QRegularExpression rx("(\\d+)");
-    QString str = renderResolution;
-    QStringList list;
-    int pos = 0;
-
-    while (true) {
-      QRegularExpressionMatch m = rx.match(str, pos);
-      if (!m.hasMatch())
-        break;
-      list << m.captured(1);
-      pos = m.capturedStart() + m.capturedLength();
-    }
-    renderWidth = list.at(0).toInt();
-    renderHeight = list.at(1).toInt();
-  } else {
-    renderWidth = geometry().width();
-    renderHeight = geometry().height();
-  }
-
   savePOV(true);
 
-  //    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-  //    for (int i = 0; i < env.toStringList().length(); i++) {
-  //        qDebug() << env.toStringList().at(i);
-  //    }
-
-  QStringList args;
-
-  QString sceneName;
-  if (!_scriptName.isEmpty()) {
-    QFileInfo fi(_scriptName);
-    sceneName = fi.completeBaseName();
-  } else {
-    sceneName = "no_name";
-  }
-
-  QString cache =
-      QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-
-  QString defaultPovrayExe;
-  QString defaultIncludes;
-
-  QString pwd = startupWorkingDir();
-  QString appDir = QCoreApplication::applicationDirPath();
-
-#ifdef Q_OS_WIN
-  defaultPovrayExe = QString("C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe");
-  defaultIncludes  = QString("+L%1 +L%2\\includes").arg(cache, pwd);
-#elif defined(Q_OS_LINUX)
-  defaultPovrayExe = QString("/usr/bin/povray");
-  defaultIncludes  = QString("+L%1 +L%2/includes").arg(cache, pwd);
-#else
-  defaultPovrayExe = QString("/opt/homebrew/bin/povray");
-  defaultIncludes  = QString("+L%1 +L%2/includes +L%3/../includes").arg(cache, pwd, appDir);
-#endif
-
-  QString systemPovExe;
-  {
-    QStringList candidates;
-#ifdef Q_OS_WIN
-    candidates << "C:\\Program Files\\POV-Ray\\v3.7\\bin\\pvengine64.exe";
-#elif defined(Q_OS_LINUX)
-    candidates << "/usr/bin/povray" << "/usr/local/bin/povray";
-#else
-    candidates << "/opt/homebrew/bin/povray" << "/usr/local/bin/povray" << "/usr/bin/povray";
-#endif
-    QString fromPath = QStandardPaths::findExecutable("povray");
-    if (!fromPath.isEmpty())
-      candidates.prepend(fromPath);
-    for (const QString &c : candidates) {
-      QFileInfo fi(c);
-      if (fi.exists() && fi.isExecutable()) {
-        systemPovExe = fi.absoluteFilePath();
-        break;
-      }
-    }
-  }
-  if (systemPovExe.isEmpty()) systemPovExe = "POV-Ray not found!";
-
-  QString defaultPreview = QString("%1 -c +d -A +p +Q11 +GA +FN10").arg(defaultIncludes);
-
-  QString povray = _settings->value("povray/executable").toString();
-  if (povray.isEmpty() || (povray != "POV-Ray not found!" && !QFileInfo(povray).exists()))
-    povray = systemPovExe;
-  QString opts =   _settings->value("povray/preview", defaultPreview).toString();
-
-  args << opts.split(" ");
-
-  args << QString("+W%1").arg(renderWidth);
-  args << QString("+H%1").arg(renderHeight);
-
-  QString desktop =
-      QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-  QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
-  QString fn = QString("%1").arg(_frameNum, 5, 10, QChar('0'));
-
-  //// ~/Desktop/bpp-timestamp.png
-  // QString png = QString("%1/bpp-%2.png").arg(desktop, timestamp);
-  //// ~/Desktop/bpp-timestamp-sceneName-frameNumber.png
-  QString png = QString("%1%2bpp-%3-%4-%5.png")
-                    .arg(desktop, QDir::separator(), timestamp, sceneName, fn);
-
-  args << "+F"; // turn output file on
-  args << QString("+O%1").arg(png);
-
-  args << QString("+K%1").arg(_frameNum); // pov clock is the frame number
-
-  args << sceneName + ".pov";
-
-  if(!povargs.isEmpty()) {
-    args << povargs;
-  }
-
-  qDebug() << "executing " << povray << args;
-
-  QDir dir(startupWorkingDir());
-
-  QString defaultExportPath = QString("%1%2%3").arg(startupWorkingDir(), QDir::separator(), "export");
-
-  QString exportDir = _settings->value("povray/export", defaultExportPath).toString();
-  QString sceneDir =
-      dir.absoluteFilePath(exportDir + QDir::separator() + sceneName);
-  qDebug() << "exportDir: " << exportDir;
-  qDebug() << "sceneDir: " << sceneDir;
+  const QuickRender::Plan plan =
+      QuickRender::plan(_settings, geometry().size(), _scriptName, _frameNum, povargs);
 
 #if USE_VFE
+  // (the names the VFE block below was written with)
+  const QString &opts = plan.opts;
+  const int renderWidth = plan.width;
+  const int renderHeight = plan.height;
+  const QString &png = plan.png;
+  const QString &sceneName = plan.sceneName;
+  const QString &sceneDir = plan.sceneDir;
+
   if (_settings->value("povray/useVFE", false).toBool()) {
     // vfeRenderOptions::AddCommand() feeds each string whole into POV-Ray's
     // own ProcessOptions::ParseString(), which tokenizes and handles quoting
@@ -4714,38 +4121,7 @@ void Viewer::onQuickRender(QString povargs) {
   }
 #endif // USE_VFE
 
-  // Deliberately parentless: a QProcess still running when its parent is
-  // destroyed gets kill()ed (and waited on) from within ~QProcess(), which
-  // both kills povray out from under the user and crashes bpp by invoking
-  // the finished-signal lambda below while this Viewer is mid-teardown. With
-  // no parent, closing bpp neither touches this QProcess nor the povray
-  // process it wraps; on a normal, non-crashing exit it simply outlives us.
-  QProcess *p = new QProcess();
-  p->setProgram(povray);
-  p->setArguments(args);
-  p->setWorkingDirectory(sceneDir);
-  p->setProcessChannelMode(QProcess::MergedChannels);
-
-  connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-          this, [this, p](int exitCode, QProcess::ExitStatus exitStatus) {
-            if (exitCode != 0 || exitStatus == QProcess::CrashExit) {
-              emitScriptOutput(
-                  QString("POV-Ray failed (exit code %1):\n%2")
-                      .arg(exitCode)
-                      .arg(QString::fromLocal8Bit(p->readAll())));
-            }
-            p->deleteLater();
-          });
-  connect(p, &QProcess::errorOccurred, this,
-          [this, p](QProcess::ProcessError) {
-            if (p->error() == QProcess::FailedToStart) {
-              emitScriptOutput(
-                  QString("POV-Ray failed to start: %1").arg(p->errorString()));
-              p->deleteLater();
-            }
-          });
-
-  p->start();
+  QuickRender::start(plan, this, [this](const QString &s) { emitScriptOutput(s); });
 }
 
 #if USE_VFE

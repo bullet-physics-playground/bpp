@@ -338,8 +338,54 @@ November, the same settings):
 So the rooms start with the Threads slider at 4 (patch 110; it was 0).
 Four threads, 2.4-2.5 times threads 0, for 4, 11 and 21 walkers alike,
 suggests the limit is not the walkers: the 3700X's two groups of four
-cores (each sharing its own cache) is the leading suspect. A test (not
-run): `taskset` bpp onto four cores of one group, then two of each.
+cores (each sharing its own cache) is the leading suspect. A test:
+`runs/core-groups.sh` (11 November) runs the 11-walker room (room-speed.sh's
+group 11) with bpp held by `taskset` to four cores of one L3 cache, to two
+cores and their second hardware threads, to four split two and two across
+the caches, to eight across both, and to four cores with their second
+threads (eight CPUs, one cache), against no `taskset` at 4 and 8 threads.
+It reads the layout from `lscpu`, so it fits any machine; this container
+has one cache and two cores, so only William's machine can answer it.
+
+William's machine, 11 November (11 walkers, 5 s, waves 2, no wheels;
+marks on / off):
+
+| CPUs | taskset | Walkers | Bracing | Timing | Direction | Threads | Speed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| any | none | 11 | mixed | trot | as the ranking | 4 | 0.50x / 0.50x |
+| any | none | 11 | mixed | trot | as the ranking | 8 | 0.50x / 0.50x |
+| 4 cores | 0-3 | 11 | mixed | trot | as the ranking | 4 | 0.58x / 0.58x |
+| 2 cores and their second threads | 0,1,8,9 | 11 | mixed | trot | as the ranking | 4 | 0.39x / 0.40x |
+| 4 cores and their second threads | 0-3, 8-11 | 11 | mixed | trot | as the ranking | 8 | 0.57x / 0.58x |
+
+Held to four cores, the room runs 16% faster than where Linux puts the
+threads itself; second hardware threads add nothing (two cores and their
+second threads: much slower than four cores). But `lscpu` reported one L3
+cache for the 3700X's two, so the rows across two caches did not run: the
+script now reads each CPU's L3 from `/sys`
+(`cache/index3/shared_cpu_list`; checked on a mock of the 3700X's layout:
+cores 0-3 with 8-11, and 4-7 with 12-15), and `SPLIT_ONLY=1` runs just
+those rows. Those, then (two L3 groups found: cores 0-3 with 8-11, 4-7
+with 12-15):
+
+| CPUs | taskset | Walkers | Bracing | Timing | Direction | Threads | Speed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 4 cores, split two and two across the caches | 0,1,4,5 | 11 | mixed | trot | as the ranking | 4 | 0.50x / 0.51x |
+| 8 cores, both caches | 0-7 | 11 | mixed | trot | as the ranking | 8 | 0.35x / 0.49x |
+
+**So the core groups are the cause.** Four cores split across the two
+caches run as slowly as no `taskset` (0.50x), four in one cache 16% faster
+(0.58x): every step the threads read and write the same walkers and
+contact lists, and between the groups that goes the slow way. Linux spreads
+bpp's threads over both, and more than four cores means crossing, which
+costs more than the cores bring. On a CPU with cache groups (AMD Zen 1 and
+2 desktops like the 3700X, Threadripper, EPYC; big Intel servers), start
+bpp on one group: `taskset -c 0-3 ../../../release/bpp` (which CPUs: the
+first lines of `runs/core-groups.sh`). Most Intel desktops and AMD's
+8-core Zen 3 and later share one L3, so there it gains nothing. bpp
+itself is left as it is (11 November, William): doing this inside bpp
+would mean reading each machine's layout (Linux `/sys`, Windows its own,
+macOS not allowed) for a gain on some machines only.
 
 ## Before (the handover of 1 November, kept as written)
 
