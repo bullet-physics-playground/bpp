@@ -2,7 +2,7 @@
 
 `README.pdf` beside this file is a typeset copy of it.
 
-Babbage's Hall, west bay 2. Blaise Pascal's adding machine (1642), with
+Babbage's Hall, west bay 3. Blaise Pascal's adding machine (1642), with
 three digits and his own carry: the **sautoir** ("jumper").
 
 Each digit wheel carries ten pins and, behind them, a snail cam; in front

@@ -57,6 +57,17 @@ LABELS = {
         "Matt Parker's team built one of 10,000 dominoes that adds two "
         "four-bit numbers.",
     ),
+    "galton": (                       # (Tisley and Spiller made Galton's in 1873: UCL, LDUGC-063)
+        "THE GALTON BOARD",
+        "Francis Galton's quincunx, 1873",
+        "A ball falling through twelve rows of pins goes left or right at "
+        "each; the bin it ends in counts the times it went right. Where one "
+        "ball goes is chance, yet 150 of them pile up in the same bell, close "
+        "to the gold lines fair coins would give: the binomial distribution, "
+        "which for many rows becomes the normal curve.\n"
+        "Galton's, made for him in London, ran on lead shot. Here a wheel "
+        "under the hopper lets the balls in one at a time.",
+    ),
     "digicomp": (
         "THE DIGI-COMP II",
         "A computer of rolling balls, 1965",

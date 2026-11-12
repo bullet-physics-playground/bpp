@@ -93,6 +93,17 @@ EXHIBITS = EXHIBITS or {
             "where every wheel has an open hole, the probe falls right through. It factors\n" ..
             "N by Fermat's way; the board beside it shows the working. N: choose a number;\n" ..
             "T: its tour; G: turn until the probe falls through; Space: one turn." },
+  { dir = "exhibits/Planimeter/", file = "planimeter.lua", name = "Amsler's planimeter", label = "planimeter",
+    prefix = "Planimeter: ", floorY = -100,
+    about = "Amsler's polar planimeter (1856): trace round a shape and a wheel rolling\n" ..
+            "and slipping on the paper reads its area. In preparation." },
+  { dir = "exhibits/GaltonBoard/", file = "galton.lua", name = "the Galton board", label = "galton",
+    prefix = "Galton: ", floorY = -100,
+    about = "The Galton board (1873): 150 balls fall through twelve rows of pins, going\n" ..
+            "left or right at each, and pile up in the bins in the bell of the normal curve;\n" ..
+            "the gold lines are where fair coins would put them. A wheel under the hopper\n" ..
+            "lets them in one at a time. Space: turn the crank; E: empty the bins and pour\n" ..
+            "them back; T: the tour." },
   { dir = "exhibits/Pascaline/", file = "pascaline.lua", name = "the Pascaline", label = "pascaline",
     prefix = "Pascaline: ", floorY = -100,
     about = "The Pascaline (1642): Pascal's adding machine. Each wheel, passing 9,\n" ..

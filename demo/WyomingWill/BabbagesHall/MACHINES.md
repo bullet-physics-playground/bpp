@@ -17,7 +17,11 @@ order within a score is the judgement. The hall's bays follow the same
 order, walked the other way: the least interesting at the entrance, the
 Difference Engine at the far end.
 
-**Changes since the first list:** Lehmer's sieve was scored 5 there (with a
+**Changes since the first list:** the Galton board, built, is scored 2 for
+complexity, not 1: feeding the balls in without a jam took a metering wheel
+(see its FINDINGS).
+
+**Earlier changes:** Lehmer's sieve was scored 5 there (with a
 ball that drops when the holes line up), then 3; it is 4 here. The Curta and
 the Enigma were left out there (too dense; electromechanical) and are in
 here: the Curta as a cutaway, the Enigma for its mechanical stepping.
@@ -41,8 +45,8 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 | 10 | Digi-Comp II | 1965 | marbles rolling down a board of flip-flops count, add and multiply in binary | built: a two-level board, thirteen printed rockers tipped over by the balls alone (a steel ball in each for weight, a foot below for CLEAR) make the accumulator, MQ and distributor; hand-set switches (MULTIPLY, CLEAR, COUNT, the memory), COMPLEMENT's shutters, OVERFLOW's; a feeder held by an escapement; AUTO, a thread from a trip lever at the bottom to the START lever; programs run line by line | 5 | 3 | built (count, add, multiply, subtract, divide; AUTO) |
 | 11 | Domino Half Adder | modern | dominoes falling add two bits | built: 268 dominoes on printed tiles | 4 | 2 | built |
 | 12 | Pascaline | 1642 | adds, with Pascal's falling-weight carry | built: three digits, sautoirs, detents, stylus and stop | 4 | 3 | built |
-| 13 | Galton board | 1873 | balls falling through pins pile up into the normal curve | balls and pins only; easy, and a good opener | 4 | 1 | |
-| 14 | Planimeter (Amsler's polar) | 1856 | trace a shape's outline and a rolling wheel reads its area | one wheel rolling and slipping on paper; small and clear | 4 | 2 | |
+| 13 | Galton board | 1873 | balls falling through pins pile up into the normal curve | built: 150 steel balls, twelve rows of printed pins, thirteen bins; the balls metered in one at a time by a slotted wheel (a neck jams in two dimensions, or floods the pins), through a funnel that makes the first pin fair; first scored 1 for complexity, it took more than balls and pins | 4 | 2 | built |
+| 14 | Planimeter (Amsler's polar) | 1856 | trace a shape's outline and a rolling wheel reads its area | one wheel rolling and slipping on paper; small and clear | 4 | 2 | bay |
 | 15 | Ball-and-disk integrator | 1876 | James Thomson's: a ball between a turning disc and a cylinder; the cylinder turns as the integral | the ball must roll without slipping; the integrator the tide predictor's brother and the analyser's ancestor | 4 | 2 | |
 | 16 | Integraph | 1880s | follows a curve and draws its integral | a wheel steering by its knife edge; a small step on from the planimeter | 4 | 3 | |
 | 17 | "Basic Mechanisms" kit | 1953 | the US Navy fire-control course's set: differential, cam function generator, slide multiplier, component solver | each a small exhibit; together, one bay that explains the aiming machines | 4 | 2 |
@@ -115,10 +119,11 @@ its first part); *bay*: has a covered bay "in preparation"; blank: not yet plann
 ## How the hall uses this list
 
 The hall's bays are walked in rising interest, so a new exhibit goes in its
-place by its interest score. With eight bays, the hall holds the five built
-(Lehmer's sieve second, after the Differential; the Digi-Comp II
-fifth) and the three with bays; the Enigma would make a ninth (a fifth row
-of bays, one spare).
+place by its interest score. With ten bays (since 2026-11-12), the hall
+holds the six built (Lehmer's sieve second, after the Differential; the
+Galton board fourth; the Digi-Comp II seventh) and the four with bays (the
+planimeter third, before the Galton board); the Enigma would make an
+eleventh (a sixth row of bays, one spare).
 
 **Rope.** bpp has no rope (its soft bodies are cloth). A rope of small
 spheres joined by ball joints works, tested as an Atwood machine over a
@@ -131,5 +136,6 @@ be too much lighter than what hangs on it. That suits the tide predictor
 (its pen weight can be light) and the equation solvers. The other way is to
 add Bullet's own rope (`btSoftBodyHelpers::CreateRope`) to bpp, a C++
 change. The best candidates for new bays, for interest against effort,
-are the Galton board and the planimeter (quick and clear), and the Enigma and
-the Antikythera mechanism (striking, and within reach).
+were the Galton board and the planimeter (quick and clear), and the Enigma
+and the Antikythera mechanism (striking, and within reach). The Galton
+board is built (2026-11-12) and the planimeter has its bay.

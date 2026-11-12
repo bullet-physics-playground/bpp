@@ -19,12 +19,14 @@ comes to life.
 |---|---|---|
 | west 1 | **The Differential**: bevel gears that add and subtract | `exhibits/Differential/` |
 | east 1 | **Lehmer's number sieve**: wheels with holes that sieve for factors | `exhibits/LehmerSieve/` |
-| west 2 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
-| east 2 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
-| west 3 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
-| east 3 | Kelvin's tide predictor | in preparation |
-| west 4 | The Differential Analyser | in preparation |
-| east 4 | The Difference Engine | in preparation |
+| west 2 | Amsler's planimeter | in preparation |
+| east 2 | **The Galton board**: balls falling through pins pile up in the bell of the normal curve | `exhibits/GaltonBoard/` |
+| west 3 | **The Pascaline**: Pascal's adding machine, with his falling-weight carry | `exhibits/Pascaline/` |
+| east 3 | **The Domino Half Adder**: dominoes that add two bits | `exhibits/DominoAdder/` |
+| west 4 | **The Digi-Comp II**: balls that compute in binary on a two-level board of flip-flops (counting, adding, multiplying, subtracting and dividing) | `exhibits/DigiComp2/` |
+| east 4 | Kelvin's tide predictor | in preparation |
+| west 5 | The Differential Analyser | in preparation |
+| east 5 | The Difference Engine | in preparation |
 
 `HANDOFF.md` is where a new chat starts: how to work, build and test, and
 what's next. `MACHINES.md` lists every machine considered for the hall (47 of them),
@@ -74,7 +76,7 @@ The machinery is Euler's Gallery's, unchanged; the building around it is new.
   that is still being set up and you see it from the aisle; it comes to life
   when it has loaded. Loading is slow only while bpp makes an exhibit's
   OpenSCAD parts, the first time and after its files change (here: a minute
-  and a half for all five from an empty cache, under two seconds cached).
+  and a half for the first five from an empty cache, under two seconds cached).
   Each load still holds up the frames while it runs.
 - **Requirement:** a bpp with separate worlds (`v:newWorld`).
 - **POV-Ray.** The hall renders in POV-Ray (File, or `bpp -e`) as on the
@@ -146,7 +148,7 @@ museum label on a brass post at its table's right front corner, turned to
 face the visitor walking up (the exhibit's first stop), is built when
 its card is there: `python3 make-lecterns.py` (Pillow, DejaVu) writes each
 card, the name, a line and a few sentences, as
-`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All five exhibits on
+`hall-meshes/lectern-<placard>.png` (36 x 24 cm). All six exhibits on
 show have one.
 
 Every `.md` file has a typeset `.pdf` beside it; `./make-pdfs.sh` rebuilds
@@ -165,8 +167,9 @@ Every exhibit stands on the same kind of table, drawn by `exhibit-table.lua`:
 - **Size:** the machine's footprint plus 30 cm on every side, rounded up to
   the next 10 cm, and never smaller than 80 x 60 cm. The machine keeps its
   real, printable size: the Differential's table is 80 x 80, Lehmer's
-  sieve's 120 x 80 (with its board), the Pascaline's 110 x 80, the Domino Half Adder's
-  180 x 230, the Digi-Comp II's 110 x 220.
+  sieve's 120 x 80 (with its board), the Galton board's 110 x 70 (with its
+  sign), the Pascaline's 110 x 80, the Domino Half Adder's 180 x 230, the
+  Digi-Comp II's 110 x 220.
 - **Place:** the hall moves each exhibit forward in its bay until the
   table's front edge is 60 cm behind the rail (`TABLE_GAP`), so the machine
   is seen close from the aisle. A table too deep for that stays in the

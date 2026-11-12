@@ -25,14 +25,16 @@ next. The list of machines is `MACHINES.md`; the hall itself is described in
 - **The walk gets more interesting as you go**, least interesting first,
   Babbage's Difference Engine at the far end (`MACHINES.md` ranks them).
 - Built so far: **the Differential** (west 1), **Lehmer's number sieve**
-  (east 1), **the Pascaline** (west 2), **the Domino Half Adder** (east 2),
-  and the **Digi-Comp II** (west 3: it counts, adds, multiplies,
+  (east 1), **the Galton board** (east 2, since 2026-11-12), **the
+  Pascaline** (west 3), **the Domino Half Adder** (east 3), and the
+  **Digi-Comp II** (west 4: it counts, adds, multiplies,
   subtracts and divides, runs programs, and in AUTO runs a multiply by
   itself, or a division to OVERFLOW's halt; its weight and fly are parts:
   a cup of balls and a bought rotary damper; each program has only its
   parts on the board, and the operator's hand is shown).
-  Covered bays wait for Kelvin's tide predictor (east 3), the Differential
-  Analyser (west 4) and the Difference Engine (east 4).
+  Covered bays wait for Amsler's planimeter (west 2), Kelvin's tide
+  predictor (east 4), the Differential Analyser (west 5) and the Difference
+  Engine (east 5): ten bays, five rows.
 - William M. Spears (`williammspears@gmail.com`) owns the WyomingWill demos;
   Jakob (koppi) wrote bpp. Clocks are William's own separate collection.
 
@@ -241,6 +243,39 @@ there, in `release/`, or on the path; or set `BPP`.
 - `.gitignore` at the top ignores `*.scad`: the hall's own `.gitignore` has
   `!*.scad`, and STL files are not kept (each `make-stls.sh` makes them).
 
+- **Balls in two dimensions jam** (the Galton board, `FINDINGS.md`): a
+  hopper of balls between two plates, emptying through a neck, clogged at
+  three balls wide and at five; a ball perched on a pin under the neck held
+  up an arch or a zigzag column; taps (rocking the board) did not clear it.
+  A neck wide enough flooded the pins, and the crowded balls spread far too
+  wide. A slotted wheel metering one ball at a time is what worked.
+- **A mechanism hands every ball on the same way:** the wheel's balls all
+  went the same way at the first pin (the board leant half a bin, and moving
+  the chute 1.5 mm flipped the lean). A small funnel whose bounces amplify
+  the small differences between balls made the first pin a coin again, and
+  a straight neck under it took out the sideways speed they all left it
+  with. Check the first decision of anything fed by a mechanism
+  (`GB_LOG=3`).
+- **A smooth 60-degree wall is a ramp:** a ball at the edge of a pin
+  lattice slid down it, squeezing past pins through gaps 0.5 mm too small
+  (Bullet's soft contacts let it). Half pins standing out of the wall stop
+  it. And a pin a little more than a ball's radius from a wall cradles a
+  ball against it: leave it out and put a half pin on the wall.
+- **Tall stacks of balls jitter** at 20 solver passes (5 to 6 cm/s at the
+  bottom of 36 balls, the solver's, not a movement; 60 passes bring it to
+  1): call such balls still below 8 cm/s rather than pay for more passes.
+- **OpenSCAD outlines** that only touch a circle that is cut too (an outline
+  run along a circle 1 mm inside it) leave slivers, and the extrusion "is not
+  closed" (the walls of a whole tile went missing, silently, in an STL that
+  was still watertight). Run such an outline well inside the circle, and
+  check each tile's thickness, not only that it is watertight. Check the
+  outlines for self-intersection when a size changes (a wider funnel's
+  mouth went outside the walls it should meet).
+- **`HALL_START`** lands on an exhibit's own view, not its first stop (the
+  lectern); Shift+Tab from there goes to the previous exhibit. To see a first
+  stop, start at the exhibit before and Tab (seen 2026-11-12 with the
+  Pascaline and the Galton board alike).
+
 ## 6. How to make an exhibit
 
 1. Pick it from `MACHINES.md`; it goes in the bay its interest says (the
@@ -289,7 +324,7 @@ there, in `release/`, or on the path; or set `BPP`.
   flats now). It is the dearest exhibit to step (a 25 s tour took about
   three minutes here, headless): if it is slow on his computer,
   `LS_HZ=1200` halves that and still passes.
-- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (west 3):
+- **Done (2026-10-26): the Digi-Comp II, step 1, the counter** (then west 3, now west 4):
   three printed rockers, tipped over by the balls alone, and a feeder
   wheel. **The same day, step 2a, the accumulator,** which replaces it.
   William asked for the rest of the real machine; its manual (Evil Mad
@@ -503,7 +538,7 @@ there, in `release/`, or on the path; or set `BPP`.
   loaded), which now and then left you looking level where you were.
   Flights now start from the way the camera looks, and a loading exhibit
   touches the camera only to set its own view (the camera's pitch logged
-  every frame: steady). All five exhibits on show now have a card
+  every frame: steady). All five exhibits then on show have a card
   (2026-11-06; wording William read first; the Domino Half Adder's names
   Matt Parker's 10,000-domino computer, Manchester Science Festival,
   October 2012, which adds two four-bit numbers: Think Maths' own page).
@@ -520,24 +555,47 @@ there, in `release/`, or on the path; or set `BPP`.
 - **Checked against bpp's new Params and ScriptKeys (2026-11-11):**
   `tools/check-all.sh` all passed on Jakob's rewrite, and in the window
   Tab, the panes and the sliders work.
-- **Next (William to choose, 2026-11-11):** a new bay for the **Galton
-  board** (quick, clear, a first try of the two stops on a new machine;
-  suggested first), **Kelvin's tide predictor** (the next covered bay),
-  or the **Antikythera mechanism** (the most striking). Still offered, not
-  asked for: printing only a Digi-Comp program's parts (the tiles carry
+- **Done (2026-11-12): the Galton board** (east 2), in a new row of bays:
+  the hall has ten now, the planimeter's covered bay (west 2) before it (by
+  rank, 14 and 13), and everything after it one row on, on the same side
+  (Pascaline west 3, Domino Half Adder east 3, Digi-Comp II west 4, tide
+  predictor east 4, Differential Analyser west 5, Difference Engine east 5;
+  the READMEs' bay numbers and the PDF subtitles with them). 150 steel balls
+  (6 mm), 4 mm pins 12 mm apart, twelve rows from the first pin, thirteen
+  bins with the binomial's heights for 150 engraved in gold; a hopper, a
+  six-slot **metering wheel** turned by a crank (the hand, a motor), a small
+  funnel and a straight neck onto the first pin; a slide under the bins, a drawer, the hand
+  tipping the drawer back into the hopper (the pouring moves the balls, as
+  the Digi-Comp's hand does). A sign (the exhibit's) shows the run, the balls
+  in the bins, the mean bin and the spread against 6.00 and 1.73. The tour:
+  a run, empty and pour, a run (~2.5 min headless; check-all allows 5000
+  frames, 5600 in the hall). It took far longer than "balls and pins" (see
+  its FINDINGS: the neck that jams, the diagonals, the walls, the cradles,
+  the first pin that wasn't a coin). Over six runs the mean bin was 6.31 (it
+  leans a third of a bin right; at a bounce of 0.3 it leant left) and the spread 2.03, a little wider than fair coins (6.00,
+  1.73). The bounce (0.4,
+  ball on board) is a guess: no figure for steel on printed PLA was found,
+  and below about 0.3 the funnel stops randomising the first pin and the
+  board leans left; FINDINGS says how to measure it (drop a ball on a
+  tile). Printed in three tiles under 200 mm, a stand, an acrylic front
+  sheet; every STL checked watertight, and no two parts overlap at rest.
+  `tools/check-all.sh` (now twelve runs, the Galton board's two added)
+  all passed on the new hall. **Not seen by William yet.**
+- **Next (William to choose):** **Amsler's planimeter** (its bay is ready,
+  west 2; quick and clear), **Kelvin's tide predictor** (the next covered
+  bay of the original list), or the **Antikythera mechanism** (the most
+  striking). Still offered, not asked for: printing only a Digi-Comp program's parts (the tiles carry
   every wall; `make-stls.sh` could take a `PARTS` list, with tiles cut
   anew). Skipped, at William's word: fixing bpp's own
   `demo/koppi/gears.lua` (its `assign()`, which newer OpenSCAD dropped).
-- The other 39 machines in MACHINES.md have no bays: adding any grows the
-  hall by a row of two, each going in by its rank (the Galton board, 13,
-  and the planimeter, 14, would go in after the sieve, before the
-  Pascaline).
-- **Then, in the order of the covered bays,** each its own step:
-  **Kelvin's tide predictor** (east 3: cranks and a bead rope over pulleys),
-  **the Differential Analyser** (west 4) and **the Difference Engine**
-  (east 4). New bays (the hall grows by a row of two) would suit the
-  Galton board and planimeter (quick and clear) or the Enigma and the
-  Antikythera mechanism (striking, within reach).
+- The other 37 machines in MACHINES.md have no bays: adding any grows the
+  hall by a row of two, each going in by its rank.
+- **Then, in the order of the covered bays,** each its own step: **the
+  planimeter** (west 2), **Kelvin's tide predictor** (east 4: cranks and a
+  bead rope over pulleys), **the Differential Analyser** (west 5) and **the
+  Difference Engine** (east 5). New bays (the hall grows by a row of two)
+  would suit the Enigma and the Antikythera mechanism (striking, within
+  reach).
 - **Settled (2026-10-21):** William has tried the Pascaline (the mouse and
   the keys) and it works well; the stylus collision he thought he saw
   wasn't one. Euler's Gallery keeps its own tables as they are; the exhibit
@@ -554,5 +612,5 @@ there, in `release/`, or on the path; or set `BPP`.
 > test-harness, and read demo/WyomingWill/BabbagesHall/HANDOFF.md, then
 > MACHINES.md and README.md there. Build bpp as described, run
 > tools/check-all.sh, and continue with HANDOFF.md section 7: [the next
-> step, e.g. a new bay for the Galton board]. Deliver each step as a patch
+> step, e.g. the planimeter in its covered bay]. Deliver each step as a patch
 > on test-harness, with its documents and PDFs, and the git commands.

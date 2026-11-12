@@ -10,6 +10,8 @@ return {
   ["differential-analyser"] = { file = "label-differential-analyser.obj", w = 89.02, h = 4.20 },
   ["digicomp"] = { file = "label-digicomp.obj", w = 39.13, h = 4.20 },
   ["lehmer"] = { file = "label-lehmer.obj", w = 77.44, h = 4.20 },
+  ["galton"] = { file = "label-galton.obj", w = 60.13, h = 4.20 },
+  ["planimeter"] = { file = "label-planimeter.obj", w = 69.97, h = 4.20 },
   ["reserved"] = { file = "label-reserved.obj", w = 31.24, h = 4.20 },
   ["in-preparation"] = { file = "label-in-preparation.obj", w = 28.57, h = 2.40 },
 }
