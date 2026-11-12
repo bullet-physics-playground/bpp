@@ -9,7 +9,7 @@
 #   cd demo/WyomingWill/WalkerRoom
 #   BPP=../../../release/bpp runs/boards-wheels.sh
 #
-# Environment: BPP, JOBS (run-table.sh's: one run per CPU), OUT (default runs/out-boards), GROUNDS and SEEDS (to
+# Environment: BPP, JOBS (run-table.sh's: one run per physical core), OUT (default runs/out-boards), GROUNDS and SEEDS (to
 # try it small: GROUNDS="logs:7 waves:4" SEEDS=1). 3,630 runs: about
 # 7 hours on 2 CPUs; on 8 cores well under an hour. Runs already done are kept, so it can be stopped and started.
 # Then, to use the wheel boards in the viewer: cp "$OUT/wheels.lua" lib/boards.lua

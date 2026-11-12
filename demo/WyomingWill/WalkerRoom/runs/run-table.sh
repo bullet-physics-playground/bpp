@@ -15,13 +15,15 @@
 #   warm40      joint warm-starting (v:setSolver("si-warm")), 40 iterations, 1/3840 s
 #   warm40fast  joint warm-starting, 40 iterations, 1/1920 s  (the standard for runs since 30 October: it gave
 #               the ranking's results within the noise, at under half warm40's time; handover section 4i)
-# Environment: BPP (default: bpp on the PATH), JOBS (default: the number of cores), SEEDS (default 1 2 3 4 5),
+# Environment: BPP (default: bpp on the PATH), JOBS (default: the number of physical cores -- not nproc's hardware
+# threads: two runs on one core's two threads each take about twice as long, 11 November), SEEDS (default 1 2 3 4 5),
 # TERRAINS (default the nine rough ones), BUILDS (default the ranking's 13; a file, one name a line), OUT (default
 # runs/out), RUN_SECS (20), EXTRA (Lua run after each run's settings, so it can change them, e.g. 'PENDANT_HOLD=false'; default none),
 # PROBE (default runs/speedprobe.lua; runs/steerprobe.lua for the steering runs, runs/steer-table.sh).
 set -u
 cd "$(dirname "$0")/.."
-BPP=${BPP:-bpp}; JOBS=${JOBS:-$(nproc)}; SEEDS=${SEEDS:-"1 2 3 4 5"}; OUT=${OUT:-runs/out}; RUN_SECS=${RUN_SECS:-20}
+cores() { local n; n=$(lscpu -p=CORE,SOCKET 2> /dev/null | grep -v '^#' | sort -u | wc -l); [ "${n:-0}" -gt 0 ] && echo "$n" || nproc; }
+BPP=${BPP:-bpp}; JOBS=${JOBS:-$(cores)}; SEEDS=${SEEDS:-"1 2 3 4 5"}; OUT=${OUT:-runs/out}; RUN_SECS=${RUN_SECS:-20}
 PROBE=${PROBE:-runs/speedprobe.lua}
 TERRAINS=${TERRAINS:-"waves:2 waves:4 waves:6 logs:3 logs:5 logs:7 steps:3 steps:5 steps:7"}
 if [ -n "${BUILDS:-}" ]; then mapfile -t NAMES < "$BUILDS"; else NAMES=(
