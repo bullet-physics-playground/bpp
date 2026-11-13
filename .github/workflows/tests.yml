@@ -290,16 +290,13 @@ jobs:
   # MinGW64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
   # built in), running the suites whose expected files hold off Linux: the
   # unit tests and the smoke run (the harness skips the rest off Linux).
-  # OpenSCAD is a development snapshot (Manifold, as developers run it), not
-  # 2021.01, whose CGAL is too slow on Windows for duplo.lua.
-  # continue-on-error while this job is new: a failure here shows on the job
-  # but leaves the run green, so it doesn't hold up the other jobs' work.
-  # Drop it once the job has passed for a while.
+  # OpenSCAD is a development snapshot, with Manifold: 2021.01's CGAL is too
+  # slow on Windows for duplo.lua. The Linux jobs keep Ubuntu's 2021.01, so
+  # CI runs the demos with both engines.
   test-windows:
     name: Windows build (MSYS2 MinGW64)
     runs-on: windows-latest
     timeout-minutes: 90
-    continue-on-error: true
     defaults:
       run:
         shell: msys2 {0}
