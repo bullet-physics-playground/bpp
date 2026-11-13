@@ -1,7 +1,8 @@
 -- One walker's run, every frame (1/60 s) from HIT_T0 to HIT_T1 s drawn out for a side view (13 November; handover
 -- section 4f, steps 7): each of its parts' outline in the world (x along the track, y up) and how far across it is,
 -- the ground's height along the track at each foot's line, and every contact between the walker and the ground with
--- its normal force (a share of the walker's weight). Written to HIT_OUT; drawn by runs/drawhit.py. Otherwise
+-- its normal force (a share of the walker's weight); the body's box, its tilt (nose up, the +z side up, degrees)
+-- and its centre's height. Written to HIT_OUT; drawn by runs/drawhit.py. Otherwise
 -- runs/speedprobe.lua's run, unchanged (RUN line and all).
 local dims, scad = {}, {}
 local rC, rS = Cube, OpenSCAD
@@ -41,7 +42,15 @@ v:postSim(function(N)
   if N < T0 or N > T1 then return end
   fh:write(string.format("FRAME %.4f\n", N / 60))
   w.cube.body:getAabb(lo, hi)
-  fh:write(string.format("BODY %.3f %.3f %.3f %.3f %.3f\n", lo.x, lo.y, hi.x, hi.y, (lo.z + hi.z) / 2))
+  -- (its tilt: nose up -- the end toward +x higher -- and the +z side up, degrees, from its own axes in the world)
+  local q = w.cube.body:getCenterOfMassTransform():getRotation()
+  local qx, qy, qz, qw = q:x(), q:y(), q:z(), q:w()
+  local ex = { 1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy + qw * qz), 2 * (qx * qz - qw * qy) }
+  local ez = { 2 * (qx * qz + qw * qy), 2 * (qy * qz - qw * qx), 1 - 2 * (qx * qx + qy * qy) }
+  local up = math.deg(math.asin(math.max(-1, math.min(1, ex[2] * (ex[1] >= 0 and 1 or -1)))))
+  local side = math.deg(math.asin(math.max(-1, math.min(1, ez[2] * (ez[3] >= 0 and 1 or -1)))))
+  local c = w.cube.body:getCenterOfMassPosition()
+  fh:write(string.format("BODY %.3f %.3f %.3f %.3f %.3f %.2f %.2f %.3f\n", lo.x, lo.y, hi.x, hi.y, (lo.z + hi.z) / 2, up, side, c.y))
   for _, P in ipairs(parts) do
     if P.poly then
       local T = P.o.body:getCenterOfMassTransform():inverse()

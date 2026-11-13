@@ -504,6 +504,18 @@ The face pushes the slider's foot back about twice as hard (peak 2.5 times), and
 
 Chebyshev-Spears' standing pair (back L, front R) stays down through the hit while its hit foot works against the face (the face pushes back 0.4–0.8 W for 200 ms, the body eases back 4 cm). The slider's standing pair leaves the ground within 33 ms of the hit, as its body drops 1.2 cm and the hit foot's braced partner (back R) is jerked up to 6 cm; at 67 ms its whole weight is on the hit foot (1.37 W), whose turned-up toe is jammed against the face (the face's push peaks at 1.85 W); and from about 110 to 175 ms **no part of it touches the ground**: the hit throws it into the air, body rising 0.4 cm above where it was, and it flies back, 5 cm by 150 ms and 9 cm in all, with nothing to stop it. Why the slider's standing pair lifts so fast is the next question (what the hit does to its body's pitch and roll, through the brace joining the hit foot to back R).
 
+**Why its other feet leave the ground (13 November; `runs/hitprobe.lua` now also writes the body's tilt and its centre's height).** The same two hits, the body's tilt (nose up, hit side up, degrees) and its centre's height from the hit (cm):
+
+| ms | C-S: nose up | hit side up | centre | Slider: nose up | hit side up | centre |
+|---|---|---|---|---|---|---|
+| +17 | −0.1 | −0.2 | 0.00 | −0.7 | −0.8 | +0.05 |
+| +33 | −0.2 | −0.3 | +0.03 | −1.9 | −2.3 | +0.25 |
+| +67 | +0.1 | +0.1 | −0.01 | −3.4 | −3.3 | +0.60 |
+| +100 | +0.1 | +0.2 | −0.01 | −3.6 | −0.6 | +1.42 |
+| +133 | −0.1 | −0.2 | −0.03 | −2.2 | +1.3 | +1.44 |
+
+(The body's box dropping 1.2 cm, above, was this tilt: its centre rises.) Over every failed swing into a face, 8 seeds (`runs/stepprobe.lua`'s traces), at 0, 33 and 67 ms: Chebyshev-Spears diag's hit foot turns toe up +0, +5, +10° and its bottom stays up the face (3.6, 3.4, 3.0 cm 33–100 ms on); the slider's turns +2, +23, +44° and its bottom is on the ground by 67 ms (1.1, −0.3, −0.3 cm), with the face pushing back about as hard on both (0.33–0.48 W). Flat feet on the slider (`FOOT_TIPS_OFF`) change nothing (5% up, shoved 5.6 cm; steps 7 3.54 against 3.44). **So:** the slider's blocked foot tips toe up fast, its heel comes down to the ground at the foot of the face, and the foot is wedged there, heel on the ground and toe against the face; its leg, still driven, then levers the walker over that foot -- nose down and hit side down 3–4°, its centre up 1.5 cm -- lifting its other three feet, and the face's push throws it back. Chebyshev-Spears' blocked foot hardly turns and stays pressed against the face, so its leg can't lever it: its standing feet stay down and its motors stall instead. Why the slider's foot turns so much faster with the same ankle spring (held still in the air and pushed back, both feet turn alike, above) -- how its leg drives the foot into the face, how fast it rises (11 cm a radian against 8–10), the friction dragging the toe up -- is the next question.
+
 ## 4g. The logs are uneven; the slider's toes (29 October)
 
 **Answer first.** Hoecken-Spears slider diag's back feet come down early at the front of their swing and travel the last 2–3 cm low, so on logs 7 a flat toe runs into the log's side and is tipped toe-down (56% of hits, against Chebyshev-Spears diag's 12%), and the walker is pushed back. Its feet's ends turned up 1.0 cm at 30° (`spec.footTips`, a builder's tweak for this walker; William: fair, as a builder would) take it from 0.49 to 2.76 cm/s on logs 7 and from 6.19 to 6.57 over the nine rough terrains, with nothing lost on flat or waves 4.
