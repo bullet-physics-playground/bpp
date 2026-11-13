@@ -1,0 +1,4 @@
+# LeakSanitizer suppressions for tests/harness.py on a sanitizer build (see
+# README). Only what bpp cannot free: Qt keeps its platform plugin's screen
+# and cursor until the process ends.
+leak:QGuiApplicationPrivate::createPlatformIntegration

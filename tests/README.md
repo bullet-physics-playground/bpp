@@ -77,11 +77,14 @@ and runs the unit, api and golden suites on that build:
 ```sh
 qmake CONFIG+=release CONFIG+=sanitizer CONFIG+=sanitize_address CONFIG+=sanitize_undefined
 make -j release
-ASAN_OPTIONS=detect_leaks=0 \
+LSAN_OPTIONS=suppressions=$PWD/tests/sanitizers/lsan.supp \
 UBSAN_OPTIONS=print_stacktrace=1:suppressions=$PWD/tests/sanitizers/ubsan.supp \
   tests/harness.py -k '^(?!08-remove)' unit api golden
 ```
 
+Leaks fail a test too: LeakSanitizer reports them when bpp exits, and the
+exit code says so. `sanitizers/lsan.supp` leaves out only what Qt keeps
+until the process ends (its platform plugin's screen and cursor).
 `sanitizers/ubsan.supp` silences one known luabind alignment report (the
 reason bpp.pro builds debug with `-fno-sanitize=alignment`).
 `08-remove.lua` is left out because it measures memory, which the
