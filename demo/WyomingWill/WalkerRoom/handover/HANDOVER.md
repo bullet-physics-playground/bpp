@@ -490,6 +490,20 @@ So when Chebyshev-Spears' foot is stopped, its motors take the push (at their li
 
 The face pushes the slider's foot back about twice as hard (peak 2.5 times), and for a moment the slider's other feet carry nothing: the hit lifts the walker off them, which is why it slides back whatever the friction. Slower cranks (`CRANK_SCALE = 0.6`) soften the slider's hits, and it gets up a face 29% of the time (6% at full speed), is never stuck (seeds 2 and 7: 3.5 and 3.6 cm/s) and averages 3.72 cm/s against Chebyshev-Spears' 4.07 at that speed (at full speed 3.44 against 6.04); Chebyshev-Spears gets up as often as at full speed. But even hitting at 48 cm/s the slider is pushed harder (1.23 W peak) than Chebyshev-Spears at 59 (0.75 W). Leverage is not it: the feet move about as far per radian of crank where they meet the faces (forward 13–25 and 16–22 cm, up 8–10 and 11 cm, at 3–4 cm up, Chebyshev-Spears and the slider). **Not settled:** why the same hit pushes the slider harder. The motors can't say: each diag build's braced pair has a motor on each crank joined by a rigid brace, so held still the two fight (with 100 times the hold, torques of thousands, opposite signs) -- which is also why Chebyshev-Spears diag's held pair creeps -- and per-motor torques in the tables above are this fight plus the load.
 
+**One hit, frame by frame** (`runs/hitprobe.lua` dumps every part's outline, the ground along each foot's line and every ground contact's normal force for a stretch of a run; `runs/drawhit.py` draws them: pictures `steps7_hit.png`, side views every 33 ms, and `steps7_hit_forces.png`; steps 7, seed 2, each walker's first front-foot hit on a face: Chebyshev-Spears diag at 3.67 s, the slider at 4.57 s; the runs are the standard ones, RUN lines unchanged). Weight on each foot (shares of the walker's weight; in brackets the foot's bottom, cm up):
+
+| ms from the hit | C-S: hit foot (front L) | back L | front R | back R | Slider: hit foot (front L) | back L | front R | back R |
+|---|---|---|---|---|---|---|---|---|
+| −33 | 0 (4.5) | 0.47 | 0.37 | 0 (4.5) | 0 (3.5) | 0.58 | 0.45 | 0 (3.5) |
+| 0 | 0.35 (4.6) | 0.67 | 0.66 | 0 | 0.18 (4.6) | 0.40 | 1.23 | 0 |
+| +33 | 0.02 (4.0) | 0.53 | 0.63 | 0 | 0.12 (2.8) | 0 (0.3) | 0.46 (0.2) | 0 (6.1) |
+| +67 | 0.23 (3.9) | 0.39 | 0.48 | 0 | 1.37 (0.7) | 0 (0.8) | 0 (0.4) | 0 (6.2) |
+| +100 | 0.19 (3.7) | 0.17 | 0.19 | 0 | 0 (0.5) | 0 (2.3) | 0 (0.5) | 0 (5.1) |
+| +133 | 0.24 (2.6) | 0.54 | 1.04 | 0 | 0 (0.5) | 0 (2.4) | 0 (0.5) | 0 (3.2) |
+| +167 | 0.18 (1.4) | 0.63 | 0.35 | 0 | 0 | 0 (0.7) | 0.59 | 0 (0.8) |
+
+Chebyshev-Spears' standing pair (back L, front R) stays down through the hit while its hit foot works against the face (the face pushes back 0.4–0.8 W for 200 ms, the body eases back 4 cm). The slider's standing pair leaves the ground within 33 ms of the hit, as its body drops 1.2 cm and the hit foot's braced partner (back R) is jerked up to 6 cm; at 67 ms its whole weight is on the hit foot (1.37 W), whose turned-up toe is jammed against the face (the face's push peaks at 1.85 W); and from about 110 to 175 ms **no part of it touches the ground**: the hit throws it into the air, body rising 0.4 cm above where it was, and it flies back, 5 cm by 150 ms and 9 cm in all, with nothing to stop it. Why the slider's standing pair lifts so fast is the next question (what the hit does to its body's pitch and roll, through the brace joining the hit foot to back R).
+
 ## 4g. The logs are uneven; the slider's toes (29 October)
 
 **Answer first.** Hoecken-Spears slider diag's back feet come down early at the front of their swing and travel the last 2–3 cm low, so on logs 7 a flat toe runs into the log's side and is tipped toe-down (56% of hits, against Chebyshev-Spears diag's 12%), and the walker is pushed back. Its feet's ends turned up 1.0 cm at 30° (`spec.footTips`, a builder's tweak for this walker; William: fair, as a builder would) take it from 0.49 to 2.76 cm/s on logs 7 and from 6.19 to 6.57 over the nine rough terrains, with nothing lost on flat or waves 4.
