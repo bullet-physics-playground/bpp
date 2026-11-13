@@ -35,6 +35,27 @@ for i, o in ipairs(w.bodies) do
 end
 local fh = io.open(HIT_OUT, "w")
 fh:write(string.format("WALKER %s|weight %.1f|seed %d\n", w.spec.name, weight, SEED))
+-- the joints that hold the walker's parts to its body: what each holds (its maker), where that part is (x, z, when
+-- built), whether its motor drives it (a crank); each frame, the force each puts on the body (MOUNT, below)
+local mounts = {}
+local isMotor = {}
+for _, m in ipairs(w.motors) do isMotor[m.hinge] = true end
+local function objOf(b) for _, o in ipairs(w.bodies) do if o.body == b then return o end end end
+for j, J in ipairs(w.joints or {}) do
+  local A, B, con = J[1], J[2], J[4]
+  local onA = A and A == w.cube.body
+  local onB = B and B == w.cube.body
+  if onA or onB then
+    local other = objOf(onA and B or A)
+    con:enableForces()
+    mounts[#mounts + 1] = { con = con, onA = onA }
+    local c = other and other.body:getCenterOfMassPosition()
+    local motor = false
+    for _, m in ipairs(w.motors) do if m.hinge == con then motor = true end end
+    fh:write(string.format("MOUNTINFO %d %s %s %.2f %.2f %s\n", #mounts, J[5] or "?", other and (w.madeBy[other] or "?") or "none",
+      c and c.x or 0, c and c.z or 0, motor and "crank" or "-"))
+  end
+end
 local lo, hi = btVector3(0, 0, 0), btVector3(0, 0, 0)
 local T0, T1 = math.floor(HIT_T0 * 60), math.floor(HIT_T1 * 60)
 v:postSim(function(N)
@@ -80,6 +101,10 @@ v:postSim(function(N)
       for dx = -30, 30, 0.5 do g[#g + 1] = string.format("%.2f", G(c.x + dx, c.z)) end
       fh:write(string.format("GROUND %d %.2f %.3f %s\n", P.i, c.z, c.x - 30, table.concat(g, ",")))
     end
+  end
+  for k, M in ipairs(mounts) do   -- (the force on the body, shares of the walker's weight)
+    local F = M.onA and M.con:forceA() or M.con:forceB()
+    fh:write(string.format("MOUNT %d %.4f %.4f %.4f\n", k, F.x / weight, F.y / weight, F.z / weight))
   end
   v:eachContact(function(a, b, px, py, pz, nx, ny, nz, dist, imp)
     if imp <= 0 or (mine[a] and mine[b]) or not (mine[a] or mine[b]) then return end
