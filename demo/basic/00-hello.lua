@@ -280,7 +280,7 @@ end)
 -- onCommand: Called when a command is entered in the GUI
 v:onCommand(function(N, cmd)
   print("onCommand("..tostring(N).."): '"..cmd.."'")
-  local f = assert(loadstring(cmd))
+  local f = assert((loadstring or load)(cmd))
   f(v)
 end)
 
