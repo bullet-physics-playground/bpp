@@ -290,7 +290,8 @@ jobs:
   # MinGW64, Qt 5, luabind and libQGLViewer from source; without POV-Ray
   # built in), running the suites whose expected files hold off Linux: the
   # unit tests and the smoke run (the harness skips the rest off Linux).
-  # MSYS2 packages no OpenSCAD for MINGW64, so it comes from Chocolatey.
+  # OpenSCAD is a development snapshot (Manifold, as developers run it), not
+  # 2021.01, whose CGAL is too slow on Windows for duplo.lua.
   # continue-on-error while this job is new: a failure here shows on the job
   # but leaves the run green, so it doesn't hold up the other jobs' work.
   # Drop it once the job has passed for a while.
@@ -349,11 +350,31 @@ jobs:
           qmake-qt5 CONFIG+=release
           mingw32-make -j$(nproc) release
 
-      # (Into C:\Program Files\OpenSCAD, where bpp looks first: 2021.01, as
-      # Ubuntu 24.04 packages it.)
-      - name: Install OpenSCAD
+      # An official Windows snapshot, unpacked into C:\Program Files\OpenSCAD
+      # where bpp looks first. OPENSCAD_SNAPSHOT names the zip; empty takes
+      # the newest one in OpenSCAD's download index and prints its name.
+      - name: Install OpenSCAD (development snapshot)
         shell: pwsh
-        run: choco install openscad -y --no-progress
+        env:
+          OPENSCAD_SNAPSHOT: ''
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $base = 'https://files.openscad.org/snapshots'
+          $zip = $env:OPENSCAD_SNAPSHOT
+          if (-not $zip) {
+            $index = (Invoke-WebRequest "$base/.snapshot_win64.js" -UseBasicParsing).Content
+            $zip = ([regex]::Matches($index, 'OpenSCAD-[0-9.]+-x86-64\.zip') |
+                    ForEach-Object Value | Sort-Object -Unique | Select-Object -Last 1)
+            if (-not $zip) { throw "no x86-64 zip in $base/.snapshot_win64.js:`n$index" }
+          }
+          Write-Host "OpenSCAD snapshot: $zip"
+          Invoke-WebRequest "$base/$zip" -OutFile "$env:RUNNER_TEMP\openscad.zip"
+          Expand-Archive "$env:RUNNER_TEMP\openscad.zip" "$env:RUNNER_TEMP\openscad"
+          $exe = Get-ChildItem "$env:RUNNER_TEMP\openscad" -Recurse -Filter openscad.exe |
+                 Select-Object -First 1
+          Copy-Item $exe.DirectoryName 'C:\Program Files\OpenSCAD' -Recurse
+          $com = 'C:\Program Files\OpenSCAD\openscad.com'
+          if (Test-Path $com) { & $com --version } else { & 'C:\Program Files\OpenSCAD\openscad.exe' --version }
 
       # (bpp.exe finds MSYS2's DLLs on PATH; QGLViewer's is beside its build.)
       - name: Unit tests
