@@ -63,11 +63,11 @@ LINK_WIDTH = 1.0
 DIAG_OUTSIDE = true
 
 local TROT = { 0, 180, 180, 0 }
-local function guides(name) return { walker = name, label = "guides, trot, forward", gait = TROT, unbraced = true, hold = false } end
-local function diag(name) return { walker = name, label = "outside braces, pendants held (trot), forward", hold = true } end
-local function own(name) return { walker = name, label = "its own frame, trot, forward", gait = TROT, hold = false } end
+local function guides(name) return { walker = name, label = "guides, forward", gait = TROT, unbraced = true, hold = false } end
+local function diag(name) return { walker = name, label = "outside braces, pendants held, forward", hold = true } end
+local function own(name) return { walker = name, label = "its own frame, forward", gait = TROT, hold = false } end
 local function ownReversed(name)   -- (its cranks turned backward: it walks the other way; handover section 4w)
-  return { walker = name, label = "its own frame, trot, reversed", gait = TROT, hold = false, reverse = true }
+  return { walker = name, label = "its own frame, reversed", gait = TROT, hold = false, reverse = true }
 end
 VIEWS = {   -- (9 November: the builds that could really be built -- diag and own frame, no guides -- each in its
             -- better direction, best first: handover section 4w, this container, fast setting, nine rough terrains,

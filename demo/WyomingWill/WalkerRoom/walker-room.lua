@@ -1523,6 +1523,23 @@ local function addWalker(spec, x, z, heading)
     for i, m in ipairs(w.motors) do m.offset = second[i] and d / 2 or -d / 2 end
     w.pairOffset = po
   end
+  -- what gait it walks, and why, for the screen (w.gaitNote: the test track's status line and help, the room's
+  -- hover text)
+  local function phasesName(g)
+    local names = { ["0/180/180/0"] = "trot", ["0/180/0/180"] = "bound" }
+    local k = table.concat(g, "/")
+    return names[k] or ("4-beat walk " .. table.concat(g, "-"))
+  end
+  local what
+  if second and #w.motors == 4 and not unbraced then
+    what = (w.pairOffset and w.pairOffset ~= 180) and string.format("diagonal pairs %d degrees apart", w.pairOffset) or "trot"
+  elseif opts.phases then what = phasesName(opts.phases)
+  else what = "as built" end
+  local why = best and ("best for " .. boardKey() .. ", lib/gaits.lua")
+    or ((GAIT_BY_HAND and opts.phases) or (OFFSET_BY_HAND and w.pairOffset)) and "set by hand"
+    or (BEST_GAITS and "a trot is best here" or "the default")
+  if what == "as built" then why = nil end
+  w.gaitNote = what .. (why and (" (" .. why .. ")") or "")
   -- the same motors for every walker (MOTOR_STRENGTH, above): Bullet
   -- applies a motor's impulse once per physics step, so its most torque
   -- is impulse / FIXED
@@ -2584,7 +2601,9 @@ end
 local function helpText()
   if TEST_TRACK then
     local h = "TEST TRACK -- " .. (walkers[1] and (walkers[1].spec.name .. " (" .. (walkers[1].spec.look and walkers[1].spec.look.code or "") .. ")") or "") .. "\n\n"
-    if VIEWS and viewAt > 0 then h = h .. VIEWS[viewAt].label .. "\n\n" end
+    if VIEWS and viewAt > 0 then h = h .. VIEWS[viewAt].label .. "\n" end
+    if walkers[1] and walkers[1].gaitNote then h = h .. "gait: " .. walkers[1].gaitNote .. "\n" end
+    h = h .. "\n"
     h = h .. "Tab         put the next walker on the track (built again): the next\n"
     h = h .. "            down this ground's ranking board\n"
     h = h .. "Shift+Tab   the one before\n"
@@ -2905,8 +2924,8 @@ v:onHover(function(N, obj, x, y, z)
     first = w and ("the " .. w.colour[1] .. " trail of " .. w.spec.name)
   end
   if not w then return nil end
-  return string.format("%s\nhas gone %.0f cm in %.0f s (%.1f cm/s)\nturned %d times, stood up %d times",
-    first, w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
+  return string.format("%s\n%shas gone %.0f cm in %.0f s (%.1f cm/s)\nturned %d times, stood up %d times",
+    first, w.gaitNote and ("gait: " .. w.gaitNote .. "\n") or "", w.travelled, simTime, w.travelled / math.max(simTime, 1e-9), w.turns or 0, w.stoodUp or 0)
 end)
 
 -- the TerrainHeight and BumpLength sliders, in whole centimetres: they
@@ -2959,8 +2978,8 @@ v:preDraw(function(N)
       local t = simTime - w.trackStart[3]
       local note = slidersNote()
       v.statusText = (note ~= "" and (note .. " | ") or "") .. wheelNote(w) ..
-        string.format("%s%s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
-        w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", TERRAIN, t,
+        string.format("%s%s | %s | %s | %.0f s | %.2f cm/s | off the ground %.0f%% of the time | now %.1f cm up",
+        w.spec.name, VIEWS and viewAt > 0 and (" (" .. VIEWS[viewAt].label .. ")") or "", w.gaitNote or "", TERRAIN, t,
         (x - w.trackStart[1]) / math.max(t, 1e-9), 100 * w.airFrames / math.max(w.allFrames, 1), math.max(w.airGap or 0, 0))
     end
   end

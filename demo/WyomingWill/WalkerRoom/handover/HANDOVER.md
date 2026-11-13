@@ -461,6 +461,15 @@ William: their foot paths are nearly the same, so they should do about as well. 
 
 **Next ideas** (not done): what the foot does on the log's side (its angle, the ankle spring, the friction; how steeply each path comes down at the front of the swing), and why Chebyshev-Spears' diag braces help it and the slider's don't.
 
+**Steps 7 (13 November; `runs/stepprobe.lua`: the standard run, and every second step each foot's front edge, bottom, pitch and the ground under and just ahead of it; 8 seeds).** The slider isn't slow everywhere on steps 7: in half the seeds it stops at one up-step for 4–11 s (seeds 2 and 7: never past it, 0.34 and 0.37 cm/s); in the rest it walks as fast as Chebyshev-Spears diag (6.5–6.7). It is always the **front** feet, held at the bottom of a 7 cm face (8–16 s; Chebyshev-Spears' at most about 3 s); back feet and down-steps are fine for both. Every swing of a front foot into a face:
+
+| | Swings | Up that swing | Foot's height at the face | Foot into the face | Body then: rises, back (fastest) | Standing feet slide |
+|---|---|---|---|---|---|---|
+| Chebyshev-Spears diag | 29 | 45% | 5.5 cm | 59 cm/s | 0.3 cm, 1.7 cm (11 cm/s) | 2.6 cm |
+| Hoecken-Spears slider diag | 78 | 6% | 4.4 cm | 78 cm/s | 1.0 cm, 5.3 cm (41 cm/s) | 7.5 cm |
+
+**It is the jolt.** The slider's foot hits the face harder, and the whole walker bounces up and back, its standing feet sliding with it; the next swing then meets the face at the same low point of its path, and so on. Chebyshev-Spears' foot stops against the face, tipped toe-up about 40°; its body noses up 3–5° and rises 1 cm, and its next swing reaches the face at 6–7 cm, from where it gets up 7 times in 8. **Doubling the feet's friction** (`FEET_FRICTION = 2`, a test in the probe) stops Chebyshev-Spears' sliding (shoved back 0.25 cm) but not the slider's (5.3 cm, standing feet 7.7 cm; steps 7 3.79 against 3.44 as built, within the noise): the slider's feet slide because the jolt unloads them, not for want of grip. Held still in the air the two front-foot paths are nearly the same (lift 4.64 and 4.87 cm, 21% and 20% of the turn off the ground), the slider's about 10% faster rising (75 against 68 cm/s between 2 and 5 cm up). Not it either (8 seeds each): walking reversed (2% up, shoved 6.1 cm), ankle springs ×0.5 and ×2 (3.98, 2.84). That the slider jolts matches its steadiness above (it pitches 2–3 times faster and moves up and down twice as fast) and it is 7% lighter; why it hits so much harder -- its leg's stiffness (the slider joint) against Chebyshev-Spears' rocker -- is not measured: with the body held still in the air against a fixed block, both legs simply jam (cranks stop), so that probe says nothing.
+
 ## 4g. The logs are uneven; the slider's toes (29 October)
 
 **Answer first.** Hoecken-Spears slider diag's back feet come down early at the front of their swing and travel the last 2–3 cm low, so on logs 7 a flat toe runs into the log's side and is tipped toe-down (56% of hits, against Chebyshev-Spears diag's 12%), and the walker is pushed back. Its feet's ends turned up 1.0 cm at 30° (`spec.footTips`, a builder's tweak for this walker; William: fair, as a builder would) take it from 0.49 to 2.76 cm/s on logs 7 and from 6.19 to 6.57 over the nine rough terrains, with nothing lost on flat or waves 4.
@@ -883,7 +892,10 @@ seeds 1-5 (another gait only where it beats the walker's trot by more than two s
 `lib/gaits.lua`, and ranks the walkers with them on fresh seeds 6-10 against all at a trot (picking and ranking on
 the same runs would flatter the picks: in a small trial, a gait picked on two seeds lost on the third). With
 `BEST_GAITS` (set by test-ranking.lua, room-four.lua and walker-room.lua on its own) each walker is built with its
-gait for the ground from `lib/gaits.lua`, and says so in the output pane.
+gait for the ground from `lib/gaits.lua`, and says so in the output pane. Since 13 November the gait is on screen too: on the
+test track's status line and help ("gait: ..."), and in the rooms when the mouse is over a walker, with why: "best for
+waves 4, lib/gaits.lua", "a trot is best here", "set by hand" or "the default" (test-ranking.lua's view labels no
+longer say "trot").
 
 **The result (William's machine, 13 November; chosen on seeds 1-16, ranked on fresh seeds 17-32):** 37 gaits chosen,
 none worse than its trot on the fresh seeds (with five seeds to choose, four of 41 had been: lucky picks on the
